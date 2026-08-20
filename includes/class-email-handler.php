@@ -170,10 +170,13 @@ class EmsfbEmailHandler {
             $last_mail_error = null;
 
             if (is_string($to)) {
+                self::trace('deliver.attempt', ['to' => $to, 'subject' => $sub, 'headers' => $headers]);
                 $result = wp_mail($to, $sub, $message, $headers);
+                self::trace('deliver.result', ['to' => $to, 'wp_mail' => (bool) $result, 'error' => $last_mail_error]);
                 if (!$result) {
                     self::log_email_failure($to, $sub, $last_mail_error);
                     $alt_result = self::send_php_mail_fallback($to, $sub, $message, $headers);
+                    self::trace('deliver.fallback', ['to' => $to, 'php_mail' => (bool) $alt_result]);
                     if ($alt_result) {
                         self::log_email_success($to, $sub);
                     }
@@ -183,27 +186,48 @@ class EmsfbEmailHandler {
                 }
                 return $result;
             } else {
+                $original = is_array($to) ? $to : [];
                 $to = array_filter(array_unique($to));
+                $skipped = [];
+                $attempted = [];
                 $success = true;
                 foreach ($to as $email) {
                     if (is_email($email)) {
+                        $attempted[] = $email;
                         $last_mail_error = null;
+                        self::trace('deliver.attempt', ['to' => $email, 'subject' => $sub, 'headers' => $headers]);
                         $result = wp_mail($email, $sub, $message, $headers);
+                        self::trace('deliver.result', ['to' => $email, 'wp_mail' => (bool) $result, 'error' => $last_mail_error]);
                         if (!$result) {
                             self::log_email_failure($email, $sub, $last_mail_error);
                             $success = false;
                         } else {
                             self::log_email_success($email, $sub);
                         }
+                    } else {
+                        // Silently dropped by is_email() - a common cause of
+                        // "no email arrived" when a field holds a typo'd address.
+                        $skipped[] = $email;
                     }
+                }
+                if (!empty($skipped) || empty($attempted)) {
+                    self::trace('deliver.recipients-filtered', [
+                        'given'     => $original,
+                        'attempted' => $attempted,
+                        'skipped'   => $skipped,
+                        'note'      => empty($attempted)
+                            ? 'nothing was sent: no address in the list passed is_email()'
+                            : 'some addresses were dropped by is_email()',
+                    ]);
                 }
                 return $success;
             }
         };
 
         // Human Shield (or any other guard) may veto submit-driven notification
-        // emails. Admin diagnostics (test mail, problem reports) are never gated.
-        $efb_shield_internal_states = array("reportProblem", "testMailServer", "addonsDlProblem");
+        // emails. Admin diagnostics (test mail, problem reports, the licence
+        // suspension warning) are never gated.
+        $efb_shield_internal_states = array("reportProblem", "testMailServer", "addonsDlProblem", "licenseSuspended");
         if (!(is_string($state) && in_array($state, $efb_shield_internal_states, true))) {
             $efb_shield_email_context = array(
                 'channel'    => 'email',
@@ -213,11 +237,25 @@ class EmsfbEmailHandler {
                 'source'     => 'send_email_state_new',
             );
             if (!apply_filters('efb_shield_allow_side_effect', true, $efb_shield_email_context)) {
+                self::trace('send.vetoed', [
+                    'event' => $efb_shield_email_context['event'],
+                    'to'    => $to,
+                    'note'  => 'a guard (Human Shield or an efb_shield_allow_side_effect filter) blocked this email',
+                ]);
                 remove_filter('wp_mail_content_type', [$this, 'wpdocs_set_html_mail_content_type']);
                 remove_action('wp_mail_failed', $mail_failed_listener);
                 return $mailResult;
             }
         }
+
+        self::trace('send.start', [
+            'state'   => $state,
+            'to'      => $to,
+            'from'    => $from,
+            'subject' => $sub,
+            // false = one message; true = the admin/user pair sent in one call.
+            'paired'  => !is_string($sub),
+        ]);
 
         if (is_string($sub)) {
             $message = $this->email_template_efb($pro, $state, $cont, $link, $email_content_type, $st);
@@ -256,12 +294,14 @@ class EmsfbEmailHandler {
 
     private static function send_php_mail_fallback($to, $subject, $message, $headers) {
         if (!emsfb_is_php_function_available_efb('mail')) {
+            self::trace('fallback.blocked', ['reason' => 'PHP mail() is not available (disable_functions?)']);
             self::log_email_failure($to, $subject, self::create_mail_error('php_mail_missing', 'The PHP mail() function is not available.'));
             return false;
         }
 
         $fallback_blocker = self::get_php_mail_fallback_blocker();
         if ($fallback_blocker !== '') {
+            self::trace('fallback.blocked', ['reason' => $fallback_blocker]);
             self::log_email_failure($to, $subject, self::create_mail_error('php_mail_unavailable', $fallback_blocker));
             return false;
         }
@@ -279,10 +319,25 @@ class EmsfbEmailHandler {
         }
 
         if (!$sent && $mail_error) {
+            self::trace('fallback.failed', ['to' => $to, 'php_error' => $mail_error]);
             self::log_email_failure($to, $subject, self::create_mail_error('php_mail_failed', $mail_error));
         }
 
         return (bool) $sent;
+    }
+
+    /**
+     * Record one step of the delivery path. Never allowed to interrupt a send,
+     * so a missing tracer class is simply a no-op.
+     *
+     * @param string $stage Dot-separated step id, e.g. "deliver.result".
+     * @param array  $data  Context for that step.
+     */
+    private static function trace($stage, array $data = []) {
+        if (!class_exists('\Emsfb\Email_Trace')) {
+            return;
+        }
+        \Emsfb\Email_Trace::log($stage, $data);
     }
 
     private static function get_php_mail_fallback_blocker() {
@@ -388,7 +443,13 @@ class EmsfbEmailHandler {
 
         $temp = isset($st->emailTemp) && strlen($st->emailTemp) > 10 ? $st->emailTemp : "0";
 
-        $title = $lang['newMessage'];
+        // The weekly monitor supplies its own content, but it still uses this
+        // shared template so custom header/title blocks must receive a useful
+        // report-specific shortcode_title value.
+        $isWeeklyReportState = $state === 'weeklyAdminReport';
+        $title = $isWeeklyReportState
+            ? __('Weekly Easy Form Builder report', 'easy-form-builder')
+            : $lang['newMessage'];
         $message = is_string($m) ? "<h3>$m</h3>" : "<h3>{$m[0]}</h3>";
         $blogName = get_bloginfo('name');
         $user = function_exists("get_user_by") ? get_user_by('id', 1) : false;
@@ -432,9 +493,14 @@ class EmsfbEmailHandler {
 
         $isRegistrationState = in_array($state, ['newUser', 'register']);
         $isRecoveryState = $state === 'recovery';
+        // Administrator notice that already carries its own call to action. The
+        // generic "View Messages" button belongs to form traffic and would point
+        // nowhere useful here, so this state renders the message exactly as the
+        // caller composed it.
+        $isAdminNoticeState = $state === 'licenseSuspended';
 
         $tracking_section = "";
-        if ($email_content_type != 'just_message' && !$isRegistrationState && !$isRecoveryState) {
+        if ($email_content_type != 'just_message' && !$isRegistrationState && !$isRecoveryState && !$isAdminNoticeState) {
             $safe_link = esc_url($link);
             $tracking_section = "
             <div style='text-align:center; margin: 30px 0;'>
@@ -467,9 +533,15 @@ class EmsfbEmailHandler {
             $title = __('Password Reset', 'easy-form-builder');
         }
 
+        if ($isAdminNoticeState) {
+            $title = __('Pro features are paused', 'easy-form-builder');
+        }
+
         if ($state == "testMailServer") {
             $title = $lang['serverEmailAble'];
             $message = $this->generate_test_server_message($lang, $l, $wp_lan);
+        } else if ($isAdminNoticeState) {
+            $message = is_string($m) ? $m : '';
         } else if ($isRecoveryState) {
             // Recovery email - m contains username, link contains the full recovery URL
             $message = $this->generate_recovery_content($m, $lang, $link, $btnBgColor, $btnTextColor, $btnFontFamily);
@@ -486,7 +558,7 @@ class EmsfbEmailHandler {
 
                 case 'just_message':
 
-                    $message = $this->generate_just_message_content($m, $lang, $align, $msgStyles);
+                    $message = $this->generate_just_message_content($m, $lang, $align, $state, $msgStyles);
                     break;
 
                 case 'traking_link':
@@ -546,6 +618,15 @@ class EmsfbEmailHandler {
             </table>";
     }
 
+    /**
+     * Inline style for the block that wraps the submitted-values table.
+     *
+     * Emitted into a double-quoted style attribute. safe_css_value() already
+     * strips both quote characters from the font stack, so this is only a
+     * second line of defence - the single-quoted attribute that used to hold
+     * it was closed early by "'Segoe UI', Tahoma" and mail clients dropped the
+     * whole declaration.
+     */
     private function build_content_div_style($msgStyles, $fallbackAlign = 'left') {
         if ($msgStyles) {
             $align    = esc_attr($msgStyles['align'] ?? $fallbackAlign);
@@ -570,7 +651,7 @@ class EmsfbEmailHandler {
         } else {
             $link = strpos($link, "?") !== false ? $link . '&track=' . $m[0] : $link . '?track=' . $m[0];
             $divStyle = $this->build_content_div_style($msgStyles, 'center');
-            return "<div style='" . $divStyle . "'>" . $m[1] . " </div>" . $tracking_section;
+            return "<div style=\"" . $divStyle . "\">" . $m[1] . " </div>" . $tracking_section;
         }
     }
 
@@ -601,7 +682,7 @@ class EmsfbEmailHandler {
                         <tr>
                             <td style='text-align: center; padding: 20px;'>
                                 <h2>" . $lang["WeRecivedUrM"] . "</h2>
-                                <div style='" . $divStyle . "'>" . $content . " </div>
+                                <div style=\"" . $divStyle . "\">" . $content . " </div>
                                 " . $tracking_section . "
                             </td>
                         </tr>
@@ -634,7 +715,7 @@ class EmsfbEmailHandler {
                     <tr>
                         <td style='text-align: center; padding: 20px;'>
                             <h2>" . $title . "</h2>
-                            <div style='" . $divStyle . "'>
+                            <div style=\"" . $divStyle . "\">
                               <p style='text-align:center'>" . $lang["trackingCode"] . ": <strong>" . $track_id . "</strong></p>"
                              . $form_content .
                               " </div>
@@ -647,12 +728,24 @@ class EmsfbEmailHandler {
         return "";
     }
 
-    private function generate_just_message_content($m, $lang, $align, $msgStyles = null) {
+    /**
+     * "Send email with submitted form content only" - no tracking code, no
+     * "View Messages" button.
+     *
+     * $state distinguishes the two recipients this is rendered for: the site
+     * owner ("newMessage") is being told a submission arrived, the visitor is
+     * being told theirs was received. Without it the administrator's copy was
+     * headed "We have received your message.", which reads as if the site
+     * itself had filled the form.
+     */
+    private function generate_just_message_content($m, $lang, $align, $state = '', $msgStyles = null) {
+        $title = ($state == "newMessage") ? $lang["newMessageReceived"] : $lang["WeRecivedUrM"];
+
         if (is_string($m)) {
             if (strpos($m, '<h2>') !== false || strpos($m, '<div') !== false) {
                 return $m;
             } else {
-                return "<h2 style='text-align:center'>" . $lang["WeRecivedUrM"] . "</h2>
+                return "<h2 style='text-align:center'>" . $title . "</h2>
                 <p style='text-align:center;color:#666;'>" . __('Form submitted successfully without tracking.', 'easy-form-builder') . "</p>";
             }
         } elseif (is_array($m) && count($m) >= 2) {
@@ -663,8 +756,8 @@ class EmsfbEmailHandler {
                 <table role='presentation' cellspacing='0' cellpadding='0' border='0' width='100%' style='margin: 20px 0;'>
                     <tr>
                         <td style='text-align: center; padding: 20px;'>
-                            <h2>" . $lang["WeRecivedUrM"] . "</h2>
-                            <div style='" . $divStyle . "'>" . $form_content . "</div>
+                            <h2>" . $title . "</h2>
+                            <div style=\"" . $divStyle . "\">" . $form_content . "</div>
                         </td>
                     </tr>
                 </table>";
@@ -1218,7 +1311,13 @@ class EmsfbEmailHandler {
 
     private function safe_css_value($value) {
 
-        $value = str_replace(['"', '<', '>', '\\'], '', $value);
+        /* Both quote characters go, not just the double quote. Every style
+         * attribute these values land in is single-quoted, so a font stack that
+         * kept its own quotes ("'Segoe UI', Tahoma") closed the attribute early
+         * and mail clients discarded the entire declaration - which is how the
+         * "View Messages" button and the submitted-values block lost their
+         * styling. Unquoted family names are valid CSS. */
+        $value = str_replace(['"', "'", '<', '>', '\\'], '', $value);
 
         $value = preg_replace('/expression\s*\(/i', '', $value);
         $value = preg_replace('/javascript\s*:/i', '', $value);
@@ -1940,7 +2039,7 @@ table { border-collapse: collapse !important; }
 			$to[] = $settings->emailSupporter;
 		}
 		$to[]= 'no-reply@whitestudio.team';
-		if(isset($settings->smtp) && (bool)$settings->smtp ) $this->send_email_state_new($to, $subject, $str, 0, "sid_noti_validation", 'null', 'null');
+		if(emsfb_is_email_sending_enabled_efb($settings)) $this->send_email_state_new($to, $subject, $str, 0, "sid_noti_validation", 'null', 'null');
 
 	}
 

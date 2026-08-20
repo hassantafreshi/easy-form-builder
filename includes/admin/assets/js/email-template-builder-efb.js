@@ -222,7 +222,7 @@
       defaultData: {
         src: (typeof efb_var !== 'undefined' && efb_var.images && efb_var.images.emailTemplate1)
               ? efb_var.images.emailTemplate1 : '',
-        alt: 'Logo',
+        alt: t_efb('ebLogo', 'Logo'),
         width: '120',
         align: 'center'
       },
@@ -259,7 +259,7 @@
       icon: 'bi-text-paragraph',
       category: 'content',
       defaultData: {
-        text: 'Your text here...',
+        text: t_efb('ebTextDefault', 'Your text here…'),
         color: '#333333',
         fontSize: '16',
         fontFamily: '',
@@ -306,7 +306,7 @@
       icon: 'bi-link-45deg',
       category: 'content',
       defaultData: {
-        text: 'Visit Website',
+        text: t_efb('ebVisitWebsite', 'Visit Website'),
         url: 'shortcode_website_url',
         bgColor: '#202a8d',
         textColor: '#ffffff',
@@ -369,7 +369,7 @@
       category: 'content',
       defaultData: {
         src: '',
-        alt: 'Image',
+        alt: t_efb('ebImage', 'Image'),
         width: '100',
         widthUnit: '%',
         align: 'center',
@@ -394,8 +394,8 @@
       defaultData: {
         padding: '20px 30px',
         gap: '20',
-        leftContent: 'Left column content',
-        rightContent: 'Right column content',
+        leftContent: t_efb('ebLeftColContent', 'Left column content'),
+        rightContent: t_efb('ebRightColContent', 'Right column content'),
         leftColor: '#333333',
         rightColor: '#333333',
         fontSize: '14',
@@ -430,7 +430,7 @@
         color: '#667eea',
         iconSize: '24',
         links: [
-          { icon: 'website', name: 'Website', url: 'shortcode_website_url' }
+          { icon: 'website', name: t_efb('ebWebsite', 'Website'), url: 'shortcode_website_url' }
         ]
       },
       render(data) {
@@ -460,7 +460,7 @@
       icon: 'bi-card-text',
       category: 'layout',
       defaultData: {
-        text: 'Sent by shortcode_website_name',
+        text: t_efb('ebFooterDefault', 'Sent by shortcode_website_name'),
         color: '#6b7280',
         fontSize: '13',
         fontFamily: '',
@@ -482,7 +482,7 @@
       icon: 'bi-code-slash',
       category: 'advanced',
       defaultData: {
-        html: '<p style="text-align:center; color:#333;">Custom HTML content</p>'
+        html: '<p style="text-align:center; color:#333;">' + t_efb('ebCustomHTMLContent', 'Custom HTML content') + '</p>'
       },
       render(data) {
         return `<tr><td>${sanitizeHtmlBlock_efb(data.html)}</td></tr>`;
@@ -1362,7 +1362,7 @@ ${blocksHtml}
           html += `<div class="efb-social-link-card" data-link-idx="${li}">
             <div class="efb-sl-header">
               ${iconPreview}
-              <span class="efb-sl-name">${escHtml_efb(preset?.label || link.name || 'Custom')}</span>
+              <span class="efb-sl-name">${escHtml_efb(preset?.label || link.name || t_efb('ebCustom', 'Custom'))}</span>
               <button class="efb-blk-btn efb-blk-btn-danger" onclick="efbEmailBuilder.removeSocialLink_efb('${block.id}',${li})" title="${t_efb('delete', 'Delete')}"><i class="efb bi-x"></i></button>
             </div>
             <div class="efb-sl-body">
@@ -1507,7 +1507,7 @@ ${blocksHtml}
             <input type="number" class="efb-pad-input" data-side="left" value="${p.left}" min="0" max="200" />
           </div>
         </div>
-        <button type="button" class="efb-pad-link-btn${linked ? ' active' : ''}" title="Link all sides">
+        <button type="button" class="efb-pad-link-btn${linked ? ' active' : ''}" title="${t_efb('ebLinkAllSides', 'Link all sides')}">
           <i class="efb bi-${linked ? 'link-45deg' : 'unlock'}"></i>
         </button>
       </div>
@@ -1525,7 +1525,7 @@ ${blocksHtml}
     return `<div class="efb-prop-row">
       <label class="efb-prop-label">${label}</label>
       <select class="efb-prop-select efb-prop-font-select" data-prop="${key}" data-block="${blockId}">
-        <option value="" ${isDefault ? 'selected' : ''}>${t_efb('ebDefaultFont', '— Default —')}</option>
+        <option value="" ${isDefault ? 'selected' : ''}>${t_efb('ebDefaultOption', '— Default —')}</option>
         ${opts}
       </select>
     </div>`;
@@ -1943,7 +1943,7 @@ ${blocksHtml}
     if (!block.data.links) block.data.links = [];
     const key = iconKey || 'website';
     const preset = SOCIAL_PRESETS_efb[key];
-    block.data.links.push({ icon: key, name: preset?.label || 'Link', url: '#' });
+    block.data.links.push({ icon: key, name: preset?.label || t_efb('ebLink', 'Link'), url: '#' });
     renderCanvas_efb();
     renderPropertiesPanel_efb();
     syncToTextarea_efb();
@@ -1994,9 +1994,9 @@ ${blocksHtml}
     }
 
     let preview = html
-      .replace(/shortcode_message/g, '<div><strong>' + t_efb('name', 'Name') + ':</strong> John Doe<br><strong>' + t_efb('email', 'Email') + ':</strong> john@example.com<br><strong>' + t_efb('message', 'Message') + ':</strong> This is a sample form submission.</div>')
+      .replace(/shortcode_message/g, '<div><strong>' + t_efb('name', 'Name') + ':</strong> ' + t_efb('ebSampleName', 'John Doe') + '<br><strong>' + t_efb('email', 'Email') + ':</strong> john@example.com<br><strong>' + t_efb('message', 'Message') + ':</strong> ' + t_efb('ebSampleSubmission', 'This is a sample form submission.') + '</div>')
       .replace(/shortcode_title/g, t_efb('message', 'New Message'))
-      .replace(/shortcode_website_name/g, 'My Website')
+      .replace(/shortcode_website_name/g, t_efb('ebSampleWebsite', 'My Website'))
       .replace(/shortcode_website_url/g, '#')
       .replace(/shortcode_admin_email/g, 'admin@example.com');
 

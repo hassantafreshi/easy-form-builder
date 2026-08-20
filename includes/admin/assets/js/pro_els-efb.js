@@ -304,7 +304,7 @@ function viewfileEfb(id, indx ,filed,form_id) {
   </svg>`
     let box_v = `<div class="efb ">
     <button type="button" class="efb btn btn-delete btn-sm bi-x-lg efb" id="rmvFileEfb" onclick="removeFileEfb('${id}',${indx} ,${form_id})"
-         aria-label="Close" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.removeTheFile}"></button>
+         aria-label="${efb_var.text.close}" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.removeTheFile}"></button>
          <div class="efb card p-2">
           <i class="efb  ico-file ${valj_efb[indx].icon_color} text-center fs-2">${svg_file}</i>
           <span class="efb  text-muted">${filed.name}</span>
@@ -319,7 +319,7 @@ function viewfileEfb(id, indx ,filed,form_id) {
         if (valj_efb[indx].file == "image") {
           box.innerHTML = `<div class="efb ">
               <button type="button" class="efb btn btn-delete btn-sm bi-x-lg efb" id="rmvFileEfb" onclick="removeFileEfb('${id}',${indx},${form_id})"
-                   aria-label="Close" data-bs-toggle="tooltip" data-bs-placement="top" title=${efb_var.text.removeTheFile}"></button>
+                   aria-label="${efb_var.text.close}" data-bs-toggle="tooltip" data-bs-placement="top" title=${efb_var.text.removeTheFile}"></button>
               <img src="${fileURL}" alt="image">
               </div>`;
         } else {
@@ -341,7 +341,7 @@ function viewfileEfb(id, indx ,filed,form_id) {
       fileEfb = [];
     }
   }
-function viewfileReplyEfb(id, indx) {
+function viewfileReplyEfb(id, indx, responseMessageId) {
     let fileType = fileEfb.type;
     const filename = fileEfb.name;
     if (validExtensions_efb_fun('allformat',fileType,indx)) {
@@ -353,7 +353,15 @@ function viewfileReplyEfb(id, indx) {
       }
       fileReader.readAsDataURL(fileEfb);
       files_emsFormBuilder.push({ id_: 'resp_file_efb', value: "@file@", state: 0, url: fileURL, type: "file", name: 'file', session: sessionPub_emsFormBuilder , amount:0 });
-      fun_upload_file_api_emsFormBuilder('resp_file_efb', 'allformat' ,'resp',fileEfb);
+      const responseId = Number(responseMessageId) || Number(efb_var.msg_id) || 0;
+      let responseTrack = sessionStorage.getItem('track') || '';
+      if (!responseTrack && typeof valueJson_ws_messages !== 'undefined') {
+        const current = valueJson_ws_messages.find(x => Number(x.msg_id) === responseId);
+        responseTrack = current && current.track ? current.track : '';
+      }
+      const responseOptions = { response_id: responseId, response_track: responseTrack };
+      if (efb_var.response_upload_token) responseOptions.response_token = efb_var.response_upload_token;
+      fun_upload_file_api_emsFormBuilder('resp_file_efb', 'allformat' ,'resp',fileEfb, responseOptions);
       document.getElementById('name_attach_efb').innerHTML = fileEfb.name.length > 10 ? `${fileEfb.name.slice(0,7)}..` :fileEfb.name;
     } else {
       const m  = efb_var.text.pleaseUploadA.replace('NN', `${efb_var.text['media']} , ${efb_var.text['document']} ${efb_var.text['or']} ${efb_var.text['zip']}`);
@@ -460,7 +468,7 @@ set_dadfile_fun_efb = (id, indx,form_id=0) => {
           if(pro_efb==true && dragInptEfb){
           dragInptEfb.addEventListener("change", function () {
             fileEfb = this.files[0];
-            viewfileReplyEfb('resp_file_efb_', indx);
+            viewfileReplyEfb('resp_file_efb_', indx, id);
           });
         }
         }, lenV);
@@ -683,8 +691,8 @@ function create_intlTelInput_efb(rndm,iVJ,previewSate,corner){
   const formId = valj_efb[iVJ].form_id || 0;
   return `
   <input type="phone" class="efb  input-efb intlPhone px-2 mb-0 emsFormBuilder_v form-control ${valj_efb[iVJ].el_border_color}  ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}" data-id="${rndm}-el" data-formid="${formId}" data-vid='${rndm}' id="${rndm}_" aria-required="${valj_efb[iVJ].required==1 ? true : false}" aria-label="${valj_efb[iVJ].name}"  ${valj_efb[iVJ].message!='' ? `aria-describedby="${valj_efb[iVJ].id_}-des"` : ""}  ${valj_efb[iVJ].value.length > 0 ? value = `"${valj_efb[iVJ].value}"` : ''} ${previewSate != true ? 'readonly' : ''} ${disabled}>
-  <input type="phone" class="efb  input-efb intlPhone px-2 mb-0 emsFormBuilder_v form-control ${valj_efb[iVJ].el_border_color}  ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField d-none efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}" data-id="${rndm}-el" data-formid="${formId}" data-vid='${rndm}' id="${rndm}-code" placeholder="verify"  ${valj_efb[iVJ].value.length > 0 ? value = `"${valj_efb[iVJ].value}"` : ''} ${previewSate != true ? 'readonly' : ''} ${disabled}>
-  <button id="${rndm}-btn" type="submit" class="efb d-none">Submit</button>
+  <input type="phone" class="efb  input-efb intlPhone px-2 mb-0 emsFormBuilder_v form-control ${valj_efb[iVJ].el_border_color}  ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField d-none efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}" data-id="${rndm}-el" data-formid="${formId}" data-vid='${rndm}' id="${rndm}-code" placeholder="${efb_var.text.verify}" ${valj_efb[iVJ].value.length > 0 ? value = `"${valj_efb[iVJ].value}"` : ''} ${previewSate != true ? 'readonly' : ''} ${disabled}>
+  <button id="${rndm}-btn" type="submit" class="efb d-none">${efb_var.text.submit}</button>
  `;
 }
 
@@ -1159,6 +1167,26 @@ function efbCreateMap(id ,r ,viewState) {
   efbMapContainer.offsetWidth;
 
   var efbMap = L.map(efbMapDiv).setView([efbInitialLat, efbInitialLng], efbInitialZoom);
+
+  var efbErrorMessageDiv = document.createElement('div');
+  efbErrorMessageDiv.id = `efb-error-message-${efbMap._leaflet_id}`;
+  efbErrorMessageDiv.className = 'efb error-message text-danger d-none';
+  efbErrorMessageDiv.style.cssText = 'position:absolute; top:10px; left:50%; transform:translateX(-50%); max-width:90%; font-size:15px; display:flex; align-items:center; gap:8px; white-space:nowrap; background:rgb(255 255 255 / 95%); padding:4px 10px; border-radius:4px; box-shadow:0 2px 6px rgba(0,0,0,0.15); z-index:1001;';
+
+  var efbErrorTextSpan = document.createElement('span');
+  efbErrorTextSpan.className = 'efb efb-error-message-text';
+  efbErrorTextSpan.style.cssText = 'overflow:hidden; text-overflow:ellipsis;';
+  efbErrorMessageDiv.appendChild(efbErrorTextSpan);
+
+  var efbErrorCloseBtn = document.createElement('span');
+  efbErrorCloseBtn.className = 'efb efb-error-message-close';
+  efbErrorCloseBtn.innerHTML = '&times;';
+  efbErrorCloseBtn.style.cssText = 'cursor:pointer; font-weight:bold; line-height:1; flex-shrink:0;';
+  efbErrorCloseBtn.onclick = function() { efbErrorMessageDiv.classList.add('d-none'); };
+  efbErrorMessageDiv.appendChild(efbErrorCloseBtn);
+
+  efbMapContainer.appendChild(efbErrorMessageDiv);
+
   var efbOsmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors'
   }).addTo(efbMap);
@@ -1193,7 +1221,7 @@ function efbCreateMap(id ,r ,viewState) {
               <!-- Locate Me Button -->
               <a ${state_efb == 'view' ? '' : `onclick="efbLocateMe(${efbMap._leaflet_id}, '${id}')"`}
                 class="efb btn btn-sm btn-dark text-light d-flex align-items-center justify-content-center flex-shrink-0"
-                title="Locate Me"
+                title="${efb_var.text.locateMe}"
                 style="min-width: 32px; height: 32px; padding: 0;">
                 <i class="efb bi-crosshair" style="font-size: 14px;"></i>
               </a>
@@ -1211,7 +1239,7 @@ function efbCreateMap(id ,r ,viewState) {
                 title="${efb_var.text.search}"
                 style="min-width: 32px; height: 32px; padding: 0;">
                 <i class="efb bi-search d-block d-md-none" style="font-size: 14px;"></i>
-                <span class="efb d-none d-md-block" style="font-size: 11px; white-space: nowrap; padding: 0 4px;">${efb_var.text.search}</span>
+                <span class="efb d-none d-md-block" style="font-size: 12px; white-space: nowrap; padding: 0 4px;">${efb_var.text.search}</span>
               </a>
 
               <!-- Clear Markers Button -->
@@ -1220,23 +1248,14 @@ function efbCreateMap(id ,r ,viewState) {
                 title="${efb_var.text.deletemarkers}"
                 style="min-width: 32px; height: 32px; padding: 0;">
                 <i class="efb bi-trash d-block d-md-none" style="font-size: 14px;"></i>
-                <span class="efb d-none d-md-block" style="font-size: 11px; white-space: nowrap; padding: 0 4px;">${efb_var.text.deletemarkers}</span>
+                <span class="efb d-none d-md-block" style="font-size: 12px; white-space: nowrap; padding: 0 4px;">${efb_var.text.deletemarkers}</span>
               </a>
-
-              <!-- Error Message (hidden by default) -->
-              <div id="efb-error-message-${efbMap._leaflet_id}"
-                class="efb position-absolute error-message text-danger d-none"
-                style="font-size: 12px; top: 100%; left: 0; right: 0; background: rgba(248, 249, 250, 0.95); padding: 4px 8px; border-radius: 4px; margin-top: 2px; z-index: 1001;"></div>
           </div>
           `;
           efbDiv.classList.remove('d-none');
 
       } else {
-          efbDiv.innerHTML = `
-              <div id="efb-error-message-${efbMap._leaflet_id}"
-                class="efb w-100 error-message text-danger d-none"
-                style="font-size: 12px; padding: 8px;"></div>
-          `;
+          efbDiv.innerHTML = '';
           efbDiv.classList.add('d-none');
           efbDiv.classList.add('efb');
       }
@@ -1304,7 +1323,8 @@ function efbCreateMap(id ,r ,viewState) {
 function efbSearchLocation(efbMapId) {
   var efbQuery = document.getElementById(`efb-search-${efbMapId}`).value;
   var efbErrorMessageDiv = document.getElementById(`efb-error-message-${efbMapId}`);
-  efbErrorMessageDiv.innerHTML = '';
+  efbErrorMessageDiv.classList.add('d-none');
+  efbErrorMessageDiv.querySelector('.efb-error-message-text').textContent = '';
   const efbLanguage = efb_var.language.length==2 ? efb_var.language : efb_var.language.slice(0,2)
   fetch(`https://nominatim.openstreetmap.org/search?q=${efbQuery}&format=json&accept-language=${efbLanguage}`)
       .then(response => {
@@ -1321,12 +1341,12 @@ function efbSearchLocation(efbMapId) {
               efbErrorMessageDiv.classList.remove('d-none');
               let val = efb_var.text.slocation.replace('%s', '');
               val = efb_var.text.snotfound.replace('%s', val);
-              efbErrorMessageDiv.textContent =  val;
+              efbErrorMessageDiv.querySelector('.efb-error-message-text').textContent = val;
           }
       })
       .catch(error => {
           efbErrorMessageDiv.classList.remove('d-none');
-          efbErrorMessageDiv.textContent = 'Error fetching location: ' + error.message;
+          efbErrorMessageDiv.querySelector('.efb-error-message-text').textContent = 'Error fetching location: ' + error.message;
       });
 }
 
@@ -1373,7 +1393,7 @@ function efbAddMarker(efbLat, efbLng, efbMapId, efbAllowAddingMarkers,r,form_id,
           })
           .catch(error => {
               efbErrorMessageDiv.classList.remove('d-none');
-              document.getElementById(`efb-error-message-${efbMapId}`).textContent = 'Error fetching address: ' + error.message;
+              efbErrorMessageDiv.querySelector('.efb-error-message-text').textContent = 'Error fetching address: ' + error.message;
           });
   } else {
       efbMarker.bindPopup(efbName);
@@ -1437,8 +1457,9 @@ function efbAddInitialMarker(efbLat, efbLng, efbMapId) {
           });
       })
       .catch(error => {
+          var efbErrorMessageDiv = document.getElementById(`efb-error-message-${efbMapId}`);
           efbErrorMessageDiv.classList.remove('d-none');
-          document.getElementById(`efb-error-message-${efbMapId}`).textContent = 'Error fetching address: ' + error.message;
+          efbErrorMessageDiv.querySelector('.efb-error-message-text').textContent = 'Error fetching address: ' + error.message;
       });
 }
 
@@ -1493,14 +1514,15 @@ function efbLocateMe(efbMapId) {
                 });
             })
             .catch(error => {
+                var efbErrorMessageDiv = document.getElementById(`efb-error-message-${efbMapId}`);
                 efbErrorMessageDiv.classList.remove('d-none');
-                document.getElementById(`efb-error-message-${efbMapId}`).textContent = 'Error fetching address: ' + error.message;
+                efbErrorMessageDiv.querySelector('.efb-error-message-text').textContent = efb_var.text.errorFetchingAddress + ': ' + error.message;
             });
     }, function(error) {
-        alert('Error: ' + error.message);
+        alert(efb_var.text.error + ': ' + error.message);
     });
 } else {
-    alert('Geolocation is not supported by this browser.');
+    alert(efb_var.text.geolocationNotSupported);
 }
 }
 

@@ -13,9 +13,18 @@ class Email_Monitor {
     const OPTION_LAST_UPDATE_VERSION = 'emsfb_email_monitor_last_update_version';
     const OPTION_ACTIVATION_MARKER = 'emsfb_email_monitor_activation_marker';
 
+    const TRANSIENT_WEEKLY_REPORT_LOCK = 'emsfb_weekly_admin_report_lock';
+
     const WEEKLY_HOOK = 'emsfb_email_monitor_weekly';
     const LIFECYCLE_HOOK = 'emsfb_email_monitor_lifecycle';
     const POLL_HOOK = 'emsfb_email_monitor_poll';
+
+    // WordPress numbers Sunday as 0. The timestamp is built in the site's
+    // configured timezone, not the server's timezone. Changing either value
+    // re-points existing installations on their next load: sync_schedule()
+    // treats a schedule that no longer matches these constants as stale.
+    const WEEKLY_REPORT_WEEKDAY = 0;
+    const WEEKLY_REPORT_HOUR = 11;
 
     public static function register() {
         add_filter('cron_schedules', [__CLASS__, 'add_weekly_schedule']);
@@ -23,6 +32,378 @@ class Email_Monitor {
         add_action(self::LIFECYCLE_HOOK, [__CLASS__, 'run_lifecycle_test'], 10, 1);
         add_action(self::POLL_HOOK, [__CLASS__, 'poll_test'], 10, 1);
         add_action('init', [__CLASS__, 'ensure_schedule']);
+        add_action('admin_notices', [__CLASS__, 'render_delivery_failure_notice']);
+        add_action('wp_ajax_emsfb_dismiss_delivery_notice', [__CLASS__, 'ajax_dismiss_delivery_notice']);
+    }
+
+    /**
+     * Warn in wp-admin when the last delivery test could not get an email
+     * through.
+     *
+     * A failing weekly report is the one message that cannot report itself: if
+     * sending is broken, the email explaining that sending is broken does not
+     * arrive either. So the same guidance is surfaced where the administrator
+     * will actually see it.
+     *
+     * @return void
+     */
+    public static function render_delivery_failure_notice() {
+        if (!current_user_can('manage_options')) {
+            return;
+        }
+
+        // What the site actually knows, from whichever check measured it last.
+        // Anything other than a measured problem stays silent: a healthy result
+        // needs no notice, and a run that never got to send anything (an
+        // unreachable service, the used-up free test quota) has nothing to say.
+        $verdict = self::get_delivery_verdict();
+        if (!in_array($verdict['outcome'], ['spam', 'undelivered'], true)) {
+            return;
+        }
+
+        // Sites installed before 4.1.2 predate this monitor entirely: the only
+        // record they carry that sending works is the settings switch, which
+        // those versions stored as the number 1. Telling such an administrator
+        // that "your form emails are not being delivered" - on the strength of
+        // a monitor run that only arrived with an update, and may have failed
+        // for a reason of its own such as the free daily test limit -
+        // contradicts a setup they already verified. Stay quiet for them.
+        if (self::has_legacy_sending_confirmation()) {
+            return;
+        }
+
+        // Dismissal is tied to the run it was dismissed for, so a later failure
+        // speaks up again instead of staying silent forever.
+        $fingerprint = md5((string) $verdict['checked_at'] . '|' . $verdict['outcome']);
+        if (get_user_meta(get_current_user_id(), 'emsfb_delivery_notice_dismissed', true) === $fingerprint) {
+            return;
+        }
+
+        $copy      = self::get_notice_copy($verdict);
+        $panel_url = admin_url('admin.php?page=Emsfb&state=setting&tab=email');
+        $guide_url = self::get_smtp_guide_url();
+        $logo_url  = EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo.png';
+        ?>
+        <div class="efb notice notice-error is-dismissible efb-delivery-notice" data-efb-fingerprint="<?php echo esc_attr($fingerprint); ?>" style="display:flex;align-items:flex-start;gap:14px;padding:14px 18px;">
+            <img src="<?php echo esc_url($logo_url); ?>" alt="" style="width:42px;height:auto;margin-top:2px;flex-shrink:0;" />
+            <div style="flex:1;min-width:0;">
+                <p style="margin:0 0 6px;font-size:14px;">
+                    <strong><?php esc_html_e('Easy Form Builder', 'easy-form-builder'); ?></strong>
+                    &mdash;
+                    <?php echo esc_html($copy['title']); ?>
+                </p>
+                <p style="margin:0 0 10px;color:#555;max-width:820px;">
+                    <?php echo esc_html($copy['body']); ?>
+                </p>
+                <p style="margin:0;">
+                    <a href="<?php echo esc_url($panel_url); ?>" class="button button-primary"><?php esc_html_e('Run the email check', 'easy-form-builder'); ?></a>
+                    <a href="<?php echo esc_url($guide_url); ?>" target="_blank" rel="noopener" style="margin-inline-start:10px;"><?php echo esc_html(self::get_smtp_guide_label()); ?></a>
+                </p>
+            </div>
+        </div>
+        <script>
+        (function(){
+            var n = document.querySelector('.efb-delivery-notice');
+            if (!n) { return; }
+            n.addEventListener('click', function(e){
+                if (!e.target.classList.contains('notice-dismiss')) { return; }
+                var body = new URLSearchParams({
+                    action: 'emsfb_dismiss_delivery_notice',
+                    fingerprint: n.getAttribute('data-efb-fingerprint'),
+                    _wpnonce: '<?php echo esc_js(wp_create_nonce('emsfb_dismiss_delivery_notice')); ?>'
+                });
+                fetch('<?php echo esc_js(admin_url('admin-ajax.php')); ?>', {
+                    method: 'POST', credentials: 'same-origin', body: body
+                });
+            });
+        })();
+        </script>
+        <?php
+    }
+
+    /**
+     * What this site currently knows about its email delivery.
+     *
+     * Two records can hold an answer: this monitor's own automated run, and the
+     * check an administrator started from the panel or the setup wizard. Only
+     * the monitor's record used to be consulted, which is how an administrator
+     * who had just run a check scoring 25 was told to "run the email check" -
+     * the monitor's own run had failed for a reason of its own (the free daily
+     * test quota) and knew nothing about delivery at all.
+     *
+     * So: a run that never got as far as sending anything proves nothing and is
+     * discarded, and of what remains the most recent measurement wins.
+     *
+     * @return array{outcome:string,score:float|null,delivered:bool,message:string,checked_at:string,source:string}
+     */
+    public static function get_delivery_verdict() {
+        $records = [];
+        foreach ([self::read_monitor_record(), self::read_panel_record()] as $record) {
+            if (is_array($record) && !empty($record['conclusive'])) {
+                $records[] = $record;
+            }
+        }
+
+        if (empty($records)) {
+            return [
+                'outcome'    => 'unknown',
+                'score'      => null,
+                'delivered'  => false,
+                'message'    => '',
+                'checked_at' => '',
+                'source'     => '',
+            ];
+        }
+
+        usort($records, function ($a, $b) {
+            return $b['time'] <=> $a['time'];
+        });
+        $record = $records[0];
+
+        return [
+            'outcome'    => self::classify_delivery_record($record),
+            'score'      => $record['score'],
+            'delivered'  => $record['delivered'],
+            'message'    => $record['message'],
+            'checked_at' => $record['checked_at'],
+            'source'     => $record['source'],
+        ];
+    }
+
+    /**
+     * Turn one measurement into the outcome the administrator is told about.
+     *
+     * From MIN_DELIVERY_SCORE upwards the mail does leave the site and reach
+     * the far end - it simply lands in the spam folder, which is a different
+     * problem with different advice. Below it, nothing usable arrives at all.
+     *
+     * @param array $record
+     * @return string One of healthy, spam, undelivered.
+     */
+    private static function classify_delivery_record($record) {
+        $score = $record['score'];
+
+        if (null === $score) {
+            return $record['delivered'] ? 'healthy' : 'undelivered';
+        }
+        if (!$record['delivered'] || $score < self::MIN_DELIVERY_SCORE) {
+            return 'undelivered';
+        }
+
+        return $score >= self::HEALTHY_SCORE ? 'healthy' : 'spam';
+    }
+
+    /**
+     * The automated monitor's last finished run, or null when it has nothing.
+     *
+     * @return array|null
+     */
+    private static function read_monitor_record() {
+        $status = get_option(self::OPTION_LAST_STATUS, []);
+        if (!is_array($status) || empty($status)) {
+            return null;
+        }
+
+        $state = isset($status['state']) ? sanitize_key($status['state']) : '';
+        if (in_array($state, ['pending', 'running', 'queued', 'delayed'], true)) {
+            // Nothing has concluded yet.
+            return null;
+        }
+
+        $reason = isset($status['reason']) ? sanitize_key($status['reason']) : '';
+        $score  = (isset($status['score']) && is_numeric($status['score'])) ? (float) $status['score'] : null;
+        $delivered = array_key_exists('delivered', $status)
+            ? (bool) $status['delivered']
+            : !empty($status['can_send_email']);
+
+        // A record written before this plugin started storing why a run ended
+        // carries no reason at all, so there is no way to tell a real delivery
+        // failure from a run that never started. Do not guess: the next run,
+        // which every update and every week schedules, writes a full record.
+        $conclusive = (null !== $score || $delivered)
+            || ($reason !== '' && !in_array($reason, self::inconclusive_reasons(), true));
+
+        $checked_at = isset($status['checked_at']) ? (string) $status['checked_at'] : '';
+
+        return [
+            'conclusive' => $conclusive,
+            'time'       => $checked_at !== '' ? (int) strtotime(get_gmt_from_date($checked_at)) : 0,
+            'score'      => $score,
+            'delivered'  => $delivered,
+            'message'    => isset($status['message']) ? (string) $status['message'] : '',
+            'checked_at' => $checked_at,
+            'source'     => 'monitor',
+        ];
+    }
+
+    /**
+     * The last check an administrator ran from the panel or the setup wizard.
+     *
+     * @return array|null
+     */
+    private static function read_panel_record() {
+        $status = get_option('emsfb_email_status', []);
+        if (!is_array($status) || empty($status)) {
+            return null;
+        }
+
+        $details = (isset($status['details']) && is_array($status['details'])) ? $status['details'] : [];
+        $id      = isset($status['message']['id']) ? sanitize_key($status['message']['id']) : '';
+
+        if ('email_test_pending' === $id) {
+            return null;
+        }
+
+        // delivery_score is written from the report's own top-level score. The
+        // neighbouring "score" key comes from a recursive search that can pick
+        // up a SpamAssassin figure, which runs on a different scale entirely.
+        $score = (isset($details['delivery_score']) && is_numeric($details['delivery_score']))
+            ? (float) $details['delivery_score']
+            : null;
+
+        // Records that assert email works without measuring a score: the
+        // automated test that passed, and the switch the administrator turned
+        // on themselves.
+        $working_ids = ['email_settings_configured', 'automated_email_test_ok'];
+        // Records that establish a failure without a score behind it.
+        $failure_ids = ['email_test_failed', 'mail_function_failed', 'email_test_low_score'];
+
+        $delivered = array_key_exists('delivered', $details)
+            ? (bool) $details['delivered']
+            : (!empty($details['can_send_email']) || in_array($id, $working_ids, true));
+
+        $conclusive = !in_array($id, self::inconclusive_reasons(), true)
+            && (null !== $score || $delivered || in_array($id, $failure_ids, true));
+
+        $timestamp = isset($details['test_timestamp']) ? (string) $details['test_timestamp'] : '';
+
+        return [
+            'conclusive' => $conclusive,
+            // Written with current_time('mysql', true), so it is already UTC.
+            'time'       => $timestamp !== '' ? (int) strtotime($timestamp . ' +00:00') : 0,
+            'score'      => $score,
+            'delivered'  => $delivered,
+            'message'    => isset($status['message']['description']) ? (string) $status['message']['description'] : '',
+            'checked_at' => $timestamp,
+            'source'     => 'panel',
+        ];
+    }
+
+    /**
+     * Endings that say something went wrong with the check itself, not with
+     * this site's email: an unreachable service, a used-up free test quota, a
+     * response that could not be read. None of them is evidence of anything.
+     *
+     * @return string[]
+     */
+    private static function inconclusive_reasons() {
+        return [
+            'service_start_error',
+            'service_request_error',
+            'service_http_error',
+            'invalid_service_response',
+            'invalid_json_response',
+            'invalid_admin_email',
+            'upgrade_required',
+            'quota_exceeded',
+        ];
+    }
+
+    /**
+     * The two sentences the dashboard notice shows.
+     *
+     * Which problem the administrator has decides the wording. Being told to
+     * "run the email check" after having just run one - the old, only text -
+     * is what made the notice look broken.
+     *
+     * @param array $verdict
+     * @return array{title:string,body:string}
+     */
+    private static function get_notice_copy($verdict) {
+        if ('spam' === $verdict['outcome']) {
+            $body = null !== $verdict['score']
+                ? sprintf(
+                    /* translators: %s: deliverability score out of 100. */
+                    __('The last delivery check scored %s out of 100. Your messages do leave the site, but most mailboxes will file them as spam, so the people filling in your forms will not see them. Sending through an SMTP service, and adding SPF and DKIM records for your domain, is what fixes this.', 'easy-form-builder'),
+                    number_format_i18n($verdict['score'])
+                )
+                : __('The last delivery check found that your messages do leave the site, but mailboxes file them as spam. Sending through an SMTP service, and adding SPF and DKIM records for your domain, is what fixes this.', 'easy-form-builder');
+
+            return [
+                'title' => __('Your form emails are going to the spam folder', 'easy-form-builder'),
+                'body'  => $body,
+            ];
+        }
+
+        return [
+            'title' => __('Your form emails are not being delivered', 'easy-form-builder'),
+            'body'  => __('The last delivery check could not get a message through, so nothing your forms send is reaching anybody. A hosting server usually sends mail without a trusted signature; sending through an SMTP service is the standard fix.', 'easy-form-builder'),
+        ];
+    }
+
+    /**
+     * Whether the site confirmed sending under the pre-monitor scheme.
+     *
+     * Up to 4.1.2 there was no delivery monitor: settings->smtp was the whole
+     * story, and those versions wrote it as the number 1. Everything since
+     * writes a real boolean - Install seeds "smtp":false and the panel saves
+     * true / "true" - so the numeric form identifies an installation that was
+     * set up before any of this existed and never re-saved its settings since.
+     *
+     * The check is deliberately not a truthiness test. A current site with the
+     * switch on has genuine monitor results behind it, and a failing run there
+     * is exactly what the notice exists to report; only the legacy shape
+     * silences it.
+     *
+     * @param object|array|null $settings Decoded settings; read when omitted.
+     * @return bool
+     */
+    public static function has_legacy_sending_confirmation($settings = null) {
+        if (null === $settings) {
+            $settings = function_exists('get_setting_Emsfb') ? get_setting_Emsfb('decoded') : null;
+        }
+
+        $value = null;
+        if (is_array($settings) && array_key_exists('smtp', $settings)) {
+            $value = $settings['smtp'];
+        } elseif (is_object($settings) && isset($settings->smtp)) {
+            $value = $settings->smtp;
+        }
+
+        if (is_bool($value) || null === $value) {
+            return false;
+        }
+        if (is_string($value)) {
+            $value = trim($value);
+            // "true" is the panel's own string form, not a legacy value.
+            if (!preg_match('/^\d+$/', $value)) {
+                return false;
+            }
+        } elseif (!is_int($value) && !is_float($value)) {
+            return false;
+        }
+
+        return 1 === (int) $value;
+    }
+
+    /**
+     * Remember that this administrator dismissed the notice for this run.
+     *
+     * @return void
+     */
+    public static function ajax_dismiss_delivery_notice() {
+        check_ajax_referer('emsfb_dismiss_delivery_notice');
+
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('', 403);
+        }
+
+        $fingerprint = isset($_POST['fingerprint']) ? sanitize_text_field(wp_unslash($_POST['fingerprint'])) : '';
+        if ($fingerprint !== '') {
+            update_user_meta(get_current_user_id(), 'emsfb_delivery_notice_dismissed', $fingerprint);
+        }
+
+        wp_send_json_success();
     }
 
     public static function add_weekly_schedule($schedules) {
@@ -83,13 +464,66 @@ class Email_Monitor {
 
     public static function sync_schedule() {
         $scheduled = wp_next_scheduled(self::WEEKLY_HOOK);
-        if (self::is_enabled()) {
-            if (!$scheduled) {
-                wp_schedule_event(time() + HOUR_IN_SECONDS, 'emsfb_weekly', self::WEEKLY_HOOK);
+        if (self::is_weekly_run_enabled()) {
+            // Also moves installations still sitting on a previous schedule —
+            // the original "one hour from now" behaviour, or an earlier
+            // weekday/hour — onto the current one. Only this plugin's hook is
+            // replaced; no other cron event is touched.
+            if (!$scheduled || !self::is_weekly_report_schedule($scheduled)) {
+                if ($scheduled) {
+                    self::unschedule_hook(self::WEEKLY_HOOK);
+                }
+                wp_schedule_event(self::get_next_weekly_report_timestamp(), 'emsfb_weekly', self::WEEKLY_HOOK);
             }
         } elseif ($scheduled) {
             self::unschedule_hook(self::WEEKLY_HOOK);
         }
+    }
+
+    /**
+     * The next WEEKLY_REPORT_WEEKDAY at WEEKLY_REPORT_HOUR:00 in the WordPress
+     * site timezone. Today only counts if that hour has not passed yet.
+     *
+     * @return int Unix timestamp, as required by WP-Cron.
+     */
+    private static function get_next_weekly_report_timestamp() {
+        $now = new \DateTimeImmutable('now', wp_timezone());
+        $next = $now->setTime(self::WEEKLY_REPORT_HOUR, 0, 0);
+        $days_ahead = (self::WEEKLY_REPORT_WEEKDAY - (int) $next->format('w') + 7) % 7;
+
+        if ($days_ahead === 0 && $next <= $now) {
+            $days_ahead = 7;
+        }
+
+        return $next->modify('+' . $days_ahead . ' days')->getTimestamp();
+    }
+
+    /**
+     * Whether an existing timestamp already lands on the configured weekday and
+     * hour in the site timezone. Anything else is treated as a stale schedule.
+     */
+    private static function is_weekly_report_schedule($timestamp) {
+        if (!is_numeric($timestamp) || (int) $timestamp <= 0) {
+            return false;
+        }
+
+        $scheduled = (new \DateTimeImmutable('@' . (int) $timestamp))->setTimezone(wp_timezone());
+        return (int) $scheduled->format('w') === self::WEEKLY_REPORT_WEEKDAY
+            && (int) $scheduled->format('G') === self::WEEKLY_REPORT_HOUR
+            && (int) $scheduled->format('i') === 0;
+    }
+
+    /**
+     * Whether the weekly run should happen at all.
+     *
+     * The weekly email carries two independent sections and each toggle owns
+     * one of them: emailStatsReport owns the email delivery status section and
+     * weeklyEmailReport owns the form activity section. Either one on its own
+     * is still worth a weekly delivery test, so the run is scheduled whenever
+     * at least one is enabled, and skipped entirely when both are off.
+     */
+    public static function is_weekly_run_enabled() {
+        return self::is_enabled() || self::is_email_stats_enabled();
     }
 
     public static function is_enabled() {
@@ -141,6 +575,7 @@ class Email_Monitor {
         }
 
         update_option(self::OPTION_EMAIL_STATS_ENABLED, self::normalize_bool($enabled) ? 1 : 0, false);
+        self::sync_schedule();
         return true;
     }
 
@@ -161,11 +596,14 @@ class Email_Monitor {
             'message' => isset($status['message']) ? sanitize_text_field($status['message']) : '',
             'checked_at' => isset($status['checked_at']) ? sanitize_text_field($status['checked_at']) : '',
             'next_run' => wp_next_scheduled(self::WEEKLY_HOOK) ?: 0,
+            // The panel scores a live test in the browser, so it needs the same
+            // threshold the server applies. One constant, one meaning.
+            'min_delivery_score' => self::MIN_DELIVERY_SCORE,
         ];
     }
 
     public static function run_weekly_test() {
-        if (!self::is_enabled()) {
+        if (!self::is_weekly_run_enabled()) {
             self::sync_schedule();
             return;
         }
@@ -215,20 +653,31 @@ class Email_Monitor {
 			return;
 		}
 
-        $can_send = !empty($result['can_send_email']) || !empty($result['success']);
+        $can_send = self::is_delivery_confirmed($result);
         $message = isset($result['message']) ? sanitize_text_field($result['message']) : '';
+        if (self::is_delivery_score_too_low($result)) {
+            $message = self::get_low_score_message(self::get_report_score($result));
+        }
         if ($message === '') {
             $message = $can_send
                 ? __('The weekly email delivery test completed successfully.', 'easy-form-builder')
                 : __('The weekly email delivery test found an email delivery problem.', 'easy-form-builder');
         }
 
-        self::save_status($can_send ? 'success' : 'failed', $message, $pending['context'], $result);
+        self::save_status(
+            $can_send ? 'success' : 'failed',
+            $message,
+            $pending['context'],
+            $result,
+            // The service answered about this site's delivery, so whatever it
+            // says is a real measurement rather than a broken check.
+            $status ?: 'analyzed'
+        );
 		if ($can_send) {
 			self::mark_email_ready();
-		} else {
-			self::request_remote_email_report($test_hash, $status, $pending['admin_email']);
 		}
+
+        self::send_weekly_admin_report($pending['context'], $can_send, $message, $result);
 
         delete_option(self::OPTION_PENDING);
     }
@@ -247,10 +696,16 @@ class Email_Monitor {
 
         $settings = function_exists('get_setting_Emsfb') ? get_setting_Emsfb('decoded') : null;
         $sender_email = self::get_sender_email($settings);
-        $activity_report = [];
+
+        // Every key here must exist in the tester service's /start allow-list.
+        // The service rejects the whole request when an unknown key is present
+        // or when the field count exceeds that list, so nothing site-specific
+        // (form counts, submission totals, trigger names) may travel with it.
+        // admin_report=client tells the service to stay silent: this plugin
+        // reads the finished report from /result and emails the administrator
+        // itself, so the site owner gets one email from their own site.
         $start_payload = [
             'site_url' => home_url(),
-            'site_name' => get_bloginfo('name'),
             'sender_email' => $sender_email,
             'admin_email' => $admin_email,
             'plugin' => 'easy-form-builder',
@@ -260,14 +715,8 @@ class Email_Monitor {
             'language' => get_locale(),
             'license_type' => self::get_license_type(),
             'license_key' => '',
-            'trigger' => $context,
-            'generated_at' => current_time('mysql', true),
+            'admin_report' => 'client',
         ];
-        if ($context === 'weekly' && self::is_enabled()) {
-            $activity_report = self::get_weekly_stats();
-            $start_payload['report_frequency'] = 'weekly';
-            $start_payload['activity_report'] = $activity_report;
-        }
 
         $start = self::remote_request('POST', '/start', [
             'timeout' => 20,
@@ -309,23 +758,15 @@ class Email_Monitor {
         if ($context === 'weekly') {
             $headers[] = 'X-EFB-Report-Type: weekly';
         }
+        // This message is delivered to the tester service mailbox, not to the
+        // site owner, so it stays a bare delivery probe. Form activity totals
+        // belong in the administrator email this plugin composes locally.
         $message = sprintf(
             '<p>Easy Form Builder automated email delivery test.</p><p>Site: %s</p><p>Trigger: %s</p><p>Test hash: %s</p>',
             esc_html(home_url()),
             esc_html($context),
             esc_html($test_hash)
         );
-        if ($context === 'weekly' && !empty($activity_report)) {
-            $message .= '<h2>Weekly form activity totals</h2><ul>';
-            foreach ($activity_report as $label => $value) {
-                $message .= sprintf(
-                    '<li><strong>%s:</strong> %d</li>',
-                    esc_html(str_replace('_', ' ', ucwords($label, '_'))),
-                    (int) $value
-                );
-            }
-            $message .= '</ul>';
-        }
         $sent = wp_mail($recipient, $subject, $message, $headers);
 
         require_once EMSFB_PLUGIN_DIRECTORY . 'includes/class-email-handler.php';
@@ -342,20 +783,16 @@ class Email_Monitor {
             'started_at' => time(),
             'attempts' => 0,
         ], false);
-        if ($context === 'weekly') {
-            update_option('emsfb_email_monitor_last_remote_report', [
-                'accepted_at' => current_time('mysql', true),
-                'success' => true,
-                'http_code' => $code,
-            ], false);
-        }
-
         self::save_status(
             $sent ? 'pending' : 'failed',
             $sent
                 ? __('The automated email test was sent and is waiting for delivery confirmation.', 'easy-form-builder')
                 : __('WordPress could not send the automated email test.', 'easy-form-builder'),
-            $context
+            $context,
+            [],
+            // wp_mail() refusing outright is this site's own failure, and the
+            // most conclusive evidence there is: nothing even left the server.
+            $sent ? 'sent' : 'wp_mail_failed'
         );
 
         wp_schedule_single_event(time() + 30, self::POLL_HOOK, [$test_hash]);
@@ -367,10 +804,12 @@ class Email_Monitor {
 			$final_message = $message !== ''
 				? sanitize_text_field($message)
 				: __('The email delivery test timed out before confirmation was received.', 'easy-form-builder');
-			self::save_status('failed', $final_message, $pending['context']);
-			if (in_array($state, ['delayed', 'expired'], true)) {
-				self::request_remote_email_report($pending['test_hash'], $state, $pending['admin_email']);
-			}
+			// Out of attempts without the service ever confirming arrival: the
+			// email never turned up. That is a real delivery failure, unless
+			// the service itself was what could not be reached - which the
+			// state carries, and which the notice knows to disregard.
+			self::save_status('failed', $final_message, $pending['context'], [], $state ?: 'expired');
+			self::send_weekly_admin_report($pending['context'], false, $final_message, ['status' => $state]);
 			delete_option(self::OPTION_PENDING);
 			return;
 		}
@@ -380,10 +819,20 @@ class Email_Monitor {
     }
 
     private static function finish_without_test($context, $state, $message) {
-        self::save_status('failed', $message, $context, ['status' => $state, 'can_send_email' => false]);
+        // $state names what stopped the run before anything was sent - an
+        // unreachable service, an unusable response, the free test quota. The
+        // notice reads it and stays quiet: nothing was learned about delivery.
+        self::save_status('failed', $message, $context, ['status' => $state, 'can_send_email' => false], $state);
+        self::send_weekly_admin_report($context, false, $message, ['status' => $state]);
     }
 
-    private static function get_weekly_stats() {
+    /**
+     * Weekly form activity totals for the administrator email.
+     *
+     * These never leave the site: they are read here and rendered straight into
+     * the administrator's own email.
+     */
+    public static function get_form_activity_stats() {
         global $wpdb;
 
         $forms_table = $wpdb->prefix . 'emsfb_form';
@@ -404,52 +853,838 @@ class Email_Monitor {
             $since
         )) : 0;
 
-        $report = [
+        return [
             'forms_total' => $forms_total,
             'forms_active' => $forms_active,
             'forms_inactive' => max(0, $forms_total - $forms_active),
             'page_views' => $visits,
             'submissions' => $submissions,
         ];
+    }
 
-        // Email delivery totals are optional (Pro can disable them). Omitting the
-        // keys entirely — rather than sending zeros — keeps the weekly payload
-        // small so the remote tester does not reject it for having too many fields.
-        if (self::is_email_stats_enabled()) {
-            require_once EMSFB_PLUGIN_DIRECTORY . 'includes/class-email-handler.php';
-            $email_stats = \EmsfbEmailHandler::get_email_stats('week');
-            $report['emails_sent'] = (int) $email_stats['success'];
-            $report['emails_failed'] = (int) $email_stats['failed'];
+    /**
+     * Which sections the weekly administrator email should carry.
+     *
+     * Each toggle owns exactly one section, so all four combinations are
+     * meaningful: both on sends one email with both sections, one on sends
+     * that section alone, and both off sends nothing at all.
+     *
+     * @return array{delivery:bool,activity:bool}
+     */
+    public static function get_weekly_report_sections() {
+        return [
+            'delivery' => self::is_email_stats_enabled(),
+            'activity' => self::is_enabled(),
+        ];
+    }
+
+    /**
+     * Email the site administrator the weekly report this plugin composed itself.
+     *
+     * The tester service is started with admin_report=client precisely so it
+     * stays silent, which lets both sections arrive together in one message
+     * sent from the site's own address instead of two from two senders.
+     *
+     * @param string $context  Trigger context; only 'weekly' produces a report.
+     * @param bool   $can_send Whether the delivery test confirmed sending works.
+     * @param string $message  Human-readable delivery test outcome.
+     * @param array  $result   Raw report payload from the tester service.
+     * @return bool Whether an email was sent.
+     */
+    private static function send_weekly_admin_report($context, $can_send, $message, $result = []) {
+        if (sanitize_key($context) !== 'weekly') {
+            return false;
         }
 
-        return $report;
+        $sections = self::get_weekly_report_sections();
+        if (!$sections['delivery'] && !$sections['activity']) {
+            return false;
+        }
+
+        $admin_email = sanitize_email(get_option('admin_email', ''));
+        if (!is_email($admin_email)) {
+            return false;
+        }
+
+        // WP-Cron can run the same event twice when two requests spawn it at
+        // once, and every terminal path of a run ends here. The service used to
+        // absorb that with its own lock; now that this side sends the mail, a
+        // duplicate would land in the administrator's inbox. A whole run
+        // finishes within ~12 minutes and the next weekly run is a week away
+        // (an hour away at worst, when the toggles are switched off and on), so
+        // a short lock separates duplicates from a genuine next run.
+        if (get_transient(self::TRANSIENT_WEEKLY_REPORT_LOCK)) {
+            return false;
+        }
+        set_transient(self::TRANSIENT_WEEKLY_REPORT_LOCK, 1, 30 * MINUTE_IN_SECONDS);
+
+        $report_content = self::build_weekly_report_html($sections, (bool) $can_send, (string) $message, is_array($result) ? $result : []);
+        require_once EMSFB_PLUGIN_DIRECTORY . 'includes/class-email-handler.php';
+
+        // Use the same template selected under Easy Form Builder settings for
+        // every other plugin email. The report stays a self-contained HTML
+        // fragment, so it also works in custom templates that place
+        // shortcode_message inside a styled message block.
+        $email_handler = new \EmsfbEmailHandler();
+        $body = $email_handler->email_template_efb(
+            (int) get_option('emsfb_pro', 2) === 1,
+            'weeklyAdminReport',
+            $report_content,
+            home_url(),
+            'just_message'
+        );
+        if ($body === '' || strpos($body, $report_content) === false) {
+            // A malformed saved template (for example, one from an older
+            // version without shortcode_message) must never hide a delivery
+            // warning from the administrator.
+            $body = $report_content;
+        }
+        $subject = sprintf(
+            /* translators: %s: site name. */
+            __('Weekly Easy Form Builder report for %s', 'easy-form-builder'),
+            wp_specialchars_decode(get_bloginfo('name'), ENT_QUOTES)
+        );
+
+        $sent = wp_mail($admin_email, $subject, $body, ['Content-Type: text/html; charset=UTF-8']);
+        if (!$sent) {
+            // Nothing reached the administrator, so let the next attempt through.
+            delete_transient(self::TRANSIENT_WEEKLY_REPORT_LOCK);
+        }
+
+        update_option('emsfb_email_monitor_last_remote_report', [
+            'sent' => (bool) $sent,
+            'sent_at' => current_time('mysql', true),
+            'sections' => array_keys(array_filter($sections)),
+            'can_send_email' => (bool) $can_send,
+        ], false);
+
+        return (bool) $sent;
     }
 
-	private static function request_remote_email_report($test_hash, $status, $admin_email) {
-		if (!self::is_valid_hash($test_hash)) {
-			return;
-		}
+    /**
+     * Render the content placed inside the weekly administrator email template.
+     *
+     * @param array  $sections Which sections to include.
+     * @param bool   $can_send Whether the delivery test confirmed sending works.
+     * @param string $message  Human-readable delivery test outcome.
+     * @param array  $result   Raw report payload from the tester service.
+     * @return string
+     */
+    private static function build_weekly_report_html($sections, $can_send, $message, $result) {
+        $site_name = wp_specialchars_decode(get_bloginfo('name'), ENT_QUOTES);
+        $is_rtl = is_rtl();
+        $direction = $is_rtl ? 'rtl' : 'ltr';
+        $align = $is_rtl ? 'right' : 'left';
+        $row_label_padding = $is_rtl ? '0 0 0 12px' : '0 12px 0 0';
+        $generated_at = wp_date(get_option('date_format', 'F j, Y') . ' ' . get_option('time_format', 'g:i a'));
+        $intro = sprintf(
+            /* translators: %s: site name. */
+            __('Here is your weekly snapshot for %s.', 'easy-form-builder'),
+            $site_name
+        );
 
-		$status = sanitize_key($status);
-		if (!in_array($status, ['delayed', 'expired'], true)) {
-			return;
-		}
+        // Accent colour and font follow whatever the administrator configured for
+        // their emails; only the structure below is fixed. See get_body_theme().
+        $theme = self::get_body_theme();
 
-		self::remote_request('POST', '/result/' . rawurlencode($test_hash) . '/email-report', [
-            'timeout' => 20,
-            'headers' => [
-                'Content-Type' => 'application/json',
-                'Accept' => 'application/json',
-            ],
-            'body' => wp_json_encode([
-                'trigger_status' => sanitize_key($status),
-                'language' => get_locale(),
-                'reason' => 'automated_email_monitor',
-                'admin_email' => sanitize_email($admin_email),
-            ]),
-        ]);
+        // Keep the report itself table-based, with direction and alignment set
+        // on every important container. That prevents a saved LTR template
+        // from reversing Persian or Arabic report content in Outlook/Gmail.
+        // The font is the administrator's own (sanitize_css_font() guarantees a
+        // family Outlook can resolve at the end of it).
+        $html = '<div dir="' . esc_attr($direction) . '" style="direction:' . esc_attr($direction) . ';text-align:' . esc_attr($align) . ';font-family:' . esc_attr($theme['font']) . ';font-size:14px;line-height:1.6;color:#1f2937;">';
+        $html .= '<p style="margin:0 0 4px 0;font-size:16px;line-height:24px;font-weight:700;text-align:' . esc_attr($align) . ';">' . esc_html($intro) . '</p>';
+        $html .= '<p style="margin:0 0 22px 0;font-size:12px;line-height:18px;color:#6b7280;text-align:' . esc_attr($align) . ';">' . sprintf(
+            /* translators: %s: report generation date and time. */
+            esc_html__('Report generated %s', 'easy-form-builder'),
+            esc_html($generated_at)
+        ) . '</p>';
+
+        if (!empty($sections['delivery'])) {
+            $has_score = isset($result['score']) && is_scalar($result['score']);
+            $score = $has_score ? (int) $result['score'] : null;
+            $grade = (!empty($result['grade']) && is_scalar($result['grade'])) ? (string) $result['grade'] : '';
+
+            $html .= self::build_score_hero($score, $grade, $can_send, $message, $result, $direction, $align);
+
+            // Three outcomes need guidance, and they need the same guidance:
+            // no score at all (the check never ran or returned nothing), a score
+            // below the healthy threshold, and a delivery attempt that failed
+            // outright. Anything else is working and gets no lecture.
+            if (!$has_score) {
+                $html .= self::build_delivery_guidance_block($direction, $align, 'unknown');
+            } elseif ($score < self::HEALTHY_SCORE || !$can_send) {
+                $html .= self::build_delivery_guidance_block($direction, $align, 'low');
+            }
+
+            if (!empty($result['recommendations']) && is_array($result['recommendations'])) {
+                $recommendation_rows = '';
+                foreach (array_slice($result['recommendations'], 0, 5) as $recommendation) {
+                    if (is_scalar($recommendation)) {
+                        $recommendation_rows .= '<tr><td width="16" valign="top" style="width:16px;padding:0 ' . ($is_rtl ? '0 0 7px' : '7px 0 0') . ';color:' . esc_attr($theme['accent']) . ';font-size:15px;line-height:20px;">&bull;</td>'
+                            . '<td dir="auto" align="' . esc_attr($align) . '" style="padding:0 0 6px 0;color:#475569;font-size:12.5px;line-height:20px;text-align:' . esc_attr($align) . ';">' . esc_html((string) $recommendation) . '</td></tr>';
+                    }
+                }
+                if ($recommendation_rows !== '') {
+                    $html .= '<table role="presentation" dir="' . esc_attr($direction) . '" cellspacing="0" cellpadding="0" border="0" width="100%" style="' . self::TABLE_RESET . 'width:100%;margin:14px 0 0 0;">'
+                        . '<tr><td align="' . esc_attr($align) . '" style="padding:14px 15px;background-color:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;text-align:' . esc_attr($align) . ';">'
+                        . '<p style="margin:0 0 8px 0;font-size:13px;line-height:20px;font-weight:700;color:#334155;text-align:' . esc_attr($align) . ';">' . esc_html__('Detailed analysis', 'easy-form-builder') . '</p>'
+                        . '<table role="presentation" dir="' . esc_attr($direction) . '" cellspacing="0" cellpadding="0" border="0" width="100%" style="' . self::TABLE_RESET . 'width:100%;">' . $recommendation_rows . '</table>'
+                        . '</td></tr></table>';
+                }
+            }
+
+            require_once EMSFB_PLUGIN_DIRECTORY . 'includes/class-email-handler.php';
+            $email_stats = \EmsfbEmailHandler::get_email_stats('week');
+            $failed = (int) $email_stats['failed'];
+
+            $html .= self::build_section_heading(__('This week', 'easy-form-builder'), $align, 22);
+
+            $activity = !empty($sections['activity']) ? self::get_form_activity_stats() : null;
+            $tiles = [];
+            if ($activity) {
+                $tiles[] = ['value' => (int) $activity['page_views'], 'label' => __('Form views', 'easy-form-builder'), 'tone' => 'accent'];
+                $tiles[] = ['value' => (int) $activity['submissions'], 'label' => __('Submissions', 'easy-form-builder'), 'tone' => 'accent'];
+            }
+            $tiles[] = ['value' => (int) $email_stats['success'], 'label' => __('Emails sent', 'easy-form-builder'), 'tone' => 'good'];
+            $tiles[] = ['value' => $failed, 'label' => __('Emails failed', 'easy-form-builder'), 'tone' => $failed > 0 ? 'bad' : 'muted'];
+
+            $html .= self::build_stat_tiles($tiles, $direction, $align, $theme);
+
+            if ($activity) {
+                $html .= self::build_forms_summary_line($activity, $direction, $align);
+            }
+        } elseif (!empty($sections['activity'])) {
+            // Activity-only delivery: no score section was requested, so the
+            // tiles carry the form numbers on their own.
+            $activity = self::get_form_activity_stats();
+            $html .= self::build_section_heading(__('This week', 'easy-form-builder'), $align, 0);
+            $html .= self::build_stat_tiles([
+                ['value' => (int) $activity['page_views'], 'label' => __('Form views', 'easy-form-builder'), 'tone' => 'accent'],
+                ['value' => (int) $activity['submissions'], 'label' => __('Submissions', 'easy-form-builder'), 'tone' => 'accent'],
+            ], $direction, $align, $theme);
+            $html .= self::build_forms_summary_line($activity, $direction, $align);
+        }
+
+        if ((int) get_option('emsfb_pro', 2) !== 1) {
+            $html .= self::build_pro_upgrade_callout($direction, $align);
+        }
+
+        $html .= '<p style="margin:24px 0 0 0;color:#6b7280;font-size:12px;line-height:18px;text-align:' . esc_attr($align) . ';">' . esc_html__('You can turn these reports off in Easy Form Builder settings.', 'easy-form-builder') . '</p>';
+        $html .= '</div>';
+
+        return $html;
     }
 
+    /**
+     * @param array<string,string> $rows Label => value.
+     * @return string
+     */
+    /**
+     * Score at or above which delivery is considered healthy.
+     *
+     * Matches what the panel already tells the administrator ("If the score is
+     * above 70 - enable the This site can send emails switch and save"), so the
+     * email and the panel never disagree.
+     */
+    const HEALTHY_SCORE = 70;
+
+    /**
+     * The line between "nothing arrives" and "it arrives in the spam folder".
+     *
+     * The tester service answers can_send_email on arrival alone, so the flag
+     * is true even for a message that scored 12 and was quarantined. From this
+     * score upwards the site really can send: the mail leaves, reaches the far
+     * end, and the problem to report is spam filtering (see HEALTHY_SCORE).
+     * Below it nothing usable gets through, so the run is recorded as a failure
+     * and the sending switch is not enabled off the back of it.
+     */
+    const MIN_DELIVERY_SCORE = 20;
+
+    /**
+     * The deliverability score of a finished report, when it carries one.
+     *
+     * Only the report's own top-level score is read. Nested numbers (a
+     * SpamAssassin score, for instance, where low is good) are on other scales
+     * and must never be mistaken for this one.
+     *
+     * @param array $result Report payload from the tester service.
+     * @return float|null Null when the report carries no score.
+     */
+    public static function get_report_score($result) {
+        if (!is_array($result) || !isset($result['score']) || !is_numeric($result['score'])) {
+            return null;
+        }
+
+        return (float) $result['score'];
+    }
+
+    /**
+     * Whether the report's score is good enough to call delivery working.
+     *
+     * A report without a score cannot disprove anything, so it passes; only a
+     * measured score under the threshold fails.
+     *
+     * @param array $result Report payload from the tester service.
+     * @return bool
+     */
+    public static function is_delivery_score_acceptable($result) {
+        $score = self::get_report_score($result);
+
+        return null === $score || $score >= self::MIN_DELIVERY_SCORE;
+    }
+
+    /**
+     * Whether a finished report may be treated as "this site can send email".
+     *
+     * @param array $result Report payload from the tester service.
+     * @return bool
+     */
+    public static function is_delivery_confirmed($result) {
+        if (!is_array($result)) {
+            return false;
+        }
+        if (empty($result['can_send_email']) && empty($result['success'])) {
+            return false;
+        }
+
+        return self::is_delivery_score_acceptable($result);
+    }
+
+    /**
+     * Whether the probe arrived but scored too low to call delivery working.
+     *
+     * @param array $result Report payload from the tester service.
+     * @return bool
+     */
+    public static function is_delivery_score_too_low($result) {
+        $score = self::get_report_score($result);
+
+        return null !== $score
+            && $score < self::MIN_DELIVERY_SCORE
+            && (!empty($result['can_send_email']) || !empty($result['success']));
+    }
+
+    /**
+     * The sentence shown when a delivered probe scored below the minimum.
+     *
+     * The service's own message describes a delivered email ("good news, your
+     * site could send the test"), which reads as success next to a failure
+     * warning. This says what actually happened instead.
+     *
+     * @param float $score
+     * @return string
+     */
+    public static function get_low_score_message($score) {
+        return sprintf(
+            /* translators: 1: measured deliverability score, 2: minimum acceptable score. */
+            __('The test email was delivered, but its deliverability score is only %1$s out of 100 (below %2$s), so the emails your forms send are very likely to be rejected or filtered as spam.', 'easy-form-builder'),
+            number_format_i18n((float) $score),
+            number_format_i18n(self::MIN_DELIVERY_SCORE)
+        );
+    }
+
+    /**
+     * Table declarations every email client needs.
+     *
+     * Outlook inserts its own spacing around tables unless mso-table-lspace and
+     * mso-table-rspace are zeroed, and leaves hairline gaps between cells
+     * without border-collapse. Both are cheap and stop the report drifting
+     * apart in Outlook while looking correct everywhere else.
+     */
+    const TABLE_RESET = 'border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;';
+
+    /**
+     * Fonts Outlook's Word engine is guaranteed to resolve.
+     *
+     * A stack it cannot parse - one made only of -apple-system and
+     * BlinkMacSystemFont, or a single custom family from the template settings -
+     * makes Word fall back to Times New Roman, so the whole report arrives in a
+     * serif face. Appending these guarantees a sans-serif last resort.
+     */
+    const FONT_FALLBACK = "Segoe UI,Tahoma,Arial,Helvetica,sans-serif";
+
+    /**
+     * Documentation URL for setting up SMTP, in the reader's language.
+     *
+     * Mirrors the mapping EmsfbEmailHandler already uses for the test email so
+     * a Persian or Arabic administrator is not sent to an English article.
+     *
+     * @return string
+     */
+    public static function get_smtp_guide_url() {
+        $locale = get_locale();
+
+        if ($locale === 'fa_IR') {
+            return 'https://easyformbuilder.ir/داکیومنت/ارسال-ایمیل-بوسیله-افزونه-smtp/';
+        }
+        if (strpos($locale, 'ar') === 0) {
+            return 'https://ar.whitestudio.team/document/send-email-using-smtp-plugin/';
+        }
+        if (strpos($locale, 'de') === 0) {
+            return 'https://de.whitestudio.team/document/send-email-using-smtp-plugin/';
+        }
+
+        return 'https://whitestudio.team/document/send-email-using-smtp-plugin/';
+    }
+
+    /**
+     * The single sentence shown wherever delivery could not be confirmed - the
+     * weekly email and the dashboard notice both use it, so the administrator
+     * reads the same advice in both places.
+     *
+     * @return string
+     */
+    public static function get_delivery_check_message() {
+        return __('Run the email check so you can be sure the messages your forms send are actually reaching people. The check sends a real message through the new WhiteStudio delivery service and reports back what arrived.', 'easy-form-builder');
+    }
+
+    /**
+     * @return string Anchor text for the SMTP guide.
+     */
+    public static function get_smtp_guide_label() {
+        return __('Read the guide to sending email through SMTP', 'easy-form-builder');
+    }
+
+    /**
+     * Colour and font the report body borrows from the administrator's own
+     * email settings.
+     *
+     * The report header is deliberately left alone - it belongs to the email
+     * template and stays exactly as it is. Only the body picks up the
+     * customisation, so a site that has themed its emails gets a report that
+     * matches, without the report being able to restyle the header.
+     *
+     * @return array{accent:string, accent_text:string, font:string}
+     */
+    private static function get_body_theme() {
+        $accent = '#202a8d';
+        $accent_text = '#ffffff';
+        $font = "-apple-system,BlinkMacSystemFont,'Segoe UI',Tahoma,Arial,sans-serif";
+
+        $settings = function_exists('get_setting_Emsfb') ? get_setting_Emsfb('decoded') : null;
+        if (is_object($settings)) {
+            if (!empty($settings->emailBtnBgColor) && is_scalar($settings->emailBtnBgColor)) {
+                $accent = (string) $settings->emailBtnBgColor;
+            }
+            if (!empty($settings->emailBtnTextColor) && is_scalar($settings->emailBtnTextColor)) {
+                $accent_text = (string) $settings->emailBtnTextColor;
+            }
+        }
+
+        // A saved template's own global settings win over the plain colour
+        // pickers, matching the precedence EmsfbEmailHandler applies.
+        $template = is_object($settings) && !empty($settings->emailTemp) && is_string($settings->emailTemp)
+            ? $settings->emailTemp
+            : '';
+        if ($template !== '' && preg_match('/<!-- EFBDATA:([\S]+) -->/', $template, $match)) {
+            $data = json_decode(urldecode($match[1]), true);
+            $global = (is_array($data) && isset($data['globalSettings']) && is_array($data['globalSettings']))
+                ? $data['globalSettings']
+                : [];
+            if (!empty($global['btnBgColor']) && is_scalar($global['btnBgColor'])) {
+                $accent = (string) $global['btnBgColor'];
+            }
+            if (!empty($global['btnTextColor']) && is_scalar($global['btnTextColor'])) {
+                $accent_text = (string) $global['btnTextColor'];
+            }
+            if (!empty($global['fontFamily']) && is_scalar($global['fontFamily'])) {
+                $font = (string) $global['fontFamily'];
+            }
+        }
+
+        return [
+            'accent'      => self::sanitize_css_colour($accent, '#202a8d'),
+            'accent_text' => self::sanitize_css_colour($accent_text, '#ffffff'),
+            'font'        => self::sanitize_css_font($font),
+        ];
+    }
+
+    /**
+     * Only accept a colour we are willing to drop into a style attribute.
+     *
+     * @param string $value    Candidate colour.
+     * @param string $fallback Used when the candidate is not a plain colour.
+     * @return string
+     */
+    private static function sanitize_css_colour($value, $fallback) {
+        $value = trim((string) $value);
+
+        if (preg_match('/^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/', $value)) {
+            return $value;
+        }
+        if (preg_match('/^rgba?\(\s*[0-9.]+\s*,\s*[0-9.]+\s*,\s*[0-9.]+\s*(?:,\s*[0-9.]+\s*)?\)$/', $value)) {
+            return $value;
+        }
+        if (preg_match('/^[a-zA-Z]{3,20}$/', $value)) {
+            return $value;
+        }
+
+        return $fallback;
+    }
+
+    /**
+     * @param string $value Candidate font stack.
+     * @return string
+     */
+    private static function sanitize_css_font($value) {
+        $value = trim((string) $value);
+        if ($value === '' || preg_match('/[<>{};:]/', $value)) {
+            return self::FONT_FALLBACK;
+        }
+
+        // Guarantee a family Outlook can resolve at the end of whatever the
+        // administrator configured, so Word never drops back to Times New Roman.
+        if (false === stripos($value, 'sans-serif') && false === stripos($value, 'serif')) {
+            $value .= ',' . self::FONT_FALLBACK;
+        }
+
+        return $value;
+    }
+
+    /**
+     * The banner at the top of the report body: the deliverability score, or a
+     * clear neutral state when there is no score to show.
+     *
+     * @param int|null $score
+     * @param string   $grade
+     * @param bool     $can_send
+     * @param string   $message
+     * @param array    $result
+     * @param string   $direction
+     * @param string   $align
+     * @return string
+     */
+    private static function build_score_hero($score, $grade, $can_send, $message, $result, $direction, $align) {
+        if (null === $score) {
+            // Nothing was measured. Do not imply either success or failure.
+            $bg = '#f6f7fb';
+            $border = '#e0e3ee';
+            $badge_bg = '#8b93a7';
+            $badge_text = '&#63;';
+            $badge_sub = '';
+            $title = $can_send
+                ? __('Delivery has not been scored yet', 'easy-form-builder')
+                : __('We could not confirm your emails are being delivered', 'easy-form-builder');
+            $title_colour = '#3f4657';
+            $subtitle = '';
+        } else {
+            $healthy = $score >= self::HEALTHY_SCORE && $can_send;
+            $bg = $healthy ? '#f2fbf6' : '#fdf5f3';
+            $border = $healthy ? '#d3ecdf' : '#f4d6cf';
+            $badge_bg = $healthy ? '#0f9d58' : '#d9483b';
+            $badge_text = number_format_i18n($score);
+            $badge_sub = __('out of 100', 'easy-form-builder');
+            $title_colour = $healthy ? '#0b6b3d' : '#9c2f24';
+            $title = $healthy
+                ? __('Your email delivery is healthy', 'easy-form-builder')
+                : __('Your emails are likely going to spam', 'easy-form-builder');
+            if ($grade !== '') {
+                $title .= ' &mdash; ' . sprintf(
+                    /* translators: %s: deliverability grade such as A or D. */
+                    esc_html__('grade %s', 'easy-form-builder'),
+                    esc_html($grade)
+                );
+            }
+            $subtitle = $message !== '' ? $message : '';
+        }
+
+        $html = '<table role="presentation" dir="' . esc_attr($direction) . '" cellspacing="0" cellpadding="0" border="0" width="100%" bgcolor="' . esc_attr($bg) . '" style="' . self::TABLE_RESET . 'width:100%;background-color:' . esc_attr($bg) . ';border:1px solid ' . esc_attr($border) . ';border-radius:12px;">'
+            . '<tr><td align="center" style="padding:22px 20px;text-align:center;">';
+
+        // Outlook 2007-2019 renders through Word: it drops border-radius (the
+        // circle becomes a square) and ignores display:block on a span, so both
+        // lines would collapse onto one. It does understand VML, so Outlook gets
+        // a filled oval and every other client gets the CSS version.
+        $html .= '<!--[if mso]>'
+            . '<v:oval xmlns:v="urn:schemas-microsoft-com:vml" fill="t" stroke="f" style="width:92px;height:92px;v-text-anchor:middle;">'
+            . '<v:fill color="' . esc_attr($badge_bg) . '" />'
+            . '<v:textbox inset="0,0,0,0"><center style="color:#ffffff;font-family:Arial,sans-serif;font-size:30px;font-weight:bold;">' . $badge_text . '</center></v:textbox>'
+            . '</v:oval>'
+            . '<![endif]-->';
+
+        $html .= '<!--[if !mso]><!-->'
+            . '<table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" style="' . self::TABLE_RESET . 'margin:0 auto;"><tr>'
+            . '<td align="center" bgcolor="' . esc_attr($badge_bg) . '" width="92" height="92" style="width:92px;height:92px;background-color:' . esc_attr($badge_bg) . ';border-radius:46px;text-align:center;vertical-align:middle;color:#ffffff;">'
+            . '<div style="font-size:32px;line-height:34px;font-weight:700;color:#ffffff;">' . $badge_text . '</div>';
+        if ($badge_sub !== '') {
+            $html .= '<div style="font-size:11px;line-height:16px;color:#eef7f1;">' . esc_html($badge_sub) . '</div>';
+        }
+        $html .= '</td></tr></table>'
+            . '<!--<![endif]-->';
+
+        $html .= '<p style="margin:12px 0 3px 0;color:' . esc_attr($title_colour) . ';font-size:17px;line-height:25px;font-weight:700;text-align:center;">' . wp_kses($title, ['br' => []]) . '</p>';
+        if ($subtitle !== '') {
+            $html .= '<p style="margin:0;color:#5b6474;font-size:13px;line-height:21px;text-align:center;">' . esc_html($subtitle) . '</p>';
+        }
+
+        $html .= self::build_auth_chips($result);
+        $html .= '</td></tr></table>';
+
+        return $html;
+    }
+
+    /**
+     * SPF / DKIM / DMARC shown as pass-fail chips instead of table rows.
+     *
+     * @param array $result
+     * @return string
+     */
+    private static function build_auth_chips($result) {
+        $authentication = isset($result['authentication']) && is_array($result['authentication'])
+            ? $result['authentication']
+            : [];
+        if (empty($authentication)) {
+            return '';
+        }
+
+        $cells = '';
+        foreach (['spf' => 'SPF', 'dkim' => 'DKIM', 'dmarc' => 'DMARC'] as $key => $label) {
+            if (empty($authentication[$key]) || !is_scalar($authentication[$key])) {
+                continue;
+            }
+            $value = strtolower(trim((string) $authentication[$key]));
+            $passed = in_array($value, ['pass', 'passed', 'ok', 'valid', 'true', '1', 'yes'], true);
+            $chip_colour = $passed ? '#0b6b3d' : '#9c2f24';
+            $chip_border = $passed ? '#b7e2c9' : '#f0c3bc';
+            $mark = $passed ? '&#10003;' : '&#10007;';
+
+            $cells .= '<td style="padding:0 3px;"><table role="presentation" cellspacing="0" cellpadding="0" border="0" style="' . self::TABLE_RESET . '"><tr>'
+                . '<td bgcolor="#ffffff" style="background:#ffffff;border:1px solid ' . $chip_border . ';border-radius:20px;padding:6px 13px;color:' . $chip_colour . ';font-size:12px;font-weight:700;white-space:nowrap;">'
+                . $mark . ' ' . esc_html($label) . '</td></tr></table></td>';
+        }
+
+        if ($cells === '') {
+            return '';
+        }
+
+        return '<table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" style="' . self::TABLE_RESET . 'margin:14px auto 0;"><tr>' . $cells . '</tr></table>';
+    }
+
+    /**
+     * The "what should I do" block. Shown when delivery is unproven or poor -
+     * never when everything is working.
+     *
+     * @param string $direction
+     * @param string $align
+     * @param string $mode 'unknown' when nothing was measured, 'low' otherwise.
+     * @return string
+     */
+    private static function build_delivery_guidance_block($direction, $align, $mode) {
+        $is_rtl = ('rtl' === $direction);
+        $url = self::get_smtp_guide_url();
+
+        $html = '<table role="presentation" dir="' . esc_attr($direction) . '" cellspacing="0" cellpadding="0" border="0" width="100%" bgcolor="#fffbeb" style="' . self::TABLE_RESET . 'width:100%;margin:16px 0 0 0;background-color:#fffbeb;border:1px solid #fde68a;border-radius:12px;">'
+            . '<tr><td align="' . esc_attr($align) . '" style="padding:19px 18px;text-align:' . esc_attr($align) . ';border-' . ($is_rtl ? 'right' : 'left') . ':4px solid #f59e0b;">';
+
+        $html .= '<p style="margin:0 0 9px 0;color:#7c4a03;font-size:16px;line-height:24px;font-weight:700;text-align:' . esc_attr($align) . ';">'
+            . esc_html__('What you should do', 'easy-form-builder') . '</p>';
+
+        if ('unknown' === $mode) {
+            $html .= '<p style="margin:0 0 13px 0;color:#5f4a2a;font-size:13.5px;line-height:23px;text-align:' . esc_attr($align) . ';">'
+                . esc_html(self::get_delivery_check_message()) . '</p>';
+        } else {
+            $html .= '<p style="margin:0 0 12px 0;color:#5f4a2a;font-size:13.5px;line-height:23px;text-align:' . esc_attr($align) . ';">'
+                . esc_html__('A hosting server usually sends mail without a trusted signature, which is what pushes your form emails into the spam folder or stops them arriving at all. The standard fix is to send through an SMTP service.', 'easy-form-builder')
+                . '</p>';
+
+            $steps = [
+                __('Install an SMTP plugin and enter the details of your email service.', 'easy-form-builder'),
+                __('Add the SPF and DKIM records to your domain settings.', 'easy-form-builder'),
+                sprintf(
+                    /* translators: %s: the healthy score threshold, such as 70. */
+                    __('Run the email check again until the score is above %s.', 'easy-form-builder'),
+                    number_format_i18n(self::HEALTHY_SCORE)
+                ),
+            ];
+            $html .= '<table role="presentation" dir="' . esc_attr($direction) . '" cellspacing="0" cellpadding="0" border="0" width="100%" style="' . self::TABLE_RESET . 'width:100%;margin:0 0 14px 0;">';
+            $index = 1;
+            foreach ($steps as $step) {
+                $html .= '<tr><td width="20" valign="top" style="width:20px;padding:0 ' . ($is_rtl ? '0 6px 8px' : '8px 6px 0') . ';color:#b45309;font-size:13px;line-height:21px;text-align:' . esc_attr($align) . ';">'
+                    . esc_html(number_format_i18n($index)) . '.</td>'
+                    . '<td align="' . esc_attr($align) . '" style="padding:0 0 6px 0;color:#5f4a2a;font-size:13px;line-height:21px;text-align:' . esc_attr($align) . ';">' . esc_html($step) . '</td></tr>';
+                $index++;
+            }
+            $html .= '</table>';
+        }
+
+        // The padding sits on the cell, not on the link. Outlook's Word engine
+        // ignores display:inline-block and padding on an inline <a>, which
+        // collapsed this into bare text on a coloured strip; padding on a <td>
+        // is one of the few things it does honour everywhere.
+        $html .= '<table role="presentation" cellspacing="0" cellpadding="0" border="0" align="' . esc_attr($align) . '" style="' . self::TABLE_RESET . '"><tr>'
+            . '<td align="center" bgcolor="#b45309" style="padding:12px 22px;border-radius:6px;background-color:#b45309;">'
+            . '<a href="' . esc_url($url) . '" target="_blank" rel="noopener" style="color:#ffffff;font-size:13.5px;font-weight:700;line-height:18px;text-align:center;text-decoration:none;">'
+            . esc_html(self::get_smtp_guide_label()) . '</a>'
+            . '</td></tr></table>';
+
+        return $html . '</td></tr></table>';
+    }
+
+    /**
+     * Two-per-row number tiles. Built as a table so Outlook keeps the grid.
+     *
+     * @param array  $tiles
+     * @param string $direction
+     * @param string $align
+     * @param array  $theme
+     * @return string
+     */
+    private static function build_stat_tiles($tiles, $direction, $align, $theme) {
+        if (empty($tiles)) {
+            return '';
+        }
+
+        $palette = [
+            'accent' => ['bg' => '#f7f8fc', 'border' => '#e4e7f2', 'value' => $theme['accent'], 'label' => '#6b7280'],
+            'good'   => ['bg' => '#f2fbf6', 'border' => '#cfe9dc', 'value' => '#0f9d58', 'label' => '#6b7280'],
+            'bad'    => ['bg' => '#fdf5f3', 'border' => '#f0c3bc', 'value' => '#d9483b', 'label' => '#9c2f24'],
+            'muted'  => ['bg' => '#f7f8fc', 'border' => '#e4e7f2', 'value' => '#9aa1af', 'label' => '#6b7280'],
+        ];
+
+        // Fluid-hybrid layout. This fragment is injected into whatever email
+        // template the site has saved, so it cannot rely on a <style> block or a
+        // media query - there is nowhere dependable to put one, and Gmail strips
+        // <style> in several contexts. Instead each tile is an inline-block with
+        // a max-width: two sit side by side while the container is wide enough
+        // and they stack by themselves on a phone, with no CSS at all.
+        //
+        // Outlook renders through Word, which supports neither inline-block nor
+        // max-width, so it is handed a fixed two-column ghost table inside
+        // conditional comments and never sees the divs' layout.
+        $html = '<div dir="' . esc_attr($direction) . '" style="font-size:0;text-align:' . esc_attr($align) . ';">';
+
+        $chunks = array_chunk($tiles, 2);
+        foreach ($chunks as $row) {
+            $html .= '<!--[if mso]><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="' . self::TABLE_RESET . 'width:100%;"><tr><![endif]-->';
+
+            foreach ($row as $position => $tile) {
+                $tone = isset($palette[$tile['tone']]) ? $palette[$tile['tone']] : $palette['accent'];
+
+                $html .= '<!--[if mso]><td width="50%" valign="top" style="width:50%;padding:0 5px 10px 5px;"><![endif]-->';
+
+                // width:100% with a max-width is what produces the stacking:
+                // below ~2x the max-width the second tile no longer fits beside
+                // the first and wraps to its own line.
+                $html .= '<div style="display:inline-block;width:100%;max-width:262px;vertical-align:top;padding:0 4px 10px 4px;box-sizing:border-box;">'
+                    . '<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="' . self::TABLE_RESET . 'width:100%;background:' . esc_attr($tone['bg']) . ';border:1px solid ' . esc_attr($tone['border']) . ';border-radius:10px;">'
+                    . '<tr><td align="' . esc_attr($align) . '" style="padding:14px 15px;text-align:' . esc_attr($align) . ';">'
+                    . '<p style="margin:0 0 2px 0;color:' . esc_attr($tone['value']) . ';font-size:25px;line-height:31px;font-weight:700;text-align:' . esc_attr($align) . ';">' . esc_html(number_format_i18n((int) $tile['value'])) . '</p>'
+                    . '<p style="margin:0;color:' . esc_attr($tone['label']) . ';font-size:12px;line-height:18px;text-align:' . esc_attr($align) . ';">' . esc_html($tile['label']) . '</p>'
+                    . '</td></tr></table>'
+                    . '</div>';
+
+                $html .= '<!--[if mso]></td><![endif]-->';
+            }
+
+            if (1 === count($row)) {
+                $html .= '<!--[if mso]><td width="50%" style="width:50%;">&nbsp;</td><![endif]-->';
+            }
+
+            $html .= '<!--[if mso]></tr></table><![endif]-->';
+        }
+
+        return $html . '</div>';
+    }
+
+    /**
+     * Form counts as one readable sentence rather than three table rows.
+     *
+     * @param array  $activity
+     * @param string $direction
+     * @param string $align
+     * @return string
+     */
+    private static function build_forms_summary_line($activity, $direction, $align) {
+        $sentence = sprintf(
+            /* translators: 1: total forms, 2: active forms, 3: inactive forms. */
+            esc_html__('You have %1$s forms: %2$s active and %3$s inactive.', 'easy-form-builder'),
+            '<span style="color:#111827;font-weight:700;">' . esc_html(number_format_i18n((int) $activity['forms_total'])) . '</span>',
+            '<span style="color:#0f9d58;font-weight:700;">' . esc_html(number_format_i18n((int) $activity['forms_active'])) . '</span>',
+            '<span style="color:#9aa1af;font-weight:700;">' . esc_html(number_format_i18n((int) $activity['forms_inactive'])) . '</span>'
+        );
+
+        return '<table role="presentation" dir="' . esc_attr($direction) . '" cellspacing="0" cellpadding="0" border="0" width="100%" style="' . self::TABLE_RESET . 'width:100%;margin:6px 0 0 0;background:#ffffff;border:1px solid #e5e7eb;border-radius:10px;">'
+            . '<tr><td align="' . esc_attr($align) . '" style="padding:12px 15px;color:#4b5563;font-size:13px;line-height:20px;text-align:' . esc_attr($align) . ';">'
+            . wp_kses($sentence, ['span' => ['style' => []]])
+            . '</td></tr></table>';
+    }
+
+    private static function build_report_table($rows, $direction, $align, $label_padding) {
+        if (empty($rows)) {
+            return '';
+        }
+
+        $html = '<table role="presentation" dir="' . esc_attr($direction) . '" cellspacing="0" cellpadding="0" border="0" width="100%" style="width:100%;margin:12px 0 0 0;border-collapse:collapse;border:1px solid #e5e7eb;border-radius:8px;">';
+        foreach ($rows as $label => $value) {
+            $html .= '<tr>'
+                . '<td width="70%" align="' . esc_attr($align) . '" style="width:70%;padding:9px ' . esc_attr($label_padding) . ' 9px 12px;border-bottom:1px solid #e5e7eb;color:#4b5563;font-size:13px;line-height:20px;text-align:' . esc_attr($align) . ';">' . esc_html($label) . '</td>'
+                . '<td width="30%" dir="auto" align="' . esc_attr($align) . '" style="width:30%;padding:9px 12px;border-bottom:1px solid #e5e7eb;color:#111827;font-size:14px;line-height:20px;font-weight:700;text-align:' . esc_attr($align) . ';white-space:nowrap;">' . esc_html($value) . '</td>'
+                . '</tr>';
+        }
+
+        return $html . '</table>';
+    }
+
+    /**
+     * A heading kept outside of the data tables so it remains readable in
+     * Outlook versions that ignore table-cell margins.
+     */
+    private static function build_section_heading($title, $align, $top_margin) {
+        return '<p style="margin:' . (int) $top_margin . 'px 0 8px 0;font-size:16px;line-height:24px;font-weight:700;color:#111827;text-align:' . esc_attr($align) . ';">' . esc_html($title) . '</p>';
+    }
+
+    /**
+     * Purchase invitation shown only to Free, Free Plus and expired plans.
+     */
+    private static function build_pro_upgrade_callout($direction, $align) {
+        $package_type = (int) get_option('emsfb_pro', 2);
+        $locale = get_locale();
+        $brand = defined('EMSFB_SERVER_URL') ? untrailingslashit(EMSFB_SERVER_URL) : 'https://whitestudio.team';
+        if ($locale === 'fa_IR') {
+            $brand = 'https://easyformbuilder.ir';
+        } elseif (strpos($locale, 'ar') === 0) {
+            $brand = 'https://ar.whitestudio.team';
+        }
+
+        $upgrade_url = $brand . '/register-costumer';
+        $active_code = trim((string) get_option('emsfb_pro_activeCode', ''));
+        $is_expired = $package_type === 0 && $active_code !== '';
+        if ($is_expired) {
+            $upgrade_url = add_query_arg('renew', $active_code, $upgrade_url);
+        }
+
+        $title = $is_expired
+            ? __('Renew Easy Form Builder Pro', 'easy-form-builder')
+            : __('Get more from Easy Form Builder Pro', 'easy-form-builder');
+        $description = $is_expired
+            ? __('Renew your subscription to restore all Pro features and add-ons.', 'easy-form-builder')
+            : __('Unlock premium add-ons, unlimited features and priority support for your forms.', 'easy-form-builder');
+        $button_label = $is_expired
+            ? __('Renew Pro', 'easy-form-builder')
+            : __('Upgrade to Pro', 'easy-form-builder');
+
+        return '<table role="presentation" dir="' . esc_attr($direction) . '" cellspacing="0" cellpadding="0" border="0" width="100%" style="mso-table-lspace:0pt;mso-table-rspace:0pt;width:100%;margin:24px 0 0 0;border-collapse:separate;background-color:#eef2ff;border:1px solid #c7d2fe;border-radius:8px;">'
+            . '<tr><td align="' . esc_attr($align) . '" style="padding:18px 16px;text-align:' . esc_attr($align) . ';">'
+            . '<p style="margin:0 0 5px 0;color:#1e1b4b;font-size:16px;line-height:23px;font-weight:700;text-align:' . esc_attr($align) . ';">' . esc_html($title) . '</p>'
+            . '<p style="margin:0 0 14px 0;color:#3730a3;font-size:13px;line-height:20px;text-align:' . esc_attr($align) . ';">' . esc_html($description) . '</p>'
+            . '<table role="presentation" cellspacing="0" cellpadding="0" border="0" align="' . esc_attr($align) . '" style="border-collapse:separate;"><tr><td align="center" bgcolor="#202a8d" style="border-radius:6px;background-color:#202a8d;">'
+            . '<!--[if mso]><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="' . esc_url($upgrade_url) . '" style="height:44px;v-text-anchor:middle;width:170px;" arcsize="14%" strokecolor="#202a8d" fillcolor="#202a8d"><w:anchorlock/><center style="color:#ffffff;font-family:Arial,sans-serif;font-size:14px;font-weight:700;">' . esc_html($button_label) . '</center></v:roundrect><![endif]-->'
+            . '<!--[if !mso]><!--><a href="' . esc_url($upgrade_url) . '" target="_blank" style="display:inline-block;padding:13px 20px;color:#ffffff !important;font-family:Arial,sans-serif;font-size:14px;font-weight:700;line-height:18px;text-align:center;text-decoration:none;mso-hide:all;">' . esc_html($button_label) . '</a><!--<![endif]-->'
+            . '</td></tr></table>'
+            . '</td></tr></table>';
+    }
+
+    /**
+     * Record that the automated delivery test succeeded.
+     *
+     * This only stores the diagnostic status. The "This site can send emails"
+     * switch (settings->smtp) is what actually enables notification emails, and
+     * it stays under the admin's control: a background test running minutes
+     * after activation used to flip it on by itself, so a brand-new site showed
+     * the switch already enabled while nobody had verified real delivery.
+     * Enabling it is now always an explicit admin action.
+     */
     private static function mark_email_ready() {
         update_option('emsfb_email_status', [
             'status' => 'ok',
@@ -461,28 +1696,39 @@ class Email_Monitor {
             'details' => [
                 'stage' => 'automated',
                 'test_timestamp' => current_time('mysql', true),
+                // Read back by get_delivery_verdict() as evidence that mail
+                // really did arrive somewhere.
+                'delivered' => true,
             ],
         ], false);
-
-        if (!function_exists('get_setting_Emsfb') || !function_exists('get_efbFunction')) {
-            return;
-        }
-        $settings = get_setting_Emsfb('decoded');
-        if (!is_object($settings) || !empty($settings->smtp)) {
-            return;
-        }
-        $settings->smtp = true;
-        $email = isset($settings->emailSupporter) ? sanitize_email($settings->emailSupporter) : '';
-        get_efbFunction()->set_setting_Emsfb($settings, $email);
     }
 
-    private static function save_status($state, $message, $context, $result = []) {
+    /**
+     * @param string $state   Run state: pending, success or failed.
+     * @param string $message Human-readable outcome.
+     * @param string $context Trigger: activation, update or weekly.
+     * @param array  $result  Report payload from the tester service.
+     * @param string $reason  Why the run ended this way. The dashboard notice
+     *                        needs it to tell a real delivery failure from a
+     *                        run that never got to send anything, such as one
+     *                        the free daily test quota refused.
+     */
+    private static function save_status($state, $message, $context, $result = [], $reason = '') {
         update_option(self::OPTION_LAST_STATUS, [
             'state' => sanitize_key($state),
             'message' => sanitize_text_field($message),
             'context' => sanitize_key($context),
             'checked_at' => current_time('mysql'),
-            'can_send_email' => !empty($result['can_send_email']) || !empty($result['success']),
+            // One rule decides this everywhere: a delivered probe that scored
+            // below MIN_DELIVERY_SCORE is not a working mail setup, so the
+            // dashboard notice speaks up for it as well.
+            'can_send_email' => self::is_delivery_confirmed($result),
+            // Kept separate from can_send_email, which is already judged
+            // against the score: this is the raw fact of arrival, and the two
+            // together are what separate "went to spam" from "never arrived".
+            'delivered' => is_array($result) && (!empty($result['can_send_email']) || !empty($result['success'])),
+            'score' => self::get_report_score($result),
+            'reason' => sanitize_key($reason),
         ], false);
     }
 

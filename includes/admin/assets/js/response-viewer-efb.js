@@ -3,6 +3,31 @@ const EfbResponseViewer = (function () {
   'use strict';
 
   let _respUploadSeq = 0;
+  const _responseUploadContexts = {};
+
+  function _rememberResponseUploadContext(msgId, track, isPanel) {
+    _responseUploadContexts[String(msgId)] = {
+      response_id: Number(msgId) || 0,
+      response_track: String(track || ''),
+      is_panel: !!isPanel
+    };
+  }
+
+  function _responseUploadOptions(msgId) {
+    const context = _responseUploadContexts[String(msgId)] || {};
+    const options = {
+      response_id: context.response_id || Number(msgId) || 0,
+      response_track: context.response_track || ''
+    };
+
+    /* A visitor receives this short-lived token only after the tracking code
+       has opened the matching conversation. Dashboard uploads are authorised
+       by the logged-in capability and therefore do not need it. */
+    if (!context.is_panel && typeof efb_var !== 'undefined' && efb_var.response_upload_token) {
+      options.response_token = efb_var.response_upload_token;
+    }
+    return options;
+  }
 
   function _t(key) {
     if (typeof efb_var !== 'undefined' && efb_var.text && efb_var.text[key]) return efb_var.text[key];
@@ -65,7 +90,7 @@ const EfbResponseViewer = (function () {
   }
 
   function buildRichEditor(msgId, savedValue) {
-    const placeholderText = _t('enterYourMessage') || 'Type your reply...';
+    const placeholderText = _t('enterYourMessage') || 'Type your reply&hellip;';
     const initialHtml = savedValue ? shortcodeToHtml(savedValue.replace(/@efb@nq#/g, '<br>')) : '';
 
     return `
@@ -75,17 +100,17 @@ const EfbResponseViewer = (function () {
       </div>
       <!-- Toolbar -->
       <div class="efb-editor-toolbar" id="efb_editor_toolbar">
-        <button type="button" class="efb-editor-btn" data-cmd="bold" title="Bold (Ctrl+B)">
+        <button type="button" class="efb-editor-btn" data-cmd="bold" title="${ajax_object_efm.text.rtBold} (Ctrl+B)">
           <i class="bi bi-type-bold"></i>
         </button>
-        <button type="button" class="efb-editor-btn" data-cmd="italic" title="Italic (Ctrl+I)">
+        <button type="button" class="efb-editor-btn" data-cmd="italic" title="${ajax_object_efm.text.rtItalic} (Ctrl+I)">
           <i class="bi bi-type-italic"></i>
         </button>
-        <button type="button" class="efb-editor-btn" data-cmd="underline" title="Underline (Ctrl+U)">
+        <button type="button" class="efb-editor-btn" data-cmd="underline" title="${ajax_object_efm.text.rtUnderline} (Ctrl+U)">
           <i class="bi bi-type-underline"></i>
         </button>
         <span class="efb-editor-toolbar-sep"></span>
-        <button type="button" class="efb-editor-btn" data-cmd="removeFormat" title="Clear formatting">
+        <button type="button" class="efb-editor-btn" data-cmd="removeFormat" title="${ajax_object_efm.text.clearFormatting}">
           <i class="bi bi-eraser"></i>
         </button>
         ${_buildAttachToolbarBtn(msgId)}
@@ -184,8 +209,8 @@ const EfbResponseViewer = (function () {
     });
   }
 
-  function buildReplyActions(msgId, isPanel) {
-    const uploadHtml = buildFileUploadArea(msgId, isPanel);
+  function buildReplyActions(msgId, isPanel, track) {
+    const uploadHtml = buildFileUploadArea(msgId, isPanel, track);
     return `
     <div class="efb-reply-actions efb pb-2">
       <button type="submit" class="efb-reply-btn" id="replayB_emsFormBuilder"
@@ -214,7 +239,7 @@ const EfbResponseViewer = (function () {
     let replySection = '';
     if (formType !== 'subscribe' && formType !== 'register' && formType !== 'survey') {
       const savedValue = localStorage.getItem('replayM_emsFormBuilder_' + msg_id) || '';
-      replySection = buildRichEditor(msg_id, savedValue) + buildReplyActions(msg_id, true);
+      replySection = buildRichEditor(msg_id, savedValue) + buildReplyActions(msg_id, true, track);
     }
 
     const body = `
@@ -239,7 +264,7 @@ const EfbResponseViewer = (function () {
     }
 
     const savedValue = '';
-    const uploadHtml = buildFileUploadArea(msg_id, false);
+    const uploadHtml = buildFileUploadArea(msg_id, false, track);
     const replySection = buildRichEditor(msg_id, savedValue) + `
     <div class="efb-reply-actions">
       <button type="submit" class="efb-reply-btn" id="replayB_emsFormBuilder"
@@ -316,7 +341,9 @@ const chatHistory = document.getElementById('resp_efb');
       <input type="file" class="efb-upload-input" id="resp_file_efb_" name="file" data-id="${msgId}" multiple>`;
   }
 
-  function buildFileUploadArea(msgId, isPanel) {
+  function buildFileUploadArea(msgId, isPanel, track) {
+
+    _rememberResponseUploadContext(msgId, track, isPanel);
     if (typeof setting_emsFormBuilder !== 'undefined' &&
       setting_emsFormBuilder.hasOwnProperty('dsupfile') &&
       setting_emsFormBuilder.dsupfile == false &&
@@ -408,7 +435,7 @@ const chatHistory = document.getElementById('resp_efb');
   }
 
   function _formatUploadFileName(name) {
-    return name.length > 30 ? name.slice(0, 27) + '...' : name;
+    return name.length > 30 ? name.slice(0, 27) + '…' : name;
   }
 
   function _renderUploadFileInfo(file, uploadId, uploadZone, attachBtn) {
@@ -516,7 +543,7 @@ const chatHistory = document.getElementById('resp_efb');
       reader.readAsDataURL(file);
 
       if (typeof fun_upload_file_api_emsFormBuilder === 'function') {
-        fun_upload_file_api_emsFormBuilder(uploadId, 'allformat', 'resp', file);
+        fun_upload_file_api_emsFormBuilder(uploadId, 'allformat', 'resp', file, _responseUploadOptions(msgId));
       }
     }
   }
@@ -574,6 +601,22 @@ const chatHistory = document.getElementById('resp_efb');
     }
   }
 
+  /* A sent reply owns its attachments from now on, so the composer has to go
+     back to empty: the chips, their progress rows, the pending-file
+     bookkeeping and the highlighted paperclip all belonged to the message
+     that just left. Leaving them on screen makes the next reply look like it
+     is carrying files it will never send. */
+  function _resetReplyUploads() {
+    _handleFileRemoved(
+      document.getElementById('efb_upload_zone'),
+      null,
+      document.getElementById('resp_file_efb_'),
+      document.getElementById('efb_attach_btn')
+    );
+    const legacyName = document.getElementById('name_attach_efb');
+    if (legacyName) legacyName.innerHTML = _t('file');
+  }
+
   return {
     buildAdminResponseBody: buildAdminResponseBody,
     buildPublicResponseBody: buildPublicResponseBody,
@@ -588,6 +631,7 @@ const chatHistory = document.getElementById('resp_efb');
     htmlToShortcode: htmlToShortcode,
     formatMessageForDisplay: formatMessageForDisplay,
     isResponseUploadId: _isResponseUploadId,
+    resetReplyUploads: _resetReplyUploads,
     _handleFileRemoved: _handleFileRemoved
   };
 
@@ -754,17 +798,21 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
     <div class="efb-msg-avatar ${byIsAdmin ? 'efb-msg-avatar--admin' : ''}"><i class="bi ${byIsAdmin ? 'bi-shield-check' : 'bi-person'}"></i></div>
     <div class="efb-msg-sender-info"><span class="efb-msg-sender-role">${byIsAdmin ? 'Admin' : efb_var.text.by}:</span><span class="efb-msg-sender-name">${byName}</span></div>
   </div>` : '';
-  let m = `<div class="efb bg-response efb card-body my-2 py-2 efb-msg-card ${efb_var.rtl == 1 ? 'rtl-text' : ''}">
-    <div class="efb efb-msg-header">
+  const dlWrapHtml = efb_var.hasOwnProperty('setting') || (typeof setting_emsFormBuilder !== 'undefined' && (setting_emsFormBuilder.activeDlBtn == true || setting_emsFormBuilder.activeDlBtn == '1' || setting_emsFormBuilder.activeDlBtn === 1)) ? `<div class="efb efb-msg-download efb-msg-dl-wrap"><button type="button" class="efb-msg-dl-btn" onclick="toggleDlDropdown_EFB(this)" aria-expanded="false" aria-haspopup="menu" aria-label="${efb_var.text.download}" title="${efb_var.text.download}"><i class="bi bi-download" aria-hidden="true"></i></button></div>` : '';
+  // Cards with no sender (the '#first' card) have nothing to pair the actions row
+  // against, so the header would collapse to a single flex item stuck at the start
+  // edge; anchor the download button to the meta bar's end edge instead.
+  const headerHtml = bySection ? `<div class="efb efb-msg-header">
      ${bySection}
-     <div class="efb-msg-header-actions">
-       ${efb_var.hasOwnProperty('setting') || (typeof setting_emsFormBuilder !== 'undefined' && (setting_emsFormBuilder.activeDlBtn == true || setting_emsFormBuilder.activeDlBtn == '1' || setting_emsFormBuilder.activeDlBtn === 1)) ? `<div class="efb efb-msg-download efb-msg-dl-wrap"><button type="button" class="efb-msg-dl-btn" onclick="toggleDlDropdown_EFB(this)" aria-expanded="false" aria-haspopup="menu" aria-label="${efb_var.text.download}" title="${efb_var.text.download}"><i class="bi bi-download" aria-hidden="true"></i></button></div>` : ''}
-     </div>
-    </div>
+     <div class="efb-msg-header-actions">${dlWrapHtml}</div>
+    </div>` : '';
+  let m = `<div class="efb bg-response efb card-body my-2 py-2 efb-msg-card ${efb_var.rtl == 1 ? 'rtl-text' : ''}">
+    ${headerHtml}
     <div class="efb-msg-meta-bar">
       ${ipSection}
       ${track != 0 ? `<div class="efb-msg-meta-item"><i class="bi bi-hash"></i><span class="efb-msg-meta-label">${efb_var.text.trackNo}:</span><span class="efb-msg-meta-val">${track}</span></div>` : ''}
       <div class="efb-msg-meta-item"><i class="bi bi-calendar3"></i><span class="efb-msg-meta-label">${efb_var.text.ddate}:</span><span class="efb-msg-meta-val">${date}</span></div>
+      ${bySection ? '' : dlWrapHtml}
     </div>
   <div class="efb-msg-divider"></div>
   <div class="efb-msg-fields">
@@ -871,7 +919,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
           q+=`<span class="efb efb-msg-price-tag">${Number(price).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span>`
         }else if(c.type.includes('checkbox')){
         }else if(c.type.includes('imgRadio')){
-          q = typeof fun_imgRadio_efb === 'function' ? `<div class="efb w-25">`+fun_imgRadio_efb(c.id_, c.src ,c)+`</div>` : `<div class="efb w-25"><img src="${c.src || ''}" class="efb img-fluid rounded" alt="${c.value || ''}"></div>`
+          q = typeof fun_imgRadio_efb === 'function' ? `<div class="efb w-100">`+fun_imgRadio_efb(c.id_, c.src ,c)+`</div>` : `<div class="efb w-100"><img src="${c.src || ''}" class="efb img-fluid rounded" alt="${c.value || ''}"></div>`
         }
         m += `<div class="efb efb-msg-field-row"><span class="efb-msg-field-label">${title}:</span> <span class="efb-msg-field-value">${text_nr_efb(q,1)}</span></div>`
       }
@@ -1041,6 +1089,23 @@ function getFallbackFont_efb(locale) {
   };
 
   return fallbackFonts[locale] || 'Arial, sans-serif';
+}
+
+/* efb_var.pro is truthy for BOTH Pro and Free Plus (is_efb_pro() counts
+   package_type 3 as pro); only package_type === 1 is real Pro. Admin pages
+   expose it at efb_var.setting.package_type, the frontend (efb_var is an
+   alias for ajax_object_efm there) exposes it at the top level. */
+function isRealPro_efb() {
+  if (typeof efb_var === 'undefined' || efb_var.pro === undefined || efb_var.pro === null) return false;
+  var proFlag = efb_var.pro == '1' || efb_var.pro == 1 || efb_var.pro === true;
+  if (!proFlag) return false;
+  var packageType = NaN;
+  if (efb_var.setting && efb_var.setting.package_type !== undefined && efb_var.setting.package_type !== null) {
+    packageType = Number(efb_var.setting.package_type);
+  } else if (efb_var.package_type !== undefined && efb_var.package_type !== null) {
+    packageType = Number(efb_var.package_type);
+  }
+  return packageType === 1;
 }
 
 function generatePDF_EFB(id)
@@ -1253,14 +1318,17 @@ function generatePDF_EFB(id)
     var headerHtml = '<div class="efb-pdf-header">';
     headerHtml += '<h2><a href="' + websiteUrl + '" target="_blank">' + window.location.hostname + '</a></h2>';
     const efb_link = efb_var.wp_lan === 'fa_IR' ? 'https://easyformbuilder.ir' : 'https://whitestudio.team/';
-    if (efb_var.pro !== 1) {
+    const showBranding = !isRealPro_efb();
+    if (showBranding) {
       headerHtml += '<h2>' + efb_var.text.createdBy + ' <a href="' + efb_link + '" target="_blank">' + efb_var.text.easyFormBuilder + '</a></h2>';
     }
     headerHtml += '</div>';
-    var footerHtml = '<div class="efb-pdf-footer">' +
+    var footerHtml = showBranding ? (
+      '<div class="efb-pdf-footer">' +
       (efb_var.text.createdBy || 'Created by') + ' ' + (efb_var.text.easyFormBuilder || 'Easy Form Builder') +
       ' &mdash; ' + new Date().toLocaleDateString((efb_var.wp_lan || 'en').replace(/_/g, '-'), { year:'numeric', month:'long', day:'numeric' }) +
-      '</div>';
+      '</div>'
+    ) : '';
     return headMarkup +
       '<title>' + (efb_var.text.download || 'Download') + ' - ' + window.location.hostname + '</title>' +
       '<body onload="winprint()">' +
@@ -1752,6 +1820,25 @@ function fun_emsFormBuilder__add_a_response_to_messages(message, by, userIp, tra
   document.getElementById('resp_efb').innerHTML += body
 }
 
+/* Who to credit on the card that is appended the moment a reply is accepted,
+   before any reload re-reads it from the database.
+   The server knows the signed-in name and is the only source that agrees with
+   what the reloaded list will show, so it wins. The payload carries `by` only
+   on the typed-message row, and every attachment is queued ahead of that row -
+   so reading it positionally (message[0].by) returned undefined as soon as a
+   file was attached, and the card was credited to a guest. */
+function efb_reply_sender_name_efb(res, message) {
+  const fromServer = res && res.data && res.data.by ? res.data.by : '';
+  if (fromServer) return fromServer;
+
+  if (Array.isArray(message)) {
+    const authored = message.find(x => x && x.by);
+    if (authored) return authored.by;
+  }
+  if (typeof ajax_object_efm !== 'undefined' && ajax_object_efm.user_name) return ajax_object_efm.user_name;
+  return (typeof efb_var !== 'undefined' && efb_var.text) ? efb_var.text.guest : '';
+}
+
 function response_Valid_tracker_efb(res) {
   if (res.data.success == true) {
     document.getElementById('body_efb-track').innerHTML = emsFormBuilder_show_content_message(res.data.value, res.data.content)
@@ -1776,18 +1863,16 @@ function response_rMessage_id(res, message) {
     document.getElementById('replay_state__emsFormBuilder').innerHTML = res.data.m;
     document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
     document.getElementById('replayB_emsFormBuilder').innerHTML =ajax_object_efm.text.reply;
-     if(document.getElementById('name_attach_efb')) document.getElementById('name_attach_efb').innerHTML =ajax_object_efm.text.file
-    if (typeof EfbResponseViewer !== 'undefined' && EfbResponseViewer._handleFileRemoved) {
-      var _uz = document.getElementById('efb_upload_zone');
-      var _fi = document.getElementById('efb_upload_file_info');
-      var _inp = document.getElementById('resp_file_efb_');
-      var _ab = document.getElementById('efb_attach_btn');
-      EfbResponseViewer._handleFileRemoved(_uz, _fi, _inp, _ab);
-    }
     const date = Date();
-    fun_emsFormBuilder__add_a_response_to_messages(message, res.data.by, 0, 0, date);
+    fun_emsFormBuilder__add_a_response_to_messages(message, efb_reply_sender_name_efb(res, message), 0, 0, date);
     const chatHistory = document.getElementById("resp_efb");
     chatHistory.scrollTop = chatHistory.scrollHeight;
+    /* After the card, never before: the reset splices the file rows out of
+       sendBack_emsFormBuilder_pub, and only a filtered copy of it stands
+       between that array and what was just rendered. */
+    if (typeof EfbResponseViewer !== 'undefined' && EfbResponseViewer.resetReplyUploads) {
+      EfbResponseViewer.resetReplyUploads();
+    }
   } else {
     document.getElementById('replayB_emsFormBuilder').innerHTML =ajax_object_efm.text.reply;
     document.getElementById('replay_state__emsFormBuilder').innerHTML = `<p class="efb text-danger bg-warning p-2">${res.data.m}</p>`;

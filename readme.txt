@@ -3,8 +3,8 @@ Contributors: hassantafreshi, mostafas1990, 6arshid, aminkhadivar, presskopp
 Donate link: https://whitestudio.team/donate-easy-form-builder/
 Tags: form builder, form plugin, multi step form, email templates, payment form
 Requires at least: 5.0
-Tested up to: 7.0
-Stable tag: 4.1.0
+Tested up to: 7.1
+Stable tag: 4.1.3
 Requires PHP: 7.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -33,6 +33,9 @@ With Easy Form Builder, you can use a single form plugin to build and manage mul
 - Login (sign-in) forms for WordPress users
 - Registration (sign-up) forms for new users
 - File upload forms
+- Audio recording forms for collecting voice messages and voice feedback
+- Video recording forms for video testimonials and webcam responses
+- Screen recording forms for bug reports and support requests
 - Private or restricted-access forms
 - Multi-step forms for improved usability
 - Smart forms with conditional logic that show or hide fields based on user answers
@@ -147,6 +150,9 @@ Login and registration forms integrate with WordPress user management and allow 
  Easy Form Builder provides a wide collection of advanced form fields, including:
 
 - Drag-and-drop file upload fields
+- Audio recorder field for recording voice messages from the microphone
+- Video recorder field for recording video from the webcam
+- Screen recorder field for capturing on-screen recordings
 - Signature (e-signature) fields
 - Location picker fields (OpenStreetMap and LeafletJS)
 - Country, state/province, and city dropdown fields
@@ -160,6 +166,16 @@ Login and registration forms integrate with WordPress user management and allow 
 - Matrix and table fields for structured data collection
 
 These fields allow you to build complex, region-aware, and structured forms without custom development.
+
+
+== Audio, Video, and Screen Recording Form Fields ==
+
+Easy Form Builder lets you add audio recording, video recording, and screen recording fields to any WordPress form, so visitors can record and submit media right from the browser - no extra apps, plugins, or third-party recording services. Every recording is uploaded to your own WordPress site, so your form data stays under your control.
+
+- Audio recorder field - let visitors record a voice message from their microphone. Great for voice feedback forms, audio testimonial forms, voice message and voicemail forms, language and pronunciation practice, and podcast or audio submission forms.
+- Video recorder field - let visitors record video from their webcam. Perfect for video testimonial forms, job application video introductions, customer video feedback, and video question-and-answer forms.
+- Screen recorder field - let visitors record their screen (with optional microphone audio). Ideal for bug report forms, technical support request forms, product feedback, and tutorial or demo submission forms.
+
 
 
 == Integrations and Add-ons ==
@@ -214,26 +230,6 @@ The Free Plus version is completely free of charge - the only difference is a sm
 == Available Versions ==
 
  [Easy Form Builder is available in multiple versions](https://whitestudio.team/document/easy-form-builder-free-plus-activation-guide/) to support different usage needs. Each version is designed to provide a clear and predictable set of features.
-
-= Free Version =
-The Free version provides essential form-building tools. It is suitable for users who need reliable form creation with email notifications, confirmation codes, entry management, file uploads, and basic survey fields.
-
-This version is suitable for personal websites, blogs, and small business sites.
-
-= Free Plus Version =
-The Free Plus version extends the Free version by enabling advanced form fields and features available in the form builder, while excluding external add-ons. It also unlocks conditional logic at no cost - up to 3 logic rules per form, up to 2 conditions per rule, and up to 2 conditional email notification rules - plus CSV export and the weekly email deliverability report.
-
-This version is suitable for users who need advanced form layouts, smart conditional forms, and surveys without add-on-based extensions. A small "Powered by Easy Form Builder" credit is displayed on the form output.
-
-= Pro Version =
-The Pro version includes all Free Plus features and adds support for official add-ons and integrations. For conditional logic, Pro removes all rule limits and adds nested AND/OR groups, calculations, rule priority, conditional thank-you messages and redirects, conditional webhooks, rule export/import, and the logic Inspector (debugger).
-
-This version is suitable for professional websites, service platforms, and projects that require extended workflows such as SMS notifications, payment forms, conditional workflows, and advanced integrations.
-
-
-As of this release, we have partnered with the following WordPress plugins:
-
-- [Shield security](https://wordpress.org/plugins/wp-simple-firewall/)
 
 
 == Frequently Asked Questions ==
@@ -292,6 +288,21 @@ Yes. Easy Form Builder includes a visual conditional logic builder. You can show
 
 = Is conditional logic free? =
 Yes. Conditional logic is available at no cost in the Free Plus version, which includes up to 3 logic rules per form, up to 2 conditions per rule, and up to 2 conditional email notification rules. The Pro version removes these limits and adds nested AND/OR groups, calculations, conditional redirects and thank-you messages, conditional webhooks, and the logic Inspector.
+
+= What does the Free version include? =
+The Free version provides essential form-building tools. It is suitable for users who need reliable form creation with email notifications, confirmation codes, entry management, file uploads, and basic survey fields.
+
+This version is suitable for personal websites, blogs, and small business sites.
+
+= What does the Free Plus version include? =
+The Free Plus version extends the Free version by enabling advanced form fields and features available in the form builder, while excluding external add-ons. It also unlocks conditional logic at no cost - up to 3 logic rules per form, up to 2 conditions per rule, and up to 2 conditional email notification rules - plus CSV export and the weekly email deliverability report.
+
+This version is suitable for users who need advanced form layouts, smart conditional forms, and surveys without add-on-based extensions. A small "Powered by Easy Form Builder" credit is displayed on the form output.
+
+= What does the Pro version include? =
+The Pro version includes all Free Plus features and adds support for official add-ons and integrations. For conditional logic, Pro removes all rule limits and adds nested AND/OR groups, calculations, rule priority, conditional thank-you messages and redirects, conditional webhooks, rule export/import, and the logic Inspector (debugger).
+
+This version is suitable for professional websites, service platforms, and projects that require extended workflows such as SMS notifications, payment forms, conditional workflows, and advanced integrations.
 
 = Can I show or hide form fields based on a user's answer? =
 Yes. Conditional fields are the core of the conditional logic builder: choose a condition (for example, "Plan is Enterprise") and an action (for example, "show the Budget field"), and the form updates in real time while the visitor fills it in.
@@ -404,12 +415,14 @@ For more information, visit the official website:
 16. Confirmation Code Search Field
 17. WordPress Support Ticket Conversation and Reply Form
 18. Easy Form Builder Dashboard Widget with email delivery status, form page views, completed submissions, sent and failed email counts, and Email Error Log
+19. Test WordPress form notification emails for free with Easy Form Builder.
 
 
 == Upgrade Notice ==
 
-= 4.1.0 =
-Big update: a new no-code Conditional Logic Builder for smart forms, an AI-analyzed email deliverability monitor (spam score + SPF/DKIM/DMARC) with weekly reports, multiple file uploads, form-builder autosave, session/nonce hardening for cached pages, automatic CDN failover, and several security fixes. Tested up to WordPress 7.0
+= 4.1.3 =
+
+* Reliability update: fixes stray empty paragraphs breaking form layout on some themes/page builders, resolves file upload and recorder submission failures, and enforces file size/type limits on the server. Also adds a weekly email deliverability report. Recommended for all users.
 
 = 4.0.0 =
 
@@ -419,6 +432,41 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 
 
 == Changelog ==
+
+= 4.1.3 =
+
+* New: File upload form fields now have a built-in limit (3 files per field, no add-on needed), your own budget/size settings, server-side file-type enforcement, and fixed audio/video/screen recording uploads with clearer error messages.
+
+* New: Setup guide for new installs, with direct links to each settings tab.
+
+* New: Weekly email delivery report for your forms.
+
+* Fixed: Stray empty paragraphs no longer appear between fields on themes/page builders that run wpautop after shortcodes.
+
+* Fixed: Payment form notification emails could fail to send.
+
+* Fixed: Forms keep working on cached pages instead of showing a security error.
+
+* Improved: Faster page loads - forms no longer wait on a remote check to render.
+
+= 4.1.2 =
+
+* Fixed: Forms with file upload or recorder fields no longer get wrongly blocked by Form Security & Spam Protection in WordPress Form Builder.
+
+* Fixed: Genuine visitors are no longer blocked when their browser or password manager auto-fills a hidden field.
+
+* New: Audio, video, and screen recording fields released for WordPress Form Builder.
+
+* Improved: Smarter spam scoring in Form Builder for recorder and file-upload forms, so real visitors aren't mistaken for bots.
+
+* Fixed: Password field placeholder now displays correctly.
+
+* Improved: Safe plugin loading - if any plugin file is missing after an update or an incomplete deploy, the plugin now stays inactive for that request and shows an admin notice asking for a reinstall, instead of causing a fatal error on the whole site.
+
+
+= 4.1.1 =
+
+* Fixed: Restored plugin files that were missing from the 4.1.0 release package on wordpress.org, which caused a fatal error after updating.
 
 = 4.1.0 =
 
@@ -492,193 +540,4 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 
 **Backup your site before updating. Not backward-compatible with v3.x addons.**
 
-= 3.8.22 =
-
-* Enhanced Security Features in the Easy Form Builder WordPress Plugin
-
-= 3.8.19 =
-
-* Improved UX of Easy Form Builder
-
-=3.8.18=
-
-* Fixed issues
-
-= 3.8.17 =
-
-* Fixed issues
-
-* Enhanced Security Features in the Easy Form Builder WordPress Plugin
-
-= 3.8.14 =
-
-* Improved Email notification configuration in Easy Form Builder.
-
-* Improved UX of Easy Form Builder
-
-=3.8.13=
-
-* Improved Email notification configuration in Easy Form Builder.
-
-=3.8.11=
-
-* Improved UX of Easy Form Builder
-
-= 3.8.10 =
-
-* Fixed issues
-
-
-= 3.8.9 =
-
-* Enhanced Security Features in the Easy Form Builder WordPress Plugin
-
-= 3.8.7 =
-
-* Fixed issues
-
-= 3.8.6 =
-* Enhanced Security Features in the Easy Form Builder WordPress Plugin
-
-= 3.8.5 =
-* Easy Form Builder Plugin is compatible with WordPress version 6.7
-
-= 3.8.4 =
-
-* Fixed UI issues in Easy Form Builder
-
-= 3.8.3 =
-
-* Fixed issues
-
-* Fixed UI issues in Easy Form Builder
-
-= 3.8.2 =
-= 3.8.1 =
-
-* Fixed issues
-
-
-= 3.8.0 =
-
-* Improvement of the location picker feature for the form and changing the service provider to OpenStreetMap.
-
-* Fixed issues
-
-= 3.7.35 =
-
-* Fixed issues of loading time of Easy Form Builder
-
-* Fixed issues
-
-
-
-= 3.7.34 =
-* Fixed issues of loading time of Easy Form Builder
-* Fixed issues
-= 3.7.33 =
-
-* Fixed issues
-
-= 3.7.31 =
-
-* Resolved issues related to sending email notifications for forms.
-
-= 3.7.30 =
-* Improved Security of Easy Form Builder
-* Changed the default response state to require admin login.
-
-= 3.7.29 =
-= 3.7.28 =
-
-* Resolved issues related to sending email notifications for forms.
-
-= 3.7.27 =
-
-* Resolved issues related to sending email notifications for forms.
-
-= 3.7.26 =
-* Fixed UI issues in Easy Form Builder
-* Added new feature: 'terms input field' to form builder.
-
-= 3.7.25 =
-* Fixed UI issues in Easy Form Builder
-
-= 3.7.24 =
-* Fixed UI issues in Easy Form Builder
-* Resolved Google reCAPTCHA loading issues in Easy Form Builder's forms.
-
-
-= 3.7.21 =
-* Resolved CAPTCHA issue present on the Edit Form page in Easy Form Builder Panel.
-* Admins Can Now Add Responses Without Logging In
-* "Select All" Checkbox Added for Messages Section on Easy Form Builder Panel
-* Delete Button Added to Message Section on Easy Form Builder Panel 
-* "Read" Button Added to Message Section on Easy Form Builder Panel 
-* Resolved issues with changing phone number in settings.
-* Fixed UI issues in Easy Form Builder
-
-
-= 3.7.20 =
-* Fixed UI issues in Easy Form Builder
-
-= 3.7.19 =
-
-* Fixed UI issues in Easy Form Builder
-
-= 3.7.18 =
-
-* Fixed UI issues in Easy Form Builder
-
-* Resolved issues related to sending email notifications for forms.
-
-= 3.7.17 =
-
-* Fixed UI issues in Easy Form Builder
-
-= 3.7.16 =
-
-* Fixed UI issues in Easy Form Builder
-
-= 3.7.15 =
-
-* Improved Email notification configuration in Easy Form Builder.
-
-* Added total price and input price fields for building payment forms.
-
-* Updated readme.
-
-= 3.7.14 =
-= 3.7.13 =
-
-* Resolved issues related to sending email notifications for forms.
-
-* Fixed issues of performance conflicts with popular cache plugins.
-
-= 3.7.11 =
-
-* Fixed issues
-
-= 3.7.10 =
-
-* The link to documents in German and Arabic has been added to the Easy Form Builder.
-
-* Fixed issues
-
-= 3.7.9 =
-
-* Fixed issues of performance conflicts with popular cache plugins.
-
-* Enhance the user interface for loading forms.
-
-* Fixed issues
-
-
-
-== Upgrade Notice ==
-
-= 3.7.13 =
-Starting from version 3.7.13, if you are using the Pro package of Easy Form Builder, all addons will be downloaded automatically. For free users of Easy Form Builder, all updates will be provided by wordpress.org.
-
-= 1.29 =
-This is the first release of Easy Form Builder. Download it to make building forms a breeze!
+Looking for even older release notes? See the [full changelog archive](https://plugins.svn.wordpress.org/easy-form-builder/assets/changelog_old.txt).

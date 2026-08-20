@@ -47,39 +47,62 @@ function efb_builder_latest_email_spam_score() {
   return Number.isFinite(score) ? score : null;
 }
 
-function efb_builder_email_warning_signature() {
-  const first = Array.isArray(valj_efb) && valj_efb[0] ? valj_efb[0] : {};
+function efb_builder_email_warning_signature(kind) {
   return [
+    kind,
     form_ID_emsFormBuilder || 0,
-    first.formName || first.type || '',
-    Array.isArray(valj_efb) ? valj_efb.length : 0,
     efb_builder_latest_email_spam_score()
   ].join('|');
 }
 
+/* One-click route to the switch that actually enables notification emails.
+   Relative on purpose: the builder already runs under /wp-admin/. */
+function efb_builder_email_settings_url() {
+  return 'admin.php?page=Emsfb&state=setting&tab=email';
+}
+
+function efb_builder_email_settings_button() {
+  const label = efb_var.text.emailSendingOffCta || 'Enable email sending';
+  return `<br><a class="efb btn btn-sm btn-warning fw-semibold mt-2 text-dark" href="${efb_builder_email_settings_url()}"><i class="efb bi-toggle-on mx-1"></i>${label}</a>`;
+}
+
+/* Two different problems, two different messages:
+   - the switch is off  -> NO notification email goes out at all. This is the
+     default on a fresh install, so the admin gets a direct "turn it on" route.
+   - the switch is on but the last spam score is poor -> emails are sent but may
+     be filtered, which stays a delivery-quality warning. */
 function efb_builder_maybe_warn_email_delivery() {
   const score = efb_builder_latest_email_spam_score();
   const health = (typeof efb_var !== 'undefined' && efb_var.emailHealth) ? efb_var.emailHealth : {};
   const threshold = health && Number(health.threshold) ? Number(health.threshold) : 75;
 
-  if (!efb_builder_form_has_email_field() || !efb_builder_email_setting_smtp_disabled() || (score !== null && score >= threshold)) {
+  let kind = '';
+  if (efb_builder_email_setting_smtp_disabled()) {
+    kind = 'off';
+  } else if (efb_builder_form_has_email_field() && score !== null && score < threshold) {
+    kind = 'score';
+  } else {
     return;
   }
 
-  const signature = efb_builder_email_warning_signature();
+  const signature = efb_builder_email_warning_signature(kind);
   if (efb_builder_last_email_warning_signature === signature) {
     return;
   }
   efb_builder_last_email_warning_signature = signature;
 
+  if (kind === 'off') {
+    const offTitle = efb_var.text.emailSendingOffTitle || 'Notification emails are turned off';
+    const offDesc = efb_var.text.emailSendingOffDesc || 'Easy Form Builder will not send any email - neither to you nor to the person who submits this form - until "This site can send emails" is enabled in Email Settings.';
+    alert_message_efb(offTitle, offDesc + efb_builder_email_settings_button(), 30, 'warning');
+    return;
+  }
+
   const title = efb_var.text.emailNotificationRiskTitle || 'Email notifications may not be delivered';
-  const template = score === null
-    ? (efb_var.text.emailNotificationRiskDescNoScore || 'This form includes an email field, but email delivery is not enabled in settings and no recent spam score is available. Form admin notification emails may not arrive until SMTP/email delivery is tested and fixed.')
-    : (efb_var.text.emailNotificationRiskDesc || 'This form includes an email field, but email delivery is not enabled in settings and the latest spam score is %s/100. The form was saved, but admin notification emails may not reach the form admin until SMTP/email delivery is fixed.');
+  const template = efb_var.text.emailNotificationRiskDesc || 'This form\'s email notification feature is enabled, but email delivery has not been verified and the latest spam score is %s/100. The form was saved, but admin notification emails may not reach you until SMTP/email delivery is fixed.';
   const helpText = efb_var.text.clcdetls || efb_var.text.smtpSetupGuideBtn || efb_var.text.clickHere || 'Click here for more details';
   const helpLink = `<br><a class="efb alert-link text-dark fw-semibold pointer-efb" onclick="Link_emsFormBuilder('EmailSpam')">${helpText}</a>`;
-  const message = (score === null ? template : template.replace('%s', `<b>${score}</b>`)) + helpLink;
-  alert_message_efb(title, message, 30, 'warning');
+  alert_message_efb(title, template.replace('%s', `<b>${score}</b>`) + helpLink, 30, 'warning');
 }
 
 function efb_builder_maybe_warn_email_delivery_after_save() {
@@ -428,10 +451,6 @@ function show_message_result_form_set_EFB(state, m) {
     return;
   }
 
-  const cet = () => {
-    const emailItem = valj_efb.find(item => item.type === 'email');
-    return emailItem!=undefined && emailItem.hasOwnProperty('noti')  ? emailItem.noti  : false;
-};
   const wpbakery= `<p class="efb m-5 mx-3 fs-4"><a class="efb text-danger ec-efb" data-eventform="links" data-linkname="wpbakery">${efb_var.text.wwpb}</a></p>`
   const title = `
   <h4 class="efb title-holder efb">
@@ -440,12 +459,14 @@ function show_message_result_form_set_EFB(state, m) {
   </h4>
 
   `;
-  const e_s = cet();
   let e_m ='<div id="alert"></div>';
-  if((efb_var.smtp==false || efb_var.smtp==0 || efb_var.smtp==-1) && (e_s==true || e_s==1)) {
-    msg = `<p class="efb mb-1"><strong>${efb_var.text.emailNotificationRiskTitle}</strong></p>
-    <p class="efb mb-2">${efb_var.text.goToEFBAddEmailM}</p>
-    <a class="efb btn btn-sm efb btn-danger text-white btn-r d-block ec-efb" data-eventform="links" data-linkname="EmailNoti"><i class="efb bi bi-patch-question  mx-1"></i>${efb_var.text.howActivateAlertEmail}</a>
+  /* The form is saved either way - this only tells the admin that the global
+     "This site can send emails" switch is still off, so neither the admin nor
+     the visitor will receive anything, and links straight to that switch. */
+  if(efb_builder_email_setting_smtp_disabled()) {
+    const msg = `<p class="efb mb-1"><strong>${efb_var.text.emailSendingOffTitle || 'Notification emails are turned off'}</strong></p>
+    <p class="efb mb-2">${efb_var.text.emailSendingOffDesc || efb_var.text.goToEFBAddEmailM}</p>
+    <a class="efb btn btn-sm efb btn-warning text-dark btn-r d-block" href="${efb_builder_email_settings_url()}"><i class="efb bi bi-toggle-on mx-1"></i>${efb_var.text.emailSendingOffCta || efb_var.text.howActivateAlertEmail}</a>
     `
     e_m = alarm_emsFormBuilder(msg)
   }
@@ -936,7 +957,7 @@ function add_addons_emsFormBuilder() {
           ${!mobile_view_efb ? `<h4 class="efb  mb-0 title-holder fs-4 efb"><img src="${efb_var.images.title}" class="efb title efb create"><i class="efb  bi-plus-circle title-icon fs-4 mx-1"></i>${efb_var.text.addons}</h4>` : ''}
 
           <div class="efb d-flex justify-content-center align-items-center flex-wrap my-3 gap-2" id="addonSearchWrapEFB">
-            <input type="text" placeholder="${efb_var.text.search} ..." id="findCardAddonEFB" autocomplete="off" aria-label="${efb_var.text.search}"
+            <input type="text" placeholder="${efb_var.text.search} &hellip;" id="findCardAddonEFB" autocomplete="off" aria-label="${efb_var.text.search}"
               class="efb fs-6 search-form-control rounded-4 efb addon-search-input-efb mx-2"
               oninput="FunfindCardAddonEFB()" onkeydown="if(event.key==='Enter'){event.preventDefault();FunfindCardAddonEFB();}">
             <a class="efb btn efb btn-outline-pink mx-1" role="button" onclick="FunfindCardAddonEFB()"><i class="efb bi-search mx-1"></i>${efb_var.text.search}</a>
@@ -1722,7 +1743,8 @@ let change_el_edit_Efb = (el) => {
         const aId = {
           email: "_", text: "_", password: "_", tel: "_", url: "_", date: "_", color: "_", range: "_", number: "_", file: "_",
           textarea: "_", dadfile: "_", maps: "-map", checkbox: "_options", radio: "_options", select: "_options",
-          multiselect: "_options", esign: "-sig-data", rating: "-stared", yesNo: "_yn"
+          multiselect: "_options", esign: "-sig-data", rating: "-stared", yesNo: "_yn",
+          audio_recorder: "_file", video_recorder: "_file", screen_recorder: "_file"
         }
         postId = aId[valj_efb[indx].type]
         id = valj_efb[indx].id_
@@ -3011,7 +3033,7 @@ let change_el_edit_Efb = (el) => {
           document.getElementById(idhtml).classList.add('sign-efb')
           document.getElementById(idhtml).innerHTML = `
             <div class="efb  noCode-efb m-5 text-center" id="${el.dataset.id}_noCode">
-            ${efb_var.text.noCodeAddedYet}  <button type="button" class="efb  btn btn-edit btn-sm" id="settingElEFb" data-id="${el.dataset.id}-id" data-bs-toggle="tooltip" title="Edit" onclick="show_setting_window_efb('${el.dataset.id}-id')">
+            ${efb_var.text.noCodeAddedYet}  <button type="button" class="efb  btn btn-edit btn-sm" id="settingElEFb" data-id="${el.dataset.id}-id" data-bs-toggle="tooltip" title="${efb_var.text.edit}" onclick="show_setting_window_efb('${el.dataset.id}-id')">
             <div class="icon-container efb"><i class="efb bi-gear-wide-connected text-success ${efb_var.rtl == 1 ? 'ms-2' : 'me-2'} fs-7" id="efbSetting" ></i></div></button> ${efb_var.text.andAddingHtmlCode}
             </div>`
           valj_efb[postId].value = '';
@@ -4814,10 +4836,15 @@ window.addEventListener("popstate",e=>{
 
     break;
     case 'setting':
-      if(typeof fun_show_setting__emsFormBuilder === 'function'){
-      fun_show_setting__emsFormBuilder();
-      fun_backButton_efb(0);
-      fun_hande_active_page_emsFormBuilder(2);
+    case 'setting-tab':
+      /* 'setting-tab' entries only differ by ?tab=, so the restore repaints the
+         tab bar and re-renders the settings screen only when it is gone. */
+      if(typeof efb_restore_setting_tab_efb === 'function'){
+        efb_restore_setting_tab_efb();
+      }else if(typeof fun_show_setting__emsFormBuilder === 'function'){
+        fun_show_setting__emsFormBuilder();
+        fun_backButton_efb(0);
+        fun_hande_active_page_emsFormBuilder(2);
       }
       break;
     case 'help':
@@ -5034,7 +5061,7 @@ add_new_logic_efb = (newId , step_id) =>{
       const twos = optionSmartforOptionsEls(newId,step_id , 0);
       const si = `<p class="efb mx-2 px-0  col-form-label fs-6 text-center">${efb_var.text.ise}</p>`
       const del_btn =`
-      <button type="button" class="efb zindex-100  btn btn-delete btn-sm m-1" onclick="emsFormBuilder_delete('${newId}','condlogic' ,'${step_id}')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Delete"><i class="efb  bi-trash"></i></button>
+      <button type="button" class="efb zindex-100  btn btn-delete btn-sm m-1" onclick="emsFormBuilder_delete('${newId}','condlogic' ,'${step_id}')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${efb_var.text.delete}"><i class="efb  bi-trash"></i></button>
       `
   document.getElementById("list-logics").innerHTML += `
   <div class="efb mx-0 col-sm-12 row opt" id="${newId}-logics-gs">
@@ -5273,8 +5300,8 @@ call_beat = async () => {
           store_form_efb();
         }
         alert_message_efb(
-          '<i class="efb bi-wifi-off mx-1"></i>' + efb_var.text.error,
-          `<p class="efb fs-6">${text}</p>`,
+          '<span class="efb text-white"><i class="efb bi-wifi-off mx-1"></i>' + efb_var.text.error + '</span>',
+          text,
           500,
           "danger"
         );
@@ -5654,8 +5681,14 @@ function restore_auto_save_efb(){
 function fub_shwBtns_efb() {
   for (const el of document.querySelectorAll(".showBtns")) {
 
+    // A field is selectable by tapping it, but its action buttons must keep their
+    // native click event. Calling preventDefault() on the field's touchend event
+    // cancels the synthetic click that mobile browsers dispatch for a button.
+    const isFieldAction = (target) => target.closest('.btn-edit-holder') !== null;
+
     if (!el._efbClickBound) {
       el.addEventListener("click", (e) => {
+        if (isFieldAction(e.target)) return;
         active_element_efb(el);
       });
       el._efbClickBound = true;
@@ -5686,9 +5719,9 @@ function fub_shwBtns_efb() {
 
     if (!el._efbTouchBound) {
       el.addEventListener("touchend", (e) => {
-        if (e.cancelable) e.preventDefault();
+        if (isFieldAction(e.target)) return;
         active_element_efb(el);
-      }, { passive: false });
+      }, { passive: true });
       el._efbTouchBound = true;
     }
   }
@@ -5917,7 +5950,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     case 'address_line':
       const type = elementId == "firstName" || elementId == "lastName" || elementId == "postalcode" || elementId == "address_line" ? 'text' : elementId;
       const autocomplete = elementId == "email" ? 'email' : elementId == "tel" ? 'tel' : elementId == "url" ? 'url' : elementId == "password" ? 'current-password' : elementId == "firstName" ? 'given-name' : elementId == "lastName" ? 'family-name' : elementId == "postalcode" ? 'postal-code' : elementId == "address_line" ? 'street-address' : 'off';
-      const placeholder =  elementId != 'color'  && elementId != 'range' &&  elementId != 'password' &&  elementId != 'date' ? `placeholder="${valj_efb[iVJ].placeholder}"` : '';
+      const placeholder =  elementId != 'color'  && elementId != 'range' &&  elementId != 'date' ? `placeholder="${valj_efb[iVJ].placeholder}"` : '';
 
       if(elementId != 'date'){
         maxlen = valj_efb[iVJ].hasOwnProperty('mlen') && valj_efb[iVJ].mlen >0 ? valj_efb[iVJ].mlen :0;

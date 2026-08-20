@@ -254,7 +254,10 @@ class Create {
 		$stng_pdate = true;
 		if(gettype($settings)!="string"){
 			if( isset($settings->siteKey)&& strlen($settings->siteKey)>5){$captcha="true";}
-			if(isset($settings->smtp) && (bool)$settings->smtp){$smtp=1;}else if(isset($settings->smtp) && (bool)$settings->smtp==false){$smtp=0;$smtp_m =$lang['sMTPNotWork'];}
+			/* 0 (not -1) when the switch is off, including the fresh-install case
+			 * where the key is missing - the builder must be able to tell "off"
+			 * apart from "settings unreadable" to show the setup hint. */
+			if(emsfb_is_email_sending_enabled_efb($settings)){$smtp=1;}else{$smtp=0;$smtp_m =$lang['sMTPNotWork'];}
 		}else{$smtp_m =$lang['goToEFBAddEmailM'];}
 		if("fa_IR"==get_locale()){
 			do_action('efb_enqueue_persia');
@@ -303,12 +306,15 @@ class Create {
 			'zone_area'=>CDN_ZONE_AREA,
 			'plugins'=>$plugins,
 			'emailHealth'=>$email_health,
+			'onboarding_pending' => emsfb_onboarding_pending_efb(),
 			// Hosting upload ceiling in MB - the builder warns when a field's
 			// max file size is configured above it (uploads would fail).
 			'upload_max'=>(int) floor(wp_max_upload_size() / MB_IN_BYTES)
 		), 'create');
 		wp_localize_script('Emsfb-admin-js','efb_var',$efb_var_data);
-		wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION, true);
+		$efb_val_js_path = EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/val-efb.js';
+		$efb_val_js_version = is_readable($efb_val_js_path) ? (string) filemtime($efb_val_js_path) : EMSFB_PLUGIN_VERSION;
+		wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val-efb.js', array('jquery'), $efb_val_js_version, true);
 		wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION, true);
 		wp_enqueue_script('efb-forms-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/forms-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION, true);
 		 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core-efb.js', array('jquery','efb-recorder-js'), EMSFB_PLUGIN_VERSION, true);

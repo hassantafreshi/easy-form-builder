@@ -12,6 +12,7 @@
 .efb-recorder-shell[class*="h-"] {
 	height: auto !important;
 	font-size: inherit !important;
+	border: 0 !important;
 }
 
 .efb-recorder-frame {
@@ -254,6 +255,39 @@
 	gap: 8px;
 }
 
+/* Upload belongs to the finished-recording action group next to Download.
+   Its state is conveyed by the icon and the existing status row, not a second
+   full-width control that competes with recording controls. */
+.efb-recorder-secondary-btn[data-action="upload"] {
+	background: rgba(13,110,253,.9);
+	box-shadow: 0 3px 10px rgba(13,110,253,.28);
+}
+
+.efb-recorder-secondary-btn[data-action="upload"]:hover:not(:disabled) {
+	background: #0d6efd;
+}
+
+.efb-recorder-secondary-btn.efb-recorder-uploading {
+	background: #6f42c1;
+	cursor: wait;
+}
+
+.efb-recorder-secondary-btn.efb-recorder-uploading i { animation: efb-rec-upload-spin 1s linear infinite; }
+
+.efb-recorder-secondary-btn.efb-recorder-uploaded {
+	background: #198754;
+	cursor: default;
+}
+
+.efb-recorder-secondary-btn.efb-recorder-upload-error {
+	background: #b02a37;
+}
+
+@keyframes efb-rec-upload-spin {
+	from { transform: rotate(0); }
+	to { transform: rotate(360deg); }
+}
+
 .efb-recorder-status {
 	font-size: 12.5px;
 	color: #6c7280;
@@ -279,6 +313,9 @@
 }
 
 .efb-recorder-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
 	font-size: 11px;
 	font-weight: 600;
 	padding: 2px 9px;
@@ -375,4 +412,51 @@
 	cursor: not-allowed;
 	opacity: .55;
 	transform: none;
+}
+
+/* ---- Generic field style settings (shell -> frame translation) -----------------
+   The shell carries the same generic setting classes as every other field's main
+   element (el_height h-*-efb, corner rounded-0..5/efb-square, el_border_color
+   border-*, custom CSS classes). Those utilities are designed for single-line
+   inputs, so each is translated into the equivalent look on the inner frame.
+   These rules sit AFTER the kind-specific frame rules on purpose - equal
+   specificity, later source order wins. */
+
+/* Height: the chosen size scales the recording area instead of clipping the widget.
+   Audio frames are free-height, so min-height alone drives them. */
+.efb-recorder-audio.h-l-efb .efb-recorder-frame { min-height: 160px; }
+.efb-recorder-audio.h-xl-efb .efb-recorder-frame { min-height: 200px; }
+.efb-recorder-audio.h-xxl-efb .efb-recorder-frame { min-height: 240px; }
+.efb-recorder-audio.h-xxxl-efb .efb-recorder-frame { min-height: 300px; }
+
+/* Video/screen frames lock their height to a 16:9 aspect-ratio, so min-height is
+   ignored (the width-derived height already exceeds it). Release the aspect-ratio
+   for these kinds when a height is chosen and drive an explicit height instead.
+   Two shell classes + the frame class = specificity 0,3,0, which beats the base
+   `.efb-recorder-video-kind .efb-recorder-frame` aspect-ratio rule (0,2,0). */
+.efb-recorder-video-kind.h-l-efb .efb-recorder-frame,
+.efb-recorder-screen-kind.h-l-efb .efb-recorder-frame { aspect-ratio: auto; height: 240px; min-height: 240px; }
+.efb-recorder-video-kind.h-xl-efb .efb-recorder-frame,
+.efb-recorder-screen-kind.h-xl-efb .efb-recorder-frame { aspect-ratio: auto; height: 300px; min-height: 300px; }
+.efb-recorder-video-kind.h-xxl-efb .efb-recorder-frame,
+.efb-recorder-screen-kind.h-xxl-efb .efb-recorder-frame { aspect-ratio: auto; height: 380px; min-height: 380px; }
+.efb-recorder-video-kind.h-xxxl-efb .efb-recorder-frame,
+.efb-recorder-screen-kind.h-xxxl-efb .efb-recorder-frame { aspect-ratio: auto; height: 460px; min-height: 460px; }
+
+/* Corners > Rounded: frame radius follows the shell's rounded-N class
+   (efb-square / no class keeps the designed 16px default) */
+.efb-recorder-shell.rounded-0 .efb-recorder-frame { border-radius: 0; }
+.efb-recorder-shell.rounded-1 .efb-recorder-frame { border-radius: 4px; }
+.efb-recorder-shell.rounded-2 .efb-recorder-frame { border-radius: 8px; }
+.efb-recorder-shell.rounded-3 .efb-recorder-frame { border-radius: 12px; }
+.efb-recorder-shell.rounded-4 .efb-recorder-frame { border-radius: 16px; }
+.efb-recorder-shell.rounded-5 .efb-recorder-frame { border-radius: 24px; }
+
+/* Border Color: bootstrap border-* utilities set border-color on the shell (which
+   draws no border itself); the frame inherits it. .border-d = untouched default so
+   the designed dark frame border stays until the user actually picks a color.
+   :where() keeps specificity below the data-state rules, so the recording-red and
+   unsupported borders still win. Validation border-danger/success work here too. */
+.efb-recorder-shell:where([class*="border-"]:not(.border-d):not(.efb-recorder-unsupported)) .efb-recorder-frame {
+	border-color: inherit;
 }

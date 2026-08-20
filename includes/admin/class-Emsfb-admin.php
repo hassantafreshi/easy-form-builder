@@ -40,6 +40,8 @@ class Admin {
             add_action('wp_ajax_get_track_id_Emsfb', [$this, 'get_ajax_track_admin']);
             add_action('wp_ajax_clear_garbeg_Emsfb', [$this, 'clear_garbeg_admin']);
             add_action('wp_ajax_check_email_server_efb', [$this, 'check_email_server_admin']);
+            add_action('wp_ajax_efb_save_onboarding_email', [$this, 'efb_save_onboarding_email']);
+            add_action('wp_ajax_efb_complete_onboarding', [$this, 'efb_complete_onboarding']);
             add_action('wp_ajax_add_addons_Emsfb', [$this, 'add_addons_Emsfb']);
             add_action('wp_ajax_remove_addons_Emsfb', [$this, 'remove_addons_Emsfb']);
             add_action('wp_ajax_update_file_Emsfb', array( $this,'file_upload_public'));
@@ -358,7 +360,6 @@ class Admin {
      */
     private function addon_install_log_efb($event, $context = []) {
         $safe_context = $this->addon_install_sanitize_log_context_efb($context);
-        // error_log('[EFB Addon Installer] ' . $event . ' ' . wp_json_encode($safe_context, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
     }
 
     /**
@@ -391,7 +392,7 @@ class Admin {
             return $this->addon_install_sanitize_log_context_efb((array) $value);
         }
         if (is_string($value)) {
-            return strlen($value) > 2000 ? substr($value, 0, 2000) . '...[truncated]' : $value;
+            return strlen($value) > 2000 ? substr($value, 0, 2000) . '…[truncated]' : $value;
         }
         return $value;
     }
@@ -587,7 +588,7 @@ class Admin {
 
             $response_code = wp_remote_retrieve_response_code($request);
             $body = wp_remote_retrieve_body($request);
-            $body_preview = strlen($body) > 1000 ? substr($body, 0, 1000) . '...[truncated]' : $body;
+            $body_preview = strlen($body) > 1000 ? substr($body, 0, 1000) . '…[truncated]' : $body;
 
             $this->addon_install_log_efb('remote_response_received', [
                 'requested_addon' => $post_value,
@@ -1161,8 +1162,36 @@ class Admin {
         $response = ['success' => true, 'ajax_value' => $value, 'id' => $id];
         wp_send_json_success($response, 200);
     }
+    /**
+     * Dashboard replies use the same reservation that protects public
+     * Response Boxes. The dashboard capability authorises the upload; this
+     * check keeps an uploaded URL bound to the ticket currently being replied
+     * to instead of accepting an arbitrary URL from the browser.
+     *
+     * @return string[]|false Attachment URLs, or false when not authorised.
+     */
+    private function dashboard_response_attachments_are_reserved_efb($message, $message_id) {
+        if (!class_exists('\\Emsfb\\Upload_Guard')) return array();
+
+        $table_name = $this->db->prefix . 'emsfb_msg_';
+        $track = (string) $this->db->get_var(
+            $this->db->prepare("SELECT track FROM `$table_name` WHERE msg_id = %d LIMIT 1", absint($message_id))
+        );
+        if ($track === '') return false;
+
+        $urls = \Emsfb\Upload_Guard::response_attachment_urls($message);
+        if ($urls === false) return false;
+        foreach ($urls as $url) {
+            if (!\Emsfb\Upload_Guard::response_attachment_is_reserved($url, $message_id, $track)) {
+                return false;
+            }
+        }
+
+        return $urls;
+    }
+
     public function set_replyMessage_id_Emsfb() {
-        $text = ["error405","error403","somethingWentWrongPleaseRefresh","nAllowedUseHtml","messageSent"];
+        $text = ["error405","error403","somethingWentWrongPleaseRefresh","nAllowedUseHtml","messageSent","spprt"];
         $efbFunction = get_efbFunction();
         $lang= $efbFunction->text_efb($text);
          $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
@@ -1227,6 +1256,13 @@ class Admin {
 							wp_send_json_success($response, 200);
 						}
 				}
+				$response_attachment_urls = $this->dashboard_response_attachments_are_reserved_efb($message, $id);
+				if ($response_attachment_urls === false) {
+					wp_send_json_success(array(
+						'success' => false,
+						'm' => esc_html__('The response attachment could not be verified. Please attach the file again.', 'easy-form-builder'),
+					), 200);
+				}
                 $m = json_encode($message,JSON_UNESCAPED_UNICODE);
 				$m = str_replace('"', '\\"', $m);
                 if(empty($this->db)){
@@ -1241,7 +1277,7 @@ class Admin {
         }
         $table_name = $this->db->prefix . "emsfb_rsp_";
         $ip = $this->ip;
-        $this->db->insert(
+        $reply_inserted = $this->db->insert(
             $table_name,
             [
                 'ip'      => $ip,
@@ -1252,10 +1288,29 @@ class Admin {
                 'date'    => wp_date('Y-m-d H:i:s')
             ]
         );
+        if ($reply_inserted === false) {
+            wp_send_json_success(['success' => false, 'm' => $lang['somethingWentWrongPleaseRefresh']], 200);
+        }
+        if (!empty($response_attachment_urls)) {
+            \Emsfb\Upload_Guard::release_pending_uploads($response_attachment_urls);
+            \Emsfb\Upload_Guard::release_response_attachment_reservations($response_attachment_urls);
+        }
         $table_name = $this->db->prefix . "emsfb_msg_";
         $this->db->update($table_name,array('read_'=>1), array('msg_id' => $id) );
         $m        = $lang['messageSent'];
-        $response = ['success' => true, "m" => $m];
+        /*
+         * The viewer appends the new reply straight away instead of reloading,
+         * so it needs the same name get_all_response_id_Emsfb() resolves from
+         * rsp_by. Sending it back keeps that card identical to the one the
+         * next reload renders, and stops the browser from having to guess the
+         * author out of a payload where the typed row is not always first.
+         */
+        $current_user = wp_get_current_user();
+        $response = [
+            'success' => true,
+            "m"       => $m,
+            'by'      => $current_user && $current_user->exists() ? $current_user->display_name : $lang['spprt'],
+        ];
         $pro =$efbFunction->is_efb_pro(1);
 
         $efbFunction->response_to_user_by_msd_id($id ,$pro);
@@ -1264,6 +1319,7 @@ class Admin {
     public function set_settings_Emsfb() {
         $efbFunction = get_efbFunction();
         $ac= get_setting_Emsfb('decoded');
+        $stored_active_code = is_object($ac) && isset($ac->activeCode) ? trim((string) $ac->activeCode) : '';
         $text = ["pleaseDoNotAddJsCode","emailTemplate","addSCEmailM","messageSent","activationNcorrect","error403","somethingWentWrongPleaseRefresh","nAllowedUseHtml","PEnterMessage"];
         $lang= $efbFunction->text_efb($text);
          $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
@@ -1298,6 +1354,7 @@ class Admin {
             wp_send_json_success($response, 200);
         }
         $active_code_is_valid = false;
+        $active_code_was_removed = false;
         foreach ($m as $key => $value) {
              if (in_array($key ,['emailSupporter','femail'])) {
                 $value = sanitize_text_field($value);
@@ -1305,8 +1362,24 @@ class Admin {
                 $email =  $value;
             }else if ($key == "activeCode" ) {
                 if(strlen($value)<1){
-                    if(get_option('emsfb_pro',false)==1){
+                    /*
+                     * A deliberately cleared field is a licence removal, but
+                     * an already-empty Free/Free Plus field is not.  The
+                     * distinction prevents an ordinary Free Plus settings save
+                     * from being changed to Free while still removing every
+                     * copy of a Pro key when an administrator explicitly
+                     * clears it.
+                     */
+                    if ($stored_active_code !== '') {
+                        $active_code_was_removed = true;
+                        $m['activeCode'] = '';
+                        $m['package_type'] = 2;
                         update_option('emsfb_pro', 2);
+                        delete_option('emsfb_pro_activeCode');
+                        delete_option('emsfb_pro_ac_date');
+                        delete_option('emsfb_license_failed_since');
+                        delete_option('emsfb_license_fail_reason');
+                        delete_option('emsfb_license_suspend_notified');
                     }
                     continue;
                 }
@@ -1327,6 +1400,10 @@ class Admin {
                 // Keep the validated Pro package even if payload contains stale package_type.
                 if ($active_code_is_valid) {
                     $m[$key] = 1;
+                    continue;
+                }
+                if ($active_code_was_removed) {
+                    $m[$key] = 2;
                     continue;
                 }
                 $package_type = intval(sanitize_text_field($value));
@@ -1414,6 +1491,8 @@ class Admin {
 
         if ($active_code_is_valid) {
             $m['package_type'] = 1;
+        } elseif ($active_code_was_removed) {
+            $m['package_type'] = 2;
         }
 
         $setting = json_encode($m, JSON_UNESCAPED_UNICODE);
@@ -1567,6 +1646,44 @@ class Admin {
 
         $response = $this->start_email_tester_efb($efbFunction, $ac);
         wp_send_json_success($response, 200);
+    }
+
+    /**
+     * Persist the recipient selected during the first-run setup before the
+     * delivery test starts.  The email test must not be the only way to save
+     * this value: a failed host check should never discard the admin's choice.
+     */
+    public function efb_save_onboarding_email() {
+        $efbFunction = get_efbFunction();
+        if (!check_ajax_referer('wp_rest', 'nonce', false) || !$efbFunction->user_permission_efb_admin_dashboard()) {
+            wp_send_json_error(array('message' => esc_html__('You do not have permission to update these settings.', 'easy-form-builder')), 403);
+        }
+
+        $email = isset($_POST['email']) ? sanitize_email(wp_unslash($_POST['email'])) : '';
+        if (!is_email($email)) {
+            wp_send_json_error(array('message' => esc_html__('Please enter a valid admin email address.', 'easy-form-builder')), 422);
+        }
+
+        $settings = get_setting_Emsfb('decoded');
+        if (!is_object($settings)) {
+            $settings = new \stdClass();
+        }
+        $settings->emailSupporter = $email;
+        $efbFunction->set_setting_Emsfb($settings, $email);
+
+        wp_send_json_success(array('email' => $email));
+    }
+
+    /** Mark the guided setup as seen without changing any plan or mail state. */
+    public function efb_complete_onboarding() {
+        $efbFunction = get_efbFunction();
+        if (!check_ajax_referer('wp_rest', 'nonce', false) || !$efbFunction->user_permission_efb_admin_dashboard()) {
+            wp_send_json_error(array('message' => esc_html__('You do not have permission to complete setup.', 'easy-form-builder')), 403);
+        }
+
+        update_option('emsfb_onboarding_pending', 0, false);
+        update_option('emsfb_onboarding_completed_at', current_time('mysql'), false);
+        wp_send_json_success(array('completed' => true));
     }
 
     private function start_email_tester_efb($efbFunction, $ac) {
@@ -2043,7 +2160,7 @@ class Admin {
             $data['email_report'] = $email_report;
         }
 
-        if (!empty($data['can_send_email'])) {
+        if ($this->is_email_delivery_confirmed_efb($data)) {
             $this->mark_email_server_as_ready_efb($efbFunction, $ac, isset($data['admin_email']) ? sanitize_email($data['admin_email']) : '', false);
         }
 
@@ -2060,6 +2177,16 @@ class Admin {
             return;
         }
 
+        // A delivered probe with a very low deliverability score is not a
+        // working mail setup: the message arrived at the tester mailbox, but
+        // real form emails would be filtered as spam. Email_Monitor owns that
+        // threshold so the panel, the dashboard notice and the weekly report
+        // never disagree about what "can send email" means.
+        $delivery_confirmed = $this->is_email_delivery_confirmed_efb($test_result);
+        $score_too_low = !$delivery_confirmed
+            && class_exists('\Emsfb\Email_Monitor')
+            && \Emsfb\Email_Monitor::is_delivery_score_too_low($test_result);
+
         $status_data = [
             'status' => 'error',
             'message' => [
@@ -2069,17 +2196,33 @@ class Admin {
             ],
             'details' => [
                 'test_timestamp' => current_time('mysql', true),
-                'can_send_email' => !empty($test_result['can_send_email']),
+                'can_send_email' => $delivery_confirmed,
                 'success' => !empty($test_result['success']),
+                // The raw arrival flag and the report's own top-level score,
+                // kept apart from the judged can_send_email above. The
+                // dashboard notice reads these to tell "went to spam" from
+                // "never arrived", and the neighbouring "score" key below comes
+                // from a recursive search that can return a figure on another
+                // scale entirely.
+                'delivered' => !empty($test_result['can_send_email']),
+                'delivery_score' => class_exists('\Emsfb\Email_Monitor')
+                    ? \Emsfb\Email_Monitor::get_report_score($test_result)
+                    : null,
             ]
         ];
 
-        if (!empty($test_result['can_send_email'])) {
+        if ($delivery_confirmed) {
             $status_data['status'] = 'ok_set_smtp';
             $status_data['message'] = [
                 'title' => esc_html__('Email capability verified', 'easy-form-builder'),
                 'description' => esc_html__('Server confirmed ability to send emails.', 'easy-form-builder'),
                 'id' => 'email_settings_configured'
+            ];
+        } else if ($score_too_low) {
+            $status_data['message'] = [
+                'title' => esc_html__('Your emails are being delivered to spam', 'easy-form-builder'),
+                'description' => \Emsfb\Email_Monitor::get_low_score_message(\Emsfb\Email_Monitor::get_report_score($test_result)),
+                'id' => 'email_test_low_score'
             ];
         } else if (isset($test_result['status']) && in_array($test_result['status'], ['pending', 'delayed'], true)) {
             $status_data['status'] = 'warning';
@@ -2127,10 +2270,30 @@ class Admin {
 
         update_option('emsfb_email_status', $status_data);
 
-        if (!empty($test_result['can_send_email']) && is_object($ac) && isset($ac->smtp) && $ac->smtp != true) {
+        if ($delivery_confirmed && is_object($ac) && isset($ac->smtp) && $ac->smtp != true) {
             $ac->smtp = true;
             $efbFunction->set_setting_Emsfb($ac);
         }
+    }
+
+    /**
+     * Whether a tester report proves this site can actually deliver email.
+     *
+     * Falls back to the service's own flag if the monitor class is unavailable,
+     * so a partial installation still behaves as it did before.
+     *
+     * @param array $test_result Report payload from the tester service.
+     * @return bool
+     */
+    private function is_email_delivery_confirmed_efb($test_result) {
+        if (!is_array($test_result) || empty($test_result['can_send_email'])) {
+            return false;
+        }
+        if (class_exists('\Emsfb\Email_Monitor')) {
+            return \Emsfb\Email_Monitor::is_delivery_score_acceptable($test_result);
+        }
+
+        return true;
     }
 
     private function extract_email_test_score_efb($value) {
@@ -2363,12 +2526,11 @@ class Admin {
     }
 
     private function email_tester_log_efb($event, $context = []) {
-        $debug_enabled = (defined('WP_DEBUG') && WP_DEBUG) || (defined('WP_DEBUG_LOG') && WP_DEBUG_LOG);
+        $debug_enabled = defined('EFB_DEBUG') ? EFB_DEBUG : ((defined('WP_DEBUG') && WP_DEBUG) || (defined('WP_DEBUG_LOG') && WP_DEBUG_LOG));
         if (!$debug_enabled) {
             return;
         }
         $safe_context = $this->email_tester_sanitize_log_context_efb($context);
-        // error_log('[EFB Email Tester] ' . $event . ' ' . wp_json_encode($safe_context, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
     }
 
     private function email_tester_sanitize_log_context_efb($value) {
@@ -2398,9 +2560,9 @@ class Admin {
                 return $this->email_tester_mask_email_efb($value);
             }
             if (preg_match('/^[a-f0-9]{64}$/i', $value)) {
-                return substr($value, 0, 12) . '...' . substr($value, -8);
+                return substr($value, 0, 12) . '…' . substr($value, -8);
             }
-            return strlen($value) > 2000 ? substr($value, 0, 2000) . '...[truncated]' : $value;
+            return strlen($value) > 2000 ? substr($value, 0, 2000) . '…[truncated]' : $value;
         }
         return $value;
     }
@@ -2535,68 +2697,63 @@ class Admin {
 			die();
 		}
 
-		 $arr_ext = array('image/png', 'image/jpeg', 'image/jpg', 'image/gif' , 'application/pdf','audio/mpeg' ,'image/heic',
-		 'audio/wav','audio/ogg','audio/webm','video/mp4','video/webm','video/x-matroska','video/avi' , 'video/mpeg', 'video/mpg', 'audio/mpg','video/mov','video/quicktime',
-		 'text/plain' ,
-		 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','application/msword',
-		 'application/vnd.openxmlformats-officedocument.wordprocessingml.document','application/vnd.ms-excel',
-		 'application/vnd.ms-powerpoint','application/vnd.openxmlformats-officedocument.presentationml.presentation',
-		 'application/vnd.ms-powerpoint.presentation.macroEnabled.12','application/vnd.openxmlformats-officedocument.wordprocessingml.template',
-		 'application/vnd.oasis.opendocument.spreadsheet','application/vnd.oasis.opendocument.presentation','application/vnd.oasis.opendocument.text',
-		 'application/zip', 'application/octet-stream', 'application/x-zip-compressed', 'multipart/x-zip','application/zip', 'application/octet-stream', 'application/x-zip-compressed', 'multipart/x-zip',"zip","rar","tar","gz","gzip","application/x-rar-compressed","application/x-tar","application/x-gzip","application/gzip","multipart/x-compressed","multipart/x-rar-compressed"
-		);
-
+		/* Legacy endpoint: nothing in the shipped JavaScript calls it any more,
+		 * but it stays registered for older cached bundles and third-party
+		 * integrations. It shares the same policy as the REST handler so the
+		 * two cannot drift apart the way they had before. */
 		if (isset($_FILES['file']['name'])) {
 			$_FILES['file']['name'] = sanitize_file_name($_FILES['file']['name']);
 		}
 
-		if (isset($_FILES['file']['type']) && in_array($_FILES['file']['type'], $arr_ext)) {
-
-            $file_name = isset($_FILES['file']['name']) ? sanitize_file_name( wp_unslash( $_FILES['file']['name'] ) ) : '';
-            $file_tmp = isset($_FILES['file']['tmp_name']) ? $_FILES['file']['tmp_name'] : '';
-            $file_type = isset($_FILES['file']['type']) ? sanitize_text_field( wp_unslash( $_FILES['file']['type'] ) ) : '';
-
-            if (empty($file_tmp) || !is_uploaded_file($file_tmp) || !is_readable($file_tmp)) {
-                $response = array( 'success' => false, 'error' => esc_html__('There seems to be an error with the file permissions.','easy-form-builder') . ' ( File not readable)' );
-                wp_send_json_success($response, 200);
-            }
-
-            if (function_exists('finfo_open')) {
-                $finfo = finfo_open(FILEINFO_MIME_TYPE);
-                $real_mime = finfo_file($finfo, $file_tmp);
-                finfo_close($finfo);
-                if (!in_array($real_mime, $arr_ext)) {
-                    $response = array( 'success' => false, 'error' => esc_html__('There seems to be an error with the file permissions.','easy-form-builder') . ' (MIME type)' );
-                    wp_send_json_success($response, 200);
-                }
-            }
-
-            $name = 'efb-PLG-'. wp_date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($file_name, PATHINFO_EXTENSION) ;
-
-            $blocked_ext = array('php','php3','php4','php5','php7','php8','phtml','phar','cgi','pl','py','asp','aspx','jsp','sh','bash','bat','cmd','com','exe','dll','msi','shtml','htaccess','svg','html','htm','xhtml','xht','shtm','svgz');
-            $file_ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
-            if (in_array($file_ext, $blocked_ext)) {
-                $response = array( 'success' => false, 'error' => 'File type not allowed');
-                wp_send_json_success($response, 200);
-            }
-
-            $file_contents = emsfb_read_file_efb($file_tmp);
-            if ($file_contents === false) {
-                $response = array( 'success' => false, 'error' => 'File read error');
-                wp_send_json_success($response, 200);
-            }
-
-            $upload = wp_upload_bits($name, null, $file_contents);
-			if(is_ssl()==true){
-				$upload['url'] = str_replace('http://', 'https://', $upload['url']);
-			}
-			$response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload ,"name"=>$name ,'type'=> $file_type);
-			  wp_send_json_success($response,200);
-		}else{
-			$file_type = isset($_FILES['file']['type']) ? sanitize_text_field( wp_unslash( $_FILES['file']['type'] ) ) : 'unknown';
-			$response = array( 'success' => false  ,'error'=>'File Type Error');
-			wp_send_json_success($response,200);
+		if (!isset($_FILES['file'])) {
+			$response = array( 'success' => false, 'error' => esc_html__('No file was received. Please choose a file and try again.','easy-form-builder') );
+			wp_send_json_success($response, 200);
 		}
+
+		$upload_context = array(
+			'source'  => 'admin',
+			'form_id' => isset($_POST['id']) ? absint( wp_unslash( $_POST['id'] ) ) : 0,
+			'nonce'   => isset($_POST['nonce']) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '',
+			'sid'     => '',
+			'ip'      => '',
+		);
+
+		$validation = \Emsfb\Upload_Guard::validate_file($_FILES['file'], $upload_context);
+		if ($validation !== true) {
+			$response = array( 'success' => false, 'error' => $validation, 'efb_user_message' => true );
+			wp_send_json_success($response, 200);
+		}
+
+		$file_name = isset($_FILES['file']['name']) ? sanitize_file_name( wp_unslash( $_FILES['file']['name'] ) ) : '';
+		$file_tmp  = isset($_FILES['file']['tmp_name']) ? $_FILES['file']['tmp_name'] : '';
+		$file_type = isset($_FILES['file']['type']) ? sanitize_text_field( wp_unslash( $_FILES['file']['type'] ) ) : '';
+
+		$name = 'efb-PLG-'. wp_date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($file_name, PATHINFO_EXTENSION) ;
+
+		if (\Emsfb\Upload_Guard::is_blocked_extension(\Emsfb\Upload_Guard::extension_of($name))) {
+			$response = array( 'success' => false, 'error' => \Emsfb\Upload_Guard::type_message(), 'efb_user_message' => true );
+			wp_send_json_success($response, 200);
+		}
+
+		$file_contents = emsfb_read_file_efb($file_tmp);
+		if ($file_contents === false) {
+			$response = array( 'success' => false, 'error' => esc_html__('The file could not be read. Please try attaching it again.','easy-form-builder') );
+			wp_send_json_success($response, 200);
+		}
+
+		$upload = wp_upload_bits($name, null, $file_contents);
+		if (!is_array($upload) || !empty($upload['error']) || empty($upload['url'])) {
+			$response = array( 'success' => false, 'error' => \Emsfb\Upload_Guard::type_message(), 'efb_user_message' => true );
+			wp_send_json_success($response, 200);
+		}
+		if(is_ssl()==true){
+			$upload['url'] = str_replace('http://', 'https://', $upload['url']);
+		}
+		if (!empty($upload['file'])) {
+			\Emsfb\Upload_Guard::track_pending_upload($upload['file']);
+		}
+		$response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload ,"name"=>$name ,'type'=> $file_type);
+		wp_send_json_success($response,200);
 
 	}
     public function custom_ui_plugins(){
@@ -2858,12 +3015,11 @@ function admin_notices_efb () {
                     if($email_status === 'ok_set_smtp') {
                         return;
                     }else if ($email_status === 'ok' ) {
-                        if (isset($settings->smtp) && !in_array($settings->smtp, ['1', 'true', true,1], true)) {
-                            $settings->smtp = true;
-                            $email = isset($settings->emailSupporter) ? $settings->emailSupporter : '';
-                            $efbFunction->set_setting_Emsfb($settings, $email);
-                        }
-
+                        /* 'ok' is written by the automated (background) delivery
+                         * test. It is a diagnostic only - it must not switch
+                         * "This site can send emails" on by itself, otherwise a
+                         * fresh install shows the switch already enabled without
+                         * the admin ever confirming it. */
                         return;
                     }
                     $msg_id = isset($check['message']['id']) ? $check['message']['id'] : '';
@@ -3089,38 +3245,81 @@ function admin_notices_efb () {
 
         $redirect_url = null;
         $action_performed = null;
+        $plan_changed = true;
         $package_type_efb = 2;
 
         $settings = get_setting_Emsfb('decoded');
-        $has_active_code = isset($settings->activeCode) && !empty($settings->activeCode);
+        if (!is_object($settings)) {
+            $settings = new \stdClass();
+        }
+
+        /*
+         * The licence key historically lived in two places.  A plan change must
+         * treat either copy as a real licence, otherwise the screen can say
+         * "Free Plus" while the Pro key is still retained in wp_options.
+         */
+        $settings_active_code = isset($settings->activeCode) ? trim((string) $settings->activeCode) : '';
+        $option_active_code = trim((string) get_option('emsfb_pro_activeCode', ''));
+        $has_active_code = $settings_active_code !== '' || $option_active_code !== '';
+        $current_package_type = (int) get_option('emsfb_pro', 2);
+        if (!in_array($current_package_type, [0, 1, 2, 3], true)) {
+            $current_package_type = 2;
+        }
+        $onboarding_pending = emsfb_onboarding_pending_efb();
+        $target_package_type = $selected_plan === 'free_plus' ? 3 : ($selected_plan === 'free' ? 2 : 1);
+        if ($target_package_type === $current_package_type) {
+            wp_send_json_success(array(
+                'success' => true,
+                'plan' => $selected_plan,
+                'package_type' => $current_package_type,
+                'plan_changed' => false,
+                'unchanged' => true,
+                'onboarding_pending' => $onboarding_pending,
+            ));
+        }
+        $is_downgrade = ($current_package_type === 1 && in_array($target_package_type, [2, 3], true))
+            || ($current_package_type === 3 && $target_package_type === 2);
+        $removes_activation_code = $has_active_code && in_array($target_package_type, [2, 3], true);
+        $downgrade_confirmed = isset($plan_data['downgrade_confirmed'])
+            && in_array($plan_data['downgrade_confirmed'], [true, 1, '1', 'true'], true);
+
+        // Never allow an AJAX caller to silently revoke a plan or discard a key.
+        if (($is_downgrade || $removes_activation_code) && !$downgrade_confirmed) {
+            wp_send_json_error(array(
+                'code' => 'downgrade_confirmation_required',
+                'message' => __('Please confirm this plan downgrade before continuing.', 'easy-form-builder'),
+                'activation_code_present' => $has_active_code,
+            ), 409);
+            return;
+        }
 
         switch($selected_plan) {
             case 'free':
                 update_option('emsfb_pro', 2);
                 $package_type_efb = 2;
                 $action_performed = __('Free plan activated - no additional features.', 'easy-form-builder');
-                if ($has_active_code) {
-                    $settings->activeCode = '';
-                }
                 break;
 
             case 'free_plus':
                 update_option('emsfb_pro', 3);
                 $package_type_efb = 3;
                 $action_performed = __('Free Plus plan activated with enhanced features.', 'easy-form-builder');
-                if ($has_active_code) {
-                    $settings->activeCode = '';
-                }
                 break;
 
             case 'pro':
                 if ($has_active_code) {
                     $package_type_efb = 1;
                     update_option('emsfb_pro', 1);
+                    if ($settings_active_code === '' && $option_active_code !== '') {
+                        $settings->activeCode = $option_active_code;
+                    }
                     $action_performed = __('Pro plan activated with existing activation code.', 'easy-form-builder');
                 } else {
-                    $package_type_efb = 0;
-                    update_option('emsfb_pro', 0);
+                    // Opening the purchase page is not a plan change.  In
+                    // particular, a Free Plus user must remain Free Plus until
+                    // a valid Pro code is actually activated.
+                    $package_type_efb = $current_package_type;
+                    $plan_changed = false;
                     $redirect_url = 'https://whitestudio.team/#price';
                     if (get_locale() == 'fa_IR') {
                         $redirect_url = 'https://easyformbuilder.ir/#price';
@@ -3130,9 +3329,51 @@ function admin_notices_efb () {
                 break;
         }
 
-        $settings->package_type = $package_type_efb;
-        $email = isset($settings->emailSupporter) ? $settings->emailSupporter : '';
-        $efbFunction->set_setting_Emsfb($settings, $email);
+        if ($removes_activation_code) {
+            $settings->activeCode = '';
+            delete_option('emsfb_pro_activeCode');
+            delete_option('emsfb_pro_ac_date');
+            delete_option('emsfb_license_failed_since');
+            delete_option('emsfb_license_fail_reason');
+            delete_option('emsfb_license_suspend_notified');
+        }
+
+        /*
+         * Downgrading must disable the runtime flags as well as changing the
+         * package badge.  Keeping a Pro add-on marked active meant that some
+         * of its public hooks could still load after the user had downgraded.
+         * Files and their configuration are kept, so upgrading later does not
+         * require a reinstall or re-entry of credentials.
+         */
+        $disabled_addons = array();
+        if ($is_downgrade) {
+            $addon_keys = $efbFunction->get_all_addon_keys_efb();
+            if ($package_type_efb === 3) {
+                // Offline Forms and Conditional Logic are available in Free Plus.
+                $addon_keys = array_diff($addon_keys, array('AdnOF', 'AdnSMF'));
+            }
+            foreach ($addon_keys as $addon_key) {
+                if (isset($settings->{$addon_key}) && (int) $settings->{$addon_key} !== 0) {
+                    $disabled_addons[] = $addon_key;
+                }
+                $settings->{$addon_key} = 0;
+                update_option('emsfb_addon_' . $addon_key, 0);
+            }
+        }
+
+        if ($plan_changed) {
+            $settings->package_type = $package_type_efb;
+            $email = isset($settings->emailSupporter) ? $settings->emailSupporter : '';
+            $efbFunction->set_setting_Emsfb($settings, $email);
+        }
+
+        // The email card is shown immediately in the existing first-run
+        // overlay. Clear the automatic-launch flag once a plan is selected so
+        // a refresh cannot reopen onboarding on every admin page load.
+        if ($onboarding_pending && $current_package_type === 0) {
+            update_option('emsfb_onboarding_pending', 0, false);
+            $onboarding_pending = false;
+        }
 
         $response_data = array(
             'success' => true,
@@ -3142,7 +3383,11 @@ function admin_notices_efb () {
             'redirect_url' => $redirect_url,
             'timestamp' => $timestamp,
             'saved_at' => current_time('mysql'),
-            'package_type' => $package_type_efb
+            'package_type' => $package_type_efb,
+            'plan_changed' => $plan_changed,
+            'activation_code_removed' => $removes_activation_code,
+            'disabled_addons' => $disabled_addons,
+            'onboarding_pending' => $onboarding_pending,
         );
 
         wp_send_json_success($response_data);

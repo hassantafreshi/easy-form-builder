@@ -106,20 +106,25 @@ class Admin_Bar_Development_Mode {
 			true
 		);
 
+		// The labels sit one level down, which is past the entity decoding
+		// WP_Scripts::localize() does, and the script writes them with
+		// textContent - so &hellip; has to be resolved before it is handed over.
 		wp_localize_script(
 			'efb-admin-bar-dev-mode',
 			'efbAdminBarDevMode',
-			array(
-				'ajaxUrl'     => admin_url( 'admin-ajax.php' ),
-				'nonce'       => wp_create_nonce( 'efb_toggle_development_mode' ),
-				'labels'      => array(
-					'on'       => esc_html__( 'Sandbox: On', 'easy-form-builder' ),
-					'off'      => esc_html__( 'Sandbox: Off', 'easy-form-builder' ),
-					'updating' => esc_html__( 'Updating...', 'easy-form-builder' ),
-					'reload'   => esc_html__( 'Reload now', 'easy-form-builder' ),
-					'close'    => esc_html__( 'Close notification', 'easy-form-builder' ),
-					'error'    => esc_html__( 'Unable to change Development Mode. Please try again.', 'easy-form-builder' ),
-				),
+			emsfb_decode_typographic_entities_efb(
+				array(
+					'ajaxUrl'     => admin_url( 'admin-ajax.php' ),
+					'nonce'       => wp_create_nonce( 'efb_toggle_development_mode' ),
+					'labels'      => array(
+						'on'       => esc_html__( 'Sandbox: On', 'easy-form-builder' ),
+						'off'      => esc_html__( 'Sandbox: Off', 'easy-form-builder' ),
+						'updating' => esc_html__( 'Updating&hellip;', 'easy-form-builder' ),
+						'reload'   => esc_html__( 'Reload now', 'easy-form-builder' ),
+						'close'    => esc_html__( 'Close notification', 'easy-form-builder' ),
+						'error'    => esc_html__( 'Unable to change Development Mode. Please try again.', 'easy-form-builder' ),
+					),
+				)
 			)
 		);
 	}

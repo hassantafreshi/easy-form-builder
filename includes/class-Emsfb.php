@@ -9,11 +9,21 @@ class Emsfb {
 
     public $plugin_url = "";
 
+    private $missing_core_files = [];
+
+    private $core_files_ok = true;
+
     public function __construct() {
         $this->plugin_path = EMSFB_PLUGIN_DIRECTORY;
         $this->plugin_url  = EMSFB_PLUGIN_URL;
 
         $this->includes();
+        if (!$this->core_files_ok) {
+            // Incomplete installation (e.g. a plugin update that did not copy
+            // every file): stay inert instead of fataling the whole site. The
+            // admin notice added by require_plugin_file_efb() asks for a reinstall.
+            return;
+        }
         $this->init_hooks();
         if(is_admin()==false){ $this->webhooks();
         }else{
@@ -51,18 +61,239 @@ class Emsfb {
         add_action('wp_ajax_emsfb_recover_addons', [$this, 'ajax_recover_addons_efb']);
 
         add_action('plugins_loaded', [$this, 'check_version_and_upgrade_efb']);
+        add_action('plugins_loaded', [$this, 'maybe_upgrade_schema_efb'], 11);
+
+        // Must sit after rest_cookie_check_errors (priority 100) so it can see,
+        // and selectively undo, the 403 that core raises for a stale nonce.
+        add_filter('rest_authentication_errors', [$this, 'allow_anonymous_stale_nonce_efb'], 101);
+
+        add_action('emsfb_daily_maintenance', [$this, 'run_daily_maintenance_efb']);
+        add_action('emsfb_revalidate_license', [$this, 'run_license_revalidation_efb']);
+        add_action('emsfb_refresh_ir_cdn_status', [$this, 'refresh_ir_cdn_status_efb']);
+        // Bound here, not in efbFunction's constructor: efbFunction is created
+        // lazily, and a wp-cron.php request never touches the admin or form code
+        // that would create it. The listener has to exist before the event fires.
+        add_action('emsfb_addon_recovery_event', [$this, 'run_addon_recovery_efb'], 10, 1);
+        add_action('init', [$this, 'schedule_background_jobs_efb']);
+    }
+
+    /**
+     * Apply schema migrations whenever the stored DB version is behind.
+     *
+     * Deliberately independent of the plugin-version upgrade path: the tables
+     * spent several releases unable to receive any change at all (dbDelta was
+     * handed "CREATE TABLE IF NOT EXISTS" and so never emitted an ALTER), so a
+     * site can be on the current plugin version and still be missing indexes.
+     * The guard is a single cached option read, cheap enough for every request.
+     *
+     * @return void
+     */
+    public function maybe_upgrade_schema_efb(): void {
+        $stored = get_option('Emsfb_db_version', '0');
+
+        if (version_compare((string) $stored, (string) EMSFB_DB_VERSION, '>=')) {
+            return;
+        }
+
+        if (!class_exists('\Emsfb\Install') || !method_exists('\Emsfb\Install', 'upgrade_schema')) {
+            return;
+        }
+
+        \Emsfb\Install::upgrade_schema();
+    }
+
+    /**
+     * Keep a page-cached form submittable for anonymous visitors.
+     *
+     * A caching plugin freezes wp_create_nonce('wp_rest') into the stored HTML.
+     * Once that copy outlives the 12-24h nonce window, core's
+     * rest_cookie_check_errors() rejects every submission with
+     * rest_cookie_invalid_nonce - and it does so on rest_authentication_errors,
+     * which runs before any permission_callback, so the plugin's own sid
+     * fallback and its nonce/refresh endpoint never get a chance to recover.
+     * Reloading does not help either: the same cached HTML replays the same
+     * dead nonce, so the form stays broken until someone purges the cache.
+     *
+     * For a logged-OUT visitor that nonce is not a CSRF token in any meaningful
+     * sense: wp_create_nonce() derives it from user id 0 and an empty session
+     * token, so every anonymous visitor shares the same value and anyone can
+     * mint one by loading a page. Core already treats a request with no nonce
+     * at all as simply unauthenticated (rest-api.php:1147-1151). A stale nonce
+     * from such a visitor carries exactly as much authority as no nonce, so we
+     * put the request back on that same unauthenticated path instead of
+     * failing it.
+     *
+     * A logged-in user is left untouched: there the nonce is bound to their
+     * session and is the real CSRF defence, so the 403 must stand.
+     *
+     * @param WP_Error|null|true $result Current authentication result.
+     * @return WP_Error|null|true
+     */
+    public function allow_anonymous_stale_nonce_efb($result) {
+        if (!is_wp_error($result) || 'rest_cookie_invalid_nonce' !== $result->get_error_code()) {
+            return $result;
+        }
+
+        // Never relax this for someone carrying a valid auth cookie.
+        if (is_user_logged_in()) {
+            return $result;
+        }
+
+        if (!$this->is_efb_public_rest_request_efb()) {
+            return $result;
+        }
+
+        // Same handling core gives a request that sent no nonce at all.
+        wp_set_current_user(0);
+
+        return true;
+    }
+
+    /**
+     * Whether the current REST request targets one of the plugin's own public
+     * routes. Scoped deliberately: the nonce relaxation above must not change
+     * behaviour for core or for any other plugin's endpoints.
+     *
+     * @return bool
+     */
+    private function is_efb_public_rest_request_efb(): bool {
+        $candidates = [];
+
+        // Plain permalinks: ?rest_route=/Emsfb/v1/...
+        if (isset($_GET['rest_route'])) {
+            $candidates[] = sanitize_text_field(wp_unslash($_GET['rest_route']));
+        }
+
+        // Pretty permalinks: /wp-json/Emsfb/v1/...
+        if (isset($_SERVER['REQUEST_URI'])) {
+            $candidates[] = sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI']));
+        }
+
+        foreach ($candidates as $route) {
+            if ('' === $route) {
+                continue;
+            }
+            foreach (['Emsfb/v1/', 'EmsfbShield/v1/'] as $namespace) {
+                if (false !== strpos($route, $namespace)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Register the background jobs that must not run inside a page render.
+     *
+     * @return void
+     */
+    public function schedule_background_jobs_efb(): void {
+        $events = [
+            'emsfb_daily_maintenance'    => 'daily',
+            'emsfb_revalidate_license'   => 'daily',
+            'emsfb_refresh_ir_cdn_status' => 'hourly',
+        ];
+
+        foreach ($events as $hook => $recurrence) {
+            if (!wp_next_scheduled($hook)) {
+                wp_schedule_event(time() + 300, $recurrence, $hook);
+            }
+        }
+    }
+
+    /**
+     * Prune the session table for every site, licensed or not.
+     *
+     * Previously this ran only from weekly_check_pro_efb(), so a free site
+     * never pruned emsfb_stts_ at all: one row per form page view, forever,
+     * against a table whose only index was the primary key.
+     *
+     * @return void
+     */
+    public function run_daily_maintenance_efb(): void {
+        $fn = self::get_efbFunction();
+        if ($fn && method_exists($fn, 'delete_old_rows_emsfb_stts_')) {
+            $fn->delete_old_rows_emsfb_stts_();
+        }
+    }
+
+    /**
+     * Re-validate the Pro licence away from the request path.
+     *
+     * @return void
+     */
+    public function run_license_revalidation_efb(): void {
+        $fn = self::get_efbFunction();
+        if ($fn && method_exists($fn, 'cron_check_pro_efb')) {
+            $fn->cron_check_pro_efb();
+        }
+    }
+
+    /**
+     * Reinstall missing add-on files away from a visitor's page load.
+     *
+     * @param array $context Diagnostic context handed over by the scheduler.
+     * @return void
+     */
+    public function run_addon_recovery_efb($context = []): void {
+        $fn = self::get_efbFunction();
+        if ($fn && method_exists($fn, 'run_addon_recovery_event_efb')) {
+            $fn->run_addon_recovery_event_efb(is_array($context) ? $context : []);
+        }
+    }
+
+    /**
+     * Refresh the Iran CDN reachability flag on a schedule instead of inside a
+     * visitor's page load. See the notes in emsfb.php.
+     *
+     * @return void
+     */
+    public function refresh_ir_cdn_status_efb(): void {
+        if (!function_exists('emsfb_probe_ir_cdn_status_efb')) {
+            return;
+        }
+        emsfb_probe_ir_cdn_status_efb();
     }
 
     public function includes(): void {
-        require_once $this->plugin_path . 'includes/class-Emsfb-install.php';
-        require_once $this->plugin_path . 'includes/class-Emsfb-email-monitor.php';
-        require_once $this->plugin_path . 'includes/class-Emsfb-addon-compatibility.php';
+        $core_ok = $this->require_plugin_file_efb('includes/class-Emsfb-install.php');
+        $core_ok = $this->require_plugin_file_efb('includes/class-Emsfb-email-monitor.php') && $core_ok;
+        $core_ok = $this->require_plugin_file_efb('includes/class-Emsfb-addon-compatibility.php') && $core_ok;
+
+        // No-ops when class-Emsfb-addon-compatibility.php loaded above; keeps
+        // the helper functions callable when that file is missing on disk.
+        $this->define_compatibility_fallbacks_efb();
+
+        // Loaded after the compatibility helpers it uses, and before anything
+        // can send mail, so the wp_mail hooks are in place for every request.
+        if ($this->require_plugin_file_efb('includes/class-Emsfb-email-trace.php')) {
+            \Emsfb\Email_Trace::register();
+        }
+
+        // Shared upload policy (size, type, per-visitor quota, orphan sweeper).
+        // Must load before the public and admin classes below, which call it
+        // from their upload handlers, and it uses the compatibility helpers
+        // required above for the finfo availability check.
+        $core_ok = $this->require_plugin_file_efb('includes/class-Emsfb-upload-guard.php') && $core_ok;
+        if (class_exists('\\Emsfb\\Upload_Guard')) {
+            \Emsfb\Upload_Guard::register();
+        }
+
+        if (!$core_ok) {
+            $this->core_files_ok = false;
+            return;
+        }
 
         if (is_admin()) {
-            require_once $this->plugin_path . 'includes/admin/class-Emsfb-admin.php';
-            require_once $this->plugin_path . 'includes/admin/class-Emsfb-create.php';
-            require_once $this->plugin_path . 'includes/admin/class-Emsfb-addon.php';
-            require_once $this->plugin_path . 'includes/admin/class-Emsfb-dashboard-widget.php';
+            $admin_ok = $this->require_plugin_file_efb('includes/admin/class-Emsfb-admin.php');
+            $admin_ok = $this->require_plugin_file_efb('includes/admin/class-Emsfb-create.php') && $admin_ok;
+            $admin_ok = $this->require_plugin_file_efb('includes/admin/class-Emsfb-addon.php') && $admin_ok;
+            $admin_ok = $this->require_plugin_file_efb('includes/admin/class-Emsfb-dashboard-widget.php') && $admin_ok;
+            if (!$admin_ok) {
+                $this->core_files_ok = false;
+                return;
+            }
             new \Emsfb\Dashboard_Widget();
             $ac = self::get_setting_Emsfb('decoded');
 
@@ -129,6 +360,22 @@ class Emsfb {
 		$ac_routes = self::get_setting_Emsfb( 'decoded' );
 
         if (is_object($ac_routes)) {
+
+            /*
+             * The external Auto-Populate route is used by a visitor's form,
+             * not by wp-admin.  Loading the API handler only from the admin
+             * add-on bootstrap meant the browser could enqueue its public JS
+             * successfully but POST to a route which had never been
+             * registered (404).  The handler is deliberately loaded on the
+             * public runtime as well; it registers only its REST route here.
+             */
+            $autofill_api_public = isset($ac_routes->AdnATF) ? (int) $ac_routes->AdnATF : 0;
+            if ($autofill_api_public >= 1 && emsfb_is_addon_compatible_efb('AdnATF')) {
+                $autofill_api_handler = EMSFB_PLUGIN_DIRECTORY . '/vendor/autofill/class-Emsfb-autofill-api.php';
+                if (file_exists($autofill_api_handler)) {
+                    require_once $autofill_api_handler;
+                }
+            }
 
             $telegram_public = isset($ac_routes->AdnTLG) ? (int) $ac_routes->AdnTLG : 0;
             if ($telegram_public >= 1 && emsfb_is_addon_compatible_efb( 'AdnTLG' )) {
@@ -224,16 +471,147 @@ class Emsfb {
 			}
 		}
 
-		require_once $this->plugin_path . 'includes/class-Emsfb-public.php';
+		if (!$this->require_plugin_file_efb('includes/class-Emsfb-public.php')) {
+			$this->core_files_ok = false;
+			return;
+		}
 
 		// The toolbar control is loaded outside wp-admin as well, so authorized
 		// users can see and change the current sandbox state wherever the
 		// WordPress admin bar is displayed.
-		require_once $this->plugin_path . 'includes/class-Emsfb-admin-bar.php';
-		new \Emsfb\Admin_Bar_Development_Mode();
+		if ($this->require_plugin_file_efb('includes/class-Emsfb-admin-bar.php')) {
+			new \Emsfb\Admin_Bar_Development_Mode();
+		}
 
        $this->load_page_builder_integrations();
 
+    }
+
+    /**
+     * Require one of the plugin's own PHP files only when it exists on disk.
+     *
+     * A file can legitimately be absent after an incomplete update or deploy;
+     * requiring it blindly turns that into a fatal error that takes the whole
+     * site down. Missing files are collected and reported once through an
+     * admin notice that asks for a plugin reinstall.
+     *
+     * @param string $relative_path Path relative to the plugin root.
+     * @return bool True when the file was loaded.
+     */
+    private function require_plugin_file_efb(string $relative_path): bool {
+        $absolute_path = $this->plugin_path . $relative_path;
+
+        if (file_exists($absolute_path)) {
+            require_once $absolute_path;
+            return true;
+        }
+
+        if (empty($this->missing_core_files)) {
+            add_action('admin_notices', [$this, 'missing_core_files_notice_efb']);
+        }
+        $this->missing_core_files[] = $relative_path;
+
+        if (function_exists('error_log')) {
+            error_log('Easy Form Builder: required plugin file is missing: ' . $absolute_path);
+        }
+
+        return false;
+    }
+
+    /**
+     * Admin notice listing the plugin files that were missing on disk.
+     *
+     * @return void
+     */
+    public function missing_core_files_notice_efb(): void {
+        if (!current_user_can('activate_plugins')) {
+            return;
+        }
+
+        $files = array_map('esc_html', array_unique($this->missing_core_files));
+        echo '<div class="notice notice-error"><p><b>Easy Form Builder:</b> '
+            . esc_html__('Some plugin files are missing, so the plugin stopped loading to keep your site running. Please reinstall Easy Form Builder from the Plugins page — your forms, messages, and settings are kept.', 'easy-form-builder')
+            . '</p><p>' . esc_html__('Missing files:', 'easy-form-builder') . ' <code>'
+            . implode('</code>, <code>', $files)
+            . '</code></p></div>';
+    }
+
+    /**
+     * Minimal stand-ins for the class-Emsfb-addon-compatibility.php helpers.
+     *
+     * emsfb.php and scheduled hooks call these helpers even when includes()
+     * bails out early, so they must exist in a degraded install too. Every
+     * definition is skipped when the real implementation is already loaded.
+     *
+     * @return void
+     */
+    private function define_compatibility_fallbacks_efb(): void {
+        if (!function_exists('emsfb_is_addon_compatible_efb')) {
+            function emsfb_is_addon_compatible_efb($addon_key) {
+                return true;
+            }
+        }
+        if (!function_exists('emsfb_is_php_function_available_efb')) {
+            function emsfb_is_php_function_available_efb($function_name) {
+                return function_exists($function_name) && is_callable($function_name);
+            }
+        }
+        if (!function_exists('emsfb_is_php_function_disabled_efb')) {
+            function emsfb_is_php_function_disabled_efb($function_name) {
+                return !emsfb_is_php_function_available_efb($function_name);
+            }
+        }
+        if (!function_exists('emsfb_get_missing_addon_functions_efb')) {
+            function emsfb_get_missing_addon_functions_efb($addon_key) {
+                return [];
+            }
+        }
+        if (!function_exists('emsfb_get_incompatible_addons_efb')) {
+            function emsfb_get_incompatible_addons_efb($settings = null) {
+                return [];
+            }
+        }
+        if (!function_exists('emsfb_get_addon_unavailable_message_efb')) {
+            function emsfb_get_addon_unavailable_message_efb($addon_key) {
+                return '';
+            }
+        }
+        if (!function_exists('emsfb_read_file_efb')) {
+            function emsfb_read_file_efb($path) {
+                if (!emsfb_is_php_function_available_efb('file_get_contents')) {
+                    return false;
+                }
+                return @file_get_contents($path);
+            }
+        }
+        if (!function_exists('emsfb_get_php_ini_value_efb')) {
+            function emsfb_get_php_ini_value_efb($name, $default = '') {
+                if (!emsfb_is_php_function_available_efb('ini_get')) {
+                    return $default;
+                }
+                $value = @ini_get($name);
+                return false === $value ? $default : $value;
+            }
+        }
+        if (!function_exists('emsfb_generate_token_efb')) {
+            function emsfb_generate_token_efb($length = 16) {
+                if (function_exists('wp_generate_password')) {
+                    return wp_generate_password($length, false, false);
+                }
+                return substr(md5(uniqid((string) wp_rand(), true)), 0, $length);
+            }
+        }
+        if (!function_exists('emsfb_reset_php_compatibility_cache_efb')) {
+            function emsfb_reset_php_compatibility_cache_efb() {
+            }
+        }
+        // Degraded stand-in only: entities stay as written, which still reads
+        // correctly everywhere the string reaches markup.
+        if (!function_exists('emsfb_decode_typographic_entities_efb')) {
+            function emsfb_decode_typographic_entities_efb($data) {
+                return $data;
+            }
+        }
     }
 
     /**
@@ -262,40 +640,42 @@ class Emsfb {
 
     private function load_page_builder_integrations(): void {
 
-        require_once $this->plugin_path . 'includes/class-Emsfb-widgets-helper.php';
+        if (!$this->require_plugin_file_efb('includes/class-Emsfb-widgets-helper.php')) {
+            return;
+        }
 
         if (function_exists('register_block_type')) {
-            require_once $this->plugin_path . 'includes/page-builders/gutenberg/class-Emsfb-gutenberg-block.php';
+            $this->require_plugin_file_efb('includes/page-builders/gutenberg/class-Emsfb-gutenberg-block.php');
         }
 
         if (did_action('elementor/loaded') || class_exists('\Elementor\Plugin')) {
-            require_once $this->plugin_path . 'includes/page-builders/elementor/class-Emsfb-elementor.php';
+            $this->require_plugin_file_efb('includes/page-builders/elementor/class-Emsfb-elementor.php');
         } else {
 
             add_action('elementor/loaded', function() {
                 if (!class_exists('Emsfb_Elementor_Integration')) {
-                    require_once EMSFB_PLUGIN_DIRECTORY . 'includes/page-builders/elementor/class-Emsfb-elementor.php';
+                    $this->require_plugin_file_efb('includes/page-builders/elementor/class-Emsfb-elementor.php');
                 }
             });
         }
 
         if (defined('WPB_VC_VERSION') || class_exists('Vc_Manager')) {
-            require_once $this->plugin_path . 'includes/page-builders/wpbakery/class-Emsfb-wpbakery.php';
+            $this->require_plugin_file_efb('includes/page-builders/wpbakery/class-Emsfb-wpbakery.php');
         } else {
 
             add_action('vc_before_init', function() {
                 if (!class_exists('Emsfb_WPBakery_Integration')) {
-                    require_once EMSFB_PLUGIN_DIRECTORY . 'includes/page-builders/wpbakery/class-Emsfb-wpbakery.php';
+                    $this->require_plugin_file_efb('includes/page-builders/wpbakery/class-Emsfb-wpbakery.php');
                 }
             }, 5);
         }
 
         if (defined('VCV_VERSION')) {
-            require_once $this->plugin_path . 'includes/page-builders/visual-composer/class-Emsfb-visual-composer.php';
+            $this->require_plugin_file_efb('includes/page-builders/visual-composer/class-Emsfb-visual-composer.php');
         } else {
             add_action('vcv:api', function() {
                 if (!class_exists('Emsfb_Visual_Composer_Integration')) {
-                    require_once EMSFB_PLUGIN_DIRECTORY . 'includes/page-builders/visual-composer/class-Emsfb-visual-composer.php';
+                    $this->require_plugin_file_efb('includes/page-builders/visual-composer/class-Emsfb-visual-composer.php');
                 }
             }, 5);
         }
@@ -305,66 +685,6 @@ class Emsfb {
 
     }
 
-    public function checkDbchangeEFB(){
-        global $wpdb;
-        $test_tabale = $wpdb->prefix . "Emsfb_form";
-		$query = $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $test_tabale ) );
-		$check_test_table = $wpdb->get_var( $query );
-        $table_name = $wpdb->prefix . "emsfb_form";
-
-        if(strlen($check_test_table)>0){
-			if ( strcmp($table_name,$check_test_table)!=0) {
-                $message =  esc_html__('The Easy Form Builder had Important update and require to deactivate and activate the plugin manually. Notice: Please do this act immediately so forms of your site will be available again.','easy-form-builder');
-                ?>
-                    <div class="notice notice-warning is-dismissible">
-                        <p> <?php echo '<b>'.esc_html__('Warning').':</b> '. wp_kses_post($message); ?> </p>
-                    </div>
-                <?php
-            $this->email_send_efb();
-            }
-        }
-    }
-
-    public static function email_send_efb() {
-        $message = esc_html__( 'The Easy Form Builder had Important update and require to deactivate and activate the plugin manually. Notice: Please do this act immediately so forms of your site will be available again.', 'easy-form-builder' );
-
-        $super_admins = get_super_admins();
-
-        if ( empty( $super_admins ) ) {
-            return;
-        }
-
-        $recipients = array();
-
-        foreach ( $super_admins as $admin_login ) {
-            $user = get_user_by( 'login', $admin_login );
-
-            if ( $user && is_email( $user->user_email ) ) {
-                $recipients[] = sanitize_email( $user->user_email );
-            }
-        }
-
-        if ( empty( $recipients ) ) {
-            return;
-        }
-
-        $server_name = apply_filters('emsfb_get_server_host', 'yourdomain.com');
-        $from_email  = 'no-reply@' . $server_name;
-        $from_name   = get_bloginfo( 'name' );
-
-        $headers = array(
-            'Content-Type: text/html; charset=UTF-8',
-            sprintf( 'From: %s <%s>', $from_name, $from_email ),
-        );
-
-        $subject = sprintf(
-            /* translators: %s: Site name */
-            esc_html__( 'Important Warning from %s', 'easy-form-builder' ),
-            get_bloginfo( 'name' )
-        );
-
-        wp_mail( $recipients, $subject, wp_kses_post( $message ), $headers );
-    }
 
     public function handle_new_plugin_activation_efb($plugin, $network_wide = false) {
 
@@ -567,8 +887,21 @@ class Emsfb {
         if ($transient === false || empty($transient)) {
             global $wpdb;
             $table_name = $wpdb->prefix . "emsfb_setting";
+
+            // WordPress loads this plugin through plugin_sandbox_scrape() while
+            // activating it, which happens before the activation hook creates
+            // the settings table. On a brand new install the read below
+            // therefore runs against a table that does not exist yet - an
+            // expected miss, not a failure, and the plugin already falls back
+            // to empty settings for it. Left unsuppressed, wpdb reports it:
+            // the SQLite integration used by WordPress Playground prints the
+            // query and a full backtrace into the log for every call, so a
+            // clean activation looked like a crash. Suppression is restored
+            // immediately afterwards so genuine query errors are still reported.
+            $suppress_errors = $wpdb->suppress_errors(true);
             // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table_name is built from $wpdb->prefix
             $raw = $wpdb->get_var( "SELECT setting FROM `{$table_name}` ORDER BY id DESC LIMIT 1" );
+            $wpdb->suppress_errors($suppress_errors);
 
             if (empty($raw)) {
                 if ($mode === 'pub') return [0, []];
@@ -724,6 +1057,40 @@ class Emsfb {
         return $result;
     }
 
+    /**
+     * Whether the admin turned "This site can send emails" on
+     * (hostSupportSmtp_emsFormBuilder in the UI, settings->smtp in storage).
+     *
+     * This single switch gates every notification email the plugin sends. The
+     * settings row has held the value as a bool, an int and a string over the
+     * years, so normalise here instead of relying on a plain (bool) cast:
+     * (bool)"false" and (bool)"0" are both true in PHP and would silently send
+     * mail from a site whose switch reads "off".
+     *
+     * Called through the emsfb_is_email_sending_enabled_efb() wrapper in
+     * emsfb.php, next to get_setting_Emsfb() and get_efbFunction().
+     *
+     * @param object|array|null $settings Decoded settings object or array.
+     * @return bool
+     */
+    public static function is_email_sending_enabled_efb($settings) {
+        $value = null;
+        if (is_array($settings) && array_key_exists('smtp', $settings)) {
+            $value = $settings['smtp'];
+        } elseif (is_object($settings) && isset($settings->smtp)) {
+            $value = $settings->smtp;
+        }
+
+        if (null === $value) {
+            return false;
+        }
+        if (is_string($value)) {
+            $value = strtolower(trim($value));
+        }
+
+        return in_array($value, [true, 1, '1', 'true', 'on', 'yes'], true);
+    }
+
     public static function get_efbFunction(): efbFunction {
 
         static $instances = [];
@@ -806,6 +1173,13 @@ class Emsfb {
     {
         if (class_exists('\Emsfb\Email_Monitor')) {
             \Emsfb\Email_Monitor::deactivate();
+        }
+
+        // Leave the pending-upload ledger in place: the files it points at are
+        // still on disk, and a deactivate/reactivate cycle should not turn them
+        // into permanently untracked orphans. Only the schedule is dropped.
+        if (class_exists('\Emsfb\Upload_Guard')) {
+            \Emsfb\Upload_Guard::unregister();
         }
 
         delete_option('emsfb_cache_plugins');
@@ -1057,6 +1431,12 @@ class Emsfb {
 
         $wpdb->query("ALTER TABLE `{$table_setting}` MODIFY `setting` LONGTEXT COLLATE utf8mb4_unicode_ci NOT NULL");
 
+        // Indexes and any other schema change dbDelta could never deliver to an
+        // existing install. See Install::upgrade_schema().
+        if (class_exists('\Emsfb\Install') && method_exists('\Emsfb\Install', 'upgrade_schema')) {
+            \Emsfb\Install::upgrade_schema();
+        }
+
         $this->migrate_fix_double_escaped_settings_efb($wpdb);
 
         if (version_compare($old_version, '4', '<')) {
@@ -1145,6 +1525,7 @@ class Emsfb {
             wp_cache_delete('settings:decoded', 'emsfb');
             wp_cache_delete('settings:pub', 'emsfb');
             wp_cache_delete('settings:raw', 'emsfb');
+            wp_cache_delete('emsfb_settings', 'emsfb');
             self::get_setting_Emsfb('_clear_cache');
         }
 
@@ -1204,6 +1585,144 @@ class Emsfb {
         return $raw;
     }
 
+    /**
+     * Return the sample template used for a brand-new installation.
+     *
+     * The email builder can generate this template in the browser, but a
+     * settings save must also be valid before an administrator opens that tab.
+     * Keep the builder data with the HTML fallback so both the editor and the
+     * server-side email renderer use the same Professional template.
+     *
+     * @return string
+     */
+    public static function get_default_email_template_efb() {
+        $direction = function_exists('is_rtl') && is_rtl() ? 'rtl' : 'ltr';
+        $message_align = $direction === 'rtl' ? 'right' : 'left';
+        $logo_url = defined('EMSFB_PLUGIN_URL')
+            ? EMSFB_PLUGIN_URL . 'public/assets/images/email_template1.png'
+            : '';
+        $disclaimer = function_exists('__')
+            ? __('This email was sent automatically. Please do not reply directly.', 'easy-form-builder')
+            : 'This email was sent automatically. Please do not reply directly.';
+
+        $builder_data = [
+            'blocks' => [
+                [
+                    'id' => 'efb-default-header',
+                    'type' => 'header',
+                    'data' => [
+                        'bgColor' => '#667eea',
+                        'padding' => '40px 30px 30px 30px',
+                        'align' => 'center',
+                    ],
+                    'children' => [
+                        [
+                            'id' => 'efb-default-logo',
+                            'type' => 'logo',
+                            'data' => [
+                                'src' => $logo_url,
+                                'alt' => 'Easy Form Builder',
+                                'width' => '120',
+                                'align' => 'center',
+                            ],
+                        ],
+                        [
+                            'id' => 'efb-default-title',
+                            'type' => 'title',
+                            'data' => [
+                                'text' => 'shortcode_title',
+                                'color' => '#ffffff',
+                                'fontSize' => '28',
+                                'fontWeight' => '600',
+                                'align' => 'center',
+                            ],
+                        ],
+                    ],
+                ],
+                [
+                    'id' => 'efb-default-message',
+                    'type' => 'message',
+                    'data' => [
+                        'padding' => '40px 30px',
+                        'bgColor' => '#ffffff',
+                        'color' => '#333333',
+                        'fontSize' => '16',
+                        'align' => $message_align,
+                    ],
+                ],
+                [
+                    'id' => 'efb-default-spacer',
+                    'type' => 'spacer',
+                    'data' => [
+                        'height' => '20',
+                        'bgColor' => '#ffffff',
+                    ],
+                ],
+                [
+                    'id' => 'efb-default-footer',
+                    'type' => 'footer',
+                    'data' => [
+                        'text' => 'shortcode_website_name | shortcode_admin_email',
+                        'color' => '#6b7280',
+                        'fontSize' => '14',
+                        'align' => 'center',
+                        'bgColor' => '#f8f9fa',
+                        'padding' => '30px',
+                    ],
+                ],
+                [
+                    'id' => 'efb-default-disclaimer',
+                    'type' => 'text',
+                    'data' => [
+                        'text' => $disclaimer,
+                        'color' => '#64748b',
+                        'fontSize' => '12',
+                        'align' => 'center',
+                        'padding' => '15px 25px',
+                    ],
+                ],
+            ],
+            'globalSettings' => [
+                'bgColor' => '#f8f9fa',
+                'contentBgColor' => '#ffffff',
+                'contentWidth' => '600',
+                'borderRadius' => '8',
+                'fontFamily' => "'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif",
+                'direction' => $direction,
+                'btnBgColor' => '#202a8d',
+                'btnTextColor' => '#ffffff',
+            ],
+        ];
+
+        $builder_json = function_exists('wp_json_encode')
+            ? wp_json_encode($builder_data, JSON_UNESCAPED_UNICODE)
+            : json_encode($builder_data, JSON_UNESCAPED_UNICODE);
+        if (!is_string($builder_json) || $builder_json === '') {
+            $builder_json = '{"blocks":[{"type":"message","data":{}}]}';
+        }
+
+        $safe_logo_url = function_exists('esc_url') ? esc_url($logo_url) : $logo_url;
+        $safe_disclaimer = function_exists('esc_html')
+            ? esc_html($disclaimer)
+            : htmlspecialchars($disclaimer, ENT_QUOTES, 'UTF-8');
+
+        $html = '<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" dir="' . $direction . '"><head>'
+            . '<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />'
+            . '<meta name="viewport" content="width=device-width, initial-scale=1.0" />'
+            . '</head><body style="margin:0;padding:0;background-color:#f8f9fa;">'
+            . '<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td align="center" style="padding:20px 0;">'
+            . '<table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="max-width:600px;background:#ffffff;border-radius:8px;overflow:hidden;">'
+            . '<tr><td align="center" style="padding:40px 30px 30px;background:#667eea;">'
+            . '<img src="' . $safe_logo_url . '" alt="Easy Form Builder" width="120" style="display:block;width:120px;height:auto;margin:0 auto 20px;border:0;" />'
+            . '<h1 style="margin:0;color:#ffffff;font:600 28px/1.3 Arial,sans-serif;text-align:center;">shortcode_title</h1>'
+            . '</td></tr><tr><td style="padding:40px 30px;color:#333333;font:16px/1.6 Arial,sans-serif;text-align:' . $message_align . ';">shortcode_message</td></tr>'
+            . '<tr><td style="padding:30px;background:#f8f9fa;color:#6b7280;font:14px/1.5 Arial,sans-serif;text-align:center;">shortcode_website_name | shortcode_admin_email</td></tr>'
+            . '<tr><td style="padding:15px 25px;color:#64748b;font:12px/1.6 Arial,sans-serif;text-align:center;">' . $safe_disclaimer . '</td></tr>'
+            . '</table></td></tr></table></body></html>';
+
+        return $html . "\n<!-- EFBDATA:" . rawurlencode($builder_json) . ' -->';
+    }
+
     public static function get_default_settings_efb() {
         $defaults = new \stdClass();
         $defaults->activeCode        = '';
@@ -1216,7 +1735,7 @@ class Emsfb {
         $defaults->emailStatsReport  = true;
         $defaults->text              = '';
         $defaults->bootstrap         = '';
-        $defaults->emailTemp         = '';
+        $defaults->emailTemp         = self::get_default_email_template_efb();
         $defaults->emailBtnBgColor   = '#202a8d';
         $defaults->emailBtnTextColor = '#ffffff';
         $defaults->paypalPKey        = '';
@@ -1227,8 +1746,8 @@ class Emsfb {
         $defaults->act_local_efb     = '';
         $defaults->scaptcha          = '';
         $defaults->shield_silent_captcha = '';
-        $defaults->activeDlBtn       = '';
-        $defaults->dsupfile          = '1';
+        $defaults->activeDlBtn       = true;
+        $defaults->dsupfile          = true;
         $defaults->sms_config        = 'null';
         $defaults->AdnSPF            = '0';
         $defaults->AdnOF             = '0';

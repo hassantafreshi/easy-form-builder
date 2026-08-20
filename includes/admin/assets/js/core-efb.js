@@ -557,7 +557,7 @@ function endMessage_emsFormBuilder_view() {
 
   if (countRequired != valueExistsRequired && sendBack_emsFormBuilder.length < 1) {
     let str = ""
-    document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='efb emsFormBuilder'><i class="efb bi-exclamation-triangle-fill text-danger""></i></h1><h3>Failed</h3> <span>${efb_var.text.pleaseMakeSureAllFields}</span>
+    document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='efb emsFormBuilder'><i class="efb bi-exclamation-triangle-fill text-danger""></i></h1><h3>${efb_var.text.failed}</h3> <span>${efb_var.text.pleaseMakeSureAllFields}</span>
     <div class="efb display-btn"> <button type="button" id="emsFormBuilder-text-prevBtn-view" onclick="emsFormBuilder_nevButton_view(0)" style="display;"><i class="efb fa fa-angle-double-left"></i></button></div>`;
 
   } else {

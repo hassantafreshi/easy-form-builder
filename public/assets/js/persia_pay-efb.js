@@ -290,7 +290,7 @@ fun_after_bankpay_persia_ui_efb=()=>{
            margin: 0 auto 20px;
          "></div>
          <h3 style="margin: 0; font-size: 24px;">پرداخت موفق بود!</h3>
-         <p style="margin: 10px 0; font-size: 16px;">در حال انتقال به مرحله آخر...</p>
+         <p style="margin: 10px 0; font-size: 16px;">در حال انتقال به مرحله آخر&hellip;</p>
          <div id="countdown" style="font-size: 20px; font-weight: bold;">3</div>
        </div>
        <style>

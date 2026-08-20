@@ -167,7 +167,7 @@ class EfbAddonPhrases {
             "chatid_finder_link" => '@WSYourIDBot',
 
             /* translators: Enter your test message here = placeholder */
-            "enter_test_message" => $state && isset($ac->text->enter_test_message) ? $ac->text->enter_test_message : esc_html__('Enter your test message here...', 'easy-form-builder'),
+            "enter_test_message" => $state && isset($ac->text->enter_test_message) ? $ac->text->enter_test_message : esc_html__('Enter your test message here&hellip;', 'easy-form-builder'),
 
             /* translators: Default test message content */
             "default_test_message" => $state && isset($ac->text->default_test_message) ? $ac->text->default_test_message : esc_html__("Test Message\n\nThis is a test message from Easy Form Builder.\n\nIf you receive this message, your Telegram integration is working correctly!", 'easy-form-builder'),
@@ -346,7 +346,7 @@ class EfbAddonPhrases {
             "sendSmsDesc" => $state && isset($ac->text->sendSmsDesc) ? $ac->text->sendSmsDesc : esc_html__('Compose and send an SMS message', 'easy-form-builder'),
 
             /* translators: Type your message here... = textarea placeholder */
-            "typeYourMessage" => $state && isset($ac->text->typeYourMessage) ? $ac->text->typeYourMessage : esc_html__('Type your message here...', 'easy-form-builder'),
+            "typeYourMessage" => $state && isset($ac->text->typeYourMessage) ? $ac->text->typeYourMessage : esc_html__('Type your message here&hellip;', 'easy-form-builder'),
 
             /* translators: Phone Number = label for phone input field */
             "phoneNumber" => $state && isset($ac->text->phoneNumber) ? $ac->text->phoneNumber : esc_html__('Phone Number', 'easy-form-builder'),
@@ -378,20 +378,10 @@ class EfbAddonPhrases {
             /* translators: Learn how to use the SMS feature = help subtitle */
             "smsHelpDesc" => $state && isset($ac->text->smsHelpDesc) ? $ac->text->smsHelpDesc : esc_html__('Learn how to use the SMS feature', 'easy-form-builder'),
 
-            /* translators: Quick Start Guide = help section title */
-            "smsHelpQuickStart" => $state && isset($ac->text->smsHelpQuickStart) ? $ac->text->smsHelpQuickStart : esc_html__('Quick Start Guide', 'easy-form-builder'),
 
-            /* translators: Step 1 of SMS quick start guide */
-            "smsHelpStep1" => $state && isset($ac->text->smsHelpStep1) ? $ac->text->smsHelpStep1 : esc_html__('Go to EFB Settings and configure your SMS provider (e.g. WP SMS Pro)', 'easy-form-builder'),
 
-            /* translators: Step 2 of SMS quick start guide */
-            "smsHelpStep2" => $state && isset($ac->text->smsHelpStep2) ? $ac->text->smsHelpStep2 : esc_html__('Navigate to the "Send Message" tab', 'easy-form-builder'),
 
-            /* translators: Step 3 of SMS quick start guide */
-            "smsHelpStep3" => $state && isset($ac->text->smsHelpStep3) ? $ac->text->smsHelpStep3 : esc_html__('Type your message and enter the phone number with country code', 'easy-form-builder'),
 
-            /* translators: Step 4 of SMS quick start guide */
-            "smsHelpStep4" => $state && isset($ac->text->smsHelpStep4) ? $ac->text->smsHelpStep4 : esc_html__('Click "Send" — the message will appear in Message History', 'easy-form-builder'),
 
             /* translators: Important Notes = help section title */
             "smsHelpNotes" => $state && isset($ac->text->smsHelpNotes) ? $ac->text->smsHelpNotes : esc_html__('Important Notes', 'easy-form-builder'),
@@ -420,11 +410,12 @@ class EfbAddonPhrases {
     }
 
     /**
-     * Visitor-facing messages produced by the Human Shield add-on (Form Security
-     * & Spam Protection). They are returned inside REST responses and rendered on
-     * the form, so they live here like every other add-on phrase and can be
-     * edited/translated from the Phrases page. Values are used as plain text and
-     * escaped by the consumer, so keep them unescaped (__ not esc_html__).
+     * Messages for the Human Shield add-on (Form Security & Spam Protection):
+     * both the visitor-facing REST responses (hs*) and the admin settings panel
+     * it renders via human-shield-admin-efb.js (hs* fields below the "Admin
+     * panel" marker). All live here so every string can be edited/translated
+     * from the Phrases page. Values are used as plain text and escaped by the
+     * consumer, so keep them unescaped (__ not esc_html__).
      */
     public static function get_humanshield_phrases($ac = null, $state = false) {
         return [
@@ -467,6 +458,330 @@ class EfbAddonPhrases {
 
             /* translators: Shown when the security service is temporarily unavailable (fail-closed) */
             "hsServiceUnavailable" => $state && isset($ac->text->hsServiceUnavailable) ? $ac->text->hsServiceUnavailable : __('The security service is temporarily unavailable. Please try again later.', 'easy-form-builder'),
+
+            /* ===== Admin panel (Security & Spam Protection settings page) =====
+             * Rendered by human-shield-admin-efb.js via its own esc() helper, so
+             * keep these unescaped (__ not esc_html__), same as the messages above. */
+
+            /* translators: Form Security & Spam Protection = add-on name shown as the panel header title */
+            "hsTitle" => $state && isset($ac->text->hsTitle) ? $ac->text->hsTitle : __('Form Security & Spam Protection', 'easy-form-builder'),
+            /* translators: Panel header subtitle summarizing what the add-on does */
+            "hsSubtitle" => $state && isset($ac->text->hsSubtitle) ? $ac->text->hsSubtitle : __('Behavior-based anti-spam and cost protection', 'easy-form-builder'),
+            /* translators: Overview = first tab in the admin panel */
+            "hsOverview" => $state && isset($ac->text->hsOverview) ? $ac->text->hsOverview : __('Overview', 'easy-form-builder'),
+            /* translators: Protection = tab with request-protection thresholds */
+            "hsProtection" => $state && isset($ac->text->hsProtection) ? $ac->text->hsProtection : __('Protection', 'easy-form-builder'),
+            /* translators: Paid Limits = tab with stop-loss limits for paid notifications */
+            "hsPaidLimits" => $state && isset($ac->text->hsPaidLimits) ? $ac->text->hsPaidLimits : __('Paid Limits', 'easy-form-builder'),
+            /* translators: Logs = tab showing recent security decisions */
+            "hsLogs" => $state && isset($ac->text->hsLogs) ? $ac->text->hsLogs : __('Logs', 'easy-form-builder'),
+            /* translators: System = tab showing PHP/server requirements */
+            "hsSystem" => $state && isset($ac->text->hsSystem) ? $ac->text->hsSystem : __('System', 'easy-form-builder'),
+            /* translators: Save Settings = button label */
+            "hsSave" => $state && isset($ac->text->hsSave) ? $ac->text->hsSave : __('Save Settings', 'easy-form-builder'),
+            /* translators: Status shown on the Save button while the request is in flight */
+            "hsSaving" => $state && isset($ac->text->hsSaving) ? $ac->text->hsSaving : __('Saving…', 'easy-form-builder'),
+            /* translators: Success message after settings are saved */
+            "hsSaved" => $state && isset($ac->text->hsSaved) ? $ac->text->hsSaved : __('Settings saved.', 'easy-form-builder'),
+            /* translators: Generic error message for a failed admin-ajax request */
+            "hsFailed" => $state && isset($ac->text->hsFailed) ? $ac->text->hsFailed : __('Request failed.', 'easy-form-builder'),
+            /* translators: Enabled = generic toggle field label */
+            "hsEnabled" => $state && isset($ac->text->hsEnabled) ? $ac->text->hsEnabled : __('Enabled', 'easy-form-builder'),
+            /* translators: Mode = field label for the protection mode selector */
+            "hsMode" => $state && isset($ac->text->hsMode) ? $ac->text->hsMode : __('Mode', 'easy-form-builder'),
+            /* translators: Mode option - logs decisions but never blocks requests */
+            "hsMonitor" => $state && isset($ac->text->hsMonitor) ? $ac->text->hsMonitor : __('Monitor only', 'easy-form-builder'),
+            /* translators: Mode option - blocks the worst requests, quarantines borderline ones */
+            "hsSoftBlock" => $state && isset($ac->text->hsSoftBlock) ? $ac->text->hsSoftBlock : __('Soft block', 'easy-form-builder'),
+            /* translators: Mode option - the strictest enforcement level */
+            "hsStrict" => $state && isset($ac->text->hsStrict) ? $ac->text->hsStrict : __('Strict', 'easy-form-builder'),
+            /* translators: Clear Logs = button that deletes the stored security log entries */
+            "hsClearLogs" => $state && isset($ac->text->hsClearLogs) ? $ac->text->hsClearLogs : __('Clear Logs', 'easy-form-builder'),
+            /* translators: Fallback message shown if wp_localize_script data failed to load */
+            "hsConfigMissing" => $state && isset($ac->text->hsConfigMissing) ? $ac->text->hsConfigMissing : __('The Security & Spam Protection admin data could not be loaded. Another plugin may be blocking the script settings, or the page was cached. Reload the page; if it persists, disable admin script optimization for this page.', 'easy-form-builder'),
+            /* translators: Fallback message shown if the admin panel JavaScript throws an error while rendering */
+            "hsRenderFailed" => $state && isset($ac->text->hsRenderFailed) ? $ac->text->hsRenderFailed : __('The Security & Spam Protection panel failed to render. Reload the page or check the browser console.', 'easy-form-builder'),
+            /* translators: %s = comma-separated list of disabled PHP function names. Banner shown when required PHP functions are missing */
+            "hsMissingRequired" => $state && isset($ac->text->hsMissingRequired) ? $ac->text->hsMissingRequired : __('Protection is paused: required PHP functions are disabled on this server: %s. Ask your host to remove them from the disable_functions line in php.ini. Your forms keep working without protection until then.', 'easy-form-builder'),
+            /* translators: Banner shown when the add-on's database tables could not be created */
+            "hsMissingTables" => $state && isset($ac->text->hsMissingTables) ? $ac->text->hsMissingTables : __('Protection is paused: the add-on database tables could not be created. Check that the database user can CREATE tables, then reload this page.', 'easy-form-builder'),
+            /* translators: Banner shown when the WordPress REST API is unavailable on this site */
+            "hsMissingRestApi" => $state && isset($ac->text->hsMissingRestApi) ? $ac->text->hsMissingRestApi : __('Protection is paused: the WordPress REST API is not available on this site.', 'easy-form-builder'),
+
+            /* translators: Header badge - the add-on scores request behavior */
+            "hsBadgeBehaviorScoring" => $state && isset($ac->text->hsBadgeBehaviorScoring) ? $ac->text->hsBadgeBehaviorScoring : __('Behavior scoring', 'easy-form-builder'),
+            /* translators: Header badge - the add-on enforces rate limits */
+            "hsBadgeRateLimits" => $state && isset($ac->text->hsBadgeRateLimits) ? $ac->text->hsBadgeRateLimits : __('Rate limits', 'easy-form-builder'),
+            /* translators: Header badge - the add-on protects against paid-notification cost overruns */
+            "hsBadgeCostGuard" => $state && isset($ac->text->hsBadgeCostGuard) ? $ac->text->hsBadgeCostGuard : __('Cost guard', 'easy-form-builder'),
+
+            /* translators: Status pill label shown after enabling protection but before saving */
+            "hsStatusReadyEnable" => $state && isset($ac->text->hsStatusReadyEnable) ? $ac->text->hsStatusReadyEnable : __('Ready to enable', 'easy-form-builder'),
+            /* translators: Status pill hint shown after enabling protection but before saving */
+            "hsStatusReadyEnableHint" => $state && isset($ac->text->hsStatusReadyEnableHint) ? $ac->text->hsStatusReadyEnableHint : __('Save settings to start protection.', 'easy-form-builder'),
+            /* translators: Status pill label shown after disabling protection but before saving */
+            "hsStatusReadyDisable" => $state && isset($ac->text->hsStatusReadyDisable) ? $ac->text->hsStatusReadyDisable : __('Ready to disable', 'easy-form-builder'),
+            /* translators: Status pill hint shown after disabling protection but before saving */
+            "hsStatusReadyDisableHint" => $state && isset($ac->text->hsStatusReadyDisableHint) ? $ac->text->hsStatusReadyDisableHint : __('Save settings to pause protection.', 'easy-form-builder'),
+            /* translators: Status pill label shown when protection is turned off */
+            "hsStatusDisabled" => $state && isset($ac->text->hsStatusDisabled) ? $ac->text->hsStatusDisabled : __('Disabled', 'easy-form-builder'),
+            /* translators: Status pill hint shown when protection is turned off */
+            "hsStatusDisabledHint" => $state && isset($ac->text->hsStatusDisabledHint) ? $ac->text->hsStatusDisabledHint : __('Protection is paused.', 'easy-form-builder'),
+            /* translators: Status pill label shown when server requirements are not met */
+            "hsStatusNeedsAttention" => $state && isset($ac->text->hsStatusNeedsAttention) ? $ac->text->hsStatusNeedsAttention : __('Needs attention', 'easy-form-builder'),
+            /* translators: Status pill hint shown when server requirements are not met */
+            "hsStatusNeedsAttentionHint" => $state && isset($ac->text->hsStatusNeedsAttentionHint) ? $ac->text->hsStatusNeedsAttentionHint : __('Fix system requirements before protection can run.', 'easy-form-builder'),
+            /* translators: Status pill label shown when protection is running normally */
+            "hsStatusActive" => $state && isset($ac->text->hsStatusActive) ? $ac->text->hsStatusActive : __('Active', 'easy-form-builder'),
+            /* translators: Status pill hint shown when protection is running normally */
+            "hsStatusActiveHint" => $state && isset($ac->text->hsStatusActiveHint) ? $ac->text->hsStatusActiveHint : __('Behavior checks and rate limits are running.', 'easy-form-builder'),
+
+            /* translators: Overview tab stat card - count of allowed requests */
+            "hsStatAllowed" => $state && isset($ac->text->hsStatAllowed) ? $ac->text->hsStatAllowed : __('Allowed', 'easy-form-builder'),
+            /* translators: Overview tab stat card - count of blocked requests */
+            "hsStatBlocked" => $state && isset($ac->text->hsStatBlocked) ? $ac->text->hsStatBlocked : __('Blocked', 'easy-form-builder'),
+            /* translators: Overview tab stat card - count of quarantined (soft-rejected) requests */
+            "hsStatQuarantined" => $state && isset($ac->text->hsStatQuarantined) ? $ac->text->hsStatQuarantined : __('Quarantined', 'easy-form-builder'),
+            /* translators: Overview tab stat card - count of paid notifications suppressed by the cost guard */
+            "hsStatSuppressed" => $state && isset($ac->text->hsStatSuppressed) ? $ac->text->hsStatSuppressed : __('Cost Suppressed', 'easy-form-builder'),
+            /* translators: Overview tab card title summarizing current protection settings */
+            "hsProtectionSummaryTitle" => $state && isset($ac->text->hsProtectionSummaryTitle) ? $ac->text->hsProtectionSummaryTitle : __('Protection summary', 'easy-form-builder'),
+            /* translators: Overview tab card subtitle */
+            "hsProtectionSummaryDesc" => $state && isset($ac->text->hsProtectionSummaryDesc) ? $ac->text->hsProtectionSummaryDesc : __('Current operating mode and the most important thresholds.', 'easy-form-builder'),
+            /* translators: Overview summary row label - minimum score required to accept a submission */
+            "hsSummarySubmitScore" => $state && isset($ac->text->hsSummarySubmitScore) ? $ac->text->hsSummarySubmitScore : __('Submit score', 'easy-form-builder'),
+            /* translators: Overview summary row label - minimum score required to send a paid notification */
+            "hsSummaryPaidScore" => $state && isset($ac->text->hsSummaryPaidScore) ? $ac->text->hsSummaryPaidScore : __('Paid notification score', 'easy-form-builder'),
+            /* translators: Overview summary row label - lifetime of the human-verification token */
+            "hsSummaryTokenTtl" => $state && isset($ac->text->hsSummaryTokenTtl) ? $ac->text->hsSummaryTokenTtl : __('Token TTL', 'easy-form-builder'),
+            /* translators: Overview summary row label - submit rate limit per IP per minute */
+            "hsSummaryIpSubmitMin" => $state && isset($ac->text->hsSummaryIpSubmitMin) ? $ac->text->hsSummaryIpSubmitMin : __('IP submit/min', 'easy-form-builder'),
+            /* translators: Overview summary row label - response/reply rate limit per IP per minute */
+            "hsSummaryResponseAddMin" => $state && isset($ac->text->hsSummaryResponseAddMin) ? $ac->text->hsSummaryResponseAddMin : __('Response add/min', 'easy-form-builder'),
+
+            /* translators: Protection tab card title */
+            "hsRequestProtectionTitle" => $state && isset($ac->text->hsRequestProtectionTitle) ? $ac->text->hsRequestProtectionTitle : __('Request protection', 'easy-form-builder'),
+            /* translators: Protection tab card subtitle */
+            "hsRequestProtectionDesc" => $state && isset($ac->text->hsRequestProtectionDesc) ? $ac->text->hsRequestProtectionDesc : __('Controls that run before EFB REST callbacks.', 'easy-form-builder'),
+            /* translators: Toggle label that turns the whole add-on on or off */
+            "hsFieldEnableLabel" => $state && isset($ac->text->hsFieldEnableLabel) ? $ac->text->hsFieldEnableLabel : __('Enable Human Shield', 'easy-form-builder'),
+            /* translators: Hint under the master enable toggle */
+            "hsFieldEnableHint" => $state && isset($ac->text->hsFieldEnableHint) ? $ac->text->hsFieldEnableHint : __('Activate behavior tokens and rate limits.', 'easy-form-builder'),
+            /* translators: Hint under the protection Mode selector */
+            "hsFieldModeHint" => $state && isset($ac->text->hsFieldModeHint) ? $ac->text->hsFieldModeHint : __('Monitor logs only; soft block is recommended for production rollout.', 'easy-form-builder'),
+            /* translators: Field label - minimum behavior score required to accept a submission */
+            "hsFieldMinScoreSubmitLabel" => $state && isset($ac->text->hsFieldMinScoreSubmitLabel) ? $ac->text->hsFieldMinScoreSubmitLabel : __('Minimum submit score', 'easy-form-builder'),
+            /* translators: Hint for the minimum submit score field */
+            "hsFieldMinScoreSubmitHint" => $state && isset($ac->text->hsFieldMinScoreSubmitHint) ? $ac->text->hsFieldMinScoreSubmitHint : __('Requests below this score are suspicious.', 'easy-form-builder'),
+            /* translators: Field label - score threshold below which a request is hard-blocked */
+            "hsFieldBlockScoreLabel" => $state && isset($ac->text->hsFieldBlockScoreLabel) ? $ac->text->hsFieldBlockScoreLabel : __('Block score below', 'easy-form-builder'),
+            /* translators: Hint for the hard-block score threshold field */
+            "hsFieldBlockScoreHint" => $state && isset($ac->text->hsFieldBlockScoreHint) ? $ac->text->hsFieldBlockScoreHint : __('Hard block threshold.', 'easy-form-builder'),
+            /* translators: Field label - score threshold below which a request is soft-rejected */
+            "hsFieldQuarantineScoreLabel" => $state && isset($ac->text->hsFieldQuarantineScoreLabel) ? $ac->text->hsFieldQuarantineScoreLabel : __('Quarantine score below', 'easy-form-builder'),
+            /* translators: Hint for the soft-rejection score threshold field */
+            "hsFieldQuarantineScoreHint" => $state && isset($ac->text->hsFieldQuarantineScoreHint) ? $ac->text->hsFieldQuarantineScoreHint : __('Soft rejection threshold.', 'easy-form-builder'),
+            /* translators: Field label - minimum seconds a visitor must spend before submitting */
+            "hsFieldMinFillTimeLabel" => $state && isset($ac->text->hsFieldMinFillTimeLabel) ? $ac->text->hsFieldMinFillTimeLabel : __('Minimum fill time', 'easy-form-builder'),
+            /* translators: Hint for the minimum fill time field */
+            "hsFieldMinFillTimeHint" => $state && isset($ac->text->hsFieldMinFillTimeHint) ? $ac->text->hsFieldMinFillTimeHint : __('Base minimum seconds before submit.', 'easy-form-builder'),
+            /* translators: Field label - lifetime in seconds of the single-use human token */
+            "hsFieldTokenTtlLabel" => $state && isset($ac->text->hsFieldTokenTtlLabel) ? $ac->text->hsFieldTokenTtlLabel : __('Token TTL seconds', 'easy-form-builder'),
+            /* translators: Hint for the token TTL field */
+            "hsFieldTokenTtlHint" => $state && isset($ac->text->hsFieldTokenTtlHint) ? $ac->text->hsFieldTokenTtlHint : __('Short-lived single-use human token.', 'easy-form-builder'),
+            /* translators: Field label - lifetime in seconds of a browser challenge */
+            "hsFieldChallengeTtlLabel" => $state && isset($ac->text->hsFieldChallengeTtlLabel) ? $ac->text->hsFieldChallengeTtlLabel : __('Challenge TTL seconds', 'easy-form-builder'),
+            /* translators: Hint for the challenge TTL field */
+            "hsFieldChallengeTtlHint" => $state && isset($ac->text->hsFieldChallengeTtlHint) ? $ac->text->hsFieldChallengeTtlHint : __('How long a browser challenge can stay open.', 'easy-form-builder'),
+            /* translators: Field label - overall API rate limit per IP per minute */
+            "hsFieldApiIpMinLabel" => $state && isset($ac->text->hsFieldApiIpMinLabel) ? $ac->text->hsFieldApiIpMinLabel : __('All API requests per IP/min', 'easy-form-builder'),
+            /* translators: Hint for the overall API rate limit field */
+            "hsFieldApiIpMinHint" => $state && isset($ac->text->hsFieldApiIpMinHint) ? $ac->text->hsFieldApiIpMinHint : __('Global application-layer backstop.', 'easy-form-builder'),
+            /* translators: Field label - submit rate limit per IP per minute */
+            "hsFieldSubmitIpMinLabel" => $state && isset($ac->text->hsFieldSubmitIpMinLabel) ? $ac->text->hsFieldSubmitIpMinLabel : __('Submits per IP/min', 'easy-form-builder'),
+            /* translators: Hint for the per-IP submit rate limit (per minute) field */
+            "hsFieldSubmitIpMinHint" => $state && isset($ac->text->hsFieldSubmitIpMinHint) ? $ac->text->hsFieldSubmitIpMinHint : __('Per-IP submit limit.', 'easy-form-builder'),
+            /* translators: Field label - submit rate limit per IP per hour */
+            "hsFieldSubmitIpHourLabel" => $state && isset($ac->text->hsFieldSubmitIpHourLabel) ? $ac->text->hsFieldSubmitIpHourLabel : __('Submits per IP/hour', 'easy-form-builder'),
+            /* translators: Hint for the per-IP submit rate limit (per hour) field */
+            "hsFieldSubmitIpHourHint" => $state && isset($ac->text->hsFieldSubmitIpHourHint) ? $ac->text->hsFieldSubmitIpHourHint : __('Longer per-IP submit limit.', 'easy-form-builder'),
+            /* translators: Field label - submit rate limit shared by all visitors to one form */
+            "hsFieldFormGlobalMinLabel" => $state && isset($ac->text->hsFieldFormGlobalMinLabel) ? $ac->text->hsFieldFormGlobalMinLabel : __('Form global/min', 'easy-form-builder'),
+            /* translators: Hint for the form-wide submit rate limit field */
+            "hsFieldFormGlobalMinHint" => $state && isset($ac->text->hsFieldFormGlobalMinHint) ? $ac->text->hsFieldFormGlobalMinHint : __('Total submit pressure per form.', 'easy-form-builder'),
+            /* translators: Field label - rate limit for confirmation-code / tracking lookups per IP per minute */
+            "hsFieldResponseGetIpMinLabel" => $state && isset($ac->text->hsFieldResponseGetIpMinLabel) ? $ac->text->hsFieldResponseGetIpMinLabel : __('Tracking lookups per IP/min', 'easy-form-builder'),
+            /* translators: Hint for the tracking-lookup rate limit field */
+            "hsFieldResponseGetIpMinHint" => $state && isset($ac->text->hsFieldResponseGetIpMinHint) ? $ac->text->hsFieldResponseGetIpMinHint : __('Protects confirmation-code lookup.', 'easy-form-builder'),
+            /* translators: Field label - rate limit for public reply submissions per IP per minute */
+            "hsFieldResponseAddIpMinLabel" => $state && isset($ac->text->hsFieldResponseAddIpMinLabel) ? $ac->text->hsFieldResponseAddIpMinLabel : __('Responses per IP/min', 'easy-form-builder'),
+            /* translators: Hint for the public reply-box rate limit field */
+            "hsFieldResponseAddIpMinHint" => $state && isset($ac->text->hsFieldResponseAddIpMinHint) ? $ac->text->hsFieldResponseAddIpMinHint : __('Protects public reply box.', 'easy-form-builder'),
+            /* translators: Field label - rate limit for replies to a single tracked conversation, per hour */
+            "hsFieldReplyTrackHourLabel" => $state && isset($ac->text->hsFieldReplyTrackHourLabel) ? $ac->text->hsFieldReplyTrackHourLabel : __('Replies per tracking code/hour', 'easy-form-builder'),
+            /* translators: Hint for the per-tracking-code reply rate limit field; "0" refers to the field's own value */
+            "hsFieldReplyTrackHourHint" => $state && isset($ac->text->hsFieldReplyTrackHourHint) ? $ac->text->hsFieldReplyTrackHourHint : __('Caps replies to one tracked conversation (across IPs). 0 disables.', 'easy-form-builder'),
+            /* translators: Field label - file upload rate limit per IP per minute */
+            "hsFieldUploadIpMinLabel" => $state && isset($ac->text->hsFieldUploadIpMinLabel) ? $ac->text->hsFieldUploadIpMinLabel : __('Uploads per IP/min', 'easy-form-builder'),
+            /* translators: Hint for the file upload rate limit field */
+            "hsFieldUploadIpMinHint" => $state && isset($ac->text->hsFieldUploadIpMinHint) ? $ac->text->hsFieldUploadIpMinHint : __('Protects upload endpoint.', 'easy-form-builder'),
+            /* translators: Field label - payment-start rate limit per IP per minute */
+            "hsFieldPaymentIpMinLabel" => $state && isset($ac->text->hsFieldPaymentIpMinLabel) ? $ac->text->hsFieldPaymentIpMinLabel : __('Payment starts per IP/min', 'easy-form-builder'),
+            /* translators: Hint for the payment-start rate limit field */
+            "hsFieldPaymentIpMinHint" => $state && isset($ac->text->hsFieldPaymentIpMinHint) ? $ac->text->hsFieldPaymentIpMinHint : __('Protects payment REST routes.', 'easy-form-builder'),
+            /* translators: Section title for the settings that control how many files one visitor may upload */
+            "hsUploadBudgetTitle" => $state && isset($ac->text->hsUploadBudgetTitle) ? $ac->text->hsUploadBudgetTitle : __('File upload budget', 'easy-form-builder'),
+            /* translators: Description of the upload budget section. Explains that the plugin already limits uploads by itself and these boxes only override it. */
+            "hsUploadBudgetDesc" => $state && isset($ac->text->hsUploadBudgetDesc) ? $ac->text->hsUploadBudgetDesc : __('Easy Form Builder already limits uploads on its own: each visitor may upload three files per file field on the form, and the response box allows three. Leave a box at 0 to keep that automatic behaviour, or enter a number to set it yourself.', 'easy-form-builder'),
+            /* translators: Field label - how many uploads are allowed for each file field on a form */
+            "hsFieldUploadRetryLabel" => $state && isset($ac->text->hsFieldUploadRetryLabel) ? $ac->text->hsFieldUploadRetryLabel : __('Uploads allowed per file field', 'easy-form-builder'),
+            /* translators: Hint for the per-file-field upload allowance; "0" refers to the field's own value */
+            "hsFieldUploadRetryHint" => $state && isset($ac->text->hsFieldUploadRetryHint) ? $ac->text->hsFieldUploadRetryHint : __('Default 3, so a two-field form allows six uploads. 0 keeps the default.', 'easy-form-builder'),
+            /* translators: Field label - a fixed total number of uploads allowed per visitor */
+            "hsFieldUploadQuotaLabel" => $state && isset($ac->text->hsFieldUploadQuotaLabel) ? $ac->text->hsFieldUploadQuotaLabel : __('Total uploads per visitor', 'easy-form-builder'),
+            /* translators: Hint for the fixed total upload limit; "0" refers to the field's own value */
+            "hsFieldUploadQuotaHint" => $state && isset($ac->text->hsFieldUploadQuotaHint) ? $ac->text->hsFieldUploadQuotaHint : __('A fixed total that ignores how many fields the form has. 0 keeps the automatic per-field calculation.', 'easy-form-builder'),
+            /* translators: Field label - how long before a visitor's upload allowance resets */
+            "hsFieldUploadWindowLabel" => $state && isset($ac->text->hsFieldUploadWindowLabel) ? $ac->text->hsFieldUploadWindowLabel : __('Budget resets after (seconds)', 'easy-form-builder'),
+            /* translators: Hint for the upload budget reset window; "0" refers to the field's own value */
+            "hsFieldUploadWindowHint" => $state && isset($ac->text->hsFieldUploadWindowHint) ? $ac->text->hsFieldUploadWindowHint : __('Default 3600 (one hour). 0 keeps the default.', 'easy-form-builder'),
+            /* translators: Field label - a site-wide maximum upload size in megabytes */
+            "hsFieldUploadMaxMbLabel" => $state && isset($ac->text->hsFieldUploadMaxMbLabel) ? $ac->text->hsFieldUploadMaxMbLabel : __('Maximum file size (MB)', 'easy-form-builder'),
+            /* translators: Hint for the site-wide maximum upload size; "0" refers to the field's own value */
+            "hsFieldUploadMaxMbHint" => $state && isset($ac->text->hsFieldUploadMaxMbHint) ? $ac->text->hsFieldUploadMaxMbHint : __('A site-wide ceiling. It can only tighten a per-field limit, never widen it. 0 keeps the field setting.', 'easy-form-builder'),
+            /* translators: Toggle label - rate-limit tracking-code lookups without requiring a human token */
+            "hsFieldProtectLookupLabel" => $state && isset($ac->text->hsFieldProtectLookupLabel) ? $ac->text->hsFieldProtectLookupLabel : __('Protect response lookup', 'easy-form-builder'),
+            /* translators: Hint for the response-lookup protection toggle */
+            "hsFieldProtectLookupHint" => $state && isset($ac->text->hsFieldProtectLookupHint) ? $ac->text->hsFieldProtectLookupHint : __('Rate-limit tracking-code searches by request count (no human-token check).', 'easy-form-builder'),
+            /* translators: Section title for the manually managed IP allow/block lists */
+            "hsManualListsTitle" => $state && isset($ac->text->hsManualListsTitle) ? $ac->text->hsManualListsTitle : __('Manual access lists', 'easy-form-builder'),
+            /* translators: Description of the manual IP allow/block lists, with a wildcard example (203.0.113.*) */
+            "hsManualListsDesc" => $state && isset($ac->text->hsManualListsDesc) ? $ac->text->hsManualListsDesc : __('One entry per line: an exact IP or a wildcard prefix such as 203.0.113.* — allowlist bypasses all checks, blocklist blocks in every mode.', 'easy-form-builder'),
+            /* translators: Field label - IPs that always bypass the security checks */
+            "hsFieldAllowlistLabel" => $state && isset($ac->text->hsFieldAllowlistLabel) ? $ac->text->hsFieldAllowlistLabel : __('IP allowlist', 'easy-form-builder'),
+            /* translators: Hint for the IP allowlist field */
+            "hsFieldAllowlistHint" => $state && isset($ac->text->hsFieldAllowlistHint) ? $ac->text->hsFieldAllowlistHint : __('Trusted IPs that skip the shield completely (your office, monitoring bots).', 'easy-form-builder'),
+            /* translators: Field label - IPs that are always blocked */
+            "hsFieldBlocklistLabel" => $state && isset($ac->text->hsFieldBlocklistLabel) ? $ac->text->hsFieldBlocklistLabel : __('IP blocklist', 'easy-form-builder'),
+            /* translators: Hint for the IP blocklist field */
+            "hsFieldBlocklistHint" => $state && isset($ac->text->hsFieldBlocklistHint) ? $ac->text->hsFieldBlocklistHint : __('IPs that are always blocked on protected form routes.', 'easy-form-builder'),
+
+
+            /* translators: Field label - minimum score required to send a paid notification */
+            "hsFieldMinPaidScoreLabel" => $state && isset($ac->text->hsFieldMinPaidScoreLabel) ? $ac->text->hsFieldMinPaidScoreLabel : __('Minimum paid notification score', 'easy-form-builder'),
+            /* translators: Hint for the minimum paid-notification score field */
+            "hsFieldMinPaidScoreHint" => $state && isset($ac->text->hsFieldMinPaidScoreHint) ? $ac->text->hsFieldMinPaidScoreHint : __('Suppress costly notifications below this score.', 'easy-form-builder'),
+            /* translators: Field label - daily budget cap for outgoing SMS notifications */
+            "hsFieldSmsStopLossLabel" => $state && isset($ac->text->hsFieldSmsStopLossLabel) ? $ac->text->hsFieldSmsStopLossLabel : __('SMS daily stop-loss', 'easy-form-builder'),
+            /* translators: Hint for the SMS daily stop-loss field */
+            "hsFieldSmsStopLossHint" => $state && isset($ac->text->hsFieldSmsStopLossHint) ? $ac->text->hsFieldSmsStopLossHint : __('Global SMS budget per day, across all recipients.', 'easy-form-builder'),
+            /* translators: Field label - daily budget cap for outgoing Telegram notifications */
+            "hsFieldTelegramStopLossLabel" => $state && isset($ac->text->hsFieldTelegramStopLossLabel) ? $ac->text->hsFieldTelegramStopLossLabel : __('Telegram daily stop-loss', 'easy-form-builder'),
+            /* translators: Hint for the Telegram daily stop-loss field */
+            "hsFieldTelegramStopLossHint" => $state && isset($ac->text->hsFieldTelegramStopLossHint) ? $ac->text->hsFieldTelegramStopLossHint : __('Global Telegram budget per day, across all recipients.', 'easy-form-builder'),
+            /* translators: Field label - daily budget cap for outgoing webhook/email/sheet notifications */
+            "hsFieldWebhookStopLossLabel" => $state && isset($ac->text->hsFieldWebhookStopLossLabel) ? $ac->text->hsFieldWebhookStopLossLabel : __('Webhook/Email daily stop-loss', 'easy-form-builder'),
+            /* translators: Hint for the webhook/email daily stop-loss field */
+            "hsFieldWebhookStopLossHint" => $state && isset($ac->text->hsFieldWebhookStopLossHint) ? $ac->text->hsFieldWebhookStopLossHint : __('Global webhook/email/sheet budget per day.', 'easy-form-builder'),
+            /* translators: Field label - maximum notifications a single recipient can get per day */
+            "hsFieldRecipientCapLabel" => $state && isset($ac->text->hsFieldRecipientCapLabel) ? $ac->text->hsFieldRecipientCapLabel : __('Per-recipient daily cap', 'easy-form-builder'),
+            /* translators: Hint for the per-recipient daily cap field; "0" refers to the field's own value */
+            "hsFieldRecipientCapHint" => $state && isset($ac->text->hsFieldRecipientCapHint) ? $ac->text->hsFieldRecipientCapHint : __('Maximum notifications per single recipient per day (0 disables).', 'easy-form-builder'),
+            /* translators: Note shown under the paid stop-loss settings until the notification filter ships */
+            "hsPaidStopLossNote" => $state && isset($ac->text->hsPaidStopLossNote) ? $ac->text->hsPaidStopLossNote : __('These limits become active for paid services after the core integration filter is added.', 'easy-form-builder'),
+
+            /* translators: Chart title on the Logs tab showing hourly decision counts */
+            "hsDecisionsChartTitle" => $state && isset($ac->text->hsDecisionsChartTitle) ? $ac->text->hsDecisionsChartTitle : __('Decisions — last 24 hours', 'easy-form-builder'),
+            /* translators: Chart subtitle explaining the stacked columns */
+            "hsDecisionsChartDesc" => $state && isset($ac->text->hsDecisionsChartDesc) ? $ac->text->hsDecisionsChartDesc : __('Stacked per hour: allowed, blocked, quarantined and monitored requests.', 'easy-form-builder'),
+            /* translators: Empty state when there is no chart data yet */
+            "hsNoDecisions24h" => $state && isset($ac->text->hsNoDecisions24h) ? $ac->text->hsNoDecisions24h : __('No decisions recorded in the last 24 hours.', 'easy-form-builder'),
+            /* translators: Logs tab table card title */
+            "hsSecurityLogsTitle" => $state && isset($ac->text->hsSecurityLogsTitle) ? $ac->text->hsSecurityLogsTitle : __('Security logs', 'easy-form-builder'),
+            /* translators: Logs tab table card subtitle */
+            "hsSecurityLogsDesc" => $state && isset($ac->text->hsSecurityLogsDesc) ? $ac->text->hsSecurityLogsDesc : __('Recent decisions without storing raw IP addresses.', 'easy-form-builder'),
+            /* translators: Button that downloads the security logs as a CSV file */
+            "hsExportCsv" => $state && isset($ac->text->hsExportCsv) ? $ac->text->hsExportCsv : __('Export CSV', 'easy-form-builder'),
+            /* translators: Button that reloads the logs list */
+            "hsRefresh" => $state && isset($ac->text->hsRefresh) ? $ac->text->hsRefresh : __('Refresh', 'easy-form-builder'),
+            /* translators: Confirmation prompt before deleting all stored security logs */
+            "hsConfirmClearLogs" => $state && isset($ac->text->hsConfirmClearLogs) ? $ac->text->hsConfirmClearLogs : __('Clear Human Shield logs?', 'easy-form-builder'),
+            /* translators: Success message after clearing the security logs */
+            "hsLogsCleared" => $state && isset($ac->text->hsLogsCleared) ? $ac->text->hsLogsCleared : __('Logs cleared.', 'easy-form-builder'),
+            /* translators: Card title listing recent activity on the Overview tab */
+            "hsRecentActivityTitle" => $state && isset($ac->text->hsRecentActivityTitle) ? $ac->text->hsRecentActivityTitle : __('Recent activity', 'easy-form-builder'),
+            /* translators: Card subtitle for the recent activity list */
+            "hsRecentActivityDesc" => $state && isset($ac->text->hsRecentActivityDesc) ? $ac->text->hsRecentActivityDesc : __('Latest security decisions.', 'easy-form-builder'),
+            /* translators: Empty state when there are no log entries at all */
+            "hsNoLogsYet" => $state && isset($ac->text->hsNoLogsYet) ? $ac->text->hsNoLogsYet : __('No logs yet.', 'easy-form-builder'),
+            /* translators: Logs table column - when the decision was made */
+            "hsColDate" => $state && isset($ac->text->hsColDate) ? $ac->text->hsColDate : __('Date', 'easy-form-builder'),
+            /* translators: Logs table column - which REST route the request hit */
+            "hsColRoute" => $state && isset($ac->text->hsColRoute) ? $ac->text->hsColRoute : __('Route', 'easy-form-builder'),
+            /* translators: Logs table column - which form the request belonged to */
+            "hsColForm" => $state && isset($ac->text->hsColForm) ? $ac->text->hsColForm : __('Form', 'easy-form-builder'),
+            /* translators: Logs table column - allow/block/quarantine/monitor outcome */
+            "hsColDecision" => $state && isset($ac->text->hsColDecision) ? $ac->text->hsColDecision : __('Decision', 'easy-form-builder'),
+            /* translators: Logs table column - the numeric behavior score */
+            "hsColScore" => $state && isset($ac->text->hsColScore) ? $ac->text->hsColScore : __('Score', 'easy-form-builder'),
+            /* translators: Logs table column - the codes explaining why a decision was made */
+            "hsColReasons" => $state && isset($ac->text->hsColReasons) ? $ac->text->hsColReasons : __('Reasons', 'easy-form-builder'),
+
+            /* translators: System tab card title */
+            "hsSystemReadinessTitle" => $state && isset($ac->text->hsSystemReadinessTitle) ? $ac->text->hsSystemReadinessTitle : __('System readiness', 'easy-form-builder'),
+            /* translators: System tab card subtitle */
+            "hsSystemReadinessDesc" => $state && isset($ac->text->hsSystemReadinessDesc) ? $ac->text->hsSystemReadinessDesc : __('Human Shield checks these functions before enforcing security rules.', 'easy-form-builder'),
+            /* translators: Shown when every required PHP function is available */
+            "hsPhpReqReady" => $state && isset($ac->text->hsPhpReqReady) ? $ac->text->hsPhpReqReady : __('PHP requirements are ready.', 'easy-form-builder'),
+            /* translators: Shown when at least one required PHP function is disabled */
+            "hsPhpReqNotReady" => $state && isset($ac->text->hsPhpReqNotReady) ? $ac->text->hsPhpReqNotReady : __('Some required PHP functions are unavailable.', 'easy-form-builder'),
+            /* translators: Label preceding the REST API availability status (e.g. "REST API: available") */
+            "hsRestApiLabel" => $state && isset($ac->text->hsRestApiLabel) ? $ac->text->hsRestApiLabel : __('REST API:', 'easy-form-builder'),
+            /* translators: REST API status value - the REST API responds normally */
+            "hsRestAvailable" => $state && isset($ac->text->hsRestAvailable) ? $ac->text->hsRestAvailable : __('available', 'easy-form-builder'),
+            /* translators: REST API status value - the REST API cannot be reached */
+            "hsRestMissing" => $state && isset($ac->text->hsRestMissing) ? $ac->text->hsRestMissing : __('missing', 'easy-form-builder'),
+            /* translators: Label preceding the database tables status (e.g. "Tables: ready") */
+            "hsTablesLabel" => $state && isset($ac->text->hsTablesLabel) ? $ac->text->hsTablesLabel : __('Tables:', 'easy-form-builder'),
+            /* translators: Database tables status value - the add-on's tables exist */
+            "hsTablesReady" => $state && isset($ac->text->hsTablesReady) ? $ac->text->hsTablesReady : __('ready', 'easy-form-builder'),
+            /* translators: Database tables status value - the add-on's tables have not been created yet */
+            "hsTablesNotReady" => $state && isset($ac->text->hsTablesNotReady) ? $ac->text->hsTablesNotReady : __('not ready yet', 'easy-form-builder'),
+            /* translators: Hint for the fail-closed toggle */
+            "hsFieldFailClosedHint" => $state && isset($ac->text->hsFieldFailClosedHint) ? $ac->text->hsFieldFailClosedHint : __('Recommended only after you verify PHP functions and tables are ready.', 'easy-form-builder'),
+            /* translators: Toggle label - trust reverse-proxy headers for the visitor's real IP address */
+            "hsFieldTrustProxyLabel" => $state && isset($ac->text->hsFieldTrustProxyLabel) ? $ac->text->hsFieldTrustProxyLabel : __('Trust proxy IP headers', 'easy-form-builder'),
+            /* translators: Hint for the trust-proxy-headers toggle */
+            "hsFieldTrustProxyHint" => $state && isset($ac->text->hsFieldTrustProxyHint) ? $ac->text->hsFieldTrustProxyHint : __('Use forwarding headers only when the immediate peer matches the trusted proxy list below.', 'easy-form-builder'),
+            /* translators: Field label - IP addresses of trusted reverse proxies (load balancer, CDN) */
+            "hsFieldTrustedProxyIpsLabel" => $state && isset($ac->text->hsFieldTrustedProxyIpsLabel) ? $ac->text->hsFieldTrustedProxyIpsLabel : __('Trusted proxy IPs', 'easy-form-builder'),
+            /* translators: Hint for the trusted proxy IPs field */
+            "hsFieldTrustedProxyIpsHint" => $state && isset($ac->text->hsFieldTrustedProxyIpsHint) ? $ac->text->hsFieldTrustedProxyIpsHint : __('One exact IP or wildcard prefix per line. Add only your load balancer/CDN egress addresses; keep this empty when the origin is directly reachable.', 'easy-form-builder'),
+            /* translators: Toggle label - keep raw per-request behavior metrics for debugging */
+            "hsFieldStoreRawMetricsLabel" => $state && isset($ac->text->hsFieldStoreRawMetricsLabel) ? $ac->text->hsFieldStoreRawMetricsLabel : __('Store raw behavior metrics', 'easy-form-builder'),
+            /* translators: Hint for the store-raw-metrics toggle */
+            "hsFieldStoreRawMetricsHint" => $state && isset($ac->text->hsFieldStoreRawMetricsHint) ? $ac->text->hsFieldStoreRawMetricsHint : __('Keep off for privacy unless debugging a rollout.', 'easy-form-builder'),
+            /* translators: Field label - number of days security log entries are kept */
+            "hsFieldLogRetentionLabel" => $state && isset($ac->text->hsFieldLogRetentionLabel) ? $ac->text->hsFieldLogRetentionLabel : __('Log retention days', 'easy-form-builder'),
+            /* translators: Hint for the log retention field */
+            "hsFieldLogRetentionHint" => $state && isset($ac->text->hsFieldLogRetentionHint) ? $ac->text->hsFieldLogRetentionHint : __('How long events should be retained.', 'easy-form-builder'),
+            /* translators: Field label - timeout in milliseconds for the browser's client-side attestation check */
+            "hsFieldClientAttestTimeoutLabel" => $state && isset($ac->text->hsFieldClientAttestTimeoutLabel) ? $ac->text->hsFieldClientAttestTimeoutLabel : __('Client attestation timeout', 'easy-form-builder'),
+            /* translators: Hint for the client attestation timeout field */
+            "hsFieldClientAttestTimeoutHint" => $state && isset($ac->text->hsFieldClientAttestTimeoutHint) ? $ac->text->hsFieldClientAttestTimeoutHint : __('Milliseconds before the browser falls back to the normal request.', 'easy-form-builder'),
+            /* translators: Note at the bottom of the System tab about disabled PHP functions and cache/security plugin conflicts; the path is a REST API route and must stay untranslated */
+            "hsSystemNote" => $state && isset($ac->text->hsSystemNote) ? $ac->text->hsSystemNote : __('If a required PHP function is disabled, enable it in php.ini disable_functions or ask the host to allow it. Cache and security plugins must not cache or rewrite POST responses from /wp-json/EmsfbShield/v1/*.', 'easy-form-builder'),
+            /* translators: Marks a PHP function as mandatory in the system requirements list */
+            "hsFunctionRequired" => $state && isset($ac->text->hsFunctionRequired) ? $ac->text->hsFunctionRequired : __('Required', 'easy-form-builder'),
+            /* translators: Marks a PHP function as optional in the system requirements list */
+            "hsFunctionRecommended" => $state && isset($ac->text->hsFunctionRecommended) ? $ac->text->hsFunctionRecommended : __('Recommended', 'easy-form-builder'),
+            /* translators: Screen-reader label for the tab navigation region */
+            "hsTabsAriaLabel" => $state && isset($ac->text->hsTabsAriaLabel) ? $ac->text->hsTabsAriaLabel : __('Security & Spam Protection tabs', 'easy-form-builder'),
+
+            /* translators: %s = comma-separated list of missing PHP function names. CSV export error, singular (paired with hsExportMissingFnPlural via _n()) */
+            "hsExportMissingFnSingular" => $state && isset($ac->text->hsExportMissingFnSingular) ? $ac->text->hsExportMissingFnSingular : __('Security log export is unavailable because this server has disabled a required PHP function: %s. Ask your hosting provider to enable it.', 'easy-form-builder'),
+            /* translators: %s = comma-separated list of missing PHP function names. CSV export error, plural (paired with hsExportMissingFnSingular via _n()) */
+            "hsExportMissingFnPlural" => $state && isset($ac->text->hsExportMissingFnPlural) ? $ac->text->hsExportMissingFnPlural : __('Security log export is unavailable because this server has disabled required PHP functions: %s. Ask your hosting provider to enable them.', 'easy-form-builder'),
         ];
     }
 
@@ -476,8 +791,6 @@ class EfbAddonPhrases {
             /* translators: Auto-Populate Dataset = menu title for dataset management */
             "autofill_dataset" => $state && isset($ac->text->autofill_dataset) ? $ac->text->autofill_dataset : esc_html__('Auto-Populate Dataset', 'easy-form-builder'),
 
-            /* translators: Auto-Populate Integrations = menu title for API integrations */
-            "autofill_integrations" => $state && isset($ac->text->autofill_integrations) ? $ac->text->autofill_integrations : esc_html__('Auto-Populate Integrations', 'easy-form-builder'),
 
             /* translators: Dataset page header subtitle */
             "datasetSubtitle" => $state && isset($ac->text->datasetSubtitle) ? $ac->text->datasetSubtitle : esc_html__('Manage & Upload Datasets', 'easy-form-builder'),
@@ -759,7 +1072,7 @@ class EfbAddonPhrases {
             "test_result" => $state && isset($ac->text->test_result) ? $ac->text->test_result : esc_html__('Test Result', 'easy-form-builder'),
 
             /* translators: Testing connection message */
-            "testing" => $state && isset($ac->text->testing) ? $ac->text->testing : esc_html__('Testing connection...', 'easy-form-builder'),
+            "testing" => $state && isset($ac->text->testing) ? $ac->text->testing : esc_html__('Testing connection&hellip;', 'easy-form-builder'),
 
             /* translators: Endpoint = column header */
             "endpoint" => $state && isset($ac->text->endpoint) ? $ac->text->endpoint : esc_html__('Endpoint', 'easy-form-builder'),
@@ -770,11 +1083,8 @@ class EfbAddonPhrases {
             /* translators: Content = column header for message content preview */
             "content" => $state && isset($ac->text->content) ? $ac->text->content : esc_html__('Content', 'easy-form-builder'),
 
-            /* translators: Description shown when there are no responses yet */
-            "noResponseDesc" => $state && isset($ac->text->noResponseDesc) ? $ac->text->noResponseDesc : esc_html__('Submitted responses will appear here.', 'easy-form-builder'),
-
             /* translators: Saving message */
-            "saving" => $state && isset($ac->text->saving) ? $ac->text->saving : esc_html__('Saving...', 'easy-form-builder'),
+            "saving" => $state && isset($ac->text->saving) ? $ac->text->saving : esc_html__('Saving&hellip;', 'easy-form-builder'),
 
             /* translators: No API connections message */
             "no_api_connections" => $state && isset($ac->text->no_api_connections) ? $ac->text->no_api_connections : esc_html__('No API connections yet. Click "Add New API Connection" to create one.', 'easy-form-builder'),
@@ -857,142 +1167,264 @@ class EfbAddonPhrases {
             /* translators: Test = button text */
             "test" => $state && isset($ac->text->test) ? $ac->text->test : esc_html__('Test', 'easy-form-builder'),
 
+            /* translators: camelCase alias of external_api, used by the API connections admin script */
             "externalApi" => $state && isset($ac->text->external_api) ? $ac->text->external_api : esc_html__('External API Connections', 'easy-form-builder'),
+            /* translators: camelCase alias of add_new_api */
             "addNewApi" => $state && isset($ac->text->add_new_api) ? $ac->text->add_new_api : esc_html__('Add New API Connection', 'easy-form-builder'),
+            /* translators: camelCase alias of edit_api_connection */
             "editApiConnection" => $state && isset($ac->text->edit_api_connection) ? $ac->text->edit_api_connection : esc_html__('Edit API Connection', 'easy-form-builder'),
+            /* translators: camelCase alias of connection_name */
             "connectionName" => $state && isset($ac->text->connection_name) ? $ac->text->connection_name : esc_html__('Connection Name', 'easy-form-builder'),
+            /* translators: camelCase alias of connection_name_placeholder */
             "connectionNamePlaceholder" => $state && isset($ac->text->connection_name_placeholder) ? $ac->text->connection_name_placeholder : esc_html__('e.g., Customer Lookup API', 'easy-form-builder'),
+            /* translators: camelCase alias of http_method */
             "httpMethod" => $state && isset($ac->text->http_method) ? $ac->text->http_method : esc_html__('HTTP Method', 'easy-form-builder'),
+            /* translators: camelCase alias of endpoint_url */
             "endpointUrl" => $state && isset($ac->text->endpoint_url) ? $ac->text->endpoint_url : esc_html__('API Endpoint URL', 'easy-form-builder'),
+            /* translators: camelCase alias of endpoint_url_help */
             "endpointUrlHelp" => $state && isset($ac->text->endpoint_url_help) ? $ac->text->endpoint_url_help : esc_html__('Use {{field_id}} placeholders for dynamic values from form fields', 'easy-form-builder'),
+            /* translators: camelCase alias of auth_type */
             "authType" => $state && isset($ac->text->auth_type) ? $ac->text->auth_type : esc_html__('Authentication Type', 'easy-form-builder'),
+            /* translators: camelCase alias of no_auth */
             "noAuth" => $state && isset($ac->text->no_auth) ? $ac->text->no_auth : esc_html__('No Authentication', 'easy-form-builder'),
+            /* translators: camelCase alias of custom_header */
             "customHeader" => $state && isset($ac->text->custom_header) ? $ac->text->custom_header : esc_html__('Custom Header', 'easy-form-builder'),
+            /* translators: camelCase alias of auth_value */
             "authValue" => $state && isset($ac->text->auth_value) ? $ac->text->auth_value : esc_html__('Authentication Value', 'easy-form-builder'),
+            /* translators: camelCase alias of auth_value_placeholder */
             "authValuePlaceholder" => $state && isset($ac->text->auth_value_placeholder) ? $ac->text->auth_value_placeholder : esc_html__('Enter token or credentials', 'easy-form-builder'),
+            /* translators: camelCase alias of bearer_help */
             "bearerHelp" => $state && isset($ac->text->bearer_help) ? $ac->text->bearer_help : esc_html__('Enter your Bearer token without "Bearer " prefix', 'easy-form-builder'),
+            /* translators: camelCase alias of basic_help */
             "basicHelp" => $state && isset($ac->text->basic_help) ? $ac->text->basic_help : esc_html__('Enter as username:password', 'easy-form-builder'),
+            /* translators: camelCase alias of api_key_help */
             "apiKeyHelp" => $state && isset($ac->text->api_key_help) ? $ac->text->api_key_help : esc_html__('Enter your API key', 'easy-form-builder'),
+            /* translators: camelCase alias of custom_auth_help */
             "customAuthHelp" => $state && isset($ac->text->custom_auth_help) ? $ac->text->custom_auth_help : esc_html__('Enter as Header-Name: value', 'easy-form-builder'),
+            /* translators: camelCase alias of custom_headers */
             "customHeaders" => $state && isset($ac->text->custom_headers) ? $ac->text->custom_headers : esc_html__('Custom Headers', 'easy-form-builder'),
+            /* translators: camelCase alias of no_custom_headers */
             "noCustomHeaders" => $state && isset($ac->text->no_custom_headers) ? $ac->text->no_custom_headers : esc_html__('No custom headers', 'easy-form-builder'),
+            /* translators: camelCase alias of query_params */
             "queryParams" => $state && isset($ac->text->query_params) ? $ac->text->query_params : esc_html__('Query Parameters', 'easy-form-builder'),
+            /* translators: camelCase alias of no_query_params */
             "noQueryParams" => $state && isset($ac->text->no_query_params) ? $ac->text->no_query_params : esc_html__('No query parameters', 'easy-form-builder'),
+            /* translators: camelCase alias of request_body */
             "requestBody" => $state && isset($ac->text->request_body) ? $ac->text->request_body : esc_html__('Request Body Template (JSON)', 'easy-form-builder'),
+            /* translators: camelCase alias of body_template_help */
             "bodyTemplateHelp" => $state && isset($ac->text->body_template_help) ? $ac->text->body_template_help : esc_html__('JSON template for POST/PUT/PATCH requests. Use {{field_id}} for dynamic values.', 'easy-form-builder'),
+            /* translators: camelCase alias of response_mapping */
             "responseMapping" => $state && isset($ac->text->response_mapping) ? $ac->text->response_mapping : esc_html__('Response Mapping', 'easy-form-builder'),
+            /* translators: camelCase alias of response_path */
             "responsePath" => $state && isset($ac->text->response_path) ? $ac->text->response_path : esc_html__('Response Data Path', 'easy-form-builder'),
+            /* translators: camelCase alias of response_path_help */
             "responsePathHelp" => $state && isset($ac->text->response_path_help) ? $ac->text->response_path_help : esc_html__('Dot notation path to the data array in response. e.g., data.results or items', 'easy-form-builder'),
+            /* translators: camelCase alias of field_mappings */
             "fieldMappings" => $state && isset($ac->text->field_mappings) ? $ac->text->field_mappings : esc_html__('Field Mappings', 'easy-form-builder'),
+            /* translators: camelCase alias of no_field_mappings */
             "noFieldMappings" => $state && isset($ac->text->no_field_mappings) ? $ac->text->no_field_mappings : esc_html__('No field mappings', 'easy-form-builder'),
+            /* translators: camelCase alias of field_mappings_help */
             "fieldMappingsHelp" => $state && isset($ac->text->field_mappings_help) ? $ac->text->field_mappings_help : esc_html__('Map API response fields to form field IDs', 'easy-form-builder'),
+            /* translators: camelCase alias of cache_settings */
             "cacheSettings" => $state && isset($ac->text->cache_settings) ? $ac->text->cache_settings : esc_html__('Cache Settings', 'easy-form-builder'),
+            /* translators: camelCase alias of cache_duration */
             "cacheDuration" => $state && isset($ac->text->cache_duration) ? $ac->text->cache_duration : esc_html__('Cache Duration (minutes)', 'easy-form-builder'),
+            /* translators: camelCase alias of cache_duration_help */
             "cacheDurationHelp" => $state && isset($ac->text->cache_duration_help) ? $ac->text->cache_duration_help : esc_html__('0 = no caching', 'easy-form-builder'),
+            /* translators: camelCase alias of basic_info */
             "basicInfo" => $state && isset($ac->text->basic_info) ? $ac->text->basic_info : esc_html__('Basic Information', 'easy-form-builder'),
+            /* translators: camelCase alias of test_connection */
             "testConnection" => $state && isset($ac->text->test_connection) ? $ac->text->test_connection : esc_html__('Test Connection', 'easy-form-builder'),
+            /* translators: camelCase alias of test_result */
             "testResult" => $state && isset($ac->text->test_result) ? $ac->text->test_result : esc_html__('Test Result', 'easy-form-builder'),
-            "testing" => $state && isset($ac->text->testing) ? $ac->text->testing : esc_html__('Testing connection...', 'easy-form-builder'),
+            /* translators: camelCase alias of testing */
+            "testing" => $state && isset($ac->text->testing) ? $ac->text->testing : esc_html__('Testing connection&hellip;', 'easy-form-builder'),
+            /* translators: camelCase alias of no_api_connections */
             "noApiConnections" => $state && isset($ac->text->no_api_connections) ? $ac->text->no_api_connections : esc_html__('No API connections yet. Click "Add New API Connection" to create one.', 'easy-form-builder'),
+            /* translators: camelCase alias of confirm_delete */
             "confirmDelete" => $state && isset($ac->text->confirm_delete) ? $ac->text->confirm_delete : esc_html__('Are you sure you want to delete', 'easy-form-builder'),
-            "saving" => $state && isset($ac->text->saving) ? $ac->text->saving : esc_html__('Saving...', 'easy-form-builder'),
+            /* translators: camelCase alias of saving */
+            "saving" => $state && isset($ac->text->saving) ? $ac->text->saving : esc_html__('Saving&hellip;', 'easy-form-builder'),
 
-            "apiIntroTitle" => $state && isset($ac->text->api_intro_title) ? $ac->text->api_intro_title : esc_html__('Connect Your Forms to External APIs', 'easy-form-builder'),
-            "apiIntroDesc" => $state && isset($ac->text->api_intro_desc) ? $ac->text->api_intro_desc : esc_html__('Easily auto-populate your form fields with data from any API. Just add your API endpoint and map the fields!', 'easy-form-builder'),
+            /* translators: Prompt shown when no API connections exist yet */
             "clickToAdd" => $state && isset($ac->text->click_to_add) ? $ac->text->click_to_add : esc_html__('Click the button above to create your first API connection', 'easy-form-builder'),
 
+            /* translators: Wizard step 1 label */
             "step1Label" => $state && isset($ac->text->step1_label) ? $ac->text->step1_label : esc_html__('Basic Info', 'easy-form-builder'),
+            /* translators: Wizard step 2 label */
             "step2Label" => $state && isset($ac->text->step2_label) ? $ac->text->step2_label : esc_html__('Authentication', 'easy-form-builder'),
+            /* translators: Wizard step 3 label */
             "step3Label" => $state && isset($ac->text->step3_label) ? $ac->text->step3_label : esc_html__('Field Mapping', 'easy-form-builder'),
+            /* translators: Wizard step 4 label */
             "step4Label" => $state && isset($ac->text->step4_label) ? $ac->text->step4_label : esc_html__('Test & Save', 'easy-form-builder'),
 
+            /* translators: Wizard step 1 card title */
             "basicInfoTitle" => $state && isset($ac->text->basic_info_title) ? $ac->text->basic_info_title : esc_html__('Basic API Information', 'easy-form-builder'),
+            /* translators: Help text under the Connection Name field */
             "connectionNameHelp" => $state && isset($ac->text->connection_name_help) ? $ac->text->connection_name_help : esc_html__('A friendly name to identify this API connection', 'easy-form-builder'),
+            /* translators: Description of the GET HTTP method option */
             "getMethodDesc" => $state && isset($ac->text->get_method_desc) ? $ac->text->get_method_desc : esc_html__('Fetch data', 'easy-form-builder'),
+            /* translators: Description of the POST HTTP method option */
             "postMethodDesc" => $state && isset($ac->text->post_method_desc) ? $ac->text->post_method_desc : esc_html__('Send data', 'easy-form-builder'),
+            /* translators: Help text under the Request Body field */
             "requestBodyHelp" => $state && isset($ac->text->request_body_help) ? $ac->text->request_body_help : esc_html__('JSON body for POST requests. Use {{field_id}} for dynamic values.', 'easy-form-builder'),
 
+            /* translators: Wizard step 2 card title */
             "authTitle" => $state && isset($ac->text->auth_title) ? $ac->text->auth_title : esc_html__('Authentication Settings', 'easy-form-builder'),
+            /* translators: Explanatory text above the authentication type selector */
             "authInfo" => $state && isset($ac->text->auth_info) ? $ac->text->auth_info : esc_html__('If your API requires authentication, select the type below. Otherwise, leave it as "No Authentication".', 'easy-form-builder'),
+            /* translators: Description of the "No Authentication" option */
             "noAuthDesc" => $state && isset($ac->text->no_auth_desc) ? $ac->text->no_auth_desc : esc_html__('API is public', 'easy-form-builder'),
+            /* translators: Description of the Bearer Token authentication option */
             "bearerDesc" => $state && isset($ac->text->bearer_desc) ? $ac->text->bearer_desc : esc_html__('JWT or OAuth tokens', 'easy-form-builder'),
+            /* translators: Description of the API Key authentication option */
             "apiKeyDesc" => $state && isset($ac->text->api_key_desc) ? $ac->text->api_key_desc : esc_html__('X-API-Key header', 'easy-form-builder'),
+            /* translators: Description of the Basic Auth authentication option */
             "basicDesc" => $state && isset($ac->text->basic_desc) ? $ac->text->basic_desc : esc_html__('Username:Password', 'easy-form-builder'),
+            /* translators: Button that adds a new custom header row */
             "addHeader" => $state && isset($ac->text->add_header) ? $ac->text->add_header : esc_html__('Add Header', 'easy-form-builder'),
+            /* translators: Empty state for the custom headers list */
             "noHeaders" => $state && isset($ac->text->no_headers) ? $ac->text->no_headers : esc_html__('No custom headers', 'easy-form-builder'),
+            /* translators: Optional = marks a field as not required */
             "optional" => $state && isset($ac->text->optional) ? $ac->text->optional : esc_html__('Optional', 'easy-form-builder'),
 
+            /* translators: Wizard step 3 card title */
             "fieldMappingTitle" => $state && isset($ac->text->field_mapping_title) ? $ac->text->field_mapping_title : esc_html__('Field Mapping', 'easy-form-builder'),
+            /* translators: Form selector section title */
             "selectFormTitle" => $state && isset($ac->text->select_form_title) ? $ac->text->select_form_title : esc_html__('Select Form', 'easy-form-builder'),
+            /* translators: Help text under the target form selector */
             "targetFormHelp" => $state && isset($ac->text->target_form_help) ? $ac->text->target_form_help : esc_html__('Select the form that will receive data from the API', 'easy-form-builder'),
+            /* translators: Target Form = field label */
             "targetForm" => $state && isset($ac->text->target_form) ? $ac->text->target_form : esc_html__('Target Form', 'easy-form-builder'),
+            /* translators: Form select placeholder */
             "selectForm" => $state && isset($ac->text->select_form) ? $ac->text->select_form : esc_html__('— Select a Form —', 'easy-form-builder'),
+            /* translators: Section title for fields that trigger the API search */
             "searchFieldsTitle" => $state && isset($ac->text->search_fields_title) ? $ac->text->search_fields_title : esc_html__('Search Fields (Trigger Fields)', 'easy-form-builder'),
+            /* translators: Description of the trigger-fields configuration */
             "searchConfigDesc" => $state && isset($ac->text->search_config_desc) ? $ac->text->search_config_desc : esc_html__('Select fields that trigger the API search', 'easy-form-builder'),
+            /* translators: Form Field = column header */
             "formField" => $state && isset($ac->text->form_field) ? $ac->text->form_field : esc_html__('Form Field', 'easy-form-builder'),
+            /* translators: API Parameter = column header */
             "apiParamName" => $state && isset($ac->text->api_param_name) ? $ac->text->api_param_name : esc_html__('API Parameter', 'easy-form-builder'),
+            /* translators: Type = column header for the field's data type */
             "fieldType" => $state && isset($ac->text->field_type) ? $ac->text->field_type : esc_html__('Type', 'easy-form-builder'),
+            /* translators: Validation message shown before a form is chosen */
             "selectFormFirst" => $state && isset($ac->text->select_form_first) ? $ac->text->select_form_first : esc_html__('Please select a form first', 'easy-form-builder'),
+            /* translators: Help text explaining the API Parameter field, with a query-string example */
             "searchParamHelp" => $state && isset($ac->text->search_param_help) ? $ac->text->search_param_help : esc_html__('API Parameter is what will be sent to the API (e.g., "q" for ?q=value)', 'easy-form-builder'),
+            /* translators: Section title for fields that get auto-populated from the API response */
             "targetFieldsTitle" => $state && isset($ac->text->target_fields_title) ? $ac->text->target_fields_title : esc_html__('Target Fields (Auto-Populate)', 'easy-form-builder'),
+            /* translators: Description of the target-fields mapping */
             "targetFieldsInfo" => $state && isset($ac->text->target_fields_info) ? $ac->text->target_fields_info : esc_html__('Map API response to form fields', 'easy-form-builder'),
+            /* translators: API Response Field = column header */
             "apiFieldName" => $state && isset($ac->text->api_field_name) ? $ac->text->api_field_name : esc_html__('API Response Field', 'easy-form-builder'),
+            /* translators: Form Field to Fill = column header */
             "formFieldSelect" => $state && isset($ac->text->form_field_select) ? $ac->text->form_field_select : esc_html__('Form Field to Fill', 'easy-form-builder'),
+            /* translators: Button that adds a new field mapping row */
             "addMapping" => $state && isset($ac->text->add_mapping) ? $ac->text->add_mapping : esc_html__('Add Mapping', 'easy-form-builder'),
+            /* translators: Field select placeholder */
             "selectField" => $state && isset($ac->text->select_field) ? $ac->text->select_field : esc_html__('— Select Field —', 'easy-form-builder'),
+            /* translators: Suffix shown after a count, e.g. "3 selected" */
             "fieldsSelected" => $state && isset($ac->text->fields_selected) ? $ac->text->fields_selected : esc_html__('selected', 'easy-form-builder'),
 
+            /* translators: Help text above the cache duration field */
             "cacheHelp" => $state && isset($ac->text->cache_help) ? $ac->text->cache_help : esc_html__('Cache API responses to improve performance', 'easy-form-builder'),
+            /* translators: Cache duration option meaning caching is turned off */
             "noCache" => $state && isset($ac->text->no_cache) ? $ac->text->no_cache : esc_html__('No caching', 'easy-form-builder'),
+            /* translators: minutes = unit label for cache duration */
             "minutes" => $state && isset($ac->text->minutes) ? $ac->text->minutes : esc_html__('minutes', 'easy-form-builder'),
+            /* translators: hour = unit label for cache duration */
             "hour" => $state && isset($ac->text->hour) ? $ac->text->hour : esc_html__('hour', 'easy-form-builder'),
 
+            /* translators: Wizard step 4 card title */
             "testSaveTitle" => $state && isset($ac->text->test_save_title) ? $ac->text->test_save_title : esc_html__('Test Connection & Save', 'easy-form-builder'),
+            /* translators: Summary card title before saving the connection */
             "connectionSummary" => $state && isset($ac->text->connection_summary) ? $ac->text->connection_summary : esc_html__('Connection Summary', 'easy-form-builder'),
+            /* translators: Name = generic column/summary label */
             "name" => $state && isset($ac->text->name) ? $ac->text->name : esc_html__('Name', 'easy-form-builder'),
+            /* translators: Method = HTTP method summary label */
             "method" => $state && isset($ac->text->method) ? $ac->text->method : esc_html__('Method', 'easy-form-builder'),
+            /* translators: Endpoint = summary label for the API URL */
             "endpoint" => $state && isset($ac->text->endpoint) ? $ac->text->endpoint : esc_html__('Endpoint', 'easy-form-builder'),
+            /* translators: Authentication = summary label */
             "auth" => $state && isset($ac->text->auth) ? $ac->text->auth : esc_html__('Authentication', 'easy-form-builder'),
+            /* translators: Run Test = button that calls the API once to verify it works */
             "runTest" => $state && isset($ac->text->run_test) ? $ac->text->run_test : esc_html__('Run Test', 'easy-form-builder'),
+            /* translators: Prompt shown before the connection has been tested */
             "clickTestBtn" => $state && isset($ac->text->click_test_btn) ? $ac->text->click_test_btn : esc_html__('Click "Run Test" to test your API connection', 'easy-form-builder'),
+            /* translators: Toggle label to activate the connection once saved */
             "enableConnection" => $state && isset($ac->text->enable_connection) ? $ac->text->enable_connection : esc_html__('Enable this connection', 'easy-form-builder'),
+            /* translators: Previous = wizard navigation button */
             "previous" => $state && isset($ac->text->previous) ? $ac->text->previous : esc_html__('Previous', 'easy-form-builder'),
+            /* translators: Next = wizard navigation button */
             "next" => $state && isset($ac->text->next) ? $ac->text->next : esc_html__('Next', 'easy-form-builder'),
+            /* translators: Save = generic save button */
             "save" => $state && isset($ac->text->save) ? $ac->text->save : esc_html__('Save', 'easy-form-builder'),
+            /* translators: Back = generic back button */
             "back" => $state && isset($ac->text->back) ? $ac->text->back : esc_html__('Back', 'easy-form-builder'),
+            /* translators: Edit = generic edit button */
             "edit" => $state && isset($ac->text->edit) ? $ac->text->edit : esc_html__('Edit', 'easy-form-builder'),
+            /* translators: Test = generic test button */
             "test" => $state && isset($ac->text->test) ? $ac->text->test : esc_html__('Test', 'easy-form-builder'),
+            /* translators: Active = status shown for an enabled API connection */
             "enabled" => $state && isset($ac->text->enabled) ? $ac->text->enabled : esc_html__('Active', 'easy-form-builder'),
+            /* translators: Inactive = status shown for a disabled API connection */
             "disabled" => $state && isset($ac->text->disabled) ? $ac->text->disabled : esc_html__('Inactive', 'easy-form-builder'),
 
+            /* translators: Validation error when the connection name field is empty */
             "nameRequired" => $state && isset($ac->text->name_required) ? $ac->text->name_required : esc_html__('Please enter a connection name', 'easy-form-builder'),
+            /* translators: Validation error when the endpoint URL field is empty */
             "urlRequired" => $state && isset($ac->text->url_required) ? $ac->text->url_required : esc_html__('Please enter an API endpoint URL', 'easy-form-builder'),
+            /* translators: Validation error when the endpoint URL is not http(s) */
             "invalidUrl" => $state && isset($ac->text->invalid_url) ? $ac->text->invalid_url : esc_html__('Please enter a valid URL starting with http:// or https://', 'easy-form-builder'),
+            /* translators: Generic validation error when required wizard fields are missing */
             "fillRequired" => $state && isset($ac->text->fill_required) ? $ac->text->fill_required : esc_html__('Please fill all required fields', 'easy-form-builder'),
-            "loading" => $state && isset($ac->text->loading) ? $ac->text->loading : esc_html__('Loading...', 'easy-form-builder'),
+            /* translators: Generic loading status */
+            "loading" => $state && isset($ac->text->loading) ? $ac->text->loading : esc_html__('Loading&hellip;', 'easy-form-builder'),
 
+            /* translators: Success message after saving an API connection */
             "savedSuccess" => $state && isset($ac->text->saved_success) ? $ac->text->saved_success : esc_html__('Connection saved successfully!', 'easy-form-builder'),
+            /* translators: Error message when saving an API connection fails */
             "saveFailed" => $state && isset($ac->text->save_failed) ? $ac->text->save_failed : esc_html__('Failed to save connection', 'easy-form-builder'),
+            /* translators: Generic error message */
             "errorOccurred" => $state && isset($ac->text->error_occurred) ? $ac->text->error_occurred : esc_html__('An error occurred', 'easy-form-builder'),
+            /* translators: Success message after testing an API connection */
             "connectionSuccess" => $state && isset($ac->text->connection_success) ? $ac->text->connection_success : esc_html__('Connection successful!', 'easy-form-builder'),
+            /* translators: Error message when testing an API connection fails */
             "connectionFailed" => $state && isset($ac->text->connection_failed) ? $ac->text->connection_failed : esc_html__('Connection failed', 'easy-form-builder'),
+            /* translators: Error message when the connection test itself fails to run */
             "testFailed" => $state && isset($ac->text->test_failed) ? $ac->text->test_failed : esc_html__('Test failed. Please check the URL and try again.', 'easy-form-builder'),
+            /* translators: Success message after deleting an API connection */
             "deleteSuccess" => $state && isset($ac->text->delete_success) ? $ac->text->delete_success : esc_html__('Connection deleted', 'easy-form-builder'),
+            /* translators: Error shown when the form's data could not be loaded */
             "formNotFound" => $state && isset($ac->text->form_not_found) ? $ac->text->form_not_found : esc_html__('Form data not found. Please refresh the page.', 'easy-form-builder'),
+            /* translators: Empty state when a form has no fields that can be auto-filled */
             "noFieldsFound" => $state && isset($ac->text->no_fields_found) ? $ac->text->no_fields_found : esc_html__('No fillable fields found in this form', 'easy-form-builder'),
 
+            /* translators: Banner title shown on a form using the API auto-populate feature */
             "atfllApiActive" => $state && isset($ac->text->atfll_api_active) ? $ac->text->atfll_api_active : esc_html__('API Auto-Populate Integration is Active', 'easy-form-builder'),
+            /* translators: Banner description pointing the admin to where the integration is configured */
             "atfllApiActiveDesc" => $state && isset($ac->text->atfll_api_active_desc) ? $ac->text->atfll_api_active_desc : esc_html__('This form uses External API Auto-Populate. To configure settings, go to', 'easy-form-builder'),
+            /* translators: Link text pointing to the Auto-Populate Integrations page */
             "atfllApiLink" => $state && isset($ac->text->atfll_api_link) ? $ac->text->atfll_api_link : esc_html__('Auto-Populate Integrations', 'easy-form-builder'),
+            /* translators: Badge shown on a field that is auto-filled via an external API */
             "atfllApiFieldBadge" => $state && isset($ac->text->atfll_api_field_badge) ? $ac->text->atfll_api_field_badge : esc_html__('Auto-filled via External API', 'easy-form-builder'),
 
+            /* translators: Status = generic column header */
             "status" => $state && isset($ac->text->status) ? $ac->text->status : esc_html__('Status', 'easy-form-builder'),
+            /* translators: Actions = generic column header */
             "actions" => $state && isset($ac->text->actions) ? $ac->text->actions : esc_html__('Actions', 'easy-form-builder'),
+            /* translators: Enable = generic toggle action */
             "enable" => $state && isset($ac->text->enable) ? $ac->text->enable : esc_html__('Enable', 'easy-form-builder'),
+            /* translators: Disable = generic toggle action */
             "disable" => $state && isset($ac->text->disable) ? $ac->text->disable : esc_html__('Disable', 'easy-form-builder'),
+            /* translators: Delete = generic delete action */
             "delete" => $state && isset($ac->text->delete) ? $ac->text->delete : esc_html__('Delete', 'easy-form-builder'),
+            /* translators: Cancel = generic cancel action */
             "cancel" => $state && isset($ac->text->cancel) ? $ac->text->cancel : esc_html__('Cancel', 'easy-form-builder'),
+            /* translators: Authentication = generic column header */
             "authentication" => $state && isset($ac->text->authentication) ? $ac->text->authentication : esc_html__('Authentication', 'easy-form-builder'),
+            /* translators: Server-side validation error when the endpoint URL is missing */
             "endpointRequired" => $state && isset($ac->text->endpoint_required) ? $ac->text->endpoint_required : esc_html__('API endpoint URL is required', 'easy-form-builder'),
         ];
     }
@@ -1000,12 +1432,13 @@ class EfbAddonPhrases {
     public static function get_payment_phrases($ac = null, $state = false) {
         return [
 
-            /* translators: Payments = admin page title */
-
+            /* translators: %s = form title. Shown as the PayPal tab label for a specific form */
             "paypals" => $state && isset($ac->text->paypals) ? $ac->text->paypals : esc_html__('PayPal %s', 'easy-form-builder'),
 
+            /* translators: %s = form title. Shown as the Stripe tab label for a specific form */
             "stripes" => $state && isset($ac->text->stripes) ? $ac->text->stripes : esc_html__('Stripe %s', 'easy-form-builder'),
 
+            /* translators: Payments = admin page title */
             "pay_payments" => $state && isset($ac->text->pay_payments) ? $ac->text->pay_payments : esc_html__('Payments', 'easy-form-builder'),
 
             /* translators: Search = search input placeholder */
@@ -1038,11 +1471,12 @@ class EfbAddonPhrases {
             /* translators: Failed = payment status */
             "pay_failed" => $state && isset($ac->text->pay_failed) ? $ac->text->pay_failed : esc_html__('Failed', 'easy-form-builder'),
 
+
             /* translators: No payments found = empty table message */
             "pay_noPayments" => $state && isset($ac->text->pay_noPayments) ? $ac->text->pay_noPayments : esc_html__('No payments found.', 'easy-form-builder'),
 
             /* translators: Loading... = loading indicator */
-            "pay_loading" => $state && isset($ac->text->pay_loading) ? $ac->text->pay_loading : esc_html__('Loading...', 'easy-form-builder'),
+            "pay_loading" => $state && isset($ac->text->pay_loading) ? $ac->text->pay_loading : esc_html__('Loading&hellip;', 'easy-form-builder'),
 
             /* translators: View Details = action button */
             "pay_viewDetails" => $state && isset($ac->text->pay_viewDetails) ? $ac->text->pay_viewDetails : esc_html__('View Details', 'easy-form-builder'),
@@ -1053,11 +1487,23 @@ class EfbAddonPhrases {
             /* translators: Cancel Subscription = action button */
             "pay_cancelSub" => $state && isset($ac->text->pay_cancelSub) ? $ac->text->pay_cancelSub : esc_html__('Cancel Subscription', 'easy-form-builder'),
 
+            /* translators: Suspend Subscription = action button */
+            "pay_suspendSub" => $state && isset($ac->text->pay_suspendSub) ? $ac->text->pay_suspendSub : esc_html__('Suspend Subscription', 'easy-form-builder'),
+
+            /* translators: Reactivate Subscription = action button */
+            "pay_reactivateSub" => $state && isset($ac->text->pay_reactivateSub) ? $ac->text->pay_reactivateSub : esc_html__('Reactivate Subscription', 'easy-form-builder'),
+
             /* translators: Are you sure you want to refund this payment? = confirm dialog */
             "pay_confirmRefund" => $state && isset($ac->text->pay_confirmRefund) ? $ac->text->pay_confirmRefund : esc_html__('Are you sure you want to refund this payment?', 'easy-form-builder'),
 
             /* translators: Are you sure you want to cancel this subscription? = confirm dialog */
             "pay_confirmCancel" => $state && isset($ac->text->pay_confirmCancel) ? $ac->text->pay_confirmCancel : esc_html__('Are you sure you want to cancel this subscription?', 'easy-form-builder'),
+
+            /* translators: Are you sure you want to suspend this subscription? = confirm dialog */
+            "pay_confirmSuspend" => $state && isset($ac->text->pay_confirmSuspend) ? $ac->text->pay_confirmSuspend : esc_html__('Are you sure you want to suspend this subscription?', 'easy-form-builder'),
+
+            /* translators: Are you sure you want to reactivate this subscription? = confirm dialog */
+            "pay_confirmReactivate" => $state && isset($ac->text->pay_confirmReactivate) ? $ac->text->pay_confirmReactivate : esc_html__('Are you sure you want to reactivate this subscription?', 'easy-form-builder'),
 
             /* translators: Success = success message */
             "pay_success" => $state && isset($ac->text->pay_success) ? $ac->text->pay_success : esc_html__('Success', 'easy-form-builder'),
@@ -1266,14 +1712,14 @@ class EfbAddonPhrases {
             "gs_settingsChip" => $state && isset($ac->text->gs_settingsChip) ? $ac->text->gs_settingsChip : esc_html__('Google Sheet Settings', 'easy-form-builder'),
             /* translators: Header status card label */
             "gs_activeBindings" => $state && isset($ac->text->gs_activeBindings) ? $ac->text->gs_activeBindings : esc_html__('Active Bindings', 'easy-form-builder'),
-            /* translators: Header status value — singular form count */
-            "gs_formSingular" => $state && isset($ac->text->gs_formSingular) ? $ac->text->gs_formSingular : esc_html__('Form', 'easy-form-builder'),
-            /* translators: Header status value — plural form count */
-            "gs_formPlural" => $state && isset($ac->text->gs_formPlural) ? $ac->text->gs_formPlural : esc_html__('Forms', 'easy-form-builder'),
-            /* translators: %d = number of connected service accounts (singular) */
-            "gs_saConnected" => $state && isset($ac->text->gs_saConnected) ? $ac->text->gs_saConnected : esc_html__('%d service account connected', 'easy-form-builder'),
-            /* translators: %d = number of connected service accounts (plural) */
-            "gs_saConnectedPlural" => $state && isset($ac->text->gs_saConnectedPlural) ? $ac->text->gs_saConnectedPlural : esc_html__('%d service accounts connected', 'easy-form-builder'),
+            /* translators: Header status value — singular form count (paired with gs_formPlural via _n()) */
+            "gs_formSingular" => $state && isset($ac->text->gs_formSingular) ? $ac->text->gs_formSingular : esc_html(_n('Form', 'Forms', 1, 'easy-form-builder')),
+            /* translators: Header status value — plural form count (paired with gs_formSingular via _n()) */
+            "gs_formPlural" => $state && isset($ac->text->gs_formPlural) ? $ac->text->gs_formPlural : esc_html(_n('Form', 'Forms', 2, 'easy-form-builder')),
+            /* translators: %d = number of connected service accounts (singular, paired with gs_saConnectedPlural via _n()) */
+            "gs_saConnected" => $state && isset($ac->text->gs_saConnected) ? $ac->text->gs_saConnected : esc_html(_n('%d service account connected', '%d service accounts connected', 1, 'easy-form-builder')),
+            /* translators: %d = number of connected service accounts (plural, paired with gs_saConnected via _n()) */
+            "gs_saConnectedPlural" => $state && isset($ac->text->gs_saConnectedPlural) ? $ac->text->gs_saConnectedPlural : esc_html(_n('%d service account connected', '%d service accounts connected', 2, 'easy-form-builder')),
             /* translators: Header hint when no service account is connected */
             "gs_noSaYet" => $state && isset($ac->text->gs_noSaYet) ? $ac->text->gs_noSaYet : esc_html__('No service account connected yet', 'easy-form-builder'),
 
@@ -1292,8 +1738,6 @@ class EfbAddonPhrases {
             "gs_saved" => $state && isset($ac->text->gs_saved) ? $ac->text->gs_saved : esc_html__('Saved successfully.', 'easy-form-builder'),
             /* translators: Save button */
             "gs_save" => $state && isset($ac->text->gs_save) ? $ac->text->gs_save : esc_html__('Save', 'easy-form-builder'),
-            /* translators: Saved short label */
-            "gs_savedShort" => $state && isset($ac->text->gs_savedShort) ? $ac->text->gs_savedShort : esc_html__('Saved', 'easy-form-builder'),
             /* translators: Cancel button */
             "gs_cancel" => $state && isset($ac->text->gs_cancel) ? $ac->text->gs_cancel : esc_html__('Cancel', 'easy-form-builder'),
             /* translators: Edit button */
@@ -1333,7 +1777,7 @@ class EfbAddonPhrases {
             /* translators: Copy-email button tooltip (short) */
             "gs_copyEmail" => $state && isset($ac->text->gs_copyEmail) ? $ac->text->gs_copyEmail : esc_html__('Copy email', 'easy-form-builder'),
             /* translators: Per-connection sharing instructions (HTML allowed) */
-            "gs_connShareHint" => $state && isset($ac->text->gs_connShareHint) ? $ac->text->gs_connShareHint : esc_html__('To sync an <strong>existing</strong> sheet: open it in Google Sheets &rarr; <strong>Share</strong> &rarr; paste the email above &rarr; set role to <strong>Editor</strong>. To create a <strong>new</strong> sheet, just use Form Bindings — no sharing needed.', 'easy-form-builder'),
+            "gs_connShareHint" => $state && isset($ac->text->gs_connShareHint) ? $ac->text->gs_connShareHint : __('To sync an <strong>existing</strong> sheet: open it in Google Sheets &rarr; <strong>Share</strong> &rarr; paste the email above &rarr; set role to <strong>Editor</strong>. To create a <strong>new</strong> sheet, just use Form Bindings — no sharing needed.', 'easy-form-builder'),
             /* translators: Set default service account button */
             "gs_setDefault" => $state && isset($ac->text->gs_setDefault) ? $ac->text->gs_setDefault : esc_html__('Set Default', 'easy-form-builder'),
             /* translators: Retest connection button */
@@ -1347,7 +1791,7 @@ class EfbAddonPhrases {
             /* translators: Optional field marker */
             "gs_recommended" => $state && isset($ac->text->gs_recommended) ? $ac->text->gs_recommended : esc_html__('(recommended)', 'easy-form-builder'),
             /* translators: Your Google email field hint (HTML allowed) */
-            "gs_yourGoogleEmailHint" => $state && isset($ac->text->gs_yourGoogleEmailHint) ? $ac->text->gs_yourGoogleEmailHint : esc_html__('Any sheet the plugin <strong>creates</strong> is automatically shared to this address, so it appears in your own Google Drive under “Shared with me.” Without it, new sheets stay hidden inside the service account.', 'easy-form-builder'),
+            "gs_yourGoogleEmailHint" => $state && isset($ac->text->gs_yourGoogleEmailHint) ? $ac->text->gs_yourGoogleEmailHint : __('Any sheet the plugin <strong>creates</strong> is automatically shared to this address, so it appears in your own Google Drive under “Shared with me.” Without it, new sheets stay hidden inside the service account.', 'easy-form-builder'),
             /* translators: Enable integration toggle title */
             "gs_enableIntegration" => $state && isset($ac->text->gs_enableIntegration) ? $ac->text->gs_enableIntegration : esc_html__('Enable Google Sheet Integration', 'easy-form-builder'),
             /* translators: Enable integration toggle subtitle */
@@ -1361,17 +1805,17 @@ class EfbAddonPhrases {
             /* translators: Tips card title */
             "gs_setupTitle" => $state && isset($ac->text->gs_setupTitle) ? $ac->text->gs_setupTitle : esc_html__('One-time setup (≈3 min)', 'easy-form-builder'),
             /* translators: Setup tip 1 (HTML allowed) */
-            "gs_tip1" => $state && isset($ac->text->gs_tip1) ? $ac->text->gs_tip1 : esc_html__('Go to <a href="https://console.cloud.google.com/" target="_blank" rel="noopener noreferrer">console.cloud.google.com</a> &rarr; Project dropdown (top-left) &rarr; New Project &rarr; name it &rarr; Create', 'easy-form-builder'),
+            "gs_tip1" => $state && isset($ac->text->gs_tip1) ? $ac->text->gs_tip1 : __('Go to <a href="https://console.cloud.google.com/" target="_blank" rel="noopener noreferrer">console.cloud.google.com</a> &rarr; Project dropdown (top-left) &rarr; New Project &rarr; name it &rarr; Create', 'easy-form-builder'),
             /* translators: Setup tip 2 (HTML allowed) */
-            "gs_tip2" => $state && isset($ac->text->gs_tip2) ? $ac->text->gs_tip2 : esc_html__('APIs &amp; Services &rarr; Library &rarr; enable <strong>Google Sheets API</strong> <em>and</em> <strong>Google Drive API</strong>', 'easy-form-builder'),
+            "gs_tip2" => $state && isset($ac->text->gs_tip2) ? $ac->text->gs_tip2 : __('APIs &amp; Services &rarr; Library &rarr; enable <strong>Google Sheets API</strong> <em>and</em> <strong>Google Drive API</strong>', 'easy-form-builder'),
             /* translators: Setup tip 3 (HTML allowed) */
-            "gs_tip3" => $state && isset($ac->text->gs_tip3) ? $ac->text->gs_tip3 : esc_html__('APIs &amp; Services &rarr; Credentials &rarr; Create Credentials &rarr; Service Account &rarr; name it &rarr; Done', 'easy-form-builder'),
+            "gs_tip3" => $state && isset($ac->text->gs_tip3) ? $ac->text->gs_tip3 : __('APIs &amp; Services &rarr; Credentials &rarr; Create Credentials &rarr; Service Account &rarr; name it &rarr; Done', 'easy-form-builder'),
             /* translators: Setup tip 4 (HTML allowed) */
-            "gs_tip4" => $state && isset($ac->text->gs_tip4) ? $ac->text->gs_tip4 : esc_html__('Open the service account &rarr; Keys tab &rarr; Add Key &rarr; Create New Key &rarr; JSON (downloads automatically)', 'easy-form-builder'),
+            "gs_tip4" => $state && isset($ac->text->gs_tip4) ? $ac->text->gs_tip4 : __('Open the service account &rarr; Keys tab &rarr; Add Key &rarr; Create New Key &rarr; JSON (downloads automatically)', 'easy-form-builder'),
             /* translators: Setup tip 5 */
             "gs_tip5" => $state && isset($ac->text->gs_tip5) ? $ac->text->gs_tip5 : esc_html__('Drag that downloaded file into the box on the left — it is tested automatically', 'easy-form-builder'),
             /* translators: Setup tip 6 (HTML allowed) */
-            "gs_tip6" => $state && isset($ac->text->gs_tip6) ? $ac->text->gs_tip6 : esc_html__('Add <strong>Your Google email</strong> above so created sheets land in your Drive', 'easy-form-builder'),
+            "gs_tip6" => $state && isset($ac->text->gs_tip6) ? $ac->text->gs_tip6 : __('Add <strong>Your Google email</strong> above so created sheets land in your Drive', 'easy-form-builder'),
             /* translators: Invalid JSON file alert */
             "gs_chooseValidJson" => $state && isset($ac->text->gs_chooseValidJson) ? $ac->text->gs_chooseValidJson : esc_html__('Please choose a valid .json key file.', 'easy-form-builder'),
             /* translators: File read error alert. %s = file name */
@@ -1451,15 +1895,15 @@ class EfbAddonPhrases {
             /* translators: Loading spreadsheets status */
             "gs_loadingSheets" => $state && isset($ac->text->gs_loadingSheets) ? $ac->text->gs_loadingSheets : esc_html__('Loading your spreadsheets…', 'easy-form-builder'),
             /* translators: Browse/create hint (HTML allowed) */
-            "gs_browseOrCreateHint" => $state && isset($ac->text->gs_browseOrCreateHint) ? $ac->text->gs_browseOrCreateHint : esc_html__('Click <strong>“Browse My Sheets”</strong> to list spreadsheets this service account can already access, or <strong>“Create New Sheet”</strong> to make a fresh one.', 'easy-form-builder'),
+            "gs_browseOrCreateHint" => $state && isset($ac->text->gs_browseOrCreateHint) ? $ac->text->gs_browseOrCreateHint : __('Click <strong>“Browse My Sheets”</strong> to list spreadsheets this service account can already access, or <strong>“Create New Sheet”</strong> to make a fresh one.', 'easy-form-builder'),
             /* translators: No accessible sheets message — lead (HTML allowed) */
-            "gs_noSheetsLead" => $state && isset($ac->text->gs_noSheetsLead) ? $ac->text->gs_noSheetsLead : esc_html__('<strong>No spreadsheets are accessible to this service account yet.</strong> You have two options:', 'easy-form-builder'),
+            "gs_noSheetsLead" => $state && isset($ac->text->gs_noSheetsLead) ? $ac->text->gs_noSheetsLead : __('<strong>No spreadsheets are accessible to this service account yet.</strong> You have two options:', 'easy-form-builder'),
             /* translators: No accessible sheets — easiest option (HTML allowed) */
-            "gs_noSheetsEasiest" => $state && isset($ac->text->gs_noSheetsEasiest) ? $ac->text->gs_noSheetsEasiest : esc_html__('<strong>Easiest:</strong> click <em>“Create New Sheet”</em> above — it is made for you and shared to your email automatically.', 'easy-form-builder'),
+            "gs_noSheetsEasiest" => $state && isset($ac->text->gs_noSheetsEasiest) ? $ac->text->gs_noSheetsEasiest : __('<strong>Easiest:</strong> click <em>“Create New Sheet”</em> above — it is made for you and shared to your email automatically.', 'easy-form-builder'),
             /* translators: No accessible sheets — existing option prefix (HTML allowed) */
-            "gs_noSheetsExisting" => $state && isset($ac->text->gs_noSheetsExisting) ? $ac->text->gs_noSheetsExisting : esc_html__('<strong>Use an existing sheet:</strong> open it in Google Sheets &rarr; Share &rarr; paste ', 'easy-form-builder'),
+            "gs_noSheetsExisting" => $state && isset($ac->text->gs_noSheetsExisting) ? $ac->text->gs_noSheetsExisting : __('<strong>Use an existing sheet:</strong> open it in Google Sheets &rarr; Share &rarr; paste', 'easy-form-builder'),
             /* translators: No accessible sheets — existing option suffix (HTML allowed) */
-            "gs_noSheetsExistingSuffix" => $state && isset($ac->text->gs_noSheetsExistingSuffix) ? $ac->text->gs_noSheetsExistingSuffix : esc_html__(' &rarr; Editor, then click <em>Browse My Sheets</em> again.', 'easy-form-builder'),
+            "gs_noSheetsExistingSuffix" => $state && isset($ac->text->gs_noSheetsExistingSuffix) ? $ac->text->gs_noSheetsExistingSuffix : __('&rarr; Editor, then click <em>Browse My Sheets</em> again.', 'easy-form-builder'),
             /* translators: Fallback when service account email is unknown */
             "gs_theServiceAccountEmail" => $state && isset($ac->text->gs_theServiceAccountEmail) ? $ac->text->gs_theServiceAccountEmail : esc_html__('the service account email', 'easy-form-builder'),
             /* translators: Create new spreadsheet field title */
@@ -1469,7 +1913,7 @@ class EfbAddonPhrases {
             /* translators: New sheet email placeholder */
             "gs_newSheetEmailPh" => $state && isset($ac->text->gs_newSheetEmailPh) ? $ac->text->gs_newSheetEmailPh : esc_html__('Your Google email — the sheet is shared here so you can open it', 'easy-form-builder'),
             /* translators: New sheet email hint — prefix when prefilled */
-            "gs_prefilledEmail" => $state && isset($ac->text->gs_prefilledEmail) ? $ac->text->gs_prefilledEmail : esc_html__('Pre-filled from your saved email. ', 'easy-form-builder'),
+            "gs_prefilledEmail" => $state && isset($ac->text->gs_prefilledEmail) ? $ac->text->gs_prefilledEmail : esc_html__('Pre-filled from your saved email.', 'easy-form-builder'),
             /* translators: New sheet email hint */
             "gs_leaveEmptyHint" => $state && isset($ac->text->gs_leaveEmptyHint) ? $ac->text->gs_leaveEmptyHint : esc_html__('Leave empty only if you don’t need to open the sheet yourself.', 'easy-form-builder'),
             /* translators: Create sheet button */
@@ -1477,11 +1921,9 @@ class EfbAddonPhrases {
             /* translators: Creating sheet status */
             "gs_creating" => $state && isset($ac->text->gs_creating) ? $ac->text->gs_creating : esc_html__('Creating…', 'easy-form-builder'),
             /* translators: Creating spreadsheet status */
-            "gs_creatingSpreadsheet" => $state && isset($ac->text->gs_creatingSpreadsheet) ? $ac->text->gs_creatingSpreadsheet : esc_html__('Creating spreadsheet...', 'easy-form-builder'),
-            /* translators: Sheet created + shared message. %s = email */
-            "gs_sheetCreatedShared" => $state && isset($ac->text->gs_sheetCreatedShared) ? $ac->text->gs_sheetCreatedShared : esc_html__('Sheet created and shared with %s. It’s selected below — click Next to finish.', 'easy-form-builder'),
-            /* translators: Fallback for "your email" in the shared message */
-            "gs_yourEmail" => $state && isset($ac->text->gs_yourEmail) ? $ac->text->gs_yourEmail : esc_html__('your email', 'easy-form-builder'),
+            "gs_creatingSpreadsheet" => $state && isset($ac->text->gs_creatingSpreadsheet) ? $ac->text->gs_creatingSpreadsheet : esc_html__('Creating spreadsheet…', 'easy-form-builder'),
+            /* translators: Sheet created + shared message */
+            "gs_sheetCreatedShared" => $state && isset($ac->text->gs_sheetCreatedShared) ? $ac->text->gs_sheetCreatedShared : esc_html__('Sheet created and shared with your email. It’s selected below — click Next to finish.', 'easy-form-builder'),
             /* translators: Sheet created (not shared) message */
             "gs_sheetCreatedNotShared" => $state && isset($ac->text->gs_sheetCreatedNotShared) ? $ac->text->gs_sheetCreatedNotShared : esc_html__('Sheet created. Tip: add “Your Google email” on the Connections tab so new sheets are shared to you automatically.', 'easy-form-builder'),
             /* translators: Open the new sheet link label */
@@ -1515,11 +1957,11 @@ class EfbAddonPhrases {
             /* translators: Reading form fields status */
             "gs_readingFields" => $state && isset($ac->text->gs_readingFields) ? $ac->text->gs_readingFields : esc_html__('Reading this form’s fields…', 'easy-form-builder'),
             /* translators: Fields unreadable message (HTML allowed) */
-            "gs_fieldsUnreadable" => $state && isset($ac->text->gs_fieldsUnreadable) ? $ac->text->gs_fieldsUnreadable : esc_html__('We couldn’t read this form’s fields automatically, so column mapping isn’t available. Don’t worry — <strong>every submitted field will still be synced automatically</strong>, each in its own column, in submission order. The header row is created and kept up to date for you.', 'easy-form-builder'),
+            "gs_fieldsUnreadable" => $state && isset($ac->text->gs_fieldsUnreadable) ? $ac->text->gs_fieldsUnreadable : __('We couldn’t read this form’s fields automatically, so column mapping isn’t available. Don’t worry — <strong>every submitted field will still be synced automatically</strong>, each in its own column, in submission order. The header row is created and kept up to date for you.', 'easy-form-builder'),
             /* translators: Try again button */
             "gs_tryAgain" => $state && isset($ac->text->gs_tryAgain) ? $ac->text->gs_tryAgain : esc_html__('Try again', 'easy-form-builder'),
             /* translators: Column mapping intro (HTML allowed) */
-            "gs_mapIntro" => $state && isset($ac->text->gs_mapIntro) ? $ac->text->gs_mapIntro : esc_html__('Drag rows (or use ▲▼) to set the <strong>column order</strong>. Rename any <strong>header</strong>. Turn a field off to skip its column. The letter (A, B, C…) shows where each field lands.', 'easy-form-builder'),
+            "gs_mapIntro" => $state && isset($ac->text->gs_mapIntro) ? $ac->text->gs_mapIntro : __('Drag rows (or use ▲▼) to set the <strong>column order</strong>. Rename any <strong>header</strong>. Turn a field off to skip its column. The letter (A, B, C…) shows where each field lands.', 'easy-form-builder'),
             /* translators: Column map header — column letter */
             "gs_mapColHead" => $state && isset($ac->text->gs_mapColHead) ? $ac->text->gs_mapColHead : esc_html__('Col', 'easy-form-builder'),
             /* translators: Column map header — form field */
@@ -1548,10 +1990,10 @@ class EfbAddonPhrases {
             "gs_moveDown" => $state && isset($ac->text->gs_moveDown) ? $ac->text->gs_moveDown : esc_html__('Move down', 'easy-form-builder'),
             /* translators: Include this field tooltip */
             "gs_includeField" => $state && isset($ac->text->gs_includeField) ? $ac->text->gs_includeField : esc_html__('Include this field', 'easy-form-builder'),
-            /* translators: Columns count — singular. %d = count */
-            "gs_columnsWritten" => $state && isset($ac->text->gs_columnsWritten) ? $ac->text->gs_columnsWritten : esc_html__('%d column will be written to the sheet.', 'easy-form-builder'),
-            /* translators: Columns count — plural. %d = count */
-            "gs_columnsWrittenPlural" => $state && isset($ac->text->gs_columnsWrittenPlural) ? $ac->text->gs_columnsWrittenPlural : esc_html__('%d columns will be written to the sheet.', 'easy-form-builder'),
+            /* translators: Columns count — singular. %d = count (paired with gs_columnsWrittenPlural via _n()) */
+            "gs_columnsWritten" => $state && isset($ac->text->gs_columnsWritten) ? $ac->text->gs_columnsWritten : esc_html(_n('%d column will be written to the sheet.', '%d columns will be written to the sheet.', 1, 'easy-form-builder')),
+            /* translators: Columns count — plural. %d = count (paired with gs_columnsWritten via _n()) */
+            "gs_columnsWrittenPlural" => $state && isset($ac->text->gs_columnsWrittenPlural) ? $ac->text->gs_columnsWrittenPlural : esc_html(_n('%d column will be written to the sheet.', '%d columns will be written to the sheet.', 2, 'easy-form-builder')),
 
             /* ===== Wizard step 4 (style) ===== */
             /* translators: Sheet style field label */
@@ -1602,10 +2044,10 @@ class EfbAddonPhrases {
             "gs_confirmRemoveBinding" => $state && isset($ac->text->gs_confirmRemoveBinding) ? $ac->text->gs_confirmRemoveBinding : esc_html__('Remove this binding? Syncing stops for this form. Your Google Sheet and its data are not deleted.', 'easy-form-builder'),
             /* translators: Binding removed message */
             "gs_syncRemoved" => $state && isset($ac->text->gs_syncRemoved) ? $ac->text->gs_syncRemoved : esc_html__('Sync removed — your Google Sheet and its data are untouched.', 'easy-form-builder'),
-            /* translators: Confirm remove all bindings — singular. %d = count */
-            "gs_confirmRemoveAll" => $state && isset($ac->text->gs_confirmRemoveAll) ? $ac->text->gs_confirmRemoveAll : esc_html__('Remove ALL %d binding? Syncing stops for every form. Your Google Sheets are not deleted.', 'easy-form-builder'),
-            /* translators: Confirm remove all bindings — plural. %d = count */
-            "gs_confirmRemoveAllPlural" => $state && isset($ac->text->gs_confirmRemoveAllPlural) ? $ac->text->gs_confirmRemoveAllPlural : esc_html__('Remove ALL %d bindings? Syncing stops for every form. Your Google Sheets are not deleted.', 'easy-form-builder'),
+            /* translators: Confirm remove all bindings — singular. %d = count (paired with gs_confirmRemoveAllPlural via _n()) */
+            "gs_confirmRemoveAll" => $state && isset($ac->text->gs_confirmRemoveAll) ? $ac->text->gs_confirmRemoveAll : esc_html(_n('Remove ALL %d binding? Syncing stops for every form. Your Google Sheets are not deleted.', 'Remove ALL %d bindings? Syncing stops for every form. Your Google Sheets are not deleted.', 1, 'easy-form-builder')),
+            /* translators: Confirm remove all bindings — plural. %d = count (paired with gs_confirmRemoveAll via _n()) */
+            "gs_confirmRemoveAllPlural" => $state && isset($ac->text->gs_confirmRemoveAllPlural) ? $ac->text->gs_confirmRemoveAllPlural : esc_html(_n('Remove ALL %d binding? Syncing stops for every form. Your Google Sheets are not deleted.', 'Remove ALL %d bindings? Syncing stops for every form. Your Google Sheets are not deleted.', 2, 'easy-form-builder')),
             /* translators: All bindings removed message */
             "gs_allBindingsRemoved" => $state && isset($ac->text->gs_allBindingsRemoved) ? $ac->text->gs_allBindingsRemoved : esc_html__('All bindings removed. Your Google Sheets are untouched.', 'easy-form-builder'),
             /* translators: Connection successful message */
@@ -1621,19 +2063,19 @@ class EfbAddonPhrases {
             /* translators: Guide step 1 title */
             "gs_guide1Title" => $state && isset($ac->text->gs_guide1Title) ? $ac->text->gs_guide1Title : esc_html__('Create or Select a Project', 'easy-form-builder'),
             /* translators: Guide step 1 description (HTML allowed) */
-            "gs_guide1Desc" => $state && isset($ac->text->gs_guide1Desc) ? $ac->text->gs_guide1Desc : esc_html__('Open console.cloud.google.com and log in &rarr; click the Project dropdown (top-left) &rarr; New Project (or pick an existing one) &rarr; enter a name &rarr; Create', 'easy-form-builder'),
+            "gs_guide1Desc" => $state && isset($ac->text->gs_guide1Desc) ? $ac->text->gs_guide1Desc : __('Open console.cloud.google.com and log in &rarr; click the Project dropdown (top-left) &rarr; New Project (or pick an existing one) &rarr; enter a name &rarr; Create', 'easy-form-builder'),
             /* translators: Guide step 2 title */
             "gs_guide2Title" => $state && isset($ac->text->gs_guide2Title) ? $ac->text->gs_guide2Title : esc_html__('Enable both Google APIs', 'easy-form-builder'),
             /* translators: Guide step 2 description (HTML allowed) */
-            "gs_guide2Desc" => $state && isset($ac->text->gs_guide2Desc) ? $ac->text->gs_guide2Desc : esc_html__('APIs &amp; Services &rarr; Library &rarr; enable <strong>Google Sheets API</strong> and <strong>Google Drive API</strong> (both are required — Drive lists and creates the files)', 'easy-form-builder'),
+            "gs_guide2Desc" => $state && isset($ac->text->gs_guide2Desc) ? $ac->text->gs_guide2Desc : __('APIs &amp; Services &rarr; Library &rarr; enable <strong>Google Sheets API</strong> and <strong>Google Drive API</strong> (both are required — Drive lists and creates the files)', 'easy-form-builder'),
             /* translators: Guide step 3 title */
             "gs_guide3Title" => $state && isset($ac->text->gs_guide3Title) ? $ac->text->gs_guide3Title : esc_html__('Create a Service Account', 'easy-form-builder'),
             /* translators: Guide step 3 description (HTML allowed) */
-            "gs_guide3Desc" => $state && isset($ac->text->gs_guide3Desc) ? $ac->text->gs_guide3Desc : esc_html__('APIs &amp; Services &rarr; Credentials &rarr; Create Credentials &rarr; Service Account &rarr; enter a name &rarr; Done', 'easy-form-builder'),
+            "gs_guide3Desc" => $state && isset($ac->text->gs_guide3Desc) ? $ac->text->gs_guide3Desc : __('APIs &amp; Services &rarr; Credentials &rarr; Create Credentials &rarr; Service Account &rarr; enter a name &rarr; Done', 'easy-form-builder'),
             /* translators: Guide step 4 title */
             "gs_guide4Title" => $state && isset($ac->text->gs_guide4Title) ? $ac->text->gs_guide4Title : esc_html__('Create a JSON Key', 'easy-form-builder'),
             /* translators: Guide step 4 description (HTML allowed) */
-            "gs_guide4Desc" => $state && isset($ac->text->gs_guide4Desc) ? $ac->text->gs_guide4Desc : esc_html__('Open the service account &rarr; Keys tab &rarr; Add Key &rarr; Create New Key &rarr; choose JSON (file downloads automatically)', 'easy-form-builder'),
+            "gs_guide4Desc" => $state && isset($ac->text->gs_guide4Desc) ? $ac->text->gs_guide4Desc : __('Open the service account &rarr; Keys tab &rarr; Add Key &rarr; Create New Key &rarr; choose JSON (file downloads automatically)', 'easy-form-builder'),
             /* translators: Guide step 5 title */
             "gs_guide5Title" => $state && isset($ac->text->gs_guide5Title) ? $ac->text->gs_guide5Title : esc_html__('Drop the Key File', 'easy-form-builder'),
             /* translators: Guide step 5 description */
@@ -1645,7 +2087,7 @@ class EfbAddonPhrases {
             /* translators: Guide step 7 title */
             "gs_guide7Title" => $state && isset($ac->text->gs_guide7Title) ? $ac->text->gs_guide7Title : esc_html__('Bind a Form (create a sheet)', 'easy-form-builder'),
             /* translators: Guide step 7 description (HTML allowed) */
-            "gs_guide7Desc" => $state && isset($ac->text->gs_guide7Desc) ? $ac->text->gs_guide7Desc : esc_html__('Form Bindings &rarr; pick a form &rarr; <strong>Create New Sheet</strong> &rarr; Save. No manual sharing needed — this is the easiest path', 'easy-form-builder'),
+            "gs_guide7Desc" => $state && isset($ac->text->gs_guide7Desc) ? $ac->text->gs_guide7Desc : __('Form Bindings &rarr; pick a form &rarr; <strong>Create New Sheet</strong> &rarr; Save. No manual sharing needed — this is the easiest path', 'easy-form-builder'),
             /* translators: Guide step 8 title */
             "gs_guide8Title" => $state && isset($ac->text->gs_guide8Title) ? $ac->text->gs_guide8Title : esc_html__('…or use an existing sheet', 'easy-form-builder'),
             /* translators: Guide step 8 description */
@@ -1661,15 +2103,15 @@ class EfbAddonPhrases {
             /* translators: FAQ 2 answer */
             "gs_faq2A" => $state && isset($ac->text->gs_faq2A) ? $ac->text->gs_faq2A : esc_html__('It must be shared with the service account’s email first: open the sheet &rarr; Share &rarr; paste the email (use the copy button on the connection card) &rarr; set Editor &rarr; Share. Then click “Browse My Sheets” again.', 'easy-form-builder'),
             /* translators: FAQ 3 question */
-            "gs_faq3Q" => $state && isset($ac->text->gs_faq3Q) ? $ac->text->gs_faq3Q : esc_html__('The test says a Google API is not enabled.', 'easy-form-builder'),
+            "gs_faq3Q" => $state && isset($ac->text->gs_faq3Q) ? $ac->text->gs_faq3Q : esc_html__('Test result: Google API is not enabled.', 'easy-form-builder'),
             /* translators: FAQ 3 answer */
-            "gs_faq3A" => $state && isset($ac->text->gs_faq3A) ? $ac->text->gs_faq3A : esc_html__('Open Google Cloud Console for the same project &rarr; APIs &amp; Services &rarr; Library, and enable BOTH “Google Sheets API” and “Google Drive API”. Wait a minute, then Retest.', 'easy-form-builder'),
+            "gs_faq3A" => $state && isset($ac->text->gs_faq3A) ? $ac->text->gs_faq3A : esc_html__('Open Google Cloud Console for the same project &rarr; APIs &amp; Services &rarr; Library, and enable BOTH “Google Sheets API” and “Google Drive API”. Wait a minute, then retest.', 'easy-form-builder'),
             /* translators: FAQ 4 question */
-            "gs_faq4Q" => $state && isset($ac->text->gs_faq4Q) ? $ac->text->gs_faq4Q : esc_html__('The test says access denied / permission.', 'easy-form-builder'),
+            "gs_faq4Q" => $state && isset($ac->text->gs_faq4Q) ? $ac->text->gs_faq4Q : esc_html__('Test result: Access/Permission denied', 'easy-form-builder'),
             /* translators: FAQ 4 answer */
             "gs_faq4A" => $state && isset($ac->text->gs_faq4A) ? $ac->text->gs_faq4A : esc_html__('The service account can authenticate but can’t reach that specific spreadsheet. Re-share the sheet with the service account email as Editor, or create a new sheet instead.', 'easy-form-builder'),
             /* translators: FAQ 5 question */
-            "gs_faq5Q" => $state && isset($ac->text->gs_faq5Q) ? $ac->text->gs_faq5Q : esc_html__('It says OpenSSL is required.', 'easy-form-builder'),
+            "gs_faq5Q" => $state && isset($ac->text->gs_faq5Q) ? $ac->text->gs_faq5Q : esc_html__('OpenSSL is required.', 'easy-form-builder'),
             /* translators: FAQ 5 answer */
             "gs_faq5A" => $state && isset($ac->text->gs_faq5A) ? $ac->text->gs_faq5A : esc_html__('The server is missing the PHP OpenSSL extension used to sign the secure Google request. Ask your host to enable it — no plugin setting can replace it.', 'easy-form-builder'),
             /* translators: FAQ 6 question */
@@ -1683,11 +2125,11 @@ class EfbAddonPhrases {
             /* translators: FAQ 8 question */
             "gs_faq8Q" => $state && isset($ac->text->gs_faq8Q) ? $ac->text->gs_faq8Q : esc_html__('Can I choose which field goes to which column?', 'easy-form-builder'),
             /* translators: FAQ 8 answer (HTML allowed) */
-            "gs_faq8A" => $state && isset($ac->text->gs_faq8A) ? $ac->text->gs_faq8A : esc_html__('Yes. In the binding wizard’s <strong>Columns &amp; Fields</strong> step, drag rows (or use ▲▼) to set the order, rename each column header, and toggle any field off to skip it. The A/B/C badge shows exactly where each field lands.', 'easy-form-builder'),
+            "gs_faq8A" => $state && isset($ac->text->gs_faq8A) ? $ac->text->gs_faq8A : __('Yes. In the binding wizard’s <strong>Columns &amp; Fields</strong> step, drag rows (or use ▲▼) to set the order, rename each column header, and toggle any field off to skip it. The A/B/C badge shows exactly where each field lands.', 'easy-form-builder'),
             /* translators: FAQ 9 question */
             "gs_faq9Q" => $state && isset($ac->text->gs_faq9Q) ? $ac->text->gs_faq9Q : esc_html__('Can I style the sheet automatically?', 'easy-form-builder'),
             /* translators: FAQ 9 answer (HTML allowed) */
-            "gs_faq9A" => $state && isset($ac->text->gs_faq9A) ? $ac->text->gs_faq9A : esc_html__('Yes. The <strong>Style &amp; Save</strong> step offers Google-Sheets themes (colored header, frozen top row, alternating row colors). Pick one and it’s applied on the first sync, or click “Apply style now”.', 'easy-form-builder'),
+            "gs_faq9A" => $state && isset($ac->text->gs_faq9A) ? $ac->text->gs_faq9A : __('Yes. The <strong>Style &amp; Save</strong> step offers Google-Sheets themes (colored header, frozen top row, alternating row colors). Pick one and it’s applied on the first sync, or click “Apply style now”.', 'easy-form-builder'),
             /* translators: FAQ 10 question */
             "gs_faq10Q" => $state && isset($ac->text->gs_faq10Q) ? $ac->text->gs_faq10Q : esc_html__('What if my form fields change later?', 'easy-form-builder'),
             /* translators: FAQ 10 answer */
@@ -1720,8 +2162,22 @@ class EfbAddonPhrases {
             "gs_logDetail" => $state && isset($ac->text->gs_logDetail) ? $ac->text->gs_logDetail : esc_html__('Detail', 'easy-form-builder'),
             /* translators: Logs status — synced */
             "gs_synced" => $state && isset($ac->text->gs_synced) ? $ac->text->gs_synced : esc_html__('Synced', 'easy-form-builder'),
-            /* translators: Access denied (page + ajax guard) */
-            "gs_accessDenied" => $state && isset($ac->text->gs_accessDenied) ? $ac->text->gs_accessDenied : esc_html__('Access denied', 'easy-form-builder'),
+
+            /* ===== Sheet style preset gallery (Style & Save step / templates list) ===== */
+            /* translators: Style preset name - no colors or formatting applied */
+            "gs_templateNone" => $state && isset($ac->text->gs_templateNone) ? $ac->text->gs_templateNone : esc_html__('None (plain)', 'easy-form-builder'),
+            /* translators: Style preset name - light gray header, minimal styling */
+            "gs_templateMinimal" => $state && isset($ac->text->gs_templateMinimal) ? $ac->text->gs_templateMinimal : esc_html__('Minimal', 'easy-form-builder'),
+            /* translators: Style preset name - green header theme */
+            "gs_templateGreen" => $state && isset($ac->text->gs_templateGreen) ? $ac->text->gs_templateGreen : esc_html__('Green', 'easy-form-builder'),
+            /* translators: Style preset name - blue header theme */
+            "gs_templateBlue" => $state && isset($ac->text->gs_templateBlue) ? $ac->text->gs_templateBlue : esc_html__('Blue', 'easy-form-builder'),
+            /* translators: Style preset name - dark slate-gray header theme */
+            "gs_templateSlate" => $state && isset($ac->text->gs_templateSlate) ? $ac->text->gs_templateSlate : esc_html__('Slate', 'easy-form-builder'),
+            /* translators: Style preset name - orange header theme */
+            "gs_templateSunset" => $state && isset($ac->text->gs_templateSunset) ? $ac->text->gs_templateSunset : esc_html__('Sunset', 'easy-form-builder'),
+            /* translators: Style preset name - purple header theme */
+            "gs_templateGrape" => $state && isset($ac->text->gs_templateGrape) ? $ac->text->gs_templateGrape : esc_html__('Grape', 'easy-form-builder'),
         ];
     }
 }

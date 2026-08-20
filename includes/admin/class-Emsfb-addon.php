@@ -129,7 +129,7 @@ class Addon {
 		<?php endif; ?>
 	<?php elseif ($noti_pro !== 0 && !$addon_status): ?>
 		<div class="notice notice-info efb" style="margin: 20px 0;">
-			<p><?php echo esc_html__('Checking add-on installation capabilities...', 'easy-form-builder'); ?></p>
+			<p><?php echo esc_html__('Checking add-on installation capabilities&hellip;', 'easy-form-builder'); ?></p>
 			<p><em><?php echo esc_html__('This check runs once after plugin activation. Please refresh the page in a few moments.', 'easy-form-builder'); ?></em></p>
 		</div>
 	<?php endif; ?>
@@ -212,7 +212,9 @@ class Addon {
 		$addons = $efbFunction->fun_get_addons_list_efb($ac);
 		if(is_object($ac)){
 			if( isset($ac->siteKey)&& strlen($ac->siteKey)>5){$captcha="true";}
-			if(isset($ac->smtp) && $ac->smtp=="true"){$smtp=1;}else if (isset($ac->smtp) && $ac->smtp=="false"){$smtp=0;$smtp_m =$lang['sMTPNotWork'];}
+			/* String compare against "true"/"false" missed the bool and int shapes
+			 * the settings row also stores, leaving $smtp at -1. */
+			if(emsfb_is_email_sending_enabled_efb($ac)){$smtp=1;}else{$smtp=0;$smtp_m =$lang['sMTPNotWork'];}
 		}else{$smtp_m =$lang['goToEFBAddEmailM'];}
 		wp_register_script('efb-recorder-js', EMSFB_PLUGIN_URL . 'public/assets/js/recorder-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION, true);
 		wp_enqueue_script('efb-recorder-js');
@@ -240,7 +242,9 @@ class Addon {
 			'upload_max'=>(int) floor(wp_max_upload_size() / MB_IN_BYTES),
 		), 'addon');
 		wp_localize_script('Emsfb-admin-js','efb_var',$efb_var_data);
-		wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION, true);
+		$efb_val_js_path = EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/val-efb.js';
+		$efb_val_js_version = is_readable($efb_val_js_path) ? (string) filemtime($efb_val_js_path) : EMSFB_PLUGIN_VERSION;
+		wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val-efb.js', array('jquery'), $efb_val_js_version, true);
 		 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core-efb.js', array('jquery','efb-recorder-js'), EMSFB_PLUGIN_VERSION, true);
 		 wp_localize_script('Emsfb-core-js','ajax_object_efm_core',array(
 			'nonce'=> wp_create_nonce("wp_rest"),

@@ -372,6 +372,16 @@ const alertStyles_efb = {
   info: { bg: 'linear-gradient(135deg, #202a8d 0%, #667eea 100%)', icon: 'bi-info-lg', color: '#fff' }
 };
 
+// Bootstrap Icons paths, inlined so alerts render instantly instead of waiting on the icon font to load.
+const alertIconPaths_efb = {
+  'bi-ban': 'M15 8a6.97 6.97 0 0 0-1.71-4.584l-9.874 9.875A7 7 0 0 0 15 8M2.71 12.584l9.874-9.875a7 7 0 0 0-9.874 9.874ZM16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0',
+  'bi-exclamation-triangle-fill': 'M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5m.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2',
+  'bi-check-lg': 'M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425z',
+  'bi-info-lg': 'm9.708 6.075-3.024.379-.108.502.595.108c.387.093.464.232.38.619l-.975 4.577c-.255 1.183.14 1.74 1.067 1.74.72 0 1.554-.332 1.933-.789l.116-.549c-.263.232-.65.325-.905.325-.363 0-.494-.255-.402-.704zm.091-2.755a1.32 1.32 0 1 1-2.64 0 1.32 1.32 0 0 1 2.64 0'
+};
+const alertCloseIconPath_efb = 'M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z';
+const alertIconSvg_efb = (path, sizeRem) => `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="width:${sizeRem}rem; height:${sizeRem}rem; display:block;"><path d="${path}"/></svg>`;
+
 let alertCounter_efb = 0;
 
 function alert_message_efb(title, message, sec, alertType) {
@@ -379,7 +389,7 @@ function alert_message_efb(title, message, sec, alertType) {
     sec = sec * 1000;
     const alertId = `alert_item_efb_${++alertCounter_efb}`;
     const style = alertStyles_efb[alertType] || alertStyles_efb.info;
-    const isRtl = efb_var.text.rtl == 1;
+    const isRtl = efb_var.rtl == 1;
     const rtl = isRtl ? 'rtl-text' : '';
     const isMobile = window.innerWidth < 768;
 
@@ -397,15 +407,15 @@ function alert_message_efb(title, message, sec, alertType) {
     const alertHtml = `
       <div id="${alertId}" class="efb alert_item_efb ${rtl}" style="background:${style.bg}; border-radius:12px; padding:14px 16px; box-shadow:0 4px 20px rgb(0 0 0 / 49%); animation:slideIn_efb .3s ease; transition:all .3s ease; pointer-events:auto;">
         <div class="efb d-flex align-items-center">
-          <div class="efb" style="border-radius:50%; padding:8px; margin-${isRtl ? 'left' : 'right'}:12px; flex-shrink:0;">
-            <i class="efb bi ${style.icon}" style="font-size:1.2rem; color:${style.color};"></i>
+          <div class="efb" style="display:flex; align-items:center; justify-content:center; border-radius:50%; padding:8px; margin-${isRtl ? 'left' : 'right'}:12px; flex-shrink:0; color:${style.color};">
+            ${alertIconSvg_efb(alertIconPaths_efb[style.icon], 1.2)}
           </div>
           <div class="efb flex-grow-1" style="min-width:0;">
             ${title ? `<h6 class="efb mb-0" style="color:${style.color}; font-weight:600; font-size:0.9rem;">${title}</h6>` : ''}
             ${message ? `<p class="efb mb-0" style="color:${style.color}; opacity:0.95; font-size:0.8rem; line-height:1.4;">${message}</p>` : ''}
           </div>
-          <button type="button" class="efb p-0" onclick="close_msg_efb('${alertId}')" style="background:rgba(255,255,255,0.2); border:none; border-radius:50%; width:26px; height:26px; cursor:pointer; flex-shrink:0; margin-${isRtl ? 'right' : 'left'}:8px;">
-            <i class="efb bi bi-x" style="color:${style.color}; font-size:1rem;"></i>
+          <button type="button" class="efb p-0" onclick="close_msg_efb('${alertId}')" style="display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.2); border:none; border-radius:50%; width:26px; height:26px; cursor:pointer; flex-shrink:0; margin-${isRtl ? 'right' : 'left'}:8px; color:${style.color};">
+            ${alertIconSvg_efb(alertCloseIconPath_efb, 1)}
           </button>
         </div>
       </div>`;
@@ -429,7 +439,7 @@ function alert_message_efb(title, message, sec, alertType) {
 function close_msg_efb(alertId) {
   const el = alertId ? document.getElementById(alertId) : document.querySelector('.alert_item_efb');
   if (el) {
-    const isRtl = efb_var.text.rtl == 1;
+    const isRtl = efb_var.rtl == 1;
     el.style.opacity = '0';
     el.style.transform = `translateX(${isRtl ? '' : '-'}20px)`;
     setTimeout(() => el.remove(), 200);
@@ -705,22 +715,32 @@ function replaceContentMessageEfb(value){
    value = value.replaceAll("@efb@nq#",`<br>`);
   return value;
 }
-function fun_upload_file_api_emsFormBuilder(id, type,tp,file) {
+function fun_upload_file_api_emsFormBuilder(id, type,tp,file,options) {
+  options = options || {};
   if (!navigator.onLine) {
 	const msg = efb_var.text.fileUploadNetworkError || efb_var.text.offlineSend;
-	alert_message_efb('', msg, 17, 'danger');
-    return;
+	if (!options.silent) alert_message_efb('', msg, 17, 'danger');
+    return Promise.resolve({ success: false, error: msg });
   }
-  let indx = files_emsFormBuilder.findIndex(x => x.id_ === id);
+  const requestedFormId = options.hasOwnProperty('form_id') ? Number(options.form_id) || 0 : null;
+  let indx = files_emsFormBuilder.findIndex(x => x.id_ === id && (requestedFormId === null || Number(x.form_id || 0) === requestedFormId));
   if (indx === -1) {
-    const ob = typeof valueJson_ws !== 'undefined' ? valueJson_ws.find(x => x.id_ === id) : null;
-    const fid = ob && ob.hasOwnProperty('step') ? (document.getElementById(id + '_') ? document.getElementById(id + '_').dataset.formid || 0 : 0) : 0;
-    files_emsFormBuilder.push({ id_: id, value: "@file@", state: 0, url: "", type: "file", name: ob ? ob.name : '', session: sessionPub_emsFormBuilder, form_id: fid });
+    let ob = typeof valueJson_ws !== 'undefined' ? valueJson_ws.find(x => x.id_ === id) : null;
+    const shell = document.getElementById(id + '_');
+    const fid = requestedFormId === null ? (ob && ob.hasOwnProperty('step') ? (shell ? Number(shell.dataset.formid) || 0 : 0) : 0) : requestedFormId;
+    if (!ob && fid && typeof get_structure_by_form_id_efb === 'function') {
+      const structure = get_structure_by_form_id_efb(fid) || [];
+      ob = structure.find(x => x.id_ === id) || null;
+    }
+    files_emsFormBuilder.push({ id_: id, value: "@file@", state: 0, url: "", type: options.recorder_type || "file", name: ob ? ob.name : '', session: sessionPub_emsFormBuilder, form_id: fid });
     indx = files_emsFormBuilder.length - 1;
   }
   files_emsFormBuilder[indx].state = 1;
-  files_emsFormBuilder[indx].type = type;
-  let r = ""
+  files_emsFormBuilder[indx].type = options.recorder_type || type;
+  if (options.recorder_type) {
+    files_emsFormBuilder[indx].recorder_type = options.recorder_type;
+    files_emsFormBuilder[indx].recording_duration = Number(options.recording_duration) || 0;
+  }
   const form_id = files_emsFormBuilder[indx].hasOwnProperty('form_id') ? files_emsFormBuilder[indx].form_id : 0;
   let nonce_msg =''
   let sid =''
@@ -731,22 +751,23 @@ function fun_upload_file_api_emsFormBuilder(id, type,tp,file) {
 
     sid = vj.sid;
   }
-    nonce_msg = efb_var.nonce ?? '';
+  nonce_msg = efb_var.nonce ?? '';
   const page_id = efb_var.page_id ;
-    const fd = new FormData();
-    const idn =  id + '_';
+  const idn =  id + '_';
+  const delay = options.hasOwnProperty('delay') ? Math.max(0, Number(options.delay) || 0) : 500;
+  return new Promise((resolve) => {
     setTimeout(() => {
-      uploadFile_api(file, id, tp, nonce_msg ,indx ,idn,page_id,form_id,sid);
-      return true;
-    }, 500);
+      uploadFile_api(file, id, tp, nonce_msg ,indx ,idn,page_id,form_id,sid,options).then(resolve);
+    }, delay);
+  });
 }
-function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id,fid,sid) {
-  const progressBar = document.querySelector('#progress-bar');
+function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id,fid,sid,options) {
+  options = options || {};
   const idB =id+'-prB';
-      fetch_uploadFile(file, id, pl, nonce_msg,page_id,fid,sid).then((data) => {
+  return fetch_uploadFile(file, id, pl, nonce_msg,page_id,fid,sid,options).then((data) => {
 
-        var currentIndx = files_emsFormBuilder.findIndex(function(x) { return x.id_ === id; });
-        if (currentIndx === -1) return;
+        var currentIndx = files_emsFormBuilder.findIndex(function(x) { return x.id_ === id && Number(x.form_id || 0) === Number(fid || 0); });
+        if (currentIndx === -1) return { success: false, error: 'Upload was cancelled.' };
 
         var responseData = data;
         if (data.hasOwnProperty('data')) {
@@ -758,11 +779,15 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id,fid,sid) {
           files_emsFormBuilder[currentIndx].state = 2;
           files_emsFormBuilder[currentIndx].id = idn;
           const form_id = files_emsFormBuilder[currentIndx].hasOwnProperty('form_id') ? files_emsFormBuilder[currentIndx].form_id : 0;
-          const ob = valueJson_ws.find(x => x.id_ === id) || 0;
+          let ob = typeof valueJson_ws !== 'undefined' ? valueJson_ws.find(x => x.id_ === id) : null;
+          if (!ob && form_id && typeof get_structure_by_form_id_efb === 'function') {
+            const structure = get_structure_by_form_id_efb(form_id) || [];
+            ob = structure.find(x => x.id_ === id) || null;
+          }
           const o = [{
             id_: files_emsFormBuilder[currentIndx].id_,
             name: files_emsFormBuilder[currentIndx].name,
-            amount: ob.amount,
+            amount: ob && ob.amount ? ob.amount : 0,
             type: files_emsFormBuilder[currentIndx].type,
             value: '@file@',
             url: files_emsFormBuilder[currentIndx].url,
@@ -770,6 +795,9 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id,fid,sid) {
             page_id: page_id,
             form_id: form_id,
           }];
+          if (files_emsFormBuilder[currentIndx].recorder_type) {
+            o[0].recording_duration = files_emsFormBuilder[currentIndx].recording_duration || 0;
+          }
           fun_sendBack_emsFormBuilder(o[0]);
           files_emsFormBuilder.splice(currentIndx, 1);
           const el = document.getElementById(idB)
@@ -778,6 +806,8 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id,fid,sid) {
             el.textContent = '100% = ' + file.name;
           }
           if(document.getElementById(id + '-prG')) document.getElementById(id + '-prG').classList.add('d-none');
+          if (typeof options.onSuccess === 'function') options.onSuccess(responseData);
+          return { success: true, data: responseData };
         } else {
           var errorMessage = 'Upload failed';
           if (responseData.hasOwnProperty('file') && responseData.file.hasOwnProperty('error')) {
@@ -791,16 +821,26 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id,fid,sid) {
           }
 
           const el = document.getElementById(idB);
+		  /* The server marks messages it wrote for the visitor - "this file is
+		     too large", "you can attach up to 3 files" - with efb_user_message.
+		     Those already say everything, so prefixing them with the generic
+		     connection warning would only make the real reason harder to find.
+		     The prefix stays for failures we have no server explanation for. */
+		  const isUserMessage = responseData.efb_user_message === true || data.efb_user_message === true;
 		  const baseMsg = efb_var.text.fileUploadNetworkError || efb_var.text.offlineSend;
-		  const fullMsg = errorMessage ? `${baseMsg}<br>${errorMessage}` : baseMsg;
-		  alert_message_efb('', fullMsg, 300, 'danger');
-          if(el==null) return;
-          el.style.width = '0%';
-          el.textContent = '0% = ' + file.name;
+		  const fullMsg = isUserMessage && errorMessage
+		    ? errorMessage
+		    : (errorMessage ? `${baseMsg}<br>${errorMessage}` : baseMsg);
+		  if (!options.silent) alert_message_efb('', fullMsg, 300, 'danger');
+          if(el){
+            el.style.width = '0%';
+            el.textContent = '0% = ' + file.name;
+          }
 
           var errIndx = files_emsFormBuilder.findIndex(function(x) { return x.id_ === id; });
           if (errIndx !== -1) files_emsFormBuilder[errIndx].state = 3;
-          return;
+          if (typeof options.onError === 'function') options.onError(errorMessage);
+          return { success: false, error: errorMessage };
         }
       })
       .catch((error) => {
@@ -815,7 +855,7 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id,fid,sid) {
 
         const baseMsg = efb_var.text.fileUploadNetworkError || efb_var.text.offlineSend;
         const fullMsg = errorMessage ? `${baseMsg}<br>${errorMessage}` : baseMsg;
-        alert_message_efb('', fullMsg, 30, 'danger');
+		if (!options.silent) alert_message_efb('', fullMsg, 30, 'danger');
 
         if(el) {
           el.style.width = '0%';
@@ -824,29 +864,77 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id,fid,sid) {
 
         var catchIndx = files_emsFormBuilder.findIndex(function(x) { return x.id_ === id; });
         if (catchIndx !== -1) files_emsFormBuilder[catchIndx].state = 0;
+        if (typeof options.onError === 'function') options.onError(errorMessage);
+        return { success: false, error: errorMessage };
       });
 }
-function fetch_uploadFile(file, id, pl, nonce_msg,page_id ,fid ,sid) {
+/* Mint a replacement wp_rest nonce for a page whose own nonce has died.
+   Resolves to '' when that is not possible, so the caller can fall back to
+   reporting the original failure rather than retrying blindly. */
+function efb_fetch_fresh_nonce_efb() {
+  try {
+    const base = (typeof efb_var !== 'undefined' && efb_var.rest_url) ? efb_var.rest_url : '';
+    if (!base) return Promise.resolve('');
+    const headers = {};
+    if (typeof efb_var !== 'undefined' && efb_var.sid) headers['sid'] = efb_var.sid;
+    return fetch(base + 'Emsfb/v1/nonce/refresh', {
+      method: 'GET', credentials: 'same-origin', cache: 'no-store', headers: headers
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        const fresh = d && d.nonce ? d.nonce : '';
+        if (fresh) {
+          /* efb_var is deep-frozen in the admin panel, so this is a best-effort
+             share with the rest of the page; the retry uses the returned value
+             directly and does not depend on the assignment landing. */
+          try { efb_var.nonce = fresh; } catch (e) {}
+          try { if (window.EFBHumanShield) window.EFBHumanShield.wpRestNonce = fresh; } catch (e) {}
+        }
+        return fresh;
+      })
+      .catch(() => '');
+  } catch (e) {
+    return Promise.resolve('');
+  }
+}
+function fetch_uploadFile(file, id, pl, nonce_msg,page_id ,fid ,sid,options) {
+  options = options || {};
   var idB =id+'-prB';
   return new Promise((resolve, reject) => {
+    /* An upload may be sent twice. A 403 means the nonce baked into the page
+       has expired - a cached page, a re-login, or a form simply left open past
+       the nonce window. The submit path already refreshes and replays on 403;
+       this one did not, so the attachment died on a bare "Forbidden" with no
+       way back. Response Box uploads felt it worst: they carry no form id, so
+       the server's session fallback could not rescue them either. */
+    const send = (activeNonce, isRetry) => {
     const formData = new FormData();
     formData.append('async-upload', file);
     formData.append('id', id);
     formData.append('pl', pl);
-    formData.append('nonce_msg', nonce_msg);
+    formData.append('nonce_msg', activeNonce);
     formData.append('sid', sid);
     formData.append('fid', fid);
     formData.append('page_id', efb_var.page_id);
+    /* Response Box uploads have no form field to bind to. Send the ticket
+       scope explicitly so the server can grant its broad safe-file policy
+       only to the conversation that is actually open. */
+    if (options.response_id) formData.append('response_id', String(options.response_id));
+    if (options.response_track) formData.append('response_track', String(options.response_track));
+    if (options.response_token) formData.append('response_token', String(options.response_token));
+    if (options.recorder_type) formData.append('recorder_type', options.recorder_type);
+    if (options.hasOwnProperty('recording_duration')) formData.append('recording_duration', String(options.recording_duration));
     const url = efb_var.rest_url + 'Emsfb/v1/forms/file/upload';
     const xhr = new XMLHttpRequest();
     xhr.upload.addEventListener('progress', (event) => {
     if (event.lengthComputable) {
       const percent = Math.round((event.loaded / event.total) * 100);
       const el = document.getElementById(idB)
-      if(el){
-        el.style.width = percent + '%';
-        el.textContent = percent + '% = ' + file.name;
-      }
+       if(el){
+         el.style.width = percent + '%';
+         el.textContent = percent + '% = ' + file.name;
+       }
+       if (typeof options.onProgress === 'function') options.onProgress(percent);
     }
     });
     xhr.addEventListener('load', () => {
@@ -870,17 +958,37 @@ function fetch_uploadFile(file, id, pl, nonce_msg,page_id ,fid ,sid) {
         reject('Invalid JSON response from server. Check console for details.');
       }
     } else {
-      reject(xhr.statusText);
+      /* Security plugins may deliberately return 403/429 with a useful JSON
+       * message. Keep that message for the recorder's inline retry UI instead
+       * of collapsing it into the generic "network" warning. */
+      let errorMessage = xhr.statusText || 'Upload failed';
+      try {
+        const response = JSON.parse(xhr.responseText || '{}');
+        const payload = response && response.data ? response.data : response;
+        errorMessage = (payload && (payload.m || payload.error || payload.message)) || errorMessage;
+      } catch (e) {}
+      if (xhr.status === 403 && !isRetry) {
+        efb_fetch_fresh_nonce_efb().then((fresh) => {
+          if (fresh && fresh !== activeNonce) send(fresh, true);
+          else reject(errorMessage);
+        });
+        return;
+      }
+      reject(errorMessage);
     }
     });
     xhr.addEventListener('error', () => {
     reject(xhr.statusText);
     });
     xhr.open('POST', url, true);
-    xhr.setRequestHeader('X-WP-Nonce', nonce_msg);
+    xhr.setRequestHeader('X-WP-Nonce', activeNonce);
     if (sid) xhr.setRequestHeader('sid', sid);
-    if (fid) xhr.setRequestHeader('form_id', fid);
+    /* Apache/PHP installations commonly discard or do not expose headers with
+       underscores. Use a conventional hyphenated header for the form binding. */
+    if (fid) xhr.setRequestHeader('X-EFB-Form-Id', fid);
     xhr.send(formData);
+    };
+    send(nonce_msg, false);
   });
 }
 if (!Array.prototype.findIndex) {
@@ -1066,6 +1174,15 @@ function sendback_state_handler_efb(id_, state, step){
     }, 200);
   }
 }
+/* The id_ of the option a <select> is sitting on. Defined here as well as
+   in core-efb.js because this file is the one that loads on both the admin
+   and the front end; the two definitions are identical, so whichever script
+   lands last is the one that answers. */
+selected_option_id_efb = (el) => {
+  const op = el && el.options ? el.options[el.selectedIndex] : null;
+  if (!op) return "";
+  return op.id || (op.dataset ? (op.dataset.op || op.dataset.id || "") : "");
+};
 function handle_change_event_efb(el){
     slice_sback=(i)=>{
       sendBack_emsFormBuilder_pub.splice(i, 1)
@@ -1280,9 +1397,11 @@ function handle_change_event_efb(el){
         vd.innerHTML="";
         el.className = colorBorderChangerEfb(el.className, "border-success");
         if (valj_efb[0].type == "payment" && el.classList.contains('payefb')) {
-          let v = el.options[el.selectedIndex].id;
+          let v = selected_option_id_efb(el);
           v = valueJson_ws.find(x => x.id_ == v && x.value == el.value);
-          if (typeof v.price == "string") price_efb = v.price;
+          /* Reset rather than leave the previous plan behind - price_efb is
+             shared, so a stale value gets spent on the next priced field. */
+          price_efb = v && typeof v.price == "string" ? v.price : "";
         }
         if(valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic && typeof fun_statement_logic_efb !== 'undefined') fun_statement_logic_efb(el.dataset.vid , el.type);
         if(el.dataset.hasOwnProperty('type') && el.dataset.type=="conturyList"){
@@ -1353,7 +1472,7 @@ function handle_change_event_efb(el){
     if(state==false && value.length > 0)  if(typeof(sendback_state_handler_efb)=='function') sendback_state_handler_efb(id_,false,current_s_efb);
     if (value != "" || value.length > 0) {
       const type = ob.type;
-      const id_ob = ob.type != "paySelect" ? el.id : el.options[el.selectedIndex].id;
+      const id_ob = ob.type != "paySelect" ? el.id : selected_option_id_efb(el);
       let o = [{ id_: id_, name: ob.name, id_ob: id_ob, amount: ob.amount, type: type, value: value, session: sessionPub_emsFormBuilder,form_id:  form_id }];
       if(typeof(sendback_state_handler_efb)=='function') sendback_state_handler_efb(id_,true,current_s_efb);
       if (el.classList.contains('payefb')) {
@@ -1362,7 +1481,14 @@ function handle_change_event_efb(el){
         if(ob.type =='prcfld'){
           p= Object.assign(o[0], {price: el.value});
         }else{
-          p = price_efb.length > 0 ? { price: price } : { price: q.price }
+          /* `price` was never declared in this scope, so this line threw the
+             moment a paySelect reached it. Only a paySelect may spend
+             price_efb; a select has no row of its own in valueJson_ws, so q
+             is undefined there and other field types read their own row. */
+          /* typeof-guarded: price_efb is declared in the public core-efb.js,
+             which the admin builder does not load, so on that side it only
+             exists once something has assigned it. */
+          p = { price: ob.type == "paySelect" && typeof price_efb == "string" && price_efb.length > 0 ? price_efb : (q ? q.price : 0) };
         }
         Object.assign(o[0], p)
 
@@ -1434,35 +1560,45 @@ fun_currency_no_convert_efb = (currency, number) => {
 }
 fun_disabled_all_pay_efb = () => {
   let type = '';
-  if(valj_efb[0].getway!="persiaPay")document.getElementById('stripeCardSectionEfb').classList.add('d-none');
+  /* Locking the priced fields is a courtesy after the money has already moved,
+     so a node that is not on the page is skipped rather than thrown on. Any of
+     these lookups can legitimately miss: a step that has not been shown yet, a
+     field conditional logic removed, or - for select-type parents - options
+     that render as <option data-id="..."> with no id of their own. The caller
+     still has the payment id and the sendBack row to write after this returns,
+     and a throw here lost both. */
+  const lock_pay_el_efb = (ov) => {
+    if (!ov) return;
+    ov.classList.remove('payefb');
+    ov.classList.add('disabled');
+    ov.disabled = true;
+  };
+  const cardSection = document.getElementById('stripeCardSectionEfb');
+  if (valj_efb[0].getway != "persiaPay" && cardSection) cardSection.classList.add('d-none');
   for (let o of valj_efb) {
-    if (o.hasOwnProperty('price')==true || (o.hasOwnProperty('type') && o.type=='prcfld')) {
+    if (o.hasOwnProperty('price') == true || (o.hasOwnProperty('type') && o.type == 'prcfld')) {
       if (o.hasOwnProperty('parent')) {
         const p = valj_efb.findIndex(x => x.id_ == o.parent);
-        if (p==-1) continue;
-        if(valj_efb[p].hasOwnProperty('type')==false) continue;
+        if (p == -1) continue;
+        if (valj_efb[p].hasOwnProperty('type') == false) continue;
         type = valj_efb[p].type.toLowerCase();
-        if(type.includes('pay')==false) continue;
-        let ov = document.querySelector(`[data-vid="${o.parent}"]`);
-        ov.classList.remove('payefb');
-        ov.classList.add('disabled');
-        ov.disabled = true;
-        if (type != "multiselect"  && type != "payMultiselect" && type != "paySelect") {
+        if (type.includes('pay') == false) continue;
+        lock_pay_el_efb(document.querySelector(`[data-vid="${o.parent}"]`));
+        /* Compared in lower case, because `type` was lowercased just above:
+           against the camelCase literals these two tests were always true, so
+           every select-type parent fell into the per-option loop that only
+           radio and checkbox groups need. Disabling the <select> already
+           covers the options inside it. */
+        if (type != "multiselect" && type != "paymultiselect" && type != "payselect") {
           const ob = valj_efb.filter(obj => {
             return obj.parent === o.parent
           })
-          for (let o of ob) {
-            ov = document.getElementById(o.id_);
-            ov.classList.add('disabled');
-            ov.classList.remove('payefb');
-            ov.disabled = true;
+          for (let c of ob) {
+            lock_pay_el_efb(document.getElementById(c.id_));
           }
         }
-      }else{
-        let ov = document.querySelector(`[data-vid="${o.id_}"]`);
-        ov.classList.add('disabled');
-        ov.disabled = true;
-        ov.classList.remove('payefb');
+      } else {
+        lock_pay_el_efb(document.querySelector(`[data-vid="${o.id_}"]`));
       }
     }
   }

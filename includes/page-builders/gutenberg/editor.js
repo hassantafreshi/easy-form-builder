@@ -147,7 +147,7 @@
                             'div',
                             { style: { textAlign: 'center', padding: '20px' } },
                             wp.element.createElement(Spinner),
-                            wp.element.createElement('p', null, __('Loading forms...', 'easy-form-builder'))
+                            wp.element.createElement('p', null, __('Loading forms…', 'easy-form-builder'))
                         )
                         : wp.element.createElement(
                             SelectControl,
@@ -198,7 +198,7 @@
                         }
                     },
                     wp.element.createElement(Spinner),
-                    wp.element.createElement('p', { style: { marginTop: '10px', marginBottom: 0 } }, __('Loading forms...', 'easy-form-builder'))
+                    wp.element.createElement('p', { style: { marginTop: '10px', marginBottom: 0 } }, __('Loading forms…', 'easy-form-builder'))
                 );
             } else if (!formId) {
                 // User-friendly form selection UI
@@ -253,7 +253,7 @@
                                 'input',
                                 {
                                     type: 'text',
-                                    placeholder: __('Search forms...', 'easy-form-builder'),
+                                    placeholder: __('Search forms…', 'easy-form-builder'),
                                     value: searchTerm,
                                     onChange: (e) => setSearchTerm(e.target.value),
                                     style: {

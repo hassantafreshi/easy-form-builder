@@ -20,7 +20,17 @@
 		$msg_align = isset($vj->message_align) ? $vj->message_align : '';
 		$msg_txt_color = isset($vj->message_text_color) ? $vj->message_text_color : '';
 		$msg = isset($vj->message) ? $vj->message : '';
-		return '<small id="' . $rndm . '-des" class="efb form-text d-flex fs-7 col-sm-12 efb ' . ($mobile_hide_description ? 'd-none d-md-flex' : '') . ' ' . $mx . ' ' . $msg_align . ' ' . $msg_txt_color . ' ' . (isset($vj->message_text_size) ? $vj->message_text_size : '') . ' ">' . $msg . '</small>';
+
+		/* The description sits in a block-level wrapper. wpautop breaks content
+		 * after every closing block tag and keeps a paragraph around any piece
+		 * that does not start with a block tag, so a description opening with
+		 * <small> - an inline tag - was one of the stray paragraphs reported
+		 * between the fields on themes that run the filter over form markup.
+		 * The <small> itself is left as it is: three stylesheet rules select it
+		 * by tag name, and the wrapper adds no box of its own. */
+		return '<div class="efb efb-field-description">'
+			. '<small id="' . $rndm . '-des" class="efb form-text d-flex fs-7 col-sm-12 efb ' . ($mobile_hide_description ? 'd-none d-md-flex' : '') . ' ' . $mx . ' ' . $msg_align . ' ' . $msg_txt_color . ' ' . (isset($vj->message_text_size) ? $vj->message_text_size : '') . ' ">' . $msg . '</small>'
+			. '</div>';
 	}
 
 	private function generateLabel_efb($rndm, $vj, $pos, $mobile_pos = null) {
@@ -54,6 +64,21 @@
 		return '<label for="' . $rndm . '_" class="' . $label_class_str . '" id="' . $rndm . '_labG"><span id="' . $rndm . '_lab" class="efb ' . $label_text_size . '">' . $vj->name . '</span>' . $required . '</label>';
 	}
 
+	/**
+	 * Deliberately left inline, and it has to stay that way.
+	 *
+	 * wpautop keeps a paragraph around a piece of content that does not open
+	 * with a block tag, and this tooltip opens one such piece - 24 of them
+	 * across the site's forms. Wrapping it in a block-level parent does fix
+	 * those, but the closing tag of that wrapper becomes a fresh cut, and the
+	 * element right behind the tooltip is the field's own <input> (see the
+	 * order in generateTextInput_efb: label, id div, tooltip, input, then the
+	 * description). Measured: 24 pieces fixed, 536 inputs newly exposed.
+	 *
+	 * A wrapper is only ever worth it when a block tag already follows the
+	 * element being wrapped, which is the case for the upload separator and
+	 * the payment buttons but not here.
+	 */
 	private function generateTooltip_efb($rndm) {
 		return '<small id="' . $rndm . '_-message" class="efb py-1 fs-7 tx ttiptext px-2" style="display:none"> ! </small>';
 	}
@@ -79,14 +104,19 @@
 			case 'postalcode':
 			case 'address_line':
 				$textElements = ['firstName', 'lastName', 'postalcode', 'address_line','datetime-local'];
-				$placeholderElements = ['color', 'range', 'password', 'date'];
+				// The HTML placeholder attribute is supported for password inputs.
+				// Keep it disabled only for native controls where browsers do not
+				// consistently render it.
+				$placeholderElements = ['color', 'range', 'date'];
 
 				$isTextType = in_array($elementId, $textElements);
 				$isPlaceholderType = !in_array($elementId, $placeholderElements);
 
 				$type = $isTextType ? 'text' : $elementId;
 				$autocomplete = $this->generateAutocomplete_efb($elementId);
-				$placeholder = $isPlaceholderType ? sprintf('placeholder="%s"', $vj->placeholder) : '';
+				$placeholder = $isPlaceholderType && isset($vj->placeholder)
+					? sprintf('placeholder="%s"', esc_attr($vj->placeholder))
+					: '';
 				$telPattern = ($elementId === 'tel') ? 'pattern="^\+?(?:[0-9]|\s|\.|\(|\)|-){7,25}$"' : '';
 				$lenAttributes = $this->generateLengthAttributes_efb($elementId, $vj);
 				$classes = $elementId !== 'range' ? sprintf('form-control %s', $vj->el_border_color) : 'form-range';
@@ -136,7 +166,7 @@
 					$desc
 				);
 
-				$fields['ui']  = $this->pro_efb ? $ui : $this->public_pro_message_efb($texts['tfnapca']);
+				$fields['ui']  = $this->pro_efb ? $ui : $this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 				$fields['dataTag'] = $elementId;
 
 				break;
@@ -422,9 +452,21 @@
 		return $newClasses;
 	}
 
-	private function public_pro_message_efb($text){
+	/**
+	 * Notice shown in place of a field that needs the Free Plus / Pro version.
+	 *
+	 * A privileged viewer (someone who can edit content — the form builder /
+	 * editor / admin) gets the actionable $admin_text ("activate Free Plus or
+	 * Pro"), because they can actually do something about it. A normal visitor
+	 * gets the neutral $text notice. When $admin_text is empty every viewer gets
+	 * $text (backward compatible with the existing callers).
+	 */
+	private function public_pro_message_efb($text, $admin_text = ''){
+		if ($admin_text !== '' && function_exists('current_user_can') && current_user_can('edit_posts')) {
+			$text = $admin_text;
+		}
 		$r = sprintf(
-			'<div class="efb text-white fs-6 bg-danger px-1 rounded px-2">%s</div>',
+			'<div class="efb text-white fs-6 bg-danger px-1 rounded px-2 py-1">%s</div>',
 			$text
 		);
 
@@ -655,7 +697,12 @@
 	}
 
 	public function generate_multiselect_efb($elementId, $rndm, $vj, $pos, $formId, $texts, $desc, $label, $ttip, $aire_describedby) {
-		$pay = $elementId == "multiselect" ? '' : '';
+		/* payMultiselect has to render exactly what the admin preview renders:
+		 * the option handler keys the price off the `payefb` class, and the
+		 * strlen($pay) > 2 tests below are what draw the price column at all.
+		 * Both branches returned '', so on a live form a paid multiselect
+		 * showed no prices and contributed nothing to the total. */
+		$pay = $elementId == "multiselect" ? '' : 'payefb';
 		$currency = property_exists($vj, 'currency') ? $vj->currency : 'USD';
 		$va = '';
 		$sl = '';
@@ -1378,11 +1425,11 @@
 				<i class="efb fs-3 %1$s %2$s" id="%3$s_icon"></i>
 			</div>
 			<h6 id="%3$s_txt" class="efb text-center m-1 fs-6">%4$s %5$s</h6>
-			<span class="efb fs-7 my-1">%6$s</span>
+			<div class="efb efb-slot"><span class="efb fs-7 my-1">%6$s</span></div>
 			<div class="efb btn %7$s efb-btn-lg fs-6 mb-1" id="%3$s_b" %8$s>
 				<i class="efb bi-upload mx-2 fs-6"></i>%9$s
 			</div>
-			<input type="file" hidden="" accept="%10$s" data-type="dadfile" data-vid="%3$s" data-id="%3$s" class="efb emsFormBuilder_v %11$s dadfile" id="%3$s_" data-id="%3$s-el" data-formid="%13$s" %12$s %8$s>',
+			<div class="efb d-none"><input type="file" hidden="" accept="%10$s" data-type="dadfile" data-vid="%3$s" data-id="%3$s" class="efb emsFormBuilder_v %11$s dadfile" id="%3$s_" data-id="%3$s-el" data-formid="%13$s" %12$s %8$s></div>',
 			$vj->icon,
 			$vj->icon_color,
 			$vj->id_,
@@ -1409,6 +1456,7 @@
 		$meta = isset($kindMeta[$kind]) ? $kindMeta[$kind] : $kindMeta['audio_recorder'];
 		$quality = property_exists($vj, 'record_quality') && $vj->record_quality ? $vj->record_quality : ($kind == 'audio_recorder' ? 'standard' : '720p');
 		$maxDuration = property_exists($vj, 'max_duration') && $vj->max_duration ? intval($vj->max_duration) : 90;
+		$maxFileSize = property_exists($vj, 'max_fsize') && is_numeric($vj->max_fsize) && floatval($vj->max_fsize) > 0 ? floatval($vj->max_fsize) : 20;
 		$requiredClass = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
 		$requiredAttr = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
 		$readonlyAttr = $disabled == 'disabled' ? 'disabled' : '';
@@ -1421,6 +1469,12 @@
 		$facing = property_exists($vj, 'rec_facing') && $vj->rec_facing === 'environment' ? 'environment' : 'user';
 		$mirror = property_exists($vj, 'rec_mirror') ? (intval($vj->rec_mirror) ? 1 : 0) : 1;
 		$watermark = property_exists($vj, 'rec_watermark') ? (intval($vj->rec_watermark) ? 1 : 0) : 1;
+		// Generic style settings live on the shell, same class list the JS factory emits;
+		// recorder-efb.css translates them onto the inner frame.
+		$elHeight = property_exists($vj, 'el_height') && $vj->el_height ? $vj->el_height : 'h-d-efb';
+		$corner = property_exists($vj, 'corner') && $vj->corner ? $vj->corner : 'efb-square';
+		$borderColor = property_exists($vj, 'el_border_color') && $vj->el_border_color ? $vj->el_border_color : 'border-d';
+		$extraClasses = property_exists($vj, 'classes') && $vj->classes ? trim(str_replace(',', ' ', $vj->classes)) : '';
 
 		$mediaPreview = $kind == 'audio_recorder'
 			? sprintf('<canvas class="efb efb-recorder-meter d-none" id="%1$s-meter" width="300" height="64"></canvas>', $vj->id_)
@@ -1434,26 +1488,27 @@
 			);
 
 		return sprintf(
-			'<div class="efb efb-recorder-shell %1$s" id="%2$s_" data-id="%2$s" data-kind="%3$s" data-quality="%4$s" data-duration="%5$s" data-countdown="%22$s" data-download="%23$s" data-noise="%24$s" data-facing="%25$s" data-mirror="%26$s" data-formid="%6$s" data-state="idle">
+			'<div class="efb efb-recorder-shell %1$s %30$s %31$s %32$s efb1 %33$s" data-css="%2$s" id="%2$s_" data-id="%2$s" data-kind="%3$s" data-quality="%4$s" data-duration="%5$s" data-max-size="%28$s" data-countdown="%22$s" data-download="%23$s" data-noise="%24$s" data-facing="%25$s" data-mirror="%26$s" data-formid="%6$s" data-state="idle">
 				<div class="efb efb-recorder-frame" id="%2$s-frame">
 					%7$s
 					<div class="efb efb-recorder-idle-hint" id="%2$s-idle"><i class="efb bi %8$s"></i><span>%9$s</span></div>
 					<div class="efb efb-recorder-timer d-none" id="%2$s-timer">00:00</div>
 					<div class="efb efb-recorder-action-row" id="%2$s-controls">
 						<button type="button" class="efb efb-recorder-secondary-btn d-none" data-action="pause" data-id="%2$s" title="%10$s" %11$s><i class="efb bi-pause-fill"></i></button>
-						<button type="button" class="efb efb-recorder-primary-btn" data-action="start" data-id="%2$s" title="%12$s" %11$s><i class="efb bi %8$s"></i></button>
+						<button type="button" class="efb efb-recorder-primary-btn" data-action="start" data-id="%2$s" data-start-icon="%8$s" data-stop-icon="bi-stop-fill" title="%12$s" %11$s><i class="efb bi %8$s"></i></button>
 						<button type="button" class="efb efb-recorder-secondary-btn d-none" data-action="resume" data-id="%2$s" title="%13$s" %11$s><i class="efb bi-record-circle"></i></button>
 						<button type="button" class="efb efb-recorder-secondary-btn d-none" data-action="redo" data-id="%2$s" title="%14$s" %11$s><i class="efb bi-arrow-counterclockwise"></i></button>
 						<button type="button" class="efb efb-recorder-secondary-btn d-none" data-action="play" data-id="%2$s" title="%15$s"><i class="efb bi-play-fill"></i></button>
 						<button type="button" class="efb efb-recorder-secondary-btn d-none" data-action="download" data-id="%2$s" title="%27$s"><i class="efb bi-download"></i></button>
+						<button type="button" class="efb efb-recorder-secondary-btn d-none" data-action="upload" data-id="%2$s" id="%2$s-upload" title="%29$s" aria-label="%29$s" %11$s><i class="efb bi-cloud-arrow-up-fill" aria-hidden="true"></i></button>
 					</div>
 					<div class="efb efb-recorder-progress-track"><div class="efb efb-recorder-progress-bar" id="%2$s-progress"></div></div>
 				</div>
 				<div class="efb efb-recorder-status-row">
 					<span class="efb efb-recorder-status" id="%2$s-status"><span class="efb efb-recorder-status-dot"></span>%16$s</span>
-					<span class="efb efb-recorder-badge">%21$s</span>
+					<span class="efb efb-recorder-badge"><i class="efb bi %8$s" aria-hidden="true"></i><span>%21$s</span></span>
 				</div>
-				<input type="file" hidden accept="%17$s" data-type="%3$s" data-vid="%2$s" data-id="%2$s" class="efb emsFormBuilder_v %18$s %19$s" id="%2$s_file" data-formid="%6$s" onchange="valid_file_emsFormBuilder(\'%2$s\',\'msg\',\'\',%6$s)" %20$s %11$s>
+				<div class="efb d-none"><input type="file" hidden accept="%17$s" data-type="%3$s" data-vid="%2$s" data-id="%2$s" class="efb emsFormBuilder_v %18$s %19$s" id="%2$s_file" data-formid="%6$s" onchange="valid_file_emsFormBuilder(\'%2$s\',\'msg\',\'\',%6$s)" %20$s %11$s></div>
 			</div>',
 			$meta['class'],
 			$vj->id_,
@@ -1481,7 +1536,13 @@
 			$noise,
 			$facing,
 			$mirror,
-			esc_html(isset($texts['recDownload']) ? $texts['recDownload'] : 'Download recording')
+			esc_html(isset($texts['recDownload']) ? $texts['recDownload'] : 'Download recording'),
+			$maxFileSize,
+			esc_html(isset($texts['recUpload']) ? $texts['recUpload'] : 'Upload'),
+			esc_attr($elHeight),
+			esc_attr($corner),
+			esc_attr($borderColor),
+			esc_attr($extraClasses)
 		);
 	}
 
@@ -1547,7 +1608,7 @@
 
 	public function add_ui_stripe_efb($rndm , $cl, $sub,$form_id,$texts) {
 		$currency = $this->valj_efb[0]->currency;
-		$amount =$this->formatPrice_efb(0, $currency);
+		$amount =self::formatPrice_efb(0, $currency);
 		return  '
 		<!-- stripe -->
 		<div class="efb  ' . $this->mobile_pos[3] . ' stripe emsFormBuilder_v"  id="'.$rndm.'-f" data-formid="'.$form_id.'">
@@ -1579,7 +1640,7 @@
 			</div>
 		  </div>
 		</div>
-		<a class="efb  btn my-2 efb p-2 efb-square h-l-efb  efb-btn-lg float-end text-decoration-none disabled '.$this->pub_bg_button_color_efb.' text-white" id="btnStripeEfb" data-formid="'.$form_id.'">'.$texts['payNow'].'</a>
+		<div class="efb efb-slot"><a class="efb  btn my-2 efb p-2 efb-square h-l-efb  efb-btn-lg float-end text-decoration-none disabled '.$this->pub_bg_button_color_efb.' text-white" id="btnStripeEfb" data-formid="'.$form_id.'">'.$texts['payNow'].'</a></div>
 		<div class="efb  bg-light border-d rounded-3 p-2 bg-muted" id="statusStripEfb" style="display: none"></div>
 		</div>
 		</div>
@@ -1590,7 +1651,7 @@
 	public function add_ui_paypal_efb($rndm, $form_id, $texts, $currency = 'USD', $charge_class = '', $sub = '') {
 
 		$currency = $this->valj_efb[0]->currency;
-		$amount =$this->formatPrice_efb(0, $currency);
+		$amount =self::formatPrice_efb(0, $currency);
 
 		return '
 		<div class="efb card w-100 ' . $this->mobile_pos[3] . ' m-0 p-0" id="'.$rndm.'-f" data-formid="'.$form_id.'">
@@ -1609,10 +1670,10 @@
 					.'</div>
 				</div>
 				<div class="my-2 efb p-2" id="paypal-button-container" data-formid="'.$form_id.'">
-					<a class="efb btn efb-square h-l-efb btn-primary text-white text-decoration-none disabled w-100 paypalEfb"
+					<div class="efb efb-slot"><a class="efb btn efb-square h-l-efb btn-primary text-white text-decoration-none disabled w-100 paypalEfb"
 					onclick="startPaymentPayPal_efb('.intval($form_id).')"
 					id="paypalEfb"
-					data-formid="'.$form_id.'">'.$texts['payNow'].'</a>
+					data-formid="'.$form_id.'">'.$texts['payNow'].'</a></div>
 				</div>
 			</div>
 			<div class="efb p-3 card w-100 d-none" id="afterPayefb" data-formid="'.$form_id.'">
@@ -1635,7 +1696,7 @@
 						<!-- <span class="efb  text-labelEfb one" id="chargeEfb">'.$texts['onetime'].'</span>-->
 					</div>
 				</div>
-				<a class="efb btn my-2 efb p-2 efb-square h-l-efb btn-primary text-white text-decoration-none disabled w-100" onclick="pay_persia_efb('.$form_id.')" id="persiaPayEfb"  data-formid="'.$form_id.'">'.$texts['payment'].'</a>
+				<div class="efb efb-slot"><a class="efb btn my-2 efb p-2 efb-square h-l-efb btn-primary text-white text-decoration-none disabled w-100" onclick="pay_persia_efb('.$form_id.')" id="persiaPayEfb"  data-formid="'.$form_id.'">'.$texts['payment'].'</a></div>
 			</div>
 			<div class="efb p-3 card w-100 d-none" id="afterPayefb">
 			</div>
@@ -1650,8 +1711,8 @@
 		$amount = 0;
 		$lan_name_emsFormBuilder = 'en-US';
 		$currency = $currency ? $currency : 'USD';
-		$currency_details = $this->get_currency_details_efb($currency);
-		$amount =$this->formatPrice_efb($amount, $currency);
+		$currency_details = self::get_currency_details_efb($currency);
+		$amount =self::formatPrice_efb($amount, $currency);
 
 		return sprintf(
 			'<label class="efb totalpayEfb %s %s %s mt-1"   data-id="%s-el" id="%s_" data-formid="%s">
@@ -1667,9 +1728,34 @@
 		);
 	 }
 
-	public function formatPrice_efb($amount, $currency) {
+	/**
+	 * Render an amount with its currency symbol, in the reader's direction.
+	 *
+	 * Static because it reads nothing from the instance: the notification-email
+	 * builder in _Public needs the same formatting and has no Formbuilder to
+	 * construct (it holds submitted values, not a form structure). Keeping one
+	 * implementation here is what stops a second, drifting copy from appearing.
+	 *
+	 * $amount must be a raw number. Passing an already grouped string such as
+	 * "1,234" makes number_format_i18n() cast it to 1 and silently print the
+	 * wrong price.
+	 *
+	 * @param int|float|string $amount   Raw, ungrouped amount.
+	 * @param string           $currency ISO currency code.
+	 * @return string
+	 */
+	public static function formatPrice_efb($amount, $currency) {
 
-		$currency_details = $this->get_currency_details_efb($currency);
+		/* Both arguments can reach here from stored submission content, which is
+		 * whatever the visitor's browser posted. number_format_i18n() raises a
+		 * TypeError on a non-numeric string and strtoupper() on a non-string, so
+		 * a single odd value in one field would otherwise take down the whole
+		 * notification email. Coerced once, here, because this is the only place
+		 * that owns the rule. */
+		$amount   = is_numeric($amount) ? $amount + 0 : 0;
+		$currency = is_string($currency) ? $currency : '';
+
+		$currency_details = self::get_currency_details_efb($currency);
     	$formatted_amount = number_format_i18n($amount, $currency_details['d']);
 		if (is_rtl()) {
 			return $formatted_amount . ' ' . $currency_details['s'];
@@ -1679,7 +1765,14 @@
 
     }
 
-	public function get_currency_details_efb($currency) {
+	/**
+	 * Symbol and decimal count for an ISO currency code. Pure lookup, so it is
+	 * static for the same reason formatPrice_efb() above is.
+	 *
+	 * @param string $currency ISO currency code.
+	 * @return array{s:string,d:int}
+	 */
+	public static function get_currency_details_efb($currency) {
 		$currency = strtoupper($currency);
 		$symbols = array(
 			'USD' => array('s' => '$', 'd' => 2),
@@ -1967,7 +2060,12 @@
 
     public function generate_select_efb($elementId, $rndm, $vj, $pos, $formId, $texts, $previewSate ,$desc,$label,$ttip,$aire_describedby ) {
 
-        $pay = $elementId != "paySelect" ? '' : 'pay';
+        /* 'payefb', not 'pay': every price handler tests for `payefb`, so a
+         * paySelect rendered by the server never registered the chosen plan
+         * and the total stayed at zero however much the plan cost. The admin
+         * preview has always emitted `payefb` here - only the server side of
+         * the same markup was out of step. */
+        $pay = $elementId != "paySelect" ? '' : 'payefb';
         $options = '';
         $optns_obj = array_filter($this->valj_efb, function($obj) use ($rndm) {
             return isset($obj->parent) && $obj->parent === $rndm;
@@ -2401,13 +2499,14 @@
 					);
 
 					$dataTag = $elementId;
-					$ui = $pro ? $ui : $this->public_pro_message_efb($texts['tfnapca']);
+					$ui = $pro ? $ui : $this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 
 					if($isPdate){
 						if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker")) {
 							if($efbFunction === null)$efbFunction = get_efbFunction();
-							$efbFunction->download_all_addons_efb();
-							return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".esc_html__('We have made some updates. Please wait a few minutes before trying again.', 'easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
+							/* Queued, not downloaded: this renderer also runs for visitors. */
+							$queued = $efbFunction->queue_addon_recovery_efb(array('form_id' => $form_id, 'addon' => 'AdnPDP', 'source' => 'public_field_render'));
+							return $efbFunction->addon_wait_message_public_efb(empty($queued['queued']) ? 0 : 25);
 						}else{
 							require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker/persiandate.php");
 							$persianDatePicker = new persianDatePickerEFB() ;
@@ -2415,8 +2514,8 @@
 					}else{
 						if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker")) {
 							if($efbFunction === null)$efbFunction = get_efbFunction();
-							$efbFunction->download_all_addons_efb();
-							return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".esc_html__('We have made some updates. Please wait a few minutes before trying again.', 'easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
+							$queued = $efbFunction->queue_addon_recovery_efb(array('form_id' => $form_id, 'addon' => 'AdnADP', 'source' => 'public_field_render'));
+							return $efbFunction->addon_wait_message_public_efb(empty($queued['queued']) ? 0 : 25);
 						}else{
 							require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker/arabicdate.php");
 							$arabicDatePicker = new arabicDatePickerEfb() ;
@@ -2530,7 +2629,7 @@
 						 $js_s .= $temp[1];
 						 $optn= $temp[0];
 					}else{
-						$optn=$this->public_pro_message_efb($texts['tfnapca']);
+						$optn=$this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 					}
 					wp_register_script('intlTelInput-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/intlTelInput.min-efb.js', array(), EMSFB_PLUGIN_VERSION, true);
 					wp_enqueue_script('intlTelInput-js');
@@ -2554,7 +2653,7 @@
 				break;
 				case 'dadfile':
 
-					$el =$pro ? $this->dadfile_el_pro_efb(true, $element_Id, $vj,$form_id,$texts) : $this->public_pro_message_efb($texts['tfnapca']);
+					$el =$pro ? $this->dadfile_el_pro_efb(true, $element_Id, $vj,$form_id,$texts) : $this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 					$ui = sprintf('
 						%1$s
 						<div class="efb %2$s ' . $this->mobile_pos[3] . ' px-0 mx-0 ttEfb show" id="%3$s-f">
@@ -2588,6 +2687,7 @@
 						$el,
 						$desc
 					);
+					$ui = $pro == true ? $ui : $this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 					$dataTag = $elementId;
 				break;
 				case 'checkbox':
@@ -2623,7 +2723,7 @@
 
 							$imageRadio = $elementId == "imgRadio" ? $this->fun_imgRadio_efb($i->id_, $i->src, $i,true, $texts) : '';
 							$prc = isset($i->price) ? intval($i->price) : 0;
-							if($pay!='') $prc = $this->formatPrice_efb($prc, $currency );
+							if($pay!='') $prc = self::formatPrice_efb($prc, $currency );
 							$optn .= sprintf(
 								'<div class="efb form-check %s %s %s efb1 %s mt-1" data-css="%s" data-parent="%s" data-id="%s" data-formid="%s" id="%s-v">
 									<input class="efb form-check-input emsFormBuilder_v %s %s" data-tag="%s" data-type="%s" data-vid="%s" type="%s" name="%s" value="%s" id="%s" data-id="%s-id" data-formid="%s" data-op="%s" %s %s %s>
@@ -2693,7 +2793,7 @@
 					$ui = '
 					' . $label . '
 					' . $ttip . '
-					' . ($pro == true ? $this->esign_el_pro_efb(true, $pos, $rndm, $vj, $desc,$form_id,$texts['updateUrbrowser']) : $this->public_pro_message_efb($texts['tfnapca']));
+					' . ($pro == true ? $this->esign_el_pro_efb(true, $pos, $rndm, $vj, $desc,$form_id,$texts['updateUrbrowser']) : $this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : ''));
 
 					$ui.= sprintf(
 						"<script>
@@ -2797,7 +2897,7 @@
 					if($efbFunction === null)$efbFunction = get_efbFunction();
 					$efbFunction->openstreet_map_required_efb(0);
 					if ($pro!==true &&  $pro!==1) {
-						$ui = $this->public_pro_message_efb($texts['tfnapca']);
+						$ui = $this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 					}
 
 					$style = $this->field_maps_style_efb();
@@ -2807,7 +2907,7 @@
 
 				case 'rating':
 
-					$ui = $pro == true ? $this->rating_el_pro_efb(true, $pos, $rndm, $vj, $desc, $form_id, $label, $ttip, $aire_describedby, $texts) : $this->public_pro_message_efb($texts['tfnapca']);
+					$ui = $pro == true ? $this->rating_el_pro_efb(true, $pos, $rndm, $vj, $desc, $form_id, $label, $ttip, $aire_describedby, $texts) : $this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 					$dataTag = $elementId;
 				break;
                 case 'select':
@@ -2819,18 +2919,18 @@
 				case 'conturyList':
 				case 'country':
 
-					$ui =$pro == true ? $this->generate_country_list_efb($rndm, $vj, $pos, $form_id, $texts ,$desc,$label,$ttip,$aire_describedby): $this->public_pro_message_efb($texts['tfnapca']);
+					$ui =$pro == true ? $this->generate_country_list_efb($rndm, $vj, $pos, $form_id, $texts ,$desc,$label,$ttip,$aire_describedby): $this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 
 					$dataTag = $elementId;
 				break;
 				case 'stateProvince':
 				case 'statePro':
-					$ui = $pro == true ? $this->generate_state_province_efb($rndm, $vj, $pos, $form_id, $texts ,$desc,$label,$ttip,$aire_describedby) : $this->public_pro_message_efb($texts['tfnapca']);
+					$ui = $pro == true ? $this->generate_state_province_efb($rndm, $vj, $pos, $form_id, $texts ,$desc,$label,$ttip,$aire_describedby) : $this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 					$dataTag = $elementId;
 				break;
 				case 'city':
 				case 'cityList':
-					$ui = $pro == true ? $this->generate_city_list_efb($rndm, $vj, $pos, $form_id, $texts ,$desc,$label,$ttip,$aire_describedby) : $this->public_pro_message_efb($texts['tfnapca']);
+					$ui = $pro == true ? $this->generate_city_list_efb($rndm, $vj, $pos, $form_id, $texts ,$desc,$label,$ttip,$aire_describedby) : $this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 					$dataTag = $elementId;
 				break;
 				case 'multiselect':
@@ -2842,23 +2942,23 @@
 
 				case 'html':
 
-					$ui = $pro == true ? $this->generate_html_code_efb($rndm, $vj, $pos, $form_id, $texts, true) : $this->public_pro_message_efb($texts['tfnapca']);
+					$ui = $pro == true ? $this->generate_html_code_efb($rndm, $vj, $pos, $form_id, $texts, true) : $this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 					$dataTag = $elementId;
 				break;
 				case 'heading':
 
-					$ui = $pro == true ? $this->generate_heading_efb($rndm, $pos, $vj, $form_id) : $this->public_pro_message_efb($texts['tfnapca']);
+					$ui = $pro == true ? $this->generate_heading_efb($rndm, $pos, $vj, $form_id) : $this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 					$dataTag = $elementId;
 
 				break;
 				case 'link':
 
-					$ui = $pro == true ? $this->generate_link_efb(true, $pos, $rndm, $vj, $form_id) : $this->public_pro_message_efb($texts['tfnapca']);
+					$ui = $pro == true ? $this->generate_link_efb(true, $pos, $rndm, $vj, $form_id) : $this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 					$dataTag = $elementId;
 				break;
 				case 'yesNo':
 					if($pro!==true && $pro!==1){
-						$ui =$this->public_pro_message_efb($texts['tfnapca']);
+						$ui =$this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 						break;
 					}
 
@@ -2869,7 +2969,7 @@
 				break;
 				case 'pointr5':
 					if($pro!==true && $pro!==1){
-						$ui =$this->public_pro_message_efb($texts['tfnapca']);
+						$ui =$this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 						break;
 					}
 
@@ -2881,7 +2981,7 @@
 				case 'pointr10':
 
 					if($pro!==true && $pro!==1){
-						$ui =$this->public_pro_message_efb($texts['tfnapca']);
+						$ui =$this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 						break;
 					}
 					$r  = $this->pointer10_el_pro_efb(true, $vj, $form_id);
@@ -2890,7 +2990,7 @@
 				break;
 				case 'smartcr':
 					if($pro!==true && $pro!==1){
-						$ui =$this->public_pro_message_efb($texts['tfnapca']);
+						$ui =$this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 						break;
 					}
 					$r  = $this->smartcr_el_pro_efb(true, $vj, $form_id);
@@ -2899,7 +2999,7 @@
 				break;
 				case 'table_matrix':
 					if($pro!==true && $pro!==1){
-						$ui =$this->public_pro_message_efb($texts['tfnapca']);
+						$ui =$this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 						break;
 					}
 
@@ -2909,7 +3009,7 @@
 				break;
 				case 'prcfld':
 					if($pro!==true && $pro!==1){
-						$ui =$this->public_pro_message_efb($texts['tfnapca']);
+						$ui =$this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 						break;
 					}
 					$maxlen = (property_exists($vj, 'mlen') && $vj->mlen > 0) ? 'maxlength="' . $vj->mlen . '"' : '';
@@ -2918,7 +3018,7 @@
 
 					$dataTag = (!property_exists($this->valj_efb[0], 'currency')) ? 'usd' : $this->valj_efb[0]->currency;
 
-					$classes = $this->get_currency_details_efb($dataTag);
+					$classes = self::get_currency_details_efb($dataTag);
 
 					$dataTagHtml = '<span class="efb input-group-text crrncy-clss">' . $classes['s'] . '</span>';
 
@@ -2967,7 +3067,7 @@
 				break;
 				case 'ttlprc':
 					if($pro!==true && $pro!==1){
-						$ui =$this->public_pro_message_efb($texts['tfnapca']);
+						$ui =$this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 						break;
 					}
 
@@ -2987,7 +3087,7 @@
 				break;
 				case 'stripe':
 					if($pro!==true && $pro!==1){
-						$ui =$this->public_pro_message_efb($texts['tfnapca']);
+						$ui =$this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 						break;
 					}
 					$sub = $texts['onetime'];
@@ -3005,7 +3105,7 @@
 				break;
 				case 'paypal':
 					if($pro!==true && $pro!==1){
-						$ui =$this->public_pro_message_efb($texts['tfnapca']);
+						$ui =$this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 						break;
 					}
 					$sub = $texts['onetime'];
@@ -3023,7 +3123,7 @@
 				case "zarinPal":
 
 					if($pro!==true && $pro!==1){
-						$ui =$this->public_pro_message_efb($texts['tfnapca']);
+						$ui =$this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 						break;
 					}
 
@@ -3064,7 +3164,7 @@
 				$newElement .= $ui;
 			}
 
-			if (!in_array($elementId, ['option', 'html', 'stripe', 'heading', 'link','conturyList','country','stateProvince','statePro','city','cityList','maps','ttlprc'])) {
+			if (!in_array($elementId, ['option', 'html', 'stripe', 'heading', 'link','conturyList','country','stateProvince','statePro','city','cityList','maps','ttlprc','audio_recorder','video_recorder','screen_recorder'])) {
 				$newElement .= '<!--test2--></div></div>';
 			} else {
 				$newElement .= '<!--test--></div>';
@@ -4279,9 +4379,8 @@ public function check_error_console_efb(){
 							nameOverride: self.t.jqueryMissing
 						});
 					}
-					if (typeof $ === "undefined" && typeof jQuery !== "undefined") {
-						console.warn("[EFB] $ is undefined. If using jQuery in noConflict mode, use jQuery instead of $");
-					}
+					/* WordPress deliberately runs jQuery in noConflict mode, so a missing
+					 * global `$` is normal and must not be reported as an application error. */
 				}, 500);
 
 				window.addEventListener("error", function(event) {

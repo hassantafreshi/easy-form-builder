@@ -47,7 +47,7 @@ class Panel_edit  {
 				$server_name = str_replace("www.", "", isset($_SERVER['HTTP_HOST']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : '');
 
 				if(isset($ac->siteKey)){$captcha="true";}
-				if(isset($ac->smtp) && (bool)$ac->smtp){$smtp=1;}else{$smtp_m =$lang['sMTPNotWork'];}
+				if(emsfb_is_email_sending_enabled_efb($ac)){$smtp=1;}else{$smtp_m =$lang['sMTPNotWork'];}
 
 				$lng = get_locale();
 			$k ="";
@@ -189,7 +189,7 @@ class Panel_edit  {
 								<div class="efb d-flex">
 									<form class="efb d-flex">
 									<?php echo !$is_rtl ? '<i class="efb  bi-search search-icon"></i>' : '' ?>
-									<input class="efb form-control efb search-form-control efb-rounded efb mx-2" type="search" id="track_code_emsFormBuilder" placeholder="<?php echo $lang["search"]  ?> ..."  aria-label="<?php echo $lang["search"]  ?>">
+									<input class="efb form-control efb search-form-control efb-rounded efb mx-2" type="search" id="track_code_emsFormBuilder" placeholder="<?php echo $lang["search"]  ?> &hellip;"  aria-label="<?php echo $lang["search"]  ?>">
 										<a class="efb btn efb btn-outline-pink mx-2 ec-efb" type="submit" id="track_code_btn_emsFormBuilder" data-eventform='searchCC'><?php echo   $lang["search"] ?></a>
 									</form>
 									<div class="efb nav-icon efb mx-2">
@@ -292,10 +292,13 @@ class Panel_edit  {
 				'wsteam'=> $wsteam_domain,
 				'emailHealth'=>$email_health,
 				'emailMonitor' => class_exists('\Emsfb\Email_Monitor') ? \Emsfb\Email_Monitor::get_public_status() : array(),
+				'onboarding_pending' => emsfb_onboarding_pending_efb(),
 				'upload_max'=>(int) floor(wp_max_upload_size() / MB_IN_BYTES),
 			), 'panel');
 			wp_localize_script('Emsfb-admin-js','efb_var',$efb_var_data);
-			wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION);
+			$efb_val_js_path = EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/val-efb.js';
+			$efb_val_js_version = is_readable($efb_val_js_path) ? (string) filemtime($efb_val_js_path) : EMSFB_PLUGIN_VERSION;
+			wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val-efb.js', array('jquery'), $efb_val_js_version);
 			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION);
 			$lng_ = get_locale();
 			if ( strlen( $lng_ ) > 0 ) {
