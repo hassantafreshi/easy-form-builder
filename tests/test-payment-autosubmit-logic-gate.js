@@ -6,7 +6,7 @@
  *    auto-submit still fires after payment (existing behavior, and the
  *    behavior PayPal/persiaPay now reuse).
  *  - Payment form WITH active conditional-logic rules → NO auto-submit;
- *    instead the real runtime (public/assets/js/conditional-logic-efb.js)
+ *    instead the real runtime (vendor/logic/logic/assets/public/js/conditional-logic-efb.js)
  *    is re-evaluated so is_paid/amount_* rules can reveal fields.
  *  - No conditional-logic runtime loaded (AdnSMF off) → simple behavior.
  *
@@ -165,7 +165,7 @@ check_form_payment_filled_efb(301);
 test('T2 no runtime: logic form also auto-submits (addon off = normal form)', navCalls, [{ form_id: 301, btn: 'btn_send_efb' }]);
 
 // ── Phase 2: load the REAL conditional-logic runtime ─────────────────────────
-const runtime = fs.readFileSync(path.join(__dirname, '../public/assets/js/conditional-logic-efb.js'), 'utf8');
+const runtime = fs.readFileSync(path.join(__dirname, '../vendor/logic/logic/assets/public/js/conditional-logic-efb.js'), 'utf8');
 vm.runInThisContext(runtime, { filename: 'conditional-logic-efb.js' });
 test('T3 runtime exposes hasActiveRules', typeof EFBConditionalLogic.hasActiveRules, 'function');
 

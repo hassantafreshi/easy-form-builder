@@ -5,6 +5,7 @@ class Admin {
 
     public $ip;
     public $plugin_version;
+    public $id_;
     protected $db;
     private $form_cache = [];
 
@@ -359,7 +360,61 @@ class Admin {
      * @return void
      */
     private function addon_install_log_efb($event, $context = []) {
+        /*
+         * Off by default - this runs on a customer-facing admin action, so it
+         * must not write on every click. Turn it on with
+         * define('EMSFB_ADDON_DEBUG', true) (WP_DEBUG also enables it) when an
+         * install has to be diagnosed.
+         *
+         * Without this the whole instrumentation below add_addons_Emsfb() was a
+         * no-op, which is why "a Pro site was refused by the licensing server"
+         * left no trace anywhere.
+         */
+        $enabled = (defined('EMSFB_ADDON_DEBUG') && EMSFB_ADDON_DEBUG)
+            || (defined('WP_DEBUG') && WP_DEBUG);
+        if (!$enabled) {
+            return;
+        }
+
+        $available = function_exists('emsfb_is_php_function_available_efb')
+            ? emsfb_is_php_function_available_efb('error_log')
+            : function_exists('error_log');
+        if (!$available) {
+            return;
+        }
+
         $safe_context = $this->addon_install_sanitize_log_context_efb($context);
+        error_log('[EFB Addon Install] ' . $event . ' ' . wp_json_encode($safe_context, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+    }
+
+    /**
+     * Whether this site can already prove, from local state alone, that it is
+     * entitled to an add-on the licensing server says needs a higher plan.
+     *
+     * fa_IR licences are validated offline on purpose (see
+     * make_post_request_efb(): the Iran network restrictions make a negative
+     * remote answer untrustworthy), so the remote has no record to confirm and
+     * answers "plan_required" for paying Pro customers. The plan gate must not
+     * contradict the licence check the rest of the plugin trusts.
+     *
+     * @param int $required_package Package the remote says the add-on needs.
+     * @return array{entitled:bool,local_package:int}
+     */
+    private function addon_local_entitlement_efb($required_package) {
+        $local_package = (int) get_option('emsfb_pro', 2);
+        if (!in_array($local_package, [0, 1, 2, 3], true)) {
+            $local_package = 2;
+        }
+
+        // is_efb_pro() re-checks that the stored activation code was minted for
+        // this domain, and does so without a network round-trip.
+        $licence_ok = (bool) get_efbFunction()->is_efb_pro();
+
+        // Pro covers every add-on; Free Plus covers the ones marked as package 3.
+        $entitled = $licence_ok
+            && (1 === $local_package || (3 === (int) $required_package && 3 === $local_package));
+
+        return ['entitled' => $entitled, 'local_package' => $local_package];
     }
 
     /**
@@ -483,7 +538,15 @@ class Admin {
         // Build the remote endpoint carefully and record whether the fa_IR
         // branch selected the Iranian mirror or the default global domain.
         $_server_name = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_HOST'])) : 'localhost';
-        $server_name = str_replace("www.", "", $_server_name);
+        /*
+         * Lowercased, and only the leading "www." label is dropped: the remote
+         * looks this domain up verbatim, while the licence check compares
+         * against lowercased candidates (license_domain_candidates_efb()). A
+         * host that differs from those candidates is exactly how a licensed
+         * site gets answered "plan_required", so both spellings are logged.
+         */
+        $server_name = preg_replace('/^www\./', '', strtolower($_server_name));
+        $license_hosts = get_efbFunction()->license_domain_candidates_efb();
         delete_option($name_space);
         $vwp = get_bloginfo('version');
         $vwp = substr($vwp, 0, 3);
@@ -500,6 +563,8 @@ class Admin {
             'requested_addon' => $post_value,
             'http_host' => $_server_name,
             'normalized_host' => $server_name,
+            'license_hosts' => $license_hosts,
+            'host_matches_license' => in_array($server_name, $license_hosts, true),
             'wordpress_version' => $vwp,
             'plugin_version' => $vefb,
             'base_domain' => $domain,
@@ -700,22 +765,64 @@ class Admin {
                 $remote_reason = isset($data->reason) ? sanitize_key($data->reason) : '';
                 if (in_array($remote_reason, ['plan_required', 'package_required', 'premium_required'], true)) {
                     $required_package = isset($data->required_package) ? (int) $data->required_package : 1;
-                    $m = $required_package === 3
-                        ? $lang['thisFeatureAvailableFreePlusPro']
-                        : $lang['proUnlockMsg'];
+                    $entitlement = $this->addon_local_entitlement_efb($required_package);
+
                     $this->addon_install_log_efb('remote_response_plan_required', [
                         'requested_addon' => $post_value,
                         'required_package' => $required_package,
                         'current_package' => isset($data->current_package) ? $data->current_package : '',
+                        'local_package' => $entitlement['local_package'],
+                        'locally_entitled' => $entitlement['entitled'],
+                        'license_hosts' => $license_hosts,
+                        'sent_domain' => $server_name,
                     ]);
-                    $response = [
-                        'success' => false,
-                        'm' => $m,
-                        'code' => 'addon_plan_required',
-                        'required_package' => $required_package,
-                    ];
-                    wp_send_json_error($response, 200);
-                    return;
+
+                    /*
+                     * Only show the upgrade modal when this site really is on a
+                     * lower plan. A licensed Pro site that gets "plan_required"
+                     * is being told something its own licence contradicts - on
+                     * fa_IR that is the normal answer, because those licences
+                     * are validated offline and the mirror has no record of
+                     * them. Showing the Free Plus / Pro upsell there bills a
+                     * paying customer's click as an upsell.
+                     */
+                    if (!$entitlement['entitled']) {
+                        $m = $required_package === 3
+                            ? $lang['thisFeatureAvailableFreePlusPro']
+                            : $lang['proUnlockMsg'];
+                        $response = [
+                            'success' => false,
+                            'm' => $m,
+                            'code' => 'addon_plan_required',
+                            'required_package' => $required_package,
+                        ];
+                        wp_send_json_error($response, 200);
+                        return;
+                    }
+
+                    // Entitled locally: treat the verdict as an endpoint problem
+                    // and give the other server a turn before giving up.
+                    $error_message = esc_html__('Error: server (%s) responded with an invalid request. responded code : %s ', 'easy-form-builder');
+                    $error_message = sprintf($error_message, $domain, 'plan_mismatch');
+                    $attempt++;
+                    if ($attempt >= $max_attempts) {
+                        if ($switch_to_fallback('remote_response_plan_required_mismatch', [
+                            'last_attempt' => $current_attempt,
+                            'required_package' => $required_package,
+                            'local_package' => $entitlement['local_package'],
+                        ])) {
+                            continue;
+                        }
+                        $this->addon_install_log_efb('remote_response_plan_required_final', [
+                            'requested_addon' => $post_value,
+                            'attempt' => $current_attempt,
+                            'message' => $error_message,
+                        ]);
+                        $response = ['success' => false, 'm' => $error_message];
+                        wp_send_json_error($response, 200);
+                        return;
+                    }
+                    continue;
                 }
                 if (!$is_persian_locale && isset($data->reason) && $data->reason == 'expired') {
                     update_option('emsfb_addons_renew_required', time());
@@ -751,16 +858,40 @@ class Admin {
             }
 
             // Remote metadata includes the minimum compatible plugin version.
-            if (version_compare(EMSFB_PLUGIN_VERSION, $data->v) == -1) {
+            // Guarded with isset(): a payload without "v" used to raise a PHP 8
+            // warning inside version_compare().
+            $remote_required_version = isset($data->v) ? (string) $data->v : '';
+            if ('' !== $remote_required_version && version_compare(EMSFB_PLUGIN_VERSION, $remote_required_version) == -1) {
                 $this->addon_install_log_efb('remote_response_version_mismatch', [
                     'requested_addon' => $post_value,
+                    'attempt' => $current_attempt,
                     'local_plugin_version' => EMSFB_PLUGIN_VERSION,
-                    'remote_required_version' => isset($data->v) ? $data->v : '',
+                    'remote_required_version' => $remote_required_version,
                 ]);
-                $m = $lang['upDMsg'];
-                $response = ['success' => false, 'm' => $m];
-                wp_send_json_error($response, 200);
-                return;
+
+                // A mirror serving stale add-on metadata used to pin a site on
+                // "update the plugin" with no way out, because this branch
+                // returned before the fallback endpoint was ever tried. Let the
+                // other server answer before telling an up-to-date site to update.
+                $error_message = $lang['upDMsg'];
+                $attempt++;
+                if ($attempt >= $max_attempts) {
+                    if ($switch_to_fallback('remote_response_version_mismatch', [
+                        'last_attempt' => $current_attempt,
+                        'remote_required_version' => $remote_required_version,
+                    ])) {
+                        continue;
+                    }
+                    $this->addon_install_log_efb('remote_response_version_mismatch_final', [
+                        'requested_addon' => $post_value,
+                        'attempt' => $current_attempt,
+                        'message' => $error_message,
+                    ]);
+                    $response = ['success' => false, 'm' => $error_message];
+                    wp_send_json_error($response, 200);
+                    return;
+                }
+                continue;
             }
 
             // Download/install the add-on package only when the remote payload

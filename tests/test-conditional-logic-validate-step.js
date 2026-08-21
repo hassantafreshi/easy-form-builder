@@ -175,7 +175,7 @@ structure[0].logic_rules = [
 global.valj_efb_new = [{ id: FORM_ID, form_structer: structure }];
 global.sendBack_emsFormBuilder_pub = [{ id_: 'cmd', value: 'jump', type: 'text', form_id: FORM_ID }];
 
-const runtime = require(path.join(__dirname, '../public/assets/js/conditional-logic-efb.js'));
+const runtime = require(path.join(__dirname, '../vendor/logic/logic/assets/public/js/conditional-logic-efb.js'));
 
 // ── Minimal test harness ─────────────────────────────────────────────────────
 let pass = 0, fail = 0;

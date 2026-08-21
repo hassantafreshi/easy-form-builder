@@ -1238,7 +1238,7 @@ function efbCreateMap(id ,r ,viewState) {
                 class="efb btn btn-sm btn-secondary text-light d-flex align-items-center justify-content-center flex-shrink-0"
                 title="${efb_var.text.search}"
                 style="min-width: 32px; height: 32px; padding: 0;">
-                <i class="efb bi-search d-block d-md-none" style="font-size: 14px;"></i>
+                <i class="efb bi-search d-block" style="font-size: 14px;"></i>
                 <span class="efb d-none d-md-block" style="font-size: 12px; white-space: nowrap; padding: 0 4px;">${efb_var.text.search}</span>
               </a>
 
@@ -1247,7 +1247,7 @@ function efbCreateMap(id ,r ,viewState) {
                 class="efb btn btn-sm btn-danger text-light d-flex align-items-center justify-content-center flex-shrink-0"
                 title="${efb_var.text.deletemarkers}"
                 style="min-width: 32px; height: 32px; padding: 0;">
-                <i class="efb bi-trash d-block d-md-none" style="font-size: 14px;"></i>
+                <i class="efb bi-trash d-block" style="font-size: 14px;"></i>
                 <span class="efb d-none d-md-block" style="font-size: 12px; white-space: nowrap; padding: 0 4px;">${efb_var.text.deletemarkers}</span>
               </a>
           </div>

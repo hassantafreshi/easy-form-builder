@@ -6,7 +6,7 @@
 'use strict';
 
 const path = require('path');
-const runtime = require(path.join(__dirname, '../public/assets/js/conditional-logic-efb.js'));
+const runtime = require(path.join(__dirname, '../vendor/logic/logic/assets/public/js/conditional-logic-efb.js'));
 
 // ── Minimal test harness ─────────────────────────────────────────────────────
 let pass = 0, fail = 0;
@@ -718,6 +718,101 @@ const result26 = runtime.evaluateDefinition(struct26, [{ id_: 'fa', value: 'x', 
 test('T26.1 trace: first rule matched', result26.trace[0], { id: 'r_first', status: 'matched' });
 test('T26.2 trace: second rule blocked by stop_processing', result26.trace[1], { id: 'r_second', status: 'blocked' });
 test('T26.3 trace: third rule not matched', result26.trace[2], { id: 'r_third', status: 'not_matched' });
+
+// ── Test 27: step ids vs step positions ──────────────────────────────────────
+// Step ACTION TARGETS are step ids (`id_`); a field's `step` is its POSITION.
+// Both are small integers and they routinely disagree — reordering steps in the
+// builder leaves id_ "3" sitting at position 2. Matching a hidden step's raw id
+// against field positions made hiding step id_ "2" also strip every field at
+// position 2: on a live form that silently un-required a field on a VISIBLE
+// step and dropped whatever the visitor typed into it from the submission.
+const struct27 = [
+  { id_: 'form', type: 'form', steps: 3 },
+  { id_: '10', type: 'step', step: '1', name: 'First'  },   // id 10 @ position 1
+  { id_: '3',  type: 'step', step: '2', name: 'Second' },   // id  3 @ position 2
+  { id_: '2',  type: 'step', step: '3', name: 'Third'  },   // id  2 @ position 3
+  { id_: 'trigger', type: 'text',    step: '1', required: false },
+  { id_: 's2_field', type: 'text',   step: '2', required: true  },
+  { id_: 's3_field', type: 'text',   step: '3', required: true  },
+];
+function hideStepRule(target) {
+  return [makeRule({
+    id: 'hide_' + target,
+    conditions: { type: 'group', operator: 'AND', items: [makeCondition('trigger', 'is', 'go')] },
+    actions: [{ type: 'hide_step', target }],
+  })];
+}
+const rows27 = [{ id_: 'trigger', value: 'go', type: 'text' }];
+
+struct27[0].logic_rules = hideStepRule('2');           // id "2" lives at position 3
+const r27a = runtime.evaluateDefinition(struct27, rows27);
+test('T27.1 hiding step id "2" ignores its OWN fields', r27a.ignored_fields, ['s3_field']);
+test('T27.2 hiding step id "2" leaves position 2 alone', r27a.ignored_fields.includes('s2_field'), false);
+
+struct27[0].logic_rules = hideStepRule('3');           // id "3" lives at position 2
+const r27b = runtime.evaluateDefinition(struct27, rows27);
+test('T27.3 hiding step id "3" ignores its OWN fields', r27b.ignored_fields, ['s2_field']);
+test('T27.4 hiding step id "3" leaves position 3 alone', r27b.ignored_fields.includes('s3_field'), false);
+
+struct27[0].logic_rules = hideStepRule('10');          // id "10" lives at position 1
+const r27c = runtime.evaluateDefinition(struct27, rows27);
+test('T27.5 hiding step id "10" ignores position 1, not position 10', r27c.ignored_fields, ['trigger']);
+
+struct27[0].logic_rules = hideStepRule('99');          // not a step at all
+const r27d = runtime.evaluateDefinition(struct27, rows27);
+test('T27.6 an unresolvable step target ignores nothing', r27d.ignored_fields, []);
+
+// A field on a hidden step is dropped; the same field on a SHOWN step keeps its
+// conditional required flag — the exact pairing that reached production broken.
+struct27[0].logic_rules = [makeRule({
+  id: 'pro_path',
+  conditions: { type: 'group', operator: 'AND', items: [makeCondition('trigger', 'is', 'go')] },
+  actions: [
+    { type: 'show_step', target: '3' },
+    { type: 'hide_step', target: '2' },
+    { type: 'set_required', target: 's2_field' },
+  ],
+})];
+const r27e = runtime.evaluateDefinition(struct27, rows27);
+test('T27.7 required field on the shown step survives', r27e.required_fields, ['s2_field']);
+test('T27.8 required field on the shown step is not ignored', r27e.ignored_fields.includes('s2_field'), false);
+test('T27.9 only the hidden step contributes ignored fields', r27e.ignored_fields, ['s3_field']);
+
+// ── Test 28: the value loop must admit when it never converged ───────────────
+// An exact repeat (A→B→A) is caught by the signature set, but a self-referential
+// formula climbs forever without ever repeating one. Only the pass budget ends
+// that, and reporting the Nth iterate as a converged answer is how "+1" turned
+// into "+10" in a submitted entry.
+const struct28 = [
+  { id_: 'form', type: 'form', steps: 1 },
+  { id_: 's1', type: 'step', step: '1' },
+  { id_: 'qty',   type: 'number', step: '1' },
+  { id_: 'price', type: 'number', step: '1' },
+  { id_: 'total', type: 'number', step: '1' },
+];
+const rows28 = [{ id_: 'qty', value: '3', type: 'number' }, { id_: 'price', value: '10', type: 'number' }];
+function calcRule(target, formula) {
+  return [makeRule({
+    id: 'calc',
+    conditions: { type: 'group', operator: 'AND', items: [makeCondition('qty', 'is_not_empty', '')] },
+    actions: [{ type: 'calculate', target, value: formula }],
+  })];
+}
+
+struct28[0].logic_rules = calcRule('total', '{qty} * {price}');
+const r28a = runtime.evaluateDefinition(struct28, rows28);
+test('T28.1 an acyclic formula converges', r28a.stabilized, true);
+test('T28.2 and publishes its result', r28a.set_values, { total: '30' });
+
+struct28[0].logic_rules = calcRule('qty', '{qty} + 1');
+const r28b = runtime.evaluateDefinition(struct28, rows28);
+test('T28.3 a self-referential formula reports non-convergence', r28b.stabilized, false);
+test('T28.4 and publishes no value at all', r28b.set_values, {});
+
+struct28[0].logic_rules = calcRule('total', '{total} + {qty}');
+const r28c = runtime.evaluateDefinition(struct28, rows28);
+test('T28.5 a running-sum formula reports non-convergence', r28c.stabilized, false);
+test('T28.6 and leaves the visitor answers untouched', r28c.set_values, {});
 
 // ── Summary ───────────────────────────────────────────────────────────────────
 console.log('\n========================================');

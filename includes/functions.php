@@ -1241,6 +1241,8 @@ class efbFunction {
 			"effects" => $state  &&  isset($ac->text->effects) ? $ac->text->effects : esc_html__('Effects','easy-form-builder'),
 			/* translators: Conflicts = section listing rules whose actions contradict each other */
 			"conflicts" => $state  &&  isset($ac->text->conflicts) ? $ac->text->conflicts : esc_html__('Conflicts','easy-form-builder'),
+			/* translators: Warning shown when one rule writes a value to a field that another rule hides or disables, so the value is dropped from the entry */
+			"valueOnStrippedField" => $state  &&  isset($ac->text->valueOnStrippedField) ? $ac->text->valueOnStrippedField : esc_html__('A value is written to this field while another rule hides or disables it &mdash; hidden and disabled fields are not saved with the entry.','easy-form-builder'),
 			/* translators: Reason shown when a rule was skipped because an earlier rule stopped processing */
 			"blockedByStop" => $state  &&  isset($ac->text->blockedByStop) ? $ac->text->blockedByStop : esc_html__('Blocked by stop processing','easy-form-builder'),
 			/* translators: Calculate = action type that computes a value from a formula */
@@ -5035,6 +5037,15 @@ public function addon_add_efb($value) {
 	 * with the update.
 	 */
 	public function emsfb_pro_log($message, $throttle_key = '') {
+		// Gated so a production site stays quiet; without a write here the
+		// docblock above was false and a licence question on a Farsi site left
+		// nothing to read anywhere.
+		$enabled = (defined('EMSFB_ADDON_DEBUG') && EMSFB_ADDON_DEBUG)
+			|| (defined('WP_DEBUG') && WP_DEBUG);
+		if (!$enabled) {
+			return;
+		}
+
 		if ($throttle_key !== '') {
 			$tk = 'emsfb_pro_log_' . md5($throttle_key);
 			if (get_transient($tk)) {
@@ -5043,6 +5054,13 @@ public function addon_add_efb($value) {
 			set_transient($tk, 1, 12 * HOUR_IN_SECONDS);
 		}
 		$version = defined('EMSFB_PLUGIN_VERSION') ? EMSFB_PLUGIN_VERSION : '?';
+
+		$available = function_exists('emsfb_is_php_function_available_efb')
+			? emsfb_is_php_function_available_efb('error_log')
+			: function_exists('error_log');
+		if ($available) {
+			error_log('[EFB Pro ' . $version . '] ' . $message);
+		}
 	}
 
 	public function make_post_request_efb( $ac) {

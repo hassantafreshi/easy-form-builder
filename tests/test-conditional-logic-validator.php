@@ -526,6 +526,122 @@ testTrue('H1.3 before_actions action hook fired', $GLOBALS['efb_hook_seen']);
 remove_all_filters('efb_logic_before_actions');
 testTrue('H1.4 without the veto the rule applies again', in_array('fx', $r['shown_fields'], true));
 
+// ─────────────────────────────────────────────────────────────────────────────
+// GROUP N: step ids are not step positions
+// Step ACTION TARGETS are step ids (`id_`) — the sanitizer validates them
+// against real step ids and rejects anything else. A field's `step` is its
+// POSITION. Both are small integers and they disagree the moment steps are
+// reordered in the builder. Matching a hidden step's raw id against field
+// positions made hiding step id_ "2" also strip every field sitting at position
+// 2: server-side that meant a required field on a VISIBLE step passed
+// validation unfilled, and the answer the visitor did type was deleted from the
+// entry before it was saved.
+// ─────────────────────────────────────────────────────────────────────────────
+$structNs = [
+    ['logic_rules' => []],
+    ['id_' => '10', 'type' => 'step', 'step' => '1', 'name' => 'First'],
+    ['id_' => '3',  'type' => 'step', 'step' => '2', 'name' => 'Second'],
+    ['id_' => '2',  'type' => 'step', 'step' => '3', 'name' => 'Third'],
+    ['id_' => 'trigger',  'type' => 'text', 'step' => '1', 'name' => 'Trigger',  'required' => '0'],
+    ['id_' => 's2_field', 'type' => 'text', 'step' => '2', 'name' => 'S2 field', 'required' => '1'],
+    ['id_' => 's3_field', 'type' => 'text', 'step' => '3', 'name' => 'S3 field', 'required' => '1'],
+];
+$rowsNs = [['id_' => 'trigger', 'value' => 'go', 'type' => 'text']];
+function nsHideRule($target) {
+    return [makeRule([
+        'id' => 'hide_' . $target,
+        'conditions' => ['type' => 'group', 'operator' => 'AND', 'items' => [makeCondition('trigger', 'is', 'go')]],
+        'actions' => [['type' => 'hide_step', 'target' => $target]],
+    ])];
+}
+
+$structNs[0]['logic_rules'] = nsHideRule('2');
+$rNs = $validator->evaluate($structNs, $rowsNs);
+test('N1.1 hiding step id "2" (position 3) ignores its OWN fields', $rNs['ignored_fields'], ['s3_field']);
+testFalse('N1.2 hiding step id "2" leaves position 2 alone', in_array('s2_field', $rNs['ignored_fields'], true));
+
+$structNs[0]['logic_rules'] = nsHideRule('3');
+$rNs = $validator->evaluate($structNs, $rowsNs);
+test('N1.3 hiding step id "3" (position 2) ignores its OWN fields', $rNs['ignored_fields'], ['s2_field']);
+testFalse('N1.4 hiding step id "3" leaves position 3 alone', in_array('s3_field', $rNs['ignored_fields'], true));
+
+$structNs[0]['logic_rules'] = nsHideRule('10');
+$rNs = $validator->evaluate($structNs, $rowsNs);
+test('N1.5 hiding step id "10" ignores position 1, not position 10', $rNs['ignored_fields'], ['trigger']);
+
+$structNs[0]['logic_rules'] = nsHideRule('99');
+$rNs = $validator->evaluate($structNs, $rowsNs);
+test('N1.6 an unresolvable step target ignores nothing', $rNs['ignored_fields'], []);
+
+// The shipped failure, end to end: one path opens a step and makes a field on it
+// required while hiding the OTHER extra step. The required field must be
+// enforced, and what the visitor typed must survive into the stored entry.
+$structNs[0]['logic_rules'] = [makeRule([
+    'id' => 'pro_path',
+    'conditions' => ['type' => 'group', 'operator' => 'AND', 'items' => [makeCondition('trigger', 'is', 'go')]],
+    'actions' => [
+        ['type' => 'show_step',    'target' => '3'],
+        ['type' => 'hide_step',    'target' => '2'],
+        ['type' => 'set_required', 'target' => 's2_field'],
+    ],
+])];
+
+$rNs = $validator->evaluate($structNs, $rowsNs);
+$missing = $validator->validate_required_fields($structNs, $rowsNs, $rNs);
+testFalse('N2.1 required field on the shown step is enforced', $missing['valid']);
+test('N2.2 and it is named as the missing one', $missing['missing_field'], 's2_field');
+
+$rowsFilled = array_merge($rowsNs, [['id_' => 's2_field', 'value' => 'TYPED-BY-VISITOR', 'type' => 'text']]);
+$rNsFilled = $validator->evaluate($structNs, $rowsFilled);
+$okFilled = $validator->validate_required_fields($structNs, $rowsFilled, $rNsFilled);
+testTrue('N2.3 the submission is accepted once it is filled', $okFilled['valid']);
+
+$prepared = $validator->prepare_submission($structNs, $rowsFilled);
+$keptIds = array_map(function ($row) { return $row['id_']; }, $prepared['submitted_values']);
+testTrue('N2.4 the typed answer survives into the stored entry', in_array('s2_field', $keptIds, true));
+testFalse('N2.5 the hidden step contributes nothing', in_array('s3_field', $keptIds, true));
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GROUP O: the value loop must admit when it never converged
+// An exact repeat (A -> B -> A) is caught by the signature set, but a
+// self-referential formula climbs forever without ever repeating one. Only the
+// pass budget ends that, and reporting the Nth iterate as a converged answer is
+// how a "+1" rule wrote "+10" into a stored entry.
+// ─────────────────────────────────────────────────────────────────────────────
+$structCalc = [
+    ['logic_rules' => []],
+    ['id_' => 's1', 'type' => 'step', 'step' => '1'],
+    ['id_' => 'qty',   'type' => 'number', 'step' => '1', 'name' => 'Qty'],
+    ['id_' => 'price', 'type' => 'number', 'step' => '1', 'name' => 'Price'],
+    ['id_' => 'total', 'type' => 'number', 'step' => '1', 'name' => 'Total'],
+];
+$rowsCalc = [
+    ['id_' => 'qty',   'value' => '3',  'type' => 'number'],
+    ['id_' => 'price', 'value' => '10', 'type' => 'number'],
+];
+function calcRule($target, $formula) {
+    return [makeRule([
+        'id' => 'calc',
+        'conditions' => ['type' => 'group', 'operator' => 'AND', 'items' => [makeCondition('qty', 'is_not_empty', '')]],
+        'actions' => [['type' => 'calculate', 'target' => $target, 'value' => $formula]],
+    ])];
+}
+
+$structCalc[0]['logic_rules'] = calcRule('total', '{qty} * {price}');
+$rCalc = $validator->evaluate($structCalc, $rowsCalc);
+testTrue('O1.1 an acyclic formula converges', $rCalc['stabilized']);
+test('O1.2 and publishes its result', $rCalc['set_values'], ['total' => '30']);
+
+$structCalc[0]['logic_rules'] = calcRule('qty', '{qty} + 1');
+$rCalc = $validator->evaluate($structCalc, $rowsCalc);
+testFalse('O1.3 a self-referential formula reports non-convergence', $rCalc['stabilized']);
+test('O1.4 and publishes no value at all', $rCalc['set_values'], []);
+
+$structCalc[0]['logic_rules'] = calcRule('total', '{total} + {qty}');
+$rCalc = $validator->evaluate($structCalc, $rowsCalc);
+testFalse('O1.5 a running-sum formula reports non-convergence', $rCalc['stabilized']);
+test('O1.6 and the visitor answers are stored unchanged', $rCalc['set_values'], []);
+
 // ── Summary ───────────────────────────────────────────────────────────────────
 echo "\n========================================\n";
 echo "RESULTS: $pass passed, $fail failed\n";

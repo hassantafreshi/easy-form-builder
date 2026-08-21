@@ -44,9 +44,17 @@ global.valj_efb = [
   { id_: 'tax', type: 'number', name: 'Tax' },
   { id_: 'total', type: 'number', name: 'Total' },
   { id_: 'discountFlag', type: 'text', name: 'Discount Flag' },
+  /* A choice field with real options: what the builder writes for a condition on
+     one of these is the contract every engine downstream depends on. */
+  { id_: 'plan', type: 'select', name: 'Plan' },
+  { id_: 'plan_basic', type: 'option', parent: 'plan', value: 'Basic' },
+  { id_: 'plan_pro', type: 'option', parent: 'plan', value: 'Pro Support' },
+  { id_: 'toppings', type: 'checkbox', name: 'Toppings' },
+  { id_: 'top_cheese', type: 'option', parent: 'toppings', value: 'Cheese' },
+  { id_: 'top_olives', type: 'option', parent: 'toppings', value: 'Olives' },
 ];
 
-require(path.join(__dirname, '../includes/admin/assets/js/conditional-logic-efb.js'));
+require(path.join(__dirname, '../vendor/logic/logic/assets/admin/js/conditional-logic-efb.js'));
 
 // ── Minimal test harness (same style as the other suites) ───────────────────
 let pass = 0, fail = 0;
@@ -391,7 +399,44 @@ EFB_Logic.applyRule(); // stop rule valid without URL
 test('T19.4 stop rule saved without URL', valj_efb[0].webhook_rules.filter(r => r.action === 'stop').length, 1);
 EFB_Logic.switchTab('field');
 
-// ── Summary ───────────────────────────────────────────────────────────────────
+// ── Test 20: what the builder stores for a CHOICE condition ─────────────────
+// The value dropdown for a select / checkbox / radio lists the options, and what
+// it writes is the option's `id_`, never its visible label. Every engine and the
+// AI authoring contract assume that; when the notification, confirmation and
+// webhook paths stopped resolving ids back to stored values, this was the fact
+// that made the difference invisible — the rule looked right in the builder and
+// did nothing on the site.
+//
+// Note: addRule() opens the editor on a fresh rule; past the tier rule limit it
+// declines and leaves the previous rule open, which is fine here — what is being
+// checked is what the CONDITION EDITOR renders and writes for a choice field.
+EFB_Logic.addRule();
+EFB_Logic.updateCondition('0', 'field_id', 'plan');
+const planHtml = bodyHtml();
+
+testTrue('T20.1 the value dropdown offers the option ids as values',
+  planHtml.includes('value="plan_basic"') && planHtml.includes('value="plan_pro"'));
+testTrue('T20.2 and shows the labels as the visible text',
+  planHtml.includes('>Basic<') && planHtml.includes('>Pro Support<'));
+testFalse('T20.3 the label is never used as the stored value',
+  planHtml.includes('value="Pro Support"'));
+
+// a choice field only offers the four membership operators
+testTrue('T20.4 choice field offers is / is_not',
+  planHtml.includes('value="is"') && planHtml.includes('value="is_not"'));
+testTrue('T20.5 choice field offers is_empty / is_not_empty',
+  planHtml.includes('value="is_empty"') && planHtml.includes('value="is_not_empty"'));
+testFalse('T20.6 choice field does NOT offer contains', planHtml.includes('value="contains"'));
+testFalse('T20.7 choice field does NOT offer gte', planHtml.includes('value="gte"'));
+
+// the same for a checkbox, which is where the membership bug actually bit
+EFB_Logic.updateCondition('0', 'field_id', 'toppings');
+const topHtml = bodyHtml();
+testTrue('T20.8 checkbox options are listed by id',
+  topHtml.includes('value="top_cheese"') && topHtml.includes('value="top_olives"'));
+testFalse('T20.9 checkbox label is not the stored value', topHtml.includes('value="Olives"'));
+
+// ── Summary ──────────────────────────────────────────────────────────────────
 console.log('\n========================================');
 console.log(`RESULTS: ${pass} passed, ${fail} failed`);
 console.log('========================================');

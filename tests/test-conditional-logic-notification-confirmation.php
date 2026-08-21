@@ -29,6 +29,15 @@ function efb_debug_log_lines() {
     return array_values(array_filter($lines, function ($l) { return strpos($l, '[EFB Email Debug]') !== false; }));
 }
 
+/* The notification path traces through Emsfb\Email_Trace, which mirrors each
+ * entry into error_log under its own prefix and dot-separated stage id. */
+function efb_trace_log_lines() {
+    $file = $GLOBALS["efb_error_log_file"];
+    if (!file_exists($file)) return [];
+    $lines = file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    return array_values(array_filter($lines, function ($l) { return strpos($l, "[EFB Email Trace]") !== false; }));
+}
+
 function add_action() {}
 function add_filter() { return true; }
 function add_shortcode() {}
@@ -44,6 +53,7 @@ function sanitize_text_field($v) { return is_array($v) ? '' : trim(strip_tags((s
 function esc_url($v) { return filter_var((string)$v, FILTER_SANITIZE_URL); }
 function wp_kses_post($v) { return strip_tags((string)$v, '<b><strong><em><i><br><p><a>'); }
 
+require dirname(__DIR__) . '/includes/class-Emsfb-email-trace.php';
 require dirname(__DIR__) . '/vendor/logic/class-Emsfb-logic-validator.php';
 require dirname(__DIR__) . '/includes/class-Emsfb-public.php';
 
@@ -324,33 +334,33 @@ define('EMSFB_EMAIL_DEBUG', true);
 // L1 department path (Company + budget 1500): sales + vip matched, support not.
 $obj->sent = [];
 $notify->invoke($obj, scenario_m_form(), $vip, 'TRK-LOG-1', false, 'https://example.test/x', $status_email);
-$logLines = efb_debug_log_lines();
+$logLines = efb_trace_log_lines();
 $logText = implode("\n", $logLines);
 testTrue('D1.2 switch on: trace lines were written', count($logLines) > 0);
 testTrue('D1.3 evaluation start logged with track and active rule count',
-    strpos($logText, '[notification-rules]') !== false
+    strpos($logText, 'email.notification-rules') !== false
     && strpos($logText, '"track":"TRK-LOG-1"') !== false
     && strpos($logText, '"active_rules":3') !== false);
 testTrue('D1.4 sales department send logged',
-    strpos($logText, '[rule-matched-send]') !== false
+    strpos($logText, 'email.rule-matched-send') !== false
     && strpos($logText, '"rule":"nr1_sales"') !== false
     && strpos($logText, '"recipient":"sales@example.com"') !== false);
 testTrue('D1.5 vip department send logged', strpos($logText, '"rule":"nr2_vip"') !== false);
 testTrue('D1.6 support rule logged as not matched',
-    strpos($logText, '[rule-not-matched]') !== false && strpos($logText, '"rule":"nr3_support"') !== false);
+    strpos($logText, 'email.rule-not-matched') !== false && strpos($logText, '"rule":"nr3_support"') !== false);
 testTrue('D1.7 subject with [confirmation_code] pattern logged',
     strpos($logText, 'Sales lead [confirmation_code]') !== false);
 
 // Invalid recipient must be logged with its skip reason.
 $notify->invoke($obj, $xssForm, $vip, 'TRK-LOG-2', false, 'https://example.test/x', $status_email);
-$logText = implode("\n", efb_debug_log_lines());
+$logText = implode("\n", efb_trace_log_lines());
 testTrue('D1.8 invalid recipient skip logged with reason',
-    strpos($logText, '[rule-skipped]') !== false && strpos($logText, '"reason":"invalid_recipient"') !== false);
+    strpos($logText, 'email.rule-skipped') !== false && strpos($logText, '"reason":"invalid_recipient"') !== false);
 
 // Custom email content must appear as a readable preview in the trace.
 $statusWithContent = ['content' => '<p>Budget: 1500</p><p>Customer: Company</p>', 'type' => 'msg', 'subject' => 'Default'];
 $notify->invoke($obj, scenario_m_form(), $vip, 'TRK-LOG-3', false, 'https://example.test/x', $statusWithContent);
-$logText = implode("\n", efb_debug_log_lines());
+$logText = implode("\n", efb_trace_log_lines());
 testTrue('D1.9 content preview shows submitted data (tags stripped)',
     strpos($logText, 'Budget: 1500') !== false && strpos($logText, '<p>') === false);
 

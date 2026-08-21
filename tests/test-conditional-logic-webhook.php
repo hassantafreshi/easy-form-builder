@@ -11,6 +11,12 @@ $GLOBALS['efb_webhook_gets'] = array();
 $GLOBALS['efb_actions'] = array();
 
 function add_action() {}
+/* The shortcode wpautop-deferral work added filter registrations to the
+   _Public constructor; without these the harness fatals before any test runs. */
+function add_filter() { return true; }
+function remove_filter() { return true; }
+function has_filter() { return false; }
+function apply_filters($hook, $value) { return $value; }
 function add_shortcode() {}
 function register_rest_route() {}
 function current_user_can() { return true; }
