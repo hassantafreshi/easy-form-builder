@@ -4985,6 +4985,13 @@ public function check_nonce_permission_efb($request) {
 	 * the last step, so source:'current_step' conditions compare against it. */
 	private $efb_conditional_max_step = 1;
 
+	/* The form and the rows the current rule pass is reading, kept so the
+	 * add-on's validator can be handed the option index and the payment rows it
+	 * needs. Set by efb_conditional_values_map(), which every rule scope calls
+	 * before evaluating anything. */
+	private $efb_conditional_form = null;
+	private $efb_conditional_rows = array();
+
 	private function efb_conditional_values_map($form_fields_array, $submitted_values) {
 		$max_step = 0;
 		foreach ((array) $form_fields_array as $item) {
@@ -4993,6 +5000,8 @@ public function check_nonce_permission_efb($request) {
 			}
 		}
 		$this->efb_conditional_max_step = $max_step > 0 ? $max_step : 1;
+		$this->efb_conditional_form = is_array($form_fields_array) ? $form_fields_array : null;
+		$this->efb_conditional_rows = is_array($submitted_values) ? $submitted_values : array();
 
 		if (class_exists('Emsfb\\Emsfb_Logic_Validator')) {
 			$validator = new \Emsfb\Emsfb_Logic_Validator();
@@ -5029,13 +5038,40 @@ public function check_nonce_permission_efb($request) {
 		return $values;
 	}
 
+	/**
+	 * Notification / confirmation / webhook rules carry the same condition shape
+	 * as field rules, so they must answer the same way. The add-on's validator
+	 * is the one evaluator that resolves an option id_ to the value a row
+	 * actually stores — without it, a rule the UI built on a select or
+	 * multiselect option compared an id against the visible text and never
+	 * matched, so the email was never sent, the conditional thank-you never
+	 * appeared and the webhook was never called. The local implementation below
+	 * stays as the fallback for a site whose logic add-on is not installed.
+	 *
+	 * @param array $group  Condition group as stored on the rule.
+	 * @param array $values Values map from efb_conditional_values_map().
+	 */
 	private function efb_evaluate_conditional_group($group, $values) {
+		if (is_array($this->efb_conditional_form) && class_exists('Emsfb\\Emsfb_Logic_Validator')) {
+			$validator = new \Emsfb\Emsfb_Logic_Validator();
+			$validator->set_environment($this->efb_conditional_environment_for_validator());
+			return (bool) $validator->evaluate_condition_group(
+				$this->efb_conditional_form,
+				$group,
+				$values,
+				$this->efb_conditional_rows
+			);
+		}
+		return $this->efb_evaluate_conditional_group_fallback($group, $values);
+	}
+
+	private function efb_evaluate_conditional_group_fallback($group, $values) {
 		$items = isset($group['items']) && is_array($group['items']) ? $group['items'] : [];
 		if (empty($items)) return false;
 		$result = false;
 		foreach ($items as $index => $item) {
 			$is_group = is_array($item) && (($item['type'] ?? '') === 'group' || isset($item['items']));
-			$matched = $is_group ? $this->efb_evaluate_conditional_group($item, $values) : $this->efb_evaluate_conditional_condition($item, $values);
+			$matched = $is_group ? $this->efb_evaluate_conditional_group_fallback($item, $values) : $this->efb_evaluate_conditional_condition($item, $values);
 			if ($index === 0) {
 				$result = $matched;
 				continue;
@@ -5063,6 +5099,15 @@ public function check_nonce_permission_efb($request) {
 			$env['user']['logged_in'] = true;
 			$env['user']['roles'] = array_values((array) wp_get_current_user()->roles);
 		}
+		return $env;
+	}
+
+	/* The request environment in the shape the add-on validator expects. A
+	 * submission always arrives from the last step, which is what current_step
+	 * means for a rule that runs after submit. */
+	private function efb_conditional_environment_for_validator() {
+		$env = $this->efb_conditional_environment();
+		$env['current_step'] = $this->efb_conditional_max_step;
 		return $env;
 	}
 
@@ -5096,17 +5141,39 @@ public function check_nonce_permission_efb($request) {
 				/* current_step: a submission always arrives from the last step */
 				$value = (string) $this->efb_conditional_max_step;
 			}
-		} else {
+		}
+
+		$spellings = null;
+		if ($source !== 'query_param' && $source !== 'user' && $source !== 'current_step') {
 			$value = array_key_exists($field_id, $values) ? $values[$field_id] : '';
+			/* The builder writes a choice condition as the OPTION'S id_, while a
+			 * row may record either that id or the visible text. Without
+			 * resolving the two spellings against each other a select or
+			 * multiselect condition compares an id to a label and never matches.
+			 * This path only runs when the logic add-on is inactive — the
+			 * delegation above covers every other case — but scope rules are
+			 * still processed there, so it has to answer the same way. */
+			$spellings = $this->efb_conditional_option_spellings($field_id, $expected);
 		}
 
 		if (is_array($value)) {
 			$expected_scalar = is_array($expected) ? implode(',', $expected) : (string)$expected;
-			if ($compare === 'is') return in_array($expected_scalar, $value, true);
-			if ($compare === 'is_not') return !in_array($expected_scalar, $value, true);
+			$wanted = $spellings === null ? array(strtolower(trim($expected_scalar))) : $spellings;
+			$present = false;
+			foreach ($value as $entry) {
+				if (in_array(strtolower(trim((string) $entry)), $wanted, true)) { $present = true; break; }
+			}
+			if ($compare === 'is') return $present;
+			if ($compare === 'is_not') return !$present;
 			if ($compare === 'is_empty') return count($value) === 0;
 			if ($compare === 'is_not_empty') return count($value) > 0;
 			$value = implode(' ', array_map('strval', $value));
+		}
+
+		/* Equality on a single-value choice field has the same two spellings. */
+		if ($spellings !== null && ($compare === 'is' || $compare === 'is_not')) {
+			$hit = in_array(strtolower(trim((string) $value)), $spellings, true);
+			return $compare === 'is' ? $hit : !$hit;
 		}
 
 		$value = trim((string)$value);
@@ -5123,11 +5190,17 @@ public function check_nonce_permission_efb($request) {
 			case 'ends_with':
 				$length = strlen($expected_lower);
 				return $length === 0 || substr($value_lower, -$length) === $expected_lower;
-			case 'gt': case 'amount_gt': return is_numeric($value) && is_numeric($expected_scalar) && (float)$value > (float)$expected_scalar;
+			case 'gt': return is_numeric($value) && is_numeric($expected_scalar) && (float)$value > (float)$expected_scalar;
 			case 'gte': return is_numeric($value) && is_numeric($expected_scalar) && (float)$value >= (float)$expected_scalar;
-			case 'lt': case 'amount_lt': return is_numeric($value) && is_numeric($expected_scalar) && (float)$value < (float)$expected_scalar;
+			case 'lt': return is_numeric($value) && is_numeric($expected_scalar) && (float)$value < (float)$expected_scalar;
 			case 'lte': return is_numeric($value) && is_numeric($expected_scalar) && (float)$value <= (float)$expected_scalar;
-			case 'amount_eq': return is_numeric($value) && is_numeric($expected_scalar) && abs((float)$value - (float)$expected_scalar) < 0.00001;
+			/* The amount lives on the payment row too, so these cannot reuse the
+			 * plain numeric comparison above. */
+			case 'amount_eq': case 'amount_gt': case 'amount_lt':
+				$amount = $this->efb_conditional_payment_state($field_id, 'amount');
+				if ($amount === null || !is_numeric($expected_scalar)) return false;
+				if ($compare === 'amount_eq') return abs($amount - (float)$expected_scalar) < 0.00001;
+				return $compare === 'amount_gt' ? $amount > (float)$expected_scalar : $amount < (float)$expected_scalar;
 			case 'between':
 			case 'not_between':
 				$range = is_array($expected) ? $expected : preg_split('/\s*,\s*/', $expected_scalar);
@@ -5138,8 +5211,12 @@ public function check_nonce_permission_efb($request) {
 				return $compare === 'between' ? $inside : !$inside;
 			case 'is_empty': return $value === '';
 			case 'is_not_empty': return $value !== '';
-			case 'is_paid': return $value !== '' && $value !== '0';
-			case 'is_not_paid': return $value === '' || $value === '0';
+			/* Whether a payment went through is recorded on the ROW (status,
+			 * gateway reference), not in the field's own value — reading the
+			 * value alone called an unpaid gateway field "paid" whenever it
+			 * carried a price. */
+			case 'is_paid': return $this->efb_conditional_payment_state($field_id, 'paid');
+			case 'is_not_paid': return !$this->efb_conditional_payment_state($field_id, 'paid');
 			case 'date_before':
 			case 'date_after':
 				$value_ts = $this->efb_conditional_date_ts($value);
@@ -5156,6 +5233,78 @@ public function check_nonce_permission_efb($request) {
 				return $ts >= $from_ts && $ts <= $to_ts;
 			default: return false;
 		}
+	}
+
+	/**
+	 * Whether a gateway field was actually paid, and for how much, read from the
+	 * submitted rows. Mirrors the add-on validator so the two answer alike; used
+	 * only on the fallback path, when the logic add-on is inactive.
+	 *
+	 * @param string $field_id Payment field id.
+	 * @param string $want     'paid' for a boolean, 'amount' for a float or null.
+	 */
+	private function efb_conditional_payment_state($field_id, $want) {
+		$paid_states = array('paid', 'succeeded', 'success', 'completed', 'complete', 'approved', 'captured', 'authorized');
+		$payment_types = array('payment', 'stripe', 'paypal', 'persiapay');
+		$paid = false;
+		$amount = null;
+
+		foreach ((array) $this->efb_conditional_rows as $row) {
+			if (!is_array($row)) continue;
+			$row_type = strtolower((string)($row['type'] ?? ''));
+			$is_target = (string)($row['id_'] ?? '') === (string) $field_id;
+			if (!$is_target && !in_array($row_type, $payment_types, true)) continue;
+
+			foreach (array('payment_status', 'status', 'state') as $key) {
+				if (isset($row[$key]) && in_array(strtolower((string) $row[$key]), $paid_states, true)) $paid = true;
+			}
+			if (!empty($row['paymentIntent']) || !empty($row['transaction_id']) || !empty($row['refId']) || !empty($row['authority'])) {
+				$paid = true;
+			}
+			/* `amount` is the field's ordering index in an EFB row, and the row a
+			 * gateway pushes after a charge sets it to 0 — the paid figure lives
+			 * in paymentAmount (and value). Most specific key wins. */
+			$row_amount = null;
+			$keys = in_array($row_type, $payment_types, true)
+				? array('paymentAmount', 'paid_amount', 'total', 'price', 'value', 'amount')
+				: array('paymentAmount', 'paid_amount', 'total', 'price', 'amount');
+			foreach ($keys as $key) {
+				if (isset($row[$key]) && is_numeric($row[$key])) { $row_amount = (float) $row[$key]; break; }
+			}
+			if ($row_amount !== null) $amount = $row_amount;
+		}
+		return $want === 'paid' ? $paid : $amount;
+	}
+
+	/**
+	 * Every lowercase spelling that means "this option", for a choice condition.
+	 * Returns null when the field has no options, so non-choice fields keep the
+	 * ordinary text comparison.
+	 */
+	private function efb_conditional_option_spellings($field_id, $expected) {
+		if (!is_array($this->efb_conditional_form)) return null;
+		if (is_array($expected)) $expected = implode(',', $expected);
+		$expected = (string) $expected;
+
+		$options = array();
+		foreach ($this->efb_conditional_form as $item) {
+			if (!is_array($item) || ($item['type'] ?? '') !== 'option') continue;
+			if ((string)($item['parent'] ?? '') !== (string) $field_id) continue;
+			$options[(string)($item['id_'] ?? '')] = (string)($item['value'] ?? '');
+		}
+		if (!$options) return null;
+
+		$spellings = array();
+		$add = function ($candidate) use (&$spellings) {
+			$text = strtolower(trim((string) $candidate));
+			if ($text !== '' && !in_array($text, $spellings, true)) $spellings[] = $text;
+		};
+		$add($expected);
+		foreach ($options as $option_id => $option_text) {
+			if ($option_id === $expected) $add($option_text);
+			if ($option_text === $expected) $add($option_id);
+		}
+		return $spellings;
 	}
 
 	/* Timestamp for a date string, or null when unparseable (never matches). */

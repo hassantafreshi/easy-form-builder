@@ -60,5 +60,26 @@
     "git.scanRepositories": [
         "vendor"
     ],
-    "git.repositoryScanMaxDepth": 2
+    "git.repositoryScanMaxDepth": 2,
+    "intelephense.environment.includePaths": [
+        "C:/Users/Kian Co/php-stubs/vendor/php-stubs/wordpress-stubs",
+        "C:/Users/Kian Co/php-stubs/ide-stubs",
+        "c:/xampp/htdocs/wp/wp-content/plugins/elementor"
+    ],
+    "intelephense.environment.phpVersion": "8.2.12",
+    "intelephense.files.maxSize": 8000000,
+    "intelephense.files.exclude": [
+        "**/.git/**",
+        "**/.svn/**",
+        "**/.hg/**",
+        "**/CVS/**",
+        "**/.DS_Store/**",
+        "**/node_modules/**",
+        "**/bower_components/**",
+        "**/.history/**",
+        "**/vendor/**/{Tests,tests}/**",
+        "**/vendor/**/vendor/**",
+        "**/tests/**",
+        "**/temp/**"
+    ]
 }

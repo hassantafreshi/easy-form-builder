@@ -3575,8 +3575,10 @@ public function addon_add_efb($value) {
         $build_addon_url = function($base_domain) use ($server_name, $value, $vwp, $vefb) {
             return untrailingslashit($base_domain) . '/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/' . $vefb . '/';
         };
-		$domain = $is_persian_locale ? 'https://easyformbuilder.ir' : untrailingslashit( EMSFB_SERVER_URL );
-        $fallback_domain = $is_persian_locale ? untrailingslashit(EMSFB_SERVER_URL) : '';
+		// Same endpoint order as the install handler, from the same helper.
+		$addon_endpoints = $this->addon_api_domains_efb();
+		$domain = $addon_endpoints['primary'];
+        $fallback_domain = $addon_endpoints['fallback'];
         $server_label = wp_parse_url($domain, PHP_URL_HOST);
         $u = $build_addon_url($domain);
 		/* Inline repair runs inside a visitor's page load, so the wait is capped
@@ -3598,6 +3600,7 @@ public function addon_add_efb($value) {
                 return false;
             }
             $previous_domain = $domain;
+            $this->addon_api_mark_down_efb($previous_domain);
             $domain = untrailingslashit($fallback_domain);
             $u = $build_addon_url($domain);
             $server_label = wp_parse_url($domain, PHP_URL_HOST);
@@ -4023,6 +4026,116 @@ public function addon_add_efb($value) {
 		return defined('DISABLE_WP_CRON') && DISABLE_WP_CRON;
 	}
 
+
+	/**
+	 * Constant name of the Iranian mirror used by Persian sites.
+	 *
+	 * @var string
+	 */
+	const EMSFB_ADDON_IR_DOMAIN = 'https://easyformbuilder.ir';
+
+	/**
+	 * How long a "this domain did not answer" verdict is trusted.
+	 *
+	 * Deliberately short: the rule is still "try easyformbuilder.ir first", so
+	 * the mirror has to be given another chance regularly. One hour is long
+	 * enough that a site whose network cannot reach Iran at all is not made to
+	 * wait on every single click, and short enough that the mirror is picked up
+	 * again soon after it comes back.
+	 */
+	const EMSFB_ADDON_DOWN_TTL = HOUR_IN_SECONDS;
+
+	/**
+	 * Ordered endpoints for the add-on API.
+	 *
+	 * Persian sites ask easyformbuilder.ir first and fall back to
+	 * whitestudio.team; everyone else only ever uses EMSFB_SERVER_URL. The one
+	 * subtlety is the negative cache: once a request run has proved the mirror
+	 * is unreachable, the next run starts on the fallback instead of spending
+	 * the whole retry ladder on a host that is known to be dead. The mirror is
+	 * still retried once the verdict expires, so "Iran first" keeps holding.
+	 *
+	 * All three add-on call sites (the Add-ons page script, the install
+	 * handler, and the background recovery) go through here so they cannot
+	 * disagree about which endpoint is live.
+	 *
+	 * @return array{primary:string, fallback:string, is_persian:bool, mirror_skipped:bool}
+	 */
+	public function addon_api_domains_efb() {
+		$global = untrailingslashit( EMSFB_SERVER_URL );
+
+		if ( get_locale() !== 'fa_IR' ) {
+			return array(
+				'primary'        => $global,
+				'fallback'       => '',
+				'is_persian'     => false,
+				'mirror_skipped' => false,
+			);
+		}
+
+		$mirror = untrailingslashit( self::EMSFB_ADDON_IR_DOMAIN );
+
+		// A stored verdict only ever demotes the mirror; it never promotes the
+		// fallback past a mirror that has not been proven down.
+		if ( 'down' === get_transient( $this->addon_api_down_key_efb( $mirror ) ) ) {
+			return array(
+				'primary'        => $global,
+				'fallback'       => '',
+				'is_persian'     => true,
+				'mirror_skipped' => true,
+			);
+		}
+
+		return array(
+			'primary'        => $mirror,
+			'fallback'       => $global,
+			'is_persian'     => true,
+			'mirror_skipped' => false,
+		);
+	}
+
+	/**
+	 * Transient key holding the "did not answer" verdict for one domain.
+	 *
+	 * @param  string $domain
+	 * @return string
+	 */
+	public function addon_api_down_key_efb( $domain ) {
+		return 'emsfb_addon_api_down_' . md5( untrailingslashit( (string) $domain ) );
+	}
+
+	/**
+	 * Record that a domain failed to answer, so the next run can skip it.
+	 *
+	 * Only the Iranian mirror is ever demoted. Marking the global domain down
+	 * would leave the plugin with nowhere to go.
+	 *
+	 * @param  string $domain
+	 * @return void
+	 */
+	public function addon_api_mark_down_efb( $domain ) {
+		$domain = untrailingslashit( (string) $domain );
+		if ( '' === $domain || untrailingslashit( self::EMSFB_ADDON_IR_DOMAIN ) !== $domain ) {
+			return;
+		}
+		set_transient( $this->addon_api_down_key_efb( $domain ), 'down', self::EMSFB_ADDON_DOWN_TTL );
+		// The Add-ons page reads the same verdict, so its cached choice has to go too.
+		delete_transient( 'emsfb_addons_fa_domain' );
+	}
+
+	/**
+	 * Record that a domain answered, clearing any stored verdict against it.
+	 *
+	 * @param  string $domain
+	 * @return void
+	 */
+	public function addon_api_mark_up_efb( $domain ) {
+		$domain = untrailingslashit( (string) $domain );
+		if ( '' === $domain ) {
+			return;
+		}
+		delete_transient( $this->addon_api_down_key_efb( $domain ) );
+	}
 	/**
 	 * Timeout and attempt budget for one add-on download.
 	 *

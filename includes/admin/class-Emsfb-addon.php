@@ -67,22 +67,30 @@ class Addon {
 			return;
 		}
 		$server_name = str_replace("www.", "", isset($_SERVER['HTTP_HOST']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : '');
-		if ( get_locale() === 'fa_IR' ) {
-			// For Persian sites, prefer the local mirror easyformbuilder.ir. Check
-			// that it actually responds first and fall back to whitestudio.team when
-			// it does not. The result is cached in a transient so the Add-ons page
-			// is not slowed by a remote request on every render.
-			$domain = get_transient( 'emsfb_addons_fa_domain' );
-			if ( false === $domain ) {
-				$primary  = 'https://easyformbuilder.ir';
-				$response = wp_remote_head( $primary, array( 'timeout' => 4 ) );
-				$domain   = ( ! is_wp_error( $response ) && 200 == wp_remote_retrieve_response_code( $response ) )
-					? $primary
-					: 'https://whitestudio.team';
+		/*
+		 * Endpoint order comes from the shared helper so this page, the install
+		 * handler and the background recovery cannot disagree about whether the
+		 * Iranian mirror is live. Persian sites still prefer easyformbuilder.ir;
+		 * the HEAD probe below only runs when no verdict is cached yet.
+		 */
+		$addon_endpoints = $efb_recovery_fn->addon_api_domains_efb();
+		$domain = $addon_endpoints['primary'];
+		if ( $addon_endpoints['is_persian'] && ! $addon_endpoints['mirror_skipped'] ) {
+			$cached = get_transient( 'emsfb_addons_fa_domain' );
+			if ( false !== $cached ) {
+				$domain = $cached;
+			} else {
+				$probe = wp_remote_head( $domain, array( 'timeout' => 4 ) );
+				if ( is_wp_error( $probe ) || 200 != wp_remote_retrieve_response_code( $probe ) ) {
+					// Record it centrally so the install handler skips the dead
+					// mirror too instead of rediscovering it on the next click.
+					$efb_recovery_fn->addon_api_mark_down_efb( $domain );
+					$domain = $addon_endpoints['fallback'];
+				} else {
+					$efb_recovery_fn->addon_api_mark_up_efb( $domain );
+				}
 				set_transient( 'emsfb_addons_fa_domain', $domain, HOUR_IN_SECONDS );
 			}
-		} else {
-			$domain = untrailingslashit( EMSFB_SERVER_URL );
 		}
 		wp_register_script('whiteStudioAddone', $domain . '/wp-json/wl/v1/addons.js' .$server_name, null, null, true);
 

@@ -554,10 +554,25 @@ class Admin {
         $build_addon_url = function($base_domain) use ($server_name, $post_value, $vwp, $vefb) {
             return untrailingslashit($base_domain) . '/wp-json/wl/v1/addons-link/' . $server_name . '/' . $post_value . '/' . $vwp . '/' . $vefb . '/';
         };
-        $domain = $is_persian_locale ? 'https://easyformbuilder.ir' : EMSFB_SERVER_URL;
-        $fallback_domain = $is_persian_locale ? untrailingslashit(EMSFB_SERVER_URL) : '';
+        /*
+         * One source of truth for the endpoint order: Persian sites ask
+         * easyformbuilder.ir first and fall back to whitestudio.team. When a
+         * previous run already proved the mirror unreachable, the helper starts
+         * on the fallback instead of spending the whole retry ladder on a dead
+         * host - the mirror is retried again once that verdict expires.
+         */
+        $addon_endpoints = get_efbFunction()->addon_api_domains_efb();
+        /*
+         * Interactive path: an admin is watching a spinner, so the per-request
+         * budget is capped well below the 15s the background recovery uses.
+         * whitestudio.team answers in under 2s; a mirror that is silently
+         * dropping packets would otherwise burn the full timeout twice.
+         */
+        $addon_request_timeout = 8;
+        $domain = $addon_endpoints['primary'];
+        $fallback_domain = $addon_endpoints['fallback'];
         $u = $build_addon_url($domain);
-        $using_iran_url = $is_persian_locale;
+        $using_iran_url = $addon_endpoints['is_persian'] && !$addon_endpoints['mirror_skipped'];
 
         $this->addon_install_log_efb('remote_request_prepared', [
             'requested_addon' => $post_value,
@@ -573,7 +588,9 @@ class Admin {
             'using_iran_url' => $using_iran_url,
         ]);
 
-        $max_attempts = $is_persian_locale ? 3 : 2;
+        // A silently dropped connection burns the whole timeout every time, so the
+        // mirror gets two tries rather than three before the fallback is used.
+        $max_attempts = 2;
         $fallback_max_attempts = 2;
         $attempt = 0;
         $success = false;
@@ -585,6 +602,9 @@ class Admin {
             }
 
             $previous_domain = $domain;
+            // Remember that this endpoint did not answer so the next install
+            // click does not repeat the same dead wait.
+            get_efbFunction()->addon_api_mark_down_efb($previous_domain);
             $domain = untrailingslashit($fallback_domain);
             $u = $build_addon_url($domain);
             $attempt = 0;
@@ -614,7 +634,9 @@ class Admin {
                 'request_url' => $u,
             ]);
 
-            $request = wp_remote_get($u);
+            // Explicit timeout: the default of 5s was implicit here while the
+            // recovery path already passed one, so the two disagreed.
+            $request = wp_remote_get($u, ['timeout' => $addon_request_timeout]);
             $request_duration = round(microtime(true) - $request_started_at, 3);
 
             // A WP_Error here usually points to DNS, cURL, firewall, SSL, or
