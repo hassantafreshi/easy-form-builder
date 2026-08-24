@@ -1217,6 +1217,10 @@ class efbFunction {
 			"logicLoadError" => $state  &&  isset($ac->text->logicLoadError) ? $ac->text->logicLoadError : esc_html__('The Conditional Logic module failed to load. Please refresh the page; if the problem continues, deactivate and reactivate the Conditional Logic add-on.','easy-form-builder'),
 			/* translators: Toggle label - stop evaluating further rules once this rule matches */
 			"stopProcessing" => $state  &&  isset($ac->text->stopProcessing) ? $ac->text->stopProcessing : esc_html__('Stop after this rule matches','easy-form-builder'),
+			/* translators: IF = section label that introduces the conditions of a conditional-logic rule */
+			"logicIf" => $state  &&  isset($ac->text->logicIf) ? $ac->text->logicIf : esc_html__('IF','easy-form-builder'),
+			/* translators: THEN = section label that introduces the actions of a conditional-logic rule */
+			"logicThen" => $state  &&  isset($ac->text->logicThen) ? $ac->text->logicThen : esc_html__('THEN','easy-form-builder'),
 			/* translators: Test Mode = tab that lets the admin simulate rules with sample values */
 			"testMode" => $state  &&  isset($ac->text->testMode) ? $ac->text->testMode : esc_html__('Test Mode','easy-form-builder'),
 			/* translators: Run Test = button that executes the rule test */
@@ -3703,7 +3707,18 @@ public function addon_add_efb($value) {
             }
 
             if ($data->download == true) {
-                $url = $data->link;
+                $url = $this->normalize_addon_download_url_efb( isset( $data->link ) ? $data->link : '' );
+                if ( is_wp_error( $url ) ) {
+                    $attempt++;
+                    $error_message = $url->get_error_message();
+                    if ( $attempt >= $max_attempts ) {
+                        if ( $switch_to_fallback( 'download_url_not_allowed' ) ) {
+                            continue;
+                        }
+                        return array( 'status' => false, 'message' => $error_message );
+                    }
+                    continue;
+                }
 
                 $directory_name = substr($url, strrpos($url, "/") + 1, -4);
                 $directory = EMSFB_PLUGIN_DIRECTORY . 'vendor/' . $directory_name;
@@ -3936,8 +3951,8 @@ public function addon_add_efb($value) {
 		}
 
 		if($renew_required){
-			// Subscription expired: the whitestudio.team server refuses the downloads and
-			// notifies the customer by email itself, so no report email is needed here.
+			// Subscription expired: the add-on server refuses the downloads and
+			// notifies the customer itself, so no report email is needed here.
 			$details['success'] = false;
 			return $return_details ? $details : false;
 		}
@@ -4028,7 +4043,7 @@ public function addon_add_efb($value) {
 
 
 	/**
-	 * Constant name of the Iranian mirror used by Persian sites.
+	 * Dedicated add-on API and archive host for Persian sites.
 	 *
 	 * @var string
 	 */
@@ -4037,23 +4052,18 @@ public function addon_add_efb($value) {
 	/**
 	 * How long a "this domain did not answer" verdict is trusted.
 	 *
-	 * Deliberately short: the rule is still "try easyformbuilder.ir first", so
-	 * the mirror has to be given another chance regularly. One hour is long
-	 * enough that a site whose network cannot reach Iran at all is not made to
-	 * wait on every single click, and short enough that the mirror is picked up
-	 * again soon after it comes back.
+	 * Retained for backwards compatibility with existing helper callers. It is
+	 * used only to remember a temporary endpoint failure while the Persian
+	 * add-on flow switches from Whitestudio to Easy Form Builder.
 	 */
 	const EMSFB_ADDON_DOWN_TTL = HOUR_IN_SECONDS;
 
 	/**
 	 * Ordered endpoints for the add-on API.
 	 *
-	 * Persian sites ask easyformbuilder.ir first and fall back to
-	 * whitestudio.team; everyone else only ever uses EMSFB_SERVER_URL. The one
-	 * subtlety is the negative cache: once a request run has proved the mirror
-	 * is unreachable, the next run starts on the fallback instead of spending
-	 * the whole retry ladder on a host that is known to be dead. The mirror is
-	 * still retried once the verdict expires, so "Iran first" keeps holding.
+	 * Persian sites keep Whitestudio as their primary, legacy endpoint and use
+	 * easyformbuilder.ir only when that request cannot complete. Other locales
+	 * retain the established EMSFB_SERVER_URL behaviour without a fallback.
 	 *
 	 * All three add-on call sites (the Add-ons page script, the install
 	 * handler, and the background recovery) go through here so they cannot
@@ -4073,25 +4083,61 @@ public function addon_add_efb($value) {
 			);
 		}
 
-		$mirror = untrailingslashit( self::EMSFB_ADDON_IR_DOMAIN );
-
-		// A stored verdict only ever demotes the mirror; it never promotes the
-		// fallback past a mirror that has not been proven down.
-		if ( 'down' === get_transient( $this->addon_api_down_key_efb( $mirror ) ) ) {
-			return array(
-				'primary'        => $global,
-				'fallback'       => '',
-				'is_persian'     => true,
-				'mirror_skipped' => true,
-			);
-		}
-
 		return array(
-			'primary'        => $mirror,
-			'fallback'       => $global,
+			'primary'        => $global,
+			'fallback'       => untrailingslashit( self::EMSFB_ADDON_IR_DOMAIN ),
 			'is_persian'     => true,
 			'mirror_skipped' => false,
 		);
+	}
+
+	/**
+	 * Validate an add-on archive URL without changing its provider. Persian
+	 * requests first preserve Whitestudio archive links, then re-request the
+	 * existing endpoint path from easyformbuilder.ir only after the first API or
+	 * archive request has failed.
+	 *
+	 * @param  string $url Archive URL supplied by the add-on API.
+	 * @return string|WP_Error
+	 */
+	public function normalize_addon_download_url_efb( $url ) {
+		$url = esc_url_raw( (string) $url );
+		if ( '' === $url ) {
+			return new \WP_Error(
+				'emsfb_addon_download_url_missing',
+				esc_html__( 'The add-on server did not provide a download URL.', 'easy-form-builder' )
+			);
+		}
+
+		// Non-Persian installations keep the historical download behaviour.
+		if ( get_locale() !== 'fa_IR' ) {
+			return $url;
+		}
+
+		$parts  = wp_parse_url( $url );
+		$parts  = is_array( $parts ) ? $parts : array();
+		$host   = isset( $parts['host'] ) ? strtolower( (string) $parts['host'] ) : '';
+		$path   = isset( $parts['path'] ) ? (string) $parts['path'] : '';
+		$allowed_hosts = array(
+			'easyformbuilder.ir',
+			'www.easyformbuilder.ir',
+			'whitestudio.team',
+			'www.whitestudio.team',
+		);
+
+		if (
+			'' === $host
+			|| ! in_array( $host, $allowed_hosts, true )
+			|| '/' !== substr( $path, 0, 1 )
+			|| ! preg_match( '/\.zip$/i', $path )
+		) {
+			return new \WP_Error(
+				'emsfb_addon_download_host_not_allowed',
+				esc_html__( 'The add-on download URL is not an approved Easy Form Builder source.', 'easy-form-builder' )
+			);
+		}
+
+		return $url;
 	}
 
 	/**

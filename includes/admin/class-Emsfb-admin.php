@@ -555,24 +555,24 @@ class Admin {
             return untrailingslashit($base_domain) . '/wp-json/wl/v1/addons-link/' . $server_name . '/' . $post_value . '/' . $vwp . '/' . $vefb . '/';
         };
         /*
-         * One source of truth for the endpoint order: Persian sites ask
-         * easyformbuilder.ir first and fall back to whitestudio.team. When a
-         * previous run already proved the mirror unreachable, the helper starts
-         * on the fallback instead of spending the whole retry ladder on a dead
-         * host - the mirror is retried again once that verdict expires.
+         * One source of truth for endpoint selection. Persian sites keep the
+         * historic Whitestudio request first, then use the identical endpoint
+         * on easyformbuilder.ir only after that request cannot complete.
          */
         $addon_endpoints = get_efbFunction()->addon_api_domains_efb();
         /*
          * Interactive path: an admin is watching a spinner, so the per-request
          * budget is capped well below the 15s the background recovery uses.
-         * whitestudio.team answers in under 2s; a mirror that is silently
-         * dropping packets would otherwise burn the full timeout twice.
+         * A silently dropping add-on host would otherwise burn the full timeout
+         * twice before the UI can show a useful error.
          */
         $addon_request_timeout = 8;
         $domain = $addon_endpoints['primary'];
         $fallback_domain = $addon_endpoints['fallback'];
         $u = $build_addon_url($domain);
-        $using_iran_url = $addon_endpoints['is_persian'] && !$addon_endpoints['mirror_skipped'];
+        $using_iran_url = $addon_endpoints['is_persian']
+            && !empty($addon_endpoints['fallback'])
+            && untrailingslashit($domain) === untrailingslashit($addon_endpoints['fallback']);
 
         $this->addon_install_log_efb('remote_request_prepared', [
             'requested_addon' => $post_value,
@@ -588,8 +588,8 @@ class Admin {
             'using_iran_url' => $using_iran_url,
         ]);
 
-        // A silently dropped connection burns the whole timeout every time, so the
-        // mirror gets two tries rather than three before the fallback is used.
+        // Give the primary endpoint two short tries before moving Persian sites
+        // to the Easy Form Builder fallback.
         $max_attempts = 2;
         $fallback_max_attempts = 2;
         $attempt = 0;
@@ -610,7 +610,7 @@ class Admin {
             $attempt = 0;
             $max_attempts = $fallback_max_attempts;
             $fallback_domain = '';
-            $using_iran_url = false;
+            $using_iran_url = true;
 
             $this->addon_install_log_efb('switching_to_fallback_endpoint', array_merge([
                 'requested_addon' => $post_value,
@@ -919,7 +919,27 @@ class Admin {
             // Download/install the add-on package only when the remote payload
             // explicitly marks it as downloadable.
             if ($data->download == true) {
-                $url = $data->link;
+                $url = $efbFunction->normalize_addon_download_url_efb( isset( $data->link ) ? $data->link : '' );
+                if ( is_wp_error( $url ) ) {
+                    $attempt++;
+                    $this->addon_install_log_efb('download_url_rejected', [
+                        'requested_addon' => $post_value,
+                        'attempt' => $current_attempt,
+                        'error' => $url,
+                    ]);
+                    if ( $attempt >= $max_attempts && $switch_to_fallback('download_url_not_allowed', [
+                        'last_attempt' => $current_attempt,
+                        'error' => $url,
+                    ]) ) {
+                        continue;
+                    }
+                    if ( $attempt < $max_attempts ) {
+                        continue;
+                    }
+                    $response = ['success' => false, 'm' => $url->get_error_message()];
+                    wp_send_json_error($response, 200);
+                    return;
+                }
                 $directory_name = substr($url, strrpos($url, "/") + 1, -4);
                 $directory = EMSFB_PLUGIN_DIRECTORY . 'vendor/' . $directory_name;
                 $directory_exists = file_exists($directory);

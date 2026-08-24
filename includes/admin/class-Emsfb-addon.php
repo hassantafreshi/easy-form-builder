@@ -68,28 +68,29 @@ class Addon {
 		}
 		$server_name = str_replace("www.", "", isset($_SERVER['HTTP_HOST']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : '');
 		/*
-		 * Endpoint order comes from the shared helper so this page, the install
-		 * handler and the background recovery cannot disagree about whether the
-		 * Iranian mirror is live. Persian sites still prefer easyformbuilder.ir;
-		 * the HEAD probe below only runs when no verdict is cached yet.
+		 * The shared helper is the single source of truth for catalogue requests.
+		 * Persian sites retain Whitestudio as the primary legacy source. When it
+		 * does not answer, only then is the same catalogue path loaded from
+		 * easyformbuilder.ir.
 		 */
 		$addon_endpoints = $efb_recovery_fn->addon_api_domains_efb();
 		$domain = $addon_endpoints['primary'];
-		if ( $addon_endpoints['is_persian'] && ! $addon_endpoints['mirror_skipped'] ) {
-			$cached = get_transient( 'emsfb_addons_fa_domain' );
-			if ( false !== $cached ) {
-				$domain = $cached;
+		if ( $addon_endpoints['is_persian'] && ! empty( $addon_endpoints['fallback'] ) ) {
+			$catalogue_cache_key = 'emsfb_addons_fa_catalogue_domain';
+			$cached_domain = get_transient( $catalogue_cache_key );
+			$allowed_domains = array(
+				untrailingslashit( $addon_endpoints['primary'] ),
+				untrailingslashit( $addon_endpoints['fallback'] ),
+			);
+			if ( false !== $cached_domain && in_array( untrailingslashit( $cached_domain ), $allowed_domains, true ) ) {
+				$domain = untrailingslashit( $cached_domain );
 			} else {
 				$probe = wp_remote_head( $domain, array( 'timeout' => 4 ) );
-				if ( is_wp_error( $probe ) || 200 != wp_remote_retrieve_response_code( $probe ) ) {
-					// Record it centrally so the install handler skips the dead
-					// mirror too instead of rediscovering it on the next click.
-					$efb_recovery_fn->addon_api_mark_down_efb( $domain );
-					$domain = $addon_endpoints['fallback'];
-				} else {
-					$efb_recovery_fn->addon_api_mark_up_efb( $domain );
+				$code = is_wp_error( $probe ) ? 0 : (int) wp_remote_retrieve_response_code( $probe );
+				if ( $code < 200 || $code >= 400 ) {
+					$domain = untrailingslashit( $addon_endpoints['fallback'] );
 				}
-				set_transient( 'emsfb_addons_fa_domain', $domain, HOUR_IN_SECONDS );
+				set_transient( $catalogue_cache_key, $domain, 5 * MINUTE_IN_SECONDS );
 			}
 		}
 		wp_register_script('whiteStudioAddone', $domain . '/wp-json/wl/v1/addons.js' .$server_name, null, null, true);
