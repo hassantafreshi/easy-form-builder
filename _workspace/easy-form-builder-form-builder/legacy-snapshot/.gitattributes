@@ -1,0 +1,9 @@
+# This snapshot must remain byte-for-byte identical to the source files
+# copied on 2026-08-29 from dev4@31d17dd3 (see ../dist/efb-form-builder.manifest.json
+# for the recorded SHA-256 of every file here). The repository root's
+# .gitattributes normalizes line endings (`* text=auto`, `eol=lf` for
+# php/js/css/json/md) - without this override, git would silently rewrite
+# these files on checkout/clone, changing their bytes without changing
+# their content, and invalidating every recorded hash. Everything under
+# this directory is therefore explicitly opted out of any text handling.
+* -text -eol
