@@ -1,0 +1,16 @@
+{
+  "name": "easy-form-builder-form-builder",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Extracted, self-contained Form Builder module from Easy Form Builder (WordPress plugin), for future UI redesign without touching backend/state/serialization behavior.",
+  "scripts": {
+    "test": "node --test tests/unit/*.test.mjs",
+    "build:manifest": "node scripts/build-manifest.mjs",
+    "build:bundles": "node scripts/build-legacy-bundles.mjs",
+    "build": "npm run build:manifest && npm run build:bundles"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
