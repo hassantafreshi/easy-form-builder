@@ -1,0 +1,462 @@
+.efb-recorder-shell {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	width: 100%;
+}
+
+/* The "el_height" field setting applies a shared .h-*-efb utility class (meant for single-line
+   inputs/selects) to this field's main element, same as every other field type. Those utility
+   classes carry a fixed !important height that would clip this multi-row widget, so neutralize
+   height there and let the inner frame (.efb-recorder-frame) own its own sizing instead. */
+.efb-recorder-shell[class*="h-"] {
+	height: auto !important;
+	font-size: inherit !important;
+	border: 0 !important;
+}
+
+.efb-recorder-frame {
+	position: relative;
+	width: 100%;
+	min-height: 180px;
+	background: linear-gradient(160deg, #1b1e29 0%, #11131a 100%);
+	border-radius: 16px;
+	border: 2px solid #2b2f3d;
+	overflow: hidden;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: border-color .25s ease, box-shadow .25s ease;
+}
+
+.efb-recorder-shell[data-state="recording"] .efb-recorder-frame {
+	border-color: #dc3545;
+	box-shadow: 0 0 0 4px rgba(220,53,69,.15);
+}
+
+.efb-recorder-audio .efb-recorder-frame {
+	min-height: 130px;
+	background: linear-gradient(160deg, #241b33 0%, #14101d 100%);
+}
+
+.efb-recorder-video-kind .efb-recorder-frame {
+	aspect-ratio: 16 / 9;
+	min-height: 220px;
+	background: linear-gradient(160deg, #2a1620 0%, #140c11 100%);
+}
+
+.efb-recorder-screen-kind .efb-recorder-frame {
+	aspect-ratio: 16 / 9;
+	min-height: 220px;
+	background: linear-gradient(160deg, #0f2230 0%, #0a141c 100%);
+	border-style: dashed;
+}
+
+.efb-recorder-video,
+.efb-recorder-screen {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	background: transparent;
+}
+
+.efb-recorder-meter {
+	width: 85%;
+	height: 64px;
+	position: relative;
+	z-index: 1;
+}
+
+.efb-recorder-idle-hint {
+	position: relative;
+	z-index: 1;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 6px;
+	color: rgba(255,255,255,.55);
+	text-align: center;
+	padding: 0 16px;
+	pointer-events: none;
+}
+
+.efb-recorder-idle-hint i {
+	font-size: 2.1rem;
+	opacity: .7;
+}
+
+.efb-recorder-idle-hint span {
+	font-size: 12px;
+}
+
+.efb-recorder-shell[data-state="recording"] .efb-recorder-idle-hint,
+.efb-recorder-shell[data-state="paused"] .efb-recorder-idle-hint,
+.efb-recorder-shell[data-state="stopped"] .efb-recorder-idle-hint {
+	display: none;
+}
+
+.efb-recorder-watermark {
+	position: absolute;
+	bottom: 10px;
+	right: 12px;
+	z-index: 2;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 2px;
+	opacity: .5;
+	pointer-events: none;
+	color: #fff;
+	text-shadow: 0 1px 3px rgba(0,0,0,.8);
+	font-size: 11px;
+	font-weight: 600;
+	line-height: 1.2;
+	user-select: none;
+}
+
+.efb-recorder-watermark .efb-recorder-domain {
+	font-size: 10px;
+	font-weight: 400;
+	opacity: .85;
+}
+
+.efb-recorder-timer {
+	position: absolute;
+	top: 10px;
+	left: 12px;
+	z-index: 2;
+	background: rgba(220,53,69,.92);
+	color: #fff;
+	font-size: 12px;
+	font-weight: 600;
+	padding: 4px 10px;
+	border-radius: 20px;
+	letter-spacing: .3px;
+}
+
+.efb-recorder-shell[data-state="paused"] .efb-recorder-timer {
+	background: rgba(255,193,7,.92);
+	color: #2b2b00;
+}
+
+.efb-recorder-timer:not(.d-none)::before {
+	content: '';
+	display: inline-block;
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	background: currentColor;
+	margin-right: 6px;
+	vertical-align: middle;
+	animation: efb-rec-blink 1s infinite;
+}
+
+.efb-recorder-shell[data-state="paused"] .efb-recorder-timer::before {
+	animation: none;
+}
+
+@keyframes efb-rec-blink {
+	0%, 100% { opacity: 1; }
+	50% { opacity: .2; }
+}
+
+.efb-recorder-progress-track {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	height: 4px;
+	background: rgba(255,255,255,.12);
+	z-index: 2;
+}
+
+.efb-recorder-progress-bar {
+	height: 100%;
+	width: 0%;
+	background: linear-gradient(90deg, #ff5f6d, #dc3545);
+	transition: width .25s linear;
+}
+
+.efb-recorder-action-row {
+	position: absolute;
+	bottom: 14px;
+	left: 0;
+	right: 0;
+	z-index: 3;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 14px;
+}
+
+.efb-recorder-primary-btn {
+	width: 56px;
+	height: 56px;
+	border-radius: 50%;
+	border: none;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 1.4rem;
+	color: #fff;
+	background: linear-gradient(145deg, #6f42c1, #4636f1);
+	box-shadow: 0 6px 18px rgba(70,54,241,.45);
+	cursor: pointer;
+	transition: transform .15s ease, box-shadow .15s ease, background .25s ease;
+}
+
+.efb-recorder-primary-btn:hover { transform: scale(1.06); }
+.efb-recorder-primary-btn:active { transform: scale(.96); }
+
+.efb-recorder-shell[data-state="recording"] .efb-recorder-primary-btn,
+.efb-recorder-shell[data-state="paused"] .efb-recorder-primary-btn {
+	background: linear-gradient(145deg, #ff5f6d, #dc3545);
+	box-shadow: 0 0 0 0 rgba(220,53,69,.55);
+	animation: efb-rec-pulse 1.6s infinite;
+}
+
+@keyframes efb-rec-pulse {
+	0% { box-shadow: 0 0 0 0 rgba(220,53,69,.45); }
+	70% { box-shadow: 0 0 0 14px rgba(220,53,69,0); }
+	100% { box-shadow: 0 0 0 0 rgba(220,53,69,0); }
+}
+
+.efb-recorder-shell[data-state="stopped"] .efb-recorder-primary-btn {
+	display: none;
+}
+
+.efb-recorder-secondary-btn {
+	width: 42px;
+	height: 42px;
+	border-radius: 50%;
+	border: none;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 1.05rem;
+	color: #fff;
+	background: rgba(255,255,255,.14);
+	backdrop-filter: blur(2px);
+	cursor: pointer;
+	transition: background .2s ease, transform .15s ease;
+}
+
+.efb-recorder-secondary-btn:hover {
+	background: rgba(255,255,255,.26);
+	transform: scale(1.06);
+}
+
+.efb-recorder-status-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+}
+
+/* Upload belongs to the finished-recording action group next to Download.
+   Its state is conveyed by the icon and the existing status row, not a second
+   full-width control that competes with recording controls. */
+.efb-recorder-secondary-btn[data-action="upload"] {
+	background: rgba(13,110,253,.9);
+	box-shadow: 0 3px 10px rgba(13,110,253,.28);
+}
+
+.efb-recorder-secondary-btn[data-action="upload"]:hover:not(:disabled) {
+	background: #0d6efd;
+}
+
+.efb-recorder-secondary-btn.efb-recorder-uploading {
+	background: #6f42c1;
+	cursor: wait;
+}
+
+.efb-recorder-secondary-btn.efb-recorder-uploading i { animation: efb-rec-upload-spin 1s linear infinite; }
+
+.efb-recorder-secondary-btn.efb-recorder-uploaded {
+	background: #198754;
+	cursor: default;
+}
+
+.efb-recorder-secondary-btn.efb-recorder-upload-error {
+	background: #b02a37;
+}
+
+@keyframes efb-rec-upload-spin {
+	from { transform: rotate(0); }
+	to { transform: rotate(360deg); }
+}
+
+.efb-recorder-status {
+	font-size: 12.5px;
+	color: #6c7280;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.efb-recorder-status .efb-recorder-status-dot {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: #adb5bd;
+}
+
+.efb-recorder-shell[data-state="recording"] .efb-recorder-status .efb-recorder-status-dot {
+	background: #dc3545;
+	animation: efb-rec-blink 1s infinite;
+}
+
+.efb-recorder-shell[data-state="stopped"] .efb-recorder-status .efb-recorder-status-dot {
+	background: #198754;
+}
+
+.efb-recorder-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	font-size: 11px;
+	font-weight: 600;
+	padding: 2px 9px;
+	border-radius: 12px;
+	background: rgba(108,114,128,.12);
+	color: #6c7280;
+}
+
+.efb-recorder-screen-kind .efb-recorder-badge {
+	background: rgba(13,166,202,.12);
+	color: #0da6ca;
+}
+
+.efb-recorder-video-kind .efb-recorder-badge {
+	background: rgba(220,53,69,.1);
+	color: #dc3545;
+}
+
+.efb-recorder-audio .efb-recorder-badge {
+	background: rgba(111,66,193,.12);
+	color: #6f42c1;
+}
+
+/* ---- UX extras (docs/recorder-fields.md) ---------------------------------- */
+
+/* Get-ready countdown overlay (rec_countdown) */
+.efb-recorder-countdown {
+	position: absolute;
+	inset: 0;
+	z-index: 4;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 4.5rem;
+	font-weight: 700;
+	color: #fff;
+	background: rgba(10, 12, 20, .55);
+	text-shadow: 0 4px 18px rgba(0,0,0,.6);
+	pointer-events: none;
+	animation: efb-rec-count-pop 1s infinite;
+	user-select: none;
+}
+
+@keyframes efb-rec-count-pop {
+	0% { letter-spacing: 0; opacity: .4; }
+	15% { opacity: 1; }
+	100% { letter-spacing: 2px; opacity: .85; }
+}
+
+.efb-recorder-shell[data-state="countdown"] .efb-recorder-idle-hint {
+	display: none;
+}
+
+/* Mirrored LIVE selfie preview (rec_mirror); playback is never mirrored */
+.efb-recorder-mirrored .efb-recorder-video {
+	transform: scaleX(-1);
+}
+
+/* Inline playback for a finished audio recording */
+.efb-recorder-audio-playback {
+	position: relative;
+	z-index: 1;
+	width: 85%;
+	max-width: 420px;
+	height: 40px;
+}
+
+/* Unsupported environment (no HTTPS / old browser / screen capture on mobile):
+   the reason replaces the idle hint and the start button is disabled */
+.efb-recorder-unsupported .efb-recorder-frame {
+	border-style: dashed;
+	border-color: #b02a37;
+}
+
+.efb-recorder-unsupported .efb-recorder-idle-hint {
+	color: #ffd7db;
+}
+
+.efb-recorder-unsupported .efb-recorder-idle-hint i {
+	color: #ff8b95;
+	opacity: 1;
+}
+
+.efb-recorder-unsupported-msg {
+	font-size: 12px;
+	line-height: 1.5;
+	max-width: 420px;
+}
+
+.efb-recorder-unsupported .efb-recorder-primary-btn,
+.efb-recorder-primary-btn:disabled {
+	background: #6c7280;
+	box-shadow: none;
+	cursor: not-allowed;
+	opacity: .55;
+	transform: none;
+}
+
+/* ---- Generic field style settings (shell -> frame translation) -----------------
+   The shell carries the same generic setting classes as every other field's main
+   element (el_height h-*-efb, corner rounded-0..5/efb-square, el_border_color
+   border-*, custom CSS classes). Those utilities are designed for single-line
+   inputs, so each is translated into the equivalent look on the inner frame.
+   These rules sit AFTER the kind-specific frame rules on purpose - equal
+   specificity, later source order wins. */
+
+/* Height: the chosen size scales the recording area instead of clipping the widget.
+   Audio frames are free-height, so min-height alone drives them. */
+.efb-recorder-audio.h-l-efb .efb-recorder-frame { min-height: 160px; }
+.efb-recorder-audio.h-xl-efb .efb-recorder-frame { min-height: 200px; }
+.efb-recorder-audio.h-xxl-efb .efb-recorder-frame { min-height: 240px; }
+.efb-recorder-audio.h-xxxl-efb .efb-recorder-frame { min-height: 300px; }
+
+/* Video/screen frames lock their height to a 16:9 aspect-ratio, so min-height is
+   ignored (the width-derived height already exceeds it). Release the aspect-ratio
+   for these kinds when a height is chosen and drive an explicit height instead.
+   Two shell classes + the frame class = specificity 0,3,0, which beats the base
+   `.efb-recorder-video-kind .efb-recorder-frame` aspect-ratio rule (0,2,0). */
+.efb-recorder-video-kind.h-l-efb .efb-recorder-frame,
+.efb-recorder-screen-kind.h-l-efb .efb-recorder-frame { aspect-ratio: auto; height: 240px; min-height: 240px; }
+.efb-recorder-video-kind.h-xl-efb .efb-recorder-frame,
+.efb-recorder-screen-kind.h-xl-efb .efb-recorder-frame { aspect-ratio: auto; height: 300px; min-height: 300px; }
+.efb-recorder-video-kind.h-xxl-efb .efb-recorder-frame,
+.efb-recorder-screen-kind.h-xxl-efb .efb-recorder-frame { aspect-ratio: auto; height: 380px; min-height: 380px; }
+.efb-recorder-video-kind.h-xxxl-efb .efb-recorder-frame,
+.efb-recorder-screen-kind.h-xxxl-efb .efb-recorder-frame { aspect-ratio: auto; height: 460px; min-height: 460px; }
+
+/* Corners > Rounded: frame radius follows the shell's rounded-N class
+   (efb-square / no class keeps the designed 16px default) */
+.efb-recorder-shell.rounded-0 .efb-recorder-frame { border-radius: 0; }
+.efb-recorder-shell.rounded-1 .efb-recorder-frame { border-radius: 4px; }
+.efb-recorder-shell.rounded-2 .efb-recorder-frame { border-radius: 8px; }
+.efb-recorder-shell.rounded-3 .efb-recorder-frame { border-radius: 12px; }
+.efb-recorder-shell.rounded-4 .efb-recorder-frame { border-radius: 16px; }
+.efb-recorder-shell.rounded-5 .efb-recorder-frame { border-radius: 24px; }
+
+/* Border Color: bootstrap border-* utilities set border-color on the shell (which
+   draws no border itself); the frame inherits it. .border-d = untouched default so
+   the designed dark frame border stays until the user actually picks a color.
+   :where() keeps specificity below the data-state rules, so the recording-red and
+   unsupported borders still win. Validation border-danger/success work here too. */
+.efb-recorder-shell:where([class*="border-"]:not(.border-d):not(.efb-recorder-unsupported)) .efb-recorder-frame {
+	border-color: inherit;
+}

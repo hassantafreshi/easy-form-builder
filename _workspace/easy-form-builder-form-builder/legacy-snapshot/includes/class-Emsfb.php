@@ -1,0 +1,1977 @@
+<?php
+
+if (!defined('ABSPATH')) {
+    die("Direct access of plugin files is not allowed.");
+}
+
+class Emsfb {
+    public $plugin_path = "";
+
+    public $plugin_url = "";
+
+    private $missing_core_files = [];
+
+    private $core_files_ok = true;
+
+    public function __construct() {
+        $this->plugin_path = EMSFB_PLUGIN_DIRECTORY;
+        $this->plugin_url  = EMSFB_PLUGIN_URL;
+
+        $this->includes();
+        if (!$this->core_files_ok) {
+            // Incomplete installation (e.g. a plugin update that did not copy
+            // every file): stay inert instead of fataling the whole site. The
+            // admin notice added by require_plugin_file_efb() asks for a reinstall.
+            return;
+        }
+        $this->init_hooks();
+        if(is_admin()==false){ $this->webhooks();
+        }else{
+            $this->init_elementor_compatibility();
+        }
+
+    }
+
+    private function init_hooks(): void {
+        register_activation_hook(
+            EMSFB_PLUGIN_FILE,
+            ['\Emsfb\Install', 'install']
+        );
+
+        register_deactivation_hook(
+            EMSFB_PLUGIN_FILE,
+            [$this, 'plugin_deactivation_cleanup_efb']
+        );
+
+        add_action('activated_plugin', [$this, 'handle_new_plugin_activation_efb'], 10, 2);
+        add_action('deactivated_plugin', [$this, 'handle_plugin_deactivation_efb'], 10, 1);
+
+        add_action('emsfb_update_cache_plugins_list', [$this, 'update_cache_plugins_list']);
+        add_action('emsfb_update_security_plugins_list', [$this, 'update_security_plugins_list']);
+
+        add_filter('emsfb_get_server_host', [$this, 'get_cached_server_host_efb']);
+
+        add_action('emsfb_file_access_check_after_activation', 'emsfb_check_file_access_efb');
+
+        add_action('upgrader_process_complete', [$this, 'plugin_update_completed_efb'], 10, 2);
+
+        // Register recovery before admin-ajax dispatch. efbFunction instances
+        // are lazy, so registering this there can leave the Recover button with
+        // WordPress's opaque "0" response on a fresh AJAX request.
+        add_action('wp_ajax_emsfb_recover_addons', [$this, 'ajax_recover_addons_efb']);
+
+        add_action('plugins_loaded', [$this, 'check_version_and_upgrade_efb']);
+        add_action('plugins_loaded', [$this, 'maybe_upgrade_schema_efb'], 11);
+
+        // Must sit after rest_cookie_check_errors (priority 100) so it can see,
+        // and selectively undo, the 403 that core raises for a stale nonce.
+        add_filter('rest_authentication_errors', [$this, 'allow_anonymous_stale_nonce_efb'], 101);
+
+        add_action('emsfb_daily_maintenance', [$this, 'run_daily_maintenance_efb']);
+        add_action('emsfb_revalidate_license', [$this, 'run_license_revalidation_efb']);
+        add_action('emsfb_refresh_ir_cdn_status', [$this, 'refresh_ir_cdn_status_efb']);
+        // Bound here, not in efbFunction's constructor: efbFunction is created
+        // lazily, and a wp-cron.php request never touches the admin or form code
+        // that would create it. The listener has to exist before the event fires.
+        add_action('emsfb_addon_recovery_event', [$this, 'run_addon_recovery_efb'], 10, 1);
+        add_action('init', [$this, 'schedule_background_jobs_efb']);
+    }
+
+    /**
+     * Apply schema migrations whenever the stored DB version is behind.
+     *
+     * Deliberately independent of the plugin-version upgrade path: the tables
+     * spent several releases unable to receive any change at all (dbDelta was
+     * handed "CREATE TABLE IF NOT EXISTS" and so never emitted an ALTER), so a
+     * site can be on the current plugin version and still be missing indexes.
+     * The guard is a single cached option read, cheap enough for every request.
+     *
+     * @return void
+     */
+    public function maybe_upgrade_schema_efb(): void {
+        $stored = get_option('Emsfb_db_version', '0');
+
+        if (version_compare((string) $stored, (string) EMSFB_DB_VERSION, '>=')) {
+            return;
+        }
+
+        if (!class_exists('\Emsfb\Install') || !method_exists('\Emsfb\Install', 'upgrade_schema')) {
+            return;
+        }
+
+        \Emsfb\Install::upgrade_schema();
+    }
+
+    /**
+     * Keep a page-cached form submittable for anonymous visitors.
+     *
+     * A caching plugin freezes wp_create_nonce('wp_rest') into the stored HTML.
+     * Once that copy outlives the 12-24h nonce window, core's
+     * rest_cookie_check_errors() rejects every submission with
+     * rest_cookie_invalid_nonce - and it does so on rest_authentication_errors,
+     * which runs before any permission_callback, so the plugin's own sid
+     * fallback and its nonce/refresh endpoint never get a chance to recover.
+     * Reloading does not help either: the same cached HTML replays the same
+     * dead nonce, so the form stays broken until someone purges the cache.
+     *
+     * For a logged-OUT visitor that nonce is not a CSRF token in any meaningful
+     * sense: wp_create_nonce() derives it from user id 0 and an empty session
+     * token, so every anonymous visitor shares the same value and anyone can
+     * mint one by loading a page. Core already treats a request with no nonce
+     * at all as simply unauthenticated (rest-api.php:1147-1151). A stale nonce
+     * from such a visitor carries exactly as much authority as no nonce, so we
+     * put the request back on that same unauthenticated path instead of
+     * failing it.
+     *
+     * A logged-in user is left untouched: there the nonce is bound to their
+     * session and is the real CSRF defence, so the 403 must stand.
+     *
+     * @param WP_Error|null|true $result Current authentication result.
+     * @return WP_Error|null|true
+     */
+    public function allow_anonymous_stale_nonce_efb($result) {
+        if (!is_wp_error($result) || 'rest_cookie_invalid_nonce' !== $result->get_error_code()) {
+            return $result;
+        }
+
+        // Never relax this for someone carrying a valid auth cookie.
+        if (is_user_logged_in()) {
+            return $result;
+        }
+
+        if (!$this->is_efb_public_rest_request_efb()) {
+            return $result;
+        }
+
+        // Same handling core gives a request that sent no nonce at all.
+        wp_set_current_user(0);
+
+        return true;
+    }
+
+    /**
+     * Whether the current REST request targets one of the plugin's own public
+     * routes. Scoped deliberately: the nonce relaxation above must not change
+     * behaviour for core or for any other plugin's endpoints.
+     *
+     * @return bool
+     */
+    private function is_efb_public_rest_request_efb(): bool {
+        $candidates = [];
+
+        // Plain permalinks: ?rest_route=/Emsfb/v1/...
+        if (isset($_GET['rest_route'])) {
+            $candidates[] = sanitize_text_field(wp_unslash($_GET['rest_route']));
+        }
+
+        // Pretty permalinks: /wp-json/Emsfb/v1/...
+        if (isset($_SERVER['REQUEST_URI'])) {
+            $candidates[] = sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI']));
+        }
+
+        foreach ($candidates as $route) {
+            if ('' === $route) {
+                continue;
+            }
+            foreach (['Emsfb/v1/', 'EmsfbShield/v1/'] as $namespace) {
+                if (false !== strpos($route, $namespace)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Register the background jobs that must not run inside a page render.
+     *
+     * @return void
+     */
+    public function schedule_background_jobs_efb(): void {
+        $events = [
+            'emsfb_daily_maintenance'    => 'daily',
+            'emsfb_revalidate_license'   => 'daily',
+            'emsfb_refresh_ir_cdn_status' => 'hourly',
+        ];
+
+        foreach ($events as $hook => $recurrence) {
+            if (!wp_next_scheduled($hook)) {
+                wp_schedule_event(time() + 300, $recurrence, $hook);
+            }
+        }
+    }
+
+    /**
+     * Prune the session table for every site, licensed or not.
+     *
+     * Previously this ran only from weekly_check_pro_efb(), so a free site
+     * never pruned emsfb_stts_ at all: one row per form page view, forever,
+     * against a table whose only index was the primary key.
+     *
+     * @return void
+     */
+    public function run_daily_maintenance_efb(): void {
+        $fn = self::get_efbFunction();
+        if ($fn && method_exists($fn, 'delete_old_rows_emsfb_stts_')) {
+            $fn->delete_old_rows_emsfb_stts_();
+        }
+    }
+
+    /**
+     * Re-validate the Pro licence away from the request path.
+     *
+     * @return void
+     */
+    public function run_license_revalidation_efb(): void {
+        $fn = self::get_efbFunction();
+        if ($fn && method_exists($fn, 'cron_check_pro_efb')) {
+            $fn->cron_check_pro_efb();
+        }
+    }
+
+    /**
+     * Reinstall missing add-on files away from a visitor's page load.
+     *
+     * @param array $context Diagnostic context handed over by the scheduler.
+     * @return void
+     */
+    public function run_addon_recovery_efb($context = []): void {
+        $fn = self::get_efbFunction();
+        if ($fn && method_exists($fn, 'run_addon_recovery_event_efb')) {
+            $fn->run_addon_recovery_event_efb(is_array($context) ? $context : []);
+        }
+    }
+
+    /**
+     * Refresh the Iran CDN reachability flag on a schedule instead of inside a
+     * visitor's page load. See the notes in emsfb.php.
+     *
+     * @return void
+     */
+    public function refresh_ir_cdn_status_efb(): void {
+        if (!function_exists('emsfb_probe_ir_cdn_status_efb')) {
+            return;
+        }
+        emsfb_probe_ir_cdn_status_efb();
+    }
+
+    public function includes(): void {
+        $core_ok = $this->require_plugin_file_efb('includes/class-Emsfb-install.php');
+        $core_ok = $this->require_plugin_file_efb('includes/class-Emsfb-email-monitor.php') && $core_ok;
+        $core_ok = $this->require_plugin_file_efb('includes/class-Emsfb-addon-compatibility.php') && $core_ok;
+
+        // No-ops when class-Emsfb-addon-compatibility.php loaded above; keeps
+        // the helper functions callable when that file is missing on disk.
+        $this->define_compatibility_fallbacks_efb();
+
+        // Loaded after the compatibility helpers it uses, and before anything
+        // can send mail, so the wp_mail hooks are in place for every request.
+        if ($this->require_plugin_file_efb('includes/class-Emsfb-email-trace.php')) {
+            \Emsfb\Email_Trace::register();
+        }
+
+        // Shared upload policy (size, type, per-visitor quota, orphan sweeper).
+        // Must load before the public and admin classes below, which call it
+        // from their upload handlers, and it uses the compatibility helpers
+        // required above for the finfo availability check.
+        $core_ok = $this->require_plugin_file_efb('includes/class-Emsfb-upload-guard.php') && $core_ok;
+        if (class_exists('\\Emsfb\\Upload_Guard')) {
+            \Emsfb\Upload_Guard::register();
+        }
+
+        if (!$core_ok) {
+            $this->core_files_ok = false;
+            return;
+        }
+
+        if (is_admin()) {
+            $admin_ok = $this->require_plugin_file_efb('includes/admin/class-Emsfb-admin.php');
+            $admin_ok = $this->require_plugin_file_efb('includes/admin/class-Emsfb-create.php') && $admin_ok;
+            $admin_ok = $this->require_plugin_file_efb('includes/admin/class-Emsfb-addon.php') && $admin_ok;
+            $admin_ok = $this->require_plugin_file_efb('includes/admin/class-Emsfb-dashboard-widget.php') && $admin_ok;
+            if (!$admin_ok) {
+                $this->core_files_ok = false;
+                return;
+            }
+            new \Emsfb\Dashboard_Widget();
+            $ac = self::get_setting_Emsfb('decoded');
+
+            $payment_exists = isset($ac->AdnPAP) ? (int) $ac->AdnPAP : 0;
+            if ($payment_exists === 1 && emsfb_is_addon_compatible_efb( 'AdnPAP' )) {
+                $payment_file_path = $this->plugin_path . 'vendor/paypal/class-Emsfb-paypal-payment.php';
+                if (file_exists($payment_file_path)) {
+                    require_once $payment_file_path;
+                    new \Emsfb\PaypalPayment();
+                }
+            }
+
+            $stripe_exists = isset($ac->AdnSPF) ? (int) $ac->AdnSPF : 0;
+            if ($stripe_exists === 1 && emsfb_is_addon_compatible_efb( 'AdnSPF' )) {
+                $stripe_file_path = $this->plugin_path . 'vendor/stripe/class-Emsfb-stripe-payment.php';
+                if (file_exists($stripe_file_path)) {
+                    require_once $stripe_file_path;
+                    new \Emsfb\StripePayment();
+                }
+            }
+
+            $sms_exists = isset($ac->AdnSS) ? (int) $ac->AdnSS : 0;
+            if ($sms_exists === 1 && emsfb_is_addon_compatible_efb( 'AdnSS' )) {
+                $sms_file_path = EMSFB_PLUGIN_DIRECTORY . '/vendor/smssended/class-Emsfb-sms.php';
+                if (file_exists($sms_file_path)) {
+                    require_once $sms_file_path;
+                }
+            }
+            $auto_fill_exists = isset($ac->AdnATF) ? (int) $ac->AdnATF : 0;
+
+            if ($auto_fill_exists === 1 && emsfb_is_addon_compatible_efb( 'AdnATF' )) {
+                $auto_fill_file_path = EMSFB_PLUGIN_DIRECTORY . '/vendor/autofill/class-Emsfb-autofill.php';
+                if (file_exists($auto_fill_file_path)) {
+                    require_once $auto_fill_file_path;
+                }
+            }
+            $google_sheet_exists = isset($ac->AdnGoS) ? (int) $ac->AdnGoS : 0;
+            if ($google_sheet_exists >= 1 && emsfb_is_addon_compatible_efb( 'AdnGoS' )) {
+                $google_sheet_file_path = EMSFB_PLUGIN_DIRECTORY . '/vendor/googlesheet/class-Emsfb-googlesheet.php';
+                if (file_exists($google_sheet_file_path)) {
+                    require_once $google_sheet_file_path;
+                    if (class_exists('\\Emsfb\\GoogleSheetAddon')) {
+                        new \Emsfb\GoogleSheetAddon();
+                    }
+                }
+            }
+            $telegram_exists = isset($ac->AdnTLG) ? (int) $ac->AdnTLG : 0;
+              if ($telegram_exists >= 1 && emsfb_is_addon_compatible_efb( 'AdnTLG' )) {
+                  $telegram_file_path = EMSFB_PLUGIN_DIRECTORY . '/vendor/telegram/class-Emsfb-telegram.php';
+                  if (file_exists($telegram_file_path)) {
+                      require_once $telegram_file_path;
+                      new \Emsfb\telegramlistefb();
+                  }
+
+
+                  $telegram_send_path = EMSFB_PLUGIN_DIRECTORY . '/vendor/telegram/telegram-new-efb.php';
+                  if (file_exists($telegram_send_path)) {
+                      require_once $telegram_send_path;
+                  }
+              }
+
+		}
+
+		$ac_routes = self::get_setting_Emsfb( 'decoded' );
+
+        if (is_object($ac_routes)) {
+
+            /*
+             * The external Auto-Populate route is used by a visitor's form,
+             * not by wp-admin.  Loading the API handler only from the admin
+             * add-on bootstrap meant the browser could enqueue its public JS
+             * successfully but POST to a route which had never been
+             * registered (404).  The handler is deliberately loaded on the
+             * public runtime as well; it registers only its REST route here.
+             */
+            $autofill_api_public = isset($ac_routes->AdnATF) ? (int) $ac_routes->AdnATF : 0;
+            if ($autofill_api_public >= 1 && emsfb_is_addon_compatible_efb('AdnATF')) {
+                $autofill_api_handler = EMSFB_PLUGIN_DIRECTORY . '/vendor/autofill/class-Emsfb-autofill-api.php';
+                if (file_exists($autofill_api_handler)) {
+                    require_once $autofill_api_handler;
+                }
+            }
+
+            $telegram_public = isset($ac_routes->AdnTLG) ? (int) $ac_routes->AdnTLG : 0;
+            if ($telegram_public >= 1 && emsfb_is_addon_compatible_efb( 'AdnTLG' )) {
+
+                $telegram_send_path_public = EMSFB_PLUGIN_DIRECTORY . '/vendor/telegram/telegram-new-efb.php';
+                if (file_exists($telegram_send_path_public)) {
+                    require_once $telegram_send_path_public;
+                }
+            }
+
+            $sms_public = isset($ac_routes->AdnSS) ? (int) $ac_routes->AdnSS : 0;
+            if ($sms_public === 1 && emsfb_is_addon_compatible_efb( 'AdnSS' )) {
+                $sms_file_path = EMSFB_PLUGIN_DIRECTORY . '/vendor/smssended/class-Emsfb-sms.php';
+                if (file_exists($sms_file_path)) {
+                    require_once $sms_file_path;
+                }
+            }
+
+            $google_sheet_public = isset($ac_routes->AdnGoS) ? (int) $ac_routes->AdnGoS : 0;
+            if ($google_sheet_public >= 1 && emsfb_is_addon_compatible_efb( 'AdnGoS' )) {
+                $google_sheet_file_path_public = EMSFB_PLUGIN_DIRECTORY . '/vendor/googlesheet/class-Emsfb-googlesheet.php';
+                if (file_exists($google_sheet_file_path_public)) {
+                    require_once $google_sheet_file_path_public;
+                    if (class_exists('\\Emsfb\\GoogleSheetAddon')) {
+                        new \Emsfb\GoogleSheetAddon();
+                    }
+                }
+            }
+
+			// AdnSMF — Conditional Logic addon: load validator and register filters
+			$logic_public = isset( $ac_routes->AdnSMF ) ? (int) $ac_routes->AdnSMF : 0;
+			if ( $logic_public >= 1 && emsfb_is_addon_compatible_efb( 'AdnSMF' ) ) {
+				$logic_validator_file = EMSFB_PLUGIN_DIRECTORY . '/vendor/logic/logic/class-Emsfb-logic-validator.php';
+				if ( ! file_exists( $logic_validator_file ) ) {
+					$logic_validator_file = EMSFB_PLUGIN_DIRECTORY . '/vendor/logic/class-Emsfb-logic-validator.php';
+				}
+				if ( file_exists( $logic_validator_file ) ) {
+					require_once $logic_validator_file;
+				}
+			}
+
+			if ( ! empty( $ac_routes->AdnPAP ) && emsfb_is_addon_compatible_efb( 'AdnPAP' ) ) {
+				$f = $this->plugin_path . 'vendor/paypal/routes-efb.php';
+				if ( file_exists( $f ) ) {
+					require_once $f;
+				}
+			}
+
+			if ( ! empty( $ac_routes->AdnSPF ) && emsfb_is_addon_compatible_efb( 'AdnSPF' ) ) {
+				$f = $this->plugin_path . 'vendor/stripe/routes-efb.php';
+				if ( file_exists( $f ) ) {
+					require_once $f;
+				}
+			}
+
+			if ( ! empty( $ac_routes->AdnPPF ) && emsfb_is_addon_compatible_efb( 'AdnPPF' ) ) {
+				$this->load_persiapay_addon();
+
+				$f = $this->plugin_path . 'vendor/persiapay/routes-efb.php';
+				if ( file_exists( $f ) ) {
+					require_once $f;
+				}
+			}
+        }
+
+		$shield_file = $this->plugin_path . 'includes/integrations/class-Emsfb-shield-silentcaptcha.php';
+		if (file_exists($shield_file)) {
+			require_once $shield_file;
+			new Emsfb_Shield_SilentCaptcha_Integration();
+		}
+
+		// Form Security & Spam Protection (Human Shield) ships inside the plugin.
+		// The protection *runtime* only activates when the add-on is switched on
+		// (AdnHSH >= 1); it stays off by default so form/submission behaviour does
+		// not change until the user opts in. The *admin settings page* is always
+		// registered in wp-admin (whenever the files exist) so it is reachable from
+		// the menu even while protection is off — the add-on's constructor wires
+		// the runtime and the admin page independently based on the constant below.
+		$human_shield_runtime = is_object( $ac_routes )
+			&& property_exists( $ac_routes, 'AdnHSH' )
+			&& (int) $ac_routes->AdnHSH >= 1
+			&& emsfb_is_addon_compatible_efb( 'AdnHSH' );
+
+		// Load in admin so the settings page shows, or on the front-end only when
+		// the runtime is active (no needless work on public requests when off).
+		if ( $human_shield_runtime || ( is_admin() && emsfb_is_addon_compatible_efb( 'AdnHSH' ) ) ) {
+			if ( ! defined( 'EFB_HUMAN_SHIELD_RUNTIME' ) ) {
+				define( 'EFB_HUMAN_SHIELD_RUNTIME', $human_shield_runtime ? 1 : 0 );
+			}
+			$human_shield_file = $this->plugin_path . 'vendor/human-shield/human-shield-efb.php';
+			if ( file_exists( $human_shield_file ) ) {
+				require_once $human_shield_file;
+			}
+		}
+
+		if (!$this->require_plugin_file_efb('includes/class-Emsfb-public.php')) {
+			$this->core_files_ok = false;
+			return;
+		}
+
+		// The toolbar control is loaded outside wp-admin as well, so authorized
+		// users can see and change the current sandbox state wherever the
+		// WordPress admin bar is displayed.
+		if ($this->require_plugin_file_efb('includes/class-Emsfb-admin-bar.php')) {
+			new \Emsfb\Admin_Bar_Development_Mode();
+		}
+
+       $this->load_page_builder_integrations();
+
+    }
+
+    /**
+     * Require one of the plugin's own PHP files only when it exists on disk.
+     *
+     * A file can legitimately be absent after an incomplete update or deploy;
+     * requiring it blindly turns that into a fatal error that takes the whole
+     * site down. Missing files are collected and reported once through an
+     * admin notice that asks for a plugin reinstall.
+     *
+     * @param string $relative_path Path relative to the plugin root.
+     * @return bool True when the file was loaded.
+     */
+    private function require_plugin_file_efb(string $relative_path): bool {
+        $absolute_path = $this->plugin_path . $relative_path;
+
+        if (file_exists($absolute_path)) {
+            require_once $absolute_path;
+            return true;
+        }
+
+        if (empty($this->missing_core_files)) {
+            add_action('admin_notices', [$this, 'missing_core_files_notice_efb']);
+        }
+        $this->missing_core_files[] = $relative_path;
+
+        if (function_exists('error_log')) {
+            error_log('Easy Form Builder: required plugin file is missing: ' . $absolute_path);
+        }
+
+        return false;
+    }
+
+    /**
+     * Admin notice listing the plugin files that were missing on disk.
+     *
+     * @return void
+     */
+    public function missing_core_files_notice_efb(): void {
+        if (!current_user_can('activate_plugins')) {
+            return;
+        }
+
+        $files = array_map('esc_html', array_unique($this->missing_core_files));
+        echo '<div class="notice notice-error"><p><b>Easy Form Builder:</b> '
+            . esc_html__('Some plugin files are missing, so the plugin stopped loading to keep your site running. Please reinstall Easy Form Builder from the Plugins page — your forms, messages, and settings are kept.', 'easy-form-builder')
+            . '</p><p>' . esc_html__('Missing files:', 'easy-form-builder') . ' <code>'
+            . implode('</code>, <code>', $files)
+            . '</code></p></div>';
+    }
+
+    /**
+     * Minimal stand-ins for the class-Emsfb-addon-compatibility.php helpers.
+     *
+     * emsfb.php and scheduled hooks call these helpers even when includes()
+     * bails out early, so they must exist in a degraded install too. Every
+     * definition is skipped when the real implementation is already loaded.
+     *
+     * @return void
+     */
+    private function define_compatibility_fallbacks_efb(): void {
+        if (!function_exists('emsfb_is_addon_compatible_efb')) {
+            function emsfb_is_addon_compatible_efb($addon_key) {
+                return true;
+            }
+        }
+        if (!function_exists('emsfb_is_php_function_available_efb')) {
+            function emsfb_is_php_function_available_efb($function_name) {
+                return function_exists($function_name) && is_callable($function_name);
+            }
+        }
+        if (!function_exists('emsfb_is_php_function_disabled_efb')) {
+            function emsfb_is_php_function_disabled_efb($function_name) {
+                return !emsfb_is_php_function_available_efb($function_name);
+            }
+        }
+        if (!function_exists('emsfb_get_missing_addon_functions_efb')) {
+            function emsfb_get_missing_addon_functions_efb($addon_key) {
+                return [];
+            }
+        }
+        if (!function_exists('emsfb_get_incompatible_addons_efb')) {
+            function emsfb_get_incompatible_addons_efb($settings = null) {
+                return [];
+            }
+        }
+        if (!function_exists('emsfb_get_addon_unavailable_message_efb')) {
+            function emsfb_get_addon_unavailable_message_efb($addon_key) {
+                return '';
+            }
+        }
+        if (!function_exists('emsfb_read_file_efb')) {
+            function emsfb_read_file_efb($path) {
+                if (!emsfb_is_php_function_available_efb('file_get_contents')) {
+                    return false;
+                }
+                return @file_get_contents($path);
+            }
+        }
+        if (!function_exists('emsfb_get_php_ini_value_efb')) {
+            function emsfb_get_php_ini_value_efb($name, $default = '') {
+                if (!emsfb_is_php_function_available_efb('ini_get')) {
+                    return $default;
+                }
+                $value = @ini_get($name);
+                return false === $value ? $default : $value;
+            }
+        }
+        if (!function_exists('emsfb_generate_token_efb')) {
+            function emsfb_generate_token_efb($length = 16) {
+                if (function_exists('wp_generate_password')) {
+                    return wp_generate_password($length, false, false);
+                }
+                return substr(md5(uniqid((string) wp_rand(), true)), 0, $length);
+            }
+        }
+        if (!function_exists('emsfb_reset_php_compatibility_cache_efb')) {
+            function emsfb_reset_php_compatibility_cache_efb() {
+            }
+        }
+        // Degraded stand-in only: entities stay as written, which still reads
+        // correctly everywhere the string reaches markup.
+        if (!function_exists('emsfb_decode_typographic_entities_efb')) {
+            function emsfb_decode_typographic_entities_efb($data) {
+                return $data;
+            }
+        }
+    }
+
+    /**
+     * Load the PersiaPay script bootstrap once the add-on is enabled.
+     *
+     * @return void
+     */
+    private function load_persiapay_addon(): void {
+        // PersiaPay registers its editor/front-end script through this bootstrap
+        // class. Loading only its REST route leaves the add-on installed but
+        // without the hook that exposes its payment UI.
+        if ( ! emsfb_is_addon_compatible_efb( 'AdnPPF' ) ) {
+            return;
+        }
+
+        $persia_bootstrap = $this->plugin_path . 'vendor/persiapay/persiapayefb.php';
+        if ( ! file_exists( $persia_bootstrap ) ) {
+            return;
+        }
+
+        require_once $persia_bootstrap;
+        if ( class_exists( '\\Emsfb\\persiapayEFB', false ) ) {
+            new \Emsfb\persiapayEFB();
+        }
+    }
+
+    private function load_page_builder_integrations(): void {
+
+        if (!$this->require_plugin_file_efb('includes/class-Emsfb-widgets-helper.php')) {
+            return;
+        }
+
+        if (function_exists('register_block_type')) {
+            $this->require_plugin_file_efb('includes/page-builders/gutenberg/class-Emsfb-gutenberg-block.php');
+        }
+
+        if (did_action('elementor/loaded') || class_exists('\Elementor\Plugin')) {
+            $this->require_plugin_file_efb('includes/page-builders/elementor/class-Emsfb-elementor.php');
+        } else {
+
+            add_action('elementor/loaded', function() {
+                if (!class_exists('Emsfb_Elementor_Integration')) {
+                    $this->require_plugin_file_efb('includes/page-builders/elementor/class-Emsfb-elementor.php');
+                }
+            });
+        }
+
+        if (defined('WPB_VC_VERSION') || class_exists('Vc_Manager')) {
+            $this->require_plugin_file_efb('includes/page-builders/wpbakery/class-Emsfb-wpbakery.php');
+        } else {
+
+            add_action('vc_before_init', function() {
+                if (!class_exists('Emsfb_WPBakery_Integration')) {
+                    $this->require_plugin_file_efb('includes/page-builders/wpbakery/class-Emsfb-wpbakery.php');
+                }
+            }, 5);
+        }
+
+        if (defined('VCV_VERSION')) {
+            $this->require_plugin_file_efb('includes/page-builders/visual-composer/class-Emsfb-visual-composer.php');
+        } else {
+            add_action('vcv:api', function() {
+                if (!class_exists('Emsfb_Visual_Composer_Integration')) {
+                    $this->require_plugin_file_efb('includes/page-builders/visual-composer/class-Emsfb-visual-composer.php');
+                }
+            }, 5);
+        }
+    }
+
+    public function webhooks(){
+
+    }
+
+
+    public function handle_new_plugin_activation_efb($plugin, $network_wide = false) {
+
+        $cache_plugins_slug = array(
+            'wp-optimize', 'hummingbird-performance', 'big-scoots-cache', 'wp-cloudflare-page-cache',
+            'breeze', 'jetpack', 'w3-total-cache', 'wp-fastest-cache',
+            'wp-rocket', 'comet-cache', 'hyper-cache', 'cache-enabler',
+            'wp-super-cache', 'litespeed-cache', 'nitropack', 'jetpack-boost',
+            'autoptimize', 'wp-rest-cache', 'speedycache', 'clear-cache-for-widgets',
+            'wp-cache', 'wp-cache-system', 'atec-cache-info', 'atec-cache-apcu',
+            'wpspeed', 'wp-speed', 'flying-press',
+            'sg-optimizer', 'swift-performance', 'powered-cache'
+        );
+
+        $security_plugins_slug = array(
+            'wordfence', 'better-wp-security', 'all-in-one-wp-security-and-firewall',
+            'disable-json-api', 'wp-rest-api-authentication', 'jwt-authentication-for-wp-rest-api',
+            'limit-login-attempts-reloaded', 'loginizer', 'shield-security',
+            'sucuri-scanner', 'bbq-firewall', 'wp-cerber', 'anti-spam-bee',
+            'bulletproof-security'
+        );
+
+        $plugin_slug = dirname($plugin);
+
+        if (in_array($plugin_slug, $cache_plugins_slug)) {
+            do_action('emsfb_update_cache_plugins_list');
+        }
+
+        if (in_array($plugin_slug, $security_plugins_slug)) {
+            do_action('emsfb_update_security_plugins_list');
+        }
+    }
+
+    public function handle_plugin_deactivation_efb($plugin) {
+        $this->clear_server_host_cache_efb();
+        $security_plugins_slug = array(
+            'wordfence', 'better-wp-security', 'all-in-one-wp-security-and-firewall',
+            'disable-json-api', 'wp-rest-api-authentication', 'jwt-authentication-for-wp-rest-api',
+            'limit-login-attempts-reloaded', 'loginizer', 'shield-security',
+            'sucuri-scanner', 'bbq-firewall', 'wp-cerber', 'anti-spam-bee',
+            'bulletproof-security'
+        );
+        $cache_plugins_slug = array(
+            'wp-optimize', 'hummingbird-performance', 'big-scoots-cache', 'wp-cloudflare-page-cache',
+            'breeze', 'jetpack', 'w3-total-cache', 'wp-fastest-cache',
+            'wp-rocket', 'comet-cache', 'hyper-cache', 'cache-enabler',
+            'wp-super-cache', 'litespeed-cache', 'nitropack', 'jetpack-boost',
+            'autoptimize', 'wp-rest-cache', 'speedycache', 'clear-cache-for-widgets',
+            'wp-cache', 'wp-cache-system', 'atec-cache-info', 'atec-cache-apcu',
+            'wpspeed', 'wp-speed', 'flying-press',
+            'sg-optimizer', 'swift-performance', 'powered-cache'
+        );
+        $slug = dirname($plugin);
+        if (in_array($slug, $cache_plugins_slug)) {
+            do_action('emsfb_update_cache_plugins_list');
+        }
+        if (in_array($slug, $security_plugins_slug)) {
+            do_action('emsfb_update_security_plugins_list');
+        }
+    }
+    public function update_cache_plugins_list() {
+
+        $cache_plugins_slug = array(
+            'wp-optimize', 'hummingbird-performance', 'big-scoots-cache', 'wp-cloudflare-page-cache',
+            'breeze', 'jetpack', 'w3-total-cache', 'wp-fastest-cache',
+            'wp-rocket', 'comet-cache', 'hyper-cache', 'cache-enabler',
+            'wp-super-cache', 'litespeed-cache', 'nitropack', 'jetpack-boost',
+            'autoptimize', 'wp-rest-cache', 'speedycache', 'clear-cache-for-widgets',
+            'wp-cache', 'wp-cache-system', 'atec-cache-info', 'atec-cache-apcu',
+            'wpspeed', 'wp-speed', 'flying-press',
+            'sg-optimizer', 'swift-performance', 'powered-cache'
+        );
+
+        $cache_plugins_slug = apply_filters('emsfb_cache_plugins_slug', $cache_plugins_slug);
+
+        if (!function_exists('get_plugins')) {
+            require_once ABSPATH . 'wp-admin/includes/plugin.php';
+        }
+
+        $plugins = get_plugins();
+        $active_plugins = get_option('active_plugins', array());
+        $plugin_list = array();
+
+        foreach ($plugins as $plugin_file => $plugin_data) {
+
+            if (!in_array($plugin_file, $active_plugins)) {
+                continue;
+            }
+
+            $slug = explode('/', $plugin_file)[0];
+            $exists_cache = in_array($slug, $cache_plugins_slug);
+
+            if ($exists_cache) {
+                $plugin_list[] = array(
+                    'name' => $plugin_data['Name'],
+                    'version' => $plugin_data['Version'],
+                    'slug' => $slug
+                );
+            }
+        }
+
+        $val = !empty($plugin_list) ? json_encode($plugin_list) : 0;
+        $old_val = get_option('emsfb_cache_plugins', 0);
+
+        if ($val != $old_val) {
+            update_option('emsfb_cache_plugins', $val);
+        }
+
+        return $plugin_list;
+    }
+
+
+    public function update_security_plugins_list() {
+
+        $security_plugins_slug = array(
+            'wordfence', 'better-wp-security', 'all-in-one-wp-security-and-firewall',
+            'disable-json-api', 'wp-rest-api-authentication', 'jwt-authentication-for-wp-rest-api',
+            'limit-login-attempts-reloaded', 'loginizer', 'shield-security',
+            'sucuri-scanner', 'bbq-firewall', 'wp-cerber', 'anti-spam-bee',
+            'bulletproof-security'
+        );
+
+        $security_plugins_slug = apply_filters('emsfb_security_plugins_slug', $security_plugins_slug);
+
+        if (!function_exists('get_plugins')) {
+            require_once ABSPATH . 'wp-admin/includes/plugin.php';
+        }
+
+        $plugins      = get_plugins();
+        $active       = get_option('active_plugins', array());
+        $plugin_list  = array();
+
+        foreach ($plugins as $plugin_file => $plugin_data) {
+            if (!in_array($plugin_file, $active)) {
+                continue;
+            }
+            $slug = explode('/', $plugin_file)[0];
+            if (in_array($slug, $security_plugins_slug)) {
+                $plugin_list[] = array(
+                    'name'    => $plugin_data['Name'],
+                    'version' => $plugin_data['Version'],
+                    'slug'    => $slug,
+                );
+            }
+        }
+
+        $val     = !empty($plugin_list) ? json_encode($plugin_list) : 0;
+        $old_val = get_option('emsfb_security_plugins', 0);
+
+        if ($val != $old_val) {
+            update_option('emsfb_security_plugins', $val);
+        }
+
+        return $plugin_list;
+    }
+
+    public function get_cached_server_host_efb() {
+
+        $cached_host = get_option('emsfb_server_host_cache', false);
+
+        if ($cached_host !== false) {
+            return $cached_host;
+        }
+
+        $server_host = wp_parse_url(home_url(), PHP_URL_HOST) ?: 'yourdomain.com';
+
+        update_option('emsfb_server_host_cache', $server_host, false);
+
+        return $server_host;
+    }
+
+    public function clear_server_host_cache_efb()
+    {
+        delete_option('emsfb_server_host_cache');
+    }
+
+    public static function get_setting_Emsfb($mode = 'decoded')
+    {
+
+        static $staticCache = [];
+
+        if ($mode === '_clear_cache') {
+            $staticCache = [];
+            return true;
+        }
+
+        if (isset($staticCache[$mode])) {
+            return $staticCache[$mode];
+        }
+
+        $cacheKey = 'settings:' . $mode;
+        $cached = wp_cache_get($cacheKey, 'emsfb');
+        if ($cached !== false && !empty($cached)) {
+            $staticCache[$mode] = $cached;
+            return $cached;
+        }
+
+        $transient = get_transient('emsfb_settings_transient');
+
+        if ($transient === false || empty($transient)) {
+            global $wpdb;
+            $table_name = $wpdb->prefix . "emsfb_setting";
+
+            // WordPress loads this plugin through plugin_sandbox_scrape() while
+            // activating it, which happens before the activation hook creates
+            // the settings table. On a brand new install the read below
+            // therefore runs against a table that does not exist yet - an
+            // expected miss, not a failure, and the plugin already falls back
+            // to empty settings for it. Left unsuppressed, wpdb reports it:
+            // the SQLite integration used by WordPress Playground prints the
+            // query and a full backtrace into the log for every call, so a
+            // clean activation looked like a crash. Suppression is restored
+            // immediately afterwards so genuine query errors are still reported.
+            $suppress_errors = $wpdb->suppress_errors(true);
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table_name is built from $wpdb->prefix
+            $raw = $wpdb->get_var( "SELECT setting FROM `{$table_name}` ORDER BY id DESC LIMIT 1" );
+            $wpdb->suppress_errors($suppress_errors);
+
+            if (empty($raw)) {
+                if ($mode === 'pub') return [0, []];
+                if ($mode === 'raw') return '';
+                return new \stdClass();
+            }
+
+            update_option('emsfb_settings', $raw);
+            set_transient('emsfb_settings_transient', $raw, 1800);
+        } else {
+            $raw = $transient;
+        }
+
+        $original_raw = $raw;
+        $raw = self::clean_raw_json_efb($raw);
+        if ($raw !== $original_raw && json_decode($raw) !== null) {
+            $cleanJson = json_encode(json_decode($raw), JSON_UNESCAPED_UNICODE);
+            if (!empty($cleanJson)) {
+                update_option('emsfb_settings', $cleanJson);
+                set_transient('emsfb_settings_transient', $cleanJson, 1800);
+                $raw = $cleanJson;
+
+                global $wpdb;
+                $table_name = $wpdb->prefix . "emsfb_setting";
+                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table_name is built from $wpdb->prefix
+                $latest_id = $wpdb->get_var( "SELECT id FROM `{$table_name}` ORDER BY id DESC LIMIT 1" );
+                if ($latest_id) {
+                    $wpdb->update($table_name, ['setting' => $cleanJson], ['id' => $latest_id], ['%s'], ['%d']);
+                }
+            }
+        }
+
+        $trimmedEnd = rtrim($raw);
+        if (!empty($trimmedEnd) && !preg_match('/[}\]]$/', $trimmedEnd)) {
+        }
+
+        $decoded = json_decode($raw);
+        if ($decoded === null) {
+
+            $clean = $raw;
+            $max_attempts = 5;
+            for ($i = 0; $i < $max_attempts; $i++) {
+                $clean = stripslashes($clean);
+                $decoded = json_decode($clean);
+                if ($decoded !== null) {
+                    break;
+                }
+            }
+
+            if ($decoded !== null) {
+                $cleanJson = json_encode($decoded, JSON_UNESCAPED_UNICODE);
+                update_option('emsfb_settings', $cleanJson);
+                set_transient('emsfb_settings_transient', $cleanJson, 1800);
+                $raw = $cleanJson;
+
+                global $wpdb;
+                $table_name = $wpdb->prefix . "emsfb_setting";
+                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table_name is built from $wpdb->prefix
+                $latest_id = $wpdb->get_var( "SELECT id FROM `{$table_name}` ORDER BY id DESC LIMIT 1" );
+                if ($latest_id) {
+                    $wpdb->update($table_name, ['setting' => $cleanJson], ['id' => $latest_id], ['%s'], ['%d']);
+                }
+            }
+        }
+        if ($decoded === null) {
+
+            $decoded = self::get_default_settings_efb();
+        }
+
+        $result = null;
+
+        switch ($mode) {
+            case 'pub':
+
+                $pro = absint(get_option('emsfb_pro'));
+                $pro = $pro == 1 || $pro == 3 ? true : false;
+                $pubSettings = [
+                    'pro' => $pro,
+                    'trackingCode' => $decoded->trackingCode ?? '',
+                    'siteKey' => $decoded->siteKey ?? '',
+                    'mapKey' => $decoded->apiKeyMap ?? '',
+                    'paymentKey' => $decoded->stripePKey ?? '',
+                    'version' => $decoded->efb_version ?? '1.0.0',
+                    'osLocationPicker' => $decoded->osLocationPicker ?? false,
+                    'scaptcha' => $decoded->scaptcha ?? false,
+                    'dsupfile' => $decoded->dsupfile ?? false,
+                    'activeDlBtn' => $decoded->activeDlBtn ?? true,
+                    'paypalPKey' => $decoded->paypalPKey ?? '',
+                    'addons' => self::get_addons_list_efb($decoded),
+
+                    'respPrimary' => $decoded->respPrimary ?? '#3644d2',
+                    'respPrimaryDark' => $decoded->respPrimaryDark ?? '#202a8d',
+                    'respAccent' => $decoded->respAccent ?? '#ffc107',
+                    'respText' => $decoded->respText ?? '#1a1a2e',
+                    'respTextMuted' => $decoded->respTextMuted ?? '#657096',
+                    'respBgCard' => $decoded->respBgCard ?? '#ffffff',
+                    'respBgMeta' => $decoded->respBgMeta ?? '#f6f7fb',
+                    'respBgTrack' => $decoded->respBgTrack ?? '#ffffff',
+                    'respBgResp' => $decoded->respBgResp ?? '#f8f9fd',
+                    'respBgEditor' => $decoded->respBgEditor ?? '#ffffff',
+                    'respEditorText' => $decoded->respEditorText ?? '#1a1a2e',
+                    'respEditorPh' => $decoded->respEditorPh ?? '#a0aec0',
+                    'respBtnText' => $decoded->respBtnText ?? '#ffffff',
+                    'respFontFamily' => $decoded->respFontFamily ?? 'inherit',
+                    'respFontSize' => $decoded->respFontSize ?? '0.9rem',
+                    'respCustomFont' => $decoded->respCustomFont ?? '',
+                ];
+                $result = [json_encode($pubSettings, JSON_UNESCAPED_UNICODE), $pubSettings];
+                break;
+
+            case 'raw':
+
+                $result = $raw;
+                break;
+
+            case 'decoded':
+            default:
+
+                $settings_changed = false;
+                if (!isset($decoded->AdnGoS)) {
+                    $decoded->AdnGoS = 0;
+                    $settings_changed = true;
+                }
+                if ($settings_changed) {
+                    $updated_json = wp_json_encode($decoded, JSON_UNESCAPED_UNICODE);
+                    if (!empty($updated_json)) {
+                        update_option('emsfb_settings', $updated_json);
+                        set_transient('emsfb_settings_transient', $updated_json, 1800);
+                    }
+                }
+
+                if (class_exists('\Emsfb\Email_Monitor')) {
+                    $decoded->weeklyEmailReport = \Emsfb\Email_Monitor::is_enabled();
+                    $decoded->emailStatsReport = \Emsfb\Email_Monitor::is_email_stats_enabled();
+                }
+
+                $package_type = get_option('emsfb_pro', 10);
+                $stored_pt = isset($decoded->package_type) ? intval($decoded->package_type) : null;
+
+                if (($package_type == 10 || $package_type == -1) && $stored_pt !== null && in_array($stored_pt, [0, 1, 2, 3], true)) {
+                    $package_type = $stored_pt;
+                    update_option('emsfb_pro', $package_type);
+                }
+
+                $decoded->package_type = $package_type;
+                $result = $decoded;
+                break;
+        }
+
+        $staticCache[$mode] = $result;
+        wp_cache_set($cacheKey, $result, 'emsfb', 3600);
+
+        return $result;
+    }
+
+    /**
+     * Whether the admin turned "This site can send emails" on
+     * (hostSupportSmtp_emsFormBuilder in the UI, settings->smtp in storage).
+     *
+     * This single switch gates every notification email the plugin sends. The
+     * settings row has held the value as a bool, an int and a string over the
+     * years, so normalise here instead of relying on a plain (bool) cast:
+     * (bool)"false" and (bool)"0" are both true in PHP and would silently send
+     * mail from a site whose switch reads "off".
+     *
+     * Called through the emsfb_is_email_sending_enabled_efb() wrapper in
+     * emsfb.php, next to get_setting_Emsfb() and get_efbFunction().
+     *
+     * @param object|array|null $settings Decoded settings object or array.
+     * @return bool
+     */
+    public static function is_email_sending_enabled_efb($settings) {
+        $value = null;
+        if (is_array($settings) && array_key_exists('smtp', $settings)) {
+            $value = $settings['smtp'];
+        } elseif (is_object($settings) && isset($settings->smtp)) {
+            $value = $settings->smtp;
+        }
+
+        if (null === $value) {
+            return false;
+        }
+        if (is_string($value)) {
+            $value = strtolower(trim($value));
+        }
+
+        return in_array($value, [true, 1, '1', 'true', 'on', 'yes'], true);
+    }
+
+    public static function get_efbFunction(): efbFunction {
+
+        static $instances = [];
+        $cache_key = 'efb_function_' . (function_exists('get_current_blog_id') ? get_current_blog_id() : '1');
+
+        if (isset($instances[$cache_key]) && $instances[$cache_key] instanceof efbFunction) {
+            return $instances[$cache_key];
+        }
+
+        try {
+            if (!class_exists('efbFunction', false)) {
+                $functions_file = EMSFB_PLUGIN_DIRECTORY . 'includes/functions.php';
+                if (!is_readable($functions_file)) {
+                    throw new \Exception('Functions file not readable: ' . $functions_file);
+                }
+                require_once $functions_file;
+            }
+
+            if (!class_exists('efbFunction')) {
+                throw new \Exception('efbFunction class not found after require');
+            }
+
+            $instances[$cache_key] = new efbFunction();
+            return $instances[$cache_key];
+
+        } catch (\Exception $e) {
+
+            throw $e;
+        }
+    }
+
+    private static function get_addons_list_efb($settings) {
+        $addons = [];
+        $addon_keys = [
+            'AdnSS' => 'SMS',
+            'AdnATF' => 'Auto-Populate',
+            'AdnGoS' => 'Google Sheet',
+            'AdnTLG' => 'Telegram',
+            'AdnPAP' => 'PayPal',
+            'AdnSPF' => 'Stripe',
+            'AdnPPF' => 'Persia Payment',
+            'AdnOF'  => 'Offline Forms',
+            'AdnATC' => 'Advanced Tracking Code',
+            'AdnCPF' => 'AdnCPF addons',
+            'AdnESZ' => 'AdnESZ addons',
+            'AdnSE'  => 'Search Entry',
+            'AdnWHS' => 'Webhook',
+            'AdnWSP' => 'WhatsApp',
+            'AdnSMF' => 'Conditional Logic',
+            'AdnPLF' => 'AdnPLF addons',
+            'AdnMSF' => 'AdnMSF addons',
+            'AdnBEF' => 'Booking',
+            'AdnPDP' => 'Persian Date Picker',
+            'AdnADP' => 'َArabic Date Picker',
+            'AdnHSH' => 'Form Security & Spam Protection',
+        ];
+
+        foreach ( $addon_keys as $key => $name ) {
+            $has_setting = is_object( $settings ) && property_exists( $settings, $key );
+            $setting_value = $has_setting ? absint( $settings->{$key} ) : 0;
+            $option_value = get_option( 'emsfb_addon_' . $key, false );
+            $option_active = $option_value !== false && absint( $option_value ) >= 1;
+            $is_active = 'AdnSMF' === $key
+                ? ( $has_setting ? $setting_value >= 1 : $option_active )
+                : $option_active;
+
+            if ( $is_active ) {
+                $addons[$key] = [
+                    'name' => $name,
+                    'active' => true,
+                    'version' => $option_active ? $option_value : $setting_value,
+                ];
+            }
+        }
+
+        return $addons;
+    }
+
+    public static function plugin_deactivation_cleanup_efb()
+    {
+        if (class_exists('\Emsfb\Email_Monitor')) {
+            \Emsfb\Email_Monitor::deactivate();
+        }
+
+        // Leave the pending-upload ledger in place: the files it points at are
+        // still on disk, and a deactivate/reactivate cycle should not turn them
+        // into permanently untracked orphans. Only the schedule is dropped.
+        if (class_exists('\Emsfb\Upload_Guard')) {
+            \Emsfb\Upload_Guard::unregister();
+        }
+
+        delete_option('emsfb_cache_plugins');
+        delete_option('emsfb_server_host_cache');
+        delete_option('emsfb_settings');
+
+        delete_transient('emsfb_settings_transient');
+
+        global $wpdb;
+        $wpdb->query(
+            "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_emsfb_%' OR option_name LIKE '_transient_timeout_emsfb_%'"
+        );
+
+        if (function_exists('wp_cache_flush')) {
+            wp_cache_flush();
+        }
+
+        if (function_exists('wp_cache_flush_group')) {
+            wp_cache_flush_group('emsfb');
+        }
+    }
+
+    public function init_elementor_compatibility() {
+
+        if (!$this->is_elementor_admin_active()) {
+            return;
+        }
+
+        $page = isset($_GET['page']) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+
+        if ($page === 'Emsfb' ||
+            $page === 'Emsfb_create' ||
+            $page === 'Emsfb_addon' ||
+            $page === 'Emsfb_sms_efb'
+        ) {
+            add_action('admin_enqueue_scripts', array($this, 'apply_elementor_admin_fixes'), 1);
+        }
+    }
+
+    public function apply_elementor_admin_fixes() {
+
+        add_action('admin_footer', array($this, 'elementor_admin_conflict_prevention'));
+    }
+
+    public function is_elementor_admin_active() {
+
+        if (class_exists('\Elementor\Plugin') || defined('ELEMENTOR_VERSION')) {
+            return true;
+        }
+
+        if (function_exists('is_plugin_active') && is_plugin_active('elementor/elementor.php')) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function elementor_admin_conflict_prevention() {
+        $current_page = isset($_GET['page']) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+        ?>
+        <script type="text/javascript">
+        (function($) {
+            'use strict';
+
+            if (typeof window.efb_global_elementor_protection === 'undefined') {
+                window.efb_global_elementor_protection = true;
+
+                console.log('EFB Global: Initializing Elementor compatibility layer for <?php echo esc_js($current_page); ?>');
+
+                if (typeof elementorFrontend !== 'undefined') {
+                    try {
+                        if (!elementorFrontend.tools) {
+                            elementorFrontend.tools = {};
+                            console.log('EFB Global: Initialized missing elementorFrontend.tools');
+                        }
+                    } catch (e) {
+                        console.log('EFB Global: Prevented Elementor frontend error:', e.message);
+                    }
+                }
+
+                $(document).ready(function() {
+                    $(window).on('error', function(e) {
+                        if (e.originalEvent && e.originalEvent.message) {
+                            var errorMessage = e.originalEvent.message.toLowerCase();
+                            if (errorMessage.includes('dispatchevent') ||
+                                errorMessage.includes('elementor') ||
+                                errorMessage.includes('tools') ||
+                                errorMessage.includes('cannot read properties of undefined')) {
+                                console.log('EFB Global: Suppressed Elementor admin error on <?php echo esc_js($current_page); ?>:', errorMessage);
+                                e.preventDefault();
+                                return false;
+                            }
+                        }
+                    });
+
+                    if (window.Event && Event.prototype.dispatchEvent) {
+                        var originalDispatchEvent = Event.prototype.dispatchEvent;
+                        Event.prototype.dispatchEvent = function(event) {
+                            try {
+                                if (typeof this.dispatchEvent === 'function') {
+                                    return originalDispatchEvent.call(this, event);
+                                }
+                            } catch (e) {
+                                console.log('EFB Global: Prevented dispatchEvent error on <?php echo esc_js($current_page); ?>:', e.message);
+                                return false;
+                            }
+                        };
+                    }
+                });
+            }
+        })(jQuery);
+        </script>
+        <?php
+    }
+
+    public function init_elementor_compatibility_efb() {
+
+        if (!$this->is_elementor_admin_active_efb()) {
+            return;
+        }
+
+        if (isset($_GET['page']) && (
+            sanitize_key( $_GET['page'] ) === 'Emsfb' ||
+            sanitize_key( $_GET['page'] ) === 'Emsfb_create' ||
+            sanitize_key( $_GET['page'] ) === 'Emsfb_addon' ||
+            sanitize_key( $_GET['page'] ) === 'Emsfb_sms_efb'
+        )) {
+            add_action('admin_enqueue_scripts', array($this, 'apply_elementor_admin_fixes_efb'), 1);
+        }
+    }
+
+    public function apply_elementor_admin_fixes_efb() {
+
+        add_action('admin_footer', array($this, 'elementor_admin_conflict_prevention_efb'));
+    }
+
+    public function is_elementor_admin_active_efb() {
+
+        if (class_exists('\Elementor\Plugin') || defined('ELEMENTOR_VERSION')) {
+            return true;
+        }
+
+        if (function_exists('is_plugin_active') && is_plugin_active('elementor/elementor.php')) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function elementor_admin_conflict_prevention_efb() {
+        $current_page = isset($_GET['page']) ? sanitize_key( $_GET['page'] ) : '';
+        ?>
+        <script type="text/javascript">
+        (function($) {
+            'use strict';
+
+            if (typeof window.efb_global_elementor_protection === 'undefined') {
+                window.efb_global_elementor_protection = true;
+
+                console.log('EFB Global: Initializing Elementor compatibility layer for <?php echo esc_js($current_page); ?>');
+
+                if (typeof elementorFrontend !== 'undefined') {
+                    try {
+                        if (!elementorFrontend.tools) {
+                            elementorFrontend.tools = {};
+                            console.log('EFB Global: Initialized missing elementorFrontend.tools');
+                        }
+                    } catch (e) {
+                        console.log('EFB Global: Prevented Elementor frontend error:', e.message);
+                    }
+                }
+
+                $(document).ready(function() {
+                    $(window).on('error', function(e) {
+                        if (e.originalEvent && e.originalEvent.message) {
+                            var errorMessage = e.originalEvent.message.toLowerCase();
+                            if (errorMessage.includes('dispatchevent') ||
+                                errorMessage.includes('elementor') ||
+                                errorMessage.includes('tools') ||
+                                errorMessage.includes('cannot read properties of undefined')) {
+                                e.preventDefault();
+                                return false;
+                            }
+                        }
+                    });
+
+                    if (window.EventTarget && window.EventTarget.prototype && EventTarget.prototype.dispatchEvent) {
+                        var originalDispatchEvent = EventTarget.prototype.dispatchEvent;
+                        EventTarget.prototype.dispatchEvent = function(event) {
+                            try {
+                                return originalDispatchEvent.call(this, event);
+                            } catch (e) {
+                                if (window.console && typeof window.efb_debug !== 'undefined' && window.efb_debug) {
+                                    console.log('EFB: dispatchEvent error caught:', e.message);
+                                }
+                                return false;
+                            }
+                        };
+                    }
+                });
+            }
+        })(jQuery);
+        </script>
+        <?php
+    }
+
+    public function check_version_and_upgrade_efb() {
+        $installed_version = get_option('emsfb_version', '0.0.0');
+        $current_version = EMSFB_PLUGIN_VERSION;
+	    if (!is_admin()) {
+            if (
+                version_compare($installed_version, $current_version, '<')
+                && class_exists('\Emsfb\Email_Monitor')
+            ) {
+                \Emsfb\Email_Monitor::plugin_updated();
+            }
+			return;
+		}
+
+        if (version_compare($installed_version, $current_version, '<')) {
+            $this->run_upgrade_tasks_efb($installed_version, $current_version);
+            update_option('emsfb_version', $current_version);
+            if (class_exists('\Emsfb\Email_Monitor')) {
+                \Emsfb\Email_Monitor::plugin_updated();
+            }
+        }
+
+    }
+
+    private function run_upgrade_tasks_efb($old_version, $new_version) {
+        global $wpdb;
+        $table_setting = $wpdb->prefix . 'emsfb_setting';
+
+        // A plugin update can wipe downloaded add-on files. Flag that add-ons may
+        // need reinstalling; Create/Panel/Add-ons block on this until a local
+        // health check confirms every enabled add-on is present again (the flag
+        // clears itself at that point via addon_recovery_state_efb()).
+        update_option('emsfb_addons_reinstall_required', time());
+
+        if (function_exists('wp_cache_flush')) {
+            wp_cache_flush();
+        }
+        if (function_exists('wp_cache_flush_group')) {
+            wp_cache_flush_group('emsfb');
+        }
+        $wpdb->query(
+            "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_efb_%' OR option_name LIKE '_transient_timeout_efb_%'"
+        );
+
+        $wpdb->query("ALTER TABLE `{$table_setting}` MODIFY `setting` LONGTEXT COLLATE utf8mb4_unicode_ci NOT NULL");
+
+        // Indexes and any other schema change dbDelta could never deliver to an
+        // existing install. See Install::upgrade_schema().
+        if (class_exists('\Emsfb\Install') && method_exists('\Emsfb\Install', 'upgrade_schema')) {
+            \Emsfb\Install::upgrade_schema();
+        }
+
+        $this->migrate_fix_double_escaped_settings_efb($wpdb);
+
+        if (version_compare($old_version, '4', '<')) {
+            do_action('emsfb_update_cache_plugins_list');
+            do_action('emsfb_update_security_plugins_list');
+
+            $activeCode = get_option('emsfb_pro_activeCode', '');
+
+            if (empty($activeCode)) {
+                self::get_setting_Emsfb('_clear_cache');
+                delete_transient('emsfb_settings_transient');
+
+                $settings = self::get_setting_Emsfb('decoded');
+                if (isset($settings->activeCode)) {
+                    $activeCode = $settings->activeCode;
+                }
+            }
+
+            if (!empty($activeCode) && strlen($activeCode) > 5) {
+                update_option('emsfb_pro', 1);
+            }
+        }
+    }
+
+    private function migrate_fix_double_escaped_settings_efb($wpdb) {
+        $table_name = $wpdb->prefix . "emsfb_setting";
+
+        $table_exists = $wpdb->get_var(
+            $wpdb->prepare("SHOW TABLES LIKE %s", $table_name)
+        );
+        if (!$table_exists) {
+            return 0;
+        }
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table_name is built from $wpdb->prefix
+        $rows = $wpdb->get_results( "SELECT id, setting FROM `{$table_name}`" );
+        if (empty($rows)) {
+            return 0;
+        }
+
+        $repaired = 0;
+        foreach ($rows as $row) {
+            $raw = $row->setting;
+
+            $cleaned = self::clean_raw_json_efb($raw);
+
+            if (json_decode($cleaned) !== null) {
+
+                if ($cleaned !== $raw) {
+                    $cleanJson = json_encode(json_decode($cleaned), JSON_UNESCAPED_UNICODE);
+                    $wpdb->update($table_name, ['setting' => $cleanJson], ['id' => $row->id], ['%s'], ['%d']);
+                    $repaired++;
+                }
+                continue;
+            }
+
+            $clean = $cleaned;
+            $max_attempts = 5;
+            for ($i = 0; $i < $max_attempts; $i++) {
+                $clean = stripslashes($clean);
+                if (json_decode($clean) !== null) {
+                    break;
+                }
+            }
+
+            $decoded = json_decode($clean);
+            if ($decoded === null) {
+                continue;
+            }
+
+            $cleanJson = json_encode($decoded, JSON_UNESCAPED_UNICODE);
+
+            $wpdb->update(
+                $table_name,
+                ['setting' => $cleanJson],
+                ['id' => $row->id],
+                ['%s'],
+                ['%d']
+            );
+            $repaired++;
+        }
+
+        if ($repaired > 0) {
+            delete_option('emsfb_settings');
+            delete_transient('emsfb_settings_transient');
+            wp_cache_delete('settings:decoded', 'emsfb');
+            wp_cache_delete('settings:pub', 'emsfb');
+            wp_cache_delete('settings:raw', 'emsfb');
+            wp_cache_delete('emsfb_settings', 'emsfb');
+            self::get_setting_Emsfb('_clear_cache');
+        }
+
+        return $repaired;
+    }
+
+    private static function clean_raw_json_efb($raw) {
+        if (empty($raw) || !is_string($raw)) {
+            return '';
+        }
+
+        if (substr($raw, 0, 3) === "\xEF\xBB\xBF") {
+            $raw = substr($raw, 3);
+        }
+
+        $raw = str_replace("\0", '', $raw);
+
+        $raw = preg_replace('/[\x{200B}-\x{200D}\x{FEFF}\x{00AD}\x{2060}]/u', '', $raw);
+
+        $raw = trim($raw);
+
+        if (function_exists('mb_convert_encoding')) {
+
+            $raw = mb_convert_encoding($raw, 'UTF-8', 'UTF-8');
+        }
+
+        if (strpos($raw, '&quot;') !== false || strpos($raw, '&#34;') !== false) {
+            $candidate = html_entity_decode($raw, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            if (json_decode($candidate) !== null) {
+                $raw = $candidate;
+            }
+        }
+
+        $decoded = json_decode($raw, true);
+        if (is_array($decoded) && isset($decoded[0]) && in_array($decoded[0], ['{', '['], true) && count($decoded) > 20) {
+            $keys = array_keys($decoded);
+            $is_char_map = true;
+            $expected = 0;
+            foreach ($keys as $key) {
+                if (!is_int($key) || $key !== $expected || !is_string($decoded[$key]) || strlen($decoded[$key]) > 8) {
+                    $is_char_map = false;
+                    break;
+                }
+                $expected++;
+            }
+            if ($is_char_map) {
+                $candidate = implode('', $decoded);
+                $candidate_decoded = json_decode($candidate);
+                if (is_object($candidate_decoded) || is_array($candidate_decoded)) {
+                    $raw = $candidate;
+                }
+            }
+        }
+
+        $raw = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F]/', '', $raw);
+
+        return $raw;
+    }
+
+    /**
+     * Return the sample template used for a brand-new installation.
+     *
+     * The email builder can generate this template in the browser, but a
+     * settings save must also be valid before an administrator opens that tab.
+     * Keep the builder data with the HTML fallback so both the editor and the
+     * server-side email renderer use the same Professional template.
+     *
+     * @return string
+     */
+    public static function get_default_email_template_efb() {
+        $direction = function_exists('is_rtl') && is_rtl() ? 'rtl' : 'ltr';
+        $message_align = $direction === 'rtl' ? 'right' : 'left';
+        $logo_url = defined('EMSFB_PLUGIN_URL')
+            ? EMSFB_PLUGIN_URL . 'public/assets/images/email_template1.png'
+            : '';
+        $disclaimer = function_exists('__')
+            ? __('This email was sent automatically. Please do not reply directly.', 'easy-form-builder')
+            : 'This email was sent automatically. Please do not reply directly.';
+
+        $builder_data = [
+            'blocks' => [
+                [
+                    'id' => 'efb-default-header',
+                    'type' => 'header',
+                    'data' => [
+                        'bgColor' => '#667eea',
+                        'padding' => '40px 30px 30px 30px',
+                        'align' => 'center',
+                    ],
+                    'children' => [
+                        [
+                            'id' => 'efb-default-logo',
+                            'type' => 'logo',
+                            'data' => [
+                                'src' => $logo_url,
+                                'alt' => 'Easy Form Builder',
+                                'width' => '120',
+                                'align' => 'center',
+                            ],
+                        ],
+                        [
+                            'id' => 'efb-default-title',
+                            'type' => 'title',
+                            'data' => [
+                                'text' => 'shortcode_title',
+                                'color' => '#ffffff',
+                                'fontSize' => '28',
+                                'fontWeight' => '600',
+                                'align' => 'center',
+                            ],
+                        ],
+                    ],
+                ],
+                [
+                    'id' => 'efb-default-message',
+                    'type' => 'message',
+                    'data' => [
+                        'padding' => '40px 30px',
+                        'bgColor' => '#ffffff',
+                        'color' => '#333333',
+                        'fontSize' => '16',
+                        'align' => $message_align,
+                    ],
+                ],
+                [
+                    'id' => 'efb-default-spacer',
+                    'type' => 'spacer',
+                    'data' => [
+                        'height' => '20',
+                        'bgColor' => '#ffffff',
+                    ],
+                ],
+                [
+                    'id' => 'efb-default-footer',
+                    'type' => 'footer',
+                    'data' => [
+                        'text' => 'shortcode_website_name | shortcode_admin_email',
+                        'color' => '#6b7280',
+                        'fontSize' => '14',
+                        'align' => 'center',
+                        'bgColor' => '#f8f9fa',
+                        'padding' => '30px',
+                    ],
+                ],
+                [
+                    'id' => 'efb-default-disclaimer',
+                    'type' => 'text',
+                    'data' => [
+                        'text' => $disclaimer,
+                        'color' => '#64748b',
+                        'fontSize' => '12',
+                        'align' => 'center',
+                        'padding' => '15px 25px',
+                    ],
+                ],
+            ],
+            'globalSettings' => [
+                'bgColor' => '#f8f9fa',
+                'contentBgColor' => '#ffffff',
+                'contentWidth' => '600',
+                'borderRadius' => '8',
+                'fontFamily' => "'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif",
+                'direction' => $direction,
+                'btnBgColor' => '#202a8d',
+                'btnTextColor' => '#ffffff',
+            ],
+        ];
+
+        $builder_json = function_exists('wp_json_encode')
+            ? wp_json_encode($builder_data, JSON_UNESCAPED_UNICODE)
+            : json_encode($builder_data, JSON_UNESCAPED_UNICODE);
+        if (!is_string($builder_json) || $builder_json === '') {
+            $builder_json = '{"blocks":[{"type":"message","data":{}}]}';
+        }
+
+        $safe_logo_url = function_exists('esc_url') ? esc_url($logo_url) : $logo_url;
+        $safe_disclaimer = function_exists('esc_html')
+            ? esc_html($disclaimer)
+            : htmlspecialchars($disclaimer, ENT_QUOTES, 'UTF-8');
+
+        $html = '<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" dir="' . $direction . '"><head>'
+            . '<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />'
+            . '<meta name="viewport" content="width=device-width, initial-scale=1.0" />'
+            . '</head><body style="margin:0;padding:0;background-color:#f8f9fa;">'
+            . '<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td align="center" style="padding:20px 0;">'
+            . '<table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="max-width:600px;background:#ffffff;border-radius:8px;overflow:hidden;">'
+            . '<tr><td align="center" style="padding:40px 30px 30px;background:#667eea;">'
+            . '<img src="' . $safe_logo_url . '" alt="Easy Form Builder" width="120" style="display:block;width:120px;height:auto;margin:0 auto 20px;border:0;" />'
+            . '<h1 style="margin:0;color:#ffffff;font:600 28px/1.3 Arial,sans-serif;text-align:center;">shortcode_title</h1>'
+            . '</td></tr><tr><td style="padding:40px 30px;color:#333333;font:16px/1.6 Arial,sans-serif;text-align:' . $message_align . ';">shortcode_message</td></tr>'
+            . '<tr><td style="padding:30px;background:#f8f9fa;color:#6b7280;font:14px/1.5 Arial,sans-serif;text-align:center;">shortcode_website_name | shortcode_admin_email</td></tr>'
+            . '<tr><td style="padding:15px 25px;color:#64748b;font:12px/1.6 Arial,sans-serif;text-align:center;">' . $safe_disclaimer . '</td></tr>'
+            . '</table></td></tr></table></body></html>';
+
+        return $html . "\n<!-- EFBDATA:" . rawurlencode($builder_json) . ' -->';
+    }
+
+    public static function get_default_settings_efb() {
+        $defaults = new \stdClass();
+        $defaults->activeCode        = '';
+        $defaults->siteKey           = '';
+        $defaults->secretKey         = '';
+        $defaults->emailSupporter    = get_option('admin_email', '');
+        $defaults->apiKeyMap         = '';
+        $defaults->smtp              = false;
+        $defaults->weeklyEmailReport = true;
+        $defaults->emailStatsReport  = true;
+        $defaults->text              = '';
+        $defaults->bootstrap         = '';
+        $defaults->emailTemp         = self::get_default_email_template_efb();
+        $defaults->emailBtnBgColor   = '#202a8d';
+        $defaults->emailBtnTextColor = '#ffffff';
+        $defaults->paypalPKey        = '';
+        $defaults->paypalSKey        = '';
+        $defaults->stripePKey        = '';
+        $defaults->stripeSKey        = '';
+        $defaults->payToken          = '';
+        $defaults->act_local_efb     = '';
+        $defaults->scaptcha          = '';
+        $defaults->shield_silent_captcha = '';
+        $defaults->activeDlBtn       = true;
+        $defaults->dsupfile          = true;
+        $defaults->sms_config        = 'null';
+        $defaults->AdnSPF            = '0';
+        $defaults->AdnOF             = '0';
+        $defaults->AdnPPF            = '0';
+        $defaults->AdnATC            = '0';
+        $defaults->AdnSS             = '0';
+        $defaults->AdnCPF            = '0';
+        $defaults->AdnESZ            = '0';
+        $defaults->AdnSE             = '0';
+        $defaults->AdnWHS            = '0';
+        $defaults->AdnPAP            = '0';
+        $defaults->AdnWSP            = '0';
+        $defaults->AdnSMF            = '0';
+        $defaults->AdnPLF            = '0';
+        $defaults->AdnMSF            = '0';
+        $defaults->AdnBEF            = '0';
+        $defaults->AdnPDP            = '0';
+        $defaults->AdnADP            = '0';
+        $defaults->AdnGoS            = '0';
+        $defaults->AdnTLG            = '0';
+        $defaults->AdnATF            = '0';
+        $defaults->AdnHSH            = '0';
+        $defaults->phnNo             = '';
+        $defaults->femail            = '';
+        $defaults->email_key         = '';
+        $defaults->showIp            = '';
+        $defaults->adminSN           = '';
+        $defaults->osLocationPicker  = '';
+        $defaults->sessionDuration   = '5';
+        $defaults->trackCodeStyle    = 'date_en_mix';
+        $defaults->respPrimary       = '#3644d2';
+        $defaults->respPrimaryDark   = '#202a8d';
+        $defaults->respAccent        = '#ffc107';
+        $defaults->respText          = '#1a1a2e';
+        $defaults->respTextMuted     = '#657096';
+        $defaults->respBgCard        = '#ffffff';
+        $defaults->respBgMeta        = '#f6f7fb';
+        $defaults->respBgTrack       = '#ffffff';
+        $defaults->respBgResp        = '#f8f9fd';
+        $defaults->respBgEditor      = '#ffffff';
+        $defaults->respEditorText    = '#1a1a2e';
+        $defaults->respEditorPh      = '#a0aec0';
+        $defaults->respBtnText       = '#ffffff';
+        $defaults->respFontFamily    = 'inherit';
+        $defaults->respFontSize      = '0.9rem';
+        $defaults->respCustomFont    = '';
+        $defaults->efb_version       = defined('EMSFB_PLUGIN_VERSION') ? EMSFB_PLUGIN_VERSION : '4.0.0';
+        return $defaults;
+    }
+
+    public static function get_locale_script_chars_efb() {
+        static $cache = null;
+        if ($cache !== null) return $cache;
+
+        $lang_full  = strtok(get_locale(), '_');
+        $lang_short = substr($lang_full, 0, 2);
+
+        $map = [
+            // ── Arabic script ──
+            'ar'  => [[[0x0627,0x063A],[0x0641,0x064A]], 0x0660],
+            'fa'  => [[[0x0622,0x0622],[0x0627,0x0628],[0x067E,0x067E],[0x062A,0x062C],[0x0686,0x0686],[0x062D,0x0632],[0x0698,0x0698],[0x0633,0x063A],[0x0641,0x0642],[0x06A9,0x06A9],[0x06AF,0x06AF],[0x0644,0x0648],[0x06CC,0x06CC]], 0x06F0],
+            'ur'  => [[[0x0627,0x063A],[0x0641,0x064A],[0x067E,0x067E],[0x0686,0x0686],[0x0698,0x0698],[0x06A9,0x06A9],[0x06AF,0x06AF],[0x06CC,0x06CC]], 0x0660],
+            'ps'  => [[[0x0627,0x063A],[0x0641,0x064A],[0x067E,0x067E],[0x0686,0x0686],[0x0693,0x0693],[0x0698,0x0698],[0x069A,0x069A],[0x06A9,0x06A9],[0x06AF,0x06AF],[0x06BC,0x06BC],[0x06CC,0x06CC],[0x06D0,0x06D0]], 0x06F0],
+            'sd'  => [[[0x0627,0x063A],[0x0641,0x064A],[0x067E,0x067E],[0x0686,0x0686],[0x0698,0x0698],[0x06A9,0x06A9],[0x06AF,0x06AF],[0x06CC,0x06CC]], 0x0660],
+            'ug'  => [[[0x0627,0x0628],[0x067E,0x067E],[0x062A,0x062C],[0x0686,0x0686],[0x062E,0x0632],[0x0698,0x0698],[0x0633,0x063A],[0x0641,0x0642],[0x06A9,0x06A9],[0x06AF,0x06AF],[0x0644,0x0648],[0x06CB,0x06CC],[0x06D0,0x06D0],[0x06D5,0x06D5]], 0x0660],
+            'ckb' => [[[0x0627,0x063A],[0x0641,0x064A],[0x067E,0x067E],[0x0686,0x0686],[0x0698,0x0698],[0x06A9,0x06A9],[0x06AF,0x06AF],[0x06CC,0x06CC]], 0x0660],
+            'azb' => [[[0x0627,0x063A],[0x0641,0x064A],[0x067E,0x067E],[0x0686,0x0686],[0x0698,0x0698],[0x06A9,0x06A9],[0x06AF,0x06AF],[0x06CC,0x06CC]], 0x06F0],
+            'haz' => [[[0x0622,0x0622],[0x0627,0x0628],[0x067E,0x067E],[0x062A,0x062C],[0x0686,0x0686],[0x062D,0x0632],[0x0698,0x0698],[0x0633,0x063A],[0x0641,0x0642],[0x06A9,0x06A9],[0x06AF,0x06AF],[0x0644,0x0648],[0x06CC,0x06CC]], 0x06F0],
+
+            // ── Devanagari script ──
+            'hi'  => [[[0x0915,0x0939]], 0x0966],
+            'mr'  => [[[0x0915,0x0939]], 0x0966],
+            'ne'  => [[[0x0915,0x0939]], 0x0966],
+            'sa'  => [[[0x0915,0x0939]], 0x0966],
+            'bho' => [[[0x0915,0x0939]], 0x0966],
+            'mai' => [[[0x0915,0x0939]], 0x0966],
+            'doi' => [[[0x0915,0x0939]], 0x0966],
+
+            // ── Bengali script ──
+            'bn'  => [[[0x0995,0x09B9]], 0x09E6],
+            'as'  => [[[0x0995,0x09B9]], 0x09E6],
+
+            // ── Gurmukhi ──
+            'pa'  => [[[0x0A15,0x0A39]], 0x0A66],
+
+            // ── Gujarati ──
+            'gu'  => [[[0x0A95,0x0AB9]], 0x0AE6],
+
+            // ── Odia (Oriya) ──
+            'or'  => [[[0x0B15,0x0B39]], 0x0B66],
+            'ory' => [[[0x0B15,0x0B39]], 0x0B66],
+
+            // ── Tamil ──
+            'ta'  => [[[0x0B95,0x0BB9]], 0x0BE6],
+
+            // ── Telugu ──
+            'te'  => [[[0x0C15,0x0C39]], 0x0C66],
+
+            // ── Kannada ──
+            'kn'  => [[[0x0C95,0x0CB9]], 0x0CE6],
+
+            // ── Malayalam ──
+            'ml'  => [[[0x0D15,0x0D39]], 0x0D66],
+
+            // ── Sinhala ──
+            'si'  => [[[0x0D9A,0x0DC6]], 0x0DE6],
+
+            // ── Thai ──
+            'th'  => [[[0x0E01,0x0E2E]], 0x0E50],
+
+            // ── Lao ──
+            'lo'  => [[[0x0E81,0x0EAE]], 0x0ED0],
+
+            // ── Myanmar (Burmese) ──
+            'my'  => [[[0x1000,0x1021]], 0x1040],
+
+            // ── Khmer ──
+            'km'  => [[[0x1780,0x17A2]], 0x17E0],
+
+            // ── Tibetan ──
+            'bo'  => [[[0x0F40,0x0F69]], 0x0F20],
+
+            // ── Georgian ──
+            'ka'  => [[[0x10D0,0x10F0]], null],
+
+            // ── Armenian ──
+            'hy'  => [[[0x0531,0x0556]], null],
+
+            // ── Greek ──
+            'el'  => [[[0x0391,0x03A9],[0x03B1,0x03C9]], null],
+
+            // ── Cyrillic ──
+            'ru'  => [[[0x0410,0x042F],[0x0430,0x044F]], null],
+            'uk'  => [[[0x0410,0x042F],[0x0430,0x044F]], null],
+            'bg'  => [[[0x0410,0x042F],[0x0430,0x044F]], null],
+            'sr'  => [[[0x0410,0x042F],[0x0430,0x044F]], null],
+            'be'  => [[[0x0410,0x042F],[0x0430,0x044F]], null],
+            'mk'  => [[[0x0410,0x042F],[0x0430,0x044F]], null],
+            'kk'  => [[[0x0410,0x042F],[0x0430,0x044F]], null],
+            'ky'  => [[[0x0410,0x042F],[0x0430,0x044F]], null],
+            'mn'  => [[[0x0410,0x042F],[0x0430,0x044F]], null],
+            'tg'  => [[[0x0410,0x042F],[0x0430,0x044F]], null],
+            'tt'  => [[[0x0410,0x042F],[0x0430,0x044F]], null],
+            'ba'  => [[[0x0410,0x042F],[0x0430,0x044F]], null],
+            'ce'  => [[[0x0410,0x042F],[0x0430,0x044F]], null],
+            'cv'  => [[[0x0410,0x042F],[0x0430,0x044F]], null],
+            'os'  => [[[0x0410,0x042F],[0x0430,0x044F]], null],
+
+            // ── Hebrew ──
+            'he'  => [[[0x05D0,0x05EA]], null],
+            'yi'  => [[[0x05D0,0x05EA]], null],
+
+            // ── CJK ──
+            'ja'  => [[[0x30A2,0x30F3]], null],
+            'ko'  => [[[0x3131,0x314E]], null],
+            'zh'  => [[[0x4E00,0x4E4F]], null],
+
+            // ── Ethiopic ──
+            'am'  => [[[0x1200,0x1248]], null],
+            'ti'  => [[[0x1200,0x1248]], null],
+
+            // ── Thaana (Dhivehi) ──
+            'dv'  => [[[0x0780,0x07A5]], null],
+
+            // ── Cherokee ──
+            'chr' => [[[0x13A0,0x13F4]], null],
+        ];
+
+        $lang = isset($map[$lang_full]) ? $lang_full : (isset($map[$lang_short]) ? $lang_short : null);
+        if ($lang === null) {
+            $cache = false;
+            return false;
+        }
+
+        $info = $map[$lang];
+        $alpha = [];
+        foreach ($info[0] as $range) {
+            for ($i = $range[0]; $i <= $range[1]; $i++) {
+                $ch = mb_chr($i, 'UTF-8');
+                if ($ch !== false) $alpha[] = $ch;
+            }
+        }
+
+        $digits = null;
+        if ($info[1] !== null) {
+            $digits = [];
+            for ($i = 0; $i <= 9; $i++) {
+                $digits[$i] = mb_chr($info[1] + $i, 'UTF-8');
+            }
+        }
+
+        $cache = ['alpha' => $alpha, 'digits' => $digits];
+        return $cache;
+    }
+
+    public function plugin_update_completed_efb($upgrader_object, $options) {
+
+        if ($options['action'] !== 'update' || $options['type'] !== 'plugin') {
+            return;
+        }
+
+        $our_plugin = plugin_basename(EMSFB_PLUGIN_FILE);
+
+        if (isset($options['plugins'])) {
+            foreach ($options['plugins'] as $plugin) {
+                if ($plugin === $our_plugin) {
+
+                    $this->run_upgrade_tasks_efb(
+                        get_option('emsfb_version', '0.0.0'),
+                        EMSFB_PLUGIN_VERSION
+                    );
+                    break;
+                }
+            }
+        }
+    }
+
+    /**
+     * Stable AJAX entry point for the add-on recovery card.
+     *
+     * @return void
+     */
+    public function ajax_recover_addons_efb(): void {
+        self::get_efbFunction()->ajax_recover_addons_efb();
+    }
+
+}

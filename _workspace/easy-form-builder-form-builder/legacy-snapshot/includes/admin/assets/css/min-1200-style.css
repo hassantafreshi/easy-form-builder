@@ -1,0 +1,150 @@
+/*
+ * CSS Responsive Rules for Easy Form Builder
+ * For screens smaller than 1320px but larger than mobile sizes
+ * Copyright 2021 ~ 2024 EFB.APP - WhiteStudio.team
+ */
+
+@media (max-width: 1320px) and (min-width: 992px) {
+    .efb.efb-col-3.draggable-efb {
+        width: 33.333333% !important;
+        flex: 0 0 33.333333% !important;
+        margin-bottom: 15px;
+    }
+
+    .efb.row .efb.efb-col-3 {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+    .efb.btn-select-form .efb.d-block {
+        font-size: 0.85rem !important;
+        line-height: 1.2 !important;
+    }
+
+    .efb.btn-select-form .efb.bi {
+        font-size: 1.1rem !important;
+        margin-bottom: 4px !important;
+    }
+}
+
+@media (max-width: 1200px) and (min-width: 768px) {
+    .efb.efb-col-3.draggable-efb {
+        width: 50% !important;
+        flex: 0 0 50% !important;
+        margin-bottom: 15px;
+    }
+
+    .efb.btn-select-form {
+        min-height: 75px !important;
+        padding: 10px 8px !important;
+    }
+
+    .efb.btn-select-form .efb.d-block {
+        font-size: 0.8rem !important;
+        margin-top: 3px;
+    }
+
+    .efb.pro-version-efb {
+        top: 5px !important;
+        right: 5px !important;
+        font-size: 0.7rem !important;
+    }
+}
+
+@media (max-width: 1024px) and (min-width: 992px) {
+    .efb.btn-select-form .efb.d-block {
+        font-size: 0.75rem !important;
+        line-height: 1.1 !important;
+    }
+
+    .efb.row .efb.efb-col-3 {
+        padding-left: 6px;
+        padding-right: 6px;
+    }
+}
+
+@media (max-width: 1320px) and (min-width: 768px) {
+    .efb.col-md-4#listElEfb {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+    .efb.col-md-8.body-dpz-efb {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+    .efb.row#listCatEfb .efb.efb-col-3 {
+        padding: 2px 4px !important;
+    }
+
+    .efb.nav-link.cat {
+        padding: 8px 6px !important;
+        font-size: 0.85rem !important;
+    }
+
+    .efb[data-bs-toggle="tooltip"] {
+        font-size: 0.8rem !important;
+    }
+
+    .efb.crd.drag-box {
+        padding: 15px 10px !important;
+    }
+
+    .efb.navbar-expand-lg .efb.navbar-nav .efb.nav-link {
+        padding: 0.5rem 0.75rem !important;
+        font-size: 0.9rem !important;
+    }
+
+    .efb.modal-dialog {
+        max-width: 90% !important;
+        margin: 1.75rem auto !important;
+    }
+
+    #sideMenuConEfb {
+        padding: 10px 8px !important;
+    }
+
+    .efb.form-control.border-d.rounded-4 {
+        padding: 0.5rem 0.75rem !important;
+        font-size: 0.9rem !important;
+    }
+}
+
+@media (max-width: 1024px) and (min-width: 768px) and (orientation: landscape) {
+    .efb.efb-col-3.draggable-efb {
+        width: 33.333333% !important;
+        flex: 0 0 33.333333% !important;
+    }
+
+    .efb.btn-select-form {
+        min-height: 70px !important;
+        padding: 8px 6px !important;
+    }
+
+    .efb.btn-select-form .efb.d-block {
+        font-size: 0.75rem !important;
+    }
+}
+
+@media (max-width: 1100px) and (min-width: 992px) {
+    .efb.efb-col-3.draggable-efb {
+        max-width: 33.333333% !important;
+    }
+
+    .efb.btn-select-form {
+        min-height: 85px !important;
+        padding: 12px 10px !important;
+    }
+}
+
+@media (max-width: 1366px) and (min-width: 1200px) {
+    .efb.efb-col-3.draggable-efb {
+        padding-left: 6px !important;
+        padding-right: 6px !important;
+    }
+
+    .efb.btn-select-form {
+        padding: 12px 8px !important;
+    }
+}

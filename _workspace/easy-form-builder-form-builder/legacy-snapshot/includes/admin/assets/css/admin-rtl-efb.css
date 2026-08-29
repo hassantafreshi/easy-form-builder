@@ -1,0 +1,218 @@
+.efb {direction: rtl !important; font-family: 'Roboto', sans-serif!important;}
+.wp-menu-name {text-align: initial;}
+.search-form-control.efb {    padding-right: 40px!important;padding-left:10px!important;}
+input[type=file].efb {    padding: 3px 14px;}
+input[type="email"]:-moz-placeholder.efb {    text-align: right;}
+input[type="email"]:-ms-input-placeholder.efb {    text-align: right;}
+input[type="email"]::-webkit-input-placeholder.efb {    text-align: right;}
+.btn-edit-holder.efb {    float: left!important;margin-top: -40px;margin-left: 2%!important;margin-right: 62%!important;margin-right: 73%;position: relative;z-index: 10;}
+.search-icon.efb {    position: relative;    right: 40px;left: 0px!important;;}
+.description-logo.efb{float: right!important;}
+.efb-header-logo.efb {float: none !important;}
+@media screen and (min-width: 1000px) {
+
+
+
+  }
+
+.col-md-6 .efb.btn-edit-holder {
+    float: left!important;
+    margin-top: -40px;
+    margin-left: 2%!important;
+    margin-right: 24%!important;
+    margin-right: 37%;
+    position: relative;
+    z-index: 10;
+}
+
+
+ .efb.form-check-inline .efb.form-check-input {
+    float: right;
+}
+.efb.listContent{margin-right: 4px!important;}
+
+.efblist::before {
+    margin: 0 0 0 3px;
+}
+@media screen and (max-width: 782px) {
+    .top_circle-efb-1, .top_circle-efb-2 {		display: none !important;}
+     #alert_content_efb {		position: absolute;margin: 15% 5%;z-index: 1070 !important;width: 70%;}
+     .efb.listContent{		width: max-content!important;}
+
+     .efb.def.col-md-12 .efb.ttiptext ,
+     .efb.def.col-md-8 .efb.ttiptext,
+     .efb.def.col-md-6 .efb.ttiptext,
+     .efb.def.col-md-4 .efb.ttiptext {	margin: -30px 70px 0px 0px!important;font-size: 12px!important; };
+ }
+
+ .efb.unpx {
+    margin: -32px -54px 0px 0!important;
+    font-size: 10px!important;
+}
+ .efb.esign .ttiptext { margin: -25px 10px 0px 0px}
+ .efb.yesNo.row .ttiptext { margin: -25px 20px 0px 0px!important}
+ .efb.yesNo .ttiptext { margin: -35px 20px 0px 0px}
+
+.efb.def.col-md-12 .efb.ttiptext { margin: -25px 50px 0px 0px!important}
+.efb.def.col-md-6 .efb.ttiptext,.efb.def.col-md-10 .efb.ttiptext,.efb.def.col-md-8 .efb.ttiptext {	margin:-25px 50px 0px 0px!important}
+.efb.def.col-md-4 .efb.ttiptext {	margin: -25px 20px 0px 0px!important };
+
+
+td.efb.ms {
+    text-align: right;
+}
+
+div#gRecaptcha {
+    margin: 7px -42px!important;
+}
+
+
+
+.iti__country-list{
+	position: relative!important;
+}
+
+.iti__country{
+	direction: ltr;
+}
+.iti__arrow {
+    margin-right: 6px;
+}
+
+.iti__selected-flag{
+    flex-direction: row-reverse;
+}
+
+[dir="rtl"] .efb .iti__country-container,
+.efb[dir="rtl"] .iti__country-container,
+body.rtl .efb .iti__country-container,
+.rtl .efb .iti__country-container,
+body.rtl div[id^="body_efb_"] .iti.iti--allow-dropdown .iti__country-container {
+    left: auto !important;
+    right: 0 !important;
+    inset-inline-start: auto !important;
+    inset-inline-end: 0 !important;
+}
+
+[dir="rtl"] .efb .iti input.iti__tel-input,
+[dir="rtl"] .efb input.intlPhone,
+.efb[dir="rtl"] .iti input.iti__tel-input,
+body.rtl .efb .iti input.iti__tel-input,
+body.rtl .efb input.intlPhone,
+.rtl .efb .iti input.iti__tel-input,
+.rtl .efb input.intlPhone {
+    direction: ltr !important;
+    text-align: left !important;
+    unicode-bidi: plaintext !important;
+}
+
+[dir="rtl"] .efb .iti input.iti__tel-input::placeholder,
+[dir="rtl"] .efb input.intlPhone::placeholder,
+body.rtl .efb .iti input.iti__tel-input::placeholder,
+body.rtl .efb input.intlPhone::placeholder,
+.rtl .efb .iti input.iti__tel-input::placeholder,
+.rtl .efb input.intlPhone::placeholder {
+    direction: ltr !important;
+    text-align: left !important;
+}
+
+.hStyleOpEfb{
+    margin-left:  0px !important;
+    margin-right:  5px !important;
+    padding-right: 5PX;
+    padding-left: 0;
+}
+
+#header-efb.efb-header-card {
+    background: linear-gradient(225deg, #eef4ff 0%, #f0e6ff 50%, #fff0f6 100%);
+}
+.efb-header-brand {
+    flex-direction: row;
+    justify-content: flex-start;
+}
+.efb-header-brand-text {
+    align-items: flex-start;
+    text-align: right;
+}
+.efb-header-title.efb {
+    letter-spacing: 0;
+    text-align: right;
+}
+.efb-header-subtitle.efb {
+    text-align: right;
+}
+.efb-header-desc.efb {
+    text-align: right;
+    margin-left: auto;
+    margin-right: 0;
+}
+.efb-header-features {
+    flex-direction: row;
+    justify-content: flex-start;
+}
+.efb-feature-badge.efb {
+    flex-direction: row;
+}
+.efb-feature-badge.efb i.efb {
+    margin-right: 4px !important;
+    margin-left: 0 !important;
+}
+.efb-header-actions {
+    flex-direction: row;
+    justify-content: flex-start;
+}
+.efb-cta-btn.efb i.efb {
+    margin-right: 6px !important;
+    margin-left: 0 !important;
+}
+.efb-header-img-wrap {
+    text-align: center;
+}
+/* #header-efb .row {
+    flex-direction: row-reverse;
+} */
+
+.mobile .efb-header-actions {
+    flex-direction: column;
+    align-items: stretch;
+}
+.mobile .efb-cta-btn.efb {
+    text-align: center;
+}
+
+.iti--allow-dropdown .iti__flag-container:hover .iti__selected-flag {
+    background-color: rgba(255, 255, 255, 0)!important;
+}
+
+
+#floating-panel.efb {
+    position: absolute;
+    z-index: 5;
+    margin-top: 15px !important;
+    padding-left: 1% !important;
+    padding-right: 52px;
+}
+
+.rtl .efb.form-control.is-valid,.efb.was-validated .efb.form-control:valid {
+    background-position: left calc(.375em + .1875rem) center!important;
+}
+
+#dropZoneEFB #button_group_efb {
+    margin-left: 0px!important;
+    margin-right: -2px;
+    width: 98.5%;
+}
+
+/* View toggle (desktop/mobile) in the form builder.
+   Bootstrap's btn-group collapses shared borders with margin-left:-1px and
+   spaces the icon with me-1 (margin-right) — both physical, both wrong once
+   .efb flips to direction:rtl. ID selector needed because bootstrap.min-efb.css
+   is enqueued after this file. */
+#viewToggleEfb .btn-group .btn:not(:first-child) {
+    margin-left: 0;
+    margin-right: -1px;
+}
+#viewToggleEfb .btn-group .btn .me-1 {
+    margin-right: 0 !important;
+    margin-left: .25rem !important;
+}

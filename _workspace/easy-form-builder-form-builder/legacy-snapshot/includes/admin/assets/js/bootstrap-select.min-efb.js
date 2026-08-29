@@ -1,0 +1,264 @@
+
+/*
+ Created by : Hassan Tafreshi
+ Copy right owner : whiteStudio.team
+ Desc: This multi-select is designed base on boostrap 5 and used for Easy form builder Wordpress Plugin
+ */
+
+ let idOfMenu_efb = "";
+let default_val_efb = "Select an option";
+let inputSearch_efb;
+let ArrSearch_efb = Array.prototype;
+
+function returnValueSelectedOfListEfb(dataSetId) {
+    const l = document.querySelector(`[data-idset="${dataSetId}"].efb.efblist.inplist`);
+    let s = l.dataset.select.split('@efb!');
+    s = s.slice(0, (s.length - 1));
+    let r = '';
+    s.forEach(element => {
+        const d = document.querySelector(`.efb.table.${dataSetId}`);
+        let v = d.querySelector(`[data-row="${element}"]`);
+        r += v.dataset.name + ', ';
+    });
+    r = r.slice(0, (r.length - 2));
+    return r;
+}
+
+function returnValueSelectedOfIconEfb(dataSetId) {
+    const l = document.querySelector(`[data-idset="${dataSetId}"].efb.efblist.inplist`);
+    let r = l.dataset.select;
+    const icon = `bi-${bootstrap_icons[r]}`;
+    return icon;
+}
+
+function onInputEventEFB(e) {
+    inputSearch_efb = e;
+    var table1 = document.querySelector(`.${e.dataset.id}.table`);
+    ArrSearch_efb.forEach.call(table1.tBodies, function (tbody) {
+        ArrSearch_efb.forEach.call(tbody.rows, filterTable_efb);
+    });
+}
+
+function filterTable_efb(row) {
+    var text = row.textContent.toLowerCase();
+    var val = inputSearch_efb.value.toLowerCase();
+    row.style.display = text.indexOf(val) === -1 ? 'none' : '';
+}
+
+function FunSearchTableEfb(dataSetId) {
+    let inputs = document.querySelector(`[data-id="${dataSetId}"].searchBox`);
+    onInputEventEFB(inputs);
+}
+
+document.addEventListener("click", (evnt) => {
+    const d = evnt.target.dataset.id;
+    IsmenuC = (el) => {
+        let id = evnt.target.dataset.id;
+        while (el.parentNode != null && id != 'wpbody-content' && id != 'sideMenuFEfb' && id != "deleteOption") {
+            if (el != null) el = el.parentNode;
+            id = el != null && el["id"] != undefined ? el.id : 'no';
+        }
+        if (el == null || el["id"] == undefined) id = "no";
+        return id;
+    }
+    if (document.getElementById('sideBoxEfb') && document.getElementById('sideBoxEfb').classList.contains('show')
+        && evnt.target.id != "efbSetting" && evnt.target.id != "BtnCSideEfb" && !evnt.target.classList.contains('BtnSideEfb') && !evnt.target.classList.contains('wp-toolbar')) {
+        let id = IsmenuC(evnt.target);
+        if (id == "wpbody-content") sideMenuEfb(0);
+    }
+    if (evnt.target.classList.contains('efblist')) {
+        if (evnt.target.classList.contains('disabled') == true) { return 0; }
+        if (idOfMenu_efb != d) {
+            if (idOfMenu_efb.length > 1) {
+                c_m_efb();
+            } else {
+                idOfMenu_efb = d;
+                a_m_efb();
+            }
+        } else {
+            if (evnt.target.dataset.parent) {
+                c_m_efb();
+            }
+        }
+    } else if (evnt.target.tagName == "TD" || evnt.target.tagName == "TH") {
+        const e = evnt.target.parentNode;
+        if (e.classList.contains('efblist')) {
+            default_val_efb = efb_var.text.selectOption;
+            let l = document.querySelector(`[data-id="${idOfMenu_efb}"]`);
+            if (l.dataset.no == 1) {
+                let fc = e.querySelector("TH");
+                if (e.dataset.row == l.dataset.select) {
+                    l.dataset.select = "";
+                    l.innerHTML = default_val_efb;
+                    fc.classList.remove("border-info");
+                    if (l.dataset.icon == 1) fc.className = "bi-square efb";
+                } else {
+                    if (l.dataset.select.length > 0) {
+                        let x = document.querySelector(`[data-id="${idOfMenu_efb}"] [data-row="${l.dataset.select}"]`);
+                        x.classList.remove("border-info");
+                        if (l.dataset.icon == 1) x.querySelector("TH").className = "bi-square efb";
+                    }
+                    l.dataset.select = e.dataset.row;
+                    l.innerHTML = l.id === "iconEl" ? `<i class="efb ${e.dataset.name} fs-5"></i>` : e.dataset.name;
+                    if (l.dataset.icon == 1) fc.className = "bi-check-square text-info efb";
+                    e.className += " border-info";
+                }
+                c_m_efb();
+            } else {
+                const r = e.dataset.row;
+                let fc = e.querySelector("TH");
+                if (l.dataset.select.includes(r)) {
+                    l.dataset.select = l.dataset.select.replace(`${r} @efb!`, '');
+                    const v = l.innerHTML.length == (l.innerHTML.indexOf(',') + 1) ? default_val_efb : ''
+                    l.innerHTML = l.innerHTML.replace(`${e.dataset.name},`, v);
+                    if (l.dataset.icon == 1) fc.className = "bi-square efb";
+                    e.className = "efblist";
+                    if (l.dataset.select.length < 1) {
+                        l.innerHTML = default_val_efb;
+                        l.classList.remove("border-success");
+                    }
+                } else {
+                    const s = l.dataset.select.split("@efb!");
+                    if ((s.length) <= l.dataset.no) {
+                        if (l.dataset.icon == 1) fc.className = "bi-check-square text-info efb";
+                        l.dataset.select.length < 1 ? l.innerHTML = e.dataset.name + "," : l.innerHTML += e.dataset.name + ","
+                        l.dataset.select += `${e.dataset.row} @efb!`;
+                        l.classList.remove("border-info");
+                        l.classList.add("border-success");
+                    }
+                }
+            }
+            let price = 0;
+            switch (l.id) {
+                case "iconEl":
+                    set_icon_valEfb(l);
+                    break;
+            }
+            if ((typeof ajax_object_efm) == 'object') {
+                const v = l.innerHTML.replaceAll(`,`, "@efb!");
+                const el_o = l.dataset.select.split(" @efb!");
+                const ms_form_id = e.dataset.formid || (l.closest('[data-formid]') ? l.closest('[data-formid]').dataset.formid : '') || (typeof form_ID_emsFormBuilder !== 'undefined' ? form_ID_emsFormBuilder : 0);
+                const ms_valj = (typeof get_structure_by_form_id_efb === 'function' && ms_form_id) ? get_structure_by_form_id_efb(ms_form_id) : valj_efb;
+                let ob = ms_valj.find(x => x.id_ === l.dataset.vid);
+                if (!ob) ob = valj_efb.find(x => x.id_ === l.dataset.vid);
+                if (!ob) return;
+                let o = [{ id_: l.dataset.vid, name: ob.name, amount: ob.amount, type: ob.type, value: v, session: sessionPub_emsFormBuilder, form_id: ms_form_id }];
+                if (ms_valj[0] && ms_valj[0].type == "payment" && l.classList.contains('payefb')) {
+                    let ids = "";
+                    /* ms_valj first: valueJson_ws is only filled by the change
+                       handler in core-efb.js, which a multiselect never goes
+                       through - so if this list was the first field the visitor
+                       touched, it was still empty and the prices were all lost.
+                       ms_valj is this form's own structure, read just above. */
+                    const price_rows = (Array.isArray(ms_valj) && ms_valj.length) ? ms_valj : valueJson_ws;
+                    for (let el of el_o) {
+                        const i = price_rows.findIndex(x => x.id_ == `${el}`);
+                        if (i != -1 && price_rows[i].price !== undefined) {
+                            price += parseFloat(price_rows[i].price);
+                            ids += `${price_rows[i].id_},`;
+                        }
+                    }
+                    if (price > 0) {
+                        ids = ids.slice(0, -1);
+                        let q = { price: price, ids: ids };
+                        Object.assign(o[0], q);
+                    }
+                }
+                const _find_sb = typeof get_row_sendback_by_id_efb_v4 === 'function' ? get_row_sendback_by_id_efb_v4(l.dataset.vid, ms_form_id) : get_row_sendback_by_id_efb(l.dataset.vid);
+                indx = _find_sb;
+                if (indx == -1) {
+                    sendBack_emsFormBuilder_pub.push(o[0]);
+                } else {
+                    if (v.trim() != efb_var.text.selectOption.trim()) {
+                        sendBack_emsFormBuilder_pub[indx].value = v;
+                        if (!sendBack_emsFormBuilder_pub[indx].form_id) sendBack_emsFormBuilder_pub[indx].form_id = ms_form_id;
+                        if (ms_valj[0] && ms_valj[0].type == "payment" && l.classList.contains('payefb')) {
+                            sendBack_emsFormBuilder_pub[indx].price = price;
+                            sendBack_emsFormBuilder_pub[indx].ids = o[0].ids;
+                        }
+                    } else {
+                        sendBack_emsFormBuilder_pub.splice(indx, 1);
+                    }
+                }
+                /* ms_form_id, not nothing: get_structure_by_form_id_efb() looks the form up
+                   by id and reads .form_structer straight off the result, so an
+                   undefined id threw there and the running total was left stale. */
+                if (ms_valj[0] && ms_valj[0].type == "payment" && l.classList.contains('payefb')) fun_total_pay_efb(ms_form_id);
+                localStorage.setItem('sendback', JSON.stringify(sendBack_emsFormBuilder_pub));
+                if (typeof sendback_state_handler_efb_v4 === 'function') {
+                    const has_value = v.trim() != efb_var.text.selectOption.trim() && l.dataset.select.length > 0;
+                    sendback_state_handler_efb_v4(l.dataset.vid, has_value, 0, ms_form_id);
+                }
+                if (typeof updateStepButtonState_efb === 'function') {
+                    updateStepButtonState_efb(Number(ms_form_id));
+                }
+                const pl = l.id.split('_');
+                const idm = pl[0] + '_-message';
+                const msgEl = document.getElementById(idm);
+                if (el_o.length > 1) {
+                    if(msgEl){ msgEl.innerHTML = ""; msgEl.style.display = 'none'; }
+                    if (l.classList.contains('border-danger')) l.classList.remove('border-danger');
+                } else {
+                    if (l.classList.contains('border-danger')) {
+                    }
+                }
+            }
+        } else {
+            if (idOfMenu_efb.length > 1) {
+                c_m_efb();
+            }
+        }
+    } else if (idOfMenu_efb != "") {
+        c_m_efb();
+    }
+});
+
+const c_m_efb = () => {
+    let m = document.querySelector(`[data-list="${idOfMenu_efb}"]`);
+    if (m) m.classList.add("d-none");
+    idOfMenu_efb = "";
+}
+
+const a_m_efb = () => {
+    let m = document.querySelector(`[data-list="${idOfMenu_efb}"]`);
+    const n = idOfMenu_efb.indexOf('menu-') != -1 ? idOfMenu_efb.slice(5) : idOfMenu_efb;
+    let el = n != idOfMenu_efb ? document.getElementById(n + "_options") : m;
+    let width = el.offsetWidth;
+    if (width == 0) {
+        el = el.parentNode;
+        width = el.offsetWidth;
+    }
+    m.style.width = width + "px";
+    if (m) m.classList.remove("d-none");
+}
+
+const set_icon_valEfb = (el) => {
+    let di = '';
+    const idset = el.dataset.idset.includes("step-") ? el.dataset.idset.slice(5) : el.dataset.idset;
+    const indx = idset != "button_group_" ? valj_efb.findIndex(x => x.id_ == idset) : 0;
+    let icon = "";
+    if (el.dataset.side == "undefined" || el.dataset.side == "") {
+        di = indx != 0 ? `${valj_efb[indx].id_}_icon` : 'button_group_icon';
+        const k = isNumericEfb(idset) ? 'step-' + idset : idset;
+        icon = valj_efb[indx].icon = returnValueSelectedOfIconEfb(k);
+    } else if (el.dataset.side == "DoneIconEfb") {
+        icon = valj_efb[0].thank_you_message.icon = returnValueSelectedOfIconEfb(idset);
+    } else {
+        const i = returnValueSelectedOfIconEfb(idset);
+        icon = i;
+        di = el.dataset.side.includes("Next") ? `button_group_Next_icon` : `button_group_Previous_icon`;
+        el.dataset.side.includes("Next") ? valj_efb[0].button_Next_icon = i : valj_efb[0].button_Previous_icon = i;
+    }
+    if (di != '') {
+        const r = iconChangerEfb(document.getElementById(`${di}`).className, icon);
+        document.getElementById(di).className = r;
+        if (r.includes('bi-') == false && icon != "bi-undefined") {
+            document.getElementById(di).classList.add(icon);
+            document.getElementById(di).classList.remove('d-none');
+        } else if (r.includes('bi-') == true && icon == "bi-undefined") {
+            document.getElementById(di).classList.add('d-none');
+        } else if (r.includes('bi-') == true && icon != "bi-undefined") {
+            document.getElementById(di).classList.remove('d-none');
+        }
+    }
+}

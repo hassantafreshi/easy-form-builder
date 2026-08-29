@@ -1,0 +1,1155 @@
+/* ==========================================================================
+   EFB Conditional Logic Builder — Styles
+   ========================================================================== */
+
+/* ── Modal Override ── */
+#settingModalEfb.efb-logic-modal .modal-dialog {
+  max-width: 760px;
+  margin: 2rem auto;
+}
+#settingModalEfb.efb-logic-modal .modal-content {
+  border-radius: 16px;
+}
+#settingModalEfb.efb-logic-modal .modal-header {
+  border-radius: 16px 16px 0 0;
+}
+#settingModalEfb.efb-logic-modal .modal-body {
+  padding: 0;
+  max-height: 80vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  border-radius: 0 0 16px 16px;
+  /* Override Bootstrap .row that gets added to modal-body */
+  margin-left: 0;
+  margin-right: 0;
+  flex-wrap: nowrap;
+}
+
+.efb-logic-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 14px 24px 0;
+  background: #fff;
+  border-bottom: 1px solid #e2e8f0;
+}
+.efb-logic-tabs button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 8px 12px;
+  border: 1px solid transparent;
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  background: transparent;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.efb-logic-tabs button.active {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  color: #4338ca;
+}
+.efb-logic-tabs button:hover {
+  color: #1e293b;
+}
+
+/* ── Rules List View ── */
+.efb-logic-list {
+  padding: 20px 24px;
+}
+.efb-logic-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.efb-logic-list-header h5 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+}
+.efb-logic-add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(99,102,241,0.25);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.efb-logic-add-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99,102,241,0.35);
+}
+.efb-logic-add-btn i {
+  font-size: 14px;
+}
+.efb-logic-add-btn-center {
+  margin-top: 12px;
+}
+.efb-logic-test-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 8px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: #fff;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.efb-logic-test-btn:hover {
+  border-color: #6366f1;
+  color: #4338ca;
+  background: #f5f3ff;
+}
+
+/* ── Not Configured State ── */
+.efb-logic-not-configured {
+  color: #94a3b8;
+  font-style: italic;
+  font-size: 11px;
+}
+
+/* ── Empty State ── */
+.efb-logic-empty {
+  text-align: center;
+  padding: 48px 24px;
+}
+.efb-logic-empty-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 16px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #e0e7ff, #ede9fe);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.efb-logic-empty-icon i {
+  font-size: 28px;
+  color: #6366f1;
+}
+.efb-logic-empty h6 {
+  font-size: 15px;
+  font-weight: 600;
+  color: #334155;
+  margin: 0 0 6px;
+}
+.efb-logic-empty p {
+  font-size: 13px;
+  color: #94a3b8;
+  margin: 0;
+}
+
+/* ── Rule Card ── */
+.efb-logic-rule-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  transition: all 0.2s ease;
+  position: relative;
+}
+.efb-logic-rule-card:hover {
+  border-color: #c7d2fe;
+  background: #f1f5f9;
+}
+.efb-logic-rule-card.disabled {
+  opacity: 0.55;
+}
+.efb-logic-rule-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.efb-logic-rule-toggle {
+  flex-shrink: 0;
+}
+.efb-logic-rule-info {
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
+}
+.efb-logic-rule-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.efb-logic-rule-summary {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.efb-logic-rule-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.efb-logic-rule-actions button {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.efb-logic-rule-actions button:hover {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+.efb-logic-rule-actions button.efb-logic-delete-btn:hover {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.efb-logic-settings-row {
+  align-items: stretch;
+  flex-wrap: wrap;
+}
+.efb-logic-setting-field {
+  display: flex;
+  flex: 1 1 190px;
+  min-width: 0;
+  flex-direction: column;
+  gap: 6px;
+}
+.efb-logic-setting-field-wide {
+  flex-basis: 100%;
+}
+.efb-logic-setting-field span {
+  color: #475569;
+  font-size: 12px;
+  font-weight: 600;
+}
+.efb-logic-message-input {
+  min-height: 88px;
+  resize: vertical;
+}
+.efb-logic-color-input {
+  padding: 2px;
+  height: 34px;
+  min-width: 56px;
+  flex: 0 0 56px;
+  cursor: pointer;
+}
+.efb-logic-icon-btn {
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  color: #64748b;
+  border-radius: 6px;
+  width: 26px;
+  height: 26px;
+  line-height: 1;
+  font-size: 15px;
+  cursor: pointer;
+}
+.efb-logic-icon-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.efb-logic-icon-btn:hover:not(:disabled) {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+/* ── Scope Badge ── */
+.efb-logic-scope-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: #e0e7ff;
+  color: #4338ca;
+  margin-inline-start: 8px;
+  vertical-align: middle;
+}
+
+/* ── Rule Editor View ── */
+.efb-logic-editor {
+  padding: 0;
+}
+.efb-logic-editor-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 24px;
+  border-bottom: 1px solid #e2e8f0;
+  background: #fafbfc;
+}
+.efb-logic-back-btn {
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 10px;
+  background: #f1f5f9;
+  color: #475569;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+.efb-logic-back-btn:hover {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+.efb-logic-editor-title {
+  flex: 1;
+  min-width: 0;
+}
+.efb-logic-editor-title input {
+  border: none;
+  background: transparent;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1e293b;
+  width: 100%;
+  padding: 4px 0;
+  outline: none;
+}
+.efb-logic-editor-title input:focus {
+  border-bottom: 2px solid #6366f1;
+}
+.efb-logic-editor-title h5 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.efb-logic-editor-body {
+  padding: 20px 24px;
+}
+
+/* ── IF / THEN Sections ── */
+.efb-logic-section {
+  margin-bottom: 0;
+}
+.efb-logic-section-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+}
+.efb-logic-section-label.efb-if-label {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+.efb-logic-section-label.efb-then-label {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+/* ── Condition Groups ── */
+.efb-logic-group {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 10px;
+  background: #fff;
+}
+.efb-logic-root-group {
+  border-color: #dbeafe;
+  background: #f8fbff;
+}
+.efb-logic-actions-group {
+    border-color: #1882403d;
+    background: #c0cfc617;
+}
+.efb-logic-group .efb-logic-group {
+  margin-top: 8px;
+  margin-inline-start: 18px;
+  background: #fbfdff;
+}
+.efb-logic-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.efb-logic-group-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+}
+.efb-logic-group-title i {
+  color: #6366f1;
+  font-size: 14px;
+}
+.efb-logic-group-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.efb-logic-group-body {
+  position: relative;
+}
+.efb-logic-item-connector {
+  justify-content: flex-start;
+  margin: 2px 0 8px 12px;
+}
+.efb-logic-group-empty {
+  padding: 10px 12px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+  color: #94a3b8;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+.efb-logic-group-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+.efb-logic-group-remove-btn {
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.efb-logic-group-remove-btn:hover {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+/* ── Condition Row ── */
+.efb-logic-condition-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+.efb-logic-condition-row select,
+.efb-logic-condition-row input {
+  height: 38px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0 12px;
+  font-size: 13px;
+  color: #334155;
+  background: #fff;
+  transition: border-color 0.15s ease;
+  outline: none;
+}
+.efb-logic-condition-row select:focus,
+.efb-logic-condition-row input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+}
+.efb-logic-field-select {
+  flex: 2;
+  min-width: 140px;
+}
+.efb-logic-operator-select {
+  flex: 1;
+  min-width: 100px;
+}
+.efb-logic-value-input,
+.efb-logic-value-select {
+  flex: 2;
+  min-width: 120px;
+}
+.efb-logic-value-range {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 2;
+  min-width: 160px;
+}
+.efb-logic-value-range .efb-logic-value-input {
+  flex: 1;
+  min-width: 70px;
+}
+.efb-logic-value-range-sep {
+  color: #94a3b8;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+.efb-logic-remove-btn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+.efb-logic-remove-btn:hover {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+/* ── AND / OR Toggle Between Conditions ── */
+.efb-logic-operator-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 4px 0 8px 0;
+}
+.efb-logic-operator-toggle button {
+  padding: 3px 14px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.efb-logic-operator-toggle button:first-child {
+  border-radius: 8px 0 0 8px;
+}
+.efb-logic-operator-toggle button:last-child {
+  border-radius: 0 8px 8px 0;
+  border-inline-start: none;
+}
+.efb-logic-operator-toggle button.active {
+  background: #6366f1;
+  border-color: #6366f1;
+  color: #fff;
+}
+
+/* ── Add Condition / Action Button (small) ── */
+.efb-logic-add-row-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 14px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+  background: transparent;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  margin-top: 4px;
+}
+.efb-logic-add-row-btn:hover {
+  border-color: #6366f1;
+  color: #6366f1;
+  background: #f5f3ff;
+}
+ .efb-logic-actions-group .efb-logic-add-row-btn:hover {
+  border-color: #1882403d;
+    color: #188240;
+    background: #dcfce7;
+}
+
+/* ── Visual Connector (dot-line-diamond) ── */
+.efb-logic-connector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 0;
+}
+.efb-logic-connector-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #cbd5e1;
+}
+.efb-logic-connector-line {
+  width: 2px;
+  height: 18px;
+  background: #cbd5e1;
+}
+.efb-logic-connector-diamond {
+  width: 12px;
+  height: 12px;
+  background: #6366f1;
+  transform: rotate(45deg);
+  border-radius: 2px;
+}
+
+/* ── Action Row ── */
+.efb-logic-action-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+.efb-logic-action-row select,
+.efb-logic-action-row input {
+  height: 38px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0 12px;
+  font-size: 13px;
+  color: #334155;
+  background: #fff;
+  transition: border-color 0.15s ease;
+  outline: none;
+}
+.efb-logic-action-row select:focus,
+.efb-logic-action-row input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+}
+.efb-logic-action-type-select {
+  flex: 1;
+  min-width: 120px;
+}
+.efb-logic-action-target-select {
+  flex: 2;
+  min-width: 140px;
+}
+.efb-logic-decimals-input {
+  flex: 0 0 92px;
+  min-width: 92px;
+}
+.efb-logic-calc-token-select {
+  flex: 1;
+  min-width: 130px;
+}
+
+/* ── Footer / Apply ── */
+.efb-logic-editor-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 14px 24px;
+  border-top: 1px solid #e2e8f0;
+  background: #fafbfc;
+}
+.efb-logic-footer-options {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.efb-logic-priority-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  cursor: default;
+}
+.efb-logic-priority-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  text-transform: capitalize;
+}
+.efb-logic-priority-input {
+  width: 64px;
+  height: 34px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0 10px;
+  font-size: 13px;
+  color: #334155;
+  background: #fff;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.efb-logic-priority-input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+}
+.efb-logic-stop-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  cursor: pointer;
+}
+.efb-logic-stop-toggle {
+  flex-shrink: 0;
+}
+.efb-logic-stop-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #475569;
+  white-space: nowrap;
+}
+.efb-logic-apply-btn {
+  padding: 9px 28px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(99,102,241,0.25);
+}
+.efb-logic-apply-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99,102,241,0.35);
+}
+
+/* ── Test Mode ── */
+.efb-logic-test-body {
+  padding: 20px 24px;
+}
+.efb-logic-test-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+.efb-logic-test-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+}
+.efb-logic-test-field span {
+  color: #475569;
+  font-size: 12px;
+  font-weight: 600;
+}
+.efb-logic-test-input {
+  width: 100%;
+  height: 38px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0 12px;
+  color: #334155;
+  background: #fff;
+  font-size: 13px;
+  outline: none;
+}
+.efb-logic-test-input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+}
+.efb-logic-test-runbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+.efb-logic-test-results {
+  display: grid;
+  gap: 8px;
+  margin-top: 16px;
+}
+.efb-logic-test-result {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: #fff;
+}
+.efb-logic-test-result-main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.efb-logic-test-result-main strong {
+  color: #1e293b;
+  font-size: 13px;
+}
+.efb-logic-test-result-main span {
+  color: #64748b;
+  font-size: 12px;
+}
+.efb-logic-test-result p {
+  margin: 6px 0 0 22px;
+  color: #475569;
+  font-size: 12px;
+}
+.efb-logic-test-result.matched {
+  border-color: #86efac;
+  background: #f0fdf4;
+}
+.efb-logic-test-result.matched i {
+  color: #16a34a;
+}
+.efb-logic-test-result.not-matched i {
+  color: #dc2626;
+}
+.efb-logic-test-result.skipped {
+  opacity: 0.72;
+}
+.efb-logic-test-result.blocked {
+  border-color: #fde68a;
+  background: #fffbeb;
+}
+.efb-logic-test-result.blocked i {
+  color: #d97706;
+}
+
+/* Inspector / conflict warnings */
+.efb-logic-conflict-warning {
+  border: 1px solid #fde68a;
+  border-radius: 10px;
+  background: #fffbeb;
+  color: #92400e;
+  padding: 10px 12px;
+  margin: 0 0 14px;
+}
+/* submit blocked banner in Test Mode (block_submit / end_form) */
+.efb-logic-submit-blocked {
+  border-color: #fecaca;
+  background: #fef2f2;
+  color: #991b1b;
+  margin-top: 14px;
+}
+
+/* condition source select + query-param key input */
+.efb-logic-source-select {
+  flex: 0 0 128px;
+  min-width: 110px;
+}
+.efb-logic-param-input {
+  flex: 1;
+  min-width: 110px;
+}
+
+/* NOT (negate) toggle on condition groups — NAND/NOR */
+.efb-logic-negate-btn {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 3px 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.efb-logic-negate-btn:hover {
+  border-color: #6366f1;
+  color: #4f46e5;
+}
+.efb-logic-negate-btn.active {
+  border-color: #ef4444;
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+/* rule card badges: scope / priority / stop_processing */
+.efb-logic-rule-badge {
+  display: inline-block;
+  margin-inline-start: 6px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  vertical-align: middle;
+  line-height: 1.6;
+}
+.efb-logic-badge-scope {
+  background: #eef2ff;
+  color: #4f46e5;
+}
+.efb-logic-badge-priority {
+  background: #f1f5f9;
+  color: #475569;
+}
+.efb-logic-badge-stop {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+/* small inline hint next to setting labels ({field_id} tokens, stop-all) */
+.efb-logic-hint {
+  color: #94a3b8;
+  font-weight: 400;
+  font-size: 10px;
+}
+.efb-logic-conflict-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+.efb-logic-conflict-list {
+  display: grid;
+  gap: 6px;
+}
+.efb-logic-conflict-item {
+  display: grid;
+  gap: 2px;
+  font-size: 12px;
+}
+.efb-logic-conflict-item small {
+  color: #b45309;
+}
+.efb-logic-inspector {
+  border: 1px solid #dbeafe;
+  border-radius: 10px;
+  background: #f8fbff;
+  padding: 12px;
+  margin-top: 14px;
+}
+.efb-logic-inspector-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.efb-logic-inspector-head h6 {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: #1e293b;
+  font-size: 13px;
+  font-weight: 700;
+}
+.efb-logic-inspector-head span {
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #166534;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+}
+.efb-logic-inspector-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.efb-logic-inspector-grid section {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
+  padding: 10px;
+}
+.efb-logic-inspector-grid h6 {
+  margin: 0 0 8px;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 700;
+}
+.efb-logic-inspector-kv,
+.efb-logic-inspector-effect {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 28px;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 6px;
+  margin-top: 6px;
+  font-size: 12px;
+}
+.efb-logic-inspector-kv:first-of-type,
+.efb-logic-inspector-effect:first-of-type {
+  border-top: none;
+  padding-top: 0;
+  margin-top: 0;
+}
+.efb-logic-inspector-kv span,
+.efb-logic-inspector-effect span {
+  color: #64748b;
+  min-width: 0;
+}
+.efb-logic-inspector-kv code {
+  background: #f1f5f9;
+  border-radius: 6px;
+  color: #334155;
+  padding: 2px 6px;
+  white-space: normal;
+  word-break: break-word;
+}
+.efb-logic-inspector-effect strong {
+  color: #334155;
+  font-size: 12px;
+  text-align: end;
+}
+.efb-logic-inspector-error strong {
+  color: #b91c1c;
+}
+.efb-logic-inspector-empty {
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+/* ── Toggle Switch (small) ── */
+.efb-logic-toggle {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  cursor: pointer;
+}
+.efb-logic-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+.efb-logic-toggle-track {
+  position: absolute;
+  inset: 0;
+  background: #cbd5e1;
+  border-radius: 10px;
+  transition: background 0.2s ease;
+}
+.efb-logic-toggle input:checked + .efb-logic-toggle-track {
+  background: #6366f1;
+}
+.efb-logic-toggle-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+.efb-logic-toggle input:checked ~ .efb-logic-toggle-thumb {
+  transform: translateX(16px);
+}
+
+/* ── RTL Support ── */
+[dir="rtl"] .efb-logic-back-btn i {
+  transform: scaleX(-1);
+}
+[dir="rtl"] .efb-logic-toggle-thumb {
+  left: auto;
+  right: 2px;
+}
+[dir="rtl"] .efb-logic-toggle input:checked ~ .efb-logic-toggle-thumb {
+  transform: translateX(-16px);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  #settingModalEfb.efb-logic-modal .modal-dialog {
+    max-width: 95%;
+    margin: 1rem auto;
+  }
+  .efb-logic-condition-row,
+  .efb-logic-action-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .efb-logic-group .efb-logic-group {
+    margin-inline-start: 8px;
+  }
+  .efb-logic-group-header,
+  .efb-logic-group-controls,
+  .efb-logic-group-actions {
+    align-items: flex-start;
+  }
+  .efb-logic-group-header {
+    flex-direction: column;
+  }
+  .efb-logic-condition-row select,
+  .efb-logic-condition-row input,
+  .efb-logic-action-row select,
+  .efb-logic-action-row input {
+    width: 100%;
+  }
+  .efb-logic-value-range {
+    width: 100%;
+  }
+  .efb-logic-inspector-grid {
+    grid-template-columns: 1fr;
+  }
+  .efb-logic-value-range .efb-logic-value-input {
+    width: auto;
+  }
+  .efb-logic-remove-btn {
+    align-self: flex-end;
+  }
+}
+
+/* ── Plan Gating (Free / Free Plus / Pro) ── */
+.efb-logic-btn-locked {
+  opacity: 0.55;
+}
+.efb-logic-btn-locked:hover {
+  opacity: 0.8;
+  transform: none;
+}
+.efb-logic-tab-locked {
+  opacity: 0.75;
+}
+.efb-logic-tab-gem,
+.efb-logic-pro-gem {
+  color: #f59e0b;
+  font-size: 11px;
+}
+.efb-logic-pro-locked {
+  opacity: 0.6;
+  cursor: pointer;
+}
+.efb-logic-pro-locked input {
+  cursor: not-allowed;
+}
+.efb-logic-pro-panel .efb-logic-empty-icon,
+.efb-logic-pro-icon {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+}
+.efb-logic-pro-panel .efb-logic-empty-icon i {
+  color: #f59e0b;
+}
