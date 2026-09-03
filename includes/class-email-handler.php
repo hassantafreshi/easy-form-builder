@@ -1124,7 +1124,7 @@ class EmsfbEmailHandler {
         $headerGradientStart = $this->adjust_color_brightness($headerBgColor, 0.4);
 
         return "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">
-<html xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\">
+<html xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\" dir=\"$direction\">
 <head>
     <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />
     <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />
@@ -1145,11 +1145,13 @@ class EmsfbEmailHandler {
         }
     </style>
 </head>
-<body style=\"margin: 0; padding: 0; width: 100%; background-color: $bgColor; direction: $direction; font-family: $fontFamily;\">
+<body dir=\"$direction\" style=\"margin: 0; padding: 0; width: 100%; background-color: $bgColor; direction: $direction; font-family: $fontFamily;\">
     <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" style=\"margin: 0; padding: 0; background-color: $bgColor;\">
         <tr>
             <td align=\"center\" style=\"padding: 20px 0;\">
-                <table class=\"email-container\" role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"$contentWidth\" style=\"margin: 0 auto; background-color: $contentBgColor; border-radius: {$borderRadius}px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); overflow: hidden;\">
+                <!--[if mso]><table role=\"presentation\" width=\"$contentWidth\" align=\"center\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\"><tr><td><![endif]-->
+                <div class=\"email-container\" style=\"max-width: {$contentWidth}px; margin: 0 auto;\">
+                <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" style=\"background-color: $contentBgColor; border-radius: {$borderRadius}px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); overflow: hidden;\">
                     <tr>
                         <td align=\"center\" style=\"padding: 40px 30px 30px 30px; background: linear-gradient(135deg, $headerGradientStart 0%, $headerBgColor 100%);\">
                             <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\">
@@ -1181,7 +1183,11 @@ class EmsfbEmailHandler {
                         <td style=\"height: 20px; background-color: $contentBgColor;\"></td>
                     </tr>
                 </table>
-                <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"$contentWidth\" style=\"margin: 20px auto 0 auto;\">
+                </div>
+                <!--[if mso]></td></tr></table><![endif]-->
+                <!--[if mso]><table role=\"presentation\" width=\"$contentWidth\" align=\"center\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\"><tr><td><![endif]-->
+                <div style=\"max-width: {$contentWidth}px; margin: 20px auto 0 auto;\">
+                <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\">
                     <tr>
                         <td class=\"footer-content\" align=\"center\" style=\"padding: 30px; color: #6b7280; font-size: 14px; line-height: 1.5; text-align: center; font-family: $fontFamily;\">
                             $footer
@@ -1201,6 +1207,8 @@ class EmsfbEmailHandler {
                         </td>
                     </tr>
                 </table>
+                </div>
+                <!--[if mso]></td></tr></table><![endif]-->
             </td>
         </tr>
     </table>
@@ -1360,7 +1368,7 @@ class EmsfbEmailHandler {
         $safe_cw       = esc_attr($contentWidth);
 
         return '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" dir="' . $safe_dir . '">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -1379,7 +1387,7 @@ table { border-collapse: collapse !important; }
 }
 </style>
 </head>
-<body style="margin: 0; padding: 0; width: 100%; background-color: ' . $safe_bg . '; direction: ' . $safe_dir . '; font-family: ' . $safe_ff . ';">
+<body dir="' . $safe_dir . '" style="margin: 0; padding: 0; width: 100%; background-color: ' . $safe_bg . '; direction: ' . $safe_dir . '; font-family: ' . $safe_ff . ';">
 <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: ' . $safe_bg . ';">
 <tr><td align="center" style="padding: 20px 0;">
 ' . $mso_open . '
@@ -1967,7 +1975,7 @@ table { border-collapse: collapse !important; }
         $safe_dir = esc_attr($direction);
 
         return '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-            <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+            <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" dir="' . $safe_dir . '">
             <head>
             <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
             <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -1986,7 +1994,7 @@ table { border-collapse: collapse !important; }
             }
             </style>
             </head>
-            <body style="margin: 0; padding: 0; width: 100%; background-color: ' . $safe_bg . '; direction: ' . $safe_dir . '; font-family: \'Segoe UI\', Tahoma, Geneva, Verdana, Arial, sans-serif;">
+            <body dir="' . $safe_dir . '" style="margin: 0; padding: 0; width: 100%; background-color: ' . $safe_bg . '; direction: ' . $safe_dir . '; font-family: \'Segoe UI\', Tahoma, Geneva, Verdana, Arial, sans-serif;">
             ' . $content . '
             </body>
             </html>';

@@ -3232,7 +3232,46 @@ function efbEmailTestText(key, fallback) {
  */
 function efbEmailTestMinScore() {
   const value = Number(efb_var && efb_var.emailMonitor ? efb_var.emailMonitor.min_delivery_score : 0);
-  return value > 0 ? value : 40;
+  return value > 0 ? value : 20;
+}
+
+/**
+ * The score at and above which delivery is healthy - the mail reaches the
+ * inbox rather than the spam folder. Email_Monitor::HEALTHY_SCORE.
+ */
+function efbEmailTestHealthyScore() {
+  const value = Number(efb_var && efb_var.emailMonitor ? efb_var.emailMonitor.healthy_score : 0);
+  return value > 0 ? value : 70;
+}
+
+/**
+ * How far the message got, as the server concluded it. See the /handoff
+ * endpoint: 'handed_off' means wp_mail() succeeded and the mail really did
+ * leave, 'wp_mail_failed' means nothing ever left the site.
+ */
+function efbEmailTestSendStage(result) {
+  return (result && result.send_stage) ? String(result.send_stage) : 'unknown';
+}
+
+/**
+ * One of three verdicts, so this modal, the dashboard notice and the weekly
+ * email never disagree:
+ *
+ *   healthy       - it arrived and scored well enough for the inbox
+ *   spam_risk     - it arrived, but will most likely be filtered
+ *   not_delivered - it never arrived at all
+ *
+ * Arrival is what separates the last one from the middle one. A message that
+ * got through with a score of 12 is a spam problem, and calling it "delivery is
+ * not working" - which is what this modal used to do - contradicts the green
+ * tick on the send step directly above it.
+ */
+function efbEmailTestVerdict(result) {
+  if (!result) return null;
+  if (!result.can_send_email) return 'not_delivered';
+  const score = Number(result.score);
+  if (isFinite(score) && score < efbEmailTestHealthyScore()) return 'spam_risk';
+  return 'healthy';
 }
 
 /**
@@ -3254,6 +3293,72 @@ function efbEmailTestLowScoreMessage(result) {
   return efbEmailTestText('emailDeliveryLowScore', 'Your test email was delivered, but its deliverability score is only %1$s out of 100 (below %2$s). The emails your forms send will most likely be filtered as spam. Set up SMTP and run the check again.')
     .replace('%1$s', Number(result.score))
     .replace('%2$s', efbEmailTestMinScore());
+}
+
+/**
+ * The sentence inside the result box, chosen by verdict rather than by the
+ * service's own generic wording. A delivered-but-badly-scored message used to
+ * be described by the service as "good news, your site could send the test",
+ * which read as success next to a failure warning.
+ */
+function efbEmailTestQuickMessage(result, verdict) {
+  if (!result) return '';
+  if (verdict === 'spam_risk') {
+    if (efbEmailTestScoreTooLow(result)) return efbEmailTestLowScoreMessage(result);
+    return efbEmailTestText('emailSpamRiskDesc', 'The test email was delivered with a deliverability score of %1$s out of 100. Under %2$s, most mailboxes file messages in the spam folder, so the people filling in your forms may never see them.')
+      .replace('%1$s', Number(result.score))
+      .replace('%2$s', efbEmailTestHealthyScore());
+  }
+  return result.message || '';
+}
+
+/**
+ * The guidance block, or null when nothing is wrong.
+ *
+ * Each branch names where the message actually stopped. "Email Delivery Is Not
+ * Working" was shown for all of them, including runs where WordPress had just
+ * sent the message perfectly - and it appeared directly under the green tick
+ * confirming that send, which is what made the panel look broken.
+ */
+function efbEmailTestGuidance(verdict, sendStage, result, steps) {
+  if (steps && steps.send === 'error') {
+    return {
+      title: efbEmailTestText('emailWpMailFailedTitle', 'WordPress could not send the email'),
+      description: efbEmailTestText('emailWpMailFailedDesc', 'The message never left your website: WordPress returned an error while sending it. Install and configure an SMTP plugin, or ask your host whether PHP mail is disabled.')
+    };
+  }
+
+  if (verdict === 'healthy' || verdict === null) return null;
+
+  // Still waiting: the delayed box above already says so, and a second block
+  // declaring the message lost would be premature.
+  if (result && result.status === 'delayed') return null;
+
+  if (verdict === 'spam_risk') {
+    return {
+      title: efbEmailTestText('emailSpamRiskTitle', 'Your emails arrive, but will most likely land in spam'),
+      description: efbEmailTestText('emailSpamRiskGuidance', 'Delivery itself works - the test message reached us. What is missing is trust: sending through an SMTP service and adding SPF and DKIM records for your domain is what moves your emails from the spam folder to the inbox.')
+    };
+  }
+
+  if (sendStage === 'wp_mail_failed') {
+    return {
+      title: efbEmailTestText('emailWpMailFailedTitle', 'WordPress could not send the email'),
+      description: efbEmailTestText('emailWpMailFailedDesc', 'The message never left your website: WordPress returned an error while sending it. Install and configure an SMTP plugin, or ask your host whether PHP mail is disabled.')
+    };
+  }
+
+  if (sendStage === 'handed_off') {
+    return {
+      title: efbEmailTestText('emailSentNotArrivedTitle', 'WordPress sent the email - it just never arrived'),
+      description: efbEmailTestText('emailSentNotArrivedDesc', 'Your site handed the message to your mail server successfully, so WordPress and this plugin did their part. It was lost, delayed or rejected afterwards - most often the receiving mailbox filed it as spam, or your host never delivered it from the outbound queue. Sending through an SMTP service, with SPF and DKIM records for your domain, is what fixes this.')
+    };
+  }
+
+  return {
+    title: efbEmailTestText('emailDeliveryNotWorking', 'The test email never arrived'),
+    description: efbEmailTestText('emailDeliveryNotWorkingDesc', 'Your WordPress site cannot send emails reliably. This is a very common hosting issue - the default PHP mail function is often blocked or ends up in spam. Installing an SMTP plugin routes your emails through a verified mail service and fixes this in minutes.')
+  };
 }
 
 function efbEmailTestFormat(str) {
@@ -3395,15 +3500,26 @@ function efbEmailTestRender(state) {
   const adminEmail = state.adminEmail ? efbEmailTestEscape(state.adminEmail) : '';
 
   const deliveryConfirmed = efbEmailTestDeliveryConfirmed(quick);
-  const scoreTooLow = quick && quick.can_send_email && efbEmailTestScoreTooLow(quick);
+  // A run that ended before any quick result exists - expired, or a send that
+  // wp_mail() refused - has no `quick` payload to judge, but it is still a
+  // verdict: nothing arrived.
+  const endedWithoutDelivery = !!(result && (result.status === 'expired' || result.status === 'failed'));
+  const verdict = efbEmailTestVerdict(quick) || (endedWithoutDelivery ? 'not_delivered' : null);
+  const sendStage = efbEmailTestSendStage(result || quick);
+  // The mail arrived: whatever else is wrong, nothing here may claim the site
+  // cannot send.
+  const arrived = !!(quick && quick.can_send_email);
 
+  // Green only for a healthy result: a delivered message that will be filtered
+  // as spam is not a finished green bar, and a message that never arrived is
+  // not the same failure as one that was never sent.
   const progressBarClass = isComplete
-    ? 'efb progress-bar ' + (deliveryConfirmed ? 'bg-success' : 'bg-danger')
+    ? 'efb progress-bar ' + (verdict === 'healthy' ? 'bg-success' : (verdict === 'spam_risk' ? 'bg-warning' : 'bg-danger'))
     : 'efb progress-bar progress-bar-striped progress-bar-animated bg-primary';
 
   const stepsHtml = [
     efbEmailTestStep(efbEmailTestText('stepPrepareTest', 'Prepare Test'), efbEmailTestText('stepPrepareTestDesc', 'Connecting to WhiteStudio to generate a unique test email address.'), steps.start || 'active', 1),
-    efbEmailTestStep(efbEmailTestText('stepSendEmail', 'Send Test Email'), efbEmailTestText('stepSendEmailDesc', 'WordPress is sending a real email to verify your server can deliver mail.'), steps.send || 'waiting', 2),
+    efbEmailTestStep(efbEmailTestText('stepSendEmail', 'WordPress Sends the Email'), efbEmailTestText('stepSendEmailDesc', 'WordPress hands a real message to your mail server. A tick here means WordPress sent it, not yet that it arrived.'), steps.send || 'waiting', 2),
     efbEmailTestStep(efbEmailTestText('stepWaitDelivery', 'Waiting for Delivery'), efbEmailTestText('stepWaitDeliveryDesc', 'Checking whether the test email arrived at our server (usually takes a few seconds).'), steps.wait || 'waiting', 3),
     efbEmailTestStep(efbEmailTestText('stepQuickResult', 'Quick Result'), efbEmailTestText('stepQuickResultDesc', 'Showing the first delivery result — you will see right away if email is working.'), steps.quick || 'waiting', 4),
     efbEmailTestStep(efbEmailTestText('stepFullReport', 'Full Report'), efbEmailTestText('stepFullReportDesc', 'A detailed HTML report with full diagnostics is being prepared and emailed to you.'), steps.full || 'waiting', 5),
@@ -3413,10 +3529,10 @@ function efbEmailTestRender(state) {
     ? `<div class="efb mt-3 d-flex align-items-center gap-2 px-3 py-2 rounded-3" style="background:#f1f5f9;font-size:0.85rem;color:#475569;"><i class="efb bi bi-arrow-right-circle-fill" style="color:#3b82f6;opacity:0.6;font-size:0.95rem;flex-shrink:0;"></i><span>${efbEmailTestEscape(state.message)}</span></div>`
     : '';
 
-  // A score under the threshold is treated exactly like a delivery failure:
-  // the amber "delivery is not working" block and the SMTP guide belong there
-  // just as much, because form emails from this site will not be read.
-  const failedEmail = quick && (quick.can_send_email === false || scoreTooLow);
+  // Amber covers everything that is not healthy - a message filtered as spam
+  // and a message that never arrived both need attention - while the wording
+  // below keeps them apart.
+  const failedEmail = quick && verdict !== 'healthy';
   const scoreHtml = quick && quick.score != null
     ? `<span class="efb badge rounded-pill" style="background:#e0f2fe;color:#0369a1;font-size:0.78rem;">${efbEmailTestEscape(efbEmailTestFormat(efbEmailTestText('score', 'Score: %s'), Number(quick.score)))}</span>`
     : '';
@@ -3432,31 +3548,40 @@ function efbEmailTestRender(state) {
         </div>
         <div class="efb d-flex gap-1 flex-wrap">${scoreHtml}${gradeHtml}</div>
       </div>
-      <div style="font-size:0.85rem;color:${failedEmail ? '#92400e' : '#166534'};line-height:1.5;">${efbEmailTestEscape(scoreTooLow ? efbEmailTestLowScoreMessage(quick) : (quick.message || ''))}</div>
+      <div style="font-size:0.85rem;color:${failedEmail ? '#92400e' : '#166534'};line-height:1.5;">${efbEmailTestEscape(efbEmailTestQuickMessage(quick, verdict))}</div>
     </div>`
     : '';
 
-  const smtpBox = failedEmail || (result && result.status === 'expired') || steps.send === 'error'
+  // What this box says has to survive being read directly under a green
+  // "WordPress sent the email" tick. Naming the stage the message reached is
+  // what makes the two statements one story instead of a contradiction.
+  const guidance = efbEmailTestGuidance(verdict, sendStage, quick, steps);
+  const smtpBox = guidance
     ? `<div class="efb mt-3 rounded-3 p-3" style="border:1px solid #fbbf24;background:#fffbeb;">
       <div class="efb d-flex align-items-start gap-2 mb-3">
         <i class="efb bi bi-exclamation-triangle-fill" style="color:#d97706;font-size:1rem;margin-top:2px;flex-shrink:0;"></i>
         <div>
-          <div class="efb fw-semibold mb-1" style="font-size:0.9rem;color:#92400e;">${efbEmailTestEscape(efbEmailTestText('emailDeliveryNotWorking', 'Email Delivery Is Not Working'))}</div>
-          <div style="font-size:0.82rem;color:#78350f;line-height:1.55;">${efbEmailTestEscape(efbEmailTestText('emailDeliveryNotWorkingDesc', 'Your WordPress site cannot send emails reliably. This is a very common hosting issue — the default PHP mail function is often blocked or ends up in spam. Installing an SMTP plugin routes your emails through a verified mail service and fixes this in minutes.'))}</div>
+          <div class="efb fw-semibold mb-1" style="font-size:0.9rem;color:#92400e;">${efbEmailTestEscape(guidance.title)}</div>
+          <div style="font-size:0.82rem;color:#78350f;line-height:1.55;">${efbEmailTestEscape(guidance.description)}</div>
         </div>
       </div>
       <a class="efb btn btn-sm btn-warning fw-semibold" href="${Link_emsFormBuilder('EmailSpam')}" target="_blank" rel="noopener noreferrer"><i class="efb bi-box-arrow-up-right me-1"></i>${efbEmailTestEscape(efbEmailTestText('smtpSetupGuideBtn', 'Step-by-step SMTP setup guide'))}</a>
     </div>`
     : '';
 
-  const reportBox = deliveryConfirmed
+  // Only a healthy verdict gets the green "your email server is working" line.
+  // Saying that above an amber spam warning is how the panel ended up telling
+  // an administrator two different things about the same test.
+  const reportBox = verdict === 'healthy'
     ? `<div class="efb mt-3 d-flex align-items-center gap-2 px-3 py-2 rounded-3" style="background:#f0fdf4;border:1px solid #a7f3d0;font-size:0.85rem;color:#166534;">
       <i class="efb bi bi-envelope-check-fill flex-shrink-0" style="font-size:1.1rem;"></i>
       <span>${efbEmailTestFormat(efbEmailTestText('emailServerWorkingReport', 'Your email server is working. A detailed HTML report has been sent to %s.'), adminEmail ? `<b>${adminEmail}</b>` : efbEmailTestEscape(efbEmailTestText('yourAdminEmail', 'your admin email address')))}</span>
     </div>`
     : '';
 
-  const spamReportBox = quick && quick.can_send_email
+  // Only one of these two: both said "a report will be emailed to you", to the
+  // same address, one after the other.
+  const spamReportBox = arrived && verdict !== 'healthy'
     ? `<div class="efb mt-3 p-3 rounded-3" style="background:linear-gradient(135deg,#e3f2fd 0%,#f0f8ff 100%);border-left:4px solid #1976d2;border-top:1px solid #90caf933;border-right:1px solid #90caf933;border-bottom:1px solid #90caf933;box-shadow:0 1px 4px rgba(25,118,210,0.10);">
       <div class="efb d-flex align-items-start gap-2">
         <i class="efb bi bi-envelope-paper flex-shrink-0" style="color:#1976d2;font-size:1.2rem;margin-top:2px;"></i>
@@ -3620,7 +3745,7 @@ function efbEmailTestPoll(test, uiState, button, buttonHtml, startedAt) {
       if (status == 'expired') {
         uiState.steps.wait = 'error';
         uiState.steps.quick = 'error';
-        uiState.message = result.message || efbEmailTestText('emailNeverArrived', 'No email arrived during the test window. Your server may not be able to send emails.');
+        uiState.message = result.message || efbEmailTestText('emailNeverArrived', 'No email arrived during the test window.');
         uiState.result = result;
         uiState.percent = 100;
         efbEmailTestShow(uiState);
@@ -3630,7 +3755,11 @@ function efbEmailTestPoll(test, uiState, button, buttonHtml, startedAt) {
 
       if (status == 'analyzed' && stage == 'quick') {
         uiState.steps.wait = 'done';
-        uiState.steps.quick = efbEmailTestDeliveryConfirmed(result) ? 'done' : 'error';
+        // Arrived but scored too low to rely on: a warning, not a cross. The
+        // message did get through, and a red X here contradicts that.
+        uiState.steps.quick = efbEmailTestDeliveryConfirmed(result)
+          ? 'done'
+          : (result && result.can_send_email ? 'warning' : 'error');
         uiState.steps.full = result.full_report_pending ? 'active' : 'done';
         uiState.quick = result;
         uiState.result = result;
@@ -3652,7 +3781,11 @@ function efbEmailTestPoll(test, uiState, button, buttonHtml, startedAt) {
 
       if (status == 'analyzed' && stage == 'full') {
         uiState.steps.wait = 'done';
-        uiState.steps.quick = efbEmailTestDeliveryConfirmed(result) ? 'done' : 'error';
+        // Arrived but scored too low to rely on: a warning, not a cross. The
+        // message did get through, and a red X here contradicts that.
+        uiState.steps.quick = efbEmailTestDeliveryConfirmed(result)
+          ? 'done'
+          : (result && result.can_send_email ? 'warning' : 'error');
         uiState.steps.full = 'done';
         uiState.quick = uiState.quick || result;
         uiState.result = result;
@@ -3741,7 +3874,7 @@ function clickToCheckEmailServer() {
         uiState.steps.send = 'done';
         uiState.steps.wait = 'active';
         uiState.percent = 35;
-        uiState.message = payload.m || efbEmailTestText('testEmailSent', 'Test email sent! Waiting for delivery confirmation…');
+        uiState.message = payload.m || efbEmailTestText('testEmailSent', 'WordPress accepted and sent the message. Waiting for it to arrive…');
         uiState.test = test;
         uiState.result = {
           delivery: {

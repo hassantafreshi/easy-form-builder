@@ -149,6 +149,7 @@ class Email_Monitor {
                 'outcome'    => 'unknown',
                 'score'      => null,
                 'delivered'  => false,
+                'send_stage' => 'unknown',
                 'message'    => '',
                 'checked_at' => '',
                 'source'     => '',
@@ -164,6 +165,7 @@ class Email_Monitor {
             'outcome'    => self::classify_delivery_record($record),
             'score'      => $record['score'],
             'delivered'  => $record['delivered'],
+            'send_stage' => isset($record['send_stage']) ? $record['send_stage'] : 'unknown',
             'message'    => $record['message'],
             'checked_at' => $record['checked_at'],
             'source'     => $record['source'],
@@ -186,6 +188,15 @@ class Email_Monitor {
         if (null === $score) {
             return $record['delivered'] ? 'healthy' : 'undelivered';
         }
+
+        // Arrival is what decides between the two failures. A message that got
+        // through with a score in the spam range is a spam problem, not an
+        // "your emails are not being delivered" problem - it was delivered, and
+        // telling the administrator otherwise sends them looking for a fault
+        // that is not there. But the service reports can_send_email on arrival
+        // alone (see MIN_DELIVERY_SCORE): a score below it means nothing usable
+        // got through even though "delivered" came back true, so that is still
+        // undelivered, not spam.
         if (!$record['delivered'] || $score < self::MIN_DELIVERY_SCORE) {
             return 'undelivered';
         }
@@ -226,6 +237,7 @@ class Email_Monitor {
         $checked_at = isset($status['checked_at']) ? (string) $status['checked_at'] : '';
 
         return [
+            'send_stage' => isset($status['send_stage']) ? sanitize_key($status['send_stage']) : 'unknown',
             'conclusive' => $conclusive,
             'time'       => $checked_at !== '' ? (int) strtotime(get_gmt_from_date($checked_at)) : 0,
             'score'      => $score,
@@ -278,6 +290,7 @@ class Email_Monitor {
         $timestamp = isset($details['test_timestamp']) ? (string) $details['test_timestamp'] : '';
 
         return [
+            'send_stage' => isset($details['send_stage']) ? sanitize_key($details['send_stage']) : 'unknown',
             'conclusive' => $conclusive,
             // Written with current_time('mysql', true), so it is already UTC.
             'time'       => $timestamp !== '' ? (int) strtotime($timestamp . ' +00:00') : 0,
@@ -332,6 +345,24 @@ class Email_Monitor {
             return [
                 'title' => __('Your form emails are going to the spam folder', 'easy-form-builder'),
                 'body'  => $body,
+            ];
+        }
+
+        $send_stage = isset($verdict['send_stage']) ? $verdict['send_stage'] : 'unknown';
+
+        if ('handed_off' === $send_stage) {
+            // WordPress did send it. Telling this administrator their site
+            // "cannot send email" would point them at the wrong thing entirely.
+            return [
+                'title' => __('Your form emails are sent, but they are not arriving', 'easy-form-builder'),
+                'body'  => __('WordPress sent the last test message successfully, so your site and this plugin did their part - it was lost, delayed or rejected after leaving WordPress. Usually the receiving mailbox treated it as spam, or your host never delivered it from the outbound queue. Sending through an SMTP service, with SPF and DKIM records for your domain, is what fixes this.', 'easy-form-builder'),
+            ];
+        }
+
+        if ('wp_mail_failed' === $send_stage) {
+            return [
+                'title' => __('WordPress cannot send your form emails', 'easy-form-builder'),
+                'body'  => __('The last check could not even hand a message to your mail server: WordPress reported an error while sending, so nothing left the site. An SMTP plugin, or asking your host whether PHP mail is disabled, is where to start.', 'easy-form-builder'),
             ];
         }
 
@@ -597,8 +628,11 @@ class Email_Monitor {
             'checked_at' => isset($status['checked_at']) ? sanitize_text_field($status['checked_at']) : '',
             'next_run' => wp_next_scheduled(self::WEEKLY_HOOK) ?: 0,
             // The panel scores a live test in the browser, so it needs the same
-            // threshold the server applies. One constant, one meaning.
+            // thresholds the server applies. One constant, one meaning: below
+            // MIN_DELIVERY_SCORE nothing usable gets through, and below
+            // HEALTHY_SCORE the mail arrives but lands in spam.
             'min_delivery_score' => self::MIN_DELIVERY_SCORE,
+            'healthy_score' => self::HEALTHY_SCORE,
         ];
     }
 
@@ -767,7 +801,36 @@ class Email_Monitor {
             esc_html($context),
             esc_html($test_hash)
         );
+        // Capture why a send failed, so the tester service is told the actual
+        // error rather than only that nothing arrived.
+        $mail_error = null;
+        $mailer_state = null;
+        $error_listener = function ($wp_error) use (&$mail_error) {
+            if ($wp_error instanceof \WP_Error) {
+                $mail_error = [
+                    'code' => $wp_error->get_error_code(),
+                    'message' => $wp_error->get_error_message(),
+                ];
+            }
+        };
+        $mailer_listener = function ($phpmailer) use (&$mailer_state) {
+            if (is_object($phpmailer)) {
+                $mailer_state = [
+                    'mailer' => isset($phpmailer->Mailer) ? (string) $phpmailer->Mailer : '',
+                    'smtp_host' => isset($phpmailer->Host) ? (string) $phpmailer->Host : '',
+                ];
+            }
+        };
+        add_action('wp_mail_failed', $error_listener);
+        add_action('phpmailer_init', $mailer_listener, PHP_INT_MAX);
         $sent = wp_mail($recipient, $subject, $message, $headers);
+        remove_action('phpmailer_init', $mailer_listener, PHP_INT_MAX);
+        remove_action('wp_mail_failed', $error_listener);
+
+        // The service needs this to tell "WordPress could not send" from
+        // "WordPress sent it and it was lost afterwards". Both endings are
+        // reported; see the /handoff endpoint.
+        self::report_handoff($test_hash, (bool) $sent, $mail_error, $mailer_state);
 
         require_once EMSFB_PLUGIN_DIRECTORY . 'includes/class-email-handler.php';
         if ($sent) {
@@ -786,8 +849,8 @@ class Email_Monitor {
         self::save_status(
             $sent ? 'pending' : 'failed',
             $sent
-                ? __('The automated email test was sent and is waiting for delivery confirmation.', 'easy-form-builder')
-                : __('WordPress could not send the automated email test.', 'easy-form-builder'),
+                ? __('WordPress sent the automated test email and is waiting for it to arrive.', 'easy-form-builder')
+                : __('WordPress could not send the automated test email. The message never left this website.', 'easy-form-builder'),
             $context,
             [],
             // wp_mail() refusing outright is this site's own failure, and the
@@ -1356,6 +1419,15 @@ class Email_Monitor {
      * @return string
      */
     private static function build_score_hero($score, $grade, $can_send, $message, $result, $direction, $align) {
+        // Whether the message arrived at all, and - when it did not - how far it
+        // got. A report scoring 25 because nothing arrived must not be headed
+        // "your emails are likely going to spam": no email existed to be
+        // filtered. See the /handoff endpoint for where send_stage comes from.
+        $arrived = is_array($result)
+            ? (!empty($result['can_send_email']) || !empty($result['delivery']['email_received']))
+            : (bool) $can_send;
+        $send_stage = (is_array($result) && !empty($result['send_stage'])) ? sanitize_key($result['send_stage']) : 'unknown';
+
         if (null === $score) {
             // Nothing was measured. Do not imply either success or failure.
             $bg = '#f6f7fb';
@@ -1363,9 +1435,15 @@ class Email_Monitor {
             $badge_bg = '#8b93a7';
             $badge_text = '&#63;';
             $badge_sub = '';
-            $title = $can_send
-                ? __('Delivery has not been scored yet', 'easy-form-builder')
-                : __('We could not confirm your emails are being delivered', 'easy-form-builder');
+            if ($can_send) {
+                $title = __('Delivery has not been scored yet', 'easy-form-builder');
+            } elseif ('handed_off' === $send_stage) {
+                $title = __('WordPress sent your email, but it never arrived', 'easy-form-builder');
+            } elseif ('wp_mail_failed' === $send_stage) {
+                $title = __('WordPress could not send your email', 'easy-form-builder');
+            } else {
+                $title = __('We could not confirm your emails are being delivered', 'easy-form-builder');
+            }
             $title_colour = '#3f4657';
             $subtitle = '';
         } else {
@@ -1376,15 +1454,30 @@ class Email_Monitor {
             $badge_text = number_format_i18n($score);
             $badge_sub = __('out of 100', 'easy-form-builder');
             $title_colour = $healthy ? '#0b6b3d' : '#9c2f24';
-            $title = $healthy
-                ? __('Your email delivery is healthy', 'easy-form-builder')
-                : __('Your emails are likely going to spam', 'easy-form-builder');
+            if ($healthy) {
+                $title = __('Your email delivery is healthy', 'easy-form-builder');
+            } elseif ($arrived) {
+                $title = __('Your emails are likely going to spam', 'easy-form-builder');
+            } elseif ('handed_off' === $send_stage) {
+                $title = __('WordPress sent your email, but it never arrived', 'easy-form-builder');
+            } elseif ('wp_mail_failed' === $send_stage) {
+                $title = __('WordPress could not send your email', 'easy-form-builder');
+            } else {
+                $title = __('Your emails are not reaching anybody', 'easy-form-builder');
+            }
             if ($grade !== '') {
-                $title .= ' &mdash; ' . sprintf(
+                // The grade comes from the tester service and is never translated,
+                // so appending it straight onto a Persian/Arabic sentence left an
+                // untranslated Latin fragment for the bidi algorithm to place on
+                // its own - it could reorder around the dash or wrap onto its own
+                // line, detached from the sentence it belongs to. Isolating it in
+                // an explicit ltr, non-wrapping run keeps "&mdash; grade X" as one
+                // unit positioned right after the sentence, in every direction.
+                $title .= ' <span dir="ltr" style="unicode-bidi:embed;white-space:nowrap;">&mdash; ' . sprintf(
                     /* translators: %s: deliverability grade such as A or D. */
                     esc_html__('grade %s', 'easy-form-builder'),
                     esc_html($grade)
-                );
+                ) . '</span>';
             }
             $subtitle = $message !== '' ? $message : '';
         }
@@ -1413,7 +1506,7 @@ class Email_Monitor {
         $html .= '</td></tr></table>'
             . '<!--<![endif]-->';
 
-        $html .= '<p style="margin:12px 0 3px 0;color:' . esc_attr($title_colour) . ';font-size:17px;line-height:25px;font-weight:700;text-align:center;">' . wp_kses($title, ['br' => []]) . '</p>';
+        $html .= '<p style="margin:12px 0 3px 0;color:' . esc_attr($title_colour) . ';font-size:17px;line-height:25px;font-weight:700;text-align:center;">' . wp_kses($title, ['br' => [], 'span' => ['dir' => [], 'style' => []]]) . '</p>';
         if ($subtitle !== '') {
             $html .= '<p style="margin:0;color:#5b6474;font-size:13px;line-height:21px;text-align:center;">' . esc_html($subtitle) . '</p>';
         }
@@ -1647,7 +1740,7 @@ class Email_Monitor {
             $brand = 'https://ar.whitestudio.team';
         }
 
-        $upgrade_url = $brand . '/register-costumer';
+        $upgrade_url = $brand . '/checkout';
         $active_code = trim((string) get_option('emsfb_pro_activeCode', ''));
         $is_expired = $package_type === 0 && $active_code !== '';
         if ($is_expired) {
@@ -1728,6 +1821,13 @@ class Email_Monitor {
             // together are what separate "went to spam" from "never arrived".
             'delivered' => is_array($result) && (!empty($result['can_send_email']) || !empty($result['success'])),
             'score' => self::get_report_score($result),
+            // Which of the three send stages the service concluded. The notice
+            // needs it to tell "WordPress could not send" from "WordPress sent
+            // it and it was lost afterwards" - two failures with nothing in
+            // common except that no mail arrived.
+            'send_stage' => (is_array($result) && !empty($result['send_stage']))
+                ? sanitize_key($result['send_stage'])
+                : 'unknown',
             'reason' => sanitize_key($reason),
         ], false);
     }
@@ -1768,6 +1868,57 @@ class Email_Monitor {
             add_option(self::OPTION_ENABLED, 1, '', false);
         }
     }
+
+	/**
+	 * Report what wp_mail() did with the probe to the tester service.
+	 *
+	 * Failures matter as much as successes here: the service closes the test
+	 * straight away instead of waiting out the expiry window for a message that
+	 * was never created.
+	 *
+	 * @param string     $test_hash    Test hash from /start.
+	 * @param bool       $sent         What wp_mail() returned.
+	 * @param array|null $mail_error   Error captured from wp_mail_failed.
+	 * @param array|null $mailer_state Mailer and host captured from phpmailer_init.
+	 * @return void
+	 */
+	private static function report_handoff($test_hash, $sent, $mail_error = null, $mailer_state = null) {
+		if (!self::is_valid_hash($test_hash)) {
+			return;
+		}
+
+		$body = [
+			'sent' => (bool) $sent,
+			'language' => get_locale(),
+		];
+
+		if (is_array($mailer_state)) {
+			if (!empty($mailer_state['mailer'])) {
+				$body['mailer'] = sanitize_text_field((string) $mailer_state['mailer']);
+			}
+			if (!empty($mailer_state['smtp_host'])) {
+				$body['smtp_host'] = sanitize_text_field((string) $mailer_state['smtp_host']);
+			}
+		}
+
+		if (is_array($mail_error)) {
+			if (!empty($mail_error['code'])) {
+				$body['error_code'] = substr(sanitize_text_field((string) $mail_error['code']), 0, 100);
+			}
+			if (!empty($mail_error['message'])) {
+				$body['error_message'] = substr(sanitize_text_field((string) $mail_error['message']), 0, 500);
+			}
+		}
+
+		self::remote_request('POST', '/handoff/' . rawurlencode($test_hash), [
+			'timeout' => 10,
+			'headers' => [
+				'Content-Type' => 'application/json',
+				'Accept' => 'application/json',
+			],
+			'body' => wp_json_encode($body),
+		]);
+	}
 
 	private static function remote_request($method, $path, $args) {
 		$base_url = 'https://whitestudio.team';

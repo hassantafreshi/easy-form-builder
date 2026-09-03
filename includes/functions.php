@@ -2111,9 +2111,23 @@ class efbFunction {
 			/* translators: Email server test section title */
 			"emailServerStatus" => $state && isset($ac->text->emailServerStatus) ? $ac->text->emailServerStatus : esc_html__('Email Server Status','easy-form-builder'),
 			/* translators: Title shown when WordPress cannot send emails */
-			"emailDeliveryNotWorking" => $state && isset($ac->text->emailDeliveryNotWorking) ? $ac->text->emailDeliveryNotWorking : esc_html__('Email Delivery Is Not Working','easy-form-builder'),
+			"emailDeliveryNotWorking" => $state && isset($ac->text->emailDeliveryNotWorking) ? $ac->text->emailDeliveryNotWorking : esc_html__('The test email never arrived','easy-form-builder'),
 			/* translators: Description shown when WordPress cannot send emails */
 			"emailDeliveryNotWorkingDesc" => $state && isset($ac->text->emailDeliveryNotWorkingDesc) ? $ac->text->emailDeliveryNotWorkingDesc : esc_html__('Your WordPress site cannot send emails reliably. This is a very common hosting issue — the default PHP mail function is often blocked or ends up in spam. Installing an SMTP plugin routes your emails through a verified mail service and fixes this in minutes.','easy-form-builder'),
+			/* translators: Title shown when WordPress sent the message but it never reached the delivery service */
+			"emailSentNotArrivedTitle" => $state && isset($ac->text->emailSentNotArrivedTitle) ? $ac->text->emailSentNotArrivedTitle : esc_html__('WordPress sent the email - it just never arrived','easy-form-builder'),
+			/* translators: Description shown when WordPress sent the message but it never reached the delivery service */
+			"emailSentNotArrivedDesc" => $state && isset($ac->text->emailSentNotArrivedDesc) ? $ac->text->emailSentNotArrivedDesc : esc_html__('Your site handed the message to your mail server successfully, so WordPress and this plugin did their part. It was lost, delayed or rejected afterwards - most often the receiving mailbox filed it as spam, or your host never delivered it from the outbound queue. Sending through an SMTP service, with SPF and DKIM records for your domain, is what fixes this.','easy-form-builder'),
+			/* translators: Title shown when wp_mail() itself failed and nothing left the site */
+			"emailWpMailFailedTitle" => $state && isset($ac->text->emailWpMailFailedTitle) ? $ac->text->emailWpMailFailedTitle : esc_html__('WordPress could not send the email','easy-form-builder'),
+			/* translators: Description shown when wp_mail() itself failed and nothing left the site */
+			"emailWpMailFailedDesc" => $state && isset($ac->text->emailWpMailFailedDesc) ? $ac->text->emailWpMailFailedDesc : esc_html__('The message never left your website: WordPress returned an error while sending it. Install and configure an SMTP plugin, or ask your host whether PHP mail is disabled.','easy-form-builder'),
+			/* translators: Title shown when the email arrives but its score is too low for the inbox */
+			"emailSpamRiskTitle" => $state && isset($ac->text->emailSpamRiskTitle) ? $ac->text->emailSpamRiskTitle : esc_html__('Your emails arrive, but will most likely land in spam','easy-form-builder'),
+			/* translators: Guidance shown when the email arrives but its score is too low for the inbox */
+			"emailSpamRiskGuidance" => $state && isset($ac->text->emailSpamRiskGuidance) ? $ac->text->emailSpamRiskGuidance : esc_html__('Delivery itself works - the test message reached us. What is missing is trust: sending through an SMTP service and adding SPF and DKIM records for your domain is what moves your emails from the spam folder to the inbox.','easy-form-builder'),
+			/* translators: Result sentence for a delivered email with a low score. %1$s: measured score, %2$s: healthy score threshold. */
+			"emailSpamRiskDesc" => $state && isset($ac->text->emailSpamRiskDesc) ? $ac->text->emailSpamRiskDesc : esc_html__('The test email was delivered with a deliverability score of %1$s out of 100. Under %2$s, most mailboxes file messages in the spam folder, so the people filling in your forms may never see them.','easy-form-builder'),
 			/* translators: Button label linking to the SMTP setup guide */
 			"smtpSetupGuideBtn" => $state && isset($ac->text->smtpSetupGuideBtn) ? $ac->text->smtpSetupGuideBtn : esc_html__('Step-by-step SMTP setup guide','easy-form-builder'),
 			/* translators: Message shown when email test succeeds. %s is replaced with the admin email address (e.g. "...sent to admin@example.com.") */
@@ -2146,9 +2160,9 @@ class efbFunction {
 			/* translators: Email test step 1 — description */
 			"stepPrepareTestDesc" => $state && isset($ac->text->stepPrepareTestDesc) ? $ac->text->stepPrepareTestDesc : esc_html__('Connecting to WhiteStudio to generate a unique test email address.','easy-form-builder'),
 			/* translators: Email test step 2 — title */
-			"stepSendEmail" => $state && isset($ac->text->stepSendEmail) ? $ac->text->stepSendEmail : esc_html__('Send Test Email','easy-form-builder'),
+			"stepSendEmail" => $state && isset($ac->text->stepSendEmail) ? $ac->text->stepSendEmail : esc_html__('WordPress Sends the Email','easy-form-builder'),
 			/* translators: Email test step 2 — description */
-			"stepSendEmailDesc" => $state && isset($ac->text->stepSendEmailDesc) ? $ac->text->stepSendEmailDesc : esc_html__('WordPress is sending a real email to verify your server can deliver mail.','easy-form-builder'),
+			"stepSendEmailDesc" => $state && isset($ac->text->stepSendEmailDesc) ? $ac->text->stepSendEmailDesc : esc_html__('WordPress hands a real message to your mail server. A tick here means WordPress sent it, not yet that it arrived.','easy-form-builder'),
 			/* translators: Email test step 3 — title */
 			"stepWaitDelivery" => $state && isset($ac->text->stepWaitDelivery) ? $ac->text->stepWaitDelivery : esc_html__('Waiting for Delivery','easy-form-builder'),
 			/* translators: Email test step 3 — description */
@@ -2204,13 +2218,13 @@ class efbFunction {
 			/* translators: Status message shown when the test email is delayed */
 			"emailOnItsWay" => $state && isset($ac->text->emailOnItsWay) ? $ac->text->emailOnItsWay : esc_html__('Email is on its way — still waiting for delivery confirmation.','easy-form-builder'),
 			/* translators: Status message shown when no test email arrived before expiry */
-			"emailNeverArrived" => $state && isset($ac->text->emailNeverArrived) ? $ac->text->emailNeverArrived : esc_html__('No email arrived during the test window. Your server may not be able to send emails.','easy-form-builder'),
+			"emailNeverArrived" => $state && isset($ac->text->emailNeverArrived) ? $ac->text->emailNeverArrived : esc_html__('No email arrived during the test window.','easy-form-builder'),
 			/* translators: Status message shown while polling for test results */
 			"stillChecking" => $state && isset($ac->text->stillChecking) ? $ac->text->stillChecking : esc_html__('Still checking — please wait a moment…','easy-form-builder'),
 			/* translators: Status message shown when the email server test begins */
 			"startingEmailTest" => $state && isset($ac->text->startingEmailTest) ? $ac->text->startingEmailTest : esc_html__('Starting email delivery test…','easy-form-builder'),
 			/* translators: Status message shown after the test email has been sent */
-			"testEmailSent" => $state && isset($ac->text->testEmailSent) ? $ac->text->testEmailSent : esc_html__('Test email sent! Waiting for delivery confirmation…','easy-form-builder'),
+			"testEmailSent" => $state && isset($ac->text->testEmailSent) ? $ac->text->testEmailSent : esc_html__('WordPress accepted and sent the message. Waiting for it to arrive…','easy-form-builder'),
 			/* translators: Connection error message with HTTP status code. %s is replaced with the error code (e.g. "Code: 500") */
 			"connectionErrorCode" => $state && isset($ac->text->connectionErrorCode) ? $ac->text->connectionErrorCode : esc_html__('Connection error. Please refresh the page and try again. (Code: %s)','easy-form-builder'),
 
@@ -3581,15 +3595,18 @@ public function addon_add_efb($value) {
         };
 		// Same endpoint order as the install handler, from the same helper.
 		$addon_endpoints = $this->addon_api_domains_efb();
-		$domain = $addon_endpoints['primary'];
-        $fallback_domain = $addon_endpoints['fallback'];
-        $server_label = wp_parse_url($domain, PHP_URL_HOST);
-        $u = $build_addon_url($domain);
+		$remaining_endpoints = isset($addon_endpoints['endpoints'])
+			? array_values((array) $addon_endpoints['endpoints'])
+			: array_filter(array($addon_endpoints['primary'], $addon_endpoints['fallback']));
 		/* Inline repair runs inside a visitor's page load, so the wait is capped
-		 * hard: one short attempt instead of the retry ladder used when nobody
-		 * is waiting on the other end. */
+		 * hard: one short attempt against a limited number of endpoints instead
+		 * of the full ladder used when nobody is waiting on the other end. */
 		$request_plan    = $this->addon_request_plan_efb($is_persian_locale);
 		$request_timeout = $request_plan['timeout'];
+		$remaining_endpoints = array_slice($remaining_endpoints, 0, max(1, (int) ($request_plan['max_endpoints'] ?? 3)));
+		$domain = (string) array_shift($remaining_endpoints);
+        $server_label = wp_parse_url($domain, PHP_URL_HOST);
+        $u = $build_addon_url($domain);
 		$name_space = 'emsfb_addon_' . $value;
 		delete_option($name_space);
 
@@ -3599,19 +3616,27 @@ public function addon_add_efb($value) {
         $success = false;
         $error_message =  esc_html__('Error: server (%s) responded with an invalid request. responded code: %s','easy-form-builder');
 		$error_messag = sprintf($error_message, $domain, 'not_success');
-        $switch_to_fallback = function($reason) use (&$domain, &$u, &$attempt, &$max_attempts, &$fallback_domain, &$server_label, $fallback_max_attempts, $build_addon_url, $value) {
-            if (empty($fallback_domain) || untrailingslashit($domain) === untrailingslashit($fallback_domain)) {
-                return false;
+        /* Walks the whole endpoint list rather than a single spare domain: with
+         * an independent mirror in play a site can now have three places to
+         * ask, and stopping at the second would leave the last one unused
+         * exactly when it is needed most. */
+        $switch_to_fallback = function($reason) use (&$domain, &$u, &$attempt, &$max_attempts, &$remaining_endpoints, &$server_label, $fallback_max_attempts, $build_addon_url, $value) {
+            while (!empty($remaining_endpoints)) {
+                $next = untrailingslashit((string) array_shift($remaining_endpoints));
+                if ('' === $next || untrailingslashit($domain) === $next) {
+                    continue;
+                }
+
+                $this->addon_api_mark_down_efb($domain);
+                $domain = $next;
+                $u = $build_addon_url($domain);
+                $server_label = wp_parse_url($domain, PHP_URL_HOST);
+                $attempt = 0;
+                $max_attempts = $fallback_max_attempts;
+                return true;
             }
-            $previous_domain = $domain;
-            $this->addon_api_mark_down_efb($previous_domain);
-            $domain = untrailingslashit($fallback_domain);
-            $u = $build_addon_url($domain);
-            $server_label = wp_parse_url($domain, PHP_URL_HOST);
-            $attempt = 0;
-            $max_attempts = $fallback_max_attempts;
-            $fallback_domain = '';
-            return true;
+
+            return false;
         };
 
         while ($attempt < $max_attempts && !$success) {
@@ -3683,7 +3708,7 @@ public function addon_add_efb($value) {
 				if (!$is_persian_locale && isset($data->reason) && $data->reason == 'expired') {
 					update_option('emsfb_addons_renew_required', time());
 					set_transient('emsfb_addons_renew_backoff', 1, DAY_IN_SECONDS);
-					$renew_url = isset($data->renew) ? esc_url_raw($data->renew) : $domain . '/register-costumer?renew=' . urlencode((string) get_option('emsfb_pro_activeCode', ''));
+					$renew_url = isset($data->renew) ? esc_url_raw($data->renew) : $domain . '/checkout?renew=' . urlencode((string) get_option('emsfb_pro_activeCode', ''));
 					$error_message = esc_html__('Your Easy Form Builder Pro subscription has expired, so the Pro add-ons could not be downloaded. The plugin keeps working without them. Renew your subscription to restore all Pro features:', 'easy-form-builder') . ' ' . $renew_url;
 					return array('status' => false, 'message' => $error_message, 'expired' => true);
 				}
@@ -4061,41 +4086,69 @@ public function addon_add_efb($value) {
 	/**
 	 * Ordered endpoints for the add-on API.
 	 *
-	 * Persian sites keep Whitestudio as their primary, legacy endpoint and use
-	 * easyformbuilder.ir only when that request cannot complete. Other locales
-	 * retain the established EMSFB_SERVER_URL behaviour without a fallback.
+	 * Whitestudio stays first for everyone. After it comes the independent
+	 * mirror (EMSFB_MIRROR_SERVER_URL), which exists because a host-level
+	 * IP-reputation filter in front of the primary has answered 403 to
+	 * ordinary plugin requests — sometimes for an hour, sometimes for days —
+	 * leaving paying customers unable to install add-ons they had bought.
+	 * Persian sites keep easyformbuilder.ir as well, so they end up with three
+	 * endpoints and everyone else with two.
 	 *
 	 * All three add-on call sites (the Add-ons page script, the install
 	 * handler, and the background recovery) go through here so they cannot
 	 * disagree about which endpoint is live.
 	 *
-	 * @return array{primary:string, fallback:string, is_persian:bool, mirror_skipped:bool}
+	 * 'primary' and 'fallback' are kept alongside the ordered list purely so
+	 * older callers keep working; new code should read 'endpoints'.
+	 *
+	 * @return array{endpoints:string[], primary:string, fallback:string, is_persian:bool, mirror_skipped:bool}
 	 */
 	public function addon_api_domains_efb() {
-		$global = untrailingslashit( EMSFB_SERVER_URL );
+		$is_persian = ( get_locale() === 'fa_IR' );
+		$endpoints  = array( untrailingslashit( EMSFB_SERVER_URL ) );
 
-		if ( get_locale() !== 'fa_IR' ) {
-			return array(
-				'primary'        => $global,
-				'fallback'       => '',
-				'is_persian'     => false,
-				'mirror_skipped' => false,
-			);
+		if ( $is_persian ) {
+			$endpoints[] = untrailingslashit( self::EMSFB_ADDON_IR_DOMAIN );
 		}
 
+		// Empty constant is the documented way to take the mirror out of
+		// rotation without editing plugin code.
+		$mirror = defined( 'EMSFB_MIRROR_SERVER_URL' ) ? untrailingslashit( (string) EMSFB_MIRROR_SERVER_URL ) : '';
+		if ( '' !== $mirror ) {
+			$endpoints[] = $mirror;
+		}
+
+		// A domain already proven dead within the TTL is moved to the back
+		// rather than dropped: if every endpoint is marked down we still need
+		// something to try.
+		$live = array();
+		$down = array();
+		foreach ( array_values( array_unique( $endpoints ) ) as $index => $endpoint ) {
+			if ( 0 !== $index && get_transient( $this->addon_api_down_key_efb( $endpoint ) ) ) {
+				$down[] = $endpoint;
+				continue;
+			}
+			$live[] = $endpoint;
+		}
+		$ordered = array_merge( $live, $down );
+
 		return array(
-			'primary'        => $global,
-			'fallback'       => untrailingslashit( self::EMSFB_ADDON_IR_DOMAIN ),
-			'is_persian'     => true,
-			'mirror_skipped' => false,
+			'endpoints'      => $ordered,
+			'primary'        => $ordered[0],
+			'fallback'       => isset( $ordered[1] ) ? $ordered[1] : '',
+			'is_persian'     => $is_persian,
+			'mirror_skipped' => ! empty( $down ),
 		);
 	}
 
 	/**
-	 * Validate an add-on archive URL without changing its provider. Persian
-	 * requests first preserve Whitestudio archive links, then re-request the
-	 * existing endpoint path from easyformbuilder.ir only after the first API or
-	 * archive request has failed.
+	 * Validate an add-on archive URL without changing its provider.
+	 *
+	 * The allow-list is enforced for every locale, not just fa_IR. It used to
+	 * be Persian-only, which was survivable while a single hardcoded domain
+	 * answered every request; now that the endpoint list has more than one
+	 * host, an unchecked "link" from any of them would be an open redirect
+	 * into fun_addon_new() — i.e. arbitrary archive download and extraction.
 	 *
 	 * @param  string $url Archive URL supplied by the add-on API.
 	 * @return string|WP_Error
@@ -4109,21 +4162,11 @@ public function addon_add_efb($value) {
 			);
 		}
 
-		// Non-Persian installations keep the historical download behaviour.
-		if ( get_locale() !== 'fa_IR' ) {
-			return $url;
-		}
-
 		$parts  = wp_parse_url( $url );
 		$parts  = is_array( $parts ) ? $parts : array();
 		$host   = isset( $parts['host'] ) ? strtolower( (string) $parts['host'] ) : '';
 		$path   = isset( $parts['path'] ) ? (string) $parts['path'] : '';
-		$allowed_hosts = array(
-			'easyformbuilder.ir',
-			'www.easyformbuilder.ir',
-			'whitestudio.team',
-			'www.whitestudio.team',
-		);
+		$allowed_hosts = $this->addon_download_allowed_hosts_efb();
 
 		if (
 			'' === $host
@@ -4141,6 +4184,37 @@ public function addon_add_efb($value) {
 	}
 
 	/**
+	 * Hosts an add-on archive may be downloaded from.
+	 *
+	 * Derived from the endpoint list rather than hardcoded, so a mirror can
+	 * never be reachable for the API but rejected for its own archives.
+	 *
+	 * @return string[] Lowercased hosts, each with and without a www prefix.
+	 */
+	public function addon_download_allowed_hosts_efb() {
+		$hosts = array();
+
+		$domains   = $this->addon_api_domains_efb();
+		$candidates = isset( $domains['endpoints'] ) ? (array) $domains['endpoints'] : array();
+		// The Iranian domain stays listed even for non-Persian locales: an
+		// archive link can legitimately point there for a site that switched
+		// locale after installing.
+		$candidates[] = self::EMSFB_ADDON_IR_DOMAIN;
+		$candidates[] = EMSFB_SERVER_URL;
+
+		foreach ( $candidates as $candidate ) {
+			$host = strtolower( (string) wp_parse_url( (string) $candidate, PHP_URL_HOST ) );
+			if ( '' === $host ) {
+				continue;
+			}
+			$hosts[] = $host;
+			$hosts[] = 0 === strpos( $host, 'www.' ) ? substr( $host, 4 ) : 'www.' . $host;
+		}
+
+		return array_values( array_unique( array_filter( $hosts ) ) );
+	}
+
+	/**
 	 * Transient key holding the "did not answer" verdict for one domain.
 	 *
 	 * @param  string $domain
@@ -4153,20 +4227,23 @@ public function addon_add_efb($value) {
 	/**
 	 * Record that a domain failed to answer, so the next run can skip it.
 	 *
-	 * Only the Iranian mirror is ever demoted. Marking the global domain down
-	 * would leave the plugin with nowhere to go.
+	 * Any endpoint except the first one may be demoted. The first is never
+	 * marked down: with every endpoint demoted the plugin would have nowhere
+	 * left to ask, and a primary that is genuinely failing is better retried
+	 * than removed.
 	 *
 	 * @param  string $domain
 	 * @return void
 	 */
 	public function addon_api_mark_down_efb( $domain ) {
 		$domain = untrailingslashit( (string) $domain );
-		if ( '' === $domain || untrailingslashit( self::EMSFB_ADDON_IR_DOMAIN ) !== $domain ) {
+		if ( '' === $domain || untrailingslashit( EMSFB_SERVER_URL ) === $domain ) {
 			return;
 		}
 		set_transient( $this->addon_api_down_key_efb( $domain ), 'down', self::EMSFB_ADDON_DOWN_TTL );
 		// The Add-ons page reads the same verdict, so its cached choice has to go too.
 		delete_transient( 'emsfb_addons_fa_domain' );
+		delete_transient( 'emsfb_addons_fa_catalogue_domain' );
 	}
 
 	/**
@@ -4189,20 +4266,28 @@ public function addon_add_efb($value) {
 	 * be held: inline repairs get one short attempt, background repairs get the
 	 * full retry ladder.
 	 *
+	 * max_endpoints is the ceiling that keeps this honest now that the list can
+	 * hold three hosts: without it an inline repair would multiply its timeout
+	 * by the number of endpoints and hold a visitor for the better part of
+	 * half a minute. Background repairs have nobody waiting, so they may walk
+	 * the whole list.
+	 *
 	 * @param  bool $is_persian_locale Persian sites retry against a fallback domain.
-	 * @return array{timeout:int, attempts:int}
+	 * @return array{timeout:int, attempts:int, max_endpoints:int}
 	 */
 	public function addon_request_plan_efb($is_persian_locale = false){
 		if($this->addon_inline_mode_efb){
 			return array(
-				'timeout'  => min(8, max(3, (int) $this->addon_request_timeout_efb)),
-				'attempts' => 1,
+				'timeout'       => min(5, max(3, (int) $this->addon_request_timeout_efb)),
+				'attempts'      => 1,
+				'max_endpoints' => 2,
 			);
 		}
 
 		return array(
-			'timeout'  => max(3, (int) $this->addon_request_timeout_efb),
-			'attempts' => $is_persian_locale ? 3 : 1,
+			'timeout'       => max(3, (int) $this->addon_request_timeout_efb),
+			'attempts'      => $is_persian_locale ? 3 : 1,
+			'max_endpoints' => 3,
 		);
 	}
 
@@ -5562,7 +5647,7 @@ public function addon_add_efb($value) {
 		$brand   = get_locale() === 'fa_IR' ? 'https://easyformbuilder.ir' : untrailingslashit(EMSFB_SERVER_URL);
 		$days    = max(1, (int) floor((time() - (int) $since) / DAY_IN_SECONDS));
 		$support = $brand . '/support/';
-		$renew   = $brand . '/register-costumer?renew=' . rawurlencode((string) $code);
+		$renew   = $brand . '/checkout?renew=' . rawurlencode((string) $code);
 
 		$intro = sprintf(
 			/* translators: 1: number of days, 2: site name. */
@@ -5820,7 +5905,7 @@ public function addon_add_efb($value) {
 
 		$is_expired = ( $pro_status === 0 );
 
-		$buy_url    = EMSFB_SERVER_URL . '/register-costumer';
+		$buy_url    = EMSFB_SERVER_URL . '/checkout';
 		$ac         = get_option( 'emsfb_pro_activeCode', '' );
 		$renew_url  = $buy_url . '?renew=' . urlencode( $ac );
 
@@ -5864,7 +5949,7 @@ public function addon_add_efb($value) {
 
 	public function noti_expire_efb() {
 
-		$url = EMSFB_SERVER_URL . '/register-costumer?renew=';
+		$url = EMSFB_SERVER_URL . '/checkout?renew=';
 
 		$msg = esc_html__('Your Easy Form Builder Pro subscription has expired. To continue enjoying all Pro features and keep your forms running, %1$sRenew your subscription now.%2$s', 'easy-form-builder');
 		$ac = get_option('emsfb_pro_activeCode');

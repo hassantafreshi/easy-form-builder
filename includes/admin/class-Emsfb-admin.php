@@ -567,12 +567,12 @@ class Admin {
          * twice before the UI can show a useful error.
          */
         $addon_request_timeout = 8;
-        $domain = $addon_endpoints['primary'];
-        $fallback_domain = $addon_endpoints['fallback'];
+        $remaining_endpoints = isset($addon_endpoints['endpoints'])
+            ? array_values((array) $addon_endpoints['endpoints'])
+            : array_filter([$addon_endpoints['primary'], $addon_endpoints['fallback']]);
+        $domain = (string) array_shift($remaining_endpoints);
         $u = $build_addon_url($domain);
-        $using_iran_url = $addon_endpoints['is_persian']
-            && !empty($addon_endpoints['fallback'])
-            && untrailingslashit($domain) === untrailingslashit($addon_endpoints['fallback']);
+        $using_iran_url = untrailingslashit($domain) === untrailingslashit(\efbFunction::EMSFB_ADDON_IR_DOMAIN);
 
         $this->addon_install_log_efb('remote_request_prepared', [
             'requested_addon' => $post_value,
@@ -596,31 +596,36 @@ class Admin {
         $success = false;
         $error_message = esc_html__('Error: server (%s) responded with an invalid request. responded code : %s ', 'easy-form-builder');
         $error_message = sprintf($error_message, $domain, 'not_success');
-        $switch_to_fallback = function($reason, $context = []) use (&$domain, &$u, &$attempt, &$max_attempts, &$fallback_domain, &$using_iran_url, $fallback_max_attempts, $build_addon_url, $post_value) {
-            if (empty($fallback_domain) || untrailingslashit($domain) === untrailingslashit($fallback_domain)) {
-                return false;
+        $switch_to_fallback = function($reason, $context = []) use (&$domain, &$u, &$attempt, &$max_attempts, &$remaining_endpoints, &$using_iran_url, $fallback_max_attempts, $build_addon_url, $post_value) {
+            while (!empty($remaining_endpoints)) {
+                $next = untrailingslashit((string) array_shift($remaining_endpoints));
+                if ('' === $next || untrailingslashit($domain) === $next) {
+                    continue;
+                }
+
+                $previous_domain = $domain;
+                // Remember that this endpoint did not answer so the next install
+                // click does not repeat the same dead wait.
+                get_efbFunction()->addon_api_mark_down_efb($previous_domain);
+                $domain = $next;
+                $u = $build_addon_url($domain);
+                $attempt = 0;
+                $max_attempts = $fallback_max_attempts;
+                $using_iran_url = untrailingslashit($domain) === untrailingslashit(\efbFunction::EMSFB_ADDON_IR_DOMAIN);
+
+                $this->addon_install_log_efb('switching_to_fallback_endpoint', array_merge([
+                    'requested_addon' => $post_value,
+                    'reason' => $reason,
+                    'previous_domain' => $previous_domain,
+                    'fallback_domain' => $domain,
+                    'next_request_url' => $u,
+                    'endpoints_left' => count($remaining_endpoints),
+                ], $context));
+
+                return true;
             }
 
-            $previous_domain = $domain;
-            // Remember that this endpoint did not answer so the next install
-            // click does not repeat the same dead wait.
-            get_efbFunction()->addon_api_mark_down_efb($previous_domain);
-            $domain = untrailingslashit($fallback_domain);
-            $u = $build_addon_url($domain);
-            $attempt = 0;
-            $max_attempts = $fallback_max_attempts;
-            $fallback_domain = '';
-            $using_iran_url = true;
-
-            $this->addon_install_log_efb('switching_to_fallback_endpoint', array_merge([
-                'requested_addon' => $post_value,
-                'reason' => $reason,
-                'previous_domain' => $previous_domain,
-                'fallback_domain' => $domain,
-                'next_request_url' => $u,
-            ], $context));
-
-            return true;
+            return false;
         };
 
         while ($attempt < $max_attempts && !$success) {
@@ -849,7 +854,7 @@ class Admin {
                 if (!$is_persian_locale && isset($data->reason) && $data->reason == 'expired') {
                     update_option('emsfb_addons_renew_required', time());
                     set_transient('emsfb_addons_renew_backoff', 1, DAY_IN_SECONDS);
-                    $renew_url = isset($data->renew) ? esc_url($data->renew) : esc_url($domain . '/register-costumer?renew=' . urlencode((string) get_option('emsfb_pro_activeCode', '')));
+                    $renew_url = isset($data->renew) ? esc_url($data->renew) : esc_url($domain . '/checkout?renew=' . urlencode((string) get_option('emsfb_pro_activeCode', '')));
                     $this->addon_install_log_efb('remote_response_subscription_expired', [
                         'requested_addon' => $post_value,
                         'renew_url' => $renew_url,
@@ -2051,18 +2056,26 @@ class Admin {
                 'hash_header' => is_array($actual_mail) && !empty($actual_mail['has_expected_hash_header']),
             ],
         ]);
+        // Tell the service what wp_mail() did, before anything else happens. It
+        // is the one fact that separates "this site cannot send email" from
+        // "this site sent the email and something afterwards lost it", and
+        // without it the service has to describe both the same vague way.
+        $handoff = $this->report_email_tester_handoff_efb($test_hash, (bool) $sent, $last_mail_error, $actual_mail);
+
         if (!$sent) {
             $failure_status = [
                 'status' => 'error',
                 'message' => [
-                    'title' => esc_html__('Email delivery failed', 'easy-form-builder'),
-                    'description' => esc_html__('WordPress could not send the test email. Please check your hosting mail settings or SMTP configuration.', 'easy-form-builder'),
+                    'title' => esc_html__('WordPress could not send the email', 'easy-form-builder'),
+                    'description' => esc_html__('The message never left your website: WordPress reported an error while trying to send it. This is the one case where the fix really is on the WordPress or hosting side - usually an SMTP plugin, or PHP mail disabled by the host.', 'easy-form-builder'),
                     'id' => 'mail_function_failed'
                 ],
                 'details' => [
                     'stage' => 'send',
+                    'send_stage' => 'wp_mail_failed',
                     'test_timestamp' => current_time('mysql', true),
                     'error' => $last_mail_error,
+                    'handoff_reported' => is_array($handoff) && !empty($handoff['success']),
                 ]
             ];
             $this->email_tester_log_efb('wp_mail_failed_save_status', $failure_status);
@@ -2070,8 +2083,12 @@ class Admin {
 
             return [
                 'success' => false,
-                'm' => esc_html__('WordPress could not send the test email. Please check your hosting mail settings or SMTP configuration.', 'easy-form-builder'),
+                'm' => esc_html__('WordPress could not send the test email. The message never left your website, so nothing was delivered.', 'easy-form-builder'),
                 'stage' => 'send',
+                'send_stage' => 'wp_mail_failed',
+                'mail_error' => is_array($last_mail_error) && !empty($last_mail_error['message'])
+                    ? sanitize_text_field((string) $last_mail_error['message'])
+                    : '',
                 'test' => $test
             ];
         }
@@ -2095,18 +2112,21 @@ class Admin {
             ],
             'details' => [
                 'stage' => 'sent',
+                'send_stage' => 'handed_off',
                 'test_timestamp' => current_time('mysql', true),
                 'test_hash' => $test_hash,
                 'recipient_email' => $recipient_email,
                 'sender_email' => $sender_email,
+                'handoff_reported' => is_array($handoff) && !empty($handoff['success']),
             ]
         ];
         update_option('emsfb_email_status', $pending_status);
 
         return [
             'success' => true,
-            'm' => isset($start['m']) ? $start['m'] : esc_html__('The test email has been sent. Waiting for the server result.', 'easy-form-builder'),
+            'm' => isset($start['m']) ? $start['m'] : esc_html__('WordPress accepted and sent the test email. Waiting for it to arrive.', 'easy-form-builder'),
             'stage' => 'sent',
+            'send_stage' => 'handed_off',
             'test' => $test
         ];
     }
@@ -2360,16 +2380,33 @@ class Admin {
             && class_exists('\Emsfb\Email_Monitor')
             && \Emsfb\Email_Monitor::is_delivery_score_too_low($test_result);
 
+        // What the service concluded about the send itself. "Nothing arrived" is
+        // not one situation but three, and only this tells them apart, so the
+        // saved status - which the dashboard notice reads back - carries it.
+        $send_stage = isset($test_result['send_stage']) ? sanitize_key($test_result['send_stage']) : 'unknown';
+
+        if ('wp_mail_failed' === $send_stage) {
+            $failure_title = esc_html__('WordPress could not send the email', 'easy-form-builder');
+            $failure_description = esc_html__('The message never left your website. WordPress reported an error while sending, so nothing could be delivered.', 'easy-form-builder');
+        } else if ('handed_off' === $send_stage) {
+            $failure_title = esc_html__('The email was sent, but it never arrived', 'easy-form-builder');
+            $failure_description = esc_html__('WordPress sent the message successfully, so your site and this plugin did their part. It was lost, delayed or rejected after leaving WordPress - usually the receiving side treated it as spam, or your host never delivered it from the outbound queue.', 'easy-form-builder');
+        } else {
+            $failure_title = esc_html__('Email test failed', 'easy-form-builder');
+            $failure_description = esc_html__('The email server test could not verify email capability.', 'easy-form-builder');
+        }
+
         $status_data = [
             'status' => 'error',
             'message' => [
-                'title' => esc_html__('Email test failed', 'easy-form-builder'),
-                'description' => esc_html__('The email server test could not verify email capability.', 'easy-form-builder'),
+                'title' => $failure_title,
+                'description' => $failure_description,
                 'id' => 'email_test_failed'
             ],
             'details' => [
                 'test_timestamp' => current_time('mysql', true),
                 'can_send_email' => $delivery_confirmed,
+                'send_stage' => $send_stage,
                 'success' => !empty($test_result['success']),
                 // The raw arrival flag and the report's own top-level score,
                 // kept apart from the judged can_send_email above. The
@@ -2490,6 +2527,88 @@ class Admin {
         }
 
         return null;
+    }
+
+    /**
+     * Tell the tester service what wp_mail() did with the probe.
+     *
+     * The service can see that a test was started and, if the probe arrives,
+     * the message itself - but nothing in between. That gap is why a site whose
+     * WordPress sent the email perfectly used to be told "your server may not
+     * be able to send emails" when the message was lost further down the line.
+     *
+     * Reported for both outcomes. A failure also lets the service close the
+     * test immediately instead of holding it pending for the full expiry
+     * window, since no message exists to wait for.
+     *
+     * @param string     $test_hash   Test hash from /start.
+     * @param bool       $sent        What wp_mail() returned.
+     * @param array|null $mail_error  Error captured from the wp_mail_failed hook.
+     * @param array|null $actual_mail PHPMailer state captured during the send.
+     * @return array|null Decoded service response, or null when nothing was sent.
+     */
+    private function report_email_tester_handoff_efb($test_hash, $sent, $mail_error = null, $actual_mail = null) {
+        if (!$this->is_valid_email_test_hash_efb($test_hash)) {
+            return null;
+        }
+
+        $body = [
+            'sent' => (bool) $sent,
+            'language' => get_locale(),
+        ];
+
+        if (is_array($actual_mail)) {
+            if (!empty($actual_mail['mailer'])) {
+                $body['mailer'] = sanitize_text_field((string) $actual_mail['mailer']);
+            }
+            if (!empty($actual_mail['smtp_host'])) {
+                $body['smtp_host'] = sanitize_text_field((string) $actual_mail['smtp_host']);
+            }
+        }
+
+        if (is_array($mail_error)) {
+            if (!empty($mail_error['code'])) {
+                $body['error_code'] = substr(sanitize_text_field((string) $mail_error['code']), 0, 100);
+            }
+            if (!empty($mail_error['message'])) {
+                $body['error_message'] = substr(sanitize_text_field((string) $mail_error['message']), 0, 500);
+            }
+        }
+
+        $this->email_tester_log_efb('handoff_request_before_remote', [
+            'run_id' => $this->email_tester_current_run_id_efb(),
+            'test_hash' => $test_hash,
+            'sent' => (bool) $sent,
+        ]);
+
+        $request = $this->email_tester_remote_request_efb('POST', '/handoff/' . rawurlencode($test_hash), [
+            // Short: the administrator is waiting on this request, and a
+            // handoff that never lands only costs the sharper wording.
+            'timeout' => 10,
+            'headers' => [
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json',
+            ],
+            'body' => wp_json_encode($body),
+        ]);
+
+        if (is_wp_error($request)) {
+            $this->email_tester_log_efb('handoff_request_wp_error', [
+                'run_id' => $this->email_tester_current_run_id_efb(),
+                'message' => $request->get_error_message(),
+                'code' => $request->get_error_code(),
+            ]);
+            return null;
+        }
+
+        $data = json_decode(wp_remote_retrieve_body($request), true);
+        $this->email_tester_log_efb('handoff_response', [
+            'run_id' => $this->email_tester_current_run_id_efb(),
+            'http_code' => (int) wp_remote_retrieve_response_code($request),
+            'body' => is_array($data) ? $data : null,
+        ]);
+
+        return is_array($data) ? $data : null;
     }
 
     private function maybe_request_email_tester_no_delivery_report_efb($test_hash, $test_result, $admin_email = '') {
@@ -2675,6 +2794,11 @@ class Admin {
         }
 
         return [
+            // Which transport actually carried the message, and where to. The
+            // tester service is told this so a support answer can start from
+            // the real mailer instead of guessing at one.
+            'mailer' => isset($phpmailer->Mailer) ? (string) $phpmailer->Mailer : '',
+            'smtp_host' => isset($phpmailer->Host) ? (string) $phpmailer->Host : '',
             'from' => isset($phpmailer->From) ? $phpmailer->From : '',
             'from_name' => isset($phpmailer->FromName) ? $phpmailer->FromName : '',
             'sender' => isset($phpmailer->Sender) ? $phpmailer->Sender : '',
@@ -3328,6 +3452,10 @@ function admin_notices_efb () {
                     'title' => esc_html__('Email delivery test failed.', 'easy-form-builder'),
                     'description' => esc_html__('The email server test could not verify email capability.', 'easy-form-builder') . $warning,
                 ],
+                'email_test_low_score' => [
+                    'title' => esc_html__('Your emails are arriving in the spam folder.', 'easy-form-builder'),
+                    'description' => esc_html__('The test message was delivered, but its deliverability score is too low to rely on. Sending through SMTP and adding SPF and DKIM records for your domain is what fixes this.', 'easy-form-builder'),
+                ],
                 'email_test_pending' => [
                     'title' => esc_html__('Email delivery test is pending.', 'easy-form-builder'),
                     'description' => esc_html__('WordPress sent the test email, but delivery has not been confirmed yet.', 'easy-form-builder'),
@@ -3339,6 +3467,16 @@ function admin_notices_efb () {
             $help = '<a href="https://whitestudio.team/documents/how-to-fix-email-not-working-issue#'.$msg_id.'" target="_blank" >' . esc_html__('Click here for more details','easy-form-builder') . '</a>';
             $title = isset($messages[$msg_id]['title']) ? $messages[$msg_id]['title'] : esc_html__('Email Issue', 'easy-form-builder');
             $description = isset($messages[$msg_id]['description']) ? $messages[$msg_id]['description'] : '';
+
+            // The status the test saved knows which of the three send stages
+            // applied - the fixed map above cannot - so its wording wins when
+            // it carries any.
+            $saved_title = isset($check['message']['title']) ? (string) $check['message']['title'] : '';
+            $saved_description = isset($check['message']['description']) ? (string) $check['message']['description'] : '';
+            if ($saved_title !== '' && $saved_description !== '') {
+                $title = $saved_title;
+                $description = $saved_description;
+            }
             ob_start();
             ?>
             <div id="notice-email-efb" class="notice notice-error efb-notice-email-error notice-alt efb" style="display:flex;align-items:flex-start;gap:12px;padding:10px 20px;position:relative;z-index:1000;">

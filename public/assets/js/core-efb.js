@@ -522,7 +522,9 @@ async function createStepsOfPublic() {
                 handle_change_event_efb_v4(el,form_id);
               }else{
                 let indx = valj_efb.findIndex(x => x.id_ === id);
-                if(valj_efb[indx].hasOwnProperty('value') && valj_efb[indx].value==""){
+               if( indx==-1 ){
+                  break;
+                }else if( indx!=-1 && valj_efb[indx].hasOwnProperty('value') && valj_efb[indx].value==""){
                   break;
                 }
                 handle_change_event_efb_v4(el,form_id);
@@ -588,6 +590,7 @@ async function createStepsOfPublic() {
           break;
           case "file":
             const ob = valj_efb_.find(x => x.id_ === id);
+            if(typeof(ob)=="undefined" || ob==null) break;
             if(((ob.hasOwnProperty("disabled") && ob.disabled!=true ) || ob.hasOwnProperty("disabled")==false )&&
             ((ob.hasOwnProperty('hidden') && ob.hidden==true) || ob.hasOwnProperty('hidden')==false))
 
@@ -603,6 +606,7 @@ async function createStepsOfPublic() {
             el_type = el.dataset.type ?? '';
             if(el_type=='esign'){
               const ob = valj_efb_.find(x => x.id_ === id);
+              if(typeof(ob)=="undefined" || ob==null) break;
               const disabled = ob.hasOwnProperty("disabled") && ob.disabled==true ? true : false;
               fun_event_esign_efb(id,form_id,disabled,ob);
             }

@@ -74,21 +74,35 @@ class Addon {
 		 * easyformbuilder.ir.
 		 */
 		$addon_endpoints = $efb_recovery_fn->addon_api_domains_efb();
-		$domain = $addon_endpoints['primary'];
-		if ( $addon_endpoints['is_persian'] && ! empty( $addon_endpoints['fallback'] ) ) {
+		$catalogue_domains = isset( $addon_endpoints['endpoints'] )
+			? array_values( (array) $addon_endpoints['endpoints'] )
+			: array_filter( array( $addon_endpoints['primary'], $addon_endpoints['fallback'] ) );
+		$domain = untrailingslashit( (string) $catalogue_domains[0] );
+
+		/*
+		 * The catalogue is loaded as a <script src>, so a dead host here is a
+		 * blank Add-ons page with no way to recover in-page. Probing is no
+		 * longer Persian-only: every locale now has more than one endpoint,
+		 * and the primary is exactly the host that has been answering 403.
+		 */
+		if ( count( $catalogue_domains ) > 1 ) {
 			$catalogue_cache_key = 'emsfb_addons_fa_catalogue_domain';
 			$cached_domain = get_transient( $catalogue_cache_key );
-			$allowed_domains = array(
-				untrailingslashit( $addon_endpoints['primary'] ),
-				untrailingslashit( $addon_endpoints['fallback'] ),
-			);
+			$allowed_domains = array_map( 'untrailingslashit', $catalogue_domains );
+
 			if ( false !== $cached_domain && in_array( untrailingslashit( $cached_domain ), $allowed_domains, true ) ) {
 				$domain = untrailingslashit( $cached_domain );
 			} else {
-				$probe = wp_remote_head( $domain, array( 'timeout' => 4 ) );
-				$code = is_wp_error( $probe ) ? 0 : (int) wp_remote_retrieve_response_code( $probe );
-				if ( $code < 200 || $code >= 400 ) {
-					$domain = untrailingslashit( $addon_endpoints['fallback'] );
+				foreach ( $allowed_domains as $candidate ) {
+					$probe = wp_remote_head( $candidate, array( 'timeout' => 4 ) );
+					$code = is_wp_error( $probe ) ? 0 : (int) wp_remote_retrieve_response_code( $probe );
+					if ( $code >= 200 && $code < 400 ) {
+						$domain = $candidate;
+						break;
+					}
+					// Keep the first candidate as the fallback choice: if none
+					// answer we still have to render something.
+					$efb_recovery_fn->addon_api_mark_down_efb( $candidate );
 				}
 				set_transient( $catalogue_cache_key, $domain, 5 * MINUTE_IN_SECONDS );
 			}

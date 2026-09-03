@@ -3634,7 +3634,9 @@ function efb_onboarding_render_live_report_efb() {
  */
 function efb_onboarding_min_score_efb() {
     const value = Number(efb_var && efb_var.emailMonitor ? efb_var.emailMonitor.min_delivery_score : 0);
-    return value > 0 ? value : 40;
+    // Email_Monitor::MIN_DELIVERY_SCORE. The fallback has to match it, or the
+    // wizard draws the line somewhere the server does not.
+    return value > 0 ? value : 20;
 }
 
 function efb_onboarding_score_too_low_efb(result) {
@@ -3742,7 +3744,17 @@ function efb_onboarding_poll_email_efb(test, email, attempt) {
             efb_onboarding_status_efb('warning', efb_onboarding_text_efb('onboardingTestPendingGuidance', 'Your test email was sent, but delivery is not confirmed yet. Check the inbox or spam folder for the address below; you can finish setup and try again later from General Settings.'));
         } else {
             efb_onboarding_live_update_efb({ steps: { start: 'done', send: 'done', wait: 'error', quick: 'error', full: 'waiting' }, percent: 100, result: result });
-            efb_onboarding_status_efb('error', result.message || payload.m || efb_onboarding_text_efb('onboardingTestFailed', 'We could not verify delivery. Your email address was saved; please check your mail configuration in General Settings.'));
+            // Which fallback applies depends on how far the message got: see
+            // the /handoff endpoint. "Check your mail configuration" is the
+            // wrong advice for a site whose WordPress sent the message fine.
+            const sendStage = result.send_stage || 'unknown';
+            let fallback = efb_onboarding_text_efb('onboardingTestFailed', 'We could not verify delivery. Your email address was saved; please check your mail configuration in General Settings.');
+            if (sendStage === 'handed_off') {
+                fallback = efb_onboarding_text_efb('emailSentNotArrivedDesc', 'Your site handed the message to your mail server successfully, so WordPress and this plugin did their part. It was lost, delayed or rejected afterwards - most often the receiving mailbox filed it as spam, or your host never delivered it from the outbound queue.');
+            } else if (sendStage === 'wp_mail_failed') {
+                fallback = efb_onboarding_text_efb('emailWpMailFailedDesc', 'The message never left your website: WordPress returned an error while sending it. Install and configure an SMTP plugin, or ask your host whether PHP mail is disabled.');
+            }
+            efb_onboarding_status_efb('error', result.message || payload.m || fallback);
         }
         efb_onboarding_set_finish_efb(true);
     }).fail(function() {
