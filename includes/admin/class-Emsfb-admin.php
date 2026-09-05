@@ -715,6 +715,20 @@ class Admin {
                         'attempt' => $current_attempt,
                         'message' => $error_message,
                     ]);
+                    /* A refusal (not an outage) from a server that is plainly
+                     * up is almost always the host's IP-reputation firewall,
+                     * which the site owner cannot see or appeal. Show the
+                     * offline route rather than a status code they cannot act
+                     * on. */
+                    if (in_array((int) $response_code, [401, 403, 406, 429], true)) {
+                        get_efbFunction()->notify_admin_addon_blocked_efb(wp_parse_url($domain, PHP_URL_HOST), $post_value);
+                        wp_send_json_error([
+                            'success' => false,
+                            'm' => get_efbFunction()->addon_offline_hint_efb(wp_parse_url($domain, PHP_URL_HOST)),
+                            'code' => 'addon_download_blocked',
+                        ], 200);
+                        return;
+                    }
                     $response = ['success' => false, 'm' => $error_message];
                     wp_send_json_error($response, 200);
                     return;

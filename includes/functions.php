@@ -3669,6 +3669,19 @@ public function addon_add_efb($value) {
                     if ($switch_to_fallback('remote_response_invalid_code')) {
                         continue;
                     }
+                    /* 401/403/429 from an endpoint that is plainly up means
+                     * something between us and it is refusing the request —
+                     * typically the host's IP-reputation firewall. The raw
+                     * status code tells the site owner nothing they can act
+                     * on, so hand them the offline route instead. */
+                    if (in_array((int) $response_code, array(401, 403, 406, 429), true)) {
+                        $this->notify_admin_addon_blocked_efb($server_label, $value);
+                        return array(
+                            'status'  => false,
+                            'message' => $this->addon_offline_hint_efb($server_label),
+                            'blocked' => true,
+                        );
+                    }
                     return array('status' => false, 'message' => $error_message);
                 }
                 continue;
@@ -4086,13 +4099,13 @@ public function addon_add_efb($value) {
 	/**
 	 * Ordered endpoints for the add-on API.
 	 *
-	 * Whitestudio stays first for everyone. After it comes the independent
-	 * mirror (EMSFB_MIRROR_SERVER_URL), which exists because a host-level
-	 * IP-reputation filter in front of the primary has answered 403 to
-	 * ordinary plugin requests — sometimes for an hour, sometimes for days —
-	 * leaving paying customers unable to install add-ons they had bought.
-	 * Persian sites keep easyformbuilder.ir as well, so they end up with three
-	 * endpoints and everyone else with two.
+	 * Whitestudio for everyone, plus easyformbuilder.ir on Persian sites.
+	 *
+	 * A third, independent mirror was built and then removed: every shared host
+	 * evaluated for it sits behind an IP-reputation firewall of its own, so the
+	 * mirror reproduced the same failure at a new address. When no endpoint
+	 * answers, the caller now surfaces that to the administrator instead, and
+	 * the offline Add-ons Handler plugin covers the case entirely.
 	 *
 	 * All three add-on call sites (the Add-ons page script, the install
 	 * handler, and the background recovery) go through here so they cannot
@@ -4109,13 +4122,6 @@ public function addon_add_efb($value) {
 
 		if ( $is_persian ) {
 			$endpoints[] = untrailingslashit( self::EMSFB_ADDON_IR_DOMAIN );
-		}
-
-		// Empty constant is the documented way to take the mirror out of
-		// rotation without editing plugin code.
-		$mirror = defined( 'EMSFB_MIRROR_SERVER_URL' ) ? untrailingslashit( (string) EMSFB_MIRROR_SERVER_URL ) : '';
-		if ( '' !== $mirror ) {
-			$endpoints[] = $mirror;
 		}
 
 		// A domain already proven dead within the TTL is moved to the back
@@ -4181,6 +4187,118 @@ public function addon_add_efb($value) {
 		}
 
 		return $url;
+	}
+
+	/**
+	 * The offline route out of an unreachable download server.
+	 *
+	 * Some hosts sit behind an IP-reputation firewall that answers 403 to
+	 * perfectly ordinary server-to-server requests, and the site owner can
+	 * neither see it nor appeal it. Rather than leaving them with a bare
+	 * "responded code: 403", point them at the Add-ons Handler plugin, which
+	 * carries the archives inside itself and needs no network.
+	 *
+	 * @param  string $server_label Host that refused, for context.
+	 * @return string HTML-safe message.
+	 */
+	public function addon_offline_hint_efb( $server_label = '' ) {
+		$server_label = $server_label !== '' ? $server_label : wp_parse_url( EMSFB_SERVER_URL, PHP_URL_HOST );
+
+		$message = sprintf(
+			/* translators: 1: download server host name, 2: sign-in URL */
+			esc_html__( 'Your server could not reach %1$s, so the add-on could not be downloaded. This is almost always a firewall on your hosting blocking the outgoing request, not a problem with your licence. To install add-ons without any download at all, sign in at %2$s and download the Easy Form Builder Add-ons Handler plugin, then install it like any other plugin. It contains every add-on your licence covers.', 'easy-form-builder' ),
+			esc_html( (string) $server_label ),
+			esc_url( EMSFB_SERVER_URL . '/login' )
+		);
+
+		// Only worth saying when we can actually name the address; telling
+		// someone to "give your host this address: unknown" helps nobody.
+		$outgoing_ip = $this->outgoing_ip_hint_efb();
+		if ( '' !== $outgoing_ip ) {
+			$message .= ' ' . sprintf(
+				/* translators: %s: this site's outgoing IP address */
+				esc_html__( 'If you would rather fix the connection, ask your hosting provider why outgoing requests from %s are being blocked.', 'easy-form-builder' ),
+				esc_html( $outgoing_ip )
+			);
+		}
+
+		return $message;
+	}
+
+	/**
+	 * This site's outgoing address, as the blocking side would see it.
+	 *
+	 * Support tickets stall for days without it, because the address a host
+	 * blocks is the outgoing one, which the site owner usually cannot name.
+	 * Server-reported values are used as-is; nothing is fetched, so this stays
+	 * safe to call while rendering a page.
+	 *
+	 * @return string
+	 */
+	public function outgoing_ip_hint_efb() {
+		$cached = get_transient( 'emsfb_outgoing_ip_hint' );
+		if ( is_string( $cached ) && '' !== $cached ) {
+			return 'none' === $cached ? '' : $cached;
+		}
+
+		$ip = '';
+		foreach ( array( 'SERVER_ADDR', 'LOCAL_ADDR' ) as $key ) {
+			if ( ! empty( $_SERVER[ $key ] ) ) {
+				$candidate = sanitize_text_field( wp_unslash( $_SERVER[ $key ] ) );
+				if ( filter_var( $candidate, FILTER_VALIDATE_IP ) ) {
+					$ip = $candidate;
+					break;
+				}
+			}
+		}
+
+		// An empty result is cached too: the server either reports an address
+		// or it does not, and re-deriving it on every page view buys nothing.
+		set_transient( 'emsfb_outgoing_ip_hint', '' !== $ip ? $ip : 'none', DAY_IN_SECONDS );
+
+		return $ip;
+	}
+
+	/**
+	 * Tell the site owner once that add-on downloads are being blocked.
+	 *
+	 * Rate limited to one message per day: the failure repeats on every
+	 * retry, and a mailbox full of identical warnings gets filtered out
+	 * exactly when it matters.
+	 *
+	 * @param  string $server_label Host that refused.
+	 * @param  string $addon_key    Add-on that could not be installed.
+	 * @return bool                 Whether a message was sent.
+	 */
+	public function notify_admin_addon_blocked_efb( $server_label = '', $addon_key = '' ) {
+		if ( get_transient( 'emsfb_addon_blocked_notice_sent' ) ) {
+			return false;
+		}
+		set_transient( 'emsfb_addon_blocked_notice_sent', 1, DAY_IN_SECONDS );
+
+		$settings = get_setting_Emsfb( 'decoded' );
+		if ( function_exists( 'emsfb_is_email_sending_enabled_efb' ) && ! emsfb_is_email_sending_enabled_efb( $settings ) ) {
+			return false;
+		}
+
+		$to = is_object( $settings ) && ! empty( $settings->emailSupporter ) ? $settings->emailSupporter : get_option( 'admin_email' );
+		if ( empty( $to ) ) {
+			return false;
+		}
+
+		$subject = esc_html__( 'Easy Form Builder: add-on downloads are being blocked', 'easy-form-builder' );
+		$body    = '<p>' . $this->addon_offline_hint_efb( $server_label ) . '</p>';
+		if ( '' !== $addon_key ) {
+			$names = $this->get_addon_display_names_efb();
+			$name  = isset( $names[ $addon_key ] ) ? $names[ $addon_key ] : $addon_key;
+			$body .= '<p>' . sprintf(
+				/* translators: %s: add-on name */
+				esc_html__( 'Add-on affected: %s', 'easy-form-builder' ),
+				esc_html( $name )
+			) . '</p>';
+		}
+
+		return (bool) wp_mail( $to, $subject, $body, array( 'Content-Type: text/html; charset=UTF-8' ) );
 	}
 
 	/**

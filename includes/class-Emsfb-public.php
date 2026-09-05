@@ -2163,6 +2163,25 @@ public function check_nonce_permission_efb($request) {
 			$has_multiple_emails = isset($form_fields_array[0]["email_send_type"]) ? $form_fields_array[0]["email_send_type"] : false;
 
 			$form_type = $form_fields_array[0]['type'] ?? 'form';
+
+			// Security: the submitted type must always match the form's stored type,
+			// for every form type, before anything below dispatches on it. This used
+			// to be checked only inside the block below, which is skipped entirely
+			// for login/register forms - letting any submission type (including
+			// "register" against a login form) reach the switch() dispatch further
+			// down unchecked. logout/recovery are session actions, valid only
+			// against a login/register form, never a stored form type themselves.
+			$_is_session_action_efb = ($submission_type === 'logout' || $submission_type === 'recovery');
+			if ($_is_session_action_efb) {
+				if ($form_type !== 'login' && $form_type !== 'register') {
+					$response = ['success' => false, 'm' => $this->lanText['fernvtf']];
+					wp_send_json_success($response, 200);
+				}
+			} elseif ($submission_type !== $form_type) {
+				$response = ['success' => false, 'm' => $this->lanText['fernvtf']];
+				wp_send_json_success($response, 200);
+			}
+
 			if (!isset($submitted_values['logout']) && !isset($submitted_values['recovery']) && $form_type!='register' && $form_type!='login') {
 				// Required-field presence check — runs for every ordinary submission,
 				// with or without the conditional-logic addon, because the legacy
@@ -2191,10 +2210,6 @@ public function check_nonce_permission_efb($request) {
 					$this->email_list_efb($email_recipients , 0 , $form_admin_email ,$is_multipleEmail);
 				}
 				$has_tracking_code = $form_fields_array[0]['trackingCode'] == true || $form_fields_array[0]['trackingCode'] == "true" || $form_fields_array[0]['trackingCode'] == 1 ? 1 : 0;
-				if ($submission_type != $form_fields_array[0]['type']) {
-					$response = ['success' => false, 'm' => $this->lanText['fernvtf']];
-					wp_send_json_success($response, 200);
-				}
 				if ($form_fields_array[0]['thank_you'] == "rdrct") {
 					$redirect_url = $this->string_to_url($form_fields_array[0]['rePage']);
 				}

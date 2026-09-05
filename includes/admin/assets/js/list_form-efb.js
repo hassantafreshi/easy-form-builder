@@ -499,6 +499,12 @@ function fun_send_replayMessage_emsFormBuilder(id) {
 
 }
 
+function escapeContentPreviewText_efb(value) {
+  return String(value == null ? '' : value).replace(/[&<>"']/g, function (match) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[match];
+  });
+}
+
 function getContentPreview_efb(contentStr) {
   try {
     const parsed = JSON.parse(replaceContentMessageEfb(contentStr));
@@ -509,7 +515,10 @@ function getContentPreview_efb(contentStr) {
       if (c.type === 'maps' || c.type === 'esign' || c.type === 'payment' || c.type ==='w_link') continue;
       let val = String(c.value).replace(/<[^>]*>/g, '').replace(/@efb!/g, ',').replace(/@efb[^#]*#/g, ' ').replace(/,\s*$/, '').trim();
       if (val.length > 0) {
-        const label = c.name || c.id_ || '';
+        // c.name/c.id_ come straight off the stored submission, not the
+        // trusted form definition - never trust them into innerHTML unescaped.
+        const label = escapeContentPreviewText_efb(c.name || c.id_ || '');
+        val = escapeContentPreviewText_efb(val);
         parts.push(label ? `${label}: ${val}` : val);
       }
     }

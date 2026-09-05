@@ -285,6 +285,13 @@ class Emsfb {
             return;
         }
 
+        // Loaded on every request, not only in wp-admin: the deactivation
+        // survey is an admin screen, but the domain-ownership answer it relies
+        // on has to be reachable from the public side of the site.
+        if ($this->require_plugin_file_efb('includes/class-Emsfb-deactivation-feedback.php')) {
+            new \Emsfb\Deactivation_Feedback();
+        }
+
         if (is_admin()) {
             $admin_ok = $this->require_plugin_file_efb('includes/admin/class-Emsfb-admin.php');
             $admin_ok = $this->require_plugin_file_efb('includes/admin/class-Emsfb-create.php') && $admin_ok;

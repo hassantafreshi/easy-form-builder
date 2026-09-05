@@ -77,21 +77,16 @@ if (!defined("EMSFB_LICENSE_SERVER_URL")) {
     define("EMSFB_LICENSE_SERVER_URL", "https://whitestudio.team");
 }
 
-if (!defined("EMSFB_MIRROR_SERVER_URL")) {
-    /*
-     * Independent second origin for add-on delivery, on infrastructure
-     * separate from EMSFB_SERVER_URL. It exists because a host-level
-     * IP-reputation filter in front of the primary has repeatedly answered
-     * 403 to perfectly ordinary plugin requests, leaving paying customers
-     * unable to install add-ons they had already bought.
-     *
-     * Defined here so it can be pointed at a staging mirror from
-     * wp-config.php during testing without touching plugin code. Set it to an
-     * empty string to take the mirror out of the endpoint list entirely.
-     */
-    //define("EMSFB_MIRROR_SERVER_URL", "https://blog.whitestudio.team");
-    define("EMSFB_MIRROR_SERVER_URL", "https://blog.whitestudio.team");
-}
+/*
+ * There is deliberately no second delivery origin here any more.
+ *
+ * A mirror was tried and abandoned: every shared host we evaluated sits behind
+ * an IP-reputation firewall of its own (Imunify360, BitNinja, …), so a mirror
+ * only moves the same failure to a different domain. When the download server
+ * cannot be reached, the plugin now tells the administrator plainly and points
+ * them at the Add-ons Handler plugin, which carries the add-on archives inside
+ * itself and needs no network at all.
+ */
 define("EMSFB_IR_CDN_URL", "https://cdn.easyformbuilder.ir/gh/Json-List-of-countries-states-and-cities-in-the-world/");
 define("EMSFB_JSDELIVR_CDN_URL", "https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/");
 
