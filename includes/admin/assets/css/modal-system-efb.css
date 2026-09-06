@@ -1,0 +1,990 @@
+/**
+ * Easy Form Builder - modal design system.
+ *
+ * One stylesheet, one look, for every dialog the plugin opens: the shared
+ * builder shell (#settingModalEfb), the deactivation survey, the review
+ * invitation, and the handful of named dialogs (colour reset, email server
+ * test, font pickers).
+ *
+ * Three rules this file keeps:
+ *
+ *   1. Every value comes from a token below. A dialog that needs a different
+ *      colour picks a *tone* (--efb-dlg-tone-*), it does not hard-code a hex.
+ *   2. Direction is expressed with logical properties only - inset-inline,
+ *      margin-inline, padding-inline, text-align: start/end. There is no
+ *      [dir="rtl"] override section, because there is nothing to override.
+ *   3. It is enqueued last, after bootstrap.min-efb.css and admin-rtl-efb.css,
+ *      and still selects through the #id where it restyles legacy markup -
+ *      admin-rtl-efb.css loads *before* bootstrap, so class-level rules there
+ *      already lose to bootstrap and anything weaker here would lose too.
+ *
+ * @package Easy_Form_Builder
+ */
+
+/* -----------------------------------------------------------------------
+ * Tokens
+ * -------------------------------------------------------------------- */
+
+.efb-dlg,
+#settingModalEfb,
+.efb-deactivate-modal,
+#efbColorResetModal,
+#efbEmailServerTestModal,
+#efbModalFontFamily,
+#efbModalFontSize {
+	/* Ink */
+	--efb-dlg-ink: #1a1a2e;
+	--efb-dlg-ink-soft: #4a5078;
+	--efb-dlg-ink-muted: #8a90a8;
+	--efb-dlg-ink-faint: #657096;
+
+	/* Surfaces */
+	--efb-dlg-surface: #fff;
+	--efb-dlg-surface-soft: #fafbfe;
+	--efb-dlg-surface-sunken: #f4f5fb;
+	--efb-dlg-surface-note: #eef1fb;
+
+	/* Lines */
+	--efb-dlg-line: #ecedf5;
+	--efb-dlg-line-strong: #e4e6f0;
+
+	/* Brand */
+	--efb-dlg-brand: #3644d2;
+	--efb-dlg-brand-dark: #202a8d;
+	--efb-dlg-brand-light: #667eea;
+
+	/* The tone a dialog is currently wearing. Overridden per .is-tone-* below. */
+	--efb-dlg-tone: #3644d2;
+	--efb-dlg-tone-2: #202a8d;
+	--efb-dlg-tone-shadow: rgba(54, 68, 210, 0.26);
+
+	/* Shape */
+	--efb-dlg-radius: 18px;
+	--efb-dlg-radius-sm: 10px;
+	--efb-dlg-radius-chip: 999px;
+	--efb-dlg-shadow: 0 24px 60px rgba(26, 26, 46, 0.16), 0 2px 6px rgba(26, 26, 46, 0.06);
+	--efb-dlg-width: 540px;
+
+	--efb-dlg-font: Vazirmatn, Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Tones. A dialog sets one of these on the shell (or on .efb-dlg itself). */
+.efb-tone-brand {
+	--efb-dlg-tone: #3644d2;
+	--efb-dlg-tone-2: #202a8d;
+	--efb-dlg-tone-shadow: rgba(54, 68, 210, 0.26);
+}
+
+.efb-tone-danger {
+	--efb-dlg-tone: #c00751;
+	--efb-dlg-tone-2: #f95e5e;
+	--efb-dlg-tone-shadow: rgba(192, 7, 81, 0.26);
+}
+
+.efb-tone-warn {
+	--efb-dlg-tone: #d39e00;
+	--efb-dlg-tone-2: #a37700;
+	--efb-dlg-tone-shadow: rgba(211, 158, 0, 0.26);
+}
+
+.efb-tone-success {
+	--efb-dlg-tone: #108f69;
+	--efb-dlg-tone-2: #065518;
+	--efb-dlg-tone-shadow: rgba(16, 143, 105, 0.26);
+}
+
+.efb-tone-gold {
+	--efb-dlg-tone: #667eea;
+	--efb-dlg-tone-2: #202a8d;
+	--efb-dlg-tone-shadow: rgba(32, 42, 141, 0.28);
+}
+
+.efb-tone-neutral {
+	--efb-dlg-tone: #8a90a8;
+	--efb-dlg-tone-2: #5f6784;
+	--efb-dlg-tone-shadow: rgba(90, 97, 128, 0.22);
+}
+
+.efb-tone-orange {
+	--efb-dlg-tone: #c2410c;
+	--efb-dlg-tone-2: #9a3412;
+	--efb-dlg-tone-shadow: rgba(194, 65, 12, 0.24);
+}
+
+/* -----------------------------------------------------------------------
+ * Motion
+ * -------------------------------------------------------------------- */
+
+@keyframes efbDlgPop {
+	0% {
+		transform: scale(0.7);
+		opacity: 0;
+	}
+
+	60% {
+		transform: scale(1.06);
+	}
+
+	100% {
+		transform: scale(1);
+		opacity: 1;
+	}
+}
+
+@keyframes efbDlgRise {
+	from {
+		transform: translateY(14px);
+		opacity: 0;
+	}
+
+	to {
+		transform: translateY(0);
+		opacity: 1;
+	}
+}
+
+@keyframes efbDlgBar {
+	0% {
+		transform: translateX(-100%);
+	}
+
+	100% {
+		transform: translateX(320%);
+	}
+}
+
+/* -----------------------------------------------------------------------
+ * The dialog itself
+ * -------------------------------------------------------------------- */
+
+body.efb-dlg-open {
+	overflow: hidden;
+}
+
+.efb-dlg {
+	position: fixed;
+	inset: 0;
+	z-index: 160000;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 24px;
+	font-family: var(--efb-dlg-font);
+	color: var(--efb-dlg-ink);
+	line-height: 1.7;
+}
+
+.efb-dlg[hidden] {
+	display: none;
+}
+
+.efb-dlg__backdrop {
+	position: absolute;
+	inset: 0;
+	background: rgba(26, 26, 46, 0.55);
+	backdrop-filter: blur(2px);
+}
+
+.efb-dlg__shell {
+	position: relative;
+	width: 100%;
+	max-width: var(--efb-dlg-width);
+	max-height: calc(100vh - 48px);
+	display: flex;
+	flex-direction: column;
+	background: var(--efb-dlg-surface);
+	border-radius: var(--efb-dlg-radius);
+	box-shadow: var(--efb-dlg-shadow);
+	overflow: hidden;
+	animation: efbDlgRise 0.24s ease both;
+}
+
+/* The shell carries tabindex="-1" so opening the dialog can move focus into
+   it without lighting a control. That focus is programmatic, never a tab
+   stop, so it gets no ring. */
+.efb-dlg__shell:focus {
+	outline: none;
+}
+
+/* Head ---------------------------------------------------------------- */
+
+.efb-dlg__head {
+	position: relative;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 15px 20px;
+	border-block-end: 1px solid var(--efb-dlg-line);
+	flex: 0 0 auto;
+}
+
+.efb-dlg__head-icon {
+	font-size: 16px;
+	line-height: 1;
+	color: var(--efb-dlg-tone);
+	flex: 0 0 auto;
+}
+
+.efb-dlg__title {
+	flex: 1 1 auto;
+	min-width: 0;
+	margin: 0;
+	font-size: 15px;
+	font-weight: 700;
+	line-height: 1.5;
+	color: var(--efb-dlg-ink);
+	text-align: start;
+}
+
+.efb-dlg__close {
+	width: 32px;
+	height: 32px;
+	flex: 0 0 32px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 9px;
+	border: 1px solid var(--efb-dlg-line);
+	background: var(--efb-dlg-surface);
+	color: var(--efb-dlg-ink-muted);
+	font-size: 13px;
+	line-height: 1;
+	cursor: pointer;
+	padding: 0;
+	transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.efb-dlg__close:hover,
+.efb-dlg__close:focus-visible {
+	background: #fdf2f4;
+	color: #e0245e;
+	border-color: #f7d6de;
+	outline: 0;
+}
+
+/* Body ---------------------------------------------------------------- */
+
+.efb-dlg__body {
+	padding: 26px 26px 24px;
+	overflow-y: auto;
+	flex: 1 1 auto;
+}
+
+.efb-dlg__centered {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+}
+
+.efb-dlg__badge {
+	width: 62px;
+	height: 62px;
+	flex: 0 0 62px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #fff;
+	font-size: 25px;
+	line-height: 1;
+	background: linear-gradient(135deg, var(--efb-dlg-tone), var(--efb-dlg-tone-2));
+	box-shadow: 0 10px 26px var(--efb-dlg-tone-shadow);
+	animation: efbDlgPop 0.28s ease both;
+}
+
+.efb-dlg__headline {
+	margin: 14px 0 0;
+	font-size: 18px;
+	font-weight: 700;
+	line-height: 1.5;
+	color: var(--efb-dlg-ink);
+}
+
+.efb-dlg__text {
+	margin: 6px 0 0;
+	font-size: 13.5px;
+	line-height: 1.75;
+	color: var(--efb-dlg-ink-soft);
+	max-width: 430px;
+	text-wrap: pretty;
+}
+
+.efb-dlg__chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+	margin-block-start: 13px;
+	padding: 8px 14px;
+	border-radius: var(--efb-dlg-radius-sm);
+	background: var(--efb-dlg-surface-soft);
+	border: 1px solid var(--efb-dlg-line-strong);
+	font-size: 12.5px;
+	font-weight: 600;
+	color: var(--efb-dlg-ink-soft);
+	max-width: 100%;
+}
+
+.efb-dlg__note {
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+	padding: 10px 12px;
+	border-radius: var(--efb-dlg-radius-sm);
+	background: var(--efb-dlg-surface-note);
+	color: var(--efb-dlg-ink-soft);
+	font-size: 12px;
+	line-height: 1.6;
+	text-align: start;
+}
+
+/* Foot ---------------------------------------------------------------- */
+
+.efb-dlg__foot {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+	flex-wrap: wrap;
+	padding: 14px 22px 18px;
+	border-block-start: 1px solid var(--efb-dlg-line);
+	background: var(--efb-dlg-surface-soft);
+	flex: 0 0 auto;
+}
+
+/* -----------------------------------------------------------------------
+ * Buttons
+ * -------------------------------------------------------------------- */
+
+.efb-dlg .efb-btn,
+.efb-dlg-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 7px;
+	padding: 10px 20px;
+	border-radius: var(--efb-dlg-radius-chip);
+	font-family: inherit;
+	font-size: 13px;
+	font-weight: 600;
+	line-height: 1.5;
+	cursor: pointer;
+	border: 1px solid transparent;
+	text-decoration: none;
+	transition: transform 0.12s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.efb-dlg .efb-btn:active {
+	transform: translateY(1px);
+}
+
+.efb-dlg .efb-btn--primary {
+	font-weight: 700;
+	color: #fff;
+	background: linear-gradient(135deg, #3644d2, #202a8d);
+	box-shadow: 0 6px 18px rgba(54, 68, 210, 0.28);
+}
+
+.efb-dlg .efb-btn--danger {
+	font-weight: 700;
+	color: #fff;
+	background: linear-gradient(135deg, #c00751, #f95e5e);
+	box-shadow: 0 6px 18px rgba(192, 7, 81, 0.26);
+}
+
+.efb-dlg .efb-btn--gold {
+	font-weight: 700;
+	color: #fff;
+	background: linear-gradient(135deg, #667eea, #202a8d);
+	box-shadow: 0 6px 18px rgba(32, 42, 141, 0.28);
+}
+
+.efb-dlg .efb-btn--success {
+	font-weight: 700;
+	color: #fff;
+	background: linear-gradient(135deg, #108f69, #065518);
+	box-shadow: 0 6px 18px rgba(16, 143, 105, 0.26);
+}
+
+.efb-dlg .efb-btn--ghost {
+	color: var(--efb-dlg-ink-soft);
+	background: var(--efb-dlg-surface);
+	border-color: var(--efb-dlg-line-strong);
+}
+
+.efb-dlg .efb-btn--ghost:hover,
+.efb-dlg .efb-btn--ghost:focus-visible {
+	border-color: var(--efb-dlg-brand);
+	color: var(--efb-dlg-brand);
+	outline: 0;
+}
+
+.efb-dlg .efb-btn--quiet {
+	color: var(--efb-dlg-ink-muted);
+	background: transparent;
+	border-color: transparent;
+	font-weight: 600;
+}
+
+.efb-dlg .efb-btn--quiet:hover,
+.efb-dlg .efb-btn--quiet:focus-visible {
+	color: var(--efb-dlg-ink-soft);
+	background: var(--efb-dlg-surface-sunken);
+	outline: 0;
+}
+
+.efb-dlg .efb-btn[disabled],
+.efb-dlg .efb-btn--disabled {
+	color: #b9bed6;
+	background: var(--efb-dlg-surface-sunken);
+	border-color: #eceef7;
+	box-shadow: none;
+	cursor: default;
+	transform: none;
+}
+
+.efb-dlg .efb-btn:focus-visible {
+	outline: 2px solid var(--efb-dlg-brand);
+	outline-offset: 2px;
+}
+
+/* -----------------------------------------------------------------------
+ * Loading state (the animated plugin mark, not a bare spinner)
+ * -------------------------------------------------------------------- */
+
+.efb-dlg__loading {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 6px;
+	padding: 26px 0 22px;
+}
+
+.efb-dlg__loading-track {
+	width: 120px;
+	height: 4px;
+	border-radius: var(--efb-dlg-radius-chip);
+	background: #eceef7;
+	overflow: hidden;
+	margin-block-start: 10px;
+}
+
+.efb-dlg__loading-bar {
+	width: 34%;
+	height: 100%;
+	border-radius: var(--efb-dlg-radius-chip);
+	background: linear-gradient(90deg, #3644d2, #667eea);
+	animation: efbDlgBar 1.1s ease-in-out infinite;
+}
+
+/* -----------------------------------------------------------------------
+ * Mobile
+ * -------------------------------------------------------------------- */
+
+@media screen and (max-width: 600px) {
+	.efb-dlg {
+		padding: 12px;
+	}
+
+	.efb-dlg__shell {
+		border-radius: 22px;
+		max-width: 412px;
+	}
+
+	.efb-dlg__head {
+		padding: 18px 16px 13px;
+	}
+
+	.efb-dlg__body {
+		padding: 20px 16px 22px;
+	}
+
+	.efb-dlg__foot {
+		padding: 12px 16px 16px;
+	}
+
+	.efb-dlg .efb-btn {
+		flex: 1 1 140px;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.efb-dlg__shell,
+	.efb-dlg__badge,
+	.efb-dlg__loading-bar {
+		animation: none;
+	}
+
+	.efb-dlg .efb-btn {
+		transition: none;
+	}
+}
+
+/* =======================================================================
+ * Legacy markup, new clothes.
+ *
+ * Everything below maps the plugin's existing dialog markup onto the tokens
+ * above so the 27 show_modal_efb() call sites, the deactivation survey and
+ * the named dialogs all inherit the same look without being rewritten.
+ * ==================================================================== */
+
+/* -----------------------------------------------------------------------
+ * The shared builder shell (#settingModalEfb)
+ * -------------------------------------------------------------------- */
+
+#settingModalEfb.efb.modal {
+	font-family: var(--efb-dlg-font);
+}
+
+#settingModalEfb .efb.modal-content {
+	border: 0;
+	border-radius: var(--efb-dlg-radius);
+	box-shadow: var(--efb-dlg-shadow);
+	background: var(--efb-dlg-surface);
+	overflow: hidden;
+}
+
+#settingModalEfb .efb.modal-header.efb {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 15px 20px;
+	border-block-end: 1px solid var(--efb-dlg-line);
+	background: var(--efb-dlg-surface);
+	border-radius: 0;
+}
+
+#settingModalEfb .efb.modal-title.efb {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin: 0;
+	font-size: 15px;
+	font-weight: 700;
+	line-height: 1.5;
+	color: var(--efb-dlg-ink);
+	text-align: start;
+}
+
+#settingModalEfb #settingModalEfb-icon {
+	font-size: 16px;
+	line-height: 1;
+	color: var(--efb-dlg-tone);
+	margin: 0;
+}
+
+/* The close control is an <a> pinned with bootstrap utilities; give it the
+   32px square treatment without fighting the positioning classes. */
+#settingModalEfb #settingModalEfb-close {
+	width: 32px;
+	height: 32px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	margin: 0 !important;
+	inset-block-start: 13px;
+	inset-inline-end: 18px;
+	border-radius: 9px;
+	border: 1px solid var(--efb-dlg-line);
+	background: var(--efb-dlg-surface);
+	color: var(--efb-dlg-ink-muted);
+	font-size: 13px;
+	text-decoration: none;
+	transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+#settingModalEfb #settingModalEfb-close:hover,
+#settingModalEfb #settingModalEfb-close:focus {
+	background: #fdf2f4;
+	color: #e0245e;
+	border-color: #f7d6de;
+}
+
+#settingModalEfb .efb.modal-body {
+	padding: 26px 26px 24px;
+	color: var(--efb-dlg-ink);
+}
+
+/* Confirm dialogs (delete / duplicate / warning) ----------------------- */
+
+#settingModalEfb .efb-confirm-dialog .efb.modal-content {
+	border-radius: var(--efb-dlg-radius);
+}
+
+#settingModalEfb .efb-confirm-body {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+}
+
+#settingModalEfb .efb-confirm-icon-wrap {
+	width: 62px;
+	height: 62px;
+	flex: 0 0 62px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #fff;
+	font-size: 25px;
+	line-height: 1;
+	background: linear-gradient(135deg, var(--efb-dlg-tone), var(--efb-dlg-tone-2));
+	box-shadow: 0 10px 26px var(--efb-dlg-tone-shadow);
+	animation: efbDlgPop 0.28s ease both;
+}
+
+/* efb_build_confirm_body() picks the wrap class; each one carries its tone. */
+#settingModalEfb .efb-confirm-icon-wrap.efb-icon-danger {
+	--efb-dlg-tone: #c00751;
+	--efb-dlg-tone-2: #f95e5e;
+	--efb-dlg-tone-shadow: rgba(192, 7, 81, 0.26);
+}
+
+#settingModalEfb .efb-confirm-icon-wrap.efb-icon-warning {
+	--efb-dlg-tone: #d39e00;
+	--efb-dlg-tone-2: #a37700;
+	--efb-dlg-tone-shadow: rgba(211, 158, 0, 0.26);
+}
+
+#settingModalEfb .efb-confirm-icon-wrap.efb-icon-info {
+	--efb-dlg-tone: #3644d2;
+	--efb-dlg-tone-2: #202a8d;
+	--efb-dlg-tone-shadow: rgba(54, 68, 210, 0.26);
+}
+
+#settingModalEfb .efb-confirm-icon-wrap.efb-icon-success {
+	--efb-dlg-tone: #108f69;
+	--efb-dlg-tone-2: #065518;
+	--efb-dlg-tone-shadow: rgba(16, 143, 105, 0.26);
+}
+
+#settingModalEfb .efb-confirm-title {
+	margin-block-start: 14px;
+	font-size: 18px;
+	font-weight: 700;
+	line-height: 1.5;
+	color: var(--efb-dlg-ink);
+}
+
+#settingModalEfb .efb-confirm-message {
+	margin-block-start: 6px;
+	font-size: 13.5px;
+	line-height: 1.75;
+	color: var(--efb-dlg-ink-soft);
+	max-width: 430px;
+	text-wrap: pretty;
+}
+
+/* The item label inside the message is the design's chip. */
+#settingModalEfb .efb-confirm-message b {
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+	margin-block-start: 13px;
+	padding: 8px 14px;
+	border-radius: var(--efb-dlg-radius-sm);
+	background: var(--efb-dlg-surface-soft);
+	border: 1px solid var(--efb-dlg-line-strong);
+	font-size: 12.5px;
+	font-weight: 600;
+	color: var(--efb-dlg-ink-soft);
+	max-width: 100%;
+}
+
+/* Confirm footer ------------------------------------------------------ */
+
+#modal-footer-efb.efb-confirm-footer {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+	flex-wrap: wrap;
+	padding: 14px 22px 18px;
+	border-block-start: 1px solid var(--efb-dlg-line);
+	background: var(--efb-dlg-surface-soft);
+	border-radius: 0;
+	margin: 0;
+}
+
+#modal-footer-efb.efb-confirm-footer .efb-btn-cancel,
+#modal-footer-efb.efb-confirm-footer .efb-btn-confirm-danger,
+#modal-footer-efb.efb-confirm-footer .efb-btn-confirm-primary {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 7px;
+	min-width: 0;
+	margin: 0;
+	padding: 10px 20px;
+	border-radius: var(--efb-dlg-radius-chip);
+	font-family: inherit;
+	font-size: 13px;
+	line-height: 1.5;
+	cursor: pointer;
+	border: 1px solid transparent;
+	text-decoration: none;
+	transition: transform 0.12s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+#modal-footer-efb.efb-confirm-footer .efb-btn-cancel {
+	font-weight: 600;
+	color: var(--efb-dlg-ink-soft);
+	background: var(--efb-dlg-surface);
+	border-color: var(--efb-dlg-line-strong);
+	box-shadow: none;
+}
+
+#modal-footer-efb.efb-confirm-footer .efb-btn-cancel:hover,
+#modal-footer-efb.efb-confirm-footer .efb-btn-cancel:focus {
+	color: var(--efb-dlg-brand);
+	border-color: var(--efb-dlg-brand);
+	background: var(--efb-dlg-surface);
+}
+
+#modal-footer-efb.efb-confirm-footer .efb-btn-confirm-danger {
+	font-weight: 700;
+	color: #fff;
+	background: linear-gradient(135deg, #c00751, #f95e5e);
+	border-color: transparent;
+	box-shadow: 0 6px 18px rgba(192, 7, 81, 0.26);
+}
+
+#modal-footer-efb.efb-confirm-footer .efb-btn-confirm-primary {
+	font-weight: 700;
+	color: #fff;
+	background: linear-gradient(135deg, #3644d2, #202a8d);
+	border-color: transparent;
+	box-shadow: 0 6px 18px rgba(54, 68, 210, 0.28);
+}
+
+#modal-footer-efb.efb-confirm-footer .efb-btn-confirm-danger:hover,
+#modal-footer-efb.efb-confirm-footer .efb-btn-confirm-primary:hover {
+	color: #fff;
+	filter: brightness(1.06);
+}
+
+#modal-footer-efb.efb-confirm-footer .efb-btn-confirm-danger:active,
+#modal-footer-efb.efb-confirm-footer .efb-btn-confirm-primary:active,
+#modal-footer-efb.efb-confirm-footer .efb-btn-cancel:active {
+	transform: translateY(1px);
+}
+
+/* Backdrop ------------------------------------------------------------ */
+
+.efb-modal-backdrop {
+	background: rgba(26, 26, 46, 0.55);
+}
+
+/* -----------------------------------------------------------------------
+ * Deactivation survey - same tokens, its own layout
+ * -------------------------------------------------------------------- */
+
+.efb-deactivate-modal {
+	font-family: var(--efb-dlg-font);
+	color: var(--efb-dlg-ink);
+}
+
+.efb-deactivate-backdrop {
+	background: rgba(26, 26, 46, 0.55);
+	backdrop-filter: blur(2px);
+}
+
+.efb-deactivate-box {
+	border-radius: var(--efb-dlg-radius);
+	box-shadow: var(--efb-dlg-shadow);
+	animation: efbDlgRise 0.24s ease both;
+}
+
+.efb-deactivate-x {
+	inset-block-start: 13px;
+	inset-inline-end: 18px;
+	width: 32px;
+	height: 32px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
+	font-size: 15px;
+	border: 1px solid var(--efb-dlg-line);
+	border-radius: 9px;
+	background: var(--efb-dlg-surface);
+	color: var(--efb-dlg-ink-muted);
+}
+
+.efb-deactivate-x:hover,
+.efb-deactivate-x:focus {
+	background: #fdf2f4;
+	color: #e0245e;
+	border-color: #f7d6de;
+}
+
+.efb-deactivate-title {
+	font-size: 18px;
+	font-weight: 700;
+	color: var(--efb-dlg-ink);
+}
+
+.efb-deactivate-subtitle {
+	color: var(--efb-dlg-ink-soft);
+	font-size: 13.5px;
+	line-height: 1.75;
+}
+
+.efb-deactivate-reason.is-selected {
+	background: var(--efb-dlg-surface-soft);
+}
+
+.efb-deactivate-choice {
+	color: var(--efb-dlg-ink);
+	border-radius: var(--efb-dlg-radius-sm);
+}
+
+.efb-deactivate-details,
+.efb-deactivate-field input {
+	border: 1px solid var(--efb-dlg-line-strong);
+	border-radius: var(--efb-dlg-radius-sm);
+	font-family: inherit;
+	color: var(--efb-dlg-ink);
+}
+
+.efb-deactivate-details:focus,
+.efb-deactivate-field input:focus {
+	border-color: var(--efb-dlg-brand);
+	box-shadow: 0 0 0 3px rgba(54, 68, 210, 0.12);
+	outline: 0;
+}
+
+.efb-deactivate-contact {
+	background: var(--efb-dlg-surface-soft);
+	border: 1px solid var(--efb-dlg-line-strong);
+	border-radius: var(--efb-dlg-radius-sm);
+}
+
+.efb-deactivate-reward {
+	border-radius: var(--efb-dlg-radius-sm);
+	background: var(--efb-dlg-surface-note);
+	border: 1px solid rgba(54, 68, 210, 0.2);
+}
+
+.efb-deactivate-reward-title {
+	color: var(--efb-dlg-brand-dark);
+	font-weight: 700;
+}
+
+.efb-deactivate-reward-body {
+	color: var(--efb-dlg-ink-soft);
+}
+
+.efb-deactivate-coupon {
+	border-radius: var(--efb-dlg-radius-sm);
+	background: rgba(16, 143, 105, 0.06);
+	border: 1px dashed rgba(16, 143, 105, 0.45);
+}
+
+.efb-deactivate-coupon-code {
+	color: #0d7355;
+}
+
+.efb-deactivate-foot {
+	justify-content: center;
+	gap: 10px;
+	padding: 14px 22px 18px;
+	background: var(--efb-dlg-surface-soft);
+	border-block-start: 1px solid var(--efb-dlg-line);
+}
+
+/* The survey uses core's .button / .button-primary; give them the pill. */
+.efb-deactivate-modal .button,
+.efb-deactivate-modal .button-primary {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 7px;
+	height: auto;
+	padding: 10px 20px;
+	border-radius: var(--efb-dlg-radius-chip);
+	font-family: inherit;
+	font-size: 13px;
+	font-weight: 600;
+	line-height: 1.5;
+	border: 1px solid var(--efb-dlg-line-strong);
+	background: var(--efb-dlg-surface);
+	color: var(--efb-dlg-ink-soft);
+	text-shadow: none;
+	box-shadow: none;
+}
+
+.efb-deactivate-modal .button-primary,
+.efb-deactivate-modal .button-primary:hover,
+.efb-deactivate-modal .button-primary:focus {
+	font-weight: 700;
+	color: #fff;
+	border-color: transparent;
+	background: linear-gradient(135deg, #3644d2, #202a8d);
+	box-shadow: 0 6px 18px rgba(54, 68, 210, 0.28);
+}
+
+.efb-deactivate-error {
+	border-radius: var(--efb-dlg-radius-sm);
+	background: #fdf2f4;
+	border: 1px solid #f7d6de;
+	color: #a3123f;
+}
+
+.efb-deactivate-privacy {
+	color: var(--efb-dlg-ink-muted);
+}
+
+/* -----------------------------------------------------------------------
+ * Named dialogs: colour reset, email server test, font pickers
+ * -------------------------------------------------------------------- */
+
+#efbColorResetModal .modal-content,
+#efbEmailServerTestModal .modal-content,
+#efbModalFontFamily .modal-content,
+#efbModalFontSize .modal-content {
+	border: 0;
+	border-radius: var(--efb-dlg-radius);
+	box-shadow: var(--efb-dlg-shadow);
+	font-family: var(--efb-dlg-font);
+	color: var(--efb-dlg-ink);
+	overflow: hidden;
+}
+
+#efbColorResetModal .modal-header,
+#efbEmailServerTestModal .modal-header,
+#efbModalFontFamily .modal-header,
+#efbModalFontSize .modal-header {
+	padding: 15px 20px;
+	border-block-end: 1px solid var(--efb-dlg-line);
+	background: var(--efb-dlg-surface);
+}
+
+#efbColorResetModal .modal-title,
+#efbEmailServerTestModal .modal-title,
+#efbModalFontFamily .modal-title,
+#efbModalFontSize .modal-title {
+	font-size: 15px;
+	font-weight: 700;
+	color: var(--efb-dlg-ink);
+}
+
+#efbColorResetModal .modal-body,
+#efbEmailServerTestModal .modal-body,
+#efbModalFontFamily .modal-body,
+#efbModalFontSize .modal-body {
+	padding: 26px 26px 24px;
+}
+
+#efbColorResetModal .modal-footer,
+#efbEmailServerTestModal .modal-footer,
+#efbModalFontFamily .modal-footer,
+#efbModalFontSize .modal-footer {
+	justify-content: center;
+	gap: 10px;
+	padding: 14px 22px 18px;
+	border-block-start: 1px solid var(--efb-dlg-line);
+	background: var(--efb-dlg-surface-soft);
+}

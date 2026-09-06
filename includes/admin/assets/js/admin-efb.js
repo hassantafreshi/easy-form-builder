@@ -5263,12 +5263,17 @@ store_form_efb =()=>{
    localStorage.setItem('efb_auto_save', 1);
           localStorage.setItem('efb_auto_save_form_id', form_ID_emsFormBuilder);
           localStorage.setItem('efb_auto_save_valj_efb', JSON.stringify(valj_efb));
+          // When it was saved, so the restore prompt can say which version it
+          // is offering. Without it the question is "restore your work?" with
+          // no way to tell whether that work is a minute or a week old.
+          localStorage.setItem('efb_auto_save_time', String(Date.now()));
 }
 
 clear_auto_save_efb =()=>{
   localStorage.setItem('efb_auto_save', 0);
   localStorage.removeItem('efb_auto_save_form_id');
   localStorage.removeItem('efb_auto_save_valj_efb');
+  localStorage.removeItem('efb_auto_save_time');
 }
 async function heartbeat_Emsfb() {
 
@@ -5623,18 +5628,51 @@ function restore_auto_save_efb(){
   const valj_efb_str = localStorage.getItem('efb_auto_save_valj_efb');
   if(valj_efb_str!=null && typeof efb_var !== 'undefined' && efb_var.text){
     setTimeout(() => {
-      const context =`<div class="text-center text-darkb efb"><div class=" fs-4 efb"></div><p class="fs-4 efb">${efb_var.text.rasfmb}</p>
-        <div class="d-flex justify-content-center gap-3 mt-3">
-      <a class="btn btn-darkb text-white efb px-4" id="restore_auto_save_efb_btn" onclick="restore_auto_save_efb_btn()">
-        ${efb_var.text.yes}
-      </a>
-      <a class="btn btn-outline-danger efb px-4" id="restore_auto_no_efb_btn" onclick="restore_auto_no_efb_btn()">
-        ${efb_var.text.no}
-      </a>
-    </div>
-        </div>`;
-      show_modal_efb(context,efb_var.text.warning, ``, 'saveBox');
-      state_modal_show_efb(1)
+      // When the draft was written, in the admin's own locale. Only shown when
+      // a timestamp exists: a draft stored before this was recorded has none,
+      // and an empty "Last saved:" line is worse than no line.
+      const saved_at = Number(localStorage.getItem('efb_auto_save_time'));
+      let stamp = '';
+      if (saved_at > 0) {
+        try {
+          stamp = new Date(saved_at).toLocaleString(
+            typeof lan_name_emsFormBuilder !== 'undefined' ? lan_name_emsFormBuilder : undefined,
+            { dateStyle: 'medium', timeStyle: 'short' }
+          );
+        } catch (e) {
+          stamp = new Date(saved_at).toLocaleString();
+        }
+      }
+      const label = stamp
+        ? `${efb_var.text.lastSaved || 'Last saved'}: ${stamp}`
+        : '';
+
+      // Amber badge over a blue confirm: restoring is not destructive, and
+      // "Start fresh" is the one that throws the draft away.
+      const context = efb_build_confirm_body(
+        'warning',
+        'bi-clock-history',
+        efb_var.text.restoreAutoSaveTitle || efb_var.text.warning,
+        efb_var.text.rasfmb,
+        label
+      );
+
+      show_modal_efb(context, efb_var.text.warning, 'efb bi-clock-history mx-2', 'duplicateBox', {
+        confirmLabel: efb_var.text.restoreIt || efb_var.text.yes,
+        cancelLabel: efb_var.text.startFresh || efb_var.text.no
+      });
+      state_modal_show_efb(1);
+
+      const confirmBtn = document.getElementById('modalConfirmBtnEfb');
+      if (confirmBtn) {
+        confirmBtn.id = 'restore_auto_save_efb_btn';
+        confirmBtn.onclick = () => restore_auto_save_efb_btn();
+      }
+      const cancelBtn = document.querySelector('#modal-footer-efb .efb-btn-cancel');
+      if (cancelBtn) {
+        cancelBtn.id = 'restore_auto_no_efb_btn';
+        cancelBtn.onclick = () => restore_auto_no_efb_btn();
+      }
     }, 1000);
   } else {
     localStorage.setItem('efb_auto_save', 0);
@@ -5675,6 +5713,7 @@ function restore_auto_save_efb(){
     localStorage.setItem('efb_auto_save', 0);
     localStorage.removeItem('efb_auto_save_valj_efb');
     localStorage.removeItem('efb_auto_save_form_id');
+    localStorage.removeItem('efb_auto_save_time');
     state_modal_show_efb(0)
   }
 

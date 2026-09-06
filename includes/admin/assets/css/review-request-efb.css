@@ -1,0 +1,256 @@
+/**
+ * The five-star invitation.
+ *
+ * Only the parts the shared design system does not already provide: the star
+ * row, the offer strip, the two numbered steps and the coupon block. Shape,
+ * colour and buttons all come from modal-system-efb.css, which this file is
+ * enqueued after and depends on.
+ *
+ * Direction is carried by logical properties throughout. The one place that
+ * cannot be - the star row, which must fill left-to-right in LTR and
+ * right-to-left in RTL - is handled by ordering the DOM and letting flex
+ * inherit the page direction, so there is no [dir] override here either.
+ *
+ * @package Easy_Form_Builder
+ */
+
+/* Stars ---------------------------------------------------------------- */
+
+.efb-review__stars {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	margin-block-start: 20px;
+}
+
+.efb-review__star {
+	width: 44px;
+	height: 44px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
+	border: 0;
+	border-radius: 12px;
+	background: transparent;
+	color: #dfe2ef;
+	font-size: 26px;
+	line-height: 1;
+	cursor: pointer;
+	transition: color 0.14s ease, transform 0.14s ease, background 0.14s ease;
+}
+
+.efb-review__star:hover,
+.efb-review__star:focus-visible {
+	background: rgba(211, 158, 0, 0.09);
+	outline: 0;
+}
+
+.efb-review__star:focus-visible {
+	outline: 2px solid var(--efb-dlg-brand);
+	outline-offset: 2px;
+}
+
+/*
+ * Lit stars are marked by the script rather than by :hover ~ tricks, because
+ * a sibling selector fills the wrong direction in RTL: it would light the
+ * stars *after* the pointer, which on a right-to-left row is the low end.
+ */
+.efb-review__star.is-lit {
+	color: #f5b301;
+	transform: scale(1.08);
+}
+
+.efb-review__star.is-lit.is-peak {
+	transform: scale(1.16);
+}
+
+.efb-review__hint {
+	margin: 10px 0 0;
+	min-height: 20px;
+	font-size: 12.5px;
+	font-weight: 600;
+	color: var(--efb-dlg-ink-muted);
+	transition: color 0.14s ease;
+}
+
+.efb-review__hint.is-happy {
+	color: #b47f00;
+}
+
+/* The offer strip ------------------------------------------------------ */
+
+.efb-review__offer {
+	display: flex;
+	align-items: center;
+	gap: 9px;
+	margin-block-start: 18px;
+	padding: 11px 16px;
+	border-radius: var(--efb-dlg-radius-sm);
+	background: linear-gradient(135deg, rgba(211, 158, 0, 0.1), rgba(245, 179, 1, 0.05));
+	border: 1px dashed rgba(211, 158, 0, 0.45);
+	font-size: 12.5px;
+	font-weight: 600;
+	line-height: 1.7;
+	color: #8a6400;
+	text-align: start;
+}
+
+.efb-review__offer i {
+	font-size: 15px;
+	flex: 0 0 auto;
+	color: #d39e00;
+}
+
+/* The two numbered steps ----------------------------------------------- */
+
+.efb-review__steps {
+	list-style: none;
+	width: 100%;
+	max-width: 430px;
+	margin: 16px 0 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	text-align: start;
+}
+
+.efb-review__steps li {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	margin: 0;
+	padding: 10px 12px;
+	border-radius: var(--efb-dlg-radius-sm);
+	background: var(--efb-dlg-surface-soft);
+	border: 1px solid var(--efb-dlg-line-strong);
+	font-size: 12.5px;
+	line-height: 1.7;
+	color: var(--efb-dlg-ink-soft);
+}
+
+.efb-review__num {
+	width: 22px;
+	height: 22px;
+	flex: 0 0 22px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%;
+	background: linear-gradient(135deg, #3644d2, #202a8d);
+	color: #fff;
+	font-size: 11px;
+	font-weight: 700;
+	line-height: 1;
+}
+
+/* Email field ---------------------------------------------------------- */
+
+.efb-review__field {
+	display: block;
+	width: 100%;
+	max-width: 430px;
+	margin-block-start: 16px;
+	text-align: start;
+	font-size: 12.5px;
+	font-weight: 600;
+	color: var(--efb-dlg-ink-soft);
+}
+
+.efb-review__field input {
+	width: 100%;
+	margin-block-start: 6px;
+	padding: 9px 12px;
+	border: 1px solid var(--efb-dlg-line-strong);
+	border-radius: var(--efb-dlg-radius-sm);
+	background: var(--efb-dlg-surface);
+	font-family: inherit;
+	font-size: 13px;
+	font-weight: 400;
+	color: var(--efb-dlg-ink);
+	/* An address is always read left-to-right, even on an RTL page. */
+	direction: ltr;
+	text-align: start;
+}
+
+.efb-review__field input:focus {
+	border-color: var(--efb-dlg-brand);
+	box-shadow: 0 0 0 3px rgba(54, 68, 210, 0.12);
+	outline: 0;
+}
+
+.efb-review .efb-dlg__note {
+	margin-block-start: 14px;
+	max-width: 430px;
+}
+
+/* The coupon ----------------------------------------------------------- */
+
+.efb-review__coupon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+	flex-wrap: wrap;
+	width: 100%;
+	max-width: 430px;
+	margin-block-start: 16px;
+	padding: 14px 16px;
+	border-radius: var(--efb-dlg-radius-sm);
+	background: rgba(16, 143, 105, 0.06);
+	border: 1px dashed rgba(16, 143, 105, 0.45);
+}
+
+.efb-review__coupon[hidden] {
+	display: none;
+}
+
+.efb-review__code {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 17px;
+	font-weight: 700;
+	letter-spacing: 1px;
+	color: #0d7355;
+	background: transparent;
+	padding: 0;
+	/* A code is a code in any language: never mirrored, never reordered. */
+	direction: ltr;
+	unicode-bidi: isolate;
+}
+
+/* Errors and step visibility ------------------------------------------- */
+
+.efb-review__error {
+	margin: 0 26px 4px;
+	padding: 9px 12px;
+	border-radius: var(--efb-dlg-radius-sm);
+	background: #fdf2f4;
+	border: 1px solid #f7d6de;
+	color: #a3123f;
+	font-size: 12.5px;
+	line-height: 1.6;
+	text-align: start;
+}
+
+.efb-review__error[hidden],
+.efb-review__step[hidden] {
+	display: none;
+}
+
+.efb-review .efb-dlg__foot .efb-btn[hidden] {
+	display: none;
+}
+
+@media screen and (max-width: 600px) {
+	.efb-review__star {
+		width: 40px;
+		height: 40px;
+		font-size: 23px;
+	}
+
+	.efb-review__error {
+		margin-inline: 16px;
+	}
+}

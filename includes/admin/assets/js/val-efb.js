@@ -3595,37 +3595,160 @@ function efb_onboarding_escape_efb(value) {
 
 let efb_onboarding_email_test_state_efb = null;
 
+/**
+ * A phrase for the email test, decoded once.
+ *
+ * Phrases reach efb_var through esc_html__(), so "Diagnosis & Troubleshooting"
+ * arrives as "Diagnosis &amp; Troubleshooting". The shared renderer escapes
+ * everything it prints - correctly - so without this the panel showed a literal
+ * "&amp;". Decoding here makes that single escape the right number.
+ *
+ * A detached <textarea> is the decoder because its content is parsed as raw
+ * text: entities resolve, and nothing inside can run.
+ */
 function efb_onboarding_live_text_efb(key, fallback) {
-    return efb_onboarding_text_efb(key, fallback);
+    const value = String(efb_onboarding_text_efb(key, fallback) || '');
+    if (value.indexOf('&') === -1) {
+        return value;
+    }
+
+    const box = document.createElement('textarea');
+    box.innerHTML = value;
+
+    return box.value;
 }
 
-function efb_onboarding_live_step_efb(label, state) {
-    const icon = state === 'done' ? 'bi-check-lg' : state === 'error' ? 'bi-x-lg' : state === 'warning' ? 'bi-exclamation-lg' : state === 'active' ? 'bi-arrow-repeat' : 'bi-dot';
-    return '<span class="efb-onboarding-live-step is-' + state + '"><i class="bi ' + icon + '"></i><span>' + efb_onboarding_escape_efb(label) + '</span></span>';
+/**
+ * The wizard's copy of the email-test wording.
+ *
+ * Same keys the settings screen uses, so the two places the test runs cannot
+ * drift into two different vocabularies.
+ */
+function efb_onboarding_email_strings_efb() {
+    const s = function (key, fallback) { return efb_onboarding_live_text_efb(key, fallback); };
+
+    return {
+        title: s('emailServer', 'Email Server'),
+        phRunning: s('emailTestPhaseRunning', 'Running'),
+        phDone: s('emailTestPhaseDone', 'Finished'),
+        phWarn: s('emailTestPhaseWarn', 'Needs attention'),
+        phFailed: s('emailTestPhaseFailed', 'Failed'),
+        stepPrepare: s('stepPrepareTest', 'Prepare Test'),
+        stepSend: s('stepSendEmail', 'Send Test Email'),
+        stepWait: s('stepWaitDelivery', 'Waiting for Delivery'),
+        stepQuick: s('stepQuickResult', 'Quick Result'),
+        stepFull: s('stepFullReport', 'Full Report'),
+        stepPrepareDesc: s('stepPrepareTestDesc', 'Connecting to WhiteStudio to generate a unique test email address.'),
+        stepSendDesc: s('stepSendEmailDesc', 'WordPress is sending a real email to verify your server can deliver mail.'),
+        stepWaitDesc: s('stepWaitDeliveryDesc', 'Checking whether the test email arrived at our server (usually takes a few seconds).'),
+        stepQuickDesc: s('stepQuickResultDesc', 'Showing the first delivery result — you will see right away if email is working.'),
+        stepFullDesc: s('stepFullReportDesc', 'A detailed HTML report with full diagnostics is being prepared and emailed to you.'),
+        stepsDone: s('emailTestStepsDone', '%s of 5 steps done'),
+        stepsRunning: s('emailTestStepsRunning', 'Step %s of 5'),
+        tabDelivery: s('deliveryDetailsTitle', 'Delivery Details'),
+        tabDiagnosis: s('diagnosisTitle', 'Diagnosis'),
+        tabTips: s('recommendations', 'Recommendations'),
+        scoreOutOf: s('emailTestScoreOutOf', '/ 100')
+    };
+}
+
+/**
+ * Turn the wizard's run state into the shared renderer's view model.
+ *
+ * The wizard keeps its verdict in `type` - it is set by the poll as the run
+ * progresses - so the phase is read from there rather than re-derived, and the
+ * headline follows the phase.
+ */
+function efb_onboarding_email_view_efb(state) {
+    const steps = state.steps || {};
+    const test = state.test || {};
+    const result = state.result || {};
+    const delivery = result.delivery || {};
+    const s = function (key, fallback) { return efb_onboarding_live_text_efb(key, fallback); };
+
+    const phase = { checking: 'run', success: 'done', warning: 'warn', error: 'fail' }[state.type || 'checking'] || 'run';
+    const arrived = !!result.can_send_email;
+    const tooLow = efb_onboarding_score_too_low_efb(result);
+
+    let hero;
+    if (phase === 'run') {
+        const waiting = steps.wait === 'active' || steps.send === 'done';
+        hero = waiting
+            ? {
+                icon: 'bi-arrow-repeat',
+                title: s('emailTestPendingTitle', 'Waiting for the email to arrive'),
+                sub: s('emailTestPendingSub', 'We check our server every few seconds. Please keep this page open.')
+            }
+            : {
+                icon: 'bi-hourglass-split',
+                title: s('emailTestStartingTitle', 'Test started'),
+                sub: s('emailTestStartingSub', 'A unique address is being generated for this test.')
+            };
+    } else if (phase === 'done') {
+        hero = {
+            icon: 'bi-check2',
+            title: s('emailTestOkTitle', 'Your email server is healthy'),
+            sub: s('emailTestOkSub', 'The test email arrived, and the subject and unique-code checks both passed.')
+        };
+    } else if (arrived) {
+        hero = {
+            icon: 'bi-exclamation-triangle-fill',
+            title: tooLow
+                ? s('emailTestLowTitle', 'Delivered, but likely to be filtered as spam')
+                : s('emailTestSpamTitle', 'Delivered, but deliverability is weak'),
+            sub: state.message || ''
+        };
+    } else {
+        hero = {
+            icon: 'bi-x-lg',
+            title: s('emailTestExpiredTitle', 'No email arrived'),
+            sub: s('emailTestExpiredSub', 'Nothing was received during the test window, so your server most likely cannot send email.')
+        };
+    }
+
+    if (result.score !== undefined && result.score !== null && isFinite(Number(result.score))) {
+        hero.score = Number(result.score);
+    }
+    if (result.grade_label || result.grade) {
+        hero.grade = result.grade_label || result.grade;
+    }
+
+    // The wizard shows only what it actually knows; an empty row is worse than
+    // no row while the test is still running.
+    const recipient = test.recipient_email || delivery.recipient_email || '';
+    const rows = [
+        recipient ? { label: s('testSentTo', 'Test sent to'), value: recipient, mono: true } : null,
+        delivery.waited_seconds !== undefined
+            ? { label: s('timeWaited', 'Time waited'), value: delivery.waited_seconds + 's' }
+            : null
+    ].filter(Boolean);
+
+    return {
+        phase: phase,
+        percent: Math.max(8, Math.min(100, Number(state.percent || 8))),
+        steps: steps,
+        hero: hero,
+        // The headline already carries the message in the spam case; repeating
+        // it under the rail would print the same sentence twice.
+        message: (phase === 'warn' && arrived) ? '' : (state.message || ''),
+        rows: rows,
+        groups: [],
+        tips: [],
+        strings: efb_onboarding_email_strings_efb(),
+        inline: true
+    };
 }
 
 function efb_onboarding_render_live_report_efb() {
     const report = document.getElementById('efb-onboarding-email-report');
     const state = efb_onboarding_email_test_state_efb;
     if (!report || !state) return;
-    const steps = state.steps || {};
-    const test = state.test || {};
-    const result = state.result || {};
-    const delivery = result.delivery || {};
-    const facts = [];
-    if (test.recipient_email || delivery.recipient_email) facts.push(efb_onboarding_escape_efb(test.recipient_email || delivery.recipient_email));
-    if (result.grade_label || result.grade) facts.push(efb_onboarding_escape_efb(result.grade_label || result.grade));
-    if (result.score !== undefined && result.score !== null) facts.push(efb_onboarding_escape_efb(efb_onboarding_live_text_efb('score', 'Score: %s').replace('%s', result.score)));
-    if (delivery.waited_seconds !== undefined) facts.push(efb_onboarding_escape_efb(efb_onboarding_live_text_efb('timeWaited', 'Waited: %s').replace('%s', delivery.waited_seconds + 's')));
-    const percent = Math.max(8, Math.min(100, Number(state.percent || 8)));
-    report.className = 'efb-onboarding-report efb-onboarding-live-report is-' + (state.type || 'checking');
-    report.innerHTML = '<div class="efb-onboarding-live-head"><span>' + efb_onboarding_escape_efb(efb_onboarding_live_text_efb('emailServer', 'Email delivery check')) + '</span><strong>' + percent + '%</strong></div><div class="efb-onboarding-live-progress"><span style="width:' + percent + '%"></span></div><div class="efb-onboarding-live-steps">' + [
-        efb_onboarding_live_step_efb(efb_onboarding_live_text_efb('stepPrepareTest', 'Prepare'), steps.start || 'waiting'),
-        efb_onboarding_live_step_efb(efb_onboarding_live_text_efb('stepSendEmail', 'Send'), steps.send || 'waiting'),
-        efb_onboarding_live_step_efb(efb_onboarding_live_text_efb('stepWaitDelivery', 'Delivery'), steps.wait || 'waiting'),
-        efb_onboarding_live_step_efb(efb_onboarding_live_text_efb('stepQuickResult', 'Result'), steps.quick || 'waiting'),
-        efb_onboarding_live_step_efb(efb_onboarding_live_text_efb('stepFullReport', 'Report'), steps.full || 'waiting')
-    ].join('') + '</div><p class="efb-onboarding-live-message">' + efb_onboarding_escape_efb(state.message || '') + '</p>' + (facts.length ? '<div class="efb-onboarding-live-facts">' + facts.map(function(fact) { return '<span>' + fact + '</span>'; }).join('') + '</div>' : '');
+
+    // The wizard's own container styling is dropped: the shared renderer brings
+    // its own card, and stacking the two produced a box inside a box.
+    report.className = 'efb-onboarding-report efb-onboarding-email-report';
+    report.innerHTML = window.efbEmailTestUI.render(efb_onboarding_email_view_efb(state));
+    window.efbEmailTestUI.bindTabs(report);
 }
 
 /**
@@ -4238,19 +4361,20 @@ function showSetupAsOverlayPage(options) {
             overflow-x: hidden;
         }
 
-        /* Fixed-height live email report: it updates in place without moving
-           the onboarding actions or changing the modal's dimensions. */
-        #efb-setup-overlay .efb-onboarding-live-report {
+        /* The live email report. It updates in place while the test runs, so
+           it reserves its height rather than letting the wizard jump every
+           time a step ticks over - but the height is a floor now, not a cap.
+           It used to be a hard 178px with overflow:hidden, which silently
+           clipped anything taller than the old five-word step strip. */
+        #efb-setup-overlay .efb-onboarding-email-report {
             display: block !important;
             box-sizing: border-box;
-            height: 178px;
+            min-height: 178px;
             margin-top: 14px;
-            padding: 12px 14px;
-            overflow: hidden;
-            border: 1px solid #dbeafe;
-            border-radius: 12px;
-            background: #f8fbff;
-            color: #334155;
+            padding: 0;
+            border: 0;
+            border-radius: 0;
+            background: transparent;
         }
 
         #efb-setup-overlay .efb-onboarding-test-button,
@@ -4258,33 +4382,6 @@ function showSetupAsOverlayPage(options) {
         #efb-setup-overlay .efb-onboarding-test-button i {
             color: #fff !important;
         }
-
-        .efb-onboarding-live-report.is-success { border-color: #bbf7d0 !important; background: #f0fdf4 !important; }
-        .efb-onboarding-live-report.is-warning { border-color: #fde68a !important; background: #fffbeb !important; }
-        .efb-onboarding-live-report.is-error { border-color: #fecaca !important; background: #fff7f7 !important; }
-        .efb-onboarding-live-head { display: flex; justify-content: space-between; gap: 12px; font-size: 12px; font-weight: 700; }
-        .efb-onboarding-live-head strong { color: #4f46e5; }
-        .efb-onboarding-live-progress { height: 5px; margin: 7px 0 10px; overflow: hidden; border-radius: 99px; background: #e0e7ff; }
-        .efb-onboarding-live-progress span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #4f46e5, #8b5cf6); transition: width .45s ease; }
-        .efb-onboarding-live-report.is-success .efb-onboarding-live-progress span { background: #16a34a; }
-        .efb-onboarding-live-report.is-warning .efb-onboarding-live-progress span { background: #d97706; }
-        .efb-onboarding-live-report.is-error .efb-onboarding-live-progress span { background: #dc2626; }
-        .efb-onboarding-live-steps { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
-        .efb-onboarding-live-step { display: flex; min-width: 0; flex-direction: column; align-items: center; gap: 3px; color: #94a3b8; font-size: 10px; line-height: 1.1; text-align: center; }
-        .efb-onboarding-live-step i { display: inline-flex; width: 19px; height: 19px; align-items: center; justify-content: center; border: 1px solid #cbd5e1; border-radius: 50%; background: #fff; font-size: 10px; }
-        .efb-onboarding-live-step span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .efb-onboarding-live-step.is-done { color: #15803d; }
-        .efb-onboarding-live-step.is-done i { border-color: #22c55e; background: #22c55e; color: #fff; }
-        .efb-onboarding-live-step.is-active { color: #4338ca; font-weight: 700; }
-        .efb-onboarding-live-step.is-active i { border-color: #6366f1; color: #4f46e5; animation: efbOnboardingLiveSpin 1s linear infinite; }
-        .efb-onboarding-live-step.is-warning { color: #b45309; }
-        .efb-onboarding-live-step.is-warning i { border-color: #f59e0b; background: #fef3c7; color: #b45309; }
-        .efb-onboarding-live-step.is-error { color: #b91c1c; }
-        .efb-onboarding-live-step.is-error i { border-color: #ef4444; background: #ef4444; color: #fff; }
-        .efb-onboarding-live-message { display: -webkit-box; min-height: 34px; margin: 9px 0 5px; overflow: hidden; color: #475569; font-size: 12px; line-height: 1.4; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
-        .efb-onboarding-live-facts { display: flex; gap: 5px; overflow: hidden; white-space: nowrap; }
-        .efb-onboarding-live-facts span { overflow: hidden; max-width: 48%; padding: 3px 6px; border-radius: 99px; background: rgba(255,255,255,.8); color: #64748b; font-size: 10px; text-overflow: ellipsis; }
-        @keyframes efbOnboardingLiveSpin { to { transform: rotate(360deg); } }
 
         @media (max-width: 1024px) {
             .efb-overlay-container {
@@ -4379,7 +4476,9 @@ function showSetupAsOverlayPage(options) {
                 padding: 15px !important;
             }
 
-            #efb-setup-overlay .efb-onboarding-live-report { height: 174px; }
+            /* On a phone the rail stacks into a list, so reserving a fixed
+               strip of height here would only add dead space above it. */
+            #efb-setup-overlay .efb-onboarding-email-report { min-height: 0; }
         }
 
         @media (max-width: 576px) {

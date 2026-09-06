@@ -2176,6 +2176,59 @@ class efbFunction {
 			/* translators: Email test step 5 — description */
 			"stepFullReportDesc" => $state && isset($ac->text->stepFullReportDesc) ? $ac->text->stepFullReportDesc : esc_html__('A detailed HTML report with full diagnostics is being prepared and emailed to you.','easy-form-builder'),
 
+			/*
+			 * The email server test panel. Both places the test runs - the
+			 * settings modal and the setup wizard - read these, so the two can
+			 * never drift into two different vocabularies.
+			 */
+			/* translators: Status chip shown while the email test is still running */
+			"emailTestPhaseRunning" => $state && isset($ac->text->emailTestPhaseRunning) ? $ac->text->emailTestPhaseRunning : esc_html__('Running','easy-form-builder'),
+			/* translators: Status chip shown when the email test finished successfully */
+			"emailTestPhaseDone" => $state && isset($ac->text->emailTestPhaseDone) ? $ac->text->emailTestPhaseDone : esc_html__('Finished','easy-form-builder'),
+			/* translators: Status chip shown when the email test finished with a warning */
+			"emailTestPhaseWarn" => $state && isset($ac->text->emailTestPhaseWarn) ? $ac->text->emailTestPhaseWarn : esc_html__('Needs attention','easy-form-builder'),
+			/* translators: Status chip shown when the email test failed */
+			"emailTestPhaseFailed" => $state && isset($ac->text->emailTestPhaseFailed) ? $ac->text->emailTestPhaseFailed : esc_html__('Failed','easy-form-builder'),
+			/* translators: %s = how many of the five test steps have finished */
+			"emailTestStepsDone" => $state && isset($ac->text->emailTestStepsDone) ? $ac->text->emailTestStepsDone : esc_html__('%s of 5 steps done','easy-form-builder'),
+			/* translators: %s = which of the five test steps is running now */
+			"emailTestStepsRunning" => $state && isset($ac->text->emailTestStepsRunning) ? $ac->text->emailTestStepsRunning : esc_html__('Step %s of 5','easy-form-builder'),
+			/* translators: Shown under the deliverability score, as in "92 / 100" */
+			"emailTestScoreOutOf" => $state && isset($ac->text->emailTestScoreOutOf) ? $ac->text->emailTestScoreOutOf : esc_html__('/ 100','easy-form-builder'),
+			"emailTestStartingTitle" => $state && isset($ac->text->emailTestStartingTitle) ? $ac->text->emailTestStartingTitle : esc_html__('Test started','easy-form-builder'),
+			"emailTestStartingSub" => $state && isset($ac->text->emailTestStartingSub) ? $ac->text->emailTestStartingSub : esc_html__('A unique address is being generated for this test.','easy-form-builder'),
+			"emailTestPendingTitle" => $state && isset($ac->text->emailTestPendingTitle) ? $ac->text->emailTestPendingTitle : esc_html__('Waiting for the email to arrive','easy-form-builder'),
+			"emailTestPendingSub" => $state && isset($ac->text->emailTestPendingSub) ? $ac->text->emailTestPendingSub : esc_html__('We check our server every few seconds. Please keep this page open.','easy-form-builder'),
+			"emailTestOkTitle" => $state && isset($ac->text->emailTestOkTitle) ? $ac->text->emailTestOkTitle : esc_html__('Your email server is healthy','easy-form-builder'),
+			"emailTestOkSub" => $state && isset($ac->text->emailTestOkSub) ? $ac->text->emailTestOkSub : esc_html__('The test email arrived, and the subject and unique-code checks both passed.','easy-form-builder'),
+			"emailTestLowTitle" => $state && isset($ac->text->emailTestLowTitle) ? $ac->text->emailTestLowTitle : esc_html__('Delivered, but likely to be filtered as spam','easy-form-builder'),
+			"emailTestSpamTitle" => $state && isset($ac->text->emailTestSpamTitle) ? $ac->text->emailTestSpamTitle : esc_html__('Delivered, but deliverability is weak','easy-form-builder'),
+			"emailTestExpiredTitle" => $state && isset($ac->text->emailTestExpiredTitle) ? $ac->text->emailTestExpiredTitle : esc_html__('No email arrived','easy-form-builder'),
+			"emailTestExpiredSub" => $state && isset($ac->text->emailTestExpiredSub) ? $ac->text->emailTestExpiredSub : esc_html__('Nothing was received during the test window, so your server most likely cannot send email.','easy-form-builder'),
+			"emailTestTimeoutTitle" => $state && isset($ac->text->emailTestTimeoutTitle) ? $ac->text->emailTestTimeoutTitle : esc_html__('The test timed out','easy-form-builder'),
+			"emailTestTimeoutSub" => $state && isset($ac->text->emailTestTimeoutSub) ? $ac->text->emailTestTimeoutSub : esc_html__('The test reached its time limit. Your server may be slow, or may block outbound email.','easy-form-builder'),
+			"emailTestStartErrorTitle" => $state && isset($ac->text->emailTestStartErrorTitle) ? $ac->text->emailTestStartErrorTitle : esc_html__('The test email could not be sent','easy-form-builder'),
+			"emailTestStartErrorSub" => $state && isset($ac->text->emailTestStartErrorSub) ? $ac->text->emailTestStartErrorSub : esc_html__('WordPress returned an error while sending. See the message below.','easy-form-builder'),
+			"emailTestNetErrorTitle" => $state && isset($ac->text->emailTestNetErrorTitle) ? $ac->text->emailTestNetErrorTitle : esc_html__('The connection was lost','easy-form-builder'),
+			"emailTestNetErrorSub" => $state && isset($ac->text->emailTestNetErrorSub) ? $ac->text->emailTestNetErrorSub : esc_html__('No answer came back from the server. Refresh the page and try again.','easy-form-builder'),
+			"emailTestUpgradeTitle" => $state && isset($ac->text->emailTestUpgradeTitle) ? $ac->text->emailTestUpgradeTitle : esc_html__('This test needs a higher plan','easy-form-builder'),
+			"emailTestUpgradeSub" => $state && isset($ac->text->emailTestUpgradeSub) ? $ac->text->emailTestUpgradeSub : esc_html__('Upgrade your plan to run the full delivery test.','easy-form-builder'),
+			/* translators: Sentence lead-in; the email address is appended after it */
+			"emailServerWorkingReportLead" => $state && isset($ac->text->emailServerWorkingReportLead) ? $ac->text->emailServerWorkingReportLead : esc_html__('Your email server is working. A detailed HTML report has been sent to','easy-form-builder'),
+			/* translators: Sentence lead-in; the email address is appended after it */
+			"emailSpamReportLead" => $state && isset($ac->text->emailSpamReportLead) ? $ac->text->emailSpamReportLead : esc_html__('A complete email health report — including your spam score, deliverability details, and recommendations — will be sent within the next few minutes to','easy-form-builder'),
+			"upgradeRequired" => $state && isset($ac->text->upgradeRequired) ? $ac->text->upgradeRequired : esc_html__('Upgrade required','easy-form-builder'),
+
+			/* The auto-save restore prompt. "Yes"/"No" said nothing about which
+			   button kept the draft, so both choices are named. */
+			"restoreAutoSaveTitle" => $state && isset($ac->text->restoreAutoSaveTitle) ? $ac->text->restoreAutoSaveTitle : esc_html__('An auto-saved version exists','easy-form-builder'),
+			/* translators: Button that restores the auto-saved draft */
+			"restoreIt" => $state && isset($ac->text->restoreIt) ? $ac->text->restoreIt : esc_html__('Restore it','easy-form-builder'),
+			/* translators: Button that discards the auto-saved draft and starts over */
+			"startFresh" => $state && isset($ac->text->startFresh) ? $ac->text->startFresh : esc_html__('Start fresh','easy-form-builder'),
+			/* translators: Label before the date and time the draft was auto-saved */
+			"lastSaved" => $state && isset($ac->text->lastSaved) ? $ac->text->lastSaved : esc_html__('Last saved','easy-form-builder'),
+
 			/* translators: Delivery details box title */
 			"deliveryDetailsTitle" => $state && isset($ac->text->deliveryDetailsTitle) ? $ac->text->deliveryDetailsTitle : esc_html__('Delivery Details','easy-form-builder'),
 			/* translators: Label for the email address the test was sent to */

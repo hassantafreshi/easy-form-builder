@@ -136,7 +136,16 @@ window.efb_confirm_efb = (options = {}) => new Promise((resolve) => {
 });
 
 let last_show_modal_efb = '';
-const show_modal_efb = (body, title, icon, type) => {
+/**
+ * @param {Object} [opts] Confirm-footer overrides, used by deleteBox and
+ *                        duplicateBox only: {confirmLabel, cancelLabel}. The
+ *                        tone of the confirm button follows the box type -
+ *                        deleteBox is red, duplicateBox is the primary blue -
+ *                        so a dialog that needs an amber badge over a blue
+ *                        button asks for 'duplicateBox' and a 'warning' body.
+ */
+const show_modal_efb = (body, title, icon, type, opts) => {
+  opts = opts || {};
   last_show_modal_efb =type;
   const mx = Number(efb_var.rtl) == 1 ? 'ms-2' : 'me-2';
   document.getElementById("settingModalEfb-title").innerHTML = title;
@@ -155,13 +164,17 @@ const show_modal_efb = (body, title, icon, type) => {
     if (!document.getElementById('modalConfirmBtnEfb')) {
       const isDelete = type === 'deleteBox';
       const confirmClass = isDelete ? 'efb-btn-confirm-danger' : 'efb-btn-confirm-primary';
+      // "Yes"/"No" is right for a delete, and vague for everything else. A
+      // caller that has better words for its own two choices passes them.
+      const confirmLabel = opts.confirmLabel || efb_var.text.yes;
+      const cancelLabel = opts.cancelLabel || efb_var.text.no;
       document.getElementById('settingModalEfb-sections').innerHTML += `
     <div class="efb modal-footer efb-confirm-footer" id="modal-footer-efb">
       <a type="button" class="efb-btn-cancel" onclick="state_modal_show_efb(0)">
-          ${efb_var.text.no}
+          ${cancelLabel}
       </a>
       <a type="button" class="${confirmClass}" id="modalConfirmBtnEfb">
-          ${isDelete ? efb_var.text.yes : efb_var.text.yes}
+          ${confirmLabel}
       </a>
     </div>`
     }

@@ -167,10 +167,20 @@ class Deactivation_Feedback {
 			return;
 		}
 
+		// The shared dialog design system carries the tokens; the survey's own
+		// stylesheet only adds the parts that are specific to it. Declared as a
+		// dependency so the cascade order holds however it was registered.
+		wp_enqueue_style(
+			'efb-modal-system',
+			EMSFB_PLUGIN_URL . 'includes/admin/assets/css/modal-system-efb.css',
+			array(),
+			EMSFB_PLUGIN_VERSION
+		);
+
 		wp_enqueue_style(
 			'efb-deactivation-feedback',
 			EMSFB_PLUGIN_URL . 'includes/admin/assets/css/deactivation-feedback-efb.css',
-			array(),
+			array( 'efb-modal-system' ),
 			EMSFB_PLUGIN_VERSION
 		);
 
@@ -503,13 +513,19 @@ class Deactivation_Feedback {
 	/**
 	 * Sign one report and post it to the feedback service.
 	 *
+	 * Public because it is the whole signed-report pipeline - identity,
+	 * HMAC, the one re-registration retry - and Review_Request sends its
+	 * five-star report through exactly the same door rather than keeping a
+	 * second copy of the signing code that could drift out of step with the
+	 * service.
+	 *
 	 * @param array $payload Report payload.
 	 * @return array {
 	 *     @type bool  $ok     Whether the service accepted the report.
 	 *     @type array $coupon Coupon block returned by the service.
 	 * }
 	 */
-	protected function send_report_efb( $payload ) {
+	public function send_report_efb( $payload ) {
 		$identity = $this->ensure_identity_efb();
 		if ( empty( $identity['site_id'] ) || empty( $identity['secret'] ) ) {
 			return array( 'ok' => false );

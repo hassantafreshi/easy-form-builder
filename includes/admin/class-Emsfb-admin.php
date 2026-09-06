@@ -116,6 +116,19 @@ class Admin {
             wp_enqueue_style('Emsfb-bootstrap-select-css');
             wp_register_style('Emsfb-response-viewer-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/response-viewer-efb.css',true,EMSFB_PLUGIN_VERSION);
             wp_enqueue_style('Emsfb-response-viewer-css');
+            // The dialog design system, last of the stylesheets on purpose.
+            // admin-rtl-efb.css is registered before bootstrap.min-efb.css, so
+            // anything enqueued earlier than this loses to bootstrap's own
+            // .modal rules; registering it here is what lets it restyle
+            // #settingModalEfb without an !important on every declaration.
+            wp_register_style('efb-modal-system', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/modal-system-efb.css', true, EMSFB_PLUGIN_VERSION);
+            wp_enqueue_style('efb-modal-system');
+            // The email server test draws the same panel in two places - the
+            // settings modal and the setup wizard - so its look and its markup
+            // both live in one pair of files, loaded wherever either can run.
+            wp_register_style('efb-email-test', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/email-test-efb.css', array('efb-modal-system'), EMSFB_PLUGIN_VERSION);
+            wp_enqueue_style('efb-email-test');
+            wp_enqueue_script('efb-email-test-ui', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/email-test-ui-efb.js', array(), EMSFB_PLUGIN_VERSION, true);
             $this->check_and_enqueue_font_roboto_Emsfb();
             wp_enqueue_style('wp-pointer');
             wp_enqueue_script('wp-pointer');

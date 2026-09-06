@@ -292,6 +292,13 @@ class Emsfb {
             new \Emsfb\Deactivation_Feedback();
         }
 
+        // The five-star invitation. Not fatal if it is missing: a site that
+        // cannot show the review modal is still a working form builder, so it
+        // is loaded on its own rather than counted into $core_ok.
+        if ($this->require_plugin_file_efb('includes/class-Emsfb-review-request.php')) {
+            new \Emsfb\Review_Request();
+        }
+
         if (is_admin()) {
             $admin_ok = $this->require_plugin_file_efb('includes/admin/class-Emsfb-admin.php');
             $admin_ok = $this->require_plugin_file_efb('includes/admin/class-Emsfb-create.php') && $admin_ok;

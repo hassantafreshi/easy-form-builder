@@ -827,7 +827,10 @@ body.folded .efb.modal {
 #settingModalEfb .efb.modal-content {
     max-height: 85vh !important;
     height: auto !important;
-    border-radius: 20px !important;
+    /* The !important is here to beat bootstrap's own .modal-content, not to
+       fix the figure: the shape belongs to modal-system-efb.css, so the value
+       is the token and the literal is only the did-not-load fallback. */
+    border-radius: var(--efb-dlg-radius, 18px) !important;
     display: flex !important;
     flex-direction: column !important;
 }
@@ -1045,7 +1048,7 @@ body.folded .efb.modal {
 }
 
 #settingModalEfb .efb.modal-dialog.efb-confirm-dialog {
-    max-width: 420px;
+    max-width: 540px;
     margin: 0 auto;
     display: flex;
     align-items: center;
@@ -1055,12 +1058,20 @@ body.folded .efb.modal {
 #settingModalEfb .efb-confirm-dialog .efb.modal-content {
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
     border: none;
-    border-radius: 16px !important;
+    /* The figure comes from modal-system-efb.css, which owns the dialog shape.
+       It used to be a hard 16px !important, which no later stylesheet could
+       correct - the fallback here is only for the case where the design
+       system failed to load at all. */
+    border-radius: var(--efb-dlg-radius, 18px);
     width: 100%;
     overflow: hidden;
     max-width: 100%;
     box-sizing: border-box;
 }
+/* A confirm dialog carries its title in the body, under the badge, which is
+   the design's own treatment for this kind of message. Showing the head bar
+   as well would print the same word twice - "Delete" over "Delete" - so the
+   bar stays out of the way here and only here. */
 #settingModalEfb .efb-confirm-dialog .efb.modal-header.efb {
     display: none;
 }
@@ -1860,7 +1871,7 @@ div#optionListeHeadfb {	z-index: 1040;
    transition: 0.5s;
 }
 .modal-content.efb {	border: none !important;
-   border-radius: 20px !important;
+   border-radius: var(--efb-dlg-radius, 18px) !important;
 }
 .modal-dialog.save-efb {	max-width: 70% !important;
 }
