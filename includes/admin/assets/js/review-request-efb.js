@@ -1,20 +1,27 @@
 /**
- * The five-star invitation.
+ * The rating dialog.
  *
- * A small state machine over the markup Review_Request::render_modal_efb()
- * printed: ask -> (reward | improve) -> done. No dependencies, no jQuery, and
- * no bootstrap - the modal is opened and closed by this file alone so it
- * cannot be broken by whichever builder screen it happens to appear on.
+ * A state machine over the markup Review_Request::render_modal_efb() printed:
  *
- * Three rules this file keeps:
+ *   ask --(4-5)--> praise --> claim --> checking --> result
+ *    |
+ *    `--(1-3)--> feedback --> sent
  *
- *   1. A choice is recorded before the modal closes, never after. "Later" and
- *      "Do not ask again" fire their request first so a closed tab still
- *      counts as an answer.
- *   2. A rating below the threshold never reaches WordPress.org. It swaps the
- *      footer for the support route instead.
+ * No dependencies, no jQuery, no bootstrap - the dialog is opened and closed by
+ * this file alone so it cannot be broken by whichever builder screen it happens
+ * to appear on.
+ *
+ * Four rules this file keeps:
+ *
+ *   1. A choice is recorded before the dialog closes, never after. "Later" and
+ *      "Do not ask again" fire their request first, with keepalive, so a closed
+ *      tab still counts as an answer.
+ *   2. An unhappy rating never reaches WordPress.org. It swaps to the private
+ *      feedback step instead, and the review link is never shown.
  *   3. The star row is lit by index, not by CSS sibling selectors, because a
  *      sibling selector fills the wrong end of the row in RTL.
+ *   4. The outcome of a claim is whatever the server said. This file never
+ *      decides that a review exists; it only draws the seven answers.
  */
 
 (function () {
@@ -33,35 +40,71 @@
 	}
 
 	var text = cfg.text || {};
-	var threshold = parseInt(cfg.threshold, 10) || 5;
+	var outcomes = cfg.outcomes || {};
+	var threshold = parseInt(cfg.threshold, 10) || 4;
 
 	/*
 	 * Preview mode: ?efb_review_preview=1 on any Easy Form Builder screen.
-	 * Every screen can be walked, and nothing is written or sent - no answer is
-	 * recorded, no snooze is spent, and the claim step answers itself instead
-	 * of asking the service for a real coupon.
+	 * Every screen can be walked and nothing is written or sent - no answer is
+	 * recorded, no snooze is spent, and a claim cycles through the seven server
+	 * answers locally instead of asking White Studio for a real coupon.
 	 */
 	var preview = Number(cfg.preview) === 1;
+	var previewOrder = ['granted', 'pending', 'notFound', 'lowStars', 'used', 'badEmail', 'server'];
+
+	/*
+	 * Which outcome the next preview claim will show. Kept in sessionStorage,
+	 * not a local counter: several of the outcomes offer no way back to the
+	 * claim step, so seeing all seven means reloading - and a counter in this
+	 * closure would restart at `granted` every time, leaving the other six
+	 * unreachable.
+	 */
+	function previewCursor(next) {
+		try {
+			if (next !== undefined) {
+				sessionStorage.setItem('efb_review_preview_at', String(next));
+				return next;
+			}
+			return parseInt(sessionStorage.getItem('efb_review_preview_at'), 10) || 0;
+		} catch (e) {
+			// Private browsing, or storage switched off. One outcome is still
+			// better than a broken preview.
+			return 0;
+		}
+	}
 
 	var stars = Array.prototype.slice.call(modal.querySelectorAll('[data-efb-review-rate]'));
 	var hint = modal.querySelector('[data-efb-review-hint]');
 	var errorBox = modal.querySelector('[data-efb-review-error]');
+	var usernameInput = modal.querySelector('[data-efb-review-username]');
 	var emailInput = modal.querySelector('[data-efb-review-email]');
+	var commentInput = modal.querySelector('[data-efb-review-comment]');
+	var contactInput = modal.querySelector('[data-efb-review-contact]');
 
 	var steps = {};
 	Array.prototype.forEach.call(modal.querySelectorAll('[data-efb-review-step]'), function (el) {
 		steps[el.getAttribute('data-efb-review-step')] = el;
 	});
 
+	// Every action, for binding handlers to.
 	var buttons = {};
 	Array.prototype.forEach.call(modal.querySelectorAll('[data-efb-review-action]'), function (el) {
 		buttons[el.getAttribute('data-efb-review-action')] = el;
+	});
+
+	// Only the footer's, for showing and hiding. The praise step's "I posted
+	// it" and review link carry the same attribute but belong to their step -
+	// hiding them along with the footer left the happy path with no way out.
+	var footButtons = {};
+	Array.prototype.forEach.call(modal.querySelectorAll('.efb-dlg__foot [data-efb-review-action]'), function (el) {
+		footButtons[el.getAttribute('data-efb-review-action')] = el;
 	});
 
 	var rating = 0;
 	var reviewOpened = false;
 	var closing = false;
 	var lastFocused = null;
+	var checkTimers = [];
 
 	/* ------------------------------------------------------------------ */
 	/* Plumbing                                                            */
@@ -74,7 +117,12 @@
 		body.set('op', op);
 
 		Object.keys(extra || {}).forEach(function (key) {
-			body.set(key, extra[key]);
+			var value = extra[key];
+			if (Array.isArray(value)) {
+				value.forEach(function (item) { body.append(key + '[]', item); });
+				return;
+			}
+			body.set(key, value);
 		});
 
 		return fetch(cfg.ajaxUrl, {
@@ -112,7 +160,7 @@
 				body: body.toString()
 			}).catch(function () {});
 		} catch (e) {
-			/* A dismissal that cannot be recorded must still close the modal. */
+			/* A dismissal that cannot be recorded must still close the dialog. */
 		}
 	}
 
@@ -131,6 +179,29 @@
 		errorBox.hidden = false;
 	}
 
+	function busy(button, on) {
+		if (!button) {
+			return;
+		}
+
+		var label = button.querySelector('span');
+
+		if (on) {
+			button.disabled = true;
+			if (label && !button.dataset.efbLabel) {
+				button.dataset.efbLabel = label.textContent;
+				label.textContent = text.sending || '';
+			}
+			return;
+		}
+
+		button.disabled = false;
+		if (label && button.dataset.efbLabel) {
+			label.textContent = button.dataset.efbLabel;
+			delete button.dataset.efbLabel;
+		}
+	}
+
 	/* ------------------------------------------------------------------ */
 	/* Open and close                                                      */
 	/* ------------------------------------------------------------------ */
@@ -140,9 +211,8 @@
 	 *
 	 * The invitation arrives on a timer, so it can land while the person is
 	 * part-way through a field editor or a delete confirmation. Stacking a
-	 * request for a favour on top of somebody's work is the fastest way to
-	 * earn the two-star review this feature exists to avoid - so it stands
-	 * down and waits for a page load where nothing else is open.
+	 * request for a favour on top of somebody's work is the fastest way to earn
+	 * the two-star review this feature exists to avoid.
 	 */
 	function somethingElseIsOpen() {
 		if (document.body.classList.contains('modal-open')) {
@@ -178,6 +248,9 @@
 		}
 		closing = true;
 
+		checkTimers.forEach(clearTimeout);
+		checkTimers = [];
+
 		modal.hidden = true;
 		document.body.classList.remove('efb-dlg-open');
 		document.removeEventListener('keydown', onKeydown);
@@ -203,9 +276,8 @@
 			return;
 		}
 
-		// Keep focus inside the dialog while it is open.
 		var focusable = modal.querySelectorAll(
-			'button:not([hidden]):not([disabled]), a[href]:not([hidden]), input:not([hidden])'
+			'button:not([hidden]):not([disabled]), a[href]:not([hidden]), input:not([hidden]), textarea:not([hidden])'
 		);
 		if (!focusable.length) {
 			return;
@@ -227,17 +299,61 @@
 	/* Steps                                                               */
 	/* ------------------------------------------------------------------ */
 
+	/** Which footer buttons each step offers. */
+	var FOOTER = {
+		ask: ['never', 'later'],
+		praise: ['later'],
+		claim: ['later', 'getCode'],
+		checking: [],
+		feedback: ['later', 'send'],
+		sent: ['done']
+	};
+
 	function showStep(name) {
 		Object.keys(steps).forEach(function (key) {
 			steps[key].hidden = key !== name;
 		});
+
 		showError('');
+
+		if (FOOTER[name]) {
+			showButtons(FOOTER[name]);
+		}
+
+		// Stars that were won travel with the person from step to step.
+		if (name === 'praise' || name === 'claim' || name === 'feedback') {
+			paintWon(steps[name]);
+		}
+
+		var focusable = steps[name] ? steps[name].querySelector('input, textarea, a, button') : null;
+		if (focusable && (name === 'claim' || name === 'feedback')) {
+			focusable.focus();
+		}
 	}
 
 	function showButtons(names) {
-		Object.keys(buttons).forEach(function (key) {
-			buttons[key].hidden = names.indexOf(key) === -1;
+		Object.keys(footButtons).forEach(function (key) {
+			footButtons[key].hidden = names.indexOf(key) === -1;
 		});
+	}
+
+	/** Fill the little star strip that heads praise, claim and feedback. */
+	function paintWon(step) {
+		var host = step ? step.querySelector('[data-efb-review-won]') : null;
+		if (!host) {
+			return;
+		}
+
+		// Praise and claim always show five: that is the review being asked
+		// for, not the rating that was given.
+		var count = (step === steps.feedback) ? Math.max(1, rating) : 5;
+		host.innerHTML = '';
+
+		for (var i = 0; i < count; i++) {
+			var star = document.createElement('i');
+			star.className = 'bi bi-star-fill';
+			host.appendChild(star);
+		}
 	}
 
 	/* ------------------------------------------------------------------ */
@@ -256,19 +372,22 @@
 			star.classList.toggle('is-lit', lit);
 			star.classList.toggle('is-peak', lit && index === value - 1);
 			star.setAttribute('aria-checked', index === rating - 1 ? 'true' : 'false');
+
+			var icon = star.querySelector('i');
+			if (icon) {
+				icon.className = lit ? 'bi bi-star-fill' : 'bi bi-star';
+			}
 		});
+
+		if (hint) {
+			hint.textContent = value ? (text['r' + value] || '') : (text.r0 || '');
+			hint.classList.toggle('is-picked', value > 0);
+		}
 	}
 
 	function pick(value) {
 		rating = value;
 		paint(value);
-
-		// The hint lives in the ask step, which is about to be replaced either
-		// way; clearing it stops a stale prompt flashing during the swap.
-		if (hint) {
-			hint.textContent = '';
-			hint.classList.toggle('is-happy', value >= threshold);
-		}
 
 		// Remember the number before branching, so a rating is not lost if the
 		// person closes the tab on the next screen.
@@ -276,209 +395,271 @@
 			post('rate', { rating: String(value) }).catch(function () {});
 		}
 
-		if (value >= threshold) {
-			showStep('reward');
-			showButtons(['later', 'review']);
-		} else {
-			showStep('improve');
-			showButtons(['support', 'close']);
-		}
+		showStep(value >= threshold ? 'praise' : 'feedback');
 	}
 
 	stars.forEach(function (star, index) {
 		var value = parseInt(star.getAttribute('data-efb-review-rate'), 10) || index + 1;
 
-		star.addEventListener('mouseenter', function () {
-			paint(value);
-		});
-		star.addEventListener('focus', function () {
-			paint(value);
-		});
-		star.addEventListener('click', function () {
-			pick(value);
-		});
+		star.addEventListener('mouseenter', function () { paint(value); });
+		star.addEventListener('focus', function () { paint(value); });
+		star.addEventListener('click', function () { pick(value); });
 	});
 
 	var starRow = modal.querySelector('.efb-review__stars');
 	if (starRow) {
-		starRow.addEventListener('mouseleave', function () {
-			paint(rating);
-		});
+		starRow.addEventListener('mouseleave', function () { paint(rating); });
 	}
 
 	/* ------------------------------------------------------------------ */
-	/* Footer actions                                                      */
+	/* The claim                                                           */
 	/* ------------------------------------------------------------------ */
 
-	if (buttons.later) {
-		buttons.later.addEventListener('click', function () {
-			record('later');
-			close();
-		});
-	}
+	/** Walk the three check rows while the server is being asked. */
+	function runChecking() {
+		showStep('checking');
+		showButtons([]);
 
-	if (buttons.never) {
-		buttons.never.addEventListener('click', function () {
-			record('never');
-			close();
-		});
-	}
+		var rows = Array.prototype.slice.call(modal.querySelectorAll('[data-efb-review-checks] li'));
 
-	if (buttons.close) {
-		buttons.close.addEventListener('click', function () {
-			close();
-		});
-	}
-
-	if (buttons.support) {
-		// The link opens in a new tab on its own; this only ends the ask.
-		buttons.support.addEventListener('click', function () {
-			record('never');
-			setTimeout(close, 150);
-		});
-	}
-
-	/*
-	 * The review link opens WordPress.org in a new tab. Only after it has been
-	 * opened does the claim button appear - asking for a code before anyone
-	 * could have written a review is how you teach people to click past it.
-	 */
-	if (buttons.review) {
-		buttons.review.addEventListener('click', function () {
-			reviewOpened = true;
-			showButtons(['later', 'claim']);
-		});
-	}
-
-	if (buttons.claim) {
-		buttons.claim.addEventListener('click', function () {
-			if (!reviewOpened) {
+		var setRow = function (index, state) {
+			var row = rows[index];
+			if (!row) {
 				return;
 			}
 
-			// A preview answers itself rather than asking the service for a
-			// coupon nobody is going to redeem.
-			if (preview) {
-				var sample = cfg.sample || {};
-				finish({
-					title: sample.title,
-					message: sample.message,
-					coupon: { state: 'issued', code: sample.code }
-				});
-				return;
+			row.classList.toggle('is-active', state === 'active');
+			row.classList.toggle('is-waiting', state === 'waiting');
+
+			var icon = row.querySelector('i');
+			if (icon) {
+				icon.className = state === 'done'
+					? 'bi bi-check2'
+					: (state === 'active' ? 'bi bi-arrow-repeat' : 'bi bi-dot');
 			}
+		};
 
-			var label = buttons.claim.querySelector('span');
-			var original = label ? label.textContent : '';
+		rows.forEach(function (_row, i) { setRow(i, i === 0 ? 'active' : 'waiting'); });
 
-			buttons.claim.disabled = true;
-			if (label) {
-				label.textContent = text.sending || '';
+		checkTimers.push(setTimeout(function () {
+			setRow(0, 'done');
+			setRow(1, 'active');
+		}, 700));
+
+		checkTimers.push(setTimeout(function () {
+			setRow(1, 'done');
+			setRow(2, 'active');
+		}, 1400));
+	}
+
+	function showResult(outcome, email) {
+		var meta = outcomes[outcome] || outcomes.server;
+		if (!meta) {
+			showError(text.failed || '');
+			showStep('claim');
+			return;
+		}
+
+		var step = steps.result;
+		step.className = 'efb-dlg__body efb-review__step is-tone-' + (meta.tone || 'good');
+
+		var icon = step.querySelector('[data-efb-review-result-icon]');
+		var title = step.querySelector('[data-efb-review-result-title]');
+		var lead = step.querySelector('[data-efb-review-result-lead]');
+		var detail = step.querySelector('[data-efb-review-result-detail]');
+		var detailIcon = step.querySelector('[data-efb-review-detail-icon]');
+		var detailText = step.querySelector('[data-efb-review-detail-text]');
+
+		if (icon) { icon.className = 'bi ' + meta.icon; }
+		if (title) { title.textContent = meta.title || ''; }
+		if (lead) { lead.textContent = meta.lead || ''; }
+
+		if (detail && detailText) {
+			// "Sent to you@example.com" only makes sense when it really was.
+			var line = meta.detail || '';
+			if (outcome === 'granted' && email) {
+				line = email + ' · ' + line;
 			}
-			showError('');
+			detailText.textContent = line;
+			detail.hidden = !line;
+			if (detailIcon) { detailIcon.className = 'bi ' + (meta.detailIcon || 'bi-info-circle'); }
+		}
 
-			post('claim', { email: emailInput ? emailInput.value : '' })
-				.then(function (response) {
-					var data = response && response.data ? response.data : {};
+		showStep('result');
+		showButtons(meta.actions || ['done']);
+	}
 
+	function claim() {
+		var username = usernameInput ? usernameInput.value.trim() : '';
+		var email = emailInput ? emailInput.value.trim() : '';
+
+		if (usernameInput) { usernameInput.classList.toggle('is-invalid', !username); }
+		if (!username) {
+			showError(text.errUsername || '');
+			usernameInput && usernameInput.focus();
+			return;
+		}
+
+		var emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+		if (emailInput) { emailInput.classList.toggle('is-invalid', !emailOk); }
+		if (!emailOk) {
+			showError(text.errEmail || '');
+			emailInput && emailInput.focus();
+			return;
+		}
+
+		runChecking();
+
+		// A preview cycles the seven answers rather than asking the service.
+		if (preview) {
+			var at = previewCursor();
+			var next = previewOrder[at % previewOrder.length];
+			previewCursor(at + 1);
+			checkTimers.push(setTimeout(function () { showResult(next, email); }, 2000));
+			return;
+		}
+
+		var started = Date.now();
+
+		post('claim', { username: username, email: email })
+			.then(function (response) {
+				var data = response && response.data ? response.data : {};
+
+				// Let the three rows finish; an answer that lands in 200ms
+				// otherwise flashes past before anyone can read it.
+				var wait = Math.max(0, 1900 - (Date.now() - started));
+
+				checkTimers.push(setTimeout(function () {
 					if (!response || !response.success || !data.ok) {
-						buttons.claim.disabled = false;
-						if (label) {
-							label.textContent = original;
-						}
+						showStep('claim');
 						showError(data.message || text.failed || '');
 						return;
 					}
 
-					finish(data);
-				})
-				.catch(function () {
-					buttons.claim.disabled = false;
-					if (label) {
-						label.textContent = original;
-					}
-					showError(text.failed || '');
-				});
-		});
+					showResult(data.outcome, data.email || email);
+				}, wait));
+			})
+			.catch(function () {
+				checkTimers.push(setTimeout(function () {
+					showResult('server', email);
+				}, 600));
+			});
 	}
 
 	/* ------------------------------------------------------------------ */
-	/* The last screen                                                     */
+	/* The feedback                                                        */
 	/* ------------------------------------------------------------------ */
 
-	function finish(data) {
-		var title = modal.querySelector('[data-efb-review-done-title]');
-		var message = modal.querySelector('[data-efb-review-done-message]');
-		var couponBox = modal.querySelector('[data-efb-review-coupon]');
-		var codeBox = modal.querySelector('[data-efb-review-code]');
+	var chosenTopics = [];
 
-		if (title) {
-			title.textContent = data.title || '';
-		}
-		if (message) {
-			message.textContent = data.message || '';
-		}
+	Array.prototype.forEach.call(modal.querySelectorAll('[data-efb-review-topic]'), function (chip) {
+		chip.addEventListener('click', function () {
+			var key = chip.getAttribute('data-efb-review-topic');
+			var at = chosenTopics.indexOf(key);
 
-		var coupon = data.coupon || {};
-		if (couponBox && codeBox && coupon.state === 'issued' && coupon.code) {
-			codeBox.textContent = coupon.code;
-			couponBox.hidden = false;
-		} else if (couponBox) {
-			couponBox.hidden = true;
-		}
-
-		modal.classList.remove('efb-tone-warn');
-		modal.classList.add('efb-tone-success');
-
-		showStep('done');
-		showButtons(['close']);
-	}
-
-	var copyButton = modal.querySelector('[data-efb-review-copy]');
-	if (copyButton) {
-		copyButton.addEventListener('click', function () {
-			var codeBox = modal.querySelector('[data-efb-review-code]');
-			var label = copyButton.querySelector('span');
-
-			if (!codeBox || !codeBox.textContent) {
-				return;
+			if (at > -1) {
+				chosenTopics.splice(at, 1);
+			} else {
+				chosenTopics.push(key);
 			}
 
-			var done = function () {
-				if (!label) {
+			chip.classList.toggle('is-on', at === -1);
+			chip.setAttribute('aria-pressed', at === -1 ? 'true' : 'false');
+			showError('');
+		});
+	});
+
+	function sendFeedback() {
+		var comment = commentInput ? commentInput.value.trim() : '';
+
+		if (!comment && !chosenTopics.length) {
+			showError(text.errComment || '');
+			commentInput && commentInput.focus();
+			return;
+		}
+
+		if (preview) {
+			showStep('sent');
+			return;
+		}
+
+		busy(footButtons.send, true);
+		showError('');
+
+		post('feedback', {
+			comment: comment,
+			topics: chosenTopics,
+			contact_ok: (contactInput && contactInput.checked) ? '1' : ''
+		})
+			.then(function (response) {
+				var data = response && response.data ? response.data : {};
+				busy(footButtons.send, false);
+
+				if (!response || !response.success || !data.ok) {
+					showError(data.message || text.failed || '');
 					return;
 				}
-				label.textContent = text.copied || '';
-				setTimeout(function () {
-					label.textContent = text.copy || '';
-				}, 2000);
-			};
 
-			if (navigator.clipboard && navigator.clipboard.writeText) {
-				navigator.clipboard.writeText(codeBox.textContent).then(done).catch(function () {});
-				return;
-			}
-
-			// execCommand is gone from the spec but is the only fallback that
-			// works on an http:// admin, where the async clipboard is blocked.
-			try {
-				var range = document.createRange();
-				range.selectNodeContents(codeBox);
-				var selection = window.getSelection();
-				selection.removeAllRanges();
-				selection.addRange(range);
-				document.execCommand('copy');
-				selection.removeAllRanges();
-				done();
-			} catch (e) {
-				/* Nothing to do: the code is on screen and can be read. */
-			}
-		});
+				// Even a report the service refused is not this person's
+				// problem: they wrote it, and the conversation is over.
+				showStep('sent');
+			})
+			.catch(function () {
+				busy(footButtons.send, false);
+				showError(text.failed || '');
+			});
 	}
 
 	/* ------------------------------------------------------------------ */
-	/* Go                                                                  */
+	/* Footer and in-body actions                                          */
 	/* ------------------------------------------------------------------ */
+
+	function on(name, handler) {
+		if (buttons[name]) {
+			buttons[name].addEventListener('click', handler);
+		}
+	}
+
+	on('later', function () {
+		record('later');
+		close();
+	});
+
+	on('never', function () {
+		record('never');
+		close();
+	});
+
+	on('done', close);
+
+	on('toClaim', function () {
+		showStep('claim');
+	});
+
+	on('getCode', claim);
+	on('retry', claim);
+	on('send', sendFeedback);
+
+	on('edit', function () {
+		showStep('claim');
+	});
+
+	on('feedback', function () {
+		showStep('feedback');
+	});
+
+	on('back', function () {
+		rating = 0;
+		paint(0);
+		showStep('ask');
+	});
+
+	// The review link opens WordPress.org in a new tab. Nothing else changes:
+	// the claim step is reached through its own button, because somebody who
+	// opened the page and wrote nothing has no review for us to find.
+	on('review', function () {
+		reviewOpened = true;
+	});
 
 	Array.prototype.forEach.call(modal.querySelectorAll('[data-efb-review-close]'), function (el) {
 		el.addEventListener('click', function () {
@@ -487,14 +668,18 @@
 		});
 	});
 
+	/* ------------------------------------------------------------------ */
+	/* Go                                                                  */
+	/* ------------------------------------------------------------------ */
+
+	paint(0);
 	showStep('ask');
-	showButtons(['never', 'later']);
 
 	/*
 	 * A moment's delay so the invitation does not race the page it appears on,
 	 * then a wait for a clear screen. The server has already counted this ask,
 	 * so giving up the moment another dialog happens to be open would spend
-	 * somebody's turn on a modal they never saw - it waits for them to finish
+	 * somebody's turn on a dialog they never saw - it waits for them to finish
 	 * instead, and only stops looking after half a minute of a busy screen.
 	 */
 	var waited = 0;

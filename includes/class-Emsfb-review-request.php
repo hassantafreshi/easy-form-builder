@@ -1,27 +1,37 @@
 <?php
 /**
- * The five-star invitation.
+ * The rating invitation.
  *
- * Two weeks after someone starts using Easy Form Builder, a Free or Free Plus
- * site is asked - once, politely, on an Easy Form Builder screen and nowhere
- * else - to rate the plugin. Five stars earns a discount code for the first
- * year of Pro, issued by the same White Studio service that already rewards
- * bug reports.
+ * Two weeks after somebody starts using Easy Form Builder, a Free or Free Plus
+ * site is asked - once a month at most, on an Easy Form Builder screen and
+ * nowhere else - to rate the plugin.
  *
- * Four rules this file keeps:
+ * There are two ways out of the question, and they are deliberately different
+ * conversations:
  *
- *   1. Pro sites are never asked. They already paid; there is no reward to
- *      offer and no reason to interrupt them.
- *   2. Nobody is asked twice by accident. "Later" is a real fourteen-day
- *      snooze, "no thanks" is permanent, and both are stored before the modal
- *      closes.
- *   3. A rating below five stars never goes to WordPress.org. It opens the
- *      support route instead - pushing an unhappy person toward a public
- *      review form is how you earn a two-star review.
+ *   4-5 stars  ask -> praise -> claim -> checking -> result
+ *              The person is sent to WordPress.org, comes back with their
+ *              username, and White Studio verifies the review and emails a
+ *              discount code for the first year of Pro.
+ *
+ *   1-3 stars  ask -> feedback -> sent
+ *              No review is ever requested. The complaint goes straight to the
+ *              team, privately, through the same reports pipeline the
+ *              deactivation survey uses.
+ *
+ * Five rules this file keeps:
+ *
+ *   1. Pro sites are never asked. They already paid.
+ *   2. Nobody is asked twice by accident. Printing the invitation spends it for
+ *      a month; "Do not ask again" is permanent.
+ *   3. An unhappy rating never reaches WordPress.org. Pushing somebody who just
+ *      told you the plugin is hard to use toward a public review form is how
+ *      you earn the two-star review this feature exists to avoid.
  *   4. The discount figure is never written into a sentence. Every string
- *      carries %s and the number arrives from discount_label_efb(), so it can
- *      be changed in one place - or by a filter - without touching a
- *      translation.
+ *      carries %s and the number arrives from discount_label_efb().
+ *   5. The plugin never decides whether a review exists. It asks White Studio,
+ *      which checks the real WordPress.org review list. A site that could
+ *      grant itself a coupon by editing an option would be a coupon printer.
  *
  * @package Easy_Form_Builder
  */
@@ -31,7 +41,7 @@ namespace Emsfb;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Asks long-time free users for a review, and rewards five stars.
+ * Asks long-time free users for a rating, and rewards a real review.
  */
 class Review_Request {
 
@@ -52,22 +62,33 @@ class Review_Request {
 	 *
 	 * The invitation snoozes itself the moment it is printed, so this is the
 	 * whole politeness policy in one number: a site sees it about once a month
-	 * and never twice in a week of daily logins. "Maybe later" spends the same
-	 * thirty days, which is why the two are one constant and not two.
+	 * and never twice in a week of daily logins.
 	 */
 	const SNOOZE_DAYS = 30;
+
+	/** The reason key the feedback service files a low rating under. */
+	const REPORT_REASON = 'rating_feedback';
+
+	/** Default discount offered for a verified review, as a percentage. */
+	const DISCOUNT_PERCENT = 64;
+
+	/**
+	 * Ratings at or above this take the WordPress.org route.
+	 *
+	 * Four, not five. Somebody who picked four stars is happy, and the review
+	 * page is where that belongs; the reward itself still requires the review
+	 * White Studio finds to be five stars, which is checked there, not here.
+	 */
+	const REWARD_THRESHOLD = 4;
+
+	/** Longest comment accepted from the feedback step. */
+	const MAX_COMMENT = 4000;
 
 	/** Query argument that forces the invitation open for a preview. */
 	const PREVIEW_ARG = 'efb_review_preview';
 
-	/** The reason key the feedback service files a five-star report under. */
-	const REPORT_REASON = 'five_star';
-
-	/** Default discount offered for a five-star review, as a percentage. */
-	const DISCOUNT_PERCENT = 100;
-
-	/** Ratings at or above this earn the reward and the WordPress.org route. */
-	const REWARD_THRESHOLD = 5;
+	/** REST base on the White Studio payment service, which owns the coupon. */
+	const REWARD_PATH = '/wp-json/payefb/v1/review-reward';
 
 	/**
 	 * Wire the hooks.
@@ -208,13 +229,13 @@ class Review_Request {
 
 		return array_merge(
 			array(
-				'status'        => 'pending',
-				'snooze_until'  => 0,
-				'shown'         => 0,
-				'rating'        => 0,
-				'rated_at'      => 0,
-				'coupon_state'  => 'none',
-				'coupon_code'   => '',
+				'status'       => 'pending',
+				'snooze_until' => 0,
+				'shown'        => 0,
+				'rating'       => 0,
+				'rated_at'     => 0,
+				'username'     => '',
+				'outcome'      => '',
 			),
 			$state
 		);
@@ -234,11 +255,6 @@ class Review_Request {
 		return $state;
 	}
 
-	/**
-	 * Whether the invitation should be shown to the current user right now.
-	 *
-	 * @return bool
-	 */
 	/**
 	 * Whether this request is a deliberate preview.
 	 *
@@ -261,6 +277,11 @@ class Review_Request {
 		return current_user_can( 'manage_options' );
 	}
 
+	/**
+	 * Whether the invitation should be shown to the current user right now.
+	 *
+	 * @return bool
+	 */
 	public function should_ask_efb() {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return false;
@@ -289,9 +310,9 @@ class Review_Request {
 		}
 
 		/**
-		 * Filter whether the five-star invitation may be shown.
+		 * Filter whether the rating invitation may be shown.
 		 *
-		 * @param bool          $should Whether to ask.
+		 * @param bool           $should  Whether to ask.
 		 * @param Review_Request $request The instance making the decision.
 		 */
 		return (bool) apply_filters( 'emsfb_review_should_ask_efb', true, $this );
@@ -299,9 +320,6 @@ class Review_Request {
 
 	/**
 	 * Whether the current admin screen belongs to this plugin.
-	 *
-	 * The invitation only ever appears where someone is already using Easy
-	 * Form Builder - never on the dashboard, never on someone else's page.
 	 *
 	 * @param string $hook Current admin page.
 	 * @return bool
@@ -331,24 +349,22 @@ class Review_Request {
 	/**
 	 * The discount figure, already formatted for reading.
 	 *
-	 * Every string in this feature carries %s rather than a number, so the
-	 * offer can be changed here - or by a site, through the filter - without
-	 * editing a single translated sentence.
+	 * The only place the number lives. Every string carries %s.
 	 *
 	 * @return string
 	 */
 	public function discount_label_efb() {
 		/**
-		 * Filter the discount offered for a five-star review.
+		 * Filter the discount offered for a verified five-star review.
 		 *
 		 * @param int $percent Whole percentage, 1-100.
 		 */
 		$percent = (int) apply_filters( 'emsfb_review_discount_percent_efb', self::DISCOUNT_PERCENT );
 		$percent = max( 1, min( 100, $percent ) );
 
-		// number_format_i18n so a Persian admin reads ۱۰۰٪, not 100%.
+		// number_format_i18n so a Persian admin reads ۶۴٪, not 64%.
 		return sprintf(
-			/* translators: %s: a whole number, e.g. 100. The result reads "100%". */
+			/* translators: %s: a whole number, e.g. 64. The result reads "64%". */
 			esc_html__( '%s%%', 'easy-form-builder' ),
 			number_format_i18n( $percent )
 		);
@@ -388,6 +404,48 @@ class Review_Request {
 		);
 	}
 
+	/**
+	 * The topics offered on the feedback step.
+	 *
+	 * Keys travel to the service, so they are stable identifiers rather than
+	 * translated labels.
+	 *
+	 * @return array
+	 */
+	public function topics_efb() {
+		$text = $this->strings_efb();
+
+		return array(
+			'building'    => $text['topicBuilding'],
+			'email'       => $text['topicEmail'],
+			'styling'     => $text['topicStyling'],
+			'speed'       => $text['topicSpeed'],
+			'payments'    => $text['topicPayments'],
+			'translation' => $text['topicTranslation'],
+		);
+	}
+
+	/**
+	 * The outcomes the service may answer a claim with, and how each is drawn.
+	 *
+	 * `tone` picks the colour, `actions` the footer. The whole point of keeping
+	 * this in one table is that a new outcome cannot be added without deciding
+	 * what it looks like and what the person can do next.
+	 *
+	 * @return array
+	 */
+	public function outcomes_efb() {
+		return array(
+			'granted'  => array( 'icon' => 'bi-envelope-check',       'tone' => 'good',    'detailIcon' => 'bi-clock-history',     'actions' => array( 'done' ) ),
+			'pending'  => array( 'icon' => 'bi-hourglass-split',      'tone' => 'warn',    'detailIcon' => 'bi-info-circle',       'actions' => array( 'done' ) ),
+			'notFound' => array( 'icon' => 'bi-search',               'tone' => 'warn',    'detailIcon' => 'bi-lightbulb',         'actions' => array( 'edit', 'retry' ) ),
+			'lowStars' => array( 'icon' => 'bi-star-half',            'tone' => 'warn',    'detailIcon' => 'bi-chat-square-text',  'actions' => array( 'feedback', 'retry' ) ),
+			'used'     => array( 'icon' => 'bi-ticket-perforated',    'tone' => 'neutral', 'detailIcon' => 'bi-person-check',      'actions' => array( 'support', 'done' ) ),
+			'badEmail' => array( 'icon' => 'bi-envelope-exclamation', 'tone' => 'bad',     'detailIcon' => 'bi-lightbulb',         'actions' => array( 'edit', 'retry' ) ),
+			'server'   => array( 'icon' => 'bi-wifi-off',             'tone' => 'bad',     'detailIcon' => 'bi-life-preserver',    'actions' => array( 'later', 'retry' ) ),
+		);
+	}
+
 	/*
 	 * ---------------------------------------------------------------------
 	 * Screen
@@ -405,8 +463,6 @@ class Review_Request {
 			return;
 		}
 
-		// The shared dialog design system. Registered under its own handle so
-		// it loads exactly once even when another dialog asked for it first.
 		wp_enqueue_style(
 			'efb-modal-system',
 			EMSFB_PLUGIN_URL . 'includes/admin/assets/css/modal-system-efb.css',
@@ -429,6 +485,8 @@ class Review_Request {
 			true
 		);
 
+		$text = $this->strings_efb();
+
 		$data = array(
 			'ajaxUrl'    => admin_url( 'admin-ajax.php' ),
 			'nonce'      => wp_create_nonce( self::ACTION ),
@@ -437,15 +495,10 @@ class Review_Request {
 			'supportUrl' => $this->support_url_efb(),
 			'threshold'  => self::REWARD_THRESHOLD,
 			// In preview the script records nothing and asks the service for
-			// nothing; the claim step answers itself with the sample below so
-			// the last screen can be seen without spending a real coupon.
+			// nothing; every outcome can be stepped through locally instead.
 			'preview'    => $this->is_preview_efb() ? 1 : 0,
-			'sample'     => array(
-				'title'   => $this->strings_efb()['thanksTitle'],
-				'message' => sprintf( $this->strings_efb()['couponIssued'], $this->discount_label_efb() ),
-				'code'    => 'EFB-PREVIEW-CODE',
-			),
-			'text'       => $this->strings_efb(),
+			'outcomes'   => $this->outcome_view_efb(),
+			'text'       => $text,
 		);
 
 		// wp_localize_script only decodes entities at the top level, so the
@@ -459,6 +512,34 @@ class Review_Request {
 	}
 
 	/**
+	 * Every outcome, already resolved into what the modal has to draw.
+	 *
+	 * Sent to the browser whole so the result screen can be rendered without a
+	 * second round trip, and so a preview can step through all seven.
+	 *
+	 * @return array
+	 */
+	public function outcome_view_efb() {
+		$text     = $this->strings_efb();
+		$discount = $this->discount_label_efb();
+		$out      = array();
+
+		foreach ( $this->outcomes_efb() as $key => $meta ) {
+			$out[ $key ] = array(
+				'icon'       => $meta['icon'],
+				'tone'       => $meta['tone'],
+				'detailIcon' => $meta['detailIcon'],
+				'actions'    => $meta['actions'],
+				'title'      => $text[ 'oc' . ucfirst( $key ) . 'Title' ],
+				'lead'       => sprintf( $text[ 'oc' . ucfirst( $key ) . 'Lead' ], $discount ),
+				'detail'     => $text[ 'oc' . ucfirst( $key ) . 'Detail' ],
+			);
+		}
+
+		return $out;
+	}
+
+	/**
 	 * Print the invitation in the footer of an Easy Form Builder screen.
 	 *
 	 * @return void
@@ -468,8 +549,10 @@ class Review_Request {
 			return;
 		}
 
-		$text  = $this->strings_efb();
-		$stars = range( 1, 5 );
+		$text     = $this->strings_efb();
+		$discount = $this->discount_label_efb();
+		$topics   = $this->topics_efb();
+		$admin    = sanitize_email( (string) get_option( 'admin_email' ) );
 
 		/*
 		 * Printing the invitation is what spends it. The snooze is written now,
@@ -477,11 +560,7 @@ class Review_Request {
 		 * and an invitation that waits for an answer it will never get is one
 		 * that reappears on every single page load.
 		 *
-		 * So: seen once, gone for a month. Logging in every morning shows it on
-		 * one of those mornings, not thirty.
-		 *
-		 * A preview spends nothing, which is what makes it safe to look at the
-		 * modal on a site that is genuinely due to be asked.
+		 * A preview spends nothing.
 		 */
 		if ( ! $this->is_preview_efb() ) {
 			$this->save_state_efb(
@@ -493,100 +572,216 @@ class Review_Request {
 			);
 		}
 		?>
-		<div id="efb-review-modal" class="efb-dlg efb-review efb-tone-warn" role="dialog" aria-modal="true" aria-labelledby="efb-review-title" hidden>
+		<div id="efb-review-modal" class="efb-dlg efb-review" role="dialog" aria-modal="true" aria-labelledby="efb-review-title" hidden>
 			<div class="efb-dlg__backdrop" data-efb-review-close="1"></div>
 
 			<div class="efb-dlg__shell" role="document" tabindex="-1">
+
+				<div class="efb-review__ribbon">
+					<span class="efb-review__shine" aria-hidden="true"></span>
+					<i class="bi bi-gift" aria-hidden="true"></i>
+					<span><?php echo esc_html( $text['ribbon'] ); ?></span>
+					<span class="efb-review__ribbon-pct"><?php echo esc_html( sprintf( $text['ribbonPct'], $discount ) ); ?></span>
+				</div>
+
 				<div class="efb-dlg__head">
-					<i class="bi bi-star-fill efb-dlg__head-icon" aria-hidden="true"></i>
-					<h2 class="efb-dlg__title" id="efb-review-title"><?php echo esc_html( $text['headTitle'] ); ?></h2>
+					<div class="efb-dlg__title" id="efb-review-title"><span class="screen-reader-text"><?php echo esc_html( $text['askTitle'] ); ?></span></div>
 					<button type="button" class="efb-dlg__close" data-efb-review-close="1" aria-label="<?php echo esc_attr( $text['close'] ); ?>">
 						<i class="bi bi-x-lg" aria-hidden="true"></i>
 					</button>
 				</div>
 
-				<!-- Step one: the question. -->
+				<!-- 1. The question. -->
 				<div class="efb-dlg__body efb-review__step" data-efb-review-step="ask">
-					<div class="efb-dlg__centered">
-						<div class="efb-dlg__badge"><i class="bi bi-stars" aria-hidden="true"></i></div>
-						<h3 class="efb-dlg__headline"><?php echo esc_html( $text['askTitle'] ); ?></h3>
-						<p class="efb-dlg__text"><?php echo esc_html( $text['askMessage'] ); ?></p>
+					<div class="efb-review__center">
+						<div class="efb-review__mark"><i class="bi bi-hand-thumbs-up" aria-hidden="true"></i></div>
+						<h2 class="efb-review__title"><?php echo esc_html( $text['askTitle'] ); ?></h2>
 
 						<div class="efb-review__stars" role="radiogroup" aria-label="<?php echo esc_attr( $text['starsLabel'] ); ?>">
-							<?php foreach ( $stars as $star ) : ?>
+							<?php for ( $star = 1; $star <= 5; $star++ ) : ?>
 								<button
 									type="button"
 									class="efb-review__star"
 									data-efb-review-rate="<?php echo esc_attr( (string) $star ); ?>"
 									role="radio"
 									aria-checked="false"
-									aria-label="<?php echo esc_attr( sprintf( $text['starsOf'], number_format_i18n( $star ) ) ); ?>">
-									<i class="bi bi-star-fill" aria-hidden="true"></i>
+									title="<?php echo esc_attr( $text[ 'r' . $star ] ); ?>"
+									aria-label="<?php echo esc_attr( $text[ 'r' . $star ] ); ?>">
+									<i class="bi bi-star" aria-hidden="true"></i>
 								</button>
-							<?php endforeach; ?>
+							<?php endfor; ?>
 						</div>
 
-						<p class="efb-review__hint" data-efb-review-hint><?php echo esc_html( $text['starsHint'] ); ?></p>
+						<p class="efb-review__rating-label" data-efb-review-hint><?php echo esc_html( $text['r0'] ); ?></p>
 
-						<div class="efb-review__offer">
-							<i class="bi bi-gift" aria-hidden="true"></i>
-							<span><?php echo esc_html( sprintf( $text['offerLine'], $this->discount_label_efb() ) ); ?></span>
-						</div>
+						<ul class="efb-review__trust">
+							<li><i class="bi bi-stopwatch" aria-hidden="true"></i><?php echo esc_html( $text['trust1'] ); ?></li>
+							<li><i class="bi bi-person-check" aria-hidden="true"></i><?php echo esc_html( $text['trust2'] ); ?></li>
+							<li><i class="bi bi-bell-slash" aria-hidden="true"></i><?php echo esc_html( $text['trust3'] ); ?></li>
+						</ul>
 					</div>
 				</div>
 
-				<!-- Step two, happy path: five stars. -->
-				<div class="efb-dlg__body efb-review__step" data-efb-review-step="reward" hidden>
-					<div class="efb-dlg__centered">
-						<div class="efb-dlg__badge"><i class="bi bi-gift" aria-hidden="true"></i></div>
-						<h3 class="efb-dlg__headline"><?php echo esc_html( sprintf( $text['rewardTitle'], $this->discount_label_efb() ) ); ?></h3>
-						<p class="efb-dlg__text"><?php echo esc_html( sprintf( $text['rewardMessage'], $this->discount_label_efb() ) ); ?></p>
+				<!-- 2a. Happy: the offer and the two steps to claim it. -->
+				<div class="efb-dlg__body efb-review__step" data-efb-review-step="praise" hidden>
+					<div class="efb-review__col">
+						<div class="efb-review__row">
+							<span class="efb-review__won" data-efb-review-won aria-hidden="true"></span>
+							<span class="efb-review__praise-title"><?php echo esc_html( $text['praiseTitle'] ); ?></span>
+						</div>
+						<p class="efb-review__lead"><?php echo esc_html( $text['praiseLead'] ); ?></p>
 
-						<ol class="efb-review__steps">
-							<li><span class="efb-review__num">1</span><?php echo esc_html( $text['rewardStep1'] ); ?></li>
-							<li><span class="efb-review__num">2</span><?php echo esc_html( $text['rewardStep2'] ); ?></li>
+						<div class="efb-review__coupon">
+							<span class="efb-review__gift"><i class="bi bi-gift-fill" aria-hidden="true"></i></span>
+							<span class="efb-review__coupon-main">
+								<span class="efb-review__pct"><?php echo esc_html( sprintf( $text['ribbonPct'], $discount ) ); ?></span>
+								<span class="efb-review__coupon-note"><?php echo esc_html( $text['couponNote'] ); ?></span>
+							</span>
+						</div>
+
+						<ol class="efb-review__flow">
+							<li>
+								<span class="efb-review__num">1</span>
+								<span class="efb-review__flow-body">
+									<span class="efb-review__flow-title"><?php echo esc_html( $text['flow1'] ); ?></span>
+									<a
+										class="efb-review__cta"
+										data-efb-review-action="review"
+										href="<?php echo esc_url( $this->review_url_efb() ); ?>"
+										target="_blank"
+										rel="noopener noreferrer">
+										<i class="bi bi-star-fill" aria-hidden="true"></i><?php echo esc_html( $text['writeReview'] ); ?>
+									</a>
+									<span class="efb-review__cta-note">
+										<i class="bi bi-box-arrow-up-right" aria-hidden="true"></i><?php echo esc_html( $text['opensWp'] ); ?>
+									</span>
+								</span>
+							</li>
+							<li>
+								<span class="efb-review__num efb-review__num--soft">2</span>
+								<span class="efb-review__flow-body">
+									<span class="efb-review__flow-title"><?php echo esc_html( $text['flow2'] ); ?></span>
+									<button type="button" class="efb-review__secondary" data-efb-review-action="toClaim">
+										<i class="bi bi-gift" aria-hidden="true"></i><?php echo esc_html( $text['aPosted'] ); ?>
+									</button>
+								</span>
+							</li>
 						</ol>
+					</div>
+				</div>
 
-						<label class="efb-review__field">
-							<span><?php echo esc_html( $text['emailLabel'] ); ?></span>
-							<input
-								type="email"
-								data-efb-review-email
-								value="<?php echo esc_attr( sanitize_email( (string) get_option( 'admin_email' ) ) ); ?>"
-								autocomplete="email"
-								spellcheck="false">
-						</label>
+				<!-- 2b. Where to send the code. -->
+				<div class="efb-dlg__body efb-review__step" data-efb-review-step="claim" hidden>
+					<div class="efb-review__col">
+						<div class="efb-review__row">
+							<span class="efb-review__won efb-review__won--small" data-efb-review-won aria-hidden="true"></span>
+							<span class="efb-review__badge-ok"><i class="bi bi-patch-check-fill" aria-hidden="true"></i><?php echo esc_html( $text['claimBadge'] ); ?></span>
+						</div>
+						<h2 class="efb-review__title"><?php echo esc_html( $text['claimTitle'] ); ?></h2>
+						<p class="efb-review__lead"><?php echo esc_html( $text['claimLead'] ); ?></p>
 
-						<p class="efb-dlg__note">
-							<i class="bi bi-info-circle" aria-hidden="true"></i>
-							<span><?php echo esc_html( $text['privacy'] ); ?></span>
+						<div class="efb-review__fields">
+							<label class="efb-review__field">
+								<span class="efb-review__label"><?php echo esc_html( $text['fieldUser'] ); ?></span>
+								<span class="efb-review__input-wrap">
+									<i class="bi bi-at" aria-hidden="true"></i>
+									<input type="text" data-efb-review-username placeholder="<?php echo esc_attr( $text['userPh'] ); ?>" spellcheck="false" autocomplete="username">
+								</span>
+								<span class="efb-review__hint"><?php echo esc_html( $text['userHint'] ); ?></span>
+							</label>
+							<label class="efb-review__field">
+								<span class="efb-review__label"><?php echo esc_html( $text['fieldEmail'] ); ?></span>
+								<span class="efb-review__input-wrap">
+									<i class="bi bi-envelope" aria-hidden="true"></i>
+									<input type="email" data-efb-review-email value="<?php echo esc_attr( $admin ); ?>" placeholder="<?php echo esc_attr( $text['emailPh'] ); ?>" spellcheck="false" autocomplete="email">
+								</span>
+								<span class="efb-review__hint"><?php echo esc_html( $text['emailHint'] ); ?></span>
+							</label>
+						</div>
+
+						<p class="efb-review__privacy">
+							<i class="bi bi-shield-lock" aria-hidden="true"></i>
+							<span><?php echo esc_html( $text['privacyNote'] ); ?></span>
 						</p>
 					</div>
 				</div>
 
-				<!-- Step two, other path: fewer than five stars. -->
-				<div class="efb-dlg__body efb-review__step" data-efb-review-step="improve" hidden>
-					<div class="efb-dlg__centered">
-						<div class="efb-dlg__badge"><i class="bi bi-chat-heart" aria-hidden="true"></i></div>
-						<h3 class="efb-dlg__headline"><?php echo esc_html( $text['improveTitle'] ); ?></h3>
-						<p class="efb-dlg__text"><?php echo esc_html( $text['improveMessage'] ); ?></p>
+				<!-- 2c. Asking White Studio to check. -->
+				<div class="efb-dlg__body efb-review__step" data-efb-review-step="checking" hidden>
+					<div class="efb-review__center">
+						<img
+							class="efb-review__checking-mark"
+							src="<?php echo esc_url( EMSFB_PLUGIN_URL . 'includes/admin/assets/image/efb-256.gif' ); ?>"
+							alt="Easy Form Builder">
+						<h2 class="efb-review__title"><?php echo esc_html( $text['checkTitle'] ); ?></h2>
+						<p class="efb-review__lead"><?php echo esc_html( $text['checkLead'] ); ?></p>
+
+						<ol class="efb-review__checks" data-efb-review-checks>
+							<li data-check="find"><span class="efb-review__check-dot"><i class="bi bi-arrow-repeat" aria-hidden="true"></i></span><?php echo esc_html( $text['csFind'] ); ?></li>
+							<li data-check="stars" class="is-waiting"><span class="efb-review__check-dot"><i class="bi bi-dot" aria-hidden="true"></i></span><?php echo esc_html( $text['csStars'] ); ?></li>
+							<li data-check="send" class="is-waiting"><span class="efb-review__check-dot"><i class="bi bi-dot" aria-hidden="true"></i></span><?php echo esc_html( $text['csSend'] ); ?></li>
+						</ol>
 					</div>
 				</div>
 
-				<!-- Step three: what happened. -->
-				<div class="efb-dlg__body efb-review__step" data-efb-review-step="done" hidden>
-					<div class="efb-dlg__centered">
-						<div class="efb-dlg__badge"><i class="bi bi-check2" aria-hidden="true"></i></div>
-						<h3 class="efb-dlg__headline" data-efb-review-done-title></h3>
-						<p class="efb-dlg__text" data-efb-review-done-message></p>
+				<!-- 2d. What the service said. -->
+				<div class="efb-dlg__body efb-review__step" data-efb-review-step="result" hidden>
+					<div class="efb-review__center">
+						<div class="efb-review__result-mark"><i class="bi" data-efb-review-result-icon aria-hidden="true"></i></div>
+						<h2 class="efb-review__title" data-efb-review-result-title></h2>
+						<p class="efb-review__lead" data-efb-review-result-lead></p>
+						<p class="efb-review__detail" data-efb-review-result-detail hidden>
+							<i class="bi" data-efb-review-detail-icon aria-hidden="true"></i>
+							<span data-efb-review-detail-text></span>
+						</p>
+					</div>
+				</div>
 
-						<div class="efb-review__coupon" data-efb-review-coupon hidden>
-							<code class="efb-review__code" data-efb-review-code></code>
-							<button type="button" class="efb-btn efb-btn--ghost" data-efb-review-copy>
-								<i class="bi bi-clipboard" aria-hidden="true"></i>
-								<span><?php echo esc_html( $text['copy'] ); ?></span>
+				<!-- 3a. Unhappy: tell us privately. -->
+				<div class="efb-dlg__body efb-review__step" data-efb-review-step="feedback" hidden>
+					<div class="efb-review__col">
+						<div class="efb-review__row">
+							<span class="efb-review__won efb-review__won--small" data-efb-review-won aria-hidden="true"></span>
+							<button type="button" class="efb-review__change" data-efb-review-action="back">
+								<i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i><?php echo esc_html( $text['changeRating'] ); ?>
 							</button>
 						</div>
+						<h2 class="efb-review__title"><?php echo esc_html( $text['fbTitle'] ); ?></h2>
+						<p class="efb-review__lead"><?php echo esc_html( $text['fbLead'] ); ?></p>
+
+						<div class="efb-review__topics" role="group" aria-label="<?php echo esc_attr( $text['fbTitle'] ); ?>">
+							<?php foreach ( $topics as $key => $label ) : ?>
+								<button type="button" class="efb-review__topic" data-efb-review-topic="<?php echo esc_attr( $key ); ?>" aria-pressed="false">
+									<?php echo esc_html( $label ); ?>
+								</button>
+							<?php endforeach; ?>
+						</div>
+
+						<textarea
+							class="efb-review__comment"
+							data-efb-review-comment
+							rows="4"
+							maxlength="<?php echo esc_attr( (string) self::MAX_COMMENT ); ?>"
+							placeholder="<?php echo esc_attr( $text['fbPlaceholder'] ); ?>"
+							aria-label="<?php echo esc_attr( $text['fbTitle'] ); ?>"></textarea>
+
+						<label class="efb-review__contact">
+							<input type="checkbox" data-efb-review-contact checked>
+							<span><?php echo esc_html( $text['fbContact'] ); ?></span>
+						</label>
+					</div>
+				</div>
+
+				<!-- 3b. Thanks for the complaint. -->
+				<div class="efb-dlg__body efb-review__step" data-efb-review-step="sent" hidden>
+					<div class="efb-review__center">
+						<div class="efb-review__sent-mark"><i class="bi bi-envelope-check" aria-hidden="true"></i></div>
+						<h2 class="efb-review__title"><?php echo esc_html( $text['sentTitle'] ); ?></h2>
+						<p class="efb-review__lead"><?php echo esc_html( $text['sentLead'] ); ?></p>
+						<p class="efb-review__coupon-slim">
+							<i class="bi bi-heart" aria-hidden="true"></i>
+							<span><?php echo esc_html( $text['sentCoupon'] ); ?></span>
+						</p>
 					</div>
 				</div>
 
@@ -594,42 +789,37 @@ class Review_Request {
 
 				<div class="efb-dlg__foot">
 					<button type="button" class="efb-btn efb-btn--quiet" data-efb-review-action="never">
-						<?php echo esc_html( $text['never'] ); ?>
+						<i class="bi bi-bell-slash" aria-hidden="true"></i><span><?php echo esc_html( $text['aNever'] ); ?></span>
 					</button>
 					<button type="button" class="efb-btn efb-btn--ghost" data-efb-review-action="later">
-						<i class="bi bi-clock" aria-hidden="true"></i>
-						<span><?php echo esc_html( $text['later'] ); ?></span>
+						<i class="bi bi-clock" aria-hidden="true"></i><span><?php echo esc_html( $text['aLater'] ); ?></span>
 					</button>
-
-					<a
-						class="efb-btn efb-btn--gold"
-						data-efb-review-action="review"
-						href="<?php echo esc_url( $this->review_url_efb() ); ?>"
-						target="_blank"
-						rel="noopener noreferrer"
-						hidden>
-						<i class="bi bi-star-fill" aria-hidden="true"></i>
-						<span><?php echo esc_html( $text['goReview'] ); ?></span>
-					</a>
-
-					<button type="button" class="efb-btn efb-btn--success" data-efb-review-action="claim" hidden>
-						<i class="bi bi-gift" aria-hidden="true"></i>
-						<span><?php echo esc_html( $text['claim'] ); ?></span>
+					<button type="button" class="efb-btn efb-btn--primary" data-efb-review-action="getCode" hidden>
+						<i class="bi bi-send" aria-hidden="true"></i><span><?php echo esc_html( $text['aGetCode'] ); ?></span>
 					</button>
-
+					<button type="button" class="efb-btn efb-btn--primary" data-efb-review-action="send" hidden>
+						<i class="bi bi-send" aria-hidden="true"></i><span><?php echo esc_html( $text['aSend'] ); ?></span>
+					</button>
+					<button type="button" class="efb-btn efb-btn--ghost" data-efb-review-action="edit" hidden>
+						<i class="bi bi-pencil" aria-hidden="true"></i><span><?php echo esc_html( $text['aEditInfo'] ); ?></span>
+					</button>
+					<button type="button" class="efb-btn efb-btn--ghost" data-efb-review-action="feedback" hidden>
+						<i class="bi bi-chat-square-text" aria-hidden="true"></i><span><?php echo esc_html( $text['aWriteFeedback'] ); ?></span>
+					</button>
 					<a
-						class="efb-btn efb-btn--primary"
+						class="efb-btn efb-btn--ghost"
 						data-efb-review-action="support"
 						href="<?php echo esc_url( $this->support_url_efb() ); ?>"
 						target="_blank"
 						rel="noopener noreferrer"
 						hidden>
-						<i class="bi bi-life-preserver" aria-hidden="true"></i>
-						<span><?php echo esc_html( $text['goSupport'] ); ?></span>
+						<i class="bi bi-life-preserver" aria-hidden="true"></i><span><?php echo esc_html( $text['aSupport'] ); ?></span>
 					</a>
-
-					<button type="button" class="efb-btn efb-btn--primary" data-efb-review-action="close" hidden>
-						<?php echo esc_html( $text['done'] ); ?>
+					<button type="button" class="efb-btn efb-btn--primary" data-efb-review-action="retry" hidden>
+						<i class="bi bi-arrow-clockwise" aria-hidden="true"></i><span><?php echo esc_html( $text['aRetry'] ); ?></span>
+					</button>
+					<button type="button" class="efb-btn efb-btn--primary" data-efb-review-action="done" hidden>
+						<i class="bi bi-check2" aria-hidden="true"></i><span><?php echo esc_html( $text['aDone'] ); ?></span>
 					</button>
 				</div>
 			</div>
@@ -644,7 +834,7 @@ class Review_Request {
 	 */
 
 	/**
-	 * Record what the person chose, and issue the coupon when it is earned.
+	 * Record what the person chose, and forward a claim to White Studio.
 	 *
 	 * @return void
 	 */
@@ -657,8 +847,7 @@ class Review_Request {
 			wp_send_json_error( array( 'message' => esc_html__( 'Security check failed. Please reload the page.', 'easy-form-builder' ) ), 403 );
 		}
 
-		$text = $this->strings_efb();
-		$op   = isset( $_POST['op'] ) ? sanitize_key( wp_unslash( $_POST['op'] ) ) : '';
+		$op = isset( $_POST['op'] ) ? sanitize_key( wp_unslash( $_POST['op'] ) ) : '';
 
 		switch ( $op ) {
 			case 'later':
@@ -666,7 +855,6 @@ class Review_Request {
 					array(
 						'status'       => 'snoozed',
 						'snooze_until' => time() + ( self::SNOOZE_DAYS * DAY_IN_SECONDS ),
-						'shown'        => 0,
 					)
 				);
 				wp_send_json_success( array( 'ok' => true ) );
@@ -679,22 +867,16 @@ class Review_Request {
 
 			case 'rate':
 				$rating = isset( $_POST['rating'] ) ? (int) $_POST['rating'] : 0;
-				$rating = max( 0, min( 5, $rating ) );
-
-				// A rating is only remembered, never acted on here. Below the
-				// threshold this is the end of the conversation: the modal
-				// offers support and stops asking.
-				$this->save_state_efb(
-					array(
-						'rating' => $rating,
-						'status' => $rating < self::REWARD_THRESHOLD && $rating > 0 ? 'dismissed' : 'pending',
-					)
-				);
+				$this->save_state_efb( array( 'rating' => max( 0, min( 5, $rating ) ) ) );
 				wp_send_json_success( array( 'ok' => true ) );
 				break;
 
 			case 'claim':
-				$this->claim_efb( $text );
+				$this->claim_efb();
+				break;
+
+			case 'feedback':
+				$this->feedback_efb();
 				break;
 
 			default:
@@ -703,101 +885,217 @@ class Review_Request {
 	}
 
 	/**
-	 * Ask the feedback service for the discount code.
+	 * Ask White Studio to verify the review and issue the code.
 	 *
-	 * Every failure path still ends with the conversation closed and the
-	 * person told something true. A site that cannot reach the service, or
-	 * whose service does not know the five-star reason yet, is told the code
-	 * will arrive by email rather than being shown an error it cannot act on.
+	 * This plugin never decides whether a review exists - it forwards a
+	 * username and an address, and repeats whatever the service answers. A site
+	 * that could grant itself a coupon by editing an option would be a coupon
+	 * printer, which is why the whole judgement lives on the other side.
 	 *
-	 * @param array $text Strings for the current locale.
 	 * @return void
 	 */
-	protected function claim_efb( array $text ) {
-		$email = isset( $_POST['email'] ) ? sanitize_email( wp_unslash( $_POST['email'] ) ) : '';
-		if ( '' !== $email && ! is_email( $email ) ) {
-			$email = '';
+	protected function claim_efb() {
+		$text = $this->strings_efb();
+
+		$username = isset( $_POST['username'] ) ? sanitize_user( wp_unslash( $_POST['username'] ), true ) : '';
+		$email    = isset( $_POST['email'] ) ? sanitize_email( wp_unslash( $_POST['email'] ) ) : '';
+
+		if ( '' === $username ) {
+			wp_send_json_success( array( 'ok' => false, 'message' => $text['errUsername'] ) );
 		}
 
-		if ( '' === $email ) {
-			wp_send_json_success(
-				array(
-					'ok'      => false,
-					'message' => $text['emailRequired'],
-				)
-			);
+		if ( '' === $email || ! is_email( $email ) ) {
+			wp_send_json_success( array( 'ok' => false, 'message' => $text['errEmail'] ) );
 		}
 
-		$state = $this->state_efb();
+		$outcome = $this->request_reward_efb( $username, $email );
 
-		// Already claimed: hand back what was issued rather than asking the
-		// service for a second code.
-		if ( 'rated' === $state['status'] && 'none' !== $state['coupon_state'] ) {
-			wp_send_json_success( $this->claim_response_efb( $state['coupon_state'], (string) $state['coupon_code'], $text ) );
+		$this->save_state_efb(
+			array(
+				'username' => $username,
+				'outcome'  => $outcome,
+				// Only a code actually issued, or one already issued to this
+				// person, ends the conversation. Everything else is a state
+				// they can still act on, so the invitation stays available.
+				'status'   => in_array( $outcome, array( 'granted', 'pending', 'used' ), true ) ? 'rated' : 'snoozed',
+				'rated_at' => time(),
+			)
+		);
+
+		wp_send_json_success(
+			array(
+				'ok'      => true,
+				'outcome' => $outcome,
+				'email'   => $email,
+			)
+		);
+	}
+
+	/**
+	 * POST the claim to the White Studio payment service.
+	 *
+	 * @param string $username WordPress.org username.
+	 * @param string $email    Where the code should go.
+	 * @return string One of the keys in outcomes_efb().
+	 */
+	protected function request_reward_efb( $username, $email ) {
+		$url = $this->reward_endpoint_efb();
+
+		if ( '' === $url ) {
+			return 'server';
 		}
 
-		$result = array( 'ok' => false );
+		$response = wp_remote_post(
+			$url,
+			array(
+				'timeout'     => 20,
+				'redirection' => 0,
+				'headers'     => array( 'Content-Type' => 'application/json' ),
+				'body'        => wp_json_encode(
+					array(
+						'username' => $username,
+						'email'    => $email,
+						'domain'   => wp_parse_url( home_url(), PHP_URL_HOST ),
+						'locale'   => get_locale(),
+						'version'  => EMSFB_PLUGIN_VERSION,
+						'percent'  => (int) apply_filters( 'emsfb_review_discount_percent_efb', self::DISCOUNT_PERCENT ),
+					)
+				),
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return 'server';
+		}
+
+		$body = json_decode( (string) wp_remote_retrieve_body( $response ), true );
+		if ( ! is_array( $body ) || empty( $body['outcome'] ) ) {
+			return 'server';
+		}
+
+		$outcome = (string) $body['outcome'];
+
+		// An outcome this plugin does not know how to draw is not an outcome.
+		return isset( $this->outcomes_efb()[ $outcome ] ) ? $outcome : 'server';
+	}
+
+	/**
+	 * The White Studio endpoint that verifies a review and issues the coupon.
+	 *
+	 * @return string
+	 */
+	protected function reward_endpoint_efb() {
+		$base = defined( 'EMSFB_SERVER_URL' ) ? (string) EMSFB_SERVER_URL : '';
+
+		/**
+		 * Filter the review-reward endpoint.
+		 *
+		 * @param string $url Full endpoint URL.
+		 */
+		$url = (string) apply_filters(
+			'emsfb_review_reward_endpoint_efb',
+			'' !== $base ? untrailingslashit( $base ) . self::REWARD_PATH : ''
+		);
+
+		return wp_http_validate_url( $url ) ? $url : '';
+	}
+
+	/**
+	 * Send a low rating's written feedback to the reports pipeline.
+	 *
+	 * It goes through Deactivation_Feedback::send_report_efb() - the same
+	 * identity, HMAC signature and retry the deactivation survey uses - because
+	 * a complaint is a report whatever screen it was written on. Keeping a
+	 * second copy of the signing code would let it drift out of step with the
+	 * service.
+	 *
+	 * @return void
+	 */
+	protected function feedback_efb() {
+		$text = $this->strings_efb();
+
+		// Deliberately not sanitize_textarea_field(): that keeps tags as
+		// entities. Reports are read as plain text, so markup is stripped
+		// outright, here and again on the server.
+		$comment = isset( $_POST['comment'] ) ? (string) wp_unslash( $_POST['comment'] ) : '';
+		$comment = trim( wp_strip_all_tags( $comment, false ) );
+		$comment = function_exists( 'mb_substr' )
+			? mb_substr( $comment, 0, self::MAX_COMMENT )
+			: substr( $comment, 0, self::MAX_COMMENT );
+
+		$raw_topics = isset( $_POST['topics'] ) ? (array) wp_unslash( $_POST['topics'] ) : array();
+		$allowed    = array_keys( $this->topics_efb() );
+		$topics     = array();
+		foreach ( $raw_topics as $topic ) {
+			$topic = sanitize_key( $topic );
+			if ( in_array( $topic, $allowed, true ) ) {
+				$topics[] = $topic;
+			}
+		}
+
+		if ( '' === $comment && empty( $topics ) ) {
+			wp_send_json_success( array( 'ok' => false, 'message' => $text['errComment'] ) );
+		}
+
+		$rating     = (int) $this->state_efb()['rating'];
+		$contact_ok = ! empty( $_POST['contact_ok'] );
+		$email      = $contact_ok ? sanitize_email( (string) get_option( 'admin_email' ) ) : '';
+
+		$sent = false;
 
 		if ( class_exists( '\Emsfb\Deactivation_Feedback' ) ) {
 			$feedback = new Deactivation_Feedback();
 			$result   = $feedback->send_report_efb(
 				array(
 					'reason'     => self::REPORT_REASON,
-					'details'    => sprintf( 'Five-star review pledged from wp-admin. Days in use: %d.', $this->days_in_use_efb() ),
+					// The rating and the topics are the structure; the sentence
+					// is the person's own. All three travel as one message so
+					// the service needs no new columns to read it.
+					'details'    => $this->compose_report_efb( $rating, $topics, $comment ),
 					'email'      => $email,
-					'contact_ok' => 1,
+					'contact_ok' => $contact_ok ? 1 : 0,
 					'hp'         => '',
 					'env'        => $feedback->collect_env_efb(),
 				)
 			);
+
+			$sent = ! empty( $result['ok'] );
 		}
 
-		$coupon       = isset( $result['coupon'] ) && is_array( $result['coupon'] ) ? $result['coupon'] : array();
-		$coupon_state = isset( $coupon['state'] ) ? (string) $coupon['state'] : 'none';
-		$code         = isset( $coupon['code'] ) ? (string) $coupon['code'] : '';
-
-		// The report never reaching the service is not the person's problem:
-		// the pledge is recorded locally and the code is promised by email.
-		if ( empty( $result['ok'] ) || ( 'issued' !== $coupon_state && 'pending' !== $coupon_state ) ) {
-			$coupon_state = 'pending';
-			$code         = '';
-		}
-
+		// The conversation is over either way: this person has said their piece
+		// and must not be asked again next month as though nothing happened.
 		$this->save_state_efb(
 			array(
-				'status'       => 'rated',
-				'rating'       => self::REWARD_THRESHOLD,
-				'rated_at'     => time(),
-				'coupon_state' => $coupon_state,
-				'coupon_code'  => 'issued' === $coupon_state ? $code : '',
+				'status'   => 'dismissed',
+				'rated_at' => time(),
+				'outcome'  => $sent ? 'feedback_sent' : 'feedback_failed',
 			)
 		);
 
-		wp_send_json_success( $this->claim_response_efb( $coupon_state, $code, $text ) );
+		wp_send_json_success( array( 'ok' => true, 'sent' => $sent ) );
 	}
 
 	/**
-	 * Shape one claim answer for the modal.
+	 * One readable report out of a rating, some topics and a sentence.
 	 *
-	 * @param string $coupon_state 'issued' or 'pending'.
-	 * @param string $code         Discount code, when issued.
-	 * @param array  $text         Strings for the current locale.
-	 * @return array
+	 * @param int    $rating  1-5.
+	 * @param array  $topics  Topic keys.
+	 * @param string $comment What the person wrote.
+	 * @return string
 	 */
-	protected function claim_response_efb( $coupon_state, $code, array $text ) {
-		$discount = $this->discount_label_efb();
+	protected function compose_report_efb( $rating, array $topics, $comment ) {
+		$lines = array( sprintf( 'Rating: %d/5', max( 0, min( 5, (int) $rating ) ) ) );
 
-		return array(
-			'ok'      => true,
-			'title'   => $text['thanksTitle'],
-			'message' => 'issued' === $coupon_state
-				? sprintf( $text['couponIssued'], $discount )
-				: sprintf( $text['couponPending'], $discount ),
-			'coupon'  => array(
-				'state' => $coupon_state,
-				'code'  => 'issued' === $coupon_state ? $code : '',
-			),
-		);
+		if ( ! empty( $topics ) ) {
+			$lines[] = 'Topics: ' . implode( ', ', $topics );
+		}
+
+		if ( '' !== $comment ) {
+			$lines[] = '';
+			$lines[] = $comment;
+		}
+
+		return implode( "\n", $lines );
 	}
 
 	/*
@@ -809,53 +1107,114 @@ class Review_Request {
 	/**
 	 * The modal's wording in the admin's own language.
 	 *
-	 * Same three sources as the deactivation survey, most specific first:
-	 * phrases pushed by the White Studio settings payload (text->review*),
-	 * the bundled translations below, then the English source strings.
+	 * Three sources, most specific first: phrases pushed by the White Studio
+	 * settings payload (text->review<Key>), the bundled translations below,
+	 * then the English source strings - the same arrangement as the
+	 * deactivation survey, and for the same reason.
 	 *
-	 * Strings that mention the discount carry %s, never a number - see the
-	 * fourth rule at the top of this file.
+	 * Strings that mention the discount carry %s, never a number.
 	 *
 	 * @return array
 	 */
 	public function strings_efb() {
 		$defaults = array(
-			'headTitle'     => esc_html__( 'Enjoying Easy Form Builder?', 'easy-form-builder' ),
-			'askTitle'      => esc_html__( 'How are we doing so far?', 'easy-form-builder' ),
-			'askMessage'    => esc_html__( 'You have been building forms with us for a couple of weeks. If it has been useful, a rating helps other people find the plugin - and it takes less than a minute.', 'easy-form-builder' ),
-			'starsLabel'    => esc_html__( 'Your rating', 'easy-form-builder' ),
-			/* translators: %s: a number from 1 to 5. */
-			'starsOf'       => esc_html__( '%s out of 5 stars', 'easy-form-builder' ),
-			'starsHint'     => esc_html__( 'Pick a rating to continue', 'easy-form-builder' ),
-			/* translators: %s: the discount, e.g. "100%". */
-			'offerLine'     => esc_html__( 'Rate us 5 stars and get %s off your first year of Pro', 'easy-form-builder' ),
-			/* translators: %s: the discount, e.g. "100%". */
-			'rewardTitle'   => esc_html__( 'Thank you! Here is %s off your first year', 'easy-form-builder' ),
-			/* translators: %s: the discount, e.g. "100%". */
-			'rewardMessage' => esc_html__( 'Post your 5-star review on WordPress.org, come back, and we will send your %s discount code for the first year of the Pro version.', 'easy-form-builder' ),
-			'rewardStep1'   => esc_html__( 'Leave your review on WordPress.org - it opens in a new tab.', 'easy-form-builder' ),
-			'rewardStep2'   => esc_html__( 'Come back here and press the button to get your code.', 'easy-form-builder' ),
-			'emailLabel'    => esc_html__( 'Email address for the discount code', 'easy-form-builder' ),
-			'emailRequired' => esc_html__( 'Please enter an email address so we can send the code.', 'easy-form-builder' ),
-			'improveTitle'  => esc_html__( 'Tell us what would make it a 5', 'easy-form-builder' ),
-			'improveMessage' => esc_html__( 'Thank you for being honest. We would rather fix what is bothering you than collect a rating - tell us what is missing and we will look at it.', 'easy-form-builder' ),
-			'privacy'       => esc_html__( 'We only send your site address, your email, and the plugin, WordPress and PHP versions.', 'easy-form-builder' ),
-			'thanksTitle'   => esc_html__( 'Thank you', 'easy-form-builder' ),
-			/* translators: %s: the discount, e.g. "100%". */
-			'couponIssued'  => esc_html__( 'Here is your %s discount code for the first year of Pro:', 'easy-form-builder' ),
-			/* translators: %s: the discount, e.g. "100%". */
-			'couponPending' => esc_html__( 'Your %s discount code is on its way - we will email it to you shortly.', 'easy-form-builder' ),
-			'claim'         => esc_html__( 'I left a review - send my code', 'easy-form-builder' ),
-			'goReview'      => esc_html__( 'Rate on WordPress.org', 'easy-form-builder' ),
-			'goSupport'     => esc_html__( 'Tell us what is wrong', 'easy-form-builder' ),
-			'later'         => esc_html__( 'Maybe later', 'easy-form-builder' ),
-			'never'         => esc_html__( 'Do not ask again', 'easy-form-builder' ),
-			'done'          => esc_html__( 'Close', 'easy-form-builder' ),
-			'close'         => esc_html__( 'Close', 'easy-form-builder' ),
-			'copy'          => esc_html__( 'Copy', 'easy-form-builder' ),
-			'copied'        => esc_html__( 'Copied', 'easy-form-builder' ),
-			'sending'       => esc_html__( 'Sending&hellip;', 'easy-form-builder' ),
-			'failed'        => esc_html__( 'Something went wrong. Please try again in a moment.', 'easy-form-builder' ),
+			'close'            => esc_html__( 'Close', 'easy-form-builder' ),
+			'ribbon'           => esc_html__( 'Special offer for Easy Form Builder users', 'easy-form-builder' ),
+			/* translators: %s: the discount, e.g. "64%". */
+			'ribbonPct'        => esc_html__( '%s OFF', 'easy-form-builder' ),
+
+			'askTitle'         => esc_html__( 'How has Easy Form Builder been for you?', 'easy-form-builder' ),
+			'starsLabel'       => esc_html__( 'Your rating', 'easy-form-builder' ),
+			'r0'               => esc_html__( 'Tap a star to rate', 'easy-form-builder' ),
+			'r1'               => esc_html__( 'Not what I needed', 'easy-form-builder' ),
+			'r2'               => esc_html__( 'It works, but it is hard', 'easy-form-builder' ),
+			'r3'               => esc_html__( 'It is fine', 'easy-form-builder' ),
+			'r4'               => esc_html__( 'Pretty good', 'easy-form-builder' ),
+			'r5'               => esc_html__( 'Great, I recommend it', 'easy-form-builder' ),
+			'trust1'           => esc_html__( 'Under 30 seconds', 'easy-form-builder' ),
+			'trust2'           => esc_html__( 'No sign-up', 'easy-form-builder' ),
+			'trust3'           => esc_html__( 'We will not ask again', 'easy-form-builder' ),
+
+			'praiseTitle'      => esc_html__( 'Thank you!', 'easy-form-builder' ),
+			'praiseLead'       => esc_html__( 'Your review on WordPress.org helps other people find the plugin. As a thank-you, we will email you a discount code.', 'easy-form-builder' ),
+			'couponNote'       => esc_html__( 'On your first year of Pro · the code is emailed to you', 'easy-form-builder' ),
+			'flow1'            => esc_html__( 'Post your 5-star review', 'easy-form-builder' ),
+			'flow2'            => esc_html__( 'Come back and claim the code', 'easy-form-builder' ),
+			'writeReview'      => esc_html__( 'Post a 5-star review', 'easy-form-builder' ),
+			'opensWp'          => esc_html__( 'Opens on WordPress.org', 'easy-form-builder' ),
+			'aPosted'          => esc_html__( 'I posted it - get my code', 'easy-form-builder' ),
+
+			'claimBadge'       => esc_html__( 'Review posted', 'easy-form-builder' ),
+			'claimTitle'       => esc_html__( 'Where should we send the code?', 'easy-form-builder' ),
+			'claimLead'        => esc_html__( 'Enter your WordPress.org username and your email. We will find your review and email the discount code to that address.', 'easy-form-builder' ),
+			'fieldUser'        => esc_html__( 'WordPress.org username', 'easy-form-builder' ),
+			'userPh'           => esc_html__( 'e.g. hassan_t', 'easy-form-builder' ),
+			'userHint'         => esc_html__( 'The name your review was posted under.', 'easy-form-builder' ),
+			'fieldEmail'       => esc_html__( 'Your email', 'easy-form-builder' ),
+			'emailPh'          => esc_html__( 'you@example.com', 'easy-form-builder' ),
+			'emailHint'        => esc_html__( 'The discount code is sent to this address.', 'easy-form-builder' ),
+			'privacyNote'      => esc_html__( 'This is used only to find your review and send the code - you are not added to any mailing list.', 'easy-form-builder' ),
+
+			'checkTitle'       => esc_html__( 'Checking your review', 'easy-form-builder' ),
+			'checkLead'        => esc_html__( 'One moment while we look for your review on WordPress.org.', 'easy-form-builder' ),
+			'csFind'           => esc_html__( 'Finding the review', 'easy-form-builder' ),
+			'csStars'          => esc_html__( 'Checking the rating', 'easy-form-builder' ),
+			'csSend'           => esc_html__( 'Emailing the code', 'easy-form-builder' ),
+
+			'ocGrantedTitle'   => esc_html__( 'Your discount code is on its way', 'easy-form-builder' ),
+			'ocGrantedLead'    => esc_html__( 'The email has just been sent. If it is not in your inbox, check the spam folder.', 'easy-form-builder' ),
+			'ocGrantedDetail'  => esc_html__( 'The code is valid for 7 days.', 'easy-form-builder' ),
+			'ocPendingTitle'   => esc_html__( 'Your review is awaiting publication', 'easy-form-builder' ),
+			'ocPendingLead'    => esc_html__( 'Reviews take a little while to appear on WordPress.org. As soon as yours is live, we will email the code automatically.', 'easy-form-builder' ),
+			'ocPendingDetail'  => esc_html__( 'Nothing else to do - you can close this window.', 'easy-form-builder' ),
+			'ocNotFoundTitle'  => esc_html__( 'No review found for that username', 'easy-form-builder' ),
+			'ocNotFoundLead'   => esc_html__( 'The review may not be posted yet, or the username may be different. Check the username and try again.', 'easy-form-builder' ),
+			'ocNotFoundDetail' => esc_html__( 'The username is the one shown above your review text.', 'easy-form-builder' ),
+			'ocLowStarsTitle'  => esc_html__( 'Your review is not 5 stars', 'easy-form-builder' ),
+			/* translators: %s: the discount, e.g. "64%". */
+			'ocLowStarsLead'   => esc_html__( 'The %s discount is for 5-star reviews. If your experience was good, you can edit your rating and try again.', 'easy-form-builder' ),
+			'ocLowStarsDetail' => esc_html__( 'If something went wrong instead, send us feedback and we will fix it.', 'easy-form-builder' ),
+			'ocUsedTitle'      => esc_html__( 'This code has already been claimed', 'easy-form-builder' ),
+			'ocUsedLead'       => esc_html__( 'A discount code was already issued for this username. Check that earlier email, or contact support.', 'easy-form-builder' ),
+			'ocUsedDetail'     => esc_html__( 'One discount code per person.', 'easy-form-builder' ),
+			'ocBadEmailTitle'  => esc_html__( 'That email did not work', 'easy-form-builder' ),
+			'ocBadEmailLead'   => esc_html__( 'We could not send mail to this address. Check it and try again.', 'easy-form-builder' ),
+			'ocBadEmailDetail' => esc_html__( 'Use a real, active mailbox rather than a temporary address.', 'easy-form-builder' ),
+			'ocServerTitle'    => esc_html__( 'We could not check right now', 'easy-form-builder' ),
+			'ocServerLead'     => esc_html__( 'The server could not be reached. Try again in a moment - nothing you entered was lost.', 'easy-form-builder' ),
+			'ocServerDetail'   => esc_html__( 'If it keeps happening, let the Easy Form Builder team know.', 'easy-form-builder' ),
+
+			'fbTitle'          => esc_html__( 'What should we make better?', 'easy-form-builder' ),
+			'fbLead'           => esc_html__( 'We would rather fix it first. This goes straight to the team, not to the public page.', 'easy-form-builder' ),
+			'fbPlaceholder'    => esc_html__( 'For example: I could not find the form email settings&hellip;', 'easy-form-builder' ),
+			'fbContact'        => esc_html__( 'You may contact me about this if needed (the site admin email is used).', 'easy-form-builder' ),
+			'changeRating'     => esc_html__( 'Change rating', 'easy-form-builder' ),
+			'topicBuilding'    => esc_html__( 'Building forms', 'easy-form-builder' ),
+			'topicEmail'       => esc_html__( 'Sending email', 'easy-form-builder' ),
+			'topicStyling'     => esc_html__( 'Look & styling', 'easy-form-builder' ),
+			'topicSpeed'       => esc_html__( 'Speed', 'easy-form-builder' ),
+			'topicPayments'    => esc_html__( 'Payments', 'easy-form-builder' ),
+			'topicTranslation' => esc_html__( 'Translation', 'easy-form-builder' ),
+
+			'sentTitle'        => esc_html__( 'Your message is in', 'easy-form-builder' ),
+			'sentLead'         => esc_html__( 'The Easy Form Builder team reads every one, and replies if you left an email.', 'easy-form-builder' ),
+			'sentCoupon'       => esc_html__( 'If we fix it and you change your mind, we would love a rating later.', 'easy-form-builder' ),
+
+			'aLater'           => esc_html__( 'Maybe later', 'easy-form-builder' ),
+			'aNever'           => esc_html__( 'Do not ask again', 'easy-form-builder' ),
+			'aGetCode'         => esc_html__( 'Send my discount code', 'easy-form-builder' ),
+			'aSend'            => esc_html__( 'Send feedback', 'easy-form-builder' ),
+			'aRetry'           => esc_html__( 'Try again', 'easy-form-builder' ),
+			'aEditInfo'        => esc_html__( 'Edit details', 'easy-form-builder' ),
+			'aSupport'         => esc_html__( 'Contact support', 'easy-form-builder' ),
+			'aWriteFeedback'   => esc_html__( 'Send feedback', 'easy-form-builder' ),
+			'aDone'            => esc_html__( 'Close', 'easy-form-builder' ),
+			'sending'          => esc_html__( 'Sending&hellip;', 'easy-form-builder' ),
+
+			'errUsername'      => esc_html__( 'Please enter your WordPress.org username.', 'easy-form-builder' ),
+			'errEmail'         => esc_html__( 'Please enter a valid email address.', 'easy-form-builder' ),
+			'errComment'       => esc_html__( 'Please pick a topic or write a sentence first.', 'easy-form-builder' ),
+			'failed'           => esc_html__( 'Something went wrong. Please try again in a moment.', 'easy-form-builder' ),
 		);
 
 		$bundled = $this->bundled_translations_efb();
@@ -893,100 +1252,268 @@ class Review_Request {
 	protected function bundled_translations_efb() {
 		return array(
 			'fa' => array(
-				'headTitle'      => 'از فرم‌ساز راضی هستید؟',
-				'askTitle'       => 'تا اینجا چطور بوده‌ایم؟',
-				'askMessage'     => 'دو هفته‌ای می‌شود که با ما فرم می‌سازید. اگر به کارتان آمده، یک امتیاز کمک می‌کند دیگران هم این افزونه را پیدا کنند؛ کمتر از یک دقیقه وقت می‌گیرد.',
-				'starsLabel'     => 'امتیاز شما',
-				'starsOf'        => '%s ستاره از ۵',
-				'starsHint'      => 'برای ادامه، امتیازتان را انتخاب کنید',
-				'offerLine'      => 'به ما ۵ ستاره بدهید و برای سال اول نسخه حرفه‌ای %s تخفیف بگیرید',
-				'rewardTitle'    => 'ممنونیم! %s تخفیف سال اول برای شما',
-				'rewardMessage'  => 'نظر ۵ ستاره‌تان را در WordPress.org ثبت کنید، برگردید، و ما کد تخفیف %s سال اول نسخه حرفه‌ای را برایتان می‌فرستیم.',
-				'rewardStep1'    => 'نظرتان را در WordPress.org ثبت کنید؛ در زبانه‌ی تازه باز می‌شود.',
-				'rewardStep2'    => 'به همین‌جا برگردید و دکمه را بزنید تا کدتان را بگیرید.',
-				'emailLabel'     => 'ایمیل برای دریافت کد تخفیف',
-				'emailRequired'  => 'لطفاً ایمیلتان را بنویسید تا کد را برایتان بفرستیم.',
-				'improveTitle'   => 'بگویید چه چیزی آن را ۵ ستاره می‌کند',
-				'improveMessage' => 'ممنون که رک بودید. ما ترجیح می‌دهیم چیزی را که آزارتان می‌دهد درست کنیم تا اینکه امتیاز جمع کنیم؛ بگویید چه کم دارد تا بررسی‌اش کنیم.',
-				'privacy'        => 'فقط نشانی سایت، ایمیل شما، و نسخه‌های افزونه، وردپرس و PHP فرستاده می‌شود.',
-				'thanksTitle'    => 'ممنونیم',
-				'couponIssued'   => 'این هم کد تخفیف %s سال اول نسخه حرفه‌ای:',
-				'couponPending'  => 'کد تخفیف %s شما در راه است؛ به‌زودی برایتان ایمیل می‌کنیم.',
-				'claim'          => 'نظرم را ثبت کردم؛ کدم را بفرستید',
-				'goReview'       => 'ثبت امتیاز در WordPress.org',
-				'goSupport'      => 'بگویید چه اشکالی هست',
-				'later'          => 'بعداً',
-				'never'          => 'دیگر نپرس',
-				'done'           => 'بستن',
-				'close'          => 'بستن',
-				'copy'           => 'کپی',
-				'copied'         => 'کپی شد',
-				'sending'        => 'در حال ارسال…',
-				'failed'         => 'مشکلی پیش آمد. کمی بعد دوباره تلاش کنید.',
+				'close'            => 'بستن',
+				'ribbon'           => 'تخفیف ویژه‌ی کاربران فرم ساز آسان',
+				'ribbonPct'        => '%s تخفیف',
+				'askTitle'         => 'تجربه‌تان با فرم ساز آسان چطور بوده؟',
+				'starsLabel'       => 'امتیاز شما',
+				'r0'               => 'برای امتیاز دادن روی ستاره‌ها بزنید',
+				'r1'               => 'اصلاً راضی نبودم',
+				'r2'               => 'کار می‌کند ولی سخت است',
+				'r3'               => 'بد نیست',
+				'r4'               => 'خوب بود',
+				'r5'               => 'عالی بود، پیشنهادش می‌کنم',
+				'trust1'           => 'کمتر از ۳۰ ثانیه',
+				'trust2'           => 'بدون ثبت‌نام',
+				'trust3'           => 'دیگر پرسیده نمی‌شود',
+				'praiseTitle'      => 'خیلی ممنون!',
+				'praiseLead'       => 'نظر شما در WordPress.org به بقیه کمک می‌کند افزونه را پیدا کنند. به‌عنوان تشکر، کد تخفیف را برایتان ایمیل می‌کنیم.',
+				'couponNote'       => 'روی اولین سال Pro · کد به ایمیل شما ارسال می‌شود',
+				'flow1'            => 'نظر ۵ ستاره را ثبت کنید',
+				'flow2'            => 'برگردید و کد تخفیف را بگیرید',
+				'writeReview'      => 'ثبت نظر با ۵ ستاره',
+				'opensWp'          => 'در WordPress.org باز می‌شود',
+				'aPosted'          => 'نظرم را ثبت کردم، کد را بگیرم',
+				'claimBadge'       => 'نظر ثبت شد',
+				'claimTitle'       => 'کد تخفیف را کجا بفرستیم؟',
+				'claimLead'        => 'نام کاربری WordPress.org و ایمیل‌تان را بنویسید. نظر شما را پیدا می‌کنیم و کد تخفیف را به همان ایمیل می‌فرستیم.',
+				'fieldUser'        => 'نام کاربری WordPress.org',
+				'userPh'           => 'مثلاً hassan_t',
+				'userHint'         => 'همان نامی که نظر با آن ثبت شده است.',
+				'fieldEmail'       => 'ایمیل شما',
+				'emailPh'          => 'you@example.com',
+				'emailHint'        => 'کد تخفیف به این آدرس ارسال می‌شود.',
+				'privacyNote'      => 'این اطلاعات فقط برای پیدا کردن نظر و فرستادن کد استفاده می‌شود و در خبرنامه‌ای ثبت نمی‌شوید.',
+				'checkTitle'       => 'در حال بررسی نظر شما',
+				'checkLead'        => 'چند لحظه صبر کنید؛ داریم نظرتان را در WordPress.org پیدا می‌کنیم.',
+				'csFind'           => 'پیدا کردن نظر',
+				'csStars'          => 'بررسی امتیاز',
+				'csSend'           => 'ارسال کد به ایمیل',
+				'ocGrantedTitle'   => 'کد تخفیف برایتان ارسال شد',
+				'ocGrantedLead'    => 'ایمیل را همین حالا فرستادیم. اگر در صندوق ورودی نبود، پوشه‌ی هرزنامه را نگاه کنید.',
+				'ocGrantedDetail'  => 'کد تا ۷ روز اعتبار دارد.',
+				'ocPendingTitle'   => 'نظر شما در انتظار انتشار است',
+				'ocPendingLead'    => 'نظرها در WordPress.org کمی بعد نمایش داده می‌شوند. به‌محض انتشار، کد تخفیف را خودکار برایتان ایمیل می‌کنیم.',
+				'ocPendingDetail'  => 'کاری لازم نیست انجام دهید؛ می‌توانید این پنجره را ببندید.',
+				'ocNotFoundTitle'  => 'نظری با این نام کاربری پیدا نشد',
+				'ocNotFoundLead'   => 'ممکن است نظر هنوز ثبت نشده یا نام کاربری متفاوت باشد. نام کاربری را بررسی کنید و دوباره تلاش کنید.',
+				'ocNotFoundDetail' => 'نام کاربری همان است که در صفحه‌ی نظر بالای متن‌تان نوشته شده.',
+				'ocLowStarsTitle'  => 'امتیاز نظر شما ۵ ستاره نیست',
+				'ocLowStarsLead'   => 'تخفیف %s برای نظرهای ۵ ستاره است. اگر تجربه‌تان خوب بوده می‌توانید امتیاز نظرتان را ویرایش کنید و دوباره تلاش کنید.',
+				'ocLowStarsDetail' => 'اگر مشکلی داشتید، به‌جای امتیاز برای ما بازخورد بفرستید تا درستش کنیم.',
+				'ocUsedTitle'      => 'این کد قبلاً گرفته شده',
+				'ocUsedLead'       => 'برای این نام کاربری یک کد تخفیف صادر شده است. ایمیل قبلی را بررسی کنید یا با پشتیبانی تماس بگیرید.',
+				'ocUsedDetail'     => 'هر کاربر یک کد تخفیف می‌گیرد.',
+				'ocBadEmailTitle'  => 'ایمیل درست وارد نشده',
+				'ocBadEmailLead'   => 'نتوانستیم به این آدرس ایمیل بفرستیم. آدرس را بررسی کنید و دوباره تلاش کنید.',
+				'ocBadEmailDetail' => 'یک ایمیل معمولی و فعال بنویسید، نه آدرس موقت.',
+				'ocServerTitle'    => 'الان نتوانستیم بررسی کنیم',
+				'ocServerLead'     => 'ارتباط با سرور برقرار نشد. چند لحظه بعد دوباره تلاش کنید؛ اطلاعات شما از بین نرفته است.',
+				'ocServerDetail'   => 'اگر تکرار شد، به تیم فرم ساز آسان اطلاع دهید.',
+				'fbTitle'          => 'چه چیزی را باید بهتر کنیم؟',
+				'fbLead'           => 'قبل از هر چیز می‌خواهیم مشکل را درست کنیم. این پیام مستقیم به تیم سازنده می‌رسد، نه به صفحه‌ی عمومی.',
+				'fbPlaceholder'    => 'مثلاً: تنظیم ایمیل فرم را پیدا نکردم…',
+				'fbContact'        => 'اگر لازم بود برای پیگیری با من تماس بگیرید (ایمیل مدیر سایت استفاده می‌شود).',
+				'changeRating'     => 'تغییر امتیاز',
+				'topicBuilding'    => 'ساختن فرم',
+				'topicEmail'       => 'ارسال ایمیل',
+				'topicStyling'     => 'ظاهر و استایل',
+				'topicSpeed'       => 'سرعت',
+				'topicPayments'    => 'پرداخت',
+				'topicTranslation' => 'ترجمه و فارسی',
+				'sentTitle'        => 'پیام شما رسید',
+				'sentLead'         => 'تیم فرم ساز آسان آن را می‌خواند و اگر ایمیل گذاشته باشید جواب می‌دهد.',
+				'sentCoupon'       => 'اگر مشکل حل شد و نظرتان عوض شد، خوشحال می‌شویم بعداً امتیاز بدهید.',
+				'aLater'           => 'بعداً',
+				'aNever'           => 'دیگر نپرس',
+				'aGetCode'         => 'ارسال کد تخفیف',
+				'aSend'            => 'ارسال بازخورد',
+				'aRetry'           => 'تلاش دوباره',
+				'aEditInfo'        => 'اصلاح اطلاعات',
+				'aSupport'         => 'تماس با پشتیبانی',
+				'aWriteFeedback'   => 'ارسال بازخورد',
+				'aDone'            => 'بستن',
+				'sending'          => 'در حال ارسال…',
+				'errUsername'      => 'لطفاً نام کاربری WordPress.org خود را بنویسید.',
+				'errEmail'         => 'لطفاً یک ایمیل معتبر بنویسید.',
+				'errComment'       => 'لطفاً یک موضوع انتخاب کنید یا یک جمله بنویسید.',
+				'failed'           => 'مشکلی پیش آمد. کمی بعد دوباره تلاش کنید.',
 			),
 			'ar' => array(
-				'headTitle'      => 'هل يعجبك Easy Form Builder؟',
-				'askTitle'       => 'كيف كان أداؤنا حتى الآن؟',
-				'askMessage'     => 'مضى أسبوعان وأنت تبني النماذج معنا. إذا كان مفيدًا، فإن تقييمك يساعد الآخرين على اكتشاف الإضافة، ولا يستغرق دقيقة واحدة.',
-				'starsLabel'     => 'تقييمك',
-				'starsOf'        => '%s من ٥ نجوم',
-				'starsHint'      => 'اختر تقييمًا للمتابعة',
-				'offerLine'      => 'قيّمنا بـ ٥ نجوم واحصل على خصم %s على سنتك الأولى من النسخة الاحترافية',
-				'rewardTitle'    => 'شكرًا لك! خصم %s على سنتك الأولى',
-				'rewardMessage'  => 'انشر تقييمك بخمس نجوم على WordPress.org، ثم عُد وسنرسل لك رمز خصم %s للسنة الأولى من النسخة الاحترافية.',
-				'rewardStep1'    => 'اترك تقييمك على WordPress.org - يُفتح في تبويب جديد.',
-				'rewardStep2'    => 'عُد إلى هنا واضغط الزر للحصول على الرمز.',
-				'emailLabel'     => 'البريد الإلكتروني لاستلام رمز الخصم',
-				'emailRequired'  => 'يرجى إدخال بريد إلكتروني حتى نتمكن من إرسال الرمز.',
-				'improveTitle'   => 'أخبرنا بما يجعله ٥ نجوم',
-				'improveMessage' => 'شكرًا لصراحتك. نُفضّل إصلاح ما يزعجك على جمع التقييمات - أخبرنا بما ينقص وسننظر فيه.',
-				'privacy'        => 'نرسل فقط عنوان موقعك وبريدك الإلكتروني وإصدارات الإضافة ووردبريس وPHP.',
-				'thanksTitle'    => 'شكرًا لك',
-				'couponIssued'   => 'هذا رمز خصم %s للسنة الأولى من النسخة الاحترافية:',
-				'couponPending'  => 'رمز خصم %s في طريقه إليك - سنرسله بالبريد قريبًا.',
-				'claim'          => 'تركتُ تقييمًا - أرسل الرمز',
-				'goReview'       => 'قيّمنا على WordPress.org',
-				'goSupport'      => 'أخبرنا بالمشكلة',
-				'later'          => 'ربما لاحقًا',
-				'never'          => 'لا تسألني مرة أخرى',
-				'done'           => 'إغلاق',
-				'close'          => 'إغلاق',
-				'copy'           => 'نسخ',
-				'copied'         => 'تم النسخ',
-				'sending'        => 'جارٍ الإرسال…',
-				'failed'         => 'حدث خطأ ما. يرجى المحاولة بعد قليل.',
+				'close'            => 'إغلاق',
+				'ribbon'           => 'عرض خاص لمستخدمي منشئ النماذج السهل',
+				'ribbonPct'        => 'خصم %s',
+				'askTitle'         => 'كيف كانت تجربتك مع منشئ النماذج السهل؟',
+				'starsLabel'       => 'تقييمك',
+				'r0'               => 'اضغط على النجوم للتقييم',
+				'r1'               => 'ليس ما احتجته',
+				'r2'               => 'يعمل، لكنه صعب',
+				'r3'               => 'لا بأس به',
+				'r4'               => 'جيد جدًا',
+				'r5'               => 'رائع، أنصح به',
+				'trust1'           => 'أقل من ٣٠ ثانية',
+				'trust2'           => 'بدون تسجيل',
+				'trust3'           => 'لن نسأل مرة أخرى',
+				'praiseTitle'      => 'شكرًا جزيلًا!',
+				'praiseLead'       => 'تقييمك على WordPress.org يساعد الآخرين على اكتشاف الإضافة. وكشكر، سنرسل لك رمز خصم بالبريد.',
+				'couponNote'       => 'على سنتك الأولى من Pro · يُرسل الرمز إلى بريدك',
+				'flow1'            => 'انشر تقييمك بخمس نجوم',
+				'flow2'            => 'عُد واحصل على الرمز',
+				'writeReview'      => 'انشر تقييمًا بخمس نجوم',
+				'opensWp'          => 'يُفتح على WordPress.org',
+				'aPosted'          => 'نشرتُه - أعطني الرمز',
+				'claimBadge'       => 'تم نشر التقييم',
+				'claimTitle'       => 'إلى أين نرسل الرمز؟',
+				'claimLead'        => 'اكتب اسم المستخدم على WordPress.org وبريدك الإلكتروني. سنجد تقييمك ونرسل رمز الخصم إلى ذلك العنوان.',
+				'fieldUser'        => 'اسم المستخدم على WordPress.org',
+				'userPh'           => 'مثال: hassan_t',
+				'userHint'         => 'الاسم الذي نُشر به تقييمك.',
+				'fieldEmail'       => 'بريدك الإلكتروني',
+				'emailPh'          => 'you@example.com',
+				'emailHint'        => 'يُرسل رمز الخصم إلى هذا العنوان.',
+				'privacyNote'      => 'يُستخدم هذا فقط للعثور على تقييمك وإرسال الرمز - لن تُضاف إلى أي قائمة بريدية.',
+				'checkTitle'       => 'نتحقق من تقييمك',
+				'checkLead'        => 'لحظة من فضلك، نبحث عن تقييمك على WordPress.org.',
+				'csFind'           => 'العثور على التقييم',
+				'csStars'          => 'التحقق من التقييم',
+				'csSend'           => 'إرسال الرمز بالبريد',
+				'ocGrantedTitle'   => 'رمز الخصم في طريقه إليك',
+				'ocGrantedLead'    => 'أُرسل البريد للتو. إذا لم يصل، تفقّد مجلد الرسائل غير المرغوبة.',
+				'ocGrantedDetail'  => 'الرمز صالح لمدة ٧ أيام.',
+				'ocPendingTitle'   => 'تقييمك في انتظار النشر',
+				'ocPendingLead'    => 'تستغرق التقييمات وقتًا قصيرًا لتظهر على WordPress.org. فور نشره سنرسل الرمز تلقائيًا.',
+				'ocPendingDetail'  => 'لا شيء آخر عليك فعله - يمكنك إغلاق هذه النافذة.',
+				'ocNotFoundTitle'  => 'لم نجد تقييمًا بهذا الاسم',
+				'ocNotFoundLead'   => 'قد لا يكون التقييم منشورًا بعد، أو أن الاسم مختلف. تحقق من الاسم وحاول مرة أخرى.',
+				'ocNotFoundDetail' => 'الاسم هو الظاهر فوق نص تقييمك.',
+				'ocLowStarsTitle'  => 'تقييمك ليس خمس نجوم',
+				'ocLowStarsLead'   => 'خصم %s مخصص للتقييمات بخمس نجوم. إن كانت تجربتك جيدة، يمكنك تعديل تقييمك والمحاولة مجددًا.',
+				'ocLowStarsDetail' => 'وإن حدث خطأ ما، أرسل لنا ملاحظاتك وسنصلحه.',
+				'ocUsedTitle'      => 'تم استخدام هذا الرمز من قبل',
+				'ocUsedLead'       => 'صدر رمز خصم لهذا الاسم سابقًا. تفقّد البريد السابق أو تواصل مع الدعم.',
+				'ocUsedDetail'     => 'رمز خصم واحد لكل شخص.',
+				'ocBadEmailTitle'  => 'البريد الإلكتروني غير صالح',
+				'ocBadEmailLead'   => 'تعذّر الإرسال إلى هذا العنوان. تحقق منه وحاول مجددًا.',
+				'ocBadEmailDetail' => 'استخدم بريدًا حقيقيًا نشطًا لا عنوانًا مؤقتًا.',
+				'ocServerTitle'    => 'تعذّر التحقق الآن',
+				'ocServerLead'     => 'تعذّر الوصول إلى الخادم. حاول بعد قليل - لم يُفقد شيء مما أدخلته.',
+				'ocServerDetail'   => 'إن تكرر الأمر، أبلغ فريق منشئ النماذج السهل.',
+				'fbTitle'          => 'ما الذي يجب أن نحسّنه؟',
+				'fbLead'           => 'نفضّل إصلاحه أولًا. تصل هذه الرسالة إلى الفريق مباشرة، لا إلى الصفحة العامة.',
+				'fbPlaceholder'    => 'مثال: لم أجد إعدادات بريد النموذج…',
+				'fbContact'        => 'يمكنكم التواصل معي بخصوص هذا إن لزم (يُستخدم بريد مدير الموقع).',
+				'changeRating'     => 'تغيير التقييم',
+				'topicBuilding'    => 'بناء النماذج',
+				'topicEmail'       => 'إرسال البريد',
+				'topicStyling'     => 'المظهر والتنسيق',
+				'topicSpeed'       => 'السرعة',
+				'topicPayments'    => 'المدفوعات',
+				'topicTranslation' => 'الترجمة',
+				'sentTitle'        => 'وصلت رسالتك',
+				'sentLead'         => 'يقرأ فريق منشئ النماذج السهل كل رسالة، ويردّ إن تركت بريدًا.',
+				'sentCoupon'       => 'إن أصلحناه وغيّرت رأيك، يسعدنا تقييمك لاحقًا.',
+				'aLater'           => 'ربما لاحقًا',
+				'aNever'           => 'لا تسألني مرة أخرى',
+				'aGetCode'         => 'أرسل رمز الخصم',
+				'aSend'            => 'إرسال الملاحظات',
+				'aRetry'           => 'حاول مجددًا',
+				'aEditInfo'        => 'تعديل البيانات',
+				'aSupport'         => 'تواصل مع الدعم',
+				'aWriteFeedback'   => 'إرسال الملاحظات',
+				'aDone'            => 'إغلاق',
+				'sending'          => 'جارٍ الإرسال…',
+				'errUsername'      => 'يرجى إدخال اسم المستخدم على WordPress.org.',
+				'errEmail'         => 'يرجى إدخال بريد إلكتروني صالح.',
+				'errComment'       => 'يرجى اختيار موضوع أو كتابة جملة أولًا.',
+				'failed'           => 'حدث خطأ ما. حاول بعد قليل.',
 			),
 			'de' => array(
-				'headTitle'      => 'Gefällt Ihnen Easy Form Builder?',
-				'askTitle'       => 'Wie machen wir uns bisher?',
-				'askMessage'     => 'Sie bauen seit gut zwei Wochen Formulare mit uns. Wenn es Ihnen geholfen hat, hilft eine Bewertung anderen, das Plugin zu finden - und dauert keine Minute.',
-				'starsLabel'     => 'Ihre Bewertung',
-				'starsOf'        => '%s von 5 Sternen',
-				'starsHint'      => 'Wählen Sie eine Bewertung, um fortzufahren',
-				'offerLine'      => 'Bewerten Sie uns mit 5 Sternen und erhalten Sie %s Rabatt auf Ihr erstes Pro-Jahr',
-				'rewardTitle'    => 'Vielen Dank! Hier sind %s Rabatt auf Ihr erstes Jahr',
-				'rewardMessage'  => 'Veröffentlichen Sie Ihre 5-Sterne-Bewertung auf WordPress.org, kommen Sie zurück, und wir senden Ihnen Ihren %s-Rabattcode für das erste Pro-Jahr.',
-				'rewardStep1'    => 'Hinterlassen Sie Ihre Bewertung auf WordPress.org - sie öffnet sich in einem neuen Tab.',
-				'rewardStep2'    => 'Kommen Sie hierher zurück und klicken Sie auf die Schaltfläche für Ihren Code.',
-				'emailLabel'     => 'E-Mail-Adresse für den Rabattcode',
-				'emailRequired'  => 'Bitte geben Sie eine E-Mail-Adresse an, damit wir den Code senden können.',
-				'improveTitle'   => 'Sagen Sie uns, was daraus eine 5 macht',
-				'improveMessage' => 'Danke für Ihre Ehrlichkeit. Uns ist lieber, wir beheben, was Sie stört, als eine Bewertung einzusammeln - sagen Sie uns, was fehlt.',
-				'privacy'        => 'Wir senden nur Ihre Website-Adresse, Ihre E-Mail und die Plugin-, WordPress- und PHP-Versionen.',
-				'thanksTitle'    => 'Vielen Dank',
-				'couponIssued'   => 'Hier ist Ihr %s-Rabattcode für das erste Pro-Jahr:',
-				'couponPending'  => 'Ihr %s-Rabattcode ist unterwegs - wir senden ihn Ihnen in Kürze per E-Mail.',
-				'claim'          => 'Ich habe bewertet - Code senden',
-				'goReview'       => 'Auf WordPress.org bewerten',
-				'goSupport'      => 'Sagen Sie uns, was nicht stimmt',
-				'later'          => 'Vielleicht später',
-				'never'          => 'Nicht mehr fragen',
-				'done'           => 'Schließen',
-				'close'          => 'Schließen',
-				'copy'           => 'Kopieren',
-				'copied'         => 'Kopiert',
-				'sending'        => 'Wird gesendet…',
-				'failed'         => 'Etwas ist schiefgelaufen. Bitte versuchen Sie es gleich noch einmal.',
+				'close'            => 'Schließen',
+				'ribbon'           => 'Sonderangebot für Easy-Form-Builder-Nutzer',
+				'ribbonPct'        => '%s RABATT',
+				'askTitle'         => 'Wie war Easy Form Builder für Sie?',
+				'starsLabel'       => 'Ihre Bewertung',
+				'r0'               => 'Zum Bewerten auf einen Stern tippen',
+				'r1'               => 'Nicht das, was ich brauchte',
+				'r2'               => 'Es funktioniert, ist aber mühsam',
+				'r3'               => 'Ganz in Ordnung',
+				'r4'               => 'Ziemlich gut',
+				'r5'               => 'Großartig, ich empfehle es',
+				'trust1'           => 'Unter 30 Sekunden',
+				'trust2'           => 'Ohne Anmeldung',
+				'trust3'           => 'Wir fragen nicht noch einmal',
+				'praiseTitle'      => 'Vielen Dank!',
+				'praiseLead'       => 'Ihre Bewertung auf WordPress.org hilft anderen, das Plugin zu finden. Als Dankeschön senden wir Ihnen einen Rabattcode per E-Mail.',
+				'couponNote'       => 'Auf Ihr erstes Pro-Jahr · der Code kommt per E-Mail',
+				'flow1'            => 'Veröffentlichen Sie Ihre 5-Sterne-Bewertung',
+				'flow2'            => 'Kommen Sie zurück und holen Sie den Code',
+				'writeReview'      => '5-Sterne-Bewertung schreiben',
+				'opensWp'          => 'Öffnet auf WordPress.org',
+				'aPosted'          => 'Erledigt - Code anfordern',
+				'claimBadge'       => 'Bewertung veröffentlicht',
+				'claimTitle'       => 'Wohin sollen wir den Code senden?',
+				'claimLead'        => 'Geben Sie Ihren WordPress.org-Benutzernamen und Ihre E-Mail-Adresse an. Wir suchen Ihre Bewertung und senden den Rabattcode dorthin.',
+				'fieldUser'        => 'WordPress.org-Benutzername',
+				'userPh'           => 'z. B. hassan_t',
+				'userHint'         => 'Der Name, unter dem Ihre Bewertung steht.',
+				'fieldEmail'       => 'Ihre E-Mail-Adresse',
+				'emailPh'          => 'you@example.com',
+				'emailHint'        => 'An diese Adresse geht der Rabattcode.',
+				'privacyNote'      => 'Wird nur verwendet, um Ihre Bewertung zu finden und den Code zu senden - Sie landen in keinem Verteiler.',
+				'checkTitle'       => 'Wir prüfen Ihre Bewertung',
+				'checkLead'        => 'Einen Moment, wir suchen Ihre Bewertung auf WordPress.org.',
+				'csFind'           => 'Bewertung suchen',
+				'csStars'          => 'Bewertung prüfen',
+				'csSend'           => 'Code per E-Mail senden',
+				'ocGrantedTitle'   => 'Ihr Rabattcode ist unterwegs',
+				'ocGrantedLead'    => 'Die E-Mail wurde soeben gesendet. Falls sie nicht im Posteingang ist, prüfen Sie den Spam-Ordner.',
+				'ocGrantedDetail'  => 'Der Code ist 7 Tage gültig.',
+				'ocPendingTitle'   => 'Ihre Bewertung wartet auf Freigabe',
+				'ocPendingLead'    => 'Bewertungen erscheinen auf WordPress.org mit etwas Verzögerung. Sobald Ihre online ist, senden wir den Code automatisch.',
+				'ocPendingDetail'  => 'Sie müssen nichts weiter tun - Sie können dieses Fenster schließen.',
+				'ocNotFoundTitle'  => 'Keine Bewertung zu diesem Benutzernamen gefunden',
+				'ocNotFoundLead'   => 'Die Bewertung ist vielleicht noch nicht veröffentlicht, oder der Benutzername lautet anders. Bitte prüfen und erneut versuchen.',
+				'ocNotFoundDetail' => 'Der Benutzername steht über Ihrem Bewertungstext.',
+				'ocLowStarsTitle'  => 'Ihre Bewertung hat keine 5 Sterne',
+				'ocLowStarsLead'   => 'Der Rabatt von %s gilt für 5-Sterne-Bewertungen. War Ihre Erfahrung gut, können Sie Ihre Bewertung ändern und es erneut versuchen.',
+				'ocLowStarsDetail' => 'Lief stattdessen etwas schief, schicken Sie uns Feedback - wir bringen es in Ordnung.',
+				'ocUsedTitle'      => 'Dieser Code wurde bereits eingelöst',
+				'ocUsedLead'       => 'Für diesen Benutzernamen wurde bereits ein Rabattcode ausgestellt. Prüfen Sie die frühere E-Mail oder wenden Sie sich an den Support.',
+				'ocUsedDetail'     => 'Ein Rabattcode pro Person.',
+				'ocBadEmailTitle'  => 'Diese E-Mail-Adresse funktioniert nicht',
+				'ocBadEmailLead'   => 'Wir konnten an diese Adresse nicht senden. Bitte prüfen und erneut versuchen.',
+				'ocBadEmailDetail' => 'Verwenden Sie ein echtes, aktives Postfach statt einer Wegwerfadresse.',
+				'ocServerTitle'    => 'Wir konnten gerade nicht prüfen',
+				'ocServerLead'     => 'Der Server war nicht erreichbar. Versuchen Sie es gleich noch einmal - nichts von Ihren Eingaben ging verloren.',
+				'ocServerDetail'   => 'Wenn es weiter auftritt, sagen Sie dem Easy-Form-Builder-Team Bescheid.',
+				'fbTitle'          => 'Was sollten wir besser machen?',
+				'fbLead'           => 'Wir bringen es lieber erst in Ordnung. Das geht direkt an das Team, nicht auf die öffentliche Seite.',
+				'fbPlaceholder'    => 'Zum Beispiel: Ich habe die E-Mail-Einstellungen des Formulars nicht gefunden…',
+				'fbContact'        => 'Sie dürfen mich dazu kontaktieren (die Admin-E-Mail-Adresse wird verwendet).',
+				'changeRating'     => 'Bewertung ändern',
+				'topicBuilding'    => 'Formulare bauen',
+				'topicEmail'       => 'E-Mail-Versand',
+				'topicStyling'     => 'Aussehen & Stil',
+				'topicSpeed'       => 'Geschwindigkeit',
+				'topicPayments'    => 'Zahlungen',
+				'topicTranslation' => 'Übersetzung',
+				'sentTitle'        => 'Ihre Nachricht ist da',
+				'sentLead'         => 'Das Easy-Form-Builder-Team liest jede einzelne und antwortet, wenn Sie eine E-Mail-Adresse hinterlassen haben.',
+				'sentCoupon'       => 'Wenn wir es beheben und Sie Ihre Meinung ändern, freuen wir uns später über eine Bewertung.',
+				'aLater'           => 'Vielleicht später',
+				'aNever'           => 'Nicht mehr fragen',
+				'aGetCode'         => 'Rabattcode senden',
+				'aSend'            => 'Feedback senden',
+				'aRetry'           => 'Erneut versuchen',
+				'aEditInfo'        => 'Angaben bearbeiten',
+				'aSupport'         => 'Support kontaktieren',
+				'aWriteFeedback'   => 'Feedback senden',
+				'aDone'            => 'Schließen',
+				'sending'          => 'Wird gesendet…',
+				'errUsername'      => 'Bitte geben Sie Ihren WordPress.org-Benutzernamen an.',
+				'errEmail'         => 'Bitte geben Sie eine gültige E-Mail-Adresse an.',
+				'errComment'       => 'Bitte wählen Sie ein Thema oder schreiben Sie einen Satz.',
+				'failed'           => 'Etwas ist schiefgelaufen. Bitte versuchen Sie es gleich noch einmal.',
 			),
 		);
 	}

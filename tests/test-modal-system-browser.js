@@ -213,7 +213,10 @@ async function closeShared(page) {
       restoreLabels.join(' | '));
 
     const chip = await page.locator('#settingModalEfb .efb-confirm-message b').innerText().catch(() => '');
-    t('the prompt says when the draft was saved', /\d/.test(chip), chip);
+    // The stamp is formatted in the admin's own locale, so on a Persian or
+    // Arabic install its digits are not ASCII ones.
+    t('the prompt says when the draft was saved',
+      /[\d٠-٩۰-۹]/.test(chip), chip);
 
     await page.screenshot({ path: path.join(SHOTS, 'modal-05-restore-ltr.png') });
 

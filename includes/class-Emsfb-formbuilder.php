@@ -211,7 +211,7 @@
 
 	private function generateTextInput_efb($type, $classes, $vj, $rndm, $desc, $label, $ttip, $div_f_id, $placeholder, $lenAttributes, $aire_describedby, $disabled, $autocomplete, $form_id, $telPattern = '') {
 
-		$corener = isset($vj->corner) ? $vj->corner : 'efb-square';
+		$corener = isset($vj->corner) ? $vj->corner : 'rounded-3';
 		$required = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
 		$value = !empty($vj->value) ? 'value="' . esc_attr($vj->value) . '"' : '';
 		$aria_required = ($vj->required == 1) ? 'true' : 'false';
@@ -508,7 +508,7 @@
         $ariaRequired = $vj->required == 1 ? 'true' : 'false';
         $ariaDescribedBy = !empty($vj->message) ? 'aria-describedby="' . $vj->id_ . '-des"' : '';
         $disabled = property_exists($vj, 'disabled') && $vj->disabled == true ? 'disabled' : '';
-        $corner = isset($vj->corner) ? $vj->corner : 'efb-square';
+        $corner = isset($vj->corner) ? $vj->corner : 'rounded-3';
         $el_height = isset($vj->el_height) ? $vj->el_height : '';
         $el_border_color = isset($vj->el_border_color) ? $vj->el_border_color : '';
 		$type = $vj->type;
@@ -583,7 +583,7 @@
 		$ariaRequired = $vj->required == 1 ? 'true' : 'false';
 		$ariaDescribedBy = !empty($vj->message) ? 'aria-describedby="' . $vj->id_ . '-des"' : '';
 		$disabled = property_exists($vj, 'disabled') && $vj->disabled == true ? 'disabled' : '';
-		$corner = isset($vj->corner) ? $vj->corner : 'efb-square';
+		$corner = isset($vj->corner) ? $vj->corner : 'rounded-3';
 		$el_height = isset($vj->el_height) ? $vj->el_height : '';
 		$el_border_color = isset($vj->el_border_color) ? $vj->el_border_color : '';
 
@@ -655,7 +655,7 @@
 		$ariaRequired = $vj->required == 1 ? 'true' : 'false';
 		$ariaDescribedBy = !empty($vj->message) ? 'aria-describedby="' . $vj->id_ . '-des"' : '';
 		$disabled = property_exists($vj, 'disabled') && $vj->disabled == true ? 'disabled' : '';
-		$corner = isset($vj->corner) ? $vj->corner : 'efb-square';
+		$corner = isset($vj->corner) ? $vj->corner : 'rounded-3';
 		$el_height = isset($vj->el_height) ? $vj->el_height : '';
 		$el_border_color = isset($vj->el_border_color) ? $vj->el_border_color : '';
 
@@ -751,7 +751,7 @@
 		$ariaRequired = $vj->required == 1 ? 'true' : 'false';
 		$ariaDescribedBy = !empty($vj->message) ? 'aria-describedby="' . $vj->id_ . '-des"' : '';
 		$disabled = property_exists($vj, 'disabled') && $vj->disabled == true ? 'disabled' : '';
-		$corner = isset($vj->corner) ? $vj->corner : 'efb-square';
+		$corner = isset($vj->corner) ? $vj->corner : 'rounded-3';
 		$el_height = isset($vj->el_height) ? $vj->el_height : '';
 		$el_border_color = isset($vj->el_border_color) ? $vj->el_border_color : '';
 
@@ -823,7 +823,7 @@
 		$value = !empty($vj->value) ? sprintf('value="%s"', esc_attr($vj->value)) : '';
 		$el_height = isset($vj->el_height) ? $vj->el_height : '';
 		$el_text_color = isset($vj->el_text_color) ? $vj->el_text_color : '';
-		$corner = isset($vj->corner) ? $vj->corner : 'efb-square';
+		$corner = isset($vj->corner) ? $vj->corner : 'rounded-3';
 		$extra_classes = str_replace(',', ' ', $vj->classes);
 
 		$ui = sprintf(
@@ -978,7 +978,7 @@
 
     public function generate_yes_no_efb($previewState, $pos, $rndm, $vj, $formId) {
 
-		$corner = isset($vj->corner) ? $vj->corner : 'efb-square';
+		$corner = isset($vj->corner) ? $vj->corner : 'rounded-3';
 		$disabled = (isset($vj->disabled) && $vj->disabled == 1) ? 'disabled' : '';
 		$required = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
 		$ariaDescribedBy = !empty($vj->message) ? 'aria-describedby="' . $vj->id_ . '-des"' : '';
@@ -1354,7 +1354,7 @@
 		$classes =  str_replace(',', ' ', $vj->classes) ?? '';
 		$el_height = isset($vj->el_height) ? $vj->el_height : '';
 		$el_text_color = isset($vj->el_text_color) ? $vj->el_text_color : '';
-		$corner = isset($vj->corner) ? $vj->corner : 'efb-square';
+		$corner = isset($vj->corner) ? $vj->corner : 'rounded-3';
 		$additional_classes = isset($vj->classes) ? str_replace(',', ' ', $vj->classes) : '';
 		$randomId =$vj->id_;
 
@@ -1472,7 +1472,7 @@
 		// Generic style settings live on the shell, same class list the JS factory emits;
 		// recorder-efb.css translates them onto the inner frame.
 		$elHeight = property_exists($vj, 'el_height') && $vj->el_height ? $vj->el_height : 'h-d-efb';
-		$corner = property_exists($vj, 'corner') && $vj->corner ? $vj->corner : 'efb-square';
+		$corner = property_exists($vj, 'corner') && $vj->corner ? $vj->corner : 'rounded-3';
 		$borderColor = property_exists($vj, 'el_border_color') && $vj->el_border_color ? $vj->el_border_color : 'border-d';
 		$extraClasses = property_exists($vj, 'classes') && $vj->classes ? trim(str_replace(',', ' ', $vj->classes)) : '';
 
@@ -1547,7 +1547,7 @@
 	}
 
 	public function dadfile_el_pro_efb($previewSate, $rndm, $vj, $form_id, $texts) {
-		$corner = property_exists($vj, 'corner') ? $vj->corner : 'efb-square';
+		$corner = property_exists($vj, 'corner') ? $vj->corner : 'rounded-3';
 		$disabled = property_exists($vj, 'disabled') && $vj->disabled == true ? 'disabled' : '';
 
 		$ui = $this->ui_dadfile_efb($vj, $previewSate, $form_id, $texts , $disabled, $corner);
@@ -1640,7 +1640,7 @@
 			</div>
 		  </div>
 		</div>
-		<div class="efb efb-slot"><a class="efb  btn my-2 efb p-2 efb-square h-l-efb  efb-btn-lg float-end text-decoration-none disabled '.$this->pub_bg_button_color_efb.' text-white" id="btnStripeEfb" data-formid="'.$form_id.'">'.$texts['payNow'].'</a></div>
+		<div class="efb efb-slot"><a class="efb  btn my-2 efb p-2 rounded-3 h-l-efb  efb-btn-lg float-end text-decoration-none disabled '.$this->pub_bg_button_color_efb.' text-white" id="btnStripeEfb" data-formid="'.$form_id.'">'.$texts['payNow'].'</a></div>
 		<div class="efb  bg-light border-d rounded-3 p-2 bg-muted" id="statusStripEfb" style="display: none"></div>
 		</div>
 		</div>
@@ -1670,7 +1670,7 @@
 					.'</div>
 				</div>
 				<div class="my-2 efb p-2" id="paypal-button-container" data-formid="'.$form_id.'">
-					<div class="efb efb-slot"><a class="efb btn efb-square h-l-efb btn-primary text-white text-decoration-none disabled w-100 paypalEfb"
+					<div class="efb efb-slot"><a class="efb btn rounded-3 h-l-efb btn-primary text-white text-decoration-none disabled w-100 paypalEfb"
 					onclick="startPaymentPayPal_efb('.intval($form_id).')"
 					id="paypalEfb"
 					data-formid="'.$form_id.'">'.$texts['payNow'].'</a></div>
@@ -1696,7 +1696,7 @@
 						<!-- <span class="efb  text-labelEfb one" id="chargeEfb">'.$texts['onetime'].'</span>-->
 					</div>
 				</div>
-				<div class="efb efb-slot"><a class="efb btn my-2 efb p-2 efb-square h-l-efb btn-primary text-white text-decoration-none disabled w-100" onclick="pay_persia_efb('.$form_id.')" id="persiaPayEfb"  data-formid="'.$form_id.'">'.$texts['payment'].'</a></div>
+				<div class="efb efb-slot"><a class="efb btn my-2 efb p-2 rounded-3 h-l-efb btn-primary text-white text-decoration-none disabled w-100" onclick="pay_persia_efb('.$form_id.')" id="persiaPayEfb"  data-formid="'.$form_id.'">'.$texts['payment'].'</a></div>
 			</div>
 			<div class="efb p-3 card w-100 d-none" id="afterPayefb">
 			</div>
@@ -2093,7 +2093,7 @@
         $ariaRequired = $vj->required == 1 ? 'true' : 'false';
         $ariaDescribedBy = !empty($vj->message) ? 'aria-describedby="' . $vj->id_ . '-des"' : '';
         $disabled = property_exists($vj, 'disabled') && $vj->disabled == true ? 'disabled' : '';
-        $corner = isset($vj->corner) ? $vj->corner : 'efb-square';
+        $corner = isset($vj->corner) ? $vj->corner : 'rounded-3';
         $el_height = isset($vj->el_height) ? $vj->el_height : '';
         $el_border_color = isset($vj->el_border_color) ? $vj->el_border_color : '';
 
@@ -2344,7 +2344,7 @@
 			return  "<script>alert('".esc_html__('Easy Form Builder' , 'easy-form-builder'). ": " .esc_html__('This form requires a payment method. Please add one or change the form type.' , 'easy-form-builder')."');</script>";
 		}
 
-		$corner = property_exists($valj_efb[0], 'corner') ? $valj_efb[0]->corner : 'efb-square';
+		$corner = property_exists($valj_efb[0], 'corner') ? $valj_efb[0]->corner : 'rounded-3';
 		$btns_align = property_exists($valj_efb[0], 'btns_align') ? $valj_efb[0]->btns_align . ' mx-3' : 'justify-content-center';
 		$icon_spacing_class = is_rtl() ? 'ms-2' : 'me-2';
 		$icon_spacing_next_class = is_rtl() ? 'me-2' : 'ms-2';
@@ -2463,7 +2463,7 @@
 			$ui = $elementSpecificFields['ui'];
 			$dataTag = $elementSpecificFields['dataTag'];
 		} else {
-			$corner= isset($vj->corner) ? $vj->corner : 'efb-square';
+			$corner= isset($vj->corner) ? $vj->corner : 'rounded-3';
 			switch ($vj->type) {
 
 				case 'pdate':

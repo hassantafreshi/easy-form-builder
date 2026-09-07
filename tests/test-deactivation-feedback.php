@@ -207,10 +207,27 @@ echo "\n[2] Client/service contract\n";
 $client_reasons  = $client->reasons_efb();
 $service_reasons = WS_EFB_Feedback_REST::reasons();
 
+/*
+ * The service accepts every reason this survey can send, and may accept more:
+ * the rating dialog files its low-star feedback through the same pipeline under
+ * its own reason. So this is a subset check, not an equality check - but an
+ * unknown extra on the service side is still worth failing on, because a reason
+ * nothing sends is either a typo or a client that was never shipped.
+ */
+$known_elsewhere = array( 'rating_feedback' => 'the rating dialog' );
+
+$unsendable = array_diff( array_keys( $client_reasons ), array_keys( $service_reasons ) );
 efb_t(
-	'both sides offer the same reasons',
-	array_keys( $client_reasons ) === array_keys( $service_reasons ),
-	'client: ' . implode( ',', array_keys( $client_reasons ) ) . ' | service: ' . implode( ',', array_keys( $service_reasons ) )
+	'the service accepts every reason this survey can send',
+	empty( $unsendable ),
+	'refused: ' . implode( ',', $unsendable )
+);
+
+$unclaimed = array_diff( array_keys( $service_reasons ), array_keys( $client_reasons ), array_keys( $known_elsewhere ) );
+efb_t(
+	'the service accepts no reason nothing sends',
+	empty( $unclaimed ),
+	'orphaned: ' . implode( ',', $unclaimed )
 );
 
 $detail_mismatch = array();

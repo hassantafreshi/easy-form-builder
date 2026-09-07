@@ -587,10 +587,20 @@ function open_conditional_logic_efb() {
   }
 }
 
+/* Which element the settings panel is currently showing. Selecting a field now opens
+   this panel, so an open panel must swap over to the newly clicked element instead of
+   closing - only asking again for the element already on screen still toggles it shut. */
+window.efbOpenSettingIdEfb = window.efbOpenSettingIdEfb || null;
+
 function show_setting_window_efb(idset) {
   if(document.getElementById('sideBoxEfb').classList.contains('show')){
-    sideMenuEfb(0);
-    return};
+    if (window.efbOpenSettingIdEfb === idset || window.efbOpenSettingIdEfb === null) {
+      window.efbOpenSettingIdEfb = null;
+      sideMenuEfb(0);
+      return;
+    }
+  }
+    window.efbOpenSettingIdEfb = idset;
     state_view_efb=1;
     document.getElementById('sideMenuConEfb').innerHTML=efbLoadingCard('',5);
     sideMenuEfb(1)

@@ -104,7 +104,11 @@ foreach (array('audio_recorder', 'video_recorder', 'screen_recorder') as $kind) 
 $legacy = (object) array('type' => 'audio_recorder', 'id_' => 'zLegacy', 'required' => 0);
 $legacyClass = shell_class_attr(render_recorder($legacy, $texts));
 check('legacy field: default height token present', strpos($legacyClass, 'h-d-efb') !== false);
-check('legacy field: default corner token present', strpos($legacyClass, 'efb-square') !== false);
+// A field saved without a corner takes the plugin-wide default, which is rounded-3
+// (it was efb-square before; efb-square is still honoured when a form stores it).
+check('legacy field: default corner token present', strpos($legacyClass, 'rounded-3') !== false);
+$square = (object) array('type' => 'audio_recorder', 'id_' => 'zSquare', 'required' => 0, 'corner' => 'efb-square');
+check('saved efb-square corner is still rendered', strpos(shell_class_attr(render_recorder($square, $texts)), 'efb-square') !== false);
 check('legacy field: default border token present', strpos($legacyClass, 'border-d') !== false);
 
 // The client-side factory (builder dropzone / admin preview) must mirror the PHP markup.

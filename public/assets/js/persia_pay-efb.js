@@ -45,7 +45,7 @@ add_ui_persiaPay_efb=(rndm)=>{
           <!-- <span class="efb  text-labelEfb one" id="chargeEfb">${efb_var.text.onetime}</span>-->
         </div>
       </div>
-      <a class="efb btn my-2 efb p-2 efb-square h-l-efb btn-primary text-white text-decoration-none disabled w-100" onClick="pay_persia_efb()" id="persiaPayEfb">${efb_var.text.payment}</a>
+      <a class="efb btn my-2 efb p-2 rounded-3 h-l-efb btn-primary text-white text-decoration-none disabled w-100" onClick="pay_persia_efb()" id="persiaPayEfb">${efb_var.text.payment}</a>
     </div>
     <div class="efb p-3 card w-100 d-none" id="afterPayefb">
     </div>

@@ -1,231 +1,889 @@
 /**
- * The five-star invitation.
+ * The rating dialog.
  *
- * Only the parts the shared design system does not already provide: the star
- * row, the offer strip, the two numbered steps and the coupon block. Shape,
- * colour and buttons all come from modal-system-efb.css, which this file is
- * enqueued after and depends on.
+ * Seven steps in one shell: ask → praise → claim → checking → result, and the
+ * other way out, ask → feedback → sent. Shape and buttons come from
+ * modal-system-efb.css; everything specific to rating lives here.
  *
- * Direction is carried by logical properties throughout. The one place that
- * cannot be - the star row, which must fill left-to-right in LTR and
- * right-to-left in RTL - is handled by ordering the DOM and letting flex
- * inherit the page direction, so there is no [dir] override here either.
+ * Direction is carried by logical properties throughout. The star row is the
+ * one thing that genuinely has a direction, and it is lit by the script rather
+ * than by a CSS sibling selector - `:hover ~ .star` fills the wrong end of the
+ * row in RTL, lighting the stars *after* the pointer, which on a right-to-left
+ * row is the low end of the scale.
  *
  * @package Easy_Form_Builder
  */
 
-/* Stars ---------------------------------------------------------------- */
+.efb-review .efb-dlg__shell {
+	max-width: 520px;
+	border-radius: 20px;
+	box-shadow: 0 26px 64px rgba(26, 26, 46, 0.18), 0 2px 6px rgba(26, 26, 46, 0.06);
+}
+
+/*
+ * wp-admin gives every ol and ul a physical `margin-left: 26px`. Zeroing the
+ * padding is not enough - that margin pushed the numbered flow, and the
+ * full-width button inside it, straight through the dialog's right edge.
+ *
+ * The reset is written per list rather than as one `.efb-review ol` rule on
+ * purpose: a descendant reset scores 0-1-1 and would out-specify the 0-1-0
+ * class rules below that set each list's own top margin.
+ */
+
+/* Motion ---------------------------------------------------------------- */
+
+@keyframes efbRvPop {
+	0% {
+		transform: scale(0.72);
+		opacity: 0;
+	}
+
+	62% {
+		transform: scale(1.07);
+	}
+
+	100% {
+		transform: scale(1);
+		opacity: 1;
+	}
+}
+
+@keyframes efbRvRise {
+	from {
+		opacity: 0;
+		transform: translateY(9px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes efbRvStarIn {
+	0% {
+		transform: scale(0.4) rotate(-22deg);
+		opacity: 0;
+	}
+
+	70% {
+		transform: scale(1.18) rotate(4deg);
+	}
+
+	100% {
+		transform: scale(1) rotate(0);
+		opacity: 1;
+	}
+}
+
+@keyframes efbRvShine {
+	0% {
+		transform: translateX(-120%);
+	}
+
+	55%,
+	100% {
+		transform: translateX(320%);
+	}
+}
+
+@keyframes efbRvSpin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+/* The offer ribbon ------------------------------------------------------ */
+
+.efb-review__ribbon {
+	position: relative;
+	overflow: hidden;
+	display: flex;
+	align-items: center;
+	gap: 9px;
+	padding: 10px 16px;
+	color: #3d2c00;
+	background: linear-gradient(100deg, #ffd66b, #ffc107 55%, #ffb300);
+	font-size: 12.5px;
+	font-weight: 700;
+	letter-spacing: 0.2px;
+	line-height: 1.5;
+}
+
+.efb-review__ribbon > i {
+	font-size: 15px;
+	flex: 0 0 auto;
+}
+
+.efb-review__shine {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	width: 38%;
+	background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+	animation: efbRvShine 4.6s ease-in-out infinite;
+	pointer-events: none;
+}
+
+.efb-review__ribbon-pct {
+	margin-inline-start: auto;
+	padding: 3px 10px;
+	border-radius: 999px;
+	background: #1a1a2e;
+	color: #ffd66b;
+	font-size: 11.5px;
+	font-weight: 800;
+	letter-spacing: 0.3px;
+	white-space: nowrap;
+}
+
+/* Head and body --------------------------------------------------------- */
+
+.efb-review .efb-dlg__head {
+	padding: 14px 18px 0;
+	border-block-end: 0;
+}
+
+.efb-review .efb-dlg__body {
+	padding: 2px 30px 26px;
+}
+
+.efb-review .efb-dlg__foot {
+	border-block-start: 1px solid #f1f2f8;
+	padding: 13px 22px 18px;
+}
+
+.efb-review__center {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+}
+
+.efb-review__col {
+	display: flex;
+	flex-direction: column;
+}
+
+.efb-review__mark {
+	width: 54px;
+	height: 54px;
+	flex: 0 0 54px;
+	border-radius: 17px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #fff;
+	font-size: 23px;
+	line-height: 1;
+	background: linear-gradient(135deg, #3644d2, #202a8d);
+	box-shadow: 0 10px 24px rgba(54, 68, 210, 0.26);
+	animation: efbRvPop 0.3s ease both;
+}
+
+.efb-review__title {
+	font-size: 19px;
+	font-weight: 800;
+	letter-spacing: -0.2px;
+	line-height: 1.35;
+	margin: 15px 0 0;
+	color: #1a1a2e;
+}
+
+.efb-review__step[data-efb-review-step="feedback"] .efb-review__title,
+.efb-review__step[data-efb-review-step="claim"] .efb-review__title {
+	margin-block-start: 12px;
+}
+
+.efb-review__lead {
+	font-size: 13.5px;
+	color: #4a5078;
+	margin: 6px 0 0;
+	line-height: 1.75;
+	max-width: 400px;
+	text-wrap: pretty;
+}
+
+/* Stars ----------------------------------------------------------------- */
 
 .efb-review__stars {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	gap: 6px;
+	gap: 4px;
 	margin-block-start: 20px;
 }
 
 .efb-review__star {
-	width: 44px;
-	height: 44px;
+	width: 52px;
+	height: 52px;
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	padding: 0;
 	border: 0;
-	border-radius: 12px;
 	background: transparent;
-	color: #dfe2ef;
-	font-size: 26px;
-	line-height: 1;
 	cursor: pointer;
-	transition: color 0.14s ease, transform 0.14s ease, background 0.14s ease;
+	padding: 0;
+	font-size: 34px;
+	line-height: 1;
+	color: #dbe0ec;
+	transition: transform 0.16s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.16s ease;
 }
 
-.efb-review__star:hover,
-.efb-review__star:focus-visible {
-	background: rgba(211, 158, 0, 0.09);
-	outline: 0;
+.efb-review__star.is-lit {
+	color: #ffb300;
+	transform: scale(1.04);
+	filter: drop-shadow(0 5px 10px rgba(255, 179, 0, 0.32));
+}
+
+.efb-review__star.is-peak {
+	transform: scale(1.16) translateY(-2px);
 }
 
 .efb-review__star:focus-visible {
 	outline: 2px solid var(--efb-dlg-brand);
 	outline-offset: 2px;
+	border-radius: 12px;
 }
 
-/*
- * Lit stars are marked by the script rather than by :hover ~ tricks, because
- * a sibling selector fills the wrong direction in RTL: it would light the
- * stars *after* the pointer, which on a right-to-left row is the low end.
- */
-.efb-review__star.is-lit {
-	color: #f5b301;
-	transform: scale(1.08);
-}
-
-.efb-review__star.is-lit.is-peak {
-	transform: scale(1.16);
-}
-
-.efb-review__hint {
-	margin: 10px 0 0;
+.efb-review__rating-label {
 	min-height: 20px;
-	font-size: 12.5px;
-	font-weight: 600;
-	color: var(--efb-dlg-ink-muted);
-	transition: color 0.14s ease;
+	margin: 8px 0 0;
+	font-size: 13px;
+	font-weight: 500;
+	color: #94a3b8;
+	transition: color 0.15s ease;
 }
 
-.efb-review__hint.is-happy {
-	color: #b47f00;
+.efb-review__rating-label.is-picked {
+	font-weight: 700;
+	color: #1a1a2e;
 }
 
-/* The offer strip ------------------------------------------------------ */
+/* The three reassurances under the stars */
+.efb-review__trust {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 16px;
+	margin-block-start: 18px;
+	padding-block-start: 15px;
+	border-block-start: 1px solid #f1f2f8;
+	width: 100%;
+}
 
-.efb-review__offer {
+.efb-review__trust li {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 11.5px;
+	color: #64748b;
+}
+
+.efb-review__trust i {
+	font-size: 13px;
+}
+
+.efb-review__trust li:nth-child(1) i {
+	color: #3644d2;
+}
+
+.efb-review__trust li:nth-child(2) i {
+	color: #108f69;
+}
+
+.efb-review__trust li:nth-child(3) i {
+	color: #8a90a8;
+}
+
+/* Won stars, shown on praise / claim / feedback -------------------------- */
+
+.efb-review__won {
+	display: flex;
+	gap: 1px;
+	flex: 0 0 auto;
+}
+
+.efb-review__won i {
+	font-size: 16px;
+	color: #ffb300;
+	animation: efbRvStarIn 0.34s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.efb-review__won--small i {
+	font-size: 15px;
+	gap: 2px;
+	animation: none;
+}
+
+.efb-review__won i:nth-child(2) { animation-delay: 0.05s; }
+.efb-review__won i:nth-child(3) { animation-delay: 0.10s; }
+.efb-review__won i:nth-child(4) { animation-delay: 0.15s; }
+.efb-review__won i:nth-child(5) { animation-delay: 0.20s; }
+
+.efb-review__row {
 	display: flex;
 	align-items: center;
-	gap: 9px;
-	margin-block-start: 18px;
-	padding: 11px 16px;
-	border-radius: var(--efb-dlg-radius-sm);
-	background: linear-gradient(135deg, rgba(211, 158, 0, 0.1), rgba(245, 179, 1, 0.05));
-	border: 1px dashed rgba(211, 158, 0, 0.45);
-	font-size: 12.5px;
-	font-weight: 600;
-	line-height: 1.7;
-	color: #8a6400;
+	gap: 10px;
+}
+
+.efb-review__praise-title {
+	font-size: 16px;
+	font-weight: 800;
+	letter-spacing: -0.2px;
+}
+
+.efb-review__badge-ok {
+	font-size: 11.5px;
+	color: #108f69;
+	font-weight: 700;
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+}
+
+.efb-review__change {
+	border: 0;
+	background: transparent;
+	color: #8a90a8;
+	font-size: 11.5px;
+	cursor: pointer;
+	font-family: inherit;
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	margin-inline-start: auto;
+	padding: 0;
+}
+
+.efb-review__change:hover,
+.efb-review__change:focus-visible {
+	color: var(--efb-dlg-brand);
+	outline: 0;
+}
+
+/* The coupon card ------------------------------------------------------- */
+
+.efb-review__coupon {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	flex-wrap: nowrap;
+	width: 100%;
+	margin-block-start: 13px;
+	padding: 12px 14px;
+	border-radius: 14px;
+	border: 1px solid #f2dda1;
+	background: linear-gradient(135deg, #fffaeb, #fff5d6);
+	animation: efbRvRise 0.3s 0.08s ease both;
+}
+
+.efb-review__gift {
+	width: 38px;
+	height: 38px;
+	flex: 0 0 38px;
+	border-radius: 12px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: linear-gradient(135deg, #ffd66b, #ffb300);
+	color: #7a5504;
+	font-size: 17px;
+}
+
+.efb-review__coupon-main {
+	flex: 1 1 auto;
+	min-width: 0;
 	text-align: start;
 }
 
-.efb-review__offer i {
-	font-size: 15px;
-	flex: 0 0 auto;
-	color: #d39e00;
+.efb-review__pct {
+	display: block;
+	font-size: 26px;
+	font-weight: 800;
+	letter-spacing: -0.6px;
+	line-height: 1.1;
+	color: #1a1a2e;
 }
 
-/* The two numbered steps ----------------------------------------------- */
+.efb-review__coupon-note {
+	display: block;
+	font-size: 12px;
+	color: #8a6a1f;
+	margin-block-start: 4px;
+	line-height: 1.55;
+}
 
-.efb-review__steps {
-	list-style: none;
+.efb-review__coupon-slim {
+	display: flex;
+	align-items: center;
+	gap: 10px;
 	width: 100%;
-	max-width: 430px;
-	margin: 16px 0 0;
+	margin-block-start: 16px;
+	padding: 12px 14px;
+	border-radius: 13px;
+	border: 1px solid #e2e8f0;
+	background: #f8fafc;
+	font-size: 12.5px;
+	color: #475569;
+	line-height: 1.55;
+	text-align: start;
+}
+
+.efb-review__coupon-slim > i {
+	color: #657096;
+	font-size: 14px;
+	flex: 0 0 auto;
+}
+
+/* The two numbered steps ------------------------------------------------ */
+
+.efb-review__flow {
+	margin: 0;
 	padding: 0;
+	list-style: none;
 	display: flex;
 	flex-direction: column;
-	gap: 8px;
+	gap: 12px;
+	width: 100%;
+	margin-block-start: 14px;
 	text-align: start;
+	list-style: none;
+	padding: 0;
 }
 
-.efb-review__steps li {
+.efb-review__flow li {
 	display: flex;
 	align-items: flex-start;
-	gap: 10px;
-	margin: 0;
-	padding: 10px 12px;
-	border-radius: var(--efb-dlg-radius-sm);
-	background: var(--efb-dlg-surface-soft);
-	border: 1px solid var(--efb-dlg-line-strong);
-	font-size: 12.5px;
-	line-height: 1.7;
-	color: var(--efb-dlg-ink-soft);
+	gap: 11px;
 }
 
 .efb-review__num {
-	width: 22px;
-	height: 22px;
-	flex: 0 0 22px;
+	width: 24px;
+	height: 24px;
+	flex: 0 0 24px;
+	border-radius: 50%;
+	margin-block-start: 1px;
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	border-radius: 50%;
-	background: linear-gradient(135deg, #3644d2, #202a8d);
+	font-size: 11.5px;
+	font-weight: 800;
+	background: #3644d2;
 	color: #fff;
-	font-size: 11px;
-	font-weight: 700;
-	line-height: 1;
 }
 
-/* Email field ---------------------------------------------------------- */
+.efb-review__num--soft {
+	background: #eef1fb;
+	color: #3644d2;
+	border: 1px solid #d7ddf6;
+}
+
+.efb-review__flow-body {
+	flex: 1 1 auto;
+	min-width: 0;
+	text-align: start;
+}
+
+.efb-review__flow-title {
+	display: block;
+	font-size: 12.5px;
+	font-weight: 700;
+	line-height: 1.4;
+}
+
+.efb-review__cta {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 9px;
+	width: 100%;
+	margin-block-start: 8px;
+	padding: 13px 22px;
+	border-radius: 999px;
+	color: #fff;
+	font-size: 14px;
+	font-weight: 800;
+	letter-spacing: 0.1px;
+	text-decoration: none;
+	background: linear-gradient(135deg, #3644d2, #202a8d);
+	box-shadow: 0 10px 26px rgba(54, 68, 210, 0.32);
+}
+
+.efb-review__cta:hover,
+.efb-review__cta:focus {
+	color: #fff;
+	filter: brightness(1.06);
+}
+
+.efb-review__cta-note {
+	font-size: 11px;
+	color: #94a3b8;
+	margin-block-start: 7px;
+	display: flex;
+	align-items: center;
+	gap: 5px;
+}
+
+.efb-review__cta-note i {
+	font-size: 10px;
+}
+
+.efb-review__secondary {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	width: 100%;
+	margin-block-start: 8px;
+	padding: 11px 18px;
+	border-radius: 999px;
+	border: 1.5px solid #e4e6f0;
+	background: #fff;
+	color: #3644d2;
+	font-family: inherit;
+	font-size: 13px;
+	font-weight: 700;
+	cursor: pointer;
+}
+
+.efb-review__secondary:hover,
+.efb-review__secondary:focus-visible {
+	border-color: #3644d2;
+	outline: 0;
+}
+
+/* The claim form -------------------------------------------------------- */
+
+.efb-review__fields {
+	display: flex;
+	flex-direction: column;
+	gap: 11px;
+	margin-block-start: 16px;
+}
 
 .efb-review__field {
-	display: block;
-	width: 100%;
-	max-width: 430px;
-	margin-block-start: 16px;
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
 	text-align: start;
-	font-size: 12.5px;
-	font-weight: 600;
-	color: var(--efb-dlg-ink-soft);
+}
+
+.efb-review__label {
+	display: block;
+	font-size: 12px;
+	font-weight: 700;
+	color: #334155;
+}
+
+.efb-review__input-wrap {
+	position: relative;
+	display: block;
+}
+
+.efb-review__input-wrap > i {
+	position: absolute;
+	top: 50%;
+	inset-inline-start: 12px;
+	transform: translateY(-50%);
+	color: #a4adc2;
+	font-size: 13px;
+	pointer-events: none;
 }
 
 .efb-review__field input {
 	width: 100%;
-	margin-block-start: 6px;
-	padding: 9px 12px;
-	border: 1px solid var(--efb-dlg-line-strong);
-	border-radius: var(--efb-dlg-radius-sm);
-	background: var(--efb-dlg-surface);
+	padding: 11px 13px;
+	padding-inline-start: 34px;
+	border-radius: 11px;
+	border: 1px solid #e4e6f0;
+	background: #fafbfe;
 	font-family: inherit;
 	font-size: 13px;
-	font-weight: 400;
-	color: var(--efb-dlg-ink);
-	/* An address is always read left-to-right, even on an RTL page. */
+	color: #1a1a2e;
+	/* A username and an address are read left-to-right in any language. */
 	direction: ltr;
 	text-align: start;
 }
 
 .efb-review__field input:focus {
 	border-color: var(--efb-dlg-brand);
+	background: #fff;
 	box-shadow: 0 0 0 3px rgba(54, 68, 210, 0.12);
 	outline: 0;
 }
 
-.efb-review .efb-dlg__note {
-	margin-block-start: 14px;
-	max-width: 430px;
+.efb-review__field input.is-invalid {
+	border-color: #e0245e;
+	background: #fdf2f4;
 }
 
-/* The coupon ----------------------------------------------------------- */
+.efb-review__hint {
+	display: block;
+	font-size: 11px;
+	color: #94a3b8;
+	line-height: 1.55;
+}
 
-.efb-review__coupon {
+.efb-review__privacy {
+	display: flex;
+	gap: 9px;
+	margin-block-start: 13px;
+	padding: 11px 13px;
+	border: 1px solid #e2e8f0;
+	border-radius: 12px;
+	background: rgba(235, 236, 238, 0.42);
+	font-size: 11.5px;
+	color: #64748b;
+	line-height: 1.65;
+	text-align: start;
+}
+
+.efb-review__privacy > i {
+	color: #657096;
+	margin-block-start: 1px;
+	font-size: 13px;
+	flex: 0 0 auto;
+}
+
+/* Checking -------------------------------------------------------------- */
+
+.efb-review__checking-mark {
+	width: 82px;
+	height: 82px;
+	object-fit: contain;
+}
+
+.efb-review__checks {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	width: 100%;
+	max-width: 330px;
+	margin-block-start: 16px;
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	list-style: none;
+	padding: 0;
+}
+
+.efb-review__checks li {
+	display: flex;
+	align-items: center;
+	gap: 9px;
+	padding: 6px 0;
+	font-size: 12.5px;
+	font-weight: 600;
+	color: #334155;
+	text-align: start;
+}
+
+.efb-review__check-dot {
+	width: 22px;
+	height: 22px;
+	flex: 0 0 22px;
+	border-radius: 50%;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 11px;
+	color: #fff;
+	background: #108f69;
+}
+
+.efb-review__checks li.is-active .efb-review__check-dot {
+	background: #3644d2;
+}
+
+.efb-review__checks li.is-active .efb-review__check-dot i {
+	animation: efbRvSpin 1.1s linear infinite;
+}
+
+.efb-review__checks li.is-waiting {
+	color: #a4adc2;
+}
+
+.efb-review__checks li.is-waiting .efb-review__check-dot {
+	color: #b3bcd0;
+	background: #f1f5f9;
+	border: 1.5px solid #e2e8f0;
+}
+
+/* Result ---------------------------------------------------------------- */
+
+.efb-review__result-mark {
+	width: 58px;
+	height: 58px;
+	flex: 0 0 58px;
+	border-radius: 50%;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	gap: 10px;
-	flex-wrap: wrap;
+	color: #fff;
+	font-size: 24px;
+	line-height: 1;
+	background: linear-gradient(135deg, var(--efb-rv-tone), var(--efb-rv-tone-2));
+	box-shadow: 0 10px 26px var(--efb-rv-tone-shadow);
+	animation: efbRvPop 0.3s ease both;
+}
+
+.efb-review__detail {
+	display: flex;
+	gap: 9px;
 	width: 100%;
-	max-width: 430px;
-	margin-block-start: 16px;
-	padding: 14px 16px;
-	border-radius: var(--efb-dlg-radius-sm);
-	background: rgba(16, 143, 105, 0.06);
-	border: 1px dashed rgba(16, 143, 105, 0.45);
+	margin-block-start: 15px;
+	padding: 11px 13px;
+	border-radius: 12px;
+	border: 1px solid var(--efb-rv-tone-line);
+	background: var(--efb-rv-tone-wash);
+	color: var(--efb-rv-tone-ink);
+	font-size: 12px;
+	line-height: 1.65;
+	text-align: start;
 }
 
-.efb-review__coupon[hidden] {
-	display: none;
+.efb-review__detail > i {
+	color: var(--efb-rv-tone);
+	margin-block-start: 1px;
+	font-size: 13px;
+	flex: 0 0 auto;
 }
 
-.efb-review__code {
-	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-	font-size: 17px;
-	font-weight: 700;
-	letter-spacing: 1px;
-	color: #0d7355;
-	background: transparent;
-	padding: 0;
-	/* A code is a code in any language: never mirrored, never reordered. */
-	direction: ltr;
-	unicode-bidi: isolate;
+/* Result tones. The outcome sets one of these on the step. */
+.efb-review__step {
+	--efb-rv-tone: #108f69;
+	--efb-rv-tone-2: #065518;
+	--efb-rv-tone-shadow: rgba(16, 143, 105, 0.26);
+	--efb-rv-tone-wash: #f1f9f5;
+	--efb-rv-tone-line: #cfe8dd;
+	--efb-rv-tone-ink: #26614f;
 }
 
-/* Errors and step visibility ------------------------------------------- */
+.efb-review__step.is-tone-warn {
+	--efb-rv-tone: #d39e00;
+	--efb-rv-tone-2: #a37700;
+	--efb-rv-tone-shadow: rgba(211, 158, 0, 0.24);
+	--efb-rv-tone-wash: #fffaeb;
+	--efb-rv-tone-line: #f2dda1;
+	--efb-rv-tone-ink: #7a5504;
+}
+
+.efb-review__step.is-tone-neutral {
+	--efb-rv-tone: #657096;
+	--efb-rv-tone-2: #3f4761;
+	--efb-rv-tone-shadow: rgba(90, 97, 128, 0.22);
+	--efb-rv-tone-wash: #f8fafc;
+	--efb-rv-tone-line: #e2e8f0;
+	--efb-rv-tone-ink: #475569;
+}
+
+.efb-review__step.is-tone-bad {
+	--efb-rv-tone: #c00751;
+	--efb-rv-tone-2: #f95e5e;
+	--efb-rv-tone-shadow: rgba(192, 7, 81, 0.24);
+	--efb-rv-tone-wash: #fdf2f4;
+	--efb-rv-tone-line: #f7d6de;
+	--efb-rv-tone-ink: #8e2350;
+}
+
+.efb-review__sent-mark {
+	width: 54px;
+	height: 54px;
+	flex: 0 0 54px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #fff;
+	font-size: 23px;
+	background: linear-gradient(135deg, #108f69, #065518);
+	box-shadow: 0 10px 24px rgba(16, 143, 105, 0.26);
+	animation: efbRvPop 0.3s ease both;
+}
+
+/* Feedback -------------------------------------------------------------- */
+
+.efb-review__topics {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 7px;
+	margin-block-start: 14px;
+}
+
+.efb-review__topic {
+	padding: 7px 13px;
+	border-radius: 999px;
+	cursor: pointer;
+	font-family: inherit;
+	font-size: 12px;
+	font-weight: 600;
+	border: 1px solid #e4e6f0;
+	background: #fff;
+	color: #4a5078;
+}
+
+.efb-review__topic.is-on {
+	border-color: #3644d2;
+	background: rgba(54, 68, 210, 0.07);
+	color: #3644d2;
+}
+
+.efb-review__topic:focus-visible {
+	outline: 2px solid var(--efb-dlg-brand);
+	outline-offset: 2px;
+}
+
+.efb-review__comment {
+	width: 100%;
+	margin-block-start: 11px;
+	padding: 12px 13px;
+	border-radius: 12px;
+	border: 1px solid #e4e6f0;
+	background: #fafbfe;
+	font-family: inherit;
+	font-size: 13px;
+	color: #1a1a2e;
+	line-height: 1.7;
+	resize: vertical;
+}
+
+.efb-review__comment:focus {
+	border-color: var(--efb-dlg-brand);
+	background: #fff;
+	box-shadow: 0 0 0 3px rgba(54, 68, 210, 0.12);
+	outline: 0;
+}
+
+.efb-review__contact {
+	display: flex;
+	align-items: flex-start;
+	gap: 9px;
+	margin-block-start: 11px;
+	cursor: pointer;
+	font-size: 12px;
+	color: #64748b;
+	line-height: 1.6;
+	text-align: start;
+}
+
+.efb-review__contact input {
+	width: 16px;
+	height: 16px;
+	margin-block-start: 2px;
+	flex: 0 0 16px;
+	accent-color: #3644d2;
+}
+
+/* Errors and step visibility -------------------------------------------- */
 
 .efb-review__error {
-	margin: 0 26px 4px;
+	margin: 0 30px 4px;
 	padding: 9px 12px;
-	border-radius: var(--efb-dlg-radius-sm);
+	border-radius: 10px;
 	background: #fdf2f4;
 	border: 1px solid #f7d6de;
 	color: #a3123f;
@@ -235,7 +893,8 @@
 }
 
 .efb-review__error[hidden],
-.efb-review__step[hidden] {
+.efb-review__step[hidden],
+.efb-review__coupon[hidden] {
 	display: none;
 }
 
@@ -243,14 +902,62 @@
 	display: none;
 }
 
+/* Mobile ---------------------------------------------------------------- */
+
 @media screen and (max-width: 600px) {
+	.efb-review .efb-dlg__shell {
+		max-width: 412px;
+		border-radius: 22px;
+	}
+
+	.efb-review .efb-dlg__head {
+		padding: 16px 14px 0;
+	}
+
+	.efb-review .efb-dlg__body {
+		padding: 4px 18px 22px;
+	}
+
+	.efb-review .efb-dlg__foot {
+		padding: 12px 16px 16px;
+	}
+
+	.efb-review__title {
+		font-size: 17px;
+	}
+
 	.efb-review__star {
-		width: 40px;
-		height: 40px;
-		font-size: 23px;
+		width: 46px;
+		height: 46px;
+		font-size: 30px;
+	}
+
+	.efb-review__trust {
+		gap: 10px;
+	}
+
+	.efb-review__coupon {
+		flex-wrap: wrap;
 	}
 
 	.efb-review__error {
 		margin-inline: 16px;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.efb-review__mark,
+	.efb-review__sent-mark,
+	.efb-review__result-mark,
+	.efb-review__coupon,
+	.efb-review__won i,
+	.efb-review__shine,
+	.efb-review__checks li.is-active .efb-review__check-dot i {
+		animation: none;
+	}
+
+	.efb-review__star {
+		transition: none;
 	}
 }

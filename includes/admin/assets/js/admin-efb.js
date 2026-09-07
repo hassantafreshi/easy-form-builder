@@ -10,6 +10,8 @@ let wpbakery_emsFormBuilder =false;
 let pro_price_efb =27;
 let heartbeat_efb_active =false;
 let _efb_autosave_in_progress = false;
+/* One auto-save draft, one offer to restore it - see restore_auto_save_efb(). */
+let _efb_restore_prompt_pending_efb = false;
 let state_page_efb='';
 let efb_builder_last_email_warning_signature = '';
 var _efb_nonce_ = (typeof efb_var !== 'undefined' && efb_var.nonce) ? efb_var.nonce : '';
@@ -451,48 +453,87 @@ function show_message_result_form_set_EFB(state, m) {
     return;
   }
 
-  const wpbakery= `<p class="efb m-5 mx-3 fs-4"><a class="efb text-danger ec-efb" data-eventform="links" data-linkname="wpbakery">${efb_var.text.wwpb}</a></p>`
-  const title = `
-  <h4 class="efb title-holder efb">
-     <img src="${efb_var.images.title}" class="efb title efb">
-     ${state != 0 ? `<i class="efb  bi-hand-thumbs-up title-icon mx-2"></i>${efb_var.text.done}` : `<i class="efb title-icon mx-2"></i>${efb_var.text.error}`}
-  </h4>
-
-  `;
-  let e_m ='<div id="alert"></div>';
-  /* The form is saved either way - this only tells the admin that the global
-     "This site can send emails" switch is still off, so neither the admin nor
-     the visitor will receive anything, and links straight to that switch. */
-  if(efb_builder_email_setting_smtp_disabled()) {
-    const msg = `<p class="efb mb-1"><strong>${efb_var.text.emailSendingOffTitle || 'Notification emails are turned off'}</strong></p>
-    <p class="efb mb-2">${efb_var.text.emailSendingOffDesc || efb_var.text.goToEFBAddEmailM}</p>
-    <a class="efb btn btn-sm efb btn-warning text-dark btn-r d-block" href="${efb_builder_email_settings_url()}"><i class="efb bi bi-toggle-on mx-1"></i>${efb_var.text.emailSendingOffCta || efb_var.text.howActivateAlertEmail}</a>
-    `
-    e_m = alarm_emsFormBuilder(msg)
-  }
-  let content = ``
+  let content = ``;
+  let footInner = ``;
+  let tone = '';
+  let headIcon = '';
+  let headTitle = '';
 
   if (state != 0) {
-    content = ` <h3 class="efb"><b>${efb_var.text.goodJob}</b></br> ${state == 1 ? efb_var.text.formIsBuild : efb_var.text.formUpdatedDone}</h3>
-    ${wpbakery_emsFormBuilder ? wpbakery :''}
-  <h5 class="efb mt-3 efb">${efb_var.text.shortcode}: <strong>${m}</strong></h5>
-  <input type="text" class="efb hide-input efb" value="${m}" id="trackingCodeEfb">
-  ${e_m}
-  <a  class="efb btn-r btn efb btn-primary btn-lg m-3" onclick="copyCodeEfb('trackingCodeEfb','textTractingCode')">
-      <i class="efb  bi-clipboard-check mx-1"></i><span id="textTractingCode">${efb_var.text.copyShortcode}</span>
-  </a>
-  <a  class="efb btn efb btn-outline-pink btn-lg m-3 px-3" data-bs-toggle="modal" data-bs-target="#Output" onclick="open_whiteStudio_efb('publishForm')">
-      <i class="efb  bi-question mx-1"></i>${efb_var.text.help}
-  </a>
-  <a  class="efb btn efb btn-outline-pink btn-lg m-3 px-3" data-bs-toggle="modal" data-bs-target="#close" onclick="state_modal_show_efb(0)">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" class="mx-1"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/></svg>${efb_var.text.close}
-  </a>
-  `
+    tone = 'efb-tone-success';
+    headIcon = 'bi-check2-circle';
+    headTitle = efb_var.text.save;
+
+    let notes = ``;
+    /* The form saved either way - these only flag delivery risks: the global
+       "This site can send emails" switch being off, or a WPBakery quirk this
+       form type needs a workaround for. */
+    if (wpbakery_emsFormBuilder) {
+      notes += `<div class="efb-dlg__note efb-dlg__note--warn"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i><span><a class="efb text-reset ec-efb" data-eventform="links" data-linkname="wpbakery" onclick="Link_emsFormBuilder('wpbakery')">${efb_var.text.wwpb}</a></span></div>`;
+    }
+    if (efb_builder_email_setting_smtp_disabled()) {
+      notes += `<div class="efb-dlg__note efb-dlg__note--warn"><i class="bi bi-envelope-slash" aria-hidden="true"></i><span><strong>${efb_var.text.emailSendingOffTitle || 'Notification emails are turned off'}</strong><br>${efb_var.text.emailSendingOffDesc || efb_var.text.goToEFBAddEmailM}<br><a class="efb fw-semibold" href="${efb_builder_email_settings_url()}">${efb_var.text.emailSendingOffCta || efb_var.text.howActivateAlertEmail}</a></span></div>`;
+    }
+
+    content = `
+      <div class="efb-dlg__centered">
+        <div class="efb-dlg__badge"><i class="bi bi-hand-thumbs-up" aria-hidden="true"></i></div>
+        <div class="efb-dlg__headline">${efb_var.text.goodJob}</div>
+        <div class="efb-dlg__text">${state == 1 ? efb_var.text.formIsBuild : efb_var.text.formUpdatedDone}</div>
+      </div>
+      <div class="efb-dlg__code-panel">
+        <div class="efb-dlg__code-panel-head"><i class="bi bi-code-square" aria-hidden="true"></i><span>${efb_var.text.shortcode}</span></div>
+        <div class="efb-dlg__code-panel-row">
+          <code class="efb-dlg__code-box">${m}</code>
+          <input type="text" class="efb hide-input efb" value="${m}" id="trackingCodeEfb">
+          <button type="button" class="efb-dlg-btn efb-dlg-btn--primary efb-dlg-btn--sm" onclick="copyCodeEfb('trackingCodeEfb','textTractingCode')">
+            <i class="bi bi-clipboard-check" aria-hidden="true"></i><span id="textTractingCode">${efb_var.text.copyShortcode}</span>
+          </button>
+        </div>
+      </div>
+      ${notes}
+    `;
+
+    footInner = `
+      <a role="button" class="efb-dlg-btn efb-dlg-btn--ghost" data-bs-toggle="modal" data-bs-target="#Output" onclick="open_whiteStudio_efb('publishForm')"><i class="bi bi-question-circle" aria-hidden="true"></i>${efb_var.text.help}</a>
+      <a role="button" class="efb-dlg-btn efb-dlg-btn--ghost" onclick="state_modal_show_efb(0)"><i class="bi bi-x-lg" aria-hidden="true"></i>${efb_var.text.close}</a>
+      <a role="button" class="efb-dlg-btn efb-dlg-btn--primary" onclick="previewFormEfb('new')"><i class="bi bi-box-arrow-up-right" aria-hidden="true"></i>${efb_var.text.previewForm}</a>
+    `;
   } else {
-    content = `<h3 class="efb">${m}</h3>`
+    tone = 'efb-tone-danger';
+    headIcon = 'bi-x-octagon';
+    headTitle = efb_var.text.error;
+
+    content = `
+      <div class="efb-dlg__centered">
+        <div class="efb-dlg__badge"><i class="bi bi-x-octagon" aria-hidden="true"></i></div>
+        <div class="efb-dlg__headline">${efb_var.text.error}</div>
+        <div class="efb-dlg__text">${m}</div>
+      </div>
+    `;
+
+    footInner = `<a role="button" class="efb-dlg-btn efb-dlg-btn--ghost" onclick="state_modal_show_efb(0)"><i class="bi bi-x-lg" aria-hidden="true"></i>${efb_var.text.close}</a>`;
   }
 
-  document.getElementById('settingModalEfb-body').innerHTML = `<div class="efb card-body text-center efb">${title}${content}</div>`;
+  /* Named as the save flow so it lands on the loading card it belongs to.
+     If the person has meanwhile been given some other dialog, this one waits
+     for a free screen instead of painting over their work. It deliberately
+     does not open the shell by itself: a validate-only save (previewing an
+     unsaved form) closes the dialog on purpose while the request is still in
+     flight, and re-opening it would interrupt the preview. */
+  show_modal_efb(content, headTitle, headIcon, 'saveBox', {
+    flow: 'save',
+    onShown: () => {
+      if (typeof efb_dlg_set_tone_efb === 'function') efb_dlg_set_tone_efb(tone);
+      const sections = document.getElementById('settingModalEfb-sections');
+      if (!sections) return;
+      const foot = document.createElement('div');
+      foot.className = 'efb modal-footer efb-dlg__foot';
+      foot.id = 'save-result-foot-efb';
+      foot.innerHTML = footInner;
+      sections.appendChild(foot);
+    }
+  });
 }
 
 async function  actionSendData_emsFormBuilder(saveMode) {
@@ -1350,7 +1391,7 @@ function head_introduce_efb(state) {
 fun_preview_before_efb = (i, s, pro) => {
 
   valj_efb = [];
-  show_modal_efb("", efb_var.text.preview, "bi-check2-circle", "saveLoadingBox")
+  show_modal_efb("", efb_var.text.preview, "bi-check2-circle", "saveLoadingBox", { flow: 'preview' })
   state_modal_show_efb(1);
   if (s == "local") {
     create_form_by_type_emsfb(i, 'pre')
@@ -1430,6 +1471,8 @@ function sideMenuEfb(s) {
     document.getElementById('childsSideMenuConEfb').classList.add('d-none');
     document.getElementById('sideMenuFEfb').classList.add('efbDW-0');
     el.classList.add('efbDW-0');
+    // Nothing is on screen any more, so the next request must open, never toggle shut.
+    window.efbOpenSettingIdEfb = null;
   }
 
   side_show =(el)=>{
@@ -2849,7 +2892,7 @@ let change_el_edit_Efb = (el) => {
 
           clss.innerHTML= `
               <a class="efb btn btn-sm btn-dark text-light"><i class="efb bi-crosshair ${efb_var.rtl == 1 ? 'ms-2' : 'me-2'} fs-7"></i></a>
-              <input type="text" id="efb-search-${valj_efb[indx].id_}" placeholder="${efb_var.text.eln}" class="efb p-1 border-d efb-square locationpicker fs-6">
+              <input type="text" id="efb-search-${valj_efb[indx].id_}" placeholder="${efb_var.text.eln}" class="efb p-1 border-d rounded-3 locationpicker fs-6">
               <a class="efb btn btn-sm btn-secondary text-light">${efb_var.text.search}</a>
               <a class="efb btn btn-sm btn-danger text-light">${efb_var.text.deletemarkers}</a>
               <div id="efb-error-message-${valj_efb[indx].id_}" class="error-message d-none"></div>`
@@ -3303,9 +3346,9 @@ let change_el_edit_Efb = (el) => {
 
 function wating_sort_complate_efb(t) {
   if (t > 500) t = 500
+  if (typeof efb_modal_shell_busy_efb === 'function' && efb_modal_shell_busy_efb()) return;
   const body = efbLoadingCard('',4)
-  show_modal_efb(body, efb_var.text.editField, 'bi-ui-checks mx-2', 'settingBox')
-  const el = document.getElementById("settingModalEfb");
+  show_modal_efb(body, efb_var.text.editField, 'bi-ui-checks mx-2', 'settingBox', { flow: 'sort-wait' })
   state_modal_show_efb(1);
   setTimeout(() => { state_modal_show_efb(0) }, t)
 }
@@ -3436,7 +3479,10 @@ const saveFormEfb = async (stated) => {
       }
 
       if (!isAutoSave) {
-        show_modal_efb("", efb_var.text.save, "bi-check2-circle", "saveLoadingBox");
+        show_modal_efb("", efb_var.text.save, "bi-check2-circle", "saveLoadingBox", {
+          flow: 'save',
+          onShown: () => document.getElementById('settingModalEfb_').classList.add('efb-save-narrow')
+        });
       }
 
       let timeout = 1000;
@@ -3446,7 +3492,7 @@ const saveFormEfb = async (stated) => {
             check_show_box();
             timeout = 500;
           } else if (!isAutoSave) {
-              show_modal_efb(body, title, icon, box);
+              show_modal_efb(body, title, icon, box, { flow: 'save' });
 
           }
         }, timeout);
@@ -3553,7 +3599,7 @@ const saveFormEfb = async (stated) => {
               <i class="efb bi-megaphone ${efb_var.rtl == 1 ? 'ms-2' : 'me-2'}"></i> ${efb_var.text.reportProblem} </button>
           </div>
         `;
-        show_modal_efb(body, efb_var.text.error, btnIcon, 'error');
+        show_modal_efb(body, efb_var.text.error, btnIcon, 'error', { flow: 'save' });
 
         state_modal_show_efb(1);
         reject(error);
@@ -4100,42 +4146,45 @@ function show_delete_window_efb(idset,iVJ) {
   let itemLabel = valj_efb[iVJ] && valj_efb[iVJ].hasOwnProperty('type') ? `${valj_efb[iVJ].type} &rsaquo; ${valj_efb[iVJ].name ?? valj_efb[iVJ].value}` : '';
   const body = efb_build_confirm_body('danger', 'bi-trash', efb_var.text.delete, efb_var.text.areYouSureYouWantDeleteItem, itemLabel);
   const is_step = document.getElementById(idset) ? document.getElementById(idset).classList.contains('stepNavEfb') : false;
-  show_modal_efb(body, efb_var.text.delete, 'efb bi-trash mx-2', 'deleteBox')
-  const confirmBtn = document.getElementById('modalConfirmBtnEfb');
-  if (is_step == false) {
-   state_modal_show_efb(1);
-   confirmBtn.dataset.id =idset.slice(0,-3);
-    confirmBtn.addEventListener("click", (e) => {
-      document.getElementById(confirmBtn.dataset.id).remove();
-      obj_delete_row(idset, false, confirmBtn.dataset.id);
-      activeEl_efb = 0;
-      state_modal_show_efb(0)
-      setTimeout(() => { alert_message_efb(efb_var.text.tDeleted.replace('%s', efb_var.text.field?.replace('%s1','').toLowerCase() || 'element'), '', 4, 'success') }, 300);
-    })
-  } else if (is_step) {
-    const el = document.getElementById(idset);
-    if (el.dataset.id != 1) {
+  // The first step cannot be removed, so there is no question to ask.
+  const step_el = is_step ? document.getElementById(idset) : null;
+  if (is_step && !(step_el && step_el.dataset.id != 1)) return;
 
-      state_modal_show_efb(1)
-      confirmBtn.dataset.id = idset;
+  /* The confirm button belongs to the dialog, so it is wired once the dialog
+     is on screen - which is not necessarily now, if another one still is. */
+  const painted = show_modal_efb(body, efb_var.text.delete, 'efb bi-trash mx-2', 'deleteBox', {
+    onShown: () => {
+      const confirmBtn = document.getElementById('modalConfirmBtnEfb');
+      if (!confirmBtn) return;
+      if (is_step == false) {
+        confirmBtn.dataset.id =idset.slice(0,-3);
+        confirmBtn.addEventListener("click", (e) => {
+          document.getElementById(confirmBtn.dataset.id).remove();
+          obj_delete_row(idset, false, confirmBtn.dataset.id);
+          activeEl_efb = 0;
+          state_modal_show_efb(0)
+          setTimeout(() => { alert_message_efb(efb_var.text.tDeleted.replace('%s', efb_var.text.field?.replace('%s1','').toLowerCase() || 'element'), '', 4, 'success') }, 300);
+        })
+      } else {
+        confirmBtn.dataset.id = idset;
+        confirmBtn.addEventListener("click", () => {
 
-      confirmBtn.addEventListener("click", () => {
+          activeEl_efb = 0;
+          if (pro_efb == false) {
+            step_el_efb = step_el_efb > 1 ? step_el_efb - 1 : 1;
+          }
 
-        activeEl_efb = 0;
-        if (pro_efb == false) {
-          step_el_efb = step_el_efb > 1 ? step_el_efb - 1 : 1;
-        }
+          valj_efb[0].steps = valj_efb[0].steps - 1
+          obj_delete_row(idset, true)
+          document.getElementById(confirmBtn.dataset.id).remove();
+          state_modal_show_efb(0)
+          setTimeout(() => { alert_message_efb(efb_var.text.tDeleted.replace('%s', efb_var.text.step?.replace('%s1','').toLowerCase() || 'step'), '', 4, 'success') }, 300);
 
-        valj_efb[0].steps = valj_efb[0].steps - 1
-        obj_delete_row(idset, true)
-        document.getElementById(confirmBtn.dataset.id).remove();
-        state_modal_show_efb(0)
-        setTimeout(() => { alert_message_efb(efb_var.text.tDeleted.replace('%s', efb_var.text.step?.replace('%s1','').toLowerCase() || 'step'), '', 4, 'success') }, 300);
-
-      })
-
+        })
+      }
     }
-  }
+  });
+  if (painted) state_modal_show_efb(1);
 
 }
 
@@ -4555,42 +4604,45 @@ function emsFormBuilder_delete(id, type,value) {
   const f = (efb_var.text[type] || '').replaceAll('%s1','').replace(/%\d+\$s/g, '').trim();
   const m = f ? `${f} &rsaquo; ${val}` : val;
   const body = efb_build_confirm_body('danger', 'bi-trash', efb_var.text.delete, efb_var.text.areYouSureYouWantDeleteItem, m);
-  show_modal_efb(body, efb_var.text.delete, 'efb bi-trash mx-2', 'deleteBox')
-  const confirmBtn = document.getElementById('modalConfirmBtnEfb');
+  const painted = show_modal_efb(body, efb_var.text.delete, 'efb bi-trash mx-2', 'deleteBox', {
+    onShown: () => {
+      const confirmBtn = document.getElementById('modalConfirmBtnEfb');
+      if (!confirmBtn) return;
+      confirmBtn.addEventListener("click", (e) => {
+        let _deleteTypeLabel = '';
+        if(type=='form'){
+          fun_confirm_remove_emsFormBuilder(Number(id))
+          _deleteTypeLabel = efb_var.text.form?.replace('%s1','') || 'form';
+        }else if(type=='message'){
+          fun_confirm_remove_message_emsFormBuilder(Number(id))
+          _deleteTypeLabel = efb_var.text.message?.replace('%s1','') || 'message';
+        }else if (type =='addon'){
+          addons_btn_state_efb(id);
+          fun_confirm_remove_addon_emsFormBuilder(id);
+        }else if (type =="condlogic"){
 
-  state_modal_show_efb(1)
-  confirmBtn.addEventListener("click", (e) => {
-    let _deleteTypeLabel = '';
-    if(type=='form'){
-    fun_confirm_remove_emsFormBuilder(Number(id))
-    _deleteTypeLabel = efb_var.text.form?.replace('%s1','') || 'form';
-    }else if(type=='message'){
-      fun_confirm_remove_message_emsFormBuilder(Number(id))
-      _deleteTypeLabel = efb_var.text.message?.replace('%s1','') || 'message';
-    }else if (type =='addon'){
-      addons_btn_state_efb(id);
-      fun_confirm_remove_addon_emsFormBuilder(id);
-    }else if (type =="condlogic"){
+          fun_remove_condition_efb(id , value);
+          _deleteTypeLabel = efb_var.text.condlogic?.replace('%s1','') || 'condition';
+        }else if(type=="messagelist"){
 
-      fun_remove_condition_efb(id , value);
-      _deleteTypeLabel = efb_var.text.condlogic?.replace('%s1','') || 'condition';
-    }else if(type=="messagelist"){
-
-      fun_confirm_remove_all_message_emsFormBuilder(value)
-      return;
-    }else if(type=="datas"){
-      if (typeof fun_confirm_remove_dataset_autofilled_emsFormBuilder === 'function') {
-        fun_confirm_remove_dataset_autofilled_emsFormBuilder(id, value);
-      } else {
-      }
-      _deleteTypeLabel = efb_var.text.datas?.replace('%s1','') || 'dataset';
+          fun_confirm_remove_all_message_emsFormBuilder(value)
+          return;
+        }else if(type=="datas"){
+          if (typeof fun_confirm_remove_dataset_autofilled_emsFormBuilder === 'function') {
+            fun_confirm_remove_dataset_autofilled_emsFormBuilder(id, value);
+          } else {
+          }
+          _deleteTypeLabel = efb_var.text.datas?.replace('%s1','') || 'dataset';
+        }
+        activeEl_efb = 0;
+        state_modal_show_efb(0)
+        if (type === 'condlogic') {
+          setTimeout(() => { alert_message_efb(efb_var.text.tDeleted.replace('%s', _deleteTypeLabel.toLowerCase()), '', 4, 'success') }, 300);
+        }
+      })
     }
-    activeEl_efb = 0;
-    state_modal_show_efb(0)
-    if (type === 'condlogic') {
-      setTimeout(() => { alert_message_efb(efb_var.text.tDeleted.replace('%s', _deleteTypeLabel.toLowerCase()), '', 4, 'success') }, 300);
-    }
-  })
+  });
+  if (painted) state_modal_show_efb(1);
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 function emsFormBuilder_duplicate(id, type,value) {
@@ -4625,15 +4677,18 @@ function emsFormBuilder_duplicate(id, type,value) {
   }
   const msg = efb_var.text.ausdup_.replaceAll('%s',val);
   const body = efb_build_confirm_body('info', 'bi-clipboard-plus', efb_var.text.duplicate, msg, '');
-  show_modal_efb(body, efb_var.text.duplicate, 'efb bi-clipboard-plus mx-2', 'duplicateBox')
-  const confirmBtn = document.getElementById('modalConfirmBtnEfb');
-
-  state_modal_show_efb(1)
-  confirmBtn.addEventListener("click", (e) => {
-    fun_confirm_dup_emsFormBuilder(id,type)
-    activeEl_efb = 0;
-    state_modal_show_efb(0)
-  })
+  const painted = show_modal_efb(body, efb_var.text.duplicate, 'efb bi-clipboard-plus mx-2', 'duplicateBox', {
+    onShown: () => {
+      const confirmBtn = document.getElementById('modalConfirmBtnEfb');
+      if (!confirmBtn) return;
+      confirmBtn.addEventListener("click", (e) => {
+        fun_confirm_dup_emsFormBuilder(id,type)
+        activeEl_efb = 0;
+        state_modal_show_efb(0)
+      })
+    }
+  });
+  if (painted) state_modal_show_efb(1);
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -4713,7 +4768,14 @@ state_modal_show_efb=(i)=>{
    const backdrop = document.querySelector('.efb-modal-backdrop');
    if (backdrop) {
      backdrop.classList.remove('show');
-     setTimeout(() => { if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop); }, 250);
+     /* The shell can be re-opened inside these 250ms - a dialog that was
+        waiting its turn arrives the moment the screen frees up, and it
+        reuses this very backdrop element. Tearing it down then would leave
+        the new dialog floating over a live page. */
+     setTimeout(() => {
+       if (el.classList.contains('show')) return;
+       if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop);
+     }, 250);
    }
 
    document.body.classList.remove("modal-open");
@@ -4742,9 +4804,15 @@ state_modal_show_efb=(i)=>{
     } else if (jQuery('#settingModalEfb_').hasClass('pre-form-efb')) {
       jQuery('#settingModalEfb_').removeClass('pre-form-efb');
     }
-    if (jQuery('#modal-footer-efb')) {
-      jQuery('#modal-footer-efb').remove()
-    }
+    /* querySelectorAll, not an id lookup: an id lookup returns the first
+       match only, so a dialog that had somehow ended up with two footers
+       would leave one of them behind for the next dialog to wear. */
+    document.querySelectorAll('#modal-footer-efb, #save-result-foot-efb').forEach((foot) => foot.remove());
+    /* The shell no longer belongs to any flow; the next dialog to ask for
+       it gets it, and anything parked behind this one can now be shown. */
+    window._efb_modal_flow_efb = '';
+    jQuery('#settingModalEfb_').removeClass('efb-save-narrow');
+    if (typeof efb_dlg_set_tone_efb === 'function') efb_dlg_set_tone_efb('');
 
     var val = efbLoadingCard('',4);
     if (jQuery(`#settingModalEfb-body`)) jQuery(`#settingModalEfb-body`).html(val)
@@ -5230,7 +5298,7 @@ function form_preview_efb(val) {
 preview_form_new_efb = async ()=>{
       const form_id = sessionStorage.getItem('form_id') ??  form_ID_emsFormBuilder == 0 ?  null :`[EMS_Form_Builder id=${form_ID_emsFormBuilder}]`;
       if(form_id == null ){
-        show_modal_efb(`<div class="text-center text-darkb efb"><div class=" fs-4 efb"></div><p class="fs-4 efb">${efb_var.text.prsm}</p></div>`,efb_var.text.warning, '', 'saveBox');
+        show_modal_efb(`<div class="efb-dlg__centered"><div class="efb-dlg__badge"><i class="bi bi-save" aria-hidden="true"></i></div><div class="efb-dlg__headline">${efb_var.text.warning}</div><div class="efb-dlg__text">${efb_var.text.prsm}</div></div>`, efb_var.text.warning, 'bi-save', 'saveBox');
         state_modal_show_efb(1)
         return;
       }else{
@@ -5625,6 +5693,14 @@ function restore_auto_save_efb(){
   const auto_save = Number(localStorage.getItem('efb_auto_save')) === 1;
   if(auto_save==false) return;
 
+  /* Asked for from two places - the panel bootstrap and every list re-render
+     (paging, search, the back button) - and each of those used to schedule
+     its own copy of the prompt. Two copies meant two footers stacked in the
+     one dialog, the top row wired to nothing. There is one draft, so there
+     is one offer to restore it. */
+  if (_efb_restore_prompt_pending_efb) return;
+  _efb_restore_prompt_pending_efb = true;
+
   const valj_efb_str = localStorage.getItem('efb_auto_save_valj_efb');
   if(valj_efb_str!=null && typeof efb_var !== 'undefined' && efb_var.text){
     setTimeout(() => {
@@ -5657,29 +5733,37 @@ function restore_auto_save_efb(){
         label
       );
 
-      show_modal_efb(context, efb_var.text.warning, 'efb bi-clock-history mx-2', 'duplicateBox', {
+      /* Nobody asked for this dialog, so it never takes the screen from a
+         dialog somebody did ask for: show_modal_efb parks it and replays it
+         once they are done. The wiring goes in onShown for the same reason -
+         while the request is parked, none of these buttons exist yet. */
+      const painted = show_modal_efb(context, efb_var.text.warning, 'efb bi-clock-history mx-2', 'duplicateBox', {
+        flow: 'restore-auto-save',
         confirmLabel: efb_var.text.restoreIt || efb_var.text.yes,
-        cancelLabel: efb_var.text.startFresh || efb_var.text.no
+        cancelLabel: efb_var.text.startFresh || efb_var.text.no,
+        onShown: () => {
+          const confirmBtn = document.getElementById('modalConfirmBtnEfb');
+          if (confirmBtn) {
+            confirmBtn.id = 'restore_auto_save_efb_btn';
+            confirmBtn.onclick = () => restore_auto_save_efb_btn();
+          }
+          const cancelBtn = document.querySelector('#modal-footer-efb .efb-btn-cancel');
+          if (cancelBtn) {
+            cancelBtn.id = 'restore_auto_no_efb_btn';
+            cancelBtn.onclick = () => restore_auto_no_efb_btn();
+          }
+        }
       });
-      state_modal_show_efb(1);
-
-      const confirmBtn = document.getElementById('modalConfirmBtnEfb');
-      if (confirmBtn) {
-        confirmBtn.id = 'restore_auto_save_efb_btn';
-        confirmBtn.onclick = () => restore_auto_save_efb_btn();
-      }
-      const cancelBtn = document.querySelector('#modal-footer-efb .efb-btn-cancel');
-      if (cancelBtn) {
-        cancelBtn.id = 'restore_auto_no_efb_btn';
-        cancelBtn.onclick = () => restore_auto_no_efb_btn();
-      }
+      if (painted) state_modal_show_efb(1);
     }, 1000);
   } else {
+    _efb_restore_prompt_pending_efb = false;
     localStorage.setItem('efb_auto_save', 0);
   }
 }
 
  async function restore_auto_save_efb_btn(){
+    _efb_restore_prompt_pending_efb = false;
     state_page_Efb = 'edit';
    if(window.location.href.includes('page=Emsfb_create')){
     state_page_Efb = 'create';
@@ -5710,12 +5794,36 @@ function restore_auto_save_efb(){
 }
 
   function restore_auto_no_efb_btn(){
+    _efb_restore_prompt_pending_efb = false;
     localStorage.setItem('efb_auto_save', 0);
     localStorage.removeItem('efb_auto_save_valj_efb');
     localStorage.removeItem('efb_auto_save_form_id');
     localStorage.removeItem('efb_auto_save_time');
     state_modal_show_efb(0)
   }
+
+/* Selecting a field opens its settings, and show_setting_window_efb toggles, so it has
+   to be reached exactly once per gesture. One gesture can arrive here up to three times:
+   a field renders a .showBtns wrapper nested inside a .showBtns <setion> that share a
+   data-id (so one click bubbles through two listeners), and a mobile tap fires touchend
+   plus the synthetic click the browser dispatches after it. The event flag collapses the
+   bubbling pair; the short time window collapses touchend + its click. Clicks on the
+   action buttons never get here at all - isFieldAction returns before this - so the
+   gear's own onclick stays the single call for that button. */
+let efbLastFieldSettingEfb = { id: null, at: 0 };
+function efbSelectFieldEfb(el, e) {
+  if (e) {
+    if (e.efbFieldHandled) return;
+    e.efbFieldHandled = true;
+  }
+  active_element_efb(el);
+  const dataId = el.dataset.id;
+  if (!dataId || typeof show_setting_window_efb !== 'function') return;
+  const now = Date.now();
+  if (efbLastFieldSettingEfb.id === dataId && now - efbLastFieldSettingEfb.at < 400) return;
+  efbLastFieldSettingEfb = { id: dataId, at: now };
+  show_setting_window_efb(dataId);
+}
 
 function fub_shwBtns_efb() {
   for (const el of document.querySelectorAll(".showBtns")) {
@@ -5728,7 +5836,7 @@ function fub_shwBtns_efb() {
     if (!el._efbClickBound) {
       el.addEventListener("click", (e) => {
         if (isFieldAction(e.target)) return;
-        active_element_efb(el);
+        efbSelectFieldEfb(el, e);
       });
       el._efbClickBound = true;
     }
@@ -5759,7 +5867,7 @@ function fub_shwBtns_efb() {
     if (!el._efbTouchBound) {
       el.addEventListener("touchend", (e) => {
         if (isFieldAction(e.target)) return;
-        active_element_efb(el);
+        efbSelectFieldEfb(el, e);
       }, { passive: true });
       el._efbTouchBound = true;
     }
@@ -5933,7 +6041,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
   let ui = ''
   const vtype = (elementId == "payCheckbox" || elementId == "payRadio" || elementId == "paySelect" || elementId == "payMultiselect" || elementId == "chlRadio" || elementId == "chlCheckBox" || elementId == "imgRadio" || elementId=='trmCheckbox') ? elementId.slice(3).toLowerCase() : elementId;
   let classes = ''
-  const corner = valj_efb[iVJ].hasOwnProperty('corner') ? valj_efb[iVJ].corner: 'efb-square';
+  const corner = valj_efb[iVJ].hasOwnProperty('corner') ? valj_efb[iVJ].corner: 'rounded-3';
   let minlen,maxlen,temp,col;
   let hidden =  previewSate == true  && valj_efb[iVJ].hasOwnProperty('hidden') &&  valj_efb[iVJ].hidden==1 ? 'd-none' : ''
   let disabled = valj_efb[iVJ].hasOwnProperty('disabled') &&  valj_efb[iVJ].disabled==1? 'disabled' : ''
@@ -8142,7 +8250,7 @@ function previewFormEfb(state) {
       preview_form_new_efb();
       return;
     }else if (state == "pc"){
-      show_modal_efb(efbLoadingCard('',4), efb_var.text.previewForm, '', 'saveBox')
+      show_modal_efb(efbLoadingCard('',4), efb_var.text.previewForm, '', 'saveBox', { flow: 'preview' })
       state_modal_show_efb(1)
     }
   }
@@ -8281,10 +8389,10 @@ function previewFormEfb(state) {
   if (state == 'pc') {
     document.getElementById('dropZoneEFB').innerHTML = '';
     content = efb_builder_wrap_preview_logic_body_efb(`<!-- find xxxx -->` + content, add_buttons_zone_efb(t, 'preview'));
-    show_modal_efb(content, efb_var.text.pcPreview, 'bi-display', 'saveBox')
+    show_modal_efb(content, efb_var.text.pcPreview, 'bi-display', 'saveBox', { flow: 'preview' })
   } else if (state == 'pre') {
     content = efb_builder_wrap_preview_logic_body_efb(content, add_buttons_zone_efb(t, 'preview'));
-    show_modal_efb(content, efb_var.text.pcPreview, 'bi-display', 'saveBox')
+    show_modal_efb(content, efb_var.text.pcPreview, 'bi-display', 'saveBox', { flow: 'preview' })
   } else if (state == "mobile") {
     const frame = `
         <div class="efb smartphone-efb">
@@ -8294,8 +8402,10 @@ function previewFormEfb(state) {
             </div>
         </div>
       </div> `
-    show_modal_efb(frame, efb_var.text.mobilePreview, 'bi-phone', 'settingBox');
-    ReadyElForViewEfb(content)
+    show_modal_efb(frame, efb_var.text.mobilePreview, 'bi-phone', 'settingBox', {
+      flow: 'preview',
+      onShown: () => ReadyElForViewEfb(content)
+    });
   } else {
     document.getElementById(id).innerHTML ='<form id="efbform" class="mx-0 px-0 efb">'+ content + add_buttons_zone_efb(t, id) + '</form>';
     if (valj_efb[0].type == "payment") {
@@ -8434,7 +8544,7 @@ function previewFormEfb(state) {
               callback += 1;
               const opd = document.querySelector(`[data-id='${v.id_}_options']`);
               if (opd != null) {
-                const corner = v.hasOwnProperty('corner') ? v.corner: 'efb-square';
+                const corner = v.hasOwnProperty('corner') ? v.corner: 'rounded-3';
                 opd.className += ` efb emsFormBuilder_v  ${corner} ${v.el_border_color} ${v.el_text_size} ${v.el_height}`;
                 opd.onclick = function getMultiSelectvalue() {
                 }

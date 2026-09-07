@@ -53,7 +53,7 @@ function efbRecorderWidgetHtml(rndm, vj, formId) {
 	// tokens in place, so the defaults must be present in the markup). recorder-efb.css
 	// translates them onto the inner frame.
 	var elHeight = vj.el_height || 'h-d-efb';
-	var corner = vj.corner || 'efb-square';
+	var corner = vj.corner || 'rounded-3';
 	var borderColor = vj.el_border_color || 'border-d';
 	var extraClasses = (vj.classes || '').split(',').join(' ').trim();
 

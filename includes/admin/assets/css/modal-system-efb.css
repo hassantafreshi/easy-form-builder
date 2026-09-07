@@ -161,6 +161,18 @@ body.efb-dlg-open {
 	overflow: hidden;
 }
 
+/*
+ * Every dialog is measured border-box. wp-admin does not set this globally, so
+ * a `width: 100%` element with its own padding - a coupon card, a full-width
+ * call to action - overflows the shell it sits in without it.
+ */
+.efb-dlg,
+.efb-dlg *,
+.efb-dlg *::before,
+.efb-dlg *::after {
+	box-sizing: border-box;
+}
+
 .efb-dlg {
 	position: fixed;
 	inset: 0;
@@ -338,6 +350,74 @@ body.efb-dlg-open {
 	text-align: start;
 }
 
+.efb-dlg__note + .efb-dlg__note {
+	margin-block-start: 10px;
+}
+
+/* The note still saved - it flags something the admin should fix, in the
+   same amber the "warn" tone already uses for a badge or a footer pill. */
+.efb-dlg__note--warn {
+	margin-block-start: 14px;
+	background: rgba(211, 158, 0, 0.1);
+	border: 1px solid rgba(211, 158, 0, 0.3);
+	color: #7a5900;
+}
+
+.efb-dlg__note--warn i {
+	color: #d39e00;
+	margin-block-start: 2px;
+}
+
+/* Shortcode panel ------------------------------------------------------ */
+
+.efb-dlg__code-panel {
+	margin-block-start: 20px;
+	border: 1px solid var(--efb-dlg-line-strong);
+	border-radius: 13px;
+	background: var(--efb-dlg-surface-soft);
+	overflow: hidden;
+	text-align: start;
+}
+
+.efb-dlg__code-panel-head {
+	display: flex;
+	align-items: center;
+	gap: 7px;
+	padding: 9px 13px;
+	border-block-end: 1px solid var(--efb-dlg-line);
+	font-size: 11.5px;
+	font-weight: 600;
+	color: var(--efb-dlg-ink-muted);
+}
+
+.efb-dlg__code-panel-row {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex-wrap: wrap;
+	padding: 11px 13px;
+}
+
+/* Shortcodes are pinned ltr with an isolate, same as everywhere else this
+   system prints a code value inside a bidi (RTL) sentence. */
+.efb-dlg__code-box {
+	flex: 1 1 auto;
+	min-width: 0;
+	direction: ltr;
+	unicode-bidi: isolate;
+	text-align: start;
+	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+	font-size: 13px;
+	color: var(--efb-dlg-brand-dark);
+	background: var(--efb-dlg-surface);
+	border: 1px solid var(--efb-dlg-line-strong);
+	border-radius: 9px;
+	padding: 9px 11px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
 /* Foot ---------------------------------------------------------------- */
 
 .efb-dlg__foot {
@@ -374,52 +454,61 @@ body.efb-dlg-open {
 	transition: transform 0.12s ease, box-shadow 0.15s ease, background 0.15s ease;
 }
 
-.efb-dlg .efb-btn:active {
+.efb-dlg .efb-btn:active,
+.efb-dlg-btn:active {
 	transform: translateY(1px);
 }
 
-.efb-dlg .efb-btn--primary {
+.efb-dlg .efb-btn--primary,
+.efb-dlg-btn--primary {
 	font-weight: 700;
 	color: #fff;
 	background: linear-gradient(135deg, #3644d2, #202a8d);
 	box-shadow: 0 6px 18px rgba(54, 68, 210, 0.28);
 }
 
-.efb-dlg .efb-btn--danger {
+.efb-dlg .efb-btn--danger,
+.efb-dlg-btn--danger {
 	font-weight: 700;
 	color: #fff;
 	background: linear-gradient(135deg, #c00751, #f95e5e);
 	box-shadow: 0 6px 18px rgba(192, 7, 81, 0.26);
 }
 
-.efb-dlg .efb-btn--gold {
+.efb-dlg .efb-btn--gold,
+.efb-dlg-btn--gold {
 	font-weight: 700;
 	color: #fff;
 	background: linear-gradient(135deg, #667eea, #202a8d);
 	box-shadow: 0 6px 18px rgba(32, 42, 141, 0.28);
 }
 
-.efb-dlg .efb-btn--success {
+.efb-dlg .efb-btn--success,
+.efb-dlg-btn--success {
 	font-weight: 700;
 	color: #fff;
 	background: linear-gradient(135deg, #108f69, #065518);
 	box-shadow: 0 6px 18px rgba(16, 143, 105, 0.26);
 }
 
-.efb-dlg .efb-btn--ghost {
+.efb-dlg .efb-btn--ghost,
+.efb-dlg-btn--ghost {
 	color: var(--efb-dlg-ink-soft);
 	background: var(--efb-dlg-surface);
 	border-color: var(--efb-dlg-line-strong);
 }
 
 .efb-dlg .efb-btn--ghost:hover,
-.efb-dlg .efb-btn--ghost:focus-visible {
+.efb-dlg .efb-btn--ghost:focus-visible,
+.efb-dlg-btn--ghost:hover,
+.efb-dlg-btn--ghost:focus-visible {
 	border-color: var(--efb-dlg-brand);
 	color: var(--efb-dlg-brand);
 	outline: 0;
 }
 
-.efb-dlg .efb-btn--quiet {
+.efb-dlg .efb-btn--quiet,
+.efb-dlg-btn--quiet {
 	color: var(--efb-dlg-ink-muted);
 	background: transparent;
 	border-color: transparent;
@@ -427,14 +516,18 @@ body.efb-dlg-open {
 }
 
 .efb-dlg .efb-btn--quiet:hover,
-.efb-dlg .efb-btn--quiet:focus-visible {
+.efb-dlg .efb-btn--quiet:focus-visible,
+.efb-dlg-btn--quiet:hover,
+.efb-dlg-btn--quiet:focus-visible {
 	color: var(--efb-dlg-ink-soft);
 	background: var(--efb-dlg-surface-sunken);
 	outline: 0;
 }
 
 .efb-dlg .efb-btn[disabled],
-.efb-dlg .efb-btn--disabled {
+.efb-dlg .efb-btn--disabled,
+.efb-dlg-btn[disabled],
+.efb-dlg-btn--disabled {
 	color: #b9bed6;
 	background: var(--efb-dlg-surface-sunken);
 	border-color: #eceef7;
@@ -443,9 +536,17 @@ body.efb-dlg-open {
 	transform: none;
 }
 
-.efb-dlg .efb-btn:focus-visible {
+.efb-dlg .efb-btn:focus-visible,
+.efb-dlg-btn:focus-visible {
 	outline: 2px solid var(--efb-dlg-brand);
 	outline-offset: 2px;
+}
+
+/* A tighter pill for a button that lives inside a panel rather than the
+   dialog's own footer - the shortcode copy action. */
+.efb-dlg-btn--sm {
+	padding: 9px 14px;
+	font-size: 12.5px;
 }
 
 /* -----------------------------------------------------------------------
@@ -458,6 +559,24 @@ body.efb-dlg-open {
 	align-items: center;
 	gap: 6px;
 	padding: 26px 0 22px;
+}
+
+.efb-dlg__loading img {
+	width: 96px;
+	height: 96px;
+	object-fit: contain;
+}
+
+.efb-dlg__loading-title {
+	font-size: 14.5px;
+	font-weight: 700;
+	margin-block-start: 4px;
+	color: var(--efb-dlg-ink);
+}
+
+.efb-dlg__loading-sub {
+	font-size: 13px;
+	color: var(--efb-dlg-ink-faint);
 }
 
 .efb-dlg__loading-track {
@@ -604,6 +723,15 @@ body.efb-dlg-open {
 #settingModalEfb .efb.modal-body {
 	padding: 26px 26px 24px;
 	color: var(--efb-dlg-ink);
+}
+
+/* Save flow (loading card, then the insert/update result) -------------- */
+
+/* .save-efb alone stretches the shell to 70% of the viewport - right for the
+   chart modal, far too wide for a short status card. saveFormEfb() adds this
+   second class only for that flow, and it is stripped again on close. */
+.modal-dialog.save-efb.efb-save-narrow {
+	max-width: 560px !important;
 }
 
 /* Confirm dialogs (delete / duplicate / warning) ----------------------- */

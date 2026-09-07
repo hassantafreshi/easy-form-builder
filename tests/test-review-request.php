@@ -231,7 +231,7 @@ efb_t( 'E4 an expired snooze lets the ask through again', true === $request->sho
 $state = $request->state_efb();
 efb_t(
 	'E5 state_efb() fills in every key it promises',
-	isset( $state['status'], $state['snooze_until'], $state['shown'], $state['rating'], $state['rated_at'], $state['coupon_state'], $state['coupon_code'] )
+	isset( $state['status'], $state['snooze_until'], $state['shown'], $state['rating'], $state['rated_at'], $state['username'], $state['outcome'] )
 );
 
 /* ---------------------------------------------------------------------
@@ -240,7 +240,7 @@ efb_t(
 
 echo "\nF. The %s discount\n";
 
-efb_t( 'F1 the default offer is 100%', '100%' === wp_strip_all_tags( $request->discount_label_efb() ) || false !== strpos( $request->discount_label_efb(), '100' ) );
+efb_t( 'F1 the default offer is 64%', false !== strpos( $request->discount_label_efb(), '64' ), $request->discount_label_efb() );
 
 add_filter( 'emsfb_review_discount_percent_efb', function () { return 40; } );
 efb_t( 'F2 the filter changes the figure', false !== strpos( $request->discount_label_efb(), '40' ), 'got ' . $request->discount_label_efb() );
@@ -252,7 +252,7 @@ remove_all_filters( 'emsfb_review_discount_percent_efb' );
 
 // The point of the whole exercise: no translated string may carry the number.
 $strings   = $request->strings_efb();
-$must_have = array( 'offerLine', 'rewardTitle', 'rewardMessage', 'couponIssued', 'couponPending' );
+$must_have = array( 'ribbonPct', 'ocLowStarsLead' );
 $missing   = array();
 foreach ( $must_have as $key ) {
 	if ( ! isset( $strings[ $key ] ) || false === strpos( $strings[ $key ], '%s' ) ) {
@@ -391,15 +391,22 @@ if ( function_exists( 'set_current_screen' ) ) {
 if ( '' !== $markup ) {
 	$hooks = array(
 		'data-efb-review-step="ask"',
-		'data-efb-review-step="reward"',
-		'data-efb-review-step="improve"',
-		'data-efb-review-step="done"',
+		'data-efb-review-step="praise"',
+		'data-efb-review-step="claim"',
+		'data-efb-review-step="checking"',
+		'data-efb-review-step="result"',
+		'data-efb-review-step="feedback"',
+		'data-efb-review-step="sent"',
 		'data-efb-review-action="later"',
 		'data-efb-review-action="never"',
 		'data-efb-review-action="review"',
-		'data-efb-review-action="claim"',
-		'data-efb-review-action="support"',
+		'data-efb-review-action="toClaim"',
+		'data-efb-review-action="getCode"',
+		'data-efb-review-action="send"',
 		'data-efb-review-rate="5"',
+		'data-efb-review-username',
+		'data-efb-review-email',
+		'data-efb-review-comment',
 	);
 
 	$absent = array();
@@ -477,7 +484,7 @@ efb_t( 'K1 the AJAX action is registered', has_action( 'wp_ajax_emsfb_review_req
 
 $reflect = new ReflectionClass( '\Emsfb\Review_Request' );
 efb_t( 'K2 the nonce action and the AJAX action are the same name', 'emsfb_review_request' === $reflect->getConstant( 'ACTION' ) );
-efb_t( 'K3 the reward threshold is five stars', 5 === $reflect->getConstant( 'REWARD_THRESHOLD' ) );
+efb_t( 'K3 four stars and up take the review route', 4 === $reflect->getConstant( 'REWARD_THRESHOLD' ) );
 efb_t( 'K4 the wait is fourteen days', 14 === $reflect->getConstant( 'MIN_DAYS' ) );
 efb_t( 'K5 the gap between sightings is about a month', 30 === $reflect->getConstant( 'SNOOZE_DAYS' ) );
 

@@ -112,41 +112,201 @@ window.efb_confirm_efb = (options = {}) => new Promise((resolve) => {
     }
   };
 
-  show_modal_efb(
+  /* All of the wiring hangs off onShown: when another dialog has the screen
+     this request is parked, and none of these elements exist yet. Escape is
+     bound at the same moment, so a key press cannot answer a question that
+     is not on screen. */
+  const wire = () => {
+    const confirmButton = document.getElementById('modalConfirmBtnEfb');
+    const cancelButton = document.querySelector('#modal-footer-efb .efb-btn-cancel');
+    const backdrop = document.querySelector('.efb-modal-backdrop');
+    if (confirmButton) confirmButton.addEventListener('click', () => {
+      finish(true);
+      state_modal_show_efb(0);
+    }, { once: true });
+    if (cancelButton) cancelButton.addEventListener('click', () => finish(false), { once: true });
+    if (backdrop) backdrop.onclick = () => {
+      finish(false);
+      state_modal_show_efb(0);
+    };
+    document.addEventListener('keydown', onKeydown);
+  };
+
+  const painted = show_modal_efb(
     efb_build_confirm_body(variant, icon, escapeHtml(title), escapeHtml(message), escapeHtml(label)),
     escapeHtml(title),
     'efb ' + icon + ' mx-2',
-    type
+    type,
+    { onShown: wire }
   );
-  state_modal_show_efb(1);
-
-  const confirmButton = document.getElementById('modalConfirmBtnEfb');
-  const cancelButton = document.querySelector('#modal-footer-efb .efb-btn-cancel');
-  const backdrop = document.querySelector('.efb-modal-backdrop');
-  if (confirmButton) confirmButton.addEventListener('click', () => {
-    finish(true);
-    state_modal_show_efb(0);
-  }, { once: true });
-  if (cancelButton) cancelButton.addEventListener('click', () => finish(false), { once: true });
-  if (backdrop) backdrop.onclick = () => {
-    finish(false);
-    state_modal_show_efb(0);
-  };
-  document.addEventListener('keydown', onKeydown);
+  if (painted) state_modal_show_efb(1);
 });
 
 let last_show_modal_efb = '';
+
+/* The tones modal-system-efb.css knows about. Setting one on
+   #settingModalEfb-sections re-points --efb-dlg-tone for every descendant -
+   the head icon, any .efb-dlg__badge, the .efb-dlg-btn--primary pills - so a
+   dialog "wears" a colour instead of each caller picking one. Cleared on
+   every show_modal_efb() call so it never bleeds into the next, unrelated
+   dialog; state_modal_show_efb(0) clears it again on close as a backstop. */
+const EFB_DLG_TONES_EFB = ['efb-tone-brand', 'efb-tone-danger', 'efb-tone-warn', 'efb-tone-success', 'efb-tone-gold', 'efb-tone-neutral', 'efb-tone-orange'];
+const efb_dlg_set_tone_efb = (tone) => {
+  const sections = document.getElementById('settingModalEfb-sections');
+  if (!sections) return;
+  EFB_DLG_TONES_EFB.forEach((c) => sections.classList.remove(c));
+  if (tone) sections.classList.add(tone);
+};
+
+/* ------------------------------------------------------------------ *
+ * Modal shell arbitration
+ *
+ * Every admin dialog paints into the same shell (#settingModalEfb). A
+ * dialog that arrives on its own - the auto-save restore prompt fires on a
+ * timer, a save result comes back from an ajax call - used to paint
+ * straight over whatever the person already had open. They lost the dialog
+ * they were reading, and the buttons of the dialog that replaced it were
+ * left wired to a footer that no longer existed.
+ *
+ * show_modal_efb() now parks such a request and replays it the moment the
+ * screen is free. A call that is *continuing* the flow already on screen -
+ * a loading card turning into its own result - names that flow with
+ * {flow: 'save'} and paints in place, because it owns the shell.
+ * ------------------------------------------------------------------ */
+
+/* The flow currently painted into the shell, '' when the shell is idle.
+   Set by every paint, cleared by state_modal_show_efb(0). */
+window._efb_modal_flow_efb = window._efb_modal_flow_efb || '';
+/* Requests waiting for a free screen, oldest first. */
+window._efb_modal_parked_efb = window._efb_modal_parked_efb || [];
+window._efb_modal_watch_efb = window._efb_modal_watch_efb || 0;
+
 /**
- * @param {Object} [opts] Confirm-footer overrides, used by deleteBox and
- *                        duplicateBox only: {confirmLabel, cancelLabel}. The
- *                        tone of the confirm button follows the box type -
- *                        deleteBox is red, duplicateBox is the primary blue -
- *                        so a dialog that needs an amber badge over a blue
+ * Is a dialog holding the screen right now?
+ *
+ * The review invitation lives in its own element rather than the shared
+ * shell, so it has to be asked about separately - it is still a dialog the
+ * person is in the middle of, and painting behind it is just as wrong.
+ */
+const efb_modal_shell_busy_efb = () => {
+  const shell = document.getElementById('settingModalEfb');
+  if (shell && shell.classList.contains('show')) return true;
+  return document.body.classList.contains('efb-dlg-open');
+};
+
+/** The flow name of whatever is on screen, '' when nothing is. */
+const efb_modal_current_flow_efb = () => (efb_modal_shell_busy_efb() ? window._efb_modal_flow_efb : '');
+
+/** Drop every footer left next to the body by the previous dialog. */
+const efb_modal_clear_footers_efb = () => {
+  document.querySelectorAll('#modal-footer-efb, #save-result-foot-efb').forEach((el) => el.remove());
+};
+
+/**
+ * Hold a request until the screen clears.
+ *
+ * A second request for the same flow supersedes the first in place: a
+ * preview whose loading card never got shown should replay as the preview,
+ * not as the spinner and then the preview. Flow-less requests stack.
+ */
+const efb_modal_park_efb = (spec) => {
+  const queue = window._efb_modal_parked_efb;
+  if (spec.opts.flow) {
+    const at = queue.findIndex((q) => q.opts.flow === spec.opts.flow);
+    if (at !== -1) {
+      queue[at] = spec;
+      efb_modal_watch_efb();
+      return;
+    }
+  }
+  // A runaway caller must not build an unbounded backlog of dialogs to
+  // replay at somebody; the oldest waiting request gives way.
+  if (queue.length >= 5) queue.shift();
+  queue.push(spec);
+  efb_modal_watch_efb();
+};
+
+/**
+ * Poll for a free screen while anything is parked.
+ *
+ * A poll rather than a hook on close: the shell is closed from several
+ * places and the review invitation from another file entirely, and a
+ * dialog that silently never arrives is a worse failure than a 400ms wait.
+ */
+const efb_modal_watch_efb = () => {
+  if (window._efb_modal_watch_efb) return;
+  window._efb_modal_watch_efb = setInterval(() => {
+    if (!window._efb_modal_parked_efb.length) {
+      clearInterval(window._efb_modal_watch_efb);
+      window._efb_modal_watch_efb = 0;
+      return;
+    }
+    if (efb_modal_shell_busy_efb()) return;
+    /* A backdrop that outlives its dialog means the close is still playing
+       out. Its teardown runs on a timer, so opening now would hand the new
+       dialog a backdrop that is about to be removed. */
+    if (document.querySelector('.efb-modal-backdrop')) return;
+
+    const spec = window._efb_modal_parked_efb.shift();
+    efb_modal_paint_efb(spec.body, spec.title, spec.icon, spec.type, spec.opts);
+    state_modal_show_efb(1);
+    efb_modal_after_shown_efb(spec.opts);
+  }, 400);
+};
+
+/** Run a caller's post-paint wiring once the dialog is really on screen. */
+const efb_modal_after_shown_efb = (opts) => {
+  if (typeof opts.onShown !== 'function') return;
+  setTimeout(() => {
+    try { opts.onShown(); } catch (e) { /* a broken caller must not stall the queue */ }
+  }, 0);
+};
+
+/**
+ * @param {Object} [opts] Dialog options:
+ *                        {confirmLabel, cancelLabel} rename the two buttons
+ *                        of a deleteBox/duplicateBox footer;
+ *                        {flow} names the flow this dialog belongs to, so a
+ *                        later call naming the same flow may paint over it;
+ *                        {onShown} runs once the dialog is actually visible,
+ *                        which is where button wiring belongs - a parked
+ *                        dialog is not in the DOM when show_modal_efb()
+ *                        returns.
+ *
+ *                        The tone of the confirm button follows the box type
+ *                        - deleteBox is red, duplicateBox is the primary blue
+ *                        - so a dialog that needs an amber badge over a blue
  *                        button asks for 'duplicateBox' and a 'warning' body.
+ * @returns {boolean} true when the dialog was painted, false when it was
+ *                    parked behind one already on screen. A caller that gets
+ *                    false must not touch the shell.
  */
 const show_modal_efb = (body, title, icon, type, opts) => {
   opts = opts || {};
+
+  // Painting is allowed when the screen is free, or when this call belongs
+  // to the flow already on it. Everything else waits its turn.
+  const owns = !!opts.flow && opts.flow === efb_modal_current_flow_efb();
+  if (!owns && efb_modal_shell_busy_efb()) {
+    efb_modal_park_efb({ body: body, title: title, icon: icon, type: type, opts: opts });
+    return false;
+  }
+
+  efb_modal_paint_efb(body, title, icon, type, opts);
+  efb_modal_after_shown_efb(opts);
+  return true;
+};
+
+/** Write a dialog into the shell. Never decides whether it may - see above. */
+const efb_modal_paint_efb = (body, title, icon, type, opts) => {
+  opts = opts || {};
   last_show_modal_efb =type;
+  window._efb_modal_flow_efb = opts.flow || '';
+  efb_dlg_set_tone_efb('');
+  // Footers are appended beside the body, so nothing else clears them. Any
+  // left by the previous dialog would stack under this one - two rows of
+  // buttons, the top row dead.
+  efb_modal_clear_footers_efb();
   const mx = Number(efb_var.rtl) == 1 ? 'ms-2' : 'me-2';
   document.getElementById("settingModalEfb-title").innerHTML = title;
   document.getElementById("settingModalEfb-icon").className = icon + ` efb ${mx}`;
@@ -161,30 +321,49 @@ const show_modal_efb = (body, title, icon, type, opts) => {
     if (!document.getElementById('settingModalEfb_').classList.contains('efb-confirm-dialog')) {
       document.getElementById('settingModalEfb_').classList.add('efb-confirm-dialog');
     }
-    if (!document.getElementById('modalConfirmBtnEfb')) {
-      const isDelete = type === 'deleteBox';
-      const confirmClass = isDelete ? 'efb-btn-confirm-danger' : 'efb-btn-confirm-primary';
-      // "Yes"/"No" is right for a delete, and vague for everything else. A
-      // caller that has better words for its own two choices passes them.
-      const confirmLabel = opts.confirmLabel || efb_var.text.yes;
-      const cancelLabel = opts.cancelLabel || efb_var.text.no;
-      document.getElementById('settingModalEfb-sections').innerHTML += `
-    <div class="efb modal-footer efb-confirm-footer" id="modal-footer-efb">
+    const isDelete = type === 'deleteBox';
+    const confirmClass = isDelete ? 'efb-btn-confirm-danger' : 'efb-btn-confirm-primary';
+    // "Yes"/"No" is right for a delete, and vague for everything else. A
+    // caller that has better words for its own two choices passes them.
+    const confirmLabel = opts.confirmLabel || efb_var.text.yes;
+    const cancelLabel = opts.cancelLabel || efb_var.text.no;
+    /* Built as a node and appended, not with innerHTML += on the whole
+       dialog: that re-parses the header and the body too, throwing away
+       every listener the body was just given. It is rebuilt on every paint
+       rather than reused, because a caller is free to rename these buttons
+       for its own handlers - asking "does #modalConfirmBtnEfb exist?" is
+       exactly what let the auto-save prompt append a second footer under
+       its own. */
+    const foot = document.createElement('div');
+    foot.className = 'efb modal-footer efb-confirm-footer';
+    foot.id = 'modal-footer-efb';
+    foot.innerHTML = `
       <a type="button" class="efb-btn-cancel" onclick="state_modal_show_efb(0)">
           ${cancelLabel}
       </a>
       <a type="button" class="${confirmClass}" id="modalConfirmBtnEfb">
           ${confirmLabel}
-      </a>
-    </div>`
-    }
+      </a>`;
+    document.getElementById('settingModalEfb-sections').appendChild(foot);
   } else if (type == "saveBox") {
     document.getElementById("settingModalEfb").classList.remove('modal-new-efb')
     if (!document.getElementById("settingModalEfb_").classList.contains('save-efb')) document.getElementById("settingModalEfb_").classList.add('save-efb')
   } else if (type == "saveLoadingBox") {
     document.getElementById("settingModalEfb").classList.remove('modal-new-efb')
     if (!document.getElementById("settingModalEfb_").classList.contains('save-efb')) document.getElementById("settingModalEfb_").classList.add('save-efb')
-    document.getElementById('settingModalEfb-body').innerHTML = efbLoadingCard('',5);
+    // Every "please wait" state - saving a form, opening a template preview -
+    // wears the same brand-toned hourglass card, regardless of whatever
+    // title/icon the caller passed in for the result that follows it.
+    efb_dlg_set_tone_efb('efb-tone-brand');
+    document.getElementById("settingModalEfb-title").innerHTML = efb_var.text.pleaseWaiting;
+    document.getElementById("settingModalEfb-icon").className = `bi-hourglass-split efb ${mx}`;
+    document.getElementById('settingModalEfb-body').innerHTML = `
+      <div class="efb-dlg__loading">
+        <img src="${efb_var.images.logoGif}" alt="${efb_var.text.easyFormBuilder}">
+        <div class="efb-dlg__loading-title">${efb_var.text.easyFormBuilder}</div>
+        <div class="efb-dlg__loading-sub">${efb_var.text.pleaseWaiting}&hellip;</div>
+        <div class="efb-dlg__loading-track"><div class="efb-dlg__loading-bar"></div></div>
+      </div>`;
 
   } else if (type == "chart") {
     document.getElementById("settingModalEfb").classList.remove('modal-new-efb')
@@ -215,7 +394,7 @@ let add_buttons_zone_efb = (state, id) => {
     t = t != -1 ? valj_efb[t].step : 0;
     dis = (valj_efb[0].type == "payment" )&& (valj_efb[0].steps == 1 && t == 1) && preview_efb != true ? 'disabled' : '';
   }
-  const corner = valj_efb[0].hasOwnProperty('corner') ? valj_efb[0].corner: 'efb-square';
+  const corner = valj_efb[0].hasOwnProperty('corner') ? valj_efb[0].corner: 'rounded-3';
   const btns_align = valj_efb[0].hasOwnProperty('btns_align') ? valj_efb[0].btns_align + ' mx-3':'justify-content-center';
   const  row = Number(valj_efb[0].steps)==1 ? '' : 'row';
   const s = `
@@ -245,7 +424,14 @@ const alignChangerElEfb = (classes, value) => { return classes.replace(/(justify
 const alignChangerEfb = (classes, value) => { return classes.replace(/(txt-left|txt-right|txt-center)/, ` ${value} `) ?? `${classes} ${value} `; }
 const RemoveTextOColorEfb = (classes) => { return classes.replace('text-', ``); }
 const colorBorderChangerEfb = (classes, color) => { return classes.replace(/\bborder+-+[\w\-]+/gi, ` ${color} `) ?? `${classes} ${color} `; }
-const cornerChangerEfb = (classes, value) => { return classes.replace(/(efb-square|efb-rounded|rounded-+[0-5] )/, ` ${value} `) ?? `${classes} ${value} `; }
+/* efb-square is the legacy default and still lives in saved forms, so it stays in the
+   match list; the class is matched on word boundaries because the corner class is not
+   always followed by a space, and .replace() returns the string untouched (never null)
+   when nothing matched - so the append has to be an explicit branch, not `??`. */
+const cornerChangerEfb = (classes, value) => {
+  const corner = /(?:^|\s)(?:efb-square|efb-rounded|rounded-[0-5])(?=\s|$)/;
+  return corner.test(classes) ? classes.replace(corner, ` ${value} `) : `${classes} ${value} `;
+}
 const colMdChangerEfb = (classes, value) => { return /\bcol-md-\d+/.test(classes) ? classes.replace(/\bcol-md-\d+/, ` ${value} `) : `${classes} ${value} `; }
 const PxChangerEfb = (classes, value) => { return classes.replace(/\bpx+-\d+/, ` ${value} `) ?? `${classes} ${value} `; }
 const MxChangerEfb = (classes, value) => { return classes.replace(/\bmx+-\d+/, ` ${value} `) ?? `${classes} ${value} `; }
@@ -675,7 +861,7 @@ function funTnxEfb(val, title, message, ov) {
   const safeIconTnx = (i) => (typeof i === 'string' && /^bi-[a-z0-9-]+$/.test(i)) ? i : '';
   ov = (ov && typeof ov === 'object') ? ov : {};
   const done = valj_efb[0].thank_you_message.done || efb_var.text.yad
-  const corner = valj_efb[0].hasOwnProperty('corner') ? valj_efb[0].corner: 'efb-square';
+  const corner = valj_efb[0].hasOwnProperty('corner') ? valj_efb[0].corner: 'rounded-3';
   const thankYou = valj_efb[0].thank_you_message.thankYou || efb_var.text.thanksFillingOutform
   const t = title ? title : (ov.done ? escTnx(ov.done) : done);
   const m = message ? message : thankYou;

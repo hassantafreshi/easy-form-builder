@@ -25,7 +25,7 @@ maps_el_pro_efb =(previewSate, pos , rndm,iVJ)=>{
  }
 
  dadfile_el_pro_efb =(previewSate , rndm,iVJ)=>{
-  const corner = valj_efb[iVJ].hasOwnProperty('corner') ? valj_efb[iVJ].corner: 'efb-square'
+  const corner = valj_efb[iVJ].hasOwnProperty('corner') ? valj_efb[iVJ].corner: 'rounded-3'
   let disabled =  valj_efb[iVJ].hasOwnProperty('disabled') &&  valj_efb[iVJ].disabled==true? 'disabled' : ''
     return `<div class="efb  mb-3" id="uploadFilePreEfb">
                 <label for="${rndm}_" class="efb  form-label">
@@ -36,7 +36,7 @@ maps_el_pro_efb =(previewSate, pos , rndm,iVJ)=>{
             </div>`;
 }
 esign_el_pro_efb =(previewSate, pos , rndm,iVJ,desc)=>{
-    const corner = valj_efb[iVJ].hasOwnProperty('corner') ? valj_efb[iVJ].corner: 'efb-square'
+    const corner = valj_efb[iVJ].hasOwnProperty('corner') ? valj_efb[iVJ].corner: 'rounded-3'
     let disabled = valj_efb[iVJ].hasOwnProperty('disabled') &&  valj_efb[iVJ].disabled==1? 'disabled' : ''
     return `<div class="efb  ${pos[3]} col-sm-12" id ="${rndm}-f">
     <canvas class="efb  sign-efb bg-white ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].el_border_color} efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}" data-code="${rndm}"  data-id="${rndm}-el" id="${rndm}_"  ${valj_efb[iVJ].message!='' ? `aria-describedby="${valj_efb[iVJ].id_}-des"` : ""} >
@@ -231,7 +231,7 @@ link_el_pro_efb = (previewSate,pos, rndm,iVJ)=>{
     </div>`
 }
 yesNi_el_pro_efb = (previewSate,pos, rndm,iVJ)=>{
-  const corner = valj_efb[iVJ].hasOwnProperty('corner') ? valj_efb[iVJ].corner: 'efb-square';
+  const corner = valj_efb[iVJ].hasOwnProperty('corner') ? valj_efb[iVJ].corner: 'rounded-3';
   let disabled = valj_efb[iVJ].hasOwnProperty('disabled') &&  valj_efb[iVJ].disabled==1? 'disabled' : ''
     return `<div class="efb ${pos[3]} col-sm-12 efb  ${disabled} efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}"  id='${rndm}-f'  ${valj_efb[iVJ].message!='' ? `aria-describedby="${valj_efb[iVJ].id_}-des"` : ""}>
     <div class="efb  efb-yesno-group btn-group  btn-group-toggle w-100  col-md-12 col-sm-12 border border-0 ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}" data-toggle="buttons" data-id="${rndm}-id" id="${rndm}_yn" role="group" data-yesno-kit="default" aria-required="${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'true' : 'false'}">
@@ -602,14 +602,20 @@ function fun_clear_esign_efb(id) {
 function closed_resp_emsFormBuilder(msg_id){
   const msg = stock_state_efb==false ? efb_var.text.clsdrspnsM : efb_var.text.clsdrspnsMo;
   const body = efb_build_confirm_body('warning', 'bi-exclamation-triangle', efb_var.text.close, msg, '');
-  show_modal_efb(body, efb_var.text.close, 'efb bi-exclamation-triangle mx-2', 'deleteBox')
-  const confirmBtn = document.getElementById('modalConfirmBtnEfb');
-  state_modal_show_efb(1)
-  confirmBtn.addEventListener("click", (e) => {
-    close_resp_efb(msg_id,stock_state_efb);
-    activeEl_efb = 0;
-    state_modal_show_efb(0)
-  })
+  /* The confirm button only exists once this dialog is on screen, and it
+     waits its turn when another one already is. */
+  const painted = show_modal_efb(body, efb_var.text.close, 'efb bi-exclamation-triangle mx-2', 'deleteBox', {
+    onShown: () => {
+      const confirmBtn = document.getElementById('modalConfirmBtnEfb');
+      if (!confirmBtn) return;
+      confirmBtn.addEventListener("click", (e) => {
+        close_resp_efb(msg_id,stock_state_efb);
+        activeEl_efb = 0;
+        state_modal_show_efb(0)
+      })
+    }
+  });
+  if (painted) state_modal_show_efb(1);
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 close_resp_efb=(id,s)=>{

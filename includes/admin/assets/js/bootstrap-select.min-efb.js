@@ -61,7 +61,12 @@ document.addEventListener("click", (evnt) => {
         if (el == null || el["id"] == undefined) id = "no";
         return id;
     }
+    /* A click that selected a field has just opened that field's settings; this
+       click-away handler runs afterwards on the same event and would close it again.
+       efbFieldHandled is set by efbSelectFieldEfb, so only clicks that did not land on
+       a field (empty canvas, elsewhere in the page) still close the panel. */
     if (document.getElementById('sideBoxEfb') && document.getElementById('sideBoxEfb').classList.contains('show')
+        && !evnt.efbFieldHandled
         && evnt.target.id != "efbSetting" && evnt.target.id != "BtnCSideEfb" && !evnt.target.classList.contains('BtnSideEfb') && !evnt.target.classList.contains('wp-toolbar')) {
         let id = IsmenuC(evnt.target);
         if (id == "wpbody-content") sideMenuEfb(0);

@@ -905,7 +905,7 @@ function efb_reset_final_step_efb(form_id, scope) {
 function efb_error_prev_button_efb(valj_efb, onclick) {
   const v = valj_efb[0];
   const color = v.hasOwnProperty('button_color') ? v.button_color : 'btn-darkb';
-  const corner = v.hasOwnProperty('corner') ? v.corner : 'efb-square';
+  const corner = v.hasOwnProperty('corner') ? v.corner : 'rounded-3';
   const height = v.hasOwnProperty('el_height') ? v.el_height : 'h-l-efb';
   const icon = v.button_Previous_icon;
   /* This only ever renders after something already failed, so never let a

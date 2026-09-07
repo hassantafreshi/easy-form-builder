@@ -394,11 +394,15 @@ function emsFormBuilder_show_content_message(id) {
 
   const body = EfbResponseViewer.buildAdminResponseBody(indx, formType);
 
-  show_modal_efb(body, efb_var.text.response, 'efb bi-chat-square-text mx-2', 'saveBox');
-  setTimeout(() => {
-    EfbResponseViewer.initAfterRender(msg_id, true);
-  }, 10);
-  state_modal_show_efb(1);
+  const painted = show_modal_efb(body, efb_var.text.response, 'efb bi-chat-square-text mx-2', 'saveBox', {
+    flow: 'message',
+    onShown: () => {
+      setTimeout(() => {
+        EfbResponseViewer.initAfterRender(msg_id, true);
+      }, 10);
+    }
+  });
+  if (painted) state_modal_show_efb(1);
 
   jQuery('#track_code_emsFormBuilder').on('keypress',
   function (event) {
@@ -748,7 +752,7 @@ function emsFormBuilder_messages(id) {
 }
 
 function fun_open_message_emsFormBuilder(msg_id, state) {
-  show_modal_efb(efbLoadingCard('',4), '', '', 'saveBox');
+  show_modal_efb(efbLoadingCard('',4), '', '', 'saveBox', { flow: 'message' });
   state_modal_show_efb(1)
 
   if (state == 0 || state == 3) {
@@ -2130,10 +2134,13 @@ function efb_open_color_modal() {
       </div>
     </div>`;
 
-  show_modal_efb(body, efb_var.text.respColors, 'bi-palette', 'saveBox');
-  state_modal_show_efb(1);
+  const painted = show_modal_efb(body, efb_var.text.respColors, 'bi-palette', 'saveBox', {
+    flow: 'response-colors',
+    onShown: () => setTimeout(efb_wire_response_colors, 80)
+  });
+  if (painted) state_modal_show_efb(1);
 
-  setTimeout(() => {
+  function efb_wire_response_colors() {
     const previewBox = document.getElementById('efbColorPreviewBox');
     const modal = document.getElementById('settingModalEfb-body');
     if (!modal) return;
@@ -2292,7 +2299,7 @@ function efb_open_color_modal() {
     }
 
     refreshPreview();
-  }, 80);
+  }
 }
 
 let idOfListsEfb = [];
@@ -3162,10 +3169,13 @@ function emsFormBuilder_chart(titles, colname, colvalue) {
     </div>
   </div>`;
 
-  show_modal_efb(body, efb_var.text.chart, "bi-pie-chart-fill", 'chart')
-  state_modal_show_efb(1)
+  const painted = show_modal_efb(body, efb_var.text.chart, "bi-pie-chart-fill", 'chart', {
+    flow: 'chart',
+    onShown: () => setTimeout(efb_draw_charts, 1000)
+  });
+  if (painted) state_modal_show_efb(1);
 
-  setTimeout(() => {
+  function efb_draw_charts() {
 
     for (let t in titles) {
       chartId.push(Math.random().toString(36).substring(8));
@@ -3222,7 +3232,7 @@ function emsFormBuilder_chart(titles, colname, colvalue) {
 
     }
 
-  }, 1000);
+  }
 
 }
 
@@ -3691,27 +3701,38 @@ function efbEmailTestShow(state) {
   });
   const html = window.efbEmailTestUI.render(view);
 
+  /* Tab wiring and the head-bar chip belong to whichever markup is on
+     screen, so they are done once, after it is: straight away when this
+     repaints the panel in place, and on arrival when the dialog had to wait
+     its turn behind another one. */
+  const decorate = () => {
+    const host = document.getElementById('settingModalEfb-body');
+    if (host) {
+      window.efbEmailTestUI.bindTabs(host);
+    }
+
+    // The phase chip lives in the modal's head bar, beside the title.
+    const titleEl = document.getElementById('settingModalEfb-title');
+    if (titleEl) {
+      titleEl.innerHTML = window.efbEmailTestUI.escapeHtml(title) + ' ' + window.efbEmailTestUI.phaseChip(view);
+    }
+    const iconEl = document.getElementById('settingModalEfb-icon');
+    if (iconEl) {
+      iconEl.className = 'efb bi-envelope-check mx-2';
+    }
+  };
+
   if (inPlace) {
     body.innerHTML = html;
-  } else {
-    show_modal_efb(html, title, 'efb bi-envelope-check mx-2', 'saveBox');
-    state_modal_show_efb(1);
+    decorate();
+    return;
   }
 
-  const host = document.getElementById('settingModalEfb-body');
-  if (host) {
-    window.efbEmailTestUI.bindTabs(host);
-  }
-
-  // The phase chip lives in the modal's head bar, beside the title.
-  const titleEl = document.getElementById('settingModalEfb-title');
-  if (titleEl) {
-    titleEl.innerHTML = window.efbEmailTestUI.escapeHtml(title) + ' ' + window.efbEmailTestUI.phaseChip(view);
-  }
-  const iconEl = document.getElementById('settingModalEfb-icon');
-  if (iconEl) {
-    iconEl.className = 'efb bi-envelope-check mx-2';
-  }
+  const painted = show_modal_efb(html, title, 'efb bi-envelope-check mx-2', 'saveBox', {
+    flow: 'email-server-test',
+    onShown: decorate
+  });
+  if (painted) state_modal_show_efb(1);
 }
 
 function efbEmailTestFinishButton(button, html) {

@@ -1584,6 +1584,16 @@ div#sideBoxEfb {	height: 100vh;
    position: relative;
    z-index: 1000;
 }
+/* The field action buttons are revealed on hover by dropping d-none. With a real height
+   the float grows the field by (height + margin-top) at that moment, which pushed every
+   field below it down by 15px - the flicker felt on every hover. A zero-height box lets
+   the buttons overflow and paint at exactly the same place while contributing nothing to
+   the layout, so showing them never reflows anything. The option-row holders (.newop /
+   .pay, in the settings panel) are always visible and sit in normal flow - they keep
+   their height. */
+.efb.btn-edit-holder:not(.newop):not(.pay) {
+   height: 0;
+}
 #btnSetting-button_group.btn-edit-holder {	margin-left: 50%;
    margin-right: 50%;
    margin-top: -40px;
@@ -1739,6 +1749,12 @@ a.navbar-brand.efb,a.nav-link.efb {	text-decoration: none !important;
         gap: 8px !important;
         padding: 5px;
         margin-left: 20%!important;
+    }
+    /* No vertical padding on the field holders: it would give the zero-height box a
+       height again and bring the hover/tap jump back. The buttons carry their own
+       tap padding, so the touch target is unaffected. */
+    .btn-edit-holder:not(.newop):not(.pay) {
+        padding: 0 5px;
     }
 
     .btn-edit, .BtnSideEfb {
