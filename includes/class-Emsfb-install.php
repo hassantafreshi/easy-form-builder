@@ -173,6 +173,7 @@ class Install {
 					// leaving the keys absent and relying on each reader's fallback.
 					'activeDlBtn' => true,
 					'dsupfile' => true,
+					'adminSN'=> true,
 				);
 				$setting = wp_json_encode($settings, JSON_UNESCAPED_UNICODE);
 
