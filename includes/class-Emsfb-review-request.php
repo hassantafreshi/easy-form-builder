@@ -55,7 +55,7 @@ class Review_Request {
 	const ACTION = 'emsfb_review_request';
 
 	/** How long someone has to have been using the plugin before we ask. */
-	const MIN_DAYS = 14;
+	const MIN_DAYS = 2;
 
 	/**
 	 * The gap between one sighting and the next.
@@ -64,7 +64,7 @@ class Review_Request {
 	 * whole politeness policy in one number: a site sees it about once a month
 	 * and never twice in a week of daily logins.
 	 */
-	const SNOOZE_DAYS = 30;
+	const SNOOZE_DAYS = 14;
 
 	/** The reason key the feedback service files a low rating under. */
 	const REPORT_REASON = 'rating_feedback';
@@ -613,12 +613,6 @@ class Review_Request {
 						</div>
 
 						<p class="efb-review__rating-label" data-efb-review-hint><?php echo esc_html( $text['r0'] ); ?></p>
-
-						<ul class="efb-review__trust">
-							<li><i class="bi bi-stopwatch" aria-hidden="true"></i><?php echo esc_html( $text['trust1'] ); ?></li>
-							<li><i class="bi bi-person-check" aria-hidden="true"></i><?php echo esc_html( $text['trust2'] ); ?></li>
-							<li><i class="bi bi-bell-slash" aria-hidden="true"></i><?php echo esc_html( $text['trust3'] ); ?></li>
-						</ul>
 					</div>
 				</div>
 
@@ -629,7 +623,7 @@ class Review_Request {
 							<span class="efb-review__won" data-efb-review-won aria-hidden="true"></span>
 							<span class="efb-review__praise-title"><?php echo esc_html( $text['praiseTitle'] ); ?></span>
 						</div>
-						<p class="efb-review__lead"><?php echo esc_html( $text['praiseLead'] ); ?></p>
+						<p class="efb-review__lead"><?php echo esc_html( sprintf( $text['praiseLead'], $discount ) ); ?></p>
 
 						<div class="efb-review__coupon">
 							<span class="efb-review__gift"><i class="bi bi-gift-fill" aria-hidden="true"></i></span>
@@ -1131,12 +1125,9 @@ class Review_Request {
 			'r3'               => esc_html__( 'It is fine', 'easy-form-builder' ),
 			'r4'               => esc_html__( 'Pretty good', 'easy-form-builder' ),
 			'r5'               => esc_html__( 'Great, I recommend it', 'easy-form-builder' ),
-			'trust1'           => esc_html__( 'Under 30 seconds', 'easy-form-builder' ),
-			'trust2'           => esc_html__( 'No sign-up', 'easy-form-builder' ),
-			'trust3'           => esc_html__( 'We will not ask again', 'easy-form-builder' ),
-
 			'praiseTitle'      => esc_html__( 'Thank you!', 'easy-form-builder' ),
-			'praiseLead'       => esc_html__( 'Your review on WordPress.org helps other people find the plugin. As a thank-you, we will email you a discount code.', 'easy-form-builder' ),
+			/* translators: %s: the discount, e.g. "64%". */
+			'praiseLead'       => esc_html__( 'Leave a 5-star review on WordPress.org and we will email you a %s discount code. It only takes a minute, and it helps other people find the plugin.', 'easy-form-builder' ),
 			'couponNote'       => esc_html__( 'On your first year of Pro · the code is emailed to you', 'easy-form-builder' ),
 			'flow1'            => esc_html__( 'Post your 5-star review', 'easy-form-builder' ),
 			'flow2'            => esc_html__( 'Come back and claim the code', 'easy-form-builder' ),
@@ -1263,9 +1254,6 @@ class Review_Request {
 				'r3'               => 'بد نیست',
 				'r4'               => 'خوب بود',
 				'r5'               => 'عالی بود، پیشنهادش می‌کنم',
-				'trust1'           => 'کمتر از ۳۰ ثانیه',
-				'trust2'           => 'بدون ثبت‌نام',
-				'trust3'           => 'دیگر پرسیده نمی‌شود',
 				'praiseTitle'      => 'خیلی ممنون!',
 				'praiseLead'       => 'نظر شما در WordPress.org به بقیه کمک می‌کند افزونه را پیدا کنند. به‌عنوان تشکر، کد تخفیف را برایتان ایمیل می‌کنیم.',
 				'couponNote'       => 'روی اولین سال Pro · کد به ایمیل شما ارسال می‌شود',
@@ -1351,9 +1339,6 @@ class Review_Request {
 				'r3'               => 'لا بأس به',
 				'r4'               => 'جيد جدًا',
 				'r5'               => 'رائع، أنصح به',
-				'trust1'           => 'أقل من ٣٠ ثانية',
-				'trust2'           => 'بدون تسجيل',
-				'trust3'           => 'لن نسأل مرة أخرى',
 				'praiseTitle'      => 'شكرًا جزيلًا!',
 				'praiseLead'       => 'تقييمك على WordPress.org يساعد الآخرين على اكتشاف الإضافة. وكشكر، سنرسل لك رمز خصم بالبريد.',
 				'couponNote'       => 'على سنتك الأولى من Pro · يُرسل الرمز إلى بريدك',
@@ -1439,9 +1424,6 @@ class Review_Request {
 				'r3'               => 'Ganz in Ordnung',
 				'r4'               => 'Ziemlich gut',
 				'r5'               => 'Großartig, ich empfehle es',
-				'trust1'           => 'Unter 30 Sekunden',
-				'trust2'           => 'Ohne Anmeldung',
-				'trust3'           => 'Wir fragen nicht noch einmal',
 				'praiseTitle'      => 'Vielen Dank!',
 				'praiseLead'       => 'Ihre Bewertung auf WordPress.org hilft anderen, das Plugin zu finden. Als Dankeschön senden wir Ihnen einen Rabattcode per E-Mail.',
 				'couponNote'       => 'Auf Ihr erstes Pro-Jahr · der Code kommt per E-Mail',

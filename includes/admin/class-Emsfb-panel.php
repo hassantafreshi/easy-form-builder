@@ -80,7 +80,7 @@ class Panel_edit  {
 			}
 
 			if(isset($ac->AdnPAP) && $ac->AdnPAP==1){
-					if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/paypal")) {
+					if(!file_exists(EMSFB_PLUGIN_DIRECTORY."/vendor/paypal/paypalefb.php")) {
 						$download_addons = true;
 					}else{
 						require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/paypal/paypalefb.php");
@@ -88,7 +88,7 @@ class Panel_edit  {
 					}
 			}
 			if(isset($ac->AdnPDP) && $ac->AdnPDP==1){
-					if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker")) {
+					if(!file_exists(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker/persiandate.php")) {
 						$download_addons = true;
 					}else{
 						require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker/persiandate.php");
@@ -96,7 +96,7 @@ class Panel_edit  {
 					}
 			}
 			if(isset($ac->AdnADP) && $ac->AdnADP==1){
-					if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker")) {
+					if(!file_exists(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker/arabicdate.php")) {
 						$download_addons = true;
 					}else{
 						require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker/arabicdate.php");

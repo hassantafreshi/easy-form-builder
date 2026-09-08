@@ -2502,7 +2502,7 @@
 					$ui = $pro ? $ui : $this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 
 					if($isPdate){
-						if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker")) {
+						if(!file_exists(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker/persiandate.php")) {
 							if($efbFunction === null)$efbFunction = get_efbFunction();
 							/* Queued, not downloaded: this renderer also runs for visitors. */
 							$queued = $efbFunction->queue_addon_recovery_efb(array('form_id' => $form_id, 'addon' => 'AdnPDP', 'source' => 'public_field_render'));
@@ -2512,7 +2512,7 @@
 							$persianDatePicker = new persianDatePickerEFB() ;
 						}
 					}else{
-						if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker")) {
+						if(!file_exists(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker/arabicdate.php")) {
 							if($efbFunction === null)$efbFunction = get_efbFunction();
 							$queued = $efbFunction->queue_addon_recovery_efb(array('form_id' => $form_id, 'addon' => 'AdnADP', 'source' => 'public_field_render'));
 							return $efbFunction->addon_wait_message_public_efb(empty($queued['queued']) ? 0 : 25);

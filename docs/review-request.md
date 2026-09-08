@@ -116,13 +116,51 @@ fall back to English instead of warning.
 Digits are localized with a local helper rather than `number_format_i18n()`,
 which follows the *site's* locale — the sender's, not the reader's.
 
+## The end-to-end test
+
+Every other test stubs something. This one stubs nothing:
+
+```
+node tests/test-review-reward-e2e.js        # 62 assertions
+```
+
+- a real Free site installed a month ago, **no preview flag**, so the dialog has
+  to decide to appear on its own;
+- a real HTTP request across two separate WordPress installs;
+- a real lookup against the WordPress.org reviews ws-widgets has cached, using a
+  real reviewer's username picked from that list at run time;
+- a **real Stripe coupon and promotion code**, minted against the test keys and
+  then verified by asking Stripe for them back;
+- a real email, composed and handed to `wp_mail()`;
+- the low-rating path too: a real `rating_feedback` report landing in the
+  feedback service, with the rating, the topics and the sentence.
+
+The only thing intercepted is the mail transport, through a temporary mu-plugin
+on the ws install, so the message can be read instead of delivered.
+
+Everything it creates is removed afterwards — the claim row, the Stripe objects,
+both temporary mu-plugins, the probe rows, and every option touched. The suite
+asserts that itself, and a manual check of the database and the Stripe account
+confirmed nothing survives a run.
+
+Two support scripts sit beside it because the customer install and the ws
+install are different WordPress sites and cannot be loaded into one process:
+`tests/e2e-review-reward-env.php` (the customer side) and
+`tests/e2e-review-reward-inspect.php` (the ws side).
+
 ## Tests
 
 ```
 C:\xampp\php\php.exe tests/test-review-request.php                    # 58
 node tests/test-review-request-browser.js                             # 64
-C:\xampp\php\php.exe ../../../ws/wp-content/plugins/payEfb/tests/test-review-reward.php   # 58
+node tests/test-review-reward-e2e.js                                  # 62
+C:\xampp\php\php.exe ../../../ws/wp-content/plugins/payEfb/tests/test-review-reward.php   # 67
 ```
+
+> These suites mutate shared site state — `WPLANG`, plugin activation, plugin
+> options — and restore it in a `finally`. Run them **one at a time**. Running
+> several back to back has been seen to flake once, in a way that did not
+> reproduce; each passes reliably on its own.
 
 The browser suite walks all seven steps and all seven outcomes in LTR, RTL and
 at 390px, and asserts that nothing escapes the shell in any of them. The server

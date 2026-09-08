@@ -13,6 +13,7 @@ define( 'ABSPATH', __DIR__ . '/' );
 define( 'EMSFB_PLUGIN_DIRECTORY', dirname( __DIR__ ) . '/' );
 define( 'EMSFB_PLUGIN_VERSION', '4.1.3' );
 define( 'MINUTE_IN_SECONDS', 60 );
+define( 'HOUR_IN_SECONDS', 3600 );
 define( 'DAY_IN_SECONDS', 86400 );
 
 $test_options    = array();
@@ -301,9 +302,9 @@ check( 'background: Persian sites keep the retry ladder', $bg_fa['attempts'] ===
 $fn->addon_inline_mode_efb = true;
 $in_en = $fn->addon_request_plan_efb( false );
 $in_fa = $fn->addon_request_plan_efb( true );
-check( 'inline: timeout capped at 8s', $in_en['timeout'] === 8 );
+check( 'inline: timeout capped at 5s', $in_en['timeout'] === 5 );
 check( 'inline: never more than one attempt', $in_en['attempts'] === 1 && $in_fa['attempts'] === 1 );
-check( 'inline: Persian sites are capped too', $in_fa['timeout'] === 8 );
+check( 'inline: Persian sites are capped too', $in_fa['timeout'] === 5 );
 check(
 	'inline worst case stays under 10s per add-on',
 	( $in_fa['timeout'] * $in_fa['attempts'] ) < 10

@@ -10405,12 +10405,13 @@ const SingleTextEls = (side,idset,indx) => {
 }
 
 const cornerEls = (side,indx,idset) => {
-  const storedCorner = valj_efb[indx].corner;
+  const storedCorner = valj_efb[indx].corner || 'rounded-3';
   const activeCorner = ['rounded-0', 'rounded-1', 'rounded-2', 'rounded-3', 'rounded-4', 'rounded-5'].includes(storedCorner)
     ? storedCorner
-    : 'rounded-0';
+    : 'rounded-3';
   const options = ['rounded-0', 'rounded-1', 'rounded-2', 'rounded-3', 'rounded-4', 'rounded-5'];
   const controls = options.map((corner, index) => {
+    console.log('corner:', corner, 'activeCorner:', activeCorner);
     const active = corner === activeCorner;
     return `<label class="efb ntb btn-primary ${active ? 'active' : ''}" style="flex:1 1 auto;min-width:36px;" role="radio" aria-checked="${active}" onclick="funSetCornerElEfb('${idset}','${corner}')"><i class="efb bi-app fs-7 ${iconMarginGlobal}"></i>
       <input type="radio" name="corner_options_${idset}" class="efb opButtonEfb" data-id="${idset}" id="cornerEl" value="${corner}" ${active ? 'checked' : ''}>${index}</label>`;

@@ -436,10 +436,10 @@ const SingleTextEls = (side,idset,indx) => {
 }
 
 const cornerEls = (side,indx,idset) => {
-  const storedCorner = valj_efb[indx].corner;
+  const storedCorner = valj_efb[indx].corner || 'rounded-3';
   const activeCorner = ['rounded-0', 'rounded-1', 'rounded-2', 'rounded-3', 'rounded-4', 'rounded-5'].includes(storedCorner)
     ? storedCorner
-    : 'rounded-0';
+    : 'rounded-3';
   const options = ['rounded-0', 'rounded-1', 'rounded-2', 'rounded-3', 'rounded-4', 'rounded-5'];
   const controls = options.map((corner, index) => {
     const active = corner === activeCorner;
@@ -2213,10 +2213,18 @@ function creator_form_builder_Efb() {
       dragab = false;
     }
 
+    /* A tile is a fixed square, but the label is a translated field name and languages
+       disagree wildly on length: "Text" in English against "Bildschirmaufnahme" or
+       "Allgemeine Geschaeftsbedingungen" in German. Step the type down for the long ones
+       instead of shrinking every label, so languages that already fit look unchanged.
+       The CSS for these classes also hyphenates and caps the label at three lines. */
+    const nameLen = String(ob.name || '').length;
+    const lblSize = nameLen > 16 ? 'efb-tile-label-xs' : nameLen > 10 ? 'efb-tile-label-sm' : '';
+
     els += `
     <div class="efb tag efb-col-3 draggable-efb ${ob.tag}" draggable="${dragab}" id="${ob.id}" ${mobile_view_efb ? `onclick="add_element_dpz_efb('${ob.id}')"` : ''}>
      ${ob.pro == true && pro_efb == false ? ` <a type="button"  onclick='pro_show_efb(3)' class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}"><i class="efb  bi-gem text-light"></i></a>` : ''}
-      <button type="button" class="efb btn efb btn-select-form float-end ${disable != "disable" ? "btn-muted" : ''}" id="${ob.id}_b" title="${ob.name}" ${disable}><i class="efb bi tagIcon  ${ob.icon}"></i><span class="efb d-block text-capitalize">${ob.name}</span></button>
+      <button type="button" class="efb btn efb btn-select-form float-end ${disable != "disable" ? "btn-muted" : ''}" id="${ob.id}_b" title="${ob.name}" ${disable}><i class="efb bi tagIcon  ${ob.icon}"></i><span class="efb d-block text-capitalize ${lblSize}">${ob.name}</span></button>
     </div>
     `
     dragab = true;
@@ -2308,11 +2316,19 @@ function creator_form_builder_Efb() {
 
   create_dargAndDrop_el();
   items_dd_efb();
+
+  /* The workspace markup is now in the page, so its height can be measured and kept in
+     step from here on. Guarded because val-efb.js is also parsed where admin-efb.js
+     is not present. */
+  if (typeof efbWatchWorkspaceFitEfb === 'function') efbWatchWorkspaceFitEfb();
+  if (typeof efbScheduleWorkspaceFitEfb === 'function') efbScheduleWorkspaceFitEfb();
 }
 
 function funUpdateLisetElEfb(cat){
   change_active_cat_efb(cat);
   change_visible_el_efb(cat);
+  // Fewer tiles can change where the workspace starts, so re-measure.
+  if (typeof efbScheduleWorkspaceFitEfb === 'function') efbScheduleWorkspaceFitEfb();
 }
 
  change_active_cat_efb=(cat)=>{
@@ -3537,45 +3553,106 @@ function efb_plan_downgrade_copy_efb(currentPlan, targetPlan, removesActivationC
     const isFreePlusToFree = currentPlan === 'free_plus' && targetPlan === 'free';
     const text = (key, fallback) => (efb_var && efb_var.text && efb_var.text[key]) || fallback;
 
+    // The plan being left and the plan being moved to. The dialog prints them
+    // as a struck-through chip and a solid one, so the direction of the change
+    // is readable before the sentence is.
+    const proName = text('pro', 'Pro');
+    const freePlusName = text('freePlus', 'Free Plus');
+    const freeName = text('free', 'Free');
+
     // Free Plus never promises Pro add-ons. Its downgrade warning should only
     // describe the capabilities that Free Plus actually adds over Free.
-    if (isFreePlusToFree) return { title: text('downgradeFreePlusToFreeTitle', 'Switch to Free?'), body: text('downgradeFreePlusToFreeAdvancedBody', 'Advanced features and advanced fields used in your forms will be disabled. Your forms, entries and settings will not be deleted, and will be available again if you upgrade.'), cancel: text('keepFreePlus', 'Keep Free Plus'), confirm: text('switchToFree', 'Switch to Free') };
+    if (isFreePlusToFree) return { title: text('downgradeFreePlusToFreeTitle', 'Switch to Free?'), body: text('downgradeFreePlusToFreeAdvancedBody', 'Advanced features and advanced fields used in your forms will be disabled. Your forms, entries and settings will not be deleted, and will be available again if you upgrade.'), cancel: text('keepFreePlus', 'Keep Free Plus'), confirm: text('switchToFree', 'Switch to Free'), from: freePlusName, to: freeName };
 
-    if (isProToFreePlus) return { title: text('downgradeProToFreePlusTitle', 'Switch to Free Plus?'), body: text('downgradeProToFreePlusBody', 'Your Pro activation code will be removed from this site. Pro add-ons will be unavailable until you upgrade again. Your forms, entries and settings will not be deleted.'), cancel: text('keepPro', 'Keep Pro'), confirm: text('switchToFreePlus', 'Switch to Free Plus') };
-    return { title: text('downgradeFreePlusToFreeTitle', 'Switch to Free?'), body: text('downgradeProToFreeBody', 'Your Pro activation code will be removed from this site. Advanced features, Pro fields and add-ons will be unavailable until you upgrade again. Your forms, entries and settings will not be deleted.'), cancel: text('keepPro', 'Keep Pro'), confirm: text('switchToFree', 'Switch to Free') };
+    if (isProToFreePlus) return { title: text('downgradeProToFreePlusTitle', 'Switch to Free Plus?'), body: text('downgradeProToFreePlusBody', 'Your Pro activation code will be removed from this site. Pro add-ons will be unavailable until you upgrade again. Your forms, entries and settings will not be deleted.'), cancel: text('keepPro', 'Keep Pro'), confirm: text('switchToFreePlus', 'Switch to Free Plus'), from: proName, to: freePlusName };
+    return { title: text('downgradeFreePlusToFreeTitle', 'Switch to Free?'), body: text('downgradeProToFreeBody', 'Your Pro activation code will be removed from this site. Advanced features, Pro fields and add-ons will be unavailable until you upgrade again. Your forms, entries and settings will not be deleted.'), cancel: text('keepPro', 'Keep Pro'), confirm: text('switchToFree', 'Switch to Free'), from: proName, to: freeName };
 }
 
+/**
+ * The plan downgrade confirmation.
+ *
+ * It lives in its own element rather than the shared shell (#settingModalEfb),
+ * because it is asked for from the setup overlay - which is a page, not a
+ * dialog, and is closed to make room for this one. It still wears the design
+ * system: the classes below are modal-system-efb.css's, so the only thing
+ * this function decides is the copy.
+ */
 function show_plan_downgrade_confirmation_efb(copy, onConfirm, onCancel) {
     const existing = document.getElementById('efb-plan-downgrade-confirmation');
     if (existing) existing.remove();
 
+    const text = (key, fallback) => (typeof efb_var !== 'undefined' && efb_var.text && efb_var.text[key]) || fallback;
+    /* The arrow points from the plan being left to the plan being taken, so
+       in an RTL row - where the first chip sits on the right - it has to
+       point the other way. The stylesheet carries no direction of its own
+       (see modal-system-efb.css), so the choice is made here. */
+    const rtl = typeof efb_var !== 'undefined' && Number(efb_var.rtl) === 1;
+
     const modal = document.createElement('div');
     modal.id = 'efb-plan-downgrade-confirmation';
-    modal.className = 'efb-plan-downgrade-confirmation';
+    modal.className = 'efb-dlg efb-tone-orange';
     modal.setAttribute('role', 'dialog');
     modal.setAttribute('aria-modal', 'true');
     modal.setAttribute('aria-labelledby', 'efb-plan-downgrade-title');
-    modal.innerHTML = '<style>#efb-plan-downgrade-confirmation{position:fixed;inset:0;z-index:1000002;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(15,23,42,.62);backdrop-filter:blur(4px);animation:efbDowngradeBackdropIn .2s ease-out}#efb-plan-downgrade-confirmation .efb-plan-downgrade-dialog{width:min(100%,540px);padding:30px;border-radius:18px;background:#fff;box-shadow:0 24px 64px rgba(15,23,42,.28);text-align:start;animation:efbDowngradeDialogIn .28s cubic-bezier(.2,.8,.2,1)}#efb-plan-downgrade-confirmation .efb-plan-downgrade-icon{width:44px;height:44px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;border-radius:50%;background:#fff4e5;color:#c2410c;font-size:22px}#efb-plan-downgrade-confirmation h3{margin:0 0 10px;color:#172554;font-size:20px}#efb-plan-downgrade-confirmation .efb-plan-downgrade-message{margin:0;color:#475569;line-height:1.75}#efb-plan-downgrade-confirmation .efb-plan-downgrade-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:24px}#efb-plan-downgrade-confirmation .efb-btn-danger{border:1px solid #b91c1c;background:#b91c1c;color:#fff}#efb-plan-downgrade-confirmation .efb-btn-danger:hover{background:#991b1b;transform:translateY(-1px)}@keyframes efbDowngradeBackdropIn{from{opacity:0}to{opacity:1}}@keyframes efbDowngradeDialogIn{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}@media(max-width:480px){#efb-plan-downgrade-confirmation{padding:12px}#efb-plan-downgrade-confirmation .efb-plan-downgrade-dialog{padding:24px}#efb-plan-downgrade-confirmation .efb-plan-downgrade-actions{flex-direction:column-reverse}#efb-plan-downgrade-confirmation .efb-plan-downgrade-actions button{width:100%}}</style><div class="efb-plan-downgrade-dialog" role="document"><div class="efb-plan-downgrade-icon"><i class="bi bi-exclamation-triangle-fill"></i></div><h3 id="efb-plan-downgrade-title"></h3><p class="efb-plan-downgrade-message"></p><div class="efb-plan-downgrade-actions"><button type="button" class="efb-btn efb-btn-outline efb-plan-downgrade-cancel rounded p-2"></button><button type="button" class="efb-btn efb-btn-danger efb-plan-downgrade-confirm efb rounded-2 p-2"></button></div></div>';
+    modal.innerHTML = `
+      <div class="efb-dlg__backdrop"></div>
+      <div class="efb-dlg__shell" role="document" tabindex="-1">
+        <div class="efb-dlg__head">
+          <i class="efb-dlg__head-icon bi bi-arrow-down-circle"></i>
+          <h2 class="efb-dlg__title">${text('planChange', 'Plan change')}</h2>
+        </div>
+        <div class="efb-dlg__body">
+          <div class="efb-dlg__centered">
+            <div class="efb-dlg__badge efb-dlg__badge--soft"><i class="bi bi-exclamation-triangle-fill"></i></div>
+            <h3 class="efb-dlg__headline" id="efb-plan-downgrade-title"></h3>
+            <p class="efb-dlg__text efb-plan-downgrade-message"></p>
+            <div class="efb-dlg__plan-path">
+              <span class="efb-dlg__plan-tag efb-dlg__plan-tag--from"></span>
+              <i class="bi ${rtl ? 'bi-arrow-left' : 'bi-arrow-right'}"></i>
+              <span class="efb-dlg__plan-tag efb-plan-downgrade-to"></span>
+            </div>
+            <div class="efb-dlg__note efb-dlg__note--plain">
+              <i class="bi bi-database-check"></i>
+              <span>${text('downgradeDataKept', 'Your data stays untouched; only access to the features is limited.')}</span>
+            </div>
+          </div>
+        </div>
+        <div class="efb-dlg__foot">
+          <button type="button" class="efb-dlg-btn efb-dlg-btn--ghost efb-plan-downgrade-cancel"><i class="bi bi-shield-check"></i><span></span></button>
+          <button type="button" class="efb-dlg-btn efb-dlg-btn--danger efb-plan-downgrade-confirm"><i class="bi bi-arrow-down-circle"></i><span></span></button>
+        </div>
+      </div>`;
 
+    /* Every value below is written as text, not markup: the plan names and
+       the two button labels can come from the remote language pack. */
     modal.querySelector('#efb-plan-downgrade-title').textContent = copy.title;
     modal.querySelector('.efb-plan-downgrade-message').textContent = copy.body;
+    modal.querySelector('.efb-dlg__plan-tag--from').textContent = copy.from || '';
+    modal.querySelector('.efb-plan-downgrade-to').textContent = copy.to || '';
     const cancel = modal.querySelector('.efb-plan-downgrade-cancel');
     const confirm = modal.querySelector('.efb-plan-downgrade-confirm');
-    cancel.textContent = copy.cancel;
-    confirm.textContent = copy.confirm;
+    cancel.querySelector('span').textContent = copy.cancel;
+    confirm.querySelector('span').textContent = copy.confirm;
 
     const dismiss = (cancelled) => {
         document.removeEventListener('keydown', onKeydown);
         modal.remove();
+        /* Tells show_modal_efb() the screen is free again - it parks a dialog
+           behind anything wearing this class rather than painting over it. */
+        document.body.classList.remove('efb-dlg-open');
         if (cancelled && typeof onCancel === 'function') onCancel();
     };
     const onKeydown = (event) => { if (event.key === 'Escape') dismiss(true); };
     cancel.addEventListener('click', () => dismiss(true));
-    modal.addEventListener('click', (event) => { if (event.target === modal) dismiss(true); });
+    modal.querySelector('.efb-dlg__backdrop').addEventListener('click', () => dismiss(true));
     confirm.addEventListener('click', () => { dismiss(false); onConfirm(); });
     document.body.appendChild(modal);
+    document.body.classList.add('efb-dlg-open');
     document.addEventListener('keydown', onKeydown);
-    cancel.focus();
+    /* Focus the shell, not a button: it carries tabindex="-1" and no focus
+       ring, so the dialog becomes the keyboard's context without either of
+       the two answers looking pre-chosen. */
+    modal.querySelector('.efb-dlg__shell').focus();
 }
 
 function efb_show_downgrade_after_setup_efb(copy, onConfirm) {

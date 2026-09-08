@@ -699,6 +699,10 @@ class efbFunction {
 			"keepFreePlus" => $state && isset($ac->text->keepFreePlus) ? $ac->text->keepFreePlus : esc_html__('Keep Free Plus','easy-form-builder'),
 			"switchToFreePlus" => $state && isset($ac->text->switchToFreePlus) ? $ac->text->switchToFreePlus : esc_html__('Switch to Free Plus','easy-form-builder'),
 			"switchToFree" => $state && isset($ac->text->switchToFree) ? $ac->text->switchToFree : esc_html__('Switch to Free','easy-form-builder'),
+			/* translators: Title bar of the dialog that confirms moving to a lower plan. */
+			"planChange" => $state && isset($ac->text->planChange) ? $ac->text->planChange : esc_html__('Plan change','easy-form-builder'),
+			/* translators: Reassurance shown in the downgrade dialog, next to a database icon. */
+			"downgradeDataKept" => $state && isset($ac->text->downgradeDataKept) ? $ac->text->downgradeDataKept : esc_html__('Your data stays untouched; only access to the features is limited.','easy-form-builder'),
 			"planSelectionTryAgain" => $state && isset($ac->text->planSelectionTryAgain) ? $ac->text->planSelectionTryAgain : esc_html__('An error occurred. Please try again.','easy-form-builder'),
 			"planSelectionFailed" => $state && isset($ac->text->planSelectionFailed) ? $ac->text->planSelectionFailed : esc_html__('Unable to change the plan. Please try again.','easy-form-builder'),
 
@@ -1729,6 +1733,21 @@ class efbFunction {
 
 			/* translators: Button text for Free Plus Guide  (link to https://easyformbuilder.com/document/easy-form-builder-free-plus-activation-guide/) */
 			'freePlusActivation' => $state && isset($ac->text->freePlusActivation) ? $ac->text->freePlusActivation : esc_html__('Free Plus Guide','easy-form-builder'),
+
+			/* translators: Headline of the upgrade dialog when the locked item is Pro-only. */
+			'proFeatureTitle' => $state && isset($ac->text->proFeatureTitle) ? $ac->text->proFeatureTitle : esc_html__('A Pro version feature','easy-form-builder'),
+			/* translators: Headline of the same dialog when Free Plus also unlocks the item. */
+			'freePlusUnlocksThis' => $state && isset($ac->text->freePlusUnlocksThis) ? $ac->text->freePlusUnlocksThis : esc_html__('Free Plus unlocks this too','easy-form-builder'),
+			/* translators: Short benefit shown as a chip in the upgrade dialog - forms with any number of steps. */
+			'proPerkSteps' => $state && isset($ac->text->proPerkSteps) ? $ac->text->proPerkSteps : esc_html__('Unlimited steps','easy-form-builder'),
+			/* translators: Short benefit shown as a chip in the upgrade dialog - taking payments in a form. */
+			'proPerkPayment' => $state && isset($ac->text->proPerkPayment) ? $ac->text->proPerkPayment : esc_html__('Online payments','easy-form-builder'),
+			/* translators: Short benefit shown as a chip in the upgrade dialog - the two-way response box. */
+			'proPerkResponses' => $state && isset($ac->text->proPerkResponses) ? $ac->text->proPerkResponses : esc_html__('Response box','easy-form-builder'),
+			/* translators: One-line description of the Free Plus plan, in the two-plan comparison. */
+			'planFreePlusDesc' => $state && isset($ac->text->planFreePlusDesc) ? $ac->text->planFreePlusDesc : esc_html__('Unlocked by a free activation, which is enough for this feature.','easy-form-builder'),
+			/* translators: One-line description of the Pro plan, in the two-plan comparison. */
+			'planProDesc' => $state && isset($ac->text->planProDesc) ? $ac->text->planProDesc : esc_html__('Every feature, with no limits, and support included.','easy-form-builder'),
 
 
 			/* translators: Search Results - header for search results */
@@ -4146,8 +4165,12 @@ public function addon_add_efb($value) {
 	 * Retained for backwards compatibility with existing helper callers. It is
 	 * used only to remember a temporary endpoint failure while the Persian
 	 * add-on flow switches from Whitestudio to Easy Form Builder.
+	 *
+	 * Spelled out rather than written as HOUR_IN_SECONDS: a class constant is
+	 * resolved the moment the class is touched, and a harness that loads this
+	 * file without WordPress has no such constant - a fatal, not a skip.
 	 */
-	const EMSFB_ADDON_DOWN_TTL = HOUR_IN_SECONDS;
+	const EMSFB_ADDON_DOWN_TTL = 3600;
 
 	/**
 	 * Ordered endpoints for the add-on API.
@@ -4342,8 +4365,14 @@ public function addon_add_efb($value) {
 		$subject = esc_html__( 'Easy Form Builder: add-on downloads are being blocked', 'easy-form-builder' );
 		$body    = '<p>' . $this->addon_offline_hint_efb( $server_label ) . '</p>';
 		if ( '' !== $addon_key ) {
-			$names = $this->get_addon_display_names_efb();
-			$name  = isset( $names[ $addon_key ] ) ? $names[ $addon_key ] : $addon_key;
+			// get_addon_recovery_label_efb() is the plugin's only add-on name
+			// map. This used to call a get_addon_display_names_efb() that has
+			// never existed, so the first 401/403/406/429 from a download
+			// server ended the install request in a fatal: the visitor saw
+			// "something went wrong, Code:500" instead of the offline route
+			// hint, and the once-a-day transient above was already set, so the
+			// next attempt looked fine and the failure read as intermittent.
+			$name  = $this->get_addon_recovery_label_efb( $addon_key );
 			$body .= '<p>' . sprintf(
 				/* translators: %s: add-on name */
 				esc_html__( 'Add-on affected: %s', 'easy-form-builder' ),

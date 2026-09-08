@@ -1066,7 +1066,7 @@ public function check_nonce_permission_efb($request) {
 					$efb_m= "<!--efb-->" ;
 
 					$sms_exists = get_option('emsfb_addon_AdnSS',false);
-					$sms_files_exists = is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended");
+					$sms_files_exists = file_exists(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended/smsefb.php");
 					if($sms_exists !== false && $sms_files_exists){
 						require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended/smsefb.php");
 						$smssendefb = new smssendefb() ;
@@ -3166,7 +3166,7 @@ public function check_nonce_permission_efb($request) {
 									$payment_merchant_id = $plugin_settings['payToken'] ?? null;
 									$data = array("merchant_id" => $payment_merchant_id, "authority" => sanitize_text_field($request_data['auth']), "amount" => $amount);
 									$jsonData = json_encode($data);
-									if (!is_dir(EMSFB_PLUGIN_DIRECTORY . "/vendor/persiapay/")) {
+									if (!file_exists(EMSFB_PLUGIN_DIRECTORY . "/vendor/persiapay/zarinpal.php")) {
 										$msg = " خطای تنظیمات : با مدیر وبسایت تماس بگیرید . نیاز به نصب مجدد درگاه می باشد";
 									} else {
 										require_once(EMSFB_PLUGIN_DIRECTORY . "/vendor/persiapay/zarinpal.php");
@@ -6023,6 +6023,25 @@ public function check_nonce_permission_efb($request) {
 				'success' => false,
 				'm'       => emsfb_get_addon_unavailable_message_efb( 'AdnPPF' ),
 			), 503 );
+			return;
+		}
+
+		/* The check above only covers PHP requirements. This route is registered by
+		 * vendor/persiapay/routes-efb.php, so a partial add-on install - the folder
+		 * and the route file present, the gateway class missing - still reaches here
+		 * and would fatal on the require below. Answer in the shape the payment JS
+		 * understands and queue a recovery instead of taking the payment. */
+		if ( ! file_exists( EMSFB_PLUGIN_DIRECTORY . "/vendor/persiapay/zarinpal.php" ) ) {
+			$efbFunction = $this->efbFunction ? $this->efbFunction : get_efbFunction();
+			$efbFunction->queue_addon_recovery_efb( array(
+				'form_id' => isset( $data_POST_['id'] ) ? intval( $data_POST_['id'] ) : 0,
+				'addon'   => 'AdnPPF',
+				'source'  => 'public_payment_rest',
+			) );
+			wp_send_json_success( array(
+				'success' => false,
+				'm'       => esc_html__( 'We have made some updates. Please wait a few minutes before trying again.', 'easy-form-builder' ),
+			), 200 );
 			return;
 		}
 

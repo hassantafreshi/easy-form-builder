@@ -6,6 +6,9 @@
 
 define( 'ABSPATH', __DIR__ . '/' );
 define( 'EMSFB_PLUGIN_DIRECTORY', dirname( __DIR__ ) . '/' );
+define( 'MINUTE_IN_SECONDS', 60 );
+define( 'HOUR_IN_SECONDS', 3600 );
+define( 'DAY_IN_SECONDS', 86400 );
 
 $test_options = array();
 

@@ -305,6 +305,17 @@ body.efb-dlg-open {
 	animation: efbDlgPop 0.28s ease both;
 }
 
+/*
+ * style-efb.css pins every `i.efb` to 1.2rem, which is (0,1,1) and so beats
+ * the 25px this badge inherits down to its only child - the glyph came out at
+ * 19px inside a 62px disc. The badge already declares the size it wants; this
+ * is what lets the icon actually take it.
+ */
+.efb-dlg__badge i,
+#settingModalEfb .efb-confirm-icon-wrap i {
+	font-size: inherit;
+}
+
 .efb-dlg__headline {
 	margin: 14px 0 0;
 	font-size: 18px;
@@ -366,6 +377,163 @@ body.efb-dlg-open {
 .efb-dlg__note--warn i {
 	color: #d39e00;
 	margin-block-start: 2px;
+}
+
+/* Plan dialogs (Pro upsell, plan downgrade) ---------------------------- */
+
+/* The gem badge is a rounded square rather than a disc: the upsell is the one
+   dialog that shows a product mark instead of a status symbol. */
+.efb-dlg__badge--square {
+	border-radius: 18px;
+}
+
+/* A downgrade is not an alarm. Its badge is the tone laid on a tint of itself
+   instead of the filled gradient every other dialog wears. */
+.efb-dlg__badge--soft {
+	width: 56px;
+	height: 56px;
+	flex: 0 0 56px;
+	font-size: 24px;
+	color: var(--efb-dlg-tone);
+	background: #fff4e5;
+	box-shadow: none;
+}
+
+/* What Pro adds, said in three words each, under the sentence that says why
+   the click was stopped. */
+.efb-dlg__perks {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 8px;
+	margin-block-start: 16px;
+}
+
+.efb-dlg__perk {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 7px 12px;
+	border-radius: var(--efb-dlg-radius-chip);
+	background: var(--efb-dlg-surface-sunken);
+	color: var(--efb-dlg-ink-soft);
+	font-size: 12px;
+	font-weight: 600;
+}
+
+.efb-dlg__perk i {
+	color: #108f69;
+}
+
+/* Two plans side by side, shown only when the locked feature is one Free Plus
+   also unlocks - the cheaper answer is the one marked as sufficient. */
+.efb-dlg__plans {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+	gap: 10px;
+	width: 100%;
+	margin-block-start: 16px;
+	text-align: start;
+}
+
+.efb-dlg__plan {
+	padding: 12px 13px;
+	border-radius: 13px;
+	border: 1px solid var(--efb-dlg-line-strong);
+	background: var(--efb-dlg-surface-soft);
+}
+
+.efb-dlg__plan--enough {
+	border-color: rgba(16, 143, 105, 0.4);
+	background: rgba(16, 143, 105, 0.05);
+}
+
+.efb-dlg__plan-head {
+	display: flex;
+	align-items: center;
+	gap: 7px;
+}
+
+.efb-dlg__plan-head i {
+	font-size: 14px;
+	color: var(--efb-dlg-brand-light);
+}
+
+.efb-dlg__plan--enough .efb-dlg__plan-head i {
+	color: #108f69;
+}
+
+.efb-dlg__plan-name {
+	font-size: 13px;
+	font-weight: 700;
+}
+
+.efb-dlg__plan-price {
+	margin-inline-start: auto;
+	font-size: 11.5px;
+	font-weight: 700;
+	color: var(--efb-dlg-ink-faint);
+}
+
+.efb-dlg__plan-desc {
+	margin-block-start: 6px;
+	font-size: 11.5px;
+	line-height: 1.6;
+	color: var(--efb-dlg-ink-faint);
+}
+
+/* Which plan is being left, and which is being moved to. The one being left
+   is struck through, so the direction of the change is readable without the
+   sentence. */
+.efb-dlg__plan-path {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+	margin-block-start: 16px;
+}
+
+.efb-dlg__plan-path i {
+	font-size: 14px;
+	color: var(--efb-dlg-ink-muted);
+}
+
+.efb-dlg__plan-tag {
+	display: inline-flex;
+	align-items: center;
+	padding: 7px 16px;
+	border-radius: var(--efb-dlg-radius-chip);
+	border: 1px solid var(--efb-dlg-line-strong);
+	background: var(--efb-dlg-surface);
+	font-size: 12.5px;
+	font-weight: 700;
+	color: var(--efb-dlg-ink);
+}
+
+.efb-dlg__plan-tag--from {
+	background: var(--efb-dlg-surface-sunken);
+	color: var(--efb-dlg-ink-muted);
+	text-decoration: line-through;
+}
+
+/* The reassurance that nothing is deleted. Neutral, not blue: it is a fact
+   about the data, not advice about the dialog. */
+.efb-dlg__note--plain {
+	margin-block-start: 14px;
+	background: var(--efb-dlg-surface-soft);
+	border: 1px solid var(--efb-dlg-line-strong);
+}
+
+.efb-dlg__note--plain i {
+	color: #108f69;
+	margin-block-start: 2px;
+}
+
+/* The downgrade confirmation is raised over the setup overlay (z-index
+   999999), which it can be asked for from - the shared 160000 would put it
+   behind the page it is confirming. */
+#efb-plan-downgrade-confirmation.efb-dlg {
+	z-index: 1000002;
 }
 
 /* Shortcode panel ------------------------------------------------------ */
@@ -465,6 +633,12 @@ body.efb-dlg-open {
 	color: #fff;
 	background: linear-gradient(135deg, #3644d2, #202a8d);
 	box-shadow: 0 6px 18px rgba(54, 68, 210, 0.28);
+}
+
+.efb-dlg .efb-btn--primary:hover,
+.efb-dlg .efb-btn--primary:focus-visible{
+	color: #fff!important;
+	background: linear-gradient(135deg, #202a8d, #3644d2)!important;
 }
 
 .efb-dlg .efb-btn--danger,
@@ -725,6 +899,24 @@ body.efb-dlg-open {
 	color: var(--efb-dlg-ink);
 }
 
+/* Design-system blocks painted into the shared shell -------------------- */
+
+/*
+ * #settingModalEfb-body carries bootstrap's .row, so every direct child of it
+ * is given width:100% plus a 12px gutter either side. wp-admin sets no global
+ * box-sizing (see the note at the top of this file), so a block that takes
+ * that width content-box overflows the body by the 24px of gutter - the
+ * dialog gains a horizontal scrollbar and the content sits off-centre.
+ * Everything this system paints into the shell is measured border-box, the
+ * same as it is inside a standalone .efb-dlg.
+ */
+#settingModalEfb-body .efb-dlg__centered,
+#settingModalEfb-body .efb-dlg__centered *,
+#settingModalEfb-body .efb-dlg__loading,
+#settingModalEfb-body .efb-dlg__loading * {
+	box-sizing: border-box;
+}
+
 /* Save flow (loading card, then the insert/update result) -------------- */
 
 /* .save-efb alone stretches the shell to 70% of the viewport - right for the
@@ -819,6 +1011,26 @@ body.efb-dlg-open {
 	font-weight: 600;
 	color: var(--efb-dlg-ink-soft);
 	max-width: 100%;
+}
+
+/* A footer appended into the shared shell (the save result, the upgrade
+   dialog) carries bootstrap's .efb.modal-footer as well as .efb-dlg__foot.
+   That is (0,2,0) against a single class, so bootstrap won: the pills sat
+   right-aligned in a .75rem band with a #dee2e6 rule above them and a 4px
+   margin of their own, instead of centred in the design's. Selecting through
+   the shell's id is what the rest of this section does for the same reason. */
+#settingModalEfb .efb.modal-footer.efb-dlg__foot {
+	justify-content: center;
+	gap: 10px;
+	margin: 0;
+	padding: 14px 22px 18px;
+	border-block-start: 1px solid var(--efb-dlg-line);
+	border-radius: 0;
+	background: var(--efb-dlg-surface-soft);
+}
+
+#settingModalEfb .efb.modal-footer.efb-dlg__foot > * {
+	margin: 0;
 }
 
 /* Confirm footer ------------------------------------------------------ */

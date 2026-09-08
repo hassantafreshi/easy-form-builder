@@ -1468,7 +1468,12 @@ function sideMenuEfb(s) {
   let el = document.getElementById('sideBoxEfb');
   side_hide =(el)=>{
     el.classList.remove('show');
-    document.getElementById('childsSideMenuConEfb').classList.add('d-none');
+    /* childsSideMenuConEfb is only built by show_setting_window_efb, so it is missing
+       when the panel was opened by another route (open_setting_colors_efb) or closed
+       before it ever opened. side_show already guards the same lookup; unguarded here
+       it threw and abandoned the rest of the close. */
+    const ch = document.getElementById('childsSideMenuConEfb');
+    if (ch) ch.classList.add('d-none');
     document.getElementById('sideMenuFEfb').classList.add('efbDW-0');
     el.classList.add('efbDW-0');
     // Nothing is on screen any more, so the next request must open, never toggle shut.
@@ -5802,6 +5807,87 @@ function restore_auto_save_efb(){
     state_modal_show_efb(0)
   }
 
+/* One height for the whole workspace, so the palette and the canvas end level with each
+   other. The CSS alone cannot do it: the workspace does not start at the top of the
+   viewport, it starts wherever the toolbar above it happens to end, and that offset is
+   only knowable by measuring. Everything downstream reads the variable this sets. */
+const EFB_WORKSPACE_FIT = { raf: 0, applied: '', observed: false };
+
+function efbFitWorkspaceEfb() {
+  const list = document.getElementById('listElEfb');
+  const row = list ? list.parentElement : null;
+  // Same guards as the stylesheet: phones keep their own layout.
+  if (!list || !row || document.body.classList.contains('mobile') || window.innerWidth < 768) {
+    if (row) row.style.removeProperty('--efb-workspace-h');
+    EFB_WORKSPACE_FIT.applied = '';
+    return;
+  }
+
+  /* Measure from where the workspace actually begins, not from the admin bar - the
+     builder toolbar and the tab strip sit in between and their height is not fixed. */
+  const rowTop = row.getBoundingClientRect().top;
+  const target = Math.max(320, Math.round(window.innerHeight - rowTop - 16));
+  const next = target + 'px';
+
+  if (next !== EFB_WORKSPACE_FIT.applied) {
+    row.style.setProperty('--efb-workspace-h', next);
+    EFB_WORKSPACE_FIT.applied = next;
+  }
+
+}
+
+/* The stylesheet caps the admin menu and gives it its own scroll on EFB screens, so on a
+   site with many plugins the entry for the page you are actually on can sit below the
+   fold. Bring it into view the way an unscrolled menu would have shown it. Re-run on
+   resize, not just once: the cap comes and goes with the viewport and the menu's scroll
+   position is reset every time it does. Runs on every EFB screen, not only the builder,
+   because the stylesheet caps the menu on all of them. */
+function efbRevealCurrentMenuItemEfb() {
+  const menu = document.getElementById('adminmenuwrap');
+  if (!menu || getComputedStyle(menu).overflowY !== 'auto') return;
+  if (menu.scrollHeight <= menu.clientHeight) return;
+  const current = document.querySelector('#adminmenu .wp-has-current-submenu, #adminmenu li.current');
+  if (!current) return;
+  const box = current.getBoundingClientRect(), frame = menu.getBoundingClientRect();
+  if (box.top >= frame.top && box.bottom <= frame.bottom) return;   // already in view
+  menu.scrollTop += box.top - frame.top - 12;
+}
+
+let efbMenuRevealRafEfb = 0;
+function efbScheduleMenuRevealEfb() {
+  if (efbMenuRevealRafEfb) cancelAnimationFrame(efbMenuRevealRafEfb);
+  efbMenuRevealRafEfb = requestAnimationFrame(() => {
+    efbMenuRevealRafEfb = 0;
+    efbRevealCurrentMenuItemEfb();
+  });
+}
+document.addEventListener('DOMContentLoaded', efbScheduleMenuRevealEfb);
+window.addEventListener('resize', efbScheduleMenuRevealEfb);
+
+/* Coalesce bursts of triggers into one measurement on the next frame. */
+function efbScheduleWorkspaceFitEfb() {
+  if (EFB_WORKSPACE_FIT.raf) cancelAnimationFrame(EFB_WORKSPACE_FIT.raf);
+  EFB_WORKSPACE_FIT.raf = requestAnimationFrame(() => {
+    EFB_WORKSPACE_FIT.raf = 0;
+    efbFitWorkspaceEfb();
+  });
+}
+
+/* The offset the workspace starts at moves whenever the toolbar above it reflows - the
+   nav wraps to two lines on a narrow window, for instance. Watch that strip rather than
+   guessing which interactions matter. Never observe the columns themselves: this
+   function sizes them, so observing them would feed straight back in. */
+function efbWatchWorkspaceFitEfb() {
+  if (EFB_WORKSPACE_FIT.observed) return;
+  EFB_WORKSPACE_FIT.observed = true;
+  window.addEventListener('resize', efbScheduleWorkspaceFitEfb);
+  if (typeof ResizeObserver === 'function') {
+    const ro = new ResizeObserver(efbScheduleWorkspaceFitEfb);
+    const nav = document.querySelector('#panel_efb > nav');   // wraps to two lines when narrow
+    [document.getElementById('wpadminbar'), nav].forEach(el => { if (el) ro.observe(el); });
+  }
+}
+
 /* Selecting a field opens its settings, and show_setting_window_efb toggles, so it has
    to be reached exactly once per gesture. One gesture can arrive here up to three times:
    a field renders a .showBtns wrapper nested inside a .showBtns <setion> that share a
@@ -5810,18 +5896,31 @@ function restore_auto_save_efb(){
    bubbling pair; the short time window collapses touchend + its click. Clicks on the
    action buttons never get here at all - isFieldAction returns before this - so the
    gear's own onclick stays the single call for that button. */
-let efbLastFieldSettingEfb = { id: null, at: 0 };
+let efbLastFieldTapEfb = { id: null, at: 0 };
 function efbSelectFieldEfb(el, e) {
+  const dataId = el.dataset.id;
+  const now = Date.now();
+
+  const isTouch = e && e.type === 'touchend';
+  if (isTouch) efbLastFieldTapEfb = { id: dataId, at: now };
+
+  /* The same event bubbles through the inner .showBtns wrapper and the outer <setion>,
+     which share a data-id; one gesture must only reach the toggle once. The flag is set
+     before any early return below, because the click-away closer in
+     bootstrap-select.min-efb.js reads it to tell a field click from a click on nothing. */
   if (e) {
     if (e.efbFieldHandled) return;
     e.efbFieldHandled = true;
   }
+
+  /* A tap fires touchend and then a synthetic click for the same gesture, up to the
+     browser's tap delay later (~350ms on older iOS). touchend already did the work, so
+     drop that click. Keyed to clicks only, so a genuine second tap - which arrives as
+     touchend - still gets through and can toggle the panel shut. */
+  if (!isTouch && efbLastFieldTapEfb.id === dataId && now - efbLastFieldTapEfb.at < 800) return;
+
   active_element_efb(el);
-  const dataId = el.dataset.id;
   if (!dataId || typeof show_setting_window_efb !== 'function') return;
-  const now = Date.now();
-  if (efbLastFieldSettingEfb.id === dataId && now - efbLastFieldSettingEfb.at < 400) return;
-  efbLastFieldSettingEfb = { id: dataId, at: now };
   show_setting_window_efb(dataId);
 }
 
@@ -5874,54 +5973,113 @@ function fub_shwBtns_efb() {
   }
 }
 
+/**
+ * The upgrade dialog, shown wherever a click lands on something this site's
+ * plan does not include.
+ *
+ * Three lock reasons share it, and the caller says which by the argument it
+ * passes - the numbers are the plan gate, not a style:
+ *
+ *   1  a Pro-only field or setting
+ *   2  the two-step limit
+ *   3  a feature Free Plus unlocks as well, so the cheaper answer is offered
+ *      first and the two plans are put side by side
+ *
+ * A string argument is that caller's own sentence, and takes the shape of
+ * reason 1. Every call site keeps working unchanged; what they get back is
+ * the design system's gold-toned dialog rather than the bootstrap grid the
+ * body used to be.
+ */
 function pro_show_efb(state) {
-  let message = state;
-  let buttons = '';
+  const t = (key, fallback) => (typeof efb_var !== 'undefined' && efb_var.text && efb_var.text[key]) || fallback;
+  const price = t('priceyr', '$NN/year').replace('NN', pro_price_efb);
+  // Only reason 3 is the one Free Plus can answer. A caller's own sentence
+  // is a Pro lock, so it stays on the Pro side of that line.
+  const freePlusAnswers = typeof state != "string" && state == 3;
 
+  let message = state;
   if (typeof state != "string") {
     if (state == 1) {
-      message = efb_var.text.proUnlockMsg;
+      message = t('proUnlockMsg', '');
     } else if (state == 2) {
-      message = efb_var.text.ifYouNeedCreateMoreThan2Steps;
+      message = t('ifYouNeedCreateMoreThan2Steps', '');
     } else if (state == 3) {
-      message = efb_var.text.thisFeatureAvailableFreePlusPro;
+      message = t('thisFeatureAvailableFreePlusPro', '');
     }
   }
 
-  if (state == 3) {
-    buttons = `
-    <div class="efb row">
-      <div class="efb  col-md-6  text-center">
-        <button class="efb btn mt-3 efb btn-r h-d-efb btn-outline-info "  onclick ="open_whiteStudio_efb('free_plus_guide')">${efb_var.text.freePlusActivation || 'Free Plus Activation'} </button>
+  /* Reason 3 compares the two plans that would unlock the click; the others
+     name what Pro adds, because there is nothing to compare it against. */
+  let detail = '';
+  if (freePlusAnswers) {
+    detail = `
+    <div class="efb-dlg__plans">
+      <div class="efb-dlg__plan efb-dlg__plan--enough">
+        <div class="efb-dlg__plan-head">
+          <i class="efb bi-unlock"></i>
+          <span class="efb-dlg__plan-name">${t('freePlus', 'Free Plus')}</span>
+          <span class="efb-dlg__plan-price">${t('free', 'Free')}</span>
+        </div>
+        <div class="efb-dlg__plan-desc">${t('planFreePlusDesc', 'Unlocked by a free activation, which is enough for this feature.')}</div>
       </div>
-      <div class="efb  text-center col-md-6">
-        <button type="button" class="efb btn btn-r efb btn-primary efb-btn-lg mt-3 mb-3" onclick ="open_whiteStudio_efb('pro')">
-          <i class="efb  bi-gem mx-1 pro"></i>
-          ${efb_var.text.activateProVersion}
-        </button>
+      <div class="efb-dlg__plan">
+        <div class="efb-dlg__plan-head">
+          <i class="efb bi-gem"></i>
+          <span class="efb-dlg__plan-name">${t('pro', 'Pro')}</span>
+          <span class="efb-dlg__plan-price">${price}</span>
+        </div>
+        <div class="efb-dlg__plan-desc">${t('planProDesc', 'Every feature, with no limits, and support included.')}</div>
       </div>
     </div>`;
   } else {
-    buttons = `
-    <div class="efb row">
-      <div class="efb  col-md-6  text-center">
-        <button class="efb btn mt-3 efb btn-r h-d-efb btn-outline-pink "  onclick ="open_whiteStudio_efb('pro')">${efb_var.text.priceyr.replace('NN',pro_price_efb)} </button>
-      </div>
-      <div class="efb  text-center col-md-6">
-        <button type="button" class="efb btn btn-r efb btn-primary efb-btn-lg mt-3 mb-3" onclick ="open_whiteStudio_efb('pro')">
-          <i class="efb  bi-gem mx-1 pro"></i>
-          ${efb_var.text.activateProVersion}
-        </button>
-      </div>
+    const perks = [
+      t('proPerkSteps', 'Unlimited steps'),
+      t('proPerkPayment', 'Online payments'),
+      t('proPerkResponses', 'Response box'),
+    ];
+    detail = `
+    <div class="efb-dlg__perks">
+      ${perks.map((label) => `<span class="efb-dlg__perk"><i class="efb bi-check2"></i>${label}</span>`).join('')}
     </div>`;
   }
 
-  const body = `<div class="efb  pro-version-efb-modal"><i class="efb  bi-gem"></i></div>
-  <h5 class="efb  txt-center">${message}</h5>
-  ${buttons}`
+  const body = `<div class="efb-dlg__centered">
+    <div class="efb-dlg__badge efb-dlg__badge--square"><i class="efb bi-gem"></i></div>
+    <div class="efb-dlg__headline">${freePlusAnswers ? t('freePlusUnlocksThis', 'Free Plus unlocks this too') : t('proFeatureTitle', 'A Pro version feature')}</div>
+    <div class="efb-dlg__text">${message}</div>
+    ${detail}
+  </div>`;
 
-  show_modal_efb(body, efb_var.text.proVersion, '', 'proBpx')
-  state_modal_show_efb(1)
+  /* The quieter of the two actions is the one that costs least: the guide to
+     the free activation when that would do, and the price otherwise - a
+     person who is only checking what this costs should not have to press
+     "Upgrade" to find out. */
+  const secondary = freePlusAnswers
+    ? { link: 'free_plus_guide', icon: 'bi-book', label: t('freePlusActivation', 'Free Plus Guide') }
+    : { link: 'pro', icon: 'bi-tag', label: price };
+  const footInner = `
+    <a role="button" class="efb-dlg-btn efb-dlg-btn--ghost" onclick="open_whiteStudio_efb('${secondary.link}')"><i class="efb ${secondary.icon}"></i>${secondary.label}</a>
+    <a role="button" class="efb-dlg-btn efb-dlg-btn--gold" onclick="open_whiteStudio_efb('pro')"><i class="efb bi-gem"></i>${t('activateProVersion', 'Upgrade to Pro')}</a>`;
+
+  /* 'proBpx' is not one of the types show_modal_efb() builds a footer for, so
+     this dialog appends its own - in onShown, because a call that arrives
+     while another dialog holds the screen is parked and replayed later, and
+     until then none of this markup is in the page. */
+  const painted = show_modal_efb(body, t('proVersion', 'Pro Version'), 'bi-gem', 'proBpx', {
+    onShown: () => {
+      if (typeof efb_dlg_set_tone_efb === 'function') efb_dlg_set_tone_efb('efb-tone-gold');
+      const sections = document.getElementById('settingModalEfb-sections');
+      if (!sections) return;
+      const foot = document.createElement('div');
+      foot.className = 'efb modal-footer efb-dlg__foot';
+      foot.id = 'save-result-foot-efb';
+      foot.innerHTML = footInner;
+      sections.appendChild(foot);
+    }
+  });
+  // A parked dialog is opened by the queue itself; opening the shell here
+  // would show whatever the previous dialog left in it.
+  if (painted) state_modal_show_efb(1);
 }
 
 function move_show_efb() {

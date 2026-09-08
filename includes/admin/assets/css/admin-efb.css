@@ -233,6 +233,108 @@ body.mobile.modal-open #wpwrap {	position: relative !important;
    border-bottom: 1px solid #e5e5e5;
    padding-bottom: 8px;
 }
+
+/* A WordPress admin page is always as tall as the taller of (admin menu, content). With
+   ~25 plugins the menu runs past 1400px, so once the builder fits on one screen the menu
+   alone kept the page scrollable and left a dead grey strip under the workspace -
+   hundreds of pixels of nothing, on every EFB screen. Capping the menu and giving it its
+   own scroll removes the cause rather than padding around it: the page collapses to the
+   height of its own content.
+
+   961px is WordPress's own auto-fold breakpoint. Below it - and whenever the user has
+   collapsed the menu by hand - the menu is icon-only and its submenus fly out as
+   absolutely positioned boxes, which this overflow would clip; both are left alone.
+   (`auto-fold` sits on the body at every width, so it says nothing about the current
+   state and cannot be used as the guard.) */
+@media (min-width: 961px) {
+   body[class*="page_Emsfb"]:not(.folded) #adminmenuwrap {
+      position: sticky;
+      top: var(--wp-admin--admin-bar--height, 32px);
+      max-height: calc(100vh - var(--wp-admin--admin-bar--height, 32px));
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-width: thin;
+      overscroll-behavior: contain;
+   }
+}
+
+/* Builder workspace on anything but a phone --------------------------------
+   The palette holds ~50 tiles, so it is several screens tall. Reaching the bottom of
+   it used to scroll the form canvas completely out of view, which is the one thing
+   you need to see while picking a field. Both columns are pinned instead: the palette
+   becomes its own scroll area under the admin bar, and the canvas sticks beside it.
+
+   align-self is what makes the sticky work at all - a stretched flex item is exactly
+   as tall as its row, which leaves position:sticky no travel to use. It also gives
+   the behaviour the canvas needs for free: the row is as tall as its tallest column,
+   so a canvas SHORTER than the palette has travel and stays put, while a canvas taller
+   than the palette has none and just scrolls, which is right once the form is long.
+   The phone layout keeps its own rules above (body.mobile is set by WordPress). */
+@media (min-width: 768px) {
+   body:not(.mobile) div#listElEfb.efb,
+   body:not(.mobile) .efb.col-md-8.body-dpz-efb {
+      position: sticky;
+      top: calc(var(--wp-admin--admin-bar--height, 32px) + 12px);
+      align-self: flex-start;
+   }
+
+   /* The two columns have to end at the same place. A palette running hundreds of
+      pixels below the form card - or the other way round - reads as a broken page,
+      which is what the raw sticky layout produced. efbFitWorkspaceEfb() measures one
+      workspace height from the viewport and both columns take it: the palette as a
+      ceiling it scrolls inside, the canvas as a floor it grows from. A long form is
+      still free to push past it, and then the sticky palette keeps up instead. */
+   body:not(.mobile) .efb.col-md-8.body-dpz-efb {
+      min-height: var(--efb-workspace-h, auto);
+      display: flex;
+      flex-direction: column;
+   }
+   /* The card takes the slack so the canvas is a full surface to drop onto, not a
+      short card floating above empty space. It only ever grows by the difference, so
+      the submit button - which #button_group_efb pins to the card's bottom edge -
+      never drifts far from the last field. */
+   body:not(.mobile) .efb.col-md-8.body-dpz-efb > #dragBoxWrapperEfb {
+      flex: 1 1 auto;
+   }
+
+   body:not(.mobile) div#listElEfb.efb {
+      max-height: var(--efb-workspace-h, calc(100vh - var(--wp-admin--admin-bar--height, 32px) - 24px));
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-width: thin;
+      overscroll-behavior: contain;
+      scroll-behavior: smooth;
+      padding-bottom: 8px;
+   }
+
+   /* The category filter stays reachable at the top of that scroll area. It needs an
+      opaque background so tiles pass under it; white rather than the admin body colour,
+      which differs between admin colour schemes. */
+   body:not(.mobile) div#listElEfb.efb .efb.row#listCatEfb {
+      position: sticky;
+      top: 0;
+      z-index: 6;
+      background-color: #fff;
+      border-radius: 14px;
+      box-shadow: 0 2px 18px rgb(84 131 207 / 12%);
+      padding: 4px 2px !important;
+      margin: 0 0 14px !important;
+   }
+   body:not(.mobile) div#listElEfb.efb .efb.row#listCatEfb .efb.hr {
+      display: none;
+   }
+
+   body:not(.mobile) div#listElEfb.efb::-webkit-scrollbar {
+      width: 8px;
+   }
+   body:not(.mobile) div#listElEfb.efb::-webkit-scrollbar-thumb {
+      background-color: rgba(84, 131, 207, 0.25);
+      border-radius: 8px;
+   }
+   body:not(.mobile) div#listElEfb.efb::-webkit-scrollbar-track {
+      background-color: transparent;
+   }
+}
 .mobile .btn-select-form.efb {	font-size: 10px;
    height: 100px;
 }
@@ -1322,6 +1424,54 @@ div#sideBoxEfb {	height: 100vh;
    transition: 0.5s !important;
 }
 .btn-select-form.efb i {	font-size: 30px !important;
+   line-height: 1;
+}
+
+/* Palette tile labels -------------------------------------------------------
+   A tile is only ~55-90px wide, and the label is a translated field name. German
+   compounds (Kontrollkaestchen, Bildschirmaufnahme, Mehrfachauswahl) are 90-130px
+   wide with no space to wrap at, so `overflow:hidden` alone sliced them off on both
+   sides and left the tile unreadable. Hyphenate them - the admin <html lang> picks
+   the dictionary - break mid-word wherever no dictionary applies, and cap the label
+   at three lines so the tile keeps its 120px height. The untruncated name is already
+   on the button's title attribute, so the tooltip still gives the full text. */
+.btn-select-form.efb {
+   padding: 10px 6px;
+   line-height: 1.15;
+}
+.btn-select-form.efb > span.efb {
+   max-width: 100%;
+   margin-top: 6px;
+   /* The admin's 16px base is oversized for a ~80px tile label and was the reason even
+      an 11-character word wrapped. Every narrower breakpoint in min-1200-style.css
+      already steps down to 0.85rem; match it here so the widest screens agree. */
+   font-size: 0.85rem;
+   line-height: 1.15;
+   overflow-wrap: anywhere;
+   word-break: break-word;
+   -webkit-hyphens: auto;
+   hyphens: auto;
+   /* Hard ceiling of three lines so a label can never push the icon out of the tile.
+      Deliberately max-height and not -webkit-line-clamp: a <button> blockifies its
+      children, so the -webkit-box display that line-clamp needs never survives here.
+      3 x the line-height is exactly three line boxes, so this cuts on a line edge. */
+   max-height: 3.45em;
+   overflow: hidden;
+}
+/* Set by the tile renderer from the label's length - see creator_form_builder_Efb.
+   !important because min-1200-style.css sizes this same label per breakpoint with
+   !important of its own; without it these steps would silently do nothing below
+   1320px, which is exactly where the tiles are narrowest. */
+.btn-select-form.efb > span.efb-tile-label-sm { font-size: 0.75rem !important; }
+.btn-select-form.efb > span.efb-tile-label-xs { font-size: 0.65rem !important; }
+
+/* Three tiles per row, not four. At >=1320px the four-up grid left the label barely
+   60px of width, which no German field name survives; three-up gives it ~95px and
+   makes the drag target bigger everywhere. Narrower screens already step down to
+   three and then two in min-1200-style.css. Scoped to the draggable field tiles so
+   the four category chips in #listCatEfb keep their own layout. */
+.efb.row .efb.efb-col-3.draggable-efb {
+   width: 33.333333%;
 }
 .efb.guide {	border-radius: 20px;
    background: #e9f1ff;

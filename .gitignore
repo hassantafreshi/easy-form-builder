@@ -73,3 +73,5 @@ tests/snapshots/
 tests/screenshots/
 _workspace/*
 _workspace
+_workspace/easy-form-builder-form-builder/dist/efb-form-builder.legacy.js
+_workspace/easy-form-builder-form-builder/dist/efb-form-builder.legacy.js
