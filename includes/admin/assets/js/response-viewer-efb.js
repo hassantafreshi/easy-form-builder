@@ -94,7 +94,7 @@ const EfbResponseViewer = (function () {
     const initialHtml = savedValue ? shortcodeToHtml(savedValue.replace(/@efb@nq#/g, '<br>')) : '';
 
     return `
-    <div class="efb-reply-section ${isRtl() ? 'rtl-text' : ''}" id="replay_section__emsFormBuilder">
+    <div class="efb-reply-section ${isRtl() ? 'rtl-text' : ''} efb p-2" id="replay_section__emsFormBuilder">
       <div class="efb-reply-label" id="label_replyM_efb">
         <i class="bi bi-reply"></i> ${_t('reply')}:
       </div>

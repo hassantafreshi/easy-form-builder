@@ -261,42 +261,26 @@ body.mobile.modal-open #wpwrap {	position: relative !important;
       align-self: flex-start;
    }
 
-   /* The two columns have to end at the same place. A palette running hundreds of
-      pixels below the form card - or the other way round - reads as a broken page,
-      which is what the raw sticky layout produced. efbFitWorkspaceEfb() measures one
-      workspace height from the viewport and both columns take it: the palette as a
-      ceiling it scrolls inside, the canvas as a floor it grows from. A long form is
-      still free to push past it, and then the sticky palette keeps up instead. */
-   body:not(.mobile) .efb.col-md-8.body-dpz-efb {
-      min-height: var(--efb-workspace-h, auto);
-      display: flex;
-      flex-direction: column;
-   }
-   /* The card takes the slack so the canvas is a full surface to drop onto, not a
-      short card floating above empty space. Note what rides along: #button_group_efb is
-      absolute + .bottom-0, so the submit button sits on the card's bottom edge and the
-      run of empty canvas below the last field opens up between them. */
-   body:not(.mobile) .efb.col-md-8.body-dpz-efb > #dragBoxWrapperEfb {
-      flex: 1 1 auto;
-   }
-   /* ...and the slack stops at the card. #dropZoneEFB is a wrapping flex row, and such a
-      container spreads leftover height across its lines, so the card's growth was
-      landing inside the fields: an 87px field measured 119px at the old workspace
-      height and 190px at this one, with the step header pushed 115px clear of the first
-      field. Packing the lines to the top keeps every field exactly the size its own
-      content asks for, whatever the card is doing, and leaves the leftover where it is
-      wanted - empty canvas below the last field. */
-   body:not(.mobile) #dropZoneEFB {
-      align-content: flex-start;
-   }
+   /* The canvas card keeps the height of the form inside it - the 4.1.3 behaviour, and
+      the standard one. It was briefly stretched to the foot of the page so the drop
+      surface filled the column, and that was the wrong trade: the card is the only thing
+      on screen that tells you how long the form is, so a card sized to the window makes
+      a three-field form look like a page-long one. Nothing sets a height on
+      #dragBoxWrapperEfb here on purpose; the measured workspace height is the palette's
+      scroll window alone (see #listElEfb below), and the canvas column is left as the
+      plain bootstrap column it is.
 
-   /* efbFitWorkspaceEfb() sets this class when the workspace it measured runs past the
-      fold - which happens when the admin menu, left uncapped, is what makes the page
-      tall. Sticky is wrong there: pinned at `top`, a column taller than the viewport
-      would hold its own lower edge off-screen for good, and for the palette that is the
-      end of a scroll area you can then never reach. Let both columns travel instead. */
-   body:not(.mobile) .efb.row.efb-workspace-tall > div#listElEfb.efb,
-   body:not(.mobile) .efb.row.efb-workspace-tall > .efb.col-md-8.body-dpz-efb {
+      Consequences of that choice, both accepted: the columns no longer end level, and
+      the empty space beside a short form belongs to the page rather than the card. */
+
+   /* efbFitWorkspaceEfb() sets this class when the window it measured for the palette
+      runs past the fold - which happens when the admin menu, left uncapped, is what
+      makes the page tall. Sticky is wrong for the palette there: pinned at `top`, a
+      column taller than the viewport holds its own lower edge off-screen for good, and
+      that edge is the end of a scroll area you could then never reach. It travels with
+      the page instead. The canvas column stays sticky either way - it is only as tall as
+      the form, and keeping it in view while you scroll the palette is the point. */
+   body:not(.mobile) .efb.row.efb-workspace-tall > div#listElEfb.efb {
       position: static;
    }
    /* Containment is right for a pinned palette - the page must not slide away under a

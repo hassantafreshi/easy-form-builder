@@ -5811,10 +5811,11 @@ function restore_auto_save_efb(){
     state_modal_show_efb(0)
   }
 
-/* One height for the whole workspace, so the palette and the canvas end level with each
-   other. The CSS alone cannot do it: the workspace does not start at the top of the
-   viewport, it starts wherever the toolbar above it happens to end, and that offset is
-   only knowable by measuring. Everything downstream reads the variable this sets. */
+/* The scroll window for the field palette, measured because the CSS cannot: the column
+   does not start at the top of the viewport, it starts wherever the toolbar above it
+   happens to end, and that offset is not a constant. Only #listElEfb reads the variable
+   this sets - the canvas card is deliberately left at the height of the form it holds,
+   so nothing here should be made to size it. */
 const EFB_WORKSPACE_FIT = { raf: 0, observed: false };
 
 function efbFitWorkspaceEfb() {
@@ -5852,7 +5853,8 @@ function efbFitWorkspaceEfb() {
      left at its natural height - past 1400px on a site with ~25 plugins. Cut to the
      viewport, the workspace then ends hundreds of pixels above the foot of a page the
      menu alone has already made scrollable, and that gap is dead grey space. Reach the
-     menu's bottom instead so the columns end where the page does.
+     menu's bottom instead, so the palette ends where the page does and shows as many
+     tiles as the page has room for.
 
      Measured off the menu, deliberately not off scrollHeight: the page height is partly
      this function's own output, so reading it back would feed the next measurement. */
@@ -5871,10 +5873,10 @@ function efbFitWorkspaceEfb() {
     row.style.setProperty('--efb-workspace-h', next);
   }
 
-  /* Past the fold the columns cannot stay sticky. A sticky column taller than the
-     viewport pins its top and pushes its own lower edge permanently off-screen - with
-     the palette that would park the end of its scroll area somewhere unreachable. It
-     scrolls with the page in that mode, which reaches the same tiles by other means.
+  /* Past the fold the palette cannot stay sticky. Pinned at its top, a column taller
+     than the viewport pushes its own lower edge permanently off-screen, which for the
+     palette parks the end of its scroll area somewhere unreachable. It travels with the
+     page in that mode, which reaches the same tiles by other means.
      toggle() with an explicit flag is idempotent, so it needs no cache of its own. */
   row.classList.toggle('efb-workspace-tall', target > viewportFit);
 }
