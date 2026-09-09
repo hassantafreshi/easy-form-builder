@@ -55,7 +55,7 @@ class Review_Request {
 	const ACTION = 'emsfb_review_request';
 
 	/** How long someone has to have been using the plugin before we ask. */
-	const MIN_DAYS = 14;
+	const MIN_DAYS = 7;
 
 	/**
 	 * The gap between one sighting and the next.
@@ -64,7 +64,7 @@ class Review_Request {
 	 * whole politeness policy in one number: a site sees it about once a month
 	 * and never twice in a week of daily logins.
 	 */
-	const SNOOZE_DAYS = 30;
+	const SNOOZE_DAYS = 2;
 
 	/** The reason key the feedback service files a low rating under. */
 	const REPORT_REASON = 'rating_feedback';
