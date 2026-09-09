@@ -1,7 +1,7 @@
 /**
  * Browser regression for the shared modal shell's arbitration.
  *
- * Two faults are covered, both reported from the builder:
+ * Four faults are covered, all reported from the builder:
  *
  *  1. A dialog that arrives on its own - the auto-save restore prompt fires
  *     on a timer - painted straight over whatever dialog the person already
@@ -11,6 +11,14 @@
  *     every list re-render), and each ask appended its own footer, so the
  *     one dialog ended up wearing two stacked rows of buttons - the top row
  *     wired to handlers whose buttons no longer existed.
+ *
+ *  3. Restoring a draft from the panel swapped the builder into #content-efb
+ *     but left the forms list's own "load more" chevron behind it, floating
+ *     under the canvas and paging a list that was no longer on screen.
+ *
+ *  4. A draft that could not be read left the prompt on screen with a live
+ *     backdrop and no working button, because the handler swallowed the
+ *     error and returned without closing the shell.
  *
  * Nothing here touches a real form: the draft is planted in localStorage and
  * removed again, and the dialogs are opened through show_modal_efb() rather
@@ -59,6 +67,29 @@ async function plantDraft(page) {
     localStorage.setItem('efb_auto_save', '1');
     localStorage.setItem('efb_auto_save_form_id', '0');
     localStorage.setItem('efb_auto_save_valj_efb', '[]');
+    localStorage.setItem('efb_auto_save_time', String(Date.now() - 3600000));
+  });
+}
+
+/**
+ * A draft with a form row in it, so accepting the prompt actually builds the
+ * builder - plantDraft()'s empty array is the shape that cannot be restored.
+ */
+async function plantFormDraft(page) {
+  await page.evaluate(() => {
+    const draft = [
+      { type: 'form', steps: 1, formName: 'Modal queue probe', email: '', trackingCode: true,
+        EfbVersion: 2, button_single_text: 'Submit', button_state: 'single', stateForm: 0,
+        thank_you: 'msg',
+        thank_you_message: { icon: 'bi-hand-thumbs-up', thankYou: 'thanks', done: 'ok',
+          trackingCode: 'code', error: 'error', pleaseFillInRequiredFields: 'required' } },
+      { id_: 'text_probe', dataId: 'text_probe', type: 'text', elementId: 'text', name: 'Name',
+        label: 'Name', step: 1, required: false, placeholder: '', value: '', amount: 1,
+        label_position: 'top' }
+    ];
+    localStorage.setItem('efb_auto_save', '1');
+    localStorage.setItem('efb_auto_save_form_id', '0');
+    localStorage.setItem('efb_auto_save_valj_efb', JSON.stringify(draft));
     localStorage.setItem('efb_auto_save_time', String(Date.now() - 3600000));
   });
 }
@@ -239,7 +270,71 @@ async function closeShell(page) {
     await closeShell(page);
 
     /* ----------------------------------------------------------------- */
-    console.log('\n[7] No script errors');
+    console.log('\n[7] Restoring from the panel takes the list chrome with it');
+
+    await page.goto(PANEL, { waitUntil: 'domcontentloaded' });
+    await page.waitForTimeout(1500);
+    await closeShell(page);
+    await plantFormDraft(page);
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('#restore_auto_save_efb_btn', { timeout: 20000 });
+
+    /* Whether the chevron starts visible depends on how many forms this site
+       holds, which is not what is under test - show it by hand so the
+       assertion below reads the same on an empty site and a full one. */
+    await page.evaluate(() => {
+      document.getElementById('more_emsFormBuilder').style.display = 'block';
+    });
+    await page.click('#restore_auto_save_efb_btn');
+    await page.waitForTimeout(1800);
+
+    t('the builder took over the page',
+      await page.locator('#pCreatorEfb').count() === 1);
+    // The reported symptom: a chevron sitting under the canvas, paging a
+    // list that the builder had just replaced.
+    t('the "load more" chevron went with the list',
+      await page.evaluate(() => {
+        const b = document.getElementById('more_emsFormBuilder');
+        return !!b && b.style.display === 'none' && b.getBoundingClientRect().height === 0;
+      }));
+    t('and the prompt closed behind it',
+      await page.evaluate(() =>
+        ![...document.querySelectorAll('#settingModalEfb')].some((el) => el.classList.contains('show'))) &&
+      await page.locator('.efb-modal-backdrop').count() === 0);
+
+    /* ----------------------------------------------------------------- */
+    console.log('\n[8] A draft that cannot be read does not trap the page');
+
+    await page.goto(PANEL, { waitUntil: 'domcontentloaded' });
+    await page.waitForTimeout(1500);
+    await closeShell(page);
+    // An empty array parses, so the handler gets as far as reading a form
+    // row off it - the shape a truncated localStorage write leaves behind.
+    await plantDraft(page);
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('#restore_auto_save_efb_btn', { timeout: 20000 });
+    await page.click('#restore_auto_save_efb_btn');
+    await page.waitForTimeout(1200);
+
+    t('the prompt closed instead of hanging over the page',
+      await page.evaluate(() =>
+        ![...document.querySelectorAll('#settingModalEfb')].some((el) => el.classList.contains('show'))) &&
+      await page.locator('.efb-modal-backdrop').count() === 0);
+    t('the failure was reported',
+      await page.evaluate(() => {
+        const c = document.getElementById('alert_container_efb');
+        return !!c && c.innerText.trim().length > 0;
+      }));
+    // Nothing readable was recovered, so nothing is thrown away either.
+    t('the draft it could not read was kept',
+      await page.evaluate(() => localStorage.getItem('efb_auto_save_valj_efb')) !== null);
+    t('the forms list is still usable',
+      await page.locator('#emsFormBuilder-list').count() === 1);
+
+    await dropDraft(page);
+
+    /* ----------------------------------------------------------------- */
+    console.log('\n[9] No script errors');
     t('the page threw no JavaScript errors', consoleErrors.length === 0, consoleErrors.join(' | '));
 
   } catch (err) {

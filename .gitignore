@@ -19,17 +19,11 @@ composer.json
 composer.lock
 vendor/composer/*
 .prettierrc.json
-.vscode
-.vscode/*
 .vscode/settings.json
 docs/BACKGROUND-PROCESSING.md
-.gitignore
-.gitignore
 docs/TESTING-GUIDE.md
 includes/functions.php.backup_20251222_221754
-.gitignore
 /.idea
-.vscode/settings.json
 .editorconfig
 vendor.rar
 .claude/settings.local.json
@@ -39,7 +33,6 @@ docs/ai-form-generation/efb-ai-form-generation-model.json
 docs/ai-form-generation/*
 docs/conditional-logic/EFB-Conditional-Logic-E2E-TEST-FA.md
 tests/test-conditional-logic-builder-ui.js
-vendor/logic/*
 test-addon-url.php
 .claude/_settings.local
 vendor/human-shield/
@@ -54,11 +47,8 @@ tests/test-autofill-api-public.js
 tests/test-decline-root-cause-regressions.php
 tests/test-license-suspension-notice.php
 tests/test-nonce-refresh-session-gating.php
-tests/test-nonce-refresh-session-gating.php
-tests/test-nonce-refresh-session-gating.php
 docs/audits/2026-07-30-sales-and-installs-decline-root-cause.md
 docs/audits/2026-07-31-bugs-and-failure-scenarios.md
-docs/README.md
 docs/README.md
 docs/payment-gateways/AGENT-CONTRACT.en.md
 docs/payment-gateways/EFB-PAYMENT-GATEWAYS-ROADMAP.fa.md
@@ -74,7 +64,4 @@ tests/screenshots/
 _workspace/*
 _workspace
 _workspace/easy-form-builder-form-builder/dist/efb-form-builder.legacy.js
-_workspace/easy-form-builder-form-builder/dist/efb-form-builder.legacy.js
-_workspace/easy-form-builder-form-builder/legacy-snapshot/includes/class-Emsfb.php
-_workspace/easy-form-builder-form-builder/legacy-snapshot/includes/class-Emsfb.php
 _workspace/easy-form-builder-form-builder/legacy-snapshot/includes/class-Emsfb.php
