@@ -388,6 +388,12 @@ class Panel_edit  {
 					'bootstrap'=>$this->check_temp_is_bootstrap(),
 					'pro'=>$pro ? 1 : 0,
 					'devMode'=> get_option('emsfb_dev_mode', '0') === '1' ? 1 : 0,
+					/* The response viewer is drawn by the same script here and on
+					   the site. The palette an administrator picks in Colors &
+					   Fonts belongs to the public box only - this panel is part of
+					   wp-admin and keeps the shipped colours - so the script is
+					   told which side it is running on. */
+					'admin_screen'=> 1,
 				));
 
 		}else{

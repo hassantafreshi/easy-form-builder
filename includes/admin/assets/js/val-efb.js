@@ -2310,6 +2310,12 @@ function creator_form_builder_Efb() {
 
   `
 
+  /* Core keeps a strip free at the foot of #wpbody-content for the absolutely
+     positioned admin footer. The builder measures its workspace against the viewport
+     instead, so that strip is only ever dead space the page can scroll into. Zero it
+     from here, where the builder markup has just landed. */
+  efbZeroAdminBodyPaddingEfb();
+
   // The page is rebuilt in desktop layout; keep the view engine in sync so a
   // later switch to mobile re-renders instead of assuming it is already there.
   if (typeof currentViewEfb !== 'undefined') currentViewEfb = 'desktop';
@@ -2322,6 +2328,18 @@ function creator_form_builder_Efb() {
      is not present. */
   if (typeof efbWatchWorkspaceFitEfb === 'function') efbWatchWorkspaceFitEfb();
   if (typeof efbScheduleWorkspaceFitEfb === 'function') efbScheduleWorkspaceFitEfb();
+}
+
+/* padding-bottom: 0 on #wpbody-content, by the one route nothing else in the page can
+   outrank. Core declares the padding twice - 65px in common.css and 100px again below
+   782px - and an admin colour scheme or another plugin is free to add a third, so a
+   stylesheet of our own would only be one more rule competing on specificity and load
+   order. An inline declaration marked important sits above every author sheet at once,
+   media query included, and needs no !important arms race to stay there. Re-applied on
+   every builder render because that is the only screen this should hold on. */
+function efbZeroAdminBodyPaddingEfb() {
+  const wpBody = document.getElementById('wpbody-content');
+  if (wpBody) wpBody.style.setProperty('padding-bottom', '0', 'important');
 }
 
 function funUpdateLisetElEfb(cat){

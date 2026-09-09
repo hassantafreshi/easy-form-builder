@@ -28,10 +28,7 @@
 .efb-dlg,
 #settingModalEfb,
 .efb-deactivate-modal,
-#efbColorResetModal,
-#efbEmailServerTestModal,
-#efbModalFontFamily,
-#efbModalFontSize {
+#efbEmailServerTestModal {
 	/* Ink */
 	--efb-dlg-ink: #1a1a2e;
 	--efb-dlg-ink-soft: #4a5078;
@@ -1278,13 +1275,15 @@ body.efb-dlg-open {
 }
 
 /* -----------------------------------------------------------------------
- * Named dialogs: colour reset, email server test, font pickers
+ * Named dialogs: email server test
+ *
+ * #efbColorResetModal, #efbModalFontFamily and #efbModalFontSize used to be
+ * listed here too. They are a button and two <select>s inside the Colors &
+ * Fonts dialog, never dialogs of their own, so ".modal-content" under them
+ * matched nothing; the rewrite of that dialog dropped the ids as well.
  * -------------------------------------------------------------------- */
 
-#efbColorResetModal .modal-content,
-#efbEmailServerTestModal .modal-content,
-#efbModalFontFamily .modal-content,
-#efbModalFontSize .modal-content {
+#efbEmailServerTestModal .modal-content {
 	border: 0;
 	border-radius: var(--efb-dlg-radius);
 	box-shadow: var(--efb-dlg-shadow);
@@ -1293,35 +1292,23 @@ body.efb-dlg-open {
 	overflow: hidden;
 }
 
-#efbColorResetModal .modal-header,
-#efbEmailServerTestModal .modal-header,
-#efbModalFontFamily .modal-header,
-#efbModalFontSize .modal-header {
+#efbEmailServerTestModal .modal-header {
 	padding: 15px 20px;
 	border-block-end: 1px solid var(--efb-dlg-line);
 	background: var(--efb-dlg-surface);
 }
 
-#efbColorResetModal .modal-title,
-#efbEmailServerTestModal .modal-title,
-#efbModalFontFamily .modal-title,
-#efbModalFontSize .modal-title {
+#efbEmailServerTestModal .modal-title {
 	font-size: 15px;
 	font-weight: 700;
 	color: var(--efb-dlg-ink);
 }
 
-#efbColorResetModal .modal-body,
-#efbEmailServerTestModal .modal-body,
-#efbModalFontFamily .modal-body,
-#efbModalFontSize .modal-body {
+#efbEmailServerTestModal .modal-body {
 	padding: 26px 26px 24px;
 }
 
-#efbColorResetModal .modal-footer,
-#efbEmailServerTestModal .modal-footer,
-#efbModalFontFamily .modal-footer,
-#efbModalFontSize .modal-footer {
+#efbEmailServerTestModal .modal-footer {
 	justify-content: center;
 	gap: 10px;
 	padding: 14px 22px 18px;

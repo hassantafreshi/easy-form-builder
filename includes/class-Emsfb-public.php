@@ -1609,7 +1609,25 @@ public function check_nonce_permission_efb($request) {
 			$css_overrides .= "--efb-resp-shadow-hover:0 4px 24px rgba({$r},{$g},{$b},0.13);";
 		}
 
-		$inline_style = $css_overrides !== '' ? '<style>:root{' . $css_overrides . '}</style>' : '';
+		/*
+		 * ":root:root", not ":root".
+		 *
+		 * response-viewer-efb.css declares the whole palette on :root as its
+		 * defaults, and this override is printed inside the post content -
+		 * which, for a shortcode, runs long after wp_head(). WordPress prints a
+		 * stylesheet enqueued that late in the footer, so the stylesheet's
+		 * :root came *after* this one in document order and won on equal
+		 * specificity: every colour and font an administrator had chosen was
+		 * silently ignored on the public code finder, the tracker card and the
+		 * login-required notice. The response viewer only looked right because
+		 * its script re-applies the same values inline once it renders.
+		 *
+		 * Doubling the pseudo-class makes the override (0,2,0) against the
+		 * stylesheet's (0,1,0), so it wins wherever either ends up - head,
+		 * footer, or merged into one file by a caching plugin - without an
+		 * !important on twenty declarations.
+		 */
+		$inline_style = $css_overrides !== '' ? '<style>:root:root{' . $css_overrides . '}</style>' : '';
 
 		$font_link = '';
 

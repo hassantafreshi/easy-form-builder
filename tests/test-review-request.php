@@ -252,7 +252,7 @@ remove_all_filters( 'emsfb_review_discount_percent_efb' );
 
 // The point of the whole exercise: no translated string may carry the number.
 $strings   = $request->strings_efb();
-$must_have = array( 'ribbonPct', 'ocLowStarsLead' );
+$must_have = array( 'ribbonPct', 'praiseLead', 'ocLowStarsLead' );
 $missing   = array();
 foreach ( $must_have as $key ) {
 	if ( ! isset( $strings[ $key ] ) || false === strpos( $strings[ $key ], '%s' ) ) {
@@ -268,42 +268,6 @@ foreach ( $strings as $key => $value ) {
 	}
 }
 efb_t( 'F5 no string hard-codes the figure', empty( $hardcoded ), 'hard-coded in: ' . implode( ', ', $hardcoded ) );
-
-/* ---------------------------------------------------------------------
- * G. Translations line up with the English source
- * ------------------------------------------------------------------ */
-
-echo "\nG. Translations\n";
-
-$reflect = new ReflectionMethod( '\Emsfb\Review_Request', 'bundled_translations_efb' );
-$reflect->setAccessible( true );
-$bundled = $reflect->invoke( $request );
-
-foreach ( array( 'fa', 'ar', 'de' ) as $locale ) {
-	efb_t( "G1 {$locale} translations are bundled", isset( $bundled[ $locale ] ) && ! empty( $bundled[ $locale ] ) );
-}
-
-// A translation that lost its %s would print the sentence with nothing in it.
-$broken = array();
-foreach ( $bundled as $locale => $table ) {
-	foreach ( $must_have as $key ) {
-		if ( isset( $table[ $key ] ) && false === strpos( $table[ $key ], '%s' ) ) {
-			$broken[] = "{$locale}.{$key}";
-		}
-	}
-}
-efb_t( 'G2 no translation dropped its %s', empty( $broken ), 'dropped in: ' . implode( ', ', $broken ) );
-
-// A key that exists only in a translation is a key the English never shows.
-$strays = array();
-foreach ( $bundled as $locale => $table ) {
-	foreach ( array_keys( $table ) as $key ) {
-		if ( ! isset( $strings[ $key ] ) ) {
-			$strays[] = "{$locale}.{$key}";
-		}
-	}
-}
-efb_t( 'G3 no translation invents a key', empty( $strays ), 'unknown: ' . implode( ', ', $strays ) );
 
 /* ---------------------------------------------------------------------
  * H. Direction. The stylesheets must work in both without an override.

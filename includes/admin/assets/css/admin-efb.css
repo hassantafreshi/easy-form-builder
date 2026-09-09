@@ -234,29 +234,12 @@ body.mobile.modal-open #wpwrap {	position: relative !important;
    padding-bottom: 8px;
 }
 
-/* A WordPress admin page is always as tall as the taller of (admin menu, content). With
-   ~25 plugins the menu runs past 1400px, so once the builder fits on one screen the menu
-   alone kept the page scrollable and left a dead grey strip under the workspace -
-   hundreds of pixels of nothing, on every EFB screen. Capping the menu and giving it its
-   own scroll removes the cause rather than padding around it: the page collapses to the
-   height of its own content.
-
-   961px is WordPress's own auto-fold breakpoint. Below it - and whenever the user has
-   collapsed the menu by hand - the menu is icon-only and its submenus fly out as
-   absolutely positioned boxes, which this overflow would clip; both are left alone.
-   (`auto-fold` sits on the body at every width, so it says nothing about the current
-   state and cannot be used as the guard.) */
-@media (min-width: 961px) {
-   body[class*="page_Emsfb"]:not(.folded) #adminmenuwrap {
-      position: sticky;
-      top: var(--wp-admin--admin-bar--height, 32px);
-      max-height: calc(100vh - var(--wp-admin--admin-bar--height, 32px));
-      overflow-y: auto;
-      overflow-x: hidden;
-      scrollbar-width: thin;
-      overscroll-behavior: contain;
-   }
-}
+/* The admin menu is left exactly as WordPress renders it - no cap, no scroll area of its
+   own. It was capped here once so a menu taller than the builder could not keep the page
+   scrollable on its own, but a menu scrolling separately from the page is the worse of
+   the two problems. The dead strip a tall menu used to leave under the builder is now
+   answered from the other side: efbFitWorkspaceEfb() grows the workspace to the menu's
+   bottom, so the columns end where the page does. */
 
 /* Builder workspace on anything but a phone --------------------------------
    The palette holds ~50 tiles, so it is several screens tall. Reaching the bottom of
@@ -290,11 +273,38 @@ body.mobile.modal-open #wpwrap {	position: relative !important;
       flex-direction: column;
    }
    /* The card takes the slack so the canvas is a full surface to drop onto, not a
-      short card floating above empty space. It only ever grows by the difference, so
-      the submit button - which #button_group_efb pins to the card's bottom edge -
-      never drifts far from the last field. */
+      short card floating above empty space. Note what rides along: #button_group_efb is
+      absolute + .bottom-0, so the submit button sits on the card's bottom edge and the
+      run of empty canvas below the last field opens up between them. */
    body:not(.mobile) .efb.col-md-8.body-dpz-efb > #dragBoxWrapperEfb {
       flex: 1 1 auto;
+   }
+   /* ...and the slack stops at the card. #dropZoneEFB is a wrapping flex row, and such a
+      container spreads leftover height across its lines, so the card's growth was
+      landing inside the fields: an 87px field measured 119px at the old workspace
+      height and 190px at this one, with the step header pushed 115px clear of the first
+      field. Packing the lines to the top keeps every field exactly the size its own
+      content asks for, whatever the card is doing, and leaves the leftover where it is
+      wanted - empty canvas below the last field. */
+   body:not(.mobile) #dropZoneEFB {
+      align-content: flex-start;
+   }
+
+   /* efbFitWorkspaceEfb() sets this class when the workspace it measured runs past the
+      fold - which happens when the admin menu, left uncapped, is what makes the page
+      tall. Sticky is wrong there: pinned at `top`, a column taller than the viewport
+      would hold its own lower edge off-screen for good, and for the palette that is the
+      end of a scroll area you can then never reach. Let both columns travel instead. */
+   body:not(.mobile) .efb.row.efb-workspace-tall > div#listElEfb.efb,
+   body:not(.mobile) .efb.row.efb-workspace-tall > .efb.col-md-8.body-dpz-efb {
+      position: static;
+   }
+   /* Containment is right for a pinned palette - the page must not slide away under a
+      list you are scrolling. Once the palette travels with the page, the same rule turns
+      the wheel into a dead end at the list's last tile, with the page's own remaining
+      scroll unreachable without moving the pointer off the column. Chain it there. */
+   body:not(.mobile) .efb.row.efb-workspace-tall > div#listElEfb.efb {
+      overscroll-behavior: auto;
    }
 
    body:not(.mobile) div#listElEfb.efb {

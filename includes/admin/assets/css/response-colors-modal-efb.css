@@ -1,0 +1,1222 @@
+/* ==========================================================================
+ * Colors & Fonts dialog (the response box palette editor)
+ *
+ * Loaded after modal-system-efb.css on purpose: this file reshapes the shared
+ * shell (#settingModalEfb) for one dialog - a wide two-pane editor instead of
+ * the usual narrow card - and the shell's own rules are written at
+ * "#settingModalEfb .efb.modal-body" strength. Winning that from a stylesheet
+ * registered earlier would mean an !important on every line.
+ *
+ * Everything here is scoped to .efb-clr-dialog on #settingModalEfb_, which
+ * the dialog adds when it paints and state_modal_show_efb(0) strips on close,
+ * so no other dialog ever wears these rules.
+ *
+ * Directions: wp-admin runs this screen in both LTR and RTL, and
+ * admin-rtl-efb.css is registered before bootstrap, so a physical property
+ * here could not be flipped from there without an id-level override. Every
+ * box below is therefore measured with logical properties
+ * (margin-inline-*, inset-inline-*, padding-inline-*) and mirrors on its own.
+ *
+ * Boxes: wp-admin sets no global box-sizing, so a width here would be
+ * content-box and overflow its column. Everything the dialog paints is
+ * border-box, declared once at the top of the body block.
+ * ========================================================================== */
+
+/* --------------------------------------------------------------------------
+ * The shell, widened
+ * ----------------------------------------------------------------------- */
+
+/* Beats .modal-dialog.save-efb{max-width:70%!important} and the 90% that
+   min-1200-style.css forces on every dialog under 1200px; the width keeps a
+   16px gutter on narrow screens where 1100px cannot fit. */
+#settingModalEfb .efb.modal-dialog.efb-clr-dialog {
+	max-width: 1100px !important;
+	width: calc(100% - 32px);
+}
+
+#settingModalEfb .efb-clr-dialog .efb.modal-content {
+	max-height: 90vh !important;
+}
+
+/* Header: the shared shell paints a 16px glyph next to the title. This dialog
+   wears the 40px gradient tile of the design system instead, and carries a
+   subtitle inside the title slot - the only place show_modal_efb() lets a
+   caller put one. */
+#settingModalEfb .efb-clr-dialog .efb.modal-header.efb {
+	align-items: flex-start;
+	padding: 20px 24px 18px;
+}
+
+#settingModalEfb .efb-clr-dialog .efb.modal-title.efb {
+	align-items: flex-start;
+	gap: 14px;
+}
+
+#settingModalEfb .efb-clr-dialog #settingModalEfb-icon {
+	width: 40px;
+	height: 40px;
+	flex: 0 0 40px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 12px;
+	background: linear-gradient(135deg, #3644d2, #202a8d);
+	box-shadow: 0 6px 16px rgba(54, 68, 210, 0.28);
+	color: #fff;
+	/* style-efb.css sets i.efb{font-size:1.2rem}; the tile needs its own. */
+	font-size: 19px;
+	margin: 0 !important;
+}
+
+.efb-clr-head {
+	display: flex;
+	flex-direction: column;
+	gap: 3px;
+	min-width: 0;
+}
+
+.efb-clr-head__t {
+	font-size: 19px;
+	font-weight: 700;
+	line-height: 1.3;
+	color: #1a1a2e;
+}
+
+.efb-clr-head__s {
+	font-size: 13px;
+	font-weight: 400;
+	line-height: 1.5;
+	color: #657096;
+}
+
+/* --------------------------------------------------------------------------
+ * Body: two panes that scroll independently
+ * ----------------------------------------------------------------------- */
+
+#settingModalEfb .efb-clr-dialog .efb.modal-body {
+	padding: 0 !important;
+}
+
+.efb-clr,
+.efb-clr *,
+.efb-clr *::before,
+.efb-clr *::after {
+	box-sizing: border-box;
+}
+
+.efb-clr {
+	display: flex;
+	align-items: stretch;
+	flex-wrap: wrap;
+	font-family: var(--efb-dlg-font, Vazirmatn, Inter, -apple-system, "Segoe UI", sans-serif);
+	color: #1a1a2e;
+	min-height: 0;
+}
+
+.efb-clr-preview-pane {
+	flex: 1 1 560px;
+	min-width: 320px;
+	padding: 20px 24px 24px;
+	background: #fafbfe;
+}
+
+.efb-clr-rail {
+	flex: 1 1 360px;
+	min-width: 300px;
+	padding: 20px 22px 24px;
+	background: #fff;
+	display: flex;
+	flex-direction: column;
+	gap: 18px;
+}
+
+/* On a screen tall enough to hold the dialog, each pane keeps its own
+   scrollbar so the preview never scrolls out of sight while the palette on
+   the right is being worked through. Below that the body scrolls as one
+   column, which is also what the stacked layout wants. */
+@media (min-width: 992px) {
+	#settingModalEfb .efb-clr-dialog .efb.modal-body {
+		overflow: hidden !important;
+		display: flex;
+	}
+
+	.efb-clr {
+		flex: 1 1 auto;
+		flex-wrap: nowrap;
+		min-height: 0;
+	}
+
+	.efb-clr-preview-pane,
+	.efb-clr-rail {
+		overflow-y: auto;
+		overflow-x: hidden;
+		scrollbar-width: thin;
+		scrollbar-color: #b4c0e0 transparent;
+	}
+
+	.efb-clr-preview-pane::-webkit-scrollbar,
+	.efb-clr-rail::-webkit-scrollbar {
+		width: 5px;
+	}
+
+	.efb-clr-preview-pane::-webkit-scrollbar-thumb,
+	.efb-clr-rail::-webkit-scrollbar-thumb {
+		background: #b4c0e0;
+		border-radius: 10px;
+	}
+}
+
+@media (max-width: 991px) {
+	.efb-clr-preview-pane {
+		border-block-end: 1px solid #ecedf5;
+	}
+}
+
+/* --------------------------------------------------------------------------
+ * Controls reset
+ *
+ * wp-admin styles bare input/select/button on every admin screen (borders,
+ * min-heights, a background arrow on selects). Bootstrap is namespaced to
+ * .efb here, so this dialog opts out of both by carrying neither, and states
+ * what it wants instead.
+ * ----------------------------------------------------------------------- */
+
+/* Only the properties every control here wants. Border, background and
+   padding are deliberately absent: a "button {border:none}" is (0,1,1) and
+   would out-specify the (0,1,0) component class that comes after it, which is
+   exactly how the pills lost their outlines and the save button lost its
+   gradient. Each component states its own box instead. */
+/* The range is excluded rather than reset and restored: without a native
+   appearance a slider is a bare thumb on an invisible track, and putting the
+   appearance back afterwards would lose to this very rule's specificity. */
+.efb-clr button,
+.efb-clr input:not([type="range"]),
+.efb-clr select,
+.efb-clr-foot button {
+	font-family: inherit;
+	margin: 0;
+	box-shadow: none;
+	min-height: 0;
+	line-height: normal;
+	text-transform: none;
+	-webkit-appearance: none;
+	appearance: none;
+}
+
+.efb-clr input[type="range"] {
+	font-family: inherit;
+	margin: 0;
+	box-shadow: none;
+	min-height: 0;
+}
+
+.efb-clr button,
+.efb-clr-foot button {
+	cursor: pointer;
+}
+
+.efb-clr input[type="color"] {
+	-webkit-appearance: none;
+	appearance: none;
+	padding: 2px;
+	cursor: pointer;
+	background: #fff;
+}
+
+.efb-clr input[type="color"]::-webkit-color-swatch-wrapper {
+	padding: 0;
+}
+
+.efb-clr input[type="color"]::-webkit-color-swatch {
+	border: none;
+	border-radius: 6px;
+}
+
+.efb-clr input[type="color"]::-moz-color-swatch {
+	border: none;
+	border-radius: 6px;
+}
+
+/* --------------------------------------------------------------------------
+ * Preview pane
+ * ----------------------------------------------------------------------- */
+
+.efb-clr-viewbar {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex-wrap: wrap;
+	margin-block-end: 16px;
+}
+
+.efb-clr-tabs {
+	display: flex;
+	gap: 4px;
+	padding: 4px;
+	background: #eef0f8;
+	border-radius: 12px;
+}
+
+.efb-clr-tab {
+	display: inline-flex;
+	align-items: center;
+	padding: 7px 14px;
+	border: none;
+	border-radius: 9px;
+	font-size: 12.5px;
+	font-weight: 600;
+	color: #657096;
+	background: transparent;
+	/* Three tabs on a 400px phone are only just wide enough; wrapped, they
+	   push the preview down by a whole row for no gain. */
+	white-space: nowrap;
+	transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.efb-clr-tab i {
+	font-size: 13px;
+	margin-inline-end: 6px;
+}
+
+.efb-clr-tab:hover {
+	color: #1a1a2e;
+}
+
+.efb-clr-tab.is-active {
+	background: #fff;
+	color: #1a1a2e;
+	box-shadow: 0 1px 4px rgba(26, 26, 46, 0.12);
+}
+
+.efb-clr-hint {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	margin-inline-start: auto;
+	font-size: 11.5px;
+	color: #8a90a8;
+}
+
+.efb-clr-hint span.efb-clr-hint__dot {
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	background: #3644d2;
+	box-shadow: 0 0 0 4px rgba(54, 68, 210, 0.14);
+}
+
+/* The stage carries every --efb-resp-* the preview reads, written straight
+   onto it by the dialog as the pickers move. */
+.efb-clr-stage {
+	position: relative;
+	border-radius: 16px;
+	padding: 18px;
+	border: 1px solid #e7e9f4;
+	background: var(--efb-resp-bg-resp);
+	cursor: pointer;
+}
+
+/* The "response area" zone has no box of its own to outline - it *is* the
+   stage - so its ring is an overlay pinned over the whole stage. */
+.efb-clr-stage__ring {
+	position: absolute;
+	inset: 0;
+	border-radius: 14px;
+	pointer-events: none;
+	outline: 2px solid transparent;
+	outline-offset: 3px;
+	transition: outline-color 0.15s ease;
+}
+
+.efb-clr-stage.is-ringed > .efb-clr-stage__ring {
+	outline-color: #3644d2;
+}
+
+.efb-clr-stage__ring b {
+	position: absolute;
+	inset-inline-start: 12px;
+	inset-block-start: -9px;
+	padding: 0 6px;
+	font-size: 10.5px;
+	font-weight: 600;
+	letter-spacing: 0.4px;
+	text-transform: uppercase;
+	color: #8a90a8;
+	background: #fafbfe;
+	opacity: 0;
+	transition: opacity 0.15s ease;
+}
+
+.efb-clr-stage.is-ringed > .efb-clr-stage__ring b {
+	opacity: 1;
+}
+
+/* Every clickable region of the preview. The ring is an outline so selecting
+   a part never moves the layout underneath it. */
+.efb-clr-zone {
+	border-radius: 14px;
+	cursor: pointer;
+	outline: 2px solid transparent;
+	outline-offset: 3px;
+	transition: outline-color 0.15s ease;
+}
+
+.efb-clr-zone.is-ringed {
+	outline-color: #3644d2;
+}
+
+.efb-clr-zone--round {
+	border-radius: 999px;
+	display: inline-flex;
+}
+
+.efb-clr-view[hidden] {
+	display: none !important;
+}
+
+/* Message card ---------------------------------------------------------- */
+
+.efb-clr-card {
+	border-radius: 14px;
+	padding: 16px;
+	background: var(--efb-resp-bg-card);
+	border: 1px solid var(--efb-resp-border);
+	box-shadow: 0 2px 12px rgba(26, 26, 46, 0.05);
+	font-family: var(--efb-resp-font-family);
+	font-size: var(--efb-resp-font-size);
+}
+
+.efb-clr-card__head {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin-block-end: 12px;
+}
+
+.efb-clr-avatar {
+	width: 34px;
+	height: 34px;
+	border-radius: 50%;
+	background: linear-gradient(135deg, var(--efb-resp-primary), var(--efb-resp-primary-dark));
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--efb-resp-btn-text);
+	font-size: 15px;
+}
+
+.efb-clr-sender {
+	font-weight: 600;
+	color: var(--efb-resp-text);
+}
+
+.efb-clr-sender span {
+	font-weight: 400;
+	margin-inline-start: 5px;
+}
+
+.efb-clr-meta {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 7px 11px;
+	border-radius: 9px;
+	background: var(--efb-resp-bg-meta);
+	color: var(--efb-resp-text-muted);
+	font-size: 0.86em;
+}
+
+/* The accent colour, shown where the response box actually spends it. */
+.efb-clr-stars {
+	display: inline-flex;
+	gap: 2px;
+	color: var(--efb-resp-accent);
+}
+
+.efb-clr-rows {
+	padding-block-start: 4px;
+}
+
+.efb-clr-row {
+	display: flex;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 7px 0;
+	border-block-end: 1px solid var(--efb-resp-border);
+}
+
+.efb-clr-row:last-child {
+	border-block-end: none;
+}
+
+.efb-clr-row__k {
+	color: var(--efb-resp-primary);
+	font-weight: 600;
+}
+
+.efb-clr-row__v {
+	color: var(--efb-resp-text);
+	text-align: end;
+}
+
+.efb-clr-row__v.is-muted {
+	color: var(--efb-resp-text-muted);
+}
+
+.efb-clr-body {
+	margin-block-start: 12px;
+	padding: 11px 13px;
+	border-radius: 11px;
+	background: var(--efb-resp-bg-meta);
+	color: var(--efb-resp-text);
+	line-height: 1.7;
+	font-size: 0.95em;
+}
+
+/* Reply card ------------------------------------------------------------ */
+
+.efb-clr-card__title {
+	display: flex;
+	align-items: center;
+	gap: 7px;
+	margin-block-end: 10px;
+	font-weight: 600;
+	color: var(--efb-resp-text);
+}
+
+.efb-clr-card__title i {
+	color: var(--efb-resp-primary);
+}
+
+.efb-clr-editor {
+	border: 1px solid var(--efb-resp-border);
+	border-radius: 10px;
+	overflow: hidden;
+}
+
+.efb-clr-editor__bar {
+	display: flex;
+	gap: 4px;
+	padding: 6px 8px;
+	background: var(--efb-resp-bg-meta);
+	color: var(--efb-resp-text-muted);
+	font-size: 0.85em;
+}
+
+.efb-clr-editor__bar i {
+	padding: 2px 5px;
+}
+
+.efb-clr-editor__area {
+	padding: 12px 12px 26px;
+	background: var(--efb-resp-bg-editor);
+	color: var(--efb-resp-editor-text);
+	font-family: var(--efb-resp-font-family);
+	font-size: var(--efb-resp-font-size);
+}
+
+.efb-clr-editor__ph {
+	color: var(--efb-resp-editor-ph);
+}
+
+.efb-clr-actions {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex-wrap: wrap;
+	margin-block-start: 12px;
+}
+
+.efb-clr-pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+	padding: 9px 20px;
+	border-radius: 999px;
+	background: linear-gradient(135deg, var(--efb-resp-primary), var(--efb-resp-primary-dark));
+	color: var(--efb-resp-btn-text);
+	font-weight: 600;
+	font-size: 0.95em;
+	box-shadow: 0 4px 14px var(--efb-resp-primary-10);
+}
+
+.efb-clr-pill--ghost {
+	padding: 9px 16px;
+	background: none;
+	border: 1.5px solid var(--efb-resp-border);
+	color: var(--efb-resp-primary);
+	box-shadow: none;
+}
+
+/* Code finder card ------------------------------------------------------ */
+
+.efb-clr-track {
+	border-radius: 16px;
+	padding: 24px 20px;
+	background: var(--efb-resp-bg-track);
+	border: 1px solid var(--efb-resp-border);
+	box-shadow: 0 3px 16px rgba(26, 26, 46, 0.05);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	font-family: var(--efb-resp-font-family);
+	font-size: var(--efb-resp-font-size);
+}
+
+.efb-clr-track__badge {
+	width: 46px;
+	height: 46px;
+	border-radius: 50%;
+	background: linear-gradient(135deg, var(--efb-resp-primary), var(--efb-resp-primary-dark));
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-block-end: 10px;
+	box-shadow: 0 4px 14px var(--efb-resp-primary-10);
+}
+
+.efb-clr-track__badge i {
+	color: var(--efb-resp-btn-text);
+	font-size: 20px;
+}
+
+.efb-clr-track__t {
+	font-weight: 700;
+	color: var(--efb-resp-text);
+	margin-block-end: 3px;
+}
+
+.efb-clr-track__s {
+	color: var(--efb-resp-text-muted);
+	font-size: 0.87em;
+	margin-block-end: 14px;
+	text-align: center;
+}
+
+.efb-clr-track__form {
+	width: 100%;
+	max-width: 340px;
+	display: flex;
+	flex-direction: column;
+	gap: 9px;
+}
+
+.efb-clr-track__field {
+	position: relative;
+}
+
+.efb-clr-track__field i {
+	position: absolute;
+	inset-block-start: 50%;
+	inset-inline-start: 11px;
+	transform: translateY(-50%);
+	color: var(--efb-resp-editor-ph);
+	font-size: 14px;
+}
+
+.efb-clr-track__input {
+	padding: 11px 14px;
+	padding-inline-start: 32px;
+	border: 1.5px solid var(--efb-resp-border);
+	border-radius: 10px;
+	background: var(--efb-resp-bg-editor);
+	color: var(--efb-resp-editor-ph);
+}
+
+.efb-clr-track__btn {
+	padding: 11px;
+	border-radius: 10px;
+	background: linear-gradient(65deg, var(--efb-resp-primary), var(--efb-resp-primary-dark));
+	color: var(--efb-resp-btn-text);
+	font-weight: 600;
+	text-align: center;
+}
+
+.efb-clr-track__btn i {
+	margin-inline-end: 7px;
+}
+
+/* Scope note ------------------------------------------------------------ */
+
+.efb-clr-note {
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+	margin-block-start: 14px;
+	padding: 10px 12px;
+	border-radius: 10px;
+	background: #eef1fb;
+	color: #4a5078;
+	font-size: 12px;
+	line-height: 1.6;
+}
+
+.efb-clr-note i {
+	margin-block-start: 1px;
+	font-size: 13px;
+}
+
+/* --------------------------------------------------------------------------
+ * Rail
+ * ----------------------------------------------------------------------- */
+
+.efb-clr-lbl {
+	font-size: 11.5px;
+	font-weight: 700;
+	letter-spacing: 0.6px;
+	text-transform: uppercase;
+	color: #8a90a8;
+	margin-block-end: 9px;
+}
+
+.efb-clr-presets {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 8px;
+}
+
+.efb-clr-preset {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 6px;
+	padding: 10px 6px;
+	border-radius: 12px;
+	border: 1.5px solid #e4e6f0;
+	background: #fff;
+	color: #4a5078;
+	font-size: 12px;
+	font-weight: 600;
+	transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.efb-clr-preset:hover {
+	border-color: #c7cdea;
+}
+
+.efb-clr-preset.is-active {
+	border-color: #3644d2;
+	background: rgba(54, 68, 210, 0.06);
+	color: #3644d2;
+}
+
+.efb-clr-preset__dots {
+	display: flex;
+	gap: 3px;
+}
+
+.efb-clr-preset__dots i {
+	width: 9px;
+	height: 9px;
+	border-radius: 50%;
+	box-shadow: inset 0 0 0 1px rgba(26, 26, 46, 0.22);
+}
+
+.efb-clr-brandrow {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin-block-start: 10px;
+	padding: 10px 12px;
+	border: 1px dashed #ced4ee;
+	border-radius: 11px;
+	background: #fafbfe;
+}
+
+.efb-clr-brandrow[hidden] {
+	display: none !important;
+}
+
+.efb-clr-brandrow input[type="color"] {
+	width: 34px;
+	height: 34px;
+	flex: 0 0 34px;
+	border: 1px solid #dfe2ef;
+	border-radius: 8px;
+}
+
+.efb-clr-brandrow__t {
+	font-size: 12.5px;
+	font-weight: 600;
+}
+
+.efb-clr-brandrow__s {
+	font-size: 11px;
+	color: #8a90a8;
+}
+
+.efb-clr-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+.efb-clr-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	padding: 7px 11px;
+	border-radius: 999px;
+	border: 1px solid #e4e6f0;
+	background: #fff;
+	color: #4a5078;
+	font-size: 12px;
+	font-weight: 600;
+	transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.efb-clr-chip i {
+	font-size: 12px;
+}
+
+.efb-clr-chip:hover {
+	border-color: #c7cdea;
+}
+
+.efb-clr-chip.is-active {
+	border-color: #3644d2;
+	background: rgba(54, 68, 210, 0.07);
+	color: #3644d2;
+}
+
+/* Active part panel ----------------------------------------------------- */
+
+.efb-clr-panel {
+	border: 1px solid #ecedf5;
+	border-radius: 14px;
+	padding: 14px;
+	background: #fcfcfe;
+}
+
+.efb-clr-panel__head {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-block-end: 12px;
+}
+
+.efb-clr-panel__head > i {
+	color: #3644d2;
+	font-size: 14px;
+}
+
+.efb-clr-panel__t {
+	flex: 1;
+	font-size: 13.5px;
+	font-weight: 700;
+}
+
+.efb-clr-panel__reset {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 2px 4px;
+	border: none;
+	background: none;
+	font-size: 11.5px;
+	color: #8a90a8;
+	transition: color 0.15s ease;
+}
+
+.efb-clr-panel__reset i {
+	font-size: 12px;
+}
+
+.efb-clr-panel__reset:hover {
+	color: #3644d2;
+}
+
+.efb-clr-fields {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+	gap: 11px 18px;
+	align-items: start;
+}
+
+.efb-clr-field {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.efb-clr-field input[type="color"] {
+	width: 36px;
+	height: 36px;
+	flex: 0 0 36px;
+	border: 1px solid #dfe2ef;
+	border-radius: 9px;
+}
+
+.efb-clr-field__meta {
+	flex: 1;
+	min-width: 0;
+}
+
+.efb-clr-field__t {
+	font-size: 12.5px;
+	font-weight: 600;
+	line-height: 1.35;
+}
+
+.efb-clr-field__s {
+	font-size: 11px;
+	color: #8a90a8;
+	line-height: 1.4;
+}
+
+.efb-clr-hex {
+	width: 76px;
+	flex: 0 0 76px;
+	padding: 6px;
+	border: 1px solid #e4e6f0;
+	border-radius: 8px;
+	background: #fff;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 11.5px;
+	color: #4a5078;
+	direction: ltr;
+	text-align: center;
+}
+
+.efb-clr-hex:focus {
+	border-color: #3644d2;
+	outline: none;
+	box-shadow: 0 0 0 3px rgba(54, 68, 210, 0.12);
+}
+
+.efb-clr-hex.is-bad,
+.efb-clr-input.is-bad {
+	border-color: #e0245e;
+	box-shadow: 0 0 0 3px rgba(224, 36, 94, 0.12);
+}
+
+/* Typography part ------------------------------------------------------- */
+
+.efb-clr-type {
+	grid-column: 1 / -1;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.efb-clr-type__t {
+	font-size: 12.5px;
+	font-weight: 600;
+	margin-block-end: 5px;
+}
+
+.efb-clr-select {
+	width: 100%;
+	padding: 9px 10px;
+	border: 1px solid #e4e6f0;
+	border-radius: 9px;
+	background: #fff;
+	font-size: 12.5px;
+	color: #1a1a2e;
+}
+
+.efb-clr-select:focus {
+	border-color: #3644d2;
+	outline: none;
+	box-shadow: 0 0 0 3px rgba(54, 68, 210, 0.12);
+}
+
+.efb-clr-sizehead {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 8px;
+	margin-block-end: 5px;
+}
+
+.efb-clr-sizeval {
+	font-size: 11.5px;
+	color: #8a90a8;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	direction: ltr;
+}
+
+/* Left to the browser to draw, tinted with accent-color. */
+.efb-clr-range {
+	width: 100%;
+	padding: 0;
+	border: none;
+	background: none;
+	accent-color: #3644d2;
+}
+
+.efb-clr-customfont {
+	padding: 12px;
+	border: 1.5px dashed #ced4ee;
+	border-radius: 11px;
+	background: #f8f9fd;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.efb-clr-customfont[hidden] {
+	display: none !important;
+}
+
+.efb-clr-customfont__d {
+	font-size: 12px;
+	color: #657096;
+	line-height: 1.6;
+}
+
+.efb-clr-input {
+	width: 100%;
+	padding: 8px 10px;
+	border: 1px solid #e4e6f0;
+	border-radius: 8px;
+	background: #fff;
+	font-size: 12px;
+	color: #1a1a2e;
+}
+
+.efb-clr-input:focus {
+	border-color: #3644d2;
+	outline: none;
+	box-shadow: 0 0 0 3px rgba(54, 68, 210, 0.12);
+}
+
+.efb-clr-input--url {
+	direction: ltr;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.efb-clr-sample {
+	font-size: 11px;
+	color: #8a90a8;
+	direction: ltr;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	word-break: break-all;
+	text-align: start;
+}
+
+/* --------------------------------------------------------------------------
+ * Footer
+ *
+ * The footer is appended beside the body as #modal-footer-efb, the id the
+ * shell already tears down on close, and carries bootstrap's .modal-footer so
+ * it sits in the content column. That class right-aligns its children in a
+ * .75rem band, so the layout is restated here through the shell's id - the
+ * same thing modal-system-efb.css does for the confirm footer.
+ * ----------------------------------------------------------------------- */
+
+#settingModalEfb #modal-footer-efb.efb-clr-foot {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	flex-wrap: wrap;
+	margin: 0;
+	padding: 14px 24px;
+	border-block-start: 1px solid #ecedf5;
+	border-radius: 0;
+	background: #fafbfe;
+	justify-content: flex-start;
+}
+
+#settingModalEfb #modal-footer-efb.efb-clr-foot > * {
+	margin: 0;
+}
+
+.efb-clr-dirty {
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+	font-size: 12.5px;
+	color: #657096;
+}
+
+.efb-clr-dirty__dot {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: #2fb37a;
+	box-shadow: 0 0 0 4px rgba(47, 179, 122, 0.14);
+}
+
+.efb-clr-dirty.is-dirty .efb-clr-dirty__dot {
+	background: #f0a11a;
+	box-shadow: 0 0 0 4px rgba(240, 161, 26, 0.16);
+}
+
+.efb-clr-foot__spacer {
+	flex: 1;
+}
+
+.efb-clr-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	padding: 9px 16px;
+	border-radius: 999px;
+	border: 1px solid #e4e6f0;
+	background: #fff;
+	color: #657096;
+	font-size: 12.5px;
+	font-weight: 600;
+	flex: 0 0 auto;
+	transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+.efb-clr-btn:hover {
+	border-color: #c7cdea;
+	color: #3644d2;
+}
+
+.efb-clr-btn--cancel {
+	padding: 9px 18px;
+	color: #4a5078;
+}
+
+.efb-clr-btn--save {
+	padding: 10px 22px;
+	border: none;
+	border-radius: 999px;
+	font-size: 13px;
+	font-weight: 700;
+	color: #fff;
+	background: linear-gradient(135deg, #3644d2, #202a8d);
+	box-shadow: 0 6px 18px rgba(54, 68, 210, 0.3);
+}
+
+.efb-clr-btn--save:hover {
+	color: #fff;
+	box-shadow: 0 8px 22px rgba(54, 68, 210, 0.36);
+}
+
+.efb-clr-btn--save[disabled] {
+	background: #b9bed6;
+	box-shadow: none;
+	cursor: default;
+	color: #fff;
+}
+
+.efb-clr-btn--save[disabled]:hover {
+	box-shadow: none;
+}
+
+.efb-clr-btn--cancel[disabled] {
+	color: #a8aec6;
+	cursor: default;
+}
+
+/* The save can take a moment; the button says so rather than looking dead. */
+.efb-clr-spin {
+	display: inline-block;
+	animation: efb-clr-spin 0.9s linear infinite;
+}
+
+@keyframes efb-clr-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+/* --------------------------------------------------------------------------
+ * Toast
+ *
+ * Fixed to the viewport, above the dialog's own z-index so it is not clipped
+ * by the shell's overflow:hidden.
+ * ----------------------------------------------------------------------- */
+
+.efb-clr-toast {
+	position: fixed;
+	inset-inline-end: 28px;
+	inset-block-end: 28px;
+	z-index: 100120;
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 11px 18px;
+	border-radius: 999px;
+	background: #1a1a2e;
+	color: #fff;
+	font-family: var(--efb-dlg-font, Vazirmatn, Inter, -apple-system, "Segoe UI", sans-serif);
+	font-size: 13px;
+	font-weight: 600;
+	box-shadow: 0 12px 30px rgba(26, 26, 46, 0.3);
+	opacity: 0;
+	transform: translateY(10px);
+	pointer-events: none;
+	transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.efb-clr-toast.is-on {
+	opacity: 1;
+	transform: translateY(0);
+}
+
+.efb-clr-toast.is-bad {
+	background: #c00751;
+}
+
+/* --------------------------------------------------------------------------
+ * Narrow screens
+ * ----------------------------------------------------------------------- */
+
+@media (max-width: 575px) {
+	#settingModalEfb .efb-clr-dialog .efb.modal-header.efb {
+		padding: 16px 16px 14px;
+	}
+
+	#settingModalEfb .efb-clr-dialog #settingModalEfb-icon {
+		width: 34px;
+		height: 34px;
+		flex: 0 0 34px;
+		border-radius: 10px;
+		font-size: 16px;
+	}
+
+	.efb-clr-head__t {
+		font-size: 16px;
+	}
+
+	.efb-clr-head__s {
+		display: none;
+	}
+
+	.efb-clr-preview-pane {
+		padding: 14px 14px 16px;
+	}
+
+	.efb-clr-tab {
+		padding: 7px 9px;
+		font-size: 12px;
+	}
+
+	.efb-clr-tab i {
+		margin-inline-end: 4px;
+	}
+
+	.efb-clr-rail {
+		padding: 14px 14px 20px;
+		gap: 16px;
+	}
+
+	#settingModalEfb #modal-footer-efb.efb-clr-foot {
+		padding: 12px 14px 14px;
+		gap: 8px;
+	}
+
+	.efb-clr-foot__spacer {
+		flex-basis: 100%;
+	}
+
+	.efb-clr-btn--save {
+		flex: 1 1 auto;
+	}
+
+	.efb-clr-btn--reset .efb-clr-btn__label {
+		display: none;
+	}
+
+	.efb-clr-toast {
+		inset-inline-end: 14px;
+		inset-block-end: 14px;
+	}
+}

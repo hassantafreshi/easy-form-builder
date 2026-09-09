@@ -123,6 +123,11 @@ class Admin {
             // #settingModalEfb without an !important on every declaration.
             wp_register_style('efb-modal-system', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/modal-system-efb.css', true, EMSFB_PLUGIN_VERSION);
             wp_enqueue_style('efb-modal-system');
+            // The Colors & Fonts dialog reshapes the shared shell into a wide
+            // two-pane editor, so it has to win against the shell's own rules
+            // in modal-system-efb.css - hence after it, not before.
+            wp_register_style('efb-response-colors-modal', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/response-colors-modal-efb.css', array('efb-modal-system'), EMSFB_PLUGIN_VERSION);
+            wp_enqueue_style('efb-response-colors-modal');
             // The email server test draws the same panel in two places - the
             // settings modal and the setup wizard - so its look and its markup
             // both live in one pair of files, loaded wherever either can run.

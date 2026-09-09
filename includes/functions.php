@@ -1738,12 +1738,6 @@ class efbFunction {
 			'proFeatureTitle' => $state && isset($ac->text->proFeatureTitle) ? $ac->text->proFeatureTitle : esc_html__('A Pro version feature','easy-form-builder'),
 			/* translators: Headline of the same dialog when Free Plus also unlocks the item. */
 			'freePlusUnlocksThis' => $state && isset($ac->text->freePlusUnlocksThis) ? $ac->text->freePlusUnlocksThis : esc_html__('Free Plus unlocks this too','easy-form-builder'),
-			/* translators: Short benefit shown as a chip in the upgrade dialog - forms with any number of steps. */
-			'proPerkSteps' => $state && isset($ac->text->proPerkSteps) ? $ac->text->proPerkSteps : esc_html__('Unlimited steps','easy-form-builder'),
-			/* translators: Short benefit shown as a chip in the upgrade dialog - taking payments in a form. */
-			'proPerkPayment' => $state && isset($ac->text->proPerkPayment) ? $ac->text->proPerkPayment : esc_html__('Online payments','easy-form-builder'),
-			/* translators: Short benefit shown as a chip in the upgrade dialog - the two-way response box. */
-			'proPerkResponses' => $state && isset($ac->text->proPerkResponses) ? $ac->text->proPerkResponses : esc_html__('Response box','easy-form-builder'),
 			/* translators: One-line description of the Free Plus plan, in the two-plan comparison. */
 			'planFreePlusDesc' => $state && isset($ac->text->planFreePlusDesc) ? $ac->text->planFreePlusDesc : esc_html__('Unlocked by a free activation, which is enough for this feature.','easy-form-builder'),
 			/* translators: One-line description of the Pro plan, in the two-plan comparison. */
@@ -1878,6 +1872,138 @@ class efbFunction {
 
 			/* translators: Add Custom Font description */
 			"respCustomFontDesc" => $state && isset($ac->text->respCustomFontDesc) ? $ac->text->respCustomFontDesc : esc_html__('Add your own font by entering the font name and its CSS URL (e.g. Google Fonts link).','easy-form-builder'),
+
+			/* translators: Subtitle under the Colors & Fonts dialog title */
+			"respClrSubtitle" => $state && isset($ac->text->respClrSubtitle) ? $ac->text->respClrSubtitle : esc_html__('Click any part of the preview to edit the colors of that part.','easy-form-builder'),
+
+			/* translators: Hint shown next to the preview tabs in the Colors & Fonts dialog */
+			"respClrHint" => $state && isset($ac->text->respClrHint) ? $ac->text->respClrHint : esc_html__('Click the preview to select a part','easy-form-builder'),
+
+			/* translators: Presets = heading of the ready-made palette buttons */
+			"respClrPresets" => $state && isset($ac->text->respClrPresets) ? $ac->text->respClrPresets : esc_html__('Presets','easy-form-builder'),
+
+			/* translators: Parts = heading of the list of editable areas of the response box */
+			"respClrParts" => $state && isset($ac->text->respClrParts) ? $ac->text->respClrParts : esc_html__('Parts','easy-form-builder'),
+
+			/* translators: Light = name of the light color preset */
+			"respPresetLight" => $state && isset($ac->text->respPresetLight) ? $ac->text->respPresetLight : esc_html__('Light','easy-form-builder'),
+
+			/* translators: Dark = name of the dark color preset */
+			"respPresetDark" => $state && isset($ac->text->respPresetDark) ? $ac->text->respPresetDark : esc_html__('Dark','easy-form-builder'),
+
+			/* translators: Brand = name of the preset built from a single brand color */
+			"respPresetBrand" => $state && isset($ac->text->respPresetBrand) ? $ac->text->respPresetBrand : esc_html__('Brand','easy-form-builder'),
+
+			/* translators: Label of the single color the Brand preset is derived from */
+			"respBrandColor" => $state && isset($ac->text->respBrandColor) ? $ac->text->respBrandColor : esc_html__('Your brand color','easy-form-builder'),
+
+			/* translators: Hint under the brand color picker */
+			"respBrandColorHint" => $state && isset($ac->text->respBrandColorHint) ? $ac->text->respBrandColorHint : esc_html__('Primary and primary dark are derived from it','easy-form-builder'),
+
+			/* translators: Brand & buttons = name of the brand color group */
+			"respZoneBrand" => $state && isset($ac->text->respZoneBrand) ? $ac->text->respZoneBrand : esc_html__('Brand & buttons','easy-form-builder'),
+
+			/* translators: Message card = name of the response card color group */
+			"respZoneCard" => $state && isset($ac->text->respZoneCard) ? $ac->text->respZoneCard : esc_html__('Message card','easy-form-builder'),
+
+			/* translators: Response area = name of the surface behind the message cards */
+			"respZoneResp" => $state && isset($ac->text->respZoneResp) ? $ac->text->respZoneResp : esc_html__('Response area','easy-form-builder'),
+
+			/* translators: Editor = name of the reply editor color group */
+			"respZoneEditor" => $state && isset($ac->text->respZoneEditor) ? $ac->text->respZoneEditor : esc_html__('Editor','easy-form-builder'),
+
+			/* translators: Code finder = name of the tracking-code lookup card */
+			"respZoneTrack" => $state && isset($ac->text->respZoneTrack) ? $ac->text->respZoneTrack : esc_html__('Code finder','easy-form-builder'),
+
+			/* translators: Font = name of the typography group */
+			"respZoneType" => $state && isset($ac->text->respZoneType) ? $ac->text->respZoneType : esc_html__('Font','easy-form-builder'),
+
+			/* translators: Reset this part = restores the defaults of the selected group only */
+			"respClrResetZone" => $state && isset($ac->text->respClrResetZone) ? $ac->text->respClrResetZone : esc_html__('Reset this part','easy-form-builder'),
+
+			/* translators: Reset all = restores every color and font to the plugin defaults */
+			"respClrResetAll" => $state && isset($ac->text->respClrResetAll) ? $ac->text->respClrResetAll : esc_html__('Reset all','easy-form-builder'),
+
+			/* translators: Conversation = preview tab showing the message card */
+			"respViewConv" => $state && isset($ac->text->respViewConv) ? $ac->text->respViewConv : esc_html__('Conversation','easy-form-builder'),
+
+			/* translators: Reply form = preview tab showing the reply editor */
+			"respViewReply" => $state && isset($ac->text->respViewReply) ? $ac->text->respViewReply : esc_html__('Reply form','easy-form-builder'),
+
+			/* translators: Note explaining that these colors never touch the admin panel */
+			"respClrScopeNote" => $state && isset($ac->text->respClrScopeNote) ? $ac->text->respClrScopeNote : esc_html__('These settings apply to the public response box only; the admin panel always keeps the default palette.','easy-form-builder'),
+
+			/* translators: Save changes = the save button of the Colors & Fonts dialog */
+			"respClrSave" => $state && isset($ac->text->respClrSave) ? $ac->text->respClrSave : esc_html__('Save changes','easy-form-builder'),
+
+			/* translators: Cancel = discards the edits made in the Colors & Fonts dialog */
+			"respClrCancel" => $state && isset($ac->text->respClrCancel) ? $ac->text->respClrCancel : esc_html__('Cancel','easy-form-builder'),
+
+			/* translators: Asked before closing the Colors & Fonts dialog while changes are still unsaved */
+			"respClrUnsaved" => $state && isset($ac->text->respClrUnsaved) ? $ac->text->respClrUnsaved : esc_html__('Your color changes have not been saved yet. Close and lose them?','easy-form-builder'),
+
+			/* translators: Saved = confirmation shown after the colors are stored */
+			"respClrSaved" => $state && isset($ac->text->respClrSaved) ? $ac->text->respClrSaved : esc_html__('Saved','easy-form-builder'),
+
+			/* translators: Shown in the dialog footer while there is nothing left to save */
+			"respClrClean" => $state && isset($ac->text->respClrClean) ? $ac->text->respClrClean : esc_html__('Everything is saved','easy-form-builder'),
+
+			/* translators: Shown in the dialog footer when exactly one value was changed */
+			"respClrDirtyOne" => $state && isset($ac->text->respClrDirtyOne) ? $ac->text->respClrDirtyOne : esc_html__('1 unsaved change','easy-form-builder'),
+
+			/* translators: %s = number of changed values, always 2 or more */
+			"respClrDirtyMany" => $state && isset($ac->text->respClrDirtyMany) ? $ac->text->respClrDirtyMany : esc_html__('%s unsaved changes','easy-form-builder'),
+
+			/* translators: Hint under the Primary color picker */
+			"respHintPrimary" => $state && isset($ac->text->respHintPrimary) ? $ac->text->respHintPrimary : esc_html__('Buttons, icons, field labels','easy-form-builder'),
+
+			/* translators: Hint under the Primary Dark color picker */
+			"respHintPrimaryDk" => $state && isset($ac->text->respHintPrimaryDk) ? $ac->text->respHintPrimaryDk : esc_html__('End of button gradients','easy-form-builder'),
+
+			/* translators: Hint under the Accent color picker. Names the two places the response box uses it. */
+			"respHintAccent" => $state && isset($ac->text->respHintAccent) ? $ac->text->respHintAccent : esc_html__('Rating stars and payment totals','easy-form-builder'),
+
+			/* translators: Hint under the Button Text color picker */
+			"respHintBtnText" => $state && isset($ac->text->respHintBtnText) ? $ac->text->respHintBtnText : esc_html__('Label and icon on colored buttons','easy-form-builder'),
+
+			/* translators: Hint under the body Text color picker */
+			"respHintText" => $state && isset($ac->text->respHintText) ? $ac->text->respHintText : esc_html__('Field values and message body','easy-form-builder'),
+
+			/* translators: Hint under the Muted Text color picker */
+			"respHintMuted" => $state && isset($ac->text->respHintMuted) ? $ac->text->respHintMuted : esc_html__('Dates, hints, secondary titles','easy-form-builder'),
+
+			/* translators: Hint under the Card Background color picker */
+			"respHintBgCard" => $state && isset($ac->text->respHintBgCard) ? $ac->text->respHintBgCard : esc_html__('The message card surface','easy-form-builder'),
+
+			/* translators: Hint under the Meta Background color picker */
+			"respHintBgMeta" => $state && isset($ac->text->respHintBgMeta) ? $ac->text->respHintBgMeta : esc_html__('Date bar and editor toolbar','easy-form-builder'),
+
+			/* translators: Hint under the Response Area Background color picker */
+			"respHintBgResp" => $state && isset($ac->text->respHintBgResp) ? $ac->text->respHintBgResp : esc_html__('Behind all cards','easy-form-builder'),
+
+			/* translators: Hint under the Tracker Background color picker */
+			"respHintBgTrack" => $state && isset($ac->text->respHintBgTrack) ? $ac->text->respHintBgTrack : esc_html__('The code lookup card','easy-form-builder'),
+
+			/* translators: Hint under the Editor Background color picker */
+			"respHintBgEditor" => $state && isset($ac->text->respHintBgEditor) ? $ac->text->respHintBgEditor : esc_html__('Reply box and code input','easy-form-builder'),
+
+			/* translators: Hint under the Editor Text color picker */
+			"respHintEditorText" => $state && isset($ac->text->respHintEditorText) ? $ac->text->respHintEditorText : esc_html__('What the user types','easy-form-builder'),
+
+			/* translators: Hint under the Placeholder color picker */
+			"respHintEditorPh" => $state && isset($ac->text->respHintEditorPh) ? $ac->text->respHintEditorPh : esc_html__('Field placeholder text','easy-form-builder'),
+
+			/* translators: Your reply = title of the reply card in the dialog preview */
+			"respPvReplyTitle" => $state && isset($ac->text->respPvReplyTitle) ? $ac->text->respPvReplyTitle : esc_html__('Your reply','easy-form-builder'),
+
+			/* translators: Sample subject line shown in the dialog preview */
+			"respPvSubject" => $state && isset($ac->text->respPvSubject) ? $ac->text->respPvSubject : esc_html__('Order follow-up','easy-form-builder'),
+
+			/* translators: Sample message body shown in the dialog preview */
+			"respPvMsg" => $state && isset($ac->text->respPvMsg) ? $ac->text->respPvMsg : esc_html__('Hi, I placed my order last week and still have no tracking code. Could you check it?','easy-form-builder'),
+
+			/* translators: Attach = the attachment button of the reply editor, shown in the preview */
+			"respPvAttach" => $state && isset($ac->text->respPvAttach) ? $ac->text->respPvAttach : esc_html__('Attach','easy-form-builder'),
 
 			/* translators: Plan Management = heading for the plan/subscription management section in settings */
 			"plnMng" => $state && isset($ac->text->plnMng) ? $ac->text->plnMng : esc_html__('Plan Management','easy-form-builder'),

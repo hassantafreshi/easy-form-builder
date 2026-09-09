@@ -1159,6 +1159,12 @@ function fun_show_setting__emsFormBuilder() {
   let respTextMuted = '#657096';
   let respBgCard = '#ffffff';
   let respBgMeta = '#f6f7fb';
+  /* Which palette preset the colours came from, and the single colour the
+     Brand preset derives from. Neither reaches the public response box - they
+     exist so re-opening the Colors & Fonts dialog shows the admin the same
+     preset they left it on instead of "custom". */
+  let respPreset = 'light';
+  let respBrandColor = '#0f766e';
   demail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(demail)  &&  demail.includes('127.')==false ? demail : 'no-reply@yourDomainName.com';
   if ((ajax_object_efm.setting[0] && ajax_object_efm.setting[0].setting.length > 5) || typeof valueJson_ws_setting == "object" && valueJson_ws_setting.length != 0) {
 
@@ -1231,6 +1237,8 @@ function fun_show_setting__emsFormBuilder() {
     respFontFamily = f('respFontFamily') == 'null' ? 'inherit' : f('respFontFamily');
     respFontSize = f('respFontSize') == 'null' ? '0.9rem' : f('respFontSize');
     respCustomFont = f('respCustomFont') == 'null' ? '' : f('respCustomFont');
+    respPreset = f('respPreset') == 'null' ? 'light' : f('respPreset');
+    respBrandColor = f('respBrandColor') == 'null' ? '#0f766e' : f('respBrandColor');
     emailBtnBgColor = f('emailBtnBgColor') == 'null' ? '#202a8d' : f('emailBtnBgColor');
     emailBtnTextColor = f('emailBtnTextColor') == 'null' ? '#ffffff' : f('emailBtnTextColor');
 
@@ -1526,6 +1534,8 @@ function fun_show_setting__emsFormBuilder() {
                                 <input type="hidden" id="respFontFamily_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respFontFamily}">
                                 <input type="hidden" id="respFontSize_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respFontSize}">
                                 <input type="hidden" id="respCustomFont_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respCustomFont.replace(/"/g, '&quot;')}">
+                                <input type="hidden" id="respPreset_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respPreset}">
+                                <input type="color" id="respBrandColor_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respBrandColor}">
                               </div>
 
                             <!--End Response Customize window-->
@@ -1908,39 +1918,124 @@ function efb_apply_setting_deeplink() {
   }
 }
 
+/* ---------------------------------------------------------------------- *
+ * Colors & Fonts - the palette editor for the public response box
+ *
+ * The dialog is a preview on the left and a rail of controls on the right.
+ * Both halves read one state object; nothing is written to the settings page
+ * until Save is pressed, so closing the dialog leaves the stored palette
+ * exactly as it was found. That is the whole reason the pickers no longer
+ * write straight into the hidden inputs the way the first version did: an
+ * admin who opened the dialog, dragged a picker and closed it used to leave
+ * a colour behind in the page's pending settings with nothing on screen
+ * saying so.
+ *
+ * Parts ("zones") rather than one long list of pickers: a colour means
+ * nothing without the thing it paints, so each part rings its own region of
+ * the preview and shows only the two or three colours that region uses.
+ * Clicking the region does the same thing from the other direction.
+ *
+ * Scope: these values only ever reach the *public* response box, through the
+ * --efb-resp-* custom properties that class-Emsfb-public.php prints. The
+ * admin panel keeps its own palette, which is why nothing here touches
+ * :root - the preview's variables live on the preview element alone.
+ * ---------------------------------------------------------------------- */
 function efb_open_color_modal() {
 
-  const colorDefs = [
-    { key: 'respPrimary',     label: efb_var.text.respClrPrimary,    group: 'brand' },
-    { key: 'respPrimaryDark', label: efb_var.text.respClrPrimaryDk,  group: 'brand' },
-    { key: 'respAccent',      label: efb_var.text.respClrAccent,     group: 'brand' },
-    { key: 'respText',        label: efb_var.text.respClrText,       group: 'text' },
-    { key: 'respTextMuted',   label: efb_var.text.respClrMuted,      group: 'text' },
-    { key: 'respBgCard',      label: efb_var.text.respClrBgCard,     group: 'bg' },
-    { key: 'respBgMeta',      label: efb_var.text.respClrBgMeta,     group: 'bg' },
-    { key: 'respBgTrack',     label: efb_var.text.respClrBgTrack,    group: 'bg' },
-    { key: 'respBgResp',      label: efb_var.text.respClrBgResp,     group: 'bg' },
-    { key: 'respBgEditor',    label: efb_var.text.respClrBgEditor,   group: 'editor' },
-    { key: 'respEditorText',  label: efb_var.text.respClrEditorText, group: 'editor' },
-    { key: 'respEditorPh',    label: efb_var.text.respClrEditorPh,   group: 'editor' },
-    { key: 'respBtnText',     label: efb_var.text.respClrBtnText,    group: 'brand' },
-  ];
-  const defaults = {
-    respPrimary: '#3644d2', respPrimaryDark: '#202a8d', respAccent: '#ffc107',
-    respText: '#1a1a2e', respTextMuted: '#657096', respBgCard: '#ffffff', respBgMeta: '#f6f7fb',
-    respBgTrack: '#ffffff', respBgResp: '#f8f9fd', respBgEditor: '#ffffff',
-    respEditorText: '#1a1a2e', respEditorPh: '#a0aec0', respBtnText: '#ffffff',
-    respFontFamily: 'inherit', respFontSize: '0.9rem',
-    respCustomFont: '',
+  const t = (key, fallback) => {
+    const v = efb_var && efb_var.text ? efb_var.text[key] : '';
+    return v === undefined || v === null || v === '' ? fallback : v;
   };
+
+  /* Admin-authored phrases are trusted, but the custom font name and URL are
+     typed by a person and go back out into value="" attributes. */
+  const esc = (s) => String(s === undefined || s === null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+  /* The stored palette. Kept in the same order the settings row uses. */
+  const DEFAULTS = {
+    respPrimary: '#3644d2', respPrimaryDark: '#202a8d', respAccent: '#ffc107', respBtnText: '#ffffff',
+    respText: '#1a1a2e', respTextMuted: '#657096',
+    respBgCard: '#ffffff', respBgMeta: '#f6f7fb', respBgResp: '#f8f9fd', respBgTrack: '#ffffff',
+    respBgEditor: '#ffffff', respEditorText: '#1a1a2e', respEditorPh: '#a0aec0',
+  };
+
+  /* The dark preset is a full palette, not an inversion filter: the response
+     box sits inside somebody else's theme, so every surface has to be chosen
+     rather than derived. */
+  const DARK = {
+    respPrimary: '#7b8cff', respPrimaryDark: '#3f4bd8', respAccent: '#ffc107', respBtnText: '#ffffff',
+    respText: '#e9ebf7', respTextMuted: '#9aa3c7',
+    respBgCard: '#1c2030', respBgMeta: '#252a3d', respBgResp: '#13161f', respBgTrack: '#1c2030',
+    respBgEditor: '#252a3d', respEditorText: '#e9ebf7', respEditorPh: '#6b7394',
+  };
+
+  const FONT_DEFAULTS = { family: 'inherit', sizePx: 15, name: '', url: '' };
+  const PRESET_DEFAULT = 'light';
+  const BRAND_DEFAULT = '#0f766e';
+
+  /* respFontSize is stored in rem and always has been; the slider is in px
+     because that is the number an admin thinks in. One list, one index. */
+  const SIZE_STEPS = ['0.75rem', '0.8rem', '0.85rem', '0.9rem', '0.95rem', '1rem', '1.05rem', '1.1rem', '1.15rem'];
+  const SIZE_MIN_PX = 12;
+  const pxFromRem = (rem) => {
+    const i = SIZE_STEPS.indexOf(String(rem));
+    return i === -1 ? FONT_DEFAULTS.sizePx : SIZE_MIN_PX + i;
+  };
+  const remFromPx = (px) => {
+    const i = Math.max(0, Math.min(SIZE_STEPS.length - 1, Number(px) - SIZE_MIN_PX));
+    return SIZE_STEPS[i];
+  };
+
+  const FIELD_META = {
+    respPrimary:     [t('respClrPrimary', 'Primary'),                     t('respHintPrimary', 'Buttons, icons, field labels')],
+    respPrimaryDark: [t('respClrPrimaryDk', 'Primary Dark'),              t('respHintPrimaryDk', 'End of button gradients')],
+    respAccent:      [t('respClrAccent', 'Accent'),                       t('respHintAccent', 'Unread message dot')],
+    respBtnText:     [t('respClrBtnText', 'Button Text'),                 t('respHintBtnText', 'Label and icon on colored buttons')],
+    respText:        [t('respClrText', 'Text'),                           t('respHintText', 'Field values and message body')],
+    respTextMuted:   [t('respClrMuted', 'Muted Text'),                    t('respHintMuted', 'Dates, hints, secondary titles')],
+    respBgCard:      [t('respClrBgCard', 'Card Background'),              t('respHintBgCard', 'The message card surface')],
+    respBgMeta:      [t('respClrBgMeta', 'Meta Background'),              t('respHintBgMeta', 'Date bar and editor toolbar')],
+    respBgResp:      [t('respClrBgResp', 'Response Area Background'),     t('respHintBgResp', 'Behind all cards')],
+    respBgTrack:     [t('respClrBgTrack', 'Tracker Background'),          t('respHintBgTrack', 'The code lookup card')],
+    respBgEditor:    [t('respClrBgEditor', 'Editor Background'),          t('respHintBgEditor', 'Reply box and code input')],
+    respEditorText:  [t('respClrEditorText', 'Editor Text'),              t('respHintEditorText', 'What the user types')],
+    respEditorPh:    [t('respClrEditorPh', 'Placeholder'),                t('respHintEditorPh', 'Field placeholder text')],
+  };
+
+  /* Selecting a part also switches the preview to the view that shows it -
+     there is no point ringing the reply editor while the conversation card
+     is on screen. */
+  const ZONES = [
+    { id: 'brand',  icon: 'bi-palette-fill',        view: 'reply',  label: t('respZoneBrand', 'Brand & buttons'), keys: ['respPrimary', 'respPrimaryDark', 'respAccent', 'respBtnText'] },
+    { id: 'text',   icon: 'bi-fonts',               view: 'conv',   label: t('respClrText', 'Text'),              keys: ['respText', 'respTextMuted'] },
+    { id: 'card',   icon: 'bi-square-half',         view: 'conv',   label: t('respZoneCard', 'Message card'),     keys: ['respBgCard', 'respBgMeta'] },
+    { id: 'resp',   icon: 'bi-layout-text-window',  view: 'conv',   label: t('respZoneResp', 'Response area'),    keys: ['respBgResp'] },
+    { id: 'editor', icon: 'bi-pencil-square',       view: 'reply',  label: t('respZoneEditor', 'Editor'),         keys: ['respBgEditor', 'respEditorText', 'respEditorPh'] },
+    { id: 'track',  icon: 'bi-shield-check',        view: 'finder', label: t('respZoneTrack', 'Code finder'),     keys: ['respBgTrack'] },
+    { id: 'type',   icon: 'bi-type',                view: 'conv',   label: t('respZoneType', 'Font'),             keys: [] },
+  ];
+
+  const VIEWS = [
+    { id: 'conv',   icon: 'bi-chat-left-text', label: t('respViewConv', 'Conversation') },
+    { id: 'reply',  icon: 'bi-reply',          label: t('respViewReply', 'Reply form') },
+    { id: 'finder', icon: 'bi-search',         label: t('respZoneTrack', 'Code finder') },
+  ];
 
   const _efbLang = (efb_var.language || '').toLowerCase();
   const _efbIsPersian = _efbLang.startsWith('fa');
   const _efbIsArabic = _efbLang.startsWith('ar');
-  const _efbIsRtlLang = _efbIsPersian || _efbIsArabic;
+
+  /* The dirty counter is a number inside a translated sentence, so it is
+     written in the digits the rest of that sentence uses. */
+  const localDigits = (n) => {
+    const set = _efbIsPersian ? '۰۱۲۳۴۵۶۷۸۹' : (_efbIsArabic ? '٠١٢٣٤٥٦٧٨٩' : '');
+    return set ? String(n).replace(/[0-9]/g, (d) => set[Number(d)]) : String(n);
+  };
 
   const fontFamilies = [
-    { value: 'inherit', label: efb_var.text.respFontDefault || 'Default (Inherit)' },
+    { value: 'inherit', label: t('respFontDefault', 'Default (Inherit)') },
   ];
 
   if (_efbIsPersian) {
@@ -1977,9 +2072,12 @@ function efb_open_color_modal() {
     { value: "Tahoma, Geneva, sans-serif", label: 'Tahoma' },
     { value: "Georgia, 'Times New Roman', serif", label: 'Georgia (Serif)' },
     { value: "'Courier New', Courier, monospace", label: 'Courier (Mono)' },
-    { value: '__custom__', label: '✦ ' + (efb_var.text.respCustomFont || 'Custom Font') + '&hellip;' },
+    { value: '__custom__', label: '✦ ' + t('respCustomFont', 'Custom Font') + '&hellip;' },
   );
 
+  /* Kept byte-for-byte in step with the map in
+     Emsfb_Public::efb_build_inline_style_overrides(); a font that previews
+     here and does not load on the site is worse than no preview. */
   const fontCssMap = {
     "Vazirmatn, Tahoma, sans-serif": "https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100..900&display=swap",
     "Vazir, Tahoma, sans-serif": "https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@latest/dist/font-face.css",
@@ -2000,305 +2098,808 @@ function efb_open_color_modal() {
     "'Open Sans', sans-serif": "https://fonts.googleapis.com/css2?family=Open+Sans:wght@300..800&display=swap",
   };
 
-  const fontSizes = [
-    { value: '0.75rem', label: '12px' },
-    { value: '0.8rem',  label: '13px' },
-    { value: '0.85rem', label: '14px' },
-    { value: '0.9rem',  label: '15px' },
-    { value: '0.95rem', label: '16px' },
-    { value: '1rem',    label: '17px' },
-    { value: '1.05rem', label: '18px' },
-    { value: '1.1rem',  label: '19px' },
-    { value: '1.15rem', label: '20px' },
-  ];
+  /* ---------------------------------------------------------------- *
+   * Colour maths
+   * ---------------------------------------------------------------- */
 
-  const cur = {};
-  colorDefs.forEach(d => {
-    const el = document.getElementById(`${d.key}_emsFormBuilder`);
-    cur[d.key] = el ? el.value : defaults[d.key];
+  /* Accepts what a person types - "3644d2", "#36F", "  #3644D2 " - and
+     returns the six-digit lower-case form, or null when it is not a colour. */
+  const hex = (v) => {
+    let s = String(v === undefined || v === null ? '' : v).trim().replace(/^#/, '');
+    if (/^[0-9a-f]{3}$/i.test(s)) s = s[0] + s[0] + s[1] + s[1] + s[2] + s[2];
+    return /^[0-9a-f]{6}$/i.test(s) ? '#' + s.toLowerCase() : null;
+  };
+
+  const shade = (h, amount) => {
+    const n = parseInt(h.slice(1), 16);
+    const ch = [(n >> 16) & 255, (n >> 8) & 255, n & 255]
+      .map((c) => Math.max(0, Math.min(255, Math.round(c + amount))));
+    return '#' + ch.map((c) => c.toString(16).padStart(2, '0')).join('');
+  };
+
+  const rgba = (h, a) => {
+    const n = parseInt(h.slice(1), 16);
+    return 'rgba(' + ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')';
+  };
+
+  const brandVals = (c) => Object.assign({}, DEFAULTS, {
+    respPrimary: c,
+    respPrimaryDark: shade(c, -48),
+    respAccent: shade(c, 70),
   });
-  const curFontFamily = document.getElementById('respFontFamily_emsFormBuilder')?.value || defaults.respFontFamily;
-  const curFontSize = document.getElementById('respFontSize_emsFormBuilder')?.value || defaults.respFontSize;
-  const curCustomFont = document.getElementById('respCustomFont_emsFormBuilder')?.value || defaults.respCustomFont;
 
-  let customFontName = '', customFontUrl = '';
-  if (curCustomFont) {
+  /* ---------------------------------------------------------------- *
+   * State, read out of the hidden inputs the settings page saves from
+   * ---------------------------------------------------------------- */
+
+  const readInput = (id, fallback) => {
+    const el = document.getElementById(id + '_emsFormBuilder');
+    const v = el ? String(el.value || '').trim() : '';
+    return v === '' ? fallback : v;
+  };
+
+  const storedVals = {};
+  Object.keys(DEFAULTS).forEach((k) => {
+    storedVals[k] = hex(readInput(k, DEFAULTS[k])) || DEFAULTS[k];
+  });
+
+  const storedFamily = readInput('respFontFamily', FONT_DEFAULTS.family);
+  const storedSizePx = pxFromRem(readInput('respFontSize', SIZE_STEPS[FONT_DEFAULTS.sizePx - SIZE_MIN_PX]));
+  let storedName = '';
+  let storedUrl = '';
+  const rawCustom = readInput('respCustomFont', '');
+  if (rawCustom) {
     try {
-      const cf = JSON.parse(curCustomFont);
-      customFontName = cf.name || '';
-      customFontUrl = cf.url || '';
-    } catch (e) {  }
+      const cf = JSON.parse(rawCustom);
+      storedName = cf && cf.name ? String(cf.name) : '';
+      storedUrl = cf && cf.url ? String(cf.url) : '';
+    } catch (e) { /* a corrupt blob is treated as "no custom font" */ }
   }
-  const isCustomSelected = curFontFamily === '__custom__' || (curFontFamily !== defaults.respFontFamily && customFontName && curFontFamily.indexOf(customFontName) !== -1);
 
-  const makePickerHtml = (group) => colorDefs.filter(d => d.group === group).map(d => `
-    <div class="efb col-6 col-md-4">
-      <label class="efb form-label fw-semibold small mb-1">${d.label}</label>
-      <div class="efb d-flex align-items-center gap-2">
-        <input type="color" class="efb form-control form-control-color border-d" data-color-key="${d.key}" value="${cur[d.key]}" title="${d.label}">
-        <code class="efb small text-muted efb-color-hex">${cur[d.key]}</code>
-      </div>
-    </div>`).join('');
+  /* respFontFamily holds the real stack once a custom font is saved, so the
+     selector cannot be matched on the literal '__custom__' alone. */
+  const knownFamily = fontFamilies.some((f) => f.value !== '__custom__' && f.value === storedFamily);
+  const storedIsCustom = storedFamily === '__custom__'
+    || (!knownFamily && !!storedName && storedFamily.indexOf(storedName) !== -1);
 
-  const fontFamilyOpts = fontFamilies.map(ff => {
-    let sel = '';
-    if (ff.value === '__custom__' && isCustomSelected) sel = 'selected';
-    else if (ff.value !== '__custom__' && ff.value === curFontFamily && !isCustomSelected) sel = 'selected';
-    return `<option value="${ff.value}" ${sel}>${ff.label}</option>`;
-  }).join('');
-  const fontSizeOpts = fontSizes.map(fs =>
-    `<option value="${fs.value}" ${fs.value === curFontSize ? 'selected' : ''}>${fs.label}</option>`).join('');
-    console.log(efb_var.text.replyMsg);
+  const st = {
+    vals: Object.assign({}, storedVals),
+    saved: Object.assign({}, storedVals),
+    family: storedIsCustom ? '__custom__' : (knownFamily ? storedFamily : FONT_DEFAULTS.family),
+    sizePx: storedSizePx,
+    name: storedName,
+    url: storedUrl,
+    preset: readInput('respPreset', PRESET_DEFAULT),
+    brand: hex(readInput('respBrandColor', BRAND_DEFAULT)) || BRAND_DEFAULT,
+    zone: 'brand',
+    view: 'conv',
+    busy: false,
+  };
+  st.savedFont = { family: st.family, sizePx: st.sizePx, name: st.name, url: st.url };
+  st.savedPreset = st.preset;
+  st.savedBrand = st.brand;
+
+  const zoneById = (id) => ZONES.filter((z) => z.id === id)[0] || ZONES[0];
+
+  /* ---------------------------------------------------------------- *
+   * Markup
+   * ---------------------------------------------------------------- */
+
+  const tabsHtml = VIEWS.map((v) =>
+    `<button type="button" class="efb-clr-tab" data-view="${v.id}"><i class="bi ${v.icon}"></i>${v.label}</button>`
+  ).join('');
+
+  const chipsHtml = ZONES.map((z) =>
+    `<button type="button" class="efb-clr-chip" data-zone="${z.id}"><i class="bi ${z.icon}"></i>${z.label}</button>`
+  ).join('');
+
+  const presetsHtml = ['light', 'dark', 'brand'].map((id) =>
+    `<button type="button" class="efb-clr-preset" data-preset="${id}">
+      <span class="efb-clr-preset__dots" data-dots="${id}"><i></i><i></i><i></i></span>
+      <span>${id === 'light' ? t('respPresetLight', 'Light') : id === 'dark' ? t('respPresetDark', 'Dark') : t('respPresetBrand', 'Brand')}</span>
+    </button>`
+  ).join('');
 
   const previewHtml = `
-    <div class="efb-color-modal-preview" id="efbColorPreviewBox">
-      <div class="efb-preview-title">${efb_var.text.respClrPreview}</div>
-      <!-- Response card preview -->
-      <div class="efb-preview-header">
-        <div class="efb-preview-avatar"><i class="bi bi-person"></i></div>
-        <div class="efb-preview-sender">${efb_var.text.by || 'Sender'}:<span style="font-weight:400;margin-inline-start:4px">${efb_var.text.guest || 'Guest'}</span></div>
-      </div>
-      <div class="efb-preview-meta"><i class="bi bi-calendar3" style="margin-inline-end:4px"></i>2026-02-16  12:30<span class="efb-preview-accent"></span></div>
-      <div class="efb-preview-field"><span class="efb-preview-field-label">${efb_var.text.email || 'Email'}</span><span class="efb-preview-field-value">user@example.com</span></div>
-      <div class="efb-preview-field"><span class="efb-preview-field-label">${efb_var.text.name || 'Name'}</span><span class="efb-preview-field-value">John Doe</span></div>
-      <!-- Editor preview -->
-      <div class="efb-preview-editor-wrap" style="margin-top:10px;border:1px solid var(--efb-resp-border);border-radius:8px;overflow:hidden">
-        <div class="efb-preview-editor-area" style="padding:8px 10px;min-height:32px;background:var(--efb-resp-bg-editor);color:var(--efb-resp-editor-text);font-size:var(--efb-resp-font-size);font-family:var(--efb-resp-font-family)">
-          <span class="efb-preview-editor-ph" style="color:var(--efb-resp-editor-ph);opacity:0.8">${efb_var.text.replyMsg || 'Type your reply&hellip;'}</span>
-        </div>
-      </div>
-      <button class="efb-preview-btn" disabled style="color:var(--efb-resp-btn-text)"><i class="bi bi-reply me-1"></i>${efb_var.text.reply || 'Reply'}</button>
-      <!-- Tracker mini preview -->
-      <div class="efb-preview-tracker-wrap" style="margin-top:12px;padding:18px 14px;border-radius:14px;background:var(--efb-resp-bg-track);border:1px solid var(--efb-resp-border);display:flex;flex-direction:column;align-items:center;box-shadow:0 2px 10px rgba(0,0,0,0.04)">
-        <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--efb-resp-primary),var(--efb-resp-primary-dark));display:flex;align-items:center;justify-content:center;margin-bottom:8px;box-shadow:0 3px 10px var(--efb-resp-primary-10)"><i class="bi bi-shield-check" style="color:#fff;font-size:1.15rem"></i></div>
-        <div style="font-weight:700;color:var(--efb-resp-text);font-family:var(--efb-resp-font-family);margin-bottom:2px;font-size:var(--efb-resp-font-size)">${efb_var.text.trackNo || 'Confirmation Code'}</div>
-        <div style="color:var(--efb-resp-text-muted);font-family:var(--efb-resp-font-family);margin-bottom:8px;font-size:calc(var(--efb-resp-font-size) * 0.87)">${efb_var.text.trackingCode || 'Tracking Code'}</div>
-        <div style="width:100%;position:relative;margin-bottom:8px">
-          <i class="bi bi-hash" style="position:absolute;top:50%;left:10px;transform:translateY(-50%);color:var(--efb-resp-editor-ph);font-size:0.95rem"></i>
-          <div style="padding:10px 12px 10px 32px;border:1.5px solid var(--efb-resp-border);border-radius:10px;background:var(--efb-resp-bg-editor);color:var(--efb-resp-editor-ph);font-size:var(--efb-resp-font-size);font-family:var(--efb-resp-font-family);opacity:0.65">${efb_var.text.entrTrkngNo || 'Enter tracking number'}</div>
-        </div>
-        <div style="width:100%;padding:10px;border:none;border-radius:10px;background:linear-gradient(65deg,var(--efb-resp-primary),var(--efb-resp-primary-dark));color:var(--efb-resp-btn-text);font-family:var(--efb-resp-font-family);font-weight:600;text-align:center;font-size:var(--efb-resp-font-size)"><i class="bi bi-search" style="margin-inline-end:6px"></i>${efb_var.text.search || 'Search'}</div>
-      </div>
-    </div>`;
+    <div class="efb-clr-stage" id="efbClrStage" data-pick="resp" data-ring="resp">
+      <div class="efb-clr-stage__ring"><b>${t('respZoneResp', 'Response area')}</b></div>
 
-  const section = (icon, title, content) => `
-    <div class="efb-clr-section" style="margin-bottom:14px">
-      <h6 class="efb" style="font-size:0.82rem;font-weight:700;color:#4a5078;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px"><i class="bi ${icon}" style="margin-inline-end:6px"></i>${title}</h6>
-      <div class="efb row g-3 efb-resp-color-grid">${content}</div>
+      <div class="efb-clr-view" data-view="conv" hidden>
+        <div class="efb-clr-zone" data-pick="card" data-ring="card">
+          <div class="efb-clr-card">
+            <div class="efb-clr-card__head">
+              <div class="efb-clr-zone efb-clr-zone--round" data-pick="brand" data-ring="brand">
+                <div class="efb-clr-avatar"><i class="bi bi-person"></i></div>
+              </div>
+              <div class="efb-clr-zone" data-pick="text" data-ring="text">
+                <div class="efb-clr-sender">${t('by', 'By')}:<span>${t('guest', 'Guest')}</span></div>
+              </div>
+            </div>
+            <div class="efb-clr-zone" data-pick="card">
+              <div class="efb-clr-meta">
+                <i class="bi bi-calendar3"></i>2026-02-16 &nbsp;12:30
+              </div>
+            </div>
+            <div class="efb-clr-zone" data-pick="text" data-ring="text">
+              <div class="efb-clr-rows">
+                <div class="efb-clr-row"><span class="efb-clr-row__k">${t('email', 'Email')}</span><span class="efb-clr-row__v">user@example.com</span></div>
+                <div class="efb-clr-row"><span class="efb-clr-row__k">${t('name', 'Name')}</span><span class="efb-clr-row__v">John Doe</span></div>
+                <div class="efb-clr-row"><span class="efb-clr-row__k">${t('subject', 'Subject')}</span><span class="efb-clr-row__v is-muted">${t('respPvSubject', 'Order follow-up')}</span></div>
+                <!-- The accent colour paints rating stars and payment totals in
+                     the real response box, so the preview shows it there rather
+                     than on a decorative dot. Clicking it opens Brand, the part
+                     the accent belongs to. -->
+                <div class="efb-clr-row efb-clr-zone" data-pick="brand"><span class="efb-clr-row__k">${t('rating', 'Rating')}</span><span class="efb-clr-row__v efb-clr-stars"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star"></i></span></div>
+              </div>
+            </div>
+            <div class="efb-clr-body">${t('respPvMsg', 'Hi, I placed my order last week and still have no tracking code. Could you check it?')}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="efb-clr-view" data-view="reply" hidden>
+        <div class="efb-clr-zone" data-pick="card" data-ring="card">
+          <div class="efb-clr-card">
+            <div class="efb-clr-card__title"><i class="bi bi-chat-square-text"></i>${t('respPvReplyTitle', 'Your reply')}</div>
+            <div class="efb-clr-zone" data-pick="editor" data-ring="editor">
+              <div class="efb-clr-editor">
+                <div class="efb-clr-editor__bar">
+                  <i class="bi bi-type-bold"></i><i class="bi bi-type-italic"></i><i class="bi bi-list-ul"></i><i class="bi bi-link-45deg"></i><i class="bi bi-paperclip"></i>
+                </div>
+                <div class="efb-clr-editor__area"><span class="efb-clr-editor__ph">${t('replyMsg', 'Type your reply&hellip;')}</span></div>
+              </div>
+            </div>
+            <div class="efb-clr-zone" data-pick="brand" data-ring="brand">
+              <div class="efb-clr-actions">
+                <span class="efb-clr-pill"><i class="bi bi-reply"></i>${t('reply', 'Reply')}</span>
+                <span class="efb-clr-pill efb-clr-pill--ghost"><i class="bi bi-paperclip"></i>${t('respPvAttach', 'Attach')}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="efb-clr-view" data-view="finder" hidden>
+        <div class="efb-clr-zone" data-pick="track" data-ring="track">
+          <div class="efb-clr-track">
+            <div class="efb-clr-track__badge"><i class="bi bi-shield-check"></i></div>
+            <div class="efb-clr-track__t">${t('pleaseEnterTheTracking', 'Please enter the Confirmation Code')}</div>
+            <div class="efb-clr-track__s">${t('trackingCode', 'Confirmation Code')}</div>
+            <div class="efb-clr-track__form">
+              <div class="efb-clr-track__field">
+                <i class="bi bi-hash"></i>
+                <div class="efb-clr-track__input">${t('entrTrkngNo', 'Enter the Confirmation Code')}</div>
+              </div>
+              <div class="efb-clr-track__btn"><i class="bi bi-search"></i>${t('search', 'Search')}</div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>`;
 
   const body = `
-    <div class="efb-color-modal-body">
-      ${previewHtml}
-      ${section('bi-palette-fill', efb_var.text.respClrPrimary + ' & ' + efb_var.text.respClrAccent, makePickerHtml('brand'))}
-      ${section('bi-fonts', efb_var.text.respClrText, makePickerHtml('text'))}
-      ${section('bi-square-half', efb_var.text.respClrBgCard, makePickerHtml('bg'))}
-      ${section('bi-pencil-square', efb_var.text.respClrBgEditor, makePickerHtml('editor'))}
-      <div class="efb-clr-section" style="margin-bottom:14px">
-        <h6 class="efb" style="font-size:0.82rem;font-weight:700;color:#4a5078;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px"><i class="bi bi-type" style="margin-inline-end:6px"></i>${efb_var.text.respFontFamily} & ${efb_var.text.respFontSize}</h6>
-        <div class="efb row g-3">
-          <div class="efb col-6">
-            <label class="efb form-label fw-semibold small mb-1">${efb_var.text.respFontFamily}</label>
-            <select class="efb form-select form-select-sm border-d efb-rounded" id="efbModalFontFamily">${fontFamilyOpts}</select>
-          </div>
-          <div class="efb col-6">
-            <label class="efb form-label fw-semibold small mb-1">${efb_var.text.respFontSize}</label>
-            <select class="efb form-select form-select-sm border-d efb-rounded" id="efbModalFontSize">${fontSizeOpts}</select>
-          </div>
+    <div class="efb-clr" id="efbClrRoot">
+      <div class="efb-clr-preview-pane">
+        <div class="efb-clr-viewbar">
+          <div class="efb-clr-tabs">${tabsHtml}</div>
+          <div class="efb-clr-hint"><span class="efb-clr-hint__dot"></span>${t('respClrHint', 'Click the preview to select a part')}</div>
         </div>
-        <!-- Custom Font Fields -->
-        <div class="efb-custom-font-area" id="efbCustomFontArea" style="display:${isCustomSelected ? 'block' : 'none'};margin-top:12px;padding:14px;border:1.5px dashed var(--efb-resp-border, #ced4ee);border-radius:12px;background:#f8f9fd">
-          <div class="efb d-flex align-items-center gap-2" style="margin-bottom:8px">
-            <i class="bi bi-fonts" style="color:#4a5078;font-size:1.1rem"></i>
-            <span class="efb fw-semibold small" style="color:#4a5078">${efb_var.text.respCustomFont || 'Custom Font'}</span>
-          </div>
-          <p class="efb small text-muted" style="margin:0 0 10px;line-height:1.45">${efb_var.text.respCustomFontDesc || 'Add your own font by entering the font name and its CSS URL.'}</p>
-          <div class="efb row g-2">
-            <div class="efb col-12 col-md-5">
-              <input type="text" class="efb form-control form-control-sm border-d efb-rounded" id="efbCustomFontName" placeholder="${efb_var.text.respCustomFontName || 'Font Name'}" value="${customFontName}" style="font-size:0.85rem" autocomplete="off">
-            </div>
-            <div class="efb col-12 col-md-7">
-              <input type="url" class="efb form-control form-control-sm border-d efb-rounded" id="efbCustomFontUrl" placeholder="${efb_var.text.respCustomFontUrl || 'Font URL (CSS/Google Fonts)'}" value="${customFontUrl}" style="font-size:0.85rem;direction:ltr" autocomplete="off">
-            </div>
-          </div>
-          <div class="efb small text-muted" style="margin-top:8px;line-height:1.4">
-            <i class="bi bi-info-circle" style="margin-inline-end:4px"></i>
-            <span>Example: <code style="font-size:0.78rem;direction:ltr;display:inline-block">https:
-          </div>
-        </div>
+        ${previewHtml}
+        <div class="efb-clr-note"><i class="bi bi-info-circle"></i><span>${t('respClrScopeNote', 'These settings apply to the public response box only; the admin panel always keeps the default palette.')}</span></div>
       </div>
-      <div class="efb d-flex justify-content-end">
-        <button type="button" class="efb btn btn-sm btn-outline-secondary efb-rounded" id="efbColorResetModal">
-          <i class="efb bi-arrow-counterclockwise me-1"></i>${efb_var.text.respClrReset}
-        </button>
+
+      <div class="efb-clr-rail">
+        <div>
+          <div class="efb-clr-lbl">${t('respClrPresets', 'Presets')}</div>
+          <div class="efb-clr-presets">${presetsHtml}</div>
+          <div class="efb-clr-brandrow" id="efbClrBrandRow" hidden>
+            <input type="color" id="efbClrBrandColor" value="${esc(st.brand)}" title="${esc(t('respBrandColor', 'Your brand color'))}">
+            <div class="efb-clr-field__meta">
+              <div class="efb-clr-brandrow__t">${t('respBrandColor', 'Your brand color')}</div>
+              <div class="efb-clr-brandrow__s">${t('respBrandColorHint', 'Primary and primary dark are derived from it')}</div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="efb-clr-lbl">${t('respClrParts', 'Parts')}</div>
+          <div class="efb-clr-chips">${chipsHtml}</div>
+        </div>
+
+        <div class="efb-clr-panel">
+          <div class="efb-clr-panel__head">
+            <i class="bi" id="efbClrPanelIcon"></i>
+            <div class="efb-clr-panel__t" id="efbClrPanelTitle"></div>
+            <button type="button" class="efb-clr-panel__reset" id="efbClrResetZone"><i class="bi bi-arrow-counterclockwise"></i>${t('respClrResetZone', 'Reset this part')}</button>
+          </div>
+          <div class="efb-clr-fields" id="efbClrFields"></div>
+        </div>
       </div>
     </div>`;
 
-  const painted = show_modal_efb(body, efb_var.text.respColors, 'bi-palette', 'saveBox', {
+  const headTitle = `<span class="efb-clr-head">
+      <span class="efb-clr-head__t">${t('respColors', 'Colors & Fonts')}</span>
+      <span class="efb-clr-head__s">${t('respClrSubtitle', 'Click any part of the preview to edit the colors of that part.')}</span>
+    </span>`;
+
+  const painted = show_modal_efb(body, headTitle, 'bi-palette', 'saveBox', {
     flow: 'response-colors',
-    onShown: () => setTimeout(efb_wire_response_colors, 80)
+    onShown: efb_wire_response_colors,
   });
   if (painted) state_modal_show_efb(1);
 
+  /* ---------------------------------------------------------------- *
+   * Wiring
+   * ---------------------------------------------------------------- */
+
   function efb_wire_response_colors() {
-    const previewBox = document.getElementById('efbColorPreviewBox');
-    const modal = document.getElementById('settingModalEfb-body');
-    if (!modal) return;
+    const root = document.getElementById('efbClrRoot');
+    const stage = document.getElementById('efbClrStage');
+    const dialog = document.getElementById('settingModalEfb_');
+    if (!root || !stage) return;
 
-    const varMap = {
-      respPrimary: '--efb-resp-primary', respPrimaryDark: '--efb-resp-primary-dark',
-      respAccent: '--efb-resp-accent', respText: '--efb-resp-text',
-      respTextMuted: '--efb-resp-text-muted', respBgCard: '--efb-resp-bg-card',
-      respBgMeta: '--efb-resp-bg-meta', respBgTrack: '--efb-resp-bg-track',
-      respBgResp: '--efb-resp-bg-resp', respBgEditor: '--efb-resp-bg-editor',
-      respEditorText: '--efb-resp-editor-text', respEditorPh: '--efb-resp-editor-ph',
-      respBtnText: '--efb-resp-btn-text',
+    /* The shell is a 540px card by default; this dialog is the wide two-pane
+       editor. state_modal_show_efb(0) strips the class again, so the next
+       dialog to use the shell gets it back at its own size. */
+    if (dialog) dialog.classList.add('efb-clr-dialog');
+
+    const footer = buildFooter();
+    const toast = buildToast();
+
+    let fieldsEl = document.getElementById('efbClrFields');
+    const brandRow = document.getElementById('efbClrBrandRow');
+    const brandInput = document.getElementById('efbClrBrandColor');
+
+    /* -- preview ---------------------------------------------------- */
+
+    const applyVars = () => {
+      const v = st.vals;
+      const p = v.respPrimary;
+      const set = (name, value) => stage.style.setProperty(name, value);
+      set('--efb-resp-primary', p);
+      set('--efb-resp-primary-dark', v.respPrimaryDark);
+      set('--efb-resp-accent', v.respAccent);
+      set('--efb-resp-btn-text', v.respBtnText);
+      set('--efb-resp-text', v.respText);
+      set('--efb-resp-text-muted', v.respTextMuted);
+      set('--efb-resp-bg-card', v.respBgCard);
+      set('--efb-resp-bg-meta', v.respBgMeta);
+      set('--efb-resp-bg-resp', v.respBgResp);
+      set('--efb-resp-bg-track', v.respBgTrack);
+      set('--efb-resp-bg-editor', v.respBgEditor);
+      set('--efb-resp-editor-text', v.respEditorText);
+      set('--efb-resp-editor-ph', v.respEditorPh);
+      /* The same three derivations class-Emsfb-public.php prints, so the
+         preview's borders and glows are the ones the site will get. */
+      set('--efb-resp-primary-06', rgba(p, 0.06));
+      set('--efb-resp-primary-08', rgba(p, 0.08));
+      set('--efb-resp-primary-10', rgba(p, 0.1));
+      set('--efb-resp-border', rgba(p, 0.12));
+      set('--efb-resp-font-family', effectiveFamily());
+      set('--efb-resp-font-size', remFromPx(st.sizePx));
     };
 
-    const refreshPreview = () => {
-      if (!previewBox) return;
-      modal.querySelectorAll('input[type="color"][data-color-key]').forEach(inp => {
-        const key = inp.dataset.colorKey;
-        if (varMap[key]) previewBox.style.setProperty(varMap[key], inp.value);
-        if (key === 'respPrimary') {
-          const v = inp.value;
-          const r = parseInt(v.slice(1,3),16), g = parseInt(v.slice(3,5),16), b = parseInt(v.slice(5,7),16);
-          previewBox.style.setProperty('--efb-resp-primary-08', `rgba(${r},${g},${b},0.08)`);
-          previewBox.style.setProperty('--efb-resp-primary-10', `rgba(${r},${g},${b},0.10)`);
-          previewBox.style.setProperty('--efb-resp-border', `rgba(${r},${g},${b},0.12)`);
-        }
-      });
-      const ff = document.getElementById('efbModalFontFamily');
-      const fs = document.getElementById('efbModalFontSize');
-      if (ff) {
-        let fontVal = ff.value;
-        if (fontVal === '__custom__') {
-          const cfName = document.getElementById('efbCustomFontName')?.value?.trim();
-          if (cfName) fontVal = "'" + cfName + "', sans-serif";
-          else fontVal = 'inherit';
-        }
-        previewBox.style.setProperty('--efb-resp-font-family', fontVal);
-      }
-      if (fs) previewBox.style.setProperty('--efb-resp-font-size', fs.value);
+    const effectiveFamily = () => {
+      if (st.family !== '__custom__') return st.family;
+      return st.name ? "'" + st.name + "', sans-serif" : 'inherit';
     };
 
-    modal.querySelectorAll('input[type="color"][data-color-key]').forEach(inp => {
-      const hexLabel = inp.closest('.d-flex')?.querySelector('.efb-color-hex');
-      inp.addEventListener('input', () => {
-        if (hexLabel) hexLabel.textContent = inp.value;
-        const hidden = document.getElementById(`${inp.dataset.colorKey}_emsFormBuilder`);
-        if (hidden) hidden.value = inp.value;
-        refreshPreview();
-      });
-    });
+    /* -- preview font links ----------------------------------------- */
 
-    const ffSelect = document.getElementById('efbModalFontFamily');
-    const fsSelect = document.getElementById('efbModalFontSize');
-    const customArea = document.getElementById('efbCustomFontArea');
-    const cfNameInput = document.getElementById('efbCustomFontName');
-    const cfUrlInput = document.getElementById('efbCustomFontUrl');
-
-    const loadCustomFontPreview = (url) => {
-      let link = document.getElementById('efbCustomFontLink');
+    const linkFont = (id, url) => {
+      let link = document.getElementById(id);
       if (!url) { if (link) link.remove(); return; }
       if (!link) {
         link = document.createElement('link');
-        link.id = 'efbCustomFontLink';
-        link.rel = 'stylesheet';
-        document.head.appendChild(link);
-      }
-      link.href = url;
-    };
-
-    const loadBuiltinFontPreview = (fontValue) => {
-      const url = fontCssMap[fontValue];
-      let link = document.getElementById('efbBuiltinFontLink');
-      if (!url) { if (link) link.remove(); return; }
-      if (!link) {
-        link = document.createElement('link');
-        link.id = 'efbBuiltinFontLink';
+        link.id = id;
         link.rel = 'stylesheet';
         document.head.appendChild(link);
       }
       if (link.href !== url) link.href = url;
     };
 
-    const syncCustomFont = () => {
-      const name = cfNameInput?.value?.trim() || '';
-      const url = cfUrlInput?.value?.trim() || '';
-      const hiddenCF = document.getElementById('respCustomFont_emsFormBuilder');
-      const hiddenFF = document.getElementById('respFontFamily_emsFormBuilder');
-      if (name && url) {
-        if (hiddenCF) hiddenCF.value = JSON.stringify({ name: name, url: url });
-        if (hiddenFF) hiddenFF.value = "'" + name + "', sans-serif";
-        loadCustomFontPreview(url);
+    /* Only http(s) is worth putting in a <link>: esc_url() drops anything
+       else when class-Emsfb-public.php prints the same URL, so previewing it
+       would show something the site could never load. */
+    const httpUrl = (u) => (/^https?:\/\/\S+$/i.test(String(u || '').trim()) ? String(u).trim() : '');
+
+    const syncFontLinks = () => {
+      if (st.family === '__custom__') {
+        linkFont('efbBuiltinFontLink', '');
+        linkFont('efbCustomFontLink', httpUrl(st.url));
       } else {
-        if (hiddenCF) hiddenCF.value = '';
-        if (hiddenFF) hiddenFF.value = '__custom__';
-        loadCustomFontPreview('');
+        linkFont('efbCustomFontLink', '');
+        linkFont('efbBuiltinFontLink', fontCssMap[st.family] || '');
       }
-      refreshPreview();
     };
 
-    if (ffSelect) ffSelect.addEventListener('change', () => {
-      const isCustom = ffSelect.value === '__custom__';
-      if (customArea) customArea.style.display = isCustom ? 'block' : 'none';
-      if (isCustom) {
-        loadBuiltinFontPreview('');
-        syncCustomFont();
+    /* -- dirty accounting ------------------------------------------- */
+
+    const dirtyCount = () => {
+      let n = Object.keys(DEFAULTS).filter((k) => st.vals[k] !== st.saved[k]).length;
+      const f = st.savedFont;
+      if (st.family !== f.family) n++;
+      if (st.sizePx !== f.sizePx) n++;
+      if (st.family === '__custom__' && (st.name !== f.name || st.url !== f.url)) n++;
+      return n;
+    };
+
+    /* -- render ------------------------------------------------------ */
+
+    const renderTabs = () => {
+      root.querySelectorAll('.efb-clr-tab').forEach((b) => {
+        b.classList.toggle('is-active', b.dataset.view === st.view);
+      });
+      root.querySelectorAll('.efb-clr-view').forEach((el) => {
+        el.hidden = el.dataset.view !== st.view;
+      });
+    };
+
+    const renderRings = () => {
+      root.querySelectorAll('[data-ring]').forEach((el) => {
+        el.classList.toggle('is-ringed', el.dataset.ring === st.zone);
+      });
+    };
+
+    const renderChips = () => {
+      root.querySelectorAll('.efb-clr-chip').forEach((b) => {
+        b.classList.toggle('is-active', b.dataset.zone === st.zone);
+      });
+    };
+
+    const renderPresets = () => {
+      root.querySelectorAll('.efb-clr-preset').forEach((b) => {
+        b.classList.toggle('is-active', b.dataset.preset === st.preset);
+      });
+      const paint = (id, colors) => {
+        const holder = root.querySelector('[data-dots="' + id + '"]');
+        if (!holder) return;
+        holder.querySelectorAll('i').forEach((dot, i) => { dot.style.background = colors[i]; });
+      };
+      paint('light', [DEFAULTS.respPrimary, DEFAULTS.respBgCard, DEFAULTS.respText]);
+      paint('dark', [DARK.respPrimary, DARK.respBgCard, DARK.respBgResp]);
+      paint('brand', [st.brand, shade(st.brand, -48), shade(st.brand, 70)]);
+      if (brandRow) brandRow.hidden = st.preset !== 'brand';
+      if (brandInput && brandInput.value !== st.brand) brandInput.value = st.brand;
+    };
+
+    const colorFieldHtml = (key) => {
+      const meta = FIELD_META[key];
+      return `<div class="efb-clr-field" data-key="${key}">
+        <input type="color" value="${esc(st.vals[key])}" title="${esc(meta[0])}" data-color-key="${key}">
+        <div class="efb-clr-field__meta">
+          <div class="efb-clr-field__t">${meta[0]}</div>
+          <div class="efb-clr-field__s">${meta[1]}</div>
+        </div>
+        <input type="text" class="efb-clr-hex" value="${esc(st.vals[key])}" spellcheck="false" autocomplete="off" aria-label="${esc(meta[0])}">
+      </div>`;
+    };
+
+    const typeFieldHtml = () => {
+      const opts = fontFamilies.map((f) =>
+        `<option value="${esc(f.value)}"${f.value === st.family ? ' selected' : ''}>${f.label}</option>`
+      ).join('');
+      return `<div class="efb-clr-type">
+        <div>
+          <div class="efb-clr-type__t">${t('respFontFamily', 'Font Family')}</div>
+          <select class="efb-clr-select" id="efbClrFontFamily">${opts}</select>
+        </div>
+        <div>
+          <div class="efb-clr-sizehead">
+            <span class="efb-clr-type__t" style="margin:0">${t('respFontSize', 'Font Size')}</span>
+            <span class="efb-clr-sizeval" id="efbClrFontSizeLabel">${st.sizePx}px</span>
+          </div>
+          <input type="range" class="efb-clr-range" id="efbClrFontSize" min="${SIZE_MIN_PX}" max="${SIZE_MIN_PX + SIZE_STEPS.length - 1}" step="1" value="${st.sizePx}">
+        </div>
+        <div class="efb-clr-customfont" id="efbClrCustomFont"${st.family === '__custom__' ? '' : ' hidden'}>
+          <div class="efb-clr-customfont__d">${t('respCustomFontDesc', 'Add your own font by entering the font name and its CSS URL (e.g. Google Fonts link).')}</div>
+          <input type="text" class="efb-clr-input" id="efbClrCustomFontName" placeholder="${esc(t('respCustomFontName', 'Font Name'))}" value="${esc(st.name)}" autocomplete="off">
+          <input type="url" class="efb-clr-input efb-clr-input--url" id="efbClrCustomFontUrl" placeholder="${esc(t('respCustomFontUrl', 'Font URL (CSS/Google Fonts)'))}" value="${esc(st.url)}" autocomplete="off">
+          <div class="efb-clr-sample">https://fonts.googleapis.com/css2?family=Vazirmatn&amp;display=swap</div>
+        </div>
+      </div>`;
+    };
+
+    /* The panel is rebuilt rather than diffed: it holds at most four rows,
+       and every row is re-bound in the same pass, so there is no listener to
+       leak and no stale value to reconcile. */
+    const renderPanel = () => {
+      const zone = zoneById(st.zone);
+      const icon = document.getElementById('efbClrPanelIcon');
+      const title = document.getElementById('efbClrPanelTitle');
+      if (icon) icon.className = 'bi ' + zone.icon;
+      /* Phrases arrive HTML-encoded from esc_html__(), so "Brand & buttons"
+         is "Brand &amp; buttons" by the time it gets here; textContent would
+         print the entity. Every other phrase on this screen is written as
+         markup for the same reason. */
+      if (title) title.innerHTML = zone.label;
+      fieldsEl = document.getElementById('efbClrFields');
+      if (!fieldsEl) return;
+      fieldsEl.innerHTML = zone.id === 'type'
+        ? typeFieldHtml()
+        : zone.keys.map(colorFieldHtml).join('');
+      bindPanel();
+    };
+
+    const renderFooter = () => {
+      const n = dirtyCount();
+      const label = n === 0
+        ? t('respClrClean', 'Everything is saved')
+        : (n === 1
+          ? t('respClrDirtyOne', '1 unsaved change')
+          : t('respClrDirtyMany', '%s unsaved changes').replace('%s', localDigits(n)));
+      footer.dirty.classList.toggle('is-dirty', n > 0);
+      footer.label.innerHTML = label;
+      footer.save.disabled = n === 0 || st.busy;
+    };
+
+    const renderAll = () => {
+      renderTabs();
+      renderRings();
+      renderChips();
+      renderPresets();
+      renderPanel();
+      renderFooter();
+      applyVars();
+    };
+
+    /* -- actions ----------------------------------------------------- */
+
+    const setColor = (key, value) => {
+      const v = hex(value);
+      if (!v || st.vals[key] === v) return !!v;
+      st.vals[key] = v;
+      /* A hand-picked colour is no longer one of the presets. */
+      st.preset = '';
+      renderPresets();
+      applyVars();
+      renderFooter();
+      return true;
+    };
+
+    const pickZone = (id) => {
+      const zone = zoneById(id);
+      st.zone = zone.id;
+      if (zone.view) st.view = zone.view;
+      renderTabs();
+      renderRings();
+      renderChips();
+      renderPanel();
+    };
+
+    const applyPreset = (id) => {
+      if (id === 'dark') {
+        st.vals = Object.assign({}, DARK);
+      } else if (id === 'brand') {
+        st.vals = brandVals(st.brand);
       } else {
-        const hiddenCF = document.getElementById('respCustomFont_emsFormBuilder');
-        if (hiddenCF) hiddenCF.value = '';
-        loadCustomFontPreview('');
-        loadBuiltinFontPreview(ffSelect.value);
-        const hidden = document.getElementById('respFontFamily_emsFormBuilder');
-        if (hidden) hidden.value = ffSelect.value;
-        refreshPreview();
+        id = 'light';
+        st.vals = Object.assign({}, DEFAULTS);
       }
-    });
-    if (cfNameInput) cfNameInput.addEventListener('input', syncCustomFont);
-    if (cfUrlInput) cfUrlInput.addEventListener('input', syncCustomFont);
+      st.preset = id;
+      renderPresets();
+      renderPanel();
+      applyVars();
+      renderFooter();
+    };
 
-    if (fsSelect) fsSelect.addEventListener('change', () => {
-      const hidden = document.getElementById('respFontSize_emsFormBuilder');
-      if (hidden) hidden.value = fsSelect.value;
-      refreshPreview();
-    });
+    const resetZone = () => {
+      const zone = zoneById(st.zone);
+      if (zone.id === 'type') {
+        st.family = FONT_DEFAULTS.family;
+        st.sizePx = FONT_DEFAULTS.sizePx;
+        st.name = FONT_DEFAULTS.name;
+        st.url = FONT_DEFAULTS.url;
+        syncFontLinks();
+      } else {
+        zone.keys.forEach((k) => { st.vals[k] = DEFAULTS[k]; });
+        st.preset = '';
+      }
+      renderPresets();
+      renderPanel();
+      applyVars();
+      renderFooter();
+    };
 
-    if (customArea && customArea.style.display !== 'none') {
-      const initUrl = cfUrlInput?.value?.trim();
-      if (initUrl) loadCustomFontPreview(initUrl);
-    } else if (ffSelect && ffSelect.value !== 'inherit' && ffSelect.value !== '__custom__') {
-      loadBuiltinFontPreview(ffSelect.value);
-    }
+    /* "Reset all" means the plugin defaults, fonts included - the dialog
+       stores typography next to the colours, so leaving a custom font behind
+       would not be a reset. */
+    const resetAll = () => {
+      st.vals = Object.assign({}, DEFAULTS);
+      st.preset = 'light';
+      st.family = FONT_DEFAULTS.family;
+      st.sizePx = FONT_DEFAULTS.sizePx;
+      st.name = FONT_DEFAULTS.name;
+      st.url = FONT_DEFAULTS.url;
+      syncFontLinks();
+      renderAll();
+    };
 
-    const resetBtn = document.getElementById('efbColorResetModal');
-    if (resetBtn) {
-      resetBtn.addEventListener('click', () => {
-        modal.querySelectorAll('input[type="color"][data-color-key]').forEach(inp => {
-          const key = inp.dataset.colorKey;
-          if (defaults[key]) {
-            inp.value = defaults[key];
-            const hex = inp.closest('.d-flex')?.querySelector('.efb-color-hex');
-            if (hex) hex.textContent = defaults[key];
-            const hidden = document.getElementById(`${key}_emsFormBuilder`);
-            if (hidden) hidden.value = defaults[key];
+    /* -- persistence -------------------------------------------------- */
+
+    /* The settings page is one JSON row saved as a whole, so the dialog
+       writes its values into the hidden inputs the page saves from and then
+       asks for the same save the page's own button performs - in its silent
+       form, because a full-page reload here would close the dialog the admin
+       is still working in. */
+    const writeInputs = () => {
+      const put = (id, value) => {
+        const el = document.getElementById(id + '_emsFormBuilder');
+        if (el) el.value = value;
+      };
+      Object.keys(DEFAULTS).forEach((k) => put(k, st.vals[k]));
+      put('respFontSize', remFromPx(st.sizePx));
+      put('respPreset', st.preset || 'custom');
+      put('respBrandColor', st.brand);
+      if (st.family === '__custom__' && st.name && httpUrl(st.url)) {
+        put('respCustomFont', JSON.stringify({ name: st.name, url: httpUrl(st.url) }));
+        put('respFontFamily', "'" + st.name + "', sans-serif");
+      } else if (st.family === '__custom__') {
+        /* A half-filled custom font, or one whose URL esc_url() would drop
+           server-side, loads nothing - so nothing is stored and the box falls
+           back to the theme's own font rather than to a broken stylesheet. */
+        put('respCustomFont', '');
+        put('respFontFamily', FONT_DEFAULTS.family);
+      } else {
+        put('respCustomFont', '');
+        put('respFontFamily', st.family);
+      }
+    };
+
+    const showToast = (message, bad) => {
+      const glyph = bad ? 'bi-exclamation-circle-fill' : 'bi-check-circle-fill';
+      toast.innerHTML = '<i class="bi ' + glyph + '"></i><span></span>';
+      /* Both sources of this text - the plugin's own phrases and the message
+         the save endpoint sends back - are HTML-encoded already. */
+      toast.querySelector('span').innerHTML = message;
+      toast.classList.toggle('is-bad', !!bad);
+      toast.classList.add('is-on');
+      clearTimeout(toast._efbTimer);
+      toast._efbTimer = setTimeout(() => toast.classList.remove('is-on'), 2600);
+    };
+
+    const save = () => {
+      if (st.busy || dirtyCount() === 0) return;
+      st.busy = true;
+      footer.cancel.disabled = true;
+      const saveIcon = footer.save.querySelector('i');
+      if (saveIcon) saveIcon.className = 'bi bi-hourglass-split efb-clr-spin';
+      renderFooter();
+      writeInputs();
+
+      let settled = false;
+      const done = (ok, message) => {
+        if (settled) return;
+        settled = true;
+        st.busy = false;
+        footer.cancel.disabled = false;
+        if (saveIcon) saveIcon.className = 'bi bi-check2';
+        if (ok) {
+          st.saved = Object.assign({}, st.vals);
+          st.savedFont = { family: st.family, sizePx: st.sizePx, name: st.name, url: st.url };
+          st.savedPreset = st.preset;
+          st.savedBrand = st.brand;
+          showToast(t('respClrSaved', 'Saved'), false);
+        } else {
+          showToast(message || t('somethingWentWrongPleaseRefresh', 'Something went wrong'), true);
+        }
+        renderFooter();
+      };
+
+      let started = false;
+      try {
+        started = fun_set_setting_emsFormBuilder(1, done) !== false;
+      } catch (e) {
+        started = false;
+      }
+      /* A field elsewhere on the settings page can fail validation and stop
+         the save before it is sent. Most of those paths name the tab at
+         fault and have already reported it through done(); the few that just
+         bail get the generic message. Either way the dialog must not sit on
+         a spinner waiting for a callback that is never going to come. */
+      if (!started) done(false, null);
+    };
+
+    const cancel = () => {
+      st.vals = Object.assign({}, st.saved);
+      st.family = st.savedFont.family;
+      st.sizePx = st.savedFont.sizePx;
+      st.name = st.savedFont.name;
+      st.url = st.savedFont.url;
+      st.preset = st.savedPreset;
+      st.brand = st.savedBrand;
+      syncFontLinks();
+      state_modal_show_efb(0);
+    };
+
+    /* -- bindings ----------------------------------------------------- */
+
+    function bindPanel() {
+      if (!fieldsEl) return;
+
+      fieldsEl.querySelectorAll('input[type="color"][data-color-key]').forEach((inp) => {
+        const key = inp.dataset.colorKey;
+        const row = inp.closest('.efb-clr-field');
+        const hexBox = row ? row.querySelector('.efb-clr-hex') : null;
+        inp.addEventListener('input', () => {
+          if (setColor(key, inp.value) && hexBox) {
+            hexBox.value = st.vals[key];
+            hexBox.classList.remove('is-bad');
           }
         });
-        if (ffSelect) { ffSelect.value = defaults.respFontFamily; document.getElementById('respFontFamily_emsFormBuilder').value = defaults.respFontFamily; }
-        if (fsSelect) { fsSelect.value = defaults.respFontSize; document.getElementById('respFontSize_emsFormBuilder').value = defaults.respFontSize; }
-        if (customArea) customArea.style.display = 'none';
-        if (cfNameInput) cfNameInput.value = '';
-        if (cfUrlInput) cfUrlInput.value = '';
-        const hiddenCF = document.getElementById('respCustomFont_emsFormBuilder');
-        if (hiddenCF) hiddenCF.value = '';
-        loadCustomFontPreview('');
-        loadBuiltinFontPreview('');
-        refreshPreview();
+        if (hexBox) {
+          const commit = () => {
+            const v = hex(hexBox.value);
+            if (!v) { hexBox.classList.add('is-bad'); return; }
+            hexBox.classList.remove('is-bad');
+            hexBox.value = v;
+            inp.value = v;
+            setColor(key, v);
+          };
+          hexBox.addEventListener('change', commit);
+          hexBox.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); commit(); } });
+          hexBox.addEventListener('blur', () => { hexBox.value = st.vals[key]; hexBox.classList.remove('is-bad'); });
+        }
       });
+
+      const famSel = document.getElementById('efbClrFontFamily');
+      if (famSel) famSel.addEventListener('change', () => {
+        st.family = famSel.value;
+        const box = document.getElementById('efbClrCustomFont');
+        if (box) box.hidden = st.family !== '__custom__';
+        syncFontLinks();
+        applyVars();
+        renderFooter();
+      });
+
+      const sizeInput = document.getElementById('efbClrFontSize');
+      if (sizeInput) sizeInput.addEventListener('input', () => {
+        st.sizePx = Number(sizeInput.value);
+        const label = document.getElementById('efbClrFontSizeLabel');
+        if (label) label.textContent = st.sizePx + 'px';
+        applyVars();
+        renderFooter();
+      });
+
+      const nameInput = document.getElementById('efbClrCustomFontName');
+      if (nameInput) nameInput.addEventListener('input', () => {
+        st.name = nameInput.value.trim();
+        applyVars();
+        renderFooter();
+      });
+
+      const urlInput = document.getElementById('efbClrCustomFontUrl');
+      if (urlInput) {
+        const markUrl = () => urlInput.classList.toggle('is-bad', !!st.url && !httpUrl(st.url));
+        urlInput.addEventListener('input', () => {
+          st.url = urlInput.value.trim();
+          /* A URL that is not http(s) will not be stored, so say so while it
+             is being typed instead of dropping it silently on save. */
+          markUrl();
+          syncFontLinks();
+          renderFooter();
+        });
+        markUrl();
+      }
     }
 
-    refreshPreview();
+    root.querySelectorAll('.efb-clr-tab').forEach((b) => {
+      b.addEventListener('click', () => { st.view = b.dataset.view; renderTabs(); renderRings(); });
+    });
+
+    root.querySelectorAll('.efb-clr-chip').forEach((b) => {
+      b.addEventListener('click', () => pickZone(b.dataset.zone));
+    });
+
+    root.querySelectorAll('.efb-clr-preset').forEach((b) => {
+      b.addEventListener('click', () => applyPreset(b.dataset.preset));
+    });
+
+    if (brandInput) brandInput.addEventListener('input', () => {
+      const c = hex(brandInput.value);
+      if (!c) return;
+      st.brand = c;
+      st.vals = brandVals(c);
+      st.preset = 'brand';
+      renderPresets();
+      renderPanel();
+      applyVars();
+      renderFooter();
+    });
+
+    /* One listener for the whole preview: the regions nest, so the innermost
+       [data-pick] under the click wins and the click stops there - clicking
+       the avatar must select the brand, not the card it sits in. */
+    stage.addEventListener('click', (e) => {
+      const hit = e.target.closest('[data-pick]');
+      if (!hit || !stage.contains(hit)) return;
+      pickZone(hit.dataset.pick);
+    });
+
+    const resetZoneBtn = document.getElementById('efbClrResetZone');
+    if (resetZoneBtn) resetZoneBtn.addEventListener('click', resetZone);
+
+    footer.reset.addEventListener('click', resetAll);
+    footer.cancel.addEventListener('click', cancel);
+    footer.save.addEventListener('click', save);
+
+    /*
+     * Ask before throwing the work away.
+     *
+     * The pickers used to write straight into the settings page's hidden
+     * inputs, so an admin could change colours, close this window and press
+     * the page's own Save - and the colours stuck. They no longer do: nothing
+     * leaves this dialog until its Save is pressed, which is right, but it
+     * means the shell's ✕ and a click on the backdrop silently discarded
+     * everything that had been chosen. Cancel is the button that means
+     * "discard"; closing has to say so first.
+     *
+     * Capture phase on the document: the ✕ carries an inline
+     * onclick="state_modal_show_efb(0)" and the backdrop an .onclick property,
+     * and both are target-phase handlers, so stopping the event here is what
+     * keeps the dialog open. The listener takes itself off as soon as the
+     * dialog is gone from the DOM, so it can never outlive it.
+     */
+    const closeGuard = (e) => {
+      if (!document.getElementById('efbClrRoot')) {
+        document.removeEventListener('click', closeGuard, true);
+        return;
+      }
+      if (dirtyCount() === 0 || st.busy) return;
+      const hit = e.target && e.target.closest
+        ? e.target.closest('#settingModalEfb-close, .efb-modal-backdrop')
+        : null;
+      if (!hit) return;
+      if (window.confirm(t('respClrUnsaved', 'Your color changes have not been saved yet. Close and lose them?'))) {
+        document.removeEventListener('click', closeGuard, true);
+        return;
+      }
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+    };
+    document.addEventListener('click', closeGuard, true);
+
+    syncFontLinks();
+    renderAll();
+  }
+
+  /* The footer is appended beside the body under the id the shell already
+     tears down on close, so it can never outlive its dialog. */
+  function buildFooter() {
+    const sections = document.getElementById('settingModalEfb-sections');
+    const foot = document.createElement('div');
+    foot.className = 'efb modal-footer efb-clr-foot';
+    foot.id = 'modal-footer-efb';
+    foot.innerHTML = `
+      <span class="efb-clr-dirty" id="efbClrDirty"><span class="efb-clr-dirty__dot"></span><span id="efbClrDirtyLabel"></span></span>
+      <span class="efb-clr-foot__spacer"></span>
+      <button type="button" class="efb-clr-btn efb-clr-btn--reset" id="efbClrResetAll" title="${esc(t('respClrResetAll', 'Reset all'))}"><i class="bi bi-arrow-counterclockwise"></i><span class="efb-clr-btn__label">${t('respClrResetAll', 'Reset all')}</span></button>
+      <button type="button" class="efb-clr-btn efb-clr-btn--cancel" id="efbClrCancel">${t('respClrCancel', 'Cancel')}</button>
+      <button type="button" class="efb-clr-btn efb-clr-btn--save" id="efbClrSave" disabled><i class="bi bi-check2"></i>${t('respClrSave', 'Save changes')}</button>`;
+    if (sections) sections.appendChild(foot);
+    return {
+      el: foot,
+      dirty: foot.querySelector('#efbClrDirty'),
+      label: foot.querySelector('#efbClrDirtyLabel'),
+      reset: foot.querySelector('#efbClrResetAll'),
+      cancel: foot.querySelector('#efbClrCancel'),
+      save: foot.querySelector('#efbClrSave'),
+    };
+  }
+
+  /* Pinned to the viewport rather than into the dialog: the shell clips its
+     own overflow, and the toast belongs over the corner of the screen. */
+  function buildToast() {
+    let el = document.getElementById('efbClrToast');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'efbClrToast';
+      el.className = 'efb-clr-toast';
+      document.body.appendChild(el);
+    }
+    el.classList.remove('is-on', 'is-bad');
+    return el;
   }
 }
 
@@ -2315,7 +2916,22 @@ function fun_switch_saveSetting(i, id) {
   }
 }
 
-function fun_set_setting_emsFormBuilder(state_auto = 0) {
+/**
+ * Collect the whole settings page and send it.
+ *
+ * @param {number}   state_auto 0 = the page's own Save button (spinner, then
+ *                              a reload); 1 = a silent save made on behalf of
+ *                              a dialog that must stay open.
+ * @param {Function} [done]     Called as done(ok, message) once the server has
+ *                              answered. Only a silent save has anywhere to
+ *                              report to, so only a silent save passes one.
+ * @returns {boolean|undefined} false when a field on the page failed
+ *                              validation and nothing was sent - a silent
+ *                              caller has no other way to learn that, because
+ *                              the complaint is printed on the page it cannot
+ *                              see.
+ */
+function fun_set_setting_emsFormBuilder(state_auto = 0, done) {
   if(state_auto==0){
   let btn = document.getElementById('save-stng-efb');
   btn.classList.add('disabled');
@@ -2325,8 +2941,12 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
   }
 
   const returnError=(val)=>{
-    if(state_auto==1){return}
     const m =efb_var.text.msgchckvt_.replace('%s', val );
+    /* A silent save was asked for by a dialog sitting over this page, so the
+       notice below would be printed behind it. Hand the caller the same
+       sentence - naming the tab that failed - and let it show it where the
+       admin is actually looking. */
+    if(state_auto==1){ if (typeof done === 'function') done(false, m); return; }
 
     noti_message_efb(m, 'danger' , `content-efb` );
     window.scrollTo({
@@ -2594,6 +3214,8 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
     const respFontFamily = f('respFontFamily_emsFormBuilder');
     const respFontSize = f('respFontSize_emsFormBuilder');
     const respCustomFont = f('respCustomFont_emsFormBuilder');
+    const respPreset = f('respPreset_emsFormBuilder');
+    const respBrandColor = f('respBrandColor_emsFormBuilder');
     const package_type = sessionStorage.getItem('efb_license_selected') ?? valueJson_ws_setting.package_type ?? (valueJson_ws_setting.activeCode == '' ? '2' : '1');
     let setting = { ...(valueJson_ws_setting || {}) };
     const patch = {
@@ -2669,6 +3291,8 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
           respFontFamily: respFontFamily,
           respFontSize: respFontSize,
           respCustomFont: respCustomFont,
+          respPreset: respPreset,
+          respBrandColor: respBrandColor,
 
           package_type:package_type,
           devMode: devMode_efb
@@ -2679,7 +3303,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
             setting[key] = val;
           }
         }
-    fun_send_setting_emsFormBuilder( setting , state_auto);
+    fun_send_setting_emsFormBuilder( setting , state_auto, done);
   }
 
 }
@@ -2753,9 +3377,11 @@ function fun_state_loading_message_emsFormBuilder(state) {
   }
 }
 
-function fun_send_setting_emsFormBuilder(data , state_auto = 0) {
+function fun_send_setting_emsFormBuilder(data , state_auto = 0, done) {
+  const report = (ok, message) => { if (typeof done === 'function') done(ok, message); };
   if (!navigator.onLine) {
     alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')
+    report(false, efb_var.text.offlineSend);
     return;
   }
   data = JSON.stringify(data);
@@ -2773,7 +3399,14 @@ function fun_send_setting_emsFormBuilder(data , state_auto = 0) {
       let lrt = "info"
       let time = 5
       if (res.success == true) {
-        valueJson_ws_setting = data.message;
+        /* data.message is the JSON *string* that was posted. A save made from
+           the page's own button reloads a moment later so nothing ever read
+           it back, but a silent save leaves this page alive - and
+           fun_set_setting_emsFormBuilder() spreads this value as an object,
+           so handing it a string would turn the next save into a map of
+           character indexes. */
+        try { valueJson_ws_setting = JSON.parse(data.message); }
+        catch (e) { /* keep the last good object rather than a broken one */ }
 
         if (res.data.success != true) {
           t = efb_var.text.error
@@ -2787,6 +3420,8 @@ function fun_send_setting_emsFormBuilder(data , state_auto = 0) {
         lrt = "danger";
         time = 15;
       }
+      const okState = res.success == true && res.data && res.data.success == true;
+      report(okState, okState ? '' : m);
       if(state_auto==1){return}
       if(res.data.success == true){
         /* Saving reloads the page; carry the open tab over so the admin lands
@@ -2801,6 +3436,11 @@ function fun_send_setting_emsFormBuilder(data , state_auto = 0) {
         alert_message_efb(t, m, time, lrt);
       }
 
+    }).fail(function () {
+      /* A request that never came back leaves a silent caller waiting on a
+         callback that will not arrive; the page's own Save has its own
+         failure path and does not pass one. */
+      report(false, efb_var.text.somethingWentWrongPleaseRefresh);
     })
   });
 }

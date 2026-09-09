@@ -1808,6 +1808,13 @@ class Emsfb {
         $defaults->respFontFamily    = 'inherit';
         $defaults->respFontSize      = '0.9rem';
         $defaults->respCustomFont    = '';
+        /* Admin-side bookkeeping for the Colors & Fonts dialog: which preset
+           the stored palette came from, and the single colour the Brand
+           preset derives its primary and primary-dark from. Deliberately
+           absent from the 'pub' payload - the public response box reads the
+           thirteen colours, never how they were chosen. */
+        $defaults->respPreset        = 'light';
+        $defaults->respBrandColor    = '#0f766e';
         $defaults->efb_version       = defined('EMSFB_PLUGIN_VERSION') ? EMSFB_PLUGIN_VERSION : '4.0.0';
         return $defaults;
     }

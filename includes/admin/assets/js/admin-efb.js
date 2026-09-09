@@ -4817,6 +4817,10 @@ state_modal_show_efb=(i)=>{
        it gets it, and anything parked behind this one can now be shown. */
     window._efb_modal_flow_efb = '';
     jQuery('#settingModalEfb_').removeClass('efb-save-narrow');
+    /* The Colors & Fonts dialog widens the shell to 1100px and reshapes its
+       header and body; left on, the next dialog to borrow the shell would
+       wear a two-pane layout it has no markup for. */
+    jQuery('#settingModalEfb_').removeClass('efb-clr-dialog');
     if (typeof efb_dlg_set_tone_efb === 'function') efb_dlg_set_tone_efb('');
 
     var val = efbLoadingCard('',4);
@@ -5811,58 +5815,69 @@ function restore_auto_save_efb(){
    other. The CSS alone cannot do it: the workspace does not start at the top of the
    viewport, it starts wherever the toolbar above it happens to end, and that offset is
    only knowable by measuring. Everything downstream reads the variable this sets. */
-const EFB_WORKSPACE_FIT = { raf: 0, applied: '', observed: false };
+const EFB_WORKSPACE_FIT = { raf: 0, observed: false };
 
 function efbFitWorkspaceEfb() {
   const list = document.getElementById('listElEfb');
   const row = list ? list.parentElement : null;
   // Same guards as the stylesheet: phones keep their own layout.
   if (!list || !row || document.body.classList.contains('mobile') || window.innerWidth < 768) {
-    if (row) row.style.removeProperty('--efb-workspace-h');
-    EFB_WORKSPACE_FIT.applied = '';
+    if (row) {
+      row.style.removeProperty('--efb-workspace-h');
+      row.classList.remove('efb-workspace-tall');
+    }
     return;
   }
 
   /* Measure from where the workspace actually begins, not from the admin bar - the
      builder toolbar and the tab strip sit in between and their height is not fixed. */
-  const rowTop = row.getBoundingClientRect().top;
-  const target = Math.max(320, Math.round(window.innerHeight - rowTop - 16));
+  const rowBox = row.getBoundingClientRect();
+  const rowTop = rowBox.top;
+  const menu = document.getElementById('adminmenuwrap');
+  const wpBody = document.getElementById('wpbody-content');
+
+  /* Whatever sits below the row inside the content column - the panel's own bottom
+     margin, the collapse handle under the canvas - is part of what the workspace has to
+     leave room for. Left out, the workspace overshoots by exactly that much and the page
+     scrolls for no reason. It is a constant, so measuring it against the current layout
+     settles in one pass rather than creeping. */
+  const belowRow = wpBody
+    ? Math.max(0, Math.round(wpBody.getBoundingClientRect().bottom - rowBox.bottom))
+    : 16;
+
+  /* Filling the viewport is the floor: the builder should use the screen it has. */
+  const viewportFit = Math.max(320, Math.round(window.innerHeight - rowTop - belowRow));
+
+  /* An admin page is as tall as the taller of (admin menu, content), and the menu is
+     left at its natural height - past 1400px on a site with ~25 plugins. Cut to the
+     viewport, the workspace then ends hundreds of pixels above the foot of a page the
+     menu alone has already made scrollable, and that gap is dead grey space. Reach the
+     menu's bottom instead so the columns end where the page does.
+
+     Measured off the menu, deliberately not off scrollHeight: the page height is partly
+     this function's own output, so reading it back would feed the next measurement. */
+  const menuFit = menu
+    ? Math.round(menu.getBoundingClientRect().bottom - rowTop) - belowRow
+    : 0;
+
+  const target = Math.max(viewportFit, menuFit);
   const next = target + 'px';
 
-  if (next !== EFB_WORKSPACE_FIT.applied) {
+  /* Compared against the element, never against a remembered value: the builder rebuilds
+     #content-efb from scratch, so the row this runs on is regularly a new element with no
+     variable on it yet. A module-level "already applied" cache agrees with the old node
+     and skips the write, and the rebuilt workspace is then left with no height at all. */
+  if (next !== row.style.getPropertyValue('--efb-workspace-h')) {
     row.style.setProperty('--efb-workspace-h', next);
-    EFB_WORKSPACE_FIT.applied = next;
   }
 
+  /* Past the fold the columns cannot stay sticky. A sticky column taller than the
+     viewport pins its top and pushes its own lower edge permanently off-screen - with
+     the palette that would park the end of its scroll area somewhere unreachable. It
+     scrolls with the page in that mode, which reaches the same tiles by other means.
+     toggle() with an explicit flag is idempotent, so it needs no cache of its own. */
+  row.classList.toggle('efb-workspace-tall', target > viewportFit);
 }
-
-/* The stylesheet caps the admin menu and gives it its own scroll on EFB screens, so on a
-   site with many plugins the entry for the page you are actually on can sit below the
-   fold. Bring it into view the way an unscrolled menu would have shown it. Re-run on
-   resize, not just once: the cap comes and goes with the viewport and the menu's scroll
-   position is reset every time it does. Runs on every EFB screen, not only the builder,
-   because the stylesheet caps the menu on all of them. */
-function efbRevealCurrentMenuItemEfb() {
-  const menu = document.getElementById('adminmenuwrap');
-  if (!menu || getComputedStyle(menu).overflowY !== 'auto') return;
-  if (menu.scrollHeight <= menu.clientHeight) return;
-  const current = document.querySelector('#adminmenu .wp-has-current-submenu, #adminmenu li.current');
-  if (!current) return;
-  const box = current.getBoundingClientRect(), frame = menu.getBoundingClientRect();
-  if (box.top >= frame.top && box.bottom <= frame.bottom) return;   // already in view
-  menu.scrollTop += box.top - frame.top - 12;
-}
-
-let efbMenuRevealRafEfb = 0;
-function efbScheduleMenuRevealEfb() {
-  if (efbMenuRevealRafEfb) cancelAnimationFrame(efbMenuRevealRafEfb);
-  efbMenuRevealRafEfb = requestAnimationFrame(() => {
-    efbMenuRevealRafEfb = 0;
-    efbRevealCurrentMenuItemEfb();
-  });
-}
-document.addEventListener('DOMContentLoaded', efbScheduleMenuRevealEfb);
-window.addEventListener('resize', efbScheduleMenuRevealEfb);
 
 /* Coalesce bursts of triggers into one measurement on the next frame. */
 function efbScheduleWorkspaceFitEfb() {
@@ -6032,22 +6047,13 @@ function pro_show_efb(state) {
       </div>
     </div>`;
   } else {
-    const perks = [
-      t('proPerkSteps', 'Unlimited steps'),
-      t('proPerkPayment', 'Online payments'),
-      t('proPerkResponses', 'Response box'),
-    ];
-    detail = `
-    <div class="efb-dlg__perks">
-      ${perks.map((label) => `<span class="efb-dlg__perk"><i class="efb bi-check2"></i>${label}</span>`).join('')}
-    </div>`;
+
   }
 
   const body = `<div class="efb-dlg__centered">
     <div class="efb-dlg__badge efb-dlg__badge--square"><i class="efb bi-gem"></i></div>
     <div class="efb-dlg__headline">${freePlusAnswers ? t('freePlusUnlocksThis', 'Free Plus unlocks this too') : t('proFeatureTitle', 'A Pro version feature')}</div>
     <div class="efb-dlg__text">${message}</div>
-    ${detail}
   </div>`;
 
   /* The quieter of the two actions is the one that costs least: the guide to

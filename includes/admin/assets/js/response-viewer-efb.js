@@ -637,10 +637,31 @@ const chatHistory = document.getElementById('resp_efb');
 
 })();
 
+/**
+ * Is this copy of the response viewer running inside wp-admin?
+ *
+ * The panel and the public page draw the box with the same script, but the
+ * palette from Colors & Fonts is for the public box only - the dialog says so
+ * under its own preview, and it is the reason nothing here writes to :root on
+ * an admin screen. A dark public palette applied in here would repaint the
+ * administrator's own inbox to match a visitor's theme.
+ *
+ * The flag is set where ajax_object_efm is localized for the panel; the body
+ * class is wp-admin's own and stands in on any other admin screen that loads
+ * this file without that payload.
+ */
+function efb_is_admin_screen_efb() {
+  if (typeof ajax_object_efm !== 'undefined' && ajax_object_efm && ajax_object_efm.admin_screen) return true;
+  return !!(document.body && document.body.classList.contains('wp-admin'));
+}
+
 let _efbRespColorsApplied = false;
 function efb_apply_resp_colors() {
   if (_efbRespColorsApplied) return;
   _efbRespColorsApplied = true;
+
+  // wp-admin keeps the shipped palette, whatever the site was customised to.
+  if (efb_is_admin_screen_efb()) return;
 
   let s = null;
   try {
