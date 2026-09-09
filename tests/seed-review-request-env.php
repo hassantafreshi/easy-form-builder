@@ -3,7 +3,7 @@
  * Set up and tear down the environment for the review invitation browser test.
  *
  * The modal only appears for a Free or Free Plus site that has been using the
- * plugin for two weeks and has not answered yet, so the browser test cannot
+ * plugin for a week and has not answered yet, so the browser test cannot
  * see it without arranging exactly that. This script arranges it, remembers
  * every option it changed - including the site locale, which the RTL pass
  * switches - and puts all of it back afterwards.

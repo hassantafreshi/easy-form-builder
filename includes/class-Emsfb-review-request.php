@@ -2,9 +2,10 @@
 /**
  * The rating invitation.
  *
- * Two weeks after somebody starts using Easy Form Builder, a Free or Free Plus
- * site is asked - once a month at most, on an Easy Form Builder screen and
- * nowhere else - to rate the plugin.
+ * A week after somebody starts using Easy Form Builder, a Free or Free Plus
+ * site is asked - on an Easy Form Builder screen and nowhere else - to rate
+ * the plugin. Walking away without answering brings it back two days later;
+ * answering it, either way, ends the asking for good.
  *
  * There are two ways out of the question, and they are deliberately different
  * conversations:
@@ -61,8 +62,14 @@ class Review_Request {
 	 * The gap between one sighting and the next.
 	 *
 	 * The invitation snoozes itself the moment it is printed, so this is the
-	 * whole politeness policy in one number: a site sees it about once a month
-	 * and never twice in a week of daily logins.
+	 * whole politeness policy in one number: somebody who logs in every day
+	 * sees it again two days later.
+	 *
+	 * Short on purpose, and only as pushy as it looks: this gap applies to
+	 * one person only - somebody who has seen the question and walked away
+	 * without answering it. Both real answers end the asking for good, since
+	 * should_ask_efb() treats 'rated' and 'dismissed' as terminal, so nobody
+	 * who rates the plugin or picks "Do not ask again" is ever counted here.
 	 */
 	const SNOOZE_DAYS = 2;
 

@@ -1,8 +1,10 @@
 # The rating dialog and the review reward
 
-Two weeks after somebody starts using Easy Form Builder, a Free or Free Plus
-site is asked — about once a month at most, on an Easy Form Builder screen and
-nowhere else — to rate the plugin.
+A week after somebody starts using Easy Form Builder, a Free or Free Plus
+site is asked — on an Easy Form Builder screen and nowhere else — to rate the
+plugin. Somebody who sees the question and walks away without answering is
+asked again two days later; somebody who answers it, either way, is never
+asked again.
 
 There are **two ways out of the question**, and they are deliberately different
 conversations:
@@ -33,8 +35,11 @@ ask ──4-5 stars──▶ praise ──▶ claim ──▶ checking ──▶
 ## Five rules the client keeps
 
 1. **Pro sites are never asked.** They already paid.
-2. **Nobody is asked twice by accident.** Printing the dialog spends it for a
-   month; "Do not ask again" is permanent; Escape means later, never never.
+2. **Nobody is asked twice by accident.** Printing the dialog spends it for
+   two days; "Do not ask again" is permanent; Escape means later, never never.
+   The two-day gap is short because it is the only case it covers — an
+   unanswered question. `should_ask_efb()` treats `rated` and `dismissed` as
+   terminal, so neither a rating nor "Do not ask again" ever comes back.
 3. **An unhappy rating never reaches WordPress.org.** Pushing somebody who just
    said the plugin is hard to use toward a public review form is how you earn
    the two-star review this feature exists to avoid.
@@ -60,7 +65,7 @@ outcome cannot be added without deciding both.
 | `badEmail` | red | Edit details · Try again |
 | `server` | red | Later · Try again |
 
-## Seeing it without waiting two weeks
+## Seeing it without waiting a week
 
 ```
 /wp-admin/admin.php?page=Emsfb&efb_review_preview=1
