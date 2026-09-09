@@ -2263,17 +2263,17 @@ function creator_form_builder_Efb() {
           <div class="efb  col-md-4" id="listElEfb">
 
             <ul class="efb my-2 row" id="listCatEfb">
-                <li class="efb efb-col-3">
-                  <a class="efb nav-link cat fs-6 efb active all" aria-current="page" onclick="funUpdateLisetElEfb('all')" role="button">${efb_var.text.all}</a>
+                <li class="efb efb-col-3 px-1">
+                  <a class="efb nav-link cat fs-7 efb active all" aria-current="page" onclick="funUpdateLisetElEfb('all')" role="button">${efb_var.text.all}</a>
                 </li>
-                <li class="efb efb-col-3">
-                  <a class="efb nav-link cat fs-6 efb basic" onclick="funUpdateLisetElEfb('basic')"  role="button">${efb_var.text.basic}</a>
+                <li class="efb efb-col-3 px-1">
+                  <a class="efb nav-link cat fs-7 efb basic" onclick="funUpdateLisetElEfb('basic')"  role="button">${efb_var.text.basic}</a>
                 </li>
-                <li class="efb efb-col-3">
-                  <a class="efb nav-link cat fs-6 efb payment" onclick="funUpdateLisetElEfb('payment')"  role="button">${efb_var.text.payment}</a>
+                <li class="efb efb-col-3 px-1">
+                  <a class="efb nav-link cat fs-7 efb payment" onclick="funUpdateLisetElEfb('payment')"  role="button">${efb_var.text.payment}</a>
                 </li>
-                <li class="efb efb-col-3">
-                  <a class="efb nav-link cat fs-6 efb advance" onclick="funUpdateLisetElEfb('advance')"  role="button">${efb_var.text.advanced}</a>
+                <li class="efb efb-col-3 px-1">
+                  <a class="efb nav-link cat fs-7 efb advance" onclick="funUpdateLisetElEfb('advance')"  role="button">${efb_var.text.advanced}</a>
                 </li>
                 <hr class="efb hr">
             </ul>

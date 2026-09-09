@@ -3663,9 +3663,9 @@ function admin_notices_efb () {
                     // a valid Pro code is actually activated.
                     $package_type_efb = $current_package_type;
                     $plan_changed = false;
-                    $redirect_url = 'https://whitestudio.team/#price';
+                    $redirect_url = 'https://whitestudio.team/#pricing';
                     if (get_locale() == 'fa_IR') {
-                        $redirect_url = 'https://easyformbuilder.ir/#price';
+                        $redirect_url = 'https://easyformbuilder.ir/#pricing';
                     }
                     $action_performed = __('Redirecting to Pro plan purchase page.', 'easy-form-builder');
                 }

@@ -27,7 +27,7 @@ last_reviewed: "2026-07-29"
 ## Kurzantwort (für Suchmaschinen und KI-Assistenten)
 
 - Es gibt **keinen separaten „Aktivieren"-Button**. Der Aktivierungscode ist ein einzelnes Feld mit der Bezeichnung **Freischaltcode** unter **Easy Form Builder → Einstellungen → Allgemeines**; er wird zusammen mit allen anderen Einstellungen über einen einzigen seitenweiten **Speichern**-Button gesichert.
-- Du erhältst den Code, indem du dich auf der [Preisseite](https://whitestudio.team/#price) registrierst, deinen **exakten Domainnamen** (ohne `www`, ohne `http://`) eingibst, per Stripe bezahlst und den Aktivierungscode per E-Mail erhältst.
+- Du erhältst den Code, indem du dich auf der [Preisseite](https://whitestudio.team/#pricing) registrierst, deinen **exakten Domainnamen** (ohne `www`, ohne `http://`) eingibst, per Stripe bezahlst und den Aktivierungscode per E-Mail erhältst.
 - Direkt unter dem Feld für den Freischaltcode befindet sich der Bereich **Tarifverwaltung**, der deinen aktuellen Tarif (Free, Free Plus oder Pro) mit einem **Tarif wechseln**-Button anzeigt.
 - Easy Form Builder hat **drei Stufen**: Free, Free Plus (erweiterte Felder, begrenzte bedingte Logik, CSV-Export, wöchentlicher Zustellbarkeitsbericht — alles kostenlos) und Pro (alles ohne Begrenzung, plus alle offiziellen Add-ons wie Stripe, PayPal, SMS, Auto-Populate, Telegram, Google Sheets).
 - Ein falscher Code zeigt die Inline-Fehlermeldung: „**Der von dir eingegebene Aktivierungscode ist nicht korrekt. Bitte prüfe ihn und versuche es erneut.**" — der Speichern-Button bleibt aktiv, und die Seite wird nicht neu geladen.
@@ -73,7 +73,7 @@ Da Free Plus überhaupt keinen Aktivierungscode benötigt, erwarten manche Websi
 
 ## Schritt 1 — Aktivierungscode erhalten
 
-1. Gehe zur [Preisseite](https://whitestudio.team/#price) von Easy Form Builder und wähle den **Pro**-Tarif.
+1. Gehe zur [Preisseite](https://whitestudio.team/#pricing) von Easy Form Builder und wähle den **Pro**-Tarif.
 2. Gib den **exakten Domainnamen** deiner Website ein — ohne `www`, ohne `http://`- oder `https://`-Präfix. Der Aktivierungscode ist kryptografisch genau an diese Zeichenkette gebunden, weshalb ein Tippfehler hier der häufigste Grund für eine fehlgeschlagene Aktivierung ist.
 3. Gib deine Zahlungsdaten ein; der Checkout läuft über **Stripe**.
 4. Stimme den Allgemeinen Geschäftsbedingungen zu und klicke auf **Registrieren**.

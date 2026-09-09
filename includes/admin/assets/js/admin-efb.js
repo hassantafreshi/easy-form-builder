@@ -290,7 +290,7 @@ function Link_emsFormBuilder(state) {
         link = `https://${lan}whitestudio.team/`;
         break;
       case 'price':
-        link = `https://${lan}whitestudio.team/#price`;
+        link = `https://${lan}whitestudio.team/#pricing`;
         break;
       case 'efb':
         link = "https://wordpress.org/plugins/easy-form-builder/";
@@ -380,7 +380,7 @@ function Link_emsFormBuilder(state) {
         link = 'https://easyformbuilder.ir/';
         break;
       case 'price':
-        link = 'https://easyformbuilder.ir/#price';
+        link = 'https://easyformbuilder.ir/#pricing';
         break;
       case 'efb':
         link = "https://wordpress.org/plugins/easy-form-builder/";
@@ -1339,7 +1339,7 @@ function head_introduce_efb(state) {
   const link = state == "create" ? '#form' : 'admin.php?page=Emsfb_create'
   let text = `${efb_var.text.efbIsTheUserSentence} ${efb_var.text.efbYouDontNeedAnySentence}`
   let btnSize = mobile_view_efb ? '' : 'btn-lg';
-  const domain = efb_var.hasOwnProperty('wsteamDomain') ? 'https://' + efb_var.wsteamDomain +'/price' : 'https://whitestudio.team/#price';
+  const domain = efb_var.hasOwnProperty('wsteamDomain') ? 'https://' + efb_var.wsteamDomain +'/price' : 'https://whitestudio.team/#pricing';
   let msgpro = efb_var.text.yFreeVEnPro.replace('%2$s', pro_price_efb +'$').replace('%1$s','<span class="efb fw-bold text-pinkEfb">').replace('%3$s','</span>').replace('%4$s',`<br><a href="${domain}" target="_blank" rel="noopener noreferrer" class="efb fw-bold efb-pro-notice__link">`).replace('%5$s','</a>');
   if(efb_var.language =='fa_IR'){
     msgpro = efb_var.text.yFreeVEnPro.replace('%2$s',  '1,300,000<small>تومان</small>').replace('%1$s','<span class="efb fw-bold text-pinkEfb">').replace('%3$s','</span>').replace('%4$s',`<br><a href="https://easyformbuilder.ir/pricing" target="_blank" rel="noopener noreferrer" class="efb fw-bold efb-pro-notice__link">`).replace('%5$s','</a>');
@@ -5793,7 +5793,27 @@ function restore_auto_save_efb(){
       creator_form_builder_Efb();
       setTimeout(() => { editFormEfb() }, 200)
       state_modal_show_efb(0)
+
+      /* The draft can be restored from the panel, where the builder takes over
+         #content-efb but the forms list's own chrome sits outside it: the
+         "load more" chevron is a sibling of that container, so replacing the
+         list leaves the button behind, floating under the canvas and paging a
+         list that is no longer on screen. Every other route into the builder
+         (a row's edit action, the ?state=edit-form deep link) hides it on the
+         way in; this one has to as well. Guarded because list_form-efb.js is
+         only enqueued on page=Emsfb - on the Create page there is no list, no
+         chevron and no helper. */
+      if (typeof fun_backButton_efb === 'function') fun_backButton_efb(0);
     } catch (error) {
+      /* Whatever went wrong, the dialog must not be left on screen: it owns
+         the modal shell and a backdrop, so a silent return here used to trap
+         the page behind a prompt whose only working button was the X - and
+         efb_auto_save is already 0 by now, so nothing would ever offer the
+         draft again either. A draft that cannot be read (truncated by a full
+         localStorage, an empty array) is kept, not deleted, so a later build
+         still has something to offer. */
+      state_modal_show_efb(0);
+      alert_message_efb('', (efb_var.text && efb_var.text.somethingWentWrongPleaseRefresh) || 'The auto-saved version could not be restored.', 17, 'danger');
       return;
     }
 
@@ -7228,7 +7248,7 @@ const sub =lan_subdomain_wsteam_efb();
       link += `How-to-Install-and-Use-the-Location-Picker-(geolocation)-with-Easy-Form-Builder`
       break;
     case 'pro':
-      link = `https://${sub}whitestudio.team/#price`
+      link = `https://${sub}whitestudio.team/#pricing`
       break;
     case 'publishForm':
       link = `https://www.youtube.com/watch?v=RJRe7p6yPCI`
@@ -7256,7 +7276,7 @@ const sub =lan_subdomain_wsteam_efb();
       link += `%da%86%da%af%d9%88%d9%86%d9%87-%d8%a7%d9%86%d8%aa%d8%ae%d8%a7%d8%a8%da%af%d8%b1-%d9%85%d9%88%d9%82%d8%b9%db%8c%d8%aa-%d9%85%da%a9%d8%a7%d9%86%db%8c-%d9%85%d9%88%d9%82%d8%b9%db%8c%d8%aa-%d8%ac%d8%ba/`
       break;
     case 'pro':
-      link = `https://easyformbuilder.ir/#price`
+      link = `https://easyformbuilder.ir/#pricing`
       break;
     case 'publishForm':
       case 'notInput':

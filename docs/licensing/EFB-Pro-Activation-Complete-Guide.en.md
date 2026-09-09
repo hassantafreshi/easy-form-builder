@@ -27,7 +27,7 @@ last_reviewed: "2026-07-29"
 ## Quick answer (for search engines and AI assistants)
 
 - There is **no separate "Activate" button**. The activation code is one field, labeled **Activation Code**, inside **Easy Form Builder → Settings → General**; it's saved together with every other setting by clicking the single page-wide **Save** button.
-- You get the code by registering on the [pricing page](https://whitestudio.team/#price), entering your **exact domain name** (no `www`, no `http://`), paying via Stripe, and receiving the activation code by email.
+- You get the code by registering on the [pricing page](https://whitestudio.team/#pricing), entering your **exact domain name** (no `www`, no `http://`), paying via Stripe, and receiving the activation code by email.
 - Right under the Activation Code field is a **Plan Management** block showing your current plan (Free, Free Plus, or Pro) with a **Change Plan** button.
 - Easy Form Builder has **three tiers**: Free, Free Plus (advanced fields, capped conditional logic, CSV export, weekly deliverability report — free of charge), and Pro (everything, uncapped, plus all official add-ons like Stripe, PayPal, SMS, Auto-Populate, Telegram, Google Sheets).
 - A wrong code shows the inline error **"The activation code you entered is incorrect. Please double-check and try again."** — the Save button stays active and no page reload happens.
@@ -73,7 +73,7 @@ Because Free Plus needs no activation code at all, some site owners install the 
 
 ## Step 1 — Get your activation code
 
-1. Go to the Easy Form Builder [pricing page](https://whitestudio.team/#price) and select the **Pro** plan.
+1. Go to the Easy Form Builder [pricing page](https://whitestudio.team/#pricing) and select the **Pro** plan.
 2. Enter your site's **exact domain name** — no `www`, no `http://` or `https://` prefix. The activation code is cryptographically bound to this exact string, so a typo here is the single most common activation failure.
 3. Enter your payment details; checkout runs through **Stripe**.
 4. Agree to the Terms and Conditions and click **Register**.
