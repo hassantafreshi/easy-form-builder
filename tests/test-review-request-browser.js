@@ -133,7 +133,17 @@ async function fitsInShell(page) {
     const ribbon = await page.locator('.efb-review__ribbon').innerText();
     t('the offer ribbon names the discount', /\d|[۰-۹٠-٩]/.test(ribbon), ribbon.trim());
     t('the ribbon prints no literal %s', !ribbon.includes('%s'));
-    t('the three reassurances are shown', (await page.locator('.efb-review__trust li').count()) === 3);
+    /* The three reassurances under the stars were dropped in 8fe690a9 - the
+       markup and all four locale tables went together, so their absence is
+       the design, not a regression. What has to stay is the hint line that
+       now ends the step, because the star handlers write their label into
+       it. .efb-review__trust is asserted gone so the dead CSS rules still
+       in review-request-efb.css cannot quietly bring it back. */
+    t('the reassurance list is gone, as designed',
+      (await page.locator('.efb-review__trust').count()) === 0);
+    t('the rating hint closes the step',
+      (await page.locator('[data-efb-review-hint]').count()) === 1 &&
+      (await page.locator('[data-efb-review-hint]').innerText()).trim().length > 0);
 
     // Hovering must light up to the pointer, and let go again.
     await page.locator('[data-efb-review-rate="3"]').hover();
