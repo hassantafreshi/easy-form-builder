@@ -945,7 +945,12 @@ public function check_nonce_permission_efb($request) {
 			'snotfound','sfmcfop','notFound','file','copied','nonceExpired','fileUploadNetworkError','id','updated','methodPayment','ttlprc','fillrequiredfields',
 			'audio_recorder','video_recorder','screen_recorder','recStart','recStop','recPause','recResume','recRedo','recPlay','recReady','recRecording','recPaused','recReadyToSubmit','recUpload','recUploading','recUploaded','recUploadFailed','recUploadOffline','recUploadUnavailable','recNoFile','recFileTooLarge','recInvalidFile','recDurationExceeded',
 			'recQuality','recDuration','recQualityLow','recQualityStandard','recQualityHigh','recQuality480','recQuality720','recQuality1080','recPermissionDenied','recNotSupported','recMaxDurationReached','recWatermark','recTapToStart',
-			'recDownload','recNeedsHttps','recScreenNotSupported'];
+			'recDownload','recNeedsHttps','recScreenNotSupported',
+			/* text_efb() returns only the keys asked for, so a phrase left out
+			 * here is not missing text - it is text that quietly falls back to
+			 * English on every translated site. These two are the step counter
+			 * and the completion caption on the progress indicator. */
+			'stepXofY','percentComplete'];
 
 			$this->public_scripts_and_css_head('', isset($value_form_data->form_structer) ? $value_form_data->form_structer : null);
 
@@ -1297,16 +1302,18 @@ public function check_nonce_permission_efb($request) {
 					}
 					$content .= $fieldset;
 
+					/* data-num is what draws the number in place of the glyph once the
+					 * form is long enough for the captions to be dropped, and it is
+					 * also how efbStepsSyncEfb() knows which step a row is without
+					 * having to parse its id. The icon and colour classes are passed
+					 * through untouched: they are still what paints the step. */
 					$head .= sprintf(
-						'<li id="%1$s-f-step-efb-%3$s" data-step="icon-s-%2$d-efb" data-formid="%3$s" class="efb %4$s %5$s %6$s %7$s %8$s"><strong class="efb fs-5 %9$s">%10$s</strong></li>',
+						'<li id="%1$s-f-step-efb-%3$s" data-step="icon-s-%2$d-efb" data-formid="%3$s" data-num="%2$d" class="%4$s %5$s"><strong class="efb fs-5 efb-sp__label %6$s">%7$s</strong></li>',
 						$value->id_,
 						$step_no,
 						$form_id,
+						efb_steps_item_class_efb( $step_no, 1, $value->icon_color, $value->icon ),
 						$valj_efb_first->steps <= 6 ? 'step-w-' . $valj_efb_first->steps : 'step-w-6',
-						$value->icon_color,
-						$value->icon,
-						$value->step == 1 ? 'active' : '',
-						'',
 						$value->label_text_color,
 						$value->name
 					);
@@ -1471,25 +1478,49 @@ public function check_nonce_permission_efb($request) {
 						<div step-{$step_no}-efb></div>
 					</fieldset>";
 
-				$head_final_step = "<li id='f-step-efb-{$form_id}' data-step='icon-s-{$step_no}-efb' data-formid='{$form_id}' class='efb {$valj_efb[1]->icon_color} " . (($valj_efb[0]->steps <= 6) ? "step-w-{$valj_efb[0]->steps}" : "step-w-6") . " bi-check-lg mx-0'>
-					<strong class='efb fs-5 {$valj_efb[1]->label_text_color}'>".$lanText['finish']."</strong>
+				$head_final_step = "<li id='f-step-efb-{$form_id}' data-step='icon-s-{$step_no}-efb' data-formid='{$form_id}' data-num='{$step_no}' class='"
+					. efb_steps_item_class_efb( $step_no, 1, $valj_efb[1]->icon_color, 'bi-check-lg' ) . " "
+					. ( ( $valj_efb[0]->steps <= 6 ) ? "step-w-{$valj_efb[0]->steps}" : 'step-w-6' ) . " mx-0'>
+					<strong class='efb fs-5 efb-sp__label {$valj_efb[1]->label_text_color}'>".$lanText['finish']."</strong>
 				</li>";
 
 				$bgc = isset($valj_efb[0]->prg_bar_color) ? $valj_efb[0]->prg_bar_color : 'btn-primary';
 
-				$percent = (1 / ($step_no)) * 100;
-				$percent = round($percent, 2);
-				$head = (intval($valj_efb[0]->show_icon) != 1 ? '<ul id="steps-efb" class="efb mb-2 px-2" data-formid="'.$form_id.'">' . $head . $head_final_step.'</ul>' : '') .
+				/* The steps row and the progress block are two halves of one
+				 * component now - they share the accent, the compact threshold and
+				 * the caption that stands in for the step titles once they no
+				 * longer fit - so they are wrapped together even when the author
+				 * has switched one of the two off. */
+				$show_steps_efb    = intval($valj_efb[0]->show_icon) != 1;
+				$show_progress_efb = intval($valj_efb[0]->show_pro_bar) != 1;
+				$steps_style_efb   = efb_steps_style_name_efb( isset($valj_efb[0]->steps_style) ? $valj_efb[0]->steps_style : '' );
+				$prog_style_efb    = efb_progress_style_name_efb( isset($valj_efb[0]->progress_style) ? $valj_efb[0]->progress_style : '' );
+				$first_name_efb    = isset($valj_efb[1]->name) ? $valj_efb[1]->name : '';
+				$shell_args_efb    = array(
+					'form_id'        => $form_id,
+					'total'          => $step_no,
+					'current'        => 1,
+					'current_name'   => $first_name_efb,
+					'steps_style'    => $steps_style_efb,
+					'progress_style' => $prog_style_efb,
+					'accent_class'   => $bgc,
+					'lan_text'       => $lanText,
+					'rtl'            => is_rtl(),
+					'show_steps'     => $show_steps_efb,
+					'show_progress'  => $show_progress_efb,
+				);
+
+				$head = ( $show_steps_efb || $show_progress_efb )
+					? efb_steps_wrap_open_efb( $shell_args_efb )
+						. ( efb_steps_wants_header_efb( $shell_args_efb ) ? efb_steps_header_efb( $shell_args_efb ) : '' )
 						/* The gap under the bar is a margin rather than the <br> that
 						 * used to sit here: a bare <br> between two blocks is one of
 						 * the pieces wpautop wraps in a paragraph of its own. The
 						 * class carries the same 32px the line break produced. */
-						(intval($valj_efb[0]->show_pro_bar)!= 1 ?
-							'<div class="efb d-flex justify-content-center efb-progress-gap" id="f-progress-efb">
-								<div class="efb progress mx-3 w-100 ' . $bgc . '">
-									<div class="efb progress-bar-efb progress-bar-striped progress-bar-animated" role="progressbar" aria-valuemin="0" aria-valuemax="100"  style="width: '.$percent.'%;" data-formid="'.$this->id.'"></div>
-								</div>
-							</div>' : '');
+						. ( $show_steps_efb ? '<ul id="steps-efb" class="efb efb-sp__steps mb-2 px-2" data-formid="'.$form_id.'">' . $head . $head_final_step . '</ul>' : '' )
+						. ( $show_progress_efb ? efb_steps_progress_efb( $shell_args_efb ) : '' )
+						. '</div>'
+					: '';
 
 				$step_no--;
 			}

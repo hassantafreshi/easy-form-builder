@@ -1,6 +1,105 @@
 
 const iconMarginGlobal = efb_var.rtl == 1 ? 'ms-2' : 'me-2';
 
+/* ==========================================================================
+   Steps and progress style pickers
+   --------------------------------------------------------------------------
+   Two toggles in the form settings decide whether the steps row and the
+   progress bar are drawn at all; these pickers decide what they look like when
+   they are. Each option is drawn rather than named, because "pills" and
+   "ribbon" mean nothing until you have seen them, and the thumbnails are
+   inline SVG so they cost no request and follow the panel's own colours.
+
+   The picker is printed even when its feature is switched off and hidden with
+   d-none, so change_el_edit_Efb() only has to flip a class when the toggle
+   moves instead of rebuilding the panel.
+   ========================================================================== */
+const efbStepArtEfb = {
+  circles: `<svg viewBox="0 0 76 24" role="img" aria-hidden="true">
+      <line x1="12" y1="9" x2="38" y2="9" stroke="#202a8d" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="38" y1="9" x2="64" y2="9" stroke="#dfe3f2" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="12" cy="9" r="7" fill="#202a8d"/>
+      <circle cx="38" cy="9" r="7" fill="#4757e7"/>
+      <circle cx="64" cy="9" r="6.2" fill="#fff" stroke="#dfe3f2" stroke-width="1.6"/>
+      <rect x="4" y="20" width="16" height="2.6" rx="1.3" fill="#c3c9e0"/>
+      <rect x="30" y="20" width="16" height="2.6" rx="1.3" fill="#c3c9e0"/>
+      <rect x="56" y="20" width="16" height="2.6" rx="1.3" fill="#e4e8f5"/>
+    </svg>`,
+  pills: `<svg viewBox="0 0 76 24" role="img" aria-hidden="true">
+      <rect x="1" y="5" width="23" height="14" rx="7" fill="#fff" stroke="#d7ddf2" stroke-width="1.4"/>
+      <circle cx="9" cy="12" r="3.4" fill="#dcf3e8"/>
+      <rect x="14" y="10.7" width="7" height="2.6" rx="1.3" fill="#c3c9e0"/>
+      <rect x="26.5" y="5" width="23" height="14" rx="7" fill="#202a8d"/>
+      <circle cx="34.5" cy="12" r="3.4" fill="#ffffff" opacity=".35"/>
+      <rect x="39.5" y="10.7" width="7" height="2.6" rx="1.3" fill="#ffffff" opacity=".85"/>
+      <rect x="52" y="5" width="23" height="14" rx="7" fill="#f2f4fb"/>
+      <circle cx="60" cy="12" r="3.4" fill="#e2e6f3"/>
+      <rect x="65" y="10.7" width="7" height="2.6" rx="1.3" fill="#e4e8f5"/>
+    </svg>`,
+  chevrons: `<svg viewBox="0 0 76 24" role="img" aria-hidden="true">
+      <path d="M1 5h22l5 7-5 7H1z" fill="#151d66"/>
+      <path d="M24 5h22l5 7-5 7H24l5-7z" fill="#202a8d"/>
+      <path d="M47 5h28v14H47l5-7z" fill="#eef0f7"/>
+      <rect x="7" y="10.7" width="10" height="2.6" rx="1.3" fill="#ffffff" opacity=".85"/>
+      <rect x="30" y="10.7" width="10" height="2.6" rx="1.3" fill="#ffffff" opacity=".85"/>
+      <rect x="55" y="10.7" width="10" height="2.6" rx="1.3" fill="#c9cfe4"/>
+    </svg>`
+};
+
+const efbProgArtEfb = {
+  bar: `<svg viewBox="0 0 76 24" role="img" aria-hidden="true">
+      <rect x="1" y="3" width="26" height="2.6" rx="1.3" fill="#c3c9e0"/>
+      <rect x="64" y="3" width="11" height="2.6" rx="1.3" fill="#202a8d"/>
+      <rect x="1" y="10" width="74" height="9" rx="4.5" fill="#eaedf8"/>
+      <rect x="1" y="10" width="48" height="9" rx="4.5" fill="#202a8d"/>
+    </svg>`,
+  segments: `<svg viewBox="0 0 76 24" role="img" aria-hidden="true">
+      <rect x="1" y="7" width="22" height="8" rx="4" fill="#151d66"/>
+      <rect x="27" y="7" width="22" height="8" rx="4" fill="#202a8d"/>
+      <rect x="53" y="7" width="22" height="8" rx="4" fill="#eaedf8"/>
+      <rect x="1" y="19" width="20" height="2.6" rx="1.3" fill="#c3c9e0"/>
+      <rect x="61" y="19" width="14" height="2.6" rx="1.3" fill="#c3c9e0"/>
+    </svg>`,
+  /* r=9.5 makes the circumference just under 60, so a 40/20 dash draws two
+     thirds of the ring - the same proportion the real gauge shows mid-form. */
+  ring: `<svg viewBox="0 0 76 24" role="img" aria-hidden="true">
+      <circle cx="12" cy="12" r="9.5" fill="none" stroke="#eaedf8" stroke-width="4"/>
+      <circle cx="12" cy="12" r="9.5" fill="none" stroke="#202a8d" stroke-width="4"
+              stroke-linecap="round" stroke-dasharray="40 20" transform="rotate(-90 12 12)"/>
+      <rect x="28" y="6" width="30" height="3.4" rx="1.7" fill="#c3c9e0"/>
+      <rect x="28" y="14" width="44" height="2.8" rx="1.4" fill="#e4e8f5"/>
+    </svg>`
+};
+
+/**
+ * One picker. `target` is the key it writes into valj_efb[0], which is also
+ * what the click handler reads back, so adding a style is a matter of adding
+ * an entry to the art map and the options list - nothing else changes.
+ */
+const efbStylePickerEls = (target, idset, hidden) => {
+  const isSteps = target === 'steps_style';
+  const art = isSteps ? efbStepArtEfb : efbProgArtEfb;
+  const current = isSteps
+    ? efbStepsStyleNameEfb(valj_efb[0])
+    : efbProgressStyleNameEfb(valj_efb[0]);
+  const options = isSteps
+    ? [['circles', efb_var.text.stepStyleCircles], ['pills', efb_var.text.stepStylePills], ['chevrons', efb_var.text.stepStyleChevrons]]
+    : [['bar', efb_var.text.progStyleBar], ['segments', efb_var.text.progStyleSegments], ['ring', efb_var.text.progStyleRing]];
+  const icon = isSteps ? 'bi-diagram-3' : 'bi-bar-chart-steps';
+  const title = isSteps ? efb_var.text.stepsStyle : efb_var.text.progressStyle;
+
+  const cards = options.map(([key, name]) => `
+      <button type="button" class="efb efb-sp-picker__opt ${current === key ? 'active' : ''}" data-style="${key}" data-target="${target}" aria-pressed="${current === key}" title="${name}" onclick="efbPickStepStyleEfb(this)">
+        <span class="efb efb-sp-picker__art">${art[key]}</span>
+        <span class="efb efb-sp-picker__name">${name}</span>
+      </button>`).join('');
+
+  return `<div class="efb mx-1 mb-3 efb-sp-picker-box ${hidden ? 'd-none' : ''}" id="efb-picker-${target}" data-id="${idset}">
+    <label class="efb form-label mt-1 mb-1 efb"><i class="efb ${icon} fs-7 ${iconMarginGlobal}"></i>${title}</label>
+    <div class="efb efb-sp-picker">${cards}</div>
+  </div>`;
+};
+
 const efbMobileProLockedEfb = () => typeof efbHasMobileProAccessEfb === 'function'
   ? !efbHasMobileProAccessEfb()
   : !(efb_var.pro === true || efb_var.pro === 1 || efb_var.pro === '1');
@@ -772,7 +871,8 @@ function show_setting_window_efb(idset) {
     <div class="efb handle"></div>
     </button>
     <label class="efb form-check-label" for="showSIconsEl">${efb_var.text.dontShowIconsStepsName}</label>
-    </div>`;
+    </div>
+    ${efbStylePickerEls('steps_style', idset, Number(valj_efb[0].show_icon) === 1)}`;
     const globalMobileHideLabelEls = efbMobileProControlEfb(`<div class="efb mx-1 my-3 efb">
     <button type="button" id="globalMobileHideLabelEl" class="efb mx-0 btn h-s-efb btn-toggle ${iconMarginGlobal} ${Number(valj_efb[0].global_mobile_hflabel || 0) === 1 ? 'active' : ''}" data-id="${idset}" aria-pressed="${Number(valj_efb[0].global_mobile_hflabel || 0) === 1}" autocomplete="off" onclick="return efbToggleMobileVisibilityEfb(this, 'global_mobile_hflabel')"><div class="efb handle"></div></button>
     <label class="efb form-check-label" for="globalMobileHideLabelEl">${efb_var.text.globalMobileHideLabel || 'Hide all labels on mobile'}</label>
@@ -782,7 +882,8 @@ function show_setting_window_efb(idset) {
     <div class="efb handle"></div>
     </button>
     <label class="efb form-check-label" for="showSprosiEl">${efb_var.text.dontShowProgressBar}</label>
-    </div>`;
+    </div>
+    ${efbStylePickerEls('progress_style', idset, Number(valj_efb[0].show_pro_bar) === 1)}`;
     let disable =valj_efb[0].type!="register" && valj_efb[0].type!="login"  ? '' : 'disabled';
     const defaultThankYou = typeof getDefaultThankYouByType === 'function' ? getDefaultThankYouByType(valj_efb[0].type) : { thankYou: efb_var.text.thanksFillingOutform, done: efb_var.text.yad };
     const m_tankYouMessage = defaultThankYou.thankYou;

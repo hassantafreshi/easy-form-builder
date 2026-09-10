@@ -530,7 +530,11 @@ function prev_btn_efb() {
   var s = "" + (current_s_efb - 1) + "";
   var val = valj_efb.find(x => x.step == s);
   if(Number(valj_efb[0].show_icon)!=1){
-      document.querySelector('[data-step="icon-s-' + current_s_efb + '-efb"]').classList.remove("active");
+      /* setProgressBar_efb() below recomputes every row from the step being
+         moved to, so the row left behind only has to be cleared here when the
+         shared runtime is not available. */
+      var leavingIcon_efb = document.querySelector('[data-step="icon-s-' + current_s_efb + '-efb"]');
+      if (leavingIcon_efb) leavingIcon_efb.classList.remove("active");
       document.querySelector('[data-step="step-' + current_s_efb + '-efb"]').classList.toggle("d-none");
       document.getElementById("title_efb").className = val["label_text_color"];
       document.getElementById("desc_efb").className = val["message_text_color"];
@@ -555,11 +559,22 @@ function prev_btn_efb() {
     document.getElementById("body_efb").scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
   }
 }
+/* The preview's counterpart to fun_progessbar() in core-efb.js. It drives the
+   steps row as well as the progress block, so it can no longer bail out when
+   the author switched the progress bar off - the row is still there. */
 function setProgressBar_efb(curStep, steps_len_efb) {
-  if(Number(valj_efb[0].show_pro_bar)==1) return
+  var shell = document.querySelector('.efb-sp');
+  if (typeof efbStepsSyncEfb === 'function' && shell) {
+    var row = (valj_efb || []).find(function (x) { return String(x.type) === 'step' && Number(x.step) === Number(curStep); });
+    efbStepsSyncEfb(shell, curStep, steps_len_efb, row && row.name ? row.name : '');
+    return;
+  }
+  if (Number(valj_efb[0].show_pro_bar) == 1) return;
+  var bar = document.querySelector(".progress-bar-efb");
+  if (!bar) return;
   var percent = (curStep / steps_len_efb) * 100;
   percent = Math.round(percent * 100) / 100;
-  document.querySelector(".progress-bar-efb").style.width = percent + "%";
+  bar.style.width = percent + "%";
 }
 
 localStorage.getItem('count_view') ? localStorage.setItem(`count_view`, parseInt(localStorage.getItem('count_view')) + 1) : localStorage.setItem(`count_view`, 0)
@@ -1883,3 +1898,367 @@ fun_imgRadio_efb=(id ,link,row ,state=true)=>{
     </div>
     </label>`;
 }
+
+/* ==========================================================================
+   Steps process + progress bar - shared runtime
+   --------------------------------------------------------------------------
+   This file is enqueued on the front end as well as in wp-admin, so everything
+   here is attached as a guarded window property: public/assets/js/core-efb.js
+   redeclares a number of the plugin's globals with `let`, and a bare `const`
+   here would throw on the front end before any of it ran.
+
+   The markup these helpers read and write is described at the top of the
+   "Steps process + progress bar" block in includes/admin/assets/css/style-efb.css,
+   and is produced identically by class-Emsfb-public.php (front end), by
+   builder_form_efb() (canvas) and by previewFormEfb() (preview).
+   ========================================================================== */
+(function () {
+   'use strict';
+
+   var defineEfb = function (name, value) {
+      if (typeof window[name] === 'undefined') {
+         Object.defineProperty(window, name, { value: value, writable: true, configurable: true });
+      }
+   };
+
+   /* The bootstrap-ish colour names the plugin stores instead of a hex. Kept in
+      step with ColorNameToHexEfbOfElEfb() in admin-efb.js and with
+      efb_steps_color_name_hex_efb() in includes/functions.php. */
+   var namedEfb = {
+      primary: '#0d6efd', success: '#198754', secondary: '#6c757d', danger: '#ff455f',
+      warning: '#e9c31a', info: '#31d2f2', light: '#fbfbfb', darkb: '#202a8d',
+      labelEfb: '#898aa9', d: '#83859f', pinkEfb: '#ff4b93', white: '#ffffff',
+      dark: '#212529', muted: '#777777'
+   };
+
+   /* A stored colour is a class, never a value: "btn-colorDEfb-4636f1" for a
+      colour picked from the wheel, "btn-primary" for one of the presets. Both
+      shapes have to resolve to the same hex the form is actually painted with,
+      which is why this mirrors the -7/-6 slicing the rest of the plugin does. */
+   var toHexEfb = function (cls, fallback) {
+      fallback = fallback || '#202a8d';
+      if (!cls) return fallback;
+      var s = String(cls).trim();
+      if (!s) return fallback;
+      if (s.charAt(0) === '#') return s.length === 4 || s.length === 7 ? s : fallback;
+      var at = s.indexOf('colorDEfb-');
+      if (at !== -1) {
+         var hex = s.slice(at + 'colorDEfb-'.length).replace(/[^0-9a-fA-F]/g, '');
+         if (hex.length >= 6) return '#' + hex.slice(0, 6);
+         if (hex.length === 3) return '#' + hex;
+         return fallback;
+      }
+      var name = s.replace(/^(btn-outline-|btn-|text-|bg-|border-)/, '').trim();
+      return namedEfb[name] || fallback;
+   };
+
+   var rgbEfb = function (hex) {
+      var h = String(hex).replace('#', '');
+      if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+      return [parseInt(h.slice(0, 2), 16) || 0, parseInt(h.slice(2, 4), 16) || 0, parseInt(h.slice(4, 6), 16) || 0];
+   };
+
+   var clampEfb = function (n) { return n < 0 ? 0 : (n > 255 ? 255 : Math.round(n)); };
+
+   var shadeEfb = function (hex, ratio) {
+      var c = rgbEfb(hex);
+      var target = ratio < 0 ? 0 : 255;
+      var k = Math.abs(ratio);
+      var out = '#';
+      for (var i = 0; i < 3; i++) {
+         out += ('0' + clampEfb(c[i] + (target - c[i]) * k).toString(16)).slice(-2);
+      }
+      return out;
+   };
+
+   /* Perceived brightness, so a caption that lands on the accent fill stays
+      readable whichever colour the author picked. The 0.6 cut is deliberately
+      above the usual 0.5: mid blues read as dark long after the arithmetic
+      says otherwise. */
+   var onAccentEfb = function (hex) {
+      var c = rgbEfb(hex);
+      var lum = (c[0] * 0.299 + c[1] * 0.587 + c[2] * 0.114) / 255;
+      return lum > 0.62 ? '#1b1f3b' : '#ffffff';
+   };
+
+   var paletteEfb = function (colorClass, fallback) {
+      var accent = toHexEfb(colorClass, fallback);
+      var c = rgbEfb(accent);
+      return {
+         accent: accent,
+         accentDark: shadeEfb(accent, -0.28),
+         soft: 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',.16)',
+         onAccent: onAccentEfb(accent)
+      };
+   };
+
+   /* The inline custom properties the wrapper carries. Written as a style
+      attribute rather than a stylesheet because every form on the page has its
+      own accent and they all share the .efb-sp class. */
+   var styleVarsEfb = function (colorClass, fallback) {
+      var p = paletteEfb(colorClass, fallback);
+      return '--efb-sp-accent:' + p.accent +
+         ';--efb-sp-accent-dark:' + p.accentDark +
+         ';--efb-sp-soft:' + p.soft +
+         ';--efb-sp-on-accent:' + p.onAccent;
+   };
+
+   var STEP_STYLES_EFB = ['circles', 'pills', 'chevrons'];
+   var PROG_STYLES_EFB = ['bar', 'segments', 'ring'];
+
+   var stepsStyleEfb = function (row) {
+      var v = row && row.steps_style ? String(row.steps_style) : '';
+      return STEP_STYLES_EFB.indexOf(v) === -1 ? 'circles' : v;
+   };
+   var progStyleEfb = function (row) {
+      var v = row && row.progress_style ? String(row.progress_style) : '';
+      return PROG_STYLES_EFB.indexOf(v) === -1 ? 'bar' : v;
+   };
+
+   /* Ten is where the captions stop fitting on a desktop row and twenty is
+      where the dots themselves start to touch; both tiers are handled in CSS,
+      this only decides which classes to hand it. */
+   var densityEfb = function (total) {
+      var cls = '';
+      if (total > 10) cls += ' efb-sp--compact';
+      if (total > 20) cls += ' efb-sp--dense';
+      return cls;
+   };
+
+   var escEfb = function (s) {
+      return String(s === null || typeof s === 'undefined' ? '' : s)
+         .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+         .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+   };
+
+   var textEfb = function (key, fallback) {
+      try {
+         if (typeof efb_var !== 'undefined' && efb_var && efb_var.text && efb_var.text[key]) return efb_var.text[key];
+      } catch (e) { /* efb_var is not defined in every harness */ }
+      return fallback;
+   };
+
+   var counterTextEfb = function (current, total) {
+      var tpl = textEfb('stepXofY', 'Step %1$s of %2$s');
+      return String(tpl).replace('%1$s', current).replace('%2$s', total);
+   };
+
+   var completeTextEfb = function (percent) {
+      var tpl = textEfb('percentComplete', '%s complete');
+      return String(tpl).replace('%s', percent + '%');
+   };
+
+   /* ---------------------------------------------------------------------
+      Markup. Only the shell is built here - the <li> for each step is still
+      written by whichever renderer owns it, because the three of them carry
+      different ids and only they know the step rows. What they all share is
+      the wrapper, the header and the progress block, which is what drifts if
+      it is copied three times.
+      --------------------------------------------------------------------- */
+   /* The ring block names the step itself, so the separate caption above the
+      row would say the same thing twice; and with the steps row switched off
+      the caption is the only thing naming the step at all, at any width. */
+   var wantsHeaderEfb = function (o) {
+      return !(o.showProgress !== false && o.progressStyle === 'ring');
+   };
+
+   var wrapOpenEfb = function (o) {
+      var cls = 'efb efb-sp efb-sp--' + o.stepsStyle + ' efb-sp--prog-' + o.progressStyle + densityEfb(o.total);
+      if (o.showSteps === false) cls += ' efb-sp--norow';
+      if (o.rtl) cls += ' efb-sp--rtl';
+      return '<div class="' + cls + '" data-formid="' + escEfb(o.formId) + '"' +
+         ' data-steps-style="' + o.stepsStyle + '" data-progress-style="' + o.progressStyle + '"' +
+         ' style="' + styleVarsEfb(o.accentClass) + '">';
+   };
+
+   var headerEfb = function (o) {
+      return '<div class="efb efb-sp__current" data-formid="' + escEfb(o.formId) + '">' +
+         '<span class="efb efb-sp__counter">' + escEfb(counterTextEfb(o.current, o.total)) + '</span>' +
+         '<span class="efb efb-sp__curname">' + escEfb(o.currentName) + '</span>' +
+         '</div>';
+   };
+
+   var progressEfb = function (o) {
+      /* Two numbers on purpose: the width and the arc want the exact fraction,
+         the caption wants something a person can read - "66.67%" beside
+         "Step 2 of 3" is noise. */
+      var percent = o.total > 0 ? Math.round((o.current / o.total) * 10000) / 100 : 0;
+      var readable = Math.round(percent);
+      var attrs = ' id="f-progress-efb" data-formid="' + escEfb(o.formId) + '"';
+      var meta = '<div class="efb efb-sp__meta">' +
+         '<span class="efb efb-sp__metaname">' + escEfb(counterTextEfb(o.current, o.total)) + '</span>' +
+         '<span class="efb efb-sp__pct">' + readable + '%</span>' +
+         '</div>';
+
+      if (o.progressStyle === 'segments') {
+         var segs = '';
+         for (var i = 1; i <= o.total; i++) {
+            segs += '<span class="efb efb-sp__seg ' + (i < o.current ? 'is-done' : (i === o.current ? 'is-active' : 'is-todo')) + '"></span>';
+         }
+         return '<div class="efb efb-sp__prog efb-progress-gap"' + attrs + '>' +
+            '<div class="efb efb-sp__segs">' + segs + '</div>' + meta + '</div>';
+      }
+
+      if (o.progressStyle === 'ring') {
+         return '<div class="efb efb-sp__prog efb-progress-gap"' + attrs + '>' +
+            '<div class="efb efb-sp__ringwrap">' +
+            '<div class="efb efb-sp__ring" style="--efb-sp-pct:' + percent + '">' +
+            '<span class="efb efb-sp__ring-in">' + o.current + '/' + o.total + '</span>' +
+            '</div>' +
+            '<div class="efb efb-sp__ringtext">' +
+            '<span class="efb efb-sp__curname">' + escEfb(o.currentName) + '</span>' +
+            '<span class="efb efb-sp__ringsub">' + escEfb(counterTextEfb(o.current, o.total)) + ' &middot; ' + escEfb(completeTextEfb(readable)) + '</span>' +
+            '</div></div></div>';
+      }
+
+      /* The author's colour rides on the fill rather than the track it used to
+         sit on, so the bar reads as progress instead of a coloured strip. */
+      return '<div class="efb efb-sp__prog efb-progress-gap"' + attrs + '>' + meta +
+         '<div class="efb progress efb-sp__track">' +
+         '<div class="efb progress-bar-efb efb-sp__fill ' + escEfb(o.accentClass || '') + '" role="progressbar"' +
+         ' aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + percent + '"' +
+         ' style="width:' + percent + '%;" data-formid="' + escEfb(o.formId) + '"></div>' +
+         '</div></div>';
+   };
+
+   /* The <li> class list, so all three renderers stay in step over which
+      state class a step carries and where the number for compact mode comes
+      from. The author's icon and colour classes are passed straight through. */
+   var itemClassEfb = function (num, current, iconColor, icon) {
+      var state = num < current ? 'is-done' : (num === current ? 'is-active' : 'is-todo');
+      return 'efb efb-sp__item ' + state + ' ' + (iconColor || '') + ' ' + (icon || '') +
+         (num === current ? ' active' : '');
+   };
+
+   /* ---------------------------------------------------------------------
+      Runtime. One entry point, called by every navigation path there is:
+      core-efb.js on the front end, new-efb.js and admin-efb.js in the
+      preview, and persia_pay-efb.js when a visitor comes back from a bank.
+      Recomputing every item from the current step is what makes "done" states
+      possible at all - the old add/remove pair only ever knew about one step.
+      --------------------------------------------------------------------- */
+   var syncEfb = function (scope, current, total, currentName) {
+      var root = null;
+      if (!scope) {
+         root = document.querySelector('.efb-sp');
+      } else if (scope.classList && scope.classList.contains('efb-sp')) {
+         root = scope;
+      } else if (scope.querySelector) {
+         root = scope.querySelector('.efb-sp');
+      } else {
+         root = document.querySelector('.efb-sp[data-formid="' + scope + '"]') || document.querySelector('.efb-sp');
+      }
+      if (!root) return false;
+
+      /* The row itself is the authority on how many stops there are. The count
+         the caller passes comes from valj_efb[0].steps, which is not always the
+         number of steps that were actually drawn - the free plan clamps it to
+         its own limit while leaving the step rows in place, and a form that was
+         built under a licence that has since lapsed then reports fewer steps
+         than it renders. Trusting the caller there put "Step 1 of 3" under a
+         row of four. The passed count is still the fallback for a form whose
+         steps row is switched off, where there is nothing to count. */
+      var items = root.querySelectorAll('.efb-sp__item');
+      total = items.length || Number(total) || 1;
+      current = Number(current) || 1;
+      if (current < 1) current = 1;
+      if (current > total) current = total;
+
+      var activeName = '';
+      for (var i = 0; i < items.length; i++) {
+         var num = Number(items[i].getAttribute('data-num')) || (i + 1);
+         var state = num < current ? 'is-done' : (num === current ? 'is-active' : 'is-todo');
+         items[i].classList.remove('is-done', 'is-active', 'is-todo');
+         items[i].classList.add(state);
+         /* .active is what the plugin's own selectors and the legacy stylesheet
+            still look for, so it is kept in sync rather than replaced. */
+         if (num === current) {
+            items[i].classList.add('active');
+            var lab = items[i].querySelector('.efb-sp__label');
+            activeName = lab ? lab.textContent : '';
+         } else {
+            items[i].classList.remove('active');
+         }
+      }
+
+      var percent = Math.round((current / total) * 10000) / 100;
+      var readable = Math.round(percent);
+      var counter = counterTextEfb(current, total);
+
+      var setText = function (sel, value) {
+         var els = root.querySelectorAll(sel);
+         for (var j = 0; j < els.length; j++) els[j].textContent = value;
+      };
+      setText('.efb-sp__counter', counter);
+      setText('.efb-sp__metaname', counter);
+      setText('.efb-sp__pct', readable + '%');
+      /* With the steps row switched off there are no <li> to read the caption
+         from, so the caller passes the name it just put in the title instead. */
+      var name = typeof currentName === 'string' && currentName !== '' ? currentName : activeName;
+      if (items.length || (typeof currentName === 'string' && currentName !== '')) setText('.efb-sp__curname', name);
+      setText('.efb-sp__ringsub', counter + ' \u00b7 ' + completeTextEfb(readable));
+      setText('.efb-sp__ring-in', current + '/' + total);
+
+      var fill = root.querySelector('.efb-sp__fill') || root.querySelector('.progress-bar-efb');
+      if (fill) {
+         fill.style.width = percent + '%';
+         fill.setAttribute('aria-valuenow', percent);
+      }
+
+      var segs = root.querySelectorAll('.efb-sp__seg');
+      for (var s = 0; s < segs.length; s++) {
+         var n = s + 1;
+         segs[s].classList.remove('is-done', 'is-active', 'is-todo');
+         segs[s].classList.add(n < current ? 'is-done' : (n === current ? 'is-active' : 'is-todo'));
+      }
+
+      var ring = root.querySelector('.efb-sp__ring');
+      if (ring) ring.style.setProperty('--efb-sp-pct', percent);
+
+      /* A strip that scrolls is useless if the step you are on is off-screen.
+         scrollLeft is set directly rather than through scrollIntoView(), which
+         would also scroll the page and fight the smooth scroll the navigation
+         buttons already do. */
+      var list = root.querySelector('.efb-sp__steps');
+      if (list && list.scrollWidth > list.clientWidth + 1) {
+         var act = root.querySelector('.efb-sp__item.is-active');
+         if (act) {
+            var target = act.offsetLeft - (list.clientWidth - act.offsetWidth) / 2;
+            var max = list.scrollWidth - list.clientWidth;
+            target = target < 0 ? 0 : (target > max ? max : target);
+            try { list.scrollTo({ left: target, behavior: 'smooth' }); }
+            catch (e) { list.scrollLeft = target; }
+         }
+      }
+      return true;
+   };
+
+   /* The whole head in one call, because both admin renderers assemble exactly
+      the same thing and the front end assembles it from the PHP twins of these
+      helpers. `items` is the <li> run the caller built, since only the caller
+      knows the ids its own markup uses. */
+   var shellHeadEfb = function (o) {
+      if (!o.showSteps && !o.showProgress) return '';
+      return wrapOpenEfb(o) +
+         (wantsHeaderEfb(o) ? headerEfb(o) : '') +
+         (o.showSteps ? '<ul id="steps-efb" class="efb efb-sp__steps mb-2 px-2">' + o.items + '</ul>' : '') +
+         (o.showProgress ? progressEfb(o) : '') +
+         '</div>';
+   };
+
+   defineEfb('efbStepsWantsHeaderEfb', wantsHeaderEfb);
+   defineEfb('efbStepsShellHeadEfb', shellHeadEfb);
+   defineEfb('efbStepsColorHexEfb', toHexEfb);
+   defineEfb('efbStepsPaletteEfb', paletteEfb);
+   defineEfb('efbStepsStyleVarsEfb', styleVarsEfb);
+   defineEfb('efbStepsStyleNameEfb', stepsStyleEfb);
+   defineEfb('efbProgressStyleNameEfb', progStyleEfb);
+   defineEfb('efbStepsDensityClassEfb', densityEfb);
+   defineEfb('efbStepsWrapOpenEfb', wrapOpenEfb);
+   defineEfb('efbStepsHeaderEfb', headerEfb);
+   defineEfb('efbStepsProgressEfb', progressEfb);
+   defineEfb('efbStepsItemClassEfb', itemClassEfb);
+   defineEfb('efbStepsSyncEfb', syncEfb);
+   defineEfb('EFB_STEP_STYLES_EFB', STEP_STYLES_EFB);
+   defineEfb('EFB_PROGRESS_STYLES_EFB', PROG_STYLES_EFB);
+})();

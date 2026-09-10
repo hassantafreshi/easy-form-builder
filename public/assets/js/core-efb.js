@@ -2365,10 +2365,29 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
   let no_step = Number(parent_body.dataset.currentstep);
   let valj_efb = get_structure_by_form_id_efb(form_id);
   const progessbar = parent_body.querySelector('.progress-bar-efb') ?? null;
-  fun_progessbar = (no_step,max_step)=>{
-    max_step = max_step+1;
-    const percent_progess = ((no_step)/(max_step))*100+'%';
-    if (progessbar) progessbar.style.width = percent_progess;
+  const steps_shell_efb = parent_body.querySelector('.efb-sp') ?? null;
+  /* The name of a step, for the caption that stands in for the step titles on a
+     long form or a phone. Read from the structure rather than from the row that
+     was just clicked, because the steps list is not rendered at all when the
+     author switched it off - and that is exactly when the caption matters. */
+  const name_of_step_efb = (n) => {
+    const row = (valj_efb ?? []).find(x => String(x.type) === 'step' && Number(x.step) === Number(n));
+    if (row && row.name) return row.name;
+    return (typeof efb_var !== 'undefined' && efb_var.text && efb_var.text.finish) ? efb_var.text.finish : '';
+  };
+  /* Both halves of the indicator move together now - the fill, the segments or
+     the ring, and the done/active/todo run across the steps row - so they are
+     driven from one call. efbStepsSyncEfb comes from new-efb.js, which is
+     enqueued ahead of this file; the old width write stays as the fallback for
+     a page that somehow loaded this script on its own. */
+  fun_progessbar = (no_step, max_step) => {
+    const total = Number(max_step) + 1;
+    if (typeof efbStepsSyncEfb === 'function' && steps_shell_efb) {
+      efbStepsSyncEfb(steps_shell_efb, no_step, total, name_of_step_efb(no_step));
+      return true;
+    }
+    if (progessbar) progessbar.style.width = ((no_step / total) * 100) + '%';
+    return true;
   }
   fun_check_step_has_necessary_fields_efb=(no_step ,valj_efb)=>{
     sendBack_emsFormBuilder_pub = sendBack_emsFormBuilder_pub.filter(Boolean);
@@ -2394,7 +2413,16 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
     if(Number(valj_efb[0].show_icon)==1){
       return true;
     }
+    /* Every step is recomputed from the current one instead of the old pair of
+       add/remove calls on the two rows either side. That pair could only ever
+       express "this is the step you are on"; a step the visitor has already
+       finished has to be drawn differently from one they have not reached, and
+       a conditional-logic jump moves by more than one step at a time. */
     icon_step_handler = (no_step,form_id,nav_state)=>{
+      if (typeof efbStepsSyncEfb === 'function' && steps_shell_efb) {
+        efbStepsSyncEfb(steps_shell_efb, no_step, max_step + 1, name_of_step_efb(no_step));
+        return true;
+      }
       let id_active_icon = `${no_step}-f-step-efb-${form_id}`;
       let active_step_icon = document.getElementById(id_active_icon);
       active_step_icon ?  active_step_icon.classList.add('active') : false;
@@ -2496,7 +2524,7 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
         }
 
        parent_body.dataset.currentstep = no_step;
-       if(progessbar)fun_progessbar(no_step,max_step);
+       fun_progessbar(no_step,max_step);
 
        if(no_step>max_step){
          if(el) el.classList.add('d-none');
@@ -2531,7 +2559,7 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
     current_fieldset.classList.add('d-none');
 
     if(prev_fieldset)prev_fieldset.classList.remove('d-none');
-    if(progessbar) fun_progessbar(no_step,max_step);
+    fun_progessbar(no_step,max_step);
     smoothy_scroll_postion_efb(id_body);
     await fun_handle_header_efb(no_step,'backward');
     updateStepButtonState_efb(form_id);
@@ -2549,7 +2577,7 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
     const submitFlow = endMessage_emsFormBuilder_view(Number(no_step) - 1, form_id);
     if (current_fieldset) current_fieldset.classList.add('d-none');
     if (next_fieldset) next_fieldset.classList.remove('d-none');
-    if(progessbar)fun_progessbar(no_step,max_step);
+    fun_progessbar(no_step,max_step);
     smoothy_scroll_postion_efb(id_body);
     await fun_handle_header_efb(no_step,'forward');
 
@@ -2794,15 +2822,24 @@ fun_prev_send =(form_id =0) =>{
   id = `step-${_prevTarget}-efb`;
   const prev_s_efb = body_efb.querySelector(`[data-step="${id}"]`);
 
+  const steps_shell_efb = body_efb.querySelector('.efb-sp');
   fun_progessbar = (current_step,max_step)=>{
+    const total = Number(max_step) + 1;
+    if (typeof efbStepsSyncEfb === 'function' && steps_shell_efb) {
+      const row = (valj_efb ?? []).find(x => String(x.type) === 'step' && Number(x.step) === Number(current_step));
+      efbStepsSyncEfb(steps_shell_efb, current_step, total, row && row.name ? row.name : '');
+      return true;
+    }
     const progessbar = body_efb.querySelector('.progress-bar-efb')
     if(!progessbar)return false;
-    max_step = max_step+1;
-    const percent_progess = ((current_step)/(max_step))*100+'%';
-    progessbar.style.width = percent_progess;
+    progessbar.style.width = ((current_step / total) * 100) + '%';
+    return true;
   }
 
-  if(Number(valj_efb[0].show_icon)!=1) {
+  /* Left to the sync below when it is available: clearing `active` here and
+     setting it again further down cannot express a step the visitor has
+     already been through. */
+  if(Number(valj_efb[0].show_icon)!=1 && !(typeof efbStepsSyncEfb === 'function' && steps_shell_efb)) {
     const currentIcon = document.getElementById(current_s_efb + '-f-step-efb-' + form_id);
     if (currentIcon) currentIcon.classList.remove("active");
   }
@@ -2830,9 +2867,11 @@ fun_prev_send =(form_id =0) =>{
       desc_efb.textContent = val['message'];
     }
 
-    let id_active_icon = `${s}-f-step-efb-${form_id}`;
-    const next_active_step_icon = document.getElementById(id_active_icon);
-    if (next_active_step_icon) next_active_step_icon.classList.add('active');
+    if (!(typeof efbStepsSyncEfb === 'function' && steps_shell_efb)) {
+      let id_active_icon = `${s}-f-step-efb-${form_id}`;
+      const next_active_step_icon = document.getElementById(id_active_icon);
+      if (next_active_step_icon) next_active_step_icon.classList.add('active');
+    }
   }
   const prev_efb = efb_find_in_form_efb(form_id, '#prev_efb', body_efb);
   if(prev_efb)prev_efb.classList.toggle("d-none");
@@ -2880,8 +2919,14 @@ function efb_go_to_step_direct(form_id, targetStep) {
   body_efb.dataset.currentstep = targetStep;
   current_s_efb = targetStep;
 
-  const progressBar = body_efb.querySelector('.progress-bar-efb');
-  if (progressBar) progressBar.style.width = (targetStep / (maxStep + 1)) * 100 + '%';
+  const stepsShellEfb = body_efb.querySelector('.efb-sp');
+  if (typeof efbStepsSyncEfb === 'function' && stepsShellEfb) {
+    const jumped = valj_efb.find((x) => String(x.type) === 'step' && String(x.step) === String(targetStep));
+    efbStepsSyncEfb(stepsShellEfb, targetStep, maxStep + 1, jumped && jumped.name ? jumped.name : '');
+  } else {
+    const progressBar = body_efb.querySelector('.progress-bar-efb');
+    if (progressBar) progressBar.style.width = (targetStep / (maxStep + 1)) * 100 + '%';
+  }
 
   /* #next_efb is the SAME element whether it currently reads "Next" or
    * "Submit" — only its inner text is swapped by updateStepButtonState_efb()
@@ -2912,9 +2957,11 @@ function efb_go_to_step_direct(form_id, targetStep) {
       titleEl.textContent = stepData['name'];
       descEl.textContent = stepData['message'];
     }
-    for (let i = 1; i <= maxStep; i++) {
-      const icon = document.getElementById(i + '-f-step-efb-' + form_id);
-      if (icon) icon.classList.toggle('active', i === targetStep);
+    if (!(typeof efbStepsSyncEfb === 'function' && stepsShellEfb)) {
+      for (let i = 1; i <= maxStep; i++) {
+        const icon = document.getElementById(i + '-f-step-efb-' + form_id);
+        if (icon) icon.classList.toggle('active', i === targetStep);
+      }
     }
   }
 

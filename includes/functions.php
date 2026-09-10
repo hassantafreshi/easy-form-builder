@@ -144,6 +144,338 @@ if ( ! function_exists( 'emsfb_autop_safe_markup_efb' ) ) {
 	}
 }
 
+/* ==========================================================================
+ * Steps process + progress bar - server side of the shared markup
+ * --------------------------------------------------------------------------
+ * The front end builds the same tree the builder canvas and the preview build
+ * in JavaScript; the JS half lives at the bottom of
+ * includes/admin/assets/js/new-efb.js and the markup contract is documented at
+ * the top of the "Steps process + progress bar" block in
+ * includes/admin/assets/css/style-efb.css. Anything changed in one half has to
+ * be changed in the other, which is why both halves are deliberately shaped
+ * the same way and named after each other.
+ * ========================================================================== */
+
+/**
+ * Resolve one of the plugin's stored colour classes to the hex it paints with.
+ *
+ * A colour is stored as a class and never as a value: "btn-colorDEfb-4636f1"
+ * for anything picked from the colour wheel, "btn-primary" for one of the
+ * presets. Both shapes have to resolve to the colour the form is actually
+ * drawn in, so the steps and the progress ring can be tinted with it.
+ */
+if ( ! function_exists( 'efb_steps_color_hex_efb' ) ) {
+	function efb_steps_color_hex_efb( $class, $fallback = '#202a8d' ) {
+		$named = array(
+			'primary'   => '#0d6efd', 'success' => '#198754', 'secondary' => '#6c757d',
+			'danger'    => '#ff455f', 'warning' => '#e9c31a', 'info'      => '#31d2f2',
+			'light'     => '#fbfbfb', 'darkb'   => '#202a8d', 'labelEfb'  => '#898aa9',
+			'd'         => '#83859f', 'pinkEfb' => '#ff4b93', 'white'     => '#ffffff',
+			'dark'      => '#212529', 'muted'   => '#777777',
+		);
+
+		$class = is_string( $class ) ? trim( $class ) : '';
+		if ( $class === '' ) {
+			return $fallback;
+		}
+		if ( strpos( $class, '#' ) === 0 ) {
+			return preg_match( '/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/', $class ) ? $class : $fallback;
+		}
+
+		$at = strpos( $class, 'colorDEfb-' );
+		if ( $at !== false ) {
+			$hex = preg_replace( '/[^0-9a-fA-F]/', '', substr( $class, $at + strlen( 'colorDEfb-' ) ) );
+			if ( strlen( $hex ) >= 6 ) {
+				return '#' . substr( $hex, 0, 6 );
+			}
+			if ( strlen( $hex ) === 3 ) {
+				return '#' . $hex;
+			}
+			return $fallback;
+		}
+
+		$name = preg_replace( '/^(btn-outline-|btn-|text-|bg-|border-)/', '', $class );
+		return isset( $named[ $name ] ) ? $named[ $name ] : $fallback;
+	}
+}
+
+if ( ! function_exists( 'efb_steps_rgb_efb' ) ) {
+	function efb_steps_rgb_efb( $hex ) {
+		$h = ltrim( (string) $hex, '#' );
+		if ( strlen( $h ) === 3 ) {
+			$h = $h[0] . $h[0] . $h[1] . $h[1] . $h[2] . $h[2];
+		}
+		if ( strlen( $h ) < 6 ) {
+			return array( 32, 42, 141 );
+		}
+		return array(
+			hexdec( substr( $h, 0, 2 ) ),
+			hexdec( substr( $h, 2, 2 ) ),
+			hexdec( substr( $h, 4, 2 ) ),
+		);
+	}
+}
+
+if ( ! function_exists( 'efb_steps_shade_efb' ) ) {
+	function efb_steps_shade_efb( $hex, $ratio ) {
+		$c      = efb_steps_rgb_efb( $hex );
+		$target = $ratio < 0 ? 0 : 255;
+		$k      = abs( $ratio );
+		$out    = '#';
+		foreach ( $c as $channel ) {
+			$v    = (int) round( $channel + ( $target - $channel ) * $k );
+			$v    = max( 0, min( 255, $v ) );
+			$out .= str_pad( dechex( $v ), 2, '0', STR_PAD_LEFT );
+		}
+		return $out;
+	}
+}
+
+/**
+ * Pick a readable colour for text that sits on top of the accent fill.
+ *
+ * Only used where a caption or a glyph really is drawn over the accent - on a
+ * filled pill or chevron, or inside a filled circle. Everywhere else the step's
+ * own icon_color and label_text_color stay in charge, which is the whole point
+ * of keeping those classes on the markup.
+ */
+if ( ! function_exists( 'efb_steps_on_accent_efb' ) ) {
+	function efb_steps_on_accent_efb( $hex ) {
+		$c   = efb_steps_rgb_efb( $hex );
+		$lum = ( $c[0] * 0.299 + $c[1] * 0.587 + $c[2] * 0.114 ) / 255;
+		return $lum > 0.62 ? '#1b1f3b' : '#ffffff';
+	}
+}
+
+if ( ! function_exists( 'efb_steps_palette_efb' ) ) {
+	function efb_steps_palette_efb( $class, $fallback = '#202a8d' ) {
+		$accent = efb_steps_color_hex_efb( $class, $fallback );
+		$c      = efb_steps_rgb_efb( $accent );
+		return array(
+			'accent'      => $accent,
+			'accent_dark' => efb_steps_shade_efb( $accent, -0.28 ),
+			'soft'        => 'rgba(' . $c[0] . ',' . $c[1] . ',' . $c[2] . ',.16)',
+			'on_accent'   => efb_steps_on_accent_efb( $accent ),
+		);
+	}
+}
+
+/**
+ * The custom properties the wrapper carries.
+ *
+ * Inline rather than in the stylesheet because several forms can share a page
+ * and each one is tinted with its own progress colour, while they all answer to
+ * the same .efb-sp class.
+ */
+if ( ! function_exists( 'efb_steps_style_vars_efb' ) ) {
+	function efb_steps_style_vars_efb( $class, $fallback = '#202a8d' ) {
+		$p = efb_steps_palette_efb( $class, $fallback );
+		return '--efb-sp-accent:' . $p['accent']
+			. ';--efb-sp-accent-dark:' . $p['accent_dark']
+			. ';--efb-sp-soft:' . $p['soft']
+			. ';--efb-sp-on-accent:' . $p['on_accent'];
+	}
+}
+
+if ( ! function_exists( 'efb_steps_style_name_efb' ) ) {
+	function efb_steps_style_name_efb( $value ) {
+		$allowed = array( 'circles', 'pills', 'chevrons' );
+		$value   = is_string( $value ) ? $value : '';
+		return in_array( $value, $allowed, true ) ? $value : 'circles';
+	}
+}
+
+if ( ! function_exists( 'efb_progress_style_name_efb' ) ) {
+	function efb_progress_style_name_efb( $value ) {
+		$allowed = array( 'bar', 'segments', 'ring' );
+		$value   = is_string( $value ) ? $value : '';
+		return in_array( $value, $allowed, true ) ? $value : 'bar';
+	}
+}
+
+/**
+ * Ten is where step captions stop fitting on a desktop row, twenty is where the
+ * dots themselves start to touch. Both tiers are handled entirely in CSS; this
+ * only decides which of them applies.
+ */
+if ( ! function_exists( 'efb_steps_density_class_efb' ) ) {
+	function efb_steps_density_class_efb( $total ) {
+		$cls = '';
+		if ( $total > 10 ) {
+			$cls .= ' efb-sp--compact';
+		}
+		if ( $total > 20 ) {
+			$cls .= ' efb-sp--dense';
+		}
+		return $cls;
+	}
+}
+
+if ( ! function_exists( 'efb_steps_counter_text_efb' ) ) {
+	function efb_steps_counter_text_efb( $current, $total, $lan_text = array() ) {
+		$tpl = isset( $lan_text['stepXofY'] ) && $lan_text['stepXofY'] !== ''
+			? $lan_text['stepXofY']
+			/* translators: 1: current step number, 2: total number of steps */
+			: esc_html__( 'Step %1$s of %2$s', 'easy-form-builder' );
+		return str_replace( array( '%1$s', '%2$s' ), array( $current, $total ), $tpl );
+	}
+}
+
+if ( ! function_exists( 'efb_steps_complete_text_efb' ) ) {
+	function efb_steps_complete_text_efb( $percent, $lan_text = array() ) {
+		$tpl = isset( $lan_text['percentComplete'] ) && $lan_text['percentComplete'] !== ''
+			? $lan_text['percentComplete']
+			/* translators: %s: completion percentage, already formatted with a percent sign */
+			: esc_html__( '%s complete', 'easy-form-builder' );
+		return str_replace( '%s', $percent . '%', $tpl );
+	}
+}
+
+/**
+ * The state class one step carries.
+ *
+ * Recomputed from the current step rather than toggled, so a step that has been
+ * left behind can be drawn as done - the old markup only ever knew which step
+ * was current. `active` is kept alongside `is-active` because the plugin's
+ * older selectors, and third-party CSS in the wild, still look for it.
+ */
+if ( ! function_exists( 'efb_steps_item_class_efb' ) ) {
+	function efb_steps_item_class_efb( $num, $current, $icon_color = '', $icon = '' ) {
+		$num     = (int) $num;
+		$current = (int) $current;
+		$state   = $num < $current ? 'is-done' : ( $num === $current ? 'is-active' : 'is-todo' );
+		return trim( 'efb efb-sp__item ' . $state . ' ' . $icon_color . ' ' . $icon . ( $num === $current ? ' active' : '' ) );
+	}
+}
+
+if ( ! function_exists( 'efb_steps_wrap_open_efb' ) ) {
+	function efb_steps_wrap_open_efb( $args ) {
+		$steps_style    = efb_steps_style_name_efb( isset( $args['steps_style'] ) ? $args['steps_style'] : '' );
+		$progress_style = efb_progress_style_name_efb( isset( $args['progress_style'] ) ? $args['progress_style'] : '' );
+		$total          = isset( $args['total'] ) ? (int) $args['total'] : 1;
+		$form_id        = isset( $args['form_id'] ) ? $args['form_id'] : '';
+		$accent_class   = isset( $args['accent_class'] ) ? $args['accent_class'] : '';
+		$rtl            = ! empty( $args['rtl'] );
+
+		$cls = 'efb efb-sp efb-sp--' . $steps_style . ' efb-sp--prog-' . $progress_style . efb_steps_density_class_efb( $total );
+		if ( isset( $args['show_steps'] ) && ! $args['show_steps'] ) {
+			$cls .= ' efb-sp--norow';
+		}
+		if ( $rtl ) {
+			$cls .= ' efb-sp--rtl';
+		}
+
+		return sprintf(
+			'<div class="%1$s" data-formid="%2$s" data-steps-style="%3$s" data-progress-style="%4$s" style="%5$s">',
+			esc_attr( $cls ),
+			esc_attr( $form_id ),
+			esc_attr( $steps_style ),
+			esc_attr( $progress_style ),
+			esc_attr( efb_steps_style_vars_efb( $accent_class ) )
+		);
+	}
+}
+
+/**
+ * The caption that stands in for the step titles once they no longer fit -
+ * on a long form and on every phone. It is always printed and CSS decides
+ * whether it is shown, so the runtime never has to insert it later.
+ */
+/**
+ * Whether the caption above the row is worth printing.
+ *
+ * The ring block already names the step, so printing the caption as well says
+ * the same thing twice; with the steps row switched off the caption is the
+ * only thing naming the step at all, which is why CSS shows it at every width
+ * in that case rather than only on a phone.
+ */
+if ( ! function_exists( 'efb_steps_wants_header_efb' ) ) {
+	function efb_steps_wants_header_efb( $args ) {
+		$show_progress  = ! isset( $args['show_progress'] ) || $args['show_progress'];
+		$progress_style = efb_progress_style_name_efb( isset( $args['progress_style'] ) ? $args['progress_style'] : '' );
+		return ! ( $show_progress && 'ring' === $progress_style );
+	}
+}
+
+if ( ! function_exists( 'efb_steps_header_efb' ) ) {
+	function efb_steps_header_efb( $args ) {
+		$current  = isset( $args['current'] ) ? (int) $args['current'] : 1;
+		$total    = isset( $args['total'] ) ? (int) $args['total'] : 1;
+		$name     = isset( $args['current_name'] ) ? $args['current_name'] : '';
+		$form_id  = isset( $args['form_id'] ) ? $args['form_id'] : '';
+		$lan_text = isset( $args['lan_text'] ) ? $args['lan_text'] : array();
+
+		return sprintf(
+			'<div class="efb efb-sp__current" data-formid="%1$s"><span class="efb efb-sp__counter">%2$s</span><span class="efb efb-sp__curname">%3$s</span></div>',
+			esc_attr( $form_id ),
+			esc_html( efb_steps_counter_text_efb( $current, $total, $lan_text ) ),
+			esc_html( $name )
+		);
+	}
+}
+
+/**
+ * The progress block, in whichever of the three shapes the form asked for.
+ *
+ * The author's colour class moves onto the fill here. It used to sit on the
+ * track, which painted the whole strip and left the fill showing nothing but a
+ * stripe pattern - the bar never actually read as progress.
+ */
+if ( ! function_exists( 'efb_steps_progress_efb' ) ) {
+	function efb_steps_progress_efb( $args ) {
+		$style    = efb_progress_style_name_efb( isset( $args['progress_style'] ) ? $args['progress_style'] : '' );
+		$current  = isset( $args['current'] ) ? (int) $args['current'] : 1;
+		$total    = isset( $args['total'] ) ? (int) $args['total'] : 1;
+		$form_id  = isset( $args['form_id'] ) ? $args['form_id'] : '';
+		$name     = isset( $args['current_name'] ) ? $args['current_name'] : '';
+		$accent   = isset( $args['accent_class'] ) ? $args['accent_class'] : '';
+		$lan_text = isset( $args['lan_text'] ) ? $args['lan_text'] : array();
+
+		$total = $total > 0 ? $total : 1;
+		/* Two numbers on purpose: the width and the arc want the exact fraction,
+		 * the caption wants something a person can read. "66.67%" beside "Step 2
+		 * of 3" is noise. */
+		$percent  = round( ( $current / $total ) * 100, 2 );
+		$readable = (int) round( $percent );
+		$counter  = efb_steps_counter_text_efb( $current, $total, $lan_text );
+		$attrs   = ' id="f-progress-efb" data-formid="' . esc_attr( $form_id ) . '"';
+
+		$meta = sprintf(
+			'<div class="efb efb-sp__meta"><span class="efb efb-sp__metaname">%1$s</span><span class="efb efb-sp__pct">%2$s%%</span></div>',
+			esc_html( $counter ),
+			esc_html( $readable )
+		);
+
+		if ( $style === 'segments' ) {
+			$segs = '';
+			for ( $i = 1; $i <= $total; $i++ ) {
+				$state = $i < $current ? 'is-done' : ( $i === $current ? 'is-active' : 'is-todo' );
+				$segs .= '<span class="efb efb-sp__seg ' . $state . '"></span>';
+			}
+			return '<div class="efb efb-sp__prog efb-progress-gap"' . $attrs . '><div class="efb efb-sp__segs">' . $segs . '</div>' . $meta . '</div>';
+		}
+
+		if ( $style === 'ring' ) {
+			return '<div class="efb efb-sp__prog efb-progress-gap"' . $attrs . '>'
+				. '<div class="efb efb-sp__ringwrap">'
+				. '<div class="efb efb-sp__ring" style="--efb-sp-pct:' . esc_attr( $percent ) . '">'
+				. '<span class="efb efb-sp__ring-in">' . esc_html( $current . '/' . $total ) . '</span>'
+				. '</div>'
+				. '<div class="efb efb-sp__ringtext">'
+				. '<span class="efb efb-sp__curname">' . esc_html( $name ) . '</span>'
+				. '<span class="efb efb-sp__ringsub">' . esc_html( $counter ) . ' &middot; ' . esc_html( efb_steps_complete_text_efb( $readable, $lan_text ) ) . '</span>'
+				. '</div></div></div>';
+		}
+
+		return '<div class="efb efb-sp__prog efb-progress-gap"' . $attrs . '>' . $meta
+			. '<div class="efb progress efb-sp__track">'
+			. '<div class="efb progress-bar-efb efb-sp__fill ' . esc_attr( $accent ) . '" role="progressbar"'
+			. ' aria-valuemin="0" aria-valuemax="100" aria-valuenow="' . esc_attr( $percent ) . '"'
+			. ' style="width:' . esc_attr( $percent ) . '%;" data-formid="' . esc_attr( $form_id ) . '"></div>'
+			. '</div></div>';
+	}
+}
+
 class efbFunction {
 
     protected static $req_cache = [];
@@ -549,6 +881,24 @@ class efbFunction {
 			"addGooglereCAPTCHAtoForm" => $state ? $ac->text->addGooglereCAPTCHAtoForm : esc_html__('Add Google reCAPTCHA to the form','easy-form-builder'),
 			"dontShowIconsStepsName" => $state ? $ac->text->dontShowIconsStepsName : esc_html__('Hide icons and step names.','easy-form-builder'),
 			"dontShowProgressBar" => $state ? $ac->text->dontShowProgressBar : esc_html__('Hide progress bar','easy-form-builder'),
+			"stepsStyle" => $state ? $ac->text->stepsStyle : esc_html__('Steps style','easy-form-builder'),
+			"progressStyle" => $state ? $ac->text->progressStyle : esc_html__('Progress bar style','easy-form-builder'),
+			/* translators: name of the step indicator drawn as numbered circles joined by a line */
+			"stepStyleCircles" => $state ? $ac->text->stepStyleCircles : esc_html__('Circles','easy-form-builder'),
+			/* translators: name of the step indicator drawn as rounded pill shaped buttons */
+			"stepStylePills" => $state ? $ac->text->stepStylePills : esc_html__('Pills','easy-form-builder'),
+			/* translators: name of the step indicator drawn as a ribbon of arrow shaped segments */
+			"stepStyleChevrons" => $state ? $ac->text->stepStyleChevrons : esc_html__('Ribbon','easy-form-builder'),
+			/* translators: name of the progress indicator drawn as one continuous bar */
+			"progStyleBar" => $state ? $ac->text->progStyleBar : esc_html__('Single bar','easy-form-builder'),
+			/* translators: name of the progress indicator drawn as one block per step */
+			"progStyleSegments" => $state ? $ac->text->progStyleSegments : esc_html__('Segments','easy-form-builder'),
+			/* translators: name of the progress indicator drawn as a circular gauge */
+			"progStyleRing" => $state ? $ac->text->progStyleRing : esc_html__('Ring','easy-form-builder'),
+			/* translators: 1: current step number, 2: total number of steps */
+			"stepXofY" => $state ? $ac->text->stepXofY : esc_html__('Step %1$s of %2$s','easy-form-builder'),
+			/* translators: %s: completion percentage, already formatted with a percent sign */
+			"percentComplete" => $state ? $ac->text->percentComplete : esc_html__('%s complete','easy-form-builder'),
 			/* translators: Private form = form visible only to logged-in users */
 			"showTheFormTologgedUsers" => $state ? $ac->text->showTheFormTologgedUsers : esc_html__('Private form','easy-form-builder'),
 			"labelSize" => $state ? $ac->text->labelSize : esc_html__('Label size','easy-form-builder'),

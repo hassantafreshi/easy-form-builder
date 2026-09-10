@@ -798,7 +798,12 @@ input[type=range].efb {	border: transparent !important;
 }
 .border-d.efb {	border: 1px solid #83859f4a !important;
 }
-#steps-efb {	overflow: hidden;
+/* The steps row before it became a component. Every renderer now prints
+   .efb-sp__steps on the <ul>, so these rules only have to keep serving markup
+   that predates it - a cached page, or an add-on with its own copy. Left
+   unscoped they outrank the styles below: the mobile :before is !important,
+   which no amount of specificity in a later rule can beat. */
+#steps-efb:not(.efb-sp__steps) {	overflow: hidden;
    color: lightgrey;
    text-align: center !important;
    display: flex !important;
@@ -811,7 +816,7 @@ input[type=range].efb {	border: transparent !important;
    min-width: 50px!important;
 }
 
-#steps-efb li:before {
+#steps-efb:not(.efb-sp__steps) li:before {
   width: 25px!important;
   height: 25px!important;
   line-height: 25px!important;
@@ -827,8 +832,8 @@ input[type=range].efb {	border: transparent !important;
 .efb.fs-8{font-size: 11px!important;}
 .efb.fs-9{font-size: 9px!important;}
 }
-#steps-efb .active {	color: #202a8d}
-#steps-efb li {	list-style-type: none;
+#steps-efb:not(.efb-sp__steps) .active {	color: #202a8d}
+#steps-efb:not(.efb-sp__steps) li {	list-style-type: none;
    float: left;
    position: relative;
 }
@@ -847,7 +852,7 @@ input[type=range].efb {	border: transparent !important;
 .efb.step-w-13 {width: 7.7%;}
 .efb.step-w-14 {width: 7.1%;}
 .efb.step-w-15 {width: 6.6%;}
-#steps-efb li:before {	width: 50px;
+#steps-efb:not(.efb-sp__steps) li:before {	width: 50px;
    height: 50px;
    line-height: 45px;
    display: block;
@@ -856,7 +861,7 @@ input[type=range].efb {	border: transparent !important;
    border-radius: 50%;
    margin: 0 auto 10px auto;
    padding: 2px}
-#steps-efb li:after {	content: '';
+#steps-efb:not(.efb-sp__steps) li:after {	content: '';
    width: 100%;
    height: 2px;
    background: lightgray;
@@ -864,7 +869,7 @@ input[type=range].efb {	border: transparent !important;
    left: 0;
    top: 25px;
    z-index: -1}
-#steps-efb li.active:before,#steps-efb li.active:after {	background: #202a8d;
+#steps-efb:not(.efb-sp__steps) li.active:before,#steps-efb:not(.efb-sp__steps) li.active:after {	background: #202a8d;
 }
 .progress.efb {	height: 16px;
 }
@@ -2018,3 +2023,664 @@ div#gRecaptcha {
 #listFormCardsEFB .efb.card:hover .card-title.efb i {
    background: rgba(255, 75, 147, 0.18);
 }
+
+/* ==========================================================================
+   Steps process + progress bar - selectable styles
+   --------------------------------------------------------------------------
+   Markup contract. The same tree is produced by class-Emsfb-public.php on the
+   front end, by the builder canvas and by previewFormEfb(), all of them through
+   the efb_steps_* / efbSteps* helpers:
+
+     <div class="efb efb-sp efb-sp--circles efb-sp--prog-bar [efb-sp--compact]
+                 [efb-sp--dense] [efb-sp--rtl]"
+          data-formid="12" style="--efb-sp-accent:#0d6efd; ...">
+       <div class="efb efb-sp__current">          <- compact / mobile header
+         <span class="efb efb-sp__counter">Step 2 of 3</span>
+         <span class="efb efb-sp__curname">FORM</span>
+       </div>
+       <ul id="steps-efb" class="efb efb-sp__steps">
+         <li class="efb efb-sp__item is-done {icon_color} {icon}" data-num="1">
+           <strong class="efb efb-sp__label {label_text_color}">Contact</strong>
+         </li>
+       </ul>
+       <div id="f-progress-efb" class="efb efb-sp__prog"> ... </div>
+     </div>
+
+   Colours keep coming from where they always came from: the {icon} glyph is
+   painted by the step's own icon_color class, the caption by label_text_color,
+   and --efb-sp-accent is derived from the form's prg_bar_color. The only place
+   those classes get overridden is where text sits ON the accent fill - there
+   --efb-sp-on-accent (computed for contrast) takes over, because a navy label
+   on a navy pill is invisible.
+
+   Selectors are anchored on .efb-sp, and on #steps-efb / #f-progress-efb
+   wherever they have to outrank the .colorDEfb-* rules the form prints inline
+   with !important - this file is enqueued before bootstrap.min-efb.css, so
+   source order cannot be relied on.
+   ========================================================================== */
+.efb.efb-sp {
+   --efb-sp-accent: #202a8d;
+   --efb-sp-accent-dark: #151d66;
+   --efb-sp-soft: rgba(32, 42, 141, .16);
+   --efb-sp-on-accent: #ffffff;
+   --efb-sp-track: #eaedf8;
+   --efb-sp-line: #e6e9f5;
+   --efb-sp-muted: #a2a8c4;
+   --efb-sp-dot: 48px;
+   --efb-sp-gap: 10px;
+   display: block;
+   width: 100%;
+}
+
+/* ---------- the compact / mobile header ---------- */
+.efb-sp .efb.efb-sp__current {
+   display: none;
+   align-items: center;
+   gap: 10px;
+   margin: 0 0 14px 0;
+   line-height: 1.4;
+}
+.efb-sp .efb.efb-sp__counter {
+   flex: 0 0 auto;
+   padding: 5px 12px;
+   border-radius: 100px;
+   background: var(--efb-sp-track);
+   font-size: 13px;
+   font-weight: 600;
+   color: #6a7192;
+}
+.efb-sp .efb.efb-sp__curname {
+   min-width: 0;
+   overflow: hidden;
+   text-overflow: ellipsis;
+   white-space: nowrap;
+   font-size: 15px;
+   font-weight: 700;
+   color: var(--efb-sp-accent);
+}
+
+/* ---------- shared step skeleton ---------- */
+#steps-efb.efb-sp__steps {
+   display: flex;
+   align-items: flex-start;
+   margin: 0 0 4px 0;
+   padding: 0;
+   list-style: none;
+   overflow: visible;
+   text-align: center;
+}
+#steps-efb.efb-sp__steps .efb.efb-sp__item {
+   position: relative;
+   display: flex;
+   float: none;
+   list-style-type: none;
+   margin: 0;
+   padding: 0;
+   min-width: 0;
+   background: transparent;
+   transition: background-color .3s ease, box-shadow .3s ease, color .3s ease;
+}
+/* The glyph. It is the same ::before the steps have always used, so the
+   bi-* class on the <li> still supplies the character and icon_color still
+   supplies its colour. */
+#steps-efb.efb-sp__steps .efb.efb-sp__item::before {
+   display: inline-flex;
+   align-items: center;
+   justify-content: center;
+   flex: 0 0 auto;
+   box-sizing: border-box;
+   width: auto;
+   height: auto;
+   line-height: 1;
+   background: none;
+   border-radius: 50%;
+   margin: 0;
+   padding: 0;
+   transition: background-color .3s ease, border-color .3s ease, box-shadow .3s ease;
+}
+#steps-efb.efb-sp__steps .efb.efb-sp__item::after { content: none; }
+#steps-efb.efb-sp__steps .efb.efb-sp__label {
+   display: block;
+   min-width: 0;
+   max-width: 100%;
+   overflow: hidden;
+   text-overflow: ellipsis;
+   line-height: 1.35;
+   transition: color .3s ease;
+}
+/* A step that is neither done nor active is dimmed rather than repainted, so
+   the author's label_text_color is still the colour underneath. */
+#steps-efb.efb-sp__steps .efb-sp__item.is-todo .efb.efb-sp__label { opacity: .55; }
+#steps-efb.efb-sp__steps .efb-sp__item.is-active .efb.efb-sp__label { font-weight: 700; }
+
+/* ==========================================================================
+   Steps variant A - circles with a connector line
+   ========================================================================== */
+.efb-sp--circles #steps-efb.efb-sp__steps .efb.efb-sp__item {
+   flex: 1 1 0;
+   width: auto;
+   flex-direction: column;
+   align-items: center;
+   gap: var(--efb-sp-gap);
+   padding: 0 4px;
+}
+.efb-sp--circles #steps-efb.efb-sp__steps .efb.efb-sp__item::before {
+   width: var(--efb-sp-dot);
+   height: var(--efb-sp-dot);
+   font-size: calc(var(--efb-sp-dot) * .42);
+   font-weight: 700;
+   background: #ffffff;
+   border: 2px solid var(--efb-sp-line);
+   position: relative;
+   z-index: 1;
+}
+/* The connector belongs to the gap before a step, which is why it hangs off
+   ::after of the item and is pulled back by half a slot. Logical inset keeps
+   it correct once the component is mirrored for RTL. */
+.efb-sp--circles #steps-efb.efb-sp__steps .efb-sp__item + .efb-sp__item::after {
+   content: "";
+   display: block;
+   position: absolute;
+   top: calc(var(--efb-sp-dot) / 2 - 1.5px);
+   inset-inline-end: 50%;
+   width: 100%;
+   height: 3px;
+   border-radius: 3px;
+   background: var(--efb-sp-line);
+   transition: background-color .35s ease;
+   z-index: 0;
+}
+.efb-sp--circles #steps-efb.efb-sp__steps .efb-sp__item.is-done + .efb-sp__item::after,
+.efb-sp--circles #steps-efb.efb-sp__steps .efb-sp__item.is-active::after {
+   background: var(--efb-sp-accent);
+}
+/* A finished step shows a tick instead of the icon it was given: the icon says
+   which step it is, the tick says the visitor is past it, and past the step
+   that is the more useful of the two. \F633 is bi-check-lg, from the icon
+   font the plugin already enqueues for these rows. */
+#steps-efb.efb-sp__steps .efb-sp__item.is-done::before { content: "\F633"; }
+.efb-sp--circles #steps-efb.efb-sp__steps .efb-sp__item.is-done::before {
+   background: var(--efb-sp-accent);
+   border-color: var(--efb-sp-accent);
+   color: var(--efb-sp-on-accent);
+}
+.efb-sp--circles #steps-efb.efb-sp__steps .efb-sp__item.is-active::before {
+   background: var(--efb-sp-accent);
+   border-color: transparent;
+   color: var(--efb-sp-on-accent);
+   box-shadow: 0 0 0 6px var(--efb-sp-soft);
+}
+
+/* ==========================================================================
+   Steps variant B - pills
+   ========================================================================== */
+.efb-sp--pills #steps-efb.efb-sp__steps {
+   flex-wrap: wrap;
+   gap: 10px;
+   align-items: stretch;
+}
+.efb-sp--pills #steps-efb.efb-sp__steps .efb.efb-sp__item {
+   flex: 1 1 170px;
+   width: auto;
+   align-items: center;
+   justify-content: flex-start;
+   gap: 10px;
+   min-height: 48px;
+   padding: 6px 16px;
+   border: 1px solid transparent;
+   border-radius: 100px;
+   background: #f2f4fb;
+}
+.efb-sp--pills #steps-efb.efb-sp__steps .efb.efb-sp__item::before {
+   width: 26px;
+   height: 26px;
+   font-size: 14px;
+   background: #e6e9f5;
+}
+.efb-sp--pills #steps-efb.efb-sp__steps .efb.efb-sp__label {
+   text-align: start;
+   font-weight: 600;
+   white-space: nowrap;
+}
+.efb-sp--pills #steps-efb.efb-sp__steps .efb-sp__item.is-done {
+   background: #ffffff;
+   border-color: #d7ddf2;
+}
+.efb-sp--pills #steps-efb.efb-sp__steps .efb-sp__item.is-done::before {
+   background: var(--efb-sp-soft);
+}
+.efb-sp--pills #steps-efb.efb-sp__steps .efb-sp__item.is-active {
+   background: var(--efb-sp-accent);
+   box-shadow: 0 8px 20px var(--efb-sp-soft);
+}
+.efb-sp--pills #steps-efb.efb-sp__steps .efb-sp__item.is-active::before {
+   background: rgba(255, 255, 255, .22);
+   color: var(--efb-sp-on-accent);
+}
+.efb-sp--pills #steps-efb.efb-sp__steps .efb-sp__item.is-active .efb.efb-sp__label {
+   color: var(--efb-sp-on-accent) !important;
+   opacity: 1;
+}
+
+/* ==========================================================================
+   Steps variant C - chevron ribbon
+   ========================================================================== */
+.efb-sp--chevrons #steps-efb.efb-sp__steps {
+   border-radius: 12px;
+   overflow: hidden;
+   gap: 0;
+}
+.efb-sp--chevrons #steps-efb.efb-sp__steps .efb.efb-sp__item {
+   flex: 1 1 0;
+   width: auto;
+   align-items: center;
+   justify-content: center;
+   gap: 8px;
+   min-height: 54px;
+   padding: 4px 10px;
+   background: #eef0f7;
+   margin-inline-start: -15px;
+   clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 50%, calc(100% - 15px) 100%, 0 100%, 15px 50%);
+}
+.efb-sp--chevrons #steps-efb.efb-sp__steps .efb-sp__item:first-child {
+   margin-inline-start: 0;
+   clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 50%, calc(100% - 15px) 100%, 0 100%);
+}
+.efb-sp--chevrons #steps-efb.efb-sp__steps .efb-sp__item:last-child {
+   clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 15px 50%);
+}
+.efb-sp--chevrons #steps-efb.efb-sp__steps .efb.efb-sp__item::before {
+   width: auto;
+   height: auto;
+   font-size: 16px;
+   background: none;
+}
+.efb-sp--chevrons #steps-efb.efb-sp__steps .efb.efb-sp__label { font-weight: 600; white-space: nowrap; }
+.efb-sp--chevrons #steps-efb.efb-sp__steps .efb-sp__item.is-done,
+.efb-sp--chevrons #steps-efb.efb-sp__steps .efb-sp__item.is-active {
+   background: var(--efb-sp-accent);
+}
+.efb-sp--chevrons #steps-efb.efb-sp__steps .efb-sp__item.is-done { background: var(--efb-sp-accent-dark); }
+.efb-sp--chevrons #steps-efb.efb-sp__steps .efb-sp__item.is-done::before,
+.efb-sp--chevrons #steps-efb.efb-sp__steps .efb-sp__item.is-active::before {
+   color: var(--efb-sp-on-accent);
+}
+.efb-sp--chevrons #steps-efb.efb-sp__steps .efb-sp__item.is-done .efb.efb-sp__label,
+.efb-sp--chevrons #steps-efb.efb-sp__steps .efb-sp__item.is-active .efb.efb-sp__label {
+   color: var(--efb-sp-on-accent) !important;
+   opacity: 1;
+}
+
+/* ==========================================================================
+   Progress variants
+   ========================================================================== */
+#f-progress-efb.efb.efb-sp__prog {
+   display: block;
+   width: 100%;
+   margin-bottom: 2rem;
+}
+.efb-sp .efb.efb-sp__meta {
+   display: flex;
+   align-items: baseline;
+   justify-content: space-between;
+   gap: 12px;
+   margin: 0 0 8px 0;
+   font-size: 13px;
+   font-weight: 600;
+   color: #8a91b4;
+   line-height: 1.4;
+}
+.efb-sp .efb.efb-sp__pct {
+   flex: 0 0 auto;
+   font-size: 15px;
+   color: var(--efb-sp-accent);
+}
+.efb-sp .efb.efb-sp__metaname {
+   min-width: 0;
+   overflow: hidden;
+   text-overflow: ellipsis;
+   white-space: nowrap;
+}
+
+/* ---- A: one continuous bar -------------------------------------------- */
+/* The id carries the track colour so the legacy prg_bar_color class - which
+   used to sit here and paint the whole strip - cannot win: the author's colour
+   now belongs to the fill, which is what a progress bar is supposed to show. */
+#f-progress-efb .efb.progress.efb-sp__track {
+   display: flex;
+   width: 100%;
+   height: 12px;
+   margin: 0;
+   overflow: hidden;
+   border-radius: 100px;
+   background-color: var(--efb-sp-track) !important;
+}
+#f-progress-efb .efb.efb-sp__fill {
+   display: block;
+   position: relative;
+   width: 0;
+   height: 100%;
+   border-radius: 100px;
+   background-color: var(--efb-sp-accent);
+   transition: width .5s cubic-bezier(.4, 0, .2, 1);
+}
+/* A sheen rather than a gradient background: background-image would paint over
+   the author's background-color and hide the colour they picked. */
+#f-progress-efb .efb.efb-sp__fill::before {
+   content: "";
+   position: absolute;
+   inset: 0;
+   border-radius: inherit;
+   background-image: linear-gradient(90deg, rgba(255, 255, 255, .22), rgba(255, 255, 255, 0) 65%);
+   pointer-events: none;
+}
+
+/* ---- B: one segment per step ------------------------------------------ */
+.efb-sp .efb.efb-sp__segs {
+   display: flex;
+   gap: 6px;
+   width: 100%;
+   margin: 0 0 10px 0;
+}
+.efb-sp .efb.efb-sp__seg {
+   display: block;
+   flex: 1 1 0;
+   min-width: 4px;
+   height: 10px;
+   border-radius: 100px;
+   background: var(--efb-sp-track);
+   transition: background-color .4s ease;
+}
+.efb-sp .efb-sp__seg.is-done { background: var(--efb-sp-accent-dark); }
+.efb-sp .efb-sp__seg.is-active { background: var(--efb-sp-accent); }
+.efb-sp--prog-segments .efb.efb-sp__meta { margin: 0; }
+
+/* ---- C: compact ring --------------------------------------------------- */
+.efb-sp .efb.efb-sp__ringwrap {
+   display: flex;
+   align-items: center;
+   gap: 16px;
+}
+.efb-sp .efb.efb-sp__ring {
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   flex: 0 0 auto;
+   width: 58px;
+   height: 58px;
+   border-radius: 50%;
+   background: conic-gradient(var(--efb-sp-accent) calc(var(--efb-sp-pct, 0) * 1%), var(--efb-sp-track) 0);
+   transition: background .4s ease;
+}
+.efb-sp .efb.efb-sp__ring-in {
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   width: 44px;
+   height: 44px;
+   border-radius: 50%;
+   background: #ffffff;
+   font-size: 14px;
+   font-weight: 700;
+   color: var(--efb-sp-accent);
+}
+.efb-sp .efb.efb-sp__ringtext {
+   display: flex;
+   flex-direction: column;
+   gap: 3px;
+   min-width: 0;
+}
+.efb-sp .efb.efb-sp__ringtext .efb-sp__curname { font-size: 16px; font-weight: 600; }
+.efb-sp .efb.efb-sp__ringsub {
+   font-size: 13px;
+   color: #8a91b4;
+   overflow: hidden;
+   text-overflow: ellipsis;
+   white-space: nowrap;
+}
+
+/* ==========================================================================
+   Long forms - more than ten steps
+   Titles stop fitting long before the row does, so the caption moves out of
+   the row and into the header above it and the dot carries the number. The
+   number comes from data-num through content:attr(), which also has to beat
+   the bi-* rule that would otherwise still draw the glyph.
+   ========================================================================== */
+/* Both modifiers have to carry .efb as well: the token block they are
+   overriding is .efb.efb-sp, and a single class cannot outrank two - the dots
+   silently stayed 48px wide however many steps the form had. */
+/* With no steps row there is nothing else naming the step - the form's own
+   heading is hidden along with the row - so the caption is shown at every
+   width rather than only where the row has run out of space. */
+.efb-sp.efb-sp--norow .efb.efb-sp__current { display: flex; }
+.efb.efb-sp--compact { --efb-sp-dot: 32px; --efb-sp-gap: 0px; }
+.efb-sp--compact .efb.efb-sp__current { display: flex; }
+.efb-sp--compact #steps-efb.efb-sp__steps .efb.efb-sp__label { display: none; }
+/* The number has to outrank the tick: once the captions are gone the number is
+   the only thing telling the visitor how far along the row they are. */
+.efb-sp--compact.efb-sp--circles #steps-efb.efb-sp__steps .efb.efb-sp__item::before,
+.efb-sp--compact.efb-sp--circles #steps-efb.efb-sp__steps .efb-sp__item.is-done::before {
+   content: attr(data-num);
+   font-family: inherit;
+   font-size: 13px;
+}
+.efb-sp--compact.efb-sp--circles #steps-efb.efb-sp__steps .efb.efb-sp__item { padding: 0 2px; }
+/* Past ~20 steps the row has to give up the connector's breathing room. */
+.efb.efb-sp--dense { --efb-sp-dot: 24px; }
+.efb-sp--dense.efb-sp--circles #steps-efb.efb-sp__steps .efb.efb-sp__item::before { font-size: 11px; border-width: 1px; }
+.efb-sp--dense.efb-sp--circles #steps-efb.efb-sp__steps .efb.efb-sp__item { padding: 0 1px; }
+.efb-sp--dense.efb-sp--circles #steps-efb.efb-sp__steps .efb-sp__item.is-active::before { box-shadow: 0 0 0 4px var(--efb-sp-soft); }
+
+/* Pills and chevrons cannot shrink past their text, so past ten steps they
+   become a strip that scrolls, with the active step scrolled into view by
+   efbStepsSyncEfb(). */
+.efb-sp--compact.efb-sp--pills #steps-efb.efb-sp__steps,
+.efb-sp--compact.efb-sp--chevrons #steps-efb.efb-sp__steps {
+   flex-wrap: nowrap;
+   overflow-x: auto;
+   overflow-y: hidden;
+   scrollbar-width: thin;
+   -webkit-overflow-scrolling: touch;
+   padding-bottom: 6px;
+}
+.efb-sp--compact.efb-sp--pills #steps-efb.efb-sp__steps { gap: 8px; }
+.efb-sp--compact.efb-sp--pills #steps-efb.efb-sp__steps .efb.efb-sp__item {
+   flex: 0 0 auto;
+   min-height: 38px;
+   padding: 4px 14px;
+}
+.efb-sp--compact.efb-sp--pills #steps-efb.efb-sp__steps .efb.efb-sp__item::after,
+.efb-sp--compact.efb-sp--chevrons #steps-efb.efb-sp__steps .efb.efb-sp__item::after {
+   content: attr(data-num);
+   display: block;
+   position: static;
+   width: auto;
+   height: auto;
+   background: none;
+   font-size: 13px;
+   font-weight: 600;
+}
+/* The number sits on the accent fill on a done or active chip, so it takes the
+   readable colour the same way the glyph beside it does - otherwise the step's
+   own icon_color paints it and a pink 3 lands on an indigo chevron. */
+.efb-sp--compact.efb-sp--pills #steps-efb.efb-sp__steps .efb-sp__item.is-active::after,
+.efb-sp--compact.efb-sp--chevrons #steps-efb.efb-sp__steps .efb-sp__item.is-done::after,
+.efb-sp--compact.efb-sp--chevrons #steps-efb.efb-sp__steps .efb-sp__item.is-active::after {
+   color: var(--efb-sp-on-accent);
+}
+.efb-sp--compact.efb-sp--chevrons #steps-efb.efb-sp__steps .efb.efb-sp__item {
+   flex: 0 0 auto;
+   min-width: 74px;
+   min-height: 46px;
+}
+/* The ribbon's rounded ends only work while it is one solid row; a scrolling
+   ribbon clips against the scroll container instead. */
+.efb-sp--compact.efb-sp--chevrons #steps-efb.efb-sp__steps { border-radius: 0; }
+
+/* ==========================================================================
+   Mobile - the breakpoint the plugin already uses everywhere else
+   ========================================================================== */
+@media screen and (max-width: 782px) {
+   /* Re-stated inside the query for the same reason, and in the same order, so
+      a long form on a phone still gets the smaller dot rather than the one the
+      unqualified rule above would hand it. */
+   .efb.efb-sp { --efb-sp-dot: 32px; }
+   .efb.efb-sp--dense { --efb-sp-dot: 24px; }
+   .efb-sp .efb.efb-sp__current { display: flex; }
+   .efb-sp #steps-efb.efb-sp__steps .efb.efb-sp__label { display: none; }
+   .efb-sp--circles #steps-efb.efb-sp__steps .efb.efb-sp__item::before { font-size: 15px; }
+   .efb-sp--compact.efb-sp--circles #steps-efb.efb-sp__steps .efb.efb-sp__item::before { font-size: 12px; }
+   #f-progress-efb .efb.progress.efb-sp__track { height: 8px; }
+   .efb-sp .efb.efb-sp__seg { height: 8px; }
+   .efb-sp .efb.efb-sp__ring { width: 52px; height: 52px; }
+   .efb-sp .efb.efb-sp__ring-in { width: 40px; height: 40px; font-size: 13px; }
+   .efb-sp .efb.efb-sp__curname { font-size: 14px; }
+
+   /* Pills keep only the active caption, everything else collapses to a chip. */
+   .efb-sp--pills #steps-efb.efb-sp__steps {
+      flex-wrap: nowrap;
+      gap: 6px;
+      overflow-x: auto;
+      scrollbar-width: thin;
+   }
+   .efb-sp--pills #steps-efb.efb-sp__steps .efb.efb-sp__item {
+      flex: 0 0 auto;
+      min-height: 40px;
+      padding: 4px 12px;
+   }
+   .efb-sp--pills #steps-efb.efb-sp__steps .efb-sp__item.is-active { flex: 0 1 auto; padding: 4px 16px; }
+   .efb-sp--pills:not(.efb-sp--compact) #steps-efb.efb-sp__steps .efb-sp__item.is-active .efb.efb-sp__label { display: block; }
+
+   .efb-sp--chevrons #steps-efb.efb-sp__steps .efb.efb-sp__item {
+      min-height: 46px;
+      margin-inline-start: -10px;
+      flex: 0 0 auto;
+      min-width: 42px;
+      padding: 4px 6px;
+      clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%, 10px 50%);
+   }
+   .efb-sp--chevrons #steps-efb.efb-sp__steps .efb-sp__item:first-child {
+      clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%);
+   }
+   .efb-sp--chevrons #steps-efb.efb-sp__steps .efb-sp__item:last-child {
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 10px 50%);
+   }
+   /* The step being filled in is the only one that keeps its name, and it takes
+      whatever the others leave rather than an equal share of the row. */
+   .efb-sp--chevrons:not(.efb-sp--compact) #steps-efb.efb-sp__steps .efb-sp__item.is-active {
+      flex: 1 1 auto;
+      min-width: 0;
+      padding-inline-end: 14px;
+   }
+   .efb-sp--chevrons:not(.efb-sp--compact) #steps-efb.efb-sp__steps .efb-sp__item.is-active .efb.efb-sp__label {
+      display: block;
+      font-size: 14px;
+   }
+
+   /* A long form on a phone gets a dot strip: a numbered circle is unreadable
+      at this size and a scroll bar under twelve of them is worse. */
+   .efb-sp--compact.efb-sp--circles #steps-efb.efb-sp__steps { gap: 5px; }
+   .efb-sp--compact.efb-sp--circles #steps-efb.efb-sp__steps .efb-sp__item + .efb-sp__item::after { display: none; }
+   .efb-sp--compact.efb-sp--circles #steps-efb.efb-sp__steps .efb.efb-sp__item { flex: 1 1 0; padding: 0; }
+   .efb-sp--compact.efb-sp--circles #steps-efb.efb-sp__steps .efb.efb-sp__item::before,
+   .efb-sp--compact.efb-sp--circles #steps-efb.efb-sp__steps .efb-sp__item.is-done::before {
+      content: "";
+      width: 100%;
+      max-width: 28px;
+      height: 9px;
+      border: none;
+      border-radius: 100px;
+      background: #dfe3f2;
+      font-size: 0;
+   }
+   .efb-sp--compact.efb-sp--circles #steps-efb.efb-sp__steps .efb-sp__item.is-done::before { background: var(--efb-sp-accent-dark); }
+   .efb-sp--compact.efb-sp--circles #steps-efb.efb-sp__steps .efb-sp__item.is-active::before {
+      background: var(--efb-sp-accent);
+      box-shadow: none;
+   }
+}
+
+/* ==========================================================================
+   RTL
+   The mirror lives on a class rather than [dir=rtl] because the RTL sheet is
+   enqueued before this one in wp-admin and after it on the front end, so an
+   equal-specificity override there would only work on one of the two. The
+   extra class outranks the base rules in both.
+   ========================================================================== */
+.efb-sp.efb-sp--rtl #steps-efb.efb-sp__steps { direction: rtl; }
+.efb-sp.efb-sp--rtl .efb.efb-sp__segs,
+.efb-sp.efb-sp--rtl #f-progress-efb .efb.progress.efb-sp__track { direction: rtl; }
+.efb-sp.efb-sp--rtl #f-progress-efb .efb.efb-sp__fill::before {
+   background-image: linear-gradient(-90deg, rgba(255, 255, 255, .22), rgba(255, 255, 255, 0) 65%);
+}
+.efb-sp.efb-sp--rtl .efb.efb-sp__ring {
+   background: conic-gradient(from 0deg, var(--efb-sp-track) calc((100 - var(--efb-sp-pct, 0)) * 1%), var(--efb-sp-accent) 0);
+   transform: scaleX(-1);
+}
+.efb-sp.efb-sp--rtl .efb.efb-sp__ring-in { transform: scaleX(-1); }
+/* clip-path is written in physical coordinates, so the ribbon is flipped as a
+   whole and each item's content flipped back. */
+.efb-sp--chevrons.efb-sp--rtl #steps-efb.efb-sp__steps .efb.efb-sp__item { transform: scaleX(-1); }
+.efb-sp--chevrons.efb-sp--rtl #steps-efb.efb-sp__steps .efb.efb-sp__item > * { transform: scaleX(-1); }
+.efb-sp--chevrons.efb-sp--rtl #steps-efb.efb-sp__steps .efb.efb-sp__item::before { transform: scaleX(-1); }
+
+/* ==========================================================================
+   Motion and focus
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+   .efb-sp *,
+   .efb-sp *::before,
+   .efb-sp *::after { transition: none !important; animation: none !important; }
+}
+
+/* ==========================================================================
+   The style pickers in the form settings panel
+   ========================================================================== */
+.efb.efb-sp-picker {
+   display: grid;
+   grid-template-columns: repeat(3, minmax(0, 1fr));
+   gap: 8px;
+   margin: 0 0 6px 0;
+}
+.efb.efb-sp-picker__opt {
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   gap: 7px;
+   padding: 10px 6px 8px 6px;
+   border: 1px solid #dde2f0;
+   border-radius: 12px;
+   background: #fff;
+   cursor: pointer;
+   transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease;
+}
+.efb.efb-sp-picker__opt:hover { border-color: #b9c3e6; background: #fbfcff; }
+.efb.efb-sp-picker__opt.active {
+   border-color: #202a8d;
+   background: #f5f7ff;
+   box-shadow: 0 0 0 3px rgba(32, 42, 141, .12);
+}
+.efb.efb-sp-picker__name {
+   font-size: 11px;
+   font-weight: 600;
+   line-height: 1.3;
+   text-align: center;
+   color: #4a5075;
+}
+.efb.efb-sp-picker__opt.active .efb-sp-picker__name { color: #202a8d; }
+.efb .efb-sp-picker__art {
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   width: 100%;
+   height: 26px;
+   pointer-events: none;
+}
+.efb .efb-sp-picker__art svg { width: 100%; height: 100%; overflow: visible; }
+/* The thumbnails are drawn left to right, and every one of them reads as a
+   direction: done steps behind, the arrow pointing forward, the bar filling
+   towards the end. In an RTL panel that is backwards, and the ribbon in
+   particular would advertise arrows pointing the opposite way to the ones the
+   form actually draws. There is no text inside them, so mirroring the whole
+   drawing is enough. */
+[dir="rtl"] .efb .efb-sp-picker__art svg { transform: scaleX(-1); }

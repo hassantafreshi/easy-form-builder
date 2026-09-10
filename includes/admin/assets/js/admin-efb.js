@@ -2121,9 +2121,12 @@ let change_el_edit_Efb = (el) => {
         break;
       case "showSIconsEl":
         valj_efb[0].show_icon =  el.classList.contains('active')==true ? true : false
+        /* The toggle reads "hide", so the picker belongs to its off state. */
+        efbTogglePickerEfb('steps_style', valj_efb[0].show_icon !== true);
         break;
       case "showSprosiEl":
         valj_efb[0].show_pro_bar = el.classList.contains('active')==true ? true : false
+        efbTogglePickerEfb('progress_style', valj_efb[0].show_pro_bar !== true);
         break;
       case "showformLoggedEl":
 
@@ -3401,7 +3404,7 @@ async function create_form_efb() {
     valj_efb.forEach((value, index) => {
       if (step_no < value.step && value.type == "step") {
         step_no += 1;
-        head += `<li id="${value.id_}" data-step="icon-s-${step_no}-efb"class="efb  ${valj_efb[0].steps <= 11 ? `step-w-${valj_efb[0].steps}` : `step-w-11`} ${value.icon_color} ${value.icon}   ${value.step == 1 ? 'active' : ''}" ><strong class="efb  fs-5 ${value.label_text_color} ">${value.name}</strong></li>`
+        head += `<li id="${value.id_}" data-step="icon-s-${step_no}-efb" data-num="${step_no}" class="${efbStepsItemClassEfb(step_no, 1, value.icon_color, value.icon)} ${valj_efb[0].steps <= 11 ? `step-w-${valj_efb[0].steps}` : `step-w-11`}"><strong class="efb fs-5 efb-sp__label ${value.label_text_color}">${value.name}</strong></li>`
         content += step_no == 1 ? `<fieldset data-step="step-${step_no}-efb" class="efb  mt-1 mb-2 steps-efb row">` : `<!-- fieldsetFOrm!!! --></fieldset><fieldset data-step="step-${step_no}-efb"  class="efb my-2 steps-efb efb row d-none">`
 
         if (valj_efb[0].show_icon == false) { }
@@ -3424,7 +3427,10 @@ async function create_form_efb() {
                 ${efbLoadingCard('', 4)}
                 <!-- fieldset formNew 2 --> </fieldset>
       `
-    head += `<li id="f-step-efb"  data-step="icon-s-${step_no}-efb" class="efb  ${valj_efb[1].icon_color} ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`}" ><i class="efb bi-check-lg ${efb_var.rtl == 1 ? 'ms-2' : 'me-2'} fs-7"></i><strong class="efb  fs-5 ${valj_efb[1].label_text_color}">${efb_var.text.finish}</strong></li>`
+    /* The tick used to be a nested <i>, which the three renderers disagreed
+       about; it is the same ::before glyph as every other step now, so a
+       variant that reshapes the dot reshapes this one too. */
+    head += `<li id="f-step-efb" data-step="icon-s-${step_no}-efb" data-num="${step_no}" class="${efbStepsItemClassEfb(step_no, 1, valj_efb[1].icon_color, 'bi-check-lg')} ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`} mx-0"><strong class="efb fs-5 efb-sp__label ${valj_efb[1].label_text_color}">${efb_var.text.finish}</strong></li>`
   } catch (error) {
   }
 
@@ -3432,8 +3438,19 @@ async function create_form_efb() {
 
   const bgc = valj_efb[0].hasOwnProperty('prg_bar_color') ?valj_efb[0].prg_bar_color: 'btn-primary'
 
-  head = `${valj_efb[0].show_icon == 0 || valj_efb[0].show_icon == false ? `<ul id="steps-efb" class="efb mb-2 px-2">${head}</ul>` : ''}
-    ${valj_efb[0].show_pro_bar == 0 || valj_efb[0].show_pro_bar == false ? `<div class="efb d-flex justify-content-center"><div class="efb progress mx-4"><div class="efb  progress-bar-efb ${bgc} progress-bar-striped progress-bar-animated" role="progressbar"aria-valuemin="0" aria-valuemax="100"></div></div></div> <br> ` : ``}`
+  head = efbStepsShellHeadEfb({
+    formId: '',
+    total: step_no,
+    current: 1,
+    currentName: valj_efb[1] && valj_efb[1].name ? valj_efb[1].name : '',
+    stepsStyle: efbStepsStyleNameEfb(valj_efb[0]),
+    progressStyle: efbProgressStyleNameEfb(valj_efb[0]),
+    accentClass: bgc,
+    rtl: efb_var.rtl == 1,
+    showSteps: Number(valj_efb[0].show_icon) != 1,
+    showProgress: Number(valj_efb[0].show_pro_bar) != 1,
+    items: head
+  })
 
   content = `
     <div class="efb px-0 pt-2 pb-0 my-1 col-12" id="view-efb">
@@ -4879,6 +4896,50 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
 }, false);
+
+/**
+ * Show or hide one of the two style pickers.
+ *
+ * Both pickers are always printed, so the toggle beside them only flips a
+ * class - rebuilding the settings panel here would throw away whatever else
+ * the author had half-typed into it.
+ */
+function efbTogglePickerEfb(target, visible) {
+  const box = document.getElementById(`efb-picker-${target}`);
+  if (!box) return false;
+  box.classList.toggle('d-none', !visible);
+  return true;
+}
+
+/**
+ * Record the chosen steps or progress style.
+ *
+ * Stored on valj_efb[0] beside show_icon and show_pro_bar, which is where both
+ * the preview and the front-end renderer read it from; an unknown value falls
+ * back to the original look, so a form saved by an older version - or by a
+ * hand-edited structure - keeps rendering.
+ */
+function efbPickStepStyleEfb(el) {
+  if (!el || !valj_efb.length) return false;
+  const target = el.dataset.target;
+  const style = el.dataset.style;
+  if (target !== 'steps_style' && target !== 'progress_style') return false;
+
+  const resolved = target === 'steps_style'
+    ? efbStepsStyleNameEfb({ steps_style: style })
+    : efbProgressStyleNameEfb({ progress_style: style });
+  valj_efb[0][target] = resolved;
+
+  const box = el.closest('.efb-sp-picker');
+  if (box) {
+    box.querySelectorAll('.efb-sp-picker__opt').forEach((opt) => {
+      const on = opt.dataset.style === resolved;
+      opt.classList.toggle('active', on);
+      opt.setAttribute('aria-pressed', on);
+    });
+  }
+  return true;
+}
 
 function fun_switch_form_efb(el){
   if (['mobileHideLabelEl', 'mobileHideDescriptionEl', 'globalMobileHideLabelEl'].includes(el.id) && !efbRequireMobileProEfb()) return false;
@@ -8351,7 +8412,12 @@ function handle_navbtn_efb(steps, device) {
           if(grecaptcha && !grecaptcha.classList.contains('d-none') ) { grecaptcha.classList.add('d-none'); }
           var nxt = "" + (current_s_efb + 1) + "";
           if(Number(valj_efb[0].show_icon)!=1){
-            document.querySelector('[data-step="icon-s-' + nxt + '-efb"]').classList.add("active");
+            /* setProgressBar_efb() a few lines down repaints every row from the
+               step being moved to; this only has to stand in for it when the
+               shared runtime is missing, and must not throw when the row it
+               names is not there. */
+            const nextIconEfb = document.querySelector('[data-step="icon-s-' + nxt + '-efb"]');
+            if (nextIconEfb) nextIconEfb.classList.add("active");
           }
           document.querySelector('[data-step="step-' + nxt + '-efb"]').classList.toggle("d-none");
           if(next_s_efb)next_s_efb.classList.remove('d-none');
@@ -8447,7 +8513,7 @@ function previewFormEfb(state) {
       if (valj_efb[index].type != "html" && valj_efb[index].type != "link" && valj_efb[index].type != "heading" && valj_efb[index].type != "persiaPay") Object.entries(valj_efb[index]).forEach(([key, val]) => { fun_addStyle_costumize_efb(val.toString(), key, index) });
       if (step_no < value.step && value.type == "step") {
         step_no += 1;
-        head += `<li id="${value.id_}" data-step="icon-s-${step_no}-efb"class="efb  ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`} ${value.icon_color} ${value.icon}   ${value.step == 1 ? 'active' : ''}" ><strong class="efb  fs-5  ${value.label_text_color} ">${value.name}</strong></li>`
+        head += `<li id="${value.id_}" data-step="icon-s-${step_no}-efb" data-num="${step_no}" class="${efbStepsItemClassEfb(step_no, 1, value.icon_color, value.icon)} ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`}"><strong class="efb fs-5 efb-sp__label ${value.label_text_color}">${value.name}</strong></li>`
         content += step_no == 1 ? `<fieldset data-step="step-${step_no}-efb" id="step-${step_no}-efb" class="efb my-2 mx-0 px-0 steps-efb efb row">` : `<!-- fieldset!!!? --><div id="step-${Number(step_no)-1}-efb-msg"></div></fieldset><fieldset data-step="step-${step_no}-efb" id="step-${step_no}-efb"  class="efb my-2 mx-0 px-0 steps-efb efb row d-none">`
         if (valj_efb[0].show_icon == false) { }
         if (valj_efb[0].hasOwnProperty('dShowBg') && valj_efb[0].dShowBg == false  && state == "run") {
@@ -8554,15 +8620,25 @@ function previewFormEfb(state) {
             <!-- fieldset2 -->
             <div id="step-2-efb-msg"></div>
             </fieldset>`
-    head += `<li id="f-step-efb"  data-step="icon-s-${step_no}-efb" class="efb  ${valj_efb[1].icon_color} ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`} bi-check-lg mx-0" ><strong class="efb  fs-5 ${valj_efb[1].label_text_color}">${efb_var.text.finish}</strong></li>`
+    head += `<li id="f-step-efb" data-step="icon-s-${step_no}-efb" data-num="${step_no}" class="${efbStepsItemClassEfb(step_no, 1, valj_efb[1].icon_color, 'bi-check-lg')} ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`} mx-0"><strong class="efb fs-5 efb-sp__label ${valj_efb[1].label_text_color}">${efb_var.text.finish}</strong></li>`
   } catch (error) {
   }
   if (content.length > 10){
     const bgc = valj_efb[0].hasOwnProperty('prg_bar_color') ?valj_efb[0].prg_bar_color: 'btn-primary'
      content += `</div>`
-    head = `${Number(valj_efb[0].show_icon)!=1 ? `<ul id="steps-efb" class="efb mb-2 px-2">${head}</ul>` : ''}
-    ${valj_efb[0].show_pro_bar == 0 || valj_efb[0].show_pro_bar == false ? `<div class="efb d-flex justify-content-center" id="f-progress-efb"><div class="efb progress mx-3 w-100 ${bgc}"><div class="efb  progress-bar-efb   progress-bar-striped progress-bar-animated" role="progressbar"aria-valuemin="0" aria-valuemax="100"></div></div></div><br> ` : ``}
-    `}
+    head = efbStepsShellHeadEfb({
+      formId: valj_efb[0].id_ ? valj_efb[0].id_ : '',
+      total: step_no,
+      current: 1,
+      currentName: valj_efb[1] && valj_efb[1].name ? valj_efb[1].name : '',
+      stepsStyle: efbStepsStyleNameEfb(valj_efb[0]),
+      progressStyle: efbProgressStyleNameEfb(valj_efb[0]),
+      accentClass: bgc,
+      rtl: efb_var.rtl == 1,
+      showSteps: Number(valj_efb[0].show_icon) != 1,
+      showProgress: Number(valj_efb[0].show_pro_bar) != 1,
+      items: head
+    })}
   const idn = state == "pre" ? "pre-form-efb" : "pre-efb";
   document.getElementById(id).classList.add(idn)
   content = `
