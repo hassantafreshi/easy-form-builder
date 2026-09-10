@@ -148,21 +148,25 @@ if ( ! function_exists( 'emsfb_autop_safe_markup_efb' ) ) {
  * Steps process + progress bar - server side of the shared markup
  * --------------------------------------------------------------------------
  * The front end builds the same tree the builder canvas and the preview build
- * in JavaScript; the JS half lives at the bottom of
- * includes/admin/assets/js/new-efb.js and the markup contract is documented at
- * the top of the "Steps process + progress bar" block in
- * includes/admin/assets/css/style-efb.css. Anything changed in one half has to
- * be changed in the other, which is why both halves are deliberately shaped
- * the same way and named after each other.
+ * in JavaScript; the JS half lives in
+ * includes/admin/assets/js/steps-progress-builder-efb.js and the markup
+ * contract is documented at the top of
+ * includes/admin/assets/css/steps-progress-efb.css. Anything changed in one
+ * half has to be changed in the other, which is why both halves are
+ * deliberately shaped the same way and named after each other.
+ *
+ * The default for both settings is 'classic' - the shape the plugin has always
+ * drawn. A form that never picked a style therefore renders exactly what it
+ * rendered before these existed, and inlines none of the new CSS or JS.
  * ========================================================================== */
 
 /**
  * Resolve one of the plugin's stored colour classes to the hex it paints with.
  *
  * A colour is stored as a class and never as a value: "btn-colorDEfb-4636f1"
- * for anything picked from the colour wheel, "btn-primary" for one of the
+ * for anything picked from the colour wheel, "text-pinkEfb" for one of the
  * presets. Both shapes have to resolve to the colour the form is actually
- * drawn in, so the steps and the progress ring can be tinted with it.
+ * drawn in, so the steps and the progress indicator can be tinted with it.
  */
 if ( ! function_exists( 'efb_steps_color_hex_efb' ) ) {
 	function efb_steps_color_hex_efb( $class, $fallback = '#202a8d' ) {
@@ -216,6 +220,7 @@ if ( ! function_exists( 'efb_steps_rgb_efb' ) ) {
 	}
 }
 
+/** ratio < 0 darkens towards black, ratio > 0 washes out towards white. */
 if ( ! function_exists( 'efb_steps_shade_efb' ) ) {
 	function efb_steps_shade_efb( $hex, $ratio ) {
 		$c      = efb_steps_rgb_efb( $hex );
@@ -232,9 +237,9 @@ if ( ! function_exists( 'efb_steps_shade_efb' ) ) {
 }
 
 /**
- * Pick a readable colour for text that sits on top of the accent fill.
+ * Pick a readable colour for text that sits on top of a filled shape.
  *
- * Only used where a caption or a glyph really is drawn over the accent - on a
+ * Only used where a caption or a glyph really is drawn over the fill - on a
  * filled pill or chevron, or inside a filled circle. Everywhere else the step's
  * own icon_color and label_text_color stay in charge, which is the whole point
  * of keeping those classes on the markup.
@@ -247,6 +252,13 @@ if ( ! function_exists( 'efb_steps_on_accent_efb' ) ) {
 	}
 }
 
+/**
+ * Every shade one colour needs, derived from that colour alone.
+ *
+ * The track and the hairlines are the author's colour washed out rather than a
+ * grey picked here, so a blue form gets a blue-grey track and a pink one a
+ * pink-grey track without either having to be configured.
+ */
 if ( ! function_exists( 'efb_steps_palette_efb' ) ) {
 	function efb_steps_palette_efb( $class, $fallback = '#202a8d' ) {
 		$accent = efb_steps_color_hex_efb( $class, $fallback );
@@ -256,6 +268,9 @@ if ( ! function_exists( 'efb_steps_palette_efb' ) ) {
 			'accent_dark' => efb_steps_shade_efb( $accent, -0.28 ),
 			'soft'        => 'rgba(' . $c[0] . ',' . $c[1] . ',' . $c[2] . ',.16)',
 			'on_accent'   => efb_steps_on_accent_efb( $accent ),
+			'track'       => efb_steps_shade_efb( $accent, 0.88 ),
+			'line'        => efb_steps_shade_efb( $accent, 0.78 ),
+			'bg'          => efb_steps_shade_efb( $accent, 0.92 ),
 		);
 	}
 }
@@ -273,23 +288,62 @@ if ( ! function_exists( 'efb_steps_style_vars_efb' ) ) {
 		return '--efb-sp-accent:' . $p['accent']
 			. ';--efb-sp-accent-dark:' . $p['accent_dark']
 			. ';--efb-sp-soft:' . $p['soft']
-			. ';--efb-sp-on-accent:' . $p['on_accent'];
+			. ';--efb-sp-on-accent:' . $p['on_accent']
+			. ';--efb-sp-track:' . $p['track']
+			. ';--efb-sp-line:' . $p['line'];
+	}
+}
+
+/**
+ * The class that carries one step's own palette.
+ *
+ * One class per distinct colour, the way the plugin already handles every other
+ * per-field colour. A form whose steps all share one icon colour - which is the
+ * default - prints a single rule, instead of repeating five custom properties
+ * on every one of twenty <li>.
+ */
+if ( ! function_exists( 'efb_steps_color_class_efb' ) ) {
+	function efb_steps_color_class_efb( $icon_color_class ) {
+		return 'efb-sp-c-' . strtolower( ltrim( efb_steps_color_hex_efb( $icon_color_class ), '#' ) );
+	}
+}
+
+if ( ! function_exists( 'efb_steps_color_rules_efb' ) ) {
+	function efb_steps_color_rules_efb( array $icon_color_classes ) {
+		$seen = array();
+		$css  = '';
+		foreach ( $icon_color_classes as $class ) {
+			$hex = efb_steps_color_hex_efb( $class );
+			$key = strtolower( ltrim( $hex, '#' ) );
+			if ( isset( $seen[ $key ] ) ) {
+				continue;
+			}
+			$seen[ $key ] = true;
+			$p            = efb_steps_palette_efb( $hex );
+			$css         .= '.efb-sp .efb-sp-c-' . $key . '{'
+				. '--efb-sp-dot:' . $p['accent']
+				. ';--efb-sp-dot-on:' . $p['on_accent']
+				. ';--efb-sp-dot-soft:' . $p['soft']
+				. ';--efb-sp-dot-line:' . $p['line']
+				. ';--efb-sp-dot-bg:' . $p['bg'] . '}';
+		}
+		return $css;
 	}
 }
 
 if ( ! function_exists( 'efb_steps_style_name_efb' ) ) {
 	function efb_steps_style_name_efb( $value ) {
-		$allowed = array( 'circles', 'pills', 'chevrons' );
+		$allowed = array( 'classic', 'circles', 'pills', 'chevrons' );
 		$value   = is_string( $value ) ? $value : '';
-		return in_array( $value, $allowed, true ) ? $value : 'circles';
+		return in_array( $value, $allowed, true ) ? $value : 'classic';
 	}
 }
 
 if ( ! function_exists( 'efb_progress_style_name_efb' ) ) {
 	function efb_progress_style_name_efb( $value ) {
-		$allowed = array( 'bar', 'segments', 'ring' );
+		$allowed = array( 'classic', 'bar', 'segments', 'ring' );
 		$value   = is_string( $value ) ? $value : '';
-		return in_array( $value, $allowed, true ) ? $value : 'bar';
+		return in_array( $value, $allowed, true ) ? $value : 'classic';
 	}
 }
 
@@ -308,6 +362,50 @@ if ( ! function_exists( 'efb_steps_density_class_efb' ) ) {
 			$cls .= ' efb-sp--dense';
 		}
 		return $cls;
+	}
+}
+
+/**
+ * Whether this form needs the wrapper at all.
+ *
+ * The wrapper exists only to carry the shared colours and the compact
+ * threshold, so a form on the classic styles throughout does not get one -
+ * which is also what keeps efbStepsSyncEfb() from claiming a classic row, and
+ * what lets the front end skip the whole stylesheet and runtime.
+ */
+if ( ! function_exists( 'efb_steps_needs_shell_efb' ) ) {
+	function efb_steps_needs_shell_efb( $args ) {
+		$show_steps    = ! isset( $args['show_steps'] ) || $args['show_steps'];
+		$show_progress = ! isset( $args['show_progress'] ) || $args['show_progress'];
+		$steps_style   = efb_steps_style_name_efb( isset( $args['steps_style'] ) ? $args['steps_style'] : '' );
+		$prog_style    = efb_progress_style_name_efb( isset( $args['progress_style'] ) ? $args['progress_style'] : '' );
+
+		return ( $show_steps && 'classic' !== $steps_style ) || ( $show_progress && 'classic' !== $prog_style );
+	}
+}
+
+/**
+ * Whether the caption above the row is worth printing.
+ *
+ * Two things make it redundant. A ring names the step itself, so printing the
+ * caption as well says the same thing twice. A classic steps row keeps all of
+ * its captions at every width, and the form's own heading names the current one
+ * above it, so there too the caption adds nothing. What is left is the case the
+ * caption exists for: one of the new rows, where the captions are dropped once
+ * they stop fitting, and a form with no row at all, where CSS shows it at every
+ * width rather than only on a phone.
+ */
+if ( ! function_exists( 'efb_steps_wants_header_efb' ) ) {
+	function efb_steps_wants_header_efb( $args ) {
+		$show_progress  = ! isset( $args['show_progress'] ) || $args['show_progress'];
+		$show_steps     = ! isset( $args['show_steps'] ) || $args['show_steps'];
+		$progress_style = efb_progress_style_name_efb( isset( $args['progress_style'] ) ? $args['progress_style'] : '' );
+		$steps_style    = efb_steps_style_name_efb( isset( $args['steps_style'] ) ? $args['steps_style'] : '' );
+
+		if ( $show_progress && 'ring' === $progress_style ) {
+			return false;
+		}
+		return ! ( $show_steps && 'classic' === $steps_style );
 	}
 }
 
@@ -335,16 +433,27 @@ if ( ! function_exists( 'efb_steps_complete_text_efb' ) ) {
  * The state class one step carries.
  *
  * Recomputed from the current step rather than toggled, so a step that has been
- * left behind can be drawn as done - the old markup only ever knew which step
- * was current. `active` is kept alongside `is-active` because the plugin's
+ * left behind can be drawn as done - the classic markup only ever knew which
+ * step was current. `active` is kept alongside `is-active` because the plugin's
  * older selectors, and third-party CSS in the wild, still look for it.
  */
 if ( ! function_exists( 'efb_steps_item_class_efb' ) ) {
-	function efb_steps_item_class_efb( $num, $current, $icon_color = '', $icon = '' ) {
+	function efb_steps_item_class_efb( $num, $current, $icon_color = '', $icon = '', $steps_style = 'circles' ) {
 		$num     = (int) $num;
 		$current = (int) $current;
-		$state   = $num < $current ? 'is-done' : ( $num === $current ? 'is-active' : 'is-todo' );
-		return trim( 'efb efb-sp__item ' . $state . ' ' . $icon_color . ' ' . $icon . ( $num === $current ? ' active' : '' ) );
+
+		/* The classic row keeps the class list it has always had, so the rules
+		 * in style-efb.css - which are scoped to a <ul> without efb-sp__steps -
+		 * still match it and nothing about it moves. */
+		if ( 'classic' === efb_steps_style_name_efb( $steps_style ) ) {
+			return trim( 'efb ' . $icon_color . ' ' . $icon . ( $num === $current ? ' active' : '' ) );
+		}
+
+		$state = $num < $current ? 'is-done' : ( $num === $current ? 'is-active' : 'is-todo' );
+		return trim(
+			'efb efb-sp__item ' . $state . ' ' . efb_steps_color_class_efb( $icon_color )
+			. ' ' . $icon_color . ' ' . $icon . ( $num === $current ? ' active' : '' )
+		);
 	}
 }
 
@@ -356,9 +465,13 @@ if ( ! function_exists( 'efb_steps_wrap_open_efb' ) ) {
 		$form_id        = isset( $args['form_id'] ) ? $args['form_id'] : '';
 		$accent_class   = isset( $args['accent_class'] ) ? $args['accent_class'] : '';
 		$rtl            = ! empty( $args['rtl'] );
+		$show_steps     = ! isset( $args['show_steps'] ) || $args['show_steps'];
 
 		$cls = 'efb efb-sp efb-sp--' . $steps_style . ' efb-sp--prog-' . $progress_style . efb_steps_density_class_efb( $total );
-		if ( isset( $args['show_steps'] ) && ! $args['show_steps'] ) {
+		/* Only a form with no row at all - not one with a classic row, which
+		 * carries its own captions - needs the caption forced on at every
+		 * width. */
+		if ( ! $show_steps ) {
 			$cls .= ' efb-sp--norow';
 		}
 		if ( $rtl ) {
@@ -377,26 +490,11 @@ if ( ! function_exists( 'efb_steps_wrap_open_efb' ) ) {
 }
 
 /**
- * The caption that stands in for the step titles once they no longer fit -
- * on a long form and on every phone. It is always printed and CSS decides
- * whether it is shown, so the runtime never has to insert it later.
+ * The caption that stands in for the step titles once they no longer fit - on a
+ * long form, on every phone, and whenever the steps row is not drawn. It is
+ * always printed and CSS decides whether it is shown, so the runtime never has
+ * to insert it later.
  */
-/**
- * Whether the caption above the row is worth printing.
- *
- * The ring block already names the step, so printing the caption as well says
- * the same thing twice; with the steps row switched off the caption is the
- * only thing naming the step at all, which is why CSS shows it at every width
- * in that case rather than only on a phone.
- */
-if ( ! function_exists( 'efb_steps_wants_header_efb' ) ) {
-	function efb_steps_wants_header_efb( $args ) {
-		$show_progress  = ! isset( $args['show_progress'] ) || $args['show_progress'];
-		$progress_style = efb_progress_style_name_efb( isset( $args['progress_style'] ) ? $args['progress_style'] : '' );
-		return ! ( $show_progress && 'ring' === $progress_style );
-	}
-}
-
 if ( ! function_exists( 'efb_steps_header_efb' ) ) {
 	function efb_steps_header_efb( $args ) {
 		$current  = isset( $args['current'] ) ? (int) $args['current'] : 1;
@@ -415,15 +513,49 @@ if ( ! function_exists( 'efb_steps_header_efb' ) ) {
 }
 
 /**
- * The progress block, in whichever of the three shapes the form asked for.
+ * The classic progress bar, unchanged.
  *
- * The author's colour class moves onto the fill here. It used to sit on the
- * track, which painted the whole strip and left the fill showing nothing but a
- * stripe pattern - the bar never actually read as progress.
+ * The author's colour on the track and a striped animated fill over it - kept
+ * exactly as it was so a form that never picked a style renders what it always
+ * rendered, down to the class list.
+ */
+if ( ! function_exists( 'efb_steps_classic_progress_efb' ) ) {
+	function efb_steps_classic_progress_efb( $args ) {
+		$current = isset( $args['current'] ) ? (int) $args['current'] : 1;
+		$total   = isset( $args['total'] ) ? (int) $args['total'] : 1;
+		$form_id = isset( $args['form_id'] ) ? $args['form_id'] : '';
+		$accent  = isset( $args['accent_class'] ) ? $args['accent_class'] : '';
+		$total   = $total > 0 ? $total : 1;
+		$percent = round( ( $current / $total ) * 100, 2 );
+
+		/* The gap under the bar is a margin rather than the <br> that used to
+		 * sit here: a bare <br> between two blocks is one of the pieces wpautop
+		 * wraps in a paragraph of its own. The class carries the same 32px the
+		 * line break produced. */
+		return '<div class="efb d-flex justify-content-center efb-progress-gap" id="f-progress-efb" data-formid="' . esc_attr( $form_id ) . '">'
+			. '<div class="efb progress mx-3 w-100 ' . esc_attr( $accent ) . '">'
+			. '<div class="efb progress-bar-efb progress-bar-striped progress-bar-animated" role="progressbar"'
+			. ' aria-valuemin="0" aria-valuemax="100" style="width: ' . esc_attr( $percent ) . '%;"'
+			. ' data-formid="' . esc_attr( $form_id ) . '"></div>'
+			. '</div></div>';
+	}
+}
+
+/**
+ * The progress block, in whichever of the four shapes the form asked for.
+ *
+ * In the three new shapes the author's colour class moves onto the fill. It
+ * used to sit on the track, which painted the whole strip and left the fill
+ * showing nothing but a stripe pattern - the bar never actually read as
+ * progress. The classic shape keeps that behaviour on purpose.
  */
 if ( ! function_exists( 'efb_steps_progress_efb' ) ) {
 	function efb_steps_progress_efb( $args ) {
-		$style    = efb_progress_style_name_efb( isset( $args['progress_style'] ) ? $args['progress_style'] : '' );
+		$style = efb_progress_style_name_efb( isset( $args['progress_style'] ) ? $args['progress_style'] : '' );
+		if ( 'classic' === $style ) {
+			return efb_steps_classic_progress_efb( $args );
+		}
+
 		$current  = isset( $args['current'] ) ? (int) $args['current'] : 1;
 		$total    = isset( $args['total'] ) ? (int) $args['total'] : 1;
 		$form_id  = isset( $args['form_id'] ) ? $args['form_id'] : '';
@@ -438,7 +570,7 @@ if ( ! function_exists( 'efb_steps_progress_efb' ) ) {
 		$percent  = round( ( $current / $total ) * 100, 2 );
 		$readable = (int) round( $percent );
 		$counter  = efb_steps_counter_text_efb( $current, $total, $lan_text );
-		$attrs   = ' id="f-progress-efb" data-formid="' . esc_attr( $form_id ) . '"';
+		$attrs    = ' id="f-progress-efb" data-formid="' . esc_attr( $form_id ) . '"';
 
 		$meta = sprintf(
 			'<div class="efb efb-sp__meta"><span class="efb efb-sp__metaname">%1$s</span><span class="efb efb-sp__pct">%2$s%%</span></div>',
@@ -473,6 +605,195 @@ if ( ! function_exists( 'efb_steps_progress_efb' ) ) {
 			. ' aria-valuemin="0" aria-valuemax="100" aria-valuenow="' . esc_attr( $percent ) . '"'
 			. ' style="width:' . esc_attr( $percent ) . '%;" data-formid="' . esc_attr( $form_id ) . '"></div>'
 			. '</div></div>';
+	}
+}
+
+/* --------------------------------------------------------------------------
+ * Assets. Nothing below is enqueued on the front end: the chunks a form needs
+ * are printed inside the form's own <style> and <script>, so a page with a
+ * classic form makes no extra request and downloads no rule it cannot use.
+ * ----------------------------------------------------------------------- */
+
+/**
+ * Read one asset file once per request.
+ *
+ * Several forms can share a page and each of them asks for its chunks, so the
+ * file is memoised rather than re-read. Missing file returns '' - a form that
+ * renders without its stylesheet is wrong, but it is not worth a fatal.
+ */
+if ( ! function_exists( 'efb_steps_asset_source_efb' ) ) {
+	function efb_steps_asset_source_efb( $relative ) {
+		static $cache = array();
+		if ( isset( $cache[ $relative ] ) ) {
+			return $cache[ $relative ];
+		}
+		/* Resolved from the constant when it exists and from this file's own
+		 * location otherwise, so a standalone harness that never boots the
+		 * plugin can still read the chunks. The constant carries a trailing
+		 * slash of its own. */
+		$root = defined( 'EMSFB_PLUGIN_DIRECTORY' ) ? EMSFB_PLUGIN_DIRECTORY : dirname( __DIR__ );
+		$path = rtrim( $root, "/\\" ) . '/' . ltrim( $relative, '/' );
+		$src  = is_readable( $path ) ? file_get_contents( $path ) : '';
+		$cache[ $relative ] = is_string( $src ) ? $src : '';
+		return $cache[ $relative ];
+	}
+}
+
+/**
+ * Split steps-progress-efb.css on its `== efb-sp:<name> ==` markers.
+ *
+ * Returns name => css. Anything before the first marker is the file's own
+ * header comment and is dropped.
+ */
+if ( ! function_exists( 'efb_steps_css_chunks_efb' ) ) {
+	function efb_steps_css_chunks_efb() {
+		static $chunks = null;
+		if ( null !== $chunks ) {
+			return $chunks;
+		}
+
+		$chunks = array();
+		$src    = efb_steps_asset_source_efb( 'includes/admin/assets/css/steps-progress-efb.css' );
+		if ( '' === $src ) {
+			return $chunks;
+		}
+
+		$parts = preg_split( '/\/\*\s*==\s*efb-sp:([a-z0-9\-]+)\s*==\s*\*\//', $src, -1, PREG_SPLIT_DELIM_CAPTURE );
+		for ( $i = 1; $i < count( $parts ); $i += 2 ) {
+			$name = $parts[ $i ];
+			$body = isset( $parts[ $i + 1 ] ) ? $parts[ $i + 1 ] : '';
+			$chunks[ $name ] = isset( $chunks[ $name ] ) ? $chunks[ $name ] . $body : $body;
+		}
+		return $chunks;
+	}
+}
+
+/**
+ * Squeeze a stylesheet for inlining.
+ *
+ * Comments and the indentation they are wrapped in are what make this file
+ * readable, and none of it means anything to a browser. Deliberately
+ * conservative: it drops comments and collapses runs of whitespace, and does
+ * not try to rewrite selectors or values.
+ */
+if ( ! function_exists( 'efb_steps_squeeze_css_efb' ) ) {
+	function efb_steps_squeeze_css_efb( $css ) {
+		$css = preg_replace( '#/\*.*?\*/#s', '', $css );
+		$css = preg_replace( '/\s+/', ' ', $css );
+		/* Only the spaces that can never be part of a value or a selector: a
+		 * declaration's colon is always followed by one, a comma in a selector
+		 * list or an rgba() never needs one, and no selector in this file ends
+		 * in a descendant combinator before a brace. */
+		$css = str_replace(
+			array( ' {', '{ ', ' }', '} ', '; ', ': ', ', ', ' >', '> ' ),
+			array( '{', '{', '}', '}', ';', ':', ',', '>', '>' ),
+			$css
+		);
+		return trim( str_replace( ';}', '}', $css ) );
+	}
+}
+
+/**
+ * Squeeze the runtime for inlining.
+ *
+ * Comments and indentation are two thirds of that file and none of it means
+ * anything to a browser. Deliberately the least a minifier can do: block
+ * comments out, indentation and blank lines out, every newline and every token
+ * left exactly where it was, so no statement can be joined to the next one.
+ * Only ever applied to the plugin's own runtime file, which is written with
+ * semicolons and without line comments precisely so this stays safe.
+ */
+if ( ! function_exists( 'efb_steps_squeeze_js_efb' ) ) {
+	function efb_steps_squeeze_js_efb( $js ) {
+		$js = preg_replace( '#/\*.*?\*/#s', '', $js );
+		$js = preg_replace( '/^[ \t]+/m', '', $js );
+		$js = preg_replace( '/(?:\r?\n){2,}/', "\n", $js );
+		return trim( $js );
+	}
+}
+
+/**
+ * The stylesheet this form needs, and nothing else.
+ *
+ * base plus one steps chunk plus one progress chunk - a form on the classic
+ * styles throughout gets an empty string and no <style> is printed at all.
+ */
+if ( ! function_exists( 'efb_steps_inline_css_efb' ) ) {
+	function efb_steps_inline_css_efb( $args ) {
+		if ( ! efb_steps_needs_shell_efb( $args ) ) {
+			return '';
+		}
+
+		$show_steps    = ! isset( $args['show_steps'] ) || $args['show_steps'];
+		$show_progress = ! isset( $args['show_progress'] ) || $args['show_progress'];
+		$steps_style   = efb_steps_style_name_efb( isset( $args['steps_style'] ) ? $args['steps_style'] : '' );
+		$prog_style    = efb_progress_style_name_efb( isset( $args['progress_style'] ) ? $args['progress_style'] : '' );
+
+		$wanted = array( 'base' );
+		if ( $show_steps && 'classic' !== $steps_style ) {
+			$wanted[] = 'steps-' . $steps_style;
+		}
+		if ( $show_progress && 'classic' !== $prog_style ) {
+			$wanted[] = 'prog-' . $prog_style;
+		}
+
+		/* Two styled forms on one page would otherwise print the same chunks
+		 * twice, so each chunk is claimed by the first form that needs it.
+		 *
+		 * Keyed by form rather than a plain "already sent" flag: a page builder
+		 * that runs do_shortcode() over the same content twice - for an excerpt
+		 * and then for the body - would otherwise hand the second, kept render a
+		 * form with no stylesheet at all. A form that asks again is re-rendering
+		 * and gets its chunks back; only a different form is told they have
+		 * already been brought to this page. */
+		static $claimed = array();
+
+		$owner  = isset( $args['form_id'] ) ? (string) $args['form_id'] : '';
+		$chunks = efb_steps_css_chunks_efb();
+		$css    = '';
+		foreach ( $wanted as $name ) {
+			if ( ! isset( $chunks[ $name ] ) ) {
+				continue;
+			}
+			if ( isset( $claimed[ $name ] ) && $claimed[ $name ] !== $owner ) {
+				continue;
+			}
+			$claimed[ $name ] = $owner;
+			$css             .= $chunks[ $name ];
+		}
+
+		return efb_steps_squeeze_css_efb( $css );
+	}
+}
+
+/**
+ * The runtime this form needs, or nothing.
+ *
+ * Only a form using one of the new styles has an .efb-sp wrapper for the
+ * runtime to move, and every caller of efbStepsSyncEfb() guards on its
+ * existence, so a classic form simply keeps the older code path.
+ */
+if ( ! function_exists( 'efb_steps_inline_runtime_efb' ) ) {
+	function efb_steps_inline_runtime_efb( $args ) {
+		if ( ! efb_steps_needs_shell_efb( $args ) ) {
+			return '';
+		}
+		/* Printed once per page however many styled forms are on it: the file
+		 * defines one guarded global, so a second copy would be several
+		 * kilobytes that do nothing. Claimed by form for the same reason the
+		 * chunks are - a second do_shortcode() pass over the same content has to
+		 * get its runtime back. */
+		static $claimed_by = null;
+
+		$owner = isset( $args['form_id'] ) ? (string) $args['form_id'] : '';
+		if ( null !== $claimed_by && $claimed_by !== $owner ) {
+			return '';
+		}
+		$claimed_by = $owner;
+
+		return efb_steps_squeeze_js_efb(
+			efb_steps_asset_source_efb( 'includes/admin/assets/js/steps-progress-runtime-efb.js' )
+		);
 	}
 }
 
@@ -882,6 +1203,10 @@ class efbFunction {
 			"dontShowIconsStepsName" => $state ? $ac->text->dontShowIconsStepsName : esc_html__('Hide icons and step names.','easy-form-builder'),
 			"dontShowProgressBar" => $state ? $ac->text->dontShowProgressBar : esc_html__('Hide progress bar','easy-form-builder'),
 			"stepsStyle" => $state ? $ac->text->stepsStyle : esc_html__('Steps style','easy-form-builder'),
+			/* translators: name of the step and progress bar look the plugin has always drawn */
+			"styleClassic" => $state ? $ac->text->styleClassic : esc_html__('Classic','easy-form-builder'),
+			"styleClassicHint" => $state ? $ac->text->styleClassicHint : esc_html__('The original look. Adds no extra CSS or JavaScript to your page.','easy-form-builder'),
+			"styleNewHint" => $state ? $ac->text->styleNewHint : esc_html__('Adds a small amount of CSS to the page, built from your own colours.','easy-form-builder'),
 			"progressStyle" => $state ? $ac->text->progressStyle : esc_html__('Progress bar style','easy-form-builder'),
 			/* translators: name of the step indicator drawn as numbered circles joined by a line */
 			"stepStyleCircles" => $state ? $ac->text->stepStyleCircles : esc_html__('Circles','easy-form-builder'),

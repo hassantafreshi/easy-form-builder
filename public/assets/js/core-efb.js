@@ -2366,6 +2366,10 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
   let valj_efb = get_structure_by_form_id_efb(form_id);
   const progessbar = parent_body.querySelector('.progress-bar-efb') ?? null;
   const steps_shell_efb = parent_body.querySelector('.efb-sp') ?? null;
+  /* The wrapper can be there for the progress half alone - a classic steps row
+     beside one of the new progress bars - so owning the row is a separate
+     question from existing, and the classic row still needs its own handler. */
+  const steps_shell_owns_row_efb = () => !!(steps_shell_efb && steps_shell_efb.querySelector('.efb-sp__item'));
   /* The name of a step, for the caption that stands in for the step titles on a
      long form or a phone. Read from the structure rather than from the row that
      was just clicked, because the steps list is not rendered at all when the
@@ -2419,7 +2423,7 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
        finished has to be drawn differently from one they have not reached, and
        a conditional-logic jump moves by more than one step at a time. */
     icon_step_handler = (no_step,form_id,nav_state)=>{
-      if (typeof efbStepsSyncEfb === 'function' && steps_shell_efb) {
+      if (typeof efbStepsSyncEfb === 'function' && steps_shell_owns_row_efb()) {
         efbStepsSyncEfb(steps_shell_efb, no_step, max_step + 1, name_of_step_efb(no_step));
         return true;
       }
@@ -2823,6 +2827,7 @@ fun_prev_send =(form_id =0) =>{
   const prev_s_efb = body_efb.querySelector(`[data-step="${id}"]`);
 
   const steps_shell_efb = body_efb.querySelector('.efb-sp');
+  const steps_shell_owns_row_efb = !!(steps_shell_efb && steps_shell_efb.querySelector('.efb-sp__item'));
   fun_progessbar = (current_step,max_step)=>{
     const total = Number(max_step) + 1;
     if (typeof efbStepsSyncEfb === 'function' && steps_shell_efb) {
@@ -2839,7 +2844,7 @@ fun_prev_send =(form_id =0) =>{
   /* Left to the sync below when it is available: clearing `active` here and
      setting it again further down cannot express a step the visitor has
      already been through. */
-  if(Number(valj_efb[0].show_icon)!=1 && !(typeof efbStepsSyncEfb === 'function' && steps_shell_efb)) {
+  if(Number(valj_efb[0].show_icon)!=1 && !(typeof efbStepsSyncEfb === 'function' && steps_shell_owns_row_efb)) {
     const currentIcon = document.getElementById(current_s_efb + '-f-step-efb-' + form_id);
     if (currentIcon) currentIcon.classList.remove("active");
   }
@@ -2867,7 +2872,7 @@ fun_prev_send =(form_id =0) =>{
       desc_efb.textContent = val['message'];
     }
 
-    if (!(typeof efbStepsSyncEfb === 'function' && steps_shell_efb)) {
+    if (!(typeof efbStepsSyncEfb === 'function' && steps_shell_owns_row_efb)) {
       let id_active_icon = `${s}-f-step-efb-${form_id}`;
       const next_active_step_icon = document.getElementById(id_active_icon);
       if (next_active_step_icon) next_active_step_icon.classList.add('active');
@@ -2920,6 +2925,7 @@ function efb_go_to_step_direct(form_id, targetStep) {
   current_s_efb = targetStep;
 
   const stepsShellEfb = body_efb.querySelector('.efb-sp');
+  const stepsShellOwnsRowEfb = !!(stepsShellEfb && stepsShellEfb.querySelector('.efb-sp__item'));
   if (typeof efbStepsSyncEfb === 'function' && stepsShellEfb) {
     const jumped = valj_efb.find((x) => String(x.type) === 'step' && String(x.step) === String(targetStep));
     efbStepsSyncEfb(stepsShellEfb, targetStep, maxStep + 1, jumped && jumped.name ? jumped.name : '');
@@ -2957,7 +2963,7 @@ function efb_go_to_step_direct(form_id, targetStep) {
       titleEl.textContent = stepData['name'];
       descEl.textContent = stepData['message'];
     }
-    if (!(typeof efbStepsSyncEfb === 'function' && stepsShellEfb)) {
+    if (!(typeof efbStepsSyncEfb === 'function' && stepsShellOwnsRowEfb)) {
       for (let i = 1; i <= maxStep; i++) {
         const icon = document.getElementById(i + '-f-step-efb-' + form_id);
         if (icon) icon.classList.toggle('active', i === targetStep);

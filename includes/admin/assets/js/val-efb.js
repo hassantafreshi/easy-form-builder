@@ -15,6 +15,15 @@ const iconMarginGlobal = efb_var.rtl == 1 ? 'ms-2' : 'me-2';
    moves instead of rebuilding the panel.
    ========================================================================== */
 const efbStepArtEfb = {
+  classic: `<svg viewBox="0 0 76 24" role="img" aria-hidden="true">
+      <line x1="12" y1="9" x2="64" y2="9" stroke="#d5d8e8" stroke-width="1.6"/>
+      <circle cx="12" cy="9" r="7" fill="#202a8d"/>
+      <circle cx="38" cy="9" r="7" fill="#fdf2f6"/>
+      <circle cx="64" cy="9" r="7" fill="#fdf2f6"/>
+      <rect x="4" y="20" width="16" height="2.6" rx="1.3" fill="#c3c9e0"/>
+      <rect x="30" y="20" width="16" height="2.6" rx="1.3" fill="#e4e8f5"/>
+      <rect x="56" y="20" width="16" height="2.6" rx="1.3" fill="#e4e8f5"/>
+    </svg>`,
   circles: `<svg viewBox="0 0 76 24" role="img" aria-hidden="true">
       <line x1="12" y1="9" x2="38" y2="9" stroke="#202a8d" stroke-width="2.5" stroke-linecap="round"/>
       <line x1="38" y1="9" x2="64" y2="9" stroke="#dfe3f2" stroke-width="2.5" stroke-linecap="round"/>
@@ -47,6 +56,13 @@ const efbStepArtEfb = {
 };
 
 const efbProgArtEfb = {
+  classic: `<svg viewBox="0 0 76 24" role="img" aria-hidden="true">
+      <defs><pattern id="efbClassicStripe" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+        <rect width="2.5" height="5" fill="rgba(255,255,255,.55)"/>
+      </pattern></defs>
+      <rect x="1" y="7" width="74" height="10" rx="2" fill="#4636f1"/>
+      <rect x="1" y="7" width="26" height="10" rx="2" fill="url(#efbClassicStripe)"/>
+    </svg>`,
   bar: `<svg viewBox="0 0 76 24" role="img" aria-hidden="true">
       <rect x="1" y="3" width="26" height="2.6" rx="1.3" fill="#c3c9e0"/>
       <rect x="64" y="3" width="11" height="2.6" rx="1.3" fill="#202a8d"/>
@@ -83,8 +99,8 @@ const efbStylePickerEls = (target, idset, hidden) => {
     ? efbStepsStyleNameEfb(valj_efb[0])
     : efbProgressStyleNameEfb(valj_efb[0]);
   const options = isSteps
-    ? [['circles', efb_var.text.stepStyleCircles], ['pills', efb_var.text.stepStylePills], ['chevrons', efb_var.text.stepStyleChevrons]]
-    : [['bar', efb_var.text.progStyleBar], ['segments', efb_var.text.progStyleSegments], ['ring', efb_var.text.progStyleRing]];
+    ? [['classic', efb_var.text.styleClassic], ['circles', efb_var.text.stepStyleCircles], ['pills', efb_var.text.stepStylePills], ['chevrons', efb_var.text.stepStyleChevrons]]
+    : [['classic', efb_var.text.styleClassic], ['bar', efb_var.text.progStyleBar], ['segments', efb_var.text.progStyleSegments], ['ring', efb_var.text.progStyleRing]];
   const icon = isSteps ? 'bi-diagram-3' : 'bi-bar-chart-steps';
   const title = isSteps ? efb_var.text.stepsStyle : efb_var.text.progressStyle;
 
@@ -97,6 +113,7 @@ const efbStylePickerEls = (target, idset, hidden) => {
   return `<div class="efb mx-1 mb-3 efb-sp-picker-box ${hidden ? 'd-none' : ''}" id="efb-picker-${target}" data-id="${idset}">
     <label class="efb form-label mt-1 mb-1 efb"><i class="efb ${icon} fs-7 ${iconMarginGlobal}"></i>${title}</label>
     <div class="efb efb-sp-picker">${cards}</div>
+    <small class="efb text-muted fs-8 mx-1">${current === 'classic' ? (efb_var.text.styleClassicHint || '') : (efb_var.text.styleNewHint || '')}</small>
   </div>`;
 };
 

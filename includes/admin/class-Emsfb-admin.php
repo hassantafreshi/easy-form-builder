@@ -106,6 +106,13 @@ class Admin {
             }
             wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style-efb.css',true,EMSFB_PLUGIN_VERSION);
             wp_enqueue_style('Emsfb-style-css');
+            /* The steps and progress styles, whole. The builder has to be able to
+             * draw any of them, so unlike the front end - which inlines only the
+             * chunks a form actually uses - wp-admin takes the file as it is.
+             * After style-efb.css, because it overrides the classic step rules
+             * that live there. */
+            wp_register_style('efb-steps-progress-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/steps-progress-efb.css', array('Emsfb-style-css'), EMSFB_PLUGIN_VERSION);
+            wp_enqueue_style('efb-steps-progress-css');
             wp_register_style('Emsfb-responsive-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/min-1200-style.css',true,EMSFB_PLUGIN_VERSION);
             wp_enqueue_style('Emsfb-responsive-css');
             wp_register_style('Emsfb-bootstrap', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min-efb.css',true,EMSFB_PLUGIN_VERSION);
@@ -143,6 +150,12 @@ class Admin {
                  wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min-efb.js', array( 'jquery' ), EMSFB_PLUGIN_VERSION);
                 wp_enqueue_script('efb-bootstrap-icon-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-icon-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION);
                 wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION);
+                /* The steps runtime and its markup builders. The builders are
+                 * wp-admin only - on the front end the markup arrives from PHP -
+                 * and the runtime is the same file the front end inlines, loaded
+                 * here as a file because the builder needs it on every screen. */
+                wp_enqueue_script('efb-steps-progress-runtime', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/steps-progress-runtime-efb.js', array('efb-main-js'), EMSFB_PLUGIN_VERSION);
+                wp_enqueue_script('efb-steps-progress-builder', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/steps-progress-builder-efb.js', array('efb-steps-progress-runtime'), EMSFB_PLUGIN_VERSION);
                 wp_enqueue_script('efb-response-viewer-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/response-viewer-efb.js', array('efb-main-js', 'jquery'), EMSFB_PLUGIN_VERSION);
         }
     }

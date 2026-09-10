@@ -3398,13 +3398,20 @@ async function create_form_efb() {
   let content = `<!--efb.app-->`
   let step_no = 0;
   let head = ``
+  /* Resolved before the loop because the class list a step carries is what
+     decides whether the row is the classic one or one of the new ones, and the
+     colours are collected so one rule per distinct colour can be printed for
+     the whole row rather than five properties on every <li>. */
+  const stepsStyleEfb = efbStepsStyleNameEfb(valj_efb[0])
+  const stepIconColorsEfb = []
   const len = valj_efb.length;
   const p = calPLenEfb(len)
   try {
     valj_efb.forEach((value, index) => {
       if (step_no < value.step && value.type == "step") {
         step_no += 1;
-        head += `<li id="${value.id_}" data-step="icon-s-${step_no}-efb" data-num="${step_no}" class="${efbStepsItemClassEfb(step_no, 1, value.icon_color, value.icon)} ${valj_efb[0].steps <= 11 ? `step-w-${valj_efb[0].steps}` : `step-w-11`}"><strong class="efb fs-5 efb-sp__label ${value.label_text_color}">${value.name}</strong></li>`
+        stepIconColorsEfb.push(value.icon_color)
+        head += `<li id="${value.id_}" data-step="icon-s-${step_no}-efb" data-num="${step_no}" class="${efbStepsItemClassEfb(step_no, 1, value.icon_color, value.icon, stepsStyleEfb)} ${valj_efb[0].steps <= 11 ? `step-w-${valj_efb[0].steps}` : `step-w-11`}"><strong class="efb fs-5 ${stepsStyleEfb === 'classic' ? '' : 'efb-sp__label '}${value.label_text_color}">${value.name}</strong></li>`
         content += step_no == 1 ? `<fieldset data-step="step-${step_no}-efb" class="efb  mt-1 mb-2 steps-efb row">` : `<!-- fieldsetFOrm!!! --></fieldset><fieldset data-step="step-${step_no}-efb"  class="efb my-2 steps-efb efb row d-none">`
 
         if (valj_efb[0].show_icon == false) { }
@@ -3430,7 +3437,8 @@ async function create_form_efb() {
     /* The tick used to be a nested <i>, which the three renderers disagreed
        about; it is the same ::before glyph as every other step now, so a
        variant that reshapes the dot reshapes this one too. */
-    head += `<li id="f-step-efb" data-step="icon-s-${step_no}-efb" data-num="${step_no}" class="${efbStepsItemClassEfb(step_no, 1, valj_efb[1].icon_color, 'bi-check-lg')} ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`} mx-0"><strong class="efb fs-5 efb-sp__label ${valj_efb[1].label_text_color}">${efb_var.text.finish}</strong></li>`
+    stepIconColorsEfb.push(valj_efb[1].icon_color)
+    head += `<li id="f-step-efb" data-step="icon-s-${step_no}-efb" data-num="${step_no}" class="${efbStepsItemClassEfb(step_no, 1, valj_efb[1].icon_color, 'bi-check-lg', stepsStyleEfb)} ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`} mx-0"><strong class="efb fs-5 ${stepsStyleEfb === 'classic' ? '' : 'efb-sp__label '}${valj_efb[1].label_text_color}">${efb_var.text.finish}</strong></li>`
   } catch (error) {
   }
 
@@ -3443,12 +3451,13 @@ async function create_form_efb() {
     total: step_no,
     current: 1,
     currentName: valj_efb[1] && valj_efb[1].name ? valj_efb[1].name : '',
-    stepsStyle: efbStepsStyleNameEfb(valj_efb[0]),
+    stepsStyle: stepsStyleEfb,
     progressStyle: efbProgressStyleNameEfb(valj_efb[0]),
     accentClass: bgc,
     rtl: efb_var.rtl == 1,
     showSteps: Number(valj_efb[0].show_icon) != 1,
     showProgress: Number(valj_efb[0].show_pro_bar) != 1,
+    colorRules: (stepsStyleEfb === 'classic' || Number(valj_efb[0].show_icon) == 1) ? '' : efbStepsColorRulesEfb(stepIconColorsEfb),
     items: head
   })
 
@@ -8486,6 +8495,11 @@ function previewFormEfb(state) {
   let head = ``
   let icons = ``
   let pro_bar = ``
+  /* Resolved before the loop for the same reason the front end resolves it
+     before its own: the class list a step carries decides whether the row is
+     the classic one or one of the new ones. */
+  const stepsStyleEfb = efbStepsStyleNameEfb(valj_efb[0])
+  const stepIconColorsEfb = []
   const id = state == "run" ? 'body_efb' : 'settingModalEfb_';
   const len = valj_efb.length;
   const p = calPLenEfb(len)
@@ -8513,7 +8527,8 @@ function previewFormEfb(state) {
       if (valj_efb[index].type != "html" && valj_efb[index].type != "link" && valj_efb[index].type != "heading" && valj_efb[index].type != "persiaPay") Object.entries(valj_efb[index]).forEach(([key, val]) => { fun_addStyle_costumize_efb(val.toString(), key, index) });
       if (step_no < value.step && value.type == "step") {
         step_no += 1;
-        head += `<li id="${value.id_}" data-step="icon-s-${step_no}-efb" data-num="${step_no}" class="${efbStepsItemClassEfb(step_no, 1, value.icon_color, value.icon)} ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`}"><strong class="efb fs-5 efb-sp__label ${value.label_text_color}">${value.name}</strong></li>`
+        stepIconColorsEfb.push(value.icon_color)
+        head += `<li id="${value.id_}" data-step="icon-s-${step_no}-efb" data-num="${step_no}" class="${efbStepsItemClassEfb(step_no, 1, value.icon_color, value.icon, stepsStyleEfb)} ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`}"><strong class="efb fs-5 ${stepsStyleEfb === 'classic' ? '' : 'efb-sp__label '}${value.label_text_color}">${value.name}</strong></li>`
         content += step_no == 1 ? `<fieldset data-step="step-${step_no}-efb" id="step-${step_no}-efb" class="efb my-2 mx-0 px-0 steps-efb efb row">` : `<!-- fieldset!!!? --><div id="step-${Number(step_no)-1}-efb-msg"></div></fieldset><fieldset data-step="step-${step_no}-efb" id="step-${step_no}-efb"  class="efb my-2 mx-0 px-0 steps-efb efb row d-none">`
         if (valj_efb[0].show_icon == false) { }
         if (valj_efb[0].hasOwnProperty('dShowBg') && valj_efb[0].dShowBg == false  && state == "run") {
@@ -8620,7 +8635,8 @@ function previewFormEfb(state) {
             <!-- fieldset2 -->
             <div id="step-2-efb-msg"></div>
             </fieldset>`
-    head += `<li id="f-step-efb" data-step="icon-s-${step_no}-efb" data-num="${step_no}" class="${efbStepsItemClassEfb(step_no, 1, valj_efb[1].icon_color, 'bi-check-lg')} ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`} mx-0"><strong class="efb fs-5 efb-sp__label ${valj_efb[1].label_text_color}">${efb_var.text.finish}</strong></li>`
+    stepIconColorsEfb.push(valj_efb[1].icon_color)
+    head += `<li id="f-step-efb" data-step="icon-s-${step_no}-efb" data-num="${step_no}" class="${efbStepsItemClassEfb(step_no, 1, valj_efb[1].icon_color, 'bi-check-lg', stepsStyleEfb)} ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`} mx-0"><strong class="efb fs-5 ${stepsStyleEfb === 'classic' ? '' : 'efb-sp__label '}${valj_efb[1].label_text_color}">${efb_var.text.finish}</strong></li>`
   } catch (error) {
   }
   if (content.length > 10){
@@ -8631,12 +8647,13 @@ function previewFormEfb(state) {
       total: step_no,
       current: 1,
       currentName: valj_efb[1] && valj_efb[1].name ? valj_efb[1].name : '',
-      stepsStyle: efbStepsStyleNameEfb(valj_efb[0]),
+      stepsStyle: stepsStyleEfb,
       progressStyle: efbProgressStyleNameEfb(valj_efb[0]),
       accentClass: bgc,
       rtl: efb_var.rtl == 1,
       showSteps: Number(valj_efb[0].show_icon) != 1,
       showProgress: Number(valj_efb[0].show_pro_bar) != 1,
+      colorRules: (stepsStyleEfb === 'classic' || Number(valj_efb[0].show_icon) == 1) ? '' : efbStepsColorRulesEfb(stepIconColorsEfb),
       items: head
     })}
   const idn = state == "pre" ? "pre-form-efb" : "pre-efb";

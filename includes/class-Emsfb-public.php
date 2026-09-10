@@ -1211,6 +1211,10 @@ public function check_nonce_permission_efb($request) {
 			);
 
 			$style ='<style>.efb.d-none{display:none!important;} #teststyleefb{display:none;}';
+			/* Reset per form: several forms can share a page, and a classic form
+			 * following a styled one must not inherit its runtime. */
+			$steps_runtime_efb = '';
+			unset( $steps_style_efb, $step_icon_colors_efb );
 			$jss ='<script> //efbJs';
 			$icons_els =[];
 			$pro_element_exists = false;
@@ -1302,18 +1306,31 @@ public function check_nonce_permission_efb($request) {
 					}
 					$content .= $fieldset;
 
-					/* data-num is what draws the number in place of the glyph once the
-					 * form is long enough for the captions to be dropped, and it is
-					 * also how efbStepsSyncEfb() knows which step a row is without
-					 * having to parse its id. The icon and colour classes are passed
-					 * through untouched: they are still what paints the step. */
+					/* Resolved here rather than at the head assembly below because the
+					 * <li> is written inside this loop, and the class list a step
+					 * carries is what decides whether the row is the classic one or
+					 * one of the new ones. */
+					if ( ! isset( $steps_style_efb ) ) {
+						$steps_style_efb       = efb_steps_style_name_efb( isset( $valj_efb_first->steps_style ) ? $valj_efb_first->steps_style : '' );
+						$step_icon_colors_efb  = array();
+					}
+					/* Collected so one rule per distinct colour can be printed for the
+					 * whole row instead of five custom properties on every step. */
+					$step_icon_colors_efb[] = $value->icon_color;
+
+					/* data-num draws the number in place of the glyph once the form is
+					 * long enough for the captions to be dropped, and it is also how
+					 * efbStepsSyncEfb() knows which step a row is without parsing its
+					 * id. The icon and colour classes are passed through untouched:
+					 * they are still what paints the step. */
 					$head .= sprintf(
-						'<li id="%1$s-f-step-efb-%3$s" data-step="icon-s-%2$d-efb" data-formid="%3$s" data-num="%2$d" class="%4$s %5$s"><strong class="efb fs-5 efb-sp__label %6$s">%7$s</strong></li>',
+						'<li id="%1$s-f-step-efb-%3$s" data-step="icon-s-%2$d-efb" data-formid="%3$s" data-num="%2$d" class="%4$s %5$s"><strong class="efb fs-5 %6$s%7$s">%8$s</strong></li>',
 						$value->id_,
 						$step_no,
 						$form_id,
-						efb_steps_item_class_efb( $step_no, 1, $value->icon_color, $value->icon ),
+						efb_steps_item_class_efb( $step_no, 1, $value->icon_color, $value->icon, $steps_style_efb ),
 						$valj_efb_first->steps <= 6 ? 'step-w-' . $valj_efb_first->steps : 'step-w-6',
+						'classic' === $steps_style_efb ? '' : 'efb-sp__label ',
 						$value->label_text_color,
 						$value->name
 					);
@@ -1478,23 +1495,25 @@ public function check_nonce_permission_efb($request) {
 						<div step-{$step_no}-efb></div>
 					</fieldset>";
 
-				$head_final_step = "<li id='f-step-efb-{$form_id}' data-step='icon-s-{$step_no}-efb' data-formid='{$form_id}' data-num='{$step_no}' class='"
-					. efb_steps_item_class_efb( $step_no, 1, $valj_efb[1]->icon_color, 'bi-check-lg' ) . " "
-					. ( ( $valj_efb[0]->steps <= 6 ) ? "step-w-{$valj_efb[0]->steps}" : 'step-w-6' ) . " mx-0'>
-					<strong class='efb fs-5 efb-sp__label {$valj_efb[1]->label_text_color}'>".$lanText['finish']."</strong>
-				</li>";
-
-				$bgc = isset($valj_efb[0]->prg_bar_color) ? $valj_efb[0]->prg_bar_color : 'btn-primary';
-
-				/* The steps row and the progress block are two halves of one
-				 * component now - they share the accent, the compact threshold and
-				 * the caption that stands in for the step titles once they no
-				 * longer fit - so they are wrapped together even when the author
-				 * has switched one of the two off. */
 				$show_steps_efb    = intval($valj_efb[0]->show_icon) != 1;
 				$show_progress_efb = intval($valj_efb[0]->show_pro_bar) != 1;
 				$steps_style_efb   = efb_steps_style_name_efb( isset($valj_efb[0]->steps_style) ? $valj_efb[0]->steps_style : '' );
 				$prog_style_efb    = efb_progress_style_name_efb( isset($valj_efb[0]->progress_style) ? $valj_efb[0]->progress_style : '' );
+				if ( ! isset( $step_icon_colors_efb ) ) {
+					$step_icon_colors_efb = array();
+				}
+				/* The Finish row is drawn from the first step's colours, the way it
+				 * always was, so it belongs in the colour set too. */
+				$step_icon_colors_efb[] = $valj_efb[1]->icon_color;
+
+				$head_final_step = "<li id='f-step-efb-{$form_id}' data-step='icon-s-{$step_no}-efb' data-formid='{$form_id}' data-num='{$step_no}' class='"
+					. efb_steps_item_class_efb( $step_no, 1, $valj_efb[1]->icon_color, 'bi-check-lg', $steps_style_efb ) . " "
+					. ( ( $valj_efb[0]->steps <= 6 ) ? "step-w-{$valj_efb[0]->steps}" : 'step-w-6' ) . " mx-0'>
+					<strong class='efb fs-5 " . ( 'classic' === $steps_style_efb ? '' : 'efb-sp__label ' ) . "{$valj_efb[1]->label_text_color}'>".$lanText['finish']."</strong>
+				</li>";
+
+				$bgc = isset($valj_efb[0]->prg_bar_color) ? $valj_efb[0]->prg_bar_color : 'btn-primary';
+
 				$first_name_efb    = isset($valj_efb[1]->name) ? $valj_efb[1]->name : '';
 				$shell_args_efb    = array(
 					'form_id'        => $form_id,
@@ -1510,17 +1529,43 @@ public function check_nonce_permission_efb($request) {
 					'show_progress'  => $show_progress_efb,
 				);
 
-				$head = ( $show_steps_efb || $show_progress_efb )
-					? efb_steps_wrap_open_efb( $shell_args_efb )
+				/* One rule per distinct step colour, printed with the row it belongs
+				 * to. Only the new styles read these properties, so the classic row
+				 * gets none of it. */
+				$steps_color_rules_efb = ( $show_steps_efb && 'classic' !== $steps_style_efb )
+					? efb_steps_color_rules_efb( $step_icon_colors_efb )
+					: '';
+
+				$steps_row_efb = $show_steps_efb
+					? '<ul id="steps-efb" class="efb ' . ( 'classic' === $steps_style_efb ? '' : 'efb-sp__steps ' ) . 'mb-2 px-2" data-formid="'.$form_id.'">' . $head . $head_final_step . '</ul>'
+					: '';
+
+				if ( ! $show_steps_efb && ! $show_progress_efb ) {
+					$head = '';
+				} elseif ( ! efb_steps_needs_shell_efb( $shell_args_efb ) ) {
+					/* Classic throughout: the same markup and the same code path as
+					 * before the styles existed, with no wrapper for the runtime to
+					 * claim and nothing inlined into the page. */
+					$head = $steps_row_efb . ( $show_progress_efb ? efb_steps_progress_efb( $shell_args_efb ) : '' );
+				} else {
+					$head = efb_steps_wrap_open_efb( $shell_args_efb )
+						. ( $steps_color_rules_efb !== '' ? '<style>' . $steps_color_rules_efb . '</style>' : '' )
 						. ( efb_steps_wants_header_efb( $shell_args_efb ) ? efb_steps_header_efb( $shell_args_efb ) : '' )
 						/* The gap under the bar is a margin rather than the <br> that
 						 * used to sit here: a bare <br> between two blocks is one of
 						 * the pieces wpautop wraps in a paragraph of its own. The
 						 * class carries the same 32px the line break produced. */
-						. ( $show_steps_efb ? '<ul id="steps-efb" class="efb efb-sp__steps mb-2 px-2" data-formid="'.$form_id.'">' . $head . $head_final_step . '</ul>' : '' )
+						. $steps_row_efb
 						. ( $show_progress_efb ? efb_steps_progress_efb( $shell_args_efb ) : '' )
-						. '</div>'
-					: '';
+						. '</div>';
+
+					/* The stylesheet and the runtime ride along in the page rather
+					 * than as two more requests, and only the chunks this form uses
+					 * are printed - which is why a classic form above never reaches
+					 * this branch and pays for neither. */
+					$style .= ' ' . efb_steps_inline_css_efb( $shell_args_efb );
+					$steps_runtime_efb = efb_steps_inline_runtime_efb( $shell_args_efb );
+				}
 
 				$step_no--;
 			}
@@ -1537,6 +1582,14 @@ public function check_nonce_permission_efb($request) {
 			$script = '';
 			$console_checker = $efbFormBuilder->check_error_console_efb();
 			$script = '<script>'.$console_checker.'</script>';
+
+			/* The steps runtime, for a form that uses one of the new styles. It is
+			 * printed ahead of the body so the function exists before any button
+			 * can be clicked, and it is left out entirely for a classic form -
+			 * every caller guards on it and falls back to the older path. */
+			if ( ! empty( $steps_runtime_efb ) ) {
+				$script .= '<script>' . $steps_runtime_efb . '</script>';
+			}
 
 
 			$stps_state = $step_no>1 ? 1 : 0;

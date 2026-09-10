@@ -78,7 +78,7 @@ function efb_sp_settings( $name, $steps, $steps_style, $progress_style, $show_st
 	);
 }
 
-function efb_sp_step( $number, $title ) {
+function efb_sp_step( $number, $title, $icon_color = 'text-pinkEfb' ) {
 	return array(
 		'id_'                => (string) $number,
 		'type'               => 'step',
@@ -96,7 +96,7 @@ function efb_sp_step( $number, $title ) {
 		'label_text_color'   => 'text-darkb',
 		'el_text_color'      => 'text-labelEfb',
 		'message_text_color' => 'text-muted',
-		'icon_color'         => 'text-pinkEfb',
+		'icon_color'         => $icon_color,
 		'visible'            => '1',
 	);
 }
@@ -202,7 +202,7 @@ $titles = array(
 	'Contacts', 'Summary',
 );
 
-function efb_sp_build( $label, $slug, $steps, $steps_style, $progress_style, $show_steps = true, $show_progress = true ) {
+function efb_sp_build( $label, $slug, $steps, $steps_style, $progress_style, $show_steps = true, $show_progress = true, $step_colors = array() ) {
 	global $titles;
 
 	$name      = 'EFB Steps QA ' . $label;
@@ -210,7 +210,8 @@ function efb_sp_build( $label, $slug, $steps, $steps_style, $progress_style, $sh
 	$order     = $steps + 1;
 
 	for ( $i = 1; $i <= $steps; $i++ ) {
-		$structure[] = efb_sp_step( $i, isset( $titles[ $i - 1 ] ) ? $titles[ $i - 1 ] : 'Step ' . $i );
+		$color       = isset( $step_colors[ $i - 1 ] ) ? $step_colors[ $i - 1 ] : 'text-pinkEfb';
+		$structure[] = efb_sp_step( $i, isset( $titles[ $i - 1 ] ) ? $titles[ $i - 1 ] : 'Step ' . $i, $color );
 		$structure[] = efb_sp_field( 'sp' . $slug . 'f' . $i, 'Field ' . $i, $i, $order++ );
 	}
 
@@ -220,6 +221,7 @@ function efb_sp_build( $label, $slug, $steps, $steps_style, $progress_style, $sh
 		'label'          => $label,
 		'form_id'        => $form_id,
 		'steps'          => $steps,
+		'step_colors'    => $step_colors,
 		'steps_style'    => $steps_style,
 		'progress_style' => $progress_style,
 		'show_steps'     => $show_steps,
@@ -246,6 +248,60 @@ $cases = array(
 	efb_sp_build( 'neither', 'neither', 3, 'chevrons', 'segments', false, false ),
 	/* One step is the degenerate case: the row is the step and its Finish. */
 	efb_sp_build( 'single step', 'single-step', 1, 'circles', 'bar' ),
+
+	/* Classic is the default and has to keep working on its own and beside
+	 * either new half, because the two settings are independent: a form can ask
+	 * for the new ribbon over the old bar, or the old row under the new ring. */
+	efb_sp_build( 'classic both', 'classic-both', 3, 'classic', 'classic' ),
+	efb_sp_build( 'classic steps, new ring', 'classic-steps', 3, 'classic', 'ring' ),
+	efb_sp_build( 'new pills, classic bar', 'classic-bar', 3, 'pills', 'classic' ),
+	/* A form that never picked a style at all - the shape every form saved
+	 * before these existed is in. */
+	efb_sp_build( 'unset style', 'unset-style', 3, '', '' ),
+
+	/* Each step in its own colour, to prove the row is painted from the step
+	 * settings rather than from one accent chosen here. */
+	efb_sp_build(
+		'per-step colours', 'step-colors', 3, 'circles', 'bar', true, true,
+		array( 'text-success', 'btn-colorDEfb-e9c31a', 'text-danger' )
+	),
 );
 
-echo wp_json_encode( array( 'cases' => $cases ) ), "\n";
+/* --------------------------------------------------------------------------
+ * One page holding two styled forms, for the asset budget.
+ *
+ * The chunks and the runtime are claimed by the first form that needs them, so
+ * a second form on the same page must not bring its own copy. Two different
+ * steps styles on purpose, so the page needs one shared chunk and one chunk
+ * each.
+ * ----------------------------------------------------------------------- */
+$pair = array( $cases[0], $cases[1] );
+$pair_slug = 'efb-steps-qa-two-forms';
+$existing  = get_page_by_path( $pair_slug, OBJECT, 'page' );
+$pair_body = '[EMS_Form_Builder id="' . $pair[0]['form_id'] . '"]' . "\n\n" . '[EMS_Form_Builder id="' . $pair[1]['form_id'] . '"]';
+
+if ( $existing ) {
+	wp_update_post( array( 'ID' => $existing->ID, 'post_content' => $pair_body, 'post_status' => 'publish' ) );
+	$pair_url = get_permalink( $existing->ID );
+} else {
+	$pair_id  = wp_insert_post(
+		array(
+			'post_title'   => 'EFB Steps QA two forms',
+			'post_name'    => $pair_slug,
+			'post_content' => $pair_body,
+			'post_status'  => 'publish',
+			'post_type'    => 'page',
+		)
+	);
+	$pair_url = get_permalink( $pair_id );
+}
+
+echo wp_json_encode(
+	array(
+		'cases' => $cases,
+		'pair'  => array(
+			'url'    => $pair_url,
+			'styles' => array( $pair[0]['steps_style'], $pair[1]['steps_style'] ),
+		),
+	)
+), "\n";
