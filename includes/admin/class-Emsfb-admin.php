@@ -1904,8 +1904,7 @@ class Admin {
             wp_send_json_error(array('message' => esc_html__('You do not have permission to complete setup.', 'easy-form-builder')), 403);
         }
 
-        update_option('emsfb_onboarding_pending', 0, false);
-        update_option('emsfb_onboarding_completed_at', current_time('mysql'), false);
+        emsfb_complete_onboarding_efb();
         wp_send_json_success(array('completed' => true));
     }
 
@@ -2107,6 +2106,17 @@ class Admin {
         // without it the service has to describe both the same vague way.
         $handoff = $this->report_email_tester_handoff_efb($test_hash, (bool) $sent, $last_mail_error, $actual_mail);
 
+        /*
+         * A delivery test has now actually run on this site, which is the whole
+         * job of the first-run guide - so the guide is over, whatever wp_mail()
+         * decided. Recording it here rather than on a "Finish setup" click is
+         * what makes it stick: the admin can read the report and walk away, or
+         * close the tab while the result is still being polled, and the wizard
+         * will not reopen on their next admin page. A failed send is a result
+         * too; it is retried from General Settings, not from the wizard.
+         */
+        emsfb_complete_onboarding_efb();
+
         if (!$sent) {
             $failure_status = [
                 'status' => 'error',
@@ -2295,17 +2305,24 @@ class Admin {
         ]);
 
         if (is_wp_error($request)) {
+            /* No HTTP conversation happened at all, so this says nothing about
+             * whether the mail-testing service is up. Printing the raw cURL
+             * error under a title that names our service sent people to check
+             * a status page when the thing to check was their own host's
+             * outbound access. The technical string is kept in details, where
+             * it belongs. */
             $request_error = [
                 'status' => 'error',
                 'message' => [
-                    'title' => esc_html__('Service connection error', 'easy-form-builder'),
-                    'description' => $request->get_error_message(),
+                    'title' => esc_html__('Your site could not connect', 'easy-form-builder'),
+                    'description' => esc_html__('No connection could be opened from your site to our mail testing service. This is usually outbound traffic blocked by your server or its network - some hosts block connections to other countries - rather than a problem with the service. Your hosting provider can confirm it.', 'easy-form-builder'),
                     'id' => 'service_request_error'
                 ],
                 'details' => [
                     'stage' => 'result',
                     'test_timestamp' => current_time('mysql', true),
                     'code' => $request->get_error_code(),
+                    'transport_error' => $request->get_error_message(),
                 ]
             ];
             $this->email_tester_log_efb('result_request_wp_error', [

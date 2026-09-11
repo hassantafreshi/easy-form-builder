@@ -275,17 +275,48 @@ foreach ( $strings as $key => $value ) {
 	}
 }
 efb_t( 'every modal string has a value', empty( $empty ), implode( ',', $empty ) );
-efb_t( 'the reward promise names the 100% first year', false !== strpos( $strings['rewardTitle'], '100%' ) );
 
-$fa_filter = function () {
-	return 'fa_IR';
-};
-add_filter( 'locale', $fa_filter );
-$fa = $client->strings_efb();
-remove_filter( 'locale', $fa_filter );
+/*
+ * The figure, not the digits. This used to look for a literal "100%", which
+ * quietly asserted that the site running the suite was in English: on an fa_IR
+ * install the same sentence says "۱۰۰٪" and the assertion failed for a reason
+ * that had nothing to do with the plugin.
+ */
+$reward_names_the_offer = false !== strpos( $strings['rewardTitle'], '100%' )
+	|| false !== strpos( $strings['rewardTitle'], '۱۰۰٪' )
+	|| false !== strpos( $strings['rewardTitle'], '١٠٠' );
+efb_t( 'the reward promise names the 100% first year', $reward_names_the_offer, $strings['rewardTitle'] );
 
-efb_t( 'a Persian admin reads the reward line in Persian', false !== strpos( $fa['rewardTitle'], 'تخفیف' ), $fa['rewardTitle'] );
-efb_t( 'Persian keeps every key filled', count( array_filter( $fa, 'strlen' ) ) === count( $fa ) );
+/*
+ * Translation is WordPress's job, not this class's.
+ *
+ * These strings used to be checked by switching the locale filter to fa_IR and
+ * looking for Persian in the result, which only worked while the class carried
+ * its own bundled fa/ar/de table. The plugin is distributed on wordpress.org
+ * and its translations come from translate.wordpress.org through the normal
+ * text domain, so what is worth asserting now is that every string is actually
+ * routed through that domain - a hardcoded English sentence is the failure this
+ * catches, and no locale switch can tell you about it.
+ */
+$source     = file_get_contents( dirname( __DIR__ ) . '/includes/class-Emsfb-deactivation-feedback.php' ); // phpcs:ignore WordPress.WP.AlternativeFunctions
+$strings_fn = substr( $source, strpos( $source, 'public function strings_efb()' ) );
+$strings_fn = substr( $strings_fn, 0, strpos( $strings_fn, "\n\t}" ) );
+
+preg_match_all( "/^\t\t\t'([A-Za-z]+)'\s*=>\s*(.*)$/m", $strings_fn, $lines, PREG_SET_ORDER );
+$untranslated = array();
+foreach ( $lines as $line ) {
+	if ( false === strpos( $line[2], "__(" ) ) {
+		$untranslated[] = $line[1];
+	}
+}
+
+efb_t( 'the wording table was found in the source', count( $lines ) >= 20, 'matched ' . count( $lines ) . ' entries' );
+efb_t( 'every modal string goes through the text domain', empty( $untranslated ), implode( ',', $untranslated ) );
+efb_t(
+	'and names this plugin as that domain',
+	substr_count( $strings_fn, "'easy-form-builder'" ) >= count( $lines ),
+	substr_count( $strings_fn, "'easy-form-builder'" ) . ' of ' . count( $lines )
+);
 
 $env       = $client->collect_env_efb();
 $allowed   = array( 'plugin_version', 'wp_version', 'php_version', 'mysql_version', 'locale', 'theme', 'is_multisite', 'plugins_count', 'forms_count', 'pro_state', 'installed_days' );

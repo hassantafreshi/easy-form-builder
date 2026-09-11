@@ -29,6 +29,12 @@ if (!file_exists($wp_load)) {
 
 require_once $wp_load;
 
+// Every assertion below reads the notice's English wording, so the locale the
+// site happens to be set to must not decide the result: on the fa_IR dev site
+// each case failed on its translation rather than on the behaviour.
+add_filter('locale', function () { return 'en_US'; });
+unload_textdomain('easy-form-builder');
+
 if (!class_exists('\Emsfb\Email_Monitor')) {
 	fwrite(STDERR, "[FAIL] Email_Monitor is not loaded\n");
 	exit(1);
@@ -245,7 +251,13 @@ echo "\n=== The monitor measured something ===\n";
 efb_notice_case('WordPress itself could not send', $wp_mail_failed, null, 'undelivered');
 efb_notice_case('the test email never arrived', $never_arrived, null, 'undelivered');
 efb_notice_case('delivered, score 25 (spam range)', $analyzed(25), null, 'spam');
-efb_notice_case('delivered, score 60 (spam range)', $analyzed(60), null, 'spam');
+// The banner is spent on mail that is really being lost. From
+// SPAM_NOTICE_SCORE upwards the message still lands, so only the email panel
+// and the weekly report say the score could be better - the dashboard does not
+// interrupt anybody over it.
+efb_notice_case('delivered, score 49 (just under the notice threshold)', $analyzed(49), null, 'spam');
+efb_notice_case('delivered, score 50 (at the notice threshold)', $analyzed(50), null, 'silent');
+efb_notice_case('delivered, score 60 (spam range, not worth a banner)', $analyzed(60), null, 'silent');
 efb_notice_case('delivered, score 12 (below the sending threshold)', $analyzed(12), null, 'undelivered');
 efb_notice_case('delivered, score 82 (healthy)', $analyzed(82), null, 'silent');
 efb_notice_case('analysed, nothing arrived', $analyzed(null, false), null, 'undelivered');

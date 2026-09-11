@@ -88,6 +88,19 @@ if ( 'setup' === $mode ) {
 	$coupons = efb_seed_table( 'coupons' );
 	$events  = efb_seed_table( 'events' );
 
+	/*
+	 * Start from an empty rate-limit table.
+	 *
+	 * The service allows five registrations per domain per day and twenty
+	 * public calls per IP per hour, both counted in fixed calendar buckets.
+	 * A suite that registers a dozen times therefore passes or fails
+	 * depending on what else was run in the same hour - which looks exactly
+	 * like a code regression and is not one. Every caller of this script is a
+	 * local test rig that has just switched the service on for itself, so
+	 * there is no real traffic here to preserve.
+	 */
+	$wpdb->query( 'TRUNCATE TABLE ' . efb_seed_table( 'limits' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+
 	update_option(
 		$marker,
 		array(

@@ -49,9 +49,9 @@ ask ──4-5 stars──▶ praise ──▶ claim ──▶ checking ──▶
    and repeats the answer. A site that could grant itself a coupon by editing an
    option would be a coupon printer.
 
-## The seven answers
+## The eight answers
 
-The dialog can draw exactly seven outcomes, and `outcomes_efb()` is the one
+The dialog can draw exactly eight outcomes, and `outcomes_efb()` is the one
 table that says what each looks like and what the person can do next — a new
 outcome cannot be added without deciding both.
 
@@ -73,9 +73,9 @@ outcome cannot be added without deciding both.
 
 Opens whatever the plan, the age of the install or the stored answer — so it
 works on a Pro site too. **Nothing is counted, snoozed or recorded**, and a
-claim there cycles the seven outcomes locally instead of calling White Studio.
+claim there cycles the eight outcomes locally instead of calling White Studio.
 The cursor lives in `sessionStorage`, because several outcomes offer no way back
-to the claim step and seeing all seven means reloading.
+to the claim step and seeing all eight means reloading.
 
 ## On the server
 
@@ -167,7 +167,7 @@ C:\xampp\php\php.exe ../../../ws/wp-content/plugins/payEfb/tests/test-review-rew
 > several back to back has been seen to flake once, in a way that did not
 > reproduce; each passes reliably on its own.
 
-The browser suite walks all seven steps and all seven outcomes in LTR, RTL and
+The browser suite walks all seven steps and all eight outcomes in LTR, RTL and
 at 390px, and asserts that nothing escapes the shell in any of them. The server
 suite stubs Stripe and mail through a subclass — minting real promotion codes
 from a test run would leave live coupons behind — and covers the one-code-per-

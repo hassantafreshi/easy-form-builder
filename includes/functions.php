@@ -19,6 +19,28 @@ if ( ! function_exists( 'emsfb_onboarding_pending_efb' ) ) {
 }
 
 /**
+ * Record that first-run setup is over, and return whether this call ended it.
+ *
+ * Finishing is an event, not a confirmation: running the email delivery test is
+ * the whole point of the guide, so whatever performs one closes the guide. The
+ * pending flag is the only thing consulted here - a site that has already
+ * finished keeps its original completion date rather than being restamped by
+ * every later test.
+ */
+if ( ! function_exists( 'emsfb_complete_onboarding_efb' ) ) {
+	function emsfb_complete_onboarding_efb() {
+		if ( ! (bool) get_option( 'emsfb_onboarding_pending', false ) ) {
+			return false;
+		}
+
+		update_option( 'emsfb_onboarding_pending', 0, false );
+		update_option( 'emsfb_onboarding_completed_at', current_time( 'mysql' ), false );
+
+		return true;
+	}
+}
+
+/**
  * Return markup that wpautop() cannot damage.
  *
  * WordPress runs wpautop() on the_content at priority 10 and do_shortcode() at

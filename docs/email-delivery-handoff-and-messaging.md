@@ -62,7 +62,11 @@ rendered by `admin_notices_efb()` with a fixed title/description map.
 Three states from `get_delivery_verdict()`:
 
 * `healthy` — silent
-* `spam` (arrived, `20 ≤ score < 70`) — "Your form emails are going to the spam folder"
+* `spam` (arrived, `20 ≤ score < 70`) — "Your form emails are going to the spam
+  folder", but shown only below `SPAM_NOTICE_SCORE = 50`. A banner on every
+  admin screen is reserved for mail that is really being lost; a score of 50–69
+  still arrives, so the email panel and the weekly report advise on it while the
+  dashboard stays quiet.
 * `undelivered` (never arrived, or `score < 20`) — "Your form emails are not being delivered"
 
 ### 2.4 Weekly report email (composed by the client)

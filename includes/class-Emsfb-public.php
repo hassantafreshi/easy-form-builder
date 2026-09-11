@@ -24,6 +24,11 @@ class _Public {
 	private $deferred_form_markup = [];
 	private $deferred_form_key = '';
 
+	/* Head hoisting - see open_head_hoist_buffer_efb(). */
+	private $head_chunks_efb      = [];
+	private $head_slot_efb        = '';
+	private $head_hoist_ready_efb = false;
+
 	public function __construct() {
 		global $wpdb;
 		$this->db = $wpdb;
@@ -106,6 +111,18 @@ class _Public {
 		if (!is_admin()) {
 			add_action('wp_enqueue_scripts', [$this, 'init_elementor_compatibility'], 1);
 		}
+
+		/* The whole page is buffered so the form's <style>/<script> blocks can be
+		 * moved into <head>, which has already been rendered by the time a
+		 * shortcode runs. Both hooks are front-end page renders only; a preview,
+		 * a REST render or an admin screen never reaches them and keeps the
+		 * inline output it has always had. */
+		add_action( 'template_redirect', array( $this, 'open_head_hoist_buffer_efb' ), PHP_INT_MAX );
+		/* PHP_INT_MAX, not an early priority: the block used to sit inside the
+		 * post content, after every stylesheet the theme prints in <head>, and it
+		 * won ties on source order. Printed at the very end of wp_head it keeps
+		 * exactly that position in the cascade. */
+		add_action( 'wp_head', array( $this, 'print_head_hoist_slot_efb' ), PHP_INT_MAX );
 	}
 
 public function check_nonce_permission_efb($request) {
@@ -593,6 +610,117 @@ public function check_nonce_permission_efb($request) {
 	}
 
 	/**
+	 * Start buffering the page so that <head> can still be written to.
+	 *
+	 * A shortcode runs inside the_content, long after wp_head() has produced
+	 * its markup - but not after it has been *sent*: the whole page is still a
+	 * PHP buffer at that point. Holding a buffer of our own across the render
+	 * lets a form's stylesheet and its globals be dropped into the slot printed
+	 * in <head>, instead of in the middle of the post content, where a
+	 * <link rel="stylesheet"> blocks rendering at the worst possible moment and
+	 * the icon rules arrive after the icons they style.
+	 *
+	 * Front-end page renders only. A preview, a REST render, an admin screen or
+	 * a theme that never calls wp_head() reaches no slot, and every hoisted
+	 * block falls back to the inline output the plugin has always produced.
+	 */
+	public function open_head_hoist_buffer_efb() {
+		if ( '' !== $this->head_slot_efb ) {
+			return;
+		}
+		if ( is_admin() || is_feed() || is_embed() || wp_doing_ajax() ) {
+			return;
+		}
+		if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) {
+			return;
+		}
+		if ( ! apply_filters( 'emsfb_hoist_form_assets_to_head', true ) ) {
+			return;
+		}
+
+		// New every request, so nothing saved in a post can pose as the slot.
+		$this->head_slot_efb = '<!--emsfb-head-' . strtolower( wp_generate_password( 12, false, false ) ) . '-->';
+
+		ob_start( array( $this, 'fill_head_hoist_slot_efb' ) );
+	}
+
+	/**
+	 * Print the slot the collected blocks are moved into.
+	 */
+	public function print_head_hoist_slot_efb() {
+		if ( '' === $this->head_slot_efb ) {
+			return;
+		}
+
+		/* Only now is hoisting safe to promise the renderer: the slot is in the
+		 * buffer, so a block handed over from here on has somewhere to land. */
+		$this->head_hoist_ready_efb = true;
+
+		echo $this->head_slot_efb; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Generated marker comment.
+	}
+
+	/**
+	 * Take a head-safe block off the renderer's hands.
+	 *
+	 * Returns '' once the block is claimed for <head>, and the block itself
+	 * when there is nowhere to put it. Every caller prints what comes back, so
+	 * the fallback is byte for byte the output there was before.
+	 *
+	 * Head-safe means: stylesheets, and script that only defines things. The
+	 * per-field script block is not head-safe - it reads the elements it is
+	 * about the moment it runs - and stays below the form where it was.
+	 */
+	private function hoist_to_head_efb( $chunk ) {
+		if ( ! is_string( $chunk ) || '' === trim( $chunk ) ) {
+			return '';
+		}
+		if ( ! $this->head_hoist_ready_efb ) {
+			return $chunk;
+		}
+
+		/* Two forms on a page ask for the same icon rules and the same reset,
+		 * and a second copy is kilobytes that change nothing. Only an identical
+		 * block is dropped; anything form-specific differs and is kept. */
+		if ( ! in_array( $chunk, $this->head_chunks_efb, true ) ) {
+			$this->head_chunks_efb[] = $chunk;
+		}
+
+		return '';
+	}
+
+	/**
+	 * Put the collected blocks into <head> and hand the page on.
+	 */
+	public function fill_head_hoist_slot_efb( $html ) {
+		if ( ! is_string( $html ) || '' === $this->head_slot_efb ) {
+			return $html;
+		}
+
+		$payload = implode( '', $this->head_chunks_efb );
+
+		if ( false !== strpos( $html, $this->head_slot_efb ) ) {
+			return str_replace( $this->head_slot_efb, $payload, $html );
+		}
+
+		if ( '' === $payload ) {
+			return $html;
+		}
+
+		/* The slot is gone, so an optimiser that strips HTML comments ran on a
+		 * buffer of its own nested inside this one. The blocks still have to
+		 * reach the page: before </head>, or before </body> on a document with
+		 * no head to speak of. */
+		foreach ( array( '</head>', '</body>' ) as $tag ) {
+			$at = stripos( $html, $tag );
+			if ( false !== $at ) {
+				return substr( $html, 0, $at ) . $payload . substr( $html, $at );
+			}
+		}
+
+		return $html . $payload;
+	}
+
+	/**
 	 * Lift the form shortcode out of a paragraph wpautop wrapped it in.
 	 *
 	 * Core's shortcode_unautop() only rescues a shortcode that sits alone in
@@ -1031,7 +1159,7 @@ public function check_nonce_permission_efb($request) {
 						$iconst_html_preload .= "<i class='bi $icon'></i>";
 				}
 
-				$is_track['content'] = $bootstrap_icons . $is_track['content'];
+				$is_track['content'] = $this->hoist_to_head_efb($bootstrap_icons) . $is_track['content'];
 			}
 			$iconst_html_preload .='</div>';
 
@@ -1579,9 +1707,16 @@ public function check_nonce_permission_efb($request) {
 			$style = $style.'</style>';
 			$jss = $jss.'</script>';
 
+			/* Kept out of the hoist and left where it has always been, just
+			 * above the form. It is the largest block the page carries - forty
+			 * kilobytes - and it installs its listeners and waits for
+			 * DOMContentLoaded, so being early buys it nothing while being in
+			 * <head> would hold up the first paint of the whole page by that
+			 * much. It still sees every error the plugin's own scripts can
+			 * raise: those are enqueued into the footer, below it. */
+			$console_script_efb = '<script>'.$efbFormBuilder->check_error_console_efb().'</script>';
+
 			$script = '';
-			$console_checker = $efbFormBuilder->check_error_console_efb();
-			$script = '<script>'.$console_checker.'</script>';
 
 			/* The steps runtime, for a form that uses one of the new styles. It is
 			 * printed ahead of the body so the function exists before any button
@@ -1608,7 +1743,19 @@ public function check_nonce_permission_efb($request) {
 				$mobile_css_efb = $mobile_css_efb.$font_link_form.$inline_style_form;
 
 			}
-                        $content_new = $style.$mobile_css_efb.$efb_loading_ui_script.$script.$bootstrap_icons.''.$iconst_html_preload.'
+			/* Everything above the form that is not markup: the generated
+			 * stylesheet, the mobile rules and their font <link>, the loading
+			 * SVG global, the error monitor and the steps runtime, and the icon
+			 * rules. All of it either styles the page or only defines things, so
+			 * it belongs in <head> - and hoist_to_head_efb() hands it straight
+			 * back to be printed here when there is no <head> to move it to.
+			 *
+			 * $iconst_html_preload is markup and stays. So does $jss, at the
+			 * bottom where it already was: it reads its fields on the line it
+			 * runs, and in <head> those fields do not exist yet. */
+			$head_payload_efb = $style.$mobile_css_efb.$efb_loading_ui_script.$script.$bootstrap_icons;
+
+                        $content_new = $this->hoist_to_head_efb($head_payload_efb).$console_script_efb.$iconst_html_preload.'
 				<!-- start body_efb-->
 
 				<div id="body_efb_'.$form_id.'" class="efb row pb-3 efb px-2 pre-efb body_efb efb-waiting-'.$this->id.' '.$dShow.'" data-currentstep="1" data-steps="'.$valj_efb[0]->steps.'" data-formid="'.$this->id.'"'.$direction_attr.'>
@@ -1849,7 +1996,7 @@ public function check_nonce_permission_efb($request) {
 		$inline_style      = $overrides_track['inline_style'];
 		$builtin_font_link = $overrides_track['font_link'];
 
-	 	$content="<script> sitekye_emsFormBuilder='' </script>".$s_m . $builtin_font_link . $inline_style ."
+	 	$content=$this->hoist_to_head_efb("<script> sitekye_emsFormBuilder='' </script>" . $builtin_font_link . $inline_style) . $s_m ."
 		<div id='body_tracker_emsFormBuilder' class='efb '><div id='alert_efb' class='efb mx-5 text-center'></div>
 		".$track_content."</div>" . $val ;
 
@@ -1905,9 +2052,9 @@ public function check_nonce_permission_efb($request) {
 
 		wp_register_style('Emsfb-response-viewer-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/response-viewer-efb.css', true, EMSFB_PLUGIN_VERSION);
 		wp_enqueue_style('Emsfb-response-viewer-css');
-		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js', $main_deps, $main_js_version, true);
 		wp_register_script('efb-response-viewer-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/response-viewer-efb.js', array('efb-main-js'), EMSFB_PLUGIN_VERSION, true);
 		wp_enqueue_script('efb-response-viewer-js');
+		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js', $main_deps, $main_js_version, true);
 		wp_register_script('Emsfb-core_js', plugins_url('../public/assets/js/core-efb.js',__FILE__), $core_deps, $core_js_version, true);
 		wp_enqueue_script('Emsfb-core_js');
 

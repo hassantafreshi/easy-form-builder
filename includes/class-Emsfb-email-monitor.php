@@ -61,6 +61,18 @@ class Email_Monitor {
             return;
         }
 
+        // A red banner on every screen of wp-admin is the loudest thing this
+        // plugin says, so it is spent only on a score that really costs the
+        // site its mail. Between SPAM_NOTICE_SCORE and HEALTHY_SCORE the
+        // message does arrive - some mailboxes will still file it as spam, and
+        // the email panel and the weekly report both say so - but that is
+        // advice, not an emergency, and the dashboard stays quiet about it.
+        if ('spam' === $verdict['outcome']
+            && null !== $verdict['score']
+            && $verdict['score'] >= self::SPAM_NOTICE_SCORE) {
+            return;
+        }
+
         // Sites installed before 4.1.2 predate this monitor entirely: the only
         // record they carry that sending works is the settings switch, which
         // those versions stored as the number 1. Telling such an administrator
@@ -1151,6 +1163,18 @@ class Email_Monitor {
      * email and the panel never disagree.
      */
     const HEALTHY_SCORE = 70;
+
+    /**
+     * Score below which the spam-folder warning is raised on the dashboard.
+     *
+     * Not the same question as HEALTHY_SCORE. That one asks whether there is
+     * anything left to improve, which is worth saying in the email panel and
+     * in the weekly report. This one asks whether an administrator should be
+     * interrupted on every admin page about it, and a message that scores in
+     * the fifties or sixties is still being delivered - warning about it reads
+     * as a false alarm and teaches the administrator to ignore the notice.
+     */
+    const SPAM_NOTICE_SCORE = 49;
 
     /**
      * The line between "nothing arrives" and "it arrives in the spam folder".

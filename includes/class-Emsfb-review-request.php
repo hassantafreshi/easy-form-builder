@@ -449,7 +449,11 @@ class Review_Request {
 			'lowStars' => array( 'icon' => 'bi-star-half',            'tone' => 'warn',    'detailIcon' => 'bi-chat-square-text',  'actions' => array( 'feedback', 'retry' ) ),
 			'used'     => array( 'icon' => 'bi-ticket-perforated',    'tone' => 'neutral', 'detailIcon' => 'bi-person-check',      'actions' => array( 'support', 'done' ) ),
 			'badEmail' => array( 'icon' => 'bi-envelope-exclamation', 'tone' => 'bad',     'detailIcon' => 'bi-lightbulb',         'actions' => array( 'edit', 'retry' ) ),
-			'server'   => array( 'icon' => 'bi-wifi-off',             'tone' => 'bad',     'detailIcon' => 'bi-life-preserver',    'actions' => array( 'later', 'retry' ) ),
+			// 'server' means we answered badly; 'offline' means this site never
+			// got out of its own network. Same disappointment, opposite thing
+			// to go and check, so they are never drawn as one outcome.
+			'server'   => array( 'icon' => 'bi-cloud-slash',          'tone' => 'bad',     'detailIcon' => 'bi-life-preserver',    'actions' => array( 'later', 'retry' ) ),
+			'offline'  => array( 'icon' => 'bi-wifi-off',             'tone' => 'bad',     'detailIcon' => 'bi-router',            'actions' => array( 'later', 'retry' ) ),
 		);
 	}
 
@@ -522,7 +526,7 @@ class Review_Request {
 	 * Every outcome, already resolved into what the modal has to draw.
 	 *
 	 * Sent to the browser whole so the result screen can be rendered without a
-	 * second round trip, and so a preview can step through all seven.
+	 * second round trip, and so a preview can step through all of them.
 	 *
 	 * @return array
 	 */
@@ -965,8 +969,13 @@ class Review_Request {
 			)
 		);
 
+		/*
+		 * No HTTP conversation happened at all - DNS, connect, or TLS failed.
+		 * That is this site being unable to get out, not our service being
+		 * broken, and the two need different advice.
+		 */
 		if ( is_wp_error( $response ) ) {
-			return 'server';
+			return 'offline';
 		}
 
 		$body = json_decode( (string) wp_remote_retrieve_body( $response ), true );
@@ -1177,8 +1186,11 @@ class Review_Request {
 			'ocBadEmailLead'   => esc_html__( 'We could not send mail to this address. Check it and try again.', 'easy-form-builder' ),
 			'ocBadEmailDetail' => esc_html__( 'Use a real, active mailbox rather than a temporary address.', 'easy-form-builder' ),
 			'ocServerTitle'    => esc_html__( 'We could not check right now', 'easy-form-builder' ),
-			'ocServerLead'     => esc_html__( 'The server could not be reached. Try again in a moment - nothing you entered was lost.', 'easy-form-builder' ),
+			'ocServerLead'     => esc_html__( 'Your site reached us, but our server did not answer properly. Try again in a moment - nothing you entered was lost.', 'easy-form-builder' ),
 			'ocServerDetail'   => esc_html__( 'If it keeps happening, let the Easy Form Builder team know.', 'easy-form-builder' ),
+			'ocOfflineTitle'   => esc_html__( 'Your site could not connect', 'easy-form-builder' ),
+			'ocOfflineLead'    => esc_html__( 'No connection could be opened from your site to the internet, so we could not check. Nothing you entered was lost.', 'easy-form-builder' ),
+			'ocOfflineDetail'  => esc_html__( 'This is usually outbound traffic blocked by your server or its network - some hosts block connections to other countries. Your hosting provider can confirm it.', 'easy-form-builder' ),
 
 			'fbTitle'          => esc_html__( 'What should we make better?', 'easy-form-builder' ),
 			'fbLead'           => esc_html__( 'We would rather fix it first. This goes straight to the team, not to the public page.', 'easy-form-builder' ),

@@ -56,11 +56,35 @@ class Deactivation_Feedback {
 	const DAILY_LIMIT = 3;
 
 	/**
+	 * This site could not open a connection to the outside world.
+	 *
+	 * Not the same thing as the service being down, and it must never be
+	 * described as such: on a host whose outbound traffic is filtered - a
+	 * common arrangement in several countries - nothing is wrong with our
+	 * server, and telling the administrator otherwise sends them looking in
+	 * the wrong place.
+	 */
+	const FAILURE_OFFLINE = 'offline';
+
+	/** We were reached, and answered badly or not at all. */
+	const FAILURE_SERVER = 'server';
+
+	/** How long a failed registration waits before the next attempt. */
+	const REGISTER_BACKOFF = 'emsfb_feedback_register_backoff';
+
+	/**
 	 * HTTP status of the most recent call to the feedback service.
 	 *
 	 * @var int
 	 */
 	protected $last_status = 0;
+
+	/**
+	 * Why the most recent call failed: one of the FAILURE_* constants, or ''.
+	 *
+	 * @var string
+	 */
+	protected $last_failure = '';
 
 	/**
 	 * Wire the hooks.
@@ -420,7 +444,8 @@ class Deactivation_Feedback {
 			wp_send_json_success(
 				array(
 					'ok'      => false,
-					'message' => $text['sendFailed'],
+					'failure' => isset( $result['failure'] ) ? $result['failure'] : self::FAILURE_SERVER,
+					'message' => $this->failure_message_efb( isset( $result['failure'] ) ? $result['failure'] : '' ),
 				)
 			);
 		}
@@ -444,7 +469,8 @@ class Deactivation_Feedback {
 				'message' => $message,
 				'coupon'  => array(
 					'state' => $state,
-					'code'  => 'issued' === $state ? $code : '',
+					// The code itself is never shown in the modal; it is emailed instead.
+					'code'  => '',
 				),
 			)
 		);
@@ -521,14 +547,15 @@ class Deactivation_Feedback {
 	 *
 	 * @param array $payload Report payload.
 	 * @return array {
-	 *     @type bool  $ok     Whether the service accepted the report.
-	 *     @type array $coupon Coupon block returned by the service.
+	 *     @type bool   $ok      Whether the service accepted the report.
+	 *     @type array  $coupon  Coupon block returned by the service.
+	 *     @type string $failure On failure, one of the FAILURE_* constants.
 	 * }
 	 */
 	public function send_report_efb( $payload ) {
 		$identity = $this->ensure_identity_efb();
 		if ( empty( $identity['site_id'] ) || empty( $identity['secret'] ) ) {
-			return array( 'ok' => false );
+			return $this->failure_efb();
 		}
 
 		$body     = wp_json_encode( $payload );
@@ -543,24 +570,61 @@ class Deactivation_Feedback {
 		 */
 		if ( null === $response && in_array( $this->last_status, array( 401, 403, 404 ), true ) ) {
 			delete_option( self::OPTION_IDENTITY );
-			delete_transient( 'emsfb_feedback_register_backoff' );
+			delete_transient( self::REGISTER_BACKOFF );
 
 			$identity = $this->ensure_identity_efb();
 			if ( empty( $identity['site_id'] ) || empty( $identity['secret'] ) ) {
-				return array( 'ok' => false );
+				return $this->failure_efb();
 			}
 
 			$response = $this->post_signed_report_efb( $identity, $body );
 		}
 
 		if ( ! is_array( $response ) || empty( $response['ok'] ) ) {
-			return array( 'ok' => false );
+			return $this->failure_efb();
 		}
 
 		return array(
 			'ok'     => true,
 			'coupon' => isset( $response['coupon'] ) ? (array) $response['coupon'] : array(),
 		);
+	}
+
+	/**
+	 * A failed send, carrying whichever reason the transport last recorded.
+	 *
+	 * @return array
+	 */
+	protected function failure_efb() {
+		return array(
+			'ok'      => false,
+			'failure' => self::FAILURE_OFFLINE === $this->last_failure ? self::FAILURE_OFFLINE : self::FAILURE_SERVER,
+		);
+	}
+
+	/**
+	 * The sentence to show for a failed send.
+	 *
+	 * Two situations, two different things to do about them, so two different
+	 * messages. Blaming our server for a connection the host never let out
+	 * would send the administrator to check a status page instead of their own
+	 * outbound firewall, and vice versa.
+	 *
+	 * @param string $failure One of the FAILURE_* constants.
+	 * @return string
+	 */
+	protected function failure_message_efb( $failure ) {
+		$text = $this->strings_efb();
+
+		if ( self::FAILURE_OFFLINE === $failure ) {
+			return $text['sendFailedOffline'];
+		}
+
+		if ( self::FAILURE_SERVER === $failure ) {
+			return $text['sendFailedServer'];
+		}
+
+		return $text['sendFailed'];
 	}
 
 	/**
@@ -611,18 +675,41 @@ class Deactivation_Feedback {
 		$identity = get_option( self::OPTION_IDENTITY );
 
 		if ( is_array( $identity ) && ! empty( $identity['site_id'] ) && ! empty( $identity['secret'] ) ) {
-			return $identity;
+			/*
+			 * An identity is only good for the host that issued it - the secret
+			 * is derived from that service's master key, and reports are posted
+			 * to the endpoint recorded here rather than to whatever the
+			 * settings now say. So when the configured host changes (production
+			 * to sandbox, or back), the stored identity is not stale, it is
+			 * addressed to someone else, and keeping it would silently send
+			 * every future report to the old server.
+			 */
+			$current = $this->endpoints_efb();
+			$current = isset( $current[0] ) ? untrailingslashit( $current[0] ) : '';
+
+			if ( '' === $current || untrailingslashit( (string) ( isset( $identity['endpoint'] ) ? $identity['endpoint'] : '' ) ) === $current ) {
+				return $identity;
+			}
+
+			delete_option( self::OPTION_IDENTITY );
+			delete_transient( self::REGISTER_BACKOFF );
 		}
 
 		// A failed registration backs off rather than retrying on every click:
-		// a blocked or offline endpoint must not turn into a request storm.
-		if ( get_transient( 'emsfb_feedback_register_backoff' ) ) {
+		// a blocked or offline endpoint must not turn into a request storm. The
+		// reason rides along so the second click still gets the right words
+		// instead of falling back to a vaguer message than we already earned.
+		$backoff = get_transient( self::REGISTER_BACKOFF );
+		if ( $backoff ) {
+			$this->last_failure = is_string( $backoff ) ? $backoff : self::FAILURE_SERVER;
 			return array();
 		}
 
 		$identity = $this->register_site_efb();
 		if ( empty( $identity ) ) {
-			set_transient( 'emsfb_feedback_register_backoff', 1, HOUR_IN_SECONDS );
+			$reason = '' !== $this->last_failure ? $this->last_failure : self::FAILURE_SERVER;
+			set_transient( self::REGISTER_BACKOFF, $reason, HOUR_IN_SECONDS );
+			$this->last_failure = $reason;
 			return array();
 		}
 
@@ -649,6 +736,8 @@ class Deactivation_Feedback {
 			)
 		);
 
+		$worst = '';
+
 		foreach ( $this->endpoints_efb() as $endpoint ) {
 			$response = $this->request_efb( '/register', $body, array( 'Content-Type' => 'application/json' ), $endpoint );
 
@@ -661,7 +750,20 @@ class Deactivation_Feedback {
 					'created'   => time(),
 				);
 			}
+
+			/*
+			 * One host answering badly outranks another being unreachable: if
+			 * anything at all replied, this site is not cut off from the
+			 * internet, and saying so would be wrong.
+			 */
+			if ( self::FAILURE_SERVER === $this->last_failure ) {
+				$worst = self::FAILURE_SERVER;
+			} elseif ( '' === $worst ) {
+				$worst = $this->last_failure;
+			}
 		}
+
+		$this->last_failure = '' !== $worst ? $worst : self::FAILURE_SERVER;
 
 		return array();
 	}
@@ -722,8 +824,15 @@ class Deactivation_Feedback {
 	/**
 	 * Hosts to try, in order.
 	 *
-	 * Reuses the add-on endpoint ordering, so a Persian site talks to the
-	 * mirror it can actually reach before the main domain.
+	 * `EMSFB_SERVER_URL` is the single source of truth, so pointing the whole
+	 * plugin at the sandbox points the feedback service there too - the same
+	 * constant Review_Request::reward_endpoint_efb() already reads.
+	 *
+	 * This deliberately does *not* reuse the add-on endpoint order any more.
+	 * That list answers a different question - where an add-on archive can be
+	 * downloaded - and on a Persian site it appends the .ir mirror, which has
+	 * never hosted the feedback service. Asking it here only bought a
+	 * guaranteed 404 on the way to the host that was going to answer anyway.
 	 *
 	 * @return array
 	 */
@@ -737,17 +846,7 @@ class Deactivation_Feedback {
 			$endpoints = array( untrailingslashit( EMSFB_FEEDBACK_SERVER_URL ) );
 		}
 
-		if ( ! $endpoints && function_exists( 'get_efbFunction' ) ) {
-			$efb_function = get_efbFunction();
-			if ( is_object( $efb_function ) && method_exists( $efb_function, 'addon_api_domains_efb' ) ) {
-				$domains = $efb_function->addon_api_domains_efb();
-				if ( isset( $domains['endpoints'] ) && is_array( $domains['endpoints'] ) ) {
-					$endpoints = $domains['endpoints'];
-				}
-			}
-		}
-
-		if ( ! $endpoints && defined( 'EMSFB_SERVER_URL' ) ) {
+		if ( ! $endpoints && defined( 'EMSFB_SERVER_URL' ) && EMSFB_SERVER_URL ) {
 			$endpoints = array( untrailingslashit( EMSFB_SERVER_URL ) );
 		}
 
@@ -764,6 +863,9 @@ class Deactivation_Feedback {
 	/**
 	 * POST a JSON body to one feedback route.
 	 *
+	 * Records *why* a call failed as well as that it did, because the two
+	 * reasons deserve different words. See $last_failure.
+	 *
 	 * @param string $path     Route path, e.g. "/report".
 	 * @param string $body     JSON body.
 	 * @param array  $headers  Request headers.
@@ -771,7 +873,8 @@ class Deactivation_Feedback {
 	 * @return array|null Decoded response, or null on any failure.
 	 */
 	protected function request_efb( $path, $body, $headers, $endpoint = '' ) {
-		$this->last_status = 0;
+		$this->last_status  = 0;
+		$this->last_failure = '';
 
 		if ( '' === $endpoint ) {
 			$endpoints = $this->endpoints_efb();
@@ -779,6 +882,7 @@ class Deactivation_Feedback {
 		}
 
 		if ( '' === $endpoint ) {
+			$this->last_failure = self::FAILURE_SERVER;
 			return null;
 		}
 
@@ -792,20 +896,38 @@ class Deactivation_Feedback {
 			)
 		);
 
+		/*
+		 * A WP_Error here means no HTTP conversation happened at all: DNS did
+		 * not resolve, the connection was refused or timed out, or the TLS
+		 * handshake failed. From the plugin's side that is indistinguishable
+		 * from - and usually is - the host being unable to reach the outside
+		 * world, which is the ordinary situation on servers whose outbound
+		 * traffic is filtered. It is emphatically not evidence that the
+		 * feedback service is down, so it must not be reported as such.
+		 */
 		if ( is_wp_error( $response ) ) {
+			$this->last_failure = self::FAILURE_OFFLINE;
 			return null;
 		}
 
 		$code              = (int) wp_remote_retrieve_response_code( $response );
 		$this->last_status = $code;
 
+		// Anything with a status line means we reached them. Whatever went
+		// wrong after that is ours to apologise for, not the host's to fix.
 		if ( $code < 200 || $code >= 300 ) {
+			$this->last_failure = self::FAILURE_SERVER;
 			return null;
 		}
 
 		$decoded = json_decode( (string) wp_remote_retrieve_body( $response ), true );
 
-		return is_array( $decoded ) ? $decoded : null;
+		if ( ! is_array( $decoded ) ) {
+			$this->last_failure = self::FAILURE_SERVER;
+			return null;
+		}
+
+		return $decoded;
 	}
 
 	/**
@@ -855,13 +977,13 @@ class Deactivation_Feedback {
 	 */
 
 	/**
-	 * The modal's wording in the admin's own language.
+	 * The modal's wording.
 	 *
-	 * Three sources, most specific first: phrases pushed by the White Studio
-	 * settings payload, the bundled translations below, then the English
-	 * source strings. The bundled table exists because this plugin's phrases
-	 * normally arrive from the server, and a person who never had a chance to
-	 * fetch them should still be able to read the question we are asking.
+	 * These go through the plugin's own text domain rather than the phrases
+	 * the White Studio settings payload pushes for the rest of the admin: this
+	 * screen has to read correctly on a site that has never once reached that
+	 * server, which is precisely the situation the failure messages below are
+	 * for.
 	 *
 	 * @return array
 	 */
@@ -882,7 +1004,7 @@ class Deactivation_Feedback {
 			'placeholderFoundBetter'    => esc_html__( 'Which plugin did you choose?', 'easy-form-builder' ),
 			'placeholderOther'          => esc_html__( 'Anything you would like us to know', 'easy-form-builder' ),
 			'rewardTitle'               => esc_html__( 'Report the bug, get 100% off your first year', 'easy-form-builder' ),
-			'rewardBody'                => esc_html__( 'Describe the bug and we will send you a 100% discount code for your first year of the Pro version, as a thank you.', 'easy-form-builder' ),
+			'rewardBody'                => esc_html__( 'Describe the bug and we will send you a 99% discount code for your first year of the Pro version, as a thank you.', 'easy-form-builder' ),
 			'emailLabel'                => esc_html__( 'Email address for the discount code', 'easy-form-builder' ),
 			'consentLabel'              => esc_html__( 'Email me the discount code and any follow-up question', 'easy-form-builder' ),
 			'privacy'                   => esc_html__( 'We only send your site address, the plugin, WordPress and PHP versions, and the message you wrote above.', 'easy-form-builder' ),
@@ -894,153 +1016,20 @@ class Deactivation_Feedback {
 			'chooseReason'              => esc_html__( 'Please choose one of the options.', 'easy-form-builder' ),
 			'thanksTitle'               => esc_html__( 'Thank you', 'easy-form-builder' ),
 			'thanksMessage'             => esc_html__( 'Your feedback has been received. It goes straight to the people who build this plugin.', 'easy-form-builder' ),
-			'couponIssued'              => esc_html__( 'Here is your 100% discount code for the first year:', 'easy-form-builder' ),
+			'couponIssued'              => esc_html__( 'Your bug report has been received. Within the next 2 days we will email you your discount code, and ask for a few more details if we need them.', 'easy-form-builder' ),
 			'couponPending'             => esc_html__( 'Your report has been received. We will email your 100% discount code after a quick check.', 'easy-form-builder' ),
 			'sendFailed'                => esc_html__( 'We could not reach our server, so your note was not sent. The plugin will still be deactivated.', 'easy-form-builder' ),
+			// Two failures that look identical from the modal but need opposite
+			// things done about them, so they are never worded the same way.
+			'sendFailedOffline'         => esc_html__( 'Your site could not open a connection to the internet, so your note was not sent. This is usually outbound traffic being blocked by the server or its network, rather than anything wrong on our side. The plugin will still be deactivated.', 'easy-form-builder' ),
+			'sendFailedServer'          => esc_html__( 'Your site reached us, but our server did not answer properly, so your note was not sent. Nothing is wrong with your site - please try again later. The plugin will still be deactivated.', 'easy-form-builder' ),
 			'copy'                      => esc_html__( 'Copy', 'easy-form-builder' ),
 			'copied'                    => esc_html__( 'Copied', 'easy-form-builder' ),
 			'continueLabel'             => esc_html__( 'Continue deactivating', 'easy-form-builder' ),
 			'close'                     => esc_html__( 'Close', 'easy-form-builder' ),
 		);
 
-		$bundled = $this->bundled_translations_efb();
-		$locale  = function_exists( 'get_user_locale' ) ? get_user_locale() : get_locale();
-		$short   = strtolower( substr( (string) $locale, 0, 2 ) );
-
-		if ( isset( $bundled[ $short ] ) ) {
-			$defaults = array_merge( $defaults, $bundled[ $short ] );
-		}
-
-		// A phrase pushed from the server always wins, so wording can be
-		// corrected without shipping a plugin release.
-		$settings = function_exists( 'get_setting_Emsfb' ) ? get_setting_Emsfb( 'decoded' ) : null;
-		if ( is_object( $settings ) && isset( $settings->text ) && is_object( $settings->text ) ) {
-			foreach ( array_keys( $defaults ) as $key ) {
-				$remote_key = 'deact' . ucfirst( $key );
-				if ( isset( $settings->text->{$remote_key} ) && is_string( $settings->text->{$remote_key} ) && '' !== $settings->text->{$remote_key} ) {
-					$defaults[ $key ] = $settings->text->{$remote_key};
-				}
-			}
-		}
-
 		return $defaults;
 	}
 
-	/**
-	 * Translations shipped with the plugin for the locales it targets.
-	 *
-	 * @return array
-	 */
-	protected function bundled_translations_efb() {
-		return array(
-			'fa' => array(
-				'title'                     => 'یک لحظه پیش از غیرفعال‌سازی',
-				'subtitle'                  => 'بگویید چه چیزی درست کار نکرد تا همان را درست کنیم. کمتر از ۲۰ ثانیه وقت می‌گیرد.',
-				'reasonBug'                 => 'باگ یا ایراد دیدم',
-				'reasonMissingFeature'      => 'قابلیتی که نیاز داشتم وجود نداشت',
-				'reasonHardToUse'           => 'کار کردن با آن برایم سخت بود',
-				'reasonFoundBetter'         => 'افزونه‌ی بهتری پیدا کردم',
-				'reasonTemporary'           => 'موقتی است؛ در حال عیب‌یابی سایت هستم',
-				'reasonNoLongerNeeded'      => 'دیگر به آن نیازی ندارم',
-				'reasonOther'               => 'دلیل دیگری دارم',
-				'placeholderBug'            => 'چه اتفاقی افتاد و کجا؟ در کدام صفحه یا کدام فرم؟ اگر پیام خطایی دیدید همان را اینجا بنویسید.',
-				'placeholderMissingFeature' => 'دنبال چه قابلیتی بودید؟',
-				'placeholderHardToUse'      => 'کدام بخش گیج‌کننده بود؟',
-				'placeholderFoundBetter'    => 'کدام افزونه را انتخاب کردید؟',
-				'placeholderOther'          => 'هر چیزی که دوست دارید بدانیم',
-				'rewardTitle'               => 'با گزارش دادن باگ، ۱۰۰٪ تخفیف سال اول بگیرید',
-				'rewardBody'                => 'باگ را توضیح دهید تا به‌عنوان تشکر، کد تخفیف ۱۰۰٪ برای سال اول نسخه‌ی حرفه‌ای برایتان ارسال شود.',
-				'emailLabel'                => 'ایمیل برای دریافت کد تخفیف',
-				'consentLabel'              => 'کد تخفیف و پرسش‌های بعدی برایم ایمیل شود',
-				'privacy'                   => 'فقط این‌ها ارسال می‌شود: نشانی سایت، نسخه‌ی افزونه و وردپرس و PHP، و همان متنی که نوشتید.',
-				'skip'                      => 'رد کردن و غیرفعال‌سازی',
-				'submit'                    => 'ارسال و غیرفعال‌سازی',
-				'sending'                   => 'در حال ارسال…',
-				'detailsRequired'           => 'لطفاً یک توضیح کوتاه بنویسید.',
-				'detailsTooShort'           => 'کمی بیشتر توضیح دهید؛ یک جمله درباره‌ی اینکه چه چیزی خراب شد کافی است.',
-				'chooseReason'              => 'لطفاً یکی از گزینه‌ها را انتخاب کنید.',
-				'thanksTitle'               => 'ممنون از شما',
-				'thanksMessage'             => 'گزارش شما ثبت شد و مستقیم به دست سازندگان همین افزونه می‌رسد.',
-				'couponIssued'              => 'این هم کد تخفیف ۱۰۰٪ سال اول شما:',
-				'couponPending'             => 'گزارش شما ثبت شد. پس از یک بررسی کوتاه، کد تخفیف ۱۰۰٪ به ایمیل شما ارسال می‌شود.',
-				'sendFailed'                => 'ارتباط با سرور برقرار نشد و یادداشت شما ارسال نشد. افزونه در هر صورت غیرفعال می‌شود.',
-				'copy'                      => 'کپی',
-				'copied'                    => 'کپی شد',
-				'continueLabel'             => 'ادامه و غیرفعال‌سازی',
-				'close'                     => 'بستن',
-			),
-			'ar' => array(
-				'title'                     => 'لحظة واحدة قبل التعطيل',
-				'subtitle'                  => 'أخبرنا بما لم ينجح وسنصلحه. لن يستغرق الأمر أكثر من ٢٠ ثانية.',
-				'reasonBug'                 => 'واجهت خللاً أو شيئاً لا يعمل',
-				'reasonMissingFeature'      => 'الميزة التي أحتاجها غير موجودة',
-				'reasonHardToUse'           => 'كان إعداده أو استخدامه صعباً',
-				'reasonFoundBetter'         => 'وجدت إضافة أفضل',
-				'reasonTemporary'           => 'تعطيل مؤقت لتشخيص مشكلة في الموقع',
-				'reasonNoLongerNeeded'      => 'لم أعد بحاجة إليه',
-				'reasonOther'               => 'سبب آخر',
-				'placeholderBug'            => 'ماذا حدث وأين؟ في أي صفحة أو أي نموذج؟ إذا ظهرت رسالة خطأ فالصقها هنا.',
-				'placeholderMissingFeature' => 'ما الميزة التي كنت تبحث عنها؟',
-				'placeholderHardToUse'      => 'أي جزء كان مربكاً؟',
-				'placeholderFoundBetter'    => 'أي إضافة اخترت؟',
-				'placeholderOther'          => 'أي شيء تود أن نعرفه',
-				'rewardTitle'               => 'أبلغ عن الخلل واحصل على خصم ١٠٠٪ للسنة الأولى',
-				'rewardBody'                => 'صف الخلل وسنرسل لك رمز خصم ١٠٠٪ للسنة الأولى من النسخة الاحترافية، شكراً لك.',
-				'emailLabel'                => 'البريد الإلكتروني لاستلام رمز الخصم',
-				'consentLabel'              => 'أرسلوا لي رمز الخصم وأي سؤال للمتابعة',
-				'privacy'                   => 'نرسل فقط: عنوان موقعك، وإصدارات الإضافة ووردبريس وPHP، والنص الذي كتبته.',
-				'skip'                      => 'تخطٍ وتعطيل',
-				'submit'                    => 'إرسال وتعطيل',
-				'sending'                   => 'جارٍ الإرسال…',
-				'detailsRequired'           => 'يرجى كتابة وصف قصير أولاً.',
-				'detailsTooShort'           => 'المزيد من التفاصيل من فضلك؛ جملة واحدة عمّا تعطّل تكفي.',
-				'chooseReason'              => 'يرجى اختيار أحد الخيارات.',
-				'thanksTitle'               => 'شكراً لك',
-				'thanksMessage'             => 'وصلنا تقريرك ويذهب مباشرة إلى من يبنون هذه الإضافة.',
-				'couponIssued'              => 'هذا رمز خصم ١٠٠٪ للسنة الأولى:',
-				'couponPending'             => 'وصلنا تقريرك. سنرسل رمز الخصم ١٠٠٪ بعد مراجعة سريعة.',
-				'sendFailed'                => 'تعذر الوصول إلى خادمنا فلم تُرسل ملاحظتك. سيتم تعطيل الإضافة على أي حال.',
-				'copy'                      => 'نسخ',
-				'copied'                    => 'تم النسخ',
-				'continueLabel'             => 'متابعة التعطيل',
-				'close'                     => 'إغلاق',
-			),
-			'de' => array(
-				'title'                     => 'Einen Moment, bevor Sie deaktivieren',
-				'subtitle'                  => 'Sagen Sie uns, was nicht funktioniert hat - wir bringen es in Ordnung. Dauert etwa 20 Sekunden.',
-				'reasonBug'                 => 'Ich habe einen Fehler gefunden',
-				'reasonMissingFeature'      => 'Eine Funktion, die ich brauche, fehlt',
-				'reasonHardToUse'           => 'Einrichtung oder Bedienung war zu kompliziert',
-				'reasonFoundBetter'         => 'Ich habe ein besseres Plugin gefunden',
-				'reasonTemporary'           => 'Nur vorübergehend - ich suche einen Fehler auf meiner Website',
-				'reasonNoLongerNeeded'      => 'Ich brauche es nicht mehr',
-				'reasonOther'               => 'Ein anderer Grund',
-				'placeholderBug'            => 'Was ist passiert und wo? Auf welcher Seite oder in welchem Formular? Fehlermeldung bitte hier einfügen.',
-				'placeholderMissingFeature' => 'Welche Funktion haben Sie gesucht?',
-				'placeholderHardToUse'      => 'Welcher Teil war verwirrend?',
-				'placeholderFoundBetter'    => 'Für welches Plugin haben Sie sich entschieden?',
-				'placeholderOther'          => 'Alles, was wir wissen sollten',
-				'rewardTitle'               => 'Fehler melden und 100% Rabatt im ersten Jahr erhalten',
-				'rewardBody'                => 'Beschreiben Sie den Fehler und Sie erhalten als Dank einen 100%-Rabattcode für Ihr erstes Jahr der Pro-Version.',
-				'emailLabel'                => 'E-Mail-Adresse für den Rabattcode',
-				'consentLabel'              => 'Schicken Sie mir den Rabattcode und mögliche Rückfragen per E-Mail',
-				'privacy'                   => 'Wir senden nur: Ihre Website-Adresse, die Versionen von Plugin, WordPress und PHP sowie Ihren Text.',
-				'skip'                      => 'Überspringen und deaktivieren',
-				'submit'                    => 'Senden und deaktivieren',
-				'sending'                   => 'Wird gesendet…',
-				'detailsRequired'           => 'Bitte schreiben Sie zuerst eine kurze Beschreibung.',
-				'detailsTooShort'           => 'Bitte etwas ausführlicher - ein Satz dazu, was kaputt war, genügt.',
-				'chooseReason'              => 'Bitte wählen Sie eine der Optionen.',
-				'thanksTitle'               => 'Vielen Dank',
-				'thanksMessage'             => 'Ihre Rückmeldung ist angekommen - direkt bei den Leuten, die dieses Plugin bauen.',
-				'couponIssued'              => 'Hier ist Ihr 100%-Rabattcode für das erste Jahr:',
-				'couponPending'             => 'Ihre Meldung ist angekommen. Den 100%-Rabattcode senden wir nach einer kurzen Prüfung per E-Mail.',
-				'sendFailed'                => 'Unser Server war nicht erreichbar, Ihre Nachricht wurde nicht gesendet. Das Plugin wird trotzdem deaktiviert.',
-				'copy'                      => 'Kopieren',
-				'copied'                    => 'Kopiert',
-				'continueLabel'             => 'Weiter deaktivieren',
-				'close'                     => 'Schließen',
-			),
-		);
-	}
 }

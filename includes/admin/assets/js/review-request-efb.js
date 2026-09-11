@@ -50,7 +50,7 @@
 	 * answers locally instead of asking White Studio for a real coupon.
 	 */
 	var preview = Number(cfg.preview) === 1;
-	var previewOrder = ['granted', 'pending', 'notFound', 'lowStars', 'used', 'badEmail', 'server'];
+	var previewOrder = ['granted', 'pending', 'notFound', 'lowStars', 'used', 'badEmail', 'server', 'offline'];
 
 	/*
 	 * Which outcome the next preview claim will show. Kept in sessionStorage,
@@ -540,8 +540,14 @@
 				}, wait));
 			})
 			.catch(function () {
+				// The browser could not complete the call to this site's own
+				// admin-ajax. That says nothing about whether White Studio is
+				// reachable, so drawing one of the server outcomes here would
+				// be inventing a diagnosis. Back to the claim step, where the
+				// person can simply try again.
 				checkTimers.push(setTimeout(function () {
-					showResult('server', email);
+					showStep('claim');
+					showError(text.failed || '');
 				}, 600));
 			});
 	}

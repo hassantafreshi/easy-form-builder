@@ -59,6 +59,21 @@ the reason this class loads on the **public** side too, not only in wp-admin.
 - A site that cannot (localhost, staging, a firewall) stays `unverified`, and
   its report is still accepted - the coupon just waits for a human.
 
+A site the service cannot route to at all - `localhost`, a LAN address, a
+`.local` name - is registered as `unverifiable` rather than turned away, and
+`/verify` answers it from that stored status without attempting a fetch. The
+address never becomes a callback target: `verify_site_ownership()` refuses it
+again on its own, and `wp_safe_remote_get( reject_unsafe_urls )` refuses it a
+third time. Malformed shapes - a scheme that is not http, a port outside
+80/443, credentials in the authority - are still a hard `400`, because no real
+`home_url()` looks like that.
+
+This used to be one combined refusal at `/register`, which meant the
+"unverified but still accepted" path above could never be reached by the very
+installs it describes. The main suite did not catch it because it runs the
+client and the service on the same host, where the server's own-host exemption
+applies; `tests/test-feedback-connectivity.php` is the one that does.
+
 If the service ever stops recognising a stored identity (its records were
 restored from a backup, or the master key was rotated) the client sees a 401,
 clears the identity, registers once more, and re-sends. Without that, such a
@@ -70,9 +85,46 @@ site could never report anything again.
 
 1. `EMSFB_FEEDBACK_SERVER_URL` when defined - one explicit override, for staging
    or a local test rig.
-2. Otherwise the shared add-on endpoint order, so a Persian site talks to the
-   mirror it can actually reach before the main domain.
+2. Otherwise `EMSFB_SERVER_URL`, the plugin-wide source of truth. Switching that
+   constant to the sandbox switches the feedback service with it.
 3. The `emsfb_feedback_endpoints_efb` filter always runs last.
+
+The shared add-on endpoint order is deliberately *not* used here. It answers a
+different question - where an add-on archive can be downloaded - and on a
+Persian site it appends the `.ir` mirror, which has never hosted the feedback
+service, so consulting it only bought a guaranteed 404 before the host that was
+going to answer anyway.
+
+An identity belongs to the host that issued it: the secret is derived from that
+service's master key, and `post_signed_report_efb()` posts to the endpoint
+recorded in the identity rather than to whatever the settings now say. So when
+the configured host changes, `ensure_identity_efb()` throws the stored identity
+away and registers again. Without that, moving a site from production to the
+sandbox left every later report going quietly to the old server, and the one
+re-registration retry never fired: it triggers on 401/403/404, and a host that
+has gone away produces a `WP_Error` with no status at all.
+
+## When it fails
+
+Two failures look identical from the modal and need opposite things done about
+them, so they never share a sentence:
+
+| What happened | `failure` | What the modal says |
+| --- | --- | --- |
+| No HTTP conversation at all - DNS, connect or TLS failed | `offline` | the site could not open a connection; usually outbound traffic blocked by the server or its network |
+| A status line came back, but not a usable answer | `server` | the site reached us and we answered badly; nothing is wrong with their site |
+
+The distinction is drawn from the transport, not guessed: `wp_remote_post()`
+returning a `WP_Error` means nothing was reached, and any status code at all
+means we were. Servers whose outbound traffic is filtered - a routine
+arrangement in several countries - land in the first row, and telling those
+administrators that White Studio is down would send them to check a status page
+instead of their own firewall.
+
+The reason rides along in the backoff transient, so the second click inside the
+same hour repeats the accurate sentence rather than degrading to the generic
+one. `Review_Request` draws the same split as two separate outcomes, `offline`
+and `server`.
 
 ## Wording
 
@@ -85,9 +137,15 @@ never fetched them should still be able to read the question being asked.
 ## Tests
 
 ```
-C:\xampp\php\php.exe tests/test-deactivation-feedback.php      # 109 assertions
+C:\xampp\php\php.exe tests/test-deactivation-feedback.php      # 112 assertions
+C:\xampp\php\php.exe tests/test-feedback-connectivity.php      # 34 assertions
 node tests/test-deactivation-feedback-browser.js               # 26 assertions
 ```
+
+The connectivity suite needs the service switched on the same way the browser
+suite does (`tests/seed-deactivation-feedback-env.php setup`). It clears the
+service's rate-limit buckets between sections, so it stays runnable more than
+once a day - the per-domain registration cap is five.
 
 The PHP suite covers the contract between the halves, the client's AJAX
 handler over real HTTP, and every attack the public endpoint has to refuse -

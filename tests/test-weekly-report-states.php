@@ -24,6 +24,12 @@ if ( ! is_readable( $wp_load ) ) {
 define( 'WP_USE_THEMES', false );
 require_once $wp_load;
 
+// Every assertion here reads English wording out of the rendered HTML, so the
+// site's own locale must not decide the result: on the fa_IR dev site the copy
+// checks failed on their translation rather than on the behaviour.
+add_filter( 'locale', function () { return 'en_US'; } );
+unload_textdomain( 'easy-form-builder' );
+
 if ( ! class_exists( '\Emsfb\Email_Monitor' ) ) {
 	echo "[SKIP] Email_Monitor is not loaded\n";
 	exit( 0 );

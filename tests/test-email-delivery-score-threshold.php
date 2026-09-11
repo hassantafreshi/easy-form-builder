@@ -39,6 +39,15 @@ efb_delivery_score_test(
 	$min > 0 && $min < \Emsfb\Email_Monitor::HEALTHY_SCORE
 );
 
+// The dashboard banner is raised somewhere between the two: above the minimum,
+// because below it the notice is the harsher "nothing is arriving" one, and at
+// or below healthy, because a healthy score must never raise a warning.
+efb_delivery_score_test(
+	'the dashboard notice threshold sits between the two',
+	\Emsfb\Email_Monitor::SPAM_NOTICE_SCORE > $min
+		&& \Emsfb\Email_Monitor::SPAM_NOTICE_SCORE <= \Emsfb\Email_Monitor::HEALTHY_SCORE
+);
+
 efb_delivery_score_test(
 	'a delivered probe scoring above the minimum is confirmed',
 	\Emsfb\Email_Monitor::is_delivery_confirmed(['can_send_email' => true, 'score' => 60]) === true
