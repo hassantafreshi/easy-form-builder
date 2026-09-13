@@ -2,6 +2,46 @@ let exportView_emsFormBuilder = [];
 let stepsCount;
 let sessionPub_emsFormBuilder = "reciveFromClient"
 
+function efb_steps_debug_efb(eventName, details) {
+  try {
+    if (typeof window !== 'undefined' && window.EFB_STEPS_DEBUG === false) return;
+    console.log('[EFB Steps Debug]', eventName, details || {});
+  } catch (e) {}
+}
+
+function efb_steps_dom_debug_efb(form_id, scope) {
+  try {
+    const root = scope || document;
+    const body = document.getElementById('body_efb_' + form_id);
+    const shell = body ? body.querySelector('.efb-sp') : root.querySelector('.efb-sp');
+    const row = body ? body.querySelector('#steps-efb') : root.querySelector('#steps-efb');
+    const ring = shell ? shell.querySelector('.efb-sp__ring') : null;
+    const fill = shell ? (shell.querySelector('.efb-sp__fill') || shell.querySelector('.progress-bar-efb')) : null;
+    const active = row ? row.querySelector('.efb-sp__item.is-active, li.active') : null;
+    return {
+      form_id: form_id,
+      body_found: !!body,
+      body_currentstep: body && body.dataset ? body.dataset.currentstep : null,
+      body_steps: body && body.dataset ? body.dataset.steps : null,
+      shell_found: !!shell,
+      shell_classes: shell ? shell.className : null,
+      row_found: !!row,
+      row_items: row ? row.querySelectorAll('li').length : 0,
+      sp_items: shell ? shell.querySelectorAll('.efb-sp__item').length : 0,
+      active_id: active ? active.id : null,
+      active_num: active ? active.getAttribute('data-num') : null,
+      ring_found: !!ring,
+      ring_pct: ring ? ring.style.getPropertyValue('--efb-sp-pct') : null,
+      ring_text: shell && shell.querySelector('.efb-sp__ring-in') ? shell.querySelector('.efb-sp__ring-in').textContent : null,
+      fill_found: !!fill,
+      fill_width: fill ? fill.style.width : null,
+      sync_function: typeof efbStepsSyncEfb
+    };
+  } catch (e) {
+    return { form_id: form_id, snapshot_error: e && e.message ? e.message : String(e) };
+  }
+}
+
 /**
  * Conditional logic adapter. The addon-owned public runtime is the only engine
  * allowed to execute saved rules.
@@ -2171,11 +2211,25 @@ function updateStepButtonState_efb(form_id) {
   try {
     var id_body = 'body_efb_' + form_id;
     var body_efb = document.getElementById(id_body);
-    if (!body_efb) return;
+    if (!body_efb) {
+      efb_steps_debug_efb('button-state:stop:body-missing', { form_id: form_id, body_id: id_body });
+      return;
+    }
 
     var currentStep = Number(body_efb.dataset.currentstep || 0);
     var maxStep = Number(body_efb.dataset.steps || 0);
     var nextTextEl = body_efb.querySelector('#button_group_Next_button_text');
+    efb_steps_debug_efb('button-state:start', {
+      form_id: form_id,
+      current_step: currentStep,
+      max_step: maxStep,
+      next_text_found: !!nextTextEl,
+      next_text: nextTextEl ? nextTextEl.textContent : null,
+      next_button_found: !!body_efb.querySelector('#next_efb'),
+      next_button_hidden: body_efb.querySelector('#next_efb') ? body_efb.querySelector('#next_efb').classList.contains('d-none') : null,
+      prev_button_found: !!body_efb.querySelector('#prev_efb'),
+      prev_button_hidden: body_efb.querySelector('#prev_efb') ? body_efb.querySelector('#prev_efb').classList.contains('d-none') : null
+    });
 
     if (nextTextEl) {
       if (!nextTextEl.dataset.defaultText) {
@@ -2190,6 +2244,14 @@ function updateStepButtonState_efb(form_id) {
             : 'Submit');
 
       nextTextEl.textContent = currentStep === maxStep ? submitText : nextTextEl.dataset.defaultText;
+      efb_steps_debug_efb('button-state:text-updated', {
+        form_id: form_id,
+        current_step: currentStep,
+        max_step: maxStep,
+        default_text: nextTextEl.dataset.defaultText,
+        submit_text: submitText,
+        final_text: nextTextEl.textContent
+      });
     }
 
     // Backfill missing form_id on legacy rows only when the owner can be inferred confidently.
@@ -2197,6 +2259,10 @@ function updateStepButtonState_efb(form_id) {
       normalize_sendback_row_form_id_efb(sendBack_emsFormBuilder_pub[bi], -1);
     }
   } catch (e) {
+    efb_steps_debug_efb('button-state:error', {
+      form_id: form_id,
+      message: e && e.message ? e.message : String(e)
+    });
     console.error('[updateStepButtonState_efb] ERROR:', e);
   }
 }
@@ -2356,8 +2422,19 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
 
   const id_body = 'body_efb_'+form_id;
   let parent_body = document.getElementById(id_body)
+  efb_steps_debug_efb('navigate:start', {
+    form_id: form_id,
+    form_type: form_type,
+    btn_state: btn_state,
+    clicked_id: el ? el.id : null,
+    clicked_classes: el ? el.className : null,
+    body_id: id_body,
+    body_found: !!parent_body,
+    dom: efb_steps_dom_debug_efb(form_id)
+  });
 
   if (!parent_body) {
+    efb_steps_debug_efb('navigate:stop:body-missing', { form_id: form_id, body_id: id_body });
     return false;
   }
 
@@ -2366,6 +2443,22 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
   let valj_efb = get_structure_by_form_id_efb(form_id);
   const progessbar = parent_body.querySelector('.progress-bar-efb') ?? null;
   const steps_shell_efb = parent_body.querySelector('.efb-sp') ?? null;
+  efb_steps_debug_efb('navigate:resolved-state', {
+    form_id: form_id,
+    max_step: max_step,
+    current_step: no_step,
+    structure_rows: Array.isArray(valj_efb) ? valj_efb.length : null,
+    first_row: valj_efb && valj_efb[0] ? {
+      steps: valj_efb[0].steps,
+      show_icon: valj_efb[0].show_icon,
+      progress_style: valj_efb[0].progress_style,
+      steps_style: valj_efb[0].steps_style
+    } : null,
+    progressbar_found: !!progessbar,
+    steps_shell_found: !!steps_shell_efb,
+    sync_function: typeof efbStepsSyncEfb,
+    dom: efb_steps_dom_debug_efb(form_id, parent_body)
+  });
   /* The wrapper can be there for the progress half alone - a classic steps row
      beside one of the new progress bars - so owning the row is a separate
      question from existing, and the classic row still needs its own handler. */
@@ -2386,11 +2479,48 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
      a page that somehow loaded this script on its own. */
   fun_progessbar = (no_step, max_step) => {
     const total = Number(max_step) + 1;
+    efb_steps_debug_efb('progress:before', {
+      form_id: form_id,
+      requested_step: no_step,
+      max_step: max_step,
+      total: total,
+      has_sync: typeof efbStepsSyncEfb === 'function',
+      has_shell: !!steps_shell_efb,
+      has_progressbar: !!progessbar,
+      dom: efb_steps_dom_debug_efb(form_id, parent_body)
+    });
     if (typeof efbStepsSyncEfb === 'function' && steps_shell_efb) {
-      efbStepsSyncEfb(steps_shell_efb, no_step, total, name_of_step_efb(no_step));
+      const syncResult = efbStepsSyncEfb(steps_shell_efb, no_step, total, name_of_step_efb(no_step));
+      efb_steps_debug_efb('progress:sync-result', {
+        form_id: form_id,
+        requested_step: no_step,
+        total: total,
+        result: syncResult,
+        dom: efb_steps_dom_debug_efb(form_id, parent_body)
+      });
       return true;
     }
-    if (progessbar) progessbar.style.width = ((no_step / total) * 100) + '%';
+    if (progessbar) {
+      progessbar.style.width = ((no_step / total) * 100) + '%';
+      efb_steps_debug_efb('progress:fallback-width', {
+        form_id: form_id,
+        requested_step: no_step,
+        total: total,
+        width: progessbar.style.width,
+        reason: typeof efbStepsSyncEfb !== 'function' ? 'sync-function-missing' : 'steps-shell-missing',
+        dom: efb_steps_dom_debug_efb(form_id, parent_body)
+      });
+    } else {
+      efb_steps_debug_efb('progress:stop:no-target', {
+        form_id: form_id,
+        requested_step: no_step,
+        total: total,
+        has_sync: typeof efbStepsSyncEfb === 'function',
+        has_shell: !!steps_shell_efb,
+        has_progressbar: !!progessbar,
+        dom: efb_steps_dom_debug_efb(form_id, parent_body)
+      });
+    }
     return true;
   }
   fun_check_step_has_necessary_fields_efb=(no_step ,valj_efb)=>{
@@ -2413,8 +2543,29 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
   const desc_efb = parent_body.querySelector('#desc_efb') ?? null;
   const steps_efb = parent_body.querySelector('#steps-efb') ?? null;
   fun_handle_header_efb = async(no_step,nav_state)=>{
-    if(!title_efb || !desc_efb || !steps_efb) return false;
+    efb_steps_debug_efb('header:start', {
+      form_id: form_id,
+      requested_step: no_step,
+      nav_state: nav_state,
+      title_found: !!title_efb,
+      desc_found: !!desc_efb,
+      steps_found: !!steps_efb,
+      show_icon: valj_efb && valj_efb[0] ? valj_efb[0].show_icon : null,
+      owns_row: steps_shell_owns_row_efb(),
+      sync_function: typeof efbStepsSyncEfb,
+      dom: efb_steps_dom_debug_efb(form_id, parent_body)
+    });
+    if(!title_efb || !desc_efb || !steps_efb) {
+      efb_steps_debug_efb('header:stop:missing-dom', {
+        form_id: form_id,
+        title_found: !!title_efb,
+        desc_found: !!desc_efb,
+        steps_found: !!steps_efb
+      });
+      return false;
+    }
     if(Number(valj_efb[0].show_icon)==1){
+      efb_steps_debug_efb('header:skip:show-icon-disabled', { form_id: form_id, requested_step: no_step });
       return true;
     }
     /* Every step is recomputed from the current one instead of the old pair of
@@ -2424,12 +2575,27 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
        a conditional-logic jump moves by more than one step at a time. */
     icon_step_handler = (no_step,form_id,nav_state)=>{
       if (typeof efbStepsSyncEfb === 'function' && steps_shell_owns_row_efb()) {
-        efbStepsSyncEfb(steps_shell_efb, no_step, max_step + 1, name_of_step_efb(no_step));
+        const headerSyncResult = efbStepsSyncEfb(steps_shell_efb, no_step, max_step + 1, name_of_step_efb(no_step));
+        efb_steps_debug_efb('header:sync-result', {
+          form_id: form_id,
+          requested_step: no_step,
+          total: max_step + 1,
+          result: headerSyncResult,
+          dom: efb_steps_dom_debug_efb(form_id, parent_body)
+        });
         return true;
       }
       let id_active_icon = `${no_step}-f-step-efb-${form_id}`;
       let active_step_icon = document.getElementById(id_active_icon);
       active_step_icon ?  active_step_icon.classList.add('active') : false;
+      efb_steps_debug_efb('header:fallback-active-add', {
+        form_id: form_id,
+        requested_step: no_step,
+        active_id: id_active_icon,
+        active_found: !!active_step_icon,
+        nav_state: nav_state,
+        reason: typeof efbStepsSyncEfb !== 'function' ? 'sync-function-missing' : 'steps-row-not-owned'
+      });
       if(nav_state=='forward'){
         id_active_icon = `${(no_step-1)}-f-step-efb-${form_id}`;
         if(no_step==1) return true;
@@ -2438,6 +2604,14 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
       }
       active_step_icon = document.getElementById(id_active_icon)
       active_step_icon ? active_step_icon.classList.remove('active') : false;
+      efb_steps_debug_efb('header:fallback-active-remove', {
+        form_id: form_id,
+        requested_step: no_step,
+        removed_id: id_active_icon,
+        removed_found: !!active_step_icon,
+        nav_state: nav_state,
+        dom: efb_steps_dom_debug_efb(form_id, parent_body)
+      });
       return true;
 
     }
@@ -2464,6 +2638,12 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
   const current_fieldset = parent_body.querySelector(`[data-step="step-${no_step}-efb"]`);
 
   if (!current_fieldset) {
+    efb_steps_debug_efb('navigate:stop:current-fieldset-missing', {
+      form_id: form_id,
+      current_step: no_step,
+      selector: `[data-step="step-${no_step}-efb"]`,
+      dom: efb_steps_dom_debug_efb(form_id, parent_body)
+    });
     return false;
   }
   if(form_type == 'payment'){
@@ -2482,8 +2662,29 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
   }
 
   if(btn_state != 'prev_efb'){
+    efb_steps_debug_efb('validation:before-navigation', {
+      form_id: form_id,
+      btn_state: btn_state,
+      current_step: no_step,
+      sendback_rows: Array.isArray(sendBack_emsFormBuilder_pub) ? sendBack_emsFormBuilder_pub.filter(Boolean).length : null,
+      dom: efb_steps_dom_debug_efb(form_id, parent_body)
+    });
     const validate = await fun_validation_efb_v4(form_id);
+    efb_steps_debug_efb('validation:after-navigation', {
+      form_id: form_id,
+      btn_state: btn_state,
+      current_step_before: no_step,
+      result: validate,
+      body_currentstep_after_validation: parent_body.dataset.currentstep,
+      dom: efb_steps_dom_debug_efb(form_id, parent_body)
+    });
     if (validate == false) {
+      efb_steps_debug_efb('navigate:stop:validation-false', {
+        form_id: form_id,
+        btn_state: btn_state,
+        current_step: no_step,
+        dom: efb_steps_dom_debug_efb(form_id, parent_body)
+      });
       return false;
     }
   }
@@ -2492,6 +2693,15 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
         let prev_btn = parent_body.querySelector('#prev_efb');
         const _liveStepAfterValidation = Number(parent_body.dataset.currentstep);
         const _jumpedDuringValidation = _liveStepAfterValidation !== no_step;
+        efb_steps_debug_efb('next:post-validation-state', {
+          form_id: form_id,
+          current_step_before: no_step,
+          live_step_after_validation: _liveStepAfterValidation,
+          jumped_during_validation: _jumpedDuringValidation,
+          prev_button_found: !!prev_btn,
+          max_step: max_step,
+          dom: efb_steps_dom_debug_efb(form_id, parent_body)
+        });
 
         if (_jumpedDuringValidation) {
           /* A conditional-logic jump_to_step action ran as a side effect of
@@ -2503,16 +2713,33 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
            * jump and could overshoot past the real (or even the last) step. */
           no_step = _liveStepAfterValidation;
           if (prev_btn) prev_btn.classList.toggle('d-none', no_step <= 1);
+          efb_steps_debug_efb('next:adopted-logic-jump', {
+            form_id: form_id,
+            adopted_step: no_step,
+            max_step: max_step,
+            dom: efb_steps_dom_debug_efb(form_id, parent_body)
+          });
         } else {
           if(no_step<2){
             if(prev_btn)prev_btn.classList.remove('d-none');
           }
           no_step = Number(no_step)+1;
+          efb_steps_debug_efb('next:incremented', {
+            form_id: form_id,
+            next_step_candidate: no_step,
+            max_step: max_step
+          });
 
           /* Skip logic-hidden steps forward — if all remaining steps are hidden,
            * no_step will exceed max_step and the form will proceed to submission. */
           while (no_step <= max_step) {
             const _cs = parent_body.querySelector('[data-step="step-' + no_step + '-efb"]');
+            efb_steps_debug_efb('next:check-hidden-step', {
+              form_id: form_id,
+              step: no_step,
+              fieldset_found: !!_cs,
+              logic_hidden: _cs && _cs.dataset ? _cs.dataset.logicHidden : null
+            });
             if (!_cs || _cs.dataset.logicHidden !== '1') break;
             no_step++;
           }
@@ -2520,6 +2747,15 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
           await fun_handle_header_efb(no_step,'forward');
           current_fieldset.classList.add('d-none');
           const next_fieldset = parent_body.querySelector(`[data-step="step-${no_step}-efb"]`);
+          efb_steps_debug_efb('next:fieldset-switch', {
+            form_id: form_id,
+            from_step: Number(parent_body.dataset.currentstep),
+            to_step: no_step,
+            current_fieldset_id: current_fieldset ? current_fieldset.id : null,
+            next_fieldset_found: !!next_fieldset,
+            next_fieldset_id: next_fieldset ? next_fieldset.id : null,
+            overshoot: no_step > max_step
+          });
           /* Overshooting the last step lands on #efb-final-step, which may still
            * show the previous attempt's error. Put the loading message back
            * before it becomes visible, never after. */
@@ -2528,26 +2764,63 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
         }
 
        parent_body.dataset.currentstep = no_step;
+       efb_steps_debug_efb('next:dataset-updated', {
+         form_id: form_id,
+         current_step: no_step,
+         max_step: max_step,
+         dom: efb_steps_dom_debug_efb(form_id, parent_body)
+       });
        fun_progessbar(no_step,max_step);
 
        if(no_step>max_step){
          if(el) el.classList.add('d-none');
          if(prev_btn) prev_btn.classList.add('d-none');
+         efb_steps_debug_efb('next:overshoot-submit', {
+           form_id: form_id,
+           current_step: no_step,
+           max_step: max_step,
+           clicked_hidden: el ? el.classList.contains('d-none') : null,
+           prev_hidden: prev_btn ? prev_btn.classList.contains('d-none') : null
+         });
          endMessage_emsFormBuilder_view(max_step,form_id);
        }else if(no_step==max_step){
         updateStepButtonState_efb(form_id);
+        efb_steps_debug_efb('next:last-real-step', {
+          form_id: form_id,
+          current_step: no_step,
+          max_step: max_step,
+          dom: efb_steps_dom_debug_efb(form_id, parent_body)
+        });
        }
        smoothy_scroll_postion_efb(id_body);
        if(no_step==step_payment_exists){
          if(el) el.classList.add('disabled');
+         efb_steps_debug_efb('next:payment-step-disabled-button', {
+           form_id: form_id,
+           current_step: no_step,
+           payment_step: step_payment_exists,
+           clicked_id: el ? el.id : null
+         });
        }
 
   }else if (btn_state=='prev_efb'){
+    efb_steps_debug_efb('prev:start', {
+      form_id: form_id,
+      current_step_before: no_step,
+      max_step: max_step,
+      dom: efb_steps_dom_debug_efb(form_id, parent_body)
+    });
     no_step = Number(no_step)-1;
 
     /* Skip logic-hidden steps backward */
     while (no_step > 1) {
       const _cs = parent_body.querySelector('[data-step="step-' + no_step + '-efb"]');
+      efb_steps_debug_efb('prev:check-hidden-step', {
+        form_id: form_id,
+        step: no_step,
+        fieldset_found: !!_cs,
+        logic_hidden: _cs && _cs.dataset ? _cs.dataset.logicHidden : null
+      });
       if (!_cs || _cs.dataset.logicHidden !== '1') break;
       no_step--;
     }
@@ -2563,11 +2836,24 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
     current_fieldset.classList.add('d-none');
 
     if(prev_fieldset)prev_fieldset.classList.remove('d-none');
+    efb_steps_debug_efb('prev:fieldset-switch', {
+      form_id: form_id,
+      to_step: no_step,
+      prev_fieldset_found: !!prev_fieldset,
+      prev_fieldset_id: prev_fieldset ? prev_fieldset.id : null,
+      dom: efb_steps_dom_debug_efb(form_id, parent_body)
+    });
     fun_progessbar(no_step,max_step);
     smoothy_scroll_postion_efb(id_body);
     await fun_handle_header_efb(no_step,'backward');
     updateStepButtonState_efb(form_id);
   }else if (btn_state=='btn_send_efb'){
+    efb_steps_debug_efb('send:start', {
+      form_id: form_id,
+      current_step_before: no_step,
+      max_step: max_step,
+      dom: efb_steps_dom_debug_efb(form_id, parent_body)
+    });
     no_step = Number(no_step)+1;
 
     parent_body.dataset.currentstep = no_step;
@@ -2581,6 +2867,13 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
     const submitFlow = endMessage_emsFormBuilder_view(Number(no_step) - 1, form_id);
     if (current_fieldset) current_fieldset.classList.add('d-none');
     if (next_fieldset) next_fieldset.classList.remove('d-none');
+    efb_steps_debug_efb('send:final-step-visible', {
+      form_id: form_id,
+      current_step: no_step,
+      final_step_found: !!next_fieldset,
+      final_step_id: next_fieldset ? next_fieldset.id : null,
+      dom: efb_steps_dom_debug_efb(form_id, parent_body)
+    });
     fun_progessbar(no_step,max_step);
     smoothy_scroll_postion_efb(id_body);
     await fun_handle_header_efb(no_step,'forward');
@@ -2803,13 +3096,23 @@ get_row_sendback_by_id_efb_v4=(id_,form_id=0)=>{
  }
 
 fun_prev_send =(form_id =0) =>{
+  efb_steps_debug_efb('fun-prev-send:start', {
+    form_id: form_id,
+    dom: efb_steps_dom_debug_efb(form_id)
+  });
   efb_hide_submit_ajax_badge_efb(form_id);
   let valj_efb = get_structure_by_form_id_efb(form_id);
-  if (!Array.isArray(valj_efb) || !valj_efb.length) return false;
+  if (!Array.isArray(valj_efb) || !valj_efb.length) {
+    efb_steps_debug_efb('fun-prev-send:stop:structure-missing', { form_id: form_id });
+    return false;
+  }
   var stp = Number(valj_efb[0].steps) + 1;
   const id_body = 'body_efb_'+form_id;
   const body_efb = document.getElementById(id_body);
-  if (!body_efb) return false;
+  if (!body_efb) {
+    efb_steps_debug_efb('fun-prev-send:stop:body-missing', { form_id: form_id, body_id: id_body });
+    return false;
+  }
   current_s_efb = body_efb.dataset.currentstep;
   const finalStepEl = efb_get_final_step_efb(form_id, body_efb);
   efb_reset_final_step_efb(form_id, body_efb);
@@ -2830,14 +3133,40 @@ fun_prev_send =(form_id =0) =>{
   const steps_shell_owns_row_efb = !!(steps_shell_efb && steps_shell_efb.querySelector('.efb-sp__item'));
   fun_progessbar = (current_step,max_step)=>{
     const total = Number(max_step) + 1;
+    efb_steps_debug_efb('fun-prev-send:progress-before', {
+      form_id: form_id,
+      current_step: current_step,
+      max_step: max_step,
+      total: total,
+      has_sync: typeof efbStepsSyncEfb === 'function',
+      has_shell: !!steps_shell_efb,
+      dom: efb_steps_dom_debug_efb(form_id, body_efb)
+    });
     if (typeof efbStepsSyncEfb === 'function' && steps_shell_efb) {
       const row = (valj_efb ?? []).find(x => String(x.type) === 'step' && Number(x.step) === Number(current_step));
-      efbStepsSyncEfb(steps_shell_efb, current_step, total, row && row.name ? row.name : '');
+      const result = efbStepsSyncEfb(steps_shell_efb, current_step, total, row && row.name ? row.name : '');
+      efb_steps_debug_efb('fun-prev-send:progress-sync-result', {
+        form_id: form_id,
+        current_step: current_step,
+        total: total,
+        result: result,
+        dom: efb_steps_dom_debug_efb(form_id, body_efb)
+      });
       return true;
     }
     const progessbar = body_efb.querySelector('.progress-bar-efb')
-    if(!progessbar)return false;
+    if(!progessbar){
+      efb_steps_debug_efb('fun-prev-send:progress-stop:no-target', { form_id: form_id, current_step: current_step, total: total });
+      return false;
+    }
     progessbar.style.width = ((current_step / total) * 100) + '%';
+    efb_steps_debug_efb('fun-prev-send:progress-fallback-width', {
+      form_id: form_id,
+      current_step: current_step,
+      total: total,
+      width: progessbar.style.width,
+      dom: efb_steps_dom_debug_efb(form_id, body_efb)
+    });
     return true;
   }
 
@@ -2885,6 +3214,14 @@ fun_prev_send =(form_id =0) =>{
   current_s_efb = _prevTarget;
   body_efb.dataset.currentstep = current_s_efb;
   fun_progessbar(current_s_efb,stp);
+  efb_steps_debug_efb('fun-prev-send:done', {
+    form_id: form_id,
+    current_step: current_s_efb,
+    prev_target: _prevTarget,
+    current_fieldset_found: !!current_s,
+    prev_fieldset_found: !!prev_s_efb,
+    dom: efb_steps_dom_debug_efb(form_id, body_efb)
+  });
   smoothy_scroll_postion_efb(id_body);
 
 }
@@ -2903,10 +3240,24 @@ fun_prev_send =(form_id =0) =>{
  */
 function efb_go_to_step_direct(form_id, targetStep) {
   const body_efb = document.getElementById('body_efb_' + form_id);
-  if (!body_efb) return false;
+  efb_steps_debug_efb('direct-step:start', {
+    form_id: form_id,
+    requested_target: targetStep,
+    body_found: !!body_efb,
+    dom: efb_steps_dom_debug_efb(form_id, body_efb || document)
+  });
+  if (!body_efb) {
+    efb_steps_debug_efb('direct-step:stop:body-missing', { form_id: form_id, requested_target: targetStep });
+    return false;
+  }
   const valj_efb = get_structure_by_form_id_efb(form_id);
   const maxStep = Number(valj_efb[0].steps) || 1;
   targetStep = Math.max(1, Math.min(Number(targetStep) || 1, maxStep));
+  efb_steps_debug_efb('direct-step:normalized-target', {
+    form_id: form_id,
+    target_step: targetStep,
+    max_step: maxStep
+  });
 
   if (typeof efb_hide_submit_ajax_badge_efb === 'function') efb_hide_submit_ajax_badge_efb(form_id);
 
@@ -2928,10 +3279,26 @@ function efb_go_to_step_direct(form_id, targetStep) {
   const stepsShellOwnsRowEfb = !!(stepsShellEfb && stepsShellEfb.querySelector('.efb-sp__item'));
   if (typeof efbStepsSyncEfb === 'function' && stepsShellEfb) {
     const jumped = valj_efb.find((x) => String(x.type) === 'step' && String(x.step) === String(targetStep));
-    efbStepsSyncEfb(stepsShellEfb, targetStep, maxStep + 1, jumped && jumped.name ? jumped.name : '');
+    const directSyncResult = efbStepsSyncEfb(stepsShellEfb, targetStep, maxStep + 1, jumped && jumped.name ? jumped.name : '');
+    efb_steps_debug_efb('direct-step:sync-result', {
+      form_id: form_id,
+      target_step: targetStep,
+      total: maxStep + 1,
+      result: directSyncResult,
+      dom: efb_steps_dom_debug_efb(form_id, body_efb)
+    });
   } else {
     const progressBar = body_efb.querySelector('.progress-bar-efb');
     if (progressBar) progressBar.style.width = (targetStep / (maxStep + 1)) * 100 + '%';
+    efb_steps_debug_efb('direct-step:fallback-width', {
+      form_id: form_id,
+      target_step: targetStep,
+      total: maxStep + 1,
+      progressbar_found: !!progressBar,
+      width: progressBar ? progressBar.style.width : null,
+      reason: typeof efbStepsSyncEfb !== 'function' ? 'sync-function-missing' : 'steps-shell-missing',
+      dom: efb_steps_dom_debug_efb(form_id, body_efb)
+    });
   }
 
   /* #next_efb is the SAME element whether it currently reads "Next" or
@@ -2972,6 +3339,13 @@ function efb_go_to_step_direct(form_id, targetStep) {
   }
 
   if (typeof smoothy_scroll_postion_efb === 'function') smoothy_scroll_postion_efb('body_efb_' + form_id);
+  efb_steps_debug_efb('direct-step:done', {
+    form_id: form_id,
+    target_step: targetStep,
+    steps_shell_owns_row: stepsShellOwnsRowEfb,
+    target_fieldset_found: !!targetFieldset,
+    dom: efb_steps_dom_debug_efb(form_id, body_efb)
+  });
   return true;
 }
 
@@ -3341,9 +3715,24 @@ async function fun_validation_efb_v4(form_id) {
   if (body_efb_v) {
     current_s_efb = Number(body_efb_v.dataset.currentstep) || 1;
   }
+  efb_steps_debug_efb('validation:start', {
+    form_id: form_id,
+    current_step: current_s_efb,
+    body_found: !!body_efb_v,
+    logic_runtime_found: typeof window.efb_logic_runtime !== 'undefined',
+    logic_validate_found: typeof window.efb_logic_runtime !== 'undefined' && typeof window.efb_logic_runtime.validate === 'function',
+    sendback_rows: Array.isArray(sendBack_emsFormBuilder_pub) ? sendBack_emsFormBuilder_pub.filter(Boolean).length : null,
+    files_rows: Array.isArray(files_emsFormBuilder) ? files_emsFormBuilder.length : null,
+    dom: efb_steps_dom_debug_efb(form_id, body_efb_v || document)
+  });
   if (typeof window.efb_logic_runtime !== 'undefined' &&
       typeof window.efb_logic_runtime.validate === 'function') {
     const logicValidation = window.efb_logic_runtime.validate(form_id, current_s_efb);
+    efb_steps_debug_efb('validation:logic-result', {
+      form_id: form_id,
+      current_step: current_s_efb,
+      result: logicValidation
+    });
     if (!logicValidation.valid) {
       /* block_submit / end_form carry their own message in missing_name */
       const logicAlertMsg = logicValidation.submit_blocked && logicValidation.missing_name
@@ -3353,6 +3742,13 @@ async function fun_validation_efb_v4(form_id) {
       if (logicValidation.missing_field && typeof smoothy_scroll_postion_efb === 'function') {
         smoothy_scroll_postion_efb(logicValidation.missing_field, form_id);
       }
+      efb_steps_debug_efb('validation:stop:logic-invalid', {
+        form_id: form_id,
+        current_step: current_s_efb,
+        submit_blocked: logicValidation.submit_blocked,
+        missing_field: logicValidation.missing_field,
+        missing_name: logicValidation.missing_name
+      });
       return false;
     }
   }
@@ -3364,12 +3760,36 @@ async function fun_validation_efb_v4(form_id) {
   let name_field = "";
   let valj_efb = get_structure_by_form_id_efb(form_id);
   let id_noti_message = valj_efb.steps > 1 ?  `step-${current_s_efb}-efb-msg` : 'alert_efb';
+  efb_steps_debug_efb('validation:structure', {
+    form_id: form_id,
+    current_step: current_s_efb,
+    rows: Array.isArray(valj_efb) ? valj_efb.length : null,
+    first_row: valj_efb && valj_efb[0] ? {
+      steps: valj_efb[0].steps,
+      captcha: valj_efb[0].captcha,
+      logic: valj_efb[0].logic,
+      logic_rules_count: Array.isArray(valj_efb[0].logic_rules) ? valj_efb[0].logic_rules.length : 0
+    } : null,
+    notice_target_id: id_noti_message
+  });
   for (let row in valj_efb) {
     let s =  get_row_sendback_by_id_efb_v4(valj_efb[row].id_,form_id);
     /* Skip validation for fields hidden by conditional logic (wrapper has d-none class,
      * or efb-anim-hide while the hide animation is still playing) */
     const _wrapper_v = efb_get_by_id_in_form_efb(form_id, valj_efb[row].id_);
-    if (_wrapper_v && (_wrapper_v.classList.contains('d-none') || _wrapper_v.classList.contains('efb-anim-hide'))) continue;
+    if (_wrapper_v && (_wrapper_v.classList.contains('d-none') || _wrapper_v.classList.contains('efb-anim-hide'))) {
+      if (Number(valj_efb[row].step) === Number(current_s_efb)) {
+        efb_steps_debug_efb('validation:skip-hidden-field', {
+          form_id: form_id,
+          current_step: current_s_efb,
+          row_index: row,
+          field_id: valj_efb[row].id_,
+          field_type: valj_efb[row].type,
+          wrapper_classes: _wrapper_v.className
+        });
+      }
+      continue;
+    }
     if (row > 1 && valj_efb[row].required == true && current_s_efb == valj_efb[row].step && valj_efb[row].type != "chlCheckBox") {
       const id = valj_efb[row].type == "yesNo" ? `${valj_efb[row].id_}_yn` : (fun_el_select_in_efb(valj_efb[row].type) == false ? `${valj_efb[row].id_}_` : `${valj_efb[row].id_}_options`);
       let el = efb_get_by_id_in_form_efb(form_id, `${valj_efb[row].id_}_-message`);
@@ -3394,6 +3814,19 @@ async function fun_validation_efb_v4(form_id) {
       } else {
         fieldFailed = s == -1 || !is_required_value_filled_efb(sendBack_emsFormBuilder_pub[s], valj_efb[row].type);
       }
+      efb_steps_debug_efb('validation:required-field', {
+        form_id: form_id,
+        current_step: current_s_efb,
+        field_id: valj_efb[row].id_,
+        field_name: valj_efb[row].name,
+        field_type: valj_efb[row].type,
+        sendback_index: s,
+        sendback_row: s !== -1 ? sendBack_emsFormBuilder_pub[s] : null,
+        input_id: id,
+        input_found: !!inputEl,
+        message_found: !!el,
+        failed: fieldFailed
+      });
 
       if (fieldFailed) {
         if (state == true) { state = false; idi = valj_efb[row].id_ , name_field = valj_efb[row].name }
@@ -3427,6 +3860,12 @@ async function fun_validation_efb_v4(form_id) {
     }else if (row > 1 && valj_efb[row].type == "chlCheckBox" && current_s_efb == valj_efb[row].step && !(_wrapper_v && (_wrapper_v.classList.contains('d-none') || _wrapper_v.classList.contains('efb-anim-hide')))){
       name_field = valj_efb[row].name;
       idi = valj_efb[row].id_;
+      efb_steps_debug_efb('validation:chl-checkbox-field', {
+        form_id: form_id,
+        current_step: current_s_efb,
+        field_id: idi,
+        field_name: name_field
+      });
       fun_noti_chlcheckbox = (idi,name_field,id_noti_message,form_id) => {
          const vd = idi+"_chl";
           state = false;
@@ -3469,6 +3908,11 @@ async function fun_validation_efb_v4(form_id) {
       }) !== -1;
       if (!hasCaptcha) {
         state = false;
+        efb_steps_debug_efb('validation:captcha-missing', {
+          form_id: form_id,
+          current_step: current_s_efb,
+          max_step: max_step_v
+        });
         alert_message_efb(efb_var.text.checkedBoxIANotRobot, '', 8, 'warning');
         return false;
       }
@@ -3476,6 +3920,13 @@ async function fun_validation_efb_v4(form_id) {
   }
 
   if (state===false) {
+    efb_steps_debug_efb('validation:stop:required-invalid', {
+      form_id: form_id,
+      current_step: current_s_efb,
+      first_invalid_id: idi,
+      first_invalid_name: name_field,
+      dom: efb_steps_dom_debug_efb(form_id, body_efb_v || document)
+    });
     alert_message_efb(efb_var.text.fillrequiredfields, '', 6, 'warning');
     if (idi != "null") {
       if(typeof smoothy_scroll_postion_efb === 'function'){
@@ -3487,6 +3938,11 @@ async function fun_validation_efb_v4(form_id) {
     }
     return false;
   }
+  efb_steps_debug_efb('validation:success', {
+    form_id: form_id,
+    current_step: current_s_efb,
+    dom: efb_steps_dom_debug_efb(form_id, body_efb_v || document)
+  });
   return state
 }
 

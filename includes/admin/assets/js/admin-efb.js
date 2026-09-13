@@ -3913,7 +3913,7 @@ function create_dargAndDrop_el() {
       if (el.parentNode === dropZoneEFB && (el.classList.contains('efbField') || el.classList.contains('showBtns') || el.dataset.tag === 'buttonNav' || el.id === 'button_group_efb')) {
         return el;
       }
-      if (el.parentNode === dropZoneEFB && el.tagName && (el.tagName.toLowerCase() === 'setion' || el.tagName.toLowerCase() === 'section')) {
+      if (el.parentNode === dropZoneEFB && el.tagName && (el.tagName.toLowerCase() === 'section' || el.tagName.toLowerCase() === 'section')) {
         return el;
       }
       el = el.parentNode;
@@ -5997,7 +5997,7 @@ function efbWatchWorkspaceFitEfb() {
 
 /* Selecting a field opens its settings, and show_setting_window_efb toggles, so it has
    to be reached exactly once per gesture. One gesture can arrive here up to three times:
-   a field renders a .showBtns wrapper nested inside a .showBtns <setion> that share a
+   a field renders a .showBtns wrapper nested inside a .showBtns <section> that share a
    data-id (so one click bubbles through two listeners), and a mobile tap fires touchend
    plus the synthetic click the browser dispatches after it. The event flag collapses the
    bubbling pair; the short time window collapses touchend + its click. Clicks on the
@@ -6011,7 +6011,7 @@ function efbSelectFieldEfb(el, e) {
   const isTouch = e && e.type === 'touchend';
   if (isTouch) efbLastFieldTapEfb = { id: dataId, at: now };
 
-  /* The same event bubbles through the inner .showBtns wrapper and the outer <setion>,
+  /* The same event bubbles through the inner .showBtns wrapper and the outer <section>,
      which share a data-id; one gesture must only reach the toggle once. The flag is set
      before any early return below, because the click-away closer in
      bootstrap-select.min-efb.js reads it to tell a field click from a click on nothing. */
@@ -6623,7 +6623,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         const clss = valj_efb[iVJ].classes!="" ? 'efb1 '+valj_efb[iVJ].classes.replace(`,`, ` `) : "";
         const sort = iVJ<3 ? 'unsortable'  : 'sortable';
         newElement += `
-        <setion class="efb ${sort}  row my-2  ${shwBtn} efbField stepNavEfb stepNo ${clss}" data-step="${valj_efb[iVJ].id_}" id="${valj_efb[iVJ].id_}" data-amount="${step_el_efb}" data-id="${valj_efb[iVJ].id_}" data-tag="${elementId}">
+        <section class="efb ${sort}  row my-2  ${shwBtn} efbField stepNavEfb stepNo ${clss}" data-step="${valj_efb[iVJ].id_}" id="${valj_efb[iVJ].id_}" data-amount="${step_el_efb}" data-id="${valj_efb[iVJ].id_}" data-tag="${elementId}">
        <!-- <div class="efb  row my-2  ${shwBtn} efbField ${valj_efb[iVJ].classes.replace(`,`, ` `)} stepNavEfb" data-step="${valj_efb[iVJ].id_}" id="${valj_efb[iVJ].id_}" data-amount="${step_el_efb}" data-id="${valj_efb[iVJ].id_}" data-tag="${elementId}"> -->
         <h2 class="efb  col-md-10 col-sm-12 mx-2 my-0"><i class="efb  ${valj_efb[iVJ].icon} ${valj_efb[iVJ].label_text_size} ${valj_efb[iVJ].icon_color} "
         id="${valj_efb[iVJ].id_}_icon"></i> <span id="${valj_efb[iVJ].id_}_lab" class="efb  ${valj_efb[iVJ].label_text_size}  ${valj_efb[iVJ].label_text_color}  ">${valj_efb[iVJ].name}</span></span></h2>
@@ -6639,7 +6639,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         </div>
         </div>
         <!--  </div> -->
-        </setion>
+        </section>
         `
       } else {
         pro_show_efb(2);
@@ -7159,7 +7159,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     // mirror the published frontend, which pairs col-md-* with a col-* xs class.
     const mobileColCls = previewSate == true ? getMobileColClass(valj_efb[iVJ]) : '';
     newElement += `
-    ${previewSate == false  ? `<setion class="efb my-1 px-0 mx-0 ttEfb ${previewSate != true ? disabled : ""} ${previewSate == false && valj_efb[iVJ].hidden==1 ? "hidden" : ""} ${previewSate == true && (pos[1] == "col-md-12" || pos[1] == "col-md-10") ? `mx-0 px-0` : 'position-relative'} ${previewSate == true ? `${pos[0]} ${pos[1]}` : `${ps}`} row ${shwBtn} efbField ${dataTag == "step" ? 'step' : ''}" data-step="${step_el_efb}" data-amount="${amount_el_efb}" data-id="${rndm}-id" id="${rndm}" data-tag="${tagId}"  >` : ''}
+    ${previewSate == false  ? `<section class="efb my-1 px-0 mx-0 ttEfb ${previewSate != true ? disabled : ""} ${previewSate == false && valj_efb[iVJ].hidden==1 ? "hidden" : ""} ${previewSate == true && (pos[1] == "col-md-12" || pos[1] == "col-md-10") ? `mx-0 px-0` : 'position-relative'} ${previewSate == true ? `${pos[0]} ${pos[1]}` : `${ps}`} row ${shwBtn} efbField ${dataTag == "step" ? 'step' : ''}" data-step="${step_el_efb}" data-amount="${amount_el_efb}" data-id="${rndm}-id" id="${rndm}" data-tag="${tagId}"  >` : ''}
     ${previewSate == false && valj_efb[iVJ].hidden==1 ? hiddenMarkEl(valj_efb[iVJ].id_) : ''}
     <div class="efb my-1 mx-0  ${elementId} ${tagT} ${hidden} ${previewSate == true ? disabled : ""}  ttEfb ${previewSate == true ? `${pos[0]} ${pos[1]} ${mobileColCls}` : ` row`} ${shwBtn} efbField ${dataTag == "step" ? 'step' : ''}" data-step="${step_el_efb}" data-amount="${amount_el_efb}" data-id="${rndm}-id" id="${rndm}" data-tag="${tagId}"  >
     ${(previewSate == true && elementId != 'option') || previewSate != true ? ui : ''}
@@ -7167,7 +7167,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     ${previewSate != true ? contorl : '<!--efb.app-->'}
     ${previewSate != true && pro_efb == false && pro_el==true  ? '</div>' : ''}
     ${(previewSate == true && elementId != 'option' && elementId != "html" && elementId != "stripe" && elementId != "heading" && elementId != "link") || previewSate != true ? endTags : '</div>'}
-    ${previewSate == false  ? ` </setion><!--endTag EFB-->` :''}
+    ${previewSate == false  ? ` </section><!--endTag EFB-->` :''}
      <!--endTag EFB-->
     `;
   } else if (dataTag == 'step' && previewSate != true) {
@@ -7901,7 +7901,7 @@ function send_data_efb() {
 
 function get_position_col_el(dataId, state) {
   const indx = valj_efb.findIndex(x => x.dataId == dataId);
-  let el_parent = document.querySelector(`setion[id="${valj_efb[indx].id_}"]`) || document.getElementById(valj_efb[indx].id_) || "null";
+  let el_parent = document.querySelector(`section[id="${valj_efb[indx].id_}"]`) || document.getElementById(valj_efb[indx].id_) || "null";
   let el_label = document.getElementById(`${valj_efb[indx].id_}_labG`) ?? "null";
   let el_input = document.getElementById(`${valj_efb[indx].id_}-f`) ?? "null";
   let parent_col = ``;
@@ -8102,7 +8102,7 @@ function efbApplyFieldViewEfb(item, view) {
   if (!item || !item.id_) return;
   view = view === 'mobile' ? 'mobile' : 'desktop';
 
-  const parentEl = document.querySelector(`setion[id="${item.id_}"]`) || document.getElementById(item.id_);
+  const parentEl = document.querySelector(`section[id="${item.id_}"]`) || document.getElementById(item.id_);
   const labelEl = document.getElementById(`${item.id_}_labG`);
   const inputEl = document.getElementById(`${item.id_}-f`);
   if (!parentEl) return;

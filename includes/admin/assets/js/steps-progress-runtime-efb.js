@@ -28,6 +28,13 @@
       }
    };
 
+   var debugEfb = function (eventName, details) {
+      try {
+         if (typeof window !== 'undefined' && window.EFB_STEPS_DEBUG === false) return;
+         console.log('[EFB Steps Debug]', 'runtime:' + eventName, details || {});
+      } catch (e) {}
+   };
+
    var textEfb = function (key, fallback) {
       try {
          if (typeof efb_var !== 'undefined' && efb_var && efb_var.text && efb_var.text[key]) return efb_var.text[key];
@@ -58,9 +65,16 @@
     * Safe to call on a form whose steps row is still the classic one: there are
     * no .efb-sp__item rows to recompute, so it leaves them to the legacy
     * handler and only moves the progress half.
-    */
+   */
    var syncEfb = function (scope, current, total, currentName) {
       var root = null;
+      debugEfb('sync:start', {
+         scope_type: !scope ? 'empty' : (scope.classList ? 'element' : typeof scope),
+         scope_class: scope && scope.className ? String(scope.className) : null,
+         requested_current: current,
+         requested_total: total,
+         requested_name: currentName
+      });
       if (!scope) {
          root = document.querySelector('.efb-sp');
       } else if (scope.classList && scope.classList.contains('efb-sp')) {
@@ -70,7 +84,14 @@
       } else {
          root = document.querySelector('.efb-sp[data-formid="' + scope + '"]') || document.querySelector('.efb-sp');
       }
-      if (!root) return false;
+      if (!root) {
+         debugEfb('sync:stop:root-missing', {
+            requested_current: current,
+            requested_total: total,
+            requested_name: currentName
+         });
+         return false;
+      }
 
       /* The row itself is the authority on how many stops there are. The count
          the caller passes comes from valj_efb[0].steps, which is not always the
@@ -85,6 +106,18 @@
          knows how many stops there are, so it is counted for the total even
          though its states are left to the handler that owns it. */
       var rowLen = items.length || root.querySelectorAll('#steps-efb li').length;
+      debugEfb('sync:root-resolved', {
+         root_classes: root.className,
+         root_formid: root.getAttribute ? root.getAttribute('data-formid') : null,
+         sp_items: items.length,
+         row_items: rowLen,
+         requested_current: current,
+         requested_total: total,
+         current_name: currentName,
+         ring_found: !!root.querySelector('.efb-sp__ring'),
+         fill_found: !!(root.querySelector('.efb-sp__fill') || root.querySelector('.progress-bar-efb')),
+         seg_count: root.querySelectorAll('.efb-sp__seg').length
+      });
       total = rowLen || Number(total) || 1;
       current = Number(current) || 1;
       if (current < 1) current = 1;
@@ -107,6 +140,19 @@
             items[i].classList.remove('active');
          }
       }
+      debugEfb('sync:items-painted', {
+         current: current,
+         total: total,
+         active_name_from_row: activeName,
+         active_id: root.querySelector('.efb-sp__item.is-active') ? root.querySelector('.efb-sp__item.is-active').id : null,
+         classes: Array.prototype.map.call(items, function (item) {
+            return {
+               id: item.id,
+               num: item.getAttribute('data-num'),
+               className: item.className
+            };
+         })
+      });
 
       /* Two numbers on purpose: the width and the arc want the exact fraction,
          the caption wants something a person can read - "66.67%" beside
@@ -145,6 +191,21 @@
 
       var ring = root.querySelector('.efb-sp__ring');
       if (ring) ring.style.setProperty('--efb-sp-pct', percent);
+      debugEfb('sync:progress-painted', {
+         current: current,
+         total: total,
+         percent: percent,
+         readable: readable,
+         name: name,
+         counter: counter,
+         fill_found: !!fill,
+         fill_width: fill ? fill.style.width : null,
+         fill_aria: fill ? fill.getAttribute('aria-valuenow') : null,
+         ring_found: !!ring,
+         ring_pct: ring ? ring.style.getPropertyValue('--efb-sp-pct') : null,
+         ring_text: root.querySelector('.efb-sp__ring-in') ? root.querySelector('.efb-sp__ring-in').textContent : null,
+         ring_sub: root.querySelector('.efb-sp__ringsub') ? root.querySelector('.efb-sp__ringsub').textContent : null
+      });
 
       /* A strip that scrolls is useless if the step you are on is off-screen.
          scrollLeft is set directly rather than through scrollIntoView(), which
@@ -159,12 +220,29 @@
             target = target < 0 ? 0 : (target > max ? max : target);
             try { list.scrollTo({ left: target, behavior: 'smooth' }); }
             catch (e) { list.scrollLeft = target; }
+            debugEfb('sync:scrolled-active-into-view', {
+               target: target,
+               max: max,
+               list_scroll_width: list.scrollWidth,
+               list_client_width: list.clientWidth
+            });
          }
       }
+      debugEfb('sync:done', {
+         current: current,
+         total: total,
+         percent: percent,
+         active_id: root.querySelector('.efb-sp__item.is-active') ? root.querySelector('.efb-sp__item.is-active').id : null
+      });
       return true;
    };
 
    defineEfb('efbStepsCounterTextEfb', counterTextEfb);
    defineEfb('efbStepsCompleteTextEfb', completeTextEfb);
    defineEfb('efbStepsSyncEfb', syncEfb);
+   debugEfb('loaded', {
+      counter_defined: typeof window.efbStepsCounterTextEfb === 'function',
+      complete_defined: typeof window.efbStepsCompleteTextEfb === 'function',
+      sync_defined: typeof window.efbStepsSyncEfb === 'function'
+   });
 })();

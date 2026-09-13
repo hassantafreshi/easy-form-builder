@@ -2493,7 +2493,7 @@ items_dd_efb = () => {
 
     jQuery(".items").sortable({
 
-      items: "setion:not(.unsortable)",
+      items: "section:not(.unsortable)",
       start: function (event, ui) {
         ui.item.toggleClass("highlight");
         if (ui.item.hasClass('unsortable')) {

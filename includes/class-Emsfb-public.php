@@ -1341,7 +1341,7 @@ public function check_nonce_permission_efb($request) {
 			$style ='<style>.efb.d-none{display:none!important;} #teststyleefb{display:none;}';
 			/* Reset per form: several forms can share a page, and a classic form
 			 * following a styled one must not inherit its runtime. */
-			$steps_runtime_efb = '';
+			$steps_runtime_needed_efb = false;
 			unset( $steps_style_efb, $step_icon_colors_efb );
 			$jss ='<script> //efbJs';
 			$icons_els =[];
@@ -1692,7 +1692,7 @@ public function check_nonce_permission_efb($request) {
 					 * are printed - which is why a classic form above never reaches
 					 * this branch and pays for neither. */
 					$style .= ' ' . efb_steps_inline_css_efb( $shell_args_efb );
-					$steps_runtime_efb = efb_steps_inline_runtime_efb( $shell_args_efb );
+					$steps_runtime_needed_efb = true;
 				}
 
 				$step_no--;
@@ -1718,13 +1718,10 @@ public function check_nonce_permission_efb($request) {
 
 			$script = '';
 
-			/* The steps runtime, for a form that uses one of the new styles. It is
-			 * printed ahead of the body so the function exists before any button
-			 * can be clicked, and it is left out entirely for a classic form -
-			 * every caller guards on it and falls back to the older path. */
-			if ( ! empty( $steps_runtime_efb ) ) {
-				$script .= '<script>' . $steps_runtime_efb . '</script>';
-			}
+			/* The steps runtime is enqueued as a real script below when a new
+			 * steps/progress style is present. Keeping it out of an inline block
+			 * avoids page-cache/optimizer rewrites that can break the front-end
+			 * runtime before it defines efbStepsSyncEfb(). */
 
 
 			$stps_state = $step_no>1 ? 1 : 0;
@@ -2035,6 +2032,18 @@ public function check_nonce_permission_efb($request) {
 		$core_js_version = $asset_version('public/assets/js/core-efb.js');
 		$core_deps = array('jquery', 'efb-main-js', 'efb-response-viewer-js');
 		$main_deps = array('jquery');
+		if ( ! empty( $steps_runtime_needed_efb ) ) {
+			$steps_runtime_js_version = $asset_version('includes/admin/assets/js/steps-progress-runtime-efb.js');
+			wp_register_script(
+				'efb-steps-progress-runtime-public',
+				EMSFB_PLUGIN_URL . 'includes/admin/assets/js/steps-progress-runtime-efb.js',
+				array(),
+				$steps_runtime_js_version,
+				true
+			);
+			wp_enqueue_script('efb-steps-progress-runtime-public');
+			$core_deps[] = 'efb-steps-progress-runtime-public';
+		}
 		if ($has_recorder_field) {
 			wp_register_script('efb-recorder-js', plugins_url('../public/assets/js/recorder-efb.js',__FILE__), array('jquery'), $asset_version('public/assets/js/recorder-efb.js'), true);
 			wp_enqueue_script('efb-recorder-js');
