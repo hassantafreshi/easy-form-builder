@@ -123,10 +123,9 @@ switch ( $mode ) {
 			);
 		}
 
-		// A Free site that has been using the plugin for a month: exactly the
-		// site this feature exists for.
+		// A Free site that crossed the one-day gate one minute ago.
 		update_option( 'emsfb_pro', 2, false );
-		update_option( 'emsfb_install_date', time() - ( 30 * DAY_IN_SECONDS ), false );
+		update_option( 'emsfb_install_date', time() - DAY_IN_SECONDS - MINUTE_IN_SECONDS, false );
 		delete_option( 'emsfb_review_state' );
 
 		file_put_contents( $WP_MU, efb_e2e_endpoint_mu() );

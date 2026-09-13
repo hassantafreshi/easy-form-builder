@@ -112,7 +112,7 @@ update_option( 'emsfb_pro', 3, false );
 efb_t( 'A4 Free Plus (3) is eligible', true === $request->plan_is_eligible_efb() );
 
 /* ---------------------------------------------------------------------
- * B. The two-week clock
+ * B. The one-day clock
  * ------------------------------------------------------------------ */
 
 echo "\nB. Days in use\n";
@@ -184,24 +184,27 @@ if ( ! empty( $admins ) ) {
 update_option( 'emsfb_pro', 2, false );
 delete_option( 'emsfb_review_state' );
 
-update_option( 'emsfb_install_date', time() - ( 5 * DAY_IN_SECONDS ), false );
-efb_t( 'D1 five days in, nobody is asked', false === $request->should_ask_efb() );
+update_option( 'emsfb_install_date', time() - ( 12 * HOUR_IN_SECONDS ), false );
+efb_t( 'D1 twelve hours in, nobody is asked', false === $request->should_ask_efb() );
 
 // The day before the gate and the day it opens, so a change to MIN_DAYS
 // fails here rather than only in K4.
-update_option( 'emsfb_install_date', time() - ( 6 * DAY_IN_SECONDS ), false );
-efb_t( 'D2 six days in, still nobody is asked', false === $request->should_ask_efb() );
+update_option( 'emsfb_install_date', time() - ( DAY_IN_SECONDS - HOUR_IN_SECONDS ), false );
+efb_t( 'D2 twenty-three hours in, still nobody is asked', false === $request->should_ask_efb() );
 
-update_option( 'emsfb_install_date', time() - ( 7 * DAY_IN_SECONDS ), false );
-efb_t( 'D3 at seven days a free site is asked', true === $request->should_ask_efb() );
+update_option( 'emsfb_install_date', time() - DAY_IN_SECONDS, false );
+efb_t( 'D3 at one day a free site is asked', true === $request->should_ask_efb() );
+
+update_option( 'emsfb_pro', 3, false );
+efb_t( 'D4 at one day a Free Plus site is asked', true === $request->should_ask_efb() );
 
 update_option( 'emsfb_pro', 1, false );
-efb_t( 'D4 a Pro site at seven days is still not asked', false === $request->should_ask_efb() );
+efb_t( 'D5 a Pro site at one day is still not asked', false === $request->should_ask_efb() );
 update_option( 'emsfb_pro', 2, false );
 
 // The filter is the documented escape hatch for a site that wants silence.
 add_filter( 'emsfb_review_should_ask_efb', '__return_false' );
-efb_t( 'D5 emsfb_review_should_ask_efb can veto the ask', false === $request->should_ask_efb() );
+efb_t( 'D6 emsfb_review_should_ask_efb can veto the ask', false === $request->should_ask_efb() );
 remove_filter( 'emsfb_review_should_ask_efb', '__return_false' );
 
 /* ---------------------------------------------------------------------
@@ -409,11 +412,11 @@ if ( '' !== $markup ) {
 	efb_t( 'J1 one sighting spends the ask', 'snoozed' === $state['status'], 'status: ' . $state['status'] );
 	efb_t( 'J2 a seen site is not asked again on the next page load', false === $request->should_ask_efb() );
 
-	// The whole politeness policy: two days between sightings, and only for
+	// The whole politeness policy: one day between sightings, and only for
 	// somebody who walked away without answering - rating it or picking "Do
 	// not ask again" ends the asking outright, which E1 and E2 cover.
 	$gap_days = (int) round( ( (int) $state['snooze_until'] - time() ) / DAY_IN_SECONDS );
-	efb_t( 'J3 the next sighting is two days away', 2 === $gap_days, $gap_days . ' days' );
+	efb_t( 'J3 the next sighting is one day away', 1 === $gap_days, $gap_days . ' days' );
 
 	// A preview must never spend a real site's turn.
 	delete_option( 'emsfb_review_state' );
@@ -452,8 +455,8 @@ efb_t( 'K1 the AJAX action is registered', has_action( 'wp_ajax_emsfb_review_req
 $reflect = new ReflectionClass( '\Emsfb\Review_Request' );
 efb_t( 'K2 the nonce action and the AJAX action are the same name', 'emsfb_review_request' === $reflect->getConstant( 'ACTION' ) );
 efb_t( 'K3 four stars and up take the review route', 4 === $reflect->getConstant( 'REWARD_THRESHOLD' ) );
-efb_t( 'K4 the wait is seven days', 7 === $reflect->getConstant( 'MIN_DAYS' ) );
-efb_t( 'K5 the gap between sightings is two days', 2 === $reflect->getConstant( 'SNOOZE_DAYS' ) );
+efb_t( 'K4 the wait is one day', 1 === $reflect->getConstant( 'MIN_DAYS' ) );
+efb_t( 'K5 the gap between sightings is one day', 1 === $reflect->getConstant( 'SNOOZE_DAYS' ) );
 
 // The claim path leans on the deactivation survey's signed pipeline. If that
 // method stops being public, the coupon silently never issues.

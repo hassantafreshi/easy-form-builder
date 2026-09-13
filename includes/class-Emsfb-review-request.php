@@ -2,9 +2,9 @@
 /**
  * The rating invitation.
  *
- * A week after somebody starts using Easy Form Builder, a Free or Free Plus
+ * A day after somebody starts using Easy Form Builder, a Free or Free Plus
  * site is asked - on an Easy Form Builder screen and nowhere else - to rate
- * the plugin. Walking away without answering brings it back two days later;
+ * the plugin. Walking away without answering brings it back one day later;
  * answering it, either way, ends the asking for good.
  *
  * There are two ways out of the question, and they are deliberately different
@@ -56,14 +56,14 @@ class Review_Request {
 	const ACTION = 'emsfb_review_request';
 
 	/** How long someone has to have been using the plugin before we ask. */
-	const MIN_DAYS = 7;
+	const MIN_DAYS = 1;
 
 	/**
 	 * The gap between one sighting and the next.
 	 *
 	 * The invitation snoozes itself the moment it is printed, so this is the
 	 * whole politeness policy in one number: somebody who logs in every day
-	 * sees it again two days later.
+	 * sees it again one day later.
 	 *
 	 * Short on purpose, and only as pushy as it looks: this gap applies to
 	 * one person only - somebody who has seen the question and walked away
@@ -71,7 +71,7 @@ class Review_Request {
 	 * should_ask_efb() treats 'rated' and 'dismissed' as terminal, so nobody
 	 * who rates the plugin or picks "Do not ask again" is ever counted here.
 	 */
-	const SNOOZE_DAYS = 2;
+	const SNOOZE_DAYS = 1;
 
 	/** The reason key the feedback service files a low rating under. */
 	const REPORT_REASON = 'rating_feedback';
@@ -1072,17 +1072,37 @@ class Review_Request {
 			$sent = ! empty( $result['ok'] );
 		}
 
-		// The conversation is over either way: this person has said their piece
-		// and must not be asked again next month as though nothing happened.
+		if ( ! $sent ) {
+			// Keep the conversation retryable. Claiming success here loses the
+			// report permanently while telling the person that it was received.
+			$this->save_state_efb(
+				array(
+					'status'       => 'snoozed',
+					'snooze_until' => time() + ( self::SNOOZE_DAYS * DAY_IN_SECONDS ),
+					'rated_at'     => time(),
+					'outcome'      => 'feedback_failed',
+				)
+			);
+
+			wp_send_json_success(
+				array(
+					'ok'      => false,
+					'sent'    => false,
+					'message' => $text['failed'],
+				)
+			);
+		}
+
+		// The conversation ends only after the service accepts the report.
 		$this->save_state_efb(
 			array(
 				'status'   => 'dismissed',
 				'rated_at' => time(),
-				'outcome'  => $sent ? 'feedback_sent' : 'feedback_failed',
+				'outcome'  => 'feedback_sent',
 			)
 		);
 
-		wp_send_json_success( array( 'ok' => true, 'sent' => $sent ) );
+		wp_send_json_success( array( 'ok' => true, 'sent' => true ) );
 	}
 
 	/**
@@ -1153,7 +1173,7 @@ class Review_Request {
 			'claimTitle'       => esc_html__( 'Where should we send the code?', 'easy-form-builder' ),
 			'claimLead'        => esc_html__( 'Enter your WordPress.org username and your email. We will find your review and email the discount code to that address.', 'easy-form-builder' ),
 			'fieldUser'        => esc_html__( 'WordPress.org username', 'easy-form-builder' ),
-			'userPh'           => esc_html__( 'e.g. hassan_t', 'easy-form-builder' ),
+			'userPh'           => esc_html__( 'e.g. john_doe', 'easy-form-builder' ),
 			'userHint'         => esc_html__( 'The name your review was posted under.', 'easy-form-builder' ),
 			'fieldEmail'       => esc_html__( 'Your email', 'easy-form-builder' ),
 			'emailPh'          => esc_html__( 'you@example.com', 'easy-form-builder' ),

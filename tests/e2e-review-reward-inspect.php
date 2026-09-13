@@ -9,6 +9,8 @@
  * Run: C:\xampp\php\php.exe tests/e2e-review-reward-inspect.php <mode> [arg]
  *
  *   reviewer            print a real five-star reviewer from the cached list
+ *   seed-reviewer       add one temporary recent five-star review to the cache
+ *   restore-reviewer    restore the cache after seed-reviewer
  *   row <username>      the stored claim, as JSON
  *   stripe <code>       whether that promotion code really exists in Stripe
  *   mail                every captured message, as JSON
@@ -27,6 +29,7 @@ $arg  = isset( $argv[2] ) ? $argv[2] : '';
 
 $table   = \payEfb\Services\ReviewRewardService::table();
 $mailbox = WP_CONTENT_DIR . '/uploads/efb-e2e-mail';
+$review_cache_marker = 'efb_e2e_review_cache_state';
 
 /**
  * A Stripe client, or null when the keys are absent.
@@ -55,7 +58,16 @@ switch ( $mode ) {
 		$found   = null;
 
 		foreach ( $reviews as $review ) {
-			if ( (int) ( $review['rating'] ?? 0 ) < 5 || empty( $review['author'] ) ) {
+			$stamp = (int) ( $review['date'] ?? 0 );
+			$age   = time() - $stamp;
+
+			if (
+				(int) ( $review['rating'] ?? 0 ) < 5 ||
+				empty( $review['author'] ) ||
+				$stamp <= 0 ||
+				$age < 0 ||
+				$age >= ( \payEfb\Services\ReviewRewardService::REVIEW_MAX_AGE_DAYS * DAY_IN_SECONDS )
+			) {
 				continue;
 			}
 
@@ -67,12 +79,52 @@ switch ( $mode ) {
 					'username' => $name,
 					'rating'   => (int) $review['rating'],
 					'link'     => (string) ( $review['link'] ?? '' ),
+					'date'     => (string) ( $review['date'] ?? '' ),
 				);
 				break;
 			}
 		}
 
 		echo wp_json_encode( $found ? array( 'ok' => true ) + $found : array( 'ok' => false ) );
+		break;
+
+	case 'seed-reviewer':
+		$data = get_option( 'ws_widgets_wporg_data' );
+
+		if ( false === get_option( $review_cache_marker, false ) ) {
+			update_option( $review_cache_marker, $data, false );
+		}
+
+		if ( ! is_array( $data ) ) {
+			$data = array();
+		}
+		if ( empty( $data['reviews'] ) || ! is_array( $data['reviews'] ) ) {
+			$data['reviews'] = array();
+		}
+
+		$username = 'efb-e2e-stripe-' . gmdate( 'YmdHis' );
+		$review   = array(
+			'author' => $username,
+			'rating' => 5,
+			'link'   => 'https://wordpress.org/support/topic/efb-e2e-stripe-verification/',
+			'date'   => (string) time(),
+		);
+
+		array_unshift( $data['reviews'], $review );
+		update_option( 'ws_widgets_wporg_data', $data, false );
+
+		echo wp_json_encode( array( 'ok' => true, 'username' => $username, 'rating' => 5, 'link' => $review['link'], 'date' => $review['date'], 'seeded' => true ) );
+		break;
+
+	case 'restore-reviewer':
+		$saved = get_option( $review_cache_marker, false );
+
+		if ( false !== $saved ) {
+			update_option( 'ws_widgets_wporg_data', $saved, false );
+			delete_option( $review_cache_marker );
+		}
+
+		echo wp_json_encode( array( 'ok' => true, 'restored' => false !== $saved ) );
 		break;
 
 	case 'row':

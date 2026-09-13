@@ -3,7 +3,7 @@
  *
  * Every other test in this feature stubs something. This one stubs nothing:
  *
- *   - a real Free site that has been installed for a month, with no preview
+ *   - a real Free site that has been installed for one day, with no preview
  *     flag, so the dialog has to decide to appear on its own;
  *   - a real rating, a real claim, and a real HTTP request across two separate
  *     WordPress installs;
@@ -19,7 +19,8 @@
  * Everything created is removed at the end: the claim row, the Stripe objects,
  * both temporary mu-plugins, and every option touched.
  *
- * Run: node tests/test-review-reward-e2e.js
+ * Run everything: node tests/test-review-reward-e2e.js
+ * Stop after Stripe verification: set EFB_E2E_STOP_AFTER_STRIPE=1 first.
  */
 const { chromium } = require('playwright');
 const { execFileSync } = require('child_process');
@@ -33,6 +34,7 @@ const SHOTS = path.join(__dirname, 'screenshots', 'e2e');
 const PHP = 'C:\\xampp\\php\\php.exe';
 const ENV = path.join(__dirname, 'e2e-review-reward-env.php');
 const INSPECT = path.join(__dirname, 'e2e-review-reward-inspect.php');
+const STOP_AFTER_STRIPE = process.env.EFB_E2E_STOP_AFTER_STRIPE === '1';
 
 if (!fs.existsSync(SHOTS)) fs.mkdirSync(SHOTS, { recursive: true });
 
@@ -80,6 +82,7 @@ const action = (page, name) => page.locator(`[data-efb-review-action="${name}"]`
 
 const EMAIL = 'e2e-reviewer@example.test';
 let reviewer = null;
+let reviewerSeeded = false;
 let feedbackSeeded = false;
 
 /** How many reports the local feedback service holds. */
@@ -136,7 +139,15 @@ function lastReport() {
     t('the service captures mail instead of sending it', setup.capture === true);
 
     reviewer = ws('reviewer');
-    t('a real five-star reviewer was found in the cached WordPress.org list',
+
+    // A weekly cache can legitimately have no review inside the seven-day
+    // reward window. This Stripe-only run may add a temporary eligible fixture;
+    // the service, HTTP boundary and Stripe calls remain real.
+    if (!reviewer.ok && STOP_AFTER_STRIPE) {
+      reviewer = ws('seed-reviewer');
+      reviewerSeeded = reviewer.ok === true;
+    }
+    t('an eligible five-star review is available to the service',
       reviewer.ok === true && !!reviewer.username, reviewer.username ? `${reviewer.username} (${reviewer.rating}★)` : JSON.stringify(reviewer));
 
     if (!reviewer.ok) throw new Error('no unclaimed five-star reviewer available');
@@ -151,7 +162,7 @@ function lastReport() {
 
     const appeared = await page.locator('#efb-review-modal')
       .waitFor({ state: 'visible', timeout: 12000 }).then(() => true).catch(() => false);
-    t('a Free site 30 days old is asked, with no preview flag', appeared);
+    t('a Free site one day old is asked, with no preview flag', appeared);
 
     if (!appeared) throw new Error('the dialog never appeared on the real path');
 
@@ -214,6 +225,9 @@ function lastReport() {
     t('it expires', !!promo.expires_at);
     t('it was created in test mode, not live', promo.livemode === false, String(promo.livemode));
 
+    if (STOP_AFTER_STRIPE) {
+      console.log('\n[done] Stripe verification checks completed; later email/duplicate/feedback checks were intentionally skipped.');
+    } else {
     /* ----------------------------------------------------------------- */
     console.log('\n[5] The email that would have been sent');
 
@@ -341,6 +355,7 @@ function lastReport() {
     /* ----------------------------------------------------------------- */
     console.log('\n[10] No script errors');
     t('the admin threw no JavaScript errors', consoleErrors.length === 0, consoleErrors.join(' | '));
+    }
 
   } catch (err) {
     fail++;
@@ -360,6 +375,11 @@ function lastReport() {
       const cleaned = ws('clean', reviewer.username);
       t('the claim row was removed', cleaned.row === true || cleaned.ok === true);
       t('the Stripe coupon was deleted', cleaned.coupon !== false, cleaned.error || 'deleted');
+    }
+
+    if (reviewerSeeded) {
+      const restored = ws('restore-reviewer');
+      t('the temporary review cache fixture was removed', restored.ok === true && restored.restored === true);
     }
 
     // Section 8 parks a pending row by design; it is still this test's litter.
