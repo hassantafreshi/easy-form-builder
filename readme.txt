@@ -4,7 +4,7 @@ Donate link: https://whitestudio.team/donate-easy-form-builder/
 Tags: form builder, form plugin, multi step form, email templates, payment form
 Requires at least: 5.0
 Tested up to: 7.1
-Stable tag: 4.2.0
+Stable tag: 5.2.0
 Requires PHP: 7.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -416,6 +416,7 @@ For more information, visit the official website:
 17. WordPress Support Ticket Conversation and Reply Form
 18. Easy Form Builder Dashboard Widget with email delivery status, form page views, completed submissions, sent and failed email counts, and Email Error Log
 19. Test WordPress form notification emails for free with Easy Form Builder.
+20. Customize the response form viewer to match your brand
 
 
 == Upgrade Notice ==
