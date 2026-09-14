@@ -87,7 +87,7 @@ class Create {
 		}
 
 		if(isset($settings->AdnPAP) && $settings->AdnPAP==1){
-			if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/paypal")) {
+			if(!file_exists(EMSFB_PLUGIN_DIRECTORY."/vendor/paypal/paypalefb.php")) {
 				$download_addons = true;
 			}else{
 				require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/paypal/paypalefb.php");
@@ -95,7 +95,7 @@ class Create {
 			}
 		}
 		if(isset($settings->AdnPDP) && $settings->AdnPDP==1){
-			if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker")) {
+			if(!file_exists(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker/persiandate.php")) {
 				$download_addons = true;
 			}else{
 				require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker/persiandate.php");
@@ -103,7 +103,7 @@ class Create {
 			}
 		}
 		if(isset($settings->AdnADP) && $settings->AdnADP==1){
-			if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker")) {
+			if(!file_exists(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker/arabicdate.php")) {
 				$download_addons = true;
 			}else{
 				require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker/arabicdate.php");
@@ -314,7 +314,7 @@ class Create {
 		wp_localize_script('Emsfb-admin-js','efb_var',$efb_var_data);
 		$efb_val_js_path = EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/val-efb.js';
 		$efb_val_js_version = is_readable($efb_val_js_path) ? (string) filemtime($efb_val_js_path) : EMSFB_PLUGIN_VERSION;
-		wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val-efb.js', array('jquery'), $efb_val_js_version, true);
+		wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val-efb.js', array('jquery', 'efb-email-test-ui'), $efb_val_js_version, true);
 		wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION, true);
 		wp_enqueue_script('efb-forms-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/forms-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION, true);
 		 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core-efb.js', array('jquery','efb-recorder-js'), EMSFB_PLUGIN_VERSION, true);

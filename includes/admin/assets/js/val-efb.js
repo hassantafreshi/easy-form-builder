@@ -1,6 +1,122 @@
 
 const iconMarginGlobal = efb_var.rtl == 1 ? 'ms-2' : 'me-2';
 
+/* ==========================================================================
+   Steps and progress style pickers
+   --------------------------------------------------------------------------
+   Two toggles in the form settings decide whether the steps row and the
+   progress bar are drawn at all; these pickers decide what they look like when
+   they are. Each option is drawn rather than named, because "pills" and
+   "ribbon" mean nothing until you have seen them, and the thumbnails are
+   inline SVG so they cost no request and follow the panel's own colours.
+
+   The picker is printed even when its feature is switched off and hidden with
+   d-none, so change_el_edit_Efb() only has to flip a class when the toggle
+   moves instead of rebuilding the panel.
+   ========================================================================== */
+const efbStepArtEfb = {
+  classic: `<svg viewBox="0 0 76 24" role="img" aria-hidden="true">
+      <line x1="12" y1="9" x2="64" y2="9" stroke="#d5d8e8" stroke-width="1.6"/>
+      <circle cx="12" cy="9" r="7" fill="#202a8d"/>
+      <circle cx="38" cy="9" r="7" fill="#fdf2f6"/>
+      <circle cx="64" cy="9" r="7" fill="#fdf2f6"/>
+      <rect x="4" y="20" width="16" height="2.6" rx="1.3" fill="#c3c9e0"/>
+      <rect x="30" y="20" width="16" height="2.6" rx="1.3" fill="#e4e8f5"/>
+      <rect x="56" y="20" width="16" height="2.6" rx="1.3" fill="#e4e8f5"/>
+    </svg>`,
+  circles: `<svg viewBox="0 0 76 24" role="img" aria-hidden="true">
+      <line x1="12" y1="9" x2="38" y2="9" stroke="#202a8d" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="38" y1="9" x2="64" y2="9" stroke="#dfe3f2" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="12" cy="9" r="7" fill="#202a8d"/>
+      <circle cx="38" cy="9" r="7" fill="#4757e7"/>
+      <circle cx="64" cy="9" r="6.2" fill="#fff" stroke="#dfe3f2" stroke-width="1.6"/>
+      <rect x="4" y="20" width="16" height="2.6" rx="1.3" fill="#c3c9e0"/>
+      <rect x="30" y="20" width="16" height="2.6" rx="1.3" fill="#c3c9e0"/>
+      <rect x="56" y="20" width="16" height="2.6" rx="1.3" fill="#e4e8f5"/>
+    </svg>`,
+  pills: `<svg viewBox="0 0 76 24" role="img" aria-hidden="true">
+      <rect x="1" y="5" width="23" height="14" rx="7" fill="#fff" stroke="#d7ddf2" stroke-width="1.4"/>
+      <circle cx="9" cy="12" r="3.4" fill="#dcf3e8"/>
+      <rect x="14" y="10.7" width="7" height="2.6" rx="1.3" fill="#c3c9e0"/>
+      <rect x="26.5" y="5" width="23" height="14" rx="7" fill="#202a8d"/>
+      <circle cx="34.5" cy="12" r="3.4" fill="#ffffff" opacity=".35"/>
+      <rect x="39.5" y="10.7" width="7" height="2.6" rx="1.3" fill="#ffffff" opacity=".85"/>
+      <rect x="52" y="5" width="23" height="14" rx="7" fill="#f2f4fb"/>
+      <circle cx="60" cy="12" r="3.4" fill="#e2e6f3"/>
+      <rect x="65" y="10.7" width="7" height="2.6" rx="1.3" fill="#e4e8f5"/>
+    </svg>`,
+  chevrons: `<svg viewBox="0 0 76 24" role="img" aria-hidden="true">
+      <path d="M1 5h22l5 7-5 7H1z" fill="#151d66"/>
+      <path d="M24 5h22l5 7-5 7H24l5-7z" fill="#202a8d"/>
+      <path d="M47 5h28v14H47l5-7z" fill="#eef0f7"/>
+      <rect x="7" y="10.7" width="10" height="2.6" rx="1.3" fill="#ffffff" opacity=".85"/>
+      <rect x="30" y="10.7" width="10" height="2.6" rx="1.3" fill="#ffffff" opacity=".85"/>
+      <rect x="55" y="10.7" width="10" height="2.6" rx="1.3" fill="#c9cfe4"/>
+    </svg>`
+};
+
+const efbProgArtEfb = {
+  classic: `<svg viewBox="0 0 76 24" role="img" aria-hidden="true">
+      <defs><pattern id="efbClassicStripe" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+        <rect width="2.5" height="5" fill="rgba(255,255,255,.55)"/>
+      </pattern></defs>
+      <rect x="1" y="7" width="74" height="10" rx="2" fill="#4636f1"/>
+      <rect x="1" y="7" width="26" height="10" rx="2" fill="url(#efbClassicStripe)"/>
+    </svg>`,
+  bar: `<svg viewBox="0 0 76 24" role="img" aria-hidden="true">
+      <rect x="1" y="3" width="26" height="2.6" rx="1.3" fill="#c3c9e0"/>
+      <rect x="64" y="3" width="11" height="2.6" rx="1.3" fill="#202a8d"/>
+      <rect x="1" y="10" width="74" height="9" rx="4.5" fill="#eaedf8"/>
+      <rect x="1" y="10" width="48" height="9" rx="4.5" fill="#202a8d"/>
+    </svg>`,
+  segments: `<svg viewBox="0 0 76 24" role="img" aria-hidden="true">
+      <rect x="1" y="7" width="22" height="8" rx="4" fill="#151d66"/>
+      <rect x="27" y="7" width="22" height="8" rx="4" fill="#202a8d"/>
+      <rect x="53" y="7" width="22" height="8" rx="4" fill="#eaedf8"/>
+      <rect x="1" y="19" width="20" height="2.6" rx="1.3" fill="#c3c9e0"/>
+      <rect x="61" y="19" width="14" height="2.6" rx="1.3" fill="#c3c9e0"/>
+    </svg>`,
+  /* r=9.5 makes the circumference just under 60, so a 40/20 dash draws two
+     thirds of the ring - the same proportion the real gauge shows mid-form. */
+  ring: `<svg viewBox="0 0 76 24" role="img" aria-hidden="true">
+      <circle cx="12" cy="12" r="9.5" fill="none" stroke="#eaedf8" stroke-width="4"/>
+      <circle cx="12" cy="12" r="9.5" fill="none" stroke="#202a8d" stroke-width="4"
+              stroke-linecap="round" stroke-dasharray="40 20" transform="rotate(-90 12 12)"/>
+      <rect x="28" y="6" width="30" height="3.4" rx="1.7" fill="#c3c9e0"/>
+      <rect x="28" y="14" width="44" height="2.8" rx="1.4" fill="#e4e8f5"/>
+    </svg>`
+};
+
+/**
+ * One picker. `target` is the key it writes into valj_efb[0], which is also
+ * what the click handler reads back, so adding a style is a matter of adding
+ * an entry to the art map and the options list - nothing else changes.
+ */
+const efbStylePickerEls = (target, idset, hidden) => {
+  const isSteps = target === 'steps_style';
+  const art = isSteps ? efbStepArtEfb : efbProgArtEfb;
+  const current = isSteps
+    ? efbStepsStyleNameEfb(valj_efb[0])
+    : efbProgressStyleNameEfb(valj_efb[0]);
+  const options = isSteps
+    ? [['classic', efb_var.text.styleClassic], ['circles', efb_var.text.stepStyleCircles], ['pills', efb_var.text.stepStylePills], ['chevrons', efb_var.text.stepStyleChevrons]]
+    : [['classic', efb_var.text.styleClassic], ['bar', efb_var.text.progStyleBar], ['segments', efb_var.text.progStyleSegments], ['ring', efb_var.text.progStyleRing]];
+  const icon = isSteps ? 'bi-diagram-3' : 'bi-bar-chart-steps';
+  const title = isSteps ? efb_var.text.stepsStyle : efb_var.text.progressStyle;
+
+  const cards = options.map(([key, name]) => `
+      <button type="button" class="efb efb-sp-picker__opt ${current === key ? 'active' : ''}" data-style="${key}" data-target="${target}" aria-pressed="${current === key}" title="${name}" onclick="efbPickStepStyleEfb(this)">
+        <span class="efb efb-sp-picker__art">${art[key]}</span>
+        <span class="efb efb-sp-picker__name">${name}</span>
+      </button>`).join('');
+
+  return `<div class="efb mx-1 mb-3 efb-sp-picker-box ${hidden ? 'd-none' : ''}" id="efb-picker-${target}" data-id="${idset}">
+    <label class="efb form-label mt-1 mb-1 efb"><i class="efb ${icon} fs-7 ${iconMarginGlobal}"></i>${title}</label>
+    <div class="efb efb-sp-picker">${cards}</div>
+    <small class="efb text-muted fs-8 mx-1">${current === 'classic' ? (efb_var.text.styleClassicHint || '') : (efb_var.text.styleNewHint || '')}</small>
+  </div>`;
+};
+
 const efbMobileProLockedEfb = () => typeof efbHasMobileProAccessEfb === 'function'
   ? !efbHasMobileProAccessEfb()
   : !(efb_var.pro === true || efb_var.pro === 1 || efb_var.pro === '1');
@@ -436,10 +552,10 @@ const SingleTextEls = (side,idset,indx) => {
 }
 
 const cornerEls = (side,indx,idset) => {
-  const storedCorner = valj_efb[indx].corner;
+  const storedCorner = valj_efb[indx].corner || 'rounded-3';
   const activeCorner = ['rounded-0', 'rounded-1', 'rounded-2', 'rounded-3', 'rounded-4', 'rounded-5'].includes(storedCorner)
     ? storedCorner
-    : 'rounded-0';
+    : 'rounded-3';
   const options = ['rounded-0', 'rounded-1', 'rounded-2', 'rounded-3', 'rounded-4', 'rounded-5'];
   const controls = options.map((corner, index) => {
     const active = corner === activeCorner;
@@ -587,10 +703,20 @@ function open_conditional_logic_efb() {
   }
 }
 
+/* Which element the settings panel is currently showing. Selecting a field now opens
+   this panel, so an open panel must swap over to the newly clicked element instead of
+   closing - only asking again for the element already on screen still toggles it shut. */
+window.efbOpenSettingIdEfb = window.efbOpenSettingIdEfb || null;
+
 function show_setting_window_efb(idset) {
   if(document.getElementById('sideBoxEfb').classList.contains('show')){
-    sideMenuEfb(0);
-    return};
+    if (window.efbOpenSettingIdEfb === idset || window.efbOpenSettingIdEfb === null) {
+      window.efbOpenSettingIdEfb = null;
+      sideMenuEfb(0);
+      return;
+    }
+  }
+    window.efbOpenSettingIdEfb = idset;
     state_view_efb=1;
     document.getElementById('sideMenuConEfb').innerHTML=efbLoadingCard('',5);
     sideMenuEfb(1)
@@ -762,7 +888,8 @@ function show_setting_window_efb(idset) {
     <div class="efb handle"></div>
     </button>
     <label class="efb form-check-label" for="showSIconsEl">${efb_var.text.dontShowIconsStepsName}</label>
-    </div>`;
+    </div>
+    ${efbStylePickerEls('steps_style', idset, Number(valj_efb[0].show_icon) === 1)}`;
     const globalMobileHideLabelEls = efbMobileProControlEfb(`<div class="efb mx-1 my-3 efb">
     <button type="button" id="globalMobileHideLabelEl" class="efb mx-0 btn h-s-efb btn-toggle ${iconMarginGlobal} ${Number(valj_efb[0].global_mobile_hflabel || 0) === 1 ? 'active' : ''}" data-id="${idset}" aria-pressed="${Number(valj_efb[0].global_mobile_hflabel || 0) === 1}" autocomplete="off" onclick="return efbToggleMobileVisibilityEfb(this, 'global_mobile_hflabel')"><div class="efb handle"></div></button>
     <label class="efb form-check-label" for="globalMobileHideLabelEl">${efb_var.text.globalMobileHideLabel || 'Hide all labels on mobile'}</label>
@@ -772,7 +899,8 @@ function show_setting_window_efb(idset) {
     <div class="efb handle"></div>
     </button>
     <label class="efb form-check-label" for="showSprosiEl">${efb_var.text.dontShowProgressBar}</label>
-    </div>`;
+    </div>
+    ${efbStylePickerEls('progress_style', idset, Number(valj_efb[0].show_pro_bar) === 1)}`;
     let disable =valj_efb[0].type!="register" && valj_efb[0].type!="login"  ? '' : 'disabled';
     const defaultThankYou = typeof getDefaultThankYouByType === 'function' ? getDefaultThankYouByType(valj_efb[0].type) : { thankYou: efb_var.text.thanksFillingOutform, done: efb_var.text.yad };
     const m_tankYouMessage = defaultThankYou.thankYou;
@@ -2203,10 +2331,18 @@ function creator_form_builder_Efb() {
       dragab = false;
     }
 
+    /* A tile is a fixed square, but the label is a translated field name and languages
+       disagree wildly on length: "Text" in English against "Bildschirmaufnahme" or
+       "Allgemeine Geschaeftsbedingungen" in German. Step the type down for the long ones
+       instead of shrinking every label, so languages that already fit look unchanged.
+       The CSS for these classes also hyphenates and caps the label at three lines. */
+    const nameLen = String(ob.name || '').length;
+    const lblSize = nameLen > 16 ? 'efb-tile-label-xs' : nameLen > 10 ? 'efb-tile-label-sm' : '';
+
     els += `
     <div class="efb tag efb-col-3 draggable-efb ${ob.tag}" draggable="${dragab}" id="${ob.id}" ${mobile_view_efb ? `onclick="add_element_dpz_efb('${ob.id}')"` : ''}>
      ${ob.pro == true && pro_efb == false ? ` <a type="button"  onclick='pro_show_efb(3)' class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}"><i class="efb  bi-gem text-light"></i></a>` : ''}
-      <button type="button" class="efb btn efb btn-select-form float-end ${disable != "disable" ? "btn-muted" : ''}" id="${ob.id}_b" title="${ob.name}" ${disable}><i class="efb bi tagIcon  ${ob.icon}"></i><span class="efb d-block text-capitalize">${ob.name}</span></button>
+      <button type="button" class="efb btn efb btn-select-form float-end ${disable != "disable" ? "btn-muted" : ''}" id="${ob.id}_b" title="${ob.name}" ${disable}><i class="efb bi tagIcon  ${ob.icon}"></i><span class="efb d-block text-capitalize ${lblSize}">${ob.name}</span></button>
     </div>
     `
     dragab = true;
@@ -2245,17 +2381,17 @@ function creator_form_builder_Efb() {
           <div class="efb  col-md-4" id="listElEfb">
 
             <ul class="efb my-2 row" id="listCatEfb">
-                <li class="efb efb-col-3">
-                  <a class="efb nav-link cat fs-6 efb active all" aria-current="page" onclick="funUpdateLisetElEfb('all')" role="button">${efb_var.text.all}</a>
+                <li class="efb efb-col-3 px-1">
+                  <a class="efb nav-link cat fs-7 efb active all" aria-current="page" onclick="funUpdateLisetElEfb('all')" role="button">${efb_var.text.all}</a>
                 </li>
-                <li class="efb efb-col-3">
-                  <a class="efb nav-link cat fs-6 efb basic" onclick="funUpdateLisetElEfb('basic')"  role="button">${efb_var.text.basic}</a>
+                <li class="efb efb-col-3 px-1">
+                  <a class="efb nav-link cat fs-7 efb basic" onclick="funUpdateLisetElEfb('basic')"  role="button">${efb_var.text.basic}</a>
                 </li>
-                <li class="efb efb-col-3">
-                  <a class="efb nav-link cat fs-6 efb payment" onclick="funUpdateLisetElEfb('payment')"  role="button">${efb_var.text.payment}</a>
+                <li class="efb efb-col-3 px-1">
+                  <a class="efb nav-link cat fs-7 efb payment" onclick="funUpdateLisetElEfb('payment')"  role="button">${efb_var.text.payment}</a>
                 </li>
-                <li class="efb efb-col-3">
-                  <a class="efb nav-link cat fs-6 efb advance" onclick="funUpdateLisetElEfb('advance')"  role="button">${efb_var.text.advanced}</a>
+                <li class="efb efb-col-3 px-1">
+                  <a class="efb nav-link cat fs-7 efb advance" onclick="funUpdateLisetElEfb('advance')"  role="button">${efb_var.text.advanced}</a>
                 </li>
                 <hr class="efb hr">
             </ul>
@@ -2292,17 +2428,43 @@ function creator_form_builder_Efb() {
 
   `
 
+  /* Core keeps a strip free at the foot of #wpbody-content for the absolutely
+     positioned admin footer. The builder measures its workspace against the viewport
+     instead, so that strip is only ever dead space the page can scroll into. Zero it
+     from here, where the builder markup has just landed. */
+  efbZeroAdminBodyPaddingEfb();
+
   // The page is rebuilt in desktop layout; keep the view engine in sync so a
   // later switch to mobile re-renders instead of assuming it is already there.
   if (typeof currentViewEfb !== 'undefined') currentViewEfb = 'desktop';
 
   create_dargAndDrop_el();
   items_dd_efb();
+
+  /* The workspace markup is now in the page, so its height can be measured and kept in
+     step from here on. Guarded because val-efb.js is also parsed where admin-efb.js
+     is not present. */
+  if (typeof efbWatchWorkspaceFitEfb === 'function') efbWatchWorkspaceFitEfb();
+  if (typeof efbScheduleWorkspaceFitEfb === 'function') efbScheduleWorkspaceFitEfb();
+}
+
+/* padding-bottom: 0 on #wpbody-content, by the one route nothing else in the page can
+   outrank. Core declares the padding twice - 65px in common.css and 100px again below
+   782px - and an admin colour scheme or another plugin is free to add a third, so a
+   stylesheet of our own would only be one more rule competing on specificity and load
+   order. An inline declaration marked important sits above every author sheet at once,
+   media query included, and needs no !important arms race to stay there. Re-applied on
+   every builder render because that is the only screen this should hold on. */
+function efbZeroAdminBodyPaddingEfb() {
+  const wpBody = document.getElementById('wpbody-content');
+  if (wpBody) wpBody.style.setProperty('padding-bottom', '0', 'important');
 }
 
 function funUpdateLisetElEfb(cat){
   change_active_cat_efb(cat);
   change_visible_el_efb(cat);
+  // Fewer tiles can change where the workspace starts, so re-measure.
+  if (typeof efbScheduleWorkspaceFitEfb === 'function') efbScheduleWorkspaceFitEfb();
 }
 
  change_active_cat_efb=(cat)=>{
@@ -2331,7 +2493,7 @@ items_dd_efb = () => {
 
     jQuery(".items").sortable({
 
-      items: "setion:not(.unsortable)",
+      items: "section:not(.unsortable)",
       start: function (event, ui) {
         ui.item.toggleClass("highlight");
         if (ui.item.hasClass('unsortable')) {
@@ -3527,45 +3689,106 @@ function efb_plan_downgrade_copy_efb(currentPlan, targetPlan, removesActivationC
     const isFreePlusToFree = currentPlan === 'free_plus' && targetPlan === 'free';
     const text = (key, fallback) => (efb_var && efb_var.text && efb_var.text[key]) || fallback;
 
+    // The plan being left and the plan being moved to. The dialog prints them
+    // as a struck-through chip and a solid one, so the direction of the change
+    // is readable before the sentence is.
+    const proName = text('pro', 'Pro');
+    const freePlusName = text('freePlus', 'Free Plus');
+    const freeName = text('free', 'Free');
+
     // Free Plus never promises Pro add-ons. Its downgrade warning should only
     // describe the capabilities that Free Plus actually adds over Free.
-    if (isFreePlusToFree) return { title: text('downgradeFreePlusToFreeTitle', 'Switch to Free?'), body: text('downgradeFreePlusToFreeAdvancedBody', 'Advanced features and advanced fields used in your forms will be disabled. Your forms, entries and settings will not be deleted, and will be available again if you upgrade.'), cancel: text('keepFreePlus', 'Keep Free Plus'), confirm: text('switchToFree', 'Switch to Free') };
+    if (isFreePlusToFree) return { title: text('downgradeFreePlusToFreeTitle', 'Switch to Free?'), body: text('downgradeFreePlusToFreeAdvancedBody', 'Advanced features and advanced fields used in your forms will be disabled. Your forms, entries and settings will not be deleted, and will be available again if you upgrade.'), cancel: text('keepFreePlus', 'Keep Free Plus'), confirm: text('switchToFree', 'Switch to Free'), from: freePlusName, to: freeName };
 
-    if (isProToFreePlus) return { title: text('downgradeProToFreePlusTitle', 'Switch to Free Plus?'), body: text('downgradeProToFreePlusBody', 'Your Pro activation code will be removed from this site. Pro add-ons will be unavailable until you upgrade again. Your forms, entries and settings will not be deleted.'), cancel: text('keepPro', 'Keep Pro'), confirm: text('switchToFreePlus', 'Switch to Free Plus') };
-    return { title: text('downgradeFreePlusToFreeTitle', 'Switch to Free?'), body: text('downgradeProToFreeBody', 'Your Pro activation code will be removed from this site. Advanced features, Pro fields and add-ons will be unavailable until you upgrade again. Your forms, entries and settings will not be deleted.'), cancel: text('keepPro', 'Keep Pro'), confirm: text('switchToFree', 'Switch to Free') };
+    if (isProToFreePlus) return { title: text('downgradeProToFreePlusTitle', 'Switch to Free Plus?'), body: text('downgradeProToFreePlusBody', 'Your Pro activation code will be removed from this site. Pro add-ons will be unavailable until you upgrade again. Your forms, entries and settings will not be deleted.'), cancel: text('keepPro', 'Keep Pro'), confirm: text('switchToFreePlus', 'Switch to Free Plus'), from: proName, to: freePlusName };
+    return { title: text('downgradeFreePlusToFreeTitle', 'Switch to Free?'), body: text('downgradeProToFreeBody', 'Your Pro activation code will be removed from this site. Advanced features, Pro fields and add-ons will be unavailable until you upgrade again. Your forms, entries and settings will not be deleted.'), cancel: text('keepPro', 'Keep Pro'), confirm: text('switchToFree', 'Switch to Free'), from: proName, to: freeName };
 }
 
+/**
+ * The plan downgrade confirmation.
+ *
+ * It lives in its own element rather than the shared shell (#settingModalEfb),
+ * because it is asked for from the setup overlay - which is a page, not a
+ * dialog, and is closed to make room for this one. It still wears the design
+ * system: the classes below are modal-system-efb.css's, so the only thing
+ * this function decides is the copy.
+ */
 function show_plan_downgrade_confirmation_efb(copy, onConfirm, onCancel) {
     const existing = document.getElementById('efb-plan-downgrade-confirmation');
     if (existing) existing.remove();
 
+    const text = (key, fallback) => (typeof efb_var !== 'undefined' && efb_var.text && efb_var.text[key]) || fallback;
+    /* The arrow points from the plan being left to the plan being taken, so
+       in an RTL row - where the first chip sits on the right - it has to
+       point the other way. The stylesheet carries no direction of its own
+       (see modal-system-efb.css), so the choice is made here. */
+    const rtl = typeof efb_var !== 'undefined' && Number(efb_var.rtl) === 1;
+
     const modal = document.createElement('div');
     modal.id = 'efb-plan-downgrade-confirmation';
-    modal.className = 'efb-plan-downgrade-confirmation';
+    modal.className = 'efb-dlg efb-tone-orange';
     modal.setAttribute('role', 'dialog');
     modal.setAttribute('aria-modal', 'true');
     modal.setAttribute('aria-labelledby', 'efb-plan-downgrade-title');
-    modal.innerHTML = '<style>#efb-plan-downgrade-confirmation{position:fixed;inset:0;z-index:1000002;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(15,23,42,.62);backdrop-filter:blur(4px);animation:efbDowngradeBackdropIn .2s ease-out}#efb-plan-downgrade-confirmation .efb-plan-downgrade-dialog{width:min(100%,540px);padding:30px;border-radius:18px;background:#fff;box-shadow:0 24px 64px rgba(15,23,42,.28);text-align:start;animation:efbDowngradeDialogIn .28s cubic-bezier(.2,.8,.2,1)}#efb-plan-downgrade-confirmation .efb-plan-downgrade-icon{width:44px;height:44px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;border-radius:50%;background:#fff4e5;color:#c2410c;font-size:22px}#efb-plan-downgrade-confirmation h3{margin:0 0 10px;color:#172554;font-size:20px}#efb-plan-downgrade-confirmation .efb-plan-downgrade-message{margin:0;color:#475569;line-height:1.75}#efb-plan-downgrade-confirmation .efb-plan-downgrade-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:24px}#efb-plan-downgrade-confirmation .efb-btn-danger{border:1px solid #b91c1c;background:#b91c1c;color:#fff}#efb-plan-downgrade-confirmation .efb-btn-danger:hover{background:#991b1b;transform:translateY(-1px)}@keyframes efbDowngradeBackdropIn{from{opacity:0}to{opacity:1}}@keyframes efbDowngradeDialogIn{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}@media(max-width:480px){#efb-plan-downgrade-confirmation{padding:12px}#efb-plan-downgrade-confirmation .efb-plan-downgrade-dialog{padding:24px}#efb-plan-downgrade-confirmation .efb-plan-downgrade-actions{flex-direction:column-reverse}#efb-plan-downgrade-confirmation .efb-plan-downgrade-actions button{width:100%}}</style><div class="efb-plan-downgrade-dialog" role="document"><div class="efb-plan-downgrade-icon"><i class="bi bi-exclamation-triangle-fill"></i></div><h3 id="efb-plan-downgrade-title"></h3><p class="efb-plan-downgrade-message"></p><div class="efb-plan-downgrade-actions"><button type="button" class="efb-btn efb-btn-outline efb-plan-downgrade-cancel rounded p-2"></button><button type="button" class="efb-btn efb-btn-danger efb-plan-downgrade-confirm efb rounded-2 p-2"></button></div></div>';
+    modal.innerHTML = `
+      <div class="efb-dlg__backdrop"></div>
+      <div class="efb-dlg__shell" role="document" tabindex="-1">
+        <div class="efb-dlg__head">
+          <i class="efb-dlg__head-icon bi bi-arrow-down-circle"></i>
+          <h2 class="efb-dlg__title">${text('planChange', 'Plan change')}</h2>
+        </div>
+        <div class="efb-dlg__body">
+          <div class="efb-dlg__centered">
+            <div class="efb-dlg__badge efb-dlg__badge--soft"><i class="bi bi-exclamation-triangle-fill"></i></div>
+            <h3 class="efb-dlg__headline" id="efb-plan-downgrade-title"></h3>
+            <p class="efb-dlg__text efb-plan-downgrade-message"></p>
+            <div class="efb-dlg__plan-path">
+              <span class="efb-dlg__plan-tag efb-dlg__plan-tag--from"></span>
+              <i class="bi ${rtl ? 'bi-arrow-left' : 'bi-arrow-right'}"></i>
+              <span class="efb-dlg__plan-tag efb-plan-downgrade-to"></span>
+            </div>
+            <div class="efb-dlg__note efb-dlg__note--plain">
+              <i class="bi bi-database-check"></i>
+              <span>${text('downgradeDataKept', 'Your data stays untouched; only access to the features is limited.')}</span>
+            </div>
+          </div>
+        </div>
+        <div class="efb-dlg__foot">
+          <button type="button" class="efb-dlg-btn efb-dlg-btn--ghost efb-plan-downgrade-cancel"><i class="bi bi-shield-check"></i><span></span></button>
+          <button type="button" class="efb-dlg-btn efb-dlg-btn--danger efb-plan-downgrade-confirm"><i class="bi bi-arrow-down-circle"></i><span></span></button>
+        </div>
+      </div>`;
 
+    /* Every value below is written as text, not markup: the plan names and
+       the two button labels can come from the remote language pack. */
     modal.querySelector('#efb-plan-downgrade-title').textContent = copy.title;
     modal.querySelector('.efb-plan-downgrade-message').textContent = copy.body;
+    modal.querySelector('.efb-dlg__plan-tag--from').textContent = copy.from || '';
+    modal.querySelector('.efb-plan-downgrade-to').textContent = copy.to || '';
     const cancel = modal.querySelector('.efb-plan-downgrade-cancel');
     const confirm = modal.querySelector('.efb-plan-downgrade-confirm');
-    cancel.textContent = copy.cancel;
-    confirm.textContent = copy.confirm;
+    cancel.querySelector('span').textContent = copy.cancel;
+    confirm.querySelector('span').textContent = copy.confirm;
 
     const dismiss = (cancelled) => {
         document.removeEventListener('keydown', onKeydown);
         modal.remove();
+        /* Tells show_modal_efb() the screen is free again - it parks a dialog
+           behind anything wearing this class rather than painting over it. */
+        document.body.classList.remove('efb-dlg-open');
         if (cancelled && typeof onCancel === 'function') onCancel();
     };
     const onKeydown = (event) => { if (event.key === 'Escape') dismiss(true); };
     cancel.addEventListener('click', () => dismiss(true));
-    modal.addEventListener('click', (event) => { if (event.target === modal) dismiss(true); });
+    modal.querySelector('.efb-dlg__backdrop').addEventListener('click', () => dismiss(true));
     confirm.addEventListener('click', () => { dismiss(false); onConfirm(); });
     document.body.appendChild(modal);
+    document.body.classList.add('efb-dlg-open');
     document.addEventListener('keydown', onKeydown);
-    cancel.focus();
+    /* Focus the shell, not a button: it carries tabindex="-1" and no focus
+       ring, so the dialog becomes the keyboard's context without either of
+       the two answers looking pre-chosen. */
+    modal.querySelector('.efb-dlg__shell').focus();
 }
 
 function efb_show_downgrade_after_setup_efb(copy, onConfirm) {
@@ -3595,37 +3818,160 @@ function efb_onboarding_escape_efb(value) {
 
 let efb_onboarding_email_test_state_efb = null;
 
+/**
+ * A phrase for the email test, decoded once.
+ *
+ * Phrases reach efb_var through esc_html__(), so "Diagnosis & Troubleshooting"
+ * arrives as "Diagnosis &amp; Troubleshooting". The shared renderer escapes
+ * everything it prints - correctly - so without this the panel showed a literal
+ * "&amp;". Decoding here makes that single escape the right number.
+ *
+ * A detached <textarea> is the decoder because its content is parsed as raw
+ * text: entities resolve, and nothing inside can run.
+ */
 function efb_onboarding_live_text_efb(key, fallback) {
-    return efb_onboarding_text_efb(key, fallback);
+    const value = String(efb_onboarding_text_efb(key, fallback) || '');
+    if (value.indexOf('&') === -1) {
+        return value;
+    }
+
+    const box = document.createElement('textarea');
+    box.innerHTML = value;
+
+    return box.value;
 }
 
-function efb_onboarding_live_step_efb(label, state) {
-    const icon = state === 'done' ? 'bi-check-lg' : state === 'error' ? 'bi-x-lg' : state === 'warning' ? 'bi-exclamation-lg' : state === 'active' ? 'bi-arrow-repeat' : 'bi-dot';
-    return '<span class="efb-onboarding-live-step is-' + state + '"><i class="bi ' + icon + '"></i><span>' + efb_onboarding_escape_efb(label) + '</span></span>';
+/**
+ * The wizard's copy of the email-test wording.
+ *
+ * Same keys the settings screen uses, so the two places the test runs cannot
+ * drift into two different vocabularies.
+ */
+function efb_onboarding_email_strings_efb() {
+    const s = function (key, fallback) { return efb_onboarding_live_text_efb(key, fallback); };
+
+    return {
+        title: s('emailServer', 'Email Server'),
+        phRunning: s('emailTestPhaseRunning', 'Running'),
+        phDone: s('emailTestPhaseDone', 'Finished'),
+        phWarn: s('emailTestPhaseWarn', 'Needs attention'),
+        phFailed: s('emailTestPhaseFailed', 'Failed'),
+        stepPrepare: s('stepPrepareTest', 'Prepare Test'),
+        stepSend: s('stepSendEmail', 'Send Test Email'),
+        stepWait: s('stepWaitDelivery', 'Waiting for Delivery'),
+        stepQuick: s('stepQuickResult', 'Quick Result'),
+        stepFull: s('stepFullReport', 'Full Report'),
+        stepPrepareDesc: s('stepPrepareTestDesc', 'Connecting to WhiteStudio to generate a unique test email address.'),
+        stepSendDesc: s('stepSendEmailDesc', 'WordPress is sending a real email to verify your server can deliver mail.'),
+        stepWaitDesc: s('stepWaitDeliveryDesc', 'Checking whether the test email arrived at our server (usually takes a few seconds).'),
+        stepQuickDesc: s('stepQuickResultDesc', 'Showing the first delivery result — you will see right away if email is working.'),
+        stepFullDesc: s('stepFullReportDesc', 'A detailed HTML report with full diagnostics is being prepared and emailed to you.'),
+        stepsDone: s('emailTestStepsDone', '%s of 5 steps done'),
+        stepsRunning: s('emailTestStepsRunning', 'Step %s of 5'),
+        tabDelivery: s('deliveryDetailsTitle', 'Delivery Details'),
+        tabDiagnosis: s('diagnosisTitle', 'Diagnosis'),
+        tabTips: s('recommendations', 'Recommendations'),
+        scoreOutOf: s('emailTestScoreOutOf', '/ 100')
+    };
+}
+
+/**
+ * Turn the wizard's run state into the shared renderer's view model.
+ *
+ * The wizard keeps its verdict in `type` - it is set by the poll as the run
+ * progresses - so the phase is read from there rather than re-derived, and the
+ * headline follows the phase.
+ */
+function efb_onboarding_email_view_efb(state) {
+    const steps = state.steps || {};
+    const test = state.test || {};
+    const result = state.result || {};
+    const delivery = result.delivery || {};
+    const s = function (key, fallback) { return efb_onboarding_live_text_efb(key, fallback); };
+
+    const phase = { checking: 'run', success: 'done', warning: 'warn', error: 'fail' }[state.type || 'checking'] || 'run';
+    const arrived = !!result.can_send_email;
+    const tooLow = efb_onboarding_score_too_low_efb(result);
+
+    let hero;
+    if (phase === 'run') {
+        const waiting = steps.wait === 'active' || steps.send === 'done';
+        hero = waiting
+            ? {
+                icon: 'bi-arrow-repeat',
+                title: s('emailTestPendingTitle', 'Waiting for the email to arrive'),
+                sub: s('emailTestPendingSub', 'We check our server every few seconds. Please keep this page open.')
+            }
+            : {
+                icon: 'bi-hourglass-split',
+                title: s('emailTestStartingTitle', 'Test started'),
+                sub: s('emailTestStartingSub', 'A unique address is being generated for this test.')
+            };
+    } else if (phase === 'done') {
+        hero = {
+            icon: 'bi-check2',
+            title: s('emailTestOkTitle', 'Your email server is healthy'),
+            sub: s('emailTestOkSub', 'The test email arrived, and the subject and unique-code checks both passed.')
+        };
+    } else if (arrived) {
+        hero = {
+            icon: 'bi-exclamation-triangle-fill',
+            title: tooLow
+                ? s('emailTestLowTitle', 'Delivered, but likely to be filtered as spam')
+                : s('emailTestSpamTitle', 'Delivered, but deliverability is weak'),
+            sub: state.message || ''
+        };
+    } else {
+        hero = {
+            icon: 'bi-x-lg',
+            title: s('emailTestExpiredTitle', 'No email arrived'),
+            sub: s('emailTestExpiredSub', 'Nothing was received during the test window, so your server most likely cannot send email.')
+        };
+    }
+
+    if (result.score !== undefined && result.score !== null && isFinite(Number(result.score))) {
+        hero.score = Number(result.score);
+    }
+    if (result.grade_label || result.grade) {
+        hero.grade = result.grade_label || result.grade;
+    }
+
+    // The wizard shows only what it actually knows; an empty row is worse than
+    // no row while the test is still running.
+    const recipient = test.recipient_email || delivery.recipient_email || '';
+    const rows = [
+        recipient ? { label: s('testSentTo', 'Test sent to'), value: recipient, mono: true } : null,
+        delivery.waited_seconds !== undefined
+            ? { label: s('timeWaited', 'Time waited'), value: delivery.waited_seconds + 's' }
+            : null
+    ].filter(Boolean);
+
+    return {
+        phase: phase,
+        percent: Math.max(8, Math.min(100, Number(state.percent || 8))),
+        steps: steps,
+        hero: hero,
+        // The headline already carries the message in the spam case; repeating
+        // it under the rail would print the same sentence twice.
+        message: (phase === 'warn' && arrived) ? '' : (state.message || ''),
+        rows: rows,
+        groups: [],
+        tips: [],
+        strings: efb_onboarding_email_strings_efb(),
+        inline: true
+    };
 }
 
 function efb_onboarding_render_live_report_efb() {
     const report = document.getElementById('efb-onboarding-email-report');
     const state = efb_onboarding_email_test_state_efb;
     if (!report || !state) return;
-    const steps = state.steps || {};
-    const test = state.test || {};
-    const result = state.result || {};
-    const delivery = result.delivery || {};
-    const facts = [];
-    if (test.recipient_email || delivery.recipient_email) facts.push(efb_onboarding_escape_efb(test.recipient_email || delivery.recipient_email));
-    if (result.grade_label || result.grade) facts.push(efb_onboarding_escape_efb(result.grade_label || result.grade));
-    if (result.score !== undefined && result.score !== null) facts.push(efb_onboarding_escape_efb(efb_onboarding_live_text_efb('score', 'Score: %s').replace('%s', result.score)));
-    if (delivery.waited_seconds !== undefined) facts.push(efb_onboarding_escape_efb(efb_onboarding_live_text_efb('timeWaited', 'Waited: %s').replace('%s', delivery.waited_seconds + 's')));
-    const percent = Math.max(8, Math.min(100, Number(state.percent || 8)));
-    report.className = 'efb-onboarding-report efb-onboarding-live-report is-' + (state.type || 'checking');
-    report.innerHTML = '<div class="efb-onboarding-live-head"><span>' + efb_onboarding_escape_efb(efb_onboarding_live_text_efb('emailServer', 'Email delivery check')) + '</span><strong>' + percent + '%</strong></div><div class="efb-onboarding-live-progress"><span style="width:' + percent + '%"></span></div><div class="efb-onboarding-live-steps">' + [
-        efb_onboarding_live_step_efb(efb_onboarding_live_text_efb('stepPrepareTest', 'Prepare'), steps.start || 'waiting'),
-        efb_onboarding_live_step_efb(efb_onboarding_live_text_efb('stepSendEmail', 'Send'), steps.send || 'waiting'),
-        efb_onboarding_live_step_efb(efb_onboarding_live_text_efb('stepWaitDelivery', 'Delivery'), steps.wait || 'waiting'),
-        efb_onboarding_live_step_efb(efb_onboarding_live_text_efb('stepQuickResult', 'Result'), steps.quick || 'waiting'),
-        efb_onboarding_live_step_efb(efb_onboarding_live_text_efb('stepFullReport', 'Report'), steps.full || 'waiting')
-    ].join('') + '</div><p class="efb-onboarding-live-message">' + efb_onboarding_escape_efb(state.message || '') + '</p>' + (facts.length ? '<div class="efb-onboarding-live-facts">' + facts.map(function(fact) { return '<span>' + fact + '</span>'; }).join('') + '</div>' : '');
+
+    // The wizard's own container styling is dropped: the shared renderer brings
+    // its own card, and stacking the two produced a box inside a box.
+    report.className = 'efb-onboarding-report efb-onboarding-email-report';
+    report.innerHTML = window.efbEmailTestUI.render(efb_onboarding_email_view_efb(state));
+    window.efbEmailTestUI.bindTabs(report);
 }
 
 /**
@@ -3634,7 +3980,9 @@ function efb_onboarding_render_live_report_efb() {
  */
 function efb_onboarding_min_score_efb() {
     const value = Number(efb_var && efb_var.emailMonitor ? efb_var.emailMonitor.min_delivery_score : 0);
-    return value > 0 ? value : 40;
+    // Email_Monitor::MIN_DELIVERY_SCORE. The fallback has to match it, or the
+    // wizard draws the line somewhere the server does not.
+    return value > 0 ? value : 20;
 }
 
 function efb_onboarding_score_too_low_efb(result) {
@@ -3667,24 +4015,40 @@ function efb_onboarding_save_email_efb(email) {
     });
 }
 
-function efb_onboarding_finish_efb() {
-    const button = document.getElementById('efb-onboarding-finish');
-    if (!button || button.disabled) return;
-    button.disabled = true;
+/*
+ * Running the delivery test is what finishes first-run setup, so completion is
+ * recorded the moment the test has run - not when someone gets as far as
+ * pressing "Finish setup". The report is worth reading and the admin is free to
+ * walk away from it, close the tab or open another screen; the wizard must not
+ * come back at them on the next page load once the test has happened.
+ *
+ * check_email_server_efb() already clears the flag server-side for exactly the
+ * same reason, which is what makes it survive a tab that is closed mid-poll.
+ * This call is the browser's copy of that decision: it keeps the localized
+ * efb_var in step for the rest of this page, and it still stands on its own if
+ * the request that ran the test came from an older cached script.
+ */
+let efb_onboarding_completion_saved_efb = false;
+
+function efb_onboarding_mark_complete_efb() {
+    if (efb_onboarding_completion_saved_efb) return;
+    efb_onboarding_completion_saved_efb = true;
+    efb_var_patch_efb({ onboarding_pending: false });
     jQuery.ajax({
         url: efb_var.ajax_url,
         type: 'POST',
         dataType: 'json',
         data: { action: 'efb_complete_onboarding', nonce: efb_var.nonce }
-    }).done(function(response) {
-        if (response && response.success) {
-            efb_var_patch_efb({ onboarding_pending: false });
-            closeSetupOverlay_efb();
-            show_success_notification_efb(efb_onboarding_text_efb('onboardingFinish', 'Finish setup'));
-            return;
-        }
-        button.disabled = false;
-    }).fail(function() { button.disabled = false; });
+    });
+}
+
+function efb_onboarding_finish_efb() {
+    const button = document.getElementById('efb-onboarding-finish');
+    if (!button || button.disabled) return;
+    button.disabled = true;
+    efb_onboarding_mark_complete_efb();
+    closeSetupOverlay_efb();
+    show_success_notification_efb(efb_onboarding_text_efb('onboardingFinish', 'Finish setup'));
 }
 
 function efb_onboarding_poll_email_efb(test, email, attempt) {
@@ -3742,7 +4106,17 @@ function efb_onboarding_poll_email_efb(test, email, attempt) {
             efb_onboarding_status_efb('warning', efb_onboarding_text_efb('onboardingTestPendingGuidance', 'Your test email was sent, but delivery is not confirmed yet. Check the inbox or spam folder for the address below; you can finish setup and try again later from General Settings.'));
         } else {
             efb_onboarding_live_update_efb({ steps: { start: 'done', send: 'done', wait: 'error', quick: 'error', full: 'waiting' }, percent: 100, result: result });
-            efb_onboarding_status_efb('error', result.message || payload.m || efb_onboarding_text_efb('onboardingTestFailed', 'We could not verify delivery. Your email address was saved; please check your mail configuration in General Settings.'));
+            // Which fallback applies depends on how far the message got: see
+            // the /handoff endpoint. "Check your mail configuration" is the
+            // wrong advice for a site whose WordPress sent the message fine.
+            const sendStage = result.send_stage || 'unknown';
+            let fallback = efb_onboarding_text_efb('onboardingTestFailed', 'We could not verify delivery. Your email address was saved; please check your mail configuration in General Settings.');
+            if (sendStage === 'handed_off') {
+                fallback = efb_onboarding_text_efb('emailSentNotArrivedDesc', 'Your site handed the message to your mail server successfully, so WordPress and this plugin did their part. It was lost, delayed or rejected afterwards - most often the receiving mailbox filed it as spam, or your host never delivered it from the outbound queue.');
+            } else if (sendStage === 'wp_mail_failed') {
+                fallback = efb_onboarding_text_efb('emailWpMailFailedDesc', 'The message never left your website: WordPress returned an error while sending it. Install and configure an SMTP plugin, or ask your host whether PHP mail is disabled.');
+            }
+            efb_onboarding_status_efb('error', result.message || payload.m || fallback);
         }
         efb_onboarding_set_finish_efb(true);
     }).fail(function() {
@@ -3790,6 +4164,10 @@ function efb_onboarding_start_email_test_efb() {
         }).done(function(response) {
             const payload = response && response.data ? response.data : {};
             const test = payload.test || {};
+            // The site has now run a delivery test and has a verdict to show,
+            // so the guide is done either way - a failure is a result too, and
+            // it is retried from General Settings rather than from here.
+            efb_onboarding_mark_complete_efb();
             if (payload.success && test.test_hash) {
                 efb_onboarding_live_update_efb({
                     steps: { start: 'done', send: 'done', wait: 'active', quick: 'waiting', full: 'waiting' },
@@ -3830,7 +4208,7 @@ function showOnboardingEmailStep_efb() {
         ? efb_var.setting.femail
         : 'no-reply@' + (window.location.hostname || 'your-site.com');
     overlay.querySelector('.efb-overlay-container').classList.add('efb-onboarding-container');
-    content.innerHTML = '<div class="efb-onboarding-card"><div class="efb-onboarding-steps"><span class="is-done"><i class="bi bi-check-circle-fill"></i> ' + efb_onboarding_text_efb('onboardingPlanSelected', 'Plan selected') + '</span><span class="is-current"><b>2</b> ' + efb_onboarding_text_efb('onboardingEmailTitle', 'Set up form notifications') + '</span></div><div class="efb-onboarding-hero"><div class="efb-onboarding-icon"><i class="bi bi-envelope-check-fill"></i></div><h2>' + efb_onboarding_text_efb('onboardingEmailTitle', 'Set up form notifications') + '</h2><p>' + efb_onboarding_text_efb('onboardingEmailDescription', 'Choose where form notifications should be sent, then we will check whether your server can deliver them.') + '</p></div><label class="efb-onboarding-label" for="efb-onboarding-admin-email">' + efb_onboarding_text_efb('onboardingAdminEmail', 'Form notification email') + '</label><input id="efb-onboarding-admin-email" type="email" value="' + efb_onboarding_escape_efb(configuredEmail) + '" autocomplete="email"><p class="efb-onboarding-hint">' + efb_onboarding_text_efb('onboardingAdminEmailHint', 'This is saved in General Settings and can be changed later.') + '</p><div class="efb-onboarding-defaults"><h3>' + efb_onboarding_text_efb('onboardingDefaults', 'Your default settings') + '</h3><p><i class="bi bi-bell"></i> ' + efb_onboarding_text_efb('onboardingNotifications', 'Notifications stay off until delivery is verified') + '</p><p><i class="bi bi-send"></i> ' + efb_onboarding_text_efb('onboardingSender', 'Sender') + ': <strong>' + efb_onboarding_escape_efb(sender) + '</strong></p><p><i class="bi bi-check2-circle"></i> ' + efb_onboarding_text_efb('onboardingFormsReady', 'Your forms and submissions are ready to use') + '</p></div><div id="efb-onboarding-email-report" class="efb-onboarding-report" aria-live="polite"></div><div class="efb-onboarding-actions" role="group" aria-label="Setup actions"><button type="button" id="efb-onboarding-test-email" class="efb-btn efb-btn-primary efb-onboarding-test-button"><i class="bi bi-send-check-fill" aria-hidden="true"></i><span>' + efb_onboarding_text_efb('onboardingTestEmail', 'Save and test email delivery') + '</span></button><button type="button" id="efb-onboarding-finish" class="efb-btn efb-btn-outline efb-onboarding-finish-button" disabled><i class="bi bi-check2-circle" aria-hidden="true"></i><span>' + efb_onboarding_text_efb('onboardingFinish', 'Finish setup') + '</span></button></div></div><style>.efb-onboarding-container{max-width:680px!important;overflow:hidden!important}.efb-onboarding-card{box-sizing:border-box;padding:clamp(22px,4vh,42px);max-width:620px;margin:auto;color:#172554;overflow:hidden}.efb-onboarding-steps{display:flex;gap:12px;align-items:center;font-size:13px;margin-bottom:clamp(16px,3vh,34px)}.efb-onboarding-steps span{padding:7px 11px;border-radius:999px;background:#eef2ff}.efb-onboarding-steps .is-done{color:#166534;background:#ecfdf5}.efb-onboarding-steps .is-current{color:#3730a3;font-weight:700}.efb-onboarding-steps b{display:inline-flex;width:18px;height:18px;border-radius:50%;align-items:center;justify-content:center;background:#4338ca;color:#fff}.efb-onboarding-hero{text-align:center}.efb-onboarding-icon{display:inline-flex;width:clamp(42px,7vh,58px);height:clamp(42px,7vh,58px);align-items:center;justify-content:center;border-radius:18px;background:linear-gradient(135deg,#312e81,#7c3aed);color:white;font-size:clamp(20px,3vh,26px);box-shadow:0 12px 30px rgba(79,70,229,.25)}.efb-onboarding-hero h2{margin:clamp(10px,2vh,16px) 0 8px;font-size:clamp(21px,3.3vh,27px)}.efb-onboarding-hero p{margin:0 auto clamp(16px,3vh,30px);max-width:520px;color:#64748b;line-height:1.55}.efb-onboarding-label{display:block;font-weight:700;margin-bottom:8px}.efb-onboarding-card input{box-sizing:border-box;width:100%;padding:12px 14px;border:1px solid #cbd5e1;border-radius:10px;font-size:15px}.efb-onboarding-card input:focus{outline:3px solid rgba(99,102,241,.16);border-color:#6366f1}.efb-onboarding-hint{margin:7px 0 16px;color:#64748b;font-size:13px}.efb-onboarding-defaults{padding:14px 16px;border:1px solid #e0e7ff;border-radius:14px;background:#f8faff}.efb-onboarding-defaults h3{margin:0 0 8px;font-size:15px}.efb-onboarding-defaults p{margin:6px 0;color:#475569;font-size:13px}.efb-onboarding-defaults i{color:#4f46e5}.efb-onboarding-report{display:none;margin-top:14px;padding:11px 13px;border-radius:10px;line-height:1.45;font-size:14px}.efb-onboarding-report:not(:empty){display:block}.efb-onboarding-report.is-checking{color:#1d4ed8;background:#eff6ff}.efb-onboarding-report.is-success{color:#166534;background:#ecfdf5}.efb-onboarding-report.is-warning{color:#92400e;background:#fffbeb}.efb-onboarding-report.is-error{color:#b91c1c;background:#fef2f2}.efb-onboarding-actions{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:12px;margin-top:20px}.efb-onboarding-actions button{min-height:52px;display:inline-flex;align-items:center;justify-content:center;gap:9px;border-radius:12px;font-weight:700;line-height:1.2;transition:transform .18s ease,box-shadow .18s ease,background .18s ease}.efb-onboarding-test-button{border:0!important;background:linear-gradient(135deg,#312e81,#5b21b6)!important;box-shadow:0 9px 20px rgba(79,70,229,.26)}.efb-onboarding-test-button:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 13px 24px rgba(79,70,229,.32)}.efb-onboarding-finish-button{border:1px solid #c7d2fe!important;background:#fff!important;color:#3730a3!important}.efb-onboarding-finish-button:hover:not(:disabled){background:#eef2ff!important;transform:translateY(-2px)}.efb-onboarding-actions button:disabled{opacity:.52;cursor:not-allowed;box-shadow:none}.efb-onboarding-actions .is-loading:after{content:"";display:inline-block;width:12px;height:12px;margin-left:2px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:efbOnboardingSpin .7s linear infinite}@keyframes efbOnboardingSpin{to{transform:rotate(360deg)}}@media(max-height:680px) and (min-width:601px){.efb-onboarding-card{padding:18px 28px}.efb-onboarding-defaults{padding:10px 14px}.efb-onboarding-defaults p{margin:4px 0}.efb-onboarding-steps{margin-bottom:10px}.efb-onboarding-hero p{margin-bottom:12px}.efb-onboarding-hint{margin-bottom:10px}.efb-onboarding-actions{margin-top:12px}.efb-onboarding-actions button{min-height:44px}}@media(max-width:600px){.efb-onboarding-card{padding:24px 20px}.efb-onboarding-actions{grid-template-columns:1fr}.efb-onboarding-actions button{width:100%}.efb-onboarding-steps{align-items:flex-start;flex-direction:column;gap:7px}}</style>';
+    content.innerHTML = '<div class="efb-onboarding-card"><div class="efb-onboarding-steps"><span class="is-done"><i class="bi bi-check-circle-fill"></i> ' + efb_onboarding_text_efb('onboardingPlanSelected', 'Plan selected') + '</span><span class="is-current"><b>2</b> ' + efb_onboarding_text_efb('onboardingEmailTitle', 'Set up form notifications') + '</span></div><div class="efb-onboarding-hero"><div class="efb-onboarding-icon"><i class="bi bi-envelope-check-fill"></i></div><h2>' + efb_onboarding_text_efb('onboardingEmailTitle', 'Set up form notifications') + '</h2><p>' + efb_onboarding_text_efb('onboardingEmailDescription', 'Choose where form notifications should be sent, then we will check whether your server can deliver them.') + '</p></div><label class="efb-onboarding-label" for="efb-onboarding-admin-email">' + efb_onboarding_text_efb('onboardingAdminEmail', 'Form notification email') + '</label><input id="efb-onboarding-admin-email" type="email" value="' + efb_onboarding_escape_efb(configuredEmail) + '" autocomplete="email"><p class="efb-onboarding-hint">' + efb_onboarding_text_efb('onboardingAdminEmailHint', 'This is saved in General Settings and can be changed later.') + '</p><div class="efb-onboarding-defaults"><h3>' + efb_onboarding_text_efb('onboardingDefaults', 'Your default settings') + '</h3><p><i class="bi bi-bell"></i> ' + efb_onboarding_text_efb('onboardingNotifications', 'Notifications stay off until delivery is verified') + '</p><p><i class="bi bi-send"></i> ' + efb_onboarding_text_efb('onboardingSender', 'Sender') + ': <strong>' + efb_onboarding_escape_efb(sender) + '</strong></p><p><i class="bi bi-check2-circle"></i> ' + efb_onboarding_text_efb('onboardingFormsReady', 'Your forms and submissions are ready to use') + '</p></div><div id="efb-onboarding-email-report" class="efb-onboarding-report" aria-live="polite"></div><div class="efb-onboarding-actions" role="group" aria-label="Setup actions"><button type="button" id="efb-onboarding-test-email" class="efb-btn efb-btn-primary efb-onboarding-test-button"><i class="bi bi-send-check-fill" aria-hidden="true"></i><span>' + efb_onboarding_text_efb('onboardingTestEmail', 'Save and test email delivery') + '</span></button><button type="button" id="efb-onboarding-finish" class="efb-btn efb-btn-outline efb-onboarding-finish-button" disabled><i class="bi bi-check2-circle" aria-hidden="true"></i><span>' + efb_onboarding_text_efb('onboardingFinish', 'Finish setup') + '</span></button></div></div><style>.efb-onboarding-container{max-width:680px!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}.efb-onboarding-container .efb-overlay-content{min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}.efb-onboarding-card{box-sizing:border-box;padding:clamp(22px,4vh,42px);max-width:620px;margin:auto;color:#172554}.efb-onboarding-steps{display:flex;gap:12px;align-items:center;font-size:13px;margin-bottom:clamp(16px,3vh,34px)}.efb-onboarding-steps span{padding:7px 11px;border-radius:999px;background:#eef2ff}.efb-onboarding-steps .is-done{color:#166534;background:#ecfdf5}.efb-onboarding-steps .is-current{color:#3730a3;font-weight:700}.efb-onboarding-steps b{display:inline-flex;width:18px;height:18px;border-radius:50%;align-items:center;justify-content:center;background:#4338ca;color:#fff}.efb-onboarding-hero{text-align:center}.efb-onboarding-icon{display:inline-flex;width:clamp(42px,7vh,58px);height:clamp(42px,7vh,58px);align-items:center;justify-content:center;border-radius:18px;background:linear-gradient(135deg,#312e81,#7c3aed);color:white;font-size:clamp(20px,3vh,26px);box-shadow:0 12px 30px rgba(79,70,229,.25)}.efb-onboarding-hero h2{margin:clamp(10px,2vh,16px) 0 8px;font-size:clamp(21px,3.3vh,27px)}.efb-onboarding-hero p{margin:0 auto clamp(16px,3vh,30px);max-width:520px;color:#64748b;line-height:1.55}.efb-onboarding-label{display:block;font-weight:700;margin-bottom:8px}.efb-onboarding-card input{box-sizing:border-box;width:100%;padding:12px 14px;border:1px solid #cbd5e1;border-radius:10px;font-size:15px}.efb-onboarding-card input:focus{outline:3px solid rgba(99,102,241,.16);border-color:#6366f1}.efb-onboarding-hint{margin:7px 0 16px;color:#64748b;font-size:13px}.efb-onboarding-defaults{padding:14px 16px;border:1px solid #e0e7ff;border-radius:14px;background:#f8faff}.efb-onboarding-defaults h3{margin:0 0 8px;font-size:15px}.efb-onboarding-defaults p{margin:6px 0;color:#475569;font-size:13px}.efb-onboarding-defaults i{color:#4f46e5}.efb-onboarding-report{display:none;margin-top:14px;padding:11px 13px;border-radius:10px;line-height:1.45;font-size:14px}.efb-onboarding-report:not(:empty){display:block}.efb-onboarding-report.is-checking{color:#1d4ed8;background:#eff6ff}.efb-onboarding-report.is-success{color:#166534;background:#ecfdf5}.efb-onboarding-report.is-warning{color:#92400e;background:#fffbeb}.efb-onboarding-report.is-error{color:#b91c1c;background:#fef2f2}.efb-onboarding-actions{position:sticky;bottom:0;z-index:2;display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:12px;margin-top:14px;padding:12px 0 2px;background:#fff;box-shadow:0 -16px 16px -16px rgba(23,37,84,.14)}.efb-onboarding-actions button{min-height:52px;display:inline-flex;align-items:center;justify-content:center;gap:9px;border-radius:12px;font-weight:700;line-height:1.2;transition:transform .18s ease,box-shadow .18s ease,background .18s ease}.efb-onboarding-test-button{border:0!important;background:linear-gradient(135deg,#312e81,#5b21b6)!important;box-shadow:0 9px 20px rgba(79,70,229,.26)}.efb-onboarding-test-button:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 13px 24px rgba(79,70,229,.32)}.efb-onboarding-finish-button{border:1px solid #c7d2fe!important;background:#fff!important;color:#3730a3!important}.efb-onboarding-finish-button:hover:not(:disabled){background:#eef2ff!important;transform:translateY(-2px)}.efb-onboarding-actions button:disabled{opacity:.52;cursor:not-allowed;box-shadow:none}.efb-onboarding-actions .is-loading:after{content:"";display:inline-block;width:12px;height:12px;margin-left:2px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:efbOnboardingSpin .7s linear infinite}@keyframes efbOnboardingSpin{to{transform:rotate(360deg)}}@media(max-height:1000px) and (min-width:601px){.efb-onboarding-card{padding:18px 28px}.efb-onboarding-defaults{padding:10px 14px}.efb-onboarding-defaults p{margin:4px 0}.efb-onboarding-steps{margin-bottom:10px}.efb-onboarding-hero p{margin-bottom:12px}.efb-onboarding-hint{margin-bottom:10px}.efb-onboarding-actions{margin-top:12px}.efb-onboarding-actions button{min-height:44px}}@media(max-width:600px){.efb-onboarding-card{padding:24px 20px}.efb-onboarding-actions{position:static;grid-template-columns:1fr;padding:0;margin-top:16px;box-shadow:none}.efb-onboarding-actions button{width:100%}.efb-onboarding-steps{align-items:flex-start;flex-direction:column;gap:7px}}</style>';
     document.getElementById('efb-onboarding-test-email').addEventListener('click', efb_onboarding_start_email_test_efb);
     document.getElementById('efb-onboarding-finish').addEventListener('click', efb_onboarding_finish_efb);
     document.getElementById('efb-onboarding-admin-email').addEventListener('input', function() {
@@ -4196,7 +4574,9 @@ function showSetupAsOverlayPage(options) {
         .efb-overlay-close {
             position: absolute;
             top: 20px;
-            right: 20px;
+            /* Logical, not a hard right: on an RTL admin the step chips start at the
+               top right, and a hard-pinned close button sat on top of them. */
+            inset-inline-end: 20px;
             background: rgba(255, 255, 255, 0.9);
             border: none;
             border-radius: 50%;
@@ -4226,19 +4606,28 @@ function showSetupAsOverlayPage(options) {
             overflow-x: hidden;
         }
 
-        /* Fixed-height live email report: it updates in place without moving
-           the onboarding actions or changing the modal's dimensions. */
-        #efb-setup-overlay .efb-onboarding-live-report {
+        /* The live email report. It updates in place while the test runs, so
+           it reserves its height rather than letting the wizard jump every
+           time a step ticks over - but the height is a floor now, not a cap.
+           It used to be a hard 178px with overflow:hidden, which silently
+           clipped anything taller than the old five-word step strip. */
+        #efb-setup-overlay .efb-onboarding-email-report {
             display: block !important;
             box-sizing: border-box;
-            height: 178px;
+            min-height: 178px;
             margin-top: 14px;
-            padding: 12px 14px;
-            overflow: hidden;
-            border: 1px solid #dbeafe;
-            border-radius: 12px;
-            background: #f8fbff;
-            color: #334155;
+            padding: 0;
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+        }
+
+        /* Before the first test there is nothing to keep steady, and the
+           reserved strip only pushed the buttons below the fold. */
+        #efb-setup-overlay .efb-onboarding-email-report:empty {
+            display: none !important;
+            min-height: 0;
+            margin-top: 0;
         }
 
         #efb-setup-overlay .efb-onboarding-test-button,
@@ -4246,33 +4635,6 @@ function showSetupAsOverlayPage(options) {
         #efb-setup-overlay .efb-onboarding-test-button i {
             color: #fff !important;
         }
-
-        .efb-onboarding-live-report.is-success { border-color: #bbf7d0 !important; background: #f0fdf4 !important; }
-        .efb-onboarding-live-report.is-warning { border-color: #fde68a !important; background: #fffbeb !important; }
-        .efb-onboarding-live-report.is-error { border-color: #fecaca !important; background: #fff7f7 !important; }
-        .efb-onboarding-live-head { display: flex; justify-content: space-between; gap: 12px; font-size: 12px; font-weight: 700; }
-        .efb-onboarding-live-head strong { color: #4f46e5; }
-        .efb-onboarding-live-progress { height: 5px; margin: 7px 0 10px; overflow: hidden; border-radius: 99px; background: #e0e7ff; }
-        .efb-onboarding-live-progress span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #4f46e5, #8b5cf6); transition: width .45s ease; }
-        .efb-onboarding-live-report.is-success .efb-onboarding-live-progress span { background: #16a34a; }
-        .efb-onboarding-live-report.is-warning .efb-onboarding-live-progress span { background: #d97706; }
-        .efb-onboarding-live-report.is-error .efb-onboarding-live-progress span { background: #dc2626; }
-        .efb-onboarding-live-steps { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
-        .efb-onboarding-live-step { display: flex; min-width: 0; flex-direction: column; align-items: center; gap: 3px; color: #94a3b8; font-size: 10px; line-height: 1.1; text-align: center; }
-        .efb-onboarding-live-step i { display: inline-flex; width: 19px; height: 19px; align-items: center; justify-content: center; border: 1px solid #cbd5e1; border-radius: 50%; background: #fff; font-size: 10px; }
-        .efb-onboarding-live-step span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .efb-onboarding-live-step.is-done { color: #15803d; }
-        .efb-onboarding-live-step.is-done i { border-color: #22c55e; background: #22c55e; color: #fff; }
-        .efb-onboarding-live-step.is-active { color: #4338ca; font-weight: 700; }
-        .efb-onboarding-live-step.is-active i { border-color: #6366f1; color: #4f46e5; animation: efbOnboardingLiveSpin 1s linear infinite; }
-        .efb-onboarding-live-step.is-warning { color: #b45309; }
-        .efb-onboarding-live-step.is-warning i { border-color: #f59e0b; background: #fef3c7; color: #b45309; }
-        .efb-onboarding-live-step.is-error { color: #b91c1c; }
-        .efb-onboarding-live-step.is-error i { border-color: #ef4444; background: #ef4444; color: #fff; }
-        .efb-onboarding-live-message { display: -webkit-box; min-height: 34px; margin: 9px 0 5px; overflow: hidden; color: #475569; font-size: 12px; line-height: 1.4; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
-        .efb-onboarding-live-facts { display: flex; gap: 5px; overflow: hidden; white-space: nowrap; }
-        .efb-onboarding-live-facts span { overflow: hidden; max-width: 48%; padding: 3px 6px; border-radius: 99px; background: rgba(255,255,255,.8); color: #64748b; font-size: 10px; text-overflow: ellipsis; }
-        @keyframes efbOnboardingLiveSpin { to { transform: rotate(360deg); } }
 
         @media (max-width: 1024px) {
             .efb-overlay-container {
@@ -4298,7 +4660,7 @@ function showSetupAsOverlayPage(options) {
 
             .efb-overlay-close {
                 top: 12px;
-                right: 12px;
+                inset-inline-end: 12px;
                 width: 38px;
                 height: 38px;
                 font-size: 1rem;
@@ -4367,7 +4729,9 @@ function showSetupAsOverlayPage(options) {
                 padding: 15px !important;
             }
 
-            #efb-setup-overlay .efb-onboarding-live-report { height: 174px; }
+            /* On a phone the rail stacks into a list, so reserving a fixed
+               strip of height here would only add dead space above it. */
+            #efb-setup-overlay .efb-onboarding-email-report { min-height: 0; }
         }
 
         @media (max-width: 576px) {
@@ -4384,7 +4748,7 @@ function showSetupAsOverlayPage(options) {
 
             .efb-overlay-close {
                 top: 8px;
-                right: 8px;
+                inset-inline-end: 8px;
                 width: 32px;
                 height: 32px;
                 font-size: 0.9rem;
@@ -4452,7 +4816,7 @@ function showSetupAsOverlayPage(options) {
 
             .efb-overlay-close {
                 top: 5px;
-                right: 5px;
+                inset-inline-end: 5px;
                 width: 28px;
                 height: 28px;
                 font-size: 0.8rem;

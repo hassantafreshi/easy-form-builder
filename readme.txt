@@ -1,10 +1,10 @@
 === Easy Form Builder by WhiteStudio - Drag & Drop Form Builder ===
-Contributors: hassantafreshi, mostafas1990, 6arshid, aminkhadivar, presskopp
+Contributors: hassantafreshi, mostafas1990, 6arshid, aminkhadivar, presskopp, whitestudio
 Donate link: https://whitestudio.team/donate-easy-form-builder/
 Tags: form builder, form plugin, multi step form, email templates, payment form
 Requires at least: 5.0
 Tested up to: 7.1
-Stable tag: 4.1.3
+Stable tag: 4.2.0
 Requires PHP: 7.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -416,9 +416,14 @@ For more information, visit the official website:
 17. WordPress Support Ticket Conversation and Reply Form
 18. Easy Form Builder Dashboard Widget with email delivery status, form page views, completed submissions, sent and failed email counts, and Email Error Log
 19. Test WordPress form notification emails for free with Easy Form Builder.
+20. Customize the response form viewer to match your brand
 
 
 == Upgrade Notice ==
+
+= 4.2.0 =
+
+Recommended update. Adds an onboarding wizard and direct settings links, improves email delivery monitoring with weekly reports and an Email Error Log, strengthens form submission and add-on handling, and includes database schema updates. Back up your site before updating and verify email delivery, payment notifications, file uploads, and recorder fields after the update.
 
 = 4.1.3 =
 
@@ -432,6 +437,25 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 
 
 == Changelog ==
+
+= 4.2.0 =
+
+* New: Added an onboarding wizard for new installations, with setup progress and direct links to the relevant settings tabs.
+
+* New: Added a weekly email deliverability report with delivery status, score, authentication checks, and recommendations.
+
+* New: Added an Email Error Log and expanded email activity details in the Easy Form Builder dashboard widget.
+
+* Improved: Improved email delivery handling, error reporting, and payment form notification reliability.
+
+* Improved: Improved add-on installation and endpoint handling, including more resilient download and subscription flows.
+
+* Improved: Improved form submission handling on cached pages and strengthened session, nonce, and recovery-token validation.
+
+* Security: Hardened upload, recorder, login, registration, and tracking-code handling with additional validation and abuse protections.
+
+* Changed: Updated the database schema to version 1.2. Existing installations run the schema upgrade automatically when the plugin loads.
+
 
 = 4.1.3 =
 
@@ -494,50 +518,5 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 
 * Tested up to WordPress 7.0.2
 
-= 4.0.6 =
-
-* Fixed issues
-
-= 4.0.5 =
-
-* Introduced Dashboard Widget for tracking form submission statistics.
-
-* Added download dropdown menu in response viewer for easier file access.
-
-* Added security plugin compatibility notice and improved plugin deactivation handling.
-
-* Improved email template button accessibility and cross-client link styling.
-
-* Enhanced form recovery UI with dynamic color, corner, and height styling.
-
-* Updated CDN links and improved error handling across multiple components.
-
-* Improved localization for multi-step, drag & drop, and no-coding badge labels.
-
-* Fixed settings display issue in Easy Form Builder panel.
-
-* Fixed issues
-
-= 4.0.4 =
-
-* Improved UX of Easy Form Builder
-
-= 4.0.3 =
-
-* Improved UX of Easy Form Builder
-
-* Fixed issues
-
-= 4.0.2 =
-
-= 4.0.1 =
-
-* Fixed issues
-
-= 4.0.0 =
-
-Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Visual Composer widgets, email template builder, background processing, and Shield Security integration added. Database schema upgraded (v1.1). Settings API and internal functions restructured - all official add-ons will be updated to their latest versions.
-
-**Backup your site before updating. Not backward-compatible with v3.x addons.**
 
 Looking for even older release notes? See the [full changelog archive](https://plugins.svn.wordpress.org/easy-form-builder/assets/changelog_old.txt).

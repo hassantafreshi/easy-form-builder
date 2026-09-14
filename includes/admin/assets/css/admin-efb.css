@@ -233,6 +233,102 @@ body.mobile.modal-open #wpwrap {	position: relative !important;
    border-bottom: 1px solid #e5e5e5;
    padding-bottom: 8px;
 }
+
+/* The admin menu is left exactly as WordPress renders it - no cap, no scroll area of its
+   own. It was capped here once so a menu taller than the builder could not keep the page
+   scrollable on its own, but a menu scrolling separately from the page is the worse of
+   the two problems. The dead strip a tall menu used to leave under the builder is now
+   answered from the other side: efbFitWorkspaceEfb() grows the workspace to the menu's
+   bottom, so the columns end where the page does. */
+
+/* Builder workspace on anything but a phone --------------------------------
+   The palette holds ~50 tiles, so it is several screens tall. Reaching the bottom of
+   it used to scroll the form canvas completely out of view, which is the one thing
+   you need to see while picking a field. Both columns are pinned instead: the palette
+   becomes its own scroll area under the admin bar, and the canvas sticks beside it.
+
+   align-self is what makes the sticky work at all - a stretched flex item is exactly
+   as tall as its row, which leaves position:sticky no travel to use. It also gives
+   the behaviour the canvas needs for free: the row is as tall as its tallest column,
+   so a canvas SHORTER than the palette has travel and stays put, while a canvas taller
+   than the palette has none and just scrolls, which is right once the form is long.
+   The phone layout keeps its own rules above (body.mobile is set by WordPress). */
+@media (min-width: 768px) {
+   body:not(.mobile) div#listElEfb.efb,
+   body:not(.mobile) .efb.col-md-8.body-dpz-efb {
+      position: sticky;
+      top: calc(var(--wp-admin--admin-bar--height, 32px) + 12px);
+      align-self: flex-start;
+   }
+
+   /* The canvas card keeps the height of the form inside it - the 4.1.3 behaviour, and
+      the standard one. It was briefly stretched to the foot of the page so the drop
+      surface filled the column, and that was the wrong trade: the card is the only thing
+      on screen that tells you how long the form is, so a card sized to the window makes
+      a three-field form look like a page-long one. Nothing sets a height on
+      #dragBoxWrapperEfb here on purpose; the measured workspace height is the palette's
+      scroll window alone (see #listElEfb below), and the canvas column is left as the
+      plain bootstrap column it is.
+
+      Consequences of that choice, both accepted: the columns no longer end level, and
+      the empty space beside a short form belongs to the page rather than the card. */
+
+   /* efbFitWorkspaceEfb() sets this class when the window it measured for the palette
+      runs past the fold - which happens when the admin menu, left uncapped, is what
+      makes the page tall. Sticky is wrong for the palette there: pinned at `top`, a
+      column taller than the viewport holds its own lower edge off-screen for good, and
+      that edge is the end of a scroll area you could then never reach. It travels with
+      the page instead. The canvas column stays sticky either way - it is only as tall as
+      the form, and keeping it in view while you scroll the palette is the point. */
+   body:not(.mobile) .efb.row.efb-workspace-tall > div#listElEfb.efb {
+      position: static;
+   }
+   /* Containment is right for a pinned palette - the page must not slide away under a
+      list you are scrolling. Once the palette travels with the page, the same rule turns
+      the wheel into a dead end at the list's last tile, with the page's own remaining
+      scroll unreachable without moving the pointer off the column. Chain it there. */
+   body:not(.mobile) .efb.row.efb-workspace-tall > div#listElEfb.efb {
+      overscroll-behavior: auto;
+   }
+
+   body:not(.mobile) div#listElEfb.efb {
+      max-height: var(--efb-workspace-h, calc(100vh - var(--wp-admin--admin-bar--height, 32px) - 24px));
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-width: thin;
+      overscroll-behavior: contain;
+      scroll-behavior: smooth;
+      padding-bottom: 8px;
+   }
+
+   /* The category filter stays reachable at the top of that scroll area. It needs an
+      opaque background so tiles pass under it; white rather than the admin body colour,
+      which differs between admin colour schemes. */
+   body:not(.mobile) div#listElEfb.efb .efb.row#listCatEfb {
+      position: sticky;
+      top: 0;
+      z-index: 6;
+      background-color: #fff;
+      border-radius: 14px;
+      box-shadow: 0 2px 18px rgb(84 131 207 / 12%);
+      padding: 4px 2px !important;
+      margin: 0 0 14px !important;
+   }
+   body:not(.mobile) div#listElEfb.efb .efb.row#listCatEfb .efb.hr {
+      display: none;
+   }
+
+   body:not(.mobile) div#listElEfb.efb::-webkit-scrollbar {
+      width: 8px;
+   }
+   body:not(.mobile) div#listElEfb.efb::-webkit-scrollbar-thumb {
+      background-color: rgba(84, 131, 207, 0.25);
+      border-radius: 8px;
+   }
+   body:not(.mobile) div#listElEfb.efb::-webkit-scrollbar-track {
+      background-color: transparent;
+   }
+}
 .mobile .btn-select-form.efb {	font-size: 10px;
    height: 100px;
 }
@@ -827,7 +923,10 @@ body.folded .efb.modal {
 #settingModalEfb .efb.modal-content {
     max-height: 85vh !important;
     height: auto !important;
-    border-radius: 20px !important;
+    /* The !important is here to beat bootstrap's own .modal-content, not to
+       fix the figure: the shape belongs to modal-system-efb.css, so the value
+       is the token and the literal is only the did-not-load fallback. */
+    border-radius: var(--efb-dlg-radius, 18px) !important;
     display: flex !important;
     flex-direction: column !important;
 }
@@ -1045,7 +1144,7 @@ body.folded .efb.modal {
 }
 
 #settingModalEfb .efb.modal-dialog.efb-confirm-dialog {
-    max-width: 420px;
+    max-width: 540px;
     margin: 0 auto;
     display: flex;
     align-items: center;
@@ -1055,12 +1154,20 @@ body.folded .efb.modal {
 #settingModalEfb .efb-confirm-dialog .efb.modal-content {
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
     border: none;
-    border-radius: 16px !important;
+    /* The figure comes from modal-system-efb.css, which owns the dialog shape.
+       It used to be a hard 16px !important, which no later stylesheet could
+       correct - the fallback here is only for the case where the design
+       system failed to load at all. */
+    border-radius: var(--efb-dlg-radius, 18px);
     width: 100%;
     overflow: hidden;
     max-width: 100%;
     box-sizing: border-box;
 }
+/* A confirm dialog carries its title in the body, under the badge, which is
+   the design's own treatment for this kind of message. Showing the head bar
+   as well would print the same word twice - "Delete" over "Delete" - so the
+   bar stays out of the way here and only here. */
 #settingModalEfb .efb-confirm-dialog .efb.modal-header.efb {
     display: none;
 }
@@ -1311,6 +1418,54 @@ div#sideBoxEfb {	height: 100vh;
    transition: 0.5s !important;
 }
 .btn-select-form.efb i {	font-size: 30px !important;
+   line-height: 1;
+}
+
+/* Palette tile labels -------------------------------------------------------
+   A tile is only ~55-90px wide, and the label is a translated field name. German
+   compounds (Kontrollkaestchen, Bildschirmaufnahme, Mehrfachauswahl) are 90-130px
+   wide with no space to wrap at, so `overflow:hidden` alone sliced them off on both
+   sides and left the tile unreadable. Hyphenate them - the admin <html lang> picks
+   the dictionary - break mid-word wherever no dictionary applies, and cap the label
+   at three lines so the tile keeps its 120px height. The untruncated name is already
+   on the button's title attribute, so the tooltip still gives the full text. */
+.btn-select-form.efb {
+   padding: 10px 6px;
+   line-height: 1.15;
+}
+.btn-select-form.efb > span.efb {
+   max-width: 100%;
+   margin-top: 6px;
+   /* The admin's 16px base is oversized for a ~80px tile label and was the reason even
+      an 11-character word wrapped. Every narrower breakpoint in min-1200-style.css
+      already steps down to 0.85rem; match it here so the widest screens agree. */
+   font-size: 0.85rem;
+   line-height: 1.15;
+   overflow-wrap: anywhere;
+   word-break: break-word;
+   -webkit-hyphens: auto;
+   hyphens: auto;
+   /* Hard ceiling of three lines so a label can never push the icon out of the tile.
+      Deliberately max-height and not -webkit-line-clamp: a <button> blockifies its
+      children, so the -webkit-box display that line-clamp needs never survives here.
+      3 x the line-height is exactly three line boxes, so this cuts on a line edge. */
+   max-height: 3.45em;
+   overflow: hidden;
+}
+/* Set by the tile renderer from the label's length - see creator_form_builder_Efb.
+   !important because min-1200-style.css sizes this same label per breakpoint with
+   !important of its own; without it these steps would silently do nothing below
+   1320px, which is exactly where the tiles are narrowest. */
+.btn-select-form.efb > span.efb-tile-label-sm { font-size: 0.75rem !important; }
+.btn-select-form.efb > span.efb-tile-label-xs { font-size: 0.65rem !important; }
+
+/* Three tiles per row, not four. At >=1320px the four-up grid left the label barely
+   60px of width, which no German field name survives; three-up gives it ~95px and
+   makes the drag target bigger everywhere. Narrower screens already step down to
+   three and then two in min-1200-style.css. Scoped to the draggable field tiles so
+   the four category chips in #listCatEfb keep their own layout. */
+.efb.row .efb.efb-col-3.draggable-efb {
+   width: 33.333333%;
 }
 .efb.guide {	border-radius: 20px;
    background: #e9f1ff;
@@ -1573,6 +1728,16 @@ div#sideBoxEfb {	height: 100vh;
    position: relative;
    z-index: 1000;
 }
+/* The field action buttons are revealed on hover by dropping d-none. With a real height
+   the float grows the field by (height + margin-top) at that moment, which pushed every
+   field below it down by 15px - the flicker felt on every hover. A zero-height box lets
+   the buttons overflow and paint at exactly the same place while contributing nothing to
+   the layout, so showing them never reflows anything. The option-row holders (.newop /
+   .pay, in the settings panel) are always visible and sit in normal flow - they keep
+   their height. */
+.efb.btn-edit-holder:not(.newop):not(.pay) {
+   height: 0;
+}
 #btnSetting-button_group.btn-edit-holder {	margin-left: 50%;
    margin-right: 50%;
    margin-top: -40px;
@@ -1729,6 +1894,12 @@ a.navbar-brand.efb,a.nav-link.efb {	text-decoration: none !important;
         padding: 5px;
         margin-left: 20%!important;
     }
+    /* No vertical padding on the field holders: it would give the zero-height box a
+       height again and bring the hover/tap jump back. The buttons carry their own
+       tap padding, so the touch target is unaffected. */
+    .btn-edit-holder:not(.newop):not(.pay) {
+        padding: 0 5px;
+    }
 
     .btn-edit, .BtnSideEfb {
         padding: 8px 12px !important;
@@ -1860,7 +2031,7 @@ div#optionListeHeadfb {	z-index: 1040;
    transition: 0.5s;
 }
 .modal-content.efb {	border: none !important;
-   border-radius: 20px !important;
+   border-radius: var(--efb-dlg-radius, 18px) !important;
 }
 .modal-dialog.save-efb {	max-width: 70% !important;
 }
@@ -2234,7 +2405,7 @@ div#attach_efb {	position: relative;
   right: auto;
   left: 0;
 }
-setion.hidden {
+section.hidden {
   background: #cccccc63;
 }
 

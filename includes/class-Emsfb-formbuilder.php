@@ -211,7 +211,7 @@
 
 	private function generateTextInput_efb($type, $classes, $vj, $rndm, $desc, $label, $ttip, $div_f_id, $placeholder, $lenAttributes, $aire_describedby, $disabled, $autocomplete, $form_id, $telPattern = '') {
 
-		$corener = isset($vj->corner) ? $vj->corner : 'efb-square';
+		$corener = isset($vj->corner) ? $vj->corner : 'rounded-3';
 		$required = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
 		$value = !empty($vj->value) ? 'value="' . esc_attr($vj->value) . '"' : '';
 		$aria_required = ($vj->required == 1) ? 'true' : 'false';
@@ -508,7 +508,7 @@
         $ariaRequired = $vj->required == 1 ? 'true' : 'false';
         $ariaDescribedBy = !empty($vj->message) ? 'aria-describedby="' . $vj->id_ . '-des"' : '';
         $disabled = property_exists($vj, 'disabled') && $vj->disabled == true ? 'disabled' : '';
-        $corner = isset($vj->corner) ? $vj->corner : 'efb-square';
+        $corner = isset($vj->corner) ? $vj->corner : 'rounded-3';
         $el_height = isset($vj->el_height) ? $vj->el_height : '';
         $el_border_color = isset($vj->el_border_color) ? $vj->el_border_color : '';
 		$type = $vj->type;
@@ -583,7 +583,7 @@
 		$ariaRequired = $vj->required == 1 ? 'true' : 'false';
 		$ariaDescribedBy = !empty($vj->message) ? 'aria-describedby="' . $vj->id_ . '-des"' : '';
 		$disabled = property_exists($vj, 'disabled') && $vj->disabled == true ? 'disabled' : '';
-		$corner = isset($vj->corner) ? $vj->corner : 'efb-square';
+		$corner = isset($vj->corner) ? $vj->corner : 'rounded-3';
 		$el_height = isset($vj->el_height) ? $vj->el_height : '';
 		$el_border_color = isset($vj->el_border_color) ? $vj->el_border_color : '';
 
@@ -655,7 +655,7 @@
 		$ariaRequired = $vj->required == 1 ? 'true' : 'false';
 		$ariaDescribedBy = !empty($vj->message) ? 'aria-describedby="' . $vj->id_ . '-des"' : '';
 		$disabled = property_exists($vj, 'disabled') && $vj->disabled == true ? 'disabled' : '';
-		$corner = isset($vj->corner) ? $vj->corner : 'efb-square';
+		$corner = isset($vj->corner) ? $vj->corner : 'rounded-3';
 		$el_height = isset($vj->el_height) ? $vj->el_height : '';
 		$el_border_color = isset($vj->el_border_color) ? $vj->el_border_color : '';
 
@@ -751,7 +751,7 @@
 		$ariaRequired = $vj->required == 1 ? 'true' : 'false';
 		$ariaDescribedBy = !empty($vj->message) ? 'aria-describedby="' . $vj->id_ . '-des"' : '';
 		$disabled = property_exists($vj, 'disabled') && $vj->disabled == true ? 'disabled' : '';
-		$corner = isset($vj->corner) ? $vj->corner : 'efb-square';
+		$corner = isset($vj->corner) ? $vj->corner : 'rounded-3';
 		$el_height = isset($vj->el_height) ? $vj->el_height : '';
 		$el_border_color = isset($vj->el_border_color) ? $vj->el_border_color : '';
 
@@ -823,7 +823,7 @@
 		$value = !empty($vj->value) ? sprintf('value="%s"', esc_attr($vj->value)) : '';
 		$el_height = isset($vj->el_height) ? $vj->el_height : '';
 		$el_text_color = isset($vj->el_text_color) ? $vj->el_text_color : '';
-		$corner = isset($vj->corner) ? $vj->corner : 'efb-square';
+		$corner = isset($vj->corner) ? $vj->corner : 'rounded-3';
 		$extra_classes = str_replace(',', ' ', $vj->classes);
 
 		$ui = sprintf(
@@ -978,7 +978,7 @@
 
     public function generate_yes_no_efb($previewState, $pos, $rndm, $vj, $formId) {
 
-		$corner = isset($vj->corner) ? $vj->corner : 'efb-square';
+		$corner = isset($vj->corner) ? $vj->corner : 'rounded-3';
 		$disabled = (isset($vj->disabled) && $vj->disabled == 1) ? 'disabled' : '';
 		$required = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
 		$ariaDescribedBy = !empty($vj->message) ? 'aria-describedby="' . $vj->id_ . '-des"' : '';
@@ -1354,7 +1354,7 @@
 		$classes =  str_replace(',', ' ', $vj->classes) ?? '';
 		$el_height = isset($vj->el_height) ? $vj->el_height : '';
 		$el_text_color = isset($vj->el_text_color) ? $vj->el_text_color : '';
-		$corner = isset($vj->corner) ? $vj->corner : 'efb-square';
+		$corner = isset($vj->corner) ? $vj->corner : 'rounded-3';
 		$additional_classes = isset($vj->classes) ? str_replace(',', ' ', $vj->classes) : '';
 		$randomId =$vj->id_;
 
@@ -1472,7 +1472,7 @@
 		// Generic style settings live on the shell, same class list the JS factory emits;
 		// recorder-efb.css translates them onto the inner frame.
 		$elHeight = property_exists($vj, 'el_height') && $vj->el_height ? $vj->el_height : 'h-d-efb';
-		$corner = property_exists($vj, 'corner') && $vj->corner ? $vj->corner : 'efb-square';
+		$corner = property_exists($vj, 'corner') && $vj->corner ? $vj->corner : 'rounded-3';
 		$borderColor = property_exists($vj, 'el_border_color') && $vj->el_border_color ? $vj->el_border_color : 'border-d';
 		$extraClasses = property_exists($vj, 'classes') && $vj->classes ? trim(str_replace(',', ' ', $vj->classes)) : '';
 
@@ -1547,7 +1547,7 @@
 	}
 
 	public function dadfile_el_pro_efb($previewSate, $rndm, $vj, $form_id, $texts) {
-		$corner = property_exists($vj, 'corner') ? $vj->corner : 'efb-square';
+		$corner = property_exists($vj, 'corner') ? $vj->corner : 'rounded-3';
 		$disabled = property_exists($vj, 'disabled') && $vj->disabled == true ? 'disabled' : '';
 
 		$ui = $this->ui_dadfile_efb($vj, $previewSate, $form_id, $texts , $disabled, $corner);
@@ -1640,7 +1640,7 @@
 			</div>
 		  </div>
 		</div>
-		<div class="efb efb-slot"><a class="efb  btn my-2 efb p-2 efb-square h-l-efb  efb-btn-lg float-end text-decoration-none disabled '.$this->pub_bg_button_color_efb.' text-white" id="btnStripeEfb" data-formid="'.$form_id.'">'.$texts['payNow'].'</a></div>
+		<div class="efb efb-slot"><a class="efb  btn my-2 efb p-2 rounded-3 h-l-efb  efb-btn-lg float-end text-decoration-none disabled '.$this->pub_bg_button_color_efb.' text-white" id="btnStripeEfb" data-formid="'.$form_id.'">'.$texts['payNow'].'</a></div>
 		<div class="efb  bg-light border-d rounded-3 p-2 bg-muted" id="statusStripEfb" style="display: none"></div>
 		</div>
 		</div>
@@ -1670,7 +1670,7 @@
 					.'</div>
 				</div>
 				<div class="my-2 efb p-2" id="paypal-button-container" data-formid="'.$form_id.'">
-					<div class="efb efb-slot"><a class="efb btn efb-square h-l-efb btn-primary text-white text-decoration-none disabled w-100 paypalEfb"
+					<div class="efb efb-slot"><a class="efb btn rounded-3 h-l-efb btn-primary text-white text-decoration-none disabled w-100 paypalEfb"
 					onclick="startPaymentPayPal_efb('.intval($form_id).')"
 					id="paypalEfb"
 					data-formid="'.$form_id.'">'.$texts['payNow'].'</a></div>
@@ -1696,7 +1696,7 @@
 						<!-- <span class="efb  text-labelEfb one" id="chargeEfb">'.$texts['onetime'].'</span>-->
 					</div>
 				</div>
-				<div class="efb efb-slot"><a class="efb btn my-2 efb p-2 efb-square h-l-efb btn-primary text-white text-decoration-none disabled w-100" onclick="pay_persia_efb('.$form_id.')" id="persiaPayEfb"  data-formid="'.$form_id.'">'.$texts['payment'].'</a></div>
+				<div class="efb efb-slot"><a class="efb btn my-2 efb p-2 rounded-3 h-l-efb btn-primary text-white text-decoration-none disabled w-100" onclick="pay_persia_efb('.$form_id.')" id="persiaPayEfb"  data-formid="'.$form_id.'">'.$texts['payment'].'</a></div>
 			</div>
 			<div class="efb p-3 card w-100 d-none" id="afterPayefb">
 			</div>
@@ -2093,7 +2093,7 @@
         $ariaRequired = $vj->required == 1 ? 'true' : 'false';
         $ariaDescribedBy = !empty($vj->message) ? 'aria-describedby="' . $vj->id_ . '-des"' : '';
         $disabled = property_exists($vj, 'disabled') && $vj->disabled == true ? 'disabled' : '';
-        $corner = isset($vj->corner) ? $vj->corner : 'efb-square';
+        $corner = isset($vj->corner) ? $vj->corner : 'rounded-3';
         $el_height = isset($vj->el_height) ? $vj->el_height : '';
         $el_border_color = isset($vj->el_border_color) ? $vj->el_border_color : '';
 
@@ -2294,7 +2294,7 @@
 		$text = sprintf($text, '<a href="https://wordpress.org/plugins/easy-form-builder/" target="_blank">', '</a>', '<a href="https://whitestudio.team" target="_blank">', '</a>');
 		$copyRight = '<!-- texts -->';
 		$efb = esc_html__('Easy Form Builder', 'easy-form-builder');
-		$wp_text = esc_html__('WordPress', 'easy-form-builder');
+		$wp_text = esc_html__('Free WordPress form plugin', 'easy-form-builder');
 		$fr = '<!-- efb copyRight -->';
 		$s = '';
 
@@ -2310,24 +2310,24 @@
 							  <h2 class="efb fs-8" style="' . $style . '">' .
 								/* translators: %1$s: opening link tag to plugin page, %2$s: closing link tag, %3$s: opening link tag to developer website, %4$s: closing link tag */
 								sprintf(
-									esc_html__('Powered by %1$sEasy Form Builder%2$s . %3$sWhiteStudio.team%4$s.', 'easy-form-builder'),
-									'<a href="https://wordpress.org/plugins/easy-form-builder/" title="' . esc_attr__('Easy Form Builder WordPress Plugin', 'easy-form-builder') . '" rel="sponsored noopener">',
+									esc_html__('Powered by %1$sEasy Form Builder%2$s . %3$sbest Form plugin for Wordpress%4$s.', 'easy-form-builder'),
+									'<a href="https://wordpress.org/plugins/easy-form-builder/" title="' . esc_attr__('Easy Form Builder WordPress Plugin', 'easy-form-builder') . '" rel="sponsored">',
 									'</a>',
-									'<a href="https://whitestudio.team" rel="sponsored noopener">',
+									'<a href="https://whitestudio.team" rel="sponsored">',
 									'</a>'
 								) .
 							  '</h2>
 							';
 
 			if (strpos(get_locale(), 'fa') === 0 || strpos(get_locale(), 'ar') === 0) {
-				$copyRight .= '<a href="https://easyformbuilder.ir" target="_blank" style="font-size: 8px;' . $style . '" rel="sponsored noopener">فرم ساز آسان</a>ساخته شده بوسیله<a href="https://fa.wordpress.org/plugins/easy-form-builder/" target="_blank">افزونه فرم ساز رایگان وردپرس</a>' . $fr;
+				$copyRight .= '<a href="https://easyformbuilder.ir" target="_blank" style="font-size: 8px;' . $style . '" rel="sponsored">فرم ساز آسان</a> ساخته شده بوسیله <a href="https://fa.wordpress.org/plugins/easy-form-builder/" target="_blank">افزونه فرم ساز رایگان وردپرس</a> ' . $fr;
 			} else if (strpos(get_locale(), 'en') !== 0) {
-				$copyRight .= '<a href="https://'.$f.'.wordpress.org/plugins/easy-form-builder/" target="_blank" style="font-size: 8px;' . $style . '" rel="sponsored noopener">'.$efb.' '. $wp_text.'</a>' . $fr;
+				$copyRight .= '<a href="https://'.$f.'.wordpress.org/plugins/easy-form-builder/" target="_blank" style="font-size: 8px;' . $style . '" rel="sponsored">'.$efb.' '. $wp_text.'</a>' . $fr;
 			}
 			return $copyRight .'</aside></div>';
 		}else if($this->package_type_efb==2){
 			$lang = substr(get_locale(), 0, 2);
-			if($lang == 'fa' || $lang == 'ar') add_action('wp_footer',  [$this, 'efb_output_schema_free'], 20);
+			if($lang == 'fa') add_action('wp_footer',  [$this, 'efb_output_schema_free_plus'], 20);
 		}
 		return '<!--efb-->';
 	}
@@ -2344,7 +2344,7 @@
 			return  "<script>alert('".esc_html__('Easy Form Builder' , 'easy-form-builder'). ": " .esc_html__('This form requires a payment method. Please add one or change the form type.' , 'easy-form-builder')."');</script>";
 		}
 
-		$corner = property_exists($valj_efb[0], 'corner') ? $valj_efb[0]->corner : 'efb-square';
+		$corner = property_exists($valj_efb[0], 'corner') ? $valj_efb[0]->corner : 'rounded-3';
 		$btns_align = property_exists($valj_efb[0], 'btns_align') ? $valj_efb[0]->btns_align . ' mx-3' : 'justify-content-center';
 		$icon_spacing_class = is_rtl() ? 'ms-2' : 'me-2';
 		$icon_spacing_next_class = is_rtl() ? 'me-2' : 'ms-2';
@@ -2463,7 +2463,7 @@
 			$ui = $elementSpecificFields['ui'];
 			$dataTag = $elementSpecificFields['dataTag'];
 		} else {
-			$corner= isset($vj->corner) ? $vj->corner : 'efb-square';
+			$corner= isset($vj->corner) ? $vj->corner : 'rounded-3';
 			switch ($vj->type) {
 
 				case 'pdate':
@@ -2502,7 +2502,7 @@
 					$ui = $pro ? $ui : $this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 
 					if($isPdate){
-						if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker")) {
+						if(!file_exists(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker/persiandate.php")) {
 							if($efbFunction === null)$efbFunction = get_efbFunction();
 							/* Queued, not downloaded: this renderer also runs for visitors. */
 							$queued = $efbFunction->queue_addon_recovery_efb(array('form_id' => $form_id, 'addon' => 'AdnPDP', 'source' => 'public_field_render'));
@@ -2512,7 +2512,7 @@
 							$persianDatePicker = new persianDatePickerEFB() ;
 						}
 					}else{
-						if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker")) {
+						if(!file_exists(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker/arabicdate.php")) {
 							if($efbFunction === null)$efbFunction = get_efbFunction();
 							$queued = $efbFunction->queue_addon_recovery_efb(array('form_id' => $form_id, 'addon' => 'AdnADP', 'source' => 'public_field_render'));
 							return $efbFunction->addon_wait_message_public_efb(empty($queued['queued']) ? 0 : 25);
@@ -4454,47 +4454,221 @@ public function check_error_console_efb(){
 	public function efb_output_schema_free_plus() {
 		$page_url = home_url( add_query_arg( [], sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ?? '/' ) ) ) );
 		$locale = get_locale();
+		$sub = substr(get_locale(), 0, 2);
+		$sub = $sub == 'en' ? '' : $sub;
 		$lang   = str_replace('_', '-', $locale);
 		$ws_url = $locale === 'fa_IR' ? 'https://easyformbuilder.ir' : 'https://whitestudio.team';
-		$wp_url = $locale === 'fa_IR' ? 'https://fa.wordpress.org/plugins/easy-form-builder/' : 'https://wordpress.org/plugins/easy-form-builder/';
+		$wp_url =  'https://' . $sub . '.wordpress.org/plugins/easy-form-builder/' ;
+		$software_id = $ws_url . '#easy-form-builder';
+		$org_id      = $ws_url . '#organization';
+
 		$schema = [
 			'@context' => 'https://schema.org',
-			'@type'    => 'WebPage',
-			'@id'      => $page_url . '#webpage',
-			'url'      => $page_url,
-			'mentions' => [
-				'@type' => 'SoftwareApplication',
-				'@id'   => $wp_url . '#software',
-				'name'  => esc_html__( 'Easy Form Builder', 'easy-form-builder' ),
-				'alternateName' => esc_html__( 'Free WordPress Form Builder Plugin', 'easy-form-builder' ),
-				'description' => esc_html__( 'Easy Form Builder is a WordPress form builder plugin for creating contact forms, payment forms, and survey forms.', 'easy-form-builder' ),
-				'applicationCategory' => ['BusinessApplication', 'WebApplication'],
-				'operatingSystem'     => 'WordPress',
-				'softwareVersion'     => defined('EMSFB_PLUGIN_VERSION') ? EMSFB_PLUGIN_VERSION : '',
-				'url'   => $wp_url,
-				'isAccessibleForFree' => true,
-				'keywords' => [
-					esc_html__( 'WordPress forms', 'easy-form-builder' ),
-					esc_html__( 'contact form plugin', 'easy-form-builder' ),
-					esc_html__( 'payment form plugin', 'easy-form-builder' ),
-					esc_html__( 'survey form plugin', 'easy-form-builder' ),
-					esc_html__( 'email notification form', 'easy-form-builder' ),
+			'@graph'   => [
+
+				[
+					'@type'      => 'WebPage',
+					'@id'        => $page_url . '#webpage',
+					'url'        => $page_url,
+					'inLanguage' => $lang,
+					'mentions'   => [
+						'@id' => $software_id,
+					],
 				],
-				'publisher' => [
-					'@type' => 'Organization',
-					'@id'   => $ws_url . '/#organization',
-					'name'  => sprintf( esc_html__( 'Easy Form Builder - %s', 'easy-form-builder' ), esc_html__( 'Free WordPress Form Builder Plugin', 'easy-form-builder' ) ),
-					'url'   => $ws_url
+
+				[
+					'@type' => 'SoftwareApplication',
+					'@id'   => $software_id,
+
+					'name' => esc_html__( 'Easy Form Builder', 'easy-form-builder' ),
+
+					'alternateName' => [
+						esc_html__( 'EFB', 'easy-form-builder' ),
+						esc_html__( 'Easy Form Builder WordPress Plugin', 'easy-form-builder' ),
+					],
+
+					'description' => esc_html__( 'Easy Form Builder is a free and powerful WordPress form builder plugin for creating contact forms, payment forms, surveys, registration forms, multi-step forms, file upload forms, electronic signature forms, and audio, video, and screen recording forms, with conditional logic, email notifications, integrations, entry management, and advanced spam protection.', 'easy-form-builder' ),
+
+					'url'        => $ws_url,
+					'installUrl' => $wp_url,
+
+					'sameAs' => [
+						$wp_url,
+					],
+
+					'applicationCategory'    => 'BusinessApplication',
+					'applicationSubCategory' => esc_html__( 'WordPress Form Builder Plugin', 'easy-form-builder' ),
+
+					'operatingSystem'      => 'WordPress',
+					'runtimePlatform'      => 'WordPress',
+					'softwareRequirements' => esc_html__( 'WordPress 5.0 or later; PHP 7.0 or later', 'easy-form-builder' ),
+
+					'softwareVersion' => defined( 'EMSFB_PLUGIN_VERSION' ) ? EMSFB_PLUGIN_VERSION : '',
+
+					'isAccessibleForFree' => true,
+
+					'softwareHelp' => [
+						'@type' => 'CreativeWork',
+						'url'   => $ws_url . 'documents/',
+						'name'  => esc_html__( 'Easy Form Builder Documentation', 'easy-form-builder' ),
+					],
+
+					'featureList' => [
+						esc_html__( 'Drag-and-Drop WordPress Form Builder', 'easy-form-builder' ),
+						esc_html__( 'Unlimited Forms and Form Entries', 'easy-form-builder' ),
+						esc_html__( 'Responsive and RTL-Friendly Forms', 'easy-form-builder' ),
+
+						esc_html__( 'Contact and Inquiry Forms', 'easy-form-builder' ),
+						esc_html__( 'Support and Feedback Forms with Message Tracking', 'easy-form-builder' ),
+						esc_html__( 'Survey and Poll Forms with Visual Results', 'easy-form-builder' ),
+						esc_html__( 'Stripe and PayPal Payment Forms', 'easy-form-builder' ),
+						esc_html__( 'WordPress Login and Registration Forms', 'easy-form-builder' ),
+						esc_html__( 'File Upload Forms', 'easy-form-builder' ),
+						esc_html__( 'Audio Recording Forms', 'easy-form-builder' ),
+						esc_html__( 'Video Recording Forms', 'easy-form-builder' ),
+						esc_html__( 'Screen Recording Forms with Optional Microphone Audio', 'easy-form-builder' ),
+						esc_html__( 'Private and Restricted-Access Forms', 'easy-form-builder' ),
+						esc_html__( 'Multi-Step Forms', 'easy-form-builder' ),
+						esc_html__( 'Smart Forms with Conditional Logic', 'easy-form-builder' ),
+						esc_html__( 'Electronic Signature Forms', 'easy-form-builder' ),
+						esc_html__( 'Location Picker Forms with OpenStreetMap and Leaflet', 'easy-form-builder' ),
+						esc_html__( 'Job Application Forms', 'easy-form-builder' ),
+						esc_html__( 'Event Registration Forms', 'easy-form-builder' ),
+						esc_html__( 'Order Forms with Recurring and Subscription Billing', 'easy-form-builder' ),
+
+						esc_html__( 'Drag-and-Drop File Upload Fields', 'easy-form-builder' ),
+						esc_html__( 'Audio, Video and Screen Recording Fields', 'easy-form-builder' ),
+						esc_html__( 'Electronic Signature and Location Picker Fields', 'easy-form-builder' ),
+						esc_html__( 'Country, State, Province and City Fields', 'easy-form-builder' ),
+						esc_html__( 'Multiple-Select Dropdowns and Range Sliders', 'easy-form-builder' ),
+						esc_html__( 'Rating Stars, 5-Point Scale, NPS and Yes-No Questions', 'easy-form-builder' ),
+						esc_html__( 'Switch and Toggle Fields', 'easy-form-builder' ),
+						esc_html__( 'Gregorian, Hijri and Jalali Date Pickers', 'easy-form-builder' ),
+						esc_html__( 'Telephone, Mobile and Color Picker Fields', 'easy-form-builder' ),
+						esc_html__( 'Matrix and Table Fields for Structured Data', 'easy-form-builder' ),
+
+						esc_html__( 'Automatic Email Notifications', 'easy-form-builder' ),
+						esc_html__( 'Custom Email Templates with Visual Editor', 'easy-form-builder' ),
+						esc_html__( 'Conditional Email Notifications and Recipient Routing', 'easy-form-builder' ),
+						esc_html__( 'Email Delivery Status Checking', 'easy-form-builder' ),
+						esc_html__( 'Email Error Logging', 'easy-form-builder' ),
+						esc_html__( 'Email Deliverability Reports with Spam Score, SPF, DKIM and DMARC Checks', 'easy-form-builder' ),
+						esc_html__( 'SMS and Telegram Submission Notifications', 'easy-form-builder' ),
+
+						esc_html__( 'WordPress Form Entry and Message Management Dashboard', 'easy-form-builder' ),
+						esc_html__( 'Read and Reply to Form Submissions with File Attachments', 'easy-form-builder' ),
+						esc_html__( 'Open and Closed Message Status', 'easy-form-builder' ),
+						esc_html__( 'Search Submissions by Form or Confirmation Code', 'easy-form-builder' ),
+						esc_html__( 'Unique Submission Confirmation and Tracking Codes', 'easy-form-builder' ),
+						esc_html__( 'PDF Downloads and CSV Exports', 'easy-form-builder' ),
+						esc_html__( 'Survey and Poll Result Charts', 'easy-form-builder' ),
+
+						esc_html__( 'Google Sheets Form Submission Sync', 'easy-form-builder' ),
+						esc_html__( 'Stripe and PayPal Payment Workflows', 'easy-form-builder' ),
+						esc_html__( 'External API Auto-Populate and Autofill', 'easy-form-builder' ),
+						esc_html__( 'Offline Form Data Collection', 'easy-form-builder' ),
+						esc_html__( 'Shield Security silentCAPTCHA Integration', 'easy-form-builder' ),
+						esc_html__( 'Gutenberg, Elementor, Divi and WPBakery Integration', 'easy-form-builder' ),
+
+						esc_html__( 'Form Submissions Stored in the WordPress Database', 'easy-form-builder' ),
+						esc_html__( 'No Third-Party Form Submission Servers Required', 'easy-form-builder' ),
+						esc_html__( 'Client-Side and Server-Side Form Validation', 'easy-form-builder' ),
+						esc_html__( 'Google reCAPTCHA v2 Spam Protection', 'easy-form-builder' ),
+						esc_html__( 'CAPTCHA-Free Spam Protection with Honeypot and Signed Single-Use Tokens', 'easy-form-builder' ),
+						esc_html__( 'Rate Limiting and Abuse Protection', 'easy-form-builder' ),
+						esc_html__( 'Protection Against Email, SMS, Telegram and Google Sheets Quota Abuse', 'easy-form-builder' ),
+						esc_html__( 'IP Allowlist and Blocklist Security Controls', 'easy-form-builder' ),
+						esc_html__( 'Monitor-Only Security Mode', 'easy-form-builder' ),
+					],
+
+					'keywords' => [
+						esc_html__( 'WordPress form builder', 'easy-form-builder' ),
+						esc_html__( 'free WordPress form plugin', 'easy-form-builder' ),
+						esc_html__( 'WordPress form plugin', 'easy-form-builder' ),
+						esc_html__( 'drag and drop form builder', 'easy-form-builder' ),
+
+						esc_html__( 'contact form plugin', 'easy-form-builder' ),
+						esc_html__( 'WordPress contact form', 'easy-form-builder' ),
+						esc_html__( 'survey form plugin', 'easy-form-builder' ),
+						esc_html__( 'WordPress survey plugin', 'easy-form-builder' ),
+						esc_html__( 'WordPress poll plugin', 'easy-form-builder' ),
+
+						esc_html__( 'payment form plugin', 'easy-form-builder' ),
+						esc_html__( 'WordPress payment forms', 'easy-form-builder' ),
+						esc_html__( 'Stripe payment forms', 'easy-form-builder' ),
+						esc_html__( 'PayPal payment forms', 'easy-form-builder' ),
+						esc_html__( 'subscription payment forms', 'easy-form-builder' ),
+						esc_html__( 'recurring payment forms', 'easy-form-builder' ),
+
+						esc_html__( 'WordPress registration form', 'easy-form-builder' ),
+						esc_html__( 'WordPress login form', 'easy-form-builder' ),
+						esc_html__( 'multi-step form plugin', 'easy-form-builder' ),
+						esc_html__( 'conditional logic forms', 'easy-form-builder' ),
+						esc_html__( 'smart forms WordPress', 'easy-form-builder' ),
+
+						esc_html__( 'file upload form plugin', 'easy-form-builder' ),
+						esc_html__( 'electronic signature forms', 'easy-form-builder' ),
+						esc_html__( 'e-signature form plugin', 'easy-form-builder' ),
+						esc_html__( 'location picker form', 'easy-form-builder' ),
+
+						esc_html__( 'WordPress audio recorder form', 'easy-form-builder' ),
+						esc_html__( 'WordPress video recorder form', 'easy-form-builder' ),
+						esc_html__( 'WordPress screen recorder form', 'easy-form-builder' ),
+
+						esc_html__( 'job application forms', 'easy-form-builder' ),
+						esc_html__( 'WordPress job application form', 'easy-form-builder' ),
+						esc_html__( 'event registration forms', 'easy-form-builder' ),
+						esc_html__( 'WordPress event registration form', 'easy-form-builder' ),
+
+						esc_html__( 'email notification forms', 'easy-form-builder' ),
+						esc_html__( 'WordPress email notifications', 'easy-form-builder' ),
+						esc_html__( 'conditional email notifications', 'easy-form-builder' ),
+						esc_html__( 'form email deliverability', 'easy-form-builder' ),
+						esc_html__( 'SPF DKIM DMARC WordPress forms', 'easy-form-builder' ),
+
+						esc_html__( 'WordPress form entries', 'easy-form-builder' ),
+						esc_html__( 'form submission management', 'easy-form-builder' ),
+						esc_html__( 'WordPress form message management', 'easy-form-builder' ),
+						esc_html__( 'form submissions PDF export', 'easy-form-builder' ),
+						esc_html__( 'form submissions CSV export', 'easy-form-builder' ),
+
+						esc_html__( 'Google Sheets form integration', 'easy-form-builder' ),
+						esc_html__( 'WordPress forms API integration', 'easy-form-builder' ),
+						esc_html__( 'form autofill API', 'easy-form-builder' ),
+						esc_html__( 'offline WordPress forms', 'easy-form-builder' ),
+
+						esc_html__( 'secure WordPress forms', 'easy-form-builder' ),
+						esc_html__( 'WordPress form spam protection', 'easy-form-builder' ),
+						esc_html__( 'CAPTCHA-free form spam protection', 'easy-form-builder' ),
+						esc_html__( 'honeypot spam protection WordPress', 'easy-form-builder' ),
+						esc_html__( 'WordPress form rate limiting', 'easy-form-builder' ),
+						esc_html__( 'self-hosted WordPress forms', 'easy-form-builder' ),
+						esc_html__( 'WordPress forms stored locally', 'easy-form-builder' ),
+
+						esc_html__( 'Gutenberg form builder', 'easy-form-builder' ),
+						esc_html__( 'Elementor form plugin', 'easy-form-builder' ),
+						esc_html__( 'Divi form plugin', 'easy-form-builder' ),
+						esc_html__( 'WPBakery form plugin', 'easy-form-builder' ),
+					],
+
+					'publisher' => [
+						'@id' => $org_id,
+					],
+
+					'creator' => [
+						'@id' => $org_id,
+					],
+
+					'inLanguage' => $lang,
 				],
-				'inLanguage' => $lang
-			]
+			],
 		];
 
 		$this->efb_print_schema_ld( $schema );
 		$this->efb_register_head_hooks();
 	}
 
-		public function efb_output_schema_free () {
+		/* public function efb_output_schema_free () {
 			$page_url = home_url( add_query_arg( [], sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ?? '/' ) ) ) );
 			$locale = get_locale();
 			$lang   = str_replace('_', '-', $locale);
@@ -4536,7 +4710,7 @@ public function check_error_console_efb(){
 
 			$this->efb_print_schema_ld( $schema );
 			$this->efb_register_head_hooks();
-		}
+		} */
 
 		public function field_maps_style_efb(){
 			return '

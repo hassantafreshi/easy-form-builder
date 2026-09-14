@@ -10,6 +10,8 @@ let wpbakery_emsFormBuilder =false;
 let pro_price_efb =27;
 let heartbeat_efb_active =false;
 let _efb_autosave_in_progress = false;
+/* One auto-save draft, one offer to restore it - see restore_auto_save_efb(). */
+let _efb_restore_prompt_pending_efb = false;
 let state_page_efb='';
 let efb_builder_last_email_warning_signature = '';
 var _efb_nonce_ = (typeof efb_var !== 'undefined' && efb_var.nonce) ? efb_var.nonce : '';
@@ -288,7 +290,7 @@ function Link_emsFormBuilder(state) {
         link = `https://${lan}whitestudio.team/`;
         break;
       case 'price':
-        link = `https://${lan}whitestudio.team/#price`;
+        link = `https://${lan}whitestudio.team/#pricing`;
         break;
       case 'efb':
         link = "https://wordpress.org/plugins/easy-form-builder/";
@@ -378,7 +380,7 @@ function Link_emsFormBuilder(state) {
         link = 'https://easyformbuilder.ir/';
         break;
       case 'price':
-        link = 'https://easyformbuilder.ir/#price';
+        link = 'https://easyformbuilder.ir/#pricing';
         break;
       case 'efb':
         link = "https://wordpress.org/plugins/easy-form-builder/";
@@ -451,48 +453,87 @@ function show_message_result_form_set_EFB(state, m) {
     return;
   }
 
-  const wpbakery= `<p class="efb m-5 mx-3 fs-4"><a class="efb text-danger ec-efb" data-eventform="links" data-linkname="wpbakery">${efb_var.text.wwpb}</a></p>`
-  const title = `
-  <h4 class="efb title-holder efb">
-     <img src="${efb_var.images.title}" class="efb title efb">
-     ${state != 0 ? `<i class="efb  bi-hand-thumbs-up title-icon mx-2"></i>${efb_var.text.done}` : `<i class="efb title-icon mx-2"></i>${efb_var.text.error}`}
-  </h4>
-
-  `;
-  let e_m ='<div id="alert"></div>';
-  /* The form is saved either way - this only tells the admin that the global
-     "This site can send emails" switch is still off, so neither the admin nor
-     the visitor will receive anything, and links straight to that switch. */
-  if(efb_builder_email_setting_smtp_disabled()) {
-    const msg = `<p class="efb mb-1"><strong>${efb_var.text.emailSendingOffTitle || 'Notification emails are turned off'}</strong></p>
-    <p class="efb mb-2">${efb_var.text.emailSendingOffDesc || efb_var.text.goToEFBAddEmailM}</p>
-    <a class="efb btn btn-sm efb btn-warning text-dark btn-r d-block" href="${efb_builder_email_settings_url()}"><i class="efb bi bi-toggle-on mx-1"></i>${efb_var.text.emailSendingOffCta || efb_var.text.howActivateAlertEmail}</a>
-    `
-    e_m = alarm_emsFormBuilder(msg)
-  }
-  let content = ``
+  let content = ``;
+  let footInner = ``;
+  let tone = '';
+  let headIcon = '';
+  let headTitle = '';
 
   if (state != 0) {
-    content = ` <h3 class="efb"><b>${efb_var.text.goodJob}</b></br> ${state == 1 ? efb_var.text.formIsBuild : efb_var.text.formUpdatedDone}</h3>
-    ${wpbakery_emsFormBuilder ? wpbakery :''}
-  <h5 class="efb mt-3 efb">${efb_var.text.shortcode}: <strong>${m}</strong></h5>
-  <input type="text" class="efb hide-input efb" value="${m}" id="trackingCodeEfb">
-  ${e_m}
-  <a  class="efb btn-r btn efb btn-primary btn-lg m-3" onclick="copyCodeEfb('trackingCodeEfb','textTractingCode')">
-      <i class="efb  bi-clipboard-check mx-1"></i><span id="textTractingCode">${efb_var.text.copyShortcode}</span>
-  </a>
-  <a  class="efb btn efb btn-outline-pink btn-lg m-3 px-3" data-bs-toggle="modal" data-bs-target="#Output" onclick="open_whiteStudio_efb('publishForm')">
-      <i class="efb  bi-question mx-1"></i>${efb_var.text.help}
-  </a>
-  <a  class="efb btn efb btn-outline-pink btn-lg m-3 px-3" data-bs-toggle="modal" data-bs-target="#close" onclick="state_modal_show_efb(0)">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" class="mx-1"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/></svg>${efb_var.text.close}
-  </a>
-  `
+    tone = 'efb-tone-success';
+    headIcon = 'bi-check2-circle';
+    headTitle = efb_var.text.save;
+
+    let notes = ``;
+    /* The form saved either way - these only flag delivery risks: the global
+       "This site can send emails" switch being off, or a WPBakery quirk this
+       form type needs a workaround for. */
+    if (wpbakery_emsFormBuilder) {
+      notes += `<div class="efb-dlg__note efb-dlg__note--warn"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i><span><a class="efb text-reset ec-efb" data-eventform="links" data-linkname="wpbakery" onclick="Link_emsFormBuilder('wpbakery')">${efb_var.text.wwpb}</a></span></div>`;
+    }
+    if (efb_builder_email_setting_smtp_disabled()) {
+      notes += `<div class="efb-dlg__note efb-dlg__note--warn"><i class="bi bi-envelope-slash" aria-hidden="true"></i><span><strong>${efb_var.text.emailSendingOffTitle || 'Notification emails are turned off'}</strong><br>${efb_var.text.emailSendingOffDesc || efb_var.text.goToEFBAddEmailM}<br><a class="efb fw-semibold" href="${efb_builder_email_settings_url()}">${efb_var.text.emailSendingOffCta || efb_var.text.howActivateAlertEmail}</a></span></div>`;
+    }
+
+    content = `
+      <div class="efb-dlg__centered">
+        <div class="efb-dlg__badge"><i class="bi bi-hand-thumbs-up" aria-hidden="true"></i></div>
+        <div class="efb-dlg__headline">${efb_var.text.goodJob}</div>
+        <div class="efb-dlg__text">${state == 1 ? efb_var.text.formIsBuild : efb_var.text.formUpdatedDone}</div>
+      </div>
+      <div class="efb-dlg__code-panel">
+        <div class="efb-dlg__code-panel-head"><i class="bi bi-code-square" aria-hidden="true"></i><span>${efb_var.text.shortcode}</span></div>
+        <div class="efb-dlg__code-panel-row">
+          <code class="efb-dlg__code-box">${m}</code>
+          <input type="text" class="efb hide-input efb" value="${m}" id="trackingCodeEfb">
+          <button type="button" class="efb-dlg-btn efb-dlg-btn--primary efb-dlg-btn--sm" onclick="copyCodeEfb('trackingCodeEfb','textTractingCode')">
+            <i class="bi bi-clipboard-check" aria-hidden="true"></i><span id="textTractingCode">${efb_var.text.copyShortcode}</span>
+          </button>
+        </div>
+      </div>
+      ${notes}
+    `;
+
+    footInner = `
+      <a role="button" class="efb-dlg-btn efb-dlg-btn--ghost" data-bs-toggle="modal" data-bs-target="#Output" onclick="open_whiteStudio_efb('publishForm')"><i class="bi bi-question-circle" aria-hidden="true"></i>${efb_var.text.help}</a>
+      <a role="button" class="efb-dlg-btn efb-dlg-btn--ghost" onclick="state_modal_show_efb(0)"><i class="bi bi-x-lg" aria-hidden="true"></i>${efb_var.text.close}</a>
+      <a role="button" class="efb-dlg-btn efb-dlg-btn--primary" onclick="previewFormEfb('new')"><i class="bi bi-box-arrow-up-right" aria-hidden="true"></i>${efb_var.text.previewForm}</a>
+    `;
   } else {
-    content = `<h3 class="efb">${m}</h3>`
+    tone = 'efb-tone-danger';
+    headIcon = 'bi-x-octagon';
+    headTitle = efb_var.text.error;
+
+    content = `
+      <div class="efb-dlg__centered">
+        <div class="efb-dlg__badge"><i class="bi bi-x-octagon" aria-hidden="true"></i></div>
+        <div class="efb-dlg__headline">${efb_var.text.error}</div>
+        <div class="efb-dlg__text">${m}</div>
+      </div>
+    `;
+
+    footInner = `<a role="button" class="efb-dlg-btn efb-dlg-btn--ghost" onclick="state_modal_show_efb(0)"><i class="bi bi-x-lg" aria-hidden="true"></i>${efb_var.text.close}</a>`;
   }
 
-  document.getElementById('settingModalEfb-body').innerHTML = `<div class="efb card-body text-center efb">${title}${content}</div>`;
+  /* Named as the save flow so it lands on the loading card it belongs to.
+     If the person has meanwhile been given some other dialog, this one waits
+     for a free screen instead of painting over their work. It deliberately
+     does not open the shell by itself: a validate-only save (previewing an
+     unsaved form) closes the dialog on purpose while the request is still in
+     flight, and re-opening it would interrupt the preview. */
+  show_modal_efb(content, headTitle, headIcon, 'saveBox', {
+    flow: 'save',
+    onShown: () => {
+      if (typeof efb_dlg_set_tone_efb === 'function') efb_dlg_set_tone_efb(tone);
+      const sections = document.getElementById('settingModalEfb-sections');
+      if (!sections) return;
+      const foot = document.createElement('div');
+      foot.className = 'efb modal-footer efb-dlg__foot';
+      foot.id = 'save-result-foot-efb';
+      foot.innerHTML = footInner;
+      sections.appendChild(foot);
+    }
+  });
 }
 
 async function  actionSendData_emsFormBuilder(saveMode) {
@@ -1298,7 +1339,7 @@ function head_introduce_efb(state) {
   const link = state == "create" ? '#form' : 'admin.php?page=Emsfb_create'
   let text = `${efb_var.text.efbIsTheUserSentence} ${efb_var.text.efbYouDontNeedAnySentence}`
   let btnSize = mobile_view_efb ? '' : 'btn-lg';
-  const domain = efb_var.hasOwnProperty('wsteamDomain') ? 'https://' + efb_var.wsteamDomain +'/price' : 'https://whitestudio.team/#price';
+  const domain = efb_var.hasOwnProperty('wsteamDomain') ? 'https://' + efb_var.wsteamDomain +'/price' : 'https://whitestudio.team/#pricing';
   let msgpro = efb_var.text.yFreeVEnPro.replace('%2$s', pro_price_efb +'$').replace('%1$s','<span class="efb fw-bold text-pinkEfb">').replace('%3$s','</span>').replace('%4$s',`<br><a href="${domain}" target="_blank" rel="noopener noreferrer" class="efb fw-bold efb-pro-notice__link">`).replace('%5$s','</a>');
   if(efb_var.language =='fa_IR'){
     msgpro = efb_var.text.yFreeVEnPro.replace('%2$s',  '1,300,000<small>تومان</small>').replace('%1$s','<span class="efb fw-bold text-pinkEfb">').replace('%3$s','</span>').replace('%4$s',`<br><a href="https://easyformbuilder.ir/pricing" target="_blank" rel="noopener noreferrer" class="efb fw-bold efb-pro-notice__link">`).replace('%5$s','</a>');
@@ -1350,7 +1391,7 @@ function head_introduce_efb(state) {
 fun_preview_before_efb = (i, s, pro) => {
 
   valj_efb = [];
-  show_modal_efb("", efb_var.text.preview, "bi-check2-circle", "saveLoadingBox")
+  show_modal_efb("", efb_var.text.preview, "bi-check2-circle", "saveLoadingBox", { flow: 'preview' })
   state_modal_show_efb(1);
   if (s == "local") {
     create_form_by_type_emsfb(i, 'pre')
@@ -1427,9 +1468,16 @@ function sideMenuEfb(s) {
   let el = document.getElementById('sideBoxEfb');
   side_hide =(el)=>{
     el.classList.remove('show');
-    document.getElementById('childsSideMenuConEfb').classList.add('d-none');
+    /* childsSideMenuConEfb is only built by show_setting_window_efb, so it is missing
+       when the panel was opened by another route (open_setting_colors_efb) or closed
+       before it ever opened. side_show already guards the same lookup; unguarded here
+       it threw and abandoned the rest of the close. */
+    const ch = document.getElementById('childsSideMenuConEfb');
+    if (ch) ch.classList.add('d-none');
     document.getElementById('sideMenuFEfb').classList.add('efbDW-0');
     el.classList.add('efbDW-0');
+    // Nothing is on screen any more, so the next request must open, never toggle shut.
+    window.efbOpenSettingIdEfb = null;
   }
 
   side_show =(el)=>{
@@ -2073,9 +2121,12 @@ let change_el_edit_Efb = (el) => {
         break;
       case "showSIconsEl":
         valj_efb[0].show_icon =  el.classList.contains('active')==true ? true : false
+        /* The toggle reads "hide", so the picker belongs to its off state. */
+        efbTogglePickerEfb('steps_style', valj_efb[0].show_icon !== true);
         break;
       case "showSprosiEl":
         valj_efb[0].show_pro_bar = el.classList.contains('active')==true ? true : false
+        efbTogglePickerEfb('progress_style', valj_efb[0].show_pro_bar !== true);
         break;
       case "showformLoggedEl":
 
@@ -2849,7 +2900,7 @@ let change_el_edit_Efb = (el) => {
 
           clss.innerHTML= `
               <a class="efb btn btn-sm btn-dark text-light"><i class="efb bi-crosshair ${efb_var.rtl == 1 ? 'ms-2' : 'me-2'} fs-7"></i></a>
-              <input type="text" id="efb-search-${valj_efb[indx].id_}" placeholder="${efb_var.text.eln}" class="efb p-1 border-d efb-square locationpicker fs-6">
+              <input type="text" id="efb-search-${valj_efb[indx].id_}" placeholder="${efb_var.text.eln}" class="efb p-1 border-d rounded-3 locationpicker fs-6">
               <a class="efb btn btn-sm btn-secondary text-light">${efb_var.text.search}</a>
               <a class="efb btn btn-sm btn-danger text-light">${efb_var.text.deletemarkers}</a>
               <div id="efb-error-message-${valj_efb[indx].id_}" class="error-message d-none"></div>`
@@ -3303,9 +3354,9 @@ let change_el_edit_Efb = (el) => {
 
 function wating_sort_complate_efb(t) {
   if (t > 500) t = 500
+  if (typeof efb_modal_shell_busy_efb === 'function' && efb_modal_shell_busy_efb()) return;
   const body = efbLoadingCard('',4)
-  show_modal_efb(body, efb_var.text.editField, 'bi-ui-checks mx-2', 'settingBox')
-  const el = document.getElementById("settingModalEfb");
+  show_modal_efb(body, efb_var.text.editField, 'bi-ui-checks mx-2', 'settingBox', { flow: 'sort-wait' })
   state_modal_show_efb(1);
   setTimeout(() => { state_modal_show_efb(0) }, t)
 }
@@ -3347,13 +3398,20 @@ async function create_form_efb() {
   let content = `<!--efb.app-->`
   let step_no = 0;
   let head = ``
+  /* Resolved before the loop because the class list a step carries is what
+     decides whether the row is the classic one or one of the new ones, and the
+     colours are collected so one rule per distinct colour can be printed for
+     the whole row rather than five properties on every <li>. */
+  const stepsStyleEfb = efbStepsStyleNameEfb(valj_efb[0])
+  const stepIconColorsEfb = []
   const len = valj_efb.length;
   const p = calPLenEfb(len)
   try {
     valj_efb.forEach((value, index) => {
       if (step_no < value.step && value.type == "step") {
         step_no += 1;
-        head += `<li id="${value.id_}" data-step="icon-s-${step_no}-efb"class="efb  ${valj_efb[0].steps <= 11 ? `step-w-${valj_efb[0].steps}` : `step-w-11`} ${value.icon_color} ${value.icon}   ${value.step == 1 ? 'active' : ''}" ><strong class="efb  fs-5 ${value.label_text_color} ">${value.name}</strong></li>`
+        stepIconColorsEfb.push(value.icon_color)
+        head += `<li id="${value.id_}" data-step="icon-s-${step_no}-efb" data-num="${step_no}" class="${efbStepsItemClassEfb(step_no, 1, value.icon_color, value.icon, stepsStyleEfb)} ${valj_efb[0].steps <= 11 ? `step-w-${valj_efb[0].steps}` : `step-w-11`}"><strong class="efb fs-5 ${stepsStyleEfb === 'classic' ? '' : 'efb-sp__label '}${value.label_text_color}">${value.name}</strong></li>`
         content += step_no == 1 ? `<fieldset data-step="step-${step_no}-efb" class="efb  mt-1 mb-2 steps-efb row">` : `<!-- fieldsetFOrm!!! --></fieldset><fieldset data-step="step-${step_no}-efb"  class="efb my-2 steps-efb efb row d-none">`
 
         if (valj_efb[0].show_icon == false) { }
@@ -3376,7 +3434,11 @@ async function create_form_efb() {
                 ${efbLoadingCard('', 4)}
                 <!-- fieldset formNew 2 --> </fieldset>
       `
-    head += `<li id="f-step-efb"  data-step="icon-s-${step_no}-efb" class="efb  ${valj_efb[1].icon_color} ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`}" ><i class="efb bi-check-lg ${efb_var.rtl == 1 ? 'ms-2' : 'me-2'} fs-7"></i><strong class="efb  fs-5 ${valj_efb[1].label_text_color}">${efb_var.text.finish}</strong></li>`
+    /* The tick used to be a nested <i>, which the three renderers disagreed
+       about; it is the same ::before glyph as every other step now, so a
+       variant that reshapes the dot reshapes this one too. */
+    stepIconColorsEfb.push(valj_efb[1].icon_color)
+    head += `<li id="f-step-efb" data-step="icon-s-${step_no}-efb" data-num="${step_no}" class="${efbStepsItemClassEfb(step_no, 1, valj_efb[1].icon_color, 'bi-check-lg', stepsStyleEfb)} ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`} mx-0"><strong class="efb fs-5 ${stepsStyleEfb === 'classic' ? '' : 'efb-sp__label '}${valj_efb[1].label_text_color}">${efb_var.text.finish}</strong></li>`
   } catch (error) {
   }
 
@@ -3384,8 +3446,20 @@ async function create_form_efb() {
 
   const bgc = valj_efb[0].hasOwnProperty('prg_bar_color') ?valj_efb[0].prg_bar_color: 'btn-primary'
 
-  head = `${valj_efb[0].show_icon == 0 || valj_efb[0].show_icon == false ? `<ul id="steps-efb" class="efb mb-2 px-2">${head}</ul>` : ''}
-    ${valj_efb[0].show_pro_bar == 0 || valj_efb[0].show_pro_bar == false ? `<div class="efb d-flex justify-content-center"><div class="efb progress mx-4"><div class="efb  progress-bar-efb ${bgc} progress-bar-striped progress-bar-animated" role="progressbar"aria-valuemin="0" aria-valuemax="100"></div></div></div> <br> ` : ``}`
+  head = efbStepsShellHeadEfb({
+    formId: '',
+    total: step_no,
+    current: 1,
+    currentName: valj_efb[1] && valj_efb[1].name ? valj_efb[1].name : '',
+    stepsStyle: stepsStyleEfb,
+    progressStyle: efbProgressStyleNameEfb(valj_efb[0]),
+    accentClass: bgc,
+    rtl: efb_var.rtl == 1,
+    showSteps: Number(valj_efb[0].show_icon) != 1,
+    showProgress: Number(valj_efb[0].show_pro_bar) != 1,
+    colorRules: (stepsStyleEfb === 'classic' || Number(valj_efb[0].show_icon) == 1) ? '' : efbStepsColorRulesEfb(stepIconColorsEfb),
+    items: head
+  })
 
   content = `
     <div class="efb px-0 pt-2 pb-0 my-1 col-12" id="view-efb">
@@ -3436,7 +3510,10 @@ const saveFormEfb = async (stated) => {
       }
 
       if (!isAutoSave) {
-        show_modal_efb("", efb_var.text.save, "bi-check2-circle", "saveLoadingBox");
+        show_modal_efb("", efb_var.text.save, "bi-check2-circle", "saveLoadingBox", {
+          flow: 'save',
+          onShown: () => document.getElementById('settingModalEfb_').classList.add('efb-save-narrow')
+        });
       }
 
       let timeout = 1000;
@@ -3446,7 +3523,7 @@ const saveFormEfb = async (stated) => {
             check_show_box();
             timeout = 500;
           } else if (!isAutoSave) {
-              show_modal_efb(body, title, icon, box);
+              show_modal_efb(body, title, icon, box, { flow: 'save' });
 
           }
         }, timeout);
@@ -3553,7 +3630,7 @@ const saveFormEfb = async (stated) => {
               <i class="efb bi-megaphone ${efb_var.rtl == 1 ? 'ms-2' : 'me-2'}"></i> ${efb_var.text.reportProblem} </button>
           </div>
         `;
-        show_modal_efb(body, efb_var.text.error, btnIcon, 'error');
+        show_modal_efb(body, efb_var.text.error, btnIcon, 'error', { flow: 'save' });
 
         state_modal_show_efb(1);
         reject(error);
@@ -3836,7 +3913,7 @@ function create_dargAndDrop_el() {
       if (el.parentNode === dropZoneEFB && (el.classList.contains('efbField') || el.classList.contains('showBtns') || el.dataset.tag === 'buttonNav' || el.id === 'button_group_efb')) {
         return el;
       }
-      if (el.parentNode === dropZoneEFB && el.tagName && (el.tagName.toLowerCase() === 'setion' || el.tagName.toLowerCase() === 'section')) {
+      if (el.parentNode === dropZoneEFB && el.tagName && (el.tagName.toLowerCase() === 'section' || el.tagName.toLowerCase() === 'section')) {
         return el;
       }
       el = el.parentNode;
@@ -4100,42 +4177,45 @@ function show_delete_window_efb(idset,iVJ) {
   let itemLabel = valj_efb[iVJ] && valj_efb[iVJ].hasOwnProperty('type') ? `${valj_efb[iVJ].type} &rsaquo; ${valj_efb[iVJ].name ?? valj_efb[iVJ].value}` : '';
   const body = efb_build_confirm_body('danger', 'bi-trash', efb_var.text.delete, efb_var.text.areYouSureYouWantDeleteItem, itemLabel);
   const is_step = document.getElementById(idset) ? document.getElementById(idset).classList.contains('stepNavEfb') : false;
-  show_modal_efb(body, efb_var.text.delete, 'efb bi-trash mx-2', 'deleteBox')
-  const confirmBtn = document.getElementById('modalConfirmBtnEfb');
-  if (is_step == false) {
-   state_modal_show_efb(1);
-   confirmBtn.dataset.id =idset.slice(0,-3);
-    confirmBtn.addEventListener("click", (e) => {
-      document.getElementById(confirmBtn.dataset.id).remove();
-      obj_delete_row(idset, false, confirmBtn.dataset.id);
-      activeEl_efb = 0;
-      state_modal_show_efb(0)
-      setTimeout(() => { alert_message_efb(efb_var.text.tDeleted.replace('%s', efb_var.text.field?.replace('%s1','').toLowerCase() || 'element'), '', 4, 'success') }, 300);
-    })
-  } else if (is_step) {
-    const el = document.getElementById(idset);
-    if (el.dataset.id != 1) {
+  // The first step cannot be removed, so there is no question to ask.
+  const step_el = is_step ? document.getElementById(idset) : null;
+  if (is_step && !(step_el && step_el.dataset.id != 1)) return;
 
-      state_modal_show_efb(1)
-      confirmBtn.dataset.id = idset;
+  /* The confirm button belongs to the dialog, so it is wired once the dialog
+     is on screen - which is not necessarily now, if another one still is. */
+  const painted = show_modal_efb(body, efb_var.text.delete, 'efb bi-trash mx-2', 'deleteBox', {
+    onShown: () => {
+      const confirmBtn = document.getElementById('modalConfirmBtnEfb');
+      if (!confirmBtn) return;
+      if (is_step == false) {
+        confirmBtn.dataset.id =idset.slice(0,-3);
+        confirmBtn.addEventListener("click", (e) => {
+          document.getElementById(confirmBtn.dataset.id).remove();
+          obj_delete_row(idset, false, confirmBtn.dataset.id);
+          activeEl_efb = 0;
+          state_modal_show_efb(0)
+          setTimeout(() => { alert_message_efb(efb_var.text.tDeleted.replace('%s', efb_var.text.field?.replace('%s1','').toLowerCase() || 'element'), '', 4, 'success') }, 300);
+        })
+      } else {
+        confirmBtn.dataset.id = idset;
+        confirmBtn.addEventListener("click", () => {
 
-      confirmBtn.addEventListener("click", () => {
+          activeEl_efb = 0;
+          if (pro_efb == false) {
+            step_el_efb = step_el_efb > 1 ? step_el_efb - 1 : 1;
+          }
 
-        activeEl_efb = 0;
-        if (pro_efb == false) {
-          step_el_efb = step_el_efb > 1 ? step_el_efb - 1 : 1;
-        }
+          valj_efb[0].steps = valj_efb[0].steps - 1
+          obj_delete_row(idset, true)
+          document.getElementById(confirmBtn.dataset.id).remove();
+          state_modal_show_efb(0)
+          setTimeout(() => { alert_message_efb(efb_var.text.tDeleted.replace('%s', efb_var.text.step?.replace('%s1','').toLowerCase() || 'step'), '', 4, 'success') }, 300);
 
-        valj_efb[0].steps = valj_efb[0].steps - 1
-        obj_delete_row(idset, true)
-        document.getElementById(confirmBtn.dataset.id).remove();
-        state_modal_show_efb(0)
-        setTimeout(() => { alert_message_efb(efb_var.text.tDeleted.replace('%s', efb_var.text.step?.replace('%s1','').toLowerCase() || 'step'), '', 4, 'success') }, 300);
-
-      })
-
+        })
+      }
     }
-  }
+  });
+  if (painted) state_modal_show_efb(1);
 
 }
 
@@ -4555,42 +4635,45 @@ function emsFormBuilder_delete(id, type,value) {
   const f = (efb_var.text[type] || '').replaceAll('%s1','').replace(/%\d+\$s/g, '').trim();
   const m = f ? `${f} &rsaquo; ${val}` : val;
   const body = efb_build_confirm_body('danger', 'bi-trash', efb_var.text.delete, efb_var.text.areYouSureYouWantDeleteItem, m);
-  show_modal_efb(body, efb_var.text.delete, 'efb bi-trash mx-2', 'deleteBox')
-  const confirmBtn = document.getElementById('modalConfirmBtnEfb');
+  const painted = show_modal_efb(body, efb_var.text.delete, 'efb bi-trash mx-2', 'deleteBox', {
+    onShown: () => {
+      const confirmBtn = document.getElementById('modalConfirmBtnEfb');
+      if (!confirmBtn) return;
+      confirmBtn.addEventListener("click", (e) => {
+        let _deleteTypeLabel = '';
+        if(type=='form'){
+          fun_confirm_remove_emsFormBuilder(Number(id))
+          _deleteTypeLabel = efb_var.text.form?.replace('%s1','') || 'form';
+        }else if(type=='message'){
+          fun_confirm_remove_message_emsFormBuilder(Number(id))
+          _deleteTypeLabel = efb_var.text.message?.replace('%s1','') || 'message';
+        }else if (type =='addon'){
+          addons_btn_state_efb(id);
+          fun_confirm_remove_addon_emsFormBuilder(id);
+        }else if (type =="condlogic"){
 
-  state_modal_show_efb(1)
-  confirmBtn.addEventListener("click", (e) => {
-    let _deleteTypeLabel = '';
-    if(type=='form'){
-    fun_confirm_remove_emsFormBuilder(Number(id))
-    _deleteTypeLabel = efb_var.text.form?.replace('%s1','') || 'form';
-    }else if(type=='message'){
-      fun_confirm_remove_message_emsFormBuilder(Number(id))
-      _deleteTypeLabel = efb_var.text.message?.replace('%s1','') || 'message';
-    }else if (type =='addon'){
-      addons_btn_state_efb(id);
-      fun_confirm_remove_addon_emsFormBuilder(id);
-    }else if (type =="condlogic"){
+          fun_remove_condition_efb(id , value);
+          _deleteTypeLabel = efb_var.text.condlogic?.replace('%s1','') || 'condition';
+        }else if(type=="messagelist"){
 
-      fun_remove_condition_efb(id , value);
-      _deleteTypeLabel = efb_var.text.condlogic?.replace('%s1','') || 'condition';
-    }else if(type=="messagelist"){
-
-      fun_confirm_remove_all_message_emsFormBuilder(value)
-      return;
-    }else if(type=="datas"){
-      if (typeof fun_confirm_remove_dataset_autofilled_emsFormBuilder === 'function') {
-        fun_confirm_remove_dataset_autofilled_emsFormBuilder(id, value);
-      } else {
-      }
-      _deleteTypeLabel = efb_var.text.datas?.replace('%s1','') || 'dataset';
+          fun_confirm_remove_all_message_emsFormBuilder(value)
+          return;
+        }else if(type=="datas"){
+          if (typeof fun_confirm_remove_dataset_autofilled_emsFormBuilder === 'function') {
+            fun_confirm_remove_dataset_autofilled_emsFormBuilder(id, value);
+          } else {
+          }
+          _deleteTypeLabel = efb_var.text.datas?.replace('%s1','') || 'dataset';
+        }
+        activeEl_efb = 0;
+        state_modal_show_efb(0)
+        if (type === 'condlogic') {
+          setTimeout(() => { alert_message_efb(efb_var.text.tDeleted.replace('%s', _deleteTypeLabel.toLowerCase()), '', 4, 'success') }, 300);
+        }
+      })
     }
-    activeEl_efb = 0;
-    state_modal_show_efb(0)
-    if (type === 'condlogic') {
-      setTimeout(() => { alert_message_efb(efb_var.text.tDeleted.replace('%s', _deleteTypeLabel.toLowerCase()), '', 4, 'success') }, 300);
-    }
-  })
+  });
+  if (painted) state_modal_show_efb(1);
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 function emsFormBuilder_duplicate(id, type,value) {
@@ -4625,15 +4708,18 @@ function emsFormBuilder_duplicate(id, type,value) {
   }
   const msg = efb_var.text.ausdup_.replaceAll('%s',val);
   const body = efb_build_confirm_body('info', 'bi-clipboard-plus', efb_var.text.duplicate, msg, '');
-  show_modal_efb(body, efb_var.text.duplicate, 'efb bi-clipboard-plus mx-2', 'duplicateBox')
-  const confirmBtn = document.getElementById('modalConfirmBtnEfb');
-
-  state_modal_show_efb(1)
-  confirmBtn.addEventListener("click", (e) => {
-    fun_confirm_dup_emsFormBuilder(id,type)
-    activeEl_efb = 0;
-    state_modal_show_efb(0)
-  })
+  const painted = show_modal_efb(body, efb_var.text.duplicate, 'efb bi-clipboard-plus mx-2', 'duplicateBox', {
+    onShown: () => {
+      const confirmBtn = document.getElementById('modalConfirmBtnEfb');
+      if (!confirmBtn) return;
+      confirmBtn.addEventListener("click", (e) => {
+        fun_confirm_dup_emsFormBuilder(id,type)
+        activeEl_efb = 0;
+        state_modal_show_efb(0)
+      })
+    }
+  });
+  if (painted) state_modal_show_efb(1);
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -4713,7 +4799,14 @@ state_modal_show_efb=(i)=>{
    const backdrop = document.querySelector('.efb-modal-backdrop');
    if (backdrop) {
      backdrop.classList.remove('show');
-     setTimeout(() => { if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop); }, 250);
+     /* The shell can be re-opened inside these 250ms - a dialog that was
+        waiting its turn arrives the moment the screen frees up, and it
+        reuses this very backdrop element. Tearing it down then would leave
+        the new dialog floating over a live page. */
+     setTimeout(() => {
+       if (el.classList.contains('show')) return;
+       if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop);
+     }, 250);
    }
 
    document.body.classList.remove("modal-open");
@@ -4742,9 +4835,19 @@ state_modal_show_efb=(i)=>{
     } else if (jQuery('#settingModalEfb_').hasClass('pre-form-efb')) {
       jQuery('#settingModalEfb_').removeClass('pre-form-efb');
     }
-    if (jQuery('#modal-footer-efb')) {
-      jQuery('#modal-footer-efb').remove()
-    }
+    /* querySelectorAll, not an id lookup: an id lookup returns the first
+       match only, so a dialog that had somehow ended up with two footers
+       would leave one of them behind for the next dialog to wear. */
+    document.querySelectorAll('#modal-footer-efb, #save-result-foot-efb').forEach((foot) => foot.remove());
+    /* The shell no longer belongs to any flow; the next dialog to ask for
+       it gets it, and anything parked behind this one can now be shown. */
+    window._efb_modal_flow_efb = '';
+    jQuery('#settingModalEfb_').removeClass('efb-save-narrow');
+    /* The Colors & Fonts dialog widens the shell to 1100px and reshapes its
+       header and body; left on, the next dialog to borrow the shell would
+       wear a two-pane layout it has no markup for. */
+    jQuery('#settingModalEfb_').removeClass('efb-clr-dialog');
+    if (typeof efb_dlg_set_tone_efb === 'function') efb_dlg_set_tone_efb('');
 
     var val = efbLoadingCard('',4);
     if (jQuery(`#settingModalEfb-body`)) jQuery(`#settingModalEfb-body`).html(val)
@@ -4802,6 +4905,50 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
 }, false);
+
+/**
+ * Show or hide one of the two style pickers.
+ *
+ * Both pickers are always printed, so the toggle beside them only flips a
+ * class - rebuilding the settings panel here would throw away whatever else
+ * the author had half-typed into it.
+ */
+function efbTogglePickerEfb(target, visible) {
+  const box = document.getElementById(`efb-picker-${target}`);
+  if (!box) return false;
+  box.classList.toggle('d-none', !visible);
+  return true;
+}
+
+/**
+ * Record the chosen steps or progress style.
+ *
+ * Stored on valj_efb[0] beside show_icon and show_pro_bar, which is where both
+ * the preview and the front-end renderer read it from; an unknown value falls
+ * back to the original look, so a form saved by an older version - or by a
+ * hand-edited structure - keeps rendering.
+ */
+function efbPickStepStyleEfb(el) {
+  if (!el || !valj_efb.length) return false;
+  const target = el.dataset.target;
+  const style = el.dataset.style;
+  if (target !== 'steps_style' && target !== 'progress_style') return false;
+
+  const resolved = target === 'steps_style'
+    ? efbStepsStyleNameEfb({ steps_style: style })
+    : efbProgressStyleNameEfb({ progress_style: style });
+  valj_efb[0][target] = resolved;
+
+  const box = el.closest('.efb-sp-picker');
+  if (box) {
+    box.querySelectorAll('.efb-sp-picker__opt').forEach((opt) => {
+      const on = opt.dataset.style === resolved;
+      opt.classList.toggle('active', on);
+      opt.setAttribute('aria-pressed', on);
+    });
+  }
+  return true;
+}
 
 function fun_switch_form_efb(el){
   if (['mobileHideLabelEl', 'mobileHideDescriptionEl', 'globalMobileHideLabelEl'].includes(el.id) && !efbRequireMobileProEfb()) return false;
@@ -5230,7 +5377,7 @@ function form_preview_efb(val) {
 preview_form_new_efb = async ()=>{
       const form_id = sessionStorage.getItem('form_id') ??  form_ID_emsFormBuilder == 0 ?  null :`[EMS_Form_Builder id=${form_ID_emsFormBuilder}]`;
       if(form_id == null ){
-        show_modal_efb(`<div class="text-center text-darkb efb"><div class=" fs-4 efb"></div><p class="fs-4 efb">${efb_var.text.prsm}</p></div>`,efb_var.text.warning, '', 'saveBox');
+        show_modal_efb(`<div class="efb-dlg__centered"><div class="efb-dlg__badge"><i class="bi bi-save" aria-hidden="true"></i></div><div class="efb-dlg__headline">${efb_var.text.warning}</div><div class="efb-dlg__text">${efb_var.text.prsm}</div></div>`, efb_var.text.warning, 'bi-save', 'saveBox');
         state_modal_show_efb(1)
         return;
       }else{
@@ -5263,12 +5410,17 @@ store_form_efb =()=>{
    localStorage.setItem('efb_auto_save', 1);
           localStorage.setItem('efb_auto_save_form_id', form_ID_emsFormBuilder);
           localStorage.setItem('efb_auto_save_valj_efb', JSON.stringify(valj_efb));
+          // When it was saved, so the restore prompt can say which version it
+          // is offering. Without it the question is "restore your work?" with
+          // no way to tell whether that work is a minute or a week old.
+          localStorage.setItem('efb_auto_save_time', String(Date.now()));
 }
 
 clear_auto_save_efb =()=>{
   localStorage.setItem('efb_auto_save', 0);
   localStorage.removeItem('efb_auto_save_form_id');
   localStorage.removeItem('efb_auto_save_valj_efb');
+  localStorage.removeItem('efb_auto_save_time');
 }
 async function heartbeat_Emsfb() {
 
@@ -5620,28 +5772,77 @@ function restore_auto_save_efb(){
   const auto_save = Number(localStorage.getItem('efb_auto_save')) === 1;
   if(auto_save==false) return;
 
+  /* Asked for from two places - the panel bootstrap and every list re-render
+     (paging, search, the back button) - and each of those used to schedule
+     its own copy of the prompt. Two copies meant two footers stacked in the
+     one dialog, the top row wired to nothing. There is one draft, so there
+     is one offer to restore it. */
+  if (_efb_restore_prompt_pending_efb) return;
+  _efb_restore_prompt_pending_efb = true;
+
   const valj_efb_str = localStorage.getItem('efb_auto_save_valj_efb');
   if(valj_efb_str!=null && typeof efb_var !== 'undefined' && efb_var.text){
     setTimeout(() => {
-      const context =`<div class="text-center text-darkb efb"><div class=" fs-4 efb"></div><p class="fs-4 efb">${efb_var.text.rasfmb}</p>
-        <div class="d-flex justify-content-center gap-3 mt-3">
-      <a class="btn btn-darkb text-white efb px-4" id="restore_auto_save_efb_btn" onclick="restore_auto_save_efb_btn()">
-        ${efb_var.text.yes}
-      </a>
-      <a class="btn btn-outline-danger efb px-4" id="restore_auto_no_efb_btn" onclick="restore_auto_no_efb_btn()">
-        ${efb_var.text.no}
-      </a>
-    </div>
-        </div>`;
-      show_modal_efb(context,efb_var.text.warning, ``, 'saveBox');
-      state_modal_show_efb(1)
+      // When the draft was written, in the admin's own locale. Only shown when
+      // a timestamp exists: a draft stored before this was recorded has none,
+      // and an empty "Last saved:" line is worse than no line.
+      const saved_at = Number(localStorage.getItem('efb_auto_save_time'));
+      let stamp = '';
+      if (saved_at > 0) {
+        try {
+          stamp = new Date(saved_at).toLocaleString(
+            typeof lan_name_emsFormBuilder !== 'undefined' ? lan_name_emsFormBuilder : undefined,
+            { dateStyle: 'medium', timeStyle: 'short' }
+          );
+        } catch (e) {
+          stamp = new Date(saved_at).toLocaleString();
+        }
+      }
+      const label = stamp
+        ? `${efb_var.text.lastSaved || 'Last saved'}: ${stamp}`
+        : '';
+
+      // Amber badge over a blue confirm: restoring is not destructive, and
+      // "Start fresh" is the one that throws the draft away.
+      const context = efb_build_confirm_body(
+        'warning',
+        'bi-clock-history',
+        efb_var.text.restoreAutoSaveTitle || efb_var.text.warning,
+        efb_var.text.rasfmb,
+        label
+      );
+
+      /* Nobody asked for this dialog, so it never takes the screen from a
+         dialog somebody did ask for: show_modal_efb parks it and replays it
+         once they are done. The wiring goes in onShown for the same reason -
+         while the request is parked, none of these buttons exist yet. */
+      const painted = show_modal_efb(context, efb_var.text.warning, 'efb bi-clock-history mx-2', 'duplicateBox', {
+        flow: 'restore-auto-save',
+        confirmLabel: efb_var.text.restoreIt || efb_var.text.yes,
+        cancelLabel: efb_var.text.startFresh || efb_var.text.no,
+        onShown: () => {
+          const confirmBtn = document.getElementById('modalConfirmBtnEfb');
+          if (confirmBtn) {
+            confirmBtn.id = 'restore_auto_save_efb_btn';
+            confirmBtn.onclick = () => restore_auto_save_efb_btn();
+          }
+          const cancelBtn = document.querySelector('#modal-footer-efb .efb-btn-cancel');
+          if (cancelBtn) {
+            cancelBtn.id = 'restore_auto_no_efb_btn';
+            cancelBtn.onclick = () => restore_auto_no_efb_btn();
+          }
+        }
+      });
+      if (painted) state_modal_show_efb(1);
     }, 1000);
   } else {
+    _efb_restore_prompt_pending_efb = false;
     localStorage.setItem('efb_auto_save', 0);
   }
 }
 
  async function restore_auto_save_efb_btn(){
+    _efb_restore_prompt_pending_efb = false;
     state_page_Efb = 'edit';
    if(window.location.href.includes('page=Emsfb_create')){
     state_page_Efb = 'create';
@@ -5662,7 +5863,27 @@ function restore_auto_save_efb(){
       creator_form_builder_Efb();
       setTimeout(() => { editFormEfb() }, 200)
       state_modal_show_efb(0)
+
+      /* The draft can be restored from the panel, where the builder takes over
+         #content-efb but the forms list's own chrome sits outside it: the
+         "load more" chevron is a sibling of that container, so replacing the
+         list leaves the button behind, floating under the canvas and paging a
+         list that is no longer on screen. Every other route into the builder
+         (a row's edit action, the ?state=edit-form deep link) hides it on the
+         way in; this one has to as well. Guarded because list_form-efb.js is
+         only enqueued on page=Emsfb - on the Create page there is no list, no
+         chevron and no helper. */
+      if (typeof fun_backButton_efb === 'function') fun_backButton_efb(0);
     } catch (error) {
+      /* Whatever went wrong, the dialog must not be left on screen: it owns
+         the modal shell and a backdrop, so a silent return here used to trap
+         the page behind a prompt whose only working button was the X - and
+         efb_auto_save is already 0 by now, so nothing would ever offer the
+         draft again either. A draft that cannot be read (truncated by a full
+         localStorage, an empty array) is kept, not deleted, so a later build
+         still has something to offer. */
+      state_modal_show_efb(0);
+      alert_message_efb('', (efb_var.text && efb_var.text.somethingWentWrongPleaseRefresh) || 'The auto-saved version could not be restored.', 17, 'danger');
       return;
     }
 
@@ -5672,11 +5893,143 @@ function restore_auto_save_efb(){
 }
 
   function restore_auto_no_efb_btn(){
+    _efb_restore_prompt_pending_efb = false;
     localStorage.setItem('efb_auto_save', 0);
     localStorage.removeItem('efb_auto_save_valj_efb');
     localStorage.removeItem('efb_auto_save_form_id');
+    localStorage.removeItem('efb_auto_save_time');
     state_modal_show_efb(0)
   }
+
+/* The scroll window for the field palette, measured because the CSS cannot: the column
+   does not start at the top of the viewport, it starts wherever the toolbar above it
+   happens to end, and that offset is not a constant. Only #listElEfb reads the variable
+   this sets - the canvas card is deliberately left at the height of the form it holds,
+   so nothing here should be made to size it. */
+const EFB_WORKSPACE_FIT = { raf: 0, observed: false };
+
+function efbFitWorkspaceEfb() {
+  const list = document.getElementById('listElEfb');
+  const row = list ? list.parentElement : null;
+  // Same guards as the stylesheet: phones keep their own layout.
+  if (!list || !row || document.body.classList.contains('mobile') || window.innerWidth < 768) {
+    if (row) {
+      row.style.removeProperty('--efb-workspace-h');
+      row.classList.remove('efb-workspace-tall');
+    }
+    return;
+  }
+
+  /* Measure from where the workspace actually begins, not from the admin bar - the
+     builder toolbar and the tab strip sit in between and their height is not fixed. */
+  const rowBox = row.getBoundingClientRect();
+  const rowTop = rowBox.top;
+  const menu = document.getElementById('adminmenuwrap');
+  const wpBody = document.getElementById('wpbody-content');
+
+  /* Whatever sits below the row inside the content column - the panel's own bottom
+     margin, the collapse handle under the canvas - is part of what the workspace has to
+     leave room for. Left out, the workspace overshoots by exactly that much and the page
+     scrolls for no reason. It is a constant, so measuring it against the current layout
+     settles in one pass rather than creeping. */
+  const belowRow = wpBody
+    ? Math.max(0, Math.round(wpBody.getBoundingClientRect().bottom - rowBox.bottom))
+    : 16;
+
+  /* Filling the viewport is the floor: the builder should use the screen it has. */
+  const viewportFit = Math.max(320, Math.round(window.innerHeight - rowTop - belowRow));
+
+  /* An admin page is as tall as the taller of (admin menu, content), and the menu is
+     left at its natural height - past 1400px on a site with ~25 plugins. Cut to the
+     viewport, the workspace then ends hundreds of pixels above the foot of a page the
+     menu alone has already made scrollable, and that gap is dead grey space. Reach the
+     menu's bottom instead, so the palette ends where the page does and shows as many
+     tiles as the page has room for.
+
+     Measured off the menu, deliberately not off scrollHeight: the page height is partly
+     this function's own output, so reading it back would feed the next measurement. */
+  const menuFit = menu
+    ? Math.round(menu.getBoundingClientRect().bottom - rowTop) - belowRow
+    : 0;
+
+  const target = Math.max(viewportFit, menuFit);
+  const next = target + 'px';
+
+  /* Compared against the element, never against a remembered value: the builder rebuilds
+     #content-efb from scratch, so the row this runs on is regularly a new element with no
+     variable on it yet. A module-level "already applied" cache agrees with the old node
+     and skips the write, and the rebuilt workspace is then left with no height at all. */
+  if (next !== row.style.getPropertyValue('--efb-workspace-h')) {
+    row.style.setProperty('--efb-workspace-h', next);
+  }
+
+  /* Past the fold the palette cannot stay sticky. Pinned at its top, a column taller
+     than the viewport pushes its own lower edge permanently off-screen, which for the
+     palette parks the end of its scroll area somewhere unreachable. It travels with the
+     page in that mode, which reaches the same tiles by other means.
+     toggle() with an explicit flag is idempotent, so it needs no cache of its own. */
+  row.classList.toggle('efb-workspace-tall', target > viewportFit);
+}
+
+/* Coalesce bursts of triggers into one measurement on the next frame. */
+function efbScheduleWorkspaceFitEfb() {
+  if (EFB_WORKSPACE_FIT.raf) cancelAnimationFrame(EFB_WORKSPACE_FIT.raf);
+  EFB_WORKSPACE_FIT.raf = requestAnimationFrame(() => {
+    EFB_WORKSPACE_FIT.raf = 0;
+    efbFitWorkspaceEfb();
+  });
+}
+
+/* The offset the workspace starts at moves whenever the toolbar above it reflows - the
+   nav wraps to two lines on a narrow window, for instance. Watch that strip rather than
+   guessing which interactions matter. Never observe the columns themselves: this
+   function sizes them, so observing them would feed straight back in. */
+function efbWatchWorkspaceFitEfb() {
+  if (EFB_WORKSPACE_FIT.observed) return;
+  EFB_WORKSPACE_FIT.observed = true;
+  window.addEventListener('resize', efbScheduleWorkspaceFitEfb);
+  if (typeof ResizeObserver === 'function') {
+    const ro = new ResizeObserver(efbScheduleWorkspaceFitEfb);
+    const nav = document.querySelector('#panel_efb > nav');   // wraps to two lines when narrow
+    [document.getElementById('wpadminbar'), nav].forEach(el => { if (el) ro.observe(el); });
+  }
+}
+
+/* Selecting a field opens its settings, and show_setting_window_efb toggles, so it has
+   to be reached exactly once per gesture. One gesture can arrive here up to three times:
+   a field renders a .showBtns wrapper nested inside a .showBtns <section> that share a
+   data-id (so one click bubbles through two listeners), and a mobile tap fires touchend
+   plus the synthetic click the browser dispatches after it. The event flag collapses the
+   bubbling pair; the short time window collapses touchend + its click. Clicks on the
+   action buttons never get here at all - isFieldAction returns before this - so the
+   gear's own onclick stays the single call for that button. */
+let efbLastFieldTapEfb = { id: null, at: 0 };
+function efbSelectFieldEfb(el, e) {
+  const dataId = el.dataset.id;
+  const now = Date.now();
+
+  const isTouch = e && e.type === 'touchend';
+  if (isTouch) efbLastFieldTapEfb = { id: dataId, at: now };
+
+  /* The same event bubbles through the inner .showBtns wrapper and the outer <section>,
+     which share a data-id; one gesture must only reach the toggle once. The flag is set
+     before any early return below, because the click-away closer in
+     bootstrap-select.min-efb.js reads it to tell a field click from a click on nothing. */
+  if (e) {
+    if (e.efbFieldHandled) return;
+    e.efbFieldHandled = true;
+  }
+
+  /* A tap fires touchend and then a synthetic click for the same gesture, up to the
+     browser's tap delay later (~350ms on older iOS). touchend already did the work, so
+     drop that click. Keyed to clicks only, so a genuine second tap - which arrives as
+     touchend - still gets through and can toggle the panel shut. */
+  if (!isTouch && efbLastFieldTapEfb.id === dataId && now - efbLastFieldTapEfb.at < 800) return;
+
+  active_element_efb(el);
+  if (!dataId || typeof show_setting_window_efb !== 'function') return;
+  show_setting_window_efb(dataId);
+}
 
 function fub_shwBtns_efb() {
   for (const el of document.querySelectorAll(".showBtns")) {
@@ -5689,7 +6042,7 @@ function fub_shwBtns_efb() {
     if (!el._efbClickBound) {
       el.addEventListener("click", (e) => {
         if (isFieldAction(e.target)) return;
-        active_element_efb(el);
+        efbSelectFieldEfb(el, e);
       });
       el._efbClickBound = true;
     }
@@ -5720,61 +6073,111 @@ function fub_shwBtns_efb() {
     if (!el._efbTouchBound) {
       el.addEventListener("touchend", (e) => {
         if (isFieldAction(e.target)) return;
-        active_element_efb(el);
+        efbSelectFieldEfb(el, e);
       }, { passive: true });
       el._efbTouchBound = true;
     }
   }
 }
 
+/**
+ * The upgrade dialog, shown wherever a click lands on something this site's
+ * plan does not include.
+ *
+ * Three lock reasons share it, and the caller says which by the argument it
+ * passes - the numbers are the plan gate, not a style:
+ *
+ *   1  a Pro-only field or setting
+ *   2  the two-step limit
+ *   3  a feature Free Plus unlocks as well, so the cheaper answer is offered
+ *      first and the two plans are put side by side
+ *
+ * A string argument is that caller's own sentence, and takes the shape of
+ * reason 1. Every call site keeps working unchanged; what they get back is
+ * the design system's gold-toned dialog rather than the bootstrap grid the
+ * body used to be.
+ */
 function pro_show_efb(state) {
-  let message = state;
-  let buttons = '';
+  const t = (key, fallback) => (typeof efb_var !== 'undefined' && efb_var.text && efb_var.text[key]) || fallback;
+  const price = t('priceyr', '$NN/year').replace('NN', pro_price_efb);
+  // Only reason 3 is the one Free Plus can answer. A caller's own sentence
+  // is a Pro lock, so it stays on the Pro side of that line.
+  const freePlusAnswers = typeof state != "string" && state == 3;
 
+  let message = state;
   if (typeof state != "string") {
     if (state == 1) {
-      message = efb_var.text.proUnlockMsg;
+      message = t('proUnlockMsg', '');
     } else if (state == 2) {
-      message = efb_var.text.ifYouNeedCreateMoreThan2Steps;
+      message = t('ifYouNeedCreateMoreThan2Steps', '');
     } else if (state == 3) {
-      message = efb_var.text.thisFeatureAvailableFreePlusPro;
+      message = t('thisFeatureAvailableFreePlusPro', '');
     }
   }
 
-  if (state == 3) {
-    buttons = `
-    <div class="efb row">
-      <div class="efb  col-md-6  text-center">
-        <button class="efb btn mt-3 efb btn-r h-d-efb btn-outline-info "  onclick ="open_whiteStudio_efb('free_plus_guide')">${efb_var.text.freePlusActivation || 'Free Plus Activation'} </button>
+  /* Reason 3 compares the two plans that would unlock the click; the others
+     name what Pro adds, because there is nothing to compare it against. */
+  let detail = '';
+  if (freePlusAnswers) {
+    detail = `
+    <div class="efb-dlg__plans">
+      <div class="efb-dlg__plan efb-dlg__plan--enough">
+        <div class="efb-dlg__plan-head">
+          <i class="efb bi-unlock"></i>
+          <span class="efb-dlg__plan-name">${t('freePlus', 'Free Plus')}</span>
+          <span class="efb-dlg__plan-price">${t('free', 'Free')}</span>
+        </div>
+        <div class="efb-dlg__plan-desc">${t('planFreePlusDesc', 'Unlocked by a free activation, which is enough for this feature.')}</div>
       </div>
-      <div class="efb  text-center col-md-6">
-        <button type="button" class="efb btn btn-r efb btn-primary efb-btn-lg mt-3 mb-3" onclick ="open_whiteStudio_efb('pro')">
-          <i class="efb  bi-gem mx-1 pro"></i>
-          ${efb_var.text.activateProVersion}
-        </button>
+      <div class="efb-dlg__plan">
+        <div class="efb-dlg__plan-head">
+          <i class="efb bi-gem"></i>
+          <span class="efb-dlg__plan-name">${t('pro', 'Pro')}</span>
+          <span class="efb-dlg__plan-price">${price}</span>
+        </div>
+        <div class="efb-dlg__plan-desc">${t('planProDesc', 'Every feature, with no limits, and support included.')}</div>
       </div>
     </div>`;
   } else {
-    buttons = `
-    <div class="efb row">
-      <div class="efb  col-md-6  text-center">
-        <button class="efb btn mt-3 efb btn-r h-d-efb btn-outline-pink "  onclick ="open_whiteStudio_efb('pro')">${efb_var.text.priceyr.replace('NN',pro_price_efb)} </button>
-      </div>
-      <div class="efb  text-center col-md-6">
-        <button type="button" class="efb btn btn-r efb btn-primary efb-btn-lg mt-3 mb-3" onclick ="open_whiteStudio_efb('pro')">
-          <i class="efb  bi-gem mx-1 pro"></i>
-          ${efb_var.text.activateProVersion}
-        </button>
-      </div>
-    </div>`;
+
   }
 
-  const body = `<div class="efb  pro-version-efb-modal"><i class="efb  bi-gem"></i></div>
-  <h5 class="efb  txt-center">${message}</h5>
-  ${buttons}`
+  const body = `<div class="efb-dlg__centered">
+    <div class="efb-dlg__badge efb-dlg__badge--square"><i class="efb bi-gem"></i></div>
+    <div class="efb-dlg__headline">${freePlusAnswers ? t('freePlusUnlocksThis', 'Free Plus unlocks this too') : t('proFeatureTitle', 'A Pro version feature')}</div>
+    <div class="efb-dlg__text">${message}</div>
+  </div>`;
 
-  show_modal_efb(body, efb_var.text.proVersion, '', 'proBpx')
-  state_modal_show_efb(1)
+  /* The quieter of the two actions is the one that costs least: the guide to
+     the free activation when that would do, and the price otherwise - a
+     person who is only checking what this costs should not have to press
+     "Upgrade" to find out. */
+  const secondary = freePlusAnswers
+    ? { link: 'free_plus_guide', icon: 'bi-book', label: t('freePlusActivation', 'Free Plus Guide') }
+    : { link: 'pro', icon: 'bi-tag', label: price };
+  const footInner = `
+    <a role="button" class="efb-dlg-btn efb-dlg-btn--ghost" onclick="open_whiteStudio_efb('${secondary.link}')"><i class="efb ${secondary.icon}"></i>${secondary.label}</a>
+    <a role="button" class="efb-dlg-btn efb-dlg-btn--gold" onclick="open_whiteStudio_efb('pro')"><i class="efb bi-gem"></i>${t('activateProVersion', 'Upgrade to Pro')}</a>`;
+
+  /* 'proBpx' is not one of the types show_modal_efb() builds a footer for, so
+     this dialog appends its own - in onShown, because a call that arrives
+     while another dialog holds the screen is parked and replayed later, and
+     until then none of this markup is in the page. */
+  const painted = show_modal_efb(body, t('proVersion', 'Pro Version'), 'bi-gem', 'proBpx', {
+    onShown: () => {
+      if (typeof efb_dlg_set_tone_efb === 'function') efb_dlg_set_tone_efb('efb-tone-gold');
+      const sections = document.getElementById('settingModalEfb-sections');
+      if (!sections) return;
+      const foot = document.createElement('div');
+      foot.className = 'efb modal-footer efb-dlg__foot';
+      foot.id = 'save-result-foot-efb';
+      foot.innerHTML = footInner;
+      sections.appendChild(foot);
+    }
+  });
+  // A parked dialog is opened by the queue itself; opening the shell here
+  // would show whatever the previous dialog left in it.
+  if (painted) state_modal_show_efb(1);
 }
 
 function move_show_efb() {
@@ -5894,7 +6297,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
   let ui = ''
   const vtype = (elementId == "payCheckbox" || elementId == "payRadio" || elementId == "paySelect" || elementId == "payMultiselect" || elementId == "chlRadio" || elementId == "chlCheckBox" || elementId == "imgRadio" || elementId=='trmCheckbox') ? elementId.slice(3).toLowerCase() : elementId;
   let classes = ''
-  const corner = valj_efb[iVJ].hasOwnProperty('corner') ? valj_efb[iVJ].corner: 'efb-square';
+  const corner = valj_efb[iVJ].hasOwnProperty('corner') ? valj_efb[iVJ].corner: 'rounded-3';
   let minlen,maxlen,temp,col;
   let hidden =  previewSate == true  && valj_efb[iVJ].hasOwnProperty('hidden') &&  valj_efb[iVJ].hidden==1 ? 'd-none' : ''
   let disabled = valj_efb[iVJ].hasOwnProperty('disabled') &&  valj_efb[iVJ].disabled==1? 'disabled' : ''
@@ -6220,7 +6623,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         const clss = valj_efb[iVJ].classes!="" ? 'efb1 '+valj_efb[iVJ].classes.replace(`,`, ` `) : "";
         const sort = iVJ<3 ? 'unsortable'  : 'sortable';
         newElement += `
-        <setion class="efb ${sort}  row my-2  ${shwBtn} efbField stepNavEfb stepNo ${clss}" data-step="${valj_efb[iVJ].id_}" id="${valj_efb[iVJ].id_}" data-amount="${step_el_efb}" data-id="${valj_efb[iVJ].id_}" data-tag="${elementId}">
+        <section class="efb ${sort}  row my-2  ${shwBtn} efbField stepNavEfb stepNo ${clss}" data-step="${valj_efb[iVJ].id_}" id="${valj_efb[iVJ].id_}" data-amount="${step_el_efb}" data-id="${valj_efb[iVJ].id_}" data-tag="${elementId}">
        <!-- <div class="efb  row my-2  ${shwBtn} efbField ${valj_efb[iVJ].classes.replace(`,`, ` `)} stepNavEfb" data-step="${valj_efb[iVJ].id_}" id="${valj_efb[iVJ].id_}" data-amount="${step_el_efb}" data-id="${valj_efb[iVJ].id_}" data-tag="${elementId}"> -->
         <h2 class="efb  col-md-10 col-sm-12 mx-2 my-0"><i class="efb  ${valj_efb[iVJ].icon} ${valj_efb[iVJ].label_text_size} ${valj_efb[iVJ].icon_color} "
         id="${valj_efb[iVJ].id_}_icon"></i> <span id="${valj_efb[iVJ].id_}_lab" class="efb  ${valj_efb[iVJ].label_text_size}  ${valj_efb[iVJ].label_text_color}  ">${valj_efb[iVJ].name}</span></span></h2>
@@ -6236,7 +6639,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         </div>
         </div>
         <!--  </div> -->
-        </setion>
+        </section>
         `
       } else {
         pro_show_efb(2);
@@ -6756,7 +7159,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     // mirror the published frontend, which pairs col-md-* with a col-* xs class.
     const mobileColCls = previewSate == true ? getMobileColClass(valj_efb[iVJ]) : '';
     newElement += `
-    ${previewSate == false  ? `<setion class="efb my-1 px-0 mx-0 ttEfb ${previewSate != true ? disabled : ""} ${previewSate == false && valj_efb[iVJ].hidden==1 ? "hidden" : ""} ${previewSate == true && (pos[1] == "col-md-12" || pos[1] == "col-md-10") ? `mx-0 px-0` : 'position-relative'} ${previewSate == true ? `${pos[0]} ${pos[1]}` : `${ps}`} row ${shwBtn} efbField ${dataTag == "step" ? 'step' : ''}" data-step="${step_el_efb}" data-amount="${amount_el_efb}" data-id="${rndm}-id" id="${rndm}" data-tag="${tagId}"  >` : ''}
+    ${previewSate == false  ? `<section class="efb my-1 px-0 mx-0 ttEfb ${previewSate != true ? disabled : ""} ${previewSate == false && valj_efb[iVJ].hidden==1 ? "hidden" : ""} ${previewSate == true && (pos[1] == "col-md-12" || pos[1] == "col-md-10") ? `mx-0 px-0` : 'position-relative'} ${previewSate == true ? `${pos[0]} ${pos[1]}` : `${ps}`} row ${shwBtn} efbField ${dataTag == "step" ? 'step' : ''}" data-step="${step_el_efb}" data-amount="${amount_el_efb}" data-id="${rndm}-id" id="${rndm}" data-tag="${tagId}"  >` : ''}
     ${previewSate == false && valj_efb[iVJ].hidden==1 ? hiddenMarkEl(valj_efb[iVJ].id_) : ''}
     <div class="efb my-1 mx-0  ${elementId} ${tagT} ${hidden} ${previewSate == true ? disabled : ""}  ttEfb ${previewSate == true ? `${pos[0]} ${pos[1]} ${mobileColCls}` : ` row`} ${shwBtn} efbField ${dataTag == "step" ? 'step' : ''}" data-step="${step_el_efb}" data-amount="${amount_el_efb}" data-id="${rndm}-id" id="${rndm}" data-tag="${tagId}"  >
     ${(previewSate == true && elementId != 'option') || previewSate != true ? ui : ''}
@@ -6764,7 +7167,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     ${previewSate != true ? contorl : '<!--efb.app-->'}
     ${previewSate != true && pro_efb == false && pro_el==true  ? '</div>' : ''}
     ${(previewSate == true && elementId != 'option' && elementId != "html" && elementId != "stripe" && elementId != "heading" && elementId != "link") || previewSate != true ? endTags : '</div>'}
-    ${previewSate == false  ? ` </setion><!--endTag EFB-->` :''}
+    ${previewSate == false  ? ` </section><!--endTag EFB-->` :''}
      <!--endTag EFB-->
     `;
   } else if (dataTag == 'step' && previewSate != true) {
@@ -6915,7 +7318,7 @@ const sub =lan_subdomain_wsteam_efb();
       link += `How-to-Install-and-Use-the-Location-Picker-(geolocation)-with-Easy-Form-Builder`
       break;
     case 'pro':
-      link = `https://${sub}whitestudio.team/#price`
+      link = `https://${sub}whitestudio.team/#pricing`
       break;
     case 'publishForm':
       link = `https://www.youtube.com/watch?v=RJRe7p6yPCI`
@@ -6943,7 +7346,7 @@ const sub =lan_subdomain_wsteam_efb();
       link += `%da%86%da%af%d9%88%d9%86%d9%87-%d8%a7%d9%86%d8%aa%d8%ae%d8%a7%d8%a8%da%af%d8%b1-%d9%85%d9%88%d9%82%d8%b9%db%8c%d8%aa-%d9%85%da%a9%d8%a7%d9%86%db%8c-%d9%85%d9%88%d9%82%d8%b9%db%8c%d8%aa-%d8%ac%d8%ba/`
       break;
     case 'pro':
-      link = `https://easyformbuilder.ir/#price`
+      link = `https://easyformbuilder.ir/#pricing`
       break;
     case 'publishForm':
       case 'notInput':
@@ -7498,7 +7901,7 @@ function send_data_efb() {
 
 function get_position_col_el(dataId, state) {
   const indx = valj_efb.findIndex(x => x.dataId == dataId);
-  let el_parent = document.querySelector(`setion[id="${valj_efb[indx].id_}"]`) || document.getElementById(valj_efb[indx].id_) || "null";
+  let el_parent = document.querySelector(`section[id="${valj_efb[indx].id_}"]`) || document.getElementById(valj_efb[indx].id_) || "null";
   let el_label = document.getElementById(`${valj_efb[indx].id_}_labG`) ?? "null";
   let el_input = document.getElementById(`${valj_efb[indx].id_}-f`) ?? "null";
   let parent_col = ``;
@@ -7699,7 +8102,7 @@ function efbApplyFieldViewEfb(item, view) {
   if (!item || !item.id_) return;
   view = view === 'mobile' ? 'mobile' : 'desktop';
 
-  const parentEl = document.querySelector(`setion[id="${item.id_}"]`) || document.getElementById(item.id_);
+  const parentEl = document.querySelector(`section[id="${item.id_}"]`) || document.getElementById(item.id_);
   const labelEl = document.getElementById(`${item.id_}_labG`);
   const inputEl = document.getElementById(`${item.id_}-f`);
   if (!parentEl) return;
@@ -8018,7 +8421,12 @@ function handle_navbtn_efb(steps, device) {
           if(grecaptcha && !grecaptcha.classList.contains('d-none') ) { grecaptcha.classList.add('d-none'); }
           var nxt = "" + (current_s_efb + 1) + "";
           if(Number(valj_efb[0].show_icon)!=1){
-            document.querySelector('[data-step="icon-s-' + nxt + '-efb"]').classList.add("active");
+            /* setProgressBar_efb() a few lines down repaints every row from the
+               step being moved to; this only has to stand in for it when the
+               shared runtime is missing, and must not throw when the row it
+               names is not there. */
+            const nextIconEfb = document.querySelector('[data-step="icon-s-' + nxt + '-efb"]');
+            if (nextIconEfb) nextIconEfb.classList.add("active");
           }
           document.querySelector('[data-step="step-' + nxt + '-efb"]').classList.toggle("d-none");
           if(next_s_efb)next_s_efb.classList.remove('d-none');
@@ -8087,6 +8495,11 @@ function previewFormEfb(state) {
   let head = ``
   let icons = ``
   let pro_bar = ``
+  /* Resolved before the loop for the same reason the front end resolves it
+     before its own: the class list a step carries decides whether the row is
+     the classic one or one of the new ones. */
+  const stepsStyleEfb = efbStepsStyleNameEfb(valj_efb[0])
+  const stepIconColorsEfb = []
   const id = state == "run" ? 'body_efb' : 'settingModalEfb_';
   const len = valj_efb.length;
   const p = calPLenEfb(len)
@@ -8103,7 +8516,7 @@ function previewFormEfb(state) {
       preview_form_new_efb();
       return;
     }else if (state == "pc"){
-      show_modal_efb(efbLoadingCard('',4), efb_var.text.previewForm, '', 'saveBox')
+      show_modal_efb(efbLoadingCard('',4), efb_var.text.previewForm, '', 'saveBox', { flow: 'preview' })
       state_modal_show_efb(1)
     }
   }
@@ -8114,7 +8527,8 @@ function previewFormEfb(state) {
       if (valj_efb[index].type != "html" && valj_efb[index].type != "link" && valj_efb[index].type != "heading" && valj_efb[index].type != "persiaPay") Object.entries(valj_efb[index]).forEach(([key, val]) => { fun_addStyle_costumize_efb(val.toString(), key, index) });
       if (step_no < value.step && value.type == "step") {
         step_no += 1;
-        head += `<li id="${value.id_}" data-step="icon-s-${step_no}-efb"class="efb  ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`} ${value.icon_color} ${value.icon}   ${value.step == 1 ? 'active' : ''}" ><strong class="efb  fs-5  ${value.label_text_color} ">${value.name}</strong></li>`
+        stepIconColorsEfb.push(value.icon_color)
+        head += `<li id="${value.id_}" data-step="icon-s-${step_no}-efb" data-num="${step_no}" class="${efbStepsItemClassEfb(step_no, 1, value.icon_color, value.icon, stepsStyleEfb)} ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`}"><strong class="efb fs-5 ${stepsStyleEfb === 'classic' ? '' : 'efb-sp__label '}${value.label_text_color}">${value.name}</strong></li>`
         content += step_no == 1 ? `<fieldset data-step="step-${step_no}-efb" id="step-${step_no}-efb" class="efb my-2 mx-0 px-0 steps-efb efb row">` : `<!-- fieldset!!!? --><div id="step-${Number(step_no)-1}-efb-msg"></div></fieldset><fieldset data-step="step-${step_no}-efb" id="step-${step_no}-efb"  class="efb my-2 mx-0 px-0 steps-efb efb row d-none">`
         if (valj_efb[0].show_icon == false) { }
         if (valj_efb[0].hasOwnProperty('dShowBg') && valj_efb[0].dShowBg == false  && state == "run") {
@@ -8221,15 +8635,27 @@ function previewFormEfb(state) {
             <!-- fieldset2 -->
             <div id="step-2-efb-msg"></div>
             </fieldset>`
-    head += `<li id="f-step-efb"  data-step="icon-s-${step_no}-efb" class="efb  ${valj_efb[1].icon_color} ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`} bi-check-lg mx-0" ><strong class="efb  fs-5 ${valj_efb[1].label_text_color}">${efb_var.text.finish}</strong></li>`
+    stepIconColorsEfb.push(valj_efb[1].icon_color)
+    head += `<li id="f-step-efb" data-step="icon-s-${step_no}-efb" data-num="${step_no}" class="${efbStepsItemClassEfb(step_no, 1, valj_efb[1].icon_color, 'bi-check-lg', stepsStyleEfb)} ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`} mx-0"><strong class="efb fs-5 ${stepsStyleEfb === 'classic' ? '' : 'efb-sp__label '}${valj_efb[1].label_text_color}">${efb_var.text.finish}</strong></li>`
   } catch (error) {
   }
   if (content.length > 10){
     const bgc = valj_efb[0].hasOwnProperty('prg_bar_color') ?valj_efb[0].prg_bar_color: 'btn-primary'
      content += `</div>`
-    head = `${Number(valj_efb[0].show_icon)!=1 ? `<ul id="steps-efb" class="efb mb-2 px-2">${head}</ul>` : ''}
-    ${valj_efb[0].show_pro_bar == 0 || valj_efb[0].show_pro_bar == false ? `<div class="efb d-flex justify-content-center" id="f-progress-efb"><div class="efb progress mx-3 w-100 ${bgc}"><div class="efb  progress-bar-efb   progress-bar-striped progress-bar-animated" role="progressbar"aria-valuemin="0" aria-valuemax="100"></div></div></div><br> ` : ``}
-    `}
+    head = efbStepsShellHeadEfb({
+      formId: valj_efb[0].id_ ? valj_efb[0].id_ : '',
+      total: step_no,
+      current: 1,
+      currentName: valj_efb[1] && valj_efb[1].name ? valj_efb[1].name : '',
+      stepsStyle: stepsStyleEfb,
+      progressStyle: efbProgressStyleNameEfb(valj_efb[0]),
+      accentClass: bgc,
+      rtl: efb_var.rtl == 1,
+      showSteps: Number(valj_efb[0].show_icon) != 1,
+      showProgress: Number(valj_efb[0].show_pro_bar) != 1,
+      colorRules: (stepsStyleEfb === 'classic' || Number(valj_efb[0].show_icon) == 1) ? '' : efbStepsColorRulesEfb(stepIconColorsEfb),
+      items: head
+    })}
   const idn = state == "pre" ? "pre-form-efb" : "pre-efb";
   document.getElementById(id).classList.add(idn)
   content = `
@@ -8242,10 +8668,10 @@ function previewFormEfb(state) {
   if (state == 'pc') {
     document.getElementById('dropZoneEFB').innerHTML = '';
     content = efb_builder_wrap_preview_logic_body_efb(`<!-- find xxxx -->` + content, add_buttons_zone_efb(t, 'preview'));
-    show_modal_efb(content, efb_var.text.pcPreview, 'bi-display', 'saveBox')
+    show_modal_efb(content, efb_var.text.pcPreview, 'bi-display', 'saveBox', { flow: 'preview' })
   } else if (state == 'pre') {
     content = efb_builder_wrap_preview_logic_body_efb(content, add_buttons_zone_efb(t, 'preview'));
-    show_modal_efb(content, efb_var.text.pcPreview, 'bi-display', 'saveBox')
+    show_modal_efb(content, efb_var.text.pcPreview, 'bi-display', 'saveBox', { flow: 'preview' })
   } else if (state == "mobile") {
     const frame = `
         <div class="efb smartphone-efb">
@@ -8255,8 +8681,10 @@ function previewFormEfb(state) {
             </div>
         </div>
       </div> `
-    show_modal_efb(frame, efb_var.text.mobilePreview, 'bi-phone', 'settingBox');
-    ReadyElForViewEfb(content)
+    show_modal_efb(frame, efb_var.text.mobilePreview, 'bi-phone', 'settingBox', {
+      flow: 'preview',
+      onShown: () => ReadyElForViewEfb(content)
+    });
   } else {
     document.getElementById(id).innerHTML ='<form id="efbform" class="mx-0 px-0 efb">'+ content + add_buttons_zone_efb(t, id) + '</form>';
     if (valj_efb[0].type == "payment") {
@@ -8395,7 +8823,7 @@ function previewFormEfb(state) {
               callback += 1;
               const opd = document.querySelector(`[data-id='${v.id_}_options']`);
               if (opd != null) {
-                const corner = v.hasOwnProperty('corner') ? v.corner: 'efb-square';
+                const corner = v.hasOwnProperty('corner') ? v.corner: 'rounded-3';
                 opd.className += ` efb emsFormBuilder_v  ${corner} ${v.el_border_color} ${v.el_text_size} ${v.el_height}`;
                 opd.onclick = function getMultiSelectvalue() {
                 }

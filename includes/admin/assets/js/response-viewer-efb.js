@@ -17,7 +17,10 @@ const EfbResponseViewer = (function () {
     const context = _responseUploadContexts[String(msgId)] || {};
     const options = {
       response_id: context.response_id || Number(msgId) || 0,
-      response_track: context.response_track || ''
+      response_track: context.response_track || '',
+      /* Upload transport still uses form id 0, while its finished sendBack row
+         belongs to the response-box scope and must stay out of public forms. */
+      sendback_form_id: -1
     };
 
     /* A visitor receives this short-lived token only after the tracking code
@@ -94,7 +97,7 @@ const EfbResponseViewer = (function () {
     const initialHtml = savedValue ? shortcodeToHtml(savedValue.replace(/@efb@nq#/g, '<br>')) : '';
 
     return `
-    <div class="efb-reply-section ${isRtl() ? 'rtl-text' : ''}" id="replay_section__emsFormBuilder">
+    <div class="efb-reply-section ${isRtl() ? 'rtl-text' : ''} efb p-2" id="replay_section__emsFormBuilder">
       <div class="efb-reply-label" id="label_replyM_efb">
         <i class="bi bi-reply"></i> ${_t('reply')}:
       </div>
@@ -213,7 +216,7 @@ const EfbResponseViewer = (function () {
     const uploadHtml = buildFileUploadArea(msgId, isPanel, track);
     return `
     <div class="efb-reply-actions efb pb-2">
-      <button type="submit" class="efb-reply-btn" id="replayB_emsFormBuilder"
+      <button type="button" class="efb-reply-btn" id="replayB_emsFormBuilder"
               onclick="fun_send_replayMessage_emsFormBuilder(${msgId})">
         <i class="bi bi-reply"></i> ${_t('reply')}
       </button>
@@ -267,7 +270,7 @@ const EfbResponseViewer = (function () {
     const uploadHtml = buildFileUploadArea(msg_id, false, track);
     const replySection = buildRichEditor(msg_id, savedValue) + `
     <div class="efb-reply-actions">
-      <button type="submit" class="efb-reply-btn" id="replayB_emsFormBuilder"
+      <button type="button" class="efb-reply-btn" id="replayB_emsFormBuilder"
               onclick="fun_send_replayMessage_emsFormBuilder(${msg_id})">
         <i class="bi bi-reply"></i> ${typeof ajax_object_efm !== 'undefined' && ajax_object_efm.text ? ajax_object_efm.text.reply : _t('reply')}
       </button>
@@ -637,10 +640,31 @@ const chatHistory = document.getElementById('resp_efb');
 
 })();
 
+/**
+ * Is this copy of the response viewer running inside wp-admin?
+ *
+ * The panel and the public page draw the box with the same script, but the
+ * palette from Colors & Fonts is for the public box only - the dialog says so
+ * under its own preview, and it is the reason nothing here writes to :root on
+ * an admin screen. A dark public palette applied in here would repaint the
+ * administrator's own inbox to match a visitor's theme.
+ *
+ * The flag is set where ajax_object_efm is localized for the panel; the body
+ * class is wp-admin's own and stands in on any other admin screen that loads
+ * this file without that payload.
+ */
+function efb_is_admin_screen_efb() {
+  if (typeof ajax_object_efm !== 'undefined' && ajax_object_efm && ajax_object_efm.admin_screen) return true;
+  return !!(document.body && document.body.classList.contains('wp-admin'));
+}
+
 let _efbRespColorsApplied = false;
 function efb_apply_resp_colors() {
   if (_efbRespColorsApplied) return;
   _efbRespColorsApplied = true;
+
+  // wp-admin keeps the shipped palette, whatever the site was customised to.
+  if (efb_is_admin_screen_efb()) return;
 
   let s = null;
   try {
@@ -1753,43 +1777,66 @@ function emsFormBuilder_show_content_message(value, content) {
   return body;
 }
 
+function efb_reply_button_state_efb(isSending) {
+  const button = document.getElementById('replayB_emsFormBuilder');
+  if (!button) return;
+  button.classList.toggle('disabled', isSending);
+  button.disabled = isSending;
+  button.setAttribute('aria-busy', isSending ? 'true' : 'false');
+  button.innerHTML = isSending
+    ? `<i class="efb fs-5 bi-hourglass-split mx-1"></i>${efb_var.text.sending}`
+    : efb_var.text.reply;
+}
+
 function fun_send_replayMessage_emsFormBuilder(id) {
-  document.getElementById('replayB_emsFormBuilder').classList.add('disabled');
-  document.getElementById('replayB_emsFormBuilder').innerHTML =`<i class="efb fs-5 bi-hourglass-split mx-1"></i>`+efb_var.text.sending;
-  setTimeout(() => {
+  const replyButton = document.getElementById('replayB_emsFormBuilder');
+  if (!replyButton || replyButton.disabled || replyButton.classList.contains('disabled')) return false;
+  efb_reply_button_state_efb(true);
+  setTimeout(async () => {
     let message = EfbResponseViewer.getEditorValue();
-    message=sanitize_text_efb(message);
-    const by = ajax_object_efm.user_name.length > 1 ? ajax_object_efm.user_name : efb_var.text.guest;
-    const ob = [{id_:'message', name:'message', type:'text', amount:0, value: message, by: by , session: sessionPub_emsFormBuilder,form_id:-1}];
-    fun_sendBack_emsFormBuilder(ob[0])
-    if (message.length < 1 ) {
+    message = message == null ? '' : sanitize_text_efb(message);
+    message = typeof message === 'string' ? message.trim() : '';
+    if (message.length < 1) {
       check_msg_ext_resp_efb();
       document.getElementById('replay_state__emsFormBuilder').innerHTML = `<p class="efb fs-6"><i class="efb bi-exclamation-triangle-fill nmsgefb"></i> ${efb_var.text.error}: ${efb_var.text.pleaseEnterVaildValue}</p>`;
-      document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
-       document.getElementById('replayB_emsFormBuilder').innerHTML = efb_var.text.reply;
+      efb_reply_button_state_efb(false);
       return;
-    } else {
-      if(setting_emsFormBuilder.hasOwnProperty('dsupfile')==true && setting_emsFormBuilder.dsupfile !=true) {
-        for(let s = sendBack_emsFormBuilder_pub.length - 1; s >= 0; s-- ){
-          if(sendBack_emsFormBuilder_pub[s] && sendBack_emsFormBuilder_pub[s].name=="file") sendBack_emsFormBuilder_pub.splice(s,1)
-        }
-      }
-      let messages = sendBack_emsFormBuilder_pub.filter(x=>x && (Number(x.form_id)==-1 || EfbResponseViewer.isResponseUploadId(x.id_)) && x.id_!='captcha_v2');
-      fun_send_replayMessage_reast_emsFormBuilder(messages);
     }
+
+    const userName = typeof ajax_object_efm.user_name === 'string' ? ajax_object_efm.user_name : '';
+    const by = userName.length > 1 ? userName : efb_var.text.guest;
+    const responseMessage = {id_:'message', name:'message', type:'text', amount:0, value: message, by: by, session: sessionPub_emsFormBuilder, form_id:-1};
+    try {
+      await fun_sendBack_emsFormBuilder(responseMessage);
+    } catch (error) {
+      const state = document.getElementById('replay_state__emsFormBuilder');
+      if (state) state.textContent = efb_var.text.error;
+      efb_reply_button_state_efb(false);
+      return;
+    }
+
+    if(typeof setting_emsFormBuilder !== 'undefined' && setting_emsFormBuilder.hasOwnProperty('dsupfile')==true && setting_emsFormBuilder.dsupfile !=true) {
+      for(let s = sendBack_emsFormBuilder_pub.length - 1; s >= 0; s-- ){
+        if(sendBack_emsFormBuilder_pub[s] && EfbResponseViewer.isResponseUploadId(sendBack_emsFormBuilder_pub[s].id_)) sendBack_emsFormBuilder_pub.splice(s,1)
+      }
+    }
+    let messages = sendBack_emsFormBuilder_pub.filter(x=>x && (Number(x.form_id)==-1 || EfbResponseViewer.isResponseUploadId(x.id_)) && x.id_!='captcha_v2');
+    fun_send_replayMessage_reast_emsFormBuilder(messages);
   }, 100);
+  return true;
 }
 
 function fun_send_replayMessage_reast_emsFormBuilder(message) {
   if (!navigator.onLine) {
     noti_message_efb_v4(efb_var.text.offlineSend , 'danger' , `replay_state__emsFormBuilder`,0 );
+    efb_reply_button_state_efb(false);
     return;
   }
   f_btn =()=>{
     document.getElementById('replay_state__emsFormBuilder').innerHTML = efb_var.text.enterYourMessage;
     document.getElementById('replayM_emsFormBuilder').value = "";
     var _re = document.getElementById('efb_rich_editor'); if (_re) _re.innerHTML = '';
-    document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
+    efb_reply_button_state_efb(false);
   }
   if (message.length < 1) {
     f_btn();
@@ -1861,8 +1908,7 @@ function response_rMessage_id(res, message) {
     const richEditor = document.getElementById('efb_rich_editor');
     if (richEditor) richEditor.innerHTML = '';
     document.getElementById('replay_state__emsFormBuilder').innerHTML = res.data.m;
-    document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
-    document.getElementById('replayB_emsFormBuilder').innerHTML =ajax_object_efm.text.reply;
+    efb_reply_button_state_efb(false);
     const date = Date();
     fun_emsFormBuilder__add_a_response_to_messages(message, efb_reply_sender_name_efb(res, message), 0, 0, date);
     const chatHistory = document.getElementById("resp_efb");
@@ -1873,8 +1919,17 @@ function response_rMessage_id(res, message) {
     if (typeof EfbResponseViewer !== 'undefined' && EfbResponseViewer.resetReplyUploads) {
       EfbResponseViewer.resetReplyUploads();
     }
+    for (let i = sendBack_emsFormBuilder_pub.length - 1; i >= 0; i--) {
+      const row = sendBack_emsFormBuilder_pub[i];
+      if (row && row.id_ === 'message' && Number(row.form_id) === -1) {
+        sendBack_emsFormBuilder_pub.splice(i, 1);
+      }
+    }
+    try {
+      localStorage.setItem('sendback', JSON.stringify(sendBack_emsFormBuilder_pub));
+    } catch (e) {}
   } else {
-    document.getElementById('replayB_emsFormBuilder').innerHTML =ajax_object_efm.text.reply;
+    efb_reply_button_state_efb(false);
     document.getElementById('replay_state__emsFormBuilder').innerHTML = `<p class="efb text-danger bg-warning p-2">${res.data.m}</p>`;
   }
 }

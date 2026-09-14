@@ -416,7 +416,7 @@
 
 /* ---- Generic field style settings (shell -> frame translation) -----------------
    The shell carries the same generic setting classes as every other field's main
-   element (el_height h-*-efb, corner rounded-0..5/efb-square, el_border_color
+   element (el_height h-*-efb, corner rounded-0..5 (or legacy efb-square), el_border_color
    border-*, custom CSS classes). Those utilities are designed for single-line
    inputs, so each is translated into the equivalent look on the inner frame.
    These rules sit AFTER the kind-specific frame rules on purpose - equal
@@ -444,7 +444,7 @@
 .efb-recorder-screen-kind.h-xxxl-efb .efb-recorder-frame { aspect-ratio: auto; height: 460px; min-height: 460px; }
 
 /* Corners > Rounded: frame radius follows the shell's rounded-N class
-   (efb-square / no class keeps the designed 16px default) */
+   (the default is rounded-3; legacy efb-square / no class keeps the designed 16px default) */
 .efb-recorder-shell.rounded-0 .efb-recorder-frame { border-radius: 0; }
 .efb-recorder-shell.rounded-1 .efb-recorder-frame { border-radius: 4px; }
 .efb-recorder-shell.rounded-2 .efb-recorder-frame { border-radius: 8px; }

@@ -80,7 +80,7 @@ class Panel_edit  {
 			}
 
 			if(isset($ac->AdnPAP) && $ac->AdnPAP==1){
-					if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/paypal")) {
+					if(!file_exists(EMSFB_PLUGIN_DIRECTORY."/vendor/paypal/paypalefb.php")) {
 						$download_addons = true;
 					}else{
 						require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/paypal/paypalefb.php");
@@ -88,7 +88,7 @@ class Panel_edit  {
 					}
 			}
 			if(isset($ac->AdnPDP) && $ac->AdnPDP==1){
-					if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker")) {
+					if(!file_exists(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker/persiandate.php")) {
 						$download_addons = true;
 					}else{
 						require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker/persiandate.php");
@@ -96,7 +96,7 @@ class Panel_edit  {
 					}
 			}
 			if(isset($ac->AdnADP) && $ac->AdnADP==1){
-					if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker")) {
+					if(!file_exists(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker/arabicdate.php")) {
 						$download_addons = true;
 					}else{
 						require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker/arabicdate.php");
@@ -298,7 +298,7 @@ class Panel_edit  {
 			wp_localize_script('Emsfb-admin-js','efb_var',$efb_var_data);
 			$efb_val_js_path = EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/val-efb.js';
 			$efb_val_js_version = is_readable($efb_val_js_path) ? (string) filemtime($efb_val_js_path) : EMSFB_PLUGIN_VERSION;
-			wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val-efb.js', array('jquery'), $efb_val_js_version);
+			wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val-efb.js', array('jquery', 'efb-email-test-ui'), $efb_val_js_version);
 			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION);
 			$lng_ = get_locale();
 			if ( strlen( $lng_ ) > 0 ) {
@@ -367,7 +367,7 @@ class Panel_edit  {
 			} else {
 				$ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '0.0.0.0';
 			}
-			wp_register_script('Emsfb-list_form-efb-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/list_form-efb.js', array('efb-main-js'),EMSFB_PLUGIN_VERSION, true);
+			wp_register_script('Emsfb-list_form-efb-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/list_form-efb.js', array('efb-main-js', 'efb-email-test-ui'),EMSFB_PLUGIN_VERSION, true);
 			wp_enqueue_script('Emsfb-list_form-efb-js');
 
 			wp_register_script('Emsfb-email-template-builder-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/email-template-builder-efb.js', array('Emsfb-list_form-efb-js'), EMSFB_PLUGIN_VERSION, true);
@@ -388,6 +388,12 @@ class Panel_edit  {
 					'bootstrap'=>$this->check_temp_is_bootstrap(),
 					'pro'=>$pro ? 1 : 0,
 					'devMode'=> get_option('emsfb_dev_mode', '0') === '1' ? 1 : 0,
+					/* The response viewer is drawn by the same script here and on
+					   the site. The palette an administrator picks in Colors &
+					   Fonts belongs to the public box only - this panel is part of
+					   wp-admin and keeps the shipped colours - so the script is
+					   told which side it is running on. */
+					'admin_screen'=> 1,
 				));
 
 		}else{

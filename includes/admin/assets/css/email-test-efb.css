@@ -1,0 +1,934 @@
+/**
+ * The email server test.
+ *
+ * One look for both places the test runs: the modal behind
+ * clickToCheckEmailServer() on the settings screen, and the inline panel in the
+ * setup wizard a site sees once, just after activation. Both mount the same
+ * markup from email-test-ui-efb.js; only `.efb-est--inline` differs, and it
+ * differs by dropping the chrome a modal already provides.
+ *
+ * Three rules this file keeps:
+ *
+ *   1. The tone is one variable. A state picks `.efb-est--blue|green|amber|red`
+ *      and the hero, the bar, the phase chip and the step badge all follow.
+ *   2. Direction is expressed with logical properties only. The step rail - the
+ *      one thing that genuinely has a direction - is a flex row, so it reverses
+ *      with the page and its connector segments use inset-inline.
+ *   3. Nothing assumes a width. The rail collapses to a column under 480px
+ *      rather than squeezing five labels into a phone.
+ *
+ * @package Easy_Form_Builder
+ */
+
+.efb-est {
+	/* Tone, overridden per state below. */
+	--efb-est-tone: #3644d2;
+	--efb-est-tone-2: #202a8d;
+	--efb-est-tone-shadow: rgba(54, 68, 210, 0.22);
+	--efb-est-tone-wash: rgba(54, 68, 210, 0.043);
+	--efb-est-tone-line: rgba(54, 68, 210, 0.2);
+	--efb-est-tone-chip: rgba(54, 68, 210, 0.09);
+
+	--efb-est-ink: #1a1a2e;
+	--efb-est-ink-soft: #4a5078;
+	--efb-est-ink-muted: #8a90a8;
+	--efb-est-line: #ecedf5;
+	--efb-est-line-2: #e7e9f4;
+	--efb-est-soft: #fafbfe;
+
+	--efb-est-done: #108f69;
+	--efb-est-active: #3644d2;
+	--efb-est-warn: #d97706;
+	--efb-est-error: #c00751;
+	--efb-est-idle: #cbd5e1;
+
+	--efb-est-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+	font-family: Vazirmatn, Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+	color: var(--efb-est-ink);
+	text-align: start;
+}
+
+.efb-est--green {
+	--efb-est-tone: #108f69;
+	--efb-est-tone-2: #065518;
+	--efb-est-tone-shadow: rgba(16, 143, 105, 0.22);
+	--efb-est-tone-wash: rgba(16, 143, 105, 0.043);
+	--efb-est-tone-line: rgba(16, 143, 105, 0.2);
+	--efb-est-tone-chip: rgba(16, 143, 105, 0.09);
+}
+
+.efb-est--amber {
+	--efb-est-tone: #d97706;
+	--efb-est-tone-2: #92400e;
+	--efb-est-tone-shadow: rgba(217, 119, 6, 0.22);
+	--efb-est-tone-wash: rgba(217, 119, 6, 0.043);
+	--efb-est-tone-line: rgba(217, 119, 6, 0.2);
+	--efb-est-tone-chip: rgba(217, 119, 6, 0.09);
+}
+
+.efb-est--red {
+	--efb-est-tone: #c00751;
+	--efb-est-tone-2: #f95e5e;
+	--efb-est-tone-shadow: rgba(192, 7, 81, 0.22);
+	--efb-est-tone-wash: rgba(192, 7, 81, 0.043);
+	--efb-est-tone-line: rgba(192, 7, 81, 0.2);
+	--efb-est-tone-chip: rgba(192, 7, 81, 0.09);
+}
+
+/* Motion ---------------------------------------------------------------- */
+
+@keyframes efbEstSpin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+@keyframes efbEstPop {
+	from {
+		transform: scale(0.8);
+		opacity: 0;
+	}
+
+	to {
+		transform: scale(1);
+		opacity: 1;
+	}
+}
+
+@keyframes efbEstStripe {
+	to {
+		background-position: 28px 0;
+	}
+}
+
+/* Head ------------------------------------------------------------------ */
+
+.efb-est__phase {
+	padding: 4px 11px;
+	border-radius: 999px;
+	font-size: 11px;
+	font-weight: 700;
+	line-height: 1.5;
+	color: var(--efb-est-tone);
+	background: var(--efb-est-tone-chip);
+	white-space: nowrap;
+}
+
+/* Hero ------------------------------------------------------------------ */
+
+.efb-est__hero {
+	display: flex;
+	align-items: flex-start;
+	gap: 14px;
+	padding: 16px;
+	border-radius: 15px;
+	border: 1px solid var(--efb-est-tone-line);
+	background: var(--efb-est-tone-wash);
+}
+
+.efb-est__gauge {
+	width: 58px;
+	height: 58px;
+	flex: 0 0 58px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	animation: efbEstPop 0.3s ease both;
+	/* The sweep is written inline by the renderer - it is data, not style. */
+	background: var(--efb-est-idle);
+}
+
+.efb-est__gauge-inner {
+	width: 44px;
+	height: 44px;
+	border-radius: 50%;
+	background: #fff;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 1px;
+	line-height: 1;
+}
+
+.efb-est__score {
+	font-size: 17px;
+	font-weight: 700;
+	line-height: 1;
+}
+
+.efb-est__score-max {
+	font-size: 9px;
+	color: var(--efb-est-ink-muted);
+	direction: ltr;
+}
+
+.efb-est__hero-icon {
+	width: 48px;
+	height: 48px;
+	flex: 0 0 48px;
+	border-radius: 14px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #fff;
+	font-size: 21px;
+	line-height: 1;
+	background: linear-gradient(135deg, var(--efb-est-tone), var(--efb-est-tone-2));
+	box-shadow: 0 8px 20px var(--efb-est-tone-shadow);
+	animation: efbEstPop 0.3s ease both;
+}
+
+.efb-est__hero-main {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.efb-est__hero-titles {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+
+.efb-est__hero-title {
+	font-size: 16px;
+	font-weight: 700;
+	line-height: 1.35;
+}
+
+.efb-est__grade {
+	padding: 3px 10px;
+	border-radius: 999px;
+	font-size: 11px;
+	font-weight: 700;
+	color: #991b1b;
+	background: #fee2e2;
+	white-space: nowrap;
+}
+
+.efb-est--green .efb-est__grade {
+	color: #166534;
+	background: #dcfce7;
+}
+
+.efb-est__hero-sub {
+	font-size: 12.5px;
+	color: var(--efb-est-ink-soft);
+	line-height: 1.7;
+	margin-block-start: 4px;
+	text-wrap: pretty;
+}
+
+/* Progress -------------------------------------------------------------- */
+
+.efb-est__progress {
+	display: flex;
+	align-items: center;
+	gap: 9px;
+	margin-block-start: 11px;
+}
+
+.efb-est__track {
+	flex: 1 1 auto;
+	height: 6px;
+	border-radius: 999px;
+	background: #eceef7;
+	overflow: hidden;
+}
+
+.efb-est__bar {
+	height: 100%;
+	border-radius: 999px;
+	background: linear-gradient(90deg, var(--efb-est-tone), var(--efb-est-tone-2));
+	transition: width 0.6s ease;
+}
+
+.efb-est--running .efb-est__bar {
+	background: repeating-linear-gradient(115deg,
+			var(--efb-est-tone), var(--efb-est-tone) 7px,
+			var(--efb-est-tone-2) 7px, var(--efb-est-tone-2) 14px);
+	background-size: 28px 100%;
+	animation: efbEstStripe 0.8s linear infinite;
+}
+
+.efb-est__percent {
+	font-size: 11px;
+	font-weight: 700;
+	color: var(--efb-est-ink-muted);
+	font-family: var(--efb-est-mono);
+	white-space: nowrap;
+}
+
+/* The five-step rail ----------------------------------------------------- */
+
+.efb-est__steps {
+	margin-block-start: 12px;
+	border: 1px solid var(--efb-est-line-2);
+	border-radius: 13px;
+	background: #fff;
+	overflow: hidden;
+}
+
+.efb-est__rail {
+	display: flex;
+	align-items: flex-start;
+	padding: 18px 10px 14px;
+	background: var(--efb-est-soft);
+}
+
+.efb-est__step {
+	position: relative;
+	flex: 1 1 0;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 7px;
+}
+
+/* The connectors. inset-inline, so the rail joins up in either direction. */
+.efb-est__seg {
+	position: absolute;
+	top: 13px;
+	height: 2px;
+	border-radius: 2px;
+	background: #e6e9f2;
+}
+
+.efb-est__seg--before {
+	inset-inline-start: 0;
+	inset-inline-end: 50%;
+}
+
+.efb-est__seg--after {
+	inset-inline-start: 50%;
+	inset-inline-end: 0;
+}
+
+.efb-est__seg.is-on {
+	background: var(--efb-est-done);
+	opacity: 0.55;
+}
+
+.efb-est__dot {
+	position: relative;
+	z-index: 1;
+	width: 28px;
+	height: 28px;
+	flex: 0 0 28px;
+	border-radius: 50%;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 12px;
+	line-height: 1;
+	color: #fff;
+	background: var(--efb-est-idle);
+	border: 3px solid var(--efb-est-soft);
+}
+
+.efb-est__step.is-done .efb-est__dot {
+	background: var(--efb-est-done);
+}
+
+.efb-est__step.is-active .efb-est__dot {
+	background: var(--efb-est-active);
+	box-shadow: 0 0 0 4px rgba(54, 68, 210, 0.13);
+}
+
+.efb-est__step.is-active .efb-est__dot i {
+	animation: efbEstSpin 1.1s linear infinite;
+}
+
+.efb-est__step.is-warning .efb-est__dot {
+	background: var(--efb-est-warn);
+}
+
+.efb-est__step.is-error .efb-est__dot {
+	background: var(--efb-est-error);
+}
+
+.efb-est__step.is-waiting .efb-est__dot {
+	font-size: 15px;
+	color: #b3bcd0;
+	background: #fff;
+	border: 2px solid #e2e8f0;
+}
+
+.efb-est__step-label {
+	font-size: 10.5px;
+	font-weight: 600;
+	line-height: 1.35;
+	text-align: center;
+	padding: 0 2px;
+	color: #334155;
+}
+
+.efb-est__step.is-waiting .efb-est__step-label {
+	color: #a4adc2;
+}
+
+.efb-est__step.is-error .efb-est__step-label {
+	color: var(--efb-est-error);
+}
+
+.efb-est__rail-note {
+	display: flex;
+	align-items: flex-start;
+	gap: 9px;
+	padding: 11px 14px 13px;
+	border-block-start: 1px solid #eef0f7;
+}
+
+.efb-est__step-badge {
+	flex: 0 0 auto;
+	padding: 3px 9px;
+	border-radius: 999px;
+	font-size: 11px;
+	font-weight: 700;
+	color: var(--efb-est-tone);
+	background: var(--efb-est-tone-chip);
+	white-space: nowrap;
+}
+
+.efb-est__step-desc {
+	flex: 1 1 auto;
+	min-width: 0;
+	font-size: 12px;
+	color: #64748b;
+	line-height: 1.6;
+}
+
+/* Notices ---------------------------------------------------------------- */
+
+.efb-est__note {
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+	margin-block-start: 12px;
+	padding: 10px 12px;
+	border-radius: 11px;
+	background: #f1f5f9;
+	color: #475569;
+	font-size: 12.5px;
+	line-height: 1.6;
+}
+
+.efb-est__note i {
+	flex: 0 0 auto;
+	margin-block-start: 2px;
+	color: #3b82f6;
+	opacity: 0.6;
+}
+
+.efb-est__panel {
+	margin-block-start: 12px;
+	padding: 13px 14px;
+	border: 1px solid #fbbf24;
+	border-radius: 13px;
+	background: #fffbeb;
+}
+
+.efb-est__panel-row {
+	display: flex;
+	gap: 10px;
+}
+
+.efb-est__panel-row > i {
+	flex: 0 0 auto;
+	margin-block-start: 2px;
+	color: #d97706;
+}
+
+.efb-est__panel-body {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.efb-est__panel-title {
+	font-size: 13px;
+	font-weight: 700;
+	color: #92400e;
+	line-height: 1.5;
+}
+
+.efb-est__panel-desc {
+	font-size: 12.5px;
+	color: #78350f;
+	line-height: 1.65;
+	margin-block-start: 3px;
+}
+
+.efb-est__panel-cta {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	margin-block-start: 10px;
+	padding: 8px 14px;
+	border-radius: 999px;
+	background: #ffc107;
+	color: #3d2c00;
+	font-size: 12px;
+	font-weight: 700;
+	text-decoration: none;
+}
+
+.efb-est__panel-cta:hover,
+.efb-est__panel-cta:focus {
+	background: #e5ac06;
+	color: #3d2c00;
+}
+
+.efb-est__upgrade {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex-wrap: wrap;
+	margin-block-start: 12px;
+	padding: 12px 14px;
+	border: 1px solid #fde68a;
+	border-radius: 13px;
+	background: #fffbeb;
+}
+
+.efb-est__upgrade > i {
+	color: #d97706;
+	flex: 0 0 auto;
+}
+
+.efb-est__upgrade-code {
+	flex: 1 1 auto;
+	min-width: 0;
+	font-size: 12.5px;
+	font-weight: 700;
+	color: #92400e;
+}
+
+.efb-est__upgrade-cta {
+	padding: 7px 14px;
+	border-radius: 999px;
+	border: 1px solid #e0245e;
+	color: #e0245e;
+	font-size: 12px;
+	font-weight: 700;
+	text-decoration: none;
+	white-space: nowrap;
+}
+
+.efb-est__upgrade-cta:hover,
+.efb-est__upgrade-cta:focus {
+	background: #e0245e;
+	color: #fff;
+}
+
+.efb-est__ok {
+	display: flex;
+	align-items: flex-start;
+	gap: 9px;
+	margin-block-start: 12px;
+	padding: 11px 13px;
+	border: 1px solid #a7f3d0;
+	border-radius: 12px;
+	background: #f0fdf4;
+	font-size: 12.5px;
+	color: #166534;
+	line-height: 1.65;
+}
+
+.efb-est__ok i {
+	flex: 0 0 auto;
+	margin-block-start: 1px;
+}
+
+.efb-est__spam {
+	display: flex;
+	align-items: flex-start;
+	gap: 9px;
+	margin-block-start: 12px;
+	padding: 12px 14px;
+	border: 1px solid #cfe0f5;
+	/* The accent lives on the inline-start edge, so it swaps sides in RTL. */
+	border-inline-start: 4px solid #1976d2;
+	border-radius: 12px;
+	background: #eef6fd;
+}
+
+.efb-est__spam > i {
+	flex: 0 0 auto;
+	margin-block-start: 2px;
+	color: #1976d2;
+}
+
+.efb-est__spam-title {
+	font-size: 12.5px;
+	font-weight: 700;
+	color: #0d47a1;
+	line-height: 1.5;
+}
+
+.efb-est__spam-desc {
+	font-size: 12px;
+	color: #37474f;
+	line-height: 1.7;
+	margin-block-start: 3px;
+}
+
+/* An address never mirrors, whatever sentence it sits in. */
+.efb-est__mail {
+	direction: ltr;
+	unicode-bidi: isolate;
+	display: inline-block;
+	font-weight: 700;
+}
+
+/* Details tabs ----------------------------------------------------------- */
+
+.efb-est__details {
+	margin-block-start: 12px;
+	border: 1px solid #e2e8f0;
+	border-radius: 13px;
+	overflow: hidden;
+}
+
+.efb-est__tabs {
+	display: flex;
+	gap: 4px;
+	padding: 6px;
+	background: #f8fafc;
+	border-block-end: 1px solid #e2e8f0;
+	overflow-x: auto;
+}
+
+.efb-est__tab {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 7px 13px;
+	border-radius: 9px;
+	border: 0;
+	cursor: pointer;
+	font-family: inherit;
+	font-size: 12px;
+	font-weight: 600;
+	white-space: nowrap;
+	background: transparent;
+	color: #657096;
+}
+
+.efb-est__tab i {
+	font-size: 11px;
+}
+
+.efb-est__tab.is-active {
+	background: #fff;
+	color: var(--efb-est-ink);
+	box-shadow: 0 1px 4px rgba(26, 26, 46, 0.1);
+}
+
+.efb-est__tab:focus-visible {
+	outline: 2px solid var(--efb-est-active);
+	outline-offset: -2px;
+}
+
+.efb-est__pane {
+	background: #fff;
+}
+
+.efb-est__pane[hidden] {
+	display: none;
+}
+
+.efb-est__pane--rows {
+	padding: 4px 14px 10px;
+}
+
+.efb-est__row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	padding: 9px 0;
+	border-block-end: 1px solid #f1f5f9;
+}
+
+.efb-est__row:last-child {
+	border-block-end: 0;
+}
+
+.efb-est__row-label {
+	font-size: 12px;
+	color: #64748b;
+	white-space: nowrap;
+}
+
+.efb-est__row-value {
+	font-size: 12px;
+	font-weight: 600;
+	color: #334155;
+	text-align: end;
+	max-width: 62%;
+	word-break: break-all;
+}
+
+.efb-est__row-value--mono {
+	font-family: var(--efb-est-mono);
+	direction: ltr;
+	unicode-bidi: isolate;
+}
+
+.efb-est__badge {
+	padding: 3px 10px;
+	border-radius: 999px;
+	font-size: 11.5px;
+	font-weight: 700;
+	white-space: nowrap;
+}
+
+.efb-est__badge--ok {
+	color: #166534;
+	background: #dcfce7;
+}
+
+.efb-est__badge--bad {
+	color: #991b1b;
+	background: #fee2e2;
+}
+
+.efb-est__pane--groups {
+	padding: 14px;
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+}
+
+.efb-est__group-title {
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+	color: #475569;
+	margin-block-end: 7px;
+}
+
+.efb-est__group-items {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.efb-est__item {
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+	font-size: 12.5px;
+	color: #475569;
+	line-height: 1.65;
+}
+
+/* The chevron points along the reading direction. */
+.efb-est__item > i {
+	flex: 0 0 auto;
+	font-size: 10px;
+	color: #94a3b8;
+	margin-block-start: 4px;
+}
+
+.efb-est [dir] .efb-est__item > i,
+.efb-est__item > i.bi-chevron-right:dir(rtl) {
+	transform: scaleX(-1);
+}
+
+.efb-est__pane--tips {
+	padding: 14px;
+	display: flex;
+	flex-direction: column;
+	gap: 9px;
+}
+
+.efb-est__tip {
+	display: flex;
+	align-items: flex-start;
+	gap: 9px;
+	font-size: 12.5px;
+	color: #475569;
+	line-height: 1.65;
+}
+
+.efb-est__tip-n {
+	width: 20px;
+	height: 20px;
+	flex: 0 0 20px;
+	border-radius: 50%;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	background: #e0f2fe;
+	color: #0369a1;
+	font-size: 10.5px;
+	font-weight: 700;
+	line-height: 1;
+}
+
+/* Foot ------------------------------------------------------------------- */
+
+.efb-est__foot {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex-wrap: wrap;
+	padding: 14px 22px 18px;
+	border-block-start: 1px solid var(--efb-est-line);
+	background: var(--efb-est-soft);
+}
+
+.efb-est__running {
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+	font-size: 12px;
+	color: var(--efb-est-ink-muted);
+}
+
+.efb-est__spinner {
+	width: 13px;
+	height: 13px;
+	flex: 0 0 13px;
+	border-radius: 50%;
+	border: 2px solid #dfe2ef;
+	border-top-color: var(--efb-est-active);
+	animation: efbEstSpin 0.8s linear infinite;
+}
+
+.efb-est__foot-spacer {
+	flex: 1 1 auto;
+}
+
+/* Inline variant: the wizard panel, which has no modal chrome around it. */
+.efb-est--inline {
+	padding: 14px;
+	border: 1px solid var(--efb-est-line-2);
+	border-radius: 16px;
+	background: #fff;
+}
+
+.efb-est--inline .efb-est__hero {
+	padding: 13px;
+}
+
+.efb-est--inline .efb-est__rail {
+	padding: 16px 4px 12px;
+}
+
+.efb-est--inline .efb-est__step-label {
+	font-size: 9.5px;
+}
+
+/* Mobile ----------------------------------------------------------------- */
+
+@media screen and (max-width: 600px) {
+	.efb-est__hero {
+		padding: 14px;
+		gap: 12px;
+	}
+
+	.efb-est__rail {
+		padding: 16px 6px 12px;
+	}
+
+	.efb-est__step-label {
+		font-size: 9.5px;
+	}
+
+	.efb-est__foot {
+		padding: 12px 14px 16px;
+	}
+
+	.efb-est__foot-spacer {
+		flex-basis: 100%;
+	}
+}
+
+/*
+ * Under 480px five labels cannot share a row without becoming unreadable, so
+ * the rail becomes a list: the dots stack, the connectors run vertically, and
+ * each label sits beside its own dot.
+ */
+@media screen and (max-width: 480px) {
+	/*
+	 * The gauge plus a text column does not fit a phone: the headline ends up
+	 * four words deep in a 150px gutter. The figure takes its own line here and
+	 * the text gets the full width.
+	 */
+	.efb-est__hero {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 11px;
+	}
+
+	.efb-est__hero-figure {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+	}
+
+	.efb-est__rail {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 2px;
+		padding: 12px 14px;
+	}
+
+	.efb-est__step {
+		flex-direction: row;
+		align-items: center;
+		gap: 10px;
+		padding: 5px 0;
+	}
+
+	.efb-est__seg {
+		top: auto;
+		width: 2px;
+		height: 50%;
+		inset-inline-start: 13px;
+		inset-inline-end: auto;
+	}
+
+	.efb-est__seg--before {
+		top: 0;
+	}
+
+	.efb-est__seg--after {
+		bottom: 0;
+	}
+
+	.efb-est__step-label {
+		text-align: start;
+		font-size: 11.5px;
+		padding: 0;
+	}
+
+	.efb-est__row {
+		align-items: flex-start;
+		flex-direction: column;
+		gap: 3px;
+	}
+
+	.efb-est__row-value {
+		max-width: 100%;
+		text-align: start;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.efb-est__gauge,
+	.efb-est__hero-icon,
+	.efb-est__spinner,
+	.efb-est__bar,
+	.efb-est__step.is-active .efb-est__dot i {
+		animation: none;
+	}
+}

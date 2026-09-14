@@ -24,6 +24,11 @@ class _Public {
 	private $deferred_form_markup = [];
 	private $deferred_form_key = '';
 
+	/* Head hoisting - see open_head_hoist_buffer_efb(). */
+	private $head_chunks_efb      = [];
+	private $head_slot_efb        = '';
+	private $head_hoist_ready_efb = false;
+
 	public function __construct() {
 		global $wpdb;
 		$this->db = $wpdb;
@@ -106,6 +111,18 @@ class _Public {
 		if (!is_admin()) {
 			add_action('wp_enqueue_scripts', [$this, 'init_elementor_compatibility'], 1);
 		}
+
+		/* The whole page is buffered so the form's <style>/<script> blocks can be
+		 * moved into <head>, which has already been rendered by the time a
+		 * shortcode runs. Both hooks are front-end page renders only; a preview,
+		 * a REST render or an admin screen never reaches them and keeps the
+		 * inline output it has always had. */
+		add_action( 'template_redirect', array( $this, 'open_head_hoist_buffer_efb' ), PHP_INT_MAX );
+		/* PHP_INT_MAX, not an early priority: the block used to sit inside the
+		 * post content, after every stylesheet the theme prints in <head>, and it
+		 * won ties on source order. Printed at the very end of wp_head it keeps
+		 * exactly that position in the cascade. */
+		add_action( 'wp_head', array( $this, 'print_head_hoist_slot_efb' ), PHP_INT_MAX );
 	}
 
 public function check_nonce_permission_efb($request) {
@@ -593,6 +610,117 @@ public function check_nonce_permission_efb($request) {
 	}
 
 	/**
+	 * Start buffering the page so that <head> can still be written to.
+	 *
+	 * A shortcode runs inside the_content, long after wp_head() has produced
+	 * its markup - but not after it has been *sent*: the whole page is still a
+	 * PHP buffer at that point. Holding a buffer of our own across the render
+	 * lets a form's stylesheet and its globals be dropped into the slot printed
+	 * in <head>, instead of in the middle of the post content, where a
+	 * <link rel="stylesheet"> blocks rendering at the worst possible moment and
+	 * the icon rules arrive after the icons they style.
+	 *
+	 * Front-end page renders only. A preview, a REST render, an admin screen or
+	 * a theme that never calls wp_head() reaches no slot, and every hoisted
+	 * block falls back to the inline output the plugin has always produced.
+	 */
+	public function open_head_hoist_buffer_efb() {
+		if ( '' !== $this->head_slot_efb ) {
+			return;
+		}
+		if ( is_admin() || is_feed() || is_embed() || wp_doing_ajax() ) {
+			return;
+		}
+		if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) {
+			return;
+		}
+		if ( ! apply_filters( 'emsfb_hoist_form_assets_to_head', true ) ) {
+			return;
+		}
+
+		// New every request, so nothing saved in a post can pose as the slot.
+		$this->head_slot_efb = '<!--emsfb-head-' . strtolower( wp_generate_password( 12, false, false ) ) . '-->';
+
+		ob_start( array( $this, 'fill_head_hoist_slot_efb' ) );
+	}
+
+	/**
+	 * Print the slot the collected blocks are moved into.
+	 */
+	public function print_head_hoist_slot_efb() {
+		if ( '' === $this->head_slot_efb ) {
+			return;
+		}
+
+		/* Only now is hoisting safe to promise the renderer: the slot is in the
+		 * buffer, so a block handed over from here on has somewhere to land. */
+		$this->head_hoist_ready_efb = true;
+
+		echo $this->head_slot_efb; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Generated marker comment.
+	}
+
+	/**
+	 * Take a head-safe block off the renderer's hands.
+	 *
+	 * Returns '' once the block is claimed for <head>, and the block itself
+	 * when there is nowhere to put it. Every caller prints what comes back, so
+	 * the fallback is byte for byte the output there was before.
+	 *
+	 * Head-safe means: stylesheets, and script that only defines things. The
+	 * per-field script block is not head-safe - it reads the elements it is
+	 * about the moment it runs - and stays below the form where it was.
+	 */
+	private function hoist_to_head_efb( $chunk ) {
+		if ( ! is_string( $chunk ) || '' === trim( $chunk ) ) {
+			return '';
+		}
+		if ( ! $this->head_hoist_ready_efb ) {
+			return $chunk;
+		}
+
+		/* Two forms on a page ask for the same icon rules and the same reset,
+		 * and a second copy is kilobytes that change nothing. Only an identical
+		 * block is dropped; anything form-specific differs and is kept. */
+		if ( ! in_array( $chunk, $this->head_chunks_efb, true ) ) {
+			$this->head_chunks_efb[] = $chunk;
+		}
+
+		return '';
+	}
+
+	/**
+	 * Put the collected blocks into <head> and hand the page on.
+	 */
+	public function fill_head_hoist_slot_efb( $html ) {
+		if ( ! is_string( $html ) || '' === $this->head_slot_efb ) {
+			return $html;
+		}
+
+		$payload = implode( '', $this->head_chunks_efb );
+
+		if ( false !== strpos( $html, $this->head_slot_efb ) ) {
+			return str_replace( $this->head_slot_efb, $payload, $html );
+		}
+
+		if ( '' === $payload ) {
+			return $html;
+		}
+
+		/* The slot is gone, so an optimiser that strips HTML comments ran on a
+		 * buffer of its own nested inside this one. The blocks still have to
+		 * reach the page: before </head>, or before </body> on a document with
+		 * no head to speak of. */
+		foreach ( array( '</head>', '</body>' ) as $tag ) {
+			$at = stripos( $html, $tag );
+			if ( false !== $at ) {
+				return substr( $html, 0, $at ) . $payload . substr( $html, $at );
+			}
+		}
+
+		return $html . $payload;
+	}
+
+	/**
 	 * Lift the form shortcode out of a paragraph wpautop wrapped it in.
 	 *
 	 * Core's shortcode_unautop() only rescues a shortcode that sits alone in
@@ -945,7 +1073,12 @@ public function check_nonce_permission_efb($request) {
 			'snotfound','sfmcfop','notFound','file','copied','nonceExpired','fileUploadNetworkError','id','updated','methodPayment','ttlprc','fillrequiredfields',
 			'audio_recorder','video_recorder','screen_recorder','recStart','recStop','recPause','recResume','recRedo','recPlay','recReady','recRecording','recPaused','recReadyToSubmit','recUpload','recUploading','recUploaded','recUploadFailed','recUploadOffline','recUploadUnavailable','recNoFile','recFileTooLarge','recInvalidFile','recDurationExceeded',
 			'recQuality','recDuration','recQualityLow','recQualityStandard','recQualityHigh','recQuality480','recQuality720','recQuality1080','recPermissionDenied','recNotSupported','recMaxDurationReached','recWatermark','recTapToStart',
-			'recDownload','recNeedsHttps','recScreenNotSupported'];
+			'recDownload','recNeedsHttps','recScreenNotSupported',
+			/* text_efb() returns only the keys asked for, so a phrase left out
+			 * here is not missing text - it is text that quietly falls back to
+			 * English on every translated site. These two are the step counter
+			 * and the completion caption on the progress indicator. */
+			'stepXofY','percentComplete'];
 
 			$this->public_scripts_and_css_head('', isset($value_form_data->form_structer) ? $value_form_data->form_structer : null);
 
@@ -1026,7 +1159,7 @@ public function check_nonce_permission_efb($request) {
 						$iconst_html_preload .= "<i class='bi $icon'></i>";
 				}
 
-				$is_track['content'] = $bootstrap_icons . $is_track['content'];
+				$is_track['content'] = $this->hoist_to_head_efb($bootstrap_icons) . $is_track['content'];
 			}
 			$iconst_html_preload .='</div>';
 
@@ -1066,7 +1199,7 @@ public function check_nonce_permission_efb($request) {
 					$efb_m= "<!--efb-->" ;
 
 					$sms_exists = get_option('emsfb_addon_AdnSS',false);
-					$sms_files_exists = is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended");
+					$sms_files_exists = file_exists(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended/smsefb.php");
 					if($sms_exists !== false && $sms_files_exists){
 						require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended/smsefb.php");
 						$smssendefb = new smssendefb() ;
@@ -1206,6 +1339,7 @@ public function check_nonce_permission_efb($request) {
 			);
 
 			$style ='<style>.efb.d-none{display:none!important;} #teststyleefb{display:none;}';
+			unset( $steps_style_efb, $step_icon_colors_efb );
 			$jss ='<script> //efbJs';
 			$icons_els =[];
 			$pro_element_exists = false;
@@ -1297,16 +1431,31 @@ public function check_nonce_permission_efb($request) {
 					}
 					$content .= $fieldset;
 
+					/* Resolved here rather than at the head assembly below because the
+					 * <li> is written inside this loop, and the class list a step
+					 * carries is what decides whether the row is the classic one or
+					 * one of the new ones. */
+					if ( ! isset( $steps_style_efb ) ) {
+						$steps_style_efb       = efb_steps_style_name_efb( isset( $valj_efb_first->steps_style ) ? $valj_efb_first->steps_style : '' );
+						$step_icon_colors_efb  = array();
+					}
+					/* Collected so one rule per distinct colour can be printed for the
+					 * whole row instead of five custom properties on every step. */
+					$step_icon_colors_efb[] = $value->icon_color;
+
+					/* data-num draws the number in place of the glyph once the form is
+					 * long enough for the captions to be dropped, and it is also how
+					 * efbStepsSyncEfb() knows which step a row is without parsing its
+					 * id. The icon and colour classes are passed through untouched:
+					 * they are still what paints the step. */
 					$head .= sprintf(
-						'<li id="%1$s-f-step-efb-%3$s" data-step="icon-s-%2$d-efb" data-formid="%3$s" class="efb %4$s %5$s %6$s %7$s %8$s"><strong class="efb fs-5 %9$s">%10$s</strong></li>',
+						'<li id="%1$s-f-step-efb-%3$s" data-step="icon-s-%2$d-efb" data-formid="%3$s" data-num="%2$d" class="%4$s %5$s"><strong class="efb fs-5 %6$s%7$s">%8$s</strong></li>',
 						$value->id_,
 						$step_no,
 						$form_id,
+						efb_steps_item_class_efb( $step_no, 1, $value->icon_color, $value->icon, $steps_style_efb ),
 						$valj_efb_first->steps <= 6 ? 'step-w-' . $valj_efb_first->steps : 'step-w-6',
-						$value->icon_color,
-						$value->icon,
-						$value->step == 1 ? 'active' : '',
-						'',
+						'classic' === $steps_style_efb ? '' : 'efb-sp__label ',
 						$value->label_text_color,
 						$value->name
 					);
@@ -1471,25 +1620,76 @@ public function check_nonce_permission_efb($request) {
 						<div step-{$step_no}-efb></div>
 					</fieldset>";
 
-				$head_final_step = "<li id='f-step-efb-{$form_id}' data-step='icon-s-{$step_no}-efb' data-formid='{$form_id}' class='efb {$valj_efb[1]->icon_color} " . (($valj_efb[0]->steps <= 6) ? "step-w-{$valj_efb[0]->steps}" : "step-w-6") . " bi-check-lg mx-0'>
-					<strong class='efb fs-5 {$valj_efb[1]->label_text_color}'>".$lanText['finish']."</strong>
+				$show_steps_efb    = intval($valj_efb[0]->show_icon) != 1;
+				$show_progress_efb = intval($valj_efb[0]->show_pro_bar) != 1;
+				$steps_style_efb   = efb_steps_style_name_efb( isset($valj_efb[0]->steps_style) ? $valj_efb[0]->steps_style : '' );
+				$prog_style_efb    = efb_progress_style_name_efb( isset($valj_efb[0]->progress_style) ? $valj_efb[0]->progress_style : '' );
+				if ( ! isset( $step_icon_colors_efb ) ) {
+					$step_icon_colors_efb = array();
+				}
+				/* The Finish row is drawn from the first step's colours, the way it
+				 * always was, so it belongs in the colour set too. */
+				$step_icon_colors_efb[] = $valj_efb[1]->icon_color;
+
+				$head_final_step = "<li id='f-step-efb-{$form_id}' data-step='icon-s-{$step_no}-efb' data-formid='{$form_id}' data-num='{$step_no}' class='"
+					. efb_steps_item_class_efb( $step_no, 1, $valj_efb[1]->icon_color, 'bi-check-lg', $steps_style_efb ) . " "
+					. ( ( $valj_efb[0]->steps <= 6 ) ? "step-w-{$valj_efb[0]->steps}" : 'step-w-6' ) . " mx-0'>
+					<strong class='efb fs-5 " . ( 'classic' === $steps_style_efb ? '' : 'efb-sp__label ' ) . "{$valj_efb[1]->label_text_color}'>".$lanText['finish']."</strong>
 				</li>";
 
 				$bgc = isset($valj_efb[0]->prg_bar_color) ? $valj_efb[0]->prg_bar_color : 'btn-primary';
 
-				$percent = (1 / ($step_no)) * 100;
-				$percent = round($percent, 2);
-				$head = (intval($valj_efb[0]->show_icon) != 1 ? '<ul id="steps-efb" class="efb mb-2 px-2" data-formid="'.$form_id.'">' . $head . $head_final_step.'</ul>' : '') .
+				$first_name_efb    = isset($valj_efb[1]->name) ? $valj_efb[1]->name : '';
+				$shell_args_efb    = array(
+					'form_id'        => $form_id,
+					'total'          => $step_no,
+					'current'        => 1,
+					'current_name'   => $first_name_efb,
+					'steps_style'    => $steps_style_efb,
+					'progress_style' => $prog_style_efb,
+					'accent_class'   => $bgc,
+					'lan_text'       => $lanText,
+					'rtl'            => is_rtl(),
+					'show_steps'     => $show_steps_efb,
+					'show_progress'  => $show_progress_efb,
+				);
+
+				/* One rule per distinct step colour, printed with the row it belongs
+				 * to. Only the new styles read these properties, so the classic row
+				 * gets none of it. */
+				$steps_color_rules_efb = ( $show_steps_efb && 'classic' !== $steps_style_efb )
+					? efb_steps_color_rules_efb( $step_icon_colors_efb )
+					: '';
+
+				$steps_row_efb = $show_steps_efb
+					? '<ul id="steps-efb" class="efb ' . ( 'classic' === $steps_style_efb ? '' : 'efb-sp__steps ' ) . 'mb-2 px-2" data-formid="'.$form_id.'">' . $head . $head_final_step . '</ul>'
+					: '';
+
+				if ( ! $show_steps_efb && ! $show_progress_efb ) {
+					$head = '';
+				} elseif ( ! efb_steps_needs_shell_efb( $shell_args_efb ) ) {
+					/* Classic throughout: the same markup and the same code path as
+					 * before the styles existed, with no wrapper for the runtime to
+					 * claim and nothing inlined into the page. */
+					$head = $steps_row_efb . ( $show_progress_efb ? efb_steps_progress_efb( $shell_args_efb ) : '' );
+				} else {
+					$head = efb_steps_wrap_open_efb( $shell_args_efb )
+						. ( $steps_color_rules_efb !== '' ? '<style>' . $steps_color_rules_efb . '</style>' : '' )
+						. ( efb_steps_wants_header_efb( $shell_args_efb ) ? efb_steps_header_efb( $shell_args_efb ) : '' )
 						/* The gap under the bar is a margin rather than the <br> that
 						 * used to sit here: a bare <br> between two blocks is one of
 						 * the pieces wpautop wraps in a paragraph of its own. The
 						 * class carries the same 32px the line break produced. */
-						(intval($valj_efb[0]->show_pro_bar)!= 1 ?
-							'<div class="efb d-flex justify-content-center efb-progress-gap" id="f-progress-efb">
-								<div class="efb progress mx-3 w-100 ' . $bgc . '">
-									<div class="efb progress-bar-efb progress-bar-striped progress-bar-animated" role="progressbar" aria-valuemin="0" aria-valuemax="100"  style="width: '.$percent.'%;" data-formid="'.$this->id.'"></div>
-								</div>
-							</div>' : '');
+						. $steps_row_efb
+						. ( $show_progress_efb ? efb_steps_progress_efb( $shell_args_efb ) : '' )
+						. '</div>';
+
+					/* Only the CSS chunks this form uses ride along in the page. The
+					 * JavaScript runtime is enqueued as a real file from the public
+					 * asset setup so page-cache/optimizer plugins cannot corrupt the
+					 * inline script before efbStepsSyncEfb() is defined. */
+					$style .= ' ' . efb_steps_inline_css_efb( $shell_args_efb );
+				}
 
 				$step_no--;
 			}
@@ -1503,10 +1703,14 @@ public function check_nonce_permission_efb($request) {
 			$style = $style.'</style>';
 			$jss = $jss.'</script>';
 
-			$script = '';
-			$console_checker = $efbFormBuilder->check_error_console_efb();
-			$script = '<script>'.$console_checker.'</script>';
-
+			/* Kept out of the hoist and left where it has always been, just
+			 * above the form. It is the largest block the page carries - forty
+			 * kilobytes - and it installs its listeners and waits for
+			 * DOMContentLoaded, so being early buys it nothing while being in
+			 * <head> would hold up the first paint of the whole page by that
+			 * much. It still sees every error the plugin's own scripts can
+			 * raise: those are enqueued into the footer, below it. */
+			$console_script_efb = '<script>'.$efbFormBuilder->check_error_console_efb().'</script>';
 
 			$stps_state = $step_no>1 ? 1 : 0;
 			$navButton = $efbFormBuilder->add_buttons_zone_efb($stps_state, $this->id, $valj_efb, $lanText, $this->id);
@@ -1524,7 +1728,19 @@ public function check_nonce_permission_efb($request) {
 				$mobile_css_efb = $mobile_css_efb.$font_link_form.$inline_style_form;
 
 			}
-                        $content_new = $style.$mobile_css_efb.$efb_loading_ui_script.$script.$bootstrap_icons.''.$iconst_html_preload.'
+			/* Everything above the form that is not markup: the generated
+			 * stylesheet, the mobile rules and their font <link>, the loading
+			 * SVG global, the error monitor, and the icon rules. All of it either
+			 * styles the page or only defines things, so
+			 * it belongs in <head> - and hoist_to_head_efb() hands it straight
+			 * back to be printed here when there is no <head> to move it to.
+			 *
+			 * $iconst_html_preload is markup and stays. So does $jss, at the
+			 * bottom where it already was: it reads its fields on the line it
+			 * runs, and in <head> those fields do not exist yet. */
+			$head_payload_efb = $style.$mobile_css_efb.$efb_loading_ui_script.$bootstrap_icons;
+
+                        $content_new = $this->hoist_to_head_efb($head_payload_efb).$console_script_efb.$iconst_html_preload.'
 				<!-- start body_efb-->
 
 				<div id="body_efb_'.$form_id.'" class="efb row pb-3 efb px-2 pre-efb body_efb efb-waiting-'.$this->id.' '.$dShow.'" data-currentstep="1" data-steps="'.$valj_efb[0]->steps.'" data-formid="'.$this->id.'"'.$direction_attr.'>
@@ -1609,7 +1825,25 @@ public function check_nonce_permission_efb($request) {
 			$css_overrides .= "--efb-resp-shadow-hover:0 4px 24px rgba({$r},{$g},{$b},0.13);";
 		}
 
-		$inline_style = $css_overrides !== '' ? '<style>:root{' . $css_overrides . '}</style>' : '';
+		/*
+		 * ":root:root", not ":root".
+		 *
+		 * response-viewer-efb.css declares the whole palette on :root as its
+		 * defaults, and this override is printed inside the post content -
+		 * which, for a shortcode, runs long after wp_head(). WordPress prints a
+		 * stylesheet enqueued that late in the footer, so the stylesheet's
+		 * :root came *after* this one in document order and won on equal
+		 * specificity: every colour and font an administrator had chosen was
+		 * silently ignored on the public code finder, the tracker card and the
+		 * login-required notice. The response viewer only looked right because
+		 * its script re-applies the same values inline once it renders.
+		 *
+		 * Doubling the pseudo-class makes the override (0,2,0) against the
+		 * stylesheet's (0,1,0), so it wins wherever either ends up - head,
+		 * footer, or merged into one file by a caching plugin - without an
+		 * !important on twenty declarations.
+		 */
+		$inline_style = $css_overrides !== '' ? '<style>:root:root{' . $css_overrides . '}</style>' : '';
 
 		$font_link = '';
 
@@ -1747,13 +1981,36 @@ public function check_nonce_permission_efb($request) {
 		$inline_style      = $overrides_track['inline_style'];
 		$builtin_font_link = $overrides_track['font_link'];
 
-	 	$content="<script> sitekye_emsFormBuilder='' </script>".$s_m . $builtin_font_link . $inline_style ."
+	 	$content=$this->hoist_to_head_efb("<script> sitekye_emsFormBuilder='' </script>" . $builtin_font_link . $inline_style) . $s_m ."
 		<div id='body_tracker_emsFormBuilder' class='efb '><div id='alert_efb' class='efb mx-5 text-center'></div>
 		".$track_content."</div>" . $val ;
 
 		return  ['content'=>$content, 'captcha'=>$captcha_exist];
 		return $content;
 	}
+	private function efb_form_needs_steps_runtime_efb($form_structure_json = null) {
+		if ( ! is_string($form_structure_json) || '' === trim($form_structure_json) ) {
+			return false;
+		}
+
+		$decoded = json_decode(str_replace('\\', '', $form_structure_json), false);
+		if ( ! is_array($decoded) || empty($decoded[0]) || ! is_object($decoded[0]) ) {
+			return false;
+		}
+
+		$first = $decoded[0];
+		$show_steps = ! isset($first->show_icon) || intval($first->show_icon) !== 1;
+		$show_progress = ! isset($first->show_pro_bar) || intval($first->show_pro_bar) !== 1;
+		$steps_style = function_exists('efb_steps_style_name_efb')
+			? efb_steps_style_name_efb(isset($first->steps_style) ? $first->steps_style : '')
+			: (isset($first->steps_style) ? (string) $first->steps_style : 'classic');
+		$progress_style = function_exists('efb_progress_style_name_efb')
+			? efb_progress_style_name_efb(isset($first->progress_style) ? $first->progress_style : '')
+			: (isset($first->progress_style) ? (string) $first->progress_style : 'classic');
+
+		return ( $show_steps && 'classic' !== $steps_style ) || ( $show_progress && 'classic' !== $progress_style );
+	}
+
 	function public_scripts_and_css_head($state='', $form_structure_json = null){
 
 		wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style-efb.css', true,EMSFB_PLUGIN_VERSION);
@@ -1784,8 +2041,22 @@ public function check_nonce_permission_efb($request) {
 		};
 		$main_js_version = $asset_version('includes/admin/assets/js/new-efb.js');
 		$core_js_version = $asset_version('public/assets/js/core-efb.js');
+		$response_viewer_js_version = $asset_version('includes/admin/assets/js/response-viewer-efb.js');
 		$core_deps = array('jquery', 'efb-main-js', 'efb-response-viewer-js');
 		$main_deps = array('jquery');
+		$steps_runtime_needed_efb = $this->efb_form_needs_steps_runtime_efb($form_structure_json);
+		if ( ! empty( $steps_runtime_needed_efb ) ) {
+			$steps_runtime_js_version = $asset_version('includes/admin/assets/js/steps-progress-runtime-efb.js');
+			wp_register_script(
+				'efb-steps-progress-runtime-public',
+				EMSFB_PLUGIN_URL . 'includes/admin/assets/js/steps-progress-runtime-efb.js',
+				array(),
+				$steps_runtime_js_version,
+				true
+			);
+			wp_enqueue_script('efb-steps-progress-runtime-public');
+			$core_deps[] = 'efb-steps-progress-runtime-public';
+		}
 		if ($has_recorder_field) {
 			wp_register_script('efb-recorder-js', plugins_url('../public/assets/js/recorder-efb.js',__FILE__), array('jquery'), $asset_version('public/assets/js/recorder-efb.js'), true);
 			wp_enqueue_script('efb-recorder-js');
@@ -1803,9 +2074,9 @@ public function check_nonce_permission_efb($request) {
 
 		wp_register_style('Emsfb-response-viewer-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/response-viewer-efb.css', true, EMSFB_PLUGIN_VERSION);
 		wp_enqueue_style('Emsfb-response-viewer-css');
-		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js', $main_deps, $main_js_version, true);
-		wp_register_script('efb-response-viewer-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/response-viewer-efb.js', array('efb-main-js'), EMSFB_PLUGIN_VERSION, true);
+		wp_register_script('efb-response-viewer-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/response-viewer-efb.js', array('efb-main-js'), $response_viewer_js_version, true);
 		wp_enqueue_script('efb-response-viewer-js');
+		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js', $main_deps, $main_js_version, true);
 		wp_register_script('Emsfb-core_js', plugins_url('../public/assets/js/core-efb.js',__FILE__), $core_deps, $core_js_version, true);
 		wp_enqueue_script('Emsfb-core_js');
 
@@ -2163,6 +2434,25 @@ public function check_nonce_permission_efb($request) {
 			$has_multiple_emails = isset($form_fields_array[0]["email_send_type"]) ? $form_fields_array[0]["email_send_type"] : false;
 
 			$form_type = $form_fields_array[0]['type'] ?? 'form';
+
+			// Security: the submitted type must always match the form's stored type,
+			// for every form type, before anything below dispatches on it. This used
+			// to be checked only inside the block below, which is skipped entirely
+			// for login/register forms - letting any submission type (including
+			// "register" against a login form) reach the switch() dispatch further
+			// down unchecked. logout/recovery are session actions, valid only
+			// against a login/register form, never a stored form type themselves.
+			$_is_session_action_efb = ($submission_type === 'logout' || $submission_type === 'recovery');
+			if ($_is_session_action_efb) {
+				if ($form_type !== 'login' && $form_type !== 'register') {
+					$response = ['success' => false, 'm' => $this->lanText['fernvtf']];
+					wp_send_json_success($response, 200);
+				}
+			} elseif ($submission_type !== $form_type) {
+				$response = ['success' => false, 'm' => $this->lanText['fernvtf']];
+				wp_send_json_success($response, 200);
+			}
+
 			if (!isset($submitted_values['logout']) && !isset($submitted_values['recovery']) && $form_type!='register' && $form_type!='login') {
 				// Required-field presence check — runs for every ordinary submission,
 				// with or without the conditional-logic addon, because the legacy
@@ -2191,10 +2481,6 @@ public function check_nonce_permission_efb($request) {
 					$this->email_list_efb($email_recipients , 0 , $form_admin_email ,$is_multipleEmail);
 				}
 				$has_tracking_code = $form_fields_array[0]['trackingCode'] == true || $form_fields_array[0]['trackingCode'] == "true" || $form_fields_array[0]['trackingCode'] == 1 ? 1 : 0;
-				if ($submission_type != $form_fields_array[0]['type']) {
-					$response = ['success' => false, 'm' => $this->lanText['fernvtf']];
-					wp_send_json_success($response, 200);
-				}
 				if ($form_fields_array[0]['thank_you'] == "rdrct") {
 					$redirect_url = $this->string_to_url($form_fields_array[0]['rePage']);
 				}
@@ -3151,7 +3437,7 @@ public function check_nonce_permission_efb($request) {
 									$payment_merchant_id = $plugin_settings['payToken'] ?? null;
 									$data = array("merchant_id" => $payment_merchant_id, "authority" => sanitize_text_field($request_data['auth']), "amount" => $amount);
 									$jsonData = json_encode($data);
-									if (!is_dir(EMSFB_PLUGIN_DIRECTORY . "/vendor/persiapay/")) {
+									if (!file_exists(EMSFB_PLUGIN_DIRECTORY . "/vendor/persiapay/zarinpal.php")) {
 										$msg = " خطای تنظیمات : با مدیر وبسایت تماس بگیرید . نیاز به نصب مجدد درگاه می باشد";
 									} else {
 										require_once(EMSFB_PLUGIN_DIRECTORY . "/vendor/persiapay/zarinpal.php");
@@ -4985,6 +5271,13 @@ public function check_nonce_permission_efb($request) {
 	 * the last step, so source:'current_step' conditions compare against it. */
 	private $efb_conditional_max_step = 1;
 
+	/* The form and the rows the current rule pass is reading, kept so the
+	 * add-on's validator can be handed the option index and the payment rows it
+	 * needs. Set by efb_conditional_values_map(), which every rule scope calls
+	 * before evaluating anything. */
+	private $efb_conditional_form = null;
+	private $efb_conditional_rows = array();
+
 	private function efb_conditional_values_map($form_fields_array, $submitted_values) {
 		$max_step = 0;
 		foreach ((array) $form_fields_array as $item) {
@@ -4993,6 +5286,8 @@ public function check_nonce_permission_efb($request) {
 			}
 		}
 		$this->efb_conditional_max_step = $max_step > 0 ? $max_step : 1;
+		$this->efb_conditional_form = is_array($form_fields_array) ? $form_fields_array : null;
+		$this->efb_conditional_rows = is_array($submitted_values) ? $submitted_values : array();
 
 		if (class_exists('Emsfb\\Emsfb_Logic_Validator')) {
 			$validator = new \Emsfb\Emsfb_Logic_Validator();
@@ -5029,13 +5324,40 @@ public function check_nonce_permission_efb($request) {
 		return $values;
 	}
 
+	/**
+	 * Notification / confirmation / webhook rules carry the same condition shape
+	 * as field rules, so they must answer the same way. The add-on's validator
+	 * is the one evaluator that resolves an option id_ to the value a row
+	 * actually stores — without it, a rule the UI built on a select or
+	 * multiselect option compared an id against the visible text and never
+	 * matched, so the email was never sent, the conditional thank-you never
+	 * appeared and the webhook was never called. The local implementation below
+	 * stays as the fallback for a site whose logic add-on is not installed.
+	 *
+	 * @param array $group  Condition group as stored on the rule.
+	 * @param array $values Values map from efb_conditional_values_map().
+	 */
 	private function efb_evaluate_conditional_group($group, $values) {
+		if (is_array($this->efb_conditional_form) && class_exists('Emsfb\\Emsfb_Logic_Validator')) {
+			$validator = new \Emsfb\Emsfb_Logic_Validator();
+			$validator->set_environment($this->efb_conditional_environment_for_validator());
+			return (bool) $validator->evaluate_condition_group(
+				$this->efb_conditional_form,
+				$group,
+				$values,
+				$this->efb_conditional_rows
+			);
+		}
+		return $this->efb_evaluate_conditional_group_fallback($group, $values);
+	}
+
+	private function efb_evaluate_conditional_group_fallback($group, $values) {
 		$items = isset($group['items']) && is_array($group['items']) ? $group['items'] : [];
 		if (empty($items)) return false;
 		$result = false;
 		foreach ($items as $index => $item) {
 			$is_group = is_array($item) && (($item['type'] ?? '') === 'group' || isset($item['items']));
-			$matched = $is_group ? $this->efb_evaluate_conditional_group($item, $values) : $this->efb_evaluate_conditional_condition($item, $values);
+			$matched = $is_group ? $this->efb_evaluate_conditional_group_fallback($item, $values) : $this->efb_evaluate_conditional_condition($item, $values);
 			if ($index === 0) {
 				$result = $matched;
 				continue;
@@ -5063,6 +5385,15 @@ public function check_nonce_permission_efb($request) {
 			$env['user']['logged_in'] = true;
 			$env['user']['roles'] = array_values((array) wp_get_current_user()->roles);
 		}
+		return $env;
+	}
+
+	/* The request environment in the shape the add-on validator expects. A
+	 * submission always arrives from the last step, which is what current_step
+	 * means for a rule that runs after submit. */
+	private function efb_conditional_environment_for_validator() {
+		$env = $this->efb_conditional_environment();
+		$env['current_step'] = $this->efb_conditional_max_step;
 		return $env;
 	}
 
@@ -5096,17 +5427,39 @@ public function check_nonce_permission_efb($request) {
 				/* current_step: a submission always arrives from the last step */
 				$value = (string) $this->efb_conditional_max_step;
 			}
-		} else {
+		}
+
+		$spellings = null;
+		if ($source !== 'query_param' && $source !== 'user' && $source !== 'current_step') {
 			$value = array_key_exists($field_id, $values) ? $values[$field_id] : '';
+			/* The builder writes a choice condition as the OPTION'S id_, while a
+			 * row may record either that id or the visible text. Without
+			 * resolving the two spellings against each other a select or
+			 * multiselect condition compares an id to a label and never matches.
+			 * This path only runs when the logic add-on is inactive — the
+			 * delegation above covers every other case — but scope rules are
+			 * still processed there, so it has to answer the same way. */
+			$spellings = $this->efb_conditional_option_spellings($field_id, $expected);
 		}
 
 		if (is_array($value)) {
 			$expected_scalar = is_array($expected) ? implode(',', $expected) : (string)$expected;
-			if ($compare === 'is') return in_array($expected_scalar, $value, true);
-			if ($compare === 'is_not') return !in_array($expected_scalar, $value, true);
+			$wanted = $spellings === null ? array(strtolower(trim($expected_scalar))) : $spellings;
+			$present = false;
+			foreach ($value as $entry) {
+				if (in_array(strtolower(trim((string) $entry)), $wanted, true)) { $present = true; break; }
+			}
+			if ($compare === 'is') return $present;
+			if ($compare === 'is_not') return !$present;
 			if ($compare === 'is_empty') return count($value) === 0;
 			if ($compare === 'is_not_empty') return count($value) > 0;
 			$value = implode(' ', array_map('strval', $value));
+		}
+
+		/* Equality on a single-value choice field has the same two spellings. */
+		if ($spellings !== null && ($compare === 'is' || $compare === 'is_not')) {
+			$hit = in_array(strtolower(trim((string) $value)), $spellings, true);
+			return $compare === 'is' ? $hit : !$hit;
 		}
 
 		$value = trim((string)$value);
@@ -5123,11 +5476,17 @@ public function check_nonce_permission_efb($request) {
 			case 'ends_with':
 				$length = strlen($expected_lower);
 				return $length === 0 || substr($value_lower, -$length) === $expected_lower;
-			case 'gt': case 'amount_gt': return is_numeric($value) && is_numeric($expected_scalar) && (float)$value > (float)$expected_scalar;
+			case 'gt': return is_numeric($value) && is_numeric($expected_scalar) && (float)$value > (float)$expected_scalar;
 			case 'gte': return is_numeric($value) && is_numeric($expected_scalar) && (float)$value >= (float)$expected_scalar;
-			case 'lt': case 'amount_lt': return is_numeric($value) && is_numeric($expected_scalar) && (float)$value < (float)$expected_scalar;
+			case 'lt': return is_numeric($value) && is_numeric($expected_scalar) && (float)$value < (float)$expected_scalar;
 			case 'lte': return is_numeric($value) && is_numeric($expected_scalar) && (float)$value <= (float)$expected_scalar;
-			case 'amount_eq': return is_numeric($value) && is_numeric($expected_scalar) && abs((float)$value - (float)$expected_scalar) < 0.00001;
+			/* The amount lives on the payment row too, so these cannot reuse the
+			 * plain numeric comparison above. */
+			case 'amount_eq': case 'amount_gt': case 'amount_lt':
+				$amount = $this->efb_conditional_payment_state($field_id, 'amount');
+				if ($amount === null || !is_numeric($expected_scalar)) return false;
+				if ($compare === 'amount_eq') return abs($amount - (float)$expected_scalar) < 0.00001;
+				return $compare === 'amount_gt' ? $amount > (float)$expected_scalar : $amount < (float)$expected_scalar;
 			case 'between':
 			case 'not_between':
 				$range = is_array($expected) ? $expected : preg_split('/\s*,\s*/', $expected_scalar);
@@ -5138,8 +5497,12 @@ public function check_nonce_permission_efb($request) {
 				return $compare === 'between' ? $inside : !$inside;
 			case 'is_empty': return $value === '';
 			case 'is_not_empty': return $value !== '';
-			case 'is_paid': return $value !== '' && $value !== '0';
-			case 'is_not_paid': return $value === '' || $value === '0';
+			/* Whether a payment went through is recorded on the ROW (status,
+			 * gateway reference), not in the field's own value — reading the
+			 * value alone called an unpaid gateway field "paid" whenever it
+			 * carried a price. */
+			case 'is_paid': return $this->efb_conditional_payment_state($field_id, 'paid');
+			case 'is_not_paid': return !$this->efb_conditional_payment_state($field_id, 'paid');
 			case 'date_before':
 			case 'date_after':
 				$value_ts = $this->efb_conditional_date_ts($value);
@@ -5156,6 +5519,78 @@ public function check_nonce_permission_efb($request) {
 				return $ts >= $from_ts && $ts <= $to_ts;
 			default: return false;
 		}
+	}
+
+	/**
+	 * Whether a gateway field was actually paid, and for how much, read from the
+	 * submitted rows. Mirrors the add-on validator so the two answer alike; used
+	 * only on the fallback path, when the logic add-on is inactive.
+	 *
+	 * @param string $field_id Payment field id.
+	 * @param string $want     'paid' for a boolean, 'amount' for a float or null.
+	 */
+	private function efb_conditional_payment_state($field_id, $want) {
+		$paid_states = array('paid', 'succeeded', 'success', 'completed', 'complete', 'approved', 'captured', 'authorized');
+		$payment_types = array('payment', 'stripe', 'paypal', 'persiapay');
+		$paid = false;
+		$amount = null;
+
+		foreach ((array) $this->efb_conditional_rows as $row) {
+			if (!is_array($row)) continue;
+			$row_type = strtolower((string)($row['type'] ?? ''));
+			$is_target = (string)($row['id_'] ?? '') === (string) $field_id;
+			if (!$is_target && !in_array($row_type, $payment_types, true)) continue;
+
+			foreach (array('payment_status', 'status', 'state') as $key) {
+				if (isset($row[$key]) && in_array(strtolower((string) $row[$key]), $paid_states, true)) $paid = true;
+			}
+			if (!empty($row['paymentIntent']) || !empty($row['transaction_id']) || !empty($row['refId']) || !empty($row['authority'])) {
+				$paid = true;
+			}
+			/* `amount` is the field's ordering index in an EFB row, and the row a
+			 * gateway pushes after a charge sets it to 0 — the paid figure lives
+			 * in paymentAmount (and value). Most specific key wins. */
+			$row_amount = null;
+			$keys = in_array($row_type, $payment_types, true)
+				? array('paymentAmount', 'paid_amount', 'total', 'price', 'value', 'amount')
+				: array('paymentAmount', 'paid_amount', 'total', 'price', 'amount');
+			foreach ($keys as $key) {
+				if (isset($row[$key]) && is_numeric($row[$key])) { $row_amount = (float) $row[$key]; break; }
+			}
+			if ($row_amount !== null) $amount = $row_amount;
+		}
+		return $want === 'paid' ? $paid : $amount;
+	}
+
+	/**
+	 * Every lowercase spelling that means "this option", for a choice condition.
+	 * Returns null when the field has no options, so non-choice fields keep the
+	 * ordinary text comparison.
+	 */
+	private function efb_conditional_option_spellings($field_id, $expected) {
+		if (!is_array($this->efb_conditional_form)) return null;
+		if (is_array($expected)) $expected = implode(',', $expected);
+		$expected = (string) $expected;
+
+		$options = array();
+		foreach ($this->efb_conditional_form as $item) {
+			if (!is_array($item) || ($item['type'] ?? '') !== 'option') continue;
+			if ((string)($item['parent'] ?? '') !== (string) $field_id) continue;
+			$options[(string)($item['id_'] ?? '')] = (string)($item['value'] ?? '');
+		}
+		if (!$options) return null;
+
+		$spellings = array();
+		$add = function ($candidate) use (&$spellings) {
+			$text = strtolower(trim((string) $candidate));
+			if ($text !== '' && !in_array($text, $spellings, true)) $spellings[] = $text;
+		};
+		$add($expected);
+		foreach ($options as $option_id => $option_text) {
+			if ($option_id === $expected) $add($option_text);
+			if ($option_text === $expected) $add($option_id);
+		}
+		return $spellings;
 	}
 
 	/* Timestamp for a date string, or null when unparseable (never matches). */
@@ -5859,6 +6294,25 @@ public function check_nonce_permission_efb($request) {
 				'success' => false,
 				'm'       => emsfb_get_addon_unavailable_message_efb( 'AdnPPF' ),
 			), 503 );
+			return;
+		}
+
+		/* The check above only covers PHP requirements. This route is registered by
+		 * vendor/persiapay/routes-efb.php, so a partial add-on install - the folder
+		 * and the route file present, the gateway class missing - still reaches here
+		 * and would fatal on the require below. Answer in the shape the payment JS
+		 * understands and queue a recovery instead of taking the payment. */
+		if ( ! file_exists( EMSFB_PLUGIN_DIRECTORY . "/vendor/persiapay/zarinpal.php" ) ) {
+			$efbFunction = $this->efbFunction ? $this->efbFunction : get_efbFunction();
+			$efbFunction->queue_addon_recovery_efb( array(
+				'form_id' => isset( $data_POST_['id'] ) ? intval( $data_POST_['id'] ) : 0,
+				'addon'   => 'AdnPPF',
+				'source'  => 'public_payment_rest',
+			) );
+			wp_send_json_success( array(
+				'success' => false,
+				'm'       => esc_html__( 'We have made some updates. Please wait a few minutes before trying again.', 'easy-form-builder' ),
+			), 200 );
 			return;
 		}
 

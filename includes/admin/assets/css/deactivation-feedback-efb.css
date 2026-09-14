@@ -1,0 +1,315 @@
+/**
+ * Deactivation feedback modal.
+ *
+ * Loaded only on wp-admin/plugins.php. Everything is namespaced under
+ * .efb-deactivate- so it cannot leak into another plugin's row actions, and
+ * spacing uses logical properties so the same rules hold in RTL.
+ */
+
+body.efb-deactivate-open {
+	overflow: hidden;
+}
+
+.efb-deactivate-modal {
+	position: fixed;
+	inset: 0;
+	z-index: 160000;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 24px;
+}
+
+.efb-deactivate-modal[hidden] {
+	display: none;
+}
+
+.efb-deactivate-backdrop {
+	position: absolute;
+	inset: 0;
+	background: rgba(12, 16, 24, 0.62);
+}
+
+.efb-deactivate-box {
+	position: relative;
+	width: 100%;
+	max-width: 580px;
+	max-height: calc(100vh - 48px);
+	display: flex;
+	flex-direction: column;
+	background: #fff;
+	border-radius: 10px;
+	box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+	overflow: hidden;
+}
+
+.efb-deactivate-x {
+	position: absolute;
+	inset-block-start: 8px;
+	inset-inline-end: 10px;
+	border: 0;
+	background: transparent;
+	font-size: 24px;
+	line-height: 1;
+	color: #6b7280;
+	cursor: pointer;
+	padding: 4px 8px;
+	border-radius: 6px;
+}
+
+.efb-deactivate-x:hover,
+.efb-deactivate-x:focus {
+	background: #f1f2f4;
+	color: #1d2327;
+}
+
+.efb-deactivate-body,
+.efb-deactivate-done {
+	padding: 26px 26px 6px;
+	overflow-y: auto;
+}
+
+.efb-deactivate-title {
+	margin: 0 0 6px;
+	font-size: 19px;
+	line-height: 1.4;
+	color: #1d2327;
+}
+
+.efb-deactivate-subtitle {
+	margin: 0 0 16px;
+	color: #50575e;
+	font-size: 13px;
+	line-height: 1.7;
+}
+
+.efb-deactivate-reasons {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.efb-deactivate-reason {
+	margin: 0 0 2px;
+	border-radius: 8px;
+}
+
+.efb-deactivate-reason.is-selected {
+	background: #fafafb;
+}
+
+.efb-deactivate-choice {
+	display: flex;
+	align-items: flex-start;
+	gap: 9px;
+	padding: 9px 10px;
+	cursor: pointer;
+	font-size: 13.5px;
+	line-height: 1.6;
+	color: #1d2327;
+}
+
+.efb-deactivate-choice input {
+	margin: 3px 0 0;
+	flex: 0 0 auto;
+}
+
+.efb-deactivate-panel {
+	padding: 0 10px 12px;
+}
+
+.efb-deactivate-panel[hidden] {
+	display: none;
+}
+
+.efb-deactivate-reward {
+	display: block;
+	padding: 11px 13px;
+	margin-block-end: 10px;
+	border-radius: 8px;
+	background: linear-gradient(135deg, #fff0f6 0%, #fdf2ff 100%);
+	border: 1px solid #ffc9e0;
+}
+
+.efb-deactivate-reward-title {
+	display: block;
+	color: #b4004e;
+	font-size: 13.5px;
+	line-height: 1.6;
+}
+
+.efb-deactivate-reward-title::before {
+	content: "\1F381";
+	margin-inline-end: 6px;
+}
+
+.efb-deactivate-reward-body {
+	display: block;
+	margin-block-start: 4px;
+	color: #6b3050;
+	font-size: 12.5px;
+	line-height: 1.7;
+}
+
+.efb-deactivate-details {
+	width: 100%;
+	min-height: 92px;
+	padding: 9px 11px;
+	border: 1px solid #c8ccd2;
+	border-radius: 7px;
+	font-size: 13px;
+	line-height: 1.7;
+	resize: vertical;
+}
+
+.efb-deactivate-details:focus {
+	border-color: #ff4b93;
+	box-shadow: 0 0 0 1px #ff4b93;
+	outline: 0;
+}
+
+.efb-deactivate-contact {
+	margin-block-start: 6px;
+	padding: 12px 12px 8px;
+	border-radius: 8px;
+	background: #f6f7f7;
+}
+
+.efb-deactivate-contact[hidden] {
+	display: none;
+}
+
+.efb-deactivate-field {
+	display: block;
+	font-size: 12.5px;
+	color: #50575e;
+}
+
+.efb-deactivate-field input {
+	width: 100%;
+	margin-block-start: 5px;
+	padding: 6px 10px;
+	border: 1px solid #c8ccd2;
+	border-radius: 7px;
+}
+
+.efb-deactivate-consent {
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+	margin-block-start: 9px;
+	font-size: 12.5px;
+	color: #50575e;
+	line-height: 1.6;
+}
+
+/* Off-screen rather than display:none, so bots that skip hidden fields still fill it in. */
+.efb-deactivate-hp {
+	position: absolute;
+	inset-inline-start: -9999px;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+}
+
+.efb-deactivate-error {
+	margin: 12px 0 0;
+	padding: 9px 12px;
+	border-radius: 7px;
+	background: #fcf0f1;
+	border: 1px solid #f0b7b8;
+	color: #8a1f11;
+	font-size: 12.5px;
+	line-height: 1.6;
+}
+
+.efb-deactivate-error[hidden] {
+	display: none;
+}
+
+.efb-deactivate-privacy {
+	margin: 14px 0 4px;
+	color: #787c82;
+	font-size: 11.5px;
+	line-height: 1.7;
+}
+
+.efb-deactivate-done[hidden] {
+	display: none;
+}
+
+.efb-deactivate-done-message {
+	margin: 0 0 14px;
+	color: #50575e;
+	font-size: 13.5px;
+	line-height: 1.8;
+}
+
+.efb-deactivate-coupon {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex-wrap: wrap;
+	padding: 14px;
+	border-radius: 8px;
+	background: #fff0f6;
+	border: 1px dashed #ff87b8;
+}
+
+.efb-deactivate-coupon[hidden] {
+	display: none;
+}
+
+.efb-deactivate-coupon-code {
+	font-size: 17px;
+	font-weight: 700;
+	letter-spacing: 1px;
+	color: #b4004e;
+	background: transparent;
+	direction: ltr;
+	unicode-bidi: isolate;
+}
+
+.efb-deactivate-foot {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+	padding: 16px 26px;
+	background: #f6f7f7;
+	border-block-start: 1px solid #e6e7e8;
+}
+
+.efb-deactivate-foot .button[hidden] {
+	display: none;
+}
+
+.efb-deactivate-modal .button-primary {
+	background: #ff4b93;
+	border-color: #ff4b93;
+	color: #fff;
+	text-shadow: none;
+	box-shadow: none;
+}
+
+.efb-deactivate-modal .button-primary:hover,
+.efb-deactivate-modal .button-primary:focus {
+	background: #e63c81;
+	border-color: #e63c81;
+	color: #fff;
+}
+
+@media screen and (max-width: 600px) {
+	.efb-deactivate-modal {
+		padding: 10px;
+	}
+
+	.efb-deactivate-body,
+	.efb-deactivate-done {
+		padding: 20px 16px 4px;
+	}
+
+	.efb-deactivate-foot {
+		padding: 12px 16px;
+		flex-wrap: wrap;
+	}
+}

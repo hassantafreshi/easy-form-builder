@@ -86,7 +86,7 @@
   border-radius: 10px;
 }
 .efb-resp-viewer .efb-resp-messages::-webkit-scrollbar-thumb {
-  background: #b4c0e0;
+  background: var(--efb-resp-primary-10);
   border-radius: 10px;
 }
 .efb-resp-viewer .efb-resp-messages::-webkit-scrollbar-thumb:hover {
@@ -129,7 +129,7 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #e8ecfa 0%, #d0d7f7 100%);
+  background: linear-gradient(135deg, var(--efb-resp-primary-08) 0%, var(--efb-resp-primary-10) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -139,7 +139,7 @@
 }
 .efb-resp-viewer .efb-msg-avatar--admin {
   background: linear-gradient(135deg, var(--efb-resp-primary) 0%, var(--efb-resp-primary-dark) 100%);
-  color: #fff;
+  color: var(--efb-resp-btn-text);
 }
 .efb-resp-viewer .efb-msg-sender-info {
   display: flex;
@@ -229,7 +229,7 @@
   margin: 0;
   padding: 4px 0;
   min-width: 130px;
-  background: #fff;
+  background: var(--efb-resp-bg-card);
   border: 1px solid var(--efb-resp-border, #e5e7eb);
   border-radius: 10px;
   box-shadow: 0 6px 24px rgba(0,0,0,.14);
@@ -284,7 +284,7 @@
 }
 .efb-resp-viewer .efb-msg-meta-item i {
   font-size: 0.72rem !important;
-  color: #8b94b8;
+  color: var(--efb-resp-text-muted);
   flex-shrink: 0;
 }
 .efb-resp-viewer .efb-msg-meta-label {
@@ -368,7 +368,7 @@
   align-items: center;
   font-weight: 700;
   font-size: 0.82rem !important;
-  color: #fff;
+  color: var(--efb-resp-btn-text);
   background: linear-gradient(135deg, var(--efb-resp-primary) 0%, var(--efb-resp-primary-dark) 100%);
   padding: 2px 10px;
   border-radius: 20px;
@@ -391,7 +391,7 @@
   gap: 8px;
   padding: 10px 14px;
   background: linear-gradient(135deg, var(--efb-resp-text) 0%, var(--efb-resp-primary-dark) 100%);
-  color: #fff;
+  color: var(--efb-resp-btn-text);
   font-weight: 700;
   font-size: 0.9rem;
   letter-spacing: 0.3px;
@@ -440,7 +440,7 @@
 .efb-resp-viewer .efb-msg-payment-id {
   font-family: 'Courier New', Courier, monospace;
   font-size: 0.78rem;
-  color: #555;
+  color: var(--efb-resp-text-muted);
 }
 .efb-resp-viewer .efb-msg-payment-badge {
   display: inline-block;
@@ -507,8 +507,8 @@
 }
 .efb-resp-viewer .efb-msg-field-value code {
   font-size: 0.8rem;
-  color: #555;
-  background: #f0f2fa;
+  color: var(--efb-resp-text-muted);
+  background: var(--efb-resp-bg-meta);
   padding: 2px 6px;
   border-radius: 4px;
 }
@@ -556,11 +556,17 @@
 }
 
 
+/* The panel that holds the reply label, the toolbar and the editor is a
+   card-level surface, the same as a message card - it is not the field the
+   person types into. It used to share --efb-resp-bg-editor with that field, so
+   changing "Editor Background" repainted the whole reply panel instead of the
+   typing area alone. Only .efb-rich-editor (and the code/recovery fields) wear
+   the editor colour now. */
 .efb-resp-viewer .efb-reply-section {
   flex: 0 0 auto;
   border-top: 1px solid var(--efb-resp-border);
   padding: 12px 0px;
-  background: var(--efb-resp-bg-editor);
+  background: var(--efb-resp-bg-card);
   border-radius: 0 0 12px 12px;
 }
 
@@ -590,7 +596,7 @@
   border: none;
   background: transparent;
   border-radius: 6px;
-  color: #3c4a72;
+  color: var(--efb-resp-text-muted);
   font-size: 0.95rem;
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
@@ -602,7 +608,7 @@
 }
 .efb-resp-viewer .efb-editor-btn.active {
   background: var(--efb-resp-primary);
-  color: #fff;
+  color: var(--efb-resp-btn-text);
 }
 .efb-resp-viewer .efb-editor-btn i {
   font-size: 1rem !important;
@@ -692,12 +698,12 @@
   align-items: center;
   gap: 5px;
   padding: 6px 14px;
-  border: 1px solid #dde2f0;
+  border: 1px solid var(--efb-resp-border);
   border-radius: 8px;
-  background: #fff;
+  background: var(--efb-resp-bg-card);
   cursor: pointer;
   font-size: 0.85rem;
-  color: #3c4a72;
+  color: var(--efb-resp-text-muted);
   transition: border-color 0.2s, background 0.2s;
   position: relative;
   overflow: hidden;
@@ -862,7 +868,7 @@
   height: 100%;
   border-radius: 8px;
   background: linear-gradient(90deg, var(--efb-resp-primary) 0%, var(--efb-resp-primary-dark) 100%);
-  color: #fff;
+  color: var(--efb-resp-btn-text);
   font-size: 0.72rem;
   font-weight: 600;
   display: flex;
@@ -1038,26 +1044,6 @@
   }
 }
 
-.efb-resp-color-grid input[type="color"].form-control-color {
-  width: 42px;
-  height: 34px;
-  padding: 2px;
-  border-radius: 6px;
-  cursor: pointer;
-  border: 1px solid #ced4da;
-  transition: box-shadow .15s ease;
-}
-.efb-resp-color-grid input[type="color"].form-control-color:hover {
-  box-shadow: 0 0 0 3px rgba(54, 68, 210, 0.15);
-}
-.efb-resp-color-grid .efb-color-hex {
-  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-  font-size: 0.78rem;
-  color: #6c757d;
-  user-select: all;
-  min-width: 62px;
-}
-
 #body_tracker_emsFormBuilder {
   font-family: var(--efb-resp-font-family);
   font-size: var(--efb-resp-font-size);
@@ -1093,7 +1079,7 @@
   justify-content: center;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--efb-resp-primary), var(--efb-resp-primary-dark));
-  color: #fff;
+  color: var(--efb-resp-btn-text);
   font-size: 1.55rem;
   box-shadow: 0 4px 14px var(--efb-resp-primary-10);
 }
@@ -1134,13 +1120,17 @@
   left: auto;
   right: 14px;
 }
+/* The !important on the colour is not decoration: the code field also carries
+   .input-efb, and style-efb.css pins that to "color:#07070ca8!important" (and
+   to a lilac on focus). Without it the Editor Text colour was ignored here and
+   typing a code into a dark field produced near-black text on near-black. */
 #body_tracker_emsFormBuilder .efb-tracker-input {
   width: 100%;
   padding: 13px 16px 13px 42px;
   border: 1.5px solid var(--efb-resp-border);
   border-radius: 12px;
   background-color: var(--efb-resp-bg-editor);
-  color: var(--efb-resp-editor-text);
+  color: var(--efb-resp-editor-text) !important;
   font-family: var(--efb-resp-font-family);
   font-size: var(--efb-resp-font-size);
   outline: none;
@@ -1154,9 +1144,13 @@
 #body_tracker_emsFormBuilder .efb-tracker-input:focus {
   border-color: var(--efb-resp-primary);
   box-shadow: 0 0 0 3px var(--efb-resp-primary-10);
+  color: var(--efb-resp-editor-text) !important;
 }
+/* Same story for the placeholder: style-efb.css sets
+   ".efb::placeholder{color:#a5a3d1!important}", and every field in the
+   response box carries .efb. */
 #body_tracker_emsFormBuilder .efb-tracker-input::placeholder {
-  color: var(--efb-resp-editor-ph);
+  color: var(--efb-resp-editor-ph) !important;
   opacity: .65;
 }
 
@@ -1277,7 +1271,7 @@
   border: 1.5px solid var(--efb-resp-border);
   border-radius: 10px;
   background-color: var(--efb-resp-bg-editor);
-  color: var(--efb-resp-editor-text);
+  color: var(--efb-resp-editor-text) !important;
   font-family: var(--efb-resp-font-family);
   font-size: var(--efb-resp-font-size);
   text-align: center;
@@ -1291,7 +1285,7 @@
   box-shadow: 0 0 0 3px var(--efb-resp-primary-10);
 }
 .efb-recovery-input::placeholder {
-  color: var(--efb-resp-editor-ph);
+  color: var(--efb-resp-editor-ph) !important;
   opacity: .65;
 }
 .efb-recovery-send-btn {
@@ -1365,7 +1359,7 @@
   justify-content: center;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--efb-resp-primary), var(--efb-resp-primary-dark));
-  color: #fff;
+  color: var(--efb-resp-btn-text);
   font-size: 1.5rem;
   margin-bottom: 14px;
   box-shadow: 0 4px 14px var(--efb-resp-primary-10);
@@ -1374,92 +1368,6 @@
   to { transform: rotate(360deg); }
 }
 
-.efb-color-modal-body {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-.efb-color-modal-preview {
-  border: 1px solid var(--efb-resp-border);
-  border-radius: 14px;
-  padding: 16px;
-  background: var(--efb-resp-bg-card);
-  box-shadow: var(--efb-resp-shadow);
-  transition: all .2s ease;
-  font-family: var(--efb-resp-font-family);
-  font-size: var(--efb-resp-font-size);
-}
-.efb-color-modal-preview .efb-preview-title {
-  font-size: calc(var(--efb-resp-font-size) * 0.91);
-  font-weight: 600;
-  color: var(--efb-resp-text-muted);
-  margin-bottom: 8px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-.efb-color-modal-preview .efb-preview-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-.efb-color-modal-preview .efb-preview-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--efb-resp-primary), var(--efb-resp-primary-dark));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-size: 0.85rem;
-}
-.efb-color-modal-preview .efb-preview-sender {
-  font-weight: 600;
-  color: var(--efb-resp-text);
-  font-size: var(--efb-resp-font-size);
-}
-.efb-color-modal-preview .efb-preview-meta {
-  background: var(--efb-resp-bg-meta);
-  padding: 6px 10px;
-  border-radius: 8px;
-  font-size: calc(var(--efb-resp-font-size) * 0.84);
-  color: var(--efb-resp-text-muted);
-  margin-bottom: 10px;
-}
-.efb-color-modal-preview .efb-preview-field {
-  display: flex;
-  justify-content: space-between;
-  padding: 5px 0;
-  border-bottom: 1px solid var(--efb-resp-border);
-  font-size: calc(var(--efb-resp-font-size) * 0.95);
-}
-.efb-color-modal-preview .efb-preview-field-label {
-  color: var(--efb-resp-primary);
-  font-weight: 600;
-}
-.efb-color-modal-preview .efb-preview-field-value {
-  color: var(--efb-resp-text);
-}
-.efb-color-modal-preview .efb-preview-btn {
-  display: inline-block;
-  margin-top: 10px;
-  padding: 5px 16px;
-  font-size: calc(var(--efb-resp-font-size) * 0.89);
-  border-radius: 20px;
-  background: linear-gradient(135deg, var(--efb-resp-primary), var(--efb-resp-primary-dark));
-  color: #fff;
-  border: none;
-}
-.efb-color-modal-preview .efb-preview-accent {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--efb-resp-accent);
-  margin-inline-start: 6px;
-  vertical-align: middle;
-}
 .efb-customize-colors-btn {
   display: inline-flex;
   align-items: center;

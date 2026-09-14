@@ -5,6 +5,7 @@ class Admin {
 
     public $ip;
     public $plugin_version;
+    public $id_;
     protected $db;
     private $form_cache = [];
 
@@ -105,6 +106,13 @@ class Admin {
             }
             wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style-efb.css',true,EMSFB_PLUGIN_VERSION);
             wp_enqueue_style('Emsfb-style-css');
+            /* The steps and progress styles, whole. The builder has to be able to
+             * draw any of them, so unlike the front end - which inlines only the
+             * chunks a form actually uses - wp-admin takes the file as it is.
+             * After style-efb.css, because it overrides the classic step rules
+             * that live there. */
+            wp_register_style('efb-steps-progress-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/steps-progress-efb.css', array('Emsfb-style-css'), EMSFB_PLUGIN_VERSION);
+            wp_enqueue_style('efb-steps-progress-css');
             wp_register_style('Emsfb-responsive-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/min-1200-style.css',true,EMSFB_PLUGIN_VERSION);
             wp_enqueue_style('Emsfb-responsive-css');
             wp_register_style('Emsfb-bootstrap', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min-efb.css',true,EMSFB_PLUGIN_VERSION);
@@ -115,6 +123,24 @@ class Admin {
             wp_enqueue_style('Emsfb-bootstrap-select-css');
             wp_register_style('Emsfb-response-viewer-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/response-viewer-efb.css',true,EMSFB_PLUGIN_VERSION);
             wp_enqueue_style('Emsfb-response-viewer-css');
+            // The dialog design system, last of the stylesheets on purpose.
+            // admin-rtl-efb.css is registered before bootstrap.min-efb.css, so
+            // anything enqueued earlier than this loses to bootstrap's own
+            // .modal rules; registering it here is what lets it restyle
+            // #settingModalEfb without an !important on every declaration.
+            wp_register_style('efb-modal-system', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/modal-system-efb.css', true, EMSFB_PLUGIN_VERSION);
+            wp_enqueue_style('efb-modal-system');
+            // The Colors & Fonts dialog reshapes the shared shell into a wide
+            // two-pane editor, so it has to win against the shell's own rules
+            // in modal-system-efb.css - hence after it, not before.
+            wp_register_style('efb-response-colors-modal', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/response-colors-modal-efb.css', array('efb-modal-system'), EMSFB_PLUGIN_VERSION);
+            wp_enqueue_style('efb-response-colors-modal');
+            // The email server test draws the same panel in two places - the
+            // settings modal and the setup wizard - so its look and its markup
+            // both live in one pair of files, loaded wherever either can run.
+            wp_register_style('efb-email-test', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/email-test-efb.css', array('efb-modal-system'), EMSFB_PLUGIN_VERSION);
+            wp_enqueue_style('efb-email-test');
+            wp_enqueue_script('efb-email-test-ui', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/email-test-ui-efb.js', array(), EMSFB_PLUGIN_VERSION, true);
             $this->check_and_enqueue_font_roboto_Emsfb();
             wp_enqueue_style('wp-pointer');
             wp_enqueue_script('wp-pointer');
@@ -123,8 +149,18 @@ class Admin {
                 wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION);
                  wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min-efb.js', array( 'jquery' ), EMSFB_PLUGIN_VERSION);
                 wp_enqueue_script('efb-bootstrap-icon-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-icon-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION);
-                wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION);
-                wp_enqueue_script('efb-response-viewer-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/response-viewer-efb.js', array('efb-main-js', 'jquery'), EMSFB_PLUGIN_VERSION);
+                $efb_main_js_path = EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/new-efb.js';
+                $efb_main_js_version = is_readable($efb_main_js_path) ? (string) filemtime($efb_main_js_path) : EMSFB_PLUGIN_VERSION;
+                $efb_response_viewer_js_path = EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/response-viewer-efb.js';
+                $efb_response_viewer_js_version = is_readable($efb_response_viewer_js_path) ? (string) filemtime($efb_response_viewer_js_path) : EMSFB_PLUGIN_VERSION;
+                wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js', array('jquery'), $efb_main_js_version);
+                /* The steps runtime and its markup builders. The builders are
+                 * wp-admin only - on the front end the markup arrives from PHP -
+                 * and the runtime is the same file the front end inlines, loaded
+                 * here as a file because the builder needs it on every screen. */
+                wp_enqueue_script('efb-steps-progress-runtime', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/steps-progress-runtime-efb.js', array('efb-main-js'), EMSFB_PLUGIN_VERSION);
+                wp_enqueue_script('efb-steps-progress-builder', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/steps-progress-builder-efb.js', array('efb-steps-progress-runtime'), EMSFB_PLUGIN_VERSION);
+                wp_enqueue_script('efb-response-viewer-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/response-viewer-efb.js', array('efb-main-js', 'jquery'), $efb_response_viewer_js_version);
         }
     }
 
@@ -359,7 +395,61 @@ class Admin {
      * @return void
      */
     private function addon_install_log_efb($event, $context = []) {
+        /*
+         * Off by default - this runs on a customer-facing admin action, so it
+         * must not write on every click. Turn it on with
+         * define('EMSFB_ADDON_DEBUG', true) (WP_DEBUG also enables it) when an
+         * install has to be diagnosed.
+         *
+         * Without this the whole instrumentation below add_addons_Emsfb() was a
+         * no-op, which is why "a Pro site was refused by the licensing server"
+         * left no trace anywhere.
+         */
+        $enabled = (defined('EMSFB_ADDON_DEBUG') && EMSFB_ADDON_DEBUG)
+            || (defined('WP_DEBUG') && WP_DEBUG);
+        if (!$enabled) {
+            return;
+        }
+
+        $available = function_exists('emsfb_is_php_function_available_efb')
+            ? emsfb_is_php_function_available_efb('error_log')
+            : function_exists('error_log');
+        if (!$available) {
+            return;
+        }
+
         $safe_context = $this->addon_install_sanitize_log_context_efb($context);
+        error_log('[EFB Addon Install] ' . $event . ' ' . wp_json_encode($safe_context, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+    }
+
+    /**
+     * Whether this site can already prove, from local state alone, that it is
+     * entitled to an add-on the licensing server says needs a higher plan.
+     *
+     * fa_IR licences are validated offline on purpose (see
+     * make_post_request_efb(): the Iran network restrictions make a negative
+     * remote answer untrustworthy), so the remote has no record to confirm and
+     * answers "plan_required" for paying Pro customers. The plan gate must not
+     * contradict the licence check the rest of the plugin trusts.
+     *
+     * @param int $required_package Package the remote says the add-on needs.
+     * @return array{entitled:bool,local_package:int}
+     */
+    private function addon_local_entitlement_efb($required_package) {
+        $local_package = (int) get_option('emsfb_pro', 2);
+        if (!in_array($local_package, [0, 1, 2, 3], true)) {
+            $local_package = 2;
+        }
+
+        // is_efb_pro() re-checks that the stored activation code was minted for
+        // this domain, and does so without a network round-trip.
+        $licence_ok = (bool) get_efbFunction()->is_efb_pro();
+
+        // Pro covers every add-on; Free Plus covers the ones marked as package 3.
+        $entitled = $licence_ok
+            && (1 === $local_package || (3 === (int) $required_package && 3 === $local_package));
+
+        return ['entitled' => $entitled, 'local_package' => $local_package];
     }
 
     /**
@@ -483,7 +573,15 @@ class Admin {
         // Build the remote endpoint carefully and record whether the fa_IR
         // branch selected the Iranian mirror or the default global domain.
         $_server_name = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_HOST'])) : 'localhost';
-        $server_name = str_replace("www.", "", $_server_name);
+        /*
+         * Lowercased, and only the leading "www." label is dropped: the remote
+         * looks this domain up verbatim, while the licence check compares
+         * against lowercased candidates (license_domain_candidates_efb()). A
+         * host that differs from those candidates is exactly how a licensed
+         * site gets answered "plan_required", so both spellings are logged.
+         */
+        $server_name = preg_replace('/^www\./', '', strtolower($_server_name));
+        $license_hosts = get_efbFunction()->license_domain_candidates_efb();
         delete_option($name_space);
         $vwp = get_bloginfo('version');
         $vwp = substr($vwp, 0, 3);
@@ -491,15 +589,32 @@ class Admin {
         $build_addon_url = function($base_domain) use ($server_name, $post_value, $vwp, $vefb) {
             return untrailingslashit($base_domain) . '/wp-json/wl/v1/addons-link/' . $server_name . '/' . $post_value . '/' . $vwp . '/' . $vefb . '/';
         };
-        $domain = $is_persian_locale ? 'https://easyformbuilder.ir' : EMSFB_SERVER_URL;
-        $fallback_domain = $is_persian_locale ? untrailingslashit(EMSFB_SERVER_URL) : '';
+        /*
+         * One source of truth for endpoint selection. Persian sites keep the
+         * historic Whitestudio request first, then use the identical endpoint
+         * on easyformbuilder.ir only after that request cannot complete.
+         */
+        $addon_endpoints = get_efbFunction()->addon_api_domains_efb();
+        /*
+         * Interactive path: an admin is watching a spinner, so the per-request
+         * budget is capped well below the 15s the background recovery uses.
+         * A silently dropping add-on host would otherwise burn the full timeout
+         * twice before the UI can show a useful error.
+         */
+        $addon_request_timeout = 8;
+        $remaining_endpoints = isset($addon_endpoints['endpoints'])
+            ? array_values((array) $addon_endpoints['endpoints'])
+            : array_filter([$addon_endpoints['primary'], $addon_endpoints['fallback']]);
+        $domain = (string) array_shift($remaining_endpoints);
         $u = $build_addon_url($domain);
-        $using_iran_url = $is_persian_locale;
+        $using_iran_url = untrailingslashit($domain) === untrailingslashit(\efbFunction::EMSFB_ADDON_IR_DOMAIN);
 
         $this->addon_install_log_efb('remote_request_prepared', [
             'requested_addon' => $post_value,
             'http_host' => $_server_name,
             'normalized_host' => $server_name,
+            'license_hosts' => $license_hosts,
+            'host_matches_license' => in_array($server_name, $license_hosts, true),
             'wordpress_version' => $vwp,
             'plugin_version' => $vefb,
             'base_domain' => $domain,
@@ -508,34 +623,44 @@ class Admin {
             'using_iran_url' => $using_iran_url,
         ]);
 
-        $max_attempts = $is_persian_locale ? 3 : 2;
+        // Give the primary endpoint two short tries before moving Persian sites
+        // to the Easy Form Builder fallback.
+        $max_attempts = 2;
         $fallback_max_attempts = 2;
         $attempt = 0;
         $success = false;
         $error_message = esc_html__('Error: server (%s) responded with an invalid request. responded code : %s ', 'easy-form-builder');
         $error_message = sprintf($error_message, $domain, 'not_success');
-        $switch_to_fallback = function($reason, $context = []) use (&$domain, &$u, &$attempt, &$max_attempts, &$fallback_domain, &$using_iran_url, $fallback_max_attempts, $build_addon_url, $post_value) {
-            if (empty($fallback_domain) || untrailingslashit($domain) === untrailingslashit($fallback_domain)) {
-                return false;
+        $switch_to_fallback = function($reason, $context = []) use (&$domain, &$u, &$attempt, &$max_attempts, &$remaining_endpoints, &$using_iran_url, $fallback_max_attempts, $build_addon_url, $post_value) {
+            while (!empty($remaining_endpoints)) {
+                $next = untrailingslashit((string) array_shift($remaining_endpoints));
+                if ('' === $next || untrailingslashit($domain) === $next) {
+                    continue;
+                }
+
+                $previous_domain = $domain;
+                // Remember that this endpoint did not answer so the next install
+                // click does not repeat the same dead wait.
+                get_efbFunction()->addon_api_mark_down_efb($previous_domain);
+                $domain = $next;
+                $u = $build_addon_url($domain);
+                $attempt = 0;
+                $max_attempts = $fallback_max_attempts;
+                $using_iran_url = untrailingslashit($domain) === untrailingslashit(\efbFunction::EMSFB_ADDON_IR_DOMAIN);
+
+                $this->addon_install_log_efb('switching_to_fallback_endpoint', array_merge([
+                    'requested_addon' => $post_value,
+                    'reason' => $reason,
+                    'previous_domain' => $previous_domain,
+                    'fallback_domain' => $domain,
+                    'next_request_url' => $u,
+                    'endpoints_left' => count($remaining_endpoints),
+                ], $context));
+
+                return true;
             }
 
-            $previous_domain = $domain;
-            $domain = untrailingslashit($fallback_domain);
-            $u = $build_addon_url($domain);
-            $attempt = 0;
-            $max_attempts = $fallback_max_attempts;
-            $fallback_domain = '';
-            $using_iran_url = false;
-
-            $this->addon_install_log_efb('switching_to_fallback_endpoint', array_merge([
-                'requested_addon' => $post_value,
-                'reason' => $reason,
-                'previous_domain' => $previous_domain,
-                'fallback_domain' => $domain,
-                'next_request_url' => $u,
-            ], $context));
-
-            return true;
+            return false;
         };
 
         while ($attempt < $max_attempts && !$success) {
@@ -549,7 +674,9 @@ class Admin {
                 'request_url' => $u,
             ]);
 
-            $request = wp_remote_get($u);
+            // Explicit timeout: the default of 5s was implicit here while the
+            // recovery path already passed one, so the two disagreed.
+            $request = wp_remote_get($u, ['timeout' => $addon_request_timeout]);
             $request_duration = round(microtime(true) - $request_started_at, 3);
 
             // A WP_Error here usually points to DNS, cURL, firewall, SSL, or
@@ -623,6 +750,20 @@ class Admin {
                         'attempt' => $current_attempt,
                         'message' => $error_message,
                     ]);
+                    /* A refusal (not an outage) from a server that is plainly
+                     * up is almost always the host's IP-reputation firewall,
+                     * which the site owner cannot see or appeal. Show the
+                     * offline route rather than a status code they cannot act
+                     * on. */
+                    if (in_array((int) $response_code, [401, 403, 406, 429], true)) {
+                        get_efbFunction()->notify_admin_addon_blocked_efb(wp_parse_url($domain, PHP_URL_HOST), $post_value);
+                        wp_send_json_error([
+                            'success' => false,
+                            'm' => get_efbFunction()->addon_offline_hint_efb(wp_parse_url($domain, PHP_URL_HOST)),
+                            'code' => 'addon_download_blocked',
+                        ], 200);
+                        return;
+                    }
                     $response = ['success' => false, 'm' => $error_message];
                     wp_send_json_error($response, 200);
                     return;
@@ -700,27 +841,69 @@ class Admin {
                 $remote_reason = isset($data->reason) ? sanitize_key($data->reason) : '';
                 if (in_array($remote_reason, ['plan_required', 'package_required', 'premium_required'], true)) {
                     $required_package = isset($data->required_package) ? (int) $data->required_package : 1;
-                    $m = $required_package === 3
-                        ? $lang['thisFeatureAvailableFreePlusPro']
-                        : $lang['proUnlockMsg'];
+                    $entitlement = $this->addon_local_entitlement_efb($required_package);
+
                     $this->addon_install_log_efb('remote_response_plan_required', [
                         'requested_addon' => $post_value,
                         'required_package' => $required_package,
                         'current_package' => isset($data->current_package) ? $data->current_package : '',
+                        'local_package' => $entitlement['local_package'],
+                        'locally_entitled' => $entitlement['entitled'],
+                        'license_hosts' => $license_hosts,
+                        'sent_domain' => $server_name,
                     ]);
-                    $response = [
-                        'success' => false,
-                        'm' => $m,
-                        'code' => 'addon_plan_required',
-                        'required_package' => $required_package,
-                    ];
-                    wp_send_json_error($response, 200);
-                    return;
+
+                    /*
+                     * Only show the upgrade modal when this site really is on a
+                     * lower plan. A licensed Pro site that gets "plan_required"
+                     * is being told something its own licence contradicts - on
+                     * fa_IR that is the normal answer, because those licences
+                     * are validated offline and the mirror has no record of
+                     * them. Showing the Free Plus / Pro upsell there bills a
+                     * paying customer's click as an upsell.
+                     */
+                    if (!$entitlement['entitled']) {
+                        $m = $required_package === 3
+                            ? $lang['thisFeatureAvailableFreePlusPro']
+                            : $lang['proUnlockMsg'];
+                        $response = [
+                            'success' => false,
+                            'm' => $m,
+                            'code' => 'addon_plan_required',
+                            'required_package' => $required_package,
+                        ];
+                        wp_send_json_error($response, 200);
+                        return;
+                    }
+
+                    // Entitled locally: treat the verdict as an endpoint problem
+                    // and give the other server a turn before giving up.
+                    $error_message = esc_html__('Error: server (%s) responded with an invalid request. responded code : %s ', 'easy-form-builder');
+                    $error_message = sprintf($error_message, $domain, 'plan_mismatch');
+                    $attempt++;
+                    if ($attempt >= $max_attempts) {
+                        if ($switch_to_fallback('remote_response_plan_required_mismatch', [
+                            'last_attempt' => $current_attempt,
+                            'required_package' => $required_package,
+                            'local_package' => $entitlement['local_package'],
+                        ])) {
+                            continue;
+                        }
+                        $this->addon_install_log_efb('remote_response_plan_required_final', [
+                            'requested_addon' => $post_value,
+                            'attempt' => $current_attempt,
+                            'message' => $error_message,
+                        ]);
+                        $response = ['success' => false, 'm' => $error_message];
+                        wp_send_json_error($response, 200);
+                        return;
+                    }
+                    continue;
                 }
                 if (!$is_persian_locale && isset($data->reason) && $data->reason == 'expired') {
                     update_option('emsfb_addons_renew_required', time());
                     set_transient('emsfb_addons_renew_backoff', 1, DAY_IN_SECONDS);
-                    $renew_url = isset($data->renew) ? esc_url($data->renew) : esc_url($domain . '/register-costumer?renew=' . urlencode((string) get_option('emsfb_pro_activeCode', '')));
+                    $renew_url = isset($data->renew) ? esc_url($data->renew) : esc_url($domain . '/checkout?renew=' . urlencode((string) get_option('emsfb_pro_activeCode', '')));
                     $this->addon_install_log_efb('remote_response_subscription_expired', [
                         'requested_addon' => $post_value,
                         'renew_url' => $renew_url,
@@ -751,22 +934,66 @@ class Admin {
             }
 
             // Remote metadata includes the minimum compatible plugin version.
-            if (version_compare(EMSFB_PLUGIN_VERSION, $data->v) == -1) {
+            // Guarded with isset(): a payload without "v" used to raise a PHP 8
+            // warning inside version_compare().
+            $remote_required_version = isset($data->v) ? (string) $data->v : '';
+            if ('' !== $remote_required_version && version_compare(EMSFB_PLUGIN_VERSION, $remote_required_version) == -1) {
                 $this->addon_install_log_efb('remote_response_version_mismatch', [
                     'requested_addon' => $post_value,
+                    'attempt' => $current_attempt,
                     'local_plugin_version' => EMSFB_PLUGIN_VERSION,
-                    'remote_required_version' => isset($data->v) ? $data->v : '',
+                    'remote_required_version' => $remote_required_version,
                 ]);
-                $m = $lang['upDMsg'];
-                $response = ['success' => false, 'm' => $m];
-                wp_send_json_error($response, 200);
-                return;
+
+                // A mirror serving stale add-on metadata used to pin a site on
+                // "update the plugin" with no way out, because this branch
+                // returned before the fallback endpoint was ever tried. Let the
+                // other server answer before telling an up-to-date site to update.
+                $error_message = $lang['upDMsg'];
+                $attempt++;
+                if ($attempt >= $max_attempts) {
+                    if ($switch_to_fallback('remote_response_version_mismatch', [
+                        'last_attempt' => $current_attempt,
+                        'remote_required_version' => $remote_required_version,
+                    ])) {
+                        continue;
+                    }
+                    $this->addon_install_log_efb('remote_response_version_mismatch_final', [
+                        'requested_addon' => $post_value,
+                        'attempt' => $current_attempt,
+                        'message' => $error_message,
+                    ]);
+                    $response = ['success' => false, 'm' => $error_message];
+                    wp_send_json_error($response, 200);
+                    return;
+                }
+                continue;
             }
 
             // Download/install the add-on package only when the remote payload
             // explicitly marks it as downloadable.
             if ($data->download == true) {
-                $url = $data->link;
+                $url = $efbFunction->normalize_addon_download_url_efb( isset( $data->link ) ? $data->link : '' );
+                if ( is_wp_error( $url ) ) {
+                    $attempt++;
+                    $this->addon_install_log_efb('download_url_rejected', [
+                        'requested_addon' => $post_value,
+                        'attempt' => $current_attempt,
+                        'error' => $url,
+                    ]);
+                    if ( $attempt >= $max_attempts && $switch_to_fallback('download_url_not_allowed', [
+                        'last_attempt' => $current_attempt,
+                        'error' => $url,
+                    ]) ) {
+                        continue;
+                    }
+                    if ( $attempt < $max_attempts ) {
+                        continue;
+                    }
+                    $response = ['success' => false, 'm' => $url->get_error_message()];
+                    wp_send_json_error($response, 200);
+                    return;
+                }
                 $directory_name = substr($url, strrpos($url, "/") + 1, -4);
                 $directory = EMSFB_PLUGIN_DIRECTORY . 'vendor/' . $directory_name;
                 $directory_exists = file_exists($directory);
@@ -1681,8 +1908,7 @@ class Admin {
             wp_send_json_error(array('message' => esc_html__('You do not have permission to complete setup.', 'easy-form-builder')), 403);
         }
 
-        update_option('emsfb_onboarding_pending', 0, false);
-        update_option('emsfb_onboarding_completed_at', current_time('mysql'), false);
+        emsfb_complete_onboarding_efb();
         wp_send_json_success(array('completed' => true));
     }
 
@@ -1878,18 +2104,37 @@ class Admin {
                 'hash_header' => is_array($actual_mail) && !empty($actual_mail['has_expected_hash_header']),
             ],
         ]);
+        // Tell the service what wp_mail() did, before anything else happens. It
+        // is the one fact that separates "this site cannot send email" from
+        // "this site sent the email and something afterwards lost it", and
+        // without it the service has to describe both the same vague way.
+        $handoff = $this->report_email_tester_handoff_efb($test_hash, (bool) $sent, $last_mail_error, $actual_mail);
+
+        /*
+         * A delivery test has now actually run on this site, which is the whole
+         * job of the first-run guide - so the guide is over, whatever wp_mail()
+         * decided. Recording it here rather than on a "Finish setup" click is
+         * what makes it stick: the admin can read the report and walk away, or
+         * close the tab while the result is still being polled, and the wizard
+         * will not reopen on their next admin page. A failed send is a result
+         * too; it is retried from General Settings, not from the wizard.
+         */
+        emsfb_complete_onboarding_efb();
+
         if (!$sent) {
             $failure_status = [
                 'status' => 'error',
                 'message' => [
-                    'title' => esc_html__('Email delivery failed', 'easy-form-builder'),
-                    'description' => esc_html__('WordPress could not send the test email. Please check your hosting mail settings or SMTP configuration.', 'easy-form-builder'),
+                    'title' => esc_html__('WordPress could not send the email', 'easy-form-builder'),
+                    'description' => esc_html__('The message never left your website: WordPress reported an error while trying to send it. This is the one case where the fix really is on the WordPress or hosting side - usually an SMTP plugin, or PHP mail disabled by the host.', 'easy-form-builder'),
                     'id' => 'mail_function_failed'
                 ],
                 'details' => [
                     'stage' => 'send',
+                    'send_stage' => 'wp_mail_failed',
                     'test_timestamp' => current_time('mysql', true),
                     'error' => $last_mail_error,
+                    'handoff_reported' => is_array($handoff) && !empty($handoff['success']),
                 ]
             ];
             $this->email_tester_log_efb('wp_mail_failed_save_status', $failure_status);
@@ -1897,8 +2142,12 @@ class Admin {
 
             return [
                 'success' => false,
-                'm' => esc_html__('WordPress could not send the test email. Please check your hosting mail settings or SMTP configuration.', 'easy-form-builder'),
+                'm' => esc_html__('WordPress could not send the test email. The message never left your website, so nothing was delivered.', 'easy-form-builder'),
                 'stage' => 'send',
+                'send_stage' => 'wp_mail_failed',
+                'mail_error' => is_array($last_mail_error) && !empty($last_mail_error['message'])
+                    ? sanitize_text_field((string) $last_mail_error['message'])
+                    : '',
                 'test' => $test
             ];
         }
@@ -1922,18 +2171,21 @@ class Admin {
             ],
             'details' => [
                 'stage' => 'sent',
+                'send_stage' => 'handed_off',
                 'test_timestamp' => current_time('mysql', true),
                 'test_hash' => $test_hash,
                 'recipient_email' => $recipient_email,
                 'sender_email' => $sender_email,
+                'handoff_reported' => is_array($handoff) && !empty($handoff['success']),
             ]
         ];
         update_option('emsfb_email_status', $pending_status);
 
         return [
             'success' => true,
-            'm' => isset($start['m']) ? $start['m'] : esc_html__('The test email has been sent. Waiting for the server result.', 'easy-form-builder'),
+            'm' => isset($start['m']) ? $start['m'] : esc_html__('WordPress accepted and sent the test email. Waiting for it to arrive.', 'easy-form-builder'),
             'stage' => 'sent',
+            'send_stage' => 'handed_off',
             'test' => $test
         ];
     }
@@ -2057,17 +2309,24 @@ class Admin {
         ]);
 
         if (is_wp_error($request)) {
+            /* No HTTP conversation happened at all, so this says nothing about
+             * whether the mail-testing service is up. Printing the raw cURL
+             * error under a title that names our service sent people to check
+             * a status page when the thing to check was their own host's
+             * outbound access. The technical string is kept in details, where
+             * it belongs. */
             $request_error = [
                 'status' => 'error',
                 'message' => [
-                    'title' => esc_html__('Service connection error', 'easy-form-builder'),
-                    'description' => $request->get_error_message(),
+                    'title' => esc_html__('Your site could not connect', 'easy-form-builder'),
+                    'description' => esc_html__('No connection could be opened from your site to our mail testing service. This is usually outbound traffic blocked by your server or its network - some hosts block connections to other countries - rather than a problem with the service. Your hosting provider can confirm it.', 'easy-form-builder'),
                     'id' => 'service_request_error'
                 ],
                 'details' => [
                     'stage' => 'result',
                     'test_timestamp' => current_time('mysql', true),
                     'code' => $request->get_error_code(),
+                    'transport_error' => $request->get_error_message(),
                 ]
             ];
             $this->email_tester_log_efb('result_request_wp_error', [
@@ -2187,16 +2446,33 @@ class Admin {
             && class_exists('\Emsfb\Email_Monitor')
             && \Emsfb\Email_Monitor::is_delivery_score_too_low($test_result);
 
+        // What the service concluded about the send itself. "Nothing arrived" is
+        // not one situation but three, and only this tells them apart, so the
+        // saved status - which the dashboard notice reads back - carries it.
+        $send_stage = isset($test_result['send_stage']) ? sanitize_key($test_result['send_stage']) : 'unknown';
+
+        if ('wp_mail_failed' === $send_stage) {
+            $failure_title = esc_html__('WordPress could not send the email', 'easy-form-builder');
+            $failure_description = esc_html__('The message never left your website. WordPress reported an error while sending, so nothing could be delivered.', 'easy-form-builder');
+        } else if ('handed_off' === $send_stage) {
+            $failure_title = esc_html__('The email was sent, but it never arrived', 'easy-form-builder');
+            $failure_description = esc_html__('WordPress sent the message successfully, so your site and this plugin did their part. It was lost, delayed or rejected after leaving WordPress - usually the receiving side treated it as spam, or your host never delivered it from the outbound queue.', 'easy-form-builder');
+        } else {
+            $failure_title = esc_html__('Email test failed', 'easy-form-builder');
+            $failure_description = esc_html__('The email server test could not verify email capability.', 'easy-form-builder');
+        }
+
         $status_data = [
             'status' => 'error',
             'message' => [
-                'title' => esc_html__('Email test failed', 'easy-form-builder'),
-                'description' => esc_html__('The email server test could not verify email capability.', 'easy-form-builder'),
+                'title' => $failure_title,
+                'description' => $failure_description,
                 'id' => 'email_test_failed'
             ],
             'details' => [
                 'test_timestamp' => current_time('mysql', true),
                 'can_send_email' => $delivery_confirmed,
+                'send_stage' => $send_stage,
                 'success' => !empty($test_result['success']),
                 // The raw arrival flag and the report's own top-level score,
                 // kept apart from the judged can_send_email above. The
@@ -2317,6 +2593,88 @@ class Admin {
         }
 
         return null;
+    }
+
+    /**
+     * Tell the tester service what wp_mail() did with the probe.
+     *
+     * The service can see that a test was started and, if the probe arrives,
+     * the message itself - but nothing in between. That gap is why a site whose
+     * WordPress sent the email perfectly used to be told "your server may not
+     * be able to send emails" when the message was lost further down the line.
+     *
+     * Reported for both outcomes. A failure also lets the service close the
+     * test immediately instead of holding it pending for the full expiry
+     * window, since no message exists to wait for.
+     *
+     * @param string     $test_hash   Test hash from /start.
+     * @param bool       $sent        What wp_mail() returned.
+     * @param array|null $mail_error  Error captured from the wp_mail_failed hook.
+     * @param array|null $actual_mail PHPMailer state captured during the send.
+     * @return array|null Decoded service response, or null when nothing was sent.
+     */
+    private function report_email_tester_handoff_efb($test_hash, $sent, $mail_error = null, $actual_mail = null) {
+        if (!$this->is_valid_email_test_hash_efb($test_hash)) {
+            return null;
+        }
+
+        $body = [
+            'sent' => (bool) $sent,
+            'language' => get_locale(),
+        ];
+
+        if (is_array($actual_mail)) {
+            if (!empty($actual_mail['mailer'])) {
+                $body['mailer'] = sanitize_text_field((string) $actual_mail['mailer']);
+            }
+            if (!empty($actual_mail['smtp_host'])) {
+                $body['smtp_host'] = sanitize_text_field((string) $actual_mail['smtp_host']);
+            }
+        }
+
+        if (is_array($mail_error)) {
+            if (!empty($mail_error['code'])) {
+                $body['error_code'] = substr(sanitize_text_field((string) $mail_error['code']), 0, 100);
+            }
+            if (!empty($mail_error['message'])) {
+                $body['error_message'] = substr(sanitize_text_field((string) $mail_error['message']), 0, 500);
+            }
+        }
+
+        $this->email_tester_log_efb('handoff_request_before_remote', [
+            'run_id' => $this->email_tester_current_run_id_efb(),
+            'test_hash' => $test_hash,
+            'sent' => (bool) $sent,
+        ]);
+
+        $request = $this->email_tester_remote_request_efb('POST', '/handoff/' . rawurlencode($test_hash), [
+            // Short: the administrator is waiting on this request, and a
+            // handoff that never lands only costs the sharper wording.
+            'timeout' => 10,
+            'headers' => [
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json',
+            ],
+            'body' => wp_json_encode($body),
+        ]);
+
+        if (is_wp_error($request)) {
+            $this->email_tester_log_efb('handoff_request_wp_error', [
+                'run_id' => $this->email_tester_current_run_id_efb(),
+                'message' => $request->get_error_message(),
+                'code' => $request->get_error_code(),
+            ]);
+            return null;
+        }
+
+        $data = json_decode(wp_remote_retrieve_body($request), true);
+        $this->email_tester_log_efb('handoff_response', [
+            'run_id' => $this->email_tester_current_run_id_efb(),
+            'http_code' => (int) wp_remote_retrieve_response_code($request),
+            'body' => is_array($data) ? $data : null,
+        ]);
+
+        return is_array($data) ? $data : null;
     }
 
     private function maybe_request_email_tester_no_delivery_report_efb($test_hash, $test_result, $admin_email = '') {
@@ -2502,6 +2860,11 @@ class Admin {
         }
 
         return [
+            // Which transport actually carried the message, and where to. The
+            // tester service is told this so a support answer can start from
+            // the real mailer instead of guessing at one.
+            'mailer' => isset($phpmailer->Mailer) ? (string) $phpmailer->Mailer : '',
+            'smtp_host' => isset($phpmailer->Host) ? (string) $phpmailer->Host : '',
             'from' => isset($phpmailer->From) ? $phpmailer->From : '',
             'from_name' => isset($phpmailer->FromName) ? $phpmailer->FromName : '',
             'sender' => isset($phpmailer->Sender) ? $phpmailer->Sender : '',
@@ -3155,6 +3518,10 @@ function admin_notices_efb () {
                     'title' => esc_html__('Email delivery test failed.', 'easy-form-builder'),
                     'description' => esc_html__('The email server test could not verify email capability.', 'easy-form-builder') . $warning,
                 ],
+                'email_test_low_score' => [
+                    'title' => esc_html__('Your emails are arriving in the spam folder.', 'easy-form-builder'),
+                    'description' => esc_html__('The test message was delivered, but its deliverability score is too low to rely on. Sending through SMTP and adding SPF and DKIM records for your domain is what fixes this.', 'easy-form-builder'),
+                ],
                 'email_test_pending' => [
                     'title' => esc_html__('Email delivery test is pending.', 'easy-form-builder'),
                     'description' => esc_html__('WordPress sent the test email, but delivery has not been confirmed yet.', 'easy-form-builder'),
@@ -3166,6 +3533,16 @@ function admin_notices_efb () {
             $help = '<a href="https://whitestudio.team/documents/how-to-fix-email-not-working-issue#'.$msg_id.'" target="_blank" >' . esc_html__('Click here for more details','easy-form-builder') . '</a>';
             $title = isset($messages[$msg_id]['title']) ? $messages[$msg_id]['title'] : esc_html__('Email Issue', 'easy-form-builder');
             $description = isset($messages[$msg_id]['description']) ? $messages[$msg_id]['description'] : '';
+
+            // The status the test saved knows which of the three send stages
+            // applied - the fixed map above cannot - so its wording wins when
+            // it carries any.
+            $saved_title = isset($check['message']['title']) ? (string) $check['message']['title'] : '';
+            $saved_description = isset($check['message']['description']) ? (string) $check['message']['description'] : '';
+            if ($saved_title !== '' && $saved_description !== '') {
+                $title = $saved_title;
+                $description = $saved_description;
+            }
             ob_start();
             ?>
             <div id="notice-email-efb" class="notice notice-error efb-notice-email-error notice-alt efb" style="display:flex;align-items:flex-start;gap:12px;padding:10px 20px;position:relative;z-index:1000;">
@@ -3320,9 +3697,9 @@ function admin_notices_efb () {
                     // a valid Pro code is actually activated.
                     $package_type_efb = $current_package_type;
                     $plan_changed = false;
-                    $redirect_url = 'https://whitestudio.team/#price';
+                    $redirect_url = 'https://whitestudio.team/#pricing';
                     if (get_locale() == 'fa_IR') {
-                        $redirect_url = 'https://easyformbuilder.ir/#price';
+                        $redirect_url = 'https://easyformbuilder.ir/#pricing';
                     }
                     $action_performed = __('Redirecting to Pro plan purchase page.', 'easy-form-builder');
                 }

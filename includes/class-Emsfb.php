@@ -285,6 +285,20 @@ class Emsfb {
             return;
         }
 
+        // Loaded on every request, not only in wp-admin: the deactivation
+        // survey is an admin screen, but the domain-ownership answer it relies
+        // on has to be reachable from the public side of the site.
+        if ($this->require_plugin_file_efb('includes/class-Emsfb-deactivation-feedback.php')) {
+            new \Emsfb\Deactivation_Feedback();
+        }
+
+        // The five-star invitation. Not fatal if it is missing: a site that
+        // cannot show the review modal is still a working form builder, so it
+        // is loaded on its own rather than counted into $core_ok.
+        if ($this->require_plugin_file_efb('includes/class-Emsfb-review-request.php')) {
+            new \Emsfb\Review_Request();
+        }
+
         if (is_admin()) {
             $admin_ok = $this->require_plugin_file_efb('includes/admin/class-Emsfb-admin.php');
             $admin_ok = $this->require_plugin_file_efb('includes/admin/class-Emsfb-create.php') && $admin_ok;
@@ -1774,7 +1788,7 @@ class Emsfb {
         $defaults->femail            = '';
         $defaults->email_key         = '';
         $defaults->showIp            = '';
-        $defaults->adminSN           = '';
+        $defaults->adminSN           = '1';
         $defaults->osLocationPicker  = '';
         $defaults->sessionDuration   = '5';
         $defaults->trackCodeStyle    = 'date_en_mix';
@@ -1794,6 +1808,13 @@ class Emsfb {
         $defaults->respFontFamily    = 'inherit';
         $defaults->respFontSize      = '0.9rem';
         $defaults->respCustomFont    = '';
+        /* Admin-side bookkeeping for the Colors & Fonts dialog: which preset
+           the stored palette came from, and the single colour the Brand
+           preset derives its primary and primary-dark from. Deliberately
+           absent from the 'pub' payload - the public response box reads the
+           thirteen colours, never how they were chosen. */
+        $defaults->respPreset        = 'light';
+        $defaults->respBrandColor    = '#0f766e';
         $defaults->efb_version       = defined('EMSFB_PLUGIN_VERSION') ? EMSFB_PLUGIN_VERSION : '4.0.0';
         return $defaults;
     }
