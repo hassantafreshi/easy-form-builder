@@ -4199,12 +4199,26 @@ class efbFunction {
 		if ( ! empty( $result['errors'] ) && is_array( $result['errors'] ) ) {
 			$messages = array();
 			foreach ( $result['errors'] as $addon_key => $message ) {
-				$messages[] = $this->get_addon_recovery_label_efb( $addon_key ) . ': ' . wp_strip_all_tags( (string) $message );
+				$messages[] = esc_html( $this->get_addon_recovery_label_efb( $addon_key ) ) . ': ' . $this->kses_addon_recovery_error_efb( $message );
 			}
-			return implode( ' ', $messages );
+			return implode( '<br>', $messages );
 		}
 
 		return esc_html__( 'The missing add-on files could not be restored. Check the server connection and file permissions, then try again.', 'easy-form-builder' );
+	}
+
+	/**
+	 * Keep only the dashboard link and line breaks in an add-on error message.
+	 * Text from the add-on server is tag-stripped before it is stored.
+	 *
+	 * @param mixed $message Stored error message.
+	 * @return string
+	 */
+	public function kses_addon_recovery_error_efb( $message ) {
+		return wp_kses( (string) $message, array(
+			'a'  => array( 'href' => true, 'target' => true, 'rel' => true ),
+			'br' => array(),
+		) );
 	}
 
 	/**
@@ -4329,7 +4343,7 @@ class efbFunction {
 						<summary style="cursor:pointer;font-weight:600;"><?php echo esc_html__( 'Why the recovery failed', 'easy-form-builder' ); ?></summary>
 						<ul style="margin:10px 0 0;padding-inline-start:20px;">
 							<?php foreach ( $last_result['errors'] as $addon_key => $message ) : ?>
-								<li><strong><?php echo esc_html( $this->get_addon_recovery_label_efb( $addon_key ) ); ?>:</strong> <?php echo esc_html( wp_strip_all_tags( (string) $message ) ); ?></li>
+								<li><strong><?php echo esc_html( $this->get_addon_recovery_label_efb( $addon_key ) ); ?>:</strong> <?php echo $this->kses_addon_recovery_error_efb( $message ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_kses ?></li>
 							<?php endforeach; ?>
 						</ul>
 					</details>
@@ -4368,7 +4382,8 @@ class efbFunction {
 							if (status) { status.innerHTML = '<strong>' + cfg.t.doneTitle + '</strong> ' + cfg.t.doneBody; }
 						} else {
 							if (btn) { btn.disabled = false; }
-							if (status) { status.textContent = (res && res.data && res.data.message) ? res.data.message : cfg.t.error; }
+							// The server message is wp_kses-filtered: only the dashboard link and <br> survive.
+							if (status) { status.innerHTML = (res && res.data && res.data.message) ? res.data.message : cfg.t.error; }
 						}
 					})
 					.catch(function () {
@@ -4825,6 +4840,11 @@ public function addon_add_efb($value) {
 
 		$error_messag ='';
 		$renew_required = false;
+		$download_message = sprintf(
+			/* translators: %s: link to the WhiteStudio dashboard. */
+			esc_html__( 'To fix this, sign in to your %s, download the Add-ons Handler plugin from the Downloads section, then install and activate it. After that, activate the add-ons you need from the Add-ons Handler plugin.', 'easy-form-builder' ),
+			'<a href="https://whitestudio.team/login" target="_blank" rel="noopener noreferrer">' . esc_html__( 'WhiteStudio dashboard', 'easy-form-builder' ) . '</a>'
+		);
 		foreach ($addons as $key => $value) {
 
 			if($value ==1){
@@ -4851,7 +4871,8 @@ public function addon_add_efb($value) {
 						$details['already_present'][] = $key;
 					} else {
 						$state = false;
-						$details['errors'][ $key ] = esc_html__( 'This bundled add-on is missing from the plugin files. Please reinstall the Easy Form Builder plugin itself.', 'easy-form-builder' );
+						$details['errors'][ $key ] = esc_html__( 'This bundled add-on is missing from the plugin files.', 'easy-form-builder' );
+						$details['errors'][ $key ] .= '<br>' . $download_message;
 					}
 					continue;
 				}
@@ -4860,11 +4881,13 @@ public function addon_add_efb($value) {
 				if(!is_array($r) || !isset($r['status'])){
 					$state=false;
 					$details['errors'][ $key ] = esc_html__( 'The add-on server returned an unexpected response.', 'easy-form-builder' );
+					$details['errors'][ $key ] .= '<br>' . $download_message;
 					continue;
 				}
 				if($r['status']==false){
 					$state=false;
 					$details['errors'][ $key ] = isset( $r['message'] ) ? wp_strip_all_tags( (string) $r['message'] ) : esc_html__( 'The add-on could not be installed.', 'easy-form-builder' );
+					$details['errors'][ $key ] .= '<br>' . $download_message;
 					if(!empty($r['expired'])){
 						$renew_required = true;
 						continue;
@@ -5488,7 +5511,7 @@ public function addon_add_efb($value) {
 				$reason = esc_html__('No response was recorded for this add-on.', 'easy-form-builder');
 			}
 			$rows .= '<tr><td style="padding:6px 10px;border:1px solid #ddd;"><strong>' . esc_html($name) . '</strong><br><small>' . esc_html($key) . '</small></td>'
-				. '<td style="padding:6px 10px;border:1px solid #ddd;">' . esc_html(wp_strip_all_tags((string) $reason)) . '</td></tr>';
+				. '<td style="padding:6px 10px;border:1px solid #ddd;">' . $this->kses_addon_recovery_error_efb($reason) . '</td></tr>';
 		}
 
 		if($rows === ''){

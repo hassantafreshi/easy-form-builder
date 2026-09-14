@@ -67,6 +67,7 @@ function esc_url( $url ) { return $url; }
 function admin_url( $path = '' ) { return 'https://example.test/wp-admin/' . $path; }
 function get_bloginfo( $what = 'name' ) { return $what === 'version' ? '7.0' : 'Test Site'; }
 function wp_strip_all_tags( $text ) { return strip_tags( (string) $text ); }
+function wp_kses( $text, $allowed ) { return strip_tags( (string) $text, '<' . implode( '><', array_keys( $allowed ) ) . '>' ); }
 
 function current_time( $type ) { return '2026-08-05 12:00:00'; }
 function sanitize_key( $v ) { return preg_replace( '/[^a-z0-9_]/', '', strtolower( $v ) ); }
@@ -417,6 +418,12 @@ $dirty = $fn->build_addon_recovery_report_efb(
 	''
 );
 check( 'error text from the server is escaped, not injected', strpos( $dirty, '<script>alert' ) === false );
+
+$linked = $fn->build_addon_recovery_report_efb(
+	array( 'missing' => array( 'AdnSPF' ), 'errors' => array( 'AdnSPF' => 'Failed.<br>Sign in to your <a href="https://whitestudio.team/login">WhiteStudio dashboard</a>' ) ),
+	''
+);
+check( 'report keeps the dashboard link clickable', strpos( $linked, '<a href="https://whitestudio.team/login"' ) !== false );
 
 /* ---------------------------------------------------------------- */
 

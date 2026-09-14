@@ -1,5 +1,6 @@
 /**
- * Regression test for core-efb.js multi-form required validation isolation.
+ * Regression test for core-efb.js multi-form validation isolation and for
+ * preserving reserved sendBack scopes used by the public response box.
  *
  * Run: node tests/test-core-multiform-validation-scope.js
  */
@@ -271,6 +272,62 @@ function test(label, actual, expected) {
   test('T15 legacy 3-arg Yes/No removes active state from the other local button', form101.yesBtn.classList.contains('btn-set'), false);
   test('T16 legacy 3-arg Yes/No activates the clicked local button', form101.noBtn.classList.contains('btn-set'), true);
   test('T17 legacy 3-arg Yes/No still does not touch form 202', form202.noBtn.classList.contains('btn-set'), false);
+
+  /* The response box shares sendBack with public forms but deliberately marks
+     its message and captcha rows with form_id -1. A single-form fallback used
+     to rewrite that marker to the visible form id, after which the response
+     payload filter discarded the typed message as belonging to the form. */
+  vm.runInThisContext(
+    'valj_efb_new = ' + JSON.stringify([{
+      id: 101,
+      form_structer: [
+        { id_: 'form', steps: 1, captcha: 0 },
+        { id_: 'step_1', type: 'step', step: 1 },
+        { id_: 'message', name: 'message', type: 'text', step: 1, required: false },
+        { id_: 'normal_field', name: 'Normal field', type: 'text', step: 1, required: false },
+      ],
+    }]) + '; form_ID_emsFormBuilder = 101; sendBack_emsFormBuilder_pub = [];',
+    { filename: 'core-efb-response-scope-state.js' }
+  );
+
+  await fun_sendBack_emsFormBuilder({
+    id_: 'message', name: 'message', type: 'text', value: 'First reply', form_id: -1,
+  });
+  test('T18 response message keeps its explicit -1 scope on a single-form page', sendBack_emsFormBuilder_pub[0].form_id, -1);
+  test('T19 response message can be found in response scope', get_row_sendback_by_id_efb_v4('message', -1), 0);
+  test('T20 response message is not visible to normal-form lookup', get_row_sendback_by_id_efb_v4('message', 101), -1);
+
+  await fun_sendBack_emsFormBuilder({
+    id_: 'message', name: 'message', type: 'text', value: 'Second reply', form_id: -1,
+  });
+  test('T21 a repeated reply updates instead of duplicating the response row', sendBack_emsFormBuilder_pub.filter((row) => row.id_ === 'message').length, 1);
+  test('T22 a repeated reply stores the latest text', sendBack_emsFormBuilder_pub[0].value, 'Second reply');
+
+  await fun_sendBack_emsFormBuilder({
+    id_: 'captcha_v2', name: 'recaptcha', type: 'captcha_v2', value: 'token', form_id: -1,
+  });
+  const captchaRow = sendBack_emsFormBuilder_pub.find((row) => row.id_ === 'captcha_v2');
+  test('T23 response captcha keeps its explicit -1 scope', captchaRow.form_id, -1);
+
+  const positiveRow = { id_: 'normal_field', value: 'Normal', form_id: 101 };
+  normalize_sendback_row_form_id_efb(positiveRow, -1);
+  test('T24 a positive explicit form id is unchanged', positiveRow.form_id, 101);
+
+  const legacyRow = { id_: 'normal_field', value: 'Legacy' };
+  normalize_sendback_row_form_id_efb(legacyRow, -1);
+  test('T25 a legacy row without form_id is still inferred safely', legacyRow.form_id, 101);
+
+  const zeroScopeRow = { id_: 'normal_field', value: 'Legacy zero', form_id: 0 };
+  normalize_sendback_row_form_id_efb(zeroScopeRow, -1);
+  test('T26 legacy form_id 0 still follows normal form inference', zeroScopeRow.form_id, 101);
+
+  const originalSetItem = localStorage.setItem;
+  localStorage.setItem = function () { throw new Error('Storage blocked'); };
+  await fun_sendBack_emsFormBuilder({
+    id_: 'message', name: 'message', type: 'text', value: 'Storage-free reply', form_id: -1,
+  });
+  localStorage.setItem = originalSetItem;
+  test('T27 blocked localStorage does not prevent queueing a response', sendBack_emsFormBuilder_pub.find((row) => row.id_ === 'message').value, 'Storage-free reply');
 
   console.log('\n========================================');
   console.log(`RESULTS: ${pass} passed, ${fail} failed`);

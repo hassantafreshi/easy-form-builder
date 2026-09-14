@@ -3918,7 +3918,8 @@ public function addon_add_efb($value) {
 						$details['already_present'][] = $key;
 					} else {
 						$state = false;
-						$details['errors'][ $key ] = esc_html__( 'This bundled add-on is missing from the plugin files. Please reinstall the Easy Form Builder plugin itself.', 'easy-form-builder' );
+						$details['errors'][ $key ] = esc_html__( 'This bundled add-on is missing from the plugin files.', 'easy-form-builder' );
+
 					}
 					continue;
 				}

@@ -250,9 +250,10 @@
 
 		if (view.upgrade && view.upgrade.code) {
 			var upUrl = safeUrl(view.upgrade.url);
+			var message = view.upgrade.message || view.upgrade.code;
 			out += '<div class="efb-est__upgrade">' +
 				'<i class="bi bi-lightning-charge-fill" aria-hidden="true"></i>' +
-				'<span class="efb-est__upgrade-code" dir="auto">' + escapeHtml(view.upgrade.code) + '</span>' +
+				'<span class="efb-est__upgrade-code" dir="auto">' + escapeHtml(message) + '</span>' +
 				(upUrl
 					? '<a class="efb-est__upgrade-cta" href="' + upUrl + '" target="_blank" rel="noopener noreferrer">' +
 					escapeHtml(view.upgrade.label || '') + '</a>'

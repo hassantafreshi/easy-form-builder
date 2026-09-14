@@ -72,6 +72,7 @@ class FakeElement {
   }
   querySelector(sel) { return this.querySelectorAll(sel)[0] || null; }
   querySelectorAll(sel) { return this.descendants().filter((el) => matches(el, sel)); }
+  setAttribute(name, value) { this.attrs[name] = String(value); }
   addEventListener() {}
   scrollIntoView() {}
 }
@@ -109,6 +110,7 @@ global.document = {
   head: makeEl('head'),
 };
 global.localStorage = { setItem() {}, getItem() { return null; }, removeItem() {} };
+global.sessionStorage = { setItem() {}, getItem() { return null; }, removeItem() {} };
 global.setTimeout = function (fn) { if (typeof fn === 'function') fn(); return 1; };
 global.scrollTo = function () {};
 global.alert_message_efb = function () {};
@@ -118,7 +120,11 @@ global.efb_var = {
   rtl: 0,
   sid: 'sid',
   msg_id: 77,
-  text: { guest: 'Guest', file: 'File', reply: 'Reply', sending: 'Sending', by: 'by', delete: 'delete' },
+  text: {
+    guest: 'Guest', file: 'File', reply: 'Reply', sending: 'Sending', by: 'by', delete: 'delete',
+    error: 'Error', pleaseEnterVaildValue: 'Please enter a valid value',
+    enterYourMessage: 'Please enter your message', offlineSend: 'You are offline',
+  },
 };
 global.ajax_object_efm = {
   ajax_url: '/wp-admin/admin-ajax.php',
@@ -156,6 +162,10 @@ vm.runInThisContext(
   fs.readFileSync(path.join(root, 'includes/admin/assets/js/response-viewer-efb.js'), 'utf8'),
   { filename: 'response-viewer-efb.js' }
 );
+const publicReplySender = vm.runInThisContext('fun_send_replayMessage_emsFormBuilder');
+const publicReplyRest = vm.runInThisContext('fun_send_replayMessage_reast_emsFormBuilder');
+const publicReplyResult = vm.runInThisContext('response_rMessage_id');
+const publicReplyButtonState = vm.runInThisContext('efb_reply_button_state_efb');
 /* Same order the panel enqueues them in: response-viewer in the head,
    list_form in the footer, so list_form's definitions are the live ones. */
 vm.runInThisContext(
@@ -302,5 +312,89 @@ fun_send_replayMessage_ajax_emsFormBuilder(global.sendBack_emsFormBuilder_pub, 7
 
 test('a `by`-less response still credits the signed-in admin', renderedBy, ADMIN_NAME);
 
-console.log('\n' + pass + ' passed, ' + fail + ' failed');
-process.exit(fail === 0 ? 0 : 1);
+(async function testPublicReplyFlow() {
+  console.log('\n--- public response-box queue isolation ---');
+
+  function buildPublicComposer(value) {
+    registry = [];
+    const raw = makeEl('textarea', { id: 'replayM_emsFormBuilder' });
+    raw.value = value;
+    makeEl('div', { id: 'efb_rich_editor' }).innerHTML = value;
+    const button = makeEl('button', { id: 'replayB_emsFormBuilder', class: 'efb-reply-btn' });
+    makeEl('p', { id: 'replay_state__emsFormBuilder' });
+    makeEl('div', { id: 'resp_efb' });
+    return { raw, button };
+  }
+
+  const normalFormRow = { id_: 'normal_field', value: 'keep me', form_id: 77 };
+  const responseFile = { id_: UPLOAD_ID, name: 'file', value: '@file@', form_id: -1 };
+  let composer = buildPublicComposer('Hello from the response box');
+  global.sendBack_emsFormBuilder_pub = [normalFormRow, responseFile];
+  global.sanitize_text_efb = function (value) { return String(value).trim(); };
+  global.check_msg_ext_resp_efb = function () {};
+
+  let releaseQueue;
+  let sendBackCalls = 0;
+  global.fun_sendBack_emsFormBuilder = function (row) {
+    sendBackCalls++;
+    return new Promise(function (resolve) {
+      releaseQueue = function () {
+        const index = global.sendBack_emsFormBuilder_pub.findIndex(function (item) {
+          return item.id_ === row.id_ && Number(item.form_id) === Number(row.form_id);
+        });
+        if (index === -1) global.sendBack_emsFormBuilder_pub.push(row);
+        else global.sendBack_emsFormBuilder_pub[index] = row;
+        resolve();
+      };
+    });
+  };
+
+  let publicPayload = null;
+  const originalReplyRest = global.fun_send_replayMessage_reast_emsFormBuilder;
+  global.fun_send_replayMessage_reast_emsFormBuilder = function (message) { publicPayload = message; };
+
+  test('public sender accepts the first click', publicReplySender(77), true);
+  test('public sender blocks a second click while the first is pending', publicReplySender(77), false);
+  test('only one sendBack write starts during a double click', sendBackCalls, 1);
+  test('payload waits until the async sendBack write is complete', publicPayload, null);
+
+  releaseQueue();
+  await Promise.resolve();
+  await Promise.resolve();
+
+  test('public payload includes response attachment and typed message only', publicPayload.map((row) => row.id_), [UPLOAD_ID, 'message']);
+  test('typed public reply retains response scope', publicPayload.find((row) => row.id_ === 'message').form_id, -1);
+  test('normal form state is excluded from the public reply', publicPayload.includes(normalFormRow), false);
+
+  composer = buildPublicComposer('   ');
+  global.sendBack_emsFormBuilder_pub = [];
+  publicPayload = null;
+  sendBackCalls = 0;
+  test('blank public reply click is handled without submitting the page', publicReplySender(77), true);
+  await Promise.resolve();
+  test('blank public reply never enters sendBack', sendBackCalls, 0);
+  test('blank public reply never reaches the API payload', publicPayload, null);
+  test('blank public reply restores the button', composer.button.disabled, false);
+
+  global.fun_send_replayMessage_reast_emsFormBuilder = originalReplyRest;
+  composer = buildPublicComposer('Offline reply');
+  publicReplyButtonState(true);
+  navigator.onLine = false;
+  global.noti_message_efb_v4 = function () {};
+  publicReplyRest([{ id_: 'message', value: 'Offline reply', form_id: -1 }]);
+  test('offline reply restores the button for retry', composer.button.disabled, false);
+  navigator.onLine = true;
+
+  composer = buildPublicComposer('Retry this text');
+  publicReplyButtonState(true);
+  publicReplyResult({ success: false, data: { success: false, m: 'Network failed' } }, []);
+  test('failed reply restores the button', composer.button.disabled, false);
+  test('failed reply leaves the editor value available for retry', composer.raw.value, 'Retry this text');
+  test('failed reply stays inside the composer status area', document.getElementById('replay_state__emsFormBuilder').innerHTML.indexOf('Network failed') !== -1, true);
+
+  console.log('\n' + pass + ' passed, ' + fail + ' failed');
+  process.exit(fail === 0 ? 0 : 1);
+})().catch(function (error) {
+  console.error(error);
+  process.exit(1);
+});

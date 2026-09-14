@@ -1526,17 +1526,22 @@ async function validation_before_send_efb(form_id) {
     return true;
   }
 }
-function show_user_profile_emsFormBuilder(ob) {
-
+function show_user_profile_emsFormBuilder(ob, form_id = 0) {
+  /* The card built here mirrors the server one (Formbuilder::show_user_profile_emsFormBuilder),
+     which passes the form id to the logout call. Without it the click built the
+     body id "body_efb_undefined" and threw before the request was sent. */
+  const efb_logout_form_id = Number(form_id) || 0;
   return `<div class="efb mt-5"><div class="efb card-block text-center text-dark ">
               <div class="efb mb-3 d-flex justify-content-center"> <img src="${ob.user_image}" class="efb userProfileImageEFB" alt="${ob.display_name}"> </div>
               <h6 class="efb  fs-5 mb-1 d-flex justify-content-center text-dark">${ob.display_name}</h6> <p class="efb  fs-6">${ob.user_login}</p>
-              <button type="button"  class="efb btn fs-5 btn-lg btn-danger efb mt-1 " onclick="fun_logout_efb()">${ajax_object_efm.text.logout}</button>
+              <button type="button"  class="efb btn fs-5 btn-lg btn-danger efb mt-1 " onclick="fun_logout_efb(${efb_logout_form_id})">${ajax_object_efm.text.logout}</button>
           </div> </div>`
 }
 function fun_logout_efb(form_id) {
+  form_id = (form_id === undefined || form_id === null || form_id === '') ? 0 : form_id;
   const id_body = form_id == 0 ? 'body_efb' : `body_efb_${form_id}`;
-  document.getElementById(id_body).innerHTML = loading_messge_efb();
+  const logout_body_efb = document.getElementById(id_body);
+  if (logout_body_efb) logout_body_efb.innerHTML = loading_messge_efb();
   form_type_emsFormBuilder = "logout";
   formNameEfb = "logout";
   ajax_object_efm.type = "logout";
@@ -1703,6 +1708,24 @@ async function response_fill_form_efb(res ,form_id=0) {
   const id_body = 'body_efb_'+form_id;
   const body_efb = document.getElementById(id_body);
   const efb_final_step = efb_get_final_step_efb(form_id, body_efb);
+  /* A logged-in visitor on a login/register form gets the server-rendered
+     profile card instead of the form, and that card has no #efb-final-step.
+     The guard below therefore returned before the switch could reach
+     case "logout", leaving the card stuck on its loading message with the
+     user already signed out on the server. Answer the logout reply here,
+     where body_efb (the card's own container) is all that is on screen. */
+  if ((t && t.type === 'logout') || (res.data && res.data.m === 'logout')) {
+    if (res.data.success == true) {
+      location.reload();
+      return;
+    }
+    const logoutTarget = efb_final_step || body_efb;
+    if (logoutTarget) {
+      const logoutError = (res.data && typeof res.data.m === 'string' && res.data.m !== 'logout') ? res.data.m : ajax_object_efm.text.error;
+      logoutTarget.innerHTML = `<div class="efb text-center my-3"><i class="efb nmsgefb bi-exclamation-triangle-fill efb fs-3"></i><h3 class="efb fs-3 text-muted">${ajax_object_efm.text.error}</h3><span class="efb mb-2 fs-5 text-muted">${logoutError}</span></div>`;
+    }
+    return;
+  }
   if (!body_efb || !efb_final_step) {
     console.error('[EFB] The final form step could not be found for form ' + form_id + '.');
     return;
@@ -1797,7 +1820,7 @@ async function response_fill_form_efb(res ,form_id=0) {
             window.location.href = res.data.m.redirect_url;
 
           }else{
-            document.getElementById('body_efb_'+form_id).innerHTML = show_user_profile_emsFormBuilder(res.data.m);
+            document.getElementById('body_efb_'+form_id).innerHTML = show_user_profile_emsFormBuilder(res.data.m, form_id);
             location.reload();
           }
         } else if(typeof res.data.m === 'string' && res.data.success == true){
