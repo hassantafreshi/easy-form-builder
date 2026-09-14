@@ -1339,9 +1339,6 @@ public function check_nonce_permission_efb($request) {
 			);
 
 			$style ='<style>.efb.d-none{display:none!important;} #teststyleefb{display:none;}';
-			/* Reset per form: several forms can share a page, and a classic form
-			 * following a styled one must not inherit its runtime. */
-			$steps_runtime_needed_efb = false;
 			unset( $steps_style_efb, $step_icon_colors_efb );
 			$jss ='<script> //efbJs';
 			$icons_els =[];
@@ -1687,12 +1684,11 @@ public function check_nonce_permission_efb($request) {
 						. ( $show_progress_efb ? efb_steps_progress_efb( $shell_args_efb ) : '' )
 						. '</div>';
 
-					/* The stylesheet and the runtime ride along in the page rather
-					 * than as two more requests, and only the chunks this form uses
-					 * are printed - which is why a classic form above never reaches
-					 * this branch and pays for neither. */
+					/* Only the CSS chunks this form uses ride along in the page. The
+					 * JavaScript runtime is enqueued as a real file from the public
+					 * asset setup so page-cache/optimizer plugins cannot corrupt the
+					 * inline script before efbStepsSyncEfb() is defined. */
 					$style .= ' ' . efb_steps_inline_css_efb( $shell_args_efb );
-					$steps_runtime_needed_efb = true;
 				}
 
 				$step_no--;
@@ -1716,14 +1712,6 @@ public function check_nonce_permission_efb($request) {
 			 * raise: those are enqueued into the footer, below it. */
 			$console_script_efb = '<script>'.$efbFormBuilder->check_error_console_efb().'</script>';
 
-			$script = '';
-
-			/* The steps runtime is enqueued as a real script below when a new
-			 * steps/progress style is present. Keeping it out of an inline block
-			 * avoids page-cache/optimizer rewrites that can break the front-end
-			 * runtime before it defines efbStepsSyncEfb(). */
-
-
 			$stps_state = $step_no>1 ? 1 : 0;
 			$navButton = $efbFormBuilder->add_buttons_zone_efb($stps_state, $this->id, $valj_efb, $lanText, $this->id);
 
@@ -1742,15 +1730,15 @@ public function check_nonce_permission_efb($request) {
 			}
 			/* Everything above the form that is not markup: the generated
 			 * stylesheet, the mobile rules and their font <link>, the loading
-			 * SVG global, the error monitor and the steps runtime, and the icon
-			 * rules. All of it either styles the page or only defines things, so
+			 * SVG global, the error monitor, and the icon rules. All of it either
+			 * styles the page or only defines things, so
 			 * it belongs in <head> - and hoist_to_head_efb() hands it straight
 			 * back to be printed here when there is no <head> to move it to.
 			 *
 			 * $iconst_html_preload is markup and stays. So does $jss, at the
 			 * bottom where it already was: it reads its fields on the line it
 			 * runs, and in <head> those fields do not exist yet. */
-			$head_payload_efb = $style.$mobile_css_efb.$efb_loading_ui_script.$script.$bootstrap_icons;
+			$head_payload_efb = $style.$mobile_css_efb.$efb_loading_ui_script.$bootstrap_icons;
 
                         $content_new = $this->hoist_to_head_efb($head_payload_efb).$console_script_efb.$iconst_html_preload.'
 				<!-- start body_efb-->
@@ -2000,6 +1988,29 @@ public function check_nonce_permission_efb($request) {
 		return  ['content'=>$content, 'captcha'=>$captcha_exist];
 		return $content;
 	}
+	private function efb_form_needs_steps_runtime_efb($form_structure_json = null) {
+		if ( ! is_string($form_structure_json) || '' === trim($form_structure_json) ) {
+			return false;
+		}
+
+		$decoded = json_decode(str_replace('\\', '', $form_structure_json), false);
+		if ( ! is_array($decoded) || empty($decoded[0]) || ! is_object($decoded[0]) ) {
+			return false;
+		}
+
+		$first = $decoded[0];
+		$show_steps = ! isset($first->show_icon) || intval($first->show_icon) !== 1;
+		$show_progress = ! isset($first->show_pro_bar) || intval($first->show_pro_bar) !== 1;
+		$steps_style = function_exists('efb_steps_style_name_efb')
+			? efb_steps_style_name_efb(isset($first->steps_style) ? $first->steps_style : '')
+			: (isset($first->steps_style) ? (string) $first->steps_style : 'classic');
+		$progress_style = function_exists('efb_progress_style_name_efb')
+			? efb_progress_style_name_efb(isset($first->progress_style) ? $first->progress_style : '')
+			: (isset($first->progress_style) ? (string) $first->progress_style : 'classic');
+
+		return ( $show_steps && 'classic' !== $steps_style ) || ( $show_progress && 'classic' !== $progress_style );
+	}
+
 	function public_scripts_and_css_head($state='', $form_structure_json = null){
 
 		wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style-efb.css', true,EMSFB_PLUGIN_VERSION);
@@ -2030,8 +2041,10 @@ public function check_nonce_permission_efb($request) {
 		};
 		$main_js_version = $asset_version('includes/admin/assets/js/new-efb.js');
 		$core_js_version = $asset_version('public/assets/js/core-efb.js');
+		$response_viewer_js_version = $asset_version('includes/admin/assets/js/response-viewer-efb.js');
 		$core_deps = array('jquery', 'efb-main-js', 'efb-response-viewer-js');
 		$main_deps = array('jquery');
+		$steps_runtime_needed_efb = $this->efb_form_needs_steps_runtime_efb($form_structure_json);
 		if ( ! empty( $steps_runtime_needed_efb ) ) {
 			$steps_runtime_js_version = $asset_version('includes/admin/assets/js/steps-progress-runtime-efb.js');
 			wp_register_script(
@@ -2061,7 +2074,7 @@ public function check_nonce_permission_efb($request) {
 
 		wp_register_style('Emsfb-response-viewer-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/response-viewer-efb.css', true, EMSFB_PLUGIN_VERSION);
 		wp_enqueue_style('Emsfb-response-viewer-css');
-		wp_register_script('efb-response-viewer-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/response-viewer-efb.js', array('efb-main-js'), EMSFB_PLUGIN_VERSION, true);
+		wp_register_script('efb-response-viewer-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/response-viewer-efb.js', array('efb-main-js'), $response_viewer_js_version, true);
 		wp_enqueue_script('efb-response-viewer-js');
 		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js', $main_deps, $main_js_version, true);
 		wp_register_script('Emsfb-core_js', plugins_url('../public/assets/js/core-efb.js',__FILE__), $core_deps, $core_js_version, true);

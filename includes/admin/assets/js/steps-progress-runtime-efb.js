@@ -30,8 +30,10 @@
 
    var debugEfb = function (eventName, details) {
       try {
-         if (typeof window !== 'undefined' && window.EFB_STEPS_DEBUG === false) return;
-         console.log('[EFB Steps Debug]', 'runtime:' + eventName, details || {});
+         if (typeof window === 'undefined' || window.EFB_STEPS_DEBUG !== true) return;
+         if (typeof console !== 'undefined' && typeof console.log === 'function') {
+            console.log('[EFB Steps Debug]', 'runtime:' + eventName, details || {});
+         }
       } catch (e) {}
    };
 

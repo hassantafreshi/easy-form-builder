@@ -999,6 +999,9 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id,fid,sid,option
             const structure = get_structure_by_form_id_efb(form_id) || [];
             ob = structure.find(x => x.id_ === id) || null;
           }
+          const sendbackFormId = options.hasOwnProperty('sendback_form_id') && !Number.isNaN(Number(options.sendback_form_id))
+            ? Number(options.sendback_form_id)
+            : form_id;
           const o = [{
             id_: files_emsFormBuilder[currentIndx].id_,
             name: files_emsFormBuilder[currentIndx].name,
@@ -1008,7 +1011,7 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id,fid,sid,option
             url: files_emsFormBuilder[currentIndx].url,
             session: sessionPub_emsFormBuilder,
             page_id: page_id,
-            form_id: form_id,
+            form_id: sendbackFormId,
           }];
           if (files_emsFormBuilder[currentIndx].recorder_type) {
             o[0].recording_duration = files_emsFormBuilder[currentIndx].recording_duration || 0;

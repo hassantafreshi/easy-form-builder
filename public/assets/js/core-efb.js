@@ -4,8 +4,10 @@ let sessionPub_emsFormBuilder = "reciveFromClient"
 
 function efb_steps_debug_efb(eventName, details) {
   try {
-    if (typeof window !== 'undefined' && window.EFB_STEPS_DEBUG === false) return;
-    console.log('[EFB Steps Debug]', eventName, details || {});
+    if (typeof window === 'undefined' || window.EFB_STEPS_DEBUG !== true) return;
+    if (typeof console !== 'undefined' && typeof console.log === 'function') {
+      console.log('[EFB Steps Debug]', eventName, details || {});
+    }
   } catch (e) {}
 }
 
@@ -40,6 +42,102 @@ function efb_steps_dom_debug_efb(form_id, scope) {
   } catch (e) {
     return { form_id: form_id, snapshot_error: e && e.message ? e.message : String(e) };
   }
+}
+
+function efb_steps_counter_text_fallback_efb(current, total) {
+  const tpl = (typeof efb_var !== 'undefined' && efb_var && efb_var.text && efb_var.text.stepXofY)
+    ? efb_var.text.stepXofY
+    : 'Step %1$s of %2$s';
+  return String(tpl).replace('%1$s', current).replace('%2$s', total);
+}
+
+function efb_steps_complete_text_fallback_efb(percent) {
+  const tpl = (typeof efb_var !== 'undefined' && efb_var && efb_var.text && efb_var.text.percentComplete)
+    ? efb_var.text.percentComplete
+    : '%s complete';
+  return String(tpl).replace('%s', percent + '%');
+}
+
+function efb_steps_sync_fallback_efb(scope, current, total, currentName) {
+  let root = null;
+  if (!scope) {
+    root = document.querySelector('.efb-sp');
+  } else if (scope.classList && scope.classList.contains('efb-sp')) {
+    root = scope;
+  } else if (scope.querySelector) {
+    root = scope.querySelector('.efb-sp');
+  } else {
+    root = document.querySelector('.efb-sp[data-formid="' + scope + '"]') || document.querySelector('.efb-sp');
+  }
+  if (!root) {
+    efb_steps_debug_efb('core-fallback:stop:root-missing', { requested_step: current, requested_total: total });
+    return false;
+  }
+
+  const items = root.querySelectorAll('.efb-sp__item');
+  const rowLen = items.length || root.querySelectorAll('#steps-efb li').length;
+  total = rowLen || Number(total) || 1;
+  current = Number(current) || 1;
+  if (current < 1) current = 1;
+  if (current > total) current = total;
+
+  let activeName = '';
+  for (let i = 0; i < items.length; i++) {
+    const num = Number(items[i].getAttribute('data-num')) || (i + 1);
+    const state = num < current ? 'is-done' : (num === current ? 'is-active' : 'is-todo');
+    items[i].classList.remove('is-done', 'is-active', 'is-todo');
+    items[i].classList.add(state);
+    if (num === current) {
+      items[i].classList.add('active');
+      const lab = items[i].querySelector('.efb-sp__label');
+      activeName = lab ? lab.textContent : '';
+    } else {
+      items[i].classList.remove('active');
+    }
+  }
+
+  const percent = Math.round((current / total) * 10000) / 100;
+  const readable = Math.round(percent);
+  const counter = efb_steps_counter_text_fallback_efb(current, total);
+  const name = typeof currentName === 'string' && currentName !== '' ? currentName : activeName;
+  const setText = (sel, value) => {
+    root.querySelectorAll(sel).forEach((el) => { el.textContent = value; });
+  };
+
+  setText('.efb-sp__counter', counter);
+  setText('.efb-sp__metaname', counter);
+  setText('.efb-sp__pct', readable + '%');
+  if (items.length || (typeof currentName === 'string' && currentName !== '')) setText('.efb-sp__curname', name);
+  setText('.efb-sp__ringsub', counter + ' \u00b7 ' + efb_steps_complete_text_fallback_efb(readable));
+  setText('.efb-sp__ring-in', current + '/' + total);
+
+  const fill = root.querySelector('.efb-sp__fill') || root.querySelector('.progress-bar-efb');
+  if (fill) {
+    fill.style.width = percent + '%';
+    fill.setAttribute('aria-valuenow', percent);
+  }
+
+  const segs = root.querySelectorAll('.efb-sp__seg');
+  for (let s = 0; s < segs.length; s++) {
+    const n = s + 1;
+    segs[s].classList.remove('is-done', 'is-active', 'is-todo');
+    segs[s].classList.add(n < current ? 'is-done' : (n === current ? 'is-active' : 'is-todo'));
+  }
+
+  const ring = root.querySelector('.efb-sp__ring');
+  if (ring) ring.style.setProperty('--efb-sp-pct', percent);
+
+  efb_steps_debug_efb('core-fallback:done', {
+    current: current,
+    total: total,
+    percent: percent,
+    name: name,
+    items: items.length,
+    fill_found: !!fill,
+    ring_found: !!ring,
+    ring_pct: ring ? ring.style.getPropertyValue('--efb-sp-pct') : null
+  });
+  return true;
 }
 
 /**
@@ -789,8 +887,12 @@ async function fun_sendBack_emsFormBuilder(ob) {
       updateStepButtonState_efb(Number(form_id));
     }, 0);
   }
-  localStorage.setItem('sendback', JSON.stringify(sendBack_emsFormBuilder_pub));
-  localStorage.setItem('formId', efb_var.id)
+  /* Queueing the value is the required operation; persistence is only a
+     convenience and may be unavailable in private/restricted browsers. */
+  try {
+    localStorage.setItem('sendback', JSON.stringify(sendBack_emsFormBuilder_pub));
+    localStorage.setItem('formId', efb_var.id)
+  } catch (e) {}
 }
 
 function yesNoGetEFB(v, id, idl, form_id=0) {
@@ -2125,7 +2227,10 @@ post_api_r_message_efb=(data,message)=>{
       response_rMessage_id(responseData, message);
     })
     .catch(error => {
-      response_Valid_tracker_efb({ success: false, data: { success: false, m: error.message } });
+      /* A reply failure belongs in the reply composer. Sending it through the
+         tracker handler replaces the whole open conversation and leaves the
+         reply button stuck in its loading state. */
+      response_rMessage_id({ success: false, data: { success: false, m: error.message } }, message);
     });
 }
 
@@ -2332,12 +2437,18 @@ function efb_field_exists_in_form_efb(field_id, form_id) {
   return structure.some(function(field) { return field && String(field.id_) === String(field_id); });
 }
 
-function efb_has_form_id_efb(row) {
-  if (!row || typeof row !== 'object') return false;
-  if (!row.hasOwnProperty('form_id')) return false;
-  if (row.form_id === '' || row.form_id === null || row.form_id === undefined) return false;
+function efb_explicit_sendback_scope_efb(row) {
+  if (!row || typeof row !== 'object') return null;
+  if (!row.hasOwnProperty('form_id')) return null;
+  if (row.form_id === '' || row.form_id === null || row.form_id === undefined) return null;
   var parsedFormId = Number(row.form_id);
-  return Number.isNaN(parsedFormId) === false && parsedFormId > 0;
+  if (Number.isNaN(parsedFormId) || parsedFormId === 0) return null;
+  return parsedFormId;
+}
+
+function efb_has_form_id_efb(row) {
+  var scopeId = efb_explicit_sendback_scope_efb(row);
+  return scopeId !== null && scopeId > 0;
 }
 
 function efb_form_id_from_dom_node_efb(node) {
@@ -2379,7 +2490,11 @@ function efb_unique_dom_form_id_for_id_efb(id) {
 function efb_row_belongs_to_form_efb(row, form_id) {
   if (Number(form_id) === 0) return true;
   if (!row || typeof row !== 'object') return false;
-  if (efb_has_form_id_efb(row)) return Number(row.form_id) === Number(form_id);
+  /* Positive ids belong to forms; negative ids are reserved scopes such as
+     the public response box (-1). An explicit reserved scope must never be
+     inferred as the only form rendered on the page. */
+  var explicitScopeId = efb_explicit_sendback_scope_efb(row);
+  if (explicitScopeId !== null) return explicitScopeId === Number(form_id);
   var inferred = infer_form_id_by_field_efb(row);
   if (inferred !== -1) return Number(inferred) === Number(form_id);
   var rowId = row.id_ || row.id || '';
@@ -2485,17 +2600,20 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
       max_step: max_step,
       total: total,
       has_sync: typeof efbStepsSyncEfb === 'function',
+      has_core_fallback: typeof efb_steps_sync_fallback_efb === 'function',
       has_shell: !!steps_shell_efb,
       has_progressbar: !!progessbar,
       dom: efb_steps_dom_debug_efb(form_id, parent_body)
     });
-    if (typeof efbStepsSyncEfb === 'function' && steps_shell_efb) {
-      const syncResult = efbStepsSyncEfb(steps_shell_efb, no_step, total, name_of_step_efb(no_step));
+    const syncHandler = typeof efbStepsSyncEfb === 'function' ? efbStepsSyncEfb : efb_steps_sync_fallback_efb;
+    if (typeof syncHandler === 'function' && steps_shell_efb) {
+      const syncResult = syncHandler(steps_shell_efb, no_step, total, name_of_step_efb(no_step));
       efb_steps_debug_efb('progress:sync-result', {
         form_id: form_id,
         requested_step: no_step,
         total: total,
         result: syncResult,
+        handler: typeof efbStepsSyncEfb === 'function' ? 'runtime' : 'core-fallback',
         dom: efb_steps_dom_debug_efb(form_id, parent_body)
       });
       return true;
@@ -2507,7 +2625,7 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
         requested_step: no_step,
         total: total,
         width: progessbar.style.width,
-        reason: typeof efbStepsSyncEfb !== 'function' ? 'sync-function-missing' : 'steps-shell-missing',
+        reason: !steps_shell_efb ? 'steps-shell-missing' : 'sync-handler-missing',
         dom: efb_steps_dom_debug_efb(form_id, parent_body)
       });
     } else {
@@ -2515,7 +2633,7 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
         form_id: form_id,
         requested_step: no_step,
         total: total,
-        has_sync: typeof efbStepsSyncEfb === 'function',
+        has_sync: typeof syncHandler === 'function',
         has_shell: !!steps_shell_efb,
         has_progressbar: !!progessbar,
         dom: efb_steps_dom_debug_efb(form_id, parent_body)
@@ -2574,13 +2692,15 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
        finished has to be drawn differently from one they have not reached, and
        a conditional-logic jump moves by more than one step at a time. */
     icon_step_handler = (no_step,form_id,nav_state)=>{
-      if (typeof efbStepsSyncEfb === 'function' && steps_shell_owns_row_efb()) {
-        const headerSyncResult = efbStepsSyncEfb(steps_shell_efb, no_step, max_step + 1, name_of_step_efb(no_step));
+      const syncHandler = typeof efbStepsSyncEfb === 'function' ? efbStepsSyncEfb : efb_steps_sync_fallback_efb;
+      if (typeof syncHandler === 'function' && steps_shell_owns_row_efb()) {
+        const headerSyncResult = syncHandler(steps_shell_efb, no_step, max_step + 1, name_of_step_efb(no_step));
         efb_steps_debug_efb('header:sync-result', {
           form_id: form_id,
           requested_step: no_step,
           total: max_step + 1,
           result: headerSyncResult,
+          handler: typeof efbStepsSyncEfb === 'function' ? 'runtime' : 'core-fallback',
           dom: efb_steps_dom_debug_efb(form_id, parent_body)
         });
         return true;
@@ -2594,7 +2714,7 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
         active_id: id_active_icon,
         active_found: !!active_step_icon,
         nav_state: nav_state,
-        reason: typeof efbStepsSyncEfb !== 'function' ? 'sync-function-missing' : 'steps-row-not-owned'
+        reason: !steps_shell_owns_row_efb() ? 'steps-row-not-owned' : 'sync-handler-missing'
       });
       if(nav_state=='forward'){
         id_active_icon = `${(no_step-1)}-f-step-efb-${form_id}`;
@@ -2935,9 +3055,9 @@ infer_form_id_by_field_efb=(field_id)=>{
   if (!Array.isArray(valj_efb_new) || valj_efb_new.length === 0) return -1;
 
   const isObjectInput = field_id && typeof field_id === 'object';
-  if (isObjectInput && efb_has_form_id_efb(field_id)) {
-    const explicitFormId = Number(field_id.form_id);
-    if (Number.isNaN(explicitFormId) === false) return explicitFormId;
+  if (isObjectInput) {
+    const explicitScopeId = efb_explicit_sendback_scope_efb(field_id);
+    if (explicitScopeId !== null) return explicitScopeId;
   }
 
   const candidateId = isObjectInput
@@ -3051,7 +3171,9 @@ is_required_value_filled_efb=(row, fieldType='')=>{
 
 normalize_sendback_row_form_id_efb=(row, fallback_form_id=-1)=>{
   if (!row || typeof row !== 'object') return row;
-  if (efb_has_form_id_efb(row)) return row;
+  /* Preserve both a real form id and a reserved negative scope. In
+     particular, response-box message/captcha rows deliberately use -1. */
+  if (efb_explicit_sendback_scope_efb(row) !== null) return row;
   const inferred = infer_form_id_by_field_efb(row);
   if (inferred !== -1) {
     row.form_id = inferred;
@@ -3139,17 +3261,20 @@ fun_prev_send =(form_id =0) =>{
       max_step: max_step,
       total: total,
       has_sync: typeof efbStepsSyncEfb === 'function',
+      has_core_fallback: typeof efb_steps_sync_fallback_efb === 'function',
       has_shell: !!steps_shell_efb,
       dom: efb_steps_dom_debug_efb(form_id, body_efb)
     });
-    if (typeof efbStepsSyncEfb === 'function' && steps_shell_efb) {
+    const syncHandler = typeof efbStepsSyncEfb === 'function' ? efbStepsSyncEfb : efb_steps_sync_fallback_efb;
+    if (typeof syncHandler === 'function' && steps_shell_efb) {
       const row = (valj_efb ?? []).find(x => String(x.type) === 'step' && Number(x.step) === Number(current_step));
-      const result = efbStepsSyncEfb(steps_shell_efb, current_step, total, row && row.name ? row.name : '');
+      const result = syncHandler(steps_shell_efb, current_step, total, row && row.name ? row.name : '');
       efb_steps_debug_efb('fun-prev-send:progress-sync-result', {
         form_id: form_id,
         current_step: current_step,
         total: total,
         result: result,
+        handler: typeof efbStepsSyncEfb === 'function' ? 'runtime' : 'core-fallback',
         dom: efb_steps_dom_debug_efb(form_id, body_efb)
       });
       return true;
@@ -3173,7 +3298,7 @@ fun_prev_send =(form_id =0) =>{
   /* Left to the sync below when it is available: clearing `active` here and
      setting it again further down cannot express a step the visitor has
      already been through. */
-  if(Number(valj_efb[0].show_icon)!=1 && !(typeof efbStepsSyncEfb === 'function' && steps_shell_owns_row_efb)) {
+  if(Number(valj_efb[0].show_icon)!=1 && !(steps_shell_owns_row_efb && (typeof efbStepsSyncEfb === 'function' || typeof efb_steps_sync_fallback_efb === 'function'))) {
     const currentIcon = document.getElementById(current_s_efb + '-f-step-efb-' + form_id);
     if (currentIcon) currentIcon.classList.remove("active");
   }
@@ -3201,7 +3326,7 @@ fun_prev_send =(form_id =0) =>{
       desc_efb.textContent = val['message'];
     }
 
-    if (!(typeof efbStepsSyncEfb === 'function' && steps_shell_owns_row_efb)) {
+    if (!(steps_shell_owns_row_efb && (typeof efbStepsSyncEfb === 'function' || typeof efb_steps_sync_fallback_efb === 'function'))) {
       let id_active_icon = `${s}-f-step-efb-${form_id}`;
       const next_active_step_icon = document.getElementById(id_active_icon);
       if (next_active_step_icon) next_active_step_icon.classList.add('active');
@@ -3277,14 +3402,16 @@ function efb_go_to_step_direct(form_id, targetStep) {
 
   const stepsShellEfb = body_efb.querySelector('.efb-sp');
   const stepsShellOwnsRowEfb = !!(stepsShellEfb && stepsShellEfb.querySelector('.efb-sp__item'));
-  if (typeof efbStepsSyncEfb === 'function' && stepsShellEfb) {
+  const directSyncHandler = typeof efbStepsSyncEfb === 'function' ? efbStepsSyncEfb : efb_steps_sync_fallback_efb;
+  if (typeof directSyncHandler === 'function' && stepsShellEfb) {
     const jumped = valj_efb.find((x) => String(x.type) === 'step' && String(x.step) === String(targetStep));
-    const directSyncResult = efbStepsSyncEfb(stepsShellEfb, targetStep, maxStep + 1, jumped && jumped.name ? jumped.name : '');
+    const directSyncResult = directSyncHandler(stepsShellEfb, targetStep, maxStep + 1, jumped && jumped.name ? jumped.name : '');
     efb_steps_debug_efb('direct-step:sync-result', {
       form_id: form_id,
       target_step: targetStep,
       total: maxStep + 1,
       result: directSyncResult,
+      handler: typeof efbStepsSyncEfb === 'function' ? 'runtime' : 'core-fallback',
       dom: efb_steps_dom_debug_efb(form_id, body_efb)
     });
   } else {
@@ -3296,7 +3423,7 @@ function efb_go_to_step_direct(form_id, targetStep) {
       total: maxStep + 1,
       progressbar_found: !!progressBar,
       width: progressBar ? progressBar.style.width : null,
-      reason: typeof efbStepsSyncEfb !== 'function' ? 'sync-function-missing' : 'steps-shell-missing',
+      reason: !stepsShellEfb ? 'steps-shell-missing' : 'sync-handler-missing',
       dom: efb_steps_dom_debug_efb(form_id, body_efb)
     });
   }
@@ -3330,7 +3457,7 @@ function efb_go_to_step_direct(form_id, targetStep) {
       titleEl.textContent = stepData['name'];
       descEl.textContent = stepData['message'];
     }
-    if (!(typeof efbStepsSyncEfb === 'function' && stepsShellOwnsRowEfb)) {
+    if (!(stepsShellOwnsRowEfb && (typeof efbStepsSyncEfb === 'function' || typeof efb_steps_sync_fallback_efb === 'function'))) {
       for (let i = 1; i <= maxStep; i++) {
         const icon = document.getElementById(i + '-f-step-efb-' + form_id);
         if (icon) icon.classList.toggle('active', i === targetStep);
