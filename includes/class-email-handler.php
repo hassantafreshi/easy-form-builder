@@ -498,9 +498,14 @@ class EmsfbEmailHandler {
         // nowhere useful here, so this state renders the message exactly as the
         // caller composed it.
         $isAdminNoticeState = $state === 'licenseSuspended';
+        // Problem reports about the plugin itself (add-on reinstall failure,
+        // admin pages not loading). They are not form traffic: no "New message!"
+        // heading, no "View message" button (its link is 'null'), and the body
+        // is already composed and escaped by the caller.
+        $isProblemReportState = in_array($state, ['addonsDlProblem', 'reportProblem'], true);
 
         $tracking_section = "";
-        if ($email_content_type != 'just_message' && !$isRegistrationState && !$isRecoveryState && !$isAdminNoticeState) {
+        if ($email_content_type != 'just_message' && !$isRegistrationState && !$isRecoveryState && !$isAdminNoticeState && !$isProblemReportState) {
             $safe_link = esc_url($link);
             $tracking_section = "
             <div style='text-align:center; margin: 30px 0;'>
@@ -537,10 +542,14 @@ class EmsfbEmailHandler {
             $title = __('Pro features are paused', 'easy-form-builder');
         }
 
+        if ($isProblemReportState) {
+            $title = esc_html__('Report problem', 'easy-form-builder') . ' [' . esc_html__('Easy Form Builder', 'easy-form-builder') . ']';
+        }
+
         if ($state == "testMailServer") {
             $title = $lang['serverEmailAble'];
             $message = $this->generate_test_server_message($lang, $l, $wp_lan);
-        } else if ($isAdminNoticeState) {
+        } else if ($isAdminNoticeState || $isProblemReportState) {
             $message = is_string($m) ? $m : '';
         } else if ($isRecoveryState) {
             // Recovery email - m contains username, link contains the full recovery URL

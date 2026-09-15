@@ -5575,7 +5575,8 @@ public function addon_add_efb($value) {
 			. '<li>' . esc_html__('Open Easy Form Builder in your dashboard and use the Recover add-ons button.', 'easy-form-builder') . ' <a href="' . esc_url($admin_url) . '">' . esc_html($admin_url) . '</a></li>'
 			. '<li>' . esc_html__('If the add-on folder is not writable, ask your host to allow writing to the plugin folder.', 'easy-form-builder') . '</li>'
 			. '<li>' . esc_html__('If outgoing requests are blocked, ask your host to allow connections to the Easy Form Builder update server.', 'easy-form-builder') . '</li>'
-			. '<li>' . esc_html__('If your Pro subscription has expired, renew it to restore the Pro add-ons.', 'easy-form-builder') . '</li>'
+			/* translators: Premium and Agency are the names of the paid Easy Form Builder plans */
+			. '<li>' . esc_html__('Some add-ons are only available on the Premium or Agency plans. If your subscription has expired, renew it to get those add-ons back.', 'easy-form-builder') . '</li>'
 			. '</ol>'
 
 			. '<p><a href="https://whitestudio.team/support/" target="_blank">' . esc_html__('Please kindly report the following issue to the Easy Form Builder team.', 'easy-form-builder') . '</a></p>'

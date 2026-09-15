@@ -408,6 +408,7 @@ check( 'report identifies the page involved', strpos( $report, '/checkout' ) !==
 check( 'report flags a disabled WP-Cron', strpos( $report, 'DISABLE_WP_CRON' ) !== false );
 check( 'report states the PHP version', strpos( $report, PHP_VERSION ) !== false );
 check( 'report tells the owner what to do next', stripos( $report, 'Recover' ) !== false );
+check( 'report says some add-ons need the Premium or Agency plan', strpos( $report, 'Premium or Agency' ) !== false );
 
 $empty_report = $fn->build_addon_recovery_report_efb( array(), 'server unreachable' );
 check( 'report survives an empty details array', is_string( $empty_report ) && $empty_report !== '' );
