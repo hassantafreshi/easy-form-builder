@@ -300,6 +300,7 @@ class Admin {
 			unset($valp[0]['sms_msg_new_noti']);
 			unset($valp[0]['sms_msg_responsed_noti']);
 			unset($valp[0]['sms_msg_recived_user']);
+			unset($valp[0]['sms_msg_recived_usr']);
 			if(isset($valp[0]['sms_admins_phone_no'])){unset($valp[0]['sms_admins_phone_no']);}
 		}
 
@@ -313,6 +314,7 @@ class Admin {
             unset($valp[0]['telegram_msg_new_noti']);
             unset($valp[0]['telegram_msg_responsed_noti']);
             unset($valp[0]['telegram_msg_recived_user']);
+            unset($valp[0]['telegram_msg_recived_usr']);
             unset($valp[0]['telegram_bot_token']);
             unset($valp[0]['telegram_admin_chat_ids']);
         }

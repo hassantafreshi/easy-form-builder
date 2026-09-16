@@ -70,6 +70,14 @@ $addon = EMSFB_PLUGIN_DIRECTORY . 'vendor/telegram/';
 require_once $addon . 'class-Emsfb-telegram.php';
 new \Emsfb\telegramlistefb();
 require_once $addon . 'telegram-new-efb.php';
+/*
+ * telegram-new-efb.php instantiates the sender at file scope, and that constructor is what repairs
+ * the table. When the add-on is enabled the plugin already loaded the file during bootstrap - before
+ * this test installed its query filter - so require_once is a no-op here and the repair would only
+ * ever have touched the real tables. Constructing the sender explicitly makes the scenario hold
+ * whether or not emsfb_addon_AdnTLG is set, instead of passing only on sites with the add-on off.
+ */
+new \Emsfb\telegramsendefb();
 
 $columns = array();
 foreach ( (array) $wpdb->get_results( "SHOW COLUMNS FROM `{$table}`" ) as $column ) {
