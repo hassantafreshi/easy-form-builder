@@ -1,0 +1,352 @@
+{
+    "source": "WordPress locales of the shipped languages (api.wordpress.org/translations/core/1.0/), user rule 2026-09-16: every locale is an independent language and ships its own file; nothing falls back to another locale.",
+    "locales": [
+        {
+            "locale": "ja",
+            "wporg": "ja",
+            "set": "default",
+            "nplurals": 1,
+            "plural_forms": "nplurals=1; plural=0;"
+        },
+        {
+            "locale": "es_ES",
+            "wporg": "es",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;"
+        },
+        {
+            "locale": "es_MX",
+            "wporg": "es-mx",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "parent": "es_ES"
+        },
+        {
+            "locale": "es_AR",
+            "wporg": "es-ar",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "parent": "es_ES"
+        },
+        {
+            "locale": "es_CL",
+            "wporg": "es-cl",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "parent": "es_ES"
+        },
+        {
+            "locale": "es_CO",
+            "wporg": "es-co",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "parent": "es_ES"
+        },
+        {
+            "locale": "es_CR",
+            "wporg": "es-cr",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "parent": "es_ES"
+        },
+        {
+            "locale": "es_DO",
+            "wporg": "es-do",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "parent": "es_ES"
+        },
+        {
+            "locale": "es_EC",
+            "wporg": "es-ec",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "parent": "es_ES"
+        },
+        {
+            "locale": "es_GT",
+            "wporg": "es-gt",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "parent": "es_ES"
+        },
+        {
+            "locale": "es_PE",
+            "wporg": "es-pe",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "parent": "es_ES"
+        },
+        {
+            "locale": "es_PR",
+            "wporg": "es-pr",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "parent": "es_ES"
+        },
+        {
+            "locale": "es_UY",
+            "wporg": "es-uy",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "parent": "es_ES"
+        },
+        {
+            "locale": "es_VE",
+            "wporg": "es-ve",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "parent": "es_ES"
+        },
+        {
+            "locale": "de_DE",
+            "wporg": "de",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;"
+        },
+        {
+            "locale": "de_DE_formal",
+            "wporg": "de",
+            "set": "formal",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "parent": "de_DE"
+        },
+        {
+            "locale": "de_AT",
+            "wporg": "de-at",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "parent": "de_DE"
+        },
+        {
+            "locale": "de_CH",
+            "wporg": "de-ch",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "parent": "de_DE_formal"
+        },
+        {
+            "locale": "de_CH_informal",
+            "wporg": "de-ch",
+            "set": "informal",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "parent": "de_DE"
+        },
+        {
+            "locale": "fr_FR",
+            "wporg": "fr",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n > 1;"
+        },
+        {
+            "locale": "fr_CA",
+            "wporg": "fr-ca",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n > 1;",
+            "parent": "fr_FR"
+        },
+        {
+            "locale": "fr_BE",
+            "wporg": "fr-be",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n > 1;",
+            "parent": "fr_FR"
+        },
+        {
+            "locale": "pt_BR",
+            "wporg": "pt-br",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n > 1;"
+        },
+        {
+            "locale": "pt_PT",
+            "wporg": "pt",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;"
+        },
+        {
+            "locale": "pt_PT_ao90",
+            "wporg": "pt",
+            "set": "ao90",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "parent": "pt_PT"
+        },
+        {
+            "locale": "pt_AO",
+            "wporg": "pt-ao",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "parent": "pt_PT"
+        },
+        {
+            "locale": "it_IT",
+            "wporg": "it",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;"
+        },
+        {
+            "locale": "nl_NL",
+            "wporg": "nl",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;"
+        },
+        {
+            "locale": "nl_NL_formal",
+            "wporg": "nl",
+            "set": "formal",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "parent": "nl_NL"
+        },
+        {
+            "locale": "nl_BE",
+            "wporg": "nl-be",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "parent": "nl_NL"
+        },
+        {
+            "locale": "pl_PL",
+            "wporg": "pl",
+            "set": "default",
+            "nplurals": 3,
+            "plural_forms": "nplurals=3; plural=(n == 1) ? 0 : ((n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14)) ? 1 : 2);"
+        },
+        {
+            "locale": "ru_RU",
+            "wporg": "ru",
+            "set": "default",
+            "nplurals": 3,
+            "plural_forms": "nplurals=3; plural=(n % 10 == 1 && n % 100 != 11) ? 0 : ((n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14)) ? 1 : 2);"
+        },
+        {
+            "locale": "tr_TR",
+            "wporg": "tr",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n > 1;"
+        },
+        {
+            "locale": "vi",
+            "wporg": "vi",
+            "set": "default",
+            "nplurals": 1,
+            "plural_forms": "nplurals=1; plural=0;"
+        },
+        {
+            "locale": "fa_IR",
+            "wporg": "fa",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n > 1;"
+        },
+        {
+            "locale": "fa_AF",
+            "wporg": "fa-af",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n > 1;",
+            "parent": "fa_IR"
+        },
+        {
+            "locale": "id_ID",
+            "wporg": "id",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n > 1;"
+        },
+        {
+            "locale": "cs_CZ",
+            "wporg": "cs",
+            "set": "default",
+            "nplurals": 3,
+            "plural_forms": "nplurals=3; plural=(n == 1) ? 0 : ((n >= 2 && n <= 4) ? 1 : 2);"
+        },
+        {
+            "locale": "sv_SE",
+            "wporg": "sv",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;"
+        },
+        {
+            "locale": "zh_CN",
+            "wporg": "zh-cn",
+            "set": "default",
+            "nplurals": 1,
+            "plural_forms": "nplurals=1; plural=0;"
+        },
+        {
+            "locale": "zh_TW",
+            "wporg": "zh-tw",
+            "set": "default",
+            "nplurals": 1,
+            "plural_forms": "nplurals=1; plural=0;"
+        },
+        {
+            "locale": "zh_HK",
+            "wporg": "zh-hk",
+            "set": "default",
+            "nplurals": 1,
+            "plural_forms": "nplurals=1; plural=0;",
+            "parent": "zh_TW"
+        },
+        {
+            "locale": "hu_HU",
+            "wporg": "hu",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;"
+        },
+        {
+            "locale": "da_DK",
+            "wporg": "da",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;"
+        },
+        {
+            "locale": "ar",
+            "wporg": "ar",
+            "set": "default",
+            "nplurals": 6,
+            "plural_forms": "nplurals=6; plural=(n == 0) ? 0 : ((n == 1) ? 1 : ((n == 2) ? 2 : ((n % 100 >= 3 && n % 100 <= 10) ? 3 : ((n % 100 >= 11 && n % 100 <= 99) ? 4 : 5))));"
+        },
+        {
+            "locale": "ary",
+            "wporg": "ary",
+            "set": "default",
+            "nplurals": 6,
+            "plural_forms": "nplurals=6; plural=(n == 0) ? 0 : ((n == 1) ? 1 : ((n == 2) ? 2 : ((n % 100 >= 3 && n % 100 <= 10) ? 3 : ((n % 100 >= 11 && n % 100 <= 99) ? 4 : 5))));",
+            "parent": "ar"
+        }
+    ]
+}

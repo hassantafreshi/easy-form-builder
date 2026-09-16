@@ -906,30 +906,6 @@ public function check_nonce_permission_efb($request) {
 			$state="form";
 			$rgister_captcha_url = false;
 			$this->efbFunction = get_efbFunction();
-			/* Health check only — the repair runs in the background. Downloading
-			 * here made every visitor wait on the add-on server, and a slow or
-			 * unreachable server took the form down with it. */
-			$addon_recovery = $this->efbFunction->check_addons_for_public_request_efb();
-			if ( ! empty( $addon_recovery['recovered'] ) ) {
-				if ( $this->addon_recovery_transition_rendered ) {
-					return '';
-				}
-				$this->addon_recovery_transition_rendered = true;
-				return $this->efbFunction->render_addon_recovery_reload_ui_efb( true );
-			}
-			if ( empty( $addon_recovery['success'] ) ) {
-				// Do not render a partly functional form. The administrator gets the
-				// precise diagnostics in the recovery UI; visitors get a safe message.
-				if ( $this->addon_recovery_transition_rendered ) {
-					return '';
-				}
-				$this->addon_recovery_transition_rendered = true;
-				/* Reload only when a background repair is actually pending. After an
-				 * inline attempt has already failed there is nothing to come back
-				 * to, and refreshing would just loop the visitor. */
-				$retry_after = ! empty( $addon_recovery['deferred'] ) ? 25 : 0;
-				return $this->efbFunction->render_addon_recovery_public_error_ui_efb( $retry_after );
-			}
 			if(isset($_GET['track'])){
 				$state_form =  sanitize_text_field(wp_unslash($_GET['track']) );
 				$state="track";
@@ -1061,6 +1037,35 @@ public function check_nonce_permission_efb($request) {
 				</div>
 				<h3 style='color:#202a8d;text-align: center;'>".esc_html__('Form does not exist !!','easy-form-builder')."</h3>
 				<h4 style='color:#ff4b93;text-align: center;'>".esc_html__('Easy Form Builder', 'easy-form-builder')."</h4></div></div>";
+			}
+			/* Health check only — the repair runs in the background. A form waits
+			 * only for the add-ons it uses; any other missing add-on is repaired in
+			 * the background while this form keeps working. */
+			if ( null === $is_track && null !== $value_form_data ) {
+				$addon_recovery = $this->efbFunction->check_addons_for_public_request_efb(
+					null,
+					$this->efbFunction->get_form_required_addons_efb( $value_form_data->form_structer )
+				);
+				if ( ! empty( $addon_recovery['recovered'] ) ) {
+					if ( $this->addon_recovery_transition_rendered ) {
+						return '';
+					}
+					$this->addon_recovery_transition_rendered = true;
+					return $this->efbFunction->render_addon_recovery_reload_ui_efb( true );
+				}
+				if ( empty( $addon_recovery['success'] ) ) {
+					// Do not render a partly functional form. The administrator gets the
+					// precise diagnostics in the recovery UI; visitors get a safe message.
+					if ( $this->addon_recovery_transition_rendered ) {
+						return '';
+					}
+					$this->addon_recovery_transition_rendered = true;
+					/* Reload only when this request queued the repair. Every later
+					 * visitor meets the queue lock or the backoff instead, and keying
+					 * the reload on anything else refreshed them every 25 seconds. */
+					$retry_after = ! empty( $addon_recovery['queued'] ) ? 25 : 0;
+					return $this->efbFunction->render_addon_recovery_public_error_ui_efb( $retry_after );
+				}
 			}
 			$this->text_ = ["somethingWentWrongPleaseRefresh","atcfle","cpnnc","tfnapca","thisFeatureAvailableFreePlusPro", "icc","cpnts","cpntl","mcplen","mmxplen","mxcplen","clcdetls","vmgs","required","mmplen","offlineSend","amount","allformat","videoDownloadLink","downloadViedo","removeTheFile","pWRedirect","eJQ500","error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist",
 			"settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot",

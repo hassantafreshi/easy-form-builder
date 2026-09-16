@@ -29,6 +29,10 @@ function delete_option( $key ) {
 	return true;
 }
 
+function get_transient( $key ) {
+	return false;
+}
+
 function delete_transient( $key ) {
 	return true;
 }
@@ -49,7 +53,7 @@ class Efb_Recovery_Test_Function extends efbFunction {
 
 	public function __construct() {}
 
-	public function get_addon_local_health_efb( $settings = null ) {
+	public function get_addon_local_health_efb( $settings = null, $scope = 'runtime' ) {
 		return array( 'missing' => $this->missing, 'checked' => array_keys( $this->missing ) );
 	}
 

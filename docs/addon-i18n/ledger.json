@@ -1,0 +1,1353 @@
+{
+    "schema": "efb-addon-i18n-ledger/1",
+    "locales_source": "tests/addon-i18n/locales.json",
+    "addons": {
+        "telegram": {
+            "date": "2026-09-16",
+            "setting_key": "AdnTLG",
+            "phrase_group": "telegram",
+            "domain": "efb-telegram",
+            "provider": "vendor/telegram/telegram-phrases-efb.php (Emsfb_Addon_Phrases_Telegram)",
+            "locales": [
+                "ja",
+                "es_ES",
+                "es_MX",
+                "es_AR",
+                "es_CL",
+                "es_CO",
+                "es_CR",
+                "es_DO",
+                "es_EC",
+                "es_GT",
+                "es_PE",
+                "es_PR",
+                "es_UY",
+                "es_VE",
+                "de_DE",
+                "de_DE_formal",
+                "de_AT",
+                "de_CH",
+                "de_CH_informal",
+                "fr_FR",
+                "fr_CA",
+                "fr_BE",
+                "pt_BR",
+                "pt_PT",
+                "pt_PT_ao90",
+                "pt_AO",
+                "it_IT",
+                "nl_NL",
+                "nl_NL_formal",
+                "nl_BE",
+                "pl_PL",
+                "ru_RU",
+                "tr_TR",
+                "vi",
+                "fa_IR",
+                "fa_AF",
+                "id_ID",
+                "cs_CZ",
+                "sv_SE",
+                "zh_CN",
+                "zh_TW",
+                "zh_HK",
+                "hu_HU",
+                "da_DK",
+                "ar",
+                "ary"
+            ],
+            "msgids": 99,
+            "moved_keys": [
+                "test_message",
+                "activity",
+                "telegram_settings",
+                "telegram_title",
+                "telegram_subtitle",
+                "status",
+                "notifications_active",
+                "configure_to_enable",
+                "enable_telegram",
+                "bot_token",
+                "enter_bot_token",
+                "bot_token_help",
+                "chat_id",
+                "enter_chat_id",
+                "chat_id_help",
+                "test",
+                "save_settings",
+                "refresh",
+                "send_test_message",
+                "quick_tips",
+                "tip_1",
+                "tip_2",
+                "tip_3",
+                "tip_4",
+                "tip_5",
+                "enter_test_message",
+                "default_test_message",
+                "test_info",
+                "test_description",
+                "test_warning",
+                "activity_log",
+                "no_activity",
+                "setup_bot",
+                "step_1",
+                "step_1_desc",
+                "step_2",
+                "step_2_desc",
+                "step_3",
+                "step_3_desc",
+                "step_4",
+                "step_4_desc",
+                "getting_chat_id",
+                "for_groups",
+                "group_step_1",
+                "group_step_2",
+                "group_step_3",
+                "for_private",
+                "private_step_1",
+                "private_step_2",
+                "private_step_3",
+                "important",
+                "help_note",
+                "confirm_reset",
+                "confirm_clear",
+                "error_occurred",
+                "fill_required_fields",
+                "connection_failed",
+                "fill_all_fields",
+                "send_failed",
+                "load_failed",
+                "botTokenEmpty",
+                "telegramConnectionError",
+                "telegramConfigError",
+                "telegramBotNotConfigured",
+                "invalidTelegramResponse",
+                "telegramUserNotFound",
+                "telegramUserNotVerified",
+                "telegramSendError",
+                "invalidSecurityNonce",
+                "invalidFormId",
+                "telegramActivationSuccess"
+            ],
+            "counts": {
+                "ADDON": 89,
+                "MULTI": 0,
+                "FRONT": 0,
+                "CORE": 15,
+                "UNSURE": 2,
+                "DEAD": 4
+            },
+            "buckets": {
+                "ADDON": {
+                    "test_message": {
+                        "msgid": "Test Message",
+                        "target": "group",
+                        "origin": "includes/phrases.php:86 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:138",
+                            "vendor/telegram/assets/js/telegram-efb.js:531",
+                            "vendor/telegram/assets/js/telegram-efb.js:546"
+                        ]
+                    },
+                    "activity": {
+                        "msgid": "Activity Log",
+                        "target": "group",
+                        "origin": "includes/phrases.php:89 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:139"
+                        ]
+                    },
+                    "telegram_settings": {
+                        "msgid": "Telegram Settings",
+                        "target": "group",
+                        "origin": "includes/phrases.php:92 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:373"
+                        ]
+                    },
+                    "telegram_title": {
+                        "msgid": "Telegram Integration",
+                        "target": "group",
+                        "origin": "includes/phrases.php:95 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:218"
+                        ]
+                    },
+                    "telegram_subtitle": {
+                        "msgid": "Real-time Form Notifications",
+                        "target": "group",
+                        "origin": "includes/phrases.php:98 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:219"
+                        ]
+                    },
+                    "status": {
+                        "msgid": "Status",
+                        "target": "group",
+                        "origin": "includes/phrases.php:104 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:235",
+                            "vendor/telegram/assets/js/telegram-efb.js:644",
+                            "vendor/telegram/assets/js/telegram-efb.js:1297"
+                        ]
+                    },
+                    "notifications_active": {
+                        "msgid": "Notifications are active",
+                        "target": "group",
+                        "origin": "includes/phrases.php:107 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:238",
+                            "vendor/telegram/assets/js/telegram-efb.js:1382"
+                        ]
+                    },
+                    "configure_to_enable": {
+                        "msgid": "Configure settings to enable",
+                        "target": "group",
+                        "origin": "includes/phrases.php:110 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:238",
+                            "vendor/telegram/assets/js/telegram-efb.js:1383"
+                        ]
+                    },
+                    "enable_telegram": {
+                        "msgid": "Enable Telegram Notifications",
+                        "target": "group",
+                        "origin": "includes/phrases.php:113 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:392"
+                        ]
+                    },
+                    "bot_token": {
+                        "msgid": "Bot Token",
+                        "target": "group",
+                        "origin": "includes/phrases.php:116 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:407"
+                        ]
+                    },
+                    "enter_bot_token": {
+                        "msgid": "Enter your bot token",
+                        "target": "group",
+                        "origin": "includes/phrases.php:119 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:415"
+                        ]
+                    },
+                    "bot_token_help": {
+                        "msgid": "Get your bot token from @BotFather on Telegram",
+                        "target": "group",
+                        "origin": "includes/phrases.php:122 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:423"
+                        ]
+                    },
+                    "chat_id": {
+                        "msgid": "Chat ID",
+                        "target": "group",
+                        "origin": "includes/phrases.php:125 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:431",
+                            "vendor/telegram/assets/js/telegram-efb.js:642",
+                            "vendor/telegram/assets/js/telegram-efb.js:1291"
+                        ]
+                    },
+                    "enter_chat_id": {
+                        "msgid": "Enter chat ID",
+                        "target": "group",
+                        "origin": "includes/phrases.php:128 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:439"
+                        ]
+                    },
+                    "chat_id_help": {
+                        "msgid": "Use @username for channels or numeric ID for private chats",
+                        "target": "group",
+                        "origin": "includes/phrases.php:131 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:448"
+                        ]
+                    },
+                    "test": {
+                        "msgid": "Test",
+                        "target": "group",
+                        "origin": "includes/phrases.php:134 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:443",
+                            "vendor/telegram/assets/js/telegram-efb.js:1074"
+                        ]
+                    },
+                    "save_settings": {
+                        "msgid": "Save Settings",
+                        "target": "group",
+                        "origin": "includes/phrases.php:137 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:456"
+                        ]
+                    },
+                    "refresh": {
+                        "msgid": "Refresh",
+                        "target": "group",
+                        "origin": "includes/phrases.php:140 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:623"
+                        ]
+                    },
+                    "send_test_message": {
+                        "msgid": "Send Test Message",
+                        "target": "group",
+                        "origin": "includes/phrases.php:143 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:556"
+                        ]
+                    },
+                    "quick_tips": {
+                        "msgid": "Quick Tips",
+                        "target": "group",
+                        "origin": "includes/phrases.php:146 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:471"
+                        ]
+                    },
+                    "tip_1": {
+                        "msgid": "Create a bot using %s",
+                        "target": "group",
+                        "origin": "includes/phrases.php:149 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:476"
+                        ]
+                    },
+                    "tip_2": {
+                        "msgid": "Add your bot to the target chat",
+                        "target": "group",
+                        "origin": "includes/phrases.php:152 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:480"
+                        ]
+                    },
+                    "tip_3": {
+                        "msgid": "Use the test feature to verify setup",
+                        "target": "group",
+                        "origin": "includes/phrases.php:155 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:484"
+                        ]
+                    },
+                    "tip_4": {
+                        "msgid": "Monitor activity for troubleshooting",
+                        "target": "group",
+                        "origin": "includes/phrases.php:158 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:488"
+                        ]
+                    },
+                    "tip_5": {
+                        "msgid": "Find your Chat ID using %s",
+                        "target": "group",
+                        "origin": "includes/phrases.php:161 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:492"
+                        ]
+                    },
+                    "enter_test_message": {
+                        "msgid": "Enter your test message here&hellip;",
+                        "target": "group",
+                        "origin": "includes/phrases.php:170 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:549"
+                        ]
+                    },
+                    "default_test_message": {
+                        "msgid": "Test Message\n\nThis is a test message from Easy Form Builder.\n\nIf you receive this message, your Telegram integration is working correctly!",
+                        "target": "group",
+                        "origin": "includes/phrases.php:173 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:549"
+                        ]
+                    },
+                    "test_info": {
+                        "msgid": "Test Information",
+                        "target": "group",
+                        "origin": "includes/phrases.php:176 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:567"
+                        ]
+                    },
+                    "test_description": {
+                        "msgid": "Use this tab to send test messages and verify your Telegram bot configuration.",
+                        "target": "group",
+                        "origin": "includes/phrases.php:179 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:571"
+                        ]
+                    },
+                    "test_warning": {
+                        "msgid": "Make sure to save your settings before testing!",
+                        "target": "group",
+                        "origin": "includes/phrases.php:182 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:575"
+                        ]
+                    },
+                    "activity_log": {
+                        "msgid": "Activity Log",
+                        "target": "group",
+                        "origin": "includes/phrases.php:185 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:615"
+                        ]
+                    },
+                    "no_activity": {
+                        "msgid": "No activity found",
+                        "target": "group",
+                        "origin": "includes/phrases.php:191 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:1314"
+                        ]
+                    },
+                    "setup_bot": {
+                        "msgid": "Setting Up Your Bot",
+                        "target": "group",
+                        "origin": "includes/phrases.php:194 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:718"
+                        ]
+                    },
+                    "step_1": {
+                        "msgid": "Create a Bot",
+                        "target": "group",
+                        "origin": "includes/phrases.php:197 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:725"
+                        ]
+                    },
+                    "step_1_desc": {
+                        "msgid": "Message @BotFather on Telegram and use /newbot command",
+                        "target": "group",
+                        "origin": "includes/phrases.php:200 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:726"
+                        ]
+                    },
+                    "step_2": {
+                        "msgid": "Get Bot Token",
+                        "target": "group",
+                        "origin": "includes/phrases.php:203 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:733"
+                        ]
+                    },
+                    "step_2_desc": {
+                        "msgid": "Copy the bot token provided by BotFather",
+                        "target": "group",
+                        "origin": "includes/phrases.php:206 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:734"
+                        ]
+                    },
+                    "step_3": {
+                        "msgid": "Get Chat ID",
+                        "target": "group",
+                        "origin": "includes/phrases.php:209 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:741"
+                        ]
+                    },
+                    "step_3_desc": {
+                        "msgid": "For groups: Add bot and use @username. For private: Use numeric ID",
+                        "target": "group",
+                        "origin": "includes/phrases.php:212 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:742"
+                        ]
+                    },
+                    "step_4": {
+                        "msgid": "Test Connection",
+                        "target": "group",
+                        "origin": "includes/phrases.php:215 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:749"
+                        ]
+                    },
+                    "step_4_desc": {
+                        "msgid": "Use the test feature to verify everything works",
+                        "target": "group",
+                        "origin": "includes/phrases.php:218 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:750"
+                        ]
+                    },
+                    "getting_chat_id": {
+                        "msgid": "Getting Chat ID",
+                        "target": "group",
+                        "origin": "includes/phrases.php:221 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:762"
+                        ]
+                    },
+                    "for_groups": {
+                        "msgid": "For Groups/Channels:",
+                        "target": "group",
+                        "origin": "includes/phrases.php:224 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:767"
+                        ]
+                    },
+                    "group_step_1": {
+                        "msgid": "Add your bot to the group",
+                        "target": "group",
+                        "origin": "includes/phrases.php:227 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:769"
+                        ]
+                    },
+                    "group_step_2": {
+                        "msgid": "Use @your_bot_username",
+                        "target": "group",
+                        "origin": "includes/phrases.php:230 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:770"
+                        ]
+                    },
+                    "group_step_3": {
+                        "msgid": "For channels, use @channel_username",
+                        "target": "group",
+                        "origin": "includes/phrases.php:233 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:771"
+                        ]
+                    },
+                    "for_private": {
+                        "msgid": "For Private Chats:",
+                        "target": "group",
+                        "origin": "includes/phrases.php:236 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:776"
+                        ]
+                    },
+                    "private_step_1": {
+                        "msgid": "Message @userinfobot",
+                        "target": "group",
+                        "origin": "includes/phrases.php:239 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:778"
+                        ]
+                    },
+                    "private_step_2": {
+                        "msgid": "Copy your numeric user ID",
+                        "target": "group",
+                        "origin": "includes/phrases.php:242 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:779"
+                        ]
+                    },
+                    "private_step_3": {
+                        "msgid": "Use the numeric ID in settings",
+                        "target": "group",
+                        "origin": "includes/phrases.php:245 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:780"
+                        ]
+                    },
+                    "important": {
+                        "msgid": "Important!",
+                        "target": "group",
+                        "origin": "includes/phrases.php:248 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:790"
+                        ]
+                    },
+                    "help_note": {
+                        "msgid": "Make sure your bot has permission to send messages to the target chat.",
+                        "target": "group",
+                        "origin": "includes/phrases.php:251 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:791"
+                        ]
+                    },
+                    "confirm_reset": {
+                        "msgid": "Are you sure you want to reset all settings?",
+                        "target": "group",
+                        "origin": "includes/phrases.php:254 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:871"
+                        ]
+                    },
+                    "confirm_clear": {
+                        "msgid": "Are you sure you want to clear all activity logs?",
+                        "target": "group",
+                        "origin": "includes/phrases.php:257 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:900"
+                        ]
+                    },
+                    "error_occurred": {
+                        "msgid": "An error occurred",
+                        "target": "group",
+                        "origin": "includes/phrases.php:260 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:995"
+                        ]
+                    },
+                    "fill_required_fields": {
+                        "msgid": "Please fill in all required fields",
+                        "target": "group",
+                        "origin": "includes/phrases.php:263 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:1031"
+                        ]
+                    },
+                    "connection_failed": {
+                        "msgid": "Connection test failed",
+                        "target": "group",
+                        "origin": "includes/phrases.php:266 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:1070"
+                        ]
+                    },
+                    "fill_all_fields": {
+                        "msgid": "Please fill in all fields",
+                        "target": "group",
+                        "origin": "includes/phrases.php:269 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:1110"
+                        ]
+                    },
+                    "send_failed": {
+                        "msgid": "Failed to send message",
+                        "target": "group",
+                        "origin": "includes/phrases.php:272 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:1143"
+                        ]
+                    },
+                    "load_failed": {
+                        "msgid": "Failed to load activity",
+                        "target": "group",
+                        "origin": "includes/phrases.php:275 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/assets/js/telegram-efb.js:1187"
+                        ]
+                    },
+                    "botTokenEmpty": {
+                        "msgid": "Bot token is empty",
+                        "target": "group",
+                        "origin": "includes/phrases.php:278 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/telegram-new-efb.php:446 (text_efb list)",
+                            "vendor/telegram/telegram-new-efb.php:452"
+                        ]
+                    },
+                    "telegramConnectionError": {
+                        "msgid": "Error connecting to Telegram server",
+                        "target": "group",
+                        "origin": "includes/phrases.php:287 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/class-Emsfb-telegram.php:1300 (text_efb list)",
+                            "vendor/telegram/class-Emsfb-telegram.php:1317",
+                            "vendor/telegram/telegram-new-efb.php:446 (text_efb list)",
+                            "vendor/telegram/telegram-new-efb.php:465"
+                        ]
+                    },
+                    "telegramConfigError": {
+                        "msgid": "Telegram configuration error",
+                        "target": "group",
+                        "origin": "includes/phrases.php:290 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/class-Emsfb-telegram.php:1019 (text_efb list)",
+                            "vendor/telegram/class-Emsfb-telegram.php:1045"
+                        ]
+                    },
+                    "telegramBotNotConfigured": {
+                        "msgid": "Telegram bot is not configured",
+                        "target": "group",
+                        "origin": "includes/phrases.php:296 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/class-Emsfb-telegram.php:1300 (text_efb list)",
+                            "vendor/telegram/class-Emsfb-telegram.php:1306",
+                            "vendor/telegram/class-Emsfb-telegram.php:1763 (text_efb list)",
+                            "vendor/telegram/class-Emsfb-telegram.php:1788"
+                        ]
+                    },
+                    "invalidTelegramResponse": {
+                        "msgid": "Invalid response from Telegram server",
+                        "target": "group",
+                        "origin": "includes/phrases.php:299 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/class-Emsfb-telegram.php:1300 (text_efb list)",
+                            "vendor/telegram/class-Emsfb-telegram.php:1326"
+                        ]
+                    },
+                    "telegramUserNotFound": {
+                        "msgid": "Telegram user not found for this phone number",
+                        "target": "group",
+                        "origin": "includes/phrases.php:302 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/class-Emsfb-telegram.php:1453 (text_efb list)",
+                            "vendor/telegram/class-Emsfb-telegram.php:1463"
+                        ]
+                    },
+                    "telegramUserNotVerified": {
+                        "msgid": "Telegram user account is not verified",
+                        "target": "group",
+                        "origin": "includes/phrases.php:305 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/class-Emsfb-telegram.php:1453 (text_efb list)",
+                            "vendor/telegram/class-Emsfb-telegram.php:1472"
+                        ]
+                    },
+                    "telegramSendError": {
+                        "msgid": "Error occurred while sending Telegram message",
+                        "target": "group",
+                        "origin": "includes/phrases.php:308 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/class-Emsfb-telegram.php:1453 (text_efb list)",
+                            "vendor/telegram/class-Emsfb-telegram.php:1511"
+                        ]
+                    },
+                    "invalidSecurityNonce": {
+                        "msgid": "Invalid security nonce",
+                        "target": "group",
+                        "origin": "includes/phrases.php:311 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/class-Emsfb-telegram.php:1763 (text_efb list)",
+                            "vendor/telegram/class-Emsfb-telegram.php:1772",
+                            "vendor/telegram/class-Emsfb-telegram.php:1814 (text_efb list)",
+                            "vendor/telegram/class-Emsfb-telegram.php:1823"
+                        ]
+                    },
+                    "invalidFormId": {
+                        "msgid": "Invalid form ID",
+                        "target": "group",
+                        "origin": "includes/phrases.php:314 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/class-Emsfb-telegram.php:1763 (text_efb list)",
+                            "vendor/telegram/class-Emsfb-telegram.php:1779",
+                            "vendor/telegram/class-Emsfb-telegram.php:1814 (text_efb list)",
+                            "vendor/telegram/class-Emsfb-telegram.php:1830"
+                        ]
+                    },
+                    "telegramActivationSuccess": {
+                        "msgid": "Telegram notifications activated successfully",
+                        "target": "group",
+                        "origin": "includes/phrases.php:317 (before this migration)",
+                        "reason": "Read only inside vendor/telegram on the dashboard Telegram screen (menu capability Emsfb_telegram_efb) or its logged-in admin AJAX handlers; no reader outside the add-on, not in any core text_efb() list, not in the Localization list.",
+                        "usage": [
+                            "vendor/telegram/class-Emsfb-telegram.php:1763 (text_efb list)",
+                            "vendor/telegram/class-Emsfb-telegram.php:1796"
+                        ]
+                    }
+                },
+                "MULTI": [],
+                "FRONT": [],
+                "CORE": {
+                    "settings": {
+                        "definition": "includes/functions.php:2916",
+                        "reason": "Defined in the base $lang array, so it is listed and overridable in Settings > Localization, and read by core code outside vendor/telegram.",
+                        "usage_outside_addon": [
+                            "includes/admin/class-Emsfb-panel.php:180"
+                        ],
+                        "addon_reads": [
+                            "vendor/telegram/assets/js/telegram-efb.js:137"
+                        ]
+                    },
+                    "help": {
+                        "definition": "includes/functions.php:1773",
+                        "reason": "Defined in the base $lang array, so it is listed and overridable in Settings > Localization, and read by core code outside vendor/telegram.",
+                        "usage_outside_addon": [
+                            "includes/admin/assets/js/admin-efb.js:498",
+                            "includes/admin/assets/js/admin-efb.js:808",
+                            "includes/admin/assets/js/admin-efb.js:3534",
+                            "includes/admin/assets/js/admin-efb.js:3575",
+                            "includes/admin/assets/js/admin-efb.js:3580",
+                            "includes/admin/assets/js/admin-efb.js:3586",
+                            "includes/admin/assets/js/admin-efb.js:3592",
+                            "includes/admin/assets/js/val-efb.js:2356",
+                            "includes/admin/class-Emsfb-panel.php:186",
+                            "vendor/smssended/assets/js/sms-efb.js:63",
+                            "vendor/smssended/assets/js/sms-efb.js:379"
+                        ],
+                        "addon_reads": [
+                            "vendor/telegram/assets/js/telegram-efb.js:140"
+                        ]
+                    },
+                    "disabled": {
+                        "definition": "includes/functions.php:2433",
+                        "reason": "Defined in the base $lang array, so it is listed and overridable in Settings > Localization, and read by core code outside vendor/telegram.",
+                        "usage_outside_addon": [
+                            "vendor/autofill/assets/js/autofill-api-efb.js:184"
+                        ],
+                        "addon_reads": [
+                            "vendor/telegram/assets/js/telegram-efb.js:209",
+                            "vendor/telegram/assets/js/telegram-efb.js:1380"
+                        ]
+                    },
+                    "reset": {
+                        "definition": "includes/functions.php:2280",
+                        "reason": "Defined in the base $lang array, so it is listed and overridable in Settings > Localization, and read by core code outside vendor/telegram.",
+                        "usage_outside_addon": [],
+                        "addon_reads": [
+                            "vendor/telegram/assets/js/telegram-efb.js:460",
+                            "vendor/telegram/assets/js/telegram-efb.js:870"
+                        ]
+                    },
+                    "clear": {
+                        "definition": "includes/functions.php:2201",
+                        "reason": "Defined in the base $lang array, so it is listed and overridable in Settings > Localization, and read by core code outside vendor/telegram.",
+                        "usage_outside_addon": [
+                            "includes/admin/assets/js/admin-efb.js:3775"
+                        ],
+                        "addon_reads": [
+                            "vendor/telegram/assets/js/telegram-efb.js:628",
+                            "vendor/telegram/assets/js/telegram-efb.js:899"
+                        ]
+                    },
+                    "by": {
+                        "definition": "includes/functions.php:1615",
+                        "reason": "Defined in the base $lang array, so it is listed and overridable in Settings > Localization, and read by core code outside vendor/telegram.",
+                        "usage_outside_addon": [
+                            "includes/admin/assets/js/response-viewer-efb.js:823",
+                            "vendor/smssended/assets/js/sms-efb.js:311",
+                            "vendor/smssended/assets/js/sms-efb.js:346",
+                            "vendor/smssended/assets/js/sms-efb.js:621"
+                        ],
+                        "addon_reads": [
+                            "vendor/telegram/assets/js/telegram-efb.js:641",
+                            "vendor/telegram/assets/js/telegram-efb.js:1287"
+                        ]
+                    },
+                    "message": {
+                        "definition": "includes/functions.php:2126",
+                        "reason": "Defined in the base $lang array, so it is listed and overridable in Settings > Localization, and read by core code outside vendor/telegram.",
+                        "usage_outside_addon": [
+                            "includes/admin/assets/js/admin-efb.js:1108",
+                            "includes/admin/assets/js/admin-efb.js:1159",
+                            "includes/admin/assets/js/admin-efb.js:4649",
+                            "includes/admin/assets/js/forms-efb.js:82",
+                            "includes/admin/assets/js/forms-efb.js:97",
+                            "includes/admin/assets/js/forms-efb.js:107",
+                            "includes/admin/assets/js/forms-efb.js:117",
+                            "includes/admin/assets/js/forms-efb.js:128",
+                            "includes/admin/assets/js/list_form-efb.js:698",
+                            "includes/admin/assets/js/list_form-efb.js:727",
+                            "includes/admin/assets/js/val-efb.js:778",
+                            "includes/admin/assets/js/val-efb.js:910"
+                        ],
+                        "addon_reads": [
+                            "vendor/telegram/assets/js/telegram-efb.js:643",
+                            "vendor/telegram/assets/js/telegram-efb.js:1294"
+                        ]
+                    },
+                    "loading": {
+                        "definition": "includes/functions.php:1637",
+                        "reason": "Defined in the base $lang array, so it is listed and overridable in Settings > Localization, and read by core code outside vendor/telegram.",
+                        "usage_outside_addon": [
+                            "includes/admin/assets/js/admin-efb.js:7281",
+                            "includes/admin/assets/js/list_form-efb.js:1009",
+                            "includes/admin/assets/js/pro_els-efb.js:888",
+                            "includes/admin/assets/js/pro_els-efb.js:1019",
+                            "vendor/autofill/assets/js/autofill-efb.js:284"
+                        ],
+                        "addon_reads": [
+                            "vendor/telegram/assets/js/telegram-efb.js:655"
+                        ]
+                    },
+                    "failed": {
+                        "definition": "includes/functions.php:3522",
+                        "reason": "Defined in the base $lang array, so it is listed and overridable in Settings > Localization, and read by core code outside vendor/telegram.",
+                        "usage_outside_addon": [
+                            "includes/admin/assets/js/core-efb.js:560",
+                            "includes/admin/assets/js/review-request-efb.js:458",
+                            "includes/admin/assets/js/review-request-efb.js:535",
+                            "includes/admin/assets/js/review-request-efb.js:550",
+                            "includes/admin/assets/js/review-request-efb.js:605",
+                            "includes/admin/assets/js/review-request-efb.js:615",
+                            "includes/class-Emsfb-review-request.php:1091",
+                            "vendor/human-shield/assets/js/human-shield-admin-efb.js:536",
+                            "vendor/human-shield/assets/js/human-shield-admin-efb.js:551",
+                            "vendor/human-shield/assets/js/human-shield-admin-efb.js:572"
+                        ],
+                        "addon_reads": [
+                            "vendor/telegram/assets/js/telegram-efb.js:1278"
+                        ]
+                    },
+                    "done": {
+                        "definition": "includes/functions.php:1709",
+                        "reason": "Defined in the base $lang array, so it is listed and overridable in Settings > Localization, and read by core code outside vendor/telegram.",
+                        "usage_outside_addon": [
+                            "includes/admin/assets/js/core-efb.js:262",
+                            "includes/admin/assets/js/list_form-efb.js:3550",
+                            "includes/admin/assets/js/list_form-efb.js:4824",
+                            "includes/admin/assets/js/list_form-efb.js:4910",
+                            "includes/admin/assets/js/val-efb.js:910",
+                            "includes/admin/assets/js/val-efb.js:911"
+                        ],
+                        "addon_reads": [
+                            "vendor/telegram/assets/js/telegram-efb.js:1349"
+                        ]
+                    },
+                    "error": {
+                        "definition": "includes/functions.php:2147",
+                        "reason": "Defined in the base $lang array, so it is listed and overridable in Settings > Localization, and read by core code outside vendor/telegram.",
+                        "usage_outside_addon": [
+                            "includes/admin/assets/js/admin-efb.js:505",
+                            "includes/admin/assets/js/admin-efb.js:510",
+                            "includes/admin/assets/js/admin-efb.js:647",
+                            "includes/admin/assets/js/admin-efb.js:658",
+                            "includes/admin/assets/js/admin-efb.js:660",
+                            "includes/admin/assets/js/admin-efb.js:665",
+                            "includes/admin/assets/js/admin-efb.js:695",
+                            "includes/admin/assets/js/admin-efb.js:701",
+                            "includes/admin/assets/js/admin-efb.js:703",
+                            "includes/admin/assets/js/admin-efb.js:759",
+                            "includes/admin/assets/js/admin-efb.js:1573",
+                            "includes/admin/assets/js/admin-efb.js:1726"
+                        ],
+                        "addon_reads": [
+                            "vendor/telegram/assets/js/telegram-efb.js:1349"
+                        ]
+                    },
+                    "error403": {
+                        "definition": "includes/functions.php:2217",
+                        "reason": "Defined in the base $lang array, so it is listed and overridable in Settings > Localization, and read by core code outside vendor/telegram.",
+                        "usage_outside_addon": [
+                            "includes/admin/class-Emsfb-admin.php:191",
+                            "includes/admin/class-Emsfb-admin.php:233",
+                            "includes/admin/class-Emsfb-admin.php:267",
+                            "includes/admin/class-Emsfb-admin.php:531",
+                            "includes/admin/class-Emsfb-admin.php:1146",
+                            "includes/admin/class-Emsfb-admin.php:1202",
+                            "includes/admin/class-Emsfb-admin.php:1230",
+                            "includes/admin/class-Emsfb-admin.php:1317",
+                            "includes/admin/class-Emsfb-admin.php:1355",
+                            "includes/admin/class-Emsfb-admin.php:1423",
+                            "includes/admin/class-Emsfb-admin.php:1551",
+                            "includes/admin/class-Emsfb-admin.php:1739"
+                        ],
+                        "addon_reads": [
+                            "vendor/telegram/class-Emsfb-telegram.php:1019(list)"
+                        ]
+                    },
+                    "somethingWentWrongPleaseRefresh": {
+                        "definition": "includes/functions.php:1716",
+                        "reason": "Defined in the base $lang array, so it is listed and overridable in Settings > Localization, and read by core code outside vendor/telegram.",
+                        "usage_outside_addon": [
+                            "includes/admin/assets/js/admin-efb.js:592",
+                            "includes/admin/assets/js/admin-efb.js:605",
+                            "includes/admin/assets/js/admin-efb.js:613",
+                            "includes/admin/assets/js/admin-efb.js:647",
+                            "includes/admin/assets/js/admin-efb.js:660",
+                            "includes/admin/assets/js/admin-efb.js:665",
+                            "includes/admin/assets/js/admin-efb.js:695",
+                            "includes/admin/assets/js/admin-efb.js:701",
+                            "includes/admin/assets/js/admin-efb.js:703",
+                            "includes/admin/assets/js/admin-efb.js:5370",
+                            "includes/admin/assets/js/admin-efb.js:5886",
+                            "includes/admin/assets/js/list_form-efb.js:811"
+                        ],
+                        "addon_reads": [
+                            "vendor/telegram/class-Emsfb-telegram.php:1019(list)"
+                        ]
+                    },
+                    "pleaseFillInRequiredFields": {
+                        "definition": "includes/functions.php:1711",
+                        "reason": "Defined in the base $lang array, so it is listed and overridable in Settings > Localization, and read by core code outside vendor/telegram.",
+                        "usage_outside_addon": [
+                            "includes/admin/assets/js/core-efb.js:348",
+                            "includes/admin/assets/js/forms-efb.js:7",
+                            "includes/admin/assets/js/val-efb.js:2280",
+                            "public/assets/js/core-efb.js:1516",
+                            "vendor/logic/logic/assets/admin/js/conditional-logic-efb.js:2755",
+                            "vendor/smssended/smsefb.php:211"
+                        ],
+                        "addon_reads": [
+                            "vendor/telegram/class-Emsfb-telegram.php:1019(list)",
+                            "vendor/telegram/class-Emsfb-telegram.php:1034"
+                        ]
+                    },
+                    "enabled": {
+                        "definition": [
+                            "includes/functions.php:2582",
+                            "includes/phrases.php:181"
+                        ],
+                        "reason": "Defined twice with the same English (\"Enabled\"): base $lang (Localization list) and the telegram group. The base key has live usage outside vendor/telegram (vendor/autofill JS reads efb_var.text.enabled), so the group copy stays in core untouched.",
+                        "usage_outside_addon": [
+                            "vendor/autofill/assets/js/autofill-api-efb.js:184",
+                            "vendor/autofill/assets/js/autofill-api-efb.js:446"
+                        ],
+                        "addon_reads": [
+                            "vendor/telegram/assets/js/telegram-efb.js:209",
+                            "vendor/telegram/assets/js/telegram-efb.js:1380"
+                        ]
+                    }
+                },
+                "UNSURE": {
+                    "date": {
+                        "definition": [
+                            "includes/functions.php:1623",
+                            "includes/phrases.php:190"
+                        ],
+                        "reason": "Defined twice with different English: base $lang \"Date Picker\" (core builder JS reads efb_var.text.date) and telegram group \"Date\" (activity table header; the group wins on the Telegram screen). Different English strings = UNSURE; kept in core.",
+                        "usage_outside_addon": [
+                            "includes/admin/assets/js/forms-efb.js:150",
+                            "includes/admin/assets/js/forms-efb.js:154",
+                            "includes/admin/assets/js/forms-efb.js:187",
+                            "includes/admin/assets/js/forms-efb.js:331",
+                            "includes/admin/assets/js/forms-efb.js:368",
+                            "includes/admin/assets/js/forms-efb.js:395",
+                            "includes/admin/assets/js/forms-efb.js:423",
+                            "includes/admin/assets/js/forms-efb.js:453",
+                            "includes/admin/assets/js/forms-efb.js:518",
+                            "includes/admin/assets/js/forms-efb.js:542",
+                            "includes/admin/assets/js/forms-efb.js:562",
+                            "includes/admin/assets/js/val-efb.js:2590"
+                        ],
+                        "addon_reads": [
+                            "vendor/telegram/assets/js/telegram-efb.js:640",
+                            "vendor/telegram/assets/js/telegram-efb.js:1283"
+                        ]
+                    },
+                    "messageSent": {
+                        "definition": [
+                            "includes/functions.php:2256",
+                            "includes/phrases.php:199"
+                        ],
+                        "reason": "Defined twice with different English: base $lang \"Your message has been sent.\" (core admin AJAX, public reply handler, sms add-on) and telegram group \"Message sent\". The add-on reads it through text_efb(array), which returns the base string, so the group copy is never delivered. Different English = UNSURE; kept in core.",
+                        "usage_outside_addon": [
+                            "includes/admin/class-Emsfb-admin.php:1418",
+                            "includes/admin/class-Emsfb-admin.php:1524",
+                            "includes/admin/class-Emsfb-admin.php:1547",
+                            "includes/admin/class-Emsfb-admin.php:1725",
+                            "includes/class-Emsfb-public.php:1072",
+                            "includes/class-Emsfb-public.php:4887",
+                            "includes/class-Emsfb-public.php:5218",
+                            "vendor/smssended/smsefb.php:189",
+                            "vendor/smssended/smsefb.php:238"
+                        ],
+                        "addon_reads": [
+                            "vendor/telegram/class-Emsfb-telegram.php:1019(list)",
+                            "vendor/telegram/class-Emsfb-telegram.php:1068",
+                            "vendor/telegram/class-Emsfb-telegram.php:1453(list)",
+                            "vendor/telegram/class-Emsfb-telegram.php:1502"
+                        ]
+                    }
+                },
+                "DEAD": {
+                    "botfather_link": {
+                        "definition": "includes/phrases.php:184",
+                        "reason": "No reader anywhere; telegram-efb.js hardcodes the @BotFather link. Plain string, not gettext."
+                    },
+                    "chatid_finder_link": {
+                        "definition": "includes/phrases.php:187",
+                        "reason": "No reader anywhere; telegram-efb.js hardcodes the @WSYourIDBot link. Plain string, not gettext."
+                    },
+                    "invalidToken": {
+                        "definition": "includes/phrases.php:193",
+                        "reason": "Only named in the text_efb() request list at vendor/telegram/telegram-new-efb.php:446; the value is never read (the code uses a literal \"Invalid token\")."
+                    },
+                    "unknownError": {
+                        "definition": "includes/phrases.php:196",
+                        "reason": "Only named in the text_efb() request list at vendor/telegram/telegram-new-efb.php:446; the value is never read (the code uses literal __(\"Unknown error\"))."
+                    }
+                }
+            },
+            "multi_pending": [],
+            "notes": [
+                "Usage file:line values were recorded by the Phase 1 inventory, before this migration edited includes/*.php; definition lines are current.",
+                "FIXED this run: the 13 keys the add-on read through text_efb(array) (which returns only base $lang keys) now resolve - vendor/telegram reads them from the provider group via efb_telegram_phrases_efb(). Covered by tests/test-telegram-phrases.php.",
+                "FIXED this run: the 11 keys telegram-efb.js read but nothing defined (instant_alerts, all_forms, secure, settings_desc, enable_desc, test_desc, activity_desc, help_title, help_desc, sent, no_activity_desc) are now provider entries translated in all 46 locales.",
+                "FIXED this run: the 29 literal easy-form-builder gettext calls in vendor/telegram/class-Emsfb-telegram.php now use the efb-telegram domain; the 18 distinct strings are provider msgids (literal_1..literal_18).",
+                "FIXED this run: get_sender_efb() loads telegram-new-efb.php when only the admin class was required, and send_telegram_admin_efb() reports telegramConfigError instead of fataling. Proven by tests/test-telegram-activity-log.php.",
+                "NOT a bug (investigated, reproduced, left as is): ajax_clear_telegram_activity_efb() uses $wpdb->prepare(\"DELETE FROM `%1s` ...\"). %1s is the legacy unquoted-identifier placeholder and renders as a bare name on WP 7.1; a plain %s would quote it and break the statement. Pinned by a test.",
+                "NOT reachable: handle_webhook_efb() and handle_start_command_efb() have no route registered, so the hardcoded Persian welcome message at class-Emsfb-telegram.php:1251 is dead code.",
+                "Reported, not changed: core includes/admin/class-Emsfb-admin.php unsets telegram_msg_recived_user but reads telegram_msg_recived_usr.",
+                "Reported, not changed: the English of default_test_message and no_activity differs between the phrase and the JS fallback (pre-existing divergence; English sources were not touched).",
+                "maybe_create_tables_efb() in class-Emsfb-telegram.php still gates on its own option emsfb_telegram_table_version = 1.0 and creates the narrow schema; the wider schema and the repair live in telegram-new-efb.php behind emsfb_telegram_adv_table_version = 1.1. Both orders are covered by tests/test-telegram-schema.php."
+            ],
+            "revisions": [
+                {
+                    "date": "2026-09-16",
+                    "change": "Retired the \"msgstr must differ from msgid\" invariant (a spec mistake). check-translations.php now reports an identical msgstr as a WARNING, counted separately; errors are unchanged. Restored the strings the rule had forced.",
+                    "restored": [
+                        {
+                            "locale": "de_DE",
+                            "index": 6,
+                            "msgid": "Status",
+                            "before": "Zustand",
+                            "after": "Status",
+                            "reason": "forced by the rule; approved EFB de translation"
+                        },
+                        {
+                            "locale": "de_DE",
+                            "index": 10,
+                            "msgid": "Bot Token",
+                            "before": "Bot-Token",
+                            "after": "Bot Token",
+                            "reason": "forced by the rule; approved EFB de translation"
+                        },
+                        {
+                            "locale": "de_DE",
+                            "index": 16,
+                            "msgid": "Test",
+                            "before": "Testen",
+                            "after": "Test",
+                            "reason": "forced by the rule; approved EFB de translation"
+                        },
+                        {
+                            "locale": "fr_FR",
+                            "index": 16,
+                            "msgid": "Test",
+                            "before": "Tester",
+                            "after": "Test",
+                            "reason": "forced by the rule; approved EFB fr translation"
+                        },
+                        {
+                            "locale": "nl_NL",
+                            "index": 6,
+                            "msgid": "Status",
+                            "before": "Toestand",
+                            "after": "Status",
+                            "reason": "forced by the rule; approved EFB nl translation"
+                        },
+                        {
+                            "locale": "nl_NL",
+                            "index": 13,
+                            "msgid": "Chat ID",
+                            "before": "Chat-ID",
+                            "after": "Chat ID",
+                            "reason": "forced by the rule; approved EFB nl translation"
+                        },
+                        {
+                            "locale": "nl_NL",
+                            "index": 14,
+                            "msgid": "Enter chat ID",
+                            "before": "Voer chat-ID in",
+                            "after": "Voer chat ID in",
+                            "reason": "knock-on of the forced \"Chat-ID\" (changed only to match it); approved EFB nl translation"
+                        },
+                        {
+                            "locale": "nl_NL",
+                            "index": 25,
+                            "msgid": "Find your Chat ID using %s",
+                            "before": "Vind je chat-ID met behulp van %s",
+                            "after": "Vind je Chat ID met behulp van %s",
+                            "reason": "knock-on of the forced \"Chat-ID\" (changed only to match it); approved EFB nl translation"
+                        },
+                        {
+                            "locale": "sv_SE",
+                            "index": 6,
+                            "msgid": "Status",
+                            "before": "Tillstånd",
+                            "after": "Status",
+                            "reason": "forced by the rule; approved EFB sv translation"
+                        },
+                        {
+                            "locale": "tr_TR",
+                            "index": 16,
+                            "msgid": "Test",
+                            "before": "Test et",
+                            "after": "Test",
+                            "reason": "forced by the rule; approved EFB tr translation"
+                        },
+                        {
+                            "locale": "id_ID",
+                            "index": 6,
+                            "msgid": "Status",
+                            "before": "Keadaan",
+                            "after": "Status",
+                            "reason": "written to avoid the rule; WordPress core id admin translates \"Status\" as \"Status\""
+                        },
+                        {
+                            "locale": "da_DK",
+                            "index": 6,
+                            "msgid": "Status",
+                            "before": "Tilstand",
+                            "after": "Status",
+                            "reason": "written to avoid the rule; WordPress core da admin translates \"Status\" as \"Status\""
+                        },
+                        {
+                            "locale": "da_DK",
+                            "index": 16,
+                            "msgid": "Test",
+                            "before": "Afprøv",
+                            "after": "Test",
+                            "reason": "written to avoid the rule; natural Danish button label"
+                        },
+                        {
+                            "locale": "pl_PL",
+                            "index": 6,
+                            "msgid": "Status",
+                            "before": "Stan",
+                            "after": "Status",
+                            "reason": "written to avoid the rule; WordPress core pl admin translates \"Status\" as \"Status\""
+                        },
+                        {
+                            "locale": "es_MX",
+                            "index": 44,
+                            "msgid": "Use @your_bot_username",
+                            "before": "Utilice @your_bot_username",
+                            "after": "Use @your_bot_username",
+                            "reason": "changed to avoid the rule; es_MX uses \"Use\" (usted imperative) in every other string"
+                        }
+                    ],
+                    "rebuilt_locales": [
+                        "de_DE",
+                        "fr_FR",
+                        "nl_NL",
+                        "sv_SE",
+                        "tr_TR",
+                        "id_ID",
+                        "da_DK",
+                        "pl_PL",
+                        "es_MX"
+                    ],
+                    "check_translations": {
+                        "locales": 21,
+                        "msgids": 70,
+                        "compiled_checked": 21,
+                        "warnings": 13,
+                        "errors": 0
+                    },
+                    "zip": "Rebuilt from the original 12-entry zip: 12 kept byte-identical, 68 added; vs the first build only the 27 .po/.mo/.l10n.php entries of the rebuilt locales differ.",
+                    "pending_user_decision": [
+                        "Telegram spelling in fa_IR/ar (transliterated)",
+                        "the other corrected wordpress.org strings",
+                        "German Sie to du change"
+                    ]
+                },
+                {
+                    "date": "2026-09-16",
+                    "change": "46 independent locales, locale fallback removed, @WSYourIDBot corrected in the English source, and the Telegram add-on bugs investigated.",
+                    "bot_handle": "The English msgid changed from \"Message @userinfobot\" to \"Message @WSYourIDBot\" (private_step_1) and in the JS fallback; every locale reuses its approved translation of the old msgid with only the handle swapped. 0 references to @userinfobot remain in live code, guides or onboarding HTML.",
+                    "fallback_removal": "emsfb_addon_locale_fallback_efb() and every use removed from includes/functions.php (loader, active-locale/prune kept set, refetch queue, the locale loop); fallbacks/no_fallback removed from tests/addon-i18n/locales.json. Each locale loads only its own exact file; a locale with no shipped file shows English and queues nothing; the pruner keeps exact active locales only. 0 references remain.",
+                    "locale_parents": {
+                        "de_CH": "de_DE_formal (Sie + Swiss ss)",
+                        "de_CH_informal": "de_DE (du + Swiss ss)",
+                        "note": "WordPress pairs de_DE (du) with de_DE_formal (Sie); the Swiss pair mirrors that. de_CH was corrected from the du base to the Sie base during this run."
+                    },
+                    "check_translations": {
+                        "locales": 46,
+                        "msgids": 99,
+                        "compiled_checked": 46,
+                        "warnings": 66,
+                        "errors": 0
+                    },
+                    "warning_breakdown": {
+                        "msgstr equals msgid": 41,
+                        "identical to parent": 25
+                    },
+                    "identical_to_parent": {
+                        "es_MX": 46,
+                        "es_AR": 61,
+                        "es_CL": 59,
+                        "es_CO": 59,
+                        "es_CR": 59,
+                        "es_DO": 59,
+                        "es_EC": 59,
+                        "es_GT": 59,
+                        "es_PE": 59,
+                        "es_PR": 59,
+                        "es_UY": 61,
+                        "es_VE": 59,
+                        "de_DE_formal": 65,
+                        "de_AT": 93,
+                        "de_CH": 97,
+                        "de_CH_informal": 93,
+                        "fr_CA": 74,
+                        "fr_BE": 93,
+                        "pt_PT_ao90": 83,
+                        "pt_AO": 64,
+                        "nl_NL_formal": 76,
+                        "nl_BE": 76,
+                        "fa_AF": 77,
+                        "zh_HK": 43,
+                        "ary": 14
+                    },
+                    "zip": "Rebuilt against the pristine 12-entry HEAD zip: 12 -> 155 entries, 143 added, 0 changed, 0 removed (142 language entries = 46 locales x .po/.mo/.l10n.php + locales.json + index.php + .pot).",
+                    "tests": {
+                        "check-translations": "46 locales, 0 errors",
+                        "loader": "100/100",
+                        "prune": "62/62",
+                        "telegram-schema": "11/11",
+                        "telegram-phrases": "19/19",
+                        "telegram-activity-log": "6/6",
+                        "snapshots": "front subset union and all 8 front lists byte-identical (en_US, fa_IR); all 6 add-on subset lists unchanged; group 78 -> 89 keys, 11 added, 0 removed"
+                    },
+                    "pending_user_decision": [
+                        "The English help text now says @WSYourIDBot everywhere (was reported as a mismatch with the tip link; the user confirmed @WSYourIDBot is correct)."
+                    ]
+                }
+            ]
+        }
+    }
+}

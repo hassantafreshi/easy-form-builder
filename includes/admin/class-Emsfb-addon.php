@@ -52,9 +52,9 @@ class Addon {
 		$ac = get_setting_Emsfb('decoded');
 		$php_addon_issues = emsfb_get_incompatible_addons_efb( $ac );
 
-		// After a plugin update, block the Add-ons page until missing add-on files
-		// are reinstalled. The Recover button on the blocking screen performs the
-		// reinstall, then offers an Activate (reload) button.
+		// Missing add-on files never lock this page, not even right after a plugin
+		// update: it is where an add-on that cannot be restored is reinstalled or
+		// switched off. The recovery card is shown above the catalogue instead.
 		$efb_recovery_fn = get_efbFunction();
 		$addon_recovery = $efb_recovery_fn->recover_missing_addons_efb( null, 'addons' );
 		if ( ! empty( $addon_recovery['recovered'] ) ) {
@@ -62,10 +62,9 @@ class Addon {
 			return;
 		}
 		$addon_recovery_state = $efb_recovery_fn->addon_recovery_state_efb();
-		if ( 'block' === $addon_recovery_state ) {
-			echo $efb_recovery_fn->render_addon_recovery_ui_efb( 'block' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			return;
-		}
+		// A locale now in use may lack an add-on language file pruned at install.
+		// Runtime scope above: translations never lock or banner this page.
+		$efb_recovery_fn->process_addon_i18n_refetch_efb();
 		$server_name = str_replace("www.", "", isset($_SERVER['HTTP_HOST']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : '');
 		/*
 		 * The shared helper is the single source of truth for catalogue requests.
@@ -188,7 +187,7 @@ class Addon {
 
 	<div id="alert_efb" class="efb mx-5"></div>
 
-	<?php if ( 'inline' === $addon_recovery_state ) : ?>
+	<?php if ( 'none' !== $addon_recovery_state ) : ?>
 		<?php echo $efb_recovery_fn->render_addon_recovery_ui_efb( 'inline' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 	<?php endif; ?>
 

@@ -544,9 +544,6 @@ class Admin {
             return;
         }
 
-        // Form Security & Spam Protection ships inside the plugin. The
-        // licensing endpoint still verifies its package before local files are
-        // enabled.
         // File access problems are common on shared hosts, so log the full
         // preflight status before any network requests are attempted.
         $status = emsfb_get_file_access_status_efb();
@@ -3025,6 +3022,15 @@ class Admin {
                     esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to unzip files', 'easy-form-builder')
                     . ' (' . $r->get_error_message() . ')'
                 );
+            }
+            // Keep only the add-on language files of locales this site uses. A global
+            // function (this class does not extend efbFunction); it never throws and
+            // never changes the install result.
+            if ( ! function_exists( 'emsfb_prune_addon_languages_efb' ) && function_exists( 'get_efbFunction' ) ) {
+                get_efbFunction();
+            }
+            if ( function_exists( 'emsfb_prune_addon_languages_efb' ) ) {
+                emsfb_prune_addon_languages_efb();
             }
             return true;
         }

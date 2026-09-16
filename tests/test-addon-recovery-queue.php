@@ -98,7 +98,7 @@ class Efb_Queue_Test_Function extends efbFunction {
 		return (bool) $this->cron_disabled;
 	}
 
-	public function get_addon_local_health_efb( $settings = null ) {
+	public function get_addon_local_health_efb( $settings = null, $scope = 'runtime' ) {
 		return array( 'missing' => $this->missing, 'present' => array() );
 	}
 

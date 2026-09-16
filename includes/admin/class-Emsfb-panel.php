@@ -68,16 +68,20 @@ class Panel_edit  {
 				echo $efbFunction->render_addon_recovery_reload_ui_efb(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				return;
 			}
-			$addon_health = $efbFunction->get_addon_local_health_efb( $ac );
+			// Scope 'admin': a package from before the add-on shipped its own translations
+			// counts as missing here (and only here and on Create), so recovery replaces it.
+			$addon_health = $efbFunction->get_addon_local_health_efb( $ac, 'admin' );
 			$download_addons = ! empty( $addon_health['missing'] );
 
 			// After a plugin update, block the panel until missing add-on files are
 			// reinstalled; show the recovery screen instead of the panel contents.
-			$addon_recovery_state = $efbFunction->addon_recovery_state_efb( $ac );
+			$addon_recovery_state = $efbFunction->addon_recovery_state_efb( $ac, 'admin' );
 			if ( 'block' === $addon_recovery_state ) {
-				echo $efbFunction->render_addon_recovery_ui_efb( 'block' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				echo $efbFunction->render_addon_recovery_ui_efb( 'block', 'admin' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				return;
 			}
+			// A locale now in use may lack an add-on language file pruned at install.
+			$efbFunction->process_addon_i18n_refetch_efb();
 
 			if(isset($ac->AdnPAP) && $ac->AdnPAP==1){
 					if(!file_exists(EMSFB_PLUGIN_DIRECTORY."/vendor/paypal/paypalefb.php")) {
@@ -204,7 +208,7 @@ class Panel_edit  {
 					</nav>
 					<div id="alert_efb" class="efb mx-5"></div>
 					<?php if ( 'inline' === $addon_recovery_state ) : ?>
-						<?php echo $efbFunction->render_addon_recovery_ui_efb( 'inline' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+						<?php echo $efbFunction->render_addon_recovery_ui_efb( 'inline', 'admin' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 					<?php endif; ?>
 					<!-- end  new nav  -->
 						<div class="efb modal fade " id="settingModalEfb" aria-hidden="true" aria-labelledby="settingModalEfb"  role="dialog" tabindex="-1" data-backdrop="static" >

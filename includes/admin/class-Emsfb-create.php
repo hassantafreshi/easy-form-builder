@@ -75,16 +75,20 @@ class Create {
 			echo $efbFunction->render_addon_recovery_reload_ui_efb(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			return;
 		}
-		$addon_health = $efbFunction->get_addon_local_health_efb( $settings );
+		// Scope 'admin': a package from before the add-on shipped its own translations
+		// counts as missing here (and only here and on Panel), so recovery replaces it.
+		$addon_health = $efbFunction->get_addon_local_health_efb( $settings, 'admin' );
 		$download_addons = ! empty( $addon_health['missing'] );
 
 		// After a plugin update, do not load the builder until missing add-on
 		// files have been reinstalled — show a blocking recovery screen instead.
-		$addon_recovery_state = $efbFunction->addon_recovery_state_efb( $settings );
+		$addon_recovery_state = $efbFunction->addon_recovery_state_efb( $settings, 'admin' );
 		if ( 'block' === $addon_recovery_state ) {
-			echo $efbFunction->render_addon_recovery_ui_efb( 'block' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo $efbFunction->render_addon_recovery_ui_efb( 'block', 'admin' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			return;
 		}
+		// A locale now in use may lack an add-on language file pruned at install.
+		$efbFunction->process_addon_i18n_refetch_efb();
 
 		if(isset($settings->AdnPAP) && $settings->AdnPAP==1){
 			if(!file_exists(EMSFB_PLUGIN_DIRECTORY."/vendor/paypal/paypalefb.php")) {
@@ -176,7 +180,7 @@ class Create {
 				<?php echo $noti_pro; ?>
 			<div id="alert_efb" class="efb mx-5"></div>
 			<?php if ( 'inline' === $addon_recovery_state ) : ?>
-				<?php echo $efbFunction->render_addon_recovery_ui_efb( 'inline' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+				<?php echo $efbFunction->render_addon_recovery_ui_efb( 'inline', 'admin' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 			<?php endif; ?>
 			<div class="efb modal fade " id="settingModalEfb" aria-hidden="true" aria-labelledby="settingModalEfb"  role="dialog" tabindex="-1" data-backdrop="static" >
 						<div class="efb modal-dialog modal-dialog-centered " id="settingModalEfb_" >
