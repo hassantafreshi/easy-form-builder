@@ -7,10 +7,15 @@
  *       --translations=temp/addon-i18n/telegram/translations [--languages=vendor/telegram/languages] [--no-wp]
  *
  * Checks per locale (tests/addon-i18n/locales.json):
- *  - every msgid present with a non-empty msgstr;
+ *  - every msgid present with a non-empty msgstr that is not a "(none)"-style marker;
  *  - identical placeholder multiset (%s, %d, %1$s, %%; numbered ones may reorder);
- *  - identical HTML tags and entities (&hellip; stays an entity);
- *  - same leading/trailing whitespace and number of \n;
+ *  - identical HTML tags and entities (&hellip; stays an entity), with three WARNING-only cases:
+ *      &amp; written as a word (it is the "&" character, and must match the translated UI label it names),
+ *      &larr; for &rarr; in an RTL locale,
+ *      and an approved wordpress.org string kept verbatim that writes an entity as its character;
+ *    an entity the msgid does not have is always an ERROR (a plain string is escaped by the JS and would
+ *    show "&hellip;" literally), so an approved string with one must get that token fixed;
+ *  - same leading/trailing whitespace and number of \n (WARNING only for an approved string kept verbatim);
  *  - plural entries have exactly nplurals forms;
  *  - WARNING only (never an error): a msgstr equal to its msgid, unless the msgid is only
  *    never-translate tokens. The natural word is often the English one (de "Status");
@@ -55,7 +60,10 @@ $never_translate = array( 'Google Sheets', 'Stripe', 'PayPal', 'Telegram', 'Goog
 $unique = array();
 foreach ( $source['entries'] as $e ) {
 	$id = ( isset( $e['context'] ) && null !== $e['context'] ? $e['context'] . "\4" : '' ) . $e['msgid'];
-	$unique[ $id ] = $e;
+	// One entry per msgid, as in gettext: a msgid used both alone and in _n() is checked as plural.
+	if ( ! isset( $unique[ $id ] ) || ( empty( $unique[ $id ]['plural'] ) && ! empty( $e['plural'] ) ) ) {
+		$unique[ $id ] = $e;
+	}
 }
 
 function efb_check_placeholders( $s ) {
@@ -80,6 +88,47 @@ function efb_check_edges( $s ) {
 	preg_match( '/^\s*/u', $s, $lead );
 	preg_match( '/\s*$/u', $s, $trail );
 	return array( $lead[0], $trail[0] );
+}
+/**
+ * Entity check for one form. Returns null, or array( 'error'|'warning', message ).
+ *
+ * @param string $reference msgid (or msgid_plural).
+ * @param string $form      msgstr form.
+ * @param bool   $rtl       Right-to-left locale.
+ * @param bool   $approved  Approved wordpress.org string kept verbatim.
+ */
+function efb_check_entity_issue( $reference, $form, $rtl, $approved ) {
+	$ref_list  = efb_check_entities( $reference );
+	$form_list = efb_check_entities( $form );
+	if ( $ref_list === $form_list ) {
+		return null;
+	}
+	$allowed = array_unique( $ref_list );
+	if ( $rtl && in_array( '&rarr;', $allowed, true ) ) {
+		$allowed[] = '&larr;';
+	}
+	$added = array_values( array_unique( array_diff( $form_list, $allowed ) ) );
+	if ( ! empty( $added ) ) {
+		return array( 'error', 'entity not in the msgid (' . implode( ' ', $added ) . ')' );
+	}
+	$normalise = function ( $list ) use ( $rtl ) {
+		$out = array();
+		foreach ( $list as $entity ) {
+			if ( '&amp;' === $entity ) {
+				continue;
+			}
+			$out[] = ( $rtl && '&larr;' === $entity ) ? '&rarr;' : $entity;
+		}
+		sort( $out );
+		return $out;
+	};
+	if ( $normalise( $ref_list ) === $normalise( $form_list ) ) {
+		return array( 'warning', '&amp; written as a word' . ( $rtl ? ' or RTL arrow' : '' ) . ' (' . implode( ' ', $form_list ) . ')' );
+	}
+	if ( $approved ) {
+		return array( 'warning', 'approved string kept verbatim; entities written as characters (' . implode( ' ', $form_list ) . ')' );
+	}
+	return array( 'error', 'entities differ (' . implode( ' ', $form_list ) . ')' );
 }
 function efb_check_only_tokens( $msgid, $tokens ) {
 	$rest = str_replace( $tokens, '', $msgid );
@@ -123,11 +172,22 @@ foreach ( $locales['locales'] as $row ) {
 			}
 			$forms = array( $msgstr );
 		}
-		foreach ( $forms as $form ) {
+		// Approved wordpress.org strings are used verbatim (translations/<locale>.json "origin";
+		// "approved_forms" lists which forms of a partly approved plural came from the export).
+		$origin   = isset( $tr['origin'][ $id ] ) ? (string) $tr['origin'][ $id ] : '';
+		$approved = 0 === strpos( $origin, 'wporg-' ) || 0 === strpos( $origin, 'local-po' );
+		$rtl      = (bool) preg_match( '/^(ar|ary|fa|he|ur|ckb|ps|ug)(_|$)/', $locale );
+		foreach ( $forms as $form_index => $form ) {
 			if ( '' === trim( (string) $form ) ) {
 				$errors[] = "{$label}: empty msgstr";
 				continue;
 			}
+			// A tool's "no value" marker written as the translation passes every check above and ships as UI text.
+			if ( preg_match( '/^\(\s*(none|null|empty|todo|missing|untranslated)\s*\)$/i', trim( (string) $form ) ) && trim( (string) $form ) !== trim( $e['msgid'] ) ) {
+				$errors[] = "{$label}: placeholder msgstr " . json_encode( (string) $form );
+				continue;
+			}
+			$form_approved = $approved && ( ! isset( $tr['approved_forms'][ $id ] ) || in_array( $form_index, (array) $tr['approved_forms'][ $id ], true ) );
 			$reference = ( ! empty( $e['plural'] ) && $form !== $forms[0] ) ? $e['plural'] : $e['msgid'];
 			if ( efb_check_placeholders( $reference ) !== efb_check_placeholders( $form ) ) {
 				$errors[] = "{$label}: placeholders differ (" . implode( ' ', efb_check_placeholders( $form ) ) . ')';
@@ -135,11 +195,20 @@ foreach ( $locales['locales'] as $row ) {
 			if ( efb_check_tags( $reference ) !== efb_check_tags( $form ) ) {
 				$errors[] = "{$label}: HTML tags differ";
 			}
-			if ( efb_check_entities( $reference ) !== efb_check_entities( $form ) ) {
-				$errors[] = "{$label}: entities differ (" . implode( ' ', efb_check_entities( $form ) ) . ')';
+			$entity_issue = efb_check_entity_issue( $reference, $form, $rtl, $form_approved );
+			if ( null !== $entity_issue ) {
+				if ( 'error' === $entity_issue[0] ) {
+					$errors[] = "{$label}: {$entity_issue[1]}";
+				} else {
+					$warnings[] = "{$label}: {$entity_issue[1]}";
+				}
 			}
 			if ( efb_check_edges( $reference ) !== efb_check_edges( $form ) ) {
-				$errors[] = "{$label}: leading/trailing whitespace differs";
+				if ( $form_approved ) {
+					$warnings[] = "{$label}: approved string kept verbatim; leading/trailing whitespace differs";
+				} else {
+					$errors[] = "{$label}: leading/trailing whitespace differs";
+				}
 			}
 			if ( substr_count( $reference, "\n" ) !== substr_count( $form, "\n" ) ) {
 				$errors[] = "{$label}: number of line breaks differs";

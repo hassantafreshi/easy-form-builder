@@ -141,7 +141,9 @@ class Efb_Hsh_Recovery_Test_Function extends efbFunction {
 
 	/**
 	 * Stands in for the add-on server and the zip extraction: a delivered
-	 * package lands exactly where the local health check looks for it.
+	 * package lands exactly where the local health check looks for it. The
+	 * current human-shield.zip also carries its translations, which the
+	 * Create/Panel scope (the Recover button) checks as well.
 	 */
 	public function addon_add_efb( $value ) {
 		$this->server_requests[] = $value;
@@ -149,7 +151,8 @@ class Efb_Hsh_Recovery_Test_Function extends efbFunction {
 			return array( 'status' => false, 'message' => 'Error: server (whitestudio.team) responded with an invalid request. responded code: 503' );
 		}
 		$requirements = $this->get_addon_required_files_efb();
-		foreach ( $requirements[ $value ] as $relative_file ) {
+		$i18n_files   = $this->get_addon_i18n_required_files_efb();
+		foreach ( array_merge( $requirements[ $value ], isset( $i18n_files[ $value ] ) ? $i18n_files[ $value ] : array() ) as $relative_file ) {
 			efb_hsh_put_file( $relative_file );
 		}
 		return array( 'status' => true, 'message' => 'installed' );

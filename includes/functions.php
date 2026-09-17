@@ -2452,150 +2452,30 @@ class efbFunction {
 			"condADAddon" => $state  &&  isset($ac->text->condADAddon) ? $ac->text->condADAddon : esc_html__('The Conditional Logic Add-on enables dynamic and interactive forms based on specific user inputs or conditional rules. It allows for highly personalized forms tailored to meet users’ unique needs.','easy-form-builder'),
 			/* translators: Shown when the Conditional Logic builder script fails to load in the form editor */
 			"logicLoadError" => $state  &&  isset($ac->text->logicLoadError) ? $ac->text->logicLoadError : esc_html__('The Conditional Logic module failed to load. Please refresh the page; if the problem continues, deactivate and reactivate the Conditional Logic add-on.','easy-form-builder'),
-			/* translators: Toggle label - stop evaluating further rules once this rule matches */
-			"stopProcessing" => $state  &&  isset($ac->text->stopProcessing) ? $ac->text->stopProcessing : esc_html__('Stop after this rule matches','easy-form-builder'),
-			/* translators: IF = section label that introduces the conditions of a conditional-logic rule */
-			"logicIf" => $state  &&  isset($ac->text->logicIf) ? $ac->text->logicIf : esc_html__('IF','easy-form-builder'),
-			/* translators: THEN = section label that introduces the actions of a conditional-logic rule */
-			"logicThen" => $state  &&  isset($ac->text->logicThen) ? $ac->text->logicThen : esc_html__('THEN','easy-form-builder'),
-			/* translators: Test Mode = tab that lets the admin simulate rules with sample values */
-			"testMode" => $state  &&  isset($ac->text->testMode) ? $ac->text->testMode : esc_html__('Test Mode','easy-form-builder'),
-			/* translators: Run Test = button that executes the rule test */
-			"runTest" => $state  &&  isset($ac->text->runTest) ? $ac->text->runTest : esc_html__('Run Test','easy-form-builder'),
-			/* translators: Matched = test result shown when a rule's condition evaluated to true */
-			"matched" => $state  &&  isset($ac->text->matched) ? $ac->text->matched : esc_html__('Matched','easy-form-builder'),
-			/* translators: Not matched = test result shown when a rule's condition evaluated to false */
-			"notMatched" => $state  &&  isset($ac->text->notMatched) ? $ac->text->notMatched : esc_html__('Not matched','easy-form-builder'),
 			/* translators: Skipped = test result shown when a rule was not evaluated at all */
 			"skipped" => $state  &&  isset($ac->text->skipped) ? $ac->text->skipped : esc_html__('Skipped','easy-form-builder'),
-			/* translators: Empty state shown when the form has no fields to build conditions from */
-			"noFields" => $state  &&  isset($ac->text->noFields) ? $ac->text->noFields : esc_html__('No fields found.','easy-form-builder'),
-			/* translators: %1$s = maximum number of items allowed, %2$s = item label (e.g. rules, conditions). Shown when the current plan's limit is reached. */
-			"planLimitReached" => $state  &&  isset($ac->text->planLimitReached) ? $ac->text->planLimitReached : esc_html__('You can create up to %1$s %2$s on your current plan. Upgrade to Pro for unlimited access.','easy-form-builder'),
-			/* translators: Inspector = panel showing the details of the last rule test run */
-			"inspector" => $state  &&  isset($ac->text->inspector) ? $ac->text->inspector : esc_html__('Inspector','easy-form-builder'),
 			/* translators: Rule trace = section listing the step-by-step evaluation of a rule during testing */
 			"logicTrace" => $state  &&  isset($ac->text->logicTrace) ? $ac->text->logicTrace : esc_html__('Rule trace','easy-form-builder'),
-			/* translators: Final values = section showing the resulting field values after rules ran */
-			"finalValues" => $state  &&  isset($ac->text->finalValues) ? $ac->text->finalValues : esc_html__('Final values','easy-form-builder'),
 			/* translators: Effects = section listing the actions a rule performed during testing */
 			"effects" => $state  &&  isset($ac->text->effects) ? $ac->text->effects : esc_html__('Effects','easy-form-builder'),
-			/* translators: Conflicts = section listing rules whose actions contradict each other */
-			"conflicts" => $state  &&  isset($ac->text->conflicts) ? $ac->text->conflicts : esc_html__('Conflicts','easy-form-builder'),
-			/* translators: Warning shown when one rule writes a value to a field that another rule hides or disables, so the value is dropped from the entry */
-			"valueOnStrippedField" => $state  &&  isset($ac->text->valueOnStrippedField) ? $ac->text->valueOnStrippedField : esc_html__('A value is written to this field while another rule hides or disables it &mdash; hidden and disabled fields are not saved with the entry.','easy-form-builder'),
-			/* translators: Reason shown when a rule was skipped because an earlier rule stopped processing */
-			"blockedByStop" => $state  &&  isset($ac->text->blockedByStop) ? $ac->text->blockedByStop : esc_html__('Blocked by stop processing','easy-form-builder'),
-			/* translators: Calculate = action type that computes a value from a formula */
-			"calculate" => $state  &&  isset($ac->text->calculate) ? $ac->text->calculate : esc_html__('Calculate','easy-form-builder'),
 			/* translators: Formula = field label for the calculation expression input */
 			"formula" => $state  &&  isset($ac->text->formula) ? $ac->text->formula : esc_html__('Formula','easy-form-builder'),
-			/* translators: Decimals = field label for the number of decimal places in a calculated value */
-			"decimals" => $state  &&  isset($ac->text->decimals) ? $ac->text->decimals : esc_html__('Decimals','easy-form-builder'),
-			/* translators: Insert field = button that inserts a field token into the formula editor */
-			"insertField" => $state  &&  isset($ac->text->insertField) ? $ac->text->insertField : esc_html__('Insert field','easy-form-builder'),
-			/* translators: Error shown when a Calculate action's formula cannot be evaluated */
-			"formulaInvalid" => $state  &&  isset($ac->text->formulaInvalid) ? $ac->text->formulaInvalid : esc_html__('Formula could not be calculated. Check field tokens and division by zero.','easy-form-builder'),
-			/* translators: Set Value = action type that sets a field's value */
-			"setValue" => $state  &&  isset($ac->text->setValue) ? $ac->text->setValue : esc_html__('Set Value','easy-form-builder'),
-			/* translators: Clear Value = action type that empties a field's value */
-			"clearValue" => $state  &&  isset($ac->text->clearValue) ? $ac->text->clearValue : esc_html__('Clear Value','easy-form-builder'),
-			/* translators: Show Message = action type that displays a message to the visitor */
-			"showMessage" => $state  &&  isset($ac->text->showMessage) ? $ac->text->showMessage : esc_html__('Show Message','easy-form-builder'),
-			/* translators: Jump to Step = action type that moves a multi-step form to another step */
-			"jumpStep" => $state  &&  isset($ac->text->jumpStep) ? $ac->text->jumpStep : esc_html__('Jump to Step','easy-form-builder'),
-			/* translators: Static = value type meaning a fixed, literal value rather than a dynamic one */
-			"staticValue" => $state  &&  isset($ac->text->staticValue) ? $ac->text->staticValue : esc_html__('Static','easy-form-builder'),
-			/* translators: Optional = marks a rule field as not required */
-			"optional" => $state  &&  isset($ac->text->optional) ? $ac->text->optional : esc_html__('Optional','easy-form-builder'),
 			/* translators: Enable = generic toggle action label */
 			"enable" => $state  &&  isset($ac->text->enable) ? $ac->text->enable : esc_html__('Enable','easy-form-builder'),
 			/* translators: Disable = generic toggle action label */
 			"disable" => $state  &&  isset($ac->text->disable) ? $ac->text->disable : esc_html__('Disable','easy-form-builder'),
 			/* translators: Enabled = generic status label */
 			"enabled" => $state  &&  isset($ac->text->enabled) ? $ac->text->enabled : esc_html__('Enabled','easy-form-builder'),
-			/* translators: Notifications = action type/tab for sending notifications */
-			"notifications" => $state  &&  isset($ac->text->notifications) ? $ac->text->notifications : esc_html__('Notifications','easy-form-builder'),
-			/* translators: Confirmation = action type/tab for the post-submit confirmation message */
-			"confirmation" => $state  &&  isset($ac->text->confirmation) ? $ac->text->confirmation : esc_html__('Confirmation','easy-form-builder'),
-			/* translators: Webhook = action type/tab for triggering a webhook request */
-			"webhook" => $state  &&  isset($ac->text->webhook) ? $ac->text->webhook : esc_html__('Webhook','easy-form-builder'),
 			/* translators: Fields = tab listing the form's fields */
 			"fields" => $state  &&  isset($ac->text->fields) ? $ac->text->fields : esc_html__('Fields','easy-form-builder'),
-			/* translators: Redirect = action type that sends the visitor to another URL */
-			"redirect" => $state  &&  isset($ac->text->redirect) ? $ac->text->redirect : esc_html__('Redirect','easy-form-builder'),
 			/* translators: Shown = a field's visibility state after a show/hide rule runs */
 			"shown" => $state  &&  isset($ac->text->shown) ? $ac->text->shown : esc_html__('Shown','easy-form-builder'),
-			/* translators: Hidden = a field's visibility state after a show/hide rule runs */
-			"hidden" => $state  &&  isset($ac->text->hidden) ? $ac->text->hidden : esc_html__('Hidden','easy-form-builder'),
-			/* translators: Placeholder text for the Show Message action's free-text input */
-			"enterText" => $state  &&  isset($ac->text->enterText) ? $ac->text->enterText : esc_html__('Message&hellip;','easy-form-builder'),
-			/* translators: Stable = status meaning rule evaluation finished without looping */
-			"stable" => $state  &&  isset($ac->text->stable) ? $ac->text->stable : esc_html__('Stable','easy-form-builder'),
-			/* translators: Copy value from field = value source option that copies another field's value */
-			"copyValue" => $state  &&  isset($ac->text->copyValue) ? $ac->text->copyValue : esc_html__('Copy value from field','easy-form-builder'),
-			/* translators: Set placeholder = action type that changes a field's placeholder text */
-			"setPlaceholder" => $state  &&  isset($ac->text->setPlaceholder) ? $ac->text->setPlaceholder : esc_html__('Set placeholder','easy-form-builder'),
-			/* translators: Set help text = action type that changes a field's help text */
-			"setHelp" => $state  &&  isset($ac->text->setHelp) ? $ac->text->setHelp : esc_html__('Set help text','easy-form-builder'),
-			/* translators: Set label = action type that changes a field's label text */
-			"setLabel" => $state  &&  isset($ac->text->setLabel) ? $ac->text->setLabel : esc_html__('Set label','easy-form-builder'),
-			/* translators: Focus field = action type that moves keyboard focus to a field */
-			"focusField" => $state  &&  isset($ac->text->focusField) ? $ac->text->focusField : esc_html__('Focus field','easy-form-builder'),
-			/* translators: Scroll to field = action type that scrolls the page to a field */
-			"scrollToField" => $state  &&  isset($ac->text->scrollToField) ? $ac->text->scrollToField : esc_html__('Scroll to field','easy-form-builder'),
-			/* translators: Block submit = action type that prevents the form from being submitted */
-			"blockSubmit" => $state  &&  isset($ac->text->blockSubmit) ? $ac->text->blockSubmit : esc_html__('Block submit','easy-form-builder'),
-			/* translators: Custom submission message = action type that ends the form early with a custom message */
-			"endForm" => $state  &&  isset($ac->text->endForm) ? $ac->text->endForm : esc_html__('Custom submission message','easy-form-builder'),
-			/* translators: URL parameter = condition source based on a URL query parameter */
-			"urlParam" => $state  &&  isset($ac->text->urlParam) ? $ac->text->urlParam : esc_html__('URL parameter','easy-form-builder'),
-			/* translators: User = condition source group based on the visitor/logged-in user */
-			"userSource" => $state  &&  isset($ac->text->userSource) ? $ac->text->userSource : esc_html__('User','easy-form-builder'),
-			/* translators: Current step = condition source based on the multi-step form's active step */
-			"currentStep" => $state  &&  isset($ac->text->currentStep) ? $ac->text->currentStep : esc_html__('Current step','easy-form-builder'),
-			/* translators: Logged in = condition option matching a logged-in WordPress user */
-			"loggedIn" => $state  &&  isset($ac->text->loggedIn) ? $ac->text->loggedIn : esc_html__('Logged in','easy-form-builder'),
-			/* translators: Logged out = condition option matching a logged-out (guest) visitor */
-			"loggedOut" => $state  &&  isset($ac->text->loggedOut) ? $ac->text->loggedOut : esc_html__('Logged out','easy-form-builder'),
-			/* translators: Role = condition source based on the visitor's WordPress user role */
-			"userRole" => $state  &&  isset($ac->text->userRole) ? $ac->text->userRole : esc_html__('Role','easy-form-builder'),
-			/* translators: before = date comparison operator */
-			"dateBefore" => $state  &&  isset($ac->text->dateBefore) ? $ac->text->dateBefore : esc_html__('before','easy-form-builder'),
-			/* translators: after = date comparison operator */
-			"dateAfter" => $state  &&  isset($ac->text->dateAfter) ? $ac->text->dateAfter : esc_html__('after','easy-form-builder'),
-			/* translators: between dates = date comparison operator for a date range */
-			"dateBetween" => $state  &&  isset($ac->text->dateBetween) ? $ac->text->dateBetween : esc_html__('between dates','easy-form-builder'),
-			/* translators: NOT = logical negation operator label */
-			"notOperator" => $state  &&  isset($ac->text->notOperator) ? $ac->text->notOperator : esc_html__('NOT','easy-form-builder'),
-			/* translators: Toggle that inverts (logical NOT) an entire condition group; NAND/NOR are boolean-logic terms shown as a hint */
-			"negateGroup" => $state  &&  isset($ac->text->negateGroup) ? $ac->text->negateGroup : esc_html__('NOT — invert this group (NAND/NOR)','easy-form-builder'),
-			/* translators: Export = button that downloads the logic rules as a file */
-			"exportRules" => $state  &&  isset($ac->text->exportRules) ? $ac->text->exportRules : esc_html__('Export','easy-form-builder'),
-			/* translators: Import = button that loads logic rules from a file */
-			"importRules" => $state  &&  isset($ac->text->importRules) ? $ac->text->importRules : esc_html__('Import','easy-form-builder'),
-			/* translators: Success message shown after importing logic rules */
-			"importDone" => $state  &&  isset($ac->text->importDone) ? $ac->text->importDone : esc_html__('Rules imported. Review and save the form.','easy-form-builder'),
-			/* translators: Error shown when the imported file is not a valid logic-rules export */
-			"importInvalid" => $state  &&  isset($ac->text->importInvalid) ? $ac->text->importInvalid : esc_html__('This file is not a valid EFB logic-rules export.','easy-form-builder'),
 			/* translators: Duplicate = button that copies a rule or condition group */
 			"duplicate" => $state  &&  isset($ac->text->duplicate) ? $ac->text->duplicate : esc_html__('Duplicate','easy-form-builder'),
-			/* translators: Field label for choosing which fields are sent in the webhook payload; empty selection means all fields */
-			"payloadFields" => $state  &&  isset($ac->text->payloadFields) ? $ac->text->payloadFields : esc_html__('Payload fields (empty = all)','easy-form-builder'),
-			/* translators: Trigger webhook = action type that calls a webhook URL */
-			"triggerWebhook" => $state  &&  isset($ac->text->triggerWebhook) ? $ac->text->triggerWebhook : esc_html__('Trigger webhook','easy-form-builder'),
-			/* translators: Stop webhook = action type that cancels a previously triggered webhook */
-			"stopWebhook" => $state  &&  isset($ac->text->stopWebhook) ? $ac->text->stopWebhook : esc_html__('Stop webhook','easy-form-builder'),
-			/* translators: Hint under the stop-webhook field explaining that an empty value stops every webhook */
-			"stopWebhookHint" => $state  &&  isset($ac->text->stopWebhookHint) ? $ac->text->stopWebhookHint : esc_html__('empty = stop all','easy-form-builder'),
 			/* translators: Message shown to the visitor when a Block submit rule prevents form submission */
 			"submitBlocked" => $state  &&  isset($ac->text->submitBlocked) ? $ac->text->submitBlocked : esc_html__('Submission is not allowed for the current answers.','easy-form-builder'),
 			/* translators: Message shown to the visitor when a rule ends the form early */
 			"formEnded" => $state  &&  isset($ac->text->formEnded) ? $ac->text->formEnded : esc_html__('This form is closed for your answers.','easy-form-builder'),
-			/* translators: Warning shown when rule evaluation does not settle, e.g. two rules keep toggling each other (a possible loop) */
-			"loopWarning" => $state  &&  isset($ac->text->loopWarning) ? $ac->text->loopWarning : esc_html__('Rules did not stabilize (possible loop)','easy-form-builder'),
-			/* translators: Empty state prompting the admin to add their first logic rule */
-			"addFirstRule" => $state  &&  isset($ac->text->addFirstRule) ? $ac->text->addFirstRule : esc_html__('Add your first rule to start building smart forms.','easy-form-builder'),
 
 			/* translators: Enable Conditional = toggle label that turns on conditional logic for a field */
 			"condlogic" => $state  &&  isset($ac->text->condlogic) ? $ac->text->condlogic : esc_html__('Enable Conditional','easy-form-builder'),
@@ -2605,58 +2485,14 @@ class efbFunction {
 			"hide" => $state  &&  isset($ac->text->hide) ? $ac->text->hide : esc_html__('Hide','easy-form-builder'),
 			/* translators: Contains = text comparison operator */
 			"contains" => $state  &&  isset($ac->text->contains) ? $ac->text->contains : esc_html__('Contains','easy-form-builder'),
-			/* translators: Not contain = text comparison operator, the negated form of Contains */
-			"ncontains" => $state  &&  isset($ac->text->ncontains) ? $ac->text->ncontains : esc_html__('Not contain','easy-form-builder'),
-			/* translators: starts with = text comparison operator */
-			"startw" => $state  &&  isset($ac->text->startw) ? $ac->text->startw : esc_html__('starts with','easy-form-builder'),
-			/* translators: ends with = text comparison operator */
-			"endw" => $state  &&  isset($ac->text->endw) ? $ac->text->endw : esc_html__('ends with','easy-form-builder'),
-			/* translators: greater than = numeric comparison operator */
-			"gthan" => $state  &&  isset($ac->text->gthan) ? $ac->text->gthan : esc_html__('greater than','easy-form-builder'),
-			/* translators: less than = numeric comparison operator */
-			"lthan" => $state  &&  isset($ac->text->lthan) ? $ac->text->lthan : esc_html__('less than','easy-form-builder'),
-			/* translators: greater than or equal to = numeric comparison operator */
-			"gtehan" => $state  &&  isset($ac->text->gtehan) ? $ac->text->gtehan : esc_html__('greater than or equal to','easy-form-builder'),
-			/* translators: less than or equal to = numeric comparison operator */
-			"ltehan" => $state  &&  isset($ac->text->ltehan) ? $ac->text->ltehan : esc_html__('less than or equal to','easy-form-builder'),
-			/* translators: between = numeric/date range comparison operator */
-			"between" => $state  &&  isset($ac->text->between) ? $ac->text->between : esc_html__('between','easy-form-builder'),
-			/* translators: not between = numeric/date range comparison operator, the negated form of "between" */
-			"nBetween" => $state  &&  isset($ac->text->nBetween) ? $ac->text->nBetween : esc_html__('not between','easy-form-builder'),
 			/* translators: Is = equality comparison operator */
 			"ise" => $state  &&  isset($ac->text->ise) ? $ac->text->ise : esc_html__('Is','easy-form-builder'),
-			/* translators: Is not = equality comparison operator, the negated form of "Is" */
-			"isne" => $state  &&  isset($ac->text->isne) ? $ac->text->isne : esc_html__('Is not','easy-form-builder'),
 			/* translators: Empty = comparison operator meaning the field has no value */
 			"empty" => $state  &&  isset($ac->text->empty) ? $ac->text->empty : esc_html__('Empty','easy-form-builder'),
-			/* translators: Not empty = comparison operator meaning the field has a value */
-			"nEmpty" => $state  &&  isset($ac->text->nEmpty) ? $ac->text->nEmpty : esc_html__('Not empty','easy-form-builder'),
 			/* translators: OR = logical operator meaning one option or the other */
 			"or" => $state  &&  isset($ac->text->or) ? $ac->text->or : esc_html__('or','easy-form-builder'),
-			/* translators: AND = logical operator, paired with the OR operator above */
-			"and" => $state  &&  isset($ac->text->and) ? $ac->text->and : esc_html__('and','easy-form-builder'),
-			/* translators: Conditions = tab/section listing a group's conditions */
-			"logicConditions" => $state  &&  isset($ac->text->logicConditions) ? $ac->text->logicConditions : esc_html__('Conditions','easy-form-builder'),
-			/* translators: Condition = singular label for one condition row */
-			"logicCondition" => $state  &&  isset($ac->text->logicCondition) ? $ac->text->logicCondition : esc_html__('Condition','easy-form-builder'),
-			/* translators: Group = label for a group of conditions */
-			"logicGroup" => $state  &&  isset($ac->text->logicGroup) ? $ac->text->logicGroup : esc_html__('Group','easy-form-builder'),
-			/* translators: Placeholder message shown when a condition group has nothing added to it yet */
-			"logicGroupEmpty" => $state  &&  isset($ac->text->logicGroupEmpty) ? $ac->text->logicGroupEmpty : esc_html__('Add a condition or a group.','easy-form-builder'),
 			/* translators: Done title = field label for the completion screen's title text */
 			"doneTitle" => $state  &&  isset($ac->text->doneTitle) ? $ac->text->doneTitle : esc_html__('Done title','easy-form-builder'),
-			/* translators: Icon = field label for the completion screen's icon */
-			"doneIcon" => $state  &&  isset($ac->text->doneIcon) ? $ac->text->doneIcon : esc_html__('Icon','easy-form-builder'),
-			/* translators: Field label for the text shown next to the submission confirmation code */
-			"trackingCodeLabel" => $state  &&  isset($ac->text->trackingCodeLabel) ? $ac->text->trackingCodeLabel : esc_html__('Confirmation code label','easy-form-builder'),
-			/* translators: Icon color = field label for the completion screen's icon color */
-			"iconColor" => $state  &&  isset($ac->text->iconColor) ? $ac->text->iconColor : esc_html__('Icon color','easy-form-builder'),
-			/* translators: Title color = field label for the completion screen's title color */
-			"titleColor" => $state  &&  isset($ac->text->titleColor) ? $ac->text->titleColor : esc_html__('Title color','easy-form-builder'),
-			/* translators: Message color = field label for the completion screen's message color */
-			"messageColor" => $state  &&  isset($ac->text->messageColor) ? $ac->text->messageColor : esc_html__('Message color','easy-form-builder'),
-			/* translators: Default = marks an option as the default choice */
-			"defaultOpt" => $state  &&  isset($ac->text->defaultOpt) ? $ac->text->defaultOpt : esc_html__('Default','easy-form-builder'),
 
 
 			"pgbar" => $state  &&  isset($ac->text->pgbar) ? $ac->text->pgbar : esc_html__('Progress bar','easy-form-builder'),
@@ -4510,6 +4346,12 @@ class efbFunction {
 	public function get_addon_i18n_required_files_efb(){
 		return array(
 			'AdnTLG' => array( 'vendor/telegram/telegram-phrases-efb.php', 'vendor/telegram/languages/locales.json' ),
+			'AdnGoS' => array( 'vendor/googlesheet/googlesheet-phrases-efb.php', 'vendor/googlesheet/languages/locales.json' ),
+			'AdnATF' => array( 'vendor/autofill/autofill-phrases-efb.php', 'vendor/autofill/languages/locales.json' ),
+			'AdnHSH' => array( 'vendor/human-shield/human-shield-phrases-efb.php', 'vendor/human-shield/languages/locales.json' ),
+			'AdnSMF' => array( 'vendor/logic/logic-phrases-efb.php', 'vendor/logic/languages/locales.json' ),
+			'AdnPAP' => array( 'vendor/paypal/paypal-phrases-efb.php', 'vendor/paypal/languages/locales.json' ),
+			'AdnSPF' => array( 'vendor/stripe/stripe-phrases-efb.php', 'vendor/stripe/languages/locales.json' ),
 		);
 	}
 
@@ -5669,7 +5511,8 @@ public function addon_add_efb($value) {
 
 				if ($key === 'AdnGoS') {
 					$local_gs = EMSFB_PLUGIN_DIRECTORY . '/vendor/googlesheet/class-Emsfb-googlesheet.php';
-					if (file_exists($local_gs)) {
+					// A package without its translations (admin scope, Create/Panel recovery) is re-downloaded.
+					if (file_exists($local_gs) && $this->addon_scope_files_present_efb($key)) {
 						update_option('emsfb_addon_AdnGoS', 2);
 						continue;
 					}

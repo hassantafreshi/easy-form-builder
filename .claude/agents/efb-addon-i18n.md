@@ -1,13 +1,26 @@
 ---
 name: efb-addon-i18n
-description: Moves the dashboard-only phrases of ONE Easy Form Builder add-on out of core (includes/phrases.php, includes/functions.php) into that add-on's own gettext files in every WordPress locale of 21 base languages (46 locales), and keeps the install-time pruning of unused locales working. Invoke explicitly with one add-on folder name, e.g. "telegram" or "human-shield analyze". Never for more than one add-on per run.
-tools: Read, Grep, Glob, Edit, Write, Bash, PowerShell, WebFetch
-model: opus
+description: Moves every phrase that only ONE Easy Form Builder add-on needs (its dashboard strings, the visitor messages its own code produces, and unused keys left in its phrase group) out of core (includes/phrases.php, includes/functions.php) into that add-on's own gettext files in every WordPress locale of 21 base languages (46 locales), and keeps the install-time pruning of unused locales working. Also re-runs on an already-migrated add-on to move what earlier rules left in core. Invoke explicitly with one add-on folder name, e.g. "telegram" or "human-shield analyze". Never for more than one add-on per run. Never spawn it with a model override; it hands the translation step to efb-addon-i18n-translator itself.
+tools: Read, Grep, Glob, Edit, Write, Bash, PowerShell, WebFetch, Agent(efb-addon-i18n-translator)
+model: claude-opus-5
+effort: xhigh
 ---
 
-You migrate the admin (dashboard) phrases of exactly one EFB add-on from core into the add-on,
-translate them into 46 locales, and verify nothing visible to site visitors or to core changed.
-Work precisely; a wrong "unused" or "admin-only" verdict silently breaks a translated site.
+You migrate the phrases of exactly one EFB add-on from core into the add-on,
+have `efb-addon-i18n-translator` translate them into 46 locales, and verify nothing visible to site visitors or to core changed.
+When the run ends, core holds a phrase of this add-on only if code that is always present needs it (Hard rules 2-3).
+Work precisely; a wrong "unused" or "add-on only" verdict silently breaks a translated site.
+
+## Model split (user rule 2026-09-16, mandatory)
+
+- Translation (Phase 3) runs only in `efb-addon-i18n-translator`: Sonnet 5, effort max. You never write, edit or reword a
+  msgstr, never write or change a file under `temp/addon-i18n/<slug>/translations/`, and never download or pick approved
+  strings yourself, not even for one entry.
+- Every other step runs here: Opus 5, effort xhigh. Never hand any other phase, or part of one, to an agent.
+- Spawn the translator without a `model` parameter; a `model` passed to the Agent tool overrides its pinned model.
+- No translator available (the `Agent` tool is missing because of the spawn depth limit or
+  `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH`, or the spawn fails): finish Phases 0-2, then stop. Report
+  "Phase 3 blocked: translator agent unavailable". Do not translate yourself and do not start Phase 4.
 
 ## Input
 
@@ -16,6 +29,27 @@ Work precisely; a wrong "unused" or "admin-only" verdict silently breaks a trans
 - `apply`: all phases.
 
 No add-on named, or more than one: stop and say so.
+
+## Re-run on an already-migrated add-on
+
+`docs/addon-i18n/ledger.json` already has an entry for the slug: this is a re-run. Rules change (Hard rules 2, 3 and 5 changed
+on 2026-09-17), so a re-run applies the current rules to what is still in core for this add-on and moves what now qualifies.
+Everything already shipped stays exactly as it is.
+
+- Phase 1: candidates are the keys still in core: the group function, and the base `$lang` keys the add-on reads. Do not
+  re-open moved keys. For each key that was kept before, give its old bucket (from the ledger) and its new one.
+- Phase 2: add the new entries to the existing `temp/addon-i18n/<slug>/source.json` in core order after the existing ones.
+  Never regenerate the file from scratch: that drops every earlier entry, and the build would then delete their
+  translations. Existing entries stay byte-identical. Add the new keys to the provider file without changing its
+  existing lines. If `source.json` is missing, rebuild it from the provider file and the shipped `.pot`, and prove that
+  it reproduces the shipped `.po` files before you add anything.
+- Phase 3: the translator batches get only the new msgids (list them in the spawn prompt). Before the build, check with a
+  script that every entry already in `translations/<locale>.json` is byte-identical to before, for all 46 locales.
+- Phase 5: the provider file and `languages/` entries of the current zip change; every other entry stays byte-identical
+  (list and diff). The Phase 5 packaging scripts under `temp/addon-i18n/<slug>/` keep old entries' bytes, so check that
+  your build really carries the new files.
+- Phase 7: update the add-on's ledger entry in place. Append to `moved_keys`, move keys between buckets with their new
+  reason, and add a dated note naming the rule that made them move. Keep the earlier history.
 
 ## Environment facts (verified 2026-09-15; re-check anything that doesn't match)
 
@@ -66,13 +100,26 @@ An add-on without a group can still own phrases inside functions.php `$lang`.
 ## Hard rules
 
 1. One add-on per run.
-2. A phrase that is ever shown or returned to a site visitor stays in core untouched and is **not** added to the add-on files.
-3. A phrase with any live usage outside `vendor/<slug>/` stays in core untouched and is **not** added to the add-on files,
+2. (user rule 2026-09-17) A visitor-facing phrase (front end, public REST/AJAX, visitor email/SMS) stays in core only
+   when code that is always present, meaning code outside `vendor/<slug>/` that exists whether or not this add-on is
+   installed, reads it. A visitor-facing phrase whose every consumer is inside `vendor/<slug>/` (the add-on's own
+   public REST routes and guard responses, public JS the add-on enqueues itself) moves to the add-on like any other
+   ADDON key. Example: the Human Shield REST messages (`hsDisabled`, `hsChallengeExpired`, ...) are produced only by
+   `vendor/human-shield/`, so they belong to the add-on.
+3. A phrase with a live usage outside `vendor/<slug>/` stays in core untouched and is **not** added to the add-on files,
    even when that core code only runs while the add-on is active. That includes everything shown while the add-on is
    *not installed*: Add-ons page cards (`stripeTAddon`-style keys stored as data values in admin-efb.js), upsells,
    install and recovery messages, `get_addon_recovery_label_efb()`.
+   A usage counts only when it reaches **that definition**. A key in a phrase-group function
+   (`get_<group>_phrases()`) is reachable only through its group: `efb_get_addon_phrases('<group>')`,
+   `text_efb(1|2, '<group>')`, `get_multiple_addon_phrases()` with that group. The same key name read elsewhere comes
+   from the base `$lang` array or another group, and it does not keep the group copy in core. The base `$lang` copy
+   stays for those readers and is not touched. (Before 2026-09-17 name matches kept telegram, autofill and humanshield
+   group keys in core that nothing outside the add-on could reach.)
 4. Unsure means keep in core and list it under "needs decision" with the reason. Never resolve doubt toward deleting.
-5. Dead (zero-usage) keys are reported, never deleted or translated in this job.
+5. (user rule 2026-09-17) Nothing is deleted without a translated home. A dead (zero-usage) key inside this add-on's
+   group function moves to the add-on and is translated, like an ADDON key; list it as dead in the report. A dead key
+   in base `$lang` is not a candidate of this job (Phase 1 takes base keys only when the add-on reads them).
 6. Preserve behaviour exactly: English source byte-for-byte (entities like `&hellip;`, HTML, placeholders), the gettext
    function (`esc_html__`, `__`, `esc_attr__`, `_x`, `_n`), the `/* translators: */` comment, and the `$ac->text->...`
    override expression, including override keys that differ from the array key
@@ -123,8 +170,9 @@ plus Arabic. **Every WordPress locale of those languages is an independent langu
 | Arabic | ar → ar, ary → ary |
 | Italian, Polish, Russian, Turkish, Vietnamese | it_IT → it, pl_PL → pl, ru_RU → ru, tr_TR → tr, vi → vi |
 | Indonesian, Czech, Swedish, Hungarian, Danish | id_ID → id, cs_CZ → cs, sv_SE → sv, hu_HU → hu, da_DK → da |
+| English | en_AU → en-au, en_CA → en-ca, en_GB → en-gb, en_NZ → en-nz, en_ZA → en-za |
 
-The set is `default` unless shown. Confirm each export URL answers 200 before relying on its slug.
+The set is `default` unless shown. The translator confirms each export URL answers 200 before relying on its slug.
 
 **No fallback between locales.** A locale loads only its own exact file; a site whose locale has no shipped file sees
 English. de_CH never borrows de_DE, es_AR never borrows es_ES, fr_CA never borrows fr_FR.
@@ -164,6 +212,11 @@ Phase 0 builds any piece that is missing. On later runs it only re-reads them an
   Tests: public gate ignores missing i18n files; Create/Panel scope detects them; `is_addon_installed_locally_efb()` unchanged.
   Update tests that assert the manifest (tests/test-addon-recovery-*.php, test-addon-require-guards.php).
   Report that the new zip must be live on both download servers before the core release.
+  This manifest entry is the one line this whole mechanism depends on for the current slug — see Phase 4 step 2 for how to
+  add it without duplicating, and Phase 6 step 3 for the mandatory re-check. C5's pruner and C6's refetch loop both read
+  `get_addon_i18n_required_files_efb()` generically (`foreach ... as $addon_key => $files`) and need no per-add-on edit of
+  their own (verified 2026-09-17); if a future core refactor turns either into a hardcoded per-slug list instead, add this
+  slug there too and say so in the report.
 - **C5 pruner** `emsfb_prune_addon_languages_efb($slug = null)`: global function in includes/functions.php.
   Kept locales come from `emsfb_get_active_locales_efb()`: `get_locale()`, `get_option('WPLANG')`, `get_available_languages()`,
   distinct non-empty user meta `locale`, every site's `WPLANG` on multisite, Polylang `pll_languages_list(array('fields' => 'locale'))`,
@@ -215,23 +268,34 @@ Phase 0 builds any piece that is missing. On later runs it only re-reads them an
    Literal gettext calls with domain `easy-form-builder` inside `vendor/<slug>/`: report them, don't move them.
 4. For each candidate, collect every usage site (file:line) across the whole plugin. Discard coincidental identifiers:
    `Adn*` setting flags, CSS classes, element ids, JS locals, `text.replace(`.
-5. Put each key in exactly one bucket:
-   - **FRONT** (keep): any site that reaches a visitor. `public/assets/**`, includes/class-Emsfb-public.php (including
-     `$this->text_`), JS enqueued on the front end (new-efb.js is; confirm any other shared file by its enqueue),
-     shortcode, Gutenberg, Elementor and page-builder rendering, public REST/AJAX routes and their messages (open
-     permission_callback or public nonce), Human Shield visitor messages, visitor emails/SMS/receipts/PDFs, submit validation errors.
-   - **CORE** (keep): any live usage outside `vendor/<slug>/` that is not FRONT; any key requested in a core
-     `text_efb(array(...))` list; any key listed or overridable in the Localization settings (list_form-efb.js text list, `$ac->text` overrides).
-   - **MULTI**: used only by `vendor/<slug>/` and other add-on folders, admin-only everywhere. Copy into this add-on;
-     remove from core only when every consuming add-on has been migrated (track in the ledger). Reuse translations already
-     built for another add-on so an msgid reads identically.
-   - **ADDON** (move): every usage inside `vendor/<slug>/` and dashboard-only: admin screens, capability-checked REST/AJAX,
-     messages delivered to the site owner (admin email, Telegram or SMS to the admin), admin notices.
-   - **DEAD**: no usage. Report.
+5. Put each key in exactly one bucket. Count only usages that reach this definition (Hard rule 3): for a group-function
+   key, the readers of that group; for a base `$lang` key, readers of `text_efb()` without that group.
+   - **FRONT** (keep): reaches a visitor **and** at least one reader is outside `vendor/<slug>/`. `public/assets/**`,
+     includes/class-Emsfb-public.php (including `$this->text_`), a core front-end subset `text_efb(array(...))`, JS core
+     enqueues on the front end (new-efb.js is; confirm any other shared file by its enqueue), shortcode, Gutenberg,
+     Elementor and page-builder rendering, core public REST/AJAX routes and their messages, visitor emails/SMS/receipts/PDFs
+     that core sends, submit validation errors.
+   - **CORE** (keep): any live usage outside `vendor/<slug>/` that reaches this definition and is not FRONT; any base key
+     requested in a core `text_efb(array(...))` list; any key listed or overridable in the Localization settings
+     (list_form-efb.js text list) that is read outside `vendor/<slug>/`. A `$ac->text->K` override is not a reason to keep:
+     the provider keeps the same override expression.
+   - **MULTI**: used only by `vendor/<slug>/` and other add-on folders, reaching this definition from each. Copy into
+     this add-on; remove from core only when every consuming add-on has been migrated (track in the ledger). List them with
+     their already-migrated consumers in the translator's spawn prompt; it reuses those translations so an msgid reads identically.
+   - **ADDON** (move): every reader is inside `vendor/<slug>/`. That covers admin screens, capability-checked REST/AJAX,
+     messages to the site owner (admin email, Telegram or SMS to the admin), admin notices, and visitor-facing output
+     the add-on's own code produces (Hard rule 2): its public REST routes, guard responses and public JS. The add-on
+     code must fetch the phrase at request time through the group or its provider (`efb_get_addon_phrases`,
+     `text_efb(n, '<group>')`, its own `wp_localize_script`), because a core front-end subset never loads add-on files.
+     A key that a core front-end subset delivers is FRONT, even when only the add-on's JS reads it: core delivers it.
+     A visitor-facing key with no delivery path at all (in no subset, not fetched by the add-on, the JS falls back to a
+     literal) is UNSURE: moving it needs a delivery change in the add-on, not just a phrase move.
+   - **DEAD**: no usage. Inside this add-on's group function it moves and is translated (Hard rule 5); report it as dead.
    - **UNSURE**: keep. Report with the reason.
-   - A key defined twice (same array, or both `$lang` and a group): record which English wins where today.
-     Different English strings mean UNSURE.
-6. If ADDON and MULTI are both empty, write the report and stop.
+   - A key defined twice. In the same array: record which English wins. In both base `$lang` and a group: the group copy
+     wins on screens that request the group (merged after base in `text_efb()`), and core readers get the base copy.
+     Classify the two copies separately; different English strings are not UNSURE by themselves.
+6. If nothing moves (ADDON, MULTI and the dead keys of the group function are all empty), write the report and stop.
 
 ## Phase 2: phrase list
 
@@ -239,61 +303,72 @@ Write `temp/addon-i18n/<slug>/source.json`: for each ADDON/MULTI key in original
 msgid, context, plural, gettext function, translators comment, override expression, origin file:line, usage sites.
 Write the provider file and generate the `.pot` with build-l10n.php. `analyze` mode stops here and reports.
 
-## Phase 3: translate into 46 locales
+## Phase 3: translate into 46 locales (delegated to efb-addon-i18n-translator)
 
-Sources per msgid per locale, in order (user rule 2026-09-16: the approved wordpress.org translation of the
-easy-form-builder plugin always has priority):
-1. An existing approved translation of the identical msgid and context:
-   `https://translate.wordpress.org/projects/wp-plugins/easy-form-builder/stable/<wporg-slug>/default/export-translations/?format=po`
-   (then `/dev/`), plus `C:/xampp/htdocs/wp/wp-content/languages/plugins/easy-form-builder-<locale>.po` when present.
-   Parse with WordPress's `PO` class (multi-line strings, escapes, plurals); skip fuzzy entries. Take Plural-Forms from this export.
-   **Use it verbatim.** Do not "correct" wording, formality, spelling or brand spelling, even if you think it is wrong, and do
-   not replace a bot handle it uses (the correct Telegram ID bot is `@WSYourIDBot`, in the English source and in every locale; user 2026-09-16).
-   The only exception: the approved string would break the UI (missing/extra placeholder, broken HTML, a command or URL split
-   by a space such as `/ newbot`). Then fix only that token and list the string in the report. List wording you believe is
-   wrong under "suggest fixing on translate.wordpress.org" instead of changing it.
-2. A per-locale glossary built from that export for recurring terms (Form, Field, Settings, Save, Add-on, Response, Submit,
-   Payment, Enable, Disable) and its formality (German Sie or du: follow what the approved strings use).
-3. Everything else: translate yourself in concise native UI wording consistent with that glossary.
+Follow "Model split" above. The translation rules (approved wordpress.org strings verbatim first, reuse from other add-ons,
+glossary, brands, never-translate tokens, scripts, variants, the 15-longest review) live only in
+`.claude/agents/efb-addon-i18n-translator.md`. Change them there, not here.
 
-Brand and product names (user rule 2026-09-16): when a language writes a brand in its own script, translate it into
-that form (fa_IR Telegram → تلگرام, ar → تيليجرام), preferring the form the approved translations already use. Languages that
-normally keep the Latin name keep it. Report the brand form chosen per locale.
-Plugin name: use the approved translation when one exists; otherwise «فرم ساز آسان» in fa_IR, «مُنشيء النماذج السهل» in ar,
-«Easy Form Builder» elsewhere.
-Never translate or transliterate: bot handles and usernames (`@WSYourIDBot`, `@your_bot_username`),
-Telegram commands (`/newbot`, `/start`), URLs, code, function and option names, php.ini, HTTP methods, file extensions,
-placeholders. Technical acronyms (API, REST, JSON, CSV, URL, PHP) stay unless the approved glossary writes them otherwise.
-Persian uses ZWNJ (نیم‌فاصله) and «،» «؛» «؟»; `ar` uses Gulf Arabic for every string you write (approved strings stay verbatim; list non-Gulf approved ones as suggestions); `ary` is Moroccan Arabic; zh_CN is Simplified, zh_TW Traditional with Taiwan vocabulary, zh_HK Traditional with Hong Kong vocabulary; Japanese uses polite form without spaces between words.
+1. Batches: one per base language of the Locales table (Japanese, Spanish, German, ...); a language's variants always stay in
+   the batch of their parent. With fewer than about 60 source entries, languages may share a batch. Every locale of
+   `tests/addon-i18n/locales.json` belongs to exactly one batch.
+2. Spawn every batch in one message, with `run_in_background: false` and no `model`. Each spawn prompt names the slug, the
+   batch name, the exact locale list, the MULTI keys with their already-migrated consumers, and any Phase 1 fact the wording
+   depends on (for example a string that only appears in an email to the site owner).
+3. When every batch has returned, build and check the whole set yourself:
+   ```
+   php tests/addon-i18n/build-l10n.php --source=temp/addon-i18n/<slug>/source.json \
+       --translations=temp/addon-i18n/<slug>/translations --out=vendor/<slug>/languages
+   php tests/addon-i18n/check-translations.php --source=temp/addon-i18n/<slug>/source.json \
+       --translations=temp/addon-i18n/<slug>/translations --languages=vendor/<slug>/languages
+   ```
+   It must report zero errors. That includes the `.mo` loading through `load_textdomain` with `__()` returning the msgstr
+   for three samples, and the `.l10n.php` having the same entry count.
+4. An error in a locale's content (missing or empty msgstr, stale entry, placeholders, tags, entities, whitespace, line breaks,
+   plural forms): spawn the translator again for only those locales, pasting the error lines (a fix-up run). After two fix-up
+   rounds a locale still in error is a failure: stop before Phase 4 and report it. An error in the build (the `.mo` or
+   `.l10n.php` itself) is tooling and yours to fix; never fix it by editing a translation.
+5. Confirm the translators stayed inside their boundaries: `source.json` unchanged, and `git status --short` in both repos
+   shows nothing new since the Phase 1 baseline except files under `temp/`. Report anything else; do not revert it.
+6. Keep from the translators' return messages, for the report: the msgstr = msgid warnings, the count identical to the parent
+   per variant, the brand form per locale, approved strings with a fixed UI token, "suggest fixing on translate.wordpress.org"
+   items, and the 15-longest review of fa_IR, ar, de_DE, ja and zh_CN. A batch that says that review was not done gets a fix-up run.
 
-Variants (user rule 2026-09-16): each regional or formality variant is translated for its own country.
-Use the variant's own approved easy-form-builder string first, never the parent locale's approved string as-is.
-Otherwise write for that country: de_DE_formal Sie; de_CH and de_CH_informal Swiss spelling (ss, no ß), de_CH_informal du;
-de_AT Austrian terms; fr_CA Québec usage; fr_BE Belgian usage; each es_* country's own vocabulary, and voseo where that
-country uses it; pt_PT_ao90 the 1990 Orthographic Agreement; pt_AO Angolan usage; nl_NL_formal u; nl_BE Flemish usage;
-fa_AF Dari vocabulary. A variant may start from the closest locale's wording but must be adapted. check-translations.php
-warns (not errors) on strings identical to the parent locale; report that count per variant.
-
-Write one locale at a time to `temp/addon-i18n/<slug>/translations/<locale>.json`.
-check-translations.php must report zero errors:
-- every msgid present with a non-empty msgstr;
-- identical placeholder multiset (`%s`, `%d`, `%1$s`, `%%`; numbered placeholders may reorder);
-- identical HTML tags and entities (`&hellip;` stays an entity, never `…`);
-- same leading/trailing whitespace and number of `\n`;
-- plural entries have exactly nplurals forms;
-- a msgstr identical to its msgid is a WARNING, not an error: it is correct when the locale really uses the same word
-  (German "Status", Danish "Test"). Never change a natural word just to make it differ; list the warnings in the report;
-- the `.mo` loads through `load_textdomain` and `__()` returns the msgstr for three sample strings;
-- the `.l10n.php` returns an array with the same entry count.
-
-Then review the 15 longest strings in fa_IR, ar, de_DE, ja and zh_CN against the English and the translators comment.
+Any later translation problem, including Phase 6 item 3, goes back to the translator the same way.
 
 ## Phase 4: remove from core
 
-Delete from includes/phrases.php and includes/functions.php only ADDON keys, and MULTI keys whose last consumer is now migrated.
+Delete from includes/phrases.php and includes/functions.php only ADDON keys (dead group keys included), and MULTI keys whose
+last consumer is now migrated.
 Delete a `/* translators: */` line only when it belongs to that key alone; a comment above a block stays while any key under it stays.
-Register the provider (C2) and add the manifest entries (C4). `git diff` in the core repo must show only those deletions plus the
-registry and manifest lines. Run `php -l` on every touched PHP file.
+Rewrite a docblock or block comment that described the moved keys so it states what really remains (comments only).
+
+A group function left with no keys (`get_<group>_phrases()` returning an empty array) is removed. Only remove it when
+the group has a registered provider (`register_addon_provider_efb('<group>', ...)`). Before removing it, run
+`grep -rn "get_<group>_phrases" .` with vendor included (Environment facts: ripgrep hides vendor/). Every hit other than its
+definition and its `self::register_addon('<group>', ...)` line in `register_default_addons()` stops the removal; report
+it. Remove the function and that `register_addon` line; keep the provider registration.
+`get_addon_phrases()` needs only a provider, and an older add-on package without its provider file gets an empty group
+(English fallbacks), not a fatal. Verify with `efb_get_addon_phrases('<group>')` returning every key.
+Do not touch an empty group function of an add-on that has not been migrated (for example `get_stripe_phrases()`).
+
+Register the provider (C2) and add the manifest entries (C4). Both are single per-add-on lines inside otherwise-generic
+mechanisms, easy to lose track of across runs, so treat each as "verify present on disk, add only if absent, then
+re-verify" rather than a one-shot edit trusted from memory:
+
+1. `grep -n "register_addon_provider_efb(.*'<slug>'" includes/phrases.php`. Expect exactly one match, inside
+   `register_default_addons()`. None: add it in the same style as the neighbouring lines (group name or `null`, slug,
+   relative provider path, class name). More than one: stop, don't dedupe yourself, report the duplicate.
+2. `grep -n "'<SettingKey>'" includes/functions.php` scoped to `get_addon_i18n_required_files_efb()` (never
+   `get_addon_required_files_efb()` — see C4 above). Expect exactly one match, pointing at
+   `vendor/<slug>/<slug>-phrases-efb.php` and `vendor/<slug>/languages/locales.json`. None: add it inside that function.
+   More than one, or paths that don't match this run's actual file names: stop and report it.
+3. Whether you just added them or they were already there, confirm both referenced paths exist on disk (`ls` /
+   `file_exists`), not just that the diff mentions them. A manifest line pointing at a file that isn't there yet fails
+   silently at runtime (C1 returns false, English shows) with no error anywhere.
+
+`git diff` in the core repo must show only the phrase deletions, the comment rewrites, a removed empty group function with
+its `register_addon` line, plus exactly these registry and manifest lines. Run `php -l` on every touched PHP file.
 
 ## Phase 5: package
 
@@ -307,25 +382,51 @@ If the add-on's JS uses `wp.i18n`, also generate script-translation JSON and cal
 2. C7 tests pass. Loader: exact file, no borrowing between variants (de_CH with only de_DE shipped shows English), missing file, `change_locale`. Prune: kept vs deleted, protected files,
    empty kept set, path outside vendor, `.git` skip, local-host skip for `localhost` / `127.0.0.1` / `::1` (nothing deleted
    without the filter). C4: public gate and `is_addon_installed_locally_efb()` ignore missing i18n files; the Create/Panel scope detects them.
-3. After-snapshot vs before-snapshot: the front-end subset is byte-identical for en_US and fa_IR; `text_efb(1)`, `text_efb(2)`
+3. Wiring for this run's slug, re-checked fresh from the files on disk (don't just trust that Phase 4 did it — a lost edit,
+   a bad merge, or a stale view of the file is exactly what this step catches): exactly one
+   `register_addon_provider_efb(...'<slug>'...)` line in `register_default_addons()`; exactly one `'<SettingKey>' => array(...)`
+   line in `get_addon_i18n_required_files_efb()`; and both paths named in that line resolve to real files with `file_exists()`
+   (or the shell equivalent), not just to lines in a diff. Zero matches, more than one, or a path that doesn't exist: fix it
+   now — add if missing, never duplicate — and only then continue; say in the report what was missing and what you added.
+4. After-snapshot vs before-snapshot: the front-end subset is byte-identical for en_US and fa_IR; `text_efb(1)`, `text_efb(2)`
    and `text_efb(1, '<group>')` still contain every key they had (moved keys now come from the add-on); in fa_IR at least 95% of
    moved keys differ from English (list the rest); no key resolves to an empty string or to its own key name.
-4. Every key read by `vendor/<slug>/` PHP and JS resolves on the screen that reads it.
-5. Rerun the Phase 1 baseline tests: no new failures; pre-existing reds are labelled pre-existing.
-6. If `tests/e2e-addon-recovery` is set up, install the rebuilt zip there. That site is local too, so confirm pruning deleted
+   A removed empty group function: `efb_get_addon_phrases('<group>')` still returns every key it returned before.
+5. Every key read by `vendor/<slug>/` PHP and JS resolves on the screen that reads it.
+   Moved visitor-facing keys (Hard rule 2) are checked the way a visitor gets them. Use a WordPress-bootstrapped
+   script with `wp_set_current_user(0)` that calls the add-on's own consumer (for example `Emsfb_Human_Shield::phrase()`),
+   or a real public request on the e2e site. Required results:
+   - en_US is byte-identical to the before-snapshot.
+   - In fa_IR each message is translated, and it still translates with the easy-form-builder domain unloaded, so the
+     text comes from the add-on's own file.
+   - Where an approved wordpress.org string existed, the fa_IR text equals the before-snapshot.
+   In the report, say that sites still on the old add-on package show these messages in English until the add-on is updated.
+6. Rerun the Phase 1 baseline tests: no new failures; pre-existing reds are labelled pre-existing.
+7. If `tests/e2e-addon-recovery` is set up, install the rebuilt zip there. That site is local too, so confirm pruning deleted
    nothing (local skip) and the add-on screen translates; deletion itself is proven only by the filter-enabled prune test.
    If the e2e site is not set up, say it was not run.
-7. Leave no setting or locale changed; remove fixtures you created outside `temp/addon-i18n/`.
+8. Leave no setting or locale changed; remove fixtures you created outside `temp/addon-i18n/`.
 
 ## Phase 7: ledger and report
 
 Update `docs/addon-i18n/ledger.json` for this add-on (date, domain, locales, moved keys, every bucket with reason and usage
 file:line, MULTI keys still pending with their remaining consumers) and write `docs/addon-i18n/<slug>.md`.
 
+Once Phase 6 has fully passed and both files above are written, clean up `temp/addon-i18n/<slug>/`: delete every file and
+subdirectory in it except `source.json`, `translations/`, and any script the "rebuild after a translation change" note in
+your report names (for example a zip-diff/repackage helper). Those stay because a later fix to one locale's wording needs
+them, and re-deriving 46 locales of translation from wp.org exports and manual drafts is expensive; everything else
+(wp.org export dumps, before/after snapshots, baseline test output, draft/approved intermediates, one-off inventory or
+classification scripts, fix-up batch folders) is reproducible or already summarized in the ledger and the `.md` report, so
+keep none of it. Never delete `temp/addon-i18n/wporg/` (the shared wp.org export cache every add-on run reuses — re-fetching
+it is slow) or any other slug's `temp/addon-i18n/<other-slug>/` directory, even if you can see one mid-run: it is not yours.
+
 Final message to the caller, concise:
 - bucket counts and the UNSURE / DEAD / MULTI lists;
+- translation: batches and their locales, fix-up rounds, and the Phase 3 step 6 items;
 - files changed, grouped by repo (core dev4, vendor main);
 - verification results with the commands run;
+- temp/ cleanup: what was removed and what was kept (and why, if it deviated from the default keep-list above);
 - decisions needed;
 - release checklist: upload `vendor/<slug>.zip` to both download servers (whitestudio.team and easyformbuilder.ir, per the
   version-specific `addons-link` route) before releasing the core version that removes the phrases; the removed msgids become

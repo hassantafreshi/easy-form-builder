@@ -240,7 +240,7 @@ class EmsfbEmailHandler {
                 self::trace('send.vetoed', [
                     'event' => $efb_shield_email_context['event'],
                     'to'    => $to,
-                    'note'  => 'a guard (Human Shield or an efb_shield_allow_side_effect filter) blocked this email',
+                    'note'  => 'a guard (Form Security & Spam Protection or another efb_shield_allow_side_effect filter) blocked this email',
                 ]);
                 remove_filter('wp_mail_content_type', [$this, 'wpdocs_set_html_mail_content_type']);
                 remove_action('wp_mail_failed', $mail_failed_listener);

@@ -5777,7 +5777,7 @@ public function check_nonce_permission_efb($request) {
 		}
 	}
 
-	private function process_conditional_webhook_rules($form_fields_array, $submitted_values, $track_code, $event_type, $context = array()) {
+	private function process_conditional_webhook_rules($form_fields_array, $submitted_values, $track_code, $event_type, $context = array(), $allow_send = null) {
 		if (empty($form_fields_array[0]['webhook_rules']) || !is_array($form_fields_array[0]['webhook_rules'])) return array();
 		$webhook_submitted_values = isset($context['integration_values']) && is_array($context['integration_values'])
 			? $context['integration_values']
@@ -5807,6 +5807,14 @@ public function check_nonce_permission_efb($request) {
 			$rule_webhook_id = isset($rule['webhook_id']) ? sanitize_text_field($rule['webhook_id']) : '';
 			if ($stop_all || ($rule_webhook_id !== '' && isset($stopped_ids[$rule_webhook_id]))) continue;
 			if (!$this->efb_evaluate_conditional_group($rule['conditions'] ?? array(), $values)) continue;
+
+			/* $allow_send (the side-effect gate) is asked once, when the first
+			 * rule is really about to be sent, so a submission whose rules do
+			 * not match spends nothing from the webhook stop-loss. */
+			if ($allow_send !== null) {
+				if (!call_user_func($allow_send)) return $sent;
+				$allow_send = null;
+			}
 
 			/* payload_fields (PRD C6 "Modify webhook payload"): when set, only
 			 * the whitelisted field ids are sent to the webhook endpoint. */
@@ -8741,24 +8749,57 @@ public function check_nonce_permission_efb($request) {
 			'source'        => 'efb_intgrate_with_3rd_party_services_efb',
 		);
 
-		if ( apply_filters( 'efb_shield_allow_side_effect', true, array_merge( $shield_context, array( 'channel' => 'webhook' ) ) ) ) {
-			$context['conditional_webhooks'] = $this->process_conditional_webhook_rules($form_fields_array, $submitted_values, $track_code, $event_type, $context);
-		} else {
-			$context['conditional_webhooks'] = array();
-		}
+		// The gate spends one unit of the channel's daily stop-loss per question,
+		// so it is asked only when this submission really has something to send:
+		// otherwise busy forms without a webhook, Telegram or Google Sheets set up
+		// use up the budget of the forms that have one.
+		// The webhook channel is asked at most once per submission; the
+		// conditional webhook rules and the efb_after_form_integration listeners
+		// share that decision.
+		$webhooks_allowed = null;
+		$allow_webhooks = function () use ( &$webhooks_allowed, $shield_context ) {
+			if ( null === $webhooks_allowed ) {
+				$webhooks_allowed = (bool) apply_filters( 'efb_shield_allow_side_effect', true, array_merge( $shield_context, array( 'channel' => 'webhook' ) ) );
+			}
+			return $webhooks_allowed;
+		};
 
-		if ( apply_filters( 'efb_shield_allow_side_effect', true, array_merge( $shield_context, array( 'channel' => 'telegram' ) ) ) ) {
+		$context['conditional_webhooks'] = $this->process_conditional_webhook_rules($form_fields_array, $submitted_values, $track_code, $event_type, $context, $allow_webhooks);
+
+		if ( $this->efb_side_effect_has_work_efb( 'telegram', 'efb_3rd_party_telegram_notify', $context ) && apply_filters( 'efb_shield_allow_side_effect', true, array_merge( $shield_context, array( 'channel' => 'telegram' ) ) ) ) {
 			do_action('efb_3rd_party_telegram_notify', $context);
 		}
 
-		if ( apply_filters( 'efb_shield_allow_side_effect', true, array_merge( $shield_context, array( 'channel' => 'googlesheet' ) ) ) ) {
+		if ( $this->efb_side_effect_has_work_efb( 'googlesheet', 'efb_3rd_party_google_sheet_sync', $context ) && apply_filters( 'efb_shield_allow_side_effect', true, array_merge( $shield_context, array( 'channel' => 'googlesheet' ) ) ) ) {
 			do_action('efb_3rd_party_google_sheet_sync', $context);
 		}
 
-		if ( apply_filters( 'efb_shield_allow_side_effect', true, array_merge( $shield_context, array( 'channel' => 'webhook', 'source' => 'efb_after_form_integration' ) ) ) ) {
+		if ( $this->efb_side_effect_has_work_efb( 'webhook', 'efb_after_form_integration', $context ) && $allow_webhooks() ) {
 			do_action('efb_after_form_integration', $context);
 		}
 
+	}
+
+	/**
+	 * Whether an integration has anything to send for this event.
+	 *
+	 * An integration that knows it will send nothing for this form (Telegram
+	 * notifications off, no Google Sheet linked) answers false through the
+	 * efb_shield_side_effect_has_work filter, so no stop-loss unit is spent on
+	 * it. An integration that does not answer (an older add-on) keeps being
+	 * treated as having work, which is how every event was counted before.
+	 *
+	 * @param string $channel Side-effect channel (telegram, googlesheet, webhook).
+	 * @param string $hook    Action the integration listens on.
+	 * @param array  $context Integration context passed to that action.
+	 * @return bool
+	 */
+	private function efb_side_effect_has_work_efb( $channel, $hook, $context ) {
+		if ( ! has_action( $hook ) ) {
+			return false;
+		}
+		$has_work = apply_filters( 'efb_shield_side_effect_has_work', null, $channel, $context );
+		return null === $has_work ? true : (bool) $has_work;
 	}
 
 }

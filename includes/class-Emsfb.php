@@ -351,6 +351,38 @@ class Emsfb {
             new \Emsfb\Review_Request();
         }
 
+        // Translations for every locale the site uses except the four shipped with the
+        // plugin (exact locales: fa_AF, ary, en_GB, de_AT... are downloaded):
+        // WhiteStudio first, wordpress.org second. Not counted into $core_ok - a site
+        // without language packs is still a working form builder.
+        // See docs/language-packs/README.md.
+        if ($this->require_plugin_file_efb('includes/class-Emsfb-language-packs.php')) {
+            \Emsfb\Language_Packs::boot([
+                'product'           => 'easy-form-builder',
+                'text_domain'       => 'easy-form-builder',
+                'wporg_slug'        => 'easy-form-builder',
+                'version'           => EMSFB_PLUGIN_VERSION,
+                'plugin_file'       => EMSFB_PLUGIN_FILE,
+                'plugin_name'       => 'Easy Form Builder',
+                'prefix'            => 'emsfb_language_packs',
+                'servers'           => [defined('EMSFB_LANGUAGE_PACKS_SERVER_URL') ? EMSFB_LANGUAGE_PACKS_SERVER_URL : EMSFB_SERVER_URL],
+                'bundled_locales'   => ['fa_IR', 'ar', 'en_US', 'de_DE'],
+                'bundled_dir'       => EMSFB_PLUGIN_DIRECTORY . 'languages/',
+                'guide_url'         => 'https://github.com/hassantafreshi/easy-form-builder/blob/HEAD/docs/language-packs/manual-install.md',
+                'extra_locales'     => 'emsfb_get_active_locales_efb',
+                'enabled'           => !(defined('EMSFB_DISABLE_LANGUAGE_PACKS') && EMSFB_DISABLE_LANGUAGE_PACKS),
+                'debug'             => defined('EFB_DEBUG') && EFB_DEBUG,
+                // Without WP-Cron the first visit installs a missing pack: Panel and Create
+                // block and reload (like add-on recovery), other screens only show a notice.
+                'blocking_screens'     => ['Emsfb', 'Emsfb_create'],
+                'front_script_handles' => ['efb-main-js'],
+            ]);
+            // text_efb() caches the built phrase array per locale; a new pack must not be hidden by it.
+            add_action('emsfb_language_packs_installed', static function () {
+                update_option('emsfb_text_version', time());
+            });
+        }
+
         if (is_admin()) {
             $admin_ok = $this->require_plugin_file_efb('includes/admin/class-Emsfb-admin.php');
             $admin_ok = $this->require_plugin_file_efb('includes/admin/class-Emsfb-create.php') && $admin_ok;
@@ -513,7 +545,8 @@ class Emsfb {
 			new Emsfb_Shield_SilentCaptcha_Integration();
 		}
 
-		// Form Security & Spam Protection (Human Shield) ships inside the plugin.
+		// Form Security & Spam Protection (Human Shield) is a downloaded add-on in
+		// vendor/human-shield: a plugin update removes it and add-on recovery restores it.
 		// The protection *runtime* only activates when the add-on is switched on
 		// (AdnHSH >= 1); it stays off by default so form/submission behaviour does
 		// not change until the user opts in. The *admin settings page* is always

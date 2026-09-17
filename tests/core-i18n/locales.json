@@ -1,0 +1,429 @@
+{
+    "source": "User list 2026-09-16 (the add-on table without ar). Every locale is its own language with its own pack; nothing falls back to another locale. destination: ws = served by ws-language-plugins-handler, bundled = shipped in the plugin languages/ folder (fa_IR, de_DE; ar and en_US are also shipped but not produced here).",
+    "locales": [
+        {
+            "locale": "ja",
+            "wporg": "ja",
+            "set": "default",
+            "nplurals": 1,
+            "plural_forms": "nplurals=1; plural=0;",
+            "destination": "ws"
+        },
+        {
+            "locale": "es_ES",
+            "wporg": "es",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "destination": "ws"
+        },
+        {
+            "locale": "es_MX",
+            "wporg": "es-mx",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "parent": "es_ES",
+            "destination": "ws"
+        },
+        {
+            "locale": "es_AR",
+            "wporg": "es-ar",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "parent": "es_ES",
+            "destination": "ws"
+        },
+        {
+            "locale": "es_CL",
+            "wporg": "es-cl",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "parent": "es_ES",
+            "destination": "ws"
+        },
+        {
+            "locale": "es_CO",
+            "wporg": "es-co",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "parent": "es_ES",
+            "destination": "ws"
+        },
+        {
+            "locale": "es_CR",
+            "wporg": "es-cr",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "parent": "es_ES",
+            "destination": "ws"
+        },
+        {
+            "locale": "es_DO",
+            "wporg": "es-do",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "parent": "es_ES",
+            "destination": "ws"
+        },
+        {
+            "locale": "es_EC",
+            "wporg": "es-ec",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "parent": "es_ES",
+            "destination": "ws"
+        },
+        {
+            "locale": "es_GT",
+            "wporg": "es-gt",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "parent": "es_ES",
+            "destination": "ws"
+        },
+        {
+            "locale": "es_PE",
+            "wporg": "es-pe",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "parent": "es_ES",
+            "destination": "ws"
+        },
+        {
+            "locale": "es_PR",
+            "wporg": "es-pr",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "parent": "es_ES",
+            "destination": "ws"
+        },
+        {
+            "locale": "es_UY",
+            "wporg": "es-uy",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "parent": "es_ES",
+            "destination": "ws"
+        },
+        {
+            "locale": "es_VE",
+            "wporg": "es-ve",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "parent": "es_ES",
+            "destination": "ws"
+        },
+        {
+            "locale": "de_DE",
+            "wporg": "de",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "destination": "bundled"
+        },
+        {
+            "locale": "de_DE_formal",
+            "wporg": "de",
+            "set": "formal",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "parent": "de_DE",
+            "destination": "ws"
+        },
+        {
+            "locale": "de_AT",
+            "wporg": "de-at",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "parent": "de_DE",
+            "destination": "ws"
+        },
+        {
+            "locale": "de_CH",
+            "wporg": "de-ch",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "parent": "de_DE_formal",
+            "destination": "ws"
+        },
+        {
+            "locale": "de_CH_informal",
+            "wporg": "de-ch",
+            "set": "informal",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "parent": "de_DE",
+            "destination": "ws"
+        },
+        {
+            "locale": "fr_FR",
+            "wporg": "fr",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n > 1;",
+            "destination": "ws"
+        },
+        {
+            "locale": "fr_CA",
+            "wporg": "fr-ca",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n > 1;",
+            "parent": "fr_FR",
+            "destination": "ws"
+        },
+        {
+            "locale": "fr_BE",
+            "wporg": "fr-be",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n > 1;",
+            "parent": "fr_FR",
+            "destination": "ws"
+        },
+        {
+            "locale": "pt_BR",
+            "wporg": "pt-br",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n > 1;",
+            "destination": "ws"
+        },
+        {
+            "locale": "pt_PT",
+            "wporg": "pt",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "destination": "ws"
+        },
+        {
+            "locale": "pt_PT_ao90",
+            "wporg": "pt",
+            "set": "ao90",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "parent": "pt_PT",
+            "destination": "ws"
+        },
+        {
+            "locale": "pt_AO",
+            "wporg": "pt-ao",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "parent": "pt_PT",
+            "destination": "ws"
+        },
+        {
+            "locale": "nl_NL",
+            "wporg": "nl",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "destination": "ws"
+        },
+        {
+            "locale": "nl_NL_formal",
+            "wporg": "nl",
+            "set": "formal",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "parent": "nl_NL",
+            "destination": "ws"
+        },
+        {
+            "locale": "nl_BE",
+            "wporg": "nl-be",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "parent": "nl_NL",
+            "destination": "ws"
+        },
+        {
+            "locale": "fa_IR",
+            "wporg": "fa",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n > 1;",
+            "destination": "bundled"
+        },
+        {
+            "locale": "fa_AF",
+            "wporg": "fa-af",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n > 1;",
+            "parent": "fa_IR",
+            "destination": "ws"
+        },
+        {
+            "locale": "zh_CN",
+            "wporg": "zh-cn",
+            "set": "default",
+            "nplurals": 1,
+            "plural_forms": "nplurals=1; plural=0;",
+            "destination": "ws"
+        },
+        {
+            "locale": "zh_TW",
+            "wporg": "zh-tw",
+            "set": "default",
+            "nplurals": 1,
+            "plural_forms": "nplurals=1; plural=0;",
+            "destination": "ws"
+        },
+        {
+            "locale": "zh_HK",
+            "wporg": "zh-hk",
+            "set": "default",
+            "nplurals": 1,
+            "plural_forms": "nplurals=1; plural=0;",
+            "parent": "zh_TW",
+            "destination": "ws"
+        },
+        {
+            "locale": "ary",
+            "wporg": "ary",
+            "set": "default",
+            "nplurals": 6,
+            "plural_forms": "nplurals=6; plural=(n == 0) ? 0 : ((n == 1) ? 1 : ((n == 2) ? 2 : ((n % 100 >= 3 && n % 100 <= 10) ? 3 : ((n % 100 >= 11 && n % 100 <= 99) ? 4 : 5))));",
+            "destination": "ws"
+        },
+        {
+            "locale": "it_IT",
+            "wporg": "it",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "destination": "ws"
+        },
+        {
+            "locale": "pl_PL",
+            "wporg": "pl",
+            "set": "default",
+            "nplurals": 3,
+            "plural_forms": "nplurals=3; plural=(n == 1) ? 0 : ((n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14)) ? 1 : 2);",
+            "destination": "ws"
+        },
+        {
+            "locale": "ru_RU",
+            "wporg": "ru",
+            "set": "default",
+            "nplurals": 3,
+            "plural_forms": "nplurals=3; plural=(n % 10 == 1 && n % 100 != 11) ? 0 : ((n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14)) ? 1 : 2);",
+            "destination": "ws"
+        },
+        {
+            "locale": "tr_TR",
+            "wporg": "tr",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n > 1;",
+            "destination": "ws"
+        },
+        {
+            "locale": "vi",
+            "wporg": "vi",
+            "set": "default",
+            "nplurals": 1,
+            "plural_forms": "nplurals=1; plural=0;",
+            "destination": "ws"
+        },
+        {
+            "locale": "id_ID",
+            "wporg": "id",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n > 1;",
+            "destination": "ws"
+        },
+        {
+            "locale": "cs_CZ",
+            "wporg": "cs",
+            "set": "default",
+            "nplurals": 3,
+            "plural_forms": "nplurals=3; plural=(n == 1) ? 0 : ((n >= 2 && n <= 4) ? 1 : 2);",
+            "destination": "ws"
+        },
+        {
+            "locale": "sv_SE",
+            "wporg": "sv",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "destination": "ws"
+        },
+        {
+            "locale": "hu_HU",
+            "wporg": "hu",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "destination": "ws"
+        },
+        {
+            "locale": "da_DK",
+            "wporg": "da",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "destination": "ws"
+        },
+        {
+            "locale": "en_AU",
+            "wporg": "en-au",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "destination": "ws"
+        },
+        {
+            "locale": "en_CA",
+            "wporg": "en-ca",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "destination": "ws"
+        },
+        {
+            "locale": "en_GB",
+            "wporg": "en-gb",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "destination": "ws"
+        },
+        {
+            "locale": "en_NZ",
+            "wporg": "en-nz",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "destination": "ws"
+        },
+        {
+            "locale": "en_ZA",
+            "wporg": "en-za",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "destination": "ws"
+        }
+    ]
+}

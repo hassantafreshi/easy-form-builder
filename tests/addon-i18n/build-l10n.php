@@ -108,6 +108,16 @@ foreach ( $source['entries'] as $e ) {
 			'keys'               => array(),
 		);
 	}
+	// gettext keeps one entry per msgid: a msgid used both alone (__) and in _n() is one
+	// plural entry, and __() returns its first form. Keep the plural whichever key came first.
+	if ( ! empty( $e['plural'] ) ) {
+		if ( null === $unique[ $id ]['plural'] ) {
+			$unique[ $id ]['plural'] = $e['plural'];
+		} elseif ( $unique[ $id ]['plural'] !== $e['plural'] ) {
+			fwrite( STDERR, 'Conflicting msgid_plural for ' . json_encode( $e['msgid'] ) . "\n" );
+			exit( 2 );
+		}
+	}
 	if ( ! empty( $e['translators'] ) ) {
 		$unique[ $id ]['extracted_comments'][] = 'translators: ' . $e['translators'];
 	}
@@ -139,7 +149,8 @@ function efb_l10n_entry( $u, $provider, $translations = null ) {
 }
 
 $common_headers = array(
-	'Project-Id-Version'        => 'Easy Form Builder - ' . ucfirst( $slug ) . ' add-on',
+	// source.json "name": the add-on's display name; without it the folder name is used.
+	'Project-Id-Version'        => 'Easy Form Builder - ' . ( ! empty( $source['name'] ) ? $source['name'] : ucfirst( $slug ) ) . ' add-on',
 	'Report-Msgid-Bugs-To'      => 'https://whitestudio.team/',
 	'MIME-Version'              => '1.0',
 	'Content-Type'              => 'text/plain; charset=UTF-8',

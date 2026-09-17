@@ -172,6 +172,79 @@ if ( null !== $efb_c4 ) {
 			efb_i18n_assert( "C4 {$source}: no download", $fn->server_requests, array() );
 			break;
 
+		// Google Sheet has its own legacy "class file exists, skip" branch in download_all_addons_efb().
+		// It must not stop Create/Panel from restoring a package that predates its translations.
+		case 'googlesheet_runtime':
+			$s = (object) array( 'AdnGoS' => 1, 'emailSupporter' => '' );
+			$GLOBALS['efb_settings'] = $s;
+			efb_c4_put( 'vendor/googlesheet/class-Emsfb-googlesheet.php' );
+			$fn->download_all_addons_efb( true );
+			efb_i18n_assert( 'C4 googlesheet runtime scope: a present package is never downloaded', $fn->server_requests, array() );
+			$r = $fn->recover_missing_addons_efb( $s, 'automatic' );
+			efb_i18n_assert( 'C4 googlesheet automatic: translation files are not a reason to recover', array( $r['needed'], $fn->server_requests ), array( false, array() ) );
+			break;
+
+		case 'googlesheet_create':
+			$s = (object) array( 'AdnGoS' => 1, 'emailSupporter' => '' );
+			$GLOBALS['efb_settings'] = $s;
+			efb_c4_put( 'vendor/googlesheet/class-Emsfb-googlesheet.php' );
+			efb_i18n_assert( 'C4 googlesheet admin scope detects the pre-migration package', array_keys( $fn->get_addon_local_health_efb( $s, 'admin' )['missing'] ), array( 'AdnGoS' ) );
+			$r = $fn->recover_missing_addons_efb( $s, 'create' );
+			efb_i18n_assert( 'C4 googlesheet create: downloaded again through the existing installer', array( $fn->server_requests, $fn->scope_seen ), array( array( 'AdnGoS' ), array( 'admin' ) ) );
+			efb_i18n_assert( 'C4 googlesheet create: recovered, so the card does not come back', array( $r['recovered'], $r['missing'] ), array( true, array() ) );
+			break;
+
+		// Form Security & Spam Protection: its admin page is always in the menu, but only an enabled
+		// add-on is checked. A package from before its translations locks Create/Panel only.
+		case 'humanshield_scope':
+			$s = (object) array( 'AdnHSH' => 1, 'emailSupporter' => '' );
+			$GLOBALS['efb_settings'] = $s;
+			efb_c4_put( 'vendor/human-shield/human-shield-efb.php' );
+			efb_i18n_assert( 'C4 human-shield runtime manifest keeps only the runtime file', $fn->get_addon_required_files_efb()['AdnHSH'], array( 'vendor/human-shield/human-shield-efb.php' ) );
+			efb_i18n_assert( 'C4 human-shield runtime scope ignores missing translation files', $fn->get_addon_local_health_efb( $s )['missing'], array() );
+			efb_i18n_assert( 'C4 human-shield admin scope (Create/Panel) detects them', $fn->get_addon_local_health_efb( $s, 'admin' )['missing'], array( 'AdnHSH' => array( 'vendor/human-shield/human-shield-phrases-efb.php', 'vendor/human-shield/languages/locales.json' ) ) );
+			efb_i18n_assert( 'C4 human-shield is_addon_installed_locally_efb() unchanged', $fn->is_addon_installed_locally_efb( 'AdnHSH' ), true );
+			$gate = $fn->check_addons_for_public_request_efb( $s, null );
+			efb_i18n_assert( 'C4 human-shield public gate renders, nothing missing or queued', array( $gate['success'], $gate['missing'], $gate['queued'] ), array( true, array(), false ) );
+			$r = $fn->recover_missing_addons_efb( $s, 'automatic' );
+			efb_i18n_assert( 'C4 human-shield automatic: translation files are not a reason to recover', array( $r['needed'], $fn->server_requests ), array( false, array() ) );
+			break;
+
+		case 'humanshield_create':
+			$s = (object) array( 'AdnHSH' => 1, 'emailSupporter' => '' );
+			$GLOBALS['efb_settings'] = $s;
+			efb_c4_put( 'vendor/human-shield/human-shield-efb.php' );
+			$r = $fn->recover_missing_addons_efb( $s, 'create' );
+			efb_i18n_assert( 'C4 human-shield create: downloaded again in admin scope', array( $fn->server_requests, $fn->scope_seen ), array( array( 'AdnHSH' ), array( 'admin' ) ) );
+			efb_i18n_assert( 'C4 human-shield create: recovered, so the card does not come back', array( $r['recovered'], $r['missing'] ), array( true, array() ) );
+			break;
+
+		case 'logic_scope':
+			// Conditional Logic is the first add-on whose phrases came from the
+			// base $lang array, and its runtime file sits one folder deeper than
+			// its provider (vendor/logic/logic/... vs vendor/logic/...).
+			$s = (object) array( 'AdnSMF' => 1, 'emailSupporter' => '' );
+			$GLOBALS['efb_settings'] = $s;
+			efb_c4_put( 'vendor/logic/logic/class-Emsfb-logic-validator.php' );
+			efb_i18n_assert( 'C4 logic runtime manifest keeps only the runtime file', $fn->get_addon_required_files_efb()['AdnSMF'], array( 'vendor/logic/logic/class-Emsfb-logic-validator.php' ) );
+			efb_i18n_assert( 'C4 logic runtime scope ignores missing translation files', $fn->get_addon_local_health_efb( $s )['missing'], array() );
+			efb_i18n_assert( 'C4 logic admin scope (Create/Panel) detects them', $fn->get_addon_local_health_efb( $s, 'admin' )['missing'], array( 'AdnSMF' => array( 'vendor/logic/logic-phrases-efb.php', 'vendor/logic/languages/locales.json' ) ) );
+			efb_i18n_assert( 'C4 logic is_addon_installed_locally_efb() unchanged', $fn->is_addon_installed_locally_efb( 'AdnSMF' ), true );
+			$gate = $fn->check_addons_for_public_request_efb( $s, null );
+			efb_i18n_assert( 'C4 logic public gate renders, nothing missing or queued', array( $gate['success'], $gate['missing'], $gate['queued'] ), array( true, array(), false ) );
+			$r = $fn->recover_missing_addons_efb( $s, 'automatic' );
+			efb_i18n_assert( 'C4 logic automatic: translation files are not a reason to recover', array( $r['needed'], $fn->server_requests ), array( false, array() ) );
+			break;
+
+		case 'logic_create':
+			$s = (object) array( 'AdnSMF' => 1, 'emailSupporter' => '' );
+			$GLOBALS['efb_settings'] = $s;
+			efb_c4_put( 'vendor/logic/logic/class-Emsfb-logic-validator.php' );
+			$r = $fn->recover_missing_addons_efb( $s, 'create' );
+			efb_i18n_assert( 'C4 logic create: downloaded again in admin scope', array( $fn->server_requests, $fn->scope_seen ), array( array( 'AdnSMF' ), array( 'admin' ) ) );
+			efb_i18n_assert( 'C4 logic create: recovered, so the card does not come back', array( $r['recovered'], $r['missing'] ), array( true, array() ) );
+			break;
+
 		case 'background':
 			$GLOBALS['efb_opts']['emsfb_addon_recovery_pending'] = array( 'attempt' => 0 );
 			$fn->run_addon_recovery_event_efb( array( 'attempt' => 0 ) );
@@ -362,6 +435,64 @@ efb_i18n_assert( 'C2 group merge = remaining core keys + provider keys', array_k
 efb_i18n_assert( 'C2 remaining core telegram keys', array_keys( $efb_core_group ), array( 'enabled', 'botfather_link', 'chatid_finder_link', 'date', 'invalidToken', 'unknownError', 'messageSent' ) );
 efb_i18n_assert( 'C2 provider supplies 82 keys', count( $efb_provider_group ), 82 );
 
+// Google Sheet: every key of the core group moved, so the merge is the provider's group alone.
+efb_i18n_assert( 'C2 googlesheet provider registered', isset( $efb_providers['googlesheet'] ) ? $efb_providers['googlesheet'] : null, array( 'group' => 'googlesheet', 'slug' => 'googlesheet', 'file' => 'vendor/googlesheet/googlesheet-phrases-efb.php', 'class' => 'Emsfb_Addon_Phrases_Googlesheet' ) );
+if ( file_exists( EMSFB_PLUGIN_DIRECTORY . 'vendor/googlesheet/googlesheet-phrases-efb.php' ) ) {
+	$efb_gs_merged = efb_get_addon_phrases( 'googlesheet' );
+	efb_i18n_assert( 'C2 googlesheet core group is empty', EfbAddonPhrases::get_googlesheet_phrases(), array() );
+	efb_i18n_assert( 'C2 googlesheet merge = provider group', array_keys( $efb_gs_merged ), array_keys( Emsfb_Addon_Phrases_Googlesheet::group() ) );
+	efb_i18n_assert( 'C2 googlesheet provider supplies 230 keys, base() none', array( count( $efb_gs_merged ), Emsfb_Addon_Phrases_Googlesheet::base() ), array( 230, array() ) );
+} else {
+	echo "[SKIP] vendor/googlesheet/googlesheet-phrases-efb.php is not in this checkout\n";
+}
+
+// Form Security & Spam Protection: the admin panel keys moved. Only the messages its REST routes return to
+// visitors (Emsfb_Human_Shield::phrase()) stay in the core group.
+efb_i18n_assert( 'C2 human-shield provider registered', isset( $efb_providers['human-shield'] ) ? $efb_providers['human-shield'] : null, array( 'group' => 'humanshield', 'slug' => 'human-shield', 'file' => 'vendor/human-shield/human-shield-phrases-efb.php', 'class' => 'Emsfb_Addon_Phrases_HumanShield' ) );
+if ( file_exists( EMSFB_PLUGIN_DIRECTORY . 'vendor/human-shield/human-shield-phrases-efb.php' ) ) {
+	$efb_hs_core   = EfbAddonPhrases::get_humanshield_phrases();
+	$efb_hs_merged = efb_get_addon_phrases( 'humanshield' );
+	$efb_hs_group  = Emsfb_Addon_Phrases_HumanShield::group();
+	efb_i18n_assert( 'C2 human-shield core group keeps only the visitor messages', array_keys( $efb_hs_core ), array( 'hsDisabled', 'hsServiceNotAvailable', 'hsRefreshForm', 'hsTooManyRequests', 'hsChallengeMissing', 'hsChallengeExpired', 'hsChallengeUsed', 'hsFormMismatch', 'hsServiceTempUnavailable', 'hsFormExpired', 'hsLooksUnusual', 'hsQuarantine', 'hsServiceUnavailable' ) );
+	efb_i18n_assert( 'C2 human-shield merge = remaining core keys + provider keys', array_keys( $efb_hs_merged ), array_keys( array_merge( $efb_hs_core, $efb_hs_group ) ) );
+	efb_i18n_assert( 'C2 human-shield provider supplies 158 keys, base() none', array( count( $efb_hs_group ), Emsfb_Addon_Phrases_HumanShield::base() ), array( 158, array() ) );
+	// The keys human-shield-admin-efb.js reads that no phrase source defined before 2026-09-17, and the unused hsEnabled.
+	efb_i18n_assert( 'C2 human-shield provider defines hsEnabled and the three keys the panel JS reads', array_values( array_diff( array( 'hsEnabled', 'hsPaidStopLossTitle', 'hsPaidStopLossDesc', 'hsFieldFailClosedLabel' ), array_keys( $efb_hs_group ) ) ), array() );
+	efb_i18n_assert( 'C2 human-shield visitor messages never come from the add-on file', array_values( array_intersect( array_keys( $efb_hs_group ), array_keys( $efb_hs_core ) ) ), array() );
+} else {
+	echo "[SKIP] vendor/human-shield/human-shield-phrases-efb.php is not in this checkout\n";
+}
+
+// 'payment' is the first group with TWO providers and no core group function left: PayPal migrated first and
+// Stripe second, and the 65 keys both dashboards read ship in both text domains with the same English source.
+// get_addon_phrases() must then return the union of both group() arrays, with the provider registered last
+// winning a shared key, and must not depend on a core callback for the group at all.
+efb_i18n_assert( 'C2 paypal provider registered', isset( $efb_providers['paypal'] ) ? $efb_providers['paypal'] : null, array( 'group' => 'payment', 'slug' => 'paypal', 'file' => 'vendor/paypal/paypal-phrases-efb.php', 'class' => 'Emsfb_Addon_Phrases_Paypal' ) );
+efb_i18n_assert( 'C2 stripe provider registered', isset( $efb_providers['stripe'] ) ? $efb_providers['stripe'] : null, array( 'group' => 'payment', 'slug' => 'stripe', 'file' => 'vendor/stripe/stripe-phrases-efb.php', 'class' => 'Emsfb_Addon_Phrases_Stripe' ) );
+efb_i18n_assert( 'C2 the core payment group function is gone', method_exists( 'EfbAddonPhrases', 'get_payment_phrases' ), false );
+if ( file_exists( EMSFB_PLUGIN_DIRECTORY . 'vendor/paypal/paypal-phrases-efb.php' ) && file_exists( EMSFB_PLUGIN_DIRECTORY . 'vendor/stripe/stripe-phrases-efb.php' ) ) {
+	$efb_pay_merged = efb_get_addon_phrases( 'payment' );
+	$efb_pp_group   = Emsfb_Addon_Phrases_Paypal::group();
+	$efb_sp_group   = Emsfb_Addon_Phrases_Stripe::group();
+	efb_i18n_assert( 'C2 payment merge = both providers, no core keys', array_keys( $efb_pay_merged ), array_keys( array_merge( $efb_pp_group, $efb_sp_group ) ) );
+	efb_i18n_assert( 'C2 payment merge holds every key of both providers', array( array_values( array_diff( array_keys( $efb_pp_group ), array_keys( $efb_pay_merged ) ) ), array_values( array_diff( array_keys( $efb_sp_group ), array_keys( $efb_pay_merged ) ) ) ), array( array(), array() ) );
+	// The shared keys are the same English in both domains, so whichever wins reads the same.
+	$efb_pay_shared_diff = array();
+	foreach ( array_intersect( array_keys( $efb_pp_group ), array_keys( $efb_sp_group ) ) as $efb_k ) {
+		if ( $efb_pp_group[ $efb_k ] !== $efb_sp_group[ $efb_k ] ) {
+			$efb_pay_shared_diff[] = $efb_k;
+		}
+		if ( $efb_pay_merged[ $efb_k ] !== $efb_sp_group[ $efb_k ] ) {
+			$efb_pay_shared_diff[] = $efb_k . ' (merge winner)';
+		}
+	}
+	efb_i18n_assert( 'C2 payment shared keys: same English in both domains, last provider wins', $efb_pay_shared_diff, array() );
+	efb_i18n_assert( 'C2 stripe provider supplies 66 keys, base() none', array( count( $efb_sp_group ), Emsfb_Addon_Phrases_Stripe::base() ), array( 66, array() ) );
+	efb_i18n_assert( 'C2 only stripe defines the Stripe tab label', array( isset( $efb_sp_group['stripes'] ), isset( $efb_pp_group['stripes'] ) ), array( true, false ) );
+} else {
+	echo "[SKIP] vendor/paypal and vendor/stripe providers are not both in this checkout\n";
+}
+
 echo "\n--- C3. merge, collisions, per-locale caches ---\n";
 $efb_functions_src = file_get_contents( EMSFB_PLUGIN_DIRECTORY . 'includes/functions.php' );
 $efb_base_keys     = array();
@@ -376,6 +507,59 @@ efb_i18n_assert( 'C3 parsed the base $lang array', count( $efb_base_keys ) > 100
 $efb_addon_keys = array_merge( array_keys( $efb_provider_group ), array_keys( $efb_provider_base ) );
 efb_i18n_assert( 'C3 no add-on key collides with a core base or sentence-form key', array_values( array_intersect( $efb_addon_keys, $efb_base_keys ) ), array() );
 efb_i18n_assert( 'C3 no add-on key collides with a remaining core group key', array_values( array_intersect( $efb_addon_keys, array_keys( $efb_core_group ) ) ), array() );
+
+// The same for every registered provider whose file is in this checkout: its keys never collide with the
+// core base/sentence-form keys, and base() keys are unique across providers (text_efb(1|2) merges every
+// provider's base()). A provider's group() key MAY still be defined in its own remaining core group: that
+// is the documented MULTI case (still read, in core English, by another add-on not yet migrated) - not an
+// accidental collision, as long as the group merge resolves to the provider's (translated) value, which is
+// checked separately below instead of being treated as a hard failure here.
+$efb_all_base_keys       = array();
+$efb_collisions          = array();
+$efb_multi_shared        = array();
+foreach ( $efb_providers as $efb_slug => $efb_provider ) {
+	if ( ! EfbAddonPhrases::load_addon_provider_efb( $efb_provider ) ) {
+		echo "[SKIP] provider {$efb_slug} not in this checkout\n";
+		continue;
+	}
+	$efb_p_group = call_user_func( array( $efb_provider['class'], 'group' ) );
+	$efb_p_base  = call_user_func( array( $efb_provider['class'], 'base' ) );
+	$efb_p_keys  = array_merge( array_keys( $efb_p_group ), array_keys( $efb_p_base ) );
+	foreach ( array_intersect( $efb_p_keys, $efb_base_keys ) as $efb_k ) {
+		$efb_collisions[] = "{$efb_slug}:{$efb_k} (core base)";
+	}
+	$efb_core_fn = null === $efb_provider['group'] ? '' : 'get_' . strtolower( $efb_provider['group'] ) . '_phrases';
+	if ( '' !== $efb_core_fn && method_exists( 'EfbAddonPhrases', $efb_core_fn ) ) {
+		foreach ( array_intersect( array_keys( $efb_p_group ), array_keys( call_user_func( array( 'EfbAddonPhrases', $efb_core_fn ) ) ) ) as $efb_k ) {
+			$efb_multi_shared[] = array( $efb_slug, $efb_provider['group'], $efb_k );
+		}
+	}
+	foreach ( array_intersect( array_keys( $efb_p_base ), $efb_all_base_keys ) as $efb_k ) {
+		$efb_collisions[] = "{$efb_slug}:{$efb_k} (another provider's base)";
+	}
+	$efb_all_base_keys = array_merge( $efb_all_base_keys, array_keys( $efb_p_base ) );
+}
+efb_i18n_assert( 'C3 no key of any registered provider collides with core base or another provider\'s base', $efb_collisions, array() );
+
+// A group()/core-group shared key (MULTI, still pending in the ledger) must resolve to the provider's own
+// (translated) value through the documented merge order, for every locale-independent group it is read in.
+$efb_multi_wrong_winner = array();
+foreach ( $efb_multi_shared as $efb_row ) {
+	list( $efb_slug, $efb_group, $efb_k ) = $efb_row;
+	$efb_p_group = call_user_func( array( $efb_providers[ $efb_slug ]['class'], 'group' ) );
+	$efb_merged  = efb_get_addon_phrases( $efb_group );
+	if ( ! isset( $efb_merged[ $efb_k ] ) || $efb_merged[ $efb_k ] !== $efb_p_group[ $efb_k ] ) {
+		$efb_multi_wrong_winner[] = "{$efb_slug}:{$efb_k}";
+	}
+}
+if ( ! empty( $efb_multi_shared ) ) {
+	echo '[INFO] MULTI keys still shared with a remaining core group (expected until every consumer is migrated): ';
+	foreach ( $efb_multi_shared as $efb_row ) {
+		echo "{$efb_row[0]}:{$efb_row[2]} ";
+	}
+	echo "\n";
+}
+efb_i18n_assert( "C3 every MULTI-shared group key's merge resolves to the provider's own value", $efb_multi_wrong_winner, array() );
 
 $efb_tg_en = $efb_fn->text_efb( 1, 'telegram' );
 efb_i18n_assert( 'C3 text_efb(1, telegram) holds every provider key', array_values( array_diff( array_keys( $efb_provider_group ), array_keys( $efb_tg_en ) ) ), array() );
@@ -395,10 +579,20 @@ efb_i18n_assert( 'C3 back to English after restore', $efb_fn->text_efb( 1, 'tele
 echo "\n--- C2. partial install never fatals ---\n";
 EfbAddonPhrases::register_addon_provider_efb( 'i18ntest_group', 'i18ntest', 'vendor/i18ntest/i18ntest-phrases-efb.php', 'Emsfb_Addon_Phrases_I18ntest' );
 efb_i18n_assert( 'C2 missing provider file: group returns core phrases only', efb_get_addon_phrases( 'i18ntest_group' ), array() );
-efb_i18n_assert( 'C2 missing provider file: base merge unaffected', EfbAddonPhrases::get_addon_base_phrases_efb(), array() );
+// The base merge must be exactly what the providers whose file exists return:
+// a registered provider with no file on disk contributes nothing and must not
+// remove what the others contribute. vendor/logic is the first add-on that
+// moved base $lang keys, so its base() is the whole expected result today.
+$efb_base_merged = EfbAddonPhrases::get_addon_base_phrases_efb();
+efb_i18n_assert( 'C2 missing provider file: base merge contributes no key of its own', isset( $efb_base_merged['i18ntest_base_key'] ), false );
+efb_i18n_assert(
+	'C2 missing provider file: base merge still holds every present provider key',
+	class_exists( 'Emsfb_Addon_Phrases_Logic' ) ? array_values( array_diff( array_keys( Emsfb_Addon_Phrases_Logic::base() ), array_keys( $efb_base_merged ) ) ) : array(),
+	array()
+);
 
 echo "\n--- C4 / C6. child processes (no WordPress) ---\n";
-foreach ( array( 'health', 'recover_create', 'recover_panel', 'recover_manual', 'recover_addons', 'recover_public_inline', 'recover_automatic', 'background', 'refetch', 'refetch_backoff', 'refetch_failure', 'flag' ) as $efb_scenario ) {
+foreach ( array( 'health', 'recover_create', 'recover_panel', 'recover_manual', 'recover_addons', 'recover_public_inline', 'recover_automatic', 'googlesheet_runtime', 'googlesheet_create', 'humanshield_scope', 'humanshield_create', 'logic_scope', 'logic_create', 'background', 'refetch', 'refetch_backoff', 'refetch_failure', 'flag' ) as $efb_scenario ) {
 	$efb_out = array();
 	exec( escapeshellarg( PHP_BINARY ) . ' ' . escapeshellarg( __FILE__ ) . ' --c4=' . $efb_scenario . ' 2>&1', $efb_out, $efb_code );
 	$efb_child_done = false;
