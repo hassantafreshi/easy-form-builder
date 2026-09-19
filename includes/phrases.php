@@ -35,8 +35,6 @@ class EfbAddonPhrases {
 
         self::register_addon('Autofill', [__CLASS__, 'get_autofill_phrases']);
 
-        self::register_addon('sms', [__CLASS__, 'get_sms_phrases']);
-
         self::register_addon('googlesheet', [__CLASS__, 'get_googlesheet_phrases']);
 
         self::register_addon('humanshield', [__CLASS__, 'get_humanshield_phrases']);
@@ -47,6 +45,11 @@ class EfbAddonPhrases {
         self::register_addon_provider_efb('googlesheet', 'googlesheet', 'vendor/googlesheet/googlesheet-phrases-efb.php', 'Emsfb_Addon_Phrases_Googlesheet');
         self::register_addon_provider_efb('Autofill', 'autofill', 'vendor/autofill/autofill-phrases-efb.php', 'Emsfb_Addon_Phrases_Autofill');
         self::register_addon_provider_efb('humanshield', 'human-shield', 'vendor/human-shield/human-shield-phrases-efb.php', 'Emsfb_Addon_Phrases_HumanShield');
+        // 'sms' has no core group function left: the SMS add-on is the only reader of
+        // that group, so its 25 keys ship in efb-smssended and get_addon_phrases('sms')
+        // returns them from the provider alone. base() adds the three keys that lived
+        // in the core $lang array and that nothing outside vendor/smssended reads.
+        self::register_addon_provider_efb('sms', 'smssended', 'vendor/smssended/smssended-phrases-efb.php', 'Emsfb_Addon_Phrases_Smssended');
         // 'payment' is shared by the PayPal and Stripe add-ons and has no core group
         // function left: both providers ship the 65 keys their dashboards both read,
         // with the same English source, and get_addon_phrases('payment') merges them.
@@ -206,91 +209,6 @@ class EfbAddonPhrases {
 
             /* translators: Message sent = success message */
             "messageSent" => $state && isset($ac->text->messageSent) ? $ac->text->messageSent : esc_html__('Message sent', 'easy-form-builder'),
-        ];
-    }
-
-    public static function get_sms_phrases($ac = null, $state = false) {
-        return [
-
-            /* translators: SMS Send & Manage Messages = subtitle in SMS header */
-            "smsSendMessages" => $state && isset($ac->text->smsSendMessages) ? $ac->text->smsSendMessages : esc_html__('Send & Manage Messages', 'easy-form-builder'),
-
-            /* translators: SMS intro description = description text under SMS header */
-            "smsIntroDesc" => $state && isset($ac->text->smsIntroDesc) ? $ac->text->smsIntroDesc : esc_html__('Send SMS messages directly from your dashboard and track all sent messages.', 'easy-form-builder'),
-
-            /* translators: Quick Send = feature badge label */
-            "quickSend" => $state && isset($ac->text->quickSend) ? $ac->text->quickSend : esc_html__('Quick Send', 'easy-form-builder'),
-
-            /* translators: Message History = tab title and feature badge */
-            "messageHistory" => $state && isset($ac->text->messageHistory) ? $ac->text->messageHistory : esc_html__('Message History', 'easy-form-builder'),
-
-            /* translators: Total Sent = label for total sent messages counter */
-            "totalSent" => $state && isset($ac->text->totalSent) ? $ac->text->totalSent : esc_html__('Total Sent', 'easy-form-builder'),
-
-            /* translators: Messages sent from your dashboard = hint under status card */
-            "smsStatusHint" => $state && isset($ac->text->smsStatusHint) ? $ac->text->smsStatusHint : esc_html__('Messages sent from your dashboard', 'easy-form-builder'),
-
-            /* translators: Send Message = tab title for composing an SMS */
-            "sendMessage" => $state && isset($ac->text->sendMessage) ? $ac->text->sendMessage : esc_html__('Send Message', 'easy-form-builder'),
-
-            /* translators: Compose and send an SMS message = subtitle on send card */
-            "sendSmsDesc" => $state && isset($ac->text->sendSmsDesc) ? $ac->text->sendSmsDesc : esc_html__('Compose and send an SMS message', 'easy-form-builder'),
-
-            /* translators: Type your message here... = textarea placeholder */
-            "typeYourMessage" => $state && isset($ac->text->typeYourMessage) ? $ac->text->typeYourMessage : esc_html__('Type your message here&hellip;', 'easy-form-builder'),
-
-            /* translators: Phone Number = label for phone input field */
-            "phoneNumber" => $state && isset($ac->text->phoneNumber) ? $ac->text->phoneNumber : esc_html__('Phone Number', 'easy-form-builder'),
-
-            /* translators: SMS message field hint text */
-            "smsMessageHint" => $state && isset($ac->text->smsMessageHint) ? $ac->text->smsMessageHint : esc_html__('Write the message you want to send via SMS', 'easy-form-builder'),
-
-            /* translators: SMS phone field hint text */
-            "smsPhoneHint" => $state && isset($ac->text->smsPhoneHint) ? $ac->text->smsPhoneHint : esc_html__('Enter phone number with country code (e.g. +11234567890)', 'easy-form-builder'),
-
-            /* translators: Quick Tips = title for tips sidebar */
-            "quickTips" => $state && isset($ac->text->quickTips) ? $ac->text->quickTips : esc_html__('Quick Tips', 'easy-form-builder'),
-
-            /* translators: SMS tip about international phone format */
-            "smsTip1" => $state && isset($ac->text->smsTip1) ? $ac->text->smsTip1 : esc_html__('Use international format: +[country code][number]', 'easy-form-builder'),
-
-            /* translators: SMS tip about provider configuration */
-            "smsTip2" => $state && isset($ac->text->smsTip2) ? $ac->text->smsTip2 : esc_html__('Messages are sent via your configured SMS provider', 'easy-form-builder'),
-
-            /* translators: SMS tip about message history */
-            "smsTip3" => $state && isset($ac->text->smsTip3) ? $ac->text->smsTip3 : esc_html__('All sent messages are logged in the History tab', 'easy-form-builder'),
-
-            /* translators: No messages sent yet = empty state message */
-            "noRecordsFound" => $state && isset($ac->text->noRecordsFound) ? $ac->text->noRecordsFound : esc_html__('No messages sent yet', 'easy-form-builder'),
-
-            /* translators: sent = status label for sent messages */
-            "sent" => $state && isset($ac->text->sent) ? $ac->text->sent : esc_html__('sent', 'easy-form-builder'),
-
-            /* translators: Learn how to use the SMS feature = help subtitle */
-            "smsHelpDesc" => $state && isset($ac->text->smsHelpDesc) ? $ac->text->smsHelpDesc : esc_html__('Learn how to use the SMS feature', 'easy-form-builder'),
-
-
-
-
-
-
-            /* translators: Important Notes = help section title */
-            "smsHelpNotes" => $state && isset($ac->text->smsHelpNotes) ? $ac->text->smsHelpNotes : esc_html__('Important Notes', 'easy-form-builder'),
-
-            /* translators: Note about country code requirement */
-            "smsHelpNote1" => $state && isset($ac->text->smsHelpNote1) ? $ac->text->smsHelpNote1 : esc_html__('Phone numbers must include country code (e.g. +1 for US, +44 for UK)', 'easy-form-builder'),
-
-            /* translators: Note about SMS provider requirement */
-            "smsHelpNote2" => $state && isset($ac->text->smsHelpNote2) ? $ac->text->smsHelpNote2 : esc_html__('An SMS provider plugin must be installed and configured', 'easy-form-builder'),
-
-            /* translators: Note about form notification settings */
-            "smsHelpNote3" => $state && isset($ac->text->smsHelpNote3) ? $ac->text->smsHelpNote3 : esc_html__('SMS notifications for forms can be set up in each form\'s settings', 'easy-form-builder'),
-
-            /* translators: Note about message history tab */
-            "smsHelpNote4" => $state && isset($ac->text->smsHelpNote4) ? $ac->text->smsHelpNote4 : esc_html__('All sent messages are recorded in the Message History tab', 'easy-form-builder'),
-
-            /* translators: Supported SMS Providers = help section title */
-            "smsHelpProviders" => $state && isset($ac->text->smsHelpProviders) ? $ac->text->smsHelpProviders : esc_html__('Supported SMS Providers', 'easy-form-builder'),
         ];
     }
 

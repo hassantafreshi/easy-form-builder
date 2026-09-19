@@ -4042,6 +4042,32 @@ function efb_onboarding_mark_complete_efb() {
     });
 }
 
+/*
+ * The x button and Escape are the admin saying "not now". On the email step
+ * that has to stick: the step used to reopen on every Panel and Create load
+ * until a delivery test was run. The plan chooser is not affected - with no
+ * plan saved it still comes back. Closes made by the code itself (after a plan
+ * is saved, after Finish) call closeSetupOverlay_efb() directly and are not a
+ * dismissal.
+ */
+let efb_onboarding_dismissal_saved_efb = false;
+
+function efb_setup_overlay_user_close_efb() {
+    const overlay = document.getElementById('efb-setup-overlay');
+    const onEmailStep = !!(overlay && overlay.querySelector('#efb-onboarding-test-email'));
+    if (onEmailStep && !efb_onboarding_completion_saved_efb && !efb_onboarding_dismissal_saved_efb) {
+        efb_onboarding_dismissal_saved_efb = true;
+        efb_var_patch_efb({ onboarding_pending: false });
+        jQuery.ajax({
+            url: efb_var.ajax_url,
+            type: 'POST',
+            dataType: 'json',
+            data: { action: 'efb_dismiss_onboarding', nonce: efb_var.nonce }
+        });
+    }
+    closeSetupOverlay_efb();
+}
+
 function efb_onboarding_finish_efb() {
     const button = document.getElementById('efb-onboarding-finish');
     if (!button || button.disabled) return;
@@ -4514,7 +4540,7 @@ function showSetupAsOverlayPage(options) {
             <div class="efb-overlay-content">
                 ${setupContent}
             </div>
-            <button class="efb-overlay-close" onclick="closeSetupOverlay_efb()">
+            <button class="efb-overlay-close" onclick="efb_setup_overlay_user_close_efb()">
                 <i class="bi bi-x-lg"></i>
             </button>
         </div>
@@ -4995,7 +5021,7 @@ function updatePlanBadge_efb() {
 
 function handleOverlayEscape_efb(event) {
     if (event.key === 'Escape') {
-        closeSetupOverlay_efb();
+        efb_setup_overlay_user_close_efb();
     }
 }
 

@@ -43,6 +43,7 @@ class Admin {
             add_action('wp_ajax_check_email_server_efb', [$this, 'check_email_server_admin']);
             add_action('wp_ajax_efb_save_onboarding_email', [$this, 'efb_save_onboarding_email']);
             add_action('wp_ajax_efb_complete_onboarding', [$this, 'efb_complete_onboarding']);
+            add_action('wp_ajax_efb_dismiss_onboarding', [$this, 'efb_dismiss_onboarding']);
             add_action('wp_ajax_add_addons_Emsfb', [$this, 'add_addons_Emsfb']);
             add_action('wp_ajax_remove_addons_Emsfb', [$this, 'remove_addons_Emsfb']);
             add_action('wp_ajax_update_file_Emsfb', array( $this,'file_upload_public'));
@@ -1911,6 +1912,32 @@ class Admin {
         wp_send_json_success(array('completed' => true));
     }
 
+    /**
+     * The admin closed the email step (x or Escape) without running the
+     * delivery test. That is a deliberate "not now", and the step used to
+     * reopen on every Panel and Create load until a test was run. The test
+     * stays available in General Settings, and the builder keeps warning while
+     * email sending is off.
+     *
+     * Kept apart from completion: emsfb_onboarding_completed_at still means a
+     * test actually ran. A plan that was never saved is not affected - the
+     * plan chooser keeps coming back on its own until one is.
+     */
+    public function efb_dismiss_onboarding() {
+        $efbFunction = get_efbFunction();
+        if (!check_ajax_referer('wp_rest', 'nonce', false) || !$efbFunction->user_permission_efb_admin_dashboard()) {
+            wp_send_json_error(array('message' => esc_html__('You do not have permission to complete setup.', 'easy-form-builder')), 403);
+        }
+
+        $dismissed = false;
+        if ((bool) get_option('emsfb_onboarding_pending', false)) {
+            update_option('emsfb_onboarding_pending', 0, false);
+            update_option('emsfb_onboarding_dismissed_at', current_time('mysql'), false);
+            $dismissed = true;
+        }
+        wp_send_json_success(array('dismissed' => $dismissed));
+    }
+
     private function start_email_tester_efb($efbFunction, $ac) {
         $admin_email = isset($_POST['email']) ? sanitize_email(wp_unslash($_POST['email'])) : '';
         if (!is_email($admin_email)) {
@@ -3650,9 +3677,21 @@ function admin_notices_efb () {
         if (!in_array($current_package_type, [0, 1, 2, 3], true)) {
             $current_package_type = 2;
         }
+        /*
+         * Until a plan is chosen, emsfb_pro holds -1 (a fresh install), the
+         * legacy 10, or nothing at all. The coercion above reads those as Free
+         * for the downgrade checks, but they are not a saved choice: letting
+         * them short-cut as "unchanged" meant "Start with Free" never wrote
+         * anything, and the plan chooser reopened on every Panel and Create
+         * load. Only a stored 1, 2 or 3 - the values getSelectedPlan_efb()
+         * recognises - can be unchanged.
+         */
+        $stored_package_type = get_option('emsfb_pro', null);
+        $has_saved_plan = is_numeric($stored_package_type)
+            && in_array((int) $stored_package_type, [1, 2, 3], true);
         $onboarding_pending = emsfb_onboarding_pending_efb();
         $target_package_type = $selected_plan === 'free_plus' ? 3 : ($selected_plan === 'free' ? 2 : 1);
-        if ($target_package_type === $current_package_type) {
+        if ($has_saved_plan && $target_package_type === $current_package_type) {
             wp_send_json_success(array(
                 'success' => true,
                 'plan' => $selected_plan,

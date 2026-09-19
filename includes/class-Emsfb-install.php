@@ -207,6 +207,7 @@ class Install {
 				update_option('emsfb_onboarding_pending', 1, false);
 				update_option('emsfb_onboarding_initial_install', 1, false);
 				delete_option('emsfb_onboarding_completed_at');
+				delete_option('emsfb_onboarding_dismissed_at');
 			}
 
 		// Activation runs on every activate, not only the first one, and

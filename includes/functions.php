@@ -1585,7 +1585,6 @@ class efbFunction {
 			"trackingCodeFinder" => $state ? $ac->text->trackingCodeFinder : esc_html__('Confirmation Code Finder','easy-form-builder'),
 			"copyAndPasteBelowShortCodeTrackingCodeFinder" => $state ? $ac->text->copyAndPasteBelowShortCodeTrackingCodeFinder : esc_html__('Copy and paste this shortcode to add the confirmation code finder to any page or post.','easy-form-builder'),
 			"save" => $state ? $ac->text->save : esc_html__('Save','easy-form-builder'),
-			"waiting" => $state ? $ac->text->waiting : esc_html__('Waiting','easy-form-builder'),
 			"saved" => $state ? $ac->text->saved : esc_html__('Saved','easy-form-builder'),
 			/* translators: Step Name = name of a step in a multi-step form */
 			"stepName" => $state ? $ac->text->stepName : esc_html__('Step Name','easy-form-builder'),
@@ -2521,8 +2520,6 @@ class efbFunction {
 
 			"sms" => $state  &&  isset($ac->text->sms) ? $ac->text->sms : esc_html__('SMS','easy-form-builder'),
 			"documentation" => $state  &&  isset($ac->text->documentation) ? $ac->text->documentation : esc_html__('Documentation','easy-form-builder'),
-			"smscw" => $state  &&  isset($ac->text->smscw) ? $ac->text->smscw : esc_html__('Click on the Settings button on the panel page of Easy Form Builder Plugin and configure the SMS sending method. Then, try again.','easy-form-builder'),
-			"to" => $state  &&  isset($ac->text->to) ? $ac->text->to : esc_html__('To','easy-form-builder'),
 			"esmsno" => $state  &&  isset($ac->text->esmsno) ? $ac->text->esmsno : esc_html__('Enable SMS notifications','easy-form-builder'),
 			"etelegramno" => $state  &&  isset($ac->text->etelegramno) ? $ac->text->etelegramno : esc_html__('Enable Telegram notifications','easy-form-builder'),
 			"telegram" => $state  &&  isset($ac->text->telegram) ? $ac->text->telegram : esc_html__('Telegram','easy-form-builder'),
@@ -4352,6 +4349,7 @@ class efbFunction {
 			'AdnSMF' => array( 'vendor/logic/logic-phrases-efb.php', 'vendor/logic/languages/locales.json' ),
 			'AdnPAP' => array( 'vendor/paypal/paypal-phrases-efb.php', 'vendor/paypal/languages/locales.json' ),
 			'AdnSPF' => array( 'vendor/stripe/stripe-phrases-efb.php', 'vendor/stripe/languages/locales.json' ),
+			'AdnSS'  => array( 'vendor/smssended/smssended-phrases-efb.php', 'vendor/smssended/languages/locales.json' ),
 		);
 	}
 

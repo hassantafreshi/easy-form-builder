@@ -14014,6 +14014,775 @@
                 "All 66 keys are read unguarded as $phrases['key'] in class-Emsfb-stripe-payment.php except pay_copy, so a site running the new core with the pre-migration Stripe package would emit undefined-index notices on the Stripe payments screen. The rebuilt vendor/stripe.zip must be live on both download servers before the core release, and so must vendor/paypal.zip, because the 65 shared keys left core in this run as well.",
                 "includes/phrases.php still declares the empty, unregistered get_stripe_phrases() (and get_webhook_phrases()). They predate this work, are referenced nowhere, and hold no key, so this run left them untouched; worth removing in a separate cleanup."
             ]
+        },
+        "smssended": {
+            "date": "2026-09-17",
+            "setting_key": "AdnSS",
+            "phrase_group": "sms",
+            "domain": "efb-smssended",
+            "provider": "vendor/smssended/smssended-phrases-efb.php (Emsfb_Addon_Phrases_Smssended)",
+            "locales": [
+                "ja",
+                "es_ES",
+                "es_MX",
+                "es_AR",
+                "es_CL",
+                "es_CO",
+                "es_CR",
+                "es_DO",
+                "es_EC",
+                "es_GT",
+                "es_PE",
+                "es_PR",
+                "es_UY",
+                "es_VE",
+                "de_DE",
+                "de_DE_formal",
+                "de_AT",
+                "de_CH",
+                "de_CH_informal",
+                "fr_FR",
+                "fr_CA",
+                "fr_BE",
+                "pt_BR",
+                "pt_PT",
+                "pt_PT_ao90",
+                "pt_AO",
+                "it_IT",
+                "nl_NL",
+                "nl_NL_formal",
+                "nl_BE",
+                "pl_PL",
+                "ru_RU",
+                "tr_TR",
+                "vi",
+                "fa_IR",
+                "fa_AF",
+                "id_ID",
+                "cs_CZ",
+                "sv_SE",
+                "zh_CN",
+                "zh_TW",
+                "zh_HK",
+                "hu_HU",
+                "da_DK",
+                "ar",
+                "ary"
+            ],
+            "msgids": 46,
+            "moved_keys": [
+                "smsSendMessages",
+                "smsIntroDesc",
+                "quickSend",
+                "messageHistory",
+                "totalSent",
+                "smsStatusHint",
+                "sendMessage",
+                "sendSmsDesc",
+                "typeYourMessage",
+                "phoneNumber",
+                "smsMessageHint",
+                "smsPhoneHint",
+                "quickTips",
+                "smsTip1",
+                "smsTip2",
+                "smsTip3",
+                "noRecordsFound",
+                "sent",
+                "smsHelpDesc",
+                "smsHelpNotes",
+                "smsHelpNote1",
+                "smsHelpNote2",
+                "smsHelpNote3",
+                "smsHelpNote4",
+                "smsHelpProviders",
+                "waiting",
+                "smscw",
+                "to",
+                "secure",
+                "smsGuideLink",
+                "smsReadFullGuide",
+                "smsHelpSetup",
+                "smsGuideStep1",
+                "smsGuideStep2",
+                "smsGuideStep3",
+                "smsGuideStep4",
+                "smsGuideFormConfig",
+                "smsGuideForm1",
+                "smsGuideForm2",
+                "smsGuideForm3",
+                "smsGuideForm4",
+                "smsGuideCodes",
+                "smsCodeConfirmation",
+                "smsCodeResponse",
+                "smsCodePage",
+                "smsCodeDomain",
+                "smsCodeSiteName"
+            ],
+            "counts": {
+                "ADDON": 47,
+                "ADDON_group": 44,
+                "ADDON_base": 3,
+                "MULTI": 0,
+                "FRONT": 12,
+                "CORE": 4,
+                "UNSURE": 0,
+                "DEAD": 0,
+                "READ_BUT_NEVER_DEFINED": 0
+            },
+            "buckets": {
+                "ADDON": {
+                    "smsSendMessages": {
+                        "msgid": "Send & Manage Messages",
+                        "target": "group",
+                        "origin": "includes/phrases.php:216 (removed)",
+                        "usage": [
+                            "vendor/smssended/assets/js/sms-efb.js:118"
+                        ],
+                        "reason": "Only reader of the 'sms' group is the add-on's own dashboard (vendor/smssended/class-Emsfb-sms.php:119, text_efb(2,'sms')); the key is read from there by vendor/smssended/assets/js/sms-efb.js. No core screen can reach this definition (Hard rule 3)."
+                    },
+                    "smsIntroDesc": {
+                        "msgid": "Send SMS messages directly from your dashboard and track all sent messages.",
+                        "target": "group",
+                        "origin": "includes/phrases.php:219 (removed)",
+                        "usage": [
+                            "vendor/smssended/assets/js/sms-efb.js:122"
+                        ],
+                        "reason": "Only reader of the 'sms' group is the add-on's own dashboard (vendor/smssended/class-Emsfb-sms.php:119, text_efb(2,'sms')); the key is read from there by vendor/smssended/assets/js/sms-efb.js. No core screen can reach this definition (Hard rule 3)."
+                    },
+                    "quickSend": {
+                        "msgid": "Quick Send",
+                        "target": "group",
+                        "origin": "includes/phrases.php:222 (removed)",
+                        "usage": [
+                            "vendor/smssended/assets/js/sms-efb.js:124"
+                        ],
+                        "reason": "Only reader of the 'sms' group is the add-on's own dashboard (vendor/smssended/class-Emsfb-sms.php:119, text_efb(2,'sms')); the key is read from there by vendor/smssended/assets/js/sms-efb.js. No core screen can reach this definition (Hard rule 3)."
+                    },
+                    "messageHistory": {
+                        "msgid": "Message History",
+                        "target": "group",
+                        "origin": "includes/phrases.php:225 (removed)",
+                        "usage": [
+                            "vendor/smssended/assets/js/sms-efb.js:62",
+                            "vendor/smssended/assets/js/sms-efb.js:125",
+                            "vendor/smssended/assets/js/sms-efb.js:335"
+                        ],
+                        "reason": "Only reader of the 'sms' group is the add-on's own dashboard (vendor/smssended/class-Emsfb-sms.php:119, text_efb(2,'sms')); the key is read from there by vendor/smssended/assets/js/sms-efb.js. No core screen can reach this definition (Hard rule 3)."
+                    },
+                    "totalSent": {
+                        "msgid": "Total Sent",
+                        "target": "group",
+                        "origin": "includes/phrases.php:228 (removed)",
+                        "usage": [
+                            "vendor/smssended/assets/js/sms-efb.js:135"
+                        ],
+                        "reason": "Only reader of the 'sms' group is the add-on's own dashboard (vendor/smssended/class-Emsfb-sms.php:119, text_efb(2,'sms')); the key is read from there by vendor/smssended/assets/js/sms-efb.js. No core screen can reach this definition (Hard rule 3)."
+                    },
+                    "smsStatusHint": {
+                        "msgid": "Messages sent from your dashboard",
+                        "target": "group",
+                        "origin": "includes/phrases.php:231 (removed)",
+                        "usage": [
+                            "vendor/smssended/assets/js/sms-efb.js:138"
+                        ],
+                        "reason": "Only reader of the 'sms' group is the add-on's own dashboard (vendor/smssended/class-Emsfb-sms.php:119, text_efb(2,'sms')); the key is read from there by vendor/smssended/assets/js/sms-efb.js. No core screen can reach this definition (Hard rule 3)."
+                    },
+                    "sendMessage": {
+                        "msgid": "Send Message",
+                        "target": "group",
+                        "origin": "includes/phrases.php:234 (removed)",
+                        "usage": [
+                            "vendor/smssended/assets/js/sms-efb.js:61",
+                            "vendor/smssended/assets/js/sms-efb.js:209"
+                        ],
+                        "reason": "Only reader of the 'sms' group is the add-on's own dashboard (vendor/smssended/class-Emsfb-sms.php:119, text_efb(2,'sms')); the key is read from there by vendor/smssended/assets/js/sms-efb.js. No core screen can reach this definition (Hard rule 3)."
+                    },
+                    "sendSmsDesc": {
+                        "msgid": "Compose and send an SMS message",
+                        "target": "group",
+                        "origin": "includes/phrases.php:237 (removed)",
+                        "usage": [
+                            "vendor/smssended/assets/js/sms-efb.js:210"
+                        ],
+                        "reason": "Only reader of the 'sms' group is the add-on's own dashboard (vendor/smssended/class-Emsfb-sms.php:119, text_efb(2,'sms')); the key is read from there by vendor/smssended/assets/js/sms-efb.js. No core screen can reach this definition (Hard rule 3)."
+                    },
+                    "typeYourMessage": {
+                        "msgid": "Type your message here&hellip;",
+                        "target": "group",
+                        "origin": "includes/phrases.php:240 (removed)",
+                        "usage": [
+                            "vendor/smssended/assets/js/sms-efb.js:229"
+                        ],
+                        "reason": "Only reader of the 'sms' group is the add-on's own dashboard (vendor/smssended/class-Emsfb-sms.php:119, text_efb(2,'sms')); the key is read from there by vendor/smssended/assets/js/sms-efb.js. No core screen can reach this definition (Hard rule 3)."
+                    },
+                    "phoneNumber": {
+                        "msgid": "Phone Number",
+                        "target": "group",
+                        "origin": "includes/phrases.php:243 (removed)",
+                        "usage": [
+                            "vendor/smssended/assets/js/sms-efb.js:241",
+                            "vendor/smssended/assets/js/sms-efb.js:249"
+                        ],
+                        "reason": "Only reader of the 'sms' group is the add-on's own dashboard (vendor/smssended/class-Emsfb-sms.php:119, text_efb(2,'sms')); the key is read from there by vendor/smssended/assets/js/sms-efb.js. No core screen can reach this definition (Hard rule 3)."
+                    },
+                    "smsMessageHint": {
+                        "msgid": "Write the message you want to send via SMS",
+                        "target": "group",
+                        "origin": "includes/phrases.php:246 (removed)",
+                        "usage": [
+                            "vendor/smssended/assets/js/sms-efb.js:233"
+                        ],
+                        "reason": "Only reader of the 'sms' group is the add-on's own dashboard (vendor/smssended/class-Emsfb-sms.php:119, text_efb(2,'sms')); the key is read from there by vendor/smssended/assets/js/sms-efb.js. No core screen can reach this definition (Hard rule 3)."
+                    },
+                    "smsPhoneHint": {
+                        "msgid": "Enter phone number with country code (e.g. +11234567890)",
+                        "target": "group",
+                        "origin": "includes/phrases.php:249 (removed)",
+                        "usage": [
+                            "vendor/smssended/assets/js/sms-efb.js:253"
+                        ],
+                        "reason": "Only reader of the 'sms' group is the add-on's own dashboard (vendor/smssended/class-Emsfb-sms.php:119, text_efb(2,'sms')); the key is read from there by vendor/smssended/assets/js/sms-efb.js. No core screen can reach this definition (Hard rule 3)."
+                    },
+                    "quickTips": {
+                        "msgid": "Quick Tips",
+                        "target": "group",
+                        "origin": "includes/phrases.php:252 (removed)",
+                        "usage": [
+                            "vendor/smssended/assets/js/sms-efb.js:272"
+                        ],
+                        "reason": "Only reader of the 'sms' group is the add-on's own dashboard (vendor/smssended/class-Emsfb-sms.php:119, text_efb(2,'sms')); the key is read from there by vendor/smssended/assets/js/sms-efb.js. No core screen can reach this definition (Hard rule 3)."
+                    },
+                    "smsTip1": {
+                        "msgid": "Use international format: +[country code][number]",
+                        "target": "group",
+                        "origin": "includes/phrases.php:255 (removed)",
+                        "usage": [
+                            "vendor/smssended/assets/js/sms-efb.js:277"
+                        ],
+                        "reason": "Only reader of the 'sms' group is the add-on's own dashboard (vendor/smssended/class-Emsfb-sms.php:119, text_efb(2,'sms')); the key is read from there by vendor/smssended/assets/js/sms-efb.js. No core screen can reach this definition (Hard rule 3)."
+                    },
+                    "smsTip2": {
+                        "msgid": "Messages are sent via your configured SMS provider",
+                        "target": "group",
+                        "origin": "includes/phrases.php:258 (removed)",
+                        "usage": [
+                            "vendor/smssended/assets/js/sms-efb.js:281"
+                        ],
+                        "reason": "Only reader of the 'sms' group is the add-on's own dashboard (vendor/smssended/class-Emsfb-sms.php:119, text_efb(2,'sms')); the key is read from there by vendor/smssended/assets/js/sms-efb.js. No core screen can reach this definition (Hard rule 3)."
+                    },
+                    "smsTip3": {
+                        "msgid": "All sent messages are logged in the History tab",
+                        "target": "group",
+                        "origin": "includes/phrases.php:261 (removed)",
+                        "usage": [
+                            "vendor/smssended/assets/js/sms-efb.js:285"
+                        ],
+                        "reason": "Only reader of the 'sms' group is the add-on's own dashboard (vendor/smssended/class-Emsfb-sms.php:119, text_efb(2,'sms')); the key is read from there by vendor/smssended/assets/js/sms-efb.js. No core screen can reach this definition (Hard rule 3).",
+                        "english_changed": {
+                            "date": "2026-09-18",
+                            "from": "All sent messages are logged in the History tab",
+                            "to": "All sent messages are recorded in the Message History tab",
+                            "reason": "User decision: smsTip3 said \"the History tab\" and smsHelpNote4 \"the Message History tab\" for the same tab, whose title is Message History. smsTip3 adopted smsHelpNote4's wording, so the two keys now share one msgid that all 46 locales already translated - no locale needed a new translation and no approved string was lost."
+                        }
+                    },
+                    "noRecordsFound": {
+                        "msgid": "No messages sent yet",
+                        "target": "group",
+                        "origin": "includes/phrases.php:264 (removed)",
+                        "usage": [
+                            "vendor/smssended/assets/js/sms-efb.js:322"
+                        ],
+                        "reason": "Only reader of the 'sms' group is the add-on's own dashboard (vendor/smssended/class-Emsfb-sms.php:119, text_efb(2,'sms')); the key is read from there by vendor/smssended/assets/js/sms-efb.js. No core screen can reach this definition (Hard rule 3)."
+                    },
+                    "sent": {
+                        "msgid": "sent",
+                        "target": "group",
+                        "origin": "includes/phrases.php:267 (removed)",
+                        "usage": [
+                            "vendor/smssended/assets/js/sms-efb.js:336"
+                        ],
+                        "reason": "Only reader of the 'sms' group is the add-on's own dashboard (vendor/smssended/class-Emsfb-sms.php:119, text_efb(2,'sms')); the key is read from there by vendor/smssended/assets/js/sms-efb.js. No core screen can reach this definition (Hard rule 3)."
+                    },
+                    "smsHelpDesc": {
+                        "msgid": "Learn how to use the SMS feature",
+                        "target": "group",
+                        "origin": "includes/phrases.php:270 (removed)",
+                        "usage": [
+                            "vendor/smssended/assets/js/sms-efb.js:380"
+                        ],
+                        "reason": "Only reader of the 'sms' group is the add-on's own dashboard (vendor/smssended/class-Emsfb-sms.php:119, text_efb(2,'sms')); the key is read from there by vendor/smssended/assets/js/sms-efb.js. No core screen can reach this definition (Hard rule 3)."
+                    },
+                    "smsHelpNotes": {
+                        "msgid": "Important Notes",
+                        "target": "group",
+                        "origin": "includes/phrases.php:278 (removed)",
+                        "usage": [
+                            "vendor/smssended/assets/js/sms-efb.js:484"
+                        ],
+                        "reason": "Only reader of the 'sms' group is the add-on's own dashboard (vendor/smssended/class-Emsfb-sms.php:119, text_efb(2,'sms')); the key is read from there by vendor/smssended/assets/js/sms-efb.js. No core screen can reach this definition (Hard rule 3)."
+                    },
+                    "smsHelpNote1": {
+                        "msgid": "Phone numbers must include country code (e.g. +1 for US, +44 for UK)",
+                        "target": "group",
+                        "origin": "includes/phrases.php:281 (removed)",
+                        "usage": [
+                            "vendor/smssended/assets/js/sms-efb.js:489"
+                        ],
+                        "reason": "Only reader of the 'sms' group is the add-on's own dashboard (vendor/smssended/class-Emsfb-sms.php:119, text_efb(2,'sms')); the key is read from there by vendor/smssended/assets/js/sms-efb.js. No core screen can reach this definition (Hard rule 3)."
+                    },
+                    "smsHelpNote2": {
+                        "msgid": "An SMS provider plugin must be installed and configured",
+                        "target": "group",
+                        "origin": "includes/phrases.php:284 (removed)",
+                        "usage": [
+                            "vendor/smssended/assets/js/sms-efb.js:493"
+                        ],
+                        "reason": "Only reader of the 'sms' group is the add-on's own dashboard (vendor/smssended/class-Emsfb-sms.php:119, text_efb(2,'sms')); the key is read from there by vendor/smssended/assets/js/sms-efb.js. No core screen can reach this definition (Hard rule 3)."
+                    },
+                    "smsHelpNote3": {
+                        "msgid": "SMS notifications for forms can be set up in each form's settings",
+                        "target": "group",
+                        "origin": "includes/phrases.php:287 (removed)",
+                        "usage": [
+                            "vendor/smssended/assets/js/sms-efb.js:497"
+                        ],
+                        "reason": "Only reader of the 'sms' group is the add-on's own dashboard (vendor/smssended/class-Emsfb-sms.php:119, text_efb(2,'sms')); the key is read from there by vendor/smssended/assets/js/sms-efb.js. No core screen can reach this definition (Hard rule 3)."
+                    },
+                    "smsHelpNote4": {
+                        "msgid": "All sent messages are recorded in the Message History tab",
+                        "target": "group",
+                        "origin": "includes/phrases.php:290 (removed)",
+                        "usage": [
+                            "vendor/smssended/assets/js/sms-efb.js:501"
+                        ],
+                        "reason": "Only reader of the 'sms' group is the add-on's own dashboard (vendor/smssended/class-Emsfb-sms.php:119, text_efb(2,'sms')); the key is read from there by vendor/smssended/assets/js/sms-efb.js. No core screen can reach this definition (Hard rule 3)."
+                    },
+                    "smsHelpProviders": {
+                        "msgid": "Supported SMS Providers",
+                        "target": "group",
+                        "origin": "includes/phrases.php:293 (removed)",
+                        "usage": [
+                            "vendor/smssended/assets/js/sms-efb.js:512"
+                        ],
+                        "reason": "Only reader of the 'sms' group is the add-on's own dashboard (vendor/smssended/class-Emsfb-sms.php:119, text_efb(2,'sms')); the key is read from there by vendor/smssended/assets/js/sms-efb.js. No core screen can reach this definition (Hard rule 3)."
+                    },
+                    "waiting": {
+                        "msgid": "Waiting",
+                        "target": "base",
+                        "origin": "includes/functions.php:1588 (removed)",
+                        "usage": [
+                            "vendor/smssended/assets/js/sms-efb.js:587"
+                        ],
+                        "reason": "Base $lang key whose every live reader is inside vendor/smssended/. No core screen, no core text_efb(array(...)) subset and no other add-on reads it (grep -rn over the whole plugin, vendor/ included)."
+                    },
+                    "smscw": {
+                        "msgid": "Click on the Settings button on the panel page of Easy Form Builder Plugin and configure the SMS sending method. Then, try again.",
+                        "target": "base",
+                        "origin": "includes/functions.php:2524 (removed)",
+                        "usage": [
+                            "vendor/smssended/assets/js/sms-efb.js:580",
+                            "vendor/smssended/smsefb.php:189",
+                            "vendor/smssended/smsefb.php:216",
+                            "vendor/smssended/smsefb.php:224"
+                        ],
+                        "reason": "Base $lang key whose every live reader is inside vendor/smssended/. No core screen, no core text_efb(array(...)) subset and no other add-on reads it (grep -rn over the whole plugin, vendor/ included)."
+                    },
+                    "to": {
+                        "msgid": "To",
+                        "target": "base",
+                        "origin": "includes/functions.php:2525 (removed)",
+                        "usage": [
+                            "vendor/smssended/assets/js/sms-efb.js:312",
+                            "vendor/smssended/assets/js/sms-efb.js:347",
+                            "vendor/smssended/assets/js/sms-efb.js:622"
+                        ],
+                        "reason": "Base $lang key whose every live reader is inside vendor/smssended/. No core screen, no core text_efb(array(...)) subset and no other add-on reads it (grep -rn over the whole plugin, vendor/ included)."
+                    },
+                    "secure": {
+                        "msgid": "Secure",
+                        "target": "group",
+                        "origin": "vendor/smssended/assets/js/sms-efb.js:126 (JS fallback literal; never defined in core)",
+                        "usage": [
+                            "vendor/smssended/assets/js/sms-efb.js:126"
+                        ],
+                        "function": "esc_html__",
+                        "reason": "Was READ_BUT_NEVER_DEFINED in the 2026-09-17 run: the add-on JS read it and no core definition existed, so it always showed the JS English literal. User decision 2026-09-18: turn all 19 into real phrases with that literal as the English source. Added to the provider, not to core, because every reader is inside vendor/smssended/.",
+                        "previous_bucket": "READ_BUT_NEVER_DEFINED (2026-09-17)",
+                        "previous_reason": "vendor/smssended/assets/js/sms-efb.js reads efb_var.text.secure but no $lang, efb_sentence_forms() or phrase group defines it, so the JS always falls back to its own English literal. Not a candidate of this job (Phase 1 takes only keys that are defined); reported, unchanged."
+                    },
+                    "smsGuideLink": {
+                        "msgid": "Setup Guide",
+                        "target": "group",
+                        "origin": "vendor/smssended/assets/js/sms-efb.js:214 (JS fallback literal; never defined in core)",
+                        "usage": [
+                            "vendor/smssended/assets/js/sms-efb.js:214"
+                        ],
+                        "function": "esc_html__",
+                        "reason": "Was READ_BUT_NEVER_DEFINED in the 2026-09-17 run: the add-on JS read it and no core definition existed, so it always showed the JS English literal. User decision 2026-09-18: turn all 19 into real phrases with that literal as the English source. Added to the provider, not to core, because every reader is inside vendor/smssended/.",
+                        "previous_bucket": "READ_BUT_NEVER_DEFINED (2026-09-17)",
+                        "previous_reason": "vendor/smssended/assets/js/sms-efb.js reads efb_var.text.smsGuideLink but no $lang, efb_sentence_forms() or phrase group defines it, so the JS always falls back to its own English literal. Not a candidate of this job (Phase 1 takes only keys that are defined); reported, unchanged."
+                    },
+                    "smsReadFullGuide": {
+                        "msgid": "Read Full Guide",
+                        "target": "group",
+                        "origin": "vendor/smssended/assets/js/sms-efb.js:384 (JS fallback literal; never defined in core)",
+                        "usage": [
+                            "vendor/smssended/assets/js/sms-efb.js:384"
+                        ],
+                        "function": "esc_html__",
+                        "reason": "Was READ_BUT_NEVER_DEFINED in the 2026-09-17 run: the add-on JS read it and no core definition existed, so it always showed the JS English literal. User decision 2026-09-18: turn all 19 into real phrases with that literal as the English source. Added to the provider, not to core, because every reader is inside vendor/smssended/.",
+                        "previous_bucket": "READ_BUT_NEVER_DEFINED (2026-09-17)",
+                        "previous_reason": "vendor/smssended/assets/js/sms-efb.js reads efb_var.text.smsReadFullGuide but no $lang, efb_sentence_forms() or phrase group defines it, so the JS always falls back to its own English literal. Not a candidate of this job (Phase 1 takes only keys that are defined); reported, unchanged."
+                    },
+                    "smsHelpSetup": {
+                        "msgid": "Initial Setup",
+                        "target": "group",
+                        "origin": "vendor/smssended/assets/js/sms-efb.js:396 (JS fallback literal; never defined in core)",
+                        "usage": [
+                            "vendor/smssended/assets/js/sms-efb.js:396"
+                        ],
+                        "function": "esc_html__",
+                        "reason": "Was READ_BUT_NEVER_DEFINED in the 2026-09-17 run: the add-on JS read it and no core definition existed, so it always showed the JS English literal. User decision 2026-09-18: turn all 19 into real phrases with that literal as the English source. Added to the provider, not to core, because every reader is inside vendor/smssended/.",
+                        "previous_bucket": "READ_BUT_NEVER_DEFINED (2026-09-17)",
+                        "previous_reason": "vendor/smssended/assets/js/sms-efb.js reads efb_var.text.smsHelpSetup but no $lang, efb_sentence_forms() or phrase group defines it, so the JS always falls back to its own English literal. Not a candidate of this job (Phase 1 takes only keys that are defined); reported, unchanged."
+                    },
+                    "smsGuideStep1": {
+                        "msgid": "Install & activate the <strong>WP SMS plugin</strong> by VeronaLabs and configure the SMS gateway",
+                        "target": "group",
+                        "origin": "vendor/smssended/assets/js/sms-efb.js:401 (JS fallback literal; never defined in core)",
+                        "usage": [
+                            "vendor/smssended/assets/js/sms-efb.js:401"
+                        ],
+                        "function": "__",
+                        "reason": "Was READ_BUT_NEVER_DEFINED in the 2026-09-17 run: the add-on JS read it and no core definition existed, so it always showed the JS English literal. User decision 2026-09-18: turn all 19 into real phrases with that literal as the English source. Added to the provider, not to core, because every reader is inside vendor/smssended/.",
+                        "previous_bucket": "READ_BUT_NEVER_DEFINED (2026-09-17)",
+                        "previous_reason": "vendor/smssended/assets/js/sms-efb.js reads efb_var.text.smsGuideStep1 but no $lang, efb_sentence_forms() or phrase group defines it, so the JS always falls back to its own English literal. Not a candidate of this job (Phase 1 takes only keys that are defined); reported, unchanged."
+                    },
+                    "smsGuideStep2": {
+                        "msgid": "Enable the <strong>SMS Service Addon</strong> from the EFB Add-ons page",
+                        "target": "group",
+                        "origin": "vendor/smssended/assets/js/sms-efb.js:405 (JS fallback literal; never defined in core)",
+                        "usage": [
+                            "vendor/smssended/assets/js/sms-efb.js:405"
+                        ],
+                        "function": "__",
+                        "reason": "Was READ_BUT_NEVER_DEFINED in the 2026-09-17 run: the add-on JS read it and no core definition existed, so it always showed the JS English literal. User decision 2026-09-18: turn all 19 into real phrases with that literal as the English source. Added to the provider, not to core, because every reader is inside vendor/smssended/.",
+                        "previous_bucket": "READ_BUT_NEVER_DEFINED (2026-09-17)",
+                        "previous_reason": "vendor/smssended/assets/js/sms-efb.js reads efb_var.text.smsGuideStep2 but no $lang, efb_sentence_forms() or phrase group defines it, so the JS always falls back to its own English literal. Not a candidate of this job (Phase 1 takes only keys that are defined); reported, unchanged."
+                    },
+                    "smsGuideStep3": {
+                        "msgid": "Go to EFB Settings → SMS Configuration tab and activate <strong>WP SMS plugin</strong>",
+                        "target": "group",
+                        "origin": "vendor/smssended/assets/js/sms-efb.js:409 (JS fallback literal; never defined in core)",
+                        "usage": [
+                            "vendor/smssended/assets/js/sms-efb.js:409"
+                        ],
+                        "function": "__",
+                        "reason": "Was READ_BUT_NEVER_DEFINED in the 2026-09-17 run: the add-on JS read it and no core definition existed, so it always showed the JS English literal. User decision 2026-09-18: turn all 19 into real phrases with that literal as the English source. Added to the provider, not to core, because every reader is inside vendor/smssended/.",
+                        "previous_bucket": "READ_BUT_NEVER_DEFINED (2026-09-17)",
+                        "previous_reason": "vendor/smssended/assets/js/sms-efb.js reads efb_var.text.smsGuideStep3 but no $lang, efb_sentence_forms() or phrase group defines it, so the JS always falls back to its own English literal. Not a candidate of this job (Phase 1 takes only keys that are defined); reported, unchanged."
+                    },
+                    "smsGuideStep4": {
+                        "msgid": "Enter admin mobile numbers in the designated field",
+                        "target": "group",
+                        "origin": "vendor/smssended/assets/js/sms-efb.js:413 (JS fallback literal; never defined in core)",
+                        "usage": [
+                            "vendor/smssended/assets/js/sms-efb.js:413"
+                        ],
+                        "function": "esc_html__",
+                        "reason": "Was READ_BUT_NEVER_DEFINED in the 2026-09-17 run: the add-on JS read it and no core definition existed, so it always showed the JS English literal. User decision 2026-09-18: turn all 19 into real phrases with that literal as the English source. Added to the provider, not to core, because every reader is inside vendor/smssended/.",
+                        "previous_bucket": "READ_BUT_NEVER_DEFINED (2026-09-17)",
+                        "previous_reason": "vendor/smssended/assets/js/sms-efb.js reads efb_var.text.smsGuideStep4 but no $lang, efb_sentence_forms() or phrase group defines it, so the JS always falls back to its own English literal. Not a candidate of this job (Phase 1 takes only keys that are defined); reported, unchanged."
+                    },
+                    "smsGuideFormConfig": {
+                        "msgid": "Form SMS Configuration",
+                        "target": "group",
+                        "origin": "vendor/smssended/assets/js/sms-efb.js:424 (JS fallback literal; never defined in core)",
+                        "usage": [
+                            "vendor/smssended/assets/js/sms-efb.js:424"
+                        ],
+                        "function": "esc_html__",
+                        "reason": "Was READ_BUT_NEVER_DEFINED in the 2026-09-17 run: the add-on JS read it and no core definition existed, so it always showed the JS English literal. User decision 2026-09-18: turn all 19 into real phrases with that literal as the English source. Added to the provider, not to core, because every reader is inside vendor/smssended/.",
+                        "previous_bucket": "READ_BUT_NEVER_DEFINED (2026-09-17)",
+                        "previous_reason": "vendor/smssended/assets/js/sms-efb.js reads efb_var.text.smsGuideFormConfig but no $lang, efb_sentence_forms() or phrase group defines it, so the JS always falls back to its own English literal. Not a candidate of this job (Phase 1 takes only keys that are defined); reported, unchanged."
+                    },
+                    "smsGuideForm1": {
+                        "msgid": "In the form editor, open <strong>Form Settings</strong> and click the SMS button",
+                        "target": "group",
+                        "origin": "vendor/smssended/assets/js/sms-efb.js:429 (JS fallback literal; never defined in core)",
+                        "usage": [
+                            "vendor/smssended/assets/js/sms-efb.js:429"
+                        ],
+                        "function": "__",
+                        "reason": "Was READ_BUT_NEVER_DEFINED in the 2026-09-17 run: the add-on JS read it and no core definition existed, so it always showed the JS English literal. User decision 2026-09-18: turn all 19 into real phrases with that literal as the English source. Added to the provider, not to core, because every reader is inside vendor/smssended/.",
+                        "previous_bucket": "READ_BUT_NEVER_DEFINED (2026-09-17)",
+                        "previous_reason": "vendor/smssended/assets/js/sms-efb.js reads efb_var.text.smsGuideForm1 but no $lang, efb_sentence_forms() or phrase group defines it, so the JS always falls back to its own English literal. Not a candidate of this job (Phase 1 takes only keys that are defined); reported, unchanged."
+                    },
+                    "smsGuideForm2": {
+                        "msgid": "Enable SMS notifications and enter admin mobile numbers",
+                        "target": "group",
+                        "origin": "vendor/smssended/assets/js/sms-efb.js:433 (JS fallback literal; never defined in core)",
+                        "usage": [
+                            "vendor/smssended/assets/js/sms-efb.js:433"
+                        ],
+                        "function": "esc_html__",
+                        "reason": "Was READ_BUT_NEVER_DEFINED in the 2026-09-17 run: the add-on JS read it and no core definition existed, so it always showed the JS English literal. User decision 2026-09-18: turn all 19 into real phrases with that literal as the English source. Added to the provider, not to core, because every reader is inside vendor/smssended/.",
+                        "previous_bucket": "READ_BUT_NEVER_DEFINED (2026-09-17)",
+                        "previous_reason": "vendor/smssended/assets/js/sms-efb.js reads efb_var.text.smsGuideForm2 but no $lang, efb_sentence_forms() or phrase group defines it, so the JS always falls back to its own English literal. Not a candidate of this job (Phase 1 takes only keys that are defined); reported, unchanged."
+                    },
+                    "smsGuideForm3": {
+                        "msgid": "Customize notification messages using dynamic codes (see below)",
+                        "target": "group",
+                        "origin": "vendor/smssended/assets/js/sms-efb.js:437 (JS fallback literal; never defined in core)",
+                        "usage": [
+                            "vendor/smssended/assets/js/sms-efb.js:437"
+                        ],
+                        "function": "esc_html__",
+                        "reason": "Was READ_BUT_NEVER_DEFINED in the 2026-09-17 run: the add-on JS read it and no core definition existed, so it always showed the JS English literal. User decision 2026-09-18: turn all 19 into real phrases with that literal as the English source. Added to the provider, not to core, because every reader is inside vendor/smssended/.",
+                        "previous_bucket": "READ_BUT_NEVER_DEFINED (2026-09-17)",
+                        "previous_reason": "vendor/smssended/assets/js/sms-efb.js reads efb_var.text.smsGuideForm3 but no $lang, efb_sentence_forms() or phrase group defines it, so the JS always falls back to its own English literal. Not a candidate of this job (Phase 1 takes only keys that are defined); reported, unchanged."
+                    },
+                    "smsGuideForm4": {
+                        "msgid": "For submitter SMS: add a mobile input field and enable SMS in its settings",
+                        "target": "group",
+                        "origin": "vendor/smssended/assets/js/sms-efb.js:441 (JS fallback literal; never defined in core)",
+                        "usage": [
+                            "vendor/smssended/assets/js/sms-efb.js:441"
+                        ],
+                        "function": "esc_html__",
+                        "reason": "Was READ_BUT_NEVER_DEFINED in the 2026-09-17 run: the add-on JS read it and no core definition existed, so it always showed the JS English literal. User decision 2026-09-18: turn all 19 into real phrases with that literal as the English source. Added to the provider, not to core, because every reader is inside vendor/smssended/.",
+                        "previous_bucket": "READ_BUT_NEVER_DEFINED (2026-09-17)",
+                        "previous_reason": "vendor/smssended/assets/js/sms-efb.js reads efb_var.text.smsGuideForm4 but no $lang, efb_sentence_forms() or phrase group defines it, so the JS always falls back to its own English literal. Not a candidate of this job (Phase 1 takes only keys that are defined); reported, unchanged."
+                    },
+                    "smsGuideCodes": {
+                        "msgid": "Dynamic Codes for SMS Messages",
+                        "target": "group",
+                        "origin": "vendor/smssended/assets/js/sms-efb.js:452 (JS fallback literal; never defined in core)",
+                        "usage": [
+                            "vendor/smssended/assets/js/sms-efb.js:452"
+                        ],
+                        "function": "esc_html__",
+                        "reason": "Was READ_BUT_NEVER_DEFINED in the 2026-09-17 run: the add-on JS read it and no core definition existed, so it always showed the JS English literal. User decision 2026-09-18: turn all 19 into real phrases with that literal as the English source. Added to the provider, not to core, because every reader is inside vendor/smssended/.",
+                        "previous_bucket": "READ_BUT_NEVER_DEFINED (2026-09-17)",
+                        "previous_reason": "vendor/smssended/assets/js/sms-efb.js reads efb_var.text.smsGuideCodes but no $lang, efb_sentence_forms() or phrase group defines it, so the JS always falls back to its own English literal. Not a candidate of this job (Phase 1 takes only keys that are defined); reported, unchanged."
+                    },
+                    "smsCodeConfirmation": {
+                        "msgid": "Tracking / confirmation code",
+                        "target": "group",
+                        "origin": "vendor/smssended/assets/js/sms-efb.js:457 (JS fallback literal; never defined in core)",
+                        "usage": [
+                            "vendor/smssended/assets/js/sms-efb.js:457"
+                        ],
+                        "function": "esc_html__",
+                        "reason": "Was READ_BUT_NEVER_DEFINED in the 2026-09-17 run: the add-on JS read it and no core definition existed, so it always showed the JS English literal. User decision 2026-09-18: turn all 19 into real phrases with that literal as the English source. Added to the provider, not to core, because every reader is inside vendor/smssended/.",
+                        "previous_bucket": "READ_BUT_NEVER_DEFINED (2026-09-17)",
+                        "previous_reason": "vendor/smssended/assets/js/sms-efb.js reads efb_var.text.smsCodeConfirmation but no $lang, efb_sentence_forms() or phrase group defines it, so the JS always falls back to its own English literal. Not a candidate of this job (Phase 1 takes only keys that are defined); reported, unchanged."
+                    },
+                    "smsCodeResponse": {
+                        "msgid": "Link to the response page",
+                        "target": "group",
+                        "origin": "vendor/smssended/assets/js/sms-efb.js:461 (JS fallback literal; never defined in core)",
+                        "usage": [
+                            "vendor/smssended/assets/js/sms-efb.js:461"
+                        ],
+                        "function": "esc_html__",
+                        "reason": "Was READ_BUT_NEVER_DEFINED in the 2026-09-17 run: the add-on JS read it and no core definition existed, so it always showed the JS English literal. User decision 2026-09-18: turn all 19 into real phrases with that literal as the English source. Added to the provider, not to core, because every reader is inside vendor/smssended/.",
+                        "previous_bucket": "READ_BUT_NEVER_DEFINED (2026-09-17)",
+                        "previous_reason": "vendor/smssended/assets/js/sms-efb.js reads efb_var.text.smsCodeResponse but no $lang, efb_sentence_forms() or phrase group defines it, so the JS always falls back to its own English literal. Not a candidate of this job (Phase 1 takes only keys that are defined); reported, unchanged."
+                    },
+                    "smsCodePage": {
+                        "msgid": "Direct link to the form page",
+                        "target": "group",
+                        "origin": "vendor/smssended/assets/js/sms-efb.js:465 (JS fallback literal; never defined in core)",
+                        "usage": [
+                            "vendor/smssended/assets/js/sms-efb.js:465"
+                        ],
+                        "function": "esc_html__",
+                        "reason": "Was READ_BUT_NEVER_DEFINED in the 2026-09-17 run: the add-on JS read it and no core definition existed, so it always showed the JS English literal. User decision 2026-09-18: turn all 19 into real phrases with that literal as the English source. Added to the provider, not to core, because every reader is inside vendor/smssended/.",
+                        "previous_bucket": "READ_BUT_NEVER_DEFINED (2026-09-17)",
+                        "previous_reason": "vendor/smssended/assets/js/sms-efb.js reads efb_var.text.smsCodePage but no $lang, efb_sentence_forms() or phrase group defines it, so the JS always falls back to its own English literal. Not a candidate of this job (Phase 1 takes only keys that are defined); reported, unchanged."
+                    },
+                    "smsCodeDomain": {
+                        "msgid": "Website address",
+                        "target": "group",
+                        "origin": "vendor/smssended/assets/js/sms-efb.js:469 (JS fallback literal; never defined in core)",
+                        "usage": [
+                            "vendor/smssended/assets/js/sms-efb.js:469"
+                        ],
+                        "function": "esc_html__",
+                        "reason": "Was READ_BUT_NEVER_DEFINED in the 2026-09-17 run: the add-on JS read it and no core definition existed, so it always showed the JS English literal. User decision 2026-09-18: turn all 19 into real phrases with that literal as the English source. Added to the provider, not to core, because every reader is inside vendor/smssended/.",
+                        "previous_bucket": "READ_BUT_NEVER_DEFINED (2026-09-17)",
+                        "previous_reason": "vendor/smssended/assets/js/sms-efb.js reads efb_var.text.smsCodeDomain but no $lang, efb_sentence_forms() or phrase group defines it, so the JS always falls back to its own English literal. Not a candidate of this job (Phase 1 takes only keys that are defined); reported, unchanged."
+                    },
+                    "smsCodeSiteName": {
+                        "msgid": "Site title / name",
+                        "target": "group",
+                        "origin": "vendor/smssended/assets/js/sms-efb.js:473 (JS fallback literal; never defined in core)",
+                        "usage": [
+                            "vendor/smssended/assets/js/sms-efb.js:473"
+                        ],
+                        "function": "esc_html__",
+                        "reason": "Was READ_BUT_NEVER_DEFINED in the 2026-09-17 run: the add-on JS read it and no core definition existed, so it always showed the JS English literal. User decision 2026-09-18: turn all 19 into real phrases with that literal as the English source. Added to the provider, not to core, because every reader is inside vendor/smssended/.",
+                        "previous_bucket": "READ_BUT_NEVER_DEFINED (2026-09-17)",
+                        "previous_reason": "vendor/smssended/assets/js/sms-efb.js reads efb_var.text.smsCodeSiteName but no $lang, efb_sentence_forms() or phrase group defines it, so the JS always falls back to its own English literal. Not a candidate of this job (Phase 1 takes only keys that are defined); reported, unchanged."
+                    }
+                },
+                "MULTI": [],
+                "FRONT": {
+                    "by": {
+                        "msgid": "By",
+                        "origin": "includes/functions.php (unchanged)",
+                        "reason": "Visitor-facing and delivered by core code that is present whether or not the SMS add-on is installed: it is in the front-end subset of includes/class-Emsfb-public.php:1070 and/or read by core admin JS. Stays in core (Hard rules 2 and 3).",
+                        "usage": "includes/class-Emsfb-public.php:1070 (front-end subset), includes/admin/assets/js/response-viewer-efb.js:823, includes/admin/assets/js/list_form-efb.js:2215"
+                    },
+                    "cpnnc": {
+                        "msgid": "Please enter a valid mobile number",
+                        "origin": "includes/functions.php (unchanged)",
+                        "reason": "Visitor-facing and delivered by core code that is present whether or not the SMS add-on is installed: it is in the front-end subset of includes/class-Emsfb-public.php:1070 and/or read by core admin JS. Stays in core (Hard rules 2 and 3).",
+                        "usage": "includes/class-Emsfb-public.php:1070, includes/class-Emsfb-formbuilder.php:1196/1288, includes/admin/assets/js/pro_els-efb.js:749"
+                    },
+                    "ddate": {
+                        "msgid": "Date",
+                        "origin": "includes/functions.php (unchanged)",
+                        "reason": "Visitor-facing and delivered by core code that is present whether or not the SMS add-on is installed: it is in the front-end subset of includes/class-Emsfb-public.php:1070 and/or read by core admin JS. Stays in core (Hard rules 2 and 3).",
+                        "usage": "includes/class-Emsfb-public.php:1070 and :6426, includes/admin/assets/js/list_form-efb.js:642, includes/admin/assets/js/dashboard-widget-efb.js:119"
+                    },
+                    "enterVValue": {
+                        "msgid": "Please enter valid values",
+                        "origin": "includes/functions.php (unchanged)",
+                        "reason": "Visitor-facing and delivered by core code that is present whether or not the SMS add-on is installed: it is in the front-end subset of includes/class-Emsfb-public.php:1070 and/or read by core admin JS. Stays in core (Hard rules 2 and 3).",
+                        "usage": "includes/class-Emsfb-public.php:1070/3953/3985"
+                    },
+                    "error403": {
+                        "msgid": "403 error message",
+                        "origin": "includes/functions.php (unchanged)",
+                        "reason": "Visitor-facing and delivered by core code that is present whether or not the SMS add-on is installed: it is in the front-end subset of includes/class-Emsfb-public.php:1070 and/or read by core admin JS. Stays in core (Hard rules 2 and 3).",
+                        "usage": "includes/class-Emsfb-public.php:1070/3953/4206, includes/admin/class-Emsfb-admin.php:187/191, vendor/telegram, vendor/autofill"
+                    },
+                    "id": {
+                        "msgid": "ID",
+                        "origin": "includes/functions.php (unchanged)",
+                        "reason": "Visitor-facing and delivered by core code that is present whether or not the SMS add-on is installed: it is in the front-end subset of includes/class-Emsfb-public.php:1070 and/or read by core admin JS. Stays in core (Hard rules 2 and 3).",
+                        "usage": "includes/class-Emsfb-public.php:1070 and :6426, includes/admin/assets/js/response-viewer-efb.js:955, includes/admin/assets/js/val-efb.js:2601"
+                    },
+                    "messageSent": {
+                        "msgid": "Message sent",
+                        "origin": "includes/functions.php (unchanged)",
+                        "reason": "Visitor-facing and delivered by core code that is present whether or not the SMS add-on is installed: it is in the front-end subset of includes/class-Emsfb-public.php:1070 and/or read by core admin JS. Stays in core (Hard rules 2 and 3).",
+                        "usage": "includes/class-Emsfb-public.php:1070/4887, includes/admin/class-Emsfb-admin.php:1420/1526/1549/1727"
+                    },
+                    "messages": {
+                        "msgid": "Messages",
+                        "origin": "includes/functions.php (unchanged)",
+                        "reason": "Visitor-facing and delivered by core code that is present whether or not the SMS add-on is installed: it is in the front-end subset of includes/class-Emsfb-public.php:1070 and/or read by core admin JS. Stays in core (Hard rules 2 and 3).",
+                        "usage": "includes/class-Emsfb-public.php:1070, includes/admin/assets/js/list_form-efb.js:634"
+                    },
+                    "pleaseFillInRequiredFields": {
+                        "msgid": "Please fill in the required fields",
+                        "origin": "includes/functions.php (unchanged)",
+                        "reason": "Visitor-facing and delivered by core code that is present whether or not the SMS add-on is installed: it is in the front-end subset of includes/class-Emsfb-public.php:1070 and/or read by core admin JS. Stays in core (Hard rules 2 and 3).",
+                        "usage": "includes/class-Emsfb-public.php:1070, includes/admin/assets/js/core-efb.js:348, public/assets/js/core-efb.js"
+                    },
+                    "sMTPNotWork": {
+                        "msgid": "SMTP not working notice",
+                        "origin": "includes/functions.php (unchanged)",
+                        "reason": "Visitor-facing and delivered by core code that is present whether or not the SMS add-on is installed: it is in the front-end subset of includes/class-Emsfb-public.php:1070 and/or read by core admin JS. Stays in core (Hard rules 2 and 3).",
+                        "usage": "includes/class-Emsfb-public.php:1070, includes/admin/class-Emsfb-addon.php:239, class-Emsfb-create.php:264, class-Emsfb-panel.php:50, admin-efb.js:1755/1911"
+                    },
+                    "send": {
+                        "msgid": "Send",
+                        "origin": "includes/functions.php (unchanged)",
+                        "reason": "Visitor-facing and delivered by core code that is present whether or not the SMS add-on is installed: it is in the front-end subset of includes/class-Emsfb-public.php:1070 and/or read by core admin JS. Stays in core (Hard rules 2 and 3).",
+                        "usage": "includes/class-Emsfb-public.php:1070, includes/admin/assets/js/core-efb.js:159, includes/admin/assets/js/admin-efb.js:8459"
+                    },
+                    "somethingWentWrongPleaseRefresh": {
+                        "msgid": "Something went wrong, please refresh",
+                        "origin": "includes/functions.php (unchanged)",
+                        "reason": "Visitor-facing and delivered by core code that is present whether or not the SMS add-on is installed: it is in the front-end subset of includes/class-Emsfb-public.php:1070 and/or read by core admin JS. Stays in core (Hard rules 2 and 3).",
+                        "usage": "includes/class-Emsfb-public.php:1070, includes/admin/class-Emsfb-admin.php:187, includes/admin/assets/js/admin-efb.js:592+"
+                    }
+                },
+                "CORE": {
+                    "goToEFBAddEmailM": {
+                        "msgid": "Go to EFB and add an email",
+                        "origin": "includes/functions.php (unchanged)",
+                        "reason": "Live admin usage outside vendor/smssended/ that reaches this base $lang definition. Stays in core (Hard rule 3).",
+                        "usage": "includes/admin/class-Emsfb-addon.php:240, class-Emsfb-create.php:265, class-Emsfb-panel.php:247, admin-efb.js:1752"
+                    },
+                    "help": {
+                        "msgid": "Help",
+                        "origin": "includes/functions.php (unchanged)",
+                        "reason": "Live admin usage outside vendor/smssended/ that reaches this base $lang definition. Stays in core (Hard rule 3).",
+                        "usage": "includes/admin/assets/js/admin-efb.js:3534/3575/3580, includes/admin/assets/js/list_form-efb.js, val-efb.js"
+                    },
+                    "message": {
+                        "msgid": "Message",
+                        "origin": "includes/functions.php (unchanged)",
+                        "reason": "Live admin usage outside vendor/smssended/ that reaches this base $lang definition. Stays in core (Hard rule 3).",
+                        "usage": "includes/admin/assets/js/admin-efb.js:1108/1159, includes/admin/assets/js/forms-efb.js:82+ (default form templates)"
+                    },
+                    "sms": {
+                        "msgid": "SMS",
+                        "origin": "includes/functions.php (unchanged)",
+                        "reason": "Live admin usage outside vendor/smssended/ that reaches this base $lang definition. Stays in core (Hard rule 3).",
+                        "usage": "includes/admin/assets/js/val-efb.js:2043 (form SMS notification settings)"
+                    }
+                },
+                "UNSURE": [],
+                "DEAD": [],
+                "READ_BUT_NEVER_DEFINED": {}
+            },
+            "multi_pending": [],
+            "notes": [
+                "The core 'sms' phrase group is gone: get_sms_phrases() held exactly these 25 keys, its only reader was the add-on's own dashboard (vendor/smssended/class-Emsfb-sms.php:119 calls text_efb(2,'sms')), so under the 2026-09-17 rule every key moved. EfbAddonPhrases::register_addon('sms', ...) was removed with it and register_addon_provider_efb('sms', 'smssended', ...) took its place; efb_get_addon_phrases('sms') now returns the 25 keys from the provider alone.",
+                "Three base $lang keys moved as well: waiting ('Waiting'), smscw (the 'configure the SMS sending method' error) and to ('To'). grep -rn over the whole plugin with vendor/ included found no reader outside vendor/smssended for any of them; none is in a front-end subset of includes/class-Emsfb-public.php.",
+                "waiting was written $state ? $ac->text->waiting : ... and moved as $state && isset($ac->text->waiting) ? ... (the one change Hard rule 6 allows). smscw and to already had the isset() form. Every msgid, gettext function (esc_html__ throughout), translators comment and override key is byte-identical to core; only the text domain changed.",
+                "Delivery change in the add-on (required by the ADDON rule): vendor/smssended/smsefb.php::send_sms_Emsfb() used text_efb(array('error403','somethingWentWrongPleaseRefresh','messageSent','pleaseFillInRequiredFields','smscw')). A subset request never loads add-on files, so smscw would have resolved to nothing. It now calls text_efb(2), which merges base() of every registered provider. The other four keys are unchanged core phrases and resolve exactly as before (verified byte-identical in en_US).",
+                "28 keys, 28 unique msgids, one gettext function (esc_html__), no plurals, no contexts, no placeholders. Entities preserved: typeYourMessage keeps &hellip;, smsSendMessages keeps a literal &, smsHelpNote3 keeps the escaped apostrophe in \"each form's settings\".",
+                "Translation sourcing: 245 of 1288 msgstr came verbatim from approved translate.wordpress.org strings (fa_IR, ar, de_DE and fr_FR are 28/28 approved; nl_NL, nl_NL_formal, nl_BE and pt_BR 27/28; sv_SE 11; ru_RU 6; tr_TR 3; de_DE_formal 3; pt_PT and da_DK 1). Spanish (all 13), Italian, Polish, Czech, Vietnamese, Indonesian, Hungarian, Japanese and all three Chinese locales have zero approved strings in this plugin's wp.org project today, so those are original work. 34 msgstr were reused from the telegram add-on ('Quick Tips'). msgstr = msgid: 0 across all 46 locales.",
+                "Reported upstream for translate.wordpress.org (kept verbatim, not changed): de_DE/de_DE_formal render 'To' as 'Bis' (= until) instead of the recipient-header 'An'; ru_RU renders it as 'для'; nl_NL/nl_NL_formal render 'Important Notes' as 'Belangrijke reacties' (reacties = replies), while nl_BE has the correct 'Belangrijke notities'; fr_FR's smsHelpNote1 lost the digit in '+1' and smsPhoneHint has a stray space after '+'; pt_BR renders 'sent' in the singular ('enviada') although the JS concatenates it after a count.",
+                "19 keys the add-on's JS reads are defined nowhere in core (secure, smsGuideLink, smsReadFullGuide, smsHelpSetup, smsGuideStep1-4, smsGuideFormConfig, smsGuideForm1-4, smsGuideCodes, smsCode*). They always show the JS English literal, on every locale, before and after this run. Listed under READ_BUT_NEVER_DEFINED; fixing them means adding phrases, not moving them.",
+                "The JS fallback literals of several keys have drifted from the phrases themselves (e.g. efb_var.text.smsHelpDesc || 'Learn how to set up SMS notifications' vs the phrase 'Learn how to use the SMS feature'; smsHelpNote4's fallback is a different sentence entirely; the waiting fallback says 'Sending&hellip;'). Only visible when a phrase is missing. Reported, unchanged.",
+                "vendor/smssended.zip did not exist locally (vendor/.gitignore ignores smssended.zip, and no build was ever committed, unlike every other add-on). The rebuilt zip was therefore diffed against the pristine tracked payload of vendor/smssended at HEAD: 4 files kept, 147 entries added (provider + languages/), 0 lost.",
+                "2026-09-18 follow-up run (user decision): the 19 keys listed as READ_BUT_NEVER_DEFINED on 2026-09-17 are now real phrases. Their English is the literal that vendor/smssended/assets/js/sms-efb.js already carried, copied verbatim; nothing was reworded. They went into the provider's group(), not base(): their only reader is the SMS dashboard, which requests the sms group, all 25 of their sibling keys from the same three tabs are in group(), base() would put 19 SMS-only keys into every admin screen's efb_var.text and into the Localization tab, and \"secure\" would then globally define a key that vendor/telegram owns in its own group. text_efb(2, 'sms') went from 1500 to 1519 keys; text_efb(1) and text_efb(2) are unchanged at 1476/1475.",
+                "2026-09-18: four of the 19 (smsGuideStep1, smsGuideStep2, smsGuideStep3, smsGuideForm1) contain <strong> markup that the JS inserts with innerHTML, so they use __() instead of esc_html__(); esc_html__() would have shipped &lt;strong&gt; and shown the tags as text. Every locale keeps exactly one tag pair, the U+2192 arrow of smsGuideStep3, and the never-translate tokens WP SMS, VeronaLabs and EFB (checked for all 46 locales).",
+                "2026-09-18: smsTip3 adopted smsHelpNote4's English, so 47 source entries now produce 46 unique msgids - build-l10n.php keys entries by context+msgid and emits one .pot entry with both provider line numbers. The old msgid \"All sent messages are logged in the History tab\" was removed from all 46 translation files by the translator batches; every other pre-existing entry was verified byte-identical (1242 = 46 x 27).",
+                "2026-09-18: the JS fallback literals now match the phrases. Six had drifted (smsTip3, smsHelpDesc, smsHelpNote1, smsHelpNote2, smsHelpNote4 - a completely different sentence - and waiting, which said \"Sending&hellip;\" for the phrase \"Waiting\"); smscw had no fallback at all and got one. All 53 efb_var.text reads in sms-efb.js now carry a fallback identical to their English source, so a site on an older package shows the same English the phrase would.",
+                "2026-09-18 translation: 874 new msgstr (46 locales x 19). Origins: 388 manual, 204 seeded from es_ES, 81 reuse telegram (\"Secure\" and \"Setup Guide\" were the only two msgids any other migrated add-on already shipped), 51 seeded from de_DE, 34 each seeded from fr_FR and pt_PT, 19 seeded from fa_IR, 17 each seeded from ar and de_DE_formal, 11 glossary (approved sub-terms embedded in a composed sentence, ru_RU and tr_TR), 9 wporg-stable (\"Secure\" only: fa_IR, ar, de_DE, fr_FR, sv_SE, pt_BR, nl_NL, nl_NL_formal, nl_BE), 9 seeded from zh_TW. The other 17 sentences exist nowhere on translate.wordpress.org in any of the 46 locales. msgstr = msgid: still 0 across the whole set (2116 msgstr).",
+                "2026-09-18: one fix-up round. The French batch had also changed a pre-existing entry (smsTip1 in fr_CA and fr_BE: the U+00A0 before the colon became a plain space); a fix-up spawn restored the exact pre-run bytes and reported it as an accidental normalization, not a typographic decision. After it, all 46 locales pass the byte-identical guard.",
+                "2026-09-18, not fixed, reported only: msgid 6 writes this add-on's name \"SMS Service Addon\" while core's own name for it (key AdnSS) is \"SMS Service Add-on\". The JS literal was kept verbatim as instructed, so the two spellings differ; every locale translated the name inside the sentence itself."
+            ],
+            "identical_to_parent": {
+                "es_MX": 25,
+                "es_AR": 28,
+                "es_CL": 26,
+                "es_CO": 26,
+                "es_CR": 26,
+                "es_DO": 26,
+                "es_EC": 26,
+                "es_GT": 26,
+                "es_PE": 26,
+                "es_PR": 26,
+                "es_UY": 28,
+                "es_VE": 26,
+                "de_DE_formal": 29,
+                "de_AT": 45,
+                "de_CH": 44,
+                "de_CH_informal": 43,
+                "fr_CA": 42,
+                "fr_BE": 42,
+                "pt_PT_ao90": 39,
+                "pt_AO": 46,
+                "nl_NL_formal": 40,
+                "nl_BE": 39,
+                "fa_AF": 26,
+                "zh_HK": 28,
+                "ary": 32
+            },
+            "msgstr_equals_msgid": [],
+            "updated": "2026-09-18",
+            "source_entries": 47
         }
     }
 }
