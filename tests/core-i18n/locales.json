@@ -1,5 +1,5 @@
 {
-    "source": "User list 2026-09-16 (the add-on table without ar). Every locale is its own language with its own pack; nothing falls back to another locale. destination: ws = served by ws-language-plugins-handler, bundled = shipped in the plugin languages/ folder (fa_IR, de_DE; ar and en_US are also shipped but not produced here).",
+    "source": "User list 2026-09-16 (the add-on table without ar). Every locale is its own language with its own pack; nothing falls back to another locale. destination: ws = served by ws-language-plugins-handler, bundled = shipped in the plugin languages/ folder (fa_IR, de_DE; ar and en_US are also shipped but not produced here). hi_IN added 2026-09-19 on the user instruction (not in the original table; wordpress.org has an approved pack for it).",
     "locales": [
         {
             "locale": "ja",
@@ -420,6 +420,14 @@
         {
             "locale": "en_ZA",
             "wporg": "en-za",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "destination": "ws"
+        },
+        {
+            "locale": "hi_IN",
+            "wporg": "hi",
             "set": "default",
             "nplurals": 2,
             "plural_forms": "nplurals=2; plural=n != 1;",

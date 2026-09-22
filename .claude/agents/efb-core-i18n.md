@@ -1,6 +1,6 @@
 ---
 name: efb-core-i18n
-description: One call before each Easy Form Builder release keeps the core translations current. It updates the phrase list of the easy-form-builder text domain (docs/core-i18n/catalog.json, with new, obsolete and returned phrases), has efb-core-i18n-translator (Sonnet 5, effort xhigh) translate whatever is new or missing into the 50 locales of tests/core-i18n/locales.json, builds the packs, and publishes them to the WhiteStudio language server's storage (ws-language-plugins-handler) and, for fa_IR and de_DE, to the plugin's languages/ folder. Invoke with no argument for the full run, or "extract" to only update the phrase list. Never spawn it with a model override.
+description: One call before each Easy Form Builder release keeps the core translations current. It updates the phrase list of the easy-form-builder text domain (docs/core-i18n/catalog.json, with new, obsolete and returned phrases), has efb-core-i18n-translator (Sonnet 5, effort xhigh) translate whatever is new or missing into the 51 locales of tests/core-i18n/locales.json, builds the packs, and publishes them to the WhiteStudio language server's storage (ws-language-plugins-handler) and, for fa_IR and de_DE, to the plugin's languages/ folder. Invoke with no argument for the full run, or "extract" to only update the phrase list. Never spawn it with a model override.
 tools: Read, Grep, Glob, Edit, Write, Bash, PowerShell, Agent(efb-core-i18n-translator)
 model: claude-opus-5
 effort: xhigh

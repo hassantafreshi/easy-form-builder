@@ -1035,7 +1035,7 @@ class Language_Packs {
 		if ( is_wp_error( $response ) ) {
 			return array(
 				'status' => 'unreachable',
-				'error'  => $response->get_error_message(),
+				'error'  => $this->http_error_text( $response ),
 				'body'   => array(),
 			);
 		}
@@ -1102,6 +1102,25 @@ class Language_Packs {
 	}
 
 	/**
+	 * The text of a failed wp_remote_get(), for the email and the message on screen.
+	 *
+	 * WordPress translates its own error messages into the site language, and this plugin only runs for
+	 * a site whose language is not shipped with it, so a phrase in the message cannot be recognised
+	 * afterwards ("User has blocked requests through HTTP" arrives in Swedish on a Swedish site).
+	 * The error code never changes: a request WordPress refused to send (WP_HTTP_BLOCK_EXTERNAL) is marked with it.
+	 *
+	 * @param \WP_Error $error Error from wp_remote_get().
+	 * @return string
+	 */
+	private function http_error_text( \WP_Error $error ) {
+		$text = (string) $error->get_error_message();
+		if ( 'http_request_not_executed' === $error->get_error_code() ) {
+			$text .= ' [http_request_not_executed]';
+		}
+		return $text;
+	}
+
+	/**
 	 * GET https://api.wordpress.org/translations/plugins/1.0/
 	 *
 	 * @param string[] $locales Locales wanted.
@@ -1122,7 +1141,7 @@ class Language_Packs {
 		if ( is_wp_error( $response ) ) {
 			return array(
 				'status'       => 'unreachable',
-				'error'        => $response->get_error_message(),
+				'error'        => $this->http_error_text( $response ),
 				'translations' => array(),
 			);
 		}
@@ -1273,7 +1292,7 @@ class Language_Packs {
 		};
 
 		if ( is_wp_error( $response ) ) {
-			return $fail( 'download_failed', 'unreachable', $response->get_error_message() );
+			return $fail( 'download_failed', 'unreachable', $this->http_error_text( $response ) );
 		}
 		$code = (int) wp_remote_retrieve_response_code( $response );
 		if ( $is_ws && '' === (string) wp_remote_retrieve_header( $response, self::SERVER_HEADER ) ) {
@@ -2203,7 +2222,7 @@ class Language_Packs {
 		$detail = (string) $error['detail'];
 		switch ( $error['kind'] ) {
 			case 'unreachable':
-				if ( false !== stripos( $detail, 'blocked requests through HTTP' ) ) {
+				if ( false !== strpos( $detail, '[http_request_not_executed]' ) || false !== stripos( $detail, 'blocked requests through HTTP' ) ) {
 					return __( 'WordPress on this site is set to block outgoing connections (WP_HTTP_BLOCK_EXTERNAL)', 'easy-form-builder' );
 				}
 				/* translators: %s: server host name */

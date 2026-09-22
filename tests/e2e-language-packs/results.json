@@ -1,0 +1,2522 @@
+{
+  "A1": {
+    "id": "A1",
+    "title": "Russian site, admin opens the EFB Panel first (installing layer, then reload)",
+    "locale": "ru_RU",
+    "config": {
+      "server": "http://127.0.0.1/ws"
+    },
+    "shots": [
+      "A1-1-installing.png",
+      "A1-2-installed-reloading.png",
+      "A1-3-panel-in-russian.png"
+    ],
+    "console_errors": [],
+    "layer_title": "Installing language files",
+    "layer_text": "Easy Form Builder is downloading its translation into Russian (ru_RU). This takes a few seconds, and the page reloads by itself.",
+    "layer_done_text": "Language files installed. Reloading…",
+    "layer_after_reload": 0,
+    "panel_column_name_in_russian": true,
+    "ok": true,
+    "state": {
+      "wplang": "ru_RU",
+      "scenario": {
+        "server": "http://127.0.0.1/ws"
+      },
+      "files": [
+        {
+          "name": "easy-form-builder-ru_RU.l10n.php",
+          "size": 297624
+        },
+        {
+          "name": "easy-form-builder-ru_RU.mo",
+          "size": 339192
+        },
+        {
+          "name": "easy-form-builder-ru_RU.po",
+          "size": 568669
+        }
+      ],
+      "runtime": {
+        "version": "4.2.0",
+        "synced_at": 1789905464,
+        "attempts": {
+          "ru_RU": {
+            "version": "4.2.0",
+            "at": 1789905464,
+            "outcome": "installed",
+            "reason": ""
+          }
+        },
+        "bg_at": 0
+      },
+      "lock": null,
+      "ws": {
+        "status": "ok",
+        "server": "http://127.0.0.1/ws",
+        "failures": 0,
+        "first_failure_at": 0,
+        "last_attempt_at": 1789905464,
+        "last_success_at": 1789905464,
+        "last_error": ""
+      },
+      "wporg": {
+        "status": "never",
+        "last_attempt_at": 0,
+        "last_error": ""
+      },
+      "notice": {
+        "episode_sent_at": 0,
+        "episode_attempts": 0,
+        "last_sent_at": 0,
+        "install_key": "",
+        "install_sent_at": 0
+      },
+      "packs": {
+        "ru_RU": {
+          "source": "ws",
+          "version": "4.2.0",
+          "updated": "2026-09-19 21:19:45",
+          "sha256": "26242a64d9fe2fc801cf647de82489e299e8f10ffe0df04e21dcdb74f6b8a6a2",
+          "installed_at": 1789905464
+        }
+      },
+      "last_run": {
+        "at": 1789905462,
+        "reason": "inline",
+        "status": "complete",
+        "results": {
+          "ru_RU": "installed_ws"
+        }
+      },
+      "mails": [],
+      "http": [
+        {
+          "at": 1789905462,
+          "url": "http://127.0.0.1/ws/wp-json/wl/v1/translations/easy-form-builder?version=4.2.0&locales=ru_RU&client=1.0.0",
+          "host": "127.0.0.1",
+          "status": "HTTP 200",
+          "ws_header": "1.0.0",
+          "content_type": "application/json; charset=UTF-8"
+        },
+        {
+          "at": 1789905463,
+          "url": "http://127.0.0.1/ws/wp-json/wl/v1/translations/easy-form-builder/package/ru_RU?fp=…",
+          "host": "127.0.0.1",
+          "status": "HTTP 200",
+          "ws_header": "1.0.0",
+          "content_type": "application/zip"
+        }
+      ],
+      "text_version": "1789905464"
+    }
+  },
+  "A2": {
+    "id": "A2",
+    "title": "Hindi site, admin opens the Dashboard first (notice, then \"installed\" and a reload link)",
+    "locale": "hi_IN",
+    "config": {
+      "server": "http://127.0.0.1/ws"
+    },
+    "shots": [
+      "A2-1-notice-installing.png",
+      "A2-2-notice-installed.png",
+      "A2-3-panel-in-hindi.png"
+    ],
+    "console_errors": [],
+    "notice_text": "Easy Form Builder is installing its language files (Hindi (hi_IN))…",
+    "notice_done_text": "Easy Form Builder: language files installed. Reload this page",
+    "notice_after_reload": 0,
+    "panel_column_name_in_hindi": true,
+    "ok": true,
+    "state": {
+      "wplang": "hi_IN",
+      "scenario": {
+        "server": "http://127.0.0.1/ws"
+      },
+      "files": [
+        {
+          "name": "easy-form-builder-hi_IN.l10n.php",
+          "size": 356012
+        },
+        {
+          "name": "easy-form-builder-hi_IN.mo",
+          "size": 397612
+        },
+        {
+          "name": "easy-form-builder-hi_IN.po",
+          "size": 626745
+        }
+      ],
+      "runtime": {
+        "version": "4.2.0",
+        "synced_at": 1789905482,
+        "attempts": {
+          "hi_IN": {
+            "version": "4.2.0",
+            "at": 1789905482,
+            "outcome": "installed",
+            "reason": ""
+          }
+        },
+        "bg_at": 0
+      },
+      "lock": null,
+      "ws": {
+        "status": "ok",
+        "server": "http://127.0.0.1/ws",
+        "failures": 0,
+        "first_failure_at": 0,
+        "last_attempt_at": 1789905482,
+        "last_success_at": 1789905482,
+        "last_error": ""
+      },
+      "wporg": {
+        "status": "never",
+        "last_attempt_at": 0,
+        "last_error": ""
+      },
+      "notice": {
+        "episode_sent_at": 0,
+        "episode_attempts": 0,
+        "last_sent_at": 0,
+        "install_key": "",
+        "install_sent_at": 0
+      },
+      "packs": {
+        "hi_IN": {
+          "source": "ws",
+          "version": "4.2.0",
+          "updated": "2026-09-19 21:19:46",
+          "sha256": "87a52aaf0259f17d4d52cbc0dc4d3c005b3f5cad4baff497147da5448775a560",
+          "installed_at": 1789905482
+        }
+      },
+      "last_run": {
+        "at": 1789905480,
+        "reason": "inline",
+        "status": "complete",
+        "results": {
+          "hi_IN": "installed_ws"
+        }
+      },
+      "mails": [],
+      "http": [
+        {
+          "at": 1789905480,
+          "url": "http://127.0.0.1/ws/wp-json/wl/v1/translations/easy-form-builder?version=4.2.0&locales=hi_IN&client=1.0.0",
+          "host": "127.0.0.1",
+          "status": "HTTP 200",
+          "ws_header": "1.0.0",
+          "content_type": "application/json; charset=UTF-8"
+        },
+        {
+          "at": 1789905481,
+          "url": "http://127.0.0.1/ws/wp-json/wl/v1/translations/easy-form-builder/package/hi_IN?fp=…",
+          "host": "127.0.0.1",
+          "status": "HTTP 200",
+          "ws_header": "1.0.0",
+          "content_type": "application/zip"
+        }
+      ],
+      "text_version": "1789905482"
+    }
+  },
+  "A3": {
+    "id": "A3",
+    "title": "Russian site, a visitor opens a page with a form first (form in English, installs in the background, next view translated)",
+    "locale": "ru_RU",
+    "config": {
+      "server": "http://127.0.0.1/ws"
+    },
+    "shots": [
+      "A3-1-first-view-english.png",
+      "A3-2-second-view-translated.png"
+    ],
+    "console_errors": [],
+    "first_view_step_text": "Step 1 of 3",
+    "pack_files_after_first_view": [
+      "easy-form-builder-ru_RU.l10n.php",
+      "easy-form-builder-ru_RU.mo",
+      "easy-form-builder-ru_RU.po"
+    ],
+    "second_view_step_text": "Шаг 1 из 3",
+    "ok": true,
+    "state": {
+      "wplang": "ru_RU",
+      "scenario": {
+        "server": "http://127.0.0.1/ws"
+      },
+      "files": [
+        {
+          "name": "easy-form-builder-ru_RU.l10n.php",
+          "size": 297624
+        },
+        {
+          "name": "easy-form-builder-ru_RU.mo",
+          "size": 339192
+        },
+        {
+          "name": "easy-form-builder-ru_RU.po",
+          "size": 568669
+        }
+      ],
+      "runtime": {
+        "version": "4.2.0",
+        "synced_at": 1789905499,
+        "attempts": {
+          "ru_RU": {
+            "version": "4.2.0",
+            "at": 1789905499,
+            "outcome": "installed",
+            "reason": ""
+          }
+        },
+        "bg_at": 0
+      },
+      "lock": null,
+      "ws": {
+        "status": "ok",
+        "server": "http://127.0.0.1/ws",
+        "failures": 0,
+        "first_failure_at": 0,
+        "last_attempt_at": 1789905499,
+        "last_success_at": 1789905499,
+        "last_error": ""
+      },
+      "wporg": {
+        "status": "never",
+        "last_attempt_at": 0,
+        "last_error": ""
+      },
+      "notice": {
+        "episode_sent_at": 0,
+        "episode_attempts": 0,
+        "last_sent_at": 0,
+        "install_key": "",
+        "install_sent_at": 0
+      },
+      "packs": {
+        "ru_RU": {
+          "source": "ws",
+          "version": "4.2.0",
+          "updated": "2026-09-19 21:19:45",
+          "sha256": "26242a64d9fe2fc801cf647de82489e299e8f10ffe0df04e21dcdb74f6b8a6a2",
+          "installed_at": 1789905499
+        }
+      },
+      "last_run": {
+        "at": 1789905496,
+        "reason": "inline",
+        "status": "complete",
+        "results": {
+          "ru_RU": "installed_ws"
+        }
+      },
+      "mails": [],
+      "http": [
+        {
+          "at": 1789905496,
+          "url": "http://127.0.0.1/ws/wp-json/wl/v1/translations/easy-form-builder?version=4.2.0&locales=ru_RU&client=1.0.0",
+          "host": "127.0.0.1",
+          "status": "HTTP 200",
+          "ws_header": "1.0.0",
+          "content_type": "application/json; charset=UTF-8"
+        },
+        {
+          "at": 1789905498,
+          "url": "http://127.0.0.1/ws/wp-json/wl/v1/translations/easy-form-builder/package/ru_RU?fp=…",
+          "host": "127.0.0.1",
+          "status": "HTTP 200",
+          "ws_header": "1.0.0",
+          "content_type": "application/zip"
+        }
+      ],
+      "text_version": "1789905499"
+    }
+  },
+  "A4": {
+    "id": "A4",
+    "title": "English site: the plugin asks for nothing",
+    "locale": "en_US",
+    "config": {
+      "server": "http://127.0.0.1/ws"
+    },
+    "shots": [
+      "A4-1-panel-english-no-layer.png"
+    ],
+    "console_errors": [],
+    "layer_count": 0,
+    "ok": true,
+    "state": {
+      "wplang": "",
+      "scenario": {
+        "server": "http://127.0.0.1/ws"
+      },
+      "files": [],
+      "runtime": [],
+      "lock": null,
+      "ws": null,
+      "wporg": null,
+      "notice": null,
+      "packs": null,
+      "last_run": null,
+      "mails": [],
+      "http": [],
+      "text_version": "1789905506"
+    }
+  },
+  "A5": {
+    "id": "A5",
+    "title": "German site: German ships inside the plugin, so nothing is downloaded",
+    "locale": "de_DE",
+    "config": {
+      "server": "http://127.0.0.1/ws"
+    },
+    "shots": [
+      "A5-1-panel-german-no-layer.png"
+    ],
+    "console_errors": [],
+    "layer_count": 0,
+    "ok": true,
+    "state": {
+      "wplang": "de_DE",
+      "scenario": {
+        "server": "http://127.0.0.1/ws"
+      },
+      "files": [],
+      "runtime": [],
+      "lock": null,
+      "ws": null,
+      "wporg": null,
+      "notice": null,
+      "packs": null,
+      "last_run": null,
+      "mails": [],
+      "http": [],
+      "text_version": "1789905518"
+    }
+  },
+  "W1": {
+    "id": "W1",
+    "title": "Dutch: WhiteStudio has no Dutch pack, wordpress.org has one (installed from wordpress.org)",
+    "locale": "nl_NL",
+    "config": {
+      "server": "http://127.0.0.1/ws"
+    },
+    "shots": [
+      "W1-1-installing.png",
+      "W1-2-installed-reloading.png",
+      "W1-3-panel-in-dutch.png"
+    ],
+    "console_errors": [],
+    "layer_title": "Installing language files",
+    "layer_text": "Easy Form Builder is downloading its translation into Dutch (nl_NL). This takes a few seconds, and the page reloads by itself.",
+    "layer_after_reload": 0,
+    "ok": true,
+    "state": {
+      "wplang": "nl_NL",
+      "scenario": {
+        "server": "http://127.0.0.1/ws"
+      },
+      "files": [
+        {
+          "name": "easy-form-builder-nl_NL-3d64e2cc3553fb9e44e443ffeb4151c9.json",
+          "size": 723
+        },
+        {
+          "name": "easy-form-builder-nl_NL.l10n.php",
+          "size": 103020
+        },
+        {
+          "name": "easy-form-builder-nl_NL.mo",
+          "size": 126057
+        },
+        {
+          "name": "easy-form-builder-nl_NL.po",
+          "size": 220933
+        }
+      ],
+      "runtime": {
+        "version": "4.2.0",
+        "synced_at": 1789905541,
+        "attempts": {
+          "nl_NL": {
+            "version": "4.2.0",
+            "at": 1789905541,
+            "outcome": "installed",
+            "reason": ""
+          }
+        },
+        "bg_at": 0
+      },
+      "lock": null,
+      "ws": {
+        "status": "ok",
+        "server": "http://127.0.0.1/ws",
+        "failures": 0,
+        "first_failure_at": 0,
+        "last_attempt_at": 1789905541,
+        "last_success_at": 1789905541,
+        "last_error": ""
+      },
+      "wporg": {
+        "status": "ok",
+        "last_attempt_at": 1789905539,
+        "last_error": ""
+      },
+      "notice": {
+        "episode_sent_at": 0,
+        "episode_attempts": 0,
+        "last_sent_at": 0,
+        "install_key": "",
+        "install_sent_at": 0
+      },
+      "packs": {
+        "nl_NL": {
+          "source": "wporg",
+          "version": "4.1.3",
+          "updated": "2026-07-26 06:18:58",
+          "sha256": "51cc6375f8a88082d5fac29695e385ad0bff097c7e4ea08ba3d4af30a8ac8db3",
+          "installed_at": 1789905541
+        }
+      },
+      "last_run": {
+        "at": 1789905537,
+        "reason": "inline",
+        "status": "complete",
+        "results": {
+          "nl_NL": "installed_wporg"
+        }
+      },
+      "mails": [],
+      "http": [
+        {
+          "at": 1789905537,
+          "url": "http://127.0.0.1/ws/wp-json/wl/v1/translations/easy-form-builder?version=4.2.0&locales=nl_NL&client=1.0.0",
+          "host": "127.0.0.1",
+          "status": "HTTP 200",
+          "ws_header": "1.0.0",
+          "content_type": "application/json; charset=UTF-8"
+        },
+        {
+          "at": 1789905538,
+          "url": "https://api.wordpress.org/translations/plugins/1.0/?slug=easy-form-builder&version=4.2.0",
+          "host": "api.wordpress.org",
+          "status": "HTTP 200",
+          "ws_header": "absent",
+          "content_type": "application/json; charset=utf-8"
+        },
+        {
+          "at": 1789905539,
+          "url": "https://downloads.wordpress.org/translation/plugin/easy-form-builder/4.1.3/nl_NL.zip",
+          "host": "downloads.wordpress.org",
+          "status": "HTTP 200",
+          "ws_header": "absent",
+          "content_type": "application/zip"
+        }
+      ],
+      "text_version": "1789905541"
+    }
+  },
+  "W2": {
+    "id": "W2",
+    "title": "Russian: WhiteStudio is unreachable, wordpress.org has the pack (installed from wordpress.org, no error)",
+    "locale": "ru_RU",
+    "config": {
+      "server": "http://127.0.0.1:9"
+    },
+    "shots": [
+      "W2-1-installing.png",
+      "W2-2-installed-reloading.png",
+      "W2-3-panel-in-russian.png"
+    ],
+    "console_errors": [],
+    "layer_title": "Installing language files",
+    "layer_text": "Easy Form Builder is downloading its translation into Russian (ru_RU). This takes a few seconds, and the page reloads by itself.",
+    "layer_after_reload": 0,
+    "ok": true,
+    "state": {
+      "wplang": "ru_RU",
+      "scenario": {
+        "server": "http://127.0.0.1:9"
+      },
+      "files": [
+        {
+          "name": "easy-form-builder-ru_RU-3d64e2cc3553fb9e44e443ffeb4151c9.json",
+          "size": 772
+        },
+        {
+          "name": "easy-form-builder-ru_RU.l10n.php",
+          "size": 55291
+        },
+        {
+          "name": "easy-form-builder-ru_RU.mo",
+          "size": 69296
+        },
+        {
+          "name": "easy-form-builder-ru_RU.po",
+          "size": 124673
+        }
+      ],
+      "runtime": {
+        "version": "4.2.0",
+        "synced_at": 1789905563,
+        "attempts": {
+          "ru_RU": {
+            "version": "4.2.0",
+            "at": 1789905563,
+            "outcome": "installed",
+            "reason": ""
+          }
+        },
+        "bg_at": 0
+      },
+      "lock": null,
+      "ws": {
+        "status": "unreachable",
+        "server": "http://127.0.0.1:9",
+        "failures": 1,
+        "first_failure_at": 1789905563,
+        "last_attempt_at": 1789905563,
+        "last_success_at": 0,
+        "last_error": "cURL error 7: Failed to connect to 127.0.0.1 port 9 after 2030 ms: Couldn't connect to server"
+      },
+      "wporg": {
+        "status": "ok",
+        "last_attempt_at": 1789905561,
+        "last_error": ""
+      },
+      "notice": {
+        "episode_sent_at": 0,
+        "episode_attempts": 0,
+        "last_sent_at": 0,
+        "install_key": "",
+        "install_sent_at": 0
+      },
+      "packs": {
+        "ru_RU": {
+          "source": "wporg",
+          "version": "4.1.3",
+          "updated": "2026-08-19 18:04:15",
+          "sha256": "ad1044d96ae4dc479a9eefb9c623f5e2960d086622ff17121e18718b98617abd",
+          "installed_at": 1789905563
+        }
+      },
+      "last_run": {
+        "at": 1789905557,
+        "reason": "inline",
+        "status": "complete",
+        "results": {
+          "ru_RU": "installed_wporg"
+        }
+      },
+      "mails": [],
+      "http": [
+        {
+          "at": 1789905557,
+          "url": "http://127.0.0.1:9/wp-json/wl/v1/translations/easy-form-builder?version=4.2.0&locales=ru_RU&client=1.0.0",
+          "host": "127.0.0.1",
+          "status": "error: cURL error 7: Failed to connect to 127.0.0.1 port 9 after 2030 ms: Couldn't connect to server"
+        },
+        {
+          "at": 1789905560,
+          "url": "https://api.wordpress.org/translations/plugins/1.0/?slug=easy-form-builder&version=4.2.0",
+          "host": "api.wordpress.org",
+          "status": "HTTP 200",
+          "ws_header": "absent",
+          "content_type": "application/json; charset=utf-8"
+        },
+        {
+          "at": 1789905561,
+          "url": "https://downloads.wordpress.org/translation/plugin/easy-form-builder/4.1.3/ru_RU.zip",
+          "host": "downloads.wordpress.org",
+          "status": "HTTP 200",
+          "ws_header": "absent",
+          "content_type": "application/zip"
+        }
+      ],
+      "text_version": "1789905563"
+    }
+  },
+  "W3": {
+    "id": "W3",
+    "title": "Russian: the server plugin is not deployed yet (rest_no_route), wordpress.org has the pack",
+    "locale": "ru_RU",
+    "config": {
+      "server": "http://127.0.0.1:8099/norest"
+    },
+    "shots": [
+      "W3-1-installing.png",
+      "W3-2-installed-reloading.png",
+      "W3-3-panel-in-russian.png"
+    ],
+    "console_errors": [],
+    "layer_title": "Installing language files",
+    "layer_text": "Easy Form Builder is downloading its translation into Russian (ru_RU). This takes a few seconds, and the page reloads by itself.",
+    "layer_after_reload": 0,
+    "ok": true,
+    "state": {
+      "wplang": "ru_RU",
+      "scenario": {
+        "server": "http://127.0.0.1:8099/norest"
+      },
+      "files": [
+        {
+          "name": "easy-form-builder-ru_RU-3d64e2cc3553fb9e44e443ffeb4151c9.json",
+          "size": 772
+        },
+        {
+          "name": "easy-form-builder-ru_RU.l10n.php",
+          "size": 55291
+        },
+        {
+          "name": "easy-form-builder-ru_RU.mo",
+          "size": 69296
+        },
+        {
+          "name": "easy-form-builder-ru_RU.po",
+          "size": 124673
+        }
+      ],
+      "runtime": {
+        "version": "4.2.0",
+        "synced_at": 1789905579,
+        "attempts": {
+          "ru_RU": {
+            "version": "4.2.0",
+            "at": 1789905579,
+            "outcome": "installed",
+            "reason": ""
+          }
+        },
+        "bg_at": 0
+      },
+      "lock": null,
+      "ws": {
+        "status": "server_error",
+        "server": "http://127.0.0.1:8099/norest",
+        "failures": 0,
+        "first_failure_at": 0,
+        "last_attempt_at": 1789905579,
+        "last_success_at": 0,
+        "last_error": "HTTP 404 rest_no_route"
+      },
+      "wporg": {
+        "status": "ok",
+        "last_attempt_at": 1789905577,
+        "last_error": ""
+      },
+      "notice": {
+        "episode_sent_at": 0,
+        "episode_attempts": 0,
+        "last_sent_at": 0,
+        "install_key": "",
+        "install_sent_at": 0
+      },
+      "packs": {
+        "ru_RU": {
+          "source": "wporg",
+          "version": "4.1.3",
+          "updated": "2026-08-19 18:04:15",
+          "sha256": "ad1044d96ae4dc479a9eefb9c623f5e2960d086622ff17121e18718b98617abd",
+          "installed_at": 1789905579
+        }
+      },
+      "last_run": {
+        "at": 1789905575,
+        "reason": "inline",
+        "status": "complete",
+        "results": {
+          "ru_RU": "installed_wporg"
+        }
+      },
+      "mails": [],
+      "http": [
+        {
+          "at": 1789905575,
+          "url": "http://127.0.0.1:8099/norest/wp-json/wl/v1/translations/easy-form-builder?version=4.2.0&locales=ru_RU&client=1.0.0",
+          "host": "127.0.0.1",
+          "status": "HTTP 404",
+          "ws_header": "absent",
+          "content_type": "application/json; charset=UTF-8"
+        },
+        {
+          "at": 1789905575,
+          "url": "https://api.wordpress.org/translations/plugins/1.0/?slug=easy-form-builder&version=4.2.0",
+          "host": "api.wordpress.org",
+          "status": "HTTP 200",
+          "ws_header": "absent",
+          "content_type": "application/json; charset=utf-8"
+        },
+        {
+          "at": 1789905577,
+          "url": "https://downloads.wordpress.org/translation/plugin/easy-form-builder/4.1.3/ru_RU.zip",
+          "host": "downloads.wordpress.org",
+          "status": "HTTP 200",
+          "ws_header": "absent",
+          "content_type": "application/zip"
+        }
+      ],
+      "text_version": "1789905579"
+    }
+  },
+  "B1": {
+    "id": "B1",
+    "title": "WhiteStudio unreachable (connection refused), Create page: message, Continue in English, one email, not repeated",
+    "locale": "sv_SE",
+    "config": {
+      "server": "http://127.0.0.1:9"
+    },
+    "shots": [
+      "B1-1-installing.png",
+      "B1-2-message.png",
+      "B1-3-continued-in-english.png",
+      "B1-4-next-view-no-layer.png",
+      "B1-mail-1.png"
+    ],
+    "console_errors": [],
+    "layer_title_first": "Installing language files",
+    "layer_title": "Language files not installed",
+    "layer_text": "The language files could not be installed: the server this website runs on cannot connect to 127.0.0.1:9. Easy Form Builder keeps working, in English. The details and the manual installation steps were emailed to owner@wp-test-ai.test.",
+    "layer_after_continue": 0,
+    "layer_on_next_view": 0,
+    "mails_after_next_view": 1,
+    "ok": true,
+    "state": {
+      "wplang": "sv_SE",
+      "scenario": {
+        "server": "http://127.0.0.1:9"
+      },
+      "files": [],
+      "runtime": {
+        "version": "4.2.0",
+        "synced_at": 1789905611,
+        "attempts": {
+          "sv_SE": {
+            "version": "4.2.0",
+            "at": 1789905611,
+            "outcome": "failed",
+            "reason": "unreachable"
+          }
+        },
+        "bg_at": 1789905608
+      },
+      "lock": null,
+      "ws": {
+        "status": "unreachable",
+        "server": "http://127.0.0.1:9",
+        "failures": 2,
+        "first_failure_at": 1789905604,
+        "last_attempt_at": 1789905611,
+        "last_success_at": 0,
+        "last_error": "cURL error 7: Failed to connect to 127.0.0.1 port 9 after 2054 ms: Couldn't connect to server"
+      },
+      "wporg": {
+        "status": "ok",
+        "last_attempt_at": 1789905611,
+        "last_error": ""
+      },
+      "notice": {
+        "episode_sent_at": 1789905604,
+        "episode_attempts": 0,
+        "last_sent_at": 1789905604,
+        "install_key": "5ac1fcb329e47c6f492fc064e783c819",
+        "install_sent_at": 1789905604
+      },
+      "packs": [],
+      "last_run": {
+        "at": 1789905608,
+        "reason": "inline",
+        "status": "complete",
+        "results": {
+          "sv_SE": "not_available"
+        }
+      },
+      "mails": [
+        {
+          "at": 1789905604,
+          "to": "owner@wp-test-ai.test",
+          "subject": "[wp-test-ai] Easy Form Builder could not install its language files",
+          "body": "Easy Form Builder could not install its translation into Swedish (sv_SE) on http://localhost/wp-test-ai/.\nThis happened when the plugin was opened in the WordPress dashboard.\nThe plugin keeps working normally, in English, until the translation is installed.\n\nWhat went wrong: the server this website runs on cannot connect to 127.0.0.1:9.\nTechnical detail: cURL error 7: Failed to connect to 127.0.0.1 port 9 after 2042 ms: Couldn't connect to server\n\nWhat you can do:\n1. Ask your hosting provider to allow outgoing HTTPS connections (port 443) from this server to 127.0.0.1:9. The plugin installs the translation by itself as soon as it can connect.\n2. Or install the translation yourself, in a few minutes:\n   - Download Swedish (sv_SE): http://127.0.0.1:9/wp-json/wl/v1/translations/easy-form-builder/package/sv_SE\n   - Unzip it and upload the files to wp-content/languages/plugins/ on your server, replacing any file with the same name.\n   - Step-by-step guide: https://github.com/hassantafreshi/easy-form-builder/blob/HEAD/docs/language-packs/manual-install.md\n\nYou will not receive this email again for the same problem in the next 30 days.\n",
+          "request": "/wp-test-ai/wp-admin/admin-ajax.php"
+        }
+      ],
+      "http": [
+        {
+          "at": 1789905600,
+          "url": "http://127.0.0.1:9/wp-json/wl/v1/translations/easy-form-builder?version=4.2.0&locales=sv_SE&client=1.0.0",
+          "host": "127.0.0.1",
+          "status": "error: cURL error 7: Failed to connect to 127.0.0.1 port 9 after 2042 ms: Couldn't connect to server"
+        },
+        {
+          "at": 1789905602,
+          "url": "https://api.wordpress.org/translations/plugins/1.0/?slug=easy-form-builder&version=4.2.0",
+          "host": "api.wordpress.org",
+          "status": "HTTP 200",
+          "ws_header": "absent",
+          "content_type": "application/json; charset=utf-8"
+        },
+        {
+          "at": 1789905608,
+          "url": "http://127.0.0.1:9/wp-json/wl/v1/translations/easy-form-builder?version=4.2.0&locales=sv_SE&client=1.0.0",
+          "host": "127.0.0.1",
+          "status": "error: cURL error 7: Failed to connect to 127.0.0.1 port 9 after 2054 ms: Couldn't connect to server"
+        },
+        {
+          "at": 1789905610,
+          "url": "https://api.wordpress.org/translations/plugins/1.0/?slug=easy-form-builder&version=4.2.0",
+          "host": "api.wordpress.org",
+          "status": "HTTP 200",
+          "ws_header": "absent",
+          "content_type": "application/json; charset=utf-8"
+        }
+      ],
+      "text_version": "1789905588"
+    }
+  },
+  "B2": {
+    "id": "B2",
+    "title": "WP_HTTP_BLOCK_EXTERNAL is on",
+    "locale": "sv_SE",
+    "config": {
+      "server": "http://127.0.0.1/ws",
+      "constants": {
+        "WP_HTTP_BLOCK_EXTERNAL": true
+      }
+    },
+    "shots": [
+      "B2-1-installing.png",
+      "B2-2-message.png",
+      "B2-3-continued-in-english.png",
+      "B2-mail-1.png"
+    ],
+    "console_errors": [],
+    "layer_title_first": "Installing language files",
+    "layer_title": "Language files not installed",
+    "layer_text": "The language files could not be installed: WordPress on this site is set to block outgoing connections (WP_HTTP_BLOCK_EXTERNAL). Easy Form Builder keeps working, in English. The details and the manual installation steps were emailed to owner@wp-test-ai.test.",
+    "layer_after_continue": 0,
+    "ok": true,
+    "state": {
+      "wplang": "sv_SE",
+      "scenario": {
+        "server": "http://127.0.0.1/ws",
+        "constants": {
+          "WP_HTTP_BLOCK_EXTERNAL": true
+        }
+      },
+      "files": [],
+      "runtime": {
+        "version": "4.2.0",
+        "synced_at": 1789906539,
+        "attempts": {
+          "sv_SE": {
+            "version": "4.2.0",
+            "at": 1789906539,
+            "outcome": "failed",
+            "reason": "unreachable"
+          }
+        },
+        "bg_at": 0
+      },
+      "lock": null,
+      "ws": {
+        "status": "unreachable",
+        "server": "http://127.0.0.1/ws",
+        "failures": 1,
+        "first_failure_at": 1789906539,
+        "last_attempt_at": 1789906539,
+        "last_success_at": 0,
+        "last_error": "Användare har blockerat förfrågningar via HTTP till URL:en: http://127.0.0.1/ws/wp-json/wl/v1/translations/easy-form-builder?version=4.2.0&locales=sv_SE&client=1.0.0. [http_request_not_executed]"
+      },
+      "wporg": {
+        "status": "unreachable",
+        "last_attempt_at": 1789906539,
+        "last_error": "Användare har blockerat förfrågningar via HTTP till URL:en: https://api.wordpress.org/translations/plugins/1.0/?slug=easy-form-builder&version=4.2.0. [http_request_not_executed]"
+      },
+      "notice": {
+        "episode_sent_at": 1789906539,
+        "episode_attempts": 0,
+        "last_sent_at": 1789906539,
+        "install_key": "5ac1fcb329e47c6f492fc064e783c819",
+        "install_sent_at": 1789906539
+      },
+      "packs": [],
+      "last_run": {
+        "at": 1789906539,
+        "reason": "inline",
+        "status": "complete",
+        "results": {
+          "sv_SE": "wporg_unreachable"
+        }
+      },
+      "mails": [
+        {
+          "at": 1789906539,
+          "to": "owner@wp-test-ai.test",
+          "subject": "[wp-test-ai] Easy Form Builder could not install its language files",
+          "body": "Easy Form Builder could not install its translation into Swedish (sv_SE) on http://localhost/wp-test-ai/.\nThis happened when the plugin was opened in the WordPress dashboard.\nThe plugin keeps working normally, in English, until the translation is installed.\n\nWhat went wrong: WordPress on this site is set to block outgoing connections (WP_HTTP_BLOCK_EXTERNAL).\nTechnical detail: Användare har blockerat förfrågningar via HTTP till URL:en: http://127.0.0.1/ws/wp-json/wl/v1/translations/easy-form-builder?version=4.2.0&locales=sv_SE&client=1.0.0. [http_request_not_executed]\nThis server could not reach WordPress.org either, so outgoing connections from it are probably blocked in general.\n\nWhat you can do:\n1. Ask your hosting provider to allow outgoing HTTPS connections (port 443) from this server to 127.0.0.1. The plugin installs the translation by itself as soon as it can connect.\n2. Or install the translation yourself, in a few minutes:\n   - Download Swedish (sv_SE): http://127.0.0.1/ws/wp-json/wl/v1/translations/easy-form-builder/package/sv_SE\n   - Unzip it and upload the files to wp-content/languages/plugins/ on your server, replacing any file with the same name.\n   - Step-by-step guide: https://github.com/hassantafreshi/easy-form-builder/blob/HEAD/docs/language-packs/manual-install.md\n\nYou will not receive this email again for the same problem in the next 30 days.\n",
+          "request": "/wp-test-ai/wp-admin/admin-ajax.php"
+        }
+      ],
+      "http": [
+        {
+          "at": 1789906539,
+          "url": "http://127.0.0.1/ws/wp-json/wl/v1/translations/easy-form-builder?version=4.2.0&locales=sv_SE&client=1.0.0",
+          "host": "127.0.0.1",
+          "status": "error: Användare har blockerat förfrågningar via HTTP till URL:en: http://127.0.0.1/ws/wp-json/wl/v1/translations/easy-form-builder?version=4.2.0&locales=sv_SE&client=1.0.0."
+        },
+        {
+          "at": 1789906539,
+          "url": "https://api.wordpress.org/translations/plugins/1.0/?slug=easy-form-builder&version=4.2.0",
+          "host": "api.wordpress.org",
+          "status": "error: Användare har blockerat förfrågningar via HTTP till URL:en: https://api.wordpress.org/translations/plugins/1.0/?slug=easy-form-builder&version=4.2.0."
+        }
+      ],
+      "text_version": "1789906533"
+    }
+  },
+  "B3": {
+    "id": "B3",
+    "title": "A firewall / bot-protection page answers instead of the language server",
+    "locale": "sv_SE",
+    "config": {
+      "server": "http://127.0.0.1:8099/firewall"
+    },
+    "shots": [
+      "B3-1-installing.png",
+      "B3-2-message.png",
+      "B3-3-continued-in-english.png",
+      "B3-mail-1.png"
+    ],
+    "console_errors": [],
+    "layer_title_first": "Installing language files",
+    "layer_title": "Language files not installed",
+    "layer_text": "The language files could not be installed: the server this website runs on cannot connect to 127.0.0.1:8099. Easy Form Builder keeps working, in English. The details and the manual installation steps were emailed to owner@wp-test-ai.test.",
+    "layer_after_continue": 0,
+    "ok": true,
+    "state": {
+      "wplang": "sv_SE",
+      "scenario": {
+        "server": "http://127.0.0.1:8099/firewall"
+      },
+      "files": [],
+      "runtime": {
+        "version": "4.2.0",
+        "synced_at": 1789905629,
+        "attempts": {
+          "sv_SE": {
+            "version": "4.2.0",
+            "at": 1789905629,
+            "outcome": "failed",
+            "reason": "unreachable"
+          }
+        },
+        "bg_at": 0
+      },
+      "lock": null,
+      "ws": {
+        "status": "unreachable",
+        "server": "http://127.0.0.1:8099/firewall",
+        "failures": 1,
+        "first_failure_at": 1789905629,
+        "last_attempt_at": 1789905629,
+        "last_success_at": 0,
+        "last_error": "HTTP 403 from something other than the language server (firewall, proxy or bot protection)"
+      },
+      "wporg": {
+        "status": "ok",
+        "last_attempt_at": 1789905629,
+        "last_error": ""
+      },
+      "notice": {
+        "episode_sent_at": 1789905629,
+        "episode_attempts": 0,
+        "last_sent_at": 1789905629,
+        "install_key": "5ac1fcb329e47c6f492fc064e783c819",
+        "install_sent_at": 1789905629
+      },
+      "packs": [],
+      "last_run": {
+        "at": 1789905628,
+        "reason": "inline",
+        "status": "complete",
+        "results": {
+          "sv_SE": "not_available"
+        }
+      },
+      "mails": [
+        {
+          "at": 1789905629,
+          "to": "owner@wp-test-ai.test",
+          "subject": "[wp-test-ai] Easy Form Builder could not install its language files",
+          "body": "Easy Form Builder could not install its translation into Swedish (sv_SE) on http://localhost/wp-test-ai/.\nThis happened when the plugin was opened in the WordPress dashboard.\nThe plugin keeps working normally, in English, until the translation is installed.\n\nWhat went wrong: the server this website runs on cannot connect to 127.0.0.1:8099.\nTechnical detail: HTTP 403 from something other than the language server (firewall, proxy or bot protection)\n\nWhat you can do:\n1. Ask your hosting provider to allow outgoing HTTPS connections (port 443) from this server to 127.0.0.1:8099. The plugin installs the translation by itself as soon as it can connect.\n2. Or install the translation yourself, in a few minutes:\n   - Download Swedish (sv_SE): http://127.0.0.1:8099/firewall/wp-json/wl/v1/translations/easy-form-builder/package/sv_SE\n   - Unzip it and upload the files to wp-content/languages/plugins/ on your server, replacing any file with the same name.\n   - Step-by-step guide: https://github.com/hassantafreshi/easy-form-builder/blob/HEAD/docs/language-packs/manual-install.md\n\nYou will not receive this email again for the same problem in the next 30 days.\n",
+          "request": "/wp-test-ai/wp-admin/admin-ajax.php"
+        }
+      ],
+      "http": [
+        {
+          "at": 1789905628,
+          "url": "http://127.0.0.1:8099/firewall/wp-json/wl/v1/translations/easy-form-builder?version=4.2.0&locales=sv_SE&client=1.0.0",
+          "host": "127.0.0.1",
+          "status": "HTTP 403",
+          "ws_header": "absent",
+          "content_type": "text/html; charset=UTF-8"
+        },
+        {
+          "at": 1789905628,
+          "url": "https://api.wordpress.org/translations/plugins/1.0/?slug=easy-form-builder&version=4.2.0",
+          "host": "api.wordpress.org",
+          "status": "HTTP 200",
+          "ws_header": "absent",
+          "content_type": "application/json; charset=utf-8"
+        }
+      ],
+      "text_version": "1789905623"
+    }
+  },
+  "B4": {
+    "id": "B4",
+    "title": "The catalog loads, but every package download is intercepted by a firewall",
+    "locale": "sv_SE",
+    "config": {
+      "server": "http://127.0.0.1:8099/dlblocked"
+    },
+    "shots": [
+      "B4-1-installing.png",
+      "B4-2-message.png",
+      "B4-3-continued-in-english.png",
+      "B4-mail-1.png"
+    ],
+    "console_errors": [],
+    "layer_title_first": "Installing language files",
+    "layer_title": "Language files not installed",
+    "layer_text": "The language files could not be installed: the server this website runs on cannot connect to 127.0.0.1:8099. Easy Form Builder keeps working, in English. The details and the manual installation steps were emailed to owner@wp-test-ai.test.",
+    "layer_after_continue": 0,
+    "ok": true,
+    "state": {
+      "wplang": "sv_SE",
+      "scenario": {
+        "server": "http://127.0.0.1:8099/dlblocked"
+      },
+      "files": [],
+      "runtime": {
+        "version": "4.2.0",
+        "synced_at": 1789905638,
+        "attempts": {
+          "sv_SE": {
+            "version": "4.2.0",
+            "at": 1789905638,
+            "outcome": "failed",
+            "reason": "unreachable"
+          }
+        },
+        "bg_at": 0
+      },
+      "lock": null,
+      "ws": {
+        "status": "unreachable",
+        "server": "http://127.0.0.1:8099/dlblocked",
+        "failures": 1,
+        "first_failure_at": 1789905638,
+        "last_attempt_at": 1789905638,
+        "last_success_at": 0,
+        "last_error": "HTTP 403 from something other than the language server"
+      },
+      "wporg": {
+        "status": "ok",
+        "last_attempt_at": 1789905638,
+        "last_error": ""
+      },
+      "notice": {
+        "episode_sent_at": 1789905638,
+        "episode_attempts": 0,
+        "last_sent_at": 1789905638,
+        "install_key": "5ac1fcb329e47c6f492fc064e783c819",
+        "install_sent_at": 1789905638
+      },
+      "packs": [],
+      "last_run": {
+        "at": 1789905637,
+        "reason": "inline",
+        "status": "complete",
+        "results": {
+          "sv_SE": "failed_ws:download_intercepted"
+        }
+      },
+      "mails": [
+        {
+          "at": 1789905638,
+          "to": "owner@wp-test-ai.test",
+          "subject": "[wp-test-ai] Easy Form Builder could not install its language files",
+          "body": "Easy Form Builder could not install its translation into Swedish (sv_SE) on http://localhost/wp-test-ai/.\nThis happened when the plugin was opened in the WordPress dashboard.\nThe plugin keeps working normally, in English, until the translation is installed.\n\nWhat went wrong: the server this website runs on cannot connect to 127.0.0.1:8099.\nTechnical detail: HTTP 403 from something other than the language server\n\nWhat you can do:\n1. Ask your hosting provider to allow outgoing HTTPS connections (port 443) from this server to 127.0.0.1:8099. The plugin installs the translation by itself as soon as it can connect.\n2. Or install the translation yourself, in a few minutes:\n   - Download Swedish (sv_SE): http://127.0.0.1:8099/dlblocked/wp-json/wl/v1/translations/easy-form-builder/package/sv_SE\n   - Unzip it and upload the files to wp-content/languages/plugins/ on your server, replacing any file with the same name.\n   - Step-by-step guide: https://github.com/hassantafreshi/easy-form-builder/blob/HEAD/docs/language-packs/manual-install.md\n\nYou will not receive this email again for the same problem in the next 30 days.\n",
+          "request": "/wp-test-ai/wp-admin/admin-ajax.php"
+        }
+      ],
+      "http": [
+        {
+          "at": 1789905637,
+          "url": "http://127.0.0.1:8099/dlblocked/wp-json/wl/v1/translations/easy-form-builder?version=4.2.0&locales=sv_SE&client=1.0.0",
+          "host": "127.0.0.1",
+          "status": "HTTP 200",
+          "ws_header": "1.0.0",
+          "content_type": "application/json; charset=UTF-8"
+        },
+        {
+          "at": 1789905637,
+          "url": "http://127.0.0.1:8099/dlblocked/wp-json/wl/v1/translations/easy-form-builder/package/sv_SE",
+          "host": "127.0.0.1",
+          "status": "HTTP 403",
+          "ws_header": "absent",
+          "content_type": "text/html; charset=UTF-8"
+        },
+        {
+          "at": 1789905637,
+          "url": "https://api.wordpress.org/translations/plugins/1.0/?slug=easy-form-builder&version=4.2.0",
+          "host": "api.wordpress.org",
+          "status": "HTTP 200",
+          "ws_header": "absent",
+          "content_type": "application/json; charset=utf-8"
+        }
+      ],
+      "text_version": "1789905632"
+    }
+  },
+  "B5": {
+    "id": "B5",
+    "title": "The language server does not answer within 10 seconds",
+    "locale": "sv_SE",
+    "config": {
+      "server": "http://127.0.0.1:8099/slow"
+    },
+    "shots": [
+      "B5-1-installing.png",
+      "B5-2-message.png",
+      "B5-3-continued-in-english.png",
+      "B5-mail-1.png"
+    ],
+    "console_errors": [],
+    "layer_title_first": "Installing language files",
+    "layer_title": "Language files not installed",
+    "layer_text": "The language files could not be installed: the server this website runs on cannot connect to 127.0.0.1:8099. Easy Form Builder keeps working, in English. The details and the manual installation steps were emailed to owner@wp-test-ai.test.",
+    "layer_after_continue": 0,
+    "ok": true,
+    "state": {
+      "wplang": "sv_SE",
+      "scenario": {
+        "server": "http://127.0.0.1:8099/slow"
+      },
+      "files": [],
+      "runtime": {
+        "version": "4.2.0",
+        "synced_at": 1789905657,
+        "attempts": {
+          "sv_SE": {
+            "version": "4.2.0",
+            "at": 1789905657,
+            "outcome": "failed",
+            "reason": "unreachable"
+          }
+        },
+        "bg_at": 0
+      },
+      "lock": null,
+      "ws": {
+        "status": "unreachable",
+        "server": "http://127.0.0.1:8099/slow",
+        "failures": 1,
+        "first_failure_at": 1789905657,
+        "last_attempt_at": 1789905657,
+        "last_success_at": 0,
+        "last_error": "cURL error 28: Operation timed out after 10008 milliseconds with 0 bytes received"
+      },
+      "wporg": {
+        "status": "ok",
+        "last_attempt_at": 1789905657,
+        "last_error": ""
+      },
+      "notice": {
+        "episode_sent_at": 1789905657,
+        "episode_attempts": 0,
+        "last_sent_at": 1789905657,
+        "install_key": "5ac1fcb329e47c6f492fc064e783c819",
+        "install_sent_at": 1789905657
+      },
+      "packs": [],
+      "last_run": {
+        "at": 1789905646,
+        "reason": "inline",
+        "status": "complete",
+        "results": {
+          "sv_SE": "not_available"
+        }
+      },
+      "mails": [
+        {
+          "at": 1789905657,
+          "to": "owner@wp-test-ai.test",
+          "subject": "[wp-test-ai] Easy Form Builder could not install its language files",
+          "body": "Easy Form Builder could not install its translation into Swedish (sv_SE) on http://localhost/wp-test-ai/.\nThis happened when the plugin was opened in the WordPress dashboard.\nThe plugin keeps working normally, in English, until the translation is installed.\n\nWhat went wrong: the server this website runs on cannot connect to 127.0.0.1:8099.\nTechnical detail: cURL error 28: Operation timed out after 10008 milliseconds with 0 bytes received\n\nWhat you can do:\n1. Ask your hosting provider to allow outgoing HTTPS connections (port 443) from this server to 127.0.0.1:8099. The plugin installs the translation by itself as soon as it can connect.\n2. Or install the translation yourself, in a few minutes:\n   - Download Swedish (sv_SE): http://127.0.0.1:8099/slow/wp-json/wl/v1/translations/easy-form-builder/package/sv_SE\n   - Unzip it and upload the files to wp-content/languages/plugins/ on your server, replacing any file with the same name.\n   - Step-by-step guide: https://github.com/hassantafreshi/easy-form-builder/blob/HEAD/docs/language-packs/manual-install.md\n\nYou will not receive this email again for the same problem in the next 30 days.\n",
+          "request": "/wp-test-ai/wp-admin/admin-ajax.php"
+        }
+      ],
+      "http": [
+        {
+          "at": 1789905646,
+          "url": "http://127.0.0.1:8099/slow/wp-json/wl/v1/translations/easy-form-builder?version=4.2.0&locales=sv_SE&client=1.0.0",
+          "host": "127.0.0.1",
+          "status": "error: cURL error 28: Operation timed out after 10008 milliseconds with 0 bytes received"
+        },
+        {
+          "at": 1789905656,
+          "url": "https://api.wordpress.org/translations/plugins/1.0/?slug=easy-form-builder&version=4.2.0",
+          "host": "api.wordpress.org",
+          "status": "HTTP 200",
+          "ws_header": "absent",
+          "content_type": "application/json; charset=utf-8"
+        }
+      ],
+      "text_version": "1789905641"
+    }
+  },
+  "C1": {
+    "id": "C1",
+    "title": "The server plugin is not deployed yet (WordPress answers rest_no_route), nobody else has Swedish",
+    "locale": "sv_SE",
+    "config": {
+      "server": "http://127.0.0.1:8099/norest"
+    },
+    "shots": [
+      "C1-1-installing.png",
+      "C1-2-message.png",
+      "C1-3-continued-in-english.png"
+    ],
+    "console_errors": [],
+    "layer_title_first": "Installing language files",
+    "layer_title": "Language files not installed",
+    "layer_text": "The language files could not be installed: the language server answered with an error. Easy Form Builder keeps working, in English. It will be tried again automatically.",
+    "layer_after_continue": 0,
+    "ok": true,
+    "state": {
+      "wplang": "sv_SE",
+      "scenario": {
+        "server": "http://127.0.0.1:8099/norest"
+      },
+      "files": [],
+      "runtime": {
+        "version": "4.2.0",
+        "synced_at": 1789905668,
+        "attempts": {
+          "sv_SE": {
+            "version": "4.2.0",
+            "at": 1789905668,
+            "outcome": "failed",
+            "reason": "server"
+          }
+        },
+        "bg_at": 0
+      },
+      "lock": null,
+      "ws": {
+        "status": "server_error",
+        "server": "http://127.0.0.1:8099/norest",
+        "failures": 0,
+        "first_failure_at": 0,
+        "last_attempt_at": 1789905668,
+        "last_success_at": 0,
+        "last_error": "HTTP 404 rest_no_route"
+      },
+      "wporg": {
+        "status": "ok",
+        "last_attempt_at": 1789905668,
+        "last_error": ""
+      },
+      "notice": {
+        "episode_sent_at": 0,
+        "episode_attempts": 0,
+        "last_sent_at": 0,
+        "install_key": "",
+        "install_sent_at": 0
+      },
+      "packs": [],
+      "last_run": {
+        "at": 1789905666,
+        "reason": "inline",
+        "status": "complete",
+        "results": {
+          "sv_SE": "not_available"
+        }
+      },
+      "mails": [],
+      "http": [
+        {
+          "at": 1789905666,
+          "url": "http://127.0.0.1:8099/norest/wp-json/wl/v1/translations/easy-form-builder?version=4.2.0&locales=sv_SE&client=1.0.0",
+          "host": "127.0.0.1",
+          "status": "HTTP 404",
+          "ws_header": "absent",
+          "content_type": "application/json; charset=UTF-8"
+        },
+        {
+          "at": 1789905667,
+          "url": "https://api.wordpress.org/translations/plugins/1.0/?slug=easy-form-builder&version=4.2.0",
+          "host": "api.wordpress.org",
+          "status": "HTTP 200",
+          "ws_header": "absent",
+          "content_type": "application/json; charset=utf-8"
+        }
+      ],
+      "text_version": "1789905662"
+    }
+  },
+  "C2": {
+    "id": "C2",
+    "title": "The language server answers HTTP 500",
+    "locale": "sv_SE",
+    "config": {
+      "server": "http://127.0.0.1:8099/error500"
+    },
+    "shots": [
+      "C2-1-installing.png",
+      "C2-2-message.png",
+      "C2-3-continued-in-english.png"
+    ],
+    "console_errors": [],
+    "layer_title_first": "Installing language files",
+    "layer_title": "Language files not installed",
+    "layer_text": "The language files could not be installed: the language server answered with an error. Easy Form Builder keeps working, in English. It will be tried again automatically.",
+    "layer_after_continue": 0,
+    "ok": true,
+    "state": {
+      "wplang": "sv_SE",
+      "scenario": {
+        "server": "http://127.0.0.1:8099/error500"
+      },
+      "files": [],
+      "runtime": {
+        "version": "4.2.0",
+        "synced_at": 1789905677,
+        "attempts": {
+          "sv_SE": {
+            "version": "4.2.0",
+            "at": 1789905677,
+            "outcome": "failed",
+            "reason": "server"
+          }
+        },
+        "bg_at": 0
+      },
+      "lock": null,
+      "ws": {
+        "status": "server_error",
+        "server": "http://127.0.0.1:8099/error500",
+        "failures": 0,
+        "first_failure_at": 0,
+        "last_attempt_at": 1789905677,
+        "last_success_at": 0,
+        "last_error": "HTTP 500"
+      },
+      "wporg": {
+        "status": "ok",
+        "last_attempt_at": 1789905677,
+        "last_error": ""
+      },
+      "notice": {
+        "episode_sent_at": 0,
+        "episode_attempts": 0,
+        "last_sent_at": 0,
+        "install_key": "",
+        "install_sent_at": 0
+      },
+      "packs": [],
+      "last_run": {
+        "at": 1789905676,
+        "reason": "inline",
+        "status": "complete",
+        "results": {
+          "sv_SE": "not_available"
+        }
+      },
+      "mails": [],
+      "http": [
+        {
+          "at": 1789905676,
+          "url": "http://127.0.0.1:8099/error500/wp-json/wl/v1/translations/easy-form-builder?version=4.2.0&locales=sv_SE&client=1.0.0",
+          "host": "127.0.0.1",
+          "status": "HTTP 500",
+          "ws_header": "1.0.0",
+          "content_type": "application/json; charset=UTF-8"
+        },
+        {
+          "at": 1789905676,
+          "url": "https://api.wordpress.org/translations/plugins/1.0/?slug=easy-form-builder&version=4.2.0",
+          "host": "api.wordpress.org",
+          "status": "HTTP 200",
+          "ws_header": "absent",
+          "content_type": "application/json; charset=utf-8"
+        }
+      ],
+      "text_version": "1789905671"
+    }
+  },
+  "C3": {
+    "id": "C3",
+    "title": "The package does not match its checksum (damaged download)",
+    "locale": "sv_SE",
+    "config": {
+      "server": "http://127.0.0.1:8099/damaged"
+    },
+    "shots": [
+      "C3-1-installing.png",
+      "C3-2-message.png",
+      "C3-3-continued-in-english.png"
+    ],
+    "console_errors": [],
+    "layer_title_first": "Installing language files",
+    "layer_title": "Language files not installed",
+    "layer_text": "The language files could not be installed: the downloaded file was damaged. Easy Form Builder keeps working, in English. It will be tried again automatically.",
+    "layer_after_continue": 0,
+    "ok": true,
+    "state": {
+      "wplang": "sv_SE",
+      "scenario": {
+        "server": "http://127.0.0.1:8099/damaged"
+      },
+      "files": [],
+      "runtime": {
+        "version": "4.2.0",
+        "synced_at": 1789905687,
+        "attempts": {
+          "sv_SE": {
+            "version": "4.2.0",
+            "at": 1789905687,
+            "outcome": "failed",
+            "reason": "package"
+          }
+        },
+        "bg_at": 0
+      },
+      "lock": null,
+      "ws": {
+        "status": "ok",
+        "server": "http://127.0.0.1:8099/damaged",
+        "failures": 0,
+        "first_failure_at": 0,
+        "last_attempt_at": 1789905687,
+        "last_success_at": 1789905687,
+        "last_error": ""
+      },
+      "wporg": {
+        "status": "ok",
+        "last_attempt_at": 1789905687,
+        "last_error": ""
+      },
+      "notice": {
+        "episode_sent_at": 0,
+        "episode_attempts": 0,
+        "last_sent_at": 0,
+        "install_key": "",
+        "install_sent_at": 0
+      },
+      "packs": [],
+      "last_run": {
+        "at": 1789905685,
+        "reason": "inline",
+        "status": "complete",
+        "results": {
+          "sv_SE": "failed_ws:checksum_mismatch"
+        }
+      },
+      "mails": [],
+      "http": [
+        {
+          "at": 1789905685,
+          "url": "http://127.0.0.1:8099/damaged/wp-json/wl/v1/translations/easy-form-builder?version=4.2.0&locales=sv_SE&client=1.0.0",
+          "host": "127.0.0.1",
+          "status": "HTTP 200",
+          "ws_header": "1.0.0",
+          "content_type": "application/json; charset=UTF-8"
+        },
+        {
+          "at": 1789905686,
+          "url": "http://127.0.0.1:8099/damaged/wp-json/wl/v1/translations/easy-form-builder/package/sv_SE",
+          "host": "127.0.0.1",
+          "status": "HTTP 200",
+          "ws_header": "1.0.0",
+          "content_type": "application/zip"
+        },
+        {
+          "at": 1789905686,
+          "url": "https://api.wordpress.org/translations/plugins/1.0/?slug=easy-form-builder&version=4.2.0",
+          "host": "api.wordpress.org",
+          "status": "HTTP 200",
+          "ws_header": "absent",
+          "content_type": "application/json; charset=utf-8"
+        }
+      ],
+      "text_version": "1789905681"
+    }
+  },
+  "C4": {
+    "id": "C4",
+    "title": "Nobody has a Swedish translation (real WhiteStudio server, wordpress.org has none either)",
+    "locale": "sv_SE",
+    "config": {
+      "server": "http://127.0.0.1/ws"
+    },
+    "shots": [
+      "C4-1-installing.png",
+      "C4-2-message.png",
+      "C4-3-continued-in-english.png"
+    ],
+    "console_errors": [],
+    "layer_title_first": "Installing language files",
+    "layer_title": "No translation yet",
+    "layer_text": "There is no translation of Easy Form Builder into Swedish (sv_SE) yet, so it stays in English.",
+    "layer_after_continue": 0,
+    "layer_on_next_view": 0,
+    "ok": true,
+    "state": {
+      "wplang": "sv_SE",
+      "scenario": {
+        "server": "http://127.0.0.1/ws"
+      },
+      "files": [],
+      "runtime": {
+        "version": "4.2.0",
+        "synced_at": 1789905698,
+        "attempts": {
+          "sv_SE": {
+            "version": "4.2.0",
+            "at": 1789905698,
+            "outcome": "not_available",
+            "reason": ""
+          }
+        },
+        "bg_at": 1789905701
+      },
+      "lock": null,
+      "ws": {
+        "status": "ok",
+        "server": "http://127.0.0.1/ws",
+        "failures": 0,
+        "first_failure_at": 0,
+        "last_attempt_at": 1789905704,
+        "last_success_at": 1789905704,
+        "last_error": ""
+      },
+      "wporg": {
+        "status": "ok",
+        "last_attempt_at": 1789905704,
+        "last_error": ""
+      },
+      "notice": {
+        "episode_sent_at": 0,
+        "episode_attempts": 0,
+        "last_sent_at": 0,
+        "install_key": "",
+        "install_sent_at": 0
+      },
+      "packs": [],
+      "last_run": {
+        "at": 1789905702,
+        "reason": "inline",
+        "status": "complete",
+        "results": {
+          "sv_SE": "not_available"
+        }
+      },
+      "mails": [],
+      "http": [
+        {
+          "at": 1789905696,
+          "url": "http://127.0.0.1/ws/wp-json/wl/v1/translations/easy-form-builder?version=4.2.0&locales=sv_SE&client=1.0.0",
+          "host": "127.0.0.1",
+          "status": "HTTP 200",
+          "ws_header": "1.0.0",
+          "content_type": "application/json; charset=UTF-8"
+        },
+        {
+          "at": 1789905697,
+          "url": "https://api.wordpress.org/translations/plugins/1.0/?slug=easy-form-builder&version=4.2.0",
+          "host": "api.wordpress.org",
+          "status": "HTTP 200",
+          "ws_header": "absent",
+          "content_type": "application/json; charset=utf-8"
+        },
+        {
+          "at": 1789905702,
+          "url": "http://127.0.0.1/ws/wp-json/wl/v1/translations/easy-form-builder?version=4.2.0&locales=sv_SE&client=1.0.0",
+          "host": "127.0.0.1",
+          "status": "HTTP 200",
+          "ws_header": "1.0.0",
+          "content_type": "application/json; charset=UTF-8"
+        },
+        {
+          "at": 1789905703,
+          "url": "https://api.wordpress.org/translations/plugins/1.0/?slug=easy-form-builder&version=4.2.0",
+          "host": "api.wordpress.org",
+          "status": "HTTP 200",
+          "ws_header": "absent",
+          "content_type": "application/json; charset=utf-8"
+        }
+      ],
+      "text_version": "1789905690"
+    }
+  },
+  "D1": {
+    "id": "D1",
+    "title": "DISALLOW_FILE_MODS is on (WordPress itself takes install_languages away from everyone): nothing on screen, an email at once",
+    "locale": "sv_SE",
+    "config": {
+      "server": "http://127.0.0.1/ws",
+      "constants": {
+        "DISALLOW_FILE_MODS": true
+      }
+    },
+    "shots": [
+      "D1-1-panel-no-layer.png",
+      "D1-mail-1.png"
+    ],
+    "console_errors": [],
+    "administrator_can_install_languages": false,
+    "layer_count": 0,
+    "ok": true,
+    "state": {
+      "wplang": "sv_SE",
+      "scenario": {
+        "server": "http://127.0.0.1/ws",
+        "constants": {
+          "DISALLOW_FILE_MODS": true
+        }
+      },
+      "files": [],
+      "runtime": {
+        "version": "4.2.0",
+        "synced_at": 1789906547,
+        "attempts": {
+          "sv_SE": {
+            "version": "4.2.0",
+            "at": 1789906547,
+            "outcome": "failed",
+            "reason": "write"
+          }
+        },
+        "bg_at": 0
+      },
+      "lock": null,
+      "ws": {
+        "status": "never",
+        "server": "",
+        "failures": 0,
+        "first_failure_at": 0,
+        "last_attempt_at": 0,
+        "last_success_at": 0,
+        "last_error": ""
+      },
+      "wporg": {
+        "status": "never",
+        "last_attempt_at": 0,
+        "last_error": ""
+      },
+      "notice": {
+        "episode_sent_at": 0,
+        "episode_attempts": 0,
+        "last_sent_at": 0,
+        "install_key": "96a22cd2b2afe67e071274f674e7d615",
+        "install_sent_at": 1789906547
+      },
+      "packs": [],
+      "last_run": {
+        "at": 1789906547,
+        "reason": "inline",
+        "status": "file_mods_disallowed",
+        "results": []
+      },
+      "mails": [
+        {
+          "at": 1789906547,
+          "to": "owner@wp-test-ai.test",
+          "subject": "[wp-test-ai] Easy Form Builder could not install its language files",
+          "body": "Easy Form Builder could not install its translation into Swedish (sv_SE) on http://localhost/wp-test-ai/.\nThis happened when the plugin was opened in the WordPress dashboard.\nThe plugin keeps working normally, in English, until the translation is installed.\n\nWhat went wrong: file changes are switched off on this site (DISALLOW_FILE_MODS).\nTechnical detail: file_mods_disallowed\n\nWhat you can do:\n1. Allow file changes by removing DISALLOW_FILE_MODS from wp-config.php, or install the files yourself as described below.\n2. Or install the translation yourself, in a few minutes:\n   - Download Swedish (sv_SE): http://127.0.0.1/ws/wp-json/wl/v1/translations/easy-form-builder/package/sv_SE\n   - Unzip it and upload the files to wp-content/languages/plugins/ on your server, replacing any file with the same name.\n   - Step-by-step guide: https://github.com/hassantafreshi/easy-form-builder/blob/HEAD/docs/language-packs/manual-install.md\n\nYou will not receive this email again for the same problem in the next 30 days.\n",
+          "request": "/wp-test-ai/wp-admin/admin-ajax.php"
+        }
+      ],
+      "http": [],
+      "text_version": "1789906543"
+    }
+  },
+  "D2": {
+    "id": "D2",
+    "title": "The filesystem needs FTP credentials (FS_METHOD = ftpext)",
+    "locale": "sv_SE",
+    "config": {
+      "server": "http://127.0.0.1/ws",
+      "constants": {
+        "FS_METHOD": "ftpext"
+      }
+    },
+    "shots": [
+      "D2-1-installing.png",
+      "D2-2-message.png",
+      "D2-3-continued-in-english.png",
+      "D2-mail-1.png"
+    ],
+    "console_errors": [],
+    "layer_title_first": "Installing language files",
+    "layer_title": "Language files not installed",
+    "layer_text": "The language files could not be installed: this server only lets WordPress write files with FTP credentials, which an automatic installation cannot use. Easy Form Builder keeps working, in English. The details and the manual installation steps were emailed to owner@wp-test-ai.test.",
+    "layer_after_continue": 0,
+    "ok": true,
+    "state": {
+      "wplang": "sv_SE",
+      "scenario": {
+        "server": "http://127.0.0.1/ws",
+        "constants": {
+          "FS_METHOD": "ftpext"
+        }
+      },
+      "files": [],
+      "runtime": {
+        "version": "4.2.0",
+        "synced_at": 1789905736,
+        "attempts": {
+          "sv_SE": {
+            "version": "4.2.0",
+            "at": 1789905736,
+            "outcome": "failed",
+            "reason": "write"
+          }
+        },
+        "bg_at": 0
+      },
+      "lock": null,
+      "ws": {
+        "status": "never",
+        "server": "",
+        "failures": 0,
+        "first_failure_at": 0,
+        "last_attempt_at": 0,
+        "last_success_at": 0,
+        "last_error": ""
+      },
+      "wporg": {
+        "status": "never",
+        "last_attempt_at": 0,
+        "last_error": ""
+      },
+      "notice": {
+        "episode_sent_at": 0,
+        "episode_attempts": 0,
+        "last_sent_at": 0,
+        "install_key": "b2dfb2c12a39d75ed279c27f689f51a7",
+        "install_sent_at": 1789905736
+      },
+      "packs": [],
+      "last_run": {
+        "at": 1789905736,
+        "reason": "inline",
+        "status": "filesystem_not_direct",
+        "results": []
+      },
+      "mails": [
+        {
+          "at": 1789905736,
+          "to": "owner@wp-test-ai.test",
+          "subject": "[wp-test-ai] Easy Form Builder could not install its language files",
+          "body": "Easy Form Builder could not install its translation into Swedish (sv_SE) on http://localhost/wp-test-ai/.\nThis happened when the plugin was opened in the WordPress dashboard.\nThe plugin keeps working normally, in English, until the translation is installed.\n\nWhat went wrong: this server only lets WordPress write files with FTP credentials, which an automatic installation cannot use.\nTechnical detail: filesystem_not_direct\n\nWhat you can do:\n1. Ask your hosting provider to let WordPress write files directly, or install the files yourself as described below.\n2. Or install the translation yourself, in a few minutes:\n   - Download Swedish (sv_SE): http://127.0.0.1/ws/wp-json/wl/v1/translations/easy-form-builder/package/sv_SE\n   - Unzip it and upload the files to wp-content/languages/plugins/ on your server, replacing any file with the same name.\n   - Step-by-step guide: https://github.com/hassantafreshi/easy-form-builder/blob/HEAD/docs/language-packs/manual-install.md\n\nYou will not receive this email again for the same problem in the next 30 days.\n",
+          "request": "/wp-test-ai/wp-admin/admin-ajax.php"
+        }
+      ],
+      "http": [],
+      "text_version": "1789905731"
+    }
+  },
+  "D3": {
+    "id": "D3",
+    "title": "The languages folder cannot be created or written",
+    "locale": "sv_SE",
+    "config": {
+      "server": "http://127.0.0.1/ws",
+      "constants": {
+        "WP_LANG_DIR": "C:/xampp/htdocs/wp-test-ai/wp-content/wptai-blockfile/languages"
+      }
+    },
+    "shots": [
+      "D3-1-installing.png",
+      "D3-2-message.png",
+      "D3-3-continued-in-english.png",
+      "D3-mail-1.png"
+    ],
+    "console_errors": [],
+    "layer_title_first": "Installing language files",
+    "layer_title": "Language files not installed",
+    "layer_text": "The language files could not be installed: WordPress cannot write to the folder wp-content/wptai-blockfile/languages/plugins/. Easy Form Builder keeps working, in English. The details and the manual installation steps were emailed to owner@wp-test-ai.test.",
+    "layer_after_continue": 0,
+    "ok": true,
+    "state": {
+      "wplang": "sv_SE",
+      "scenario": {
+        "server": "http://127.0.0.1/ws",
+        "constants": {
+          "WP_LANG_DIR": "C:/xampp/htdocs/wp-test-ai/wp-content/wptai-blockfile/languages"
+        }
+      },
+      "files": [],
+      "runtime": {
+        "version": "4.2.0",
+        "synced_at": 1789905745,
+        "attempts": {
+          "sv_SE": {
+            "version": "4.2.0",
+            "at": 1789905745,
+            "outcome": "failed",
+            "reason": "write"
+          }
+        },
+        "bg_at": 0
+      },
+      "lock": null,
+      "ws": {
+        "status": "never",
+        "server": "",
+        "failures": 0,
+        "first_failure_at": 0,
+        "last_attempt_at": 0,
+        "last_success_at": 0,
+        "last_error": ""
+      },
+      "wporg": {
+        "status": "never",
+        "last_attempt_at": 0,
+        "last_error": ""
+      },
+      "notice": {
+        "episode_sent_at": 0,
+        "episode_attempts": 0,
+        "last_sent_at": 0,
+        "install_key": "e8629a40dc498f19ee43c30aa378819b",
+        "install_sent_at": 1789905745
+      },
+      "packs": [],
+      "last_run": {
+        "at": 1789905745,
+        "reason": "inline",
+        "status": "languages_dir_missing",
+        "results": []
+      },
+      "mails": [
+        {
+          "at": 1789905745,
+          "to": "owner@wp-test-ai.test",
+          "subject": "[wp-test-ai] Easy Form Builder could not install its language files",
+          "body": "Easy Form Builder could not install its translation into Swedish (sv_SE) on http://localhost/wp-test-ai/.\nThis happened when the plugin was opened in the WordPress dashboard.\nThe plugin keeps working normally, in English, until the translation is installed.\n\nWhat went wrong: WordPress cannot write to the folder wp-content/wptai-blockfile/languages/plugins/.\nTechnical detail: languages_dir_missing\n\nWhat you can do:\n1. Make the folder wp-content/wptai-blockfile/languages/plugins/ writable by WordPress. The plugin installs the translation by itself afterwards.\n2. Or install the translation yourself, in a few minutes:\n   - Download Swedish (sv_SE): http://127.0.0.1/ws/wp-json/wl/v1/translations/easy-form-builder/package/sv_SE\n   - Unzip it and upload the files to wp-content/wptai-blockfile/languages/plugins/ on your server, replacing any file with the same name.\n   - Step-by-step guide: https://github.com/hassantafreshi/easy-form-builder/blob/HEAD/docs/language-packs/manual-install.md\n\nYou will not receive this email again for the same problem in the next 30 days.\n",
+          "request": "/wp-test-ai/wp-admin/admin-ajax.php"
+        }
+      ],
+      "http": [],
+      "text_version": "1789905739"
+    }
+  },
+  "E1": {
+    "id": "E1",
+    "title": "The install request cannot be started from the page (an error page instead of JSON)",
+    "locale": "ru_RU",
+    "config": {
+      "server": "http://127.0.0.1/ws"
+    },
+    "shots": [
+      "E1-1-installing.png",
+      "E1-2-message.png"
+    ],
+    "console_errors": [],
+    "layer_title": "Language files not installed",
+    "layer_text": "The installation could not be started from this page. You can continue in English; it will be tried again in the background.",
+    "ok": true,
+    "state": {
+      "wplang": "sv_SE",
+      "scenario": {
+        "server": "http://127.0.0.1/ws"
+      },
+      "files": [],
+      "runtime": [],
+      "lock": null,
+      "ws": null,
+      "wporg": null,
+      "notice": null,
+      "packs": null,
+      "last_run": null,
+      "mails": [],
+      "http": [],
+      "text_version": "1789905748"
+    }
+  },
+  "E2": {
+    "id": "E2",
+    "title": "The page was open too long: its security token expired",
+    "locale": "ru_RU",
+    "config": {
+      "server": "http://127.0.0.1/ws"
+    },
+    "shots": [
+      "E2-1-installing.png",
+      "E2-2-message.png"
+    ],
+    "console_errors": [],
+    "layer_title": "Language files not installed",
+    "layer_text": "You are not allowed to install language files.",
+    "ok": true,
+    "state": {
+      "wplang": "ru_RU",
+      "scenario": {
+        "server": "http://127.0.0.1/ws"
+      },
+      "files": [],
+      "runtime": [],
+      "lock": null,
+      "ws": null,
+      "wporg": null,
+      "notice": null,
+      "packs": null,
+      "last_run": null,
+      "mails": [],
+      "http": [],
+      "text_version": "1789905754"
+    }
+  },
+  "E3": {
+    "id": "E3",
+    "title": "The install takes longer than 90 seconds",
+    "locale": "ru_RU",
+    "config": {
+      "server": "http://127.0.0.1/ws"
+    },
+    "shots": [
+      "E3-1-installing.png",
+      "E3-2-message-after-90s.png"
+    ],
+    "console_errors": [],
+    "layer_title": "Still installing",
+    "layer_text": "This is taking longer than expected. You can continue in English; the installation carries on in the background.",
+    "ok": true,
+    "state": {
+      "wplang": "ru_RU",
+      "scenario": {
+        "server": "http://127.0.0.1/ws"
+      },
+      "files": [],
+      "runtime": [],
+      "lock": null,
+      "ws": null,
+      "wporg": null,
+      "notice": null,
+      "packs": null,
+      "last_run": null,
+      "mails": [],
+      "http": [],
+      "text_version": "1789905763"
+    }
+  },
+  "E4": {
+    "id": "E4",
+    "title": "Failure on a screen that does not block (the Dashboard): the notice turns into the message",
+    "locale": "sv_SE",
+    "config": {
+      "server": "http://127.0.0.1:9"
+    },
+    "shots": [
+      "E4-1-notice-installing.png",
+      "E4-2-notice-failed.png",
+      "E4-mail-1.png"
+    ],
+    "console_errors": [],
+    "notice_text": "Easy Form Builder is installing its language files (Swedish (sv_SE))…",
+    "notice_failed_text": "The language files could not be installed: the server this website runs on cannot connect to 127.0.0.1:9. Easy Form Builder keeps working, in English. The details and the manual installation steps were emailed to owner@wp-test-ai.test.",
+    "ok": true,
+    "state": {
+      "wplang": "sv_SE",
+      "scenario": {
+        "server": "http://127.0.0.1:9"
+      },
+      "files": [],
+      "runtime": {
+        "version": "4.2.0",
+        "synced_at": 1789905869,
+        "attempts": {
+          "sv_SE": {
+            "version": "4.2.0",
+            "at": 1789905869,
+            "outcome": "failed",
+            "reason": "unreachable"
+          }
+        },
+        "bg_at": 0
+      },
+      "lock": null,
+      "ws": {
+        "status": "unreachable",
+        "server": "http://127.0.0.1:9",
+        "failures": 1,
+        "first_failure_at": 1789905869,
+        "last_attempt_at": 1789905869,
+        "last_success_at": 0,
+        "last_error": "cURL error 7: Failed to connect to 127.0.0.1 port 9 after 2034 ms: Couldn't connect to server"
+      },
+      "wporg": {
+        "status": "ok",
+        "last_attempt_at": 1789905869,
+        "last_error": ""
+      },
+      "notice": {
+        "episode_sent_at": 1789905869,
+        "episode_attempts": 0,
+        "last_sent_at": 1789905869,
+        "install_key": "5ac1fcb329e47c6f492fc064e783c819",
+        "install_sent_at": 1789905869
+      },
+      "packs": [],
+      "last_run": {
+        "at": 1789905866,
+        "reason": "inline",
+        "status": "complete",
+        "results": {
+          "sv_SE": "not_available"
+        }
+      },
+      "mails": [
+        {
+          "at": 1789905869,
+          "to": "owner@wp-test-ai.test",
+          "subject": "[wp-test-ai] Easy Form Builder could not install its language files",
+          "body": "Easy Form Builder could not install its translation into Swedish (sv_SE) on http://localhost/wp-test-ai/.\nThis happened when the plugin was opened in the WordPress dashboard.\nThe plugin keeps working normally, in English, until the translation is installed.\n\nWhat went wrong: the server this website runs on cannot connect to 127.0.0.1:9.\nTechnical detail: cURL error 7: Failed to connect to 127.0.0.1 port 9 after 2034 ms: Couldn't connect to server\n\nWhat you can do:\n1. Ask your hosting provider to allow outgoing HTTPS connections (port 443) from this server to 127.0.0.1:9. The plugin installs the translation by itself as soon as it can connect.\n2. Or install the translation yourself, in a few minutes:\n   - Download Swedish (sv_SE): http://127.0.0.1:9/wp-json/wl/v1/translations/easy-form-builder/package/sv_SE\n   - Unzip it and upload the files to wp-content/languages/plugins/ on your server, replacing any file with the same name.\n   - Step-by-step guide: https://github.com/hassantafreshi/easy-form-builder/blob/HEAD/docs/language-packs/manual-install.md\n\nYou will not receive this email again for the same problem in the next 30 days.\n",
+          "request": "/wp-test-ai/wp-admin/admin-ajax.php"
+        }
+      ],
+      "http": [
+        {
+          "at": 1789905866,
+          "url": "http://127.0.0.1:9/wp-json/wl/v1/translations/easy-form-builder?version=4.2.0&locales=sv_SE&client=1.0.0",
+          "host": "127.0.0.1",
+          "status": "error: cURL error 7: Failed to connect to 127.0.0.1 port 9 after 2034 ms: Couldn't connect to server"
+        },
+        {
+          "at": 1789905868,
+          "url": "https://api.wordpress.org/translations/plugins/1.0/?slug=easy-form-builder&version=4.2.0",
+          "host": "api.wordpress.org",
+          "status": "HTTP 200",
+          "ws_header": "absent",
+          "content_type": "application/json; charset=utf-8"
+        }
+      ],
+      "text_version": "1789905858"
+    }
+  },
+  "F1": {
+    "id": "F1",
+    "title": "A visitor opens a form page while the language server is unreachable",
+    "locale": "sv_SE",
+    "config": {
+      "server": "http://127.0.0.1:9"
+    },
+    "shots": [
+      "F1-1-visitor-sees-the-form-in-english.png",
+      "F1-mail-1.png"
+    ],
+    "console_errors": [],
+    "layer_or_notice_for_visitor": 0,
+    "ok": true,
+    "state": {
+      "wplang": "sv_SE",
+      "scenario": {
+        "server": "http://127.0.0.1:9"
+      },
+      "files": [],
+      "runtime": {
+        "version": "4.2.0",
+        "synced_at": 1789905878,
+        "attempts": {
+          "sv_SE": {
+            "version": "4.2.0",
+            "at": 1789905878,
+            "outcome": "failed",
+            "reason": "unreachable"
+          }
+        },
+        "bg_at": 0
+      },
+      "lock": null,
+      "ws": {
+        "status": "unreachable",
+        "server": "http://127.0.0.1:9",
+        "failures": 1,
+        "first_failure_at": 1789905878,
+        "last_attempt_at": 1789905878,
+        "last_success_at": 0,
+        "last_error": "cURL error 7: Failed to connect to 127.0.0.1 port 9 after 2018 ms: Couldn't connect to server"
+      },
+      "wporg": {
+        "status": "ok",
+        "last_attempt_at": 1789905878,
+        "last_error": ""
+      },
+      "notice": {
+        "episode_sent_at": 1789905878,
+        "episode_attempts": 0,
+        "last_sent_at": 1789905878,
+        "install_key": "5ac1fcb329e47c6f492fc064e783c819",
+        "install_sent_at": 1789905878
+      },
+      "packs": [],
+      "last_run": {
+        "at": 1789905875,
+        "reason": "inline",
+        "status": "complete",
+        "results": {
+          "sv_SE": "not_available"
+        }
+      },
+      "mails": [
+        {
+          "at": 1789905878,
+          "to": "owner@wp-test-ai.test",
+          "subject": "[wp-test-ai] Easy Form Builder could not install its language files",
+          "body": "Easy Form Builder could not install its translation into Swedish (sv_SE) on http://localhost/wp-test-ai/.\nThis happened when a visitor opened a page with a form; the form was shown in English.\nThe plugin keeps working normally, in English, until the translation is installed.\n\nWhat went wrong: the server this website runs on cannot connect to 127.0.0.1:9.\nTechnical detail: cURL error 7: Failed to connect to 127.0.0.1 port 9 after 2018 ms: Couldn't connect to server\n\nWhat you can do:\n1. Ask your hosting provider to allow outgoing HTTPS connections (port 443) from this server to 127.0.0.1:9. The plugin installs the translation by itself as soon as it can connect.\n2. Or install the translation yourself, in a few minutes:\n   - Download Swedish (sv_SE): http://127.0.0.1:9/wp-json/wl/v1/translations/easy-form-builder/package/sv_SE\n   - Unzip it and upload the files to wp-content/languages/plugins/ on your server, replacing any file with the same name.\n   - Step-by-step guide: https://github.com/hassantafreshi/easy-form-builder/blob/HEAD/docs/language-packs/manual-install.md\n\nYou will not receive this email again for the same problem in the next 30 days.\n",
+          "request": "/wp-test-ai/wp-admin/admin-ajax.php"
+        }
+      ],
+      "http": [
+        {
+          "at": 1789905875,
+          "url": "http://127.0.0.1:9/wp-json/wl/v1/translations/easy-form-builder?version=4.2.0&locales=sv_SE&client=1.0.0",
+          "host": "127.0.0.1",
+          "status": "error: cURL error 7: Failed to connect to 127.0.0.1 port 9 after 2018 ms: Couldn't connect to server"
+        },
+        {
+          "at": 1789905877,
+          "url": "https://api.wordpress.org/translations/plugins/1.0/?slug=easy-form-builder&version=4.2.0",
+          "host": "api.wordpress.org",
+          "status": "HTTP 200",
+          "ws_header": "absent",
+          "content_type": "application/json; charset=utf-8"
+        }
+      ],
+      "text_version": "1789905872"
+    }
+  },
+  "F2": {
+    "id": "F2",
+    "title": "An editor (no permission to install language files) opens the Dashboard: nothing shown, installs silently",
+    "locale": "ru_RU",
+    "config": {
+      "server": "http://127.0.0.1/ws"
+    },
+    "shots": [
+      "F2-1-editor-dashboard.png"
+    ],
+    "console_errors": [],
+    "layer_or_notice_for_editor": 0,
+    "pack_files_after": [
+      "easy-form-builder-ru_RU.l10n.php",
+      "easy-form-builder-ru_RU.mo",
+      "easy-form-builder-ru_RU.po"
+    ],
+    "ok": true,
+    "state": {
+      "wplang": "ru_RU",
+      "scenario": {
+        "server": "http://127.0.0.1/ws"
+      },
+      "files": [
+        {
+          "name": "easy-form-builder-ru_RU.l10n.php",
+          "size": 297624
+        },
+        {
+          "name": "easy-form-builder-ru_RU.mo",
+          "size": 339192
+        },
+        {
+          "name": "easy-form-builder-ru_RU.po",
+          "size": 568669
+        }
+      ],
+      "runtime": {
+        "version": "4.2.0",
+        "synced_at": 1789905888,
+        "attempts": {
+          "ru_RU": {
+            "version": "4.2.0",
+            "at": 1789905888,
+            "outcome": "installed",
+            "reason": ""
+          }
+        },
+        "bg_at": 0
+      },
+      "lock": null,
+      "ws": {
+        "status": "ok",
+        "server": "http://127.0.0.1/ws",
+        "failures": 0,
+        "first_failure_at": 0,
+        "last_attempt_at": 1789905888,
+        "last_success_at": 1789905888,
+        "last_error": ""
+      },
+      "wporg": {
+        "status": "never",
+        "last_attempt_at": 0,
+        "last_error": ""
+      },
+      "notice": {
+        "episode_sent_at": 0,
+        "episode_attempts": 0,
+        "last_sent_at": 0,
+        "install_key": "",
+        "install_sent_at": 0
+      },
+      "packs": {
+        "ru_RU": {
+          "source": "ws",
+          "version": "4.2.0",
+          "updated": "2026-09-19 21:19:45",
+          "sha256": "26242a64d9fe2fc801cf647de82489e299e8f10ffe0df04e21dcdb74f6b8a6a2",
+          "installed_at": 1789905888
+        }
+      },
+      "last_run": {
+        "at": 1789905886,
+        "reason": "inline",
+        "status": "complete",
+        "results": {
+          "ru_RU": "installed_ws"
+        }
+      },
+      "mails": [],
+      "http": [
+        {
+          "at": 1789905886,
+          "url": "http://127.0.0.1/ws/wp-json/wl/v1/translations/easy-form-builder?version=4.2.0&locales=ru_RU&client=1.0.0",
+          "host": "127.0.0.1",
+          "status": "HTTP 200",
+          "ws_header": "1.0.0",
+          "content_type": "application/json; charset=UTF-8"
+        },
+        {
+          "at": 1789905888,
+          "url": "http://127.0.0.1/ws/wp-json/wl/v1/translations/easy-form-builder/package/ru_RU?fp=…",
+          "host": "127.0.0.1",
+          "status": "HTTP 200",
+          "ws_header": "1.0.0",
+          "content_type": "application/zip"
+        }
+      ],
+      "text_version": "1789905888"
+    }
+  },
+  "F3": {
+    "id": "F3",
+    "title": "The language server has been unreachable for 4 days: the outage email (a cron-style run)",
+    "locale": "sv_SE",
+    "config": {
+      "server": "http://127.0.0.1:8099/firewall"
+    },
+    "shots": [
+      "F3-mail-1.png"
+    ],
+    "console_errors": [],
+    "first_run_status": "complete",
+    "mails_after_first_run": 1,
+    "mails_after_second_run": 1,
+    "ok": true,
+    "state": {
+      "wplang": "sv_SE",
+      "scenario": {
+        "server": "http://127.0.0.1:8099/firewall"
+      },
+      "files": [],
+      "runtime": {
+        "version": "4.2.0",
+        "synced_at": 1789905900,
+        "attempts": [],
+        "bg_at": 0
+      },
+      "lock": null,
+      "ws": {
+        "status": "unreachable",
+        "server": "http://127.0.0.1:8099/firewall",
+        "failures": 4,
+        "first_failure_at": 1789560296,
+        "last_attempt_at": 1789905900,
+        "last_success_at": 0,
+        "last_error": "HTTP 403 from something other than the language server (firewall, proxy or bot protection)"
+      },
+      "wporg": {
+        "status": "ok",
+        "last_attempt_at": 1789905900,
+        "last_error": ""
+      },
+      "notice": {
+        "episode_sent_at": 1789905898,
+        "episode_attempts": 1,
+        "last_sent_at": 1789905898,
+        "install_key": "",
+        "install_sent_at": 0
+      },
+      "packs": [],
+      "last_run": {
+        "at": 1789905899,
+        "reason": "manual",
+        "status": "complete",
+        "results": {
+          "sv_SE": "not_available"
+        }
+      },
+      "mails": [
+        {
+          "at": 1789905898,
+          "to": "owner@wp-test-ai.test",
+          "subject": "[wp-test-ai] Easy Form Builder could not download its translations",
+          "body": "Easy Form Builder on http://localhost/wp-test-ai/ could not download its translation files from the WhiteStudio server (127.0.0.1:8099), because the server this website runs on cannot connect to it.\nNothing is broken: the plugin keeps working, and every translation that was already installed stays in place.\n\nLanguages affected: sv_SE\nFailing since: 2026-09-16 12:04 UTC\nLast error: HTTP 403 from something other than the language server (firewall, proxy or bot protection)\n\nThese languages have no translation installed: sv_SE\n\nWhat you can do:\n1. Ask your hosting provider to allow outgoing HTTPS connections (port 443) from this server to 127.0.0.1:8099.\n2. Or install the translation files yourself by following this short guide:\n   https://github.com/hassantafreshi/easy-form-builder/blob/HEAD/docs/language-packs/manual-install.md\n\nYou will not receive this email again for this problem.\n",
+          "request": "/wp-test-ai/"
+        }
+      ],
+      "http": [
+        {
+          "at": 1789905897,
+          "url": "http://127.0.0.1:8099/firewall/wp-json/wl/v1/translations/easy-form-builder?version=4.2.0&locales=sv_SE&client=1.0.0",
+          "host": "127.0.0.1",
+          "status": "HTTP 403",
+          "ws_header": "absent",
+          "content_type": "text/html; charset=UTF-8"
+        },
+        {
+          "at": 1789905897,
+          "url": "https://api.wordpress.org/translations/plugins/1.0/?slug=easy-form-builder&version=4.2.0",
+          "host": "api.wordpress.org",
+          "status": "HTTP 200",
+          "ws_header": "absent",
+          "content_type": "application/json; charset=utf-8"
+        },
+        {
+          "at": 1789905899,
+          "url": "http://127.0.0.1:8099/firewall/wp-json/wl/v1/translations/easy-form-builder?version=4.2.0&locales=sv_SE&client=1.0.0",
+          "host": "127.0.0.1",
+          "status": "HTTP 403",
+          "ws_header": "absent",
+          "content_type": "text/html; charset=UTF-8"
+        },
+        {
+          "at": 1789905899,
+          "url": "https://api.wordpress.org/translations/plugins/1.0/?slug=easy-form-builder&version=4.2.0",
+          "host": "api.wordpress.org",
+          "status": "HTTP 200",
+          "ws_header": "absent",
+          "content_type": "application/json; charset=utf-8"
+        }
+      ],
+      "text_version": "1789905895"
+    }
+  },
+  "B2-before-fix": {
+    "id": "B2-before-fix",
+    "title": "WP_HTTP_BLOCK_EXTERNAL, BEFORE the fix (kept as evidence of the bug)",
+    "locale": "sv_SE",
+    "config": {
+      "server": "http://127.0.0.1/ws",
+      "constants": {
+        "WP_HTTP_BLOCK_EXTERNAL": true
+      }
+    },
+    "shots": [
+      "B2-before-fix-1-installing.png",
+      "B2-before-fix-2-message.png",
+      "B2-before-fix-3-continued-in-english.png",
+      "B2-before-fix-mail-1.png"
+    ],
+    "console_errors": [],
+    "layer_title_first": "Installing language files",
+    "layer_title": "Language files not installed",
+    "layer_text": "The language files could not be installed: the server this website runs on cannot connect to 127.0.0.1. Easy Form Builder keeps working, in English. The details and the manual installation steps were emailed to owner@wp-test-ai.test.",
+    "layer_after_continue": 0,
+    "ok": true,
+    "state": {
+      "wplang": "sv_SE",
+      "scenario": {
+        "server": "http://127.0.0.1/ws",
+        "constants": {
+          "WP_HTTP_BLOCK_EXTERNAL": true
+        }
+      },
+      "files": [],
+      "runtime": {
+        "version": "4.2.0",
+        "synced_at": 1789905620,
+        "attempts": {
+          "sv_SE": {
+            "version": "4.2.0",
+            "at": 1789905620,
+            "outcome": "failed",
+            "reason": "unreachable"
+          }
+        },
+        "bg_at": 0
+      },
+      "lock": null,
+      "ws": {
+        "status": "unreachable",
+        "server": "http://127.0.0.1/ws",
+        "failures": 1,
+        "first_failure_at": 1789905620,
+        "last_attempt_at": 1789905620,
+        "last_success_at": 0,
+        "last_error": "Användare har blockerat förfrågningar via HTTP till URL:en: http://127.0.0.1/ws/wp-json/wl/v1/translations/easy-form-builder?version=4.2.0&locales=sv_SE&client=1.0.0."
+      },
+      "wporg": {
+        "status": "unreachable",
+        "last_attempt_at": 1789905620,
+        "last_error": "Användare har blockerat förfrågningar via HTTP till URL:en: https://api.wordpress.org/translations/plugins/1.0/?slug=easy-form-builder&version=4.2.0."
+      },
+      "notice": {
+        "episode_sent_at": 1789905620,
+        "episode_attempts": 0,
+        "last_sent_at": 1789905620,
+        "install_key": "5ac1fcb329e47c6f492fc064e783c819",
+        "install_sent_at": 1789905620
+      },
+      "packs": [],
+      "last_run": {
+        "at": 1789905620,
+        "reason": "inline",
+        "status": "complete",
+        "results": {
+          "sv_SE": "wporg_unreachable"
+        }
+      },
+      "mails": [
+        {
+          "at": 1789905620,
+          "to": "owner@wp-test-ai.test",
+          "subject": "[wp-test-ai] Easy Form Builder could not install its language files",
+          "body": "Easy Form Builder could not install its translation into Swedish (sv_SE) on http://localhost/wp-test-ai/.\nThis happened when the plugin was opened in the WordPress dashboard.\nThe plugin keeps working normally, in English, until the translation is installed.\n\nWhat went wrong: the server this website runs on cannot connect to 127.0.0.1.\nTechnical detail: Användare har blockerat förfrågningar via HTTP till URL:en: http://127.0.0.1/ws/wp-json/wl/v1/translations/easy-form-builder?version=4.2.0&locales=sv_SE&client=1.0.0.\nThis server could not reach WordPress.org either, so outgoing connections from it are probably blocked in general.\n\nWhat you can do:\n1. Ask your hosting provider to allow outgoing HTTPS connections (port 443) from this server to 127.0.0.1. The plugin installs the translation by itself as soon as it can connect.\n2. Or install the translation yourself, in a few minutes:\n   - Download Swedish (sv_SE): http://127.0.0.1/ws/wp-json/wl/v1/translations/easy-form-builder/package/sv_SE\n   - Unzip it and upload the files to wp-content/languages/plugins/ on your server, replacing any file with the same name.\n   - Step-by-step guide: https://github.com/hassantafreshi/easy-form-builder/blob/HEAD/docs/language-packs/manual-install.md\n\nYou will not receive this email again for the same problem in the next 30 days.\n",
+          "request": "/wp-test-ai/wp-admin/admin-ajax.php"
+        }
+      ],
+      "http": [
+        {
+          "at": 1789905620,
+          "url": "http://127.0.0.1/ws/wp-json/wl/v1/translations/easy-form-builder?version=4.2.0&locales=sv_SE&client=1.0.0",
+          "host": "127.0.0.1",
+          "status": "error: Användare har blockerat förfrågningar via HTTP till URL:en: http://127.0.0.1/ws/wp-json/wl/v1/translations/easy-form-builder?version=4.2.0&locales=sv_SE&client=1.0.0."
+        },
+        {
+          "at": 1789905620,
+          "url": "https://api.wordpress.org/translations/plugins/1.0/?slug=easy-form-builder&version=4.2.0",
+          "host": "api.wordpress.org",
+          "status": "error: Användare har blockerat förfrågningar via HTTP till URL:en: https://api.wordpress.org/translations/plugins/1.0/?slug=easy-form-builder&version=4.2.0."
+        }
+      ],
+      "text_version": "1789905615"
+    }
+  }
+}

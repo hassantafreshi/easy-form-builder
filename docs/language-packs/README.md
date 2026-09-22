@@ -585,7 +585,7 @@ In that one call it:
    becomes obsolete but stays in this version's packs, for sites that haven't
    updated yet; the next version drops it. A phrase that comes back is active
    again.
-2. **Translates only what changed**, into the 50 locales of
+2. **Translates only what changed**, into the 51 locales of
    [`tests/core-i18n/locales.json`](../../tests/core-i18n/locales.json).
    Translation runs in `efb-core-i18n-translator` (Sonnet 5, effort xhigh) and
    follows the same rules as the add-on translator. For each phrase and locale it
@@ -604,7 +604,7 @@ With `extract` as the argument it only updates the phrase list; `locales=de_AT,f
 limits a run to those locales. An interrupted run continues where it stopped,
 because the translation memory is the published packs.
 
-The first full run is long: about 2,500 phrases times 50 locales, minus what
+The first full run is long: about 2,500 phrases times 51 locales, minus what
 wordpress.org already has approved. After that, a release translates only its new
 phrases.
 

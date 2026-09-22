@@ -293,7 +293,6 @@ Contributions of any kind are welcome!
 ### SMS (Text message) Notifications
 Notification System for Form Submissions.
 - ✔️ Seamless Integration with [WSMS](https://wordpress.org/plugins/wp-sms/)
-- White Studio SMS Service (Coming soon)
 - Twilio (Coming soon)
 
 ### Telegram Notifications
@@ -334,7 +333,7 @@ Notification System for Form Submissions.
 ### Google Sheet Export
 - ✔️ Service Account Connection & Existing/New Spreadsheet Binding
 - ✔️ Sync Logs
-- Field Mapping & Retry Queue (Coming soon)
+- ✔️ Field Mapping & Retry Queue (Coming soon)
 
 ### Shield Security Plugin Integration
 - ✔️ [Shield Security](https://wordpress.org/plugins/wp-simple-firewall/) silentCAPTCHA Integration

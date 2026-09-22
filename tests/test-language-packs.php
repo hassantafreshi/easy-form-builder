@@ -301,6 +301,9 @@ function efb_lp_http( $pre, $args, $url ) {
 				return efb_lp_response( 404, '{"code":"rest_no_route","message":"No route was found matching the URL and request method.","data":{"status":404}}', array( 'content-type' => 'application/json' ), $args );
 			case 'server500':
 				return efb_lp_response( 500, '{"code":"internal_server_error"}', $ours, $args );
+			case 'blocked':
+				// WP_HTTP_BLOCK_EXTERNAL on a Swedish site: WordPress words its own error in Swedish.
+				return new WP_Error( 'http_request_not_executed', 'Användare har blockerat förfrågningar via HTTP till URL:en: ' . $url . '.' );
 		}
 		return efb_lp_response( 200, efb_lp_ws_catalog_body(), $ours, $args );
 	}
@@ -308,6 +311,9 @@ function efb_lp_http( $pre, $args, $url ) {
 	if ( 0 === strpos( $url, 'https://api.wordpress.org/translations/plugins/1.0/' ) ) {
 		if ( 'transport' === $efb_lp['wporg_mode'] ) {
 			return new WP_Error( 'http_request_failed', 'cURL error 6: Could not resolve host: api.wordpress.org' );
+		}
+		if ( 'blocked' === $efb_lp['wporg_mode'] ) {
+			return new WP_Error( 'http_request_not_executed', 'Användare har blockerat förfrågningar via HTTP till URL:en: ' . $url . '.' );
 		}
 		return efb_lp_response( 200, efb_lp_wporg_catalog_body(), array(), $args );
 	}
@@ -902,6 +908,17 @@ try {
 	$result            = efb_lp_instance()->install_now( 'hu_HU', 'admin' );
 	efb_t( 'the language server answering with an error: failed, but no email (retried automatically)', 'failed' === $result['status'] && 'server' === $result['reason'] && false === $result['mailed'] && 2 === count( $efb_lp['mail'] ), wp_json_encode( $result ) );
 	$efb_lp['ws_mode'] = 'ok';
+
+	// WordPress writes its own error messages in the site language, and this plugin only runs for a
+	// site that is not in English. A request WordPress refused to send must be recognised by its
+	// error code, not by the English words of its message.
+	$efb_lp['ws_mode']    = 'blocked';
+	$efb_lp['wporg_mode'] = 'blocked';
+	$result               = efb_lp_instance()->install_now( 'hu_HU', 'admin' );
+	efb_t( 'WP_HTTP_BLOCK_EXTERNAL on a site whose WordPress speaks Swedish: the screen names the constant', 'failed' === $result['status'] && 'unreachable' === $result['reason'] && false !== strpos( $result['message'], 'WP_HTTP_BLOCK_EXTERNAL' ), wp_json_encode( $result ) );
+	efb_t( '...and does not call it a plain connection failure', false === strpos( $result['message'], 'cannot connect to' ), $result['message'] );
+	$efb_lp['ws_mode']    = 'ok';
+	$efb_lp['wporg_mode'] = 'ok';
 
 	// The AJAX endpoint behind the installing screen.
 	add_filter( 'wp_doing_ajax', '__return_true' );
