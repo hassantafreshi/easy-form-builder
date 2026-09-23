@@ -1,4 +1,42 @@
 
+/**
+ * HTML-escape a single value before it is interpolated into any innerHTML
+ * string in this file. A response row is attacker-controlled — an
+ * unauthenticated visitor chooses the submitted field values — so every stored
+ * value that reaches innerHTML (field values, names, labels, urls, ip) must
+ * pass through here first. Kept self-contained: this file also renders the
+ * public response box, where list_form-efb.js (and its escaper) is not loaded.
+ */
+function escHtmlEfb(value) {
+  return String(value == null ? '' : value).replace(/[&<>"'`]/g, function (ch) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '`': '&#96;' }[ch];
+  });
+}
+
+/**
+ * Recursively HTML-escape every string inside a parsed response object, while
+ * leaving structure (nested objects/arrays, e.g. a maps field's coordinate
+ * list) and non-string leaves intact. The one tag a value legitimately holds
+ * at render time is <br> — replaceContentMessageEfb turns the stored @efb@nq#
+ * line-break token into it — so that single bare tag is restored after
+ * escaping. Anything else an attacker smuggled in (<img onerror=...>,
+ * <script>) stays inert as &lt;…&gt;.
+ */
+function escResponseTreeEfb(node) {
+  if (typeof node === 'string') {
+    return escHtmlEfb(node).replace(/&lt;br\s*\/?&gt;/gi, '<br>');
+  }
+  if (Array.isArray(node)) return node.map(escResponseTreeEfb);
+  if (node && typeof node === 'object') {
+    const out = {};
+    for (const k in node) {
+      if (Object.prototype.hasOwnProperty.call(node, k)) out[k] = escResponseTreeEfb(node[k]);
+    }
+    return out;
+  }
+  return node;
+}
+
 const EfbResponseViewer = (function () {
   'use strict';
 
@@ -798,6 +836,14 @@ function efb_apply_resp_colors() {
 }
 
 function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
+  /* Single choke point for stored-response XSS: every caller (dashboard list,
+   * admin modal, public response box, reply thread) reaches innerHTML through
+   * here, so escaping the parsed content and the loose scalars once, on entry,
+   * neutralises hostile values for all of them without any render branch below
+   * having to remember to escape. Escaping happens exactly once — callers pass
+   * raw parsed content and never pre-escape — so there is no double-encoding. */
+  content = escResponseTreeEfb(content);
+  userIp = escHtmlEfb(userIp);
   efb_apply_resp_colors();
   stock_state_efb=false;
   let totalpaid =0;

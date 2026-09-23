@@ -2874,6 +2874,16 @@ public function check_nonce_permission_efb($request) {
 									$still_processing = false;
 									break;
 								case 'sample':
+									/* Was stored verbatim — no sanitising, no attribute
+									 * filtering, and the browser-supplied type kept — so a
+									 * submission to a sample field persisted raw. Put it through
+									 * the same allow-list every other field uses and pin the type
+									 * to the saved field, so nothing untrusted survives here. */
+									if (isset($item['value']) && is_string($item['value'])) {
+										$item['value'] = sanitize_text_field($item['value']);
+									}
+									$item = $this->filter_attributes_by_type_efb($item, $f['type']);
+									if (is_array($item)) { $item['type'] = $f['type']; }
 									$validated_item = $item;
 									$still_processing = false;
 									break;
@@ -2952,9 +2962,26 @@ public function check_nonce_permission_efb($request) {
 								case 'esign':
 									$is_valid = 0;
 									if (isset($item['value']) && is_string($item['value']) && strpos($item['value'], 'data:image/png;base64,') === 0) {
-										$is_valid = 1;
-										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
-										$validated_item = $item;
+										/* A signature is a canvas-exported PNG data URL and nothing
+										 * else: strict base64 after the prefix. The prefix check on
+										 * its own let a value like
+										 * "data:image/png;base64,<img onerror=...>" through, because
+										 * the tail was never decoded or validated. Require the tail
+										 * to be non-empty, pure base64, and actually decodable, so
+										 * no markup can ride along inside a stored signature. */
+										$esign_b64 = substr($item['value'], strlen('data:image/png;base64,'));
+										if ($esign_b64 !== ''
+											&& preg_match('/^[A-Za-z0-9+\/]+={0,2}$/', $esign_b64) === 1
+											&& base64_decode($esign_b64, true) !== false) {
+											$item = $this->filter_attributes_by_type_efb($item,$f['type']);
+											/* The kind of a stored row is decided by the saved field,
+											 * never by the browser. Mirrors the upload branch and
+											 * closes the esign->r_matrix render type-confusion: the
+											 * admin viewer dispatches on this type. */
+											if (is_array($item)) { $item['type'] = $f['type']; }
+											$validated_item = $item;
+											$is_valid = 1;
+										}
 									}
 									$still_processing = false;
 									break;
