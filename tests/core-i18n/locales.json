@@ -1,5 +1,5 @@
 {
-    "source": "User list 2026-09-16 (the add-on table without ar). Every locale is its own language with its own pack; nothing falls back to another locale. destination: ws = served by ws-language-plugins-handler, bundled = shipped in the plugin languages/ folder (fa_IR, de_DE; ar and en_US are also shipped but not produced here). hi_IN added 2026-09-19 on the user instruction (not in the original table; wordpress.org has an approved pack for it).",
+    "source": "User list 2026-09-16 (the add-on table without ar). Every locale is its own language with its own pack; nothing falls back to another locale. destination: ws = served by ws-language-plugins-handler, bundled = shipped in the plugin languages/ folder (fa_IR, de_DE; ar and en_US are also shipped but not produced here). hi_IN added 2026-09-19 on the user instruction (not in the original table; wordpress.org has an approved pack for it). 2026-09-23, user: 70 important WordPress languages. Added the 15 locales of the api.wordpress.org/stats/locale top 50 that were missing (th, he_IL, ko_KR, ro_RO, el, fi, uk, sk_SK, nb_NO, bg_BG, hr, lt_LT, ca, sl_SI, et; ar stays out by the 2026-09-16 rule) and 4 beyond it (sr_RS, lv, bn_BD, az). wporg slug, Language and Plural-Forms of each were read from its translate.wordpress.org easy-form-builder export.",
     "locales": [
         {
             "locale": "ja",
@@ -428,6 +428,158 @@
         {
             "locale": "hi_IN",
             "wporg": "hi",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "destination": "ws"
+        },
+        {
+            "locale": "th",
+            "wporg": "th",
+            "set": "default",
+            "nplurals": 1,
+            "plural_forms": "nplurals=1; plural=0;",
+            "destination": "ws"
+        },
+        {
+            "locale": "he_IL",
+            "wporg": "he",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "destination": "ws"
+        },
+        {
+            "locale": "ko_KR",
+            "wporg": "ko",
+            "set": "default",
+            "nplurals": 1,
+            "plural_forms": "nplurals=1; plural=0;",
+            "destination": "ws"
+        },
+        {
+            "locale": "ro_RO",
+            "wporg": "ro",
+            "set": "default",
+            "nplurals": 3,
+            "plural_forms": "nplurals=3; plural=(n == 1) ? 0 : ((n == 0 || n % 100 >= 2 && n % 100 <= 19) ? 1 : 2);",
+            "destination": "ws"
+        },
+        {
+            "locale": "el",
+            "wporg": "el",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "destination": "ws"
+        },
+        {
+            "locale": "fi",
+            "wporg": "fi",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "destination": "ws"
+        },
+        {
+            "locale": "uk",
+            "wporg": "uk",
+            "set": "default",
+            "nplurals": 3,
+            "plural_forms": "nplurals=3; plural=(n % 10 == 1 && n % 100 != 11) ? 0 : ((n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14)) ? 1 : 2);",
+            "destination": "ws"
+        },
+        {
+            "locale": "sk_SK",
+            "wporg": "sk",
+            "set": "default",
+            "nplurals": 3,
+            "plural_forms": "nplurals=3; plural=(n == 1) ? 0 : ((n >= 2 && n <= 4) ? 1 : 2);",
+            "destination": "ws"
+        },
+        {
+            "locale": "nb_NO",
+            "wporg": "nb",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "destination": "ws"
+        },
+        {
+            "locale": "bg_BG",
+            "wporg": "bg",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "destination": "ws"
+        },
+        {
+            "locale": "hr",
+            "wporg": "hr",
+            "set": "default",
+            "nplurals": 3,
+            "plural_forms": "nplurals=3; plural=(n % 10 == 1 && n % 100 != 11) ? 0 : ((n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14)) ? 1 : 2);",
+            "destination": "ws"
+        },
+        {
+            "locale": "lt_LT",
+            "wporg": "lt",
+            "set": "default",
+            "nplurals": 3,
+            "plural_forms": "nplurals=3; plural=(n % 10 == 1 && (n % 100 < 11 || n % 100 > 19)) ? 0 : ((n % 10 >= 2 && n % 10 <= 9 && (n % 100 < 11 || n % 100 > 19)) ? 1 : 2);",
+            "destination": "ws"
+        },
+        {
+            "locale": "ca",
+            "wporg": "ca",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "destination": "ws"
+        },
+        {
+            "locale": "sl_SI",
+            "wporg": "sl",
+            "set": "default",
+            "nplurals": 4,
+            "plural_forms": "nplurals=4; plural=(n % 100 == 1) ? 0 : ((n % 100 == 2) ? 1 : ((n % 100 == 3 || n % 100 == 4) ? 2 : 3));",
+            "destination": "ws"
+        },
+        {
+            "locale": "et",
+            "wporg": "et",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "destination": "ws"
+        },
+        {
+            "locale": "sr_RS",
+            "wporg": "sr",
+            "set": "default",
+            "nplurals": 3,
+            "plural_forms": "nplurals=3; plural=(n % 10 == 1 && n % 100 != 11) ? 0 : ((n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14)) ? 1 : 2);",
+            "destination": "ws"
+        },
+        {
+            "locale": "lv",
+            "wporg": "lv",
+            "set": "default",
+            "nplurals": 3,
+            "plural_forms": "nplurals=3; plural=(n % 10 == 0 || n % 100 >= 11 && n % 100 <= 19) ? 0 : ((n % 10 == 1 && n % 100 != 11) ? 1 : 2);",
+            "destination": "ws"
+        },
+        {
+            "locale": "bn_BD",
+            "wporg": "bn",
+            "set": "default",
+            "nplurals": 2,
+            "plural_forms": "nplurals=2; plural=n != 1;",
+            "destination": "ws"
+        },
+        {
+            "locale": "az",
+            "wporg": "az",
             "set": "default",
             "nplurals": 2,
             "plural_forms": "nplurals=2; plural=n != 1;",

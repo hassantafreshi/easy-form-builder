@@ -5,17 +5,37 @@
  * For every phrase in temp/core-i18n/source.json, in this order:
  *   1. the approved wordpress.org translation of easy-form-builder (stable, then dev,
  *      then this site's installed wordpress.org pack), used verbatim - always, so an
- *      approved string replaces an earlier machine translation;
+ *      approved string replaces an earlier machine translation. Only the tokens a
+ *      translator on wordpress.org could not see are restored from the msgid (edge
+ *      whitespace, an entity written as its character); origin "... (tokens restored)";
  *   2. the translation this locale already has (an unfinished run, else the published pack);
  *   3. the same msgid shipped by a migrated add-on (vendor/<slug>/languages/efb-<slug>-<locale>.po);
  *   4. otherwise the phrase goes to the to-do list the translator works through.
- * An approved or existing string that breaks a placeholder, tag, entity or line break
- * is not used; it goes to the to-do list with a note.
+ * An approved or existing string that still breaks a placeholder, tag, entity, edge
+ * whitespace or line break is not used; it goes to the to-do list with a note.
  *
- * Writes temp/core-i18n/translations/<locale>.json and temp/core-i18n/locale/<locale>/todo.json.
+ * Each to-do entry also carries what the locale's WordPress translators already decided:
+ *   wp_core   the approved WordPress core translation of the same msgid (admin, then front end),
+ *             when it keeps every token; a hint only - core may use the words in another sense;
+ *   glossary  the locale team's official glossary terms the phrase contains:
+ *             [English term, translation, part of speech(, note)], longest term first.
+ *
+ * Downloads (kept in temp/core-i18n/wporg/): the easy-form-builder exports (fresh for
+ * --max-age, default 12 h), WordPress core admin + front end and the glossary (fresh for
+ * --hints-max-age, default 30 days). translate.wordpress.org answers bursts with 429:
+ * every download is retried, and an older copy is used when it still fails. A locale whose
+ * easy-form-builder export cannot be read at all is not prepared (exit 3), because its
+ * approved strings would be missing; run it again a few minutes later.
+ *
+ * Writes temp/core-i18n/translations/<locale>.json, temp/core-i18n/locale/<locale>/todo.json
+ * and temp/core-i18n/locale/<locale>/locales.json (this locale's row alone, for
+ * check-translations.php --locales=).
  *
  * Run:
- *   php tests/core-i18n/prepare-locale.php --locale=de_AT [--no-download] [--max-age=43200] [--local-po-dir=...]
+ *   php tests/core-i18n/prepare-locale.php --locale=de_AT [--no-download] [--max-age=43200]
+ *       [--hints-max-age=2592000] [--local-po-dir=...]
+ *   php tests/core-i18n/prepare-locale.php --locale=de_AT --download-only
+ *       only refresh the downloads; nothing under translations/ or locale/ is touched.
  */
 
 require __DIR__ . '/lib.php';
@@ -23,10 +43,12 @@ require __DIR__ . '/lib.php';
 $args = efb_ci18n_args(
 	$argv,
 	array(
-		'locale'       => '',
-		'no-download'  => false,
-		'max-age'      => 43200,
-		'local-po-dir' => '',
+		'locale'        => '',
+		'no-download'   => false,
+		'download-only' => false,
+		'max-age'       => 43200,
+		'hints-max-age' => 2592000,
+		'local-po-dir'  => '',
 	)
 );
 efb_ci18n_load_pomo( $args['wp'] );
@@ -39,51 +61,61 @@ if ( ! isset( $locales[ $locale ] ) ) {
 $row      = $locales[ $locale ];
 $nplurals = (int) $row['nplurals'];
 $source   = efb_ci18n_json_read( $args['work'] . 'source.json' );
-if ( ! is_array( $source ) || empty( $source['entries'] ) ) {
+if ( ! $args['download-only'] && ( ! is_array( $source ) || empty( $source['entries'] ) ) ) {
 	efb_ci18n_fail( 'Run extract.php first: ' . $args['work'] . 'source.json is missing' );
 }
 
-// ---- approved wordpress.org strings ----
+// ---- downloads ----
 $wporg_dir = $args['work'] . 'wporg/';
-if ( ! is_dir( $wporg_dir ) ) {
-	mkdir( $wporg_dir, 0755, true );
-}
-$exports = array();
+$download  = ! $args['no-download'];
+$failed    = array();
+$exports   = array();
 foreach ( array( 'stable', 'dev' ) as $branch ) {
-	$file = $wporg_dir . $locale . '-' . $branch . '.po';
-	$url  = 'https://translate.wordpress.org/projects/wp-plugins/' . rawurlencode( $args['product'] ) . '/' . $branch . '/' . $row['wporg'] . '/' . $row['set'] . '/export-translations/?format=po';
-	$note = 'cached';
-	if ( ! $args['no-download'] && ( ! is_file( $file ) || ( time() - filemtime( $file ) ) > (int) $args['max-age'] ) ) {
-		$context = stream_context_create(
-			array(
-				'http' => array(
-					'timeout'       => 60,
-					'ignore_errors' => true,
-					'user_agent'    => 'EFB core-i18n',
-				),
-			)
-		);
-		$body   = @file_get_contents( $url, false, $context );
-		$status = 0;
-		foreach ( isset( $http_response_header ) ? (array) $http_response_header : array() as $header ) {
-			if ( preg_match( '#^HTTP/\S+\s+(\d{3})#', $header, $m ) ) {
-				$status = (int) $m[1];
-			}
-		}
-		if ( 200 === $status && is_string( $body ) && false !== strpos( $body, 'msgid' ) ) {
-			file_put_contents( $file, $body );
-			$note = 'downloaded';
-		} else {
-			$note = 'HTTP ' . $status . ' (not used; nothing guessed)';
-		}
-	} elseif ( ! is_file( $file ) ) {
-		$note = 'not available';
+	$file  = $wporg_dir . $locale . '-' . $branch . '.po';
+	$url   = efb_ci18n_export_url( 'wp-plugins/' . rawurlencode( $args['product'] ) . '/' . $branch, $row );
+	$fetch = efb_ci18n_fetch( $url, $file, (int) $args['max-age'], $download );
+	if ( $fetch['failed'] ) {
+		$failed[] = $url . ' - ' . $fetch['state'];
 	}
 	$exports[ 'wporg-' . $branch ] = array(
-		'url'     => $url,
-		'status'  => $note,
-		'entries' => efb_ci18n_read_po( $file ),
+		'url'    => $url,
+		'status' => $fetch['state'],
+		'file'   => $file,
 	);
+}
+$hint_files = array(
+	'wp-admin' => array( efb_ci18n_export_url( 'wp/dev/admin', $row ), $wporg_dir . $locale . '-wp-admin.po', '/^msgid /m' ),
+	'wp-core'  => array( efb_ci18n_export_url( 'wp/dev', $row ), $wporg_dir . $locale . '-wp-core.po', '/^msgid /m' ),
+	'glossary' => array( 'https://translate.wordpress.org/locale/' . $row['wporg'] . '/' . $row['set'] . '/glossary/-export/', $wporg_dir . $locale . '-glossary.csv', '/^en,/' ),
+);
+$hint_status = array();
+foreach ( $hint_files as $name => $hint ) {
+	$fetch                = efb_ci18n_fetch( $hint[0], $hint[1], (int) $args['hints-max-age'], $download, $hint[2] );
+	$hint_status[ $name ] = $fetch['state'];
+}
+
+$report_downloads = function () use ( $exports, $hint_status ) {
+	foreach ( $exports as $name => $export ) {
+		echo "  {$name}: {$export['status']}\n";
+	}
+	foreach ( $hint_status as $name => $state ) {
+		echo "  {$name} (hints): {$state}\n";
+	}
+};
+
+if ( ! empty( $failed ) ) {
+	echo "{$locale}: NOT prepared - the approved wordpress.org strings could not be read, so nothing was changed.\n";
+	$report_downloads();
+	efb_ci18n_fail( "  Wait a few minutes and run this command again:\n    " . implode( "\n    ", $failed ), 3 );
+}
+if ( $args['download-only'] ) {
+	echo "{$locale}: downloads ready\n";
+	$report_downloads();
+	exit( 0 );
+}
+
+foreach ( $exports as $name => $export ) {
+	$exports[ $name ]['entries'] = efb_ci18n_read_po( $export['file'] );
 }
 $local_dir = '' !== (string) $args['local-po-dir'] ? rtrim( efb_ci18n_resolve( $args['local-po-dir'], $args['root'] ), '/' ) . '/' : $args['wp'] . 'wp-content/languages/plugins/';
 $local_po  = $local_dir . 'easy-form-builder-' . $locale . '.po';
@@ -92,6 +124,10 @@ $exports['local-po'] = array(
 	'status'  => is_file( $local_po ) ? 'present' : 'not present',
 	'entries' => efb_ci18n_read_po( $local_po ),
 );
+
+// ---- what this locale's WordPress translators decided (hints only) ----
+$wp_core  = efb_ci18n_read_po( $hint_files['wp-admin'][1] ) + efb_ci18n_read_po( $hint_files['wp-core'][1] );
+$glossary = efb_ci18n_read_glossary( $hint_files['glossary'][1] );
 
 // ---- what this locale already has ----
 $tr_file   = $args['work'] . 'translations/' . $locale . '.json';
@@ -141,23 +177,14 @@ function efb_ci18n_shape( array $entry, $msgstr, $nplurals, &$known ) {
 	return array_slice( array_pad( $forms, $nplurals, '' ), 0, $nplurals );
 }
 
-/** Problems that are warnings, not errors, for an approved string kept verbatim. */
-function efb_ci18n_approved_problems( array $problems ) {
-	return array_values(
-		array_filter(
-			$problems,
-			function ( $p ) {
-				return 0 !== strpos( $p, 'leading/trailing whitespace' ) && 0 !== strpos( $p, 'entities differ' );
-			}
-		)
-	);
-}
-
 $entries        = array();
 $origin         = array();
 $approved_forms = array();
 $todo           = array();
 $stats          = array();
+$restored       = 0;
+$with_core      = 0;
+$with_glossary  = 0;
 $parent_entries = array();
 if ( ! empty( $row['parent'] ) ) {
 	$parent_tr      = efb_ci18n_json_read( $args['work'] . 'translations/' . $row['parent'] . '.json' );
@@ -175,13 +202,22 @@ foreach ( $source['entries'] as $e ) {
 		}
 		$candidate = efb_ci18n_shape( $e, $exports[ $name ]['entries'][ $id ]['msgstr'], $nplurals, $known );
 		$complete  = empty( $e['plural'] ) || count( array_filter( $candidate, 'strlen' ) ) === $nplurals;
-		$problems  = $complete ? efb_ci18n_approved_problems( efb_ci18n_problems( $e, $candidate, $nplurals, $locale ) ) : array( 'approved plural has only ' . count( $known ) . " of {$nplurals} forms" );
+		if ( $complete ) {
+			$normalised = efb_ci18n_normalise_approved( $e, $candidate );
+			$problems   = efb_ci18n_problems( $e, $normalised, $nplurals, $locale );
+		} else {
+			$normalised = $candidate;
+			$problems   = array( 'approved plural has only ' . count( $known ) . " of {$nplurals} forms" );
+		}
 		if ( empty( $problems ) ) {
-			$item = array( $candidate, $name );
+			$item = array( $normalised, $normalised === $candidate ? $name : $name . ' (tokens restored)' );
+			if ( $normalised !== $candidate ) {
+				$restored++;
+			}
 		} else {
 			$note = "approved {$name} string not usable as is: " . implode( '; ', $problems );
 			$todo_extra = array(
-				'approved_candidate' => $candidate,
+				'approved_candidate' => $normalised,
 				'approved_origin'    => $name,
 				'approved_forms'     => $known,
 			);
@@ -237,6 +273,18 @@ foreach ( $source['entries'] as $e ) {
 	if ( isset( $parent_entries[ $id ] ) ) {
 		$task['parent_msgstr'] = $parent_entries[ $id ];
 	}
+	if ( isset( $wp_core[ $id ] ) ) {
+		$core = efb_ci18n_shape( $e, $wp_core[ $id ]['msgstr'], $nplurals, $known );
+		if ( empty( efb_ci18n_problems( $e, $core, $nplurals, $locale ) ) ) {
+			$task['wp_core'] = $core;
+			$with_core++;
+		}
+	}
+	$terms = efb_ci18n_glossary_hits( $e['msgid'] . ( null !== $e['plural'] ? ' ' . $e['plural'] : '' ), $glossary );
+	if ( ! empty( $terms ) ) {
+		$task['glossary'] = $terms;
+		$with_glossary++;
+	}
 	$todo[] = $task;
 	unset( $todo_extra );
 }
@@ -250,20 +298,39 @@ efb_ci18n_json_write(
 		'approved_forms' => $approved_forms,
 	)
 );
+$plural_numbers = efb_ci18n_plural_examples( $row['plural_forms'] );
 efb_ci18n_json_write(
 	$args['work'] . 'locale/' . $locale . '/todo.json',
 	array(
-		'locale'   => $locale,
-		'nplurals' => $nplurals,
-		'parent'   => isset( $row['parent'] ) ? $row['parent'] : null,
-		'todo'     => $todo,
+		'locale'         => $locale,
+		'nplurals'       => $nplurals,
+		'plural_numbers' => $plural_numbers,
+		'parent'         => isset( $row['parent'] ) ? $row['parent'] : null,
+		'todo'           => $todo,
+	)
+);
+efb_ci18n_json_write(
+	$args['work'] . 'locale/' . $locale . '/locales.json',
+	array(
+		'source'  => 'The ' . $locale . ' row of ' . $args['locales'] . ', written by prepare-locale.php so check-translations.php can check this locale alone.',
+		'locales' => array( $row ),
 	)
 );
 
 echo "{$locale}: " . count( $source['entries'] ) . ' phrases, ' . count( $entries ) . ' ready, ' . count( $todo ) . " to translate\n";
 echo '  seeded from: ' . $seeded_from . "\n";
+foreach ( $plural_numbers as $index => $numbers ) {
+	echo "  plural form {$index} is used for n = {$numbers}\n";
+}
 foreach ( $exports as $name => $export ) {
 	echo "  {$name}: {$export['status']}, " . count( $export['entries'] ) . " translated entries\n";
 }
+foreach ( $hint_status as $name => $state ) {
+	echo "  {$name} (hints): {$state}\n";
+}
 ksort( $stats );
 echo '  ready by origin: ' . json_encode( $stats ) . "\n";
+if ( $restored > 0 ) {
+	echo "  approved strings with edge whitespace or entities restored from the msgid: {$restored}\n";
+}
+echo "  to-do hints: wp_core {$with_core}, glossary {$with_glossary} (glossary terms: " . count( $glossary ) . ", WordPress core strings: " . count( $wp_core ) . ")\n";

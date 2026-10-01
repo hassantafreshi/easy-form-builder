@@ -50,62 +50,10 @@ if ( ! is_dir( $build_dir ) ) {
 	mkdir( $build_dir, 0755, true );
 }
 
-$common_headers = array(
-	'Project-Id-Version'        => 'Easy Form Builder ' . $version,
-	'Report-Msgid-Bugs-To'      => 'https://whitestudio.team/',
-	'MIME-Version'              => '1.0',
-	'Content-Type'              => 'text/plain; charset=UTF-8',
-	'Content-Transfer-Encoding' => '8bit',
-	'POT-Creation-Date'         => $args['date'] . ' 00:00+0000',
-	'X-Generator'               => 'EFB tests/core-i18n/build.php',
-	'X-Domain'                  => EFB_CI18N_DOMAIN,
-);
-
-/**
- * @param array             $e            Source entry.
- * @param string|array|null $translation  Translation, or null for the template.
- * @param string            $origin       Origin comment.
- * @return Translation_Entry
- */
-function efb_ci18n_entry( array $e, $translation = null, $origin = '' ) {
-	$data = array(
-		'singular'           => $e['msgid'],
-		'extracted_comments' => '' !== (string) $e['translators'] ? 'translators: ' . $e['translators'] : '',
-		'references'         => (array) $e['refs'],
-		'flags'              => preg_match( '/%(\d+\$)?[sdfu]/', $e['msgid'] ) ? array( 'php-format' ) : array(),
-	);
-	if ( null !== $e['context'] ) {
-		$data['context'] = $e['context'];
-	}
-	if ( null !== $e['plural'] ) {
-		$data['plural']    = $e['plural'];
-		$data['is_plural'] = true;
-	}
-	if ( null !== $translation ) {
-		$data['translations'] = (array) $translation;
-	}
-	if ( '' !== $origin ) {
-		$data['translator_comments'] = 'origin: ' . $origin;
-	}
-	return new Translation_Entry( $data );
-}
+$common_headers = efb_ci18n_headers( $version, $args['date'] );
 
 if ( empty( $only ) ) {
-	$pot = new PO();
-	$pot->set_headers(
-		array_merge(
-			$common_headers,
-			array(
-				'PO-Revision-Date' => 'YEAR-MO-DA HO:MI+ZONE',
-				'Last-Translator'  => 'FULL NAME <EMAIL@ADDRESS>',
-				'Language-Team'    => 'LANGUAGE <LL@li.org>',
-			)
-		)
-	);
-	foreach ( $source['entries'] as $e ) {
-		$pot->add_entry( efb_ci18n_entry( $e ) );
-	}
-	$pot->export_to_file( $build_dir . EFB_CI18N_DOMAIN . '.pot' );
+	efb_ci18n_write_pot( $source, $build_dir . EFB_CI18N_DOMAIN . '.pot', $args['date'] );
 	echo 'pot: ' . count( $source['entries'] ) . " phrases\n";
 }
 

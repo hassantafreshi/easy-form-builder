@@ -43,13 +43,16 @@ $tr_file   = $args['work'] . 'translations/' . $locale . '.json';
 $todo_file = $args['work'] . 'locale/' . $locale . '/todo.json';
 $tr        = efb_ci18n_json_read( $tr_file );
 $todo_data = efb_ci18n_json_read( $todo_file );
-$chunk     = efb_ci18n_json_read( efb_ci18n_resolve( $args['file'], $args['root'] ) );
+$chunk_file = efb_ci18n_resolve( $args['file'], $args['root'] );
+// The Write tool turns a typed \u0004 (the separator between context and msgid) into the
+// raw byte, which JSON does not allow inside a string: read it back as the escape.
+$chunk      = is_file( $chunk_file ) ? json_decode( str_replace( "\x04", '\\u0004', (string) file_get_contents( $chunk_file ) ), true ) : null;
 
 if ( ! is_array( $source ) || ! is_array( $tr ) || ! is_array( $todo_data ) ) {
 	efb_ci18n_fail( "Run prepare-locale.php --locale={$locale} first" );
 }
 if ( ! is_array( $chunk ) || ! isset( $chunk['entries'] ) || ! is_array( $chunk['entries'] ) ) {
-	efb_ci18n_fail( 'Unreadable chunk ' . $args['file'] . ' (expects {"entries": {...}})' );
+	efb_ci18n_fail( 'Unreadable chunk ' . $args['file'] . ' (expects valid JSON {"entries": {...}}: ' . json_last_error_msg() . ')' );
 }
 
 $by_id = array();

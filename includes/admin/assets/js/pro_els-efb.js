@@ -1345,7 +1345,7 @@ function efbSearchLocation(efbMapId) {
               maps_efb[efbMapId].map.setView(efbLatlng, 13);
           } else {
               efbErrorMessageDiv.classList.remove('d-none');
-              let val = efb_var.text.slocation.replace('%s', '');
+              let val = efb_var.text.slocation.replace('%s', '').trim();
               val = efb_var.text.snotfound.replace('%s', val);
               efbErrorMessageDiv.querySelector('.efb-error-message-text').textContent = val;
           }

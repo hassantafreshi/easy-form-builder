@@ -3735,6 +3735,11 @@ function convertToCSV_emsFormBuilder(objArray) {
       if (typeof val === 'object' && val !== null) {
         val = JSON.stringify(val);
       }
+      /* Visitor-typed cells that start with = + - @ or a tab/CR would be run
+         as a formula by the spreadsheet that opens this file. */
+      if (typeof val === 'string' && /^[=+\-@\t\r]/.test(val) && !/^[+-]?\d+([.,]\d+)?$/.test(val)) {
+        val = "'" + val;
+      }
       if (line !== '') line += '@emsfb@';
       line += val;
     }

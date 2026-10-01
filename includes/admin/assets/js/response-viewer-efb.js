@@ -132,7 +132,10 @@ const EfbResponseViewer = (function () {
 
   function buildRichEditor(msgId, savedValue) {
     const placeholderText = _t('enterYourMessage') || 'Type your reply&hellip;';
-    const initialHtml = savedValue ? shortcodeToHtml(savedValue.replace(/@efb@nq#/g, '<br>')) : '';
+    /* The draft is the editor's *text* (htmlToShortcode strips tags and
+       decodes entities before saving it), so it must go back in as text: a
+       typed "<img onerror=…>" would otherwise be parsed as markup here. */
+    const initialHtml = savedValue ? shortcodeToHtml(escHtmlEfb(savedValue).replace(/@efb@nq#/g, '<br>')) : '';
 
     return `
     <div class="efb-reply-section ${isRtl() ? 'rtl-text' : ''} efb p-2" id="replay_section__emsFormBuilder">
@@ -844,6 +847,8 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
    * raw parsed content and never pre-escape — so there is no double-encoding. */
   content = escResponseTreeEfb(content);
   userIp = escHtmlEfb(userIp);
+  track = escHtmlEfb(track);
+  date = escHtmlEfb(date);
   efb_apply_resp_colors();
   stock_state_efb=false;
   let totalpaid =0;
@@ -864,6 +869,9 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   }else {
     byName = by;
    }
+  /* A reply is credited to the sender's WordPress display name, which a
+     registered visitor chooses themselves. */
+  byName = escHtmlEfb(byName);
   const bySection = byName ? `<div class="efb-msg-sender">
     <div class="efb-msg-avatar ${byIsAdmin ? 'efb-msg-avatar--admin' : ''}"><i class="bi ${byIsAdmin ? 'bi-shield-check' : 'bi-person'}"></i></div>
     <div class="efb-msg-sender-info"><span class="efb-msg-sender-role">${byIsAdmin ? 'Admin' : efb_var.text.by}:</span><span class="efb-msg-sender-name">${byName}</span></div>
@@ -935,7 +943,10 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'';
       title = efb_var.text[title] || c.name ;
       s = true;
-      value = `<img src="${c.value}" alt="${c.name}" class="efb img-thumbnail efb-msg-esign-img">`;
+      /* A signature is a canvas PNG data URL and nothing else; rows stored
+         before the server enforced that may hold any string. */
+      const esignSrc = /^data:image\/png;base64,[A-Za-z0-9+\/]+={0,2}$/.test(c.value) ? c.value : '';
+      value = esignSrc ? `<img src="${esignSrc}" alt="${c.name}" class="efb img-thumbnail efb-msg-esign-img">` : `<code>${c.value}</code>`;
       m += `<div class="efb efb-msg-field-row efb-msg-field-block"><span class="efb-msg-field-label"><i class="bi bi-pen"></i> ${title}:</span><div class="efb-msg-field-value"> ${value}</div></div>`;
     } else if (c.type == "color") {
       let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'';
@@ -1582,9 +1593,18 @@ document.addEventListener('keydown', function(e) {
 });
 /* ---------------------------------------------------------------------------- */
 
+/* A cell that starts with = + - @ or a tab/CR is evaluated as a formula when
+   the CSV is opened in Excel or LibreOffice, and every exported value was
+   typed by a visitor. Prefix such cells with an apostrophe so they stay text;
+   a plain number such as "-5" is left alone. */
+function csvNeutralizeFormula_EFB(val) {
+  if (/^[=+\-@\t\r]/.test(val) && !/^[+-]?\d+([.,]\d+)?$/.test(val)) return "'" + val;
+  return val;
+}
+
 function csvEscape_EFB(val) {
   if (val === null || val === undefined) return '';
-  val = String(val).trim();
+  val = csvNeutralizeFormula_EFB(String(val).trim());
   if (val.search(/[,"\n\r]/) !== -1) {
     val = '"' + val.replace(/"/g, '""') + '"';
   }

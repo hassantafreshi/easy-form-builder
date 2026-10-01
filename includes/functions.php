@@ -2668,8 +2668,8 @@ class efbFunction {
 			/* translators: %s is the list of valid file formats */
 			"ivf" => $state  &&  isset($ac->text->ivf) ? $ac->text->ivf : esc_html__('Valid formats: %s','easy-form-builder'),
 			"zoom" => $state  &&  isset($ac->text->zoom) ? $ac->text->zoom : esc_html__('Zoom','easy-form-builder'),
-			/* translators: CDN = Content Delivery Network - a service that loads files faster; leafletjs.com is a mapping library; unpkg.com is a JavaScript file hosting service */
-			"lpds" => $state  &&  isset($ac->text->lpds) ? $ac->text->lpds : esc_html__('This is the best version. The em dash creates a natural pause that makes "only on pages where this feature is used" land as a reassuring afterthought — exactly the tone you want for a privacy/transparency notice. It reads more conversationally than the other two options.','easy-form-builder'),
+			/* translators: CDN = Content Delivery Network - a service that loads files faster; Leaflet.js (leafletjs.com) is a mapping library; unpkg.com is a JavaScript file hosting service */
+			"lpds" => $state  &&  isset($ac->text->lpds) ? $ac->text->lpds : esc_html__('To enable the Location Picker field, Easy Form Builder loads Leaflet.js from the unpkg.com CDN — only on pages where this feature is used.','easy-form-builder'),
 			"elpo" => $state  &&  isset($ac->text->elpo) ? $ac->text->elpo : esc_html__('Enable Location Picker in Easy Form Builder','easy-form-builder'),
 			"jqinl" => $state  &&  isset($ac->text->jqinl) ? $ac->text->jqinl : esc_html__('Easy Form Builder cannot display the form because jQuery is not properly loaded. This issue might be due to incorrect jQuery invocation by another plugin or the current website theme.','easy-form-builder'),
 
@@ -4265,6 +4265,99 @@ class efbFunction {
 		delete_option('emsfb_addons_dl_failures');
 		delete_transient('emsfb_addons_dl_backoff');
 		// The next relevant admin/form request performs recovery directly.
+	}
+
+	/**
+	 * The plan an add-on needs: 0 = every plan, 3 = Free Plus or Pro, 1 = Pro.
+	 *
+	 * This is the plugin's own answer, and it has to be: the licensing server
+	 * only refuses add-ons that are actually sold, so it hands Conditional
+	 * Logic to any site that asks and hands everything to localhost. Without a
+	 * local rule the Add-ons page drew a lock the install path did not keep.
+	 *
+	 * @param string $addon Add-on flag key.
+	 * @return int
+	 */
+	public function addon_required_package_efb($addon) {
+		static $tiers = array(
+			'AdnOF'  => 0, // Offline Forms - free on every plan
+			'AdnSMF' => 3, // Conditional Logic - Free Plus and Pro
+		);
+		$addon = (string) $addon;
+		return isset($tiers[$addon]) ? $tiers[$addon] : 1;
+	}
+
+	/**
+	 * Add-on keys this plan keeps when downgrading to it.
+	 *
+	 * @param int $package_type Plan being moved to.
+	 * @return array<int, string>
+	 */
+	public function addon_keys_allowed_by_package_efb($package_type) {
+		$package_type = (int) $package_type;
+		$allowed = array();
+		foreach ($this->get_all_addon_keys_efb() as $key) {
+			$required = $this->addon_required_package_efb($key);
+			if (0 === $required || 1 === $package_type || (3 === $package_type && 3 === $required)) {
+				$allowed[] = $key;
+			}
+		}
+		return $allowed;
+	}
+
+	/**
+	 * Whether this site's plan entitles it to install an add-on.
+	 *
+	 * A stored activation code that still validates for this domain wins over
+	 * the plan option: a network blip has been known to reset emsfb_pro, and a
+	 * paying customer must not be told to upgrade because of it.
+	 *
+	 * @param string $addon Add-on flag key.
+	 * @return bool
+	 */
+	public function addon_plan_allows_install_efb($addon) {
+		$required = $this->addon_required_package_efb($addon);
+		if (0 === $required) {
+			return true;
+		}
+
+		$local_package = (int) get_option('emsfb_pro', 2);
+		if (1 === $local_package) {
+			return true;
+		}
+		if (3 === $local_package && 3 === $required) {
+			return true;
+		}
+
+		$active_code = (string) get_option('emsfb_pro_activeCode', '');
+		if ('' === $active_code) {
+			$settings = get_setting_Emsfb('decoded');
+			$active_code = is_object($settings) && isset($settings->activeCode) ? (string) $settings->activeCode : '';
+		}
+		if ('' === $active_code) {
+			return false;
+		}
+
+		return (bool) $this->is_efb_pro_license_valid_efb($active_code);
+	}
+
+	/**
+	 * True when an activation code was minted for this domain. No network call.
+	 *
+	 * @param string $active_code Stored activation code.
+	 * @return bool
+	 */
+	public function is_efb_pro_license_valid_efb($active_code) {
+		$active_code = explode('@', (string) $active_code)[0];
+		if ('' === $active_code) {
+			return false;
+		}
+		foreach ($this->license_domain_candidates_efb() as $host) {
+			if (md5($host) === $active_code) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**

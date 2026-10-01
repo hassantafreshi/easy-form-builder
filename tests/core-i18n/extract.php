@@ -13,13 +13,15 @@
  *   - everything else keeps its history.
  *
  * Writes:
- *   docs/core-i18n/catalog.json      the phrase list (committed)
- *   temp/core-i18n/source.json       what the packs of this version contain (check-translations.php format)
- *   temp/core-i18n/changes.json      new, obsolete and changed phrases of this run
+ *   docs/core-i18n/catalog.json          the phrase list (committed)
+ *   docs/core-i18n/easy-form-builder.pot the English reference: every phrase of this version's packs,
+ *                                        with its context, plural, translators comment and references (committed)
+ *   temp/core-i18n/source.json           what the packs of this version contain (check-translations.php format)
+ *   temp/core-i18n/changes.json          new, obsolete and changed phrases of this run
  *
  * Run:
  *   php tests/core-i18n/extract.php [--version=4.2.1] [--wp-cli=C:/xampp/htdocs/ws/wp-cli.phar]
- *       [--root=...] [--catalog=...] [--work=...] [--vendor-excludes="v4.1 backup,..."]
+ *       [--root=...] [--catalog=...] [--pot=...] [--work=...] [--vendor-excludes="v4.1 backup,..."]
  */
 
 require __DIR__ . '/lib.php';
@@ -248,9 +250,10 @@ foreach ( $entries as $id => $entry ) {
 }
 efb_ci18n_json_write( $args['work'] . 'source.json', $source );
 efb_ci18n_json_write( $args['work'] . 'changes.json', $changes );
+efb_ci18n_write_pot( $source, $args['pot'], gmdate( 'Y-m-d' ) );
 
 printf(
-	"version %s: %d phrases in this version's packs (%d active, %d obsolete kept); new %d, obsolete %d, returned %d, changed %d\ncatalog: %s\nsource:  %s\n",
+	"version %s: %d phrases in this version's packs (%d active, %d obsolete kept); new %d, obsolete %d, returned %d, changed %d\ncatalog: %s\npot:     %s\nsource:  %s\n",
 	$version,
 	count( $source['entries'] ),
 	$counts['active'],
@@ -260,5 +263,6 @@ printf(
 	count( $changes['returned'] ),
 	count( $changes['changed'] ),
 	$args['catalog'],
+	$args['pot'],
 	$args['work'] . 'source.json'
 );

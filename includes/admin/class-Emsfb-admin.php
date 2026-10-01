@@ -536,6 +536,29 @@ class Admin {
             wp_send_json_success($response, 200);
         }
 
+        /*
+         * The plan gate, decided here rather than by the licensing server.
+         * That server only refuses add-ons it actually sells, so it approves
+         * Conditional Logic for every site and approves everything for
+         * localhost - the Add-ons page drew a lock that the install never
+         * honoured, and clicking it installed the add-on anyway.
+         */
+        if (!$efbFunction->addon_plan_allows_install_efb($post_value)) {
+            $required_package = $efbFunction->addon_required_package_efb($post_value);
+            $this->addon_install_log_efb('request_blocked_local_plan', [
+                'requested_addon' => $post_value,
+                'required_package' => $required_package,
+                'local_package' => (int) get_option('emsfb_pro', 2),
+            ]);
+            wp_send_json_error([
+                'success' => false,
+                'm' => 3 === $required_package ? $lang['thisFeatureAvailableFreePlusPro'] : $lang['proUnlockMsg'],
+                'code' => 'addon_plan_required',
+                'required_package' => $required_package,
+            ], 200);
+            return;
+        }
+
         // Block script injection attempts and make it visible in the logs.
         if ($this->isScript($post_value)) {
             $this->addon_install_log_efb('request_blocked_script_value', [
@@ -839,8 +862,21 @@ class Admin {
                     'response_data' => $data,
                 ]);
                 $remote_reason = isset($data->reason) ? sanitize_key($data->reason) : '';
+                /*
+                 * The server states a refusal as {"status":false,"error":"You do
+                 * not have permission"} - no `reason` at all. Read only as a
+                 * reason, that is an unrecognised failure, so a site on the
+                 * wrong plan was told "the server responded with an invalid
+                 * request" instead of being offered the upgrade.
+                 */
+                $remote_error = isset($data->error) && is_scalar($data->error) ? trim((string) $data->error) : '';
+                if ('' === $remote_reason && '' !== $remote_error && false !== stripos($remote_error, 'permission')) {
+                    $remote_reason = 'plan_required';
+                }
                 if (in_array($remote_reason, ['plan_required', 'package_required', 'premium_required'], true)) {
-                    $required_package = isset($data->required_package) ? (int) $data->required_package : 1;
+                    $required_package = isset($data->required_package)
+                        ? (int) $data->required_package
+                        : $efbFunction->addon_required_package_efb($post_value);
                     $entitlement = $this->addon_local_entitlement_efb($required_package);
 
                     $this->addon_install_log_efb('remote_response_plan_required', [
@@ -3771,11 +3807,12 @@ function admin_notices_efb () {
          */
         $disabled_addons = array();
         if ($is_downgrade) {
-            $addon_keys = $efbFunction->get_all_addon_keys_efb();
-            if ($package_type_efb === 3) {
-                // Offline Forms and Conditional Logic are available in Free Plus.
-                $addon_keys = array_diff($addon_keys, array('AdnOF', 'AdnSMF'));
-            }
+            // Which add-ons the new plan keeps is the same question the install
+            // gate answers, so both read one table (addon_required_package_efb).
+            $addon_keys = array_diff(
+                $efbFunction->get_all_addon_keys_efb(),
+                $efbFunction->addon_keys_allowed_by_package_efb($package_type_efb)
+            );
             foreach ($addon_keys as $addon_key) {
                 if (isset($settings->{$addon_key}) && (int) $settings->{$addon_key} !== 0) {
                     $disabled_addons[] = $addon_key;

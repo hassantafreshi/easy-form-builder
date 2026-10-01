@@ -4,7 +4,7 @@ Donate link: https://whitestudio.team/donate-easy-form-builder/
 Tags: form builder, form plugin, multi step form, email templates, payment form
 Requires at least: 5.0
 Tested up to: 7.1
-Stable tag: 5.2.0
+Stable tag: 4.3.0
 Requires PHP: 7.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -421,13 +421,14 @@ For more information, visit the official website:
 
 == Upgrade Notice ==
 
+= 4.3.0 =
+
+Mandatory update. Improves form builder security and sets up the i18n translation and localization infrastructure. Back up your site before updating.
+
 = 4.2.0 =
 
 Recommended update. Adds an onboarding wizard and direct settings links, improves email delivery monitoring with weekly reports and an Email Error Log, strengthens form submission and add-on handling, and includes database schema updates. Back up your site before updating and verify email delivery, payment notifications, file uploads, and recorder fields after the update.
 
-= 4.1.3 =
-
-* Reliability update: fixes stray empty paragraphs breaking form layout on some themes/page builders, resolves file upload and recorder submission failures, and enforces file size/type limits on the server. Also adds a weekly email deliverability report. Recommended for all users.
 
 = 4.0.0 =
 
@@ -438,6 +439,11 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 
 == Changelog ==
 
+= 4.3.0 =
+
+* Security: Improved form builder security and set up the i18n translation and localization infrastructure.
+
+= 4.2.1 =
 = 4.2.0 =
 
 * New: Added an onboarding wizard for new installations, with setup progress and direct links to the relevant settings tabs.

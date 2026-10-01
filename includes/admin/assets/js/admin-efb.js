@@ -768,16 +768,43 @@ createCardFormEfb = (i) => {
   ${prw}
   </div></div></div>`
 }
+/* The plan an add-on needs: 0 = every plan, 3 = Free Plus or Pro, 1 = Pro.
+   Mirrors addon_required_package_efb() in functions.php - the install endpoint
+   enforces the same table, so a card can never offer what the server refuses.
+   `pro` comes from the remote catalogue and only speaks for add-ons that are
+   sold; it cannot place one in the Free Plus tier. */
+function efb_addon_required_package_efb(item) {
+  const name = typeof item === 'string' ? item : (item && item.name);
+  if (name === 'AdnOF') return 0;
+  if (name === 'AdnSMF') return 3;
+  /* Called with a name by the click handler and with a catalogue row by the
+     card, so resolve the row either way - otherwise the two could disagree
+     about a future add-on the catalogue does not sell. */
+  let row = typeof item === 'object' ? item : null;
+  if (!row && typeof fun_get_addons_efb_admin === 'function') {
+    row = (fun_get_addons_efb_admin() || []).find((a) => a && a.name === name) || null;
+  }
+  return row && row.pro != true ? 0 : 1;
+}
+
+/* One answer for both the card and the click. */
+function efb_addon_can_install_efb(item) {
+  const required = efb_addon_required_package_efb(item);
+  if (required === 0) return true;
+  const packageType = (typeof setting_emsFormBuilder !== 'undefined' && setting_emsFormBuilder
+    && setting_emsFormBuilder.package_type != undefined)
+    ? Number(setting_emsFormBuilder.package_type)
+    : 2;
+  if (packageType === 1) return true;
+  return packageType === 3 && required === 3;
+}
+
 createCardAddoneEfb = (i) => {
 
   tag_efb =tag_efb.concat(i.tag.split(' ')).filter((item, i, ar) => ar.indexOf(item) === i);;
 
-  const packageType = setting_emsFormBuilder.package_type != undefined ? Number(setting_emsFormBuilder.package_type) : 2;
   const isInstalled = efb_var.setting[i.name] == 1;
-  const canInstallAddon = i.name === 'AdnOF'
-    || (i.name === 'AdnSMF' && [1, 3].includes(packageType))
-    || (i.name !== 'AdnSMF' && i.pro != true)
-    || (i.pro == true && packageType === 1);
+  const canInstallAddon = efb_addon_can_install_efb(i);
   const isLockedAddon = !isInstalled && !canInstallAddon;
 
   let funNtn =   `funBTNAddOnsEFB('${i.name}','${i.v_required}')`;
@@ -790,11 +817,16 @@ createCardAddoneEfb = (i) => {
     iconNtn ='';
     colorNtn = 'btn-secondary';
   }else if (isLockedAddon) {
-    // The licensing server is the source of truth for package access. Its
-    // response determines which upgrade message is shown after the request.
-    funNtn=`funBTNAddOnsEFB('${i.name}','${i.v_required}')`;
-    nameNtn = efb_var.text.install;
-    iconNtn ='bi-download';
+    /* A locked card used to keep the word Install and the download icon, so
+       the only hint was the button colour - and the click went through to the
+       install endpoint regardless. Name the plan that unlocks it instead, and
+       open that plan's dialog rather than attempting an install. */
+    const requiredPackage = efb_addon_required_package_efb(i);
+    funNtn=`pro_show_efb(${requiredPackage === 3 ? 3 : 1})`;
+    nameNtn = requiredPackage === 3
+      ? (efb_var.text.freePlus || 'Free Plus')
+      : (efb_var.text.pro || 'Pro');
+    iconNtn ='bi-gem';
     colorNtn = 'btn-warning';
   }
 
@@ -4555,6 +4587,16 @@ funBTNAddOnsEFB=(val,v_required)=>{
   }
   // console.log('efb_version', efb_version, 'v_required', v_required);
  if(efb_version>=v_required){
+  /* Never post an install the plan does not allow. The card already draws the
+     lock; without this the click was sent anyway and whether it installed was
+     left to the licensing server, which does not know about the Free Plus
+     tier and approves every add-on for localhost. */
+  if (typeof efb_addon_can_install_efb === 'function'
+      && efb_var.setting[val] != 1
+      && !efb_addon_can_install_efb(val)) {
+    pro_show_efb(efb_addon_required_package_efb(val) === 3 ? 3 : 1);
+    return;
+  }
   if(check_ar_pr(val)==true){
     addons_btn_state_efb(val);
     actionSendAddons_efb(val);

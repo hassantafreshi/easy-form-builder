@@ -1,6 +1,7 @@
 <?php
 /**
- * Print the next phrases a locale still needs, one compact JSON object per line.
+ * Print the next phrases a locale still needs, one compact JSON object per line, then a
+ * "# next chunk: <file>" line: a chunk file name no earlier spawn has used.
  *
  * Run:
  *   php tests/core-i18n/todo.php --locale=de_AT [--limit=100] [--offset=0] [--count]
@@ -32,3 +33,11 @@ if ( $args['count'] ) {
 foreach ( array_slice( $data['todo'], max( 0, (int) $args['offset'] ), max( 1, (int) $args['limit'] ) ) as $task ) {
 	echo json_encode( $task, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ) . "\n";
 }
+
+$next = 0;
+foreach ( (array) glob( dirname( $file ) . '/chunk-*.json' ) as $chunk ) {
+	if ( preg_match( '/chunk-(\d+)\.json$/', (string) $chunk, $m ) ) {
+		$next = max( $next, (int) $m[1] );
+	}
+}
+printf( "# next chunk: %s/chunk-%03d.json (%d phrases left)\n", dirname( $file ), $next + 1, count( $data['todo'] ) );
