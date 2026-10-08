@@ -600,16 +600,27 @@ function fun_clear_esign_efb(id) {
     }
 }
 function closed_resp_emsFormBuilder(msg_id){
-  const msg = stock_state_efb==false ? efb_var.text.clsdrspnsM : efb_var.text.clsdrspnsMo;
+  /* Read the thread's state here, not when the person answers the dialog:
+     stock_state_efb is rewritten by every message that gets rendered, so by
+     the time the dialog is answered it may be describing another thread. */
+  const wasOpen = stock_state_efb;
+  const msg = wasOpen==false ? efb_var.text.clsdrspnsM : efb_var.text.clsdrspnsMo;
   const body = efb_build_confirm_body('warning', 'bi-exclamation-triangle', efb_var.text.close, msg, '');
-  /* The confirm button only exists once this dialog is on screen, and it
-     waits its turn when another one already is. */
+  /* The confirm button only exists once this dialog is on screen, hence
+     onShown. {replace} because the button that asks for this dialog lives
+     inside the response box, which is itself painted into the shared shell:
+     without it the question would be parked until the person closed the
+     response box by hand, which is precisely the dialog they were answering.
+     {flow} so a second click supersedes the first ask instead of queueing a
+     duplicate behind it. */
   const painted = show_modal_efb(body, efb_var.text.close, 'efb bi-exclamation-triangle mx-2', 'deleteBox', {
+    flow: 'resp-state',
+    replace: true,
     onShown: () => {
       const confirmBtn = document.getElementById('modalConfirmBtnEfb');
       if (!confirmBtn) return;
       confirmBtn.addEventListener("click", (e) => {
-        close_resp_efb(msg_id,stock_state_efb);
+        close_resp_efb(msg_id,wasOpen);
         activeEl_efb = 0;
         state_modal_show_efb(0)
       })

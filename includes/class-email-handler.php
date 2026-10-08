@@ -144,7 +144,9 @@ class EmsfbEmailHandler {
 
         $mailResult = "n";
         $server_name = apply_filters('emsfb_get_server_host', 'yourdomain.com');
-        $from = get_bloginfo('name') . " <no-reply@" . $server_name . ">";
+        $configured_from = is_object($st) ? ($st->femail ?? '') : (is_array($st) ? ($st['femail'] ?? '') : '');
+        $from_email = is_email($configured_from) ? $configured_from : 'no-reply@' . $server_name;
+        $from = get_bloginfo('name') . " <" . $from_email . ">";
 
         if (is_array($to) && isset($to[2]) && is_email($to[2])) {
             $fromEmail = is_array($to[2]) ? array_pop($to[2]) : $to[2];

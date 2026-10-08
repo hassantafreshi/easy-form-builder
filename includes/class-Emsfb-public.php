@@ -2210,6 +2210,24 @@ public function check_nonce_permission_efb($request) {
 		);
 	}
 
+	/** Read canonical decoded settings; never strip valid JSON escapes. */
+	private function get_submission_settings_efb(&$source) {
+		$source = 'object-cache';
+		$settings = wp_cache_get('emsfb_settings', 'emsfb');
+		if (!is_array($settings) || empty($settings)) {
+			$source = 'storage';
+			$decoded = get_setting_Emsfb('decoded');
+			$settings = (is_object($decoded) || is_array($decoded)) ? json_decode(wp_json_encode($decoded), true) : [];
+			$settings = is_array($settings) ? $settings : [];
+			if (!empty($settings)) {
+				wp_cache_set('emsfb_settings', $settings, 'emsfb', 3600);
+			}
+		}
+		// Keep the submission gate and the mail template on the same snapshot.
+		$this->setting = json_decode(wp_json_encode($settings));
+		return $settings;
+	}
+
 	  public function get_form_public_efb($data_POST_) {
 		$request_data = $data_POST_->get_json_params();
 
@@ -2239,18 +2257,7 @@ public function check_nonce_permission_efb($request) {
 		$user_id = 1;
 		$admin_email_list = [];
 
-		$settings_source = 'object-cache';
-		if (false === ($plugin_settings = wp_cache_get('emsfb_settings' , 'emsfb'))) {
-			$settings_source = ($this->setting != NULL && !empty($this->setting)) ? 'instance' : 'storage';
-			$r = $this->setting != NULL && !empty($this->setting) ? $this->setting : get_setting_Emsfb('raw');
-			$plugin_settings = is_string($r) ? json_decode(str_replace("\\", "", $r), true) : $r;
-			// Same TTL as the settings:* keys - set_setting_Emsfb() invalidates this
-			// key too, and the expiry keeps a missed invalidation self-healing.
-			wp_cache_set('emsfb_settings', $plugin_settings , 'emsfb', 3600);
-		} else {
-
-			$r = $this->setting != NULL && !empty($this->setting) ? $this->setting : get_setting_Emsfb('raw');
-		}
+		$plugin_settings = $this->get_submission_settings_efb($settings_source);
 
 		$this->efb_trace('submit.settings', [
 			'form_id'         => intval($this->id),
@@ -2260,15 +2267,6 @@ public function check_nonce_permission_efb($request) {
 			'sending_enabled' => emsfb_is_email_sending_enabled_efb($plugin_settings),
 			'emailSupporter'  => is_array($plugin_settings) && isset($plugin_settings['emailSupporter']) ? $plugin_settings['emailSupporter'] : null,
 		]);
-
-		if (is_string($r)) {
-			$r = str_replace('\\', '', $r);
-			$this->setting = json_decode($r);
-		} else if (is_array($plugin_settings)) {
-			$this->setting = json_decode(json_encode($plugin_settings), false);
-		} else if (is_object($r)) {
-			$this->setting = $r;
-		}
 
 		if (isset($plugin_settings['emailSupporter'])) {
 			array_push($admin_email_list, $plugin_settings['emailSupporter']);
@@ -2318,8 +2316,17 @@ public function check_nonce_permission_efb($request) {
 			$encoded = wp_json_encode($raw_value);
 			$this->value = is_string($encoded) ? $encoded : '';
 		} elseif (is_scalar($raw_value)) {
-			$this->value = str_replace('\\', '', (string) $raw_value);
-			$submitted_values = json_decode($this->value, true);
+			// Decode as the client sent it, so a value containing a double
+			// quote (which arrives JSON-escaped) no longer breaks the JSON and
+			// makes the whole form look empty. The stripped form stays a
+			// fallback for older/page-cached clients; $this->value keeps its
+			// legacy stripped meaning for the few paths that read it directly.
+			$raw_value = (string) $raw_value;
+			$submitted_values = json_decode($raw_value, true);
+			if (!is_array($submitted_values)) {
+				$submitted_values = json_decode(str_replace('\\', '', $raw_value), true);
+			}
+			$this->value = str_replace('\\', '', $raw_value);
 		} else {
 			$this->value = '';
 			$submitted_values = null;
@@ -3185,8 +3192,7 @@ public function check_nonce_permission_efb($request) {
 					$response = ['success' => false, 'm' => $error_message, 'field_id' => $error_field_id];
 					wp_send_json_success($response, 200);
 				}
-				$this->value = json_encode($validated_items, JSON_UNESCAPED_UNICODE);
-				$this->value = str_replace('"', '\\"', $this->value);
+				$this->value = $this->efb_encode_rows_for_storage_efb($validated_items);
 				if ($form_condition == 'booking') {
 					$table_name = $this->db->prefix . "emsfb_form";
 					$id = sanitize_text_field($request_data['id']);
@@ -3273,8 +3279,8 @@ public function check_nonce_permission_efb($request) {
 							$this->email_list_efb($email_recipients, 0, $form_admin_email, true);
 					}
 
-					if(isset($setttting['femail']) && is_email($plugin_settings['femail'])){
-						$email_recipients[2] = $plugin_settings->femail ;
+					if(isset($plugin_settings['femail']) && is_email($plugin_settings['femail'])){
+						$email_recipients[2] = $plugin_settings['femail'];
 					}
 
 					$this->efb_trace('submit.gate', [
@@ -4996,7 +5002,10 @@ public function check_nonce_permission_efb($request) {
 
 		$this->id =sanitize_text_field($data_POST['id']);
 		$by ="";
-		if(empty($data_POST['message']) ){
+		/* The composer always sends the reply as a JSON string; anything else
+		 * (an array from a hand-built request) used to reach isHTML()'s
+		 * preg_match() and fatal. */
+		if(empty($data_POST['message']) || !is_string($data_POST['message'])){
 			$response = array( 'success' => false , "m"=>$this->lanText['pleaseEnterVaildValue']);
 			wp_send_json_success($response,200);
 		}
@@ -5011,7 +5020,10 @@ public function check_nonce_permission_efb($request) {
 		 $page_id = isset($data_POST['page_id']) ? absint($data_POST['page_id']) : 0;
 		$cache_plugins = get_option('emsfb_cache_plugins','0');
 		if($cache_plugins!='0')$this->cache_cleaner_Efb($page_id ,$cache_plugins);
-		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting: get_setting_Emsfb('raw');
+		/* Only the raw string is usable below: other methods - this one
+		 * included - keep the decoded object in $this->setting, and reading
+		 * that answered every later reply with "Settings not found". */
+		$r= is_string($this->setting) && $this->setting !== '' ? $this->setting: get_setting_Emsfb('raw');
 
 		if(gettype($r)=="string"){
 			$r =str_replace('\\', '', $r);
@@ -5032,8 +5044,19 @@ public function check_nonce_permission_efb($request) {
 			$id;
 				$id=number_format(sanitize_text_field($data_POST['id']));
 				$m=sanitize_text_field($data_POST['message']);
-				$m = str_replace("\\","",$m);
-				$message =json_decode($m);
+				/* The reply composer sends its text as-is, so a straight double
+				 * quote arrives JSON-escaped (\"). Stripping every backslash
+				 * before decoding turned that into invalid JSON, json_decode()
+				 * returned null and array_values(null) below ended the request
+				 * with a PHP fatal - the browser only saw "HTTP 500" and the
+				 * reply was lost. Decode the payload as sent first; the stripped
+				 * form stays as a fallback for older clients. */
+				$message = json_decode($m);
+				if (!is_array($message)) $message = json_decode(str_replace("\\","",$m));
+				if (!is_array($message) || empty($message)) {
+					$response = array( 'success' => false , "m"=>$this->lanText['pleaseEnterVaildValue']);
+					wp_send_json_success($response,200);
+				}
 				$valobj=[];
 				$stated=1;
 				foreach ($message as $k =>$f){
@@ -5086,6 +5109,16 @@ public function check_nonce_permission_efb($request) {
 						}
 				}
 				$message = array_values($message);
+				/* Every reader of a stored reply strips backslashes before
+				 * decoding it, so a raw quote saved here would break the whole
+				 * conversation on the next load. Store it the way form
+				 * submissions do; the viewers and emails decode @efb@dq#. */
+				foreach ($message as $row) {
+					if (!is_object($row)) continue;
+					foreach (get_object_vars($row) as $prop => $val) {
+						if (is_string($val) && strpos($val, '"') !== false) $row->$prop = str_replace('"', '@efb@dq#', $val);
+					}
+				}
 				$m = json_encode($message,JSON_UNESCAPED_UNICODE);
 				$m = str_replace('"', '\\"', $m);
 				$ip =$this->ip= $this->get_ip_address();
@@ -7104,12 +7137,22 @@ public function check_nonce_permission_efb($request) {
 
 		$active_plugins = array();
 
+		/* Stored folder slugs whose purge handler is keyed under another name.
+		 * Without this, a stored sg-cachepress / swift-performance-lite entry
+		 * fills $active_plugins with a slug no handler matches and the
+		 * probing fallback below never runs, so nothing is purged. */
+		$slug_aliases = array(
+			'sg-cachepress' => 'sg-optimizer',
+			'swift-performance-lite' => 'swift-performance',
+		);
+
 		if ($plugins !== null) {
 			$cache_plugins = json_decode($plugins);
 			if (!empty($cache_plugins) && is_array($cache_plugins)) {
 				foreach ($cache_plugins as $plugin) {
 					if (isset($plugin->slug)) {
-						$active_plugins[$plugin->slug] = true;
+						$slug = isset($slug_aliases[$plugin->slug]) ? $slug_aliases[$plugin->slug] : $plugin->slug;
+						$active_plugins[$slug] = true;
 					}
 				}
 			}
@@ -7311,6 +7354,58 @@ public function check_nonce_permission_efb($request) {
 			$decoded = json_decode( str_replace( '\\', '', $raw ) );
 		}
 		return is_object( $decoded ) ? $decoded : null;
+	}
+
+	/**
+	 * Encode validated rows for storage in emsfb_msg_.content.
+	 *
+	 * The stored string escapes its structural quotes as \" and every reader
+	 * (the response viewer, the entries list, the PHP readers) strips ALL
+	 * backslashes before json_decode. A literal double quote inside a value
+	 * would survive that strip as a bare " and break the whole record, so it
+	 * is carried as the @efb@dq# marker the viewers and emails already decode -
+	 * exactly what the form client does for its own values.
+	 *
+	 * @param array|object $rows Validated rows.
+	 * @return string The content to store.
+	 */
+	private function efb_encode_rows_for_storage_efb( $rows ) {
+		$walk = function ( &$v ) use ( &$walk ) {
+			if ( is_array( $v ) ) {
+				foreach ( $v as &$child ) { $walk( $child ); }
+				unset( $child );
+			} elseif ( is_object( $v ) ) {
+				foreach ( get_object_vars( $v ) as $k => $child ) { $walk( $child ); $v->$k = $child; }
+			} elseif ( is_string( $v ) ) {
+				$v = str_replace( '"', '@efb@dq#', $v );
+			}
+		};
+		$walk( $rows );
+		$json = json_encode( $rows, JSON_UNESCAPED_UNICODE );
+		return str_replace( '"', '\\"', is_string( $json ) ? $json : '' );
+	}
+
+	/**
+	 * Decode a client-sent JSON payload string into rows.
+	 *
+	 * The bundled clients send values as typed, so a double quote arrives
+	 * JSON-escaped (\"). Decoding the payload as sent is therefore tried first;
+	 * the backslash-stripped form is kept only as a fallback for an older or
+	 * page-cached client. Returns null when neither form is the expected shape.
+	 *
+	 * @param mixed $raw   The raw payload (expected: a JSON string).
+	 * @param bool  $assoc Whether to decode objects as associative arrays.
+	 * @return array|object|null
+	 */
+	private function efb_decode_client_rows_efb( $raw, $assoc = true ) {
+		if ( ! is_string( $raw ) ) {
+			return null;
+		}
+		$out = json_decode( $raw, $assoc );
+		if ( ! is_array( $out ) && ! is_object( $out ) ) {
+			$out = json_decode( str_replace( '\\', '', $raw ), $assoc );
+		}
+		return ( is_array( $out ) || is_object( $out ) ) ? $out : null;
 	}
 
 	/* Resolve a payment key (stripePKey/stripeSKey/paypalPKey/...) with the

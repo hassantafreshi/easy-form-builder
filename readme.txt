@@ -4,7 +4,7 @@ Donate link: https://whitestudio.team/donate-easy-form-builder/
 Tags: form builder, form plugin, multi step form, email templates, payment form
 Requires at least: 5.0
 Tested up to: 7.1
-Stable tag: 4.3.0
+Stable tag: 4.3.1
 Requires PHP: 7.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -438,6 +438,10 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 
 
 == Changelog ==
+
+= 4.3.1 =
+
+* Improved: The email test report now warns about active page caching plugins, SiteGround and Swift Performance Lite are detected, and form submissions and replies containing double quotes no longer fail.
 
 = 4.3.0 =
 

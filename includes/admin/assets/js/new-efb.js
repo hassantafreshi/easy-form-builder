@@ -241,17 +241,32 @@ const efb_modal_watch_efb = () => {
       window._efb_modal_watch_efb = 0;
       return;
     }
-    if (efb_modal_shell_busy_efb()) return;
-    /* A backdrop that outlives its dialog means the close is still playing
-       out. Its teardown runs on a timer, so opening now would hand the new
-       dialog a backdrop that is about to be removed. */
-    if (document.querySelector('.efb-modal-backdrop')) return;
-
-    const spec = window._efb_modal_parked_efb.shift();
-    efb_modal_paint_efb(spec.body, spec.title, spec.icon, spec.type, spec.opts);
-    state_modal_show_efb(1);
-    efb_modal_after_shown_efb(spec.opts);
+    efb_modal_drain_efb();
   }, 400);
+};
+
+/**
+ * Paint the oldest waiting request, if the screen is free right now.
+ *
+ * Split out of the poll so a caller that has just freed the screen itself -
+ * see {replace} below - can hand the waiting dialog over as soon as the
+ * close has played out, instead of sitting through up to a full poll tick.
+ *
+ * @returns {boolean} true when a parked dialog was painted.
+ */
+const efb_modal_drain_efb = () => {
+  if (!window._efb_modal_parked_efb.length) return false;
+  if (efb_modal_shell_busy_efb()) return false;
+  /* A backdrop that outlives its dialog means the close is still playing
+     out. Its teardown runs on a timer, so opening now would hand the new
+     dialog a backdrop that is about to be removed. */
+  if (document.querySelector('.efb-modal-backdrop')) return false;
+
+  const spec = window._efb_modal_parked_efb.shift();
+  efb_modal_paint_efb(spec.body, spec.title, spec.icon, spec.type, spec.opts);
+  state_modal_show_efb(1);
+  efb_modal_after_shown_efb(spec.opts);
+  return true;
 };
 
 /** Run a caller's post-paint wiring once the dialog is really on screen. */
@@ -268,6 +283,12 @@ const efb_modal_after_shown_efb = (opts) => {
  *                        of a deleteBox/duplicateBox footer;
  *                        {flow} names the flow this dialog belongs to, so a
  *                        later call naming the same flow may paint over it;
+ *                        {replace} is for a dialog that is *answering* the
+ *                        one on screen - a confirmation asked by a button
+ *                        inside it. Waiting its turn there would mean
+ *                        waiting for the person to close the dialog they
+ *                        just acted in, so the shell is closed for them and
+ *                        this dialog takes over by itself;
  *                        {onShown} runs once the dialog is actually visible,
  *                        which is where button wiring belongs - a parked
  *                        dialog is not in the DOM when show_modal_efb()
@@ -287,8 +308,28 @@ const show_modal_efb = (body, title, icon, type, opts) => {
   // Painting is allowed when the screen is free, or when this call belongs
   // to the flow already on it. Everything else waits its turn.
   const owns = !!opts.flow && opts.flow === efb_modal_current_flow_efb();
-  if (!owns && efb_modal_shell_busy_efb()) {
+  /* A request of this flow still waiting must not be jumped: the screen can
+     be momentarily free between a {replace} close and the hand-over, and
+     painting into that gap would leave the earlier ask queued behind this
+     one, to surface later as a dialog nobody asked for. Parking supersedes
+     it in place instead - see efb_modal_park_efb(). */
+  const queued = !!opts.flow &&
+    window._efb_modal_parked_efb.some((q) => q.opts.flow === opts.flow);
+  if (!owns && (queued || efb_modal_shell_busy_efb())) {
     efb_modal_park_efb({ body: body, title: title, icon: icon, type: type, opts: opts });
+    /* {replace}: this dialog answers the one holding the shell, so nobody is
+       going to close that one first. Close it here and hand the screen over
+       as soon as the close has played out - the poll started by the park is
+       the fallback if it has not. Only the shared shell is closed this way;
+       a dialog of its own, such as the review invitation, is still somebody
+       else's and waits its turn. */
+    if (opts.replace) {
+      const shell = document.getElementById('settingModalEfb');
+      if (shell && shell.classList.contains('show')) {
+        state_modal_show_efb(0);
+        setTimeout(efb_modal_drain_efb, 300);
+      }
+    }
     return false;
   }
 

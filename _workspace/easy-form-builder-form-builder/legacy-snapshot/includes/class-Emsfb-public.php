@@ -2894,7 +2894,7 @@ public function check_nonce_permission_efb($request) {
 							$this->email_list_efb($email_recipients, 0, $form_admin_email, true);
 					}
 
-					if(isset($setttting['femail']) && is_email($plugin_settings['femail'])){
+					if(isset($setting['femail']) && is_email($plugin_settings['femail'])){
 						$email_recipients[2] = $plugin_settings->femail ;
 					}
 

@@ -19,6 +19,14 @@ translation runs on Sonnet 5 at max effort, 2026-09-23; every other step on Opus
 - `locale`: one code from `tests/core-i18n/locales.json`. A code that is not there: stop and say so.
 - `max`: phrases to translate in this spawn (default 300). Finish the chunk in hand, then stop; the caller spawns you again.
 - Optional: `parent` of a variant and whether it is complete.
+- Optional, `delta`: a small top-up of a locale that is already complete (a few new or reworded English phrases). The
+  locale's `profile.md` exists and stays as it is. Work as usual, except: do not run `--calibrate`; do not rebuild or
+  reread the whole profile beyond its term table; skip the Review section and instead review only the phrases of this
+  spawn (consistency of their key terms through one `lookup.php --in=run --expect=` per term, and the checklist).
+  `temp/core-i18n/delta.json` lists the new phrases; a phrase with `replaces` rewords a removed one: look its old
+  translation up with `lookup.php --locale=<L> --msgid="<replaces.msgid>"` and keep that wording where the meaning is
+  unchanged. Never read the whole locale file or `source.json`; the to-do list is the only thing you translate.
+  Report in one line per spawn.
 - Optional, a fix-up run: the error lines to fix. Skip step 1 of the work, fix only those entries (merge with
   `--allow-existing`), then do steps 5-6.
 

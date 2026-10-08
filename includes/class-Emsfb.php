@@ -795,7 +795,7 @@ class Emsfb {
             'autoptimize', 'wp-rest-cache', 'speedycache', 'clear-cache-for-widgets',
             'wp-cache', 'wp-cache-system', 'atec-cache-info', 'atec-cache-apcu',
             'wpspeed', 'wp-speed', 'flying-press',
-            'sg-optimizer', 'swift-performance', 'powered-cache'
+            'sg-optimizer', 'sg-cachepress', 'swift-performance', 'swift-performance-lite', 'powered-cache'
         );
 
         $security_plugins_slug = array(
@@ -834,7 +834,7 @@ class Emsfb {
             'autoptimize', 'wp-rest-cache', 'speedycache', 'clear-cache-for-widgets',
             'wp-cache', 'wp-cache-system', 'atec-cache-info', 'atec-cache-apcu',
             'wpspeed', 'wp-speed', 'flying-press',
-            'sg-optimizer', 'swift-performance', 'powered-cache'
+            'sg-optimizer', 'sg-cachepress', 'swift-performance', 'swift-performance-lite', 'powered-cache'
         );
         $slug = dirname($plugin);
         if (in_array($slug, $cache_plugins_slug)) {
@@ -854,7 +854,7 @@ class Emsfb {
             'autoptimize', 'wp-rest-cache', 'speedycache', 'clear-cache-for-widgets',
             'wp-cache', 'wp-cache-system', 'atec-cache-info', 'atec-cache-apcu',
             'wpspeed', 'wp-speed', 'flying-press',
-            'sg-optimizer', 'swift-performance', 'powered-cache'
+            'sg-optimizer', 'sg-cachepress', 'swift-performance', 'swift-performance-lite', 'powered-cache'
         );
 
         $cache_plugins_slug = apply_filters('emsfb_cache_plugins_slug', $cache_plugins_slug);
@@ -893,6 +893,81 @@ class Emsfb {
         }
 
         return $plugin_list;
+    }
+
+    /**
+     * Slugs in the stored caching list that never keep a saved copy of a page.
+     *
+     * The stored list is wider on purpose (the public cache cleaner and the
+     * builder hints use it), but the email test report tells the administrator
+     * that a cached page can break their forms, and saying that about Jetpack
+     * or an asset optimizer is a false alarm on a very large number of sites.
+     */
+    const NOT_PAGE_CACHE_SLUGS = [
+        // atec-cache-apcu is NOT listed: EFB's own public cache purger treats it
+        // as a page cache (atec_wpca_delete_page with the '_p' suffix), so the
+        // notice must fire for it too.
+        'jetpack', 'autoptimize', 'clear-cache-for-widgets', 'atec-cache-info',
+    ];
+
+    /**
+     * Comma separated names of the page caching plugins this site runs, or ''.
+     *
+     * Sent with the email delivery test so the report the administrator gets
+     * after the first-run guide or a manual test can carry the cache exclusion
+     * notice. The weekly report never carries it.
+     *
+     * The stored list is only rebuilt on plugin install/activation/update, so
+     * the rebuild is triggered first: a caching plugin activated since then
+     * would otherwise stay invisible here. The value is capped because the
+     * tester service stores it in a fixed width column, and a site cannot run
+     * enough caching plugins for the cap to ever shorten a real list.
+     *
+     * @return string
+     */
+    public static function cache_plugins_names() {
+        if (has_action('emsfb_update_cache_plugins_list')) {
+            do_action('emsfb_update_cache_plugins_list');
+        }
+
+        $raw = get_option('emsfb_cache_plugins', 0);
+        if (!is_string($raw) || '' === $raw || '0' === $raw) {
+            return '';
+        }
+
+        $plugins = json_decode($raw, true);
+        if (!is_array($plugins) || empty($plugins)) {
+            return '';
+        }
+
+        $names = [];
+        foreach ($plugins as $plugin) {
+            if (is_array($plugin) && isset($plugin['slug']) && in_array((string) $plugin['slug'], self::NOT_PAGE_CACHE_SLUGS, true)) {
+                continue;
+            }
+            $name = is_array($plugin) && isset($plugin['name']) ? sanitize_text_field((string) $plugin['name']) : '';
+            if ('' !== $name && !in_array($name, $names, true)) {
+                $names[] = $name;
+            }
+        }
+
+        // Cap to the width of the service column (500) in BYTES, on a whole-name
+        // boundary. The service stores this in a fixed 500-char column and its
+        // own sanitizer cuts by bytes, so a byte cut through the middle of a
+        // multibyte name (a Persian or Cyrillic plugin name) would be invalid
+        // UTF-8 and make the service reject or mangle the value. Dropping whole
+        // names keeps it valid without mbstring. A real site never runs enough
+        // caching plugins for the cap to shorten the list at all.
+        $list = '';
+        foreach ($names as $name) {
+            $next = '' === $list ? $name : $list . ', ' . $name;
+            if (strlen($next) > 500) {
+                break;
+            }
+            $list = $next;
+        }
+
+        return $list;
     }
 
 

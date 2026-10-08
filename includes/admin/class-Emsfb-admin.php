@@ -2252,20 +2252,28 @@ class Admin {
         ];
     }
 
-    private function request_email_tester_start_efb($sender_email, $admin_email, $efbFunction) {
-        $body = [
-            'site_url' => home_url(),
-            'sender_email' => $sender_email,
-            'admin_email' => $admin_email,
-            'plugin' => 'easy-form-builder',
-            'plugin_version' => defined('EMSFB_PLUGIN_VERSION') ? EMSFB_PLUGIN_VERSION : '',
-            'wp_version' => get_bloginfo('version'),
-            'php_version' => phpversion(),
-            'language' => get_locale(),
-            'license_type' => $efbFunction->is_efb_pro(1) ? 'pro' : 'free',
-            'license_key' => '',
-        ];
+    /**
+     * Active page caching plugin names, for the tester service to decide
+     * whether the administrator report needs the cache exclusion notice.
+     *
+     * Only this test (the first-run guide and the manual test in settings)
+     * sends it; the weekly report never warns about caching. Returns '' when
+     * the site runs no known page caching plugin, capped to the width of the
+     * column the service stores the value in.
+     *
+     * @return string
+     */
+    private function active_cache_plugins_names_efb() {
+        return \Emsfb::cache_plugins_names();
+    }
 
+    /**
+     * Post a /start request and decode the response.
+     *
+     * @param array $body Request body.
+     * @return array{request:array|WP_Error,code:int,raw:string,data:array|null}
+     */
+    private function email_tester_post_start_efb($body) {
         $this->email_tester_log_efb('start_request_before_remote', [
             'run_id' => $this->email_tester_current_run_id_efb(),
             'endpoint' => $this->email_tester_endpoint_efb('/start'),
@@ -2287,11 +2295,8 @@ class Admin {
                 'message' => $request->get_error_message(),
                 'code' => $request->get_error_code(),
             ]);
-            return [
-                'success' => false,
-                'm' => $request->get_error_message(),
-                'stage' => 'start'
-            ];
+
+            return ['request' => $request, 'code' => 0, 'raw' => '', 'data' => null];
         }
 
         $code = (int) wp_remote_retrieve_response_code($request);
@@ -2303,7 +2308,76 @@ class Admin {
             'body' => $data,
             'raw_body' => is_array($data) ? null : $raw_body,
         ]);
-        if (!is_array($data)) {
+
+        return [
+            'request' => $request,
+            'code' => $code,
+            'raw' => $raw_body,
+            'data' => is_array($data) ? $data : null,
+        ];
+    }
+
+    /**
+     * Whether the service refused the request because of an argument it does
+     * not know yet, which is what an older service does with caching_plugins.
+     *
+     * @param int        $code HTTP status.
+     * @param array|null $data Decoded response.
+     * @return bool
+     */
+    private function email_tester_start_rejected_unknown_field_efb($code, $data) {
+        if ((400 !== $code && 413 !== $code) || !is_array($data)) {
+            return false;
+        }
+
+        $error_code = isset($data['code']) ? (string) $data['code'] : '';
+
+        return in_array($error_code, [
+            'api_guard_unknown_body_arg',
+            'api_guard_too_many_body_args',
+            'api_guard_body_arg_too_large',
+        ], true);
+    }
+
+    private function request_email_tester_start_efb($sender_email, $admin_email, $efbFunction) {
+        $body = [
+            'site_url' => home_url(),
+            'sender_email' => $sender_email,
+            'admin_email' => $admin_email,
+            'plugin' => 'easy-form-builder',
+            'plugin_version' => defined('EMSFB_PLUGIN_VERSION') ? EMSFB_PLUGIN_VERSION : '',
+            'wp_version' => get_bloginfo('version'),
+            // PHP_VERSION, not phpversion(): the latter is on the list a host
+            // can disable through disable_functions, and calling it there is a
+            // fatal that would kill the whole test before it starts.
+            'php_version' => PHP_VERSION,
+            'language' => get_locale(),
+            'license_type' => $efbFunction->is_efb_pro(1) ? 'pro' : 'free',
+            'license_key' => '',
+        ];
+
+        // Only sent on a site that actually runs a caching plugin: an empty
+        // value would carry no information and would still be an argument an
+        // older service does not accept.
+        $caching_plugins = $this->active_cache_plugins_names_efb();
+        if ('' !== $caching_plugins) {
+            $body['caching_plugins'] = $caching_plugins;
+        }
+
+        $response = $this->email_tester_post_start_efb($body);
+
+        if (is_wp_error($response['request'])) {
+            return [
+                'success' => false,
+                'm' => $response['request']->get_error_message(),
+                'stage' => 'start'
+            ];
+        }
+
+        $code = $response['code'];
+        $data = $response['data'];
+
+        if (null === $data) {
             return [
                 'success' => false,
                 'm' => esc_html__('The email tester service returned an invalid JSON response.', 'easy-form-builder'),
@@ -2313,6 +2387,46 @@ class Admin {
         }
 
         if ($code < 200 || $code >= 300 || empty($data['success'])) {
+            // A service that predates the caching notice rejects caching_plugins
+            // as an unknown argument. Losing the notice is acceptable, losing
+            // the test is not, so the request is repeated without the field.
+            if (isset($body['caching_plugins']) && $this->email_tester_start_rejected_unknown_field_efb($code, $data)) {
+                $retry_body = $body;
+                unset($retry_body['caching_plugins']);
+
+                $this->email_tester_log_efb('start_retry_without_cache_plugins', [
+                    'run_id' => $this->email_tester_current_run_id_efb(),
+                    'http_code' => $code,
+                ]);
+                $retry = $this->email_tester_post_start_efb($retry_body);
+
+                if (!is_wp_error($retry['request'])
+                    && is_array($retry['data'])
+                    && $retry['code'] >= 200 && $retry['code'] < 300
+                    && !empty($retry['data']['success'])) {
+                    return [
+                        'success' => true,
+                        'm' => isset($retry['data']['message']) ? sanitize_text_field($retry['data']['message']) : '',
+                        'stage' => 'start',
+                        'test' => $retry['data'],
+                    ];
+                }
+
+                // The retry is the real attempt once caching_plugins is gone,
+                // so its outcome - a network error, a timeout, a rate limit -
+                // is what the administrator must see. Reporting the first
+                // "unknown field" refusal instead would hide the actual reason.
+                if (is_wp_error($retry['request'])) {
+                    return [
+                        'success' => false,
+                        'm' => $retry['request']->get_error_message(),
+                        'stage' => 'start',
+                    ];
+                }
+                $code = $retry['code'];
+                $data = is_array($retry['data']) ? $retry['data'] : $data;
+            }
+
             return [
                 'success' => false,
                 'm' => isset($data['message']) ? sanitize_text_field($data['message']) : esc_html__('The email tester service could not start the test.', 'easy-form-builder'),
