@@ -960,11 +960,40 @@ function calPLenEfb(len) {
   else { p = 1.1 }
   return p;
 }
+// Parse ordinary JSON first. Older EFB storage escaped every quote once more;
+// reverse only that layer, preserving backslashes and escapes inside values.
+function efbParseJson(value, preserveEncoding = false) {
+  if (typeof value !== 'string') return value;
+  if (value.charCodeAt(0) === 0xFEFF) value = value.slice(1);
+  let originalError;
+  try { const decoded = JSON.parse(value); return preserveEncoding ? value : decoded; } catch (error) { originalError = error; }
+  const firstQuote = value.indexOf('"');
+  if (firstQuote <= 0 || value[firstQuote - 1] !== '\\') throw originalError;
+  let candidate = value;
+  for (let i = 0; i < 5; i++) {
+    const next = candidate.replace(/\\(?=")/g, '');
+    if (next === candidate) break;
+    candidate = next;
+    try { const decoded = JSON.parse(candidate); return preserveEncoding ? candidate : decoded; } catch (error) {}
+  }
+  candidate = value;
+  for (let i = 0; i < 5; i++) {
+    const next = candidate.replace(/\\([\\'"0])/g, function (_, char) { return char === '0' ? '\0' : char; });
+    if (next === candidate) break;
+    candidate = next;
+    try { const decoded = JSON.parse(candidate); return preserveEncoding ? candidate : decoded; } catch (error) {}
+  }
+  throw originalError;
+}
+
+function efbNormalizeJson(value) {
+  if (typeof value !== 'string') return value;
+  return efbParseJson(value, true);
+}
+
 function replaceContentMessageEfb(value){
   if(typeof value !== 'string') return value;
-  value = value.replace(/[\\]/g, '');
-  value = value.replaceAll(/(\\"|"\\)/g, '"');
-  value = value.replaceAll(/(\\\\n|\\\\r)/g, '<br>');
+  // Field text can itself look like JSON; only parsers should normalize it.
    value = value.replaceAll("@efb@sq#","'");
    value = value.replaceAll("@efb@vq#","`");
    value = value.replaceAll("@efb@dq#",`''`);

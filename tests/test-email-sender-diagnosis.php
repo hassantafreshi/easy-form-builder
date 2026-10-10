@@ -51,4 +51,9 @@ $handler->send_email_state_new('recipient@example.invalid', 'Diagnostic', 'body'
 check_diagnosis('Array settings select the configured sender', $captured[5]['headers'][1] === 'From:GRAND COEUR e.V. <array@example.org>');
 $handler->send_email_state_new('recipient@example.invalid', 'Diagnostic', 'body', false, 'newMessage', '', ['femail' => 'invalid']);
 check_diagnosis('Invalid configured sender retains existing host fallback', $captured[6]['headers'][1] === 'From:GRAND COEUR e.V. <no-reply@www.ong-grandcoeur.org>');
+$tracking_content = new ReflectionMethod('EmsfbEmailHandler', 'generate_tracking_link_content');
+$tracking_content->setAccessible(true);
+$quoted_html = '<p>متن &quot;quoted&quot; &amp;quot;encoded&amp;quot;</p>';
+check_diagnosis('Email message retains encoded quotation marks', $tracking_content->invoke($handler, $quoted_html, [], '', '', 'register') === $quoted_html);
+check_diagnosis('Paired email content retains encoded quotation marks', $tracking_content->invoke($handler, ['track', $quoted_html], ['WeRecivedUrM' => 'Received'], '', '', 'register') === $quoted_html);
 echo "No real email sent; no database or settings changed.\n";

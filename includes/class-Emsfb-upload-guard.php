@@ -3,6 +3,7 @@
 namespace Emsfb;
 
 defined('ABSPATH') || exit;
+require_once __DIR__ . '/json-efb.php';
 
 /**
  * Single decision point for "may this file be written to disk, and may this
@@ -456,7 +457,7 @@ class Upload_Guard {
         $types = array('file', 'dadfile', 'audio_recorder', 'video_recorder', 'screen_recorder');
 
         if (is_string($structure)) {
-            $decoded = json_decode(str_replace('\\', '', $structure));
+            $decoded = \emsfb_json_decode_efb($structure);
             if (!is_array($decoded)) {
                 /* Undecodable structure: fall back to counting the type markers
                  * in the raw string so a stored-escaping quirk cannot collapse

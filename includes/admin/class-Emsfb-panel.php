@@ -348,15 +348,9 @@ class Panel_edit  {
 			$stng = $this->db->get_results( "SELECT * FROM `$table_name`  ORDER BY id DESC LIMIT 1" );
 
 			if (!empty($stng) && isset($stng[0]->setting)) {
-				$decoded = json_decode($stng[0]->setting);
-				if ($decoded === null) {
-					$decoded = json_decode(stripslashes($stng[0]->setting));
-				}
+				$decoded = \emsfb_json_decode_efb($stng[0]->setting);
 				if ($decoded !== null) {
 
-					if (isset($decoded->emailTemp)) {
-						$decoded->emailTemp = str_replace('"', "'", $decoded->emailTemp);
-					}
 					$stng[0]->setting = json_encode($decoded, JSON_UNESCAPED_UNICODE);
 				}
 			}

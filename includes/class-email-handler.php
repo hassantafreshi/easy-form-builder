@@ -783,7 +783,7 @@ class EmsfbEmailHandler {
 
         if (is_string($m)) {
 
-            $m = str_replace(['&quot;', '&amp;quot;'], '', $m);
+            // Encoded quotes belong to the message and must remain visible.
 
             if (strpos($m, '<h2>') !== false || strpos($m, '<div') !== false || strpos($m, '<p>') !== false) {
 
@@ -798,7 +798,7 @@ class EmsfbEmailHandler {
         } elseif (is_array($m) && count($m) >= 2) {
 
             $track_id = $m[0];
-            $content = str_replace(['&quot;', '&amp;quot;'], '', $m[1]);
+            $content = $m[1];
             $title = ($state == "newMessage") ? $lang["newMessageReceived"] : $lang["WeRecivedUrM"];
 
             if ($isRegistrationState && (strpos($content, '<') !== false)) {

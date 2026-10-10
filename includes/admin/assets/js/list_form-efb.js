@@ -2,17 +2,7 @@
  let devMode_efb = false
 
 function efb_safe_json_parse(str) {
-  try { return JSON.parse(str); } catch (e) {  }
-  var v = str.replace(/[\\]/g, '');
-  v = v.replace(/[\x00-\x1F\x7F]/g, function(c) {
-    switch (c) {
-      case '\n': return '\\n';
-      case '\r': return '\\r';
-      case '\t': return '\\t';
-      default: return '';
-    }
-  });
-  return JSON.parse(v);
+  return efbParseJson(str);
 }
 
 if (typeof efbLoadingCard === 'undefined') {
@@ -205,14 +195,8 @@ jQuery(function () {
   devMode_efb =Number(ajax_object_efm.devMode) === 1 ? true : false;
   if (ajax_object_efm.setting, ajax_object_efm.setting.length > 0) {
     const rawSetting = ajax_object_efm.setting[0].setting;
-    try { valueJson_ws_setting = JSON.parse(rawSetting); }
-    catch(e) {
-      try { valueJson_ws_setting = JSON.parse(rawSetting.replace(/\\\\/g, '\\')); }
-      catch(e2) {
-        try { valueJson_ws_setting = JSON.parse(rawSetting.replace(/[\\]/g, '')); }
-        catch(e3) {  valueJson_ws_setting = {}; }
-      }
-    }
+    try { valueJson_ws_setting = efbParseJson(rawSetting); }
+    catch(e) { valueJson_ws_setting = {}; }
     if (valueJson_ws_setting.bootstrap == 0 && ajax_object_efm.bootstrap == 1) {
       if (localStorage.getItem('bootstrap_w') === null) localStorage.setItem('bootstrap_w', 0)
       if (localStorage.getItem('bootstrap_w') >= 0 && localStorage.getItem('bootstrap_w') < 3) {
@@ -511,7 +495,7 @@ function escapeContentPreviewText_efb(value) {
 
 function getContentPreview_efb(contentStr) {
   try {
-    const parsed = JSON.parse(replaceContentMessageEfb(contentStr));
+    const parsed = efbParseJson(replaceContentMessageEfb(contentStr));
     if (!Array.isArray(parsed)) return { short: '—', full: '' };
     const parts = [];
     for (const c of parsed) {
@@ -999,7 +983,7 @@ function fun_emsFormBuilder__add_a_response_to_messages(message, by, userIp, tra
 function fun_ws_show_response(value) {
   for (let v of value) {
 
-    const content = v.content ? JSON.parse(v.content.replace(/[\\]/g, '')) : { name: 'Message', value: 'message not exists' }
+    const content = v.content ? efbParseJson(v.content) : { name: 'Message', value: 'message not exists' }
     fun_emsFormBuilder__add_a_response_to_messages(content, v.rsp_by, v.ip, 0, v.date);
   }
 }
@@ -1171,10 +1155,10 @@ function fun_show_setting__emsFormBuilder() {
     if (valueJson_ws_setting.length == 0) {
       const rawSetting2 = ajax_object_efm.setting[0].setting;
       try { valueJson_ws_setting = JSON.parse(rawSetting2); }
-      catch(e) { valueJson_ws_setting = JSON.parse(rawSetting2.replace(/[\\]/g, '')); }
+      catch(e) { valueJson_ws_setting = efbParseJson(rawSetting2); }
     } else if (typeof valueJson_ws_setting == "string") {
       try { valueJson_ws_setting = JSON.parse(valueJson_ws_setting); }
-      catch(e) { valueJson_ws_setting = JSON.parse(valueJson_ws_setting.replace(/[\\]/g, '')); }
+      catch(e) { valueJson_ws_setting = efbParseJson(valueJson_ws_setting); }
     }
     const f = (name) => {
       if (valueJson_ws_setting.hasOwnProperty(name)==true) { return valueJson_ws_setting[name] } else { return 'null' } }
@@ -3161,7 +3145,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0, done) {
     emailStatsReport = f('emailStatsReport_emsFormBuilder');
     act_local_efb =f('act_local_efb')
     let emailTemp = f('emailTemp_emsFirmBuilder');
-     emailTemp = emailTemp.replace(/([/\r\n|\r|\n/])+/g, ' ');
+    // JSON.stringify handles line breaks; keep closing tags and URL slashes.
     const emailBtnBgColor = f('emailBtnBgColor_emsFormBuilder') || '#202a8d';
     const emailBtnTextColor = f('emailBtnTextColor_emsFormBuilder') || '#ffffff';
     let text = act_local_efb==true ? efb_var.text :'';
@@ -3588,7 +3572,7 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
   }
   for (let v of value) {
 
-    const content = JSON.parse(replaceContentMessageEfb(v.content))
+    const content = efbParseJson(replaceContentMessageEfb(v.content))
     count += 1;
     i_count += i_count == -1 ? 2 : 1;
     rows[i_count][1] = v.date;

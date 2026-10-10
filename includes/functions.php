@@ -4,6 +4,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+require_once __DIR__ . '/json-efb.php';
+
 /**
  * Return whether a genuinely new installation should show first-run setup.
  *
@@ -3691,7 +3693,7 @@ class efbFunction {
 		$form_id = $data[0]->form_id;
 		$response_msg = $data[0]->content;
 		$trackingCode = $data[0]->track;
-		$response_msg  = str_replace('\\', '', $response_msg);
+		$response_msg  = emsfb_json_normalize_efb($response_msg);
 
 		$user_res = json_decode($response_msg,true);
 		$lst = end($user_res);
@@ -3702,7 +3704,7 @@ class efbFunction {
 		$table_name =  $wpdb->prefix . "emsfb_form";
 		$data =  $wpdb->get_results( $wpdb->prepare( "SELECT form_structer FROM `{$table_name}` WHERE form_id = %s ORDER BY form_id DESC LIMIT 1", $form_id ) );
 
-		$data =str_replace('\\', '', $data[0]->form_structer);
+		$data =emsfb_json_normalize_efb($data[0]->form_structer);
 		$data = json_decode($data,true);
 		if(($data[0]['sendEmail']=="true"|| $data[0]['sendEmail']==true ) &&   strlen($data[0]['email_to'])>2 ){
 			$emailsId=[];
@@ -4706,7 +4708,7 @@ class efbFunction {
 	 */
 	public function get_form_required_addons_efb( $form_structure ) {
 		// Stored with escaped quotes; the renderer strips them the same way.
-		$structure = str_replace( '\\', '', (string) $form_structure );
+		$structure = emsfb_json_normalize_efb((string) $form_structure );
 		$has_type  = function ( $types ) use ( $structure ) {
 			foreach ( (array) $types as $type ) {
 				if ( false !== strpos( $structure, '"type":"' . $type . '"' ) ) {
@@ -7614,10 +7616,7 @@ public function addon_add_efb($value) {
 
 				}else{
 
-					$st = json_decode($st);
-					if ($st === null) {
-						$st = json_decode(stripslashes($st));
-					}
+					$st = emsfb_json_decode_efb($st);
 					$activeCode = is_object($st) && isset($st->activeCode) ? $st->activeCode : '';
 				}
 
@@ -7990,9 +7989,10 @@ public function addon_add_efb($value) {
 		$sanitized_html = wp_kses($html, $allowed_tags, array_merge(wp_allowed_protocols(), array('data')));
 
 		$sanitized_html = preg_replace_callback(
-			'/style=["\']([^"\']+)["\']/i',
+			'/\bstyle\s*=\s*(["\'])(.*?)\1/is',
 			function ($matches) {
-				return 'style="' . $this->sanitize_style_attribute_efb($matches[1]) . '"';
+				$style = html_entity_decode($matches[2], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+				return 'style="' . esc_attr($this->sanitize_style_attribute_efb($style)) . '"';
 			},
 			$sanitized_html
 		);
@@ -8207,15 +8207,10 @@ public function addon_add_efb($value) {
             }
         }else{
 
-            $json = $newSettings;
+            $json = emsfb_json_normalize_efb($newSettings);
 
             if (json_decode($json) === null && json_last_error() !== JSON_ERROR_NONE) {
-                $unslashed = stripslashes($json);
-                if (json_decode($unslashed) !== null) {
-                    $json = $unslashed;
-                } else {
-                    return false;
-                }
+                return false;
             }
         }
 
@@ -8236,14 +8231,7 @@ public function addon_add_efb($value) {
         if (is_object($new_decoded)) {
             // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table_name is built from $wpdb->prefix
             $existing_raw = $wpdb->get_var("SELECT setting FROM `{$table_name}` ORDER BY id DESC LIMIT 1");
-            $existing = is_string($existing_raw) ? json_decode($existing_raw) : null;
-            if ($existing === null && is_string($existing_raw)) {
-                $tmp = $existing_raw;
-                for ($i = 0; $i < 5 && $existing === null; $i++) {
-                    $tmp = stripslashes($tmp);
-                    $existing = json_decode($tmp);
-                }
-            }
+            $existing = emsfb_json_decode_efb($existing_raw);
             if (is_object($existing)) {
                 $merged = false;
                 foreach (get_object_vars($existing) as $k => $v) {

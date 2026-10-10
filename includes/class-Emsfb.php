@@ -3,6 +3,7 @@
 if (!defined('ABSPATH')) {
     die("Direct access of plugin files is not allowed.");
 }
+require_once __DIR__ . '/json-efb.php';
 
 class Emsfb {
     public $plugin_path = "";
@@ -1112,7 +1113,7 @@ class Emsfb {
         if (!empty($trimmedEnd) && !preg_match('/[}\]]$/', $trimmedEnd)) {
         }
 
-        $decoded = json_decode($raw);
+        $decoded = emsfb_json_decode_efb($raw);
         if ($decoded === null) {
 
             $clean = $raw;
@@ -1730,18 +1731,19 @@ class Emsfb {
             $raw = substr($raw, 3);
         }
 
-        $raw = str_replace("\0", '', $raw);
-
-        $raw = preg_replace('/[\x{200B}-\x{200D}\x{FEFF}\x{00AD}\x{2060}]/u', '', $raw);
-
         $raw = trim($raw);
-
-        if (function_exists('mb_convert_encoding')) {
-
-            $raw = mb_convert_encoding($raw, 'UTF-8', 'UTF-8');
+        $raw = emsfb_json_normalize_efb($raw);
+        // Invisible characters and HTML entities inside valid JSON values are
+        // data (including Persian joining characters), not broken encoding.
+        if (json_decode($raw) === null && json_last_error() !== JSON_ERROR_NONE) {
+            $raw = str_replace("\0", '', $raw);
+            $raw = preg_replace('/[\x{200B}-\x{200D}\x{FEFF}\x{00AD}\x{2060}]/u', '', $raw);
+            if (function_exists('mb_convert_encoding')) {
+                $raw = mb_convert_encoding($raw, 'UTF-8', 'UTF-8');
+            }
         }
 
-        if (strpos($raw, '&quot;') !== false || strpos($raw, '&#34;') !== false) {
+        if (json_decode($raw) === null && (strpos($raw, '&quot;') !== false || strpos($raw, '&#34;') !== false)) {
             $candidate = html_entity_decode($raw, ENT_QUOTES | ENT_HTML5, 'UTF-8');
             if (json_decode($candidate) !== null) {
                 $raw = $candidate;

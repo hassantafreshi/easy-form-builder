@@ -402,7 +402,7 @@ if (typeof(ajax_object_efm)=='object' && ajax_object_efm.hasOwnProperty('ajax_va
   g_timeout_efb = (g_timeout_efb, ajax_object_efm.ajax_value.match(/id_/g) || []).length;
   g_timeout_efb = g_timeout_efb * calPLenEfb(g_timeout_efb);
   ajax_object_efm.ajax_value_forms.forEach(form => {
-    form.form_structer = JSON.parse(form.form_structer.replace(/\\/g, ''));
+    form.form_structer = efbParseJson(form.form_structer);
   });
   valj_efb_new = ajax_object_efm.ajax_value_forms
 }
@@ -411,7 +411,7 @@ function fun_render_view_efb(val, check) {
   var url = new URL(window.location);
   history.replaceState("EFBstep-1",null,url);
   exportView_emsFormBuilder = [];
-  valueJson_ws = JSON.parse(val.replace(/[\\]/g, ''));
+  valueJson_ws = efbParseJson(val);
   valj_efb = valueJson_ws;
   fun_gets_url_efb();
   state_efb = "run";
@@ -473,7 +473,7 @@ function check_body_efb_timer (){
       pro_efb = ajax_object_efm.pro == '1' ? true : false;
       page_state_efb = "public";
 
-      setting_emsFormBuilder=typeof ajax_object_efm.form_settingJSON=='string' ? JSON.parse(ajax_object_efm.form_setting.replace(/[\\]/g, '')) : ajax_object_efm.form_settingJSON;
+      setting_emsFormBuilder=typeof ajax_object_efm.form_settingJSON=='string' ? efbParseJson(ajax_object_efm.form_setting) : ajax_object_efm.form_settingJSON;
       efb_var = ajax_object_efm;
       efb_var.text = deepFreeze_efb_pub(efb_var.text);
 
@@ -558,7 +558,7 @@ function check_body_efb_timer (){
       }
 
       if (ajax_object_efm.state != 'tracker') {
-        const ajax_value = typeof (ajax_object_efm.ajax_value) == "string" ? JSON.parse(ajax_object_efm.ajax_value.replace(/[\\]/g, '')) : ajax_object_efm.ajax_value;
+        const ajax_value = typeof (ajax_object_efm.ajax_value) == "string" ? efbParseJson(ajax_object_efm.ajax_value) : ajax_object_efm.ajax_value;
         if (ajax_object_efm.form_setting && ajax_object_efm.form_setting.length > 0 && ajax_object_efm.form_setting !== ajax_object_efm.text.settingsNfound) {
           form_type_emsFormBuilder = ajax_object_efm.type;
           const vs = setting_emsFormBuilder;
@@ -615,7 +615,7 @@ setTimeout( fun_efb_run, g_timeout_efb)
 async function createStepsOfPublic() {
  state_efb = "run";
  efb_var = ajax_object_efm;
- setting_emsFormBuilder = typeof ajax_object_efm.form_setting == "string" ? JSON.parse(ajax_object_efm.form_setting.replace(/[\\]/g, '')) : ajax_object_efm.form_setting;
+ setting_emsFormBuilder = typeof ajax_object_efm.form_setting == "string" ? efbParseJson(ajax_object_efm.form_setting) : ajax_object_efm.form_setting;
   for (let el of document.querySelectorAll(`.emsFormBuilder_v`)) {
     let form_id = el.dataset.formid  || 0;
     if (el.tagName == "OPTION" || el.tagName=='P' || el.tagName=='A' || ( el.tagName=='INPUT' && el.type=='hidden')) continue;

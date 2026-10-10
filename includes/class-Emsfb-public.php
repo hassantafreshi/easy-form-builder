@@ -1259,7 +1259,7 @@ public function check_nonce_permission_efb($request) {
 			$username = is_user_logged_in() ? wp_get_current_user()->user_login : 'guest';
 			if ($is_track==null){
 
-					$fs =str_replace('\\', '', $value_form_data->form_structer);
+					$fs =\emsfb_json_normalize_efb($value_form_data->form_structer);
 					$fs = preg_replace('/"email":"[^"]*"/', '"email":""', $fs);
 					$formObj= json_decode($fs,true);
 					$valj_efb = json_decode($fs, false, 512, JSON_UNESCAPED_UNICODE);
@@ -1300,7 +1300,7 @@ public function check_nonce_permission_efb($request) {
 			}
 
 		 	$width =0;
-			$value =str_replace('\\', '', $value);
+			$value =\emsfb_json_normalize_efb($value);
 			$values = $value;
 
 			   require_once(EMSFB_PLUGIN_DIRECTORY . '/includes/class-Emsfb-formbuilder.php');
@@ -1998,7 +1998,7 @@ public function check_nonce_permission_efb($request) {
 			return false;
 		}
 
-		$decoded = json_decode(str_replace('\\', '', $form_structure_json), false);
+		$decoded = \emsfb_json_decode_efb($form_structure_json, false);
 		if ( ! is_array($decoded) || empty($decoded[0]) || ! is_object($decoded[0]) ) {
 			return false;
 		}
@@ -2297,7 +2297,7 @@ public function check_nonce_permission_efb($request) {
 			wp_send_json_success($response, 200);
 		}
 
-		$form_structure_json = isset($form_db_data) ? str_replace('\\', '', $form_db_data->form_structer) : '';
+		$form_structure_json = isset($form_db_data) ? \emsfb_json_normalize_efb($form_db_data->form_structer) : '';
 		$skip_captcha = $form_fields_array = $has_tracking_code  = $track_code = "";
 		$should_send_email=false;
 		$email_recipients = [];
@@ -2324,9 +2324,9 @@ public function check_nonce_permission_efb($request) {
 			$raw_value = (string) $raw_value;
 			$submitted_values = json_decode($raw_value, true);
 			if (!is_array($submitted_values)) {
-				$submitted_values = json_decode(str_replace('\\', '', $raw_value), true);
+				$submitted_values = \emsfb_json_decode_efb($raw_value, true);
 			}
-			$this->value = str_replace('\\', '', $raw_value);
+			$this->value = \emsfb_json_normalize_efb($raw_value);
 		} else {
 			$this->value = '';
 			$submitted_values = null;
@@ -3431,13 +3431,15 @@ public function check_nonce_permission_efb($request) {
 							$this->efb_intgrate_with_3rd_party_services_efb($track_code, $submitted_values, $form_fields_array);
 
 							if (isset($form_fields_array[0]['smsnoti']) && $form_fields_array[0]['smsnoti'] == 1) {
-								$smsSendResult = $this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers, $url, 'fform', 'wpsms', $track_code);
+								$smsSendResult = $this->send_optional_sms_efb($this->id, $phone_numbers, $url, 'fform', 'wpsms', $track_code);
 								if($smsSendResult !== true) {
-
-									$m =  $this->lanText['msgSndBut'];
-									$m = sprintf($m,  '<b>'.$this->lanText['smsWPN'] .'<b>' , ''.$this->lanText['trackNo'] . '(' .$track_code.')' );
-									$response = ['success' => false, 'm' => $m];
-									wp_send_json_success($response, 200);
+									// The entry and success response already exist. An optional
+									// SMS failure must not abort the remaining email notifications.
+									$this->efb_trace('submit.sms-failed', [
+										'form_id' => intval($this->id),
+										'track' => $track_code,
+										'reason' => 'SMS was not sent; continuing email notifications',
+									]);
 								}
 							}
 							if ($should_send_email) {
@@ -3518,7 +3520,7 @@ public function check_nonce_permission_efb($request) {
 								// error_log('[EFB][PayPal][SUBMIT] Initial payment row lookup: found=' . ($value != null ? 'yes' : 'no') . ', track=' . ($payment_track_id ?: '(empty)'));
 							}
 							if ($value != null) {
-								$saved_payment_content = json_decode(str_replace('\\', '', $value[0]->content), true);
+								$saved_payment_content = \emsfb_json_decode_efb($value[0]->content, true);
 								$submitted_values = $submitted_values;
 								$filtered = array_filter($submitted_values, function ($item) use ($saved_payment_content) {
 									return is_array($item) && (!isset($item['type']) || !is_string($item['type']) || strpos($item['type'], 'pay') === false);
@@ -3573,7 +3575,7 @@ public function check_nonce_permission_efb($request) {
 										$form_id
 									)
 								);
-								$form_structure_json = isset($form_structure_json[0]->form_structer) ? json_decode(str_replace('\\', '', $form_structure_json[0]->form_structer), true) : '';
+								$form_structure_json = isset($form_structure_json[0]->form_structer) ? \emsfb_json_decode_efb($form_structure_json[0]->form_structer, true) : '';
 								if ($form_structure_json == '') {
 									$response = array('success' => false, 'm' => 'Error 406');
 									wp_send_json_success($response, 200);
@@ -3680,7 +3682,7 @@ public function check_nonce_permission_efb($request) {
 							}
 
 							if (isset($form_fields_array[0]['smsnoti']) && $form_fields_array[0]['smsnoti'] == 1) {
-								$smsSendResult = $this->efbFunction->sms_ready_for_send_efb($form_id, $phone_numbers, $url, 'fform', 'wpsms',$payment_track_id);
+								$smsSendResult = $this->send_optional_sms_efb($form_id, $phone_numbers, $url, 'fform', 'wpsms',$payment_track_id);
 								if($smsSendResult !== true) {
 								}
 							}
@@ -3765,7 +3767,7 @@ public function check_nonce_permission_efb($request) {
 									}
 
 									if (isset($form_fields_array[0]['smsnoti']) && $form_fields_array[0]['smsnoti'] == 1) {
-										$smsSendResult = $this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers, $url, 'fform', 'wpsms', $track_code);
+										$smsSendResult = $this->send_optional_sms_efb($this->id, $phone_numbers, $url, 'fform', 'wpsms', $track_code);
 										if($smsSendResult !== true) {
 										}
 									}
@@ -3820,7 +3822,7 @@ public function check_nonce_permission_efb($request) {
 										$this->efb_intgrate_with_3rd_party_services_efb('login', $submitted_values, $form_fields_array, 'login');
 
 										if (isset($form_fields_array[0]['smsnoti']) && $form_fields_array[0]['smsnoti'] == 1) {
-											$smsSendResult = $this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers, $url, 'fform', 'wpsms', '');
+											$smsSendResult = $this->send_optional_sms_efb($this->id, $phone_numbers, $url, 'fform', 'wpsms', '');
 											if($smsSendResult !== true) {
 											}
 										}
@@ -3884,7 +3886,7 @@ public function check_nonce_permission_efb($request) {
 									}
 
 									if(isset($form_fields_array[0]['smsnoti']) && $form_fields_array[0]['smsnoti']==1 ) {
-										$smsSendResult = $this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers,$url,'fform' ,'wpsms' ,$track_code);
+										$smsSendResult = $this->send_optional_sms_efb($this->id, $phone_numbers,$url,'fform' ,'wpsms' ,$track_code);
 										if($smsSendResult !== true) {
 										}
 									}
@@ -4067,9 +4069,9 @@ public function check_nonce_permission_efb($request) {
 		$captcha_success =[];
 		$not_captcha=true;
 		$r = $this->setting != NULL && !empty($this->setting) ? $this->setting : get_setting_Emsfb('raw');
-		$setting = is_string($r) ? json_decode(str_replace("\\", "", $r), true) : $r;
+		$setting = is_string($r) ? \emsfb_json_decode_efb($r, true) : $r;
 		if(gettype($this->setting)=="string"){
-			$r=str_replace('\\', '', $this->setting);
+			$r=\emsfb_json_normalize_efb($this->setting);
 			 $setting =json_decode($r);
 			 $r=null;
 		}
@@ -4420,7 +4422,7 @@ public function check_nonce_permission_efb($request) {
 		/* Older records contain escaped JSON while newer records may contain
 		 * ordinary JSON. Try both representations, without trusting anything
 		 * supplied by the browser. */
-		$candidates = array($raw, stripslashes($raw), str_replace('\\', '', $raw));
+		$candidates = array(\emsfb_json_normalize_efb($raw));
 		foreach (array_unique($candidates) as $candidate) {
 			$fields = json_decode($candidate, true);
 			if (is_string($fields)) $fields = json_decode($fields, true);
@@ -5026,7 +5028,7 @@ public function check_nonce_permission_efb($request) {
 		$r= is_string($this->setting) && $this->setting !== '' ? $this->setting: get_setting_Emsfb('raw');
 
 		if(gettype($r)=="string"){
-			$r =str_replace('\\', '', $r);
+			$r =\emsfb_json_normalize_efb($r);
 			$setting =json_decode($r);
 			$this->setting = $setting;
 
@@ -5052,7 +5054,7 @@ public function check_nonce_permission_efb($request) {
 				 * reply was lost. Decode the payload as sent first; the stripped
 				 * form stays as a fallback for older clients. */
 				$message = json_decode($m);
-				if (!is_array($message)) $message = json_decode(str_replace("\\","",$m));
+				if (!is_array($message)) $message = \emsfb_json_decode_efb($m);
 				if (!is_array($message) || empty($message)) {
 					$response = array( 'success' => false , "m"=>$this->lanText['pleaseEnterVaildValue']);
 					wp_send_json_success($response,200);
@@ -5109,10 +5111,8 @@ public function check_nonce_permission_efb($request) {
 						}
 				}
 				$message = array_values($message);
-				/* Every reader of a stored reply strips backslashes before
-				 * decoding it, so a raw quote saved here would break the whole
-				 * conversation on the next load. Store it the way form
-				 * submissions do; the viewers and emails decode @efb@dq#. */
+				/* Retain the existing reply storage format for compatibility;
+				 * readers preserve JSON escapes and decode the legacy markers. */
 				foreach ($message as $row) {
 					if (!is_object($row)) continue;
 					foreach (get_object_vars($row) as $prop => $val) {
@@ -5143,7 +5143,7 @@ public function check_nonce_permission_efb($request) {
 					wp_send_json_success($response, 200);
 				}
 
-				$valn = str_replace('\\', '', $value[0]->content);
+				$valn = \emsfb_json_normalize_efb($value[0]->content);
 				$msg_obj = json_decode($valn, true);
 
 				$vv_ = "";
@@ -5255,7 +5255,7 @@ public function check_nonce_permission_efb($request) {
 						$form_id
 					)
 				);
-				$valb =str_replace('\\', '', $vald[0]->form_structer);
+				$valb =\emsfb_json_normalize_efb($vald[0]->form_structer);
 				$valn= json_decode($valb,true);
 				$usr;
 				$email_noti_ids=[] ;
@@ -5304,13 +5304,8 @@ public function check_nonce_permission_efb($request) {
 				$tt = $rsp_by=='admin' ? 'respadmin' : 'resppa';
 				if(isset($setting->sms_config) && ($setting->sms_config=="wpsms" || $setting->sms_config=='ws.team') ) {
 					// Delivery always goes through WP-SMS for now; ws.team has no gateway implementation yet
-					$smsSendResult = $this->efbFunction->sms_ready_for_send_efb($form_id, $phone_numbers,$link_w,$tt ,'wpsms' ,$track);
-					if($smsSendResult !== true) {
-						$m =  $this->lanText['msgSndBut'];
-						$m = sprintf($m,  '<b>'.$this->lanText['smsWPN'] .'<b>' , '' );
-						$response = ['success' => false, 'm' => $m];
-						wp_send_json_success($response, 200);
-					}
+					$smsSendResult = $this->send_optional_sms_efb($form_id, $phone_numbers,$link_w,$tt ,'wpsms' ,$track);
+					// SMS failures are traced by the adapter; continue to reply email.
 				}
 
 				}
@@ -6204,9 +6199,9 @@ public function check_nonce_permission_efb($request) {
 				$this->id
 			)
 		);
-		$fs =str_replace('\\', '', $value_form[0]->form_structer);
+		$fs =\emsfb_json_normalize_efb($value_form[0]->form_structer);
 		$fs_ = json_decode($fs,true);
-		$val =str_replace('\\', '', $val_);
+		$val =\emsfb_json_normalize_efb($val_);
 		$val_ = json_decode($val,true);
 		$paymentmethod = $fs_[0]['paymentmethod'];
 		$price_c =0;
@@ -6510,9 +6505,8 @@ public function check_nonce_permission_efb($request) {
 
     }
 	public function replaceContentMessageEfb($value) {
-		$value = preg_replace('/[\\\\]/', '', $value);
-		$value = preg_replace('/(\\"|"\\\\)/', '"', $value);
-		$value = preg_replace('/(\\\\\\\\n|\\\\\\\\r)/', '<br>', $value);
+		if (!is_string($value)) { return $value; }
+		// Decoded field text must retain its literal backslashes.
 		$value = str_replace('@efb@sq#', "'", $value);
 
 		$value = str_replace('@efb@vq#', "`", $value);
@@ -7338,21 +7332,9 @@ public function check_nonce_permission_efb($request) {
 		return md5($track . $this->setting->email_key);
 	}
 
-	/* Decode a settings JSON string without corrupting values that contain
-	 * escaped characters: plain decode first, then stripslashes passes, and
-	 * only as a last resort the legacy strip-all-backslashes transform. */
+	/* Use the shared decoder so all settings readers preserve JSON escapes. */
 	private function decode_settings_json_efb( $raw ) {
-		if ( ! is_string( $raw ) || $raw === '' ) {
-			return null;
-		}
-		$decoded = json_decode( $raw );
-		for ( $i = 0; $i < 5 && $decoded === null; $i++ ) {
-			$raw = stripslashes( $raw );
-			$decoded = json_decode( $raw );
-		}
-		if ( $decoded === null ) {
-			$decoded = json_decode( str_replace( '\\', '', $raw ) );
-		}
+		$decoded = \emsfb_json_decode_efb($raw);
 		return is_object( $decoded ) ? $decoded : null;
 	}
 
@@ -7390,7 +7372,7 @@ public function check_nonce_permission_efb($request) {
 	 *
 	 * The bundled clients send values as typed, so a double quote arrives
 	 * JSON-escaped (\"). Decoding the payload as sent is therefore tried first;
-	 * the backslash-stripped form is kept only as a fallback for an older or
+	 * legacy quote escaping is decoded only as a fallback for an older or
 	 * page-cached client. Returns null when neither form is the expected shape.
 	 *
 	 * @param mixed $raw   The raw payload (expected: a JSON string).
@@ -7403,7 +7385,7 @@ public function check_nonce_permission_efb($request) {
 		}
 		$out = json_decode( $raw, $assoc );
 		if ( ! is_array( $out ) && ! is_object( $out ) ) {
-			$out = json_decode( str_replace( '\\', '', $raw ), $assoc );
+			$out = \emsfb_json_decode_efb($raw, $assoc);
 		}
 		return ( is_array( $out ) || is_object( $out ) ) ? $out : null;
 	}
@@ -8542,7 +8524,7 @@ public function check_nonce_permission_efb($request) {
 			return [];
 		}
 
-		$test_content = stripslashes($messages[0]->content);
+		$test_content = \emsfb_json_normalize_efb($messages[0]->content);
 		$test_decode = json_decode($test_content, true);
 		if (is_array($test_decode)) {
 			foreach ($test_decode as $ti => $titem) {
@@ -8701,7 +8683,7 @@ public function check_nonce_permission_efb($request) {
 		$decode_failures = 0;
 
 		foreach ($messages as $message) {
-			$content = stripslashes($message->content);
+			$content = \emsfb_json_normalize_efb($message->content);
 			$data = json_decode($content, true);
 			if (!is_array($data)) {
 				$decode_failures++;
@@ -9032,7 +9014,34 @@ public function check_nonce_permission_efb($request) {
 		return $results;
 	}
 
+	/** Optional notification channels must not interrupt primary form processing. */
+	private function run_optional_notification_efb($channel, callable $callback) {
+		try {
+			$result = $callback();
+			if ($result === false || is_wp_error($result)) {
+				$this->efb_trace('notification.failed', ['channel' => $channel, 'form_id' => intval($this->id), 'reason' => 'Optional channel reported failure']);
+				return false;
+			}
+			return $result;
+		} catch (\Throwable $error) {
+			$this->efb_trace('notification.failed', ['channel' => $channel, 'form_id' => intval($this->id), 'reason' => 'Optional channel threw an error', 'error_type' => get_class($error)]);
+			return false;
+		}
+	}
+
+	private function send_optional_sms_efb(...$args) {
+		return $this->run_optional_notification_efb('sms', function () use ($args) {
+			return $this->efbFunction->sms_ready_for_send_efb(...$args) === true;
+		});
+	}
+
 	private function efb_intgrate_with_3rd_party_services_efb($track_code, $submitted_values, $form_fields_array, $event_type = 'form_submit', $integration_args = []) {
+		return $this->run_optional_notification_efb('integrations', function () use ($track_code, $submitted_values, $form_fields_array, $event_type, $integration_args) {
+			return $this->dispatch_optional_integrations_efb($track_code, $submitted_values, $form_fields_array, $event_type, $integration_args);
+		});
+	}
+
+	private function dispatch_optional_integrations_efb($track_code, $submitted_values, $form_fields_array, $event_type = 'form_submit', $integration_args = []) {
 
 		$integration_args = is_array($integration_args) ? $integration_args : [];
 
@@ -9077,18 +9086,21 @@ public function check_nonce_permission_efb($request) {
 			return $webhooks_allowed;
 		};
 
-		$context['conditional_webhooks'] = $this->process_conditional_webhook_rules($form_fields_array, $submitted_values, $track_code, $event_type, $context, $allow_webhooks);
+		$context['conditional_webhooks'] = $this->run_optional_notification_efb('conditional_webhooks', function () use ($form_fields_array, $submitted_values, $track_code, $event_type, $context, $allow_webhooks) {
+			return $this->process_conditional_webhook_rules($form_fields_array, $submitted_values, $track_code, $event_type, $context, $allow_webhooks);
+		});
+		if (!is_array($context['conditional_webhooks'])) { $context['conditional_webhooks'] = []; }
 
 		if ( $this->efb_side_effect_has_work_efb( 'telegram', 'efb_3rd_party_telegram_notify', $context ) && apply_filters( 'efb_shield_allow_side_effect', true, array_merge( $shield_context, array( 'channel' => 'telegram' ) ) ) ) {
-			do_action('efb_3rd_party_telegram_notify', $context);
+			$this->run_optional_notification_efb('telegram', function () use ($context) { do_action('efb_3rd_party_telegram_notify', $context); });
 		}
 
 		if ( $this->efb_side_effect_has_work_efb( 'googlesheet', 'efb_3rd_party_google_sheet_sync', $context ) && apply_filters( 'efb_shield_allow_side_effect', true, array_merge( $shield_context, array( 'channel' => 'googlesheet' ) ) ) ) {
-			do_action('efb_3rd_party_google_sheet_sync', $context);
+			$this->run_optional_notification_efb('googlesheet', function () use ($context) { do_action('efb_3rd_party_google_sheet_sync', $context); });
 		}
 
 		if ( $this->efb_side_effect_has_work_efb( 'webhook', 'efb_after_form_integration', $context ) && $allow_webhooks() ) {
-			do_action('efb_after_form_integration', $context);
+			$this->run_optional_notification_efb('webhook', function () use ($context) { do_action('efb_after_form_integration', $context); });
 		}
 
 	}

@@ -279,7 +279,7 @@ class Admin {
             $response = ['success' => false, "m" => $m];
             wp_send_json_success($response, 200);
         }
-        $valp =str_replace('\\', '',  $post_value);
+        $valp =\emsfb_json_normalize_efb($post_value);
 		$valp = json_decode($valp,true);
 		$sms_msg_new_noti="";
 		$sms_msg_responsed_noti="";
@@ -1301,7 +1301,7 @@ class Admin {
             die();
         }
 
-        $decoded_form = json_decode( stripslashes( $value ) );
+        $decoded_form = \emsfb_json_decode_efb($value);
         if ( $decoded_form === null ) {
 
             $decoded_form = json_decode( $value );
@@ -1476,7 +1476,7 @@ class Admin {
         $id =  ( int ) $post_id ;
         $id = preg_replace('/[,]+/','',$id);
 
-        $m = str_replace("\\","",$post_message);
+        $m = \emsfb_json_normalize_efb($post_message);
         $message =json_decode($m);
 				$valobj=[];
 				$stated=1;
@@ -1599,10 +1599,7 @@ class Admin {
             wp_send_json_success($response, 200);
             die();
         }
-        $m = json_decode($post_message, true);
-        if ($m === null && json_last_error() !== JSON_ERROR_NONE) {
-            $m = json_decode(stripslashes($post_message), true);
-        }
+        $m = \emsfb_json_decode_efb($post_message, true);
         if(empty($this->db)){
             global $wpdb;
             $this->db = $wpdb;
@@ -1703,7 +1700,8 @@ class Admin {
                   $v = preg_replace('/behavior\s*:/i', '', $v);
                   $v = preg_replace('/<\s*\/?(iframe|object|embed|form|input|textarea|button|select|svg|path|math|base|link|applet)[^>]*>/i', '', $v);
                   $v = $efbFunction->sanitize_full_html_efb($v);
-                  $v = str_replace('"', "'", $v);
+                  // JSON encoding preserves HTML attribute quotes; changing
+                  // their delimiter can break CSS values containing apostrophes.
 
                   if ($efbdata_comment) {
                       $v .= "\n" . $efbdata_comment;
@@ -1848,7 +1846,7 @@ class Admin {
         foreach ($value as $v) {
             if (strpos($v->content, 'url') !== false) {
                 $jsn  = $v->content;
-                $jsn  = str_replace('\\', '', $jsn);
+                $jsn  = \emsfb_json_normalize_efb($jsn);
                 $json = json_decode($jsn);
                 foreach ($json as $keyR => $row) {
                     foreach ($row as $key => $val) {
@@ -3408,7 +3406,7 @@ class Admin {
         }
         $state = sanitize_text_field(wp_unslash( $_POST['state'] ) ) ;
         $val =   sanitize_text_field(wp_unslash( $_POST['val'] ) ) ;
-        $val_  = str_replace('\\', '', $val);
+        $val_  = \emsfb_json_normalize_efb($val);
         $val = json_decode($val_ ,true);
         if(empty($this->db)){
             global $wpdb;
@@ -3456,8 +3454,7 @@ class Admin {
         }
         $state = sanitize_text_field(wp_unslash( $_POST['state'] ) ) ;
         $val =  sanitize_text_field(wp_unslash( $_POST['val'] ) ) ;
-        $val_  = str_replace('\\\\', '', $val);
-        $val_  = str_replace('\\', '', $val);
+        $val_  = \emsfb_json_normalize_efb($val);
         $val = json_decode($val_ ,true);
         if(empty($this->db)){
             global $wpdb;
@@ -3786,8 +3783,8 @@ function admin_notices_efb () {
             return;
         }
 
-        $plan_data_raw = sanitize_textarea_field($_POST['plan_data']);
-        $plan_data = json_decode(stripslashes($plan_data_raw), true);
+        $plan_data_raw = sanitize_textarea_field(wp_unslash($_POST['plan_data']));
+        $plan_data = \emsfb_json_decode_efb($plan_data_raw, true);
 
         if (!is_array($plan_data)) {
             wp_send_json_error(array(

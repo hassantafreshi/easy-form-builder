@@ -395,7 +395,7 @@ class Create {
 		$this->name =  sanitize_text_field($_POST['name']);
 		$this->email =  $email;
 
-		$valp =str_replace('\\', '', $_POST['value']);
+		$valp =\emsfb_json_normalize_efb(wp_unslash($_POST['value']));
 		$valp = json_decode($valp,true);
 		$valp = $efbFunction->sanitize_obj_msg_efb($valp);
 		$this->formtype =  sanitize_text_field($_POST['type']);

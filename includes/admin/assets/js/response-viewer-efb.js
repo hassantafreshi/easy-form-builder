@@ -271,7 +271,7 @@ const EfbResponseViewer = (function () {
     const userIp = valueJson_ws_messages[indx].ip;
     const track = valueJson_ws_messages[indx].track;
     const date = valueJson_ws_messages[indx].date;
-    const content = JSON.parse(replaceContentMessageEfb(valueJson_ws_messages[indx].content));
+    const content = efbParseJson(replaceContentMessageEfb(valueJson_ws_messages[indx].content));
 
     let by = valueJson_ws_messages[indx].read_by !== null ? valueJson_ws_messages[indx].read_by : "Unkown";
     if (by == 1) { by = 'Admin'; } else if (by == 0 || by.length == 0 || by.length == -1) { by = '#first'; }
@@ -299,11 +299,11 @@ const EfbResponseViewer = (function () {
     const msg_id = value.msg_id;
     const track = value.track;
     const date = value.date;
-    const val = JSON.parse(replaceContentMessageEfb(value.content));
+    const val = efbParseJson(replaceContentMessageEfb(value.content));
     let m = fun_emsFormBuilder_show_messages(val, '#first', '', track, date);
 
     for (let c of content) {
-      const cval = JSON.parse(c.content.replace(/[\\]/g, ''));
+      const cval = efbParseJson(c.content);
       m += `<div class="efb mb-3"><div class="efb clearfix">${fun_emsFormBuilder_show_messages(cval, c.rsp_by, '', track, c.date)}</div></div>`;
     }
 
@@ -335,7 +335,19 @@ const EfbResponseViewer = (function () {
 
     initRichEditor(msgId);
 
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const tracker = document.getElementById('body_efb-track');
+    if (tracker) {
+      const prefersReducedMotion = window.matchMedia &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const trackerTop = tracker.getBoundingClientRect().top + window.pageYOffset;
+
+      window.scrollTo({
+        top: Math.max(0, trackerTop - 24),
+        behavior: prefersReducedMotion ? 'auto' : 'smooth'
+      });
+    } else if (isPanel) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
 
 const chatHistory = document.getElementById('resp_efb');
     if (chatHistory) {
@@ -711,7 +723,7 @@ function efb_apply_resp_colors() {
   try {
     if (typeof ajax_object_efm !== 'undefined' && ajax_object_efm.setting && ajax_object_efm.setting[0]) {
       const raw = ajax_object_efm.setting[0].setting;
-      s = typeof raw === 'string' ? JSON.parse(raw.replace(/[\\]/g, '')) : raw;
+      s = typeof raw === 'string' ? efbParseJson(raw) : raw;
     }
   } catch (e) {  }
 
