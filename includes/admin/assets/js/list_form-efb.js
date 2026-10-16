@@ -882,6 +882,49 @@ function fun_get_messages_by_id(id) {
     })
   });
 }
+function efb_response_admin_post_efb(data, onSuccess, operation) {
+  const success = res => {
+    if (window.EFBRuntime && res?.data?.success===true) window.EFBRuntime.complete(0,operation);
+    onSuccess(res);
+  };
+  const fail = async (xhr) => {
+    if (window.EFBRuntime && operation==='admin_reply') {
+      const saved=await window.EFBRuntime.resolve(data,0,'admin_reply');
+      if (saved) { success(saved); return; }
+    }
+    if (window.EFBRequestHealth) window.EFBRequestHealth.report(operation, xhr.status >= 400 ? xhr.status : 0);
+    const button = document.getElementById('replayB_emsFormBuilder');
+    if (button) { button.disabled = false; button.classList.remove('disabled'); }
+    const state = document.getElementById('replay_state__emsFormBuilder');
+    if (state) state.textContent = efb_var.text.error403 || efb_var.text.error;
+    // Keep the editor and attachment queue intact on an uncertain result.
+    if (operation === 'admin_tracker') state_rply_btn_efb(100);
+  };
+  const send = (payload, retry) => {
+    const pending=jQuery.post(ajax_object_efm.ajax_url, payload, success, 'json').fail(xhr => {
+    const code = xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.code;
+    if (xhr.status === 403 && code === 'efb_nonce_expired' && !retry && typeof efb_fetch_fresh_nonce_efb === 'function') {
+      efb_fetch_fresh_nonce_efb().then(fresh => {
+        if (!fresh) { fail(xhr); return; }
+        _efb_core_nonce_ = fresh;
+        send(Object.assign({}, payload, { nonce: fresh }), true);
+      }).catch(() => fail(xhr));
+    } else fail(xhr);
+    });
+    if (typeof pending.abort==='function' && typeof pending.always==='function') {
+      const timer=setTimeout(()=>pending.abort('timeout'),45000);
+      pending.always(()=>clearTimeout(timer));
+    }
+    return pending;
+  };
+  if (window.EFBRuntime) {
+    return window.EFBRuntime.decorate(data,0,operation).then(runtime=>{
+      data.nonce=runtime.nonce;
+      send(data,false);
+    }).catch(error=>fail({status:error.status||0}));
+  }
+  return send(data, false);
+}
 function fun_emsFormBuilder_get_all_response_by_id(id) {
   if (!navigator.onLine) {
     alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')
@@ -894,14 +937,14 @@ function fun_emsFormBuilder_get_all_response_by_id(id) {
       type: "POST",
       id: id
     };
-    $.post(ajax_object_efm.ajax_url, data, function (res) {
+    efb_response_admin_post_efb(data, function (res) {
 
-      if (res.success == true) {
+      if (res.success === true && res.data && res.data.success === true) {
         fun_ws_show_response(res.data.ajax_value);
       }
 
       state_rply_btn_efb(100)
-    })
+    }, 'admin_tracker');
   });
 }
 
@@ -927,9 +970,9 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
       id: id,
       message: JSON.stringify(message)
     };
-    $.post(ajax_object_efm.ajax_url, data, function (res) {
+    efb_response_admin_post_efb(data, function (res) {
 
-      if (res.success == true) {
+      if (res.success === true && res.data && res.data.success === true) {
 
         if(document.getElementById('replay_state__emsFormBuilder')){
 
@@ -969,7 +1012,7 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
           alert_message_efb(res.data.m,'', 12 , 'danger')
         }
       }
-    })
+    }, 'admin_reply');
   });
 }
 
@@ -4085,7 +4128,8 @@ function efbEmailTestStrings() {
     tabDelivery: efbEmailTestText('deliveryDetailsTitle', 'Delivery Details'),
     tabDiagnosis: efbEmailTestText('diagnosisTitle', 'Diagnosis'),
     tabTips: efbEmailTestText('recommendations', 'Recommendations'),
-    scoreOutOf: efbEmailTestText('emailTestScoreOutOf', '/ 100')
+    scoreOutOf: efbEmailTestText('emailTestScoreOutOf', '/ 100'),
+    technical: efbEmailTestText('emailTestTechnicalDetails', 'Technical details')
   };
 }
 
@@ -4164,17 +4208,25 @@ function efbEmailTestViewModel(state, options) {
   const sendStage = efbEmailTestSendStage(result || quick);
   const arrived = !!(quick && quick.can_send_email);
   const tooLow = efbEmailTestScoreTooLow(quick);
+  // What the evidence proves (efbEmailTestUI.outcome()); set by the start and
+  // poll handlers. Empty for a state built by hand, which then falls back to
+  // reading the steps as before.
+  const outcome = state.outcome || '';
 
   // Any step in error means the run is over and it went wrong, whatever the
   // percentage happens to say.
   const stepValues = ['start', 'send', 'wait', 'quick', 'full'].map(function (k) { return steps[k] || 'waiting'; });
   const hasError = stepValues.indexOf('error') !== -1;
   const stillRunning = !hasError && !verdict && !upgradeRequired && percent < 100;
+  // The check itself could not finish, or never started. None of these says
+  // anything about whether email works, so none of them may read as a failure.
+  const unknown = ['tester_unreachable', 'invalid_response', 'connection_lost', 'timeout', 'start_failed', 'pending'].indexOf(outcome) !== -1
+    || (!outcome && stepValues[0] === 'error');
 
   let phase;
   if (stillRunning) {
     phase = 'run';
-  } else if (upgradeRequired || status === 'delayed' || verdict === 'spam_risk' || tooLow) {
+  } else if (upgradeRequired || status === 'delayed' || verdict === 'spam_risk' || tooLow || unknown) {
     phase = 'warn';
   } else if (verdict === 'healthy') {
     phase = 'done';
@@ -4193,10 +4245,12 @@ function efbEmailTestViewModel(state, options) {
     };
   } else if (phase === 'run') {
     const waiting = (steps.wait === 'active') || (steps.send === 'done');
+    // wp_mail() returning true means the mail system accepted the message,
+    // not that it arrived, so the headline says exactly that.
     hero = waiting
       ? {
         icon: 'bi-arrow-repeat',
-        title: efbEmailTestText('emailTestPendingTitle', 'Waiting for the email to arrive'),
+        title: efbEmailTestText('emailTestAcceptedTitle', 'Accepted for sending; delivery not confirmed yet'),
         sub: efbEmailTestText('emailTestPendingSub', 'We check our server every few seconds. Please keep this page open.')
       }
       : {
@@ -4218,7 +4272,35 @@ function efbEmailTestViewModel(state, options) {
         : efbEmailTestText('emailTestSpamTitle', 'Delivered, but deliverability is weak'),
       sub: efbEmailTestQuickMessage(quick, verdict)
     };
-  } else if (status === 'delayed') {
+  } else if (outcome === 'tester_unreachable' || outcome === 'invalid_response') {
+    // No verdict reached this site. Saying "no email arrived" here sent people
+    // to fix a mail setup nobody had looked at.
+    hero = {
+      icon: 'bi-question-circle',
+      title: efbEmailTestText('emailTestUnknownTitle', 'Delivery result unknown'),
+      sub: outcome === 'invalid_response'
+        ? efbEmailTestText('emailTestInvalidResponseSub', 'An answer came back that could not be read, so delivery was not checked. Try again later.')
+        : efbEmailTestText('emailTestUnreachableSub', 'Your site got no answer from the testing service, so delivery was not checked. This does not mean the email failed.')
+    };
+  } else if (outcome === 'connection_lost') {
+    hero = {
+      icon: 'bi-wifi-off',
+      title: efbEmailTestText('emailTestNetErrorTitle', 'The connection was lost'),
+      sub: efbEmailTestText('emailTestNetErrorSub', 'No answer came back from the server. Refresh the page and try again.')
+    };
+  } else if (outcome === 'timeout') {
+    hero = {
+      icon: 'bi-stopwatch',
+      title: efbEmailTestText('emailTestTimeoutTitle', 'The test timed out'),
+      sub: efbEmailTestText('emailTestTimeoutUnknownSub', 'No final answer arrived in time. Delivery is unknown, not failed. Try again later.')
+    };
+  } else if (outcome === 'start_failed') {
+    hero = {
+      icon: 'bi-plug',
+      title: efbEmailTestText('emailTestStartFailedTitle', 'The test could not start'),
+      sub: efbEmailTestText('emailTestStartFailedSub', 'Nothing was sent yet, so this says nothing about your email. Try again later.')
+    };
+  } else if (status === 'delayed' || outcome === 'pending') {
     hero = {
       icon: 'bi-clock-history',
       title: efbEmailTestText('deliveryDelayedTitle', 'Delivery is taking longer than expected'),
@@ -4232,7 +4314,7 @@ function efbEmailTestViewModel(state, options) {
       title: efbEmailTestText('emailTestNetErrorTitle', 'The connection was lost'),
       sub: efbEmailTestText('emailTestNetErrorSub', 'No answer came back from the server. Refresh the page and try again.')
     };
-  } else if (stepValues[1] === 'error') {
+  } else if (stepValues[1] === 'error' || outcome === 'wp_mail_failed') {
     // wp_mail() refused it. The message never left the site, which is a
     // different problem from one that left and never arrived.
     hero = {
@@ -4246,13 +4328,18 @@ function efbEmailTestViewModel(state, options) {
     hero = {
       icon: 'bi-stopwatch',
       title: efbEmailTestText('emailTestTimeoutTitle', 'The test timed out'),
-      sub: efbEmailTestText('emailTestTimeoutSub', 'The test reached its time limit. Your server may be slow, or may block outbound email.')
+      sub: efbEmailTestText('emailTestTimeoutUnknownSub', 'No final answer arrived in time. Delivery is unknown, not failed. Try again later.')
     };
   } else {
+    // The service closed the window without an arrival - the one definite
+    // "not delivered". When WordPress did send it, say so rather than blame
+    // the server's ability to send.
     hero = {
       icon: 'bi-x-lg',
       title: efbEmailTestText('emailTestExpiredTitle', 'No email arrived'),
-      sub: efbEmailTestText('emailTestExpiredSub', 'Nothing was received during the test window, so your server most likely cannot send email.')
+      sub: sendStage === 'handed_off'
+        ? efbEmailTestText('emailTestExpiredHandedOffSub', 'WordPress sent the email, but it did not reach the test mailbox before the time limit.')
+        : efbEmailTestText('emailTestExpiredSub', 'Nothing was received during the test window, so your server most likely cannot send email.')
     };
   }
 
@@ -4271,6 +4358,7 @@ function efbEmailTestViewModel(state, options) {
     steps: steps,
     hero: hero,
     message: state.message || '',
+    technical: state.technical || [],
     rows: efbEmailTestDeliveryRows(result, test),
     groups: efbEmailTestDiagnosisGroups(result),
     tips: (result && Array.isArray(result.recommendations) ? result.recommendations.slice(0, 5) : []),
@@ -4393,8 +4481,11 @@ function efbEmailTestPoll(test, uiState, button, buttonHtml, startedAt) {
   const maxDuration = Math.max(30, Number(test.expires_in_seconds || 600));
   const elapsed = Math.floor((Date.now() - startedAt) / 1000);
   if (elapsed > maxDuration) {
+    // We stopped asking; the service never gave a final answer. Unknown, not
+    // "not delivered" - the hero says so and needs no second sentence.
     uiState.steps.wait = 'error';
-    uiState.message = efbEmailTestText('emailTestTimedOut', 'The test timed out. Please try again — your server may be slow or blocking outgoing mail.');
+    uiState.outcome = 'timeout';
+    uiState.message = '';
     uiState.percent = 100;
     efbEmailTestShow(uiState);
     efbEmailTestFinishButton(button, buttonHtml);
@@ -4423,8 +4514,16 @@ function efbEmailTestPoll(test, uiState, button, buttonHtml, startedAt) {
 
       if (!payload.success && status != 'pending' && status != 'delayed' && status != 'expired') {
         uiState.steps.wait = 'error';
-        uiState.message = payload.m || result.message || efbEmailTestText('error', 'Error');
-        uiState.result = result;
+        uiState.outcome = window.efbEmailTestUI.outcome({ stage: 'result', payload: payload, result: result });
+        if (uiState.outcome === 'wp_mail_failed') {
+          uiState.message = result.message || payload.m || '';
+        } else {
+          // A cURL error or an HTTP code is for the host's support desk.
+          uiState.message = '';
+          uiState.technical = [payload.m || result.message || '', payload.code ? 'HTTP ' + payload.code : ''];
+        }
+        // Keep what is already known (the recipient) when no report came back.
+        uiState.result = Object.keys(result).length ? result : uiState.result;
         uiState.percent = 100;
         efbEmailTestShow(uiState);
         efbEmailTestFinishButton(button, buttonHtml);
@@ -4444,6 +4543,7 @@ function efbEmailTestPoll(test, uiState, button, buttonHtml, startedAt) {
       }
 
       if (status == 'delayed' || stage == 'delivery_wait') {
+        uiState.outcome = 'pending';
         uiState.steps.wait = 'warning';
         uiState.steps.quick = 'warning';
         uiState.steps.full = 'waiting';
@@ -4457,6 +4557,7 @@ function efbEmailTestPoll(test, uiState, button, buttonHtml, startedAt) {
       }
 
       if (status == 'expired') {
+        uiState.outcome = 'not_delivered';
         uiState.steps.wait = 'error';
         uiState.steps.quick = 'error';
         uiState.message = result.message || efbEmailTestText('emailNeverArrived', 'No email arrived during the test window.');
@@ -4519,9 +4620,13 @@ function efbEmailTestPoll(test, uiState, button, buttonHtml, startedAt) {
         efbEmailTestPoll(test, uiState, button, buttonHtml, startedAt);
       }, 10000);
     }).fail(function (xhr, textStatus) {
+      // This site's own admin-ajax gave no usable answer. The email may well
+      // have arrived; what is lost is the answer, so the result is unknown.
       uiState.steps.wait = 'error';
       const code = textStatus === 'parsererror' ? 'BAD_JSON' : (xhr.status || textStatus || 'NET');
-      uiState.message = efbEmailTestFormat(efbEmailTestText('connectionErrorCode', 'Connection error. Please refresh the page and try again. (Code: %s)'), code);
+      uiState.outcome = window.efbEmailTestUI.outcome({ stage: 'result', requestFailed: true, parseError: textStatus === 'parsererror' });
+      uiState.message = '';
+      uiState.technical = [efbEmailTestFormat(efbEmailTestText('connectionErrorCode', 'Connection error. Please refresh the page and try again. (Code: %s)'), code)];
       uiState.percent = 100;
       efbEmailTestShow(uiState);
       efbEmailTestFinishButton(button, buttonHtml);
@@ -4605,7 +4710,14 @@ function clickToCheckEmailServer() {
       } else {
         uiState.steps.start = payload.stage == 'start' || payload.stage == 'validation' ? 'error' : 'done';
         uiState.steps.send = payload.stage == 'send' ? 'error' : 'waiting';
+        uiState.outcome = window.efbEmailTestUI.outcome({ stage: 'start', payload: payload });
         uiState.message = payload.m || efbEmailTestText('error', 'Error');
+        // A transport error string (cURL) or an unreadable answer is technical
+        // detail; a service refusal (quota, rate limit) is written for people.
+        if (payload.reason === 'tester_unreachable' || payload.reason === 'invalid_response') {
+          uiState.technical = [uiState.message, payload.code ? 'HTTP ' + payload.code : ''];
+          uiState.message = '';
+        }
         uiState.result = payload.test || payload.result || {};
         uiState.test = payload.test || null;
         uiState.percent = 100;
@@ -4614,6 +4726,7 @@ function clickToCheckEmailServer() {
       }
     }).fail(function (xhr, textStatus) {
       uiState.steps.start = 'error';
+      uiState.outcome = window.efbEmailTestUI.outcome({ stage: 'start', requestFailed: true, parseError: textStatus === 'parsererror' });
       const code = textStatus === 'parsererror' ? 'BAD_JSON' : (xhr.status || textStatus || 'NET');
       uiState.message = efbEmailTestFormat(efbEmailTestText('connectionErrorCode', 'Connection error. Please refresh the page and try again. (Code: %s)'), code);
       uiState.percent = 100;

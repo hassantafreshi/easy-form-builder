@@ -1958,6 +1958,10 @@ class efbFunction {
 			/* translators: Shown when the test message was sent but the delivery service has not confirmed receipt yet. */
 			"onboardingTestPendingGuidance" => $state && isset($ac->text->onboardingTestPendingGuidance) ? $ac->text->onboardingTestPendingGuidance : esc_html__('Your test email was sent, but delivery is not confirmed yet. Check the inbox or spam folder for the address below; you can finish setup and try again later from General Settings.','easy-form-builder'),
 			"onboardingTestFailed" => $state && isset($ac->text->onboardingTestFailed) ? $ac->text->onboardingTestFailed : esc_html__('We could not verify delivery. Your email address was saved; please check your mail configuration in General Settings.','easy-form-builder'),
+			/* translators: Setup wizard, when the email check could not reach a verdict (service unreachable, answer lost, timed out). */
+			"onboardingResultUnknown" => $state && isset($ac->text->onboardingResultUnknown) ? $ac->text->onboardingResultUnknown : esc_html__('The delivery result is not known yet. You can finish setup and check again later.','easy-form-builder'),
+			/* translators: Setup wizard, when the address could not be stored so the email check never started. */
+			"onboardingEmailSaveFailed" => $state && isset($ac->text->onboardingEmailSaveFailed) ? $ac->text->onboardingEmailSaveFailed : esc_html__('Your email address could not be saved, so the delivery check did not run. Try again, or finish setup and set it later in General Settings.','easy-form-builder'),
 			/* translators: Shown when the test message arrived but its deliverability score is too low to rely on. %1$s: measured score, %2$s: minimum acceptable score. */
 			"emailDeliveryLowScore" => $state && isset($ac->text->emailDeliveryLowScore) ? $ac->text->emailDeliveryLowScore : esc_html__('Your test email was delivered, but its deliverability score is only %1$s out of 100 (below %2$s). The emails your forms send will most likely be filtered as spam. Set up SMTP and run the check again.','easy-form-builder'),
 			"onboardingFinish" => $state && isset($ac->text->onboardingFinish) ? $ac->text->onboardingFinish : esc_html__('Finish setup','easy-form-builder'),
@@ -3410,7 +3414,6 @@ class efbFunction {
 			"emailTestScoreOutOf" => $state && isset($ac->text->emailTestScoreOutOf) ? $ac->text->emailTestScoreOutOf : esc_html__('/ 100','easy-form-builder'),
 			"emailTestStartingTitle" => $state && isset($ac->text->emailTestStartingTitle) ? $ac->text->emailTestStartingTitle : esc_html__('Test started','easy-form-builder'),
 			"emailTestStartingSub" => $state && isset($ac->text->emailTestStartingSub) ? $ac->text->emailTestStartingSub : esc_html__('A unique address is being generated for this test.','easy-form-builder'),
-			"emailTestPendingTitle" => $state && isset($ac->text->emailTestPendingTitle) ? $ac->text->emailTestPendingTitle : esc_html__('Waiting for the email to arrive','easy-form-builder'),
 			"emailTestPendingSub" => $state && isset($ac->text->emailTestPendingSub) ? $ac->text->emailTestPendingSub : esc_html__('We check our server every few seconds. Please keep this page open.','easy-form-builder'),
 			"emailTestOkTitle" => $state && isset($ac->text->emailTestOkTitle) ? $ac->text->emailTestOkTitle : esc_html__('Your email server is healthy','easy-form-builder'),
 			"emailTestOkSub" => $state && isset($ac->text->emailTestOkSub) ? $ac->text->emailTestOkSub : esc_html__('The test email arrived, and the subject and unique-code checks both passed.','easy-form-builder'),
@@ -3419,13 +3422,28 @@ class efbFunction {
 			"emailTestExpiredTitle" => $state && isset($ac->text->emailTestExpiredTitle) ? $ac->text->emailTestExpiredTitle : esc_html__('No email arrived','easy-form-builder'),
 			"emailTestExpiredSub" => $state && isset($ac->text->emailTestExpiredSub) ? $ac->text->emailTestExpiredSub : esc_html__('Nothing was received during the test window, so your server most likely cannot send email.','easy-form-builder'),
 			"emailTestTimeoutTitle" => $state && isset($ac->text->emailTestTimeoutTitle) ? $ac->text->emailTestTimeoutTitle : esc_html__('The test timed out','easy-form-builder'),
-			"emailTestTimeoutSub" => $state && isset($ac->text->emailTestTimeoutSub) ? $ac->text->emailTestTimeoutSub : esc_html__('The test reached its time limit. Your server may be slow, or may block outbound email.','easy-form-builder'),
 			"emailTestStartErrorTitle" => $state && isset($ac->text->emailTestStartErrorTitle) ? $ac->text->emailTestStartErrorTitle : esc_html__('The test email could not be sent','easy-form-builder'),
 			"emailTestStartErrorSub" => $state && isset($ac->text->emailTestStartErrorSub) ? $ac->text->emailTestStartErrorSub : esc_html__('WordPress returned an error while sending. See the message below.','easy-form-builder'),
 			"emailTestNetErrorTitle" => $state && isset($ac->text->emailTestNetErrorTitle) ? $ac->text->emailTestNetErrorTitle : esc_html__('The connection was lost','easy-form-builder'),
 			"emailTestNetErrorSub" => $state && isset($ac->text->emailTestNetErrorSub) ? $ac->text->emailTestNetErrorSub : esc_html__('No answer came back from the server. Refresh the page and try again.','easy-form-builder'),
 			"emailTestUpgradeTitle" => $state && isset($ac->text->emailTestUpgradeTitle) ? $ac->text->emailTestUpgradeTitle : esc_html__('This test needs a higher plan','easy-form-builder'),
 			"emailTestUpgradeSub" => $state && isset($ac->text->emailTestUpgradeSub) ? $ac->text->emailTestUpgradeSub : esc_html__('Upgrade your plan to run the full delivery test.','easy-form-builder'),
+			/* Email test outcomes that are NOT a verdict on email: the check could
+			   not run or its answer was lost. See docs/email-server-test.md. */
+			/* translators: Email test headline after wp_mail() accepted the test message; arrival is still being checked */
+			"emailTestAcceptedTitle" => $state && isset($ac->text->emailTestAcceptedTitle) ? $ac->text->emailTestAcceptedTitle : esc_html__('Accepted for sending; delivery not confirmed yet','easy-form-builder'),
+			/* translators: Email test headline when the testing service did not accept the test, so nothing was sent */
+			"emailTestStartFailedTitle" => $state && isset($ac->text->emailTestStartFailedTitle) ? $ac->text->emailTestStartFailedTitle : esc_html__('The test could not start','easy-form-builder'),
+			"emailTestStartFailedSub" => $state && isset($ac->text->emailTestStartFailedSub) ? $ac->text->emailTestStartFailedSub : esc_html__('Nothing was sent yet, so this says nothing about your email. Try again later.','easy-form-builder'),
+			/* translators: Email test headline when no usable answer about delivery came back */
+			"emailTestUnknownTitle" => $state && isset($ac->text->emailTestUnknownTitle) ? $ac->text->emailTestUnknownTitle : esc_html__('Delivery result unknown','easy-form-builder'),
+			"emailTestUnreachableSub" => $state && isset($ac->text->emailTestUnreachableSub) ? $ac->text->emailTestUnreachableSub : esc_html__('Your site got no answer from the testing service, so delivery was not checked. This does not mean the email failed.','easy-form-builder'),
+			"emailTestInvalidResponseSub" => $state && isset($ac->text->emailTestInvalidResponseSub) ? $ac->text->emailTestInvalidResponseSub : esc_html__('An answer came back that could not be read, so delivery was not checked. Try again later.','easy-form-builder'),
+			"emailTestTimeoutUnknownSub" => $state && isset($ac->text->emailTestTimeoutUnknownSub) ? $ac->text->emailTestTimeoutUnknownSub : esc_html__('No final answer arrived in time. Delivery is unknown, not failed. Try again later.','easy-form-builder'),
+			"emailTestExpiredHandedOffSub" => $state && isset($ac->text->emailTestExpiredHandedOffSub) ? $ac->text->emailTestExpiredHandedOffSub : esc_html__('WordPress sent the email, but it did not reach the test mailbox before the time limit.','easy-form-builder'),
+			"emailTestFormsSeparate" => $state && isset($ac->text->emailTestFormsSeparate) ? $ac->text->emailTestFormsSeparate : esc_html__('Form submissions and email status are checked separately.','easy-form-builder'),
+			/* translators: Label of a collapsible section with raw error text from the email test */
+			"emailTestTechnicalDetails" => $state && isset($ac->text->emailTestTechnicalDetails) ? $ac->text->emailTestTechnicalDetails : esc_html__('Technical details','easy-form-builder'),
 			/* translators: Sentence lead-in; the email address is appended after it */
 			"emailServerWorkingReportLead" => $state && isset($ac->text->emailServerWorkingReportLead) ? $ac->text->emailServerWorkingReportLead : esc_html__('Your email server is working. A detailed HTML report has been sent to','easy-form-builder'),
 			/* translators: Sentence lead-in; the email address is appended after it */
@@ -3477,8 +3495,6 @@ class efbFunction {
 			/* translators: Upgrade button label shown when a higher plan is required */
 			"upgrade" => $state && isset($ac->text->upgrade) ? $ac->text->upgrade : esc_html__('Upgrade','easy-form-builder'),
 
-			/* translators: Status message shown when the email test times out */
-			"emailTestTimedOut" => $state && isset($ac->text->emailTestTimedOut) ? $ac->text->emailTestTimedOut : esc_html__('The test timed out. Please try again — your server may be slow or blocking outgoing mail.','easy-form-builder'),
 			/* translators: Status message shown while waiting for the test email to arrive */
 			"waitingForEmail" => $state && isset($ac->text->waitingForEmail) ? $ac->text->waitingForEmail : esc_html__('Waiting for the test email to arrive…','easy-form-builder'),
 			/* translators: Status message shown when the test email is delayed */
@@ -6515,7 +6531,7 @@ public function addon_add_efb($value) {
 		);
 
 		$state = $wpdb->query($sql);
-		return $sid;
+		return $state === false ? '' : $sid;
 	}
 
     public function efb_code_validate_update($sid ,$status ,$tc ) {

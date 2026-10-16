@@ -152,7 +152,10 @@ function jQueryStub(fn) {
   if (jqReady && typeof fn === 'function') fn(jQueryStub);
   return { on() { return this; }, ready() { return this; }, each() { return this; } };
 }
-jQueryStub.post = function (url, data, cb) { if (postHandler) postHandler(url, data, cb); };
+jQueryStub.post = function (url, data, cb) {
+  if (postHandler) postHandler(url, data, cb);
+  return { fail() { return this; } };
+};
 jQueryStub.fn = { extend() {} };
 global.jQuery = jQueryStub;
 global.$ = jQueryStub;
@@ -311,6 +314,15 @@ postHandler = function (url, data, cb) { cb({ success: true, data: { success: tr
 fun_send_replayMessage_ajax_emsFormBuilder(global.sendBack_emsFormBuilder_pub, 77);
 
 test('a `by`-less response still credits the signed-in admin', renderedBy, ADMIN_NAME);
+
+dom = buildComposer();
+renderedBy = null;
+document.getElementById('replayM_emsFormBuilder').value = 'Keep this draft';
+postHandler = function (url, data, cb) { cb({ success: true, data: { success: false, m: 'Attachment could not be verified' } }); };
+fun_send_replayMessage_ajax_emsFormBuilder(global.sendBack_emsFormBuilder_pub, 77);
+test('HTTP 200 with application failure does not append a successful reply', renderedBy, null);
+test('application failure preserves the draft', document.getElementById('replayM_emsFormBuilder').value, 'Keep this draft');
+test('application failure preserves queued attachments', global.sendBack_emsFormBuilder_pub.some(x => x.id_ === UPLOAD_ID), true);
 
 (async function testPublicReplyFlow() {
   console.log('\n--- public response-box queue isolation ---');

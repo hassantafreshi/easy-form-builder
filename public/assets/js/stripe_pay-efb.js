@@ -1,32 +1,42 @@
 
-function confirm_stripe_payment_efb(paymentIntentId, trackid) {
+async function confirm_stripe_payment_efb(paymentIntentId, trackid, formId) {
+  let context;
+  try { context = window.EFBRuntime ? await window.EFBRuntime.prepare(formId) : null; }
+  catch (error) { if (window.EFBRequestHealth) window.EFBRequestHealth.report('payment', 0); return false; }
   const confirmUrl = efb_var.rest_url + 'Emsfb/v1/forms/payment/stripe/confirm';
   const confirmHeaders = new Headers({
     'Content-Type': 'application/json',
-    'X-WP-Nonce': efb_var.nonce,
+    'X-WP-Nonce': context ? context.nonce : efb_var.nonce,
+    'form-id': String(formId || 0),
+    'sid': context ? context.sid : (efb_var.sid || ''),
   });
   console.log('[EFB Stripe Debug] confirm request start', {
     confirmUrl,
     paymentIntentId,
     trackid
   });
-  fetch(confirmUrl, {
+  return fetch(confirmUrl, {
     method: 'POST',
+    cache: 'no-store',
+    credentials: 'same-origin',
+    signal: typeof AbortSignal !== 'undefined' && AbortSignal.timeout ? AbortSignal.timeout(45000) : undefined,
     headers: confirmHeaders,
     body: JSON.stringify({ paymentIntentId: paymentIntentId, trackid: trackid })
   }).then(function(response) {
+    if (!response.ok && window.EFBRequestHealth) window.EFBRequestHealth.report('payment', response.status);
     console.log('[EFB Stripe Debug] confirm response received', {
       status: response.status,
       ok: response.ok
     });
     return response.json();
   }).then(function(res) {
-    console.log('[EFB Stripe Debug] confirm response body', res);
-    if (res && res.data && res.data.success) {
-    } else {
-    }
+    const verified = !!(res && res.data && res.data.success);
+    if (!verified && window.EFBRequestHealth) window.EFBRequestHealth.report('payment', 0);
+    return verified;
   }).catch(function(err) {
+    if (window.EFBRequestHealth) window.EFBRequestHealth.report('payment', 0);
     console.error('[EFB Stripe Debug] confirm request failed', err);
+    return false;
   });
 }
 
@@ -52,8 +62,13 @@ function confirm_stripe_payment_efb(paymentIntentId, trackid) {
         });
 
         const bdy = document.getElementById('body_efb_'+form_id);
+        if (!bdy) return;
         const cardnoEfb = bdy.querySelector('#cardnoEfb')
-        if (typeof cardnoEfb != "object") return;
+        const btnStripeEfb = bdy.querySelector('#btnStripeEfb');
+        const stsStripeEfb = bdy.querySelector('#statusStripEfb');
+        const statusStripEfb = stsStripeEfb;
+        let paymentStarted = false;
+        if (!cardnoEfb || !btnStripeEfb || !stsStripeEfb) return;
 
         if (ajax_object_efm.hasOwnProperty('paymentKey')) {
           const init_stripe_ui_efb = (stripePubKey) => {
@@ -79,8 +94,6 @@ function confirm_stripe_payment_efb(paymentIntentId, trackid) {
           const cardnoEfb = bdy.querySelector('#cardnoEfb')
           const cardexpEfb = bdy.querySelector('#cardexpEfb')
           const cardcvcEfb = bdy.querySelector('#cardcvcEfb')
-          const btnStripeEfb = bdy.querySelector('#btnStripeEfb')
-          const stsStripeEfb = bdy.querySelector('#statusStripEfb')
           const elements = stripe.elements()
           const numElm = elements.create('cardNumber', { showIcon: true, iconStyle: 'solid', style: elsStripeStyleEfb })
           numElm.mount(cardnoEfb)
@@ -114,7 +127,21 @@ function confirm_stripe_payment_efb(paymentIntentId, trackid) {
             }
           })
 
-          fun_fetch_api_efb=(data ,transStat)=>{
+          const fun_fetch_api_efb=async (data ,transStat)=>{
+            try {
+              if (window.EFBRuntime) {
+                const live = await window.EFBRuntime.prepare(form_id);
+                headers.set('X-WP-Nonce', live.nonce);
+                headers.set('sid', live.sid);
+                if (data && Object.prototype.hasOwnProperty.call(data, 'sid')) data.sid = live.sid;
+              }
+            } catch (error) {
+              if (window.EFBRequestHealth) window.EFBRequestHealth.report('payment', 0);
+              btnStripeEfb.classList.remove('disabled');
+              btnStripeEfb.innerHTML = efb_var.text.payNow;
+              paymentStarted = false;
+              return;
+            }
             const jsonData = JSON.stringify(data);
             const safeLogData = Object.assign({}, data, {
               token: data && data.token ? '[REDACTED]' : undefined,
@@ -123,6 +150,9 @@ function confirm_stripe_payment_efb(paymentIntentId, trackid) {
             console.log('[EFB Stripe Debug] card/add request payload', safeLogData);
             const requestOptions = {
             method: 'POST',
+            cache: 'no-store',
+            credentials: 'same-origin',
+            signal: typeof AbortSignal !== 'undefined' && AbortSignal.timeout ? AbortSignal.timeout(45000) : undefined,
             headers,
             body: jsonData,
             };
@@ -139,38 +169,57 @@ function confirm_stripe_payment_efb(paymentIntentId, trackid) {
     return response.json();
   })
   .then(res => {
-    console.log('[EFB Stripe Debug] card/add response body', res);
     if (res && res.data && res.data.success === true) {
       if (valj_efb[0].paymentmethod === "charge") {
         stripe.confirmCardPayment(res.data.client_secret, {
           payment_method: { card: numElm }
-        }).then(transStat => {
-          console.log('[EFB Stripe Debug] confirmCardPayment result', transStat);
+        }).then(async transStat => {
+          if (transStat && transStat.error && !['card_error', 'validation_error'].includes(transStat.error.type)) {
+            if (window.EFBRequestHealth) window.EFBRequestHealth.report('payment', 0);
+            stsStripeEfb.textContent = window.efb_request_health && efb_request_health.payment_pending_message || efb_var.text.error;
+            return;
+          }
           if (transStat && transStat.paymentIntent && transStat.paymentIntent.status === 'succeeded') {
-            confirm_stripe_payment_efb(transStat.paymentIntent.id, res.data.id);
+            const verified = await confirm_stripe_payment_efb(transStat.paymentIntent.id, res.data.id, form_id);
+            if (!verified) {
+              const message = window.efb_request_health && efb_request_health.payment_pending_message;
+              stsStripeEfb.textContent = message || efb_var.text.error;
+              // The card may already be charged; keep Pay Now disabled until reconciliation.
+              return;
+            }
           }
           fun_trans_efb(transStat, res.data.transStat, res.data.id);
+        }).catch(error => {
+          if (window.EFBRequestHealth) window.EFBRequestHealth.report('payment', 0);
+          stsStripeEfb.textContent = window.efb_request_health && efb_request_health.payment_pending_message || efb_var.text.error;
         });
       } else {
         fun_trans_efb(transStat, res.data.transStat, res.data.id);
       }
     } else {
+      if (window.EFBRequestHealth) window.EFBRequestHealth.report('payment', 0);
+      if (res && res.data && res.data.payment_uncertain) {
+        stsStripeEfb.textContent = window.efb_request_health && efb_request_health.payment_pending_message || efb_var.text.error;
+        return;
+      }
       stsStripeEfb.innerHTML = `<div class="text-danger"><strong>${efb_var.text.error}</strong></div>`;
       btnStripeEfb.classList.remove('disabled');
+      paymentStarted = false;
       btnStripeEfb.innerHTML = efb_var.text.payNow;
     }
   })
   .catch(error => {
+    if (window.EFBRequestHealth) window.EFBRequestHealth.report('payment', 0);
     console.error('[EFB Stripe Debug] card/add request failed', error);
-    btnStripeEfb.classList.remove('disabled');
-    const errorMessage = `<p class="efb h4">${efb_var.text.error} ${error.message}</p>`;
-    alert_message_efb('Stripe', errorMessage, 120, 'danger');
-    btnStripeEfb.innerHTML = efb_var.text.payNow;
+    stsStripeEfb.textContent = window.efb_request_health && efb_request_health.payment_pending_message || efb_var.text.error;
+    // A lost response can follow a subscription charge. Do not invite another payment.
   });
 
 }
 
           btnStripeEfb.addEventListener('click', () => {
+            if (paymentStarted) return;
+            paymentStarted = true;
             console.log('[EFB Stripe Debug] Pay Now clicked', {
               form_id,
               paymentmethod: valj_efb[0] && valj_efb[0].paymentmethod ? valj_efb[0].paymentmethod : 'unknown'
@@ -187,8 +236,10 @@ function confirm_stripe_payment_efb(paymentIntentId, trackid) {
               alert_message_efb(efb_var.text.error, efb_var.text.emptyCartM, 10, 'warning')
               btnStripeEfb.innerHTML = efb_var.text.payNow;
               btnStripeEfb.classList.remove('disabled');
+              paymentStarted = false;
               return false;
             } else {
+                let data;
 
                 if(valj_efb[0].paymentmethod != "charge"){
                   stripe.createToken(numElm).then((transStat) => {
@@ -197,6 +248,8 @@ function confirm_stripe_payment_efb(paymentIntentId, trackid) {
                       hasToken: !!(transStat && transStat.token && transStat.token.id)
                     });
                     if (transStat.error) {
+                      paymentStarted = false;
+                      btnStripeEfb.classList.remove('disabled');
                       stsStripeEfb.innerHTML = `<p class="h4">${transStat.status}</p> ${transStat.statusText} </br> ${transStat.responseText}`
 
                     } else {
@@ -256,7 +309,7 @@ function confirm_stripe_payment_efb(paymentIntentId, trackid) {
           }else{
             if (efb_var.pro==true || efb_var.pro=="true") alert_message_efb(efb_var.text.error, `${efb_var.text.errorCode}: ${efb_var.text.payment}->${efb_var.text.proVersion}`, 100, 'danger');
           }
-          fun_trans_efb = (transStat, data, trackid) => {
+          const fun_trans_efb = (transStat, data, trackid) => {
 
             console.log('[EFB Stripe Debug] fun_trans_efb called', {
               hasError: !!(transStat && transStat.error),
@@ -265,6 +318,7 @@ function confirm_stripe_payment_efb(paymentIntentId, trackid) {
             });
 
             if (transStat.error) {
+              paymentStarted = false;
               stsStripeEfb.innerHTML = `
                   <strong>${efb_var.text.error}  </string> ${transStat.error.message}
                   `

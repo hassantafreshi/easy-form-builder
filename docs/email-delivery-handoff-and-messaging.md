@@ -277,3 +277,14 @@ talking to an old service gets a 404 on the handoff, logs it and continues.
 * `EMSFB_PLUGIN_VERSION` was left at `4.1.3` (the file header says `4.1.4`).
   The admin JS is enqueued with that constant, so the release bump that ships
   this work is also what busts the browser cache for `list_form-efb.js`.
+
+---
+
+## 7. Outcome model in the client (2026-10-12)
+
+The modal and the wizard no longer read the steps to decide the headline. Every
+run carries an `outcome` computed by `efbEmailTestUI.outcome()` from the real
+`/start` and `/result` payloads, and only `wp_mail_failed` and `not_delivered`
+(an `expired` window) count as a verdict on email; a lost answer, a timeout, an
+unreachable service or a refused start are "unknown" and keep setup finishable.
+The table and the compatibility rules are in `docs/email-server-test.md`.

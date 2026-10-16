@@ -23,6 +23,8 @@ class _Public {
 	private $addon_recovery_transition_rendered = false;
 	private $deferred_form_markup = [];
 	private $deferred_form_key = '';
+	private $operation_key = '';
+	private $operation_data = array();
 
 	/* Head hoisting - see open_head_hoist_buffer_efb(). */
 	private $head_chunks_efb      = [];
@@ -83,6 +85,15 @@ class _Public {
 				'callback' => [$this, 'efb_nonce_refresh_api'],
 				'permission_callback' => '__return_true',
 			]);
+			register_rest_route('Emsfb/v1','forms/session/prepare', array(
+				'methods'=>'POST', 'callback'=>array($this,'prepare_form_session_api'), 'permission_callback'=>'__return_true',
+			));
+			register_rest_route('Emsfb/v1','forms/operation/status', array(
+				'methods'=>'POST','callback'=>array($this,'operation_status_api'),'permission_callback'=>'__return_true',
+			));
+			register_rest_route('Emsfb/v1','forms/response/session', array(
+				'methods'=>'POST','callback'=>array($this,'response_session_api'),'permission_callback'=>array($this,'check_nonce_permission_efb'),
+			));
 
 		});
 
@@ -158,7 +169,7 @@ public function check_nonce_permission_efb($request) {
 	}
 
 	if (!isset($_SERVER['HTTP_X_WP_NONCE'])) {
-		return new \WP_Error('rest_forbidden', __('X-WP-Nonce header is missing', 'easy-form-builder'), array('status' => 403));
+		return new \WP_Error('efb_nonce_missing', __('X-WP-Nonce header is missing', 'easy-form-builder'), array('status' => 403));
 	}
 
 	$verify = wp_verify_nonce( sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_WP_NONCE'] ) ), 'wp_rest');
@@ -186,7 +197,7 @@ public function check_nonce_permission_efb($request) {
 			}
 		}
 
-		return new \WP_Error('rest_forbidden', __('Invalid or expired nonce', 'easy-form-builder'), array('status' => 403));
+		return new \WP_Error('efb_nonce_expired', __('Invalid or expired nonce', 'easy-form-builder'), array('status' => 403));
 	}
 
 	return true;
@@ -204,7 +215,61 @@ public function check_nonce_permission_efb($request) {
 	 * On success the session is "touched" (sliding extension, absolutely capped)
 	 * so a genuinely open form keeps working without repeated 403s.
 	 */
+	public function prepare_form_session_api($request) {
+		$nonce = $this->efb_nonce_refresh_api();
+		if (is_wp_error($nonce)) return $nonce;
+		$fid = $request->get_param('form_id');
+		if (!is_scalar($fid) || !preg_match('/^[0-9]{1,10}$/D',(string)$fid)) return new \WP_Error('efb_form_invalid','Invalid form.',array('status'=>400));
+		$fid = (int)$fid;
+		if ($fid > 0) {
+			$form = $this->get_form_data_efb($fid);
+			if (!$form) return new \WP_Error('efb_form_missing',__('Form not found.', 'easy-form-builder'),array('status'=>404));
+			$structure = \emsfb_json_decode_efb($form->form_structer,true);
+			if (in_array($structure[0]['stateForm'] ?? false,array(true,1,'1'),true) && !is_user_logged_in()) return new \WP_Error('efb_login_required',__('Please log in to use this form.', 'easy-form-builder'),array('status'=>403));
+		}
+		if (!class_exists('\\Emsfb\\Form_Runtime')) return new \WP_Error('efb_runtime_unavailable','Form runtime unavailable.',array('status'=>503));
+		$previous = $request->get_param('runtime_token');
+		$proof = $previous ? \Emsfb\Form_Runtime::verify($previous,$fid) : false;
+		if (is_wp_error($proof)) return $proof;
+		if ($previous && !$proof) return new \WP_Error('efb_context_expired',__('The form context expired. Reopen the form before continuing.', 'easy-form-builder'),array('status'=>409));
+		$this->efbFunction = get_efbFunction();
+		$sid = $proof ? $proof['sid'] : '';
+		if (!$sid || !$this->efbFunction->efb_code_validate_check($sid,$fid)) {
+			$sid = $this->efbFunction->efb_code_validate_create($fid,0,'visit',0);
+		} else $this->efbFunction->efb_code_touch_session($sid,$fid);
+		if (!$sid) return new \WP_Error('efb_session_storage_failed',__('The form session could not be saved.', 'easy-form-builder'),array('status'=>503));
+		return new \WP_REST_Response(array('nonce'=>$nonce->get_data()['nonce'],'sid'=>$sid,'runtime_token'=>\Emsfb\Form_Runtime::token($fid,$sid,$proof ? $proof['owner'] : ''),'refresh_after'=>240),200);
+	}
+
+	public function operation_status_api($request) {
+		$nonce=$this->efb_nonce_refresh_api();
+		if (is_wp_error($nonce)) return $nonce;
+		$data=$request->get_json_params();
+		if (!is_array($data) || !is_scalar($data['form_id'] ?? null) || !is_string($data['kind'] ?? null)) return new \WP_Error('efb_operation_invalid','Invalid operation.',array('status'=>400));
+		return \Emsfb\Form_Runtime::status($data['kind'],(int)$data['form_id'],$data);
+	}
+
+	public function response_session_api($request) {
+		nocache_headers();
+		if (!\Emsfb\Request_Health::same_origin()) return new \WP_Error('efb_origin_denied','Same origin required.',array('status'=>403));
+		$data=$request->get_json_params();
+		if (!is_array($data) || !is_scalar($data['id'] ?? null)) return new \WP_Error('efb_ticket_invalid','Invalid ticket.',array('status'=>400));
+		$id=absint($data['id']); $track=$this->response_ticket_track_efb($id);
+		$proof=\Emsfb\Form_Runtime::verify($data['response_access_token'] ?? '',0);
+		if (is_wp_error($proof)) return $proof;
+		if (!$track || !$proof || !hash_equals($id.':'.hash('sha256',$track),(string)$proof['sid'])) return new \WP_Error('efb_ticket_denied',__('Reopen the conversation to verify access.', 'easy-form-builder'),array('status'=>403));
+		$token=$this->issue_response_upload_token_efb($id,$track);
+		if (!$token) return new \WP_Error('efb_ticket_token_storage_failed',__('The attachment session could not be saved.', 'easy-form-builder'),array('status'=>503));
+		return new \WP_REST_Response(array('response_upload_token'=>$token,'nonce_msg'=>wp_create_nonce($track)),200);
+	}
+
 	public function efb_nonce_refresh_api() {
+		nocache_headers();
+		// This route can restore a logged-in identity and issue its CSRF nonce.
+		// Never expose that token to another origin, even with permissive REST CORS.
+		if (!class_exists('\\Emsfb\\Request_Health') || !\Emsfb\Request_Health::same_origin()) {
+			return new \WP_Error('efb_refresh_origin_denied', __('Token refresh requires a same-origin request.', 'easy-form-builder'), array('status' => 403));
+		}
 
 		/* Core's rest_cookie_check_errors() drops the current user to 0 for any
 		 * REST request that carries no nonce - which is precisely how this
@@ -786,6 +851,7 @@ public function check_nonce_permission_efb($request) {
 	}
 
 	public function EFB_Form_Builder($id){
+			if (class_exists('\\Emsfb\\Cache_Compat')) \Emsfb\Cache_Compat::bypass();
 
 			$page_builder="";
 			$action_post = isset($_GET['action']) ? sanitize_key( wp_unslash( $_GET['action'] ) ) :'';
@@ -2100,6 +2166,7 @@ public function check_nonce_permission_efb($request) {
 	  }
 
 	private function efb_send_json_and_continue($response, $status_code = 200) {
+		if ($this->operation_key && !empty($response['success'])) \Emsfb\Form_Runtime::finish($this->operation_key,$response);
 
 		if ( emsfb_is_php_function_available_efb( 'ini_set' ) ) {
 			@ini_set('zlib.output_compression', 0);
@@ -2230,6 +2297,13 @@ public function check_nonce_permission_efb($request) {
 
 	  public function get_form_public_efb($data_POST_) {
 		$request_data = $data_POST_->get_json_params();
+		if (!is_array($request_data)) wp_send_json_error(array('code'=>'efb_invalid_payload','m'=>__('Invalid form request.', 'easy-form-builder')),400);
+		foreach (array('sid','id','page_id','url','type','name') as $field) {
+			if (isset($request_data[$field]) && !is_scalar($request_data[$field])) wp_send_json_error(array('code'=>'efb_invalid_payload','m'=>__('Invalid form request.', 'easy-form-builder')),400);
+		}
+		$request_data += array('sid'=>'','id'=>0,'page_id'=>0,'url'=>'','type'=>'','name'=>'');
+		$this->operation_key = '';
+		$this->operation_data = is_array($request_data) ? $request_data : array();
 
 		$translation_keys = [
 			'somethingWentWrongPleaseRefresh', 'pleaseMakeSureAllFields', 'PleaseFillForm', 'bkXpM_', 'bkFlM_', 'mnvvXXX_', 'ptrnMmm_', 'ptrnMmx_', 'payment', 'error403', 'errorSiteKeyM',
@@ -2252,7 +2326,8 @@ public function check_nonce_permission_efb($request) {
 		$this->lanText = $this->efbFunction->text_efb($translation_keys);
 		$plugin_settings;
 		$cache_plugins = get_option('emsfb_cache_plugins','0');
-		if($cache_plugins!='0') $this->cache_cleaner_Efb($page_id,$cache_plugins);
+		// Published form pages are excluded by Cache_Compat. A visitor-supplied
+		// page_id must not trigger cache purges on public requests.
 
 		$user_id = 1;
 		$admin_email_list = [];
@@ -2298,7 +2373,16 @@ public function check_nonce_permission_efb($request) {
 		}
 
 		$form_structure_json = isset($form_db_data) ? \emsfb_json_normalize_efb($form_db_data->form_structer) : '';
+		$access_structure=\emsfb_json_decode_efb($form_structure_json,true);
+		if (in_array($access_structure[0]['stateForm'] ?? false,array(true,1,'1'),true) && !is_user_logged_in()) {
+			wp_send_json_error(array('code'=>'efb_login_required','m'=>__('Please log in to use this form.', 'easy-form-builder')),403);
+		}
 		$skip_captcha = $form_fields_array = $has_tracking_code  = $track_code = "";
+		if ($submission_type==='form') {
+			$replay=\Emsfb\Form_Runtime::replay('form',$this->id,$this->operation_data);
+			if (is_wp_error($replay)) wp_send_json_error(array('code'=>$replay->get_error_code(),'m'=>$replay->get_error_message()),$replay->get_error_data()['status']);
+			if ($replay instanceof \WP_REST_Response) wp_send_json($replay->get_data(),$replay->get_status());
+		}
 		$should_send_email=false;
 		$email_recipients = [];
 		// The form client always posts `value` as a JSON string, but nothing
@@ -3983,7 +4067,10 @@ public function check_nonce_permission_efb($request) {
 			'track_hash' => hash('sha256', (string) $track),
 			'ip_hash'    => hash('sha256', $this->get_ip_address()),
 		);
-		set_transient($this->response_upload_token_key_efb($token), $record, 30 * MINUTE_IN_SECONDS);
+		if (!set_transient($this->response_upload_token_key_efb($token), $record, 30 * MINUTE_IN_SECONDS)) {
+			\Emsfb\Request_Health::record('upload',503,'server','ticket_token_storage_failed');
+			return '';
+		}
 		return $token;
 	}
 
@@ -4145,7 +4232,8 @@ public function check_nonce_permission_efb($request) {
 					}
 				}
 				$response = array( 'success' => true  , "value" =>$value[0] , "content"=>$content,'nonce_msg'=> $code , 'id'=>$this->id,
-					'response_upload_token' => $this->issue_response_upload_token_efb($this->id, $value[0]->track));
+					'response_upload_token' => $this->issue_response_upload_token_efb($this->id, $value[0]->track),
+					'response_access_token'=>\Emsfb\Form_Runtime::token(0,$this->id.':'.hash('sha256',$value[0]->track)));
 			}else{
 				// Count this miss toward the per-IP enumeration throttle.
 				$this->efb_track_register_failure();
@@ -4179,6 +4267,12 @@ public function check_nonce_permission_efb($request) {
 	}
 
 	public function insert_message_db($read,$uniqid,$style_trackingCode = 'date_en_mix'){
+		if (($this->operation_data['type'] ?? '') === 'form' && class_exists('\\Emsfb\\Form_Runtime')) {
+			$guard = \Emsfb\Form_Runtime::begin('form',$this->id,$this->operation_data);
+			if (is_wp_error($guard)) wp_send_json_error(array('code'=>$guard->get_error_code(),'m'=>$guard->get_error_message()),$guard->get_error_data()['status']);
+			if ($guard instanceof \WP_REST_Response) wp_send_json($guard->get_data(),$guard->get_status());
+			$this->operation_key = $guard;
+		}
 		if(isset($read)==false) $read=0;
 
 		if($uniqid==false){
@@ -4189,7 +4283,7 @@ public function check_nonce_permission_efb($request) {
             $this->db = $wpdb;
         }
 		$table_name = $this->db->prefix . "emsfb_msg_";
-		$this->db->insert($table_name, array(
+		$inserted = $this->db->insert($table_name, array(
 			'form_title_x' => $this->name,
 			'content' => $this->value,
 			'form_id' => $this->id,
@@ -4198,6 +4292,13 @@ public function check_nonce_permission_efb($request) {
 			'read_' => $read,
 			'date'=>wp_date('Y-m-d H:i:s')
 		));
+		if ($inserted === false) {
+			\Emsfb\Form_Runtime::abort($this->operation_key);
+			if (class_exists('\\Emsfb\\Request_Health')) \Emsfb\Request_Health::record('form',500,'server','storage_failed');
+			wp_send_json_error(array('code'=>'efb_storage_failed','m'=>__('The form could not be saved. Your input has been kept.', 'easy-form-builder')),500);
+		}
+		\Emsfb\Request_Health::mark_saved();
+		if ($this->operation_key) \Emsfb\Form_Runtime::finish($this->operation_key,array('success'=>true,'ID'=>$this->id,'track'=>$uniqid,'nonce'=>wp_create_nonce($uniqid)));
 		$this->claim_uploaded_files_efb($this->value);
 		return $uniqid;
 	}
@@ -4849,7 +4950,9 @@ public function check_nonce_permission_efb($request) {
 			$response_token = isset($_POST['response_token']) ? sanitize_text_field(wp_unslash($_POST['response_token'])) : '';
 			$response_scope = $this->resolve_response_upload_scope_efb($response_id, $response_track, $response_token);
 			if ($response_scope === false) {
-				wp_send_json_success($this->upload_rejected_response_efb(esc_html__('The response box could not be verified. Reopen the conversation and try again.','easy-form-builder')), 200);
+				$failure=$this->upload_rejected_response_efb(esc_html__('The response box could not be verified. Reopen the conversation and try again.','easy-form-builder'));
+				$failure['code']='efb_ticket_access_expired';
+				wp_send_json_success($failure, 200);
 			}
 			/* Response attachments are never part of a form quota/budget. */
 			$fid = 0;
@@ -4908,7 +5011,6 @@ public function check_nonce_permission_efb($request) {
 			wp_send_json_success($response, 200);
 		}
 
-		$this->cache_cleaner_Efb($page_id);
 		$_FILES['async-upload']['name'] = sanitize_file_name( wp_unslash( $_FILES['async-upload']['name'] ) );
 
 		/* Read the field's own rules straight off the published structure: the
@@ -4985,6 +5087,10 @@ public function check_nonce_permission_efb($request) {
 	}
 	public function set_rMessage_id_Emsfb_api($data_POST_) {
 		$data_POST = $data_POST_->get_json_params();
+		$reply_key='';
+		$replay=\Emsfb\Form_Runtime::replay('reply',0,is_array($data_POST)?$data_POST:array());
+		if (is_wp_error($replay)) wp_send_json_error(array('code'=>$replay->get_error_code(),'m'=>$replay->get_error_message()),$replay->get_error_data()['status']);
+		if ($replay instanceof \WP_REST_Response) wp_send_json($replay->get_data(),$replay->get_status());
 		$this->text_ = empty($this->text_)==false ? $this->text_ = ['error400','atcfle','tfnapca','clcdetls','vmgs','required','mcplen','mmxplen','mxcplen','mmplen','offlineSend','settingsNfound','error405','error403','videoDownloadLink','downloadViedo','pleaseEnterVaildValue','errorSomthingWrong','nAllowedUseHtml','guest','messageSent','MMessageNSendEr',
         'youRecivedNewMessage','trackNo','WeRecivedUrM','thankFillForm','msgdml','spprt','newMessageReceived','sxnlex','msgSndBut','smsWPN']: $this->text_;
 		if($this->efbFunction===null) $this->efbFunction = get_efbFunction();
@@ -5021,7 +5127,6 @@ public function check_nonce_permission_efb($request) {
 		}
 		 $page_id = isset($data_POST['page_id']) ? absint($data_POST['page_id']) : 0;
 		$cache_plugins = get_option('emsfb_cache_plugins','0');
-		if($cache_plugins!='0')$this->cache_cleaner_Efb($page_id ,$cache_plugins);
 		/* Only the raw string is usable below: other methods - this one
 		 * included - keep the decoded object in $this->setting, and reading
 		 * that answered every later reply with "Settings not found". */
@@ -5211,6 +5316,10 @@ public function check_nonce_permission_efb($request) {
 						$by = $this->lanText['spprt'];
 					}
 				}
+				$guard=\Emsfb\Form_Runtime::begin('reply',0,$data_POST);
+				if (is_wp_error($guard)) wp_send_json_error(array('code'=>$guard->get_error_code(),'m'=>$guard->get_error_message()),$guard->get_error_data()['status']);
+				if ($guard instanceof \WP_REST_Response) wp_send_json($guard->get_data(),$guard->get_status());
+				$reply_key=$guard;
 				$reply_inserted = $this->db->insert($table_name, array(
 					'ip' => $ip,
 					'content' => $m,
@@ -5220,8 +5329,12 @@ public function check_nonce_permission_efb($request) {
 					'date'=>wp_date('Y-m-d H:i:s'),
 				));
 				if ($reply_inserted === false) {
+					\Emsfb\Form_Runtime::abort($reply_key);
+					\Emsfb\Request_Health::record('reply',500,'server','storage_failed');
 					wp_send_json_success(array('success' => false, 'm' => $this->lanText['errorSomthingWrong']), 200);
 				}
+				\Emsfb\Request_Health::mark_saved();
+				\Emsfb\Form_Runtime::finish($reply_key,array('success'=>true,'m'=>$this->lanText['messageSent'],'by'=>$by,'track'=>$track,'nonce_msg'=>wp_create_nonce($track)));
 
 				$this->claim_uploaded_files_efb($m);
 				if (!empty($response_attachment_urls)) {
@@ -5361,7 +5474,6 @@ public function check_nonce_permission_efb($request) {
 		}
 		$page_id = sanitize_text_field($data_POST['page_id']);
 		$cache_plugins = get_option('emsfb_cache_plugins','0');
-		if ($cache_plugins != '0') $this->cache_cleaner_Efb($page_id, $cache_plugins);
 
 		$path =  EMSFB_PLUGIN_DIRECTORY . 'vendor/autofill/autofillefb.php';
 		$path_exists = file_exists($path);
@@ -6269,8 +6381,9 @@ public function check_nonce_permission_efb($request) {
 					  $val =  $amount . ' ' . $paymentIntent->currency;
 			}
 			} catch ( \Throwable $e ) {
-				// error_log( '[EFB][Stripe] card/add failed for form ' . $this->id . ': ' . $e->getMessage() );
-				$response = [ 'success' => false, 'm' => 'Stripe: ' . $e->getMessage() ];
+				$provider_status = $e instanceof \Stripe\Exception\ApiErrorException ? (int) $e->getHttpStatus() : 0;
+				\Emsfb\Request_Health::record('payment', $provider_status >= 400 && $provider_status <= 599 ? $provider_status : 503, 'server', 'gateway_creation_failed');
+				$response = [ 'success' => false, 'payment_uncertain' => $e instanceof \Stripe\Exception\ApiConnectionException || (isset($paymentIntent) && is_object($paymentIntent)), 'm' => esc_html__('Payment could not be started. Please try again later.', 'easy-form-builder') ];
 				wp_send_json_success( $response, 200 );
 				return;
 			}
@@ -6365,10 +6478,10 @@ public function check_nonce_permission_efb($request) {
 		}
 
 		$data_POST       = $request->get_json_params();
-		$payment_intent  = sanitize_text_field( $data_POST['paymentIntentId'] ?? '' );
-		$trackid         = sanitize_text_field( $data_POST['trackid'] ?? '' );
+		$payment_intent  = is_string( $data_POST['paymentIntentId'] ?? null ) ? sanitize_text_field( $data_POST['paymentIntentId'] ) : '';
+		$trackid         = is_string( $data_POST['trackid'] ?? null ) ? sanitize_text_field( $data_POST['trackid'] ) : '';
 
-		if ( empty( $payment_intent ) ) {
+		if ( ! preg_match( '/^pi_[a-zA-Z0-9]+$/D', $payment_intent ) || $trackid === '' ) {
 			wp_send_json_success( [ 'success' => false, 'm' => esc_html__( 'Payment Intent ID is missing', 'easy-form-builder' ) ], 400 );
 			return;
 		}
@@ -6387,25 +6500,48 @@ public function check_nonce_permission_efb($request) {
 		$pay_table = $wpdb->prefix . 'emsfb_pay_';
 
 		$pay_row = $wpdb->get_row( $wpdb->prepare(
-			"SELECT id, status FROM {$pay_table} WHERE transaction_id = %s AND gateway = 'stripe' LIMIT 1",
-			$payment_intent
+			"SELECT * FROM {$pay_table} WHERE transaction_id = %s AND track = %s AND gateway = 'stripe' LIMIT 1",
+			$payment_intent, $trackid
 		) );
 
-		if ( ! $pay_row ) {
-
-			if ( ! empty( $trackid ) ) {
-				$pay_row = $wpdb->get_row( $wpdb->prepare(
-					"SELECT id, status FROM {$pay_table} WHERE track = %s AND gateway = 'stripe' LIMIT 1",
-					$trackid
-				) );
-			}
+		if ( ! $pay_row || $pay_row->payment_type !== 'one-time' || ! in_array( $pay_row->status, array( 'pending', 'completed' ), true ) ) {
+			\Emsfb\Request_Health::record('payment',409,'server','payment_record_mismatch');
+			wp_send_json_success( array( 'success' => false, 'm' => 'Payment record does not match.' ), 409 );
+			return;
 		}
-
-		if ( $pay_row && $pay_row->status === 'pending' ) {
-			StripePayment::update_payment( $pay_row->id, [
+		// A public REST nonce and a client-side success message are not proof of payment.
+		try {
+			$key = $this->resolve_payment_key_efb( get_setting_Emsfb( 'decoded' ), 'stripeSKey' );
+			if ( $key === 'null' ) throw new \RuntimeException( 'Stripe is not configured.' );
+			if ( ! class_exists( '\\Stripe\\StripeClient' ) ) {
+				$init = EMSFB_PLUGIN_DIRECTORY . 'vendor/stripe/stripe-php/init.php';
+				require_once file_exists( $init ) ? $init : EMSFB_PLUGIN_DIRECTORY . 'vendor/autoload.php';
+			}
+			$client = new \Stripe\StripeClient( $key );
+			$intent = $client->paymentIntents->retrieve( $payment_intent, array() );
+		} catch ( \Throwable $error ) {
+			$provider_status = $error instanceof \Stripe\Exception\ApiErrorException ? (int) $error->getHttpStatus() : 0;
+			\Emsfb\Request_Health::record('payment',$provider_status >= 400 && $provider_status <= 599 ? $provider_status : 503,'server','gateway_verification_unavailable');
+			wp_send_json_success( array( 'success' => false, 'm' => 'Payment verification is temporarily unavailable.' ), 503 );
+			return;
+		}
+		// Creation currently uses two decimal minor units; compare against that exact contract.
+		$expected = (int) round( (float) $pay_row->amount * 100 );
+		if ( $intent->id !== $payment_intent || $intent->status !== 'succeeded' || (int) $intent->amount_received !== $expected || strtolower( (string) $intent->currency ) !== strtolower( $pay_row->currency ) ) {
+			\Emsfb\Request_Health::record('payment',409,'server','payment_not_verified');
+			wp_send_json_success( array( 'success' => false, 'm' => 'Payment has not been verified.' ), 409 );
+			return;
+		}
+		if ( $pay_row->status === 'pending' ) {
+			$updated = StripePayment::update_payment( $pay_row->id, [
 				'status'     => 'completed',
 				'capture_id' => $payment_intent,
 			] );
+			if ( $updated === false ) {
+				\Emsfb\Request_Health::record('payment',500,'server','payment_status_storage_failed');
+				wp_send_json_success( array( 'success' => false, 'm' => 'Payment status could not be saved.' ), 500 );
+				return;
+			}
 		}
 
 		/* No second table to touch here. emsfb_pay_.status, set just above, is

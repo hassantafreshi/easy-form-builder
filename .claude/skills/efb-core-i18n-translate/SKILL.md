@@ -45,10 +45,14 @@ translate, never edit a translation, never write a chunk. Building and publishin
   ```
   locale=<L>
   max=300
+  delta                      only when the locale already has a pack (prepare-locale says "M ready")
   parent=<P> (complete)
   ```
 
-  (the `parent` line only for a variant). A fix-up adds `fix-up:` and the `[ERROR]` lines of that locale.
+  (the `parent` line only for a variant, and only the parent that the `parent` field of `locales.json` names -
+  read it, never recall it). A locale that already has a pack is an update, not a first translation: `delta`
+  makes the translator translate only the missing phrases (see `docs/core-i18n/README.md`). A fix-up adds
+  `fix-up:` and the `[ERROR]` lines of that locale.
 - When a translator returns, read only its short return message and decide for that locale:
   - `blocked: wordpress.org rate limit`: back to the end of the queue; restart it only after other locales have run for
     a few minutes.

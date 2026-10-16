@@ -1000,7 +1000,7 @@ function replaceContentMessageEfb(value){
    value = value.replaceAll("@efb@nq#",`<br>`);
   return value;
 }
-function fun_upload_file_api_emsFormBuilder(id, type,tp,file,options) {
+async function fun_upload_file_api_emsFormBuilder(id, type,tp,file,options) {
   options = options || {};
   if (!navigator.onLine) {
 	const msg = efb_var.text.fileUploadNetworkError || efb_var.text.offlineSend;
@@ -1027,6 +1027,19 @@ function fun_upload_file_api_emsFormBuilder(id, type,tp,file,options) {
     files_emsFormBuilder[indx].recording_duration = Number(options.recording_duration) || 0;
   }
   const form_id = files_emsFormBuilder[indx].hasOwnProperty('form_id') ? files_emsFormBuilder[indx].form_id : 0;
+  let runtime;
+  try {
+    if (window.EFBRuntime) runtime=await window.EFBRuntime.prepare(Number(form_id)||0);
+    if (window.EFBRuntime && options.response_id) {
+      const ticket=await window.EFBRuntime.prepareTicket(options.response_id);
+      if (ticket) options=Object.assign({},options,{response_token:ticket.response_upload_token});
+    }
+  } catch(error) {
+    const current=files_emsFormBuilder.find(x=>x.id_===id && Number(x.form_id||0)===Number(form_id));
+    if (current) current.state=0;
+    if (!options.silent) alert_message_efb('',error.message,17,'danger');
+    return {success:false,error:error.message};
+  }
   let nonce_msg =''
   let sid =''
   if(form_id==0){
@@ -1037,6 +1050,7 @@ function fun_upload_file_api_emsFormBuilder(id, type,tp,file,options) {
     sid = vj.sid;
   }
   nonce_msg = efb_var.nonce ?? '';
+  if (runtime) { sid=runtime.sid; nonce_msg=runtime.nonce; }
   const page_id = efb_var.page_id ;
   const idn =  id + '_';
   const delay = options.hasOwnProperty('delay') ? Math.max(0, Number(options.delay) || 0) : 500;
@@ -1187,6 +1201,7 @@ function efb_fetch_fresh_nonce_efb() {
 }
 function fetch_uploadFile(file, id, pl, nonce_msg,page_id ,fid ,sid,options) {
   options = options || {};
+  let ticketRetried=false;
   var idB =id+'-prB';
   return new Promise((resolve, reject) => {
     /* An upload may be sent twice. A 403 means the nonce baked into the page
@@ -1235,14 +1250,26 @@ function fetch_uploadFile(file, id, pl, nonce_msg,page_id ,fid ,sid,options) {
           if (jsonMatch) {
             cleanResponseText = jsonMatch[0];
           } else {
+            if (window.EFBRequestHealth) window.EFBRequestHealth.report('upload', 0);
             reject('Server returned invalid JSON: ' + cleanResponseText.substring(0, 100));
             return;
           }
         }
 
         const response = JSON.parse(cleanResponseText);
+        const failure=response && response.data ? response.data : response;
+        if (failure && failure.code==='efb_ticket_access_expired' && options.response_id && window.EFBRuntime && !ticketRetried) {
+          ticketRetried=true;
+          window.EFBRuntime.prepareTicket(options.response_id,true).then(ticket=>{
+            if (!ticket) { reject(failure.error || 'Reopen the conversation.'); return; }
+            options=Object.assign({},options,{response_token:ticket.response_upload_token});
+            send(activeNonce,isRetry);
+          }).catch(error=>reject(error.message));
+          return;
+        }
         resolve(response);
       } catch (parseError) {
+        if (window.EFBRequestHealth) window.EFBRequestHealth.report('upload', 0);
         reject('Invalid JSON response from server. Check console for details.');
       }
     } else {
@@ -1255,20 +1282,35 @@ function fetch_uploadFile(file, id, pl, nonce_msg,page_id ,fid ,sid,options) {
         const payload = response && response.data ? response.data : response;
         errorMessage = (payload && (payload.m || payload.error || payload.message)) || errorMessage;
       } catch (e) {}
-      if (xhr.status === 403 && !isRetry) {
+      let nonceError = false;
+      try {
+        const failure = JSON.parse(xhr.responseText || '{}');
+        nonceError = ['rest_cookie_invalid_nonce', 'efb_nonce_expired', 'efb_nonce_missing'].includes(failure.code);
+      } catch (e) {}
+      if (xhr.status === 403 && nonceError && !isRetry) {
         efb_fetch_fresh_nonce_efb().then((fresh) => {
-          if (fresh && fresh !== activeNonce) send(fresh, true);
-          else reject(errorMessage);
+          if (fresh) send(fresh, true);
+          else {
+            if (window.EFBRequestHealth) window.EFBRequestHealth.report('upload', xhr.status);
+            reject(errorMessage);
+          }
         });
         return;
       }
+      if (window.EFBRequestHealth) window.EFBRequestHealth.report('upload', xhr.status);
       reject(errorMessage);
     }
     });
     xhr.addEventListener('error', () => {
+    if (window.EFBRequestHealth) window.EFBRequestHealth.report('upload', 0);
     reject(xhr.statusText);
     });
+    ['timeout','abort'].forEach(event=>xhr.addEventListener(event,()=>{
+      if (window.EFBRequestHealth) window.EFBRequestHealth.report('upload',0);
+      reject(efb_var.text.fileUploadNetworkError || 'The upload could not be confirmed.');
+    }));
     xhr.open('POST', url, true);
+    xhr.timeout=300000;
     xhr.setRequestHeader('X-WP-Nonce', activeNonce);
     if (sid) xhr.setRequestHeader('sid', sid);
     /* Apache/PHP installations commonly discard or do not expose headers with

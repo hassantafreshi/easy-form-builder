@@ -126,3 +126,51 @@ low-score branch keeps testing itself when the server changes its mind.
 Covered: every state's phase and tone, five steps in all of them, the gauge, the
 tab strip (including that the open tab survives a re-render mid-poll), the wizard
 variant, RTL geometry and overflow, and the phone layout.
+
+---
+
+## What the evidence proves: `outcome` (2026-10-12)
+
+The twelve *states* above describe how far the run got. They were not enough on
+their own: a lost answer and an expired window both ended in "No email arrived",
+and people went off to fix a mail setup nobody had looked at. Every result now
+also carries an **outcome**, computed in one place —
+`efbEmailTestUI.outcome({ stage, payload, result, requestFailed, parseError, timedOut })` —
+from the payloads `/start` and `/result` actually return. Both view models
+read it; neither caller re-derives it.
+
+| outcome | evidence | about email? | headline (phase) |
+| ------- | -------- | ------------ | ---------------- |
+| `start_failed` | `/start` not accepted: invalid input, quota, refusal (`reason` = `invalid_input` / `service_refused`) | no — nothing was sent | The test could not start (warn) |
+| `wp_mail_failed` | `/start` with `stage: send` or a result with `status: failed` / `send_stage: wp_mail_failed` | **yes** — it never left the site | The test email could not be sent (fail) |
+| `accepted` | `/start` succeeded, `test_hash` present, `wp_mail()` returned true | not yet | Accepted for sending; delivery not confirmed yet (run) |
+| `pending` | result `status: pending` / `delayed` (`analysis_stage: delivery_wait`) | not yet | Delivery is taking longer than expected (warn) |
+| `delivered` | result `can_send_email: true`; the score then decides healthy vs. spam risk | yes | Your email server is healthy / Delivered, but… (done / warn) |
+| `not_delivered` | result `status: expired` (the service closed the window without an arrival) | **yes** | No email arrived (fail); the sub-line depends on `send_stage` (`handed_off` → "WordPress sent the email, but it did not reach the test mailbox") |
+| `timeout` | the browser stopped polling before any final answer | no | The test timed out — delivery is unknown, not failed (warn) |
+| `tester_unreachable` | this site got no usable answer from the service (`reason: tester_unreachable` / `service_http_error`) | no | Delivery result unknown (warn) |
+| `invalid_response` | an answer arrived that could not be read (`reason: invalid_response`) | no | Delivery result unknown (warn) |
+| `connection_lost` | the browser got no usable answer from this site's admin-ajax | no | The connection was lost (warn) |
+| `upgrade_required` | the service refused the test for the plan | no | This test needs a higher plan |
+
+Only `wp_mail_failed` and `not_delivered` say anything negative about email. Every
+other non-success outcome is a *warn*, keeps the setup wizard finishable, and
+carries the quiet note "Form submissions and email status are checked
+separately." Raw transport text (a cURL message, an HTTP code) goes into
+`view.technical`, drawn behind a native `<details>` labelled "Technical details",
+never into the headline.
+
+`reason` is a new, optional key on the PHP side (`class-Emsfb-admin.php`:
+`invalid_input`, `invalid_response`, `tester_unreachable`, `service_refused`,
+`service_http_error`, `wp_mail_failed`). The classifier falls back to `stage` and
+`status` when it is missing, so a cached or older `list_form-efb.js` and the
+current PHP — or the reverse — still agree on the headline.
+
+The service side is unchanged by this: `email-tester-service` already returns
+`send_stage` on every `/result` (local working tree 1.3.0; production answered
+with the `/handoff` route but without the 1.3.0 `caching_plugins` argument on
+2026-10-12, so it is a 1.1–1.2 build). A client talking to a service without
+`send_stage` gets `unknown` and the neutral wording.
+
+Tests: `node tests/test-email-test-ui-browser.js` (78) and
+`node tests/test-onboarding-wizard-browser.js` (54, A29–A34 cover the outcomes).

@@ -1390,7 +1390,10 @@ class Admin {
         $text = ["spprt","error403","somethingWentWrongPleaseRefresh" ,"guest"];
         $lang= $efbFunction->text_efb($text);
          $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
-        if (!check_ajax_referer('wp_rest', 'nonce', false) || !$currrent_user_can) {
+        if (!check_ajax_referer('wp_rest', 'nonce', false)) {
+            wp_send_json_error(array('code' => 'efb_nonce_expired'), 403);
+        }
+        if (!$currrent_user_can) {
             $m =   $lang['error403'];
             $response = ['success' => false, 'm' => $m];
             wp_send_json_success($response, 200);
@@ -1458,12 +1461,19 @@ class Admin {
         $efbFunction = get_efbFunction();
         $lang= $efbFunction->text_efb($text);
          $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
-        if (!check_ajax_referer('wp_rest', 'nonce', false) || !$currrent_user_can) {
+        if (!check_ajax_referer('wp_rest', 'nonce', false)) {
+            wp_send_json_error(array('code' => 'efb_nonce_expired'), 403);
+        }
+        if (!$currrent_user_can) {
             $response = ['success' => false, 'm' => $lang['error403']];
             wp_send_json_success($response, 200);
             die("secure!");
         }
         $post_message = isset($_POST['message']) ? sanitize_text_field( wp_unslash( $_POST['message'] ) ) : '';
+        $operation_data=wp_unslash($_POST);
+        $replay=\Emsfb\Form_Runtime::replay('admin_reply',0,$operation_data);
+        if (is_wp_error($replay)) wp_send_json_error(array('code'=>$replay->get_error_code(),'m'=>$replay->get_error_message()),$replay->get_error_data()['status']);
+        if ($replay instanceof \WP_REST_Response) wp_send_json($replay->get_data(),$replay->get_status());
         $post_id = isset($_POST['id']) ? sanitize_text_field( wp_unslash( $_POST['id'] ) ) : '';
         if (empty($post_message) || empty($post_id)) {
             $response = ['success' => false, "m" => $lang['somethingWentWrongPleaseRefresh']];
@@ -1540,6 +1550,10 @@ class Admin {
         }
         $table_name = $this->db->prefix . "emsfb_rsp_";
         $ip = $this->ip;
+        $guard=\Emsfb\Form_Runtime::begin('admin_reply',0,$operation_data);
+        if (is_wp_error($guard)) wp_send_json_error(array('code'=>$guard->get_error_code(),'m'=>$guard->get_error_message()),$guard->get_error_data()['status']);
+        if ($guard instanceof \WP_REST_Response) wp_send_json($guard->get_data(),$guard->get_status());
+        $reply_key=$guard;
         $reply_inserted = $this->db->insert(
             $table_name,
             [
@@ -1552,8 +1566,12 @@ class Admin {
             ]
         );
         if ($reply_inserted === false) {
+            \Emsfb\Form_Runtime::abort($reply_key);
+            \Emsfb\Request_Health::record('admin_reply',500,'server','storage_failed');
             wp_send_json_success(['success' => false, 'm' => $lang['somethingWentWrongPleaseRefresh']], 200);
         }
+        \Emsfb\Request_Health::mark_saved();
+        \Emsfb\Form_Runtime::finish($reply_key,array('success'=>true,'m'=>$lang['messageSent'],'by'=>wp_get_current_user()->display_name));
         if (!empty($response_attachment_urls)) {
             \Emsfb\Upload_Guard::release_pending_uploads($response_attachment_urls);
             \Emsfb\Upload_Guard::release_response_attachment_reservations($response_attachment_urls);
@@ -1996,7 +2014,8 @@ class Admin {
             return [
                 'success' => false,
                 'm' => esc_html__('Please enter a valid email address.', 'easy-form-builder'),
-                'stage' => 'validation'
+                'stage' => 'validation',
+                'reason' => 'invalid_input'
             ];
         }
 
@@ -2027,7 +2046,8 @@ class Admin {
             return [
                 'success' => false,
                 'm' => esc_html__('The sender email address is not valid.', 'easy-form-builder'),
-                'stage' => 'validation'
+                'stage' => 'validation',
+                'reason' => 'invalid_input'
             ];
         }
 
@@ -2086,6 +2106,7 @@ class Admin {
                 'success' => false,
                 'm' => esc_html__('The email tester service returned an invalid response.', 'easy-form-builder'),
                 'stage' => 'start',
+                'reason' => 'invalid_response',
                 'test' => $test
             ];
         }
@@ -2205,6 +2226,7 @@ class Admin {
                 'm' => esc_html__('WordPress could not send the test email. The message never left your website, so nothing was delivered.', 'easy-form-builder'),
                 'stage' => 'send',
                 'send_stage' => 'wp_mail_failed',
+                'reason' => 'wp_mail_failed',
                 'mail_error' => is_array($last_mail_error) && !empty($last_mail_error['message'])
                     ? sanitize_text_field((string) $last_mail_error['message'])
                     : '',
@@ -2368,7 +2390,8 @@ class Admin {
             return [
                 'success' => false,
                 'm' => $response['request']->get_error_message(),
-                'stage' => 'start'
+                'stage' => 'start',
+                'reason' => 'tester_unreachable'
             ];
         }
 
@@ -2380,6 +2403,7 @@ class Admin {
                 'success' => false,
                 'm' => esc_html__('The email tester service returned an invalid JSON response.', 'easy-form-builder'),
                 'stage' => 'start',
+                'reason' => 'invalid_response',
                 'code' => $code
             ];
         }
@@ -2419,6 +2443,7 @@ class Admin {
                         'success' => false,
                         'm' => $retry['request']->get_error_message(),
                         'stage' => 'start',
+                        'reason' => 'tester_unreachable',
                     ];
                 }
                 $code = $retry['code'];
@@ -2429,6 +2454,7 @@ class Admin {
                 'success' => false,
                 'm' => isset($data['message']) ? sanitize_text_field($data['message']) : esc_html__('The email tester service could not start the test.', 'easy-form-builder'),
                 'stage' => 'start',
+                'reason' => 'service_refused',
                 'code' => $code,
                 'test' => $data
             ];
@@ -2465,7 +2491,8 @@ class Admin {
             return [
                 'success' => false,
                 'm' => esc_html__('The email test hash is not valid.', 'easy-form-builder'),
-                'stage' => 'result'
+                'stage' => 'result',
+                'reason' => 'invalid_input'
             ];
         }
 
@@ -2513,7 +2540,8 @@ class Admin {
             return [
                 'success' => false,
                 'm' => $request->get_error_message(),
-                'stage' => 'result'
+                'stage' => 'result',
+                'reason' => 'tester_unreachable'
             ];
         }
 
@@ -2546,6 +2574,7 @@ class Admin {
                 'success' => false,
                 'm' => esc_html__('The email tester service returned an invalid JSON response.', 'easy-form-builder'),
                 'stage' => 'result',
+                'reason' => 'invalid_response',
                 'code' => $code
             ];
         }
@@ -2580,6 +2609,7 @@ class Admin {
                 'success' => false,
                 'm' => isset($data['message']) ? sanitize_text_field($data['message']) : esc_html__('The email tester service could not return the result.', 'easy-form-builder'),
                 'stage' => 'result',
+                'reason' => 'service_http_error',
                 'code' => $code,
                 'result' => $data
             ];
@@ -2683,13 +2713,18 @@ class Admin {
             ];
         }
 
-        // If there's a delivery failure reason
+        // If there's a delivery failure reason. A 'delayed' report carries one
+        // too ("not delivered yet") while the test is still open, so only a
+        // closed test may be described as a failed delivery.
         if (!empty($test_result['delivery']['failure_reason'])) {
             $failure_reason = sanitize_text_field($test_result['delivery']['failure_reason']);
-            $status_data['message']['description'] = sprintf(
-                esc_html__('Email delivery failed: %s', 'easy-form-builder'),
-                $failure_reason
-            );
+            $still_open = isset($test_result['status']) && in_array($test_result['status'], ['pending', 'delayed'], true);
+            if (!$still_open && !$delivery_confirmed) {
+                $status_data['message']['description'] = sprintf(
+                    esc_html__('Email delivery failed: %s', 'easy-form-builder'),
+                    $failure_reason
+                );
+            }
             $status_data['details']['failure_reason'] = $failure_reason;
         }
 

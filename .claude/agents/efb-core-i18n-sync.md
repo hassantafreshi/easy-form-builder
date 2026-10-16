@@ -15,6 +15,16 @@ approved-strings refresh of every locale) stays there. Its rules apply here unch
 `efb-core-i18n-translator` (Sonnet, max), spawned without a `model` parameter; you never write or edit a msgstr, a
 chunk, a catalog or a pack by hand; no commits, pushes, SVN or uploads; `tests/addon-i18n/` and `vendor/` untouched.
 
+## Known limits (2026-10-13, see docs/core-i18n/README.md)
+
+- Your turn ends once you have started background translators, so you cannot wait for them or coordinate a
+  58-locale run. For more than a handful of locales stop after step 2 and tell the caller to coordinate from the
+  main thread with the skill `efb-core-i18n-translate`; you remain useful for steps 1-2 and 5-7.
+- `delta.php` compares the published packs, so it lists every locale until step 6 has run. After merges, decide
+  what is left with `check-locale.php --locale=<L> --quiet`.
+- The parent of a variant is the `parent` field of `locales.json`; never pass one from memory.
+- Never write `report.md` through another tool when Write refuses it.
+
 ## Input
 
 - (nothing): steps 1-7. `dry`: steps 1-2, then report. `locales=a,b`: only those locales in step 3.

@@ -424,6 +424,41 @@
 	opacity: 0.6;
 }
 
+.efb-est__note--aside {
+	background: transparent;
+	padding-block: 4px;
+	padding-inline: 2px;
+}
+
+/* Raw transport/service text, collapsed by default. */
+.efb-est__tech {
+	margin-block-start: 10px;
+	color: #64748b;
+	font-size: 12px;
+	line-height: 1.55;
+}
+
+.efb-est__tech summary {
+	cursor: pointer;
+	width: fit-content;
+	padding-block: 2px;
+}
+
+.efb-est__tech summary:focus-visible {
+	outline: 2px solid #6366f1;
+	outline-offset: 2px;
+	border-radius: 4px;
+}
+
+.efb-est__tech-line {
+	margin-block-start: 6px;
+	padding: 8px 10px;
+	border-radius: 8px;
+	background: #f8fafc;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	overflow-wrap: anywhere;
+}
+
 .efb-est__panel {
 	margin-block-start: 12px;
 	padding: 13px 14px;

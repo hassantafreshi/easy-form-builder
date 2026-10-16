@@ -2086,17 +2086,18 @@ efb_refresh_nonce=async(sid, fid)=>{
     if(r.ok){
       const d = await r.json();
       if(d && d.nonce){
-        efb_var.nonce = d.nonce;
+        try { efb_var.nonce = d.nonce; } catch (e) {}
         // Share the fresh token with the Human Shield client, which reads its
         // own copy and would otherwise keep replaying the dead one.
         try { if (window.EFBHumanShield) window.EFBHumanShield.wpRestNonce = d.nonce; } catch(e){}
-        return true;
+        return d.nonce;
       }
     }
   } catch(e){}
   return false;
 }
 function efb_report_submit_ajax_error_efb(error, details = {}) {
+  if (window.EFBRequestHealth) window.EFBRequestHealth.report('form', details.status || 0);
   const panel = efb_get_error_panel_efb();
   if (!panel || typeof panel.log !== 'function') return;
 
@@ -2120,12 +2121,52 @@ function efb_report_submit_ajax_error_efb(error, details = {}) {
     }
   });
 }
+// Only explicit token errors are safe to replay. A generic 403 may be a security veto.
+async function efb_is_nonce_error_efb(response) {
+  if (response.status !== 403) return false;
+  try {
+    const data = await response.clone().json();
+    return ['rest_cookie_invalid_nonce', 'efb_nonce_expired', 'efb_nonce_missing'].includes(data.code);
+  } catch (e) { return false; }
+}
+async function efb_fetch_public_request_efb(url, options, operation, sid, fid) {
+  try {
+    options=Object.assign({},options,{cache:'no-store',credentials:'same-origin',signal:typeof AbortSignal!=='undefined' && AbortSignal.timeout ? AbortSignal.timeout(45000) : undefined});
+    if (window.EFBRuntime) {
+      const runtime=await window.EFBRuntime.prepare(Number(fid)||0);
+      const headers=new Headers(options.headers); headers.set('X-WP-Nonce',runtime.nonce); headers.set('sid',runtime.sid);
+      options=Object.assign({},options,{headers});
+    }
+    let response = await fetch(url, options);
+    if (await efb_is_nonce_error_efb(response)) {
+      const fresh = await efb_refresh_nonce(sid, fid);
+      if (fresh) {
+        const headers = new Headers(options.headers);
+        headers.set('X-WP-Nonce', fresh);
+        response = await fetch(url, Object.assign({}, options, { headers }));
+      }
+    }
+    if (!response.ok && window.EFBRequestHealth) window.EFBRequestHealth.report(operation, response.status);
+    return response;
+  } catch (error) {
+    if (window.EFBRequestHealth) window.EFBRequestHealth.report(operation, error.status || 0);
+    throw error;
+  }
+}
  post_api_forms_efb=async(data,form_id)=>{
+    let runtime;
+    try {
+      if (window.EFBRuntime) runtime=await window.EFBRuntime.decorate(data,Number(form_id)||0,'form');
+    } catch (error) {
+      efb_report_submit_ajax_error_efb(error,{status:error.status||0,formId:form_id});
+      await response_fill_form_efb({success:false,data:{success:false,m:error.message,efb_ajax_submission_error:true}},form_id);
+      return;
+    }
     const url = efb_var.rest_url+'Emsfb/v1/forms/message/add';
     const efbForce403Test = false; // Set to true to force a 403 response for testing nonce refresh flow
     const headers = new Headers({
      'Content-Type': 'application/json',
-     'X-WP-Nonce': efbForce403Test ? 'efb-force-403-test' : efb_var.nonce,
+     'X-WP-Nonce': efbForce403Test ? 'efb-force-403-test' : (runtime ? runtime.nonce : efb_var.nonce),
      'form-id': form_id ? form_id : 0,
      'sid': efbForce403Test ? 'efb-force-403-test' : (data.sid ? data.sid : ''),
     });
@@ -2136,39 +2177,55 @@ function efb_report_submit_ajax_error_efb(error, details = {}) {
       method: 'POST',
       headers,
       body: jsonData,
+      cache: 'no-store', credentials: 'same-origin',
+      signal: typeof AbortSignal!=='undefined' && AbortSignal.timeout ? AbortSignal.timeout(45000) : undefined,
     };
 
   try {
     let response = await fetch(url, requestOptions);
-    if (response.status === 403) {
+    if (await efb_is_nonce_error_efb(response)) {
       const refreshed = await efb_refresh_nonce(data && data.sid ? data.sid : '', form_id);
 
       if (refreshed) {
         const retryHeaders = new Headers({
           'Content-Type': 'application/json',
-          'X-WP-Nonce': efbForce403Test ? 'efb-force-403-test' : efb_var.nonce,
+          'X-WP-Nonce': efbForce403Test ? 'efb-force-403-test' : refreshed,
           'form-id': form_id ? form_id : 0,
           'sid': efbForce403Test ? 'efb-force-403-test' : (data.sid ? data.sid : ''),
         });
-        response = await fetch(url, { method: 'POST', headers: retryHeaders, body: jsonData });
+        response = await fetch(url, Object.assign({},requestOptions,{headers:retryHeaders}));
       }
     }
     if (!response.ok) {
       if (response.status === 403) {
-        const msg403 = (ajax_object_efm && ajax_object_efm.text && ajax_object_efm.text.nonceExpired) ? ajax_object_efm.text.nonceExpired : 'Your session has expired. Please refresh the page and try again.';
+        const msg403 = await efb_is_nonce_error_efb(response)
+          ? (ajax_object_efm?.text?.nonceExpired || 'Your session has expired. Please refresh the page and try again.')
+          : (ajax_object_efm?.text?.eJQ500 || 'The request was rejected. Please try again later.');
         efb_report_submit_ajax_error_efb(new Error(msg403), { status: response.status, url, formId: form_id });
         await response_fill_form_efb({ success: false, data: { success: false, m: msg403, efb_ajax_submission_error: true } }, form_id);
         return;
       }
-      throw new Error(`Network response was not ok (HTTP ${response.status})`);
+      const requestError = new Error(`Network response was not ok (HTTP ${response.status})`);
+      requestError.status = response.status;
+      throw requestError;
     }
     const responseData = await response.json();
+	if (window.EFBRuntime && responseData?.data?.success === true) window.EFBRuntime.complete(Number(form_id)||0,'form');
 
     await response_fill_form_efb(responseData, form_id);
     if (localStorage.getItem('sendback')) localStorage.removeItem('sendback');
   } catch (error) {
-    efb_report_submit_ajax_error_efb(error, { url, formId: form_id });
-    await response_fill_form_efb({ success: false, data: { success: false, m: ajax_object_efm.text.eJQ500, efb_ajax_submission_error: true } }, form_id);
+    if (runtime && data.type==='form') {
+      const saved=await window.EFBRuntime.resolve(data,Number(form_id)||0,'form');
+      if (saved) {
+        window.EFBRuntime.complete(Number(form_id)||0,'form');
+        await response_fill_form_efb(saved,form_id);
+        return;
+      }
+    }
+    efb_report_submit_ajax_error_efb(error, { status: error.status || 0, url, formId: form_id });
+    const failureMessage=runtime && (!error.status || error.status>=500) ? efb_request_health.unknown_message : ajax_object_efm.text.eJQ500;
+    await response_fill_form_efb({ success: false, data: { success: false, m: failureMessage, efb_ajax_submission_error: true } }, form_id);
   }
   bdy = document.getElementById('body_efb_'+form_id);
   if(bdy){
@@ -2194,7 +2251,7 @@ post_api_tracker_check_efb=(data,innrBtn)=>{
     headers,
     body: jsonData,
   };
-  fetch(url, requestOptions)
+  efb_fetch_public_request_efb(url, requestOptions, 'tracker', efb_var.sid || '', data.id || 0)
   .then(response => {
     if (!response.ok) {
       throw new Error(`Network response was not ok (HTTP ${response.status})`);
@@ -2213,6 +2270,7 @@ post_api_tracker_check_efb=(data,innrBtn)=>{
       efb_var.nonce_msg = responseData.data.nonce_msg;
       efb_var.msg_id = responseData.data.id;
       efb_var.response_upload_token = responseData.data.response_upload_token || '';
+      if (window.EFBRuntime) window.EFBRuntime.rememberTicket(responseData.data);
     }
     response_Valid_tracker_efb(responseData);
   })
@@ -2224,11 +2282,20 @@ post_api_tracker_check_efb=(data,innrBtn)=>{
     response_Valid_tracker_efb({ success: false, data: { success: false, m: error.message } });
   });
 }
-post_api_r_message_efb=(data,message)=>{
+post_api_r_message_efb=async(data,message)=>{
+  let runtime;
+  try {
+    if (window.EFBRuntime) {
+      runtime=await window.EFBRuntime.decorate(data,0,'reply');
+    }
+  } catch(error) {
+    response_rMessage_id({success:false,data:{success:false,m:error.message}},message);
+    return;
+  }
   const url = efb_var.rest_url+'Emsfb/v1/forms/response/add';
   const headers = new Headers({
     'Content-Type': 'application/json',
-    'X-WP-Nonce': efb_var.nonce,
+    'X-WP-Nonce': runtime ? runtime.nonce : efb_var.nonce,
     'form-id': 0,
     'sid':data.sid ? data.sid : '',
     'page-id': efb_var.page_id ? efb_var.page_id : '',
@@ -2239,7 +2306,7 @@ post_api_r_message_efb=(data,message)=>{
     headers,
     body: jsonData,
   };
-    fetch(url, requestOptions)
+    efb_fetch_public_request_efb(url, requestOptions, 'reply', data.sid || '', 0)
     .then(response => {
       if (!response.ok) {
         throw new Error(`Network response was not ok (HTTP ${response.status})`);
@@ -2247,9 +2314,15 @@ post_api_r_message_efb=(data,message)=>{
       return response.json();
     })
     .then(responseData => {
+      if (window.EFBRuntime && responseData?.data?.success===true) window.EFBRuntime.complete(0,'reply');
       response_rMessage_id(responseData, message);
     })
-    .catch(error => {
+    .catch(async error => {
+      if (window.EFBRequestHealth) window.EFBRequestHealth.report('reply',error.status||0);
+      if (runtime) {
+        const saved=await window.EFBRuntime.resolve(data,0,'reply');
+        if (saved) { window.EFBRuntime.complete(0,'reply'); response_rMessage_id(saved,message); return; }
+      }
       /* A reply failure belongs in the reply composer. Sending it through the
          tracker handler replaces the whole open conversation and leaves the
          reply button stuck in its loading state. */

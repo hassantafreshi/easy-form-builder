@@ -310,7 +310,18 @@ class Emsfb {
     }
 
     public function includes(): void {
-        $core_ok = $this->require_plugin_file_efb('includes/class-Emsfb-install.php');
+        $runtime_ok = $this->require_plugin_file_efb('includes/class-Emsfb-form-runtime.php');
+        if ($runtime_ok) {
+            \Emsfb\Form_Runtime::register();
+            add_action('emsfb_daily_maintenance', array('\Emsfb\Form_Runtime', 'cleanup'));
+        }
+        $health_ok = $this->require_plugin_file_efb('includes/class-Emsfb-request-health.php');
+        if ($health_ok) {
+            \Emsfb\Request_Health::register();
+        }
+        $cache_ok = $this->require_plugin_file_efb('includes/class-Emsfb-cache-compat.php');
+        if ($cache_ok) \Emsfb\Cache_Compat::register();
+        $core_ok = $this->require_plugin_file_efb('includes/class-Emsfb-install.php') && $runtime_ok && $health_ok && $cache_ok;
         $core_ok = $this->require_plugin_file_efb('includes/class-Emsfb-email-monitor.php') && $core_ok;
         $core_ok = $this->require_plugin_file_efb('includes/class-Emsfb-addon-compatibility.php') && $core_ok;
 
@@ -1346,6 +1357,7 @@ class Emsfb {
 
     public static function plugin_deactivation_cleanup_efb()
     {
+        wp_clear_scheduled_hook('emsfb_cache_scan_v1');
         if (class_exists('\Emsfb\Email_Monitor')) {
             \Emsfb\Email_Monitor::deactivate();
         }

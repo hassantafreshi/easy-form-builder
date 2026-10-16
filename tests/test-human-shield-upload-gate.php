@@ -1,4 +1,5 @@
 <?php
+if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
 /*
  * Regression test: Human Shield must NOT behaviourally block the file-upload
  * route (recorder / file fields), while the form submit stays fully gated.
@@ -14,6 +15,8 @@
  */
 
 define( 'WP_USE_THEMES', false );
+// Exercise the real runtime for this CLI request without changing the site's master toggle.
+define( 'EFB_HUMAN_SHIELD_RUNTIME', true );
 
 $wp_load = getenv( 'EFB_WP_LOAD' ) ?: 'c:/xampp/htdocs/wp/wp-load.php';
 require $wp_load;
@@ -31,6 +34,20 @@ $_SERVER['REMOTE_ADDR']    = '203.0.113.77';
 $_SERVER['HTTP_USER_AGENT'] = 'EFB-Upload-Gate-Test/1.0';
 
 $shield = Emsfb\Emsfb_Human_Shield::instance();
+$original_settings = get_option('emsfb_human_shield_settings', null);
+$original_server = $_SERVER;
+register_shutdown_function(static function () use ($original_settings, $original_server, $wpdb) {
+	global $SID, $stts;
+	if (!empty($SID) && !empty($stts)) $wpdb->delete($stts, array('sid' => $SID));
+	if ($original_settings === null) delete_option('emsfb_human_shield_settings');
+	else update_option('emsfb_human_shield_settings', $original_settings);
+	$_SERVER = $original_server;
+});
+$active_settings = $shield->get_settings();
+$active_settings['enabled'] = 1;
+$active_settings['ip_allowlist'] = '';
+$active_settings['ip_blocklist'] = '';
+$shield->update_settings($active_settings);
 
 $sref     = new ReflectionObject( $shield );
 $restProp = $sref->getProperty( 'rest' );
@@ -94,7 +111,7 @@ $results = array();
 foreach ( array( 'soft_block', 'strict' ) as $mode ) {
 	$s         = get_option( 'emsfb_human_shield_settings' );
 	$s['mode'] = $mode;
-	update_option( 'emsfb_human_shield_settings', $s );
+	$shield->update_settings( $s );
 
 	// file_upload must be ALLOWED (guard returns null) despite score+honeypot.
 	$up = $mint( '/Emsfb/v1/forms/file/upload' );
@@ -128,9 +145,8 @@ foreach ( array( 'soft_block', 'strict' ) as $mode ) {
 
 // cleanup + restore
 $wpdb->delete( $stts, array( 'sid' => $SID ) );
-$s         = get_option( 'emsfb_human_shield_settings' );
-$s['mode'] = 'soft_block';
-update_option( 'emsfb_human_shield_settings', $s );
+if ($original_settings === null) delete_option('emsfb_human_shield_settings');
+else update_option('emsfb_human_shield_settings', $original_settings);
 
 $fail = 0;
 foreach ( $results as $r ) {

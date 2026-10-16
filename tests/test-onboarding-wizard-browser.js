@@ -179,6 +179,123 @@ efb_onboarding_start_email_test_efb();
 test('A9 a rejected address posts nothing at all', posted.length, 0);
 
 // ============================================================================
+// Part A2 - what the poll proves, not more (T01)
+//
+// The shared classifier is loaded the way the page loads it, then the real
+// poll is driven with each answer the server can give. The run state is a
+// top-level `let` binding, so it is read back through the same context.
+// ============================================================================
+
+vm.runInThisContext(fs.readFileSync(path.join(__dirname, '../includes/admin/assets/js/email-test-ui-efb.js'), 'utf8'),
+  { filename: 'email-test-ui-efb.js' });
+
+const readState = () => vm.runInThisContext('efb_onboarding_email_test_state_efb');
+const TEST = { test_hash: 'b'.repeat(64), recipient_email: 'inbound@tester.test' };
+
+function pollWith(reply, attempt, failWith) {
+  const original = global.jQuery.ajax;
+  global.jQuery.ajax = function (options) {
+    posted.push(options.data);
+    return {
+      done(cb) { if (!failWith) cb(reply); return this; },
+      fail(cb) { if (failWith) cb(failWith, failWith.textStatus || 'error'); return this; },
+      always(cb) { cb(); return this; },
+    };
+  };
+  try {
+    efb_onboarding_live_update_efb({ type: 'checking', outcome: '', technical: [], result: null, test: TEST,
+      steps: { start: 'done', send: 'done', wait: 'active', quick: 'waiting', full: 'waiting' } });
+    elements['efb-onboarding-finish'].disabled = true;
+    efb_onboarding_poll_email_efb(TEST, 'admin@example.test', attempt || 9);
+  } finally {
+    global.jQuery.ajax = original;
+  }
+  const state = readState();
+  return { state, view: efb_onboarding_email_view_efb(state), finish: !elements['efb-onboarding-finish'].disabled };
+}
+
+const NO_ARRIVAL = 'No email arrived';
+
+const unreachable = pollWith({ data: { success: false, m: 'cURL error 28: Operation timed out', stage: 'result', reason: 'tester_unreachable' } });
+test('A10 tester unreachable is classified as such', unreachable.state.outcome, 'tester_unreachable');
+test('A11 tester unreachable is a warning, not a failure', unreachable.view.phase, 'warn');
+testTrue('A12 tester unreachable never says the email did not arrive', unreachable.view.hero.title !== NO_ARRIVAL);
+testTrue('A13 the raw cURL text goes to technical details, not the message',
+  unreachable.view.technical.indexOf('cURL error 28: Operation timed out') !== -1 && unreachable.view.message.indexOf('cURL') === -1);
+testTrue('A14 finishing setup stays possible', unreachable.finish);
+
+const lost = pollWith(null, 9, { status: 0, textStatus: 'timeout' });
+test('A15 a lost admin-ajax answer is "connection lost"', lost.state.outcome, 'connection_lost');
+test('A16 and is a warning', lost.view.phase, 'warn');
+testTrue('A17 and never says the email did not arrive', lost.view.hero.title !== NO_ARRIVAL);
+
+const badJson = pollWith({ data: { success: false, m: 'invalid JSON', stage: 'result', reason: 'invalid_response', code: 502 } });
+test('A18 an unreadable tester answer is "invalid response"', badJson.state.outcome, 'invalid_response');
+testTrue('A19 and never says the email did not arrive', badJson.view.hero.title !== NO_ARRIVAL);
+
+const stillPending = pollWith({ data: { success: true, result: { status: 'pending', analysis_stage: 'pending', send_stage: 'handed_off' } } }, 9);
+test('A20 still pending after the last attempt is a timeout', stillPending.state.outcome, 'timeout');
+test('A21 a timeout is a warning', stillPending.view.phase, 'warn');
+
+const delayed = pollWith({ data: { success: false, result: { status: 'delayed', analysis_stage: 'delivery_wait', send_stage: 'handed_off', can_send_email: false, score: 25 } } }, 9);
+test('A22 a delayed report is "pending"', delayed.state.outcome, 'pending');
+test('A23 pending is a warning', delayed.view.phase, 'warn');
+
+const expired = pollWith({ data: { success: false, result: { status: 'expired', send_stage: 'handed_off', can_send_email: false, score: 25 } } }, 9);
+test('A24 an expired window is the definite "not delivered"', expired.state.outcome, 'not_delivered');
+test('A25 and is the one failure tone here', expired.view.phase, 'fail');
+test('A26 and its headline says nothing arrived', expired.view.hero.title, NO_ARRIVAL);
+
+const sendFailed = pollWith({ data: { success: false, result: { status: 'failed', send_stage: 'wp_mail_failed', can_send_email: false } } }, 9);
+test('A27 a failed send reported by the service is wp_mail_failed', sendFailed.state.outcome, 'wp_mail_failed');
+
+const confirmed = pollWith({ data: { success: true, result: { status: 'analyzed', analysis_stage: 'full', can_send_email: true, score: 92 } } }, 9);
+test('A28 an arrival with a good score is delivered and done', [confirmed.state.outcome, confirmed.view.phase], ['delivered', 'done']);
+
+const titles = [stillPending, delayed, sendFailed, confirmed, unreachable].map((r) => r.view.hero.title);
+test('A29 timeout, pending, wp_mail=false, confirmed and unreachable all read differently',
+  new Set(titles).size, titles.length);
+
+testTrue('A30 only definite failures carry the "forms are separate" note, a pass does not',
+  !confirmed.view.note && !!unreachable.view.note && !!expired.view.note);
+
+// The start: wp_mail() returning false is the one start result about email.
+efb_onboarding_completion_saved_efb = true; // completion itself is covered above
+posted = [];
+replies = {
+  efb_save_onboarding_email: { success: true },
+  check_email_server_efb: { data: { success: false, stage: 'send', send_stage: 'wp_mail_failed', reason: 'wp_mail_failed', m: 'WordPress could not send the test email.' } },
+};
+elements['efb-onboarding-admin-email'].value = 'admin@example.test';
+efb_onboarding_start_email_test_efb();
+test('A31 wp_mail()=false at start is wp_mail_failed and a failure',
+  [readState().outcome, efb_onboarding_email_view_efb(readState()).phase], ['wp_mail_failed', 'fail']);
+
+replies.check_email_server_efb = { data: { success: false, stage: 'start', reason: 'tester_unreachable', m: 'cURL error 6: Could not resolve host' } };
+efb_onboarding_start_email_test_efb();
+const startState = readState();
+test('A32 an unreachable tester at start is "start failed", a warning',
+  [startState.outcome, efb_onboarding_email_view_efb(startState).phase], ['start_failed', 'warn']);
+testTrue('A33 and the cURL text is technical detail only',
+  startState.technical.indexOf('cURL error 6: Could not resolve host') !== -1 && String(startState.message).indexOf('cURL') === -1);
+
+replies.check_email_server_efb = { data: { success: false, stage: 'start', reason: 'service_refused', code: 429, m: 'Daily test limit reached.', test: { upgrade_required: true } } };
+efb_onboarding_start_email_test_efb();
+test('A34 a quota refusal keeps the service sentence for people', readState().message, 'Daily test limit reached.');
+
+// An address that could not be stored means no test ran at all: nothing is
+// known about email, the old "your address was saved, check your mail
+// configuration" line was wrong on both counts, and setup must stay finishable.
+replies = { efb_save_onboarding_email: { success: false } };
+elements['efb-onboarding-finish'].disabled = true;
+efb_onboarding_start_email_test_efb();
+const unsaved = readState();
+test('A35 a failed address save is "start failed", a warning, not a verdict on email',
+  [unsaved.outcome, efb_onboarding_email_view_efb(unsaved).phase], ['start_failed', 'warn']);
+testTrue('A36 it says the address was not saved and leaves setup finishable',
+  String(unsaved.message).indexOf('could not be saved') !== -1 && !elements['efb-onboarding-finish'].disabled);
+
+// ============================================================================
 // Part B - the card is reachable at every laptop height
 // ============================================================================
 

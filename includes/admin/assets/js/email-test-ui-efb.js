@@ -28,12 +28,20 @@
  *     rows:    [ { label, value, badge: 'ok'|'bad', mono: true } ],
  *     groups:  [ { title, items: [ '' ] } ],
  *     tips:    [ '' ],
+ *     note:    '',            a quiet secondary line (e.g. "forms are unaffected")
+ *     technical: [ '' ],      raw service/transport text, behind a <details>
  *     strings: { ... },
  *     inline:  false,
  *     activeTab: 'delivery'
  *   }
  *
  * `phase` picks the tone, so a caller never names a colour.
+ *
+ * outcome() is the one piece of shared judgement here: it names what the
+ * evidence from /start and /result actually proves (see the state table in
+ * docs/email-server-test.md), so both callers keep "the check could not run"
+ * apart from "the email did not arrive". It reads only the payloads it is
+ * handed and still needs no plugin globals.
  */
 
 (function (root) {
@@ -73,8 +81,76 @@
 		tabDelivery: 'Delivery details',
 		tabDiagnosis: 'Diagnosis',
 		tabTips: 'Recommendations',
-		scoreOutOf: '/ 100'
+		scoreOutOf: '/ 100',
+		technical: 'Technical details'
 	};
+
+	/**
+	 * What the evidence proves, as one word.
+	 *
+	 *   start_failed       /start was not accepted (or input invalid): nothing sent
+	 *   wp_mail_failed     wp_mail() returned false: the message never left the site
+	 *   accepted           wp_mail() returned true and a test hash exists; waiting
+	 *   pending            the service has no arrival yet (pending / delayed)
+	 *   delivered          the service saw the probe arrive (can_send_email true);
+	 *                      the score decides healthy vs spam risk, callers own that
+	 *   not_delivered      the service closed the window without an arrival (expired)
+	 *   timeout            the browser stopped polling before any final answer
+	 *   invalid_response   an answer arrived that could not be read
+	 *   tester_unreachable the site got no usable answer from the service
+	 *   connection_lost    the browser got no usable answer from this site
+	 *   upgrade_required   the service refused the test for the plan / quota
+	 *
+	 * Only not_delivered and wp_mail_failed say anything negative about email.
+	 *
+	 * @param {Object} input { stage: 'start'|'result', payload, result,
+	 *                         requestFailed, parseError, timedOut }
+	 * @return {string}
+	 */
+	function outcome(input) {
+		input = input || {};
+
+		var payload = input.payload || {};
+		var result = input.result || payload.result || (input.stage === 'start' ? payload.test : null) || {};
+		var status = result.status ? String(result.status) : '';
+
+		if (input.requestFailed) {
+			return input.parseError ? 'invalid_response' : 'connection_lost';
+		}
+		if (result.can_send_email === true) {
+			return 'delivered';
+		}
+		if (result.upgrade_required) {
+			return 'upgrade_required';
+		}
+		if (status === 'failed' || (input.stage === 'start' && payload.stage === 'send')) {
+			return 'wp_mail_failed';
+		}
+		if (status === 'expired') {
+			return 'not_delivered';
+		}
+		if (status === 'pending' || status === 'delayed' || result.analysis_stage === 'pending') {
+			return input.timedOut ? 'timeout' : 'pending';
+		}
+		if (input.timedOut) {
+			return 'timeout';
+		}
+
+		if (input.stage === 'start') {
+			if (payload.success && result.test_hash) {
+				return 'accepted';
+			}
+			return 'start_failed';
+		}
+
+		if (payload.success === false || !status) {
+			return payload.reason === 'invalid_response' ? 'invalid_response' : 'tester_unreachable';
+		}
+
+		// An analyzed report without an arrival is not something the service
+		// sends today; treat it as the definite answer it claims to be.
+		return status === 'analyzed' ? 'not_delivered' : 'tester_unreachable';
+	}
 
 	function escapeHtml(value) {
 		return String(value === null || value === undefined ? '' : value)
@@ -234,6 +310,11 @@
 				'<span>' + escapeHtml(view.message) + '</span></div>';
 		}
 
+		if (view.note) {
+			out += '<div class="efb-est__note efb-est__note--aside"><i class="bi bi-info-circle" aria-hidden="true"></i>' +
+				'<span dir="auto">' + escapeHtml(view.note) + '</span></div>';
+		}
+
 		if (view.smtp && view.smtp.title) {
 			var smtpUrl = safeUrl(view.smtp.url);
 			out += '<div class="efb-est__panel"><div class="efb-est__panel-row">' +
@@ -277,6 +358,31 @@
 		}
 
 		return out;
+	}
+
+	/**
+	 * Raw transport or service text (a cURL error, an HTTP code) is useful to a
+	 * host's support desk and noise to everyone else, so it sits behind a
+	 * native <details>: keyboard operable and announced without extra script.
+	 */
+	function renderTechnical(view, s) {
+		var lines = Array.isArray(view.technical)
+			? view.technical
+			: (view.technical ? [view.technical] : []);
+
+		lines = lines.filter(function (line) {
+			return line !== null && line !== undefined && String(line).trim() !== '';
+		});
+
+		if (!lines.length) {
+			return '';
+		}
+
+		return '<details class="efb-est__tech"><summary dir="auto">' + escapeHtml(s.technical) + '</summary>' +
+			lines.map(function (line) {
+				return '<div class="efb-est__tech-line" dir="auto">' + escapeHtml(line) + '</div>';
+			}).join('') +
+			'</details>';
 	}
 
 	function renderDetails(view, s) {
@@ -383,6 +489,7 @@
 			renderHero(view, s, rtl, running) +
 			renderSteps(view, s, rtl) +
 			renderBlocks(view) +
+			renderTechnical(view, s) +
 			renderDetails(view, s) +
 			'</div>';
 	}
@@ -452,6 +559,7 @@
 		phaseChip: phaseChip,
 		bindTabs: bindTabs,
 		activeTab: activeTab,
+		outcome: outcome,
 		escapeHtml: escapeHtml,
 		localeDigits: localeDigits,
 		STEP_KEYS: STEP_KEYS

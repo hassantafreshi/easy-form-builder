@@ -3871,7 +3871,8 @@ function efb_onboarding_email_strings_efb() {
         tabDelivery: s('deliveryDetailsTitle', 'Delivery Details'),
         tabDiagnosis: s('diagnosisTitle', 'Diagnosis'),
         tabTips: s('recommendations', 'Recommendations'),
-        scoreOutOf: s('emailTestScoreOutOf', '/ 100')
+        scoreOutOf: s('emailTestScoreOutOf', '/ 100'),
+        technical: s('emailTestTechnicalDetails', 'Technical details')
     };
 }
 
@@ -3892,6 +3893,9 @@ function efb_onboarding_email_view_efb(state) {
     const phase = { checking: 'run', success: 'done', warning: 'warn', error: 'fail' }[state.type || 'checking'] || 'run';
     const arrived = !!result.can_send_email;
     const tooLow = efb_onboarding_score_too_low_efb(result);
+    // What the evidence proves (efbEmailTestUI.outcome()), set by the poll.
+    // Without it a lost answer used to fall through to "No email arrived".
+    const outcome = state.outcome || '';
 
     let hero;
     if (phase === 'run') {
@@ -3899,7 +3903,7 @@ function efb_onboarding_email_view_efb(state) {
         hero = waiting
             ? {
                 icon: 'bi-arrow-repeat',
-                title: s('emailTestPendingTitle', 'Waiting for the email to arrive'),
+                title: s('emailTestAcceptedTitle', 'Accepted for sending; delivery not confirmed yet'),
                 sub: s('emailTestPendingSub', 'We check our server every few seconds. Please keep this page open.')
             }
             : {
@@ -3913,6 +3917,44 @@ function efb_onboarding_email_view_efb(state) {
             title: s('emailTestOkTitle', 'Your email server is healthy'),
             sub: s('emailTestOkSub', 'The test email arrived, and the subject and unique-code checks both passed.')
         };
+    } else if (outcome === 'tester_unreachable' || outcome === 'invalid_response') {
+        hero = {
+            icon: 'bi-question-circle',
+            title: s('emailTestUnknownTitle', 'Delivery result unknown'),
+            sub: outcome === 'invalid_response'
+                ? s('emailTestInvalidResponseSub', 'An answer came back that could not be read, so delivery was not checked. Try again later.')
+                : s('emailTestUnreachableSub', 'Your site got no answer from the testing service, so delivery was not checked. This does not mean the email failed.')
+        };
+    } else if (outcome === 'connection_lost') {
+        hero = {
+            icon: 'bi-wifi-off',
+            title: s('emailTestNetErrorTitle', 'The connection was lost'),
+            sub: s('emailTestNetErrorSub', 'No answer came back from the server. Refresh the page and try again.')
+        };
+    } else if (outcome === 'start_failed' || outcome === 'upgrade_required') {
+        hero = {
+            icon: 'bi-plug',
+            title: s('emailTestStartFailedTitle', 'The test could not start'),
+            sub: s('emailTestStartFailedSub', 'Nothing was sent yet, so this says nothing about your email. Try again later.')
+        };
+    } else if (outcome === 'timeout') {
+        hero = {
+            icon: 'bi-stopwatch',
+            title: s('emailTestTimeoutTitle', 'The test timed out'),
+            sub: s('emailTestTimeoutUnknownSub', 'No final answer arrived in time. Delivery is unknown, not failed. Try again later.')
+        };
+    } else if (outcome === 'pending') {
+        hero = {
+            icon: 'bi-clock-history',
+            title: s('deliveryDelayedTitle', 'Delivery is taking longer than expected'),
+            sub: s('deliveryDelayedDesc', 'WordPress sent the test email, but our server has not received it yet. This may be a temporary delay.')
+        };
+    } else if (outcome === 'wp_mail_failed') {
+        hero = {
+            icon: 'bi-x-octagon',
+            title: s('emailTestStartErrorTitle', 'The test email could not be sent'),
+            sub: s('emailTestStartErrorSub', 'WordPress returned an error while sending. See the message below.')
+        };
     } else if (arrived) {
         hero = {
             icon: 'bi-exclamation-triangle-fill',
@@ -3925,7 +3967,9 @@ function efb_onboarding_email_view_efb(state) {
         hero = {
             icon: 'bi-x-lg',
             title: s('emailTestExpiredTitle', 'No email arrived'),
-            sub: s('emailTestExpiredSub', 'Nothing was received during the test window, so your server most likely cannot send email.')
+            sub: result.send_stage === 'handed_off'
+                ? s('emailTestExpiredHandedOffSub', 'WordPress sent the email, but it did not reach the test mailbox before the time limit.')
+                : s('emailTestExpiredSub', 'Nothing was received during the test window, so your server most likely cannot send email.')
         };
     }
 
@@ -3954,6 +3998,12 @@ function efb_onboarding_email_view_efb(state) {
         // The headline already carries the message in the spam case; repeating
         // it under the rail would print the same sentence twice.
         message: (phase === 'warn' && arrived) ? '' : (state.message || ''),
+        // Whatever the email check found, the form itself is not in question;
+        // said once, quietly, only when the result is not a clean pass.
+        note: (outcome && (phase === 'warn' || phase === 'fail'))
+            ? s('emailTestFormsSeparate', 'Form submissions and email status are checked separately.')
+            : '',
+        technical: state.technical || [],
         rows: rows,
         groups: [],
         tips: [],
@@ -3990,6 +4040,17 @@ function efb_onboarding_score_too_low_efb(result) {
     // A report without a score cannot disprove anything: only a measured score
     // under the threshold counts as a failure.
     return isFinite(score) && result.score !== null && result.score !== undefined && score < efb_onboarding_min_score_efb();
+}
+
+/*
+ * The shared classifier, guarded: the wizard must still finish (and record
+ * completion) on a page where email-test-ui-efb.js failed to load, and then an
+ * unclassified result reads as "unknown", never as "not delivered".
+ */
+function efb_onboarding_outcome_efb(input) {
+    return (window.efbEmailTestUI && typeof window.efbEmailTestUI.outcome === 'function')
+        ? window.efbEmailTestUI.outcome(input)
+        : 'tester_unreachable';
 }
 
 function efb_onboarding_live_update_efb(next) {
@@ -4111,27 +4172,48 @@ function efb_onboarding_poll_email_efb(test, email, attempt) {
             window.setTimeout(function() { efb_onboarding_poll_email_efb(test, email, attempt + 1); }, Math.max(10, Number(result.retry_after_seconds || 15)) * 1000);
             return;
         }
+        // A failed request to the tester (no report at all) is not a verdict
+        // on email. Checked before anything reads `result`, which is empty here.
+        if (payload.success === false && !status) {
+            const lost = efb_onboarding_outcome_efb({ stage: 'result', payload: payload, result: result });
+            efb_onboarding_live_update_efb({
+                steps: { start: 'done', send: 'done', wait: 'warning', quick: 'waiting', full: 'waiting' },
+                percent: 100,
+                outcome: lost,
+                technical: [payload.m || '', payload.code ? 'HTTP ' + payload.code : '']
+            });
+            efb_onboarding_status_efb('warning', efb_onboarding_text_efb('onboardingResultUnknown', 'The delivery result is not known yet. You can finish setup and check again later.'));
+            efb_onboarding_set_finish_efb(true);
+            return;
+        }
         if (result.can_send_email === true && efb_onboarding_score_too_low_efb(result)) {
             // The probe arrived, so the service reports success, but a score
             // this low means real form emails would be filtered as spam. The
             // server refuses to enable the sending switch for it, so the panel
             // must not claim delivery is ready either.
-            efb_onboarding_live_update_efb({ steps: { start: 'done', send: 'done', wait: 'done', quick: 'done', full: 'warning' }, percent: 100, result: result });
+            efb_onboarding_live_update_efb({ steps: { start: 'done', send: 'done', wait: 'done', quick: 'done', full: 'warning' }, percent: 100, result: result, outcome: 'delivered' });
             efb_onboarding_status_efb('warning', efb_onboarding_text_efb('emailDeliveryLowScore', 'Your test email was delivered, but its deliverability score is only %1$s out of 100 (below %2$s). The emails your forms send will most likely be filtered as spam. Set up SMTP and run the check again.')
                 .replace('%1$s', result.score)
                 .replace('%2$s', efb_onboarding_min_score_efb()));
         } else if (result.can_send_email === true) {
             efb_var_patch_efb(null, { smtp: true });
-            efb_onboarding_live_update_efb({ steps: { start: 'done', send: 'done', wait: 'done', quick: 'done', full: 'done' }, percent: 100, result: result });
+            efb_onboarding_live_update_efb({ steps: { start: 'done', send: 'done', wait: 'done', quick: 'done', full: 'done' }, percent: 100, result: result, outcome: 'delivered' });
             efb_onboarding_status_efb('success', result.message || efb_onboarding_text_efb('onboardingTestPassed', 'Email delivery is ready. Form notifications can be sent.'));
         } else if (pending || status === 'delayed') {
-            efb_onboarding_live_update_efb({ steps: { start: 'done', send: 'done', wait: 'warning', quick: 'warning', full: 'waiting' }, percent: 100, result: result });
+            // 'delayed' is the service saying "not yet"; still 'pending' after
+            // the last attempt means we stopped asking first. Both are unknown,
+            // but they are different facts.
+            efb_onboarding_live_update_efb({ steps: { start: 'done', send: 'done', wait: 'warning', quick: 'warning', full: 'waiting' }, percent: 100, result: result, outcome: status === 'delayed' ? 'pending' : 'timeout' });
             // The remote service's short "waiting" message is technically
             // correct but does not tell an admin what to do next. Keep the
             // report compact and give an actionable explanation instead.
             efb_onboarding_status_efb('warning', efb_onboarding_text_efb('onboardingTestPendingGuidance', 'Your test email was sent, but delivery is not confirmed yet. Check the inbox or spam folder for the address below; you can finish setup and try again later from General Settings.'));
         } else {
-            efb_onboarding_live_update_efb({ steps: { start: 'done', send: 'done', wait: 'error', quick: 'error', full: 'waiting' }, percent: 100, result: result });
+            const ended = efb_onboarding_outcome_efb({ stage: 'result', payload: payload, result: result });
+            // Only an expired window or a failed wp_mail() is a negative verdict;
+            // anything else that lands here is an answer we could not place.
+            const definite = ended === 'not_delivered' || ended === 'wp_mail_failed';
+            efb_onboarding_live_update_efb({ steps: { start: 'done', send: 'done', wait: definite ? 'error' : 'warning', quick: definite ? 'error' : 'waiting', full: 'waiting' }, percent: 100, result: result, outcome: ended });
             // Which fallback applies depends on how far the message got: see
             // the /handoff endpoint. "Check your mail configuration" is the
             // wrong advice for a site whose WordPress sent the message fine.
@@ -4142,12 +4224,21 @@ function efb_onboarding_poll_email_efb(test, email, attempt) {
             } else if (sendStage === 'wp_mail_failed') {
                 fallback = efb_onboarding_text_efb('emailWpMailFailedDesc', 'The message never left your website: WordPress returned an error while sending it. Install and configure an SMTP plugin, or ask your host whether PHP mail is disabled.');
             }
-            efb_onboarding_status_efb('error', result.message || payload.m || fallback);
+            if (!definite) {
+                fallback = efb_onboarding_text_efb('onboardingResultUnknown', 'The delivery result is not known yet. You can finish setup and check again later.');
+            }
+            efb_onboarding_status_efb(definite ? 'error' : 'warning', definite ? (result.message || payload.m || fallback) : fallback);
         }
         efb_onboarding_set_finish_efb(true);
-    }).fail(function() {
-        efb_onboarding_live_update_efb({ steps: { start: 'done', send: 'done', wait: 'error', quick: 'error', full: 'waiting' }, percent: 100 });
-        efb_onboarding_status_efb('error', efb_onboarding_text_efb('onboardingTestFailed', 'We could not verify delivery. Your email address was saved; please check your mail configuration in General Settings.'));
+    }).fail(function(xhr, textStatus) {
+        // The answer was lost on the way back, not the email.
+        efb_onboarding_live_update_efb({
+            steps: { start: 'done', send: 'done', wait: 'warning', quick: 'waiting', full: 'waiting' },
+            percent: 100,
+            outcome: efb_onboarding_outcome_efb({ stage: 'result', requestFailed: true, parseError: textStatus === 'parsererror' }),
+            technical: [(xhr && xhr.status ? 'HTTP ' + xhr.status : '') || textStatus || '']
+        });
+        efb_onboarding_status_efb('warning', efb_onboarding_text_efb('onboardingResultUnknown', 'The delivery result is not known yet. You can finish setup and check again later.'));
         efb_onboarding_set_finish_efb(true);
     });
 }
@@ -4169,13 +4260,18 @@ function efb_onboarding_start_email_test_efb() {
         percent: 12,
         test: null,
         result: null,
+        outcome: '',
+        technical: [],
         steps: { start: 'active', send: 'waiting', wait: 'waiting', quick: 'waiting', full: 'waiting' }
     });
     efb_onboarding_status_efb('checking', efb_onboarding_text_efb('onboardingTesting', 'Checking email delivery…'));
     efb_onboarding_save_email_efb(email).done(function(saved) {
         if (!saved || !saved.success) {
-            efb_onboarding_live_update_efb({ steps: { start: 'error', send: 'waiting', wait: 'waiting', quick: 'waiting', full: 'waiting' }, percent: 100 });
-            efb_onboarding_status_efb('error', (saved && saved.data && saved.data.message) || efb_onboarding_text_efb('onboardingTestFailed', 'We could not verify delivery. Your email address was saved; please check your mail configuration in General Settings.'));
+            // The address was not stored and no test ran: nothing is known
+            // about email, and setup must stay finishable.
+            efb_onboarding_live_update_efb({ steps: { start: 'error', send: 'waiting', wait: 'waiting', quick: 'waiting', full: 'waiting' }, percent: 100, outcome: 'start_failed' });
+            efb_onboarding_status_efb('warning', (saved && saved.data && saved.data.message) || efb_onboarding_text_efb('onboardingEmailSaveFailed', 'Your email address could not be saved, so the delivery check did not run. Try again, or finish setup and set it later in General Settings.'));
+            efb_onboarding_set_finish_efb(true);
             button.disabled = false;
             button.classList.remove('is-loading');
             return;
@@ -4204,23 +4300,51 @@ function efb_onboarding_start_email_test_efb() {
                 efb_onboarding_status_efb('checking', payload.m || efb_onboarding_text_efb('onboardingTestStarted', 'A test email was sent. Waiting for delivery confirmation…'));
                 window.setTimeout(function() { efb_onboarding_poll_email_efb(test, email, 1); }, 4000);
             } else {
-                efb_onboarding_live_update_efb({ steps: { start: 'error', send: 'waiting', wait: 'waiting', quick: 'waiting', full: 'waiting' }, percent: 100 });
-                efb_onboarding_status_efb('error', payload.m || efb_onboarding_text_efb('onboardingTestFailed', 'We could not verify delivery. Your email address was saved; please check your mail configuration in General Settings.'));
+                // wp_mail() returning false is the one start result that says
+                // something about email. Any other refusal means the test never
+                // ran: nothing was sent, so nothing is known yet.
+                const started = efb_onboarding_outcome_efb({ stage: 'start', payload: payload });
+                const sendFailed = started === 'wp_mail_failed';
+                const technicalOnly = payload.reason === 'tester_unreachable' || payload.reason === 'invalid_response';
+                efb_onboarding_live_update_efb({
+                    steps: sendFailed
+                        ? { start: 'done', send: 'error', wait: 'waiting', quick: 'waiting', full: 'waiting' }
+                        : { start: 'error', send: 'waiting', wait: 'waiting', quick: 'waiting', full: 'waiting' },
+                    percent: 100,
+                    outcome: started,
+                    technical: technicalOnly ? [payload.m || '', payload.code ? 'HTTP ' + payload.code : ''] : []
+                });
+                if (sendFailed) {
+                    efb_onboarding_status_efb('error', payload.m || efb_onboarding_text_efb('emailWpMailFailedDesc', 'The message never left your website: WordPress returned an error while sending it. Install and configure an SMTP plugin, or ask your host whether PHP mail is disabled.'));
+                } else {
+                    efb_onboarding_status_efb('warning', (!technicalOnly && payload.m) || efb_onboarding_text_efb('onboardingResultUnknown', 'The delivery result is not known yet. You can finish setup and check again later.'));
+                }
                 efb_onboarding_set_finish_efb(true);
             }
-        }).fail(function() {
-            efb_onboarding_live_update_efb({ steps: { start: 'error', send: 'waiting', wait: 'waiting', quick: 'waiting', full: 'waiting' }, percent: 100 });
-            efb_onboarding_status_efb('error', efb_onboarding_text_efb('onboardingTestFailed', 'We could not verify delivery. Your email address was saved; please check your mail configuration in General Settings.'));
+        }).fail(function(xhr, textStatus) {
+            efb_onboarding_live_update_efb({
+                steps: { start: 'error', send: 'waiting', wait: 'waiting', quick: 'waiting', full: 'waiting' },
+                percent: 100,
+                outcome: efb_onboarding_outcome_efb({ stage: 'start', requestFailed: true, parseError: textStatus === 'parsererror' }),
+                technical: [(xhr && xhr.status ? 'HTTP ' + xhr.status : '') || textStatus || '']
+            });
+            efb_onboarding_status_efb('warning', efb_onboarding_text_efb('onboardingResultUnknown', 'The delivery result is not known yet. You can finish setup and check again later.'));
             efb_onboarding_set_finish_efb(true);
         }).always(function() {
             button.disabled = false;
             button.classList.remove('is-loading');
         });
-    }).fail(function() {
+    }).fail(function(xhr, textStatus) {
         button.disabled = false;
         button.classList.remove('is-loading');
-        efb_onboarding_live_update_efb({ steps: { start: 'error', send: 'waiting', wait: 'waiting', quick: 'waiting', full: 'waiting' }, percent: 100 });
-        efb_onboarding_status_efb('error', efb_onboarding_text_efb('onboardingTestFailed', 'We could not verify delivery. Your email address was saved; please check your mail configuration in General Settings.'));
+        efb_onboarding_live_update_efb({
+            steps: { start: 'error', send: 'waiting', wait: 'waiting', quick: 'waiting', full: 'waiting' },
+            percent: 100,
+            outcome: 'start_failed',
+            technical: [(xhr && xhr.status ? 'HTTP ' + xhr.status : '') || textStatus || '']
+        });
+        efb_onboarding_status_efb('warning', efb_onboarding_text_efb('onboardingEmailSaveFailed', 'Your email address could not be saved, so the delivery check did not run. Try again, or finish setup and set it later in General Settings.'));
+        efb_onboarding_set_finish_efb(true);
     });
 }
 

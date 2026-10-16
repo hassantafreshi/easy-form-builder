@@ -99,10 +99,20 @@ const SCENARIOS = `(function () {
                             delivery: { email_received: false, subject_matched: false, hash_matched: false, waited_seconds: 600, timeout_seconds: 600, failure_reason: 'email_never_arrived' },
                             diagnostics: { likely_causes: ['php_mail_blocked','no_spf_or_dkim'], next_checks: ['configure_smtp_plugin','align_sender_domain'] },
                             recommendations: ['Install an SMTP plugin.'] } },
-    timeout:    { percent: 100, steps: S('done','done','error','waiting','waiting'), message: 'The test timed out. Please try again.',
-                  result: { status: 'failed', send_stage: 'handed_off' } },
-    startError: { percent: 100, steps: S('done','error','waiting','waiting','waiting'), message: 'The test email could not be sent: wp_mail() returned an error.' },
-    netError:   { percent: 100, steps: S('error','waiting','waiting','waiting','waiting'), message: 'Connection error. Please refresh and try again. (Code: 500)' },
+    // The poll gave up while the service still said "pending" (T01: the
+    // shape efbEmailTestPoll() now produces, outcome included).
+    timeout:    { percent: 100, steps: S('done','done','error','waiting','waiting'), outcome: 'timeout',
+                  result: { status: 'pending', send_stage: 'handed_off' } },
+    startError: { percent: 100, steps: S('done','error','waiting','waiting','waiting'), outcome: 'wp_mail_failed', message: 'The test email could not be sent: wp_mail() returned an error.' },
+    netError:   { percent: 100, steps: S('error','waiting','waiting','waiting','waiting'), outcome: 'connection_lost', message: 'Connection error. Please refresh and try again. (Code: 500)' },
+    unreachable:{ percent: 100, steps: S('done','done','error','waiting','waiting'), outcome: 'tester_unreachable',
+                  technical: ['cURL error 28: Operation timed out after 20001 milliseconds', ''],
+                  test: { recipient_email: 'check-a1b2c3@mail.easyformbuilder.ir' },
+                  result: { delivery: { recipient_email: 'check-a1b2c3@mail.easyformbuilder.ir' } } },
+    badAnswer:  { percent: 100, steps: S('done','done','error','waiting','waiting'), outcome: 'invalid_response',
+                  technical: ['The email tester service returned an invalid JSON response.', 'HTTP 502'] },
+    startFailed:{ percent: 100, steps: S('error','waiting','waiting','waiting','waiting'), outcome: 'start_failed',
+                  message: 'Daily test limit reached.' },
     upgrade:    { percent: 100, steps: S('done','waiting','waiting','waiting','waiting'),
                   result: { upgrade_required: true, upgrade_url: 'https://easyformbuilder.ir/pricing', code: 'upgrade_required' } }
   };
@@ -112,7 +122,11 @@ const EXPECTED_PHASE = {
   starting: 'run', sending: 'run', pending: 'run',
   quickOk: 'done', fullOk: 'done',
   lowScore: 'warn', spamRisk: 'warn', delayed: 'warn', upgrade: 'warn',
-  expired: 'fail', timeout: 'fail', startError: 'fail', netError: 'fail'
+  // T01: only a closed window (expired) and a failed wp_mail() are verdicts
+  // against email. A check that could not run or lost its answer is unknown,
+  // so it is amber, never red.
+  expired: 'fail', startError: 'fail',
+  timeout: 'warn', netError: 'warn', unreachable: 'warn', badAnswer: 'warn', startFailed: 'warn'
 };
 
 const TONE_CLASS = { run: 'efb-est--blue', done: 'efb-est--green', warn: 'efb-est--amber', fail: 'efb-est--red' };
@@ -126,10 +140,15 @@ const TONE_CLASS = { run: 'efb-est--blue', done: 'efb-est--green', warn: 'efb-es
   page.on('pageerror', (err) => consoleErrors.push(String(err)));
 
   let restoreLang = null;
+  let restoreUserLang = null;
 
   try {
     console.log('\n[0] Setup');
     restoreLang = wp('echo get_option("WPLANG","");').trim();
+    // A per-user locale (Users > Profile > Language) overrides WPLANG on
+    // admin screens, so the RTL pass must set both or a dev site whose admin
+    // picked another language stays LTR and the whole pass is skipped.
+    restoreUserLang = wp('echo get_user_meta(1,"locale",true);').trim();
     // Keep the review invitation from covering the screenshots.
     wp('update_option("emsfb_review_state",["status"=>"dismissed"],false);');
     t('logged in to wp-admin', await login(page));
@@ -203,9 +222,58 @@ const TONE_CLASS = { run: 'efb-est--blue', done: 'efb-est--green', warn: 'efb-es
     // Four different failures, four different explanations. Collapsing them
     // into one "it failed" is what sends people to support with nothing useful
     // to report.
-    const failTitles = ['expired', 'timeout', 'startError', 'netError'].map((k) => mapping[k].title);
+    const failTitles = ['expired', 'timeout', 'startError', 'netError', 'unreachable', 'startFailed'].map((k) => mapping[k].title);
     t('each kind of failure says something different',
-      new Set(failTitles).size === 4, failTitles.join(' | '));
+      new Set(failTitles).size === failTitles.length, failTitles.join(' | '));
+
+    // T01: pending, timeout, wp_mail()=false and a confirmed delivery are four
+    // different facts and must never share a headline.
+    const factTitles = ['delayed', 'timeout', 'startError', 'fullOk'].map((k) => mapping[k].title);
+    t('pending, timeout, wp_mail=false and confirmed read differently',
+      new Set(factTitles).size === 4, factTitles.join(' | '));
+
+    // A check that could not reach a verdict must not read as "not delivered"
+    // and must not send anyone off to set up SMTP.
+    const unknownKeys = ['timeout', 'netError', 'unreachable', 'badAnswer', 'startFailed'];
+    t('an unknown result never claims the email did not arrive',
+      unknownKeys.every((k) => mapping[k].title !== mapping.expired.title),
+      unknownKeys.map((k) => mapping[k].title).join(' | '));
+    t('an unknown result offers no SMTP fix',
+      unknownKeys.every((k) => !mapping[k].html.includes('efb-est__panel')));
+    t('raw transport text sits in a collapsed <details>',
+      /<details class="efb-est__tech"><summary[^>]*>[^<]+<\/summary>/.test(mapping.unreachable.html) &&
+      mapping.unreachable.html.indexOf('cURL error 28') > mapping.unreachable.html.indexOf('<details'));
+    t('a plain result has no technical section', !mapping.fullOk.html.includes('efb-est__tech'));
+
+    // The classifier itself, on the payloads the server really sends.
+    const classified = await page.evaluate(() => {
+      const o = window.efbEmailTestUI.outcome;
+      return {
+        accepted: o({ stage: 'start', payload: { success: true, test: { test_hash: 'h' } } }),
+        startFailed: o({ stage: 'start', payload: { success: false, stage: 'start', reason: 'tester_unreachable' } }),
+        wpMail: o({ stage: 'start', payload: { success: false, stage: 'send', reason: 'wp_mail_failed' } }),
+        upgrade: o({ stage: 'start', payload: { success: false, stage: 'start', test: { upgrade_required: true } } }),
+        pending: o({ stage: 'result', payload: { success: true, result: { status: 'pending' } } }),
+        delayed: o({ stage: 'result', payload: { success: false, result: { status: 'delayed' } } }),
+        delivered: o({ stage: 'result', payload: { success: true, result: { status: 'analyzed', can_send_email: true } } }),
+        expired: o({ stage: 'result', payload: { success: false, result: { status: 'expired' } } }),
+        failed: o({ stage: 'result', payload: { success: false, result: { status: 'failed', send_stage: 'wp_mail_failed' } } }),
+        unreachable: o({ stage: 'result', payload: { success: false, stage: 'result', reason: 'tester_unreachable' } }),
+        httpError: o({ stage: 'result', payload: { success: false, stage: 'result', reason: 'service_http_error', code: 404, result: { success: false, code: 'test_not_found' } } }),
+        badJson: o({ stage: 'result', payload: { success: false, stage: 'result', reason: 'invalid_response' } }),
+        lost: o({ stage: 'result', requestFailed: true }),
+        timedOut: o({ stage: 'result', timedOut: true, result: { status: 'pending' } })
+      };
+    });
+    const wantedOutcome = {
+      accepted: 'accepted', startFailed: 'start_failed', wpMail: 'wp_mail_failed', upgrade: 'upgrade_required',
+      pending: 'pending', delayed: 'pending', delivered: 'delivered', expired: 'not_delivered', failed: 'wp_mail_failed',
+      unreachable: 'tester_unreachable', httpError: 'tester_unreachable', badJson: 'invalid_response',
+      lost: 'connection_lost', timedOut: 'timeout'
+    };
+    Object.keys(wantedOutcome).forEach((k) => {
+      t('outcome(' + k + ') is "' + wantedOutcome[k] + '"', classified[k] === wantedOutcome[k], 'got ' + classified[k]);
+    });
 
     /* ----------------------------------------------------------------- */
     console.log('\n[3] The modal, LTR');
@@ -341,8 +409,11 @@ const TONE_CLASS = { run: 'efb-est--blue', done: 'efb-est--green', warn: 'efb-es
     /* ----------------------------------------------------------------- */
     console.log('\n[6] RTL');
 
-    wp('update_option("WPLANG","fa_IR",false);');
-    await page.goto(PANEL, { waitUntil: 'domcontentloaded' });
+    wp('update_option("WPLANG","fa_IR",false);update_user_meta(1,"locale","fa_IR");');
+    // Changing WPLANG clears the update cache, and the next admin page view
+    // runs wp_version_check() inline; on a dev site that cannot reach
+    // api.wordpress.org that one request can take well over 30 s.
+    await page.goto(PANEL, { waitUntil: 'domcontentloaded', timeout: 120000 });
     await page.waitForTimeout(2500);
 
     const dir = await page.evaluate(() => getComputedStyle(document.documentElement).direction);
@@ -417,8 +488,8 @@ const TONE_CLASS = { run: 'efb-est--blue', done: 'efb-est--green', warn: 'efb-es
 
     await phone.screenshot({ path: path.join(SHOTS, 'mobile-rtl-lowscore.png'), fullPage: false });
 
-    wp('update_option("WPLANG","",false);');
-    await phone.goto(PANEL, { waitUntil: 'domcontentloaded' });
+    wp('update_option("WPLANG","",false);update_user_meta(1,"locale","");');
+    await phone.goto(PANEL, { waitUntil: 'domcontentloaded', timeout: 120000 });
     await phone.waitForTimeout(2500);
     await phone.evaluate(([src]) => {
       const scenarios = eval(src);
@@ -443,6 +514,7 @@ const TONE_CLASS = { run: 'efb-est--blue', done: 'efb-est--green', warn: 'efb-es
     console.log('\n[9] Teardown');
     try {
       wp(`update_option("WPLANG",${JSON.stringify(restoreLang || '')},false);`);
+      wp(`update_user_meta(1,"locale",${JSON.stringify(restoreUserLang || '')});`);
       wp('delete_option("emsfb_review_state");');
       t('the environment is restored', true);
     } catch (e) {

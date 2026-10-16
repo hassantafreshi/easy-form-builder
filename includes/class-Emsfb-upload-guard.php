@@ -66,8 +66,8 @@ class Upload_Guard {
      */
     const RESPONSE_ATTACHMENT_PREFIX = 'emsfb_response_attachment_';
 
-    /** Response-box attachments may be submitted for up to thirty minutes. */
-    const RESPONSE_ATTACHMENT_TTL = 1800;
+    /** File ownership survives nonce/token refresh, within the orphan grace period. */
+    const RESPONSE_ATTACHMENT_TTL = 86400;
 
     /** Cron hook that sweeps abandoned uploads. */
     const CLEANUP_HOOK = 'emsfb_cleanup_orphan_uploads';
@@ -878,13 +878,11 @@ class Upload_Guard {
             'message_id' => $message_id,
             /* Never store a tracking code in a transient in clear text. */
             'track_hash' => hash('sha256', $track),
+            'expires' => time() + min(self::RESPONSE_ATTACHMENT_TTL, max(3600,(int)apply_filters('emsfb_upload_orphan_ttl',self::DEFAULT_ORPHAN_TTL))),
         );
-
-        return (bool) set_transient(
-            self::response_attachment_key($basename),
-            $record,
-            self::RESPONSE_ATTACHMENT_TTL
-        );
+        $key=self::response_attachment_key($basename);
+        // Ownership is durable; eviction of an object-cache transient must not orphan a valid file.
+        return update_option($key,$record,false) || get_option($key) === $record;
     }
 
     /**
@@ -903,10 +901,12 @@ class Upload_Guard {
             return false;
         }
 
-        $record = get_transient(self::response_attachment_key($basename));
+        $record = get_option(self::response_attachment_key($basename));
+        if (!is_array($record)) $record = get_transient(self::response_attachment_key($basename)); // Existing uploads.
         if (!is_array($record) || !isset($record['message_id'], $record['track_hash'])) {
             return false;
         }
+        if (isset($record['expires']) && (int)$record['expires'] < time()) return false;
 
         return (int) $record['message_id'] === $message_id
             && hash_equals((string) $record['track_hash'], hash('sha256', $track));
@@ -959,6 +959,7 @@ class Upload_Guard {
             $basename = wp_basename((string) $name);
             if ($basename !== '') {
                 delete_transient(self::response_attachment_key($basename));
+                delete_option(self::response_attachment_key($basename));
             }
         }
     }
@@ -1049,6 +1050,12 @@ class Upload_Guard {
      */
     public static function cleanup_orphan_uploads() {
         global $wpdb;
+        // A crash after claiming a file may leave its reservation outside the pending ledger.
+        $reservations=$wpdb->get_results($wpdb->prepare("SELECT option_name, option_value FROM {$wpdb->options} WHERE option_name LIKE %s ORDER BY option_id ASC LIMIT 500",$wpdb->esc_like(self::RESPONSE_ATTACHMENT_PREFIX).'%'));
+        foreach ((array)$reservations as $reservation) {
+            $record=maybe_unserialize($reservation->option_value);
+            if (!is_array($record) || (int)($record['expires'] ?? 0)<time()) delete_option($reservation->option_name);
+        }
 
         $pending = get_option(self::PENDING_OPTION, array());
         if (!is_array($pending) || empty($pending)) {
@@ -1085,6 +1092,7 @@ class Upload_Guard {
             $changed = true;
 
             $basename = wp_basename((string) $basename);
+			self::release_response_attachment_reservations(array($basename));
 
             /* Only ever touch names this plugin generated itself. */
             if (strpos($basename, 'efb-PLG-') !== 0 && strpos($basename, 'efb-rec-') !== 0) {

@@ -1,4 +1,5 @@
 <?php
+if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
 /**
  * Regression tests for Emsfb\Upload_Guard - the shared upload policy used by
  * includes/class-Emsfb-public.php and includes/admin/class-Emsfb-admin.php.
@@ -76,6 +77,10 @@ function get_option($key, $default = false) {
 }
 function update_option($key, $value, $autoload = null) {
     $GLOBALS['efb_options'][$key] = $value;
+    return true;
+}
+function delete_option($key) {
+    unset($GLOBALS['efb_options'][$key]);
     return true;
 }
 function emsfb_is_php_function_available_efb($name) { return function_exists($name); }
@@ -364,6 +369,8 @@ $response_payload = array(
 
 test('response attachment reservation is created', Upload_Guard::reserve_response_attachment($response_file, 42, 'TRACK-42'), true);
 test('same ticket may save its attachment', Upload_Guard::response_attachment_is_reserved($response_url, 42, 'TRACK-42'), true);
+$GLOBALS['efb_transients'] = array();
+test('cache eviction does not lose response attachment ownership', Upload_Guard::response_attachment_is_reserved($response_url, 42, 'TRACK-42'), true);
 test('different ticket cannot reuse its attachment', Upload_Guard::response_attachment_is_reserved($response_url, 43, 'TRACK-43'), false);
 test('different tracking code cannot reuse its attachment', Upload_Guard::response_attachment_is_reserved($response_url, 42, 'OTHER-TRACK'), false);
 test('response reply finds its safe attachment URL', Upload_Guard::response_attachment_urls($response_payload), array($response_url));
