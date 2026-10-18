@@ -4653,8 +4653,14 @@ class efbFunction {
 		/* After a failed attempt nothing but the Recover button retries until the
 		 * backoff expires. Otherwise every admin page view, and on a site without
 		 * cron every visitor, waits on the add-on server again for the same
-		 * answer. */
-		if ( 'manual' !== $source && ( get_transient( 'emsfb_addons_dl_backoff' ) || get_transient( 'emsfb_addons_renew_backoff' ) ) ) {
+		 * answer.
+		 * The same goes while another request is downloading (another tab, the
+		 * Recover button, the background runner) or a few minutes after one died
+		 * mid-run, see addon_recovery_run_state_efb(). The Recover button waits
+		 * only for a run that is still alive. */
+		$run_state   = $this->addon_recovery_run_state_efb();
+		$in_progress = 'active' === $run_state || ( 'manual' !== $source && 'stale' === $run_state );
+		if ( $in_progress || ( 'manual' !== $source && ( get_transient( 'emsfb_addons_dl_backoff' ) || get_transient( 'emsfb_addons_renew_backoff' ) ) ) ) {
 			$last = get_option( 'emsfb_addon_recovery_result', array() );
 			$last = is_array( $last ) ? $last : array();
 			return $request_result = array(
@@ -4666,7 +4672,7 @@ class efbFunction {
 				'errors'          => isset( $last['errors'] ) && is_array( $last['errors'] ) ? $last['errors'] : array(),
 				'renew_required'  => ! empty( $last['renew_required'] ) || false !== get_transient( 'emsfb_addons_renew_backoff' ),
 				'source'          => $source,
-				'skipped'         => 'backoff',
+				'skipped'         => $in_progress ? 'in_progress' : 'backoff',
 			);
 		}
 
@@ -4679,24 +4685,41 @@ class efbFunction {
 		}
 		$scope_before = $this->addon_health_scope_efb;
 		$this->addon_health_scope_efb = $health_scope;
+		// Someone waits on every caller of this method, so the run gets a budget.
+		$budget_before = $this->addon_recovery_budget_efb;
+		if ( 'manual' === $source ) {
+			$this->addon_recovery_budget_efb = self::ADDON_RECOVERY_BUDGET_MANUAL_EFB;
+		} elseif ( 0 === strpos( $source, 'public' ) ) {
+			$this->addon_recovery_budget_efb = self::ADDON_RECOVERY_BUDGET_VISITOR_EFB;
+		} else {
+			$this->addon_recovery_budget_efb = self::ADDON_RECOVERY_BUDGET_PAGE_EFB;
+		}
 		try {
 			$download = $this->download_all_addons_efb( true );
 		} finally {
 			$this->suppress_addon_report_efb = $muted_before;
 			$this->addon_health_scope_efb = $scope_before;
+			$this->addon_recovery_budget_efb = $budget_before;
 		}
 		$health_after = $this->get_addon_local_health_efb( $settings, $health_scope );
 		$success = empty( $health_after['missing'] );
+		$deferred = is_array( $download ) && ! empty( $download['deferred'] ) ? array_values( (array) $download['deferred'] ) : array();
+		/* Only add-ons the budget left for later are still missing, and this run
+		 * installed at least one: reload as after a full repair, so the restored
+		 * add-ons load and the next page view carries on with the rest. */
+		$partial = ! $success && ! empty( $deferred ) && ! empty( $download['installed'] )
+			&& ! array_diff( array_keys( $health_after['missing'] ), $deferred );
 		$result = array(
 			'success'         => $success,
 			'needed'          => true,
-			'recovered'       => $success,
+			'recovered'       => $success || $partial,
 			'initial_missing' => $initial_missing,
 			'missing'         => array_keys( $health_after['missing'] ),
 			'errors'          => isset( $download['errors'] ) ? $download['errors'] : array(),
 			'renew_required'  => ! empty( $download['renew_required'] ),
 			'source'          => sanitize_key( $source ),
 			'attempted_at'    => current_time( 'mysql' ),
+			'deferred'        => $deferred,
 		);
 
 		if ( $success ) {
@@ -4706,7 +4729,7 @@ class efbFunction {
 			}
 			delete_option( 'emsfb_addons_dl_failures' );
 			delete_transient( 'emsfb_addons_dl_backoff' );
-		} else {
+		} elseif ( ! $partial ) {
 			update_option( 'emsfb_addon_recovery_result', $result, false );
 		}
 
@@ -4827,10 +4850,13 @@ class efbFunction {
 		 * and the visitor lands on a working form. */
 		if ( ! $this->is_cron_available_efb() ) {
 			$this->addon_inline_mode_efb = true;
+			// The repair has a short budget here: this form's own add-ons go first.
+			$this->addon_recovery_priority_efb = $blocking;
 			try {
 				$inline = $this->recover_missing_addons_efb( $settings, 'public_inline' );
 			} finally {
 				$this->addon_inline_mode_efb = false;
+				$this->addon_recovery_priority_efb = array();
 			}
 			// Judged by this form's add-ons: another one still missing does not keep it hidden.
 			$inline['success']   = ! array_intersect( (array) $inline['missing'], $blocking );
@@ -4868,6 +4894,10 @@ class efbFunction {
 	 * @return string
 	 */
 	public function get_addon_recovery_message_efb( $result ) {
+		if ( isset( $result['skipped'] ) && 'in_progress' === $result['skipped'] ) {
+			return esc_html__( 'The add-ons are already being reinstalled in another tab or in the background. Wait a minute, then reload this page.', 'easy-form-builder' );
+		}
+
 		if ( ! empty( $result['renew_required'] ) ) {
 			return esc_html__( 'Your subscription needs renewing before the missing add-ons can be restored.', 'easy-form-builder' );
 		}
@@ -4948,8 +4978,10 @@ class efbFunction {
 		delete_transient( 'emsfb_addons_dl_backoff' );
 
 		$result = $this->recover_missing_addons_efb( null, 'manual' );
-		if ( ! empty( $result['success'] ) ) {
-			wp_send_json_success( array( 'done' => true, 'message' => esc_html__( 'All required add-ons were restored.', 'easy-form-builder' ) ) );
+		/* 'recovered' without 'success': the budget left some add-ons for later.
+		 * The "Activate" reload opens a page whose own recovery installs the rest. */
+		if ( ! empty( $result['success'] ) || ! empty( $result['recovered'] ) ) {
+			wp_send_json_success( array( 'done' => ! empty( $result['success'] ), 'message' => esc_html__( 'All required add-ons were restored.', 'easy-form-builder' ) ) );
 		}
 
 		wp_send_json_error( array(
@@ -4975,7 +5007,8 @@ class efbFunction {
 		if ( empty( $pending ) || ! is_array( $pending ) ) {
 			return $result;
 		}
-		if ( get_transient( 'emsfb_addons_dl_backoff' ) || get_transient( 'emsfb_addons_renew_backoff' ) || get_transient( 'emsfb_addon_i18n_refetch_backoff' ) ) {
+		if ( get_transient( 'emsfb_addons_dl_backoff' ) || get_transient( 'emsfb_addons_renew_backoff' ) || get_transient( 'emsfb_addon_i18n_refetch_backoff' )
+			|| 'none' !== $this->addon_recovery_run_state_efb() ) {
 			$result['skipped'] = 'backoff';
 			return $result;
 		}
@@ -5267,6 +5300,24 @@ public function addon_add_efb($value) {
 		$remaining_endpoints = isset($addon_endpoints['endpoints'])
 			? array_values((array) $addon_endpoints['endpoints'])
 			: array_filter(array($addon_endpoints['primary'], $addon_endpoints['fallback']));
+		// Skip endpoints that already failed to answer in this request (see addon_unreachable_hosts_efb).
+		$answering_endpoints = array();
+		foreach ($remaining_endpoints as $endpoint) {
+			if (empty($this->addon_unreachable_hosts_efb[untrailingslashit((string) $endpoint)])) {
+				$answering_endpoints[] = $endpoint;
+			}
+		}
+		if (empty($answering_endpoints)) {
+			return array(
+				'status'      => false,
+				'message'     => sprintf(
+					esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the %s server','easy-form-builder'),
+					wp_parse_url((string) reset($remaining_endpoints), PHP_URL_HOST)
+				),
+				'unreachable' => true,
+			);
+		}
+		$remaining_endpoints = $answering_endpoints;
 		/* Inline repair runs inside a visitor's page load, so the wait is capped
 		 * hard: one short attempt against a limited number of endpoints instead
 		 * of the full ladder used when nobody is waiting on the other end. */
@@ -5309,6 +5360,7 @@ public function addon_add_efb($value) {
         };
 
         while ($attempt < $max_attempts && !$success) {
+            $request_started = microtime(true);
             $request = wp_remote_get($u, ['timeout' => $request_timeout]);
 
             if (is_wp_error($request)) {
@@ -5318,11 +5370,21 @@ public function addon_add_efb($value) {
                     $server_label
                 );
 
+                /* The whole timeout passed without an answer: asking the same host
+                 * again only repeats the wait, so neither this add-on nor the rest
+                 * of this request asks it again. A quick failure (refused, DNS)
+                 * costs next to nothing to repeat and may be a one-off blip, so the
+                 * next add-on still asks as before. */
+                if ((microtime(true) - $request_started) >= max(1, $request_timeout - 1)
+                    || false !== stripos((string) $request->get_error_message(), 'timed out')) {
+                    $attempt = $max_attempts;
+                    $this->addon_unreachable_hosts_efb[untrailingslashit($domain)] = true;
+                }
                 if ($attempt >= $max_attempts) {
                     if ($switch_to_fallback('remote_request_wp_error')) {
                         continue;
                     }
-                    return array('status' => false, 'message' => $error_message);
+                    return array('status' => false, 'message' => $error_message, 'unreachable' => true);
                 }
                 continue;
             }
@@ -5584,6 +5646,7 @@ public function addon_add_efb($value) {
 			'errors'          => array(),
 			'missing'         => array(),
 			'renew_required'  => false,
+			'deferred'        => array(),
 		);
 		$settings=get_setting_Emsfb();
 		$addons['AdnSPF']	=	isset($settings->AdnSPF)	? $settings->AdnSPF	:0;
@@ -5601,6 +5664,9 @@ public function addon_add_efb($value) {
 		$addons['AdnOF']	=	isset($settings->AdnOF)		? $settings->AdnOF	:0;
 		$addons['AdnSMF']	=	isset($settings->AdnSMF)	? $settings->AdnSMF	:0;
 		$addons['AdnHSH']	=	isset($settings->AdnHSH)	? $settings->AdnHSH	:0;
+		if ( ! empty( $this->addon_recovery_priority_efb ) ) {
+			$addons = array_merge( array_intersect_key( $addons, array_flip( (array) $this->addon_recovery_priority_efb ) ), $addons );
+		}
 
 		$error_messag ='';
 		$renew_required = false;
@@ -5609,6 +5675,9 @@ public function addon_add_efb($value) {
 			esc_html__( 'To fix this, sign in to your %s, download the Add-ons Handler plugin from the Downloads section, then install and activate it. After that, activate the add-ons you need from the Add-ons Handler plugin.', 'easy-form-builder' ),
 			'<a href="https://whitestudio.team/login" target="_blank" rel="noopener noreferrer">' . esc_html__( 'WhiteStudio dashboard', 'easy-form-builder' ) . '</a>'
 		);
+		$budget     = max( 0, (int) $this->addon_recovery_budget_efb );
+		$started    = microtime( true );
+		$run_marked = false;
 		foreach ($addons as $key => $value) {
 
 			if($value ==1){
@@ -5630,6 +5699,18 @@ public function addon_add_efb($value) {
 				}
 				// Form Security & Spam Protection is downloaded like every other add-on:
 				// it is not in the plugin zip, so an update always removes it.
+
+				/* Budget used up: leave the rest for the next page view or the background
+				 * runner. Not once every add-on server timed out in this request: the
+				 * rest then fail at once without a request, and the card lists every
+				 * reason instead of a few. */
+				if ( $budget > 0 && $run_marked && ( microtime( true ) - $started ) >= $budget && ! $this->addon_api_all_unreachable_efb() ) {
+					$details['deferred'][] = $key;
+					continue;
+				}
+				// Written before the first request to the add-on server, refreshed before each one.
+				set_transient( self::ADDON_RECOVERY_RUN_KEY_EFB, time(), self::ADDON_RECOVERY_RUN_TTL_EFB );
+				$run_marked = true;
 				$details['attempted'][] = $key;
 				$r =$this->addon_add_efb($key);
 				if(!is_array($r) || !isset($r['status'])){
@@ -5653,10 +5734,16 @@ public function addon_add_efb($value) {
 			}
 		}
 
+		// The loop finished (a request that dies mid-run leaves the marker to expire).
+		if ( $run_marked ) {
+			delete_transient( self::ADDON_RECOVERY_RUN_KEY_EFB );
+		}
+
 		$details['renew_required'] = $renew_required;
 		$health_after = $this->get_addon_local_health_efb( $settings, $this->addon_health_scope_efb );
 		$details['missing'] = array_keys( $health_after['missing'] );
-		if ( ! empty( $details['missing'] ) ) {
+		// An add-on left for later is still missing, but it has not failed.
+		if ( array_diff( $details['missing'], $details['deferred'] ) ) {
 			$state = false;
 		}
 
@@ -5701,6 +5788,11 @@ public function addon_add_efb($value) {
 			return $return_details ? $details : false;
 		}
 
+		if ( ! empty( $details['deferred'] ) ) {
+			// Nothing failed, the budget ran out: no backoff and no report, the next run carries on.
+			return $return_details ? $details : false;
+		}
+
 			delete_option('emsfb_addons_renew_required');
 			delete_transient('emsfb_addons_renew_backoff');
 			delete_option('emsfb_addons_dl_failures');
@@ -5725,6 +5817,35 @@ public function addon_add_efb($value) {
 
 	/** Minutes to wait before each attempt: immediate, then backs off. */
 	const ADDON_RECOVERY_DELAYS_EFB = array(0, 15, 120);
+
+	/**
+	 * Transient marking a download run in progress, see addon_recovery_run_state_efb().
+	 * Holds the time it was last refreshed.
+	 */
+	const ADDON_RECOVERY_RUN_KEY_EFB = 'emsfb_addon_recovery_running';
+
+	/**
+	 * Seconds the run marker outlives a request that died mid-run (PHP, FPM
+	 * or proxy time limit, fatal error). Automatic recovery waits that long
+	 * before it tries again; the Recover button does not.
+	 */
+	const ADDON_RECOVERY_RUN_TTL_EFB = 600;
+
+	/** A marker refreshed within this many seconds belongs to a run that is still going. */
+	const ADDON_RECOVERY_RUN_LIVE_EFB = 90;
+
+	/**
+	 * Download budgets, in seconds, for runs someone is waiting on. Once a
+	 * run has used its budget the remaining add-ons are left for the next page
+	 * view (or the background runner) instead of holding the request; one
+	 * add-on is always tried, so every run makes progress.
+	 * Page: Create, Panel and Add-ons. Manual: the Recover button, kept well
+	 * under the 60-second limit common proxies put on one request. Visitor: a
+	 * form on a site without a working cron.
+	 */
+	const ADDON_RECOVERY_BUDGET_PAGE_EFB    = 20;
+	const ADDON_RECOVERY_BUDGET_MANUAL_EFB  = 30;
+	const ADDON_RECOVERY_BUDGET_VISITOR_EFB = 5;
 
 	/**
 	 * Can a scheduled event actually be relied on to run?
@@ -6068,6 +6189,28 @@ public function addon_add_efb($value) {
 		}
 		delete_transient( $this->addon_api_down_key_efb( $domain ) );
 	}
+
+	/**
+	 * Has every add-on API endpoint timed out during this request?
+	 *
+	 * Then addon_add_efb() answers each further add-on at once, without a
+	 * request (see addon_unreachable_hosts_efb).
+	 *
+	 * @return bool
+	 */
+	public function addon_api_all_unreachable_efb() {
+		if ( empty( $this->addon_unreachable_hosts_efb ) ) {
+			return false;
+		}
+		$domains   = $this->addon_api_domains_efb();
+		$endpoints = isset( $domains['endpoints'] ) ? (array) $domains['endpoints'] : array();
+		foreach ( $endpoints as $endpoint ) {
+			if ( empty( $this->addon_unreachable_hosts_efb[ untrailingslashit( (string) $endpoint ) ] ) ) {
+				return false;
+			}
+		}
+		return ! empty( $endpoints );
+	}
 	/**
 	 * Timeout and attempt budget for one add-on download.
 	 *
@@ -6114,6 +6257,37 @@ public function addon_add_efb($value) {
 	 * @var bool
 	 */
 	public $addon_inline_mode_efb = false;
+
+	/**
+	 * Download budget, in seconds, of the current run; 0 = none.
+	 * Set by recover_missing_addons_efb() for the run it starts (see the
+	 * ADDON_RECOVERY_BUDGET_* constants). The background runner has nobody
+	 * waiting on it and keeps 0.
+	 *
+	 * @var int
+	 */
+	public $addon_recovery_budget_efb = 0;
+
+	/**
+	 * Add-on keys the current run installs first: the add-ons the visitor's
+	 * form needs, so its short budget is spent on them. Empty = settings order.
+	 *
+	 * @var string[]
+	 */
+	public $addon_recovery_priority_efb = array();
+
+	/**
+	 * Add-on API endpoints that did not answer during this request.
+	 *
+	 * A host that accepts the connection and never replies used to cost the
+	 * full timeout once per add-on, three minutes for twelve add-ons. Once it
+	 * has timed out, the rest of the request skips it (another endpoint is
+	 * still tried); the next request asks it again. A quick failure (refused,
+	 * DNS) is not recorded here: asking again costs next to nothing.
+	 *
+	 * @var array<string, bool>
+	 */
+	public $addon_unreachable_hosts_efb = array();
 
 	/**
 	 * Queue a background add-on recovery.
@@ -6206,6 +6380,15 @@ public function addon_add_efb($value) {
 			return;
 		}
 
+		/* An admin page view or the Recover button is downloading right now.
+		 * Running alongside it would extract the same archives twice; look again
+		 * once it has had time to finish. This does not use up an attempt. */
+		if('active' === $this->addon_recovery_run_state_efb()){
+			set_transient('emsfb_addon_recovery_lock', 1, 7 * MINUTE_IN_SECONDS);
+			wp_schedule_single_event(time() + (2 * MINUTE_IN_SECONDS), self::ADDON_RECOVERY_EVENT_EFB, array(array('attempt' => $attempt)));
+			return;
+		}
+
 		// Suppress the report until the final attempt. Reset in finally so a fatal
 		// inside the downloader cannot leave reporting muted for later runs.
 		$this->suppress_addon_report_efb = !$last;
@@ -6240,6 +6423,28 @@ public function addon_add_efb($value) {
 		set_transient('emsfb_addon_recovery_lock', 1, $delay + (5 * MINUTE_IN_SECONDS));
 		update_option('emsfb_addon_recovery_pending', $pending, false);
 		wp_schedule_single_event(time() + $delay, self::ADDON_RECOVERY_EVENT_EFB, array(array('attempt' => $next)));
+	}
+
+	/**
+	 * Is an add-on download run going on in another request?
+	 *
+	 * download_all_addons_efb() writes the marker before its first request to
+	 * the add-on server, refreshes it before each further add-on and removes it
+	 * when its loop ends. A marker that is no longer refreshed belongs to a
+	 * request that died mid-run; until its TTL runs out it stands in for the
+	 * backoff that request never got to store, so automatic recovery does not
+	 * start the same wait again on every admin page view.
+	 *
+	 * @return string 'none', 'active' (refreshed recently) or 'stale'.
+	 */
+	public function addon_recovery_run_state_efb(){
+		$beat = get_transient(self::ADDON_RECOVERY_RUN_KEY_EFB);
+		if(false === $beat){
+			return 'none';
+		}
+		// Anything but a recent time (garbage, or a clock far ahead) counts as stale, so it never locks out the Recover button.
+		$age = time() - (int) $beat;
+		return ($age > -self::ADDON_RECOVERY_RUN_LIVE_EFB && $age < self::ADDON_RECOVERY_RUN_LIVE_EFB) ? 'active' : 'stale';
 	}
 
 	/** Clear every flag the recovery cycle sets once the files are healthy. */

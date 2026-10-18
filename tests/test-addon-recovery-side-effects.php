@@ -170,6 +170,11 @@ class Efb_Side_Effects_Test extends efbFunction {
 		return ! isset( $this->missing[ $addon_key ] );
 	}
 
+	/** $missing stands for the translation files of the admin scope too. */
+	public function addon_scope_files_present_efb( $addon_key ) {
+		return ! isset( $this->missing[ $addon_key ] );
+	}
+
 	public function addon_add_efb( $value ) {
 		$this->server_requests[] = $value;
 		if ( in_array( $value, $this->server_delivers, true ) ) {

@@ -1,43 +1,93 @@
 
+/* Confirm a one-time Stripe charge with this site before the form is submitted.
+ * Resolves to
+ *   'verified'   the server retrieved the PaymentIntent from Stripe and it matches the payment record;
+ *   'rejected'   HTTP 409: the server compared it with its own record and it does not match;
+ *   'unverified' the check could not be completed (network, timeout, 5xx, session or nonce trouble).
+ * The card is already charged when this runs, so only 'rejected' may stop the submission. The server
+ * side only reads from Stripe, so it is retried: up to 4 attempts within about 45 s, waiting for the
+ * browser to come back online, with a fresh session after a nonce error. */
 async function confirm_stripe_payment_efb(paymentIntentId, trackid, formId) {
-  let context;
-  try { context = window.EFBRuntime ? await window.EFBRuntime.prepare(formId) : null; }
-  catch (error) { if (window.EFBRequestHealth) window.EFBRequestHealth.report('payment', 0); return false; }
   const confirmUrl = efb_var.rest_url + 'Emsfb/v1/forms/payment/stripe/confirm';
-  const confirmHeaders = new Headers({
-    'Content-Type': 'application/json',
-    'X-WP-Nonce': context ? context.nonce : efb_var.nonce,
-    'form-id': String(formId || 0),
-    'sid': context ? context.sid : (efb_var.sid || ''),
+  const delays = [0, 2000, 5000, 10000];
+  const deadline = Date.now() + 45000;
+  const report = (status) => { if (window.EFBRequestHealth) window.EFBRequestHealth.report('payment', status); };
+  const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+  const backOnline = (ms) => new Promise((resolve) => {
+    if (typeof navigator === 'undefined' || navigator.onLine !== false || !window.addEventListener) { resolve(); return; }
+    let timer = null;
+    const done = () => { clearTimeout(timer); window.removeEventListener('online', done); resolve(); };
+    timer = setTimeout(done, ms);
+    window.addEventListener('online', done);
   });
-  console.log('[EFB Stripe Debug] confirm request start', {
-    confirmUrl,
-    paymentIntentId,
-    trackid
-  });
-  return fetch(confirmUrl, {
-    method: 'POST',
-    cache: 'no-store',
-    credentials: 'same-origin',
-    signal: typeof AbortSignal !== 'undefined' && AbortSignal.timeout ? AbortSignal.timeout(45000) : undefined,
-    headers: confirmHeaders,
-    body: JSON.stringify({ paymentIntentId: paymentIntentId, trackid: trackid })
-  }).then(function(response) {
-    if (!response.ok && window.EFBRequestHealth) window.EFBRequestHealth.report('payment', response.status);
+  let freshContext = false;
+  for (let attempt = 0; attempt < delays.length; attempt++) {
+    if (attempt > 0) {
+      if (Date.now() + delays[attempt] > deadline) break;
+      await pause(delays[attempt]);
+      await backOnline(30000);
+    }
+    let context = null;
+    try {
+      // prepare() already answers a throttled, blocked or unreachable route with the page nonce and
+      // session ({legacy: true}). It throws only when the form context itself is refused (login,
+      // expired or changed identity). This request carries no runtime token, only reads from Stripe and
+      // runs after the charge, so it still goes out with the page nonce and session.
+      if (window.EFBRuntime) context = await window.EFBRuntime.prepare(formId, freshContext);
+    } catch (error) {
+      context = null;
+    }
+    if ((!context || context.legacy) && freshContext && typeof efb_refresh_nonce === 'function') {
+      // The fallback context holds the page nonce the server just refused: fetch a new one.
+      let fresh = false;
+      try { fresh = await efb_refresh_nonce((context && context.sid) || efb_var.sid || '', formId); } catch (error) {}
+      if (context && fresh) context = Object.assign({}, context, { nonce: fresh });
+    }
+    freshContext = false;
+    const confirmHeaders = new Headers({
+      'Content-Type': 'application/json',
+      'X-WP-Nonce': context && context.nonce ? context.nonce : efb_var.nonce,
+      'form-id': String(formId || 0),
+      'sid': context && context.sid ? context.sid : (efb_var.sid || ''),
+    });
+    console.log('[EFB Stripe Debug] confirm request start', {
+      confirmUrl,
+      paymentIntentId,
+      trackid,
+      attempt: attempt + 1
+    });
+    let response;
+    try {
+      response = await fetch(confirmUrl, {
+        method: 'POST',
+        cache: 'no-store',
+        credentials: 'same-origin',
+        signal: typeof AbortSignal !== 'undefined' && AbortSignal.timeout ? AbortSignal.timeout(25000) : undefined,
+        headers: confirmHeaders,
+        body: JSON.stringify({ paymentIntentId: paymentIntentId, trackid: trackid })
+      });
+    } catch (err) {
+      report(0);
+      console.error('[EFB Stripe Debug] confirm request failed', err);
+      continue;
+    }
+    let res = null;
+    try { res = await response.json(); } catch (err) { res = null; }
     console.log('[EFB Stripe Debug] confirm response received', {
       status: response.status,
       ok: response.ok
     });
-    return response.json();
-  }).then(function(res) {
-    const verified = !!(res && res.data && res.data.success);
-    if (!verified && window.EFBRequestHealth) window.EFBRequestHealth.report('payment', 0);
-    return verified;
-  }).catch(function(err) {
-    if (window.EFBRequestHealth) window.EFBRequestHealth.report('payment', 0);
-    console.error('[EFB Stripe Debug] confirm request failed', err);
-    return false;
-  });
+    if (response.ok && res && res.data && res.data.success === true) return 'verified';
+    report(response.ok ? 0 : response.status);
+    if (response.status === 409 && res && res.data) return 'rejected';
+    if (response.status === 403 && res && ['rest_cookie_invalid_nonce', 'efb_nonce_expired', 'efb_nonce_missing'].includes(res.code)) {
+      freshContext = true;
+      continue;
+    }
+    if (response.status === 408 || response.status === 425 || response.status === 429 || response.status >= 500 || (response.ok && !res)) continue;
+    break;
+  }
+  return 'unverified';
 }
 
   post_api_stripe_apay_efb=(form_id)=>{
@@ -136,7 +186,11 @@ async function confirm_stripe_payment_efb(paymentIntentId, trackid, formId) {
                 if (data && Object.prototype.hasOwnProperty.call(data, 'sid')) data.sid = live.sid;
               }
             } catch (error) {
+              // prepare() falls back to the page nonce on its own and throws only for a refusal a retry
+              // would not change (login required, form context expired, login changed). Nothing has
+              // been charged yet: stop and say why.
               if (window.EFBRequestHealth) window.EFBRequestHealth.report('payment', 0);
+              if (typeof alert_message_efb === 'function') alert_message_efb(efb_var.text.error, error && error.message ? error.message : efb_var.text.error, 10, 'danger');
               btnStripeEfb.classList.remove('disabled');
               btnStripeEfb.innerHTML = efb_var.text.payNow;
               paymentStarted = false;
@@ -180,13 +234,18 @@ async function confirm_stripe_payment_efb(paymentIntentId, trackid, formId) {
             return;
           }
           if (transStat && transStat.paymentIntent && transStat.paymentIntent.status === 'succeeded') {
-            const verified = await confirm_stripe_payment_efb(transStat.paymentIntent.id, res.data.id, form_id);
-            if (!verified) {
-              const message = window.efb_request_health && efb_request_health.payment_pending_message;
-              stsStripeEfb.textContent = message || efb_var.text.error;
-              // The card may already be charged; keep Pay Now disabled until reconciliation.
+            const verification = await confirm_stripe_payment_efb(transStat.paymentIntent.id, res.data.id, form_id);
+            if (verification === 'rejected') {
+              const message = window.efb_request_health && efb_request_health.payment_pending_message || efb_var.text.error;
+              const label = efb_var.text && efb_var.text.trackingCode ? efb_var.text.trackingCode : 'Tracking code';
+              stsStripeEfb.textContent = res.data.id ? message + ' ' + label + ': ' + res.data.id : message;
+              stsStripeEfb.style.display = 'block';
+              // The card may already be charged; keep Pay Now disabled.
               return;
             }
+            // 'verified', or 'unverified': Stripe.js reported the charge as succeeded but this site could
+            // not confirm it yet. Continue so the entry and its notifications are kept; the payment record
+            // stays 'pending' and the server re-checks it with Stripe in the background.
           }
           fun_trans_efb(transStat, res.data.transStat, res.data.id);
         }).catch(error => {

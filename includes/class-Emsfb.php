@@ -1364,6 +1364,7 @@ class Emsfb {
     public static function plugin_deactivation_cleanup_efb()
     {
         wp_clear_scheduled_hook('emsfb_cache_scan_v1');
+        wp_clear_scheduled_hook('emsfb_stripe_reconcile_efb');
         if (class_exists('\Emsfb\Email_Monitor')) {
             \Emsfb\Email_Monitor::deactivate();
         }
@@ -1614,6 +1615,7 @@ class Emsfb {
         // A new release is a new situation: let the first page load retry at once
         // instead of waiting out a backoff left by a failure on the old version.
         delete_transient('emsfb_addons_dl_backoff');
+        delete_transient('emsfb_addon_recovery_running');
         delete_option('emsfb_addons_dl_failures');
 
         // Keep only the add-on language files of locales this site uses. A no-op on

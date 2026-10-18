@@ -441,24 +441,30 @@ function check_body_efb_timer (){
   function fun_efb_run() {
     if (window.efb_initialized) return;
 
+    if (typeof window.jQuery != "function" || typeof jQuery != "function") {
+      /* An optimiser may defer or delay jQuery while this file runs at once
+         (or a theme loads it late). Wait for it; warn only if it never comes. */
+      fun_efb_run.tries = (fun_efb_run.tries || 0) + 1;
+      if (fun_efb_run.tries <= 50) {
+        clearTimeout(fun_efb_run.timer);
+        fun_efb_run.timer = setTimeout(fun_efb_run, 200);
+        return;
+      }
+      window.efb_initialized = true;
+      const txt = typeof ajax_object_efm === 'object' && ajax_object_efm && ajax_object_efm.text ? ajax_object_efm.text : {};
+      let msg = `<div class="efb alert alert-warning alert-dismissible fade show " role="alert" id="alarm_emsFormBuilder">
+        <strong>${txt.alert || ''}</strong> ${txt.jqinl || 'jQuery is not loaded.'}
+      </div>`;
+      document.querySelectorAll('.body_efb').forEach(el => { el.innerHTML = msg; });
+      if(document.getElementById('body_tracker_emsFormBuilder')) document.getElementById('body_tracker_emsFormBuilder').innerHTML = msg;
+      return;
+    }
+
     window.efb_initialized = true;
 
     g_timeout_efb = 100;
 
     const docBodyEfb = document.querySelector('.body_efb');
-    if (typeof window.jQuery != "function" || typeof jQuery != "function") {
-      let msg = `<div class="efb alert alert-warning alert-dismissible fade show " role="alert" id="alarm_emsFormBuilder">
-        <strong>${ajax_object_efm.text.alert}</strong> ${ajax_object_efm.text.jqinl}
-      </div>`;
-      if(docBodyEfb){
-        for (const el of docBodyEfb) {
-          el.innerHTML = msg;
-        }
-
-        }
-      if(document.getElementById('body_tracker_emsFormBuilder')) document.getElementById('body_tracker_emsFormBuilder').innerHTML = msg;
-      return;
-    }
 
     jQuery(() => {
       if (typeof ajax_object_efm === 'undefined' || !ajax_object_efm.ajax_value) return;
