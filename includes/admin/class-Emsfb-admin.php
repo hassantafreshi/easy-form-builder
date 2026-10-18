@@ -1718,8 +1718,10 @@ class Admin {
                   $v = preg_replace('/behavior\s*:/i', '', $v);
                   $v = preg_replace('/<\s*\/?(iframe|object|embed|form|input|textarea|button|select|svg|path|math|base|link|applet)[^>]*>/i', '', $v);
                   $v = $efbFunction->sanitize_full_html_efb($v);
-                  // JSON encoding preserves HTML attribute quotes; changing
-                  // their delimiter can break CSS values containing apostrophes.
+                  // Store the template without double quotes, as 4.3.0 did: older add-ons and
+                  // older cores (after a rollback) read the raw settings JSON by stripping every
+                  // backslash, which breaks on \". Attribute values keep their apostrophes.
+                  $v = \Emsfb::normalize_email_template_quotes_efb($v);
 
                   if ($efbdata_comment) {
                       $v .= "\n" . $efbdata_comment;

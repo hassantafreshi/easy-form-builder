@@ -2,10 +2,10 @@
 Contributors: hassantafreshi, mostafas1990, 6arshid, aminkhadivar, presskopp, whitestudio
 Donate link: https://whitestudio.team/donate-easy-form-builder/
 Tags: form builder, form plugin, multi step form, email templates, payment form
-Requires at least: 5.0
+Requires at least: 5.7
 Tested up to: 7.1
 Stable tag: 4.3.1
-Requires PHP: 7.0
+Requires PHP: 7.3
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
 Create contact, survey, payment, and login forms with drag-and-drop, free email notification templates, and conditional logic.
@@ -447,7 +447,6 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 
 * Security: Improved form builder security and set up the i18n translation and localization infrastructure.
 
-= 4.2.1 =
 = 4.2.0 =
 
 * New: Added an onboarding wizard for new installations, with setup progress and direct links to the relevant settings tabs.

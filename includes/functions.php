@@ -4,7 +4,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-require_once __DIR__ . '/json-efb.php';
+if (is_readable(__DIR__ . '/json-efb.php')) {
+    require_once __DIR__ . '/json-efb.php';
+}
 
 /**
  * Return whether a genuinely new installation should show first-run setup.

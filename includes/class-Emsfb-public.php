@@ -1079,7 +1079,8 @@ public function check_nonce_permission_efb($request) {
 				$this->db = $wpdb;
 			}
 
-			$this->id = end($id);
+			// WordPress < 6.5 passes '' (not an array) for a shortcode without attributes.
+			$this->id = is_array($id) ? end($id) : $id;
 			$this->id = intval($this->id);
 			$sid = $this->efbFunction->efb_code_validate_create( $this->id , 0, 'visit' , 0);
 			$value_form_data = $this->get_form_data_efb($this->id, array('form_structer', 'form_type'));
@@ -5529,7 +5530,13 @@ public function check_nonce_permission_efb($request) {
 
 		if (class_exists('Emsfb\\Emsfb_Logic_Validator')) {
 			$validator = new \Emsfb\Emsfb_Logic_Validator();
-			return $validator->build_values_map($form_fields_array, $submitted_values);
+			if (is_callable(array($validator, 'build_values_map'))) {
+				try {
+					return $validator->build_values_map($form_fields_array, $submitted_values);
+				} catch (\Throwable $error) {
+					// Fall through to the built-in values map.
+				}
+			}
 		}
 
 		$values = [];
@@ -5578,13 +5585,21 @@ public function check_nonce_permission_efb($request) {
 	private function efb_evaluate_conditional_group($group, $values) {
 		if (is_array($this->efb_conditional_form) && class_exists('Emsfb\\Emsfb_Logic_Validator')) {
 			$validator = new \Emsfb\Emsfb_Logic_Validator();
-			$validator->set_environment($this->efb_conditional_environment_for_validator());
-			return (bool) $validator->evaluate_condition_group(
-				$this->efb_conditional_form,
-				$group,
-				$values,
-				$this->efb_conditional_rows
-			);
+			// Logic add-on builds before 4.2 declare this method private; a stale
+			// build must fall back instead of fataling the submission.
+			if (is_callable(array($validator, 'evaluate_condition_group'))) {
+				try {
+					$validator->set_environment($this->efb_conditional_environment_for_validator());
+					return (bool) $validator->evaluate_condition_group(
+						$this->efb_conditional_form,
+						$group,
+						$values,
+						$this->efb_conditional_rows
+					);
+				} catch (\Throwable $error) {
+					// Fall through to the built-in evaluator.
+				}
+			}
 		}
 		return $this->efb_evaluate_conditional_group_fallback($group, $values);
 	}
