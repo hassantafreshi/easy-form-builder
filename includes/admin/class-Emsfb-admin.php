@@ -19,8 +19,15 @@ class Admin {
         if (!function_exists('wp_get_current_user')) {
             include(ABSPATH . "wp-includes/pluggable.php");
         }
-        if (is_admin() and is_super_admin()) {
-            $this->add_cap();
+        if (is_admin()) {
+            // A network-activated plugin loads before WordPress defines its cookie
+            // constants, so is_super_admin() here was a fatal error (AUTH_COOKIE) on
+            // every multisite admin request. Grant the capabilities once the user exists.
+            if (did_action('init')) {
+                $this->maybe_add_cap_efb();
+            } else {
+                add_action('init', [$this, 'maybe_add_cap_efb'], 1);
+            }
         }
         add_action('admin_enqueue_scripts', [$this, 'admin_assets']);
         add_action('admin_menu', [$this, 'admin_menu']);
@@ -77,6 +84,12 @@ class Admin {
             'Emsfb_autofill_api_efb',
             'Emsfb_human_shield_efb',
         );
+    }
+
+    public function maybe_add_cap_efb() {
+        if (is_super_admin()) {
+            $this->add_cap();
+        }
     }
 
     public function add_cap() {

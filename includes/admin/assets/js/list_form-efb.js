@@ -2999,9 +2999,9 @@ function fun_set_setting_emsFormBuilder(state_auto = 0, done) {
     if (el.type == "text" || el.type == "email" || el.type == "textarea" || el.type == "hidden" || el.type == "color" || el.type == "tel") {
       if (id == "emailTemp_emsFirmBuilder") {
         let v = el.value.replace(/(\r\n|\r|\n|\t)+/g, '');
-        v = u(v);
-        v = v.replace(/(["])+/g, `'`);
-        return v;
+        // The server rewrites double quotes attribute by attribute; a blind swap here
+        // broke values such as style="font-family:'Open Sans'".
+        return u(v);
       }
       return el.value;
     } else if (el.type == "checkbox") {
@@ -3197,6 +3197,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0, done) {
       return false;
     }else if(typeof text == 'object'){
       for(let i in text){
+        if (typeof text[i] !== 'string') continue;
         text[i] = text[i].replace(/(["])+/g, `̎ᐥ`);
         text[i] = text[i].replace(/(['])+/g, `ᐠ`);
         text[i]= sanitize_text_efb(text[i]);

@@ -1,5 +1,6 @@
 <?php
 if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
+if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
 /** In-process REST checks for the prepare/status quotas. Removes its session rows and counters. */
 require_once dirname(__DIR__, 4) . '/wp-load.php';
 global $wpdb;

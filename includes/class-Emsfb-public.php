@@ -3322,7 +3322,7 @@ public function check_nonce_permission_efb($request) {
 						}
 					}
 				}
-				$this->id = $submission_type == "payment" ? sanitize_text_field($request_data['payid']) : $this->id;
+				$this->id = $submission_type == "payment" ? (isset($request_data['payid']) ? sanitize_text_field($request_data['payid']) : '') : $this->id;
 				$skip_captcha = $submission_type != "payment" ? $form_fields_array[0]['captcha'] : "";
 				if ($is_valid == 0) {
 					$response = ['success' => false, 'm' => $error_message, 'field_id' => $error_field_id];
@@ -3633,7 +3633,7 @@ public function check_nonce_permission_efb($request) {
 						exit;
 					break;
 					case "payment":
-							$id = sanitize_text_field($request_data['payid']);
+							$id = isset($request_data['payid']) ? sanitize_text_field($request_data['payid']) : '';
 							$table_name_ = $this->db->prefix . "emsfb_msg_";
 							$currentDateTime = date('Y-m-d H');
 							$payment_gateway = isset($request_data['payment']) ? sanitize_text_field($request_data['payment']) : 'stripe';
@@ -3758,7 +3758,7 @@ public function check_nonce_permission_efb($request) {
 								 * on a form built only from payment fields. */
 								$email_content_rows = array_values($filtered);
 								$this->value = sanitize_text_field(json_encode($filtered, JSON_UNESCAPED_UNICODE));
-								$this->id = sanitize_text_field($request_data['payid']);
+								$this->id = isset($request_data['payid']) ? sanitize_text_field($request_data['payid']) : '';
 								$db_update_result = $this->update_message_db();
 								if ($payment_gateway == "paypal") {
 									// error_log('[EFB][PayPal][SUBMIT] update_message_db result=' . var_export($db_update_result, true) . ', track=' . $this->id . ', final_count=' . count($filtered));
@@ -6377,11 +6377,16 @@ public function check_nonce_permission_efb($request) {
 				$this->id
 			)
 		);
-		$fs =\emsfb_json_normalize_efb($value_form[0]->form_structer);
-		$fs_ = json_decode($fs,true);
+		$fs = empty($value_form) ? '' : \emsfb_json_normalize_efb($value_form[0]->form_structer);
+		$fs_ = is_string($fs) && $fs !== '' ? json_decode($fs,true) : null;
 		$val =\emsfb_json_normalize_efb($val_);
-		$val_ = json_decode($val,true);
-		$paymentmethod = $fs_[0]['paymentmethod'];
+		$val_ = is_string($val) && $val !== '' ? json_decode($val,true) : null;
+		if (!is_array($fs_) || !isset($fs_[0]) || !is_array($fs_[0]) || !is_array($val_)) {
+			$m = esc_html__('Stripe', 'easy-form-builder').'->'.	esc_html__('error', 'easy-form-builder') . ' 400';
+			wp_send_json_success(['success' => false, 'm' => $m], 200);
+			return;
+		}
+		$paymentmethod = isset($fs_[0]['paymentmethod']) ? $fs_[0]['paymentmethod'] : '';
 		$price_c =0;
 		$price_f=0;
 		$email ='';
@@ -8717,11 +8722,32 @@ public function check_nonce_permission_efb($request) {
 		$price_f =0;
 		$email ='';
 		$valobj =[];
+		/* The submitted values come straight from the request (the PayPal add-on also
+		 * calls this). A value that is not a list of rows, or a price that is not a
+		 * number, was a TypeError in count()/abs() on PHP 8 - a 500 instead of an answer. */
+		$invalid = static function () {
+			$msg = esc_html__('Invalid payment selection. Please review your choices and try again. If the problem persists, contact the site administrator.', 'easy-form-builder');
+			wp_send_json_success(['success' => false, 'm' => $msg], 200);
+		};
+		if (!is_array($val_) || !is_array($fs_)) {
+			$invalid();
+			return ['price_total' => 0, 'email' => '', 'valobj' => []];
+		}
 		for ($i=0; $i <count($val_) ; $i++) {
 			$a=-1;
-			if(isset($val_[$i]['price'])){
-				if($val_[$i]['price'] ) $price_c += abs($val_[$i]['price']);
-				if($val_[$i]['type']=="email" ) $email = $val_[$i]['value'];
+			if(isset($val_[$i]) && is_array($val_[$i]) && isset($val_[$i]['price'])){
+				$row_price = $val_[$i]['price'];
+				if (is_array($row_price) || is_object($row_price) || (is_string($row_price) && $row_price !== '' && !is_numeric($row_price))) {
+					$invalid();
+					return ['price_total' => 0, 'email' => '', 'valobj' => []];
+				}
+				if (isset($val_[$i]['ids']) && !is_string($val_[$i]['ids'])) {
+					$invalid();
+					return ['price_total' => 0, 'email' => '', 'valobj' => []];
+				}
+				if(!isset($val_[$i]['type'])) $val_[$i]['type'] = '';
+				if($row_price ) $price_c += abs($row_price);
+				if($val_[$i]['type']=="email" && isset($val_[$i]['value']) && is_string($val_[$i]['value']) ) $email = $val_[$i]['value'];
 				$iv = $val_[$i];
 				if($iv['type']=="paySelect" || $iv['type']=="payRadio" || $iv['type']=="payCheckbox"){
 					$filtered = array_filter($fs_, function($item) use ($iv) {

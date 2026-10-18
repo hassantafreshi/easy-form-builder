@@ -166,7 +166,7 @@ class Install {
 					'apiKeyMap' => '',
 					'smtp' => false,
 					'bootstrap' => false,
-					'emailTemp' => \Emsfb::normalize_email_template_quotes_efb(\Emsfb::get_default_email_template_efb()),
+					'emailTemp' => \Emsfb::get_default_email_template_efb(),
 					'email_key' => $rand,
 					// Both response-box switches ship ON: the panel writes real JSON
 					// booleans for these toggles, so seed them the same way instead of

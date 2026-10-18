@@ -21,6 +21,7 @@ async function confirm_stripe_payment_efb(paymentIntentId, trackid, formId) {
     window.addEventListener('online', done);
   });
   let freshContext = false;
+  let refusedNonce = '';
   for (let attempt = 0; attempt < delays.length; attempt++) {
     if (attempt > 0) {
       if (Date.now() + delays[attempt] > deadline) break;
@@ -37,8 +38,9 @@ async function confirm_stripe_payment_efb(paymentIntentId, trackid, formId) {
     } catch (error) {
       context = null;
     }
-    if ((!context || context.legacy) && freshContext && typeof efb_refresh_nonce === 'function') {
-      // The fallback context holds the page nonce the server just refused: fetch a new one.
+    if (freshContext && (!context || context.legacy || context.nonce === refusedNonce) && typeof efb_refresh_nonce === 'function') {
+      // The fallback context (the page nonce, or a context prepared earlier on this page when the
+      // route is unreachable) can hold the nonce the server just refused: fetch a new one.
       let fresh = false;
       try { fresh = await efb_refresh_nonce((context && context.sid) || efb_var.sid || '', formId); } catch (error) {}
       if (context && fresh) context = Object.assign({}, context, { nonce: fresh });
@@ -82,6 +84,7 @@ async function confirm_stripe_payment_efb(paymentIntentId, trackid, formId) {
     if (response.status === 409 && res && res.data) return 'rejected';
     if (response.status === 403 && res && ['rest_cookie_invalid_nonce', 'efb_nonce_expired', 'efb_nonce_missing'].includes(res.code)) {
       freshContext = true;
+      refusedNonce = confirmHeaders.get('X-WP-Nonce') || '';
       continue;
     }
     if (response.status === 408 || response.status === 425 || response.status === 429 || response.status >= 500 || (response.ok && !res)) continue;

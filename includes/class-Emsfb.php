@@ -1955,7 +1955,7 @@ class Emsfb {
             . '<tr><td style="padding:15px 25px;color:#64748b;font:12px/1.6 Arial,sans-serif;text-align:center;">' . $safe_disclaimer . '</td></tr>'
             . '</table></td></tr></table></body></html>';
 
-        return $html . "\n<!-- EFBDATA:" . rawurlencode($builder_json) . ' -->';
+        return self::normalize_email_template_quotes_efb($html . "\n<!-- EFBDATA:" . rawurlencode($builder_json) . ' -->');
     }
 
     public static function get_default_settings_efb() {

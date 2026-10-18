@@ -421,6 +421,10 @@ For more information, visit the official website:
 
 == Upgrade Notice ==
 
+= 4.3.1 =
+
+Recommended update. Verifies Stripe payments on the server, keeps form pages out of page caches, and fixes Multisite network activation and the tracking page on older WordPress. Purge your page cache and CDN after updating. Requires WordPress 5.7+ and PHP 7.3+.
+
 = 4.3.0 =
 
 Mandatory update. Improves form builder security and sets up the i18n translation and localization infrastructure. Back up your site before updating.
@@ -441,7 +445,33 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 
 = 4.3.1 =
 
-* Improved: The email test report now warns about active page caching plugins, SiteGround and Swift Performance Lite are detected, and form submissions and replies containing double quotes no longer fail.
+* Security: Stripe one-time payments are now verified with Stripe on the server before the form is submitted. A confirmation that fails for a moment after the card was charged is retried and the form is still submitted, and pending payments are re-checked in the background.
+
+* New: Pages that show a form in their content, and the tracking and payment views, are kept out of page caches (LiteSpeed, WP Rocket, W3 Total Cache, WP Super Cache, WP Fastest Cache, WP-Optimize, Cache Enabler, SiteGround, Cloudflare and others). Pages with a form only in a sidebar, footer or widget stay cached. Developers can adjust this with the `emsfb_cache_bypass` filter.
+
+* New: Form scripts are excluded from script optimizers (Cloudflare Rocket Loader, delay/defer JavaScript options) and wait for jQuery when it loads late.
+
+* New: Each form gets a short-lived session before it is submitted. When a firewall, a REST API restriction or a rate limit blocks that step, the form falls back to the 4.3.0 request, which the server still fully validates.
+
+* New: A dashboard notice reports form requests that fail on the server. It can be dismissed and shows details only on Easy Form Builder screens.
+
+* Fixed: Network activation on WordPress Multisite caused a fatal error on admin pages.
+
+* Fixed: The confirmation code (tracking) page caused a fatal error on WordPress versions before 6.5 with PHP 8.
+
+* Fixed: Custom dashboard texts saved by version 3.x stopped the settings from saving.
+
+* Fixed: Apostrophes inside email template styles (for example font names) were broken when the template was saved.
+
+* Fixed: Form submissions and replies containing double quotes failed.
+
+* Improved: Reinstalling add-ons after an update is time-limited, so admin pages no longer wait on an add-on server that does not answer.
+
+* Improved: The email test report warns about active page caching plugins, and SiteGround and Swift Performance Lite are detected.
+
+* Improved: Payment requests with malformed values get a clear error message instead of a server error.
+
+* Changed: Requires WordPress 5.7 or later and PHP 7.3 or later.
 
 = 4.3.0 =
 

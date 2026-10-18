@@ -1,4 +1,5 @@
 <?php
+if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
 /**
  * Stripe one-time payment resilience: confirmation endpoint and background
  * reconciliation, with the real Stripe SDK and a local HTTP client (no network,

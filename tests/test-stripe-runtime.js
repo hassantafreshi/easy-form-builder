@@ -26,6 +26,8 @@ function confirmSandbox(responses, options = {}) {
           // ({legacy:true}) and throws only for a refusal of the form context itself.
           if (options.prepareRefused) { const e = new Error('The form context expired.'); e.status = 409; e.code = 'efb_context_expired'; throw e; }
           if (options.prepareLegacy) return { nonce: sandbox.efb_var.nonce, sid: 'form-sid', legacy: true };
+          // A route that is down after an earlier success answers with the context prepared before.
+          if (options.prepareReused) return { nonce: 'reused-nonce', sid: 'reused-sid', runtime_token: 'rt' };
           return { nonce: force ? 'forced-nonce' : 'live-nonce', sid: 'live-sid' };
         }
       },
@@ -189,6 +191,15 @@ async function exerciseUI(mode) {
   assert.strictEqual(t.calls[0].init.headers.get('X-WP-Nonce'),'cached-nonce');
   assert.strictEqual(t.calls[1].init.headers.get('X-WP-Nonce'),'refreshed-nonce');
   assert.strictEqual(t.calls[1].init.headers.get('sid'),'form-sid');
+
+  // Stale nonce while the forced prepare can only hand back the context prepared earlier on this page
+  // (same refused nonce, no legacy flag): the refresh still runs instead of replaying the dead nonce.
+  t = confirmSandbox([staleNonce, ok], {prepareReused:true, refreshNonce:true});
+  assert.strictEqual(await t.sandbox.confirm_stripe_payment_efb('pi_test','track-test',134), 'verified');
+  assert.deepStrictEqual(t.preparations, [false, true]);
+  assert.strictEqual(t.calls[0].init.headers.get('X-WP-Nonce'),'reused-nonce');
+  assert.strictEqual(t.calls[1].init.headers.get('X-WP-Nonce'),'refreshed-nonce');
+  assert.strictEqual(t.calls[1].init.headers.get('sid'),'reused-sid');
 
   // Stale nonce: a forced prepare, then the replay.
   t = confirmSandbox([staleNonce, ok]);
