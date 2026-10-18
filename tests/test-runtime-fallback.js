@@ -7,7 +7,7 @@ const {webcrypto}=require('node:crypto');
 const health=fs.readFileSync('public/assets/js/request-health-efb.js','utf8');
 const core=fs.readFileSync('public/assets/js/core-efb.js','utf8');
 const slice=(s,a,b)=>s.slice(s.indexOf(a),s.indexOf(b,s.indexOf(a)));
-const reply=(status,body)=>({ok:status>=200&&status<300,status,json:async()=>{if(body==='html')throw Error('Unexpected token <');return body;}});
+const reply=(status,body)=>{const r={ok:status>=200&&status<300,status,json:async()=>{if(body==='html')throw Error('Unexpected token <');return body;}};r.clone=()=>r;return r;};
 let now=1e12;
 function boot(route,extra={}) {
   const calls=[];
@@ -85,5 +85,23 @@ function boot(route,extra={}) {
   assert.equal(await stripe.sandbox.confirm_stripe_payment_efb('pi_test','track',7),'verified');
   const confirm=stripe.calls.find(c=>c.url.endsWith('stripe/confirm'));
   assert.equal(confirm.options.headers.get('X-WP-Nonce'),'page-nonce');assert.equal(confirm.options.headers.get('sid'),'form-7-sid');
-  console.log('PASS: prepare fallback for 429/network/origin/route/WAF/5xx/malformed, final refusals, context reuse, backoff, admin nonce, ticket fallback, public transport and Stripe confirm');
+  // A refusal that carries its own message (Human Shield strict mode 403, rate limit 429) is shown
+  // as that message instead of the generic jQuery error; other failures keep the generic text.
+  for (const [status,body,expected] of [
+    [403,{success:false,data:{success:false,m:'Your request looked too fast or unusual.',code:'efb_human_shield_blocked'}},'Your request looked too fast or unusual.'],
+    [429,{success:false,data:{success:false,m:'Too many requests. Please try again shortly.'}},'Too many requests. Please try again shortly.'],
+    [403,'html','JQ-500'],
+    [403,{code:'rest_forbidden',message:'Sorry'},'JQ-500'],
+    [500,{success:false,data:{m:'internal detail'}},'JQ-500'],
+  ]) {
+    const shown=[];
+    const sub=boot(()=>reply(status,body),{efb_refresh_nonce:async()=>false,AbortSignal,localStorage:{getItem:()=>null,removeItem(){}},
+      ajax_object_efm:{text:{eJQ500:'JQ-500',nonceExpired:'expired'}},
+      efb_report_submit_ajax_error_efb(){},response_fill_form_efb:async(res)=>{shown.push(res.data.m);},document:{getElementById:()=>null,addEventListener(){}}});
+    sub.sandbox.window.EFBRuntime=undefined;
+    vm.runInContext(slice(core,'async function efb_is_nonce_error_efb','post_api_tracker_check_efb='),sub.sandbox);
+    await sub.sandbox.post_api_forms_efb({type:'form',sid:'s'},7);
+    assert.deepEqual(shown,[expected],`HTTP ${status}`);
+  }
+  console.log('PASS: prepare fallback for 429/network/origin/route/WAF/5xx/malformed, final refusals, context reuse, backoff, admin nonce, ticket fallback, public transport, Stripe confirm and server refusal messages');
 })().catch(error=>{console.error(error);process.exitCode=1;});

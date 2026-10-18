@@ -455,7 +455,7 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 
 * New: A dashboard notice reports form requests that fail on the server. It can be dismissed and shows details only on Easy Form Builder screens.
 
-* Fixed: Network activation on WordPress Multisite caused a fatal error on admin pages.
+* Fixed: Network activation on WordPress Multisite caused a fatal error on admin pages, and sub-sites never got their database tables. Each sub-site now gets them the first time its dashboard opens.
 
 * Fixed: The confirmation code (tracking) page caused a fatal error on WordPress versions before 6.5 with PHP 8.
 
@@ -470,6 +470,8 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 * Improved: The email test report warns about active page caching plugins, and SiteGround and Swift Performance Lite are detected.
 
 * Improved: Payment requests with malformed values get a clear error message instead of a server error.
+
+* Improved: When a submission is refused (for example by Form Security & Spam Protection in strict mode or a rate limit), visitors see the actual reason instead of a generic error.
 
 * Changed: Requires WordPress 5.7 or later and PHP 7.3 or later.
 

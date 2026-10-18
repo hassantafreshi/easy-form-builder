@@ -2135,6 +2135,15 @@ async function efb_is_nonce_error_efb(response) {
     return ['rest_cookie_invalid_nonce', 'efb_nonce_expired', 'efb_nonce_missing'].includes(data.code);
   } catch (e) { return false; }
 }
+// The message an EFB endpoint (or an add-on such as Human Shield) put in a refusal:
+// {success:false, data:{m:'...'}}. Empty when the body is not that shape.
+async function efb_response_message_efb(response) {
+  try {
+    const data = await response.clone().json();
+    const m = data && data.data && data.data.m;
+    return typeof m === 'string' && m.trim() ? m : '';
+  } catch (e) { return ''; }
+}
 async function efb_fetch_public_request_efb(url, options, operation, sid, fid) {
   try {
     options=Object.assign({},options,{cache:'no-store',credentials:'same-origin',signal:typeof AbortSignal!=='undefined' && AbortSignal.timeout ? AbortSignal.timeout(45000) : undefined});
@@ -2203,12 +2212,19 @@ async function efb_fetch_public_request_efb(url, options, operation, sid, fid) {
       }
     }
     if (!response.ok) {
+      const serverMessage = response.status >= 400 && response.status < 500 ? await efb_response_message_efb(response) : '';
       if (response.status === 403) {
         const msg403 = await efb_is_nonce_error_efb(response)
           ? (ajax_object_efm?.text?.nonceExpired || 'Your session has expired. Please refresh the page and try again.')
-          : (ajax_object_efm?.text?.eJQ500 || 'The request was rejected. Please try again later.');
+          : (serverMessage || ajax_object_efm?.text?.eJQ500 || 'The request was rejected. Please try again later.');
         efb_report_submit_ajax_error_efb(new Error(msg403), { status: response.status, url, formId: form_id });
         await response_fill_form_efb({ success: false, data: { success: false, m: msg403, efb_ajax_submission_error: true } }, form_id);
+        return;
+      }
+      if (serverMessage) {
+        // A refusal with its own message (Human Shield rate limit, validation): show it, not a jQuery error.
+        efb_report_submit_ajax_error_efb(new Error(serverMessage), { status: response.status, url, formId: form_id });
+        await response_fill_form_efb({ success: false, data: { success: false, m: serverMessage, efb_ajax_submission_error: true } }, form_id);
         return;
       }
       const requestError = new Error(`Network response was not ok (HTTP ${response.status})`);

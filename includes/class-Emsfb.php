@@ -1593,6 +1593,13 @@ class Emsfb {
 			return;
 		}
 
+        // Network activation runs the activation hook for the main site only, so a
+        // sub-site (existing or created later) had no EFB tables and could not save a
+        // form. Install once per site the first time its dashboard loads.
+        if (is_multisite() && !get_option('emsfb_site_installed_efb')) {
+            $this->ensure_site_tables_efb();
+        }
+
         if (version_compare($installed_version, $current_version, '<')) {
             $this->run_upgrade_tasks_efb($installed_version, $current_version);
             update_option('emsfb_version', $current_version);
@@ -1601,6 +1608,24 @@ class Emsfb {
             }
         }
 
+    }
+
+    private function ensure_site_tables_efb() {
+        global $wpdb;
+        $table = $wpdb->prefix . 'emsfb_form';
+        $exists = static function () use ($wpdb, $table) {
+            return $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $wpdb->esc_like($table))) === $table;
+        };
+        if (!$exists() && class_exists('\Emsfb\Install')) {
+            try {
+                \Emsfb\Install::install();
+            } catch (\Throwable $e) {
+                return; // Retried on the next dashboard load.
+            }
+        }
+        if ($exists()) {
+            update_option('emsfb_site_installed_efb', 1);
+        }
     }
 
     private function run_upgrade_tasks_efb($old_version, $new_version) {
