@@ -25,6 +25,7 @@ namespace {
     $ref=new ReflectionClass('Emsfb\\_Public');
     $public=$ref->newInstanceWithoutConstructor();
     $original_health=get_option(\Emsfb\Request_Health::OPTION,null);
+    $original_event=wp_next_scheduled('emsfb_stripe_reconcile_efb'); // the outage check queues a background re-check
     $rows=array(); $passed=0;
     $check=static function($ok,$label)use(&$passed){if(!$ok)throw new RuntimeException($label);$passed++;};
     $call=static function($intent,$track)use($public){
@@ -75,5 +76,7 @@ namespace {
     } finally {
         foreach($rows as $id)$wpdb->delete($wpdb->prefix.'emsfb_pay_',array('id'=>$id));
         if($original_health===null)delete_option(\Emsfb\Request_Health::OPTION);else update_option(\Emsfb\Request_Health::OPTION,$original_health,false);
+        wp_clear_scheduled_hook('emsfb_stripe_reconcile_efb');
+        if($original_event)wp_schedule_single_event($original_event,'emsfb_stripe_reconcile_efb');
     }
 }

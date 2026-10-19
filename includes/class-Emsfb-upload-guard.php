@@ -3,7 +3,9 @@
 namespace Emsfb;
 
 defined('ABSPATH') || exit;
-require_once __DIR__ . '/json-efb.php';
+if (is_readable(__DIR__ . '/json-efb.php')) {
+	require_once __DIR__ . '/json-efb.php';
+}
 
 /**
  * Single decision point for "may this file be written to disk, and may this

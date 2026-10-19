@@ -3,7 +3,11 @@
 if (!defined('ABSPATH')) {
     die("Direct access of plugin files is not allowed.");
 }
-require_once __DIR__ . '/json-efb.php';
+// Loaded through the missing-file guard as well (see includes()), so an
+// incomplete package leaves the plugin inert instead of fataling every request.
+if (is_readable(__DIR__ . '/json-efb.php')) {
+    require_once __DIR__ . '/json-efb.php';
+}
 
 class Emsfb {
     public $plugin_path = "";
@@ -310,6 +314,8 @@ class Emsfb {
     }
 
     public function includes(): void {
+        // The JSON helpers are used by settings, forms, uploads and add-ons alike.
+        $json_ok = function_exists('emsfb_json_decode_efb') || $this->require_plugin_file_efb('includes/json-efb.php');
         $runtime_ok = $this->require_plugin_file_efb('includes/class-Emsfb-form-runtime.php');
         if ($runtime_ok) {
             \Emsfb\Form_Runtime::register();
@@ -321,7 +327,7 @@ class Emsfb {
         }
         $cache_ok = $this->require_plugin_file_efb('includes/class-Emsfb-cache-compat.php');
         if ($cache_ok) \Emsfb\Cache_Compat::register();
-        $core_ok = $this->require_plugin_file_efb('includes/class-Emsfb-install.php') && $runtime_ok && $health_ok && $cache_ok;
+        $core_ok = $this->require_plugin_file_efb('includes/class-Emsfb-install.php') && $json_ok && $runtime_ok && $health_ok && $cache_ok;
         $core_ok = $this->require_plugin_file_efb('includes/class-Emsfb-email-monitor.php') && $core_ok;
         $core_ok = $this->require_plugin_file_efb('includes/class-Emsfb-addon-compatibility.php') && $core_ok;
 
@@ -1358,6 +1364,7 @@ class Emsfb {
     public static function plugin_deactivation_cleanup_efb()
     {
         wp_clear_scheduled_hook('emsfb_cache_scan_v1');
+        wp_clear_scheduled_hook('emsfb_stripe_reconcile_efb');
         if (class_exists('\Emsfb\Email_Monitor')) {
             \Emsfb\Email_Monitor::deactivate();
         }
@@ -1586,6 +1593,13 @@ class Emsfb {
 			return;
 		}
 
+        // Network activation runs the activation hook for the main site only, so a
+        // sub-site (existing or created later) had no EFB tables and could not save a
+        // form. Install once per site the first time its dashboard loads.
+        if (is_multisite() && !get_option('emsfb_site_installed_efb')) {
+            $this->ensure_site_tables_efb();
+        }
+
         if (version_compare($installed_version, $current_version, '<')) {
             $this->run_upgrade_tasks_efb($installed_version, $current_version);
             update_option('emsfb_version', $current_version);
@@ -1594,6 +1608,24 @@ class Emsfb {
             }
         }
 
+    }
+
+    private function ensure_site_tables_efb() {
+        global $wpdb;
+        $table = $wpdb->prefix . 'emsfb_form';
+        $exists = static function () use ($wpdb, $table) {
+            return $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $wpdb->esc_like($table))) === $table;
+        };
+        if (!$exists() && class_exists('\Emsfb\Install')) {
+            try {
+                \Emsfb\Install::install();
+            } catch (\Throwable $e) {
+                return; // Retried on the next dashboard load.
+            }
+        }
+        if ($exists()) {
+            update_option('emsfb_site_installed_efb', 1);
+        }
     }
 
     private function run_upgrade_tasks_efb($old_version, $new_version) {
@@ -1608,6 +1640,7 @@ class Emsfb {
         // A new release is a new situation: let the first page load retry at once
         // instead of waiting out a backoff left by a failure on the old version.
         delete_transient('emsfb_addons_dl_backoff');
+        delete_transient('emsfb_addon_recovery_running');
         delete_option('emsfb_addons_dl_failures');
 
         // Keep only the add-on language files of locales this site uses. A no-op on
@@ -1798,6 +1831,30 @@ class Emsfb {
      *
      * @return string
      */
+    /**
+     * Rewrite double-quoted HTML attributes as single-quoted ones (apostrophes inside
+     * become &#39;) and turn any remaining double quote into an apostrophe.
+     *
+     * The settings row is JSON, and readers shipped before 4.3.1 (add-ons, and 4.3.0
+     * itself after a rollback) decode it with json_decode(str_replace('\\', '', $raw)),
+     * which fails as soon as a value contains an escaped double quote.
+     *
+     * @param string $html Email template HTML.
+     * @return string
+     */
+    public static function normalize_email_template_quotes_efb($html) {
+        if (!is_string($html) || $html === '' || strpos($html, '"') === false) {
+            return $html;
+        }
+        $normalized = preg_replace_callback('/(\s[\w:.-]+)\s*=\s*"([^"]*)"/', static function ($m) {
+            return $m[1] . "='" . str_replace("'", '&#39;', $m[2]) . "'";
+        }, $html);
+        if (!is_string($normalized)) {
+            $normalized = $html;
+        }
+        return str_replace('"', "'", $normalized);
+    }
+
     public static function get_default_email_template_efb() {
         $direction = function_exists('is_rtl') && is_rtl() ? 'rtl' : 'ltr';
         $message_align = $direction === 'rtl' ? 'right' : 'left';
@@ -1923,7 +1980,7 @@ class Emsfb {
             . '<tr><td style="padding:15px 25px;color:#64748b;font:12px/1.6 Arial,sans-serif;text-align:center;">' . $safe_disclaimer . '</td></tr>'
             . '</table></td></tr></table></body></html>';
 
-        return $html . "\n<!-- EFBDATA:" . rawurlencode($builder_json) . ' -->';
+        return self::normalize_email_template_quotes_efb($html . "\n<!-- EFBDATA:" . rawurlencode($builder_json) . ' -->');
     }
 
     public static function get_default_settings_efb() {

@@ -7,6 +7,7 @@ defined('ABSPATH') || exit;
 class Cache_Compat {
     const META = '_emsfb_dynamic_page_v1';
     const SCAN = 'emsfb_cache_scan_v1';
+    const LSCWP_REPAIR = 'emsfb_lscwp_exc_repaired_v1';
     private static $dynamic = false;
     private static $ids = array();
     private static $canonical = array();
@@ -24,9 +25,12 @@ class Cache_Compat {
         add_action('activated_plugin', array(__CLASS__, 'rescan'));
         add_action('update_option_permalink_structure', array(__CLASS__, 'rescan'));
         add_filter('rocket_cache_reject_uri', array(__CLASS__, 'rocket_paths'));
-        foreach (array('option_litespeed.conf.cache-exc', 'default_option_litespeed.conf.cache-exc') as $hook) {
-            add_filter($hook, array(__CLASS__, 'litespeed_paths'));
-        }
+        // LiteSpeed needs no URI rule: it stores a page only when PHP marks it cacheable,
+        // and bypass() marks form pages through litespeed_control_set_nocache. Filtering
+        // its stored "Do Not Cache URIs" (a JSON string) broke the administrator's own
+        // rules and was written back on the next LiteSpeed settings save.
+        add_filter('litespeed_buffer_finalize', array(__CLASS__, 'litespeed_buffer'), 19);
+        add_action('admin_init', array(__CLASS__, 'repair_litespeed_exclusions'));
         // These callbacks preserve another component's decision to bypass caching.
         add_filter('wpo_can_cache_page', array(__CLASS__, 'can_cache'), 999);
         add_filter('do_createsupercache', array(__CLASS__, 'can_cache'), 999);
@@ -34,8 +38,12 @@ class Cache_Compat {
         add_filter('cache_enabler_bypass_cache', array(__CLASS__, 'skip_optimization'), 999);
         add_filter('jetpack_boost_cache_request_cacheable', array(__CLASS__, 'can_cache'), 999);
         add_filter('sgo_exclude_urls_from_cache', array(__CLASS__, 'relative_paths'));
-        foreach (array('option_breeze_exclude_url_pages','default_option_breeze_exclude_url_pages') as $hook) add_filter($hook, array(__CLASS__, 'exclude_page_ids'));
-        foreach (array('sgo_js_async_exclude','sgo_javascript_combine_exclude','jetpack_boost_render_blocking_js_exclude_handles') as $hook) add_filter($hook, array(__CLASS__, 'exclude_handles'));
+        // Breeze honours DONOTCACHEPAGE. Its page exclusion option is left alone: Breeze
+        // saves the filtered value back on every page save.
+        // Not jetpack_boost_render_blocking_js_exclude_handles: Boost would keep EFB's files in
+        // place but still move their wp_localize_script data (efb_var, ajax_object_efm) to the
+        // end of the page. Unpinned, Boost moves the files and their data together, in order.
+        foreach (array('sgo_js_async_exclude','sgo_javascript_combine_exclude') as $hook) add_filter($hook, array(__CLASS__, 'exclude_handles'));
         add_filter('js_do_concat', array(__CLASS__, 'concat'), 999, 2);
         add_filter('script_loader_tag', array(__CLASS__, 'script_tag'), 999, 3);
         add_filter('script_loader_src', array(__CLASS__, 'asset_src'), 1, 2);
@@ -91,10 +99,49 @@ class Cache_Compat {
     public static function current_page() {
         if (is_admin() || !is_singular()) return;
         $post = get_queried_object();
-        if (self::post_contains($post)) self::bypass();
+        if (self::post_contains($post) && self::wants_bypass('singular', $post->ID, true)) self::bypass();
     }
 
-    /** Also called at render time for page builders and dynamically inserted shortcodes. */
+    /**
+     * Called by the renderer once a form or response box is really printed.
+     *
+     * Only these renders take the page out of page caches and optimizers:
+     * 'render'   a form inside the queried post's own content (page builders that keep
+     *            their layout outside post_content, so current_page() missed it);
+     * 'session'  a form whose add-on scripts still read the page-embedded efb_var.sid
+     *            (Stripe, PayPal, PersiaPay/Zarinpal, Autofill);
+     * 'track', 'state'  visitor-specific views opened from a link;
+     * 'recovery' the temporary add-on repair screen.
+     * A form in a widget, footer, template part or popup leaves the page cacheable:
+     * request-health-efb.js fetches a fresh nonce and session for it (EFBRuntime.prepare).
+     */
+    public static function render_bypass($form_id = 0, $context = 'render') {
+        if (self::$dynamic) return;
+        $default = $context === 'render' ? self::is_main_content() : true;
+        if (self::wants_bypass($context, $form_id, $default)) self::bypass();
+    }
+
+    /**
+     * The shortcode or block is being expanded in the_content of the queried singular post.
+     * Not in_the_loop(): WordPress 6.4+ renders a whole block template, footer part
+     * included, inside the main loop, and older versions render post content outside it.
+     */
+    private static function is_main_content() {
+        if (is_admin() || !is_singular() || !doing_filter('the_content')) return false;
+        $queried = (int) get_queried_object_id();
+        return $queried > 0 && (int) get_the_ID() === $queried;
+    }
+
+    /**
+     * Filter 'emsfb_cache_bypass' (bool $bypass, string $context, int $id): true keeps
+     * the page out of page caches and optimizers, false leaves it cacheable. $context is
+     * 'singular' ($id = post ID; the post content holds a form) or one of the
+     * render_bypass() contexts ($id = form ID).
+     */
+    private static function wants_bypass($context, $id, $default) {
+        return (bool) apply_filters('emsfb_cache_bypass', (bool) $default, (string) $context, (int) $id);
+    }
+
     public static function bypass() {
         self::$dynamic = true;
         if (!defined('DONOTCACHEPAGE')) define('DONOTCACHEPAGE', true);
@@ -104,6 +151,8 @@ class Cache_Compat {
         if (!headers_sent()) {
             nocache_headers();
             header('Cache-Control: private, no-store, no-cache, must-revalidate, max-age=0');
+            // Cloudflare APO follows this header; its plugin sets it to "cache" for guests on init.
+            header('cf-edge-cache: no-cache');
         }
         self::invoke('do_action', array('litespeed_control_set_nocache', 'Easy Form Builder interactive form or response box'));
         if (function_exists('wpfc_exclude_current_page')) self::invoke('wpfc_exclude_current_page');
@@ -151,18 +200,21 @@ class Cache_Compat {
             self::$ids[$blog]=array();self::$canonical[$blog]=array();
             foreach ($rows as $row) {
                 self::$ids[$blog][]=(int)$row->ID;
-                if (is_string($row->meta_value) && $row->meta_value !== '') self::$canonical[$blog][]=$row->meta_value;
+                if (is_string($row->meta_value) && $row->meta_value !== '') self::$canonical[$blog][(int)$row->ID]=$row->meta_value;
             }
         }
         return self::$ids[$blog];
     }
 
-    public static function exclude_page_ids($ids) { return array_values(array_unique(array_merge((array)$ids, self::page_ids()))); }
-
     public static function urls() {
-        self::page_ids();
         // One bounded-to-marked-pages query, including during plugin bootstrap.
-        return array_values(array_unique(self::$canonical[get_current_blog_id()]));
+        self::page_ids();
+        $urls = array();
+        foreach (self::$canonical[get_current_blog_id()] as $id => $url) {
+            // Same opt-out as the request-time check in current_page().
+            if (self::wants_bypass('singular', $id, true)) $urls[] = $url;
+        }
+        return array_values(array_unique($urls));
     }
 
     public static function rocket_paths($paths) {
@@ -212,20 +264,42 @@ class Cache_Compat {
     }
 
     public static function script_tag($tag, $handle, $src) {
-        if (!in_array($handle, self::exclude_handles(array()), true)) return $tag;
-        if (!class_exists('WP_HTML_Tag_Processor')) {
-            $attributes = '';
-            foreach (array('data-no-optimize'=>'1','data-no-defer'=>'1','data-wpacu-skip'=>'1','data-cfasync'=>'false') as $name=>$value) {
-                if (!preg_match('/\b' . $name . '\s*=/i', $tag)) $attributes .= ' ' . $name . '="' . $value . '"';
-            }
-            return preg_replace('/<script\b/i', '<script' . $attributes, $tag, 1);
-        }
+        if (!is_string($tag) || stripos($tag, '<script') === false || !in_array($handle, self::exclude_handles(array()), true)) return $tag;
+        // Every <script> of the handle (translations, before, file, after) gets the same
+        // attributes, so optimizers that honour them keep the group together and in order.
+        // No data-cfasync opt-out: Cloudflare Rocket Loader would then run these files
+        // ahead of their wp_localize_script data and of a <head> jQuery, which it still
+        // defers. WordPress before 6.4 prints that data with no filter to mark it.
+        $attributes = array('data-no-optimize' => '1', 'data-no-defer' => '1', 'data-wpacu-skip' => '1');
+        if (!class_exists('WP_HTML_Tag_Processor')) return self::mark_scripts($tag, $attributes); // WordPress < 6.2
         $processor = new \WP_HTML_Tag_Processor($tag);
-        if ($processor->next_tag('script')) {
-            foreach (array('data-no-optimize','data-no-defer','data-wpacu-skip') as $attribute) $processor->set_attribute($attribute, '1');
-            $processor->set_attribute('data-cfasync','false');
+        while ($processor->next_tag('script')) {
+            foreach ($attributes as $name => $value) $processor->set_attribute($name, $value);
         }
         return $processor->get_updated_html();
+    }
+
+    private static function mark_scripts($tag, $attributes) {
+        $marked = preg_replace_callback('/<script\b[^>]*>/i', static function ($open) use ($attributes) {
+            $add = '';
+            foreach ($attributes as $name => $value) {
+                if (!preg_match('/\s' . preg_quote($name, '/') . '\s*=/i', $open[0])) $add .= ' ' . $name . '="' . $value . '"';
+            }
+            return '<script' . $add . substr($open[0], 7);
+        }, $tag);
+        return is_string($marked) ? $marked : $tag;
+    }
+
+    /**
+     * LiteSpeed reads its JS defer/delay exclusions on init, before a widget, footer or
+     * popup form has enqueued anything, so a jQuery printed in <head> could be deferred
+     * or delayed while EFB's own scripts (data-no-defer) run at once without it. Runs on
+     * the finished page just before LiteSpeed's optimizer (priority 20).
+     */
+    public static function litespeed_buffer($html) {
+        if (!is_string($html) || strpos($html, 'Emsfb-core_js-js') === false) return $html;
+        $marked = preg_replace('/<script\b(?![^>]*\bdata-no-defer\b)(?=[^>]*\bid\s*=\s*["\']jquery-(?:core|migrate)-js["\'])/i', '<script data-no-defer="1"', $html);
+        return is_string($marked) ? $marked : $html;
     }
 
     public static function asset_src($src,$handle) {
@@ -235,25 +309,15 @@ class Cache_Compat {
         return is_readable($path) ? add_query_arg('ver',(string)filemtime($path),$src) : $src;
     }
 
-    public static function litespeed_paths($paths) {
-        $paths = is_array($paths) ? $paths : array_filter(explode("\n", (string) $paths));
-        foreach (self::urls() as $url) {
-            $uri = wp_parse_url($url, PHP_URL_PATH);
-            $query = wp_parse_url($url, PHP_URL_QUERY);
-            if ($query) $uri .= '?' . $query;
-            if ($uri) $paths[] = '^' . $uri . '$';
-        }
-        return array_values(array_unique($paths));
-    }
-
     private static function purge($id, $urls) {
         self::invoke('do_action', array('litespeed_purge_post', $id));
         foreach (array('wpfc_clear_post_cache_by_id','wp_cache_post_change','rocket_clean_post','w3tc_flush_post') as $callback) {
             if (function_exists($callback)) self::invoke($callback,array($id));
         }
         self::invoke('do_action', array('purge_post_cache', $id)); // Breeze public purge hook.
+        // LiteSpeed: litespeed_purge_post above covers every URL tagged with the post;
+        // litespeed_purge_url would only add one admin notice per page during scan().
         foreach (array_unique($urls) as $url) {
-            self::invoke('do_action',array('litespeed_purge_url',$url));
             self::invoke('do_action',array('cache_enabler_clear_page_cache_by_url',$url));
             foreach (array(array('WPO_Page_Cache','delete_cache_by_url'),array('SpeedyCache\\Delete','url')) as $callback) {
                 if (is_callable($callback)) self::invoke($callback,array($url));
@@ -269,7 +333,6 @@ class Cache_Compat {
 
     private static function refresh_config() {
         if (function_exists('rocket_generate_config_file')) self::invoke('rocket_generate_config_file');
-        if (is_callable(array('Breeze_ConfigCache','write_config_cache'))) self::invoke(array('Breeze_ConfigCache','write_config_cache'));
     }
 
     private static function invoke($callback,$args=array()) {
@@ -280,6 +343,49 @@ class Cache_Compat {
             // A cache adapter failure must not break publication or form rendering.
         }
         if (class_exists('Emsfb\\Request_Health')) Request_Health::record('cache',500,'server','cache_adapter_failed');
+    }
+
+    /**
+     * One-time repair for sites that ran a 4.3.1 pre-release with LiteSpeed Cache and then
+     * saved LiteSpeed's settings: "Do Not Cache URIs" may hold the administrator's list as
+     * one JSON string element, nested once more per save. Only elements that themselves
+     * decode to a JSON list of strings are unpacked; every other element is kept exactly
+     * as it is, and a list without such an element is never written.
+     */
+    public static function repair_litespeed_exclusions() {
+        if (!current_user_can('manage_options') || get_option(self::LSCWP_REPAIR)) return;
+        update_option(self::LSCWP_REPAIR, 1);
+        $raw = get_option('litespeed.conf.cache-exc', null);
+        if (!is_string($raw) || strpos($raw, '[') === false) return;
+        $list = json_decode($raw, true);
+        if (!is_array($list) || array_values($list) !== $list) return;
+        $changed = false;
+        $flat = self::unpack_exclusions($list, 0, $changed);
+        if (!$changed) return;
+        $seen = array(); $clean = array();
+        foreach ($flat as $item) {
+            // A repeated rule changes nothing in LiteSpeed's matching; drop the copies.
+            if (is_string($item)) { if (isset($seen[$item])) continue; $seen[$item] = true; }
+            $clean[] = $item;
+        }
+        update_option('litespeed.conf.cache-exc', wp_json_encode($clean));
+    }
+
+    private static function unpack_exclusions($items, $depth, &$changed) {
+        $flat = array();
+        foreach ($items as $item) {
+            if (is_string($item) && $depth < 8) {
+                $trimmed = trim($item);
+                $inner = $trimmed !== '' && $trimmed[0] === '[' ? json_decode($trimmed, true) : null;
+                if (is_array($inner) && array_values($inner) === $inner && count(array_filter($inner, 'is_string')) === count($inner)) {
+                    $changed = true;
+                    $flat = array_merge($flat, self::unpack_exclusions($inner, $depth + 1, $changed));
+                    continue;
+                }
+            }
+            $flat[] = $item;
+        }
+        return $flat;
     }
 
     public static function rescan() {

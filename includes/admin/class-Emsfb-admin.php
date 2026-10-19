@@ -19,8 +19,15 @@ class Admin {
         if (!function_exists('wp_get_current_user')) {
             include(ABSPATH . "wp-includes/pluggable.php");
         }
-        if (is_admin() and is_super_admin()) {
-            $this->add_cap();
+        if (is_admin()) {
+            // A network-activated plugin loads before WordPress defines its cookie
+            // constants, so is_super_admin() here was a fatal error (AUTH_COOKIE) on
+            // every multisite admin request. Grant the capabilities once the user exists.
+            if (did_action('init')) {
+                $this->maybe_add_cap_efb();
+            } else {
+                add_action('init', [$this, 'maybe_add_cap_efb'], 1);
+            }
         }
         add_action('admin_enqueue_scripts', [$this, 'admin_assets']);
         add_action('admin_menu', [$this, 'admin_menu']);
@@ -77,6 +84,12 @@ class Admin {
             'Emsfb_autofill_api_efb',
             'Emsfb_human_shield_efb',
         );
+    }
+
+    public function maybe_add_cap_efb() {
+        if (is_super_admin()) {
+            $this->add_cap();
+        }
     }
 
     public function add_cap() {
@@ -1718,8 +1731,10 @@ class Admin {
                   $v = preg_replace('/behavior\s*:/i', '', $v);
                   $v = preg_replace('/<\s*\/?(iframe|object|embed|form|input|textarea|button|select|svg|path|math|base|link|applet)[^>]*>/i', '', $v);
                   $v = $efbFunction->sanitize_full_html_efb($v);
-                  // JSON encoding preserves HTML attribute quotes; changing
-                  // their delimiter can break CSS values containing apostrophes.
+                  // Store the template without double quotes, as 4.3.0 did: older add-ons and
+                  // older cores (after a rollback) read the raw settings JSON by stripping every
+                  // backslash, which breaks on \". Attribute values keep their apostrophes.
+                  $v = \Emsfb::normalize_email_template_quotes_efb($v);
 
                   if ($efbdata_comment) {
                       $v .= "\n" . $efbdata_comment;

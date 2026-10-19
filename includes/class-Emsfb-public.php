@@ -118,6 +118,9 @@ class _Public {
 		add_action('init',  array($this, 'hide_toolmenu'));
 		add_action('wp_ajax_form_preview_efb', [$this, 'form_preview_efb']);
 		add_action('delete_preview_page_efb', [$this,'delete_preview_page_efb'], 10, 1);
+		// Background re-check of one-time Stripe payments left 'pending' (see reconcile_stripe_payments_efb()).
+		add_action('emsfb_stripe_reconcile_efb', [$this, 'reconcile_stripe_payments_efb']);
+		add_action('emsfb_daily_maintenance', [$this, 'reconcile_stripe_payments_efb'], 20);
 
 		if (!is_admin()) {
 			add_action('wp_enqueue_scripts', [$this, 'init_elementor_compatibility'], 1);
@@ -204,19 +207,17 @@ public function check_nonce_permission_efb($request) {
 }
 
 	/**
-	 * REST callback for Emsfb/v1/nonce/refresh.
+	 * REST callback for Emsfb/v1/forms/session/prepare: a live nonce, sid and
+	 * signed runtime token for one open form.
 	 *
-	 * A form left open past the wp_rest nonce lifetime (12-24h) would otherwise
-	 * fail to submit; the frontend transparently fetches a fresh nonce here and
-	 * retries. To avoid handing a valid CSRF token to any anonymous requester,
-	 * this requires proof of a live form session:
-	 *   - a logged-in user (for whom the nonce is only a CSRF token), OR
-	 *   - a valid, non-expired session id (sid) matching an active emsfb_stts_ row.
-	 * On success the session is "touched" (sliding extension, absolutely capped)
-	 * so a genuinely open form keeps working without repeated 403s.
+	 * It does not spend the nonce/refresh quota. Every visitor calls it, and on a
+	 * shared IP (school, office, mobile carrier) that quota ran out and blocked
+	 * submissions. Only a call that creates a new session row is counted, under
+	 * its own filterable limit; refreshing a verified context never is. The
+	 * browser falls back to the page nonce and sid when this route fails.
 	 */
 	public function prepare_form_session_api($request) {
-		$nonce = $this->efb_nonce_refresh_api();
+		$nonce = $this->efb_issue_rest_nonce_efb();
 		if (is_wp_error($nonce)) return $nonce;
 		$fid = $request->get_param('form_id');
 		if (!is_scalar($fid) || !preg_match('/^[0-9]{1,10}$/D',(string)$fid)) return new \WP_Error('efb_form_invalid','Invalid form.',array('status'=>400));
@@ -235,6 +236,10 @@ public function check_nonce_permission_efb($request) {
 		$this->efbFunction = get_efbFunction();
 		$sid = $proof ? $proof['sid'] : '';
 		if (!$sid || !$this->efbFunction->efb_code_validate_check($sid,$fid)) {
+			// Each new session inserts an emsfb_stts_ row, so creation stays bounded.
+			if (!is_user_logged_in() && !$this->efb_ip_rate_allowed_efb('efb_spl_', (int) apply_filters('efb_session_prepare_per_minute', 120))) {
+				return new \WP_Error('rest_too_many_requests', __('Too many requests. Please try again shortly.', 'easy-form-builder'), array('status' => 429));
+			}
 			$sid = $this->efbFunction->efb_code_validate_create($fid,0,'visit',0);
 		} else $this->efbFunction->efb_code_touch_session($sid,$fid);
 		if (!$sid) return new \WP_Error('efb_session_storage_failed',__('The form session could not be saved.', 'easy-form-builder'),array('status'=>503));
@@ -242,7 +247,8 @@ public function check_nonce_permission_efb($request) {
 	}
 
 	public function operation_status_api($request) {
-		$nonce=$this->efb_nonce_refresh_api();
+		// The recovery path after an uncertain submit: same-origin and identity only, no quota.
+		$nonce=$this->efb_issue_rest_nonce_efb();
 		if (is_wp_error($nonce)) return $nonce;
 		$data=$request->get_json_params();
 		if (!is_array($data) || !is_scalar($data['form_id'] ?? null) || !is_string($data['kind'] ?? null)) return new \WP_Error('efb_operation_invalid','Invalid operation.',array('status'=>400));
@@ -263,7 +269,14 @@ public function check_nonce_permission_efb($request) {
 		return new \WP_REST_Response(array('response_upload_token'=>$token,'nonce_msg'=>wp_create_nonce($track)),200);
 	}
 
-	public function efb_nonce_refresh_api() {
+	/**
+	 * Same-origin check, identity restore and a fresh wp_rest nonce, with no
+	 * throttle. Shared by nonce/refresh, forms/session/prepare and
+	 * forms/operation/status; only nonce/refresh adds the per-IP limit.
+	 *
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	private function efb_issue_rest_nonce_efb() {
 		nocache_headers();
 		// This route can restore a logged-in identity and issue its CSRF nonce.
 		// Never expose that token to another origin, even with permissive REST CORS.
@@ -286,8 +299,18 @@ public function check_nonce_permission_efb($request) {
 			}
 		}
 
-		if ( is_user_logged_in() ) {
-			return new \WP_REST_Response( array( 'nonce' => wp_create_nonce( 'wp_rest' ) ), 200 );
+		return new \WP_REST_Response( array( 'nonce' => wp_create_nonce( 'wp_rest' ) ), 200 );
+	}
+
+	/**
+	 * REST callback for Emsfb/v1/nonce/refresh (GET): a fresh wp_rest nonce for
+	 * a form left open past the nonce lifetime. Guests are limited per IP
+	 * (filter efb_nonce_refresh_per_minute, default 30); logged-in users are not.
+	 */
+	public function efb_nonce_refresh_api() {
+		$nonce = $this->efb_issue_rest_nonce_efb();
+		if ( is_wp_error( $nonce ) || is_user_logged_in() ) {
+			return $nonce;
 		}
 
 		$sid = isset( $_SERVER['HTTP_SID'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_SID'] ) ) : '';
@@ -323,7 +346,7 @@ public function check_nonce_permission_efb($request) {
 			$this->efbFunction->efb_code_touch_session( $sid, $fid );
 		}
 
-		return new \WP_REST_Response( array( 'nonce' => wp_create_nonce( 'wp_rest' ) ), 200 );
+		return $nonce;
 	}
 
 	/**
@@ -332,6 +355,21 @@ public function check_nonce_permission_efb($request) {
 	 * @return bool True when the caller may receive a fresh nonce.
 	 */
 	private function efb_nonce_refresh_allowed_efb() {
+		return $this->efb_ip_rate_allowed_efb( 'efb_nrl_', (int) apply_filters( 'efb_nonce_refresh_per_minute', 30 ) );
+	}
+
+	/**
+	 * Fixed one-minute window per client IP under its own key prefix.
+	 *
+	 * @param string $prefix Transient prefix, one per limit.
+	 * @param int    $limit  Requests per minute; 0 or less disables the limit.
+	 * @return bool True when the caller may proceed.
+	 */
+	private function efb_ip_rate_allowed_efb( $prefix, $limit ) {
+		if ( $limit <= 0 ) {
+			return true;
+		}
+
 		if ( ! $this->efbFunction ) {
 			$this->efbFunction = get_efbFunction();
 		}
@@ -341,12 +379,7 @@ public function check_nonce_permission_efb($request) {
 			return true;
 		}
 
-		$limit = (int) apply_filters( 'efb_nonce_refresh_per_minute', 30 );
-		if ( $limit <= 0 ) {
-			return true;
-		}
-
-		$key   = 'efb_nrl_' . md5( $ip . '|' . gmdate( 'YmdHi' ) );
+		$key   = $prefix . md5( $ip . '|' . gmdate( 'YmdHi' ) );
 		$count = (int) get_transient( $key );
 		if ( $count >= $limit ) {
 			return false;
@@ -851,8 +884,6 @@ public function check_nonce_permission_efb($request) {
 	}
 
 	public function EFB_Form_Builder($id){
-			if (class_exists('\\Emsfb\\Cache_Compat')) \Emsfb\Cache_Compat::bypass();
-
 			$page_builder="";
 			$action_post = isset($_GET['action']) ? sanitize_key( wp_unslash( $_GET['action'] ) ) :'';
 
@@ -972,6 +1003,10 @@ public function check_nonce_permission_efb($request) {
 			$state="form";
 			$rgister_captcha_url = false;
 			$this->efbFunction = get_efbFunction();
+			/* A response view or password recovery link is per visitor: never page-cache it. */
+			if ( ( isset( $_GET['track'] ) || isset( $_GET['state'] ) ) && class_exists( '\\Emsfb\\Cache_Compat' ) ) {
+				\Emsfb\Cache_Compat::render_bypass( 0, isset( $_GET['track'] ) ? 'track' : 'state' );
+			}
 			if(isset($_GET['track'])){
 				$state_form =  sanitize_text_field(wp_unslash($_GET['track']) );
 				$state="track";
@@ -1079,7 +1114,8 @@ public function check_nonce_permission_efb($request) {
 				$this->db = $wpdb;
 			}
 
-			$this->id = end($id);
+			// WordPress < 6.5 passes '' (not an array) for a shortcode without attributes.
+			$this->id = is_array($id) ? end($id) : $id;
 			$this->id = intval($this->id);
 			$sid = $this->efbFunction->efb_code_validate_create( $this->id , 0, 'visit' , 0);
 			$value_form_data = $this->get_form_data_efb($this->id, array('form_structer', 'form_type'));
@@ -1107,11 +1143,17 @@ public function check_nonce_permission_efb($request) {
 			/* Health check only — the repair runs in the background. A form waits
 			 * only for the add-ons it uses; any other missing add-on is repaired in
 			 * the background while this form keeps working. */
+			$required_addons = array();
 			if ( null === $is_track && null !== $value_form_data ) {
+				$required_addons = $this->efbFunction->get_form_required_addons_efb( $value_form_data->form_structer );
 				$addon_recovery = $this->efbFunction->check_addons_for_public_request_efb(
 					null,
-					$this->efbFunction->get_form_required_addons_efb( $value_form_data->form_structer )
+					$required_addons
 				);
+				if ( ( ! empty( $addon_recovery['recovered'] ) || empty( $addon_recovery['success'] ) ) && class_exists( '\\Emsfb\\Cache_Compat' ) ) {
+					// The repair screen is temporary; a cached copy would outlive the repair.
+					\Emsfb\Cache_Compat::render_bypass( $this->id, 'recovery' );
+				}
 				if ( ! empty( $addon_recovery['recovered'] ) ) {
 					if ( $this->addon_recovery_transition_rendered ) {
 						return '';
@@ -1150,6 +1192,16 @@ public function check_nonce_permission_efb($request) {
 			 * English on every translated site. These two are the step counter
 			 * and the completion caption on the progress indicator. */
 			'stepXofY','percentComplete'];
+
+			/* Only now is a form or response box really printed. A form in a widget,
+			 * footer or popup keeps the page cacheable (EFBRuntime.prepare() fetches a
+			 * fresh nonce and session); see Cache_Compat::render_bypass(). Stripe, PayPal,
+			 * PersiaPay and Autofill scripts still read the page-embedded session. */
+			if ( class_exists( '\\Emsfb\\Cache_Compat' ) ) {
+				$page_session = ( null !== $value_form_data && isset( $value_form_data->form_type ) && 'payment' === $value_form_data->form_type )
+					|| array_intersect( (array) $required_addons, array( 'AdnSPF', 'AdnPAP', 'AdnPPF', 'AdnATF' ) );
+				\Emsfb\Cache_Compat::render_bypass( $this->id, $page_session ? 'session' : 'render' );
+			}
 
 			$this->public_scripts_and_css_head('', isset($value_form_data->form_structer) ? $value_form_data->form_structer : null);
 
@@ -3270,7 +3322,7 @@ public function check_nonce_permission_efb($request) {
 						}
 					}
 				}
-				$this->id = $submission_type == "payment" ? sanitize_text_field($request_data['payid']) : $this->id;
+				$this->id = $submission_type == "payment" ? (isset($request_data['payid']) ? sanitize_text_field($request_data['payid']) : '') : $this->id;
 				$skip_captcha = $submission_type != "payment" ? $form_fields_array[0]['captcha'] : "";
 				if ($is_valid == 0) {
 					$response = ['success' => false, 'm' => $error_message, 'field_id' => $error_field_id];
@@ -3581,7 +3633,7 @@ public function check_nonce_permission_efb($request) {
 						exit;
 					break;
 					case "payment":
-							$id = sanitize_text_field($request_data['payid']);
+							$id = isset($request_data['payid']) ? sanitize_text_field($request_data['payid']) : '';
 							$table_name_ = $this->db->prefix . "emsfb_msg_";
 							$currentDateTime = date('Y-m-d H');
 							$payment_gateway = isset($request_data['payment']) ? sanitize_text_field($request_data['payment']) : 'stripe';
@@ -3706,7 +3758,7 @@ public function check_nonce_permission_efb($request) {
 								 * on a form built only from payment fields. */
 								$email_content_rows = array_values($filtered);
 								$this->value = sanitize_text_field(json_encode($filtered, JSON_UNESCAPED_UNICODE));
-								$this->id = sanitize_text_field($request_data['payid']);
+								$this->id = isset($request_data['payid']) ? sanitize_text_field($request_data['payid']) : '';
 								$db_update_result = $this->update_message_db();
 								if ($payment_gateway == "paypal") {
 									// error_log('[EFB][PayPal][SUBMIT] update_message_db result=' . var_export($db_update_result, true) . ', track=' . $this->id . ', final_count=' . count($filtered));
@@ -5529,7 +5581,13 @@ public function check_nonce_permission_efb($request) {
 
 		if (class_exists('Emsfb\\Emsfb_Logic_Validator')) {
 			$validator = new \Emsfb\Emsfb_Logic_Validator();
-			return $validator->build_values_map($form_fields_array, $submitted_values);
+			if (is_callable(array($validator, 'build_values_map'))) {
+				try {
+					return $validator->build_values_map($form_fields_array, $submitted_values);
+				} catch (\Throwable $error) {
+					// Fall through to the built-in values map.
+				}
+			}
 		}
 
 		$values = [];
@@ -5578,13 +5636,21 @@ public function check_nonce_permission_efb($request) {
 	private function efb_evaluate_conditional_group($group, $values) {
 		if (is_array($this->efb_conditional_form) && class_exists('Emsfb\\Emsfb_Logic_Validator')) {
 			$validator = new \Emsfb\Emsfb_Logic_Validator();
-			$validator->set_environment($this->efb_conditional_environment_for_validator());
-			return (bool) $validator->evaluate_condition_group(
-				$this->efb_conditional_form,
-				$group,
-				$values,
-				$this->efb_conditional_rows
-			);
+			// Logic add-on builds before 4.2 declare this method private; a stale
+			// build must fall back instead of fataling the submission.
+			if (is_callable(array($validator, 'evaluate_condition_group'))) {
+				try {
+					$validator->set_environment($this->efb_conditional_environment_for_validator());
+					return (bool) $validator->evaluate_condition_group(
+						$this->efb_conditional_form,
+						$group,
+						$values,
+						$this->efb_conditional_rows
+					);
+				} catch (\Throwable $error) {
+					// Fall through to the built-in evaluator.
+				}
+			}
 		}
 		return $this->efb_evaluate_conditional_group_fallback($group, $values);
 	}
@@ -6311,11 +6377,16 @@ public function check_nonce_permission_efb($request) {
 				$this->id
 			)
 		);
-		$fs =\emsfb_json_normalize_efb($value_form[0]->form_structer);
-		$fs_ = json_decode($fs,true);
+		$fs = empty($value_form) ? '' : \emsfb_json_normalize_efb($value_form[0]->form_structer);
+		$fs_ = is_string($fs) && $fs !== '' ? json_decode($fs,true) : null;
 		$val =\emsfb_json_normalize_efb($val_);
-		$val_ = json_decode($val,true);
-		$paymentmethod = $fs_[0]['paymentmethod'];
+		$val_ = is_string($val) && $val !== '' ? json_decode($val,true) : null;
+		if (!is_array($fs_) || !isset($fs_[0]) || !is_array($fs_[0]) || !is_array($val_)) {
+			$m = esc_html__('Stripe', 'easy-form-builder').'->'.	esc_html__('error', 'easy-form-builder') . ' 400';
+			wp_send_json_success(['success' => false, 'm' => $m], 200);
+			return;
+		}
+		$paymentmethod = isset($fs_[0]['paymentmethod']) ? $fs_[0]['paymentmethod'] : '';
 		$price_c =0;
 		$price_f=0;
 		$email ='';
@@ -6458,6 +6529,10 @@ public function check_nonce_permission_efb($request) {
 				}
 				StripePayment::insert_payment( $pay_data );
 			}
+			if ( $paymentmethod === 'charge' ) {
+				// Re-checked in the background in case the visitor's confirmation never arrives.
+				$this->schedule_stripe_reconcile_efb( 15 * MINUTE_IN_SECONDS );
+			}
 
 			$response=array_merge($response , ['id'=>$check]);
 			wp_send_json_success($response, 200);
@@ -6468,6 +6543,19 @@ public function check_nonce_permission_efb($request) {
 		}
 	}
 
+	/* POST Emsfb/v1/forms/payment/stripe/confirm
+	 *
+	 * Called by stripe_pay-efb.js right after Stripe.js reported a one-time
+	 * charge as succeeded. A public REST nonce and a client-side success
+	 * message are not proof of payment, so the PaymentIntent is retrieved from
+	 * Stripe and compared with this site's own record.
+	 *
+	 * The card is already charged when this runs. Only HTTP 409 means "this
+	 * payment does not match this site's record" and stops the submission;
+	 * every other failure (503 gateway or storage unavailable, 500, timeout) is
+	 * retried by the browser, which then submits the form anyway. The record
+	 * stays 'pending' and reconcile_stripe_payments_efb() re-checks it. This
+	 * handler only reads from Stripe, so repeating it is safe. */
 	public function pay_stripe_confirm_Emsfb_api( $request ) {
 		if ( ! emsfb_is_addon_compatible_efb( 'AdnSPF' ) ) {
 			wp_send_json_success( array(
@@ -6486,59 +6574,82 @@ public function check_nonce_permission_efb($request) {
 			return;
 		}
 
-		$stripe_payment_file = EMSFB_PLUGIN_DIRECTORY . 'vendor/stripe/class-Emsfb-stripe-payment.php';
-		if ( ! class_exists( '\Emsfb\StripePayment' ) && file_exists( $stripe_payment_file ) ) {
-			require_once $stripe_payment_file;
-		}
-
-		if ( ! class_exists( '\Emsfb\StripePayment' ) ) {
-			wp_send_json_success( [ 'success' => false, 'm' => 'Stripe payment class not available' ], 500 );
-			return;
-		}
-
 		global $wpdb;
-		$pay_table = $wpdb->prefix . 'emsfb_pay_';
-
-		$pay_row = $wpdb->get_row( $wpdb->prepare(
-			"SELECT * FROM {$pay_table} WHERE transaction_id = %s AND track = %s AND gateway = 'stripe' LIMIT 1",
-			$payment_intent, $trackid
-		) );
-
-		if ( ! $pay_row || $pay_row->payment_type !== 'one-time' || ! in_array( $pay_row->status, array( 'pending', 'completed' ), true ) ) {
-			\Emsfb\Request_Health::record('payment',409,'server','payment_record_mismatch');
-			wp_send_json_success( array( 'success' => false, 'm' => 'Payment record does not match.' ), 409 );
-			return;
-		}
-		// A public REST nonce and a client-side success message are not proof of payment.
-		try {
-			$key = $this->resolve_payment_key_efb( get_setting_Emsfb( 'decoded' ), 'stripeSKey' );
-			if ( $key === 'null' ) throw new \RuntimeException( 'Stripe is not configured.' );
-			if ( ! class_exists( '\\Stripe\\StripeClient' ) ) {
-				$init = EMSFB_PLUGIN_DIRECTORY . 'vendor/stripe/stripe-php/init.php';
-				require_once file_exists( $init ) ? $init : EMSFB_PLUGIN_DIRECTORY . 'vendor/autoload.php';
+		$pay_table   = $wpdb->prefix . 'emsfb_pay_';
+		$table_ready = $this->stripe_pay_table_exists_efb();
+		$pay_row     = null;
+		if ( $table_ready ) {
+			$pay_row = $wpdb->get_row( $wpdb->prepare(
+				"SELECT * FROM {$pay_table} WHERE transaction_id = %s AND track = %s AND gateway = 'stripe' LIMIT 1",
+				$payment_intent, $trackid
+			) );
+			if ( ! $pay_row && $wpdb->last_error !== '' ) {
+				\Emsfb\Request_Health::record('payment',503,'server','payment_record_unavailable');
+				wp_send_json_success( array( 'success' => false, 'm' => 'Payment verification is temporarily unavailable.' ), 503 );
+				return;
 			}
-			$client = new \Stripe\StripeClient( $key );
-			$intent = $client->paymentIntents->retrieve( $payment_intent, array() );
-		} catch ( \Throwable $error ) {
-			$provider_status = $error instanceof \Stripe\Exception\ApiErrorException ? (int) $error->getHttpStatus() : 0;
-			\Emsfb\Request_Health::record('payment',$provider_status >= 400 && $provider_status <= 599 ? $provider_status : 503,'server','gateway_verification_unavailable');
+		}
+
+		if ( $pay_row ) {
+			if ( $pay_row->payment_type !== 'one-time' || ! in_array( $pay_row->status, array( 'pending', 'completed' ), true ) ) {
+				\Emsfb\Request_Health::record('payment',409,'server','payment_record_mismatch');
+				wp_send_json_success( array( 'success' => false, 'm' => 'Payment record does not match.' ), 409 );
+				return;
+			}
+			if ( $pay_row->status === 'completed' ) {
+				// Verified before: an earlier attempt whose response was lost, or the background check.
+				wp_send_json_success( [
+					'success'         => true,
+					'paymentIntentId' => $payment_intent,
+					'trackid'         => $trackid,
+				], 200 );
+				return;
+			}
+			// Creation currently uses two decimal minor units; compare against that exact contract.
+			$expected_amount   = (int) round( (float) $pay_row->amount * 100 );
+			$expected_currency = (string) $pay_row->currency;
+		} else {
+			/* No record. The Stripe add-on creates emsfb_pay_ only from its admin
+			 * screen, so a site that never opened that screen has no table, and a
+			 * failed insert leaves no row: neither is evidence of a mismatch. Use
+			 * what card/add stored server-side for this tracking code instead.
+			 * Nothing is written here. An intent that is recorded under a
+			 * different tracking code is still a mismatch. */
+			$elsewhere = $table_ready ? $wpdb->get_var( $wpdb->prepare(
+				"SELECT id FROM {$pay_table} WHERE transaction_id = %s AND gateway = 'stripe' LIMIT 1",
+				$payment_intent
+			) ) : null;
+			$stub = $elsewhere ? null : $this->find_stripe_charge_stub_efb( $trackid, $payment_intent );
+			if ( ! $stub ) {
+				\Emsfb\Request_Health::record('payment',409,'server','payment_record_mismatch');
+				wp_send_json_success( array( 'success' => false, 'm' => 'Payment record does not match.' ), 409 );
+				return;
+			}
+			list( $expected_amount, $expected_currency ) = $stub;
+		}
+
+		$verification = $this->verify_stripe_intent_efb( $payment_intent, $expected_amount, $expected_currency );
+		if ( $verification['state'] === 'unavailable' ) {
+			\Emsfb\Request_Health::record('payment',$verification['status'],'server',$verification['reason']);
+			if ( $pay_row ) {
+				$this->schedule_stripe_reconcile_efb( 10 * MINUTE_IN_SECONDS );
+			}
 			wp_send_json_success( array( 'success' => false, 'm' => 'Payment verification is temporarily unavailable.' ), 503 );
 			return;
 		}
-		// Creation currently uses two decimal minor units; compare against that exact contract.
-		$expected = (int) round( (float) $pay_row->amount * 100 );
-		if ( $intent->id !== $payment_intent || $intent->status !== 'succeeded' || (int) $intent->amount_received !== $expected || strtolower( (string) $intent->currency ) !== strtolower( $pay_row->currency ) ) {
+		if ( $verification['state'] !== 'verified' ) {
 			\Emsfb\Request_Health::record('payment',409,'server','payment_not_verified');
 			wp_send_json_success( array( 'success' => false, 'm' => 'Payment has not been verified.' ), 409 );
 			return;
 		}
-		if ( $pay_row->status === 'pending' ) {
-			$updated = StripePayment::update_payment( $pay_row->id, [
+		if ( $pay_row ) {
+			$updated = $this->update_pending_stripe_payment_efb( $pay_row->id, [
 				'status'     => 'completed',
 				'capture_id' => $payment_intent,
 			] );
 			if ( $updated === false ) {
 				\Emsfb\Request_Health::record('payment',500,'server','payment_status_storage_failed');
+				$this->schedule_stripe_reconcile_efb( 10 * MINUTE_IN_SECONDS );
 				wp_send_json_success( array( 'success' => false, 'm' => 'Payment status could not be saved.' ), 500 );
 				return;
 			}
@@ -6556,6 +6667,275 @@ public function check_nonce_permission_efb($request) {
 			'paymentIntentId' => $payment_intent,
 			'trackid'         => $trackid,
 		], 200 );
+	}
+
+	/**
+	 * Whether the shared payment table (created by the Stripe/PayPal add-on's
+	 * admin screen, never by core) exists. Checked instead of trusting the
+	 * add-on's emsfb_pay_table_version option, and so a missing table does not
+	 * log a database error on every confirmation.
+	 *
+	 * @return bool
+	 */
+	private function stripe_pay_table_exists_efb() {
+		global $wpdb;
+		$table = $wpdb->prefix . 'emsfb_pay_';
+		$found = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $table ) ) );
+		return is_string( $found ) && strcasecmp( $found, $table ) === 0;
+	}
+
+	/**
+	 * The payment row card/add stored server-side for this tracking code (the
+	 * pending submission, or the final one after it was sent). Used only when
+	 * emsfb_pay_ has no record, to learn what was charged. Read-only.
+	 *
+	 * @param string $trackid        Tracking code returned by card/add.
+	 * @param string $payment_intent PaymentIntent id (pi_...).
+	 * @return array|null [amount in minor units, currency], or null when this
+	 *                    tracking code does not belong to this PaymentIntent.
+	 */
+	private function find_stripe_charge_stub_efb( $trackid, $payment_intent ) {
+		global $wpdb;
+		$content = $wpdb->get_var( $wpdb->prepare(
+			"SELECT content FROM `{$wpdb->prefix}emsfb_msg_` WHERE track = %s LIMIT 1",
+			$trackid
+		) );
+		if ( ! is_string( $content ) || $content === '' ) {
+			return null;
+		}
+		$rows = \emsfb_json_decode_efb( $content, true );
+		if ( ! is_array( $rows ) ) {
+			return null;
+		}
+		$match = null;
+		foreach ( $rows as $row ) {
+			if ( ! is_array( $row ) || ( $row['type'] ?? '' ) !== 'payment' || ( $row['paymentGateway'] ?? '' ) !== 'stripe'
+				|| ( $row['paymentmethod'] ?? '' ) !== 'charge' || ( $row['paymentIntent'] ?? '' ) !== $payment_intent
+				|| ! isset( $row['paymentAmount'], $row['paymentcurrency'] ) || ! is_numeric( $row['paymentAmount'] ) ) {
+				continue;
+			}
+			// card/add appends its own row last, after the visitor's priced items.
+			$match = array( (int) round( (float) $row['paymentAmount'] * 100 ), (string) $row['paymentcurrency'] );
+		}
+		return $match;
+	}
+
+	/**
+	 * Load the Stripe SDK the add-on bundles, in the same order as card/add,
+	 * without a fatal error when it is missing.
+	 *
+	 * @return bool Whether \Stripe\StripeClient is available.
+	 */
+	private function load_stripe_sdk_efb() {
+		if ( class_exists( '\Stripe\StripeClient' ) ) {
+			return true;
+		}
+		$init = EMSFB_PLUGIN_DIRECTORY . 'vendor/stripe/stripe-php/init.php';
+		$file = is_readable( $init ) ? $init : EMSFB_PLUGIN_DIRECTORY . 'vendor/autoload.php';
+		if ( is_readable( $file ) ) {
+			require_once $file;
+		}
+		return class_exists( '\Stripe\StripeClient' );
+	}
+
+	/**
+	 * Run one Stripe SDK call with bounded HTTP timeouts. The SDK waits up to
+	 * 80 s by default; the browser gives a confirmation attempt 25 s and a cron
+	 * run must not hang on an unreachable gateway. The previous values are put
+	 * back for any other Stripe code in the same request.
+	 *
+	 * @param callable $call
+	 * @return mixed What $call returns.
+	 */
+	private function stripe_call_with_timeouts_efb( $call ) {
+		$http     = null;
+		$previous = null;
+		if ( class_exists( '\Stripe\HttpClient\CurlClient' ) && is_callable( array( '\Stripe\HttpClient\CurlClient', 'instance' ) ) ) {
+			$http = \Stripe\HttpClient\CurlClient::instance();
+			if ( is_object( $http ) && method_exists( $http, 'getTimeout' ) && method_exists( $http, 'setTimeout' )
+				&& method_exists( $http, 'getConnectTimeout' ) && method_exists( $http, 'setConnectTimeout' ) ) {
+				$previous = array( (int) $http->getTimeout(), (int) $http->getConnectTimeout() );
+				$http->setTimeout( $previous[0] > 0 && $previous[0] < 20 ? $previous[0] : 20 );
+				$http->setConnectTimeout( $previous[1] > 0 && $previous[1] < 8 ? $previous[1] : 8 );
+			}
+		}
+		try {
+			return $call();
+		} finally {
+			if ( $previous ) {
+				$http->setTimeout( $previous[0] );
+				$http->setConnectTimeout( $previous[1] );
+			}
+		}
+	}
+
+	/**
+	 * Retrieve a one-time PaymentIntent from Stripe and compare it with what
+	 * this site charged. Shared by the confirmation endpoint and the background
+	 * reconciliation. Never throws.
+	 *
+	 * @param string $payment_intent    pi_... id.
+	 * @param int    $expected_amount   Amount in minor units, as created by card/add.
+	 * @param string $expected_currency ISO currency code.
+	 * @return array {
+	 *     @type string $state         'verified', 'mismatch' (definitive) or 'unavailable' (try again later).
+	 *     @type int    $status        HTTP status for diagnostics (provider status when Stripe answered with an error).
+	 *     @type string $reason        Request_Health reason.
+	 *     @type string $stripe_status PaymentIntent status, '' when Stripe was not reached.
+	 * }
+	 */
+	private function verify_stripe_intent_efb( $payment_intent, $expected_amount, $expected_currency ) {
+		$unavailable = array( 'state' => 'unavailable', 'status' => 503, 'reason' => 'gateway_verification_unavailable', 'stripe_status' => '' );
+		try {
+			$key = $this->resolve_payment_key_efb( get_setting_Emsfb( 'decoded' ), 'stripeSKey' );
+			if ( $key === 'null' || ! $this->load_stripe_sdk_efb() ) {
+				return $unavailable;
+			}
+			$client = new \Stripe\StripeClient( $key );
+			$intent = $this->stripe_call_with_timeouts_efb( static function () use ( $client, $payment_intent ) {
+				return $client->paymentIntents->retrieve( $payment_intent, array() );
+			} );
+		} catch ( \Throwable $error ) {
+			$provider_status = $error instanceof \Stripe\Exception\ApiErrorException ? (int) $error->getHttpStatus() : 0;
+			if ( $provider_status >= 400 && $provider_status <= 599 ) {
+				$unavailable['status'] = $provider_status;
+			}
+			return $unavailable;
+		}
+		$status = is_object( $intent ) && isset( $intent->status ) ? (string) $intent->status : '';
+		if ( ! is_object( $intent ) || ! isset( $intent->id ) || (string) $intent->id !== $payment_intent ) {
+			return array( 'state' => 'mismatch', 'status' => 409, 'reason' => 'payment_not_verified', 'stripe_status' => $status );
+		}
+		if ( $status === 'processing' ) {
+			// Stripe has not settled the charge yet: neither paid nor failed.
+			return array( 'state' => 'unavailable', 'status' => 503, 'reason' => 'gateway_payment_processing', 'stripe_status' => $status );
+		}
+		$amount   = isset( $intent->amount_received ) ? (int) $intent->amount_received : -1;
+		$currency = isset( $intent->currency ) ? strtolower( (string) $intent->currency ) : '';
+		if ( $status !== 'succeeded' || $amount !== (int) $expected_amount || $currency !== strtolower( (string) $expected_currency ) ) {
+			return array( 'state' => 'mismatch', 'status' => 409, 'reason' => 'payment_not_verified', 'stripe_status' => $status );
+		}
+		return array( 'state' => 'verified', 'status' => 200, 'reason' => '', 'stripe_status' => $status );
+	}
+
+	/**
+	 * Update a payment row only while it is still 'pending', so a refund or
+	 * cancellation made in the meantime is never overwritten. Same columns as
+	 * StripePayment::update_payment(), which the add-on may not have loaded.
+	 *
+	 * @param int   $row_id
+	 * @param array $fields Columns to set; updated_at is always refreshed.
+	 * @return int|false Rows changed, or false on a database error.
+	 */
+	private function update_pending_stripe_payment_efb( $row_id, array $fields ) {
+		global $wpdb;
+		$fields['updated_at'] = wp_date( 'Y-m-d H:i:s' );
+		return $wpdb->update( $wpdb->prefix . 'emsfb_pay_', $fields, array( 'id' => (int) $row_id, 'status' => 'pending' ) );
+	}
+
+	/**
+	 * Queue one background reconciliation run unless one is already queued.
+	 *
+	 * @param int $delay Seconds from now.
+	 */
+	private function schedule_stripe_reconcile_efb( $delay ) {
+		if ( ! function_exists( 'wp_next_scheduled' ) || wp_next_scheduled( 'emsfb_stripe_reconcile_efb' ) ) {
+			return;
+		}
+		wp_schedule_single_event( time() + max( MINUTE_IN_SECONDS, (int) $delay ), 'emsfb_stripe_reconcile_efb' );
+	}
+
+	/**
+	 * Re-check one-time Stripe payments that are still 'pending': the visitor's
+	 * confirmation never reached this site, or could not reach Stripe and the
+	 * form was submitted anyway. Runs from WP-Cron only (emsfb_stripe_reconcile_efb,
+	 * queued by card/add and by a failed confirmation, plus the daily
+	 * maintenance as a backstop), never inside a page load. Bounded: rows 10
+	 * minutes to 7 days old, each re-checked at most about hourly, at most 20
+	 * Stripe requests and 60 s per run, and the run stops at the first gateway
+	 * error. Uses the same comparison as the confirmation endpoint.
+	 */
+	public function reconcile_stripe_payments_efb() {
+		try {
+			$this->run_stripe_reconcile_efb();
+		} catch ( \Throwable $error ) {
+			if ( defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
+				error_log( '[EFB][Stripe] Payment reconciliation stopped: ' . get_class( $error ) );
+			}
+		}
+	}
+
+	private function run_stripe_reconcile_efb() {
+		$lock = 'emsfb_stripe_reconcile_lock';
+		if ( get_transient( $lock ) ) {
+			return;
+		}
+		if ( ! function_exists( 'emsfb_is_addon_compatible_efb' ) || ! emsfb_is_addon_compatible_efb( 'AdnSPF' ) || ! $this->stripe_pay_table_exists_efb() ) {
+			return;
+		}
+		global $wpdb;
+		$table      = $wpdb->prefix . 'emsfb_pay_';
+		$started    = time();
+		$candidates = $wpdb->get_results( $wpdb->prepare(
+			"SELECT id, transaction_id, amount, currency, created_at, updated_at FROM {$table}
+			WHERE gateway = 'stripe' AND payment_type = 'one-time' AND status = 'pending'
+			AND created_at >= %s AND created_at <= %s
+			ORDER BY updated_at ASC, id ASC LIMIT 60",
+			wp_date( 'Y-m-d H:i:s', $started - 7 * DAY_IN_SECONDS ),
+			wp_date( 'Y-m-d H:i:s', $started - 10 * MINUTE_IN_SECONDS )
+		) );
+		if ( empty( $candidates ) ) {
+			return;
+		}
+		// Keep coming back about hourly while anything inside the window is still pending.
+		$this->schedule_stripe_reconcile_efb( HOUR_IN_SECONDS );
+
+		// created_at/updated_at are site-local 'Y-m-d H:i:s' strings, as the add-on writes them.
+		$recheck_before = wp_date( 'Y-m-d H:i:s', $started - 50 * MINUTE_IN_SECONDS );
+		$due            = array();
+		foreach ( $candidates as $row ) {
+			$never_checked = abs( (int) strtotime( (string) $row->updated_at ) - (int) strtotime( (string) $row->created_at ) ) < 60;
+			if ( ( $never_checked || (string) $row->updated_at <= $recheck_before ) && preg_match( '/^pi_[a-zA-Z0-9]+$/D', (string) $row->transaction_id ) ) {
+				$due[] = $row;
+				if ( count( $due ) >= 20 ) {
+					break;
+				}
+			}
+		}
+		if ( ! $due ) {
+			return;
+		}
+		$key = $this->resolve_payment_key_efb( get_setting_Emsfb( 'decoded' ), 'stripeSKey' );
+		if ( $key === 'null' || ! $this->load_stripe_sdk_efb() ) {
+			return;
+		}
+
+		set_transient( $lock, $started, 5 * MINUTE_IN_SECONDS );
+		try {
+			foreach ( $due as $row ) {
+				if ( time() - $started > 60 ) {
+					break;
+				}
+				$result = $this->verify_stripe_intent_efb( (string) $row->transaction_id, (int) round( (float) $row->amount * 100 ), (string) $row->currency );
+				if ( $result['state'] === 'verified' ) {
+					$this->update_pending_stripe_payment_efb( $row->id, array( 'status' => 'completed', 'capture_id' => (string) $row->transaction_id ) );
+					continue;
+				}
+				if ( $result['stripe_status'] === 'canceled' ) {
+					$this->update_pending_stripe_payment_efb( $row->id, array( 'status' => 'cancelled' ) );
+					continue;
+				}
+				// Not paid (yet), a mismatch, or Stripe unreachable: the row stays
+				// 'pending'; touching updated_at moves it to the back of the queue.
+				$this->update_pending_stripe_payment_efb( $row->id, array() );
+				if ( $result['state'] === 'unavailable' && $result['stripe_status'] === '' && $result['status'] !== 404 ) {
+					// Gateway down or key rejected: do not spend the batch (and up to 20 s per row) on it.
+					break;
+				}
+			}
+		} finally {
+			delete_transient( $lock );
+		}
 	}
 
 	public function pay_persia_sub_Emsfb_api($data_POST_){
@@ -8342,11 +8722,32 @@ public function check_nonce_permission_efb($request) {
 		$price_f =0;
 		$email ='';
 		$valobj =[];
+		/* The submitted values come straight from the request (the PayPal add-on also
+		 * calls this). A value that is not a list of rows, or a price that is not a
+		 * number, was a TypeError in count()/abs() on PHP 8 - a 500 instead of an answer. */
+		$invalid = static function () {
+			$msg = esc_html__('Invalid payment selection. Please review your choices and try again. If the problem persists, contact the site administrator.', 'easy-form-builder');
+			wp_send_json_success(['success' => false, 'm' => $msg], 200);
+		};
+		if (!is_array($val_) || !is_array($fs_)) {
+			$invalid();
+			return ['price_total' => 0, 'email' => '', 'valobj' => []];
+		}
 		for ($i=0; $i <count($val_) ; $i++) {
 			$a=-1;
-			if(isset($val_[$i]['price'])){
-				if($val_[$i]['price'] ) $price_c += abs($val_[$i]['price']);
-				if($val_[$i]['type']=="email" ) $email = $val_[$i]['value'];
+			if(isset($val_[$i]) && is_array($val_[$i]) && isset($val_[$i]['price'])){
+				$row_price = $val_[$i]['price'];
+				if (is_array($row_price) || is_object($row_price) || (is_string($row_price) && $row_price !== '' && !is_numeric($row_price))) {
+					$invalid();
+					return ['price_total' => 0, 'email' => '', 'valobj' => []];
+				}
+				if (isset($val_[$i]['ids']) && !is_string($val_[$i]['ids'])) {
+					$invalid();
+					return ['price_total' => 0, 'email' => '', 'valobj' => []];
+				}
+				if(!isset($val_[$i]['type'])) $val_[$i]['type'] = '';
+				if($row_price ) $price_c += abs($row_price);
+				if($val_[$i]['type']=="email" && isset($val_[$i]['value']) && is_string($val_[$i]['value']) ) $email = $val_[$i]['value'];
 				$iv = $val_[$i];
 				if($iv['type']=="paySelect" || $iv['type']=="payRadio" || $iv['type']=="payCheckbox"){
 					$filtered = array_filter($fs_, function($item) use ($iv) {
