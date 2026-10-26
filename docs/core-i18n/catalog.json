@@ -2,9 +2,9 @@
     "domain": "easy-form-builder",
     "about": "Every phrase looked up in the easy-form-builder text domain: the core plus add-ons that still use that domain. Maintained by tests/core-i18n/extract.php (agent efb-core-i18n); do not edit by hand.",
     "plugin_version": "4.3.1",
-    "updated": "2026-10-12",
+    "updated": "2026-10-19",
     "counts": {
-        "active": 2275,
+        "active": 2278,
         "obsolete": 299
     },
     "entries": [
@@ -28957,6 +28957,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The add-ons are already being reinstalled in another tab or in the background. Wait a minute, then reload this page.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The attachment session could not be saved.",
             "context": null,
             "plural": null,
@@ -30324,6 +30339,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The server recorded an error that may have affected a form submission, reply, upload or payment. Compare recent entries and payments with the time of the error.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-request-health.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -33242,6 +33272,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "View the details in Easy Form Builder",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-request-health.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
