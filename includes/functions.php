@@ -4066,7 +4066,7 @@ class efbFunction {
 				'priority' => isset($rule['priority']) ? max(0, min(100000, intval($rule['priority']))) : 10,
 				'conditions' => $this->sanitize_logic_condition_group($rule['conditions'] ?? array(), $valid_fields),
 				'action' => $action,
-				'url' => isset($rule['url']) ? esc_url_raw($rule['url']) : '',
+				'url' => isset($rule['url']) ? $this->sanitize_logic_redirect_url($rule['url']) : '',
 				'message' => isset($rule['message']) ? wp_kses_post($rule['message']) : '',
 				'done' => isset($rule['done']) ? sanitize_text_field($rule['done']) : '',
 				'icon' => $this->sanitize_logic_bi_icon($rule['icon'] ?? ''),
@@ -4092,6 +4092,23 @@ class efbFunction {
 	}
 
 	/* Confirmation display overrides: only a bootstrap-icons class name is a valid icon. */
+	/**
+	 * esc_url_raw() for a conditional redirect, keeping its {field_id}
+	 * placeholders: they are filled in at submit time, and esc_url_raw()
+	 * strips the braces, so "?budget={budget}" was saved as "?budget=budget".
+	 */
+	private function sanitize_logic_redirect_url($url) {
+		if (!is_string($url)) return '';
+		$tokens = array();
+		$salt = bin2hex(random_bytes(4));
+		$masked = preg_replace_callback('/\{([A-Za-z0-9_-]+)\}/', function ($match) use (&$tokens, $salt) {
+			$marker = 'EFBTOKEN' . $salt . count($tokens) . 'END';
+			$tokens[$marker] = $match[0];
+			return $marker;
+		}, $url);
+		return strtr(esc_url_raw($masked), $tokens);
+	}
+
 	private function sanitize_logic_bi_icon($icon) {
 		$icon = is_string($icon) ? trim($icon) : '';
 		return preg_match('/^bi-[a-z0-9-]+$/', $icon) ? $icon : '';

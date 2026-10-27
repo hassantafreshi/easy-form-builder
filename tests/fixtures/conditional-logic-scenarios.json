@@ -25525,6 +25525,365 @@
    }
   },
   {
+   "family": "steps/jump",
+   "name": "a forward jump makes the skipped step optional",
+   "rules": [
+    {
+     "id": "r",
+     "name": "r",
+     "scope": "field",
+     "enabled": true,
+     "priority": 10,
+     "stop_processing": false,
+     "conditions": {
+      "type": "group",
+      "operator": "AND",
+      "items": [
+       {
+        "type": "condition",
+        "source": "field",
+        "field_id": "t_text",
+        "compare": "is",
+        "value": "Hello World"
+       }
+      ]
+     },
+     "actions": [
+      {
+       "type": "jump_to_step",
+       "target": "2"
+      }
+     ]
+    }
+   ],
+   "rows": [
+    {
+     "id_": "t_text",
+     "type": "text",
+     "value": "Hello World"
+    },
+    {
+     "id_": "t_area",
+     "type": "textarea",
+     "value": "a longer answer"
+    },
+    {
+     "id_": "t_email",
+     "type": "email",
+     "value": "user@example.com"
+    },
+    {
+     "id_": "t_url",
+     "type": "url",
+     "value": "https://example.com/a"
+    },
+    {
+     "id_": "t_num",
+     "type": "number",
+     "value": "42"
+    },
+    {
+     "id_": "t_range",
+     "type": "range",
+     "value": "7"
+    },
+    {
+     "id_": "t_date",
+     "type": "date",
+     "value": "2026-06-15"
+    },
+    {
+     "id_": "t_sel",
+     "type": "select",
+     "value": "Alpha"
+    },
+    {
+     "id_": "t_radio",
+     "type": "radio",
+     "id_ob": "ro_a",
+     "value": "RA"
+    },
+    {
+     "id_": "t_check",
+     "type": "checkbox",
+     "id_ob": "co_a",
+     "value": "CA"
+    },
+    {
+     "id_": "t_multi",
+     "type": "multiselect",
+     "value": "MA@efb!MB"
+    },
+    {
+     "id_": "t_yesno",
+     "type": "yesno",
+     "id_ob": "t_yesno_1",
+     "value": "yes"
+    }
+   ],
+   "env": {
+    "query": {},
+    "user": {
+     "logged_in": false,
+     "roles": []
+    },
+    "current_step": 1
+   },
+   "extraFields": [],
+   "expect": {
+    "matched": [
+     "r"
+    ],
+    "jumps": [
+     "2"
+    ],
+    "optional": [
+     "s2_opt",
+     "s2_req"
+    ],
+    "hiddenSteps": [],
+    "ignored": []
+   }
+  },
+  {
+   "family": "steps/jump",
+   "name": "a jump to the next step skips nothing",
+   "rules": [
+    {
+     "id": "r",
+     "name": "r",
+     "scope": "field",
+     "enabled": true,
+     "priority": 10,
+     "stop_processing": false,
+     "conditions": {
+      "type": "group",
+      "operator": "AND",
+      "items": [
+       {
+        "type": "condition",
+        "source": "field",
+        "field_id": "t_text",
+        "compare": "is",
+        "value": "Hello World"
+       }
+      ]
+     },
+     "actions": [
+      {
+       "type": "jump_to_step",
+       "target": "3"
+      }
+     ]
+    }
+   ],
+   "rows": [
+    {
+     "id_": "t_text",
+     "type": "text",
+     "value": "Hello World"
+    },
+    {
+     "id_": "t_area",
+     "type": "textarea",
+     "value": "a longer answer"
+    },
+    {
+     "id_": "t_email",
+     "type": "email",
+     "value": "user@example.com"
+    },
+    {
+     "id_": "t_url",
+     "type": "url",
+     "value": "https://example.com/a"
+    },
+    {
+     "id_": "t_num",
+     "type": "number",
+     "value": "42"
+    },
+    {
+     "id_": "t_range",
+     "type": "range",
+     "value": "7"
+    },
+    {
+     "id_": "t_date",
+     "type": "date",
+     "value": "2026-06-15"
+    },
+    {
+     "id_": "t_sel",
+     "type": "select",
+     "value": "Alpha"
+    },
+    {
+     "id_": "t_radio",
+     "type": "radio",
+     "id_ob": "ro_a",
+     "value": "RA"
+    },
+    {
+     "id_": "t_check",
+     "type": "checkbox",
+     "id_ob": "co_a",
+     "value": "CA"
+    },
+    {
+     "id_": "t_multi",
+     "type": "multiselect",
+     "value": "MA@efb!MB"
+    },
+    {
+     "id_": "t_yesno",
+     "type": "yesno",
+     "id_ob": "t_yesno_1",
+     "value": "yes"
+    }
+   ],
+   "env": {
+    "query": {},
+    "user": {
+     "logged_in": false,
+     "roles": []
+    },
+    "current_step": 1
+   },
+   "extraFields": [],
+   "expect": {
+    "matched": [
+     "r"
+    ],
+    "jumps": [
+     "3"
+    ],
+    "optional": []
+   }
+  },
+  {
+   "family": "steps/jump",
+   "name": "set_required still wins on a skipped step",
+   "rules": [
+    {
+     "id": "r",
+     "name": "r",
+     "scope": "field",
+     "enabled": true,
+     "priority": 10,
+     "stop_processing": false,
+     "conditions": {
+      "type": "group",
+      "operator": "AND",
+      "items": [
+       {
+        "type": "condition",
+        "source": "field",
+        "field_id": "t_text",
+        "compare": "is",
+        "value": "Hello World"
+       }
+      ]
+     },
+     "actions": [
+      {
+       "type": "jump_to_step",
+       "target": "2"
+      },
+      {
+       "type": "set_required",
+       "target": "s2_opt"
+      }
+     ]
+    }
+   ],
+   "rows": [
+    {
+     "id_": "t_text",
+     "type": "text",
+     "value": "Hello World"
+    },
+    {
+     "id_": "t_area",
+     "type": "textarea",
+     "value": "a longer answer"
+    },
+    {
+     "id_": "t_email",
+     "type": "email",
+     "value": "user@example.com"
+    },
+    {
+     "id_": "t_url",
+     "type": "url",
+     "value": "https://example.com/a"
+    },
+    {
+     "id_": "t_num",
+     "type": "number",
+     "value": "42"
+    },
+    {
+     "id_": "t_range",
+     "type": "range",
+     "value": "7"
+    },
+    {
+     "id_": "t_date",
+     "type": "date",
+     "value": "2026-06-15"
+    },
+    {
+     "id_": "t_sel",
+     "type": "select",
+     "value": "Alpha"
+    },
+    {
+     "id_": "t_radio",
+     "type": "radio",
+     "id_ob": "ro_a",
+     "value": "RA"
+    },
+    {
+     "id_": "t_check",
+     "type": "checkbox",
+     "id_ob": "co_a",
+     "value": "CA"
+    },
+    {
+     "id_": "t_multi",
+     "type": "multiselect",
+     "value": "MA@efb!MB"
+    },
+    {
+     "id_": "t_yesno",
+     "type": "yesno",
+     "id_ob": "t_yesno_1",
+     "value": "yes"
+    }
+   ],
+   "env": {
+    "query": {},
+    "user": {
+     "logged_in": false,
+     "roles": []
+    },
+    "current_step": 1
+   },
+   "extraFields": [],
+   "expect": {
+    "matched": [
+     "r"
+    ],
+    "optional": [
+     "s2_req"
+    ],
+    "required": [
+     "s2_opt"
+    ]
+   }
+  },
+  {
    "family": "steps/branch",
    "name": "branch A closes both extra steps",
    "rules": [
@@ -33242,6 +33601,124 @@
      "id_": "s2_req",
      "type": "text",
      "value": "A"
+    },
+    {
+     "id_": "s3_req",
+     "type": "text",
+     "value": "B"
+    }
+   ],
+   "env": {
+    "query": {},
+    "user": {
+     "logged_in": false,
+     "roles": []
+    },
+    "current_step": 1
+   },
+   "extraFields": [],
+   "expect": {
+    "validate": {
+     "valid": true,
+     "missing": null
+    }
+   }
+  },
+  {
+   "family": "validation",
+   "name": "a jump past a step does not demand its required field",
+   "rules": [
+    {
+     "id": "r",
+     "name": "r",
+     "scope": "field",
+     "enabled": true,
+     "priority": 10,
+     "stop_processing": false,
+     "conditions": {
+      "type": "group",
+      "operator": "AND",
+      "items": [
+       {
+        "type": "condition",
+        "source": "field",
+        "field_id": "t_text",
+        "compare": "is",
+        "value": "Hello World"
+       }
+      ]
+     },
+     "actions": [
+      {
+       "type": "jump_to_step",
+       "target": "2"
+      }
+     ]
+    }
+   ],
+   "rows": [
+    {
+     "id_": "t_text",
+     "type": "text",
+     "value": "Hello World"
+    },
+    {
+     "id_": "t_area",
+     "type": "textarea",
+     "value": "a longer answer"
+    },
+    {
+     "id_": "t_email",
+     "type": "email",
+     "value": "user@example.com"
+    },
+    {
+     "id_": "t_url",
+     "type": "url",
+     "value": "https://example.com/a"
+    },
+    {
+     "id_": "t_num",
+     "type": "number",
+     "value": "42"
+    },
+    {
+     "id_": "t_range",
+     "type": "range",
+     "value": "7"
+    },
+    {
+     "id_": "t_date",
+     "type": "date",
+     "value": "2026-06-15"
+    },
+    {
+     "id_": "t_sel",
+     "type": "select",
+     "value": "Alpha"
+    },
+    {
+     "id_": "t_radio",
+     "type": "radio",
+     "id_ob": "ro_a",
+     "value": "RA"
+    },
+    {
+     "id_": "t_check",
+     "type": "checkbox",
+     "id_ob": "co_a",
+     "value": "CA"
+    },
+    {
+     "id_": "t_multi",
+     "type": "multiselect",
+     "value": "MA@efb!MB"
+    },
+    {
+     "id_": "t_yesno",
+     "type": "yesno",
+     "id_ob": "t_yesno_1",
+     "value": "yes"
     },
     {
      "id_": "s3_req",

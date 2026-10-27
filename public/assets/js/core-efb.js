@@ -2,6 +2,17 @@ let exportView_emsFormBuilder = [];
 let stepsCount;
 let sessionPub_emsFormBuilder = "reciveFromClient"
 
+/* Submit, Next and Previous are <a role="button"> without href; with
+ * tabindex="0" they are reachable by Tab, and this gives them the Enter and
+ * Space keys of a real button (WCAG 2.1.1). */
+document.addEventListener('keydown', function (e) {
+  if (e.key !== 'Enter' && e.key !== ' ' && e.key !== 'Spacebar') return;
+  var t = e.target;
+  if (!t || t.tagName !== 'A' || t.getAttribute('role') !== 'button' || t.hasAttribute('href') || !t.classList.contains('efb')) return;
+  e.preventDefault();
+  t.click();
+});
+
 function efb_steps_debug_efb(eventName, details) {
   try {
     if (typeof window === 'undefined' || window.EFB_STEPS_DEBUG !== true) return;
@@ -618,7 +629,28 @@ function check_body_efb_timer (){
 
 setTimeout( fun_efb_run, g_timeout_efb)
 
+/* Back/Forward: the browser refills typed answers without firing change, so
+ * the step check saw them as empty ("This field is required") and retyping
+ * the same text changed nothing. Record what it restored, only on a page
+ * reached through history so default values keep their usual handling. */
+window.addEventListener('pageshow', function (e) {
+  const nav = window.performance && performance.getEntriesByType ? performance.getEntriesByType('navigation')[0] : null;
+  if (!e.persisted && !(nav && nav.type === 'back_forward')) return;
+  setTimeout(function () {
+    if (typeof sendBack_emsFormBuilder_pub === 'undefined' || typeof valj_efb === 'undefined') return;
+    document.querySelectorAll('.emsFormBuilder_v').forEach(function (el) {
+      if (!['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName) || !el.dataset.vid || !el.value) return;
+      if (['hidden', 'file', 'submit', 'button', 'checkbox', 'radio', 'password', 'range', 'color'].includes(el.type)) return;
+      const form_id = el.dataset.formid || 0;
+      if (get_row_sendback_by_id_efb_v4(el.dataset.vid, form_id) !== -1) return;
+      handle_change_event_efb_v4(el, form_id);
+    });
+  }, 600);
+});
+
 async function createStepsOfPublic() {
+ // Not localized on a page that shows only the members-only lock card: no form to set up.
+ if (typeof ajax_object_efm === 'undefined') return;
  state_efb = "run";
  efb_var = ajax_object_efm;
  setting_emsFormBuilder = typeof ajax_object_efm.form_setting == "string" ? efbParseJson(ajax_object_efm.form_setting) : ajax_object_efm.form_setting;
@@ -1772,7 +1804,9 @@ async function response_fill_form_efb(res ,form_id=0) {
     btn_prev = `efb_go_to_step_direct(${form_id}, ${_backStep})`;
   }
   if (res.data.success == true) {
-    if(valj_efb.length>0 && valj_efb[0].hasOwnProperty('thank_you')==true && valj_efb[0].thank_you=='rdrct' && typeof res.data.m === 'string' ){
+    // Register and login answer with their message in m and the address in
+    // redirect_url; their own cases below redirect, m is not a URL for them.
+    if(valj_efb.length>0 && valj_efb[0].hasOwnProperty('thank_you')==true && valj_efb[0].thank_you=='rdrct' && typeof res.data.m === 'string' && t.type != 'register' && t.type != 'login'){
       efb_final_step.innerHTML = `
       <h3 class="efb fs-4 text-center">${efb_var.text.sentSuccessfully}</h3>
       <h3 class="efb  text-center">${efb_var.text.pWRedirect} <br><a class="efb text-darkb" href="${res.data.m}">${efb_var.text.orClickHere}</a></h3>
@@ -2005,7 +2039,8 @@ change_url_back_persia_pay_efb=()=>{
   if(indx!=-1)history.pushState({'page_id': 1},`${document.title} !`, document.URL.slice(0,indx));
 }
 window.addEventListener("popstate",e=>{
-  if (e.state.search('EFBstep-') ==-1) return
+  // A #anchor link (the theme's skip link, say) pops a null or object state.
+  if (typeof e.state !== 'string' || e.state.search('EFBstep-') ==-1) return
     Number(e.state.slice(8)) <= Number(current_s_efb)  ? prev_btn_efb() :jQuery("#next_efb").trigger('click');
  })
  fun_gets_url_efb =()=>{
@@ -2390,7 +2425,9 @@ document.addEventListener("DOMContentLoaded",async function() {
   }
 
   let elements = document.querySelectorAll('#body_efb');
-  const msg = `<h3 class="efb fs-5 text-center text-dark bg-warning m-3 p-3">${ajax_object_efm.text.fetf} <div class='efb mt-1 fs-6'> ${ajax_object_efm.text.easyFormBuilder}</div> </h3>`
+  // Absent on a page that shows only the members-only lock card.
+  const _efm_text = typeof ajax_object_efm !== 'undefined' && ajax_object_efm.text ? ajax_object_efm.text : {};
+  const msg = `<h3 class="efb fs-5 text-center text-dark bg-warning m-3 p-3">${_efm_text.fetf || ''} <div class='efb mt-1 fs-6'> ${_efm_text.easyFormBuilder || ''}</div> </h3>`
   fun =()=>{
     for (let i = 1; i < elements.length; i++) {
       elements[i].innerHTML = msg;

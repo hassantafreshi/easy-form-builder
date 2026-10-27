@@ -659,6 +659,19 @@ add('steps/jump', 'no jump while the rule misses',
   [rule('r', NEVER, [{ type: 'jump_to_step', target: '2' }])], baseRows(),
   { matched: [], jumps: [] });
 
+// Step id '2' sits at position 3: a jump from the step-1 condition skips position 2.
+add('steps/jump', 'a forward jump makes the skipped step optional',
+  [rule('r', WHEN, [{ type: 'jump_to_step', target: '2' }])], baseRows(),
+  { matched: ['r'], jumps: ['2'], optional: ['s2_opt', 's2_req'], hiddenSteps: [], ignored: [] });
+
+add('steps/jump', 'a jump to the next step skips nothing',
+  [rule('r', WHEN, [{ type: 'jump_to_step', target: '3' }])], baseRows(),
+  { matched: ['r'], jumps: ['3'], optional: [] });
+
+add('steps/jump', 'set_required still wins on a skipped step',
+  [rule('r', WHEN, [{ type: 'jump_to_step', target: '2' }, { type: 'set_required', target: 's2_opt' }])], baseRows(),
+  { matched: ['r'], optional: ['s2_req'], required: ['s2_opt'] });
+
 // a three-way branch driven by one select — the shape of the reported form
 const BRANCH = [
   rule('b_two', group('AND', [cond('t_sel', 'is', 'so_b')]),
@@ -816,6 +829,11 @@ add('validation', 'a structurally required field is enforced',
 add('validation', 'filling both required fields is accepted',
   [rule('r', WHEN, [{ type: 'hide_field', target: 't_out1' }])],
   baseRows([{ id_: 's2_req', type: 'text', value: 'A' }, { id_: 's3_req', type: 'text', value: 'B' }]),
+  { validate: { valid: true, missing: null } });
+
+add('validation', 'a jump past a step does not demand its required field',
+  [rule('r', WHEN, [{ type: 'jump_to_step', target: '2' }])],
+  baseRows([{ id_: 's3_req', type: 'text', value: 'B' }]),
   { validate: { valid: true, missing: null } });
 
 add('validation', 'set_optional releases the requirement',

@@ -1123,10 +1123,15 @@ public function check_nonce_permission_efb($request) {
 					$is_track= $this->EMS_Form_Builder_track();
 
 				}
-			}else if(isset($this->id)){
+			}else if($this->id <= 0){
+				// [Easy_Form_Builder_confirmation_code_finder] carries no id.
 				$is_track= $this->EMS_Form_Builder_track();
 
 			}else{
+				/* The shortcode names a form that was deleted: visitors used to get
+				 * an unrelated confirmation-code finder. They now see nothing; the
+				 * people who manage forms see why. */
+				if (!current_user_can('Emsfb')) return '';
 				return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'> <div class='efb text-center my-5'><div class='efb text-danger efb text-center display-1 my-2'>
 					<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' class='bi bi-exclamation-triangle-fill' viewBox='0 0 16 16'>
 					<path d='M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5m.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2'/>
@@ -2356,7 +2361,7 @@ public function check_nonce_permission_efb($request) {
 
 		$translation_keys = [
 			'somethingWentWrongPleaseRefresh', 'pleaseMakeSureAllFields', 'PleaseFillForm', 'bkXpM_', 'bkFlM_', 'mnvvXXX_', 'ptrnMmm_', 'ptrnMmx_', 'payment', 'error403', 'errorSiteKeyM',
-			'errorCaptcha', 'pleaseEnterVaildValue', 'createAcountDoneM', 'incorrectUP', 'sentBy', 'newPassM', 'done', 'surveyComplatedM', 'error405', 'errorSettingNFound', 'errorMRobot',
+			'errorCaptcha', 'pleaseEnterVaildValue', 'createAcountDoneM', 'uraatn', 'incorrectUP', 'sentBy', 'newPassM', 'done', 'surveyComplatedM', 'error405', 'errorSettingNFound', 'errorMRobot',
 			'clcdetls', 'vmgs', 'youRecivedNewMessage', 'WeRecivedUrM', 'thankRegistering', 'welcome', 'thankSubscribing', 'thankDonePoll', 'thankFillForm', 'trackNo', 'fernvtf', 'msgdml', 'newMessageReceived','sxnlex','snotfound','response','fform','msgSndBut','smsWPN',
 			'surveyResults', 'responses'
 		];
@@ -3020,8 +3025,9 @@ public function check_nonce_permission_efb($request) {
 										$validated_item = null;
 										$rs = explode("@efb!", $item['value']);
 										array_filter($form_fields_array, function ($fr) use ($item, &$validated_item, $rs) {
+											// "&amp;" in a template option vs the "&" the browser sends
 											foreach ($rs as $k => $v) {
-												if (isset($item['type'])  && $fr['type'] == "option" && isset($fr['value']) && isset($v) && $fr['value'] == $v &&  $fr['parent'] == $item['id_']) {
+												if (isset($item['type'])  && $fr['type'] == "option" && isset($fr['value']) && isset($v) && $this->same_option_text_efb($fr['value'], $v) &&  $fr['parent'] == $item['id_']) {
 													$validated_item == null ? $validated_item = $v . '@efb!' : $validated_item = $validated_item . $v . '@efb!';
 												}
 											}
@@ -3039,7 +3045,7 @@ public function check_nonce_permission_efb($request) {
 										$item['value'] = sanitize_text_field($item['value']);
 										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
 										array_filter($form_fields_array, function ($fr, $ki) use ($item, &$validated_item, &$is_valid, &$form_fields_array, $form_condition, &$error_message) {
-											if (isset($item['type'])  && $fr['type'] == "option" && isset($fr['value']) && isset($item['value']) && $fr['value'] == $item['value'] &&  $fr['parent'] == $item['id_']) {
+											if (isset($item['type'])  && $fr['type'] == "option" && isset($fr['value']) && isset($item['value']) && $this->same_option_text_efb($fr['value'], $item['value']) &&  $fr['parent'] == $item['id_']) {
 												$is_valid = 1;
 												$item['value'] = $fr['value'];
 												$validated_item = $item;
@@ -3933,6 +3939,17 @@ public function check_nonce_permission_efb($request) {
 									}
 									$response = ['success' => false, 'm' => $m];
 								} else {
+									if ($should_send_email && $email != "null") {
+										// Signs in after the verification link (block_unverified_login_efb()).
+										update_user_meta($state, 'efb_pending_verification', 1);
+									} else {
+										/* No verification mail can go out (e-mail is off for this
+										 * site or form), so the link would never arrive and the
+										 * account stayed without a role for good. */
+										$new_user = get_user_by('id', $state);
+										if ($new_user) $new_user->set_role('subscriber');
+										$m = $this->lanText['uraatn']; // "activated, you can now log in", not "you will receive an email"
+									}
 
 									if ($email != "null") {
 
@@ -4037,7 +4054,7 @@ public function check_nonce_permission_efb($request) {
 										$send = [
 											'state' => false,
 											'pro' => $is_pro,
-											'error' => $this->lanText['incorrectUP']
+											'error' => is_wp_error($user) && $user->get_error_code() === 'efb_pending_verification' ? $user->get_error_message() : $this->lanText['incorrectUP']
 										];
 										$response = ['success' => true, 'm' => $send];
 										wp_send_json_success($response, 200);
@@ -8529,6 +8546,7 @@ public function check_nonce_permission_efb($request) {
 
 				$user_id = $user->ID;
 				$user->set_role('subscriber');
+				delete_user_meta($user_id, 'efb_pending_verification');
 			}
 			return '<p text-align: center;">'.$lan['uraatn'].'</p>' . Js_();
 		}
@@ -9002,6 +9020,16 @@ public function check_nonce_permission_efb($request) {
 		return $obj;
 	}
 
+	/**
+	 * A select/multiselect answer matches its saved option. Template options
+	 * are stored HTML-escaped ("Accounting &amp; Sell question") while the
+	 * browser sends the text ("&"), so the Support template refused two of
+	 * its three default options.
+	 */
+	private function same_option_text_efb($saved, $sent) {
+		if (!is_scalar($saved) || !is_scalar($sent)) return false;
+		return wp_specialchars_decode((string) $saved, ENT_QUOTES) === wp_specialchars_decode((string) $sent, ENT_QUOTES);
+	}
 	public function dedupe_by_id_and_ob_efb(array $rows): array {
     $seen = [];
     $out  = [];

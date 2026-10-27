@@ -68,6 +68,9 @@ class Emsfb {
         add_action('plugins_loaded', [$this, 'check_version_and_upgrade_efb']);
         add_action('plugins_loaded', [$this, 'maybe_upgrade_schema_efb'], 11);
 
+        // Accounts from an EFB register form sign in only after the e-mail link.
+        add_filter('wp_authenticate_user', [$this, 'block_unverified_login_efb'], 10, 2);
+
         // Must sit after rest_cookie_check_errors (priority 100) so it can see,
         // and selectively undo, the 403 that core raises for a stale nonce.
         add_filter('rest_authentication_errors', [$this, 'allow_anonymous_stale_nonce_efb'], 101);
@@ -145,6 +148,30 @@ class Emsfb {
      *
      * @return void
      */
+    /**
+     * An account created by an EFB register form waits for its e-mail link
+     * (register_() gives it the subscriber role and clears the mark). Until
+     * then it has no role, yet wp_signon() let it in. A role the owner sets by
+     * hand also counts as approval. Accounts made before 4.3.1 carry no mark.
+     *
+     * @param \WP_User|\WP_Error $user
+     * @return \WP_User|\WP_Error
+     */
+    public function block_unverified_login_efb($user, $password = '') {
+        if (!($user instanceof \WP_User) || empty($user->ID)) {
+            return $user;
+        }
+        if (get_user_meta($user->ID, 'efb_pending_verification', true) && empty($user->roles)) {
+            // This filter runs before core checks the password: only someone who
+            // knows it learns that the account exists and is waiting.
+            if (!wp_check_password($password, $user->user_pass, $user->ID)) {
+                return $user;
+            }
+            return new \WP_Error('efb_pending_verification', esc_html__('Please confirm your email address with the link we sent you before logging in.', 'easy-form-builder'));
+        }
+        return $user;
+    }
+
     public function maybe_upgrade_schema_efb(): void {
         $stored = get_option('Emsfb_db_version', '0');
 

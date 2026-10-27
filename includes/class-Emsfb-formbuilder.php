@@ -2370,7 +2370,7 @@
 
 		$s = sprintf(
 			'<div class="efb d-flex %s %s text-center efb mx-3" id="f_btn_send_efb" data-tag="buttonNav" data-formid="%s">
-				<a id="btn_send_efb" role="button" class="efb text-decoration-none mx-0 btn p-2 %s %s %s %s %s efb-btn-lg btn_send_efb" data-formid="%s" data-currentstep="1" onclick="btn_navigate_handle_efb(\'%s\' ,\'%s\' ,\'%s\',this)">%s<span id="button_group_button_single_text" class="efb %s" >%s</span></a>
+				<a id="btn_send_efb" role="button" tabindex="0" class="efb text-decoration-none mx-0 btn p-2 %s %s %s %s %s efb-btn-lg btn_send_efb" data-formid="%s" data-currentstep="1" onclick="btn_navigate_handle_efb(\'%s\' ,\'%s\' ,\'%s\',this)">%s<span id="button_group_button_single_text" class="efb %s" >%s</span></a>
 			</div>',
 			$btns_align,
 			$state == 0 ? 'd-block' : 'd-none',
@@ -2391,8 +2391,8 @@
 
 		$d = sprintf(
 			'<div class="efb d-flex %s %s %s text-center efb" id="f_button_form_np" data-formid="%s" data-step="1">
-				<a id="prev_efb"  data-formid="%s" data-currentstep="1" role="button" class="efb text-decoration-none btn p-2  %s %s %s efb-btn-lg m-1 d-none prev_efb" onclick="btn_navigate_handle_efb(\'%s\' ,\'%s\' ,\'%s\',this)">%s<span id="button_group_Previous_button_text" class="efb %s">%s</span></a>
-				<a id="next_efb"  data-formid="%s" data-currentstep="1" role="button" class="efb text-decoration-none btn %s p-2 %s %s %s efb-btn-lg m-1 next_efb" onclick="btn_navigate_handle_efb(\'%s\' ,\'%s\' ,\'%s\',this)"><span id="button_group_Next_button_text" class="efb %s">%s</span>%s</a>
+				<a id="prev_efb"  data-formid="%s" data-currentstep="1" role="button" tabindex="0" class="efb text-decoration-none btn p-2  %s %s %s efb-btn-lg m-1 d-none prev_efb" onclick="btn_navigate_handle_efb(\'%s\' ,\'%s\' ,\'%s\',this)">%s<span id="button_group_Previous_button_text" class="efb %s">%s</span></a>
+				<a id="next_efb"  data-formid="%s" data-currentstep="1" role="button" tabindex="0" class="efb text-decoration-none btn %s p-2 %s %s %s efb-btn-lg m-1 next_efb" onclick="btn_navigate_handle_efb(\'%s\' ,\'%s\' ,\'%s\',this)"><span id="button_group_Next_button_text" class="efb %s">%s</span>%s</a>
 			</div>',
 			$btns_align,
 			$state == 1 ? 'd-block' : 'd-none',

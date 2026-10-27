@@ -1987,7 +1987,9 @@ function response_rMessage_id(res, message) {
     if (richEditor) richEditor.innerHTML = '';
     document.getElementById('replay_state__emsFormBuilder').innerHTML = res.data.m;
     efb_reply_button_state_efb(false);
-    const date = Date();
+    // Same "Y-m-d H:i:s" as the replies the server lists, not Date()'s raw string.
+    const _now = new Date(), _p = (n) => String(n).padStart(2, '0');
+    const date = `${_now.getFullYear()}-${_p(_now.getMonth() + 1)}-${_p(_now.getDate())} ${_p(_now.getHours())}:${_p(_now.getMinutes())}:${_p(_now.getSeconds())}`;
     fun_emsFormBuilder__add_a_response_to_messages(message, efb_reply_sender_name_efb(res, message), 0, 0, date);
     const chatHistory = document.getElementById("resp_efb");
     chatHistory.scrollTop = chatHistory.scrollHeight;
