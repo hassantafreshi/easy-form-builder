@@ -87,7 +87,12 @@ class Admin {
     }
 
     public function maybe_add_cap_efb() {
-        if (is_super_admin()) {
+        // On Multisite the Administrator role is stored per site. Waiting for a
+        // super admin left every sub-site administrator with "Sorry, you are not
+        // allowed to access this page" on all Easy Form Builder screens until a
+        // super admin happened to open that site's dashboard, so a site's own
+        // administrator may grant it too.
+        if (is_super_admin() || (is_multisite() && current_user_can('manage_options'))) {
             $this->add_cap();
         }
     }
@@ -97,11 +102,16 @@ class Admin {
         if (!$role) {
             return;
         }
-        foreach (self::get_administrator_capabilities_efb() as $capability) {
-            $role->add_cap($capability);
-        }
+        $capabilities = self::get_administrator_capabilities_efb();
         if(is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended")) {
-            $role->add_cap('Emsfb_sms_efb');
+            $capabilities[] = 'Emsfb_sms_efb';
+        }
+        // WP_Role::add_cap() rewrites the roles option on every call, and this
+        // runs on every admin request: only write what is actually missing.
+        foreach ($capabilities as $capability) {
+            if (!$role->has_cap($capability)) {
+                $role->add_cap($capability);
+            }
         }
     }
 
