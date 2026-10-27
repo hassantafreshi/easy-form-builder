@@ -1309,11 +1309,19 @@ function valid_email_emsFormBuilder(el) {
   }
   return check > 0 ? false : true
 }
-/* Email, phone and URL fields: true when the typed value is acceptable. Shows
- * the field's own message otherwise (the change handlers use the same checks). */
+/* Email, phone, URL and number fields: true when the typed value is acceptable.
+ * Email and phone show their message here; URL and number already show it from
+ * the change handler (number Min/Max are values, carried in minlength/maxlength). */
 function valid_typed_value_efb(type, el) {
   if (type == 'email') return valid_email_emsFormBuilder(el);
   if (type == 'tel') return valid_phone_emsFormBuilder(el);
+  if (type == 'number') {
+    const n = Number(el.value);
+    if (isNaN(n)) return false;
+    if (el.hasAttribute('minlength') && n < el.minLength) return false;
+    const max = el.hasAttribute('maxlength') ? el.maxLength : 0;
+    return !(max > 0 && n > max);
+  }
   return /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?!&\/=;',]*)$/.test(el.value);
 }
 function valid_password_emsFormBuilder(el) {
@@ -4090,8 +4098,8 @@ async function fun_validation_efb_v4(form_id) {
     /* An email field holding text that is not an address. valid_email_emsFormBuilder()
      * already dropped the value, so an optional field used to submit without it,
      * silently, and a required one said "required" instead of what is wrong. */
-    if (row > 1 && ['email', 'tel', 'url'].includes(valj_efb[row].type) && current_s_efb == valj_efb[row].step) {
-      // The same holds for phone and URL fields: their change handlers drop an invalid value too.
+    if (row > 1 && ['email', 'tel', 'url', 'number'].includes(valj_efb[row].type) && current_s_efb == valj_efb[row].step) {
+      // The same holds for phone, URL and number fields: their change handlers drop an invalid value too.
       const typedEl = efb_get_by_id_in_form_efb(form_id, `${valj_efb[row].id_}_`);
       if (typedEl && typeof typedEl.value === 'string' && typedEl.value.trim() !== '' && !valid_typed_value_efb(valj_efb[row].type, typedEl)) {
         if (state == true) { state = false; idi = valj_efb[row].id_; name_field = valj_efb[row].name; }
