@@ -1747,37 +1747,20 @@ let change_el_edit_Efb = (el) => {
         break;
       case "adminFormEmailEl":
         if (efb_var.smtp == "1") {
-           if(el.value.includes(',')){
-
-            let emails=el.value.split(',');
-            let isEmail=true;
-              emails.forEach((email)=>{
-                email=email.trim();
-                if (email.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)==null) isEmail=false;
-                if(isEmail==false) {
-                  alert_message_efb(efb_var.text.error, efb_var.text.invalidEmail+ ` (${email})`, 10, "danger");
-                  valj_efb[0].email="";
-                  return false;
-                }
-              })
-              valj_efb[0].email = el.value.trim();
-              valj_efb[0].sendEmail=true;
-              break;
-            }else{
-
-              if (el.value.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/))
-              {
-                valj_efb[0].email = el.value;
-                valj_efb[0].sendEmail=true;
-                break;
-              }
-              else {
-                if (el.value!="") alert_message_efb(efb_var.text.error, efb_var.text.invalidEmail, 10, "danger");
-                document.getElementById("adminFormEmailEl").value = "";
-                valj_efb[0].email="";
-
-              }
-            }
+          // "a@x.com, b@x.com": each address is checked and stored without the
+          // spaces (the server dropped " b@x.com"); a list with an invalid one is
+          // not saved. Plus addressing and TLDs longer than 4 letters are valid.
+          const emailFormat = /^[\w.+'-]+@([\w-]+\.)+[\w-]{2,}$/;
+          const emails = el.value.split(',').map((email) => email.trim()).filter((email) => email !== '');
+          const invalid = emails.find((email) => !emailFormat.test(email));
+          if (emails.length > 0 && invalid === undefined) {
+            valj_efb[0].email = emails.join(',');
+            valj_efb[0].sendEmail = true;
+            break;
+          }
+          if (invalid !== undefined) alert_message_efb(efb_var.text.error, efb_var.text.invalidEmail + (emails.length > 1 ? ` (${invalid})` : ''), 10, "danger");
+          if (emails.length < 2) document.getElementById("adminFormEmailEl").value = "";
+          valj_efb[0].email = "";
         } else if (efb_var.smtp == '-1') {
           if(document.getElementById("adminFormEmailEl"))document.getElementById("adminFormEmailEl").value = "";
 

@@ -61,7 +61,7 @@
 
 		$label_class_str = implode(' ', array_filter($label_classes));
 
-		return '<label for="' . $rndm . '_" class="' . $label_class_str . '" id="' . $rndm . '_labG"><span id="' . $rndm . '_lab" class="efb ' . $label_text_size . '">' . $vj->name . '</span>' . $required . '</label>';
+		return '<label for="' . $rndm . '_" class="' . $label_class_str . '" id="' . $rndm . '_labG"><span id="' . $rndm . '_lab" class="efb ' . $label_text_size . '">' . esc_html($vj->name) . '</span>' . $required . '</label>';
 	}
 
 	/**
@@ -221,7 +221,7 @@
 		$additional_classes = isset($vj->classes) ? str_replace(',', ' ', $vj->classes) : '';
 
 		return sprintf(
-			'%s %s %s <input type="%s" class="efb input-efb px-2 mb-0 emsFormBuilder_v w-100 %s %s %s %s %s efbField efb1 %s" data-id="%s-el" data-vid="%s" data-formid="%s" data-css="%s" id="%s_" %s %s aria-required="%s" aria-label="%s" %s autocomplete="%s" %s %s %s %s> %s',  $label,  $div_f_id,  $ttip,  $type,  $classes,  $el_height,  $corener,  $el_text_color,  $required,  $additional_classes,  $rndm,  $rndm,  $form_id,  $rndm,  $rndm,  $placeholder,  $value,  $aria_required,  $vj->name,  $aire_describedby,  $autocomplete,  $lenAttributes['maxlen'],  $lenAttributes['minlen'],  $readonly,  $telPattern,  $desc
+			'%s %s %s <input type="%s" class="efb input-efb px-2 mb-0 emsFormBuilder_v w-100 %s %s %s %s %s efbField efb1 %s" data-id="%s-el" data-vid="%s" data-formid="%s" data-css="%s" id="%s_" %s %s aria-required="%s" aria-label="%s" %s autocomplete="%s" %s %s %s %s> %s',  $label,  $div_f_id,  $ttip,  $type,  $classes,  $el_height,  $corener,  $el_text_color,  $required,  $additional_classes,  $rndm,  $rndm,  $form_id,  $rndm,  $rndm,  $placeholder,  $value,  $aria_required,  esc_attr($vj->name),  $aire_describedby,  $autocomplete,  $lenAttributes['maxlen'],  $lenAttributes['minlen'],  $readonly,  $telPattern,  $desc
 		);
 	}
 
@@ -536,7 +536,7 @@
 			$rndm,
 			$rndm,
 			$ariaRequired,
-			$vj->name,
+			esc_attr($vj->name),
 			$ariaDescribedBy,
 			$type,
 			$formId,
@@ -611,7 +611,7 @@
 			$rndm,
 			$formId,
 			$ariaRequired,
-			$vj->name,
+			esc_attr($vj->name),
 			$ariaDescribedBy,
 			$readonly,
 			$disabled,
@@ -683,7 +683,7 @@
 			$rndm,
 			$formId,
 			$ariaRequired,
-			$vj->name,
+			esc_attr($vj->name),
 			$ariaDescribedBy,
 			$readonly,
 			$disabled,
@@ -1282,7 +1282,7 @@
 			}, 1000);',
 			$rndm,
 			$vj->id_,
-			$vj->name,
+			esc_attr($vj->name),
 			$vj->amount,
 			$vj->type,
 			$texts['cpnnc'],
@@ -1306,7 +1306,7 @@
 			$classes,
 			$rndm,
 			$ariaRequired,
-			$vj->name,
+			esc_attr($vj->name),
 			$ariaDescribedBy,
 			$readonly,
 			$disabled,
@@ -1330,7 +1330,7 @@
 				}, 4000);',
 				$vj->id_,
 				$vj->id_,
-				$vj->name,
+				esc_attr($vj->name),
 				$vj->amount,
 				$vj->type,
 				$value
@@ -2122,7 +2122,7 @@
             $rndm,
             $rndm,
             $ariaRequired,
-            $vj->name,
+            esc_attr($vj->name),
             $ariaDescribedBy,
             $readonly,
             $disabled,
@@ -2507,7 +2507,7 @@
 						$form_id,
 						$valueAttr,
 						$ariaRequiredAttr,
-						$vj->name,
+						esc_attr($vj->name),
 						$aire_describedby,
 						$readonlyAttr,
 						$desc
@@ -2566,7 +2566,7 @@
 						$minlen,
 						$maxlen,
 						$ariaRequiredAttr,
-						$vj->name,
+						esc_attr($vj->name),
 						$aire_describedby,
 						$readonlyAttr,
 						$temp ?: 50,
@@ -2592,7 +2592,7 @@
 						str_replace(',', ' ', $vj->classes),
 						$element_Id,
 						($vj->required == 1 ? 'true' : 'false'),
-						$vj->name,
+						esc_attr($vj->name),
 						$aire_describedby,
 						($disabled == "disabled" ? 'readonly' : ''),
 						$desc,

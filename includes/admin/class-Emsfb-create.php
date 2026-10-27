@@ -378,7 +378,7 @@ class Create {
 		$lang = $efbFunction->text_efb($creat);
 		$this->userId =get_current_user_id();
 
-		$nonce = $_POST['nonce'];
+		$nonce = isset($_POST['nonce']) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
 		if ( !wp_verify_nonce( $nonce, 'wp_rest' ) || !current_user_can('Emsfb') ) {
             $response = ['success' => false, 'm' =>  $lang['error403']];
             wp_send_json_success($response, 200);

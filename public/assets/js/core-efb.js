@@ -697,7 +697,7 @@ async function createStepsOfPublic() {
               el.addEventListener('input', function() {
                 var cursorPos = this.selectionStart;
                 var oldLen = this.value.length;
-                var cleaned = this.value.replace(/[^0-9+\-\s().]/g, '');
+                var cleaned = efb_ascii_digits_efb(this.value).replace(/[^0-9+\-\s().]/g, '');
                 var firstPlus = cleaned.indexOf('+');
                 if (firstPlus > 0) { cleaned = cleaned.replace(/\+/g, ''); }
                 else if (firstPlus === 0) { cleaned = '+' + cleaned.slice(1).replace(/\+/g, ''); }
@@ -710,7 +710,7 @@ async function createStepsOfPublic() {
               el.addEventListener('paste', function(e) {
                 e.preventDefault();
                 var paste = (e.clipboardData || window.clipboardData).getData('text') || '';
-                var cleaned = paste.replace(/[^0-9+\-\s().]/g, '');
+                var cleaned = efb_ascii_digits_efb(paste).replace(/[^0-9+\-\s().]/g, '');
                 var firstPlus = cleaned.indexOf('+');
                 if (firstPlus > 0) { cleaned = cleaned.replace(/\+/g, ''); }
                 else if (firstPlus === 0) { cleaned = '+' + cleaned.slice(1).replace(/\+/g, ''); }
@@ -726,7 +726,7 @@ async function createStepsOfPublic() {
               el.addEventListener('keydown', function(e) {
                 if (e.ctrlKey || e.metaKey || e.altKey) return;
                 if (e.key && e.key.length === 1) {
-                  if (!/[0-9+\-\s().]/.test(e.key)) { e.preventDefault(); }
+                  if (!/[0-9+\-\s().\u06F0-\u06F9\u0660-\u0669]/.test(e.key)) { e.preventDefault(); }
                   if (e.key === '+' && (this.selectionStart !== 0 || this.value.indexOf('+') !== -1)) { e.preventDefault(); }
                 }
               });
@@ -1278,11 +1278,17 @@ async function actionSendData_emsFormBuilder(form_id=0) {
     }
     post_api_forms_efb(data,form_id);
 }
+/* Persian (۰-۹) and Arabic-Indic (٠-٩) digits to 0-9: phone keyboards in
+ * Iran and the Arab world type these, and the phone filter dropped them. */
+function efb_ascii_digits_efb(str) {
+  return String(str).replace(/[\u06F0-\u06F9]/g, function (d) { return String(d.charCodeAt(0) - 0x06F0); })
+    .replace(/[\u0660-\u0669]/g, function (d) { return String(d.charCodeAt(0) - 0x0660); });
+}
 function valid_email_emsFormBuilder(el) {
   let offsetw = offset_view_efb();
   const msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onclick="alert_message_efb('${ajax_object_efm.text.enterTheEmail}','',10,'danger');"></div>` : ajax_object_efm.text.enterTheEmail;
   let check = 0;
-  const format =/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  const format =/^[a-zA-Z0-9._%+'-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   check += el.value.match(format) ? 0 : 1;
   const form_id = el.dataset.formid || 0;
   if (check > 0) {
@@ -1302,6 +1308,13 @@ function valid_email_emsFormBuilder(el) {
     hide_msg_efb(document.getElementById(`${el.id}-message`));
   }
   return check > 0 ? false : true
+}
+/* Email, phone and URL fields: true when the typed value is acceptable. Shows
+ * the field's own message otherwise (the change handlers use the same checks). */
+function valid_typed_value_efb(type, el) {
+  if (type == 'email') return valid_email_emsFormBuilder(el);
+  if (type == 'tel') return valid_phone_emsFormBuilder(el);
+  return /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?!&\/=;',]*)$/.test(el.value);
 }
 function valid_password_emsFormBuilder(el) {
   let check = 0;
@@ -3651,7 +3664,7 @@ async function handle_change_event_efb_v4(el ,form_id=0){
             }
             delete_by_id(id_);
             return 0;
-    }else if(value < len && el.type=="number"){
+    }else if(el.type=="number" && el.hasAttribute('minlength') && Number(value) < len){
       state = false;
       el.className = colorBorderChangerEfb(el.className, "border-danger");
       vd = document.getElementById(`${el.id}-message`);
@@ -3738,7 +3751,8 @@ async function handle_change_event_efb_v4(el ,form_id=0){
       }
       {
         let lenResult = await validate_len_efb_v4();
-        if(lenResult===0 && (el.dataset.hasOwnProperty('type') && el.dataset.type!="chlCheckBox")){
+        // Number inputs carry no data-type, so their Min/Max message was shown and then ignored.
+        if(lenResult===0 && (el.type=="number" || (el.dataset.hasOwnProperty('type') && el.dataset.type!="chlCheckBox"))){
           sendback_state_handler_efb_v4(id_,false,0,form_id);
           updateStepButtonState_efb(form_id);
           return;
@@ -4076,11 +4090,12 @@ async function fun_validation_efb_v4(form_id) {
     /* An email field holding text that is not an address. valid_email_emsFormBuilder()
      * already dropped the value, so an optional field used to submit without it,
      * silently, and a required one said "required" instead of what is wrong. */
-    if (row > 1 && valj_efb[row].type == 'email' && current_s_efb == valj_efb[row].step) {
-      const emailEl = efb_get_by_id_in_form_efb(form_id, `${valj_efb[row].id_}_`);
-      if (emailEl && typeof emailEl.value === 'string' && emailEl.value.trim() !== '' && valid_email_emsFormBuilder(emailEl) === false) {
+    if (row > 1 && ['email', 'tel', 'url'].includes(valj_efb[row].type) && current_s_efb == valj_efb[row].step) {
+      // The same holds for phone and URL fields: their change handlers drop an invalid value too.
+      const typedEl = efb_get_by_id_in_form_efb(form_id, `${valj_efb[row].id_}_`);
+      if (typedEl && typeof typedEl.value === 'string' && typedEl.value.trim() !== '' && !valid_typed_value_efb(valj_efb[row].type, typedEl)) {
         if (state == true) { state = false; idi = valj_efb[row].id_; name_field = valj_efb[row].name; }
-        continue; // the field already shows the "enter a valid email" message
+        continue; // the field already shows its "enter a valid …" message
       }
     }
     if (row > 1 && valj_efb[row].required == true && current_s_efb == valj_efb[row].step && valj_efb[row].type != "chlCheckBox") {

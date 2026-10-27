@@ -285,8 +285,8 @@ class Admin {
         $lang= $efbFunction->text_efb($text);
         $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
         $post_value = isset($_POST['value']) ? wp_unslash( $_POST['value'] ) : '';
-        $id =  ( int ) sanitize_text_field( wp_unslash( $_POST['id']) );
-        $name = sanitize_text_field( wp_unslash( $_POST['name']) );
+        $id =  isset($_POST['id']) ? ( int ) sanitize_text_field( wp_unslash( $_POST['id']) ) : 0;
+        $name = isset($_POST['name']) ? sanitize_text_field( wp_unslash( $_POST['name']) ) : '';
         if (!check_ajax_referer('wp_rest', 'nonce', false) || !$currrent_user_can)  {
             $m = $lang['error403'];
             $response = ['success' => false, 'm' => $m];

@@ -40,11 +40,6 @@ class _Public {
 			$this->efb_uid  = get_current_user_id();
 			$this->efbFunction = get_efbFunction();
 			$settings = get_setting_Emsfb('raw');
-			register_rest_route('Emsfb/v1','test/(?P<name>[a-zA-Z0-9_]+)/(?P<id>[a-zA-Z0-9_]+)', [
-				'method'=> 'POST',
-				'callback'=>  [$this,'test_fun'],
-				'permission_callback' => [$this, 'check_nonce_permission_efb']
-			]);
 			register_rest_route('Emsfb/v1','forms/message/add', [
 				'methods' => 'POST',
 				'callback'=>  [$this,'get_form_public_efb'],
@@ -2779,8 +2774,18 @@ public function check_nonce_permission_efb($request) {
 									$is_valid = 0;
 									if (isset($item['value'])) {
 										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
-										$item['value'] = sanitize_url($item['value']);
+										$raw_url = is_string($item['value']) ? trim($item['value']) : '';
+										$item['value'] = sanitize_url($raw_url);
 										$is_valid = 1;
+										/* The browser accepts only http(s) addresses with a dotted
+										 * host; sanitize_url() turns plain text into
+										 * "http://not%20a%20url", which used to be stored. */
+										if ($raw_url !== '') {
+											$url_host = wp_parse_url($item['value'], PHP_URL_HOST);
+											if (!preg_match('#^https?://#i', $raw_url) || !is_string($url_host) || strpos($url_host, '.') === false) {
+												$is_valid = 0;
+											}
+										}
 										$l = strlen($item['value']);
 										if ((isset($f['milen']) && $f['milen'] > $l) || (isset($f['mlen']) && $f['mlen'] < $l)) {
 											$is_valid = 0;
@@ -2915,7 +2920,10 @@ public function check_nonce_permission_efb($request) {
 										if ((isset($f['id_']) && isset($item['id_ob']) && $f['id_'] == $item['id_ob'])
 											|| (isset($f['id_']) && isset($item['id_']) && $f['type'] == "chlCheckBox"  && $f['id_'] == $item['id_ob'])
 										) {
-											$item['value'] = $this->sanitize_value_efb($item['value'],'option');
+											/* The saved option's own text, as for radio: the browser's
+											 * label is only a claim, and any text sent with a real
+											 * option id used to be stored as the answer. */
+											$item['value'] = isset($f['value']) && is_string($f['value']) ? $f['value'] : $this->sanitize_value_efb($item['value'],'option');
 											$validated_item = $item;
 											$is_valid = 1;
 											$t = strpos($item['type'], 'pay');
@@ -3257,10 +3265,15 @@ public function check_nonce_permission_efb($request) {
 										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
 										$is_valid = 1;
 										$validated_item = $item;
-										$l = strlen($item['value']);
-										if (strcmp($f['type'], "range") !== 0 && ((isset($f['milen']) && $f['milen'] > $l) || (isset($f['mlen']) && $f['mlen'] < $l))) {
+										/* Min and Max of a number, price or range input are the
+										 * lowest and highest value, as the builder labels them and
+										 * the browser checks them; comparing the digit count
+										 * refused every value of an "Age 18-99" field. A Max of 0
+										 * means no maximum, as in the browser. */
+										$number = (float) $item['value'];
+										if (isset($f['milen']) && is_numeric($f['milen']) && $number < (float) $f['milen']) {
 											$is_valid = 0;
-										} else if (((isset($f['milen']) && $f['milen'] > $item['value']) || (isset($f['mlen']) && $f['mlen'] < $item['value'])) && strcmp($f['type'], "range") == 0) {
+										} else if (isset($f['mlen']) && is_numeric($f['mlen']) && (float) $f['mlen'] != 0 && $number > (float) $f['mlen']) {
 											$is_valid = 0;
 										}
 									}
@@ -4901,7 +4914,7 @@ public function check_nonce_permission_efb($request) {
 			return $this->recorder_upload_error_response_efb(esc_html__('The server could not store the recording. Please try again or contact the site administrator.','easy-form-builder'));
 		}
 		if (is_ssl()) $upload['url'] = str_replace('http://', 'https://', $upload['url']);
-		return array('success' => true, 'ID' => 'id', 'file' => $upload, 'name' => $stored_file['name'], 'type' => $detected_mime, 'duration' => $actual_duration);
+		return array('success' => true, 'ID' => 'id', 'file' => array('url' => $upload['url'], 'type' => $upload['type'] ?? ''), 'name' => $stored_file['name'], 'type' => $detected_mime, 'duration' => $actual_duration);
 	}
 
 	/* Final form submission is separate from the upload request. Re-check every
@@ -5190,7 +5203,9 @@ public function check_nonce_permission_efb($request) {
 		}
 		\Emsfb\Upload_Guard::quota_consume($upload_context);
 
-		$response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload ,"name"=>$name ,'type'=>$async_file_type);
+		/* wp_handle_upload() also returns the absolute server path in 'file';
+		 * the browser only needs the address. */
+		$response = array( 'success' => true  ,'ID'=>"id" , "file"=>array('url' => $upload['url'], 'type' => $upload['type'] ?? '') ,"name"=>$name ,'type'=>$async_file_type);
 		wp_send_json_success($response,200);
 	}
 	public function set_rMessage_id_Emsfb_api($data_POST_) {
@@ -5214,9 +5229,9 @@ public function check_nonce_permission_efb($request) {
 		 * site may never have been given, and every public reply came back as
 		 * E400 "security session expired". */
 		if ($sc === '') $sc = 'null';
-		$track = sanitize_text_field($data_POST['track']);
+		$track = isset($data_POST['track']) && is_scalar($data_POST['track']) ? sanitize_text_field($data_POST['track']) : '';
 
-		$this->id =sanitize_text_field($data_POST['id']);
+		$this->id = isset($data_POST['id']) && is_scalar($data_POST['id']) ? sanitize_text_field($data_POST['id']) : '';
 		$by ="";
 		/* The composer always sends the reply as a JSON string; anything else
 		 * (an array from a hand-built request) used to reach isHTML()'s
@@ -7150,18 +7165,6 @@ public function check_nonce_permission_efb($request) {
 		}
 		return $passwords;
 	}
-	public function test_fun($data_POST_){
-		$data_POST = $data_POST_->get_json_params();
-        $response = array(
-            'success' => true,
-            'value' => $slug['name'],
-            'content' => "content",
-            'nonce_msg' => "code",
-            'id' => $slug['id']
-          );
-        return new WP_REST_Response($response, 200);
-
-    }
 	public function replaceContentMessageEfb($value) {
 		if (!is_string($value)) { return $value; }
 		// Decoded field text must retain its literal backslashes.
@@ -8212,7 +8215,7 @@ public function check_nonce_permission_efb($request) {
 				$has_url = isset($row['url']) && is_string($row['url']) && strlen(trim($row['url'])) > 5;
 				$has_value = is_string($value) ? ($value !== '' && $value !== '@file@') : !empty($value);
 				if ($has_url || $has_value) $submitted_ids[$row['id_']] = true;
-			} elseif (is_array($value) ? !empty($value) : ($value !== '' && $value !== null)) {
+			} elseif (is_array($value) ? !empty($value) : (is_string($value) ? trim($value) !== '' : $value !== null)) {
 				$submitted_ids[$row['id_']] = true;
 			}
 		}
@@ -8820,10 +8823,15 @@ public function check_nonce_permission_efb($request) {
 				if (strpos($email, ',') !== false){
 					$emails = explode(',', $email);
 					foreach ($emails as $email_) {
+						/* Owners type "a@x.com, b@x.com"; the space kept the second
+						 * address from ever receiving the notification. */
+						$email_ = trim($email_);
+						if ($email_ === '') continue;
 						if(!in_array($email_, $email_user[$pointer])){ array_push($email_user[$pointer] ,$email_); }
 					}
 					return true;
 				}else{
+					$email = trim($email);
 					if(!in_array($email, $email_user[$pointer])){ array_push($email_user[$pointer] ,$email); return true;}
 				}
 			}else{
@@ -8999,8 +9007,8 @@ public function check_nonce_permission_efb($request) {
     $out  = [];
 
     foreach ($rows as $row) {
-        $id  = isset($row['id_'])   ? (string)$row['id_']   : '';
-        $ob  = isset($row['id_ob']) ? (string)$row['id_ob'] : '';
+        $id  = isset($row['id_'])   && is_scalar($row['id_'])   ? (string)$row['id_']   : '';
+        $ob  = isset($row['id_ob']) && is_scalar($row['id_ob']) ? (string)$row['id_ob'] : '';
 
         if ($id === '' && $ob === '') {
             $out[] = $row;
