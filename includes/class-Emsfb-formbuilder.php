@@ -2737,7 +2737,7 @@
 							}
 
 							$imageRadio = $elementId == "imgRadio" ? $this->fun_imgRadio_efb($i->id_, $i->src, $i,true, $texts) : '';
-							$prc = isset($i->price) ? intval($i->price) : 0;
+							$prc = isset($i->price) ? (float) $i->price : 0; // intval() showed 19.99 as 19.00
 							if($pay!='') $prc = self::formatPrice_efb($prc, $currency );
 							$optn .= sprintf(
 								'<div class="efb form-check %s %s %s efb1 %s mt-1" data-css="%s" data-parent="%s" data-id="%s" data-formid="%s" id="%s-v">
@@ -3045,7 +3045,7 @@
 							%s
 							<div class="efb input-group m-0 p-0">
 								%s
-								<input type="number" class="efb input-efb px-2 mb-0 payefb emsFormBuilder_v %s %s %s %s %s efbField efb1 %s" data-id="%s-el" data-vid="%s" data-css="%s" id="%s_" placeholder="%s" data-formid="%s" %s %s %s %s %s %s>
+								<input type="number" min="0" class="efb input-efb px-2 mb-0 payefb emsFormBuilder_v %s %s %s %s %s efbField efb1 %s" data-id="%s-el" data-vid="%s" data-css="%s" id="%s_" placeholder="%s" data-formid="%s" %s %s %s %s %s %s>
 								%s
 							</div>
 							%s',

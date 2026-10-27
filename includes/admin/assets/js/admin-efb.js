@@ -1519,16 +1519,19 @@ function sideMenuEfb(s) {
     if(ch)ch.classList.add('d-none');
     el.classList.add('show');
   }
+  // A save that lands within these 2 s clears the auto-save; storing after it
+  // brought back a "restore the auto-saved version?" prompt for saved work.
+  const store_scheduled_at = Date.now();
   if (s == 0) {
     side_hide(el)
        setTimeout(() => {
-      store_form_efb();
+      if (efb_auto_save_cleared_at_efb < store_scheduled_at) store_form_efb();
     }, 2000);
   } else if( s == 1) {
    side_show(el)
   } else if (s == 2) {
    setTimeout(() => {
-      store_form_efb();
+      if (efb_auto_save_cleared_at_efb < store_scheduled_at) store_form_efb();
     }, 2000);
     const lenV = valj_efb.length
     const timeout = lenV < 100 ? 800 : lenV<500 ? 3000 : 5000;
@@ -3550,6 +3553,9 @@ const saveFormEfb = async (stated) => {
           btnFun = `open_whiteStudio_efb('notInput')`;
           message = efb_var.text.youDoNotAddAnyInput;
           icon = "";
+          // No later branch handles an empty form: without this the save box
+          // waited on "Please Wait..." for ever.
+          returnState = true;
         } else {
           if (pro_efb == false) {
             proState = valj_efb.findIndex(x => x.pro == true) != -1 ? false : true;
@@ -5441,7 +5447,9 @@ store_form_efb =()=>{
           localStorage.setItem('efb_auto_save_time', String(Date.now()));
 }
 
+var efb_auto_save_cleared_at_efb = 0;
 clear_auto_save_efb =()=>{
+  efb_auto_save_cleared_at_efb = Date.now();
   localStorage.setItem('efb_auto_save', 0);
   localStorage.removeItem('efb_auto_save_form_id');
   localStorage.removeItem('efb_auto_save_valj_efb');

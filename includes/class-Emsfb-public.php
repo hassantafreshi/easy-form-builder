@@ -3615,7 +3615,13 @@ public function check_nonce_permission_efb($request) {
 							}
 
 							$this->efb_send_json_and_continue($response, 200);
-							$this->efb_intgrate_with_3rd_party_services_efb($track_code, $submitted_values, $form_fields_array);
+							/* The rows that were stored, not the raw request: webhooks,
+							 * Telegram and Sheets received script tags and rows for fields
+							 * the form does not have, while the saved entry was clean. */
+							$integration_rows = array_values(array_filter($validated_items, function ($row) {
+								return !is_array($row) || ($row['type'] ?? '') !== 'w_link';
+							}));
+							$this->efb_intgrate_with_3rd_party_services_efb($track_code, $integration_rows, $form_fields_array);
 
 							if (isset($form_fields_array[0]['smsnoti']) && $form_fields_array[0]['smsnoti'] == 1) {
 								$smsSendResult = $this->send_optional_sms_efb($this->id, $phone_numbers, $url, 'fform', 'wpsms', $track_code);
@@ -3723,6 +3729,24 @@ public function check_nonce_permission_efb($request) {
 							}
 							if ($value != null) {
 								$saved_payment_content = \emsfb_json_decode_efb($value[0]->content, true);
+								/* A Stripe one-time order is stored only once Stripe says it was
+								 * paid: card/add's row alone let a page that skipped the card
+								 * step (or faked "paid" in the console) file an order marked
+								 * active and mail its amount to the owner. Decided by the saved
+								 * card/add row, not by the request's gateway parameter. */
+								$stripe_state = $this->stripe_order_payment_state_efb($saved_payment_content);
+								if ($stripe_state === 'unpaid') {
+									$response = array('success' => false, 'm' => esc_html__('Your payment has not been completed. Please pay before sending the form.', 'easy-form-builder'));
+									wp_send_json_success($response, 200);
+									die();
+								}
+								if ($stripe_state === 'unverified' && is_array($saved_payment_content)) {
+									// Stripe unreachable: kept, as when the confirmation fails after
+									// the charge, but marked pending; the background check settles it.
+									foreach ($saved_payment_content as $k => $row) {
+										if (is_array($row) && ($row['type'] ?? '') === 'payment') $saved_payment_content[$k]['status'] = 'pending';
+									}
+								}
 								$submitted_values = $submitted_values;
 								$filtered = array_filter($submitted_values, function ($item) use ($saved_payment_content) {
 									return is_array($item) && (!isset($item['type']) || !is_string($item['type']) || strpos($item['type'], 'pay') === false);
@@ -6210,7 +6234,7 @@ public function check_nonce_permission_efb($request) {
 		foreach ($sorted_rules as $rule) {
 			if (isset($rule['enabled']) && !$rule['enabled']) continue;
 			if (($rule['action'] ?? 'trigger') === 'stop') continue;
-			$url = isset($rule['url']) ? esc_url_raw($rule['url']) : '';
+			$url = isset($rule['url']) ? esc_url_raw($rule['url'], array('http', 'https')) : ''; // a webhook is an http(s) endpoint, never ftp:
 			if ($url === '') continue;
 			$rule_webhook_id = isset($rule['webhook_id']) ? sanitize_text_field($rule['webhook_id']) : '';
 			if ($stop_all || ($rule_webhook_id !== '' && isset($stopped_ids[$rule_webhook_id]))) continue;
@@ -6529,10 +6553,12 @@ public function check_nonce_permission_efb($request) {
 		$price_f = $obj['price_total'];
 		$email = $obj['email'];
 		$valobj = $obj['valobj'];
-		$price_f = $price_f*100;
+		$currency= isset($fs_[0]['currency']) && strlen((string)$fs_[0]['currency'])>2 ? $fs_[0]['currency'] : 'usd';
+		// Stripe takes the smallest unit of the currency: x100 charged a ¥500 order ¥50,000.
+		$minor_factor = $this->stripe_minor_factor_efb($currency);
+		$price_f = $this->stripe_minor_amount_efb($price_f, $currency);
 		$description =  get_bloginfo('name') . ' >' . $fs_[0]['formName'];
 		if($price_f>0){
-			$currency= isset($fs_[0]['currency']) && strlen((string)$fs_[0]['currency'])>2 ? $fs_[0]['currency'] : 'usd';
 
 			/* A Stripe API failure (invalid key, unsupported currency, amount below
 			 * minimum, network...) must reach the visitor as a readable message,
@@ -6552,9 +6578,9 @@ public function check_nonce_permission_efb($request) {
 			 if($paymentmethod=='charge'){
 				if(strlen($email)>1){$newPay=array_merge($newPay , array('receipt_email'=>$email));}
 				$paymentIntent = $stripe->paymentIntents->create($newPay);
-				$amount = $paymentIntent->amount/100;
+				$amount = $paymentIntent->amount/$minor_factor;
 				$created= date("Y-m-d-h:i:s",$paymentIntent->created);
-				$val = $paymentIntent->amount/100 . ' ' . $paymentIntent->currency;
+				$val = $paymentIntent->amount/$minor_factor . ' ' . $paymentIntent->currency;
 			}else{
 				$token= sanitize_text_field($data_POST['token']);
 
@@ -6580,7 +6606,7 @@ public function check_nonce_permission_efb($request) {
 						  ['price' => $price],
 						],
 					  ]);
-					  $amount = $paymentIntent->plan->amount/100;
+					  $amount = $paymentIntent->plan->amount/$minor_factor;
 					  $created= date("Y-m-d-h:i:s",$paymentIntent->created);
 					  $val =  $amount . ' ' . $paymentIntent->currency;
 			}
@@ -6597,7 +6623,7 @@ public function check_nonce_permission_efb($request) {
 			$created= date("Y-m-d-h:i:s",$paymentIntent->created);
 			$response;
 			if($paymentmethod!='charge'){
-				$amount = $price->unit_amount/100;
+				$amount = $price->unit_amount/$minor_factor;
 				$payA =  $amount  . ' '. $price->currency;
 				$nextdate = date("Y-m-d-h:i:s",$paymentIntent->current_period_end);
 				$ar = (object)['id_'=>'payment','amount'=>0,'name'=> esc_html__('Payment','easy-form-builder') ,'type'=>'payment',
@@ -6608,7 +6634,7 @@ public function check_nonce_permission_efb($request) {
 				 $filtered=array_merge($filtered , array($ar));
 				$response = array( 'success' => true  ,  'transStat'=>$ar , 'uid'=> $uid);
 			}else{
-				$amount = $paymentIntent->amount/100;
+				$amount = $paymentIntent->amount/$minor_factor;
 				$payA =  $amount  . ' '. $paymentIntent->currency;
 				$ar = (object)['id_'=>'payment','amount'=>0,'name'=> esc_html__('Payment','easy-form-builder') ,'type'=>'payment',
 				'value'=> $payA , 'paymentIntent'=>$paymentIntent->id , 'paymentGateway'=>'stripe' , 'paymentmethod'=>$paymentmethod,
@@ -6738,8 +6764,8 @@ public function check_nonce_permission_efb($request) {
 				], 200 );
 				return;
 			}
-			// Creation currently uses two decimal minor units; compare against that exact contract.
-			$expected_amount   = (int) round( (float) $pay_row->amount * 100 );
+			// The same minor units card/add charged in.
+			$expected_amount   = $this->stripe_minor_amount_efb( $pay_row->amount, $pay_row->currency );
 			$expected_currency = (string) $pay_row->currency;
 		} else {
 			/* No record. The Stripe add-on creates emsfb_pay_ only from its admin
@@ -6848,7 +6874,7 @@ public function check_nonce_permission_efb($request) {
 				continue;
 			}
 			// card/add appends its own row last, after the visitor's priced items.
-			$match = array( (int) round( (float) $row['paymentAmount'] * 100 ), (string) $row['paymentcurrency'] );
+			$match = array( $this->stripe_minor_amount_efb( $row['paymentAmount'], $row['paymentcurrency'] ), (string) $row['paymentcurrency'] );
 		}
 		return $match;
 	}
@@ -6917,6 +6943,77 @@ public function check_nonce_permission_efb($request) {
 	 *     @type string $stripe_status PaymentIntent status, '' when Stripe was not reached.
 	 * }
 	 */
+	/**
+	 * Final submit of an order whose saved card/add row is a Stripe one-time
+	 * charge: 'paid', 'unverified' (Stripe could not be reached) or 'unpaid';
+	 * 'none' when the order has no Stripe row. Only that row and Stripe
+	 * decide, never the browser. Subscriptions are charged when card/add
+	 * creates them.
+	 */
+	private function stripe_order_payment_state_efb( $saved_rows ) {
+		$pay = null;
+		foreach ( (array) $saved_rows as $row ) {
+			if ( is_array( $row ) && ( $row['type'] ?? '' ) === 'payment' && ( $row['paymentGateway'] ?? '' ) === 'stripe' ) {
+				$pay = $row;
+				break;
+			}
+		}
+		if ( null === $pay ) {
+			return 'none';
+		}
+		if ( ( $pay['paymentmethod'] ?? 'charge' ) !== 'charge' ) {
+			return 'paid';
+		}
+		$intent = (string) ( $pay['paymentIntent'] ?? '' );
+		if ( ! preg_match( '/^pi_[a-zA-Z0-9]+$/D', $intent ) ) {
+			return 'unpaid';
+		}
+		$pay_row = null;
+		if ( $this->stripe_pay_table_exists_efb() ) {
+			global $wpdb;
+			$pay_row = $wpdb->get_row( $wpdb->prepare( "SELECT id, status FROM {$wpdb->prefix}emsfb_pay_ WHERE gateway = 'stripe' AND transaction_id = %s ORDER BY id DESC LIMIT 1", $intent ) );
+			if ( $pay_row && 'completed' === $pay_row->status ) {
+				return 'paid';
+			}
+			if ( $pay_row && in_array( $pay_row->status, array( 'failed', 'cancelled', 'refunded' ), true ) ) {
+				return 'unpaid';
+			}
+		}
+		$currency = (string) ( $pay['paymentcurrency'] ?? '' );
+		$result   = $this->verify_stripe_intent_efb( $intent, $this->stripe_minor_amount_efb( $pay['paymentAmount'] ?? 0, $currency ), $currency );
+		if ( 'verified' === $result['state'] ) {
+			if ( $pay_row ) {
+				$this->update_pending_stripe_payment_efb( $pay_row->id, array( 'status' => 'completed', 'capture_id' => $intent ) );
+			}
+			return 'paid';
+		}
+		return 'unavailable' === $result['state'] ? 'unverified' : 'unpaid';
+	}
+
+	/**
+	 * Stripe amounts are in the currency's smallest unit: x100 for most,
+	 * x1 for the zero-decimal currencies (JPY, KRW, VND...), x1000 for the
+	 * three-decimal ones (BHD, KWD, OMR...). Stripe's own lists.
+	 */
+	private function stripe_minor_factor_efb( $currency ) {
+		$currency = strtolower( (string) $currency );
+		if ( in_array( $currency, array( 'bif', 'clp', 'djf', 'gnf', 'jpy', 'kmf', 'krw', 'mga', 'pyg', 'rwf', 'ugx', 'vnd', 'vuv', 'xaf', 'xof', 'xpf' ), true ) ) {
+			return 1;
+		}
+		if ( in_array( $currency, array( 'bhd', 'jod', 'kwd', 'omr', 'tnd' ), true ) ) {
+			return 1000;
+		}
+		return 100;
+	}
+
+	/** An amount in major units as Stripe's integer minor units (a typed 3.333 is no longer refused). */
+	private function stripe_minor_amount_efb( $amount, $currency ) {
+		$factor = $this->stripe_minor_factor_efb( $currency );
+		$minor  = (int) round( (float) $amount * $factor );
+		// Stripe wants three-decimal amounts rounded to a multiple of 10.
+		return 1000 === $factor ? (int) ( round( $minor / 10 ) * 10 ) : $minor;
+	}
+
 	private function verify_stripe_intent_efb( $payment_intent, $expected_amount, $expected_currency ) {
 		$unavailable = array( 'state' => 'unavailable', 'status' => 503, 'reason' => 'gateway_verification_unavailable', 'stripe_status' => '' );
 		try {
@@ -7053,7 +7150,7 @@ public function check_nonce_permission_efb($request) {
 				if ( time() - $started > 60 ) {
 					break;
 				}
-				$result = $this->verify_stripe_intent_efb( (string) $row->transaction_id, (int) round( (float) $row->amount * 100 ), (string) $row->currency );
+				$result = $this->verify_stripe_intent_efb( (string) $row->transaction_id, $this->stripe_minor_amount_efb( $row->amount, $row->currency ), (string) $row->currency );
 				if ( $result['state'] === 'verified' ) {
 					$this->update_pending_stripe_payment_efb( $row->id, array( 'status' => 'completed', 'capture_id' => (string) $row->transaction_id ) );
 					continue;
@@ -7361,7 +7458,7 @@ public function check_nonce_permission_efb($request) {
 				}
 
 				if (isset($c['type']) && ($c['type']==='payCheckbox' || $c['type']==='payRadio')){
-					$price = intval($c['price'] ?? 0);
+					$price = (float) ($c['price'] ?? 0);
 					$total_amount += $price;
 					$numberformat = $this->email_format_price_efb($price, $currency);
 					$addPair($c['name'] ?? 'Item', '<b>'.$numberformat.'</b>');
@@ -7370,7 +7467,7 @@ public function check_nonce_permission_efb($request) {
 				}
 
 				if (isset($c['type']) && $c['type']==='prcfld'){
-					$numberformat = $this->email_format_price_efb(intval($c['price'] ?? 0), $currency);
+					$numberformat = $this->email_format_price_efb((float) ($c['price'] ?? 0), $currency);
 					$addPair($c['name'] ?? 'Price', '<b>'.$numberformat.'</b>');
 					continue;
 				}
@@ -7389,7 +7486,7 @@ public function check_nonce_permission_efb($request) {
 
 				if (isset($c['type']) && $c['type']==='payment'){
 					if (($c['paymentGateway'] ?? '')==='stripe'){
-						$numberformat = $this->email_format_price_efb(intval($c['paymentAmount'] ?? 0), ($c['paymentcurrency'] ?? $currency));
+						$numberformat = $this->email_format_price_efb((float) ($c['paymentAmount'] ?? 0), ($c['paymentcurrency'] ?? $currency));
 						$addPair($lanText['payment'].' '.$lanText['id'], '<span>'.($c['paymentIntent'] ?? '').'</span>');
 						$addPair($lanText['methodPayment'], '<span>'.($c['paymentmethod'] ?? '').'</span>');
 						if (($c['paymentmethod'] ?? '')!=='charge'){
@@ -7420,9 +7517,9 @@ public function check_nonce_permission_efb($request) {
 					 * rendering - falling through to the generic $addPair below
 					 * printed every one of them a second time. */
 					if (isset($c['type']) && strpos($c['type'],'pay')!==false && isset($c['price'])){
-						$total_amount += intval($c['price']);
+						$total_amount += (float) $c['price'];
 						$title = $c['value'] ?? ($title ?: 'Item');
-						$q = $this->email_format_price_efb(intval($c['price']), $currency);
+						$q = $this->email_format_price_efb((float) $c['price'], $currency);
 						$addPair($title, '<b>'.$q.'</b>');
 						continue;
 					}
@@ -8985,7 +9082,24 @@ public function check_nonce_permission_efb($request) {
 					$a=-1;
 				}else if($iv['type']=="prcfld" ){
 					   $a=-1;
-					   $price_f += $iv['price'];
+					   /* The amount a visitor types (tip, donation). A negative one was
+					    * subtracted from the order: the page showed $34.99 and Stripe
+					    * was asked for $4.99. The owner's Min/Max apply as values. */
+					   $typed_price = (float) $iv['price'];
+					   if ($typed_price < 0) {
+						   $invalid();
+						   return ['price_total' => 0, 'email' => '', 'valobj' => []];
+					   }
+					   foreach ($fs_ as $field_def) {
+						   if (!is_array($field_def) || ($field_def['type'] ?? '') !== 'prcfld' || ($field_def['id_'] ?? null) !== ($iv['id_'] ?? '')) continue;
+						   $min_price = isset($field_def['milen']) && is_numeric($field_def['milen']) ? (float) $field_def['milen'] : null;
+						   $max_price = isset($field_def['mlen']) && is_numeric($field_def['mlen']) && (float) $field_def['mlen'] > 0 ? (float) $field_def['mlen'] : null;
+						   if ((null !== $min_price && $typed_price < $min_price) || (null !== $max_price && $typed_price > $max_price)) {
+							   $invalid();
+							   return ['price_total' => 0, 'email' => '', 'valobj' => []];
+						   }
+					   }
+					   $price_f += $typed_price;
 				}
 				if($a !=-1){
 					if($fs_[$a]['type']!="payMultiselect"){
@@ -9775,6 +9889,21 @@ public function check_nonce_permission_efb($request) {
 	private function dispatch_optional_integrations_efb($track_code, $submitted_values, $form_fields_array, $event_type = 'form_submit', $integration_args = []) {
 
 		$integration_args = is_array($integration_args) ? $integration_args : [];
+		// No integration ever receives a password: a webhook rule on a register
+		// or login form sent the typed password to its endpoint.
+		$strip_passwords = static function ($rows) {
+			if (!is_array($rows)) return $rows;
+			return array_values(array_filter($rows, function ($row) {
+				if (!is_array($row)) return true;
+				$type = strtolower((string) ($row['type'] ?? ''));
+				$id   = (string) ($row['id_'] ?? '');
+				return $type !== 'password' && !in_array($id, array('passwordlogin', 'passwordRegisterEFB', 'repasswordRegisterEFB'), true);
+			}));
+		};
+		$submitted_values = $strip_passwords($submitted_values);
+		if (isset($integration_args['enriched_submitted_values'])) {
+			$integration_args['enriched_submitted_values'] = $strip_passwords($integration_args['enriched_submitted_values']);
+		}
 
 		$context = [
 			'track_code'       => $track_code,

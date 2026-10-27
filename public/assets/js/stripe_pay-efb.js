@@ -242,7 +242,11 @@ async function confirm_stripe_payment_efb(paymentIntentId, trackid, formId) {
         stripe.confirmCardPayment(res.data.client_secret, {
           payment_method: { card: numElm }
         }).then(async transStat => {
-          if (transStat && transStat.error && !['card_error', 'validation_error'].includes(transStat.error.type)) {
+          /* A failed 3-D Secure check (payment_intent_authentication_failure) means
+             the card was not charged: report it like a decline so the customer can
+             try again, not as "may have been charged, do not pay again". */
+          if (transStat && transStat.error && !['card_error', 'validation_error'].includes(transStat.error.type)
+            && transStat.error.code !== 'payment_intent_authentication_failure') {
             if (window.EFBRequestHealth) window.EFBRequestHealth.report('payment', 0);
             stsStripeEfb.textContent = window.efb_request_health && efb_request_health.payment_pending_message || efb_var.text.error;
             return;

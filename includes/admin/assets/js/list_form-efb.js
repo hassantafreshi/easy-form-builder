@@ -1,4 +1,5 @@
 
+var efb_local_text_efb = null;
  let devMode_efb = false
 
 function efb_safe_json_parse(str) {
@@ -343,7 +344,18 @@ function toast_efb(icon, message, type = 'success') {
 }
 
 function copyShortcode_efb(text, btn ,type ='shortcode') {
-  navigator.clipboard.writeText(text).then(() => {
+  // navigator.clipboard exists only on https (or localhost); wp-admin on plain
+  // http threw a TypeError here. The older copy command works there.
+  const writeText = (navigator.clipboard && window.isSecureContext)
+    ? navigator.clipboard.writeText(text)
+    : new Promise((resolve, reject) => {
+        const area = document.createElement('textarea');
+        area.value = text; area.setAttribute('readonly', ''); area.style.position = 'fixed'; area.style.opacity = '0';
+        document.body.appendChild(area); area.select();
+        const ok = document.execCommand('copy'); document.body.removeChild(area);
+        ok ? resolve() : reject(new Error('copy failed'));
+      });
+  writeText.then(() => {
     const icon = btn.querySelector('i');
     if (icon) {
       icon.className = 'efb bi-clipboard-check text-success';
@@ -979,7 +991,9 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
           document.getElementById('replay_state__emsFormBuilder').innerHTML = res.data.m;
           document.getElementById('replayM_emsFormBuilder').value = "";
           document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
-          const date = Date();
+          // Same "Y-m-d H:i:s" as the replies the server lists, not Date()'s raw string.
+          const _now = new Date(), _p = (n) => String(n).padStart(2, '0');
+          const date = `${_now.getFullYear()}-${_p(_now.getMonth() + 1)}-${_p(_now.getDate())} ${_p(_now.getHours())}:${_p(_now.getMinutes())}:${_p(_now.getSeconds())}`;
           document.getElementById('replayM_emsFormBuilder').value = "";
           const richEditor = document.getElementById('efb_rich_editor');
           if (richEditor) richEditor.innerHTML = '';
@@ -1160,7 +1174,9 @@ function fun_show_setting__emsFormBuilder() {
   let smtp = false;
   let weeklyEmailReport = true;
   let emailStatsReport = true;
-  let text = efb_var.text;
+  // efb_var is deep-frozen: Localization edits go into this copy, which the save sends.
+  efb_local_text_efb = Object.assign({}, efb_var.text);
+  let text = efb_local_text_efb;
   let textList = "<!--list EFB -->";
   let bootstrap = false;
   let emailTemp = "null"
@@ -1713,7 +1729,7 @@ function fun_show_setting__emsFormBuilder() {
                                   <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="stripePKey_emsFormBuilder" placeholder="${efb_var.text.publicKey}" ${stripePKey !== "null" ? `value="${stripePKey}"` : ""} ${proChckEvent} data-tab="${efb_var.text.payment}">
                                   <span id="stripePKey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                                   <label class="efb  form-label mx-2 fs-6 col-12  mt-4">${efb_var.text.SecreTKey}</label>
-                                  <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="stripeSKey_emsFormBuilder" placeholder="${efb_var.text.SecreTKey}" ${stripeSKey !== "null" ? `value="${stripeSKey}"` : ""} ${proChckEvent} data-tab="${efb_var.text.payment}">
+                                  <input type="password" autocomplete="new-password" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="stripeSKey_emsFormBuilder" placeholder="${efb_var.text.SecreTKey}" ${stripeSKey !== "null" ? `value="${stripeSKey}"` : ""} ${proChckEvent} data-tab="${efb_var.text.payment}">
                                   <span id="stripeSKey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
 
                               </div>
@@ -1727,7 +1743,7 @@ function fun_show_setting__emsFormBuilder() {
                                     <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="paypalPKey_emsFormBuilder" placeholder="${efb_var.text.publicKey}" value="${paypalPKey}" ${proChckEvent} data-tab="${efb_var.text.payment}">
                                     <span id="paypalPKey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                                     <label class="efb  form-label mx-2 fs-6 col-12  mt-4">${efb_var.text.SecreTKey}</label>
-                                    <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="paypalSKey_emsFormBuilder" placeholder="${efb_var.text.SecreTKey}" value="${paypalSKey}" ${proChckEvent} data-tab="${efb_var.text.payment}">
+                                    <input type="password" autocomplete="new-password" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="paypalSKey_emsFormBuilder" placeholder="${efb_var.text.SecreTKey}" value="${paypalSKey}" ${proChckEvent} data-tab="${efb_var.text.payment}">
                                     <span id="paypalSKey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                                   </div>
                               </div>
@@ -1806,7 +1822,6 @@ function fun_show_setting__emsFormBuilder() {
         fun_switch_saveSetting(true, el.id);
       } else {
         text[el.id] = el.value;
-        efb_var.text[el.id] = el.value;
         el.className = colorBorderChangerEfb(el.className, "border-d")
         fun_switch_saveSetting(false, el.id);
       }
@@ -3191,7 +3206,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0, done) {
     // JSON.stringify handles line breaks; keep closing tags and URL slashes.
     const emailBtnBgColor = f('emailBtnBgColor_emsFormBuilder') || '#202a8d';
     const emailBtnTextColor = f('emailBtnTextColor_emsFormBuilder') || '#ffffff';
-    let text = act_local_efb==true ? efb_var.text :'';
+    let text = act_local_efb==true ? (typeof efb_local_text_efb === 'object' && efb_local_text_efb ? efb_local_text_efb : efb_var.text) :'';
     if(typeof text != 'object' && text!=''){
         noti_message_efb('Localization not found. It seems there may be a conflict with a plugin and Easy Form Builder. Please reach out to the Easy Form Builder support team for assistance', 'danger', 'content-efb');
       return false;
@@ -3741,50 +3756,41 @@ function exportCSVFile_emsFormBuilder(items, fileTitle) {
   }
 }
 
+/* RFC 4180 CSV for spreadsheets: always "," with quoted cells, and a UTF-8
+ * BOM so Excel reads Persian, Arabic and emoji text. The export used to pick
+ * whatever separator no value contained ("^" once a visitor typed a comma),
+ * quoted nothing, and kept the stored markers (@n# for a line break,
+ * @efb@dq# for a double quote). */
 function convertToCSV_emsFormBuilder(objArray) {
   var array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray;
-  var str = '';
-  const separators = [',',';', '|', '^', '~', '=', ':', '#', '\t'];
-  let foundSeparators = {};
-  let separator = ',';
+  const decode = (val) => val
+    .replace(/@efb@nq#|@n#/g, '\n')
+    .replace(/@efb@dq#/g, '"')
+    .replace(/@efb@sq#/g, "'")
+    .replace(/@efb@vq#/g, '`');
+  const lines = [];
   for (let i = 0; i < array.length; i++) {
-    let line = '';
+    const cells = [];
     for (let k = 0; k < array[i].length; k++) {
-      for (let s = 0; s < separators.length; s++) {
-        let val = array[i][k];
-        if (typeof val === 'object' && val !== null) {
-          val = JSON.stringify(val);
-        }
-        if (typeof val === 'string' && val.includes(separators[s])) {
-          foundSeparators[separators[s]] = true;
-        }
-      }
       let val = array[i][k];
       if (typeof val === 'object' && val !== null) {
         val = JSON.stringify(val);
       }
+      val = val === undefined || val === null ? '' : String(val);
+      val = decode(val);
       /* Visitor-typed cells that start with = + - @ or a tab/CR would be run
          as a formula by the spreadsheet that opens this file. */
-      if (typeof val === 'string' && /^[=+\-@\t\r]/.test(val) && !/^[+-]?\d+([.,]\d+)?$/.test(val)) {
+      if (/^[=+\-@\t\r]/.test(val) && !/^[+-]?\d+([.,]\d+)?$/.test(val)) {
         val = "'" + val;
       }
-      if (line !== '') line += '@emsfb@';
-      line += val;
+      if (/[",\r\n]/.test(val)) {
+        val = '"' + val.replace(/"/g, '""') + '"';
+      }
+      cells.push(val);
     }
-    str += line + '\r\n';
+    lines.push(cells.join(','));
   }
-
-  for (let s = 0; s < separators.length; s++) {
-    if (!foundSeparators[separators[s]]) {
-      separator = separators[s];
-      break;
-    }
-  }
-
-  str = str.replace(/@emsfb@/g, separator);
-  str = str.slice(0, -2);
-
-  return str;
+  return '\uFEFF' + lines.join('\r\n');
 }
 
 function generat_csv_emsFormBuilder() {

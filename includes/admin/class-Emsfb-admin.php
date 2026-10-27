@@ -1266,13 +1266,13 @@ class Admin {
             wp_send_json_success($response, 200);
             die("secure!");
         }
-        if (empty($_POST['id']) && $this->isHTML(json_encode($_POST['value']),JSON_UNESCAPED_UNICODE)) {
+        if (empty($_POST['id']) && $this->isHTML(json_encode($_POST['value'] ?? ''),JSON_UNESCAPED_UNICODE)) {
             $m =   $lang['somethingWentWrongPleaseRefresh'];
             $response = ['success' => false, "m" => esc_html__("Something went wrong, please refresh the page." ,'easy-form-builder')];
             wp_send_json_success($response, 200);
             die();
         }
-        $id =  ( int ) sanitize_text_field(wp_unslash( $_POST['id']));
+        $id =  isset($_POST['id']) ? ( int ) sanitize_text_field(wp_unslash( $_POST['id'])) : 0;
         if(empty($this->db)){
             global $wpdb;
             $this->db = $wpdb;
@@ -1300,7 +1300,7 @@ class Admin {
             wp_send_json_success($response, 200);
             die();
         }
-        $id =  ( int ) sanitize_text_field(wp_unslash( $_POST['id']));
+        $id =  isset($_POST['id']) ? ( int ) sanitize_text_field(wp_unslash( $_POST['id'])) : 0;
         if(empty($this->db)){
             global $wpdb;
             $this->db = $wpdb;
@@ -1778,6 +1778,16 @@ class Admin {
 
                 }
 
+            }else if($key == 'text' && is_array($value)){
+                // Localization tab: phrase key => custom text. sanitize_text_field()
+                // on the whole array stored "", so no custom text was ever kept.
+                // Keys are camelCase phrase ids, so not sanitize_key().
+                $m[$key] = array();
+                foreach ($value as $text_key => $text_value) {
+                    $text_key = preg_replace('/[^A-Za-z0-9_]/', '', (string) $text_key);
+                    if ($text_key === '' || !is_scalar($text_value)) continue;
+                    $m[$key][$text_key] = sanitize_text_field((string) $text_value);
+                }
             }else{
                 $m[$key] = sanitize_text_field($value);
             }
@@ -3976,7 +3986,10 @@ function admin_notices_efb () {
          * require a reinstall or re-entry of credentials.
          */
         $disabled_addons = array();
-        if ($is_downgrade) {
+        // emsfb_pro 0 is a Pro licence that lapsed: choosing Free or Free Plus
+        // from there must switch its Pro add-ons off too (no confirmation is
+        // asked for, since nothing paid is given up any more).
+        if ($is_downgrade || ($current_package_type === 0 && in_array($target_package_type, [2, 3], true))) {
             // Which add-ons the new plan keeps is the same question the install
             // gate answers, so both read one table (addon_required_package_efb).
             $addon_keys = array_diff(

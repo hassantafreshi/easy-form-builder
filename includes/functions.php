@@ -4128,7 +4128,7 @@ class efbFunction {
 		foreach ($rules as $rule) {
 			if (!is_array($rule)) continue;
 			$rule_action = isset($rule['action']) && $rule['action'] === 'stop' ? 'stop' : 'trigger';
-			$url = isset($rule['url']) ? esc_url_raw($rule['url']) : '';
+			$url = isset($rule['url']) ? esc_url_raw($rule['url'], array('http', 'https')) : ''; // a webhook is an http(s) endpoint, never ftp:
 			/* stop rules cancel other webhooks; they never call a URL themselves */
 			if ($url === '' && $rule_action !== 'stop') continue;
 			$method = isset($rule['method']) ? strtoupper(sanitize_text_field($rule['method'])) : 'POST';
@@ -7556,7 +7556,10 @@ public function addon_add_efb($value) {
 			delete_option('emsfb_pro_ac_date');
 			update_option('emsfb_pro_activeCode' ,$code);
 			return false;
-		}elseif ($state=="notExists") {
+		}elseif (in_array($state, array('notExists', 'not_exist', 'invalid_key'), true)) {
+			// The current server says not_exist / invalid_key (HTTP 200): a
+			// verdict, not an outage. As "unknown state" they fell into the
+			// 21-day grace period, so any unregistered key got Pro for 21 days.
 			update_option('emsfb_pro', 0);
 			delete_option('emsfb_pro_ac_date');
 			// The key is kept even here so the customer can still see it and
@@ -7919,10 +7922,30 @@ public function addon_add_efb($value) {
 		} else {
 			$activeCode = explode('@', $s)[0];
 			if ($this->validated_pro_efb($activeCode)) {
-				return $this->update_pro_status_efb($s);
+				/* A code typed in Settings: when the server says it is not a
+				 * licence (not_exist / invalid_key / deactive), the site keeps the
+				 * plan it had instead of dropping to "no plan". The weekly check
+				 * (cron_check_pro_efb) calls update_pro_status_efb() directly and
+				 * still records a lapsed licence. */
+				$previous = array();
+				foreach (array('emsfb_pro', 'emsfb_pro_activeCode', 'emsfb_pro_ac_date') as $option) {
+					$previous[$option] = get_option($option, null);
+				}
+				$granted = $this->update_pro_status_efb($s);
+				if (!$granted) {
+					foreach ($previous as $option => $value) {
+						if (null === $value) {
+							delete_option($option);
+						} else {
+							update_option($option, $value);
+						}
+					}
+				}
+				return $granted;
 			}
-			update_option('emsfb_pro', 0);
-			delete_option('emsfb_pro_ac_date');
+			/* A code that is not for this domain is refused without touching the
+			 * site's licence: a typo in Settings used to set emsfb_pro to 0 and
+			 * turn a working Pro or Free Plus site's forms off. */
 		}
 		return false;
 	}
@@ -7989,6 +8012,9 @@ public function addon_add_efb($value) {
 
 		?>
 		<div class="wrap">
+			<?php /* admin-efb.js, which a gated add-on page still loads, reads a page
+			 * without #alert_efb as broken by a plugin conflict and replaces it. */ ?>
+			<div id="alert_efb" class="efb"></div>
 			<div class="efb mx-3 mt-5 mb-3 p-4 alert alert-light <?php echo esc_attr( $bg_class ); ?>" style="border-radius:12px; max-width:700px; margin:60px auto; text-align:center;">
 				<i class="efb <?php echo esc_attr( $icon ); ?>" style="font-size:48px; display:block; margin-bottom:16px;"></i>
 				<h2 style="margin:0 0 12px; font-size:1.4em;"><?php echo $title; ?></h2>
