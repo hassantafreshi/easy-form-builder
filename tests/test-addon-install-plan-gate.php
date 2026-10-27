@@ -184,13 +184,29 @@ check(
 
 echo "\nDomain sent to the licensing server\n";
 
+// The interactive install and the automatic recovery build the host with one
+// helper, addon_request_host_efb() in functions.php.
+$functions_src = file_get_contents( dirname( __DIR__ ) . '/includes/functions.php' );
+$host_helper   = '';
+if ( preg_match( '/function addon_request_host_efb\(.*?\n\t}\n/s', $functions_src, $m ) ) {
+	$host_helper = $m[0];
+}
+check(
+	'the install builds the host with the shared helper',
+	strpos( $admin_src, 'addon_request_host_efb($_server_name)' ) !== false
+		&& strpos( $functions_src, '$this->addon_request_host_efb($_server_name)' ) !== false
+);
 check(
 	'host is lowercased before it is sent',
-	strpos( $admin_src, "strtolower(\$_server_name)" ) !== false
+	strpos( $host_helper, 'strtolower(' ) !== false
 );
 check(
 	'only the leading www. label is stripped',
-	strpos( $admin_src, "preg_replace('/^www\\./', ''" ) !== false
+	strpos( $host_helper, "preg_replace( '/^www\\./', ''" ) !== false
+);
+check(
+	'a :port suffix is removed (the server route rejects a colon)',
+	strpos( $host_helper, "preg_replace( '/:\\d+\$/', ''" ) !== false
 );
 check(
 	'licence host candidates are recorded for comparison',
