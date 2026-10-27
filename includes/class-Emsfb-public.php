@@ -3288,10 +3288,10 @@ public function check_nonce_permission_efb($request) {
 						$error_message  = '';
 						$error_field_id = '';
 					}
-					if (isset($validated_item)) {
-						if (is_array($validated_item)) {
-							$validated_item['type'] = $this->stored_row_type_efb($validated_item, $f, $form_fields_array);
-						}
+					// A row the type filter rejected comes back as false; it is not
+					// visitor data and every later step expects an array.
+					if (isset($validated_item) && is_array($validated_item)) {
+						$validated_item['type'] = $this->stored_row_type_efb($validated_item, $f, $form_fields_array);
 						array_push($validated_items, $validated_item);
 					};
 				}
@@ -3323,7 +3323,8 @@ public function check_nonce_permission_efb($request) {
 				array_push($validated_items, ['type' => 'w_link', 'value' => $url, 'amount' => -1]);
 				if($currency!=''){
 				 	foreach ($validated_items as $key => $value) {
-						$t=strpos($value['type'],'pay');
+						if (!is_array($value) || !isset($value['type'])) continue;
+						$t=strpos((string) $value['type'],'pay');
 						if(gettype($t)!='boolean'){
 							$validated_items[$key]['currency'] = $currency;
 						}
@@ -5214,6 +5215,9 @@ public function check_nonce_permission_efb($request) {
 		 * included - keep the decoded object in $this->setting, and reading
 		 * that answered every later reply with "Settings not found". */
 		$r= is_string($this->setting) && $this->setting !== '' ? $this->setting: get_setting_Emsfb('raw');
+		// Defined on every path: with email sending off (the default on a new
+		// install) the reply further down read an undefined variable.
+		$email_actived = false;
 
 		if(gettype($r)=="string"){
 			$r =\emsfb_json_normalize_efb($r);
@@ -5545,17 +5549,23 @@ public function check_nonce_permission_efb($request) {
 
 	public function get_autofilled_list_efb($data_POST_) {
 		$data_POST = $data_POST_->get_json_params();
-		$fid = sanitize_text_field($data_POST['id']);
+		$data_POST = is_array($data_POST) ? $data_POST : array();
+		$fid = sanitize_text_field($data_POST['id'] ?? '');
 		if($this->efbFunction===null) $this->efbFunction = get_efbFunction();
-		$sid = sanitize_text_field($data_POST['sid']);
-		$s_sid = $this->efbFunction->efb_code_validate_select($sid, $fid);
-		if ($s_sid !=1 || $sid==null){
-			$this->efbFunction->send_email_noti_sid_plugins_efb;('replyMessageAction');
-			$m = $this->lanText['sxnlex'];
+		$sid = sanitize_text_field($data_POST['sid'] ?? '');
+		$s_sid = $sid === '' ? 0 : $this->efbFunction->efb_code_validate_select($sid, $fid);
+		if ($s_sid !=1 || $sid === ''){
+			// No alert email here: this route is public, and one email per bad
+			// request would let anyone flood the administrator's inbox. (The old
+			// line meant to send one but was a no-op typo.)
+			if (empty($this->lanText) || !isset($this->lanText['sxnlex'])) {
+				$this->lanText = $this->efbFunction->text_efb(['sxnlex']);
+			}
+			$m = $this->lanText['sxnlex'] ?? esc_html__('Error! Please try again later.', 'easy-form-builder');
 			$response = array( 'success' => false  , 'm'=>$m );
 			wp_send_json_success($response,200);
 		}
-		$page_id = sanitize_text_field($data_POST['page_id']);
+		$page_id = sanitize_text_field($data_POST['page_id'] ?? '');
 		$cache_plugins = get_option('emsfb_cache_plugins','0');
 
 		$path =  EMSFB_PLUGIN_DIRECTORY . 'vendor/autofill/autofillefb.php';
@@ -6384,9 +6394,10 @@ public function check_nonce_permission_efb($request) {
 		}
 
 		$data_POST = $data_POST_->get_json_params();
+		$data_POST = is_array($data_POST) ? $data_POST : array();
 		$user = wp_get_current_user();
 		$uid= $user->exists() ? $user->user_nicename :  esc_html__('Guest','easy-form-builder') ;
-		$this->id =sanitize_text_field($data_POST['id']);
+		$this->id =sanitize_text_field($data_POST['id'] ?? '');
 		if($this->efbFunction===null) $this->efbFunction = get_efbFunction();
 
 		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  get_setting_Emsfb('raw');
@@ -6430,8 +6441,8 @@ public function check_nonce_permission_efb($request) {
 				require_once( EMSFB_PLUGIN_DIRECTORY . "/vendor/autoload.php" );
 			}
 		}
-		$this->id = intval($data_POST['id']);
-		$val_ = sanitize_text_field($data_POST['value']);
+		$this->id = intval($data_POST['id'] ?? 0);
+		$val_ = sanitize_text_field($data_POST['value'] ?? '');
 		if(empty($this->db)){
             global $wpdb;
             $this->db = $wpdb;
@@ -8307,7 +8318,7 @@ public function check_nonce_permission_efb($request) {
 			'multiselect' => true, 'select' => true, 'paySelect' => true,
 			'stateProvince' => true, 'statePro' => true, 'conturyList' => true,
 			'country' => true, 'city' => true, 'cityList' => true, 'sample' => true,
-			'persiapay' => ['amount' => true],'ardate'=>true,'pdate'=>true ,'textarea'=>true,
+			'persiapay' => ['amount' => true], 'persiaPay' => ['amount' => true],'ardate'=>true,'pdate'=>true ,'textarea'=>true,
 			'payment' => ['amount' => true], 'file' => ['url' => true], 'address_line'=>true,
 			'dadfile' => ['url' => true], 'esign' => true, 'maps' => true,
 			'audio_recorder' => ['url' => true, 'recording_duration' => true], 'video_recorder' => ['url' => true, 'recording_duration' => true], 'screen_recorder' => ['url' => true, 'recording_duration' => true],

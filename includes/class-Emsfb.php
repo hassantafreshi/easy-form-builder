@@ -1214,7 +1214,12 @@ class Emsfb {
 
                 $settings_changed = false;
                 if (!isset($decoded->AdnGoS)) {
-                    $decoded->AdnGoS = 0;
+                    // Same rule as normalize_addon_settings_efb(): a site whose add-ons
+                    // were put in place by the Add-ons Handler or an older release has
+                    // emsfb_addon_AdnGoS=1 but no flag in the settings row yet. A plain 0
+                    // here ran first and switched Google Sheets off on every such site.
+                    $legacy_gos = get_option('emsfb_addon_AdnGoS', false);
+                    $decoded->AdnGoS = $legacy_gos !== false && absint($legacy_gos) >= 1 ? 1 : 0;
                     $settings_changed = true;
                 }
                 if ($settings_changed) {
