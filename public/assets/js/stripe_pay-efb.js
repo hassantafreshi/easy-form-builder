@@ -1,4 +1,15 @@
 
+/* Payment tracing for support, off by default: set window.EFB_STRIPE_DEBUG = true in the
+ * browser console before paying. Failures still go to console.error. */
+function efb_stripe_debug_efb(level, message, details) {
+  try {
+    if (typeof window === 'undefined' || window.EFB_STRIPE_DEBUG !== true) return;
+    if (typeof console !== 'undefined' && typeof console[level] === 'function') {
+      console[level]('[EFB Stripe Debug] ' + message, details || {});
+    }
+  } catch (e) {}
+}
+
 /* Confirm a one-time Stripe charge with this site before the form is submitted.
  * Resolves to
  *   'verified'   the server retrieved the PaymentIntent from Stripe and it matches the payment record;
@@ -52,7 +63,7 @@ async function confirm_stripe_payment_efb(paymentIntentId, trackid, formId) {
       'form-id': String(formId || 0),
       'sid': context && context.sid ? context.sid : (efb_var.sid || ''),
     });
-    console.log('[EFB Stripe Debug] confirm request start', {
+    efb_stripe_debug_efb('log', 'confirm request start', {
       confirmUrl,
       paymentIntentId,
       trackid,
@@ -75,7 +86,7 @@ async function confirm_stripe_payment_efb(paymentIntentId, trackid, formId) {
     }
     let res = null;
     try { res = await response.json(); } catch (err) { res = null; }
-    console.log('[EFB Stripe Debug] confirm response received', {
+    efb_stripe_debug_efb('log', 'confirm response received', {
       status: response.status,
       ok: response.ok
     });
@@ -107,7 +118,7 @@ async function confirm_stripe_payment_efb(paymentIntentId, trackid, formId) {
       'sid':efb_var.sid ? efb_var.sid : '',
       });
 
-        console.log('[EFB Stripe Debug] init stripe payment flow', {
+        efb_stripe_debug_efb('log', 'init stripe payment flow', {
           form_id,
           url,
           hasNonce: !!efb_var.nonce,
@@ -204,7 +215,7 @@ async function confirm_stripe_payment_efb(paymentIntentId, trackid, formId) {
               token: data && data.token ? '[REDACTED]' : undefined,
               value: data && data.value ? '[JSON_PAYLOAD]' : undefined,
             });
-            console.log('[EFB Stripe Debug] card/add request payload', safeLogData);
+            efb_stripe_debug_efb('log', 'card/add request payload', safeLogData);
             const requestOptions = {
             method: 'POST',
             cache: 'no-store',
@@ -216,7 +227,7 @@ async function confirm_stripe_payment_efb(paymentIntentId, trackid, formId) {
 
   fetch(url, requestOptions)
   .then(response => {
-    console.log('[EFB Stripe Debug] card/add response meta', {
+    efb_stripe_debug_efb('log', 'card/add response meta', {
       status: response.status,
       ok: response.ok
     });
@@ -282,7 +293,7 @@ async function confirm_stripe_payment_efb(paymentIntentId, trackid, formId) {
           btnStripeEfb.addEventListener('click', () => {
             if (paymentStarted) return;
             paymentStarted = true;
-            console.log('[EFB Stripe Debug] Pay Now clicked', {
+            efb_stripe_debug_efb('log', 'Pay Now clicked', {
               form_id,
               paymentmethod: valj_efb[0] && valj_efb[0].paymentmethod ? valj_efb[0].paymentmethod : 'unknown'
             });
@@ -291,7 +302,7 @@ async function confirm_stripe_payment_efb(paymentIntentId, trackid, formId) {
 
             const v = fun_pay_valid_price();
             if (v == false) {
-              console.warn('[EFB Stripe Debug] blocked by empty cart validation', {
+              efb_stripe_debug_efb('warn', 'blocked by empty cart validation', {
                 form_id,
                 sendBackLength: Array.isArray(sendBack_emsFormBuilder_pub) ? sendBack_emsFormBuilder_pub.length : -1
               });
@@ -305,7 +316,7 @@ async function confirm_stripe_payment_efb(paymentIntentId, trackid, formId) {
 
                 if(valj_efb[0].paymentmethod != "charge"){
                   stripe.createToken(numElm).then((transStat) => {
-                    console.log('[EFB Stripe Debug] createToken result', {
+                    efb_stripe_debug_efb('log', 'createToken result', {
                       hasError: !!(transStat && transStat.error),
                       hasToken: !!(transStat && transStat.token && transStat.token.id)
                     });
@@ -350,12 +361,12 @@ async function confirm_stripe_payment_efb(paymentIntentId, trackid, formId) {
             // "null" here usually means the page HTML (or the settings cache) was
             // cached before the keys were saved — ask the server for a fresh key
             // before giving up with an error.
-            console.warn('[EFB Stripe Debug] localized paymentKey is "null", requesting fresh key');
+            efb_stripe_debug_efb('warn', 'localized paymentKey is "null", requesting fresh key');
             fetch(efb_var.rest_url + 'Emsfb/v1/forms/payment/stripe/pkey')
               .then((response) => response.json())
               .then((res) => {
                 const freshKey = res && res.data && res.data.key ? res.data.key : 'null';
-                console.log('[EFB Stripe Debug] pkey fallback response', { hasKey: !!(freshKey && freshKey != 'null') });
+                efb_stripe_debug_efb('log', 'pkey fallback response', { hasKey: !!(freshKey && freshKey != 'null') });
                 if (freshKey && freshKey != 'null') {
                   ajax_object_efm.paymentKey = freshKey;
                   init_stripe_ui_efb(freshKey);
@@ -373,7 +384,7 @@ async function confirm_stripe_payment_efb(paymentIntentId, trackid, formId) {
           }
           const fun_trans_efb = (transStat, data, trackid) => {
 
-            console.log('[EFB Stripe Debug] fun_trans_efb called', {
+            efb_stripe_debug_efb('log', 'fun_trans_efb called', {
               hasError: !!(transStat && transStat.error),
               trackid,
               data

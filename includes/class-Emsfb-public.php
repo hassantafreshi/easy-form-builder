@@ -6954,7 +6954,10 @@ public function check_nonce_permission_efb($request) {
 	 * maintenance as a backstop), never inside a page load. Bounded: rows 10
 	 * minutes to 7 days old, each re-checked at most about hourly, at most 20
 	 * Stripe requests and 60 s per run, and the run stops at the first gateway
-	 * error. Uses the same comparison as the confirmation endpoint.
+	 * error. Uses the same comparison as the confirmation endpoint. An intent
+	 * still waiting for a payment method an hour after card/add (declined, or
+	 * the visitor left) is marked 'failed': every Pay Now click creates a new
+	 * intent, so that one can no longer be paid.
 	 */
 	public function reconcile_stripe_payments_efb() {
 		try {
@@ -6993,6 +6996,7 @@ public function check_nonce_permission_efb($request) {
 
 		// created_at/updated_at are site-local 'Y-m-d H:i:s' strings, as the add-on writes them.
 		$recheck_before = wp_date( 'Y-m-d H:i:s', $started - 50 * MINUTE_IN_SECONDS );
+		$abandon_before = wp_date( 'Y-m-d H:i:s', $started - HOUR_IN_SECONDS );
 		$due            = array();
 		foreach ( $candidates as $row ) {
 			$never_checked = abs( (int) strtotime( (string) $row->updated_at ) - (int) strtotime( (string) $row->created_at ) ) < 60;
@@ -7024,6 +7028,10 @@ public function check_nonce_permission_efb($request) {
 				}
 				if ( $result['stripe_status'] === 'canceled' ) {
 					$this->update_pending_stripe_payment_efb( $row->id, array( 'status' => 'cancelled' ) );
+					continue;
+				}
+				if ( $result['stripe_status'] === 'requires_payment_method' && (string) $row->created_at <= $abandon_before ) {
+					$this->update_pending_stripe_payment_efb( $row->id, array( 'status' => 'failed' ) );
 					continue;
 				}
 				// Not paid (yet), a mismatch, or Stripe unreachable: the row stays

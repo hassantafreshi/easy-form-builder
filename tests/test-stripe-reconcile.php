@@ -120,15 +120,18 @@ try {
     $http->mode[$i_pi] = 'canceled';
     list($j, $j_pi) = $add(array(), 5 * HOUR_IN_SECONDS);                              // amount differs
     $http->mode[$j_pi] = 'amount';
-    $h_before = $row($h)->updated_at;
+    list($k, $k_pi) = $add(array(), 30 * MINUTE_IN_SECONDS);                           // unpaid, visitor may still retry
+    $http->mode[$k_pi] = 'requires_payment_method';
+    $k_before = $row($k)->updated_at;
     $public->reconcile_stripe_payments_efb();
     $check($row($a)->status === 'completed' && $row($a)->capture_id === $row($a)->transaction_id, 'Pending paid intent is completed by the background check');
     $check($row($b)->status === 'pending' && $row($c)->status === 'pending' && $row($f)->status === 'pending', 'Rows younger than 10 min, older than 7 days or checked within the hour are skipped');
     $check($row($d)->status === 'pending' && $row($e)->status === 'pending' && $row($g)->status === 'refunded', 'Subscriptions, other gateways and settled rows are never touched');
-    $check($row($h)->status === 'pending' && $row($h)->updated_at !== $h_before, 'Unpaid intent stays pending and moves to the back of the queue');
+    $check($row($h)->status === 'failed', 'Intent still unpaid an hour after card/add (declined or abandoned) is marked failed');
+    $check($row($k)->status === 'pending' && $row($k)->updated_at !== $k_before, 'Unpaid intent younger than an hour stays pending and moves to the back of the queue');
     $check($row($i)->status === 'cancelled', 'Intent canceled at Stripe is marked cancelled');
     $check($row($j)->status === 'pending', 'Amount mismatch is never completed');
-    $check($gets() === 4, 'Exactly the four due rows were looked up (' . $gets() . ')');
+    $check($gets() === 5, 'Exactly the five due rows were looked up (' . $gets() . ')');
     $check(!array_filter($http->log, static function ($l) { return $l['timeout'] !== 20 || $l['connect'] !== 8; }), 'Stripe calls run with 20 s / 8 s timeouts');
     $curl = \Stripe\HttpClient\CurlClient::instance();
     $check($curl->getTimeout() === 80 && $curl->getConnectTimeout() === 30, 'SDK default timeouts are restored afterwards');
