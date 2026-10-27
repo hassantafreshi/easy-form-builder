@@ -5287,7 +5287,10 @@ public function addon_add_efb($value) {
         }
 
         $_server_name = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_HOST'])) : 'localhost';
-        $server_name = str_replace("www.", "", $_server_name);
+        // Same normalisation as the interactive install (add_addons_Emsfb): the
+        // licence row holds the bare host, and the add-on route on the server
+        // does not accept a ":port" suffix at all.
+        $server_name = $this->addon_request_host_efb($_server_name);
         $vwp = get_bloginfo('version');
 		$vwp = substr($vwp,0,3);
 		$vefb = EMSFB_PLUGIN_VERSION;
@@ -7350,7 +7353,11 @@ public function addon_add_efb($value) {
 				: (object) ['r' => false, 'state' => 'notExists'];
 		}
 
-		$connected = wp_remote_post('https://www.whitestudio.team', array('timeout' => 2));
+		// Reachability probe only: a HEAD against the licence server's REST
+		// index, not a POST to the home page, so a WAF rule on POSTs to the
+		// front page cannot turn a reachable server into "unreachable", and
+		// nothing gets rendered for a request whose body is never read.
+		$connected = wp_remote_head(EMSFB_LICENSE_SERVER_URL . '/wp-json/', array('timeout' => 3));
 		if (is_wp_error($connected)) {
 			// The server was never reached, so nothing here is authoritative. If
 			// the activation code still matches this domain we keep running;
@@ -7438,6 +7445,25 @@ public function addon_add_efb($value) {
 	 *
 	 * @return array<int, string>
 	 */
+	/**
+	 * The host name sent to the add-on server, derived from HTTP_HOST.
+	 *
+	 * Lower-cased, the leading "www." label dropped, and any ":port" suffix
+	 * removed: the licence row on the server holds the bare host (see
+	 * license_domain_candidates_efb()), and the addons-link route does not
+	 * accept a colon in that segment at all, so a site served on a
+	 * non-standard port used to get "No route was found" for every add-on.
+	 *
+	 * @param  string $http_host Raw HTTP_HOST value.
+	 * @return string
+	 */
+	public function addon_request_host_efb( $http_host ) {
+		$host = strtolower( trim( (string) $http_host ) );
+		$host = preg_replace( '/:\d+$/', '', $host );
+		$host = preg_replace( '/^www\./', '', $host );
+		return '' === $host ? 'localhost' : $host;
+	}
+
 	public function license_domain_candidates_efb() {
 		$hosts = array();
 

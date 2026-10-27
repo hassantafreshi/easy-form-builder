@@ -616,7 +616,7 @@ class Admin {
          * host that differs from those candidates is exactly how a licensed
          * site gets answered "plan_required", so both spellings are logged.
          */
-        $server_name = preg_replace('/^www\./', '', strtolower($_server_name));
+        $server_name = get_efbFunction()->addon_request_host_efb($_server_name);
         $license_hosts = get_efbFunction()->license_domain_candidates_efb();
         delete_option($name_space);
         $vwp = get_bloginfo('version');
@@ -3100,8 +3100,7 @@ class Admin {
     }
 
 	private function email_tester_endpoint_efb($path, $use_www = false) {
-		$host = $use_www ? 'www.whitestudio.team' : 'whitestudio.team';
-		return 'https://' . $host . '/wp-json/ws-email-tester/v1' . $path;
+		return \Emsfb\Email_Monitor::service_base_url($use_www) . '/wp-json/ws-email-tester/v1' . $path;
 	}
 
     private function email_tester_current_run_id_efb() {

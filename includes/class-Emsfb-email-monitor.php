@@ -1944,18 +1944,39 @@ class Email_Monitor {
 		]);
 	}
 
+	/**
+	 * Base URL of the email tester service.
+	 *
+	 * The production service lives on whitestudio.team. EMSFB_EMAIL_TESTER_SERVER_URL
+	 * (wp-config.php or an mu-plugin) points a staging site or a local test rig
+	 * at another copy of the service; every other WhiteStudio service already
+	 * has such an override, this one did not.
+	 *
+	 * @param  bool $use_www The "www." spelling of the production host, tried
+	 *                       when the bare host does not answer. Ignored for an
+	 *                       overridden URL, which has no such twin.
+	 * @return string Without a trailing slash.
+	 */
+	public static function service_base_url($use_www = false) {
+		if (defined('EMSFB_EMAIL_TESTER_SERVER_URL') && EMSFB_EMAIL_TESTER_SERVER_URL) {
+			return untrailingslashit((string) EMSFB_EMAIL_TESTER_SERVER_URL);
+		}
+		return $use_www ? 'https://www.whitestudio.team' : 'https://whitestudio.team';
+	}
+
 	private static function remote_request($method, $path, $args) {
-		$base_url = 'https://whitestudio.team';
+		$base_url = self::service_base_url();
 		$endpoint = $base_url . '/wp-json/ws-email-tester/v1' . $path;
 		$response = strtoupper($method) === 'POST'
 			? wp_remote_post($endpoint, $args)
 			: wp_remote_get($endpoint, $args);
 
-		if (!is_wp_error($response) || strpos($base_url, '://www.') !== false || !preg_match('#://whitestudio\.team/?$#', $base_url)) {
+		$fallback_base = self::service_base_url(true);
+		if (!is_wp_error($response) || $fallback_base === $base_url) {
 			return $response;
 		}
 
-        $fallback = preg_replace('#://#', '://www.', $base_url, 1) . '/wp-json/ws-email-tester/v1' . $path;
+        $fallback = $fallback_base . '/wp-json/ws-email-tester/v1' . $path;
         return strtoupper($method) === 'POST'
             ? wp_remote_post($fallback, $args)
             : wp_remote_get($fallback, $args);
