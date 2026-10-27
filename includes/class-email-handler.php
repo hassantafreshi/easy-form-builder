@@ -533,7 +533,9 @@ class EmsfbEmailHandler {
         }
 
         if ($isRegistrationState) {
-            $title = __('Welcome!', 'easy-form-builder');
+            $title = $state === 'newUser'
+                ? __('New user registration', 'easy-form-builder')
+                : __('Welcome!', 'easy-form-builder');
         }
 
         if ($isRecoveryState) {
@@ -556,6 +558,13 @@ class EmsfbEmailHandler {
         } else if ($isRecoveryState) {
             // Recovery email - m contains username, link contains the full recovery URL
             $message = $this->generate_recovery_content($m, $lang, $link, $btnBgColor, $btnTextColor, $btnFontFamily);
+        } else if ($isRegistrationState && $state === 'newUser') {
+            // Administrator copy of a registration. It used to be the user's own
+            // email, "Verify Email" button included, so whoever read the admin
+            // mailbox could activate the account in the user's place.
+            $username = is_string($m) ? $m : (is_array($m) && isset($m[0]) && is_string($m[0]) ? $m[0] : '');
+            $message = '<h2>' . esc_html__('New user registration', 'easy-form-builder') . '</h2>'
+                . '<p>' . esc_html__('Username', 'easy-form-builder') . ': <strong>' . esc_html($username) . '</strong></p>';
         } else if ($isRegistrationState) {
             // Registration email to USER - m contains username, link contains the full verification URL
             $message = $this->generate_register_content($m, $lang, $link, $btnBgColor, $btnTextColor, $btnFontFamily);

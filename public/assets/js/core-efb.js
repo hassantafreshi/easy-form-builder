@@ -3858,7 +3858,9 @@ async function handle_change_event_efb_v4(el ,form_id=0){
       break;
     case "password":
       state = valid_password_emsFormBuilder(el);
-      value = state == true ? sanitize_text_efb(el.value) : '0';
+      // As typed: the text sanitizer drops "%41" and rewrites "<", which gave
+      // the account a different password from the one the visitor chose.
+      value = state == true ? el.value : '0';
       break;
     case "select-multiple":
       const parents = el.name;
@@ -4070,6 +4072,16 @@ async function fun_validation_efb_v4(form_id) {
         });
       }
       continue;
+    }
+    /* An email field holding text that is not an address. valid_email_emsFormBuilder()
+     * already dropped the value, so an optional field used to submit without it,
+     * silently, and a required one said "required" instead of what is wrong. */
+    if (row > 1 && valj_efb[row].type == 'email' && current_s_efb == valj_efb[row].step) {
+      const emailEl = efb_get_by_id_in_form_efb(form_id, `${valj_efb[row].id_}_`);
+      if (emailEl && typeof emailEl.value === 'string' && emailEl.value.trim() !== '' && valid_email_emsFormBuilder(emailEl) === false) {
+        if (state == true) { state = false; idi = valj_efb[row].id_; name_field = valj_efb[row].name; }
+        continue; // the field already shows the "enter a valid email" message
+      }
     }
     if (row > 1 && valj_efb[row].required == true && current_s_efb == valj_efb[row].step && valj_efb[row].type != "chlCheckBox") {
       const id = valj_efb[row].type == "yesNo" ? `${valj_efb[row].id_}_yn` : (fun_el_select_in_efb(valj_efb[row].type) == false ? `${valj_efb[row].id_}_` : `${valj_efb[row].id_}_options`);

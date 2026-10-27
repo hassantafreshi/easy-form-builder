@@ -2478,6 +2478,11 @@ public function check_nonce_permission_efb($request) {
 			$submitted_values = [];
 		}
 
+		// Passwords are taken as typed, before the field sanitizing below:
+		// sanitize_text_field() strips "<…", "%41" and runs of spaces, so the
+		// account ended up with a password other than the one the visitor chose.
+		$raw_passwords_efb = $this->raw_passwords_efb($submitted_values);
+
 		// The client seeds one placeholder row per upload field at render time and
 		// posts it whether or not anything was ever attached, so a submission is
 		// never literally empty on a form that has a file field. Drop those rows
@@ -2685,9 +2690,9 @@ public function check_nonce_permission_efb($request) {
 						$t = strpos(strtolower($item['type']), 'checkbox');
 						if (
 							isset($f['id_']) && isset($item['id_']) && ($f['id_'] == $item['id_']
-								||  gettype($t) == "integer" && $f['id_'] == $item['id_ob'])
+								||  gettype($t) == "integer" && isset($item['id_ob']) && $f['id_'] == $item['id_ob'])
 							|| (($f['type'] == "persiaPay" || $f['type'] == "persiapay" || $f['type'] == "payment") && $form_fields_array[0]['type'] == 'payment')
-							|| ($item['type'] == 'r_matrix' && $f['id_'] == $item['id_ob'])
+							|| ($item['type'] == 'r_matrix' && isset($item['id_ob']) && $f['id_'] == $item['id_ob'])
 						) {
 							if (isset($f['name'])) {
 								$error_message = $this->lanText['mnvvXXX_'];
@@ -3512,7 +3517,7 @@ public function check_nonce_permission_efb($request) {
 					$this->id = sanitize_text_field($request_data['id']);
 					if ($should_send_email) {
 						array_filter($submitted_values, function ($item) use ($form_fields_array, &$user_email_address) {
-							if (isset($item['id_']) && $item['id_'] == $form_fields_array[0]['email_to']) {
+							if (isset($item['id_'], $form_fields_array[0]['email_to']) && $item['id_'] == $form_fields_array[0]['email_to']) {
 								$user_email_address = $item['value'];
 
 							}
@@ -3861,6 +3866,9 @@ public function check_nonce_permission_efb($request) {
 										}
 									}
 								}
+								if (isset($raw_passwords_efb['passwordRegisterEFB'])) {
+									$password = $raw_passwords_efb['passwordRegisterEFB'];
+								}
 								$r = $this->new_user_validate_efb($username, $email, $password);
 								if (is_string($r)) {
 									$response = ['success' => false, 'm' => $r];
@@ -3868,9 +3876,11 @@ public function check_nonce_permission_efb($request) {
 								}
 
 								$creds = [
-									'user_login' => esc_sql($username),
-									'user_pass' => esc_sql($password),
-									'user_email' => esc_sql($email),
+									'user_login' => $username,
+									// Slashed, as wp-login.php compares the slashed $_POST['pwd']:
+									// a password with ' " or \ must hash the same way here.
+									'user_pass' => wp_slash($password),
+									'user_email' => $email,
 									'role' => '',
 									'rich_editing' => 'false',
 									'user_registered' => wp_date('Y-m-d H:i:s')
@@ -3944,9 +3954,13 @@ public function check_nonce_permission_efb($request) {
 											}
 										}
 									}
+									if (isset($raw_passwords_efb['passwordlogin'])) {
+										$password = $raw_passwords_efb['passwordlogin'];
+									}
 									$creds = [
-										'user_login' => esc_sql($username),
-										'user_password' => esc_sql($password),
+										'user_login' => $username,
+										// Slashed like wp-login.php's $_POST['pwd'], see the register case.
+										'user_password' => wp_slash($password),
 										'remember' => true
 									];
 									$user = wp_signon($creds, false);
@@ -7046,6 +7060,21 @@ public function check_nonce_permission_efb($request) {
 		}else if(strlen($username)<3){
 			return esc_html__("The Username Must Contain At Least 3 Characters." , 'easy-form-builder');
 		}
+		$password_error = $this->password_policy_error_efb($password);
+		if ($password_error !== null) {
+			return $password_error;
+		}
+		return 0;
+	}
+
+	/**
+	 * The password rules of the register form, shared with the set-new-password
+	 * endpoint.
+	 *
+	 * @param string $password As typed.
+	 * @return string|null Message, or null when the password is acceptable.
+	 */
+	private function password_policy_error_efb($password) {
 		if (strlen($password) <  8) {
 			return esc_html__("The Password Must Contain At Least 8 Characters!" , 'easy-form-builder');
 		}
@@ -7058,7 +7087,25 @@ public function check_nonce_permission_efb($request) {
 		elseif(!preg_match("#[a-z]+#",$password)) {
 			return  esc_html__("The Password Must Contain At Least 1 Lowercase Letter!" , 'easy-form-builder');
 		}
-		return 0;
+		return null;
+	}
+
+	/**
+	 * The register and login passwords of a submission, exactly as sent.
+	 *
+	 * @param array $submitted_values Decoded rows, before sanitizing.
+	 * @return array<string,string> Keyed by field id_.
+	 */
+	private function raw_passwords_efb($submitted_values) {
+		$passwords = array();
+		foreach ((array) $submitted_values as $row) {
+			if (is_array($row) && isset($row['id_'], $row['value'])
+				&& in_array($row['id_'], array('passwordRegisterEFB', 'passwordlogin'), true)
+				&& is_string($row['value'])) {
+				$passwords[$row['id_']] = $row['value'];
+			}
+		}
+		return $passwords;
 	}
 	public function test_fun($data_POST_){
 		$data_POST = $data_POST_->get_json_params();
@@ -8553,9 +8600,16 @@ public function check_nonce_permission_efb($request) {
 		$fid = sanitize_text_field($data['fid'] ?? '');
 		$this->efbFunction = get_efbFunction();
 
-		$password = sanitize_text_field($data['password'] ?? '');
+		// As typed: sanitize_text_field() changed passwords containing "<",
+		// "%41" or runs of spaces, so the new password did not work afterwards.
+		$password = isset($data['password']) && is_string($data['password']) ? $data['password'] : '';
 		if ($st === '' || strlen($st) < 32 || $fid === '' || $password === '') {
 			return new WP_REST_Response(array('success' => false, 'data' => esc_html__('Error! Please try again later.', 'easy-form-builder')), 400);
+		}
+		// The page enforces this in the browser only; the endpoint accepted "a".
+		$password_error = $this->password_policy_error_efb($password);
+		if ($password_error !== null) {
+			return new WP_REST_Response(array('success' => false, 'data' => $password_error), 400);
 		}
 		if(empty($this->db)){
             global $wpdb;
@@ -8571,7 +8625,8 @@ public function check_nonce_permission_efb($request) {
 			if ($diff < 86400 && $row->status_ == 0) {
 				$user = get_user_by('login', $row->username);
 				if ($user) {
-					wp_set_password($password, $user->ID);
+					// Slashed like wp-login.php's reset, so the same password logs in there.
+					wp_set_password(wp_slash($password), $user->ID);
 					$this->efbFunction->efb_code_validate_update($st, 'recovery', 1);
 					$this->db->delete($table_name, ['id' => (int) $row->id], ['%d']);
 					return new WP_REST_Response(array('success' => true, 'data' => esc_html__('Password has been changed successfully!', 'easy-form-builder')));

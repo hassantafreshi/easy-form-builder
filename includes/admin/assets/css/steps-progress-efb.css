@@ -248,7 +248,7 @@
    transition: background-color .35s ease;
    z-index: 0;
 }
-.efb-sp--circles #steps-efb.efb-sp__steps .efb-sp__item:last-child::after { content: none; }
+.efb-sp--circles #steps-efb.efb-sp__steps .efb-sp__item:last-of-type::after { content: none; }
 .efb-sp--circles #steps-efb.efb-sp__steps .efb-sp__item.is-done::after { background: var(--efb-sp-dot); }
 .efb-sp--circles #steps-efb.efb-sp__steps .efb-sp__item.is-done::before {
    background: var(--efb-sp-dot);
@@ -411,11 +411,11 @@
    margin-inline-start: -15px;
    clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 50%, calc(100% - 15px) 100%, 0 100%, 15px 50%);
 }
-.efb-sp--chevrons #steps-efb.efb-sp__steps .efb-sp__item:first-child {
+.efb-sp--chevrons #steps-efb.efb-sp__steps .efb-sp__item:first-of-type {
    margin-inline-start: 0;
    clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 50%, calc(100% - 15px) 100%, 0 100%);
 }
-.efb-sp--chevrons #steps-efb.efb-sp__steps .efb-sp__item:last-child {
+.efb-sp--chevrons #steps-efb.efb-sp__steps .efb-sp__item:last-of-type {
    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 15px 50%);
 }
 .efb-sp--chevrons #steps-efb.efb-sp__steps .efb.efb-sp__item::before {
@@ -479,10 +479,10 @@
       padding: 4px 6px;
       clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%, 10px 50%);
    }
-   .efb-sp--chevrons #steps-efb.efb-sp__steps .efb-sp__item:first-child {
+   .efb-sp--chevrons #steps-efb.efb-sp__steps .efb-sp__item:first-of-type {
       clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%);
    }
-   .efb-sp--chevrons #steps-efb.efb-sp__steps .efb-sp__item:last-child {
+   .efb-sp--chevrons #steps-efb.efb-sp__steps .efb-sp__item:last-of-type {
       clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 10px 50%);
    }
    /* The step being filled in is the only one that keeps its name, and it takes
