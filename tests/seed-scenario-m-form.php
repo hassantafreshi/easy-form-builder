@@ -6,8 +6,9 @@
  * tracking label, colors).
  *
  * The form keeps the DEFAULT admin email notification enabled (sendEmail=true,
- * form_email=admin email) so the legacy email path can be verified alongside
- * the conditional rules.
+ * form_email=admin email). A matching notification rule replaces that admin
+ * email; when no rule matches (path 17.8) the admin email goes out instead -
+ * see doc 17.4b.
  *
  * Run from the plugin root:
  *   C:\xampp\php\php.exe tests/seed-scenario-m-form.php

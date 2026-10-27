@@ -4,7 +4,8 @@
  *
  * The form routes the notification email to a department inbox based on the
  * selected department, keeps the DEFAULT admin email enabled (sendEmail=true,
- * email_noti_type=msg so the email content carries the submitted data), and
+ * email_noti_type=msg so the email content carries the submitted data; a
+ * matching department rule replaces the admin email, see doc 17.4b), and
  * fires two conditional webhooks at the local log-only catcher:
  *
  *   - POST on every submit            (webhook_id: log_catcher_post)
@@ -201,7 +202,7 @@ $structure = array(
         'step' => '1',
         'amount' => 1,
         'EfbVersion' => 2,
-        'message' => 'Pick a department: its inbox gets the conditional email, the admin email always goes out, and the webhook catcher logs every submit (POST) plus amounts over 100 (GET).',
+        'message' => 'Pick a department: its inbox gets the conditional email (in place of the admin email), and the webhook catcher logs every submit (POST) plus amounts over 100 (GET).',
         'label_text_size' => 'fs-5',
         'el_text_size' => 'fs-5',
         'label_text_color' => 'text-darkb',

@@ -2377,6 +2377,30 @@ public function check_nonce_permission_efb($request) {
 		}
 
 		$session_is_valid = $this->efbFunction->efb_code_validate_select($session_id, $this->id);
+		/*
+		 * Session check. A current client sends the runtime token it got from
+		 * forms/session/prepare together with the sid that token was issued
+		 * for, so for it the session is enforced: the token must belong to this
+		 * form, carry this sid, and the session must still exist. A request
+		 * without a token comes from a page cached before 4.3.1 (or a bot) and
+		 * is accepted as before - rejecting it would drop real submissions from
+		 * stale page caches. It is traced, so a later release can decide on
+		 * enforcing the sid for those as well once caches have turned over.
+		 */
+		if (!empty($request_data['runtime_token']) && class_exists('\\Emsfb\\Form_Runtime')) {
+			$runtime_proof = \Emsfb\Form_Runtime::verify((string) $request_data['runtime_token'], $this->id);
+			if (is_wp_error($runtime_proof)) {
+				wp_send_json_error(array('code' => $runtime_proof->get_error_code(), 'm' => $runtime_proof->get_error_message()), 409);
+			}
+			if (!$runtime_proof || (string) $runtime_proof['sid'] !== (string) $session_id || (int) $session_is_valid !== 1) {
+				wp_send_json_error(array('code' => 'efb_context_expired', 'm' => __('The form context expired. Reopen the form before continuing.', 'easy-form-builder')), 409);
+			}
+		} elseif ((int) $session_is_valid !== 1) {
+			$this->efb_trace('submit.legacy-session-invalid', [
+				'form_id' => intval($this->id),
+				'type'    => isset($request_data['type']) ? sanitize_key((string) $request_data['type']) : '',
+			]);
+		}
 		$this->lanText = $this->efbFunction->text_efb($translation_keys);
 		$plugin_settings;
 		$cache_plugins = get_option('emsfb_cache_plugins','0');

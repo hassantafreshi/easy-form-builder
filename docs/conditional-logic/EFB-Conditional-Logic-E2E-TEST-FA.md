@@ -658,6 +658,12 @@ valj_efb[0].notification_rules
 valj_efb[0].confirmation_rules
 ```
 
+### 17.4b قاعدهٔ ایمیل پیش‌فرض ادمین در کنار قوانین اعلان
+
+- اگر **حداقل یک** قانون اعلان ایمیل با submit جور شود، ایمیل‌های همان قانون(ها) **جای** ایمیل پیش‌فرض ادمین را می‌گیرند و ایمیل پیش‌فرض ادمین ارسال نمی‌شود. این همان رفتار نسخهٔ منتشرشدهٔ 4.3.0 است.
+- اگر فرم قانون اعلان دارد ولی **هیچ‌کدام** جور نشود، ایمیل پیش‌فرض ادمین ارسال می‌شود تا ثبتی بدون اطلاع کسی نماند (از 4.3.1).
+- ایمیل کاربر (تأیید برای ارسال‌کننده) در هر دو حالت مثل قبل ارسال می‌شود.
+
 ### 17.5 Submit مسیر Company با بودجه VIP
 
 فرم منتشرشده را باز کنید و مقادیر زیر را وارد کنید:
@@ -683,7 +689,7 @@ Submit کنید.
 
 نتیجه مورد انتظار email/mail log:
 
-- [ ] ایمیل معمولی فرم به `admin@example.com` ارسال شده است.
+- [ ] ایمیل معمولی فرم به `admin@example.com` ارسال **نشده** است: NR1/NR2 match شده‌اند و جای ایمیل پیش‌فرض ادمین را می‌گیرند (قاعدهٔ 17.4b).
 - [ ] ایمیل شرطی NR1 به `sales@example.com` ارسال شده است.
 - [ ] ایمیل شرطی NR2 به `vip@example.com` ارسال شده است.
 - [ ] ایمیل NR3 به `support@example.com` ارسال نشده است.
@@ -711,7 +717,7 @@ Submit کنید.
 - [ ] فرم submit موفق دارد.
 - [ ] redirect مربوط به CR1 انجام نمی‌شود.
 - [ ] اگر هیچ confirmation rule دیگری match نشود، thank-you پیش‌فرض فرم نمایش داده می‌شود.
-- [ ] ایمیل معمولی فرم به `admin@example.com` ارسال می‌شود.
+- [ ] ایمیل معمولی فرم به `admin@example.com` ارسال **نمی‌شود** (NR1 match شده است؛ 17.4b).
 - [ ] NR1 به `sales@example.com` ارسال می‌شود.
 - [ ] NR2 به `vip@example.com` ارسال نمی‌شود.
 - [ ] NR3 به `support@example.com` ارسال نمی‌شود.
@@ -736,7 +742,7 @@ Submit کنید.
 - [ ] پیام CR2 نمایش داده می‌شود: `درخواست پشتیبانی شما ثبت شد.`
 - [ ] صفحه Done استایل CR2 را دارد: عنوان `پشتیبانی`، آیکون `bi-envelope-check`، رنگ آبی عنوان/آیکون و برچسب کد پیگیری `کد پیگیری پشتیبانی`.
 - [ ] redirect انجام نمی‌شود.
-- [ ] ایمیل معمولی فرم به `admin@example.com` ارسال می‌شود.
+- [ ] ایمیل معمولی فرم به `admin@example.com` ارسال **نمی‌شود** (NR3 match شده است؛ 17.4b).
 - [ ] NR3 به `support@example.com` ارسال می‌شود.
 - [ ] NR1 به `sales@example.com` ارسال نمی‌شود.
 - [ ] NR2 به `vip@example.com` ارسال نمی‌شود.
@@ -758,7 +764,7 @@ Submit کنید.
 
 - [ ] پیام CR3 نمایش داده می‌شود: `فرم شخص حقیقی با موفقیت ثبت شد.`
 - [ ] صفحه Done استایل CR3 را دارد: عنوان `ثبت شد`، آیکون `bi-patch-check` و رنگ سبز عنوان/آیکون؛ رنگ پیام همان پیش‌فرض فرم است.
-- [ ] ایمیل معمولی فرم به `admin@example.com` ارسال می‌شود.
+- [ ] ایمیل معمولی فرم به `admin@example.com` ارسال می‌شود: هیچ قانون اعلانی match نشده، پس ایمیل پیش‌فرض ادمین جای خالی را پر می‌کند (17.4b).
 - [ ] هیچ ایمیل شرطی به `sales@example.com`، `vip@example.com` یا `support@example.com` ارسال نمی‌شود.
 - [ ] داده‌های Step 2 و `budget` در submission ذخیره‌شده وجود ندارند.
 
@@ -837,10 +843,10 @@ Remove-Item C:\xampp\htdocs\wp\wp-content\efb-email-debug.log -ErrorAction Silen
 
 | # | `customer_type` | `has_budget` | `budget` | `logic_command` | دپارتمان(های) مقصد | ایمیل ادمین پیش‌فرض |
 |---|---|---|---|---|---|---|
-| L1 | Company | yes | 1500 | خالی | `sales@` + `vip@` | ارسال می‌شود |
-| L2 | Company | yes | 500 | خالی | فقط `sales@` | ارسال می‌شود |
-| L3 | Individual | no | خالی | `support` | فقط `support@` | ارسال می‌شود |
-| L4 | Individual | no | خالی | خالی | هیچ دپارتمانی | ارسال می‌شود |
+| L1 | Company | yes | 1500 | خالی | `sales@` + `vip@` | ارسال نمی‌شود |
+| L2 | Company | yes | 500 | خالی | فقط `sales@` | ارسال نمی‌شود |
+| L3 | Individual | no | خالی | `support` | فقط `support@` | ارسال نمی‌شود |
+| L4 | Individual | no | خالی | خالی | هیچ دپارتمانی | ارسال می‌شود (هیچ قانونی match نشده) |
 
 بعد از هر submit، خطوط لاگ را بررسی کنید:
 
@@ -858,12 +864,12 @@ Get-Content C:\xampp\htdocs\wp\wp-content\efb-email-debug.log -Tail 120
 - `[EFB Email Debug]` (خلاصه handler) — به ازای هر ایمیل compose شده؛ HTML کامل در `wp-content/efb-email-debug.log`.
 - `[EFB Email Debug][result]` — نتیجه `wp_mail` به ازای هر گیرنده (`success=true/false` + متن خطا در صورت شکست).
 
-مثلاً برای L1 باید ببینید: `notification-rules` با `active_rules=3`، دو `rule-matched-send` برای `nr1_sales` و `nr2_vip`، یک `rule-not-matched` برای `nr3_support`، `dispatch` برای ایمیل ادمین و دو ایمیل دپارتمان، و `result` موفق برای هر گیرنده.
+مثلاً برای L1 باید ببینید: `notification-rules` با `active_rules=3`، دو `rule-matched-send` برای `nr1_sales` و `nr2_vip`، یک `rule-not-matched` برای `nr3_support`، `admin-email-suppressed`، `dispatch` برای دو ایمیل دپارتمان (و ایمیل کاربر اگر فعال است)، و `result` موفق برای هر گیرنده.
 
 #### نتیجه مورد انتظار
 
 - [ ] در هر مسیر L1 تا L4، `rule-matched-send` فقط برای دپارتمان(های) درست همان مسیر ثبت شده است.
-- [ ] `dispatch` ایمیل پیش‌فرض ادمین در هر چهار مسیر ثبت شده (رول‌های شرطی مسیر قدیمی را حذف نمی‌کنند).
+- [ ] در L1 تا L3 خط `admin-email-suppressed` (با `reason=notification_rule_matched`) ثبت شده و `dispatch` ایمیل ادمین ندارد؛ در L4 خط `admin-email-fallback` (با `reason=no_notification_rule_matched`) و `dispatch` ایمیل پیش‌فرض ادمین ثبت شده است.
 - [ ] مقدار `track` در همه رویدادهای یک submit یکسان است و subject همان الگوی `[confirmation_code]` قابل تشخیص را دارد.
 - [ ] `content_preview` داده‌های submit شده را نشان می‌دهد (وقتی محتوای ایمیل روی «content فرم» تنظیم است).
 - [ ] `wp-content/efb-email-debug.log` HTML کامل ایمیل را دارد و مقدار فیلدها و کد پیگیری در آن قابل بررسی است.
@@ -903,19 +909,19 @@ C:\xampp\php\php.exe tests/seed-email-webhook-log-form.php
 
 | # | department | amount | note | انتظار ایمیل | انتظار webhook |
 |---|---|---|---|---|---|
-| W1 | Sales | 150 | دلخواه | ادمین + `sales@` | POST + GET (هر دو) |
-| W2 | Support | 50 | دلخواه | ادمین + `support@` | فقط POST |
-| W3 | Billing | خالی | دلخواه | ادمین + `billing@` | فقط POST |
+| W1 | Sales | 150 | دلخواه | فقط `sales@` | POST + GET (هر دو) |
+| W2 | Support | 50 | دلخواه | فقط `support@` | فقط POST |
+| W3 | Billing | خالی | دلخواه | فقط `billing@` | فقط POST |
 
 3. صفحه catcher را refresh کنید و برای هر تحویل بررسی کنید: متد (POST/GET)، `webhook_id`، هدرهای `X-EFB-Rule-Id` و `X-EFB-Track-Code`، و در body مقادیر `values` / `submitted_values` / `page_url`.
 4. خطوط `[EFB Email Debug]` را مثل 17.11 بررسی کنید و track هر submit را با `x-efb-track-code` همان تحویل webhook تطبیق دهید.
 
 #### نتیجه مورد انتظار
 
-- [ ] W1 دو تحویل دارد (POST با payload کامل JSON + GET با `track_code` و `event_type` در query)؛ W2 و W3 فقط POST دارند.
+- [ ] W1 دو تحویل دارد (POST با payload کامل JSON + GET با `track_code`، `event_type`، `webhook_id`، `rule_id` و `form_id` در query و همان هدرهای `X-EFB-*`)؛ W2 و W3 فقط POST دارند.
 - [ ] `webhook_id` و `rule_id` هر تحویل با جدول بالا مطابق است و `track_code` آن با track ایمیل‌های همان submit یکی است.
 - [ ] body تحویل POST مقدار فیلدهای submit شده (department/amount/note) را دارد.
-- [ ] در هر سه submit ایمیل دپارتمان درست + ایمیل پیش‌فرض ادمین در لاگ ایمیل ثبت شده است.
+- [ ] در هر سه submit فقط ایمیل دپارتمان درست در لاگ ایمیل ثبت شده است؛ ایمیل پیش‌فرض ادمین ارسال نمی‌شود چون یک قانون اعلان match شده است (17.4b).
 - [ ] هیچ ایمیل دپارتمانی برای دپارتمان انتخاب‌نشده ارسال/لاگ نشده است.
 - [ ] دسترسی به catcher از IP غیر localhost با 403 رد می‌شود.
 
