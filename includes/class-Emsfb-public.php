@@ -1564,7 +1564,7 @@ public function check_nonce_permission_efb($request) {
 					}
 					/* Collected so one rule per distinct colour can be printed for the
 					 * whole row instead of five custom properties on every step. */
-					$step_icon_colors_efb[] = $value->icon_color;
+					$step_icon_colors_efb[] = $value->icon_color ?? '';
 
 					/* data-num draws the number in place of the glyph once the form is
 					 * long enough for the captions to be dropped, and it is also how
@@ -1576,10 +1576,10 @@ public function check_nonce_permission_efb($request) {
 						$value->id_,
 						$step_no,
 						$form_id,
-						efb_steps_item_class_efb( $step_no, 1, $value->icon_color, $value->icon, $steps_style_efb ),
+						efb_steps_item_class_efb( $step_no, 1, $value->icon_color ?? '', $value->icon ?? '', $steps_style_efb ),
 						$valj_efb_first->steps <= 6 ? 'step-w-' . $valj_efb_first->steps : 'step-w-6',
 						'classic' === $steps_style_efb ? '' : 'efb-sp__label ',
-						$value->label_text_color,
+						$value->label_text_color ?? '',
 						$value->name
 					);
 					continue;
@@ -1743,8 +1743,8 @@ public function check_nonce_permission_efb($request) {
 						<div step-{$step_no}-efb></div>
 					</fieldset>";
 
-				$show_steps_efb    = intval($valj_efb[0]->show_icon) != 1;
-				$show_progress_efb = intval($valj_efb[0]->show_pro_bar) != 1;
+				$show_steps_efb    = intval($valj_efb[0]->show_icon ?? 0) != 1;
+				$show_progress_efb = intval($valj_efb[0]->show_pro_bar ?? 0) != 1;
 				$steps_style_efb   = efb_steps_style_name_efb( isset($valj_efb[0]->steps_style) ? $valj_efb[0]->steps_style : '' );
 				$prog_style_efb    = efb_progress_style_name_efb( isset($valj_efb[0]->progress_style) ? $valj_efb[0]->progress_style : '' );
 				if ( ! isset( $step_icon_colors_efb ) ) {
@@ -1752,12 +1752,14 @@ public function check_nonce_permission_efb($request) {
 				}
 				/* The Finish row is drawn from the first step's colours, the way it
 				 * always was, so it belongs in the colour set too. */
-				$step_icon_colors_efb[] = $valj_efb[1]->icon_color;
+				$finish_icon_color_efb  = $valj_efb[1]->icon_color ?? '';
+				$finish_label_color_efb = $valj_efb[1]->label_text_color ?? '';
+				$step_icon_colors_efb[] = $finish_icon_color_efb;
 
 				$head_final_step = "<li id='f-step-efb-{$form_id}' data-step='icon-s-{$step_no}-efb' data-formid='{$form_id}' data-num='{$step_no}' class='"
-					. efb_steps_item_class_efb( $step_no, 1, $valj_efb[1]->icon_color, 'bi-check-lg', $steps_style_efb ) . " "
+					. efb_steps_item_class_efb( $step_no, 1, $finish_icon_color_efb, 'bi-check-lg', $steps_style_efb ) . " "
 					. ( ( $valj_efb[0]->steps <= 6 ) ? "step-w-{$valj_efb[0]->steps}" : 'step-w-6' ) . " mx-0'>
-					<strong class='efb fs-5 " . ( 'classic' === $steps_style_efb ? '' : 'efb-sp__label ' ) . "{$valj_efb[1]->label_text_color}'>".$lanText['finish']."</strong>
+					<strong class='efb fs-5 " . ( 'classic' === $steps_style_efb ? '' : 'efb-sp__label ' ) . "{$finish_label_color_efb}'>".$lanText['finish']."</strong>
 				</li>";
 
 				$bgc = isset($valj_efb[0]->prg_bar_color) ? $valj_efb[0]->prg_bar_color : 'btn-primary';
@@ -3580,23 +3582,10 @@ public function check_nonce_permission_efb($request) {
 							}
 							if ($should_send_email) {
 
-								// Active email notification rules replace the standard admin
-								// notification: admin recipients are dropped so only rule
-								// recipients get notified; the user email (index 1) still goes out.
 								$has_active_email_rules = isset($form_fields_array[0]['notification_rules'])
 									&& is_array($form_fields_array[0]['notification_rules'])
 									&& count($this->efb_conditional_sorted_rules($form_fields_array[0]['notification_rules'])) > 0;
 
-								if ($has_active_email_rules) {
-									$email_recipients[0] = [];
-									$this->efb_email_debug_log('admin-email-suppressed', [
-										'track' => $track_code,
-										'form_id' => intval($this->id),
-										'reason' => 'active_notification_rules',
-									]);
-								} else {
-									$this->email_list_efb($email_recipients, 0, $form_admin_email, true);
-								}
 								$state_email_user = $has_tracking_code == 1 ? 'notiToUserFormFilled_TrackingCode' : 'notiToUserFormFilled';
 								$msg_content = 'null';
 								if (isset($form_fields_array[0]['email_noti_type']) && $form_fields_array[0]['email_noti_type'] == 'msg') {
@@ -3605,6 +3594,35 @@ public function check_nonce_permission_efb($request) {
 								}
 								$status_email = $this->email_status_efb($form_fields_array,$submitted_values,$track_code);
 								$state_of_email = ['newMessage',$state_email_user,$status_email['type']];
+
+								// A matching email notification rule replaces the standard admin
+								// notification: admin recipients are dropped so only rule
+								// recipients get notified; the user email (index 1) still goes out.
+								// When rules exist but none matches this submission, dropping the
+								// admin email left the entry with no notification to anyone, so
+								// the standard admin notification goes out instead.
+								$matched_email_rules = $has_active_email_rules
+									? $this->process_conditional_notification_rules($form_fields_array, $submitted_values, $track_code, $is_pro, $url, $status_email)
+									: 0;
+
+								if ($matched_email_rules > 0) {
+									$email_recipients[0] = [];
+									$this->efb_email_debug_log('admin-email-suppressed', [
+										'track' => $track_code,
+										'form_id' => intval($this->id),
+										'reason' => 'notification_rule_matched',
+										'matched_rules' => $matched_email_rules,
+									]);
+								} else {
+									$this->email_list_efb($email_recipients, 0, $form_admin_email, true);
+									if ($has_active_email_rules) {
+										$this->efb_email_debug_log('admin-email-fallback', [
+											'track' => $track_code,
+											'form_id' => intval($this->id),
+											'reason' => 'no_notification_rule_matched',
+										]);
+									}
+								}
 
 								/* Last checkpoint before the mailer runs. If the trace shows
 								   this line but no wp_mail.args after it, the send was stopped
@@ -3621,7 +3639,6 @@ public function check_nonce_permission_efb($request) {
 								]);
 
 								$this->send_email_Emsfb_( $email_recipients,$track_code ,$is_pro,$state_of_email,$url,$status_email['content'], $status_email['subject'] );
-								$this->process_conditional_notification_rules($form_fields_array, $submitted_values, $track_code, $is_pro, $url, $status_email);
 
 								$this->efb_trace('submit.dispatch-done', [
 									'form_id' => intval($this->id),
@@ -5929,8 +5946,12 @@ public function check_nonce_permission_efb($request) {
 				return [
 					'action' => 'redirect',
 					/* {field_id} tokens make personalized redirects possible:
-					 * https://example.com/thanks?plan={plan}&mail={email} */
-					'url' => esc_url($this->efb_replace_field_tokens($rule['url'] ?? '', $values, true)),
+					 * https://example.com/thanks?plan={plan}&mail={email}
+					 * esc_url_raw, not esc_url: the browser navigates to this value
+					 * from JSON, and esc_url's "&#038;" turned every parameter after
+					 * the first into a URL fragment. Disallowed protocols are still
+					 * stripped. */
+					'url' => esc_url_raw($this->efb_replace_field_tokens($rule['url'] ?? '', $values, true)),
 					'message' => '',
 				];
 			}
@@ -6008,8 +6029,14 @@ public function check_nonce_permission_efb($request) {
 		return $out;
 	}
 
+	/**
+	 * Send the email of every notification rule that matches this submission.
+	 *
+	 * @return int How many rules matched and were sent.
+	 */
 	private function process_conditional_notification_rules($form_fields_array, $submitted_values, $track_code, $is_pro, $url, $status_email) {
-		if (empty($form_fields_array[0]['notification_rules']) || !is_array($form_fields_array[0]['notification_rules'])) return;
+		if (empty($form_fields_array[0]['notification_rules']) || !is_array($form_fields_array[0]['notification_rules'])) return 0;
+		$matched = 0;
 		$values = $this->efb_conditional_values_map($form_fields_array, $submitted_values);
 		$content = isset($status_email['content']) ? $status_email['content'] : 'null';
 		$type = isset($status_email['type']) ? $status_email['type'] : 'traking_link';
@@ -6073,7 +6100,9 @@ public function check_nonce_permission_efb($request) {
 			foreach ($copy_recipients as $copy_email) {
 				$this->send_email_Emsfb_([$copy_email, ''], $track_code, $is_pro, ['newMessage', 'newMessage', $type], $url, $content, $subject);
 			}
+			$matched++;
 		}
+		return $matched;
 	}
 
 	private function process_conditional_webhook_rules($form_fields_array, $submitted_values, $track_code, $event_type, $context = array(), $allow_send = null) {
@@ -6153,8 +6182,31 @@ public function check_nonce_permission_efb($request) {
 			);
 
 			do_action('efb_conditional_webhook_before_send', $payload, $rule, $context);
+			/* GET carries no body, so it gets the identifying fields as query
+			 * arguments and the same X-EFB-* headers as a POST: a receiver can
+			 * tell which rule and webhook fired whatever the method. */
 			$response = $method === 'GET'
-				? wp_remote_get(add_query_arg(array('track_code' => $track_code, 'event_type' => $event_type), $url), array('timeout' => 8, 'redirection' => 3))
+				? wp_remote_get(
+					add_query_arg(
+						array(
+							'track_code' => $track_code,
+							'event_type' => $event_type,
+							'webhook_id' => $payload['webhook_id'],
+							'rule_id'    => $payload['rule_id'],
+							'form_id'    => $payload['form_id'],
+						),
+						$url
+					),
+					array(
+						'timeout'     => 8,
+						'redirection' => 3,
+						'headers'     => array(
+							'X-EFB-Webhook-Id' => $payload['webhook_id'],
+							'X-EFB-Rule-Id'    => $payload['rule_id'],
+							'X-EFB-Track-Code' => (string) $track_code,
+						),
+					)
+				)
 				: wp_remote_post($url, $args);
 			do_action('efb_conditional_webhook_after_send', $response, $payload, $rule, $context);
 
@@ -8608,6 +8660,14 @@ public function check_nonce_permission_efb($request) {
 			'admin_sc' => isset($_GET['sc']) ? sanitize_text_field(wp_unslash($_GET['sc'])) : '',
 			'nonce' => wp_create_nonce('wp_rest'),
 			'upload_max' => function_exists('wp_max_upload_size') ? (int) floor(wp_max_upload_size() / MB_IN_BYTES) : 0,
+			/* Conditional-logic runtime env (source: 'user'). core-efb.js replaces
+			 * efb_var with this object on a form page, so it must carry the same
+			 * user_state as the efb_var localized above, or every "logged in" and
+			 * "role" condition sees a guest. Public-safe role slugs only. */
+			'user_state' => array(
+				'logged_in' => is_user_logged_in(),
+				'roles' => is_user_logged_in() ? array_values((array) wp_get_current_user()->roles) : array(),
+			),
 
 			'respPrimary' => $pub_settings['respPrimary'] ?? '#3644d2',
 			'respPrimaryDark' => $pub_settings['respPrimaryDark'] ?? '#202a8d',

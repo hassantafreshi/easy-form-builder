@@ -2334,6 +2334,21 @@
 
 	function add_buttons_zone_efb($state, $id, $valj_efb, $efb_var, $formId) {
 
+		/* A form saved by an older builder, or imported, can lack keys the
+		 * current builder always writes: default them instead of reading null. */
+		if (isset($valj_efb[0]) && is_object($valj_efb[0])) {
+			$button_defaults = array(
+				'button_Previous_icon' => '', 'button_Next_icon' => '', 'icon' => '',
+				'button_Previous_text' => '', 'button_Next_text' => '', 'button_single_text' => '',
+				'button_color' => 'btn-primary', 'icon_color' => '', 'el_height' => '',
+			);
+			foreach ($button_defaults as $button_key => $button_default) {
+				if (!isset($valj_efb[0]->$button_key)) {
+					$valj_efb[0]->$button_key = $button_default;
+				}
+			}
+		}
+
 		$dis = '';
 		$t = array_search('stripe', array_column($valj_efb, 'type'));
 		$t = $t === false ? array_search('persiaPay', array_column($valj_efb, 'type')) : $t;
@@ -2350,7 +2365,7 @@
 		$icon_spacing_next_class = is_rtl() ? 'me-2' : 'ms-2';
 
 		$prev_icon = strlen($valj_efb[0]->button_Previous_icon) > 3 && $valj_efb[0]->button_Previous_icon != 'bi-undefined' &&  $valj_efb[0]->button_Previous_icon!='bXXX' ? sprintf('<i class="efb %s %s %s %s" id="button_group_icon"></i>', $valj_efb[0]->button_Previous_icon, $icon_spacing_class, $valj_efb[0]->icon_color, $valj_efb[0]->el_height) : '';
-		$next_icon = strlen($valj_efb[0]->button_Next_text) > 3 && $valj_efb[0]->button_Next_text != 'bi-undefined' && $valj_efb[0]->button_Next_text!='bXXX' ? sprintf('<i class="efb %s %s %s %s" id="button_group_icon"></i>', $valj_efb[0]->button_Next_icon, $icon_spacing_next_class, $valj_efb[0]->icon_color, $valj_efb[0]->el_height) : '';
+		$next_icon = strlen($valj_efb[0]->button_Next_icon) > 3 && $valj_efb[0]->button_Next_icon != 'bi-undefined' && $valj_efb[0]->button_Next_icon!='bXXX' ? sprintf('<i class="efb %s %s %s %s" id="button_group_icon"></i>', $valj_efb[0]->button_Next_icon, $icon_spacing_next_class, $valj_efb[0]->icon_color, $valj_efb[0]->el_height) : '';
 		$class_disabled = '';
 
 		$s = sprintf(

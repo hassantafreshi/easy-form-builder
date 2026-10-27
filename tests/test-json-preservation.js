@@ -3,7 +3,9 @@ const vm = require('vm');
 const assert = require('assert');
 const source = fs.readFileSync(require('path').join(__dirname, '../includes/admin/assets/js/new-efb.js'), 'utf8');
 const start = source.indexOf('function efbParseJson(');
-const end = source.indexOf('function fun_upload_file_api_emsFormBuilder(', start);
+// The boundary is now declared async; slicing at "function …" left a stray "async" behind.
+const asyncEnd = source.indexOf('async function fun_upload_file_api_emsFormBuilder(', start);
+const end = asyncEnd !== -1 ? asyncEnd : source.indexOf('function fun_upload_file_api_emsFormBuilder(', start);
 const context = {};
 vm.createContext(context);
 vm.runInContext(source.slice(start, end), context);

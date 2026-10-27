@@ -364,15 +364,6 @@ $structure = array(
         'label_text_color' => 'text-darkb', 'el_text_color' => 'text-labelEfb',
         'message_text_color' => 'text-muted', 'icon_color' => 'text-danger', 'visible' => 1,
     ),
-    array(
-        'id_' => '2', 'type' => 'step', 'dataId' => '2', 'classes' => '', 'id' => '2',
-        'name' => 'Pricing', 'icon' => 'bi-calculator', 'step' => '2', 'amount' => 2,
-        'EfbVersion' => 2,
-        'message' => 'Calculation (total = price * qty) + current_step message.',
-        'label_text_size' => 'fs-5', 'el_text_size' => 'fs-5',
-        'label_text_color' => 'text-darkb', 'el_text_color' => 'text-labelEfb',
-        'message_text_color' => 'text-muted', 'icon_color' => 'text-danger', 'visible' => 1,
-    ),
     /* ── Step 1 ─────────────────────────────────────────────────────────── */
     efb_gap_field('service', 'select', 'Service', 3, 1, array('placeholder' => 'Sales triggers NR1; Support triggers CR2')),
     efb_gap_option('service', 'sales', 'Sales', 4),
@@ -393,6 +384,17 @@ $structure = array(
     efb_gap_field('admin_note', 'text', 'Admin note (role rule)', 19, 1, array('placeholder' => 'Visible only for administrators')),
     efb_gap_field('nand_note', 'text', 'NAND note', 20, 1, array('placeholder' => 'Hidden ONLY when Sales AND score>50')),
     /* ── Step 2 ─────────────────────────────────────────────────────────── */
+    /* The renderer is order-based: the step-2 row must sit right before the
+     * first step-2 field, or every field lands in step 2. */
+    array(
+        'id_' => '2', 'type' => 'step', 'dataId' => '2', 'classes' => '', 'id' => '2',
+        'name' => 'Pricing', 'icon' => 'bi-calculator', 'step' => '2', 'amount' => 2,
+        'EfbVersion' => 2,
+        'message' => 'Calculation (total = price * qty) + current_step message.',
+        'label_text_size' => 'fs-5', 'el_text_size' => 'fs-5',
+        'label_text_color' => 'text-darkb', 'el_text_color' => 'text-labelEfb',
+        'message_text_color' => 'text-muted', 'icon_color' => 'text-danger', 'visible' => 1,
+    ),
     efb_gap_field('price', 'number', 'Price', 21, 2),
     efb_gap_field('qty', 'number', 'Quantity', 22, 2),
     efb_gap_field('total', 'number', 'Total (calculated)', 23, 2, array('placeholder' => 'price * qty')),

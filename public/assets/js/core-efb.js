@@ -3002,6 +3002,7 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
         }
 
        parent_body.dataset.currentstep = no_step;
+       efb_reevaluate_logic_on_step_efb(form_id);
        efb_steps_debug_efb('next:dataset-updated', {
          form_id: form_id,
          current_step: no_step,
@@ -3070,6 +3071,7 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
     }
 
     parent_body.dataset.currentstep =  no_step;
+    efb_reevaluate_logic_on_step_efb(form_id);
     const prev_fieldset = parent_body.querySelector(`[data-step="step-${no_step}-efb"]`);
     current_fieldset.classList.add('d-none');
 
@@ -3456,6 +3458,7 @@ fun_prev_send =(form_id =0) =>{
   if(prev_s_efb) prev_s_efb.classList.remove('d-none');
   current_s_efb = _prevTarget;
   body_efb.dataset.currentstep = current_s_efb;
+  efb_reevaluate_logic_on_step_efb(form_id);
   fun_progessbar(current_s_efb,stp);
   efb_steps_debug_efb('fun-prev-send:done', {
     form_id: form_id,
@@ -3517,6 +3520,7 @@ function efb_go_to_step_direct(form_id, targetStep) {
 
   body_efb.dataset.currentstep = targetStep;
   current_s_efb = targetStep;
+  efb_reevaluate_logic_on_step_efb(form_id);
 
   const stepsShellEfb = body_efb.querySelector('.efb-sp');
   const stepsShellOwnsRowEfb = !!(stepsShellEfb && stepsShellEfb.querySelector('.efb-sp__item'));
@@ -3623,6 +3627,9 @@ async function handle_change_event_efb_v4(el ,form_id=0){
     }
     delete_by_id(id);
     updateStepButtonState_efb(form_id);
+    // Callers return straight after clearing a field, so without this a rule
+    // that depended on the old value kept its effect until another field changed.
+    efb_reevaluate_logic_after_change_efb(form_id, el);
   }
   validate_len_efb_v4 =async()=>{
 
@@ -3942,6 +3949,35 @@ async function handle_change_event_efb_v4(el ,form_id=0){
   }
   updateStepButtonState_efb(form_id);
   /* Re-evaluate conditional logic AFTER sendBack has been updated — covers all field types */
+  efb_reevaluate_logic_after_change_efb(form_id, el);
+}
+
+/**
+ * Re-run a form's conditional logic after the visitor moved to another step,
+ * for forms with a "current step" condition: nothing else changed, so the
+ * runtime would otherwise keep the previous step's result until a field
+ * changed. The guard stops a jump_to_step action, which moves the step itself,
+ * from re-entering.
+ */
+function efb_reevaluate_logic_on_step_efb(form_id) {
+  if (efb_reevaluate_logic_on_step_efb._busy) return;
+  const logicStructure = get_structure_by_form_id_efb(form_id);
+  const rules = logicStructure && logicStructure[0] ? logicStructure[0].logic_rules : null;
+  if (!Array.isArray(rules) || rules.length === 0) return;
+  let usesStep = false;
+  try { usesStep = JSON.stringify(rules).indexOf('current_step') !== -1; } catch (e) { usesStep = false; }
+  if (!usesStep) return;
+  const logicRuntime = efb_get_logic_runtime_efb();
+  if (!logicRuntime) return;
+  efb_reevaluate_logic_on_step_efb._busy = true;
+  try { logicRuntime.evaluate(form_id); } finally { efb_reevaluate_logic_on_step_efb._busy = false; }
+}
+
+/**
+ * Re-run a form's conditional logic after one of its answers changed.
+ * Does nothing for a form without rules.
+ */
+function efb_reevaluate_logic_after_change_efb(form_id, el) {
   const logicStructure = get_structure_by_form_id_efb(form_id);
   if (logicStructure && logicStructure[0] &&
       ((logicStructure[0].hasOwnProperty('logic') && logicStructure[0].logic) ||
@@ -3949,7 +3985,7 @@ async function handle_change_event_efb_v4(el ,form_id=0){
     const logicRuntime = efb_get_logic_runtime_efb();
     if (logicRuntime) {
       logicRuntime.evaluate(form_id);
-    } else if (typeof fun_statement_logic_efb === 'function') {
+    } else if (typeof fun_statement_logic_efb === 'function' && el) {
       fun_statement_logic_efb(el.id, el.type, form_id);
     }
   }

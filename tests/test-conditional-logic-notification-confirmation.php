@@ -50,7 +50,7 @@ function is_admin() { return false; }
 function sanitize_email($v) { return filter_var((string)$v, FILTER_SANITIZE_EMAIL); }
 function is_email($v) { return filter_var((string)$v, FILTER_VALIDATE_EMAIL) !== false; }
 function sanitize_text_field($v) { return is_array($v) ? '' : trim(strip_tags((string)$v)); }
-function esc_url($v) { return filter_var((string)$v, FILTER_SANITIZE_URL); }
+function esc_url($v) { return str_replace('&', '&#038;', (string) filter_var((string)$v, FILTER_SANITIZE_URL)); } // like WordPress: display context escapes &
 function wp_kses_post($v) { return strip_tags((string)$v, '<b><strong><em><i><br><p><a>'); }
 
 require dirname(__DIR__) . '/includes/class-Emsfb-email-trace.php';
@@ -463,6 +463,9 @@ $redirectResult = $confirm->invoke($obj, $formTokens, $tokenSubmission);
 test('S2.1 redirect action returned', $redirectResult['action'], 'redirect');
 testTrue('S2.2 url tokens replaced (urlencoded)', strpos($redirectResult['url'], 'type=Company') !== false && strpos($redirectResult['url'], 'b=1500') !== false);
 testTrue('S2.3 unknown token removed, not leaked', strpos($redirectResult['url'], '{ghost}') === false);
+// The browser navigates to this value from JSON: an HTML-escaped "&#038;"
+// would turn every parameter after the first into a URL fragment.
+testTrue('S2.4 redirect url is not HTML-escaped', strpos($redirectResult['url'], '&#038;') === false && strpos($redirectResult['url'], '&amp;') === false);
 
 echo "\n========================================\n";
 echo "RESULTS: $pass passed, $fail failed\n";

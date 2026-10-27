@@ -76,7 +76,8 @@ function rowOwners(page) {
 
   const bodies = await page.evaluate(() =>
     Array.from(document.querySelectorAll('[id^="body_efb_"]')).map(b => b.id.replace('body_efb_', '')));
-  test('both forms rendered on one page', bodies.sort(), [String(A), String(B)]);
+  // Compare as sets: a default sort is lexicographic, so ids 9 and 3 never matched [A, B].
+  test('both forms rendered on one page', bodies.slice().sort(), [String(A), String(B)].sort());
   if (bodies.length < 2) { await browser.close(); process.exit(1); }
 
   // ── baseline: each form evaluates its own rules ───────────────────────────
