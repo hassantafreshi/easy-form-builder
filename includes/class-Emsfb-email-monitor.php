@@ -645,6 +645,9 @@ class Email_Monitor {
             // HEALTHY_SCORE the mail arrives but lands in spam.
             'min_delivery_score' => self::MIN_DELIVERY_SCORE,
             'healthy_score' => self::HEALTHY_SCORE,
+            // Two ways out of a low score (domain records, or a sending service);
+            // only ever shown next to a result that needs them.
+            'next_steps' => function_exists('emsfb_email_next_steps_efb') ? emsfb_email_next_steps_efb() : [],
         ];
     }
 

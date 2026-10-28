@@ -4007,7 +4007,11 @@ function efb_onboarding_email_view_efb(state) {
         groups: [],
         tips: [],
         strings: efb_onboarding_email_strings_efb(),
-        inline: true
+        inline: true,
+        // The two ways out of a bad result; only once the run has an answer.
+        nextSteps: ((phase === 'warn' || phase === 'fail') && (arrived || outcome === 'not_delivered') && typeof efbEmailTestNextSteps === 'function')
+            ? efbEmailTestNextSteps(result)
+            : null
     };
 }
 

@@ -469,6 +469,132 @@
 	 * @return {string} HTML for the body of the test, head and foot excluded -
 	 *                  the modal supplies those, the wizard does not want them.
 	 */
+	/**
+	 * The two ways out of a low score, built from what the test proved and
+	 * what the server told the admin page (efb_var.emailMonitor.next_steps).
+	 *
+	 * Shown only when the result needs it: the mail arrived with a score under
+	 * the healthy line, or it never arrived. A healthy result or a run that
+	 * could not finish gets nothing - there is nothing to fix yet.
+	 *
+	 * @param {Object} input { show, auth: {spf,dkim,dmarc}, data, text(key, fallback), docsBase }
+	 * @return {Object|null}
+	 */
+	function nextSteps(input) {
+		input = input || {};
+		if (!input.show) return null;
+		var data = input.data || {};
+		var text = typeof input.text === 'function' ? input.text : function (k, f) { return f; };
+		var docs = data.docs || {};
+		var base = String(input.docsBase || '').replace(/\/+$/, '');
+		var docUrl = function (key) { return docs[key] && base ? base + '/' + docs[key] + '/' : ''; };
+		var auth = input.auth || {};
+		var status = function (value) {
+			value = String(value || 'unknown').toLowerCase();
+			if (value === 'pass') return 'ok';
+			if (value === 'unknown' || value === '') return 'unknown';
+			return 'needs'; // missing, fail, softfail, none
+		};
+		var checks = [
+			{ key: 'spf', label: text('emailNextStepsSpf', 'Sender permission (SPF)') },
+			{ key: 'dkim', label: text('emailNextStepsDkim', 'Email signature (DKIM)') },
+			{ key: 'dmarc', label: text('emailNextStepsDmarc', 'Domain protection policy (DMARC)') }
+		].map(function (c) {
+			var st = status(auth[c.key]);
+			return {
+				label: c.label,
+				status: st,
+				statusLabel: st === 'ok' ? text('emailNextStepsOk', 'Looks good') : (st === 'needs' ? text('emailNextStepsNeedsSetup', 'Needs setup') : text('emailNextStepsUnknown', 'Not checked')),
+				url: docUrl(c.key),
+				linkLabel: text('emailNextStepsGuide', 'Guide, video and AI prompt')
+			};
+		});
+		var services = (Array.isArray(data.services) ? data.services : []).map(function (sv) {
+			return {
+				name: sv.name || '',
+				note: sv.note || '',
+				site: sv.site || '',
+				installed: !!sv.installed,
+				installUrl: (!sv.installed && data.can_install && data.install_base) ? data.install_base + encodeURIComponent(sv.slug || '') : '',
+				pluginsUrl: sv.installed ? (data.plugins_url || '') : ''
+			};
+		});
+		return {
+			title: text('emailNextStepsTitle', 'What you can do now'),
+			intro: text('emailNextStepsIntro', 'These settings belong to your hosting and your domain name, not to Easy Form Builder. The plugin only runs the test and shows the result; it cannot change them for you. Both options below are free.'),
+			overviewUrl: docUrl('overview'),
+			overviewLabel: text('emailNextStepsOverview', 'Why this happens and which option to pick'),
+			free: {
+				title: text('emailNextStepsFreeTitle', 'Option 1: set up your domain records (free, about 15 minutes)'),
+				desc: text('emailNextStepsFreeDesc', 'Each guide has a short video, screenshots and a ready-made prompt you can paste into any AI assistant to be walked through it step by step.'),
+				checks: checks
+			},
+			services: {
+				title: text('emailNextStepsServicesTitle', 'Option 2: send through an email service (free plans available)'),
+				desc: text('emailNextStepsServicesDesc', 'A sending service delivers your form emails from its own trusted servers. Install the official plugin with one click, sign in and connect; most services also give you the SPF and DKIM records to copy.'),
+				items: services,
+				canInstall: !!data.can_install,
+				askAdmin: text('emailNextStepsAskAdmin', 'Ask a site administrator to install one of these plugins.'),
+				installLabel: text('emailNextStepsInstall', 'Install'),
+				installedLabel: text('emailNextStepsInstalled', 'Installed'),
+				openPluginsLabel: text('emailNextStepsOpenPlugins', 'Open Plugins'),
+				compareUrl: docUrl('services'),
+				compareLabel: text('emailNextStepsCompare', 'Compare the free plans'),
+				plansNote: text('emailNextStepsPlansNote', 'Free-plan limits are set by each service and change over time; check the plan before you rely on it.')
+			}
+		};
+	}
+
+	function renderNextSteps(view) {
+		var n = view.nextSteps;
+		if (!n || !n.title) return '';
+		var link = function (url, label, cls) {
+			var u = safeUrl(url);
+			return u ? '<a class="' + cls + '" href="' + u + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(label) + '<i class="bi bi-box-arrow-up-right" aria-hidden="true"></i></a>' : '';
+		};
+		var out = '<div class="efb-est__next"><div class="efb-est__next-head">' +
+			'<i class="bi bi-signpost-2-fill" aria-hidden="true"></i>' +
+			'<div><div class="efb-est__next-title" dir="auto">' + escapeHtml(n.title) + '</div>' +
+			'<div class="efb-est__next-intro" dir="auto">' + escapeHtml(n.intro) + ' ' + link(n.overviewUrl, n.overviewLabel, 'efb-est__next-link') + '</div></div></div>';
+
+		out += '<div class="efb-est__next-grid">';
+		// option 1
+		out += '<div class="efb-est__next-card"><div class="efb-est__next-card-title" dir="auto">' + escapeHtml(n.free.title) + '</div>' +
+			'<div class="efb-est__next-card-desc" dir="auto">' + escapeHtml(n.free.desc) + '</div><ul class="efb-est__next-checks">';
+		n.free.checks.forEach(function (c) {
+			out += '<li class="efb-est__next-check efb-est__next-check--' + c.status + '">' +
+				'<span class="efb-est__next-check-label" dir="auto">' + escapeHtml(c.label) + '</span>' +
+				'<span class="efb-est__next-chip">' + escapeHtml(c.statusLabel) + '</span>' +
+				link(c.url, c.linkLabel, 'efb-est__next-link') + '</li>';
+		});
+		out += '</ul></div>';
+		// option 2
+		out += '<div class="efb-est__next-card"><div class="efb-est__next-card-title" dir="auto">' + escapeHtml(n.services.title) + '</div>' +
+			'<div class="efb-est__next-card-desc" dir="auto">' + escapeHtml(n.services.desc) + '</div>';
+		if (n.services.items.length) {
+			out += '<ul class="efb-est__next-services">';
+			n.services.items.forEach(function (sv) {
+				var action = '';
+				if (sv.installed) {
+					action = '<span class="efb-est__next-chip efb-est__next-chip--ok">' + escapeHtml(n.services.installedLabel) + '</span>' + link(sv.pluginsUrl, n.services.openPluginsLabel, 'efb-est__next-link');
+				} else if (sv.installUrl) {
+					action = link(sv.installUrl, n.services.installLabel, 'efb-est__next-btn');
+				}
+				out += '<li class="efb-est__next-service"><div class="efb-est__next-service-main">' +
+					'<span class="efb-est__next-service-name">' + escapeHtml(sv.name) + '</span>' +
+					'<span class="efb-est__next-service-note" dir="auto">' + escapeHtml(sv.note) + '</span></div>' +
+					'<div class="efb-est__next-service-actions">' + action + '</div></li>';
+			});
+			out += '</ul>';
+		}
+		if (!n.services.canInstall) {
+			out += '<div class="efb-est__next-card-desc" dir="auto">' + escapeHtml(n.services.askAdmin) + '</div>';
+		}
+		out += '<div class="efb-est__next-small" dir="auto">' + escapeHtml(n.services.plansNote) + ' ' + link(n.services.compareUrl, n.services.compareLabel, 'efb-est__next-link') + '</div></div>';
+		out += '</div></div>';
+		return out;
+	}
+
 	function render(view) {
 		view = view || {};
 
@@ -489,6 +615,7 @@
 			renderHero(view, s, rtl, running) +
 			renderSteps(view, s, rtl) +
 			renderBlocks(view) +
+			renderNextSteps(view) +
 			renderTechnical(view, s) +
 			renderDetails(view, s) +
 			'</div>';
@@ -556,6 +683,7 @@
 
 	root.efbEmailTestUI = {
 		render: render,
+		nextSteps: nextSteps,
 		phaseChip: phaseChip,
 		bindTabs: bindTabs,
 		activeTab: activeTab,

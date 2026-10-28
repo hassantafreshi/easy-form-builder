@@ -4085,6 +4085,24 @@ function efbEmailTestGuidance(verdict, sendStage, result, steps) {
   };
 }
 
+/**
+ * The "what you can do now" box: the domain records that failed, with one
+ * guide each, and sending services with a free plan. The data comes from
+ * Email_Monitor::get_public_status(); the shared renderer shapes it.
+ */
+function efbEmailTestNextSteps(quick) {
+  if (!window.efbEmailTestUI || typeof window.efbEmailTestUI.nextSteps !== 'function') return null;
+  const monitor = (typeof efb_var !== 'undefined' && efb_var.emailMonitor) ? efb_var.emailMonitor : {};
+  const lan = (typeof lan_subdomain_wsteam_efb === 'function') ? lan_subdomain_wsteam_efb() : '';
+  return window.efbEmailTestUI.nextSteps({
+    show: true,
+    auth: quick && quick.authentication ? quick.authentication : {},
+    data: monitor.next_steps || {},
+    text: efbEmailTestText,
+    docsBase: 'https://' + lan + 'whitestudio.team/document'
+  });
+}
+
 function efbEmailTestFormat(str) {
   const args = Array.prototype.slice.call(arguments, 1);
   let i = 0;
@@ -4381,6 +4399,13 @@ function efbEmailTestViewModel(state, options) {
       cta: efbEmailTestText('smtpSetupGuideBtn', 'Step-by-step SMTP setup guide'),
       url: (typeof Link_emsFormBuilder === 'function' ? Link_emsFormBuilder('EmailSpam') : '')
     };
+  }
+
+  // Two ways out of a bad result, under the guidance box. Only when the mail
+  // arrived with a low score or never arrived - a run that could not finish
+  // has nothing to fix yet.
+  if (!stillRunning && !upgradeRequired && !unknown && (verdict === 'spam_risk' || verdict === 'not_delivered' || tooLow)) {
+    view.nextSteps = efbEmailTestNextSteps(quick);
   }
 
   if (upgradeRequired) {

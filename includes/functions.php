@@ -7,6 +7,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 if (is_readable(__DIR__ . '/json-efb.php')) {
     require_once __DIR__ . '/json-efb.php';
 }
+if (is_readable(__DIR__ . '/email-next-steps-efb.php')) {
+    require_once __DIR__ . '/email-next-steps-efb.php';
+}
 
 /**
  * Return whether a genuinely new installation should show first-run setup.
@@ -3357,6 +3360,46 @@ class efbFunction {
 			"emailSpamReportTitle" => $state && isset($ac->text->emailSpamReportTitle) ? $ac->text->emailSpamReportTitle : esc_html__('Spam Score Report on the Way!','easy-form-builder'),
 			/* translators: Description in spam score notification box. %s is replaced with the admin email address */
 			"emailSpamReportDesc" => $state && isset($ac->text->emailSpamReportDesc) ? $ac->text->emailSpamReportDesc : esc_html__('A complete email health report — including your spam score, deliverability details, and recommendations — will be sent to %s within the next few minutes.','easy-form-builder'),
+			/* translators: Heading of the box offering two ways to fix a low email score */
+			"emailNextStepsTitle" => $state && isset($ac->text->emailNextStepsTitle) ? $ac->text->emailNextStepsTitle : esc_html__('What you can do now','easy-form-builder'),
+			/* translators: Sentence under that heading; tells the admin this is about hosting/domain, not the plugin */
+			"emailNextStepsIntro" => $state && isset($ac->text->emailNextStepsIntro) ? $ac->text->emailNextStepsIntro : esc_html__('These settings belong to your hosting and your domain name, not to Easy Form Builder. The plugin only runs the test and shows the result; it cannot change them for you. Both options below are free.','easy-form-builder'),
+			/* translators: Title of option 1: fix the domain records yourself */
+			"emailNextStepsFreeTitle" => $state && isset($ac->text->emailNextStepsFreeTitle) ? $ac->text->emailNextStepsFreeTitle : esc_html__('Option 1: set up your domain records (free, about 15 minutes)','easy-form-builder'),
+			/* translators: Description of option 1 */
+			"emailNextStepsFreeDesc" => $state && isset($ac->text->emailNextStepsFreeDesc) ? $ac->text->emailNextStepsFreeDesc : esc_html__('Each guide has a short video, screenshots and a ready-made prompt you can paste into any AI assistant to be walked through it step by step.','easy-form-builder'),
+			/* translators: Title of option 2: send through an email service */
+			"emailNextStepsServicesTitle" => $state && isset($ac->text->emailNextStepsServicesTitle) ? $ac->text->emailNextStepsServicesTitle : esc_html__('Option 2: send through an email service (free plans available)','easy-form-builder'),
+			/* translators: Description of option 2 */
+			"emailNextStepsServicesDesc" => $state && isset($ac->text->emailNextStepsServicesDesc) ? $ac->text->emailNextStepsServicesDesc : esc_html__('A sending service delivers your form emails from its own trusted servers. Install the official plugin with one click, sign in and connect; most services also give you the SPF and DKIM records to copy.','easy-form-builder'),
+			/* translators: Label of the SPF check in the next-steps box */
+			"emailNextStepsSpf" => $state && isset($ac->text->emailNextStepsSpf) ? $ac->text->emailNextStepsSpf : esc_html__('Sender permission (SPF)','easy-form-builder'),
+			/* translators: Label of the DKIM check in the next-steps box */
+			"emailNextStepsDkim" => $state && isset($ac->text->emailNextStepsDkim) ? $ac->text->emailNextStepsDkim : esc_html__('Email signature (DKIM)','easy-form-builder'),
+			/* translators: Label of the DMARC check in the next-steps box */
+			"emailNextStepsDmarc" => $state && isset($ac->text->emailNextStepsDmarc) ? $ac->text->emailNextStepsDmarc : esc_html__('Domain protection policy (DMARC)','easy-form-builder'),
+			/* translators: Status chip: this record is missing or failing */
+			"emailNextStepsNeedsSetup" => $state && isset($ac->text->emailNextStepsNeedsSetup) ? $ac->text->emailNextStepsNeedsSetup : esc_html__('Needs setup','easy-form-builder'),
+			/* translators: Status chip: this record passed */
+			"emailNextStepsOk" => $state && isset($ac->text->emailNextStepsOk) ? $ac->text->emailNextStepsOk : esc_html__('Looks good','easy-form-builder'),
+			/* translators: Status chip: this record was not checked */
+			"emailNextStepsUnknown" => $state && isset($ac->text->emailNextStepsUnknown) ? $ac->text->emailNextStepsUnknown : esc_html__('Not checked','easy-form-builder'),
+			/* translators: Link text to one guide (article + video + prompt) */
+			"emailNextStepsGuide" => $state && isset($ac->text->emailNextStepsGuide) ? $ac->text->emailNextStepsGuide : esc_html__('Guide, video and AI prompt','easy-form-builder'),
+			/* translators: Link text to the overview article */
+			"emailNextStepsOverview" => $state && isset($ac->text->emailNextStepsOverview) ? $ac->text->emailNextStepsOverview : esc_html__('Why this happens and which option to pick','easy-form-builder'),
+			/* translators: Button that opens the WordPress installer for a service plugin */
+			"emailNextStepsInstall" => $state && isset($ac->text->emailNextStepsInstall) ? $ac->text->emailNextStepsInstall : esc_html__('Install','easy-form-builder'),
+			/* translators: Label when the service plugin is already on the site */
+			"emailNextStepsInstalled" => $state && isset($ac->text->emailNextStepsInstalled) ? $ac->text->emailNextStepsInstalled : esc_html__('Installed','easy-form-builder'),
+			/* translators: Link to the Plugins screen for an installed service */
+			"emailNextStepsOpenPlugins" => $state && isset($ac->text->emailNextStepsOpenPlugins) ? $ac->text->emailNextStepsOpenPlugins : esc_html__('Open Plugins','easy-form-builder'),
+			/* translators: Shown when the current user cannot install plugins */
+			"emailNextStepsAskAdmin" => $state && isset($ac->text->emailNextStepsAskAdmin) ? $ac->text->emailNextStepsAskAdmin : esc_html__('Ask a site administrator to install one of these plugins.','easy-form-builder'),
+			/* translators: Link text to the services comparison article */
+			"emailNextStepsCompare" => $state && isset($ac->text->emailNextStepsCompare) ? $ac->text->emailNextStepsCompare : esc_html__('Compare the free plans','easy-form-builder'),
+			/* translators: Small print under the services list */
+			"emailNextStepsPlansNote" => $state && isset($ac->text->emailNextStepsPlansNote) ? $ac->text->emailNextStepsPlansNote : esc_html__('Free-plan limits are set by each service and change over time; check the plan before you rely on it.','easy-form-builder'),
 			/* translators: Warning title shown after saving a form whose email notifications may not reach the admin */
 			"emailNotificationRiskTitle" => $state && isset($ac->text->emailNotificationRiskTitle) ? $ac->text->emailNotificationRiskTitle : esc_html__('Email notifications may not be delivered','easy-form-builder'),
 			/* translators: %s = numeric spam score out of 100. Shown when the form has email notifications on but delivery is unverified */
