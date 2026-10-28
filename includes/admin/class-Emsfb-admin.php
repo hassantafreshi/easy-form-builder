@@ -166,9 +166,17 @@ class Admin {
             // The email server test draws the same panel in two places - the
             // settings modal and the setup wizard - so its look and its markup
             // both live in one pair of files, loaded wherever either can run.
-            wp_register_style('efb-email-test', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/email-test-efb.css', array('efb-modal-system'), EMSFB_PLUGIN_VERSION);
+            // Versioned by file time, like core-efb.js: the view model in
+            // list_form-efb.js (file-time versioned) and this renderer must
+            // always be from the same build, or a cached renderer silently
+            // drops the blocks a newer view model adds.
+            $email_test_asset_version = function ($relative_path) {
+                $path = EMSFB_PLUGIN_DIRECTORY . ltrim($relative_path, '/');
+                return is_readable($path) ? (string) filemtime($path) : EMSFB_PLUGIN_VERSION;
+            };
+            wp_register_style('efb-email-test', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/email-test-efb.css', array('efb-modal-system'), $email_test_asset_version('includes/admin/assets/css/email-test-efb.css'));
             wp_enqueue_style('efb-email-test');
-            wp_enqueue_script('efb-email-test-ui', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/email-test-ui-efb.js', array(), EMSFB_PLUGIN_VERSION, true);
+            wp_enqueue_script('efb-email-test-ui', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/email-test-ui-efb.js', array(), $email_test_asset_version('includes/admin/assets/js/email-test-ui-efb.js'), true);
             $this->check_and_enqueue_font_roboto_Emsfb();
             wp_enqueue_style('wp-pointer');
             wp_enqueue_script('wp-pointer');
