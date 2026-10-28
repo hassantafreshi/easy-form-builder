@@ -1,5 +1,9 @@
 <?php
  namespace Emsfb;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
     class Formbuilder {
        public $valj_efb;
        private $pro_efb = false;

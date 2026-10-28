@@ -1,4 +1,7 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 /* add_action( 'vc_before_init', 'ems_Form_Builders_visual_composer_shortcode' );
 add_shortcode('EMS_Form_Builder', 'render_ems_Form_Builder');

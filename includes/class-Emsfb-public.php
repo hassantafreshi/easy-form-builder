@@ -2,6 +2,10 @@
 namespace Emsfb;
 use WP_REST_Response;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 require_once('functions.php');
 class _Public {
 	public $value;

@@ -51,6 +51,10 @@ function check($label, $condition) {
     echo "[FAIL] $label\n";
 }
 
+if (!defined('ABSPATH')) {
+    define('ABSPATH', __DIR__ . '/');
+}
+
 require_once __DIR__ . '/../includes/class-Emsfb-formbuilder.php';
 
 $texts = array(

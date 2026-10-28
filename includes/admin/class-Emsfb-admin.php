@@ -1,6 +1,10 @@
 <?php
 namespace Emsfb;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 class Admin {
 
     public $ip;
