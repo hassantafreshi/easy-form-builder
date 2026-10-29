@@ -139,7 +139,7 @@ The confusion is worse in translation, because the localized word for "core" is 
 | Language | Never use for this plugin | Use instead |
 | --- | --- | --- |
 | German | „Kern", „Core", „Kernfunktionen", „Kerndateien" | „das Easy Form Builder Plugin", „das Plugin", „die Standardfunktionen des Plugins" |
-| Arabic | «النواة»، «نواة الإضافة»، «ملفات النواة» | «إضافة مُنشيء النماذج السهل»، «الإضافة»، «الميزات الأساسية في الإضافة» |
+| Arabic | «النواة»، «نواة الإضافة»، «ملفات النواة» | «إضافة منشئ النماذج السهل»، «الإضافة»، «الميزات الأساسية في الإضافة» |
 | Persian | «هسته»، «هسته افزونه»، «فایل‌های هسته» | «افزونه فرم ساز آسان»، «افزونه»، «امکانات پیش‌فرض افزونه» |
 
 If you must refer to WordPress core in these languages, name it fully: „WordPress-Kern" / «نواة ووردبريس» / «هسته وردپرس».
@@ -150,13 +150,13 @@ If you must refer to WordPress core in these languages, name it fully: „WordPr
 | --- | --- |
 | English | Easy Form Builder |
 | German | Easy Form Builder *(untranslated — this is what `de.json` ships)* |
-| Arabic | **مُنشيء النماذج السهل** |
+| Arabic | **منشئ النماذج السهل** |
 | Persian | **فرم ساز آسان** |
 
 Notes:
 
 - The Arabic and Persian names above are fixed brand decisions. Use them **everywhere** in body copy, headings, meta descriptions, and FAQ answers — do not re-derive or re-translate them per article.
-- `ar.json` ships the on-screen string as `منشئ النماذج السهل` (no diacritic, different hamza seat). That is fine: the brand form above is what the article's prose uses; if you are quoting a specific on-screen label verbatim, quote what the screen shows.
+- Arabic (owner decision, 2026-10-29): the brand is written exactly as `ar.json` ships it on screen, **منشئ النماذج السهل**, and as the owner's Arabic glossary gives it for "EFB" and "Easy Form Builder". The older form «مُنشيء» is no longer used anywhere.
 - Never translate the brand name into German, and never mix forms inside one article.
 
 ## 6. Translation rules (all languages)
@@ -211,11 +211,11 @@ Localized articles address the reader directly and practically. Keep sentences s
 
 ## 8. Arabic (ar)
 
-1. **The product name is always مُنشيء النماذج السهل**, in every heading, sentence, meta field, and FAQ answer.
-2. **Terminology comes from `ar.json` first, then the WordPress Arabic glossary** (<https://translate.wordpress.org/locale/ar/default/>). Confirmed examples: Settings → **الإعدادات**, Save → **حفظ**, Form → **نموذج**, Forms → **النماذج**, Field → **حقل**, Submit → **إرسال**, Add-ons → **ملحقات**, Plugin → **إضافة**, Email → **البريد الإلكتروني**.
+1. **The product name is always منشئ النماذج السهل**, in every heading, sentence, meta field, and FAQ answer.
+2. **Terminology comes from `ar.json` (and the labels WordPress shows on screen) first, then the WordPress Arabic glossary** (<https://translate.wordpress.org/locale/ar/default/glossary/>), **then the WhiteStudio Arabic glossary** (the owner's sheet; owner decision 2026-10-29), and only then general usage. When the two glossaries disagree, the WordPress glossary wins; a label quoted from a screen stays exactly as shown. Confirmed examples: Settings → **الإعدادات**, Save → **حفظ**, Form → **نموذج**, Forms → **النماذج**, Field → **حقل**, Submit → **إرسال**, Add-ons → **ملحقات**, Plugin → **إضافة**, Email → **البريد الإلكتروني**.
 3. Call this product **إضافة** (a WordPress plugin) and its add-ons **ملحقات** — keep the two words apart consistently.
 4. **Digits:** `ar.json` uses Western digits (0–9) almost everywhere. Use Western digits in Arabic articles for versions, limits, counts, and UI values.
-5. Latin technical tokens (API, CSV, JSON, URL, Stripe, PayPal, WordPress) stay in Latin script inside Arabic text; do not transliterate them.
+5. Latin technical tokens (API, CSV, JSON, URL, Stripe, PayPal) stay in Latin script inside Arabic text; do not transliterate them. Both glossaries add a gloss at first mention for some of them: «واجهة برمجة التطبيقات (API)», «نظام أسماء النطاقات (DNS)». WordPress is written **ووردبريس** (WordPress core's Arabic and the owner's glossary).
 6. Keep Markdown structure LTR-safe: links, code fences, and file paths stay in Latin script and normal Markdown order, even in an RTL document.
 7. Never use «النواة» for this plugin — see [5.2](#52-the-same-rule-in-the-other-languages).
 
@@ -235,7 +235,7 @@ Run this list against every article before it ships:
 
 - [ ] Every factual claim traces to code or to a shipped translation string.
 - [ ] No "core" (or „Kern" / «النواة» / «هسته») referring to this plugin; every ambiguous "the plugin," "the dashboard," "the editor," "update" has an explicit owner.
-- [ ] Brand name correct and consistent: Easy Form Builder / مُنشيء النماذج السهل / فرم ساز آسان.
+- [ ] Brand name correct and consistent: Easy Form Builder / منشئ النماذج السهل / فرم ساز آسان.
 - [ ] German article is informal (du) end to end, including headings, meta description, and FAQ.
 - [ ] Every UI label was pulled from `languages/<lang>.json`; anything not found there was checked against the locale's WordPress glossary; nothing was invented.
 - [ ] Untranslated (English-only) screens are called out as such instead of being silently translated.
