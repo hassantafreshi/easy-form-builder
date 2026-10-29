@@ -1850,7 +1850,7 @@ msgstr ""
 msgid "Create a user registration form for your WordPress site."
 msgstr ""
 
-#: home/user/easy-form-builder/emsfb.php
+#: emsfb.php
 msgid "Create multi-step WordPress forms with drag and drop, confirmation codes, notification emails, and free custom email notification templates with a built-in visual editor. Build professional contact, survey, payment, login, and registration forms without coding."
 msgstr ""
 
@@ -2384,8 +2384,7 @@ msgstr ""
 msgid "Each guide has a short video, screenshots and a ready-made prompt you can paste into any AI assistant to be walked through it step by step."
 msgstr ""
 
-#: home/user/easy-form-builder/emsfb.php
-#: includes/admin/class-Emsfb-admin.php:208
+#: emsfb.php includes/admin/class-Emsfb-admin.php:208
 #: includes/admin/class-Emsfb-admin.php:3467
 #: includes/admin/class-Emsfb-admin.php:3672
 #: includes/admin/class-Emsfb-admin.php:3675
@@ -9192,7 +9191,7 @@ msgstr ""
 msgid "White"
 msgstr ""
 
-#: home/user/easy-form-builder/emsfb.php
+#: emsfb.php
 msgid "WhiteStudio"
 msgstr ""
 
@@ -10210,7 +10209,7 @@ msgstr ""
 msgid "honeypot spam protection WordPress"
 msgstr ""
 
-#: home/user/easy-form-builder/emsfb.php
+#: emsfb.php
 msgid "https://whitestudio.team"
 msgstr ""
 

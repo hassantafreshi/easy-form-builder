@@ -6605,7 +6605,7 @@
             "plural": null,
             "translators": "",
             "files": [
-                "home/user/easy-form-builder/emsfb.php"
+                "emsfb.php"
             ],
             "scope": [
                 "core"
@@ -8520,7 +8520,7 @@
             "plural": null,
             "translators": "",
             "files": [
-                "home/user/easy-form-builder/emsfb.php",
+                "emsfb.php",
                 "includes/admin/class-Emsfb-admin.php",
                 "includes/admin/class-Emsfb-create.php",
                 "includes/admin/class-Emsfb-dashboard-widget.php",
@@ -34588,7 +34588,7 @@
             "plural": null,
             "translators": "",
             "files": [
-                "home/user/easy-form-builder/emsfb.php"
+                "emsfb.php"
             ],
             "scope": [
                 "core"
@@ -38248,7 +38248,7 @@
             "plural": null,
             "translators": "",
             "files": [
-                "home/user/easy-form-builder/emsfb.php"
+                "emsfb.php"
             ],
             "scope": [
                 "core"
