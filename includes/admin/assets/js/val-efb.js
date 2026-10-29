@@ -4009,7 +4009,7 @@ function efb_onboarding_email_view_efb(state) {
         strings: efb_onboarding_email_strings_efb(),
         inline: true,
         // The two ways out of a bad result; only once the run has an answer.
-        nextSteps: ((phase === 'warn' || phase === 'fail') && (arrived || outcome === 'not_delivered' || outcome === 'wp_mail_failed' || (outcome === 'pending' && result.status === 'delayed')) && typeof efbEmailTestNextSteps === 'function')
+        nextSteps: ((((phase === 'warn' || phase === 'fail') && (arrived || outcome === 'not_delivered' || outcome === 'wp_mail_failed' || (outcome === 'pending' && result.status === 'delayed'))) || (arrived && efb_onboarding_score_below_healthy_efb(result))) && typeof efbEmailTestNextSteps === 'function')
             ? efbEmailTestNextSteps(result)
             : null
     };
@@ -4036,6 +4036,17 @@ function efb_onboarding_min_score_efb() {
     // Email_Monitor::MIN_DELIVERY_SCORE. The fallback has to match it, or the
     // wizard draws the line somewhere the server does not.
     return value > 0 ? value : 20;
+}
+
+/*
+ * The wizard's "done" covers every delivered email above the minimum score, but
+ * a score under the healthy line (70 by default) still lands mostly in spam, so
+ * the two ways out are offered there as well.
+ */
+function efb_onboarding_score_below_healthy_efb(result) {
+    const score = result ? Number(result.score) : NaN;
+    const healthy = Number(efb_var && efb_var.emailMonitor ? efb_var.emailMonitor.healthy_score : 0) || 70;
+    return isFinite(score) && result.score !== null && result.score !== undefined && score < healthy;
 }
 
 function efb_onboarding_score_too_low_efb(result) {

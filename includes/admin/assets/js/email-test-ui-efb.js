@@ -491,7 +491,9 @@
 		var auth = input.auth || {};
 		var status = function (value) {
 			value = String(value || 'unknown').toLowerCase();
-			if (value === 'pass') return 'ok';
+			// The service reports a published DMARC record (and a DKIM signature it
+			// could not verify) as "present"; its own report counts that as set up.
+			if (['pass', 'passed', 'present', 'ok', 'valid'].indexOf(value) !== -1) return 'ok';
 			if (value === 'unknown' || value === '') return 'unknown';
 			return 'needs'; // missing, fail, softfail, none
 		};

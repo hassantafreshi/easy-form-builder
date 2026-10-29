@@ -17,6 +17,9 @@ function __( $t, $d = '' ) { return $t; }
 function apply_filters( $hook, $value ) { return isset( $GLOBALS['efb_test_filters'][ $hook ] ) ? call_user_func( $GLOBALS['efb_test_filters'][ $hook ], $value ) : $value; }
 function current_user_can( $cap ) { return ! empty( $GLOBALS['efb_test_caps'][ $cap ] ); }
 function admin_url( $path = '' ) { return 'https://site.test/wp-admin/' . $path; }
+function network_admin_url( $path = '' ) { return 'https://site.test/wp-admin/network/' . $path; }
+$GLOBALS['efb_test_multisite'] = false;
+function is_multisite() { return ! empty( $GLOBALS['efb_test_multisite'] ); }
 function sanitize_key( $k ) { return preg_replace( '/[^a-z0-9_\-]/', '', strtolower( (string) $k ) ); }
 function sanitize_title( $t ) { return trim( preg_replace( '/[^a-z0-9\-]+/', '-', strtolower( (string) $t ) ), '-' ); }
 function sanitize_text_field( $t ) { return trim( strip_tags( (string) $t ) ); }
@@ -34,6 +37,13 @@ check( 'every service has a wordpress.org slug and an https site', array_reduce(
 check( 'a plugin folder that exists is reported as installed', $d['services'][0]['slug'] === 'wp-mail-smtp' && $d['services'][0]['installed'] === true && $d['services'][1]['installed'] === false );
 check( 'six guides, one per record plus overview, services and smtp', count( $d['docs'] ) === 6 && isset( $d['docs']['spf'], $d['docs']['dkim'], $d['docs']['dmarc'], $d['docs']['overview'], $d['docs']['services'], $d['docs']['smtp'] ) );
 check( 'guide slugs are plain slugs', array_reduce( $d['docs'], function ( $ok, $s ) { return $ok && preg_match( '/^[a-z0-9-]+$/', $s ); }, true ) );
+
+// Multisite: a subsite's plugin-install.php redirects to the network screen and
+// drops the query string, so the box links the network screen directly.
+$GLOBALS['efb_test_multisite'] = true;
+$d = emsfb_email_next_steps_efb();
+check( 'multisite links the network plugin installer', $d['install_base'] === 'https://site.test/wp-admin/network/plugin-install.php?tab=plugin-information&plugin=' );
+$GLOBALS['efb_test_multisite'] = false;
 
 // An editor cannot install plugins: no installer link, no Plugins link.
 $GLOBALS['efb_test_caps'] = array();

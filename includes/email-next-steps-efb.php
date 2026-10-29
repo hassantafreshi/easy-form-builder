@@ -128,7 +128,9 @@ function emsfb_email_next_steps_efb() {
 		'can_install'  => $can_install,
 		// The plugin directory's own information screen for a slug; its
 		// "Install Now" button does the install, so no code runs here.
-		'install_base' => $can_install ? admin_url( 'plugin-install.php?tab=plugin-information&plugin=' ) : '',
+		// On multisite a subsite's plugin-install.php redirects to the network
+		// screen and drops the query string, so link the network screen directly.
+		'install_base' => $can_install ? ( is_multisite() ? network_admin_url( 'plugin-install.php?tab=plugin-information&plugin=' ) : admin_url( 'plugin-install.php?tab=plugin-information&plugin=' ) ) : '',
 		'plugins_url'  => current_user_can( 'activate_plugins' ) ? admin_url( 'plugins.php' ) : '',
 		'docs'         => emsfb_email_next_steps_docs_efb(),
 		'services'     => emsfb_email_sending_services_efb(),
