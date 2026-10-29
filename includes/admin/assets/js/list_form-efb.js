@@ -4397,7 +4397,7 @@ function efbEmailTestViewModel(state, options) {
       title: guidance.title,
       desc: guidance.description,
       cta: efbEmailTestText('smtpSetupGuideBtn', 'Step-by-step SMTP setup guide'),
-      url: (typeof Link_emsFormBuilder === 'function' ? Link_emsFormBuilder('EmailSpam') : '')
+      url: (typeof link_url_emsFormBuilder === 'function' ? link_url_emsFormBuilder('EmailSpam') : '')
     };
   }
 

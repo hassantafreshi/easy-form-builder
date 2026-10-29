@@ -270,7 +270,10 @@ donwload_event_icon_efb =(color)=>{
 </div>
 `
 }
-function Link_emsFormBuilder(state) {
+// The guide URL for a help topic, without opening it. Code that only needs
+// the address (a link in rendered markup) calls this; Link_emsFormBuilder()
+// opens it and belongs in click handlers.
+function link_url_emsFormBuilder(state) {
   const lan =lan_subdomain_wsteam_efb();
   let link = `https://${lan}whitestudio.team/document`
   const github = 'https://github.com/hassantafreshi/easy-form-builder/wiki/'
@@ -443,7 +446,11 @@ function Link_emsFormBuilder(state) {
     }
   }
 
-  window.open(link, "_blank");
+  return link;
+}
+
+function Link_emsFormBuilder(state) {
+  window.open(link_url_emsFormBuilder(state), "_blank");
 }
 
 function show_message_result_form_set_EFB(state, m) {
