@@ -4403,8 +4403,11 @@ function efbEmailTestViewModel(state, options) {
 
   // Two ways out of a bad result, under the guidance box. Only when the mail
   // arrived with a low score or never arrived - a run that could not finish
-  // has nothing to fix yet.
-  if (!stillRunning && !upgradeRequired && !unknown && (verdict === 'spam_risk' || verdict === 'not_delivered' || tooLow)) {
+  // has nothing to fix yet. "delayed" counts as never arrived here: it is
+  // where the poll stops when WordPress handed the email off and nothing came
+  // in the quick window, the screen says Failed, and nothing updates it later.
+  const deliveryNotConfirmed = status === 'delayed' && !arrived;
+  if (!stillRunning && !upgradeRequired && (!unknown || deliveryNotConfirmed) && (verdict === 'spam_risk' || verdict === 'not_delivered' || tooLow)) {
     view.nextSteps = efbEmailTestNextSteps(quick);
   }
 

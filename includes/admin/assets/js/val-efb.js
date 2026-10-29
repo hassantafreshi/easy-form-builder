@@ -4009,7 +4009,7 @@ function efb_onboarding_email_view_efb(state) {
         strings: efb_onboarding_email_strings_efb(),
         inline: true,
         // The two ways out of a bad result; only once the run has an answer.
-        nextSteps: ((phase === 'warn' || phase === 'fail') && (arrived || outcome === 'not_delivered') && typeof efbEmailTestNextSteps === 'function')
+        nextSteps: ((phase === 'warn' || phase === 'fail') && (arrived || outcome === 'not_delivered' || outcome === 'wp_mail_failed' || (outcome === 'pending' && result.status === 'delayed')) && typeof efbEmailTestNextSteps === 'function')
             ? efbEmailTestNextSteps(result)
             : null
     };
