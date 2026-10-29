@@ -8,7 +8,7 @@
 define( 'ABSPATH', __DIR__ . '/' );
 define( 'WP_PLUGIN_DIR', sys_get_temp_dir() . '/efb-next-steps-' . getmypid() );
 @mkdir( WP_PLUGIN_DIR );
-@mkdir( WP_PLUGIN_DIR . '/wp-mail-smtp' ); // "already installed"
+@mkdir( WP_PLUGIN_DIR . '/easy-wp-smtp' ); // "already installed"
 
 $GLOBALS['efb_test_caps']    = array( 'install_plugins' => true, 'activate_plugins' => true );
 $GLOBALS['efb_test_filters'] = array();
@@ -34,7 +34,7 @@ $d = emsfb_email_next_steps_efb();
 check( 'admin who may install gets the installer base', $d['can_install'] && $d['install_base'] === 'https://site.test/wp-admin/plugin-install.php?tab=plugin-information&plugin=' );
 check( 'five services by default', count( $d['services'] ) === 5 );
 check( 'every service has a wordpress.org slug and an https site', array_reduce( $d['services'], function ( $ok, $s ) { return $ok && preg_match( '/^[a-z0-9-]+$/', $s['slug'] ) && 0 === strpos( $s['site'], 'https://' ); }, true ) );
-check( 'a plugin folder that exists is reported as installed', $d['services'][0]['slug'] === 'wp-mail-smtp' && $d['services'][0]['installed'] === true && $d['services'][1]['installed'] === false );
+check( 'a plugin folder that exists is reported as installed', $d['services'][0]['slug'] === 'easy-wp-smtp' && $d['services'][0]['installed'] === true && $d['services'][1]['installed'] === false );
 check( 'six guides, one per record plus overview, services and smtp', count( $d['docs'] ) === 6 && isset( $d['docs']['spf'], $d['docs']['dkim'], $d['docs']['dmarc'], $d['docs']['overview'], $d['docs']['services'], $d['docs']['smtp'] ) );
 check( 'guide slugs are plain slugs', array_reduce( $d['docs'], function ( $ok, $s ) { return $ok && preg_match( '/^[a-z0-9-]+$/', $s ); }, true ) );
 
@@ -73,6 +73,6 @@ $GLOBALS['efb_test_filters']['emsfb_email_next_steps_docs'] = function ( $docs )
 $d = emsfb_email_next_steps_efb();
 check( 'docs filter: slug normalised, non-string entry dropped', $d['docs']['spf'] === 'my-spf-guide' && ! isset( $d['docs']['bad'] ) );
 
-@rmdir( WP_PLUGIN_DIR . '/wp-mail-smtp' ); @rmdir( WP_PLUGIN_DIR );
+@rmdir( WP_PLUGIN_DIR . '/easy-wp-smtp' ); @rmdir( WP_PLUGIN_DIR );
 echo "RESULTS: $pass passed, $fail failed\n";
 exit( $fail ? 1 : 0 );

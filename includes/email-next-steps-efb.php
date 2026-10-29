@@ -53,11 +53,11 @@ function emsfb_email_next_steps_docs_efb() {
 function emsfb_email_sending_services_efb() {
 	$services = array(
 		array(
-			'id'   => 'wp-mail-smtp',
-			'name' => 'WP Mail SMTP',
-			'slug' => 'wp-mail-smtp',
+			'id'   => 'easy-wp-smtp',
+			'name' => 'Easy WP SMTP',
+			'slug' => 'easy-wp-smtp',
 			'note' => __( 'Connects Gmail, Outlook, Brevo and almost any SMTP service to WordPress. Free.', 'easy-form-builder' ),
-			'site' => 'https://wpmailsmtp.com/',
+			'site' => 'https://easywpsmtp.com/',
 		),
 		array(
 			'id'   => 'brevo',
