@@ -156,7 +156,7 @@ If you must refer to WordPress core in these languages, name it fully: „WordPr
 Notes:
 
 - The Arabic and Persian names above are fixed brand decisions. Use them **everywhere** in body copy, headings, meta descriptions, and FAQ answers — do not re-derive or re-translate them per article.
-- Arabic (owner decision, 2026-10-29): the brand is written exactly as `ar.json` ships it on screen, **منشئ النماذج السهل**, and as the owner's Arabic glossary gives it for "EFB" and "Easy Form Builder". The older form «مُنشيء» is no longer used anywhere.
+- Arabic (owner decision, 2026-10-29): the brand is written exactly as `ar.json` ships it on screen, **منشئ النماذج السهل**, and as the owner's Arabic glossary gives it for "EFB" and "Easy Form Builder". Do not use the older form «مُنشيء» in new or rewritten text. Some existing Arabic guides and READMEs in this repository still carry it; convert the whole guide when you next edit it, so one article never mixes the two forms.
 - Never translate the brand name into German, and never mix forms inside one article.
 
 ## 6. Translation rules (all languages)
@@ -171,7 +171,8 @@ For every UI label, menu item, button, field name, or product term:
    - Arabic — <https://translate.wordpress.org/locale/ar/default/>
    - Persian — <https://translate.wordpress.org/locale/fa/default/>
    (The consolidated term list lives under each locale's `/glossary/` page.)
-3. **Only if both fail:** keep the English term, and gloss it once in the local language on first use — e.g. `Webhook (…)`. Never coin a new translation for a term the locale already has a standard for.
+   - **Arabic only, then:** the WhiteStudio Arabic glossary (the owner's sheet; see [8](#8-arabic-ar), rule 2). When it and the WordPress glossary disagree, the WordPress glossary wins.
+3. **Only if all of these fail:** keep the English term, and gloss it once in the local language on first use — e.g. `Webhook (…)`. Never coin a new translation for a term the locale already has a standard for.
 
 ### 6.2 How to read the JSON files
 
@@ -212,7 +213,7 @@ Localized articles address the reader directly and practically. Keep sentences s
 ## 8. Arabic (ar)
 
 1. **The product name is always منشئ النماذج السهل**, in every heading, sentence, meta field, and FAQ answer.
-2. **Terminology comes from `ar.json` (and the labels WordPress shows on screen) first, then the WordPress Arabic glossary** (<https://translate.wordpress.org/locale/ar/default/glossary/>), **then the WhiteStudio Arabic glossary** (the owner's sheet; owner decision 2026-10-29), and only then general usage. When the two glossaries disagree, the WordPress glossary wins; a label quoted from a screen stays exactly as shown. Confirmed examples: Settings → **الإعدادات**, Save → **حفظ**, Form → **نموذج**, Forms → **النماذج**, Field → **حقل**, Submit → **إرسال**, Add-ons → **ملحقات**, Plugin → **إضافة**, Email → **البريد الإلكتروني**.
+2. **Terminology comes from `ar.json` (and the labels WordPress shows on screen) first, then the WordPress Arabic glossary** (<https://translate.wordpress.org/locale/ar/default/glossary/>), **then the WhiteStudio Arabic glossary** (the owner's sheet; owner decision 2026-10-29), and only then step 3 of [6.1](#61-term-sourcing-order-mandatory). When the two glossaries disagree, the WordPress glossary wins; a label quoted from a screen stays exactly as shown. Confirmed examples: Settings → **الإعدادات**, Save → **حفظ**, Form → **نموذج**, Forms → **النماذج**, Field → **حقل**, Submit → **إرسال**, Add-ons → **ملحقات**, Plugin → **إضافة**, Email → **البريد الإلكتروني**.
 3. Call this product **إضافة** (a WordPress plugin) and its add-ons **ملحقات** — keep the two words apart consistently.
 4. **Digits:** `ar.json` uses Western digits (0–9) almost everywhere. Use Western digits in Arabic articles for versions, limits, counts, and UI values.
 5. Latin technical tokens (API, CSV, JSON, URL, Stripe, PayPal) stay in Latin script inside Arabic text; do not transliterate them. Both glossaries add a gloss at first mention for some of them: «واجهة برمجة التطبيقات (API)», «نظام أسماء النطاقات (DNS)». WordPress is written **ووردبريس** (WordPress core's Arabic and the owner's glossary).
@@ -237,7 +238,7 @@ Run this list against every article before it ships:
 - [ ] No "core" (or „Kern" / «النواة» / «هسته») referring to this plugin; every ambiguous "the plugin," "the dashboard," "the editor," "update" has an explicit owner.
 - [ ] Brand name correct and consistent: Easy Form Builder / منشئ النماذج السهل / فرم ساز آسان.
 - [ ] German article is informal (du) end to end, including headings, meta description, and FAQ.
-- [ ] Every UI label was pulled from `languages/<lang>.json`; anything not found there was checked against the locale's WordPress glossary; nothing was invented.
+- [ ] Every UI label was pulled from `languages/<lang>.json`; anything not found there was checked against the locale's WordPress glossary (for Arabic, then the WhiteStudio Arabic glossary); nothing was invented.
 - [ ] Untranslated (English-only) screens are called out as such instead of being silently translated.
 - [ ] Frontmatter complete: title, slug, meta_description, focus_keyphrase, secondary_keyphrases, search_intent, audience, product_version, last_reviewed.
 - [ ] Keywords line and breadcrumb/language-switcher line present, and every language link resolves.
