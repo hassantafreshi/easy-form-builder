@@ -59,8 +59,11 @@ if ( empty( $only ) ) {
 
 $msgfmt = null;
 foreach ( array( 'msgfmt', 'C:/Program Files/Git/usr/bin/msgfmt.exe' ) as $candidate ) {
-	$probe = @shell_exec( '"' . $candidate . '" --version 2>&1' );
-	if ( is_string( $probe ) && false !== stripos( $probe, 'msgfmt' ) ) {
+	// The exit code decides: a shell's "msgfmt: not found" also contains the word msgfmt.
+	$probe = array();
+	$code  = 1;
+	@exec( '"' . $candidate . '" --version 2>&1', $probe, $code );
+	if ( 0 === $code && false !== stripos( implode( "\n", $probe ), 'gettext' ) ) {
 		$msgfmt = $candidate;
 		break;
 	}

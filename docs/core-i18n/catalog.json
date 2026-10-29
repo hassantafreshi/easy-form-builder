@@ -2,9 +2,9 @@
     "domain": "easy-form-builder",
     "about": "Every phrase looked up in the easy-form-builder text domain: the core plus add-ons that still use that domain. Maintained by tests/core-i18n/extract.php (agent efb-core-i18n); do not edit by hand.",
     "plugin_version": "4.3.1",
-    "updated": "2026-10-19",
+    "updated": "2026-10-29",
     "counts": {
-        "active": 2278,
+        "active": 2304,
         "obsolete": 299
     },
     "entries": [
@@ -1042,6 +1042,21 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "A sending service delivers your form emails from its own trusted servers. Install the official plugin with one click, sign in and connect; most services also give you the SPF and DKIM records to copy.",
+            "context": null,
+            "plural": null,
+            "translators": "Description of option 2",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -2666,6 +2681,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Ask a site administrator to install one of these plugins.",
+            "context": null,
+            "plural": null,
+            "translators": "Shown when the current user cannot install plugins",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -5509,6 +5539,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Compare the free plans",
+            "context": null,
+            "plural": null,
+            "translators": "Link text to the services comparison article",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Completed",
             "context": null,
             "plural": null,
@@ -5837,6 +5882,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Connects Gmail, Outlook, Brevo and almost any SMTP service to WordPress. Free.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/email-next-steps-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -6545,7 +6605,7 @@
             "plural": null,
             "translators": "",
             "files": [
-                "emsfb.php"
+                "home/user/easy-form-builder/emsfb.php"
             ],
             "scope": [
                 "core"
@@ -8032,6 +8092,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Domain protection policy (DMARC)",
+            "context": null,
+            "plural": null,
+            "translators": "Label of the DMARC check in the next-steps box",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Done",
             "context": null,
             "plural": null,
@@ -8425,12 +8500,27 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Each guide has a short video, screenshots and a ready-made prompt you can paste into any AI assistant to be walked through it step by step.",
+            "context": null,
+            "plural": null,
+            "translators": "Description of option 1",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Easy Form Builder",
             "context": null,
             "plural": null,
             "translators": "",
             "files": [
-                "emsfb.php",
+                "home/user/easy-form-builder/emsfb.php",
                 "includes/admin/class-Emsfb-admin.php",
                 "includes/admin/class-Emsfb-create.php",
                 "includes/admin/class-Emsfb-dashboard-widget.php",
@@ -9340,6 +9430,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Email signature (DKIM)",
+            "context": null,
+            "plural": null,
+            "translators": "Label of the DKIM check in the next-steps box",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -11883,6 +11988,66 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Free plan with a daily sending limit; official plugin, one API key.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/email-next-steps-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Free plan with a daily sending limit; official plugin, sign in and connect.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/email-next-steps-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Free plan with a monthly sending limit; official plugin, one API key.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/email-next-steps-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Free-plan limits are set by each service and change over time; check the plan before you rely on it.",
+            "context": null,
+            "plural": null,
+            "translators": "Small print under the services list",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "French",
             "context": null,
             "plural": null,
@@ -12483,6 +12648,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Guide, video and AI prompt",
+            "context": null,
+            "plural": null,
+            "translators": "Link text to one guide (article + video + prompt)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -14050,7 +14230,7 @@
             "msgid": "Install",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "Button that opens the WordPress installer for a service plugin",
             "files": [
                 "includes/functions.php"
             ],
@@ -14118,6 +14298,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Installed",
+            "context": null,
+            "plural": null,
+            "translators": "Label when the service plugin is already on the site",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -15862,6 +16057,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Looks good",
+            "context": null,
+            "plural": null,
+            "translators": "Status chip: this record passed",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Low",
             "context": null,
             "plural": null,
@@ -17184,6 +17394,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Needs setup",
+            "context": null,
+            "plural": null,
+            "translators": "Status chip: this record is missing or failing",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Net Promoter Score",
             "context": null,
             "plural": null,
@@ -17339,7 +17564,8 @@
             "plural": null,
             "translators": "",
             "files": [
-                "includes/class-Emsfb-public.php"
+                "includes/class-Emsfb-public.php",
+                "includes/class-email-handler.php"
             ],
             "scope": [
                 "core"
@@ -18124,6 +18350,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Not checked",
+            "context": null,
+            "plural": null,
+            "translators": "Status chip: this record was not checked",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Not contain",
             "context": null,
             "plural": null,
@@ -18709,6 +18950,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Open Plugins",
+            "context": null,
+            "plural": null,
+            "translators": "Link to the Plugins screen for an installed service",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Open and Closed Message Status",
             "context": null,
             "plural": null,
@@ -18735,6 +18991,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Option 1: set up your domain records (free, about 15 minutes)",
+            "context": null,
+            "plural": null,
+            "translators": "Title of option 1: fix the domain records yourself",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Option 2: send through an email service (free plans available)",
+            "context": null,
+            "plural": null,
+            "translators": "Title of option 2: send through an email service",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -20309,6 +20595,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Please confirm your email address with the link we sent you before logging in.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -25034,6 +25335,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Sender permission (SPF)",
+            "context": null,
+            "plural": null,
+            "translators": "Label of the SPF check in the next-steps box",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Sending",
             "context": null,
             "plural": null,
@@ -25934,6 +26250,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Small free plan for transactional email; official plugin, one API token.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/email-next-steps-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -30928,6 +31259,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "These settings belong to your hosting and your domain name, not to Easy Form Builder. The plugin only runs the test and shows the result; it cannot change them for you. Both options below are free.",
+            "context": null,
+            "plural": null,
+            "translators": "Sentence under that heading; tells the admin this is about hosting/domain, not the plugin",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Thickness (px)",
             "context": null,
             "plural": null,
@@ -34087,6 +34433,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "What you can do now",
+            "context": null,
+            "plural": null,
+            "translators": "Heading of the box offering two ways to fix a low email score",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "What you can do:",
             "context": null,
             "plural": null,
@@ -34227,7 +34588,7 @@
             "plural": null,
             "translators": "",
             "files": [
-                "emsfb.php"
+                "home/user/easy-form-builder/emsfb.php"
             ],
             "scope": [
                 "core"
@@ -34278,6 +34639,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Why this happens and which option to pick",
+            "context": null,
+            "plural": null,
+            "translators": "Link text to the overview article",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -36542,6 +36918,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Your payment has not been completed. Please pay before sending the form.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-public.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Your rating",
             "context": null,
             "plural": null,
@@ -37857,7 +38248,7 @@
             "plural": null,
             "translators": "",
             "files": [
-                "emsfb.php"
+                "home/user/easy-form-builder/emsfb.php"
             ],
             "scope": [
                 "core"
