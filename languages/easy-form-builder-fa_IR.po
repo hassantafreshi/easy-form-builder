@@ -8,7 +8,7 @@ msgstr ""
 "POT-Creation-Date: 2026-11-01 00:00+0000\n"
 "X-Generator: EFB tests/core-i18n/build.php\n"
 "X-Domain: easy-form-builder\n"
-"PO-Revision-Date: 2026-11-01 23:26+0000\n"
+"PO-Revision-Date: 2026-11-01 23:31+0000\n"
 "Last-Translator: WhiteStudio <hi@whitestudio.team>\n"
 "Language-Team: fa_IR\n"
 "Language: fa_IR\n"
@@ -4843,7 +4843,7 @@ msgstr "اگر این ایمیل را چند بار دریافت می‌کنید
 #. question.
 #: includes/functions.php:1991
 msgid "If you skip, form notifications stay off until you check or turn them on in Email Settings."
-msgstr "اگر رد کنید، اعلان‌های فرم خاموش می‌مانند تا وقتی بررسی کنید یا آن‌ها را در تنظیمات ایمیل روشن کنید."
+msgstr "اگر بررسی را به بعد موکول کنید، اعلان‌های فرم خاموش می‌مانند تا وقتی بررسی کنید یا آن‌ها را در تنظیمات ایمیل روشن کنید."
 
 #  origin: wporg-stable
 #. translators: %s: this site's outgoing IP address
@@ -8687,7 +8687,7 @@ msgstr "رد شد"
 #. translators: Short notice shown after the first-run email check was skipped.
 #: includes/functions.php:1993
 msgid "Skipped. Notifications are off. Run the check any time from Email Settings."
-msgstr "رد شد. اعلان‌ها خاموش هستند. می‌توانید هر زمان بررسی را از تنظیمات ایمیل اجرا کنید."
+msgstr "بررسی به بعد موکول شد. اعلان‌ها خاموش هستند. می‌توانید هر زمان بررسی را از تنظیمات ایمیل اجرا کنید."
 
 #  origin: wporg-stable
 #. translators: Range Thumb range slider button/thumb
