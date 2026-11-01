@@ -247,7 +247,7 @@ function pollWith(reply, attempt, failWith) {
     };
   };
   try {
-    efb_onboarding_live_update_efb({ type: 'checking', outcome: '', technical: [], result: null, test: TEST,
+    efb_onboarding_live_update_efb({ type: 'checking', outcome: '', settledBand: '', technical: [], result: null, test: TEST,
       steps: { start: 'done', send: 'done', wait: 'active', quick: 'waiting', full: 'waiting' } });
     elements['efb-onboarding-finish'].disabled = true;
     efb_onboarding_poll_email_efb(TEST, 'admin@example.test', attempt || 9);
@@ -469,6 +469,45 @@ efb_var_patch_efb({ text: {} });
     [posted.filter((d) => d.action === 'efb_dismiss_onboarding').length, infos.length], [0, 0]);
   elements['efb-onboarding-card'] = savedCard;
   global.show_info_notification_efb = () => {};
+  efb_onboarding_completion_saved_efb = true;
+})();
+
+// A65-A68: the third review.
+(function () {
+  // The full-report polls after a settled verdict do not touch the switch again.
+  pollWith({ data: { success: true, result: { status: 'analyzed', analysis_stage: 'quick', can_send_email: true, score: 88, full_report_pending: true } } }, 1);
+  efb_var_patch_efb({ smtp: 0 }, { smtp: false }); // the owner turned it off in between
+  const original = global.jQuery.ajax;
+  global.jQuery.ajax = function () { return { done(cb) { cb({ data: { success: true, result: { status: 'analyzed', analysis_stage: 'full', can_send_email: true, score: 90 } } }); return this; }, fail() { return this; }, always(cb) { cb(); return this; } }; };
+  try { efb_onboarding_poll_email_efb(TEST, 'admin@example.test', 2, vm.runInThisContext('efb_onboarding_run_token_efb')); } finally { global.jQuery.ajax = original; }
+  test('A65 a later full-report poll with the same verdict leaves the owner\'s switch alone', Number(efb_var.smtp), 0);
+
+  // Back to the address: the question card again, nothing left over from the result.
+  elements['efb-onboarding-finish'].hidden = false;
+  elements['efb-onboarding-help'].hidden = false;
+  vm.runInThisContext('efb_onboarding_back_to_address_efb')('Something went wrong.', true);
+  test('A66 back to the address hides the finish button and the guide link', [elements['efb-onboarding-finish'].hidden, elements['efb-onboarding-help'].hidden], [true, true]);
+
+  // An expired session is not an address problem: no red field.
+  let invalid = false;
+  elements['efb-onboarding-admin-email'].classList = { add: (c) => { if (c === 'is-invalid') invalid = true; }, remove() {} };
+  vm.runInThisContext('efb_onboarding_show_input_error_efb')('Your security session has expired.', true);
+  test('A67 a session error is said without marking the address invalid', invalid, false);
+  vm.runInThisContext('efb_onboarding_show_input_error_efb')('Enter the admin email address.');
+  test('A67b an address error does mark it', invalid, true);
+  elements['efb-onboarding-admin-email'].classList = { add() {}, remove() {} };
+
+  // Closing a result card ends the guide like its "Close for now" does.
+  const doneCard = stubElement({ classList: { add() {}, remove() {}, contains: (c) => c === 'is-done' }, querySelector() { return null; } });
+  const savedCard = elements['efb-onboarding-card'];
+  elements['efb-onboarding-card'] = doneCard;
+  efb_onboarding_completion_saved_efb = false; efb_onboarding_dismissal_saved_efb = false;
+  posted = [];
+  replies = { efb_complete_onboarding: { success: true } };
+  global.closeSetupOverlay_efb = () => {};
+  efb_setup_overlay_user_close_efb();
+  test('A68 x on a result card records completion, not a skip', [posted.filter((d) => d.action === 'efb_complete_onboarding').length, posted.filter((d) => d.action === 'efb_dismiss_onboarding').length], [1, 0]);
+  elements['efb-onboarding-card'] = savedCard;
   efb_onboarding_completion_saved_efb = true;
 })();
 

@@ -273,7 +273,7 @@ efb_notice_case('owner switch on: delivered, score 25 (spam range)', $analyzed(2
 efb_notice_case('owner switch on: delivered, score 49 (just under the notice threshold)', $analyzed(49), null, 'spam', true);
 efb_notice_case('owner switch on: delivered, score 50 (at the notice threshold)', $analyzed(50), null, 'silent', true);
 efb_notice_case('owner switch on: delivered, score 60 (spam range, not worth a banner)', $analyzed(60), null, 'silent', true);
-efb_notice_case('owner switch on: delivered, score 12 (below the sending threshold)', $analyzed(12), null, 'undelivered', true);
+efb_notice_case('owner switch on: delivered, score 12 (arrived, filed as spam: said as spam, not "not arriving")', $analyzed(12), null, 'spam', true);
 efb_notice_case('owner switch on: delivered, score 82 (healthy)', $analyzed(82), null, 'silent', true);
 efb_notice_case('owner switch on: analysed, nothing arrived', $analyzed(null, false), null, 'undelivered', true);
 // The owner's dated "my host can send email" answer outranks an older probe
@@ -324,6 +324,18 @@ wp_set_current_user(0);
 efb_notice_case('visitor without manage_options', $wp_mail_failed, null, 'silent', true);
 wp_set_current_user($admin_id);
 efb_notice_case('administrator, same failed run', $wp_mail_failed, null, 'undelivered', true);
+
+// The owner's failed check, then a re-check that only started or could not
+// start: the notice keeps speaking (it reads the remembered verdict, as the
+// state does).
+efb_notice_case('owner check failed, then a re-check could not start', null, $panel_failed, 'undelivered', true, function () use ($panel_result) {
+	update_option(PANEL_OPTION, $panel_result('service_start_error', ['reason' => 'service_start_error']), false);
+});
+efb_notice_case('owner check failed, then a re-check was left open', null, $panel_failed, 'undelivered', true, function () use ($panel_result) {
+	update_option(PANEL_OPTION, $panel_result('email_test_pending', ['can_send_email' => false]), false);
+});
+// Arrived, scored under the minimum: the notice says spam, not "not arriving".
+efb_notice_case('owner check arrived with score 12', null, $panel_result('email_test_low_score', ['delivered' => true, 'delivery_score' => 12, 'can_send_email' => false, 'send_stage' => 'handed_off']), 'spam', true);
 
 // ---------------------------------------------------------------------------
 // Restore.

@@ -102,6 +102,11 @@ $thrower = function () {
 add_filter( 'wp_die_ajax_handler', $thrower );
 add_filter( 'wp_die_handler', $thrower );
 
+// efb_dismiss_onboarding() now queues the automated probe for the next day
+// when no verdict is on file; whatever this run queues is removed again, so
+// no real check of the shared test site follows.
+$had_probe = wp_next_scheduled( \Emsfb\Email_Monitor::LIFECYCLE_HOOK, array( 'activation' ) );
+
 try {
 	wp_set_current_user( (int) $admins[0] );
 
@@ -169,6 +174,9 @@ try {
 	$failed++;
 	echo '[FAIL] unexpected ' . get_class( $e ) . ': ' . $e->getMessage() . "\n";
 } finally {
+	if ( ! $had_probe ) {
+		wp_clear_scheduled_hook( \Emsfb\Email_Monitor::LIFECYCLE_HOOK, array( 'activation' ) );
+	}
 	remove_filter( 'wp_die_ajax_handler', $thrower );
 	remove_filter( 'wp_die_handler', $thrower );
 	foreach ( $restore as $name => $value ) {

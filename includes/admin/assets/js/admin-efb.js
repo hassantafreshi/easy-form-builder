@@ -95,6 +95,12 @@ function efb_builder_maybe_warn_email_delivery() {
   const ask = kind === 'off' && efb_builder_form_has_email_field()
     && efb_builder_delivery_needs_question() && !efb_builder_prompt_snoozed();
   if (ask && document.getElementById('efb-setup-overlay')) return;
+  // A check is running on this page: it will answer; no question meanwhile.
+  const running = typeof efb_onboarding_email_test_state_efb !== 'undefined' && efb_onboarding_email_test_state_efb && efb_onboarding_email_test_state_efb.type === 'checking';
+  if (ask && running) return;
+  // The score warning says delivery "has not been verified": not after a
+  // check on this page, whose card has just said what it found.
+  if (kind === 'score' && efb_var.emailDelivery && efb_var.emailDelivery.fresh) return;
 
   // The question and the plain "notifications are off" toast are different
   // messages: one may follow the other on the same form (an email field is
@@ -279,15 +285,26 @@ let efb_builder_email_prompt_origin = null;
    answer is needed before the switch can mean anything. */
 function efb_builder_email_delivery_dialog(origin) {
   if (document.getElementById('efb-setup-overlay')) return false;
+  const keepOrigin = () => {
+    if (origin && !(origin.tagName === 'INPUT' && String(origin.value || '').trim() === '')) efb_builder_email_prompt_origin = origin;
+  };
   // Another dialog holds the screen. A parked question would surface later,
-  // after nobody asked; so it is not asked now. While the check itself is on
-  // screen, the click that raised it is kept, so a pass replays it.
+  // after nobody asked; so it is not asked now. While the check or this same
+  // question is on screen, the click that raised it is kept for the replay.
   if (typeof efb_modal_shell_busy_efb === 'function' && efb_modal_shell_busy_efb()) {
-    if (typeof efb_modal_current_flow_efb === 'function' && efb_modal_current_flow_efb() === 'email-check') {
-      if (origin && !(origin.tagName === 'INPUT' && String(origin.value || '').trim() === '')) efb_builder_email_prompt_origin = origin;
+    const flow = typeof efb_modal_current_flow_efb === 'function' ? efb_modal_current_flow_efb() : '';
+    if (flow === 'email-check' || flow === 'email-question') {
+      keepOrigin();
       return true;
     }
     return false;
+  }
+  // A check is running on this page (its window was closed): that check is
+  // the answer. "We have not checked yet" and "Yes" would both be wrong now.
+  if (typeof efb_onboarding_email_test_state_efb !== 'undefined' && efb_onboarding_email_test_state_efb && efb_onboarding_email_test_state_efb.type === 'checking') {
+    keepOrigin();
+    efb_builder_email_check_open();
+    return true;
   }
   efb_builder_email_toast_dismiss();
   efb_builder_email_prompt_origin = origin || null;
@@ -447,11 +464,6 @@ function efb_builder_email_check_open() {
   }
   efb_builder_email_toast_dismiss();
   efb_onboarding_host_efb = 'builder';
-  // A check from earlier on this page (the wizard's, or one whose modal was
-  // closed) is still running: show it, do not start a second one - that
-  // would spend the site's free daily check and drop the first verdict.
-  const live = efb_onboarding_email_test_state_efb && efb_onboarding_email_test_state_efb.type === 'checking';
-  if (!live) efb_onboarding_email_test_state_efb = null;
   const email = (efb_var.setting && efb_var.setting.emailSupporter) ? efb_var.setting.emailSupporter : (efb_var.adminEmail || '');
   const body = efb_onboarding_card_markup_efb(email, { builder: true }) + '<style>' + efb_onboarding_card_css_efb() + '</style>';
   const title = (efb_var.text && efb_var.text.onboardingStepEmailCheck) || 'Email check';
@@ -465,13 +477,27 @@ function efb_builder_email_check_open() {
       if (typeof efb_dlg_set_tone_efb === 'function') efb_dlg_set_tone_efb('');
       efb_builder_email_narrow_shell();
       efb_onboarding_bind_card_efb();
-      if (live) {
+      // Decided now, not when asked: a parked card can paint after the run
+      // it would attach to has ended.
+      const s = efb_onboarding_email_test_state_efb;
+      if (s && s.type === 'checking') {
+        // A check from earlier on this page (the wizard's, or one whose modal
+        // was closed) is still running: show it. A second one would spend the
+        // site's free daily check and drop the first verdict.
         efb_onboarding_card_phase_efb('running');
         efb_onboarding_render_live_report_efb();
         const button = document.getElementById('efb-onboarding-test-email');
         if (button) { button.disabled = true; button.classList.add('is-loading'); }
         return;
       }
+      if (s && s.test && s.test.test_hash && s.type && typeof efb_onboarding_summary_efb === 'function' && efb_onboarding_summary_efb(s).tryAgain) {
+        // An earlier check ended without an answer: ask about that same test
+        // again (what its Try again does), instead of starting a new one.
+        efb_onboarding_render_live_report_efb();
+        efb_onboarding_run_or_retry_efb();
+        return;
+      }
+      efb_onboarding_email_test_state_efb = null;
       efb_onboarding_start_email_test_efb();
     }
   });
@@ -903,6 +929,12 @@ function show_message_result_form_set_EFB(state, m) {
     flow: 'save',
     onShown: () => {
       if (typeof efb_dlg_set_tone_efb === 'function') efb_dlg_set_tone_efb(tone);
+      // Built while sending was off, shown after a check turned it on (this
+      // dialog was parked behind the check): the note is not true any more.
+      if (!efb_builder_email_setting_smtp_disabled()) {
+        const icon = document.querySelector('#settingModalEfb-body .efb-dlg__note .bi-envelope-slash');
+        if (icon && icon.closest('.efb-dlg__note')) icon.closest('.efb-dlg__note').remove();
+      }
       const sections = document.getElementById('settingModalEfb-sections');
       if (!sections) return;
       const foot = document.createElement('div');
@@ -2155,6 +2187,8 @@ let change_el_edit_Efb = (el) => {
           // there the day sending is turned on, and nothing is sent meanwhile
           // (sendEmail stays as it is until the switch goes on).
           valj_efb[0].email = emails.join(',');
+          // Cleared: the owner asked for no admin email, nothing to ask.
+          if (emails.length === 0) break;
           if (efb_builder_delivery_needs_question()) {
             // Asked now; once the owner answers yes or a check passes, this
             // same change is replayed and turns the form's notification on.
@@ -2317,7 +2351,11 @@ let change_el_edit_Efb = (el) => {
 
         } else {
           el.classList.remove('active');
-          if (efb_builder_delivery_needs_question() && efb_builder_email_delivery_dialog(el)) break;
+          if (efb_builder_delivery_needs_question()) {
+            // Asked now, or by the toast when another dialog holds the screen.
+            if (!efb_builder_email_delivery_dialog(el) && !efb_builder_prompt_snoozed()) efb_builder_email_delivery_toast();
+            break;
+          }
           const msg =  efb_var.text.sMTPNotWork + '' + `<a class="efb alert-link ec-efb" data-eventform="links" data-linkname="EmailNoti"> ${efb_var.text.orClickHere}</a>`;
           alert_message_efb(efb_var.text.error,msg, 20, "danger")
         }

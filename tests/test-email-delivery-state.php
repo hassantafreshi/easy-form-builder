@@ -199,6 +199,16 @@ try {
 	efb_ds_check('V3 the owner\'s later confirmation does replace it', 'confirmed' === $s['state'], wp_json_encode($s));
 	efb_ds_check('V4 the state carries the spam-notice line for the card', isset($s['spam_notice_score']) && \Emsfb\Email_Monitor::SPAM_NOTICE_SCORE === $s['spam_notice_score']);
 
+	// A site updated from a version without the memory: the verdict is only in
+	// the record on file when a re-check replaces it.
+	efb_ds_state(null, $failed_record, false);
+	delete_option('emsfb_email_last_verdict');
+	update_option(EFB_DS_PANEL, $panel('service_start_error', ['reason' => 'service_start_error']), false);
+	$s = \Emsfb\Email_Monitor::get_delivery_state();
+	efb_ds_check('V5 an updated site keeps the verdict the re-check replaced', 'tested' === $s['state'] && 'undelivered' === $s['outcome'], wp_json_encode($s));
+	$v = \Emsfb\Email_Monitor::get_delivery_verdict();
+	efb_ds_check('V6 ... and the notice\'s verdict reads the same record', 'undelivered' === $v['outcome'], wp_json_encode($v));
+
 	echo "\n=== activation leaves the free check to the owner's first click ===\n";
 	wp_clear_scheduled_hook(\Emsfb\Email_Monitor::LIFECYCLE_HOOK, ['activation']);
 	update_option('emsfb_onboarding_initial_install', 1, false);
@@ -211,11 +221,22 @@ try {
 	wp_clear_scheduled_hook(\Emsfb\Email_Monitor::LIFECYCLE_HOOK, ['activation']);
 	efb_ds_state(null, null, false);
 	\Emsfb\Email_Monitor::schedule_probe_after_skip();
-	efb_ds_check('P3 skipping the card with no verdict on file queues the probe', false !== wp_next_scheduled(\Emsfb\Email_Monitor::LIFECYCLE_HOOK, ['activation']));
+	$when = wp_next_scheduled(\Emsfb\Email_Monitor::LIFECYCLE_HOOK, ['activation']);
+	efb_ds_check('P3 skipping the card with no verdict on file queues the probe for tomorrow, not today', false !== $when && $when > time() + 12 * HOUR_IN_SECONDS);
 	wp_clear_scheduled_hook(\Emsfb\Email_Monitor::LIFECYCLE_HOOK, ['activation']);
 	efb_ds_state(null, $failed_record, false);
 	\Emsfb\Email_Monitor::schedule_probe_after_skip();
 	efb_ds_check('P4 ... but not when the owner already has a verdict', false === wp_next_scheduled(\Emsfb\Email_Monitor::LIFECYCLE_HOOK, ['activation']));
+	$last_update = get_option(\Emsfb\Email_Monitor::OPTION_LAST_UPDATE_VERSION, null);
+	wp_clear_scheduled_hook(\Emsfb\Email_Monitor::LIFECYCLE_HOOK, ['update']);
+	delete_option(\Emsfb\Email_Monitor::OPTION_LAST_UPDATE_VERSION);
+	update_option(\Emsfb\Email_Monitor::OPTION_ACTIVATION_MARKER, ['version' => 'old', 'time' => time() - DAY_IN_SECONDS], false);
+	update_option('emsfb_onboarding_pending', 1, false);
+	\Emsfb\Email_Monitor::plugin_updated();
+	efb_ds_check('P5 a first install whose card has not asked yet runs no update probe', false === wp_next_scheduled(\Emsfb\Email_Monitor::LIFECYCLE_HOOK, ['update']));
+	update_option('emsfb_onboarding_pending', 0, false);
+	null === $last_update ? delete_option(\Emsfb\Email_Monitor::OPTION_LAST_UPDATE_VERSION) : update_option(\Emsfb\Email_Monitor::OPTION_LAST_UPDATE_VERSION, $last_update, false);
+	wp_clear_scheduled_hook(\Emsfb\Email_Monitor::LIFECYCLE_HOOK, ['update']);
 
 	echo "\n=== the activation probe steps aside for the owner ===\n";
 	wp_clear_scheduled_hook(\Emsfb\Email_Monitor::LIFECYCLE_HOOK, ['activation']);

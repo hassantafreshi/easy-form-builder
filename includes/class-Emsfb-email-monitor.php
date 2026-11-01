@@ -73,9 +73,34 @@ class Email_Monitor {
 
     /** @internal update_option_emsfb_email_status */
     public static function remember_owner_verdict_on_update($old_value, $value) {
-        if (self::is_owner_verdict_record($value)) {
-            update_option(self::OPTION_LAST_OWNER_VERDICT, $value, false);
+        // A record being replaced by a non-verdict (a check that started, or
+        // broke) is remembered too: on a site updated from a version without
+        // this memory, that old record is the only copy of its verdict.
+        $verdict = self::is_owner_verdict_record($value)
+            ? $value
+            : (self::is_owner_verdict_record($old_value) ? $old_value : null);
+        if (null !== $verdict) {
+            update_option(self::OPTION_LAST_OWNER_VERDICT, $verdict, false);
         }
+    }
+
+    /**
+     * The status record the owner's state rests on: the record on file when it
+     * is a verdict, otherwise the last verdict remembered. Both the state and
+     * the dashboard notice read through this, so they never disagree.
+     *
+     * @return array
+     */
+    public static function owner_status_record() {
+        $status = get_option('emsfb_email_status', []);
+        if (self::is_owner_verdict_record($status)) {
+            return $status;
+        }
+        $last = get_option(self::OPTION_LAST_OWNER_VERDICT, []);
+        if (self::is_owner_verdict_record($last)) {
+            return $last;
+        }
+        return is_array($status) ? $status : [];
     }
 
     /**
@@ -201,7 +226,7 @@ class Email_Monitor {
      */
     public static function get_delivery_verdict() {
         $records = [];
-        foreach ([self::read_monitor_record(), self::read_panel_record()] as $record) {
+        foreach ([self::read_monitor_record(), self::read_panel_record(self::owner_status_record())] as $record) {
             if (is_array($record) && !empty($record['conclusive'])) {
                 $records[] = $record;
             }
@@ -266,17 +291,10 @@ class Email_Monitor {
         $status  = get_option('emsfb_email_status', []);
         $status  = is_array($status) ? $status : [];
         $current = $status;
-        $id      = isset($status['message']['id']) ? sanitize_key($status['message']['id']) : '';
-
         // The record on file is a check that only started, or ended without an
         // answer: what the owner's state rests on is still the last verdict.
-        if (!self::is_owner_verdict_record($status)) {
-            $last = get_option(self::OPTION_LAST_OWNER_VERDICT, []);
-            if (self::is_owner_verdict_record($last)) {
-                $status = $last;
-                $id     = sanitize_key($last['message']['id']);
-            }
-        }
+        $status  = self::owner_status_record();
+        $id      = isset($status['message']['id']) ? sanitize_key($status['message']['id']) : '';
 
         $details = (isset($status['details']) && is_array($status['details'])) ? $status['details'] : [];
         $stamp   = isset($details['test_timestamp']) ? (string) $details['test_timestamp'] : '';
@@ -554,7 +572,11 @@ class Email_Monitor {
      * @return array{title:string,body:string}
      */
     private static function get_notice_copy($verdict) {
-        if ('spam' === $verdict['outcome']) {
+        // Arrived, but scored under the minimum: the message is filed as spam.
+        // The card says "your test email arrived"; the notice must not say it
+        // is not arriving.
+        $arrived_as_spam = 'undelivered' === $verdict['outcome'] && !empty($verdict['delivered']) && null !== $verdict['score'];
+        if ('spam' === $verdict['outcome'] || $arrived_as_spam) {
             $body = null !== $verdict['score']
                 ? sprintf(
                     /* translators: %s: deliverability score out of 100. */
@@ -695,7 +717,13 @@ class Email_Monitor {
             || self::is_owner_verdict_record(get_option(self::OPTION_LAST_OWNER_VERDICT, []))) {
             return;
         }
-        self::schedule_lifecycle_test('activation');
+        // Tomorrow, not in 45 seconds: today's one free check stays with the
+        // owner, whom the Skip notice and the builder invite to use it. The
+        // owner's own check still cancels it (same 'activation' args).
+        $args = ['activation'];
+        if (!wp_next_scheduled(self::LIFECYCLE_HOOK, $args)) {
+            wp_schedule_single_event(time() + DAY_IN_SECONDS, self::LIFECYCLE_HOOK, $args);
+        }
     }
 
     public static function plugin_updated() {
@@ -714,6 +742,14 @@ class Email_Monitor {
         }
 
         if ((string) get_option(self::OPTION_LAST_UPDATE_VERSION, '') === $version) {
+            return;
+        }
+
+        // A first install whose card has not asked yet (activated by WP-CLI or
+        // a host installer, admin opened later) is not an update: the probe
+        // would spend the one free check of the day before the owner's click.
+        if (function_exists('emsfb_onboarding_pending_efb') && emsfb_onboarding_pending_efb()) {
+            update_option(self::OPTION_LAST_UPDATE_VERSION, $version, false);
             return;
         }
 

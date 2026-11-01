@@ -979,12 +979,13 @@
 	transition: transform 0.15s ease;
 }
 
-/* Closed, the chevron points the way the text reads. */
+/* Closed, the chevron points the way the summary's own text reads (its
+   dir=auto), not the page's direction: an untranslated "Show details" on an
+   RTL admin reads left to right. */
 .efb-est__more > summary:dir(rtl)::before {
 	transform: rotate(135deg);
 }
 
-[dir="rtl"] .efb-est__more > summary::before,
 .efb-est__more > summary[dir="rtl"]::before {
 	transform: rotate(135deg);
 }
@@ -998,7 +999,6 @@
 	transform: rotate(45deg);
 }
 
-[dir="rtl"] .efb-est__more[open] > summary::before,
 .efb-est__more[open] > summary[dir="rtl"]::before {
 	transform: rotate(45deg);
 }

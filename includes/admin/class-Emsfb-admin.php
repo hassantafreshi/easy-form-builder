@@ -1787,14 +1787,17 @@ class Admin {
                 // re-date an old confirmation over a newer failed probe.
                 $was_on = function_exists('emsfb_is_email_sending_enabled_efb') && emsfb_is_email_sending_enabled_efb($ac);
                 if(isset($value) && in_array($value,[1,true,'true','1']) && !$was_on){
-                  $check =  get_option('emsfb_email_status',false);
-                    if($check==false || $check==null){
-                         update_option('emsfb_email_status', $this->build_email_ready_status_efb(true));
-                    }else if(!is_array($check) || !isset($check['status']) || !in_array($check['status'], ['ok_set_smtp', 'ok'], true)){
-
-                            update_option('emsfb_email_status', $this->build_email_ready_status_efb(true));
+                    // Decided on the record the state rests on (the last
+                    // verdict when the one on file only started or broke). A
+                    // passing measured check or an earlier owner confirmation
+                    // stays; anything else - including the automated probe's
+                    // pass, which is not the owner's - gets the owner's record.
+                    $owner = class_exists('\Emsfb\Email_Monitor') ? \Emsfb\Email_Monitor::owner_status_record() : get_option('emsfb_email_status', []);
+                    $keeps = is_array($owner) && isset($owner['status']) && 'ok_set_smtp' === $owner['status']
+                        && class_exists('\Emsfb\Email_Monitor') && \Emsfb\Email_Monitor::is_owner_verdict_record($owner);
+                    if (!$keeps) {
+                        update_option('emsfb_email_status', $this->build_email_ready_status_efb(true));
                     }
-
                 }
 
             }else if($key == 'text' && is_array($value)){
@@ -2726,7 +2729,7 @@ class Admin {
         }
 
         // Save test result to emsfb_email_status for all scenarios
-        $this->save_email_tester_result_to_status_efb($data, $efbFunction, $ac);
+        $this->save_email_tester_result_to_status_efb($data, $efbFunction, $ac, $test_hash);
 
         // A definite failure the owner just watched - nothing arrived in the
         // whole window, or the message arrived looking like spam - is what the
@@ -2746,7 +2749,14 @@ class Admin {
         }
 
         if ($this->is_email_delivery_confirmed_efb($data)) {
-            $this->mark_email_server_as_ready_efb($efbFunction, $ac, isset($data['admin_email']) ? sanitize_email($data['admin_email']) : '', false);
+            // Once per test: the full-report polls that follow the quick-stage
+            // verdict must not turn the switch back on after the owner turned
+            // it off in the meantime.
+            $marked_key = 'emsfb_email_ready_marked_' . md5((string) $test_hash);
+            if (!get_transient($marked_key)) {
+                $this->mark_email_server_as_ready_efb($efbFunction, $ac, isset($data['admin_email']) ? sanitize_email($data['admin_email']) : '', false);
+                set_transient($marked_key, 1, HOUR_IN_SECONDS);
+            }
         }
 
         return [
@@ -2757,7 +2767,7 @@ class Admin {
         ];
     }
 
-    private function save_email_tester_result_to_status_efb($test_result, $efbFunction, $ac) {
+    private function save_email_tester_result_to_status_efb($test_result, $efbFunction, $ac, $test_hash = '') {
         if (!is_array($test_result)) {
             return;
         }
@@ -2891,7 +2901,10 @@ class Admin {
 
         update_option('emsfb_email_status', $status_data);
 
-        if ($delivery_confirmed && is_object($ac) && isset($ac->smtp) && $ac->smtp != true) {
+        // Once per test (see get_email_tester_result_efb): a later full-report
+        // poll does not turn back on a switch the owner turned off since.
+        $already_marked = '' !== (string) $test_hash && get_transient('emsfb_email_ready_marked_' . md5((string) $test_hash));
+        if ($delivery_confirmed && !$already_marked && is_object($ac) && isset($ac->smtp) && $ac->smtp != true) {
             $ac->smtp = true;
             $efbFunction->set_setting_Emsfb($ac);
         }

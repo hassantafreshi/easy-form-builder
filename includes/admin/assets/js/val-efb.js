@@ -4133,6 +4133,12 @@ function efb_setup_overlay_user_close_efb() {
     // not a skip and "notifications are off" would not be true.
     const card = document.getElementById('efb-onboarding-card');
     const stillAsking = !card || !card.classList || typeof card.classList.contains !== 'function' || card.classList.contains('is-asking');
+    if (onEmailStep && !stillAsking && !efb_onboarding_completion_saved_efb) {
+        // A result is on the card (the start may have failed before the
+        // server recorded anything): closing it ends the guide, exactly as
+        // its "Close for now" button does. Not a skip, so no notice.
+        efb_onboarding_mark_complete_efb();
+    }
     if (onEmailStep && stillAsking && !efb_onboarding_completion_saved_efb && !efb_onboarding_dismissal_saved_efb) {
         efb_onboarding_dismissal_saved_efb = true;
         efb_var_patch_efb({ onboarding_pending: false });
@@ -4179,7 +4185,7 @@ function efb_onboarding_decode_efb(value) {
 }
 
 /* The one line under the address field: '' clears it. */
-function efb_onboarding_show_input_error_efb(message) {
+function efb_onboarding_show_input_error_efb(message, notAddress) {
     const el = document.getElementById('efb-onboarding-email-error');
     const input = document.getElementById('efb-onboarding-admin-email');
     if (el) {
@@ -4187,15 +4193,18 @@ function efb_onboarding_show_input_error_efb(message) {
         el.hidden = !message;
     }
     if (input && input.classList) {
-        if (message) input.classList.add('is-invalid'); else input.classList.remove('is-invalid');
-        if (message && typeof input.focus === 'function') { try { input.focus(); } catch (e) {} }
+        // An expired session or a lost connection is said here too, but the
+        // address itself is fine: no red border, no focus.
+        const addressProblem = !!message && !notAddress;
+        if (addressProblem) input.classList.add('is-invalid'); else input.classList.remove('is-invalid');
+        if (addressProblem && typeof input.focus === 'function') { try { input.focus(); } catch (e) {} }
     }
 }
 
 /* The check never started because of the address: back to the question,
    with the reason next to the field, and the first button says Check now
    again. Nothing is known about email, so no result card is shown. */
-function efb_onboarding_back_to_address_efb(message) {
+function efb_onboarding_back_to_address_efb(message, notAddress) {
     efb_onboarding_email_test_state_efb = null;
     const report = document.getElementById('efb-onboarding-email-report');
     if (report) { report.className = 'efb-onboarding-report'; report.textContent = ''; }
@@ -4215,7 +4224,13 @@ function efb_onboarding_back_to_address_efb(message) {
         if (later) later.hidden = false;
         if (skipNote) skipNote.hidden = false;
     }
-    efb_onboarding_show_input_error_efb(message);
+    // As the question card starts: no finish button, no guide link.
+    ['efb-onboarding-finish', 'efb-onboarding-help', 'efb-onboarding-fix-note'].forEach(function (id) {
+        const el = document.getElementById(id);
+        if (el) el.hidden = true;
+    });
+    efb_onboarding_set_finish_efb(false);
+    efb_onboarding_show_input_error_efb(message, notAddress);
 }
 
 /* The run on screen. A poll started by an earlier run (the modal was
@@ -4229,6 +4244,16 @@ function efb_onboarding_run_is_current_efb(run) {
 /* A delivered quick-stage result is a verdict even when the later poll for
    the full report is lost: the email arrived, the score is known. */
 function efb_onboarding_settle_delivered_efb(result) {
+    // Once per run. The full-report polls that follow the quick-stage verdict
+    // only refresh the card; the switch is touched again only when the verdict
+    // itself moves (too low <-> usable, or across the healthy line).
+    const state = efb_onboarding_email_test_state_efb || {};
+    const band = efb_onboarding_score_too_low_efb(result) ? 'low' : (efb_onboarding_score_below_healthy_efb(result) ? 'weak' : 'good');
+    if (state.settledBand === band) {
+        efb_onboarding_live_update_efb({ result: result, percent: 100 });
+        return;
+    }
+    efb_onboarding_live_update_efb({ settledBand: band });
     if (result.can_send_email === true && efb_onboarding_score_too_low_efb(result)) {
         // The probe arrived, so the service reports success, but a score
         // this low means real form emails would be filtered as spam. The
@@ -4332,7 +4357,7 @@ function efb_onboarding_poll_email_efb(test, email, attempt, run) {
             // The remote service's short "waiting" message is technically
             // correct but does not tell an admin what to do next. Keep the
             // report compact and give an actionable explanation instead.
-            efb_onboarding_status_efb('warning', efb_onboarding_text_efb('onboardingTestPendingGuidance', 'Your test email was sent, but delivery is not confirmed yet. Check the inbox or spam folder for the address below; you can finish setup and try again later from General Settings.'));
+            efb_onboarding_status_efb('warning', efb_onboarding_text_efb('emailResultPending', 'Your test email was sent but has not arrived yet. Notifications are unchanged; try again now, or later from Email Settings.'));
         } else {
             const ended = efb_onboarding_outcome_efb({ stage: 'result', payload: payload, result: result });
             // Only an expired window or a failed wp_mail() is a negative verdict;
@@ -4414,6 +4439,7 @@ function efb_onboarding_start_email_test_efb() {
         result: null,
         outcome: '',
         summaryMessage: '',
+        settledBand: '',
         technical: [],
         steps: { start: 'active', send: 'waiting', wait: 'waiting', quick: 'waiting', full: 'waiting' }
     });
@@ -4504,9 +4530,13 @@ function efb_onboarding_start_email_test_efb() {
         // 422: the server refused the address and says why. Anything else
         // (an expired session answers 403) is not about the address.
         const serverMessage = xhr && xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.message;
-        efb_onboarding_back_to_address_efb(serverMessage
-            ? efb_onboarding_decode_efb(serverMessage)
-            : efb_onboarding_live_text_efb('somethingWentWrongPleaseRefresh', 'Something went wrong. Please refresh the page and try again.'));
+        if (serverMessage) {
+            efb_onboarding_back_to_address_efb(efb_onboarding_decode_efb(serverMessage));
+        } else {
+            efb_onboarding_back_to_address_efb(xhr && xhr.status === 403
+                ? efb_onboarding_live_text_efb('error403', 'Your security session has expired or is invalid. Please refresh the page. E403')
+                : efb_onboarding_live_text_efb('somethingWentWrongPleaseRefresh', 'Something went wrong. Please refresh the page and try again.'), true);
+        }
     });
 }
 
@@ -4706,7 +4736,7 @@ function efb_onboarding_summary_efb(state) {
     if (outcome === 'pending') {
         out.label = s('emailScoreNotFinished', 'Not finished');
         out.icon = 'bi-clock-history';
-        out.sentence = s('emailResultPending', 'Your test email was sent but has not arrived yet. Notifications are unchanged; check your inbox and spam folder, or try again now or later from Email Settings.');
+        out.sentence = s('emailResultPending', 'Your test email was sent but has not arrived yet. Notifications are unchanged; try again now, or later from Email Settings.');
         out.report = report.success ? reportLine('emailReportSent', 'We emailed the full report to %s.') : reportLine('emailReportLater', 'If the message turns up later, the report goes to %s.');
         out.tryAgain = true;
         return out;
@@ -4808,7 +4838,7 @@ function efb_onboarding_mark_delivery_efb(outcome, notifications, score) {
     const patch = {
         // The check that just ran is the last one: no stale date from the
         // page load ("your last check on <weeks ago>"), and its own score.
-        emailDelivery: Object.assign({}, delivery, { state: 'tested', notifications: on, outcome: outcome || delivery.outcome || '', score: known, checked_at: '', checked_at_display: '', pending_since: '', pending_since_display: '' })
+        emailDelivery: Object.assign({}, delivery, { state: 'tested', fresh: true, notifications: on, outcome: outcome || delivery.outcome || '', score: known, checked_at: '', checked_at_display: '', pending_since: '', pending_since_display: '' })
     };
     if (score !== undefined) {
         // The builder's "spam score" warning reads this one.

@@ -25,19 +25,24 @@ A check that only started (`email_test_pending`) or ended without an answer
 (an unreachable service, a refused address, a used-up quota) is not a verdict.
 Every write of `emsfb_email_status` that *is* one (a measured check, a failed
 send, the owner's confirmation, the undated switch) is copied to
-`emsfb_email_last_verdict` (an `update_option` hook), and the state falls back
-to it, so a site whose check failed does not slide back to "never checked"
-when the next check is merely started or breaks.
+`emsfb_email_last_verdict` (an `update_option` hook, which also keeps the
+record being replaced when the new one is not a verdict - on a site updated
+from an older version that record is the only copy). Both the state and the
+dashboard notice read through `owner_status_record()`, so a site whose check
+failed neither slides back to "never checked" nor loses its notice when the
+next check is merely started or breaks.
 
 The background monitor (on update, weekly, and 45 s after activation - but not
-on a first install whose card is about to ask: there it would spend the site's
-one free check of the day before the owner can click; it runs after a Skip
-instead, `schedule_probe_after_skip()`) never counts
+on a first install whose card has not asked yet, by activation or by the
+update path: there it would spend the site's one free check of the day before
+the owner can click; after a Skip it is queued for the next day,
+`schedule_probe_after_skip()`, so today's check stays the owner's) never counts
 as the owner's check: its answer is passed on as `monitor_outcome` for wording
 only, and its pass (`mark_email_ready`) no longer overwrites a record the
-owner produced. `email_test_pending` younger than 15 minutes is `unchecked`
-with `pending_since` and `pending_since_display` ("a check started on … did
-not finish"; the display form is the site's own date format).
+owner produced. With no earlier verdict on file, `email_test_pending` younger
+than 15 minutes is `unchecked` with `pending_since` and
+`pending_since_display` ("a check started on … did not finish"; the display
+form is the site's own date format).
 
 Consequences:
 
@@ -63,8 +68,14 @@ Consequences:
   the undated `email_settings_configured` record on its first admin page
   view, never the dated owner one: nobody clicked anything that day.
 - The switch in Email Settings writes the dated owner record only on a real
-  off -> on change; saving another setting with the switch already on
-  confirms nothing.
+  off -> on change, and only over a record that is not already a passing
+  check or an earlier confirmation (the automated probe's pass is not the
+  owner's); saving another setting with the switch already on confirms
+  nothing.
+- The switch is turned on once per test: the full-report polls after a
+  quick-stage verdict do not turn it back on after the owner turned it off.
+- A message that arrived but scored under the minimum is announced by the
+  notice as "going to the spam folder", as the card says it arrived.
 - A still-open test keeps the time it started across polls, so "a check
   started on ..." is the start, not the last poll.
 - The Email Settings screen's own check follows `sending_turned_off` too
@@ -84,8 +95,11 @@ by a class on `#efb-onboarding-card`:
    each followed by one quiet notice ("Skipped. Notifications are off…",
    `show_info_notification_efb`, styled by its own rules, below the admin
    bar); a changed address is saved even on Skip. Closing after Check now is
-   not a skip. A malformed address, or one the server refuses, is said under
-   the field and the card keeps asking: it is not a check result.
+   not a skip; closing a result card ends the guide as its "Close for now"
+   does. A malformed address, or one the server refuses, is said under the
+   field (marked red) and the card keeps asking: it is not a check result. An
+   expired session or a lost connection is said there too, without marking
+   the address.
 2. **is-running** - the heading becomes "Checking email delivery…", the
    address and buttons go, the short form shows the progress bar, one line
    ("Sending a test email…" / "Waiting for it to arrive, about a minute…")
@@ -94,7 +108,8 @@ by a class on `#efb-onboarding-card`:
    whose page was closed). Completion is recorded at test start, as before.
    "Show details" and the tab the owner opened survive every poll repaint.
    An arrival scored at the quick stage is the verdict: it is shown at once
-   ("Emailing the full report to ..."), and the later polls only refresh it.
+   ("Emailing the full report to ..."), and the later polls only refresh it
+   (the switch is touched again only if the verdict itself moves).
 3. **is-done** - the heading becomes "Your email check" and the short form
    shows the figure (score / 100, or an icon with a label when there is no
    score), one sentence that ends with whether notifications are on, the line
@@ -127,7 +142,7 @@ builder can draw the same card in its modal.
 | `wp_mail_failed` | Not sent | your site could not send it; notifications off | none |
 | `pending` (delayed) | Not finished | sent but not arrived yet; notifications unchanged; try again (`emailResultPending`) | as not_delivered |
 | `upgrade_required` | Not finished | free daily limit reached; notifications unchanged | none |
-| `start_failed` | Not finished | the address could not be saved (`emailResultSaveFailed`), or the service's own sentence when it wrote one for people; never a transport error | none |
+| `start_failed` | Not finished | the service's own sentence when it wrote one for people (`service_message`), else the unknown sentence; never a transport error (an address that could not be saved goes back to the field instead) | none |
 | anything else | Not finished | could not finish; notifications unchanged; try again | none |
 
 A lost answer (`connection_lost`, `tester_unreachable`, `invalid_response`)
@@ -178,14 +193,17 @@ row is unreadable) and the state is `unchecked`, or `tested` with
 - A user who may build forms but not change the site (no `manage_options`)
   sees a body without instructions and "Only a site administrator can check
   email delivery or turn notifications on", nothing to click.
-- The question never parks behind another dialog: while the check card is
-  up the click is kept for its replay, otherwise it is simply not asked
-  then (the toast covers it). The check attaches to a run that is still
-  going on this page (the wizard's, or one whose modal was closed) instead
-  of starting a second one. "Yes" answers once per click.
-- An admin address typed while sending is off is stored on the form at once
-  (`sendEmail` untouched), so Not now, a backdrop click or a failed check
-  loses nothing.
+- The question never parks behind another dialog: while the check card or
+  the question itself is up the click is kept for its replay, otherwise the
+  toast asks instead. A check still running on this page (the wizard's, or
+  one whose modal was closed) is the answer: the switch and the toast show
+  it rather than "we have not checked yet", and Check for me attaches to it.
+  A check that ended "Not finished" is asked about again (its test, not a
+  new one). "Yes" answers once per click. A score warning that says delivery
+  "has not been verified" is not shown after a check on the same page.
+- An admin address typed while sending is off is stored on the form at once,
+  so Not now, a backdrop click or a failed check loses nothing; clearing the
+  field asks nothing.
 - After confirm or a passing check: `efb_var.smtp` becomes `1`,
   `setting.smtp` true, `valueJson_ws_setting.smtp` true, the Email Settings
   switch flips when it is on screen, the click (or the address input's
