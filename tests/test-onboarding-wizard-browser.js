@@ -423,6 +423,55 @@ efb_var_patch_efb({ text: {} });
   efb_onboarding_completion_saved_efb = true; efb_onboarding_dismissal_saved_efb = false;
 })();
 
+// A59-A64: the second review.
+(function () {
+  // The quick stage already knows: the card shows the verdict at once.
+  const quick = pollWith({ data: { success: true, result: { status: 'analyzed', analysis_stage: 'quick', can_send_email: true, score: 88, full_report_pending: true } } }, 1);
+  test('A59 a scored arrival at the quick stage is shown at once, not "waiting"',
+    [quick.state.outcome, quick.view.phase, efb_onboarding_summary_efb(quick.state).label, String(efb_onboarding_summary_efb(quick.state).report && efb_onboarding_summary_efb(quick.state).report.text).indexOf('Emailing') !== -1],
+    ['delivered', 'done', 'Good', true]);
+
+  // Score bands follow the dashboard's own spam line (50) and healthy line (70).
+  const weak30 = pollWith({ data: { success: true, result: { status: 'analyzed', analysis_stage: 'full', can_send_email: true, score: 30 } } }, 9);
+  const fair55 = pollWith({ data: { success: true, result: { status: 'analyzed', analysis_stage: 'full', can_send_email: true, score: 55 } } }, 9);
+  test('A60 30 is Weak and says most inboxes put it in spam; 55 is Fair, some may',
+    [weak30.view.summary.label, weak30.view.summary.sentence.indexOf('most inboxes') !== -1, fair55.view.summary.label, fair55.view.summary.sentence.indexOf('some may') !== -1],
+    ['Weak', true, 'Fair', true]);
+
+  // A too-low score: the server switched sending off on an earlier poll, so
+  // this reply says sending_turned_off:false - the page still follows.
+  efb_var_patch_efb({ smtp: 1 }, { smtp: true });
+  pollWith({ data: { success: true, result: { status: 'analyzed', analysis_stage: 'full', can_send_email: true, score: 9, sending_turned_off: false } } }, 9);
+  test('A61 a spam-range score turns the page\'s switch off whatever the flag says', [Number(efb_var.smtp), efb_var.setting.smtp, efb_var.emailDelivery.notifications], [0, false, false]);
+
+  // An expired test likewise.
+  efb_var_patch_efb({ smtp: 1 }, { smtp: true });
+  pollWith({ data: { success: false, result: { status: 'expired', send_stage: 'handed_off', can_send_email: false, sending_turned_off: false } } }, 9);
+  test('A62 an expired test turns the page\'s switch off whatever the flag says', Number(efb_var.smtp), 0);
+
+  // The check that just ran is the last one: no stale date, its own score.
+  efb_var_patch_efb({ emailDelivery: Object.assign({}, efb_var.emailDelivery, { checked_at: '2026-10-01 10:00:00', checked_at_display: 'October 1, 2026 10:00 am' }), emailHealth: { score: 12, threshold: 70 } });
+  pollWith({ data: { success: true, result: { status: 'analyzed', analysis_stage: 'full', can_send_email: true, score: 85 } } }, 9);
+  test('A63 a new verdict drops the old date and carries its own score into the builder\'s warning',
+    [efb_var.emailDelivery.checked_at_display, efb_var.emailDelivery.score, efb_var.emailHealth.score], ['', 85, 85]);
+
+  // x/Escape after Check now is not a skip: no dismissal, no notice.
+  let infos = [];
+  global.show_info_notification_efb = (m) => infos.push(m);
+  const runningCard = stubElement({ classList: { add() {}, remove() {}, contains: (c) => c === 'is-running' }, querySelector() { return null; } });
+  const savedCard = elements['efb-onboarding-card'];
+  elements['efb-onboarding-card'] = runningCard;
+  efb_onboarding_completion_saved_efb = false; efb_onboarding_dismissal_saved_efb = false;
+  posted = [];
+  global.closeSetupOverlay_efb = () => {};
+  efb_setup_overlay_user_close_efb();
+  test('A64 closing while the check runs records no skip and shows no "notifications are off"',
+    [posted.filter((d) => d.action === 'efb_dismiss_onboarding').length, infos.length], [0, 0]);
+  elements['efb-onboarding-card'] = savedCard;
+  global.show_info_notification_efb = () => {};
+  efb_onboarding_completion_saved_efb = true;
+})();
+
 // The start: wp_mail() returning false is the one start result about email.
 efb_onboarding_completion_saved_efb = true; // completion itself is covered above
 posted = [];
@@ -448,16 +497,39 @@ efb_onboarding_start_email_test_efb();
 test('A34 a quota refusal keeps the service sentence for people', readState().message, 'Daily test limit reached.');
 
 // An address that could not be stored means no test ran at all: nothing is
-// known about email, the old "your address was saved, check your mail
-// configuration" line was wrong on both counts, and setup must stay finishable.
-replies = { efb_save_onboarding_email: { success: false } };
-elements['efb-onboarding-finish'].disabled = true;
+// known about email. It is not a result either - the owner fixes the address,
+// so the card goes back to it with the server's reason beside the field.
+replies = { efb_save_onboarding_email: { success: false, data: { message: 'That address cannot receive email.' } } };
+elements['efb-onboarding-email-error'] = stubElement({ hidden: true });
+elements['efb-onboarding-test-email'].hidden = false;
 efb_onboarding_start_email_test_efb();
-const unsaved = readState();
-test('A35 a failed address save is "start failed", a warning, not a verdict on email',
-  [unsaved.outcome, efb_onboarding_email_view_efb(unsaved).phase], ['start_failed', 'warn']);
-testTrue('A36 it says the address was not saved and leaves setup finishable',
-  String(unsaved.message).indexOf('could not be saved') !== -1 && !elements['efb-onboarding-finish'].disabled);
+test('A35 a failed address save leaves no result behind', readState(), null);
+test('A36 it says why next to the address, and Check now is clickable again',
+  [elements['efb-onboarding-email-error'].textContent, elements['efb-onboarding-email-error'].hidden, elements['efb-onboarding-test-email'].disabled],
+  ['That address cannot receive email.', false, false]);
+
+// A typo never reaches the server and never becomes a result card.
+elements['efb-onboarding-admin-email'].value = 'owner@example';
+posted = [];
+efb_onboarding_start_email_test_efb();
+test('A55 a malformed address is said next to the field, nothing is posted, no result',
+  [posted.length, readState(), elements['efb-onboarding-email-error'].hidden], [0, null, false]);
+elements['efb-onboarding-admin-email'].value = 'admin@example.test';
+
+// The service's refusal is the card's sentence only when the service wrote it.
+replies = { efb_save_onboarding_email: { success: true }, check_email_server_efb: { data: { success: false, stage: 'start', reason: 'service_refused', m: 'The email tester service could not start the test.' } } };
+efb_onboarding_start_email_test_efb();
+test('A56 the plugin\'s own fallback text is not shown as the sentence', readState().summaryMessage, '');
+replies.check_email_server_efb = { data: { success: false, stage: 'start', reason: 'service_refused', service_message: true, m: 'L&#039;adresse est refus&#233;e.' } };
+efb_onboarding_start_email_test_efb();
+test('A57 a sentence the service wrote is shown, decoded once', efb_onboarding_summary_efb(readState()).sentence, "L'adresse est refusée.");
+
+// wp_mail() false at the start: the server switched sending off, whatever
+// the reply's flag says, and the page follows.
+efb_var_patch_efb({ smtp: 1 }, { smtp: true });
+replies.check_email_server_efb = { data: { success: false, stage: 'send', send_stage: 'wp_mail_failed', reason: 'wp_mail_failed', sending_turned_off: false, m: 'x' } };
+efb_onboarding_start_email_test_efb();
+test('A58 a failed send at the start turns the page\'s switch off', [Number(efb_var.smtp), efb_var.emailDelivery.notifications], [0, false]);
 
 // ============================================================================
 // Part B - the card is reachable at every laptop height

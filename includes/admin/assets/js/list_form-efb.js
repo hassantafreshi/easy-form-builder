@@ -4506,6 +4506,16 @@ function efbEmailTestSetSmtpState(state) {
   if (input) input.value = state ? 'true' : 'false';
 }
 
+/* The server turns the switch off after a definite failure (nothing arrived,
+   wp_mail() failed, or a score too low to rely on). The toggle on this screen
+   follows at once: left on, the next Save would turn sending back on and file
+   an owner confirmation nobody gave. */
+function efbEmailTestFollowServerOff(flag) {
+  if (!flag) return;
+  efbEmailTestSetSmtpState(false);
+  if (typeof valueJson_ws_setting === 'object' && valueJson_ws_setting !== null) valueJson_ws_setting.smtp = false;
+}
+
 function efbEmailTestNextPendingDelay(uiState, result) {
   const schedule = [4, 5, 7];
   uiState.pollAttempt = Number(uiState.pollAttempt || 0) + 1;
@@ -4549,6 +4559,7 @@ function efbEmailTestPoll(test, uiState, button, buttonHtml, startedAt) {
       const status = result.status || '';
       const stage = result.analysis_stage || '';
 
+      efbEmailTestFollowServerOff(result.sending_turned_off);
       if (!payload.success && status != 'pending' && status != 'delayed' && status != 'expired') {
         uiState.steps.wait = 'error';
         uiState.outcome = window.efbEmailTestUI.outcome({ stage: 'result', payload: payload, result: result });
@@ -4745,6 +4756,7 @@ function clickToCheckEmailServer() {
           efbEmailTestPoll(test, uiState, button, buttonHtml, Date.now());
         }, 4000);
       } else {
+        efbEmailTestFollowServerOff(payload.sending_turned_off);
         uiState.steps.start = payload.stage == 'start' || payload.stage == 'validation' ? 'error' : 'done';
         uiState.steps.send = payload.stage == 'send' ? 'error' : 'waiting';
         uiState.outcome = window.efbEmailTestUI.outcome({ stage: 'start', payload: payload });

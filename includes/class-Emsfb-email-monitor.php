@@ -34,6 +34,48 @@ class Email_Monitor {
         add_action('init', [__CLASS__, 'ensure_schedule']);
         add_action('admin_notices', [__CLASS__, 'render_delivery_failure_notice']);
         add_action('wp_ajax_emsfb_dismiss_delivery_notice', [__CLASS__, 'ajax_dismiss_delivery_notice']);
+        // Every writer of the owner's status record goes through these, so the
+        // last verdict survives a later check that only started, or ended
+        // without an answer (see get_delivery_state()).
+        add_action('add_option_emsfb_email_status', [__CLASS__, 'remember_owner_verdict_on_add'], 10, 2);
+        add_action('update_option_emsfb_email_status', [__CLASS__, 'remember_owner_verdict_on_update'], 10, 2);
+    }
+
+    /** Option holding the owner's last conclusive status record. */
+    const OPTION_LAST_OWNER_VERDICT = 'emsfb_email_last_verdict';
+
+    /**
+     * Is this status record a verdict the owner's state can rest on: a check
+     * that measured something, or the owner's own word?
+     *
+     * Pending tests and errors of the check itself (an unreachable service,
+     * a used-up quota, a refused address) are not: they say nothing about
+     * this site's email, and replacing a verdict with one of them used to
+     * send a site whose check had failed back to "never checked".
+     *
+     * @param mixed $record
+     * @return bool
+     */
+    public static function is_owner_verdict_record($record) {
+        if (!is_array($record) || !isset($record['message']['id'])) {
+            return false;
+        }
+        $id = sanitize_key($record['message']['id']);
+        return in_array($id, ['email_test_low_score', 'email_test_failed', 'mail_function_failed', 'email_sending_confirmed_by_owner', 'email_settings_configured'], true);
+    }
+
+    /** @internal add_option_emsfb_email_status */
+    public static function remember_owner_verdict_on_add($option, $value) {
+        if (self::is_owner_verdict_record($value)) {
+            update_option(self::OPTION_LAST_OWNER_VERDICT, $value, false);
+        }
+    }
+
+    /** @internal update_option_emsfb_email_status */
+    public static function remember_owner_verdict_on_update($old_value, $value) {
+        if (self::is_owner_verdict_record($value)) {
+            update_option(self::OPTION_LAST_OWNER_VERDICT, $value, false);
+        }
     }
 
     /**
@@ -223,7 +265,19 @@ class Email_Monitor {
 
         $status  = get_option('emsfb_email_status', []);
         $status  = is_array($status) ? $status : [];
+        $current = $status;
         $id      = isset($status['message']['id']) ? sanitize_key($status['message']['id']) : '';
+
+        // The record on file is a check that only started, or ended without an
+        // answer: what the owner's state rests on is still the last verdict.
+        if (!self::is_owner_verdict_record($status)) {
+            $last = get_option(self::OPTION_LAST_OWNER_VERDICT, []);
+            if (self::is_owner_verdict_record($last)) {
+                $status = $last;
+                $id     = sanitize_key($last['message']['id']);
+            }
+        }
+
         $details = (isset($status['details']) && is_array($status['details'])) ? $status['details'] : [];
         $stamp   = isset($details['test_timestamp']) ? (string) $details['test_timestamp'] : '';
 
@@ -255,11 +309,12 @@ class Email_Monitor {
             'monitor_outcome'      => $monitor_outcome,
             'min_delivery_score'   => self::MIN_DELIVERY_SCORE,
             'healthy_score'        => self::HEALTHY_SCORE,
+            'spam_notice_score'    => self::SPAM_NOTICE_SCORE,
             'can_manage'           => current_user_can('manage_options'),
         ];
 
         if ($tested) {
-            $record = self::read_panel_record();
+            $record = self::read_panel_record($status);
             $state['state']      = 'tested';
             $state['outcome']    = (is_array($record) && !empty($record['conclusive']))
                 ? self::classify_delivery_record($record)
@@ -281,7 +336,10 @@ class Email_Monitor {
 
         // A check that started and never reported back - the tab was closed
         // mid-poll - is worth mentioning for a while, then it is just absent.
-        if ('email_test_pending' === $id && '' !== $stamp) {
+        $current_id    = isset($current['message']['id']) ? sanitize_key($current['message']['id']) : '';
+        $current_stamp = (isset($current['details']['test_timestamp'])) ? (string) $current['details']['test_timestamp'] : '';
+        if ('email_test_pending' === $current_id && '' !== $current_stamp) {
+            $stamp   = $current_stamp;
             $started = (int) strtotime($stamp . ' +00:00');
             if ($started > 0 && (time() - $started) < 15 * MINUTE_IN_SECONDS) {
                 $state['pending_since']         = $stamp;
@@ -412,8 +470,10 @@ class Email_Monitor {
      *
      * @return array|null
      */
-    private static function read_panel_record() {
-        $status = get_option('emsfb_email_status', []);
+    private static function read_panel_record($status = null) {
+        if (null === $status) {
+            $status = get_option('emsfb_email_status', []);
+        }
         if (!is_array($status) || empty($status)) {
             return null;
         }
@@ -615,6 +675,26 @@ class Email_Monitor {
             'time' => time(),
         ], false);
         self::sync_schedule();
+        // A first install asks the owner on its first screen; the probe would
+        // spend the site's one free check of the day before they can click.
+        // It runs instead if they skip (schedule_probe_after_skip()).
+        if (!(function_exists('emsfb_onboarding_pending_efb') && emsfb_onboarding_pending_efb())) {
+            self::schedule_lifecycle_test('activation');
+        }
+    }
+
+    /**
+     * The owner closed the first-run card without checking: run the automated
+     * probe after all, so the builder can say what it found. Nothing to do
+     * when a verdict of the owner's own is already on file.
+     *
+     * @return void
+     */
+    public static function schedule_probe_after_skip() {
+        if (self::is_owner_verdict_record(get_option('emsfb_email_status', []))
+            || self::is_owner_verdict_record(get_option(self::OPTION_LAST_OWNER_VERDICT, []))) {
+            return;
+        }
         self::schedule_lifecycle_test('activation');
     }
 
@@ -794,6 +874,9 @@ class Email_Monitor {
             // HEALTHY_SCORE the mail arrives but lands in spam.
             'min_delivery_score' => self::MIN_DELIVERY_SCORE,
             'healthy_score' => self::HEALTHY_SCORE,
+            // Below this the dashboard shows its red "going to spam" notice;
+            // the result card's sentence follows the same line.
+            'spam_notice_score' => self::SPAM_NOTICE_SCORE,
             // Two ways out of a low score (domain records, or a sending service);
             // only ever shown next to a result that needs them.
             'next_steps' => function_exists('emsfb_email_next_steps_efb') ? emsfb_email_next_steps_efb() : [],

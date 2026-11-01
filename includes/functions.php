@@ -1995,10 +1995,12 @@ class efbFunction {
 			"emailRunSending" => $state && isset($ac->text->emailRunSending) ? $ac->text->emailRunSending : esc_html__('Sending a test email…','easy-form-builder'),
 			/* translators: Progress line while waiting for the test email to arrive. */
 			"emailRunWaiting" => $state && isset($ac->text->emailRunWaiting) ? $ac->text->emailRunWaiting : esc_html__('Waiting for it to arrive, about a minute…','easy-form-builder'),
-			/* translators: Quiet line under the progress bar of the email check. */
-			"emailRunLeave" => $state && isset($ac->text->emailRunLeave) ? $ac->text->emailRunLeave : esc_html__('You can leave this page; the result will be in Email Settings, and the report is emailed to you when the check finishes.','easy-form-builder'),
+			/* translators: Quiet line under the progress bar of the email check: the result is only recorded while this page is open. */
+			"emailRunStay" => $state && isset($ac->text->emailRunStay) ? $ac->text->emailRunStay : esc_html__('Please keep this page open; it takes about a minute.','easy-form-builder'),
 			/* translators: One-sentence result of the email check: delivered with a good score. */
 			"emailResultHealthy" => $state && isset($ac->text->emailResultHealthy) ? $ac->text->emailResultHealthy : esc_html__('Your emails arrive and look trustworthy. Notifications are on.','easy-form-builder'),
+			/* translators: One-sentence result: delivered, but the score is so low that most inboxes file the email as spam (the dashboard shows a warning too). */
+			"emailResultMostSpam" => $state && isset($ac->text->emailResultMostSpam) ? $ac->text->emailResultMostSpam : esc_html__('Your emails arrive, but most inboxes put them in spam. Notifications are on; the guide shows the fix you make at your hosting company.','easy-form-builder'),
 			/* translators: One-sentence result: delivered, but the score is below the healthy line. */
 			"emailResultSpamRisk" => $state && isset($ac->text->emailResultSpamRisk) ? $ac->text->emailResultSpamRisk : esc_html__('Your emails arrive, but some may land in spam. Notifications are on; the guide shows a fix you make at your hosting company.','easy-form-builder'),
 			/* translators: One-sentence result: delivered, but the score is too low to rely on. */
@@ -2040,7 +2042,7 @@ class efbFunction {
 			/* translators: Link that expands the technical details of the email check. */
 			"emailShowDetails" => $state && isset($ac->text->emailShowDetails) ? $ac->text->emailShowDetails : esc_html__('Show details','easy-form-builder'),
 			/* translators: Email check result when the test email was sent but has not arrived yet; the check can be run again. */
-			"emailResultPending" => $state && isset($ac->text->emailResultPending) ? $ac->text->emailResultPending : esc_html__('Your test email was sent but has not arrived yet. Notifications are unchanged; check your inbox and spam folder, or try again now or later from Email Settings.','easy-form-builder'),
+			"emailResultPending" => $state && isset($ac->text->emailResultPending) ? $ac->text->emailResultPending : esc_html__('Your test email was sent but has not arrived yet. Notifications are unchanged; try again now, or later from Email Settings.','easy-form-builder'),
 			/* translators: Email check result when the owner's address could not be saved, so no test email was sent. */
 			"emailResultSaveFailed" => $state && isset($ac->text->emailResultSaveFailed) ? $ac->text->emailResultSaveFailed : esc_html__('Your email address could not be saved, so the check did not run. Check the address and try again.','easy-form-builder'),
 			/* translators: Short notice after the first-run setup closes on a good email check result. */

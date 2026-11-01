@@ -113,6 +113,7 @@ function efb_builder_maybe_warn_email_delivery() {
     const offTitle = efb_var.text.emailSendingOffTitle || 'Notification emails are turned off';
     const offDesc = efb_var.text.emailSendingOffDesc || 'Easy Form Builder will not send any email - neither to you nor to the person who submits this form - until "This site can send emails" is enabled in Email Settings.';
     alert_message_efb(offTitle, offDesc + efb_builder_email_settings_button(), 30, 'warning');
+    efb_builder_email_tag_last_toast('off');
     return;
   }
 
@@ -158,6 +159,12 @@ function efb_builder_delivery_needs_question() {
    it already has receives the notifications the owner just asked for. */
 function efb_builder_after_sending_switch(on) {
   if (!on) { efb_builder_email_forget_origin(); return; }
+  // The save result still on screen says "notification emails are turned
+  // off"; it is not true any more.
+  if (typeof efb_modal_current_flow_efb === 'function' && efb_modal_current_flow_efb() === 'save') {
+    const icon = document.querySelector('#settingModalEfb-body .efb-dlg__note .bi-envelope-slash');
+    if (icon && icon.closest('.efb-dlg__note')) icon.closest('.efb-dlg__note').remove();
+  }
   if (Array.isArray(valj_efb) && valj_efb[0] && typeof valj_efb[0].email === 'string' && valj_efb[0].email.length > 1) {
     valj_efb[0].sendEmail = true;
   }
@@ -204,6 +211,8 @@ function efb_builder_prompt_copy() {
     body = d.pending_since_display
       ? t('emailPromptBodyPending', 'A check started on %s did not finish. Look for the emailed report in your inbox, or run it again.').replace('%s', d.pending_since_display)
       : t('emailPromptBodyPendingNoDate', 'A check was started but did not finish. Look for the emailed report in your inbox, or run it again.');
+  } else if (d.monitor_outcome === 'undelivered' && !canManage) {
+    body = t('emailPromptBodyFailedPlain', 'The last email check found that emails from this site do not reach the inbox.');
   } else if (d.monitor_outcome === 'undelivered') {
     body = t('emailPromptBodyMonitorFailed', 'We noticed that emails from your site may not be arriving. Let us check before you rely on notifications.');
   } else {
@@ -249,15 +258,19 @@ function efb_builder_email_delivery_toast() {
       + `<button type="button" class="efb btn btn-sm btn-outline-dark fw-semibold mt-2" onclick="efb_builder_email_confirm()">${c.confirm}</button>`;
   }
   alert_message_efb(c.title, c.body + actions, 30, 'warning');
-  // Tagged, so the dialog that asks the same question can take it down: on a
-  // phone the toast sits over the dialog's own title otherwise.
+  efb_builder_email_tag_last_toast('question');
+}
+
+/* Tagged, so the dialog that asks about email can take these toasts down:
+   on a phone a toast sits over the dialog's own title otherwise. */
+function efb_builder_email_tag_last_toast(kind) {
   const items = document.querySelectorAll('#alert_container_efb .alert_item_efb');
-  if (items.length) items[items.length - 1].setAttribute('data-efb-email-question', '1');
+  if (items.length) items[items.length - 1].setAttribute('data-efb-email-toast', kind);
 }
 
 /* The toast's question is answered or superseded by a dialog: it goes. */
 function efb_builder_email_toast_dismiss() {
-  document.querySelectorAll('#alert_container_efb [data-efb-email-question]').forEach((el) => el.remove());
+  document.querySelectorAll('#alert_container_efb [data-efb-email-toast]').forEach((el) => el.remove());
 }
 
 let efb_builder_email_prompt_origin = null;
@@ -266,6 +279,16 @@ let efb_builder_email_prompt_origin = null;
    answer is needed before the switch can mean anything. */
 function efb_builder_email_delivery_dialog(origin) {
   if (document.getElementById('efb-setup-overlay')) return false;
+  // Another dialog holds the screen. A parked question would surface later,
+  // after nobody asked; so it is not asked now. While the check itself is on
+  // screen, the click that raised it is kept, so a pass replays it.
+  if (typeof efb_modal_shell_busy_efb === 'function' && efb_modal_shell_busy_efb()) {
+    if (typeof efb_modal_current_flow_efb === 'function' && efb_modal_current_flow_efb() === 'email-check') {
+      if (origin && !(origin.tagName === 'INPUT' && String(origin.value || '').trim() === '')) efb_builder_email_prompt_origin = origin;
+      return true;
+    }
+    return false;
+  }
   efb_builder_email_toast_dismiss();
   efb_builder_email_prompt_origin = origin || null;
   const c = efb_builder_prompt_copy();
@@ -297,6 +320,7 @@ function efb_builder_email_delivery_dialog(origin) {
     flow: 'email-question',
     onShown: () => {
       if (typeof efb_dlg_set_tone_efb === 'function') efb_dlg_set_tone_efb('efb-tone-warn');
+      efb_builder_email_narrow_shell();
       const sections = document.getElementById('settingModalEfb-sections');
       if (!sections) return;
       const foot = document.createElement('div');
@@ -314,6 +338,14 @@ function efb_builder_email_delivery_dialog(origin) {
   return painted;
 }
 
+/* The question and the check are short: the narrow shell, not the 70%-wide
+   save box (which on a phone is 252px, left-aligned). Removed again by
+   state_modal_show_efb(0). */
+function efb_builder_email_narrow_shell() {
+  const dialog = document.getElementById('settingModalEfb_');
+  if (dialog && dialog.classList) dialog.classList.add('efb-save-narrow');
+}
+
 function efb_builder_email_not_now() {
   efb_builder_prompt_snooze();
   efb_builder_email_prompt_origin = null;
@@ -322,7 +354,11 @@ function efb_builder_email_not_now() {
 
 /* The owner's answer: the switch goes on, dated as theirs, and the page
    follows without a reload. */
+let efb_builder_email_confirm_busy = false;
 function efb_builder_email_confirm() {
+  // A double click is one answer, not two posts and two toasts.
+  if (efb_builder_email_confirm_busy) return;
+  efb_builder_email_confirm_busy = true;
   const email = (efb_var.setting && efb_var.setting.emailSupporter) ? efb_var.setting.emailSupporter : '';
   jQuery.ajax({
     url: efb_var.ajax_url, type: 'POST', dataType: 'json',
@@ -348,6 +384,8 @@ function efb_builder_email_confirm() {
     // which efb_onboarding_mark_sending_efb() has just called.
   }).fail(() => {
     alert_message_efb(efb_var.text.error || 'Error', efb_var.text.somethingWentWrongPleaseRefresh || 'Please try again.', 15, 'danger');
+  }).always(() => {
+    efb_builder_email_confirm_busy = false;
   });
 }
 
@@ -361,6 +399,7 @@ function efb_builder_email_replay_origin() {
   // The side box may have been redrawn for another field since the question
   // was asked; a detached element has nothing to replay into.
   if (origin.isConnected === false) return;
+  if (origin.tagName === 'INPUT' && String(origin.value || '').trim() === '') return;
   setTimeout(() => {
     try {
       if (origin.tagName === 'INPUT') {
@@ -408,7 +447,11 @@ function efb_builder_email_check_open() {
   }
   efb_builder_email_toast_dismiss();
   efb_onboarding_host_efb = 'builder';
-  efb_onboarding_email_test_state_efb = null;
+  // A check from earlier on this page (the wizard's, or one whose modal was
+  // closed) is still running: show it, do not start a second one - that
+  // would spend the site's free daily check and drop the first verdict.
+  const live = efb_onboarding_email_test_state_efb && efb_onboarding_email_test_state_efb.type === 'checking';
+  if (!live) efb_onboarding_email_test_state_efb = null;
   const email = (efb_var.setting && efb_var.setting.emailSupporter) ? efb_var.setting.emailSupporter : (efb_var.adminEmail || '');
   const body = efb_onboarding_card_markup_efb(email, { builder: true }) + '<style>' + efb_onboarding_card_css_efb() + '</style>';
   const title = (efb_var.text && efb_var.text.onboardingStepEmailCheck) || 'Email check';
@@ -420,7 +463,15 @@ function efb_builder_email_check_open() {
     replace: true,
     onShown: () => {
       if (typeof efb_dlg_set_tone_efb === 'function') efb_dlg_set_tone_efb('');
+      efb_builder_email_narrow_shell();
       efb_onboarding_bind_card_efb();
+      if (live) {
+        efb_onboarding_card_phase_efb('running');
+        efb_onboarding_render_live_report_efb();
+        const button = document.getElementById('efb-onboarding-test-email');
+        if (button) { button.disabled = true; button.classList.add('is-loading'); }
+        return;
+      }
       efb_onboarding_start_email_test_efb();
     }
   });
@@ -2076,13 +2127,13 @@ let change_el_edit_Efb = (el) => {
         }
         break;
       case "adminFormEmailEl":
+        // "a@x.com, b@x.com": each address is checked and stored without the
+        // spaces (the server dropped " b@x.com"); a list with an invalid one is
+        // not saved. Plus addressing and TLDs longer than 4 letters are valid.
+        const emailFormat = /^[\w.+'-]+@([\w-]+\.)+[\w-]{2,}$/;
+        const emails = el.value.split(',').map((email) => email.trim()).filter((email) => email !== '');
+        const invalid = emails.find((email) => !emailFormat.test(email));
         if (efb_var.smtp == "1") {
-          // "a@x.com, b@x.com": each address is checked and stored without the
-          // spaces (the server dropped " b@x.com"); a list with an invalid one is
-          // not saved. Plus addressing and TLDs longer than 4 letters are valid.
-          const emailFormat = /^[\w.+'-]+@([\w-]+\.)+[\w-]{2,}$/;
-          const emails = el.value.split(',').map((email) => email.trim()).filter((email) => email !== '');
-          const invalid = emails.find((email) => !emailFormat.test(email));
           if (emails.length > 0 && invalid === undefined) {
             valj_efb[0].email = emails.join(',');
             valj_efb[0].sendEmail = true;
@@ -2096,10 +2147,20 @@ let change_el_edit_Efb = (el) => {
 
           alert_message_efb(efb_var.text.error, efb_var.text.goToEFBAddEmailM, 30, "danger");
         } else {
-          // The question is asked before the typed address is cleared: once
-          // the owner answers, this same change is replayed with it.
-          if (efb_builder_delivery_needs_question() && efb_builder_email_delivery_dialog(el)) break;
-          if(document.getElementById("adminFormEmailEl"))document.getElementById("adminFormEmailEl").value = "";
+          if (emails.length > 0 && invalid !== undefined) {
+            alert_message_efb(efb_var.text.error, efb_var.text.invalidEmail + (emails.length > 1 ? ` (${invalid})` : ''), 10, "danger");
+            break;
+          }
+          // Sending is off. The address is still the form's: kept, so it is
+          // there the day sending is turned on, and nothing is sent meanwhile
+          // (sendEmail stays as it is until the switch goes on).
+          valj_efb[0].email = emails.join(',');
+          if (efb_builder_delivery_needs_question()) {
+            // Asked now; once the owner answers yes or a check passes, this
+            // same change is replayed and turns the form's notification on.
+            if (!efb_builder_email_delivery_dialog(el) && !efb_builder_prompt_snoozed()) efb_builder_email_delivery_toast();
+            break;
+          }
           alert_message_efb(efb_var.text.error, efb_var.text.sMTPNotWork, 20, "danger")
         }
 

@@ -21,7 +21,18 @@ every screen below decides on it. Localised to the Panel and Create pages as
 | `confirmed` | the switch is on without a check of the owner's own | `smtp` on and the last record is the owner's (`email_sending_confirmed_by_owner`, dated), the undated switch of an older version, or a pre-4.1.2 site (`smtp = 1`) |
 | `tested` | a check the owner ran reached a verdict | `emsfb_email_status` is `email_settings_configured` **with** a measurement, `email_test_low_score`, `email_test_failed` or `mail_function_failed`; carries `outcome` (healthy / spam / undelivered), `score`, `checked_at` |
 
-The background monitor (45 s after activation, on update, weekly) never counts
+A check that only started (`email_test_pending`) or ended without an answer
+(an unreachable service, a refused address, a used-up quota) is not a verdict.
+Every write of `emsfb_email_status` that *is* one (a measured check, a failed
+send, the owner's confirmation, the undated switch) is copied to
+`emsfb_email_last_verdict` (an `update_option` hook), and the state falls back
+to it, so a site whose check failed does not slide back to "never checked"
+when the next check is merely started or breaks.
+
+The background monitor (on update, weekly, and 45 s after activation - but not
+on a first install whose card is about to ask: there it would spend the site's
+one free check of the day before the owner can click; it runs after a Skip
+instead, `schedule_probe_after_skip()`) never counts
 as the owner's check: its answer is passed on as `monitor_outcome` for wording
 only, and its pass (`mark_email_ready`) no longer overwrites a record the
 owner produced. `email_test_pending` younger than 15 minutes is `unchecked`
@@ -51,6 +62,14 @@ Consequences:
 - A site from before the status record existed (`smtp = 1`, no record) gets
   the undated `email_settings_configured` record on its first admin page
   view, never the dated owner one: nobody clicked anything that day.
+- The switch in Email Settings writes the dated owner record only on a real
+  off -> on change; saving another setting with the switch already on
+  confirms nothing.
+- A still-open test keeps the time it started across polls, so "a check
+  started on ..." is the start, not the last poll.
+- The Email Settings screen's own check follows `sending_turned_off` too
+  (`efbEmailTestFollowServerOff`): left on, the next Save would turn sending
+  back on.
 
 ## The wizard (`val-efb.js`)
 
@@ -63,14 +82,19 @@ by a class on `#efb-onboarding-card`:
    checks or turns them on in Email Settings. x, Escape and Skip are the same
    dismissal (`efb_setup_overlay_user_close_efb`, `efb_dismiss_onboarding`),
    each followed by one quiet notice ("Skipped. Notifications are off…",
-   `show_info_notification_efb`); a changed address is saved even on Skip.
+   `show_info_notification_efb`, styled by its own rules, below the admin
+   bar); a changed address is saved even on Skip. Closing after Check now is
+   not a skip. A malformed address, or one the server refuses, is said under
+   the field and the card keeps asking: it is not a check result.
 2. **is-running** - the heading becomes "Checking email delivery…", the
    address and buttons go, the short form shows the progress bar, one line
    ("Sending a test email…" / "Waiting for it to arrive, about a minute…")
-   and, once the test is live, "You can leave this page; the result will be
-   in Email Settings, and the report is emailed to you when the check
-   finishes." Completion is recorded at test start, as before. "Show
-   details" and the tab the owner opened survive every poll repaint.
+   and "Please keep this page open; it takes about a minute." (the result is
+   recorded by the page's own polls; nothing on the server follows a test
+   whose page was closed). Completion is recorded at test start, as before.
+   "Show details" and the tab the owner opened survive every poll repaint.
+   An arrival scored at the quick stage is the verdict: it is shown at once
+   ("Emailing the full report to ..."), and the later polls only refresh it.
 3. **is-done** - the heading becomes "Your email check" and the short form
    shows the figure (score / 100, or an icon with a label when there is no
    score), one sentence that ends with whether notifications are on, the line
@@ -96,7 +120,8 @@ builder can draw the same card in its modal.
 | outcome | label | sentence | report line |
 | --- | --- | --- | --- |
 | delivered, ≥ 70 | Good | arrive and look trustworthy; notifications on | emailed / emailing (while `full_report_pending`) |
-| delivered, 40–69 / 20–39 | Fair / Weak | arrive, some may land in spam; notifications on; the guide shows the fix (amber, not green) | same |
+| delivered, 50–69 | Fair | arrive, some may land in spam; notifications on; the guide shows the fix (amber) | same |
+| delivered, 20–49 | Weak | arrive, but most inboxes put them in spam; notifications on (the dashboard's red notice starts at the same line, `SPAM_NOTICE_SCORE`, localised as `spam_notice_score`) | same |
 | delivered, < 20 | Spam risk | looks like spam to most inboxes; notifications off for now | same |
 | `not_delivered` | Not delivered | did not arrive in time; notifications off | emailed when `email_report.success`, else "if the message turns up later…" |
 | `wp_mail_failed` | Not sent | your site could not send it; notifications off | none |
@@ -153,6 +178,14 @@ row is unreadable) and the state is `unchecked`, or `tested` with
 - A user who may build forms but not change the site (no `manage_options`)
   sees a body without instructions and "Only a site administrator can check
   email delivery or turn notifications on", nothing to click.
+- The question never parks behind another dialog: while the check card is
+  up the click is kept for its replay, otherwise it is simply not asked
+  then (the toast covers it). The check attaches to a run that is still
+  going on this page (the wizard's, or one whose modal was closed) instead
+  of starting a second one. "Yes" answers once per click.
+- An admin address typed while sending is off is stored on the form at once
+  (`sendEmail` untouched), so Not now, a backdrop click or a failed check
+  loses nothing.
 - After confirm or a passing check: `efb_var.smtp` becomes `1`,
   `setting.smtp` true, `valueJson_ws_setting.smtp` true, the Email Settings
   switch flips when it is on screen, the click (or the address input's

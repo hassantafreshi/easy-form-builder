@@ -200,6 +200,19 @@ $snapshot = get_option( 'emsfb_email_monitor_last_status', null );
 // happens to have stored would decide these cases instead of the fixtures.
 $panel_snapshot = get_option( 'emsfb_email_status', null );
 delete_option( 'emsfb_email_status' );
+$last_verdict_snapshot = get_option( 'emsfb_email_last_verdict', null );
+delete_option( 'emsfb_email_last_verdict' );
+// The notice is for a site that sends form email: a site nobody checked or
+// confirmed (switch off) is asked in the form builder instead and the notice
+// stays silent there by design. These cases are about a sending site.
+$settings_snapshot = get_setting_Emsfb( 'decoded' );
+$settings_snapshot = is_object( $settings_snapshot ) ? clone $settings_snapshot : null;
+if ( null !== $settings_snapshot ) {
+	$sending = clone $settings_snapshot;
+	$sending->smtp = true;
+	get_efbFunction()->set_setting_Emsfb( $sending );
+	get_setting_Emsfb( '_clear_cache' );
+}
 
 $capture = function () {
 	ob_start();
@@ -259,6 +272,9 @@ if ( null === $snapshot ) { delete_option( 'emsfb_email_monitor_last_status' ); 
 else { update_option( 'emsfb_email_monitor_last_status', $snapshot, false ); }
 if ( null === $panel_snapshot ) { delete_option( 'emsfb_email_status' ); }
 else { update_option( 'emsfb_email_status', $panel_snapshot, false ); }
+if ( null === $last_verdict_snapshot ) { delete_option( 'emsfb_email_last_verdict' ); }
+else { update_option( 'emsfb_email_last_verdict', $last_verdict_snapshot, false ); }
+if ( null !== $settings_snapshot ) { get_efbFunction()->set_setting_Emsfb( $settings_snapshot ); get_setting_Emsfb( '_clear_cache' ); }
 delete_user_meta( get_current_user_id(), 'emsfb_delivery_notice_dismissed' );
 
 echo "\n========================================\n";

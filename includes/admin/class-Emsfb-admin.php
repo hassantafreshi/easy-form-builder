@@ -1779,11 +1779,14 @@ class Admin {
                     ? \Emsfb\Email_Monitor::is_email_stats_enabled()
                     : true;
             }else if($key == 'smtp'){
-                if(isset($value) && in_array($value,[1,true,'true','1']) ){
-
-                  // Turning the switch on by hand is the owner's confirmation:
-                  // record it as theirs, dated, unless a check already proved
-                  // sending works (that record is better evidence than a click).
+                // Turning the switch on by hand is the owner's confirmation:
+                // record it as theirs, dated, unless a check already proved
+                // sending works (that record is better evidence than a click).
+                // Only a real off -> on change is one: saving another setting
+                // with the switch already on confirms nothing, and must not
+                // re-date an old confirmation over a newer failed probe.
+                $was_on = function_exists('emsfb_is_email_sending_enabled_efb') && emsfb_is_email_sending_enabled_efb($ac);
+                if(isset($value) && in_array($value,[1,true,'true','1']) && !$was_on){
                   $check =  get_option('emsfb_email_status',false);
                     if($check==false || $check==null){
                          update_option('emsfb_email_status', $this->build_email_ready_status_efb(true));
@@ -2037,6 +2040,12 @@ class Admin {
             update_option('emsfb_onboarding_pending', 0, false);
             update_option('emsfb_onboarding_dismissed_at', current_time('mysql'), false);
             $dismissed = true;
+            // Activation held the automated probe back so it would not spend
+            // the free daily check before the owner's click. The owner chose
+            // not to check: run it now, so the builder can say what it found.
+            if (class_exists('\Emsfb\Email_Monitor')) {
+                \Emsfb\Email_Monitor::schedule_probe_after_skip();
+            }
         }
         wp_send_json_success(array('dismissed' => $dismissed));
     }
@@ -2551,6 +2560,9 @@ class Admin {
             return [
                 'success' => false,
                 'm' => isset($data['message']) ? sanitize_text_field($data['message']) : esc_html__('The email tester service could not start the test.', 'easy-form-builder'),
+                // The card shows the service's own sentence to the owner only
+                // when the service wrote one; the plugin's fallback is jargon.
+                'service_message' => isset($data['message']) && '' !== trim((string) $data['message']),
                 'stage' => 'start',
                 'reason' => 'service_refused',
                 'code' => $code,
@@ -2862,6 +2874,20 @@ class Admin {
                 'analysis_stage' => isset($test_result['analysis_stage']) ? $test_result['analysis_stage'] : '',
             ]
         ]);
+
+        // A still-open test keeps the time it started: every poll used to
+        // restamp it, so "a check started on ..." showed the last poll, and
+        // each poll restarted the window in which the owner is told about it.
+        if (isset($status_data['message']['id']) && 'email_test_pending' === $status_data['message']['id']) {
+            $existing = get_option('emsfb_email_status', []);
+            if (is_array($existing) && isset($existing['message']['id']) && 'email_test_pending' === $existing['message']['id']
+                && !empty($existing['details']['test_timestamp'])) {
+                $status_data['details']['test_timestamp'] = (string) $existing['details']['test_timestamp'];
+                if (!empty($existing['details']['test_hash'])) {
+                    $status_data['details']['test_hash'] = (string) $existing['details']['test_hash'];
+                }
+            }
+        }
 
         update_option('emsfb_email_status', $status_data);
 

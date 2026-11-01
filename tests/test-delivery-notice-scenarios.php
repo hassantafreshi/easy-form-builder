@@ -103,6 +103,7 @@ function efb_notice_case($scenario, $monitor, $panel, $expected, $smtp = false, 
 	global $passed, $failed, $rows;
 
 	if (null === $monitor) { delete_option(MONITOR_OPTION); } else { update_option(MONITOR_OPTION, $monitor, false); }
+	delete_option('emsfb_email_last_verdict');
 	if (null === $panel)   { delete_option(PANEL_OPTION); }   else { update_option(PANEL_OPTION, $panel, false); }
 
 	delete_user_meta(get_current_user_id(), DISMISS_META);
@@ -160,6 +161,7 @@ function efb_notice_case($scenario, $monitor, $panel, $expected, $smtp = false, 
 // ---------------------------------------------------------------------------
 $original_monitor = get_option(MONITOR_OPTION, null);
 $original_panel   = get_option(PANEL_OPTION, null);
+$original_last_verdict = get_option('emsfb_email_last_verdict', null);
 $original_user    = get_current_user_id();
 $admin_id         = (int) (get_users(['role' => 'administrator', 'number' => 1, 'fields' => 'ID'])[0] ?? 0);
 
@@ -328,6 +330,7 @@ efb_notice_case('administrator, same failed run', $wp_mail_failed, null, 'undeli
 // ---------------------------------------------------------------------------
 if (null === $original_monitor) { delete_option(MONITOR_OPTION); } else { update_option(MONITOR_OPTION, $original_monitor, false); }
 if (null === $original_panel)   { delete_option(PANEL_OPTION); }   else { update_option(PANEL_OPTION, $original_panel, false); }
+if (null === $original_last_verdict) { delete_option('emsfb_email_last_verdict'); } else { update_option('emsfb_email_last_verdict', $original_last_verdict, false); }
 
 if ('' === $original_dismissal) {
 	delete_user_meta($admin_id, DISMISS_META);

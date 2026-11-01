@@ -62,7 +62,7 @@ function efb_confirm_call($email = '', $nonce = null) {
 }
 
 $restore = [];
-foreach (['emsfb_email_status', 'emsfb_onboarding_pending', 'emsfb_onboarding_initial_install', 'emsfb_onboarding_completed_at', 'emsfb_onboarding_dismissed_at'] as $name) {
+foreach (['emsfb_email_status', 'emsfb_email_last_verdict', 'emsfb_onboarding_pending', 'emsfb_onboarding_initial_install', 'emsfb_onboarding_completed_at', 'emsfb_onboarding_dismissed_at'] as $name) {
 	$restore[$name] = get_option($name, null);
 }
 $original_settings = get_setting_Emsfb('decoded');
@@ -88,6 +88,7 @@ try {
 	$settings->smtp = false;
 	get_efbFunction()->set_setting_Emsfb($settings);
 	delete_option('emsfb_email_status');
+	delete_option('emsfb_email_last_verdict');
 	update_option('emsfb_onboarding_initial_install', 1, false);
 	update_option('emsfb_onboarding_pending', 0, false);
 	update_option('emsfb_onboarding_dismissed_at', '2026-11-01 10:00:00', false);
@@ -128,6 +129,7 @@ try {
 	$settings->smtp = false;
 	get_efbFunction()->set_setting_Emsfb($settings);
 	delete_option('emsfb_email_status');
+	delete_option('emsfb_email_last_verdict');
 
 	$r = efb_confirm_call('owner@example.test', 'not-a-valid-nonce');
 	get_setting_Emsfb('_clear_cache');

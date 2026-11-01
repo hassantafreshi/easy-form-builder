@@ -56,6 +56,7 @@ function efb_ds_utc($minutes_ago) {
 
 function efb_ds_state($monitor, $panel, $smtp) {
 	if (null === $monitor) { delete_option(EFB_DS_MONITOR); } else { update_option(EFB_DS_MONITOR, $monitor, false); }
+	delete_option('emsfb_email_last_verdict');
 	if (null === $panel)   { delete_option(EFB_DS_PANEL); }   else { update_option(EFB_DS_PANEL, $panel, false); }
 	efb_ds_set_smtp($smtp);
 	return \Emsfb\Email_Monitor::get_delivery_state();
@@ -82,6 +83,10 @@ $monitor_ok = [
 $original = [
 	EFB_DS_MONITOR => get_option(EFB_DS_MONITOR, null),
 	EFB_DS_PANEL   => get_option(EFB_DS_PANEL, null),
+	'emsfb_email_last_verdict' => get_option('emsfb_email_last_verdict', null),
+	\Emsfb\Email_Monitor::OPTION_ACTIVATION_MARKER => get_option(\Emsfb\Email_Monitor::OPTION_ACTIVATION_MARKER, null),
+	'emsfb_onboarding_pending' => get_option('emsfb_onboarding_pending', null),
+	'emsfb_onboarding_initial_install' => get_option('emsfb_onboarding_initial_install', null),
 ];
 $original_user = get_current_user_id();
 $admins = get_users(['role' => 'administrator', 'number' => 1, 'fields' => 'ID']);
@@ -178,6 +183,39 @@ try {
 	$ref->invoke(null);
 	$after = get_option(EFB_DS_PANEL);
 	efb_ds_check('M6 a check that could not reach the service gives way to the probe', 'automated_email_test_ok' === $after['message']['id']);
+
+	echo "\n=== the owner's last verdict outlives a check that only started or broke ===\n";
+	$failed_record = $panel('email_test_failed', ['delivered' => false, 'delivery_score' => null, 'can_send_email' => false, 'send_stage' => 'handed_off'], 30);
+	efb_ds_state(null, $failed_record, false);
+	update_option(EFB_DS_PANEL, $panel('email_test_pending', ['can_send_email' => false], 2, 'warning'), false);
+	$s = \Emsfb\Email_Monitor::get_delivery_state();
+	efb_ds_check('V1 a re-check that is still open does not erase the failed verdict', 'tested' === $s['state'] && 'undelivered' === $s['outcome'], wp_json_encode($s));
+	update_option(EFB_DS_PANEL, $panel('service_start_error', ['reason' => 'service_start_error']), false);
+	$s = \Emsfb\Email_Monitor::get_delivery_state();
+	efb_ds_check('V2 ... nor does a check that could not start', 'tested' === $s['state'] && 'undelivered' === $s['outcome'], wp_json_encode($s));
+	update_option(EFB_DS_PANEL, $panel('email_sending_confirmed_by_owner', ['source' => 'owner'], 1, 'ok_set_smtp'), false);
+	efb_ds_set_smtp(true);
+	$s = \Emsfb\Email_Monitor::get_delivery_state();
+	efb_ds_check('V3 the owner\'s later confirmation does replace it', 'confirmed' === $s['state'], wp_json_encode($s));
+	efb_ds_check('V4 the state carries the spam-notice line for the card', isset($s['spam_notice_score']) && \Emsfb\Email_Monitor::SPAM_NOTICE_SCORE === $s['spam_notice_score']);
+
+	echo "\n=== activation leaves the free check to the owner's first click ===\n";
+	wp_clear_scheduled_hook(\Emsfb\Email_Monitor::LIFECYCLE_HOOK, ['activation']);
+	update_option('emsfb_onboarding_initial_install', 1, false);
+	update_option('emsfb_onboarding_pending', 1, false);
+	\Emsfb\Email_Monitor::activate();
+	efb_ds_check('P1 a first install with the card pending queues no activation probe', false === wp_next_scheduled(\Emsfb\Email_Monitor::LIFECYCLE_HOOK, ['activation']));
+	update_option('emsfb_onboarding_pending', 0, false);
+	\Emsfb\Email_Monitor::activate();
+	efb_ds_check('P2 a re-activation (no card) queues it as before', false !== wp_next_scheduled(\Emsfb\Email_Monitor::LIFECYCLE_HOOK, ['activation']));
+	wp_clear_scheduled_hook(\Emsfb\Email_Monitor::LIFECYCLE_HOOK, ['activation']);
+	efb_ds_state(null, null, false);
+	\Emsfb\Email_Monitor::schedule_probe_after_skip();
+	efb_ds_check('P3 skipping the card with no verdict on file queues the probe', false !== wp_next_scheduled(\Emsfb\Email_Monitor::LIFECYCLE_HOOK, ['activation']));
+	wp_clear_scheduled_hook(\Emsfb\Email_Monitor::LIFECYCLE_HOOK, ['activation']);
+	efb_ds_state(null, $failed_record, false);
+	\Emsfb\Email_Monitor::schedule_probe_after_skip();
+	efb_ds_check('P4 ... but not when the owner already has a verdict', false === wp_next_scheduled(\Emsfb\Email_Monitor::LIFECYCLE_HOOK, ['activation']));
 
 	echo "\n=== the activation probe steps aside for the owner ===\n";
 	wp_clear_scheduled_hook(\Emsfb\Email_Monitor::LIFECYCLE_HOOK, ['activation']);

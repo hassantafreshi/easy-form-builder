@@ -4,8 +4,8 @@
     "plugin_version": "4.3.1",
     "updated": "2026-11-01",
     "counts": {
-        "active": 2360,
-        "obsolete": 305
+        "active": 2361,
+        "obsolete": 307
     },
     "entries": [
         {
@@ -21395,6 +21395,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Please keep this page open; it takes about a minute.",
+            "context": null,
+            "plural": null,
+            "translators": "Quiet line under the progress bar of the email check: the result is only recorded while this page is open.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Please kindly report the following issue to the Easy Form Builder team.",
             "context": null,
             "plural": null,
@@ -36615,8 +36630,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "You can leave this page; we email you the report either way.",
@@ -37475,6 +37490,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Your emails arrive, but most inboxes put them in spam. Notifications are on; the guide shows the fix you make at your hosting company.",
+            "context": null,
+            "plural": null,
+            "translators": "One-sentence result: delivered, but the score is so low that most inboxes file the email as spam (the dashboard shows a warning too).",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Your emails arrive, but some may land in spam. Notifications are on; the guide shows a fix you make at your hosting company.",
             "context": null,
             "plural": null,
@@ -38242,6 +38272,21 @@
         },
         {
             "msgid": "Your test email was sent but has not arrived yet. Notifications are unchanged; check your inbox and spam folder, or try again now or later from Email Settings.",
+            "context": null,
+            "plural": null,
+            "translators": "Email check result when the test email was sent but has not arrived yet; the check can be run again.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
+        },
+        {
+            "msgid": "Your test email was sent but has not arrived yet. Notifications are unchanged; try again now, or later from Email Settings.",
             "context": null,
             "plural": null,
             "translators": "Email check result when the test email was sent but has not arrived yet; the check can be run again.",

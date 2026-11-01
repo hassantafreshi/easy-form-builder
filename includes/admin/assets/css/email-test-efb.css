@@ -931,9 +931,16 @@
 	margin-block-start: 2px;
 }
 
+.efb-est__sum-report > span {
+	min-width: 0;
+}
+
+/* A long address wraps instead of running out of the card on a phone. */
 .efb-est__sum-report .efb-est__mail {
 	font-weight: 700;
 	color: #1f2347;
+	max-width: 100%;
+	overflow-wrap: anywhere;
 }
 
 .efb-est--summary .efb-est__progress {
@@ -965,13 +972,34 @@
 	content: '';
 	width: 7px;
 	height: 7px;
-	border-inline-end: 2px solid currentColor;
-	border-block-end: 2px solid currentColor;
+	/* Physical sides: the rotation below decides the direction. */
+	border-right: 2px solid currentColor;
+	border-bottom: 2px solid currentColor;
 	transform: rotate(-45deg);
 	transition: transform 0.15s ease;
 }
 
+/* Closed, the chevron points the way the text reads. */
+.efb-est__more > summary:dir(rtl)::before {
+	transform: rotate(135deg);
+}
+
+[dir="rtl"] .efb-est__more > summary::before,
+.efb-est__more > summary[dir="rtl"]::before {
+	transform: rotate(135deg);
+}
+
+/* Separate rules: a browser without :dir() drops only its own rule. */
 .efb-est__more[open] > summary::before {
+	transform: rotate(45deg);
+}
+
+.efb-est__more[open] > summary:dir(rtl)::before {
+	transform: rotate(45deg);
+}
+
+[dir="rtl"] .efb-est__more[open] > summary::before,
+.efb-est__more[open] > summary[dir="rtl"]::before {
 	transform: rotate(45deg);
 }
 

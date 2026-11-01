@@ -3499,46 +3499,7 @@ function show_setting_up_easy_form_builder_Efb() {
         color: #202a8d !important;
       }
 
-      .efb-notification {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        z-index: 9999;
-        padding: 18px 24px;
-        border-radius: 12px;
-        box-shadow: 0 8px 30px rgba(32, 42, 141, 0.15);
-        background: white;
-        border: 1px solid rgba(32, 42, 141, 0.1);
-        border-left: 4px solid #28a745;
-        animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      }
-
-      .efb-notification-success {
-        border-left-color: #28a745;
-      }
-
-      .efb-notification-info {
-        border-left-color: #4338ca;
-        max-width: min(420px, calc(100vw - 40px));
-      }
-
-      .efb-notification-info .efb-notification-content i {
-        color: #4338ca;
-      }
-
-      .efb-notification-content {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        font-size: 14px;
-        color: #333;
-        font-weight: 500;
-      }
-
-      .efb-notification-content i {
-        color: #28a745;
-        font-size: 18px;
-      }
+      /* .efb-notification*: efb_notification_css_efb() brings its own rules. */
 
       .modal-header {
         background: linear-gradient(135deg, rgba(32, 42, 141, 0.03) 0%, rgba(99, 58, 130, 0.05) 100%);
@@ -4167,7 +4128,12 @@ let efb_onboarding_dismissal_saved_efb = false;
 function efb_setup_overlay_user_close_efb() {
     const overlay = document.getElementById('efb-setup-overlay');
     const onEmailStep = !!(overlay && overlay.querySelector('#efb-onboarding-test-email'));
-    if (onEmailStep && !efb_onboarding_completion_saved_efb && !efb_onboarding_dismissal_saved_efb) {
+    // Only the question itself can be skipped. Once Check now was clicked the
+    // check carries on (and records completion itself), so closing then is
+    // not a skip and "notifications are off" would not be true.
+    const card = document.getElementById('efb-onboarding-card');
+    const stillAsking = !card || !card.classList || typeof card.classList.contains !== 'function' || card.classList.contains('is-asking');
+    if (onEmailStep && stillAsking && !efb_onboarding_completion_saved_efb && !efb_onboarding_dismissal_saved_efb) {
         efb_onboarding_dismissal_saved_efb = true;
         efb_var_patch_efb({ onboarding_pending: false });
         jQuery.ajax({
@@ -4203,6 +4169,55 @@ function efb_onboarding_finish_efb() {
     if (sum.good) show_success_notification_efb(efb_onboarding_live_text_efb('onboardingFinished', 'Setup finished. Notifications are on.'));
 }
 
+/* A server or service sentence, decoded once (they arrive escaped). */
+function efb_onboarding_decode_efb(value) {
+    const text = String(value || '');
+    if (text.indexOf('&') === -1) return text;
+    const box = document.createElement('textarea');
+    box.innerHTML = text;
+    return box.value;
+}
+
+/* The one line under the address field: '' clears it. */
+function efb_onboarding_show_input_error_efb(message) {
+    const el = document.getElementById('efb-onboarding-email-error');
+    const input = document.getElementById('efb-onboarding-admin-email');
+    if (el) {
+        el.textContent = message || '';
+        el.hidden = !message;
+    }
+    if (input && input.classList) {
+        if (message) input.classList.add('is-invalid'); else input.classList.remove('is-invalid');
+        if (message && typeof input.focus === 'function') { try { input.focus(); } catch (e) {} }
+    }
+}
+
+/* The check never started because of the address: back to the question,
+   with the reason next to the field, and the first button says Check now
+   again. Nothing is known about email, so no result card is shown. */
+function efb_onboarding_back_to_address_efb(message) {
+    efb_onboarding_email_test_state_efb = null;
+    const report = document.getElementById('efb-onboarding-email-report');
+    if (report) { report.className = 'efb-onboarding-report'; report.textContent = ''; }
+    efb_onboarding_card_phase_efb('asking');
+    const test = document.getElementById('efb-onboarding-test-email');
+    if (test) {
+        test.hidden = false;
+        test.disabled = false;
+        if (test.classList && test.classList.remove) test.classList.remove('is-loading');
+        const span = (typeof test.querySelector === 'function') ? test.querySelector('span') : null;
+        const label = efb_onboarding_live_text_efb('onboardingCheckNow', 'Check now');
+        if (span) span.textContent = label; else test.textContent = label;
+    }
+    if (efb_onboarding_host_efb !== 'builder') {
+        const later = document.getElementById('efb-onboarding-later');
+        const skipNote = document.getElementById('efb-onboarding-skip-note');
+        if (later) later.hidden = false;
+        if (skipNote) skipNote.hidden = false;
+    }
+    efb_onboarding_show_input_error_efb(message);
+}
+
 /* The run on screen. A poll started by an earlier run (the modal was
    closed and the check started again) finds its token stale and stops, so
    two tests never write into one card. */
@@ -4219,7 +4234,9 @@ function efb_onboarding_settle_delivered_efb(result) {
         // this low means real form emails would be filtered as spam. The
         // server refuses to enable the sending switch for it, so the panel
         // must not claim delivery is ready either.
-        if (result.sending_turned_off) efb_onboarding_mark_sending_efb(false, 'undelivered'); else efb_onboarding_mark_delivery_efb('undelivered');
+        // The server turns the switch off for a score this low, on this poll
+        // or an earlier one (then this reply says false): off either way.
+        efb_onboarding_mark_sending_efb(false, 'undelivered', result.score);
         efb_onboarding_live_update_efb({ steps: { start: 'done', send: 'done', wait: 'done', quick: 'done', full: 'warning' }, percent: 100, result: result, outcome: 'delivered' });
         efb_onboarding_status_efb('warning', efb_onboarding_text_efb('emailDeliveryLowScore', 'Your test email was delivered, but its deliverability score is only %1$s out of 100 (below %2$s). The emails your forms send will most likely be filtered as spam. Set up SMTP and run the check again.')
             .replace('%1$s', result.score)
@@ -4227,7 +4244,7 @@ function efb_onboarding_settle_delivered_efb(result) {
         return;
     }
     const weak = efb_onboarding_score_below_healthy_efb(result);
-    efb_onboarding_mark_sending_efb(true, weak ? 'spam' : 'healthy');
+    efb_onboarding_mark_sending_efb(true, weak ? 'spam' : 'healthy', result.score);
     efb_onboarding_live_update_efb({ steps: { start: 'done', send: 'done', wait: 'done', quick: 'done', full: weak ? 'warning' : 'done' }, percent: 100, result: result, outcome: 'delivered' });
     // Below the healthy line the mail arrives but may be filtered: amber, not
     // green, so the gauge and the "Weak" label agree.
@@ -4265,12 +4282,21 @@ function efb_onboarding_poll_email_efb(test, email, attempt, run) {
             return;
         }
         if (fullReportPending && attempt < 8) {
-            efb_onboarding_live_update_efb({
-                steps: { start: 'done', send: 'done', wait: 'done', quick: result.can_send_email ? 'done' : 'error', full: 'active' },
-                percent: 88,
-                result: result
-            });
-            efb_onboarding_status_efb('checking', result.message || efb_onboarding_live_text_efb('stepFullReportDesc', 'Preparing the detailed delivery report…'));
+            if (result.can_send_email === true) {
+                // It arrived and it is scored: that is the verdict, and the
+                // server has already acted on it. Show it now ("Emailing the
+                // full report to ..."); the later polls only refresh the card.
+                efb_onboarding_settle_delivered_efb(result);
+                efb_onboarding_set_finish_efb(true);
+                efb_onboarding_show_result_actions_efb();
+            } else {
+                efb_onboarding_live_update_efb({
+                    steps: { start: 'done', send: 'done', wait: 'done', quick: 'error', full: 'active' },
+                    percent: 88,
+                    result: result
+                });
+                efb_onboarding_status_efb('checking', result.message || efb_onboarding_live_text_efb('stepFullReportDesc', 'Preparing the detailed delivery report…'));
+            }
             window.setTimeout(function() { efb_onboarding_poll_email_efb(test, email, attempt + 1, run); }, Math.max(10, Number(result.retry_after_seconds || 15)) * 1000);
             return;
         }
@@ -4316,7 +4342,12 @@ function efb_onboarding_poll_email_efb(test, email, attempt, run) {
             // failure even when the switch was already off (a fresh site):
             // the builder's next question must be the "last check failed"
             // one, not "we have not checked yet".
-            if (definite) { if (result.sending_turned_off) efb_onboarding_mark_sending_efb(false, 'undelivered'); else efb_onboarding_mark_delivery_efb('undelivered'); }
+            // An expired test is always switched off by the server (on this poll
+            // or an earlier one); a failure it did not act on keeps the switch.
+            if (definite) {
+                if (result.sending_turned_off || status === 'expired') efb_onboarding_mark_sending_efb(false, 'undelivered', null);
+                else efb_onboarding_mark_delivery_efb('undelivered', undefined, null);
+            }
             efb_onboarding_live_update_efb({ steps: { start: 'done', send: 'done', wait: definite ? 'error' : 'warning', quick: definite ? 'error' : 'waiting', full: 'waiting' }, percent: 100, result: result, outcome: ended });
             // Which fallback applies depends on how far the message got: see
             // the /handoff endpoint. "Check your mail configuration" is the
@@ -4364,9 +4395,12 @@ function efb_onboarding_start_email_test_efb() {
     const button = document.getElementById('efb-onboarding-test-email');
     const email = input ? input.value.trim() : '';
     if (!input || !/^\S+@\S+\.\S+$/.test(email)) {
-        efb_onboarding_status_efb('error', efb_onboarding_text_efb('enterAdminEmail', 'Enter the admin email address to receive email notifications.'));
+        // A typo is not a check result: it is said next to the address, and
+        // the card keeps asking.
+        efb_onboarding_show_input_error_efb(efb_onboarding_live_text_efb('enterAdminEmail', 'Enter the admin email address to receive email notifications.'));
         return;
     }
+    efb_onboarding_show_input_error_efb('');
     button.disabled = true;
     button.classList.add('is-loading');
     efb_onboarding_set_finish_efb(false);
@@ -4387,14 +4421,13 @@ function efb_onboarding_start_email_test_efb() {
     efb_onboarding_save_email_efb(email).done(function(saved) {
         if (!efb_onboarding_run_is_current_efb(run)) return;
         if (!saved || !saved.success) {
-            // The address was not stored and no test ran: nothing is known
-            // about email, and setup must stay finishable.
-            efb_onboarding_live_update_efb({ steps: { start: 'error', send: 'waiting', wait: 'waiting', quick: 'waiting', full: 'waiting' }, percent: 100, outcome: 'start_failed', summaryMessage: efb_onboarding_live_text_efb('emailResultSaveFailed', 'Your email address could not be saved, so the check did not run. Check the address and try again.') });
-            efb_onboarding_status_efb('warning', (saved && saved.data && saved.data.message) || efb_onboarding_text_efb('onboardingEmailSaveFailed', 'Your email address could not be saved, so the delivery check did not run. Try again, or finish setup and set it later in General Settings.'));
-            efb_onboarding_set_finish_efb(true);
-        efb_onboarding_show_result_actions_efb();
+            // The address was not stored and no test ran. The owner fixes the
+            // address, so the card goes back to it with the reason beside it.
             button.disabled = false;
             button.classList.remove('is-loading');
+            efb_onboarding_back_to_address_efb((saved && saved.data && saved.data.message)
+                ? efb_onboarding_decode_efb(saved.data.message)
+                : efb_onboarding_live_text_efb('emailResultSaveFailed', 'Your email address could not be saved, so the check did not run. Check the address and try again.'));
             return;
         }
         efb_var_patch_efb(null, { emailSupporter: email });
@@ -4427,7 +4460,8 @@ function efb_onboarding_start_email_test_efb() {
                 // ran: nothing was sent, so nothing is known yet.
                 const started = efb_onboarding_outcome_efb({ stage: 'start', payload: payload });
                 const sendFailed = started === 'wp_mail_failed';
-                if (sendFailed) { if (payload.sending_turned_off) efb_onboarding_mark_sending_efb(false, 'undelivered'); else efb_onboarding_mark_delivery_efb('undelivered'); }
+                // wp_mail() false at the start: the server switches sending off.
+                if (sendFailed) efb_onboarding_mark_sending_efb(false, 'undelivered', null);
                 const technicalOnly = payload.reason === 'tester_unreachable' || payload.reason === 'invalid_response';
                 efb_onboarding_live_update_efb({
                     steps: sendFailed
@@ -4437,7 +4471,7 @@ function efb_onboarding_start_email_test_efb() {
                     outcome: started,
                     // The service's own refusal is shown on the card only
                     // when it is written for a person, never a transport error.
-                    summaryMessage: (!technicalOnly && payload.m) ? payload.m : '',
+                    summaryMessage: (!technicalOnly && payload.service_message && payload.m) ? efb_onboarding_decode_efb(payload.m) : '',
                     technical: technicalOnly ? [payload.m || '', payload.code ? 'HTTP ' + payload.code : ''] : []
                 });
                 if (sendFailed) {
@@ -4463,20 +4497,16 @@ function efb_onboarding_start_email_test_efb() {
             button.disabled = false;
             button.classList.remove('is-loading');
         });
-    }).fail(function(xhr, textStatus) {
+    }).fail(function(xhr) {
         if (!efb_onboarding_run_is_current_efb(run)) return;
         button.disabled = false;
         button.classList.remove('is-loading');
-        efb_onboarding_live_update_efb({
-            steps: { start: 'error', send: 'waiting', wait: 'waiting', quick: 'waiting', full: 'waiting' },
-            percent: 100,
-            outcome: 'start_failed',
-            summaryMessage: efb_onboarding_live_text_efb('emailResultSaveFailed', 'Your email address could not be saved, so the check did not run. Check the address and try again.'),
-            technical: [(xhr && xhr.status ? 'HTTP ' + xhr.status : '') || textStatus || '']
-        });
-        efb_onboarding_status_efb('warning', efb_onboarding_text_efb('onboardingEmailSaveFailed', 'Your email address could not be saved, so the delivery check did not run. Try again, or finish setup and set it later in General Settings.'));
-        efb_onboarding_set_finish_efb(true);
-        efb_onboarding_show_result_actions_efb();
+        // 422: the server refused the address and says why. Anything else
+        // (an expired session answers 403) is not about the address.
+        const serverMessage = xhr && xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.message;
+        efb_onboarding_back_to_address_efb(serverMessage
+            ? efb_onboarding_decode_efb(serverMessage)
+            : efb_onboarding_live_text_efb('somethingWentWrongPleaseRefresh', 'Something went wrong. Please refresh the page and try again.'));
     });
 }
 
@@ -4494,7 +4524,7 @@ let efb_onboarding_host_efb = 'wizard';
  * draw the same card inside its modal. Keep every rule in this one block.
  */
 function efb_onboarding_card_css_efb() {
-    return '.efb-onboarding-container{max-width:680px!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}.efb-onboarding-container .efb-overlay-content{min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}.efb-onboarding-card{box-sizing:border-box;padding:clamp(22px,4vh,42px);max-width:620px;margin:auto;color:#172554}.efb-onboarding-steps{display:flex;gap:12px;align-items:center;font-size:13px;margin-bottom:clamp(16px,3vh,34px)}.efb-onboarding-steps span{padding:7px 11px;border-radius:999px;background:#eef2ff}.efb-onboarding-steps .is-done{color:#166534;background:#ecfdf5}.efb-onboarding-steps .is-current{color:#3730a3;font-weight:700}.efb-onboarding-steps b{display:inline-flex;width:18px;height:18px;border-radius:50%;align-items:center;justify-content:center;background:#4338ca;color:#fff}.efb-onboarding-hero{text-align:center}.efb-onboarding-icon{display:inline-flex;width:clamp(42px,7vh,58px);height:clamp(42px,7vh,58px);align-items:center;justify-content:center;border-radius:18px;background:linear-gradient(135deg,#312e81,#7c3aed);color:white;font-size:clamp(20px,3vh,26px);box-shadow:0 12px 30px rgba(79,70,229,.25)}.efb-onboarding-hero h2{margin:clamp(10px,2vh,16px) 0 8px;font-size:clamp(21px,3.3vh,27px);line-height:1.25;overflow-wrap:anywhere}.efb-onboarding-hero p{margin:0 auto clamp(16px,3vh,30px);max-width:520px;color:#64748b;line-height:1.55}.efb-onboarding-label{display:block;font-weight:700;margin-bottom:8px}.efb-onboarding-card input{box-sizing:border-box;width:100%;padding:12px 14px;border:1px solid #cbd5e1;border-radius:10px;font-size:16px}.efb-onboarding-card input:focus{outline:3px solid rgba(99,102,241,.16);border-color:#6366f1}.efb-onboarding-hint{margin:7px 0 16px;color:#64748b;font-size:13px}.efb-onboarding-report{display:none;margin-top:14px;padding:11px 13px;border-radius:10px;line-height:1.45;font-size:14px}.efb-onboarding-report:not(:empty){display:block}.efb-onboarding-report.is-checking{color:#1d4ed8;background:#eff6ff}.efb-onboarding-report.is-success{color:#166534;background:#ecfdf5}.efb-onboarding-report.is-warning{color:#92400e;background:#fffbeb}.efb-onboarding-report.is-error{color:#b91c1c;background:#fef2f2}.efb-onboarding-actions{position:sticky;bottom:0;z-index:2;display:flex;flex-wrap:wrap;gap:12px;margin-top:14px;padding:12px 0 2px;background:#fff;box-shadow:0 -16px 16px -16px rgba(23,37,84,.14)}.efb-onboarding-actions button,.efb-onboarding-actions a{flex:1 1 180px;min-height:52px;display:inline-flex;align-items:center;justify-content:center;gap:9px;border-radius:12px;font-weight:700;line-height:1.2;text-decoration:none;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease,background .18s ease}.efb-onboarding-actions [hidden]{display:none!important}.efb-onboarding-test-button,.efb-onboarding-help-button{border:0!important;color:#fff!important;background:linear-gradient(135deg,#312e81,#5b21b6)!important;box-shadow:0 9px 20px rgba(79,70,229,.26)}.efb-onboarding-test-button:hover:not(:disabled),.efb-onboarding-help-button:hover{transform:translateY(-2px);box-shadow:0 13px 24px rgba(79,70,229,.32)}.efb-onboarding-finish-button,.efb-onboarding-later-button{border:1px solid #c7d2fe!important;background:#fff!important;color:#3730a3!important}.efb-onboarding-finish-button:hover:not(:disabled),.efb-onboarding-later-button:hover:not(:disabled){background:#eef2ff!important;transform:translateY(-2px)}.efb-onboarding-finish-button.is-primary{border:0!important;color:#fff!important;background:linear-gradient(135deg,#312e81,#5b21b6)!important;box-shadow:0 9px 20px rgba(79,70,229,.26)}.efb-onboarding-actions button:disabled{opacity:.52;cursor:not-allowed;box-shadow:none}.efb-onboarding-actions .is-loading:after{content:"";display:inline-block;width:12px;height:12px;margin-left:2px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:efbOnboardingSpin .7s linear infinite}.efb-onboarding-skip-note,.efb-onboarding-fix-note{margin:10px 0 0;color:#64748b;font-size:12.5px;line-height:1.5;text-align:center}.efb-onboarding-card.is-running .efb-onboarding-ask,.efb-onboarding-card.is-running .efb-onboarding-actions,.efb-onboarding-card.is-running .efb-onboarding-skip-note,.efb-onboarding-card.is-running .efb-onboarding-hero p,.efb-onboarding-card.is-done .efb-onboarding-ask,.efb-onboarding-card.is-done .efb-onboarding-skip-note,.efb-onboarding-card.is-done .efb-onboarding-hero p{display:none}.efb-onboarding-card.is-builder .efb-onboarding-steps,.efb-onboarding-card.is-builder .efb-onboarding-later-button,.efb-onboarding-card.is-builder .efb-onboarding-skip-note{display:none}@keyframes efbOnboardingSpin{to{transform:rotate(360deg)}}@media(max-height:1000px) and (min-width:601px){.efb-onboarding-card{padding:18px 28px}.efb-onboarding-steps{margin-bottom:10px}.efb-onboarding-hero p{margin-bottom:12px}.efb-onboarding-hint{margin-bottom:10px}.efb-onboarding-actions{margin-top:12px}.efb-onboarding-actions button,.efb-onboarding-actions a{min-height:44px}}@media(max-width:600px){.efb-onboarding-card{padding:24px 20px}.efb-onboarding-actions{position:static;flex-direction:column;padding:0;margin-top:16px;box-shadow:none}.efb-onboarding-actions button,.efb-onboarding-actions a{width:100%;flex-basis:auto}.efb-onboarding-steps{align-items:flex-start;flex-direction:column;gap:7px}}';
+    return '.efb-onboarding-container{max-width:680px!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}.efb-onboarding-container .efb-overlay-content{min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}.efb-onboarding-card{box-sizing:border-box;padding:clamp(22px,4vh,42px);max-width:620px;margin:auto;color:#172554}.efb-onboarding-steps{display:flex;gap:12px;align-items:center;font-size:13px;margin-bottom:clamp(16px,3vh,34px)}.efb-onboarding-steps span{padding:7px 11px;border-radius:999px;background:#eef2ff}.efb-onboarding-steps .is-done{color:#166534;background:#ecfdf5}.efb-onboarding-steps .is-current{color:#3730a3;font-weight:700}.efb-onboarding-steps b{display:inline-flex;width:18px;height:18px;border-radius:50%;align-items:center;justify-content:center;background:#4338ca;color:#fff}.efb-onboarding-hero{text-align:center}.efb-onboarding-icon{display:inline-flex;width:clamp(42px,7vh,58px);height:clamp(42px,7vh,58px);align-items:center;justify-content:center;border-radius:18px;background:linear-gradient(135deg,#312e81,#7c3aed);color:white;font-size:clamp(20px,3vh,26px);box-shadow:0 12px 30px rgba(79,70,229,.25)}.efb-onboarding-hero h2{margin:clamp(10px,2vh,16px) 0 8px;font-size:clamp(21px,3.3vh,27px);line-height:1.25;overflow-wrap:anywhere}.efb-onboarding-hero p{margin:0 auto clamp(16px,3vh,30px);max-width:520px;color:#64748b;line-height:1.55}.efb-onboarding-label{display:block;font-weight:700;margin-bottom:8px}.efb-onboarding-card input{box-sizing:border-box;width:100%;padding:12px 14px;border:1px solid #cbd5e1;border-radius:10px;font-size:16px}.efb-onboarding-card input:focus{outline:3px solid rgba(99,102,241,.16);border-color:#6366f1}.efb-onboarding-hint{margin:7px 0 16px;color:#64748b;font-size:13px}.efb-onboarding-input-error{margin:-8px 0 14px;color:#b91c1c;font-size:13px;font-weight:600;line-height:1.45}.efb-onboarding-card input.is-invalid{border-color:#dc2626}.efb-onboarding-report{display:none;margin-top:14px;padding:11px 13px;border-radius:10px;line-height:1.45;font-size:14px}.efb-onboarding-report:not(:empty){display:block}.efb-onboarding-report.is-checking{color:#1d4ed8;background:#eff6ff}.efb-onboarding-report.is-success{color:#166534;background:#ecfdf5}.efb-onboarding-report.is-warning{color:#92400e;background:#fffbeb}.efb-onboarding-report.is-error{color:#b91c1c;background:#fef2f2}.efb-onboarding-actions{position:sticky;bottom:0;z-index:2;display:flex;flex-wrap:wrap;gap:12px;margin-top:14px;padding:12px 0 2px;background:#fff;box-shadow:0 -16px 16px -16px rgba(23,37,84,.14)}.efb-onboarding-actions button,.efb-onboarding-actions a{flex:1 1 180px;min-height:52px;display:inline-flex;align-items:center;justify-content:center;gap:9px;border-radius:12px;font-weight:700;line-height:1.2;text-decoration:none;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease,background .18s ease}.efb-onboarding-actions [hidden]{display:none!important}.efb-onboarding-test-button,.efb-onboarding-help-button{border:0!important;color:#fff!important;background:linear-gradient(135deg,#312e81,#5b21b6)!important;box-shadow:0 9px 20px rgba(79,70,229,.26)}.efb-onboarding-test-button:hover:not(:disabled),.efb-onboarding-help-button:hover{transform:translateY(-2px);box-shadow:0 13px 24px rgba(79,70,229,.32)}.efb-onboarding-finish-button,.efb-onboarding-later-button{border:1px solid #c7d2fe!important;background:#fff!important;color:#3730a3!important}.efb-onboarding-finish-button:hover:not(:disabled),.efb-onboarding-later-button:hover:not(:disabled){background:#eef2ff!important;transform:translateY(-2px)}.efb-onboarding-finish-button.is-primary{border:0!important;color:#fff!important;background:linear-gradient(135deg,#312e81,#5b21b6)!important;box-shadow:0 9px 20px rgba(79,70,229,.26)}.efb-onboarding-actions button:disabled{opacity:.52;cursor:not-allowed;box-shadow:none}.efb-onboarding-actions .is-loading:after{content:"";display:inline-block;width:12px;height:12px;margin-left:2px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:efbOnboardingSpin .7s linear infinite}.efb-onboarding-skip-note,.efb-onboarding-fix-note{margin:10px 0 0;color:#64748b;font-size:12.5px;line-height:1.5;text-align:center}.efb-onboarding-card.is-running .efb-onboarding-ask,.efb-onboarding-card.is-running .efb-onboarding-actions,.efb-onboarding-card.is-running .efb-onboarding-skip-note,.efb-onboarding-card.is-running .efb-onboarding-hero p,.efb-onboarding-card.is-done .efb-onboarding-ask,.efb-onboarding-card.is-done .efb-onboarding-skip-note,.efb-onboarding-card.is-done .efb-onboarding-hero p{display:none}.efb-onboarding-card.is-builder .efb-onboarding-steps,.efb-onboarding-card.is-builder .efb-onboarding-later-button,.efb-onboarding-card.is-builder .efb-onboarding-skip-note{display:none}@keyframes efbOnboardingSpin{to{transform:rotate(360deg)}}@media(max-height:1000px) and (min-width:601px){.efb-onboarding-card{padding:18px 28px}.efb-onboarding-steps{margin-bottom:10px}.efb-onboarding-hero p{margin-bottom:12px}.efb-onboarding-hint{margin-bottom:10px}.efb-onboarding-actions{margin-top:12px}.efb-onboarding-actions button,.efb-onboarding-actions a{min-height:44px}}@media(max-width:600px){.efb-onboarding-card{padding:24px 20px}.efb-onboarding-actions{position:static;flex-direction:column;padding:0;margin-top:16px;box-shadow:none}.efb-onboarding-actions button,.efb-onboarding-actions a{width:100%;flex-basis:auto}.efb-onboarding-steps{align-items:flex-start;flex-direction:column;gap:7px}}';
 }
 
 /**
@@ -4512,7 +4542,7 @@ function efb_onboarding_card_markup_efb(configuredEmail, options) {
     return '<div class="efb-onboarding-card is-asking' + (options.builder ? ' is-builder' : '') + '" id="efb-onboarding-card">'
         + '<div class="efb-onboarding-steps"><span class="is-done"><i class="bi bi-check-circle-fill"></i> ' + t('onboardingPlanSelected', 'Plan selected') + '</span><span class="is-current"><b>2</b> ' + t('onboardingStepEmailCheck', 'Email check') + '</span></div>'
         + '<div class="efb-onboarding-hero"><div class="efb-onboarding-icon"><i class="bi bi-envelope-check-fill"></i></div><h2>' + t('onboardingAskTitle', 'Shall we check that your form emails arrive?') + '</h2><p>' + t('onboardingAskBody', 'When someone fills in a form, your site emails you. Email is sent by your hosting company, so it sometimes goes missing or lands in spam. We can check this in about a minute and email you the full report.') + '</p></div>'
-        + '<div class="efb-onboarding-ask"><label class="efb-onboarding-label" for="efb-onboarding-admin-email">' + t('onboardingYourEmail', 'Your email') + '</label><input id="efb-onboarding-admin-email" type="email" value="' + efb_onboarding_escape_efb(configuredEmail) + '" autocomplete="email"><p class="efb-onboarding-hint">' + t('onboardingYourEmailHint', 'Notifications and the report go here.') + '</p></div>'
+        + '<div class="efb-onboarding-ask"><label class="efb-onboarding-label" for="efb-onboarding-admin-email">' + t('onboardingYourEmail', 'Your email') + '</label><input id="efb-onboarding-admin-email" type="email" value="' + efb_onboarding_escape_efb(configuredEmail) + '" autocomplete="email"><p class="efb-onboarding-hint">' + t('onboardingYourEmailHint', 'Notifications and the report go here.') + '</p><p class="efb-onboarding-input-error" id="efb-onboarding-email-error" role="alert" hidden></p></div>'
         + '<div id="efb-onboarding-email-report" class="efb-onboarding-report" aria-live="polite"></div>'
         + '<div class="efb-onboarding-actions" role="group" aria-label="Setup actions">'
         + '<button type="button" id="efb-onboarding-test-email" class="efb-btn efb-btn-primary efb-onboarding-test-button"><i class="bi bi-send-check-fill" aria-hidden="true"></i><span>' + t('onboardingCheckNow', 'Check now') + '</span></button>'
@@ -4617,6 +4647,7 @@ function efb_onboarding_summary_efb(state) {
     const score = hasScore ? Number(result.score) : null;
     const min = efb_onboarding_min_score_efb();
     const healthy = Number(efb_var && efb_var.emailMonitor ? efb_var.emailMonitor.healthy_score : 0) || 70;
+    const spamLine = Math.min(healthy, Number(efb_var && efb_var.emailMonitor ? efb_var.emailMonitor.spam_notice_score : 0) || 50);
     const email = test.recipient_address || efb_onboarding_configured_email_efb();
     const report = result.email_report || {};
     const reportLine = function (key, fallback) { return { text: s(key, fallback), email: email }; };
@@ -4625,7 +4656,7 @@ function efb_onboarding_summary_efb(state) {
     if (phase === 'run') {
         const waiting = steps.wait === 'active' || steps.send === 'done';
         out.sentence = waiting ? s('emailRunWaiting', 'Waiting for it to arrive, about a minute…') : s('emailRunSending', 'Sending a test email…');
-        out.note = test.test_hash ? s('emailRunLeave', 'You can leave this page; the result will be in Email Settings, and the report is emailed to you when the check finishes.') : '';
+        out.note = s('emailRunStay', 'Please keep this page open; it takes about a minute.');
         out.icon = waiting ? 'bi-arrow-repeat' : 'bi-hourglass-split';
         return out;
     }
@@ -4636,8 +4667,14 @@ function efb_onboarding_summary_efb(state) {
             out.label = s('emailScoreSpamRisk', 'Spam risk');
             out.sentence = s('emailResultLow', 'Your test email arrived, but it looks like spam to most inboxes. Notifications are off for now; the guide shows the fix.');
             out.help = 'fix';
+        } else if (score !== null && score < spamLine) {
+            // The dashboard shows its red "going to spam" notice below this
+            // line; the card says the same thing.
+            out.label = s('emailScoreWeak', 'Weak');
+            out.sentence = s('emailResultMostSpam', 'Your emails arrive, but most inboxes put them in spam. Notifications are on; the guide shows the fix you make at your hosting company.');
+            out.help = 'fix';
         } else if (score !== null && score < healthy) {
-            out.label = score < 40 ? s('emailScoreWeak', 'Weak') : s('emailScoreFair', 'Fair');
+            out.label = s('emailScoreFair', 'Fair');
             out.sentence = s('emailResultSpamRisk', 'Your emails arrive, but some may land in spam. Notifications are on; the guide shows a fix you make at your hosting company.');
             out.help = 'fix';
         } else {
@@ -4752,8 +4789,8 @@ function efb_onboarding_show_result_actions_efb() {
  * the builder's per-field gates (top-level efb_var.smtp) and the settings
  * object the save-result note reads.
  */
-function efb_onboarding_mark_sending_efb(on, outcome) {
-    efb_onboarding_mark_delivery_efb(outcome, !!on);
+function efb_onboarding_mark_sending_efb(on, outcome, score) {
+    efb_onboarding_mark_delivery_efb(outcome, !!on, score);
     efb_var_patch_efb({ smtp: on ? 1 : 0, smtp_message: '' }, { smtp: !!on });
     if (typeof valueJson_ws_setting === 'object' && valueJson_ws_setting !== null) valueJson_ws_setting.smtp = !!on;
     if (typeof efbEmailTestSetSmtpState === 'function') efbEmailTestSetSmtpState(!!on);
@@ -4764,10 +4801,21 @@ function efb_onboarding_mark_sending_efb(on, outcome) {
 /* The page's copy of the delivery state after a verdict, whether or not the
    switch moved: a failed check on a site whose switch was already off still
    makes the next question "your last check failed", not "never checked". */
-function efb_onboarding_mark_delivery_efb(outcome, notifications) {
+function efb_onboarding_mark_delivery_efb(outcome, notifications, score) {
     const delivery = (typeof efb_var !== 'undefined' && efb_var.emailDelivery && typeof efb_var.emailDelivery === 'object') ? efb_var.emailDelivery : {};
     const on = notifications === undefined ? (typeof efb_var !== 'undefined' && Number(efb_var.smtp) === 1) : !!notifications;
-    efb_var_patch_efb({ emailDelivery: Object.assign({}, delivery, { state: 'tested', notifications: on, outcome: outcome || delivery.outcome || '', pending_since: '', pending_since_display: '' }) });
+    const known = score !== undefined && score !== null && isFinite(Number(score)) ? Number(score) : null;
+    const patch = {
+        // The check that just ran is the last one: no stale date from the
+        // page load ("your last check on <weeks ago>"), and its own score.
+        emailDelivery: Object.assign({}, delivery, { state: 'tested', notifications: on, outcome: outcome || delivery.outcome || '', score: known, checked_at: '', checked_at_display: '', pending_since: '', pending_since_display: '' })
+    };
+    if (score !== undefined) {
+        // The builder's "spam score" warning reads this one.
+        const health = (typeof efb_var !== 'undefined' && efb_var.emailHealth && typeof efb_var.emailHealth === 'object') ? efb_var.emailHealth : {};
+        patch.emailHealth = Object.assign({}, health, { score: known });
+    }
+    efb_var_patch_efb(patch);
     // A failed verdict ends the builder's question for this click: nothing
     // is replayed, the owner acts on the result instead.
     if (!on && typeof efb_builder_email_forget_origin === 'function') efb_builder_email_forget_origin();
@@ -4809,6 +4857,7 @@ function efb_onboarding_bind_card_efb() {
     if (finish) finish.addEventListener('click', efb_onboarding_finish_efb);
     if (later) later.addEventListener('click', efb_onboarding_skip_efb);
     if (input) input.addEventListener('input', function() {
+        efb_onboarding_show_input_error_efb('');
         efb_onboarding_set_finish_efb(false);
         efb_onboarding_email_test_state_efb = null;
         const report = document.getElementById('efb-onboarding-email-report');
@@ -5082,36 +5131,52 @@ function update_ui_based_on_plan_efb(plan) {
     }
 }
 
-function show_success_notification_efb(message) {
+/* The small notices the setup shows after it closes. Their rules used to
+   live in the plan step's stylesheet, which is gone by the time the email
+   step closes, so the notice landed unstyled under the admin footer. They
+   now bring their own, once, below the admin bar and mirrored for RTL. */
+function efb_notification_css_efb() {
+    if (document.getElementById('efb-notification-css')) return;
+    const style = document.createElement('style');
+    style.id = 'efb-notification-css';
+    style.textContent = '.efb-notification{position:fixed;top:48px;right:20px;z-index:100050;max-width:min(420px,calc(100vw - 32px));box-sizing:border-box;padding:14px 18px;border-radius:12px;background:#fff;color:#1e293b;box-shadow:0 8px 30px rgba(32,42,141,.18);border:1px solid rgba(32,42,141,.1);border-left:4px solid #16a34a;animation:efbNoticeIn .3s ease}'
+        + '.efb-notification-info{border-left-color:#4338ca}'
+        + '.efb-notification-content{display:flex;align-items:flex-start;gap:10px;font-size:14px;line-height:1.5;font-weight:500}'
+        + '.efb-notification-content i{flex:0 0 auto;font-size:18px;line-height:1.3;color:#16a34a}'
+        + '.efb-notification-info .efb-notification-content i{color:#4338ca}'
+        + '[dir=rtl] .efb-notification,.rtl .efb-notification{right:auto;left:20px;border-left:1px solid rgba(32,42,141,.1);border-right:4px solid #16a34a}'
+        + '[dir=rtl] .efb-notification-info,.rtl .efb-notification-info{border-right-color:#4338ca}'
+        + '@media(max-width:782px){.efb-notification{top:58px;right:16px;left:16px;max-width:none}[dir=rtl] .efb-notification,.rtl .efb-notification{left:16px;right:16px}}'
+        + '@keyframes efbNoticeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}';
+    (document.head || document.body).appendChild(style);
+}
+
+function efb_notification_show_efb(kind, icon, message, ms) {
+    efb_notification_css_efb();
     const notification = document.createElement('div');
-    notification.className = 'efb-notification efb-notification-success';
-    notification.innerHTML = `
-        <div class="efb-notification-content">
-            <i class="bi bi-check-circle-fill"></i>
-            <span>${message}</span>
-        </div>
-    `;
-
+    notification.className = 'efb-notification efb-notification-' + kind;
+    if (typeof notification.setAttribute === 'function') notification.setAttribute('role', 'status');
+    const content = document.createElement('div');
+    content.className = 'efb-notification-content';
+    const i = document.createElement('i');
+    i.className = 'bi ' + icon;
+    if (typeof i.setAttribute === 'function') i.setAttribute('aria-hidden', 'true');
+    const span = document.createElement('span');
+    // Text, not markup: translations arrive here decoded.
+    span.textContent = String(message || '');
+    content.appendChild(i);
+    content.appendChild(span);
+    notification.appendChild(content);
     document.body.appendChild(notification);
+    setTimeout(() => { notification.remove(); }, ms);
+}
 
-    setTimeout(() => {
-        notification.remove();
-    }, 3000);
+function show_success_notification_efb(message) {
+    efb_notification_show_efb('success', 'bi-check-circle-fill', message, 4000);
 }
 
 function show_info_notification_efb(message) {
-    const notification = document.createElement('div');
-    notification.className = 'efb-notification efb-notification-info';
-    notification.innerHTML = `
-        <div class="efb-notification-content">
-            <i class="bi bi-info-circle-fill"></i>
-            <span>${message}</span>
-        </div>
-    `;
-    document.body.appendChild(notification);
-    setTimeout(() => {
-        notification.remove();
-    }, 6000);
+    efb_notification_show_efb('info', 'bi-info-circle-fill', message, 7000);
 }
 
 function show_error_notification_efb(message) {
@@ -5422,7 +5487,8 @@ function showSetupAsOverlayPage(options) {
 
             .efb-overlay-content .efb-plans-grid {
                 gap: 12px !important;
-                padding: 8px 3px !important;
+                /* 22px on top: room for the Pro badge above its card. */
+                padding: 22px 3px 8px !important;
             }
 
             .efb-overlay-content .efb-plan-card {
@@ -5502,7 +5568,7 @@ function showSetupAsOverlayPage(options) {
 
             .efb-overlay-content .efb-plans-grid {
                 gap: 10px !important;
-                padding: 6px 2px !important;
+                padding: 22px 2px 6px !important;
             }
 
             .efb-overlay-content .efb-plan-card {
