@@ -249,6 +249,15 @@ function efb_builder_email_delivery_toast() {
       + `<button type="button" class="efb btn btn-sm btn-outline-dark fw-semibold mt-2" onclick="efb_builder_email_confirm()">${c.confirm}</button>`;
   }
   alert_message_efb(c.title, c.body + actions, 30, 'warning');
+  // Tagged, so the dialog that asks the same question can take it down: on a
+  // phone the toast sits over the dialog's own title otherwise.
+  const items = document.querySelectorAll('#alert_container_efb .alert_item_efb');
+  if (items.length) items[items.length - 1].setAttribute('data-efb-email-question', '1');
+}
+
+/* The toast's question is answered or superseded by a dialog: it goes. */
+function efb_builder_email_toast_dismiss() {
+  document.querySelectorAll('#alert_container_efb [data-efb-email-question]').forEach((el) => el.remove());
 }
 
 let efb_builder_email_prompt_origin = null;
@@ -257,6 +266,7 @@ let efb_builder_email_prompt_origin = null;
    answer is needed before the switch can mean anything. */
 function efb_builder_email_delivery_dialog(origin) {
   if (document.getElementById('efb-setup-overlay')) return false;
+  efb_builder_email_toast_dismiss();
   efb_builder_email_prompt_origin = origin || null;
   const c = efb_builder_prompt_copy();
   const canManage = efb_builder_delivery_can_manage();
@@ -322,6 +332,7 @@ function efb_builder_email_confirm() {
       alert_message_efb(efb_var.text.error || 'Error', (r && r.data && r.data.message) || efb_var.text.somethingWentWrongPleaseRefresh || 'Please try again.', 15, 'danger');
       return;
     }
+    efb_builder_email_toast_dismiss();
     const before = efb_builder_delivery_state() || {};
     if (typeof efb_onboarding_mark_sending_efb === 'function') efb_onboarding_mark_sending_efb(true, '');
     const delivery = Object.assign({}, efb_var.emailDelivery || {}, r.data.delivery || {}, { state: 'confirmed', notifications: true });
@@ -395,6 +406,7 @@ function efb_builder_email_check_open() {
     }, 420);
     return;
   }
+  efb_builder_email_toast_dismiss();
   efb_onboarding_host_efb = 'builder';
   efb_onboarding_email_test_state_efb = null;
   const email = (efb_var.setting && efb_var.setting.emailSupporter) ? efb_var.setting.emailSupporter : (efb_var.adminEmail || '');
