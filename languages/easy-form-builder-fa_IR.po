@@ -8,7 +8,7 @@ msgstr ""
 "POT-Creation-Date: 2026-11-01 00:00+0000\n"
 "X-Generator: EFB tests/core-i18n/build.php\n"
 "X-Domain: easy-form-builder\n"
-"PO-Revision-Date: 2026-11-01 23:11+0000\n"
+"PO-Revision-Date: 2026-11-01 23:26+0000\n"
 "Last-Translator: WhiteStudio <hi@whitestudio.team>\n"
 "Language-Team: fa_IR\n"
 "Language: fa_IR\n"
@@ -1646,7 +1646,7 @@ msgstr "اکنون مجوز من را بررسی کن"
 #. translators: Button that starts the email delivery check. Keep it short.
 #: includes/functions.php:1987
 msgid "Check now"
-msgstr "بررسی اکنون"
+msgstr "همین حالا بررسی"
 
 #  origin: wporg-stable
 #. translators: Description for the notification setup step. It explains that
@@ -8674,7 +8674,7 @@ msgstr "رد کردن و غیرفعال‌سازی"
 #. email check. Keep it short.
 #: includes/functions.php:1989
 msgid "Skip for now"
-msgstr "فعلاً رد کردن"
+msgstr "بعداً"
 
 #  origin: wporg-stable
 #. translators: Skipped = test result shown when a rule was not evaluated at
