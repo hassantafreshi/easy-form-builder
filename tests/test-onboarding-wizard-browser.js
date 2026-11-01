@@ -81,7 +81,14 @@ global.document = {
   addEventListener() {}, removeEventListener() {},
   querySelector() { return null; }, querySelectorAll() { return []; },
   getElementById(id) { return Object.prototype.hasOwnProperty.call(elements, id) ? elements[id] : null; },
-  createElement() { return stubElement({ appendChild() {}, remove() {}, style: {} }); },
+  createElement(tag) {
+    // The phrase decoder parses entities through a detached <textarea>;
+    // the stub resolves the numeric and named ones the tests use.
+    if (tag === 'textarea') {
+      return { value: '', set innerHTML(v) { this.value = String(v).replace(/&#(\d+);/g, (m, n) => String.fromCharCode(Number(n))).replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"'); } };
+    }
+    return stubElement({ appendChild() {}, remove() {}, style: {} });
+  },
   body: { appendChild() {}, style: {} },
   getElementsByTagName() { return []; },
 };
@@ -318,6 +325,103 @@ testTrue('A43 a delivered email under the healthy line is fair, notifications on
   fair.view.summary.label === 'Fair' && fair.view.summary.sentence.indexOf(ON) !== -1);
 testTrue('A44 the full panel is still there behind "Show details"',
   typeof confirmed.view.summary.detailsLabel === 'string' && confirmed.view.summary.detailsLabel.length > 0 && confirmed.view.rows.length > 0);
+
+// A45-A52: the review's findings on the runner - each one a scenario the
+// owner can hit by closing a tab, clicking twice, or reading a translation.
+const cardHeading = stubElement();
+elements['efb-onboarding-card'] = stubElement({ querySelector(sel) { return String(sel).indexOf('h2') !== -1 ? cardHeading : null; } });
+
+// A45 the full report's poll is lost after the quick stage already said the
+// email arrived: the verdict stands, nothing reads as "connection lost".
+(function () {
+  const original = global.jQuery.ajax;
+  global.jQuery.ajax = function () { return { done() { return this; }, fail(cb) { cb({ status: 0 }, 'timeout'); return this; }, always(cb) { cb(); return this; } }; };
+  try {
+    efb_onboarding_live_update_efb({ type: 'checking', outcome: '', technical: [], test: TEST,
+      result: { status: 'analyzed', analysis_stage: 'quick', can_send_email: true, score: 85, full_report_pending: true },
+      steps: { start: 'done', send: 'done', wait: 'done', quick: 'done', full: 'active' } });
+    efb_onboarding_poll_email_efb(TEST, 'admin@example.test', 7);
+  } finally { global.jQuery.ajax = original; }
+  const st = readState(); const sum = efb_onboarding_summary_efb(st);
+  testTrue('A45 a lost full-report poll after a delivered quick result settles as delivered, notifications on',
+    st.outcome === 'delivered' && sum.good && Number(efb_var.smtp) === 1 && efb_var.emailDelivery.state === 'tested' && efb_var.emailDelivery.outcome === 'healthy');
+})();
+
+// A46 a stale result with a lost answer never reads as delivered.
+testTrue('A46 the summary trusts the outcome before a stale result',
+  !efb_onboarding_summary_efb({ type: 'warning', outcome: 'connection_lost', result: { can_send_email: true, score: 90 }, test: TEST }).good);
+
+// A47 a failed check on a site whose switch was already off still moves the
+// page's delivery state: the builder's next question is "your last check failed".
+efb_var_patch_efb({ smtp: 0, emailDelivery: { state: 'unchecked', notifications: false, outcome: '', pending_since: '2026-11-01 06:42:17' } }, { smtp: false });
+pollWith({ data: { success: false, result: { status: 'expired', send_stage: 'handed_off', can_send_email: false } } }, 9);
+test('A47 a definite failure without sending_turned_off still marks the page tested/undelivered',
+  [efb_var.emailDelivery.state, efb_var.emailDelivery.outcome, efb_var.emailDelivery.notifications, efb_var.emailDelivery.pending_since], ['tested', 'undelivered', false, '']);
+
+// A48 under the healthy line the tone is amber, not green, and the switch is on.
+const weak = pollWith({ data: { success: true, result: { status: 'analyzed', analysis_stage: 'full', can_send_email: true, score: 25 } } }, 9);
+testTrue('A48 a weak score is a warning tone with notifications on', weak.view.phase === 'warn' && weak.view.summary.label === 'Weak' && Number(efb_var.smtp) === 1);
+
+// A49 the pending sentence is written for this card: inbox, try again, Email Settings.
+testTrue('A49 a delayed result gets its own sentence, not the panel\'s',
+  delayed.view.summary.sentence.indexOf('has not arrived yet') !== -1 && delayed.view.summary.sentence.indexOf('General Settings') === -1);
+
+// A50 a poll from an earlier run is ignored once a new run started.
+(function () {
+  replies = { efb_save_onboarding_email: { success: true }, check_email_server_efb: SENT_OK };
+  efb_onboarding_start_email_test_efb();
+  const token = vm.runInThisContext('efb_onboarding_run_token_efb');
+  const before = JSON.stringify(readState().outcome);
+  const original = global.jQuery.ajax;
+  global.jQuery.ajax = function () { return { done(cb) { cb({ data: { success: false, result: { status: 'expired', can_send_email: false } } }); return this; }, fail() { return this; }, always(cb) { cb(); return this; } }; };
+  try { efb_onboarding_poll_email_efb(TEST, 'admin@example.test', 9, token - 1); } finally { global.jQuery.ajax = original; }
+  test('A50 a poll of a superseded run changes nothing', JSON.stringify(readState().outcome), before);
+})();
+
+// A51 phrases written with textContent are decoded first.
+efb_var_patch_efb({ text: Object.assign({}, efb_var.text, { onboardingResultTitle: 'V&#233;rification de l&#039;envoi', emailTryAgain: 'R&#233;essayer' }) });
+efb_onboarding_live_update_efb({ type: 'warning', outcome: 'connection_lost', result: null, test: TEST });
+efb_onboarding_show_result_actions_efb();
+test('A51 the heading and the labels show the translation, not its entities',
+  [cardHeading.textContent, elements['efb-onboarding-test-email'].textContent], ['Vérification de l\'envoi', 'Réessayer']);
+efb_var_patch_efb({ text: {} });
+
+// A52 the close toast follows the result: none after a failure, one after a pass.
+(function () {
+  let toasts = [];
+  const originalToast = global.show_success_notification_efb;
+  global.show_success_notification_efb = (m) => toasts.push(m);
+  global.closeSetupOverlay_efb = () => {};
+  efb_onboarding_host_efb = 'wizard';
+  efb_onboarding_live_update_efb({ type: 'error', outcome: 'not_delivered', result: { can_send_email: false }, test: TEST });
+  elements['efb-onboarding-finish'].disabled = false;
+  efb_onboarding_finish_efb();
+  const afterFail = toasts.length;
+  efb_onboarding_live_update_efb({ type: 'success', outcome: 'delivered', result: { can_send_email: true, score: 90 }, test: TEST });
+  elements['efb-onboarding-finish'].disabled = false;
+  efb_onboarding_finish_efb();
+  test('A52 no green toast after a failed result, one plain sentence after a good one',
+    [afterFail, toasts.length, String(toasts[0] || '').indexOf('Setup finished') !== -1], [0, 1, true]);
+  global.show_success_notification_efb = originalToast;
+})();
+
+// A53 x and Escape say what skipping means, the same as "Skip for now", once.
+(function () {
+  let infos = [];
+  global.show_info_notification_efb = (m) => infos.push(m);
+  efb_onboarding_completion_saved_efb = false; efb_onboarding_dismissal_saved_efb = false;
+  replies = { efb_dismiss_onboarding: { success: true } };
+  efb_setup_overlay_user_close_efb();
+  const afterX = infos.length;
+  efb_onboarding_completion_saved_efb = false; efb_onboarding_dismissal_saved_efb = false;
+  efb_onboarding_skip_efb();
+  test('A53 the "notifications are off" notice follows x and Skip alike, once each', [afterX, infos.length], [1, 2]);
+  efb_onboarding_completion_saved_efb = true;
+  efb_setup_overlay_user_close_efb();
+  test('A54 and never after the check already ran', infos.length, 2);
+  global.show_info_notification_efb = () => {};
+  efb_onboarding_completion_saved_efb = true; efb_onboarding_dismissal_saved_efb = false;
+})();
 
 // The start: wp_mail() returning false is the one start result about email.
 efb_onboarding_completion_saved_efb = true; // completion itself is covered above

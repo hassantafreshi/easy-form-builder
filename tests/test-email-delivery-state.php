@@ -104,6 +104,7 @@ try {
 
 	$s = efb_ds_state(null, $panel('email_test_pending', ['can_send_email' => false], 3, 'warning'), false);
 	efb_ds_check('U6 a check that never reported back is unchecked, and says since when', 'unchecked' === $s['state'] && '' !== $s['pending_since'], wp_json_encode($s));
+	efb_ds_check('U6b ... in the site\'s own date format, for people', '' !== $s['pending_since_display'] && $s['pending_since_display'] !== $s['pending_since'], wp_json_encode($s));
 
 	$s = efb_ds_state(null, $panel('email_test_pending', ['can_send_email' => false], 60, 'warning'), false);
 	efb_ds_check('U7 an hour later that pending record is just absent', 'unchecked' === $s['state'] && '' === $s['pending_since'], wp_json_encode($s));
@@ -182,8 +183,12 @@ try {
 	wp_clear_scheduled_hook(\Emsfb\Email_Monitor::LIFECYCLE_HOOK, ['activation']);
 	wp_schedule_single_event(time() + 45, \Emsfb\Email_Monitor::LIFECYCLE_HOOK, ['activation']);
 	efb_ds_check('L1 the probe is queued', false !== wp_next_scheduled(\Emsfb\Email_Monitor::LIFECYCLE_HOOK, ['activation']));
+	wp_clear_scheduled_hook(\Emsfb\Email_Monitor::LIFECYCLE_HOOK, ['update']);
+	wp_schedule_single_event(time() + 45, \Emsfb\Email_Monitor::LIFECYCLE_HOOK, ['update']);
 	\Emsfb\Email_Monitor::cancel_pending_lifecycle_test();
 	efb_ds_check('L2 the owner\'s own check unqueues it', false === wp_next_scheduled(\Emsfb\Email_Monitor::LIFECYCLE_HOOK, ['activation']));
+	efb_ds_check('L3 ... and leaves the update-time probe alone', false !== wp_next_scheduled(\Emsfb\Email_Monitor::LIFECYCLE_HOOK, ['update']));
+	wp_clear_scheduled_hook(\Emsfb\Email_Monitor::LIFECYCLE_HOOK, ['update']);
 } catch (Throwable $e) {
 	$failed++;
 	echo '[FAIL] unexpected ' . get_class($e) . ': ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine() . "\n";

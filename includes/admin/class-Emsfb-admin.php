@@ -3759,7 +3759,12 @@ function admin_notices_efb () {
                     return;
             }else{
                 if (isset($settings->smtp) && in_array($settings->smtp, ['1', 'true', true,1], true)) {
-                       update_option('emsfb_email_status', $this->build_email_ready_status_efb(true));
+                       /* A site from before the status record existed: the
+                        * switch is on, nobody clicked anything today, so the
+                        * record stays undated (get_delivery_state() reports
+                        * "confirmed" without a date). The dated owner record
+                        * is only ever written by the owner's own answer. */
+                       update_option('emsfb_email_status', $this->build_email_ready_status_efb());
                        return;
                 }else{
                      return;

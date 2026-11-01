@@ -4,8 +4,8 @@
     "plugin_version": "4.3.1",
     "updated": "2026-11-01",
     "counts": {
-        "active": 2354,
-        "obsolete": 299
+        "active": 2360,
+        "obsolete": 305
     },
     "entries": [
         {
@@ -885,6 +885,21 @@
             "context": null,
             "plural": null,
             "translators": "%s: date the check started. Form builder, when an email check started but never reported back.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "A check was started but did not finish. Look for the emailed report in your inbox, or run it again.",
+            "context": null,
+            "plural": null,
+            "translators": "Form builder, when an email check started but never reported back and its date is not known.",
             "files": [
                 "includes/functions.php"
             ],
@@ -9370,8 +9385,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Email delivery is ready. Form notifications can be sent.",
@@ -18860,7 +18875,7 @@
             "obsolete_since": null
         },
         {
-            "msgid": "Notifications are on. Our last background check could not deliver, so if emails do not arrive, run the check from Email Settings.",
+            "msgid": "Notifications are on. An earlier automatic check found that emails from this site may not reach the inbox; if none arrive, run the check from Email Settings.",
             "context": null,
             "plural": null,
             "translators": "Notice after the owner turned notifications on although the background check had failed.",
@@ -18873,6 +18888,21 @@
             "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
+        },
+        {
+            "msgid": "Notifications are on. Our last background check could not deliver, so if emails do not arrive, run the check from Email Settings.",
+            "context": null,
+            "plural": null,
+            "translators": "Notice after the owner turned notifications on although the background check had failed.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Notifications are on. You can run the check any time from Email Settings.",
@@ -19188,6 +19218,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "Only a site administrator can check email delivery or turn notifications on. Ask them before you rely on this form.",
+            "context": null,
+            "plural": null,
+            "translators": "Form builder, shown under the question to a user who may build forms but not change the site's email settings.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Only temporary - I am troubleshooting my site",
@@ -26102,6 +26147,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Setup finished. Notifications are on.",
+            "context": null,
+            "plural": null,
+            "translators": "Short notice after the first-run setup closes on a good email check result.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Shall we check that your form emails arrive?",
             "context": null,
             "plural": null,
@@ -30446,7 +30506,7 @@
             "obsolete_since": null
         },
         {
-            "msgid": "The free daily check limit for this site was reached. Run the check again tomorrow from Email Settings.",
+            "msgid": "The free daily check limit for this site was reached. Notifications are unchanged; run the check again tomorrow from Email Settings.",
             "context": null,
             "plural": null,
             "translators": "One-sentence result: the testing service refused the check because the free daily limit was used up.",
@@ -30459,6 +30519,21 @@
             "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
+        },
+        {
+            "msgid": "The free daily check limit for this site was reached. Run the check again tomorrow from Email Settings.",
+            "context": null,
+            "plural": null,
+            "translators": "One-sentence result: the testing service refused the check because the free daily limit was used up.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "The installation could not be started from this page. You can continue in English; it will be tried again in the background.",
@@ -30547,6 +30622,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The last email check found that emails from this site do not reach the inbox.",
+            "context": null,
+            "plural": null,
+            "translators": "Form builder, same situation, shown to a user who may build forms but not change the site's email settings.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -36514,7 +36604,7 @@
             "obsolete_since": null
         },
         {
-            "msgid": "You can leave this page; we email you the report either way.",
+            "msgid": "You can leave this page; the result will be in Email Settings, and the report is emailed to you when the check finishes.",
             "context": null,
             "plural": null,
             "translators": "Quiet line under the progress bar of the email check.",
@@ -36527,6 +36617,21 @@
             "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
+        },
+        {
+            "msgid": "You can leave this page; we email you the report either way.",
+            "context": null,
+            "plural": null,
+            "translators": "Quiet line under the progress bar of the email check.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "You can translate Easy Form Builder into your preferred language by translating the following sentences. WARNING: If your WordPress site is multilingual, do not change the values below.",
@@ -37190,6 +37295,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Your email address could not be saved, so the check did not run. Check the address and try again.",
+            "context": null,
+            "plural": null,
+            "translators": "Email check result when the owner's address could not be saved, so no test email was sent.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Your email address could not be saved, so the delivery check did not run. Try again, or finish setup and set it later in General Settings.",
             "context": null,
             "plural": null,
@@ -37535,7 +37655,37 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Your last check found that emails from this site do not reach the inbox. Fix it at your hosting company, then check again.",
+            "context": null,
+            "plural": null,
+            "translators": "Form builder, when the owner's last email check failed and its date is not known.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Your last check on %s found that emails from this site are not arriving. Fix it at your hosting company, then check again.",
+            "context": null,
+            "plural": null,
+            "translators": "%s: date of the last check. Form builder, when the owner's last email check failed.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
+        },
+        {
+            "msgid": "Your last check on %s found that emails from this site do not reach the inbox. Fix it at your hosting company, then check again.",
             "context": null,
             "plural": null,
             "translators": "%s: date of the last check. Form builder, when the owner's last email check failed.",
@@ -38046,7 +38196,7 @@
             "obsolete_since": null
         },
         {
-            "msgid": "Your test email did not arrive within the wait. Notifications are off; the guide shows how to fix this at your hosting company.",
+            "msgid": "Your test email did not arrive in time. Notifications are off; the guide shows how to fix this at your hosting company.",
             "context": null,
             "plural": null,
             "translators": "One-sentence result: the test email never arrived.",
@@ -38061,6 +38211,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Your test email did not arrive within the wait. Notifications are off; the guide shows how to fix this at your hosting company.",
+            "context": null,
+            "plural": null,
+            "translators": "One-sentence result: the test email never arrived.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
+        },
+        {
             "msgid": "Your test email was delivered, but its deliverability score is only %1$s out of 100 (below %2$s). The emails your forms send will most likely be filtered as spam. Set up SMTP and run the check again.",
             "context": null,
             "plural": null,
@@ -38072,6 +38237,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Your test email was sent but has not arrived yet. Notifications are unchanged; check your inbox and spam folder, or try again now or later from Email Settings.",
+            "context": null,
+            "plural": null,
+            "translators": "Email check result when the test email was sent but has not arrived yet; the check can be run again.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },

@@ -213,7 +213,7 @@ class Email_Monitor {
      * on. get_delivery_verdict() answers a different question - what the last
      * measurement found, whoever ran it - and still drives the wording.
      *
-     * @return array{state:string,notifications:bool,outcome:string,score:float|null,checked_at:string,checked_at_display:string,confirmed_at:string,confirmed_at_display:string,pending_since:string,monitor_outcome:string,min_delivery_score:int,healthy_score:int,can_manage:bool}
+     * @return array{state:string,notifications:bool,outcome:string,score:float|null,checked_at:string,checked_at_display:string,confirmed_at:string,confirmed_at_display:string,pending_since:string,pending_since_display:string,monitor_outcome:string,min_delivery_score:int,healthy_score:int,can_manage:bool}
      */
     public static function get_delivery_state() {
         $settings = function_exists('get_setting_Emsfb') ? get_setting_Emsfb('decoded') : null;
@@ -251,6 +251,7 @@ class Email_Monitor {
             'confirmed_at'         => '',
             'confirmed_at_display' => '',
             'pending_since'        => '',
+            'pending_since_display' => '',
             'monitor_outcome'      => $monitor_outcome,
             'min_delivery_score'   => self::MIN_DELIVERY_SCORE,
             'healthy_score'        => self::HEALTHY_SCORE,
@@ -283,7 +284,8 @@ class Email_Monitor {
         if ('email_test_pending' === $id && '' !== $stamp) {
             $started = (int) strtotime($stamp . ' +00:00');
             if ($started > 0 && (time() - $started) < 15 * MINUTE_IN_SECONDS) {
-                $state['pending_since'] = $stamp;
+                $state['pending_since']         = $stamp;
+                $state['pending_since_display'] = self::display_utc_time($stamp);
             }
         }
 
@@ -320,8 +322,12 @@ class Email_Monitor {
      * @return void
      */
     public static function cancel_pending_lifecycle_test() {
-        if (function_exists('wp_unschedule_hook')) {
-            wp_unschedule_hook(self::LIFECYCLE_HOOK);
+        // Only the activation event: wp_unschedule_hook() would take the
+        // update-time probe with it, and that one is not rescheduled because
+        // plugin_updated() already recorded the version when it queued it.
+        $args = ['activation'];
+        while ($timestamp = wp_next_scheduled(self::LIFECYCLE_HOOK, $args)) {
+            wp_unschedule_event($timestamp, self::LIFECYCLE_HOOK, $args);
         }
     }
 

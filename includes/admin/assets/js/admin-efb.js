@@ -53,7 +53,8 @@ function efb_builder_email_warning_signature(kind) {
   return [
     kind,
     form_ID_emsFormBuilder || 0,
-    efb_builder_latest_email_spam_score()
+    efb_builder_latest_email_spam_score(),
+    efb_builder_form_has_email_field() ? 'email' : 'plain'
   ].join('|');
 }
 
@@ -87,18 +88,25 @@ function efb_builder_maybe_warn_email_delivery() {
     return;
   }
 
-  const signature = efb_builder_email_warning_signature(kind);
+  // A form with an email field on a site nobody checked: ask, with the two
+  // answers, unless the owner said "not now" this week. While the first-run
+  // guide is asking on top of the page nothing is shown and nothing is
+  // remembered, so the question still comes once the guide is gone.
+  const ask = kind === 'off' && efb_builder_form_has_email_field()
+    && efb_builder_delivery_needs_question() && !efb_builder_prompt_snoozed();
+  if (ask && document.getElementById('efb-setup-overlay')) return;
+
+  // The question and the plain "notifications are off" toast are different
+  // messages: one may follow the other on the same form (an email field is
+  // dragged in after the form was loaded without one).
+  const signature = efb_builder_email_warning_signature(ask ? 'ask' : kind);
   if (efb_builder_last_email_warning_signature === signature) {
     return;
   }
   efb_builder_last_email_warning_signature = signature;
 
   if (kind === 'off') {
-    // A form with an email field on a site nobody checked: ask, with the two
-    // answers, unless the owner said "not now" this week or the first-run
-    // guide is already asking on top of the page.
-    if (efb_builder_form_has_email_field() && efb_builder_delivery_needs_question()
-        && !efb_builder_prompt_snoozed() && !document.getElementById('efb-setup-overlay')) {
+    if (ask) {
       efb_builder_email_delivery_toast();
       return;
     }
@@ -149,10 +157,13 @@ function efb_builder_delivery_needs_question() {
    sending on from inside the builder, the open form follows, so the address
    it already has receives the notifications the owner just asked for. */
 function efb_builder_after_sending_switch(on) {
-  if (!on || !Array.isArray(valj_efb) || !valj_efb[0]) return;
-  if (typeof valj_efb[0].email === 'string' && valj_efb[0].email.length > 1) {
+  if (!on) { efb_builder_email_forget_origin(); return; }
+  if (Array.isArray(valj_efb) && valj_efb[0] && typeof valj_efb[0].email === 'string' && valj_efb[0].email.length > 1) {
     valj_efb[0].sendEmail = true;
   }
+  // Whether the owner confirmed or the check passed, the click that raised
+  // the question is made again now, so they are not told to click twice.
+  efb_builder_email_replay_origin();
 }
 
 function efb_builder_delivery_can_manage() {
@@ -163,24 +174,36 @@ function efb_builder_delivery_can_manage() {
 /* "Not now" is remembered for a week, in this browser, so the toast does
    not come back on every reload of every form. The dialog on a notification
    switch is never snoozed: that click is the owner asking for an email. */
+function efb_builder_prompt_snooze_key() {
+  // Per install: two WordPress sites on one origin (a subdirectory multisite)
+  // must not share the owner's "not now".
+  const site = (typeof efb_var !== 'undefined' && efb_var.ajax_url) ? String(efb_var.ajax_url) : '';
+  return 'efb_email_prompt_snooze:' + site;
+}
 function efb_builder_prompt_snoozed() {
-  try { return Number(localStorage.getItem('efb_email_prompt_snooze') || 0) > Date.now(); } catch (e) { return false; }
+  try { return Number(localStorage.getItem(efb_builder_prompt_snooze_key()) || 0) > Date.now(); } catch (e) { return false; }
 }
 function efb_builder_prompt_snooze() {
-  try { localStorage.setItem('efb_email_prompt_snooze', String(Date.now() + 7 * 24 * 60 * 60 * 1000)); } catch (e) {}
+  try { localStorage.setItem(efb_builder_prompt_snooze_key(), String(Date.now() + 7 * 24 * 60 * 60 * 1000)); } catch (e) {}
 }
 
 function efb_builder_prompt_copy() {
   const t = (key, fallback) => (efb_var.text && efb_var.text[key]) || fallback;
   const d = efb_builder_delivery_state() || {};
   const failed = d.state === 'tested' && d.outcome === 'undelivered';
+  const canManage = efb_builder_delivery_can_manage();
   let body;
-  if (failed) {
-    body = t('emailPromptBodyFailed', 'Your last check on %s found that emails from this site are not arriving. Fix it at your hosting company, then check again.')
-      .replace('%s', d.checked_at_display || '');
-  } else if (d.pending_since) {
-    body = t('emailPromptBodyPending', 'A check started on %s did not finish. Look for the emailed report in your inbox, or run it again.')
-      .replace('%s', d.checked_at_display || d.pending_since || '');
+  if (failed && !canManage) {
+    // No instructions for someone who cannot act on them.
+    body = t('emailPromptBodyFailedPlain', 'The last email check found that emails from this site do not reach the inbox.');
+  } else if (failed) {
+    body = d.checked_at_display
+      ? t('emailPromptBodyFailed', 'Your last check on %s found that emails from this site do not reach the inbox. Fix it at your hosting company, then check again.').replace('%s', d.checked_at_display)
+      : t('emailPromptBodyFailedNoDate', 'Your last check found that emails from this site do not reach the inbox. Fix it at your hosting company, then check again.');
+  } else if (d.pending_since && canManage) {
+    body = d.pending_since_display
+      ? t('emailPromptBodyPending', 'A check started on %s did not finish. Look for the emailed report in your inbox, or run it again.').replace('%s', d.pending_since_display)
+      : t('emailPromptBodyPendingNoDate', 'A check was started but did not finish. Look for the emailed report in your inbox, or run it again.');
   } else if (d.monitor_outcome === 'undelivered') {
     body = t('emailPromptBodyMonitorFailed', 'We noticed that emails from your site may not be arriving. Let us check before you rely on notifications.');
   } else {
@@ -197,7 +220,7 @@ function efb_builder_prompt_copy() {
     seeFix: t('emailSeeTheFix', 'See the fix'),
     fixedNote: t('emailPromptFixedNote', 'Already fixed it or know it works? Turn notifications on in Email Settings.'),
     notNow: t('emailPromptNotNow', 'Not now'),
-    askAdmin: t('emailPromptAskAdmin', 'Email delivery has not been checked yet. Ask a site administrator to check it or to turn notifications on.'),
+    askAdmin: t('emailPromptAskAdmin', 'Only a site administrator can check email delivery or turn notifications on. Ask them before you rely on this form.'),
     settings: t('emailSendingOffCta', 'Enable email sending')
   };
 }
@@ -263,10 +286,13 @@ function efb_builder_email_delivery_dialog(origin) {
   const painted = show_modal_efb(body, c.title, 'bi-envelope-check', 'saveBox', {
     flow: 'email-question',
     onShown: () => {
-      if (typeof efb_dlg_set_tone_efb === 'function') efb_dlg_set_tone_efb('efb-tone-warning');
+      if (typeof efb_dlg_set_tone_efb === 'function') efb_dlg_set_tone_efb('efb-tone-warn');
       const sections = document.getElementById('settingModalEfb-sections');
       if (!sections) return;
       const foot = document.createElement('div');
+      // The id the shell's footer sweepers know, so "Not now" leaves with
+      // this dialog instead of sitting under the next one.
+      foot.id = 'save-result-foot-efb';
       foot.className = 'efb modal-footer efb-dlg__foot';
       foot.innerHTML = `<a role="button" class="efb-dlg-btn efb-dlg-btn--ghost" onclick="efb_builder_email_not_now()">${c.notNow}</a>`;
       sections.appendChild(foot);
@@ -301,11 +327,14 @@ function efb_builder_email_confirm() {
     const delivery = Object.assign({}, efb_var.emailDelivery || {}, r.data.delivery || {}, { state: 'confirmed', notifications: true });
     if (typeof efb_var_patch_efb === 'function') efb_var_patch_efb({ emailDelivery: delivery });
     const msg = before.monitor_outcome === 'undelivered'
-      ? (efb_var.text.emailConfirmedMonitorToast || 'Notifications are on. Our last background check could not deliver, so if emails do not arrive, run the check from Email Settings.')
+      ? (efb_var.text.emailConfirmedMonitorToast || 'Notifications are on. An earlier automatic check found that emails from this site may not reach the inbox; if none arrive, run the check from Email Settings.')
       : (efb_var.text.emailConfirmedToast || 'Notifications are on. You can run the check any time from Email Settings.');
-    if (typeof state_modal_show_efb === 'function') state_modal_show_efb(0);
+    // Only the question dialog is closed: answered from the toast while the
+    // save result is on screen, that dialog stays where the owner left it.
+    if (typeof state_modal_show_efb === 'function' && typeof efb_modal_current_flow_efb === 'function' && efb_modal_current_flow_efb() === 'email-question') state_modal_show_efb(0);
     alert_message_efb(efb_var.text.hostSupportSmtp || 'This site can send emails', msg, 12, 'success');
-    efb_builder_email_replay_origin();
+    // The replay itself happens in efb_builder_after_sending_switch(true),
+    // which efb_onboarding_mark_sending_efb() has just called.
   }).fail(() => {
     alert_message_efb(efb_var.text.error || 'Error', efb_var.text.somethingWentWrongPleaseRefresh || 'Please try again.', 15, 'danger');
   });
@@ -317,9 +346,27 @@ function efb_builder_email_confirm() {
 function efb_builder_email_replay_origin() {
   const origin = efb_builder_email_prompt_origin;
   efb_builder_email_prompt_origin = null;
-  if (origin && typeof origin.click === 'function' && Number(efb_var.smtp) === 1) {
-    setTimeout(() => { try { origin.click(); } catch (e) {} }, 50);
-  }
+  if (!origin || Number(efb_var.smtp) !== 1) return;
+  // The side box may have been redrawn for another field since the question
+  // was asked; a detached element has nothing to replay into.
+  if (origin.isConnected === false) return;
+  setTimeout(() => {
+    try {
+      if (origin.tagName === 'INPUT') {
+        // The admin address: its change handler, with the typed value kept.
+        origin.dispatchEvent(new Event('change', { bubbles: true }));
+      } else if (typeof origin.click === 'function') {
+        origin.click();
+      }
+    } catch (e) {}
+  }, 50);
+}
+
+/* The question was closed without an answer that allows the click: the
+   element is forgotten, so a later answer from the toast replays nothing
+   stale. */
+function efb_builder_email_forget_origin() {
+  efb_builder_email_prompt_origin = null;
 }
 
 /* The same check the wizard runs, in the builder's modal: the card, the
@@ -331,12 +378,21 @@ function efb_builder_email_check_open() {
     window.location.href = efb_builder_email_settings_url();
     return;
   }
-  // Asked from inside the question dialog: that one closes first, and the
-  // check takes the screen once the close has played out.
   const shell = document.getElementById('settingModalEfb');
-  if (shell && shell.classList.contains('show') && window._efb_modal_flow_efb === 'email-question') {
+  const showing = !!(shell && shell.classList.contains('show'));
+  // Already on screen (a double click on "Check for me"): one check, not two
+  // spending the site's daily quota and writing into one card.
+  if (showing && window._efb_modal_flow_efb === 'email-check') return;
+  // Asked from inside the question dialog: that one closes first, and the
+  // check takes the screen once the close has played out. The element that
+  // raised the question survives the close so a passing check can replay it.
+  if (showing && window._efb_modal_flow_efb === 'email-question') {
+    const origin = efb_builder_email_prompt_origin;
     state_modal_show_efb(0);
-    setTimeout(efb_builder_email_check_open, 420);
+    setTimeout(() => {
+      if (efb_builder_email_prompt_origin === null) efb_builder_email_prompt_origin = origin;
+      efb_builder_email_check_open();
+    }, 420);
     return;
   }
   efb_onboarding_host_efb = 'builder';
@@ -346,6 +402,10 @@ function efb_builder_email_check_open() {
   const title = (efb_var.text && efb_var.text.onboardingStepEmailCheck) || 'Email check';
   const painted = show_modal_efb(body, title, 'bi-envelope-check', 'saveBox', {
     flow: 'email-check',
+    // Asked from the toast while another dialog (the save result) holds the
+    // shell: this answers the toast, so that dialog is closed and the check
+    // takes over, rather than popping up later when nobody asked.
+    replace: true,
     onShown: () => {
       if (typeof efb_dlg_set_tone_efb === 'function') efb_dlg_set_tone_efb('');
       efb_onboarding_bind_card_efb();
@@ -2024,8 +2084,10 @@ let change_el_edit_Efb = (el) => {
 
           alert_message_efb(efb_var.text.error, efb_var.text.goToEFBAddEmailM, 30, "danger");
         } else {
+          // The question is asked before the typed address is cleared: once
+          // the owner answers, this same change is replayed with it.
+          if (efb_builder_delivery_needs_question() && efb_builder_email_delivery_dialog(el)) break;
           if(document.getElementById("adminFormEmailEl"))document.getElementById("adminFormEmailEl").value = "";
-          if (efb_builder_delivery_needs_question() && efb_builder_email_delivery_dialog(null)) break;
           alert_message_efb(efb_var.text.error, efb_var.text.sMTPNotWork, 20, "danger")
         }
 
@@ -5127,6 +5189,10 @@ state_modal_show_efb=(i)=>{
        match only, so a dialog that had somehow ended up with two footers
        would leave one of them behind for the next dialog to wear. */
     document.querySelectorAll('#modal-footer-efb, #save-result-foot-efb').forEach((foot) => foot.remove());
+    /* The email question closed without an answer (backdrop, x): the click
+       that raised it is forgotten. efb_builder_email_check_open() keeps it
+       across its own close. */
+    if (window._efb_modal_flow_efb === 'email-question' && typeof efb_builder_email_forget_origin === 'function') efb_builder_email_forget_origin();
     /* The shell no longer belongs to any flow; the next dialog to ask for
        it gets it, and anything parked behind this one can now be shown. */
     window._efb_modal_flow_efb = '';
