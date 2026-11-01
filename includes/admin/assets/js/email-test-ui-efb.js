@@ -82,7 +82,8 @@
 		tabDiagnosis: 'Diagnosis',
 		tabTips: 'Recommendations',
 		scoreOutOf: '/ 100',
-		technical: 'Technical details'
+		technical: 'Technical details',
+		showDetails: 'Show details'
 	};
 
 	/**
@@ -260,32 +261,98 @@
 			'</div></div>';
 	}
 
-	function renderHero(view, s, rtl, running) {
-		var hero = view.hero || {};
+	/** The gauge when there is a score, the icon when there is not. */
+	function renderFigure(hero, s, rtl) {
 		var hasScore = hero.score !== undefined && hero.score !== null && hero.score !== '';
-		var figure;
 
 		if (hasScore) {
 			var score = Math.max(0, Math.min(100, Number(hero.score) || 0));
 			// The sweep is the datum, so it is the one inline style here.
-			figure = '<div class="efb-est__gauge" style="background:conic-gradient(var(--efb-est-tone) ' +
+			return '<div class="efb-est__gauge" style="background:conic-gradient(var(--efb-est-tone) ' +
 				(score * 3.6) + 'deg, #e7e9f4 0deg);" role="img" aria-label="' +
 				escapeHtml(score + ' / 100') + '">' +
 				'<span class="efb-est__gauge-inner">' +
 				'<span class="efb-est__score">' + escapeHtml(localeDigits(score, rtl)) + '</span>' +
 				'<span class="efb-est__score-max">' + escapeHtml(s.scoreOutOf) + '</span>' +
 				'</span></div>';
-		} else {
-			figure = '<div class="efb-est__hero-icon"><i class="bi ' +
-				escapeHtml(hero.icon || 'bi-envelope-check') + '" aria-hidden="true"></i></div>';
 		}
+
+		return '<div class="efb-est__hero-icon"><i class="bi ' +
+			escapeHtml(hero.icon || 'bi-envelope-check') + '" aria-hidden="true"></i></div>';
+	}
+
+	function renderProgress(view, rtl) {
+		var percent = Math.max(0, Math.min(100, Number(view.percent) || 0));
+		var percentLabel = localeDigits(percent, rtl) + (rtl ? '٪' : '%');
+
+		return '<div class="efb-est__progress">' +
+			'<div class="efb-est__track" role="progressbar" aria-valuenow="' + percent +
+			'" aria-valuemin="0" aria-valuemax="100">' +
+			'<div class="efb-est__bar" style="width:' + percent + '%;"></div></div>' +
+			'<span class="efb-est__percent">' + escapeHtml(percentLabel) + '</span>' +
+			'</div>';
+	}
+
+	/**
+	 * The short form of a result: the figure, one label, one sentence, the
+	 * line about the emailed report, and nothing else in sight. Everything
+	 * the full panel shows waits behind one "Show details".
+	 *
+	 * Built for the setup wizard and the form builder, where the person
+	 * reading it is a site owner, not a mail administrator: a score they can
+	 * place, a sentence that says whether notifications are on, and the step
+	 * rail, the diagnosis and the raw service text only on request.
+	 *
+	 *   summary: {
+	 *     label:    '',                  one or two words next to the figure
+	 *     sentence: '',                  the one sentence
+	 *     report:   { text, email },     optional; text already contains the
+	 *                                    address when email is empty
+	 *     note:     '',                  optional quiet line under the sentence
+	 *     detailsLabel: ''               optional, defaults to strings.showDetails
+	 *   }
+	 */
+	function renderSummary(view, s, rtl, running) {
+		var sum = view.summary || {};
+		var hero = view.hero || {};
+		var lines = '';
+
+		if (sum.sentence) {
+			lines += '<p class="efb-est__sum-sentence" dir="auto">' + escapeHtml(sum.sentence) + '</p>';
+		}
+		if (running) {
+			lines += renderProgress(view, rtl);
+		}
+		if (sum.report && sum.report.text) {
+			// The sentence carries a %s where the address goes, so a translator
+			// can put it anywhere; the address itself stays left to right.
+			var parts = String(sum.report.text).split('%s');
+			var mail = sum.report.email ? '<b class="efb-est__mail">' + escapeHtml(sum.report.email) + '</b>' : '';
+			var reportHtml = parts.length > 1
+				? escapeHtml(parts[0]) + mail + escapeHtml(parts.slice(1).join('%s'))
+				: escapeHtml(sum.report.text) + (mail ? ' ' + mail : '');
+			lines += '<div class="efb-est__sum-report"><i class="bi bi-envelope-paper" aria-hidden="true"></i>' +
+				'<span dir="auto">' + reportHtml + '</span></div>';
+		}
+		if (sum.note) {
+			lines += '<div class="efb-est__sum-note" dir="auto">' + escapeHtml(sum.note) + '</div>';
+		}
+
+		return '<div class="efb-est__sum">' +
+			'<div class="efb-est__sum-figure">' + renderFigure(hero, s, rtl) + '</div>' +
+			'<div class="efb-est__sum-main">' +
+			(sum.label ? '<div class="efb-est__sum-label" dir="auto">' + escapeHtml(sum.label) + '</div>' : '') +
+			lines +
+			'</div></div>';
+	}
+
+	function renderHero(view, s, rtl, running) {
+		var hero = view.hero || {};
+		var figure = renderFigure(hero, s, rtl);
 
 		var grade = hero.grade
 			? '<span class="efb-est__grade">' + escapeHtml(hero.grade) + '</span>'
 			: '';
-
-		var percent = Math.max(0, Math.min(100, Number(view.percent) || 0));
-		var percentLabel = localeDigits(percent, rtl) + (rtl ? '٪' : '%');
 
 		return '<div class="efb-est__hero">' +
 			'<div class="efb-est__hero-figure">' + figure + '</div>' +
@@ -294,12 +361,8 @@
 			'<span class="efb-est__hero-title" dir="auto">' + escapeHtml(hero.title || '') + '</span>' + grade +
 			'</div>' +
 			(hero.sub ? '<div class="efb-est__hero-sub" dir="auto">' + escapeHtml(hero.sub) + '</div>' : '') +
-			'<div class="efb-est__progress">' +
-			'<div class="efb-est__track" role="progressbar" aria-valuenow="' + percent +
-			'" aria-valuemin="0" aria-valuemax="100">' +
-			'<div class="efb-est__bar" style="width:' + percent + '%;"></div></div>' +
-			'<span class="efb-est__percent">' + escapeHtml(percentLabel) + '</span>' +
-			'</div></div></div>';
+			renderProgress(view, rtl) +
+			'</div></div>';
 	}
 
 	function renderBlocks(view) {
@@ -611,6 +674,25 @@
 		}
 		if (view.inline) {
 			classes.push('efb-est--inline');
+		}
+
+		// The short form: everything the full panel draws is still there, but
+		// folded behind a native <details>, so the tabs keep working and the
+		// person who wants the step rail or the raw service text can have it.
+		if (view.summary) {
+			classes.push('efb-est--summary');
+			var sum = view.summary || {};
+			var more = renderSteps(view, s, rtl) +
+				renderBlocks(view) +
+				renderNextSteps(view) +
+				renderTechnical(view, s) +
+				renderDetails(view, s);
+			return '<div class="' + classes.join(' ') + '" data-efb-est>' +
+				renderSummary(view, s, rtl, running) +
+				'<details class="efb-est__more"' + (sum.open ? ' open' : '') + '><summary dir="auto">' +
+				escapeHtml(sum.detailsLabel || s.showDetails) + '</summary>' +
+				'<div class="efb-est__more-body">' + more + '</div></details>' +
+				'</div>';
 		}
 
 		return '<div class="' + classes.join(' ') + '" data-efb-est>' +

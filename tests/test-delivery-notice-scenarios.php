@@ -247,20 +247,49 @@ efb_notice_case('quota refused the run, admin check scored 25', $quota_failure, 
 efb_notice_case('quota refused the run, admin check scored 85', $quota_failure, $panel_healthy, 'silent');
 efb_notice_case('quota refused the run, admin check found nothing arrived', $quota_failure, $panel_failed, 'undelivered');
 
-echo "\n=== The monitor measured something ===\n";
-efb_notice_case('WordPress itself could not send', $wp_mail_failed, null, 'undelivered');
-efb_notice_case('the test email never arrived', $never_arrived, null, 'undelivered');
-efb_notice_case('delivered, score 25 (spam range)', $analyzed(25), null, 'spam');
+echo "\n=== The monitor measured something, nobody checked or confirmed ===\n";
+// The sending switch is off and no check was run by the owner: nothing is
+// being sent, so there is nothing being lost, and the banner stays quiet. The
+// form builder asks the owner the moment a form gets an email field instead.
+efb_notice_case('WordPress itself could not send', $wp_mail_failed, null, 'silent');
+efb_notice_case('the test email never arrived', $never_arrived, null, 'silent');
+efb_notice_case('delivered, score 25 (spam range)', $analyzed(25), null, 'silent');
+efb_notice_case('delivered, score 12 (below the sending threshold)', $analyzed(12), null, 'silent');
+efb_notice_case('analysed, nothing arrived', $analyzed(null, false), null, 'silent');
+efb_notice_case('delivered, score 82 (healthy)', $analyzed(82), null, 'silent');
+
+echo "\n=== The monitor measured something, the owner confirmed sending ===\n";
+// With the switch on, form emails are going out, so a probe that cannot get
+// a message through is exactly what the banner is for.
+efb_notice_case('owner switch on: WordPress itself could not send', $wp_mail_failed, null, 'undelivered', true);
+efb_notice_case('owner switch on: the test email never arrived', $never_arrived, null, 'undelivered', 'true');
+efb_notice_case('owner switch on: delivered, score 25 (spam range)', $analyzed(25), null, 'spam', true);
 // The banner is spent on mail that is really being lost. From
 // SPAM_NOTICE_SCORE upwards the message still lands, so only the email panel
 // and the weekly report say the score could be better - the dashboard does not
 // interrupt anybody over it.
-efb_notice_case('delivered, score 49 (just under the notice threshold)', $analyzed(49), null, 'spam');
-efb_notice_case('delivered, score 50 (at the notice threshold)', $analyzed(50), null, 'silent');
-efb_notice_case('delivered, score 60 (spam range, not worth a banner)', $analyzed(60), null, 'silent');
-efb_notice_case('delivered, score 12 (below the sending threshold)', $analyzed(12), null, 'undelivered');
-efb_notice_case('delivered, score 82 (healthy)', $analyzed(82), null, 'silent');
-efb_notice_case('analysed, nothing arrived', $analyzed(null, false), null, 'undelivered');
+efb_notice_case('owner switch on: delivered, score 49 (just under the notice threshold)', $analyzed(49), null, 'spam', true);
+efb_notice_case('owner switch on: delivered, score 50 (at the notice threshold)', $analyzed(50), null, 'silent', true);
+efb_notice_case('owner switch on: delivered, score 60 (spam range, not worth a banner)', $analyzed(60), null, 'silent', true);
+efb_notice_case('owner switch on: delivered, score 12 (below the sending threshold)', $analyzed(12), null, 'undelivered', true);
+efb_notice_case('owner switch on: delivered, score 82 (healthy)', $analyzed(82), null, 'silent', true);
+efb_notice_case('owner switch on: analysed, nothing arrived', $analyzed(null, false), null, 'undelivered', true);
+// The owner's dated "my host can send email" answer outranks an older probe
+// and gives way to a newer one.
+$owner_confirmed = function ($minutes_ago) {
+	return [
+		'status' => 'ok_set_smtp',
+		'message' => ['title' => 't', 'description' => 'd', 'id' => 'email_sending_confirmed_by_owner'],
+		'details' => ['source' => 'owner', 'test_timestamp' => efb_notice_utc_time($minutes_ago)],
+	];
+};
+efb_notice_case('owner confirmed (2 min ago) after the probe failed (90 min ago)', $analyzed(null, false, 90), $owner_confirmed(2), 'silent', true);
+efb_notice_case('probe failed (2 min ago) after the owner confirmed (90 min ago)', $analyzed(null, false, 2), $owner_confirmed(90), 'undelivered', true);
+
+echo "\n=== The owner ran a check that failed ===\n";
+// A check the owner started is theirs, whatever the switch says.
+efb_notice_case('owner check found nothing arrived, switch off', $never_arrived, $panel_failed, 'undelivered');
+efb_notice_case('owner check scored 25, switch off', null, $panel_spam, 'spam');
 
 echo "\n=== Two records: the most recent measurement wins ===\n";
 efb_notice_case('panel check (2 min ago) newer than monitor failure (90 min ago)', $analyzed(null, false, 90), $panel_spam, 'spam');
@@ -272,27 +301,27 @@ efb_notice_case('legacy site (smtp = 1), quota failure', $quota_failure, null, '
 efb_notice_case('legacy site (smtp = 1), nothing arrived', $wp_mail_failed, null, 'silent', 1);
 efb_notice_case('legacy site (smtp = 1), score 25', $analyzed(25), null, 'silent', 1);
 efb_notice_case('legacy site (smtp = "1"), score 25', $analyzed(25), null, 'silent', '1');
-efb_notice_case('legacy site that never had sending on (smtp = 0)', $analyzed(25), null, 'spam', 0);
+efb_notice_case('legacy site that never had sending on (smtp = 0)', $analyzed(25), null, 'silent', 0);
 
 echo "\n=== Current installations, switch on or off ===\n";
 efb_notice_case('switch on as a boolean, score 25', $analyzed(25), null, 'spam', true);
 efb_notice_case('switch on as the panel string, nothing arrived', $wp_mail_failed, null, 'undelivered', 'true');
-efb_notice_case('no smtp key at all, nothing arrived', $wp_mail_failed, null, 'undelivered', '(absent)');
+efb_notice_case('no smtp key at all, nothing arrived (nothing is being sent)', $wp_mail_failed, null, 'silent', '(absent)');
 
 echo "\n=== Dismissal and capability ===\n";
 $spam_record = $analyzed(25);
 $spam_fingerprint = md5($spam_record['checked_at'] . '|spam');
-efb_notice_case('admin dismissed this exact verdict', $spam_record, null, 'silent', false, function () use ($spam_fingerprint) {
+efb_notice_case('admin dismissed this exact verdict', $spam_record, null, 'silent', true, function () use ($spam_fingerprint) {
 	update_user_meta(get_current_user_id(), DISMISS_META, $spam_fingerprint);
 });
-efb_notice_case('the problem changes after that dismissal', $wp_mail_failed, null, 'undelivered', false, function () use ($spam_fingerprint) {
+efb_notice_case('the problem changes after that dismissal', $wp_mail_failed, null, 'undelivered', true, function () use ($spam_fingerprint) {
 	update_user_meta(get_current_user_id(), DISMISS_META, $spam_fingerprint);
 });
 
 wp_set_current_user(0);
-efb_notice_case('visitor without manage_options', $wp_mail_failed, null, 'silent');
+efb_notice_case('visitor without manage_options', $wp_mail_failed, null, 'silent', true);
 wp_set_current_user($admin_id);
-efb_notice_case('administrator, same failed run', $wp_mail_failed, null, 'undelivered');
+efb_notice_case('administrator, same failed run', $wp_mail_failed, null, 'undelivered', true);
 
 // ---------------------------------------------------------------------------
 // Restore.

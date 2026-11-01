@@ -61,6 +61,13 @@ const elements = {
   'efb-onboarding-admin-email': stubElement({ value: 'admin@example.test' }),
   'efb-onboarding-test-email': stubElement(),
   'efb-onboarding-finish': stubElement({ disabled: true }),
+  'efb-onboarding-later': stubElement(),
+  'efb-onboarding-help': stubElement(),
+  'efb-onboarding-fix-note': stubElement(),
+  'efb-onboarding-skip-note': stubElement(),
+  // The overlay the card sits in: the user-close looks inside it for the
+  // card's own test button to decide that this is the email step.
+  'efb-setup-overlay': stubElement({ querySelector(sel) { return String(sel).indexOf('efb-onboarding-test-email') !== -1 ? elements['efb-onboarding-test-email'] : null; } }),
   // Returning no report element keeps the shared renderer out of this half;
   // Part B is where what it draws gets measured.
   'efb-onboarding-email-report': null,
@@ -111,7 +118,7 @@ global.jQuery.ajax = function (options) {
 global.efb_var = deepFreeze_efb_admin({
   pro: '0', ajax_url: '/wp-admin/admin-ajax.php', nonce: 'nonce-efb', rtl: 0,
   text: {}, adminEmail: 'admin@example.test', onboarding_pending: true,
-  emailMonitor: { min_delivery_score: 70 },
+  emailMonitor: { min_delivery_score: 20, healthy_score: 70 },
   setting: { package_type: 3, emailSupporter: 'admin@example.test' },
 });
 global.setting_emsFormBuilder = efb_var.setting;
@@ -177,6 +184,36 @@ replies = {};
 elements['efb-onboarding-admin-email'].value = 'not-an-email';
 efb_onboarding_start_email_test_efb();
 test('A9 a rejected address posts nothing at all', posted.length, 0);
+
+// ----------------------------------------------------------------------------
+// Skip for now: the same dismissal as the x button, nothing else
+// ----------------------------------------------------------------------------
+efb_onboarding_completion_saved_efb = false;
+efb_onboarding_dismissal_saved_efb = false;
+efb_var = deepFreeze_efb_admin(Object.assign({}, efb_var, { onboarding_pending: true }));
+global.closeSetupOverlay_efb = () => {};
+global.show_info_notification_efb = () => {};
+posted = [];
+replies = { efb_dismiss_onboarding: { success: true }, efb_save_onboarding_email: { success: true } };
+elements['efb-onboarding-admin-email'].value = 'admin@example.test';
+efb_onboarding_skip_efb();
+let skipActions = posted.map((d) => d.action);
+test('S1 Skip for now records the dismissal once', actionCount(skipActions, 'efb_dismiss_onboarding'), 1);
+test('S2 and clears the browser copy of the pending flag', efb_var.onboarding_pending, false);
+test('S3 and neither completes the guide nor runs a check',
+  [actionCount(skipActions, 'efb_complete_onboarding'), actionCount(skipActions, 'check_email_server_efb')], [0, 0]);
+test('S4 an unchanged address is not re-saved on skip', actionCount(skipActions, 'efb_save_onboarding_email'), 0);
+efb_onboarding_dismissal_saved_efb = false;
+efb_var = deepFreeze_efb_admin(Object.assign({}, efb_var, { onboarding_pending: true }));
+posted = [];
+elements['efb-onboarding-admin-email'].value = 'owner@example.test';
+efb_onboarding_skip_efb();
+skipActions = posted.map((d) => d.action);
+testTrue('S5 a changed address is kept even when the check is skipped',
+  skipActions.includes('efb_save_onboarding_email') && actionCount(skipActions, 'efb_dismiss_onboarding') === 1);
+elements['efb-onboarding-admin-email'].value = 'admin@example.test';
+efb_onboarding_dismissal_saved_efb = false;
+efb_onboarding_completion_saved_efb = false;
 
 // ============================================================================
 // Part A2 - what the poll proves, not more (T01)
@@ -259,6 +296,29 @@ test('A29 timeout, pending, wp_mail=false, confirmed and unreachable all read di
 testTrue('A30 only definite failures carry the "forms are separate" note, a pass does not',
   !confirmed.view.note && !!unreachable.view.note && !!expired.view.note);
 
+// The short form every result carries: one sentence that says whether
+// notifications are on, a label for the figure, and the report line only
+// when the service really sends one.
+const ON = 'Notifications are on', OFF = 'Notifications are off';
+testTrue('A37 a healthy result says notifications are on',
+  confirmed.view.summary && confirmed.view.summary.sentence.indexOf(ON) !== -1 && confirmed.view.summary.label === 'Good');
+testTrue('A38 a healthy result reports the emailed report with the address',
+  confirmed.view.summary.report && confirmed.view.summary.report.email === 'admin@example.test');
+testTrue('A39 no email arrived: notifications are off, figure is a label not a score',
+  expired.view.summary.sentence.indexOf(OFF) !== -1 && expired.view.summary.label === 'Not delivered' && expired.view.hero.score === undefined);
+testTrue('A40 a lost answer never claims a report was emailed and offers another go',
+  !unreachable.view.summary.report && !lost.view.summary.report && !badJson.view.summary.report);
+testTrue('A41 wp_mail()=false reads as not sent, no report line',
+  sendFailed.view.summary.label === 'Not sent' && !sendFailed.view.summary.report && sendFailed.view.summary.sentence.indexOf(OFF) !== -1);
+const low = pollWith({ data: { success: true, result: { status: 'analyzed', analysis_stage: 'full', can_send_email: true, score: 8 } } }, 9);
+testTrue('A42 a delivered email with a spam-range score is labelled as such and keeps notifications off',
+  low.view.summary.label === 'Spam risk' && low.view.summary.sentence.indexOf(OFF) !== -1 && low.view.hero.score === 8);
+const fair = pollWith({ data: { success: true, result: { status: 'analyzed', analysis_stage: 'full', can_send_email: true, score: 55 } } }, 9);
+testTrue('A43 a delivered email under the healthy line is fair, notifications on',
+  fair.view.summary.label === 'Fair' && fair.view.summary.sentence.indexOf(ON) !== -1);
+testTrue('A44 the full panel is still there behind "Show details"',
+  typeof confirmed.view.summary.detailsLabel === 'string' && confirmed.view.summary.detailsLabel.length > 0 && confirmed.view.rows.length > 0);
+
 // The start: wp_mail() returning false is the one start result about email.
 efb_onboarding_completion_saved_efb = true; // completion itself is covered above
 posted = [];
@@ -313,8 +373,9 @@ const REPORT_VIEW = efb_onboarding_email_view_efb({
   result: { score: 60, grade_label: 'Needs Improvement', delivery: { recipient_email: 'inbound@smtptest.whitestudio.team' } },
 });
 
-// The two <style> blocks and the card markup are read out of the shipped file
-// so this measures the CSS that actually loads, not a copy of it.
+// The overlay <style> is read out of the shipped file; the card's markup and
+// stylesheet come from the same functions production calls, with the phrase
+// table empty so every lookup falls back to its English default.
 function extractStyle(haystack) {
   const match = haystack.match(/<style>([\s\S]*?)<\/style>/);
   if (!match) throw new Error('no <style> block found');
@@ -324,15 +385,8 @@ function extractStyle(haystack) {
 const overlayStart = source.indexOf('overlayPage.innerHTML');
 const overlayCss = extractStyle(source.slice(overlayStart, source.indexOf('`;', overlayStart)));
 
-const cardStart = source.indexOf('content.innerHTML = ');
-const cardLine = source.slice(cardStart, source.indexOf('\n', cardStart));
-const cardCss = extractStyle(cardLine);
-// The markup is one long concatenation of literals and phrase lookups. The
-// phrases themselves do not matter to a layout measurement, only the boxes
-// they sit in, so every lookup collapses to a short word.
-const cardMarkup = cardLine
-  .slice(cardLine.indexOf("'<div") + 1, cardLine.indexOf('<style>'))
-  .replace(/'\s*\+[\s\S]*?\+\s*'/g, 'Set up form notifications');
+const cardCss = vm.runInThisContext('efb_onboarding_card_css_efb()');
+const cardMarkup = vm.runInThisContext("efb_onboarding_card_markup_efb('admin@example.test')");
 
 const estCss = fs.readFileSync(path.join(__dirname, '../includes/admin/assets/css/email-test-efb.css'), 'utf8');
 const estUi = fs.readFileSync(path.join(__dirname, '../includes/admin/assets/js/email-test-ui-efb.js'), 'utf8');
@@ -354,6 +408,18 @@ const RENDER_REPORT = (view) => {
   const report = document.getElementById('efb-onboarding-email-report');
   report.className = 'efb-onboarding-report efb-onboarding-email-report';
   report.innerHTML = window.efbEmailTestUI.render(view);
+  // The result phase: the question is gone and the ways out are up, the
+  // way a finished check leaves the card. "Show details" is opened so the
+  // tallest state is what gets measured.
+  const card = document.getElementById('efb-onboarding-card');
+  card.classList.remove('is-asking'); card.classList.add('is-done');
+  document.getElementById('efb-onboarding-later').hidden = true;
+  document.getElementById('efb-onboarding-skip-note').hidden = true;
+  const help = document.getElementById('efb-onboarding-help'); help.hidden = false; help.href = 'https://example.test/guide/';
+  document.getElementById('efb-onboarding-fix-note').hidden = false;
+  const finish = document.getElementById('efb-onboarding-finish'); finish.hidden = false; finish.disabled = false;
+  const more = report.querySelector('details.efb-est__more');
+  if (more) more.open = true;
 };
 
 async function measureLayout() {
@@ -364,7 +430,7 @@ async function measureLayout() {
   const browser = await chromium.launch();
   const results = { sizes: {}, empty: null, rtl: null };
   try {
-    for (const [w, h] of [[1920, 1080], [1440, 900], [1366, 768], [1280, 720], [1024, 640]]) {
+    for (const [w, h] of [[1920, 1080], [1440, 900], [1366, 768], [1280, 720], [1024, 640], [414, 896], [390, 844], [375, 812], [360, 740]]) {
       const context = await browser.newContext({ viewport: { width: w, height: h } });
       const page = await context.newPage();
       await page.setContent(PAGE);
@@ -377,11 +443,19 @@ async function measureLayout() {
         const tail = document.querySelector('.efb-est__details');
         content.scrollTop = content.scrollHeight;
         const box = container.getBoundingClientRect();
+        const label = document.querySelector('.efb-est__step-label');
+        const grid = document.querySelector('.efb-est__next-grid');
+        const h2 = document.querySelector('.efb-onboarding-hero h2');
         return {
           // Positive means cut off by the container edge with no way to reach it.
           actionsBelowContainer: Math.round(actions.getBoundingClientRect().bottom - box.bottom),
           reportTailBelowContainer: Math.round(tail.getBoundingClientRect().bottom - box.bottom),
           bodyOverflowX: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+          stepLabelPx: label ? parseFloat(getComputedStyle(label).fontSize) : 0,
+          gridOverflow: grid ? Math.round(grid.getBoundingClientRect().right - grid.parentElement.getBoundingClientRect().right) : 0,
+          cardOverflow: Math.round(document.getElementById('efb-onboarding-card').scrollWidth - document.getElementById('efb-onboarding-card').clientWidth),
+          // Lines of a wrapped heading must not sit on top of each other.
+          h2LineHeight: h2 ? parseFloat(getComputedStyle(h2).lineHeight) / parseFloat(getComputedStyle(h2).fontSize) : 0,
         };
       });
       await context.close();
@@ -439,6 +513,11 @@ measureLayout().then((layout) => {
       testTrue('B2 ' + size + ' the end of the report can be scrolled into view',
         m.reportTailBelowContainer <= 0);
       test('B3 ' + size + ' the page never scrolls sideways', m.bodyOverflowX, false);
+      testTrue('B9 ' + size + ' nothing inside the card is wider than the card', m.cardOverflow <= 0 && m.gridOverflow <= 0);
+      if (parseInt(size, 10) <= 480) {
+        testTrue('B10 ' + size + ' the step labels are readable on a phone (>= 11px)', m.stepLabelPx >= 11);
+      }
+      testTrue('B11 ' + size + ' the heading has room between its lines', m.h2LineHeight >= 1.15);
     });
     test('B4 an untested card reserves no room for a report that is not there',
       layout.empty.reportHeight, 0);

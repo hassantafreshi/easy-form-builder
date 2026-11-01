@@ -296,6 +296,7 @@ class Panel_edit  {
 				'wsteam'=> $wsteam_domain,
 				'emailHealth'=>$email_health,
 				'emailMonitor' => class_exists('\Emsfb\Email_Monitor') ? \Emsfb\Email_Monitor::get_public_status() : array(),
+				'emailDelivery' => class_exists('\Emsfb\Email_Monitor') ? \Emsfb\Email_Monitor::get_delivery_state() : array(),
 				'onboarding_pending' => emsfb_onboarding_pending_efb(),
 				'upload_max'=>(int) floor(wp_max_upload_size() / MB_IN_BYTES),
 			), 'panel');
@@ -407,17 +408,21 @@ class Panel_edit  {
 		$value = $this->db->get_results( "SELECT msg_id,form_id FROM `$table_name` WHERE read_=0 OR read_=3" );
 		return $value;
 	}
+	/* Same rule as the Create page: the score of the check the owner ran,
+	   against Email_Monitor::HEALTHY_SCORE, instead of a recursive search that
+	   could pick a SpamAssassin figure and a threshold nothing else uses. */
 	private function get_email_health_status_for_builder() {
-		$status = get_option('emsfb_email_status', false);
 		$score = null;
-
-		if (is_array($status)) {
-			$score = $this->extract_email_score_from_status($status);
+		$threshold = 70;
+		if (class_exists('\Emsfb\Email_Monitor')) {
+			$delivery = \Emsfb\Email_Monitor::get_delivery_state();
+			$score = ('tested' === $delivery['state'] && isset($delivery['score'])) ? $delivery['score'] : null;
+			$threshold = \Emsfb\Email_Monitor::HEALTHY_SCORE;
 		}
 
 		return array(
 			'score' => $score,
-			'threshold' => 75,
+			'threshold' => $threshold,
 		);
 	}
 	private function extract_email_score_from_status($value) {

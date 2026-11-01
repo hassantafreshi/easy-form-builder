@@ -310,6 +310,11 @@ class Create {
 			'zone_area'=>CDN_ZONE_AREA,
 			'plugins'=>$plugins,
 			'emailHealth'=>$email_health,
+			// What the owner did about delivery (unchecked / confirmed / tested)
+			// and the data the builder's email question and check need: the
+			// score thresholds and the guide links of the next-steps box.
+			'emailDelivery' => class_exists('\Emsfb\Email_Monitor') ? \Emsfb\Email_Monitor::get_delivery_state() : array(),
+			'emailMonitor' => class_exists('\Emsfb\Email_Monitor') ? \Emsfb\Email_Monitor::get_public_status() : array(),
 			'onboarding_pending' => emsfb_onboarding_pending_efb(),
 			// Hosting upload ceiling in MB - the builder warns when a field's
 			// max file size is configured above it (uploads would fail).
@@ -334,17 +339,25 @@ class Create {
 			wp_enqueue_script('efb-conditional-logic-preview-js', EMSFB_PLUGIN_URL . 'vendor/logic/logic/assets/public/js/conditional-logic-efb.js', array('Emsfb-core-js'), EMSFB_PLUGIN_VERSION, true);
 		}
 	}
+	/*
+	 * The delivery score the builder warns about, from the check the owner ran.
+	 * It used to be found by a recursive search over the saved status that
+	 * could return a SpamAssassin figure on another scale, against a threshold
+	 * of 75 that nothing else in the plugin uses; the line is now
+	 * Email_Monitor::HEALTHY_SCORE, the same one the panel and the wizard draw.
+	 */
 	private function get_email_health_status_for_builder() {
-		$status = get_option('emsfb_email_status', false);
 		$score = null;
-
-		if (is_array($status)) {
-			$score = $this->extract_email_score_from_status($status);
+		$threshold = 70;
+		if (class_exists('\Emsfb\Email_Monitor')) {
+			$delivery = \Emsfb\Email_Monitor::get_delivery_state();
+			$score = ('tested' === $delivery['state'] && isset($delivery['score'])) ? $delivery['score'] : null;
+			$threshold = \Emsfb\Email_Monitor::HEALTHY_SCORE;
 		}
 
 		return array(
 			'score' => $score,
-			'threshold' => 75,
+			'threshold' => $threshold,
 		);
 	}
 	private function extract_email_score_from_status($value) {

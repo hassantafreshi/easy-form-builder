@@ -55,6 +55,7 @@ class Admin {
             add_action('wp_ajax_efb_save_onboarding_email', [$this, 'efb_save_onboarding_email']);
             add_action('wp_ajax_efb_complete_onboarding', [$this, 'efb_complete_onboarding']);
             add_action('wp_ajax_efb_dismiss_onboarding', [$this, 'efb_dismiss_onboarding']);
+            add_action('wp_ajax_efb_confirm_email_sending', [$this, 'efb_confirm_email_sending']);
             add_action('wp_ajax_add_addons_Emsfb', [$this, 'add_addons_Emsfb']);
             add_action('wp_ajax_remove_addons_Emsfb', [$this, 'remove_addons_Emsfb']);
             add_action('wp_ajax_update_file_Emsfb', array( $this,'file_upload_public'));
@@ -1780,12 +1781,15 @@ class Admin {
             }else if($key == 'smtp'){
                 if(isset($value) && in_array($value,[1,true,'true','1']) ){
 
+                  // Turning the switch on by hand is the owner's confirmation:
+                  // record it as theirs, dated, unless a check already proved
+                  // sending works (that record is better evidence than a click).
                   $check =  get_option('emsfb_email_status',false);
                     if($check==false || $check==null){
-                         update_option('emsfb_email_status', $this->build_email_ready_status_efb());
+                         update_option('emsfb_email_status', $this->build_email_ready_status_efb(true));
                     }else if(!is_array($check) || !isset($check['status']) || !in_array($check['status'], ['ok_set_smtp', 'ok'], true)){
 
-                            update_option('emsfb_email_status', $this->build_email_ready_status_efb());
+                            update_option('emsfb_email_status', $this->build_email_ready_status_efb(true));
                     }
 
                 }
@@ -2037,6 +2041,44 @@ class Admin {
         wp_send_json_success(array('dismissed' => $dismissed));
     }
 
+    /**
+     * The owner answered "my host can send email" in the form builder.
+     *
+     * That is the "This site can send emails" switch turned on by the person
+     * who owns the hosting, so it goes through the same setting - stored as a
+     * real boolean, never the number 1 that marks a pre-4.1.2 site - and
+     * leaves a dated record of its own kind. No measurement is claimed: the
+     * record says who answered and when, so the builder, the wizard and the
+     * admin notice can tell it from a check that was actually run.
+     *
+     * Only an administrator may do this: a form editor with the Emsfb
+     * capability can build forms, but switching every notification of the
+     * site on is not theirs to decide.
+     */
+    public function efb_confirm_email_sending() {
+        $efbFunction = get_efbFunction();
+        if (!check_ajax_referer('wp_rest', 'nonce', false) || !current_user_can('manage_options')) {
+            wp_send_json_error(array('message' => esc_html__('You do not have permission to update these settings.', 'easy-form-builder')), 403);
+        }
+
+        $ac = get_setting_Emsfb('decoded');
+        if (!is_object($ac)) {
+            $ac = new \stdClass();
+        }
+        $ac->smtp = true;
+        $email = isset($_POST['email']) ? sanitize_email(wp_unslash($_POST['email'])) : '';
+        if (is_email($email)) {
+            $ac->emailSupporter = $email;
+        }
+        $efbFunction->set_setting_Emsfb($ac, is_email($email) ? $email : '');
+        update_option('emsfb_email_status', $this->build_email_ready_status_efb(true));
+
+        wp_send_json_success(array(
+            'confirmed' => true,
+            'delivery'  => class_exists('\Emsfb\Email_Monitor') ? \Emsfb\Email_Monitor::get_delivery_state() : array(),
+        ));
+    }
+
     private function start_email_tester_efb($efbFunction, $ac) {
         $admin_email = isset($_POST['email']) ? sanitize_email(wp_unslash($_POST['email'])) : '';
         if (!is_email($admin_email)) {
@@ -2064,6 +2106,13 @@ class Admin {
                 'stage' => 'validation',
                 'reason' => 'invalid_input'
             ];
+        }
+
+        // The owner is running the check themselves now; the probe activation
+        // queued for the same minute would only spend the site's free daily
+        // quota ahead of them.
+        if (class_exists('\Emsfb\Email_Monitor')) {
+            \Emsfb\Email_Monitor::cancel_pending_lifecycle_test();
         }
 
         $sender_email = isset($_POST['sender_email']) ? sanitize_email(wp_unslash($_POST['sender_email'])) : '';
@@ -2267,6 +2316,7 @@ class Admin {
             ];
             $this->email_tester_log_efb('wp_mail_failed_save_status', $failure_status);
             update_option('emsfb_email_status', $failure_status);
+            $sending_turned_off = $this->turn_sending_off_after_failed_check_efb($efbFunction, $ac);
 
             return [
                 'success' => false,
@@ -2274,6 +2324,7 @@ class Admin {
                 'stage' => 'send',
                 'send_stage' => 'wp_mail_failed',
                 'reason' => 'wp_mail_failed',
+                'sending_turned_off' => $sending_turned_off,
                 'mail_error' => is_array($last_mail_error) && !empty($last_mail_error['message'])
                     ? sanitize_text_field((string) $last_mail_error['message'])
                     : '',
@@ -2665,6 +2716,18 @@ class Admin {
         // Save test result to emsfb_email_status for all scenarios
         $this->save_email_tester_result_to_status_efb($data, $efbFunction, $ac);
 
+        // A definite failure the owner just watched - nothing arrived in the
+        // whole window, or the message arrived looking like spam - is what the
+        // sending switch exists to stop. Turning it off here is what makes the
+        // result card's "notifications are off" true for a site whose owner
+        // had confirmed sending earlier; a still-open test decides nothing.
+        $definite_failure = !$this->is_email_delivery_confirmed_efb($data)
+            && ((isset($data['status']) && 'expired' === $data['status'])
+                || (class_exists('\Emsfb\Email_Monitor') && \Emsfb\Email_Monitor::is_delivery_score_too_low($data)));
+        $data['sending_turned_off'] = $definite_failure
+            ? $this->turn_sending_off_after_failed_check_efb($efbFunction, $ac)
+            : false;
+
         $email_report = $this->maybe_request_email_tester_no_delivery_report_efb($test_hash, $data, $admin_email);
         if (is_array($email_report)) {
             $data['email_report'] = $email_report;
@@ -3006,6 +3069,21 @@ class Admin {
         return $data;
     }
 
+    /**
+     * Turn "This site can send emails" off after a check the owner ran failed
+     * for certain. Only the switch changes; the failure record written just
+     * before says why. Returns whether it was on.
+     */
+    private function turn_sending_off_after_failed_check_efb($efbFunction, $ac) {
+        if (!is_object($ac) || !emsfb_is_email_sending_enabled_efb($ac)) {
+            return false;
+        }
+        $ac->smtp = false;
+        $efbFunction->set_setting_Emsfb($ac);
+        $this->email_tester_log_efb('sending_switch_turned_off_after_failed_check', []);
+        return true;
+    }
+
     private function mark_email_server_as_ready_efb($efbFunction, $ac, $admin_email = '', $update_status = true) {
         if (!is_object($ac)) {
             return;
@@ -3024,7 +3102,33 @@ class Admin {
         $efbFunction->set_setting_Emsfb($ac, $setting_email);
     }
 
-    private function build_email_ready_status_efb() {
+    /**
+     * The status record for a switch the owner turned on without a check.
+     *
+     * The owner's own answer - from the form builder's prompt or the switch in
+     * Email Settings - is written with its own id and the time it was given,
+     * so Email_Monitor::get_delivery_state() can tell "confirmed by the
+     * owner" from "verified by a check" (which writes email_settings_configured
+     * together with what it measured). The undated legacy shape is kept for
+     * the one caller that only needs "something says it works".
+     *
+     * @param bool $by_owner Record the owner's confirmation with a date.
+     */
+    private function build_email_ready_status_efb($by_owner = false) {
+        if ($by_owner) {
+            return [
+                'status' => 'ok_set_smtp',
+                'message' => [
+                    'title' => esc_html__('Email sending confirmed by the site owner', 'easy-form-builder'),
+                    'description' => esc_html__('The site owner confirmed that this host can send email. No delivery check was run.', 'easy-form-builder'),
+                    'id' => 'email_sending_confirmed_by_owner'
+                ],
+                'details' => [
+                    'source' => 'owner',
+                    'test_timestamp' => current_time('mysql', true),
+                ]
+            ];
+        }
         return [
             'status' => 'ok_set_smtp',
             'message' => [
@@ -3655,7 +3759,7 @@ function admin_notices_efb () {
                     return;
             }else{
                 if (isset($settings->smtp) && in_array($settings->smtp, ['1', 'true', true,1], true)) {
-                       update_option('emsfb_email_status', $this->build_email_ready_status_efb());
+                       update_option('emsfb_email_status', $this->build_email_ready_status_efb(true));
                        return;
                 }else{
                      return;

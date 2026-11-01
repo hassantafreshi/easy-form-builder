@@ -1971,6 +1971,109 @@ class efbFunction {
 			"emailDeliveryLowScore" => $state && isset($ac->text->emailDeliveryLowScore) ? $ac->text->emailDeliveryLowScore : esc_html__('Your test email was delivered, but its deliverability score is only %1$s out of 100 (below %2$s). The emails your forms send will most likely be filtered as spam. Set up SMTP and run the check again.','easy-form-builder'),
 			"onboardingFinish" => $state && isset($ac->text->onboardingFinish) ? $ac->text->onboardingFinish : esc_html__('Finish setup','easy-form-builder'),
 
+			/* translators: Heading of the setup card once the email check has a result. */
+			"onboardingResultTitle" => $state && isset($ac->text->onboardingResultTitle) ? $ac->text->onboardingResultTitle : esc_html__('Your email check','easy-form-builder'),
+			/* translators: First-run setup, step chip for the email check step. */
+			"onboardingStepEmailCheck" => $state && isset($ac->text->onboardingStepEmailCheck) ? $ac->text->onboardingStepEmailCheck : esc_html__('Email check','easy-form-builder'),
+			/* translators: First-run setup, the question asked right after the plan is chosen; answered by the "Check now" and "Skip for now" buttons. */
+			"onboardingAskTitle" => $state && isset($ac->text->onboardingAskTitle) ? $ac->text->onboardingAskTitle : esc_html__('Shall we check that your form emails arrive?','easy-form-builder'),
+			/* translators: First-run setup, explanation under the question, for a site owner without technical background. */
+			"onboardingAskBody" => $state && isset($ac->text->onboardingAskBody) ? $ac->text->onboardingAskBody : esc_html__('When someone fills in a form, your site emails you. Email is sent by your hosting company, so it sometimes goes missing or lands in spam. We can check this in about a minute and email you the full report.','easy-form-builder'),
+			/* translators: Label of the email address field in the first-run setup. */
+			"onboardingYourEmail" => $state && isset($ac->text->onboardingYourEmail) ? $ac->text->onboardingYourEmail : esc_html__('Your email','easy-form-builder'),
+			/* translators: Hint under the email address field in the first-run setup. */
+			"onboardingYourEmailHint" => $state && isset($ac->text->onboardingYourEmailHint) ? $ac->text->onboardingYourEmailHint : esc_html__('Notifications and the report go here.','easy-form-builder'),
+			/* translators: Button that starts the email delivery check. Keep it short. */
+			"onboardingCheckNow" => $state && isset($ac->text->onboardingCheckNow) ? $ac->text->onboardingCheckNow : esc_html__('Check now','easy-form-builder'),
+			/* translators: Button that closes the first-run setup without running the email check. Keep it short. */
+			"onboardingSkipForNow" => $state && isset($ac->text->onboardingSkipForNow) ? $ac->text->onboardingSkipForNow : esc_html__('Skip for now','easy-form-builder'),
+			/* translators: Small print under the two buttons of the first-run email question. */
+			"onboardingSkipNote" => $state && isset($ac->text->onboardingSkipNote) ? $ac->text->onboardingSkipNote : esc_html__('If you skip, form notifications stay off until you check or turn them on in Email Settings.','easy-form-builder'),
+			/* translators: Short notice shown after the first-run email check was skipped. */
+			"onboardingSkipped" => $state && isset($ac->text->onboardingSkipped) ? $ac->text->onboardingSkipped : esc_html__('Skipped. Notifications are off. Run the check any time from Email Settings.','easy-form-builder'),
+			/* translators: Progress line while the test email is being sent. */
+			"emailRunSending" => $state && isset($ac->text->emailRunSending) ? $ac->text->emailRunSending : esc_html__('Sending a test email…','easy-form-builder'),
+			/* translators: Progress line while waiting for the test email to arrive. */
+			"emailRunWaiting" => $state && isset($ac->text->emailRunWaiting) ? $ac->text->emailRunWaiting : esc_html__('Waiting for it to arrive, about a minute…','easy-form-builder'),
+			/* translators: Quiet line under the progress bar of the email check. */
+			"emailRunLeave" => $state && isset($ac->text->emailRunLeave) ? $ac->text->emailRunLeave : esc_html__('You can leave this page; we email you the report either way.','easy-form-builder'),
+			/* translators: One-sentence result of the email check: delivered with a good score. */
+			"emailResultHealthy" => $state && isset($ac->text->emailResultHealthy) ? $ac->text->emailResultHealthy : esc_html__('Your emails arrive and look trustworthy. Notifications are on.','easy-form-builder'),
+			/* translators: One-sentence result: delivered, but the score is below the healthy line. */
+			"emailResultSpamRisk" => $state && isset($ac->text->emailResultSpamRisk) ? $ac->text->emailResultSpamRisk : esc_html__('Your emails arrive, but some may land in spam. Notifications are on; the guide shows a fix you make at your hosting company.','easy-form-builder'),
+			/* translators: One-sentence result: delivered, but the score is too low to rely on. */
+			"emailResultLow" => $state && isset($ac->text->emailResultLow) ? $ac->text->emailResultLow : esc_html__('Your test email arrived, but it looks like spam to most inboxes. Notifications are off for now; the guide shows the fix.','easy-form-builder'),
+			/* translators: One-sentence result: the test email never arrived. */
+			"emailResultNotDelivered" => $state && isset($ac->text->emailResultNotDelivered) ? $ac->text->emailResultNotDelivered : esc_html__('Your test email did not arrive within the wait. Notifications are off; the guide shows how to fix this at your hosting company.','easy-form-builder'),
+			/* translators: One-sentence result: WordPress could not send the test email at all. */
+			"emailResultNotSent" => $state && isset($ac->text->emailResultNotSent) ? $ac->text->emailResultNotSent : esc_html__('Your site could not send the test email. Notifications are off; the guide shows how to connect an email sending service.','easy-form-builder'),
+			/* translators: One-sentence result: the check could not finish (service unreachable, answer lost, timed out). */
+			"emailResultUnknown" => $state && isset($ac->text->emailResultUnknown) ? $ac->text->emailResultUnknown : esc_html__('We could not finish the check, so we do not know yet. Notifications are unchanged; try again now, or later from Email Settings.','easy-form-builder'),
+			/* translators: One-sentence result: the testing service refused the check because the free daily limit was used up. */
+			"emailResultLimit" => $state && isset($ac->text->emailResultLimit) ? $ac->text->emailResultLimit : esc_html__('The free daily check limit for this site was reached. Run the check again tomorrow from Email Settings.','easy-form-builder'),
+			/* translators: One-word label next to the delivery score: 70 and above. */
+			"emailScoreGood" => $state && isset($ac->text->emailScoreGood) ? $ac->text->emailScoreGood : esc_html__('Good','easy-form-builder'),
+			/* translators: One-word label next to the delivery score: 40 to 69. */
+			"emailScoreFair" => $state && isset($ac->text->emailScoreFair) ? $ac->text->emailScoreFair : esc_html__('Fair','easy-form-builder'),
+			/* translators: One-word label next to the delivery score: 20 to 39. */
+			"emailScoreWeak" => $state && isset($ac->text->emailScoreWeak) ? $ac->text->emailScoreWeak : esc_html__('Weak','easy-form-builder'),
+			/* translators: Label next to the delivery score: below 20, the email is treated as spam. */
+			"emailScoreSpamRisk" => $state && isset($ac->text->emailScoreSpamRisk) ? $ac->text->emailScoreSpamRisk : esc_html__('Spam risk','easy-form-builder'),
+			/* translators: Label shown instead of a score when the test email never arrived. */
+			"emailScoreNotDelivered" => $state && isset($ac->text->emailScoreNotDelivered) ? $ac->text->emailScoreNotDelivered : esc_html__('Not delivered','easy-form-builder'),
+			/* translators: Label shown instead of a score when WordPress could not send the test email. */
+			"emailScoreNotSent" => $state && isset($ac->text->emailScoreNotSent) ? $ac->text->emailScoreNotSent : esc_html__('Not sent','easy-form-builder'),
+			/* translators: Label shown instead of a score when the check could not finish. */
+			"emailScoreNotFinished" => $state && isset($ac->text->emailScoreNotFinished) ? $ac->text->emailScoreNotFinished : esc_html__('Not finished','easy-form-builder'),
+			/* translators: %s: email address. Shown under the result when the testing service has sent the full report. */
+			"emailReportSent" => $state && isset($ac->text->emailReportSent) ? $ac->text->emailReportSent : esc_html__('We emailed the full report to %s.','easy-form-builder'),
+			/* translators: %s: email address. Shown while the testing service is still preparing the full report. */
+			"emailReportPending" => $state && isset($ac->text->emailReportPending) ? $ac->text->emailReportPending : esc_html__('Emailing the full report to %s…','easy-form-builder'),
+			/* translators: %s: email address. Shown when the test email has not arrived yet and a report follows if it does. */
+			"emailReportLater" => $state && isset($ac->text->emailReportLater) ? $ac->text->emailReportLater : esc_html__('If the message turns up later, the report goes to %s.','easy-form-builder'),
+			/* translators: Button that opens the guide matching the result. Keep it short. */
+			"emailSeeTheFix" => $state && isset($ac->text->emailSeeTheFix) ? $ac->text->emailSeeTheFix : esc_html__('See the fix','easy-form-builder'),
+			/* translators: Small print under the "See the fix" button. */
+			"emailSeeTheFixNote" => $state && isset($ac->text->emailSeeTheFixNote) ? $ac->text->emailSeeTheFixNote : esc_html__('Opens in a new tab; this window stays open.','easy-form-builder'),
+			/* translators: Button that runs the email check again. */
+			"emailTryAgain" => $state && isset($ac->text->emailTryAgain) ? $ac->text->emailTryAgain : esc_html__('Try again','easy-form-builder'),
+			/* translators: Link that expands the technical details of the email check. */
+			"emailShowDetails" => $state && isset($ac->text->emailShowDetails) ? $ac->text->emailShowDetails : esc_html__('Show details','easy-form-builder'),
+			/* translators: Button that closes the first-run setup after a result that still needs work. */
+			"onboardingCloseForNow" => $state && isset($ac->text->onboardingCloseForNow) ? $ac->text->onboardingCloseForNow : esc_html__('Close for now','easy-form-builder'),
+			/* translators: Button that closes the email check window in the form builder after a good result. */
+			"emailCheckDone" => $state && isset($ac->text->emailCheckDone) ? $ac->text->emailCheckDone : esc_html__('Done','easy-form-builder'),
+			/* translators: Title of the form builder's question about email delivery. */
+			"emailPromptTitle" => $state && isset($ac->text->emailPromptTitle) ? $ac->text->emailPromptTitle : esc_html__('Can your site send email?','easy-form-builder'),
+			/* translators: Form builder, shown when a form gets an email field and delivery was never checked. */
+			"emailPromptBody" => $state && isset($ac->text->emailPromptBody) ? $ac->text->emailPromptBody : esc_html__('You will want an email when someone fills in this form. We have not checked yet that emails from your site arrive.','easy-form-builder'),
+			/* translators: Form builder, same situation, when the background check already failed. */
+			"emailPromptBodyMonitorFailed" => $state && isset($ac->text->emailPromptBodyMonitorFailed) ? $ac->text->emailPromptBodyMonitorFailed : esc_html__('We noticed that emails from your site may not be arriving. Let us check before you rely on notifications.','easy-form-builder'),
+			/* translators: %s: date of the last check. Form builder, when the owner's last email check failed. */
+			"emailPromptBodyFailed" => $state && isset($ac->text->emailPromptBodyFailed) ? $ac->text->emailPromptBodyFailed : esc_html__('Your last check on %s found that emails from this site are not arriving. Fix it at your hosting company, then check again.','easy-form-builder'),
+			/* translators: %s: date the check started. Form builder, when an email check started but never reported back. */
+			"emailPromptBodyPending" => $state && isset($ac->text->emailPromptBodyPending) ? $ac->text->emailPromptBodyPending : esc_html__('A check started on %s did not finish. Look for the emailed report in your inbox, or run it again.','easy-form-builder'),
+			/* translators: Button that runs the email check from the form builder. Keep it short. */
+			"emailPromptCheck" => $state && isset($ac->text->emailPromptCheck) ? $ac->text->emailPromptCheck : esc_html__('Check for me','easy-form-builder'),
+			/* translators: Small print under the "Check for me" button. */
+			"emailPromptCheckNote" => $state && isset($ac->text->emailPromptCheckNote) ? $ac->text->emailPromptCheckNote : esc_html__('Takes about a minute','easy-form-builder'),
+			/* translators: Button for a site owner who already knows the host can send email. Keep it short. */
+			"emailPromptConfirm" => $state && isset($ac->text->emailPromptConfirm) ? $ac->text->emailPromptConfirm : esc_html__('Yes, turn notifications on','easy-form-builder'),
+			/* translators: Small print under the "Yes, turn notifications on" button. */
+			"emailPromptConfirmNote" => $state && isset($ac->text->emailPromptConfirmNote) ? $ac->text->emailPromptConfirmNote : esc_html__('Use this if you already know your site sends email','easy-form-builder'),
+			/* translators: Link that closes the form builder's email question. */
+			"emailPromptNotNow" => $state && isset($ac->text->emailPromptNotNow) ? $ac->text->emailPromptNotNow : esc_html__('Not now','easy-form-builder'),
+			/* translators: Button that runs the email check again after a failed one. */
+			"emailPromptCheckAgain" => $state && isset($ac->text->emailPromptCheckAgain) ? $ac->text->emailPromptCheckAgain : esc_html__('Check again','easy-form-builder'),
+			/* translators: Small print after a failed check; followed by a link to Email Settings. */
+			"emailPromptFixedNote" => $state && isset($ac->text->emailPromptFixedNote) ? $ac->text->emailPromptFixedNote : esc_html__('Already fixed it or know it works? Turn notifications on in Email Settings.','easy-form-builder'),
+			/* translators: Form builder, shown to a user who may build forms but not change the site's email settings. */
+			"emailPromptAskAdmin" => $state && isset($ac->text->emailPromptAskAdmin) ? $ac->text->emailPromptAskAdmin : esc_html__('Email delivery has not been checked yet. Ask a site administrator to check it or to turn notifications on.','easy-form-builder'),
+			/* translators: Notice after the owner turned notifications on without a check. */
+			"emailConfirmedToast" => $state && isset($ac->text->emailConfirmedToast) ? $ac->text->emailConfirmedToast : esc_html__('Notifications are on. You can run the check any time from Email Settings.','easy-form-builder'),
+			/* translators: Notice after the owner turned notifications on although the background check had failed. */
+			"emailConfirmedMonitorToast" => $state && isset($ac->text->emailConfirmedMonitorToast) ? $ac->text->emailConfirmedMonitorToast : esc_html__('Notifications are on. Our last background check could not deliver, so if emails do not arrive, run the check from Email Settings.','easy-form-builder'),
+
 			/* translators: Selected = indicates something has been chosen */
 			"selected" => $state && isset($ac->text->selected) ? $ac->text->selected : esc_html__('selected','easy-form-builder'),
 			/* translators: Setup reminder message */

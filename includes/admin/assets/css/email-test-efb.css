@@ -861,6 +861,124 @@
 	font-size: 9.5px;
 }
 
+/* Summary variant: the wizard and the form builder show the figure, one
+   label, one sentence and the report line; the rest waits behind
+   "Show details". ------------------------------------------------------- */
+
+.efb-est__sum {
+	display: flex;
+	align-items: center;
+	gap: 18px;
+	padding: 6px 4px 10px;
+}
+
+.efb-est__sum-figure {
+	flex: 0 0 auto;
+}
+
+.efb-est__sum-figure .efb-est__gauge {
+	width: 96px;
+	height: 96px;
+}
+
+.efb-est__sum-figure .efb-est__score {
+	font-size: 26px;
+}
+
+.efb-est__sum-figure .efb-est__hero-icon {
+	width: 72px;
+	height: 72px;
+	font-size: 30px;
+}
+
+.efb-est__sum-main {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.efb-est__sum-label {
+	font-size: 13px;
+	font-weight: 800;
+	letter-spacing: 0.02em;
+	text-transform: uppercase;
+	color: var(--efb-est-tone);
+	margin-block-end: 4px;
+}
+
+.efb-est__sum-sentence {
+	margin: 0;
+	font-size: 15px;
+	line-height: 1.55;
+	color: #1f2347;
+}
+
+.efb-est__sum-report,
+.efb-est__sum-note {
+	margin-block-start: 8px;
+	font-size: 12.5px;
+	line-height: 1.5;
+	color: #4b5563;
+}
+
+.efb-est__sum-report {
+	display: flex;
+	align-items: flex-start;
+	gap: 7px;
+}
+
+.efb-est__sum-report i {
+	color: var(--efb-est-tone);
+	margin-block-start: 2px;
+}
+
+.efb-est__sum-report .efb-est__mail {
+	font-weight: 700;
+	color: #1f2347;
+}
+
+.efb-est--summary .efb-est__progress {
+	margin-block-start: 10px;
+}
+
+.efb-est__more {
+	margin-block-start: 6px;
+	border-block-start: 1px solid var(--efb-est-line-2);
+}
+
+.efb-est__more > summary {
+	cursor: pointer;
+	list-style: none;
+	padding: 10px 2px;
+	font-size: 13px;
+	font-weight: 600;
+	color: #3644d2;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.efb-est__more > summary::-webkit-details-marker {
+	display: none;
+}
+
+.efb-est__more > summary::before {
+	content: '';
+	width: 7px;
+	height: 7px;
+	border-inline-end: 2px solid currentColor;
+	border-block-end: 2px solid currentColor;
+	transform: rotate(-45deg);
+	transition: transform 0.15s ease;
+}
+
+.efb-est__more[open] > summary::before {
+	transform: rotate(45deg);
+}
+
+.efb-est__more-body {
+	padding-block-end: 6px;
+}
+
 /* Mobile ----------------------------------------------------------------- */
 
 @media screen and (max-width: 600px) {
@@ -939,10 +1057,30 @@
 		bottom: 0;
 	}
 
-	.efb-est__step-label {
+	/* Also the wizard's inline panel: its own 9.5px rule above has two
+	   classes, so it won the fight on phones and the labels stayed tiny. */
+	.efb-est__step-label,
+	.efb-est--inline .efb-est__step-label {
 		text-align: start;
 		font-size: 11.5px;
 		padding: 0;
+	}
+
+	.efb-est__sum {
+		flex-direction: column;
+		align-items: stretch;
+		text-align: center;
+		gap: 10px;
+	}
+
+	.efb-est__sum-figure {
+		display: flex;
+		justify-content: center;
+	}
+
+	.efb-est__sum-report {
+		justify-content: center;
+		text-align: start;
 	}
 
 	.efb-est__row {
@@ -1013,7 +1151,9 @@
 
 .efb-est__next-grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+	/* min() keeps a card from demanding 260px inside a 250px wizard card on a
+	   360px phone, where the overlay clips instead of scrolling sideways. */
+	grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
 	gap: 12px;
 	margin-block-start: 12px;
 }
@@ -1075,6 +1215,7 @@
 	display: flex;
 	gap: 8px;
 	align-items: center;
+	flex-wrap: wrap;
 }
 
 .efb-est__next-chip {

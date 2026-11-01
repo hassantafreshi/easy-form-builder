@@ -2,9 +2,9 @@
     "domain": "easy-form-builder",
     "about": "Every phrase looked up in the easy-form-builder text domain: the core plus add-ons that still use that domain. Maintained by tests/core-i18n/extract.php (agent efb-core-i18n); do not edit by hand.",
     "plugin_version": "4.3.1",
-    "updated": "2026-10-29",
+    "updated": "2026-11-01",
     "counts": {
-        "active": 2304,
+        "active": 2354,
         "obsolete": 299
     },
     "entries": [
@@ -877,6 +877,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "A check started on %s did not finish. Look for the emailed report in your inbox, or run it again.",
+            "context": null,
+            "plural": null,
+            "translators": "%s: date the check started. Form builder, when an email check started but never reported back.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -2321,6 +2336,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Already fixed it or know it works? Turn notifications on in Email Settings.",
+            "context": null,
+            "plural": null,
+            "translators": "Small print after a failed check; followed by a link to Email Settings.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -4176,6 +4206,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Can your site send email?",
+            "context": null,
+            "plural": null,
+            "translators": "Title of the form builder's question about email delivery.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Cancel",
             "context": null,
             "plural": null,
@@ -4617,6 +4662,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Check again",
+            "context": null,
+            "plural": null,
+            "translators": "Button that runs the email check again after a failed one.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Check for me",
+            "context": null,
+            "plural": null,
+            "translators": "Button that runs the email check from the form builder. Keep it short.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Check my licence now",
             "context": null,
             "plural": null,
@@ -4628,6 +4703,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Check now",
+            "context": null,
+            "plural": null,
+            "translators": "Button that starts the email delivery check. Keep it short.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -5265,6 +5355,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Close for now",
+            "context": null,
+            "plural": null,
+            "translators": "Button that closes the first-run setup after a result that still needs work.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -8110,7 +8215,7 @@
             "msgid": "Done",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "Button that closes the email check window in the form builder after a good result.",
             "files": [
                 "includes/functions.php"
             ],
@@ -9224,6 +9329,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Email check",
+            "context": null,
+            "plural": null,
+            "translators": "First-run setup, step chip for the email check step.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Email delivery failed: %s",
             "context": null,
             "plural": null,
@@ -9235,6 +9355,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Email delivery has not been checked yet. Ask a site administrator to check it or to turn notifications on.",
+            "context": null,
+            "plural": null,
+            "translators": "Form builder, shown to a user who may build forms but not change the site's email settings.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -9400,6 +9535,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Email sending confirmed by the site owner",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/admin/class-Emsfb-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -9595,6 +9745,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Emailing the full report to %s…",
+            "context": null,
+            "plural": null,
+            "translators": "%s: email address. Shown while the testing service is still preparing the full report.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -10725,6 +10890,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Fair",
+            "context": null,
+            "plural": null,
+            "translators": "One-word label next to the delivery score: 40 to 69.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -12348,6 +12528,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Good",
+            "context": null,
+            "plural": null,
+            "translators": "One-word label next to the delivery score: 70 and above.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Good Job",
             "context": null,
             "plural": null,
@@ -13852,6 +14047,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "If the message turns up later, the report goes to %s.",
+            "context": null,
+            "plural": null,
+            "translators": "%s: email address. Shown when the test email has not arrived yet and a report follows if it does.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "If the score is above 70 — enable the \"This site can send emails\" switch and save",
             "context": null,
             "plural": null,
@@ -13953,6 +14163,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "If you skip, form notifications stay off until you check or turn them on in Email Settings.",
+            "context": null,
+            "plural": null,
+            "translators": "Small print under the two buttons of the first-run email question.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -18380,6 +18605,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Not delivered",
+            "context": null,
+            "plural": null,
+            "translators": "Label shown instead of a score when the test email never arrived.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Not empty",
             "context": null,
             "plural": null,
@@ -18395,6 +18635,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Not finished",
+            "context": null,
+            "plural": null,
+            "translators": "Label shown instead of a score when the check could not finish.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Not matched",
             "context": null,
             "plural": null,
@@ -18408,6 +18663,36 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "Not now",
+            "context": null,
+            "plural": null,
+            "translators": "Link that closes the form builder's email question.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Not sent",
+            "context": null,
+            "plural": null,
+            "translators": "Label shown instead of a score when WordPress could not send the test email.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Not what I needed",
@@ -18558,6 +18843,51 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "Notifications and the report go here.",
+            "context": null,
+            "plural": null,
+            "translators": "Hint under the email address field in the first-run setup.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Notifications are on. Our last background check could not deliver, so if emails do not arrive, run the check from Email Settings.",
+            "context": null,
+            "plural": null,
+            "translators": "Notice after the owner turned notifications on although the background check had failed.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Notifications are on. You can run the check any time from Email Settings.",
+            "context": null,
+            "plural": null,
+            "translators": "Notice after the owner turned notifications on without a check.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Notifications stay off until delivery is verified",
@@ -18976,6 +19306,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Opens in a new tab; this window stays open.",
+            "context": null,
+            "plural": null,
+            "translators": "Small print under the \"See the fix\" button.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -24758,6 +25103,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "See the fix",
+            "context": null,
+            "plural": null,
+            "translators": "Button that opens the guide matching the result. Keep it short.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Segments",
             "context": null,
             "plural": null,
@@ -25365,6 +25725,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Sending a test email…",
+            "context": null,
+            "plural": null,
+            "translators": "Progress line while the test email is being sent.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Sending email",
             "context": null,
             "plural": null,
@@ -25727,6 +26102,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Shall we check that your form emails arrive?",
+            "context": null,
+            "plural": null,
+            "translators": "First-run setup, the question asked right after the plan is chosen; answered by the \"Check now\" and \"Skip for now\" buttons.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Shampoo & Blowdry",
             "context": null,
             "plural": null,
@@ -25935,6 +26325,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Show details",
+            "context": null,
+            "plural": null,
+            "translators": "Link that expands the technical details of the email check.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -26194,6 +26599,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Skip for now",
+            "context": null,
+            "plural": null,
+            "translators": "Button that closes the first-run setup without running the email check. Keep it short.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Skipped",
             "context": null,
             "plural": null,
@@ -26205,6 +26625,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Skipped. Notifications are off. Run the check any time from Email Settings.",
+            "context": null,
+            "plural": null,
+            "translators": "Short notice shown after the first-run email check was skipped.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -26565,6 +27000,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Spam risk",
+            "context": null,
+            "plural": null,
+            "translators": "Label next to the delivery score: below 20, the email is treated as spam.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -28084,6 +28534,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "Takes about a minute",
+            "context": null,
+            "plural": null,
+            "translators": "Small print under the \"Check for me\" button.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Tap a star to rate",
@@ -29981,6 +30446,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The free daily check limit for this site was reached. Run the check again tomorrow from Email Settings.",
+            "context": null,
+            "plural": null,
+            "translators": "One-sentence result: the testing service refused the check because the free daily limit was used up.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The installation could not be started from this page. You can continue in English; it will be tried again in the background.",
             "context": null,
             "plural": null,
@@ -30680,6 +31160,21 @@
             "translators": "",
             "files": [
                 "includes/class-Emsfb-request-health.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The site owner confirmed that this host can send email. No delivery check was run.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/admin/class-Emsfb-admin.php"
             ],
             "scope": [
                 "core"
@@ -32556,9 +33051,10 @@
             "msgid": "Try again",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "Button that runs the email check again.",
             "files": [
-                "includes/class-Emsfb-review-request.php"
+                "includes/class-Emsfb-review-request.php",
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -33305,6 +33801,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Use this if you already know your site sends email",
+            "context": null,
+            "plural": null,
+            "translators": "Small print under the \"Yes, turn notifications on\" button.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Use this test to check if your server can send emails properly.",
             "context": null,
             "plural": null,
@@ -33787,6 +34298,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Waiting for it to arrive, about a minute…",
+            "context": null,
+            "plural": null,
+            "translators": "Progress line while waiting for the test email to arrive.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Waiting for the email to arrive",
             "context": null,
             "plural": null,
@@ -34027,6 +34553,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "We could not finish the check, so we do not know yet. Notifications are unchanged; try again now, or later from Email Settings.",
+            "context": null,
+            "plural": null,
+            "translators": "One-sentence result: the check could not finish (service unreachable, answer lost, timed out).",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "We could not reach our server, so your note was not sent. The plugin will still be deactivated.",
             "context": null,
             "plural": null,
@@ -34087,6 +34628,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "We emailed the full report to %s.",
+            "context": null,
+            "plural": null,
+            "translators": "%s: email address. Shown under the result when the testing service has sent the full report.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "We have made some updates. Please wait a few minutes before trying again.",
             "context": null,
             "plural": null,
@@ -34114,6 +34670,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "We noticed that emails from your site may not be arriving. Let us check before you rely on notifications.",
+            "context": null,
+            "plural": null,
+            "translators": "Form builder, same situation, when the background check already failed.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -34174,6 +34745,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Weak",
+            "context": null,
+            "plural": null,
+            "translators": "One-word label next to the delivery score: 20 to 39.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -34504,6 +35090,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "When someone fills in a form, your site emails you. Email is sent by your hosting company, so it sometimes goes missing or lands in spam. We can check this in about a minute and email you the full report.",
+            "context": null,
+            "plural": null,
+            "translators": "First-run setup, explanation under the question, for a site owner without technical background.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -35687,6 +36288,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Yes, turn notifications on",
+            "context": null,
+            "plural": null,
+            "translators": "Button for a site owner who already knows the host can send email. Keep it short.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Yes/No",
             "context": null,
             "plural": null,
@@ -35894,6 +36510,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "You can leave this page; we email you the report either way.",
+            "context": null,
+            "plural": null,
+            "translators": "Quiet line under the progress bar of the email check.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -36164,6 +36795,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "You will want an email when someone fills in this form. We have not checked yet that emails from your site arrive.",
+            "context": null,
+            "plural": null,
+            "translators": "Form builder, shown when a form gets an email field and delivery was never checked.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -36531,9 +37177,10 @@
             "msgid": "Your email",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "Label of the email address field in the first-run setup.",
             "files": [
-                "includes/class-Emsfb-review-request.php"
+                "includes/class-Emsfb-review-request.php",
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -36547,6 +37194,21 @@
             "context": null,
             "plural": null,
             "translators": "Setup wizard, when the address could not be stored so the email check never started.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Your email check",
+            "context": null,
+            "plural": null,
+            "translators": "Heading of the setup card once the email check has a result.",
             "files": [
                 "includes/functions.php"
             ],
@@ -36674,6 +37336,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Your emails arrive and look trustworthy. Notifications are on.",
+            "context": null,
+            "plural": null,
+            "translators": "One-sentence result of the email check: delivered with a good score.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Your emails arrive, but some may land in spam. Notifications are on; the guide shows a fix you make at your hosting company.",
+            "context": null,
+            "plural": null,
+            "translators": "One-sentence result: delivered, but the score is below the healthy line.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -36839,6 +37531,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Your last check on %s found that emails from this site are not arriving. Fix it at your hosting company, then check again.",
+            "context": null,
+            "plural": null,
+            "translators": "%s: date of the last check. Form builder, when the owner's last email check failed.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -37234,6 +37941,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Your site could not send the test email. Notifications are off; the guide shows how to connect an email sending service.",
+            "context": null,
+            "plural": null,
+            "translators": "One-sentence result: WordPress could not send the test email at all.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Your site got no answer from the testing service, so delivery was not checked. This does not mean the email failed.",
             "context": null,
             "plural": null,
@@ -37305,6 +38027,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Your test email arrived, but it looks like spam to most inboxes. Notifications are off for now; the guide shows the fix.",
+            "context": null,
+            "plural": null,
+            "translators": "One-sentence result: delivered, but the score is too low to rely on.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Your test email did not arrive within the wait. Notifications are off; the guide shows how to fix this at your hosting company.",
+            "context": null,
+            "plural": null,
+            "translators": "One-sentence result: the test email never arrived.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },

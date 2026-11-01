@@ -84,6 +84,15 @@ class Email_Monitor {
             return;
         }
 
+        // Nobody has checked or confirmed delivery yet, so the sending switch
+        // is off and no form email is going anywhere to be lost. A red banner
+        // about a background probe the owner never asked for is noise here; the
+        // form builder asks the owner to check or confirm the moment a form
+        // gets an email field, which is where the decision belongs.
+        if ('unchecked' === self::get_delivery_state()['state']) {
+            return;
+        }
+
         // Dismissal is tied to the run it was dismissed for, so a later failure
         // speaks up again instead of staying silent forever.
         $fingerprint = md5((string) $verdict['checked_at'] . '|' . $verdict['outcome']);
@@ -107,9 +116,9 @@ class Email_Monitor {
                 <p style="margin:0 0 10px;color:#555;max-width:820px;">
                     <?php echo esc_html($copy['body']); ?>
                 </p>
-                <p style="margin:0;">
+                <p style="margin:0;display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;">
                     <a href="<?php echo esc_url($panel_url); ?>" class="button button-primary"><?php esc_html_e('Run the email check', 'easy-form-builder'); ?></a>
-                    <a href="<?php echo esc_url($guide_url); ?>" target="_blank" rel="noopener" style="margin-inline-start:10px;"><?php echo esc_html(self::get_smtp_guide_label()); ?></a>
+                    <a href="<?php echo esc_url($guide_url); ?>" target="_blank" rel="noopener"><?php echo esc_html(self::get_smtp_guide_label()); ?></a>
                 </p>
             </div>
         </div>
@@ -182,6 +191,138 @@ class Email_Monitor {
             'checked_at' => $record['checked_at'],
             'source'     => $record['source'],
         ];
+    }
+
+    /**
+     * What the owner has done about email delivery, in one word.
+     *
+     *   unchecked  nobody ran a check from the wizard or the panel and nobody
+     *              confirmed sending, so the switch is off and no form email
+     *              is sent. The background monitor may have run; its answer
+     *              is passed on as monitor_outcome for wording only, because
+     *              the owner never asked for it and it must not count as
+     *              theirs.
+     *   confirmed  the switch is on without a check of the owner's own: the
+     *              "my host can send email" answer in the form builder, the
+     *              switch in Email Settings, or a site set up before the
+     *              monitor existed.
+     *   tested     a check the owner ran reached a verdict, with its score and
+     *              date; outcome is healthy, spam or undelivered.
+     *
+     * This is what the wizard, the form builder and the admin notice decide
+     * on. get_delivery_verdict() answers a different question - what the last
+     * measurement found, whoever ran it - and still drives the wording.
+     *
+     * @return array{state:string,notifications:bool,outcome:string,score:float|null,checked_at:string,checked_at_display:string,confirmed_at:string,confirmed_at_display:string,pending_since:string,monitor_outcome:string,min_delivery_score:int,healthy_score:int,can_manage:bool}
+     */
+    public static function get_delivery_state() {
+        $settings = function_exists('get_setting_Emsfb') ? get_setting_Emsfb('decoded') : null;
+        $enabled  = function_exists('emsfb_is_email_sending_enabled_efb')
+            ? emsfb_is_email_sending_enabled_efb($settings)
+            : false;
+
+        $status  = get_option('emsfb_email_status', []);
+        $status  = is_array($status) ? $status : [];
+        $id      = isset($status['message']['id']) ? sanitize_key($status['message']['id']) : '';
+        $details = (isset($status['details']) && is_array($status['details'])) ? $status['details'] : [];
+        $stamp   = isset($details['test_timestamp']) ? (string) $details['test_timestamp'] : '';
+
+        // Only a check the owner started counts as theirs. The automated run
+        // writes the same option with its own id and the test start leaves a
+        // pending record behind; neither is a verdict the owner asked for.
+        // A switched-on record from a real test carries what it measured; the
+        // owner's own confirmation carries no measurement at all.
+        $tested = in_array($id, ['email_test_low_score', 'email_test_failed', 'mail_function_failed'], true)
+            || ('email_settings_configured' === $id
+                && (array_key_exists('delivered', $details) || array_key_exists('delivery_score', $details)));
+
+        $monitor = self::read_monitor_record();
+        $monitor_outcome = (is_array($monitor) && !empty($monitor['conclusive']))
+            ? self::classify_delivery_record($monitor)
+            : '';
+
+        $state = [
+            'state'                => 'unchecked',
+            'notifications'        => (bool) $enabled,
+            'outcome'              => '',
+            'score'                => null,
+            'checked_at'           => '',
+            'checked_at_display'   => '',
+            'confirmed_at'         => '',
+            'confirmed_at_display' => '',
+            'pending_since'        => '',
+            'monitor_outcome'      => $monitor_outcome,
+            'min_delivery_score'   => self::MIN_DELIVERY_SCORE,
+            'healthy_score'        => self::HEALTHY_SCORE,
+            'can_manage'           => current_user_can('manage_options'),
+        ];
+
+        if ($tested) {
+            $record = self::read_panel_record();
+            $state['state']      = 'tested';
+            $state['outcome']    = (is_array($record) && !empty($record['conclusive']))
+                ? self::classify_delivery_record($record)
+                : 'undelivered';
+            $state['score']      = (is_array($record) && isset($record['score'])) ? $record['score'] : null;
+            $state['checked_at'] = $stamp;
+            $state['checked_at_display'] = self::display_utc_time($stamp);
+            return $state;
+        }
+
+        if ($enabled) {
+            $state['state'] = 'confirmed';
+            if ('email_sending_confirmed_by_owner' === $id) {
+                $state['confirmed_at']         = $stamp;
+                $state['confirmed_at_display'] = self::display_utc_time($stamp);
+            }
+            return $state;
+        }
+
+        // A check that started and never reported back - the tab was closed
+        // mid-poll - is worth mentioning for a while, then it is just absent.
+        if ('email_test_pending' === $id && '' !== $stamp) {
+            $started = (int) strtotime($stamp . ' +00:00');
+            if ($started > 0 && (time() - $started) < 15 * MINUTE_IN_SECONDS) {
+                $state['pending_since'] = $stamp;
+            }
+        }
+
+        return $state;
+    }
+
+    /**
+     * A UTC mysql time in the site's date and time format, for people.
+     *
+     * @param string $utc 'Y-m-d H:i:s' written with current_time('mysql', true).
+     * @return string
+     */
+    private static function display_utc_time($utc) {
+        if ('' === $utc) {
+            return '';
+        }
+        $time = (int) strtotime($utc . ' +00:00');
+        if ($time <= 0) {
+            return '';
+        }
+        return wp_date(get_option('date_format', 'F j, Y') . ' ' . get_option('time_format', 'g:i a'), $time);
+    }
+
+    /**
+     * Drop the automated probe that activation queued, because the owner is
+     * about to run the same check by hand.
+     *
+     * Both runs draw on the service's free daily quota for this site. With the
+     * probe due 45 seconds after activation and the wizard's question coming
+     * right after, whichever runs second is refused - and that was usually the
+     * owner's own click. The update-time probe and the weekly run are left
+     * alone: they are not racing anyone.
+     *
+     * @return void
+     */
+    public static function cancel_pending_lifecycle_test() {
+        if (function_exists('wp_unschedule_hook')) {
+            wp_unschedule_hook(self::LIFECYCLE_HOOK);
+        }
     }
 
     /**
@@ -286,9 +427,11 @@ class Email_Monitor {
             : null;
 
         // Records that assert email works without measuring a score: the
-        // automated test that passed, and the switch the administrator turned
-        // on themselves.
-        $working_ids = ['email_settings_configured', 'automated_email_test_ok'];
+        // automated test that passed, the switch the administrator turned on
+        // themselves, and the owner's "my host can send email" answer. The
+        // last one is dated, so a confirmation given after a failed probe
+        // outranks that probe, while a probe that fails later still speaks up.
+        $working_ids = ['email_settings_configured', 'automated_email_test_ok', 'email_sending_confirmed_by_owner'];
         // Records that establish a failure without a score behind it.
         $failure_ids = ['email_test_failed', 'mail_function_failed', 'email_test_low_score'];
 
@@ -1177,7 +1320,7 @@ class Email_Monitor {
      * the fifties or sixties is still being delivered - warning about it reads
      * as a false alarm and teaches the administrator to ignore the notice.
      */
-    const SPAM_NOTICE_SCORE = 49;
+    const SPAM_NOTICE_SCORE = 50;
 
     /**
      * The line between "nothing arrives" and "it arrives in the spam folder".
@@ -1806,6 +1949,20 @@ class Email_Monitor {
      * Enabling it is now always an explicit admin action.
      */
     private static function mark_email_ready() {
+        // A record the owner produced - a check they ran, with its score and
+        // date, or their own confirmation - is theirs to replace, not this
+        // probe's. Only an empty slot, a check that never reported back, an
+        // earlier probe or a run that failed for a reason of its own gives
+        // way; the probe's own result always goes to OPTION_LAST_STATUS.
+        $existing = get_option('emsfb_email_status', []);
+        $existing_id = (is_array($existing) && isset($existing['message']['id']))
+            ? sanitize_key($existing['message']['id'])
+            : '';
+        if (is_array($existing) && !empty($existing)
+            && !in_array($existing_id, ['', 'email_test_pending', 'automated_email_test_ok'], true)
+            && !in_array($existing_id, self::inconclusive_reasons(), true)) {
+            return;
+        }
         update_option('emsfb_email_status', [
             'status' => 'ok',
             'message' => [

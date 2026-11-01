@@ -164,7 +164,7 @@ try {
 	$finish = preg_match( '/function efb_onboarding_finish_efb\(\) \{(.*?)\n\}/s', $js_src, $m ) ? $m[1] : '';
 	efb_dismiss_check( 'C6 Finish closes without posting a dismissal', false !== strpos( $finish, 'closeSetupOverlay_efb()' ) && false === strpos( $finish, 'efb_setup_overlay_user_close_efb' ) );
 	$call_sites = substr_count( $js_src, 'efb_setup_overlay_user_close_efb()' ) - substr_count( $js_src, 'function efb_setup_overlay_user_close_efb()' );
-	efb_dismiss_check( 'C7 only x and Escape route through the user close', 2 === $call_sites, "{$call_sites} call sites" );
+	efb_dismiss_check( 'C7 only x, Escape and Skip for now route through the user close', 3 === $call_sites, "{$call_sites} call sites" );
 } catch ( Throwable $e ) {
 	$failed++;
 	echo '[FAIL] unexpected ' . get_class( $e ) . ': ' . $e->getMessage() . "\n";

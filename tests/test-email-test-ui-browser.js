@@ -19,11 +19,14 @@ const { execFileSync } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 
-const BASE = 'http://127.0.0.1/wp';
+const BASE = process.env.EFB_BASE || 'http://127.0.0.1/wp';
 const ADMIN = BASE + '/wp-admin';
 const PANEL = ADMIN + '/admin.php?page=Emsfb';
 const SHOTS = path.join(__dirname, 'screenshots', 'email-test');
-const PHP = 'C:\\xampp\\php\\php.exe';
+const PHP = process.env.EFB_PHP || 'C:\\xampp\\php\\php.exe';
+const WP_LOAD = process.env.EFB_WP_LOAD || 'c:/xampp/htdocs/wp/wp-load.php';
+const ADMIN_USER = process.env.EFB_ADMIN_USER || 'admin';
+const ADMIN_PASS = process.env.EFB_ADMIN_PASS || 'admin';
 
 if (!fs.existsSync(SHOTS)) fs.mkdirSync(SHOTS, { recursive: true });
 
@@ -45,15 +48,15 @@ function t(label, condition, detail) {
 
 function wp(code) {
   return execFileSync(PHP, ['-r',
-    'define("WP_USE_THEMES",false);require "c:/xampp/htdocs/wp/wp-load.php";' + code
+    'define("WP_USE_THEMES",false);require "' + WP_LOAD + '";' + code
   ], { encoding: 'utf8' });
 }
 
 async function login(page) {
   await page.goto(ADMIN + '/index.php', { waitUntil: 'domcontentloaded' });
   if (await page.locator('#user_login').count()) {
-    await page.fill('#user_login', 'admin');
-    await page.fill('#user_pass', 'admin');
+    await page.fill('#user_login', ADMIN_USER);
+    await page.fill('#user_pass', ADMIN_PASS);
     await page.click('#wp-submit');
     await page.waitForLoadState('domcontentloaded');
   }
@@ -380,7 +383,8 @@ const TONE_CLASS = { run: 'efb-est--blue', done: 'efb-est--green', warn: 'efb-es
         rendered: !!root,
         isInline: root ? root.classList.contains('efb-est--inline') : false,
         hasRail: !!host.querySelector('.efb-est__rail'),
-        hasHero: !!host.querySelector('.efb-est__hero'),
+        hasSummary: !!host.querySelector('.efb-est__sum'),
+        hasMore: !!host.querySelector('details.efb-est__more'),
         // The wizard container used to add a card of its own around this one.
         noDoubleCard: getComputedStyle(host).backgroundColor !== 'rgb(239, 246, 255)'
       };
@@ -389,8 +393,9 @@ const TONE_CLASS = { run: 'efb-est--blue', done: 'efb-est--green', warn: 'efb-es
     t('the wizard exposes its own view-model builder', !inline.missing);
     t('the wizard renders through its real entry point', inline.rendered);
     t('the wizard variant is marked inline', inline.isInline);
-    t('the wizard variant keeps the step rail', inline.hasRail);
-    t('the wizard variant keeps the hero', inline.hasHero);
+    t('the wizard variant keeps the step rail (behind Show details)', inline.hasRail);
+    t('the wizard variant leads with the short form', inline.hasSummary);
+    t('the wizard variant folds the rest behind Show details', inline.hasMore);
     t('the wizard does not draw a card around the card', inline.noDoubleCard);
 
     if (inline.phases) {
