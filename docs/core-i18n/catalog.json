@@ -21536,7 +21536,8 @@
             "plural": null,
             "translators": "",
             "files": [
-                "includes/class-Emsfb-widgets-helper.php"
+                "includes/class-Emsfb-widgets-helper.php",
+                "includes/page-builders/gutenberg/class-Emsfb-gutenberg-block.php"
             ],
             "scope": [
                 "core"
@@ -31940,6 +31941,7 @@
             "translators": "",
             "files": [
                 "includes/class-Emsfb.php",
+                "includes/class-email-handler.php",
                 "includes/functions.php"
             ],
             "scope": [
