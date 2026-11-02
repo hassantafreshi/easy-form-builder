@@ -481,8 +481,11 @@ const countries_list_el_select=(el_type ,idset,indx)=>{
   if (country==null){
     country  = lan_con_efb.hasOwnProperty(efb_var.language) ? lan_con_efb[efb_var.language] :'US';
   }
-  counstries_list_efb.sort((a, b) => a.n.localeCompare(b.n));
-  for (let i of counstries_list_efb) {
+  // countries.js loads in the background (async): if it has not arrived the
+  // list is just empty for now instead of the settings panel throwing.
+  const countries_ = typeof counstries_list_efb === 'object' && counstries_list_efb ? counstries_list_efb : [];
+  countries_.sort((a, b) => a.n.localeCompare(b.n));
+  for (let i of countries_) {
     opt +=`<option value="${i.s2.toLowerCase()}" ${ i.s2.toLowerCase()==country.toLowerCase() ? `selected` : ''}>${i.l} (${i.s2})</option>`
   }
   return `
@@ -597,7 +600,7 @@ const selectBorderColorEls = (forEl,indx,idset) => {
 }
 const fontSizeEls = (idset,indx) => {
   return `
-    <label for="fontSizeEl" class="efb  mt-3"><i class="efb bi-arrow-down-up fs-7 ${iconMarginGlobal}"></i>${efb_var.text.height}</label>
+    <label for="fontSizeEl" class="efb  mt-3"><i class="efb bi-fonts fs-7 ${iconMarginGlobal}"></i>${efb_var.text.respFontSize || efb_var.text.height}</label>
     <select  data-id="${idset}" class="efb  rounded-4 elEdit form-select"  id="fontSizeEl" data-tag="${valj_efb[indx].type}">
     <option value="display-1"  ${valj_efb[indx].el_text_size ==  'display-1' ? `selected` : ''}>${efb_var.text.xxxlarge}</option>
     <option value="display-2"  ${valj_efb[indx].el_text_size == 'display-2' ? `selected` : ''} >${efb_var.text.xxlarge}</option>
@@ -637,7 +640,7 @@ const ElcountriesListSelections = (idset,indx) => {
    selectData +=i + " @efb!"
   }
  }
-  for (const i of counstries_list_efb) {
+  for (const i of (typeof counstries_list_efb === 'object' && counstries_list_efb ? counstries_list_efb : [])) {
 
     const s2 = i.s2.trim().toLowerCase();
     const v = i.l!=i.n  ? `(${i.l})` :''

@@ -465,6 +465,12 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 
 * Fixed: On phones, the field category tabs were cut off and Form Settings and Help were hidden in a sideways-scrolling toolbar.
 
+* Fixed: Saving a form said "updated" even when the database refused the change or the form no longer existed, and the builder then discarded its local draft. A save that is not stored now says so, and the draft is kept.
+
+* Fixed: Where Google Fonts, jsDelivr or gstatic.com hang instead of failing (common on some networks, for example in Iran), Easy Form Builder admin screens stayed blank or on "Please wait". These files no longer hold up the page.
+
+* Fixed: The heading field's font size control was labelled "Height".
+
 * New: Pages that show a form in their content, and the tracking and payment views, are kept out of page caches (LiteSpeed, WP Rocket, W3 Total Cache, WP Super Cache, WP Fastest Cache, WP-Optimize, Cache Enabler, SiteGround, Cloudflare and others). Pages with a form only in a sidebar, footer or widget stay cached. Developers can adjust this with the `emsfb_cache_bypass` filter.
 
 * New: Form scripts are excluded from script optimizers (Cloudflare Rocket Loader, delay/defer JavaScript options) and wait for jQuery when it loads late.

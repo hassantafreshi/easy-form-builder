@@ -17,7 +17,9 @@ class Panel_edit  {
 				$plugins['wpsms']=1;
 			}
 			$plugins_get =null;
-			wp_register_script('gchart-js', 'https://www.gstatic.com/charts/loader.js', null, null, true);
+			// async: only the response charts need it, and a hanging gstatic.com
+			// must not hold back the panel.
+			wp_register_script('gchart-js', 'https://www.gstatic.com/charts/loader.js', null, null, array('in_footer' => true, 'strategy' => 'async'));
 			wp_enqueue_script('gchart-js');
 			$img = ["logo" => ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo-easy-form-builder.svg',
 			"head"=> ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/header.png',
@@ -338,7 +340,7 @@ class Panel_edit  {
 			if(isset($ac->AdnOF) && $ac->AdnOF==1){
 				$url = EMSFB_PLUGIN_URL . 'vendor/offline/json/countries.js';
 			}
-			wp_register_script('countries-js', $url, null, null, true);
+			wp_register_script('countries-js', $url, null, null, array('in_footer' => true, 'strategy' => 'async'));
 			wp_enqueue_script('countries-js');
 			wp_register_script('intlTelInput-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/intlTelInput.min-efb.js', null, null, true);
 			wp_enqueue_script('intlTelInput-js');

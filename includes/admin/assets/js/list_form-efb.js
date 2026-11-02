@@ -3888,6 +3888,9 @@ function emsFormBuilder_chart(titles, colname, colvalue) {
 
       rowsOfCharts[t] = rows;
 
+      // The chart library loads in the background; without it there is
+      // simply no chart instead of an error.
+      if (typeof google === 'undefined' || !google.charts) continue;
       google.charts.load('current', { packages: ['corechart'] });
       publicidofchart = chartId[t];
 

@@ -294,7 +294,7 @@ class Admin {
     }
     public function update_form_id_Emsfb() {
         $efbFunction = get_efbFunction();
-        $text = ["sms_noti","msg_adons","error403","invalidRequire","nAllowedUseHtml","updated","upDMsg" ,"newMessageReceived","trackNo","url","newResponse","WeRecivedUrM"];
+        $text = ["sms_noti","msg_adons","error403","invalidRequire","nAllowedUseHtml","updated","upDMsg" ,"newMessageReceived","trackNo","url","newResponse","WeRecivedUrM","somethingWentWrongPleaseRefresh"];
         $lang= $efbFunction->text_efb($text);
         $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
         $post_value = isset($_POST['value']) ? wp_unslash( $_POST['value'] ) : '';
@@ -365,6 +365,20 @@ class Admin {
         }
         $table_name = $this->db->prefix . "emsfb_form";
         $r = $this->db->update($table_name, ['form_structer' => $value_, 'form_name' => $name ,'form_type'=>$form_type ], ['form_id' => $id]);
+
+        // The database refused the change (a value the column cannot hold, a
+        // lost connection), or the form no longer exists. This used to answer
+        // "updated" anyway, and the builder then deleted the local draft: the
+        // owner was told "saved" and lost the work. 0 rows is fine when the
+        // row exists - MySQL reports 0 when nothing changed.
+        $form_exists = (false !== $r && 0 === (int) $r)
+            ? (int) $this->db->get_var($this->db->prepare("SELECT COUNT(*) FROM `{$table_name}` WHERE form_id = %d", $id)) > 0
+            : (false !== $r);
+        if (false === $r || !$form_exists) {
+            $m = isset($lang['somethingWentWrongPleaseRefresh']) ? $lang['somethingWentWrongPleaseRefresh'] : '';
+            $response = ['success' => false, 'm' => $m, 'r' => 'not_saved'];
+            wp_send_json_success($response, 200);
+        }
 
         if ($r !== false) {
             $cache_data = (object) array(
@@ -3692,8 +3706,35 @@ class Admin {
         // Do not block an admin response on a server-side Google Fonts probe.
         // The browser fetches this stylesheet independently and gracefully
         // falls back to the local font stack if it is unavailable.
-        wp_register_style('Font_Roboto', $font_url);
+        //
+        // The <link> it prints must not block rendering either: where
+        // fonts.googleapis.com hangs instead of failing (common on Iranian
+        // connections) every Easy Form Builder screen stayed white. RTL
+        // screens use their own fonts and skip it; elsewhere it loads with
+        // media="print" and switches itself on once it has arrived.
+        if (function_exists('is_rtl') && is_rtl()) {
+            return;
+        }
+        wp_register_style('Font_Roboto', $font_url, [], null);
         wp_enqueue_style('Font_Roboto');
+        if (!has_filter('style_loader_tag', [$this, 'non_blocking_roboto_tag_efb'])) {
+            add_filter('style_loader_tag', [$this, 'non_blocking_roboto_tag_efb'], 10, 2);
+        }
+    }
+
+    /**
+     * Print the Roboto stylesheet so it never holds up the page.
+     *
+     * @param string $tag    The <link> tag.
+     * @param string $handle Style handle.
+     * @return string
+     */
+    public function non_blocking_roboto_tag_efb($tag, $handle) {
+        if ('Font_Roboto' !== $handle || false !== strpos($tag, 'onload=')) {
+            return $tag;
+        }
+        $tag = preg_replace('/\smedia=([\'"])[^\'"]*\1/', '', $tag);
+        return str_replace('<link ', "<link media='print' onload=\"this.media='all'\" ", $tag);
     }
     public function heartbeat_Emsfb(){
         $efbFunction = get_efbFunction();

@@ -1031,7 +1031,7 @@ async function  actionSendData_emsFormBuilder(saveMode) {
           show_message_result_form_set_EFB(0, res.data.value, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`)
           fun_pr(0);
         }
-      } else if (res.data.r == "update" || res.data.r == "updated" && res.data.success == true) {
+      } else if ((res.data.r == "update" || res.data.r == "updated") && res.data.success == true) {
         show_message_result_form_set_EFB(2, res.data.value);
         if (!_efb_autosave_in_progress) efb_builder_maybe_warn_email_delivery_after_save();
         if (saveMode === 1) clear_auto_save_efb();

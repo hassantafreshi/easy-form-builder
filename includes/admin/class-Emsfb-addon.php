@@ -290,7 +290,10 @@ class Addon {
 			'form_email' => $this->email,
 			'form_created_by' => $this->userId,
 			'form_type'=>$this->formtype,
-		));    $this->id_  = $this->db->insert_id;
+		));
+		// A refused insert keeps whatever id an earlier insert in this request
+		// left behind; only a real insert may report an id.
+		$this->id_  = (false === $r) ? 0 : $this->db->insert_id;
 	}
 	public function check_temp_is_bootstrap (){
 
