@@ -96,6 +96,9 @@ function efb_builder_maybe_warn_email_delivery() {
     && efb_builder_delivery_needs_question() && !efb_builder_prompt_snoozed();
   // Closed by the owner on this page: not again.
   if (efb_builder_email_closed_kinds[ask ? 'question' : kind]) return;
+  // Closed earlier this week (the question or the "off" toast): the plain
+  // "off" toast does not stand in for the snoozed question.
+  if (kind === 'off' && !ask && efb_builder_prompt_snoozed()) return;
   if (ask && document.getElementById('efb-setup-overlay')) return;
   // A check is running on this page: it will answer; no question meanwhile.
   const running = typeof efb_onboarding_email_test_state_efb !== 'undefined' && efb_onboarding_email_test_state_efb && efb_onboarding_email_test_state_efb.type === 'checking';
@@ -129,7 +132,13 @@ function efb_builder_maybe_warn_email_delivery() {
   const template = efb_var.text.emailNotificationRiskDesc || 'This form\'s email notification feature is enabled, but email delivery has not been verified and the latest spam score is %s/100. The form was saved, but admin notification emails may not reach you until SMTP/email delivery is fixed.';
   const helpText = efb_var.text.clcdetls || efb_var.text.smtpSetupGuideBtn || efb_var.text.clickHere || 'Click here for more details';
   const helpLink = `<br><a class="efb alert-link text-dark fw-semibold pointer-efb" onclick="Link_emsFormBuilder('EmailSpam')">${helpText}</a>`;
-  alert_message_efb(title, template.replace('%s', `<b>${score}</b>`) + helpLink, 30, 'warning');
+  // This shows when the builder opens or an email field is added, not only
+  // after a save, so the old text's "The form was saved" was often untrue.
+  // The check result sentence says the same thing without that claim.
+  const body = efb_var.text.emailResultMostSpam
+    ? `${efb_var.text.emailResultMostSpam} (<b>${score}</b>/100)`
+    : template.replace('%s', `<b>${score}</b>`);
+  alert_message_efb(title, body + helpLink, 30, 'warning');
   efb_builder_email_tag_last_toast('score');
 }
 
@@ -520,7 +529,12 @@ const efb_builder_email_closed_kinds = {};
 function efb_builder_email_toast_closed(kind) {
   if (!kind) return;
   efb_builder_email_closed_kinds[kind] = true;
-  if (kind === 'question' && typeof efb_builder_prompt_snooze === 'function') efb_builder_prompt_snooze();
+  // The question and the "notifications are off" toast are one subject: closing
+  // either keeps both away for the week, instead of the other one taking its
+  // place on the next email field or the next builder visit.
+  if ((kind === 'question' || kind === 'off') && typeof efb_builder_prompt_snooze === 'function') efb_builder_prompt_snooze();
+  if (kind === 'question') efb_builder_email_closed_kinds.off = true;
+  if (kind === 'off') efb_builder_email_closed_kinds.question = true;
 }
 
 function deepFreeze_efb_admin(obj) {
@@ -2598,7 +2612,9 @@ let change_el_edit_Efb = (el) => {
       case 'emailNotiContainsEl':
         if(pro_efb!=true){
           pro_show_efb(3);
-          el.value="";
+          // Keep showing what the form really sends (the stored choice, or the
+          // default "content and link"); a blank select looked like no email.
+          el.value = (valj_efb[0].email_noti_type || 'msg');
           break;
         }
         if(valj_efb[0].hasOwnProperty('email_noti_type')==false) Object.assign(valj_efb[0],{'email_noti_type':el.options[el.selectedIndex].value})

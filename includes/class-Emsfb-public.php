@@ -2734,7 +2734,7 @@ public function check_nonce_permission_efb($request) {
 									$is_valid = 0;
 									if (isset($item['value'])) {
 										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
-										$item['value'] = sanitize_email($item['value']);
+										$item['value'] = sanitize_email(self::normalize_email_input_efb($item['value']));
 										$is_valid = 1;
 										$validated_item = $item;
 										$l = strlen($item['value']);
@@ -3935,7 +3935,7 @@ public function check_nonce_permission_efb($request) {
 												$username = $rv['value'];
 												break;
 											case 'emailRegisterEFB':
-												$email = $rv['value'];
+												$email = self::normalize_email_input_efb($rv['value']);
 												break;
 										}
 									}
@@ -4031,7 +4031,7 @@ public function check_nonce_permission_efb($request) {
 										if (isset($value['id_']) && isset($value['value'])) {
 											switch ($value['id_']) {
 												case 'emaillogin':
-													$username = $value['value'];
+													$username = self::normalize_email_input_efb($value['value']);
 													break;
 												case 'passwordlogin':
 													$password = $value['value'];
@@ -8999,6 +8999,34 @@ public function check_nonce_permission_efb($request) {
 	public function efb_email_noti_type_chosen_efb($formObj) {
 		return is_array($formObj) && isset($formObj[0]['email_noti_type'])
 			&& in_array($formObj[0]['email_noti_type'], ['msg', 'just_msg', 'cc'], true);
+	}
+
+	/**
+	 * An email address as the visitor meant it. Persian and Arabic keyboards
+	 * type their own digits, RTL keyboards and pasting add invisible direction
+	 * marks, and some layouts give a fullwidth at sign or a Persian decimal
+	 * separator for the dot. All of these made a correct Gmail address fail
+	 * as "not valid". Mirrors efb_normalize_email_efb() in core-efb.js.
+	 *
+	 * @param mixed $value Raw value.
+	 * @return mixed The cleaned string, or the value unchanged if not a string.
+	 */
+	public static function normalize_email_input_efb($value) {
+		if (!is_string($value) || '' === $value) {
+			return $value;
+		}
+		$value = strtr($value, array(
+			'۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4',
+			'۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9',
+			'٠' => '0', '١' => '1', '٢' => '2', '٣' => '3', '٤' => '4',
+			'٥' => '5', '٦' => '6', '٧' => '7', '٨' => '8', '٩' => '9',
+			"\u{FF20}" => '@', "\u{FF0E}" => '.', "\u{3002}" => '.', "\u{066B}" => '.', "\u{06D4}" => '.',
+		));
+		$clean = preg_replace('/[\x{00A0}\x{061C}\x{200B}-\x{200F}\x{202A}-\x{202E}\x{2060}-\x{2069}\x{FEFF}]/u', '', $value);
+		if (is_string($clean)) {
+			$value = $clean;
+		}
+		return trim($value);
 	}
 
 	/** The visitor's address for the owner's Reply-To: the first email field holding a valid address. */

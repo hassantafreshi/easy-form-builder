@@ -1316,11 +1316,26 @@ function efb_ascii_digits_efb(str) {
   return String(str).replace(/[\u06F0-\u06F9]/g, function (d) { return String(d.charCodeAt(0) - 0x06F0); })
     .replace(/[\u0660-\u0669]/g, function (d) { return String(d.charCodeAt(0) - 0x0660); });
 }
+/* An email address as the visitor meant it: Persian/Arabic digits to 0-9,
+ * invisible direction marks and spaces removed, a fullwidth "@" or a Persian
+ * decimal separator for the dot mapped back. These made correct Gmail
+ * addresses fail as "not valid". Mirrors normalize_email_input_efb() in PHP. */
+function efb_normalize_email_efb(str) {
+  return efb_ascii_digits_efb(str)
+    .replace(/[\u00A0\u061C\u200B-\u200F\u202A-\u202E\u2060-\u2069\uFEFF]/g, '')
+    .replace(/\uFF20/g, '@')
+    .replace(/[\uFF0E\u3002\u066B\u06D4]/g, '.')
+    .trim();
+}
 function valid_email_emsFormBuilder(el) {
+  if (el && typeof el.value === 'string') {
+    const normalized = efb_normalize_email_efb(el.value);
+    if (normalized !== el.value) el.value = normalized;
+  }
   let offsetw = offset_view_efb();
   const msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onclick="alert_message_efb('${ajax_object_efm.text.enterTheEmail}','',10,'danger');"></div>` : ajax_object_efm.text.enterTheEmail;
   let check = 0;
-  const format =/^[a-zA-Z0-9._%+'-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  const format =/^[a-zA-Z0-9._%+'-]+@[a-zA-Z0-9.-]+\.(?:[a-zA-Z]{2,}|xn--[a-zA-Z0-9-]+)$/;
   check += el.value.match(format) ? 0 : 1;
   const form_id = el.dataset.formid || 0;
   if (check > 0) {
@@ -1654,11 +1669,11 @@ function Show_recovery_pass_efb() {
       document.getElementById('efb-final-step').innerHTML = `<div class="efb" style="text-align:center;padding:32px 0;"><div style="width:40px;height:40px;border:3px solid var(--efb-resp-primary-10);border-top-color:var(--efb-resp-primary);border-radius:50%;animation:efb-spin .7s linear infinite;margin:0 auto 12px;"></div><p style="color:var(--efb-resp-text-muted);font-family:var(--efb-resp-font-family);font-size:var(--efb-resp-font-size);">${ajax_object_efm.text.pleaseWaiting}</p></div>`
       const valj = valj_efb_new.find(x => x.type ==  'login');
       const form_id = valj ? valj.id : 0;
-      sendBack_emsFormBuilder_pub = { email: us.value ,'recovery':true , form_id: form_id};
+      sendBack_emsFormBuilder_pub = { email: efb_normalize_email_efb(us.value) ,'recovery':true , form_id: form_id};
       actionSendData_emsFormBuilder(form_id)
     })
     us.addEventListener("keyup", (e) => {
-      const isValid = us.value.match(format);
+      const isValid = efb_normalize_email_efb(us.value).match(format);
       if (isValid) {
         el.classList.remove('disabled');
         el.disabled = false;

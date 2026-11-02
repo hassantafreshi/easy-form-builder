@@ -2253,28 +2253,20 @@ class Admin {
                 ];
             }
         };
-        $from_filter = function() use ($sender_email) {
-            return $sender_email;
-        };
-        $from_name_filter = function() {
-            return '';
-        };
-        $phpmailer_listener = function($phpmailer) use (&$actual_mail, $sender_email, $test_hash) {
+        // The check goes out exactly like a form email: the From header above,
+        // and whatever an SMTP plugin forces on top of it. It used to force its
+        // own From and envelope sender at the highest priority, which beat the
+        // SMTP plugin's "force From" - so on Microsoft 365 (which refuses to
+        // send as another address) the check failed while form emails arrived.
+        $phpmailer_listener = function($phpmailer) use (&$actual_mail, $test_hash) {
             if (is_object($phpmailer)) {
-                $phpmailer->From = $sender_email;
-                $phpmailer->FromName = '';
-                $phpmailer->Sender = $sender_email;
                 $actual_mail = $this->email_tester_collect_phpmailer_state_efb($phpmailer, $test_hash);
             }
         };
         add_action('wp_mail_failed', $mail_error_listener);
-        add_filter('wp_mail_from', $from_filter, PHP_INT_MAX);
-        add_filter('wp_mail_from_name', $from_name_filter, PHP_INT_MAX);
         add_action('phpmailer_init', $phpmailer_listener, PHP_INT_MAX);
         $sent = wp_mail($recipient_email, $email_subject, $message, $headers);
         remove_action('phpmailer_init', $phpmailer_listener, PHP_INT_MAX);
-        remove_filter('wp_mail_from_name', $from_name_filter, PHP_INT_MAX);
-        remove_filter('wp_mail_from', $from_filter, PHP_INT_MAX);
         remove_action('wp_mail_failed', $mail_error_listener);
 
         $this->email_tester_log_efb('wp_mail_after_send', [
@@ -3040,7 +3032,11 @@ class Admin {
         $can_send_email = !empty($test_result['can_send_email']);
         $email_received = isset($test_result['delivery']['email_received']) ? (bool) $test_result['delivery']['email_received'] : false;
 
-        if ($success || $can_send_email || $email_received || !in_array($status, ['delayed', 'expired'], true)) {
+        // Only a test that has expired without the message is a non-delivery.
+        // "delayed" (not there after 45 seconds) is ordinary for hosts that
+        // queue outgoing mail, and emailing the owner "it never arrived" then
+        // was the false alarm people reported.
+        if ($success || $can_send_email || $email_received || 'expired' !== $status) {
             return null;
         }
 

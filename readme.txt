@@ -423,7 +423,7 @@ For more information, visit the official website:
 
 = 4.3.1 =
 
-Recommended update. Verifies Stripe payments on the server, keeps form pages out of page caches, and fixes Multisite network activation and the tracking page on older WordPress. Purge your page cache and CDN after updating. Requires WordPress 5.7+ and PHP 7.3+.
+Recommended update. Turns form emails on if they were off (you now receive each submission by email), verifies Stripe payments on the server and keeps form pages out of page caches. Purge your page cache and CDN after updating. Requires WordPress 5.7+ and PHP 7.3+.
 
 = 4.3.0 =
 
@@ -454,6 +454,16 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 * Security: Uploaded archives must really be the archive type they are named as, and files containing a PHP open tag are refused.
 
 * Improved: Only Persian sites check the Iran CDN; other sites no longer contact it.
+
+* Fixed: Email addresses typed with Persian or Arabic digits, invisible direction marks, a fullwidth "@" or a Persian decimal separator were rejected as not valid (in forms, registration, login and password recovery).
+
+* Fixed: The email check reported "not received" when the test message took more than 45 seconds to arrive (common with Microsoft 365 and hosts that queue mail). It now waits until the message arrives or the test expires.
+
+* Fixed: The email check forced its own sender address over the one an SMTP plugin sets, so it failed on Microsoft 365 while form emails arrived. It now sends exactly like a form email.
+
+* Fixed: A new form was missing from the Easy Form Builder block for up to an hour.
+
+* Fixed: On phones, the field category tabs were cut off and Form Settings and Help were hidden in a sideways-scrolling toolbar.
 
 * New: Pages that show a form in their content, and the tracking and payment views, are kept out of page caches (LiteSpeed, WP Rocket, W3 Total Cache, WP Super Cache, WP Fastest Cache, WP-Optimize, Cache Enabler, SiteGround, Cloudflare and others). Pages with a form only in a sidebar, footer or widget stay cached. Developers can adjust this with the `emsfb_cache_bypass` filter.
 

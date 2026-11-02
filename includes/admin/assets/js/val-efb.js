@@ -849,7 +849,10 @@ function show_setting_window_efb(idset) {
       // A form that never chose sends the submitted content and the link (the server's default too).
       const val = valj_efb[0].hasOwnProperty('email_noti_type') ? valj_efb[indx].email_noti_type : 'msg';
 
+      // Changing it is a Pro option: badge it like the Email Subject above,
+      // so the badge is not mistaken for belonging to only one of them.
       return `
+    ${pro_efb==true ?"":funProEfb()}
     <label for="emailNotiContainsEl" class="efb mt-2 mb-1   efb">${efb_var.text.emlc}</label>
                         <select  class="efb elEdit form-select efb border-d rounded-4 mb-1" data-id="${idset}"  id="emailNotiContainsEl" >
                             <option value="cc" ${val == 'cc' ? `selected` : ''}>${efb_var.text.emlacl}</option>

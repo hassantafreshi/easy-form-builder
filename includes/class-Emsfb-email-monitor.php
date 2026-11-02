@@ -961,7 +961,12 @@ class Email_Monitor {
 
 		$status = isset($result['status']) ? sanitize_key($result['status']) : '';
 		$stage = isset($result['analysis_stage']) ? sanitize_key($result['analysis_stage']) : '';
-		$terminal = in_array($status, ['delayed', 'expired', 'failed'], true)
+		// "delayed" only means the message has not arrived 45 seconds after
+		// it was sent. Mail queued at the host (Microsoft 365, greylisting, a
+		// lazy WP-Cron) often takes longer, and the service still counts it if
+		// it arrives before the test expires, so keep polling until it either
+		// arrives or the service reports the test expired.
+		$terminal = in_array($status, ['expired', 'failed'], true)
 			|| ($status === 'analyzed' && $stage === 'full')
 			|| !empty($result['can_send_email']);
 
@@ -1146,7 +1151,9 @@ class Email_Monitor {
 
     private static function retry_or_finish($pending, $state, $message) {
         $pending['attempts'] = isset($pending['attempts']) ? (int) $pending['attempts'] + 1 : 1;
-        if ($pending['attempts'] >= 10 || (time() - (int) $pending['started_at']) >= 12 * MINUTE_IN_SECONDS) {
+        // Long enough to see the service's own expiry (10 minutes after the
+        // test started) even when the first poll ran late.
+        if ($pending['attempts'] >= 14 || (time() - (int) $pending['started_at']) >= 15 * MINUTE_IN_SECONDS) {
 			$final_message = $message !== ''
 				? sanitize_text_field($message)
 				: __('The email delivery test timed out before confirmation was received.', 'easy-form-builder');

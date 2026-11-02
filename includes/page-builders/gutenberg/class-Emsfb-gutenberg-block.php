@@ -66,6 +66,8 @@ class Emsfb_Gutenberg_Block {
                 'selectForm' => __('— Select a Form —', 'easy-form-builder'),
                 'blockTitle' => __('Easy Form Builder', 'easy-form-builder'),
                 'selectFormHelp' => __('Select a form to display from the dropdown below.', 'easy-form-builder'),
+                // For the editor notice, which has no dropdown below it.
+                'selectFormNotice' => __('Please select a form to display.', 'easy-form-builder'),
                 'selectedForm' => __('Selected Form:', 'easy-form-builder'),
                 'formPreviewText' => __('Form will be displayed here on the frontend.', 'easy-form-builder'),
                 'loadingForms' => __('Loading forms&hellip;', 'easy-form-builder'),
@@ -156,7 +158,8 @@ class Emsfb_Gutenberg_Block {
             if (current_user_can('edit_posts')) {
                 return sprintf(
                     '<div class="wp-block-easy-form-builder-form efb-block-empty" style="padding:12px 16px;border:1px dashed #c7d2fe;border-radius:8px;color:#3730a3;background:#f5f7ff">%s</div>',
-                    esc_html(__('Easy Form Builder', 'easy-form-builder') . ': ' . __('Select a form to display from the dropdown below.', 'easy-form-builder'))
+                    // The published page has no dropdown, so no "below".
+                    esc_html(__('Easy Form Builder', 'easy-form-builder') . ': ' . __('Please select a form to display.', 'easy-form-builder'))
                 );
             }
             return '';

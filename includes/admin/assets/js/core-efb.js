@@ -572,11 +572,24 @@ function stepName_emsFormBuilder_view(i) {
 }
 
 function valid_email_emsFormBuilder(el) {
+  // Same clean-up as the public form (efb_normalize_email_efb in
+  // public/assets/js/core-efb.js): Persian/Arabic digits, invisible direction
+  // marks, a fullwidth "@" or a Persian decimal separator for the dot.
+  if (el && typeof el.value === 'string') {
+    const normalized = String(el.value)
+      .replace(/[\u06F0-\u06F9]/g, function (d) { return String(d.charCodeAt(0) - 0x06F0); })
+      .replace(/[\u0660-\u0669]/g, function (d) { return String(d.charCodeAt(0) - 0x0660); })
+      .replace(/[\u00A0\u061C\u200B-\u200F\u202A-\u202E\u2060-\u2069\uFEFF]/g, '')
+      .replace(/\uFF20/g, '@')
+      .replace(/[\uFF0E\u3002\u066B\u06D4]/g, '.')
+      .trim();
+    if (normalized !== el.value) el.value = normalized;
+  }
   let offsetw = offset_view_efb();
 
   const msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onclick="alert_message_efb('${efb_var.text.enterTheEmail}','',10,'danger');"></div>` : efb_var.text.enterTheEmail;
   let check = 0;
-  const format =/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  const format =/^[a-zA-Z0-9._%+'-]+@[a-zA-Z0-9.-]+\.(?:[a-zA-Z]{2,}|xn--[a-zA-Z0-9-]+)$/;
   check += el.value.match(format) ? 0 : 1;
   if (check > 0) {
     el.value.match(format) ? 0 : el.className = colorBorderChangerEfb(el.className, "border-danger");

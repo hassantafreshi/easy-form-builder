@@ -1667,7 +1667,7 @@ function fun_show_setting__emsFormBuilder() {
                                     <div class="efb handle"></div>
                                     </button>
                                     <label class="efb form-check-label fs-6 efb mx-2 my-3" for="hostSupportSmtp_emsFormBuilder">${efb_var.text.hostSupportSmtp}</label>
-                                    <p class="efb text-muted fs-7 ${mxCSize4}">${efb_var.text.emailSendingOffHowTo || 'Click "Check Email Server" to test delivery, turn this switch on, then press Save.'}</p>
+                                    <p class="efb efb-sending-off-hint text-muted fs-7 ${mxCSize4}">${efb_var.text.emailSendingOffHowTo || 'Click "Check Email Server" to test delivery, turn this switch on, then press Save.'}</p>
                                   </div>
                                 </div>
                                 <div class="efb card-body mx-0 py-0 ${mxCSize4} mt-2">

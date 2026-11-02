@@ -106,7 +106,7 @@
                 const strings = (window.efbBlockData && efbBlockData.strings) || {};
                 if (!formId) {
                     notices.createWarningNotice(
-                        (strings.blockTitle || 'Easy Form Builder') + ': ' + (strings.selectFormHelp || 'Select a form to display from the dropdown below.'),
+                        (strings.blockTitle || 'Easy Form Builder') + ': ' + (strings.selectFormNotice || 'Please select a form to display.'),
                         { id: noticeId, isDismissible: false }
                     );
                 } else {

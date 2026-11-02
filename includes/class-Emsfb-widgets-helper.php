@@ -38,11 +38,10 @@ class Emsfb_Widgets_Helper {
             return $include_tracking ? self::add_tracking_option(self::$forms_cache) : self::$forms_cache;
         }
 
-        $cached = get_transient('emsfb_forms_list');
-        if ($cached !== false) {
-            self::$forms_cache = $cached;
-            return $include_tracking ? self::add_tracking_option($cached) : $cached;
-        }
+        // No hour-long transient any more: forms are not posts, so nothing
+        // cleared it when a form was created, renamed or deleted, and a new
+        // form was missing from the block for up to an hour. The query is
+        // three columns of one small table; the per-request copy is enough.
 
         $table_name = $wpdb->prefix . 'emsfb_form';
         $forms = [];
@@ -73,7 +72,6 @@ class Emsfb_Widgets_Helper {
         }
 
         self::$forms_cache = $forms;
-        set_transient('emsfb_forms_list', $forms, HOUR_IN_SECONDS);
 
         return $include_tracking ? self::add_tracking_option($forms) : $forms;
     }
