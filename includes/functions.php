@@ -5751,8 +5751,9 @@ public function addon_add_efb($value) {
 
 	   public function fun_addon_new($url){
 
-		$path = preg_replace( '/wp-content(?!.*wp-content).*/', '', __DIR__ );
-		require_once( $path . 'wp-load.php' );
+		// WordPress is already loaded here (this runs from an admin request), so
+		// wp-load.php is not included by a computed path any more: scanners treat
+		// that pattern as a loader, and it never did anything useful.
 		require_once (ABSPATH .'wp-admin/includes/admin.php');
 		require_once(ABSPATH . 'wp-admin/includes/file.php');
 

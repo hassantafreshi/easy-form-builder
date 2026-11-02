@@ -3654,7 +3654,7 @@ public function check_nonce_permission_efb($request) {
 									$msg_content = str_replace("\"", "'", $msg_content);
 								}
 								$status_email = $this->email_status_efb($form_fields_array,$submitted_values,$track_code);
-								$state_of_email = ['newMessage',$state_email_user,$status_email['type']];
+								$state_of_email = ['newMessage',$state_email_user,$status_email['type'],$status_email['visitor_type']];
 
 								// A matching email notification rule replaces the standard admin
 								// notification: admin recipients are dropped so only rule
@@ -3898,7 +3898,7 @@ public function check_nonce_permission_efb($request) {
 							if ($should_send_email) {
 								$state_email_user = $has_tracking_code==1 ? 'notiToUserFormFilled_TrackingCode' : 'notiToUserFormFilled';
 								$status_email = $this->email_status_efb($form_fields_array,$email_content_rows,$payment_track_id);
-								$state_of_email = ['newMessage',$state_email_user,$status_email['type']];
+								$state_of_email = ['newMessage',$state_email_user,$status_email['type'],$status_email['visitor_type']];
 								$this->efb_trace('payment.email', [
 									'form_id'          => intval($form_id),
 									'track'            => $payment_track_id,
@@ -4102,7 +4102,7 @@ public function check_nonce_permission_efb($request) {
 
 									if($should_send_email){
 										$status_email = $this->email_status_efb($form_fields_array,$submitted_values,$track_code);
-										$state_of_email = ['newMessage','subscribe',$status_email['type']];
+										$state_of_email = ['newMessage','subscribe',$status_email['type'],$status_email['visitor_type']];
 										$this->send_email_Emsfb_( $email_recipients,$track_code ,$is_pro,$state_of_email,$url,$status_email['content'],$status_email['subject'] );
 									}
 									exit;
@@ -4133,7 +4133,7 @@ public function check_nonce_permission_efb($request) {
 
 									if($should_send_email){
 										$status_email = $this->email_status_efb($form_fields_array,$submitted_values,$track_code);
-										$state_of_email = ['newMessage',"survey",$status_email['type']];
+										$state_of_email = ['newMessage',"survey",$status_email['type'],$status_email['visitor_type']];
 										$this->send_email_Emsfb_( $email_recipients,$track_code ,$is_pro,$state_of_email,$url,$status_email['content'],$status_email['subject'] );
 									}
 
@@ -6436,7 +6436,11 @@ public function check_nonce_permission_efb($request) {
         }
         // For registration states, keep username as content for email_template_efb
         $cont[$i] = $isRegistrationState ? $track : $message[$i];
-        if ($content != "null") {
+        // The visitor's copy (index 1) keeps the plain confirmation when the
+        // form did not choose to send it the submitted content ($state[3],
+        // set by email_status_efb).
+        $visitor_plain = (1 === $i && is_array($state) && isset($state[3]) && 'traking_link' === $state[3]);
+        if ($content != "null" && !$visitor_plain) {
             $cont[$i] = [$track, $content];
         }
         if ($sub != "null") {
@@ -8987,6 +8991,16 @@ public function check_nonce_permission_efb($request) {
 		return in_array($type, ['msg', 'just_msg', 'cc'], true) ? $type : 'msg';
 	}
 
+	/**
+	 * Whether the form owner picked the email content themselves. The builder
+	 * stores email_noti_type only when the owner changes the select, so a form
+	 * without it is running on the default.
+	 */
+	public function efb_email_noti_type_chosen_efb($formObj) {
+		return is_array($formObj) && isset($formObj[0]['email_noti_type'])
+			&& in_array($formObj[0]['email_noti_type'], ['msg', 'just_msg', 'cc'], true);
+	}
+
 	/** The visitor's address for the owner's Reply-To: the first email field holding a valid address. */
 	private function efb_submitter_email_efb($values) {
 		if (!is_array($values)) {
@@ -9037,6 +9051,13 @@ public function check_nonce_permission_efb($request) {
 			if(isset($formObj[0]["email_sub"]) && $formObj[0]["email_sub"]!=''){
 				$msg_sub = $formObj[0]["email_sub"];
 			}
+			// The visitor's own copy carries the submitted content only when the
+			// owner chose that. On the default, content goes to the owner alone:
+			// otherwise anybody could make the site email any text they like to
+			// any address they type into the form.
+			$visitor_type = ($this->efb_email_noti_type_chosen_efb($formObj) && $noti_type !== 'cc')
+				? $msg_type
+				: 'traking_link';
 			$this->efb_trace('email.status', [
 				'noti_type'   => $formObj[0]['email_noti_type'] ?? null,
 				'track'       => $check,
@@ -9045,7 +9066,7 @@ public function check_nonce_permission_efb($request) {
 				'content_len' => is_string($msg_content) ? strlen($msg_content) : gettype($msg_content),
 				'content_text'=> is_string($msg_content) && $msg_content !== 'null' ? mb_substr(trim(strip_tags($msg_content)), 0, 300) : '',
 			]);
-			return ['subject'=>$msg_sub,'content'=>$msg_content,'type'=>$msg_type];
+			return ['subject'=>$msg_sub,'content'=>$msg_content,'type'=>$msg_type,'visitor_type'=>$visitor_type];
 	}
 
 	public function fun_validation_pay_elements_efb($val_ ,$fs_){

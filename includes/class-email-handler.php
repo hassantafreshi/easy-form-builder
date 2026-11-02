@@ -276,10 +276,15 @@ class EmsfbEmailHandler {
 
             for ($i = 0; $i < 2; $i++) {
                 if (!empty($to[$i]) && $to[$i] != "null") {
-                    $message = $this->email_template_efb($pro, $state[$i], $cont[$i], $link[$i], $email_content_type, $st);
+                    // The visitor's copy may carry less than the owner's: $state[3]
+                    // says what it carries when the form side set it.
+                    $copy_content_type = (1 === $i && is_array($state) && isset($state[3]) && is_string($state[3]))
+                        ? $state[3]
+                        : $email_content_type;
+                    $message = $this->email_template_efb($pro, $state[$i], $cont[$i], $link[$i], $copy_content_type, $st);
 
                     // DEBUG LOG: final composed email (gated on EMSFB_EMAIL_DEBUG)
-                    $this->log_email_debug($state[$i], $to[$i], $sub[$i], $message, $link[$i], $email_content_type);
+                    $this->log_email_debug($state[$i], $to[$i], $sub[$i], $message, $link[$i], $copy_content_type);
 
                     if ($state != "reportProblem") {
                         $pair_headers = $headers;
@@ -411,6 +416,15 @@ class EmsfbEmailHandler {
         $lang = $this->get_text_efb($text_keys);
 
         $automatic_email_disclaimer = '📧 ' . __('This email was sent automatically. Please do not reply.', 'easy-form-builder');
+        // The owner's copy of a submission carries Reply-To = the visitor, so
+        // "do not reply" would tell them the opposite of what works. The line
+        // is left out there (an empty string drops the whole footer row).
+        if ('newMessage' === $state && function_exists('apply_filters')) {
+            $owner_reply_to = apply_filters('emsfb_owner_reply_to_efb', '', array(), array('newMessage'));
+            if (is_string($owner_reply_to) && '' !== $owner_reply_to && is_email($owner_reply_to)) {
+                $automatic_email_disclaimer = '';
+            }
+        }
 
         $footer = "<a class='efb subtle-link' target='_blank' href='" . esc_url(home_url()) . "'>" . $lang['sentBy'] . " " . esc_html(get_bloginfo('name')) . "</a>";
         $align = is_rtl() ? 'right' : 'left';
@@ -1222,7 +1236,7 @@ class EmsfbEmailHandler {
                             $footer
                         </td>
                     </tr>
-                    <tr>
+" . ($disclaimer === '' ? '' : "                    <tr>
                         <td align=\"center\" style=\"padding-bottom: 20px;\">
                             <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\">
                                 <tr>
@@ -1234,7 +1248,7 @@ class EmsfbEmailHandler {
                                 </tr>
                             </table>
                         </td>
-                    </tr>
+                    </tr>") . "
                 </table>
                 </div>
                 <!--[if mso]></td></tr></table><![endif]-->
@@ -1278,6 +1292,44 @@ class EmsfbEmailHandler {
         return null;
     }
 
+    /**
+     * Remove the "sent automatically, please do not reply" line a saved email
+     * template carries as plain text (the default template seeds it in the
+     * site's language). Used for the owner's copy of a submission, whose
+     * Reply-To is the visitor. The whole table row goes when the line sits in
+     * one on its own, otherwise just the sentence.
+     *
+     * @param string $html Rendered template.
+     * @return string
+     */
+    private function strip_reply_disclaimer_efb($html) {
+        if (!is_string($html) || '' === $html) {
+            return $html;
+        }
+        $phrases = array(
+            'This email was sent automatically. Please do not reply directly.',
+            'This email was sent automatically. Please do not reply.',
+        );
+        if (function_exists('__')) {
+            $phrases[] = __('This email was sent automatically. Please do not reply directly.', 'easy-form-builder');
+            $phrases[] = __('This email was sent automatically. Please do not reply.', 'easy-form-builder');
+        }
+        $variants = array();
+        foreach (array_unique($phrases) as $phrase) {
+            $variants[] = $phrase;
+            $variants[] = function_exists('esc_html') ? esc_html($phrase) : htmlspecialchars($phrase, ENT_QUOTES, 'UTF-8');
+        }
+        foreach (array_unique($variants) as $text) {
+            if ('' === $text || false === strpos($html, $text)) {
+                continue;
+            }
+            $quoted = preg_quote($text, '/');
+            $row = preg_replace('/<tr>\s*<td[^>]*>\s*(?:📧\s*)?' . $quoted . '\s*<\/td>\s*<\/tr>/u', '', $html);
+            $html = (is_string($row) && $row !== $html) ? $row : str_replace($text, '', $html);
+        }
+        return $html;
+    }
+
     private function apply_custom_template($temp, $message, $title, $blogName, $blogURL, $adminEmail, $footer, $disclaimer) {
         $replacements = [
             'shortcode_message' => $message,
@@ -1295,8 +1347,11 @@ class EmsfbEmailHandler {
         if ($efbdata_json) {
             $rebuilt = $this->generate_from_efbdata($efbdata_json, $replacements);
             if ($rebuilt !== false) {
-                return $rebuilt;
+                return '' === $disclaimer ? $this->strip_reply_disclaimer_efb($rebuilt) : $rebuilt;
             }
+        }
+        if ('' === $disclaimer) {
+            $temp = $this->strip_reply_disclaimer_efb($temp);
         }
 
         $temp = preg_replace('/\n?<!-- EFBDATA:.*? -->/', '', $temp);
@@ -1322,7 +1377,7 @@ class EmsfbEmailHandler {
                     $footer
                 </td>
             </tr>
-            <tr>
+" . ($disclaimer === '' ? '' : "            <tr>
                 <td align=\"center\" style=\"padding: 15px 30px;\">
                     <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\">
                         <tr>
@@ -1334,7 +1389,7 @@ class EmsfbEmailHandler {
                         </tr>
                     </table>
                 </td>
-            </tr>
+            </tr>") . "
         </table>
             ";
 

@@ -447,6 +447,14 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 
 * Security: Stripe one-time payments are now verified with Stripe on the server before the form is submitted. A confirmation that fails for a moment after the card was charged is retried and the form is still submitted, and pending payments are re-checked in the background; an attempt that was declined or abandoned is marked Failed after an hour.
 
+* Changed: Form emails are on by default. Updating from an older version turns "This site can send emails" on once if it was off (sites set up before 4.3.1 started with it off, and a failed email check used to switch it off). If you had turned it off on purpose, turn it off again in Panel > Settings > Email; it stays off. An email check no longer turns form emails off.
+
+* Changed: The owner's notification email now includes the submitted answers and has Reply-To set to the visitor's address. The visitor's confirmation email keeps only the confirmation code and link unless the form chooses otherwise.
+
+* Security: Uploaded archives must really be the archive type they are named as, and files containing a PHP open tag are refused.
+
+* Improved: Only Persian sites check the Iran CDN; other sites no longer contact it.
+
 * New: Pages that show a form in their content, and the tracking and payment views, are kept out of page caches (LiteSpeed, WP Rocket, W3 Total Cache, WP Super Cache, WP Fastest Cache, WP-Optimize, Cache Enabler, SiteGround, Cloudflare and others). Pages with a form only in a sidebar, footer or widget stay cached. Developers can adjust this with the `emsfb_cache_bypass` filter.
 
 * New: Form scripts are excluded from script optimizers (Cloudflare Rocket Loader, delay/defer JavaScript options) and wait for jQuery when it loads late.

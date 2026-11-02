@@ -9,7 +9,10 @@
  *   3. a form that never chose its email content sends the submitted content
  *      and the link ("msg"); a form that chose "cc" keeps it;
  *   4. the owner's copy carries Reply-To = the visitor's address, the
- *      visitor's own copy does not.
+ *      visitor's own copy does not, and only the owner's copy drops the
+ *      "do not reply" line;
+ *   5. on the default the submitted content goes to the owner only, so the
+ *      form cannot be used to mail arbitrary text to any address.
  *
  * Nothing is sent: wp_mail is short-circuited with pre_wp_mail and the
  * headers are captured.
@@ -89,7 +92,7 @@ if (!class_exists('EmsfbEmailHandler')) {
 }
 $captured = [];
 $capture = function ($null, $atts) use (&$captured) {
-	$captured[] = ['to' => $atts['to'], 'headers' => (array) $atts['headers']];
+	$captured[] = ['to' => $atts['to'], 'headers' => (array) $atts['headers'], 'message' => (string) $atts['message']];
 	return true; // short-circuit: nothing leaves the site
 };
 add_filter('pre_wp_mail', $capture, 10, 2);
@@ -124,6 +127,37 @@ $has_reply = function ($mail) {
 efb_oe_check('both copies were composed (captured, not sent)', null !== $owner && null !== $visitor, 'captured: ' . count($captured));
 efb_oe_check('the owner\'s copy has Reply-To: the visitor', $has_reply($owner));
 efb_oe_check('the visitor\'s own copy has no Reply-To', null !== $visitor && !$has_reply($visitor));
+efb_oe_check('the owner\'s copy (with Reply-To) does not say "do not reply"', null !== $owner && false === stripos($owner['message'], 'Please do not reply'));
+efb_oe_check('the visitor\'s copy still says "do not reply"', null !== $visitor && false !== stripos($visitor['message'], 'Please do not reply'));
+
+// 5. On the default, the submitted content goes to the owner only.
+$captured = [];
+add_filter('pre_wp_mail', $capture, 10, 2);
+$secret = 'Unique-Submitted-Text-' . wp_generate_password(8, false);
+$handler->send_email_state_new(
+	['owner@example.com', 'visitor@example.com'],
+	['New message', 'We received your message'],
+	[['ABC123', '<p>' . $secret . '</p>'], 'ABC123'],
+	false,
+	['newMessage', 'notiToUserFormFilled_TrackingCode', 'message_link', 'traking_link'],
+	['https://site.test/a', 'https://site.test/b'],
+	'null'
+);
+remove_filter('pre_wp_mail', $capture, 10);
+$owner = null; $visitor = null;
+foreach ($captured as $mail) {
+	$to = is_array($mail['to']) ? implode(',', $mail['to']) : (string) $mail['to'];
+	if (false !== strpos($to, 'owner@example.com')) $owner = $mail;
+	if (false !== strpos($to, 'visitor@example.com')) $visitor = $mail;
+}
+efb_oe_check('default: the owner\'s copy carries the submitted content', null !== $owner && false !== strpos($owner['message'], $secret));
+efb_oe_check('default: the visitor\'s copy does not carry it', null !== $visitor && false === strpos($visitor['message'], $secret));
+efb_oe_check('default: the visitor\'s copy still has the confirmation code', null !== $visitor && false !== strpos($visitor['message'], 'ABC123'));
+
+if (null !== $public_class) {
+	efb_oe_check('a form that never chose is not "chosen"', false === $pub->efb_email_noti_type_chosen_efb([['type' => 'form']]));
+	efb_oe_check('a form that chose "msg" is "chosen"', true === $pub->efb_email_noti_type_chosen_efb([['email_noti_type' => 'msg']]));
+}
 
 // Without the filter, no Reply-To at all.
 $captured = [];

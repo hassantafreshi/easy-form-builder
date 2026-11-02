@@ -276,8 +276,16 @@ class Emsfb {
         $events = [
             'emsfb_daily_maintenance'    => 'daily',
             'emsfb_revalidate_license'   => 'daily',
-            'emsfb_refresh_ir_cdn_status' => 'hourly',
         ];
+
+        // Only Persian sites read the Iran CDN verdict (emsfb.php). Any other
+        // site has no reason to contact cdn.easyformbuilder.ir every hour, and
+        // to a server monitor such a call looks like a plugin phoning home.
+        if ('fa_IR' === get_locale()) {
+            $events['emsfb_refresh_ir_cdn_status'] = 'hourly';
+        } elseif (wp_next_scheduled('emsfb_refresh_ir_cdn_status')) {
+            wp_clear_scheduled_hook('emsfb_refresh_ir_cdn_status');
+        }
 
         foreach ($events as $hook => $recurrence) {
             if (!wp_next_scheduled($hook)) {
@@ -334,7 +342,7 @@ class Emsfb {
      * @return void
      */
     public function refresh_ir_cdn_status_efb(): void {
-        if (!function_exists('emsfb_probe_ir_cdn_status_efb')) {
+        if (!function_exists('emsfb_probe_ir_cdn_status_efb') || 'fa_IR' !== get_locale()) {
             return;
         }
         emsfb_probe_ir_cdn_status_efb();
@@ -1660,6 +1668,52 @@ class Emsfb {
         }
     }
 
+    /**
+     * Turn form emails on once for a site that updates to 4.3.1 with them off.
+     *
+     * Before 4.3.1 new installs started with "This site can send emails" off
+     * and an email check that did not pass switched it off. Nobody chose that,
+     * and the result was forms whose owners never heard of a submission.
+     * Runs once per site (an option records it); an owner who turns sending
+     * off afterwards keeps it off. The filter lets a site or a host opt out.
+     *
+     * @return void
+     */
+    private function enable_email_sending_after_upgrade_efb() {
+        if (get_option('emsfb_sending_default_431', '') !== '') {
+            return;
+        }
+        update_option('emsfb_sending_default_431', (string) time(), false);
+
+        /**
+         * Filter whether the 4.3.1 update may switch form emails on.
+         *
+         * @param bool $enable Default true.
+         */
+        if (!apply_filters('emsfb_upgrade_enable_email_sending', true)) {
+            return;
+        }
+
+        try {
+            self::get_setting_Emsfb('_clear_cache');
+            $settings = self::get_setting_Emsfb('decoded');
+            if (!is_object($settings) || self::is_email_sending_enabled_efb($settings)) {
+                return;
+            }
+            $settings->smtp = true;
+            $supporter = (isset($settings->emailSupporter) && is_string($settings->emailSupporter) && is_email($settings->emailSupporter))
+                ? $settings->emailSupporter
+                : '';
+            $efb_function = self::get_efbFunction();
+            if (is_object($efb_function) && method_exists($efb_function, 'set_setting_Emsfb')) {
+                $efb_function->set_setting_Emsfb($settings, $supporter);
+                delete_transient('emsfb_settings_transient');
+            }
+        } catch (\Throwable $e) {
+            // An upgrade must never fail because of this.
+        }
+    }
+
     private function run_upgrade_tasks_efb($old_version, $new_version) {
         global $wpdb;
         $table_setting = $wpdb->prefix . 'emsfb_setting';
@@ -1705,6 +1759,13 @@ class Emsfb {
         }
 
         $this->migrate_fix_double_escaped_settings_efb($wpdb);
+
+        // 4.3.1: form emails are on by default. Sites set up on an older
+        // version start with them off, and a failed check used to switch them
+        // off too, so most owners never received a single submission by email.
+        if (version_compare((string) $old_version, '4.3.1', '<')) {
+            $this->enable_email_sending_after_upgrade_efb();
+        }
 
         if (version_compare($old_version, '4', '<')) {
             do_action('emsfb_update_cache_plugins_list');

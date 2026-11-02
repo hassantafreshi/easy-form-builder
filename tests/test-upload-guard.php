@@ -331,6 +331,43 @@ test(
 $stored_size_error = Upload_Guard::validate_stored_file($stored_big, 'big.txt', array('max_mb' => 1));
 test('stored file over the field cap is refused', $stored_size_error === Upload_Guard::size_message(1024 * 1024), true);
 
+/* ---------------------------------------------------------------------------
+ * 8b. Content: archives must be what they say, and nothing may carry PHP.
+ * ------------------------------------------------------------------------ */
+echo "\n--- 8b. CONTENT: archive signatures and PHP open tags ---\n";
+$tmp_dir = sys_get_temp_dir();
+$fake_zip = $tmp_dir . '/efb-ug-fake.zip';
+$real_zip = $tmp_dir . '/efb-ug-real.zip';
+$real_gz  = $tmp_dir . '/efb-ug-real.gz';
+$fake_rar = $tmp_dir . '/efb-ug-fake.rar';
+$real_tar = $tmp_dir . '/efb-ug-real.tar';
+$php_txt  = $tmp_dir . '/efb-ug-shell.txt';
+$php_tail = $tmp_dir . '/efb-ug-tail.txt';
+$clean_txt = $tmp_dir . '/efb-ug-clean.txt';
+file_put_contents($fake_zip, "<html><script>alert(1)</script></html>");
+file_put_contents($real_zip, "PK\x03\x04" . str_repeat("\x00", 60));
+file_put_contents($real_gz, "\x1f\x8b\x08\x00" . str_repeat("\x00", 20));
+file_put_contents($fake_rar, "PK\x03\x04 this is a zip, not a rar");
+file_put_contents($real_tar, str_repeat("\x00", 257) . "ustar\x0000" . str_repeat("\x00", 300));
+file_put_contents($php_txt, "hello\n<?php system(\$_GET['c']); ?>\n");
+file_put_contents($php_tail, str_repeat('a', 1048576 - 2) . "<?php\n echo 1;");
+file_put_contents($clean_txt, "Version <?xml is fine and so is <?PHPX without a space\n");
+
+test('a renamed page stored as .zip is refused', Upload_Guard::content_is_safe($fake_zip, 'zip'), false);
+test('a real zip header is accepted', Upload_Guard::content_is_safe($real_zip, 'zip'), true);
+test('a real gzip header is accepted', Upload_Guard::content_is_safe($real_gz, 'gz'), true);
+test('a zip renamed to .rar is refused', Upload_Guard::content_is_safe($fake_rar, 'rar'), false);
+test('a tar with the ustar marker is accepted', Upload_Guard::content_is_safe($real_tar, 'tar'), true);
+test('a text file carrying a PHP open tag is refused', Upload_Guard::content_is_safe($php_txt, 'txt'), false);
+test('a PHP tag split across the 1 MB read boundary is still found', Upload_Guard::content_is_safe($php_tail, 'txt'), false);
+test('"<?xml" and "<?PHPX" are not PHP open tags', Upload_Guard::content_is_safe($clean_txt, 'txt'), true);
+test('a stored .zip that is not a zip is refused at submission', Upload_Guard::validate_stored_file($fake_zip, 'files.zip') === Upload_Guard::type_message(), true);
+test('a real PDF still passes the content checks', Upload_Guard::content_is_safe($stored_pdf, 'pdf'), true);
+add_filter('emsfb_upload_content_check', function () { return false; });
+test('the emsfb_upload_content_check filter can switch the checks off', Upload_Guard::content_is_safe($fake_zip, 'zip'), true);
+$GLOBALS['efb_filters']['emsfb_upload_content_check'] = array();
+foreach (array($fake_zip, $real_zip, $real_gz, $fake_rar, $real_tar, $php_txt, $php_tail, $clean_txt) as $f) { @unlink($f); }
+
 @unlink($stored_pdf);
 @unlink($stored_php_as_pdf);
 @unlink($stored_svg);
