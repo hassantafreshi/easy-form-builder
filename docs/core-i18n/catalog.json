@@ -38124,7 +38124,7 @@
             "msgid": "Your site could not send the test email, so form emails cannot be sent either. The guide shows how to connect an email sending service.",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "One-sentence result: WordPress could not send the test email, so form emails cannot be sent either; notifications are left as they were.",
             "files": [
                 "includes/functions.php"
             ],
@@ -38259,7 +38259,7 @@
             "msgid": "Your test email did not arrive in time. Notifications stay on; the guide shows how to fix this at your hosting company.",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "One-sentence result: the test email never arrived; form notifications stay on (a check never turns them off).",
             "files": [
                 "includes/functions.php"
             ],
