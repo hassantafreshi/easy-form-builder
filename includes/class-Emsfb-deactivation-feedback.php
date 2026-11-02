@@ -292,6 +292,18 @@ class Deactivation_Feedback {
 												maxlength="<?php echo esc_attr( (string) self::MAX_DETAILS ); ?>"
 												placeholder="<?php echo esc_attr( $reason['placeholder'] ); ?>"
 												aria-label="<?php echo esc_attr( $reason['label'] ); ?>"></textarea>
+											<?php if ( 'found_better' === $key ) : ?>
+												<?php
+												// One tap instead of a sentence: a required box with nothing
+												// to pick from was answered with "." or "bla bla" four times
+												// out of ten. Product names, so nothing to translate.
+												?>
+												<div class="efb-deactivate-chips">
+													<?php foreach ( array( 'Contact Form 7', 'WPForms', 'Forminator', 'Fluent Forms', 'Gravity Forms', 'Elementor Forms', 'Ninja Forms' ) as $chip ) : ?>
+														<button type="button" class="efb-deactivate-chip" data-efb-chip="<?php echo esc_attr( $chip ); ?>"><?php echo esc_html( $chip ); ?></button>
+													<?php endforeach; ?>
+												</div>
+											<?php endif; ?>
 										<?php endif; ?>
 									</div>
 								<?php endif; ?>
