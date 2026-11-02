@@ -1216,6 +1216,8 @@ function efb_addon_required_package_efb(item) {
   const name = typeof item === 'string' ? item : (item && item.name);
   if (name === 'AdnOF') return 0;
   if (name === 'AdnSMF') return 3;
+  // Stripe and PayPal: Free Plus and Pro since 4.3.1.
+  if (name === 'AdnSPF' || name === 'AdnPAP') return 3;
   /* Called with a name by the click handler and with a catalogue row by the
      card, so resolve the row either way - otherwise the two could disagree
      about a future add-on the catalogue does not sell. */
@@ -4019,7 +4021,7 @@ const saveFormEfb = async (stated) => {
           returnState = true;
         } else {
           if (pro_efb == false) {
-            proState = valj_efb.findIndex(x => x.pro == true) != -1 ? false : true;
+            proState = valj_efb.findIndex(x => efb_field_is_pro_efb(x)) != -1 ? false : true;
           }
           for (let s = 1; s <= valj_efb[0].steps; s++) {
             const stp = valj_efb.findIndex(x => x.step == s && x.type != "step");
@@ -4187,6 +4189,19 @@ function obj_resort_row(step) {
   fub_shwBtns_efb()
   if (valj_efb[0].steps == 1) fun_handle_buttons_efb(false);
 }
+/* Whether a field needs Free Plus/Pro, from today's field list rather than the
+   flag saved with the form: forms saved before a field became free (terms,
+   country list, rating, heading in 4.3.1) still carry pro:true. A type the
+   list does not know keeps its saved flag. */
+function efb_field_is_pro_efb(el) {
+  if (!el || typeof el !== 'object') return false;
+  if (typeof fields_efb !== 'undefined' && el.type) {
+    const def = fields_efb.find(x => x.id === el.type);
+    if (def && Object.prototype.hasOwnProperty.call(def, 'pro')) return def.pro === true;
+  }
+  return el.pro === true || el.pro === 1 || el.pro === '1';
+}
+
 let sampleElpush_efb = (rndm, elementId) => {
 
   const testb = valj_efb.length;
@@ -6160,7 +6175,8 @@ function addClickListenerToElementListEFB(element) {
                               emsFormBuilder_duplicate(temp2, 'form', temp);
                               break;
                           case 'generateCSV':
-                              pro ? generat_csv_emsFormBuilder() : pro_show_efb(3);
+                              // CSV export is free on every plan since 4.3.1.
+                              generat_csv_emsFormBuilder();
                               break;
                           case 'generateChart':
                               convert_to_dataset_emsFormBuilder();
@@ -7634,7 +7650,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
   const addDeleteBtnState = (formName_Efb == "login" && (valj_efb[iVJ].id_ == "emaillogin" || valj_efb[iVJ].id_ == "passwordlogin")) || (formName_Efb == "register" && (valj_efb[iVJ].id_ == "usernameRegisterEFB" || valj_efb[iVJ].id_ == "passwordRegisterEFB" || valj_efb[iVJ].id_ == "emailRegisterEFB")) ? true : false;
   if (elementId != "form" && dataTag != "step" && ((previewSate == true && elementId != 'option') || previewSate != true))
     {
-    const pro_el = valj_efb[iVJ].hasOwnProperty('pro') ? valj_efb[iVJ].pro :false ;
+    const pro_el = efb_field_is_pro_efb(valj_efb[iVJ]);
     const contorl = ` <div class="efb btn-edit-holder d-none efb" id="btnSetting-${rndm}-id">
     <button type="button" class="efb  btn btn-edit btn-sm BtnSideEfb" id="settingElEFb"  data-id="${rndm}-id" data-bs-toggle="tooltip"  title="${efb_var.text.edit}" onclick="show_setting_window_efb('${rndm}-id')">
     <div class="icon-container efb"><i class="efb bi-gear-wide-connected  text-success BtnSideEfb"></i></div>

@@ -218,10 +218,13 @@ Many WordPress form plugins only offer these features in a paid plan. In Easy Fo
 - File upload forms (Free)
 - Confirmation code (tracking ID) for every submission (Free)
 - Multi-step forms (Free)
+- 20 form fields, including terms and conditions, country list, star rating and heading (Free)
 - Basic survey and poll fields (Free)
+- Exporting form entries to CSV (Free)
 - Conditional logic to show or hide fields based on answers (Free Plus)
-- Advanced fields such as signature, location picker, matrix and table, range slider, and more (Free Plus)
-- Exporting form entries to CSV and downloading responses as PDF (Free Plus)
+- Payment forms with Stripe and PayPal (Free Plus)
+- Advanced fields such as signature, location picker, matrix and table, and more (Free Plus)
+- Downloading responses as PDF (Free Plus)
 - Automated weekly email deliverability test with spam score and SPF/DKIM/DMARC checks (Free Plus)
 
 The Free Plus version is completely free of charge - the only difference is a small "Powered by Easy Form Builder" link and credit, included only in the content of the page where the form is published.
@@ -295,14 +298,14 @@ The Free version provides essential form-building tools. It is suitable for user
 This version is suitable for personal websites, blogs, and small business sites.
 
 = What does the Free Plus version include? =
-The Free Plus version extends the Free version by enabling advanced form fields and features available in the form builder, while excluding external add-ons. It also unlocks conditional logic at no cost - up to 3 logic rules per form, up to 2 conditions per rule, and up to 2 conditional email notification rules - plus CSV export and the weekly email deliverability report.
+The Free Plus version extends the Free version by enabling advanced form fields and features available in the form builder. It also unlocks conditional logic at no cost - up to 3 logic rules per form, up to 2 conditions per rule, and up to 2 conditional email notification rules - plus payment forms with Stripe and PayPal and the weekly email deliverability report. CSV export is free in every version.
 
 This version is suitable for users who need advanced form layouts, smart conditional forms, and surveys without add-on-based extensions. A small "Powered by Easy Form Builder" credit is displayed on the form output.
 
 = What does the Pro version include? =
 The Pro version includes all Free Plus features and adds support for official add-ons and integrations. For conditional logic, Pro removes all rule limits and adds nested AND/OR groups, calculations, rule priority, conditional thank-you messages and redirects, conditional webhooks, rule export/import, and the logic Inspector (debugger).
 
-This version is suitable for professional websites, service platforms, and projects that require extended workflows such as SMS notifications, payment forms, conditional workflows, and advanced integrations.
+This version is suitable for professional websites, service platforms, and projects that require extended workflows such as SMS notifications, Persian payment gateways, conditional workflows, and advanced integrations.
 
 = Can I show or hide form fields based on a user's answer? =
 Yes. Conditional fields are the core of the conditional logic builder: choose a condition (for example, "Plan is Enterprise") and an action (for example, "show the Budget field"), and the form updates in real time while the visitor fills it in.
@@ -452,6 +455,12 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 * Changed: The owner's notification email now includes the submitted answers and has Reply-To set to the visitor's address. The visitor's confirmation email keeps only the confirmation code and link unless the form chooses otherwise.
 
 * Security: Uploaded archives must really be the archive type they are named as, and files containing a PHP open tag are refused.
+
+* New: The Free plan has 20 form fields: terms and conditions, country list, star rating and heading joined the 16. Forms that already use them keep working on every plan.
+
+* New: CSV export of form entries is free in every version.
+
+* New: Stripe and PayPal payments are included in Free Plus.
 
 * Improved: Only Persian sites check the Iran CDN; other sites no longer contact it.
 

@@ -368,6 +368,19 @@ if (!function_exists('get_locale_script_chars_efb')) {
     }
 }
 
+if (!function_exists('emsfb_free_element_types_efb')) {
+    /**
+     * Field types that are free on every plan although they were Pro before
+     * 4.3.1 (the Free plan has 20 fields). Their render and their scripts must
+     * not depend on the plan. Keep in step with fields_efb in val-efb.js.
+     *
+     * @return string[]
+     */
+    function emsfb_free_element_types_efb() {
+        return array('trmCheckbox', 'conturyList', 'country', 'rating', 'heading');
+    }
+}
+
 if (!function_exists('emsfb_is_email_sending_enabled_efb')) {
     /**
      * Whether "This site can send emails" is on. Gates every notification email.

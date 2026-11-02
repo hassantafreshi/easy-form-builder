@@ -1592,7 +1592,9 @@ public function check_nonce_permission_efb($request) {
 				}
 
 				if($i>1){
-					if(in_array($valj_efb[$i]->type, $list_pro_elements) && $pro_element_exists == false && $pro == true){
+					// Their scripts live in pro_els-efb.js; the fields that became
+					// free in 4.3.1 need it on every plan.
+					if(in_array($valj_efb[$i]->type, $list_pro_elements) && $pro_element_exists == false && ($pro == true || in_array($valj_efb[$i]->type, emsfb_free_element_types_efb(), true))){
 						wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION);
 						$pro_element_exists = true;
 					}

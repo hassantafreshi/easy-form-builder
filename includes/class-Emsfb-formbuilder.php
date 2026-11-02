@@ -2926,7 +2926,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 				case 'rating':
 
-					$ui = $pro == true ? $this->rating_el_pro_efb(true, $pos, $rndm, $vj, $desc, $form_id, $label, $ttip, $aire_describedby, $texts) : $this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
+					// Free on every plan since 4.3.1 (emsfb_free_element_types_efb()).
+					$ui = $this->rating_el_pro_efb(true, $pos, $rndm, $vj, $desc, $form_id, $label, $ttip, $aire_describedby, $texts);
 					$dataTag = $elementId;
 				break;
                 case 'select':
@@ -2938,7 +2939,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 				case 'conturyList':
 				case 'country':
 
-					$ui =$pro == true ? $this->generate_country_list_efb($rndm, $vj, $pos, $form_id, $texts ,$desc,$label,$ttip,$aire_describedby): $this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
+					// Free on every plan since 4.3.1 (emsfb_free_element_types_efb()).
+					$ui = $this->generate_country_list_efb($rndm, $vj, $pos, $form_id, $texts ,$desc,$label,$ttip,$aire_describedby);
 
 					$dataTag = $elementId;
 				break;
@@ -2966,7 +2968,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 				break;
 				case 'heading':
 
-					$ui = $pro == true ? $this->generate_heading_efb($rndm, $pos, $vj, $form_id) : $this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
+					// Free on every plan since 4.3.1 (emsfb_free_element_types_efb()).
+					$ui = $this->generate_heading_efb($rndm, $pos, $vj, $form_id);
 					$dataTag = $elementId;
 
 				break;

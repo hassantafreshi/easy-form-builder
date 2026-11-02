@@ -129,7 +129,10 @@ function set_activation_code( $code ) {
 echo "=== which plan each add-on needs ===\n";
 t( 'Offline Forms is free on every plan', 0 === $fn->addon_required_package_efb( 'AdnOF' ) );
 t( 'Conditional Logic is the Free Plus tier', 3 === $fn->addon_required_package_efb( 'AdnSMF' ) );
-foreach ( array( 'AdnSPF', 'AdnPAP', 'AdnPPF', 'AdnSS', 'AdnTLG', 'AdnGoS', 'AdnHSH', 'AdnATF' ) as $paid ) {
+// 4.3.1: Stripe and PayPal payments joined Free Plus.
+t( 'Stripe is the Free Plus tier', 3 === $fn->addon_required_package_efb( 'AdnSPF' ) );
+t( 'PayPal is the Free Plus tier', 3 === $fn->addon_required_package_efb( 'AdnPAP' ) );
+foreach ( array( 'AdnPPF', 'AdnSS', 'AdnTLG', 'AdnGoS', 'AdnHSH', 'AdnATF' ) as $paid ) {
 	t( "{$paid} is Pro", 1 === $fn->addon_required_package_efb( $paid ) );
 }
 t( 'an unknown key is treated as Pro, never as free',
@@ -143,7 +146,7 @@ set_activation_code( '' );
 $matrix = array(
 	// plan => array( addon => expected allowed )
 	2  => array( 'AdnOF' => true, 'AdnSMF' => false, 'AdnSPF' => false ), // Free
-	3  => array( 'AdnOF' => true, 'AdnSMF' => true,  'AdnSPF' => false ), // Free Plus
+	3  => array( 'AdnOF' => true, 'AdnSMF' => true,  'AdnSPF' => true ),  // Free Plus (payments since 4.3.1)
 	1  => array( 'AdnOF' => true, 'AdnSMF' => true,  'AdnSPF' => true ),  // Pro
 	0  => array( 'AdnOF' => true, 'AdnSMF' => false, 'AdnSPF' => false ), // expired
 	-1 => array( 'AdnOF' => true, 'AdnSMF' => false, 'AdnSPF' => false ), // never chosen
@@ -207,8 +210,8 @@ t( 'an empty code leaves a Free site blocked',
 echo "\n=== what each plan keeps on a downgrade ===\n";
 $keeps_free_plus = $fn->addon_keys_allowed_by_package_efb( 3 );
 sort( $keeps_free_plus );
-t( 'Free Plus keeps exactly Offline Forms and Conditional Logic',
-	array( 'AdnOF', 'AdnSMF' ) === $keeps_free_plus, implode( ', ', $keeps_free_plus ) );
+t( 'Free Plus keeps exactly Offline Forms, Conditional Logic, Stripe and PayPal',
+	array( 'AdnOF', 'AdnPAP', 'AdnSMF', 'AdnSPF' ) === $keeps_free_plus, implode( ', ', $keeps_free_plus ) );
 
 $keeps_free = $fn->addon_keys_allowed_by_package_efb( 2 );
 t( 'Free keeps only Offline Forms', array( 'AdnOF' ) === array_values( $keeps_free ), implode( ', ', $keeps_free ) );

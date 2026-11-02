@@ -1874,6 +1874,12 @@ class efbFunction {
 			"perfectForGettingStarted" => $state && isset($ac->text->perfectForGettingStarted) ? $ac->text->perfectForGettingStarted : esc_html__('Perfect for getting started with simple forms.','easy-form-builder'),
 			/* translators: Core form fields = basic input fields like text, email, etc */
 			"coreFormFields" => $state && isset($ac->text->coreFormFields) ? $ac->text->coreFormFields : esc_html__('Core form fields','easy-form-builder'),
+			/* translators: Plan card bullet: the number of form fields in the Free plan. */
+			"planFreeFields20" => $state && isset($ac->text->planFreeFields20) ? $ac->text->planFreeFields20 : esc_html__('20 form fields','easy-form-builder'),
+			/* translators: Plan card bullet: downloading form entries as a CSV file. */
+			"planCsvExport" => $state && isset($ac->text->planCsvExport) ? $ac->text->planCsvExport : esc_html__('CSV export of entries','easy-form-builder'),
+			/* translators: Plan card bullet: taking payments in forms with Stripe and PayPal. */
+			"planStripePaypal" => $state && isset($ac->text->planStripePaypal) ? $ac->text->planStripePaypal : esc_html__('Stripe and PayPal payments','easy-form-builder'),
 			/* translators: Email notifications = automatic email alerts */
 			"emailNotifications" => $state && isset($ac->text->emailNotifications) ? $ac->text->emailNotifications : esc_html__('Email notifications','easy-form-builder'),
 			/* translators: Advanced form fields = complex input types like file upload, date picker */
@@ -4483,6 +4489,8 @@ class efbFunction {
 		static $tiers = array(
 			'AdnOF'  => 0, // Offline Forms - free on every plan
 			'AdnSMF' => 3, // Conditional Logic - Free Plus and Pro
+			'AdnSPF' => 3, // Stripe payments - Free Plus and Pro since 4.3.1
+			'AdnPAP' => 3, // PayPal payments - Free Plus and Pro since 4.3.1
 		);
 		$addon = (string) $addon;
 		return isset($tiers[$addon]) ? $tiers[$addon] : 1;
