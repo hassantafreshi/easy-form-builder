@@ -270,3 +270,32 @@ switch in Email Settings writes the same record when no check proved sending.
   mailer through the `emsfb_owner_reply_to_efb` filter for that one send. The
   visitor's own copy never gets it. Test: `tests/test-owner-email-defaults.php`.
 
+- **Only the owner's copy carries the content on the default.** The visitor's
+  copy keeps the code and link (`$state[3] = 'traking_link'`, set by
+  `email_status_efb()` as `visitor_type`) unless the form chose `msg` or
+  `just_msg` itself (`efb_email_noti_type_chosen_efb()`); otherwise anybody
+  could make the site mail any text to any address.
+- The owner's copy drops the "sent automatically, please do not reply" line
+  (the whole row, also when a saved template wraps it in `<p>`), since its
+  Reply-To answers the visitor.
+
+## Sites updating from an older version
+
+`run_upgrade_tasks_efb()` calls `enable_email_sending_after_upgrade_efb()` for
+versions below 4.3.1: if "This site can send emails" is off it is switched on
+**once** (option `emsfb_sending_default_431` records the run), because older
+installs started off and a failed check used to switch it off. An owner who
+turns it off afterwards keeps it off. Opt out with the
+`emsfb_upgrade_enable_email_sending` filter. Test:
+`tests/test-upgrade-enable-sending.php`.
+
+## Checks that wait long enough
+
+- The background monitor treats the service's `delayed` (not there after 45 s)
+  as "keep polling", not as a verdict, until the message arrives or the test
+  `expired` (up to 14 polls / 15 minutes).
+- The owner's check asks the service for a "never arrived" report only for an
+  `expired` test.
+- The owner's check sends like a form email: the From header only, no forced
+  From/Sender at top priority (that beat SMTP plugins' force-From and failed
+  on Microsoft 365).
