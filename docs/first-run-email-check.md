@@ -3,6 +3,13 @@
 Easy Form Builder 4.3.1. What happens between "the plugin is installed" and
 "form notifications are on", and why each screen says what it says.
 
+**Rule since the retention fixes (4.3.1):** notifications are on from the
+start. A new install seeds "This site can send emails" ON; the email check
+measures how well mail is delivered and never switches sending off. Only the
+owner turns it off, in Email Settings. (A new-user walk-through showed the old
+rule - off until checked - left most owners with a form that never emailed
+them, which reads as "the plugin is broken".)
+
 The people this is for run a site; they are not mail administrators. So every
 screen asks one question, gives one or two answers, and says in plain words
 whether notifications are on. Everything technical is one click away, never on
@@ -17,7 +24,7 @@ every screen below decides on it. Localised to the Panel and Create pages as
 
 | state | meaning | decided by |
 | --- | --- | --- |
-| `unchecked` | nobody ran a check from the wizard or the panel, nobody confirmed; the switch is off, no form email is sent | settings `smtp` off and no user-driven record |
+| `unchecked` | the owner turned sending off and nobody ran a check or confirmed since; no form email is sent (a new install no longer starts here: it starts with the switch on, which reads as `confirmed`) | settings `smtp` off and no user-driven record |
 | `confirmed` | the switch is on without a check of the owner's own | `smtp` on and the last record is the owner's (`email_sending_confirmed_by_owner`, dated), the undated switch of an older version, or a pre-4.1.2 site (`smtp = 1`) |
 | `tested` | a check the owner ran reached a verdict | `emsfb_email_status` is `email_settings_configured` **with** a measurement, `email_test_low_score`, `email_test_failed` or `mail_function_failed`; carries `outcome` (healthy / spam / undelivered), `score`, `checked_at` |
 
@@ -51,19 +58,21 @@ Consequences:
   asks the owner at the right moment instead. It still fires for `confirmed`
   and `tested` sites whose last measurement failed.
 - A user-driven check that fails for certain (nothing arrived in the window,
-  `wp_mail()` false, or a score under `MIN_DELIVERY_SCORE`) turns the switch
-  **off** (`turn_sending_off_after_failed_check_efb`), so "notifications are
-  off" on the result card is true even after an earlier confirmation. The
-  reply carries `sending_turned_off` and the page follows without a reload.
+  `wp_mail()` false, or a score under `MIN_DELIVERY_SCORE`) records the
+  verdict and **leaves the switch where the owner left it**. The result card
+  says "notifications stay on" (or, if the owner had turned sending off,
+  "notifications are off"); it reads the page's copy of the switch
+  (`efb_onboarding_sending_on_efb`). The reply still carries
+  `sending_turned_off`, always false, for older pages.
 - A user-driven `/start` cancels the activation probe still queued
   (`cancel_pending_lifecycle_test`, the `activation` event only; the
   update-time probe is not racing anyone and stays): both draw on the
   service's free daily quota, and the owner's own click must not be the one
   refused.
-- A definite failure also moves the page's copy of the state to
-  `tested` / `undelivered` when the switch was already off
-  (`efb_onboarding_mark_delivery_efb`), so the builder's next question is
-  "your last check failed", not "we have not checked yet".
+- A definite failure moves the page's copy of the state to `tested` /
+  `undelivered` without touching the switch (`efb_onboarding_mark_delivery_efb`),
+  so a builder question shown later (only when sending is off) is "your last
+  check failed", not "we have not checked yet".
 - A site from before the status record existed (`smtp = 1`, no record) gets
   the undated `email_settings_configured` record on its first admin page
   view, never the dated owner one: nobody clicked anything that day.
@@ -78,9 +87,8 @@ Consequences:
   notice as "going to the spam folder", as the card says it arrived.
 - A still-open test keeps the time it started across polls, so "a check
   started on ..." is the start, not the last poll.
-- The Email Settings screen's own check follows `sending_turned_off` too
-  (`efbEmailTestFollowServerOff`): left on, the next Save would turn sending
-  back on.
+- The Email Settings screen's own check still reads `sending_turned_off`
+  (`efbEmailTestFollowServerOff`); it is always false now, so the toggle stays.
 
 ## The wizard (`val-efb.js`)
 
@@ -89,10 +97,12 @@ by a class on `#efb-onboarding-card`:
 
 1. **is-asking** - "Shall we check that your form emails arrive?", a short
    explanation, the address (prefilled), **Check now** and **Skip for now**,
-   and one line under them: skipping keeps notifications off until the owner
-   checks or turns them on in Email Settings. x, Escape and Skip are the same
+   and one line under them: "Notifications are on. You can run the check any
+   time from Email Settings." (the old "skipping keeps notifications off" line
+   is shown only if sending was turned off). x, Escape and Skip are the same
    dismissal (`efb_setup_overlay_user_close_efb`, `efb_dismiss_onboarding`),
-   each followed by one quiet notice ("Skipped. Notifications are off…",
+   each followed by one quiet notice ("Notifications are on. You can run the
+   check any time…", or "Skipped. Notifications are off…" when sending is off,
    `show_info_notification_efb`, styled by its own rules, below the admin
    bar); a changed address is saved even on Skip. Closing after Check now is
    not a skip; closing a result card ends the guide as its "Close for now"
@@ -137,9 +147,9 @@ builder can draw the same card in its modal.
 | delivered, ≥ 70 | Good | arrive and look trustworthy; notifications on | emailed / emailing (while `full_report_pending`) |
 | delivered, 50–69 | Fair | arrive, some may land in spam; notifications on; the guide shows the fix (amber) | same |
 | delivered, 20–49 | Weak | arrive, but most inboxes put them in spam; notifications on (the dashboard's red notice starts at the same line, `SPAM_NOTICE_SCORE`, localised as `spam_notice_score`) | same |
-| delivered, < 20 | Spam risk | looks like spam to most inboxes; notifications off for now | same |
-| `not_delivered` | Not delivered | did not arrive in time; notifications off | emailed when `email_report.success`, else "if the message turns up later…" |
-| `wp_mail_failed` | Not sent | your site could not send it; notifications off | none |
+| delivered, < 20 | Spam risk | most inboxes put them in spam; notifications on (`emailResultMostSpam`; `emailResultLow` "off for now" only when sending is off) | same |
+| `not_delivered` | Not delivered | did not arrive in time; notifications stay on (`emailResultNotDeliveredOn`; `emailResultNotDelivered` when sending is off) | emailed when `email_report.success`, else "if the message turns up later…" |
+| `wp_mail_failed` | Not sent | your site could not send it, so form emails cannot be sent either (`emailResultNotSentOn`; `emailResultNotSent` when sending is off) | none |
 | `pending` (delayed) | Not finished | sent but not arrived yet; notifications unchanged; try again (`emailResultPending`) | as not_delivered |
 | `upgrade_required` | Not finished | free daily limit reached; notifications unchanged | none |
 | `start_failed` | Not finished | the service's own sentence when it wrote one for people (`service_message`), else the unknown sentence; never a transport error (an address that could not be saved goes back to the field instead) | none |
@@ -248,3 +258,15 @@ switch in Email Settings writes the same record when no check proved sending.
 - `php tests/test-delivery-notice-scenarios.php`, `test-onboarding-dismissal.php`,
   `test-weekly-report-states.php` - updated for the silent `unchecked` state and
   the third user-close.
+
+## The owner's email (4.3.1 retention fixes)
+
+- A form that never chose its email content sends the **submitted content
+  and the link** (`efb_email_noti_type_efb()` returns `msg`); "cc" (code and
+  link only) and "just_msg" stay for forms that chose them. The builder's
+  select shows `msg` for such forms too.
+- The owner's copy carries `Reply-To:` the visitor's address (the first email
+  field with a valid address, `efb_submitter_email_efb()`), passed to the
+  mailer through the `emsfb_owner_reply_to_efb` filter for that one send. The
+  visitor's own copy never gets it. Test: `tests/test-owner-email-defaults.php`.
+
