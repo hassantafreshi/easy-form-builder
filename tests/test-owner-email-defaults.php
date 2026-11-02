@@ -154,6 +154,14 @@ efb_oe_check('default: the owner\'s copy carries the submitted content', null !=
 efb_oe_check('default: the visitor\'s copy does not carry it', null !== $visitor && false === strpos($visitor['message'], $secret));
 efb_oe_check('default: the visitor\'s copy still has the confirmation code', null !== $visitor && false !== strpos($visitor['message'], 'ABC123'));
 
+// 6. The builder's text block wraps the line in <p>: the whole row must go,
+//    not just the sentence (an empty strip was left under the footer).
+$strip = (new ReflectionClass($handler))->getMethod('strip_reply_disclaimer_efb');
+$strip->setAccessible(true);
+$sample = "<table><tr><td>A</td></tr><tr><td style=\"padding: 10px\">\n<p style=\"x\">This email was sent automatically. Please do not reply directly.</p>\n</td></tr><tr><td>B</td></tr></table>";
+$stripped = $strip->invoke($handler, $sample);
+efb_oe_check('the "do not reply" row inside <p> is removed as a whole row', false === strpos($stripped, 'do not reply') && false === strpos($stripped, '<p') && 2 === substr_count($stripped, '<tr>'));
+
 if (null !== $public_class) {
 	efb_oe_check('a form that never chose is not "chosen"', false === $pub->efb_email_noti_type_chosen_efb([['type' => 'form']]));
 	efb_oe_check('a form that chose "msg" is "chosen"', true === $pub->efb_email_noti_type_chosen_efb([['email_noti_type' => 'msg']]));

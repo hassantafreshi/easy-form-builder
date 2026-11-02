@@ -216,3 +216,7 @@ body.rtl .efb input.intlPhone::placeholder,
     margin-right: 0 !important;
     margin-left: .25rem !important;
 }
+/* Confirmation codes and shortcodes are Latin text: read them left to right.
+   The RTL rule above (direction: rtl !important on .efb) together with
+   Bootstrap's bidi-override on <code> printed 261102XUJMS as SMJUX201162. */
+code.efb, .efb code {direction: ltr !important; unicode-bidi: isolate !important;}

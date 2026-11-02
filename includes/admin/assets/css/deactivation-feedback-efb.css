@@ -71,6 +71,8 @@ body.efb-deactivate-open {
 
 .efb-deactivate-title {
 	margin: 0 0 6px;
+	/* Clear of the × in the corner (on a phone the title ran under it). */
+	padding-inline-end: 28px;
 	font-size: 19px;
 	line-height: 1.4;
 	color: #1d2327;

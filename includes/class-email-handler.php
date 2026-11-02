@@ -1324,7 +1324,10 @@ class EmsfbEmailHandler {
                 continue;
             }
             $quoted = preg_quote($text, '/');
-            $row = preg_replace('/<tr>\s*<td[^>]*>\s*(?:📧\s*)?' . $quoted . '\s*<\/td>\s*<\/tr>/u', '', $html);
+            // The sentence may sit straight in the cell or inside a <p> (the
+            // builder's text block); either way the whole row goes, so no
+            // empty strip is left under the footer.
+            $row = preg_replace('/<tr>\s*<td[^>]*>\s*(?:<p[^>]*>\s*)?(?:📧\s*)?' . $quoted . '\s*(?:<\/p>\s*)?<\/td>\s*<\/tr>/u', '', $html);
             $html = (is_string($row) && $row !== $html) ? $row : str_replace($text, '', $html);
         }
         return $html;

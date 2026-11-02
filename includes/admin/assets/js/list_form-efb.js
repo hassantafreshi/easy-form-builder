@@ -1663,7 +1663,7 @@ function fun_show_setting__emsFormBuilder() {
                                     <input type="hidden" id="smtp_emsFormBuilder" value="${smtp == "null" ? 'false' : smtp}">
                                   </div>
                                   <div class="efb card-body mx-0 py-1 mx-4" id="hostSupportSmtp_box_efb">
-                                    <button type="button" id="hostSupportSmtp_emsFormBuilder" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${smtp == true ? "active" : ""}" data-toggle="button" aria-pressed="false" autocomplete="off"   >
+                                    <button type="button" id="hostSupportSmtp_emsFormBuilder" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${smtp == true ? "active" : ""}" data-toggle="button" aria-pressed="${smtp == true ? "true" : "false"}" autocomplete="off"   >
                                     <div class="efb handle"></div>
                                     </button>
                                     <label class="efb form-check-label fs-6 efb mx-2 my-3" for="hostSupportSmtp_emsFormBuilder">${efb_var.text.hostSupportSmtp}</label>
