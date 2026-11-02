@@ -266,11 +266,19 @@
 		var hasScore = hero.score !== undefined && hero.score !== null && hero.score !== '';
 
 		if (hasScore) {
-			var score = Math.max(0, Math.min(100, Number(hero.score) || 0));
-			// The sweep is the datum, so it is the one inline style here.
-			return '<div class="efb-est__gauge" style="background:conic-gradient(var(--efb-est-tone) ' +
-				(score * 3.6) + 'deg, #e7e9f4 0deg);" role="img" aria-label="' +
+			var score = Math.round(Math.max(0, Math.min(100, Number(hero.score) || 0)));
+			// A thin round ring: a light track and the score's arc, with
+			// rounded ends, drawn from the top. pathLength="100" makes the
+			// dash the score itself - the one datum written into the markup.
+			// No arc at 0, or its rounded ends would show as a dot.
+			return '<div class="efb-est__gauge" role="img" aria-label="' +
 				escapeHtml(score + ' / 100') + '">' +
+				'<svg class="efb-est__gauge-svg" viewBox="0 0 100 100" aria-hidden="true" focusable="false">' +
+				'<circle class="efb-est__gauge-track" cx="50" cy="50" r="44" pathLength="100"></circle>' +
+				(score > 0
+					? '<circle class="efb-est__gauge-arc" cx="50" cy="50" r="44" pathLength="100" stroke-dasharray="' + score + ' 100"></circle>'
+					: '') +
+				'</svg>' +
 				'<span class="efb-est__gauge-inner">' +
 				'<span class="efb-est__score">' + escapeHtml(localeDigits(score, rtl)) + '</span>' +
 				'<span class="efb-est__score-max">' + escapeHtml(s.scoreOutOf) + '</span>' +

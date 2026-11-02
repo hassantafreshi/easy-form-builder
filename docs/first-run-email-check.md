@@ -161,6 +161,19 @@ can do now", technical details, the tabs - into `<details class="efb-est__more">
 `%s` in `report.text` is where the address goes, left to right. The settings
 screen passes no summary and keeps the full layout.
 
+The score figure is a round SVG ring (`.efb-est__gauge`): a light track, the
+score's arc with rounded ends (`stroke-dasharray="<score> 100"` on a
+`pathLength="100"` circle, drawn from the top, no arc at 0), and the number in
+a softly tinted centre. Width, height and flex-basis are set together (58px in
+the full panel, 104px in the summary), so a flex parent on a phone cannot
+squeeze it into an oval - the bug the conic-gradient disc had.
+
+On every width the wizard's buttons are one centred column (at most 420px,
+the email field too): the main action first, the quieter one under it, and
+each note right under the button it is about ("Opens in a new tab" sits under
+"See the fix" inside the action group). "Close for now" / "Close" carry no
+check mark; only "Finish setup" / "Done" do.
+
 ## The builder's question (`admin-efb.js`)
 
 Asked only when `efb_var.smtp` is `0` (never `-1`, which means the settings

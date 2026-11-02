@@ -127,36 +127,80 @@
 	background: var(--efb-est-tone-wash);
 }
 
+/* The score ring: a thin track, the score's arc with rounded ends, and the
+   number in a softly tinted centre. Always a circle - width, height and
+   flex-basis move together, so a flex parent cannot squeeze it into an
+   oval. The arc itself is the renderer's stroke-dasharray (the datum). */
 .efb-est__gauge {
+	position: relative;
+	box-sizing: border-box;
 	width: 58px;
 	height: 58px;
 	flex: 0 0 58px;
+	aspect-ratio: 1 / 1;
 	border-radius: 50%;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	animation: efbEstPop 0.3s ease both;
-	/* The sweep is written inline by the renderer - it is data, not style. */
-	background: var(--efb-est-idle);
+}
+
+.efb-est__gauge::before {
+	content: "";
+	position: absolute;
+	inset: 15%;
+	border-radius: 50%;
+	background: var(--efb-est-tone-wash);
+	background: color-mix(in srgb, var(--efb-est-tone) 7%, #fff);
+}
+
+.efb-est__gauge-svg {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	transform: rotate(-90deg);
+	overflow: visible;
+}
+
+.efb-est__gauge-track,
+.efb-est__gauge-arc {
+	fill: none;
+	stroke-width: 9;
+}
+
+.efb-est__gauge-track {
+	stroke: #e9ebf5;
+}
+
+.efb-est__gauge-arc {
+	stroke: var(--efb-est-tone);
+	stroke-linecap: round;
+	animation: efbEstArc 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes efbEstArc {
+	from {
+		stroke-dasharray: 0 100;
+	}
 }
 
 .efb-est__gauge-inner {
-	width: 44px;
-	height: 44px;
-	border-radius: 50%;
-	background: #fff;
+	position: relative;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	gap: 1px;
+	gap: 2px;
 	line-height: 1;
 }
 
 .efb-est__score {
 	font-size: 17px;
-	font-weight: 700;
+	font-weight: 800;
 	line-height: 1;
+	color: #1f2347;
+	font-variant-numeric: tabular-nums;
 }
 
 .efb-est__score-max {
@@ -877,17 +921,29 @@
 }
 
 .efb-est__sum-figure .efb-est__gauge {
-	width: 96px;
-	height: 96px;
+	width: 104px;
+	height: 104px;
+	flex: 0 0 104px;
+}
+
+.efb-est__sum-figure .efb-est__gauge-track,
+.efb-est__sum-figure .efb-est__gauge-arc {
+	stroke-width: 7.5;
 }
 
 .efb-est__sum-figure .efb-est__score {
-	font-size: 26px;
+	font-size: 32px;
+	letter-spacing: -0.02em;
+}
+
+.efb-est__sum-figure .efb-est__score-max {
+	font-size: 11px;
 }
 
 .efb-est__sum-figure .efb-est__hero-icon {
 	width: 72px;
 	height: 72px;
+	flex: 0 0 72px;
 	font-size: 30px;
 }
 
@@ -1126,6 +1182,7 @@
 @media (prefers-reduced-motion: reduce) {
 
 	.efb-est__gauge,
+	.efb-est__gauge-arc,
 	.efb-est__hero-icon,
 	.efb-est__spinner,
 	.efb-est__bar,

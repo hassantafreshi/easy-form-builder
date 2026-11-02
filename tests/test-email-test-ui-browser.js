@@ -296,8 +296,19 @@ const TONE_CLASS = { run: 'efb-est--blue', done: 'efb-est--green', warn: 'efb-es
     const railWidth = await page.locator('.efb-est__rail').evaluate((el) => el.getBoundingClientRect().width);
     t('the step rail is laid out horizontally on desktop', railWidth > 300, `${Math.round(railWidth)}px`);
 
-    const gauge = await page.locator('.efb-est__gauge').evaluate((el) => getComputedStyle(el).backgroundImage);
-    t('the score gauge is drawn as a conic sweep', gauge.includes('conic-gradient'), gauge.slice(0, 50));
+    const gauge = await page.locator('.efb-est__gauge').first().evaluate((el) => {
+      const box = el.getBoundingClientRect();
+      const arc = el.querySelector('.efb-est__gauge-arc');
+      const score = el.querySelector('.efb-est__score');
+      return {
+        w: Math.round(box.width), h: Math.round(box.height),
+        dash: arc ? arc.getAttribute('stroke-dasharray') : '',
+        cap: arc ? getComputedStyle(arc).strokeLinecap : '',
+        score: score ? score.textContent.trim() : '',
+      };
+    });
+    t('the score gauge is a round SVG ring with rounded ends', gauge.w === gauge.h && gauge.cap === 'round', JSON.stringify(gauge));
+    t('the ring\'s arc is the score', gauge.dash.split(' ')[0] === String(Number(gauge.score.replace(/[^\d]/g, ''))), JSON.stringify(gauge));
 
     for (const key of ['starting', 'pending', 'quickOk', 'fullOk', 'lowScore', 'expired', 'upgrade']) {
       await openState(key);
