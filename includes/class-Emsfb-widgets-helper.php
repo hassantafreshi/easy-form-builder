@@ -80,7 +80,9 @@ class Emsfb_Widgets_Helper {
 
     private static function add_tracking_option($forms) {
 
-        array_unshift($forms, [
+        // Last, not first: the first choice in a picker is the owner's own
+        // newest form, never the confirmation-code finder.
+        array_push($forms, [
             'id' => 'tracking',
             'name' => __('📍 Confirmation Code Finder (Tracking Form)', 'easy-form-builder'),
             'type' => 'tracking'

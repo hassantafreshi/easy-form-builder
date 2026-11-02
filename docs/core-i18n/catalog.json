@@ -2,9 +2,9 @@
     "domain": "easy-form-builder",
     "about": "Every phrase looked up in the easy-form-builder text domain: the core plus add-ons that still use that domain. Maintained by tests/core-i18n/extract.php (agent efb-core-i18n); do not edit by hand.",
     "plugin_version": "4.3.1",
-    "updated": "2026-11-01",
+    "updated": "2026-11-02",
     "counts": {
-        "active": 2361,
+        "active": 2363,
         "obsolete": 307
     },
     "entries": [
@@ -38121,6 +38121,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Your site could not send the test email, so form emails cannot be sent either. The guide shows how to connect an email sending service.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Your site could not send the test email. Notifications are off; the guide shows how to connect an email sending service.",
             "context": null,
             "plural": null,
@@ -38230,6 +38245,21 @@
             "context": null,
             "plural": null,
             "translators": "One-sentence result: the test email never arrived.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Your test email did not arrive in time. Notifications stay on; the guide shows how to fix this at your hosting company.",
+            "context": null,
+            "plural": null,
+            "translators": "",
             "files": [
                 "includes/functions.php"
             ],

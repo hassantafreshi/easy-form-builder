@@ -318,8 +318,9 @@ testTrue('A40 a lost answer never claims a report was emailed and offers another
 testTrue('A41 wp_mail()=false reads as not sent, no report line',
   sendFailed.view.summary.label === 'Not sent' && !sendFailed.view.summary.report && sendFailed.view.summary.sentence.indexOf(OFF) !== -1);
 const low = pollWith({ data: { success: true, result: { status: 'analyzed', analysis_stage: 'full', can_send_email: true, score: 8 } } }, 9);
-testTrue('A42 a delivered email with a spam-range score is labelled as such and keeps notifications off',
-  low.view.summary.label === 'Spam risk' && low.view.summary.sentence.indexOf(OFF) !== -1 && low.view.hero.score === 8);
+// A check never switches sending off: the sentence follows the switch as it is.
+testTrue('A42 a delivered email with a spam-range score is labelled as such and its sentence follows the switch',
+  low.view.summary.label === 'Spam risk' && low.view.summary.sentence.indexOf(Number(efb_var.smtp) === 1 ? ON : OFF) !== -1 && low.view.hero.score === 8);
 const fair = pollWith({ data: { success: true, result: { status: 'analyzed', analysis_stage: 'full', can_send_email: true, score: 55 } } }, 9);
 testTrue('A43 a delivered email under the healthy line is fair, notifications on',
   fair.view.summary.label === 'Fair' && fair.view.summary.sentence.indexOf(ON) !== -1);
@@ -438,16 +439,22 @@ efb_var_patch_efb({ text: {} });
     [weak30.view.summary.label, weak30.view.summary.sentence.indexOf('most inboxes') !== -1, fair55.view.summary.label, fair55.view.summary.sentence.indexOf('some may') !== -1],
     ['Weak', true, 'Fair', true]);
 
-  // A too-low score: the server switched sending off on an earlier poll, so
-  // this reply says sending_turned_off:false - the page still follows.
+  // A check measures delivery and never switches sending off: a too-low
+  // score keeps the page's switch on, and the card says notifications stay on.
   efb_var_patch_efb({ smtp: 1 }, { smtp: true });
-  pollWith({ data: { success: true, result: { status: 'analyzed', analysis_stage: 'full', can_send_email: true, score: 9, sending_turned_off: false } } }, 9);
-  test('A61 a spam-range score turns the page\'s switch off whatever the flag says', [Number(efb_var.smtp), efb_var.setting.smtp, efb_var.emailDelivery.notifications], [0, false, false]);
+  const lowOn = pollWith({ data: { success: true, result: { status: 'analyzed', analysis_stage: 'full', can_send_email: true, score: 9, sending_turned_off: false } } }, 9);
+  test('A61 a spam-range score leaves the switch on and says so', [Number(efb_var.smtp), efb_var.setting.smtp, efb_var.emailDelivery.notifications, lowOn.view.summary.sentence.indexOf('Notifications are on') !== -1], [1, true, true, true]);
 
-  // An expired test likewise.
+  // An expired test likewise: the switch stays on, the sentence says "stay on".
   efb_var_patch_efb({ smtp: 1 }, { smtp: true });
-  pollWith({ data: { success: false, result: { status: 'expired', send_stage: 'handed_off', can_send_email: false, sending_turned_off: false } } }, 9);
-  test('A62 an expired test turns the page\'s switch off whatever the flag says', Number(efb_var.smtp), 0);
+  const expiredOn = pollWith({ data: { success: false, result: { status: 'expired', send_stage: 'handed_off', can_send_email: false, sending_turned_off: false } } }, 9);
+  test('A62 an expired test leaves the switch on and says notifications stay on', [Number(efb_var.smtp), expiredOn.view.summary.sentence.indexOf('Notifications stay on') !== -1, efb_var.emailDelivery.outcome], [1, true, 'undelivered']);
+
+  // With sending turned off by the owner, a failed check says so instead.
+  efb_var_patch_efb({ smtp: 0 }, { smtp: false });
+  const expiredOff = pollWith({ data: { success: false, result: { status: 'expired', send_stage: 'handed_off', can_send_email: false } } }, 9);
+  test('A62b with sending off, an expired test says notifications are off', [Number(efb_var.smtp), expiredOff.view.summary.sentence.indexOf('Notifications are off') !== -1], [0, true]);
+  efb_var_patch_efb({ smtp: 1 }, { smtp: true });
 
   // The check that just ran is the last one: no stale date, its own score.
   efb_var_patch_efb({ emailDelivery: Object.assign({}, efb_var.emailDelivery, { checked_at: '2026-10-01 10:00:00', checked_at_display: 'October 1, 2026 10:00 am' }), emailHealth: { score: 12, threshold: 70 } });
@@ -563,12 +570,12 @@ replies.check_email_server_efb = { data: { success: false, stage: 'start', reaso
 efb_onboarding_start_email_test_efb();
 test('A57 a sentence the service wrote is shown, decoded once', efb_onboarding_summary_efb(readState()).sentence, "L'adresse est refusée.");
 
-// wp_mail() false at the start: the server switched sending off, whatever
-// the reply's flag says, and the page follows.
+// wp_mail() false at the start: recorded as a failed check; the switch stays
+// on, and the card says form emails cannot be sent either.
 efb_var_patch_efb({ smtp: 1 }, { smtp: true });
 replies.check_email_server_efb = { data: { success: false, stage: 'send', send_stage: 'wp_mail_failed', reason: 'wp_mail_failed', sending_turned_off: false, m: 'x' } };
 efb_onboarding_start_email_test_efb();
-test('A58 a failed send at the start turns the page\'s switch off', [Number(efb_var.smtp), efb_var.emailDelivery.notifications], [0, false]);
+test('A58 a failed send at the start leaves the switch on and says emails cannot be sent', [Number(efb_var.smtp), efb_var.emailDelivery.notifications, efb_onboarding_summary_efb(readState()).sentence.indexOf('cannot be sent either') !== -1], [1, true, true]);
 
 // ============================================================================
 // Part B - the card is reachable at every laptop height

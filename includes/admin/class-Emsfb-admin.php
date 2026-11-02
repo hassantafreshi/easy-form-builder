@@ -2328,7 +2328,9 @@ class Admin {
             ];
             $this->email_tester_log_efb('wp_mail_failed_save_status', $failure_status);
             update_option('emsfb_email_status', $failure_status);
-            $sending_turned_off = $this->turn_sending_off_after_failed_check_efb($efbFunction, $ac);
+            // A check measures delivery; it never switches sending off. The
+            // result says what to fix, and the switch stays where the owner left it.
+            $sending_turned_off = false;
 
             return [
                 'success' => false,
@@ -2731,17 +2733,10 @@ class Admin {
         // Save test result to emsfb_email_status for all scenarios
         $this->save_email_tester_result_to_status_efb($data, $efbFunction, $ac, $test_hash);
 
-        // A definite failure the owner just watched - nothing arrived in the
-        // whole window, or the message arrived looking like spam - is what the
-        // sending switch exists to stop. Turning it off here is what makes the
-        // result card's "notifications are off" true for a site whose owner
-        // had confirmed sending earlier; a still-open test decides nothing.
-        $definite_failure = !$this->is_email_delivery_confirmed_efb($data)
-            && ((isset($data['status']) && 'expired' === $data['status'])
-                || (class_exists('\Emsfb\Email_Monitor') && \Emsfb\Email_Monitor::is_delivery_score_too_low($data)));
-        $data['sending_turned_off'] = $definite_failure
-            ? $this->turn_sending_off_after_failed_check_efb($efbFunction, $ac)
-            : false;
+        // A check measures delivery; it never switches sending off. A failed or
+        // spam-scored check leaves the switch where the owner left it, and the
+        // result card says what to fix. (Kept in the reply for older clients.)
+        $data['sending_turned_off'] = false;
 
         $email_report = $this->maybe_request_email_tester_no_delivery_report_efb($test_hash, $data, $admin_email);
         if (is_array($email_report)) {
@@ -3106,21 +3101,6 @@ class Admin {
         ]);
 
         return $data;
-    }
-
-    /**
-     * Turn "This site can send emails" off after a check the owner ran failed
-     * for certain. Only the switch changes; the failure record written just
-     * before says why. Returns whether it was on.
-     */
-    private function turn_sending_off_after_failed_check_efb($efbFunction, $ac) {
-        if (!is_object($ac) || !emsfb_is_email_sending_enabled_efb($ac)) {
-            return false;
-        }
-        $ac->smtp = false;
-        $efbFunction->set_setting_Emsfb($ac);
-        $this->email_tester_log_efb('sending_switch_turned_off_after_failed_check', []);
-        return true;
     }
 
     private function mark_email_server_as_ready_efb($efbFunction, $ac, $admin_email = '', $update_status = true) {

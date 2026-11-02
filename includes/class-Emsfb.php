@@ -2022,7 +2022,7 @@ class Emsfb {
         $defaults->secretKey         = '';
         $defaults->emailSupporter    = get_option('admin_email', '');
         $defaults->apiKeyMap         = '';
-        $defaults->smtp              = false;
+        $defaults->smtp              = true;
         $defaults->weeklyEmailReport = true;
         $defaults->emailStatsReport  = true;
         $defaults->text              = '';

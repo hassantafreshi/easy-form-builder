@@ -2009,6 +2009,8 @@ class efbFunction {
 			"emailResultNotDelivered" => $state && isset($ac->text->emailResultNotDelivered) ? $ac->text->emailResultNotDelivered : esc_html__('Your test email did not arrive in time. Notifications are off; the guide shows how to fix this at your hosting company.','easy-form-builder'),
 			/* translators: One-sentence result: WordPress could not send the test email at all. */
 			"emailResultNotSent" => $state && isset($ac->text->emailResultNotSent) ? $ac->text->emailResultNotSent : esc_html__('Your site could not send the test email. Notifications are off; the guide shows how to connect an email sending service.','easy-form-builder'),
+			"emailResultNotDeliveredOn" => $state && isset($ac->text->emailResultNotDeliveredOn) ? $ac->text->emailResultNotDeliveredOn : esc_html__('Your test email did not arrive in time. Notifications stay on; the guide shows how to fix this at your hosting company.','easy-form-builder'),
+			"emailResultNotSentOn" => $state && isset($ac->text->emailResultNotSentOn) ? $ac->text->emailResultNotSentOn : esc_html__('Your site could not send the test email, so form emails cannot be sent either. The guide shows how to connect an email sending service.','easy-form-builder'),
 			/* translators: One-sentence result: the check could not finish (service unreachable, answer lost, timed out). */
 			"emailResultUnknown" => $state && isset($ac->text->emailResultUnknown) ? $ac->text->emailResultUnknown : esc_html__('We could not finish the check, so we do not know yet. Notifications are unchanged; try again now, or later from Email Settings.','easy-form-builder'),
 			/* translators: One-sentence result: the testing service refused the check because the free daily limit was used up. */

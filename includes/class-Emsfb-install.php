@@ -154,9 +154,10 @@ class Install {
 
 			$v = $wpdb->get_var( $wpdb->prepare( "SELECT setting FROM %i ORDER BY id DESC LIMIT 1", $table_name_stng ) );
 			$rand = substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'), 0, 10);
-			// smtp (the "This site can send emails" switch) always starts OFF on a new
-			// install: no notification email is sent until the admin verifies delivery
-			// and turns it on. See Email_Monitor::mark_email_ready().
+			// smtp (the "This site can send emails" switch) starts ON: the owner's
+			// first form must email them, or the plugin looks broken. The email
+			// check measures how well that mail is delivered; it never switches
+			// sending off. The owner can still turn it off in Email Settings.
 			if ($v === NULL) {
 				$settings = (object) array(
 					'activeCode' => '',
@@ -164,7 +165,7 @@ class Install {
 					'secretKey' => '',
 					'emailSupporter' => $eml,
 					'apiKeyMap' => '',
-					'smtp' => false,
+					'smtp' => true,
 					'bootstrap' => false,
 					'emailTemp' => \Emsfb::get_default_email_template_efb(),
 					'email_key' => $rand,

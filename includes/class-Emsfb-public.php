@@ -15,6 +15,8 @@ class _Public {
 	public $setting;
 	protected $db;
 	public $efbFunction;
+	/** The visitor's address for the owner's Reply-To, set by email_status_efb() for this submission. */
+	private $owner_reply_to_efb = '';
 	public $lanText;
 	public $text_;
 	public $pro_efb;
@@ -3647,7 +3649,7 @@ public function check_nonce_permission_efb($request) {
 
 								$state_email_user = $has_tracking_code == 1 ? 'notiToUserFormFilled_TrackingCode' : 'notiToUserFormFilled';
 								$msg_content = 'null';
-								if (isset($form_fields_array[0]['email_noti_type']) && $form_fields_array[0]['email_noti_type'] == 'msg') {
+								if ($this->efb_email_noti_type_efb($form_fields_array) == 'msg') {
 									$msg_content = $this->email_get_content_efb($submitted_values, $track_code);
 									$msg_content = str_replace("\"", "'", $msg_content);
 								}
@@ -6458,7 +6460,17 @@ public function check_nonce_permission_efb($request) {
         'has_custom_content' => $content !== 'null',
         'content_preview' => $content === 'null' ? '(state template)' : mb_substr(trim(strip_tags((string)$content)), 0, 200),
     ]);
+    // The owner answers the visitor straight from their inbox.
+    $reply_to = is_string($this->owner_reply_to_efb) ? $this->owner_reply_to_efb : '';
+    $reply_to_cb = null;
+    if ('' !== $reply_to) {
+        $reply_to_cb = function () use ($reply_to) { return $reply_to; };
+        add_filter('emsfb_owner_reply_to_efb', $reply_to_cb);
+    }
     $check = $this->efbFunction->send_email_state_new($to, $subject, $cont, $pro, $state, $link_w, $this->setting);
+    if (null !== $reply_to_cb) {
+        remove_filter('emsfb_owner_reply_to_efb', $reply_to_cb);
+    }
 
 	}
 	public function isHTML( $str ) { return preg_match( "/\/[a-z]*>/i", $str ) != 0; }
@@ -8963,20 +8975,54 @@ public function check_nonce_permission_efb($request) {
 			}
 		}
 
+	/**
+	 * What the notification email carries: "msg" (submitted content and link),
+	 * "just_msg" (content only) or "cc" (confirmation code and link). A form
+	 * saved before the choice existed, or never changed, gets "msg".
+	 */
+	public function efb_email_noti_type_efb($formObj) {
+		$type = (is_array($formObj) && isset($formObj[0]['email_noti_type']) && is_string($formObj[0]['email_noti_type']))
+			? $formObj[0]['email_noti_type']
+			: '';
+		return in_array($type, ['msg', 'just_msg', 'cc'], true) ? $type : 'msg';
+	}
+
+	/** The visitor's address for the owner's Reply-To: the first email field holding a valid address. */
+	private function efb_submitter_email_efb($values) {
+		if (!is_array($values)) {
+			return '';
+		}
+		foreach ($values as $row) {
+			if (is_array($row) && isset($row['type'], $row['value']) && 'email' === $row['type'] && is_string($row['value'])) {
+				$email = sanitize_email(trim($row['value']));
+				if ('' !== $email && is_email($email)) {
+					return $email;
+				}
+			}
+		}
+		return '';
+	}
+
 	public function email_status_efb($formObj,$valobj,$check){
 
 			$msg_content='null';
 			$msg_type ='traking_link';
 			$msg_sub = 'null';
+			// The owner's Reply-To for this submission: the visitor's own address.
+			$this->owner_reply_to_efb = $this->efb_submitter_email_efb($valobj);
+			// A form that never chose sends the submitted content and the link:
+			// an email that only says "log in to read it" looks like a broken
+			// plugin. "cc" (code and link only) stays for forms that chose it.
+			$noti_type = $this->efb_email_noti_type_efb($formObj);
 
-			if(isset($formObj[0]["email_noti_type"]) && ( $formObj[0]["email_noti_type"]=='msg' || $formObj[0]["email_noti_type"]=='just_msg' )){
+			if($noti_type=='msg' || $noti_type=='just_msg'){
 
-				if($formObj[0]["email_noti_type"]=='msg'){
+				if($noti_type=='msg'){
 
 					$msg_content_ = $this->email_get_content_efb($valobj ,$check);
 					$msg_content = str_replace("\"","'",$msg_content_);
 					$msg_type = 'message_link';
-				}else if ($formObj[0]["email_noti_type"]=='cc'){
+				}else if ($noti_type=='cc'){
 
 					$msg_type ='traking_link';
 					$msg_sub = 'null';

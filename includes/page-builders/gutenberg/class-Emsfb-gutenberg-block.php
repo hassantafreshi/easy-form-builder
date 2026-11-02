@@ -151,7 +151,14 @@ class Emsfb_Gutenberg_Block {
         $align = isset($attributes['align']) ? ' align' . esc_attr($attributes['align']) : '';
 
         if (empty($form_id)) {
-
+            // Visitors see nothing; the owner previewing the page is told why
+            // the form is missing instead of finding an empty spot.
+            if (current_user_can('edit_posts')) {
+                return sprintf(
+                    '<div class="wp-block-easy-form-builder-form efb-block-empty" style="padding:12px 16px;border:1px dashed #c7d2fe;border-radius:8px;color:#3730a3;background:#f5f7ff">%s</div>',
+                    esc_html(__('Easy Form Builder', 'easy-form-builder') . ': ' . __('Select a form to display from the dropdown below.', 'easy-form-builder'))
+                );
+            }
             return '';
         }
 

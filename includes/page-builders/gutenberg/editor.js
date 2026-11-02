@@ -96,6 +96,25 @@
                 }
             }, [formId]);
 
+            // A block with no form publishes an empty spot on the page. Say so
+            // in the editor (one warning per block) until a form is chosen;
+            // the warning goes with the block.
+            useEffect(() => {
+                const notices = wp.data && wp.data.dispatch ? wp.data.dispatch('core/notices') : null;
+                if (!notices || typeof notices.createWarningNotice !== 'function') return undefined;
+                const noticeId = 'efb-block-no-form-' + props.clientId;
+                const strings = (window.efbBlockData && efbBlockData.strings) || {};
+                if (!formId) {
+                    notices.createWarningNotice(
+                        (strings.blockTitle || 'Easy Form Builder') + ': ' + (strings.selectFormHelp || 'Select a form to display from the dropdown below.'),
+                        { id: noticeId, isDismissible: false }
+                    );
+                } else {
+                    notices.removeNotice(noticeId);
+                }
+                return () => { notices.removeNotice(noticeId); };
+            }, [formId]);
+
             const onFormChange = (newFormId) => {
                 const selectedForm = forms.find(f => String(f.id) === String(newFormId));
                 setAttributes({

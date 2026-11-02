@@ -656,7 +656,9 @@ function alert_message_efb(title, message, sec, alertType) {
       container = document.createElement('div');
       container.id = 'alert_container_efb';
       container.className = 'efb';
-      container.style.cssText = `position:fixed; top:80px; ${isRtl ? 'right' : 'left'}:${width}px; z-index:9999999; width:${isMobile ? 'calc(100vw - 40px)' : '33%'}; min-width:280px; max-width:450px; display:flex; flex-direction:column; gap:10px; pointer-events:none;`;
+      // Bottom corner, not the top: at the top the toasts covered the form
+      // builder's own toolbar (Save, Preview, Form Settings).
+      container.style.cssText = `position:fixed; bottom:${isMobile ? 16 : 24}px; ${isRtl ? 'right' : 'left'}:${isMobile ? 16 : width}px; z-index:9999999; width:${isMobile ? 'calc(100vw - 32px)' : '33%'}; min-width:280px; max-width:450px; display:flex; flex-direction:column; gap:10px; pointer-events:none;`;
       document.body.appendChild(container);
     }
 
@@ -670,7 +672,7 @@ function alert_message_efb(title, message, sec, alertType) {
             ${title ? `<h6 class="efb mb-0" style="color:${style.color}; font-weight:600; font-size:0.9rem;">${title}</h6>` : ''}
             ${message ? `<p class="efb mb-0" style="color:${style.color}; opacity:0.95; font-size:0.8rem; line-height:1.4;">${message}</p>` : ''}
           </div>
-          <button type="button" class="efb p-0" onclick="close_msg_efb('${alertId}')" style="display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.2); border:none; border-radius:50%; width:26px; height:26px; cursor:pointer; flex-shrink:0; margin-${isRtl ? 'right' : 'left'}:8px; color:${style.color};">
+          <button type="button" class="efb p-0" aria-label="${(efb_var.text && efb_var.text.close) ? efb_var.text.close : 'Close'}" onclick="close_msg_efb('${alertId}')" style="display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.2); border:none; border-radius:50%; width:26px; height:26px; cursor:pointer; flex-shrink:0; margin-${isRtl ? 'right' : 'left'}:8px; color:${style.color};">
             ${alertIconSvg_efb(alertCloseIconPath_efb, 1)}
           </button>
         </div>
@@ -695,6 +697,9 @@ function alert_message_efb(title, message, sec, alertType) {
 function close_msg_efb(alertId) {
   const el = alertId ? document.getElementById(alertId) : document.querySelector('.alert_item_efb');
   if (el) {
+    // An email toast the owner closed is remembered (see admin-efb.js).
+    const emailKind = el.getAttribute && el.getAttribute('data-efb-email-toast');
+    if (emailKind && typeof efb_builder_email_toast_closed === 'function') efb_builder_email_toast_closed(emailKind);
     const isRtl = efb_var.rtl == 1;
     el.style.opacity = '0';
     el.style.transform = `translateX(${isRtl ? '' : '-'}20px)`;

@@ -282,7 +282,16 @@ class EmsfbEmailHandler {
                     $this->log_email_debug($state[$i], $to[$i], $sub[$i], $message, $link[$i], $email_content_type);
 
                     if ($state != "reportProblem") {
-                        $mailResult = $sendMail($to[$i], $sub[$i], $message, $headers);
+                        $pair_headers = $headers;
+                        // The owner's copy of a submission answers the visitor:
+                        // Reply-To is the address they typed (set by the form side).
+                        if (0 === $i && is_array($state) && isset($state[0]) && 'newMessage' === $state[0]) {
+                            $reply_to = apply_filters('emsfb_owner_reply_to_efb', '', $to, $state);
+                            if (is_string($reply_to) && '' !== $reply_to && is_email($reply_to)) {
+                                $pair_headers[] = 'Reply-To: ' . sanitize_email($reply_to);
+                            }
+                        }
+                        $mailResult = $sendMail($to[$i], $sub[$i], $message, $pair_headers);
                     }
                 }
             }

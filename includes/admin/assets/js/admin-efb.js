@@ -94,6 +94,8 @@ function efb_builder_maybe_warn_email_delivery() {
   // remembered, so the question still comes once the guide is gone.
   const ask = kind === 'off' && efb_builder_form_has_email_field()
     && efb_builder_delivery_needs_question() && !efb_builder_prompt_snoozed();
+  // Closed by the owner on this page: not again.
+  if (efb_builder_email_closed_kinds[ask ? 'question' : kind]) return;
   if (ask && document.getElementById('efb-setup-overlay')) return;
   // A check is running on this page: it will answer; no question meanwhile.
   const running = typeof efb_onboarding_email_test_state_efb !== 'undefined' && efb_onboarding_email_test_state_efb && efb_onboarding_email_test_state_efb.type === 'checking';
@@ -128,6 +130,7 @@ function efb_builder_maybe_warn_email_delivery() {
   const helpText = efb_var.text.clcdetls || efb_var.text.smtpSetupGuideBtn || efb_var.text.clickHere || 'Click here for more details';
   const helpLink = `<br><a class="efb alert-link text-dark fw-semibold pointer-efb" onclick="Link_emsFormBuilder('EmailSpam')">${helpText}</a>`;
   alert_message_efb(title, template.replace('%s', `<b>${score}</b>`) + helpLink, 30, 'warning');
+  efb_builder_email_tag_last_toast('score');
 }
 
 /* ---------------------------------------------------------------------- *
@@ -504,8 +507,20 @@ function efb_builder_email_check_open() {
   if (painted) state_modal_show_efb(1);
 }
 
-function efb_builder_maybe_warn_email_delivery_after_save() {
-  efb_builder_maybe_warn_email_delivery();
+/* After a save the result dialog is on screen and already carries the email
+   note when sending is off; a toast on top of it said the same thing twice
+   and covered the builder's buttons. The warning comes from its own moments
+   (an email field added, the form opened) instead. */
+function efb_builder_maybe_warn_email_delivery_after_save() {}
+
+/* An email toast the owner closed stays closed for this page: the same
+   warning never comes back on the next save or edit. Closing the question
+   is "Not now" (a week). */
+const efb_builder_email_closed_kinds = {};
+function efb_builder_email_toast_closed(kind) {
+  if (!kind) return;
+  efb_builder_email_closed_kinds[kind] = true;
+  if (kind === 'question' && typeof efb_builder_prompt_snooze === 'function') efb_builder_prompt_snooze();
 }
 
 function deepFreeze_efb_admin(obj) {
