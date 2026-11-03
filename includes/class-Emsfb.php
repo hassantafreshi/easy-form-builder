@@ -651,17 +651,6 @@ class Emsfb {
     }
 
     /**
-     * Require one of the plugin's own PHP files only when it exists on disk.
-     *
-     * A file can legitimately be absent after an incomplete update or deploy;
-     * requiring it blindly turns that into a fatal error that takes the whole
-     * site down. Missing files are collected and reported once through an
-     * admin notice that asks for a plugin reinstall.
-     *
-     * @param string $relative_path Path relative to the plugin root.
-     * @return bool True when the file was loaded.
-     */
-    /**
      * Whether this admin request is one the Contact Form 7 importer serves:
      * the Panel or Create screen, or one of its efb_cf7_* admin-ajax actions.
      */
@@ -676,6 +665,17 @@ class Emsfb {
         return 'emsfb' === $page || 'emsfb_create' === $page;
     }
 
+    /**
+     * Require one of the plugin's own PHP files only when it exists on disk.
+     *
+     * A file can legitimately be absent after an incomplete update or deploy;
+     * requiring it blindly turns that into a fatal error that takes the whole
+     * site down. Missing files are collected and reported once through an
+     * admin notice that asks for a plugin reinstall.
+     *
+     * @param string $relative_path Path relative to the plugin root.
+     * @return bool True when the file was loaded.
+     */
     private function require_plugin_file_efb(string $relative_path): bool {
         $absolute_path = $this->plugin_path . $relative_path;
 
