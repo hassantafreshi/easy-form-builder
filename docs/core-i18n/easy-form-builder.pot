@@ -414,7 +414,7 @@ msgstr ""
 msgid "A little more detail, please - one sentence about what broke is enough."
 msgstr ""
 
-#: includes/class-email-handler.php:1013
+#: includes/class-email-handler.php:1022
 msgid "A new user has registered on your website."
 msgstr ""
 
@@ -885,15 +885,15 @@ msgstr ""
 msgid "Audio Recorder"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4549
+#: includes/class-Emsfb-formbuilder.php:4564
 msgid "Audio Recording Forms"
 msgstr ""
 
-#: includes/class-Emsfb-public.php:7426
+#: includes/class-Emsfb-public.php:7452
 msgid "Audio recording"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4562
+#: includes/class-Emsfb-formbuilder.php:4577
 msgid "Audio, Video and Screen Recording Fields"
 msgstr ""
 
@@ -945,7 +945,7 @@ msgstr ""
 msgid "Auto-populate from previously submitted forms"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4572
+#: includes/class-Emsfb-formbuilder.php:4587
 msgid "Automatic Email Notifications"
 msgstr ""
 
@@ -1148,7 +1148,7 @@ msgstr ""
 msgid "Built with %1$sEasy Form Builder%2$s by %3$sWhiteStudio.team%4$s"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:2297
+#: includes/class-Emsfb-formbuilder.php:2300
 #, php-format
 msgid "Built with %sEasy Form Builder%s by %sWordPress form plugin by whitestudio.team%s"
 msgstr ""
@@ -1211,11 +1211,11 @@ msgstr ""
 msgid "By WhiteStudio.team"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4599
+#: includes/class-Emsfb-formbuilder.php:4614
 msgid "CAPTCHA-Free Spam Protection with Honeypot and Signed Single-Use Tokens"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4664
+#: includes/class-Emsfb-formbuilder.php:4679
 msgid "CAPTCHA-free form spam protection"
 msgstr ""
 
@@ -1564,7 +1564,7 @@ msgstr ""
 msgid "Click here to watch a video tutorial."
 msgstr ""
 
-#: includes/class-email-handler.php:918
+#: includes/class-email-handler.php:927
 msgid "Click the button below to set a new password. This link will be valid for 24 hours."
 msgstr ""
 
@@ -1584,7 +1584,7 @@ msgstr ""
 msgid "Click to view and choose from Free, Free Plus, or Pro plans."
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4597
+#: includes/class-Emsfb-formbuilder.php:4612
 msgid "Client-Side and Server-Side Form Validation"
 msgstr ""
 
@@ -1684,7 +1684,7 @@ msgstr ""
 msgid "Compare the free plans"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4574
+#: includes/class-Emsfb-formbuilder.php:4589
 msgid "Conditional Email Notifications and Recipient Routing"
 msgstr ""
 
@@ -1721,7 +1721,7 @@ msgstr ""
 msgid "Confirmation Code Finder"
 msgstr ""
 
-#: includes/class-email-handler.php:642
+#: includes/class-email-handler.php:651
 msgid "Congratulations! Email System Working"
 msgstr ""
 
@@ -1778,7 +1778,7 @@ msgstr ""
 msgid "Contact Us Form"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4543
+#: includes/class-Emsfb-formbuilder.php:4558
 msgid "Contact and Inquiry Forms"
 msgstr ""
 
@@ -1918,7 +1918,7 @@ msgstr ""
 msgid "Countries Drop-down"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4564
+#: includes/class-Emsfb-formbuilder.php:4579
 msgid "Country, State, Province and City Fields"
 msgstr ""
 
@@ -1939,7 +1939,7 @@ msgstr ""
 msgid "Create Forms"
 msgstr ""
 
-#: includes/class-Emsfb-public.php:8620
+#: includes/class-Emsfb-public.php:8646
 msgid "Create New Password"
 msgstr ""
 
@@ -1959,7 +1959,7 @@ msgstr ""
 msgid "Create a payment form to collect online payments."
 msgstr ""
 
-#: includes/class-Emsfb-public.php:8621
+#: includes/class-Emsfb-public.php:8647
 msgid "Create a secure password for your account"
 msgstr ""
 
@@ -2016,7 +2016,7 @@ msgstr ""
 msgid "Custom %s Message"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4573
+#: includes/class-Emsfb-formbuilder.php:4588
 msgid "Custom Email Templates with Visual Editor"
 msgstr ""
 
@@ -2330,17 +2330,17 @@ msgstr ""
 msgid "Disabling this feature may affect the proper functionality of Easy Form Builder. If you plan to use the %s feature, please ensure it is enabled."
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:3547 includes/functions.php:3438
+#: includes/class-Emsfb-formbuilder.php:3562 includes/functions.php:3438
 msgid "Dismiss"
 msgstr ""
 
 #. translators: %s: item label
-#: includes/class-Emsfb-formbuilder.php:3550 includes/functions.php:3441
+#: includes/class-Emsfb-formbuilder.php:3565 includes/functions.php:3441
 #, php-format
 msgid "Dismiss %s"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:3548 includes/functions.php:3439
+#: includes/class-Emsfb-formbuilder.php:3563 includes/functions.php:3439
 msgid "Dismiss All"
 msgstr ""
 
@@ -2360,7 +2360,7 @@ msgstr ""
 msgid "Display the form name as a heading above the form."
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4672
+#: includes/class-Emsfb-formbuilder.php:4687
 msgid "Divi form plugin"
 msgstr ""
 
@@ -2419,7 +2419,7 @@ msgstr ""
 msgid "Dots"
 msgstr ""
 
-#: includes/class-Emsfb-public.php:7429 includes/functions.php:1569
+#: includes/class-Emsfb-public.php:7455 includes/functions.php:1569
 msgid "Download"
 msgstr ""
 
@@ -2470,11 +2470,11 @@ msgstr ""
 msgid "Drag blocks here to build your email template"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4561
+#: includes/class-Emsfb-formbuilder.php:4576
 msgid "Drag-and-Drop File Upload Fields"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4539
+#: includes/class-Emsfb-formbuilder.php:4554
 msgid "Drag-and-Drop WordPress Form Builder"
 msgstr ""
 
@@ -2503,7 +2503,7 @@ msgstr ""
 msgid "Duplicate"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4508
+#: includes/class-Emsfb-formbuilder.php:4523
 msgid "EFB"
 msgstr ""
 
@@ -2526,7 +2526,7 @@ msgstr ""
 msgid "Easy Form Builder"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4535
+#: includes/class-Emsfb-formbuilder.php:4550
 msgid "Easy Form Builder Documentation"
 msgstr ""
 
@@ -2538,8 +2538,8 @@ msgstr ""
 msgid "Easy Form Builder SMS service"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:2318
-#: includes/class-Emsfb-formbuilder.php:4509
+#: includes/class-Emsfb-formbuilder.php:2321
+#: includes/class-Emsfb-formbuilder.php:4524
 msgid "Easy Form Builder WordPress Plugin"
 msgstr ""
 
@@ -2577,7 +2577,7 @@ msgstr ""
 msgid "Easy Form Builder has utilized the colors of the active template. Please choose a color for each option below to customize the form you are creating based on the colors of your template. By selecting a color for each option below, the color of all form fields associated with that feature will change accordingly."
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4512
+#: includes/class-Emsfb-formbuilder.php:4527
 msgid "Easy Form Builder is a free and powerful WordPress form builder plugin for creating contact forms, payment forms, surveys, registration forms, multi-step forms, file upload forms, electronic signature forms, and audio, video, and screen recording forms, with conditional logic, email notifications, integrations, entry management, and advanced spam protection."
 msgstr ""
 
@@ -2641,11 +2641,11 @@ msgstr ""
 msgid "Effects"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4555
+#: includes/class-Emsfb-formbuilder.php:4570
 msgid "Electronic Signature Forms"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4563
+#: includes/class-Emsfb-formbuilder.php:4578
 msgid "Electronic Signature and Location Picker Fields"
 msgstr ""
 
@@ -2653,7 +2653,7 @@ msgstr ""
 msgid "Elegant"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4671
+#: includes/class-Emsfb-formbuilder.php:4686
 msgid "Elementor form plugin"
 msgstr ""
 
@@ -2676,19 +2676,19 @@ msgstr ""
 msgid "Email Background"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4577
+#: includes/class-Emsfb-formbuilder.php:4592
 msgid "Email Deliverability Reports with Spam Score, SPF, DKIM and DMARC Checks"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4575
+#: includes/class-Emsfb-formbuilder.php:4590
 msgid "Email Delivery Status Checking"
 msgstr ""
 
-#: includes/class-email-handler.php:654
+#: includes/class-email-handler.php:663
 msgid "Email Delivery Tips"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4576
+#: includes/class-Emsfb-formbuilder.php:4591
 msgid "Email Error Logging"
 msgstr ""
 
@@ -3045,7 +3045,7 @@ msgstr ""
 msgid "Enter your email to reset your password"
 msgstr ""
 
-#: includes/class-Emsfb-public.php:8630
+#: includes/class-Emsfb-public.php:8656
 msgid "Enter your new password"
 msgstr ""
 
@@ -3053,7 +3053,7 @@ msgstr ""
 msgid "Error"
 msgstr ""
 
-#: includes/class-Emsfb-public.php:2973 includes/class-Emsfb-public.php:3865
+#: includes/class-Emsfb-public.php:2987 includes/class-Emsfb-public.php:3879
 #: includes/functions.php:2405
 msgid "Error Code"
 msgstr ""
@@ -3062,7 +3062,7 @@ msgstr ""
 msgid "Error Code:V01"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:3538
+#: includes/class-Emsfb-formbuilder.php:3553
 msgid "Error Monitor"
 msgstr ""
 
@@ -3076,8 +3076,8 @@ msgstr ""
 msgid "Error fetching address"
 msgstr ""
 
-#: includes/class-Emsfb-public.php:5652 includes/class-Emsfb-public.php:8779
-#: includes/class-Emsfb-public.php:8790 includes/class-Emsfb-public.php:8819
+#: includes/class-Emsfb-public.php:5666 includes/class-Emsfb-public.php:8805
+#: includes/class-Emsfb-public.php:8816 includes/class-Emsfb-public.php:8845
 msgid "Error! Please try again later."
 msgstr ""
 
@@ -3120,7 +3120,7 @@ msgstr ""
 msgid "Event Registration"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4558
+#: includes/class-Emsfb-formbuilder.php:4573
 msgid "Event Registration Forms"
 msgstr ""
 
@@ -3157,11 +3157,11 @@ msgstr ""
 msgid "Export"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:3542
+#: includes/class-Emsfb-formbuilder.php:3557
 msgid "External"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4590
+#: includes/class-Emsfb-formbuilder.php:4605
 msgid "External API Auto-Populate and Autofill"
 msgstr ""
 
@@ -3258,9 +3258,9 @@ msgstr ""
 msgid "Fields: %s"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:1407
-#: includes/class-Emsfb-formbuilder.php:1409
-#: includes/class-Emsfb-formbuilder.php:3546
+#: includes/class-Emsfb-formbuilder.php:1410
+#: includes/class-Emsfb-formbuilder.php:1412
+#: includes/class-Emsfb-formbuilder.php:3561
 msgid "File"
 msgstr ""
 
@@ -3270,7 +3270,7 @@ msgstr ""
 msgid "File Type"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4548
+#: includes/class-Emsfb-formbuilder.php:4563
 msgid "File Upload Forms"
 msgstr ""
 
@@ -3409,7 +3409,7 @@ msgstr ""
 msgid "Form Name"
 msgstr ""
 
-#: includes/class-Emsfb-public.php:8060
+#: includes/class-Emsfb-public.php:8086
 msgid "Form Preview"
 msgstr ""
 
@@ -3439,7 +3439,7 @@ msgstr ""
 msgid "Form Settings"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4595
+#: includes/class-Emsfb-formbuilder.php:4610
 msgid "Form Submissions Stored in the WordPress Database"
 msgstr ""
 
@@ -3496,7 +3496,7 @@ msgstr ""
 msgid "Form submissions and email status are checked separately."
 msgstr ""
 
-#: includes/class-email-handler.php:792
+#: includes/class-email-handler.php:801
 msgid "Form submitted successfully without tracking."
 msgstr ""
 
@@ -3572,7 +3572,7 @@ msgstr ""
 msgid "Free Plus unlocks this too"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:2301
+#: includes/class-Emsfb-formbuilder.php:2304
 msgid "Free WordPress form plugin"
 msgstr ""
 
@@ -3707,11 +3707,11 @@ msgstr ""
 msgid "Google Sheets"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4588
+#: includes/class-Emsfb-formbuilder.php:4603
 msgid "Google Sheets Form Submission Sync"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4657
+#: includes/class-Emsfb-formbuilder.php:4672
 msgid "Google Sheets form integration"
 msgstr ""
 
@@ -3729,7 +3729,7 @@ msgstr ""
 msgid "Google reCAPTCHA is turned on for this form, in place of the Contact Form 7 CAPTCHA."
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4598
+#: includes/class-Emsfb-formbuilder.php:4613
 msgid "Google reCAPTCHA v2 Spam Protection"
 msgstr ""
 
@@ -3753,12 +3753,12 @@ msgstr ""
 msgid "Green"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4568
+#: includes/class-Emsfb-formbuilder.php:4583
 msgid "Gregorian, Hijri and Jalali Date Pickers"
 msgstr ""
 
 #. translators: Guest = user who is not logged in
-#: includes/class-Emsfb-public.php:6501 includes/functions.php:1560
+#: includes/class-Emsfb-public.php:6515 includes/functions.php:1560
 #: vendor/paypal/class-Emsfb-paypal-handler.php:239
 msgid "Guest"
 msgstr ""
@@ -3768,11 +3768,11 @@ msgstr ""
 msgid "Guide, video and AI prompt"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4670
+#: includes/class-Emsfb-formbuilder.php:4685
 msgid "Gutenberg form builder"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4593
+#: includes/class-Emsfb-formbuilder.php:4608
 msgid "Gutenberg, Elementor, Divi and WPBakery Integration"
 msgstr ""
 
@@ -3849,7 +3849,7 @@ msgstr ""
 msgid "Here is your weekly snapshot for %s."
 msgstr ""
 
-#: includes/class-email-handler.php:912 includes/class-email-handler.php:978
+#: includes/class-email-handler.php:921 includes/class-email-handler.php:987
 msgid "Hi"
 msgstr ""
 
@@ -4018,7 +4018,7 @@ msgstr ""
 msgid "IP"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4602
+#: includes/class-Emsfb-formbuilder.php:4617
 msgid "IP Allowlist and Blocklist Security Controls"
 msgstr ""
 
@@ -4076,7 +4076,7 @@ msgstr ""
 msgid "If you are seeing this message, it is likely for one of these reasons: If you have a caching plugin installed, its settings may need to be reviewed."
 msgstr ""
 
-#: includes/class-email-handler.php:905 includes/class-email-handler.php:971
+#: includes/class-email-handler.php:914 includes/class-email-handler.php:980
 msgid "If you did not request this, you can safely ignore it."
 msgstr ""
 
@@ -4088,7 +4088,7 @@ msgstr ""
 msgid "If you need to create more than 2 steps, you can activate the pro version of Easy Form Builder, which allows for unlimited steps."
 msgstr ""
 
-#: includes/class-email-handler.php:2093
+#: includes/class-email-handler.php:2102
 msgid "If you receive this email multiple times, it could indicate a recurring issue."
 msgstr ""
 
@@ -4273,7 +4273,7 @@ msgstr ""
 msgid "Invalid or expired nonce"
 msgstr ""
 
-#: includes/class-Emsfb-public.php:9111 includes/class-Emsfb-public.php:9151
+#: includes/class-Emsfb-public.php:9137 includes/class-Emsfb-public.php:9177
 msgid "Invalid payment selection. Please review your choices and try again. If the problem persists, contact the site administrator."
 msgstr ""
 
@@ -4394,7 +4394,7 @@ msgstr ""
 msgid "Job Application"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4557
+#: includes/class-Emsfb-formbuilder.php:4572
 msgid "Job Application Forms"
 msgstr ""
 
@@ -4561,7 +4561,7 @@ msgstr ""
 msgid "Limousine"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:3545
+#: includes/class-Emsfb-formbuilder.php:3560
 msgid "Line"
 msgstr ""
 
@@ -4637,7 +4637,7 @@ msgstr ""
 msgid "Location Picker"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4556
+#: includes/class-Emsfb-formbuilder.php:4571
 msgid "Location Picker Forms with OpenStreetMap and Leaflet"
 msgstr ""
 
@@ -4739,7 +4739,7 @@ msgstr ""
 msgid "Mark as Read"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4570
+#: includes/class-Emsfb-formbuilder.php:4585
 msgid "Matrix and Table Fields for Structured Data"
 msgstr ""
 
@@ -4902,7 +4902,7 @@ msgstr ""
 msgid "Modern Dark"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4603
+#: includes/class-Emsfb-formbuilder.php:4618
 msgid "Monitor-Only Security Mode"
 msgstr ""
 
@@ -4931,7 +4931,7 @@ msgstr ""
 msgid "Multi-Step"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4553
+#: includes/class-Emsfb-formbuilder.php:4568
 msgid "Multi-Step Forms"
 msgstr ""
 
@@ -4943,7 +4943,7 @@ msgstr ""
 msgid "Multiple Select"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4565
+#: includes/class-Emsfb-formbuilder.php:4580
 msgid "Multiple-Select Dropdowns and Range Sliders"
 msgstr ""
 
@@ -5023,7 +5023,7 @@ msgstr ""
 msgid "New Message"
 msgstr ""
 
-#: includes/class-Emsfb-public.php:8627
+#: includes/class-Emsfb-public.php:8653
 msgid "New Password"
 msgstr ""
 
@@ -5050,8 +5050,8 @@ msgstr ""
 msgid "New option"
 msgstr ""
 
-#: includes/class-email-handler.php:560 includes/class-email-handler.php:589
-#: includes/class-Emsfb-public.php:6381
+#: includes/class-email-handler.php:569 includes/class-email-handler.php:598
+#: includes/class-Emsfb-public.php:6395
 msgid "New user registration"
 msgstr ""
 
@@ -5095,7 +5095,7 @@ msgstr ""
 msgid "No Response"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4596
+#: includes/class-Emsfb-formbuilder.php:4611
 msgid "No Third-Party Form Submission Servers Required"
 msgstr ""
 
@@ -5152,7 +5152,7 @@ msgstr ""
 msgid "No email handler configured."
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:3551
+#: includes/class-Emsfb-formbuilder.php:3566
 msgid "No errors detected"
 msgstr ""
 
@@ -5163,7 +5163,7 @@ msgid "No field mappings"
 msgstr ""
 
 #: includes/admin/class-Emsfb-admin.php:3469
-#: includes/class-Emsfb-public.php:4585 includes/class-Emsfb-public.php:5143
+#: includes/class-Emsfb-public.php:4599 includes/class-Emsfb-public.php:5157
 msgid "No file was received. Please choose a file and try again."
 msgstr ""
 
@@ -5189,7 +5189,7 @@ msgstr ""
 msgid "No matching data found"
 msgstr ""
 
-#: includes/class-Emsfb-public.php:6721
+#: includes/class-Emsfb-public.php:6735
 msgid "No payment amount detected. Please review your selected items and try again. If the problem persists, contact support."
 msgstr ""
 
@@ -5257,11 +5257,11 @@ msgstr ""
 msgid "Not Sure"
 msgstr ""
 
-#: includes/class-Emsfb-public.php:5422
+#: includes/class-Emsfb-public.php:5436
 msgid "Not allowed to respond to this message."
 msgstr ""
 
-#: includes/class-Emsfb-public.php:5471
+#: includes/class-Emsfb-public.php:5485
 msgid "Not allowed to respond to this message. E500"
 msgstr ""
 
@@ -5324,7 +5324,7 @@ msgstr ""
 msgid "Nothing was sent yet, so this says nothing about your email. Try again later."
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:3544
+#: includes/class-Emsfb-formbuilder.php:3559
 msgid "Notice"
 msgstr ""
 
@@ -5392,7 +5392,7 @@ msgstr ""
 msgid "Off by default. Each page is first saved as a revision, so you can undo the change from the page’s Revisions screen. Pages built with Elementor or Beaver Builder are listed but not changed."
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4591
+#: includes/class-Emsfb-formbuilder.php:4606
 msgid "Offline Form Data Collection"
 msgstr ""
 
@@ -5438,7 +5438,7 @@ msgstr ""
 msgid "One or more add-on files are missing. Click the button below to reinstall them."
 msgstr ""
 
-#: includes/class-email-handler.php:2095
+#: includes/class-email-handler.php:2104
 msgid "One or more of the plugins listed below—typically related to caching or security—might be triggering this issue. For troubleshooting, temporarily deactivate them and test your site."
 msgstr ""
 
@@ -5484,7 +5484,7 @@ msgstr ""
 msgid "Open Plugins"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4582
+#: includes/class-Emsfb-formbuilder.php:4597
 msgid "Open and Closed Message Status"
 msgstr ""
 
@@ -5516,7 +5516,7 @@ msgstr ""
 msgid "Options"
 msgstr ""
 
-#: includes/class-email-handler.php:898 includes/class-email-handler.php:964
+#: includes/class-email-handler.php:907 includes/class-email-handler.php:973
 msgid "Or copy and paste this link:"
 msgstr ""
 
@@ -5524,7 +5524,7 @@ msgstr ""
 msgid "Orbit"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4559
+#: includes/class-Emsfb-formbuilder.php:4574
 msgid "Order Forms with Recurring and Subscription Billing"
 msgstr ""
 
@@ -5555,7 +5555,7 @@ msgstr ""
 msgid "Outgoing requests"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4585
+#: includes/class-Emsfb-formbuilder.php:4600
 msgid "PDF Downloads and CSV Exports"
 msgstr ""
 
@@ -5602,11 +5602,11 @@ msgstr ""
 msgid "Password"
 msgstr ""
 
-#: includes/class-email-handler.php:565
+#: includes/class-email-handler.php:574
 msgid "Password Reset"
 msgstr ""
 
-#: includes/class-Emsfb-public.php:8815
+#: includes/class-Emsfb-public.php:8841
 msgid "Password has been changed successfully!"
 msgstr ""
 
@@ -5614,7 +5614,7 @@ msgstr ""
 msgid "Password must be at least 8 characters long and include a number and an uppercase letter."
 msgstr ""
 
-#: includes/class-Emsfb-public.php:3436 includes/functions.php:2253
+#: includes/class-Emsfb-public.php:3450 includes/functions.php:2253
 msgid "Password recovery"
 msgstr ""
 
@@ -5659,18 +5659,18 @@ msgstr ""
 msgid "PayPal Secret Key not found"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4621
+#: includes/class-Emsfb-formbuilder.php:4636
 msgid "PayPal payment forms"
 msgstr ""
 
-#: includes/class-Emsfb-public.php:6651 includes/class-Emsfb-public.php:6661
+#: includes/class-Emsfb-public.php:6665 includes/class-Emsfb-public.php:6675
 #: includes/functions.php:2377 includes/functions.php:2896
 #: vendor/paypal/class-Emsfb-paypal-handler.php:385
 #: vendor/paypal/class-Emsfb-paypal-handler.php:471
 msgid "Payment"
 msgstr ""
 
-#: includes/class-Emsfb-public.php:3865 includes/functions.php:2375
+#: includes/class-Emsfb-public.php:3879 includes/functions.php:2375
 msgid "Payment Form"
 msgstr ""
 
@@ -5678,7 +5678,7 @@ msgstr ""
 msgid "Payment Gateway"
 msgstr ""
 
-#: includes/class-Emsfb-public.php:6754
+#: includes/class-Emsfb-public.php:6768
 msgid "Payment Intent ID is missing"
 msgstr ""
 
@@ -5694,7 +5694,7 @@ msgstr ""
 msgid "Payment Single choose"
 msgstr ""
 
-#: includes/class-Emsfb-public.php:6638
+#: includes/class-Emsfb-public.php:6652
 msgid "Payment could not be started. Please try again later."
 msgstr ""
 
@@ -5826,7 +5826,7 @@ msgid "Please Enter a maximum of NN Characters For this field"
 msgstr ""
 
 #: includes/admin/class-Emsfb-admin.php:3601
-#: includes/class-Emsfb-public.php:8589 includes/functions.php:1577
+#: includes/class-Emsfb-public.php:8615 includes/functions.php:1577
 msgid "Please Wait"
 msgstr ""
 
@@ -5892,7 +5892,7 @@ msgstr ""
 msgid "Please connect a service account first."
 msgstr ""
 
-#: includes/class-email-handler.php:2094
+#: includes/class-email-handler.php:2103
 msgid "Please contact our support team for assistance."
 msgstr ""
 
@@ -6015,7 +6015,7 @@ msgstr ""
 msgid "Please kindly report the following issue to the Easy Form Builder team."
 msgstr ""
 
-#: includes/class-Emsfb-public.php:230 includes/class-Emsfb-public.php:2464
+#: includes/class-Emsfb-public.php:230 includes/class-Emsfb-public.php:2478
 msgid "Please log in to use this form."
 msgstr ""
 
@@ -6081,7 +6081,7 @@ msgstr ""
 msgid "Please verify your PayPal API credentials in the plugin settings."
 msgstr ""
 
-#: includes/class-email-handler.php:984
+#: includes/class-email-handler.php:993
 msgid "Please verify your email address by clicking the button below. This activation link will be valid for 24 hours."
 msgstr ""
 
@@ -6089,7 +6089,7 @@ msgstr ""
 msgid "Please wait, you will be redirected shortly."
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:3539 includes/functions.php:3435
+#: includes/class-Emsfb-formbuilder.php:3554 includes/functions.php:3435
 #: includes/functions.php:3445
 msgid "Plugin"
 msgstr ""
@@ -6131,7 +6131,7 @@ msgstr ""
 msgid "Postal Code"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:2317
+#: includes/class-Emsfb-formbuilder.php:2320
 #, php-format
 msgid "Powered by %1$sEasy Form Builder%2$s . %3$sbest Form plugin for Wordpress%4$s."
 msgstr ""
@@ -6194,7 +6194,7 @@ msgstr ""
 msgid "Primary and primary dark are derived from it"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4552
+#: includes/class-Emsfb-formbuilder.php:4567
 msgid "Private and Restricted-Access Forms"
 msgstr ""
 
@@ -6217,11 +6217,11 @@ msgstr ""
 msgid "Pro Version"
 msgstr ""
 
-#: includes/functions.php:8175
+#: includes/functions.php:8183
 msgid "Pro Version Required"
 msgstr ""
 
-#: includes/class-email-handler.php:569
+#: includes/class-email-handler.php:578
 msgid "Pro features are paused"
 msgstr ""
 
@@ -6246,7 +6246,7 @@ msgstr ""
 msgid "Properties"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4601
+#: includes/class-Emsfb-formbuilder.php:4616
 msgid "Protection Against Email, SMS, Telegram and Google Sheets Quota Abuse"
 msgstr ""
 
@@ -6305,7 +6305,7 @@ msgstr ""
 msgid "Range"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4600
+#: includes/class-Emsfb-formbuilder.php:4615
 msgid "Rate Limiting and Abuse Protection"
 msgstr ""
 
@@ -6318,7 +6318,7 @@ msgstr ""
 msgid "Rating"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4566
+#: includes/class-Emsfb-formbuilder.php:4581
 msgid "Rating Stars, 5-Point Scale, NPS and Yes-No Questions"
 msgstr ""
 
@@ -6336,7 +6336,7 @@ msgstr ""
 msgid "Read"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4581
+#: includes/class-Emsfb-formbuilder.php:4596
 msgid "Read and Reply to Form Submissions with File Attachments"
 msgstr ""
 
@@ -6443,7 +6443,7 @@ msgstr ""
 msgid "Register players for recreational sports leagues."
 msgstr ""
 
-#: includes/class-email-handler.php:1028 includes/functions.php:1663
+#: includes/class-email-handler.php:1037 includes/functions.php:1663
 msgid "Registered"
 msgstr ""
 
@@ -6487,7 +6487,7 @@ msgstr ""
 msgid "Renew Pro"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:998 includes/functions.php:8171
+#: includes/admin/class-Emsfb-admin.php:998 includes/functions.php:8179
 msgid "Renew Subscription"
 msgstr ""
 
@@ -6528,7 +6528,7 @@ msgstr ""
 msgid "Report generated %s"
 msgstr ""
 
-#: includes/class-email-handler.php:573 includes/functions.php:2132
+#: includes/class-email-handler.php:582 includes/functions.php:2132
 #: includes/functions.php:5974
 msgid "Report problem"
 msgstr ""
@@ -6560,7 +6560,7 @@ msgstr ""
 msgid "Reservation"
 msgstr ""
 
-#: includes/class-email-handler.php:877
+#: includes/class-email-handler.php:886
 msgid "Reset Password"
 msgstr ""
 
@@ -6624,7 +6624,7 @@ msgstr ""
 msgid "Responses & Confirmation"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4541
+#: includes/class-Emsfb-formbuilder.php:4556
 msgid "Responsive and RTL-Friendly Forms"
 msgstr ""
 
@@ -6723,7 +6723,7 @@ msgstr ""
 msgid "Russian"
 msgstr ""
 
-#: includes/class-email-handler.php:2129
+#: includes/class-email-handler.php:2138
 msgid "SID Validation Error"
 msgstr ""
 
@@ -6743,7 +6743,7 @@ msgstr ""
 msgid "SMS Service Add-on"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4578
+#: includes/class-Emsfb-formbuilder.php:4593
 msgid "SMS and Telegram Submission Notifications"
 msgstr ""
 
@@ -6760,7 +6760,7 @@ msgstr ""
 msgid "SMTP Error: The host is unable to send an email. Please contact the host support team for assistance."
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4649
+#: includes/class-Emsfb-formbuilder.php:4664
 msgid "SPF DKIM DMARC WordPress forms"
 msgstr ""
 
@@ -6831,11 +6831,11 @@ msgstr ""
 msgid "Screen Recorder"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4551
+#: includes/class-Emsfb-formbuilder.php:4566
 msgid "Screen Recording Forms with Optional Microphone Audio"
 msgstr ""
 
-#: includes/class-Emsfb-public.php:7426
+#: includes/class-Emsfb-public.php:7452
 msgid "Screen recording"
 msgstr ""
 
@@ -6863,7 +6863,7 @@ msgstr ""
 msgid "Search Results"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4583
+#: includes/class-Emsfb-formbuilder.php:4598
 msgid "Search Submissions by Form or Confirmation Code"
 msgstr ""
 
@@ -7121,7 +7121,7 @@ msgstr ""
 msgid "Session Duration"
 msgstr ""
 
-#: includes/class-Emsfb-public.php:8646
+#: includes/class-Emsfb-public.php:8672
 msgid "Set Password"
 msgstr ""
 
@@ -7168,7 +7168,7 @@ msgstr ""
 msgid "Shield Security is not detected, but it can be installed to enhance security."
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4592
+#: includes/class-Emsfb-formbuilder.php:4607
 msgid "Shield Security silentCAPTCHA Integration"
 msgstr ""
 
@@ -7338,7 +7338,7 @@ msgstr ""
 msgid "Small free plan for transactional email; official plugin, one API token."
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4554
+#: includes/class-Emsfb-formbuilder.php:4569
 msgid "Smart Forms with Conditional Logic"
 msgstr ""
 
@@ -7570,7 +7570,7 @@ msgstr ""
 msgid "Street Address Line 2"
 msgstr ""
 
-#: includes/class-Emsfb-public.php:6515 includes/class-Emsfb-public.php:6564
+#: includes/class-Emsfb-public.php:6529 includes/class-Emsfb-public.php:6578
 #: includes/functions.php:2376 includes/functions.php:4783
 msgid "Stripe"
 msgstr ""
@@ -7579,11 +7579,11 @@ msgstr ""
 msgid "Stripe Payment Add-on"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4546
+#: includes/class-Emsfb-formbuilder.php:4561
 msgid "Stripe and PayPal Payment Forms"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4589
+#: includes/class-Emsfb-formbuilder.php:4604
 msgid "Stripe and PayPal Payment Workflows"
 msgstr ""
 
@@ -7593,7 +7593,7 @@ msgstr ""
 msgid "Stripe and PayPal payments"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4620
+#: includes/class-Emsfb-formbuilder.php:4635
 msgid "Stripe payment forms"
 msgstr ""
 
@@ -7688,7 +7688,7 @@ msgstr ""
 msgid "Support Ticket Form"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4544
+#: includes/class-Emsfb-formbuilder.php:4559
 msgid "Support and Feedback Forms with Message Tracking"
 msgstr ""
 
@@ -7707,11 +7707,11 @@ msgstr ""
 msgid "Survey Results Display"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4545
+#: includes/class-Emsfb-formbuilder.php:4560
 msgid "Survey and Poll Forms with Visual Results"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4586
+#: includes/class-Emsfb-formbuilder.php:4601
 msgid "Survey and Poll Result Charts"
 msgstr ""
 
@@ -7730,7 +7730,7 @@ msgstr ""
 msgid "Switch %s"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4567
+#: includes/class-Emsfb-formbuilder.php:4582
 msgid "Switch and Toggle Fields"
 msgstr ""
 
@@ -7830,7 +7830,7 @@ msgstr ""
 msgid "Telegram Notification Add-on"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4569
+#: includes/class-Emsfb-formbuilder.php:4584
 msgid "Telephone, Mobile and Color Picker Fields"
 msgstr ""
 
@@ -7875,9 +7875,16 @@ msgstr ""
 
 #. translators: %1$s, %2$s, %3$s, %4$s are opening and closing link tags for
 #. help resources
-#: includes/functions.php:2787
+#: includes/functions.php
 #, php-format
 msgid "Test emails may land in your spam folder. If emails are not delivered, this is usually related to your hosting or email server configuration.server settings %1$sLearn how to fix email delivery issues%2$s or %3$scontact Easy Form Builder support%4$s."
+msgstr ""
+
+#. translators: %1$s, %2$s, %3$s, %4$s are opening and closing link tags for
+#. help resources
+#: includes/functions.php:2787
+#, php-format
+msgid "Test emails may land in your spam folder. If emails are not delivered, this is usually related to your hosting or email server settings. %1$sLearn how to fix email delivery issues%2$s or %3$scontact Easy Form Builder support%4$s."
 msgstr ""
 
 #. translators: Label for the email address the test was sent to
@@ -7962,7 +7969,7 @@ msgstr ""
 msgid "The %s add-on for Easy Form Builder enables you to integrate your WordPress site with %s for payment processing, donations, and online orders."
 msgstr ""
 
-#: includes/functions.php:8177
+#: includes/functions.php:8185
 #, php-format
 msgid "The %s add-on is a Pro feature. Please upgrade to Easy Form Builder Pro to access this functionality."
 msgstr ""
@@ -8023,7 +8030,7 @@ msgstr ""
 msgid "The Easy Form Builder team reads every one, and replies if you left an email."
 msgstr ""
 
-#: includes/class-Emsfb-public.php:7250
+#: includes/class-Emsfb-public.php:7264
 msgid "The Email Address Is Not Valid"
 msgstr ""
 
@@ -8056,19 +8063,19 @@ msgstr ""
 msgid "The PHP mail() function is missing. Your server cannot send emails."
 msgstr ""
 
-#: includes/class-Emsfb-public.php:7279 includes/class-Emsfb-public.php:8569
+#: includes/class-Emsfb-public.php:7293 includes/class-Emsfb-public.php:8595
 msgid "The Password Must Contain At Least 1 Capital Letter!"
 msgstr ""
 
-#: includes/class-Emsfb-public.php:7282 includes/class-Emsfb-public.php:8566
+#: includes/class-Emsfb-public.php:7296 includes/class-Emsfb-public.php:8592
 msgid "The Password Must Contain At Least 1 Lowercase Letter!"
 msgstr ""
 
-#: includes/class-Emsfb-public.php:7276 includes/class-Emsfb-public.php:8573
+#: includes/class-Emsfb-public.php:7290 includes/class-Emsfb-public.php:8599
 msgid "The Password Must Contain At Least 1 Number!"
 msgstr ""
 
-#: includes/class-Emsfb-public.php:7273 includes/class-Emsfb-public.php:8563
+#: includes/class-Emsfb-public.php:7287 includes/class-Emsfb-public.php:8589
 msgid "The Password Must Contain At Least 8 Characters!"
 msgstr ""
 
@@ -8096,11 +8103,11 @@ msgstr ""
 msgid "The Telegram notification add-on lets you get notifications on your Telegram app whenever you receive new messages or responses"
 msgstr ""
 
-#: includes/class-Emsfb-public.php:7255
+#: includes/class-Emsfb-public.php:7269
 msgid "The Username Must Contain At Least 3 Characters."
 msgstr ""
 
-#: includes/class-Emsfb-public.php:7253
+#: includes/class-Emsfb-public.php:7267
 msgid "The Username Must Contain Only Letters, Numbers And Lowercase letters"
 msgstr ""
 
@@ -8318,11 +8325,11 @@ msgstr ""
 msgid "The form cannot be submitted because it requires a payment method, which is currently missing. If you are the Admin, please add a payment method to the form or change the form type to \"Form\" or \"Survey\"."
 msgstr ""
 
-#: includes/class-Emsfb-public.php:236 includes/class-Emsfb-public.php:2404
+#: includes/class-Emsfb-public.php:236 includes/class-Emsfb-public.php:2418
 msgid "The form context expired. Reopen the form before continuing."
 msgstr ""
 
-#: includes/class-Emsfb-public.php:4468
+#: includes/class-Emsfb-public.php:4482
 msgid "The form could not be saved. Your input has been kept."
 msgstr ""
 
@@ -8504,24 +8511,24 @@ msgstr ""
 msgid "The recording could not be uploaded. Please try again."
 msgstr ""
 
-#: includes/class-Emsfb-public.php:4918
+#: includes/class-Emsfb-public.php:4932
 msgid "The recording format could not be verified. Please record it again."
 msgstr ""
 
-#: includes/class-Emsfb-public.php:4908 includes/functions.php:2686
+#: includes/class-Emsfb-public.php:4922 includes/functions.php:2686
 msgid "The recording is larger than the allowed file size."
 msgstr ""
 
-#: includes/class-Emsfb-public.php:4924 includes/class-Emsfb-public.php:4948
+#: includes/class-Emsfb-public.php:4938 includes/class-Emsfb-public.php:4962
 #: includes/functions.php:2688
 msgid "The recording is longer than the allowed duration."
 msgstr ""
 
-#: includes/class-Emsfb-public.php:5093 includes/class-Emsfb-public.php:5173
+#: includes/class-Emsfb-public.php:5107 includes/class-Emsfb-public.php:5187
 msgid "The recording request could not be verified. Please retry."
 msgstr ""
 
-#: includes/class-Emsfb-public.php:4871
+#: includes/class-Emsfb-public.php:4885
 msgid "The recording upload could not be verified. Please record it again and retry."
 msgstr ""
 
@@ -8533,16 +8540,16 @@ msgstr ""
 msgid "The request could not be verified."
 msgstr ""
 
-#: includes/class-Emsfb-public.php:5249
+#: includes/class-Emsfb-public.php:5263
 msgid "The response attachment could not be secured. Please try again."
 msgstr ""
 
 #: includes/admin/class-Emsfb-admin.php:1586
-#: includes/class-Emsfb-public.php:5479
+#: includes/class-Emsfb-public.php:5493
 msgid "The response attachment could not be verified. Please attach the file again."
 msgstr ""
 
-#: includes/class-Emsfb-public.php:5123
+#: includes/class-Emsfb-public.php:5137
 msgid "The response box could not be verified. Reopen the conversation and try again."
 msgstr ""
 
@@ -8599,15 +8606,15 @@ msgstr ""
 msgid "The sender email address is not valid. Please check your email settings."
 msgstr ""
 
-#: includes/class-Emsfb-public.php:4963
+#: includes/class-Emsfb-public.php:4977
 msgid "The server could not store the recording. Please try again or contact the site administrator."
 msgstr ""
 
-#: includes/class-Emsfb-public.php:4945
+#: includes/class-Emsfb-public.php:4959
 msgid "The server could not verify the recording duration. Please record it again and try uploading."
 msgstr ""
 
-#: includes/class-Emsfb-public.php:4912
+#: includes/class-Emsfb-public.php:4926
 msgid "The server could not verify the recording format. Please contact the site administrator."
 msgstr ""
 
@@ -8678,11 +8685,11 @@ msgstr ""
 msgid "The text box of the last choice of “%s” is now a separate text field right after it."
 msgstr ""
 
-#: includes/class-Emsfb-public.php:5107 includes/class-Emsfb-public.php:5112
+#: includes/class-Emsfb-public.php:5121 includes/class-Emsfb-public.php:5126
 msgid "The upload field could not be verified. Please refresh the form and try again."
 msgstr ""
 
-#: includes/class-Emsfb-public.php:5096
+#: includes/class-Emsfb-public.php:5110
 msgid "The upload request could not be verified. Please try again."
 msgstr ""
 
@@ -8706,7 +8713,7 @@ msgstr ""
 msgid "The uploaded file is not in the correct file format."
 msgstr ""
 
-#: includes/class-email-handler.php:1036
+#: includes/class-email-handler.php:1045
 msgid "The user has been sent a verification email to confirm their account."
 msgstr ""
 
@@ -8760,7 +8767,7 @@ msgstr ""
 msgid "The “[%s]” tag comes from another plugin and was not carried over."
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:3540
+#: includes/class-Emsfb-formbuilder.php:3555
 msgid "Theme"
 msgstr ""
 
@@ -8790,7 +8797,7 @@ msgstr ""
 msgid "There was an error loading Maps."
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:3552
+#: includes/class-Emsfb-formbuilder.php:3567
 msgid "These errors may interfere with forms built using Easy Form Builder."
 msgstr ""
 
@@ -8844,12 +8851,12 @@ msgstr ""
 msgid "This code has already been claimed"
 msgstr ""
 
-#: includes/class-email-handler.php:1314 includes/class-Emsfb.php:1984
+#: includes/class-email-handler.php:1323 includes/class-Emsfb.php:1984
 #: includes/functions.php:3345
 msgid "This email was sent automatically. Please do not reply directly."
 msgstr ""
 
-#: includes/class-email-handler.php:418 includes/class-email-handler.php:1315
+#: includes/class-email-handler.php:418 includes/class-email-handler.php:1324
 msgid "This email was sent automatically. Please do not reply."
 msgstr ""
 
@@ -8894,7 +8901,7 @@ msgstr ""
 msgid "This form is temporarily unavailable."
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:2363
+#: includes/class-Emsfb-formbuilder.php:2366
 msgid "This form requires a payment method. Please add one or change the form type."
 msgstr ""
 
@@ -8934,7 +8941,7 @@ msgstr ""
 msgid "This is a warning for WPBakery users. For more information, please click here."
 msgstr ""
 
-#: includes/class-email-handler.php:2092
+#: includes/class-email-handler.php:2101
 msgid "This is an alert message regarding a SID validation error. This issue may have occurred due to a plugin conflict or an unauthorized attempt to access the website."
 msgstr ""
 
@@ -8971,7 +8978,7 @@ msgstr ""
 msgid "This option is only available in the Pro version."
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:3553
+#: includes/class-Emsfb-formbuilder.php:3568
 msgid "This panel is only visible to site administrators."
 msgstr ""
 
@@ -8979,7 +8986,7 @@ msgstr ""
 msgid "This recording format is not allowed."
 msgstr ""
 
-#: includes/class-Emsfb-public.php:4899
+#: includes/class-Emsfb-public.php:4913
 msgid "This recording format is not supported. Please record it again."
 msgstr ""
 
@@ -9108,7 +9115,7 @@ msgstr ""
 msgid "Token refresh requires a same-origin request."
 msgstr ""
 
-#: includes/class-Emsfb-public.php:4319
+#: includes/class-Emsfb-public.php:4333
 msgid "Too many attempts. Please wait a few minutes and try again."
 msgstr ""
 
@@ -9229,7 +9236,7 @@ msgstr ""
 msgid "Unique Number (date-based)"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4584
+#: includes/class-Emsfb-formbuilder.php:4599
 msgid "Unique Submission Confirmation and Tracking Codes"
 msgstr ""
 
@@ -9239,7 +9246,7 @@ msgstr ""
 msgid "Unique code verified"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:3543
+#: includes/class-Emsfb-formbuilder.php:3558
 msgid "Unknown"
 msgstr ""
 
@@ -9264,7 +9271,7 @@ msgstr ""
 msgid "Unknown style template."
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4540
+#: includes/class-Emsfb-formbuilder.php:4555
 msgid "Unlimited Forms and Form Entries"
 msgstr ""
 
@@ -9319,7 +9326,7 @@ msgstr ""
 #. translators: Upgrade to Pro = button text for upgrading
 #: includes/class-Emsfb-email-monitor.php:2060 includes/functions.php:1414
 #: includes/functions.php:1754 includes/functions.php:1926
-#: includes/functions.php:8181
+#: includes/functions.php:8189
 msgid "Upgrade to Pro"
 msgstr ""
 
@@ -9381,7 +9388,7 @@ msgstr ""
 msgid "Use {{field_id}} placeholders for dynamic values from form fields"
 msgstr ""
 
-#: includes/class-email-handler.php:590 includes/class-email-handler.php:1022
+#: includes/class-email-handler.php:599 includes/class-email-handler.php:1031
 #: includes/functions.php:2201
 msgid "Username"
 msgstr ""
@@ -9409,7 +9416,7 @@ msgstr ""
 msgid "Vegetarian"
 msgstr ""
 
-#: includes/class-email-handler.php:943
+#: includes/class-email-handler.php:952
 msgid "Verify Email"
 msgstr ""
 
@@ -9427,11 +9434,11 @@ msgstr ""
 msgid "Video Recorder"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4550
+#: includes/class-Emsfb-formbuilder.php:4565
 msgid "Video Recording Forms"
 msgstr ""
 
-#: includes/class-Emsfb-public.php:7426
+#: includes/class-Emsfb-public.php:7452
 msgid "Video recording"
 msgstr ""
 
@@ -9482,7 +9489,7 @@ msgstr ""
 msgid "WP-Cron"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4673
+#: includes/class-Emsfb-formbuilder.php:4688
 msgid "WPBakery form plugin"
 msgstr ""
 
@@ -9525,7 +9532,7 @@ msgstr ""
 msgid "Want to use this feature? It is included in Free Plus and Pro plans."
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:3555
+#: includes/class-Emsfb-formbuilder.php:3570
 msgid "Warning"
 msgstr ""
 
@@ -9619,7 +9626,7 @@ msgid_plural "We found %s Contact Form 7 forms on this site. Copy them into Easy
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/class-Emsfb-public.php:6531 includes/class-Emsfb-public.php:7224
+#: includes/class-Emsfb-public.php:6545 includes/class-Emsfb-public.php:7238
 #: includes/functions.php:6761
 msgid "We have made some updates. Please wait a few minutes before trying again."
 msgstr ""
@@ -9687,7 +9694,7 @@ msgstr ""
 msgid "Welcome"
 msgstr ""
 
-#: includes/class-email-handler.php:561
+#: includes/class-email-handler.php:570
 msgid "Welcome!"
 msgstr ""
 
@@ -9779,7 +9786,7 @@ msgstr ""
 msgid "WhiteStudio dashboard"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4462
+#: includes/class-Emsfb-formbuilder.php:4477
 msgid "WhiteStudio.team"
 msgstr ""
 
@@ -9812,23 +9819,23 @@ msgstr ""
 msgid "WordPress"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4526
+#: includes/class-Emsfb-formbuilder.php:4541
 msgid "WordPress 5.0 or later; PHP 7.0 or later"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:3541
+#: includes/class-Emsfb-formbuilder.php:3556
 msgid "WordPress Core"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4522
+#: includes/class-Emsfb-formbuilder.php:4537
 msgid "WordPress Form Builder Plugin"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4580
+#: includes/class-Emsfb-formbuilder.php:4595
 msgid "WordPress Form Entry and Message Management Dashboard"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4547
+#: includes/class-Emsfb-formbuilder.php:4562
 msgid "WordPress Login and Registration Forms"
 msgstr ""
 
@@ -9846,7 +9853,7 @@ msgstr ""
 msgid "WordPress accepted and sent the test email. Waiting for it to arrive."
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4636
+#: includes/class-Emsfb-formbuilder.php:4651
 msgid "WordPress audio recorder form"
 msgstr ""
 
@@ -9860,7 +9867,7 @@ msgstr ""
 msgid "WordPress cannot write to the folder %s"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4613
+#: includes/class-Emsfb-formbuilder.php:4628
 msgid "WordPress contact form"
 msgstr ""
 
@@ -9884,43 +9891,43 @@ msgstr ""
 msgid "WordPress could not send your email"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4646
+#: includes/class-Emsfb-formbuilder.php:4661
 msgid "WordPress email notifications"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4643
+#: includes/class-Emsfb-formbuilder.php:4658
 msgid "WordPress event registration form"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4607
+#: includes/class-Emsfb-formbuilder.php:4622
 msgid "WordPress form builder"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4651
+#: includes/class-Emsfb-formbuilder.php:4666
 msgid "WordPress form entries"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4653
+#: includes/class-Emsfb-formbuilder.php:4668
 msgid "WordPress form message management"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4609
+#: includes/class-Emsfb-formbuilder.php:4624
 msgid "WordPress form plugin"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4666
+#: includes/class-Emsfb-formbuilder.php:4681
 msgid "WordPress form rate limiting"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4663
+#: includes/class-Emsfb-formbuilder.php:4678
 msgid "WordPress form spam protection"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4658
+#: includes/class-Emsfb-formbuilder.php:4673
 msgid "WordPress forms API integration"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4668
+#: includes/class-Emsfb-formbuilder.php:4683
 msgid "WordPress forms stored locally"
 msgstr ""
 
@@ -9929,11 +9936,11 @@ msgstr ""
 msgid "WordPress hands a real message to your mail server. A tick here means WordPress sent it, not yet that it arrived."
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4641
+#: includes/class-Emsfb-formbuilder.php:4656
 msgid "WordPress job application form"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4626
+#: includes/class-Emsfb-formbuilder.php:4641
 msgid "WordPress login form"
 msgstr ""
 
@@ -9945,15 +9952,15 @@ msgstr ""
 msgid "WordPress on this site is set to block outgoing connections (WP_HTTP_BLOCK_EXTERNAL)"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4619
+#: includes/class-Emsfb-formbuilder.php:4634
 msgid "WordPress payment forms"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4616
+#: includes/class-Emsfb-formbuilder.php:4631
 msgid "WordPress poll plugin"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4625
+#: includes/class-Emsfb-formbuilder.php:4640
 msgid "WordPress registration form"
 msgstr ""
 
@@ -9961,7 +9968,7 @@ msgstr ""
 msgid "WordPress returned an error while sending. See the message below."
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4638
+#: includes/class-Emsfb-formbuilder.php:4653
 msgid "WordPress screen recorder form"
 msgstr ""
 
@@ -10006,11 +10013,11 @@ msgstr ""
 msgid "WordPress sent your email, but it never arrived"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4615
+#: includes/class-Emsfb-formbuilder.php:4630
 msgid "WordPress survey plugin"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4637
+#: includes/class-Emsfb-formbuilder.php:4652
 msgid "WordPress video recorder form"
 msgstr ""
 
@@ -10058,7 +10065,7 @@ msgstr ""
 msgid "XXXLarge"
 msgstr ""
 
-#: includes/class-Emsfb-public.php:3796
+#: includes/class-Emsfb-public.php:3810
 msgid "Y/m/d \\a\\t g:ia"
 msgstr ""
 
@@ -10099,7 +10106,7 @@ msgstr ""
 msgid "You are not allowed to do that."
 msgstr ""
 
-#: includes/class-Emsfb-public.php:8037
+#: includes/class-Emsfb-public.php:8063
 msgid "You are not allowed to do this."
 msgstr ""
 
@@ -10213,7 +10220,7 @@ msgstr ""
 msgid "You have not added any fields."
 msgstr ""
 
-#: includes/class-email-handler.php:917
+#: includes/class-email-handler.php:926
 msgid "You have requested to reset your password."
 msgstr ""
 
@@ -10252,12 +10259,12 @@ msgstr ""
 msgid "Your Easy Form Builder Pro subscription has expired, so this add-on cannot be downloaded."
 msgstr ""
 
-#: includes/functions.php:8209
+#: includes/functions.php:8217
 #, php-format
 msgid "Your Easy Form Builder Pro subscription has expired. To continue enjoying all Pro features and keep your forms running, %1$sRenew your subscription now.%2$s"
 msgstr ""
 
-#: includes/functions.php:8167
+#: includes/functions.php:8175
 #, php-format
 msgid "Your Easy Form Builder Pro subscription has expired. To continue using the %s add-on and all Pro features, please renew your subscription."
 msgstr ""
@@ -10287,7 +10294,7 @@ msgstr ""
 msgid "Your account has been successfully activated. You can now log in and get started!"
 msgstr ""
 
-#: includes/class-email-handler.php:983
+#: includes/class-email-handler.php:992
 msgid "Your account has been successfully created!"
 msgstr ""
 
@@ -10299,7 +10306,7 @@ msgstr ""
 msgid "Your activation code has been verified. Enjoy all Pro features of Easy Form Builder."
 msgstr ""
 
-#: includes/functions.php:8165 includes/functions.php:8213
+#: includes/functions.php:8173 includes/functions.php:8221
 msgid "Your activation code has expired!"
 msgstr ""
 
@@ -10497,7 +10504,7 @@ msgstr ""
 msgid "Your login status changed. Reopen the form before continuing."
 msgstr ""
 
-#: includes/class-email-handler.php:846
+#: includes/class-email-handler.php:855
 msgid "Your message has been received and recorded successfully."
 msgstr ""
 
@@ -10509,7 +10516,7 @@ msgstr ""
 msgid "Your message is in"
 msgstr ""
 
-#: includes/class-Emsfb-public.php:3747
+#: includes/class-Emsfb-public.php:3761
 msgid "Your payment has not been completed. Please pay before sending the form."
 msgstr ""
 
@@ -10574,7 +10581,7 @@ msgstr ""
 msgid "Your server has no SMTP host or sendmail path set. Emails may not be delivered."
 msgstr ""
 
-#: includes/class-email-handler.php:645
+#: includes/class-email-handler.php:654
 msgid "Your server has successfully sent this test email. The email delivery system is properly configured and functioning."
 msgstr ""
 
@@ -10795,15 +10802,15 @@ msgstr ""
 msgid "columns"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4647
+#: includes/class-Emsfb-formbuilder.php:4662
 msgid "conditional email notifications"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4628
+#: includes/class-Emsfb-formbuilder.php:4643
 msgid "conditional logic forms"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4612
+#: includes/class-Emsfb-formbuilder.php:4627
 msgid "contact form plugin"
 msgstr ""
 
@@ -10820,11 +10827,11 @@ msgstr ""
 msgid "disabled in php.ini: %s"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4610
+#: includes/class-Emsfb-formbuilder.php:4625
 msgid "drag and drop form builder"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4633
+#: includes/class-Emsfb-formbuilder.php:4648
 msgid "e-signature form plugin"
 msgstr ""
 
@@ -10842,23 +10849,23 @@ msgstr ""
 msgid "e.g., Customer Lookup API"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4632
+#: includes/class-Emsfb-formbuilder.php:4647
 msgid "electronic signature forms"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4645
+#: includes/class-Emsfb-formbuilder.php:4660
 msgid "email notification forms"
 msgstr ""
 
-#: includes/class-Emsfb-public.php:6515 includes/class-Emsfb-public.php:6564
-#: includes/class-Emsfb-public.php:7235 includes/class-Emsfb-public.php:8702
+#: includes/class-Emsfb-public.php:6529 includes/class-Emsfb-public.php:6578
+#: includes/class-Emsfb-public.php:7249 includes/class-Emsfb-public.php:8728
 #: vendor/paypal/class-Emsfb-paypal-handler.php:303
 #: vendor/paypal/class-Emsfb-paypal-handler.php:325
 #: vendor/persiapay/zarinpal.php:188 vendor/persiapay/zarinpal.php:238
 msgid "error"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4642
+#: includes/class-Emsfb-formbuilder.php:4657
 msgid "event registration forms"
 msgstr ""
 
@@ -10876,31 +10883,31 @@ msgstr[1] ""
 msgid "file changes are switched off on this site (DISALLOW_FILE_MODS)"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4631
+#: includes/class-Emsfb-formbuilder.php:4646
 msgid "file upload form plugin"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4659
+#: includes/class-Emsfb-formbuilder.php:4674
 msgid "form autofill API"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4648
+#: includes/class-Emsfb-formbuilder.php:4663
 msgid "form email deliverability"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4652
+#: includes/class-Emsfb-formbuilder.php:4667
 msgid "form submission management"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4655
+#: includes/class-Emsfb-formbuilder.php:4670
 msgid "form submissions CSV export"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4654
+#: includes/class-Emsfb-formbuilder.php:4669
 msgid "form submissions PDF export"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4608
+#: includes/class-Emsfb-formbuilder.php:4623
 msgid "free WordPress form plugin"
 msgstr ""
 
@@ -10910,7 +10917,7 @@ msgstr ""
 msgid "grade %s"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4665
+#: includes/class-Emsfb-formbuilder.php:4680
 msgid "honeypot spam protection WordPress"
 msgstr ""
 
@@ -10926,23 +10933,23 @@ msgstr ""
 msgid "installation"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:3556
+#: includes/class-Emsfb-formbuilder.php:3571
 msgid "jQuery Dependency Issue"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:3557
+#: includes/class-Emsfb-formbuilder.php:3572
 msgid "jQuery is not properly loaded or available. AJAX and interactive form features may not work correctly."
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4640
+#: includes/class-Emsfb-formbuilder.php:4655
 msgid "job application forms"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4634
+#: includes/class-Emsfb-formbuilder.php:4649
 msgid "location picker form"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4627
+#: includes/class-Emsfb-formbuilder.php:4642
 msgid "multi-step form plugin"
 msgstr ""
 
@@ -10955,7 +10962,7 @@ msgstr ""
 msgid "not provided by PHP or its required extension: %s"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4660
+#: includes/class-Emsfb-formbuilder.php:4675
 msgid "offline WordPress forms"
 msgstr ""
 
@@ -10980,11 +10987,11 @@ msgstr ""
 msgid "out of 100"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4618
+#: includes/class-Emsfb-formbuilder.php:4633
 msgid "payment form plugin"
 msgstr ""
 
-#: includes/class-Emsfb-public.php:7235 vendor/persiapay/zarinpal.php:188
+#: includes/class-Emsfb-public.php:7249 vendor/persiapay/zarinpal.php:188
 msgid "persiaPayment"
 msgstr ""
 
@@ -11011,7 +11018,7 @@ msgstr ""
 msgid "reCAPTCHA v2"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4623
+#: includes/class-Emsfb-formbuilder.php:4638
 msgid "recurring payment forms"
 msgstr ""
 
@@ -11037,7 +11044,7 @@ msgstr ""
 msgid "revisions are off for it or you cannot edit it, so it was left as it is"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4662
+#: includes/class-Emsfb-formbuilder.php:4677
 msgid "secure WordPress forms"
 msgstr ""
 
@@ -11046,7 +11053,7 @@ msgstr ""
 msgid "selected"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4667
+#: includes/class-Emsfb-formbuilder.php:4682
 msgid "self-hosted WordPress forms"
 msgstr ""
 
@@ -11059,15 +11066,15 @@ msgstr ""
 msgid "silentCAPTCHA Spam Protection"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4629
+#: includes/class-Emsfb-formbuilder.php:4644
 msgid "smart forms WordPress"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4622
+#: includes/class-Emsfb-formbuilder.php:4637
 msgid "subscription payment forms"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:4614
+#: includes/class-Emsfb-formbuilder.php:4629
 msgid "survey form plugin"
 msgstr ""
 

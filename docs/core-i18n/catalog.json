@@ -5,7 +5,7 @@
     "updated": "2026-11-03",
     "counts": {
         "active": 2430,
-        "obsolete": 306
+        "obsolete": 307
     },
     "entries": [
         {
@@ -29591,6 +29591,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
+        },
+        {
+            "msgid": "Test emails may land in your spam folder. If emails are not delivered, this is usually related to your hosting or email server settings. %1$sLearn how to fix email delivery issues%2$s or %3$scontact Easy Form Builder support%4$s.",
+            "context": null,
+            "plural": null,
+            "translators": "%1$s, %2$s, %3$s, %4$s are opening and closing link tags for help resources",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },

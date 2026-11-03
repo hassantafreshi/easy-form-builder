@@ -2784,7 +2784,7 @@ class efbFunction {
 			"rspcon" => $state  &&  isset($ac->text->rspcon) ? $ac->text->rspcon : esc_html__('Responses & Confirmation','easy-form-builder'),
 
 			/* translators: %1$s, %2$s, %3$s, %4$s are opening and closing link tags for help resources */
-			"mlntip" => $state  &&  isset($ac->text->mlntip) ? $ac->text->mlntip : esc_html__('Test emails may land in your spam folder. If emails are not delivered, this is usually related to your hosting or email server configuration.server settings %1$sLearn how to fix email delivery issues%2$s or %3$scontact Easy Form Builder support%4$s.','easy-form-builder'),
+			"mlntip" => $state  &&  isset($ac->text->mlntip) ? $ac->text->mlntip : esc_html__('Test emails may land in your spam folder. If emails are not delivered, this is usually related to your hosting or email server settings. %1$sLearn how to fix email delivery issues%2$s or %3$scontact Easy Form Builder support%4$s.','easy-form-builder'),
 			"from" => $state  &&  isset($ac->text->from) ? $ac->text->from : esc_html__('From Address','easy-form-builder'),
 			"msgfml" => $state  &&  isset($ac->text->msgfml) ? $ac->text->msgfml : esc_html__('Make sure this email address matches the one configured in your SMTP settings to prevent email delivery issues.','easy-form-builder'),
 			"prsm" => $state  &&  isset($ac->text->prsm) ? $ac->text->prsm : esc_html__('To preview the form, you need to save the built form and try again.','easy-form-builder'),
