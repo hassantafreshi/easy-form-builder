@@ -477,8 +477,17 @@ class EmsfbEmailHandler {
             : $lang['newMessage'];
         $message = is_string($m) ? "<h3>$m</h3>" : "<h3>{$m[0]}</h3>";
         $blogName = get_bloginfo('name');
-        $user = function_exists("get_user_by") ? get_user_by('id', 1) : false;
-        $adminEmail = $user ? $user->user_email : '';
+        // shortcode_admin_email: the site's Administration Email Address
+        // (Settings > General); user #1 only when that option is empty, since
+        // user #1 is often the developer who installed the site, or gone.
+        $adminEmail = function_exists('get_option') ? trim((string) get_option('admin_email', '')) : '';
+        if ($adminEmail !== '' && function_exists('is_email') && !is_email($adminEmail)) {
+            $adminEmail = '';
+        }
+        if ($adminEmail === '' && function_exists('get_user_by')) {
+            $user = get_user_by('id', 1);
+            $adminEmail = $user ? $user->user_email : '';
+        }
         $blogURL = home_url();
 
         $track_id = '';

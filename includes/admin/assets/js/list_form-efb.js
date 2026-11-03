@@ -1680,7 +1680,7 @@ function fun_show_setting__emsFormBuilder() {
                                     </button>
                                     <label class="efb form-check-label fs-6 efb mx-2 my-3" for="weeklyEmailReport_emsFormBuilder">${efb_var.text.weeklyEmailReport}</label>
                                     <p class="efb text-muted fs-7 ${mxCSize4} mb-0">${efb_var.text.weeklyEmailLastCheck.replace('%s', weeklyEmailStatus)}</p>
-                                    <p class="efb mb-1 ${mxCSize4} mt-2">${efb_var.text.emailStatsReportDesc}</p>
+                                    <p class="efb mb-1 ${mxCSize4} mt-2">${efb_var.text.weeklyEmailReportDesc}</p>
                                 </div>
                                 <div class="efb card-body mx-0 py-0 ${mxCSize4} mt-2">
                                     <button type="button" id="emailStatsReport_emsFormBuilder" data-state="off" data-name="disabled"
@@ -1690,7 +1690,7 @@ function fun_show_setting__emsFormBuilder() {
                                         <div class="efb handle"></div>
                                     </button>
                                     <label class="efb form-check-label fs-6 efb mx-2 my-3" for="emailStatsReport_emsFormBuilder">${efb_var.text.emailStatsReport}</label>
-                                    <p class="efb mb-1 mt-2 ${mxCSize4}">${efb_var.text.weeklyEmailReportDesc}</p>
+                                    <p class="efb mb-1 mt-2 ${mxCSize4}">${efb_var.text.emailStatsReportDesc}</p>
                                 </div>
                                 <!--End Email-->
                             </div>

@@ -144,7 +144,7 @@ Shortcodes are where real data (the form's message, the title, the site name…)
 | `shortcode_title` | No | The email's title (e.g. "New Message", or "Welcome!" for a registration email) |
 | `shortcode_website_name` | No | Your site's name |
 | `shortcode_website_url` | No | Your site's home page URL |
-| `shortcode_admin_email` | No | The email address of the site's main admin user (user ID 1) |
+| `shortcode_admin_email` | No | The site's Administration Email Address (Settings > General); the first user's address only if that setting is empty |
 
 When you insert a shortcode into a text field, it appears as a non-editable **chip**, not raw text — so typing around it can't accidentally delete or alter a letter in the middle of `shortcode_message` and silently break it.
 

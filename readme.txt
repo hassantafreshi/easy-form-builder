@@ -287,6 +287,10 @@ Form Builder has tried to add necessary standards to the forms, making them acce
  = Is my form data sent to external services? =
 No. All form submissions and messages are stored locally on your WordPress website. Easy Form Builder does not send form data to external servers by default.
 
+= Can I move my forms from Contact Form 7? =
+
+Yes. If Contact Form 7 is installed, the Create and Panel screens show "Import from Contact Form 7". Choose the forms and each one becomes a new Easy Form Builder form with its fields, choices, notification addresses and messages. A report lists anything that could not be carried over (for example quiz questions or hidden fields) and what to do instead. Your Contact Form 7 forms stay as they are, and you can let the new form replace the old one on your pages.
+
 = Is coding knowledge required to build forms? =
 No. All forms can be created visually without writing code.
 
@@ -503,6 +507,8 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 
 * New: Stripe and PayPal payments are included in Free Plus.
 
+* New: Import from Contact Form 7. The Create and Panel screens offer to copy your Contact Form 7 forms into Easy Form Builder in one click: fields, choices, required fields, notification addresses, the visitor confirmation email and the message after sending. A report for each form says what was carried over and what could not be, and why. Your Contact Form 7 forms are not changed or deleted. Optionally the new form replaces the old one on your pages; each page is saved as a revision first, so the change can be undone. The importer loads only on these screens.
+
 * Improved: Only Persian sites check the Iran CDN; other sites no longer contact it.
 
 * Fixed: Email addresses typed with Persian or Arabic digits, invisible direction marks, a fullwidth "@" or a Persian decimal separator were rejected as not valid (in forms, registration, login and password recovery).
@@ -520,6 +526,10 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 * Fixed: Where Google Fonts, jsDelivr or gstatic.com hang instead of failing (common on some networks, for example in Iran), Easy Form Builder admin screens stayed blank or on "Please wait". These files no longer hold up the page.
 
 * Fixed: The heading field's font size control was labelled "Height".
+
+* Fixed: The admin email shortcode in email templates (shortcode_admin_email, shown in the default footer) now uses the site's Administration Email Address from Settings > General instead of the first user's address.
+
+* Fixed: In Email Settings, the descriptions under the two weekly report switches were swapped.
 
 * New: Pages that show a form in their content, and the tracking and payment views, are kept out of page caches (LiteSpeed, WP Rocket, W3 Total Cache, WP Super Cache, WP Fastest Cache, WP-Optimize, Cache Enabler, SiteGround, Cloudflare and others). Pages with a form only in a sidebar, footer or widget stay cached. Developers can adjust this with the `emsfb_cache_bypass` filter.
 

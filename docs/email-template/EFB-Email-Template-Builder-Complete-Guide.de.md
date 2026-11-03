@@ -144,7 +144,7 @@ Shortcodes sind die Stellen, an denen echte Daten (die Nachricht des Formulars, 
 | `shortcode_title` | Nein | Der Titel der E-Mail (z. B. „Neue Nachricht" oder „Willkommen!" bei einer Registrierungs-E-Mail) |
 | `shortcode_website_name` | Nein | Der Name deiner Website |
 | `shortcode_website_url` | Nein | Die URL der Startseite deiner Website |
-| `shortcode_admin_email` | Nein | Die E-Mail-Adresse des Haupt-Administrators der Website (Benutzer-ID 1) |
+| `shortcode_admin_email` | Nein | Die Administrator-E-Mail-Adresse der Website (Einstellungen > Allgemein); nur wenn sie leer ist, die Adresse des ersten Benutzers |
 
 Fügst du einen Shortcode in ein Textfeld ein, erscheint er als nicht bearbeitbarer **Chip**, nicht als Rohtext — so kann ein Tippfehler in der Nähe nicht versehentlich einen Buchstaben mitten in `shortcode_message` löschen oder verändern und ihn stillschweigend kaputt machen.
 
