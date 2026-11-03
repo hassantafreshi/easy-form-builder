@@ -253,6 +253,28 @@ t( 'a locked card no longer offers the word Install',
 t( 'the old special case is gone',
 	strpos( $js, "i.name === 'AdnSMF' && [1, 3].includes(packageType)" ) === false );
 
+/* ------------------------------------------------ the add-on admin pages agree */
+
+echo "\n=== an installed add-on's own admin page follows the same tier ===\n";
+$efb_gate_fn = $fn;
+$saved_plan  = get_option( 'emsfb_pro', null );
+$gate_shows  = function ( $plan, $name ) use ( $efb_gate_fn ) {
+	update_option( 'emsfb_pro', $plan );
+	ob_start();
+	$blocked = $efb_gate_fn->render_pro_gate_efb( $name );
+	ob_get_clean();
+	return (bool) $blocked;
+};
+try {
+	t( 'Free Plus: the Stripe Payments page opens', ! $gate_shows( 3, 'Stripe' ) );
+	t( 'Free Plus: the PayPal Payments page opens', ! $gate_shows( 3, 'PayPal' ) );
+	t( 'Free Plus: Telegram still asks for Pro', $gate_shows( 3, 'Telegram' ) );
+	t( 'Free: the Stripe Payments page asks for an upgrade', $gate_shows( 2, 'Stripe' ) );
+	t( 'Pro: the Stripe Payments page opens', ! $gate_shows( 1, 'Stripe' ) );
+} finally {
+	if ( null === $saved_plan ) { delete_option( 'emsfb_pro' ); } else { update_option( 'emsfb_pro', $saved_plan ); }
+}
+
 echo "\n========================================\n";
 echo "RESULTS: {$pass} passed, {$fail} failed\n";
 echo "========================================\n";

@@ -8155,6 +8155,14 @@ public function addon_add_efb($value) {
 			return false;
 		}
 
+		// Since 4.3.1 Stripe and PayPal belong to Free Plus too: their admin
+		// pages follow the same tier the Add-ons page installs them on.
+		$tier_keys = array( 'Stripe' => 'AdnSPF', 'PayPal' => 'AdnPAP' );
+		if ( $pro_status === 3 && isset( $tier_keys[ $addon_name ] )
+			&& 3 === $this->addon_required_package_efb( $tier_keys[ $addon_name ] ) ) {
+			return false;
+		}
+
 		$is_expired = ( $pro_status === 0 );
 
 		$buy_url    = EMSFB_SERVER_URL . '/checkout';

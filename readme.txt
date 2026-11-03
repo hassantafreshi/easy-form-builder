@@ -531,6 +531,10 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 
 * Fixed: In Email Settings, the descriptions under the two weekly report switches were swapped.
 
+* Fixed: A form holding a field the site's plan does not include (for example a signature after moving from Pro to Free) showed the plan notice but pushed the following fields and the Submit button outside the form. The rest of the form now works.
+
+* Fixed: An entry with malformed data could stop the owner's notification email with a server error.
+
 * New: Pages that show a form in their content, and the tracking and payment views, are kept out of page caches (LiteSpeed, WP Rocket, W3 Total Cache, WP Super Cache, WP Fastest Cache, WP-Optimize, Cache Enabler, SiteGround, Cloudflare and others). Pages with a form only in a sidebar, footer or widget stay cached. Developers can adjust this with the `emsfb_cache_bypass` filter.
 
 * New: Form scripts are excluded from script optimizers (Cloudflare Rocket Loader, delay/defer JavaScript options) and wait for jQuery when it loads late.

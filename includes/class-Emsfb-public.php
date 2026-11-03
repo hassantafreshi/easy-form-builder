@@ -2401,6 +2401,20 @@ public function check_nonce_permission_efb($request) {
 				wp_send_json_error(array('code' => $runtime_proof->get_error_code(), 'm' => $runtime_proof->get_error_message()), 409);
 			}
 			if (!$runtime_proof || (string) $runtime_proof['sid'] !== (string) $session_id || (int) $session_is_valid !== 1) {
+				// A finished submission consumes its session, so a repeat of the same
+				// request (a lost response, a double click) lands here. Answer it with
+				// the saved result, or say the request changed, instead of "expired".
+				if ($runtime_proof && (string) $runtime_proof['sid'] === (string) $session_id
+					&& ($this->operation_data['type'] ?? '') === 'form') {
+					$replay = \Emsfb\Form_Runtime::replay('form', $this->id, $this->operation_data);
+					if (is_wp_error($replay)) {
+						$replay_data = $replay->get_error_data();
+						wp_send_json_error(array('code' => $replay->get_error_code(), 'm' => $replay->get_error_message()), is_array($replay_data) && isset($replay_data['status']) ? (int) $replay_data['status'] : 409);
+					}
+					if ($replay instanceof \WP_REST_Response) {
+						wp_send_json($replay->get_data(), $replay->get_status());
+					}
+				}
 				wp_send_json_error(array('code' => 'efb_context_expired', 'm' => __('The form context expired. Reopen the form before continuing.', 'easy-form-builder')), 409);
 			}
 		} elseif ((int) $session_is_valid !== 1) {
@@ -7357,7 +7371,7 @@ public function check_nonce_permission_efb($request) {
 			$total_amount = 0;
 
 			$lst    = end($content);
-			$link_w = (isset($lst['type']) && $lst['type']==="w_link") ? ($lst['value'] ?? '') : '';
+			$link_w = (is_array($lst) && isset($lst['type']) && $lst['type']==="w_link" && isset($lst['value']) && is_string($lst['value'])) ? $lst['value'] : '';
 			if (strlen($link_w)>5){
 				$link_w = (strpos($link_w,'?')!==false) ? ($link_w.'&track='.$track) : ($link_w.'?track='.$track);
 			} else {
@@ -7376,6 +7390,11 @@ public function check_nonce_permission_efb($request) {
 			});
 
 			$addPair = function($title, $value) use (&$m){
+				// A stored row can carry an array where a label or a value is
+				// expected (a crafted submission); print nothing for it rather
+				// than stopping the notification with a TypeError.
+				$title = is_scalar($title) ? (string) $title : '';
+				$value = is_scalar($value) ? (string) $value : '';
 				$title = $this->efbFunction->ensure_trailing_colon_efb($title);
 				if($title==='' && $value===''){ return; }
 				$m .= '<tr>';
@@ -7390,6 +7409,13 @@ public function check_nonce_permission_efb($request) {
 			};
 
 			foreach ($content as $c){
+
+				if (!is_array($c)) { continue; }
+				foreach (array('type', 'name') as $text_key_efb) {
+					if (isset($c[$text_key_efb]) && !is_string($c[$text_key_efb])) {
+						$c[$text_key_efb] = is_scalar($c[$text_key_efb]) ? (string) $c[$text_key_efb] : '';
+					}
+				}
 
 				if (isset($c['type']) && $c['type']==="w_link"){ continue; }
 

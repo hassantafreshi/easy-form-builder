@@ -10,6 +10,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	   public $pub_bg_button_color_efb='btn-primary';
 	   public $package_type_efb = 0;
     private $mobile_pos = ['', 'col-12', 'col-12', 'col-12'];
+    /** The last plan notice built, so a field drawn as nothing but that notice can be wrapped like its real markup. */
+    private $last_pro_notice_efb = null;
         public function __construct( $valj_efb, $pro_efb ) {
 
             $this->valj_efb =  $valj_efb;
@@ -473,6 +475,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			'<div class="efb text-white fs-6 bg-danger px-1 rounded px-2 py-1">%s</div>',
 			$text
 		);
+		$this->last_pro_notice_efb = $r;
 
 		return $r;
 	}
@@ -2812,9 +2815,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 					$ui = '
 					' . $label . '
 					' . $ttip . '
-					' . ($pro == true ? $this->esign_el_pro_efb(true, $pos, $rndm, $vj, $desc,$form_id,$texts['updateUrbrowser']) : $this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : ''));
+					' . ($pro == true ? $this->esign_el_pro_efb(true, $pos, $rndm, $vj, $desc,$form_id,$texts['updateUrbrowser']) : '<div class="efb ' . $pos[3] . ' ' . $this->mobile_pos[3] . '" id="' . $element_Id . '-f">' . $this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : ''));
+					// Like esign_el_pro_efb(), the notice opens the field's "-f" wrapper,
+					// which the shared closing tag after the switch closes. Without it that
+					// tag closed the form itself and the following fields fell outside it.
+					// The signature pad script exists only where the pad is drawn.
 
-					$ui.= sprintf(
+					if ($pro == true) $ui.= sprintf(
 						"<script>
 							document.addEventListener('DOMContentLoaded', function() {
 								setTimeout(() => {
@@ -3166,6 +3173,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 			$tagId = in_array($elementId, ["firstName", "lastName", "address", "address_line", "postalcode"]) ? 'text' : $elementId;
 			$tagT = in_array($elementId, ["esign", "yesNo", "rating"]) ? '' : 'def';
 			$stepNo = (int)$vj->step - 1;
+			// Field types whose markup opens no inner "-f" wrapper: they get one closing tag below.
+			$single_close_efb = ['option', 'html', 'stripe', 'heading', 'link','conturyList','country','stateProvince','statePro','city','cityList','maps','ttlprc','audio_recorder','video_recorder','screen_recorder'];
+			// Every other type gets two, the first for its "-f" wrapper. On a plan
+			// without the field, its markup is only the plan notice, so that first
+			// tag closed the form container and the following fields fell outside it.
+			if (!in_array($elementId, $single_close_efb, true) && $this->last_pro_notice_efb !== null && $ui === $this->last_pro_notice_efb) {
+				$ui = '<div class="efb ' . $pos[3] . ' ' . $this->mobile_pos[3] . '" id="' . $element_Id . '-f">' . $ui;
+			}
 			$newElement = sprintf(
 				'<!--startTag %1$s--><div class="efb my-1 mx-0 %1$s %2$s %3$s %4$s ttEfb %5$s %6$s %12$s efbField %7$s" data-step="%8$s" data-amount="%9$s" data-id="%10$s-id" id="%10$s" data-tag="%11$s">',
 				$elementId,
@@ -3186,7 +3201,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				$newElement .= $ui;
 			}
 
-			if (!in_array($elementId, ['option', 'html', 'stripe', 'heading', 'link','conturyList','country','stateProvince','statePro','city','cityList','maps','ttlprc','audio_recorder','video_recorder','screen_recorder'])) {
+			if (!in_array($elementId, $single_close_efb)) {
 				$newElement .= '<!--test2--></div></div>';
 			} else {
 				$newElement .= '<!--test--></div>';
