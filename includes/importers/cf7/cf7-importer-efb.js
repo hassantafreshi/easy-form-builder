@@ -47,6 +47,11 @@
 		});
 	}
 
+	/* A note shown in brackets after a title reads as a fragment: drop a final full stop a translation may add. */
+	function bracketNote(text) {
+		return String(text == null ? '' : text).replace(/\s*[.\u3002\u0964]+\s*$/, '');
+	}
+
 	function post(action, data) {
 		var body = new URLSearchParams();
 		body.append('action', action);
@@ -315,7 +320,7 @@
 
 	function pageLabel(page) {
 		var title = esc(page.title);
-		return page.builder ? title + ' <span class="efb-cf7__muted">(' + esc(fmt(T.builderPage, page.builder)) + ')</span>' : title;
+		return page.builder ? title + ' <span class="efb-cf7__muted">(' + esc(bracketNote(fmt(T.builderPage, page.builder))) + ')</span>' : title;
 	}
 
 	function renderList() {
@@ -486,7 +491,7 @@
 					(p.undo ? ' <span aria-hidden="true">·</span> <a href="' + esc(p.undo) + '" target="_blank" rel="noopener">' + esc(T.undo) + '</a>' : '') +
 				'</li>');
 			} else {
-				pagesNo.push('<li><span>' + esc(p.title) + '</span> <span class="efb-cf7__muted">(' + esc(p.reason) + ')</span></li>');
+				pagesNo.push('<li><span>' + esc(p.title) + '</span> <span class="efb-cf7__muted">(' + esc(bracketNote(p.reason)) + ')</span></li>');
 			}
 		});
 
