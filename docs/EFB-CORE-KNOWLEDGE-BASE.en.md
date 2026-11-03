@@ -202,6 +202,11 @@ Driven by `efb_var.pro` + `efb_var.setting.package_type` inside `vendor/logic/lo
 - **Free Plus** (`package_type === 3`): capped at 3 field rules / 2 notification rules / 2 conditions per group; `confirmation` and `webhook` tabs fully locked; `calculate` action locked; Export/Import and NOT/NAND/NOR toggle locked.
 - **Pro**: everything unlocked.
 
+### 7.5b What each plan includes since 4.3.1 (fields, export, payments)
+- **Free (20 fields):** text, name, password, email, number, textarea, steps, checkbox, radio, select, multiselect, tel, range, date, file, url, plus `trmCheckbox` (terms), `conturyList`, `rating`, `heading` (freed in 4.3.1). Source of truth: `fields_efb[].pro` in `includes/admin/assets/js/val-efb.js` and `emsfb_free_element_types_efb()` in `emsfb.php` (public render in `class-Emsfb-formbuilder.php` and the `pro_els-efb.js` enqueue in `class-Emsfb-public.php`). The builder reads a field's Pro status from today's list (`efb_field_is_pro_efb()` in `admin-efb.js`), not from the `pro` flag saved in old forms.
+- **CSV export of entries:** free on every plan (`generateCSV` in `admin-efb.js`, the list button in `list_form-efb.js`). PDF stays Free Plus.
+- **Payments:** Stripe (`AdnSPF`) and PayPal (`AdnPAP`) are package 3 (Free Plus and Pro) in `addon_required_package_efb()` (functions.php) and its JS mirror `efb_addon_required_package_efb()`; the WhiteStudio server (payEfb `addons_get_link_fun`) serves both to any domain on 4.3.1 or later. Persia Payment and the other add-ons stay Pro.
+
 ### 7.6 Known-open PRD gaps (from the project's own gap-analysis doc, cross-checked against code)
 - **G15** — no separate Form/Pricing/Step logic scope/tab (only Fields/Notifications/Confirmation/Webhook tabs exist today, backed by `getActiveRulesKey()` on `valj_efb[0]`).
 - **G16** — no "option price" as a calculation-formula source (options only have a `value`, not a separate price field) — blocked on a data-model change.
