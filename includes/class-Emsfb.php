@@ -446,6 +446,17 @@ class Emsfb {
                 return;
             }
             new \Emsfb\Dashboard_Widget();
+
+            // Import from Contact Form 7: a self-contained module, loaded only
+            // where it is offered (Panel, Create) and for its own admin-ajax
+            // actions. Optional - the plugin works the same without the folder.
+            if (self::is_cf7_importer_request_efb()) {
+                $cf7_importer = $this->plugin_path . 'includes/importers/cf7/class-Emsfb-cf7-importer.php';
+                if (is_readable($cf7_importer)) {
+                    require_once $cf7_importer;
+                }
+            }
+
             $ac = self::get_setting_Emsfb('decoded');
 
             $payment_exists = isset($ac->AdnPAP) ? (int) $ac->AdnPAP : 0;
@@ -650,6 +661,21 @@ class Emsfb {
      * @param string $relative_path Path relative to the plugin root.
      * @return bool True when the file was loaded.
      */
+    /**
+     * Whether this admin request is one the Contact Form 7 importer serves:
+     * the Panel or Create screen, or one of its efb_cf7_* admin-ajax actions.
+     */
+    private static function is_cf7_importer_request_efb(): bool {
+        // phpcs:disable WordPress.Security.NonceVerification -- routing only; the module verifies its own requests.
+        if (wp_doing_ajax()) {
+            $action = isset($_REQUEST['action']) ? sanitize_key(wp_unslash($_REQUEST['action'])) : '';
+            return 0 === strpos($action, 'efb_cf7_');
+        }
+        $page = isset($_GET['page']) ? sanitize_key(wp_unslash($_GET['page'])) : '';
+        // phpcs:enable
+        return 'emsfb' === $page || 'emsfb_create' === $page;
+    }
+
     private function require_plugin_file_efb(string $relative_path): bool {
         $absolute_path = $this->plugin_path . $relative_path;
 
