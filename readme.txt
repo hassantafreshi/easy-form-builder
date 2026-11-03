@@ -21,7 +21,7 @@ Most "my contact form is not sending email" problems are not caused by the form.
 = Test, monitor, fix =
 
 - **Test:** in Panel > Settings > Email Settings, click "Check Email Server". Easy Form Builder sends a real test message and tells you plainly what happened: "Your email server is healthy", "Delivered, but likely to be filtered as spam", "Delivered, but deliverability is weak", or "No email arrived".
-- **Monitor:** the Easy Form Builder dashboard widget counts sent and failed emails and opens the Email Error Log. The Free Plus version adds a weekly email health report with spam score and SPF, DKIM and DMARC checks.
+- **Monitor:** the Easy Form Builder dashboard widget counts sent and failed emails and opens the Email Error Log. Once a week, Easy Form Builder also runs a delivery test and emails the site admin a health report with the score and SPF, DKIM and DMARC results.
 - **Fix:** when the result is weak, a "What you can do now" box explains that the fix lies with your hosting and domain, not the form, suggests free email sending services, and links to step-by-step guides for SMTP, SPF, DKIM and DMARC.
 - **On by default:** since version 4.3.1, form emails are switched on. The owner's notification includes the submitted answers and its Reply-To is the visitor's address, so you can answer with one click.
 
@@ -31,8 +31,8 @@ Each submission gets a unique confirmation code (tracking ID), shown to the visi
 
 = What is included =
 
-- **Free:** the drag-and-drop builder with 20 form fields (including terms and conditions, country list, star rating and heading), multi-step forms, file uploads, entries stored in your own WordPress database, CSV export, confirmation codes with a public lookup page, the visual email template editor, the email delivery check and the Email Error Log.
-- **Free Plus (also free):** everything in Free plus conditional logic (up to 3 rules per form), advanced fields, PDF download of responses, the weekly email health report, and Stripe and PayPal payments. The only difference from Free is a small "Powered by Easy Form Builder" credit on the page where the form is published.
+- **Free:** the drag-and-drop builder with 20 form fields (including terms and conditions, country list, star rating and heading), multi-step forms, file uploads, entries stored in your own WordPress database, CSV export, confirmation codes with a public lookup page, the visual email template editor, the email delivery check, the weekly email health report and the Email Error Log.
+- **Free Plus (also free):** everything in Free plus conditional logic (up to 3 rules per form), advanced fields, PDF download of responses, and Stripe and PayPal payments. The only difference from Free is a small "Powered by Easy Form Builder" credit on the page where the form is published.
 - **Pro:** everything in Free Plus plus the official add-ons and integrations (such as SMS and Telegram notifications, Google Sheets, Auto-Populate and Security & Spam Protection) and conditional logic without limits. Paid plans come with a 14-day money-back guarantee.
 
 All form data stays on your WordPress site: Easy Form Builder does not send form submissions to third-party servers by default. The admin and the forms are translated into 58 locales, with full right-to-left (RTL) support.
@@ -244,7 +244,7 @@ Many WordPress form plugins only offer these features in a paid plan. In Easy Fo
 - Payment forms with Stripe and PayPal (Free Plus)
 - Advanced fields such as signature, location picker, matrix and table, and more (Free Plus)
 - Downloading responses as PDF (Free Plus)
-- Automated weekly email deliverability test with spam score and SPF/DKIM/DMARC checks (Free Plus)
+- Automated weekly email deliverability test with spam score and SPF/DKIM/DMARC checks (Free)
 
 The Free Plus version is completely free of charge - the only difference is a small "Powered by Easy Form Builder" link and credit, included only in the content of the page where the form is published.
 
@@ -334,12 +334,12 @@ Yes. Easy Form Builder includes a visual conditional logic builder. You can show
 Yes. Conditional logic is available at no cost in the Free Plus version, which includes up to 3 logic rules per form, up to 2 conditions per rule, and up to 2 conditional email notification rules. The Pro version removes these limits and adds nested AND/OR groups, calculations, conditional redirects and thank-you messages, conditional webhooks, and the logic Inspector.
 
 = What does the Free version include? =
-The Free version provides the drag-and-drop builder with 20 form fields (including terms and conditions, country list, star rating and heading), multi-step forms, file uploads, email notifications with the visual template editor, the email delivery check and Email Error Log, confirmation codes with a public lookup page, entry management in your WordPress database, and CSV export.
+The Free version provides the drag-and-drop builder with 20 form fields (including terms and conditions, country list, star rating and heading), multi-step forms, file uploads, email notifications with the visual template editor, the email delivery check, the weekly email health report and Email Error Log, confirmation codes with a public lookup page, entry management in your WordPress database, and CSV export.
 
 This version is suitable for personal websites, blogs, and small business sites.
 
 = What does the Free Plus version include? =
-The Free Plus version extends the Free version by enabling advanced form fields and features available in the form builder. It also unlocks conditional logic at no cost - up to 3 logic rules per form, up to 2 conditions per rule, and up to 2 conditional email notification rules - plus payment forms with Stripe and PayPal and the weekly email deliverability report. CSV export is free in every version.
+The Free Plus version extends the Free version by enabling advanced form fields and features available in the form builder. It also unlocks conditional logic at no cost - up to 3 logic rules per form, up to 2 conditions per rule, and up to 2 conditional email notification rules - plus payment forms with Stripe and PayPal. CSV export and the weekly email deliverability report are included in every version.
 
 This version is suitable for users who need advanced form layouts, smart conditional forms, and surveys without add-on-based extensions. A small "Powered by Easy Form Builder" credit is displayed on the form output.
 
