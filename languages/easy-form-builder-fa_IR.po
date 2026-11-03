@@ -8,7 +8,7 @@ msgstr ""
 "POT-Creation-Date: 2026-11-03 00:00+0000\n"
 "X-Generator: EFB tests/core-i18n/build.php\n"
 "X-Domain: easy-form-builder\n"
-"PO-Revision-Date: 2026-11-03 04:43+0000\n"
+"PO-Revision-Date: 2026-11-03 10:30+0000\n"
 "Last-Translator: WhiteStudio <hi@whitestudio.team>\n"
 "Language-Team: fa_IR\n"
 "Language: fa_IR\n"
@@ -489,7 +489,7 @@ msgid "A little more detail, please - one sentence about what broke is enough."
 msgstr "لطفاً کمی توضیح بیشتر بدهید؛ یک جمله درباره چیزی که درست کار نکرد کافی است."
 
 #  origin: wporg-stable
-#: includes/class-email-handler.php:1013
+#: includes/class-email-handler.php:1022
 msgid "A new user has registered on your website."
 msgstr "یک کاربر جدید در وب‌سایت شما ثبت‌نام کرده است."
 
@@ -1063,17 +1063,17 @@ msgid "Audio Recorder"
 msgstr "ضبط صدا"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4549
+#: includes/class-Emsfb-formbuilder.php:4564
 msgid "Audio Recording Forms"
 msgstr "فرم‌های ضبط صدا"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-public.php:7426
+#: includes/class-Emsfb-public.php:7452
 msgid "Audio recording"
 msgstr "ضبط صدا"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4562
+#: includes/class-Emsfb-formbuilder.php:4577
 msgid "Audio, Video and Screen Recording Fields"
 msgstr "فیلدهای ضبط صدا، ویدئو و صفحه"
 
@@ -1136,7 +1136,7 @@ msgid "Auto-populate from previously submitted forms"
 msgstr "پرکردن خودکار از فرم‌های ارسال‌شده قبلی"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4572
+#: includes/class-Emsfb-formbuilder.php:4587
 msgid "Automatic Email Notifications"
 msgstr "اعلان‌های ایمیلی خودکار"
 
@@ -1385,7 +1385,7 @@ msgid "Built with %1$sEasy Form Builder%2$s by %3$sWhiteStudio.team%4$s"
 msgstr "ساخته‌شده با %1$sفرم‌ساز آسان%2$s توسط %3$sWhiteStudio.team%4$s"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:2297
+#: includes/class-Emsfb-formbuilder.php:2300
 #, php-format
 msgid "Built with %sEasy Form Builder%s by %sWordPress form plugin by whitestudio.team%s"
 msgstr "ساخته‌شده با %sفرم‌ساز آسان%s توسط %sافزونه فرم وردپرس WhiteStudio.team%s"
@@ -1462,12 +1462,12 @@ msgid "By WhiteStudio.team"
 msgstr "توسط WhiteStudio.team"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4599
+#: includes/class-Emsfb-formbuilder.php:4614
 msgid "CAPTCHA-Free Spam Protection with Honeypot and Signed Single-Use Tokens"
 msgstr "محافظت ضد هرزنامه بدون CAPTCHA با هانی‌پات و توکن‌های امضاشده یک‌بارمصرف"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4664
+#: includes/class-Emsfb-formbuilder.php:4679
 msgid "CAPTCHA-free form spam protection"
 msgstr "محافظت ضد هرزنامه فرم بدون CAPTCHA"
 
@@ -1891,7 +1891,7 @@ msgid "Click here to watch a video tutorial."
 msgstr "برای تماشای آموزش ویدئویی، اینجا کلیک کنید."
 
 #  origin: wporg-stable
-#: includes/class-email-handler.php:918
+#: includes/class-email-handler.php:927
 msgid "Click the button below to set a new password. This link will be valid for 24 hours."
 msgstr "برای تنظیم گذرواژه جدید، روی دکمه زیر کلیک کنید. این پیوند تا 24 ساعت معتبر است."
 
@@ -1915,7 +1915,7 @@ msgid "Click to view and choose from Free, Free Plus, or Pro plans."
 msgstr "برای مشاهده و انتخاب از میان پلن‌های رایگان، رایگان پلاس یا ویژه کلیک کنید."
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4597
+#: includes/class-Emsfb-formbuilder.php:4612
 msgid "Client-Side and Server-Side Form Validation"
 msgstr "اعتبارسنجی فرم در سمت کاربر و سمت سرور"
 
@@ -2037,7 +2037,7 @@ msgid "Compare the free plans"
 msgstr "مقایسه پلن‌های رایگان"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4574
+#: includes/class-Emsfb-formbuilder.php:4589
 msgid "Conditional Email Notifications and Recipient Routing"
 msgstr "اعلان‌های ایمیلی شرطی و مسیریابی گیرنده"
 
@@ -2081,7 +2081,7 @@ msgid "Confirmation Code Finder"
 msgstr "جستجوگر کد تأیید"
 
 #  origin: wporg-stable
-#: includes/class-email-handler.php:642
+#: includes/class-email-handler.php:651
 msgid "Congratulations! Email System Working"
 msgstr "تبریک! سیستم ایمیل درست کار می‌کند"
 
@@ -2149,7 +2149,7 @@ msgid "Contact Us Form"
 msgstr "فرم تماس با ما"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4543
+#: includes/class-Emsfb-formbuilder.php:4558
 msgid "Contact and Inquiry Forms"
 msgstr "فرم‌های تماس و درخواست اطلاعات"
 
@@ -2319,7 +2319,7 @@ msgid "Countries Drop-down"
 msgstr "فهرست کشویی کشورها"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4564
+#: includes/class-Emsfb-formbuilder.php:4579
 msgid "Country, State, Province and City Fields"
 msgstr "فیلدهای کشور، ایالت، استان و شهر"
 
@@ -2345,7 +2345,7 @@ msgid "Create Forms"
 msgstr "ایجاد فرم‌ها"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-public.php:8620
+#: includes/class-Emsfb-public.php:8646
 msgid "Create New Password"
 msgstr "ایجاد گذرواژه جدید"
 
@@ -2370,7 +2370,7 @@ msgid "Create a payment form to collect online payments."
 msgstr "یک فرم پرداخت برای دریافت پرداخت‌های آنلاین ایجاد کنید."
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-public.php:8621
+#: includes/class-Emsfb-public.php:8647
 msgid "Create a secure password for your account"
 msgstr "یک گذرواژه امن برای حساب خود ایجاد کنید"
 
@@ -2440,7 +2440,7 @@ msgid "Custom %s Message"
 msgstr "پیام سفارشی %s"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4573
+#: includes/class-Emsfb-formbuilder.php:4588
 msgid "Custom Email Templates with Visual Editor"
 msgstr "قالب‌های سفارشی ایمیل با ویرایشگر دیداری"
 
@@ -2822,19 +2822,19 @@ msgid "Disabling this feature may affect the proper functionality of Easy Form B
 msgstr "غیرفعال‌کردن این قابلیت ممکن است بر عملکرد درست فرم‌ساز آسان اثر بگذارد. اگر قصد استفاده از قابلیت %s را دارید، مطمئن شوید فعال است."
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:3547 includes/functions.php:3438
+#: includes/class-Emsfb-formbuilder.php:3562 includes/functions.php:3438
 msgid "Dismiss"
 msgstr "نادیده گرفتن"
 
 #  origin: wporg-stable
 #. translators: %s: item label
-#: includes/class-Emsfb-formbuilder.php:3550 includes/functions.php:3441
+#: includes/class-Emsfb-formbuilder.php:3565 includes/functions.php:3441
 #, php-format
 msgid "Dismiss %s"
 msgstr "نادیده گرفتن «%s»"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:3548 includes/functions.php:3439
+#: includes/class-Emsfb-formbuilder.php:3563 includes/functions.php:3439
 msgid "Dismiss All"
 msgstr "نادیده گرفتن همه"
 
@@ -2859,7 +2859,7 @@ msgid "Display the form name as a heading above the form."
 msgstr "نام فرم را به‌عنوان یک سربرگ در بالای فرم نمایش دهید."
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4672
+#: includes/class-Emsfb-formbuilder.php:4687
 msgid "Divi form plugin"
 msgstr "افزونه فرم Divi"
 
@@ -2931,7 +2931,7 @@ msgid "Dots"
 msgstr "نقطه‌ها"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-public.php:7429 includes/functions.php:1569
+#: includes/class-Emsfb-public.php:7455 includes/functions.php:1569
 msgid "Download"
 msgstr "دانلود"
 
@@ -2993,12 +2993,12 @@ msgid "Drag blocks here to build your email template"
 msgstr "بلوک‌ها را برای ساخت قالب ایمیل خود به اینجا بکشید"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4561
+#: includes/class-Emsfb-formbuilder.php:4576
 msgid "Drag-and-Drop File Upload Fields"
 msgstr "فیلدهای بارگذاری پرونده با کشیدن و رها کردن"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4539
+#: includes/class-Emsfb-formbuilder.php:4554
 msgid "Drag-and-Drop WordPress Form Builder"
 msgstr "فرم‌ساز وردپرس با کشیدن و رها کردن"
 
@@ -3034,7 +3034,7 @@ msgid "Duplicate"
 msgstr "تکثیر"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4508
+#: includes/class-Emsfb-formbuilder.php:4523
 msgid "EFB"
 msgstr "EFB"
 
@@ -3061,7 +3061,7 @@ msgid "Easy Form Builder"
 msgstr "فرم‌ساز آسان"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4535
+#: includes/class-Emsfb-formbuilder.php:4550
 msgid "Easy Form Builder Documentation"
 msgstr "مستندات فرم ساز آسان"
 
@@ -3076,8 +3076,8 @@ msgid "Easy Form Builder SMS service"
 msgstr "سرویس پیامک فرم‌ساز آسان"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:2318
-#: includes/class-Emsfb-formbuilder.php:4509
+#: includes/class-Emsfb-formbuilder.php:2321
+#: includes/class-Emsfb-formbuilder.php:4524
 msgid "Easy Form Builder WordPress Plugin"
 msgstr "افزونه وردپرس فرم‌ساز آسان"
 
@@ -3124,7 +3124,7 @@ msgid "Easy Form Builder has utilized the colors of the active template. Please 
 msgstr "فرم‌ساز آسان از رنگ‌های قالب فعال استفاده کرده است. برای هماهنگ‌کردن فرم با قالب، برای هر گزینه زیر یک رنگ انتخاب کنید. با انتخاب هر رنگ، همه فیلدهای مرتبط با آن ویژگی نیز به همان رنگ تغییر می‌کنند."
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4512
+#: includes/class-Emsfb-formbuilder.php:4527
 msgid "Easy Form Builder is a free and powerful WordPress form builder plugin for creating contact forms, payment forms, surveys, registration forms, multi-step forms, file upload forms, electronic signature forms, and audio, video, and screen recording forms, with conditional logic, email notifications, integrations, entry management, and advanced spam protection."
 msgstr "فرم ساز آسان یک افزونه رایگان و قدرتمند فرم‌ساز وردپرس برای ساخت فرم تماس، فرم پرداخت، پرسش‌نامه، فرم نام‌نویسی، فرم چندمرحله‌ای، فرم بارگذاری پرونده، فرم امضای الکترونیکی و فرم‌های ضبط صدا، ویدئو و صفحه است و امکاناتی مانند منطق شرطی، اعلان‌های ایمیلی، یکپارچه‌سازی‌ها، مدیریت ورودی‌ها و محافظت پیشرفته در برابر هرزنامه را ارائه می‌کند."
 
@@ -3202,12 +3202,12 @@ msgid "Effects"
 msgstr "اثرات"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4555
+#: includes/class-Emsfb-formbuilder.php:4570
 msgid "Electronic Signature Forms"
 msgstr "فرم‌های امضای الکترونیکی"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4563
+#: includes/class-Emsfb-formbuilder.php:4578
 msgid "Electronic Signature and Location Picker Fields"
 msgstr "فیلدهای امضای الکترونیکی و انتخاب موقعیت مکانی"
 
@@ -3217,7 +3217,7 @@ msgid "Elegant"
 msgstr "شیک"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4671
+#: includes/class-Emsfb-formbuilder.php:4686
 msgid "Elementor form plugin"
 msgstr "افزونه فرم Elementor"
 
@@ -3245,22 +3245,22 @@ msgid "Email Background"
 msgstr "پس‌زمینه ایمیل"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4577
+#: includes/class-Emsfb-formbuilder.php:4592
 msgid "Email Deliverability Reports with Spam Score, SPF, DKIM and DMARC Checks"
 msgstr "گزارش‌های تحویل‌پذیری ایمیل با امتیاز هرزنامه و بررسی SPF، DKIM و DMARC"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4575
+#: includes/class-Emsfb-formbuilder.php:4590
 msgid "Email Delivery Status Checking"
 msgstr "بررسی وضعیت تحویل ایمیل"
 
 #  origin: wporg-stable
-#: includes/class-email-handler.php:654
+#: includes/class-email-handler.php:663
 msgid "Email Delivery Tips"
 msgstr "نکات تحویل ایمیل"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4576
+#: includes/class-Emsfb-formbuilder.php:4591
 msgid "Email Error Logging"
 msgstr "ثبت خطاهای ایمیل"
 
@@ -3695,7 +3695,7 @@ msgid "Enter your email to reset your password"
 msgstr "برای بازنشانی گذرواژه، ایمیل خود را وارد کنید"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-public.php:8630
+#: includes/class-Emsfb-public.php:8656
 msgid "Enter your new password"
 msgstr "گذرواژه جدید خود را وارد کنید"
 
@@ -3705,7 +3705,7 @@ msgid "Error"
 msgstr "خطا"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-public.php:2973 includes/class-Emsfb-public.php:3865
+#: includes/class-Emsfb-public.php:2987 includes/class-Emsfb-public.php:3879
 #: includes/functions.php:2405
 msgid "Error Code"
 msgstr "کد خطا"
@@ -3716,7 +3716,7 @@ msgid "Error Code:V01"
 msgstr "کد خطا: V01"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:3538
+#: includes/class-Emsfb-formbuilder.php:3553
 msgid "Error Monitor"
 msgstr "پایشگر خطا"
 
@@ -3733,8 +3733,8 @@ msgid "Error fetching address"
 msgstr "خطا در دریافت نشانی"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-public.php:5652 includes/class-Emsfb-public.php:8779
-#: includes/class-Emsfb-public.php:8790 includes/class-Emsfb-public.php:8819
+#: includes/class-Emsfb-public.php:5666 includes/class-Emsfb-public.php:8805
+#: includes/class-Emsfb-public.php:8816 includes/class-Emsfb-public.php:8845
 msgid "Error! Please try again later."
 msgstr "خطا! لطفاً بعداً دوباره تلاش کنید."
 
@@ -3785,7 +3785,7 @@ msgid "Event Registration"
 msgstr "ثبت‌نام رویداد"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4558
+#: includes/class-Emsfb-formbuilder.php:4573
 msgid "Event Registration Forms"
 msgstr "فرم‌های ثبت‌نام رویداد"
 
@@ -3830,12 +3830,12 @@ msgid "Export"
 msgstr "برون‌بری"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:3542
+#: includes/class-Emsfb-formbuilder.php:3557
 msgid "External"
 msgstr "خارجی"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4590
+#: includes/class-Emsfb-formbuilder.php:4605
 msgid "External API Auto-Populate and Autofill"
 msgstr "پرکردن خودکار و تکمیل خودکار از API خارجی"
 
@@ -3952,9 +3952,9 @@ msgid "Fields: %s"
 msgstr "فیلدها: %s"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:1407
-#: includes/class-Emsfb-formbuilder.php:1409
-#: includes/class-Emsfb-formbuilder.php:3546
+#: includes/class-Emsfb-formbuilder.php:1410
+#: includes/class-Emsfb-formbuilder.php:1412
+#: includes/class-Emsfb-formbuilder.php:3561
 msgid "File"
 msgstr "پرونده"
 
@@ -3966,7 +3966,7 @@ msgid "File Type"
 msgstr "نوع فایل"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4548
+#: includes/class-Emsfb-formbuilder.php:4563
 msgid "File Upload Forms"
 msgstr "فرم‌های بارگذاری پرونده"
 
@@ -4136,7 +4136,7 @@ msgid "Form Name"
 msgstr "نام فرم"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-public.php:8060
+#: includes/class-Emsfb-public.php:8086
 msgid "Form Preview"
 msgstr "پیش‌نمایش فرم"
 
@@ -4172,7 +4172,7 @@ msgid "Form Settings"
 msgstr "تنظیمات فرم"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4595
+#: includes/class-Emsfb-formbuilder.php:4610
 msgid "Form Submissions Stored in the WordPress Database"
 msgstr "ذخیره ارسال‌های فرم در پایگاه داده وردپرس"
 
@@ -4242,7 +4242,7 @@ msgid "Form submissions and email status are checked separately."
 msgstr "ارسال فرم‌ها و وضعیت ایمیل به‌صورت جدا بررسی می‌شوند."
 
 #  origin: wporg-stable
-#: includes/class-email-handler.php:792
+#: includes/class-email-handler.php:801
 msgid "Form submitted successfully without tracking."
 msgstr "فرم بدون رهگیری با موفقیت ارسال شد."
 
@@ -4333,7 +4333,7 @@ msgid "Free Plus unlocks this too"
 msgstr "Free Plus این قابلیت را نیز باز می‌کند"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:2301
+#: includes/class-Emsfb-formbuilder.php:2304
 msgid "Free WordPress form plugin"
 msgstr "افزونه رایگان فرم وردپرس"
 
@@ -4498,12 +4498,12 @@ msgid "Google Sheets"
 msgstr "گوگل شیت"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4588
+#: includes/class-Emsfb-formbuilder.php:4603
 msgid "Google Sheets Form Submission Sync"
 msgstr "همگام‌سازی ارسال‌های فرم با Google Sheets"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4657
+#: includes/class-Emsfb-formbuilder.php:4672
 msgid "Google Sheets form integration"
 msgstr "یکپارچه‌سازی فرم با Google Sheets"
 
@@ -4525,7 +4525,7 @@ msgid "Google reCAPTCHA is turned on for this form, in place of the Contact Form
 msgstr "Google reCAPTCHA برای این فرم فعال است، به جای کپچای Contact Form 7."
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4598
+#: includes/class-Emsfb-formbuilder.php:4613
 msgid "Google reCAPTCHA v2 Spam Protection"
 msgstr "محافظت ضد هرزنامه با Google reCAPTCHA v2"
 
@@ -4555,13 +4555,13 @@ msgid "Green"
 msgstr "سبز"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4568
+#: includes/class-Emsfb-formbuilder.php:4583
 msgid "Gregorian, Hijri and Jalali Date Pickers"
 msgstr "انتخابگرهای تاریخ میلادی، هجری و جلالی"
 
 #  origin: wporg-stable
 #. translators: Guest = user who is not logged in
-#: includes/class-Emsfb-public.php:6501 includes/functions.php:1560
+#: includes/class-Emsfb-public.php:6515 includes/functions.php:1560
 #: vendor/paypal/class-Emsfb-paypal-handler.php:239
 msgid "Guest"
 msgstr "مهمان"
@@ -4573,12 +4573,12 @@ msgid "Guide, video and AI prompt"
 msgstr "راهنما، ویدئو و پرامپت هوش مصنوعی"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4670
+#: includes/class-Emsfb-formbuilder.php:4685
 msgid "Gutenberg form builder"
 msgstr "فرم‌ساز Gutenberg"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4593
+#: includes/class-Emsfb-formbuilder.php:4608
 msgid "Gutenberg, Elementor, Divi and WPBakery Integration"
 msgstr "یکپارچه‌سازی با Gutenberg، Elementor، Divi و WPBakery"
 
@@ -4672,7 +4672,7 @@ msgid "Here is your weekly snapshot for %s."
 msgstr "این هم خلاصه هفتگی شما برای %s."
 
 #  origin: wporg-stable
-#: includes/class-email-handler.php:912 includes/class-email-handler.php:978
+#: includes/class-email-handler.php:921 includes/class-email-handler.php:987
 msgid "Hi"
 msgstr "سلام"
 
@@ -4881,7 +4881,7 @@ msgid "IP"
 msgstr "آی‌پی"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4602
+#: includes/class-Emsfb-formbuilder.php:4617
 msgid "IP Allowlist and Blocklist Security Controls"
 msgstr "کنترل‌های امنیتی فهرست مجاز و فهرست مسدود IP"
 
@@ -4952,7 +4952,7 @@ msgid "If you are seeing this message, it is likely for one of these reasons: If
 msgstr "اگر این پیام را می‌بینید، احتمالاً یکی از دلایل زیر مطرح است: اگر افزونه کش نصب کرده‌اید، ممکن است تنظیمات آن نیاز به بررسی داشته باشد."
 
 #  origin: wporg-stable
-#: includes/class-email-handler.php:905 includes/class-email-handler.php:971
+#: includes/class-email-handler.php:914 includes/class-email-handler.php:980
 msgid "If you did not request this, you can safely ignore it."
 msgstr "اگر این درخواست را نداده‌اید، می‌توانید با خیال راحت آن را نادیده بگیرید."
 
@@ -4967,7 +4967,7 @@ msgid "If you need to create more than 2 steps, you can activate the pro version
 msgstr "اگر به بیش از ۲ گام نیاز دارید، نسخه ویژه فرم‌ساز آسان را فعال کنید تا بتوانید تعداد نامحدودی گام بسازید."
 
 #  origin: wporg-stable
-#: includes/class-email-handler.php:2093
+#: includes/class-email-handler.php:2102
 msgid "If you receive this email multiple times, it could indicate a recurring issue."
 msgstr "اگر این ایمیل را چند بار دریافت می‌کنید، ممکن است نشان‌دهنده یک مشکل تکرارشونده باشد."
 
@@ -5193,7 +5193,7 @@ msgid "Invalid or expired nonce"
 msgstr "نانس نامعتبر یا منقضی‌شده"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-public.php:9111 includes/class-Emsfb-public.php:9151
+#: includes/class-Emsfb-public.php:9137 includes/class-Emsfb-public.php:9177
 msgid "Invalid payment selection. Please review your choices and try again. If the problem persists, contact the site administrator."
 msgstr "انتخاب پرداخت نامعتبر است. لطفاً گزینه‌های خود را بررسی کرده و دوباره تلاش کنید. اگر مشکل ادامه داشت، با مدیر سایت تماس بگیرید."
 
@@ -5342,7 +5342,7 @@ msgid "Job Application"
 msgstr "درخواست شغلی"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4557
+#: includes/class-Emsfb-formbuilder.php:4572
 msgid "Job Application Forms"
 msgstr "فرم‌های درخواست شغل"
 
@@ -5544,7 +5544,7 @@ msgid "Limousine"
 msgstr "لیموزین"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:3545
+#: includes/class-Emsfb-formbuilder.php:3560
 msgid "Line"
 msgstr "خط"
 
@@ -5637,7 +5637,7 @@ msgid "Location Picker"
 msgstr "انتخاب‌گر موقعیت"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4556
+#: includes/class-Emsfb-formbuilder.php:4571
 msgid "Location Picker Forms with OpenStreetMap and Leaflet"
 msgstr "فرم‌های انتخاب موقعیت مکانی با OpenStreetMap و Leaflet"
 
@@ -5762,7 +5762,7 @@ msgid "Mark as Read"
 msgstr "نشان‌گذاری به‌عنوان خوانده‌شده"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4570
+#: includes/class-Emsfb-formbuilder.php:4585
 msgid "Matrix and Table Fields for Structured Data"
 msgstr "فیلدهای ماتریس و جدول برای داده‌های ساختاریافته"
 
@@ -5962,7 +5962,7 @@ msgid "Modern Dark"
 msgstr "تیره مدرن"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4603
+#: includes/class-Emsfb-formbuilder.php:4618
 msgid "Monitor-Only Security Mode"
 msgstr "حالت امنیتی فقط پایش"
 
@@ -5998,7 +5998,7 @@ msgid "Multi-Step"
 msgstr "چندمرحله‌ای"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4553
+#: includes/class-Emsfb-formbuilder.php:4568
 msgid "Multi-Step Forms"
 msgstr "فرم‌های چندمرحله‌ای"
 
@@ -6013,7 +6013,7 @@ msgid "Multiple Select"
 msgstr "انتخاب چندگانه"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4565
+#: includes/class-Emsfb-formbuilder.php:4580
 msgid "Multiple-Select Dropdowns and Range Sliders"
 msgstr "فهرست‌های کشویی چندانتخابی و لغزنده‌های بازه"
 
@@ -6111,7 +6111,7 @@ msgid "New Message"
 msgstr "پیام جدید"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-public.php:8627
+#: includes/class-Emsfb-public.php:8653
 msgid "New Password"
 msgstr "گذرواژه جدید"
 
@@ -6144,8 +6144,8 @@ msgid "New option"
 msgstr "گزینه جدید"
 
 #  origin: wporg-stable
-#: includes/class-email-handler.php:560 includes/class-email-handler.php:589
-#: includes/class-Emsfb-public.php:6381
+#: includes/class-email-handler.php:569 includes/class-email-handler.php:598
+#: includes/class-Emsfb-public.php:6395
 msgid "New user registration"
 msgstr "ثبت‌نام کاربر جدید"
 
@@ -6198,7 +6198,7 @@ msgid "No Response"
 msgstr "بدون پاسخ"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4596
+#: includes/class-Emsfb-formbuilder.php:4611
 msgid "No Third-Party Form Submission Servers Required"
 msgstr "بدون نیاز به سرور شخص ثالث برای ارسال فرم"
 
@@ -6268,7 +6268,7 @@ msgid "No email handler configured."
 msgstr "هیچ سامانه‌ای برای ارسال ایمیل پیکربندی نشده است."
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:3551
+#: includes/class-Emsfb-formbuilder.php:3566
 msgid "No errors detected"
 msgstr "هیچ خطایی شناسایی نشد"
 
@@ -6281,7 +6281,7 @@ msgstr "هیچ نگاشت فیلدی وجود ندارد"
 
 #  origin: wporg-stable
 #: includes/admin/class-Emsfb-admin.php:3469
-#: includes/class-Emsfb-public.php:4585 includes/class-Emsfb-public.php:5143
+#: includes/class-Emsfb-public.php:4599 includes/class-Emsfb-public.php:5157
 msgid "No file was received. Please choose a file and try again."
 msgstr "هیچ پرونده‌ای دریافت نشد. لطفاً یک پرونده انتخاب کنید و دوباره تلاش کنید."
 
@@ -6313,7 +6313,7 @@ msgid "No matching data found"
 msgstr "داده منطبق پیدا نشد"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-public.php:6721
+#: includes/class-Emsfb-public.php:6735
 msgid "No payment amount detected. Please review your selected items and try again. If the problem persists, contact support."
 msgstr "هیچ مبلغی برای پرداخت شناسایی نشد. لطفاً موارد انتخاب‌شده خود را بررسی کرده و دوباره تلاش کنید. اگر مشکل ادامه داشت، با پشتیبانی تماس بگیرید."
 
@@ -6397,12 +6397,12 @@ msgid "Not Sure"
 msgstr "مطمئن نیستم"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-public.php:5422
+#: includes/class-Emsfb-public.php:5436
 msgid "Not allowed to respond to this message."
 msgstr "اجازه پاسخ به این پیام را ندارید."
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-public.php:5471
+#: includes/class-Emsfb-public.php:5485
 msgid "Not allowed to respond to this message. E500"
 msgstr "مجاز به پاسخ به این پیام نیستید. E500"
 
@@ -6479,7 +6479,7 @@ msgid "Nothing was sent yet, so this says nothing about your email. Try again la
 msgstr "چیزی هنوز ارسال نشده است، بنابراین این موضوع دربارهٔ ایمیل شما چیزی نمی‌گوید. بعداً دوباره تلاش کنید."
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:3544
+#: includes/class-Emsfb-formbuilder.php:3559
 msgid "Notice"
 msgstr "نکته"
 
@@ -6561,7 +6561,7 @@ msgid "Off by default. Each page is first saved as a revision, so you can undo t
 msgstr "به‌طور پیش‌فرض غیرفعال است. هر برگه ابتدا به‌صورت یک رونوشت ذخیره می‌شود، بنابراین می‌توانید این تغییر را از صفحهٔ رونوشت‌های همان برگه بازگردانی کنید. برگه‌های ساخته‌شده با Elementor یا Beaver Builder فهرست می‌شوند، اما تغییر نمی‌کنند."
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4591
+#: includes/class-Emsfb-formbuilder.php:4606
 msgid "Offline Form Data Collection"
 msgstr "جمع‌آوری آفلاین داده‌های فرم"
 
@@ -6618,7 +6618,7 @@ msgid "One or more add-on files are missing. Click the button below to reinstall
 msgstr "فایل‌های یک یا چند افزودنی موجود نیستند. برای نصب دوباره آن‌ها روی دکمه زیر کلیک کنید."
 
 #  origin: wporg-stable
-#: includes/class-email-handler.php:2095
+#: includes/class-email-handler.php:2104
 msgid "One or more of the plugins listed below—typically related to caching or security—might be triggering this issue. For troubleshooting, temporarily deactivate them and test your site."
 msgstr "ممکن است یک یا چند مورد از افزونه‌های فهرست‌شده در زیر - که معمولاً به کش یا امنیت مربوط هستند - باعث بروز این مشکل شده باشند. برای عیب‌یابی، آن‌ها را موقتاً غیرفعال کرده و سایت خود را بررسی کنید."
 
@@ -6674,7 +6674,7 @@ msgid "Open Plugins"
 msgstr "باز کردن افزونه‌ها"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4582
+#: includes/class-Emsfb-formbuilder.php:4597
 msgid "Open and Closed Message Status"
 msgstr "وضعیت باز و بسته پیام"
 
@@ -6713,7 +6713,7 @@ msgid "Options"
 msgstr "گزینه‌ها"
 
 #  origin: wporg-stable
-#: includes/class-email-handler.php:898 includes/class-email-handler.php:964
+#: includes/class-email-handler.php:907 includes/class-email-handler.php:973
 msgid "Or copy and paste this link:"
 msgstr "یا این پیوند را کپی و جای‌گذاری کنید:"
 
@@ -6723,7 +6723,7 @@ msgid "Orbit"
 msgstr "مدار"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4559
+#: includes/class-Emsfb-formbuilder.php:4574
 msgid "Order Forms with Recurring and Subscription Billing"
 msgstr "فرم‌های سفارش با صورت‌حساب دوره‌ای و اشتراکی"
 
@@ -6761,7 +6761,7 @@ msgid "Outgoing requests"
 msgstr "درخواست‌های خروجی"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4585
+#: includes/class-Emsfb-formbuilder.php:4600
 msgid "PDF Downloads and CSV Exports"
 msgstr "دانلود PDF و برون‌بری CSV"
 
@@ -6818,12 +6818,12 @@ msgid "Password"
 msgstr "گذرواژه"
 
 #  origin: wporg-stable
-#: includes/class-email-handler.php:565
+#: includes/class-email-handler.php:574
 msgid "Password Reset"
 msgstr "بازنشانی گذرواژه"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-public.php:8815
+#: includes/class-Emsfb-public.php:8841
 msgid "Password has been changed successfully!"
 msgstr "گذرواژه با موفقیت تغییر کرد!"
 
@@ -6833,7 +6833,7 @@ msgid "Password must be at least 8 characters long and include a number and an u
 msgstr "گذرواژه باید دست‌کم ۸ نویسه و شامل یک عدد و یک حرف بزرگ باشد."
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-public.php:3436 includes/functions.php:2253
+#: includes/class-Emsfb-public.php:3450 includes/functions.php:2253
 msgid "Password recovery"
 msgstr "بازیابی گذرواژه"
 
@@ -6889,12 +6889,12 @@ msgid "PayPal Secret Key not found"
 msgstr "کلید محرمانه پی‌پال پیدا نشد"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4621
+#: includes/class-Emsfb-formbuilder.php:4636
 msgid "PayPal payment forms"
 msgstr "فرم‌های پرداخت PayPal"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-public.php:6651 includes/class-Emsfb-public.php:6661
+#: includes/class-Emsfb-public.php:6665 includes/class-Emsfb-public.php:6675
 #: includes/functions.php:2377 includes/functions.php:2896
 #: vendor/paypal/class-Emsfb-paypal-handler.php:385
 #: vendor/paypal/class-Emsfb-paypal-handler.php:471
@@ -6902,7 +6902,7 @@ msgid "Payment"
 msgstr "پرداخت"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-public.php:3865 includes/functions.php:2375
+#: includes/class-Emsfb-public.php:3879 includes/functions.php:2375
 msgid "Payment Form"
 msgstr "فرم پرداخت"
 
@@ -6912,7 +6912,7 @@ msgid "Payment Gateway"
 msgstr "درگاه پرداخت"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-public.php:6754
+#: includes/class-Emsfb-public.php:6768
 msgid "Payment Intent ID is missing"
 msgstr "شناسه پرداخت وجود ندارد"
 
@@ -6932,7 +6932,7 @@ msgid "Payment Single choose"
 msgstr "انتخاب تکی پرداخت"
 
 #  origin: sonnet (fa_IR)
-#: includes/class-Emsfb-public.php:6638
+#: includes/class-Emsfb-public.php:6652
 msgid "Payment could not be started. Please try again later."
 msgstr "پرداخت شروع نشد. لطفاً بعداً دوباره تلاش کنید."
 
@@ -7094,7 +7094,7 @@ msgstr "لطفاً برای این فیلد حداکثر NN نویسه وارد 
 
 #  origin: wporg-stable
 #: includes/admin/class-Emsfb-admin.php:3601
-#: includes/class-Emsfb-public.php:8589 includes/functions.php:1577
+#: includes/class-Emsfb-public.php:8615 includes/functions.php:1577
 msgid "Please Wait"
 msgstr "لطفاً صبر کنید"
 
@@ -7175,7 +7175,7 @@ msgid "Please connect a service account first."
 msgstr "لطفاً ابتدا یک حساب سرویس متصل کنید."
 
 #  origin: wporg-stable
-#: includes/class-email-handler.php:2094
+#: includes/class-email-handler.php:2103
 msgid "Please contact our support team for assistance."
 msgstr "لطفاً برای دریافت کمک با تیم پشتیبانی ما تماس بگیرید."
 
@@ -7325,7 +7325,7 @@ msgid "Please kindly report the following issue to the Easy Form Builder team."
 msgstr "لطفاً مشکل زیر را به تیم فرم‌ساز آسان گزارش دهید."
 
 #  origin: sonnet (fa_IR)
-#: includes/class-Emsfb-public.php:230 includes/class-Emsfb-public.php:2464
+#: includes/class-Emsfb-public.php:230 includes/class-Emsfb-public.php:2478
 msgid "Please log in to use this form."
 msgstr "لطفاً برای استفاده از این فرم وارد شوید."
 
@@ -7406,7 +7406,7 @@ msgid "Please verify your PayPal API credentials in the plugin settings."
 msgstr "لطفاً اطلاعات ورود API پی‌پال خود را در تنظیمات افزونه بررسی کنید."
 
 #  origin: wporg-stable
-#: includes/class-email-handler.php:984
+#: includes/class-email-handler.php:993
 msgid "Please verify your email address by clicking the button below. This activation link will be valid for 24 hours."
 msgstr "لطفاً با کلیک روی دکمه زیر، نشانی ایمیل خود را تأیید کنید. این پیوند فعال‌سازی تا 24 ساعت معتبر است."
 
@@ -7416,7 +7416,7 @@ msgid "Please wait, you will be redirected shortly."
 msgstr "لطفاً صبر کنید؛ به‌زودی هدایت خواهید شد."
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:3539 includes/functions.php:3435
+#: includes/class-Emsfb-formbuilder.php:3554 includes/functions.php:3435
 #: includes/functions.php:3445
 msgid "Plugin"
 msgstr "افزونه"
@@ -7468,7 +7468,7 @@ msgid "Postal Code"
 msgstr "کد پستی"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:2317
+#: includes/class-Emsfb-formbuilder.php:2320
 #, php-format
 msgid "Powered by %1$sEasy Form Builder%2$s . %3$sbest Form plugin for Wordpress%4$s."
 msgstr "قدرت‌گرفته از %1$sفرم ساز آسان%2$s. %3$sبهترین افزونه فرم برای وردپرس%4$s."
@@ -7545,7 +7545,7 @@ msgid "Primary and primary dark are derived from it"
 msgstr "رنگ اصلی و رنگ اصلی تیره از آن ساخته می‌شوند"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4552
+#: includes/class-Emsfb-formbuilder.php:4567
 msgid "Private and Restricted-Access Forms"
 msgstr "فرم‌های خصوصی و دارای دسترسی محدود"
 
@@ -7573,12 +7573,12 @@ msgid "Pro Version"
 msgstr "نسخه ویژه"
 
 #  origin: wporg-stable
-#: includes/functions.php:8175
+#: includes/functions.php:8183
 msgid "Pro Version Required"
 msgstr "نسخه ویژه لازم است"
 
 #  origin: wporg-stable
-#: includes/class-email-handler.php:569
+#: includes/class-email-handler.php:578
 msgid "Pro features are paused"
 msgstr "ویژگی‌های حرفه‌ای متوقف شده‌اند"
 
@@ -7609,7 +7609,7 @@ msgid "Properties"
 msgstr "ویژگی‌ها"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4601
+#: includes/class-Emsfb-formbuilder.php:4616
 msgid "Protection Against Email, SMS, Telegram and Google Sheets Quota Abuse"
 msgstr "محافظت در برابر سوءاستفاده از سهمیه ایمیل، SMS، Telegram و Google Sheets"
 
@@ -7681,7 +7681,7 @@ msgid "Range"
 msgstr "محدوده"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4600
+#: includes/class-Emsfb-formbuilder.php:4615
 msgid "Rate Limiting and Abuse Protection"
 msgstr "محدودسازی نرخ و محافظت در برابر سوءاستفاده"
 
@@ -7697,7 +7697,7 @@ msgid "Rating"
 msgstr "امتیاز"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4566
+#: includes/class-Emsfb-formbuilder.php:4581
 msgid "Rating Stars, 5-Point Scale, NPS and Yes-No Questions"
 msgstr "ستاره‌های امتیازدهی، مقیاس ۵ امتیازی، NPS و پرسش‌های بله/خیر"
 
@@ -7719,7 +7719,7 @@ msgid "Read"
 msgstr "خواندن"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4581
+#: includes/class-Emsfb-formbuilder.php:4596
 msgid "Read and Reply to Form Submissions with File Attachments"
 msgstr "خواندن و پاسخ‌دادن به ارسال‌های فرم همراه با پیوست پرونده"
 
@@ -7851,7 +7851,7 @@ msgid "Register players for recreational sports leagues."
 msgstr "بازیکنان را برای لیگ‌های ورزشی تفریحی ثبت‌نام کنید."
 
 #  origin: wporg-stable
-#: includes/class-email-handler.php:1028 includes/functions.php:1663
+#: includes/class-email-handler.php:1037 includes/functions.php:1663
 msgid "Registered"
 msgstr "ثبت‌شده"
 
@@ -7906,7 +7906,7 @@ msgid "Renew Pro"
 msgstr "تمدید حرفه‌ای"
 
 #  origin: wporg-stable
-#: includes/admin/class-Emsfb-admin.php:998 includes/functions.php:8171
+#: includes/admin/class-Emsfb-admin.php:998 includes/functions.php:8179
 msgid "Renew Subscription"
 msgstr "تمدید اشتراک"
 
@@ -7956,7 +7956,7 @@ msgid "Report generated %s"
 msgstr "گزارش در %s ایجاد شد"
 
 #  origin: wporg-stable
-#: includes/class-email-handler.php:573 includes/functions.php:2132
+#: includes/class-email-handler.php:582 includes/functions.php:2132
 #: includes/functions.php:5974
 msgid "Report problem"
 msgstr "گزارش مشکل"
@@ -7995,7 +7995,7 @@ msgid "Reservation"
 msgstr "رزرو"
 
 #  origin: wporg-stable
-#: includes/class-email-handler.php:877
+#: includes/class-email-handler.php:886
 msgid "Reset Password"
 msgstr "بازنشانی گذرواژه"
 
@@ -8071,7 +8071,7 @@ msgid "Responses & Confirmation"
 msgstr "پاسخ‌ها و تأیید"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4541
+#: includes/class-Emsfb-formbuilder.php:4556
 msgid "Responsive and RTL-Friendly Forms"
 msgstr "فرم‌های واکنش‌گرا و سازگار با RTL"
 
@@ -8191,7 +8191,7 @@ msgid "Russian"
 msgstr "روسی"
 
 #  origin: wporg-stable
-#: includes/class-email-handler.php:2129
+#: includes/class-email-handler.php:2138
 msgid "SID Validation Error"
 msgstr "خطای اعتبارسنجی SID"
 
@@ -8216,7 +8216,7 @@ msgid "SMS Service Add-on"
 msgstr "افزودنی سرویس پیامک"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4578
+#: includes/class-Emsfb-formbuilder.php:4593
 msgid "SMS and Telegram Submission Notifications"
 msgstr "اعلان ارسال فرم از طریق SMS و Telegram"
 
@@ -8237,7 +8237,7 @@ msgid "SMTP Error: The host is unable to send an email. Please contact the host 
 msgstr "خطای SMTP: هاست قادر به ارسال ایمیل نیست. لطفاً برای کمک با تیم پشتیبانی میزبان تماس بگیرید."
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4649
+#: includes/class-Emsfb-formbuilder.php:4664
 msgid "SPF DKIM DMARC WordPress forms"
 msgstr "فرم‌های وردپرس با SPF، DKIM و DMARC"
 
@@ -8323,12 +8323,12 @@ msgid "Screen Recorder"
 msgstr "ضبط صفحه‌نمایش"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4551
+#: includes/class-Emsfb-formbuilder.php:4566
 msgid "Screen Recording Forms with Optional Microphone Audio"
 msgstr "فرم‌های ضبط صفحه با صدای اختیاری میکروفون"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-public.php:7426
+#: includes/class-Emsfb-public.php:7452
 msgid "Screen recording"
 msgstr "ضبط صفحه‌نمایش"
 
@@ -8362,7 +8362,7 @@ msgid "Search Results"
 msgstr "نتایج جستجو"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4583
+#: includes/class-Emsfb-formbuilder.php:4598
 msgid "Search Submissions by Form or Confirmation Code"
 msgstr "جست‌وجوی ارسال‌ها بر اساس فرم یا کد تأیید"
 
@@ -8678,7 +8678,7 @@ msgid "Session Duration"
 msgstr "مدت‌زمان نشست"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-public.php:8646
+#: includes/class-Emsfb-public.php:8672
 msgid "Set Password"
 msgstr "تنظیم گذرواژه"
 
@@ -8735,7 +8735,7 @@ msgid "Shield Security is not detected, but it can be installed to enhance secur
 msgstr "Shield Security شناسایی نشد، اما می‌توان آن را برای افزایش امنیت نصب کرد."
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4592
+#: includes/class-Emsfb-formbuilder.php:4607
 msgid "Shield Security silentCAPTCHA Integration"
 msgstr "یکپارچه‌سازی با silentCAPTCHA افزونه Shield Security"
 
@@ -8941,7 +8941,7 @@ msgid "Small free plan for transactional email; official plugin, one API token."
 msgstr "پلن رایگان کوچک برای ایمیل تراکنشی؛ افزونه رسمی، یک توکن API."
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4554
+#: includes/class-Emsfb-formbuilder.php:4569
 msgid "Smart Forms with Conditional Logic"
 msgstr "فرم‌های هوشمند با منطق شرطی"
 
@@ -9224,7 +9224,7 @@ msgid "Street Address Line 2"
 msgstr "ادامه نشانی"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-public.php:6515 includes/class-Emsfb-public.php:6564
+#: includes/class-Emsfb-public.php:6529 includes/class-Emsfb-public.php:6578
 #: includes/functions.php:2376 includes/functions.php:4783
 msgid "Stripe"
 msgstr "استرایپ"
@@ -9235,12 +9235,12 @@ msgid "Stripe Payment Add-on"
 msgstr "افزودنی پرداخت Stripe"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4546
+#: includes/class-Emsfb-formbuilder.php:4561
 msgid "Stripe and PayPal Payment Forms"
 msgstr "فرم‌های پرداخت Stripe و PayPal"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4589
+#: includes/class-Emsfb-formbuilder.php:4604
 msgid "Stripe and PayPal Payment Workflows"
 msgstr "گردش‌کارهای پرداخت Stripe و PayPal"
 
@@ -9252,7 +9252,7 @@ msgid "Stripe and PayPal payments"
 msgstr "پرداخت‌های Stripe و PayPal"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4620
+#: includes/class-Emsfb-formbuilder.php:4635
 msgid "Stripe payment forms"
 msgstr "فرم‌های پرداخت Stripe"
 
@@ -9368,7 +9368,7 @@ msgid "Support Ticket Form"
 msgstr "فرم تیکت پشتیبانی"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4544
+#: includes/class-Emsfb-formbuilder.php:4559
 msgid "Support and Feedback Forms with Message Tracking"
 msgstr "فرم‌های پشتیبانی و بازخورد با رهگیری پیام"
 
@@ -9391,12 +9391,12 @@ msgid "Survey Results Display"
 msgstr "نمایش نتایج نظرسنجی"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4545
+#: includes/class-Emsfb-formbuilder.php:4560
 msgid "Survey and Poll Forms with Visual Results"
 msgstr "فرم‌های پرسش‌نامه و نظرسنجی با نتایج دیداری"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4586
+#: includes/class-Emsfb-formbuilder.php:4601
 msgid "Survey and Poll Result Charts"
 msgstr "نمودارهای نتایج پرسش‌نامه و نظرسنجی"
 
@@ -9419,7 +9419,7 @@ msgid "Switch %s"
 msgstr "کلید %s"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4567
+#: includes/class-Emsfb-formbuilder.php:4582
 msgid "Switch and Toggle Fields"
 msgstr "فیلدهای سوئیچ و تغییر وضعیت"
 
@@ -9541,7 +9541,7 @@ msgid "Telegram Notification Add-on"
 msgstr "افزودنی آگاه‌سازی تلگرام"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4569
+#: includes/class-Emsfb-formbuilder.php:4584
 msgid "Telephone, Mobile and Color Picker Fields"
 msgstr "فیلدهای تلفن، موبایل و انتخابگر رنگ"
 
@@ -9596,10 +9596,19 @@ msgstr "ایمیل آزمایشی ارسال نشد."
 #  origin: wporg-stable
 #. translators: %1$s, %2$s, %3$s, %4$s are opening and closing link tags for
 #. help resources
-#: includes/functions.php:2787
+#: includes/functions.php
 #, php-format
 msgid "Test emails may land in your spam folder. If emails are not delivered, this is usually related to your hosting or email server configuration.server settings %1$sLearn how to fix email delivery issues%2$s or %3$scontact Easy Form Builder support%4$s."
 msgstr "ایمیل‌های آزمایشی ممکن است در پوشه هرزنامه شما قرار بگیرند. اگر ایمیل‌ها تحویل داده نمی‌شوند، این موضوع معمولاً به هاست یا پیکربندی سرور ایمیل شما مربوط است. %1$sیاد بگیرید چگونه مشکلات تحویل ایمیل را برطرف کنید%2$s یا %3$sبا پشتیبانی فرم‌ساز آسان تماس بگیرید%4$s."
+
+#  origin: manual-fix (was wporg-stable (reworded source:
+#  configuration/settings typo fixed))
+#. translators: %1$s, %2$s, %3$s, %4$s are opening and closing link tags for
+#. help resources
+#: includes/functions.php:2787
+#, php-format
+msgid "Test emails may land in your spam folder. If emails are not delivered, this is usually related to your hosting or email server settings. %1$sLearn how to fix email delivery issues%2$s or %3$scontact Easy Form Builder support%4$s."
+msgstr "ایمیل‌های آزمایشی ممکن است در پوشه هرزنامه شما قرار بگیرند. اگر ایمیل‌ها تحویل داده نمی‌شوند، این موضوع معمولاً به هاست یا تنظیمات سرور ایمیل شما مربوط است. %1$sیاد بگیرید چگونه مشکلات تحویل ایمیل را برطرف کنید%2$s یا %3$sبا پشتیبانی فرم‌ساز آسان تماس بگیرید%4$s."
 
 #  origin: wporg-stable
 #. translators: Label for the email address the test was sent to
@@ -9701,7 +9710,7 @@ msgid "The %s add-on for Easy Form Builder enables you to integrate your WordPre
 msgstr "افزودنی %s فرم‌ساز آسان به شما امکان می‌دهد سایت وردپرس خود را برای پردازش پرداخت، دریافت کمک مالی و سفارش‌های آنلاین با %s یکپارچه کنید."
 
 #  origin: wporg-stable
-#: includes/functions.php:8177
+#: includes/functions.php:8185
 #, php-format
 msgid "The %s add-on is a Pro feature. Please upgrade to Easy Form Builder Pro to access this functionality."
 msgstr "افزودنی %s یک قابلیت ویژه است. برای دسترسی به این قابلیت، لطفاً فرم‌ساز آسان را به نسخه ویژه ارتقا دهید."
@@ -9773,7 +9782,7 @@ msgid "The Easy Form Builder team reads every one, and replies if you left an em
 msgstr "تیم فرم ساز آسان همه پیام‌ها را می‌خواند و اگر ایمیلی گذاشته باشید پاسخ می‌دهد."
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-public.php:7250
+#: includes/class-Emsfb-public.php:7264
 msgid "The Email Address Is Not Valid"
 msgstr "آدرس ایمیل معتبر نیست"
 
@@ -9814,22 +9823,22 @@ msgid "The PHP mail() function is missing. Your server cannot send emails."
 msgstr "تابع mail() در PHP وجود ندارد. سرور شما نمی‌تواند ایمیل ارسال کند."
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-public.php:7279 includes/class-Emsfb-public.php:8569
+#: includes/class-Emsfb-public.php:7293 includes/class-Emsfb-public.php:8595
 msgid "The Password Must Contain At Least 1 Capital Letter!"
 msgstr "گذرواژه باید دست‌کم یک حرف بزرگ داشته باشد!"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-public.php:7282 includes/class-Emsfb-public.php:8566
+#: includes/class-Emsfb-public.php:7296 includes/class-Emsfb-public.php:8592
 msgid "The Password Must Contain At Least 1 Lowercase Letter!"
 msgstr "گذرواژه باید دست‌کم یک حرف کوچک داشته باشد!"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-public.php:7276 includes/class-Emsfb-public.php:8573
+#: includes/class-Emsfb-public.php:7290 includes/class-Emsfb-public.php:8599
 msgid "The Password Must Contain At Least 1 Number!"
 msgstr "گذرواژه باید دست‌کم یک عدد داشته باشد!"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-public.php:7273 includes/class-Emsfb-public.php:8563
+#: includes/class-Emsfb-public.php:7287 includes/class-Emsfb-public.php:8589
 msgid "The Password Must Contain At Least 8 Characters!"
 msgstr "گذرواژه باید دست‌کم ۸ نویسه داشته باشد!"
 
@@ -9864,12 +9873,12 @@ msgid "The Telegram notification add-on lets you get notifications on your Teleg
 msgstr "افزودنی آگاه‌سازی تلگرام به شما امکان می‌دهد هر زمان پیام یا پاسخ جدیدی دریافت می‌کنید، در برنامه تلگرام خود آگاه‌سازی دریافت کنید."
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-public.php:7255
+#: includes/class-Emsfb-public.php:7269
 msgid "The Username Must Contain At Least 3 Characters."
 msgstr "نام کاربری باید دست‌کم ۳ نویسه باشد."
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-public.php:7253
+#: includes/class-Emsfb-public.php:7267
 msgid "The Username Must Contain Only Letters, Numbers And Lowercase letters"
 msgstr "نام کاربری باید فقط شامل حروف کوچک و اعداد باشد."
 
@@ -10134,12 +10143,12 @@ msgid "The form cannot be submitted because it requires a payment method, which 
 msgstr "فرم قابل ارسال نیست، زیرا به یک روش پرداخت نیاز دارد که در حال حاضر موجود نیست. اگر مدیر هستید، لطفاً یک روش پرداخت به فرم اضافه کنید یا نوع فرم را به «فرم» یا «نظرسنجی» تغییر دهید."
 
 #  origin: sonnet (fa_IR)
-#: includes/class-Emsfb-public.php:236 includes/class-Emsfb-public.php:2404
+#: includes/class-Emsfb-public.php:236 includes/class-Emsfb-public.php:2418
 msgid "The form context expired. Reopen the form before continuing."
 msgstr "زمینه فرم منقضی شده است. پیش از ادامه، فرم را دوباره باز کنید."
 
 #  origin: sonnet (fa_IR)
-#: includes/class-Emsfb-public.php:4468
+#: includes/class-Emsfb-public.php:4482
 msgid "The form could not be saved. Your input has been kept."
 msgstr "فرم ذخیره نشد. ورودی شما حفظ شده است."
 
@@ -10361,28 +10370,28 @@ msgid "The recording could not be uploaded. Please try again."
 msgstr "فایل ضبط‌شده بارگذاری نشد. لطفاً دوباره تلاش کنید."
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-public.php:4918
+#: includes/class-Emsfb-public.php:4932
 msgid "The recording format could not be verified. Please record it again."
 msgstr "قالب فایل ضبط‌شده تأیید نشد. لطفاً دوباره ضبط کنید."
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-public.php:4908 includes/functions.php:2686
+#: includes/class-Emsfb-public.php:4922 includes/functions.php:2686
 msgid "The recording is larger than the allowed file size."
 msgstr "حجم فایل ضبط‌شده از اندازه مجاز بیشتر است."
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-public.php:4924 includes/class-Emsfb-public.php:4948
+#: includes/class-Emsfb-public.php:4938 includes/class-Emsfb-public.php:4962
 #: includes/functions.php:2688
 msgid "The recording is longer than the allowed duration."
 msgstr "مدت‌زمان ضبط از حد مجاز بیشتر است."
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-public.php:5093 includes/class-Emsfb-public.php:5173
+#: includes/class-Emsfb-public.php:5107 includes/class-Emsfb-public.php:5187
 msgid "The recording request could not be verified. Please retry."
 msgstr "درخواست ضبط تأیید نشد. لطفاً دوباره تلاش کنید."
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-public.php:4871
+#: includes/class-Emsfb-public.php:4885
 msgid "The recording upload could not be verified. Please record it again and retry."
 msgstr "بارگذاری فایل ضبط‌شده تأیید نشد. لطفاً دوباره ضبط و تلاش کنید."
 
@@ -10397,18 +10406,18 @@ msgid "The request could not be verified."
 msgstr "درخواست تأیید نشد."
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-public.php:5249
+#: includes/class-Emsfb-public.php:5263
 msgid "The response attachment could not be secured. Please try again."
 msgstr "پیوست پاسخ ایمن‌سازی نشد. لطفاً دوباره تلاش کنید."
 
 #  origin: wporg-stable
 #: includes/admin/class-Emsfb-admin.php:1586
-#: includes/class-Emsfb-public.php:5479
+#: includes/class-Emsfb-public.php:5493
 msgid "The response attachment could not be verified. Please attach the file again."
 msgstr "پیوست پاسخ تأیید نشد. لطفاً دوباره پرونده را پیوست کنید."
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-public.php:5123
+#: includes/class-Emsfb-public.php:5137
 msgid "The response box could not be verified. Reopen the conversation and try again."
 msgstr "جعبه پاسخ تأیید نشد. گفتگو را دوباره باز کنید و تلاش کنید."
 
@@ -10477,17 +10486,17 @@ msgid "The sender email address is not valid. Please check your email settings."
 msgstr "نشانی ایمیل فرستنده معتبر نیست. تنظیمات ایمیل را بررسی کنید."
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-public.php:4963
+#: includes/class-Emsfb-public.php:4977
 msgid "The server could not store the recording. Please try again or contact the site administrator."
 msgstr "سرور نتوانست فایل ضبط‌شده را ذخیره کند. لطفاً دوباره تلاش کنید یا با مدیر سایت تماس بگیرید."
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-public.php:4945
+#: includes/class-Emsfb-public.php:4959
 msgid "The server could not verify the recording duration. Please record it again and try uploading."
 msgstr "سرور نتوانست مدت‌زمان ضبط را تأیید کند. لطفاً دوباره ضبط کنید و برای بارگذاری تلاش کنید."
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-public.php:4912
+#: includes/class-Emsfb-public.php:4926
 msgid "The server could not verify the recording format. Please contact the site administrator."
 msgstr "سرور نتوانست قالب فایل ضبط‌شده را تأیید کند. لطفاً با مدیر سایت تماس بگیرید."
 
@@ -10573,12 +10582,12 @@ msgid "The text box of the last choice of “%s” is now a separate text field 
 msgstr "جعبهٔ متنی آخرین گزینهٔ «%s» اکنون یک فیلد متنی جداگانه درست بعد از آن است."
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-public.php:5107 includes/class-Emsfb-public.php:5112
+#: includes/class-Emsfb-public.php:5121 includes/class-Emsfb-public.php:5126
 msgid "The upload field could not be verified. Please refresh the form and try again."
 msgstr "فیلد بارگذاری تأیید نشد. لطفاً فرم را تازه‌سازی کنید و دوباره تلاش کنید."
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-public.php:5096
+#: includes/class-Emsfb-public.php:5110
 msgid "The upload request could not be verified. Please try again."
 msgstr "درخواست بارگذاری تأیید نشد. لطفاً دوباره تلاش کنید."
 
@@ -10607,7 +10616,7 @@ msgid "The uploaded file is not in the correct file format."
 msgstr "قالب فایل بارگذاری‌شده صحیح نیست."
 
 #  origin: wporg-stable
-#: includes/class-email-handler.php:1036
+#: includes/class-email-handler.php:1045
 msgid "The user has been sent a verification email to confirm their account."
 msgstr "یک ایمیل تأیید برای تأیید حساب کاربری کاربر ارسال شده است."
 
@@ -10672,7 +10681,7 @@ msgid "The “[%s]” tag comes from another plugin and was not carried over."
 msgstr "برچسب «[%s]» از افزونه‌ای دیگر است و منتقل نشد."
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:3540
+#: includes/class-Emsfb-formbuilder.php:3555
 msgid "Theme"
 msgstr "قالب"
 
@@ -10709,7 +10718,7 @@ msgid "There was an error loading Maps."
 msgstr "خطایی هنگام بارگذاری نقشه رخ داد."
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:3552
+#: includes/class-Emsfb-formbuilder.php:3567
 msgid "These errors may interfere with forms built using Easy Form Builder."
 msgstr "این خطاها ممکن است در عملکرد فرم‌های ساخته‌شده با فرم‌ساز آسان اختلال ایجاد کنند."
 
@@ -10773,13 +10782,13 @@ msgid "This code has already been claimed"
 msgstr "این کد قبلاً دریافت شده است"
 
 #  origin: wporg-stable
-#: includes/class-email-handler.php:1314 includes/class-Emsfb.php:1984
+#: includes/class-email-handler.php:1323 includes/class-Emsfb.php:1984
 #: includes/functions.php:3345
 msgid "This email was sent automatically. Please do not reply directly."
 msgstr "این ایمیل به‌صورت خودکار ارسال شده است. لطفاً مستقیماً به آن پاسخ ندهید."
 
 #  origin: wporg-stable
-#: includes/class-email-handler.php:418 includes/class-email-handler.php:1315
+#: includes/class-email-handler.php:418 includes/class-email-handler.php:1324
 msgid "This email was sent automatically. Please do not reply."
 msgstr "این ایمیل به‌صورت خودکار ارسال شده است. لطفاً به آن پاسخ ندهید."
 
@@ -10834,7 +10843,7 @@ msgid "This form is temporarily unavailable."
 msgstr "این فرم موقتاً در دسترس نیست."
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:2363
+#: includes/class-Emsfb-formbuilder.php:2366
 msgid "This form requires a payment method. Please add one or change the form type."
 msgstr "این فرم به یک روش پرداخت نیاز دارد. لطفاً یک روش پرداخت اضافه کنید یا نوع فرم را تغییر دهید."
 
@@ -10882,7 +10891,7 @@ msgid "This is a warning for WPBakery users. For more information, please click 
 msgstr "این یک هشدار برای کاربران WPBakery است. برای اطلاعات بیشتر، اینجا کلیک کنید."
 
 #  origin: wporg-stable
-#: includes/class-email-handler.php:2092
+#: includes/class-email-handler.php:2101
 msgid "This is an alert message regarding a SID validation error. This issue may have occurred due to a plugin conflict or an unauthorized attempt to access the website."
 msgstr "این یک پیام هشدار درباره خطای اعتبارسنجی SID است. این مشکل ممکن است به دلیل تداخل افزونه‌ها یا تلاش غیرمجاز برای دسترسی به وب‌سایت رخ داده باشد."
 
@@ -10927,7 +10936,7 @@ msgid "This option is only available in the Pro version."
 msgstr "این گزینه فقط در نسخه ویژه موجود است."
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:3553
+#: includes/class-Emsfb-formbuilder.php:3568
 msgid "This panel is only visible to site administrators."
 msgstr "این پنل فقط برای مدیران سایت قابل مشاهده است."
 
@@ -10937,7 +10946,7 @@ msgid "This recording format is not allowed."
 msgstr "این قالب ضبط مجاز نیست."
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-public.php:4899
+#: includes/class-Emsfb-public.php:4913
 msgid "This recording format is not supported. Please record it again."
 msgstr "این قالب ضبط پشتیبانی نمی‌شود. لطفاً دوباره ضبط کنید."
 
@@ -11093,7 +11102,7 @@ msgid "Token refresh requires a same-origin request."
 msgstr "تازه‌سازی توکن به یک درخواست هم‌مبدأ نیاز دارد."
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-public.php:4319
+#: includes/class-Emsfb-public.php:4333
 msgid "Too many attempts. Please wait a few minutes and try again."
 msgstr "تعداد تلاش‌ها بیش از حد مجاز است. چند دقیقه صبر کنید و دوباره تلاش کنید."
 
@@ -11240,7 +11249,7 @@ msgid "Unique Number (date-based)"
 msgstr "شماره یکتا (بر پایه تاریخ)"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4584
+#: includes/class-Emsfb-formbuilder.php:4599
 msgid "Unique Submission Confirmation and Tracking Codes"
 msgstr "کدهای یکتای تأیید و رهگیری ارسال"
 
@@ -11252,7 +11261,7 @@ msgid "Unique code verified"
 msgstr "کد یکتا تأیید شد"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:3543
+#: includes/class-Emsfb-formbuilder.php:3558
 msgid "Unknown"
 msgstr "ناشناخته"
 
@@ -11283,7 +11292,7 @@ msgid "Unknown style template."
 msgstr "قالب استایل ناشناخته است."
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4540
+#: includes/class-Emsfb-formbuilder.php:4555
 msgid "Unlimited Forms and Form Entries"
 msgstr "فرم‌ها و ورودی‌های نامحدود"
 
@@ -11349,7 +11358,7 @@ msgstr "ارتقا لازم است"
 #. translators: Upgrade to Pro = button text for upgrading
 #: includes/class-Emsfb-email-monitor.php:2060 includes/functions.php:1414
 #: includes/functions.php:1754 includes/functions.php:1926
-#: includes/functions.php:8181
+#: includes/functions.php:8189
 msgid "Upgrade to Pro"
 msgstr "ارتقا به نسخه ویژه"
 
@@ -11425,7 +11434,7 @@ msgid "Use {{field_id}} placeholders for dynamic values from form fields"
 msgstr "برای مقادیر پویای فیلدهای فرم، از نگهدارنده‌های مکان {{field_id}} استفاده کنید"
 
 #  origin: wporg-stable
-#: includes/class-email-handler.php:590 includes/class-email-handler.php:1022
+#: includes/class-email-handler.php:599 includes/class-email-handler.php:1031
 #: includes/functions.php:2201
 msgid "Username"
 msgstr "نام کاربری"
@@ -11459,7 +11468,7 @@ msgid "Vegetarian"
 msgstr "گیاه‌خوار"
 
 #  origin: wporg-stable
-#: includes/class-email-handler.php:943
+#: includes/class-email-handler.php:952
 msgid "Verify Email"
 msgstr "تأیید ایمیل"
 
@@ -11481,12 +11490,12 @@ msgid "Video Recorder"
 msgstr "ضبط ویدئو"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4550
+#: includes/class-Emsfb-formbuilder.php:4565
 msgid "Video Recording Forms"
 msgstr "فرم‌های ضبط ویدئو"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-public.php:7426
+#: includes/class-Emsfb-public.php:7452
 msgid "Video recording"
 msgstr "ضبط ویدئو"
 
@@ -11549,7 +11558,7 @@ msgid "WP-Cron"
 msgstr "WP-Cron"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4673
+#: includes/class-Emsfb-formbuilder.php:4688
 msgid "WPBakery form plugin"
 msgstr "افزونه فرم WPBakery"
 
@@ -11601,7 +11610,7 @@ msgid "Want to use this feature? It is included in Free Plus and Pro plans."
 msgstr "می‌خواهید از این قابلیت استفاده کنید؟ این قابلیت در پلن‌های رایگان پلاس و ویژه موجود است."
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:3555
+#: includes/class-Emsfb-formbuilder.php:3570
 msgid "Warning"
 msgstr "هشدار"
 
@@ -11715,7 +11724,7 @@ msgstr[0] "%s فرم Contact Form 7 در این سایت پیدا شد. آن ر�
 msgstr[1] "%s فرم Contact Form 7 در این سایت پیدا شد. آن‌ها را با یک کلیک به فرم‌ساز آسان کپی کنید؛ نسخه‌های اصلی همان‌طور که هستند باقی می‌مانند."
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-public.php:6531 includes/class-Emsfb-public.php:7224
+#: includes/class-Emsfb-public.php:6545 includes/class-Emsfb-public.php:7238
 #: includes/functions.php:6761
 msgid "We have made some updates. Please wait a few minutes before trying again."
 msgstr "ما چند به‌روزرسانی انجام داده‌ایم. لطفاً چند دقیقه صبر کنید و سپس دوباره تلاش کنید."
@@ -11798,7 +11807,7 @@ msgid "Welcome"
 msgstr "خوش آمدید"
 
 #  origin: wporg-stable
-#: includes/class-email-handler.php:561
+#: includes/class-email-handler.php:570
 msgid "Welcome!"
 msgstr "خوش آمدید!"
 
@@ -11911,7 +11920,7 @@ msgid "WhiteStudio dashboard"
 msgstr "پیشخوان WhiteStudio"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4462
+#: includes/class-Emsfb-formbuilder.php:4477
 msgid "WhiteStudio.team"
 msgstr "WhiteStudio.team"
 
@@ -11952,27 +11961,27 @@ msgid "WordPress"
 msgstr "وردپرس"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4526
+#: includes/class-Emsfb-formbuilder.php:4541
 msgid "WordPress 5.0 or later; PHP 7.0 or later"
 msgstr "وردپرس 5.0 یا بالاتر؛ PHP 7.0 یا بالاتر"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:3541
+#: includes/class-Emsfb-formbuilder.php:3556
 msgid "WordPress Core"
 msgstr "هسته‌ی وردپرس"
 
 #  origin: sonnet (fa_IR)
-#: includes/class-Emsfb-formbuilder.php:4522
+#: includes/class-Emsfb-formbuilder.php:4537
 msgid "WordPress Form Builder Plugin"
 msgstr "افزونه فرم‌ساز وردپرس"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4580
+#: includes/class-Emsfb-formbuilder.php:4595
 msgid "WordPress Form Entry and Message Management Dashboard"
 msgstr "پیشخوان مدیریت ورودی‌ها و پیام‌های فرم وردپرس"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4547
+#: includes/class-Emsfb-formbuilder.php:4562
 msgid "WordPress Login and Registration Forms"
 msgstr "فرم‌های ورود و نام‌نویسی وردپرس"
 
@@ -11994,7 +12003,7 @@ msgid "WordPress accepted and sent the test email. Waiting for it to arrive."
 msgstr "وردپرس ایمیل آزمایشی را پذیرفت و ارسال کرد. در انتظار دریافت آن هستیم."
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4636
+#: includes/class-Emsfb-formbuilder.php:4651
 msgid "WordPress audio recorder form"
 msgstr "فرم ضبط صدا وردپرس"
 
@@ -12011,7 +12020,7 @@ msgid "WordPress cannot write to the folder %s"
 msgstr "وردپرس نمی‌تواند در پوشه %s بنویسد"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4613
+#: includes/class-Emsfb-formbuilder.php:4628
 msgid "WordPress contact form"
 msgstr "فرم تماس وردپرس"
 
@@ -12040,52 +12049,52 @@ msgid "WordPress could not send your email"
 msgstr "وردپرس نتوانست ایمیل شما را ارسال کند"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4646
+#: includes/class-Emsfb-formbuilder.php:4661
 msgid "WordPress email notifications"
 msgstr "اعلان‌های ایمیلی وردپرس"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4643
+#: includes/class-Emsfb-formbuilder.php:4658
 msgid "WordPress event registration form"
 msgstr "فرم ثبت‌نام رویداد وردپرس"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4607
+#: includes/class-Emsfb-formbuilder.php:4622
 msgid "WordPress form builder"
 msgstr "فرم‌ساز وردپرس"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4651
+#: includes/class-Emsfb-formbuilder.php:4666
 msgid "WordPress form entries"
 msgstr "ورودی‌های فرم وردپرس"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4653
+#: includes/class-Emsfb-formbuilder.php:4668
 msgid "WordPress form message management"
 msgstr "مدیریت پیام‌های فرم وردپرس"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4609
+#: includes/class-Emsfb-formbuilder.php:4624
 msgid "WordPress form plugin"
 msgstr "افزونه فرم وردپرس"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4666
+#: includes/class-Emsfb-formbuilder.php:4681
 msgid "WordPress form rate limiting"
 msgstr "محدودسازی نرخ فرم‌های وردپرس"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4663
+#: includes/class-Emsfb-formbuilder.php:4678
 msgid "WordPress form spam protection"
 msgstr "محافظت ضد هرزنامه فرم وردپرس"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4658
+#: includes/class-Emsfb-formbuilder.php:4673
 msgid "WordPress forms API integration"
 msgstr "یکپارچه‌سازی API فرم‌های وردپرس"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4668
+#: includes/class-Emsfb-formbuilder.php:4683
 msgid "WordPress forms stored locally"
 msgstr "فرم‌های وردپرس با ذخیره‌سازی محلی"
 
@@ -12096,12 +12105,12 @@ msgid "WordPress hands a real message to your mail server. A tick here means Wor
 msgstr "وردپرس یک پیام واقعی را به سرور ایمیل شما تحویل می‌دهد. علامت تیک در اینجا یعنی وردپرس آن را ارسال کرده است، نه اینکه حتماً دریافت شده باشد."
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4641
+#: includes/class-Emsfb-formbuilder.php:4656
 msgid "WordPress job application form"
 msgstr "فرم درخواست شغل وردپرس"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4626
+#: includes/class-Emsfb-formbuilder.php:4641
 msgid "WordPress login form"
 msgstr "فرم ورود وردپرس"
 
@@ -12116,17 +12125,17 @@ msgid "WordPress on this site is set to block outgoing connections (WP_HTTP_BLOC
 msgstr "وردپرس در این سایت طوری تنظیم شده است که اتصال‌های خروجی را مسدود کند (WP_HTTP_BLOCK_EXTERNAL)"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4619
+#: includes/class-Emsfb-formbuilder.php:4634
 msgid "WordPress payment forms"
 msgstr "فرم‌های پرداخت وردپرس"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4616
+#: includes/class-Emsfb-formbuilder.php:4631
 msgid "WordPress poll plugin"
 msgstr "افزونه نظرسنجی وردپرس"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4625
+#: includes/class-Emsfb-formbuilder.php:4640
 msgid "WordPress registration form"
 msgstr "فرم نام‌نویسی وردپرس"
 
@@ -12136,7 +12145,7 @@ msgid "WordPress returned an error while sending. See the message below."
 msgstr "وردپرس هنگام ارسال خطا برگرداند. پیام زیر را ببینید."
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4638
+#: includes/class-Emsfb-formbuilder.php:4653
 msgid "WordPress screen recorder form"
 msgstr "فرم ضبط صفحه وردپرس"
 
@@ -12191,12 +12200,12 @@ msgid "WordPress sent your email, but it never arrived"
 msgstr "وردپرس ایمیل شما را ارسال کرد، اما هرگز نرسید"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4615
+#: includes/class-Emsfb-formbuilder.php:4630
 msgid "WordPress survey plugin"
 msgstr "افزونه پرسش‌نامه وردپرس"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4637
+#: includes/class-Emsfb-formbuilder.php:4652
 msgid "WordPress video recorder form"
 msgstr "فرم ضبط ویدئو وردپرس"
 
@@ -12256,7 +12265,7 @@ msgid "XXXLarge"
 msgstr "بسیار بسیار بزرگ"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-public.php:3796
+#: includes/class-Emsfb-public.php:3810
 msgid "Y/m/d \\a\\t g:ia"
 msgstr "Y/m/d \\a\\t g:ia"
 
@@ -12305,7 +12314,7 @@ msgid "You are not allowed to do that."
 msgstr "شما اجازه انجام این کار را ندارید."
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-public.php:8037
+#: includes/class-Emsfb-public.php:8063
 msgid "You are not allowed to do this."
 msgstr "شما مجاز به انجام این کار نیستید."
 
@@ -12444,7 +12453,7 @@ msgid "You have not added any fields."
 msgstr "شما هیچ فیلدی اضافه نکرده اید."
 
 #  origin: wporg-stable
-#: includes/class-email-handler.php:917
+#: includes/class-email-handler.php:926
 msgid "You have requested to reset your password."
 msgstr "شما درخواست بازنشانی گذرواژه خود را داده‌اید."
 
@@ -12492,13 +12501,13 @@ msgid "Your Easy Form Builder Pro subscription has expired, so this add-on canno
 msgstr "اشتراک فرم‌ساز آسان پرو شما منقضی شده است؛ بنابراین این افزودنی دانلود نمی‌شود."
 
 #  origin: wporg-stable
-#: includes/functions.php:8209
+#: includes/functions.php:8217
 #, php-format
 msgid "Your Easy Form Builder Pro subscription has expired. To continue enjoying all Pro features and keep your forms running, %1$sRenew your subscription now.%2$s"
 msgstr "اشتراک ویژه فرم‌ساز آسان شما منقضی شده است. برای ادامه استفاده از همه قابلیت‌های ویژه و فعال‌ماندن فرم‌های خود، %1$sهمین حالا اشتراک خود را تمدید کنید.%2$s"
 
 #  origin: wporg-stable
-#: includes/functions.php:8167
+#: includes/functions.php:8175
 #, php-format
 msgid "Your Easy Form Builder Pro subscription has expired. To continue using the %s add-on and all Pro features, please renew your subscription."
 msgstr "اشتراک ویژه فرم‌ساز آسان شما منقضی شده است. برای ادامه استفاده از افزودنی %s و همه قابلیت‌های ویژه، لطفاً اشتراک خود را تمدید کنید."
@@ -12535,7 +12544,7 @@ msgid "Your account has been successfully activated. You can now log in and get 
 msgstr "حساب شما با موفقیت فعال شد. اکنون می‌توانید وارد شوید و کار را آغاز کنید!"
 
 #  origin: wporg-stable
-#: includes/class-email-handler.php:983
+#: includes/class-email-handler.php:992
 msgid "Your account has been successfully created!"
 msgstr "حساب شما با موفقیت ایجاد شد!"
 
@@ -12550,7 +12559,7 @@ msgid "Your activation code has been verified. Enjoy all Pro features of Easy Fo
 msgstr "کد فعال‌سازی شما تأیید شد. از همه قابلیت‌های ویژه فرم‌ساز آسان لذت ببرید."
 
 #  origin: wporg-stable
-#: includes/functions.php:8165 includes/functions.php:8213
+#: includes/functions.php:8173 includes/functions.php:8221
 msgid "Your activation code has expired!"
 msgstr "کد فعال‌سازی شما منقضی شده است!"
 
@@ -12789,7 +12798,7 @@ msgid "Your login status changed. Reopen the form before continuing."
 msgstr "وضعیت ورود شما تغییر کرد. پیش از ادامه، فرم را دوباره باز کنید."
 
 #  origin: wporg-stable
-#: includes/class-email-handler.php:846
+#: includes/class-email-handler.php:855
 msgid "Your message has been received and recorded successfully."
 msgstr "پیام شما با موفقیت دریافت و ثبت شد."
 
@@ -12804,7 +12813,7 @@ msgid "Your message is in"
 msgstr "پیام شما ثبت شد"
 
 #  origin: sonnet (fa_IR)
-#: includes/class-Emsfb-public.php:3747
+#: includes/class-Emsfb-public.php:3761
 msgid "Your payment has not been completed. Please pay before sending the form."
 msgstr "پرداخت شما تکمیل نشده است. لطفاً پیش از ارسال فرم، پرداخت را انجام دهید."
 
@@ -12883,7 +12892,7 @@ msgid "Your server has no SMTP host or sendmail path set. Emails may not be deli
 msgstr "سرور شما فاقد میزبان SMTP یا مسیر sendmail تنظیم‌شده است. احتمال دارد ایمیل‌ها تحویل داده نشوند."
 
 #  origin: wporg-stable
-#: includes/class-email-handler.php:645
+#: includes/class-email-handler.php:654
 msgid "Your server has successfully sent this test email. The email delivery system is properly configured and functioning."
 msgstr "سرور شما این ایمیل آزمایشی را با موفقیت ارسال کرده است. سامانه تحویل ایمیل به‌درستی پیکربندی شده و در حال کار است."
 
@@ -13149,17 +13158,17 @@ msgid "columns"
 msgstr "ستون‌ها"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4647
+#: includes/class-Emsfb-formbuilder.php:4662
 msgid "conditional email notifications"
 msgstr "اعلان‌های ایمیلی شرطی"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4628
+#: includes/class-Emsfb-formbuilder.php:4643
 msgid "conditional logic forms"
 msgstr "فرم‌های دارای منطق شرطی"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4612
+#: includes/class-Emsfb-formbuilder.php:4627
 msgid "contact form plugin"
 msgstr "افزونه فرم تماس"
 
@@ -13180,12 +13189,12 @@ msgid "disabled in php.ini: %s"
 msgstr "در تنظیمات فایل php.ini غیرفعال شده است: %s"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4610
+#: includes/class-Emsfb-formbuilder.php:4625
 msgid "drag and drop form builder"
 msgstr "فرم‌ساز کشیدن و رها کردن"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4633
+#: includes/class-Emsfb-formbuilder.php:4648
 msgid "e-signature form plugin"
 msgstr "افزونه فرم امضای الکترونیکی"
 
@@ -13207,18 +13216,18 @@ msgid "e.g., Customer Lookup API"
 msgstr "مثلاً: API جستجوی مشتری"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4632
+#: includes/class-Emsfb-formbuilder.php:4647
 msgid "electronic signature forms"
 msgstr "فرم‌های امضای الکترونیکی"
 
 #  origin: sonnet (fa_IR)
-#: includes/class-Emsfb-formbuilder.php:4645
+#: includes/class-Emsfb-formbuilder.php:4660
 msgid "email notification forms"
 msgstr "فرم‌های آگاه‌سازی ایمیلی"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-public.php:6515 includes/class-Emsfb-public.php:6564
-#: includes/class-Emsfb-public.php:7235 includes/class-Emsfb-public.php:8702
+#: includes/class-Emsfb-public.php:6529 includes/class-Emsfb-public.php:6578
+#: includes/class-Emsfb-public.php:7249 includes/class-Emsfb-public.php:8728
 #: vendor/paypal/class-Emsfb-paypal-handler.php:303
 #: vendor/paypal/class-Emsfb-paypal-handler.php:325
 #: vendor/persiapay/zarinpal.php:188 vendor/persiapay/zarinpal.php:238
@@ -13226,7 +13235,7 @@ msgid "error"
 msgstr "خطا"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4642
+#: includes/class-Emsfb-formbuilder.php:4657
 msgid "event registration forms"
 msgstr "فرم‌های ثبت‌نام رویداد"
 
@@ -13248,37 +13257,37 @@ msgid "file changes are switched off on this site (DISALLOW_FILE_MODS)"
 msgstr "تغییر فایل‌ها در این سایت غیرفعال شده است (DISALLOW_FILE_MODS)"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4631
+#: includes/class-Emsfb-formbuilder.php:4646
 msgid "file upload form plugin"
 msgstr "افزونه فرم بارگذاری پرونده"
 
 #  origin: sonnet (fa_IR)
-#: includes/class-Emsfb-formbuilder.php:4659
+#: includes/class-Emsfb-formbuilder.php:4674
 msgid "form autofill API"
 msgstr "API تکمیل خودکار فرم"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4648
+#: includes/class-Emsfb-formbuilder.php:4663
 msgid "form email deliverability"
 msgstr "تحویل‌پذیری ایمیل فرم"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4652
+#: includes/class-Emsfb-formbuilder.php:4667
 msgid "form submission management"
 msgstr "مدیریت ارسال‌های فرم"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4655
+#: includes/class-Emsfb-formbuilder.php:4670
 msgid "form submissions CSV export"
 msgstr "برون‌بری ارسال‌های فرم به CSV"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4654
+#: includes/class-Emsfb-formbuilder.php:4669
 msgid "form submissions PDF export"
 msgstr "برون‌بری ارسال‌های فرم به PDF"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4608
+#: includes/class-Emsfb-formbuilder.php:4623
 msgid "free WordPress form plugin"
 msgstr "افزونه رایگان فرم وردپرس"
 
@@ -13290,7 +13299,7 @@ msgid "grade %s"
 msgstr "رتبه %s"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4665
+#: includes/class-Emsfb-formbuilder.php:4680
 msgid "honeypot spam protection WordPress"
 msgstr "محافظت ضد هرزنامه هانی‌پات وردپرس"
 
@@ -13310,27 +13319,27 @@ msgid "installation"
 msgstr "نصب"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:3556
+#: includes/class-Emsfb-formbuilder.php:3571
 msgid "jQuery Dependency Issue"
 msgstr "مشکل وابستگی jQuery"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:3557
+#: includes/class-Emsfb-formbuilder.php:3572
 msgid "jQuery is not properly loaded or available. AJAX and interactive form features may not work correctly."
 msgstr "jQuery به‌درستی بارگذاری نشده یا در دسترس نیست. ممکن است AJAX و قابلیت‌های تعاملی فرم به‌درستی کار نکنند."
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4640
+#: includes/class-Emsfb-formbuilder.php:4655
 msgid "job application forms"
 msgstr "فرم‌های درخواست شغل"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4634
+#: includes/class-Emsfb-formbuilder.php:4649
 msgid "location picker form"
 msgstr "فرم انتخاب موقعیت مکانی"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4627
+#: includes/class-Emsfb-formbuilder.php:4642
 msgid "multi-step form plugin"
 msgstr "افزونه فرم چندمرحله‌ای"
 
@@ -13346,7 +13355,7 @@ msgid "not provided by PHP or its required extension: %s"
 msgstr "توسط PHP یا افزونه (Extension) موردنیاز آن ارائه نشده است: %s"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4660
+#: includes/class-Emsfb-formbuilder.php:4675
 msgid "offline WordPress forms"
 msgstr "فرم‌های آفلاین وردپرس"
 
@@ -13377,12 +13386,12 @@ msgid "out of 100"
 msgstr "از ۱۰۰"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4618
+#: includes/class-Emsfb-formbuilder.php:4633
 msgid "payment form plugin"
 msgstr "افزونه فرم پرداخت"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-public.php:7235 vendor/persiapay/zarinpal.php:188
+#: includes/class-Emsfb-public.php:7249 vendor/persiapay/zarinpal.php:188
 msgid "persiaPayment"
 msgstr "درگاه پرداخت ایرانی"
 
@@ -13415,7 +13424,7 @@ msgid "reCAPTCHA v2"
 msgstr "reCAPTCHA نسخه ۲"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4623
+#: includes/class-Emsfb-formbuilder.php:4638
 msgid "recurring payment forms"
 msgstr "فرم‌های پرداخت دوره‌ای"
 
@@ -13447,7 +13456,7 @@ msgid "revisions are off for it or you cannot edit it, so it was left as it is"
 msgstr "رونوشت‌ها برای آن غیرفعال است یا امکان ویرایش آن را ندارید، بنابراین همان‌طور که بود باقی ماند"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4662
+#: includes/class-Emsfb-formbuilder.php:4677
 msgid "secure WordPress forms"
 msgstr "فرم‌های امن وردپرس"
 
@@ -13458,7 +13467,7 @@ msgid "selected"
 msgstr "انتخاب‌شده"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4667
+#: includes/class-Emsfb-formbuilder.php:4682
 msgid "self-hosted WordPress forms"
 msgstr "فرم‌های وردپرس خودمیزبان"
 
@@ -13474,17 +13483,17 @@ msgid "silentCAPTCHA Spam Protection"
 msgstr "محافظت در برابر هرزنامه با silentCAPTCHA"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4629
+#: includes/class-Emsfb-formbuilder.php:4644
 msgid "smart forms WordPress"
 msgstr "فرم‌های هوشمند وردپرس"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4622
+#: includes/class-Emsfb-formbuilder.php:4637
 msgid "subscription payment forms"
 msgstr "فرم‌های پرداخت اشتراکی"
 
 #  origin: wporg-stable
-#: includes/class-Emsfb-formbuilder.php:4614
+#: includes/class-Emsfb-formbuilder.php:4629
 msgid "survey form plugin"
 msgstr "افزونه فرم نظرسنجی"
 
