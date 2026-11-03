@@ -2,10 +2,10 @@
     "domain": "easy-form-builder",
     "about": "Every phrase looked up in the easy-form-builder text domain: the core plus add-ons that still use that domain. Maintained by tests/core-i18n/extract.php (agent efb-core-i18n); do not edit by hand.",
     "plugin_version": "4.3.1",
-    "updated": "2026-11-02",
+    "updated": "2026-11-03",
     "counts": {
-        "active": 2363,
-        "obsolete": 307
+        "active": 2430,
+        "obsolete": 306
     },
     "entries": [
         {
@@ -170,6 +170,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%s Contact Form 7 form on this site is not in Easy Form Builder yet. Copy it in one click; the original stays as it is.",
+            "context": null,
+            "plural": "%s Contact Form 7 forms on this site are not in Easy Form Builder yet. Copy them in one click; the originals stay as they are.",
+            "translators": "%s: number of Contact Form 7 forms not imported yet",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-importer.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -626,6 +641,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "(no title)",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-importer.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "(not enabled)",
             "context": null,
             "plural": null,
@@ -802,6 +832,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "20 form fields",
+            "context": null,
+            "plural": null,
+            "translators": "Plan card bullet: the number of form fields in the Free plan.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -1031,6 +1076,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "A link in “%s” is now plain text.",
+            "context": null,
+            "plural": null,
+            "translators": "%s: a line of text from the Contact Form 7 form",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-mapper.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "A little more detail, please - one sentence about what broke is enough.",
             "context": null,
             "plural": null,
@@ -1149,6 +1209,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "A “[%s]” tag without a valid name was skipped.",
+            "context": null,
+            "plural": null,
+            "translators": "%s: a Contact Form 7 tag type such as \"text\"",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-mapper.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "API Auto-Populate Integration is Active",
@@ -2370,6 +2445,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Already imported as form #%s",
+            "context": null,
+            "plural": null,
+            "translators": "%s: id of the Easy Form Builder form made from it",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-importer.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Alt Text",
             "context": null,
             "plural": null,
@@ -2471,6 +2561,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "An image in the form was not carried over.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-mapper.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -4129,6 +4234,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "CSV export of entries",
+            "context": null,
+            "plural": null,
+            "translators": "Plan card bullet: downloading form entries as a CSV file.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "CV Application",
             "context": null,
             "plural": null,
@@ -4242,6 +4362,7 @@
             "translators": "Cancel = discards the edits made in the Colors & Fonts dialog translators: Cancel = generic cancel action",
             "files": [
                 "includes/functions.php",
+                "includes/importers/cf7/class-Emsfb-cf7-importer.php",
                 "includes/phrases.php"
             ],
             "scope": [
@@ -4523,6 +4644,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Carried over",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-importer.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -4933,6 +5069,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Choose at least one form.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-importer.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Choose options",
             "context": null,
             "plural": null,
@@ -4959,6 +5110,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Choose the forms to copy. Each one becomes a new Easy Form Builder form. Your Contact Form 7 forms are not changed or deleted.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-importer.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -5364,7 +5530,8 @@
                 "includes/admin/class-Emsfb-panel.php",
                 "includes/class-Emsfb-deactivation-feedback.php",
                 "includes/class-Emsfb-review-request.php",
-                "includes/functions.php"
+                "includes/functions.php",
+                "includes/importers/cf7/class-Emsfb-cf7-importer.php"
             ],
             "scope": [
                 "core"
@@ -6021,6 +6188,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Contact Form 7 did not send the notification email for this form (skip_mail), so it is turned off here too.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-mapper.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Contact Us Form",
             "context": null,
             "plural": null,
@@ -6254,7 +6436,8 @@
             "plural": null,
             "translators": "",
             "files": [
-                "includes/class-Emsfb-deactivation-feedback.php"
+                "includes/class-Emsfb-deactivation-feedback.php",
+                "includes/importers/cf7/class-Emsfb-cf7-importer.php"
             ],
             "scope": [
                 "core"
@@ -6290,6 +6473,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Copies (Cc/Bcc) were not carried over: %s. Add them to the notification addresses in the form settings if they should get every entry.",
+            "context": null,
+            "plural": null,
+            "translators": "%s: email addresses",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-mapper.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -6364,7 +6562,8 @@
             "plural": null,
             "translators": "Copy shortcode label with tooltip",
             "files": [
-                "includes/functions.php"
+                "includes/functions.php",
+                "includes/importers/cf7/class-Emsfb-cf7-importer.php"
             ],
             "scope": [
                 "core"
@@ -6462,6 +6661,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "Could not be carried over",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-importer.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Could not start email test.",
@@ -6987,6 +7201,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Custom JavaScript from the “Additional Settings” of Contact Form 7 was not carried over.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-mapper.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -7659,6 +7888,21 @@
             "translators": "Email test headline when no usable answer about delivery came back",
             "files": [
                 "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Demo mode was on in Contact Form 7. The new form saves entries and sends emails normally.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-mapper.php"
             ],
             "scope": [
                 "core"
@@ -8997,6 +9241,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Edit in builder",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-importer.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Editor",
             "context": null,
             "plural": null,
@@ -9629,6 +9888,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Email subject: %s",
+            "context": null,
+            "plural": null,
+            "translators": "%s: email subject",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-mapper.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Email system is not available.",
             "context": null,
             "plural": null,
@@ -9745,6 +10019,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Email text: Easy Form Builder sends its own emails, listing every answer, so the message text written in Contact Form 7 was not copied.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-mapper.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -10683,6 +10972,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Everything was carried over.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-importer.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Executive Limousine",
             "context": null,
             "plural": null,
@@ -11040,6 +11344,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Fields: %s",
+            "context": null,
+            "plural": null,
+            "translators": "%s: number of fields",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-importer.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -12724,6 +13043,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Google reCAPTCHA is turned on for this form, in place of the Contact Form 7 CAPTCHA.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-mapper.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Google reCAPTCHA v2 Spam Protection",
             "context": null,
             "plural": null,
@@ -14335,16 +14669,46 @@
             "msgid": "Import",
             "context": null,
             "plural": null,
-            "translators": "Import = button that loads logic rules from a file",
+            "translators": "",
             "files": [
-                "includes/functions.php"
+                "includes/importers/cf7/class-Emsfb-cf7-importer.php"
             ],
             "scope": [
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.2.0"
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Import finished",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-importer.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Import from Contact Form 7",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-importer.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Important Notes",
@@ -14373,6 +14737,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Importing…",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-importer.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -16297,6 +16676,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Looking for Contact Form 7 forms…",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-importer.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Looks good",
             "context": null,
             "plural": null,
@@ -16806,6 +17200,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "Message after sending: “%s”",
+            "context": null,
+            "plural": null,
+            "translators": "%s: the message shown after sending",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-mapper.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Message card",
@@ -17363,6 +17772,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Moving from Contact Form 7?",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-importer.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Multi-Step",
             "context": null,
             "plural": null,
@@ -17754,6 +18178,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "New form #%s",
+            "context": null,
+            "plural": null,
+            "translators": "%s: id of the new Easy Form Builder form",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-importer.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "New message received",
             "context": null,
             "plural": null,
@@ -17909,6 +18348,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "No Contact Form 7 forms were found.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-importer.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -18590,6 +19044,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Not changed:",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-importer.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Not checked",
             "context": null,
             "plural": null,
@@ -18920,6 +19389,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Notifications go to %s.",
+            "context": null,
+            "plural": null,
+            "translators": "%s: email address(es)",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-mapper.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Notifications stay off until delivery is verified",
             "context": null,
             "plural": null,
@@ -18931,6 +19415,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Now showing the new form:",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-importer.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -18991,6 +19490,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Off by default. Each page is first saved as a revision, so you can undo the change from the page’s Revisions screen. Pages built with Elementor or Beaver Builder are listed but not changed.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-importer.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -19226,6 +19740,21 @@
             "translators": "Form builder, shown under the question to a user who may build forms but not change the site's email settings.",
             "files": [
                 "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Only logged-in visitors can use this form, as in Contact Form 7.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-mapper.php"
             ],
             "scope": [
                 "core"
@@ -19744,6 +20273,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Parts of the email subject that showed the visitor’s answers were removed: Easy Form Builder cannot put answers in the subject.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-mapper.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -23577,6 +24121,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Replace the Contact Form 7 form on these pages with the new form",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-importer.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Replies per tracking code/hour",
             "context": null,
             "plural": null,
@@ -23778,7 +24337,8 @@
             "plural": null,
             "translators": "Required = field must be filled out",
             "files": [
-                "includes/functions.php"
+                "includes/functions.php",
+                "includes/importers/cf7/class-Emsfb-cf7-importer.php"
             ],
             "scope": [
                 "core"
@@ -26123,7 +26683,8 @@
             "plural": null,
             "translators": "",
             "files": [
-                "includes/functions.php"
+                "includes/functions.php",
+                "includes/importers/cf7/class-Emsfb-cf7-importer.php"
             ],
             "scope": [
                 "core"
@@ -26506,6 +27067,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Shown on: %s",
+            "context": null,
+            "plural": null,
+            "translators": "%s: list of page titles",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-importer.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -26965,7 +27541,8 @@
             "plural": null,
             "translators": "",
             "files": [
-                "includes/functions.php"
+                "includes/functions.php",
+                "includes/importers/cf7/class-Emsfb-cf7-importer.php"
             ],
             "scope": [
                 "core"
@@ -27782,6 +28359,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Stripe and PayPal payments",
+            "context": null,
+            "plural": null,
+            "translators": "Plan card bullet: taking payments in forms with Stripe and PayPal.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -29364,6 +29956,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The CAPTCHA was not carried over as a field. Easy Form Builder has its own Google reCAPTCHA: add your keys in Panel > Settings > Google Keys, then turn on reCAPTCHA in this form’s settings.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-mapper.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The Conditional Logic Add-on enables dynamic and interactive forms based on specific user inputs or conditional rules. It allows for highly personalized forms tailored to meet users’ unique needs.",
             "context": null,
             "plural": null,
@@ -29919,6 +30526,51 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The character counter of “%s” was not carried over.",
+            "context": null,
+            "plural": null,
+            "translators": "%s: field label",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-mapper.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The choices of “%1$s” came from a list (%2$s) that is not available here. Add the choices in the builder.",
+            "context": null,
+            "plural": null,
+            "translators": "1: field label, 2: list name such as \"countries\"",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-mapper.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The choices of “%s” sent a different value in the email (the text after “|”). Easy Form Builder saves the text the visitor sees.",
+            "context": null,
+            "plural": null,
+            "translators": "%s: field label",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-mapper.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The code has not yet been added. Click on",
             "context": null,
             "plural": null,
@@ -29990,6 +30642,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The confirmation email to the visitor could not be turned on because the form has no email field.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-mapper.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -30110,6 +30777,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The email subject showed the visitor’s answers, which Easy Form Builder cannot put in the subject, so its standard subject is used.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-mapper.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The email subject was not copied: Easy Form Builder uses one subject for your notification and for the visitor’s confirmation, so its standard subjects are kept.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-mapper.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -30552,6 +31249,21 @@
             "obsolete_since": "4.3.1"
         },
         {
+            "msgid": "The hidden field “%s” was not carried over: Easy Form Builder has no hidden field.",
+            "context": null,
+            "plural": null,
+            "translators": "%s: the field name in Contact Form 7",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-mapper.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The installation could not be started from this page. You can continue in English; it will be tried again in the background.",
             "context": null,
             "plural": null,
@@ -30837,6 +31549,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The notification address “%1$s” depends on the visitor or the page, which Easy Form Builder does not support. Notifications go to %2$s.",
+            "context": null,
+            "plural": null,
+            "translators": "1: an address setting such as \"[your-email]\", 2: email address(es)",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-mapper.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The original look. Adds no extra CSS or JavaScript to your page.",
             "context": null,
             "plural": null,
@@ -30893,6 +31620,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The quiz question “%s” was not carried over: Easy Form Builder has no quiz question. Turn on reCAPTCHA in the form settings to keep spam out.",
+            "context": null,
+            "plural": null,
+            "translators": "%s: the quiz question",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-mapper.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -31185,6 +31927,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The sender address %s was not carried over: Easy Form Builder sends from one address for all forms, set in its email settings.",
+            "context": null,
+            "plural": null,
+            "translators": "%s: email address",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-mapper.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The sender email address is not valid.",
             "context": null,
             "plural": null,
@@ -31455,6 +32212,21 @@
             "obsolete_since": "4.3.1"
         },
         {
+            "msgid": "The text box of the last choice of “%s” is now a separate text field right after it.",
+            "context": null,
+            "plural": null,
+            "translators": "%s: field label",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-mapper.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The upload field could not be verified. Please refresh the form and try again.",
             "context": null,
             "plural": null,
@@ -31620,6 +32392,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The visitor gets a confirmation email at the address typed in “%s”.",
+            "context": null,
+            "plural": null,
+            "translators": "%s: label of the email field",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-mapper.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The website is not responding; please refresh and try again—saving or submitting is not available until it is restored.",
             "context": null,
             "plural": null,
@@ -31676,6 +32463,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The “[%s]” tag comes from another plugin and was not carried over.",
+            "context": null,
+            "plural": null,
+            "translators": "%s: a form-tag type such as \"dynamictext\" translators: %s: a form-tag type such as \"stripe\"",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-mapper.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -31843,6 +32645,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "These limits of “%1$s” were not carried over: %2$s.",
+            "context": null,
+            "plural": null,
+            "translators": "1: field label, 2: the settings, e.g. \"maxlength:500\" translators: 1: field label, 2: the settings, e.g. \"min:-5 step:0.5\" translators: 1: field label, 2: the settings, e.g. \"min:today+7days\"",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-mapper.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "These settings apply to the public response box only; the admin panel always keeps the default palette.",
@@ -32068,6 +32885,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "This form could not be imported.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-importer.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -32519,6 +33351,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Ticked: it will be imported again as a new copy.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-importer.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -33371,7 +34218,8 @@
             "plural": null,
             "translators": "Toolbar & sidebar labels for email builder",
             "files": [
-                "includes/functions.php"
+                "includes/functions.php",
+                "includes/importers/cf7/class-Emsfb-cf7-importer.php"
             ],
             "scope": [
                 "core"
@@ -33788,6 +34636,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Uploaded files are not attached to the email. Easy Form Builder keeps them with each entry.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-mapper.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Uploading is not available right now. Please try again.",
             "context": null,
             "plural": null,
@@ -34161,6 +35024,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "View",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-importer.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -34741,6 +35619,21 @@
             "translators": "%s: email address. Shown under the result when the testing service has sent the full report.",
             "files": [
                 "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "We found %s Contact Form 7 form on this site. Copy it into Easy Form Builder in one click; the original stays as it is.",
+            "context": null,
+            "plural": "We found %s Contact Form 7 forms on this site. Copy them into Easy Form Builder in one click; the originals stay as they are.",
+            "translators": "%s: number of Contact Form 7 forms found on the site",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-importer.php"
             ],
             "scope": [
                 "core"
@@ -38738,6 +39631,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "built with %s: change the form there",
+            "context": null,
+            "plural": null,
+            "translators": "%s: a page builder such as Elementor",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-importer.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "cities",
             "context": null,
             "plural": null,
@@ -39779,6 +40687,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "revisions are off for it or you cannot edit it, so it was left as it is",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-importer.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "secure WordPress forms",
             "context": null,
             "plural": null,
@@ -40171,6 +41094,81 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "“%1$s” accepted only %2$s. Easy Form Builder offers fixed file groups, so it now accepts: %3$s.",
+            "context": null,
+            "plural": null,
+            "translators": "1: field label, 2: file extensions like \"jpg, pdf\", 3: an upload group such as \"All formats\" translators: 1: field label, 2: file extensions like \"jpg, pdf\", 3: an upload group such as \"Image\"",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-mapper.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "“%s” allowed only one choice, so it is now a group of radio buttons.",
+            "context": null,
+            "plural": null,
+            "translators": "%s: field label",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-mapper.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "“%s” filled itself in (from the logged-in user, the page address or the page). That is not carried over.",
+            "context": null,
+            "plural": null,
+            "translators": "%s: field label",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-mapper.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "“%s” had to stay unticked in Contact Form 7. In Easy Form Builder it is an ordinary optional checkbox.",
+            "context": null,
+            "plural": null,
+            "translators": "%s: field label",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-mapper.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "“%s” was read-only. It is now an ordinary field.",
+            "context": null,
+            "plural": null,
+            "translators": "%s: field label",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-mapper.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
