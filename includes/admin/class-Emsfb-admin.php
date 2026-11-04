@@ -44,6 +44,7 @@ class Admin {
             add_action('wp_ajax_remove_message_id_Emsfb', [$this, 'delete_message_id_public']);
             add_action('wp_ajax_get_form_id_Emsfb', [$this, 'get_form_id_Emsfb']);
             add_action('wp_ajax_get_messages_id_Emsfb', [$this, 'get_messages_id_Emsfb']);
+            add_action('wp_ajax_efb_esign_image', [$this, 'esign_image_efb']);
             add_action('wp_ajax_get_all_response_id_Emsfb', [$this, 'get_all_response_id_Emsfb']);
             add_action('wp_ajax_update_form_Emsfb', [$this, 'update_form_id_Emsfb']);
             add_action('wp_ajax_update_message_state_Emsfb', [$this, 'update_message_state_Emsfb']);
@@ -1435,6 +1436,58 @@ class Admin {
         $response   = ['success' => true, 'ajax_value' => $value, 'id' => $id,'nonce_msg'=> $code];
         wp_send_json_success($response, 200);
     }
+    /**
+     * The image of a Signature answer, for the link in the CSV export.
+     *
+     * Logged-in users who may read responses only (the same check as the
+     * response list; wp_ajax_ alone, never nopriv). A read-only GET with no
+     * nonce on purpose: the link sits in a spreadsheet and is opened days
+     * later, and it changes nothing. The signature itself stays where it was
+     * stored, inside the entry, so it is never a public file.
+     */
+    public function esign_image_efb() {
+        $efbFunction = get_efbFunction();
+        if (!is_object($efbFunction) || !$efbFunction->user_permission_efb_admin_dashboard()) {
+            status_header(403);
+            exit;
+        }
+        $msg_id = isset($_GET['msg']) ? absint(wp_unslash($_GET['msg'])) : 0;
+        $field  = isset($_GET['field']) && is_string($_GET['field']) ? sanitize_text_field(wp_unslash($_GET['field'])) : '';
+        if ($msg_id < 1 || $field === '') {
+            status_header(400);
+            exit;
+        }
+        global $wpdb;
+        $table = $wpdb->prefix . 'emsfb_msg_';
+        $row = $wpdb->get_row($wpdb->prepare("SELECT content, track FROM `$table` WHERE msg_id = %d LIMIT 1", $msg_id));
+        $rows = ($row && is_string($row->content)) ? \emsfb_json_decode_efb($row->content, true) : null;
+        $bin = '';
+        if (is_array($rows)) {
+            foreach ($rows as $item) {
+                if (!is_array($item) || !isset($item['id_'], $item['type'], $item['value']) || (string) $item['id_'] !== $field || $item['type'] !== 'esign' || !is_string($item['value'])) continue;
+                $prefix = 'data:image/png;base64,';
+                if (strpos($item['value'], $prefix) !== 0) break;
+                $b64 = substr($item['value'], strlen($prefix));
+                $decoded = preg_match('/^[A-Za-z0-9+\/]+={0,2}$/', $b64) === 1 ? base64_decode($b64, true) : false;
+                if (is_string($decoded) && strncmp($decoded, "\x89PNG\r\n\x1a\n", 8) === 0) $bin = $decoded;
+                break;
+            }
+        }
+        if ($bin === '') {
+            status_header(404);
+            exit;
+        }
+        $track = $row && is_string($row->track) ? preg_replace('/[^A-Za-z0-9_-]/', '', $row->track) : '';
+        nocache_headers();
+        header('Content-Type: image/png');
+        header('X-Content-Type-Options: nosniff');
+        header("Content-Security-Policy: default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'");
+        header('Content-Disposition: inline; filename="signature-' . ($track !== '' ? $track : $msg_id) . '.png"');
+        header('Content-Length: ' . strlen($bin));
+        echo $bin; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- verified PNG bytes.
+        exit;
+    }
+
     public function get_all_response_id_Emsfb() {
         $efbFunction = get_efbFunction();
         $text = ["spprt","error403","somethingWentWrongPleaseRefresh" ,"guest"];

@@ -3663,10 +3663,15 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
           }else if(content[c].value == '@file@' || content[c].type == 'file' || content[c].type == 'media' || content[c].type == 'zip'  || content[c].type == 'image' || content[c].type == 'document' || content[c].type == 'allformat'){
             rows[parseInt(i_count)][parseInt(value_col_index)] =content[c].url;
           }else if (content[c].type == 'esign'){
-            /* The image is a base64 data URL of thousands of characters (a
-               large signature passes Excel's 32,767-character cell limit and
-               breaks the row). Same marker as the single-response CSV. */
-            rows[parseInt(i_count)][parseInt(value_col_index)] = (typeof content[c].value == 'string' && content[c].value.indexOf('data:image/') === 0) ? '[' + (efb_var.text.esign || 'Signature') + ']' : '';
+            /* Not the image itself: a base64 data URL of thousands of
+               characters (a large one passes Excel's 32,767-character cell
+               limit and breaks the row). A link that shows the signature to a
+               logged-in user who may read responses (efb_esign_image). */
+            const signed = typeof content[c].value == 'string' && content[c].value.indexOf('data:image/') === 0;
+            const ajaxUrl = (typeof ajax_object_efm !== 'undefined' && ajax_object_efm.ajax_url) ? ajax_object_efm.ajax_url : '';
+            rows[parseInt(i_count)][parseInt(value_col_index)] = !signed ? ''
+              : (ajaxUrl && v.msg_id ? ajaxUrl + (ajaxUrl.indexOf('?') === -1 ? '?' : '&') + 'action=efb_esign_image&msg=' + encodeURIComponent(v.msg_id) + '&field=' + encodeURIComponent(content[c].id_)
+                : '[' + (efb_var.text.esign || 'Signature') + ']');
           }else if (content[c].type == "maps"){
             let val =''
             content[c].value.forEach(r => {

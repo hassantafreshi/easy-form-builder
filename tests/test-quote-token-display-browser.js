@@ -9,8 +9,9 @@
  * escaping in the list preview and the CSV, and to " in the email, whose
  * every branch escapes the value.
  *
- * Also covers the CSV export of a Signature: a short marker instead of the
- * base64 image, which could pass Excel's 32,767-character cell limit.
+ * Also covers the CSV export of a Signature: an admin-only link to the image
+ * instead of the base64 data, which could pass Excel's 32,767-character cell
+ * limit.
  *
  * Run: node tests/test-quote-token-display-browser.js
  *      (EFB_CHROMIUM=/path/to/chrome to use a specific Chromium build)
@@ -70,7 +71,10 @@ const check = (label, ok, detail) => { console.log((ok ? '[PASS] ' : '[FAIL] ') 
   const csv = await p.evaluate(() => convertToCSV_emsFormBuilder([['id', 'Message'], ['1', 'He said @efb@dq#hello@efb@dq#']]));
   check('CSV cell carries the real quote (CSV-escaped)', csv.includes('"He said ""hello"""'), csv);
   const src = fs.readFileSync(path.join(JS, 'list_form-efb.js'), 'utf8');
-  check('CSV export writes a [Signature] marker, not the base64 image', /type == 'esign'\)\{[\s\S]{0,400}'\[' \+ \(efb_var\.text\.esign \|\| 'Signature'\) \+ '\]'/.test(src));
+  check('CSV export writes a signature link, not the base64 image', /type == 'esign'\)\{[\s\S]{0,900}action=efb_esign_image&msg=' \+ encodeURIComponent\(v\.msg_id\) \+ '&field=' \+ encodeURIComponent\(content\[c\]\.id_\)/.test(src));
+  const admin = fs.readFileSync(path.join(__dirname, '..', 'includes', 'admin', 'class-Emsfb-admin.php'), 'utf8');
+  check('the signature link is served to logged-in readers only', admin.includes("add_action('wp_ajax_efb_esign_image'") && !admin.includes('wp_ajax_nopriv_efb_esign_image')
+    && /function esign_image_efb\(\)[\s\S]{0,600}user_permission_efb_admin_dashboard\(\)/.test(admin));
   check('the panel parses stored rows keeping the quote token',
     (src.match(/replaceContentMessageEfb\((contentStr|v\.content), true\)/g) || []).length === 2);
 

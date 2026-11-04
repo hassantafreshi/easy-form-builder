@@ -505,7 +505,7 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 
 * Fixed: A double quote typed by a visitor showed as two apostrophes ('') in the response viewer, the entries list, the CSV export and the notification email. It now shows as a double quote, also in entries saved by earlier versions.
 
-* Changed: The CSV export writes [Signature] for a signed Signature field instead of the image data, which was thousands of characters long and could exceed a spreadsheet cell's limit.
+* Changed: In the CSV export a Signature field is a link to the signature image instead of the image data, which was thousands of characters long and could exceed a spreadsheet cell's limit. The link opens only for a logged-in user who may read responses; the signature is not made public.
 
 * Fixed: Ticking the reCAPTCHA on the confirmation-code page sent a request the server refused, which logged a false "request failure". "Enable Google reCAPTCHA in the response box" can now be switched off after the site key was removed, and the page shows no reCAPTCHA without a site key (it used to block every lookup).
 
