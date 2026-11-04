@@ -90,6 +90,10 @@
   }
   async function prepare(fid, force) {
     fid=Number(fid)||0;
+    // -1 marks the confirmation-code page's own widgets (its reCAPTCHA): that
+    // page runs as form 0. The server only takes ids >= 0, so -1 was a 400
+    // and a "request failure" report on every reCAPTCHA tick.
+    if (fid<0) fid=0;
     let context=contexts.get(fid);
     if (!context) { context={}; contexts.set(fid,context); }
     if (context.promise) return context.promise;

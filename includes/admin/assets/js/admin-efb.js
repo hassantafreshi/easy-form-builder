@@ -5566,10 +5566,16 @@ function efb_check_el_pro(el){
   }
 
   if(el.id=="scaptcha_emsFormBuilder"){
-    if (document.getElementById('sitekey_emsFormBuilder').value.length <5) {
-      f_b();
-      alert_message_efb(efb_var.text.reCAPTCHA, efb_var.text.reCAPTCHASetError, 20, "danger");
-    }
+    /* The site key is needed to switch this ON. Checked once the click has
+       toggled the button, so switching it OFF always works - before, a key
+       field emptied first left the option stuck on, and the confirmation-code
+       page then drew a reCAPTCHA that could never be solved. */
+    setTimeout(function () {
+      if (el.classList.contains('active') && document.getElementById('sitekey_emsFormBuilder').value.length <5) {
+        el.classList.remove('active');
+        alert_message_efb(efb_var.text.reCAPTCHA, efb_var.text.reCAPTCHASetError, 20, "danger");
+      }
+    }, 0);
   }
   return true;
 }

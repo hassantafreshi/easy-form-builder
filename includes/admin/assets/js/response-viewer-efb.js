@@ -1805,7 +1805,7 @@ function fun_tracking_show_emsFormBuilder() {
                         <i class="efb bi-hash efb-tracker-input-icon"></i>
                         <input type="text" class="efb input-efb efb-tracker-input" placeholder="${ajax_object_efm.text.entrTrkngNo}" id="trackingCodeEfb" ${get_track} autocomplete="off" spellcheck="false">
                       </div>
-                      ${setting_emsFormBuilder.scaptcha==true ? `<div class="efb efb-tracker-captcha"><div id="gRecaptcha" class="efb g-recaptcha" data-sitekey="${escHtmlEfb(setting_emsFormBuilder.siteKey)}" data-formid="-1" data-callback="verifyCaptcha"></div><small class="efb text-danger" id="recaptcha-message"></small></div>` : ``}
+                      ${setting_emsFormBuilder.scaptcha==true && setting_emsFormBuilder.siteKey ? `<div class="efb efb-tracker-captcha"><div id="gRecaptcha" class="efb g-recaptcha" data-sitekey="${escHtmlEfb(setting_emsFormBuilder.siteKey)}" data-formid="-1" data-callback="verifyCaptcha"></div><small class="efb text-danger" id="recaptcha-message"></small></div>` : ``}
                       <button type="submit" class="efb btn btn-pinkEfb efb-tracker-btn" id="vaid_check_emsFormBuilder" onclick="fun_vaid_tracker_check_emsFormBuilder()">
                         <i class="efb bi-search efb-tracker-btn-icon"></i> ${ajax_object_efm.text.search}
                       </button>
@@ -1814,7 +1814,7 @@ function fun_tracking_show_emsFormBuilder() {
           </div>
           <div id="alert_efb" class="efb mx-5"></div>
   `
-    if(setting_emsFormBuilder.scaptcha==true ){
+    if(setting_emsFormBuilder.scaptcha==true && setting_emsFormBuilder.siteKey){
       sitekye_emsFormBuilder=setting_emsFormBuilder.siteKey;
       loadCaptcha_efb(20);
     }

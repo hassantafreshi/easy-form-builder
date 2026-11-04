@@ -2031,7 +2031,7 @@ public function check_nonce_permission_efb($request) {
 			$state="tracker";
 		}else{
 			   $valstng= json_decode($stng);
-			   if(isset($valstng->siteKey) && isset($valstng->scaptcha) && $valstng->scaptcha==true){
+			   if(!empty($valstng->siteKey) && isset($valstng->scaptcha) && $valstng->scaptcha==true){
 
 				}
 
@@ -2064,7 +2064,10 @@ public function check_nonce_permission_efb($request) {
 			$get_track = sanitize_text_field(wp_unslash($_GET['track']));
 		}
 			$script_call_captcha = '';
-			if (isset($valstng->siteKey) && isset($valstng->scaptcha) && $valstng->scaptcha==true ){
+			/* Only with a site key: without one the widget cannot render, the
+			 * page's own "tick the box" check then blocked every lookup, and
+			 * the server (verify_tracker_captcha_efb) does not enforce it. */
+			if (!empty($valstng->siteKey) && is_string($valstng->siteKey) && isset($valstng->scaptcha) && $valstng->scaptcha==true ){
 				$script_call_captcha =sprintf(
 						'<div class="efb efb-tracker-captcha">
 									<div id="gRecaptcha" class="efb g-recaptcha" data-sitekey="%1$s" data-formid="-1" ></div>
@@ -3356,6 +3359,7 @@ public function check_nonce_permission_efb($request) {
 					// visitor data and every later step expects an array.
 					if (isset($validated_item) && is_array($validated_item)) {
 						$validated_item['type'] = $this->stored_row_type_efb($validated_item, $f, $form_fields_array);
+						$validated_item['name'] = $this->stored_row_name_efb($validated_item, $f, $form_fields_array);
 						array_push($validated_items, $validated_item);
 					};
 				}
@@ -8744,6 +8748,33 @@ public function check_nonce_permission_efb($request) {
 		$link = (is_string($page_url) && $this->is_same_site_url_efb($page_url)) ? $page_url : (function_exists('home_url') ? home_url('/') : '');
 		$rows[] = array('type' => 'w_link', 'value' => $link, 'amount' => -1);
 		return $rows;
+	}
+
+	/**
+	 * The label a validated row is stored under.
+	 *
+	 * Like the type, it comes from the saved form: the bundled client sends the
+	 * field's own name (an option row sends its parent field's), but a crafted
+	 * request could send any text, which then became the label in the response
+	 * viewer, the notification email and the CSV header. Matrix rows keep the
+	 * label the validator gave them; the payment catch-all is left alone.
+	 */
+	private function stored_row_name_efb($row, $field, $fields) {
+		$current = isset($row['name']) && is_scalar($row['name']) ? (string) $row['name'] : '';
+		$saved_type = isset($field['type']) ? (string) $field['type'] : '';
+		if ($saved_type === '' || $saved_type === 'r_matrix' || in_array($saved_type, array('payment', 'persiaPay', 'persiapay'), true)) return $current;
+		$source = $field;
+		if ($saved_type === 'option') {
+			$parent_id = isset($row['id_']) ? $row['id_'] : (isset($field['parent']) ? $field['parent'] : null);
+			$source = null;
+			foreach ((array) $fields as $candidate) {
+				if (is_array($candidate) && isset($candidate['id_']) && $parent_id !== null && (string) $candidate['id_'] === (string) $parent_id) { $source = $candidate; break; }
+			}
+		}
+		if (is_array($source) && isset($source['name']) && is_scalar($source['name']) && trim((string) $source['name']) !== '') {
+			return sanitize_text_field((string) $source['name']);
+		}
+		return $current;
 	}
 
 	/**

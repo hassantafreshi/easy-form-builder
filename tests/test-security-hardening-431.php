@@ -45,7 +45,7 @@ $body = '';
 foreach (array('is_same_site_url_efb', 'normalize_submitted_row_efb', 'sanitize_payment_merge_row_efb', 'filter_attributes_by_type_efb',
 	'filter_and_sanitize_attributes_efb', 'sanitize_value_efb', 'canonical_esign_value_efb', 'sanitize_account_form_rows_efb',
 	'validate_submitted_upload_url_efb', 'replaceContentMessageEfb', 'email_format_price_efb', 'email_escape_leaf_efb', 'email_get_content_efb',
-	'efb_submitter_email_efb', 'plan_locked_field_types_efb', 'validate_required_fields_present_efb') as $fn) {
+	'efb_submitter_email_efb', 'plan_locked_field_types_efb', 'validate_required_fields_present_efb', 'stored_row_name_efb') as $fn) {
 	if (!preg_match('/\t(?:public|private)(?: static)? function ' . $fn . '\(.*?\n\t\}\n/s', $src, $m)) { echo "[FAIL] $fn() not found\n"; exit(1); }
 	$body .= str_replace('private function', 'public function', $m[0]);
 }
@@ -148,6 +148,20 @@ $r = $h->validate_required_fields_present_efb($req_fields, $only_name, true);
 t_sec('Pro site: the same field is still required', $r['valid'] === false && $r['missing_field'] === 'sig');
 $r = $h->validate_required_fields_present_efb($req_fields, array(), false);
 t_sec('Free site: ordinary required fields are still required', $r['valid'] === false && $r['missing_field'] === 'n');
+
+/* Stored labels come from the saved form (found on the live staging run: a
+ * crafted name emptied the label in the viewer and the CSV header). */
+$lbl_fields = array(array('type' => 'form'), array('id_' => 'fn', 'type' => 'text', 'name' => 'First name'),
+	array('id_' => 'cb', 'type' => 'checkbox', 'name' => 'Topics'), array('id_' => 'op1', 'type' => 'option', 'parent' => 'cb', 'value' => 'Bugs'),
+	array('id_' => 'm1', 'type' => 'r_matrix', 'value' => 'Speed'), array('id_' => 'pay', 'type' => 'payment', 'name' => 'Pay'));
+t_sec('label of a text row comes from the saved field', $h->stored_row_name_efb(array('id_' => 'fn', 'name' => '<img src=x onerror=alert(7)>'), $lbl_fields[1], $lbl_fields) === 'First name');
+t_sec('label of an option row comes from its parent field', $h->stored_row_name_efb(array('id_' => 'cb', 'id_ob' => 'op1', 'name' => 'Spoofed'), $lbl_fields[3], $lbl_fields) === 'Topics');
+t_sec('matrix rows keep the validator\'s label', $h->stored_row_name_efb(array('id_' => 'tm', 'name' => 'Speed'), $lbl_fields[4], $lbl_fields) === 'Speed');
+t_sec('payment catch-all keeps its own name', $h->stored_row_name_efb(array('id_' => 'x', 'name' => 'Gateway row'), $lbl_fields[5], $lbl_fields) === 'Gateway row');
+t_sec('the form path stores that label', strpos($src, "\$validated_item['name'] = \$this->stored_row_name_efb(\$validated_item, \$f, \$form_fields_array);") !== false);
+$rh_src = file_get_contents(__DIR__ . '/../public/assets/js/request-health-efb.js');
+t_sec('runtime prepare maps the confirmation page\'s -1 to form 0', strpos($rh_src, 'if (fid<0) fid=0;') !== false);
+t_sec('tracker reCAPTCHA is drawn only with a site key (PHP render)', strpos($src, "if (!empty(\$valstng->siteKey) && is_string(\$valstng->siteKey) && isset(\$valstng->scaptcha) && \$valstng->scaptcha==true ){") !== false);
 
 /* 5. Source wiring */
 $reply = substr($src, strpos($src, 'public function set_rMessage_id_Emsfb_api('), 9000);
