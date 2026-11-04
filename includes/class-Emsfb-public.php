@@ -8336,14 +8336,16 @@ public function check_nonce_permission_efb($request) {
 	 * Returns the key, or the string 'null' (legacy contract) when absent. */
 	private function resolve_payment_key_efb( $setting, $key ) {
 		$value = ( is_object( $setting ) && isset( $setting->$key ) ) ? trim( (string) $setting->$key ) : '';
-		if ( strlen( $value ) > 5 ) {
+		// The settings screen's "could not read this field" marker is never a key.
+		if ( $value === 'NotFoundEl' ) $value = '';
+		if ( strlen( $value ) > 5 && $value !== 'NotFoundEl' ) {
 			return $value;
 		}
 
 		$decoded = get_setting_Emsfb( 'decoded' );
 		if ( is_object( $decoded ) && isset( $decoded->$key ) ) {
 			$value = trim( (string) $decoded->$key );
-			if ( strlen( $value ) > 5 ) {
+			if ( strlen( $value ) > 5 && $value !== 'NotFoundEl' ) {
 				return $value;
 			}
 		}
@@ -8351,7 +8353,7 @@ public function check_nonce_permission_efb($request) {
 		$option_settings = $this->decode_settings_json_efb( get_option( 'emsfb_settings', '' ) );
 		if ( is_object( $option_settings ) && isset( $option_settings->$key ) ) {
 			$value = trim( (string) $option_settings->$key );
-			if ( strlen( $value ) > 5 ) {
+			if ( strlen( $value ) > 5 && $value !== 'NotFoundEl' ) {
 				return $value;
 			}
 		}
@@ -8365,7 +8367,7 @@ public function check_nonce_permission_efb($request) {
 		$latest_settings = $this->decode_settings_json_efb( $latest_raw );
 		if ( is_object( $latest_settings ) && isset( $latest_settings->$key ) ) {
 			$value = trim( (string) $latest_settings->$key );
-			if ( strlen( $value ) > 5 ) {
+			if ( strlen( $value ) > 5 && $value !== 'NotFoundEl' ) {
 				$healed_json = wp_json_encode( $latest_settings, JSON_UNESCAPED_UNICODE );
 				if ( ! empty( $healed_json ) ) {
 					update_option( 'emsfb_settings', $healed_json );

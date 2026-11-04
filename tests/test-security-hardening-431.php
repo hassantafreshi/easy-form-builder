@@ -171,6 +171,16 @@ $rh_src = file_get_contents(__DIR__ . '/../public/assets/js/request-health-efb.j
 t_sec('runtime prepare maps the confirmation page\'s -1 to form 0', strpos($rh_src, 'if (fid<0) fid=0;') !== false);
 t_sec('tracker reCAPTCHA is drawn only with a site key (PHP render)', strpos($src, "if (!empty(\$valstng->siteKey) && is_string(\$valstng->siteKey) && isset(\$valstng->scaptcha) && \$valstng->scaptcha==true ){") !== false);
 
+/* Payment secrets are saved as typed (found on the live staging run: the
+ * settings reader skipped type="password", so Save stored "NotFoundEl" as the
+ * Stripe/PayPal secret and every payment failed with HTTP 401). */
+$list_js = file_get_contents(__DIR__ . '/../includes/admin/assets/js/list_form-efb.js');
+t_sec('settings reader reads password fields', strpos($list_js, 'el.type == "text" || el.type == "password"') !== false);
+$admin_src = file_get_contents(__DIR__ . '/../includes/admin/class-Emsfb-admin.php');
+t_sec('settings save never stores the NotFoundEl marker as a key', strpos($admin_src, "\$m[\$secret_key_efb] === 'NotFoundEl'") !== false);
+$resolve = substr($src, strpos($src, 'private function resolve_payment_key_efb('), 2000);
+t_sec('payments never use the NotFoundEl marker as a key', substr_count($resolve, "\$value !== 'NotFoundEl'") === 4);
+
 /* 5. Source wiring */
 $reply = substr($src, strpos($src, 'public function set_rMessage_id_Emsfb_api('), 9000);
 t_sec('reply rows are rebuilt from an allow-list', strpos($reply, "'type'    => 'text'") !== false && strpos($reply, "'type'    => 'allformat'") !== false && strpos($reply, '$message = $rebuilt_efb;') !== false);

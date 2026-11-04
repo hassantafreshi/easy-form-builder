@@ -1736,6 +1736,17 @@ class Admin {
         }
         $active_code_is_valid = false;
         $active_code_was_removed = false;
+        /* "NotFoundEl" is what the settings screen reports for a field it could
+         * not read. Stored as a key it silently replaced a working Stripe or
+         * PayPal secret (the payment then failed with HTTP 401), so keep the
+         * saved value for any key field that arrives as that marker. */
+        if (is_array($m)) {
+            foreach (array('stripeSKey', 'stripePKey', 'paypalSKey', 'paypalPKey', 'secretKey', 'siteKey', 'apiKeyMap', 'activeCode') as $secret_key_efb) {
+                if (isset($m[$secret_key_efb]) && $m[$secret_key_efb] === 'NotFoundEl') {
+                    $m[$secret_key_efb] = (is_object($ac) && isset($ac->$secret_key_efb) && $ac->$secret_key_efb !== 'NotFoundEl') ? $ac->$secret_key_efb : '';
+                }
+            }
+        }
         foreach ($m as $key => $value) {
              if (in_array($key ,['emailSupporter','femail'])) {
                 $value = sanitize_text_field($value);

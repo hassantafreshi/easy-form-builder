@@ -3012,7 +3012,9 @@ function fun_set_setting_emsFormBuilder(state_auto = 0, done) {
       el.value = sanitize_text_efb(el.value);}
 
     let r = "NotFoundEl"
-    if (el.type == "text" || el.type == "email" || el.type == "textarea" || el.type == "hidden" || el.type == "color" || el.type == "tel") {
+    /* password: the Stripe and PayPal secret fields. Missing here, Save sent
+       "NotFoundEl" as the secret and every payment failed with HTTP 401. */
+    if (el.type == "text" || el.type == "password" || el.type == "email" || el.type == "textarea" || el.type == "hidden" || el.type == "color" || el.type == "tel") {
       if (id == "emailTemp_emsFirmBuilder") {
         let v = el.value.replace(/(\r\n|\r|\n|\t)+/g, '');
         // The server rewrites double quotes attribute by attribute; a blind swap here
