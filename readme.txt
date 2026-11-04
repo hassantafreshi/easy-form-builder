@@ -499,6 +499,8 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 
 * Changed: The owner's notification email now includes the submitted answers and has Reply-To set to the visitor's address. The visitor's confirmation email keeps only the confirmation code and link unless the form chooses otherwise.
 
+* Security: Fixed a stored cross-site scripting issue through the Signature field. A submitted signature must now be a complete, valid PNG image; it is stored as a re-encoded copy under the field's saved type, and every value shown in the response viewer is escaped, including responses saved by earlier versions.
+
 * Security: Uploaded archives must really be the archive type they are named as, and files containing a PHP open tag are refused.
 
 * New: The Free plan has 20 form fields: terms and conditions, country list, star rating and heading joined the 16. Forms that already use them keep working on every plan.

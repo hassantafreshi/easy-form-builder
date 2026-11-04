@@ -3207,24 +3207,23 @@ public function check_nonce_permission_efb($request) {
 									break;
 								case 'esign':
 									$is_valid = 0;
-									if (isset($item['value']) && is_string($item['value']) && strpos($item['value'], 'data:image/png;base64,') === 0) {
-										/* A signature is a canvas-exported PNG data URL and nothing
-										 * else: strict base64 after the prefix. The prefix check on
-										 * its own let a value like
-										 * "data:image/png;base64,<img onerror=...>" through, because
-										 * the tail was never decoded or validated. Require the tail
-										 * to be non-empty, pure base64, and actually decodable, so
-										 * no markup can ride along inside a stored signature. */
-										$esign_b64 = substr($item['value'], strlen('data:image/png;base64,'));
-										if ($esign_b64 !== ''
-											&& preg_match('/^[A-Za-z0-9+\/]+={0,2}$/', $esign_b64) === 1
-											&& base64_decode($esign_b64, true) !== false) {
-											$item = $this->filter_attributes_by_type_efb($item,$f['type']);
+									/* A signature is a canvas-exported PNG data URL and nothing
+									 * else. The prefix check on its own let a value like
+									 * "data:image/png;base64,<img onerror=...>" through, because
+									 * the tail was never decoded or validated.
+									 * canonical_esign_value_efb() decodes the tail, confirms the
+									 * bytes are a real PNG image and hands back a re-encoded
+									 * data URL, so only bytes the server produced are stored. */
+									$esign_value = isset($item['value']) ? $this->canonical_esign_value_efb($item['value']) : '';
+									if ($esign_value !== '') {
+										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
+										if (is_array($item)) {
+											$item['value'] = $esign_value;
 											/* The kind of a stored row is decided by the saved field,
 											 * never by the browser. Mirrors the upload branch and
 											 * closes the esign->r_matrix render type-confusion: the
 											 * admin viewer dispatches on this type. */
-											if (is_array($item)) { $item['type'] = $f['type']; }
+											$item['type'] = $f['type'];
 											$validated_item = $item;
 											$is_valid = 1;
 										}
@@ -8469,6 +8468,59 @@ public function check_nonce_permission_efb($request) {
 	}
 
 	/**
+	 * The stored form of a submitted signature, or '' when the value is not one.
+	 *
+	 * A Signature field's value is the PNG data URL the bundled canvas exports
+	 * and nothing else. The value is rebuilt from scratch:
+	 *   - it must be a string starting with exactly "data:image/png;base64,";
+	 *   - the tail must be non-empty, strict base64 and decode cleanly;
+	 *   - the decoded bytes must carry the PNG signature and parse as a PNG
+	 *     image with real dimensions.
+	 * The decoded bytes are then re-encoded under the canonical prefix, so the
+	 * stored value is only ever bytes the server checked, never the browser's
+	 * string. Readers (response viewer, email, export) can rely on this value
+	 * being safe for an <img src>.
+	 */
+	private function canonical_esign_value_efb($value) {
+		$prefix = 'data:image/png;base64,';
+		if (!is_string($value) || strpos($value, $prefix) !== 0) return '';
+		$b64 = substr($value, strlen($prefix));
+		if ($b64 === '' || preg_match('/^[A-Za-z0-9+\/]+={0,2}$/', $b64) !== 1) return '';
+		$bin = base64_decode($b64, true);
+		if (!is_string($bin) || strlen($bin) < 24 || strncmp($bin, "\x89PNG\r\n\x1a\n", 8) !== 0) return '';
+		/* Walk the chunks: IHDR first, IEND last and at the very end, every
+		 * chunk's CRC intact. A header check alone accepts the PNG magic
+		 * followed by arbitrary bytes. */
+		$len = strlen($bin);
+		$pos = 8;
+		$first = true;
+		$ended = false;
+		while ($pos + 12 <= $len) {
+			$chunk = unpack('Nlength', substr($bin, $pos, 4));
+			$chunk_len = $chunk['length'];
+			if ($chunk_len < 0 || $chunk_len > $len - $pos - 12) return '';
+			$chunk_type = substr($bin, $pos + 4, 4);
+			if (preg_match('/^[A-Za-z]{4}$/', $chunk_type) !== 1) return '';
+			if ($first && ($chunk_type !== 'IHDR' || $chunk_len !== 13)) return '';
+			/* hash('crc32b') is the PNG/zlib CRC as a hex string, so the
+			 * comparison is the same on 32- and 64-bit PHP. */
+			if (hash('crc32b', $chunk_type . substr($bin, $pos + 8, $chunk_len)) !== bin2hex(substr($bin, $pos + 8 + $chunk_len, 4))) return '';
+			$pos += 12 + $chunk_len;
+			$first = false;
+			if ($chunk_type === 'IEND') { $ended = true; break; }
+		}
+		if (!$ended || $pos !== $len) return '';
+		if (function_exists('getimagesizefromstring')) {
+			$info = @getimagesizefromstring($bin);
+			if (!is_array($info) || !isset($info[0], $info[1], $info[2])
+				|| (int) $info[2] !== IMAGETYPE_PNG || (int) $info[0] < 1 || (int) $info[1] < 1) {
+				return '';
+			}
+		}
+		return $prefix . base64_encode($bin);
+	}
+
+	/**
 	 * The final payment submit re-reads the visitor's non-payment rows from the
 	 * raw request and merges them with the rows saved when the intent was
 	 * created, bypassing the per-field validator above. Give each such row the
@@ -8482,7 +8534,15 @@ public function check_nonce_permission_efb($request) {
 		$item = $this->normalize_submitted_row_efb($item, $type);
 		$clean = $this->filter_attributes_by_type_efb($item, $type);
 		if (!is_array($clean)) return null;
-		if (isset($clean['value'])) {
+		if ($type === 'esign') {
+			/* Same rule as the main validator: a signature row carries a
+			 * checked, re-encoded PNG data URL or it is not stored at all.
+			 * sanitize_text_field() below would not reject markup-free junk
+			 * such as a quote-laden string, so do not let it reach that. */
+			$esign_value = isset($clean['value']) ? $this->canonical_esign_value_efb($clean['value']) : '';
+			if ($esign_value === '') return null;
+			$clean['value'] = $esign_value;
+		} elseif (isset($clean['value'])) {
 			if (is_array($clean['value'])) {
 				$markers = array();
 				foreach ($clean['value'] as $m) {

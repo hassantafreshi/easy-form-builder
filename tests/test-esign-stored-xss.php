@@ -33,42 +33,75 @@ function t_xss($label, $condition) {
 }
 
 /* ---------------------------------------------------------------------------
- * 1. Server-side signature validation (mirrors the esign case exactly).
+ * 1. Server-side signature validation. The shipped
+ *    canonical_esign_value_efb() is lifted out of the plugin source and run
+ *    as-is, so this exercises the real code rather than a copy of it.
  * ------------------------------------------------------------------------- */
-function esign_value_is_valid($value) {
-	if (!(is_string($value) && strpos($value, 'data:image/png;base64,') === 0)) {
-		return false;
-	}
-	$b64 = substr($value, strlen('data:image/png;base64,'));
-	return $b64 !== ''
-		&& preg_match('/^[A-Za-z0-9+\/]+={0,2}$/', $b64) === 1
-		&& base64_decode($b64, true) !== false;
+$public_src = file_get_contents(__DIR__ . '/../includes/class-Emsfb-public.php');
+if (!preg_match('/\tprivate function canonical_esign_value_efb\(\$value\) \{.*?\n\t\}\n/s', $public_src, $m)) {
+	echo "[FAIL] canonical_esign_value_efb() not found in class-Emsfb-public.php\n";
+	exit(1);
 }
+eval('class Esign_Harness_Efb {' . str_replace('private function', 'public function', $m[0]) . '}');
+$h = new Esign_Harness_Efb();
+function esign_canonical($value) { global $h; return $h->canonical_esign_value_efb($value); }
 
-$legit_signature = 'data:image/png;base64,' . base64_encode(hex2bin('89504e470d0a1a0a0000000d49484452'));
-$attack_markup   = 'data:image/png;base64,<img src=x onerror=alert(document.domain)>';
+/* A real PNG, exactly what canvas.toDataURL() hands the client. */
+$png_bin = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==');
+if (function_exists('imagecreatetruecolor')) {
+	$im = imagecreatetruecolor(300, 120);
+	imagefill($im, 0, 0, imagecolorallocatealpha($im, 255, 255, 255, 127));
+	imageline($im, 10, 60, 290, 60, imagecolorallocate($im, 0, 0, 0));
+	ob_start(); imagepng($im); $png_bin = ob_get_clean();
+}
+$legit_signature = 'data:image/png;base64,' . base64_encode($png_bin);
+
+/* The exact value the reported PoC submits. */
+$poc_payload     = 'data:image/png;base64,<strong id=batch170-proof>BATCH170_XSS_EXECUTED</strong>'
+	. '<img src=x onerror=document.documentElement.dataset.efbXss412=412;alert(document.domain)>';
 $attack_tail     = 'data:image/png;base64,PHN2Zz4=,<svg onload=alert(1)>';
+$attack_quote    = 'data:image/png;base64,AAAA" onerror="alert(1)';
+$html_as_base64  = 'data:image/png;base64,' . base64_encode('<img src=x onerror=alert(1)>');
+$png_header_only = 'data:image/png;base64,' . base64_encode(hex2bin('89504e470d0a1a0a0000000d49484452'));
+$png_magic_junk  = 'data:image/png;base64,' . base64_encode("\x89PNG\r\n\x1a\n" . str_repeat('<script>', 8));
+$gif_placeholder = 'Data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==';
+$gif_as_png      = 'data:image/png;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==';
 $empty_payload   = 'data:image/png;base64,';
 
-t_xss('legit PNG signature is accepted', esign_value_is_valid($legit_signature) === true);
-t_xss('signature with raw <img> markup is rejected', esign_value_is_valid($attack_markup) === false);
-t_xss('signature with markup after valid base64 is rejected', esign_value_is_valid($attack_tail) === false);
-t_xss('empty signature payload is rejected', esign_value_is_valid($empty_payload) === false);
+t_xss('legit canvas PNG signature is accepted', esign_canonical($legit_signature) !== '');
+t_xss('accepted signature is stored as the canonical re-encoding', esign_canonical($legit_signature) === $legit_signature);
+t_xss('the reported PoC payload is rejected', esign_canonical($poc_payload) === '');
+t_xss('signature with markup after valid base64 is rejected', esign_canonical($attack_tail) === '');
+t_xss('signature with an attribute-breaking quote is rejected', esign_canonical($attack_quote) === '');
+t_xss('base64-encoded markup is rejected (not a PNG)', esign_canonical($html_as_base64) === '');
+t_xss('a bare PNG header with no image is rejected', esign_canonical($png_header_only) === '');
+t_xss('PNG magic followed by junk is rejected', esign_canonical($png_magic_junk) === '');
+t_xss('the unsigned GIF placeholder is rejected', esign_canonical($gif_placeholder) === '');
+t_xss('GIF bytes under a PNG prefix are rejected', esign_canonical($gif_as_png) === '');
+t_xss('empty signature payload is rejected', esign_canonical($empty_payload) === '');
+t_xss('non-string values are rejected', esign_canonical(array('x')) === '' && esign_canonical(null) === '' && esign_canonical(12) === '');
 
 /* ---------------------------------------------------------------------------
  * 2. The esign branch in the source pins the stored type and validates base64.
  * ------------------------------------------------------------------------- */
-$public_src = file_get_contents(__DIR__ . '/../includes/class-Emsfb-public.php');
-
 $esign_start = strpos($public_src, "case 'esign':");
 $esign_slice = $esign_start !== false ? substr($public_src, $esign_start, 2200) : '';
 
-t_xss('esign branch validates the base64 tail',
-	strpos($esign_slice, "preg_match('/^[A-Za-z0-9+\\/]+={0,2}$/'") !== false);
-t_xss('esign branch decodes the tail to confirm it is real base64',
-	strpos($esign_slice, 'base64_decode($esign_b64, true) !== false') !== false);
+t_xss('esign branch validates through canonical_esign_value_efb()',
+	strpos($esign_slice, '$this->canonical_esign_value_efb($item[\'value\'])') !== false);
+t_xss('esign branch stores the canonical value, not the browser string',
+	strpos($esign_slice, "\$item['value'] = \$esign_value;") !== false);
 t_xss('esign branch pins the stored row type to the saved field',
 	strpos($esign_slice, "\$item['type'] = \$f['type'];") !== false);
+
+/* The payment final-submit merge bypasses the validator above; its
+ * per-row sanitiser must apply the same signature rule. */
+$merge_start = strpos($public_src, 'private function sanitize_payment_merge_row_efb(');
+$merge_slice = $merge_start !== false ? substr($public_src, $merge_start, 1600) : '';
+t_xss('payment merge validates signatures the same way',
+	strpos($merge_slice, "if (\$type === 'esign')") !== false
+	&& strpos($merge_slice, 'canonical_esign_value_efb($clean[\'value\'])') !== false
+	&& strpos($merge_slice, "if (\$esign_value === '') return null;") !== false);
 
 /* The `sample` branch used to store the item verbatim — harden that too. */
 $sample_start = strpos($public_src, "case 'sample':");
