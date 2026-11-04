@@ -626,7 +626,8 @@ class Importer {
 
 	/**
 	 * A parser that also knows the tags Contact Form 7 add-ons registered,
-	 * when Contact Form 7 is running.
+	 * when Contact Form 7 is running. Without it the parser still reads
+	 * add-on tags by their shape, so the mapper reports them the same way.
 	 *
 	 * @return Parser
 	 */

@@ -2660,7 +2660,7 @@ public function check_nonce_permission_efb($request) {
 				// per-field validation loop below only checks the FORMAT of values
 				// that were submitted; it never notices a required field that is
 				// missing entirely from $submitted_values.
-				$_req_check = $this->validate_required_fields_present_efb( $form_fields_array, $submitted_values );
+				$_req_check = $this->validate_required_fields_present_efb( $form_fields_array, $submitted_values, (bool) $this->efbFunction->is_efb_pro(1) );
 				if ( empty( $_req_check['valid'] ) ) {
 					$_missing_name = $_req_check['missing_name'] ?? '';
 					$_req_msg = isset( $this->lanText['pleaseMakeSureAllFields'] )
@@ -4629,6 +4629,13 @@ public function check_nonce_permission_efb($request) {
         $check =strpos($ip,',');
         if($check !== false){$ip = substr($ip,0,$check);}
         $ip = trim($ip);
+        /* Some proxies (Azure App Service, IIS ARR) forward "IP:port" or
+         * "[IPv6]:port"; keep the address part. */
+        if (preg_match('/^\[([0-9a-fA-F:.]+)\](?::\d+)?$/', $ip, $ip_m)) {
+            $ip = $ip_m[1];
+        } elseif (preg_match('/^(\d{1,3}(?:\.\d{1,3}){3}):\d+$/', $ip, $ip_m)) {
+            $ip = $ip_m[1];
+        }
         /* Client-IP / X-Forwarded-For are request headers: anything that is
          * not an address was stored as the visitor's IP and used as a rate
          * limit key. Fall back to the connection address in that case. */
@@ -7291,7 +7298,11 @@ public function check_nonce_permission_efb($request) {
 					$this->update_pending_stripe_payment_efb( $row->id, array( 'status' => 'cancelled' ) );
 					continue;
 				}
-				if ( $result['stripe_status'] === 'requires_payment_method' && (string) $row->created_at <= $abandon_before ) {
+				/* Declined (requires_payment_method) or abandoned before or during
+				 * 3-D Secure (requires_confirmation / requires_action): after an
+				 * hour the visitor is gone. 'processing' is left alone - bank
+				 * debits settle over days. */
+				if ( in_array( $result['stripe_status'], array( 'requires_payment_method', 'requires_confirmation', 'requires_action' ), true ) && (string) $row->created_at <= $abandon_before ) {
 					$this->update_pending_stripe_payment_efb( $row->id, array( 'status' => 'failed' ) );
 					continue;
 				}
@@ -8450,8 +8461,24 @@ public function check_nonce_permission_efb($request) {
 	 * before that loop for every ordinary submission so the existing
 	 * "fill required fields" message is actually enforced server-side.
 	 */
-	private function validate_required_fields_present_efb($form_fields_array, $submitted_values) {
+	/**
+	 * Field types Formbuilder::addNewElement_efb() replaces with the plan notice
+	 * when the site's plan does not include them. Such a field is never shown,
+	 * so it cannot be filled in. Keep in step with the "$pro ? ... :
+	 * public_pro_message_efb()" branches there.
+	 */
+	private static function plan_locked_field_types_efb() {
+		return array('pdate', 'ardate', 'mobile', 'dadfile', 'audio_recorder', 'video_recorder', 'screen_recorder',
+			'esign', 'maps', 'stateprovince', 'statepro', 'city', 'citylist', 'html', 'link', 'yesno',
+			'pointr5', 'pointr10', 'smartcr', 'table_matrix', 'prcfld', 'ttlprc', 'stripe');
+	}
+
+	private function validate_required_fields_present_efb($form_fields_array, $submitted_values, $is_pro = true) {
 		static $structural_types = ['form', 'step', 'option', 'submit', 'r_matrix', 'buttonnav', 'payment', 'stripe', 'paypal', 'persiapay', 'prcfld'];
+		/* A Pro field on a site that moved to Free shows the plan notice
+		 * instead of the input, so "required" can never be met and every
+		 * submission was refused. Not shown means not required. */
+		$plan_locked = $is_pro ? array() : self::plan_locked_field_types_efb();
 		static $checkbox_types = ['checkbox', 'paycheckbox', 'chlcheckbox'];
 		static $radio_types = ['radio', 'payradio', 'imgradio', 'chlradio'];
 		$file_types = self::upload_row_types_efb();
@@ -8483,6 +8510,7 @@ public function check_nonce_permission_efb($request) {
 			if ($position < 1 || !is_array($field) || empty($field['id_'])) continue;
 			$type = strtolower((string) ($field['type'] ?? ''));
 			if (in_array($type, $structural_types, true)) continue;
+			if (in_array($type, $plan_locked, true)) continue;
 			$required = $field['required'] ?? false;
 			$is_required = $required === true || $required === 1 || $required === '1' || $required === 'true';
 			if ($is_required && !isset($submitted_ids[$field['id_']])) {
@@ -8664,7 +8692,11 @@ public function check_nonce_permission_efb($request) {
 				$add($home['host'] . (isset($home['port']) ? ':' . $home['port'] : ''));
 			}
 		}
-		return isset($allowed[$host . '|' . $port]);
+		if (isset($allowed[$host . '|' . $port])) return true;
+		/* A proxy that serves the site on another port but forwards neither
+		 * the port in Host nor in the site address: same host, so accept it,
+		 * as the old check did. A different host is still refused. */
+		return $port !== 0 && isset($allowed[$host . '|0']);
 	}
 
 	/**
@@ -8707,7 +8739,10 @@ public function check_nonce_permission_efb($request) {
 			$seen[$key] = true;
 			$rows[] = $clean;
 		}
-		$rows[] = array('type' => 'w_link', 'value' => is_string($page_url) ? $page_url : '', 'amount' => -1);
+		/* Register/login forms skip the page-URL check the other form types
+		 * get, so only keep a link that points at this site. */
+		$link = (is_string($page_url) && $this->is_same_site_url_efb($page_url)) ? $page_url : (function_exists('home_url') ? home_url('/') : '');
+		$rows[] = array('type' => 'w_link', 'value' => $link, 'amount' => -1);
 		return $rows;
 	}
 
@@ -9308,10 +9343,25 @@ public function check_nonce_permission_efb($request) {
 		return trim($value);
 	}
 
-	/** The visitor's address for the owner's Reply-To: the first email field holding a valid address. */
-	private function efb_submitter_email_efb($values) {
+	/**
+	 * The visitor's address for the owner's Reply-To: the field the form names
+	 * as the visitor's email (email_to) when it holds a valid address, else the
+	 * first email field that does. A form asking for a friend's address before
+	 * the visitor's own used to reply to the friend.
+	 */
+	private function efb_submitter_email_efb($values, $preferred_id = '') {
 		if (!is_array($values)) {
 			return '';
+		}
+		if (is_scalar($preferred_id) && (string) $preferred_id !== '') {
+			foreach ($values as $row) {
+				if (is_array($row) && isset($row['id_'], $row['value']) && (string) $row['id_'] === (string) $preferred_id && is_string($row['value'])) {
+					$email = sanitize_email(trim($row['value']));
+					if ('' !== $email && is_email($email)) {
+						return $email;
+					}
+				}
+			}
 		}
 		foreach ($values as $row) {
 			if (is_array($row) && isset($row['type'], $row['value']) && 'email' === $row['type'] && is_string($row['value'])) {
@@ -9330,7 +9380,7 @@ public function check_nonce_permission_efb($request) {
 			$msg_type ='traking_link';
 			$msg_sub = 'null';
 			// The owner's Reply-To for this submission: the visitor's own address.
-			$this->owner_reply_to_efb = $this->efb_submitter_email_efb($valobj);
+			$this->owner_reply_to_efb = $this->efb_submitter_email_efb($valobj, isset($formObj[0]['email_to']) ? $formObj[0]['email_to'] : '');
 			// A form that never chose sends the submitted content and the link:
 			// an email that only says "log in to read it" looks like a broken
 			// plugin. "cc" (code and link only) stays for forms that chose it.

@@ -33,8 +33,11 @@ class Parser {
 
 	/**
 	 * Base types Contact Form 7 registers itself (and the two add-on tags
-	 * every CF7 site may carry). Anything else is only recognised when the
-	 * running Contact Form 7 says it is registered.
+	 * every CF7 site may carry). Other types - the ones add-ons register -
+	 * are recognised when the running Contact Form 7 lists them, and
+	 * otherwise when the text has the shape of a form-tag (see
+	 * looks_like_addon_tag()), so they are reported rather than lost when
+	 * Contact Form 7 is deactivated.
 	 */
 	const CORE_TYPES = array(
 		'text', 'email', 'url', 'tel', 'number', 'range', 'date', 'textarea',
@@ -146,7 +149,10 @@ class Parser {
 	 * @param string $s   Template.
 	 * @param int    $pos Offset of "[".
 	 * @return array|null The tag, with 'end' = offset just after it, or null
-	 *                    when the text at $pos is not a recognised form-tag.
+	 *                    when the text at $pos is not a form-tag. A type this
+	 *                    parser does not know is still read as a tag (of that
+	 *                    type) when it is shaped like one: see
+	 *                    looks_like_addon_tag().
 	 */
 	public function read_tag( $s, $pos ) {
 		$len = strlen( $s );
@@ -159,9 +165,7 @@ class Parser {
 		}
 
 		$basetype = strtolower( $m[1] );
-		if ( ! $this->knows( $basetype ) ) {
-			return null;
-		}
+		$known    = $this->knows( $basetype );
 
 		$i = $pos + strlen( $m[0] );
 		if ( $i >= $len ) {
@@ -178,6 +182,10 @@ class Parser {
 		$quote      = '';
 		while ( $i < $len ) {
 			$c = $s[ $i ];
+			if ( ! $known && ( "\n" === $c || "\r" === $c ) ) {
+				// As in Contact Form 7, a tag does not run over a line break.
+				return null;
+			}
 			if ( '' !== $quote ) {
 				if ( $c === $quote ) {
 					$quote = '';
@@ -207,6 +215,10 @@ class Parser {
 			$attr_text    = substr( $attr_trim, 0, -1 );
 		}
 
+		if ( ! $known && ! $this->looks_like_addon_tag( $s, $m[1], '*' === $m[2], $attr_text, $self_closing, $i ) ) {
+			return null;
+		}
+
 		$tag_type = $m[1] . $m[2];
 		$raw_end  = $i;
 		$content  = '';
@@ -231,6 +243,57 @@ class Parser {
 		$tag['end'] = $raw_end;
 
 		return $tag;
+	}
+
+	/**
+	 * Whether a type this parser does not know is a form-tag of some
+	 * Contact Form 7 add-on ([dynamictext dyn "x"], [intl_tel* phone],
+	 * [group g1]…[/group]) rather than text in square brackets.
+	 *
+	 * Contact Form 7 only reads the types registered with it; without it
+	 * the register is gone, so the shape decides. Only a lower-case type
+	 * qualifies (add-ons register lower-case types), and it is read as a tag
+	 * when it is:
+	 *   - followed by "*", or written self-closing "[type … /]";
+	 *   - a type followed by a field name that has a digit, "-", "_", ":"
+	 *     or "." ("[group g1]", "[dyn your-phone]"), or an add-on-style type
+	 *     with "-"/"_" followed by any field name, or by quoted values only;
+	 *   - a bare "[type]" only when a "[/type]" closes it later on.
+	 * Everything else stays text: "[optional]", "[Note: …]", "[e.g. Jane]",
+	 * mail-tags such as "[your-name]", anything over a line break.
+	 *
+	 * @param string $s            Template.
+	 * @param string $type         Type as written, without "*".
+	 * @param bool   $required     Whether "*" followed the type.
+	 * @param string $attr_text    Attribute text (without a closing "/").
+	 * @param bool   $self_closing Whether the tag ended in "/]".
+	 * @param int    $after        Offset just after the tag's "]".
+	 * @return bool
+	 */
+	private function looks_like_addon_tag( $s, $type, $required, $attr_text, $self_closing, $after ) {
+		if ( ! preg_match( '/^[a-z][a-z0-9_-]*$/', $type ) ) {
+			return false;
+		}
+		if ( $required || $self_closing ) {
+			return true;
+		}
+		$atts = $this->parse_atts( $attr_text );
+		$name_ok = ! empty( $atts['options'] ) && preg_match( '/^[A-Za-z][-A-Za-z0-9_:.]*$/', $atts['options'][0] );
+		if ( ! empty( $atts['values'] ) && ( empty( $atts['options'] ) || $name_ok ) ) {
+			return true; // [dynamictext dyn "x"], [multistep ms "1-2"]
+		}
+		if ( ! empty( $atts['options'] ) ) {
+			/* A field name that looks like one ("g1", "your-phone",
+			 * "text-123") or a type that looks like an add-on's ("intl_tel",
+			 * "dynamic-text"). Two plain lower-case words, as in
+			 * "[if applicable]" or "[see below]", stay text. */
+			if ( ! $name_ok ) {
+				return false;
+			}
+			return (bool) preg_match( '/[-_0-9:.]/', $atts['options'][0] ) || (bool) preg_match( '/[-_]/', $type )
+				|| false !== strpos( $s, '[/' . $type . ']', $after );
+		}
+		return false !== strpos( $s, '[/' . $type . ']', $after );
 	}
 
 	/**

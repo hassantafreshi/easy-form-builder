@@ -4453,6 +4453,13 @@ class efbFunction {
         $check =strpos($ip,',');
         if($check !== false){$ip = substr($ip,0,$check);}
         $ip = trim($ip);
+        /* Some proxies (Azure App Service, IIS ARR) forward "IP:port" or
+         * "[IPv6]:port"; keep the address part. */
+        if (preg_match('/^\[([0-9a-fA-F:.]+)\](?::\d+)?$/', $ip, $ip_m)) {
+            $ip = $ip_m[1];
+        } elseif (preg_match('/^(\d{1,3}(?:\.\d{1,3}){3}):\d+$/', $ip, $ip_m)) {
+            $ip = $ip_m[1];
+        }
         /* Client-IP / X-Forwarded-For are request headers: anything that is
          * not an address was stored as the visitor's IP and used as a rate
          * limit key. Fall back to the connection address in that case. */

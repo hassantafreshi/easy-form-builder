@@ -134,10 +134,42 @@ efb_cf7t( 'self-closing "/" form', 'x' === $t['name'] && '' === $t['content'] );
 
 $escaped = $p->tokenize( 'Use [[text escaped]] literally' );
 efb_cf7t( '[[escaped]] is text, not a tag', 1 === count( $escaped ) && 'html' === $escaped[0]['node'] && false !== strpos( $escaped[0]['html'], '[text escaped]' ) );
-efb_cf7t( '[textual] is not a [text] tag', null === $p->read_tag( '[textual x]', 0 ) );
-efb_cf7t( 'an unknown type is text', null === $p->read_tag( '[dynamictext dyn "x"]', 0 ) );
+$t = $p->read_tag( '[textual x]', 0 );
+efb_cf7t( '[textual] is not a [text] tag', null === $t || 'textual' === $t['basetype'] );
+foreach ( array( '[if applicable]', '[see below]', '[and more]' ) as $prose ) {
+	efb_cf7t( $prose . ' (two plain words) stays text', null === $p->read_tag( $prose, 0 ) );
+}
+$t = $p->read_tag( '[dyn your-phone]', 0 );
+efb_cf7t( '[dyn your-phone] (field-like name) is read as an add-on tag', null !== $t && 'dyn' === $t['basetype'] );
+$t = $p->read_tag( '[intl_tel phone]', 0 );
+efb_cf7t( '[intl_tel phone] (add-on-style type) is read as a tag', null !== $t && 'intl_tel' === $t['basetype'] );
 $p2 = new Parser( array( 'dynamictext' ) );
 efb_cf7t( 'an add-on type is a tag when CF7 registered it', null !== $p2->read_tag( '[dynamictext dyn "x"]', 0 ) );
+
+// Add-on tags with Contact Form 7 deactivated (no registered types): read by their shape.
+$t = $p->read_tag( '[dynamictext dyn "x"]', 0 );
+efb_cf7t( 'CF7 inactive: [dynamictext dyn "x"] is still a tag', null !== $t && 'dynamictext' === $t['basetype'] && 'dyn' === $t['name'] && array( 'x' ) === $t['values'] );
+$t = $p->read_tag( '[intl_tel* ph]', 0 );
+efb_cf7t( 'CF7 inactive: [intl_tel* ph] is a required tag', null !== $t && 'intl_tel*' === $t['type'] && true === $t['required'] && 'ph' === $t['name'] );
+$t = $p->read_tag( '[multistep ms "1-2"]', 0 );
+efb_cf7t( 'CF7 inactive: [multistep ms "1-2"] is a tag', null !== $t && 'multistep' === $t['basetype'] && 'ms' === $t['name'] );
+$t = $p->read_tag( '[group g1]<label>A [text a]</label>[/group]', 0 );
+efb_cf7t( 'CF7 inactive: [group g1] is a tag', null !== $t && 'group' === $t['basetype'] && '[group g1]' === $t['raw'] );
+$t = $p->read_tag( '[spoiler]Hidden text[/spoiler]', 0 );
+efb_cf7t( 'CF7 inactive: a bare [type]…[/type] pair is a tag', null !== $t && 'spoiler' === $t['basetype'] && 'Hidden text' === $t['content'] );
+$nodes = $p->tokenize( '[group]<label>A [text a]</label>[/group]' );
+efb_cf7t( 'CF7 inactive: a bare [group] closed later by [/group] is a tag', 'tag' === $nodes[0]['node'] && 'group' === $nodes[0]['tag']['basetype'] );
+$not_tags = array( '[optional]', '[Optional field]', '[e.g. Jane]', '[your-name]', '[_site_title]', '[Note: see below]', '[and/or]', '[see 1 below]', "[dynamictext dyn\n\"x\"]", '[sic' );
+$wrong    = array();
+foreach ( $not_tags as $text ) {
+	if ( null !== $p->read_tag( $text, 0 ) ) {
+		$wrong[] = $text;
+	}
+}
+efb_cf7t( 'text in square brackets that is not tag-shaped stays text', empty( $wrong ), $wrong );
+$addon_tpl = "<label> Name [text* your-name] </label>\n<label> Dyn [dynamictext dyn \"x\"] </label>\n<label> Phone [intl_tel* ph] </label>\n[group g1]<label> Inside [text in-group] </label>[/group]\n[multistep ms \"1-2\"]\n<p>Write [optional] notes below.</p>\n[submit \"Send\"]";
+$p_active  = new Parser( array( 'dynamictext', 'intl_tel', 'group', 'multistep' ) );
+efb_cf7t( 'CF7 inactive tokenizes add-on tags exactly as CF7 active does', $p_active->tokenize( $addon_tpl ) === $p->tokenize( $addon_tpl ) );
 $t = $p->read_tag( '[text 1abc]', 0 );
 efb_cf7t( 'invalid name marks the tag invalid', false === $t['valid'] );
 $t = $p->read_tag( "[text\xC2\xA0nbsp-name\xC2\xA0placeholder \"x\"]", 0 );
@@ -295,6 +327,15 @@ $m = efb_cf7t_map( '<label>Msg [textarea msg]</label>[count msg][response]' );
 efb_cf7t( 'count: reported; response: ignored', 1 === count( efb_cf7t_fields( $m ) ) && efb_cf7t_notes_match( $m, 'character counter of “Msg”' ) && 1 === count( $m['notes'] ) );
 $m = efb_cf7t_map( '[stripe "Pay"][dynamictext d "x"]', array(), array( 'extra_types' => array( 'dynamictext' ) ) );
 efb_cf7t( 'stripe and add-on tags: reported by type', efb_cf7t_notes_match( $m, '[stripe]' ) && efb_cf7t_notes_match( $m, '[dynamictext]' ) );
+$m_off = efb_cf7t_map( $addon_tpl );
+$m_on  = efb_cf7t_map( $addon_tpl, array(), array( 'extra_types' => array( 'dynamictext', 'intl_tel', 'group', 'multistep' ) ) );
+$f_off = efb_cf7t_fields( $m_off );
+efb_cf7t( 'CF7 inactive: add-on tags reported with the "another plugin" note', efb_cf7t_notes_match( $m_off, '“[dynamictext]” tag comes from another plugin' ) && efb_cf7t_notes_match( $m_off, '“[intl_tel]”' ) && efb_cf7t_notes_match( $m_off, '“[group]”' ) && efb_cf7t_notes_match( $m_off, '“[multistep]”' ), $m_off['notes'] );
+efb_cf7t( 'CF7 inactive: their labels are consumed, not left as stray headings', array( 'text', 'text', 'heading' ) === array_column( $f_off, 'type' ) && array( 'Name', 'Inside' ) === array( $f_off[0]['name'], $f_off[1]['name'] ) && 'Write notes below.' === $f_off[2]['value'], $f_off );
+efb_cf7t( 'CF7 inactive maps the same fields and notes as CF7 active', array_column( $f_off, 'type' ) === array_column( efb_cf7t_fields( $m_on ), 'type' ) && $m_off['fields'] === $m_on['fields'] && $m_off['notes'] === $m_on['notes'] );
+$m = efb_cf7t_map( '<label>Company [optional] [text company]</label><label>Your [your-name] e-mail [email em]</label>' );
+$f = efb_cf7t_fields( $m );
+efb_cf7t( 'bracketed words and mail-tags in a label stay label text', array( 'Company', 'Your e-mail' ) === array_column( $f, 'name' ) && empty( $m['notes'] ), $m );
 $m = efb_cf7t_map( '[text 1bad]' );
 efb_cf7t( 'tag without a valid name: skipped and reported', empty( efb_cf7t_fields( $m ) ) && efb_cf7t_notes_match( $m, 'without a valid name' ) );
 $m = efb_cf7t_map( '[text city default:user_city][text ro readonly "x"]' );
@@ -419,9 +460,13 @@ efb_cf7t( 'every option points at a field of the form', array() === array_diff( 
 efb_cf7t( 'all types of the big form mapped', array( 'heading', 'text', 'email', 'url', 'tel', 'number', 'range', 'date', 'textarea', 'select', 'multiselect', 'checkbox', 'radio', 'trmCheckbox', 'file' ) === array_column( efb_cf7t_fields( $m ), 'type' ) );
 efb_cf7t( 'report lists every field with the builder\'s type name', count( $m['fields'] ) === count( efb_cf7t_fields( $m ) ) && isset( $m['fields'][0]['typeLabel'] ) );
 
-$efb   = get_efbFunction();
-$clean = $efb->sanitize_obj_msg_efb( json_decode( wp_json_encode( $s ), true ) );
-efb_cf7t( 'sanitize_obj_msg_efb() keeps every row and every field type', count( $clean ) === count( $s ) && array_column( $clean, 'type' ) === array_column( $s, 'type' ) );
+if ( function_exists( 'get_efbFunction' ) ) {
+	$efb   = get_efbFunction();
+	$clean = $efb->sanitize_obj_msg_efb( json_decode( wp_json_encode( $s ), true ) );
+	efb_cf7t( 'sanitize_obj_msg_efb() keeps every row and every field type', count( $clean ) === count( $s ) && array_column( $clean, 'type' ) === array_column( $s, 'type' ) );
+} else {
+	echo "[SKIP] sanitize_obj_msg_efb() needs the plugin loaded\n";
+}
 
 /* =========================================================================
  * 6. Pages: find and swap the embeds
@@ -455,12 +500,61 @@ efb_cf7t( 'replace: escaped shortcode, other forms and the page text untouched',
 list( , $none ) = Pages::replace_in_content( '<p>No forms</p>', $forms, array( 63 => array( 'efb' => 1, 'name' => 'x' ) ) );
 efb_cf7t( 'replace: nothing to do → 0', 0 === $none );
 
+// Undo needs the "before" revision to survive the save: WordPress trims to wp_revisions_to_keep().
+$keep_cases = array(
+	array( -1, 'page', true, 'unlimited revisions (-1): replace' ),
+	array( 2, 'page', true, 'two revisions kept: replace' ),
+	array( 25, 'page', true, '25 revisions kept: replace' ),
+	array( 1, 'page', false, 'one revision kept (the save would delete the "before" copy): skip' ),
+	array( 0, 'page', false, 'revisions off (0): skip' ),
+	array( -1, 'efb_cf7t_norev', false, 'post type without revisions: skip' ),
+);
+foreach ( $keep_cases as $case ) {
+	$keep_cb = function () use ( $case ) {
+		return $case[0];
+	};
+	add_filter( 'wp_revisions_to_keep', $keep_cb );
+	efb_cf7t( 'undo check: ' . $case[3], $case[2] === Pages::can_undo( (object) array( 'ID' => 0, 'post_type' => $case[1] ) ) );
+	remove_filter( 'wp_revisions_to_keep', $keep_cb );
+}
+if ( function_exists( 'wp_insert_post' ) && function_exists( 'get_users' ) ) {
+	$admin = get_users( array( 'role' => 'administrator', 'number' => 1 ) );
+	if ( $admin ) {
+		wp_set_current_user( $admin[0]->ID );
+	}
+	$original = '<p>Before</p>[contact-form-7 id="63"]';
+	$page_id  = wp_insert_post( array( 'post_type' => 'page', 'post_status' => 'draft', 'post_title' => 'CF7 importer undo test', 'post_content' => $original ) );
+	if ( $page_id && ! is_wp_error( $page_id ) ) {
+		$keep_one = function () {
+			return 1;
+		};
+		add_filter( 'wp_revisions_to_keep', $keep_one );
+		$done = Pages::replace_on_post( $page_id, $forms, array( 63 => array( 'efb' => 15, 'name' => 'Contact' ) ) );
+		remove_filter( 'wp_revisions_to_keep', $keep_one );
+		efb_cf7t( 'replace_on_post with one revision kept: page skipped with reason "revisions", content untouched', false === $done['ok'] && 'revisions' === $done['reason'] && 0 === $done['revision'] && $original === get_post( $page_id )->post_content, $done );
+
+		$keep_two = function () {
+			return 2;
+		};
+		add_filter( 'wp_revisions_to_keep', $keep_two );
+		$done = Pages::replace_on_post( $page_id, $forms, array( 63 => array( 'efb' => 15, 'name' => 'Contact' ) ) );
+		$rev  = $done['revision'] ? get_post( $done['revision'] ) : null;
+		remove_filter( 'wp_revisions_to_keep', $keep_two );
+		efb_cf7t( 'replace_on_post with two revisions kept: replaced, the undo revision still holds the original', true === $done['ok'] && $rev && $original === $rev->post_content && false !== strpos( get_post( $page_id )->post_content, '[EMS_Form_Builder id=15]' ), $done );
+		wp_delete_post( $page_id, true );
+	}
+}
+
 /* =========================================================================
  * 7. Storage and routing
  * ====================================================================== */
 echo "\n--- storage and routing ---\n";
 
 global $wpdb;
+if ( ! is_object( $wpdb ) ) {
+	echo "[SKIP] storage and routing need WordPress\n\n{$passed} passed, {$failed} failed\n";
+	exit( $failed > 0 ? 1 : 0 );
+}
 $user = get_users( array( 'role' => 'administrator', 'number' => 1 ) );
 if ( $user ) {
 	wp_set_current_user( $user[0]->ID );

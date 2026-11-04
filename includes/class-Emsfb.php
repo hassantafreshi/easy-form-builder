@@ -944,6 +944,13 @@ class Emsfb {
 
         $plugins = get_plugins();
         $active_plugins = get_option('active_plugins', array());
+        if (!is_array($active_plugins)) $active_plugins = array();
+        /* On multisite, cache plugins (LiteSpeed, WP Rocket...) are usually
+         * network-activated and so are missing from the site's own list. */
+        if (is_multisite()) {
+            $network_plugins = get_site_option('active_sitewide_plugins', array());
+            if (is_array($network_plugins)) $active_plugins = array_merge($active_plugins, array_keys($network_plugins));
+        }
         $plugin_list = array();
 
         foreach ($plugins as $plugin_file => $plugin_data) {
@@ -1068,6 +1075,11 @@ class Emsfb {
 
         $plugins      = get_plugins();
         $active       = get_option('active_plugins', array());
+        if (!is_array($active)) $active = array();
+        if (is_multisite()) {
+            $network_plugins = get_site_option('active_sitewide_plugins', array());
+            if (is_array($network_plugins)) $active = array_merge($active, array_keys($network_plugins));
+        }
         $plugin_list  = array();
 
         foreach ($plugins as $plugin_file => $plugin_data) {
@@ -1672,6 +1684,9 @@ class Emsfb {
             if (class_exists('\Emsfb\Email_Monitor')) {
                 \Emsfb\Email_Monitor::plugin_updated();
             }
+        } elseif (get_option('emsfb_sending_default_431', '') === 'pending') {
+            // The 4.3.1 upgrade could not read the settings at the time.
+            $this->enable_email_sending_after_upgrade_efb();
         }
 
     }
@@ -1706,10 +1721,18 @@ class Emsfb {
      * @return void
      */
     private function enable_email_sending_after_upgrade_efb() {
-        if (get_option('emsfb_sending_default_431', '') !== '') {
+        $state = (string) get_option('emsfb_sending_default_431', '');
+        if ($state !== '' && $state !== 'pending') {
             return;
         }
-        update_option('emsfb_sending_default_431', (string) time(), false);
+        /* Recorded once the question is settled (opted out, already on, or
+         * switched on). Recording it before reading the settings meant a
+         * moment with no readable settings row skipped the switch for good;
+         * such a run now leaves 'pending' and check_version_and_upgrade_efb()
+         * retries it on a later dashboard load. */
+        $done = function () {
+            update_option('emsfb_sending_default_431', (string) time(), false);
+        };
 
         /**
          * Filter whether the 4.3.1 update may switch form emails on.
@@ -1717,13 +1740,19 @@ class Emsfb {
          * @param bool $enable Default true.
          */
         if (!apply_filters('emsfb_upgrade_enable_email_sending', true)) {
+            $done();
             return;
         }
 
         try {
             self::get_setting_Emsfb('_clear_cache');
             $settings = self::get_setting_Emsfb('decoded');
-            if (!is_object($settings) || self::is_email_sending_enabled_efb($settings)) {
+            if (!is_object($settings)) {
+                update_option('emsfb_sending_default_431', 'pending', false);
+                return; // Nothing readable yet: try again on a later load.
+            }
+            if (self::is_email_sending_enabled_efb($settings)) {
+                $done();
                 return;
             }
             $settings->smtp = true;
@@ -1734,6 +1763,7 @@ class Emsfb {
             if (is_object($efb_function) && method_exists($efb_function, 'set_setting_Emsfb')) {
                 $efb_function->set_setting_Emsfb($settings, $supporter);
                 delete_transient('emsfb_settings_transient');
+                $done();
             }
         } catch (\Throwable $e) {
             // An upgrade must never fail because of this.

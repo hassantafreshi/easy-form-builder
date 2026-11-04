@@ -4408,9 +4408,9 @@ function efbEmailTestViewModel(state, options) {
 
   // Two ways out of a bad result, under the guidance box. Only when the mail
   // arrived with a low score or never arrived - a run that could not finish
-  // has nothing to fix yet. "delayed" counts as never arrived here: it is
-  // where the poll stops when WordPress handed the email off and nothing came
-  // in the quick window, the screen says Failed, and nothing updates it later.
+  // has nothing to fix yet. "delayed" counts as never arrived here once the
+  // run is over (the poll now keeps going through "delayed" until the email
+  // arrives or the test expires, so this only applies to a finished run).
   // A quick result that already arrived stays the evidence even when a later
   // full-report poll fails or times out.
   const deliveryNotConfirmed = status === 'delayed' && !arrived;
@@ -4565,6 +4565,14 @@ function efbEmailTestPoll(test, uiState, button, buttonHtml, startedAt) {
       const stage = result.analysis_stage || '';
 
       efbEmailTestFollowServerOff(result.sending_turned_off);
+      /* Leaving a "delayed" round (the poll now continues through it): drop
+         what that round put on screen, so a later "arrived" or "pending" is
+         not shown under the "taking longer than expected" heading. */
+      if (uiState.outcome === 'pending' && status != 'delayed' && stage != 'delivery_wait') {
+        uiState.outcome = '';
+        if (uiState.steps.quick === 'warning') uiState.steps.quick = 'waiting';
+        if (uiState.steps.full === 'waiting' || uiState.steps.full === 'warning') uiState.steps.full = 'waiting';
+      }
       if (!payload.success && status != 'pending' && status != 'delayed' && status != 'expired') {
         uiState.steps.wait = 'error';
         uiState.outcome = window.efbEmailTestUI.outcome({ stage: 'result', payload: payload, result: result });
@@ -4603,9 +4611,17 @@ function efbEmailTestPoll(test, uiState, button, buttonHtml, startedAt) {
         uiState.quick = result;
         uiState.result = result;
         uiState.message = result.message || efbEmailTestText('emailOnItsWay', 'Email is on its way — still waiting for delivery confirmation.');
-        uiState.percent = 100;
+        /* "delayed" is not an answer: the service keeps waiting (Microsoft 365
+           and queueing hosts often take minutes) until the email arrives or the
+           test expires. Keep asking, more slowly, instead of stopping here and
+           leaving a "taking longer" screen that never updates. maxDuration
+           (the test's own expiry) still ends the loop. */
+        uiState.percent = Math.min(90, 76 + Math.floor((elapsed / maxDuration) * 14));
         efbEmailTestShow(uiState);
-        efbEmailTestFinishButton(button, buttonHtml);
+        const delayedNext = Math.max(10, efbEmailTestNextPendingDelay(uiState, result));
+        efbEmailServerTestTimer = setTimeout(function () {
+          efbEmailTestPoll(test, uiState, button, buttonHtml, startedAt);
+        }, delayedNext * 1000);
         return;
       }
 

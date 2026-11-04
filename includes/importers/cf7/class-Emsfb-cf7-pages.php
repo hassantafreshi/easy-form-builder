@@ -206,7 +206,7 @@ class Pages {
 			$out['reason'] = 'builder';
 			return $out;
 		}
-		if ( ! wp_revisions_enabled( $post ) ) {
+		if ( ! self::can_undo( $post ) ) {
 			$out['reason'] = 'revisions';
 			return $out;
 		}
@@ -246,6 +246,27 @@ class Pages {
 		$out['count']    = $count;
 		$out['revision'] = (int) $before;
 		return $out;
+	}
+
+	/**
+	 * Whether WordPress will still hold the "before" revision after the save.
+	 *
+	 * replace_on_post() stores the page as it is now as a revision, then
+	 * saves the new content, which stores a second revision; WordPress then
+	 * deletes the oldest revisions beyond wp_revisions_to_keep(). With 0
+	 * (revisions off, or the post type has none) there is no revision at
+	 * all, with 1 the "before" copy is deleted by the save itself - either
+	 * way there would be nothing to undo, so the page is left alone.
+	 *
+	 * @param \WP_Post|object $post Post (needs post_type).
+	 * @return bool True when revisions are unlimited (-1) or at least 2 are kept.
+	 */
+	public static function can_undo( $post ) {
+		if ( ! is_object( $post ) || ! post_type_supports( (string) $post->post_type, 'revisions' ) ) {
+			return false;
+		}
+		$keep = (int) wp_revisions_to_keep( $post );
+		return $keep < 0 || $keep >= 2;
 	}
 
 	/**

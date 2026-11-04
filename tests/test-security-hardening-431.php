@@ -22,9 +22,11 @@ function t_sec($label, $ok) { global $pass, $fail; if ($ok) { $pass++; echo "[PA
 
 function sanitize_text_field($s) { return trim(preg_replace('/[\r\n\t ]+/', ' ', strip_tags((string) $s))); }
 function wp_unslash($s) { return $s; }
-function wp_parse_url($u) { return parse_url($u); }
-function home_url() { return $GLOBALS['efb_test_home']; }
+/* The shipped code checks function_exists('home_url'), i.e. the global
+ * function, so these two are defined in the global namespace. */
+eval('function wp_parse_url($u, $c = -1) { return parse_url($u, $c); } function home_url($p = "") { return rtrim($GLOBALS["efb_test_home"], "/") . $p; }');
 function sanitize_url($u) { return $u; }
+function is_email($e) { return (bool) filter_var($e, FILTER_VALIDATE_EMAIL); }
 function sanitize_email($e) { return preg_replace('/[^A-Za-z0-9@._+-]/', '', (string) $e); }
 function wp_upload_dir() { return array('baseurl' => 'https://site.test/wp-content/uploads', 'basedir' => '/nonexistent'); }
 function wp_normalize_path($p) { return $p; }
@@ -42,10 +44,12 @@ $src = file_get_contents(__DIR__ . '/../includes/class-Emsfb-public.php');
 $body = '';
 foreach (array('is_same_site_url_efb', 'normalize_submitted_row_efb', 'sanitize_payment_merge_row_efb', 'filter_attributes_by_type_efb',
 	'filter_and_sanitize_attributes_efb', 'sanitize_value_efb', 'canonical_esign_value_efb', 'sanitize_account_form_rows_efb',
-	'validate_submitted_upload_url_efb', 'replaceContentMessageEfb', 'email_format_price_efb', 'email_escape_leaf_efb', 'email_get_content_efb') as $fn) {
+	'validate_submitted_upload_url_efb', 'replaceContentMessageEfb', 'email_format_price_efb', 'email_escape_leaf_efb', 'email_get_content_efb',
+	'efb_submitter_email_efb', 'plan_locked_field_types_efb', 'validate_required_fields_present_efb') as $fn) {
 	if (!preg_match('/\t(?:public|private)(?: static)? function ' . $fn . '\(.*?\n\t\}\n/s', $src, $m)) { echo "[FAIL] $fn() not found\n"; exit(1); }
 	$body .= str_replace('private function', 'public function', $m[0]);
 }
+if (preg_match('/\tpublic function get_ip_address\(\) \{.*?\n    \}\n/s', $src, $m)) $body .= $m[0];
 preg_match('/\tprivate static function upload_row_types_efb\(\) \{.*?\n\t\}\n/s', $src, $m);
 $body .= $m[0];
 eval('namespace Emsfb; class Harness_Efb { public $id = 1; public $setting; public $efbFunction; function __construct() { $this->efbFunction = new FakeFunctions_Efb(); } ' . $body . '}');
@@ -73,6 +77,16 @@ foreach ($cases as $c) {
 	$GLOBALS['efb_test_home'] = 'http://' . $c[0];
 	t_sec(($c[2] ? 'same-site ' : 'other site ') . $c[1], $h->is_same_site_url_efb($c[1]) === $c[2]);
 }
+/* Behind a proxy the Host header can be internal; home_url() is the public name. */
+$_SERVER['HTTP_HOST'] = '10.0.0.5:8080';
+$GLOBALS['efb_test_home'] = 'https://www.example.com';
+t_sec('proxy with an internal Host: the home_url() host is accepted', $h->is_same_site_url_efb('https://example.com/contact/') === true);
+t_sec('proxy with an internal Host: another host is still refused', $h->is_same_site_url_efb('https://example.com.evil.tld/') === false);
+/* A proxy that serves the site on another port without forwarding it. */
+$_SERVER['HTTP_HOST'] = 'example.com';
+$GLOBALS['efb_test_home'] = 'https://example.com';
+t_sec('same host on a port neither Host nor home_url names is accepted', $h->is_same_site_url_efb('https://example.com:8443/form/') === true);
+t_sec('... but a different host on that port is not', $h->is_same_site_url_efb('https://evil.tld:8443/form/') === false);
 
 /* 2. Register rows */
 $fields = array(array('type' => 'register'), array('id_' => '1', 'type' => 'step'),
@@ -87,6 +101,8 @@ $submitted = array(
 	array('id_' => 'ph1', 'name' => 'Phone', 'type' => 'mobile', 'value' => '+15551234567', 'amount' => 6),
 	array('id_' => 'ghost', 'name' => 'x', 'type' => 'media', 'value' => '@file@', 'url' => 'javascript:alert(1)'),
 	array('id_' => 'usernameRegisterEFB', 'name' => 'dup', 'type' => 'text', 'value' => 'second'));
+$_SERVER['HTTP_HOST'] = 'site.test';
+$GLOBALS['efb_test_home'] = 'https://site.test';
 $rows = $h->sanitize_account_form_rows_efb($submitted, $fields, 'https://site.test/register');
 $json = json_encode($rows);
 t_sec('register entry never stores the password', strpos($json, 'Plain-Text-Secret1') === false && strpos($json, 'passwordRegisterEFB') === false);
@@ -94,7 +110,9 @@ t_sec('register entry keeps username, email and extra form fields', count($rows)
 t_sec('register entry takes type and name from the saved form', $rows[0]['type'] === 'text' && $rows[0]['name'] === 'Username' && !isset($rows[0]['evil']));
 t_sec('register entry drops rows for fields the form does not have', strpos($json, 'ghost') === false && strpos($json, 'javascript') === false);
 t_sec('register entry keeps one row per field', strpos($json, 'second') === false);
-t_sec('register entry ends with the page link', end($rows)['type'] === 'w_link');
+t_sec('register entry ends with the page link', end($rows)['type'] === 'w_link' && end($rows)['value'] === 'https://site.test/register');
+$rows = $h->sanitize_account_form_rows_efb($submitted, $fields, 'https://evil.tld/phish');
+t_sec('register entry replaces a page link on another site with home_url()', end($rows)['value'] === 'https://site.test/');
 
 /* 3. Email content */
 $attack = array(
@@ -113,7 +131,25 @@ $out = $h->email_get_content_efb($legit, 'TRK2');
 t_sec('email: a real color still shows its swatch', strpos($out, 'background:#ff8800') !== false);
 t_sec('email: line breaks and payment details still render', strpos($out, 'Line one<br>line two') !== false && strpos($out, '<span>pi_3Abc</span>') !== false);
 
-/* 4. Source wiring */
+/* 4. Reply-To, visitor IP, plan-locked required fields */
+$rows = array(array('id_' => 'friend', 'type' => 'email', 'value' => 'friend@example.com'), array('id_' => 'me', 'type' => 'email', 'value' => 'me@example.com'));
+t_sec('Reply-To uses the form\'s visitor-email field', $h->efb_submitter_email_efb($rows, 'me') === 'me@example.com');
+t_sec('Reply-To falls back to the first valid email field', $h->efb_submitter_email_efb($rows, '') === 'friend@example.com' && $h->efb_submitter_email_efb($rows, 'missing') === 'friend@example.com');
+foreach (array(array('203.0.113.5:54321', '203.0.113.5'), array('[2001:db8::1]:443', '2001:db8::1'), array('203.0.113.5, 10.0.0.1', '203.0.113.5'), array('<script>', '198.51.100.9')) as $c) {
+	$_SERVER['HTTP_CLIENT_IP'] = ''; $_SERVER['HTTP_X_FORWARDED_FOR'] = $c[0]; $_SERVER['REMOTE_ADDR'] = '198.51.100.9';
+	t_sec('visitor IP from "' . $c[0] . '"', $h->get_ip_address() === $c[1]);
+}
+$req_fields = array(array('type' => 'form'), array('id_' => 'n', 'type' => 'text', 'required' => 1, 'name' => 'Name'),
+	array('id_' => 'sig', 'type' => 'esign', 'required' => 1, 'name' => 'Sign'), array('id_' => 'm', 'type' => 'mobile', 'required' => true, 'name' => 'Mobile'));
+$only_name = array(array('id_' => 'n', 'type' => 'text', 'value' => 'Ali'));
+$r = $h->validate_required_fields_present_efb($req_fields, $only_name, false);
+t_sec('Free site: a required Pro field shown as the plan notice does not block the form', $r['valid'] === true);
+$r = $h->validate_required_fields_present_efb($req_fields, $only_name, true);
+t_sec('Pro site: the same field is still required', $r['valid'] === false && $r['missing_field'] === 'sig');
+$r = $h->validate_required_fields_present_efb($req_fields, array(), false);
+t_sec('Free site: ordinary required fields are still required', $r['valid'] === false && $r['missing_field'] === 'n');
+
+/* 5. Source wiring */
 $reply = substr($src, strpos($src, 'public function set_rMessage_id_Emsfb_api('), 9000);
 t_sec('reply rows are rebuilt from an allow-list', strpos($reply, "'type'    => 'text'") !== false && strpos($reply, "'type'    => 'allformat'") !== false && strpos($reply, '$message = $rebuilt_efb;') !== false);
 t_sec('reply attachments must be same-site uploads', strpos($reply, '$this->is_same_site_url_efb($row_url_efb)') !== false);

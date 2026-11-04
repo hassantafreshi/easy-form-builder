@@ -543,7 +543,7 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 
 * New: Pages that show a form in their content, and the tracking and payment views, are kept out of page caches (LiteSpeed, WP Rocket, W3 Total Cache, WP Super Cache, WP Fastest Cache, WP-Optimize, Cache Enabler, SiteGround, Cloudflare and others). Pages with a form only in a sidebar, footer or widget stay cached. Developers can adjust this with the `emsfb_cache_bypass` filter.
 
-* New: Form scripts are excluded from script optimizers (Cloudflare Rocket Loader, delay/defer JavaScript options) and wait for jQuery when it loads late.
+* New: Form scripts are excluded from script optimizers (delay/defer, combine and minify JavaScript options) and wait for jQuery when it loads late, so forms also work with Cloudflare Rocket Loader.
 
 * New: Each form gets a short-lived session before it is submitted. When a firewall, a REST API restriction or a rate limit blocks that step, the form falls back to the 4.3.0 request, which the server still fully validates.
 

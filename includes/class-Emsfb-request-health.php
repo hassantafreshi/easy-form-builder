@@ -198,7 +198,16 @@ class Request_Health {
             $old = isset($rows[$key]) ? $rows[$key] : array();
             $rows[$key] = array('operation' => $operation, 'status' => (int) $status, 'source' => $source, 'reason' => $reason, 'first' => $old['first'] ?? $now, 'last' => $now, 'count' => min(99999, ($old['count'] ?? 0) + 1));
             uasort($rows, static function ($a, $b) { return $b['last'] <=> $a['last']; });
-            update_option(self::OPTION, array_slice($rows, 0, 32, true), false);
+            /* Still 32 rows, but server rows are kept first: browser reports
+             * come from an unauthenticated endpoint, and evicting purely by age
+             * let a stream of them push a real server failure out of the
+             * notice. Browser rows fill whatever room is left, newest first. */
+            $server_rows = array_filter($rows, static function ($row) { return ($row['source'] ?? '') === 'server'; });
+            $other_rows  = array_diff_key($rows, $server_rows);
+            $server_rows = array_slice($server_rows, 0, 32, true);
+            $rows = $server_rows + array_slice($other_rows, 0, 32 - count($server_rows), true);
+            uasort($rows, static function ($a, $b) { return $b['last'] <=> $a['last']; });
+            update_option(self::OPTION, $rows, false);
         } catch (\Throwable $error) {
             // Logging must not replace the operation's actual response.
         } finally {
