@@ -40,7 +40,10 @@ async function login(page) {
 async function openDialog(page) {
   await page.goto(`${BASE}/wp-admin/admin.php?page=Emsfb_create`, { waitUntil: 'networkidle' });
   await page.waitForSelector('#efb-cf7-card', { timeout: 25000 });
-  await page.click('#efb-cf7-card button');
+  /* A DOM click: hosts can lay their own panels over wp-admin at phone
+     widths (Hostinger's assistant does), which would swallow a pointer click
+     without saying anything about this plugin. */
+  await page.$eval('#efb-cf7-card button', (b) => b.click());
   await page.waitForSelector('.efb-cf7__item', { timeout: 25000 });
 }
 
@@ -89,10 +92,12 @@ async function openDialog(page) {
     t('the builder loads the new form', types[0] === 'form' && types[1] === 'step' && types.length > 2, types.join(','));
 
     console.log('\n4. Phone');
-    const phone = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+    /* Reuse the desktop session: this step checks the dialog's layout, not
+       the login form, and some hosts (Hostinger) put their own overlay on
+       wp-login.php at phone widths. */
+    const phone = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, storageState: await ctx.storageState() });
     await phone.route((url) => !url.href.startsWith(BASE), (route) => route.fulfill({ status: 204, body: '' }));
     const p2 = await phone.newPage();
-    await login(p2);
     await openDialog(p2);
     const fits = await p2.evaluate(() => {
       const shell = document.querySelector('#efb-cf7-dialog .efb-dlg__shell').getBoundingClientRect();

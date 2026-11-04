@@ -507,17 +507,17 @@ function escapeContentPreviewText_efb(value) {
 
 function getContentPreview_efb(contentStr) {
   try {
-    const parsed = efbParseJson(replaceContentMessageEfb(contentStr));
+    const parsed = efbParseJson(replaceContentMessageEfb(contentStr, true));
     if (!Array.isArray(parsed)) return { short: '—', full: '' };
     const parts = [];
     for (const c of parsed) {
       if (!c || !c.value || c.value === '@file@') continue;
       if (c.type === 'maps' || c.type === 'esign' || c.type === 'payment' || c.type ==='w_link') continue;
-      let val = String(c.value).replace(/<[^>]*>/g, '').replace(/@efb!/g, ',').replace(/@efb[^#]*#/g, ' ').replace(/,\s*$/, '').trim();
+      let val = String(c.value).replace(/<[^>]*>/g, '').replace(/@efb@dq#/g, '"').replace(/@efb!/g, ',').replace(/@efb[^#]*#/g, ' ').replace(/,\s*$/, '').trim();
       if (val.length > 0) {
         // c.name/c.id_ come straight off the stored submission, not the
         // trusted form definition - never trust them into innerHTML unescaped.
-        const label = escapeContentPreviewText_efb(c.name || c.id_ || '');
+        const label = escapeContentPreviewText_efb(String(c.name || c.id_ || '').replace(/@efb@dq#/g, '"'));
         val = escapeContentPreviewText_efb(val);
         parts.push(label ? `${label}: ${val}` : val);
       }
@@ -3632,7 +3632,7 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
   }
   for (let v of value) {
 
-    const content = efbParseJson(replaceContentMessageEfb(v.content))
+    const content = efbParseJson(replaceContentMessageEfb(v.content, true))
     count += 1;
     i_count += i_count == -1 ? 2 : 1;
     rows[i_count][1] = v.date;
@@ -3662,6 +3662,11 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
             rows[parseInt(i_count)][parseInt(vx)] = content[c].paymentIntent;
           }else if(content[c].value == '@file@' || content[c].type == 'file' || content[c].type == 'media' || content[c].type == 'zip'  || content[c].type == 'image' || content[c].type == 'document' || content[c].type == 'allformat'){
             rows[parseInt(i_count)][parseInt(value_col_index)] =content[c].url;
+          }else if (content[c].type == 'esign'){
+            /* The image is a base64 data URL of thousands of characters (a
+               large signature passes Excel's 32,767-character cell limit and
+               breaks the row). Same marker as the single-response CSV. */
+            rows[parseInt(i_count)][parseInt(value_col_index)] = (typeof content[c].value == 'string' && content[c].value.indexOf('data:image/') === 0) ? '[' + (efb_var.text.esign || 'Signature') + ']' : '';
           }else if (content[c].type == "maps"){
             let val =''
             content[c].value.forEach(r => {

@@ -996,12 +996,16 @@ function efbNormalizeJson(value) {
   return efbParseJson(value, true);
 }
 
-function replaceContentMessageEfb(value){
+function replaceContentMessageEfb(value, keepQuotes){
   if(typeof value !== 'string') return value;
   // Field text can itself look like JSON; only parsers should normalize it.
    value = value.replaceAll("@efb@sq#","'");
    value = value.replaceAll("@efb@vq#","`");
-   value = value.replaceAll("@efb@dq#",`''`);
+   /* A double quote is stored as @efb@dq#. Turned into a real " before the
+      JSON is parsed it would break the JSON, so this used to write '' instead
+      and every reader showed two apostrophes. Callers that parse first pass
+      keepQuotes and turn the token into " afterwards (viewer, preview, CSV). */
+   if (!keepQuotes) value = value.replaceAll("@efb@dq#",`''`);
    value = value.replaceAll("@efb@nq#",`<br>`);
   return value;
 }

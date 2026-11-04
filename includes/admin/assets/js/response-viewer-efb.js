@@ -271,7 +271,7 @@ const EfbResponseViewer = (function () {
     const userIp = valueJson_ws_messages[indx].ip;
     const track = valueJson_ws_messages[indx].track;
     const date = valueJson_ws_messages[indx].date;
-    const content = efbParseJson(replaceContentMessageEfb(valueJson_ws_messages[indx].content));
+    const content = efbParseJson(replaceContentMessageEfb(valueJson_ws_messages[indx].content, true));
 
     let by = valueJson_ws_messages[indx].read_by !== null ? valueJson_ws_messages[indx].read_by : "Unkown";
     if (by == 1) { by = 'Admin'; } else if (by == 0 || by.length == 0 || by.length == -1) { by = '#first'; }
@@ -299,7 +299,7 @@ const EfbResponseViewer = (function () {
     const msg_id = value.msg_id;
     const track = value.track;
     const date = value.date;
-    const val = efbParseJson(replaceContentMessageEfb(value.content));
+    const val = efbParseJson(replaceContentMessageEfb(value.content, true));
     let m = fun_emsFormBuilder_show_messages(val, '#first', '', track, date);
 
     for (let c of content) {
@@ -858,6 +858,14 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
    * having to remember to escape. Escaping happens exactly once — callers pass
    * raw parsed content and never pre-escape — so there is no double-encoding. */
   content = escResponseTreeEfb(content);
+  /* The stored double-quote token, now that the tree is escaped: &quot; is
+     right in element text and in attributes alike. */
+  content = (function decodeQuoteTokenEfb(node) {
+    if (typeof node === 'string') return node.replace(/@efb@dq#/g, '&quot;');
+    if (Array.isArray(node)) return node.map(decodeQuoteTokenEfb);
+    if (node && typeof node === 'object') { for (const k in node) { if (Object.prototype.hasOwnProperty.call(node, k)) node[k] = decodeQuoteTokenEfb(node[k]); } }
+    return node;
+  })(content);
   userIp = escHtmlEfb(userIp);
   track = escHtmlEfb(track);
   date = escHtmlEfb(date);

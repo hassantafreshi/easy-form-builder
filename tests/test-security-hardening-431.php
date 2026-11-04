@@ -130,6 +130,14 @@ $legit = array(
 $out = $h->email_get_content_efb($legit, 'TRK2');
 t_sec('email: a real color still shows its swatch', strpos($out, 'background:#ff8800') !== false);
 t_sec('email: line breaks and payment details still render', strpos($out, 'Line one<br>line two') !== false && strpos($out, '<span>pi_3Abc</span>') !== false);
+/* The visitor's double quote (stored as @efb@dq#) reaches the email as a
+ * quote, escaped - not as two apostrophes - and cannot open markup. */
+$out = $h->email_get_content_efb(array(
+	array('id_' => 'q', 'type' => 'text', 'name' => 'Say @efb@dq#hi@efb@dq#', 'value' => 'He said @efb@dq#hello@efb@dq# @efb@dq#><img src=x onerror=alert(1)>', 'amount' => 1),
+	array('type' => 'w_link', 'value' => 'https://site.test/', 'amount' => -1)), 'TRK3');
+t_sec('email: a visitor\'s double quote shows as a quote', strpos($out, 'He said &quot;hello&quot;') !== false && strpos($out, "''hello''") === false);
+t_sec('email: the field label decodes the quote too', strpos($out, 'Say &quot;hi&quot;') !== false);
+t_sec('email: a quote token cannot open markup', strpos($out, '<img src=x') === false);
 
 /* 4. Reply-To, visitor IP, plan-locked required fields */
 $rows = array(array('id_' => 'friend', 'type' => 'email', 'value' => 'friend@example.com'), array('id_' => 'me', 'type' => 'email', 'value' => 'me@example.com'));

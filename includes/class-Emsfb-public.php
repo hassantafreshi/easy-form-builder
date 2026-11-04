@@ -7432,7 +7432,11 @@ public function check_nonce_permission_efb($request) {
 		$value = str_replace('@efb@sq#', "'", $value);
 
 		$value = str_replace('@efb@vq#', "`", $value);
-		$value = str_replace('@efb@dq#', "''", $value);
+		/* The stored double-quote token. Rows reach this already decoded from
+		 * JSON, and every reader escapes the value afterwards
+		 * (email_escape_leaf_efb / esc_html), so a real " is safe and correct;
+		 * '' showed the visitor's quotes as two apostrophes. */
+		$value = str_replace('@efb@dq#', '"', $value);
 		$value = str_replace('@efb@nq#', "<br>", $value);
 		return $value;
 	}
@@ -7539,7 +7543,7 @@ public function check_nonce_permission_efb($request) {
 					$c['qty']  = $this->replaceContentMessageEfb($c['qty']);
 				}
 
-				$title = isset($c['name']) ? $c['name'] : '';
+				$title = isset($c['name']) && is_string($c['name']) ? str_replace('@efb@dq#', '"', $c['name']) : (isset($c['name']) ? $c['name'] : '');
 				$q     = '';
 
 				if (isset($c['value']) && is_string($c['value'])) {

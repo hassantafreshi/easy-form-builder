@@ -503,6 +503,10 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 
 * Security: Hardened every path that stores or shows visitor data. Each saved answer keeps the field's own label and type from the form, whatever the browser sent. Replies on the confirmation-code page are rebuilt from an allow-list (attachments must be uploads on this site); register forms no longer store the password or rows for fields the form does not have; notification emails are built from the validated answers and send the visitor copy to one verified address; the page link must be on this site's own domain; the confirmation-code finder escapes the code from the address bar; the response viewer only links http(s) attachments and ignores invalid colors, ratings and currencies; passwords saved by earlier versions are masked.
 
+* Fixed: A double quote typed by a visitor showed as two apostrophes ('') in the response viewer, the entries list, the CSV export and the notification email. It now shows as a double quote, also in entries saved by earlier versions.
+
+* Changed: The CSV export writes [Signature] for a signed Signature field instead of the image data, which was thousands of characters long and could exceed a spreadsheet cell's limit.
+
 * Fixed: Ticking the reCAPTCHA on the confirmation-code page sent a request the server refused, which logged a false "request failure". "Enable Google reCAPTCHA in the response box" can now be switched off after the site key was removed, and the page shows no reCAPTCHA without a site key (it used to block every lookup).
 
 * Security: The Google reCAPTCHA on the confirmation-code page is now verified on the server for every lookup; before, it was checked only in the browser and could be skipped. Sites that turned it on (Settings > "Enable Google reCAPTCHA in the response box") need the secret key saved as well.
