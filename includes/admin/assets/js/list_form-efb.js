@@ -3784,7 +3784,8 @@ function convertToCSV_emsFormBuilder(objArray) {
       if (/^[=+\-@\t\r]/.test(val) && !/^[+-]?\d+([.,]\d+)?$/.test(val)) {
         val = "'" + val;
       }
-      if (/[",\r\n]/.test(val)) {
+      /* ';' too: spreadsheets in many locales split on it. */
+      if (/[",;\r\n]/.test(val)) {
         val = '"' + val.replace(/"/g, '""') + '"';
       }
       cells.push(val);

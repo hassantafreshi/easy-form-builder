@@ -911,16 +911,25 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   let list = []
   let s = false;
   let checboxs=[];
-  let currency = content[0].hasOwnProperty('paymentcurrency') ? content[0].paymentcurrency :'usd';
+  /* toLocaleString() throws on a currency that is not an ISO code, which
+     left the whole response unreadable. */
+  const isCurrencyEfb = (v) => typeof v == 'string' && /^[A-Za-z]{3}$/.test(v);
+  let currency = content[0].hasOwnProperty('paymentcurrency') && isCurrencyEfb(content[0].paymentcurrency) ? content[0].paymentcurrency :'usd';
   let last_type ='';
   for (const c of content) {
     if (c.hasOwnProperty('price')){ totalpaid +=Number(c.price)}
     if(c.hasOwnProperty('value') && c.type!="maps"){ c.value = replaceContentMessageEfb(c.value)}
     if(c.hasOwnProperty('qty')){ c.qty = replaceContentMessageEfb(c.qty)}
-    if (c.hasOwnProperty('currency')){ currency = c.currency}
+    if (c.hasOwnProperty('currency') && isCurrencyEfb(c.currency)){ currency = c.currency}
     s = false;
     let value = typeof(c.value)=="string" ? `<span class="efb-formatted">${(typeof EfbResponseViewer !== 'undefined' ? EfbResponseViewer.formatMessageForDisplay(c.value.toString().replaceAll('@efb!', ',').replace(/,\s*$/, '')) : c.value.toString().replaceAll('@efb!', ',').replace(/,\s*$/, ''))}</span>` :'';
     if(c.hasOwnProperty('qty')!=false) value+=`: <b> ${c.qty}</b>`
+    if (c.value == "@file@") {
+      /* Escaping cannot neutralise a javascript: or data: address, and a
+         reply row could carry any url before the server rebuilt replies.
+         Only http(s) addresses become links or media sources. */
+      c.url = (typeof c.url == "string" && /^https?:\/\//i.test(c.url)) ? c.url : '';
+    }
     if (c.value == "@file@" && list.findIndex(x => x == c.url) == -1) {
       s = true;
       list.push(c.url);
@@ -964,7 +973,9 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'';
       title = efb_var.text[title] || c.name ;
       s = true;
-      value = `<span class="efb-msg-color-swatch" style="background-color:${c.value};">&nbsp;</span><code>${c.value}</code>`;
+      /* Only a #rrggbb value may reach the style attribute. */
+      const colorOk = typeof c.value == "string" && /^#[0-9a-fA-F]{6}$/.test(c.value);
+      value = colorOk ? `<span class="efb-msg-color-swatch" style="background-color:${c.value};">&nbsp;</span><code>${c.value}</code>` : `<code>${c.value}</code>`;
       m += `<div class="efb efb-msg-field-row"><span class="efb-msg-field-label"><i class="bi bi-palette"></i> ${title}:</span> <span class="efb-msg-field-value">${value}</span></div>`;
     } else if (c.type == "maps") {
       if (typeof (c.value) == "object") {
@@ -981,7 +992,8 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'';
       title = efb_var.text[title] || c.name ;
       value = `<div class='efb efb-msg-rating ${efb_var.rtl == 1 ? 'text-end' : 'text-start'}'>`;
-      for (let i = 0; i < parseInt(c.value); i++) {
+      const stars = Math.max(0, Math.min(10, parseInt(c.value) || 0));
+      for (let i = 0; i < stars; i++) {
         value += `<i class="efb bi bi-star-fill"></i>`
       }
       value += "</div>";
@@ -1001,7 +1013,9 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       vc =`${c.hasOwnProperty('label') && last_type!='r_matrix' ? `<div class="efb-msg-field-label efb-msg-matrix-header">${c.label}</div>` : '' }<div class="efb efb-msg-field-row efb-msg-matrix-item"><span class="efb-msg-field-label">${c.name}:</span><span class="efb-msg-field-value">${c.value}</span></div>`
       m += `${vc}`;
     }
-    if (c.id_ == 'passwordRegisterEFB') { m += value; value = '**********' };
+    /* Entries saved before 4.3.1 may still hold a register form's password
+       as typed; mask it and never print the value itself. */
+    if (c.id_ == 'passwordRegisterEFB' || c.id_ == 'repasswordRegisterEFB' || c.id_ == 'passwordlogin' || c.type == 'password') { value = '**********' };
     if (((s == true && c.value == "@file@") || (s == false && c.value != "@file@")) && c.id_!="payment" && c.type!="checkbox"){
         let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'';
         if(title=="file") title ="atcfle"
@@ -1012,7 +1026,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
           q+=`<span class="efb efb-msg-price-tag">${Number(price).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span>`
         }else if(c.type.includes('checkbox')){
         }else if(c.type.includes('imgRadio')){
-          q = typeof fun_imgRadio_efb === 'function' ? `<div class="efb w-100">`+fun_imgRadio_efb(c.id_, c.src ,c)+`</div>` : `<div class="efb w-100"><img src="${c.src || ''}" class="efb img-fluid rounded" alt="${c.value || ''}"></div>`
+          q = typeof fun_imgRadio_efb === 'function' ? `<div class="efb w-100">`+fun_imgRadio_efb(c.id_, typeof c.src == 'string' ? c.src : '' ,c)+`</div>` : `<div class="efb w-100"><img src="${c.src || ''}" class="efb img-fluid rounded" alt="${c.value || ''}"></div>`
         }
         m += `<div class="efb efb-msg-field-row"><span class="efb-msg-field-label">${title}:</span> <span class="efb-msg-field-value">${text_nr_efb(q,1)}</span></div>`
       }
@@ -1617,7 +1631,9 @@ function csvNeutralizeFormula_EFB(val) {
 function csvEscape_EFB(val) {
   if (val === null || val === undefined) return '';
   val = csvNeutralizeFormula_EFB(String(val).trim());
-  if (val.search(/[,"\n\r]/) !== -1) {
+  /* ';' too: spreadsheets in many locales split on it, which would start a
+     new cell (and a formula) mid-value. */
+  if (val.search(/[,;"\n\r]/) !== -1) {
     val = '"' + val.replace(/"/g, '""') + '"';
   }
   return val;
@@ -1770,7 +1786,11 @@ function fun_tracking_show_emsFormBuilder() {
   const time = pro_efb==true ? 10 :900;
   const getUrlparams = new URLSearchParams(location.search);
   let get_track = getUrlparams.get('track') !=null ? sanitize_text_efb(getUrlparams.get('track')) :null;
-  if(get_track){ get_track= `value="${get_track}"`; change_url_back_persia_pay_efb()}else{get_track='';}
+  /* The code comes from the address bar, so anyone can craft it. It goes into
+     an attribute of markup assigned with innerHTML below: sanitize_text_efb()
+     drops < and > but not quotes, and a " closed the attribute and added an
+     event handler. Escape it for the attribute as well. */
+  if(get_track){ get_track= `value="${escHtmlEfb(get_track)}"`; change_url_back_persia_pay_efb()}else{get_track='';}
   setTimeout(() => {
     if (typeof efb_apply_resp_colors === 'function') efb_apply_resp_colors();
     document.getElementById("body_tracker_emsFormBuilder").innerHTML = `

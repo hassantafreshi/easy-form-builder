@@ -1,3 +1,10 @@
+/* Reverse-geocoded addresses come from a third-party service; Leaflet
+   renders a string popup as HTML, so hand it a text node instead. */
+function efb_popup_text_efb(text) {
+  const el = document.createElement('span');
+  el.textContent = text == null ? '' : String(text);
+  return el;
+}
 async function fetch_json_from_url_efb(url) {
   let r = { s: false, r: "false" };
   try {
@@ -1396,7 +1403,7 @@ function efbAddMarker(efbLat, efbLng, efbMapId, efbAllowAddingMarkers,r,form_id,
           })
           .then(data => {
               var efbAddress = data.display_name;
-              efbMarker.bindPopup(efbAddress);
+              efbMarker.bindPopup(efb_popup_text_efb(efbAddress));
               maps_efb[efbMapId].locationList.push({
                   lat: efbLat,
                   lng: efbLng,
@@ -1466,7 +1473,7 @@ function efbAddInitialMarker(efbLat, efbLng, efbMapId) {
       })
       .then(data => {
           var efbAddress = data.display_name;
-          efbMarker.bindPopup(efbAddress);
+          efbMarker.bindPopup(efb_popup_text_efb(efbAddress));
           maps_efb[efbMapId].locationList.push({
               lat: efbLat,
               lng: efbLng,
@@ -1523,7 +1530,7 @@ function efbLocateMe(efbMapId) {
             })
             .then(data => {
                 var efbAddress = data.display_name;
-                efbMarker.bindPopup(efbAddress);
+                efbMarker.bindPopup(efb_popup_text_efb(efbAddress));
                 maps_efb[efbMapId].locationList.push({
                     lat: efbLat,
                     lng: efbLng,

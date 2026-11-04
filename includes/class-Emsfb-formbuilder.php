@@ -2832,7 +2832,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 						$element_Id,
 						$form_id,
 						($disabled == "disabled" ? 'true' : 'false'),
-						json_encode($vj)
+						json_encode($vj, JSON_HEX_TAG | JSON_HEX_AMP)
 					);
 					$dataTag = $elementId;
 				break;
@@ -3541,7 +3541,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 		 return sprintf('efbCreateMap("%1$s", %2$s, %3$s);',
 			$element_Id,
-			json_encode($vj),
+			json_encode($vj, JSON_HEX_TAG | JSON_HEX_AMP),
 			'false'
 		);
 

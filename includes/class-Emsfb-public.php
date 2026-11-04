@@ -2689,13 +2689,12 @@ public function check_nonce_permission_efb($request) {
 				$is_valid = 0;
 				$validated_item;
 				if (isset($request_data['url']) && strlen($request_data['url']) > 5) {
-					$d = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) :'';
-					$ar = ['http://wwww.' .$d, 'https://wwww.' . $d, 'http://' . $d, 'https://' . $d];
-					foreach ($ar as $r) {
-						$c = strpos($request_data['url'], $r);
-						if (gettype($c) != 'boolean' && $c == 0) {
-							$is_valid = 1;
-						}
+					/* A prefix test let "https://example.com.evil.tld/" and
+					 * "https://example.com@evil.tld/" pass as this site. The
+					 * address becomes the link in the owner's email, carrying the
+					 * per-ticket admin code, so compare the host itself. */
+					if ($this->is_same_site_url_efb($request_data['url'])) {
+						$is_valid = 1;
 					}
 					if ($is_valid == 1) {
 						$protocol = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
@@ -2983,7 +2982,8 @@ public function check_nonce_permission_efb($request) {
 									$is_valid = 0;
 									$item['value'] = sanitize_text_field($item['value']);
 									$item = $this->filter_attributes_by_type_efb($item,$f['type']);
-									if ($item['value'] < 1 || $item['value'] > 5) {
+									/* A loose comparison let "3 anything" through as a score. */
+									if (!is_array($item) || !is_string($item['value'] ?? null) || preg_match('/^[1-5]$/', trim($item['value'])) !== 1) {
 										$m =  $this->lanText['somethingWentWrongPleaseRefresh'] . '<br>' . esc_html__('Error Code', 'easy-form-builder') . ': 600';
 										$response = array('success' => false, 'm' => $m);
 										wp_send_json_success($response, 200);
@@ -3581,12 +3581,19 @@ public function check_nonce_permission_efb($request) {
 					$this->name = sanitize_text_field($request_data['name']);
 					$this->id = sanitize_text_field($request_data['id']);
 					if ($should_send_email) {
-						array_filter($submitted_values, function ($item) use ($form_fields_array, &$user_email_address) {
-							if (isset($item['id_'], $form_fields_array[0]['email_to']) && $item['id_'] == $form_fields_array[0]['email_to']) {
-								$user_email_address = $item['value'];
-
+						/* Read the visitor's address from the validated rows, once. The
+						 * raw request may hold a second row for the same field (another
+						 * id_ob) that the validator never looked at, and its value was
+						 * split on commas into any number of recipients. */
+						$user_email_address = '';
+						foreach ($validated_items as $item) {
+							if (is_array($item) && isset($item['id_'], $item['value'], $form_fields_array[0]['email_to'])
+								&& is_string($item['value']) && $item['id_'] == $form_fields_array[0]['email_to']) {
+								$candidate_efb = sanitize_email($item['value']);
+								if ($candidate_efb !== '' && is_email($candidate_efb)) $user_email_address = $candidate_efb;
+								break;
 							}
-						});
+						}
 
 						$this->email_list_efb($email_recipients, 1, $user_email_address, true);
 
@@ -3665,10 +3672,13 @@ public function check_nonce_permission_efb($request) {
 								$state_email_user = $has_tracking_code == 1 ? 'notiToUserFormFilled_TrackingCode' : 'notiToUserFormFilled';
 								$msg_content = 'null';
 								if ($this->efb_email_noti_type_efb($form_fields_array) == 'msg') {
-									$msg_content = $this->email_get_content_efb($submitted_values, $track_code);
+									$msg_content = $this->email_get_content_efb($validated_items, $track_code);
 									$msg_content = str_replace("\"", "'", $msg_content);
 								}
-								$status_email = $this->email_status_efb($form_fields_array,$submitted_values,$track_code);
+								/* The stored rows, as the payment path already does: the raw
+								 * request also carries rows for fields the form does not have,
+								 * browser-chosen types and a page link of its own choosing. */
+								$status_email = $this->email_status_efb($form_fields_array,$validated_items,$track_code);
 								$state_of_email = ['newMessage',$state_email_user,$status_email['type'],$status_email['visitor_type']];
 
 								// A matching email notification rule replaces the standard admin
@@ -3999,6 +4009,14 @@ public function check_nonce_permission_efb($request) {
 									if ($email != "null") {
 
 										$this->ip = $this->get_ip_address();
+										/* $this->value still held the request exactly as sent: register
+										 * forms skip the per-field validator, so the stored entry kept
+										 * the plaintext password and any extra rows or attributes the
+										 * browser chose to add. Store only the form's own fields,
+										 * sanitized, never a password. */
+										$this->value = $this->efb_encode_rows_for_storage_efb(
+											$this->sanitize_account_form_rows_efb($submitted_values, $form_fields_array, $url)
+										);
 										$track_code = $this->insert_message_db(0, false, $style_trackingCode);
 										$to = $email;
 
@@ -4116,7 +4134,7 @@ public function check_nonce_permission_efb($request) {
 									$this->efb_intgrate_with_3rd_party_services_efb($track_code, $submitted_values, $form_fields_array, 'subscribe');
 
 									if($should_send_email){
-										$status_email = $this->email_status_efb($form_fields_array,$submitted_values,$track_code);
+										$status_email = $this->email_status_efb($form_fields_array,$validated_items,$track_code);
 										$state_of_email = ['newMessage','subscribe',$status_email['type'],$status_email['visitor_type']];
 										$this->send_email_Emsfb_( $email_recipients,$track_code ,$is_pro,$state_of_email,$url,$status_email['content'],$status_email['subject'] );
 									}
@@ -4147,7 +4165,7 @@ public function check_nonce_permission_efb($request) {
 									$this->efb_intgrate_with_3rd_party_services_efb($track_code, $submitted_values, $form_fields_array, 'survey');
 
 									if($should_send_email){
-										$status_email = $this->email_status_efb($form_fields_array,$submitted_values,$track_code);
+										$status_email = $this->email_status_efb($form_fields_array,$validated_items,$track_code);
 										$state_of_email = ['newMessage',"survey",$status_email['type'],$status_email['visitor_type']];
 										$this->send_email_Emsfb_( $email_recipients,$track_code ,$is_pro,$state_of_email,$url,$status_email['content'],$status_email['subject'] );
 									}
@@ -4558,6 +4576,14 @@ public function check_nonce_permission_efb($request) {
         $ip = strval($ip);
         $check =strpos($ip,',');
         if($check !== false){$ip = substr($ip,0,$check);}
+        $ip = trim($ip);
+        /* Client-IP / X-Forwarded-For are request headers: anything that is
+         * not an address was stored as the visitor's IP and used as a rate
+         * limit key. Fall back to the connection address in that case. */
+        if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
+            $remote = isset($_SERVER['REMOTE_ADDR']) ? trim(sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR']))) : '';
+            $ip = filter_var($remote, FILTER_VALIDATE_IP) !== false ? $remote : '1.1.1.1';
+        }
         return $ip;
     }
 	public function file_upload_public(){
@@ -5354,55 +5380,74 @@ public function check_nonce_permission_efb($request) {
 				}
 				$valobj=[];
 				$stated=1;
+				/* Every reply row is rebuilt from an allow-list. Only the message
+				 * text and attachment rows were ever validated; anything else on a
+				 * row (its type, a url, a price, a color...) was stored as sent and
+				 * later drove the response viewer, e.g. a "media" row whose url was
+				 * javascript:. The bundled composer sends exactly these two shapes:
+				 *   {id_:'message', name, type:'text', amount, value, by, session, form_id}
+				 *   {id_, name, amount, type:'allformat', value:'@file@', url, session, page_id, form_id} */
+				$scalar_efb = function ($o, $k) {
+					return is_object($o) && isset($o->$k) && is_scalar($o->$k) ? (string) $o->$k : '';
+				};
+				$rebuilt_efb = array();
 				foreach ($message as $k =>$f){
-					$in_loop=true;
 					if($stated==0){break;}
-					if($f->id_=='captcha_v2'){
-
-						unset($message[$k]);
+					if (!is_object($f)) { $stated = 0; break; }
+					$row_id_efb = $scalar_efb($f, 'id_');
+					if($row_id_efb=='captcha_v2'){
 						continue;
-
 					}
-						switch ($f->type) {
-							case 'allformat':
-								$d = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) :'';
-
-								$stated=1;
-								$stated=$setting->dsupfile==false ? 0:1;
-								if(isset($f->url) && strlen($f->url)>5 && ($setting->dsupfile==true)){
-									$stated=0;
-									$ar = ['http://wwww.'.$d , 'https://wwww.'.$d ,'http://'.$d, 'https://'.$d ];
-									$s = 0 ;
-									foreach ($ar as  $r) {
-										$c=strpos($f->url,$r);
-										if(gettype($c)!='boolean' && $c==0){
-											$s=1;
-										}
-									}
-										if($s==1 ){
-											$stated=1;
-											$f->url = sanitize_url($f->url);
-										}else{
-											$f->url="";
-											$stated=0;
-										}
-								}
-									$in_loop=false;
-							break;
-							default:
-								$stated=0;
-								if(isset($f->value) && $f->id_=="message"){
-									$stated=1;
-									$f->value = sanitize_text_field($f->value);
-								}
-								$in_loop=false;
-							break;
+					$row_type_efb = $scalar_efb($f, 'type');
+					if ($row_type_efb === 'allformat') {
+						$stated = 0;
+						$row_url_efb = $scalar_efb($f, 'url');
+						$uploads_efb = function_exists('wp_upload_dir') ? wp_upload_dir() : array();
+						$uploads_base_efb = rtrim(isset($uploads_efb['baseurl']) ? (string) $uploads_efb['baseurl'] : '', '/');
+						if (!empty($setting->dsupfile) && strlen($row_url_efb) > 5 && $this->is_same_site_url_efb($row_url_efb)
+							&& $uploads_base_efb !== ''
+							/* Inside the uploads folder; the scheme may differ when an
+							 * https rewrite sits in front of an http site URL. */
+							&& stripos(preg_replace('#^https?:#i', '', $row_url_efb), preg_replace('#^https?:#i', '', $uploads_base_efb) . '/') === 0) {
+							$stated = 1;
+							$clean_row_efb = (object) array(
+								'id_'     => sanitize_text_field($row_id_efb),
+								'name'    => sanitize_text_field($scalar_efb($f, 'name')),
+								'amount'  => (int) $scalar_efb($f, 'amount'),
+								'type'    => 'allformat',
+								'value'   => '@file@',
+								'url'     => sanitize_url($row_url_efb),
+								'session' => sanitize_text_field($scalar_efb($f, 'session')),
+							);
+							if (isset($f->page_id)) $clean_row_efb->page_id = absint($scalar_efb($f, 'page_id'));
+							if (isset($f->form_id)) $clean_row_efb->form_id = intval($scalar_efb($f, 'form_id'));
+							$rebuilt_efb[] = $clean_row_efb;
 						}
-						if($stated==0){
-							$response = array( 'success' => false  , 'm'=>$this->lanText['error405']);
-							wp_send_json_success($response,200);
-						}
+					} elseif ($row_id_efb === 'message' && isset($f->value) && is_string($f->value)) {
+						$clean_row_efb = (object) array(
+							'id_'     => 'message',
+							'name'    => 'message',
+							'type'    => 'text',
+							'amount'  => 0,
+							'value'   => sanitize_text_field($f->value),
+							'by'      => sanitize_text_field($scalar_efb($f, 'by')),
+							'session' => sanitize_text_field($scalar_efb($f, 'session')),
+						);
+						if (isset($f->form_id)) $clean_row_efb->form_id = intval($scalar_efb($f, 'form_id'));
+						$rebuilt_efb[] = $clean_row_efb;
+					} else {
+						$stated = 0;
+					}
+					if($stated==0){
+						$response = array( 'success' => false  , 'm'=>$this->lanText['error405']);
+						wp_send_json_success($response,200);
+					}
 				}
+				if ($stated == 0 || empty($rebuilt_efb)) {
+					$response = array( 'success' => false  , 'm'=>$this->lanText['error405']);
+					wp_send_json_success($response,200);
+				}
+				$message = $rebuilt_efb;
 				$message = array_values($message);
 				/* Retain the existing reply storage format for compatibility;
 				 * readers preserve JSON escapes and decode the legacy markers. */
@@ -7483,8 +7528,13 @@ public function check_nonce_permission_efb($request) {
 				}
 
 				if (isset($c['type']) && $c['type']==='color'){
-					$q = '<span style="display:inline-block;width:50px;height:20px;vertical-align:middle;background:'.($c['value'] ?? '#000').'"></span> '
-					. '<span style="vertical-align:middle;">'.($c['value'] ?? '').'</span>';
+					/* The value goes into a style attribute: only the #rrggbb an
+					 * <input type="color"> produces is printed. */
+					$color_efb = isset($c['value']) && is_string($c['value']) && preg_match('/^#[0-9a-fA-F]{6}$/', $c['value']) === 1 ? $c['value'] : '';
+					$q = $color_efb !== ''
+						? '<span style="display:inline-block;width:50px;height:20px;vertical-align:middle;background:'.$color_efb.'"></span> '
+							. '<span style="vertical-align:middle;">'.$color_efb.'</span>'
+						: '<span style="vertical-align:middle;">'.$this->email_escape_leaf_efb($c['value'] ?? '').'</span>';
 					$addPair($title, $q);
 					continue;
 				}
@@ -7534,15 +7584,15 @@ public function check_nonce_permission_efb($request) {
 				if (isset($c['type']) && $c['type']==='payment'){
 					if (($c['paymentGateway'] ?? '')==='stripe'){
 						$numberformat = $this->email_format_price_efb((float) ($c['paymentAmount'] ?? 0), ($c['paymentcurrency'] ?? $currency));
-						$addPair($lanText['payment'].' '.$lanText['id'], '<span>'.($c['paymentIntent'] ?? '').'</span>');
-						$addPair($lanText['methodPayment'], '<span>'.($c['paymentmethod'] ?? '').'</span>');
+						$addPair($lanText['payment'].' '.$lanText['id'], '<span>'.$this->email_escape_leaf_efb($c['paymentIntent'] ?? '').'</span>');
+						$addPair($lanText['methodPayment'], '<span>'.$this->email_escape_leaf_efb($c['paymentmethod'] ?? '').'</span>');
 						if (($c['paymentmethod'] ?? '')!=='charge'){
-							$addPair($lanText['interval'], '<span>'.($c['interval'] ?? '').'</span>');
+							$addPair($lanText['interval'], '<span>'.$this->email_escape_leaf_efb($c['interval'] ?? '').'</span>');
 						}
 						$addPair($lanText['payAmount'], '<span>'.$numberformat.'</span>');
-						$addPair($lanText['ddate'], '<span>'.($c['paymentCreated'] ?? '').'</span>');
+						$addPair($lanText['ddate'], '<span>'.$this->email_escape_leaf_efb($c['paymentCreated'] ?? '').'</span>');
 					} else {
-						$addPair($lanText['payment'].' '.$lanText['id'], '<span>'.($c['paymentIntent'] ?? '').'</span>');
+						$addPair($lanText['payment'].' '.$lanText['id'], '<span>'.$this->email_escape_leaf_efb($c['paymentIntent'] ?? '').'</span>');
 						$addPair($lanText['payAmount'], '<span>'.number_format(intval($c['total'] ?? 0),0,'.',',').' ریال</span>');
 					}
 					continue;
@@ -7573,10 +7623,6 @@ public function check_nonce_permission_efb($request) {
 
 					if (isset($c['type']) && strpos($c['type'],'imgRadio')!==false){
 						$q = '<b>'.$this->email_escape_leaf_efb($c['value'] ?? '').'</b>';
-					}else if (isset($c['value']) && strpos($c['type'],'imgRadio') !== false){
-
-						$q = $this->fun_imgRadio_efb($c['id_'], $c['src'] ?? '', $c);
-						$addPair('', $q);
 					}
 
 					if ($title==='file'){ $title = 'atcfle'; }
@@ -8521,6 +8567,99 @@ public function check_nonce_permission_efb($request) {
 	}
 
 	/**
+	 * Whether an absolute http(s) URL points at this site.
+	 *
+	 * Compares the parsed host (and port) with the host of this request and of
+	 * home_url(), allowing the www./bare variant of either. A prefix test on
+	 * the whole string accepted "https://example.com.evil.tld/" and
+	 * "https://example.com@evil.tld/".
+	 */
+	private function is_same_site_url_efb($url) {
+		if (!is_string($url) || $url === '' || preg_match('/[\x00-\x20\\\\]/', $url)) return false;
+		$parts = function_exists('wp_parse_url') ? wp_parse_url($url) : parse_url($url);
+		if (!is_array($parts) || empty($parts['host']) || empty($parts['scheme'])) return false;
+		$scheme = strtolower($parts['scheme']);
+		if ($scheme !== 'http' && $scheme !== 'https') return false;
+		if (isset($parts['user']) || isset($parts['pass'])) return false;
+		$host = rtrim(strtolower($parts['host']), '.');
+		$port = isset($parts['port']) ? (int) $parts['port'] : 0;
+		if ($port === ($scheme === 'https' ? 443 : 80)) $port = 0;
+
+		$allowed = array();
+		$add = function ($authority) use (&$allowed) {
+			$authority = strtolower(trim((string) $authority));
+			if ($authority === '') return;
+			$h = $authority;
+			$p = 0;
+			if (preg_match('/^(\[[0-9a-f:.]+\])(?::(\d+))?$/', $authority, $m)) {
+				$h = $m[1];
+				$p = isset($m[2]) ? (int) $m[2] : 0;
+			} elseif (preg_match('/^([^:]+):(\d+)$/', $authority, $m)) {
+				$h = $m[1];
+				$p = (int) $m[2];
+			}
+			if ($p === 80 || $p === 443) $p = 0;
+			$h = rtrim($h, '.');
+			if ($h === '') return;
+			$bare = strpos($h, 'www.') === 0 ? substr($h, 4) : $h;
+			$allowed[$bare . '|' . $p] = true;
+			$allowed['www.' . $bare . '|' . $p] = true;
+		};
+		if (isset($_SERVER['HTTP_HOST'])) $add(sanitize_text_field(wp_unslash($_SERVER['HTTP_HOST'])));
+		if (function_exists('home_url')) {
+			$home = function_exists('wp_parse_url') ? wp_parse_url(home_url()) : parse_url(home_url());
+			if (is_array($home) && !empty($home['host'])) {
+				$add($home['host'] . (isset($home['port']) ? ':' . $home['port'] : ''));
+			}
+		}
+		return isset($allowed[$host . '|' . $port]);
+	}
+
+	/**
+	 * Rows of a register submission as they may be stored.
+	 *
+	 * Register forms do not pass through the per-field validator. Keep only
+	 * rows that answer a field of the saved form, never a password field, each
+	 * reduced to that field's attribute allow-list with a sanitized value and
+	 * the saved field's type (the same treatment as the payment merge). Upload
+	 * rows keep their URL only when it is a real upload for that field.
+	 */
+	private function sanitize_account_form_rows_efb($submitted_values, $fields, $page_url) {
+		$by_id = array();
+		foreach ((array) $fields as $field) {
+			if (is_array($field) && isset($field['id_']) && is_scalar($field['id_']) && (string) $field['id_'] !== '') {
+				$by_id[(string) $field['id_']] = $field;
+			}
+		}
+		$upload_types = self::upload_row_types_efb();
+		$rows = array();
+		$seen = array();
+		foreach ((array) $submitted_values as $item) {
+			if (!is_array($item) || !isset($item['id_']) || !is_scalar($item['id_'])) continue;
+			$id = (string) $item['id_'];
+			if (!isset($by_id[$id])) continue;
+			$field = $by_id[$id];
+			$type = isset($field['type']) ? (string) $field['type'] : '';
+			if ($type === 'password' || in_array($id, array('passwordRegisterEFB', 'repasswordRegisterEFB', 'passwordlogin'), true)) continue;
+			$key = $id . '|' . (isset($item['id_ob']) && is_scalar($item['id_ob']) ? (string) $item['id_ob'] : '');
+			if (isset($seen[$key])) continue;
+			$clean = $this->sanitize_payment_merge_row_efb($item, $field);
+			if (!is_array($clean)) continue;
+			if (in_array($type, $upload_types, true) && $type !== 'esign') {
+				$url = isset($clean['url']) ? (string) $clean['url'] : '';
+				if ($url === '' || $this->validate_submitted_upload_url_efb($url, $field) !== true) continue;
+				$clean['url'] = sanitize_url($url);
+				$clean['value'] = '@file@';
+			}
+			if (isset($field['name']) && is_scalar($field['name'])) $clean['name'] = sanitize_text_field((string) $field['name']);
+			$seen[$key] = true;
+			$rows[] = $clean;
+		}
+		$rows[] = array('type' => 'w_link', 'value' => is_string($page_url) ? $page_url : '', 'amount' => -1);
+		return $rows;
+	}
+
+	/**
 	 * The final payment submit re-reads the visitor's non-payment rows from the
 	 * raw request and merges them with the rows saved when the intent was
 	 * created, bypassing the per-field validator above. Give each such row the
@@ -8723,8 +8862,8 @@ public function check_nonce_permission_efb($request) {
 						</div>
 					</div>
 
-					<input type="hidden" name="stefb" id="stefb" value="'.$st.'">
-					<input type="hidden" name="fidfb" id="fidfb" value="'.$fid.'">
+					<input type="hidden" name="stefb" id="stefb" value="'.esc_attr($st).'">
+					<input type="hidden" name="fidfb" id="fidfb" value="'.esc_attr($fid).'">
 
 					<p class="efb text-danger efb fs-7" id="alert-efb"></p>
 

@@ -4452,6 +4452,14 @@ class efbFunction {
         $ip = strval($ip);
         $check =strpos($ip,',');
         if($check !== false){$ip = substr($ip,0,$check);}
+        $ip = trim($ip);
+        /* Client-IP / X-Forwarded-For are request headers: anything that is
+         * not an address was stored as the visitor's IP and used as a rate
+         * limit key. Fall back to the connection address in that case. */
+        if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
+            $remote = isset($_SERVER['REMOTE_ADDR']) ? trim(sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR']))) : '';
+            $ip = filter_var($remote, FILTER_VALIDATE_IP) !== false ? $remote : '1.1.1.1';
+        }
         return $ip;
     }
 
