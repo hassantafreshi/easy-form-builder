@@ -4335,11 +4335,51 @@ public function check_nonce_permission_efb($request) {
 		return $urls;
 	}
 
+	/**
+	 * Server-side check of the reCAPTCHA on the confirmation-code finder.
+	 *
+	 * Enforced exactly when the page renders the widget: a site key is set and
+	 * "Enable Google reCAPTCHA in the response box" (scaptcha) is on. Returns
+	 * true when the lookup may go ahead, 'config' when the widget is shown but
+	 * no secret key is saved (fails closed, as form submissions do), or
+	 * 'failed' when the token is missing or Google does not confirm it.
+	 *
+	 * @param array|object|null $setting Decoded plugin settings.
+	 * @param string            $token   The g-recaptcha-response from the page.
+	 * @return true|string
+	 */
+	private function verify_tracker_captcha_efb($setting, $token) {
+		$get = function ($key) use ($setting) {
+			if (is_array($setting)) return $setting[$key] ?? null;
+			if (is_object($setting)) return $setting->$key ?? null;
+			return null;
+		};
+		$site_key = $get('siteKey');
+		$enabled  = $get('scaptcha');
+		if (!is_string($site_key) || $site_key === '' || $enabled != true) return true;
+
+		$secret = $get('secretKey');
+		if (!is_string($secret) || strlen($secret) <= 5) return 'config';
+
+		$token = is_string($token) ? trim($token) : '';
+		if (strlen($token) < 20) return 'failed';
+
+		/* Same request as the form submission check (secret + response, no
+		 * remoteip: behind a proxy REMOTE_ADDR is not the visitor). */
+		$verify = wp_remote_post('https://www.google.com/recaptcha/api/siteverify', array(
+			'timeout' => 10,
+			'body'    => array('secret' => $secret, 'response' => $token),
+		));
+		if (is_wp_error($verify)) return 'failed';
+		$result = json_decode((string) wp_remote_retrieve_body($verify), true);
+		return (is_array($result) && isset($result['success']) && $result['success'] === true) ? true : 'failed';
+	}
+
 	  public function get_track_public_api($data_POST_) {
 
 		$data_POST = $data_POST_->get_json_params();
 		$this->efbFunction = get_efbFunction();
-		$text_ = ['spprt','sxnlex','error403','errorMRobot','enterVValue','guest','cCodeNFound'];
+		$text_ = ['spprt','sxnlex','error403','errorMRobot','enterVValue','guest','cCodeNFound','errorSiteKeyM'];
 		$lanText= $this->efbFunction->text_efb($text_);
 
 		// Throttle tracking-code lookups per IP to make enumeration of
@@ -4353,7 +4393,7 @@ public function check_nonce_permission_efb($request) {
 			return;
 		}
 
-		$response = isset($data_POST['valid']) ? sanitize_text_field($data_POST['valid']) : '';
+		$response = isset($data_POST['valid']) && is_scalar($data_POST['valid']) ? sanitize_text_field($data_POST['valid']) : '';
 		$captcha_success =[];
 		$not_captcha=true;
 		$r = $this->setting != NULL && !empty($this->setting) ? $this->setting : get_setting_Emsfb('raw');
@@ -4362,6 +4402,18 @@ public function check_nonce_permission_efb($request) {
 			$r=\emsfb_json_normalize_efb($this->setting);
 			 $setting =json_decode($r);
 			 $r=null;
+		}
+
+		/* The page shows a reCAPTCHA when "Enable Google reCAPTCHA in the
+		 * response box" is on, but the token it produces was never checked
+		 * here: $not_captcha stayed true, so a script could look up tracking
+		 * codes without solving anything. Verify it with Google whenever the
+		 * page would show the widget. */
+		$captcha_check = $this->verify_tracker_captcha_efb($setting, $response);
+		if ($captcha_check !== true) {
+			$response = array( 'success' => false , 'm' => $captcha_check === 'config' ? $lanText['errorSiteKeyM'] : $lanText['errorMRobot'] );
+			wp_send_json_success($response, 200);
+			return;
 		}
 
 		 $strR = json_encode($captcha_success);

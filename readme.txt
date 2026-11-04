@@ -503,6 +503,8 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 
 * Security: Hardened every path that stores or shows visitor data. Replies on the confirmation-code page are rebuilt from an allow-list (attachments must be uploads on this site); register forms no longer store the password or rows for fields the form does not have; notification emails are built from the validated answers and send the visitor copy to one verified address; the page link must be on this site's own domain; the confirmation-code finder escapes the code from the address bar; the response viewer only links http(s) attachments and ignores invalid colors, ratings and currencies; passwords saved by earlier versions are masked.
 
+* Security: The Google reCAPTCHA on the confirmation-code page is now verified on the server for every lookup; before, it was checked only in the browser and could be skipped. Sites that turned it on (Settings > "Enable Google reCAPTCHA in the response box") need the secret key saved as well.
+
 * Security: Uploaded archives must really be the archive type they are named as, and files containing a PHP open tag are refused.
 
 * New: The Free plan has 20 form fields: terms and conditions, country list, star rating and heading joined the 16. Forms that already use them keep working on every plan.

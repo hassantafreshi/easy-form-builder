@@ -2365,6 +2365,7 @@ post_api_tracker_check_efb=(data,innrBtn)=>{
       efb_var.response_upload_token = responseData.data.response_upload_token || '';
       if (window.EFBRuntime) window.EFBRuntime.rememberTicket(responseData.data);
     }
+    if (!(responseData && responseData.data && responseData.data.success === true)) efb_reset_tracker_captcha_efb();
     response_Valid_tracker_efb(responseData);
   })
   .catch(error => {
@@ -2372,8 +2373,23 @@ post_api_tracker_check_efb=(data,innrBtn)=>{
       document.getElementById('vaid_check_emsFormBuilder').innerHTML = innrBtn;
       document.getElementById('vaid_check_emsFormBuilder').classList.toggle('disabled');
     }
+    efb_reset_tracker_captcha_efb();
     response_Valid_tracker_efb({ success: false, data: { success: false, m: error.message } });
   });
+}
+/* A reCAPTCHA token is good for one verification only, and the server now
+   checks the one sent with each lookup. After a lookup that did not open a
+   ticket, clear the widget and the stored token so the next try gets a
+   fresh one instead of failing with a spent token. */
+efb_reset_tracker_captcha_efb=()=>{
+  const el = document.querySelector('.g-recaptcha[data-formid="-1"]');
+  if (!el) return;
+  try {
+    if (window.grecaptcha && typeof window.grecaptcha.reset === 'function' && el.dataset.grecaptchaWidgetId !== undefined) {
+      window.grecaptcha.reset(Number(el.dataset.grecaptchaWidgetId));
+    }
+  } catch (e) {}
+  if (typeof recaptchaExpiredEfb === 'function') recaptchaExpiredEfb(-1);
 }
 post_api_r_message_efb=async(data,message)=>{
   let runtime;
