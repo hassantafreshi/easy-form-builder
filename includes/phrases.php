@@ -266,6 +266,9 @@ class EfbAddonPhrases {
             /* translators: The signed security token expired or could not be verified */
             "hsFormExpired" => $state && isset($ac->text->hsFormExpired) ? $ac->text->hsFormExpired : __('The form was open for too long or could not be verified. Please refresh the page and submit again.', 'easy-form-builder'),
 
+            /* translators: The visitor's browser could not finish the security check (slow network or blocked route) */
+            "hsCheckIncomplete" => $state && isset($ac->text->hsCheckIncomplete) ? $ac->text->hsCheckIncomplete : __('The security check could not finish on your connection. Please press Send again; your answers are kept.', 'easy-form-builder'),
+
             /* translators: Generic block message when a request looks automated */
             "hsLooksUnusual" => $state && isset($ac->text->hsLooksUnusual) ? $ac->text->hsLooksUnusual : __('Your request looked too fast or unusual. Please try again in a few minutes.', 'easy-form-builder'),
 

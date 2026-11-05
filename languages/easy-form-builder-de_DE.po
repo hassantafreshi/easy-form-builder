@@ -8,7 +8,7 @@ msgstr ""
 "POT-Creation-Date: 2026-11-03 00:00+0000\n"
 "X-Generator: EFB tests/core-i18n/build.php\n"
 "X-Domain: easy-form-builder\n"
-"PO-Revision-Date: 2026-11-05 09:02+0000\n"
+"PO-Revision-Date: 2026-11-05 13:59+0000\n"
 "Last-Translator: WhiteStudio <hi@whitestudio.team>\n"
 "Language-Team: de_DE\n"
 "Language: de_DE\n"
@@ -13985,3 +13985,7 @@ msgstr "Vor der Antwort wurde zusätzlicher Text ausgegeben, oft ein PHP-Hinweis
 #, php-format
 msgid "Open Messages and check for an entry at %s. On a live site, turn off WP_DEBUG_DISPLAY or ask your hosting company to check the PHP error log."
 msgstr "Öffne die Nachrichten und prüfe, ob um %s ein Eintrag vorhanden ist. Schalte auf einer Live-Website WP_DEBUG_DISPLAY aus oder bitte deinen Hoster, das PHP-Fehlerprotokoll zu prüfen."
+
+#  origin: claude (de_DE)
+msgid "The security check could not finish on your connection. Please press Send again; your answers are kept."
+msgstr "Die Sicherheitsprüfung konnte über deine Verbindung nicht abgeschlossen werden. Bitte klicke erneut auf „Senden“ – deine Antworten bleiben erhalten."

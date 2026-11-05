@@ -637,12 +637,9 @@ async function createStepsOfPublic() {
               call_fun_jalali_datepicker_efb_v4();
             }else if (classes.contains("hijri-picker")) {
               call_fun_hijri_datapicker_efb_v4();
-              jQuery("#"+el.id).on('dp.change', function (arg) {
-                if (!arg.date) {
-                    jQuery("#selected-date").html('');
-                    return;
-                };
-                let date = arg.date;
+              // Also when the date is cleared (arg.date false): the store drops
+              // the old row, which otherwise was still submitted.
+              jQuery("#"+el.id).on('dp.change', function () {
                 handle_change_event_efb_v4(el,form_id);
               });
             }else if (classes.contains("intlPhone") && classes.contains("d-none")==false) {
@@ -3084,6 +3081,25 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
         current_step: no_step,
         dom: efb_steps_dom_debug_efb(form_id, parent_body)
       });
+      return false;
+    }
+    /* A field the visitor filled in but that is not valid (a mobile number, a URL,
+       a number out of range) has already been taken out of the answers by its own
+       check, with its message under it. It was then sent without that field, so an
+       optional mobile number simply disappeared from the entry. Stop on it like on
+       an empty required field. Fields hidden by conditional logic do not count. */
+    const invalidFilled = (typeof sendback_efb_state !== 'undefined' && Array.isArray(sendback_efb_state) ? sendback_efb_state : []).filter(x => {
+      if (!x || x.state !== false || Number(x.form_id) !== Number(form_id)) return false;
+      if (x.step && Number(x.step) > Number(no_step)) return false;
+      const fieldEl = document.getElementById(String(x.id_) + '_');
+      return !!(fieldEl && fieldEl.offsetParent !== null);
+    });
+    if (invalidFilled.length > 0) {
+      const fieldEl = document.getElementById(String(invalidFilled[0].id_) + '_');
+      try { fieldEl.scrollIntoView({ behavior: 'smooth', block: 'center' }); fieldEl.focus({ preventScroll: true }); } catch (e) {}
+      const _vt = (typeof ajax_object_efm !== 'undefined' && ajax_object_efm.text) ? ajax_object_efm.text : {};
+      alert_message_efb(_vt.pleaseEnterVaildValue || 'Please enter a valid value.', '', 8, 'warning');
+      efb_steps_debug_efb('navigate:stop:invalid-filled-field', { form_id: form_id, fields: invalidFilled.map(x => x.id_) });
       return false;
     }
   }

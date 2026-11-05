@@ -434,9 +434,41 @@ class Create {
 			unset($valp[0]['sms_msg_recived_usr']);
 			if(isset($valp[0]['sms_admins_phone_no'])){unset($valp[0]['sms_admins_phone_no']);}
 		}
+		/* Telegram texts are stored like on a form update (class-Emsfb-admin.php):
+		   a new form had no Telegram row, so its notifications went out with the
+		   built-in English text instead of what the admin wrote. */
+		$telegram_contact_efb = null;
+		if(isset($valp[0]['telegramnoti']) && intval($valp[0]['telegramnoti'])==1){
+			$telegram_contact_efb = array(
+				'new'      => isset($valp[0]['telegram_msg_new_noti']) ? $valp[0]['telegram_msg_new_noti'] : $lang['newMessageReceived'] ."\n". $lang['trackNo'] .": [confirmation_code]\n". $lang['url'] .": [link_response]",
+				'response' => isset($valp[0]['telegram_msg_responsed_noti']) ? $valp[0]['telegram_msg_responsed_noti'] : $lang['newResponse']."\n". $lang['trackNo'] .": [confirmation_code]\n". $lang['url'] .": [link_response]",
+				'received' => isset($valp[0]['telegram_msg_recived_usr']) ? $valp[0]['telegram_msg_recived_usr'] : $lang['WeRecivedUrM'] ."\n". $lang['trackNo'] .": [confirmation_code]\n". $lang['url'] .": [link_response]",
+			);
+			foreach (array('telegram_msg_new_noti','telegram_msg_responsed_noti','telegram_msg_recived_user','telegram_msg_recived_usr','telegram_bot_token','telegram_admin_chat_ids') as $telegram_key_efb) {
+				unset($valp[0][$telegram_key_efb]);
+			}
+		}
 		$valx =json_encode($valp,JSON_UNESCAPED_UNICODE);
 		$this->value=str_replace('"', '\\"', $valx);
 		$this->insert_db();
+		if($telegram_contact_efb !== null && file_exists( EMSFB_PLUGIN_DIRECTORY . '/vendor/telegram/telegram-new-efb.php' )){
+			require_once( EMSFB_PLUGIN_DIRECTORY . '/vendor/telegram/telegram-new-efb.php' );
+			if (class_exists('\\Emsfb\\telegramsendefb') || class_exists('telegramsendefb')) {
+				$telegramsendefb = class_exists('\\Emsfb\\telegramsendefb') ? new \Emsfb\telegramsendefb() : new \telegramsendefb();
+				if (method_exists($telegramsendefb, 'add_telegram_contact_efb')) {
+					// Token and chat id come from the Telegram settings page.
+					$telegramsendefb->add_telegram_contact_efb(
+						$this->id_,
+						get_option('emsfb_telegram_chat_id', ''),
+						get_option('emsfb_telegram_bot_token', ''),
+						$telegram_contact_efb['received'],
+						$telegram_contact_efb['new'],
+						$telegram_contact_efb['new'],
+						$telegram_contact_efb['response']
+					);
+				}
+			}
+		}
 		if(isset($valp[0]['smsnoti']) && intval($valp[0]['smsnoti'])==1 ){
 
 			$sms_exists = get_option('emsfb_addon_AdnSS', false);

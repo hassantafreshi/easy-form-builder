@@ -1367,7 +1367,8 @@ public function check_nonce_permission_efb($request) {
 							'efb-conditional-logic-public',
 							EMSFB_PLUGIN_URL . 'vendor/logic/logic/assets/public/js/conditional-logic-efb.js',
 							array( 'Emsfb-core_js' ),
-							EMSFB_PLUGIN_VERSION,
+							// File time: an add-on update must reach browsers and page caches.
+							EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime( EMSFB_PLUGIN_DIRECTORY . 'vendor/logic/logic/assets/public/js/conditional-logic-efb.js' ),
 							true
 						);
 						wp_enqueue_script( 'efb-conditional-logic-public' );
@@ -1597,7 +1598,7 @@ public function check_nonce_permission_efb($request) {
 					// Their scripts live in pro_els-efb.js; the fields that became
 					// free in 4.3.1 need it on every plan.
 					if(in_array($valj_efb[$i]->type, $list_pro_elements) && $pro_element_exists == false && ($pro == true || in_array($valj_efb[$i]->type, emsfb_free_element_types_efb(), true))){
-						wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION);
+						wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/pro_els-efb.js'));
 						$pro_element_exists = true;
 					}
 					if(in_array($valj_efb[$i]->type, ["option","r_matrix"])) {continue;
@@ -1628,7 +1629,10 @@ public function check_nonce_permission_efb($request) {
 							}
 
 							if($autofill_id >0){
-								wp_enqueue_script('efb-autofill', EMSFB_PLUGIN_URL . 'vendor/autofill/assets/js/autofill-public-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION);
+								// Versioned by file time so an add-on update reaches browsers and page caches.
+								$autofill_public_path = EMSFB_PLUGIN_DIRECTORY . 'vendor/autofill/assets/js/autofill-public-efb.js';
+								$autofill_public_version = is_readable($autofill_public_path) ? EMSFB_PLUGIN_VERSION . '.' . (string) filemtime($autofill_public_path) : EMSFB_PLUGIN_VERSION;
+								wp_enqueue_script('efb-autofill', EMSFB_PLUGIN_URL . 'vendor/autofill/assets/js/autofill-public-efb.js', array('jquery'), $autofill_public_version);
 							}else if($autofill_id == 0){
 
 								$autofill_api = isset($valj_efb[0]->autofill_api) ? $valj_efb[0]->autofill_api : false;
@@ -2056,7 +2060,7 @@ public function check_nonce_permission_efb($request) {
 
 		$this->comper_version_efb($pl[1]['version']);
 		if($pro==true){
-			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION);
+			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/pro_els-efb.js'));
 		}
 
 		$location = '';
@@ -2739,6 +2743,11 @@ public function check_nonce_permission_efb($request) {
 						) {
 							$is_valid = 0;
 							$still_processing == false;
+							// Name the field, so the visitor is not shown an empty error.
+							if (isset($f['name']) && isset($this->lanText['mnvvXXX_'])) {
+								$error_message = str_replace('%s', "<b>" . esc_html($f['name']) . "</b>", $this->lanText['mnvvXXX_']);
+								$error_field_id = isset($f['id_']) ? $f['id_'] : '';
+							}
 							return;
 						}
 						$t = strpos(strtolower($item['type']), 'checkbox');
@@ -2836,7 +2845,9 @@ public function check_nonce_permission_efb($request) {
 										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
 										$item['value'] = sanitize_text_field($item['value']);
 										$is_valid = 0;
-										$item['value'] = preg_replace('/\s+/', '', $item['value']);
+										// Persian/Arabic digits and direction marks (pages cached before the
+										// browser started converting them) would reach the SMS gateway as is.
+										$item['value'] = preg_replace('/\s+/', '', self::normalize_phone_input_efb($item['value']));
 										if (isset($f['smsnoti']) && intval($f['smsnoti']) == 1) {
 											$sms_notification_enabled = 1;
 											array_push($phone_numbers[1], $item['value']);
@@ -9572,6 +9583,27 @@ public function check_nonce_permission_efb($request) {
 	 * @param mixed $value Raw value.
 	 * @return mixed The cleaned string, or the value unchanged if not a string.
 	 */
+	/**
+	 * A phone number with Persian/Arabic-Indic digits mapped to 0-9 and invisible
+	 * direction marks removed; spaces, dashes and the leading + are left alone.
+	 *
+	 * @param mixed $value Raw value.
+	 * @return mixed
+	 */
+	public static function normalize_phone_input_efb($value) {
+		if (!is_string($value) || '' === $value) {
+			return $value;
+		}
+		$value = strtr($value, array(
+			'۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4',
+			'۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9',
+			'٠' => '0', '١' => '1', '٢' => '2', '٣' => '3', '٤' => '4',
+			'٥' => '5', '٦' => '6', '٧' => '7', '٨' => '8', '٩' => '9',
+		));
+		$clean = preg_replace('/[\x{00A0}\x{061C}\x{200B}-\x{200F}\x{202A}-\x{202E}\x{2060}-\x{2069}\x{FEFF}]/u', '', $value);
+		return is_string($clean) ? trim($clean) : trim($value);
+	}
+
 	public static function normalize_email_input_efb($value) {
 		if (!is_string($value) || '' === $value) {
 			return $value;

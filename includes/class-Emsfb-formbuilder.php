@@ -2493,7 +2493,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 					$isPdate = $elementId === 'pdate';
 					$inputClass = $isPdate ? 'efb pdpF2 pdp-el' : 'efb hijri-picker';
 
-					$readonlyAttr = $elementId === 'ardate' && $disabled === "disabled" ? 'readonly' : '';
+					// A disabled date field is really disabled: the Jalali picker
+					// opened on it and the server then refused the whole form.
+					$readonlyAttr = $disabled === "disabled" ? ($elementId === 'ardate' ? 'readonly disabled' : 'disabled') : '';
 					$valueAttr = !empty($vj->value) ? sprintf('value="%s"', esc_attr($vj->value)) : '';
 					$requiredAttr = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
 					$ariaRequiredAttr = ($vj->required == 1) ? 'true' : 'false';

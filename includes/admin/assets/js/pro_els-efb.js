@@ -753,14 +753,35 @@ load_intlTelInput_efb = (rndm, iVJ) => {
     if(efb_var.length<1) efb_var = ajax_object_efm
     const ulitisJs = efb_var.images.hasOwnProperty('utilsJs') ? efb_var.images.utilsJs  : el_mobile.dataset.utilsjs;
 
-      iti = window.intlTelInput(el_mobile, {
+      /* Without a selected country a number typed the local way ("0912 345 6789",
+         the very format of the placeholder) failed as "invalid country code", and
+         an optional field was then left out of the entry without a word. Start
+         from the country of the site's language (fa_IR -> ir) unless the form
+         limits the countries and that one is not among them. */
+      // wp_lan is the full WordPress locale (fa_IR); "language" may be the short code (fa).
+      const siteLocale = String((efb_var && (efb_var.wp_lan || efb_var.language)) || document.documentElement.lang || '').replace('-', '_');
+      const siteCountry = siteLocale.split('_')[1] || '';
+      const initialCountry = /^[a-z]{2}$/i.test(siteCountry) && (!Array.isArray(onlyCountries) || onlyCountries.length === 0 || onlyCountries.map(c => String(c).toLowerCase()).includes(siteCountry.toLowerCase())) ? siteCountry.toLowerCase() : '';
+      const itiOptions = {
           onlyCountries: onlyCountries,
           nationalMode: true,
           autoPlaceholder: "polite",
           placeholderNumberType: "MOBILE",
           loadUtils: () => import(ulitisJs),
-      });
+      };
+      if (initialCountry) itiOptions.initialCountry = initialCountry;
+      iti = window.intlTelInput(el_mobile, itiOptions);
         forceIntlContainerRtlEfb(el_mobile);
+      // Persian and Arabic-Indic digits (phone keyboards in Iran and the Arab world) to 0-9.
+      el_mobile.addEventListener('input', function () {
+          if (typeof efb_ascii_digits_efb !== 'function') return;
+          const ascii = efb_ascii_digits_efb(el_mobile.value);
+          if (ascii !== el_mobile.value) {
+              const pos = el_mobile.selectionStart;
+              el_mobile.value = ascii;
+              try { el_mobile.setSelectionRange(pos, pos); } catch (e) {}
+          }
+      });
 
       el_mobile.addEventListener('blur', function () {
           const errorMap = [
@@ -790,6 +811,7 @@ load_intlTelInput_efb = (rndm, iVJ) => {
                   const value = iti.getNumber();
                   const nationalNumber = iti.getNumber(window.intlTelInput?.utils?.numberFormat?.NATIONAL || 1);
 
+                  if (typeof sendback_state_handler_efb_v4 === 'function') sendback_state_handler_efb_v4(rndm, true, 0, form_id);
                   iVJ = valj_efb.findIndex(x => x.id_ == rndm);
                   fun_sendBack_emsFormBuilder({
                       id_: valj_efb[iVJ].id_,
@@ -815,7 +837,13 @@ load_intlTelInput_efb = (rndm, iVJ) => {
                   if (inx !== -1) {
                       sendBack_emsFormBuilder_pub.splice(inx, 1);
                   }
+                  // A number that was typed but is not valid keeps the form from being
+                  // sent, as other invalid fields do; it was silently left out before.
+                  if (typeof sendback_state_handler_efb_v4 === 'function') sendback_state_handler_efb_v4(rndm, false, 0, form_id);
               }
+          } else if (typeof sendback_state_handler_efb_v4 === 'function') {
+              // Emptied again: an optional field is fine without a number.
+              sendback_state_handler_efb_v4(rndm, true, 0, el_mobile.dataset.formid ?? 0);
           }
       });
   }, 800);
@@ -920,18 +948,10 @@ async function callFetchCitiesEfb(idField,iso2_country,iso2_statePove, indx_stat
     }
 
   }
-  let url = efb_var.zone_area ?? ajax_object_efm.zone_area
-  url = url+`json/cites/${iso2_country.toLowerCase()}/${iso2_statePove.toLowerCase()}.json`;
-
-  const state_check = fun_state_check_addon_AdnOF_setting_efb();
-  if(state_check){
-     url =efb_var.images.plugin_url+ `/vendor/offline/json/cites/${iso2_country.toLowerCase()}/${iso2_statePove.toLowerCase()}.json`;
-     url =url.replaceAll('//vendor','/vendor');
-    }
    clean_options_select_efb(valj_efb[indx_state].id_);
-  let result = await  fetch_json_from_url_efb(url)
-  if(result.s==false){
-    alert_message_efb('',efb_var.text.offlineSend,5,'danger')
+  let result = await efb_fetch_address_json_efb(`json/cites/${iso2_country.toLowerCase()}/${iso2_statePove.toLowerCase()}.json`);
+  if(!result || result.s==false){
+    efb_address_fetch_failed_efb(state_el);
     return;
   }
   let opt = `<option selected disabled>${efb_var.text.nothingSelected}</option>`;
@@ -1043,20 +1063,13 @@ async function callFetchStatesPovEfb(idField,iso2_country, indx_state,fieldType,
     const result = JSON.parse(sessionStorage.getItem('fetech_result_states'));
     return parsing_result_json_smart_address_efb(fieldType,indx_state,idField,result, autofilled);
   }
-  let url = efb_var.zone_area ?? ajax_object_efm.zone_area
-  url =url +`json/states/${iso2_country}.json`
-  const state_check = fun_state_check_addon_AdnOF_setting_efb();
-  if(state_check){
-    url =efb_var.images.plugin_url+ `/vendor/offline/json/states/${iso2_country}.json`;
-    url =url.replaceAll('//vendor','/vendor');
-   }
    valj_efb[indx_state].hasOwnProperty('country') ? valj_efb[indx_state].country=iso2_country : Object.assign(valj_efb[indx_state], {country:iso2_country});
    clean_options_select_efb(valj_efb[indx_state].id_);
 
    try {
-    let result = await  fetch_json_from_url_efb(url)
-    if(result.s==false){
-      alert_message_efb('',efb_var.text.offlineSend,5,'danger')
+    let result = await efb_fetch_address_json_efb(`json/states/${iso2_country}.json`);
+    if(!result || result.s==false){
+      efb_address_fetch_failed_efb(state_el);
       return;
     }
   const json_result =JSON.stringify(result)
@@ -1065,10 +1078,38 @@ async function callFetchStatesPovEfb(idField,iso2_country, indx_state,fieldType,
 
   return parsing_result_json_smart_address_efb(fieldType,indx_state,idField,result, autofilled);
 } catch (error) {
-  alert_message_efb('', efb_var.text.offlineSend, 5, 'warning');
+  efb_address_fetch_failed_efb(state_el);
 }
 
 return false;
+}
+
+/* Country/state/city lists: from the Offline add-on's own files when it is
+ * installed (no outside CDN, which can be unreachable from some networks),
+ * with the CDN as the second try, and the reverse never leaves the field
+ * waiting: a failed fetch gives the select back with a clear message. */
+async function efb_fetch_address_json_efb(path) {
+  const cdn = (efb_var.zone_area ?? ajax_object_efm.zone_area) + path;
+  const urls = [cdn];
+  if (fun_state_check_addon_AdnOF_setting_efb()) {
+    urls.unshift(String(efb_var.images.plugin_url + '/vendor/offline/' + path).replaceAll('//vendor', '/vendor'));
+  }
+  let result = { s: false };
+  for (const url of urls) {
+    try { result = await fetch_json_from_url_efb(url); } catch (e) { result = { s: false }; }
+    if (result && result.s !== false) return result;
+  }
+  return result;
+}
+
+function efb_address_fetch_failed_efb(select_el) {
+  if (select_el) {
+    select_el.classList.remove('is-loading');
+    select_el.disabled = false;
+    select_el.innerHTML = `<option selected disabled>${efb_var.text.nothingSelected}</option>`;
+  }
+  const offline = typeof navigator !== 'undefined' && navigator.onLine === false;
+  alert_message_efb('', offline ? efb_var.text.offlineSend : (efb_var.text.errorSomthingWrong || efb_var.text.offlineSend), 5, 'danger');
 }
 
 async function parsing_result_json_smart_address_efb(fieldType,indx_state,idField,result, autofilled=false) {
@@ -1691,6 +1732,8 @@ fun_state_check_addon_AdnOF_setting_efb =()=>{
   if(typeof efb_version!='undefined'){
    return  setting_emsFormBuilder.AdnOF==true ? true : false;
   }else{
-   return setting_emsFormBuilder.addons.hasOwnProperty('AdnOF')==true && setting_emsFormBuilder.addons.AdnOF==true ? true : false;
+   // On public pages each add-on is {name, active, version}, so "== true" never matched.
+   const a = setting_emsFormBuilder && setting_emsFormBuilder.addons ? setting_emsFormBuilder.addons.AdnOF : null;
+   return !!a && (a === true || a == 1 || a.active === true || a.active == 1);
   }
 }

@@ -2517,36 +2517,33 @@ let change_el_edit_Efb = (el) => {
         }
 
         break;
-      case "smsAdminsPhoneNoEl":
-
-        if(el.value.includes(',')){
-          let phones=el.value.split(',');
-          let isPhone=true;
-            phones.forEach((phone)=>{
-              phone=phone.trim();
-              if (phone.match(/^\+[0-9]{8,15}$/)==null) isPhone=false;
-              if(isPhone==false) {
-                alert_message_efb(efb_var.text.error, efb_var.text.pleaseEnterVaildValue + ` (${phone})`, 10, "danger");
-                valj_efb[0].sms_admins_phone_no="";
-                return false;
-              }
-            })
-            valj_efb[0].sms_admins_phone_no = el.value.trim();
-          }
-          else{
-            if (el.value.match(/^\+[0-9]{8,15}$/))
-            {
-              valj_efb[0].sms_admins_phone_no = el.value;
-              return true;
-            }
-            else {
-              alert_message_efb(efb_var.text.error, efb_var.text.pleaseEnterVaildValue + ` (${phone})`, 10, "danger");
-              valj_efb[0].sms_admins_phone_no="";
-              return false;
-            }
-          }
-
-        break;
+      case "smsAdminsPhoneNoEl": {
+        /* One number or a comma-separated list, in international format.
+           Persian/Arabic digits, spaces, dashes and direction marks are
+           cleaned first; on a Persian site 09xxxxxxxxx becomes +989xxxxxxxxx.
+           (The old single-number branch threw "phone is not defined", so no
+           warning appeared and nothing was saved.) */
+        const efbIsFaSite = String((efb_var && efb_var.language) || '').toLowerCase().indexOf('fa') === 0;
+        const efbCleanPhone = (raw) => {
+          let p = String(raw || '')
+            .replace(/[\u06F0-\u06F9]/g, (d) => String(d.charCodeAt(0) - 0x06F0))
+            .replace(/[\u0660-\u0669]/g, (d) => String(d.charCodeAt(0) - 0x0660))
+            .replace(/[\s\-().\u200C\u200E\u200F\u202A-\u202E]/g, '');
+          if (p.indexOf('00') === 0) p = '+' + p.slice(2);
+          if (efbIsFaSite && /^09[0-9]{9}$/.test(p)) p = '+98' + p.slice(1);
+          return p;
+        };
+        const efbPhones = el.value.split(',').map(efbCleanPhone).filter((p) => p !== '');
+        const efbBad = efbPhones.filter((p) => !/^\+[0-9]{8,15}$/.test(p));
+        if (efbPhones.length === 0 || efbBad.length) {
+          alert_message_efb(efb_var.text.error, efb_var.text.pleaseEnterVaildValue + ` (${efbBad.length ? efbBad.join(', ') : el.value}) — +989123456789`, 10, "danger");
+          valj_efb[0].sms_admins_phone_no = "";
+          return false;
+        }
+        valj_efb[0].sms_admins_phone_no = efbPhones.join(',');
+        el.value = valj_efb[0].sms_admins_phone_no;
+        return true;
+      }
       case "formNameEl":
         valj_efb[0].formName = sanitize_text_efb(el.value)
         break;

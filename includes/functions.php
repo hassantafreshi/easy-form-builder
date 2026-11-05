@@ -7108,6 +7108,30 @@ public function addon_add_efb($value) {
 			return true;
 		}
 
+		// A 'visit' session past its sliding window but inside the absolute cap:
+		// the submit path accepts it (efb_revive_visit_session), so the read-only
+		// check must too. Otherwise a page cached longer than the session window
+		// passed the core but failed Human Shield's session check on every try.
+		$max_days = (int) apply_filters('efb_session_absolute_max_days', 7);
+		if ($max_days < 1) {
+			$max_days = 1;
+		}
+		$cap_cutoff = wp_date('Y-m-d H:i:s', strtotime("-{$max_days} days"));
+		if (empty($fid)) {
+			$revivable = $wpdb->get_var($wpdb->prepare(
+				"SELECT id FROM {$table_name} WHERE sid = %s AND status = %s AND active = 1 AND `date` > %s LIMIT 1",
+				$sid, 'visit', $cap_cutoff
+			));
+		} else {
+			$revivable = $wpdb->get_var($wpdb->prepare(
+				"SELECT id FROM {$table_name} WHERE sid = %s AND fid = %d AND status = %s AND active = 1 AND `date` > %s LIMIT 1",
+				$sid, $fid, 'visit', $cap_cutoff
+			));
+		}
+		if (!empty($revivable)) {
+			return true;
+		}
+
 		// Fallback: a one-shot auth session may still be pending. Mirror the
 		// acceptance rule of efb_code_validate_select() but never consume it.
 		$query = $wpdb->prepare("SELECT status FROM {$table_name} WHERE sid = %s  AND fid = %s ORDER BY date DESC LIMIT 1", $sid, $fid);

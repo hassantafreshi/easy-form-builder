@@ -8,7 +8,7 @@ msgstr ""
 "POT-Creation-Date: 2026-11-03 00:00+0000\n"
 "X-Generator: EFB tests/core-i18n/build.php\n"
 "X-Domain: easy-form-builder\n"
-"PO-Revision-Date: 2026-11-05 09:02+0000\n"
+"PO-Revision-Date: 2026-11-05 13:59+0000\n"
 "Last-Translator: WhiteStudio <hi@whitestudio.team>\n"
 "Language-Team: fa_IR\n"
 "Language: fa_IR\n"
@@ -13986,3 +13986,7 @@ msgstr "متن اضافه‌ای، معمولاً یک هشدار PHP یا خر�
 #, php-format
 msgid "Open Messages and check for an entry at %s. On a live site, turn off WP_DEBUG_DISPLAY or ask your hosting company to check the PHP error log."
 msgstr "بخش پیام‌ها را باز کنید و ببینید آیا پاسخی در ساعت %s ثبت شده است. روی سایت اصلی WP_DEBUG_DISPLAY را خاموش کنید یا از شرکت میزبانی بخواهید گزارش خطای PHP را بررسی کند."
+
+#  origin: claude (fa_IR)
+msgid "The security check could not finish on your connection. Please press Send again; your answers are kept."
+msgstr "بررسی امنیتی روی اتصال شما کامل نشد. لطفاً دوباره روی «ارسال» بزنید؛ پاسخ‌هایتان حفظ شده است."
