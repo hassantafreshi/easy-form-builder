@@ -3092,7 +3092,11 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
       if (!x || x.state !== false || Number(x.form_id) !== Number(form_id)) return false;
       if (x.step && Number(x.step) > Number(no_step)) return false;
       const fieldEl = document.getElementById(String(x.id_) + '_');
-      return !!(fieldEl && fieldEl.offsetParent !== null);
+      if (!fieldEl || fieldEl.offsetParent === null) return false;
+      // Emptied again and not required: nothing invalid is left to send.
+      const isEmpty = typeof fieldEl.value === 'string' && fieldEl.value.trim() === '';
+      const isRequired = fieldEl.required || fieldEl.getAttribute('aria-required') === 'true' || fieldEl.classList.contains('required');
+      return !(isEmpty && !isRequired);
     });
     if (invalidFilled.length > 0) {
       const fieldEl = document.getElementById(String(invalidFilled[0].id_) + '_');
@@ -4032,7 +4036,9 @@ async function handle_change_event_efb_v4(el ,form_id=0){
       value = state == true ? sanitize_text_efb(el.value) : '';
       break;
     case "tel":
-      if(el.value.length==0){ el_empty_value(id_);}
+      // An empty optional phone is valid: stop here like email/text do, or the
+      // check below marks it invalid again and Next/Send refuse the form.
+      if(el.value.length==0){ el_empty_value(id_); return;}
       state = valid_phone_emsFormBuilder(el);
       value = state == true ? sanitize_text_efb(el.value) : '';
       break;
