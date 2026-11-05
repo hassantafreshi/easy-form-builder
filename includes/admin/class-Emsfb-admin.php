@@ -4322,7 +4322,9 @@ function admin_notices_efb () {
         if ($form_id === null) {
             $this->form_cache = array();
 
-            wp_cache_flush_group('emsfb');
+            if (function_exists('wp_cache_flush_group')) {
+                wp_cache_flush_group('emsfb');
+            }
 
             return true;
         }

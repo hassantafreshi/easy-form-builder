@@ -168,10 +168,15 @@ class Emsfb_Visual_Composer_Integration {
         // request counted before, so a visitor page that loads its content
         // that way (AJAX popups, infinite scroll) got the placeholder instead
         // of the form.
+        // VCV_AJAX_REQUEST is defined on every request (it holds a parameter
+        // name, not a flag), so it cannot tell the editor apart; the editor's
+        // requests carry these markers instead.
         return (
             isset($_REQUEST['vcv-action']) ||
             isset($_REQUEST['vcv-ajax']) ||
-            (defined('VCV_AJAX_REQUEST') && VCV_AJAX_REQUEST)
+            isset($_REQUEST['vcv-admin-ajax']) ||
+            isset($_GET['vcv-editable']) ||
+            (defined('VCV_AJAX_REQUEST_CALL') && VCV_AJAX_REQUEST_CALL)
         );
     }
 

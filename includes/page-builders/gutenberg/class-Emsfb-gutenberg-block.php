@@ -33,12 +33,17 @@ class Emsfb_Gutenberg_Block {
             return;
         }
 
-        register_block_type(
-            EMSFB_PLUGIN_DIRECTORY . 'includes/page-builders/gutenberg/block.json',
-            [
-                'render_callback' => [$this, 'render_block']
-            ]
-        );
+        $block_json = EMSFB_PLUGIN_DIRECTORY . 'includes/page-builders/gutenberg/block.json';
+        $block_args = [
+            'render_callback' => [$this, 'render_block']
+        ];
+        // register_block_type() takes a block.json path only since WP 5.8;
+        // on 5.7 (the plugin's minimum) the block was silently not registered.
+        if (function_exists('register_block_type_from_metadata') && version_compare(get_bloginfo('version'), '5.8', '<')) {
+            register_block_type_from_metadata($block_json, $block_args);
+        } else {
+            register_block_type($block_json, $block_args);
+        }
     }
 
     public function enqueue_editor_assets() {

@@ -8,7 +8,7 @@ msgstr ""
 "POT-Creation-Date: 2026-11-03 00:00+0000\n"
 "X-Generator: EFB tests/core-i18n/build.php\n"
 "X-Domain: easy-form-builder\n"
-"PO-Revision-Date: 2026-11-05 16:04+0000\n"
+"PO-Revision-Date: 2026-11-05 19:04+0000\n"
 "Last-Translator: WhiteStudio <hi@whitestudio.team>\n"
 "Language-Team: de_DE\n"
 "Language: de_DE\n"
@@ -7964,7 +7964,7 @@ msgstr "Problem melden"
 #  origin: wporg-stable
 #: includes/class-Emsfb-deactivation-feedback.php:1018
 msgid "Report the bug, get 100% off your first year"
-msgstr "Melde den Fehler und bekomme im ersten Jahr 100% off"
+msgstr "Melde den Fehler und erhalte im ersten Jahr 100 % Rabatt"
 
 #  origin: wporg-stable
 #. translators: Request Body Template = field label
@@ -12835,7 +12835,7 @@ msgstr "Ihre Antwort"
 #  origin: wporg-stable
 #: includes/class-Emsfb-deactivation-feedback.php:1032
 msgid "Your report has been received. We will email your 100% discount code after a quick check."
-msgstr "Deine Meldung ist bei uns eingegangen. Wir schicken dir deinen 100% d-Rabattcode nach einer kurzen Überprüfung per E-Mail zu."
+msgstr "Deine Meldung ist bei uns eingegangen. Wir schicken dir deinen Rabattcode über 100 % nach einer kurzen Überprüfung per E-Mail zu."
 
 #  origin: wporg-stable
 #. translators: Generic block message when a request looks automated

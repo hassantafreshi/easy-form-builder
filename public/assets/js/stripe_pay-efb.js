@@ -156,7 +156,13 @@ async function confirm_stripe_payment_efb(paymentIntentId, trackid, formId) {
           // uses - the theme's - and the web-font files it comes from.
           const stripeFontsEfb = []
           try {
-            const pageFontEfb = (getComputedStyle(cardnoEfb).fontFamily || '').trim()
+            // Stripe rejects a font name with non-ASCII or special characters
+            // (Japanese, Chinese, Persian names, "Café Sans"), and then no card
+            // field mounts at all: pass only the names it accepts.
+            const pageFontEfb = (getComputedStyle(cardnoEfb).fontFamily || '').split(',')
+              .map((f) => f.trim())
+              .filter((f) => /^(["']?)[A-Za-z0-9 _.-]+\1$/.test(f))
+              .join(', ')
             if (pageFontEfb) elsStripeStyleEfb.base.fontFamily = pageFontEfb
             document.querySelectorAll('link[rel~="stylesheet"][href^="https://fonts.googleapis.com/"]').forEach((l) => {
               if (stripeFontsEfb.length < 5) stripeFontsEfb.push({ cssSrc: l.href })
@@ -176,15 +182,20 @@ async function confirm_stripe_payment_efb(paymentIntentId, trackid, formId) {
               }
             }
           } catch (e) {}
-          let elements
-          try { elements = stripeFontsEfb.length ? stripe.elements({ fonts: stripeFontsEfb }) : stripe.elements() } catch (e) { elements = stripe.elements() }
-          const numElm = elements.create('cardNumber', { showIcon: true, iconStyle: 'solid', style: elsStripeStyleEfb })
+          // The font is a nicety: if Stripe refuses anything about it, mount
+          // the card fields exactly as before rather than not at all.
+          let elements, numElm, expElm, cvcElm
+          const mountCardEfb = (withFont) => {
+            const style = withFont ? elsStripeStyleEfb : { base: Object.assign({}, elsStripeStyleEfb.base, { fontFamily: undefined }), complete: elsStripeStyleEfb.complete }
+            if (!withFont) delete style.base.fontFamily
+            elements = withFont && stripeFontsEfb.length ? stripe.elements({ fonts: stripeFontsEfb }) : stripe.elements()
+            numElm = elements.create('cardNumber', { showIcon: true, iconStyle: 'solid', style: style })
+            expElm = elements.create('cardExpiry', { disabled: true, style: style })
+            cvcElm = elements.create('cardCvc', { disabled: true, style: style })
+          }
+          try { mountCardEfb(true) } catch (e) { mountCardEfb(false) }
           numElm.mount(cardnoEfb)
-
-          const expElm = elements.create('cardExpiry', { disabled: true, style: elsStripeStyleEfb })
           expElm.mount(cardexpEfb)
-
-          const cvcElm = elements.create('cardCvc', { disabled: true, style: elsStripeStyleEfb })
           cvcElm.mount(cardcvcEfb)
 
           numElm.on('change', (e) => {
