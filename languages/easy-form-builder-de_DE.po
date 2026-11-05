@@ -8,7 +8,7 @@ msgstr ""
 "POT-Creation-Date: 2026-11-03 00:00+0000\n"
 "X-Generator: EFB tests/core-i18n/build.php\n"
 "X-Domain: easy-form-builder\n"
-"PO-Revision-Date: 2026-11-05 13:59+0000\n"
+"PO-Revision-Date: 2026-11-05 16:04+0000\n"
 "Last-Translator: WhiteStudio <hi@whitestudio.team>\n"
 "Language-Team: de_DE\n"
 "Language: de_DE\n"
@@ -13989,3 +13989,30 @@ msgstr "Öffne die Nachrichten und prüfe, ob um %s ein Eintrag vorhanden ist. S
 #  origin: claude (de_DE)
 msgid "The security check could not finish on your connection. Please press Send again; your answers are kept."
 msgstr "Die Sicherheitsprüfung konnte über deine Verbindung nicht abgeschlossen werden. Bitte klicke erneut auf „Senden“ – deine Antworten bleiben erhalten."
+
+#  origin: claude (de_DE)
+#: includes/functions.php:1871
+msgid "Select Month"
+msgstr "Monat auswählen"
+
+#  origin: claude (de_DE)
+#: includes/functions.php:1872
+msgid "Select Year"
+msgstr "Jahr auswählen"
+
+#  origin: claude (de_DE)
+#: includes/functions.php:1873
+msgid "Select Decade"
+msgstr "Jahrzehnt auswählen"
+
+#  origin: claude (de_DE)
+#: includes/admin/class-Emsfb-admin.php:3600
+#: includes/admin/class-Emsfb-admin.php:3813
+#: includes/admin/class-Emsfb-admin.php:3826
+msgid "Security Error"
+msgstr "Sicherheitsfehler"
+
+#  origin: claude (de_DE)
+#: includes/admin/class-Emsfb-admin.php:3607
+msgid "SMS Add-on Not Installed"
+msgstr "SMS-Add-on ist nicht installiert"

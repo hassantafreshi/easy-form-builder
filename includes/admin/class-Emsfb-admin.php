@@ -3594,14 +3594,18 @@ class Admin {
 
         $efbFunction = get_efbFunction();
         $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
+        $sms_lang = $efbFunction->text_efb(['error403','msg_adons','sms_noti']);
        if(!check_ajax_referer('wp_rest', 'nonce', false) || !$currrent_user_can) {
 
-            $response = ['success' => false, 'm' =>'Security Error'];
+            $response = ['success' => false, 'm' => isset($sms_lang['error403']) ? $sms_lang['error403'] : esc_html__('Security Error', 'easy-form-builder')];
             wp_send_json_success($response, 200);
         }
         $path = EMSFB_PLUGIN_DIRECTORY."/vendor/smssended/smsefb.php";
         if(!file_exists($path)){
-            $response = ['success' => false, 'm' =>'SMS Add-on Not Installed'];
+            $not_installed = (isset($sms_lang['msg_adons'], $sms_lang['sms_noti']))
+                ? str_replace('NN', '<b>' . esc_html($sms_lang['sms_noti']) . '</b>', $sms_lang['msg_adons'])
+                : esc_html__('SMS Add-on Not Installed', 'easy-form-builder');
+            $response = ['success' => false, 'm' => $not_installed];
             wp_send_json_success($response, 200);
         }
 

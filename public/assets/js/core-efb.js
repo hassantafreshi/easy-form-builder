@@ -620,6 +620,12 @@ async function createStepsOfPublic() {
           case 'url':
           case 'range':
           case 'color':
+            if ((classes.contains("pdpF2") || classes.contains("hijri-picker")) && el.value
+              && efb_typed_date_efb(el.value, classes.contains("pdpF2") ? 'jalali' : 'hijri') === null) {
+              // A default the picker cannot read (free text): start empty rather
+              // than store text the visitor never sees, or flag it before any input.
+              el.value = '';
+            }
             if(el.value && el.value.length>0){
               if(el.type!="range" && el.type!="color"){
                 handle_change_event_efb_v4(el,form_id);
@@ -642,6 +648,17 @@ async function createStepsOfPublic() {
               jQuery("#"+el.id).on('dp.change', function () {
                 handle_change_event_efb_v4(el,form_id);
               });
+              // The picker may rewrite or clear the default it was given before
+              // dp.change was bound: keep the stored row equal to the field.
+              const hijri_row = get_row_sendback_by_id_efb_v4(id, form_id);
+              if (hijri_row != -1 && sendBack_emsFormBuilder_pub[hijri_row].value !== el.value) {
+                if (el.value === '') {
+                  sendBack_emsFormBuilder_pub.splice(hijri_row, 1);
+                  updateStepButtonState_efb(form_id);
+                } else {
+                  handle_change_event_efb_v4(el, form_id);
+                }
+              }
             }else if (classes.contains("intlPhone") && classes.contains("d-none")==false) {
               const indx = valj_efb_.findIndex(x => x.id_ === id);
               valj_efb=valj_efb_;
@@ -1182,6 +1199,7 @@ async function actionSendData_emsFormBuilder(form_id=0) {
       valid: recaptcha_emsFormBuilder_row,
       type:  vj.type,
       url:location.href.split('?')[0],
+      query: efb_page_query_efb(),
       sid:vj.sid ,
       page_id: ajax_object_efm.page_id
     };
@@ -1201,6 +1219,7 @@ async function actionSendData_emsFormBuilder(form_id=0) {
           payment: 'persiaPay',
           auth:get_authority_efb,
           url:location.href.split('?')[0],
+          query: efb_page_query_efb(),
           sid:vj.sid ,
           page_id: ajax_object_efm.page_id
         };
@@ -1215,6 +1234,7 @@ async function actionSendData_emsFormBuilder(form_id=0) {
           type: vj.type,
           payment: 'stripe',
           url:location.href.split('?')[0],
+          query: efb_page_query_efb(),
           sid:vj.sid ,
           page_id: ajax_object_efm.page_id
         };
@@ -1230,6 +1250,7 @@ async function actionSendData_emsFormBuilder(form_id=0) {
           type: vj.type,
           payment: 'paypal',
           url:location.href.split('?')[0],
+          query: efb_page_query_efb(),
           sid:vj.sid ,
           page_id: ajax_object_efm.page_id
         };
@@ -1239,6 +1260,30 @@ async function actionSendData_emsFormBuilder(form_id=0) {
 }
 /* Persian (۰-۹) and Arabic-Indic (٠-٩) digits to 0-9: phone keyboards in
  * Iran and the Arab world type these, and the phone filter dropped them. */
+/* A date typed into the Jalali or Hijri field as YYYY-MM-DD with ASCII
+ * digits, or null when it is not a date. Persian/Arabic digits, "/" or "."
+ * separators and unpadded parts are accepted. Mirrors
+ * Emsfb_Public::normalize_typed_date_efb() in PHP. */
+/* The page's URL parameters, sent with a submission so Conditional Logic
+ * "URL parameter" rules are checked on the server even when a strict
+ * Referrer-Policy strips the query from the Referer. */
+function efb_page_query_efb() {
+  try { return location.search ? location.search.slice(1, 2001) : ''; } catch (e) { return ''; }
+}
+function efb_typed_date_efb(str, kind) {
+  const v = efb_ascii_digits_efb(String(str == null ? '' : str))
+    .replace(/[\s\u00A0\u061C\u200B-\u200F\u202A-\u202E\u2060-\u2069\uFEFF]/g, '')
+    .replace(/[\/.]/g, '-');
+  const m = v.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  if (!m) return null;
+  const mo = Number(m[2]), d = Number(m[3]);
+  if (mo < 1 || mo > 12 || d < 1) return null;
+  let max = 31;
+  if (kind === 'jalali') max = mo <= 6 ? 31 : 30;
+  else if (kind === 'hijri') max = 30;
+  if (d > max) return null;
+  return m[1] + '-' + (mo < 10 ? '0' : '') + mo + '-' + (d < 10 ? '0' : '') + d;
+}
 function efb_ascii_digits_efb(str) {
   return String(str).replace(/[\u06F0-\u06F9]/g, function (d) { return String(d.charCodeAt(0) - 0x06F0); })
     .replace(/[\u0660-\u0669]/g, function (d) { return String(d.charCodeAt(0) - 0x0660); });
@@ -1646,6 +1691,9 @@ function clear_sendback_rows_by_form_id_efb(form_id) {
  * the visitor simply left. The in-memory list still carries the value for the
  * submit itself. */
 function efb_sendback_for_storage_efb(rows) {
+  // Every writer of localStorage['sendback'] goes through here: note when, so
+  // answers left behind expire (efb_expire_stored_answers_efb).
+  try { localStorage.setItem('sendback_t', String(Date.now())); } catch (e) {}
   if (!Array.isArray(rows)) return JSON.stringify(rows);
   return JSON.stringify(rows.filter(r => !(r && typeof r === 'object' && String(r.type || '').toLowerCase() === 'password')));
 }
@@ -1657,11 +1705,88 @@ function efb_scrub_stored_passwords_efb() {
     if (Array.isArray(rows)) localStorage.setItem('sendback', efb_sendback_for_storage_efb(rows));
   } catch (e) {}
 }
+/* Answers kept in the browser (name, phone, address...) stayed readable on a
+ * shared computer for good. They are dropped when a page loads more than a
+ * day after the last write, or when their age is unknown, unless the visitor
+ * is coming back from the bank (PersiaPay restores the form from them). */
+const EFB_STORED_ANSWERS_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+function efb_payment_return_pending_efb() {
+  try {
+    return /[?&]Authority=/i.test(location.search) || !!sessionStorage.getItem('payId');
+  } catch (e) { return false; }
+}
+function efb_expire_stored_answers_efb() {
+  try {
+    if (!localStorage.getItem('sendback')) { localStorage.removeItem('sendback_t'); return; }
+    if (efb_payment_return_pending_efb()) return;
+    const t = Number(localStorage.getItem('sendback_t'));
+    if (!t || Date.now() - t > EFB_STORED_ANSWERS_MAX_AGE_MS) {
+      localStorage.removeItem('sendback');
+      localStorage.removeItem('sendback_t');
+    }
+  } catch (e) {}
+}
+/* What was stored before this page wrote anything: the form's own default
+ * values are stored while it is built, which replaced the saved answers. */
+let efb_stored_answers_at_load_efb = [];
 try {
   efb_scrub_stored_passwords_efb();
+  efb_expire_stored_answers_efb();
+  const stored_at_load = JSON.parse(localStorage.getItem('sendback') || '[]');
+  if (Array.isArray(stored_at_load)) efb_stored_answers_at_load_efb = stored_at_load;
   // Add-ons write the list too; whatever they stored is cleaned when the page is left.
   window.addEventListener('pagehide', efb_scrub_stored_passwords_efb);
 } catch (e) {}
+function efb_offline_addon_active_efb() {
+  try {
+    if (typeof fun_state_check_addon_AdnOF_setting_efb === 'function') return fun_state_check_addon_AdnOF_setting_efb();
+    const s = typeof ajax_object_efm.form_setting == 'string' ? JSON.parse(ajax_object_efm.form_setting) : ajax_object_efm.form_setting;
+    const a = s && s.addons ? s.addons.AdnOF : null;
+    return !!a && (a === true || a == 1 || a.active === true || a.active == 1);
+  } catch (e) { return false; }
+}
+/* "Offline form" (AfLnFrm) on: answers kept after a lost connection come back
+ * when the page is opened again, as the offline message promises, so the
+ * visitor can press Send once online. Only plain fields are filled, through
+ * the normal change handler so every check and rule runs. Payment forms keep
+ * their own return path. */
+async function efb_restore_offline_answers_efb() {
+  const rows = efb_stored_answers_at_load_efb;
+  efb_stored_answers_at_load_efb = [];
+  if (!Array.isArray(rows) || rows.length === 0) return;
+  if (efb_payment_return_pending_efb() || !efb_offline_addon_active_efb()) return;
+  if (typeof get_structure_by_form_id_efb !== 'function') return;
+  const form_ids = [...new Set(rows.filter(r => r && typeof r === 'object' && r.form_id != null).map(r => Number(r.form_id)))];
+  for (const fid of form_ids) {
+    let structure = null;
+    try { structure = get_structure_by_form_id_efb(fid); } catch (e) { structure = null; }
+    if (!Array.isArray(structure) || !structure[0]) continue;
+    const head = structure[0];
+    if (!(head.AfLnFrm === true || Number(head.AfLnFrm) === 1) || head.type === 'payment') continue;
+    for (const row of rows) {
+      if (!row || typeof row !== 'object' || Number(row.form_id) !== fid || !row.id_ob) continue;
+      const el = document.getElementById(row.id_ob);
+      if (!el || el.disabled || el.readOnly) continue;
+      if (el.dataset && el.dataset.formid && Number(el.dataset.formid) !== fid) continue;
+      const tag = el.tagName;
+      const type = String(el.type || '').toLowerCase();
+      const value = row.value == null ? '' : String(row.value);
+      if (tag === 'TEXTAREA' || (tag === 'INPUT' && ['text', 'email', 'tel', 'url', 'number', 'date', 'color', 'range'].indexOf(type) !== -1)) {
+        if (value === '' || el.value === value) continue;
+        el.value = value;
+      } else if (tag === 'INPUT' && (type === 'radio' || type === 'checkbox')) {
+        if (el.checked) continue;
+        el.checked = true;
+      } else if (tag === 'SELECT' && !el.multiple) {
+        if (value === '' || el.value === value || !Array.prototype.some.call(el.options, o => o.value === value)) continue;
+        el.value = value;
+      } else {
+        continue;
+      }
+      try { await handle_change_event_efb_v4(el, fid); } catch (e) {}
+    }
+  }
+}
 function efb_get_error_panel_efb() {
   return window.EFB_ERROR_PANEL || (typeof EFB_ERROR_PANEL !== 'undefined' ? EFB_ERROR_PANEL : null);
 }
@@ -2356,6 +2481,7 @@ async function efb_fetch_public_request_efb(url, options, operation, sid, fid) {
 
     await response_fill_form_efb(responseData, form_id);
     if (localStorage.getItem('sendback')) localStorage.removeItem('sendback');
+    try { localStorage.removeItem('sendback_t'); } catch (e) {}
   } catch (error) {
     if (runtime && data.type==='form') {
       const saved=await window.EFBRuntime.resolve(data,Number(form_id)||0,'form');
@@ -2554,6 +2680,8 @@ document.addEventListener("DOMContentLoaded",async function() {
       typeof window.efb_logic_runtime.initAll === 'function') {
     window.efb_logic_runtime.initAll();
   }
+  // After the logic runtime is up, so restored answers run their rules too.
+  try { await efb_restore_offline_answers_efb(); } catch (e) {}
   fun_wait_form_load_efb(false,'nfast');
   let captcha = false ;
   valj_efb_new.forEach((valj_efb) => {
@@ -3919,6 +4047,24 @@ async function handle_change_event_efb_v4(el ,form_id=0){
         value = el.value;
        return;
       }
+      if(el.classList.contains("pdpF2") || el.classList.contains("hijri-picker")){
+        // A typed date was stored as any text ("tomorrow", mixed digits).
+        const typed_date = efb_typed_date_efb(el.value, el.classList.contains("pdpF2") ? 'jalali' : 'hijri');
+        if(typed_date===null){
+          el.className = colorBorderChangerEfb(el.className, "border-danger");
+          vd = document.getElementById(`${el.id}-message`);
+          if(vd){
+            vd.innerHTML = efb_var.text.enterValidDate || efb_var.text.pleaseEnterVaildValue;
+            show_msg_efb(vd);
+          }
+          sendback_state_handler_efb_v4(id_,false,0,form_id);
+          delete_by_id(id_);
+          updateStepButtonState_efb(form_id);
+          return;
+        }
+        if(el.value!==typed_date) el.value = typed_date;
+        value = typed_date;
+      }
       {
         let lenResult = await validate_len_efb_v4();
         // Number inputs carry no data-type, so their Min/Max message was shown and then ignored.
@@ -4442,7 +4588,8 @@ function call_fun_jalali_datepicker_efb_v4(){
     load_style_persian_data_picker_efb();
   }else{
     setTimeout(() => {
-      alert_message_efb(ajax_object_efm.text.error, ajax_object_efm.text.tfnapca + '(jalali datepicker)', 20 , 'info');
+      console.warn('[EFB] Jalali date picker add-on is not loaded');
+      alert_message_efb(ajax_object_efm.text.error, ajax_object_efm.text.tfnapca, 20 , 'info');
     }, 1000);
   }
 }
@@ -4453,7 +4600,8 @@ function call_fun_hijri_datapicker_efb_v4(){
 
   }else{
     setTimeout(() => {
-      alert_message_efb(ajax_object_efm.text.error, ajax_object_efm.text.tfnapca + '(Hijri datepicker)', 20 , 'info')
+      console.warn('[EFB] Hijri date picker add-on is not loaded');
+      alert_message_efb(ajax_object_efm.text.error, ajax_object_efm.text.tfnapca, 20 , 'info')
     }, 1000);
   }
 }

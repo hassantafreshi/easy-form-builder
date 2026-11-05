@@ -1088,11 +1088,18 @@ return false;
  * installed (no outside CDN, which can be unreachable from some networks),
  * with the CDN as the second try, and the reverse never leaves the field
  * waiting: a failed fetch gives the select back with a clear message. */
+/* Windows cannot hold a file named con.json (or prn, aux, nul, com1..9,
+ * lpt1..9), so the offline add-on ships those as _con.json. Only the local
+ * copy is renamed; the CDN keeps the real name. */
+function efb_offline_local_path_efb(path) {
+  return String(path).replace(/\/(con|prn|aux|nul|com[1-9]|lpt[1-9])\.json$/i, '/_$1.json');
+}
+
 async function efb_fetch_address_json_efb(path) {
   const cdn = (efb_var.zone_area ?? ajax_object_efm.zone_area) + path;
   const urls = [cdn];
   if (fun_state_check_addon_AdnOF_setting_efb()) {
-    urls.unshift(String(efb_var.images.plugin_url + '/vendor/offline/' + path).replaceAll('//vendor', '/vendor'));
+    urls.unshift(String(efb_var.images.plugin_url + '/vendor/offline/' + efb_offline_local_path_efb(path)).replaceAll('//vendor', '/vendor'));
   }
   let result = { s: false };
   for (const url of urls) {

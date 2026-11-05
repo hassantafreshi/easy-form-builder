@@ -8,7 +8,7 @@ msgstr ""
 "POT-Creation-Date: 2026-11-03 00:00+0000\n"
 "X-Generator: EFB tests/core-i18n/build.php\n"
 "X-Domain: easy-form-builder\n"
-"PO-Revision-Date: 2026-11-05 13:59+0000\n"
+"PO-Revision-Date: 2026-11-05 16:04+0000\n"
 "Last-Translator: WhiteStudio <hi@whitestudio.team>\n"
 "Language-Team: fa_IR\n"
 "Language: fa_IR\n"
@@ -13990,3 +13990,30 @@ msgstr "بخش پیام‌ها را باز کنید و ببینید آیا پا�
 #  origin: claude (fa_IR)
 msgid "The security check could not finish on your connection. Please press Send again; your answers are kept."
 msgstr "بررسی امنیتی روی اتصال شما کامل نشد. لطفاً دوباره روی «ارسال» بزنید؛ پاسخ‌هایتان حفظ شده است."
+
+#  origin: claude (fa_IR)
+#: includes/functions.php:1871
+msgid "Select Month"
+msgstr "انتخاب ماه"
+
+#  origin: claude (fa_IR)
+#: includes/functions.php:1872
+msgid "Select Year"
+msgstr "انتخاب سال"
+
+#  origin: claude (fa_IR)
+#: includes/functions.php:1873
+msgid "Select Decade"
+msgstr "انتخاب دهه"
+
+#  origin: claude (fa_IR)
+#: includes/admin/class-Emsfb-admin.php:3600
+#: includes/admin/class-Emsfb-admin.php:3813
+#: includes/admin/class-Emsfb-admin.php:3826
+msgid "Security Error"
+msgstr "خطای امنیتی"
+
+#  origin: claude (fa_IR)
+#: includes/admin/class-Emsfb-admin.php:3607
+msgid "SMS Add-on Not Installed"
+msgstr "افزودنی پیامک نصب نشده است"

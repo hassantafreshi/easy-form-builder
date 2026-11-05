@@ -2501,7 +2501,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					$ariaRequiredAttr = ($vj->required == 1) ? 'true' : 'false';
 
 					$ui = sprintf(
-						'%1$s %2$s %3$s <input type="text" class="%4$s input-efb px-2 mb-0 emsFormBuilder_v w-100 %5$s %6$s %7$s %8$s %9$s efbField efb1 %10$s" data-css="%11$s" data-id="%11$s-el" data-vid="%11$s" data-formid="%12$s" id="%11$s_" %13$s aria-required="%14$s" aria-label="%15$s" %16$s %17$s> %18$s',
+						'%1$s %2$s %3$s <input type="text" class="%4$s input-efb px-2 mb-0 emsFormBuilder_v w-100 %5$s %6$s %7$s %8$s %9$s efbField efb1 %10$s" data-css="%11$s" data-id="%11$s-el" data-vid="%11$s" data-formid="%12$s" id="%11$s_" autocomplete="off" %13$s aria-required="%14$s" aria-label="%15$s" %16$s %17$s> %18$s',
 						$label,
 						$div_f_id,
 						$ttip,

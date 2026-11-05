@@ -3597,16 +3597,20 @@ let change_el_edit_Efb = (el) => {
           document.getElementById('optionListefb').innerHTML=donwload_event_icon_efb('text-darkb');
            let url = efb_var.zone_area ?? ajax_object_efm.zone_area
            url= url +`json/states/${valj_efb[indx].country.toLowerCase()}.json`;
+          const states_cdn_url = url;
            if(efb_var.setting.hasOwnProperty('AdnOF') && efb_var.setting.AdnOF==true){
-            url =efb_var.images.plugin_url+`/vendor/offline/json/states/${valj_efb[indx].country.toLowerCase()}.json`;
+            url =efb_var.images.plugin_url+`/vendor/offline/json/states/${efb_admin_offline_name_efb(valj_efb[indx].country.toLowerCase())}.json`;
              url = url.replaceAll('//vendor','/vendor');
           }
           temp_efb= await fetch_json_from_url_efb_admin(url);
+          // A missing local file (incomplete offline add-on): try the CDN copy.
+          if((temp_efb.s==false || temp_efb=="null") && url!==states_cdn_url) temp_efb = await fetch_json_from_url_efb_admin(states_cdn_url);
           let  opetions;
           const newRndm = Math.random().toString(36).substr(2, 9);
           setTimeout(() => {
             if(temp_efb.s==false ||temp_efb=="null" ) {
-              alert_message_efb(efb_var.text.error, temp_efb.r ,15 , "danger")
+              console.error('[EFB] address list', temp_efb.r);
+              alert_message_efb(efb_var.text.error, efb_var.text.errorSomthingWrong || temp_efb.r ,15 , "danger")
               return;
             }
 
@@ -3657,16 +3661,19 @@ let change_el_edit_Efb = (el) => {
           document.getElementById('optionListefb').innerHTML=donwload_event_icon_efb('text-darkb');
           let url = efb_var.zone_area ?? ajax_object_efm.zone_area
           url = url + `json/cites/${temp}/${valj_efb[indx].statePov}.json`;
+          const cities_cdn_url = url;
           if(efb_var.setting.hasOwnProperty('AdnOF') && efb_var.setting.AdnOF==true){
-            url =efb_var.images.plugin_url+'/vendor/offline/json/cites/'+temp+'/'+valj_efb[indx].statePov+'.json';
+            url =efb_var.images.plugin_url+'/vendor/offline/json/cites/'+temp+'/'+efb_admin_offline_name_efb(valj_efb[indx].statePov)+'.json';
             url = url.replaceAll('//vendor','/vendor');
           }
           temp_efb = await fetch_json_from_url_efb_admin(url);
+          if((temp_efb.s==false || temp_efb=="null") && url!==cities_cdn_url) temp_efb = await fetch_json_from_url_efb_admin(cities_cdn_url);
           let  opetions;
           const newRndm = Math.random().toString(36).substr(2, 9);
 
             if(temp_efb.s==false ||temp_efb=="null" ) {
-              alert_message_efb(efb_var.text.error, temp_efb.r ,15 , "danger")
+              console.error('[EFB] address list', temp_efb.r);
+              alert_message_efb(efb_var.text.error, efb_var.text.errorSomthingWrong || temp_efb.r ,15 , "danger")
               return;
             }
             obj_delete_options(valj_efb[indx].id_)
@@ -6910,7 +6917,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       ${label}
       <div class="efb  ${pos[3]} col-sm-12 px-0 mx-0 ttEfb show"  id='${rndm}-f'>
         ${ttip}
-        <input type="text"   class="efb pdpF2 input-efb px-2 mb-0 emsFormBuilder_v w-100 ${classes} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}" data-id="${rndm}-el" data-vid='${rndm}'  id="${rndm}_"   ${valj_efb[iVJ].value.length > 0 ? `value ="${valj_efb[iVJ].value}"` : ''} aria-required="${valj_efb[iVJ].required==1 ? true : false}" aria-label="${valj_efb[iVJ].name}" ${aire_describedby} ${previewSate != true ? 'readonly' : ''}>
+        <input type="text"   class="efb pdpF2 input-efb px-2 mb-0 emsFormBuilder_v w-100 ${classes} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}" data-id="${rndm}-el" data-vid='${rndm}'  id="${rndm}_" autocomplete="off"   ${valj_efb[iVJ].value.length > 0 ? `value ="${valj_efb[iVJ].value}"` : ''} aria-required="${valj_efb[iVJ].required==1 ? true : false}" aria-label="${valj_efb[iVJ].name}" ${aire_describedby} ${previewSate != true ? 'readonly' : ''}>
         ${desc}`
       dataTag = elementId;
       typeof rating_el_pro_efb =="function" ? 0 : ui=public_pro_message()
@@ -6921,7 +6928,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       ${label}
       <div class="efb  ${pos[3]} col-sm-12 px-0 mx-0 ttEfb show"  id='${rndm}-f'>
         ${ttip}
-        <input type="text"   class="efb hijri-picker input-efb px-2 mb-0 emsFormBuilder_v w-100 ${classes}  ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}" data-id="${rndm}-el" data-vid='${rndm}' id="${rndm}_"   ${valj_efb[iVJ].value.length > 0 ? `value ="${valj_efb[iVJ].value}"` : ''} aria-required="${valj_efb[iVJ].required==1 ? true : false}" aria-label="${valj_efb[iVJ].name}" ${aire_describedby} ${previewSate != true ? 'readonly' : ''} ${disabled =="disabled" ? 'readonly' :''}>
+        <input type="text"   class="efb hijri-picker input-efb px-2 mb-0 emsFormBuilder_v w-100 ${classes}  ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}" data-id="${rndm}-el" data-vid='${rndm}' id="${rndm}_" autocomplete="off"   ${valj_efb[iVJ].value.length > 0 ? `value ="${valj_efb[iVJ].value}"` : ''} aria-required="${valj_efb[iVJ].required==1 ? true : false}" aria-label="${valj_efb[iVJ].name}" ${aire_describedby} ${previewSate != true ? 'readonly' : ''} ${disabled =="disabled" ? 'readonly' :''}>
         ${desc}`
       dataTag = elementId;
       typeof rating_el_pro_efb =="function" ? 0 : ui=public_pro_message()
@@ -8853,6 +8860,12 @@ const add_r_matrix_view_select = (idin, value, id_ob, tag, parentsID) => {
     `
 }
 
+/* The offline add-on ships Windows-reserved names (con, prn, aux, nul,
+ * com1..9, lpt1..9) with a leading "_": con.json cannot be unpacked there. */
+function efb_admin_offline_name_efb(name) {
+  name = String(name);
+  return /^(con|prn|aux|nul|com[1-9]|lpt[1-9])$/i.test(name) ? '_' + name : name;
+}
 async function fetch_json_from_url_efb_admin(url) {
   let r = { s: false, r: "false" };
   try {
@@ -9390,8 +9403,11 @@ function previewFormEfb(state) {
     }
   }
   step_el_efb = Number(valj_efb[0].steps);
+  // AdnOF may be {active:true}; AfLnFrm is saved as a boolean. Both branches
+  // only apply in 'run' (the persiaPay one ran in previews too).
+  const efb_offline_on = addons_emsFormBuilder.AdnOF==1 || (addons_emsFormBuilder.AdnOF && (addons_emsFormBuilder.AdnOF.active===true || addons_emsFormBuilder.AdnOF.active==1));
   if ( state == 'run' &&
-  ( (addons_emsFormBuilder.AdnOF==1 && typeof valj_efb[0].AfLnFrm =='string' &&  valj_efb[0].AfLnFrm==1) ) || (valj_efb[0].getway=="persiaPay" && typeof get_authority_efb =="string") ) { fun_offline_Efb()
+  ( (efb_offline_on && Number(valj_efb[0].AfLnFrm)===1) || (valj_efb[0].getway=="persiaPay" && typeof get_authority_efb =="string") ) ) { fun_offline_Efb()
   }
   if (ttype=='ardate'){
     if(typeof  load_hijir_data_picker_efb=="function"){

@@ -1360,6 +1360,9 @@ class efbFunction {
 
     protected static $req_cache = [];
 
+    /** Why the last sms_ready_for_send_efb() call sent nothing (gateway text), for the trace. */
+    public $last_sms_error_efb = '';
+
     protected static $cached_settings = null;
     protected static $cached_lang = null;
 
@@ -1865,6 +1868,9 @@ class efbFunction {
 			"button2Value" => $state && isset($ac->text->button2Value) ? $ac->text->button2Value : esc_html__('Button 2 value','easy-form-builder'),
 			"previous" => $state && isset($ac->text->previous) ? $ac->text->previous : esc_html__('Previous','easy-form-builder'),
 			"next" => $state && isset($ac->text->next) ? $ac->text->next : esc_html__('Next','easy-form-builder'),
+			"selectMonth" => $state && isset($ac->text->selectMonth) ? $ac->text->selectMonth : esc_html__('Select Month','easy-form-builder'),
+			"selectYear" => $state && isset($ac->text->selectYear) ? $ac->text->selectYear : esc_html__('Select Year','easy-form-builder'),
+			"selectDecade" => $state && isset($ac->text->selectDecade) ? $ac->text->selectDecade : esc_html__('Select Decade','easy-form-builder'),
 			"noCodeAddedYet" => $state && isset($ac->text->noCodeAddedYet) ? $ac->text->noCodeAddedYet : esc_html__('The code has not yet been added. Click on','easy-form-builder'),
 			"andAddingHtmlCode" => $state && isset($ac->text->andAddingHtmlCode) ? $ac->text->andAddingHtmlCode : esc_html__('and adding HTML code.','easy-form-builder'),
 
@@ -4643,7 +4649,7 @@ class efbFunction {
 	public function get_addon_required_files_efb(){
 		return array(
 			'AdnSPF' => array( 'vendor/stripe/class-Emsfb-stripe-payment.php' ),
-			'AdnOF'  => array( 'vendor/offline/json/countries.js' ),
+			'AdnOF'  => array( 'vendor/offline/json/countries.js', 'vendor/offline/json/states/ir.json', 'vendor/offline/json/states/zw.json', 'vendor/offline/json/cites/ir/teh.json', 'vendor/offline/json/cites/zw/mbn.json' ),
 			'AdnPPF' => array( 'vendor/persiapay/zarinpal.php' ),
 			'AdnSS'  => array( 'vendor/smssended/smsefb.php' ),
 			'AdnPDP' => array( 'vendor/persiadatepicker/persiandate.php' ),
@@ -7239,6 +7245,7 @@ public function addon_add_efb($value) {
 		}
 		require_once($path);
 		$smssendefb = new \Emsfb\smssendefb();
+		$this->last_sms_error_efb = '';
 		$sms_content = $smssendefb->get_sms_contact_efb($form_id);
 
 		if(empty($sms_content->id)) return false;
@@ -7248,8 +7255,8 @@ public function addon_add_efb($value) {
 
 		if(!empty($sms_content->admin_numbers)){
 			$admin_numbers = explode(',',$sms_content->admin_numbers);
-			$numbers[0] = array_unique(array_merge($numbers[0],$admin_numbers));
-			$numbers[1] = array_unique($numbers[1]);
+			$numbers[0] = array_values(array_unique(array_filter(array_map('trim', array_merge((array) $numbers[0],$admin_numbers)), 'strlen')));
+			$numbers[1] = array_values(array_unique(array_filter(array_map('trim', (array) $numbers[1]), 'strlen')));
 		}
 
 		$rp = [
@@ -7278,31 +7285,41 @@ public function addon_add_efb($value) {
 		if($state=="fform"){
 			if(!empty($numbers[1]) && $recived_your_message){
 				$resukt_send_message = $smssendefb->send_sms_efb($numbers[1],$recived_your_message,$form_id,$severType);
-				if($resukt_send_message != false) $sent_any = true;
+				if($resukt_send_message != false) { $sent_any = true; } else { $this->remember_sms_error_efb($smssendefb); }
 			}
 			if(!empty($numbers[0]) && $new_message){
 				$new_message = str_replace($page_url."?track=".$tracking_code,$page_url."?track=".$tracking_code.'&user=admin',$new_message);
 				$resukt_send_message = $smssendefb->send_sms_efb($numbers[0],$new_message,$form_id,$severType);
-				if($resukt_send_message != false) $sent_any = true;
+				if($resukt_send_message != false) { $sent_any = true; } else { $this->remember_sms_error_efb($smssendefb); }
 			}
 			return $sent_any;
 		}else if($state=="resppa"){
 			if(!empty($numbers[1]) && $recived_your_message){
 				$resukt_send_message =  $smssendefb->send_sms_efb($numbers[1],$recived_your_message,$form_id,$severType);
-				if($resukt_send_message != false) $sent_any = true;
+				if($resukt_send_message != false) { $sent_any = true; } else { $this->remember_sms_error_efb($smssendefb); }
 			}
 			if(!empty($numbers[0]) && $news_response){
 				$news_response = str_replace($page_url."?track=".$tracking_code, $page_url."?track=".$tracking_code.'&user=admin',$news_response);
 				$resukt_send_message =  $smssendefb->send_sms_efb($numbers[0],$news_response,$form_id,$severType);
-				if($resukt_send_message != false) $sent_any = true;
+				if($resukt_send_message != false) { $sent_any = true; } else { $this->remember_sms_error_efb($smssendefb); }
 			}
 			return $sent_any;
 		}else if ($state=="respp" || $state=="respadmin"){
 			if(!empty($numbers[1]) && $news_response){
 				$resukt_send_message = $smssendefb->send_sms_efb($numbers[1],$news_response,$form_id,$severType);
-				if($resukt_send_message != false) $sent_any = true;
+				if($resukt_send_message != false) { $sent_any = true; } else { $this->remember_sms_error_efb($smssendefb); }
 			}
 			return $sent_any;
+		}
+	}
+
+	/** Keep the SMS add-on's reason for a failed send (older add-on builds have none). */
+	private function remember_sms_error_efb($smssendefb) {
+		$code = property_exists($smssendefb, 'last_error_efb') ? (string) $smssendefb->last_error_efb : '';
+		$text = property_exists($smssendefb, 'last_error_message_efb') && is_scalar($smssendefb->last_error_message_efb) ? (string) $smssendefb->last_error_message_efb : '';
+		$reason = trim($code . ($text !== '' ? ': ' . wp_strip_all_tags($text) : ''));
+		if ($reason !== '') {
+			$this->last_sms_error_efb = function_exists('mb_substr') ? mb_substr($reason, 0, 300) : substr($reason, 0, 300);
 		}
 	}
 

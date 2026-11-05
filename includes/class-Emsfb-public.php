@@ -1198,6 +1198,8 @@ public function check_nonce_permission_efb($request) {
 			 * English on every translated site. These two are the step counter
 			 * and the completion caption on the progress indicator. */
 			'stepXofY','percentComplete',
+			/* Conditional Logic messages (block_submit / end_form) and the date pickers. */
+			'submitBlocked','formEnded','enterValidDate','selectMonth','selectYear','selectDecade',
 			/* Submit failures: the cause in plain words (core-efb.js efb_visitor_text_efb). */
 			'requestBlocked','formsClosed','formTooLarge','formNotSentCode','formExpiredSendAgain','loginChangedSendAgain','noAnswerCheckFirst','requestFailedCode','noAnswerRetry','tooManyRequests','paymentNotCompleted','paymentNotStartedNoCharge'];
 
@@ -2377,6 +2379,21 @@ public function check_nonce_permission_efb($request) {
 			if (isset($request_data[$field]) && !is_scalar($request_data[$field])) wp_send_json_error(array('code'=>'efb_invalid_payload','m'=>__('Invalid form request.', 'easy-form-builder')),400);
 		}
 		$request_data += array('sid'=>'','id'=>0,'page_id'=>0,'url'=>'','type'=>'','name'=>'');
+		// The page's query string, for Conditional Logic "URL parameter" rules:
+		// the Referer loses it under a strict Referrer-Policy.
+		$this->efb_request_query_efb = null;
+		if (isset($request_data['query']) && is_scalar($request_data['query'])) {
+			$request_query_efb = array();
+			parse_str(substr((string) $request_data['query'], 0, 2000), $request_query_efb);
+			$this->efb_request_query_efb = is_array($request_query_efb) ? $request_query_efb : array();
+			$query_for_logic_efb = $this->efb_request_query_efb;
+			add_filter('efb_logic_environment', function ($env) use ($query_for_logic_efb) {
+				if (is_array($env)) {
+					$env['query'] = $query_for_logic_efb;
+				}
+				return $env;
+			});
+		}
 		$this->operation_key = '';
 		$this->operation_data = is_array($request_data) ? $request_data : array();
 
@@ -2384,7 +2401,7 @@ public function check_nonce_permission_efb($request) {
 			'somethingWentWrongPleaseRefresh', 'pleaseMakeSureAllFields', 'PleaseFillForm', 'bkXpM_', 'bkFlM_', 'mnvvXXX_', 'ptrnMmm_', 'ptrnMmx_', 'payment', 'error403', 'errorSiteKeyM',
 			'errorCaptcha', 'pleaseEnterVaildValue', 'createAcountDoneM', 'uraatn', 'incorrectUP', 'sentBy', 'newPassM', 'done', 'surveyComplatedM', 'error405', 'errorSettingNFound', 'errorMRobot',
 			'clcdetls', 'vmgs', 'youRecivedNewMessage', 'WeRecivedUrM', 'thankRegistering', 'welcome', 'thankSubscribing', 'thankDonePoll', 'thankFillForm', 'trackNo', 'fernvtf', 'msgdml', 'newMessageReceived','sxnlex','snotfound','response','fform','msgSndBut','smsWPN',
-			'surveyResults', 'responses'
+			'surveyResults', 'responses', 'submitBlocked', 'enterValidDate'
 		];
 		$efbFunction = get_efbFunction();
 
@@ -2639,7 +2656,7 @@ public function check_nonce_permission_efb($request) {
 					if ( $_block_msg === '' ) {
 						$_block_msg = isset( $this->lanText['submitBlocked'] )
 							? $this->lanText['submitBlocked']
-							: 'Submission is not allowed for the current answers.';
+							: __( 'Submission is not allowed for the current answers.', 'easy-form-builder' );
 					}
 					wp_send_json_success( [ 'success' => false, 'm' => esc_html( $_block_msg ) ], 200 );
 				}
@@ -3324,6 +3341,28 @@ public function check_nonce_permission_efb($request) {
 											$is_valid = 0;
 										}
 									}
+									$still_processing = false;
+									break;
+								case 'pdate':
+								case 'ardate':
+									// A typed Jalali/Hijri date was stored as any text (free
+									// text, mixed digits), and reached email, SMS and Sheets.
+									$is_valid = 0;
+									if (isset($item['value']) && is_scalar($item['value'])) {
+										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
+										$raw_date = trim(sanitize_text_field((string) $item['value']));
+										if ($raw_date === '') {
+											$item['value'] = '';
+											$is_valid = 1;
+										} else {
+											$date_value = self::normalize_typed_date_efb($raw_date, $f['type'] === 'pdate' ? 'jalali' : 'hijri');
+											if ($date_value !== null) {
+												$item['value'] = $date_value;
+												$is_valid = 1;
+											}
+										}
+									}
+									$validated_item = $item;
 									$still_processing = false;
 									break;
 								default:
@@ -5905,6 +5944,9 @@ public function check_nonce_permission_efb($request) {
 	 * the last step, so source:'current_step' conditions compare against it. */
 	private $efb_conditional_max_step = 1;
 
+	/** URL parameters the browser sent with this submission (null: none sent, use the Referer). */
+	private $efb_request_query_efb = null;
+
 	/* The form and the rows the current rule pass is reading, kept so the
 	 * add-on's validator can be handed the option index and the payment rows it
 	 * needs. Set by efb_conditional_values_map(), which every rule scope calls
@@ -6025,7 +6067,9 @@ public function check_nonce_permission_efb($request) {
 	private function efb_conditional_environment() {
 		$env = ['query' => [], 'user' => ['logged_in' => false, 'roles' => []]];
 		$referer = function_exists('wp_get_referer') ? wp_get_referer() : '';
-		if (is_string($referer) && $referer !== '') {
+		if (is_array($this->efb_request_query_efb)) {
+			$env['query'] = $this->efb_request_query_efb;
+		} elseif (is_string($referer) && $referer !== '') {
 			$query_string = (string) parse_url($referer, PHP_URL_QUERY);
 			if ($query_string !== '') parse_str($query_string, $env['query']);
 		}
@@ -9604,6 +9648,40 @@ public function check_nonce_permission_efb($request) {
 		return is_string($clean) ? trim($clean) : trim($value);
 	}
 
+	/**
+	 * A Jalali or Hijri date as YYYY-MM-DD with ASCII digits, or null when the
+	 * text is not a date. Persian/Arabic digits, "/" or "." and unpadded parts
+	 * are accepted (older entries and admin defaults use them). Mirrors
+	 * efb_typed_date_efb() in core-efb.js.
+	 *
+	 * @param string $value Raw value.
+	 * @param string $kind  'jalali' or 'hijri'.
+	 * @return string|null
+	 */
+	public static function normalize_typed_date_efb($value, $kind) {
+		$value = self::normalize_phone_input_efb((string) $value);
+		$value = preg_replace('/\s+/u', '', (string) $value);
+		$value = str_replace(array('/', '.'), '-', (string) $value);
+		if (!preg_match('/^(\d{4})-(\d{1,2})-(\d{1,2})$/', $value, $m)) {
+			return null;
+		}
+		$month = (int) $m[2];
+		$day   = (int) $m[3];
+		if ($month < 1 || $month > 12 || $day < 1) {
+			return null;
+		}
+		$max = 31;
+		if ('jalali' === $kind) {
+			$max = $month <= 6 ? 31 : 30;
+		} elseif ('hijri' === $kind) {
+			$max = 30;
+		}
+		if ($day > $max) {
+			return null;
+		}
+		return sprintf('%04d-%02d-%02d', (int) $m[1], $month, $day);
+	}
+
 	public static function normalize_email_input_efb($value) {
 		if (!is_string($value) || '' === $value) {
 			return $value;
@@ -10571,7 +10649,14 @@ public function check_nonce_permission_efb($request) {
 		try {
 			$result = $callback();
 			if ($result === false || is_wp_error($result)) {
-				$this->efb_trace('notification.failed', ['channel' => $channel, 'form_id' => intval($this->id), 'reason' => 'Optional channel reported failure']);
+				$reason = 'Optional channel reported failure';
+				if ($channel === 'sms' && isset($this->efbFunction) && is_object($this->efbFunction) && !empty($this->efbFunction->last_sms_error_efb)) {
+					// The gateway's own words (no credit, invalid number, ...).
+					$reason = 'SMS gateway: ' . $this->efbFunction->last_sms_error_efb;
+				} elseif (is_wp_error($result)) {
+					$reason = $result->get_error_message();
+				}
+				$this->efb_trace('notification.failed', ['channel' => $channel, 'form_id' => intval($this->id), 'reason' => $reason]);
 				return false;
 			}
 			return $result;
