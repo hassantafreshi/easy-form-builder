@@ -266,7 +266,10 @@
 .efb-sp--compact.efb-sp--circles #steps-efb.efb-sp__steps .efb.efb-sp__item::before,
 .efb-sp--compact.efb-sp--circles #steps-efb.efb-sp__steps .efb-sp__item.is-done::before {
    content: attr(data-num);
-   font-family: inherit;
+   /* !important: the bi-* icon rule is !important too, and the icon font has
+      no digits, so the number fell back to the browser's default font. */
+   font-family: inherit !important;
+   font-weight: 700 !important;
    font-size: 13px;
 }
 .efb-sp--compact.efb-sp--circles #steps-efb.efb-sp__steps .efb.efb-sp__item { padding: 0 2px; }

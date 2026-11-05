@@ -112,6 +112,9 @@
   padding-left: 30px;
   padding-right: 28px;
   height: 34px;
+  /* The country search box has no efb class: take the page's font. */
+  font-family: inherit;
+  font-size: inherit;
 }
 [dir=rtl] .iti__search-input {
   padding-left: inherit;

@@ -142,23 +142,42 @@ async function confirm_stripe_payment_efb(paymentIntentId, trackid, formId) {
             base: {
               iconColor: '#6c757d',
               color: '#6c757d',
-              fontFamily: 'sans-serif',
               fontSize: '30px',
               '::placeholder': { color: '#757593' }
             },
-            complete: { color: 'green' }
-          }
-          const btntripeStyleEfb = {
-            fontFamily: 'sans-serif',
-            fontSize: '20px',
-            fontWeight: '400',
             complete: { color: 'green' }
           }
 
           const cardnoEfb = bdy.querySelector('#cardnoEfb')
           const cardexpEfb = bdy.querySelector('#cardexpEfb')
           const cardcvcEfb = bdy.querySelector('#cardcvcEfb')
-          const elements = stripe.elements()
+          // The card fields are Stripe iframes and cannot inherit the page's
+          // font (they were fixed to sans-serif): hand them the font the form
+          // uses - the theme's - and the web-font files it comes from.
+          const stripeFontsEfb = []
+          try {
+            const pageFontEfb = (getComputedStyle(cardnoEfb).fontFamily || '').trim()
+            if (pageFontEfb) elsStripeStyleEfb.base.fontFamily = pageFontEfb
+            document.querySelectorAll('link[rel~="stylesheet"][href^="https://fonts.googleapis.com/"]').forEach((l) => {
+              if (stripeFontsEfb.length < 5) stripeFontsEfb.push({ cssSrc: l.href })
+            })
+            const firstFamilyEfb = pageFontEfb.split(',')[0].trim().replace(/^["']|["']$/g, '').toLowerCase()
+            for (const sheet of Array.from(document.styleSheets)) {
+              let rules = null
+              try { rules = sheet.cssRules } catch (e) { rules = null }
+              if (!rules) continue
+              for (const rule of Array.from(rules)) {
+                if (stripeFontsEfb.length >= 8 || !(window.CSSFontFaceRule && rule instanceof CSSFontFaceRule)) continue
+                const fam = (rule.style.getPropertyValue('font-family') || '').trim().replace(/^["']|["']$/g, '')
+                const srcUrl = ((rule.style.getPropertyValue('src') || '').match(/url\(\s*["']?(https:[^"')\s]+)/i) || [])[1]
+                if (!firstFamilyEfb || fam.toLowerCase() !== firstFamilyEfb || !srcUrl) continue
+                const weightEfb = (rule.style.getPropertyValue('font-weight') || '400').split(' ')[0]
+                stripeFontsEfb.push({ family: fam, src: 'url(' + srcUrl + ')', weight: weightEfb, style: rule.style.getPropertyValue('font-style') || 'normal' })
+              }
+            }
+          } catch (e) {}
+          let elements
+          try { elements = stripeFontsEfb.length ? stripe.elements({ fonts: stripeFontsEfb }) : stripe.elements() } catch (e) { elements = stripe.elements() }
           const numElm = elements.create('cardNumber', { showIcon: true, iconStyle: 'solid', style: elsStripeStyleEfb })
           numElm.mount(cardnoEfb)
 
