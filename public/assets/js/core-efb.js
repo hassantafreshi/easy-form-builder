@@ -1268,7 +1268,10 @@ async function actionSendData_emsFormBuilder(form_id=0) {
           value: JSON.stringify(sendback),
           name: formNameEfb,
           payid: sessionStorage.getItem("payId"),
-          id: sessionStorage.getItem("id"),
+          /* sessionStorage "id" is only written when the Pay button is used, so a
+             Submit before paying sent id:null; the server could not match the form
+             session and answered "The form context expired". */
+          id: Number(form_id) || sessionStorage.getItem("id"),
           valid: recaptcha_emsFormBuilder_row,
           type:  vj.type,
           payment: 'persiaPay',

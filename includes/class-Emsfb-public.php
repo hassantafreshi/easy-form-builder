@@ -3747,8 +3747,12 @@ public function check_nonce_permission_efb($request) {
 							if ($payment_gateway == "paypal") {
 								// error_log('[EFB][PayPal][SUBMIT] Final payment submit received: payid=' . ($id ?: '(empty)') . ', form_id=' . (isset($request_data['id']) ? sanitize_text_field($request_data['id']) : '(empty)') . ', submitted_count=' . (is_array($submitted_values) ? count($submitted_values) : 0));
 							}
-							if (strlen($id) < 7 && $payment_gateway == "zarinPal") {
-								$response = array('success' => false, "m" => "خطای داده های پرداختی ، صفحه را رفرش کنید");
+							/* No payment reference: the visitor pressed Submit without paying
+							 * (the ZarinPal client sends payment "persiaPay", so the old
+							 * "zarinPal" test never ran and the visitor got "Error Code /
+							 * Payment Form"). Say what to do instead. */
+							if (strlen($id) < 7) {
+								$response = array('success' => false, 'm' => esc_html__('Your payment has not been completed. Please pay before sending the form.', 'easy-form-builder'));
 								wp_send_json_success($response, 200);
 							}
 							$sql = $this->db->prepare(
@@ -3775,7 +3779,13 @@ public function check_nonce_permission_efb($request) {
 									wp_send_json_success($response, 200);
 									die();
 								}
-								if ($stripe_state === 'unverified' && is_array($saved_payment_content)) {
+								$paypal_state = $this->paypal_order_payment_state_efb($saved_payment_content);
+								if ($paypal_state === 'unpaid') {
+									$response = array('success' => false, 'm' => esc_html__('Your payment has not been completed. Please pay before sending the form.', 'easy-form-builder'));
+									wp_send_json_success($response, 200);
+									die();
+								}
+								if (($stripe_state === 'unverified' || $paypal_state === 'unverified') && is_array($saved_payment_content)) {
 									// Stripe unreachable: kept, as when the confirmation fails after
 									// the charge, but marked pending; the background check settles it.
 									foreach ($saved_payment_content as $k => $row) {
@@ -3889,7 +3899,10 @@ public function check_nonce_permission_efb($request) {
 									// error_log('[EFB][PayPal][SUBMIT] update_message_db result=' . var_export($db_update_result, true) . ', track=' . $this->id . ', final_count=' . count($filtered));
 								}
 							} else {
-								$response = array('success' => false, 'm' => esc_html__('Error Code', 'easy-form-builder') . '</br>' . esc_html__('Payment Form', 'easy-form-builder'));
+								/* A reference with no open payment row: already used for an
+								 * entry, or never created. The visitor may have paid, so tell
+								 * them not to pay twice and to keep their payment code. */
+								$response = array('success' => false, 'm' => esc_html__('We could not find an open payment for this form. If you have already paid, please do not pay again: contact the site owner with your payment receipt.', 'easy-form-builder'));
 								wp_send_json_success($response, 200);
 							}
 							$m = "Error 500";
@@ -7086,6 +7099,115 @@ public function check_nonce_permission_efb($request) {
 	 *     @type string $stripe_status PaymentIntent status, '' when Stripe was not reached.
 	 * }
 	 */
+	/**
+	 * Final submit of an order whose saved card/add row is a PayPal one-time
+	 * order: 'paid', 'unverified' (PayPal could not be asked) or 'unpaid';
+	 * 'none' when the order has no PayPal row. card/add saves the order as
+	 * "active" before the buyer has approved anything, so that row alone let a
+	 * visitor who closed the PayPal window without paying press Submit and file
+	 * an order that looked paid (with a confirmation code and the owner email).
+	 * Decided by the payments table and by PayPal, never by the browser.
+	 * Subscriptions keep their own activation flow and are not changed here.
+	 */
+	private function paypal_order_payment_state_efb( $saved_rows ) {
+		$pay = null;
+		foreach ( (array) $saved_rows as $row ) {
+			if ( is_array( $row ) && ( $row['type'] ?? '' ) === 'payment' && ( $row['paymentGateway'] ?? '' ) === 'paypal' ) {
+				$pay = $row;
+				break;
+			}
+		}
+		if ( null === $pay ) {
+			return 'none';
+		}
+		if ( ( $pay['paymentmethod'] ?? '' ) === 'subscription' ) {
+			return 'paid';
+		}
+		$order = (string) ( $pay['paymentIntent'] ?? '' );
+		if ( ! preg_match( '/^[A-Z0-9]{5,64}$/D', $order ) ) {
+			return 'unpaid';
+		}
+		global $wpdb;
+		$pay_row = null;
+		if ( $this->stripe_pay_table_exists_efb() ) {
+			$pay_row = $wpdb->get_row( $wpdb->prepare( "SELECT id, status FROM {$wpdb->prefix}emsfb_pay_ WHERE gateway = 'paypal' AND transaction_id = %s ORDER BY id DESC LIMIT 1", $order ) );
+			if ( $pay_row && 'completed' === $pay_row->status ) {
+				return 'paid';
+			}
+			if ( $pay_row && in_array( $pay_row->status, array( 'failed', 'cancelled', 'refunded' ), true ) ) {
+				return 'unpaid';
+			}
+		}
+		$status = $this->paypal_order_status_efb( $order );
+		if ( 'COMPLETED' === $status ) {
+			if ( $pay_row ) {
+				// Older PayPal add-ons never marked a captured order completed.
+				$wpdb->update( $wpdb->prefix . 'emsfb_pay_', array( 'status' => 'completed', 'updated_at' => wp_date( 'Y-m-d H:i:s' ) ), array( 'id' => (int) $pay_row->id ) );
+			}
+			return 'paid';
+		}
+		return '' === $status ? 'unverified' : 'unpaid';
+	}
+
+	/**
+	 * PayPal's status of a one-time order ('COMPLETED', 'APPROVED', 'CREATED',
+	 * 'NOT_FOUND' ...), or '' when PayPal cannot be asked (no keys, network,
+	 * PayPal error) or a capture is still pending. Same host choice as the
+	 * PayPal add-on: Development Mode uses the PayPal sandbox.
+	 */
+	private function paypal_order_status_efb( $order_id ) {
+		$setting = get_setting_Emsfb( 'decoded' );
+		$client  = $this->resolve_payment_key_efb( $setting, 'paypalPKey' );
+		$secret  = $this->resolve_payment_key_efb( $setting, 'paypalSKey' );
+		if ( 'null' === $client || 'null' === $secret ) {
+			return '';
+		}
+		$server = ( defined( 'EMSFB_DEV_MODE' ) && EMSFB_DEV_MODE ) ? 'https://api-m.sandbox.paypal.com/' : 'https://api-m.paypal.com/';
+		$token  = wp_remote_post( $server . 'v1/oauth2/token', array(
+			'timeout' => 15,
+			'headers' => array(
+				'Authorization' => 'Basic ' . base64_encode( $client . ':' . $secret ),
+				'Accept'        => 'application/json',
+				'Content-Type'  => 'application/x-www-form-urlencoded',
+			),
+			'body'    => 'grant_type=client_credentials',
+		) );
+		if ( is_wp_error( $token ) || 200 !== (int) wp_remote_retrieve_response_code( $token ) ) {
+			return '';
+		}
+		$token  = json_decode( wp_remote_retrieve_body( $token ), true );
+		$access = is_array( $token ) && ! empty( $token['access_token'] ) ? (string) $token['access_token'] : '';
+		if ( '' === $access ) {
+			return '';
+		}
+		$order = wp_remote_get( $server . 'v2/checkout/orders/' . rawurlencode( $order_id ), array(
+			'timeout' => 15,
+			'headers' => array( 'Authorization' => 'Bearer ' . $access, 'Accept' => 'application/json' ),
+		) );
+		if ( is_wp_error( $order ) ) {
+			return '';
+		}
+		$code = (int) wp_remote_retrieve_response_code( $order );
+		if ( 404 === $code ) {
+			return 'NOT_FOUND';
+		}
+		if ( 200 !== $code ) {
+			return '';
+		}
+		$order  = json_decode( wp_remote_retrieve_body( $order ), true );
+		$status = is_array( $order ) && isset( $order['status'] ) ? strtoupper( (string) $order['status'] ) : '';
+		if ( 'COMPLETED' === $status ) {
+			$capture = strtoupper( (string) ( $order['purchase_units'][0]['payments']['captures'][0]['status'] ?? 'COMPLETED' ) );
+			if ( 'PENDING' === $capture ) {
+				return '';
+			}
+			if ( 'COMPLETED' !== $capture ) {
+				return 'CAPTURE_' . $capture;
+			}
+		}
+		return $status;
+	}
+
 	/**
 	 * Final submit of an order whose saved card/add row is a Stripe one-time
 	 * charge: 'paid', 'unverified' (Stripe could not be reached) or 'unpaid';
