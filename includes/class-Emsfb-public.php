@@ -2165,7 +2165,10 @@ public function check_nonce_permission_efb($request) {
 		wp_enqueue_style('Emsfb-style-css');
 
 		if(is_rtl()){
-			wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl-efb.css', true ,EMSFB_PLUGIN_VERSION);
+			/* Direction only: the form takes the theme's font. The file used to
+			 * force Roboto (with !important) on every RTL front end. Versioned by
+			 * file time so a cached copy with that rule is not kept. */
+			wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl-efb.css', true ,EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/css/admin-rtl-efb.css'));
 			wp_enqueue_style('Emsfb-css-rtl');
 		}
 		$googleCaptcha=false;
@@ -3358,6 +3361,12 @@ public function check_nonce_permission_efb($request) {
 											$date_value = self::normalize_typed_date_efb($raw_date, $f['type'] === 'pdate' ? 'jalali' : 'hijri');
 											if ($date_value !== null) {
 												$item['value'] = $date_value;
+												$is_valid = 1;
+											} elseif (empty($f['required']) || (string) $f['required'] === '0') {
+												// An optional date nobody can read (an old cached page, a
+												// value filled in by another script) is dropped instead of
+												// refusing the whole submission over it.
+												$item['value'] = '';
 												$is_valid = 1;
 											}
 										}

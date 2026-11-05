@@ -626,9 +626,10 @@ async function createStepsOfPublic() {
               // than store text the visitor never sees, or flag it before any input.
               el.value = '';
             }
+            let init_change_efb = null;
             if(el.value && el.value.length>0){
               if(el.type!="range" && el.type!="color"){
-                handle_change_event_efb_v4(el,form_id);
+                init_change_efb = handle_change_event_efb_v4(el,form_id);
               }else{
                 let indx = valj_efb.findIndex(x => x.id_ === id);
                if( indx==-1 ){
@@ -650,15 +651,21 @@ async function createStepsOfPublic() {
               });
               // The picker may rewrite or clear the default it was given before
               // dp.change was bound: keep the stored row equal to the field.
-              const hijri_row = get_row_sendback_by_id_efb_v4(id, form_id);
-              if (hijri_row != -1 && sendBack_emsFormBuilder_pub[hijri_row].value !== el.value) {
-                if (el.value === '') {
-                  sendBack_emsFormBuilder_pub.splice(hijri_row, 1);
-                  updateStepButtonState_efb(form_id);
-                } else {
-                  handle_change_event_efb_v4(el, form_id);
+              // After the default's own change handler has stored it: that one
+              // is async, so a check made right away found no row yet.
+              const hijri_id_efb = id, hijri_el_efb = el, hijri_form_efb = form_id;
+              Promise.resolve(init_change_efb).catch(() => {}).then(() => {
+                const hijri_row = get_row_sendback_by_id_efb_v4(hijri_id_efb, hijri_form_efb);
+                if (hijri_row != -1 && sendBack_emsFormBuilder_pub[hijri_row].value !== hijri_el_efb.value) {
+                  if (hijri_el_efb.value === '') {
+                    sendBack_emsFormBuilder_pub.splice(hijri_row, 1);
+                    try { localStorage.setItem('sendback', efb_sendback_for_storage_efb(sendBack_emsFormBuilder_pub)); } catch (e) {}
+                    updateStepButtonState_efb(hijri_form_efb);
+                  } else {
+                    handle_change_event_efb_v4(hijri_el_efb, hijri_form_efb);
+                  }
                 }
-              }
+              });
             }else if (classes.contains("intlPhone") && classes.contains("d-none")==false) {
               const indx = valj_efb_.findIndex(x => x.id_ === id);
               valj_efb=valj_efb_;
@@ -1750,6 +1757,7 @@ function efb_offline_addon_active_efb() {
  * visitor can press Send once online. Only plain fields are filled, through
  * the normal change handler so every check and rule runs. Payment forms keep
  * their own return path. */
+const EFB_RESTORABLE_FIELD_TYPES = ['text', 'email', 'url', 'number', 'date', 'color', 'range', 'textarea', 'firstName', 'lastName', 'tel', 'radio', 'checkbox', 'select', 'pdate', 'ardate'];
 async function efb_restore_offline_answers_efb() {
   const rows = efb_stored_answers_at_load_efb;
   efb_stored_answers_at_load_efb = [];
@@ -1765,13 +1773,20 @@ async function efb_restore_offline_answers_efb() {
     if (!(head.AfLnFrm === true || Number(head.AfLnFrm) === 1) || head.type === 'payment') continue;
     for (const row of rows) {
       if (!row || typeof row !== 'object' || Number(row.form_id) !== fid || !row.id_ob) continue;
+      // Only fields whose visible state is the control itself. Yes/No, switch,
+      // image choices, ratings, phone (intl-tel-input) and the like draw their
+      // own UI: checking their hidden input put an answer in the entry that
+      // the visitor could not see.
+      if (EFB_RESTORABLE_FIELD_TYPES.indexOf(String(row.type || '')) === -1) continue;
       const el = document.getElementById(row.id_ob);
-      if (!el || el.disabled || el.readOnly) continue;
+      if (!el || el.disabled || el.readOnly || el.classList.contains('intlPhone')) continue;
       if (el.dataset && el.dataset.formid && Number(el.dataset.formid) !== fid) continue;
       const tag = el.tagName;
       const type = String(el.type || '').toLowerCase();
-      const value = row.value == null ? '' : String(row.value);
+      let value = row.value == null ? '' : String(row.value);
       if (tag === 'TEXTAREA' || (tag === 'INPUT' && ['text', 'email', 'tel', 'url', 'number', 'date', 'color', 'range'].indexOf(type) !== -1)) {
+        // Stored textarea answers carry line breaks as "@n#".
+        if (tag === 'TEXTAREA') value = typeof text_nr_efb === 'function' ? text_nr_efb(value, 0) : value.replace(/@n#/g, '\n');
         if (value === '' || el.value === value) continue;
         el.value = value;
       } else if (tag === 'INPUT' && (type === 'radio' || type === 'checkbox')) {

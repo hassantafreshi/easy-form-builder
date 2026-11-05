@@ -129,9 +129,12 @@ class Admin {
 
                     wp_register_style('Emsfb-admin', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-efb.css', true,EMSFB_PLUGIN_VERSION );
                     wp_enqueue_style('Emsfb-admin');
+                    // The plugin's own screens use Roboto, in every language. The
+                    // front end has no such rule: a form takes the theme's font.
+                    wp_add_inline_style('Emsfb-admin', ".efb {font-family: 'Roboto', sans-serif !important;}");
 
             if (is_rtl()) {
-                wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl-efb.css', true,EMSFB_PLUGIN_VERSION );
+                wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl-efb.css', true,EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/css/admin-rtl-efb.css') );
                 wp_enqueue_style('Emsfb-css-rtl');
             }
             wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style-efb.css',true,EMSFB_PLUGIN_VERSION);

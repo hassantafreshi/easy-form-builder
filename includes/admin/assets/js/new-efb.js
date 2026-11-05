@@ -768,6 +768,27 @@ async function fun_offline_Efb() {
 
         el=value.type;
         break;
+      case 'pdate':
+      case 'ardate': {
+        /* Auto-Populate and stored rows reach here without the field's own
+         * check: a date the server cannot read ("12/05/1370 08:00") refused the
+         * whole submission while the field looked empty. Show a readable date
+         * as YYYY-MM-DD; drop one that is not a date, so the field is empty
+         * for real and the usual required check applies. */
+        const date_el = document.getElementById(value.id_ob) || document.getElementById(value.id_ + '_');
+        const date_value = typeof efb_typed_date_efb === 'function'
+          ? efb_typed_date_efb(value.value, value.type === 'pdate' ? 'jalali' : 'hijri')
+          : (/^\d{4}-\d{2}-\d{2}$/.test(String(value.value)) ? String(value.value) : null);
+        if (date_value === null) {
+          sendBack_emsFormBuilder_pub.splice(sendBack_emsFormBuilder_pub.lastIndexOf(value), 1);
+          if (date_el) date_el.value = '';
+        } else {
+          value.value = date_value;
+          if (date_el) date_el.value = date_value;
+        }
+        el=value.type;
+        break;
+      }
       case 'checkbox':
       case 'radio':
       case 'payCheckbox':
