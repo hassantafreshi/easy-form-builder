@@ -6,7 +6,8 @@ defined('ABSPATH') || exit;
 /** Owns only EFB's page classification; never overwrites an administrator's rules. */
 class Cache_Compat {
     const META = '_emsfb_dynamic_page_v1';
-    const SCAN = 'emsfb_cache_scan_v1';
+    // v2: rescan once so pages built with the WPBakery / Visual Composer elements are found.
+    const SCAN = 'emsfb_cache_scan_v2';
     const LSCWP_REPAIR = 'emsfb_lscwp_exc_repaired_v1';
     private static $dynamic = false;
     private static $ids = array();
@@ -54,7 +55,8 @@ class Cache_Compat {
 
     public static function contains($content, $seen = array(), $depth = 0) {
         if (!is_string($content) || $depth > 12) return false;
-        foreach (array('EMS_Form_Builder', 'ems_form_builder', 'Easy_Form_Builder_confirmation_code_finder') as $tag) {
+        // efb_wpbakery_form / efb_vc_form: EFB's own WPBakery and Visual Composer elements.
+        foreach (array('EMS_Form_Builder', 'ems_form_builder', 'Easy_Form_Builder_confirmation_code_finder', 'efb_wpbakery_form', 'efb_vc_form') as $tag) {
             if (has_shortcode($content, $tag)) return true;
         }
         foreach (parse_blocks($content) as $block) {

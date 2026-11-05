@@ -8,7 +8,7 @@ msgstr ""
 "POT-Creation-Date: 2026-11-03 00:00+0000\n"
 "X-Generator: EFB tests/core-i18n/build.php\n"
 "X-Domain: easy-form-builder\n"
-"PO-Revision-Date: 2026-11-03 10:30+0000\n"
+"PO-Revision-Date: 2026-11-05 08:13+0000\n"
 "Last-Translator: WhiteStudio <hi@whitestudio.team>\n"
 "Language-Team: de_DE\n"
 "Language: de_DE\n"
@@ -13655,3 +13655,294 @@ msgstr "📍 Bestätigungscode-Suche (Tracking-Formular)"
 #: includes/page-builders/visual-composer/class-Emsfb-visual-composer.php:366
 msgid "📍 Confirmation Code Finder (Tracking)"
 msgstr "📍 Bestätigungscode-Finder (Nachverfolgung)"
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-public.php:3937
+msgid "We could not find an open payment for this form. If you have already paid, please do not pay again: contact the site owner with your payment receipt."
+msgstr "Für dieses Formular wurde keine offene Zahlung gefunden. Wenn du bereits bezahlt hast, bezahle bitte nicht erneut, sondern wende dich mit deinem Zahlungsbeleg an den Betreiber der Website."
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-public.php:3852
+msgid "This payment has already been used for another entry. If you think this is a mistake, contact the site owner with your payment receipt."
+msgstr "Diese Zahlung wurde bereits für einen anderen Eintrag verwendet. Wenn du glaubst, dass es sich um einen Fehler handelt, wende dich mit deinem Zahlungsbeleg an den Betreiber der Website."
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-public.php:236 includes/class-Emsfb-public.php:2427
+msgid "This form has expired. Please refresh the page and send it again."
+msgstr "Dieses Formular ist abgelaufen. Bitte lade die Seite neu und sende es erneut."
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-form-runtime.php:45
+#: includes/class-Emsfb-form-runtime.php:46
+msgid "You signed in or out in another tab. Please refresh the page and send the form again."
+msgstr "Du hast dich in einem anderen Tab an- oder abgemeldet. Bitte lade die Seite neu und sende das Formular erneut."
+
+#  origin: claude (de_DE)
+#: includes/functions.php:2443
+msgid "The website's security settings blocked this form. Please try again in a few minutes. If it happens again, contact the site owner."
+msgstr "Die Sicherheitseinstellungen der Website haben dieses Formular blockiert. Bitte versuche es in ein paar Minuten erneut. Wenn es wieder passiert, wende dich an den Betreiber der Website."
+
+#  origin: claude (de_DE)
+#: includes/functions.php:2444
+msgid "This website is not accepting forms from visitors right now. Please contact the site owner."
+msgstr "Diese Website nimmt derzeit keine Formulare von Besuchern an. Bitte wende dich an den Betreiber der Website."
+
+#  origin: claude (de_DE)
+#: includes/functions.php:2445
+msgid "The form is too large to send, usually because of an attached file or a signature. Use a smaller file and try again."
+msgstr "Das Formular ist zu groß zum Senden, meist wegen einer angehängten Datei oder einer Unterschrift. Verwende eine kleinere Datei und versuche es erneut."
+
+#  origin: claude (de_DE)
+#: includes/functions.php:2446
+#, php-format
+msgid "The form could not be sent (error %d). Your answers are kept. Please try again later."
+msgstr "Das Formular konnte nicht gesendet werden (Fehler %d). Deine Antworten bleiben erhalten. Bitte versuche es später erneut."
+
+#  origin: claude (de_DE)
+#: includes/functions.php:2447
+msgid "The form expired while this page was open. It has been renewed, so please send it again. Your answers are kept."
+msgstr "Das Formular ist abgelaufen, während diese Seite geöffnet war. Es wurde erneuert, bitte sende es noch einmal. Deine Antworten bleiben erhalten."
+
+#  origin: claude (de_DE)
+#: includes/functions.php:2448
+msgid "You signed in or out in another tab. Please send the form again."
+msgstr "Du hast dich in einem anderen Tab an- oder abgemeldet. Bitte sende das Formular erneut."
+
+#  origin: claude (de_DE)
+#: includes/functions.php:2449
+msgid "The connection was interrupted, so we could not confirm that your form arrived. If you did not receive a confirmation, please send it again."
+msgstr "Die Verbindung wurde unterbrochen, daher konnten wir nicht bestätigen, dass dein Formular angekommen ist. Wenn du keine Bestätigung erhalten hast, sende es bitte erneut."
+
+#  origin: claude (de_DE)
+#: includes/functions.php:2450
+#, php-format
+msgid "Your request could not be completed (error %d). Please try again later."
+msgstr "Deine Anfrage konnte nicht abgeschlossen werden (Fehler %d). Bitte versuche es später erneut."
+
+#  origin: claude (de_DE)
+#: includes/functions.php:2451
+msgid "No answer from the website. Please check your connection and try again."
+msgstr "Keine Antwort von der Website. Bitte prüfe deine Verbindung und versuche es erneut."
+
+#  origin: claude (de_DE)
+#: includes/functions.php:2454
+msgid "The payment could not be started and nothing was charged. Please try again."
+msgstr "Die Zahlung konnte nicht gestartet werden, es wurde nichts belastet. Bitte versuche es erneut."
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-formbuilder.php:3575
+msgid "Why did this fail?"
+msgstr "Warum ist das fehlgeschlagen?"
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-formbuilder.php:3576
+msgid "Only you can see this"
+msgstr "Nur du siehst das"
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-formbuilder.php:3577
+msgid "You see this panel because you are signed in as an administrator. Visitors only see the message in the form."
+msgstr "Du siehst dieses Fenster, weil du als Administrator angemeldet bist. Besucher sehen nur die Meldung im Formular."
+
+#  origin: claude (de_DE)
+#: includes/functions.php:3628 includes/class-Emsfb-formbuilder.php:3578
+msgid "Form submission"
+msgstr "Formularversand"
+
+#  origin: claude (de_DE)
+#: includes/functions.php:6762 includes/class-Emsfb-formbuilder.php:3579
+msgid "What to do"
+msgstr "Was zu tun ist"
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-formbuilder.php:3580
+msgid "What your visitor saw"
+msgstr "Was dein Besucher gesehen hat"
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-formbuilder.php:3581
+msgid "Technical details for support"
+msgstr "Technische Details für den Support"
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-formbuilder.php:3582
+msgid "Copy details"
+msgstr "Details kopieren"
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-formbuilder.php:3585
+msgid "The form had expired in the visitor's browser"
+msgstr "Das Formular war im Browser des Besuchers abgelaufen"
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-formbuilder.php:3586
+msgid "The page was open for a long time, so its security code expired. This is normal and is not caused by a cache plugin."
+msgstr "Die Seite war lange geöffnet, daher ist ihr Sicherheitscode abgelaufen. Das ist normal und wird nicht durch ein Cache-Plugin verursacht."
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-formbuilder.php:3587
+msgid "No action needed. The visitor was asked to refresh the page and send the form again."
+msgstr "Nichts zu tun. Der Besucher wurde gebeten, die Seite neu zu laden und das Formular erneut zu senden."
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-formbuilder.php:3588
+msgid "No action needed. The visitor was asked to send the form again."
+msgstr "Nichts zu tun. Der Besucher wurde gebeten, das Formular erneut zu senden."
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-formbuilder.php:3590
+msgid "This page was probably shown from an old cached copy"
+msgstr "Diese Seite wurde wahrscheinlich aus einer alten Kopie im Cache angezeigt"
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-formbuilder.php:3592
+#, php-format
+msgid "%s seems to have served a stored copy of this page whose security code had expired, so the form was refused."
+msgstr "%s hat offenbar eine gespeicherte Kopie dieser Seite ausgeliefert, deren Sicherheitscode abgelaufen war, daher wurde das Formular abgelehnt."
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-formbuilder.php:3594
+#, php-format
+msgid "In %s, clear the cache (Purge All) and reload this page. If it happens again, exclude this page from caching."
+msgstr "Leere in %s den Cache (Purge All) und lade diese Seite neu. Wenn es wieder passiert, schließe diese Seite vom Caching aus."
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-formbuilder.php:3595
+msgid "The visitor signed in or out in another tab"
+msgstr "Der Besucher hat sich in einem anderen Tab an- oder abgemeldet"
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-formbuilder.php:3596
+msgid "The form was opened under a different login, so it was refused for safety. This is normal and is not caused by a cache plugin."
+msgstr "Das Formular wurde unter einer anderen Anmeldung geöffnet und deshalb aus Sicherheitsgründen abgelehnt. Das ist normal und wird nicht durch ein Cache-Plugin verursacht."
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-formbuilder.php:3597
+msgid "Easy Form Builder refused this submission"
+msgstr "Easy Form Builder hat diese Übermittlung abgelehnt"
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-formbuilder.php:3598
+msgid "The reason is in the message your visitor saw, below."
+msgstr "Der Grund steht in der Meldung, die dein Besucher gesehen hat (unten)."
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-formbuilder.php:3599
+msgid "If real visitors get this message, check the setting it names, for example Human Shield or the form's own rules."
+msgstr "Wenn echte Besucher diese Meldung bekommen, prüfe die darin genannte Einstellung, zum Beispiel Human Shield oder die Regeln des Formulars."
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-formbuilder.php:3600
+msgid "The entry could not be saved"
+msgstr "Der Eintrag konnte nicht gespeichert werden"
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-formbuilder.php:3601
+msgid "Your server could not save the entry. Nothing was saved, and the visitor was told so."
+msgstr "Dein Server konnte den Eintrag nicht speichern. Es wurde nichts gespeichert, und der Besucher wurde darüber informiert."
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-formbuilder.php:3602
+msgid "Ask your hosting company to check the database (disk space or a damaged table), then send a test form."
+msgstr "Bitte deinen Hoster, die Datenbank zu prüfen (Speicherplatz oder eine beschädigte Tabelle), und sende dann ein Testformular."
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-formbuilder.php:3603
+msgid "Your website does not accept form requests from visitors"
+msgstr "Deine Website nimmt keine Formularanfragen von Besuchern an"
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-formbuilder.php:3605
+#, php-format
+msgid "Another plugin or a setting blocks the WordPress REST API for visitors (HTTP %d)."
+msgstr "Ein anderes Plugin oder eine Einstellung sperrt die WordPress-REST-API für Besucher (HTTP %d)."
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-formbuilder.php:3606
+msgid "Allow the address /wp-json/Emsfb/ in that plugin (for example Disable REST API), or ask your hosting company."
+msgstr "Erlaube die Adresse /wp-json/Emsfb/ in diesem Plugin (zum Beispiel Disable REST API) oder frage deinen Hoster."
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-formbuilder.php:3607
+msgid "Too many requests from one visitor"
+msgstr "Zu viele Anfragen von einem Besucher"
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-formbuilder.php:3608
+msgid "Human Shield or your server limited requests from this visitor's internet address (HTTP 429)."
+msgstr "Human Shield oder dein Server hat Anfragen von der Internetadresse dieses Besuchers begrenzt (HTTP 429)."
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-formbuilder.php:3609
+msgid "If real visitors are affected, raise the limit in the Human Shield settings."
+msgstr "Wenn echte Besucher betroffen sind, erhöhe das Limit in den Human-Shield-Einstellungen."
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-formbuilder.php:3610
+msgid "The form was larger than your server accepts"
+msgstr "Das Formular war größer, als dein Server annimmt"
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-formbuilder.php:3611
+msgid "Your web server refused the request because of its size (HTTP 413). This limit is set by your hosting company."
+msgstr "Dein Webserver hat die Anfrage wegen ihrer Größe abgelehnt (HTTP 413). Dieses Limit legt dein Hoster fest."
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-formbuilder.php:3612
+msgid "Ask your hosting company to raise the request size limit, or ask visitors to use smaller files."
+msgstr "Bitte deinen Hoster, das Größenlimit für Anfragen zu erhöhen, oder bitte Besucher, kleinere Dateien zu verwenden."
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-formbuilder.php:3613
+msgid "Your website blocked the form request"
+msgstr "Deine Website hat die Formularanfrage blockiert"
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-formbuilder.php:3615
+#, php-format
+msgid "A security plugin, a firewall or your hosting company refused the request before it reached Easy Form Builder (HTTP %d). It is not caused by a cache plugin."
+msgstr "Ein Sicherheits-Plugin, eine Firewall oder dein Hoster hat die Anfrage abgelehnt, bevor sie Easy Form Builder erreicht hat (HTTP %d). Ein Cache-Plugin ist nicht die Ursache."
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-formbuilder.php:3617
+#, php-format
+msgid "Open %1$s and look for a blocked request at %2$s."
+msgstr "Öffne %1$s und suche nach einer blockierten Anfrage um %2$s."
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-formbuilder.php:3619
+#, php-format
+msgid "Ask your hosting company to check the firewall log for a blocked request to /wp-json/Emsfb/ at %s."
+msgstr "Bitte deinen Hoster, im Firewall-Protokoll nach einer blockierten Anfrage an /wp-json/Emsfb/ um %s zu suchen."
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-formbuilder.php:3621
+#, php-format
+msgid "The form request was refused (HTTP %d)"
+msgstr "Die Formularanfrage wurde abgelehnt (HTTP %d)"
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-formbuilder.php:3622
+msgid "Something between the visitor and Easy Form Builder refused the request."
+msgstr "Etwas zwischen dem Besucher und Easy Form Builder hat die Anfrage abgelehnt."
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-formbuilder.php:3623
+msgid "Copy the technical details below and send them to Easy Form Builder support."
+msgstr "Kopiere die technischen Details unten und sende sie an den Easy Form Builder Support."
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-formbuilder.php:3624
+msgid "Your server did not answer in time"
+msgstr "Dein Server hat nicht rechtzeitig geantwortet"
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-formbuilder.php:3625
+msgid "The request took too long or the connection dropped. The entry may or may not have been saved."
+msgstr "Die Anfrage hat zu lange gedauert oder die Verbindung ist abgebrochen. Der Eintrag wurde möglicherweise gespeichert, möglicherweise nicht."
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-formbuilder.php:3627
+#, php-format
+msgid "Open Messages in Easy Form Builder and check for an entry at %s."
+msgstr "Öffne die Nachrichten in Easy Form Builder und prüfe, ob um %s ein Eintrag vorhanden ist."

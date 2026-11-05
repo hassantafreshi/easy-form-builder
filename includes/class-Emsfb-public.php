@@ -233,7 +233,7 @@ public function check_nonce_permission_efb($request) {
 		$previous = $request->get_param('runtime_token');
 		$proof = $previous ? \Emsfb\Form_Runtime::verify($previous,$fid) : false;
 		if (is_wp_error($proof)) return $proof;
-		if ($previous && !$proof) return new \WP_Error('efb_context_expired',__('The form context expired. Reopen the form before continuing.', 'easy-form-builder'),array('status'=>409));
+		if ($previous && !$proof) return new \WP_Error('efb_context_expired',__('This form has expired. Please refresh the page and send it again.', 'easy-form-builder'),array('status'=>409));
 		$this->efbFunction = get_efbFunction();
 		$sid = $proof ? $proof['sid'] : '';
 		if (!$sid || !$this->efbFunction->efb_code_validate_check($sid,$fid)) {
@@ -1197,7 +1197,9 @@ public function check_nonce_permission_efb($request) {
 			 * here is not missing text - it is text that quietly falls back to
 			 * English on every translated site. These two are the step counter
 			 * and the completion caption on the progress indicator. */
-			'stepXofY','percentComplete'];
+			'stepXofY','percentComplete',
+			/* Submit failures: the cause in plain words (core-efb.js efb_visitor_text_efb). */
+			'requestBlocked','formsClosed','formTooLarge','formNotSentCode','formExpiredSendAgain','loginChangedSendAgain','noAnswerCheckFirst','requestFailedCode','noAnswerRetry','tooManyRequests','paymentNotCompleted','paymentNotStartedNoCharge'];
 
 			/* Only now is a form or response box really printed. A form in a widget,
 			 * footer or popup keeps the page cacheable (EFBRuntime.prepare() fetches a
@@ -1843,7 +1845,11 @@ public function check_nonce_permission_efb($request) {
 			 * <head> would hold up the first paint of the whole page by that
 			 * much. It still sees every error the plugin's own scripts can
 			 * raise: those are enqueued into the footer, below it. */
-			$console_script_efb = '<script>'.$efbFormBuilder->check_error_console_efb().'</script>';
+			/* Administrators only. Printed for everyone, it gave every visitor a
+			 * red "Warning" pill and an "Error Monitor / ADMIN" modal after any
+			 * failed submit. Without the panel the core helpers that feed it
+			 * (efb_get_error_panel_efb() returns null) simply do nothing. */
+			$console_script_efb = (is_user_logged_in() && current_user_can('manage_options')) ? '<script>'.$efbFormBuilder->check_error_console_efb().'</script>' : '';
 
 			$stps_state = $step_no>1 ? 1 : 0;
 			$navButton = $efbFormBuilder->add_buttons_zone_efb($stps_state, $this->id, $valj_efb, $lanText, $this->id);
@@ -2418,7 +2424,7 @@ public function check_nonce_permission_efb($request) {
 						wp_send_json($replay->get_data(), $replay->get_status());
 					}
 				}
-				wp_send_json_error(array('code' => 'efb_context_expired', 'm' => __('The form context expired. Reopen the form before continuing.', 'easy-form-builder')), 409);
+				wp_send_json_error(array('code' => 'efb_context_expired', 'm' => __('This form has expired. Please refresh the page and send it again.', 'easy-form-builder')), 409);
 			}
 		} elseif ((int) $session_is_valid !== 1) {
 			$this->efb_trace('submit.legacy-session-invalid', [
@@ -3523,7 +3529,12 @@ public function check_nonce_permission_efb($request) {
 							'secret'   => $recaptcha_secret_key,
 							'response' => $response,
 						), 'https://www.google.com/recaptcha/api/siteverify' ) );
-						$captcha_verification_result = json_decode($verify['body']);
+						/* A timeout or a blocked request returns a WP_Error: reading
+						 * $verify['body'] on it was a PHP fatal (HTTP 500), and the visitor
+						 * was told the outcome was unknown although nothing was saved. Now
+						 * it is a failed captcha check with the usual captcha message. */
+						$captcha_decoded = is_wp_error($verify) ? null : json_decode(wp_remote_retrieve_body($verify));
+						$captcha_verification_result = is_object($captcha_decoded) ? $captcha_decoded : "null";
 					} else {
 						$this->efb_trace('submit.blocked', [
 							'form_id' => intval($this->id),
@@ -3821,6 +3832,27 @@ public function check_nonce_permission_efb($request) {
 										$response = array('success' => false, "m" => $msg);
 										wp_send_json_success($response, 200);
 										die();
+									}
+									/* ZarinPal answers 101 ("already verified") for an Authority that
+									 * was paid before, and the Authority is not tied to this bill. So
+									 * one real payment could mark any number of other pending bills of
+									 * the same amount as paid. A 101 is accepted only while no other
+									 * entry already holds this Authority (a retry of the same bill
+									 * keeps working). */
+									$zp_code = isset($result['data']['code']) ? (int) $result['data']['code'] : 0;
+									$zp_auth = sanitize_text_field($request_data['auth'] ?? '');
+									if ($zp_code === 101 && $zp_auth !== '') {
+										$zp_used = $this->db->get_var($this->db->prepare(
+											"SELECT track FROM `$table_name_` WHERE track <> %s AND read_ <> 2 AND (content LIKE %s OR content LIKE %s) LIMIT 1",
+											$id,
+											'%' . $this->db->esc_like('"paymentIntent":"' . $zp_auth . '"') . '%',
+											'%' . $this->db->esc_like('\\"paymentIntent\\":\\"' . $zp_auth . '\\"') . '%'
+										));
+										if ($zp_used) {
+											$response = array('success' => false, 'm' => esc_html__('This payment has already been used for another entry. If you think this is a mistake, contact the site owner with your payment receipt.', 'easy-form-builder'));
+											wp_send_json_success($response, 200);
+											die();
+										}
 									}
 									date_default_timezone_set('Iran');
 									$result = [
@@ -4131,10 +4163,18 @@ public function check_nonce_permission_efb($request) {
 										exit;
 									} else {
 
+										/* Wrong credentials keep the one generic message (it does not
+										 * reveal whether the username exists). Any other refusal - a
+										 * lockout from Limit Login Attempts, a 2FA or captcha step, a
+										 * pending verification - shows its own message: calling a
+										 * lockout "wrong password" made visitors retry and stay locked. */
+										$login_error_code = is_wp_error($user) ? (string) $user->get_error_code() : '';
+										$credential_codes = array('invalid_username', 'invalid_email', 'incorrect_password', 'empty_username', 'empty_password', 'authentication_failed');
+										$login_error_text = ($login_error_code === '' || in_array($login_error_code, $credential_codes, true)) ? '' : trim(wp_strip_all_tags($user->get_error_message()));
 										$send = [
 											'state' => false,
 											'pro' => $is_pro,
-											'error' => is_wp_error($user) && $user->get_error_code() === 'efb_pending_verification' ? $user->get_error_message() : $this->lanText['incorrectUP']
+											'error' => $login_error_text !== '' ? $login_error_text : $this->lanText['incorrectUP']
 										];
 										$response = ['success' => true, 'm' => $send];
 										wp_send_json_success($response, 200);
@@ -9396,21 +9436,17 @@ public function check_nonce_permission_efb($request) {
 			'respCustomFont' => $pub_settings['respCustomFont'] ?? '',
 		) );
 
-		$cache_plugins_public = get_option('emsfb_cache_plugins','0');
-		if ($cache_plugins_public !== '0' && !empty($cache_plugins_public)) {
-			$cache_plugins_public_list = json_decode($cache_plugins_public, true);
-			if (is_array($cache_plugins_public_list) && !empty($cache_plugins_public_list)) {
-				$ar_core['cache_plugins_public'] = wp_json_encode(array_map(function($p) {
-					return array('name' => $p['name'] ?? '');
-				}, $cache_plugins_public_list));
-			}
-		}
-
+		/* The plugin lists are for the administrator's diagnosis only; they used
+		 * to be sent to every visitor (cache_plugins_public). Only real page
+		 * caches are named: Jetpack, Autoptimize and the like never keep a copy
+		 * of a page, so blaming them was a false alarm. */
 		if (is_user_logged_in() && current_user_can('manage_options')) {
-			$cache_plugins = get_option('emsfb_cache_plugins','0');
-			if ($cache_plugins !== '0' && !empty($cache_plugins)) {
-				$ar_core['cache_plugins'] = $cache_plugins;
+			$page_caches = $this->page_cache_plugins_efb();
+			if (!empty($page_caches)) {
+				$ar_core['cache_plugins'] = wp_json_encode($page_caches);
 			}
+			// Whether this page told the cache plugins not to store it (Cache_Compat::bypass()).
+			$ar_core['cache_bypassed'] = class_exists('\\Emsfb\\Cache_Compat') && !\Emsfb\Cache_Compat::can_cache(true) ? 1 : 0;
 
 			$security_plugins = get_option('emsfb_security_plugins','0');
 			if ($security_plugins !== '0' && !empty($security_plugins)) {
@@ -9418,6 +9454,28 @@ public function check_nonce_permission_efb($request) {
 			}
 		}
 		wp_localize_script( 'Emsfb-core_js', 'ajax_object_efm',$ar_core);
+	}
+
+	/**
+	 * Active page-caching plugins from the stored list, without the ones that
+	 * never store a page (\Emsfb::NOT_PAGE_CACHE_SLUGS, a global class). Read-only: it does
+	 * not rebuild the list (that needs get_plugins()).
+	 *
+	 * @return array[] Each: name, version, slug.
+	 */
+	private function page_cache_plugins_efb() {
+		$raw = get_option('emsfb_cache_plugins', '0');
+		if (!is_string($raw) || $raw === '' || $raw === '0') return array();
+		$list = json_decode($raw, true);
+		if (!is_array($list)) return array();
+		$skip = defined('Emsfb::NOT_PAGE_CACHE_SLUGS') ? \Emsfb::NOT_PAGE_CACHE_SLUGS : array('jetpack', 'autoptimize', 'clear-cache-for-widgets', 'atec-cache-info');
+		$out = array();
+		foreach ($list as $p) {
+			if (!is_array($p) || empty($p['name'])) continue;
+			if (in_array((string) ($p['slug'] ?? ''), $skip, true)) continue;
+			$out[] = array('name' => (string) $p['name'], 'version' => (string) ($p['version'] ?? ''), 'slug' => (string) ($p['slug'] ?? ''));
+		}
+		return $out;
 	}
 
 	public function email_list_efb( &$email_user , $pointer , $email , $state_array){

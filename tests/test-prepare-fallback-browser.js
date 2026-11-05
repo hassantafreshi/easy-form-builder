@@ -38,7 +38,7 @@ const MODES = {
   s503: reply(503, { code: 'efb_session_storage_failed', message: 'The form session could not be saved.', data: { status: 503 } }),
   malformed: reply(200, { nonce: 'incomplete' }),
   login: reply(403, { code: 'efb_login_required', message: 'Please log in to use this form.', data: { status: 403 } }),
-  expired: reply(409, { code: 'efb_context_expired', message: 'The form context expired. Reopen the form before continuing.', data: { status: 409 } }),
+  expired: reply(409, { code: 'efb_context_expired', message: 'This form has expired. Please refresh the page and send it again.', data: { status: 409 } }),
 };
 
 let pass = 0, fail = 0;
@@ -107,7 +107,10 @@ async function submit(browser, mode, user) {
       check(r.status === 200 && r.success && r.pageNonce && r.pageSid && r.runtime === false && r.request_id === false && r.shown && r.prepares === 1 && !r.errors.length,
         `${who}: prepare ${mode} -> legacy request, saved, confirmation shown, one prepare call`, r);
     }
-    for (const [mode, message] of [['login', 'Please log in to use this form.'], ['expired', 'The form context expired']]) {
+    // An expired context now tells the visitor to send again ("The form expired while this page was
+    // open...", or the site's translation); the first words are checked so a translated site passes
+    // with EFB_EXPIRED_TEXT set to its translation.
+    for (const [mode, message] of [['login', 'Please log in to use this form.'], ['expired', process.env.EFB_EXPIRED_TEXT || 'The form expired']]) {
       r = await submit(browser, mode, user);
       check(r.submits === 0 && r.text.includes(message) && !r.errors.length, `${who}: prepare ${mode} still stops with its message`, r);
     }

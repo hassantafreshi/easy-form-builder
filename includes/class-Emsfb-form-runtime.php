@@ -42,8 +42,8 @@ class Form_Runtime {
         if (count($parts)!==2 || !hash_equals(hash_hmac('sha256',$parts[0],wp_salt('nonce')),$parts[1])) return false;
         $data = json_decode(base64_decode(strtr($parts[0], '-_', '+/'), true), true);
         if (!is_array($data) || !isset($data['uid'],$data['fid'],$data['sid'],$data['owner'],$data['exp']) || (int)$data['fid']!==(int)$fid || (int)$data['exp']<time()) return false;
-        if ((int)$data['uid']!==get_current_user_id()) return new \WP_Error('efb_identity_changed', __('Your login status changed. Reopen the form before continuing.', 'easy-form-builder'), array('status'=>409));
-        if ((int)$data['uid']>0 && (!is_string($data['auth'] ?? null) || !hash_equals($data['auth'],hash_hmac('sha256',wp_get_session_token(),wp_salt('auth'))))) return new \WP_Error('efb_identity_changed',__('Your login session changed. Reopen the form before continuing.', 'easy-form-builder'),array('status'=>409));
+        if ((int)$data['uid']!==get_current_user_id()) return new \WP_Error('efb_identity_changed', __('You signed in or out in another tab. Please refresh the page and send the form again.', 'easy-form-builder'), array('status'=>409));
+        if ((int)$data['uid']>0 && (!is_string($data['auth'] ?? null) || !hash_equals($data['auth'],hash_hmac('sha256',wp_get_session_token(),wp_salt('auth'))))) return new \WP_Error('efb_identity_changed',__('You signed in or out in another tab. Please refresh the page and send the form again.', 'easy-form-builder'),array('status'=>409));
         return $data;
     }
 

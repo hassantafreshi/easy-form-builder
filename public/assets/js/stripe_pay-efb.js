@@ -225,20 +225,27 @@ async function confirm_stripe_payment_efb(paymentIntentId, trackid, formId) {
             body: jsonData,
             };
 
+  /* Set just before the browser asks Stripe to charge the card. Until then
+     nothing can have been charged in "charge" mode (card/add only creates the
+     PaymentIntent), so a failure there must not say "may have been charged". */
+  let chargeAttempted = false;
   fetch(url, requestOptions)
-  .then(response => {
+  .then(async response => {
     efb_stripe_debug_efb('log', 'card/add response meta', {
       status: response.status,
       ok: response.ok
     });
     if (!response.ok) {
-      throw new Error(`Network response was not ok (HTTP ${response.status})`);
+      const error = typeof efb_request_error_efb === 'function' ? await efb_request_error_efb(response) : new Error(`HTTP ${response.status}`);
+      error.status = response.status;
+      throw error;
     }
     return response.json();
   })
   .then(res => {
     if (res && res.data && res.data.success === true) {
       if (valj_efb[0].paymentmethod === "charge") {
+        chargeAttempted = true;
         stripe.confirmCardPayment(res.data.client_secret, {
           payment_method: { card: numElm }
         }).then(async transStat => {
@@ -279,15 +286,29 @@ async function confirm_stripe_payment_efb(paymentIntentId, trackid, formId) {
         stsStripeEfb.textContent = window.efb_request_health && efb_request_health.payment_pending_message || efb_var.text.error;
         return;
       }
+      // The server refused before any charge: show its reason when it gave one.
+      const refusal = res && res.data && typeof res.data.m === 'string' && res.data.m ? res.data.m : '';
       stsStripeEfb.innerHTML = `<div class="text-danger"><strong>${efb_var.text.error}</strong></div>`;
+      if (refusal) { const reason = document.createElement('div'); reason.textContent = refusal; stsStripeEfb.appendChild(reason); }
       btnStripeEfb.classList.remove('disabled');
       paymentStarted = false;
       btnStripeEfb.innerHTML = efb_var.text.payNow;
     }
   })
   .catch(error => {
-    if (window.EFBRequestHealth) window.EFBRequestHealth.report('payment', 0);
+    if (window.EFBRequestHealth) window.EFBRequestHealth.report('payment', error && error.status ? error.status : 0);
     console.error('[EFB Stripe Debug] card/add request failed', error);
+    const status = error && error.status ? Number(error.status) : 0;
+    const beforeCharge = !chargeAttempted && (valj_efb[0].paymentmethod === 'charge' || (status >= 400 && status < 500));
+    if (beforeCharge) {
+      // Nothing was charged: say so and let the visitor try again.
+      const t = efb_var && efb_var.text ? efb_var.text : {};
+      stsStripeEfb.textContent = (error && error.efb_visitor_text && status >= 400 && status < 500) ? error.message : (t.paymentNotStartedNoCharge || 'The payment could not be started and nothing was charged. Please try again.');
+      btnStripeEfb.classList.remove('disabled');
+      paymentStarted = false;
+      btnStripeEfb.innerHTML = efb_var.text.payNow;
+      return;
+    }
     stsStripeEfb.textContent = window.efb_request_health && efb_request_health.payment_pending_message || efb_var.text.error;
     // A lost response can follow a subscription charge. Do not invite another payment.
   });

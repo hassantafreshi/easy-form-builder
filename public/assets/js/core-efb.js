@@ -494,85 +494,12 @@ function check_body_efb_timer (){
       efb_var = ajax_object_efm;
       efb_var.text = deepFreeze_efb_pub(efb_var.text);
 
-      if (ajax_object_efm.cache_plugins && ajax_object_efm.cache_plugins !== '0') {
-        try {
-          const _cacheList = typeof ajax_object_efm.cache_plugins === 'string'
-            ? JSON.parse(ajax_object_efm.cache_plugins)
-            : ajax_object_efm.cache_plugins;
+      /* The "Cache Plugin Detected" and "Security Plugin Detected" entries that
+         used to be logged here on every page view are gone: they alarmed site
+         owners about plugins that were working fine (EFB already keeps its form
+         pages out of page caches). A failed submit now explains its own cause
+         in the admin panel (efb_report_submit_ajax_error_efb). */
 
-          if (Array.isArray(_cacheList) && _cacheList.length > 0) {
-            const _t = ajax_object_efm.text;
-            const _docUrl = 'https://whitestudio.team/document/exclude-easy-form-builder-froms-cache/';
-
-            _cacheList.forEach(function(p) {
-              let _line = (_t.cacheWarnPlugin || 'Plugin') + ': ' + p.name;
-              if (p.version) {
-                _line += '  |  ' + (_t.cacheWarnVersion || 'Version') + ': ' + p.version;
-              }
-
-              const _msg = '\u26A0\uFE0F ' + (_t.cacheWarnTitle || 'Cache Plugin Detected') + '\n'
-                + (_t.cacheWarnMsg || 'The following cache plugins may interfere with form functionality. If you experience issues, please review the documentation.') + '\n\n'
-                + _line + '\n\n'
-                + (_t.cacheWarnDoc || 'Read more about cache compatibility') + ':\n' + _docUrl;
-
-              if (typeof EFB_ERROR_PANEL !== 'undefined' && typeof EFB_ERROR_PANEL.log === 'function') {
-                EFB_ERROR_PANEL.log(_msg, {
-                  source: 'cache-warning',
-                  type: 'notice',
-                  name: 'Easy Form Builder',
-                  captureStack: false,
-                  format: {
-                    links: [{ url: _docUrl }],
-                    boldTexts: [p.name]
-                  }
-                });
-              } else {
-              }
-            });
-          }
-        } catch (_e) {
-        }
-      }
-
-      if (ajax_object_efm.security_plugins && ajax_object_efm.security_plugins !== '0') {
-        try {
-          const _securityList = typeof ajax_object_efm.security_plugins === 'string'
-            ? JSON.parse(ajax_object_efm.security_plugins)
-            : ajax_object_efm.security_plugins;
-
-          if (Array.isArray(_securityList) && _securityList.length > 0) {
-            const _t = ajax_object_efm.text;
-            const _docUrl = 'https://whitestudio.team/document/security-plugin-compatibility/';
-
-            _securityList.forEach(function(p) {
-              let _line = (_t.securityWarnPlugin || _t.cacheWarnPlugin || 'Plugin') + ': ' + (p.name || '');
-              if (p.version) {
-                _line += '  |  ' + (_t.securityWarnVersion || _t.cacheWarnVersion || 'Version') + ': ' + p.version;
-              }
-
-              const _msg = '\u26A0\uFE0F ' + (_t.securityWarnTitle || 'Security Plugin Detected') + '\n'
-                + (_t.securityWarnMsg || 'The following security plugin may block form submissions with 403 errors. It may block the REST API, remove the X-WP-Nonce header, or apply firewall rules to form requests.') + '\n\n'
-                + _line + '\n\n'
-                + (_t.securityWarnDoc || 'Read more about security plugin compatibility') + ':\n' + _docUrl;
-
-              if (typeof EFB_ERROR_PANEL !== 'undefined' && typeof EFB_ERROR_PANEL.log === 'function') {
-                EFB_ERROR_PANEL.log(_msg, {
-                  source: 'security-warning',
-                  type: 'notice',
-                  name: 'Easy Form Builder',
-                  captureStack: false,
-                  format: {
-                    links: [{ url: _docUrl }],
-                    boldTexts: [p.name]
-                  }
-                });
-              } else {
-              }
-            });
-          }
-        } catch (_e) {
-        }
-      }
 
       if (ajax_object_efm.state != 'tracker') {
         const ajax_value = typeof (ajax_object_efm.ajax_value) == "string" ? efbParseJson(ajax_object_efm.ajax_value) : ajax_object_efm.ajax_value;
@@ -928,7 +855,7 @@ async function fun_sendBack_emsFormBuilder(ob) {
   /* Queueing the value is the required operation; persistence is only a
      convenience and may be unavailable in private/restricted browsers. */
   try {
-    localStorage.setItem('sendback', JSON.stringify(sendBack_emsFormBuilder_pub));
+    localStorage.setItem('sendback', efb_sendback_for_storage_efb(sendBack_emsFormBuilder_pub));
     localStorage.setItem('formId', efb_var.id)
   } catch (e) {}
 }
@@ -1179,7 +1106,7 @@ function efb_error_prev_button_efb(valj_efb, onclick) {
         for (const file of files_emsFormBuilder) {
           if (get_row_sendback_by_id_efb_v4(file.id_,form_id) == -1) {
              sendBack_emsFormBuilder_pub.push(file);
-             localStorage.setItem('sendback', JSON.stringify(sendBack_emsFormBuilder_pub)); }
+             localStorage.setItem('sendback', efb_sendback_for_storage_efb(sendBack_emsFormBuilder_pub)); }
         }
       }
       const state = await validation_before_send_efb(form_id);
@@ -1202,7 +1129,7 @@ function efb_error_prev_button_efb(valj_efb, onclick) {
         if (checkFile == 0) {
           for (const file of files_emsFormBuilder) {
             sendBack_emsFormBuilder_pub.push(file);
-            localStorage.setItem('sendback', JSON.stringify(sendBack_emsFormBuilder_pub));
+            localStorage.setItem('sendback', efb_sendback_for_storage_efb(sendBack_emsFormBuilder_pub));
           }
           const state = await validation_before_send_efb(form_id);
           if (state == true){
@@ -1229,7 +1156,7 @@ async function actionSendData_emsFormBuilder(form_id=0) {
   let recaptcha_emsFormBuilder_row =''
   if (ajax_object_efm.type == "userIsLogin") return 0;
   if (form_type_emsFormBuilder != 'login'){
-     localStorage.setItem('sendback', JSON.stringify(sendback));
+     localStorage.setItem('sendback', efb_sendback_for_storage_efb(sendback));
      if(form_type_emsFormBuilder =='recovery'){
       vj.type ='recovery';
      }
@@ -1706,15 +1633,38 @@ function remove_sendback_rows_by_field_id_efb(field_id, form_id) {
       changed = true;
     }
   }
-  if (changed) localStorage.setItem('sendback', JSON.stringify(sendBack_emsFormBuilder_pub));
+  if (changed) localStorage.setItem('sendback', efb_sendback_for_storage_efb(sendBack_emsFormBuilder_pub));
 }
 /* Remove every sendBack_emsFormBuilder_pub row that belongs to the submitted form,
    leaving rows for any other forms on the page untouched. */
 function clear_sendback_rows_by_form_id_efb(form_id) {
   const before = sendBack_emsFormBuilder_pub.length;
   sendBack_emsFormBuilder_pub = sendBack_emsFormBuilder_pub.filter(row => row && Number(row.form_id) !== Number(form_id));
-  if (sendBack_emsFormBuilder_pub.length !== before) localStorage.setItem('sendback', JSON.stringify(sendBack_emsFormBuilder_pub));
+  if (sendBack_emsFormBuilder_pub.length !== before) localStorage.setItem('sendback', efb_sendback_for_storage_efb(sendBack_emsFormBuilder_pub));
 }
+/* Password values never go to browser storage. The whole answer list was
+ * written to localStorage['sendback'] on every keystroke, password rows included,
+ * and it is cleared only after a successful submit - so a login or register
+ * password stayed readable on a shared computer after a failed submit or when
+ * the visitor simply left. The in-memory list still carries the value for the
+ * submit itself. */
+function efb_sendback_for_storage_efb(rows) {
+  if (!Array.isArray(rows)) return JSON.stringify(rows);
+  return JSON.stringify(rows.filter(r => !(r && typeof r === 'object' && String(r.type || '').toLowerCase() === 'password')));
+}
+function efb_scrub_stored_passwords_efb() {
+  try {
+    const raw = localStorage.getItem('sendback');
+    if (!raw || raw.indexOf('assword') === -1) return;
+    const rows = JSON.parse(raw);
+    if (Array.isArray(rows)) localStorage.setItem('sendback', efb_sendback_for_storage_efb(rows));
+  } catch (e) {}
+}
+try {
+  efb_scrub_stored_passwords_efb();
+  // Add-ons write the list too; whatever they stored is cleaned when the page is left.
+  window.addEventListener('pagehide', efb_scrub_stored_passwords_efb);
+} catch (e) {}
 function efb_get_error_panel_efb() {
   return window.EFB_ERROR_PANEL || (typeof EFB_ERROR_PANEL !== 'undefined' ? EFB_ERROR_PANEL : null);
 }
@@ -1728,37 +1678,6 @@ function efb_hide_submit_ajax_badge_efb(form_id) {
   const panel = efb_get_error_panel_efb();
   if (panel && typeof panel.clearSubmissionBadge === 'function') {
     panel.clearSubmissionBadge(form_id);
-  }
-}
-function efb_log_cache_plugin_notice_efb(form_id) {
-  if (!ajax_object_efm || !ajax_object_efm.cache_plugins_public) return;
-  const panel = efb_get_error_panel_efb();
-  if (!panel || typeof panel.log !== 'function') return;
-  try {
-    const list = typeof ajax_object_efm.cache_plugins_public === 'string'
-      ? JSON.parse(ajax_object_efm.cache_plugins_public)
-      : ajax_object_efm.cache_plugins_public;
-    if (!Array.isArray(list) || list.length === 0) return;
-    const t = ajax_object_efm.text;
-    const names = list.map(p => p && p.name).filter(Boolean).join(', ');
-    if (!names) return;
-    const docUrl = 'https://whitestudio.team/document/exclude-easy-form-builder-froms-cache/';
-    const message = (t.cacheWarnMsg || 'The following cache plugins may interfere with form functionality.')
-      + ' ' + names + '\n' + (t.cacheWarnDoc || 'Read more about cache compatibility') + ': ' + docUrl;
-
-    panel.log(message, {
-      source: 'cache-warning-submit',
-      type: 'notice',
-      name: ajax_object_efm.text.easyformbuilder || 'Easy Form Builder',
-      captureStack: false,
-      showBadge: true,
-      formId: form_id,
-      format: {
-        links: [{ url: docUrl, label: t.cacheWarnDoc || 'Read more about cache compatibility' }],
-        boldTexts: [names]
-      }
-    });
-  } catch (_e) {
   }
 }
 async function response_fill_form_efb(res ,form_id=0) {
@@ -1959,9 +1878,8 @@ async function response_fill_form_efb(res ,form_id=0) {
     if(efb_final_step){efb_final_step.innerHTML = `<h3 class='efb emsFormBuilder text-center'><i class="efb nmsgefb bi-exclamation-triangle-fill text-center efb fs-3  text-center"></i></h1><h3 class="efb  text-center fs-3 text-muted">${ajax_object_efm.text.error}</h3> <span class="efb mb-2 efb fs-5"> ${res.data.m}</span>
     ${isSubmitAjaxError ? `<div class="efb efb-submit-error-badge-slot my-2 d-flex justify-content-center" id="efb-submit-error-badge-slot-${form_id}"></div>` : ``}
     <div class="efb m-1">${efb_error_prev_button_efb(valj_efb, `efb_hide_submit_ajax_badge_efb(${form_id}); ${btn_prev}`)}</div></div>`;
-      if (isSubmitAjaxError) { efb_show_submit_ajax_badge_efb(form_id); efb_log_cache_plugin_notice_efb(form_id); }
+      if (isSubmitAjaxError) { efb_show_submit_ajax_badge_efb(form_id); }
     }else{
-      if (isSubmitAjaxError) efb_log_cache_plugin_notice_efb(form_id);
       alert_message_efb(res.data.m,'',14,'warning');
     }
   }
@@ -2178,27 +2096,34 @@ efb_refresh_nonce=async(sid, fid)=>{
 }
 function efb_report_submit_ajax_error_efb(error, details = {}) {
   if (window.EFBRequestHealth) window.EFBRequestHealth.report('form', details.status || 0);
-  const panel = efb_get_error_panel_efb();
+  const panel = efb_get_error_panel_efb(); // administrators only (see check_error_console_efb)
   if (!panel || typeof panel.log !== 'function') return;
-
-  const statusLabel = details.status ? `HTTP ${details.status}` : 'Network/response error';
-  const message = [
-    ajax_object_efm?.text?.eJQ500 || 'The form could not be submitted because of a request error.',
-    `Submit AJAX error: ${statusLabel}`,
-    error && error.message ? error.message : ''
-  ].filter(Boolean).join('\n');
-
-  panel.log(message, {
-    source: details.url || window.location.href,
+  const f = Object.assign({ cause: 'rejected', status: details.status || 0, code: '', serverMessage: '', visitorText: error && error.message ? error.message : '' }, details.failure || {});
+  f.at = Date.now();
+  try { f.timeLabel = new Date(f.at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); } catch (e) { f.timeLabel = ''; }
+  f.formId = details.formId || details.form_id || null;
+  f.page = location.pathname;
+  const parseList = (v) => { try { const l = typeof v === 'string' ? JSON.parse(v) : v; return Array.isArray(l) ? l : []; } catch (e) { return []; } };
+  /* The cache is named only with evidence: an expired token or context that
+     came from the page itself (no live runtime context), a page cache plugin
+     that is active, and a page that did not tell the caches to skip it. */
+  const pageCaches = parseList(ajax_object_efm && ajax_object_efm.cache_plugins);
+  if ((f.cause === 'stale_token' || f.cause === 'stale_context') && f.legacy && pageCaches.length && !(ajax_object_efm && Number(ajax_object_efm.cache_bypassed) === 1)) {
+    f.cachePlugin = pageCaches[0] && pageCaches[0].name ? pageCaches[0].name : '';
+  }
+  if (f.cause === 'blocked') {
+    const sec = parseList(ajax_object_efm && ajax_object_efm.security_plugins);
+    if (sec.length && sec[0] && sec[0].name) f.securityPlugin = sec[0].name;
+  }
+  panel.log(f.visitorText || 'Form submission failed', {
+    source: 'efb-submit',
     type: 'plugin',
     name: 'Easy Form Builder',
-    captureStack: true,
+    captureStack: false,
     showBadge: true,
     context: 'submissionAjax',
-    formId: details.formId || details.form_id || null,
-    format: {
-      boldTexts: ['Submit AJAX error', statusLabel]
-    }
+    formId: f.formId,
+    failure: f
   });
 }
 // Only explicit token errors are safe to replay. A generic 403 may be a security veto.
@@ -2217,6 +2142,79 @@ async function efb_response_message_efb(response) {
     const m = data && data.data && data.data.m;
     return typeof m === 'string' && m.trim() ? m : '';
   } catch (e) { return ''; }
+}
+/* What a refused response says about itself: HTTP status, the EFB or WordPress
+ * error code, an EFB message written for visitors (data.m) and the body's shape.
+ * Never the raw body: a firewall page or a stack trace is not for visitors. */
+async function efb_response_info_efb(response) {
+  const info = { status: response ? response.status : 0, code: '', m: '', shape: 'none' };
+  if (!response) return info;
+  try { if (response.headers && response.headers.get('cf-mitigated')) { info.shape = 'challenge'; return info; } } catch (e) {}
+  let d = null;
+  try { d = await response.clone().json(); } catch (e) {
+    try { info.shape = /html/i.test(response.headers.get('Content-Type') || '') ? 'html' : 'none'; } catch (e2) {}
+    return info;
+  }
+  if (d && d.data && typeof d.data === 'object') {
+    if (typeof d.data.m === 'string' && d.data.m.trim()) { info.m = d.data.m; info.shape = 'efb'; }
+    if (typeof d.data.code === 'string') info.code = d.data.code;
+  }
+  if (!info.code && d && typeof d.code === 'string') { info.code = d.code; if (info.shape === 'none') info.shape = 'wp'; }
+  return info;
+}
+/* The cause of a failed public request, from what the response proves. A cache
+ * plugin is never the cause here: in runtime mode the nonce and session come
+ * live from forms/session/prepare, not from the (possibly cached) page. */
+function efb_failure_cause_efb(info) {
+  const s = info ? Number(info.status) || 0 : 0, c = info ? String(info.code || '') : '';
+  if (!s) return 'unknown_outcome';
+  if (['rest_cookie_invalid_nonce', 'efb_nonce_expired', 'efb_nonce_missing'].includes(c)) return 'stale_token';
+  if (c === 'efb_context_expired') return 'stale_context';
+  if (c === 'efb_identity_changed') return 'identity_changed';
+  if (s >= 500) return (info.shape === 'efb' || /^efb_/.test(c)) ? 'server_failed' : 'unknown_outcome';
+  if (info.shape === 'efb') return 'server_refusal';
+  if (s === 401 || ['rest_not_logged_in', 'rest_forbidden', 'rest_disabled', 'rest_cannot_access', 'rest_login_required'].includes(c)) return 'closed';
+  if (s === 429) return 'rate_limited';
+  if (s === 413) return 'too_large';
+  if (s === 403) return 'blocked';
+  return 'rejected';
+}
+/* One or two plain sentences for the visitor: what happened and the one thing to do. */
+function efb_visitor_text_efb(cause, info) {
+  const t = (typeof ajax_object_efm !== 'undefined' && ajax_object_efm && ajax_object_efm.text) ? ajax_object_efm.text : {};
+  const status = info && info.status ? Number(info.status) : 0;
+  const withCode = (str) => String(str).replace('%d', String(status));
+  switch (cause) {
+    case 'stale_token': return t.nonceExpired || 'Your session has expired. Please refresh the page and try again.';
+    case 'stale_context': return t.formExpiredSendAgain || 'The form expired while this page was open. It has been renewed, so please send it again. Your answers are kept.';
+    case 'identity_changed': return t.loginChangedSendAgain || 'You signed in or out in another tab. Please send the form again.';
+    case 'server_refusal':
+    case 'server_failed': if (info && info.m) return info.m; break;
+    case 'closed': return t.formsClosed || 'This website is not accepting forms from visitors right now. Please contact the site owner.';
+    case 'rate_limited': return (info && info.m) || t.tooManyRequests || 'Too many requests. Please try again shortly.';
+    case 'too_large': return t.formTooLarge || 'The form is too large to send, usually because of an attached file or a signature. Use a smaller file and try again.';
+    case 'blocked': return t.requestBlocked || "The website's security settings blocked this form. Please try again in a few minutes. If it happens again, contact the site owner.";
+    case 'unknown_outcome': return t.noAnswerCheckFirst || 'The connection was interrupted, so we could not confirm that your form arrived. If you did not receive a confirmation, please send it again.';
+  }
+  return withCode(t.formNotSentCode || 'The form could not be sent (error %d). Your answers are kept. Please try again later.');
+}
+/* Same causes for the confirmation-code lookup and the reply box, which are
+ * requests rather than forms: no answer means "try again", not "check first". */
+function efb_request_text_efb(cause, info) {
+  const t = (typeof ajax_object_efm !== 'undefined' && ajax_object_efm && ajax_object_efm.text) ? ajax_object_efm.text : {};
+  if (cause === 'unknown_outcome') return t.noAnswerRetry || 'No answer from the website. Please check your connection and try again.';
+  if (cause === 'rejected' || ((cause === 'server_refusal' || cause === 'server_failed') && !(info && info.m))) {
+    return String(t.requestFailedCode || 'Your request could not be completed (error %d). Please try again later.').replace('%d', String(info && info.status ? info.status : 0));
+  }
+  return efb_visitor_text_efb(cause, info);
+}
+/* Turns a refused response into an Error whose message is already the visitor text. */
+async function efb_request_error_efb(response) {
+  const info = await efb_response_info_efb(response);
+  const error = new Error(efb_request_text_efb(efb_failure_cause_efb(info), info));
+  error.status = response.status;
+  error.efb_visitor_text = true;
+  return error;
 }
 async function efb_fetch_public_request_efb(url, options, operation, sid, fid) {
   try {
@@ -2247,8 +2245,13 @@ async function efb_fetch_public_request_efb(url, options, operation, sid, fid) {
     try {
       if (window.EFBRuntime) runtime=await window.EFBRuntime.decorate(data,Number(form_id)||0,'form');
     } catch (error) {
-      efb_report_submit_ajax_error_efb(error,{status:error.status||0,formId:form_id});
-      await response_fill_form_efb({success:false,data:{success:false,m:error.message,efb_ajax_submission_error:true}},form_id);
+      // prepare refused the form context itself (expired, login changed, login required...).
+      const info={status:error.status||0,code:error.code||'',m:error.message||'',shape:'efb'};
+      const cause=efb_failure_cause_efb(info);
+      if ((cause==='stale_context' || cause==='identity_changed') && window.EFBRuntime && typeof window.EFBRuntime.reset==='function') window.EFBRuntime.reset(Number(form_id)||0);
+      const visitorText=efb_visitor_text_efb(cause,info);
+      efb_report_submit_ajax_error_efb(new Error(visitorText),{status:error.status||0,formId:form_id,failure:{cause,status:error.status||0,code:info.code,serverMessage:info.m,visitorText,step:'prepare'}});
+      await response_fill_form_efb({success:false,data:{success:false,m:visitorText,efb_ajax_submission_error:true}},form_id);
       return;
     }
     const url = efb_var.rest_url+'Emsfb/v1/forms/message/add';
@@ -2286,24 +2289,23 @@ async function efb_fetch_public_request_efb(url, options, operation, sid, fid) {
       }
     }
     if (!response.ok) {
-      const serverMessage = response.status >= 400 && response.status < 500 ? await efb_response_message_efb(response) : '';
-      if (response.status === 403) {
-        const msg403 = await efb_is_nonce_error_efb(response)
-          ? (ajax_object_efm?.text?.nonceExpired || 'Your session has expired. Please refresh the page and try again.')
-          : (serverMessage || ajax_object_efm?.text?.eJQ500 || 'The request was rejected. Please try again later.');
-        efb_report_submit_ajax_error_efb(new Error(msg403), { status: response.status, url, formId: form_id });
-        await response_fill_form_efb({ success: false, data: { success: false, m: msg403, efb_ajax_submission_error: true } }, form_id);
-        return;
+      const info = await efb_response_info_efb(response);
+      const cause = efb_failure_cause_efb(info);
+      if (cause === 'unknown_outcome') {
+        // No EFB answer (a 5xx page, a proxy timeout): the entry may or may not
+        // be saved, so the catch below asks the server before saying anything.
+        const requestError = new Error(`HTTP ${response.status}`);
+        requestError.status = response.status;
+        throw requestError;
       }
-      if (serverMessage) {
-        // A refusal with its own message (Human Shield rate limit, validation): show it, not a jQuery error.
-        efb_report_submit_ajax_error_efb(new Error(serverMessage), { status: response.status, url, formId: form_id });
-        await response_fill_form_efb({ success: false, data: { success: false, m: serverMessage, efb_ajax_submission_error: true } }, form_id);
-        return;
+      if ((cause === 'stale_context' || cause === 'identity_changed') && window.EFBRuntime && typeof window.EFBRuntime.reset === 'function') {
+        // Without this the next "send" reused the refused context for 4 minutes.
+        window.EFBRuntime.reset(Number(form_id) || 0);
       }
-      const requestError = new Error(`Network response was not ok (HTTP ${response.status})`);
-      requestError.status = response.status;
-      throw requestError;
+      const visitorText = efb_visitor_text_efb(cause, info);
+      efb_report_submit_ajax_error_efb(new Error(visitorText), { status: response.status, url, formId: form_id, failure: { cause, status: response.status, code: info.code, serverMessage: info.m, visitorText, shape: info.shape, legacy: !runtime || !!runtime.legacy } });
+      await response_fill_form_efb({ success: false, data: { success: false, m: visitorText, efb_ajax_submission_error: true } }, form_id);
+      return;
     }
     const responseData = await response.json();
 	if (window.EFBRuntime && responseData?.data?.success === true) window.EFBRuntime.complete(Number(form_id)||0,'form');
@@ -2319,8 +2321,12 @@ async function efb_fetch_public_request_efb(url, options, operation, sid, fid) {
         return;
       }
     }
-    efb_report_submit_ajax_error_efb(error, { status: error.status || 0, url, formId: form_id });
-    const failureMessage=runtime && (!error.status || error.status>=500) ? efb_request_health.unknown_message : ajax_object_efm.text.eJQ500;
+    /* No answer, a timeout, or a 5xx without an EFB message. "jQuery" was never
+       the cause; say what is known: the outcome could not be confirmed. */
+    const failureMessage=runtime && (!error.status || error.status>=500) && typeof efb_request_health!=='undefined' && efb_request_health.unknown_message
+      ? efb_request_health.unknown_message
+      : efb_visitor_text_efb('unknown_outcome',{status:error.status||0});
+    efb_report_submit_ajax_error_efb(error, { status: error.status || 0, url, formId: form_id, failure: { cause: 'unknown_outcome', status: error.status || 0, code: '', serverMessage: '', visitorText: failureMessage, legacy: !runtime || !!runtime.legacy } });
     await response_fill_form_efb({ success: false, data: { success: false, m: failureMessage, efb_ajax_submission_error: true } }, form_id);
   }
   bdy = document.getElementById('body_efb_'+form_id);
@@ -2348,9 +2354,9 @@ post_api_tracker_check_efb=(data,innrBtn)=>{
     body: jsonData,
   };
   efb_fetch_public_request_efb(url, requestOptions, 'tracker', efb_var.sid || '', data.id || 0)
-  .then(response => {
+  .then(async response => {
     if (!response.ok) {
-      throw new Error(`Network response was not ok (HTTP ${response.status})`);
+      throw await efb_request_error_efb(response);
     }
     return response.json();
   })
@@ -2377,7 +2383,9 @@ post_api_tracker_check_efb=(data,innrBtn)=>{
       document.getElementById('vaid_check_emsFormBuilder').classList.toggle('disabled');
     }
     efb_reset_tracker_captcha_efb();
-    response_Valid_tracker_efb({ success: false, data: { success: false, m: error.message } });
+    // Never a raw "Network response was not ok" or a JSON parse error.
+    const trackerText = error && error.efb_visitor_text ? error.message : efb_request_text_efb('unknown_outcome', { status: 0 });
+    response_Valid_tracker_efb({ success: false, data: { success: false, m: trackerText } });
   });
 }
 /* A reCAPTCHA token is good for one verification only, and the server now
@@ -2419,9 +2427,9 @@ post_api_r_message_efb=async(data,message)=>{
     body: jsonData,
   };
     efb_fetch_public_request_efb(url, requestOptions, 'reply', data.sid || '', 0)
-    .then(response => {
+    .then(async response => {
       if (!response.ok) {
-        throw new Error(`Network response was not ok (HTTP ${response.status})`);
+        throw await efb_request_error_efb(response);
       }
       return response.json();
     })
@@ -2438,7 +2446,8 @@ post_api_r_message_efb=async(data,message)=>{
       /* A reply failure belongs in the reply composer. Sending it through the
          tracker handler replaces the whole open conversation and leaves the
          reply button stuck in its loading state. */
-      response_rMessage_id({ success: false, data: { success: false, m: error.message } }, message);
+      const replyText = error && error.efb_visitor_text ? error.message : efb_request_text_efb('unknown_outcome', { status: 0 });
+      response_rMessage_id({ success: false, data: { success: false, m: replyText } }, message);
     });
 }
 
@@ -2977,17 +2986,27 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
     return false;
   }
   if(form_type == 'payment'){
-    const payment_method = ['paypal','stripe','persiapay' ,'zarinpal'];
-    const payment_complated = get_row_sendback_by_id_efb_v4('payment',form_id);
-    if(payment_complated){
-      const payment_rows = (valj_efb ?? []).filter(x => payment_method.includes(String(x.type)) && x.hasOwnProperty('step'));
-      if (payment_rows.length > 0) {
-        step_payment_exists = Number(payment_rows[0].step);
+    /* The pay-first guard. It used to test findIndex() as a boolean: -1 (not
+       paid) is truthy, so it never stopped an unpaid visitor, and it blocked a
+       paid one with alert("undefined") when the payment row happened to be
+       first. The gateway element of ZarinPal is "persiaPay", so the list is
+       compared in lower case. A payment row without a form id still counts as
+       paid: some gateways do not record it, and the server checks the payment
+       in any case - this guard is only there to say "pay first" sooner. */
+    const payment_method = ['paypal','stripe','persiapay','zarinpal'];
+    const payment_rows = (valj_efb ?? []).filter(x => x && payment_method.includes(String(x.type).toLowerCase()) && x.hasOwnProperty('step'));
+    if (payment_rows.length > 0) {
+      step_payment_exists = Number(payment_rows[0].step);
+      const paid = Array.isArray(sendBack_emsFormBuilder_pub) && sendBack_emsFormBuilder_pub.some(x => {
+        if (!x || x.id_ !== 'payment') return false;
+        const scope = efb_explicit_sendback_scope_efb(x);
+        return scope === null || scope === Number(form_id);
+      });
+      if (!paid && btn_state != 'prev_efb' && Number(no_step) >= step_payment_exists) {
+        const _pt = (typeof ajax_object_efm !== 'undefined' && ajax_object_efm.text) ? ajax_object_efm.text : {};
+        alert_message_efb(_pt.paymentNotCompleted || 'Your payment has not been completed. Please pay before sending the form.', '', 10, 'warning');
+        return false;
       }
-    }else{
-      step_payment_exists = -1;
-      alert(efb_var.text.paymentMethodMissing);
-      return false;
     }
   }
 

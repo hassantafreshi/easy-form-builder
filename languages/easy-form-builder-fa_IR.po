@@ -8,7 +8,7 @@ msgstr ""
 "POT-Creation-Date: 2026-11-03 00:00+0000\n"
 "X-Generator: EFB tests/core-i18n/build.php\n"
 "X-Domain: easy-form-builder\n"
-"PO-Revision-Date: 2026-11-03 10:30+0000\n"
+"PO-Revision-Date: 2026-11-05 08:13+0000\n"
 "Last-Translator: WhiteStudio <hi@whitestudio.team>\n"
 "Language-Team: fa_IR\n"
 "Language: fa_IR\n"
@@ -13656,3 +13656,294 @@ msgstr "📍 جستجوگر کد تأیید (فرم رهگیری)"
 #: includes/page-builders/visual-composer/class-Emsfb-visual-composer.php:366
 msgid "📍 Confirmation Code Finder (Tracking)"
 msgstr "📍 جستجوگر کد تأیید (رهگیری)"
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-public.php:3937
+msgid "We could not find an open payment for this form. If you have already paid, please do not pay again: contact the site owner with your payment receipt."
+msgstr "هیچ پرداخت در انتظاری برای این فرم پیدا نشد. اگر قبلاً پرداخت کرده‌اید، دوباره پرداخت نکنید و با رسید پرداخت با مدیر سایت تماس بگیرید."
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-public.php:3852
+msgid "This payment has already been used for another entry. If you think this is a mistake, contact the site owner with your payment receipt."
+msgstr "این پرداخت قبلاً برای ثبت دیگری استفاده شده است. اگر فکر می‌کنید اشتباهی رخ داده، با رسید پرداخت با مدیر سایت تماس بگیرید."
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-public.php:236 includes/class-Emsfb-public.php:2427
+msgid "This form has expired. Please refresh the page and send it again."
+msgstr "اعتبار این فرم تمام شده است. لطفاً صفحه را تازه‌سازی کنید و فرم را دوباره ارسال کنید."
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-form-runtime.php:45
+#: includes/class-Emsfb-form-runtime.php:46
+msgid "You signed in or out in another tab. Please refresh the page and send the form again."
+msgstr "شما در زبانهٔ دیگری وارد حساب کاربری شدید یا از آن خارج شدید. لطفاً صفحه را تازه‌سازی کنید و فرم را دوباره ارسال کنید."
+
+#  origin: claude (fa_IR)
+#: includes/functions.php:2443
+msgid "The website's security settings blocked this form. Please try again in a few minutes. If it happens again, contact the site owner."
+msgstr "تنظیمات امنیتی وب‌سایت جلوی ارسال این فرم را گرفت. لطفاً چند دقیقه دیگر دوباره تلاش کنید. اگر دوباره رخ داد، با مدیر سایت تماس بگیرید."
+
+#  origin: claude (fa_IR)
+#: includes/functions.php:2444
+msgid "This website is not accepting forms from visitors right now. Please contact the site owner."
+msgstr "این وب‌سایت در حال حاضر فرم بازدیدکنندگان را نمی‌پذیرد. لطفاً با مدیر سایت تماس بگیرید."
+
+#  origin: claude (fa_IR)
+#: includes/functions.php:2445
+msgid "The form is too large to send, usually because of an attached file or a signature. Use a smaller file and try again."
+msgstr "حجم فرم برای ارسال بیش از حد است؛ معمولاً به‌خاطر فایل پیوست یا امضا. فایل کوچک‌تری انتخاب کنید و دوباره تلاش کنید."
+
+#  origin: claude (fa_IR)
+#: includes/functions.php:2446
+#, php-format
+msgid "The form could not be sent (error %d). Your answers are kept. Please try again later."
+msgstr "فرم ارسال نشد (خطای %d). پاسخ‌های شما حفظ شده است. لطفاً بعداً دوباره تلاش کنید."
+
+#  origin: claude (fa_IR)
+#: includes/functions.php:2447
+msgid "The form expired while this page was open. It has been renewed, so please send it again. Your answers are kept."
+msgstr "اعتبار فرم در مدتی که این صفحه باز بود تمام شد. فرم دوباره آماده شده است؛ لطفاً آن را دوباره ارسال کنید. پاسخ‌های شما حفظ شده است."
+
+#  origin: claude (fa_IR)
+#: includes/functions.php:2448
+msgid "You signed in or out in another tab. Please send the form again."
+msgstr "شما در زبانهٔ دیگری وارد حساب کاربری شدید یا از آن خارج شدید. لطفاً فرم را دوباره ارسال کنید."
+
+#  origin: claude (fa_IR)
+#: includes/functions.php:2449
+msgid "The connection was interrupted, so we could not confirm that your form arrived. If you did not receive a confirmation, please send it again."
+msgstr "ارتباط قطع شد و نتوانستیم رسیدن فرم شما را تأیید کنیم. اگر پیام تأییدی دریافت نکرده‌اید، لطفاً فرم را دوباره ارسال کنید."
+
+#  origin: claude (fa_IR)
+#: includes/functions.php:2450
+#, php-format
+msgid "Your request could not be completed (error %d). Please try again later."
+msgstr "درخواست شما انجام نشد (خطای %d). لطفاً بعداً دوباره تلاش کنید."
+
+#  origin: claude (fa_IR)
+#: includes/functions.php:2451
+msgid "No answer from the website. Please check your connection and try again."
+msgstr "پاسخی از وب‌سایت دریافت نشد. لطفاً اتصال اینترنت خود را بررسی کنید و دوباره تلاش کنید."
+
+#  origin: claude (fa_IR)
+#: includes/functions.php:2454
+msgid "The payment could not be started and nothing was charged. Please try again."
+msgstr "پرداخت آغاز نشد و هیچ مبلغی از حساب شما کسر نشد. لطفاً دوباره تلاش کنید."
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-formbuilder.php:3575
+msgid "Why did this fail?"
+msgstr "چرا ارسال نشد؟"
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-formbuilder.php:3576
+msgid "Only you can see this"
+msgstr "فقط شما این را می‌بینید"
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-formbuilder.php:3577
+msgid "You see this panel because you are signed in as an administrator. Visitors only see the message in the form."
+msgstr "این پنل را می‌بینید چون به‌عنوان مدیر سایت وارد شده‌اید. بازدیدکنندگان فقط پیام داخل فرم را می‌بینند."
+
+#  origin: claude (fa_IR)
+#: includes/functions.php:3628 includes/class-Emsfb-formbuilder.php:3578
+msgid "Form submission"
+msgstr "ارسال فرم"
+
+#  origin: claude (fa_IR)
+#: includes/functions.php:6762 includes/class-Emsfb-formbuilder.php:3579
+msgid "What to do"
+msgstr "چه باید کرد"
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-formbuilder.php:3580
+msgid "What your visitor saw"
+msgstr "پیامی که بازدیدکننده دید"
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-formbuilder.php:3581
+msgid "Technical details for support"
+msgstr "جزئیات فنی برای پشتیبانی"
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-formbuilder.php:3582
+msgid "Copy details"
+msgstr "کپی جزئیات"
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-formbuilder.php:3585
+msgid "The form had expired in the visitor's browser"
+msgstr "اعتبار فرم در مرورگر بازدیدکننده تمام شده بود"
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-formbuilder.php:3586
+msgid "The page was open for a long time, so its security code expired. This is normal and is not caused by a cache plugin."
+msgstr "صفحه مدت زیادی باز مانده بود و کد امنیتی آن منقضی شد. این وضعیت عادی است و ربطی به افزونهٔ کش ندارد."
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-formbuilder.php:3587
+msgid "No action needed. The visitor was asked to refresh the page and send the form again."
+msgstr "نیازی به اقدام نیست. از بازدیدکننده خواسته شد صفحه را تازه‌سازی کند و فرم را دوباره ارسال کند."
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-formbuilder.php:3588
+msgid "No action needed. The visitor was asked to send the form again."
+msgstr "نیازی به اقدام نیست. از بازدیدکننده خواسته شد فرم را دوباره ارسال کند."
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-formbuilder.php:3590
+msgid "This page was probably shown from an old cached copy"
+msgstr "این صفحه احتمالاً از یک نسخهٔ قدیمی ذخیره‌شده (کش) نمایش داده شد"
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-formbuilder.php:3592
+#, php-format
+msgid "%s seems to have served a stored copy of this page whose security code had expired, so the form was refused."
+msgstr "به نظر می‌رسد %s نسخهٔ ذخیره‌شده‌ای از این صفحه را نمایش داده که کد امنیتی آن منقضی شده بود؛ به همین دلیل فرم پذیرفته نشد."
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-formbuilder.php:3594
+#, php-format
+msgid "In %s, clear the cache (Purge All) and reload this page. If it happens again, exclude this page from caching."
+msgstr "در %s کش را پاک کنید (Purge All) و این صفحه را دوباره بارگذاری کنید. اگر دوباره رخ داد، این صفحه را از کش مستثنا کنید."
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-formbuilder.php:3595
+msgid "The visitor signed in or out in another tab"
+msgstr "بازدیدکننده در زبانهٔ دیگری وارد حساب شد یا از آن خارج شد"
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-formbuilder.php:3596
+msgid "The form was opened under a different login, so it was refused for safety. This is normal and is not caused by a cache plugin."
+msgstr "فرم با وضعیت ورود دیگری باز شده بود و برای امنیت پذیرفته نشد. این وضعیت عادی است و ربطی به افزونهٔ کش ندارد."
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-formbuilder.php:3597
+msgid "Easy Form Builder refused this submission"
+msgstr "فرم‌ساز آسان این ارسال را نپذیرفت"
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-formbuilder.php:3598
+msgid "The reason is in the message your visitor saw, below."
+msgstr "دلیل آن در پیامی است که بازدیدکننده دید (پایین)."
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-formbuilder.php:3599
+msgid "If real visitors get this message, check the setting it names, for example Human Shield or the form's own rules."
+msgstr "اگر بازدیدکنندگان واقعی این پیام را می‌بینند، تنظیمی را که در پیام آمده بررسی کنید؛ مثلاً Human Shield یا قوانین خود فرم."
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-formbuilder.php:3600
+msgid "The entry could not be saved"
+msgstr "پاسخ ذخیره نشد"
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-formbuilder.php:3601
+msgid "Your server could not save the entry. Nothing was saved, and the visitor was told so."
+msgstr "سرور شما نتوانست پاسخ را ذخیره کند. چیزی ذخیره نشد و این موضوع به بازدیدکننده گفته شد."
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-formbuilder.php:3602
+msgid "Ask your hosting company to check the database (disk space or a damaged table), then send a test form."
+msgstr "از شرکت میزبانی بخواهید پایگاه داده را بررسی کند (فضای دیسک یا جدول آسیب‌دیده) و سپس یک فرم آزمایشی ارسال کنید."
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-formbuilder.php:3603
+msgid "Your website does not accept form requests from visitors"
+msgstr "وب‌سایت شما درخواست‌های فرم بازدیدکنندگان را نمی‌پذیرد"
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-formbuilder.php:3605
+#, php-format
+msgid "Another plugin or a setting blocks the WordPress REST API for visitors (HTTP %d)."
+msgstr "افزونهٔ دیگری یا یک تنظیم، REST API وردپرس را برای بازدیدکنندگان مسدود کرده است (HTTP %d)."
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-formbuilder.php:3606
+msgid "Allow the address /wp-json/Emsfb/ in that plugin (for example Disable REST API), or ask your hosting company."
+msgstr "نشانی ‎/wp-json/Emsfb/‎ را در آن افزونه مجاز کنید (مثلاً Disable REST API) یا از شرکت میزبانی کمک بگیرید."
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-formbuilder.php:3607
+msgid "Too many requests from one visitor"
+msgstr "درخواست‌های بیش از حد از یک بازدیدکننده"
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-formbuilder.php:3608
+msgid "Human Shield or your server limited requests from this visitor's internet address (HTTP 429)."
+msgstr "Human Shield یا سرور شما درخواست‌های این نشانی اینترنتی را محدود کرد (HTTP 429)."
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-formbuilder.php:3609
+msgid "If real visitors are affected, raise the limit in the Human Shield settings."
+msgstr "اگر بازدیدکنندگان واقعی با این مشکل روبه‌رو می‌شوند، محدودیت را در تنظیمات Human Shield افزایش دهید."
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-formbuilder.php:3610
+msgid "The form was larger than your server accepts"
+msgstr "حجم فرم بیشتر از حد مجاز سرور شما بود"
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-formbuilder.php:3611
+msgid "Your web server refused the request because of its size (HTTP 413). This limit is set by your hosting company."
+msgstr "وب‌سرور شما به‌دلیل حجم، درخواست را رد کرد (HTTP 413). این محدودیت را شرکت میزبانی تعیین می‌کند."
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-formbuilder.php:3612
+msgid "Ask your hosting company to raise the request size limit, or ask visitors to use smaller files."
+msgstr "از شرکت میزبانی بخواهید محدودیت حجم درخواست را افزایش دهد، یا از بازدیدکنندگان بخواهید فایل‌های کوچک‌تری بفرستند."
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-formbuilder.php:3613
+msgid "Your website blocked the form request"
+msgstr "وب‌سایت شما درخواست فرم را مسدود کرد"
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-formbuilder.php:3615
+#, php-format
+msgid "A security plugin, a firewall or your hosting company refused the request before it reached Easy Form Builder (HTTP %d). It is not caused by a cache plugin."
+msgstr "یک افزونهٔ امنیتی، فایروال یا شرکت میزبانی شما پیش از رسیدن درخواست به فرم‌ساز آسان آن را رد کرد (HTTP %d). علت آن افزونهٔ کش نیست."
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-formbuilder.php:3617
+#, php-format
+msgid "Open %1$s and look for a blocked request at %2$s."
+msgstr "%1$s را باز کنید و در گزارش آن دنبال درخواست مسدودشده در ساعت %2$s بگردید."
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-formbuilder.php:3619
+#, php-format
+msgid "Ask your hosting company to check the firewall log for a blocked request to /wp-json/Emsfb/ at %s."
+msgstr "از شرکت میزبانی بخواهید گزارش فایروال را برای درخواست مسدودشده به ‎/wp-json/Emsfb/‎ در ساعت %s بررسی کند."
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-formbuilder.php:3621
+#, php-format
+msgid "The form request was refused (HTTP %d)"
+msgstr "درخواست فرم رد شد (HTTP %d)"
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-formbuilder.php:3622
+msgid "Something between the visitor and Easy Form Builder refused the request."
+msgstr "چیزی بین بازدیدکننده و فرم‌ساز آسان، درخواست را رد کرد."
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-formbuilder.php:3623
+msgid "Copy the technical details below and send them to Easy Form Builder support."
+msgstr "جزئیات فنی زیر را کپی کنید و برای پشتیبانی فرم‌ساز آسان بفرستید."
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-formbuilder.php:3624
+msgid "Your server did not answer in time"
+msgstr "سرور شما به‌موقع پاسخ نداد"
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-formbuilder.php:3625
+msgid "The request took too long or the connection dropped. The entry may or may not have been saved."
+msgstr "درخواست بیش از حد طول کشید یا ارتباط قطع شد. ممکن است پاسخ ذخیره شده باشد یا نشده باشد."
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-formbuilder.php:3627
+#, php-format
+msgid "Open Messages in Easy Form Builder and check for an entry at %s."
+msgstr "بخش پیام‌ها را در فرم‌ساز آسان باز کنید و ببینید آیا پاسخی در ساعت %s ثبت شده است."

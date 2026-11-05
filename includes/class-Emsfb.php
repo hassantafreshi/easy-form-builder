@@ -50,6 +50,12 @@ class Emsfb {
 
         add_action('activated_plugin', [$this, 'handle_new_plugin_activation_efb'], 10, 2);
         add_action('deactivated_plugin', [$this, 'handle_plugin_deactivation_efb'], 10, 1);
+        /* deactivate_plugins() fires deactivated_plugin inside its loop and only
+         * saves the shortened active_plugins list afterwards, so the rebuild
+         * above still saw the plugin as active and the cache warning kept
+         * naming a plugin that was off. Rebuild once the list is saved. */
+        add_action('update_option_active_plugins', [$this, 'refresh_plugin_lists_efb'], 10, 0);
+        add_action('update_site_option_active_sitewide_plugins', [$this, 'refresh_plugin_lists_efb'], 10, 0);
 
         add_action('emsfb_update_cache_plugins_list', [$this, 'update_cache_plugins_list']);
         add_action('emsfb_update_security_plugins_list', [$this, 'update_security_plugins_list']);
@@ -881,7 +887,7 @@ class Emsfb {
             'wordfence', 'better-wp-security', 'all-in-one-wp-security-and-firewall',
             'disable-json-api', 'wp-rest-api-authentication', 'jwt-authentication-for-wp-rest-api',
             'limit-login-attempts-reloaded', 'loginizer', 'shield-security',
-            'sucuri-scanner', 'bbq-firewall', 'wp-cerber', 'anti-spam-bee',
+            'sucuri-scanner', 'bbq-firewall', 'wp-cerber', 'antispam-bee',
             'bulletproof-security'
         );
 
@@ -896,13 +902,18 @@ class Emsfb {
         }
     }
 
+    public function refresh_plugin_lists_efb() {
+        do_action('emsfb_update_cache_plugins_list');
+        do_action('emsfb_update_security_plugins_list');
+    }
+
     public function handle_plugin_deactivation_efb($plugin) {
         $this->clear_server_host_cache_efb();
         $security_plugins_slug = array(
             'wordfence', 'better-wp-security', 'all-in-one-wp-security-and-firewall',
             'disable-json-api', 'wp-rest-api-authentication', 'jwt-authentication-for-wp-rest-api',
             'limit-login-attempts-reloaded', 'loginizer', 'shield-security',
-            'sucuri-scanner', 'bbq-firewall', 'wp-cerber', 'anti-spam-bee',
+            'sucuri-scanner', 'bbq-firewall', 'wp-cerber', 'antispam-bee',
             'bulletproof-security'
         );
         $cache_plugins_slug = array(
@@ -974,7 +985,9 @@ class Emsfb {
         $val = !empty($plugin_list) ? json_encode($plugin_list) : 0;
         $old_val = get_option('emsfb_cache_plugins', 0);
 
-        if ($val != $old_val) {
+        // Compared as strings: on PHP 7 a stored "[...]" == 0 is true, so an
+        // emptied list was never saved.
+        if ((string) $val !== (string) $old_val) {
             update_option('emsfb_cache_plugins', $val);
         }
 
@@ -1063,7 +1076,7 @@ class Emsfb {
             'wordfence', 'better-wp-security', 'all-in-one-wp-security-and-firewall',
             'disable-json-api', 'wp-rest-api-authentication', 'jwt-authentication-for-wp-rest-api',
             'limit-login-attempts-reloaded', 'loginizer', 'shield-security',
-            'sucuri-scanner', 'bbq-firewall', 'wp-cerber', 'anti-spam-bee',
+            'sucuri-scanner', 'bbq-firewall', 'wp-cerber', 'antispam-bee',
             'bulletproof-security'
         );
 
@@ -1099,7 +1112,7 @@ class Emsfb {
         $val     = !empty($plugin_list) ? json_encode($plugin_list) : 0;
         $old_val = get_option('emsfb_security_plugins', 0);
 
-        if ($val != $old_val) {
+        if ((string) $val !== (string) $old_val) {
             update_option('emsfb_security_plugins', $val);
         }
 
@@ -1442,6 +1455,7 @@ class Emsfb {
     public static function plugin_deactivation_cleanup_efb()
     {
         wp_clear_scheduled_hook('emsfb_cache_scan_v1');
+        wp_clear_scheduled_hook('emsfb_cache_scan_v2');
         wp_clear_scheduled_hook('emsfb_stripe_reconcile_efb');
         if (class_exists('\Emsfb\Email_Monitor')) {
             \Emsfb\Email_Monitor::deactivate();

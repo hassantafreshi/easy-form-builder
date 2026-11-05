@@ -182,6 +182,9 @@
       return value;
     },
     complete(fid,kind) { intents.delete(kind+':'+fid); },
+    // After the server refused this form's context (expired, login changed): forget it, so the
+    // next send prepares a new one instead of offering the refused token again for 4 minutes.
+    reset(fid) { contexts.delete(Number(fid)||0); },
     invalidate() { contexts.forEach(context=>{context.time=0;}); tickets.forEach(ticket=>{ticket.time=0;}); }
   };
   document.addEventListener('focusin',event=>{

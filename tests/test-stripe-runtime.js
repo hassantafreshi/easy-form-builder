@@ -120,6 +120,16 @@ async function exerciseUI(mode) {
   } else if (mode==='unverified') {
     assert.strictEqual(confirms,4,'Unavailable verification is retried');
     assert.strictEqual(globals.finished,true,'A charged visitor can still submit when verification stays unavailable');
+  } else if (mode==='lost') {
+    // charge mode: card/add only creates the PaymentIntent (no confirm), so a lost answer means
+    // nothing was charged. Say so and let the visitor start again - not "do not pay again".
+    assert.strictEqual(globals.finished,undefined,'A lost card/add never renders success');
+    assert.strictEqual(confirms,0,'Nothing to confirm');
+    assert(node('#statusStripEfb').textContent.includes('nothing was charged'),'The visitor is told nothing was charged');
+    assert(!node('#btnStripeEfb').classList.contains('disabled'),'Pay Now is usable again');
+    node('#btnStripeEfb').click();
+    for(let i=0;i<20;i++)await new Promise(resolve=>setImmediate(resolve));
+    assert.strictEqual(network.filter(call=>call.url.endsWith('/card/add')).length,2,'The visitor can start the payment again');
   } else {
     if (mode==='rejected') assert.strictEqual(confirms,1,'A definitive mismatch is not retried');
     assert.strictEqual(globals.finished,undefined,'Uncertain or rejected payment never renders success');
