@@ -3625,6 +3625,17 @@ public function check_error_console_efb(){
 		'f_noanswer_why'    => esc_html__('The request took too long or the connection dropped. The entry may or may not have been saved.', 'easy-form-builder'),
 		/* translators: %s: time of the request */
 		'f_noanswer_do'     => esc_html__('Open Messages in Easy Form Builder and check for an entry at %s.', 'easy-form-builder'),
+		/* translators: %s: time of the request */
+		'f_challenge_do'    => esc_html__('Cloudflare showed the visitor a security check instead of sending the form. Open Cloudflare (Security, Events) and look for a challenged request at %s.', 'easy-form-builder'),
+		/* translators: %d: HTTP status code */
+		'f_server_title'    => esc_html__('Your server had an error (HTTP %d)', 'easy-form-builder'),
+		'f_server_why'      => esc_html__('PHP stopped with an error while handling the form. The entry may or may not have been saved.', 'easy-form-builder'),
+		/* translators: %s: time of the request */
+		'f_server_do'       => esc_html__('Open Messages and check for an entry at %s, then ask your hosting company for the PHP error log of that time.', 'easy-form-builder'),
+		'f_badjson_title'   => esc_html__('Your server sent an unreadable answer', 'easy-form-builder'),
+		'f_badjson_why'     => esc_html__('Extra text, often a PHP notice or another plugin\'s output, was printed before the answer, so it could not be read. The entry may or may not have been saved.', 'easy-form-builder'),
+		/* translators: %s: time of the request */
+		'f_badjson_do'      => esc_html__('Open Messages and check for an entry at %s. On a live site, turn off WP_DEBUG_DISPLAY or ask your hosting company to check the PHP error log.', 'easy-form-builder'),
 	];
 
 	$value = '
@@ -4304,10 +4315,12 @@ public function check_error_console_efb(){
 				const status = Number(f.status) || 0;
 				const at = f.timeLabel || "";
 				const fill = (str, a, b) => String(str || "").split("%1$s").join(a).split("%2$s").join(b).split("%s").join(a).split("%d").join(String(status));
+				const cachePlugin = this.escapeHtml(f.cachePlugin || "");
+				const securityPlugin = this.escapeHtml(f.securityPlugin || "");
 				switch (f.cause) {
 					case "stale_token":
 					case "stale_context":
-						if (f.cachePlugin) return { title: t.f_cache_title, why: fill(t.f_cache_why, f.cachePlugin), todo: fill(t.f_cache_do, f.cachePlugin) };
+						if (f.cachePlugin) return { title: t.f_cache_title, why: fill(t.f_cache_why, cachePlugin), todo: fill(t.f_cache_do, cachePlugin) };
 						return { title: t.f_expired_title, why: t.f_expired_why, todo: f.cause === "stale_token" ? t.f_do_refresh : t.f_do_send_again };
 					case "identity_changed": return { title: t.f_login_title, why: t.f_login_why, todo: t.f_do_send_again };
 					case "server_refusal": return { title: t.f_refused_title, why: t.f_refused_why, todo: t.f_refused_do };
@@ -4315,8 +4328,10 @@ public function check_error_console_efb(){
 					case "closed": return { title: t.f_closed_title, why: fill(t.f_closed_why), todo: t.f_closed_do };
 					case "rate_limited": return { title: t.f_rate_title, why: t.f_rate_why, todo: t.f_rate_do };
 					case "too_large": return { title: t.f_large_title, why: t.f_large_why, todo: t.f_large_do };
-					case "blocked": return { title: t.f_blocked_title, why: fill(t.f_blocked_why), todo: f.securityPlugin ? fill(t.f_blocked_do_plugin, f.securityPlugin, at) : fill(t.f_blocked_do_host, at) };
+					case "blocked": return { title: t.f_blocked_title, why: fill(t.f_blocked_why), todo: f.challenge ? fill(t.f_challenge_do, at) : (f.securityPlugin ? fill(t.f_blocked_do_plugin, securityPlugin, at) : fill(t.f_blocked_do_host, at)) };
 					case "unknown_outcome": return { title: t.f_noanswer_title, why: t.f_noanswer_why, todo: fill(t.f_noanswer_do, at), link: t.messagesUrl };
+					case "server_error": return { title: fill(t.f_server_title), why: t.f_server_why, todo: fill(t.f_server_do, at), link: t.messagesUrl };
+					case "bad_answer": return { title: t.f_badjson_title, why: t.f_badjson_why, todo: fill(t.f_badjson_do, at), link: t.messagesUrl };
 					default: return { title: fill(t.f_rejected_title), why: t.f_rejected_why, todo: t.f_rejected_do };
 				}
 			},
@@ -4359,8 +4374,23 @@ public function check_error_console_efb(){
 				if (dismissBtn) dismissBtn.addEventListener("click", () => this.dismissError(errorKey));
 				const copyBtn = item.querySelector(".efb-btn-copy");
 				if (copyBtn) copyBtn.addEventListener("click", () => {
+					const code = item.querySelector(".efb-failure-tech code");
 					const done = () => { copyBtn.textContent = this.t.copiedDone; };
-					try { navigator.clipboard.writeText(tech).then(done, done); } catch (e) { done(); }
+					/* Without a secure context (plain http) the Clipboard API is missing: select
+					   the text and use the old copy command; if that fails too, the text stays
+					   selected for a manual copy and "Copied" is not claimed. */
+					const fallback = () => {
+						try {
+							const range = document.createRange(); range.selectNodeContents(code);
+							const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
+							if (document.execCommand("copy")) done();
+						} catch (e) {}
+					};
+					if (window.isSecureContext && navigator.clipboard && navigator.clipboard.writeText) {
+						navigator.clipboard.writeText(tech).then(done, fallback);
+					} else {
+						fallback();
+					}
 				});
 				list.insertBefore(item, list.firstChild);
 			},

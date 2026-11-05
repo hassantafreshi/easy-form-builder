@@ -3833,25 +3833,50 @@ public function check_nonce_permission_efb($request) {
 										wp_send_json_success($response, 200);
 										die();
 									}
-									/* ZarinPal answers 101 ("already verified") for an Authority that
-									 * was paid before, and the Authority is not tied to this bill. So
-									 * one real payment could mark any number of other pending bills of
-									 * the same amount as paid. A 101 is accepted only while no other
-									 * entry already holds this Authority (a retry of the same bill
-									 * keeps working). */
+									/* One Authority pays for one bill. ZarinPal answers 101 ("already
+									 * verified") for an Authority paid before, and the Authority is not
+									 * tied to the bill, so one real payment could mark other pending bills
+									 * of the same amount as paid. The first bill to verify an Authority
+									 * claims it atomically (INSERT IGNORE, as Form_Runtime::begin does), so
+									 * two simultaneous submits cannot both pass; a retry of the same bill
+									 * still does. Payments verified before this release have no claim, so
+									 * a 101 is also refused when another entry already holds the Authority. */
 									$zp_code = isset($result['data']['code']) ? (int) $result['data']['code'] : 0;
 									$zp_auth = sanitize_text_field($request_data['auth'] ?? '');
-									if ($zp_code === 101 && $zp_auth !== '') {
-										$zp_used = $this->db->get_var($this->db->prepare(
-											"SELECT track FROM `$table_name_` WHERE track <> %s AND read_ <> 2 AND (content LIKE %s OR content LIKE %s) LIMIT 1",
-											$id,
-											'%' . $this->db->esc_like('"paymentIntent":"' . $zp_auth . '"') . '%',
-											'%' . $this->db->esc_like('\\"paymentIntent\\":\\"' . $zp_auth . '\\"') . '%'
+									if ($zp_auth !== '') {
+										$zp_used_message = esc_html__('This payment has already been used for another entry. If you think this is a mistake, contact the site owner with your payment receipt.', 'easy-form-builder');
+										$zp_claim_key = 'efb_zp_auth_' . md5($zp_auth);
+										$zp_claimed = $this->db->query($this->db->prepare(
+											"INSERT IGNORE INTO {$this->db->options} (option_name, option_value, autoload) VALUES (%s, %s, %s)",
+											$zp_claim_key, (string) $id, 'off'
 										));
-										if ($zp_used) {
-											$response = array('success' => false, 'm' => esc_html__('This payment has already been used for another entry. If you think this is a mistake, contact the site owner with your payment receipt.', 'easy-form-builder'));
+										wp_cache_delete($zp_claim_key, 'options');
+										wp_cache_delete('notoptions', 'options');
+										if ($zp_claimed === false) {
+											$response = array('success' => false, 'm' => esc_html__('The request could not be safely recorded. Your input has been kept.', 'easy-form-builder'));
 											wp_send_json_success($response, 200);
 											die();
+										}
+										if ($zp_claimed !== 1) {
+											$zp_owner = (string) $this->db->get_var($this->db->prepare("SELECT option_value FROM {$this->db->options} WHERE option_name = %s", $zp_claim_key));
+											if ($zp_owner !== (string) $id) {
+												$response = array('success' => false, 'm' => $zp_used_message);
+												wp_send_json_success($response, 200);
+												die();
+											}
+										}
+										if ($zp_code === 101) {
+											$zp_used = $this->db->get_var($this->db->prepare(
+												"SELECT track FROM `$table_name_` WHERE track <> %s AND read_ <> 2 AND (content LIKE %s OR content LIKE %s) LIMIT 1",
+												$id,
+												'%' . $this->db->esc_like('"paymentIntent":"' . $zp_auth . '"') . '%',
+												'%' . $this->db->esc_like('\\"paymentIntent\\":\\"' . $zp_auth . '\\"') . '%'
+											));
+											if ($zp_used) {
+												$response = array('success' => false, 'm' => $zp_used_message);
+												wp_send_json_success($response, 200);
+												die();
+											}
 										}
 									}
 									date_default_timezone_set('Iran');
@@ -4169,8 +4194,13 @@ public function check_nonce_permission_efb($request) {
 										 * pending verification - shows its own message: calling a
 										 * lockout "wrong password" made visitors retry and stay locked. */
 										$login_error_code = is_wp_error($user) ? (string) $user->get_error_code() : '';
-										$credential_codes = array('invalid_username', 'invalid_email', 'incorrect_password', 'empty_username', 'empty_password', 'authentication_failed');
-										$login_error_text = ($login_error_code === '' || in_array($login_error_code, $credential_codes, true)) ? '' : trim(wp_strip_all_tags($user->get_error_message()));
+										/* An allowlist, not a denylist: only refusals that do not depend on
+										 * the account (IP lockouts, rate limits) and EFB's own pending
+										 * verification are shown as they are. Anything else - an unknown
+										 * plugin's "account disabled", a 2FA step that only appears after a
+										 * correct password - could tell a stranger that an account exists. */
+										$login_passthrough = (array) apply_filters('efb_login_error_passthrough_codes', array('efb_pending_verification', 'too_many_retries', 'lockout', 'locked_out', 'ip_blocked', 'ip_blacklisted', 'loginizer_lockout', 'wfls_captcha_blocked', 'aiowps_login_lockout', 'login_lockout'));
+										$login_error_text = ($login_error_code !== '' && in_array($login_error_code, $login_passthrough, true)) ? trim(wp_strip_all_tags($user->get_error_message())) : '';
 										$send = [
 											'state' => false,
 											'pro' => $is_pro,

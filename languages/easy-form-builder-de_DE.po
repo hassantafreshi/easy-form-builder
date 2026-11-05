@@ -8,7 +8,7 @@ msgstr ""
 "POT-Creation-Date: 2026-11-03 00:00+0000\n"
 "X-Generator: EFB tests/core-i18n/build.php\n"
 "X-Domain: easy-form-builder\n"
-"PO-Revision-Date: 2026-11-05 08:13+0000\n"
+"PO-Revision-Date: 2026-11-05 09:02+0000\n"
 "Last-Translator: WhiteStudio <hi@whitestudio.team>\n"
 "Language-Team: de_DE\n"
 "Language: de_DE\n"
@@ -13946,3 +13946,42 @@ msgstr "Die Anfrage hat zu lange gedauert oder die Verbindung ist abgebrochen. D
 #, php-format
 msgid "Open Messages in Easy Form Builder and check for an entry at %s."
 msgstr "Öffne die Nachrichten in Easy Form Builder und prüfe, ob um %s ein Eintrag vorhanden ist."
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-formbuilder.php:3629
+#, php-format
+msgid "Cloudflare showed the visitor a security check instead of sending the form. Open Cloudflare (Security, Events) and look for a challenged request at %s."
+msgstr "Cloudflare hat dem Besucher eine Sicherheitsprüfung angezeigt, statt das Formular zu senden. Öffne in Cloudflare Security, Events und suche nach einer geprüften Anfrage um %s."
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-formbuilder.php:3631
+#, php-format
+msgid "Your server had an error (HTTP %d)"
+msgstr "Auf deinem Server ist ein Fehler aufgetreten (HTTP %d)"
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-formbuilder.php:3632
+msgid "PHP stopped with an error while handling the form. The entry may or may not have been saved."
+msgstr "PHP wurde bei der Verarbeitung des Formulars mit einem Fehler beendet. Der Eintrag wurde möglicherweise gespeichert, möglicherweise nicht."
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-formbuilder.php:3634
+#, php-format
+msgid "Open Messages and check for an entry at %s, then ask your hosting company for the PHP error log of that time."
+msgstr "Öffne die Nachrichten und prüfe, ob um %s ein Eintrag vorhanden ist. Frage dann deinen Hoster nach dem PHP-Fehlerprotokoll dieser Zeit."
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-formbuilder.php:3635
+msgid "Your server sent an unreadable answer"
+msgstr "Dein Server hat eine unlesbare Antwort gesendet"
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-formbuilder.php:3636
+msgid "Extra text, often a PHP notice or another plugin's output, was printed before the answer, so it could not be read. The entry may or may not have been saved."
+msgstr "Vor der Antwort wurde zusätzlicher Text ausgegeben, oft ein PHP-Hinweis oder die Ausgabe eines anderen Plugins, daher konnte sie nicht gelesen werden. Der Eintrag wurde möglicherweise gespeichert, möglicherweise nicht."
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-formbuilder.php:3638
+#, php-format
+msgid "Open Messages and check for an entry at %s. On a live site, turn off WP_DEBUG_DISPLAY or ask your hosting company to check the PHP error log."
+msgstr "Öffne die Nachrichten und prüfe, ob um %s ein Eintrag vorhanden ist. Schalte auf einer Live-Website WP_DEBUG_DISPLAY aus oder bitte deinen Hoster, das PHP-Fehlerprotokoll zu prüfen."

@@ -8,7 +8,7 @@ msgstr ""
 "POT-Creation-Date: 2026-11-03 00:00+0000\n"
 "X-Generator: EFB tests/core-i18n/build.php\n"
 "X-Domain: easy-form-builder\n"
-"PO-Revision-Date: 2026-11-05 08:13+0000\n"
+"PO-Revision-Date: 2026-11-05 09:02+0000\n"
 "Last-Translator: WhiteStudio <hi@whitestudio.team>\n"
 "Language-Team: fa_IR\n"
 "Language: fa_IR\n"
@@ -13947,3 +13947,42 @@ msgstr "درخواست بیش از حد طول کشید یا ارتباط قطع
 #, php-format
 msgid "Open Messages in Easy Form Builder and check for an entry at %s."
 msgstr "بخش پیام‌ها را در فرم‌ساز آسان باز کنید و ببینید آیا پاسخی در ساعت %s ثبت شده است."
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-formbuilder.php:3629
+#, php-format
+msgid "Cloudflare showed the visitor a security check instead of sending the form. Open Cloudflare (Security, Events) and look for a challenged request at %s."
+msgstr "Cloudflare به‌جای ارسال فرم، یک بررسی امنیتی به بازدیدکننده نشان داد. در Cloudflare بخش Security و سپس Events را باز کنید و دنبال درخواست بررسی‌شده در ساعت %s بگردید."
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-formbuilder.php:3631
+#, php-format
+msgid "Your server had an error (HTTP %d)"
+msgstr "سرور شما با خطا روبه‌رو شد (HTTP %d)"
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-formbuilder.php:3632
+msgid "PHP stopped with an error while handling the form. The entry may or may not have been saved."
+msgstr "PHP هنگام پردازش فرم با خطا متوقف شد. ممکن است پاسخ ذخیره شده باشد یا نشده باشد."
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-formbuilder.php:3634
+#, php-format
+msgid "Open Messages and check for an entry at %s, then ask your hosting company for the PHP error log of that time."
+msgstr "بخش پیام‌ها را باز کنید و ببینید آیا پاسخی در ساعت %s ثبت شده است؛ سپس گزارش خطای PHP همان زمان را از شرکت میزبانی بخواهید."
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-formbuilder.php:3635
+msgid "Your server sent an unreadable answer"
+msgstr "سرور شما پاسخی ناخوانا فرستاد"
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-formbuilder.php:3636
+msgid "Extra text, often a PHP notice or another plugin's output, was printed before the answer, so it could not be read. The entry may or may not have been saved."
+msgstr "متن اضافه‌ای، معمولاً یک هشدار PHP یا خروجی افزونهٔ دیگر، پیش از پاسخ چاپ شد و پاسخ قابل خواندن نبود. ممکن است پاسخ ذخیره شده باشد یا نشده باشد."
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-formbuilder.php:3638
+#, php-format
+msgid "Open Messages and check for an entry at %s. On a live site, turn off WP_DEBUG_DISPLAY or ask your hosting company to check the PHP error log."
+msgstr "بخش پیام‌ها را باز کنید و ببینید آیا پاسخی در ساعت %s ثبت شده است. روی سایت اصلی WP_DEBUG_DISPLAY را خاموش کنید یا از شرکت میزبانی بخواهید گزارش خطای PHP را بررسی کند."

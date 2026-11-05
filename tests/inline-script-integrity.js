@@ -31,7 +31,13 @@ const targets = JSON.parse(
 
 (async () => {
   const browser = await chromium.launch();
-  const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+  // Since 4.3.1 the Error Monitor is printed for administrators only. With
+  // EFB_ADMIN_STATE (a Playwright storageState file of a logged-in admin) the
+  // panel checks run as that admin; without it the page is checked as a guest,
+  // who must not get the panel at all.
+  const ADMIN_STATE = process.env.EFB_ADMIN_STATE || '';
+  const context = await browser.newContext(Object.assign({ viewport: { width: 1280, height: 900 } }, ADMIN_STATE ? { storageState: ADMIN_STATE } : {}));
+  const page = await context.newPage();
 
   // Headless Chrome refuses the storage-access permission on every page here.
   // It says nothing about the form, so counting it would only hide real errors.
@@ -48,7 +54,11 @@ const targets = JSON.parse(
 
   // Every script the guard rewrote must have parsed and run.
   const panelReady = await page.evaluate(() => typeof window.EFB_ERROR_PANEL === 'object' && window.EFB_ERROR_PANEL !== null);
-  panelReady ? ok('EFB_ERROR_PANEL parsed and initialised') : bad('EFB_ERROR_PANEL missing - a rewritten script failed to parse');
+  if (ADMIN_STATE) {
+    panelReady ? ok('EFB_ERROR_PANEL parsed and initialised (administrator)') : bad('EFB_ERROR_PANEL missing for an administrator - a rewritten script failed to parse');
+  } else {
+    !panelReady ? ok('guest page carries no Error Monitor') : bad('Error Monitor printed for a guest');
+  }
 
   const hidden = await page.evaluate(() => {
     const wrappers = [...document.querySelectorAll('div.efb.d-none')].filter(d => d.querySelector('script'));
@@ -102,7 +112,9 @@ const targets = JSON.parse(
     };
   });
 
-  if (!panel) {
+  if (!panel && !ADMIN_STATE) {
+    note('panel markup checks skipped: set EFB_ADMIN_STATE to an administrator storageState to run them');
+  } else if (!panel) {
     bad('panel unavailable to test');
   } else if (!panel.rendered) {
     bad('panel did not render after test()', `badge present: ${panel.badge}`);

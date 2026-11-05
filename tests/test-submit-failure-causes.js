@@ -18,15 +18,20 @@ const slice = (from, to) => { const a = core.indexOf(from); const b = core.index
   const sandbox = { ajax_object_efm: { text: { formNotSentCode: 'Not sent (error %d).', requestBlocked: 'BLOCKED' } } };
   vm.createContext(sandbox);
   vm.runInContext(slice('async function efb_response_info_efb', 'async function efb_fetch_public_request_efb'), sandbox);
+  assert(typeof sandbox.efb_request_text_efb === 'function', 'request text helper present');
+  assert.strictEqual(sandbox.efb_request_text_efb('identity_changed', { status: 409, m: 'You signed in or out in another tab. Please refresh the page and send the form again.' }), 'You signed in or out in another tab. Please refresh the page and send the form again.', 'tracker/reply keep the refresh instruction');
   const cause = (status, code, m, shape) => sandbox.efb_failure_cause_efb({ status, code: code || '', m: m || '', shape: shape || (m ? 'efb' : 'none') });
   const table = [
     [[0], 'unknown_outcome'],
     [[403, 'efb_nonce_expired'], 'stale_token'],
+    [[403, 'efb_nonce_missing', '', 'wp'], 'blocked'],
+    [[503, 'efb_human_shield_blocked', 'Please try again later'], 'server_refusal'],
+    [[500, '', 'The form could not be saved. Your input has been kept.'], 'server_failed'],
     [[403, 'rest_cookie_invalid_nonce'], 'stale_token'],
     [[409, 'efb_context_expired', 'x'], 'stale_context'],
     [[409, 'efb_identity_changed', 'x'], 'identity_changed'],
     [[500, 'efb_storage_failed', 'could not be saved'], 'server_failed'],
-    [[502, '', '', 'html'], 'unknown_outcome'],
+    [[502, '', '', 'html'], 'server_error'],
     [[403, 'efb_human_shield_blocked', 'too fast'], 'server_refusal'],
     [[401, 'rest_not_logged_in', '', 'wp'], 'closed'],
     [[403, 'rest_forbidden', '', 'wp'], 'closed'],
@@ -43,6 +48,11 @@ const slice = (from, to) => { const a = core.indexOf(from); const b = core.index
     const t = sandbox.efb_visitor_text_efb(c, { status: 418 });
     assert(t && !/jquery/i.test(t), c + ' has a plain message');
   }
+  // Phrases arrive HTML-escaped; plain-text uses decode them once.
+  const s3 = { document: { createElement: () => { const o = { set innerHTML(v) { this.value = v.replace(/&#039;/g, "'").replace(/&amp;/g, '&'); } }; return o; } } };
+  vm.createContext(s3);
+  vm.runInContext(slice('function efb_plain_text_efb', '/* What a refused response says about itself:'), s3);
+  assert.strictEqual(s3.efb_plain_text_efb('The website&#039;s security'), "The website's security");
   // An HTML firewall page is read as such, never shown.
   const html = { status: 403, headers: { get: h => (h === 'Content-Type' ? 'text/html' : null) }, clone() { return { json: async () => { throw new SyntaxError('<'); } }; } };
   const info = await sandbox.efb_response_info_efb(html);
@@ -67,7 +77,7 @@ const slice = (from, to) => { const a = core.indexOf(from); const b = core.index
   assert(/\$console_script_efb = \(is_user_logged_in\(\) && current_user_can\('manage_options'\)\)/.test(pub), 'Error Monitor printed for administrators only');
   assert(!/\$ar_core\['cache_plugins_public'\]/.test(pub), 'the cache plugin list is no longer sent to visitors');
   const fb = fs.readFileSync(__dirname + '/../includes/class-Emsfb-formbuilder.php', 'utf8');
-  for (const key of ['f_expired_title', 'f_cache_title', 'f_blocked_title', 'f_noanswer_title', 'f_storage_title', 'f_rejected_title', 'badge', 'onlyYou', 'visitorSaw', 'techDetails']) {
+  for (const key of ['f_expired_title', 'f_cache_title', 'f_blocked_title', 'f_noanswer_title', 'f_storage_title', 'f_rejected_title', 'f_server_title', 'f_badjson_title', 'f_challenge_do', 'badge', 'onlyYou', 'visitorSaw', 'techDetails']) {
     assert(fb.includes("'" + key + "'"), 'panel text ' + key);
   }
   const panelJs = fb.slice(fb.indexOf('failureTexts(f) {'), fb.indexOf('getDismissLabel(label) {'));

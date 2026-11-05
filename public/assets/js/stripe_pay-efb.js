@@ -289,7 +289,7 @@ async function confirm_stripe_payment_efb(paymentIntentId, trackid, formId) {
       // The server refused before any charge: show its reason when it gave one.
       const refusal = res && res.data && typeof res.data.m === 'string' && res.data.m ? res.data.m : '';
       stsStripeEfb.innerHTML = `<div class="text-danger"><strong>${efb_var.text.error}</strong></div>`;
-      if (refusal) { const reason = document.createElement('div'); reason.textContent = refusal; stsStripeEfb.appendChild(reason); }
+      if (refusal) { const reason = document.createElement('div'); reason.textContent = typeof efb_plain_text_efb === 'function' ? efb_plain_text_efb(refusal) : refusal; stsStripeEfb.appendChild(reason); }
       btnStripeEfb.classList.remove('disabled');
       paymentStarted = false;
       btnStripeEfb.innerHTML = efb_var.text.payNow;
@@ -303,7 +303,9 @@ async function confirm_stripe_payment_efb(paymentIntentId, trackid, formId) {
     if (beforeCharge) {
       // Nothing was charged: say so and let the visitor try again.
       const t = efb_var && efb_var.text ? efb_var.text : {};
-      stsStripeEfb.textContent = (error && error.efb_visitor_text && status >= 400 && status < 500) ? error.message : (t.paymentNotStartedNoCharge || 'The payment could not be started and nothing was charged. Please try again.');
+      const shown = (error && error.efb_visitor_text && status >= 400 && status < 500) ? error.message : (t.paymentNotStartedNoCharge || 'The payment could not be started and nothing was charged. Please try again.');
+      // Phrases arrive HTML-escaped; this element shows plain text.
+      stsStripeEfb.textContent = typeof efb_plain_text_efb === 'function' ? efb_plain_text_efb(shown) : shown;
       btnStripeEfb.classList.remove('disabled');
       paymentStarted = false;
       btnStripeEfb.innerHTML = efb_var.text.payNow;

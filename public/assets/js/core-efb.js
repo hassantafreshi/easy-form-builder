@@ -2111,9 +2111,17 @@ function efb_report_submit_ajax_error_efb(error, details = {}) {
   if ((f.cause === 'stale_token' || f.cause === 'stale_context') && f.legacy && pageCaches.length && !(ajax_object_efm && Number(ajax_object_efm.cache_bypassed) === 1)) {
     f.cachePlugin = pageCaches[0] && pageCaches[0].name ? pageCaches[0].name : '';
   }
+  f.visitorText = efb_plain_text_efb(f.visitorText);
+  f.serverMessage = efb_plain_text_efb(f.serverMessage);
   if (f.cause === 'blocked') {
-    const sec = parseList(ajax_object_efm && ajax_object_efm.security_plugins);
-    if (sec.length && sec[0] && sec[0].name) f.securityPlugin = sec[0].name;
+    if (f.shape === 'challenge') {
+      f.challenge = true; // Cloudflare answered with a challenge page (cf-mitigated)
+    } else {
+      // Only plugins that run a firewall can refuse a request with 403.
+      const firewalls = ['wordfence', 'better-wp-security', 'all-in-one-wp-security-and-firewall', 'shield-security', 'sucuri-scanner', 'bbq-firewall', 'wp-cerber', 'bulletproof-security'];
+      const sec = parseList(ajax_object_efm && ajax_object_efm.security_plugins).filter(p => p && p.name && firewalls.includes(String(p.slug || '')));
+      if (sec.length) f.securityPlugin = sec[0].name;
+    }
   }
   panel.log(f.visitorText || 'Form submission failed', {
     source: 'efb-submit',
@@ -2143,6 +2151,11 @@ async function efb_response_message_efb(response) {
     return typeof m === 'string' && m.trim() ? m : '';
   } catch (e) { return ''; }
 }
+/* Phrases from text_efb() arrive HTML-escaped (esc_html__), which is right for
+ * innerHTML but shows "&#039;" when a phrase is used as plain text. */
+function efb_plain_text_efb(s) {
+  try { const ta = document.createElement('textarea'); ta.innerHTML = String(s == null ? '' : s); return ta.value; } catch (e) { return String(s == null ? '' : s); }
+}
 /* What a refused response says about itself: HTTP status, the EFB or WordPress
  * error code, an EFB message written for visitors (data.m) and the body's shape.
  * Never the raw body: a firewall page or a stack trace is not for visitors. */
@@ -2168,10 +2181,17 @@ async function efb_response_info_efb(response) {
 function efb_failure_cause_efb(info) {
   const s = info ? Number(info.status) || 0 : 0, c = info ? String(info.code || '') : '';
   if (!s) return 'unknown_outcome';
-  if (['rest_cookie_invalid_nonce', 'efb_nonce_expired', 'efb_nonce_missing'].includes(c)) return 'stale_token';
+  // The X-WP-Nonce header never arrived: a proxy, firewall or security plugin removed it.
+  if (c === 'efb_nonce_missing') return 'blocked';
+  if (['rest_cookie_invalid_nonce', 'efb_nonce_expired'].includes(c)) return 'stale_token';
   if (c === 'efb_context_expired') return 'stale_context';
   if (c === 'efb_identity_changed') return 'identity_changed';
-  if (s >= 500) return (info.shape === 'efb' || /^efb_/.test(c)) ? 'server_failed' : 'unknown_outcome';
+  if (/human_shield/.test(c)) return 'server_refusal';
+  if (s >= 500) {
+    if (/^efb_.*(storage|save|insert)/.test(c) || (info.shape === 'efb' && !c)) return 'server_failed';
+    if (info.shape === 'efb' || /^efb_/.test(c)) return 'server_refusal';
+    return 'server_error'; // a PHP fatal or a proxy error page: the outcome is unknown
+  }
   if (info.shape === 'efb') return 'server_refusal';
   if (s === 401 || ['rest_not_logged_in', 'rest_forbidden', 'rest_disabled', 'rest_cannot_access', 'rest_login_required'].includes(c)) return 'closed';
   if (s === 429) return 'rate_limited';
@@ -2194,6 +2214,8 @@ function efb_visitor_text_efb(cause, info) {
     case 'rate_limited': return (info && info.m) || t.tooManyRequests || 'Too many requests. Please try again shortly.';
     case 'too_large': return t.formTooLarge || 'The form is too large to send, usually because of an attached file or a signature. Use a smaller file and try again.';
     case 'blocked': return t.requestBlocked || "The website's security settings blocked this form. Please try again in a few minutes. If it happens again, contact the site owner.";
+    case 'server_error':
+    case 'bad_answer':
     case 'unknown_outcome': return t.noAnswerCheckFirst || 'The connection was interrupted, so we could not confirm that your form arrived. If you did not receive a confirmation, please send it again.';
   }
   return withCode(t.formNotSentCode || 'The form could not be sent (error %d). Your answers are kept. Please try again later.');
@@ -2203,6 +2225,9 @@ function efb_visitor_text_efb(cause, info) {
 function efb_request_text_efb(cause, info) {
   const t = (typeof ajax_object_efm !== 'undefined' && ajax_object_efm && ajax_object_efm.text) ? ajax_object_efm.text : {};
   if (cause === 'unknown_outcome') return t.noAnswerRetry || 'No answer from the website. Please check your connection and try again.';
+  // The server's own text already says to refresh; these requests are not re-prepared in place.
+  if ((cause === 'stale_context' || cause === 'identity_changed') && info && info.m) return info.m;
+  if (cause === 'stale_context' || cause === 'identity_changed') return t.nonceExpired || 'Your session has expired. Please refresh the page and try again.';
   if (cause === 'rejected' || ((cause === 'server_refusal' || cause === 'server_failed') && !(info && info.m))) {
     return String(t.requestFailedCode || 'Your request could not be completed (error %d). Please try again later.').replace('%d', String(info && info.status ? info.status : 0));
   }
@@ -2211,8 +2236,11 @@ function efb_request_text_efb(cause, info) {
 /* Turns a refused response into an Error whose message is already the visitor text. */
 async function efb_request_error_efb(response) {
   const info = await efb_response_info_efb(response);
-  const error = new Error(efb_request_text_efb(efb_failure_cause_efb(info), info));
+  const cause = efb_failure_cause_efb(info);
+  if ((cause === 'stale_context' || cause === 'identity_changed') && window.EFBRuntime && typeof window.EFBRuntime.reset === 'function') window.EFBRuntime.reset(0);
+  const error = new Error(efb_request_text_efb(cause, info));
   error.status = response.status;
+  error.code = info.code;
   error.efb_visitor_text = true;
   return error;
 }
@@ -2237,6 +2265,16 @@ async function efb_fetch_public_request_efb(url, options, operation, sid, fid) {
     return response;
   } catch (error) {
     if (window.EFBRequestHealth) window.EFBRequestHealth.report(operation, error.status || 0);
+    /* A refusal from forms/session/prepare (expired context, login changed, login
+       required) carries a code: say that, not "no answer from the website", and
+       drop the refused context so a reload is not the only way out. */
+    if (error && error.code && !error.efb_visitor_text) {
+      const info = { status: error.status || 0, code: error.code, m: error.message || '', shape: 'efb' };
+      const cause = efb_failure_cause_efb(info);
+      if ((cause === 'stale_context' || cause === 'identity_changed') && window.EFBRuntime && typeof window.EFBRuntime.reset === 'function') window.EFBRuntime.reset(Number(fid) || 0);
+      error.message = efb_request_text_efb(cause, info);
+      error.efb_visitor_text = true;
+    }
     throw error;
   }
 }
@@ -2273,10 +2311,11 @@ async function efb_fetch_public_request_efb(url, options, operation, sid, fid) {
       signal: typeof AbortSignal!=='undefined' && AbortSignal.timeout ? AbortSignal.timeout(45000) : undefined,
     };
 
+  let refreshed = false;
   try {
     let response = await fetch(url, requestOptions);
     if (await efb_is_nonce_error_efb(response)) {
-      const refreshed = await efb_refresh_nonce(data && data.sid ? data.sid : '', form_id);
+      refreshed = await efb_refresh_nonce(data && data.sid ? data.sid : '', form_id);
 
       if (refreshed) {
         const retryHeaders = new Headers({
@@ -2290,8 +2329,10 @@ async function efb_fetch_public_request_efb(url, options, operation, sid, fid) {
     }
     if (!response.ok) {
       const info = await efb_response_info_efb(response);
-      const cause = efb_failure_cause_efb(info);
-      if (cause === 'unknown_outcome') {
+      let cause = efb_failure_cause_efb(info);
+      // A fresh nonce was issued and still refused: something on the way strips the header or the cookies.
+      if (cause === 'stale_token' && refreshed) cause = 'blocked';
+      if (cause === 'unknown_outcome' || cause === 'server_error') {
         // No EFB answer (a 5xx page, a proxy timeout): the entry may or may not
         // be saved, so the catch below asks the server before saying anything.
         const requestError = new Error(`HTTP ${response.status}`);
@@ -2307,7 +2348,13 @@ async function efb_fetch_public_request_efb(url, options, operation, sid, fid) {
       await response_fill_form_efb({ success: false, data: { success: false, m: visitorText, efb_ajax_submission_error: true } }, form_id);
       return;
     }
-    const responseData = await response.json();
+    let responseData;
+    try { responseData = await response.json(); } catch (parseError) {
+      // A 2xx whose body is not JSON: PHP notices or another plugin printed before the answer.
+      const unreadable = new Error('Unreadable answer (HTTP ' + response.status + ')');
+      unreadable.status = response.status; unreadable.efb_bad_answer = true;
+      throw unreadable;
+    }
 	if (window.EFBRuntime && responseData?.data?.success === true) window.EFBRuntime.complete(Number(form_id)||0,'form');
 
     await response_fill_form_efb(responseData, form_id);
@@ -2323,10 +2370,11 @@ async function efb_fetch_public_request_efb(url, options, operation, sid, fid) {
     }
     /* No answer, a timeout, or a 5xx without an EFB message. "jQuery" was never
        the cause; say what is known: the outcome could not be confirmed. */
-    const failureMessage=runtime && (!error.status || error.status>=500) && typeof efb_request_health!=='undefined' && efb_request_health.unknown_message
+    const failureMessage=runtime && (!error.status || error.status>=500 || error.efb_bad_answer) && typeof efb_request_health!=='undefined' && efb_request_health.unknown_message
       ? efb_request_health.unknown_message
       : efb_visitor_text_efb('unknown_outcome',{status:error.status||0});
-    efb_report_submit_ajax_error_efb(error, { status: error.status || 0, url, formId: form_id, failure: { cause: 'unknown_outcome', status: error.status || 0, code: '', serverMessage: '', visitorText: failureMessage, legacy: !runtime || !!runtime.legacy } });
+    const outcomeCause = error && error.efb_bad_answer ? 'bad_answer' : (error && error.status >= 500 ? 'server_error' : 'unknown_outcome');
+    efb_report_submit_ajax_error_efb(error, { status: error.status || 0, url, formId: form_id, failure: { cause: outcomeCause, status: error.status || 0, code: '', serverMessage: '', visitorText: failureMessage, legacy: !runtime || !!runtime.legacy } });
     await response_fill_form_efb({ success: false, data: { success: false, m: failureMessage, efb_ajax_submission_error: true } }, form_id);
   }
   bdy = document.getElementById('body_efb_'+form_id);
@@ -2985,6 +3033,7 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
     });
     return false;
   }
+  let payment_done_efb = true; // false only for a payment form that has not been paid yet
   if(form_type == 'payment'){
     /* The pay-first guard. It used to test findIndex() as a boolean: -1 (not
        paid) is truthy, so it never stopped an unpaid visitor, and it blocked a
@@ -3002,6 +3051,7 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
         const scope = efb_explicit_sendback_scope_efb(x);
         return scope === null || scope === Number(form_id);
       });
+      payment_done_efb = paid;
       if (!paid && btn_state != 'prev_efb' && Number(no_step) >= step_payment_exists) {
         const _pt = (typeof ajax_object_efm !== 'undefined' && ajax_object_efm.text) ? ajax_object_efm.text : {};
         alert_message_efb(_pt.paymentNotCompleted || 'Your payment has not been completed. Please pay before sending the form.', '', 10, 'warning');
@@ -3143,7 +3193,9 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
         });
        }
        smoothy_scroll_postion_efb(id_body);
-       if(no_step==step_payment_exists){
+       // Arriving on the gateway step locks Next until the payment is made - not after it
+       // (a visitor back from the bank already paid; nothing would unlock it again).
+       if(no_step==step_payment_exists && !payment_done_efb){
          if(el) el.classList.add('disabled');
          efb_steps_debug_efb('next:payment-step-disabled-button', {
            form_id: form_id,

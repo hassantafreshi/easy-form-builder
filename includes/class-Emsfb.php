@@ -903,6 +903,17 @@ class Emsfb {
     }
 
     public function refresh_plugin_lists_efb() {
+        // When Easy Form Builder itself was just deactivated, its cleanup has removed
+        // these lists; rebuilding them here would leave them behind.
+        if (defined('EMSFB_PLUGIN_FILE')) {
+            $self = plugin_basename(EMSFB_PLUGIN_FILE);
+            $active = in_array($self, (array) get_option('active_plugins', array()), true);
+            if (!$active && is_multisite()) {
+                $network = (array) get_site_option('active_sitewide_plugins', array());
+                $active = isset($network[$self]);
+            }
+            if (!$active) return;
+        }
         do_action('emsfb_update_cache_plugins_list');
         do_action('emsfb_update_security_plugins_list');
     }
