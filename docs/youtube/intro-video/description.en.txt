@@ -1,0 +1,62 @@
+Easy Form Builder is a free drag-and-drop form builder plugin for WordPress. Create contact forms, Stripe & PayPal payment forms, surveys, login and registration forms, file upload and multi-step forms in one plugin, with no code.
+
+⬇️ Download free on WordPress.org: https://wordpress.org/plugins/easy-form-builder/
+🌐 Official website, docs & support: https://whitestudio.team/
+
+Contact forms here, payments there, surveys in yet another plugin? Every extra plugin is one more thing to update, learn and keep secure. Easy Form Builder by WhiteStudio replaces them with a single WordPress form plugin: drag, drop and publish, and your form is live in minutes. No code, no developer.
+
+⏱️ CHAPTERS
+0:00 Too many WordPress form plugins?
+0:11 Drag & drop builder: contact, support & survey forms
+0:24 Stripe & PayPal payment forms, login & sign-up forms
+0:34 File uploads, voice & video recording, smart forms
+0:46 Job applications, events & email notifications
+
+✅ WHAT YOU CAN BUILD WITH EASY FORM BUILDER
+• Contact forms for every inquiry
+• Support and feedback forms with message tracking (every entry gets a confirmation code)
+• Surveys and polls with instant results
+• Payment forms with Stripe and PayPal: one-time payments or recurring subscriptions
+• Login (sign-in) and registration (sign-up) forms, plus members-only forms
+• File upload forms
+• Voice message, video testimonial and screen recording forms (great for bug reports)
+• Multi-step forms
+• Conditional logic: show or hide fields based on the visitor's answers
+• E-signature forms and location (map) picker forms
+• Job application and event registration forms
+• Branded email notifications designed in a visual editor
+
+💡 GOOD TO KNOW
+• Free on WordPress.org. Free Plus, also free, unlocks conditional logic, Stripe and PayPal payments and advanced fields in return for a small "Powered by Easy Form Builder" credit.
+• Your form data stays on your own WordPress site. Submissions are not sent to third-party servers by default.
+• A built-in email delivery test checks whether your form emails really arrive and reports SPF, DKIM and DMARC.
+• Translated into 58 locales, with full right-to-left (RTL) support.
+• Pro adds integrations such as SMS and Telegram notifications and Google Sheets.
+
+❓ FAQ
+What is Easy Form Builder?
+Easy Form Builder is a free WordPress form builder plugin made by WhiteStudio. It lets you create contact, payment, survey, login, registration, file upload and multi-step forms with drag and drop, without writing code.
+
+Is Easy Form Builder free?
+Yes. The drag-and-drop builder, multi-step forms, file uploads, email notifications, confirmation codes and CSV export are free.
+
+Can a WordPress form accept payments?
+Yes. Easy Form Builder connects your form to Stripe or PayPal for one-time payments and recurring subscriptions.
+
+Can I move my forms from Contact Form 7?
+Yes. Easy Form Builder imports Contact Form 7 forms in one click, and your original forms stay unchanged.
+
+How do I install it?
+In your WordPress dashboard go to Plugins → Add New, search for "Easy Form Builder", then click Install and Activate.
+
+🔗 USEFUL LINKS
+• Download (WordPress.org): https://wordpress.org/plugins/easy-form-builder/
+• WhiteStudio website: https://whitestudio.team/
+• Documentation: https://whitestudio.team/documents/
+• How to create a payment form: https://whitestudio.team/document/how-to-create-a-payment-form-in-easy-form-builder/
+• Activate Free Plus: https://whitestudio.team/document/easy-form-builder-free-plus-activation-guide/
+• Support: https://whitestudio.team/support/
+
+👍 Found this useful? Like the video and subscribe for more WordPress form tutorials.
+
+#EasyFormBuilder #WordPress #FormBuilder #WordPressPlugin #NoCode
