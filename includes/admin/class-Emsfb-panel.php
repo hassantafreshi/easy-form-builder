@@ -17,7 +17,9 @@ class Panel_edit  {
 				$plugins['wpsms']=1;
 			}
 			$plugins_get =null;
-			wp_register_script('gchart-js', 'https://www.gstatic.com/charts/loader.js', null, null, true);
+			// async: only the response charts need it, and a hanging gstatic.com
+			// must not hold back the panel.
+			wp_register_script('gchart-js', 'https://www.gstatic.com/charts/loader.js', null, null, array('in_footer' => true, 'strategy' => 'async'));
 			wp_enqueue_script('gchart-js');
 			$img = ["logo" => ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo-easy-form-builder.svg',
 			"head"=> ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/header.png',
@@ -68,16 +70,20 @@ class Panel_edit  {
 				echo $efbFunction->render_addon_recovery_reload_ui_efb(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				return;
 			}
-			$addon_health = $efbFunction->get_addon_local_health_efb( $ac );
+			// Scope 'admin': a package from before the add-on shipped its own translations
+			// counts as missing here (and only here and on Create), so recovery replaces it.
+			$addon_health = $efbFunction->get_addon_local_health_efb( $ac, 'admin' );
 			$download_addons = ! empty( $addon_health['missing'] );
 
 			// After a plugin update, block the panel until missing add-on files are
 			// reinstalled; show the recovery screen instead of the panel contents.
-			$addon_recovery_state = $efbFunction->addon_recovery_state_efb( $ac );
+			$addon_recovery_state = $efbFunction->addon_recovery_state_efb( $ac, 'admin' );
 			if ( 'block' === $addon_recovery_state ) {
-				echo $efbFunction->render_addon_recovery_ui_efb( 'block' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				echo $efbFunction->render_addon_recovery_ui_efb( 'block', 'admin' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				return;
 			}
+			// A locale now in use may lack an add-on language file pruned at install.
+			$efbFunction->process_addon_i18n_refetch_efb();
 
 			if(isset($ac->AdnPAP) && $ac->AdnPAP==1){
 					if(!file_exists(EMSFB_PLUGIN_DIRECTORY."/vendor/paypal/paypalefb.php")) {
@@ -204,7 +210,7 @@ class Panel_edit  {
 					</nav>
 					<div id="alert_efb" class="efb mx-5"></div>
 					<?php if ( 'inline' === $addon_recovery_state ) : ?>
-						<?php echo $efbFunction->render_addon_recovery_ui_efb( 'inline' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+						<?php echo $efbFunction->render_addon_recovery_ui_efb( 'inline', 'admin' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 					<?php endif; ?>
 					<!-- end  new nav  -->
 						<div class="efb modal fade " id="settingModalEfb" aria-hidden="true" aria-labelledby="settingModalEfb"  role="dialog" tabindex="-1" data-backdrop="static" >
@@ -292,6 +298,7 @@ class Panel_edit  {
 				'wsteam'=> $wsteam_domain,
 				'emailHealth'=>$email_health,
 				'emailMonitor' => class_exists('\Emsfb\Email_Monitor') ? \Emsfb\Email_Monitor::get_public_status() : array(),
+				'emailDelivery' => class_exists('\Emsfb\Email_Monitor') ? \Emsfb\Email_Monitor::get_delivery_state() : array(),
 				'onboarding_pending' => emsfb_onboarding_pending_efb(),
 				'upload_max'=>(int) floor(wp_max_upload_size() / MB_IN_BYTES),
 			), 'panel');
@@ -333,7 +340,7 @@ class Panel_edit  {
 			if(isset($ac->AdnOF) && $ac->AdnOF==1){
 				$url = EMSFB_PLUGIN_URL . 'vendor/offline/json/countries.js';
 			}
-			wp_register_script('countries-js', $url, null, null, true);
+			wp_register_script('countries-js', $url, null, null, array('in_footer' => true, 'strategy' => 'async'));
 			wp_enqueue_script('countries-js');
 			wp_register_script('intlTelInput-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/intlTelInput.min-efb.js', null, null, true);
 			wp_enqueue_script('intlTelInput-js');
@@ -344,15 +351,9 @@ class Panel_edit  {
 			$stng = $this->db->get_results( "SELECT * FROM `$table_name`  ORDER BY id DESC LIMIT 1" );
 
 			if (!empty($stng) && isset($stng[0]->setting)) {
-				$decoded = json_decode($stng[0]->setting);
-				if ($decoded === null) {
-					$decoded = json_decode(stripslashes($stng[0]->setting));
-				}
+				$decoded = \emsfb_json_decode_efb($stng[0]->setting);
 				if ($decoded !== null) {
 
-					if (isset($decoded->emailTemp)) {
-						$decoded->emailTemp = str_replace('"', "'", $decoded->emailTemp);
-					}
 					$stng[0]->setting = json_encode($decoded, JSON_UNESCAPED_UNICODE);
 				}
 			}
@@ -409,17 +410,21 @@ class Panel_edit  {
 		$value = $this->db->get_results( "SELECT msg_id,form_id FROM `$table_name` WHERE read_=0 OR read_=3" );
 		return $value;
 	}
+	/* Same rule as the Create page: the score of the check the owner ran,
+	   against Email_Monitor::HEALTHY_SCORE, instead of a recursive search that
+	   could pick a SpamAssassin figure and a threshold nothing else uses. */
 	private function get_email_health_status_for_builder() {
-		$status = get_option('emsfb_email_status', false);
 		$score = null;
-
-		if (is_array($status)) {
-			$score = $this->extract_email_score_from_status($status);
+		$threshold = 70;
+		if (class_exists('\Emsfb\Email_Monitor')) {
+			$delivery = \Emsfb\Email_Monitor::get_delivery_state();
+			$score = ('tested' === $delivery['state'] && isset($delivery['score'])) ? $delivery['score'] : null;
+			$threshold = \Emsfb\Email_Monitor::HEALTHY_SCORE;
 		}
 
 		return array(
 			'score' => $score,
-			'threshold' => 75,
+			'threshold' => $threshold,
 		);
 	}
 	private function extract_email_score_from_status($value) {

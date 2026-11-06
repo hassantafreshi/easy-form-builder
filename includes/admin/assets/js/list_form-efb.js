@@ -1,18 +1,9 @@
 
+var efb_local_text_efb = null;
  let devMode_efb = false
 
 function efb_safe_json_parse(str) {
-  try { return JSON.parse(str); } catch (e) {  }
-  var v = str.replace(/[\\]/g, '');
-  v = v.replace(/[\x00-\x1F\x7F]/g, function(c) {
-    switch (c) {
-      case '\n': return '\\n';
-      case '\r': return '\\r';
-      case '\t': return '\\t';
-      default: return '';
-    }
-  });
-  return JSON.parse(v);
+  return efbParseJson(str);
 }
 
 if (typeof efbLoadingCard === 'undefined') {
@@ -205,14 +196,8 @@ jQuery(function () {
   devMode_efb =Number(ajax_object_efm.devMode) === 1 ? true : false;
   if (ajax_object_efm.setting, ajax_object_efm.setting.length > 0) {
     const rawSetting = ajax_object_efm.setting[0].setting;
-    try { valueJson_ws_setting = JSON.parse(rawSetting); }
-    catch(e) {
-      try { valueJson_ws_setting = JSON.parse(rawSetting.replace(/\\\\/g, '\\')); }
-      catch(e2) {
-        try { valueJson_ws_setting = JSON.parse(rawSetting.replace(/[\\]/g, '')); }
-        catch(e3) {  valueJson_ws_setting = {}; }
-      }
-    }
+    try { valueJson_ws_setting = efbParseJson(rawSetting); }
+    catch(e) { valueJson_ws_setting = {}; }
     if (valueJson_ws_setting.bootstrap == 0 && ajax_object_efm.bootstrap == 1) {
       if (localStorage.getItem('bootstrap_w') === null) localStorage.setItem('bootstrap_w', 0)
       if (localStorage.getItem('bootstrap_w') >= 0 && localStorage.getItem('bootstrap_w') < 3) {
@@ -359,7 +344,18 @@ function toast_efb(icon, message, type = 'success') {
 }
 
 function copyShortcode_efb(text, btn ,type ='shortcode') {
-  navigator.clipboard.writeText(text).then(() => {
+  // navigator.clipboard exists only on https (or localhost); wp-admin on plain
+  // http threw a TypeError here. The older copy command works there.
+  const writeText = (navigator.clipboard && window.isSecureContext)
+    ? navigator.clipboard.writeText(text)
+    : new Promise((resolve, reject) => {
+        const area = document.createElement('textarea');
+        area.value = text; area.setAttribute('readonly', ''); area.style.position = 'fixed'; area.style.opacity = '0';
+        document.body.appendChild(area); area.select();
+        const ok = document.execCommand('copy'); document.body.removeChild(area);
+        ok ? resolve() : reject(new Error('copy failed'));
+      });
+  writeText.then(() => {
     const icon = btn.querySelector('i');
     if (icon) {
       icon.className = 'efb bi-clipboard-check text-success';
@@ -511,17 +507,17 @@ function escapeContentPreviewText_efb(value) {
 
 function getContentPreview_efb(contentStr) {
   try {
-    const parsed = JSON.parse(replaceContentMessageEfb(contentStr));
+    const parsed = efbParseJson(replaceContentMessageEfb(contentStr, true));
     if (!Array.isArray(parsed)) return { short: '—', full: '' };
     const parts = [];
     for (const c of parsed) {
       if (!c || !c.value || c.value === '@file@') continue;
       if (c.type === 'maps' || c.type === 'esign' || c.type === 'payment' || c.type ==='w_link') continue;
-      let val = String(c.value).replace(/<[^>]*>/g, '').replace(/@efb!/g, ',').replace(/@efb[^#]*#/g, ' ').replace(/,\s*$/, '').trim();
+      let val = String(c.value).replace(/<[^>]*>/g, '').replace(/@efb@dq#/g, '"').replace(/@efb!/g, ',').replace(/@efb[^#]*#/g, ' ').replace(/,\s*$/, '').trim();
       if (val.length > 0) {
         // c.name/c.id_ come straight off the stored submission, not the
         // trusted form definition - never trust them into innerHTML unescaped.
-        const label = escapeContentPreviewText_efb(c.name || c.id_ || '');
+        const label = escapeContentPreviewText_efb(String(c.name || c.id_ || '').replace(/@efb@dq#/g, '"'));
         val = escapeContentPreviewText_efb(val);
         parts.push(label ? `${label}: ${val}` : val);
       }
@@ -541,7 +537,8 @@ function fun_ws_show_list_messages(value) {
   let head = `<!-- rows -->`;
   let iconRead = 'bi-envelope-open';
   let iconNotRead = ' <path  d="M.05 3.555A2 2 0 0 1 2 2h12a2 2 0 0 1 1.95 1.555L8 8.414.05 3.555zM0 4.697v7.104l5.803-3.558L0 4.697zM6.761 8.83l-6.57 4.027A2 2 0 0 0 2 14h12a2 2 0 0 0 1.808-1.144l-6.57-4.027L8 9.586l-1.239-.757zm3.436-.586L16 11.801V4.697l-5.803 3.546z"/>';
-  const fun = pro_ws_efb == true ? "generat_csv_emsFormBuilder()" : `pro_show_efb('${efb_var.text.availableInProversion}')`;
+  // CSV export is free on every plan since 4.3.1.
+  const fun = "generat_csv_emsFormBuilder()";
   const fun1 = pro_ws_efb == true ? "event_selected_row_emsFormBuilder('read')" : `pro_show_efb('${efb_var.text.availableInProversion}')`;
 
   if (form_type_emsFormBuilder == 'subscribe') {
@@ -898,6 +895,49 @@ function fun_get_messages_by_id(id) {
     })
   });
 }
+function efb_response_admin_post_efb(data, onSuccess, operation) {
+  const success = res => {
+    if (window.EFBRuntime && res?.data?.success===true) window.EFBRuntime.complete(0,operation);
+    onSuccess(res);
+  };
+  const fail = async (xhr) => {
+    if (window.EFBRuntime && operation==='admin_reply') {
+      const saved=await window.EFBRuntime.resolve(data,0,'admin_reply');
+      if (saved) { success(saved); return; }
+    }
+    if (window.EFBRequestHealth) window.EFBRequestHealth.report(operation, xhr.status >= 400 ? xhr.status : 0);
+    const button = document.getElementById('replayB_emsFormBuilder');
+    if (button) { button.disabled = false; button.classList.remove('disabled'); }
+    const state = document.getElementById('replay_state__emsFormBuilder');
+    if (state) state.textContent = efb_var.text.error403 || efb_var.text.error;
+    // Keep the editor and attachment queue intact on an uncertain result.
+    if (operation === 'admin_tracker') state_rply_btn_efb(100);
+  };
+  const send = (payload, retry) => {
+    const pending=jQuery.post(ajax_object_efm.ajax_url, payload, success, 'json').fail(xhr => {
+    const code = xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.code;
+    if (xhr.status === 403 && code === 'efb_nonce_expired' && !retry && typeof efb_fetch_fresh_nonce_efb === 'function') {
+      efb_fetch_fresh_nonce_efb().then(fresh => {
+        if (!fresh) { fail(xhr); return; }
+        _efb_core_nonce_ = fresh;
+        send(Object.assign({}, payload, { nonce: fresh }), true);
+      }).catch(() => fail(xhr));
+    } else fail(xhr);
+    });
+    if (typeof pending.abort==='function' && typeof pending.always==='function') {
+      const timer=setTimeout(()=>pending.abort('timeout'),45000);
+      pending.always(()=>clearTimeout(timer));
+    }
+    return pending;
+  };
+  if (window.EFBRuntime) {
+    return window.EFBRuntime.decorate(data,0,operation).then(runtime=>{
+      data.nonce=runtime.nonce;
+      send(data,false);
+    }).catch(error=>fail({status:error.status||0}));
+  }
+  return send(data, false);
+}
 function fun_emsFormBuilder_get_all_response_by_id(id) {
   if (!navigator.onLine) {
     alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')
@@ -910,14 +950,14 @@ function fun_emsFormBuilder_get_all_response_by_id(id) {
       type: "POST",
       id: id
     };
-    $.post(ajax_object_efm.ajax_url, data, function (res) {
+    efb_response_admin_post_efb(data, function (res) {
 
-      if (res.success == true) {
+      if (res.success === true && res.data && res.data.success === true) {
         fun_ws_show_response(res.data.ajax_value);
       }
 
       state_rply_btn_efb(100)
-    })
+    }, 'admin_tracker');
   });
 }
 
@@ -943,16 +983,18 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
       id: id,
       message: JSON.stringify(message)
     };
-    $.post(ajax_object_efm.ajax_url, data, function (res) {
+    efb_response_admin_post_efb(data, function (res) {
 
-      if (res.success == true) {
+      if (res.success === true && res.data && res.data.success === true) {
 
         if(document.getElementById('replay_state__emsFormBuilder')){
 
           document.getElementById('replay_state__emsFormBuilder').innerHTML = res.data.m;
           document.getElementById('replayM_emsFormBuilder').value = "";
           document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
-          const date = Date();
+          // Same "Y-m-d H:i:s" as the replies the server lists, not Date()'s raw string.
+          const _now = new Date(), _p = (n) => String(n).padStart(2, '0');
+          const date = `${_now.getFullYear()}-${_p(_now.getMonth() + 1)}-${_p(_now.getDate())} ${_p(_now.getHours())}:${_p(_now.getMinutes())}:${_p(_now.getSeconds())}`;
           document.getElementById('replayM_emsFormBuilder').value = "";
           const richEditor = document.getElementById('efb_rich_editor');
           if (richEditor) richEditor.innerHTML = '';
@@ -985,7 +1027,7 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
           alert_message_efb(res.data.m,'', 12 , 'danger')
         }
       }
-    })
+    }, 'admin_reply');
   });
 }
 
@@ -999,7 +1041,7 @@ function fun_emsFormBuilder__add_a_response_to_messages(message, by, userIp, tra
 function fun_ws_show_response(value) {
   for (let v of value) {
 
-    const content = v.content ? JSON.parse(v.content.replace(/[\\]/g, '')) : { name: 'Message', value: 'message not exists' }
+    const content = v.content ? efbParseJson(v.content) : { name: 'Message', value: 'message not exists' }
     fun_emsFormBuilder__add_a_response_to_messages(content, v.rsp_by, v.ip, 0, v.date);
   }
 }
@@ -1133,7 +1175,9 @@ function fun_show_setting__emsFormBuilder() {
   let smtp = false;
   let weeklyEmailReport = true;
   let emailStatsReport = true;
-  let text = efb_var.text;
+  // efb_var is deep-frozen: Localization edits go into this copy, which the save sends.
+  efb_local_text_efb = Object.assign({}, efb_var.text);
+  let text = efb_local_text_efb;
   let textList = "<!--list EFB -->";
   let bootstrap = false;
   let emailTemp = "null"
@@ -1171,10 +1215,10 @@ function fun_show_setting__emsFormBuilder() {
     if (valueJson_ws_setting.length == 0) {
       const rawSetting2 = ajax_object_efm.setting[0].setting;
       try { valueJson_ws_setting = JSON.parse(rawSetting2); }
-      catch(e) { valueJson_ws_setting = JSON.parse(rawSetting2.replace(/[\\]/g, '')); }
+      catch(e) { valueJson_ws_setting = efbParseJson(rawSetting2); }
     } else if (typeof valueJson_ws_setting == "string") {
       try { valueJson_ws_setting = JSON.parse(valueJson_ws_setting); }
-      catch(e) { valueJson_ws_setting = JSON.parse(valueJson_ws_setting.replace(/[\\]/g, '')); }
+      catch(e) { valueJson_ws_setting = efbParseJson(valueJson_ws_setting); }
     }
     const f = (name) => {
       if (valueJson_ws_setting.hasOwnProperty(name)==true) { return valueJson_ws_setting[name] } else { return 'null' } }
@@ -1620,11 +1664,11 @@ function fun_show_setting__emsFormBuilder() {
                                     <input type="hidden" id="smtp_emsFormBuilder" value="${smtp == "null" ? 'false' : smtp}">
                                   </div>
                                   <div class="efb card-body mx-0 py-1 mx-4" id="hostSupportSmtp_box_efb">
-                                    <button type="button" id="hostSupportSmtp_emsFormBuilder" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${smtp == true ? "active" : ""}" data-toggle="button" aria-pressed="false" autocomplete="off"   >
+                                    <button type="button" id="hostSupportSmtp_emsFormBuilder" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${smtp == true ? "active" : ""}" data-toggle="button" aria-pressed="${smtp == true ? "true" : "false"}" autocomplete="off"   >
                                     <div class="efb handle"></div>
                                     </button>
                                     <label class="efb form-check-label fs-6 efb mx-2 my-3" for="hostSupportSmtp_emsFormBuilder">${efb_var.text.hostSupportSmtp}</label>
-                                    <p class="efb text-muted fs-7 ${mxCSize4}">${efb_var.text.emailSendingOffHowTo || 'Click "Check Email Server" to test delivery, turn this switch on, then press Save.'}</p>
+                                    <p class="efb efb-sending-off-hint text-muted fs-7 ${mxCSize4}">${efb_var.text.emailSendingOffHowTo || 'Click "Check Email Server" to test delivery, turn this switch on, then press Save.'}</p>
                                   </div>
                                 </div>
                                 <div class="efb card-body mx-0 py-0 ${mxCSize4} mt-2">
@@ -1636,7 +1680,7 @@ function fun_show_setting__emsFormBuilder() {
                                     </button>
                                     <label class="efb form-check-label fs-6 efb mx-2 my-3" for="weeklyEmailReport_emsFormBuilder">${efb_var.text.weeklyEmailReport}</label>
                                     <p class="efb text-muted fs-7 ${mxCSize4} mb-0">${efb_var.text.weeklyEmailLastCheck.replace('%s', weeklyEmailStatus)}</p>
-                                    <p class="efb mb-1 ${mxCSize4} mt-2">${efb_var.text.emailStatsReportDesc}</p>
+                                    <p class="efb mb-1 ${mxCSize4} mt-2">${efb_var.text.weeklyEmailReportDesc}</p>
                                 </div>
                                 <div class="efb card-body mx-0 py-0 ${mxCSize4} mt-2">
                                     <button type="button" id="emailStatsReport_emsFormBuilder" data-state="off" data-name="disabled"
@@ -1646,7 +1690,7 @@ function fun_show_setting__emsFormBuilder() {
                                         <div class="efb handle"></div>
                                     </button>
                                     <label class="efb form-check-label fs-6 efb mx-2 my-3" for="emailStatsReport_emsFormBuilder">${efb_var.text.emailStatsReport}</label>
-                                    <p class="efb mb-1 mt-2 ${mxCSize4}">${efb_var.text.weeklyEmailReportDesc}</p>
+                                    <p class="efb mb-1 mt-2 ${mxCSize4}">${efb_var.text.emailStatsReportDesc}</p>
                                 </div>
                                 <!--End Email-->
                             </div>
@@ -1686,7 +1730,7 @@ function fun_show_setting__emsFormBuilder() {
                                   <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="stripePKey_emsFormBuilder" placeholder="${efb_var.text.publicKey}" ${stripePKey !== "null" ? `value="${stripePKey}"` : ""} ${proChckEvent} data-tab="${efb_var.text.payment}">
                                   <span id="stripePKey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                                   <label class="efb  form-label mx-2 fs-6 col-12  mt-4">${efb_var.text.SecreTKey}</label>
-                                  <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="stripeSKey_emsFormBuilder" placeholder="${efb_var.text.SecreTKey}" ${stripeSKey !== "null" ? `value="${stripeSKey}"` : ""} ${proChckEvent} data-tab="${efb_var.text.payment}">
+                                  <input type="password" autocomplete="new-password" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="stripeSKey_emsFormBuilder" placeholder="${efb_var.text.SecreTKey}" ${stripeSKey !== "null" ? `value="${stripeSKey}"` : ""} ${proChckEvent} data-tab="${efb_var.text.payment}">
                                   <span id="stripeSKey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
 
                               </div>
@@ -1700,7 +1744,7 @@ function fun_show_setting__emsFormBuilder() {
                                     <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="paypalPKey_emsFormBuilder" placeholder="${efb_var.text.publicKey}" value="${paypalPKey}" ${proChckEvent} data-tab="${efb_var.text.payment}">
                                     <span id="paypalPKey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                                     <label class="efb  form-label mx-2 fs-6 col-12  mt-4">${efb_var.text.SecreTKey}</label>
-                                    <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="paypalSKey_emsFormBuilder" placeholder="${efb_var.text.SecreTKey}" value="${paypalSKey}" ${proChckEvent} data-tab="${efb_var.text.payment}">
+                                    <input type="password" autocomplete="new-password" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="paypalSKey_emsFormBuilder" placeholder="${efb_var.text.SecreTKey}" value="${paypalSKey}" ${proChckEvent} data-tab="${efb_var.text.payment}">
                                     <span id="paypalSKey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                                   </div>
                               </div>
@@ -1779,7 +1823,6 @@ function fun_show_setting__emsFormBuilder() {
         fun_switch_saveSetting(true, el.id);
       } else {
         text[el.id] = el.value;
-        efb_var.text[el.id] = el.value;
         el.className = colorBorderChangerEfb(el.className, "border-d")
         fun_switch_saveSetting(false, el.id);
       }
@@ -2969,12 +3012,14 @@ function fun_set_setting_emsFormBuilder(state_auto = 0, done) {
       el.value = sanitize_text_efb(el.value);}
 
     let r = "NotFoundEl"
-    if (el.type == "text" || el.type == "email" || el.type == "textarea" || el.type == "hidden" || el.type == "color" || el.type == "tel") {
+    /* password: the Stripe and PayPal secret fields. Missing here, Save sent
+       "NotFoundEl" as the secret and every payment failed with HTTP 401. */
+    if (el.type == "text" || el.type == "password" || el.type == "email" || el.type == "textarea" || el.type == "hidden" || el.type == "color" || el.type == "tel") {
       if (id == "emailTemp_emsFirmBuilder") {
         let v = el.value.replace(/(\r\n|\r|\n|\t)+/g, '');
-        v = u(v);
-        v = v.replace(/(["])+/g, `'`);
-        return v;
+        // The server rewrites double quotes attribute by attribute; a blind swap here
+        // broke values such as style="font-family:'Open Sans'".
+        return u(v);
       }
       return el.value;
     } else if (el.type == "checkbox") {
@@ -3161,15 +3206,16 @@ function fun_set_setting_emsFormBuilder(state_auto = 0, done) {
     emailStatsReport = f('emailStatsReport_emsFormBuilder');
     act_local_efb =f('act_local_efb')
     let emailTemp = f('emailTemp_emsFirmBuilder');
-     emailTemp = emailTemp.replace(/([/\r\n|\r|\n/])+/g, ' ');
+    // JSON.stringify handles line breaks; keep closing tags and URL slashes.
     const emailBtnBgColor = f('emailBtnBgColor_emsFormBuilder') || '#202a8d';
     const emailBtnTextColor = f('emailBtnTextColor_emsFormBuilder') || '#ffffff';
-    let text = act_local_efb==true ? efb_var.text :'';
+    let text = act_local_efb==true ? (typeof efb_local_text_efb === 'object' && efb_local_text_efb ? efb_local_text_efb : efb_var.text) :'';
     if(typeof text != 'object' && text!=''){
         noti_message_efb('Localization not found. It seems there may be a conflict with a plugin and Easy Form Builder. Please reach out to the Easy Form Builder support team for assistance', 'danger', 'content-efb');
       return false;
     }else if(typeof text == 'object'){
       for(let i in text){
+        if (typeof text[i] !== 'string') continue;
         text[i] = text[i].replace(/(["])+/g, `̎ᐥ`);
         text[i] = text[i].replace(/(['])+/g, `ᐠ`);
         text[i]= sanitize_text_efb(text[i]);
@@ -3588,7 +3634,7 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
   }
   for (let v of value) {
 
-    const content = JSON.parse(replaceContentMessageEfb(v.content))
+    const content = efbParseJson(replaceContentMessageEfb(v.content, true))
     count += 1;
     i_count += i_count == -1 ? 2 : 1;
     rows[i_count][1] = v.date;
@@ -3618,6 +3664,16 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
             rows[parseInt(i_count)][parseInt(vx)] = content[c].paymentIntent;
           }else if(content[c].value == '@file@' || content[c].type == 'file' || content[c].type == 'media' || content[c].type == 'zip'  || content[c].type == 'image' || content[c].type == 'document' || content[c].type == 'allformat'){
             rows[parseInt(i_count)][parseInt(value_col_index)] =content[c].url;
+          }else if (content[c].type == 'esign'){
+            /* Not the image itself: a base64 data URL of thousands of
+               characters (a large one passes Excel's 32,767-character cell
+               limit and breaks the row). A link that shows the signature to a
+               logged-in user who may read responses (efb_esign_image). */
+            const signed = typeof content[c].value == 'string' && content[c].value.indexOf('data:image/') === 0;
+            const ajaxUrl = (typeof ajax_object_efm !== 'undefined' && ajax_object_efm.ajax_url) ? ajax_object_efm.ajax_url : '';
+            rows[parseInt(i_count)][parseInt(value_col_index)] = !signed ? ''
+              : (ajaxUrl && v.msg_id ? ajaxUrl + (ajaxUrl.indexOf('?') === -1 ? '?' : '&') + 'action=efb_esign_image&msg=' + encodeURIComponent(v.msg_id) + '&field=' + encodeURIComponent(content[c].id_)
+                : '[' + (efb_var.text.esign || 'Signature') + ']');
           }else if (content[c].type == "maps"){
             let val =''
             content[c].value.forEach(r => {
@@ -3713,45 +3769,42 @@ function exportCSVFile_emsFormBuilder(items, fileTitle) {
   }
 }
 
+/* RFC 4180 CSV for spreadsheets: always "," with quoted cells, and a UTF-8
+ * BOM so Excel reads Persian, Arabic and emoji text. The export used to pick
+ * whatever separator no value contained ("^" once a visitor typed a comma),
+ * quoted nothing, and kept the stored markers (@n# for a line break,
+ * @efb@dq# for a double quote). */
 function convertToCSV_emsFormBuilder(objArray) {
   var array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray;
-  var str = '';
-  const separators = [',',';', '|', '^', '~', '=', ':', '#', '\t'];
-  let foundSeparators = {};
-  let separator = ',';
+  const decode = (val) => val
+    .replace(/@efb@nq#|@n#/g, '\n')
+    .replace(/@efb@dq#/g, '"')
+    .replace(/@efb@sq#/g, "'")
+    .replace(/@efb@vq#/g, '`');
+  const lines = [];
   for (let i = 0; i < array.length; i++) {
-    let line = '';
+    const cells = [];
     for (let k = 0; k < array[i].length; k++) {
-      for (let s = 0; s < separators.length; s++) {
-        let val = array[i][k];
-        if (typeof val === 'object' && val !== null) {
-          val = JSON.stringify(val);
-        }
-        if (typeof val === 'string' && val.includes(separators[s])) {
-          foundSeparators[separators[s]] = true;
-        }
-      }
       let val = array[i][k];
       if (typeof val === 'object' && val !== null) {
         val = JSON.stringify(val);
       }
-      if (line !== '') line += '@emsfb@';
-      line += val;
+      val = val === undefined || val === null ? '' : String(val);
+      val = decode(val);
+      /* Visitor-typed cells that start with = + - @ or a tab/CR would be run
+         as a formula by the spreadsheet that opens this file. */
+      if (/^[=+\-@\t\r]/.test(val) && !/^[+-]?\d+([.,]\d+)?$/.test(val)) {
+        val = "'" + val;
+      }
+      /* ';' too: spreadsheets in many locales split on it. */
+      if (/[",;\r\n]/.test(val)) {
+        val = '"' + val.replace(/"/g, '""') + '"';
+      }
+      cells.push(val);
     }
-    str += line + '\r\n';
+    lines.push(cells.join(','));
   }
-
-  for (let s = 0; s < separators.length; s++) {
-    if (!foundSeparators[separators[s]]) {
-      separator = separators[s];
-      break;
-    }
-  }
-
-  str = str.replace(/@emsfb@/g, separator);
-  str = str.slice(0, -2);
-
-  return str;
+  return '\uFEFF' + lines.join('\r\n');
 }
 
 function generat_csv_emsFormBuilder() {
@@ -3849,6 +3902,9 @@ function emsFormBuilder_chart(titles, colname, colvalue) {
 
       rowsOfCharts[t] = rows;
 
+      // The chart library loads in the background; without it there is
+      // simply no chart instead of an error.
+      if (typeof google === 'undefined' || !google.charts) continue;
       google.charts.load('current', { packages: ['corechart'] });
       publicidofchart = chartId[t];
 
@@ -4046,6 +4102,24 @@ function efbEmailTestGuidance(verdict, sendStage, result, steps) {
   };
 }
 
+/**
+ * The "what you can do now" box: the domain records that failed, with one
+ * guide each, and sending services with a free plan. The data comes from
+ * Email_Monitor::get_public_status(); the shared renderer shapes it.
+ */
+function efbEmailTestNextSteps(quick) {
+  if (!window.efbEmailTestUI || typeof window.efbEmailTestUI.nextSteps !== 'function') return null;
+  const monitor = (typeof efb_var !== 'undefined' && efb_var.emailMonitor) ? efb_var.emailMonitor : {};
+  const lan = (typeof lan_subdomain_wsteam_efb === 'function') ? lan_subdomain_wsteam_efb() : '';
+  return window.efbEmailTestUI.nextSteps({
+    show: true,
+    auth: quick && quick.authentication ? quick.authentication : {},
+    data: monitor.next_steps || {},
+    text: efbEmailTestText,
+    docsBase: 'https://' + lan + 'whitestudio.team/document'
+  });
+}
+
 function efbEmailTestFormat(str) {
   const args = Array.prototype.slice.call(arguments, 1);
   let i = 0;
@@ -4096,7 +4170,8 @@ function efbEmailTestStrings() {
     tabDelivery: efbEmailTestText('deliveryDetailsTitle', 'Delivery Details'),
     tabDiagnosis: efbEmailTestText('diagnosisTitle', 'Diagnosis'),
     tabTips: efbEmailTestText('recommendations', 'Recommendations'),
-    scoreOutOf: efbEmailTestText('emailTestScoreOutOf', '/ 100')
+    scoreOutOf: efbEmailTestText('emailTestScoreOutOf', '/ 100'),
+    technical: efbEmailTestText('emailTestTechnicalDetails', 'Technical details')
   };
 }
 
@@ -4175,17 +4250,25 @@ function efbEmailTestViewModel(state, options) {
   const sendStage = efbEmailTestSendStage(result || quick);
   const arrived = !!(quick && quick.can_send_email);
   const tooLow = efbEmailTestScoreTooLow(quick);
+  // What the evidence proves (efbEmailTestUI.outcome()); set by the start and
+  // poll handlers. Empty for a state built by hand, which then falls back to
+  // reading the steps as before.
+  const outcome = state.outcome || '';
 
   // Any step in error means the run is over and it went wrong, whatever the
   // percentage happens to say.
   const stepValues = ['start', 'send', 'wait', 'quick', 'full'].map(function (k) { return steps[k] || 'waiting'; });
   const hasError = stepValues.indexOf('error') !== -1;
   const stillRunning = !hasError && !verdict && !upgradeRequired && percent < 100;
+  // The check itself could not finish, or never started. None of these says
+  // anything about whether email works, so none of them may read as a failure.
+  const unknown = ['tester_unreachable', 'invalid_response', 'connection_lost', 'timeout', 'start_failed', 'pending'].indexOf(outcome) !== -1
+    || (!outcome && stepValues[0] === 'error');
 
   let phase;
   if (stillRunning) {
     phase = 'run';
-  } else if (upgradeRequired || status === 'delayed' || verdict === 'spam_risk' || tooLow) {
+  } else if (upgradeRequired || status === 'delayed' || verdict === 'spam_risk' || tooLow || unknown) {
     phase = 'warn';
   } else if (verdict === 'healthy') {
     phase = 'done';
@@ -4204,10 +4287,12 @@ function efbEmailTestViewModel(state, options) {
     };
   } else if (phase === 'run') {
     const waiting = (steps.wait === 'active') || (steps.send === 'done');
+    // wp_mail() returning true means the mail system accepted the message,
+    // not that it arrived, so the headline says exactly that.
     hero = waiting
       ? {
         icon: 'bi-arrow-repeat',
-        title: efbEmailTestText('emailTestPendingTitle', 'Waiting for the email to arrive'),
+        title: efbEmailTestText('emailTestAcceptedTitle', 'Accepted for sending; delivery not confirmed yet'),
         sub: efbEmailTestText('emailTestPendingSub', 'We check our server every few seconds. Please keep this page open.')
       }
       : {
@@ -4229,7 +4314,35 @@ function efbEmailTestViewModel(state, options) {
         : efbEmailTestText('emailTestSpamTitle', 'Delivered, but deliverability is weak'),
       sub: efbEmailTestQuickMessage(quick, verdict)
     };
-  } else if (status === 'delayed') {
+  } else if (outcome === 'tester_unreachable' || outcome === 'invalid_response') {
+    // No verdict reached this site. Saying "no email arrived" here sent people
+    // to fix a mail setup nobody had looked at.
+    hero = {
+      icon: 'bi-question-circle',
+      title: efbEmailTestText('emailTestUnknownTitle', 'Delivery result unknown'),
+      sub: outcome === 'invalid_response'
+        ? efbEmailTestText('emailTestInvalidResponseSub', 'An answer came back that could not be read, so delivery was not checked. Try again later.')
+        : efbEmailTestText('emailTestUnreachableSub', 'Your site got no answer from the testing service, so delivery was not checked. This does not mean the email failed.')
+    };
+  } else if (outcome === 'connection_lost') {
+    hero = {
+      icon: 'bi-wifi-off',
+      title: efbEmailTestText('emailTestNetErrorTitle', 'The connection was lost'),
+      sub: efbEmailTestText('emailTestNetErrorSub', 'No answer came back from the server. Refresh the page and try again.')
+    };
+  } else if (outcome === 'timeout') {
+    hero = {
+      icon: 'bi-stopwatch',
+      title: efbEmailTestText('emailTestTimeoutTitle', 'The test timed out'),
+      sub: efbEmailTestText('emailTestTimeoutUnknownSub', 'No final answer arrived in time. Delivery is unknown, not failed. Try again later.')
+    };
+  } else if (outcome === 'start_failed') {
+    hero = {
+      icon: 'bi-plug',
+      title: efbEmailTestText('emailTestStartFailedTitle', 'The test could not start'),
+      sub: efbEmailTestText('emailTestStartFailedSub', 'Nothing was sent yet, so this says nothing about your email. Try again later.')
+    };
+  } else if (status === 'delayed' || outcome === 'pending') {
     hero = {
       icon: 'bi-clock-history',
       title: efbEmailTestText('deliveryDelayedTitle', 'Delivery is taking longer than expected'),
@@ -4243,7 +4356,7 @@ function efbEmailTestViewModel(state, options) {
       title: efbEmailTestText('emailTestNetErrorTitle', 'The connection was lost'),
       sub: efbEmailTestText('emailTestNetErrorSub', 'No answer came back from the server. Refresh the page and try again.')
     };
-  } else if (stepValues[1] === 'error') {
+  } else if (stepValues[1] === 'error' || outcome === 'wp_mail_failed') {
     // wp_mail() refused it. The message never left the site, which is a
     // different problem from one that left and never arrived.
     hero = {
@@ -4257,13 +4370,18 @@ function efbEmailTestViewModel(state, options) {
     hero = {
       icon: 'bi-stopwatch',
       title: efbEmailTestText('emailTestTimeoutTitle', 'The test timed out'),
-      sub: efbEmailTestText('emailTestTimeoutSub', 'The test reached its time limit. Your server may be slow, or may block outbound email.')
+      sub: efbEmailTestText('emailTestTimeoutUnknownSub', 'No final answer arrived in time. Delivery is unknown, not failed. Try again later.')
     };
   } else {
+    // The service closed the window without an arrival - the one definite
+    // "not delivered". When WordPress did send it, say so rather than blame
+    // the server's ability to send.
     hero = {
       icon: 'bi-x-lg',
       title: efbEmailTestText('emailTestExpiredTitle', 'No email arrived'),
-      sub: efbEmailTestText('emailTestExpiredSub', 'Nothing was received during the test window, so your server most likely cannot send email.')
+      sub: sendStage === 'handed_off'
+        ? efbEmailTestText('emailTestExpiredHandedOffSub', 'WordPress sent the email, but it did not reach the test mailbox before the time limit.')
+        : efbEmailTestText('emailTestExpiredSub', 'Nothing was received during the test window, so your server most likely cannot send email.')
     };
   }
 
@@ -4282,6 +4400,7 @@ function efbEmailTestViewModel(state, options) {
     steps: steps,
     hero: hero,
     message: state.message || '',
+    technical: state.technical || [],
     rows: efbEmailTestDeliveryRows(result, test),
     groups: efbEmailTestDiagnosisGroups(result),
     tips: (result && Array.isArray(result.recommendations) ? result.recommendations.slice(0, 5) : []),
@@ -4295,8 +4414,20 @@ function efbEmailTestViewModel(state, options) {
       title: guidance.title,
       desc: guidance.description,
       cta: efbEmailTestText('smtpSetupGuideBtn', 'Step-by-step SMTP setup guide'),
-      url: (typeof Link_emsFormBuilder === 'function' ? Link_emsFormBuilder('EmailSpam') : '')
+      url: (typeof link_url_emsFormBuilder === 'function' ? link_url_emsFormBuilder('EmailSpam') : '')
     };
+  }
+
+  // Two ways out of a bad result, under the guidance box. Only when the mail
+  // arrived with a low score or never arrived - a run that could not finish
+  // has nothing to fix yet. "delayed" counts as never arrived here once the
+  // run is over (the poll now keeps going through "delayed" until the email
+  // arrives or the test expires, so this only applies to a finished run).
+  // A quick result that already arrived stays the evidence even when a later
+  // full-report poll fails or times out.
+  const deliveryNotConfirmed = status === 'delayed' && !arrived;
+  if (!stillRunning && !upgradeRequired && (!unknown || arrived || deliveryNotConfirmed) && (verdict === 'spam_risk' || verdict === 'not_delivered' || tooLow)) {
+    view.nextSteps = efbEmailTestNextSteps(quick);
   }
 
   if (upgradeRequired) {
@@ -4392,6 +4523,16 @@ function efbEmailTestSetSmtpState(state) {
   if (input) input.value = state ? 'true' : 'false';
 }
 
+/* The server turns the switch off after a definite failure (nothing arrived,
+   wp_mail() failed, or a score too low to rely on). The toggle on this screen
+   follows at once: left on, the next Save would turn sending back on and file
+   an owner confirmation nobody gave. */
+function efbEmailTestFollowServerOff(flag) {
+  if (!flag) return;
+  efbEmailTestSetSmtpState(false);
+  if (typeof valueJson_ws_setting === 'object' && valueJson_ws_setting !== null) valueJson_ws_setting.smtp = false;
+}
+
 function efbEmailTestNextPendingDelay(uiState, result) {
   const schedule = [4, 5, 7];
   uiState.pollAttempt = Number(uiState.pollAttempt || 0) + 1;
@@ -4404,8 +4545,11 @@ function efbEmailTestPoll(test, uiState, button, buttonHtml, startedAt) {
   const maxDuration = Math.max(30, Number(test.expires_in_seconds || 600));
   const elapsed = Math.floor((Date.now() - startedAt) / 1000);
   if (elapsed > maxDuration) {
+    // We stopped asking; the service never gave a final answer. Unknown, not
+    // "not delivered" - the hero says so and needs no second sentence.
     uiState.steps.wait = 'error';
-    uiState.message = efbEmailTestText('emailTestTimedOut', 'The test timed out. Please try again — your server may be slow or blocking outgoing mail.');
+    uiState.outcome = 'timeout';
+    uiState.message = '';
     uiState.percent = 100;
     efbEmailTestShow(uiState);
     efbEmailTestFinishButton(button, buttonHtml);
@@ -4432,10 +4576,27 @@ function efbEmailTestPoll(test, uiState, button, buttonHtml, startedAt) {
       const status = result.status || '';
       const stage = result.analysis_stage || '';
 
+      efbEmailTestFollowServerOff(result.sending_turned_off);
+      /* Leaving a "delayed" round (the poll now continues through it): drop
+         what that round put on screen, so a later "arrived" or "pending" is
+         not shown under the "taking longer than expected" heading. */
+      if (uiState.outcome === 'pending' && status != 'delayed' && stage != 'delivery_wait') {
+        uiState.outcome = '';
+        if (uiState.steps.quick === 'warning') uiState.steps.quick = 'waiting';
+        if (uiState.steps.full === 'waiting' || uiState.steps.full === 'warning') uiState.steps.full = 'waiting';
+      }
       if (!payload.success && status != 'pending' && status != 'delayed' && status != 'expired') {
         uiState.steps.wait = 'error';
-        uiState.message = payload.m || result.message || efbEmailTestText('error', 'Error');
-        uiState.result = result;
+        uiState.outcome = window.efbEmailTestUI.outcome({ stage: 'result', payload: payload, result: result });
+        if (uiState.outcome === 'wp_mail_failed') {
+          uiState.message = result.message || payload.m || '';
+        } else {
+          // A cURL error or an HTTP code is for the host's support desk.
+          uiState.message = '';
+          uiState.technical = [payload.m || result.message || '', payload.code ? 'HTTP ' + payload.code : ''];
+        }
+        // Keep what is already known (the recipient) when no report came back.
+        uiState.result = Object.keys(result).length ? result : uiState.result;
         uiState.percent = 100;
         efbEmailTestShow(uiState);
         efbEmailTestFinishButton(button, buttonHtml);
@@ -4455,19 +4616,29 @@ function efbEmailTestPoll(test, uiState, button, buttonHtml, startedAt) {
       }
 
       if (status == 'delayed' || stage == 'delivery_wait') {
+        uiState.outcome = 'pending';
         uiState.steps.wait = 'warning';
         uiState.steps.quick = 'warning';
         uiState.steps.full = 'waiting';
         uiState.quick = result;
         uiState.result = result;
         uiState.message = result.message || efbEmailTestText('emailOnItsWay', 'Email is on its way — still waiting for delivery confirmation.');
-        uiState.percent = 100;
+        /* "delayed" is not an answer: the service keeps waiting (Microsoft 365
+           and queueing hosts often take minutes) until the email arrives or the
+           test expires. Keep asking, more slowly, instead of stopping here and
+           leaving a "taking longer" screen that never updates. maxDuration
+           (the test's own expiry) still ends the loop. */
+        uiState.percent = Math.min(90, 76 + Math.floor((elapsed / maxDuration) * 14));
         efbEmailTestShow(uiState);
-        efbEmailTestFinishButton(button, buttonHtml);
+        const delayedNext = Math.max(10, efbEmailTestNextPendingDelay(uiState, result));
+        efbEmailServerTestTimer = setTimeout(function () {
+          efbEmailTestPoll(test, uiState, button, buttonHtml, startedAt);
+        }, delayedNext * 1000);
         return;
       }
 
       if (status == 'expired') {
+        uiState.outcome = 'not_delivered';
         uiState.steps.wait = 'error';
         uiState.steps.quick = 'error';
         uiState.message = result.message || efbEmailTestText('emailNeverArrived', 'No email arrived during the test window.');
@@ -4530,9 +4701,13 @@ function efbEmailTestPoll(test, uiState, button, buttonHtml, startedAt) {
         efbEmailTestPoll(test, uiState, button, buttonHtml, startedAt);
       }, 10000);
     }).fail(function (xhr, textStatus) {
+      // This site's own admin-ajax gave no usable answer. The email may well
+      // have arrived; what is lost is the answer, so the result is unknown.
       uiState.steps.wait = 'error';
       const code = textStatus === 'parsererror' ? 'BAD_JSON' : (xhr.status || textStatus || 'NET');
-      uiState.message = efbEmailTestFormat(efbEmailTestText('connectionErrorCode', 'Connection error. Please refresh the page and try again. (Code: %s)'), code);
+      uiState.outcome = window.efbEmailTestUI.outcome({ stage: 'result', requestFailed: true, parseError: textStatus === 'parsererror' });
+      uiState.message = '';
+      uiState.technical = [efbEmailTestFormat(efbEmailTestText('connectionErrorCode', 'Connection error. Please refresh the page and try again. (Code: %s)'), code)];
       uiState.percent = 100;
       efbEmailTestShow(uiState);
       efbEmailTestFinishButton(button, buttonHtml);
@@ -4614,9 +4789,17 @@ function clickToCheckEmailServer() {
           efbEmailTestPoll(test, uiState, button, buttonHtml, Date.now());
         }, 4000);
       } else {
+        efbEmailTestFollowServerOff(payload.sending_turned_off);
         uiState.steps.start = payload.stage == 'start' || payload.stage == 'validation' ? 'error' : 'done';
         uiState.steps.send = payload.stage == 'send' ? 'error' : 'waiting';
+        uiState.outcome = window.efbEmailTestUI.outcome({ stage: 'start', payload: payload });
         uiState.message = payload.m || efbEmailTestText('error', 'Error');
+        // A transport error string (cURL) or an unreadable answer is technical
+        // detail; a service refusal (quota, rate limit) is written for people.
+        if (payload.reason === 'tester_unreachable' || payload.reason === 'invalid_response') {
+          uiState.technical = [uiState.message, payload.code ? 'HTTP ' + payload.code : ''];
+          uiState.message = '';
+        }
         uiState.result = payload.test || payload.result || {};
         uiState.test = payload.test || null;
         uiState.percent = 100;
@@ -4625,6 +4808,7 @@ function clickToCheckEmailServer() {
       }
     }).fail(function (xhr, textStatus) {
       uiState.steps.start = 'error';
+      uiState.outcome = window.efbEmailTestUI.outcome({ stage: 'start', requestFailed: true, parseError: textStatus === 'parsererror' });
       const code = textStatus === 'parsererror' ? 'BAD_JSON' : (xhr.status || textStatus || 'NET');
       uiState.message = efbEmailTestFormat(efbEmailTestText('connectionErrorCode', 'Connection error. Please refresh the page and try again. (Code: %s)'), code);
       uiState.percent = 100;

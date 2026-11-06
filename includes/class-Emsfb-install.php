@@ -152,11 +152,14 @@ class Install {
 
 			$s = false;
 
-			$v = $wpdb->get_var( $wpdb->prepare( "SELECT setting FROM %i ORDER BY id DESC LIMIT 1", $table_name_stng ) );
+			// %i (identifier placeholder) needs WordPress 6.2; this plugin supports
+			// 5.7+. The name is the site prefix plus a constant, never user input.
+			$v = $wpdb->get_var( "SELECT setting FROM `" . esc_sql( $table_name_stng ) . "` ORDER BY id DESC LIMIT 1" );
 			$rand = substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'), 0, 10);
-			// smtp (the "This site can send emails" switch) always starts OFF on a new
-			// install: no notification email is sent until the admin verifies delivery
-			// and turns it on. See Email_Monitor::mark_email_ready().
+			// smtp (the "This site can send emails" switch) starts ON: the owner's
+			// first form must email them, or the plugin looks broken. The email
+			// check measures how well that mail is delivered; it never switches
+			// sending off. The owner can still turn it off in Email Settings.
 			if ($v === NULL) {
 				$settings = (object) array(
 					'activeCode' => '',
@@ -164,7 +167,7 @@ class Install {
 					'secretKey' => '',
 					'emailSupporter' => $eml,
 					'apiKeyMap' => '',
-					'smtp' => false,
+					'smtp' => true,
 					'bootstrap' => false,
 					'emailTemp' => \Emsfb::get_default_email_template_efb(),
 					'email_key' => $rand,
@@ -207,6 +210,7 @@ class Install {
 				update_option('emsfb_onboarding_pending', 1, false);
 				update_option('emsfb_onboarding_initial_install', 1, false);
 				delete_option('emsfb_onboarding_completed_at');
+				delete_option('emsfb_onboarding_dismissed_at');
 			}
 
 		// Activation runs on every activate, not only the first one, and
@@ -255,6 +259,20 @@ class Install {
 		global $wpdb;
 
 		$applied = array();
+
+		// emsfb_form.status came after 3.9.x and create_table_if_absent() never
+		// alters an existing table, so sites updated from 3.9 had no column for
+		// the "active forms" count (weekly report query error). DB version 1.3.
+		$form_table = $wpdb->prefix . 'emsfb_form';
+		if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $form_table ) ) ) {
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix
+			$has_status = $wpdb->get_results( $wpdb->prepare( "SHOW COLUMNS FROM `{$form_table}` LIKE %s", 'status' ) );
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix, literal clause
+			if ( empty( $has_status ) && false !== $wpdb->query( "ALTER TABLE `{$form_table}` ADD COLUMN `status` TINYINT NULL DEFAULT 1" ) ) {
+				$applied[] = 'emsfb_form: ADD COLUMN status';
+			}
+		}
+
 		$table   = $wpdb->prefix . 'emsfb_stts_';
 
 		$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) );

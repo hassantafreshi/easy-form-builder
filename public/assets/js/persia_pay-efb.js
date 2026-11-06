@@ -56,7 +56,7 @@ add_ui_persiaPay_efb=(rndm)=>{
       <div class="efb p-3 card w-100" id="afterPayefb">
       <div class="efb  headpay border-b row col-md-12 mb-3">
           <div class="efb fs-4 text-darkb text-center">پرداخت با موفقیت انجام شد</div>
-          <div class="efb fs-5 text-dark text-center">کد پیگیری پرداخت <br> ${get_authority_efb}</div>
+          <div class="efb fs-5 text-dark text-center">کد پیگیری پرداخت <br> ${String(get_authority_efb).replace(/[&<>"'`]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '`': '&#96;' }[ch]))}</div>
 
         </div>
     `

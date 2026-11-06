@@ -71,6 +71,8 @@ body.efb-deactivate-open {
 
 .efb-deactivate-title {
 	margin: 0 0 6px;
+	/* Clear of the × in the corner (on a phone the title ran under it). */
+	padding-inline-end: 28px;
 	font-size: 19px;
 	line-height: 1.4;
 	color: #1d2327;
@@ -296,6 +298,36 @@ body.efb-deactivate-open {
 	background: #e63c81;
 	border-color: #e63c81;
 	color: #fff;
+}
+
+/* "Which plugin did you choose?": one-tap answers under the box. */
+.efb-deactivate-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin-top: 8px;
+}
+
+.efb-deactivate-chip {
+	border: 1px solid #d0d5e2;
+	border-radius: 999px;
+	background: #fff;
+	color: #1d2327;
+	font-size: 12px;
+	line-height: 1.2;
+	padding: 5px 10px;
+	cursor: pointer;
+}
+
+.efb-deactivate-chip:hover,
+.efb-deactivate-chip:focus-visible {
+	border-color: #ff4b93;
+	outline: none;
+}
+
+.efb-deactivate-chip[aria-pressed="true"] {
+	background: #ffe3ef;
+	border-color: #ff4b93;
 }
 
 @media screen and (max-width: 600px) {

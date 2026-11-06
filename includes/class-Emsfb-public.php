@@ -2,6 +2,10 @@
 namespace Emsfb;
 use WP_REST_Response;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 require_once('functions.php');
 class _Public {
 	public $value;
@@ -11,6 +15,8 @@ class _Public {
 	public $setting;
 	protected $db;
 	public $efbFunction;
+	/** The visitor's address for the owner's Reply-To, set by email_status_efb() for this submission. */
+	private $owner_reply_to_efb = '';
 	public $lanText;
 	public $text_;
 	public $pro_efb;
@@ -23,6 +29,8 @@ class _Public {
 	private $addon_recovery_transition_rendered = false;
 	private $deferred_form_markup = [];
 	private $deferred_form_key = '';
+	private $operation_key = '';
+	private $operation_data = array();
 
 	/* Head hoisting - see open_head_hoist_buffer_efb(). */
 	private $head_chunks_efb      = [];
@@ -38,11 +46,6 @@ class _Public {
 			$this->efb_uid  = get_current_user_id();
 			$this->efbFunction = get_efbFunction();
 			$settings = get_setting_Emsfb('raw');
-			register_rest_route('Emsfb/v1','test/(?P<name>[a-zA-Z0-9_]+)/(?P<id>[a-zA-Z0-9_]+)', [
-				'method'=> 'POST',
-				'callback'=>  [$this,'test_fun'],
-				'permission_callback' => [$this, 'check_nonce_permission_efb']
-			]);
 			register_rest_route('Emsfb/v1','forms/message/add', [
 				'methods' => 'POST',
 				'callback'=>  [$this,'get_form_public_efb'],
@@ -83,6 +86,15 @@ class _Public {
 				'callback' => [$this, 'efb_nonce_refresh_api'],
 				'permission_callback' => '__return_true',
 			]);
+			register_rest_route('Emsfb/v1','forms/session/prepare', array(
+				'methods'=>'POST', 'callback'=>array($this,'prepare_form_session_api'), 'permission_callback'=>'__return_true',
+			));
+			register_rest_route('Emsfb/v1','forms/operation/status', array(
+				'methods'=>'POST','callback'=>array($this,'operation_status_api'),'permission_callback'=>'__return_true',
+			));
+			register_rest_route('Emsfb/v1','forms/response/session', array(
+				'methods'=>'POST','callback'=>array($this,'response_session_api'),'permission_callback'=>array($this,'check_nonce_permission_efb'),
+			));
 
 		});
 
@@ -107,6 +119,9 @@ class _Public {
 		add_action('init',  array($this, 'hide_toolmenu'));
 		add_action('wp_ajax_form_preview_efb', [$this, 'form_preview_efb']);
 		add_action('delete_preview_page_efb', [$this,'delete_preview_page_efb'], 10, 1);
+		// Background re-check of one-time Stripe payments left 'pending' (see reconcile_stripe_payments_efb()).
+		add_action('emsfb_stripe_reconcile_efb', [$this, 'reconcile_stripe_payments_efb']);
+		add_action('emsfb_daily_maintenance', [$this, 'reconcile_stripe_payments_efb'], 20);
 
 		if (!is_admin()) {
 			add_action('wp_enqueue_scripts', [$this, 'init_elementor_compatibility'], 1);
@@ -158,7 +173,7 @@ public function check_nonce_permission_efb($request) {
 	}
 
 	if (!isset($_SERVER['HTTP_X_WP_NONCE'])) {
-		return new \WP_Error('rest_forbidden', __('X-WP-Nonce header is missing', 'easy-form-builder'), array('status' => 403));
+		return new \WP_Error('efb_nonce_missing', __('X-WP-Nonce header is missing', 'easy-form-builder'), array('status' => 403));
 	}
 
 	$verify = wp_verify_nonce( sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_WP_NONCE'] ) ), 'wp_rest');
@@ -186,25 +201,89 @@ public function check_nonce_permission_efb($request) {
 			}
 		}
 
-		return new \WP_Error('rest_forbidden', __('Invalid or expired nonce', 'easy-form-builder'), array('status' => 403));
+		return new \WP_Error('efb_nonce_expired', __('Invalid or expired nonce', 'easy-form-builder'), array('status' => 403));
 	}
 
 	return true;
 }
 
 	/**
-	 * REST callback for Emsfb/v1/nonce/refresh.
+	 * REST callback for Emsfb/v1/forms/session/prepare: a live nonce, sid and
+	 * signed runtime token for one open form.
 	 *
-	 * A form left open past the wp_rest nonce lifetime (12-24h) would otherwise
-	 * fail to submit; the frontend transparently fetches a fresh nonce here and
-	 * retries. To avoid handing a valid CSRF token to any anonymous requester,
-	 * this requires proof of a live form session:
-	 *   - a logged-in user (for whom the nonce is only a CSRF token), OR
-	 *   - a valid, non-expired session id (sid) matching an active emsfb_stts_ row.
-	 * On success the session is "touched" (sliding extension, absolutely capped)
-	 * so a genuinely open form keeps working without repeated 403s.
+	 * It does not spend the nonce/refresh quota. Every visitor calls it, and on a
+	 * shared IP (school, office, mobile carrier) that quota ran out and blocked
+	 * submissions. Only a call that creates a new session row is counted, under
+	 * its own filterable limit; refreshing a verified context never is. The
+	 * browser falls back to the page nonce and sid when this route fails.
 	 */
-	public function efb_nonce_refresh_api() {
+	public function prepare_form_session_api($request) {
+		$nonce = $this->efb_issue_rest_nonce_efb();
+		if (is_wp_error($nonce)) return $nonce;
+		$fid = $request->get_param('form_id');
+		if (!is_scalar($fid) || !preg_match('/^[0-9]{1,10}$/D',(string)$fid)) return new \WP_Error('efb_form_invalid','Invalid form.',array('status'=>400));
+		$fid = (int)$fid;
+		if ($fid > 0) {
+			$form = $this->get_form_data_efb($fid);
+			if (!$form) return new \WP_Error('efb_form_missing',__('Form not found.', 'easy-form-builder'),array('status'=>404));
+			$structure = \emsfb_json_decode_efb($form->form_structer,true);
+			if (in_array($structure[0]['stateForm'] ?? false,array(true,1,'1'),true) && !is_user_logged_in()) return new \WP_Error('efb_login_required',__('Please log in to use this form.', 'easy-form-builder'),array('status'=>403));
+		}
+		if (!class_exists('\\Emsfb\\Form_Runtime')) return new \WP_Error('efb_runtime_unavailable','Form runtime unavailable.',array('status'=>503));
+		$previous = $request->get_param('runtime_token');
+		$proof = $previous ? \Emsfb\Form_Runtime::verify($previous,$fid) : false;
+		if (is_wp_error($proof)) return $proof;
+		if ($previous && !$proof) return new \WP_Error('efb_context_expired',__('This form has expired. Please refresh the page and send it again.', 'easy-form-builder'),array('status'=>409));
+		$this->efbFunction = get_efbFunction();
+		$sid = $proof ? $proof['sid'] : '';
+		if (!$sid || !$this->efbFunction->efb_code_validate_check($sid,$fid)) {
+			// Each new session inserts an emsfb_stts_ row, so creation stays bounded.
+			if (!is_user_logged_in() && !$this->efb_ip_rate_allowed_efb('efb_spl_', (int) apply_filters('efb_session_prepare_per_minute', 120))) {
+				return new \WP_Error('rest_too_many_requests', __('Too many requests. Please try again shortly.', 'easy-form-builder'), array('status' => 429));
+			}
+			$sid = $this->efbFunction->efb_code_validate_create($fid,0,'visit',0);
+		} else $this->efbFunction->efb_code_touch_session($sid,$fid);
+		if (!$sid) return new \WP_Error('efb_session_storage_failed',__('The form session could not be saved.', 'easy-form-builder'),array('status'=>503));
+		return new \WP_REST_Response(array('nonce'=>$nonce->get_data()['nonce'],'sid'=>$sid,'runtime_token'=>\Emsfb\Form_Runtime::token($fid,$sid,$proof ? $proof['owner'] : ''),'refresh_after'=>240),200);
+	}
+
+	public function operation_status_api($request) {
+		// The recovery path after an uncertain submit: same-origin and identity only, no quota.
+		$nonce=$this->efb_issue_rest_nonce_efb();
+		if (is_wp_error($nonce)) return $nonce;
+		$data=$request->get_json_params();
+		if (!is_array($data) || !is_scalar($data['form_id'] ?? null) || !is_string($data['kind'] ?? null)) return new \WP_Error('efb_operation_invalid','Invalid operation.',array('status'=>400));
+		return \Emsfb\Form_Runtime::status($data['kind'],(int)$data['form_id'],$data);
+	}
+
+	public function response_session_api($request) {
+		nocache_headers();
+		if (!\Emsfb\Request_Health::same_origin()) return new \WP_Error('efb_origin_denied','Same origin required.',array('status'=>403));
+		$data=$request->get_json_params();
+		if (!is_array($data) || !is_scalar($data['id'] ?? null)) return new \WP_Error('efb_ticket_invalid','Invalid ticket.',array('status'=>400));
+		$id=absint($data['id']); $track=$this->response_ticket_track_efb($id);
+		$proof=\Emsfb\Form_Runtime::verify($data['response_access_token'] ?? '',0);
+		if (is_wp_error($proof)) return $proof;
+		if (!$track || !$proof || !hash_equals($id.':'.hash('sha256',$track),(string)$proof['sid'])) return new \WP_Error('efb_ticket_denied',__('Reopen the conversation to verify access.', 'easy-form-builder'),array('status'=>403));
+		$token=$this->issue_response_upload_token_efb($id,$track);
+		if (!$token) return new \WP_Error('efb_ticket_token_storage_failed',__('The attachment session could not be saved.', 'easy-form-builder'),array('status'=>503));
+		return new \WP_REST_Response(array('response_upload_token'=>$token,'nonce_msg'=>wp_create_nonce($track)),200);
+	}
+
+	/**
+	 * Same-origin check, identity restore and a fresh wp_rest nonce, with no
+	 * throttle. Shared by nonce/refresh, forms/session/prepare and
+	 * forms/operation/status; only nonce/refresh adds the per-IP limit.
+	 *
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	private function efb_issue_rest_nonce_efb() {
+		nocache_headers();
+		// This route can restore a logged-in identity and issue its CSRF nonce.
+		// Never expose that token to another origin, even with permissive REST CORS.
+		if (!class_exists('\\Emsfb\\Request_Health') || !\Emsfb\Request_Health::same_origin()) {
+			return new \WP_Error('efb_refresh_origin_denied', __('Token refresh requires a same-origin request.', 'easy-form-builder'), array('status' => 403));
+		}
 
 		/* Core's rest_cookie_check_errors() drops the current user to 0 for any
 		 * REST request that carries no nonce - which is precisely how this
@@ -221,8 +300,18 @@ public function check_nonce_permission_efb($request) {
 			}
 		}
 
-		if ( is_user_logged_in() ) {
-			return new \WP_REST_Response( array( 'nonce' => wp_create_nonce( 'wp_rest' ) ), 200 );
+		return new \WP_REST_Response( array( 'nonce' => wp_create_nonce( 'wp_rest' ) ), 200 );
+	}
+
+	/**
+	 * REST callback for Emsfb/v1/nonce/refresh (GET): a fresh wp_rest nonce for
+	 * a form left open past the nonce lifetime. Guests are limited per IP
+	 * (filter efb_nonce_refresh_per_minute, default 30); logged-in users are not.
+	 */
+	public function efb_nonce_refresh_api() {
+		$nonce = $this->efb_issue_rest_nonce_efb();
+		if ( is_wp_error( $nonce ) || is_user_logged_in() ) {
+			return $nonce;
 		}
 
 		$sid = isset( $_SERVER['HTTP_SID'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_SID'] ) ) : '';
@@ -258,7 +347,7 @@ public function check_nonce_permission_efb($request) {
 			$this->efbFunction->efb_code_touch_session( $sid, $fid );
 		}
 
-		return new \WP_REST_Response( array( 'nonce' => wp_create_nonce( 'wp_rest' ) ), 200 );
+		return $nonce;
 	}
 
 	/**
@@ -267,6 +356,21 @@ public function check_nonce_permission_efb($request) {
 	 * @return bool True when the caller may receive a fresh nonce.
 	 */
 	private function efb_nonce_refresh_allowed_efb() {
+		return $this->efb_ip_rate_allowed_efb( 'efb_nrl_', (int) apply_filters( 'efb_nonce_refresh_per_minute', 30 ) );
+	}
+
+	/**
+	 * Fixed one-minute window per client IP under its own key prefix.
+	 *
+	 * @param string $prefix Transient prefix, one per limit.
+	 * @param int    $limit  Requests per minute; 0 or less disables the limit.
+	 * @return bool True when the caller may proceed.
+	 */
+	private function efb_ip_rate_allowed_efb( $prefix, $limit ) {
+		if ( $limit <= 0 ) {
+			return true;
+		}
+
 		if ( ! $this->efbFunction ) {
 			$this->efbFunction = get_efbFunction();
 		}
@@ -276,12 +380,7 @@ public function check_nonce_permission_efb($request) {
 			return true;
 		}
 
-		$limit = (int) apply_filters( 'efb_nonce_refresh_per_minute', 30 );
-		if ( $limit <= 0 ) {
-			return true;
-		}
-
-		$key   = 'efb_nrl_' . md5( $ip . '|' . gmdate( 'YmdHi' ) );
+		$key   = $prefix . md5( $ip . '|' . gmdate( 'YmdHi' ) );
 		$count = (int) get_transient( $key );
 		if ( $count >= $limit ) {
 			return false;
@@ -786,7 +885,6 @@ public function check_nonce_permission_efb($request) {
 	}
 
 	public function EFB_Form_Builder($id){
-
 			$page_builder="";
 			$action_post = isset($_GET['action']) ? sanitize_key( wp_unslash( $_GET['action'] ) ) :'';
 
@@ -880,7 +978,6 @@ public function check_nonce_permission_efb($request) {
 					border-radius: 12px;
 					text-align: center;
 					color: #fff;
-					font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;
 					margin: 10px 0;
 				">
 					<div style="margin-bottom: 15px;">
@@ -906,29 +1003,9 @@ public function check_nonce_permission_efb($request) {
 			$state="form";
 			$rgister_captcha_url = false;
 			$this->efbFunction = get_efbFunction();
-			/* Health check only — the repair runs in the background. Downloading
-			 * here made every visitor wait on the add-on server, and a slow or
-			 * unreachable server took the form down with it. */
-			$addon_recovery = $this->efbFunction->check_addons_for_public_request_efb();
-			if ( ! empty( $addon_recovery['recovered'] ) ) {
-				if ( $this->addon_recovery_transition_rendered ) {
-					return '';
-				}
-				$this->addon_recovery_transition_rendered = true;
-				return $this->efbFunction->render_addon_recovery_reload_ui_efb( true );
-			}
-			if ( empty( $addon_recovery['success'] ) ) {
-				// Do not render a partly functional form. The administrator gets the
-				// precise diagnostics in the recovery UI; visitors get a safe message.
-				if ( $this->addon_recovery_transition_rendered ) {
-					return '';
-				}
-				$this->addon_recovery_transition_rendered = true;
-				/* Reload only when a background repair is actually pending. After an
-				 * inline attempt has already failed there is nothing to come back
-				 * to, and refreshing would just loop the visitor. */
-				$retry_after = ! empty( $addon_recovery['deferred'] ) ? 25 : 0;
-				return $this->efbFunction->render_addon_recovery_public_error_ui_efb( $retry_after );
+			/* A response view or password recovery link is per visitor: never page-cache it. */
+			if ( ( isset( $_GET['track'] ) || isset( $_GET['state'] ) ) && class_exists( '\\Emsfb\\Cache_Compat' ) ) {
+				\Emsfb\Cache_Compat::render_bypass( 0, isset( $_GET['track'] ) ? 'track' : 'state' );
 			}
 			if(isset($_GET['track'])){
 				$state_form =  sanitize_text_field(wp_unslash($_GET['track']) );
@@ -1037,7 +1114,8 @@ public function check_nonce_permission_efb($request) {
 				$this->db = $wpdb;
 			}
 
-			$this->id = end($id);
+			// WordPress < 6.5 passes '' (not an array) for a shortcode without attributes.
+			$this->id = is_array($id) ? end($id) : $id;
 			$this->id = intval($this->id);
 			$sid = $this->efbFunction->efb_code_validate_create( $this->id , 0, 'visit' , 0);
 			$value_form_data = $this->get_form_data_efb($this->id, array('form_structer', 'form_type'));
@@ -1050,10 +1128,15 @@ public function check_nonce_permission_efb($request) {
 					$is_track= $this->EMS_Form_Builder_track();
 
 				}
-			}else if(isset($this->id)){
+			}else if($this->id <= 0){
+				// [Easy_Form_Builder_confirmation_code_finder] carries no id.
 				$is_track= $this->EMS_Form_Builder_track();
 
 			}else{
+				/* The shortcode names a form that was deleted: visitors used to get
+				 * an unrelated confirmation-code finder. They now see nothing; the
+				 * people who manage forms see why. */
+				if (!current_user_can('Emsfb')) return '';
 				return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'> <div class='efb text-center my-5'><div class='efb text-danger efb text-center display-1 my-2'>
 					<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' class='bi bi-exclamation-triangle-fill' viewBox='0 0 16 16'>
 					<path d='M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5m.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2'/>
@@ -1061,6 +1144,41 @@ public function check_nonce_permission_efb($request) {
 				</div>
 				<h3 style='color:#202a8d;text-align: center;'>".esc_html__('Form does not exist !!','easy-form-builder')."</h3>
 				<h4 style='color:#ff4b93;text-align: center;'>".esc_html__('Easy Form Builder', 'easy-form-builder')."</h4></div></div>";
+			}
+			/* Health check only — the repair runs in the background. A form waits
+			 * only for the add-ons it uses; any other missing add-on is repaired in
+			 * the background while this form keeps working. */
+			$required_addons = array();
+			if ( null === $is_track && null !== $value_form_data ) {
+				$required_addons = $this->efbFunction->get_form_required_addons_efb( $value_form_data->form_structer );
+				$addon_recovery = $this->efbFunction->check_addons_for_public_request_efb(
+					null,
+					$required_addons
+				);
+				if ( ( ! empty( $addon_recovery['recovered'] ) || empty( $addon_recovery['success'] ) ) && class_exists( '\\Emsfb\\Cache_Compat' ) ) {
+					// The repair screen is temporary; a cached copy would outlive the repair.
+					\Emsfb\Cache_Compat::render_bypass( $this->id, 'recovery' );
+				}
+				if ( ! empty( $addon_recovery['recovered'] ) ) {
+					if ( $this->addon_recovery_transition_rendered ) {
+						return '';
+					}
+					$this->addon_recovery_transition_rendered = true;
+					return $this->efbFunction->render_addon_recovery_reload_ui_efb( true );
+				}
+				if ( empty( $addon_recovery['success'] ) ) {
+					// Do not render a partly functional form. The administrator gets the
+					// precise diagnostics in the recovery UI; visitors get a safe message.
+					if ( $this->addon_recovery_transition_rendered ) {
+						return '';
+					}
+					$this->addon_recovery_transition_rendered = true;
+					/* Reload only when this request queued the repair. Every later
+					 * visitor meets the queue lock or the backoff instead, and keying
+					 * the reload on anything else refreshed them every 25 seconds. */
+					$retry_after = ! empty( $addon_recovery['queued'] ) ? 25 : 0;
+					return $this->efbFunction->render_addon_recovery_public_error_ui_efb( $retry_after );
+				}
 			}
 			$this->text_ = ["somethingWentWrongPleaseRefresh","atcfle","cpnnc","tfnapca","thisFeatureAvailableFreePlusPro", "icc","cpnts","cpntl","mcplen","mmxplen","mxcplen","clcdetls","vmgs","required","mmplen","offlineSend","amount","allformat","videoDownloadLink","downloadViedo","removeTheFile","pWRedirect","eJQ500","error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist",
 			"settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot",
@@ -1078,7 +1196,21 @@ public function check_nonce_permission_efb($request) {
 			 * here is not missing text - it is text that quietly falls back to
 			 * English on every translated site. These two are the step counter
 			 * and the completion caption on the progress indicator. */
-			'stepXofY','percentComplete'];
+			'stepXofY','percentComplete',
+			/* Conditional Logic messages (block_submit / end_form) and the date pickers. */
+			'submitBlocked','formEnded','enterValidDate','selectMonth','selectYear','selectDecade',
+			/* Submit failures: the cause in plain words (core-efb.js efb_visitor_text_efb). */
+			'requestBlocked','formsClosed','formTooLarge','formNotSentCode','formExpiredSendAgain','loginChangedSendAgain','noAnswerCheckFirst','requestFailedCode','noAnswerRetry','tooManyRequests','paymentNotCompleted','paymentNotStartedNoCharge'];
+
+			/* Only now is a form or response box really printed. A form in a widget,
+			 * footer or popup keeps the page cacheable (EFBRuntime.prepare() fetches a
+			 * fresh nonce and session); see Cache_Compat::render_bypass(). Stripe, PayPal,
+			 * PersiaPay and Autofill scripts still read the page-embedded session. */
+			if ( class_exists( '\\Emsfb\\Cache_Compat' ) ) {
+				$page_session = ( null !== $value_form_data && isset( $value_form_data->form_type ) && 'payment' === $value_form_data->form_type )
+					|| array_intersect( (array) $required_addons, array( 'AdnSPF', 'AdnPAP', 'AdnPPF', 'AdnATF' ) );
+				\Emsfb\Cache_Compat::render_bypass( $this->id, $page_session ? 'session' : 'render' );
+			}
 
 			$this->public_scripts_and_css_head('', isset($value_form_data->form_structer) ? $value_form_data->form_structer : null);
 
@@ -1236,7 +1368,8 @@ public function check_nonce_permission_efb($request) {
 							'efb-conditional-logic-public',
 							EMSFB_PLUGIN_URL . 'vendor/logic/logic/assets/public/js/conditional-logic-efb.js',
 							array( 'Emsfb-core_js' ),
-							EMSFB_PLUGIN_VERSION,
+							// File time: an add-on update must reach browsers and page caches.
+							EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime( EMSFB_PLUGIN_DIRECTORY . 'vendor/logic/logic/assets/public/js/conditional-logic-efb.js' ),
 							true
 						);
 						wp_enqueue_script( 'efb-conditional-logic-public' );
@@ -1254,7 +1387,7 @@ public function check_nonce_permission_efb($request) {
 			$username = is_user_logged_in() ? wp_get_current_user()->user_login : 'guest';
 			if ($is_track==null){
 
-					$fs =str_replace('\\', '', $value_form_data->form_structer);
+					$fs =\emsfb_json_normalize_efb($value_form_data->form_structer);
 					$fs = preg_replace('/"email":"[^"]*"/', '"email":""', $fs);
 					$formObj= json_decode($fs,true);
 					$valj_efb = json_decode($fs, false, 512, JSON_UNESCAPED_UNICODE);
@@ -1295,7 +1428,7 @@ public function check_nonce_permission_efb($request) {
 			}
 
 		 	$width =0;
-			$value =str_replace('\\', '', $value);
+			$value =\emsfb_json_normalize_efb($value);
 			$values = $value;
 
 			   require_once(EMSFB_PLUGIN_DIRECTORY . '/includes/class-Emsfb-formbuilder.php');
@@ -1441,7 +1574,7 @@ public function check_nonce_permission_efb($request) {
 					}
 					/* Collected so one rule per distinct colour can be printed for the
 					 * whole row instead of five custom properties on every step. */
-					$step_icon_colors_efb[] = $value->icon_color;
+					$step_icon_colors_efb[] = $value->icon_color ?? '';
 
 					/* data-num draws the number in place of the glyph once the form is
 					 * long enough for the captions to be dropped, and it is also how
@@ -1453,18 +1586,20 @@ public function check_nonce_permission_efb($request) {
 						$value->id_,
 						$step_no,
 						$form_id,
-						efb_steps_item_class_efb( $step_no, 1, $value->icon_color, $value->icon, $steps_style_efb ),
+						efb_steps_item_class_efb( $step_no, 1, $value->icon_color ?? '', $value->icon ?? '', $steps_style_efb ),
 						$valj_efb_first->steps <= 6 ? 'step-w-' . $valj_efb_first->steps : 'step-w-6',
 						'classic' === $steps_style_efb ? '' : 'efb-sp__label ',
-						$value->label_text_color,
+						$value->label_text_color ?? '',
 						$value->name
 					);
 					continue;
 				}
 
 				if($i>1){
-					if(in_array($valj_efb[$i]->type, $list_pro_elements) && $pro_element_exists == false && $pro == true){
-						wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION);
+					// Their scripts live in pro_els-efb.js; the fields that became
+					// free in 4.3.1 need it on every plan.
+					if(in_array($valj_efb[$i]->type, $list_pro_elements) && $pro_element_exists == false && ($pro == true || in_array($valj_efb[$i]->type, emsfb_free_element_types_efb(), true))){
+						wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/pro_els-efb.js'));
 						$pro_element_exists = true;
 					}
 					if(in_array($valj_efb[$i]->type, ["option","r_matrix"])) {continue;
@@ -1495,7 +1630,10 @@ public function check_nonce_permission_efb($request) {
 							}
 
 							if($autofill_id >0){
-								wp_enqueue_script('efb-autofill', EMSFB_PLUGIN_URL . 'vendor/autofill/assets/js/autofill-public-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION);
+								// Versioned by file time so an add-on update reaches browsers and page caches.
+								$autofill_public_path = EMSFB_PLUGIN_DIRECTORY . 'vendor/autofill/assets/js/autofill-public-efb.js';
+								$autofill_public_version = is_readable($autofill_public_path) ? EMSFB_PLUGIN_VERSION . '.' . (string) filemtime($autofill_public_path) : EMSFB_PLUGIN_VERSION;
+								wp_enqueue_script('efb-autofill', EMSFB_PLUGIN_URL . 'vendor/autofill/assets/js/autofill-public-efb.js', array('jquery'), $autofill_public_version);
 							}else if($autofill_id == 0){
 
 								$autofill_api = isset($valj_efb[0]->autofill_api) ? $valj_efb[0]->autofill_api : false;
@@ -1537,7 +1675,7 @@ public function check_nonce_permission_efb($request) {
 									wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);
 									wp_enqueue_script('stripe-js');
 
-									wp_register_script('stripe_js',  EMSFB_PLUGIN_URL .'/public/assets/js/stripe_pay-efb.js', array('jquery'),EMSFB_PLUGIN_VERSION,true);
+									wp_register_script('stripe_js',  EMSFB_PLUGIN_URL .'/public/assets/js/stripe_pay-efb.js', array('jquery'),EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/js/stripe_pay-efb.js'),true);
 									wp_enqueue_script('stripe_js');
 									$paymentKey = $this->resolve_payment_key_efb( $setting, 'stripePKey' );
 									$ar_core = array_merge($ar_core , array(
@@ -1620,8 +1758,8 @@ public function check_nonce_permission_efb($request) {
 						<div step-{$step_no}-efb></div>
 					</fieldset>";
 
-				$show_steps_efb    = intval($valj_efb[0]->show_icon) != 1;
-				$show_progress_efb = intval($valj_efb[0]->show_pro_bar) != 1;
+				$show_steps_efb    = intval($valj_efb[0]->show_icon ?? 0) != 1;
+				$show_progress_efb = intval($valj_efb[0]->show_pro_bar ?? 0) != 1;
 				$steps_style_efb   = efb_steps_style_name_efb( isset($valj_efb[0]->steps_style) ? $valj_efb[0]->steps_style : '' );
 				$prog_style_efb    = efb_progress_style_name_efb( isset($valj_efb[0]->progress_style) ? $valj_efb[0]->progress_style : '' );
 				if ( ! isset( $step_icon_colors_efb ) ) {
@@ -1629,12 +1767,14 @@ public function check_nonce_permission_efb($request) {
 				}
 				/* The Finish row is drawn from the first step's colours, the way it
 				 * always was, so it belongs in the colour set too. */
-				$step_icon_colors_efb[] = $valj_efb[1]->icon_color;
+				$finish_icon_color_efb  = $valj_efb[1]->icon_color ?? '';
+				$finish_label_color_efb = $valj_efb[1]->label_text_color ?? '';
+				$step_icon_colors_efb[] = $finish_icon_color_efb;
 
 				$head_final_step = "<li id='f-step-efb-{$form_id}' data-step='icon-s-{$step_no}-efb' data-formid='{$form_id}' data-num='{$step_no}' class='"
-					. efb_steps_item_class_efb( $step_no, 1, $valj_efb[1]->icon_color, 'bi-check-lg', $steps_style_efb ) . " "
+					. efb_steps_item_class_efb( $step_no, 1, $finish_icon_color_efb, 'bi-check-lg', $steps_style_efb ) . " "
 					. ( ( $valj_efb[0]->steps <= 6 ) ? "step-w-{$valj_efb[0]->steps}" : 'step-w-6' ) . " mx-0'>
-					<strong class='efb fs-5 " . ( 'classic' === $steps_style_efb ? '' : 'efb-sp__label ' ) . "{$valj_efb[1]->label_text_color}'>".$lanText['finish']."</strong>
+					<strong class='efb fs-5 " . ( 'classic' === $steps_style_efb ? '' : 'efb-sp__label ' ) . "{$finish_label_color_efb}'>".$lanText['finish']."</strong>
 				</li>";
 
 				$bgc = isset($valj_efb[0]->prg_bar_color) ? $valj_efb[0]->prg_bar_color : 'btn-primary';
@@ -1710,7 +1850,11 @@ public function check_nonce_permission_efb($request) {
 			 * <head> would hold up the first paint of the whole page by that
 			 * much. It still sees every error the plugin's own scripts can
 			 * raise: those are enqueued into the footer, below it. */
-			$console_script_efb = '<script>'.$efbFormBuilder->check_error_console_efb().'</script>';
+			/* Administrators only. Printed for everyone, it gave every visitor a
+			 * red "Warning" pill and an "Error Monitor / ADMIN" modal after any
+			 * failed submit. Without the panel the core helpers that feed it
+			 * (efb_get_error_panel_efb() returns null) simply do nothing. */
+			$console_script_efb = (is_user_logged_in() && current_user_can('manage_options')) ? '<script>'.$efbFormBuilder->check_error_console_efb().'</script>' : '';
 
 			$stps_state = $step_no>1 ? 1 : 0;
 			$navButton = $efbFormBuilder->add_buttons_zone_efb($stps_state, $this->id, $valj_efb, $lanText, $this->id);
@@ -1898,7 +2042,7 @@ public function check_nonce_permission_efb($request) {
 			$state="tracker";
 		}else{
 			   $valstng= json_decode($stng);
-			   if(isset($valstng->siteKey) && isset($valstng->scaptcha) && $valstng->scaptcha==true){
+			   if(!empty($valstng->siteKey) && isset($valstng->scaptcha) && $valstng->scaptcha==true){
 
 				}
 
@@ -1917,7 +2061,7 @@ public function check_nonce_permission_efb($request) {
 
 		$this->comper_version_efb($pl[1]['version']);
 		if($pro==true){
-			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION);
+			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/pro_els-efb.js'));
 		}
 
 		$location = '';
@@ -1931,7 +2075,10 @@ public function check_nonce_permission_efb($request) {
 			$get_track = sanitize_text_field(wp_unslash($_GET['track']));
 		}
 			$script_call_captcha = '';
-			if (isset($valstng->siteKey) && isset($valstng->scaptcha) && $valstng->scaptcha==true ){
+			/* Only with a site key: without one the widget cannot render, the
+			 * page's own "tick the box" check then blocked every lookup, and
+			 * the server (verify_tracker_captcha_efb) does not enforce it. */
+			if (!empty($valstng->siteKey) && is_string($valstng->siteKey) && isset($valstng->scaptcha) && $valstng->scaptcha==true ){
 				$script_call_captcha =sprintf(
 						'<div class="efb efb-tracker-captcha">
 									<div id="gRecaptcha" class="efb g-recaptcha" data-sitekey="%1$s" data-formid="-1" ></div>
@@ -1993,7 +2140,7 @@ public function check_nonce_permission_efb($request) {
 			return false;
 		}
 
-		$decoded = json_decode(str_replace('\\', '', $form_structure_json), false);
+		$decoded = \emsfb_json_decode_efb($form_structure_json, false);
 		if ( ! is_array($decoded) || empty($decoded[0]) || ! is_object($decoded[0]) ) {
 			return false;
 		}
@@ -2017,11 +2164,14 @@ public function check_nonce_permission_efb($request) {
 		wp_enqueue_style('Emsfb-style-css');
 
 		if(is_rtl()){
-			wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl-efb.css', true ,EMSFB_PLUGIN_VERSION);
+			/* Direction only: the form takes the theme's font. The file used to
+			 * force Roboto (with !important) on every RTL front end. Versioned by
+			 * file time so a cached copy with that rule is not kept. */
+			wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl-efb.css', true ,EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/css/admin-rtl-efb.css'));
 			wp_enqueue_style('Emsfb-css-rtl');
 		}
 		$googleCaptcha=false;
-		wp_register_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min-efb.css', true,EMSFB_PLUGIN_VERSION);
+		wp_register_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min-efb.css', true, EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/css/bootstrap.min-efb.css'));
 		wp_enqueue_style('Emsfb-bootstrap-css');
 
 		if($state=='css') return;
@@ -2095,6 +2245,7 @@ public function check_nonce_permission_efb($request) {
 	  }
 
 	private function efb_send_json_and_continue($response, $status_code = 200) {
+		if ($this->operation_key && !empty($response['success'])) \Emsfb\Form_Runtime::finish($this->operation_key,$response);
 
 		if ( emsfb_is_php_function_available_efb( 'ini_set' ) ) {
 			@ini_set('zlib.output_compression', 0);
@@ -2205,14 +2356,54 @@ public function check_nonce_permission_efb($request) {
 		);
 	}
 
+	/** Read canonical decoded settings; never strip valid JSON escapes. */
+	private function get_submission_settings_efb(&$source) {
+		$source = 'object-cache';
+		$settings = wp_cache_get('emsfb_settings', 'emsfb');
+		if (!is_array($settings) || empty($settings)) {
+			$source = 'storage';
+			$decoded = get_setting_Emsfb('decoded');
+			$settings = (is_object($decoded) || is_array($decoded)) ? json_decode(wp_json_encode($decoded), true) : [];
+			$settings = is_array($settings) ? $settings : [];
+			if (!empty($settings)) {
+				wp_cache_set('emsfb_settings', $settings, 'emsfb', 3600);
+			}
+		}
+		// Keep the submission gate and the mail template on the same snapshot.
+		$this->setting = json_decode(wp_json_encode($settings));
+		return $settings;
+	}
+
 	  public function get_form_public_efb($data_POST_) {
 		$request_data = $data_POST_->get_json_params();
+		if (!is_array($request_data)) wp_send_json_error(array('code'=>'efb_invalid_payload','m'=>__('Invalid form request.', 'easy-form-builder')),400);
+		foreach (array('sid','id','page_id','url','type','name') as $field) {
+			if (isset($request_data[$field]) && !is_scalar($request_data[$field])) wp_send_json_error(array('code'=>'efb_invalid_payload','m'=>__('Invalid form request.', 'easy-form-builder')),400);
+		}
+		$request_data += array('sid'=>'','id'=>0,'page_id'=>0,'url'=>'','type'=>'','name'=>'');
+		// The page's query string, for Conditional Logic "URL parameter" rules:
+		// the Referer loses it under a strict Referrer-Policy.
+		$this->efb_request_query_efb = null;
+		if (isset($request_data['query']) && is_scalar($request_data['query'])) {
+			$request_query_efb = array();
+			parse_str(substr((string) $request_data['query'], 0, 2000), $request_query_efb);
+			$this->efb_request_query_efb = is_array($request_query_efb) ? $request_query_efb : array();
+			$query_for_logic_efb = $this->efb_request_query_efb;
+			add_filter('efb_logic_environment', function ($env) use ($query_for_logic_efb) {
+				if (is_array($env)) {
+					$env['query'] = $query_for_logic_efb;
+				}
+				return $env;
+			});
+		}
+		$this->operation_key = '';
+		$this->operation_data = is_array($request_data) ? $request_data : array();
 
 		$translation_keys = [
 			'somethingWentWrongPleaseRefresh', 'pleaseMakeSureAllFields', 'PleaseFillForm', 'bkXpM_', 'bkFlM_', 'mnvvXXX_', 'ptrnMmm_', 'ptrnMmx_', 'payment', 'error403', 'errorSiteKeyM',
-			'errorCaptcha', 'pleaseEnterVaildValue', 'createAcountDoneM', 'incorrectUP', 'sentBy', 'newPassM', 'done', 'surveyComplatedM', 'error405', 'errorSettingNFound', 'errorMRobot',
+			'errorCaptcha', 'pleaseEnterVaildValue', 'createAcountDoneM', 'uraatn', 'incorrectUP', 'sentBy', 'newPassM', 'done', 'surveyComplatedM', 'error405', 'errorSettingNFound', 'errorMRobot',
 			'clcdetls', 'vmgs', 'youRecivedNewMessage', 'WeRecivedUrM', 'thankRegistering', 'welcome', 'thankSubscribing', 'thankDonePoll', 'thankFillForm', 'trackNo', 'fernvtf', 'msgdml', 'newMessageReceived','sxnlex','snotfound','response','fform','msgSndBut','smsWPN',
-			'surveyResults', 'responses'
+			'surveyResults', 'responses', 'submitBlocked', 'enterValidDate'
 		];
 		$efbFunction = get_efbFunction();
 
@@ -2226,26 +2417,54 @@ public function check_nonce_permission_efb($request) {
 		}
 
 		$session_is_valid = $this->efbFunction->efb_code_validate_select($session_id, $this->id);
+		/*
+		 * Session check. A current client sends the runtime token it got from
+		 * forms/session/prepare together with the sid that token was issued
+		 * for, so for it the session is enforced: the token must belong to this
+		 * form, carry this sid, and the session must still exist. A request
+		 * without a token comes from a page cached before 4.3.1 (or a bot) and
+		 * is accepted as before - rejecting it would drop real submissions from
+		 * stale page caches. It is traced, so a later release can decide on
+		 * enforcing the sid for those as well once caches have turned over.
+		 */
+		if (!empty($request_data['runtime_token']) && class_exists('\\Emsfb\\Form_Runtime')) {
+			$runtime_proof = \Emsfb\Form_Runtime::verify((string) $request_data['runtime_token'], $this->id);
+			if (is_wp_error($runtime_proof)) {
+				wp_send_json_error(array('code' => $runtime_proof->get_error_code(), 'm' => $runtime_proof->get_error_message()), 409);
+			}
+			if (!$runtime_proof || (string) $runtime_proof['sid'] !== (string) $session_id || (int) $session_is_valid !== 1) {
+				// A finished submission consumes its session, so a repeat of the same
+				// request (a lost response, a double click) lands here. Answer it with
+				// the saved result, or say the request changed, instead of "expired".
+				if ($runtime_proof && (string) $runtime_proof['sid'] === (string) $session_id
+					&& ($this->operation_data['type'] ?? '') === 'form') {
+					$replay = \Emsfb\Form_Runtime::replay('form', $this->id, $this->operation_data);
+					if (is_wp_error($replay)) {
+						$replay_data = $replay->get_error_data();
+						wp_send_json_error(array('code' => $replay->get_error_code(), 'm' => $replay->get_error_message()), is_array($replay_data) && isset($replay_data['status']) ? (int) $replay_data['status'] : 409);
+					}
+					if ($replay instanceof \WP_REST_Response) {
+						wp_send_json($replay->get_data(), $replay->get_status());
+					}
+				}
+				wp_send_json_error(array('code' => 'efb_context_expired', 'm' => __('This form has expired. Please refresh the page and send it again.', 'easy-form-builder')), 409);
+			}
+		} elseif ((int) $session_is_valid !== 1) {
+			$this->efb_trace('submit.legacy-session-invalid', [
+				'form_id' => intval($this->id),
+				'type'    => isset($request_data['type']) ? sanitize_key((string) $request_data['type']) : '',
+			]);
+		}
 		$this->lanText = $this->efbFunction->text_efb($translation_keys);
 		$plugin_settings;
 		$cache_plugins = get_option('emsfb_cache_plugins','0');
-		if($cache_plugins!='0') $this->cache_cleaner_Efb($page_id,$cache_plugins);
+		// Published form pages are excluded by Cache_Compat. A visitor-supplied
+		// page_id must not trigger cache purges on public requests.
 
 		$user_id = 1;
 		$admin_email_list = [];
 
-		$settings_source = 'object-cache';
-		if (false === ($plugin_settings = wp_cache_get('emsfb_settings' , 'emsfb'))) {
-			$settings_source = ($this->setting != NULL && !empty($this->setting)) ? 'instance' : 'storage';
-			$r = $this->setting != NULL && !empty($this->setting) ? $this->setting : get_setting_Emsfb('raw');
-			$plugin_settings = is_string($r) ? json_decode(str_replace("\\", "", $r), true) : $r;
-			// Same TTL as the settings:* keys - set_setting_Emsfb() invalidates this
-			// key too, and the expiry keeps a missed invalidation self-healing.
-			wp_cache_set('emsfb_settings', $plugin_settings , 'emsfb', 3600);
-		} else {
-
-			$r = $this->setting != NULL && !empty($this->setting) ? $this->setting : get_setting_Emsfb('raw');
-		}
+		$plugin_settings = $this->get_submission_settings_efb($settings_source);
 
 		$this->efb_trace('submit.settings', [
 			'form_id'         => intval($this->id),
@@ -2255,15 +2474,6 @@ public function check_nonce_permission_efb($request) {
 			'sending_enabled' => emsfb_is_email_sending_enabled_efb($plugin_settings),
 			'emailSupporter'  => is_array($plugin_settings) && isset($plugin_settings['emailSupporter']) ? $plugin_settings['emailSupporter'] : null,
 		]);
-
-		if (is_string($r)) {
-			$r = str_replace('\\', '', $r);
-			$this->setting = json_decode($r);
-		} else if (is_array($plugin_settings)) {
-			$this->setting = json_decode(json_encode($plugin_settings), false);
-		} else if (is_object($r)) {
-			$this->setting = $r;
-		}
 
 		if (isset($plugin_settings['emailSupporter'])) {
 			array_push($admin_email_list, $plugin_settings['emailSupporter']);
@@ -2294,8 +2504,17 @@ public function check_nonce_permission_efb($request) {
 			wp_send_json_success($response, 200);
 		}
 
-		$form_structure_json = isset($form_db_data) ? str_replace('\\', '', $form_db_data->form_structer) : '';
+		$form_structure_json = isset($form_db_data) ? \emsfb_json_normalize_efb($form_db_data->form_structer) : '';
+		$access_structure=\emsfb_json_decode_efb($form_structure_json,true);
+		if (in_array($access_structure[0]['stateForm'] ?? false,array(true,1,'1'),true) && !is_user_logged_in()) {
+			wp_send_json_error(array('code'=>'efb_login_required','m'=>__('Please log in to use this form.', 'easy-form-builder')),403);
+		}
 		$skip_captcha = $form_fields_array = $has_tracking_code  = $track_code = "";
+		if ($submission_type==='form') {
+			$replay=\Emsfb\Form_Runtime::replay('form',$this->id,$this->operation_data);
+			if (is_wp_error($replay)) wp_send_json_error(array('code'=>$replay->get_error_code(),'m'=>$replay->get_error_message()),$replay->get_error_data()['status']);
+			if ($replay instanceof \WP_REST_Response) wp_send_json($replay->get_data(),$replay->get_status());
+		}
 		$should_send_email=false;
 		$email_recipients = [];
 		// The form client always posts `value` as a JSON string, but nothing
@@ -2313,8 +2532,17 @@ public function check_nonce_permission_efb($request) {
 			$encoded = wp_json_encode($raw_value);
 			$this->value = is_string($encoded) ? $encoded : '';
 		} elseif (is_scalar($raw_value)) {
-			$this->value = str_replace('\\', '', (string) $raw_value);
-			$submitted_values = json_decode($this->value, true);
+			// Decode as the client sent it, so a value containing a double
+			// quote (which arrives JSON-escaped) no longer breaks the JSON and
+			// makes the whole form look empty. The stripped form stays a
+			// fallback for older/page-cached clients; $this->value keeps its
+			// legacy stripped meaning for the few paths that read it directly.
+			$raw_value = (string) $raw_value;
+			$submitted_values = json_decode($raw_value, true);
+			if (!is_array($submitted_values)) {
+				$submitted_values = \emsfb_json_decode_efb($raw_value, true);
+			}
+			$this->value = \emsfb_json_normalize_efb($raw_value);
 		} else {
 			$this->value = '';
 			$submitted_values = null;
@@ -2327,6 +2555,11 @@ public function check_nonce_permission_efb($request) {
 		if (!is_array($submitted_values)) {
 			$submitted_values = [];
 		}
+
+		// Passwords are taken as typed, before the field sanitizing below:
+		// sanitize_text_field() strips "<…", "%41" and runs of spaces, so the
+		// account ended up with a password other than the one the visitor chose.
+		$raw_passwords_efb = $this->raw_passwords_efb($submitted_values);
 
 		// The client seeds one placeholder row per upload field at render time and
 		// posts it whether or not anything was ever attached, so a submission is
@@ -2425,7 +2658,7 @@ public function check_nonce_permission_efb($request) {
 					if ( $_block_msg === '' ) {
 						$_block_msg = isset( $this->lanText['submitBlocked'] )
 							? $this->lanText['submitBlocked']
-							: 'Submission is not allowed for the current answers.';
+							: __( 'Submission is not allowed for the current answers.', 'easy-form-builder' );
 					}
 					wp_send_json_success( [ 'success' => false, 'm' => esc_html( $_block_msg ) ], 200 );
 				}
@@ -2459,7 +2692,7 @@ public function check_nonce_permission_efb($request) {
 				// per-field validation loop below only checks the FORMAT of values
 				// that were submitted; it never notices a required field that is
 				// missing entirely from $submitted_values.
-				$_req_check = $this->validate_required_fields_present_efb( $form_fields_array, $submitted_values );
+				$_req_check = $this->validate_required_fields_present_efb( $form_fields_array, $submitted_values, (bool) $this->efbFunction->is_efb_pro(1) );
 				if ( empty( $_req_check['valid'] ) ) {
 					$_missing_name = $_req_check['missing_name'] ?? '';
 					$_req_msg = isset( $this->lanText['pleaseMakeSureAllFields'] )
@@ -2488,13 +2721,12 @@ public function check_nonce_permission_efb($request) {
 				$is_valid = 0;
 				$validated_item;
 				if (isset($request_data['url']) && strlen($request_data['url']) > 5) {
-					$d = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) :'';
-					$ar = ['http://wwww.' .$d, 'https://wwww.' . $d, 'http://' . $d, 'https://' . $d];
-					foreach ($ar as $r) {
-						$c = strpos($request_data['url'], $r);
-						if (gettype($c) != 'boolean' && $c == 0) {
-							$is_valid = 1;
-						}
+					/* A prefix test let "https://example.com.evil.tld/" and
+					 * "https://example.com@evil.tld/" pass as this site. The
+					 * address becomes the link in the owner's email, carrying the
+					 * per-ticket admin code, so compare the host itself. */
+					if ($this->is_same_site_url_efb($request_data['url'])) {
+						$is_valid = 1;
 					}
 					if ($is_valid == 1) {
 						$protocol = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
@@ -2521,21 +2753,28 @@ public function check_nonce_permission_efb($request) {
 						if ($still_processing == false) {
 							return;
 						}
+						$item = $this->normalize_submitted_row_efb($item, isset($f['type']) ? $f['type'] : '');
+						$item_value_len = is_array($item['value'] ?? null) ? count($item['value']) : strlen((string) ($item['value'] ?? ''));
 						if (((isset($f['disabled']) == true &&  $f['disabled'] == 1  && isset($f['hidden']) == false)
 								|| (isset($f['disabled']) == true && $f['disabled'] == 1 && isset($f['hidden']) == true && $f['hidden'] == false))
 							&& ($item['id_'] == $f['id_'] || $f['id_'] == $item['id_'])
-							&& strlen($item['value']) > 1
+							&& $item_value_len > 1
 						) {
 							$is_valid = 0;
 							$still_processing == false;
+							// Name the field, so the visitor is not shown an empty error.
+							if (isset($f['name']) && isset($this->lanText['mnvvXXX_'])) {
+								$error_message = str_replace('%s', "<b>" . esc_html($f['name']) . "</b>", $this->lanText['mnvvXXX_']);
+								$error_field_id = isset($f['id_']) ? $f['id_'] : '';
+							}
 							return;
 						}
 						$t = strpos(strtolower($item['type']), 'checkbox');
 						if (
 							isset($f['id_']) && isset($item['id_']) && ($f['id_'] == $item['id_']
-								||  gettype($t) == "integer" && $f['id_'] == $item['id_ob'])
+								||  gettype($t) == "integer" && isset($item['id_ob']) && $f['id_'] == $item['id_ob'])
 							|| (($f['type'] == "persiaPay" || $f['type'] == "persiapay" || $f['type'] == "payment") && $form_fields_array[0]['type'] == 'payment')
-							|| ($item['type'] == 'r_matrix' && $f['id_'] == $item['id_ob'])
+							|| ($item['type'] == 'r_matrix' && isset($item['id_ob']) && $f['id_'] == $item['id_ob'])
 						) {
 							if (isset($f['name'])) {
 								$error_message = $this->lanText['mnvvXXX_'];
@@ -2547,7 +2786,7 @@ public function check_nonce_permission_efb($request) {
 									$is_valid = 0;
 									if (isset($item['value'])) {
 										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
-										$item['value'] = sanitize_email($item['value']);
+										$item['value'] = sanitize_email(self::normalize_email_input_efb($item['value']));
 										$is_valid = 1;
 										$validated_item = $item;
 										$l = strlen($item['value']);
@@ -2598,8 +2837,18 @@ public function check_nonce_permission_efb($request) {
 									$is_valid = 0;
 									if (isset($item['value'])) {
 										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
-										$item['value'] = sanitize_url($item['value']);
+										$raw_url = is_string($item['value']) ? trim($item['value']) : '';
+										$item['value'] = sanitize_url($raw_url);
 										$is_valid = 1;
+										/* The browser accepts only http(s) addresses with a dotted
+										 * host; sanitize_url() turns plain text into
+										 * "http://not%20a%20url", which used to be stored. */
+										if ($raw_url !== '') {
+											$url_host = wp_parse_url($item['value'], PHP_URL_HOST);
+											if (!preg_match('#^https?://#i', $raw_url) || !is_string($url_host) || strpos($url_host, '.') === false) {
+												$is_valid = 0;
+											}
+										}
 										$l = strlen($item['value']);
 										if ((isset($f['milen']) && $f['milen'] > $l) || (isset($f['mlen']) && $f['mlen'] < $l)) {
 											$is_valid = 0;
@@ -2615,7 +2864,9 @@ public function check_nonce_permission_efb($request) {
 										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
 										$item['value'] = sanitize_text_field($item['value']);
 										$is_valid = 0;
-										$item['value'] = preg_replace('/\s+/', '', $item['value']);
+										// Persian/Arabic digits and direction marks (pages cached before the
+										// browser started converting them) would reach the SMS gateway as is.
+										$item['value'] = preg_replace('/\s+/', '', self::normalize_phone_input_efb($item['value']));
 										if (isset($f['smsnoti']) && intval($f['smsnoti']) == 1) {
 											$sms_notification_enabled = 1;
 											array_push($phone_numbers[1], $item['value']);
@@ -2640,15 +2891,23 @@ public function check_nonce_permission_efb($request) {
 								case 'imgRadio':
 									$is_valid = 0;
 									if (isset($item['value'])) {
+										/* The saved field decides the row's kind. The price and
+										 * image lookups below key on it, and so does the attribute
+										 * allow-list, so a browser-supplied type must not steer
+										 * either. */
+										$item['type'] = $f['type'];
 										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
 										$item['value'] = sanitize_text_field($item['value']);
 										array_filter($form_fields_array, function ($fr, $ki) use (&$item, &$validated_item, &$is_valid, &$form_fields_array, $form_condition, &$error_message) {
 											if (isset($fr['id_']) && isset($item['id_ob']) && $fr['id_'] == $item['id_ob']) {
 												$item['value'] = $fr['value'];
 												$is_valid = 1;
-												$t = strpos($item['type'], 'pay');
-												if ($t != false) {
-													$item['price'] = $fr['price'];
+												/* strpos() finds "pay" at offset 0 of "payRadio", and
+												 * 0 != false is false - so the saved price was never
+												 * applied and the browser's price (admitted by the
+												 * payRadio allow-list) was stored instead. */
+												if (strpos($item['type'], 'pay') !== false) {
+													if (isset($fr['price'])) { $item['price'] = $fr['price']; } else { unset($item['price']); }
 												}
 												$t = strpos($item['type'], 'img');
 												if (isset($fr['src'])) {
@@ -2697,18 +2956,39 @@ public function check_nonce_permission_efb($request) {
 									$still_processing = false;
 									break;
 								case 'option':
-									$t = strpos(strtolower($item['type']), 'checkbox');
-									if (gettype($t) != 'boolean') {
-									}
 									$is_valid = 0;
 									if (isset($item['value'])) {
-
+										/* An option row belongs to the checkbox-family field named
+										 * by its id_. Store it under that field's saved type: the
+										 * viewer groups on it, the email prices on it, and a
+										 * browser that names some other type must not pick the
+										 * render branch. A row whose parent is not a checkbox
+										 * field is not an option answer at all. */
+										$option_parent_type = $this->parent_field_type_efb($item['id_'] ?? null, $form_fields_array);
+										if ($option_parent_type === '' || strpos(strtolower($option_parent_type), 'checkbox') === false) {
+											$validated_item = null;
+											$still_processing = false;
+											break;
+										}
+										$item['type'] = $option_parent_type;
 										$item['value'] = sanitize_text_field($item['value']);
 										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
+										/* The 'option' allow-list admits price and qty for the
+										 * priced and free-text checkbox kinds. On any other parent a
+										 * browser-supplied price is not overwritten below and would
+										 * be summed into the viewer's "total paid"; qty is only ever
+										 * typed into a chlCheckBox's companion input. */
+										if (is_array($item)) {
+											if (stripos($option_parent_type, 'pay') === false) unset($item['price']);
+											if (stripos($option_parent_type, 'chl') === false) unset($item['qty']);
+										}
 										if ((isset($f['id_']) && isset($item['id_ob']) && $f['id_'] == $item['id_ob'])
 											|| (isset($f['id_']) && isset($item['id_']) && $f['type'] == "chlCheckBox"  && $f['id_'] == $item['id_ob'])
 										) {
-											$item['value'] = $this->sanitize_value_efb($item['value'],'option');
+											/* The saved option's own text, as for radio: the browser's
+											 * label is only a claim, and any text sent with a real
+											 * option id used to be stored as the answer. */
+											$item['value'] = isset($f['value']) && is_string($f['value']) ? $f['value'] : $this->sanitize_value_efb($item['value'],'option');
 											$validated_item = $item;
 											$is_valid = 1;
 											$t = strpos($item['type'], 'pay');
@@ -2741,7 +3021,8 @@ public function check_nonce_permission_efb($request) {
 									$is_valid = 0;
 									$item['value'] = sanitize_text_field($item['value']);
 									$item = $this->filter_attributes_by_type_efb($item,$f['type']);
-									if ($item['value'] < 1 || $item['value'] > 5) {
+									/* A loose comparison let "3 anything" through as a score. */
+									if (!is_array($item) || !is_string($item['value'] ?? null) || preg_match('/^[1-5]$/', trim($item['value'])) !== 1) {
 										$m =  $this->lanText['somethingWentWrongPleaseRefresh'] . '<br>' . esc_html__('Error Code', 'easy-form-builder') . ': 600';
 										$response = array('success' => false, 'm' => $m);
 										wp_send_json_success($response, 200);
@@ -2805,8 +3086,9 @@ public function check_nonce_permission_efb($request) {
 										$validated_item = null;
 										$rs = explode("@efb!", $item['value']);
 										array_filter($form_fields_array, function ($fr) use ($item, &$validated_item, $rs) {
+											// "&amp;" in a template option vs the "&" the browser sends
 											foreach ($rs as $k => $v) {
-												if (isset($item['type'])  && $fr['type'] == "option" && isset($fr['value']) && isset($v) && $fr['value'] == $v &&  $fr['parent'] == $item['id_']) {
+												if (isset($item['type'])  && $fr['type'] == "option" && isset($fr['value']) && isset($v) && $this->same_option_text_efb($fr['value'], $v) &&  $fr['parent'] == $item['id_']) {
 													$validated_item == null ? $validated_item = $v . '@efb!' : $validated_item = $validated_item . $v . '@efb!';
 												}
 											}
@@ -2824,7 +3106,7 @@ public function check_nonce_permission_efb($request) {
 										$item['value'] = sanitize_text_field($item['value']);
 										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
 										array_filter($form_fields_array, function ($fr, $ki) use ($item, &$validated_item, &$is_valid, &$form_fields_array, $form_condition, &$error_message) {
-											if (isset($item['type'])  && $fr['type'] == "option" && isset($fr['value']) && isset($item['value']) && $fr['value'] == $item['value'] &&  $fr['parent'] == $item['id_']) {
+											if (isset($item['type'])  && $fr['type'] == "option" && isset($fr['value']) && isset($item['value']) && $this->same_option_text_efb($fr['value'], $item['value']) &&  $fr['parent'] == $item['id_']) {
 												$is_valid = 1;
 												$item['value'] = $fr['value'];
 												$validated_item = $item;
@@ -2869,6 +3151,16 @@ public function check_nonce_permission_efb($request) {
 									$still_processing = false;
 									break;
 								case 'sample':
+									/* Was stored verbatim — no sanitising, no attribute
+									 * filtering, and the browser-supplied type kept — so a
+									 * submission to a sample field persisted raw. Put it through
+									 * the same allow-list every other field uses and pin the type
+									 * to the saved field, so nothing untrusted survives here. */
+									if (isset($item['value']) && is_string($item['value'])) {
+										$item['value'] = sanitize_text_field($item['value']);
+									}
+									$item = $this->filter_attributes_by_type_efb($item, $f['type']);
+									if (is_array($item)) { $item['type'] = $f['type']; }
 									$validated_item = $item;
 									$still_processing = false;
 									break;
@@ -2876,9 +3168,12 @@ public function check_nonce_permission_efb($request) {
 								case 'persiapay':
 								case 'payment':
 									if ($form_fields_array[0]['type'] == 'payment') {
-										$item['amount'] = sanitize_text_field($item['amount']);
-										$item['id_'] = sanitize_text_field($item['id_']);
-										$item['name'] = sanitize_text_field($item['name']);
+										$item['amount'] = sanitize_text_field($item['amount'] ?? '');
+										$item['id_'] = sanitize_text_field($item['id_'] ?? '');
+										$item['name'] = sanitize_text_field($item['name'] ?? '');
+										if (isset($item['value']) && is_string($item['value'])) {
+											$item['value'] = sanitize_text_field($item['value']);
+										}
 										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
 
 										$validated_item = $item;
@@ -2911,6 +3206,11 @@ public function check_nonce_permission_efb($request) {
 									$upload_validation = $s == 1 ? $this->validate_submitted_upload_url_efb($item['url'], $f) : false;
 									if ($upload_validation === true) {
 											$item['url'] = sanitize_url($item['url']);
+											/* The client always sends the "@file@" marker here and
+											 * every reader (viewer, email, CSV) recognises an upload
+											 * by it. It was the one attribute of this row stored
+											 * verbatim, so pin it rather than carry a free string. */
+											$item['value'] = '@file@';
 											$validated_item = $item;
 											$is_valid = 1;
 										} else {
@@ -2946,25 +3246,59 @@ public function check_nonce_permission_efb($request) {
 									break;
 								case 'esign':
 									$is_valid = 0;
-									if (isset($item['value']) && is_string($item['value']) && strpos($item['value'], 'data:image/png;base64,') === 0) {
-										$is_valid = 1;
+									/* A signature is a canvas-exported PNG data URL and nothing
+									 * else. The prefix check on its own let a value like
+									 * "data:image/png;base64,<img onerror=...>" through, because
+									 * the tail was never decoded or validated.
+									 * canonical_esign_value_efb() decodes the tail, confirms the
+									 * bytes are a real PNG image and hands back a re-encoded
+									 * data URL, so only bytes the server produced are stored. */
+									$esign_value = isset($item['value']) ? $this->canonical_esign_value_efb($item['value']) : '';
+									if ($esign_value !== '') {
 										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
-										$validated_item = $item;
+										if (is_array($item)) {
+											$item['value'] = $esign_value;
+											/* The kind of a stored row is decided by the saved field,
+											 * never by the browser. Mirrors the upload branch and
+											 * closes the esign->r_matrix render type-confusion: the
+											 * admin viewer dispatches on this type. */
+											$item['type'] = $f['type'];
+											$validated_item = $item;
+											$is_valid = 1;
+										}
 									}
 									$still_processing = false;
 									break;
 								case 'maps':
+									/* filter_attributes_by_type_efb skips the 'value' key for
+									 * every type, so a marker's address rode into storage
+									 * completely raw — only lat/lng were ever validated.
+									 * Sanitize it here, the same way every other free-text
+									 * value in this switch is hardened. Also build
+									 * $validated_item from the filtered $item (as the other
+									 * cases do) instead of the pre-filter copy, so the
+									 * sanitized address actually reaches storage. */
 									$is_valid = 1;
-									$validated_item = $item;
 									$c = 0;
 									$item = $this->filter_attributes_by_type_efb($item,$f['type']);
-									foreach ($item['value'] as $key => $value) {
+									$markers = array();
+									foreach ((is_array($item['value'] ?? null) ? $item['value'] : array()) as $value) {
 										$c += 1;
-										if (is_numeric($value['lat']) == false || is_numeric($value['lng']) == false) {
+										if (!is_array($value) || !isset($value['lat'], $value['lng']) || !is_scalar($value['lat']) || !is_scalar($value['lng'])
+											|| is_numeric($value['lat']) == false || is_numeric($value['lng']) == false) {
 											$is_valid = 0;
-											$validated_item = null;
-										};
+											continue;
+										}
+										/* A marker is exactly lat, lng and address; anything else
+										 * the browser attached is dropped rather than stored. */
+										$markers[] = array(
+											'lat'     => $value['lat'],
+											'lng'     => $value['lng'],
+											'address' => isset($value['address']) && is_scalar($value['address']) ? sanitize_text_field((string) $value['address']) : '',
+										);
 									}
+									$item['value'] = $markers;
+									$validated_item = $is_valid ? $item : null;
 									if ($c != $f['mark']) {
 										$is_valid = 0;
 										$validated_item = null;
@@ -2976,9 +3310,13 @@ public function check_nonce_permission_efb($request) {
 								case 'color':
 									$is_valid = 0;
 									$item = $this->filter_attributes_by_type_efb($item,$f['type']);
-									$l = strlen($item['value']);
-									if (isset($item['value']) && is_string($item['value']) && strpos($item['value'], '#') === 0 && $l == 7) {
-										$item['value'] = sanitize_text_field($item['value']);
+									/* The value lands in a style attribute (viewer and email), so
+									 * it has to be exactly the #rrggbb an <input type="color">
+									 * produces. "starts with # and is 7 long" still let six
+									 * arbitrary characters through, and measured them before
+									 * checking the value was a string at all. */
+									if (isset($item['value']) && is_string($item['value']) && preg_match('/^#[0-9a-fA-F]{6}$/', $item['value']) === 1) {
+										$item['value'] = strtolower($item['value']);
 										$is_valid = 1;
 										$validated_item = $item;
 									}
@@ -2993,13 +3331,46 @@ public function check_nonce_permission_efb($request) {
 										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
 										$is_valid = 1;
 										$validated_item = $item;
-										$l = strlen($item['value']);
-										if (strcmp($f['type'], "range") !== 0 && ((isset($f['milen']) && $f['milen'] > $l) || (isset($f['mlen']) && $f['mlen'] < $l))) {
+										/* Min and Max of a number, price or range input are the
+										 * lowest and highest value, as the builder labels them and
+										 * the browser checks them; comparing the digit count
+										 * refused every value of an "Age 18-99" field. A Max of 0
+										 * means no maximum, as in the browser. */
+										$number = (float) $item['value'];
+										if (isset($f['milen']) && is_numeric($f['milen']) && $number < (float) $f['milen']) {
 											$is_valid = 0;
-										} else if (((isset($f['milen']) && $f['milen'] > $item['value']) || (isset($f['mlen']) && $f['mlen'] < $item['value'])) && strcmp($f['type'], "range") == 0) {
+										} else if (isset($f['mlen']) && is_numeric($f['mlen']) && (float) $f['mlen'] != 0 && $number > (float) $f['mlen']) {
 											$is_valid = 0;
 										}
 									}
+									$still_processing = false;
+									break;
+								case 'pdate':
+								case 'ardate':
+									// A typed Jalali/Hijri date was stored as any text (free
+									// text, mixed digits), and reached email, SMS and Sheets.
+									$is_valid = 0;
+									if (isset($item['value']) && is_scalar($item['value'])) {
+										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
+										$raw_date = trim(sanitize_text_field((string) $item['value']));
+										if ($raw_date === '') {
+											$item['value'] = '';
+											$is_valid = 1;
+										} else {
+											$date_value = self::normalize_typed_date_efb($raw_date, $f['type'] === 'pdate' ? 'jalali' : 'hijri');
+											if ($date_value !== null) {
+												$item['value'] = $date_value;
+												$is_valid = 1;
+											} elseif (empty($f['required']) || (string) $f['required'] === '0') {
+												// An optional date nobody can read (an old cached page, a
+												// value filled in by another script) is dropped instead of
+												// refusing the whole submission over it.
+												$item['value'] = '';
+												$is_valid = 1;
+											}
+										}
+									}
+									$validated_item = $item;
 									$still_processing = false;
 									break;
 								default:
@@ -3048,7 +3419,11 @@ public function check_nonce_permission_efb($request) {
 						$error_message  = '';
 						$error_field_id = '';
 					}
-					if (isset($validated_item)) {
+					// A row the type filter rejected comes back as false; it is not
+					// visitor data and every later step expects an array.
+					if (isset($validated_item) && is_array($validated_item)) {
+						$validated_item['type'] = $this->stored_row_type_efb($validated_item, $f, $form_fields_array);
+						$validated_item['name'] = $this->stored_row_name_efb($validated_item, $f, $form_fields_array);
 						array_push($validated_items, $validated_item);
 					};
 				}
@@ -3080,20 +3455,20 @@ public function check_nonce_permission_efb($request) {
 				array_push($validated_items, ['type' => 'w_link', 'value' => $url, 'amount' => -1]);
 				if($currency!=''){
 				 	foreach ($validated_items as $key => $value) {
-						$t=strpos($value['type'],'pay');
+						if (!is_array($value) || !isset($value['type'])) continue;
+						$t=strpos((string) $value['type'],'pay');
 						if(gettype($t)!='boolean'){
 							$validated_items[$key]['currency'] = $currency;
 						}
 					}
 				}
-				$this->id = $submission_type == "payment" ? sanitize_text_field($request_data['payid']) : $this->id;
+				$this->id = $submission_type == "payment" ? (isset($request_data['payid']) ? sanitize_text_field($request_data['payid']) : '') : $this->id;
 				$skip_captcha = $submission_type != "payment" ? $form_fields_array[0]['captcha'] : "";
 				if ($is_valid == 0) {
 					$response = ['success' => false, 'm' => $error_message, 'field_id' => $error_field_id];
 					wp_send_json_success($response, 200);
 				}
-				$this->value = json_encode($validated_items, JSON_UNESCAPED_UNICODE);
-				$this->value = str_replace('"', '\\"', $this->value);
+				$this->value = $this->efb_encode_rows_for_storage_efb($validated_items);
 				if ($form_condition == 'booking') {
 					$table_name = $this->db->prefix . "emsfb_form";
 					$id = sanitize_text_field($request_data['id']);
@@ -3180,8 +3555,8 @@ public function check_nonce_permission_efb($request) {
 							$this->email_list_efb($email_recipients, 0, $form_admin_email, true);
 					}
 
-					if(isset($setttting['femail']) && is_email($plugin_settings['femail'])){
-						$email_recipients[2] = $plugin_settings->femail ;
+					if(isset($plugin_settings['femail']) && is_email($plugin_settings['femail'])){
+						$email_recipients[2] = $plugin_settings['femail'];
 					}
 
 					$this->efb_trace('submit.gate', [
@@ -3212,7 +3587,12 @@ public function check_nonce_permission_efb($request) {
 							'secret'   => $recaptcha_secret_key,
 							'response' => $response,
 						), 'https://www.google.com/recaptcha/api/siteverify' ) );
-						$captcha_verification_result = json_decode($verify['body']);
+						/* A timeout or a blocked request returns a WP_Error: reading
+						 * $verify['body'] on it was a PHP fatal (HTTP 500), and the visitor
+						 * was told the outcome was unknown although nothing was saved. Now
+						 * it is a failed captcha check with the usual captcha message. */
+						$captcha_decoded = is_wp_error($verify) ? null : json_decode(wp_remote_retrieve_body($verify));
+						$captcha_verification_result = is_object($captcha_decoded) ? $captcha_decoded : "null";
 					} else {
 						$this->efb_trace('submit.blocked', [
 							'form_id' => intval($this->id),
@@ -3274,12 +3654,19 @@ public function check_nonce_permission_efb($request) {
 					$this->name = sanitize_text_field($request_data['name']);
 					$this->id = sanitize_text_field($request_data['id']);
 					if ($should_send_email) {
-						array_filter($submitted_values, function ($item) use ($form_fields_array, &$user_email_address) {
-							if (isset($item['id_']) && $item['id_'] == $form_fields_array[0]['email_to']) {
-								$user_email_address = $item['value'];
-
+						/* Read the visitor's address from the validated rows, once. The
+						 * raw request may hold a second row for the same field (another
+						 * id_ob) that the validator never looked at, and its value was
+						 * split on commas into any number of recipients. */
+						$user_email_address = '';
+						foreach ($validated_items as $item) {
+							if (is_array($item) && isset($item['id_'], $item['value'], $form_fields_array[0]['email_to'])
+								&& is_string($item['value']) && $item['id_'] == $form_fields_array[0]['email_to']) {
+								$candidate_efb = sanitize_email($item['value']);
+								if ($candidate_efb !== '' && is_email($candidate_efb)) $user_email_address = $candidate_efb;
+								break;
 							}
-						});
+						}
 
 						$this->email_list_efb($email_recipients, 1, $user_email_address, true);
 
@@ -3329,45 +3716,72 @@ public function check_nonce_permission_efb($request) {
 							}
 
 							$this->efb_send_json_and_continue($response, 200);
-							$this->efb_intgrate_with_3rd_party_services_efb($track_code, $submitted_values, $form_fields_array);
+							/* The rows that were stored, not the raw request: webhooks,
+							 * Telegram and Sheets received script tags and rows for fields
+							 * the form does not have, while the saved entry was clean. */
+							$integration_rows = array_values(array_filter($validated_items, function ($row) {
+								return !is_array($row) || ($row['type'] ?? '') !== 'w_link';
+							}));
+							$this->efb_intgrate_with_3rd_party_services_efb($track_code, $integration_rows, $form_fields_array);
 
 							if (isset($form_fields_array[0]['smsnoti']) && $form_fields_array[0]['smsnoti'] == 1) {
-								$smsSendResult = $this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers, $url, 'fform', 'wpsms', $track_code);
+								$smsSendResult = $this->send_optional_sms_efb($this->id, $phone_numbers, $url, 'fform', 'wpsms', $track_code);
 								if($smsSendResult !== true) {
-
-									$m =  $this->lanText['msgSndBut'];
-									$m = sprintf($m,  '<b>'.$this->lanText['smsWPN'] .'<b>' , ''.$this->lanText['trackNo'] . '(' .$track_code.')' );
-									$response = ['success' => false, 'm' => $m];
-									wp_send_json_success($response, 200);
+									// The entry and success response already exist. An optional
+									// SMS failure must not abort the remaining email notifications.
+									$this->efb_trace('submit.sms-failed', [
+										'form_id' => intval($this->id),
+										'track' => $track_code,
+										'reason' => 'SMS was not sent; continuing email notifications',
+									]);
 								}
 							}
 							if ($should_send_email) {
 
-								// Active email notification rules replace the standard admin
-								// notification: admin recipients are dropped so only rule
-								// recipients get notified; the user email (index 1) still goes out.
 								$has_active_email_rules = isset($form_fields_array[0]['notification_rules'])
 									&& is_array($form_fields_array[0]['notification_rules'])
 									&& count($this->efb_conditional_sorted_rules($form_fields_array[0]['notification_rules'])) > 0;
 
-								if ($has_active_email_rules) {
+								$state_email_user = $has_tracking_code == 1 ? 'notiToUserFormFilled_TrackingCode' : 'notiToUserFormFilled';
+								$msg_content = 'null';
+								if ($this->efb_email_noti_type_efb($form_fields_array) == 'msg') {
+									$msg_content = $this->email_get_content_efb($validated_items, $track_code);
+									$msg_content = str_replace("\"", "'", $msg_content);
+								}
+								/* The stored rows, as the payment path already does: the raw
+								 * request also carries rows for fields the form does not have,
+								 * browser-chosen types and a page link of its own choosing. */
+								$status_email = $this->email_status_efb($form_fields_array,$validated_items,$track_code);
+								$state_of_email = ['newMessage',$state_email_user,$status_email['type'],$status_email['visitor_type']];
+
+								// A matching email notification rule replaces the standard admin
+								// notification: admin recipients are dropped so only rule
+								// recipients get notified; the user email (index 1) still goes out.
+								// When rules exist but none matches this submission, dropping the
+								// admin email left the entry with no notification to anyone, so
+								// the standard admin notification goes out instead.
+								$matched_email_rules = $has_active_email_rules
+									? $this->process_conditional_notification_rules($form_fields_array, $submitted_values, $track_code, $is_pro, $url, $status_email)
+									: 0;
+
+								if ($matched_email_rules > 0) {
 									$email_recipients[0] = [];
 									$this->efb_email_debug_log('admin-email-suppressed', [
 										'track' => $track_code,
 										'form_id' => intval($this->id),
-										'reason' => 'active_notification_rules',
+										'reason' => 'notification_rule_matched',
+										'matched_rules' => $matched_email_rules,
 									]);
 								} else {
 									$this->email_list_efb($email_recipients, 0, $form_admin_email, true);
+									if ($has_active_email_rules) {
+										$this->efb_email_debug_log('admin-email-fallback', [
+											'track' => $track_code,
+											'form_id' => intval($this->id),
+											'reason' => 'no_notification_rule_matched',
+										]);
+									}
 								}
-								$state_email_user = $has_tracking_code == 1 ? 'notiToUserFormFilled_TrackingCode' : 'notiToUserFormFilled';
-								$msg_content = 'null';
-								if (isset($form_fields_array[0]['email_noti_type']) && $form_fields_array[0]['email_noti_type'] == 'msg') {
-									$msg_content = $this->email_get_content_efb($submitted_values, $track_code);
-									$msg_content = str_replace("\"", "'", $msg_content);
-								}
-								$status_email = $this->email_status_efb($form_fields_array,$submitted_values,$track_code);
-								$state_of_email = ['newMessage',$state_email_user,$status_email['type']];
 
 								/* Last checkpoint before the mailer runs. If the trace shows
 								   this line but no wp_mail.args after it, the send was stopped
@@ -3384,7 +3798,6 @@ public function check_nonce_permission_efb($request) {
 								]);
 
 								$this->send_email_Emsfb_( $email_recipients,$track_code ,$is_pro,$state_of_email,$url,$status_email['content'], $status_email['subject'] );
-								$this->process_conditional_notification_rules($form_fields_array, $submitted_values, $track_code, $is_pro, $url, $status_email);
 
 								$this->efb_trace('submit.dispatch-done', [
 									'form_id' => intval($this->id),
@@ -3396,15 +3809,19 @@ public function check_nonce_permission_efb($request) {
 						exit;
 					break;
 					case "payment":
-							$id = sanitize_text_field($request_data['payid']);
+							$id = isset($request_data['payid']) ? sanitize_text_field($request_data['payid']) : '';
 							$table_name_ = $this->db->prefix . "emsfb_msg_";
 							$currentDateTime = date('Y-m-d H');
 							$payment_gateway = isset($request_data['payment']) ? sanitize_text_field($request_data['payment']) : 'stripe';
 							if ($payment_gateway == "paypal") {
 								// error_log('[EFB][PayPal][SUBMIT] Final payment submit received: payid=' . ($id ?: '(empty)') . ', form_id=' . (isset($request_data['id']) ? sanitize_text_field($request_data['id']) : '(empty)') . ', submitted_count=' . (is_array($submitted_values) ? count($submitted_values) : 0));
 							}
-							if (strlen($id) < 7 && $payment_gateway == "zarinPal") {
-								$response = array('success' => false, "m" => "خطای داده های پرداختی ، صفحه را رفرش کنید");
+							/* No payment reference: the visitor pressed Submit without paying
+							 * (the ZarinPal client sends payment "persiaPay", so the old
+							 * "zarinPal" test never ran and the visitor got "Error Code /
+							 * Payment Form"). Say what to do instead. */
+							if (strlen($id) < 7) {
+								$response = array('success' => false, 'm' => esc_html__('Your payment has not been completed. Please pay before sending the form.', 'easy-form-builder'));
 								wp_send_json_success($response, 200);
 							}
 							$sql = $this->db->prepare(
@@ -3419,10 +3836,34 @@ public function check_nonce_permission_efb($request) {
 								// error_log('[EFB][PayPal][SUBMIT] Initial payment row lookup: found=' . ($value != null ? 'yes' : 'no') . ', track=' . ($payment_track_id ?: '(empty)'));
 							}
 							if ($value != null) {
-								$saved_payment_content = json_decode(str_replace('\\', '', $value[0]->content), true);
+								$saved_payment_content = \emsfb_json_decode_efb($value[0]->content, true);
+								/* A Stripe one-time order is stored only once Stripe says it was
+								 * paid: card/add's row alone let a page that skipped the card
+								 * step (or faked "paid" in the console) file an order marked
+								 * active and mail its amount to the owner. Decided by the saved
+								 * card/add row, not by the request's gateway parameter. */
+								$stripe_state = $this->stripe_order_payment_state_efb($saved_payment_content);
+								if ($stripe_state === 'unpaid') {
+									$response = array('success' => false, 'm' => esc_html__('Your payment has not been completed. Please pay before sending the form.', 'easy-form-builder'));
+									wp_send_json_success($response, 200);
+									die();
+								}
+								$paypal_state = $this->paypal_order_payment_state_efb($saved_payment_content);
+								if ($paypal_state === 'unpaid') {
+									$response = array('success' => false, 'm' => esc_html__('Your payment has not been completed. Please pay before sending the form.', 'easy-form-builder'));
+									wp_send_json_success($response, 200);
+									die();
+								}
+								if (($stripe_state === 'unverified' || $paypal_state === 'unverified') && is_array($saved_payment_content)) {
+									// Stripe unreachable: kept, as when the confirmation fails after
+									// the charge, but marked pending; the background check settles it.
+									foreach ($saved_payment_content as $k => $row) {
+										if (is_array($row) && ($row['type'] ?? '') === 'payment') $saved_payment_content[$k]['status'] = 'pending';
+									}
+								}
 								$submitted_values = $submitted_values;
 								$filtered = array_filter($submitted_values, function ($item) use ($saved_payment_content) {
-									return !isset($item['type']) || strpos($item['type'], 'pay') === false;
+									return is_array($item) && (!isset($item['type']) || !is_string($item['type']) || strpos($item['type'], 'pay') === false);
 								});
 								$amount = array_reduce($saved_payment_content, function ($carry, $item) {
 									return $carry + ($item['price'] ?? 0);
@@ -3450,6 +3891,52 @@ public function check_nonce_permission_efb($request) {
 										wp_send_json_success($response, 200);
 										die();
 									}
+									/* One Authority pays for one bill. ZarinPal answers 101 ("already
+									 * verified") for an Authority paid before, and the Authority is not
+									 * tied to the bill, so one real payment could mark other pending bills
+									 * of the same amount as paid. The first bill to verify an Authority
+									 * claims it atomically (INSERT IGNORE, as Form_Runtime::begin does), so
+									 * two simultaneous submits cannot both pass; a retry of the same bill
+									 * still does. Payments verified before this release have no claim, so
+									 * a 101 is also refused when another entry already holds the Authority. */
+									$zp_code = isset($result['data']['code']) ? (int) $result['data']['code'] : 0;
+									$zp_auth = sanitize_text_field($request_data['auth'] ?? '');
+									if ($zp_auth !== '') {
+										$zp_used_message = esc_html__('This payment has already been used for another entry. If you think this is a mistake, contact the site owner with your payment receipt.', 'easy-form-builder');
+										$zp_claim_key = 'efb_zp_auth_' . md5($zp_auth);
+										$zp_claimed = $this->db->query($this->db->prepare(
+											"INSERT IGNORE INTO {$this->db->options} (option_name, option_value, autoload) VALUES (%s, %s, %s)",
+											$zp_claim_key, (string) $id, 'off'
+										));
+										wp_cache_delete($zp_claim_key, 'options');
+										wp_cache_delete('notoptions', 'options');
+										if ($zp_claimed === false) {
+											$response = array('success' => false, 'm' => esc_html__('The request could not be safely recorded. Your input has been kept.', 'easy-form-builder'));
+											wp_send_json_success($response, 200);
+											die();
+										}
+										if ($zp_claimed !== 1) {
+											$zp_owner = (string) $this->db->get_var($this->db->prepare("SELECT option_value FROM {$this->db->options} WHERE option_name = %s", $zp_claim_key));
+											if ($zp_owner !== (string) $id) {
+												$response = array('success' => false, 'm' => $zp_used_message);
+												wp_send_json_success($response, 200);
+												die();
+											}
+										}
+										if ($zp_code === 101) {
+											$zp_used = $this->db->get_var($this->db->prepare(
+												"SELECT track FROM `$table_name_` WHERE track <> %s AND read_ <> 2 AND (content LIKE %s OR content LIKE %s) LIMIT 1",
+												$id,
+												'%' . $this->db->esc_like('"paymentIntent":"' . $zp_auth . '"') . '%',
+												'%' . $this->db->esc_like('\\"paymentIntent\\":\\"' . $zp_auth . '\\"') . '%'
+											));
+											if ($zp_used) {
+												$response = array('success' => false, 'm' => $zp_used_message);
+												wp_send_json_success($response, 200);
+												die();
+											}
+										}
+									}
 									date_default_timezone_set('Iran');
 									$result = [
 										'id_' => "payment",
@@ -3474,7 +3961,7 @@ public function check_nonce_permission_efb($request) {
 										$form_id
 									)
 								);
-								$form_structure_json = isset($form_structure_json[0]->form_structer) ? json_decode(str_replace('\\', '', $form_structure_json[0]->form_structer), true) : '';
+								$form_structure_json = isset($form_structure_json[0]->form_structer) ? \emsfb_json_decode_efb($form_structure_json[0]->form_structer, true) : '';
 								if ($form_structure_json == '') {
 									$response = array('success' => false, 'm' => 'Error 406');
 									wp_send_json_success($response, 200);
@@ -3486,8 +3973,13 @@ public function check_nonce_permission_efb($request) {
 								$validated_items = [];
 								foreach ($form_structure_json as $f) {
 									$it = array_filter($filtered, function ($item) use ($f) {
-										return isset($f['id_'], $item['id_']) && $f['id_'] == $item['id_'] && $f['name'] == $item['name'];
+										return is_array($f) && isset($f['id_'], $item['id_']) && $f['id_'] == $item['id_'] && ($f['name'] ?? null) == ($item['name'] ?? null);
 									});
+									/* These rows skipped the validator above; see
+									 * sanitize_payment_merge_row_efb(). */
+									$it = array_values(array_filter(array_map(function ($item) use ($f) {
+										return $this->sanitize_payment_merge_row_efb($item, $f);
+									}, $it)));
 									$validated_items = empty($validated_items) ? $it : array_merge($validated_items, $it);
 									if ($payment_gateway == "persiaPay") array_push($validated_items, $result);
 								}
@@ -3516,13 +4008,16 @@ public function check_nonce_permission_efb($request) {
 								 * on a form built only from payment fields. */
 								$email_content_rows = array_values($filtered);
 								$this->value = sanitize_text_field(json_encode($filtered, JSON_UNESCAPED_UNICODE));
-								$this->id = sanitize_text_field($request_data['payid']);
+								$this->id = isset($request_data['payid']) ? sanitize_text_field($request_data['payid']) : '';
 								$db_update_result = $this->update_message_db();
 								if ($payment_gateway == "paypal") {
 									// error_log('[EFB][PayPal][SUBMIT] update_message_db result=' . var_export($db_update_result, true) . ', track=' . $this->id . ', final_count=' . count($filtered));
 								}
 							} else {
-								$response = array('success' => false, 'm' => esc_html__('Error Code', 'easy-form-builder') . '</br>' . esc_html__('Payment Form', 'easy-form-builder'));
+								/* A reference with no open payment row: already used for an
+								 * entry, or never created. The visitor may have paid, so tell
+								 * them not to pay twice and to keep their payment code. */
+								$response = array('success' => false, 'm' => esc_html__('We could not find an open payment for this form. If you have already paid, please do not pay again: contact the site owner with your payment receipt.', 'easy-form-builder'));
 								wp_send_json_success($response, 200);
 							}
 							$m = "Error 500";
@@ -3560,7 +4055,7 @@ public function check_nonce_permission_efb($request) {
 							if ($should_send_email) {
 								$state_email_user = $has_tracking_code==1 ? 'notiToUserFormFilled_TrackingCode' : 'notiToUserFormFilled';
 								$status_email = $this->email_status_efb($form_fields_array,$email_content_rows,$payment_track_id);
-								$state_of_email = ['newMessage',$state_email_user,$status_email['type']];
+								$state_of_email = ['newMessage',$state_email_user,$status_email['type'],$status_email['visitor_type']];
 								$this->efb_trace('payment.email', [
 									'form_id'          => intval($form_id),
 									'track'            => $payment_track_id,
@@ -3576,7 +4071,7 @@ public function check_nonce_permission_efb($request) {
 							}
 
 							if (isset($form_fields_array[0]['smsnoti']) && $form_fields_array[0]['smsnoti'] == 1) {
-								$smsSendResult = $this->efbFunction->sms_ready_for_send_efb($form_id, $phone_numbers, $url, 'fform', 'wpsms',$payment_track_id);
+								$smsSendResult = $this->send_optional_sms_efb($form_id, $phone_numbers, $url, 'fform', 'wpsms',$payment_track_id);
 								if($smsSendResult !== true) {
 								}
 							}
@@ -3597,10 +4092,13 @@ public function check_nonce_permission_efb($request) {
 												$username = $rv['value'];
 												break;
 											case 'emailRegisterEFB':
-												$email = $rv['value'];
+												$email = self::normalize_email_input_efb($rv['value']);
 												break;
 										}
 									}
+								}
+								if (isset($raw_passwords_efb['passwordRegisterEFB'])) {
+									$password = $raw_passwords_efb['passwordRegisterEFB'];
 								}
 								$r = $this->new_user_validate_efb($username, $email, $password);
 								if (is_string($r)) {
@@ -3609,9 +4107,11 @@ public function check_nonce_permission_efb($request) {
 								}
 
 								$creds = [
-									'user_login' => esc_sql($username),
-									'user_pass' => esc_sql($password),
-									'user_email' => esc_sql($email),
+									'user_login' => $username,
+									// Slashed, as wp-login.php compares the slashed $_POST['pwd']:
+									// a password with ' " or \ must hash the same way here.
+									'user_pass' => wp_slash($password),
+									'user_email' => $email,
 									'role' => '',
 									'rich_editing' => 'false',
 									'user_registered' => wp_date('Y-m-d H:i:s')
@@ -3626,10 +4126,29 @@ public function check_nonce_permission_efb($request) {
 									}
 									$response = ['success' => false, 'm' => $m];
 								} else {
+									if ($should_send_email && $email != "null") {
+										// Signs in after the verification link (block_unverified_login_efb()).
+										update_user_meta($state, 'efb_pending_verification', 1);
+									} else {
+										/* No verification mail can go out (e-mail is off for this
+										 * site or form), so the link would never arrive and the
+										 * account stayed without a role for good. */
+										$new_user = get_user_by('id', $state);
+										if ($new_user) $new_user->set_role('subscriber');
+										$m = $this->lanText['uraatn']; // "activated, you can now log in", not "you will receive an email"
+									}
 
 									if ($email != "null") {
 
 										$this->ip = $this->get_ip_address();
+										/* $this->value still held the request exactly as sent: register
+										 * forms skip the per-field validator, so the stored entry kept
+										 * the plaintext password and any extra rows or attributes the
+										 * browser chose to add. Store only the form's own fields,
+										 * sanitized, never a password. */
+										$this->value = $this->efb_encode_rows_for_storage_efb(
+											$this->sanitize_account_form_rows_efb($submitted_values, $form_fields_array, $url)
+										);
 										$track_code = $this->insert_message_db(0, false, $style_trackingCode);
 										$to = $email;
 
@@ -3661,7 +4180,7 @@ public function check_nonce_permission_efb($request) {
 									}
 
 									if (isset($form_fields_array[0]['smsnoti']) && $form_fields_array[0]['smsnoti'] == 1) {
-										$smsSendResult = $this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers, $url, 'fform', 'wpsms', $track_code);
+										$smsSendResult = $this->send_optional_sms_efb($this->id, $phone_numbers, $url, 'fform', 'wpsms', $track_code);
 										if($smsSendResult !== true) {
 										}
 									}
@@ -3677,7 +4196,7 @@ public function check_nonce_permission_efb($request) {
 										if (isset($value['id_']) && isset($value['value'])) {
 											switch ($value['id_']) {
 												case 'emaillogin':
-													$username = $value['value'];
+													$username = self::normalize_email_input_efb($value['value']);
 													break;
 												case 'passwordlogin':
 													$password = $value['value'];
@@ -3685,9 +4204,13 @@ public function check_nonce_permission_efb($request) {
 											}
 										}
 									}
+									if (isset($raw_passwords_efb['passwordlogin'])) {
+										$password = $raw_passwords_efb['passwordlogin'];
+									}
 									$creds = [
-										'user_login' => esc_sql($username),
-										'user_password' => esc_sql($password),
+										'user_login' => $username,
+										// Slashed like wp-login.php's $_POST['pwd'], see the register case.
+										'user_password' => wp_slash($password),
 										'remember' => true
 									];
 									$user = wp_signon($creds, false);
@@ -3716,17 +4239,30 @@ public function check_nonce_permission_efb($request) {
 										$this->efb_intgrate_with_3rd_party_services_efb('login', $submitted_values, $form_fields_array, 'login');
 
 										if (isset($form_fields_array[0]['smsnoti']) && $form_fields_array[0]['smsnoti'] == 1) {
-											$smsSendResult = $this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers, $url, 'fform', 'wpsms', '');
+											$smsSendResult = $this->send_optional_sms_efb($this->id, $phone_numbers, $url, 'fform', 'wpsms', '');
 											if($smsSendResult !== true) {
 											}
 										}
 										exit;
 									} else {
 
+										/* Wrong credentials keep the one generic message (it does not
+										 * reveal whether the username exists). Any other refusal - a
+										 * lockout from Limit Login Attempts, a 2FA or captcha step, a
+										 * pending verification - shows its own message: calling a
+										 * lockout "wrong password" made visitors retry and stay locked. */
+										$login_error_code = is_wp_error($user) ? (string) $user->get_error_code() : '';
+										/* An allowlist, not a denylist: only refusals that do not depend on
+										 * the account (IP lockouts, rate limits) and EFB's own pending
+										 * verification are shown as they are. Anything else - an unknown
+										 * plugin's "account disabled", a 2FA step that only appears after a
+										 * correct password - could tell a stranger that an account exists. */
+										$login_passthrough = (array) apply_filters('efb_login_error_passthrough_codes', array('efb_pending_verification', 'too_many_retries', 'lockout', 'locked_out', 'ip_blocked', 'ip_blacklisted', 'loginizer_lockout', 'wfls_captcha_blocked', 'aiowps_login_lockout', 'login_lockout'));
+										$login_error_text = ($login_error_code !== '' && in_array($login_error_code, $login_passthrough, true)) ? trim(wp_strip_all_tags($user->get_error_message())) : '';
 										$send = [
 											'state' => false,
 											'pro' => $is_pro,
-											'error' => $this->lanText['incorrectUP']
+											'error' => $login_error_text !== '' ? $login_error_text : $this->lanText['incorrectUP']
 										];
 										$response = ['success' => true, 'm' => $send];
 										wp_send_json_success($response, 200);
@@ -3743,8 +4279,8 @@ public function check_nonce_permission_efb($request) {
 									$this->efb_intgrate_with_3rd_party_services_efb($track_code, $submitted_values, $form_fields_array, 'subscribe');
 
 									if($should_send_email){
-										$status_email = $this->email_status_efb($form_fields_array,$submitted_values,$track_code);
-										$state_of_email = ['newMessage','subscribe',$status_email['type']];
+										$status_email = $this->email_status_efb($form_fields_array,$validated_items,$track_code);
+										$state_of_email = ['newMessage','subscribe',$status_email['type'],$status_email['visitor_type']];
 										$this->send_email_Emsfb_( $email_recipients,$track_code ,$is_pro,$state_of_email,$url,$status_email['content'],$status_email['subject'] );
 									}
 									exit;
@@ -3774,13 +4310,13 @@ public function check_nonce_permission_efb($request) {
 									$this->efb_intgrate_with_3rd_party_services_efb($track_code, $submitted_values, $form_fields_array, 'survey');
 
 									if($should_send_email){
-										$status_email = $this->email_status_efb($form_fields_array,$submitted_values,$track_code);
-										$state_of_email = ['newMessage',"survey",$status_email['type']];
+										$status_email = $this->email_status_efb($form_fields_array,$validated_items,$track_code);
+										$state_of_email = ['newMessage',"survey",$status_email['type'],$status_email['visitor_type']];
 										$this->send_email_Emsfb_( $email_recipients,$track_code ,$is_pro,$state_of_email,$url,$status_email['content'],$status_email['subject'] );
 									}
 
 									if(isset($form_fields_array[0]['smsnoti']) && $form_fields_array[0]['smsnoti']==1 ) {
-										$smsSendResult = $this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers,$url,'fform' ,'wpsms' ,$track_code);
+										$smsSendResult = $this->send_optional_sms_efb($this->id, $phone_numbers,$url,'fform' ,'wpsms' ,$track_code);
 										if($smsSendResult !== true) {
 										}
 									}
@@ -3877,7 +4413,10 @@ public function check_nonce_permission_efb($request) {
 			'track_hash' => hash('sha256', (string) $track),
 			'ip_hash'    => hash('sha256', $this->get_ip_address()),
 		);
-		set_transient($this->response_upload_token_key_efb($token), $record, 30 * MINUTE_IN_SECONDS);
+		if (!set_transient($this->response_upload_token_key_efb($token), $record, 30 * MINUTE_IN_SECONDS)) {
+			\Emsfb\Request_Health::record('upload',503,'server','ticket_token_storage_failed');
+			return '';
+		}
 		return $token;
 	}
 
@@ -3941,11 +4480,51 @@ public function check_nonce_permission_efb($request) {
 		return $urls;
 	}
 
+	/**
+	 * Server-side check of the reCAPTCHA on the confirmation-code finder.
+	 *
+	 * Enforced exactly when the page renders the widget: a site key is set and
+	 * "Enable Google reCAPTCHA in the response box" (scaptcha) is on. Returns
+	 * true when the lookup may go ahead, 'config' when the widget is shown but
+	 * no secret key is saved (fails closed, as form submissions do), or
+	 * 'failed' when the token is missing or Google does not confirm it.
+	 *
+	 * @param array|object|null $setting Decoded plugin settings.
+	 * @param string            $token   The g-recaptcha-response from the page.
+	 * @return true|string
+	 */
+	private function verify_tracker_captcha_efb($setting, $token) {
+		$get = function ($key) use ($setting) {
+			if (is_array($setting)) return $setting[$key] ?? null;
+			if (is_object($setting)) return $setting->$key ?? null;
+			return null;
+		};
+		$site_key = $get('siteKey');
+		$enabled  = $get('scaptcha');
+		if (!is_string($site_key) || $site_key === '' || $enabled != true) return true;
+
+		$secret = $get('secretKey');
+		if (!is_string($secret) || strlen($secret) <= 5) return 'config';
+
+		$token = is_string($token) ? trim($token) : '';
+		if (strlen($token) < 20) return 'failed';
+
+		/* Same request as the form submission check (secret + response, no
+		 * remoteip: behind a proxy REMOTE_ADDR is not the visitor). */
+		$verify = wp_remote_post('https://www.google.com/recaptcha/api/siteverify', array(
+			'timeout' => 10,
+			'body'    => array('secret' => $secret, 'response' => $token),
+		));
+		if (is_wp_error($verify)) return 'failed';
+		$result = json_decode((string) wp_remote_retrieve_body($verify), true);
+		return (is_array($result) && isset($result['success']) && $result['success'] === true) ? true : 'failed';
+	}
+
 	  public function get_track_public_api($data_POST_) {
 
 		$data_POST = $data_POST_->get_json_params();
 		$this->efbFunction = get_efbFunction();
-		$text_ = ['spprt','sxnlex','error403','errorMRobot','enterVValue','guest','cCodeNFound'];
+		$text_ = ['spprt','sxnlex','error403','errorMRobot','enterVValue','guest','cCodeNFound','errorSiteKeyM'];
 		$lanText= $this->efbFunction->text_efb($text_);
 
 		// Throttle tracking-code lookups per IP to make enumeration of
@@ -3959,15 +4538,27 @@ public function check_nonce_permission_efb($request) {
 			return;
 		}
 
-		$response = isset($data_POST['valid']) ? sanitize_text_field($data_POST['valid']) : '';
+		$response = isset($data_POST['valid']) && is_scalar($data_POST['valid']) ? sanitize_text_field($data_POST['valid']) : '';
 		$captcha_success =[];
 		$not_captcha=true;
 		$r = $this->setting != NULL && !empty($this->setting) ? $this->setting : get_setting_Emsfb('raw');
-		$setting = is_string($r) ? json_decode(str_replace("\\", "", $r), true) : $r;
+		$setting = is_string($r) ? \emsfb_json_decode_efb($r, true) : $r;
 		if(gettype($this->setting)=="string"){
-			$r=str_replace('\\', '', $this->setting);
+			$r=\emsfb_json_normalize_efb($this->setting);
 			 $setting =json_decode($r);
 			 $r=null;
+		}
+
+		/* The page shows a reCAPTCHA when "Enable Google reCAPTCHA in the
+		 * response box" is on, but the token it produces was never checked
+		 * here: $not_captcha stayed true, so a script could look up tracking
+		 * codes without solving anything. Verify it with Google whenever the
+		 * page would show the widget. */
+		$captcha_check = $this->verify_tracker_captcha_efb($setting, $response);
+		if ($captcha_check !== true) {
+			$response = array( 'success' => false , 'm' => $captcha_check === 'config' ? $lanText['errorSiteKeyM'] : $lanText['errorMRobot'] );
+			wp_send_json_success($response, 200);
+			return;
 		}
 
 		 $strR = json_encode($captcha_success);
@@ -4039,7 +4630,8 @@ public function check_nonce_permission_efb($request) {
 					}
 				}
 				$response = array( 'success' => true  , "value" =>$value[0] , "content"=>$content,'nonce_msg'=> $code , 'id'=>$this->id,
-					'response_upload_token' => $this->issue_response_upload_token_efb($this->id, $value[0]->track));
+					'response_upload_token' => $this->issue_response_upload_token_efb($this->id, $value[0]->track),
+					'response_access_token'=>\Emsfb\Form_Runtime::token(0,$this->id.':'.hash('sha256',$value[0]->track)));
 			}else{
 				// Count this miss toward the per-IP enumeration throttle.
 				$this->efb_track_register_failure();
@@ -4073,6 +4665,12 @@ public function check_nonce_permission_efb($request) {
 	}
 
 	public function insert_message_db($read,$uniqid,$style_trackingCode = 'date_en_mix'){
+		if (($this->operation_data['type'] ?? '') === 'form' && class_exists('\\Emsfb\\Form_Runtime')) {
+			$guard = \Emsfb\Form_Runtime::begin('form',$this->id,$this->operation_data);
+			if (is_wp_error($guard)) wp_send_json_error(array('code'=>$guard->get_error_code(),'m'=>$guard->get_error_message()),$guard->get_error_data()['status']);
+			if ($guard instanceof \WP_REST_Response) wp_send_json($guard->get_data(),$guard->get_status());
+			$this->operation_key = $guard;
+		}
 		if(isset($read)==false) $read=0;
 
 		if($uniqid==false){
@@ -4083,7 +4681,7 @@ public function check_nonce_permission_efb($request) {
             $this->db = $wpdb;
         }
 		$table_name = $this->db->prefix . "emsfb_msg_";
-		$this->db->insert($table_name, array(
+		$inserted = $this->db->insert($table_name, array(
 			'form_title_x' => $this->name,
 			'content' => $this->value,
 			'form_id' => $this->id,
@@ -4092,6 +4690,13 @@ public function check_nonce_permission_efb($request) {
 			'read_' => $read,
 			'date'=>wp_date('Y-m-d H:i:s')
 		));
+		if ($inserted === false) {
+			\Emsfb\Form_Runtime::abort($this->operation_key);
+			if (class_exists('\\Emsfb\\Request_Health')) \Emsfb\Request_Health::record('form',500,'server','storage_failed');
+			wp_send_json_error(array('code'=>'efb_storage_failed','m'=>__('The form could not be saved. Your input has been kept.', 'easy-form-builder')),500);
+		}
+		\Emsfb\Request_Health::mark_saved();
+		if ($this->operation_key) \Emsfb\Form_Runtime::finish($this->operation_key,array('success'=>true,'ID'=>$this->id,'track'=>$uniqid,'nonce'=>wp_create_nonce($uniqid)));
 		$this->claim_uploaded_files_efb($this->value);
 		return $uniqid;
 	}
@@ -4168,6 +4773,21 @@ public function check_nonce_permission_efb($request) {
         $ip = strval($ip);
         $check =strpos($ip,',');
         if($check !== false){$ip = substr($ip,0,$check);}
+        $ip = trim($ip);
+        /* Some proxies (Azure App Service, IIS ARR) forward "IP:port" or
+         * "[IPv6]:port"; keep the address part. */
+        if (preg_match('/^\[([0-9a-fA-F:.]+)\](?::\d+)?$/', $ip, $ip_m)) {
+            $ip = $ip_m[1];
+        } elseif (preg_match('/^(\d{1,3}(?:\.\d{1,3}){3}):\d+$/', $ip, $ip_m)) {
+            $ip = $ip_m[1];
+        }
+        /* Client-IP / X-Forwarded-For are request headers: anything that is
+         * not an address was stored as the visitor's IP and used as a rate
+         * limit key. Fall back to the connection address in that case. */
+        if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
+            $remote = isset($_SERVER['REMOTE_ADDR']) ? trim(sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR']))) : '';
+            $ip = filter_var($remote, FILTER_VALIDATE_IP) !== false ? $remote : '1.1.1.1';
+        }
         return $ip;
     }
 	public function file_upload_public(){
@@ -4316,7 +4936,7 @@ public function check_nonce_permission_efb($request) {
 		/* Older records contain escaped JSON while newer records may contain
 		 * ordinary JSON. Try both representations, without trusting anything
 		 * supplied by the browser. */
-		$candidates = array($raw, stripslashes($raw), str_replace('\\', '', $raw));
+		$candidates = array(\emsfb_json_normalize_efb($raw));
 		foreach (array_unique($candidates) as $candidate) {
 			$fields = json_decode($candidate, true);
 			if (is_string($fields)) $fields = json_decode($fields, true);
@@ -4586,7 +5206,7 @@ public function check_nonce_permission_efb($request) {
 			return $this->recorder_upload_error_response_efb(esc_html__('The server could not store the recording. Please try again or contact the site administrator.','easy-form-builder'));
 		}
 		if (is_ssl()) $upload['url'] = str_replace('http://', 'https://', $upload['url']);
-		return array('success' => true, 'ID' => 'id', 'file' => $upload, 'name' => $stored_file['name'], 'type' => $detected_mime, 'duration' => $actual_duration);
+		return array('success' => true, 'ID' => 'id', 'file' => array('url' => $upload['url'], 'type' => $upload['type'] ?? ''), 'name' => $stored_file['name'], 'type' => $detected_mime, 'duration' => $actual_duration);
 	}
 
 	/* Final form submission is separate from the upload request. Re-check every
@@ -4743,7 +5363,9 @@ public function check_nonce_permission_efb($request) {
 			$response_token = isset($_POST['response_token']) ? sanitize_text_field(wp_unslash($_POST['response_token'])) : '';
 			$response_scope = $this->resolve_response_upload_scope_efb($response_id, $response_track, $response_token);
 			if ($response_scope === false) {
-				wp_send_json_success($this->upload_rejected_response_efb(esc_html__('The response box could not be verified. Reopen the conversation and try again.','easy-form-builder')), 200);
+				$failure=$this->upload_rejected_response_efb(esc_html__('The response box could not be verified. Reopen the conversation and try again.','easy-form-builder'));
+				$failure['code']='efb_ticket_access_expired';
+				wp_send_json_success($failure, 200);
 			}
 			/* Response attachments are never part of a form quota/budget. */
 			$fid = 0;
@@ -4802,7 +5424,6 @@ public function check_nonce_permission_efb($request) {
 			wp_send_json_success($response, 200);
 		}
 
-		$this->cache_cleaner_Efb($page_id);
 		$_FILES['async-upload']['name'] = sanitize_file_name( wp_unslash( $_FILES['async-upload']['name'] ) );
 
 		/* Read the field's own rules straight off the published structure: the
@@ -4874,11 +5495,17 @@ public function check_nonce_permission_efb($request) {
 		}
 		\Emsfb\Upload_Guard::quota_consume($upload_context);
 
-		$response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload ,"name"=>$name ,'type'=>$async_file_type);
+		/* wp_handle_upload() also returns the absolute server path in 'file';
+		 * the browser only needs the address. */
+		$response = array( 'success' => true  ,'ID'=>"id" , "file"=>array('url' => $upload['url'], 'type' => $upload['type'] ?? '') ,"name"=>$name ,'type'=>$async_file_type);
 		wp_send_json_success($response,200);
 	}
 	public function set_rMessage_id_Emsfb_api($data_POST_) {
 		$data_POST = $data_POST_->get_json_params();
+		$reply_key='';
+		$replay=\Emsfb\Form_Runtime::replay('reply',0,is_array($data_POST)?$data_POST:array());
+		if (is_wp_error($replay)) wp_send_json_error(array('code'=>$replay->get_error_code(),'m'=>$replay->get_error_message()),$replay->get_error_data()['status']);
+		if ($replay instanceof \WP_REST_Response) wp_send_json($replay->get_data(),$replay->get_status());
 		$this->text_ = empty($this->text_)==false ? $this->text_ = ['error400','atcfle','tfnapca','clcdetls','vmgs','required','mcplen','mmxplen','mxcplen','mmplen','offlineSend','settingsNfound','error405','error403','videoDownloadLink','downloadViedo','pleaseEnterVaildValue','errorSomthingWrong','nAllowedUseHtml','guest','messageSent','MMessageNSendEr',
         'youRecivedNewMessage','trackNo','WeRecivedUrM','thankFillForm','msgdml','spprt','newMessageReceived','sxnlex','msgSndBut','smsWPN']: $this->text_;
 		if($this->efbFunction===null) $this->efbFunction = get_efbFunction();
@@ -4894,11 +5521,14 @@ public function check_nonce_permission_efb($request) {
 		 * site may never have been given, and every public reply came back as
 		 * E400 "security session expired". */
 		if ($sc === '') $sc = 'null';
-		$track = sanitize_text_field($data_POST['track']);
+		$track = isset($data_POST['track']) && is_scalar($data_POST['track']) ? sanitize_text_field($data_POST['track']) : '';
 
-		$this->id =sanitize_text_field($data_POST['id']);
+		$this->id = isset($data_POST['id']) && is_scalar($data_POST['id']) ? sanitize_text_field($data_POST['id']) : '';
 		$by ="";
-		if(empty($data_POST['message']) ){
+		/* The composer always sends the reply as a JSON string; anything else
+		 * (an array from a hand-built request) used to reach isHTML()'s
+		 * preg_match() and fatal. */
+		if(empty($data_POST['message']) || !is_string($data_POST['message'])){
 			$response = array( 'success' => false , "m"=>$this->lanText['pleaseEnterVaildValue']);
 			wp_send_json_success($response,200);
 		}
@@ -4912,11 +5542,16 @@ public function check_nonce_permission_efb($request) {
 		}
 		 $page_id = isset($data_POST['page_id']) ? absint($data_POST['page_id']) : 0;
 		$cache_plugins = get_option('emsfb_cache_plugins','0');
-		if($cache_plugins!='0')$this->cache_cleaner_Efb($page_id ,$cache_plugins);
-		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting: get_setting_Emsfb('raw');
+		/* Only the raw string is usable below: other methods - this one
+		 * included - keep the decoded object in $this->setting, and reading
+		 * that answered every later reply with "Settings not found". */
+		$r= is_string($this->setting) && $this->setting !== '' ? $this->setting: get_setting_Emsfb('raw');
+		// Defined on every path: with email sending off (the default on a new
+		// install) the reply further down read an undefined variable.
+		$email_actived = false;
 
 		if(gettype($r)=="string"){
-			$r =str_replace('\\', '', $r);
+			$r =\emsfb_json_normalize_efb($r);
 			$setting =json_decode($r);
 			$this->setting = $setting;
 
@@ -4934,60 +5569,98 @@ public function check_nonce_permission_efb($request) {
 			$id;
 				$id=number_format(sanitize_text_field($data_POST['id']));
 				$m=sanitize_text_field($data_POST['message']);
-				$m = str_replace("\\","",$m);
-				$message =json_decode($m);
+				/* The reply composer sends its text as-is, so a straight double
+				 * quote arrives JSON-escaped (\"). Stripping every backslash
+				 * before decoding turned that into invalid JSON, json_decode()
+				 * returned null and array_values(null) below ended the request
+				 * with a PHP fatal - the browser only saw "HTTP 500" and the
+				 * reply was lost. Decode the payload as sent first; the stripped
+				 * form stays as a fallback for older clients. */
+				$message = json_decode($m);
+				if (!is_array($message)) $message = \emsfb_json_decode_efb($m);
+				if (!is_array($message) || empty($message)) {
+					$response = array( 'success' => false , "m"=>$this->lanText['pleaseEnterVaildValue']);
+					wp_send_json_success($response,200);
+				}
 				$valobj=[];
 				$stated=1;
+				/* Every reply row is rebuilt from an allow-list. Only the message
+				 * text and attachment rows were ever validated; anything else on a
+				 * row (its type, a url, a price, a color...) was stored as sent and
+				 * later drove the response viewer, e.g. a "media" row whose url was
+				 * javascript:. The bundled composer sends exactly these two shapes:
+				 *   {id_:'message', name, type:'text', amount, value, by, session, form_id}
+				 *   {id_, name, amount, type:'allformat', value:'@file@', url, session, page_id, form_id} */
+				$scalar_efb = function ($o, $k) {
+					return is_object($o) && isset($o->$k) && is_scalar($o->$k) ? (string) $o->$k : '';
+				};
+				$rebuilt_efb = array();
 				foreach ($message as $k =>$f){
-					$in_loop=true;
 					if($stated==0){break;}
-					if($f->id_=='captcha_v2'){
-
-						unset($message[$k]);
+					if (!is_object($f)) { $stated = 0; break; }
+					$row_id_efb = $scalar_efb($f, 'id_');
+					if($row_id_efb=='captcha_v2'){
 						continue;
-
 					}
-						switch ($f->type) {
-							case 'allformat':
-								$d = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) :'';
-
-								$stated=1;
-								$stated=$setting->dsupfile==false ? 0:1;
-								if(isset($f->url) && strlen($f->url)>5 && ($setting->dsupfile==true)){
-									$stated=0;
-									$ar = ['http://wwww.'.$d , 'https://wwww.'.$d ,'http://'.$d, 'https://'.$d ];
-									$s = 0 ;
-									foreach ($ar as  $r) {
-										$c=strpos($f->url,$r);
-										if(gettype($c)!='boolean' && $c==0){
-											$s=1;
-										}
-									}
-										if($s==1 ){
-											$stated=1;
-											$f->url = sanitize_url($f->url);
-										}else{
-											$f->url="";
-											$stated=0;
-										}
-								}
-									$in_loop=false;
-							break;
-							default:
-								$stated=0;
-								if(isset($f->value) && $f->id_=="message"){
-									$stated=1;
-									$f->value = sanitize_text_field($f->value);
-								}
-								$in_loop=false;
-							break;
+					$row_type_efb = $scalar_efb($f, 'type');
+					if ($row_type_efb === 'allformat') {
+						$stated = 0;
+						$row_url_efb = $scalar_efb($f, 'url');
+						$uploads_efb = function_exists('wp_upload_dir') ? wp_upload_dir() : array();
+						$uploads_base_efb = rtrim(isset($uploads_efb['baseurl']) ? (string) $uploads_efb['baseurl'] : '', '/');
+						if (!empty($setting->dsupfile) && strlen($row_url_efb) > 5 && $this->is_same_site_url_efb($row_url_efb)
+							&& $uploads_base_efb !== ''
+							/* Inside the uploads folder; the scheme may differ when an
+							 * https rewrite sits in front of an http site URL. */
+							&& stripos(preg_replace('#^https?:#i', '', $row_url_efb), preg_replace('#^https?:#i', '', $uploads_base_efb) . '/') === 0) {
+							$stated = 1;
+							$clean_row_efb = (object) array(
+								'id_'     => sanitize_text_field($row_id_efb),
+								'name'    => sanitize_text_field($scalar_efb($f, 'name')),
+								'amount'  => (int) $scalar_efb($f, 'amount'),
+								'type'    => 'allformat',
+								'value'   => '@file@',
+								'url'     => sanitize_url($row_url_efb),
+								'session' => sanitize_text_field($scalar_efb($f, 'session')),
+							);
+							if (isset($f->page_id)) $clean_row_efb->page_id = absint($scalar_efb($f, 'page_id'));
+							if (isset($f->form_id)) $clean_row_efb->form_id = intval($scalar_efb($f, 'form_id'));
+							$rebuilt_efb[] = $clean_row_efb;
 						}
-						if($stated==0){
-							$response = array( 'success' => false  , 'm'=>$this->lanText['error405']);
-							wp_send_json_success($response,200);
-						}
+					} elseif ($row_id_efb === 'message' && isset($f->value) && is_string($f->value)) {
+						$clean_row_efb = (object) array(
+							'id_'     => 'message',
+							'name'    => 'message',
+							'type'    => 'text',
+							'amount'  => 0,
+							'value'   => sanitize_text_field($f->value),
+							'by'      => sanitize_text_field($scalar_efb($f, 'by')),
+							'session' => sanitize_text_field($scalar_efb($f, 'session')),
+						);
+						if (isset($f->form_id)) $clean_row_efb->form_id = intval($scalar_efb($f, 'form_id'));
+						$rebuilt_efb[] = $clean_row_efb;
+					} else {
+						$stated = 0;
+					}
+					if($stated==0){
+						$response = array( 'success' => false  , 'm'=>$this->lanText['error405']);
+						wp_send_json_success($response,200);
+					}
 				}
+				if ($stated == 0 || empty($rebuilt_efb)) {
+					$response = array( 'success' => false  , 'm'=>$this->lanText['error405']);
+					wp_send_json_success($response,200);
+				}
+				$message = $rebuilt_efb;
 				$message = array_values($message);
+				/* Retain the existing reply storage format for compatibility;
+				 * readers preserve JSON escapes and decode the legacy markers. */
+				foreach ($message as $row) {
+					if (!is_object($row)) continue;
+					foreach (get_object_vars($row) as $prop => $val) {
+						if (is_string($val) && strpos($val, '"') !== false) $row->$prop = str_replace('"', '@efb@dq#', $val);
+					}
+				}
 				$m = json_encode($message,JSON_UNESCAPED_UNICODE);
 				$m = str_replace('"', '\\"', $m);
 				$ip =$this->ip= $this->get_ip_address();
@@ -5012,7 +5685,7 @@ public function check_nonce_permission_efb($request) {
 					wp_send_json_success($response, 200);
 				}
 
-				$valn = str_replace('\\', '', $value[0]->content);
+				$valn = \emsfb_json_normalize_efb($value[0]->content);
 				$msg_obj = json_decode($valn, true);
 
 				$vv_ = "";
@@ -5080,6 +5753,10 @@ public function check_nonce_permission_efb($request) {
 						$by = $this->lanText['spprt'];
 					}
 				}
+				$guard=\Emsfb\Form_Runtime::begin('reply',0,$data_POST);
+				if (is_wp_error($guard)) wp_send_json_error(array('code'=>$guard->get_error_code(),'m'=>$guard->get_error_message()),$guard->get_error_data()['status']);
+				if ($guard instanceof \WP_REST_Response) wp_send_json($guard->get_data(),$guard->get_status());
+				$reply_key=$guard;
 				$reply_inserted = $this->db->insert($table_name, array(
 					'ip' => $ip,
 					'content' => $m,
@@ -5089,8 +5766,12 @@ public function check_nonce_permission_efb($request) {
 					'date'=>wp_date('Y-m-d H:i:s'),
 				));
 				if ($reply_inserted === false) {
+					\Emsfb\Form_Runtime::abort($reply_key);
+					\Emsfb\Request_Health::record('reply',500,'server','storage_failed');
 					wp_send_json_success(array('success' => false, 'm' => $this->lanText['errorSomthingWrong']), 200);
 				}
+				\Emsfb\Request_Health::mark_saved();
+				\Emsfb\Form_Runtime::finish($reply_key,array('success'=>true,'m'=>$this->lanText['messageSent'],'by'=>$by,'track'=>$track,'nonce_msg'=>wp_create_nonce($track)));
 
 				$this->claim_uploaded_files_efb($m);
 				if (!empty($response_attachment_urls)) {
@@ -5124,7 +5805,7 @@ public function check_nonce_permission_efb($request) {
 						$form_id
 					)
 				);
-				$valb =str_replace('\\', '', $vald[0]->form_structer);
+				$valb =\emsfb_json_normalize_efb($vald[0]->form_structer);
 				$valn= json_decode($valb,true);
 				$usr;
 				$email_noti_ids=[] ;
@@ -5173,13 +5854,8 @@ public function check_nonce_permission_efb($request) {
 				$tt = $rsp_by=='admin' ? 'respadmin' : 'resppa';
 				if(isset($setting->sms_config) && ($setting->sms_config=="wpsms" || $setting->sms_config=='ws.team') ) {
 					// Delivery always goes through WP-SMS for now; ws.team has no gateway implementation yet
-					$smsSendResult = $this->efbFunction->sms_ready_for_send_efb($form_id, $phone_numbers,$link_w,$tt ,'wpsms' ,$track);
-					if($smsSendResult !== true) {
-						$m =  $this->lanText['msgSndBut'];
-						$m = sprintf($m,  '<b>'.$this->lanText['smsWPN'] .'<b>' , '' );
-						$response = ['success' => false, 'm' => $m];
-						wp_send_json_success($response, 200);
-					}
+					$smsSendResult = $this->send_optional_sms_efb($form_id, $phone_numbers,$link_w,$tt ,'wpsms' ,$track);
+					// SMS failures are traced by the adapter; continue to reply email.
 				}
 
 				}
@@ -5223,19 +5899,24 @@ public function check_nonce_permission_efb($request) {
 
 	public function get_autofilled_list_efb($data_POST_) {
 		$data_POST = $data_POST_->get_json_params();
-		$fid = sanitize_text_field($data_POST['id']);
+		$data_POST = is_array($data_POST) ? $data_POST : array();
+		$fid = sanitize_text_field($data_POST['id'] ?? '');
 		if($this->efbFunction===null) $this->efbFunction = get_efbFunction();
-		$sid = sanitize_text_field($data_POST['sid']);
-		$s_sid = $this->efbFunction->efb_code_validate_select($sid, $fid);
-		if ($s_sid !=1 || $sid==null){
-			$this->efbFunction->send_email_noti_sid_plugins_efb;('replyMessageAction');
-			$m = $this->lanText['sxnlex'];
+		$sid = sanitize_text_field($data_POST['sid'] ?? '');
+		$s_sid = $sid === '' ? 0 : $this->efbFunction->efb_code_validate_select($sid, $fid);
+		if ($s_sid !=1 || $sid === ''){
+			// No alert email here: this route is public, and one email per bad
+			// request would let anyone flood the administrator's inbox. (The old
+			// line meant to send one but was a no-op typo.)
+			if (empty($this->lanText) || !isset($this->lanText['sxnlex'])) {
+				$this->lanText = $this->efbFunction->text_efb(['sxnlex']);
+			}
+			$m = $this->lanText['sxnlex'] ?? esc_html__('Error! Please try again later.', 'easy-form-builder');
 			$response = array( 'success' => false  , 'm'=>$m );
 			wp_send_json_success($response,200);
 		}
-		$page_id = sanitize_text_field($data_POST['page_id']);
+		$page_id = sanitize_text_field($data_POST['page_id'] ?? '');
 		$cache_plugins = get_option('emsfb_cache_plugins','0');
-		if ($cache_plugins != '0') $this->cache_cleaner_Efb($page_id, $cache_plugins);
 
 		$path =  EMSFB_PLUGIN_DIRECTORY . 'vendor/autofill/autofillefb.php';
 		$path_exists = file_exists($path);
@@ -5271,6 +5952,9 @@ public function check_nonce_permission_efb($request) {
 	 * the last step, so source:'current_step' conditions compare against it. */
 	private $efb_conditional_max_step = 1;
 
+	/** URL parameters the browser sent with this submission (null: none sent, use the Referer). */
+	private $efb_request_query_efb = null;
+
 	/* The form and the rows the current rule pass is reading, kept so the
 	 * add-on's validator can be handed the option index and the payment rows it
 	 * needs. Set by efb_conditional_values_map(), which every rule scope calls
@@ -5291,7 +5975,13 @@ public function check_nonce_permission_efb($request) {
 
 		if (class_exists('Emsfb\\Emsfb_Logic_Validator')) {
 			$validator = new \Emsfb\Emsfb_Logic_Validator();
-			return $validator->build_values_map($form_fields_array, $submitted_values);
+			if (is_callable(array($validator, 'build_values_map'))) {
+				try {
+					return $validator->build_values_map($form_fields_array, $submitted_values);
+				} catch (\Throwable $error) {
+					// Fall through to the built-in values map.
+				}
+			}
 		}
 
 		$values = [];
@@ -5340,13 +6030,21 @@ public function check_nonce_permission_efb($request) {
 	private function efb_evaluate_conditional_group($group, $values) {
 		if (is_array($this->efb_conditional_form) && class_exists('Emsfb\\Emsfb_Logic_Validator')) {
 			$validator = new \Emsfb\Emsfb_Logic_Validator();
-			$validator->set_environment($this->efb_conditional_environment_for_validator());
-			return (bool) $validator->evaluate_condition_group(
-				$this->efb_conditional_form,
-				$group,
-				$values,
-				$this->efb_conditional_rows
-			);
+			// Logic add-on builds before 4.2 declare this method private; a stale
+			// build must fall back instead of fataling the submission.
+			if (is_callable(array($validator, 'evaluate_condition_group'))) {
+				try {
+					$validator->set_environment($this->efb_conditional_environment_for_validator());
+					return (bool) $validator->evaluate_condition_group(
+						$this->efb_conditional_form,
+						$group,
+						$values,
+						$this->efb_conditional_rows
+					);
+				} catch (\Throwable $error) {
+					// Fall through to the built-in evaluator.
+				}
+			}
 		}
 		return $this->efb_evaluate_conditional_group_fallback($group, $values);
 	}
@@ -5377,7 +6075,9 @@ public function check_nonce_permission_efb($request) {
 	private function efb_conditional_environment() {
 		$env = ['query' => [], 'user' => ['logged_in' => false, 'roles' => []]];
 		$referer = function_exists('wp_get_referer') ? wp_get_referer() : '';
-		if (is_string($referer) && $referer !== '') {
+		if (is_array($this->efb_request_query_efb)) {
+			$env['query'] = $this->efb_request_query_efb;
+		} elseif (is_string($referer) && $referer !== '') {
 			$query_string = (string) parse_url($referer, PHP_URL_QUERY);
 			if ($query_string !== '') parse_str($query_string, $env['query']);
 		}
@@ -5625,8 +6325,12 @@ public function check_nonce_permission_efb($request) {
 				return [
 					'action' => 'redirect',
 					/* {field_id} tokens make personalized redirects possible:
-					 * https://example.com/thanks?plan={plan}&mail={email} */
-					'url' => esc_url($this->efb_replace_field_tokens($rule['url'] ?? '', $values, true)),
+					 * https://example.com/thanks?plan={plan}&mail={email}
+					 * esc_url_raw, not esc_url: the browser navigates to this value
+					 * from JSON, and esc_url's "&#038;" turned every parameter after
+					 * the first into a URL fragment. Disallowed protocols are still
+					 * stripped. */
+					'url' => esc_url_raw($this->efb_replace_field_tokens($rule['url'] ?? '', $values, true)),
 					'message' => '',
 				];
 			}
@@ -5704,8 +6408,14 @@ public function check_nonce_permission_efb($request) {
 		return $out;
 	}
 
+	/**
+	 * Send the email of every notification rule that matches this submission.
+	 *
+	 * @return int How many rules matched and were sent.
+	 */
 	private function process_conditional_notification_rules($form_fields_array, $submitted_values, $track_code, $is_pro, $url, $status_email) {
-		if (empty($form_fields_array[0]['notification_rules']) || !is_array($form_fields_array[0]['notification_rules'])) return;
+		if (empty($form_fields_array[0]['notification_rules']) || !is_array($form_fields_array[0]['notification_rules'])) return 0;
+		$matched = 0;
 		$values = $this->efb_conditional_values_map($form_fields_array, $submitted_values);
 		$content = isset($status_email['content']) ? $status_email['content'] : 'null';
 		$type = isset($status_email['type']) ? $status_email['type'] : 'traking_link';
@@ -5769,10 +6479,12 @@ public function check_nonce_permission_efb($request) {
 			foreach ($copy_recipients as $copy_email) {
 				$this->send_email_Emsfb_([$copy_email, ''], $track_code, $is_pro, ['newMessage', 'newMessage', $type], $url, $content, $subject);
 			}
+			$matched++;
 		}
+		return $matched;
 	}
 
-	private function process_conditional_webhook_rules($form_fields_array, $submitted_values, $track_code, $event_type, $context = array()) {
+	private function process_conditional_webhook_rules($form_fields_array, $submitted_values, $track_code, $event_type, $context = array(), $allow_send = null) {
 		if (empty($form_fields_array[0]['webhook_rules']) || !is_array($form_fields_array[0]['webhook_rules'])) return array();
 		$webhook_submitted_values = isset($context['integration_values']) && is_array($context['integration_values'])
 			? $context['integration_values']
@@ -5797,11 +6509,19 @@ public function check_nonce_permission_efb($request) {
 		foreach ($sorted_rules as $rule) {
 			if (isset($rule['enabled']) && !$rule['enabled']) continue;
 			if (($rule['action'] ?? 'trigger') === 'stop') continue;
-			$url = isset($rule['url']) ? esc_url_raw($rule['url']) : '';
+			$url = isset($rule['url']) ? esc_url_raw($rule['url'], array('http', 'https')) : ''; // a webhook is an http(s) endpoint, never ftp:
 			if ($url === '') continue;
 			$rule_webhook_id = isset($rule['webhook_id']) ? sanitize_text_field($rule['webhook_id']) : '';
 			if ($stop_all || ($rule_webhook_id !== '' && isset($stopped_ids[$rule_webhook_id]))) continue;
 			if (!$this->efb_evaluate_conditional_group($rule['conditions'] ?? array(), $values)) continue;
+
+			/* $allow_send (the side-effect gate) is asked once, when the first
+			 * rule is really about to be sent, so a submission whose rules do
+			 * not match spends nothing from the webhook stop-loss. */
+			if ($allow_send !== null) {
+				if (!call_user_func($allow_send)) return $sent;
+				$allow_send = null;
+			}
 
 			/* payload_fields (PRD C6 "Modify webhook payload"): when set, only
 			 * the whitelisted field ids are sent to the webhook endpoint. */
@@ -5841,8 +6561,31 @@ public function check_nonce_permission_efb($request) {
 			);
 
 			do_action('efb_conditional_webhook_before_send', $payload, $rule, $context);
+			/* GET carries no body, so it gets the identifying fields as query
+			 * arguments and the same X-EFB-* headers as a POST: a receiver can
+			 * tell which rule and webhook fired whatever the method. */
 			$response = $method === 'GET'
-				? wp_remote_get(add_query_arg(array('track_code' => $track_code, 'event_type' => $event_type), $url), array('timeout' => 8, 'redirection' => 3))
+				? wp_remote_get(
+					add_query_arg(
+						array(
+							'track_code' => $track_code,
+							'event_type' => $event_type,
+							'webhook_id' => $payload['webhook_id'],
+							'rule_id'    => $payload['rule_id'],
+							'form_id'    => $payload['form_id'],
+						),
+						$url
+					),
+					array(
+						'timeout'     => 8,
+						'redirection' => 3,
+						'headers'     => array(
+							'X-EFB-Webhook-Id' => $payload['webhook_id'],
+							'X-EFB-Rule-Id'    => $payload['rule_id'],
+							'X-EFB-Track-Code' => (string) $track_code,
+						),
+					)
+				)
 				: wp_remote_post($url, $args);
 			do_action('efb_conditional_webhook_after_send', $response, $payload, $rule, $context);
 
@@ -5962,7 +6705,11 @@ public function check_nonce_permission_efb($request) {
         }
         // For registration states, keep username as content for email_template_efb
         $cont[$i] = $isRegistrationState ? $track : $message[$i];
-        if ($content != "null") {
+        // The visitor's copy (index 1) keeps the plain confirmation when the
+        // form did not choose to send it the submitted content ($state[3],
+        // set by email_status_efb).
+        $visitor_plain = (1 === $i && is_array($state) && isset($state[3]) && 'traking_link' === $state[3]);
+        if ($content != "null" && !$visitor_plain) {
             $cont[$i] = [$track, $content];
         }
         if ($sub != "null") {
@@ -5986,7 +6733,17 @@ public function check_nonce_permission_efb($request) {
         'has_custom_content' => $content !== 'null',
         'content_preview' => $content === 'null' ? '(state template)' : mb_substr(trim(strip_tags((string)$content)), 0, 200),
     ]);
+    // The owner answers the visitor straight from their inbox.
+    $reply_to = is_string($this->owner_reply_to_efb) ? $this->owner_reply_to_efb : '';
+    $reply_to_cb = null;
+    if ('' !== $reply_to) {
+        $reply_to_cb = function () use ($reply_to) { return $reply_to; };
+        add_filter('emsfb_owner_reply_to_efb', $reply_to_cb);
+    }
     $check = $this->efbFunction->send_email_state_new($to, $subject, $cont, $pro, $state, $link_w, $this->setting);
+    if (null !== $reply_to_cb) {
+        remove_filter('emsfb_owner_reply_to_efb', $reply_to_cb);
+    }
 
 	}
 	public function isHTML( $str ) { return preg_match( "/\/[a-z]*>/i", $str ) != 0; }
@@ -6006,9 +6763,10 @@ public function check_nonce_permission_efb($request) {
 		}
 
 		$data_POST = $data_POST_->get_json_params();
+		$data_POST = is_array($data_POST) ? $data_POST : array();
 		$user = wp_get_current_user();
 		$uid= $user->exists() ? $user->user_nicename :  esc_html__('Guest','easy-form-builder') ;
-		$this->id =sanitize_text_field($data_POST['id']);
+		$this->id =sanitize_text_field($data_POST['id'] ?? '');
 		if($this->efbFunction===null) $this->efbFunction = get_efbFunction();
 
 		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  get_setting_Emsfb('raw');
@@ -6052,8 +6810,8 @@ public function check_nonce_permission_efb($request) {
 				require_once( EMSFB_PLUGIN_DIRECTORY . "/vendor/autoload.php" );
 			}
 		}
-		$this->id = intval($data_POST['id']);
-		$val_ = sanitize_text_field($data_POST['value']);
+		$this->id = intval($data_POST['id'] ?? 0);
+		$val_ = sanitize_text_field($data_POST['value'] ?? '');
 		if(empty($this->db)){
             global $wpdb;
             $this->db = $wpdb;
@@ -6065,11 +6823,16 @@ public function check_nonce_permission_efb($request) {
 				$this->id
 			)
 		);
-		$fs =str_replace('\\', '', $value_form[0]->form_structer);
-		$fs_ = json_decode($fs,true);
-		$val =str_replace('\\', '', $val_);
-		$val_ = json_decode($val,true);
-		$paymentmethod = $fs_[0]['paymentmethod'];
+		$fs = empty($value_form) ? '' : \emsfb_json_normalize_efb($value_form[0]->form_structer);
+		$fs_ = is_string($fs) && $fs !== '' ? json_decode($fs,true) : null;
+		$val =\emsfb_json_normalize_efb($val_);
+		$val_ = is_string($val) && $val !== '' ? json_decode($val,true) : null;
+		if (!is_array($fs_) || !isset($fs_[0]) || !is_array($fs_[0]) || !is_array($val_)) {
+			$m = esc_html__('Stripe', 'easy-form-builder').'->'.	esc_html__('error', 'easy-form-builder') . ' 400';
+			wp_send_json_success(['success' => false, 'm' => $m], 200);
+			return;
+		}
+		$paymentmethod = isset($fs_[0]['paymentmethod']) ? $fs_[0]['paymentmethod'] : '';
 		$price_c =0;
 		$price_f=0;
 		$email ='';
@@ -6079,10 +6842,12 @@ public function check_nonce_permission_efb($request) {
 		$price_f = $obj['price_total'];
 		$email = $obj['email'];
 		$valobj = $obj['valobj'];
-		$price_f = $price_f*100;
+		$currency= isset($fs_[0]['currency']) && strlen((string)$fs_[0]['currency'])>2 ? $fs_[0]['currency'] : 'usd';
+		// Stripe takes the smallest unit of the currency: x100 charged a ¥500 order ¥50,000.
+		$minor_factor = $this->stripe_minor_factor_efb($currency);
+		$price_f = $this->stripe_minor_amount_efb($price_f, $currency);
 		$description =  get_bloginfo('name') . ' >' . $fs_[0]['formName'];
 		if($price_f>0){
-			$currency= isset($fs_[0]['currency']) && strlen((string)$fs_[0]['currency'])>2 ? $fs_[0]['currency'] : 'usd';
 
 			/* A Stripe API failure (invalid key, unsupported currency, amount below
 			 * minimum, network...) must reach the visitor as a readable message,
@@ -6102,9 +6867,9 @@ public function check_nonce_permission_efb($request) {
 			 if($paymentmethod=='charge'){
 				if(strlen($email)>1){$newPay=array_merge($newPay , array('receipt_email'=>$email));}
 				$paymentIntent = $stripe->paymentIntents->create($newPay);
-				$amount = $paymentIntent->amount/100;
+				$amount = $paymentIntent->amount/$minor_factor;
 				$created= date("Y-m-d-h:i:s",$paymentIntent->created);
-				$val = $paymentIntent->amount/100 . ' ' . $paymentIntent->currency;
+				$val = $paymentIntent->amount/$minor_factor . ' ' . $paymentIntent->currency;
 			}else{
 				$token= sanitize_text_field($data_POST['token']);
 
@@ -6130,13 +6895,14 @@ public function check_nonce_permission_efb($request) {
 						  ['price' => $price],
 						],
 					  ]);
-					  $amount = $paymentIntent->plan->amount/100;
+					  $amount = $paymentIntent->plan->amount/$minor_factor;
 					  $created= date("Y-m-d-h:i:s",$paymentIntent->created);
 					  $val =  $amount . ' ' . $paymentIntent->currency;
 			}
 			} catch ( \Throwable $e ) {
-				// error_log( '[EFB][Stripe] card/add failed for form ' . $this->id . ': ' . $e->getMessage() );
-				$response = [ 'success' => false, 'm' => 'Stripe: ' . $e->getMessage() ];
+				$provider_status = $e instanceof \Stripe\Exception\ApiErrorException ? (int) $e->getHttpStatus() : 0;
+				\Emsfb\Request_Health::record('payment', $provider_status >= 400 && $provider_status <= 599 ? $provider_status : 503, 'server', 'gateway_creation_failed');
+				$response = [ 'success' => false, 'payment_uncertain' => $e instanceof \Stripe\Exception\ApiConnectionException || (isset($paymentIntent) && is_object($paymentIntent)), 'm' => esc_html__('Payment could not be started. Please try again later.', 'easy-form-builder') ];
 				wp_send_json_success( $response, 200 );
 				return;
 			}
@@ -6146,7 +6912,7 @@ public function check_nonce_permission_efb($request) {
 			$created= date("Y-m-d-h:i:s",$paymentIntent->created);
 			$response;
 			if($paymentmethod!='charge'){
-				$amount = $price->unit_amount/100;
+				$amount = $price->unit_amount/$minor_factor;
 				$payA =  $amount  . ' '. $price->currency;
 				$nextdate = date("Y-m-d-h:i:s",$paymentIntent->current_period_end);
 				$ar = (object)['id_'=>'payment','amount'=>0,'name'=> esc_html__('Payment','easy-form-builder') ,'type'=>'payment',
@@ -6157,7 +6923,7 @@ public function check_nonce_permission_efb($request) {
 				 $filtered=array_merge($filtered , array($ar));
 				$response = array( 'success' => true  ,  'transStat'=>$ar , 'uid'=> $uid);
 			}else{
-				$amount = $paymentIntent->amount/100;
+				$amount = $paymentIntent->amount/$minor_factor;
 				$payA =  $amount  . ' '. $paymentIntent->currency;
 				$ar = (object)['id_'=>'payment','amount'=>0,'name'=> esc_html__('Payment','easy-form-builder') ,'type'=>'payment',
 				'value'=> $payA , 'paymentIntent'=>$paymentIntent->id , 'paymentGateway'=>'stripe' , 'paymentmethod'=>$paymentmethod,
@@ -6211,6 +6977,10 @@ public function check_nonce_permission_efb($request) {
 				}
 				StripePayment::insert_payment( $pay_data );
 			}
+			if ( $paymentmethod === 'charge' ) {
+				// Re-checked in the background in case the visitor's confirmation never arrives.
+				$this->schedule_stripe_reconcile_efb( 15 * MINUTE_IN_SECONDS );
+			}
 
 			$response=array_merge($response , ['id'=>$check]);
 			wp_send_json_success($response, 200);
@@ -6221,6 +6991,19 @@ public function check_nonce_permission_efb($request) {
 		}
 	}
 
+	/* POST Emsfb/v1/forms/payment/stripe/confirm
+	 *
+	 * Called by stripe_pay-efb.js right after Stripe.js reported a one-time
+	 * charge as succeeded. A public REST nonce and a client-side success
+	 * message are not proof of payment, so the PaymentIntent is retrieved from
+	 * Stripe and compared with this site's own record.
+	 *
+	 * The card is already charged when this runs. Only HTTP 409 means "this
+	 * payment does not match this site's record" and stops the submission;
+	 * every other failure (503 gateway or storage unavailable, 500, timeout) is
+	 * retried by the browser, which then submits the form anyway. The record
+	 * stays 'pending' and reconcile_stripe_payments_efb() re-checks it. This
+	 * handler only reads from Stripe, so repeating it is safe. */
 	public function pay_stripe_confirm_Emsfb_api( $request ) {
 		if ( ! emsfb_is_addon_compatible_efb( 'AdnSPF' ) ) {
 			wp_send_json_success( array(
@@ -6231,47 +7014,93 @@ public function check_nonce_permission_efb($request) {
 		}
 
 		$data_POST       = $request->get_json_params();
-		$payment_intent  = sanitize_text_field( $data_POST['paymentIntentId'] ?? '' );
-		$trackid         = sanitize_text_field( $data_POST['trackid'] ?? '' );
+		$payment_intent  = is_string( $data_POST['paymentIntentId'] ?? null ) ? sanitize_text_field( $data_POST['paymentIntentId'] ) : '';
+		$trackid         = is_string( $data_POST['trackid'] ?? null ) ? sanitize_text_field( $data_POST['trackid'] ) : '';
 
-		if ( empty( $payment_intent ) ) {
+		if ( ! preg_match( '/^pi_[a-zA-Z0-9]+$/D', $payment_intent ) || $trackid === '' ) {
 			wp_send_json_success( [ 'success' => false, 'm' => esc_html__( 'Payment Intent ID is missing', 'easy-form-builder' ) ], 400 );
 			return;
 		}
 
-		$stripe_payment_file = EMSFB_PLUGIN_DIRECTORY . 'vendor/stripe/class-Emsfb-stripe-payment.php';
-		if ( ! class_exists( '\Emsfb\StripePayment' ) && file_exists( $stripe_payment_file ) ) {
-			require_once $stripe_payment_file;
-		}
-
-		if ( ! class_exists( '\Emsfb\StripePayment' ) ) {
-			wp_send_json_success( [ 'success' => false, 'm' => 'Stripe payment class not available' ], 500 );
-			return;
-		}
-
 		global $wpdb;
-		$pay_table = $wpdb->prefix . 'emsfb_pay_';
-
-		$pay_row = $wpdb->get_row( $wpdb->prepare(
-			"SELECT id, status FROM {$pay_table} WHERE transaction_id = %s AND gateway = 'stripe' LIMIT 1",
-			$payment_intent
-		) );
-
-		if ( ! $pay_row ) {
-
-			if ( ! empty( $trackid ) ) {
-				$pay_row = $wpdb->get_row( $wpdb->prepare(
-					"SELECT id, status FROM {$pay_table} WHERE track = %s AND gateway = 'stripe' LIMIT 1",
-					$trackid
-				) );
+		$pay_table   = $wpdb->prefix . 'emsfb_pay_';
+		$table_ready = $this->stripe_pay_table_exists_efb();
+		$pay_row     = null;
+		if ( $table_ready ) {
+			$pay_row = $wpdb->get_row( $wpdb->prepare(
+				"SELECT * FROM {$pay_table} WHERE transaction_id = %s AND track = %s AND gateway = 'stripe' LIMIT 1",
+				$payment_intent, $trackid
+			) );
+			if ( ! $pay_row && $wpdb->last_error !== '' ) {
+				\Emsfb\Request_Health::record('payment',503,'server','payment_record_unavailable');
+				wp_send_json_success( array( 'success' => false, 'm' => 'Payment verification is temporarily unavailable.' ), 503 );
+				return;
 			}
 		}
 
-		if ( $pay_row && $pay_row->status === 'pending' ) {
-			StripePayment::update_payment( $pay_row->id, [
+		if ( $pay_row ) {
+			if ( $pay_row->payment_type !== 'one-time' || ! in_array( $pay_row->status, array( 'pending', 'completed' ), true ) ) {
+				\Emsfb\Request_Health::record('payment',409,'server','payment_record_mismatch');
+				wp_send_json_success( array( 'success' => false, 'm' => 'Payment record does not match.' ), 409 );
+				return;
+			}
+			if ( $pay_row->status === 'completed' ) {
+				// Verified before: an earlier attempt whose response was lost, or the background check.
+				wp_send_json_success( [
+					'success'         => true,
+					'paymentIntentId' => $payment_intent,
+					'trackid'         => $trackid,
+				], 200 );
+				return;
+			}
+			// The same minor units card/add charged in.
+			$expected_amount   = $this->stripe_minor_amount_efb( $pay_row->amount, $pay_row->currency );
+			$expected_currency = (string) $pay_row->currency;
+		} else {
+			/* No record. The Stripe add-on creates emsfb_pay_ only from its admin
+			 * screen, so a site that never opened that screen has no table, and a
+			 * failed insert leaves no row: neither is evidence of a mismatch. Use
+			 * what card/add stored server-side for this tracking code instead.
+			 * Nothing is written here. An intent that is recorded under a
+			 * different tracking code is still a mismatch. */
+			$elsewhere = $table_ready ? $wpdb->get_var( $wpdb->prepare(
+				"SELECT id FROM {$pay_table} WHERE transaction_id = %s AND gateway = 'stripe' LIMIT 1",
+				$payment_intent
+			) ) : null;
+			$stub = $elsewhere ? null : $this->find_stripe_charge_stub_efb( $trackid, $payment_intent );
+			if ( ! $stub ) {
+				\Emsfb\Request_Health::record('payment',409,'server','payment_record_mismatch');
+				wp_send_json_success( array( 'success' => false, 'm' => 'Payment record does not match.' ), 409 );
+				return;
+			}
+			list( $expected_amount, $expected_currency ) = $stub;
+		}
+
+		$verification = $this->verify_stripe_intent_efb( $payment_intent, $expected_amount, $expected_currency );
+		if ( $verification['state'] === 'unavailable' ) {
+			\Emsfb\Request_Health::record('payment',$verification['status'],'server',$verification['reason']);
+			if ( $pay_row ) {
+				$this->schedule_stripe_reconcile_efb( 10 * MINUTE_IN_SECONDS );
+			}
+			wp_send_json_success( array( 'success' => false, 'm' => 'Payment verification is temporarily unavailable.' ), 503 );
+			return;
+		}
+		if ( $verification['state'] !== 'verified' ) {
+			\Emsfb\Request_Health::record('payment',409,'server','payment_not_verified');
+			wp_send_json_success( array( 'success' => false, 'm' => 'Payment has not been verified.' ), 409 );
+			return;
+		}
+		if ( $pay_row ) {
+			$updated = $this->update_pending_stripe_payment_efb( $pay_row->id, [
 				'status'     => 'completed',
 				'capture_id' => $payment_intent,
 			] );
+			if ( $updated === false ) {
+				\Emsfb\Request_Health::record('payment',500,'server','payment_status_storage_failed');
+				$this->schedule_stripe_reconcile_efb( 10 * MINUTE_IN_SECONDS );
+				wp_send_json_success( array( 'success' => false, 'm' => 'Payment status could not be saved.' ), 500 );
+				return;
+			}
 		}
 
 		/* No second table to touch here. emsfb_pay_.status, set just above, is
@@ -6286,6 +7115,467 @@ public function check_nonce_permission_efb($request) {
 			'paymentIntentId' => $payment_intent,
 			'trackid'         => $trackid,
 		], 200 );
+	}
+
+	/**
+	 * Whether the shared payment table (created by the Stripe/PayPal add-on's
+	 * admin screen, never by core) exists. Checked instead of trusting the
+	 * add-on's emsfb_pay_table_version option, and so a missing table does not
+	 * log a database error on every confirmation.
+	 *
+	 * @return bool
+	 */
+	private function stripe_pay_table_exists_efb() {
+		global $wpdb;
+		$table = $wpdb->prefix . 'emsfb_pay_';
+		$found = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $table ) ) );
+		return is_string( $found ) && strcasecmp( $found, $table ) === 0;
+	}
+
+	/**
+	 * The payment row card/add stored server-side for this tracking code (the
+	 * pending submission, or the final one after it was sent). Used only when
+	 * emsfb_pay_ has no record, to learn what was charged. Read-only.
+	 *
+	 * @param string $trackid        Tracking code returned by card/add.
+	 * @param string $payment_intent PaymentIntent id (pi_...).
+	 * @return array|null [amount in minor units, currency], or null when this
+	 *                    tracking code does not belong to this PaymentIntent.
+	 */
+	private function find_stripe_charge_stub_efb( $trackid, $payment_intent ) {
+		global $wpdb;
+		$content = $wpdb->get_var( $wpdb->prepare(
+			"SELECT content FROM `{$wpdb->prefix}emsfb_msg_` WHERE track = %s LIMIT 1",
+			$trackid
+		) );
+		if ( ! is_string( $content ) || $content === '' ) {
+			return null;
+		}
+		$rows = \emsfb_json_decode_efb( $content, true );
+		if ( ! is_array( $rows ) ) {
+			return null;
+		}
+		$match = null;
+		foreach ( $rows as $row ) {
+			if ( ! is_array( $row ) || ( $row['type'] ?? '' ) !== 'payment' || ( $row['paymentGateway'] ?? '' ) !== 'stripe'
+				|| ( $row['paymentmethod'] ?? '' ) !== 'charge' || ( $row['paymentIntent'] ?? '' ) !== $payment_intent
+				|| ! isset( $row['paymentAmount'], $row['paymentcurrency'] ) || ! is_numeric( $row['paymentAmount'] ) ) {
+				continue;
+			}
+			// card/add appends its own row last, after the visitor's priced items.
+			$match = array( $this->stripe_minor_amount_efb( $row['paymentAmount'], $row['paymentcurrency'] ), (string) $row['paymentcurrency'] );
+		}
+		return $match;
+	}
+
+	/**
+	 * Load the Stripe SDK the add-on bundles, in the same order as card/add,
+	 * without a fatal error when it is missing.
+	 *
+	 * @return bool Whether \Stripe\StripeClient is available.
+	 */
+	private function load_stripe_sdk_efb() {
+		if ( class_exists( '\Stripe\StripeClient' ) ) {
+			return true;
+		}
+		$init = EMSFB_PLUGIN_DIRECTORY . 'vendor/stripe/stripe-php/init.php';
+		$file = is_readable( $init ) ? $init : EMSFB_PLUGIN_DIRECTORY . 'vendor/autoload.php';
+		if ( is_readable( $file ) ) {
+			require_once $file;
+		}
+		return class_exists( '\Stripe\StripeClient' );
+	}
+
+	/**
+	 * Run one Stripe SDK call with bounded HTTP timeouts. The SDK waits up to
+	 * 80 s by default; the browser gives a confirmation attempt 25 s and a cron
+	 * run must not hang on an unreachable gateway. The previous values are put
+	 * back for any other Stripe code in the same request.
+	 *
+	 * @param callable $call
+	 * @return mixed What $call returns.
+	 */
+	private function stripe_call_with_timeouts_efb( $call ) {
+		$http     = null;
+		$previous = null;
+		if ( class_exists( '\Stripe\HttpClient\CurlClient' ) && is_callable( array( '\Stripe\HttpClient\CurlClient', 'instance' ) ) ) {
+			$http = \Stripe\HttpClient\CurlClient::instance();
+			if ( is_object( $http ) && method_exists( $http, 'getTimeout' ) && method_exists( $http, 'setTimeout' )
+				&& method_exists( $http, 'getConnectTimeout' ) && method_exists( $http, 'setConnectTimeout' ) ) {
+				$previous = array( (int) $http->getTimeout(), (int) $http->getConnectTimeout() );
+				$http->setTimeout( $previous[0] > 0 && $previous[0] < 20 ? $previous[0] : 20 );
+				$http->setConnectTimeout( $previous[1] > 0 && $previous[1] < 8 ? $previous[1] : 8 );
+			}
+		}
+		try {
+			return $call();
+		} finally {
+			if ( $previous ) {
+				$http->setTimeout( $previous[0] );
+				$http->setConnectTimeout( $previous[1] );
+			}
+		}
+	}
+
+	/**
+	 * Retrieve a one-time PaymentIntent from Stripe and compare it with what
+	 * this site charged. Shared by the confirmation endpoint and the background
+	 * reconciliation. Never throws.
+	 *
+	 * @param string $payment_intent    pi_... id.
+	 * @param int    $expected_amount   Amount in minor units, as created by card/add.
+	 * @param string $expected_currency ISO currency code.
+	 * @return array {
+	 *     @type string $state         'verified', 'mismatch' (definitive) or 'unavailable' (try again later).
+	 *     @type int    $status        HTTP status for diagnostics (provider status when Stripe answered with an error).
+	 *     @type string $reason        Request_Health reason.
+	 *     @type string $stripe_status PaymentIntent status, '' when Stripe was not reached.
+	 * }
+	 */
+	/**
+	 * Final submit of an order whose saved card/add row is a PayPal one-time
+	 * order: 'paid', 'unverified' (PayPal could not be asked) or 'unpaid';
+	 * 'none' when the order has no PayPal row. card/add saves the order as
+	 * "active" before the buyer has approved anything, so that row alone let a
+	 * visitor who closed the PayPal window without paying press Submit and file
+	 * an order that looked paid (with a confirmation code and the owner email).
+	 * Decided by the payments table and by PayPal, never by the browser.
+	 * Subscriptions keep their own activation flow and are not changed here.
+	 */
+	private function paypal_order_payment_state_efb( $saved_rows ) {
+		$pay = null;
+		foreach ( (array) $saved_rows as $row ) {
+			if ( is_array( $row ) && ( $row['type'] ?? '' ) === 'payment' && ( $row['paymentGateway'] ?? '' ) === 'paypal' ) {
+				$pay = $row;
+				break;
+			}
+		}
+		if ( null === $pay ) {
+			return 'none';
+		}
+		if ( ( $pay['paymentmethod'] ?? '' ) === 'subscription' ) {
+			return 'paid';
+		}
+		$order = (string) ( $pay['paymentIntent'] ?? '' );
+		if ( ! preg_match( '/^[A-Z0-9]{5,64}$/D', $order ) ) {
+			return 'unpaid';
+		}
+		global $wpdb;
+		$pay_row = null;
+		if ( $this->stripe_pay_table_exists_efb() ) {
+			$pay_row = $wpdb->get_row( $wpdb->prepare( "SELECT id, status FROM {$wpdb->prefix}emsfb_pay_ WHERE gateway = 'paypal' AND transaction_id = %s ORDER BY id DESC LIMIT 1", $order ) );
+			if ( $pay_row && 'completed' === $pay_row->status ) {
+				return 'paid';
+			}
+			if ( $pay_row && in_array( $pay_row->status, array( 'failed', 'cancelled', 'refunded' ), true ) ) {
+				return 'unpaid';
+			}
+		}
+		$status = $this->paypal_order_status_efb( $order );
+		if ( 'COMPLETED' === $status ) {
+			if ( $pay_row ) {
+				// Older PayPal add-ons never marked a captured order completed.
+				$wpdb->update( $wpdb->prefix . 'emsfb_pay_', array( 'status' => 'completed', 'updated_at' => wp_date( 'Y-m-d H:i:s' ) ), array( 'id' => (int) $pay_row->id ) );
+			}
+			return 'paid';
+		}
+		return '' === $status ? 'unverified' : 'unpaid';
+	}
+
+	/**
+	 * PayPal's status of a one-time order ('COMPLETED', 'APPROVED', 'CREATED',
+	 * 'NOT_FOUND' ...), or '' when PayPal cannot be asked (no keys, network,
+	 * PayPal error) or a capture is still pending. Same host choice as the
+	 * PayPal add-on: Development Mode uses the PayPal sandbox.
+	 */
+	private function paypal_order_status_efb( $order_id ) {
+		$setting = get_setting_Emsfb( 'decoded' );
+		$client  = $this->resolve_payment_key_efb( $setting, 'paypalPKey' );
+		$secret  = $this->resolve_payment_key_efb( $setting, 'paypalSKey' );
+		if ( 'null' === $client || 'null' === $secret ) {
+			return '';
+		}
+		$server = ( defined( 'EMSFB_DEV_MODE' ) && EMSFB_DEV_MODE ) ? 'https://api-m.sandbox.paypal.com/' : 'https://api-m.paypal.com/';
+		$token  = wp_remote_post( $server . 'v1/oauth2/token', array(
+			'timeout' => 15,
+			'headers' => array(
+				'Authorization' => 'Basic ' . base64_encode( $client . ':' . $secret ),
+				'Accept'        => 'application/json',
+				'Content-Type'  => 'application/x-www-form-urlencoded',
+			),
+			'body'    => 'grant_type=client_credentials',
+		) );
+		if ( is_wp_error( $token ) || 200 !== (int) wp_remote_retrieve_response_code( $token ) ) {
+			return '';
+		}
+		$token  = json_decode( wp_remote_retrieve_body( $token ), true );
+		$access = is_array( $token ) && ! empty( $token['access_token'] ) ? (string) $token['access_token'] : '';
+		if ( '' === $access ) {
+			return '';
+		}
+		$order = wp_remote_get( $server . 'v2/checkout/orders/' . rawurlencode( $order_id ), array(
+			'timeout' => 15,
+			'headers' => array( 'Authorization' => 'Bearer ' . $access, 'Accept' => 'application/json' ),
+		) );
+		if ( is_wp_error( $order ) ) {
+			return '';
+		}
+		$code = (int) wp_remote_retrieve_response_code( $order );
+		if ( 404 === $code ) {
+			return 'NOT_FOUND';
+		}
+		if ( 200 !== $code ) {
+			return '';
+		}
+		$order  = json_decode( wp_remote_retrieve_body( $order ), true );
+		$status = is_array( $order ) && isset( $order['status'] ) ? strtoupper( (string) $order['status'] ) : '';
+		if ( 'COMPLETED' === $status ) {
+			$capture = strtoupper( (string) ( $order['purchase_units'][0]['payments']['captures'][0]['status'] ?? 'COMPLETED' ) );
+			if ( 'PENDING' === $capture ) {
+				return '';
+			}
+			if ( 'COMPLETED' !== $capture ) {
+				return 'CAPTURE_' . $capture;
+			}
+		}
+		return $status;
+	}
+
+	/**
+	 * Final submit of an order whose saved card/add row is a Stripe one-time
+	 * charge: 'paid', 'unverified' (Stripe could not be reached) or 'unpaid';
+	 * 'none' when the order has no Stripe row. Only that row and Stripe
+	 * decide, never the browser. Subscriptions are charged when card/add
+	 * creates them.
+	 */
+	private function stripe_order_payment_state_efb( $saved_rows ) {
+		$pay = null;
+		foreach ( (array) $saved_rows as $row ) {
+			if ( is_array( $row ) && ( $row['type'] ?? '' ) === 'payment' && ( $row['paymentGateway'] ?? '' ) === 'stripe' ) {
+				$pay = $row;
+				break;
+			}
+		}
+		if ( null === $pay ) {
+			return 'none';
+		}
+		if ( ( $pay['paymentmethod'] ?? 'charge' ) !== 'charge' ) {
+			return 'paid';
+		}
+		$intent = (string) ( $pay['paymentIntent'] ?? '' );
+		if ( ! preg_match( '/^pi_[a-zA-Z0-9]+$/D', $intent ) ) {
+			return 'unpaid';
+		}
+		$pay_row = null;
+		if ( $this->stripe_pay_table_exists_efb() ) {
+			global $wpdb;
+			$pay_row = $wpdb->get_row( $wpdb->prepare( "SELECT id, status FROM {$wpdb->prefix}emsfb_pay_ WHERE gateway = 'stripe' AND transaction_id = %s ORDER BY id DESC LIMIT 1", $intent ) );
+			if ( $pay_row && 'completed' === $pay_row->status ) {
+				return 'paid';
+			}
+			if ( $pay_row && in_array( $pay_row->status, array( 'failed', 'cancelled', 'refunded' ), true ) ) {
+				return 'unpaid';
+			}
+		}
+		$currency = (string) ( $pay['paymentcurrency'] ?? '' );
+		$result   = $this->verify_stripe_intent_efb( $intent, $this->stripe_minor_amount_efb( $pay['paymentAmount'] ?? 0, $currency ), $currency );
+		if ( 'verified' === $result['state'] ) {
+			if ( $pay_row ) {
+				$this->update_pending_stripe_payment_efb( $pay_row->id, array( 'status' => 'completed', 'capture_id' => $intent ) );
+			}
+			return 'paid';
+		}
+		return 'unavailable' === $result['state'] ? 'unverified' : 'unpaid';
+	}
+
+	/**
+	 * Stripe amounts are in the currency's smallest unit: x100 for most,
+	 * x1 for the zero-decimal currencies (JPY, KRW, VND...), x1000 for the
+	 * three-decimal ones (BHD, KWD, OMR...). Stripe's own lists.
+	 */
+	private function stripe_minor_factor_efb( $currency ) {
+		$currency = strtolower( (string) $currency );
+		if ( in_array( $currency, array( 'bif', 'clp', 'djf', 'gnf', 'jpy', 'kmf', 'krw', 'mga', 'pyg', 'rwf', 'ugx', 'vnd', 'vuv', 'xaf', 'xof', 'xpf' ), true ) ) {
+			return 1;
+		}
+		if ( in_array( $currency, array( 'bhd', 'jod', 'kwd', 'omr', 'tnd' ), true ) ) {
+			return 1000;
+		}
+		return 100;
+	}
+
+	/** An amount in major units as Stripe's integer minor units (a typed 3.333 is no longer refused). */
+	private function stripe_minor_amount_efb( $amount, $currency ) {
+		$factor = $this->stripe_minor_factor_efb( $currency );
+		$minor  = (int) round( (float) $amount * $factor );
+		// Stripe wants three-decimal amounts rounded to a multiple of 10.
+		return 1000 === $factor ? (int) ( round( $minor / 10 ) * 10 ) : $minor;
+	}
+
+	private function verify_stripe_intent_efb( $payment_intent, $expected_amount, $expected_currency ) {
+		$unavailable = array( 'state' => 'unavailable', 'status' => 503, 'reason' => 'gateway_verification_unavailable', 'stripe_status' => '' );
+		try {
+			$key = $this->resolve_payment_key_efb( get_setting_Emsfb( 'decoded' ), 'stripeSKey' );
+			if ( $key === 'null' || ! $this->load_stripe_sdk_efb() ) {
+				return $unavailable;
+			}
+			$client = new \Stripe\StripeClient( $key );
+			$intent = $this->stripe_call_with_timeouts_efb( static function () use ( $client, $payment_intent ) {
+				return $client->paymentIntents->retrieve( $payment_intent, array() );
+			} );
+		} catch ( \Throwable $error ) {
+			$provider_status = $error instanceof \Stripe\Exception\ApiErrorException ? (int) $error->getHttpStatus() : 0;
+			if ( $provider_status >= 400 && $provider_status <= 599 ) {
+				$unavailable['status'] = $provider_status;
+			}
+			return $unavailable;
+		}
+		$status = is_object( $intent ) && isset( $intent->status ) ? (string) $intent->status : '';
+		if ( ! is_object( $intent ) || ! isset( $intent->id ) || (string) $intent->id !== $payment_intent ) {
+			return array( 'state' => 'mismatch', 'status' => 409, 'reason' => 'payment_not_verified', 'stripe_status' => $status );
+		}
+		if ( $status === 'processing' ) {
+			// Stripe has not settled the charge yet: neither paid nor failed.
+			return array( 'state' => 'unavailable', 'status' => 503, 'reason' => 'gateway_payment_processing', 'stripe_status' => $status );
+		}
+		$amount   = isset( $intent->amount_received ) ? (int) $intent->amount_received : -1;
+		$currency = isset( $intent->currency ) ? strtolower( (string) $intent->currency ) : '';
+		if ( $status !== 'succeeded' || $amount !== (int) $expected_amount || $currency !== strtolower( (string) $expected_currency ) ) {
+			return array( 'state' => 'mismatch', 'status' => 409, 'reason' => 'payment_not_verified', 'stripe_status' => $status );
+		}
+		return array( 'state' => 'verified', 'status' => 200, 'reason' => '', 'stripe_status' => $status );
+	}
+
+	/**
+	 * Update a payment row only while it is still 'pending', so a refund or
+	 * cancellation made in the meantime is never overwritten. Same columns as
+	 * StripePayment::update_payment(), which the add-on may not have loaded.
+	 *
+	 * @param int   $row_id
+	 * @param array $fields Columns to set; updated_at is always refreshed.
+	 * @return int|false Rows changed, or false on a database error.
+	 */
+	private function update_pending_stripe_payment_efb( $row_id, array $fields ) {
+		global $wpdb;
+		$fields['updated_at'] = wp_date( 'Y-m-d H:i:s' );
+		return $wpdb->update( $wpdb->prefix . 'emsfb_pay_', $fields, array( 'id' => (int) $row_id, 'status' => 'pending' ) );
+	}
+
+	/**
+	 * Queue one background reconciliation run unless one is already queued.
+	 *
+	 * @param int $delay Seconds from now.
+	 */
+	private function schedule_stripe_reconcile_efb( $delay ) {
+		if ( ! function_exists( 'wp_next_scheduled' ) || wp_next_scheduled( 'emsfb_stripe_reconcile_efb' ) ) {
+			return;
+		}
+		wp_schedule_single_event( time() + max( MINUTE_IN_SECONDS, (int) $delay ), 'emsfb_stripe_reconcile_efb' );
+	}
+
+	/**
+	 * Re-check one-time Stripe payments that are still 'pending': the visitor's
+	 * confirmation never reached this site, or could not reach Stripe and the
+	 * form was submitted anyway. Runs from WP-Cron only (emsfb_stripe_reconcile_efb,
+	 * queued by card/add and by a failed confirmation, plus the daily
+	 * maintenance as a backstop), never inside a page load. Bounded: rows 10
+	 * minutes to 7 days old, each re-checked at most about hourly, at most 20
+	 * Stripe requests and 60 s per run, and the run stops at the first gateway
+	 * error. Uses the same comparison as the confirmation endpoint. An intent
+	 * still waiting for a payment method an hour after card/add (declined, or
+	 * the visitor left) is marked 'failed': every Pay Now click creates a new
+	 * intent, so that one can no longer be paid.
+	 */
+	public function reconcile_stripe_payments_efb() {
+		try {
+			$this->run_stripe_reconcile_efb();
+		} catch ( \Throwable $error ) {
+			if ( defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
+				error_log( '[EFB][Stripe] Payment reconciliation stopped: ' . get_class( $error ) );
+			}
+		}
+	}
+
+	private function run_stripe_reconcile_efb() {
+		$lock = 'emsfb_stripe_reconcile_lock';
+		if ( get_transient( $lock ) ) {
+			return;
+		}
+		if ( ! function_exists( 'emsfb_is_addon_compatible_efb' ) || ! emsfb_is_addon_compatible_efb( 'AdnSPF' ) || ! $this->stripe_pay_table_exists_efb() ) {
+			return;
+		}
+		global $wpdb;
+		$table      = $wpdb->prefix . 'emsfb_pay_';
+		$started    = time();
+		$candidates = $wpdb->get_results( $wpdb->prepare(
+			"SELECT id, transaction_id, amount, currency, created_at, updated_at FROM {$table}
+			WHERE gateway = 'stripe' AND payment_type = 'one-time' AND status = 'pending'
+			AND created_at >= %s AND created_at <= %s
+			ORDER BY updated_at ASC, id ASC LIMIT 60",
+			wp_date( 'Y-m-d H:i:s', $started - 7 * DAY_IN_SECONDS ),
+			wp_date( 'Y-m-d H:i:s', $started - 10 * MINUTE_IN_SECONDS )
+		) );
+		if ( empty( $candidates ) ) {
+			return;
+		}
+		// Keep coming back about hourly while anything inside the window is still pending.
+		$this->schedule_stripe_reconcile_efb( HOUR_IN_SECONDS );
+
+		// created_at/updated_at are site-local 'Y-m-d H:i:s' strings, as the add-on writes them.
+		$recheck_before = wp_date( 'Y-m-d H:i:s', $started - 50 * MINUTE_IN_SECONDS );
+		$abandon_before = wp_date( 'Y-m-d H:i:s', $started - HOUR_IN_SECONDS );
+		$due            = array();
+		foreach ( $candidates as $row ) {
+			$never_checked = abs( (int) strtotime( (string) $row->updated_at ) - (int) strtotime( (string) $row->created_at ) ) < 60;
+			if ( ( $never_checked || (string) $row->updated_at <= $recheck_before ) && preg_match( '/^pi_[a-zA-Z0-9]+$/D', (string) $row->transaction_id ) ) {
+				$due[] = $row;
+				if ( count( $due ) >= 20 ) {
+					break;
+				}
+			}
+		}
+		if ( ! $due ) {
+			return;
+		}
+		$key = $this->resolve_payment_key_efb( get_setting_Emsfb( 'decoded' ), 'stripeSKey' );
+		if ( $key === 'null' || ! $this->load_stripe_sdk_efb() ) {
+			return;
+		}
+
+		set_transient( $lock, $started, 5 * MINUTE_IN_SECONDS );
+		try {
+			foreach ( $due as $row ) {
+				if ( time() - $started > 60 ) {
+					break;
+				}
+				$result = $this->verify_stripe_intent_efb( (string) $row->transaction_id, $this->stripe_minor_amount_efb( $row->amount, $row->currency ), (string) $row->currency );
+				if ( $result['state'] === 'verified' ) {
+					$this->update_pending_stripe_payment_efb( $row->id, array( 'status' => 'completed', 'capture_id' => (string) $row->transaction_id ) );
+					continue;
+				}
+				if ( $result['stripe_status'] === 'canceled' ) {
+					$this->update_pending_stripe_payment_efb( $row->id, array( 'status' => 'cancelled' ) );
+					continue;
+				}
+				/* Declined (requires_payment_method) or abandoned before or during
+				 * 3-D Secure (requires_confirmation / requires_action): after an
+				 * hour the visitor is gone. 'processing' is left alone - bank
+				 * debits settle over days. */
+				if ( in_array( $result['stripe_status'], array( 'requires_payment_method', 'requires_confirmation', 'requires_action' ), true ) && (string) $row->created_at <= $abandon_before ) {
+					$this->update_pending_stripe_payment_efb( $row->id, array( 'status' => 'failed' ) );
+					continue;
+				}
+				// Not paid (yet), a mismatch, or Stripe unreachable: the row stays
+				// 'pending'; touching updated_at moves it to the back of the queue.
+				$this->update_pending_stripe_payment_efb( $row->id, array() );
+				if ( $result['state'] === 'unavailable' && $result['stripe_status'] === '' && $result['status'] !== 404 ) {
+					// Gateway down or key rejected: do not spend the batch (and up to 20 s per row) on it.
+					break;
+				}
+			}
+		} finally {
+			delete_transient( $lock );
+		}
 	}
 
 	public function pay_persia_sub_Emsfb_api($data_POST_){
@@ -6344,6 +7634,21 @@ public function check_nonce_permission_efb($request) {
 		}else if(strlen($username)<3){
 			return esc_html__("The Username Must Contain At Least 3 Characters." , 'easy-form-builder');
 		}
+		$password_error = $this->password_policy_error_efb($password);
+		if ($password_error !== null) {
+			return $password_error;
+		}
+		return 0;
+	}
+
+	/**
+	 * The password rules of the register form, shared with the set-new-password
+	 * endpoint.
+	 *
+	 * @param string $password As typed.
+	 * @return string|null Message, or null when the password is acceptable.
+	 */
+	private function password_policy_error_efb($password) {
 		if (strlen($password) <  8) {
 			return esc_html__("The Password Must Contain At Least 8 Characters!" , 'easy-form-builder');
 		}
@@ -6356,28 +7661,37 @@ public function check_nonce_permission_efb($request) {
 		elseif(!preg_match("#[a-z]+#",$password)) {
 			return  esc_html__("The Password Must Contain At Least 1 Lowercase Letter!" , 'easy-form-builder');
 		}
-		return 0;
+		return null;
 	}
-	public function test_fun($data_POST_){
-		$data_POST = $data_POST_->get_json_params();
-        $response = array(
-            'success' => true,
-            'value' => $slug['name'],
-            'content' => "content",
-            'nonce_msg' => "code",
-            'id' => $slug['id']
-          );
-        return new WP_REST_Response($response, 200);
 
-    }
+	/**
+	 * The register and login passwords of a submission, exactly as sent.
+	 *
+	 * @param array $submitted_values Decoded rows, before sanitizing.
+	 * @return array<string,string> Keyed by field id_.
+	 */
+	private function raw_passwords_efb($submitted_values) {
+		$passwords = array();
+		foreach ((array) $submitted_values as $row) {
+			if (is_array($row) && isset($row['id_'], $row['value'])
+				&& in_array($row['id_'], array('passwordRegisterEFB', 'passwordlogin'), true)
+				&& is_string($row['value'])) {
+				$passwords[$row['id_']] = $row['value'];
+			}
+		}
+		return $passwords;
+	}
 	public function replaceContentMessageEfb($value) {
-		$value = preg_replace('/[\\\\]/', '', $value);
-		$value = preg_replace('/(\\"|"\\\\)/', '"', $value);
-		$value = preg_replace('/(\\\\\\\\n|\\\\\\\\r)/', '<br>', $value);
+		if (!is_string($value)) { return $value; }
+		// Decoded field text must retain its literal backslashes.
 		$value = str_replace('@efb@sq#', "'", $value);
 
 		$value = str_replace('@efb@vq#', "`", $value);
-		$value = str_replace('@efb@dq#', "''", $value);
+		/* The stored double-quote token. Rows reach this already decoded from
+		 * JSON, and every reader escapes the value afterwards
+		 * (email_escape_leaf_efb / esc_html), so a real " is safe and correct;
+		 * '' showed the visitor's quotes as two apostrophes. */
+		$value = str_replace('@efb@dq#', '"', $value);
 		$value = str_replace('@efb@nq#', "<br>", $value);
 		return $value;
 	}
@@ -6407,6 +7721,17 @@ public function check_nonce_permission_efb($request) {
 		return Formbuilder::formatPrice_efb($amount, $currency);
 	}
 
+	/**
+	 * Entity-escape one stored value for the notification email, keeping only
+	 * the <br> that replaceContentMessageEfb() produced from the line-break
+	 * token. Values are tag-stripped on the way in; this is the second layer
+	 * for rows stored before that and for any stray '<' or '"'.
+	 */
+	private function email_escape_leaf_efb($value) {
+		$value = is_scalar($value) ? (string) $value : '';
+		return str_replace(array('&lt;br&gt;', '&lt;br/&gt;', '&lt;br /&gt;'), '<br>', esc_html($value));
+	}
+
 	public function email_get_content_efb($content, $track){
 		$m  = '<table border="0" cellpadding="0" cellspacing="0" width="100%" class="container containerEmailEfb" >';
 
@@ -6416,7 +7741,7 @@ public function check_nonce_permission_efb($request) {
 			$total_amount = 0;
 
 			$lst    = end($content);
-			$link_w = (isset($lst['type']) && $lst['type']==="w_link") ? ($lst['value'] ?? '') : '';
+			$link_w = (is_array($lst) && isset($lst['type']) && $lst['type']==="w_link" && isset($lst['value']) && is_string($lst['value'])) ? $lst['value'] : '';
 			if (strlen($link_w)>5){
 				$link_w = (strpos($link_w,'?')!==false) ? ($link_w.'&track='.$track) : ($link_w.'?track='.$track);
 			} else {
@@ -6435,11 +7760,16 @@ public function check_nonce_permission_efb($request) {
 			});
 
 			$addPair = function($title, $value) use (&$m){
+				// A stored row can carry an array where a label or a value is
+				// expected (a crafted submission); print nothing for it rather
+				// than stopping the notification with a TypeError.
+				$title = is_scalar($title) ? (string) $title : '';
+				$value = is_scalar($value) ? (string) $value : '';
 				$title = $this->efbFunction->ensure_trailing_colon_efb($title);
 				if($title==='' && $value===''){ return; }
 				$m .= '<tr>';
 				$m .= '<td valign="top" width="50%" class="columnEmailEfb" style="padding:5px; line-height:20px;">';
-				$m .= '<p style="margin:0 0 10px 0;font-weight: bold;font-size:16px;">'.$title.'</p>';
+				$m .= '<p style="margin:0 0 10px 0;font-weight: bold;font-size:16px;">'.esc_html($title).'</p>';
 				$m .= '</td>';
 				$m .= '<td valign="top" width="50%" class="columnEmailEfb" style="padding:5px; line-height:20px;">';
 				$m .= '<p style="margin:0 0 10px 0;font-size:14px;">'.$value.'</p>';
@@ -6449,6 +7779,13 @@ public function check_nonce_permission_efb($request) {
 			};
 
 			foreach ($content as $c){
+
+				if (!is_array($c)) { continue; }
+				foreach (array('type', 'name') as $text_key_efb) {
+					if (isset($c[$text_key_efb]) && !is_string($c[$text_key_efb])) {
+						$c[$text_key_efb] = is_scalar($c[$text_key_efb]) ? (string) $c[$text_key_efb] : '';
+					}
+				}
 
 				if (isset($c['type']) && $c['type']==="w_link"){ continue; }
 
@@ -6461,16 +7798,17 @@ public function check_nonce_permission_efb($request) {
 					$c['qty']  = $this->replaceContentMessageEfb($c['qty']);
 				}
 
-				$title = isset($c['name']) ? $c['name'] : '';
+				$title = isset($c['name']) && is_string($c['name']) ? str_replace('@efb@dq#', '"', $c['name']) : (isset($c['name']) ? $c['name'] : '');
 				$q     = '';
 
 				if (isset($c['value']) && is_string($c['value'])) {
 					$q = str_replace('@efb!', ',', $c['value']);
 					$q = str_replace('@n#', '<br>', $q);
+					$q = $this->email_escape_leaf_efb($q);
 					if ($q !== '@file@') { $q = '<b>'.$q.'</b>'; }
 				}
 				if (isset($c['qty'])) {
-					$q .= ($q ? ' ' : '') . ': <b>'.$c['qty'].'</b>';
+					$q .= ($q ? ' ' : '') . ': <b>'.$this->email_escape_leaf_efb($c['qty']).'</b>';
 				}
 
 				if (isset($c['value']) && $c['value']==='@file@' && !in_array(($c['url'] ?? ''), $list)) {
@@ -6486,42 +7824,50 @@ public function check_nonce_permission_efb($request) {
 						$duration_label = $duration > 0 ? ' (' . esc_html($duration . 's') . ')' : '';
 						$q = '<a href="'.esc_url($url).'" target="_blank" rel="noopener noreferrer" style="text-decoration:none;">'.esc_html($kind_label . $duration_label . ' — ' . __('Download','easy-form-builder')).'</a>';
 					} elseif ($t==='image') {
-						$q = '<img src="'.$url.'" alt="'.htmlspecialchars($nm).'" style="display:block;max-width:100%;height:auto;border:0;">';
+						$q = '<img src="'.esc_url($url).'" alt="'.esc_attr($nm).'" style="display:block;max-width:100%;height:auto;border:0;">';
 					} elseif ($t==='document' || $t==='allformat') {
-						$q = '<a href="'.$url.'" target="_blank" style="text-decoration:none;">'.$nm.'</a>';
+						$q = '<a href="'.esc_url($url).'" target="_blank" style="text-decoration:none;">'.esc_html($nm).'</a>';
 					} elseif ($t==='media') {
 
 						$audios = ['mp3','wav','ogg'];
 						$isAudio = false;
 						foreach($audios as $a){ if(strpos($url,$a)!==false){ $isAudio=true; break; } }
 						if ($isAudio){
-							$q = '<a href="'.$url.'" target="_blank" style="text-decoration:none;">'.$nm.'</a>';
+							$q = '<a href="'.esc_url($url).'" target="_blank" style="text-decoration:none;">'.esc_html($nm).'</a>';
 						} else {
-							$q = '<a href="'.$url.'" target="_blank" style="text-decoration:none;">'.$lanText['videoDownloadLink'].'</a>';
+							$q = '<a href="'.esc_url($url).'" target="_blank" style="text-decoration:none;">'.$lanText['videoDownloadLink'].'</a>';
 						}
 					} else {
-						$q = strlen($url)>1 ? '<a href="'.$url.'" target="_blank" style="text-decoration:none;">'.$nm.'</a>' : '<span>💤</span>';
+						$q = strlen($url)>1 ? '<a href="'.esc_url($url).'" target="_blank" style="text-decoration:none;">'.esc_html($nm).'</a>' : '<span>💤</span>';
 					}
 					$addPair($title ?: 'file', $q);
 					continue;
 				}
 
 				if (isset($c['type']) && $c['type']==='esign'){
-					$q = '<img src="'.($c['value'] ?? '').'" alt="'.htmlspecialchars($title).'" style="display:block;max-width:100%;height:auto;border:0;">';
+					$esign_src = isset($c['value']) && is_string($c['value']) && preg_match('/^data:image\/png;base64,[A-Za-z0-9+\/]+={0,2}$/', $c['value']) === 1 ? $c['value'] : '';
+					$q = $esign_src !== ''
+						? '<img src="'.$esign_src.'" alt="'.esc_attr($title).'" style="display:block;max-width:100%;height:auto;border:0;">'
+						: '<code>'.$this->email_escape_leaf_efb($c['value'] ?? '').'</code>';
 					$addPair($title, $q);
 					continue;
 				}
 
 				if (isset($c['type']) && $c['type']==='color'){
-					$q = '<span style="display:inline-block;width:50px;height:20px;vertical-align:middle;background:'.($c['value'] ?? '#000').'"></span> '
-					. '<span style="vertical-align:middle;">'.($c['value'] ?? '').'</span>';
+					/* The value goes into a style attribute: only the #rrggbb an
+					 * <input type="color"> produces is printed. */
+					$color_efb = isset($c['value']) && is_string($c['value']) && preg_match('/^#[0-9a-fA-F]{6}$/', $c['value']) === 1 ? $c['value'] : '';
+					$q = $color_efb !== ''
+						? '<span style="display:inline-block;width:50px;height:20px;vertical-align:middle;background:'.$color_efb.'"></span> '
+							. '<span style="vertical-align:middle;">'.$color_efb.'</span>'
+						: '<span style="vertical-align:middle;">'.$this->email_escape_leaf_efb($c['value'] ?? '').'</span>';
 					$addPair($title, $q);
 					continue;
 				}
 
 				if (isset($c['type']) && $c['type']==='maps'){
 					if (is_array($c['value'] ?? null)){
-						$q = '<a href="'.$link_w.'" style="text-decoration:none;">'.$lanText['msgemlmp'].'</a>';
+						$q = '<a href="'.esc_url($link_w).'" style="text-decoration:none;">'.$lanText['msgemlmp'].'</a>';
 						$addPair($title ?: 'Location', $q);
 					}
 					continue;
@@ -6535,7 +7881,7 @@ public function check_nonce_permission_efb($request) {
 				}
 
 				if (isset($c['type']) && ($c['type']==='payCheckbox' || $c['type']==='payRadio')){
-					$price = intval($c['price'] ?? 0);
+					$price = (float) ($c['price'] ?? 0);
 					$total_amount += $price;
 					$numberformat = $this->email_format_price_efb($price, $currency);
 					$addPair($c['name'] ?? 'Item', '<b>'.$numberformat.'</b>');
@@ -6544,7 +7890,7 @@ public function check_nonce_permission_efb($request) {
 				}
 
 				if (isset($c['type']) && $c['type']==='prcfld'){
-					$numberformat = $this->email_format_price_efb(intval($c['price'] ?? 0), $currency);
+					$numberformat = $this->email_format_price_efb((float) ($c['price'] ?? 0), $currency);
 					$addPair($c['name'] ?? 'Price', '<b>'.$numberformat.'</b>');
 					continue;
 				}
@@ -6554,7 +7900,7 @@ public function check_nonce_permission_efb($request) {
 					$vals = [];
 					foreach($content as $op){
 						if (($op['type'] ?? '')==='r_matrix' && ($op['id_'] ?? '')===($c['id_'] ?? '')){
-							$vals[] = '<b>'.($op['value'] ?? '').'</b>';
+							$vals[] = '<b>'.$this->email_escape_leaf_efb($op['value'] ?? '').'</b>';
 						}
 					}
 					$addPair($title ?: 'Options', implode('<br>', $vals));
@@ -6563,16 +7909,16 @@ public function check_nonce_permission_efb($request) {
 
 				if (isset($c['type']) && $c['type']==='payment'){
 					if (($c['paymentGateway'] ?? '')==='stripe'){
-						$numberformat = $this->email_format_price_efb(intval($c['paymentAmount'] ?? 0), ($c['paymentcurrency'] ?? $currency));
-						$addPair($lanText['payment'].' '.$lanText['id'], '<span>'.($c['paymentIntent'] ?? '').'</span>');
-						$addPair($lanText['methodPayment'], '<span>'.($c['paymentmethod'] ?? '').'</span>');
+						$numberformat = $this->email_format_price_efb((float) ($c['paymentAmount'] ?? 0), ($c['paymentcurrency'] ?? $currency));
+						$addPair($lanText['payment'].' '.$lanText['id'], '<span>'.$this->email_escape_leaf_efb($c['paymentIntent'] ?? '').'</span>');
+						$addPair($lanText['methodPayment'], '<span>'.$this->email_escape_leaf_efb($c['paymentmethod'] ?? '').'</span>');
 						if (($c['paymentmethod'] ?? '')!=='charge'){
-							$addPair($lanText['interval'], '<span>'.($c['interval'] ?? '').'</span>');
+							$addPair($lanText['interval'], '<span>'.$this->email_escape_leaf_efb($c['interval'] ?? '').'</span>');
 						}
 						$addPair($lanText['payAmount'], '<span>'.$numberformat.'</span>');
-						$addPair($lanText['ddate'], '<span>'.($c['paymentCreated'] ?? '').'</span>');
+						$addPair($lanText['ddate'], '<span>'.$this->email_escape_leaf_efb($c['paymentCreated'] ?? '').'</span>');
 					} else {
-						$addPair($lanText['payment'].' '.$lanText['id'], '<span>'.($c['paymentIntent'] ?? '').'</span>');
+						$addPair($lanText['payment'].' '.$lanText['id'], '<span>'.$this->email_escape_leaf_efb($c['paymentIntent'] ?? '').'</span>');
 						$addPair($lanText['payAmount'], '<span>'.number_format(intval($c['total'] ?? 0),0,'.',',').' ریال</span>');
 					}
 					continue;
@@ -6594,19 +7940,15 @@ public function check_nonce_permission_efb($request) {
 					 * rendering - falling through to the generic $addPair below
 					 * printed every one of them a second time. */
 					if (isset($c['type']) && strpos($c['type'],'pay')!==false && isset($c['price'])){
-						$total_amount += intval($c['price']);
+						$total_amount += (float) $c['price'];
 						$title = $c['value'] ?? ($title ?: 'Item');
-						$q = $this->email_format_price_efb(intval($c['price']), $currency);
+						$q = $this->email_format_price_efb((float) $c['price'], $currency);
 						$addPair($title, '<b>'.$q.'</b>');
 						continue;
 					}
 
 					if (isset($c['type']) && strpos($c['type'],'imgRadio')!==false){
-						$q = '<b>'.($c['value'] ?? '').'</b>';
-					}else if (isset($c['value']) && strpos($c['type'],'imgRadio') !== false){
-
-						$q = $this->fun_imgRadio_efb($c['id_'], $c['src'] ?? '', $c);
-						$addPair('', $q);
+						$q = '<b>'.$this->email_escape_leaf_efb($c['value'] ?? '').'</b>';
 					}
 
 					if ($title==='file'){ $title = 'atcfle'; }
@@ -6615,7 +7957,7 @@ public function check_nonce_permission_efb($request) {
 						$addPair($title, $q);
 					}
 				}else if (isset($c['type']) && $c['type']==='checkbox' && isset($c['value']) && $c['value']!=='@file@') {
-					$addPair($title, '<b>'.$c['value'].'</b>');
+					$addPair($title, '<b>'.$this->email_escape_leaf_efb($c['value']).'</b>');
 				}
 			}
 
@@ -6681,7 +8023,7 @@ public function check_nonce_permission_efb($request) {
 	public function bootstrap_style_efb($w){
 		return "
 		<style>
-		@charset 'UTF-8';:root{--bs-blue:#0d6efd;--bs-indigo:#6610f2;--bs-purple:#6f42c1;--bs-pink:#d63384;--bs-red:#dc3545;--bs-orange:#fd7e14;--bs-yellow:#ffc107;--bs-green:#198754;--bs-teal:#20c997;--bs-cyan:#0dcaf0;--bs-white:#fff;--bs-gray:#6c757d;--bs-gray-dark:#343a40;--bs-primary:#0d6efd;--bs-secondary:#6c757d;--bs-success:#198754;--bs-info:#0dcaf0;--bs-warning:#ffc107;--bs-danger:#dc3545;--bs-light:#f8f9fa;--bs-dark:#212529;--bs-font-sans-serif:system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,'Noto Sans','Liberation Sans',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol','Noto Color Emoji';--bs-font-monospace:SFMono-Regular,Menlo,Monaco,Consolas,'Liberation Mono','Courier New',monospace;--bs-gradient:linear-gradient(180deg,rgba(255,255,255,.15),rgba(255,255,255,0))}.efb,.efb::after,.efb::before{box-sizing:border-box}@media (prefers-reduced-motion:no-preference){:root.efb{scroll-behavior:smooth}}hr .efb{margin:1rem 0;color:inherit;background-color:currentColor;border:0;opacity:.25}hr .efb:not([size]){height:1px}.efb.h1,.efb.h2,.efb.h3,.efb.h4,.efb.h5,.efb.h6,h1.efb,h2.efb,h3.efb,h4.efb,h5.efb,h6.efb{margin-top:0;margin-bottom:.5rem;font-weight:500;line-height:1.2}.efb.h1,h1.efb{font-size:calc(1.375rem + 1.5vw)}@media (min-width:1200px){.efb.h1,h1.efb{font-size:2.5rem}}.efb.h2,h2.efb{font-size:calc(1.325rem + .9vw)}@media (min-width:1200px){.h2.efb,h2.efb{font-size:2rem}}.efb.h3,h3.efb{font-size:calc(1.3rem + .6vw)}@media (min-width:1200px){.efb.h3,h3.efb{font-size:1.75rem}}.efb.h4,h4.efb{font-size:calc(1.275rem + .3vw)}@media (min-width:1200px){.h4.efb,h4.efb{font-size:1.5rem}}.efb.h5,h5.efb{font-size:1.25rem}.efb.h6,h6.efb{font-size:1rem}p.efb{margin-top:0;margin-bottom:1rem}abbr.efb[data-bs-original-title],abbr[title].efb{-webkit-text-decoration:underline dotted;text-decoration:underline dotted;cursor:help;-webkit-text-decoration-skip-ink:none;text-decoration-skip-ink:none}address.efb{margin-bottom:1rem;font-style:normal;line-height:inherit}ol.efb,ul.efb{padding-left:2rem}dl.efb,ol.efb,ul.efb{margin-top:0;margin-bottom:1rem}ol.efb ol.efb,ol.efb ul.efb,ul.efb ol.efb,ul.efb ul.efb{margin-bottom:0}dt.efb{font-weight:700}dd.efb{margin-bottom:.5rem;margin-left:0}blockquote.efb{margin:0 0 1rem}b.efb,strong.efb{font-weight:bolder}.efb.small,small.efb{font-size:.875em}.efb.mark,mark.efb{padding:.2em;background-color:#fcf8e3}sub.efb,sup.efb{position:relative;font-size:.75em;line-height:0;vertical-align:baseline}sub.efb{bottom:-.25em}sup.efb{top:-.5em}a.efb{color:#0d6efd;text-decoration:underline}a.efb:hover{color:#0a58ca}a.efb:not([href]):not([class]),a.efb:not([href]):not([class]):hover{color:inherit;text-decoration:none}code.efb,kbd.efb,pre.efb,samp.efb{font-family:var(--bs-font-monospace);font-size:1em;direction:ltr;unicode-bidi:bidi-override}pre.efb{display:block;margin-top:0;margin-bottom:1rem;overflow:auto;font-size:.875em}pre code.efb{font-size:inherit;color:inherit;word-break:normal}code.efb{font-size:.875em;color:#d63384;word-wrap:break-word}a.efb>code{color:inherit}kbd.efb{padding:.2rem .4rem;font-size:.875em;color:#fff;background-color:#212529;border-radius:.2rem}kbd.efb kbd{padding:0;font-size:1em;font-weight:700}figure.efb{margin:0 0 1rem}img.efb,svg.efb{vertical-align:middle}table.efb{caption-side:bottom;border-collapse:collapse}caption.efb{padding-top:.5rem;padding-bottom:.5rem;color:#6c757d;text-align:left}th.efb{text-align:inherit;text-align:-webkit-match-parent}tbody.efb,td.efb,tfoot.efb,th.efb,thead.efb,tr.efb{border-color:inherit;border-style:solid;border-width:0}label.efb{display:inline-block}button.efb{border-radius:0}button.efb:focus:not(:focus-visible){outline:0}button.efb,input.efb,optgroup.efb,select.efb,textarea.efb{margin:0;font-family:inherit;font-size:inherit;line-height:inherit;color:#a5a3d1}textarea.efb:focus{box-shadow:0 2px 10px rgba(84,131,207,.25)!important;color:#a5a3d1}button.efb,select.efb{text-transform:none}[role=button]{cursor:pointer}select.efb{word-wrap:normal}select.efb:disabled{opacity:1}[list].efb::-webkit-calendar-picker-indicator{display:none}[type=button],[type=reset],[type=submit],button.efb{-webkit-appearance:button}[type=button]:not(:disabled) .efb,[type=reset]:not(:disabled) .efb,[type=submit]:not(:disabled) .efb,button:not(:disabled) .efb{cursor:pointer}.efb::-moz-focus-inner{padding:0;border-style:none}textarea.efb{resize:vertical}fieldset.efb{min-width:0;padding:0;margin:0;border:0}legend.efb{float:left;width:100%;padding:0;margin-bottom:.5rem;font-size:calc(1.275rem + .3vw);line-height:inherit}@media (min-width:1200px){legend.efb{font-size:1.5rem}}legend.efb+*{clear:left}.efb::-webkit-datetime-edit-day-field,.efb::-webkit-datetime-edit-fields-wrapper,.efb::-webkit-datetime-edit-hour-field,.efb::-webkit-datetime-edit-minute,.efb::-webkit-datetime-edit-month-field,.efb::-webkit-datetime-edit-text,.efb::-webkit-datetime-edit-year-field{padding:0}.efb::-webkit-inner-spin-button{height:auto}[type=search] .efb{outline-offset:-2px;-webkit-appearance:textfield}.efb::-webkit-search-decoration{-webkit-appearance:none}.efb::-webkit-color-swatch-wrapper{padding:0}.efb::file-selector-button{font:inherit}.efb::-webkit-file-upload-button{font:inherit;-webkit-appearance:button}output.efb{display:inline-block}iframe.efb{border:0}summary.efb{display:list-item;cursor:pointer}progress.efb{vertical-align:baseline}[hidden]{display:none!important}.efb.lead{font-size:1.25rem;font-weight:300}.efb.display-1{font-size:calc(1.625rem + 4.5vw);font-weight:300;line-height:1.2}@media (min-width:1200px){.efb.display-1{font-size:5rem}}.efb.display-2{font-size:calc(1.575rem + 3.9vw);font-weight:300;line-height:1.2}@media (min-width:1200px){.efb.display-2{font-size:4.5rem}}.efb.display-3{font-size:calc(1.525rem + 3.3vw);font-weight:300;line-height:1.2}@media (min-width:1200px){.efb.display-3{font-size:4rem}}.efb.display-4{font-size:calc(1.475rem + 2.7vw);font-weight:300;line-height:1.2}@media (min-width:1200px){.efb.display-4{font-size:3.5rem}}.efb.display-5{font-size:calc(1.425rem + 2.1vw);font-weight:300;line-height:1.2}@media (min-width:1200px){.efb.display-5{font-size:3rem}}.efb.display-6{font-size:calc(1.375rem + 1.5vw);font-weight:300;line-height:1.2}@media (min-width:1200px){.efb.display-6{font-size:2.5rem}}.efb.list-unstyled{padding-left:0;list-style:none}.efb.list-inline{padding-left:0;list-style:none}.efb.list-inline-item{display:inline-block}.efb.list-inline-item:not(:last-child){margin-right:.5rem}.efb.initialism{font-size:.875em;text-transform:uppercase}.efb.blockquote{margin-bottom:1rem;font-size:1.25rem}.efb.blockquote>:last-child{margin-bottom:0}.efb.blockquote-footer{margin-top:-1rem;margin-bottom:1rem;font-size:.875em;color:#6c757d}.efb.blockquote-footer::before{content:'— '}.efb.img-fluid{max-width:100%;height:auto}.efb.img-thumbnail{padding:.25rem;background-color:#fff;border:1px solid #dee2e6;border-radius:.25rem;max-width:100%;height:auto}.efb.figure{display:inline-block}.efb.figure-img{margin-bottom:.5rem;line-height:1}.efb.figure-caption{font-size:.875em;color:#6c757d}.efb.container,.efb.container-fluid,.efb.container-lg,.efb.container-md,.efb.container-sm,.efb.container-xl,.efb.container-xxl{width:100%;padding-right:var(--bs-gutter-x,.75rem);padding-left:var(--bs-gutter-x,.75rem);margin-right:auto;margin-left:auto}@media (min-width:576px){.efb.container,.efb.container-sm{max-width:540px}}@media (min-width:768px){.efb.container,.efb.container-md,.efb.container-sm{max-width:720px}}@media (min-width:992px){.efb.container,.efb.container-lg,.efb.container-md,.efb.container-sm{max-width:960px}}@media (min-width:1200px){.efb.container,.efb.container-lg,.efb.container-md,.efb.container-sm,.efb.container-xl{max-width:1140px}}@media (min-width:1400px){.efb.container,.efb.container-lg,.efb.container-md,.efb.container-sm,.efb.container-xl,.efb.container-xxl{max-width:1320px}}.row.efb{--bs-gutter-x:1.5rem;--bs-gutter-y:0;display:flex;flex-wrap:wrap;margin-top:calc(var(--bs-gutter-y) * -1);margin-right:calc(var(--bs-gutter-x)/ -2);margin-left:calc(var(--bs-gutter-x)/ -2)}.efb.row>*{flex-shrink:0;width:100%;max-width:100%;padding-right:calc(var(--bs-gutter-x)/ 2);padding-left:calc(var(--bs-gutter-x)/ 2);margin-top:var(--bs-gutter-y)}.efb.col{flex:1 0 0%}.efb.row-cols-auto>*{flex:0 0 auto;width:auto}.efb.row-cols-1>*{flex:0 0 auto;width:100%}.efb.row-cols-2>*{flex:0 0 auto;width:50%}.efb.row-cols-3>*{flex:0 0 auto;width:33.3333333333%}.efb.row-cols-4>*{flex:0 0 auto;width:25%}.efb.row-cols-5>*{flex:0 0 auto;width:20%}.efb.row-cols-6>*{flex:0 0 auto;width:16.6666666667%}.col-auto{flex:0 0 auto;width:auto}.efb.col-1{flex:0 0 auto;width:8.3333333333%}.efb.col-2{flex:0 0 auto;width:16.6666666667%}.efb.efb-col-3{flex:0 0 auto;width:25%}.efb.col-4{flex:0 0 auto;width:33.3333333333%}.efb.col-5{flex:0 0 auto;width:41.6666666667%}.efb.col-6{flex:0 0 auto;width:50%}.efb.col-7{flex:0 0 auto;width:58.3333333333%}.efb.col-8{flex:0 0 auto;width:66.6666666667%}.efb.col-9{flex:0 0 auto;width:75%}.efb.col-10{flex:0 0 auto;width:83.3333333333%}.efb.col-11{flex:0 0 auto;width:91.6666666667%}.efb.col-12{flex:0 0 auto;width:100%}.efb.offset-1{margin-left:8.3333333333%}.efb.offset-2{margin-left:16.6666666667%}.efb.offset-3{margin-left:25%}.efb.offset-4{margin-left:33.3333333333%}.efb.offset-5{margin-left:41.6666666667%}.efb.offset-6{margin-left:50%}.efb.offset-7{margin-left:58.3333333333%}.efb.offset-8{margin-left:66.6666666667%}.efb.offset-9{margin-left:75%}.efb.offset-10{margin-left:83.3333333333%}.efb.offset-11{margin-left:91.6666666667%}.efb.g-0,.efb.gx-0{--bs-gutter-x:0}.efb.g-0,.efb.gy-0{--bs-gutter-y:0}.efb.g-1,.efb.gx-1{--bs-gutter-x:.25rem}.efb.g-1,.efb.gy-1{--bs-gutter-y:.25rem}.efb.g-2,.efb.gx-2{--bs-gutter-x:.5rem}.efb.g-2,.efb.gy-2{--bs-gutter-y:.5rem}.efb.g-3,.efb.gx-3{--bs-gutter-x:1rem}.efb.g-3,.efb.gy-3{--bs-gutter-y:1rem}.efb.g-4,.efb.gx-4{--bs-gutter-x:1.5rem}.efb.g-4,.efb.gy-4{--bs-gutter-y:1.5rem}.efb.g-5,.efb.gx-5{--bs-gutter-x:3rem}.efb.g-5,.efb.gy-5{--bs-gutter-y:3rem}@media (min-width:576px){.efb.col-sm{flex:1 0 0%}.efb.row-cols-sm-auto>*{flex:0 0 auto;width:auto}.efb.row-cols-sm-1>*{flex:0 0 auto;width:100%}.efb.row-cols-sm-2>*{flex:0 0 auto;width:50%}.efb.row-cols-sm-3>*{flex:0 0 auto;width:33.3333333333%}.efb.row-cols-sm-4>*{flex:0 0 auto;width:25%}.efb.row-cols-sm-5>*{flex:0 0 auto;width:20%}.efb.row-cols-sm-6>*{flex:0 0 auto;width:16.6666666667%}.efb.col-sm-auto{flex:0 0 auto;width:auto}.efb.col-sm-1{flex:0 0 auto;width:8.3333333333%}.efb.col-sm-2{flex:0 0 auto;width:16.6666666667%}.efb.col-sm-3{flex:0 0 auto;width:25%}.efb.col-sm-4{flex:0 0 auto;width:33.3333333333%}.efb.col-sm-5{flex:0 0 auto;width:41.6666666667%}.efb.col-sm-6{flex:0 0 auto;width:50%}.efb.col-sm-7{flex:0 0 auto;width:58.3333333333%}.efb.col-sm-8{flex:0 0 auto;width:66.6666666667%}.efb.col-sm-9{flex:0 0 auto;width:75%}.efb.col-sm-10{flex:0 0 auto;width:83.3333333333%}.efb.col-sm-11{flex:0 0 auto;width:91.6666666667%}.efb.col-sm-12{flex:0 0 auto;width:100%}.efb.offset-sm-0{margin-left:0}.efb.offset-sm-1{margin-left:8.3333333333%}.efb.offset-sm-2{margin-left:16.6666666667%}.efb.offset-sm-3{margin-left:25%}.efb.offset-sm-4{margin-left:33.3333333333%}.efb.offset-sm-5{margin-left:41.6666666667%}.efb.offset-sm-6{margin-left:50%}.efb.offset-sm-7{margin-left:58.3333333333%}.efb.offset-sm-8{margin-left:66.6666666667%}.efb.offset-sm-9{margin-left:75%}.efb.offset-sm-10{margin-left:83.3333333333%}.efb.offset-sm-11{margin-left:91.6666666667%}.efb.g-sm-0,.efb.gx-sm-0{--bs-gutter-x:0}.efb.g-sm-0,.efb.gy-sm-0{--bs-gutter-y:0}.efb.g-sm-1,.efb.gx-sm-1{--bs-gutter-x:.25rem}.efb.g-sm-1,.efb.gy-sm-1{--bs-gutter-y:.25rem}.efb.g-sm-2,.efb.gx-sm-2{--bs-gutter-x:.5rem}.efb.g-sm-2,.efb.gy-sm-2{--bs-gutter-y:.5rem}.efb.g-sm-3,.efb.gx-sm-3{--bs-gutter-x:1rem}.efb.g-sm-3,.efb.gy-sm-3{--bs-gutter-y:1rem}.efb.g-sm-4,.efb.gx-sm-4{--bs-gutter-x:1.5rem}.efb.g-sm-4,.efb.gy-sm-4{--bs-gutter-y:1.5rem}.efb.g-sm-5,.efb.gx-sm-5{--bs-gutter-x:3rem}.efb.g-sm-5,.efb.gy-sm-5{--bs-gutter-y:3rem}}@media (min-width:768px){.efb.col-md{flex:1 0 0%}.efb.row-cols-md-auto>*{flex:0 0 auto;width:auto}.efb.row-cols-md-1>*{flex:0 0 auto;width:100%}.efb.row-cols-md-2>*{flex:0 0 auto;width:50%}.efb.row-cols-md-3>*{flex:0 0 auto;width:33.3333333333%}.efb.row-cols-md-4>*{flex:0 0 auto;width:25%}.efb.row-cols-md-5>*{flex:0 0 auto;width:20%}.efb.row-cols-md-6>*{flex:0 0 auto;width:16.6666666667%}.efb.col-md-auto{flex:0 0 auto;width:auto}.efb.col-md-1{flex:0 0 auto;width:8.3333333333%}.efb.col-md-2{flex:0 0 auto;width:16.6666666667%}.efb.col-md-3{flex:0 0 auto;width:25%}.efb.col-md-4{flex:0 0 auto;width:33.3333333333%}.efb.col-md-5{flex:0 0 auto;width:41.6666666667%}.efb.col-md-6{flex:0 0 auto;width:50%}.efb.col-md-7{flex:0 0 auto;width:58.3333333333%}.efb.col-md-8{flex:0 0 auto;width:66.6666666667%}.efb.col-md-9{flex:0 0 auto;width:75%}.efb.col-md-10{flex:0 0 auto;width:83.3333333333%}.efb.col-md-11{flex:0 0 auto;width:91.6666666667%}.efb.col-md-12{flex:0 0 auto;width:100%}.efb.offset-md-0{margin-left:0}.efb.offset-md-1{margin-left:8.3333333333%}.efb.offset-md-2{margin-left:16.6666666667%}.efb.offset-md-3{margin-left:25%}.efb.offset-md-4{margin-left:33.3333333333%}.efb.offset-md-5{margin-left:41.6666666667%}.efb.offset-md-6{margin-left:50%}.efb.offset-md-7{margin-left:58.3333333333%}.efb.offset-md-8{margin-left:66.6666666667%}.efb.offset-md-9{margin-left:75%}.efb.offset-md-10{margin-left:83.3333333333%}.efb.offset-md-11{margin-left:91.6666666667%}.efb.g-md-0,.efb.gx-md-0{--bs-gutter-x:0}.efb.g-md-0,.efb.gy-md-0{--bs-gutter-y:0}.efb.g-md-1,.efb.gx-md-1{--bs-gutter-x:.25rem}.efb.g-md-1,.efb.gy-md-1{--bs-gutter-y:.25rem}.efb.g-md-2,.efb.gx-md-2{--bs-gutter-x:.5rem}.efb.g-md-2,.efb.gy-md-2{--bs-gutter-y:.5rem}.efb.g-md-3,.efb.gx-md-3{--bs-gutter-x:1rem}.efb.g-md-3,.efb.gy-md-3{--bs-gutter-y:1rem}.efb.g-md-4,.efb.gx-md-4{--bs-gutter-x:1.5rem}.efb.g-md-4,.efb.gy-md-4{--bs-gutter-y:1.5rem}.efb.g-md-5,.efb.gx-md-5{--bs-gutter-x:3rem}.efb.g-md-5,.efb.gy-md-5{--bs-gutter-y:3rem}}@media (min-width:992px){.efb.col-lg{flex:1 0 0%}.efb.row-cols-lg-auto>*{flex:0 0 auto;width:auto}.efb.row-cols-lg-1>*{flex:0 0 auto;width:100%}.efb.row-cols-lg-2>*{flex:0 0 auto;width:50%}.efb.row-cols-lg-3>*{flex:0 0 auto;width:33.3333333333%}.efb.row-cols-lg-4>*{flex:0 0 auto;width:25%}.efb.row-cols-lg-5>*{flex:0 0 auto;width:20%}.efb.row-cols-lg-6>*{flex:0 0 auto;width:16.6666666667%}.efb.col-lg-auto{flex:0 0 auto;width:auto}.efb.col-lg-1{flex:0 0 auto;width:8.3333333333%}.efb.col-lg-2{flex:0 0 auto;width:16.6666666667%}.efb.col-lg-3{flex:0 0 auto;width:25%}.efb.col-lg-4{flex:0 0 auto;width:33.3333333333%}.efb.col-lg-5{flex:0 0 auto;width:41.6666666667%}.efb.col-lg-6{flex:0 0 auto;width:50%}.efb.col-lg-7{flex:0 0 auto;width:58.3333333333%}.efb.col-lg-8{flex:0 0 auto;width:66.6666666667%}.efb.col-lg-9{flex:0 0 auto;width:75%}.efb.col-lg-10{flex:0 0 auto;width:83.3333333333%}.efb.col-lg-11{flex:0 0 auto;width:91.6666666667%}.efb.col-lg-12{flex:0 0 auto;width:100%}.efb.offset-lg-0{margin-left:0}.efb.offset-lg-1{margin-left:8.3333333333%}.efb.offset-lg-2{margin-left:16.6666666667%}.efb.offset-lg-3{margin-left:25%}.efb.offset-lg-4{margin-left:33.3333333333%}.efb.offset-lg-5{margin-left:41.6666666667%}.efb.offset-lg-6{margin-left:50%}.efb.offset-lg-7{margin-left:58.3333333333%}.efb.offset-lg-8{margin-left:66.6666666667%}.efb.offset-lg-9{margin-left:75%}.efb.offset-lg-10{margin-left:83.3333333333%}.efb.offset-lg-11{margin-left:91.6666666667%}.efb.g-lg-0,.efb.gx-lg-0{--bs-gutter-x:0}.efb.g-lg-0,.efb.gy-lg-0{--bs-gutter-y:0}.efb.g-lg-1,.efb.gx-lg-1{--bs-gutter-x:.25rem}.efb.g-lg-1,.efb.gy-lg-1{--bs-gutter-y:.25rem}.efb.g-lg-2,.efb.gx-lg-2{--bs-gutter-x:.5rem}.efb.g-lg-2,.efb.gy-lg-2{--bs-gutter-y:.5rem}.efb.g-lg-3,.efb.gx-lg-3{--bs-gutter-x:1rem}.efb.g-lg-3,.efb.gy-lg-3{--bs-gutter-y:1rem}.efb.g-lg-4,.efb.gx-lg-4{--bs-gutter-x:1.5rem}.efb.g-lg-4,.efb.gy-lg-4{--bs-gutter-y:1.5rem}.efb.g-lg-5,.efb.gx-lg-5{--bs-gutter-x:3rem}.efb.g-lg-5,.efb.gy-lg-5{--bs-gutter-y:3rem}}@media (min-width:1200px){.efb.col-xl{flex:1 0 0%}.efb.row-cols-xl-auto>*{flex:0 0 auto;width:auto}.efb.row-cols-xl-1>*{flex:0 0 auto;width:100%}.efb.row-cols-xl-2>*{flex:0 0 auto;width:50%}.efb.row-cols-xl-3>*{flex:0 0 auto;width:33.3333333333%}.efb.row-cols-xl-4>*{flex:0 0 auto;width:25%}.efb.row-cols-xl-5>*{flex:0 0 auto;width:20%}.efb.row-cols-xl-6>*{flex:0 0 auto;width:16.6666666667%}.efb.col-xl-auto{flex:0 0 auto;width:auto}.efb.col-xl-1{flex:0 0 auto;width:8.3333333333%}.efb.col-xl-2{flex:0 0 auto;width:16.6666666667%}.efb.col-xl-3{flex:0 0 auto;width:25%}.efb.col-xl-4{flex:0 0 auto;width:33.3333333333%}.efb.col-xl-5{flex:0 0 auto;width:41.6666666667%}.efb.col-xl-6{flex:0 0 auto;width:50%}.efb.col-xl-7{flex:0 0 auto;width:58.3333333333%}.efb.col-xl-8{flex:0 0 auto;width:66.6666666667%}.efb.col-xl-9{flex:0 0 auto;width:75%}.efb.col-xl-10{flex:0 0 auto;width:83.3333333333%}.efb.col-xl-11{flex:0 0 auto;width:91.6666666667%}.efb.col-xl-12{flex:0 0 auto;width:100%}.efb.offset-xl-0{margin-left:0}.efb.offset-xl-1{margin-left:8.3333333333%}.efb.offset-xl-2{margin-left:16.6666666667%}.efb.offset-xl-3{margin-left:25%}.efb.offset-xl-4{margin-left:33.3333333333%}.efb.offset-xl-5{margin-left:41.6666666667%}.efb.offset-xl-6{margin-left:50%}.efb.offset-xl-7{margin-left:58.3333333333%}.efb.offset-xl-8{margin-left:66.6666666667%}.efb.offset-xl-9{margin-left:75%}.efb.offset-xl-10{margin-left:83.3333333333%}.efb.offset-xl-11{margin-left:91.6666666667%}.efb.g-xl-0,.efb.gx-xl-0{--bs-gutter-x:0}.efb.g-xl-0,.efb.gy-xl-0{--bs-gutter-y:0}.efb.g-xl-1,.efb.gx-xl-1{--bs-gutter-x:.25rem}.efb.g-xl-1,.efb.gy-xl-1{--bs-gutter-y:.25rem}.efb.g-xl-2,.efb.gx-xl-2{--bs-gutter-x:.5rem}.efb.g-xl-2,.efb.gy-xl-2{--bs-gutter-y:.5rem}.efb.g-xl-3,.efb.gx-xl-3{--bs-gutter-x:1rem}.efb.g-xl-3,.efb.gy-xl-3{--bs-gutter-y:1rem}.efb.g-xl-4,.efb.gx-xl-4{--bs-gutter-x:1.5rem}.efb.g-xl-4,.efb.gy-xl-4{--bs-gutter-y:1.5rem}.efb.g-xl-5,.efb.gx-xl-5{--bs-gutter-x:3rem}.efb.g-xl-5,.efb.gy-xl-5{--bs-gutter-y:3rem}}@media (min-width:1400px){.efb.col-xxl{flex:1 0 0%}.efb.row-cols-xxl-auto>*{flex:0 0 auto;width:auto}.efb.row-cols-xxl-1>*{flex:0 0 auto;width:100%}.efb.row-cols-xxl-2>*{flex:0 0 auto;width:50%}.efb.row-cols-xxl-3>*{flex:0 0 auto;width:33.3333333333%}.efb.row-cols-xxl-4>*{flex:0 0 auto;width:25%}.efb.row-cols-xxl-5>*{flex:0 0 auto;width:20%}.efb.row-cols-xxl-6>*{flex:0 0 auto;width:16.6666666667%}.efb.col-xxl-auto{flex:0 0 auto;width:auto}.efb.col-xxl-1{flex:0 0 auto;width:8.3333333333%}.efb.col-xxl-2{flex:0 0 auto;width:16.6666666667%}.efb.col-xxl-3{flex:0 0 auto;width:25%}.efb.col-xxl-4{flex:0 0 auto;width:33.3333333333%}.efb.col-xxl-5{flex:0 0 auto;width:41.6666666667%}.efb.col-xxl-6{flex:0 0 auto;width:50%}.efb.col-xxl-7{flex:0 0 auto;width:58.3333333333%}.efb.col-xxl-8{flex:0 0 auto;width:66.6666666667%}.efb.col-xxl-9{flex:0 0 auto;width:75%}.efb.col-xxl-10{flex:0 0 auto;width:83.3333333333%}.efb.col-xxl-11{flex:0 0 auto;width:91.6666666667%}.efb.col-xxl-12{flex:0 0 auto;width:100%}.efb.offset-xxl-0{margin-left:0}.efb.offset-xxl-1{margin-left:8.3333333333%}.efb.offset-xxl-2{margin-left:16.6666666667%}.efb.offset-xxl-3{margin-left:25%}.efb.offset-xxl-4{margin-left:33.3333333333%}.efb.offset-xxl-5{margin-left:41.6666666667%}.efb.offset-xxl-6{margin-left:50%}.efb.offset-xxl-7{margin-left:58.3333333333%}.efb.offset-xxl-8{margin-left:66.6666666667%}.efb.offset-xxl-9{margin-left:75%}.efb.offset-xxl-10{margin-left:83.3333333333%}.efb.offset-xxl-11{margin-left:91.6666666667%}.efb.g-xxl-0,.efb.gx-xxl-0{--bs-gutter-x:0}.efb.g-xxl-0,.efb.gy-xxl-0{--bs-gutter-y:0}.efb.g-xxl-1,.efb.gx-xxl-1{--bs-gutter-x:.25rem}.efb.g-xxl-1,.efb.gy-xxl-1{--bs-gutter-y:.25rem}.efb.g-xxl-2,.efb.gx-xxl-2{--bs-gutter-x:.5rem}.efb.g-xxl-2,.efb.gy-xxl-2{--bs-gutter-y:.5rem}.efb.g-xxl-3,.efb.gx-xxl-3{--bs-gutter-x:1rem}.efb.g-xxl-3,.efb.gy-xxl-3{--bs-gutter-y:1rem}.efb.g-xxl-4,.efb.gx-xxl-4{--bs-gutter-x:1.5rem}.efb.g-xxl-4,.efb.gy-xxl-4{--bs-gutter-y:1.5rem}.efb.g-xxl-5,.efb.gx-xxl-5{--bs-gutter-x:3rem}.efb.g-xxl-5,.efb.gy-xxl-5{--bs-gutter-y:3rem}}.efb.table{--bs-table-bg:transparent;--bs-table-accent-bg:transparent;--bs-table-striped-color:#212529;--bs-table-striped-bg:rgba(0,0,0,.05);--bs-table-active-color:#212529;--bs-table-active-bg:rgba(0,0,0,.1);--bs-table-hover-color:#212529;--bs-table-hover-bg:rgba(0,0,0,.075);width:100%;margin-bottom:1rem;color:#212529;vertical-align:top;border-color:#dee2e6;border-left:none;border-right:none;border-bottom:none}.efb.table>:not(caption)>*>*{padding:.5rem .5rem;background-color:var(--bs-table-bg);border-bottom-width:1px;box-shadow:inset 0 0 0 9999px var(--bs-table-accent-bg)}.efb.table>tbody{vertical-align:inherit}.efb.table>thead{vertical-align:bottom}.efb.table>:not(:last-child)>:last-child>*{border-bottom-color:currentColor}.efb.caption-top{caption-side:top}.efb.table-sm>:not(caption)>*>*{padding:.25rem .25rem}.efb.table-bordered>:not(caption)>*{border-width:1px 0}.efb.table-bordered>:not(caption)>*>*{border-width:0 1px}.efb.table-borderless>:not(caption)>*>*{border-bottom-width:0}.efb.table-striped>tbody>tr:nth-of-type(odd){--bs-table-accent-bg:var(--bs-table-striped-bg);color:var(--bs-table-striped-color)}.efb.table-active{--bs-table-accent-bg:var(--bs-table-active-bg);color:var(--bs-table-active-color)}.efb.table-hover>tbody>tr:hover{--bs-table-accent-bg:var(--bs-table-hover-bg);color:var(--bs-table-hover-color)}.efb.table-primary{--bs-table-bg:#cfe2ff;--bs-table-striped-bg:#c5d7f2;--bs-table-striped-color:#000;--bs-table-active-bg:#bacbe6;--bs-table-active-color:#000;--bs-table-hover-bg:#bfd1ec;--bs-table-hover-color:#000;color:#000;border-color:#bacbe6}.efb.table-secondary{--bs-table-bg:#e2e3e5;--bs-table-striped-bg:#d7d8da;--bs-table-striped-color:#000;--bs-table-active-bg:#cbccce;--bs-table-active-color:#000;--bs-table-hover-bg:#d1d2d4;--bs-table-hover-color:#000;color:#000;border-color:#cbccce}.efb.table-success{--bs-table-bg:#d1e7dd;--bs-table-striped-bg:#c7dbd2;--bs-table-striped-color:#000;--bs-table-active-bg:#bcd0c7;--bs-table-active-color:#000;--bs-table-hover-bg:#c1d6cc;--bs-table-hover-color:#000;color:#000;border-color:#bcd0c7}.efb.table-info{--bs-table-bg:#cff4fc;--bs-table-striped-bg:#c5e8ef;--bs-table-striped-color:#000;--bs-table-active-bg:#badce3;--bs-table-active-color:#000;--bs-table-hover-bg:#bfe2e9;--bs-table-hover-color:#000;color:#000;border-color:#badce3}.efb.table-warning{--bs-table-bg:#fff3cd;--bs-table-striped-bg:#f2e7c3;--bs-table-striped-color:#000;--bs-table-active-bg:#e6dbb9;--bs-table-active-color:#000;--bs-table-hover-bg:#ece1be;--bs-table-hover-color:#000;color:#000;border-color:#e6dbb9}.efb.table-danger{--bs-table-bg:#f8d7da;--bs-table-striped-bg:#eccccf;--bs-table-striped-color:#000;--bs-table-active-bg:#dfc2c4;--bs-table-active-color:#000;--bs-table-hover-bg:#e5c7ca;--bs-table-hover-color:#000;color:#000;border-color:#dfc2c4}.efb.table-light{--bs-table-bg:#f8f9fa;--bs-table-striped-bg:#ecedee;--bs-table-striped-color:#000;--bs-table-active-bg:#dfe0e1;--bs-table-active-color:#000;--bs-table-hover-bg:#e5e6e7;--bs-table-hover-color:#000;color:#000;border-color:#dfe0e1}.efb.table-dark{--bs-table-bg:#212529;--bs-table-striped-bg:#2c3034;--bs-table-striped-color:#fff;--bs-table-active-bg:#373b3e;--bs-table-active-color:#fff;--bs-table-hover-bg:#323539;--bs-table-hover-color:#fff;color:#fff;border-color:#373b3e}.efb.table-responsive{overflow-x:auto;-webkit-overflow-scrolling:touch}@media (max-width:575.98px){.efb.table-responsive-sm{overflow-x:auto;-webkit-overflow-scrolling:touch}}@media (max-width:767.98px){.efb.table-responsive-md{overflow-x:auto;-webkit-overflow-scrolling:touch}}@media (max-width:991.98px){.efb.table-responsive-lg{overflow-x:auto;-webkit-overflow-scrolling:touch}}@media (max-width:1199.98px){.efb.table-responsive-xl{overflow-x:auto;-webkit-overflow-scrolling:touch}}@media (max-width:1399.98px){.efb.table-responsive-xxl{overflow-x:auto;-webkit-overflow-scrolling:touch}}.efb.form-label{margin-bottom:.5rem}.efb.col-form-label{padding-top:calc(.375rem + 1px);padding-bottom:calc(.375rem + 1px);margin-bottom:0;font-size:inherit;line-height:1.5}.efb.col-form-label-lg{padding-top:calc(.5rem + 1px);padding-bottom:calc(.5rem + 1px);font-size:1.25rem}.efb.col-form-label-sm{padding-top:calc(.25rem + 1px);padding-bottom:calc(.25rem + 1px);font-size:.875rem}.efb.form-control{display:block;width:100%;padding:.375rem .75rem;font-size:1rem;font-weight:400;line-height:1.5;color:#212529;background-color:#fff;background-clip:padding-box;border:1px solid #ced4da;-webkit-appearance:none;-moz-appearance:none;appearance:none;border-radius:.25rem;transition:border-color .15s ease-in-out,box-shadow .15s ease-in-out}@media (prefers-reduced-motion:reduce){.efb.form-control{transition:none}}.efb.form-control[type=file]{overflow:hidden}.efb.form-control[type=file]:not(:disabled):not([readonly]){cursor:pointer}.efb.form-control:focus{color:#212529;background-color:#fff;border-color:#86b7fe;outline:0;box-shadow:0 0 0 .25rem rgba(13,110,253,.25)}.efb.form-control::-webkit-date-and-time-value{height:1.5em}.efb.form-control::-moz-placeholder{color:#6c757d;opacity:1}.efb.form-control::placeholder{color:#6c757d;opacity:1}.efb.form-control:disabled,.efb.form-control[readonly]{background-color:#e9ecef;opacity:1}.efb.form-control::file-selector-button{padding:.375rem .75rem;margin:-.375rem -.75rem;-webkit-margin-end:.75rem;margin-inline-end:.75rem;color:#212529;background-color:#e9ecef;pointer-events:none;border-color:inherit;border-style:solid;border-width:0;border-inline-end-width:1px;border-radius:0;transition:color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out}@media (prefers-reduced-motion:reduce){.efb.form-control::file-selector-button{transition:none}}.efb.form-control:hover:not(:disabled):not([readonly])::file-selector-button{background-color:#dde0e3}.efb.form-control::-webkit-file-upload-button{padding:.375rem .75rem;margin:-.375rem -.75rem;-webkit-margin-end:.75rem;margin-inline-end:.75rem;color:#212529;background-color:#e9ecef;pointer-events:none;border-color:inherit;border-style:solid;border-width:0;border-inline-end-width:1px;border-radius:0;-webkit-transition:color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;transition:color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out}@media (prefers-reduced-motion:reduce){.efb.form-control::-webkit-file-upload-button{-webkit-transition:none;transition:none}}.efb.form-control:hover:not(:disabled):not([readonly])::-webkit-file-upload-button{background-color:#dde0e3}.efb.form-control-plaintext{display:block;width:100%;padding:.375rem 0;margin-bottom:0;line-height:1.5;color:#212529;background-color:transparent;border:solid transparent;border-width:1px 0}.efb.form-control-plaintext.efb.form-control-lg,.efb.form-control-plaintext.efb.form-control-sm{padding-right:0;padding-left:0}.efb.form-control-sm{min-height:calc(1.5em + .5rem + 2px);padding:.25rem .5rem;font-size:.875rem;border-radius:.2rem}.efb.form-control-sm::file-selector-button{padding:.25rem .5rem;margin:-.25rem -.5rem;-webkit-margin-end:.5rem;margin-inline-end:.5rem}.efb.form-control-sm::-webkit-file-upload-button{padding:.25rem .5rem;margin:-.25rem -.5rem;-webkit-margin-end:.5rem;margin-inline-end:.5rem}.efb.form-control-lg{min-height:calc(1.5em + 1rem + 2px);padding:.5rem 1rem;font-size:1.25rem;border-radius:.3rem}.efb.form-control-lg::file-selector-button{padding:.5rem 1rem;margin:-.5rem -1rem;-webkit-margin-end:1rem;margin-inline-end:1rem}.efb.form-control-lg::-webkit-file-upload-button{padding:.5rem 1rem;margin:-.5rem -1rem;-webkit-margin-end:1rem;margin-inline-end:1rem}textarea.efb.form-control{min-height:calc(1.5em + .75rem + 2px)}textarea.efb.form-control-sm{min-height:calc(1.5em + .5rem + 2px)}textarea.efb.form-control-lg{min-height:calc(1.5em + 1rem + 2px)}.efb.form-control-color{max-width:3rem;height:auto;padding:.375rem}.efb.form-control-color:not(:disabled):not([readonly]){cursor:pointer}.efb.form-control-color::-moz-color-swatch{height:1.5em;border-radius:.25rem}.efb.form-control-color::-webkit-color-swatch{height:1.5em;border-radius:.25rem}.efb.form-select{display:block;width:100%;padding:.375rem 2.25rem .375rem .75rem;font-size:1rem;font-weight:400;line-height:1.5;color:#212529;background-color:#fff;background-image:url('data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e');background-repeat:no-repeat;background-position:right .75rem center;background-size:16px 12px;border:1px solid #ced4da;border-radius:.25rem;-webkit-appearance:none;-moz-appearance:none;appearance:none}.efb.form-select:focus{border-color:#86b7fe;outline:0;box-shadow:0 0 0 .25rem rgba(13,110,253,.25)}.efb.form-select[multiple],.efb.form-select[size]:not([size='1']){padding-right:.75rem;background-image:none}.efb.form-select:disabled{background-color:#e9ecef}.efb.form-select:-moz-focusring{color:transparent;text-shadow:0 0 0 #212529}.efb.form-select-sm{padding-top:.25rem;padding-bottom:.25rem;padding-left:.5rem;font-size:.875rem}.efb.form-select-lg{padding-top:.5rem;padding-bottom:.5rem;padding-left:1rem;font-size:1.25rem}.efb.form-check{display:flex;min-height:1.5rem;margin-bottom:.125rem;align-items:center;}.efb.form-check .efb.form-check-input{float:left}.efb.form-check-input{width:1em;height:1em;margin-top:.25em;vertical-align:top;background-color:#fff;background-repeat:no-repeat;background-position:center;background-size:contain;border:1px solid rgba(0,0,0,.25);-webkit-appearance:none;-moz-appearance:none;appearance:none;-webkit-print-color-adjust:exact;color-adjust:exact}.efb.form-check-input[type=checkbox]{border-radius:.25em}.efb.form-check-input[type=radio]{border-radius:50%}.efb.form-check-input:active{filter:brightness(90%)}.efb.form-check-input:focus{border-color:#86b7fe;outline:0;box-shadow:0 0 0 .25rem rgba(13,110,253,.25)}.efb.form-check-input:checked{background-color:#0d6efd;border-color:#0d6efd}.efb.form-check-input:checked[type=checkbox]{background-image:url('data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10l3 3l6-6'/%3e%3c/svg%3e')}.efb.form-check-input:checked[type=radio]{background-image:url('data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='2' fill='%23fff'/%3e%3c/svg%3e')}.efb.form-check-input[type=checkbox]:indeterminate{background-color:#0d6efd;border-color:#0d6efd;background-image:url('data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10h8'/%3e%3c/svg%3e')}.efb.form-check-input:disabled{pointer-events:none;filter:none;opacity:.5}.efb.form-check-input:disabled~.form-check-label,.efb.form-check-input[disabled]~.form-check-label{opacity:.5}.efb.form-switch{padding-left:2.5em}.efb.form-switch .efb.form-check-input{width:2em;margin-left:-2.5em;background-image:url('data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba%280,0,0,.25%29'/%3e%3c/svg%3e');background-position:left center;border-radius:2em;transition:background-position .15s ease-in-out}@media (prefers-reduced-motion:reduce){.efb.form-switch .efb.form-check-input{transition:none}}.efb.form-switch .efb.form-check-input:focus{background-image:url('data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%2386b7fe'/%3e%3c/svg%3e')}.efb.form-switch .efb.form-check-input:checked{background-position:right center;background-image:url('data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e')}.efb.btn-check{position:absolute;clip:rect(0,0,0,0);pointer-events:none}.efb.btn-check:disabled+.efb.btn,.efb.btn-check[disabled]+.efb.btn{pointer-events:none;filter:none;opacity:.65}.efb.form-range{width:100%;height:1.5rem;padding:0;background-color:transparent;-webkit-appearance:none;-moz-appearance:none;appearance:none}.efb.form-range:focus{outline:0}.efb.form-range:focus::-webkit-slider-thumb{box-shadow:0 0 0 1px #fff,0 0 0 .25rem rgba(13,110,253,.25)}.efb.form-range:focus::-moz-range-thumb{box-shadow:0 0 0 1px #fff,0 0 0 .25rem rgba(13,110,253,.25)}.efb.form-range::-moz-focus-outer{border:0}.efb.form-range::-webkit-slider-thumb{width:1rem;height:1rem;margin-top:-.25rem;background-color:#0d6efd;border:0;border-radius:1rem;-webkit-transition:background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;transition:background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;-webkit-appearance:none;appearance:none}@media (prefers-reduced-motion:reduce){.efb.form-range::-webkit-slider-thumb{-webkit-transition:none;transition:none}}.efb.form-range::-webkit-slider-thumb:active{background-color:#b6d4fe}.efb.form-range::-webkit-slider-runnable-track{width:100%;height:.5rem;color:transparent;cursor:pointer;background-color:#dee2e6;border-color:transparent;border-radius:1rem}.efb.form-range::-moz-range-thumb{width:1rem;height:1rem;background-color:#0d6efd;border:0;border-radius:1rem;-moz-transition:background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;transition:background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;-moz-appearance:none;appearance:none}@media (prefers-reduced-motion:reduce){.efb.form-range::-moz-range-thumb{-moz-transition:none;transition:none}}.efb.form-range::-moz-range-thumb:active{background-color:#b6d4fe}.efb.form-range::-moz-range-track{width:100%;height:.5rem;color:transparent;cursor:pointer;background-color:#dee2e6;border-color:transparent;border-radius:1rem}.efb.form-range:disabled{pointer-events:none}.efb.form-range:disabled::-webkit-slider-thumb{background-color:#adb5bd}.efb.form-range:disabled::-moz-range-thumb{background-color:#adb5bd}.efb.form-floating{position:relative}.efb.form-floating>.efb.form-control,.efb.form-floating>.efb.form-select{height:calc(3.5rem + 2px);padding:1rem .75rem}.efb.form-floating>label{position:absolute;top:0;left:0;height:100%;padding:1rem .75rem;pointer-events:none;border:1px solid transparent;transform-origin:0 0;transition:opacity .1s ease-in-out,transform .1s ease-in-out}@media (prefers-reduced-motion:reduce){.efb.form-floating>label{transition:none}}.efb.form-floating>.efb.form-control::-moz-placeholder{color:transparent}.efb.form-floating>.efb.form-control::placeholder{color:transparent}.efb.form-floating>.efb.form-control:not(:-moz-placeholder-shown){padding-top:1.625rem;padding-bottom:.625rem}.efb.form-floating>.efb.form-control:focus,.efb.form-floating>.efb.form-control:not(:placeholder-shown){padding-top:1.625rem;padding-bottom:.625rem}.efb.form-floating>.efb.form-control:-webkit-autofill{padding-top:1.625rem;padding-bottom:.625rem}.efb.form-floating>.efb.form-select{padding-top:1.625rem;padding-bottom:.625rem}.efb.form-floating>.efb.form-control:not(:-moz-placeholder-shown)~label{opacity:.65;transform:scale(.85) translateY(-.5rem) translateX(.15rem)}.efb.form-floating>.efb.form-control:focus~label,.efb.form-floating>.efb.form-control:not(:placeholder-shown)~label,.efb.form-floating>.efb.form-select~label{opacity:.65;transform:scale(.85) translateY(-.5rem) translateX(.15rem)}.efb.form-floating>.efb.form-control:-webkit-autofill~label{opacity:.65;transform:scale(.85) translateY(-.5rem) translateX(.15rem)}.efb.input-group{position:relative;display:flex;flex-wrap:wrap;align-items:stretch;width:100%}.efb.input-group>.efb.form-control,.efb.input-group>.efb.form-select{position:relative;flex:1 1 auto;width:1%;min-width:0}.efb.input-group>.efb.form-control:focus,.efb.input-group>.efb.form-select:focus{z-index:3}.efb.input-group .efb.btn{position:relative;z-index:2}.efb.input-group .efb.btn:focus{z-index:3}.efb.input-group-text{display:flex;align-items:center;padding:.375rem .75rem;font-size:1rem;font-weight:400;line-height:1.5;color:#212529;text-align:center;white-space:nowrap;background-color:#e9ecef;border:1px solid #ced4da;border-radius:.25rem}.efb.input-group-lg>.efb.btn,.efb.input-group-lg>.efb.form-control,.efb.input-group-lg>.efb.form-select,.efb.input-group-lg>.efb.input-group-text{padding:.5rem 1rem;font-size:1.25rem;border-radius:.3rem}.efb.input-group-sm>.efb.btn,.efb.input-group-sm>.efb.form-control,.efb.input-group-sm>.efb.form-select,.efb.input-group-sm>.efb.input-group-text{padding:.25rem .5rem;font-size:.875rem;border-radius:.2rem}.efb.input-group-lg>.efb.form-select,.efb.input-group-sm>.efb.form-select{padding-right:3rem}.efb.input-group:not(.has-validation)>.efb.dropdown-toggle:nth-last-child(n+3),.efb.input-group:not(.has-validation)>:not(:last-child):not(.efb.dropdown-toggle):not(.efb.dropdown-menu){border-top-right-radius:0;border-bottom-right-radius:0}.efb.input-group.has-validation>.efb.dropdown-toggle:nth-last-child(n+4),.efb.input-group.has-validation>:nth-last-child(n+3):not(.efb.dropdown-toggle):not(.efb.dropdown-menu){border-top-right-radius:0;border-bottom-right-radius:0}.efb.input-group>:not(:first-child):not(.efb.dropdown-menu):not(.valid-tooltip):not(.valid-feedback):not(.efb.invalid-tooltip):not(.efb.invalid-feedback){margin-left:-1px;border-top-left-radius:0;border-bottom-left-radius:0}.efb.valid-feedback{display:none;width:100%;margin-top:.25rem;font-size:.875em;color:#198754}.efb.valid-tooltip{position:absolute;top:100%;z-index:5;display:none;max-width:100%;padding:.25rem .5rem;margin-top:.1rem;font-size:.875rem;color:#fff;background-color:rgba(25,135,84,.9);border-radius:.25rem}.efb.is-valid~.efb.valid-feedback,.efb.was-validated:valid~.efb.valid-feedback,.efb.was-validated:valid~{display:block}.efb.form-control.is-valid,.efb.was-validated .efb.form-control:valid{border-color:#198754;padding-right:calc(1.5em + .75rem);background-image:url('data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e');background-repeat:no-repeat;background-position:right calc(.375em + .1875rem) center;background-size:calc(.75em + .375rem) calc(.75em + .375rem)}.efb.form-control.is-valid:focus,.efb.was-validated .efb.form-control:valid:focus{border-color:#198754;box-shadow:0 0 0 .25rem rgba(25,135,84,.25)}.efb.was-validated textarea.efb.form-control:valid,textarea.efb.form-control.is-valid{padding-right:calc(1.5em + .75rem);background-position:top calc(.375em + .1875rem) right calc(.375em + .1875rem)}.efb.form-select.is-valid,.efb.was-validated .efb.form-select:valid{border-color:#198754}.efb.form-select.is-valid:not([multiple]):not([size]),.efb.form-select.is-valid:not([multiple])[size='1'],.efb.was-validated .efb.form-select:valid:not([multiple]):not([size]),.efb.was-validated .efb.form-select:valid:not([multiple])[size='1']{padding-right:4.125rem;background-image:url('data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e'),url('data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e');background-position:right .75rem center,center right 2.25rem;background-size:16px 12px,calc(.75em + .375rem) calc(.75em + .375rem)}.efb.form-select.is-valid:focus,.efb.was-validated .efb.form-select:valid:focus{border-color:#198754;box-shadow:0 0 0 .25rem rgba(25,135,84,.25)}.efb.form-check-input.is-valid,.efb.was-validated .efb.form-check-input:valid{border-color:#198754}.efb.form-check-input.is-valid:checked,.efb.was-validated .efb.form-check-input:valid:checked{background-color:#198754}.efb.form-check-input.is-valid:focus,.efb.was-validated .efb.form-check-input:valid:focus{box-shadow:0 0 0 .25rem rgba(25,135,84,.25)}.efb.form-check-input.is-valid~.form-check-label,.efb.was-validated .efb.form-check-input:valid{color:#198754}.form-check-inline .efb.form-check-input~.efb.valid-feedback{margin-left:.5em}.efb.input-group .efb.form-control.is-valid,.efb.input-group .efb.form-select.is-valid,.efb.was-validated .efb.input-group .efb.form-control:valid,.efb.was-validated .efb.input-group .efb.form-select:valid{z-index:1}.efb.input-group .efb.form-control.is-valid:focus,.efb.input-group .efb.form-select.is-valid:focus,.efb.was-validated .efb.input-group .efb.form-control:valid:focus,.efb.was-validated .efb.input-group .efb.form-select:valid:focus{z-index:3}.efb.invalid-feedback{display:none;width:100%;margin-top:.25rem;font-size:.875em;color:#dc3545}.efb.invalid-tooltip{position:absolute;top:100%;z-index:5;display:none;max-width:100%;padding:.25rem .5rem;margin-top:.1rem;font-size:.875rem;color:#fff;background-color:rgba(220,53,69,.9);border-radius:.25rem}.efb.is-invalid~.efb.invalid-feedback,.efb.is-invalid~.efb.invalid-tooltip,.efb.was-validated:invalid~.efb.invalid-feedback,.efb.was-validated:invalid~.efb.invalid-tooltip{display:block}.efb.form-control.efb.is-invalid,.efb.was-validated .efb.form-control:invalid{border-color:#dc3545;padding-right:calc(1.5em + .75rem);background-image:url('data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e');background-repeat:no-repeat;background-position:right calc(.375em + .1875rem) center;background-size:calc(.75em + .375rem) calc(.75em + .375rem)}.efb.form-control.efb.is-invalid:focus,.efb.was-validated .efb.form-control:invalid:focus{border-color:#dc3545;box-shadow:0 0 0 .25rem rgba(220,53,69,.25)}.efb.was-validated textarea.efb.form-control:invalid,textarea.efb.form-control.efb.is-invalid{padding-right:calc(1.5em + .75rem);background-position:top calc(.375em + .1875rem) right calc(.375em + .1875rem)}.efb.form-select.efb.is-invalid,.efb.was-validated .efb.form-select:invalid{border-color:#dc3545}.efb.form-select.efb.is-invalid:not([multiple]):not([size]),.efb.form-select.efb.is-invalid:not([multiple])[size='1'],.efb.was-validated .efb.form-select:invalid:not([multiple]):not([size]),.efb.was-validated .efb.form-select:invalid:not([multiple])[size='1']{padding-right:4.125rem;background-image:url('data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e'),url('data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e');background-position:right .75rem center,center right 2.25rem;background-size:16px 12px,calc(.75em + .375rem) calc(.75em + .375rem)}.efb.form-select.efb.is-invalid:focus,.efb.was-validated .efb.form-select:invalid:focus{border-color:#dc3545;box-shadow:0 0 0 .25rem rgba(220,53,69,.25)}.efb.form-check-input.efb.is-invalid,.efb.was-validated .efb.form-check-input:invalid{border-color:#dc3545}.efb.form-check-input.efb.is-invalid:checked,.efb.was-validated .efb.form-check-input:invalid:checked{background-color:#dc3545}.efb.form-check-input.efb.is-invalid:focus,.efb.was-validated .efb.form-check-input:invalid:focus{box-shadow:0 0 0 .25rem rgba(220,53,69,.25)}.efb.form-check-input.efb.is-invalid~.form-check-label,.efb.was-validated .efb.form-check-input:invalid~.form-check-label{color:#dc3545}.efb.form-check-inline .efb.form-check-input~.efb.invalid-feedback{margin-left:.5em}.efb.input-group .efb.form-control.efb.is-invalid,.efb.input-group .efb.form-select.efb.is-invalid,.efb.was-validated .efb.input-group .efb.form-control:invalid,.efb.was-validated .efb.input-group .efb.form-select:invalid{z-index:2}.efb.input-group .efb.form-control.efb.is-invalid:focus,.efb.input-group .efb.form-select.efb.is-invalid:focus,.efb.was-validated .efb.input-group .efb.form-control:invalid:focus,.efb.was-validated .efb.input-group .efb.form-select:invalid:focus{z-index:3}.efb.btn{display:inline-block;font-weight:400;line-height:1.5;color:#212529;text-align:center;text-decoration:none;vertical-align:middle;cursor:pointer;-webkit-user-select:none;-moz-user-select:none;user-select:none;background-color:transparent;border:1px solid transparent;padding:.375rem .75rem;font-size:1rem;border-radius:.25rem;transition:color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out}@media (prefers-reduced-motion:reduce){.efb.btn{transition:none}}.efb.btn:hover{color:#212529}.efb.btn-check:focus+.efb.btn,.efb.btn:focus{outline:0;box-shadow:0 0 0 .25rem rgba(13,110,253,.25)}.efb.btn.disabled,.efb.btn:disabled,fieldset:disabled .efb.btn{pointer-events:none;opacity:.65}.efb.btn-primary{color:#fff;background-color:#0d6efd;border-color:#0d6efd}.efb.btn-primary:hover{color:#fff;background-color:#0b5ed7;border-color:#0a58ca}.efb.btn-check:focus+.efb.btn-primary,.efb.btn-primary:focus{color:#fff;background-color:#0b5ed7;border-color:#0a58ca;box-shadow:0 0 0 .25rem rgba(49,132,253,.5)}.efb.btn-check:active+.efb.btn-primary,.efb.btn-check:checked+.efb.btn-primary,.efb.btn-primary.active,.efb.btn-primary:active,.show>.efb.btn-primary.efb.dropdown-toggle{color:#fff;background-color:#0a58ca;border-color:#0a53be}.efb.btn-check:active+.efb.btn-primary:focus,.efb.btn-check:checked+.efb.btn-primary:focus,.efb.btn-primary.active:focus,.efb.btn-primary:active:focus,.show>.efb.btn-primary.efb.dropdown-toggle:focus{box-shadow:0 0 0 .25rem rgba(49,132,253,.5)}.efb.btn-primary.disabled,.efb.btn-primary:disabled{color:#fff;background-color:#0d6efd;border-color:#0d6efd}.efb.btn-secondary{color:#fff;background-color:#6c757d;border-color:#6c757d}.efb.btn-secondary:hover{color:#fff;background-color:#5c636a;border-color:#565e64}.efb.btn-check:focus+.efb.btn-secondary,.efb.btn-secondary:focus{color:#fff;background-color:#5c636a;border-color:#565e64;box-shadow:0 0 0 .25rem rgba(130,138,145,.5)}.efb.btn-check:active+.efb.btn-secondary,.efb.btn-check:checked+.efb.btn-secondary,.efb.btn-secondary.active,.efb.btn-secondary:active,.show>.efb.btn-secondary.efb.dropdown-toggle{color:#fff;background-color:#565e64;border-color:#51585e}.efb.btn-check:active+.efb.btn-secondary:focus,.efb.btn-check:checked+.efb.btn-secondary:focus,.efb.btn-secondary.active:focus,.efb.btn-secondary:active:focus,.show>.efb.btn-secondary.efb.dropdown-toggle:focus{box-shadow:0 0 0 .25rem rgba(130,138,145,.5)}.efb.btn-secondary.disabled,.efb.btn-secondary:disabled{color:#fff;background-color:#6c757d;border-color:#6c757d}.efb.btn-success{color:#fff;background-color:#198754;border-color:#198754}.efb.btn-success:hover{color:#fff;background-color:#157347;border-color:#146c43}.efb.btn-check:focus+.efb.btn-success,.efb.btn-success:focus{color:#fff;background-color:#157347;border-color:#146c43;box-shadow:0 0 0 .25rem rgba(60,153,110,.5)}.efb.btn-check:active+.efb.btn-success,.efb.btn-check:checked+.efb.btn-success,.efb.btn-success.active,.efb.btn-success:active,.show>.efb.btn-success.efb.dropdown-toggle{color:#fff;background-color:#146c43;border-color:#13653f}.efb.btn-check:active+.efb.btn-success:focus,.efb.btn-check:checked+.efb.btn-success:focus,.efb.btn-success.active:focus,.efb.btn-success:active:focus,.show>.efb.btn-success.efb.dropdown-toggle:focus{box-shadow:0 0 0 .25rem rgba(60,153,110,.5)}.efb.btn-success.disabled,.efb.btn-success:disabled{color:#fff;background-color:#198754;border-color:#198754}.efb.btn-info{color:#000;background-color:#0dcaf0;border-color:#0dcaf0}.efb.btn-info:hover{color:#000;background-color:#31d2f2;border-color:#25cff2}.efb.btn-check:focus+.efb.btn-info,.efb.btn-info:focus{color:#000;background-color:#31d2f2;border-color:#25cff2;box-shadow:0 0 0 .25rem rgba(11,172,204,.5)}.efb.btn-check:active+.efb.btn-info,.efb.btn-check:checked+.efb.btn-info,.efb.btn-info.active,.efb.btn-info:active,.show>.efb.btn-info.efb.dropdown-toggle{color:#000;background-color:#3dd5f3;border-color:#25cff2}.efb.btn-check:active+.efb.btn-info:focus,.efb.btn-check:checked+.efb.btn-info:focus,.efb.btn-info.active:focus,.efb.btn-info:active:focus,.show>.efb.btn-info.efb.dropdown-toggle:focus{box-shadow:0 0 0 .25rem rgba(11,172,204,.5)}.efb.btn-info.disabled,.efb.btn-info:disabled{color:#000;background-color:#0dcaf0;border-color:#0dcaf0}.efb.btn-warning{color:#000;background-color:#ffc107;border-color:#ffc107}.efb.btn-warning:hover{color:#000;background-color:#ffca2c;border-color:#ffc720}.efb.btn-check:focus+.efb.btn-warning,.efb.btn-warning:focus{color:#000;background-color:#ffca2c;border-color:#ffc720;box-shadow:0 0 0 .25rem rgba(217,164,6,.5)}.efb.btn-check:active+.efb.btn-warning,.efb.btn-check:checked+.efb.btn-warning,.efb.btn-warning.active,.efb.btn-warning:active,.show>.efb.btn-warning.efb.dropdown-toggle{color:#000;background-color:#ffcd39;border-color:#ffc720}.efb.btn-check:active+.efb.btn-warning:focus,.efb.btn-check:checked+.efb.btn-warning:focus,.efb.btn-warning.active:focus,.efb.btn-warning:active:focus,.show>.efb.btn-warning.efb.dropdown-toggle:focus{box-shadow:0 0 0 .25rem rgba(217,164,6,.5)}.efb.btn-warning.disabled,.efb.btn-warning:disabled{color:#000;background-color:#ffc107;border-color:#ffc107}.efb.btn-danger{color:#fff;background-color:#dc3545;border-color:#dc3545}.efb.btn-danger:hover{color:#fff;background-color:#bb2d3b;border-color:#b02a37}.efb.btn-check:focus+.efb.btn-danger,.efb.btn-danger:focus{color:#fff;background-color:#bb2d3b;border-color:#b02a37;box-shadow:0 0 0 .25rem rgba(225,83,97,.5)}.efb.btn-check:active+.efb.btn-danger,.efb.btn-check:checked+.efb.btn-danger,.efb.btn-danger.active,.efb.btn-danger:active,.show>.efb.btn-danger.efb.dropdown-toggle{color:#fff;background-color:#b02a37;border-color:#a52834}.efb.btn-check:active+.efb.btn-danger:focus,.efb.btn-check:checked+.efb.btn-danger:focus,.efb.btn-danger.active:focus,.efb.btn-danger:active:focus,.show>.efb.btn-danger.efb.dropdown-toggle:focus{box-shadow:0 0 0 .25rem rgba(225,83,97,.5)}.efb.btn-danger.disabled,.efb.btn-danger:disabled{color:#fff;background-color:#dc3545;border-color:#dc3545}.efb.btn-light{color:#000;background-color:#f8f9fa;border-color:#f8f9fa}.efb.btn-light:hover{color:#000;background-color:#f9fafb;border-color:#f9fafb}.efb.btn-check:focus+.efb.btn-light,.efb.btn-light:focus{color:#000;background-color:#f9fafb;border-color:#f9fafb;box-shadow:0 0 0 .25rem rgba(211,212,213,.5)}.efb.btn-check:active+.efb.btn-light,.efb.btn-check:checked+.efb.btn-light,.efb.btn-light.active,.efb.btn-light:active,.show>.efb.btn-light.efb.dropdown-toggle{color:#000;background-color:#f9fafb;border-color:#f9fafb}.efb.btn-check:active+.efb.btn-light:focus,.efb.btn-check:checked+.efb.btn-light:focus,.efb.btn-light.active:focus,.efb.btn-light:active:focus,.show>.efb.btn-light.efb.dropdown-toggle:focus{box-shadow:0 0 0 .25rem rgba(211,212,213,.5)}.efb.btn-light.disabled,.efb.btn-light:disabled{color:#000;background-color:#f8f9fa;border-color:#f8f9fa}.efb.btn-dark{color:#fff;background-color:#212529;border-color:#212529}.efb.btn-dark:hover{color:#fff;background-color:#1c1f23;border-color:#1a1e21}.efb.btn-check:focus+.efb.btn-dark,.efb.btn-dark:focus{color:#fff;background-color:#1c1f23;border-color:#1a1e21;box-shadow:0 0 0 .25rem rgba(66,70,73,.5)}.efb.btn-check:active+.efb.btn-dark,.efb.btn-check:checked+.efb.btn-dark,.efb.btn-dark.active,.efb.btn-dark:active,.show>.efb.btn-dark.efb.dropdown-toggle{color:#fff;background-color:#1a1e21;border-color:#191c1f}.efb.btn-check:active+.efb.btn-dark:focus,.efb.btn-check:checked+.efb.btn-dark:focus,.efb.btn-dark.active:focus,.efb.btn-dark:active:focus,.show>.efb.btn-dark.efb.dropdown-toggle:focus{box-shadow:0 0 0 .25rem rgba(66,70,73,.5)}.efb.btn-dark.disabled,.efb.btn-dark:disabled{color:#fff;background-color:#212529;border-color:#212529}.efb.btn-outline-primary{color:#0d6efd;border-color:#0d6efd}.efb.btn-outline-primary:hover{color:#fff;background-color:#0d6efd;border-color:#0d6efd}.efb.btn-check:focus+.efb.btn-outline-primary,.efb.btn-outline-primary:focus{box-shadow:0 0 0 .25rem rgba(13,110,253,.5)}.efb.btn-check:active+.efb.btn-outline-primary,.efb.btn-check:checked+.efb.btn-outline-primary,.efb.btn-outline-primary.active,.efb.btn-outline-primary.efb.dropdown-toggle.show,.efb.btn-outline-primary:active{color:#fff;background-color:#0d6efd;border-color:#0d6efd}.efb.btn-check:active+.efb.btn-outline-primary:focus,.efb.btn-check:checked+.efb.btn-outline-primary:focus,.efb.btn-outline-primary.active:focus,.efb.btn-outline-primary.efb.dropdown-toggle.show:focus,.efb.btn-outline-primary:active:focus{box-shadow:0 0 0 .25rem rgba(13,110,253,.5)}.efb.btn-outline-primary.disabled,.efb.btn-outline-primary:disabled{color:#0d6efd;background-color:transparent}.efb.btn-outline-secondary{color:#6c757d;border-color:#6c757d}.efb.btn-outline-secondary:hover{color:#fff;background-color:#6c757d;border-color:#6c757d}.efb.btn-check:focus+.efb.btn-outline-secondary,.efb.btn-outline-secondary:focus{box-shadow:0 0 0 .25rem rgba(108,117,125,.5)}.efb.btn-check:active+.efb.btn-outline-secondary,.efb.btn-check:checked+.efb.btn-outline-secondary,.efb.btn-outline-secondary.active,.efb.btn-outline-secondary.efb.dropdown-toggle.show,.efb.btn-outline-secondary:active{color:#fff;background-color:#6c757d;border-color:#6c757d}.efb.btn-check:active+.efb.btn-outline-secondary:focus,.efb.btn-check:checked+.efb.btn-outline-secondary:focus,.efb.btn-outline-secondary.active:focus,.efb.btn-outline-secondary.efb.dropdown-toggle.show:focus,.efb.btn-outline-secondary:active:focus{box-shadow:0 0 0 .25rem rgba(108,117,125,.5)}.efb.btn-outline-secondary.disabled,.efb.btn-outline-secondary:disabled{color:#6c757d;background-color:transparent}.efb.btn-outline-success{color:#198754;border-color:#198754}.efb.btn-outline-success:hover{color:#fff;background-color:#198754;border-color:#198754}.efb.btn-check:focus+.efb.btn-outline-success,.efb.btn-outline-success:focus{box-shadow:0 0 0 .25rem rgba(25,135,84,.5)}.efb.btn-check:active+.efb.btn-outline-success,.efb.btn-check:checked+.efb.btn-outline-success,.efb.btn-outline-success.active,.efb.btn-outline-success.efb.dropdown-toggle.show,.efb.btn-outline-success:active{color:#fff;background-color:#198754;border-color:#198754}.efb.btn-check:active+.efb.btn-outline-success:focus,.efb.btn-check:checked+.efb.btn-outline-success:focus,.efb.btn-outline-success.active:focus,.efb.btn-outline-success.efb.dropdown-toggle.show:focus,.efb.btn-outline-success:active:focus{box-shadow:0 0 0 .25rem rgba(25,135,84,.5)}.efb.btn-outline-success.disabled,.efb.btn-outline-success:disabled{color:#198754;background-color:transparent}.efb.btn-outline-info{color:#0dcaf0;border-color:#0dcaf0}.efb.btn-outline-info:hover{color:#000;background-color:#0dcaf0;border-color:#0dcaf0}.efb.btn-check:focus+.efb.btn-outline-info,.efb.btn-outline-info:focus{box-shadow:0 0 0 .25rem rgba(13,202,240,.5)}.efb.btn-check:active+.efb.btn-outline-info,.efb.btn-check:checked+.efb.btn-outline-info,.efb.btn-outline-info.active,.efb.btn-outline-info.efb.dropdown-toggle.show,.efb.btn-outline-info:active{color:#000;background-color:#0dcaf0;border-color:#0dcaf0}.efb.btn-check:active+.efb.btn-outline-info:focus,.efb.btn-check:checked+.efb.btn-outline-info:focus,.efb.btn-outline-info.active:focus,.efb.btn-outline-info.efb.dropdown-toggle.show:focus,.efb.btn-outline-info:active:focus{box-shadow:0 0 0 .25rem rgba(13,202,240,.5)}.efb.btn-outline-info.disabled,.efb.btn-outline-info:disabled{color:#0dcaf0;background-color:transparent}.efb.btn-outline-warning{color:#ffc107;border-color:#ffc107}.efb.btn-outline-warning:hover{color:#000;background-color:#ffc107;border-color:#ffc107}.efb.btn-check:focus+.efb.btn-outline-warning,.efb.btn-outline-warning:focus{box-shadow:0 0 0 .25rem rgba(255,193,7,.5)}.efb.btn-check:active+.efb.btn-outline-warning,.efb.btn-check:checked+.efb.btn-outline-warning,.efb.btn-outline-warning.active,.efb.btn-outline-warning.efb.dropdown-toggle.show,.efb.btn-outline-warning:active{color:#000;background-color:#ffc107;border-color:#ffc107}.efb.btn-check:active+.efb.btn-outline-warning:focus,.efb.btn-check:checked+.efb.btn-outline-warning:focus,.efb.btn-outline-warning.active:focus,.efb.btn-outline-warning.efb.dropdown-toggle.show:focus,.efb.btn-outline-warning:active:focus{box-shadow:0 0 0 .25rem rgba(255,193,7,.5)}.efb.btn-outline-warning.disabled,.efb.btn-outline-warning:disabled{color:#ffc107;background-color:transparent}.efb.btn-outline-danger{color:#dc3545;border-color:#dc3545}.efb.btn-outline-danger:hover{color:#fff;background-color:#dc3545;border-color:#dc3545}.efb.btn-check:focus+.efb.btn-outline-danger,.efb.btn-outline-danger:focus{box-shadow:0 0 0 .25rem rgba(220,53,69,.5)}.efb.btn-check:active+.efb.btn-outline-danger,.efb.btn-check:checked+.efb.btn-outline-danger,.efb.btn-outline-danger.active,.efb.btn-outline-danger.efb.dropdown-toggle.show,.efb.btn-outline-danger:active{color:#fff;background-color:#dc3545;border-color:#dc3545}.efb.btn-check:active+.efb.btn-outline-danger:focus,.efb.btn-check:checked+.efb.btn-outline-danger:focus,.efb.btn-outline-danger.active:focus,.efb.btn-outline-danger.efb.dropdown-toggle.show:focus,.efb.btn-outline-danger:active:focus{box-shadow:0 0 0 .25rem rgba(220,53,69,.5)}.efb.btn-outline-danger.disabled,.efb.btn-outline-danger:disabled{color:#dc3545;background-color:transparent}.efb.btn-outline-light{color:#f8f9fa;border-color:#f8f9fa}.efb.btn-outline-light:hover{color:#000;background-color:#f8f9fa;border-color:#f8f9fa}.efb.btn-check:focus+.efb.btn-outline-light,.efb.btn-outline-light:focus{box-shadow:0 0 0 .25rem rgba(248,249,250,.5)}.efb.btn-check:active+.efb.btn-outline-light,.efb.btn-check:checked+.efb.btn-outline-light,.efb.btn-outline-light.active,.efb.btn-outline-light.efb.dropdown-toggle.show,.efb.btn-outline-light:active{color:#000;background-color:#f8f9fa;border-color:#f8f9fa}.efb.btn-check:active+.efb.btn-outline-light:focus,.efb.btn-check:checked+.efb.btn-outline-light:focus,.efb.btn-outline-light.active:focus,.efb.btn-outline-light.efb.dropdown-toggle.show:focus,.efb.btn-outline-light:active:focus{box-shadow:0 0 0 .25rem rgba(248,249,250,.5)}.efb.btn-outline-light.disabled,.efb.btn-outline-light:disabled{color:#f8f9fa;background-color:transparent}.efb.btn-outline-dark{color:#212529;border-color:#212529}.efb.btn-outline-dark:hover{color:#fff;background-color:#212529;border-color:#212529}.efb.btn-check:focus+.efb.btn-outline-dark,.efb.btn-outline-dark:focus{box-shadow:0 0 0 .25rem rgba(33,37,41,.5)}.efb.btn-check:active+.efb.btn-outline-dark,.efb.btn-check:checked+.efb.btn-outline-dark,.efb.btn-outline-dark.active,.efb.btn-outline-dark.efb.dropdown-toggle.show,.efb.btn-outline-dark:active{color:#fff;background-color:#212529;border-color:#212529}.efb.btn-check:active+.efb.btn-outline-dark:focus,.efb.btn-check:checked+.efb.btn-outline-dark:focus,.efb.btn-outline-dark.active:focus,.efb.btn-outline-dark.efb.dropdown-toggle.show:focus,.efb.btn-outline-dark:active:focus{box-shadow:0 0 0 .25rem rgba(33,37,41,.5)}.efb.btn-outline-dark.disabled,.efb.btn-outline-dark:disabled{color:#212529;background-color:transparent}.efb.btn-link{font-weight:400;color:#0d6efd;text-decoration:underline}.efb.btn-link:hover{color:#0a58ca}.efb.btn-link.disabled,.efb.btn-link:disabled{color:#6c757d}.efb.btn-group-lg>.efb.btn,.efb.btn-lg{padding:.5rem 1rem;font-size:1.25rem;border-radius:.3rem}.efb.btn-group-sm>.efb.btn,.efb.btn-sm{padding:.2rem .3rem;font-size:.875rem;border-radius:.2rem}.efb.fade{transition:opacity .15s linear}@media (prefers-reduced-motion:reduce){.efb.fade{transition:none}}.efb.fade:not(.show){opacity:0}.efb.collapse:not(.show){display:none}.efb.collapsing{height:0;overflow:hidden;transition:height .35s ease}@media (prefers-reduced-motion:reduce){.efb.collapsing{transition:none}}.efb.dropdown,.efb.dropend,.efb.dropstart,.efb.dropup{position:relative}.efb.dropdown-toggle{white-space:nowrap}.efb.dropdown-toggle::after{display:inline-block;margin-left:.255em;vertical-align:.255em;content:'';border-top:.3em solid;border-right:.3em solid transparent;border-bottom:0;border-left:.3em solid transparent}.efb.dropdown-toggle:empty::after{margin-left:0}.efb.dropdown-menu{position:absolute;z-index:1000;display:none;min-width:10rem;padding:.5rem 0;margin:0;font-size:1rem;color:#212529;text-align:left;list-style:none;background-color:#fff;background-clip:padding-box;border:1px solid rgba(0,0,0,.15);border-radius:.25rem}.efb.dropdown-menu[data-bs-popper]{top:100%;left:0;margin-top:.125rem}.efb.dropdown-menu-start{--bs-position:start}.efb.dropdown-menu-start[data-bs-popper]{right:auto;left:0}.efb.dropdown-menu-end{--bs-position:end}.efb.dropdown-menu-end[data-bs-popper]{right:0;left:auto}.efb.dropup .efb.dropdown-menu[data-bs-popper]{top:auto;bottom:100%;margin-top:0;margin-bottom:.125rem}.efb.dropup .efb.dropdown-toggle::after{display:inline-block;margin-left:.255em;vertical-align:.255em;content:'';border-top:0;border-right:.3em solid transparent;border-bottom:.3em solid;border-left:.3em solid transparent}.efb.dropup .efb.dropdown-toggle:empty::after{margin-left:0}.efb.dropend .efb.dropdown-menu[data-bs-popper]{top:0;right:auto;left:100%;margin-top:0;margin-left:.125rem}.efb.dropend .efb.dropdown-toggle::after{display:inline-block;margin-left:.255em;vertical-align:.255em;content:'';border-top:.3em solid transparent;border-right:0;border-bottom:.3em solid transparent;border-left:.3em solid}.efb.dropend .efb.dropdown-toggle:empty::after{margin-left:0}.efb.dropend .efb.dropdown-toggle::after{vertical-align:0}.efb.dropstart .efb.dropdown-menu[data-bs-popper]{top:0;right:100%;left:auto;margin-top:0;margin-right:.125rem}.efb.dropstart .efb.dropdown-toggle::after{display:inline-block;margin-left:.255em;vertical-align:.255em;content:''}.efb.dropstart .efb.dropdown-toggle::after{display:none}.efb.dropstart .efb.dropdown-toggle::before{display:inline-block;margin-right:.255em;vertical-align:.255em;content:'';border-top:.3em solid transparent;border-right:.3em solid;border-bottom:.3em solid transparent}.efb.dropstart .efb.dropdown-toggle:empty::after{margin-left:0}.efb.dropstart .efb.dropdown-toggle::before{vertical-align:0}.efb.dropdown-divider{height:0;margin:.5rem 0;overflow:hidden;border-top:1px solid rgba(0,0,0,.15)}.efb.dropdown-item{display:block;width:100%;padding:.25rem 1rem;clear:both;font-weight:400;color:#212529;text-align:inherit;text-decoration:none;white-space:nowrap;background-color:transparent;border:0}.efb.dropdown-item:focus,.efb.dropdown-item:hover{color:#1e2125;background-color:#e9ecef}.efb.dropdown-item.active,.efb.dropdown-item:active{color:#fff;text-decoration:none;background-color:#0d6efd}.efb.dropdown-item.disabled,.efb.dropdown-item:disabled{color:#adb5bd;pointer-events:none;background-color:transparent}.efb.dropdown-menu.show{display:block}.efb.dropdown-header{display:block;padding:.5rem 1rem;margin-bottom:0;font-size:.875rem;color:#6c757d;white-space:nowrap}.efb.dropdown-item-text{display:block;padding:.25rem 1rem;color:#212529}.efb.dropdown-menu-dark{color:#dee2e6;background-color:#343a40;border-color:rgba(0,0,0,.15)}.efb.dropdown-menu-dark .efb.dropdown-item{color:#dee2e6}.efb.dropdown-menu-dark .efb.dropdown-item:focus,.efb.dropdown-menu-dark .efb.dropdown-item:hover{color:#fff;background-color:rgba(255,255,255,.15)}.efb.dropdown-menu-dark .efb.dropdown-item.active,.efb.dropdown-menu-dark .efb.dropdown-item:active{color:#fff;background-color:#0d6efd}.efb.dropdown-menu-dark .efb.dropdown-item.disabled,.efb.dropdown-menu-dark .efb.dropdown-item:disabled{color:#adb5bd}.efb.dropdown-menu-dark .efb.dropdown-divider{border-color:rgba(0,0,0,.15)}.efb.dropdown-menu-dark .efb.dropdown-item-text{color:#dee2e6}.efb.dropdown-menu-dark .efb.dropdown-header{color:#adb5bd}.efb.btn-group{position:relative;display:inline-flex;vertical-align:middle}.efb.btn-group>.efb.btn{position:relative;flex:1 1 auto}.efb.btn-group>.efb.btn-check:checked+.efb.btn,.efb.btn-group>.efb.btn-check:focus+.efb.btn,.efb.btn-group>.efb.btn.active,.efb.btn-group>.efb.btn:active,.efb.btn-group>.efb.btn:focus,.efb.btn-group>.efb.btn:hover{z-index:1}.efb.btn-toolbar{display:flex;flex-wrap:wrap;justify-content:flex-start}.efb.btn-toolbar .efb.input-group{width:auto}.efb.btn-group>.efb.btn-group:not(:first-child),.efb.btn-group>.efb.btn:not(:first-child){margin-left:-1px}.efb.btn-group>.efb.btn-group:not(:last-child)>.efb.btn,.efb.btn-group>.efb.btn:not(:last-child):not(.efb.dropdown-toggle){border-top-right-radius:0;border-bottom-right-radius:0}.efb.btn-group>.efb.btn-group:not(:first-child)>.efb.btn,.efb.btn-group>.efb.btn:nth-child(n+3),.efb.btn-group>:not(.efb.btn-check)+.efb.btn{border-top-left-radius:0;border-bottom-left-radius:0}.efb.dropdown-toggle-split{padding-right:.5625rem;padding-left:.5625rem}.efb.dropdown-toggle-split::after,.efb.dropend .efb.dropdown-toggle-split::after,.efb.dropup .efb.dropdown-toggle-split::after{margin-left:0}.efb.dropstart .efb.dropdown-toggle-split::before{margin-right:0}.efb.btn-group-sm>.efb.btn+.efb.dropdown-toggle-split,.efb.btn-sm+.efb.dropdown-toggle-split{padding-right:.375rem;padding-left:.375rem}.efb.btn-group-lg>.efb.btn+.efb.dropdown-toggle-split,.efb.btn-lg+.efb.dropdown-toggle-split{padding-right:.75rem;padding-left:.75rem}.efb.nav{display:flex;flex-wrap:wrap;padding-left:0;margin-bottom:0;list-style:none}.efb.nav-link{display:block;padding:.5rem 1rem;color:#0d6efd;text-decoration:none;transition:color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out}@media (prefers-reduced-motion:reduce){.efb.nav-link{transition:none}}.efb.nav-link:focus,.efb.nav-link:hover{color:#0a58ca}.efb.nav-link.disabled{color:#6c757d;pointer-events:none;cursor:default}.efb.nav-tabs{border-bottom:1px solid #dee2e6}.efb.nav-tabs .efb.nav-link{margin-bottom:-1px;background:0 0;border:1px solid transparent;border-top-left-radius:.25rem;border-top-right-radius:.25rem}.efb.nav-tabs .efb.nav-link:focus,.efb.nav-tabs .efb.nav-link:hover{border-color:#e9ecef #e9ecef #dee2e6;isolation:isolate}.efb.nav-tabs .efb.nav-link.disabled{color:#6c757d;background-color:transparent;border-color:transparent}.efb.nav-tabs .efb.nav-item.show .efb.nav-link,.efb.nav-tabs .efb.nav-link.active{color:#495057;background-color:#fff;border-color:#dee2e6 #dee2e6 #fff}.efb.nav-tabs .efb.dropdown-menu{margin-top:-1px;border-top-left-radius:0;border-top-right-radius:0}.efb.nav-pills .efb.nav-link{background:0 0;border:0;border-radius:.25rem}.efb.nav-pills .efb.nav-link.active,.efb.nav-pills .show>.efb.nav-link{color:#fff;background-color:#0d6efd}.efb.nav-fill .efb.nav-item,.efb.nav-fill>.efb.nav-link{flex:1 1 auto;text-align:center}.efb.nav-justified .efb.nav-item,.efb.nav-justified>.efb.nav-link{flex-basis:0;flex-grow:1;text-align:center}.efb.nav-fill .efb.nav-item .efb.nav-link,.efb.nav-justified .efb.nav-item .efb.nav-link{width:100%}.efb.tab-content>.tab-pane{display:none}.efb.tab-content>.active{display:block}.efb.navbar{position:relative;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;padding-top:.5rem;padding-bottom:.5rem}.efb.navbar>.efb.container,.efb.navbar>.efb.container-fluid,.efb.navbar>.efb.container-lg,.efb.navbar>.efb.container-md,.efb.navbar>.efb.container-sm,.efb.navbar>.efb.container-xl,.efb.navbar>.efb.container-xxl{display:flex;flex-wrap:inherit;align-items:center;justify-content:space-between}.efb.navbar-brand{padding-top:.3125rem;padding-bottom:.3125rem;margin-right:1rem;font-size:1.25rem;text-decoration:none;white-space:nowrap}.efb.navbar-nav{display:flex;flex-direction:column;padding-left:0;margin-bottom:0;list-style:none}.efb.navbar-nav .efb.nav-link{padding-right:0;padding-left:0}.efb.navbar-nav .efb.dropdown-menu{position:static}.efb.navbar-text{padding-top:.5rem;padding-bottom:.5rem}.efb.navbar-collapse{flex-basis:100%;flex-grow:1;align-items:center}.efb.navbar-toggler{padding:.25rem .75rem;font-size:1.25rem;line-height:1;background-color:transparent;border:1px solid transparent;border-radius:.25rem;transition:box-shadow .15s ease-in-out}@media (prefers-reduced-motion:reduce){.efb.navbar-toggler{transition:none}}.efb.navbar-toggler:hover{text-decoration:none}.efb.navbar-toggler:focus{text-decoration:none;outline:0;box-shadow:0 0 0 .25rem}.efb.navbar-toggler-icon{display:inline-block;width:1.5em;height:1.5em;vertical-align:middle;background-repeat:no-repeat;background-position:center;background-size:100%}.efb.navbar-nav-scroll{max-height:var(--bs-scroll-height,75vh);overflow-y:auto}@media (min-width:992px){.efb.navbar-expand-lg{flex-wrap:nowrap;justify-content:flex-start}.efb.navbar-expand-lg .efb.navbar-nav{flex-direction:row}.efb.navbar-expand-lg .efb.navbar-nav .efb.dropdown-menu{position:absolute}.efb.navbar-expand-lg .efb.navbar-nav .efb.nav-link{padding-right:.5rem;padding-left:.5rem}.efb.navbar-expand-lg .efb.navbar-nav-scroll{overflow:visible}.efb.navbar-expand-lg .efb.navbar-collapse{display:flex!important;flex-basis:auto}.efb.navbar-expand-lg .efb.navbar-toggler{display:none}}@media (min-width:1400px){.efb.card-img{flex-wrap:nowrap;justify-content:flex-start}.efb.card-img .efb.navbar-nav{flex-direction:row}.efb.card-img .efb.navbar-nav .efb.dropdown-menu{position:absolute}.efb.card-img .efb.navbar-nav .efb.nav-link{padding-right:.5rem;padding-left:.5rem}.efb.card-img .efb.navbar-nav-scroll{overflow:visible}.efb.card-img .efb.navbar-collapse{display:flex!important;flex-basis:auto}.efb.card-img .efb.navbar-toggler{display:none}}.efb.navbar-expand{flex-wrap:nowrap;justify-content:flex-start}.efb.navbar-expand .efb.navbar-nav{flex-direction:row}.efb.navbar-expand .efb.navbar-nav .efb.dropdown-menu{position:absolute}.efb.navbar-expand .efb.navbar-nav .efb.nav-link{padding-right:.5rem;padding-left:.5rem}.efb.navbar-expand .efb.navbar-nav-scroll{overflow:visible}.efb.navbar-expand .efb.navbar-collapse{display:flex!important;flex-basis:auto}.efb.navbar-expand .efb.navbar-toggler{display:none}.efb.navbar-light .efb.navbar-brand{color:rgba(0,0,0,.9)}.efb.navbar-light .efb.navbar-brand:focus,.efb.navbar-light .efb.navbar-brand:hover{color:rgba(0,0,0,.9)}.efb.navbar-light .efb.navbar-nav .efb.nav-link{color:rgba(0,0,0,.55)}.efb.navbar-light .efb.navbar-nav .efb.nav-link:focus,.efb.navbar-light .efb.navbar-nav .efb.nav-link:hover{color:rgba(0,0,0,.7)}.efb.navbar-light .efb.navbar-nav .efb.nav-link.disabled{color:rgba(0,0,0,.3)}.efb.navbar-light .efb.navbar-nav .efb.nav-link.active,.efb.navbar-light .efb.navbar-nav .show>.efb.nav-link{color:rgba(0,0,0,.9)}.efb.navbar-light .efb.navbar-toggler{color:rgba(0,0,0,.55);border-color:rgba(0,0,0,.1)}.efb.navbar-light .efb.navbar-toggler-icon{background-image:url('data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%280,0,0,.55%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e')}.efb.navbar-light .efb.navbar-text{color:rgba(0,0,0,.55)}.efb.navbar-light .efb.navbar-text a,.efb.navbar-light .efb.navbar-text a:focus,.efb.navbar-light .efb.navbar-text a:hover{color:rgba(0,0,0,.9)}.efb.navbar-dark .efb.navbar-brand{color:#fff}.efb.navbar-dark .efb.navbar-brand:focus,.efb.navbar-dark .efb.navbar-brand:hover{color:#fff}.efb.navbar-dark .efb.navbar-nav .efb.nav-link{color:rgba(255,255,255,.55)}.efb.navbar-dark .efb.navbar-nav .efb.nav-link:focus,.efb.navbar-dark .efb.navbar-nav .efb.nav-link:hover{color:rgba(255,255,255,.75)}.efb.navbar-dark .efb.navbar-nav .efb.nav-link.disabled{color:rgba(255,255,255,.25)}.efb.navbar-dark .efb.navbar-nav .efb.nav-link.active,.efb.navbar-dark .efb.navbar-nav .show>.efb.nav-link{color:#fff}.efb.navbar-dark .efb.navbar-toggler{color:rgba(255,255,255,.55);border-color:rgba(255,255,255,.1)}.efb.navbar-dark .efb.navbar-toggler-icon{background-image:url('data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255,255,255,.55%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e')}.efb.navbar-dark .efb.navbar-text{color:rgba(255,255,255,.55)}.efb.navbar-dark .efb.navbar-text a,.efb.navbar-dark .efb.navbar-text a:focus,.efb.navbar-dark .efb.navbar-text a:hover{color:#fff}.efb.card{position:relative;display:flex;flex-direction:column;min-width:0;word-wrap:break-word;background-color:#fff;background-clip:border-box;border:1px solid rgba(0,0,0,.125);border-radius:.25rem}.efb.card>hr{margin-right:0;margin-left:0}.efb.card>.efb.list-group{border-top:inherit;border-bottom:inherit}.efb.card>.efb.list-group:first-child{border-top-width:0;border-top-left-radius:calc(.25rem - 1px);border-top-right-radius:calc(.25rem - 1px)}.card>.efb.list-group:last-child{border-bottom-width:0;border-bottom-right-radius:calc(.25rem - 1px);border-bottom-left-radius:calc(.25rem - 1px)}.efb.card>.efb.card-header+.efb.list-group,.efb.card>.efb.list-group+.efb.card-footer{border-top:0}.efb.card-body{flex:1 1 auto;padding:1rem 1rem}.efb.card-title{margin-bottom:.5rem}.efb.card-text:last-child{margin-bottom:0}.efb.card-header{padding:.5rem 1rem;margin-bottom:0;background-color:rgba(0,0,0,.03);border-bottom:1px solid rgba(0,0,0,.125)}.efb.card-header:first-child{border-radius:calc(.25rem - 1px) calc(.25rem - 1px) 0 0}.efb.card-footer{padding:.5rem 1rem;background-color:rgba(0,0,0,.03);border-top:1px solid rgba(0,0,0,.125)}.efb.card-footer:last-child{border-radius:0 0 calc(.25rem - 1px) calc(.25rem - 1px)}.efb.card-header-tabs{margin-right:-.5rem;margin-bottom:-.5rem;margin-left:-.5rem;border-bottom:0}.efb.card-header-pills{margin-right:-.5rem;margin-left:-.5rem}.efb.card-img-overlay{position:absolute;top:0;right:0;bottom:0;left:0;padding:1rem;border-radius:calc(.25rem - 1px)}.efb.card-img,.efb.card-img-bottom,.efb.card-img-top{width:100%}.efb.card-img,.efb.card-img-top{border-top-left-radius:calc(.25rem - 1px);border-top-right-radius:calc(.25rem - 1px)}.efb.card-img,.efb.card-img-bottom{border-bottom-right-radius:calc(.25rem - 1px);border-bottom-left-radius:calc(.25rem - 1px)}.efb.card-group>.card{margin-bottom:.75rem}@media (min-width:576px){.efb.card-group{display:flex;flex-flow:row wrap}.efb.card-group>.card{flex:1 0 0%;margin-bottom:0}.efb.card-group>.card+.card{margin-left:0;border-left:0}.efb.card-group>.card:not(:last-child){border-top-right-radius:0;border-bottom-right-radius:0}.efb.card-group>.card:not(:last-child) .efb.card-header,.efb.card-group>.card:not(:last-child) .efb.card-img-top{border-top-right-radius:0}.efb.card-group>.card:not(:last-child) .efb.card-footer,.efb.card-group>.card:not(:last-child) .efb.card-img-bottom{border-bottom-right-radius:0}.efb.card-group>.card:not(:first-child){border-top-left-radius:0;border-bottom-left-radius:0}.efb.card-group>.card:not(:first-child) .efb.card-header,.efb.card-group>.card:not(:first-child) .efb.card-img-top{border-top-left-radius:0}.efb.card-group>.card:not(:first-child) .efb.card-footer,.efb.card-group>.card:not(:first-child) .efb.card-img-bottom{border-bottom-left-radius:0}}.efb.page-link{position:relative;display:block;color:#0d6efd;text-decoration:none;background-color:#fff;border:1px solid #dee2e6;transition:color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out}@media (prefers-reduced-motion:reduce){.efb.page-link{transition:none}}.efb.page-link:hover{z-index:2;color:#0a58ca;background-color:#e9ecef;border-color:#dee2e6}.efb.page-link:focus{z-index:3;color:#0a58ca;background-color:#e9ecef;outline:0;box-shadow:0 0 0 .25rem rgba(13,110,253,.25)}.efb.page-item:not(:first-child) .efb.page-link{margin-left:-1px}.efb.page-item.active .efb.page-link{z-index:3;color:#fff;background-color:#0d6efd;border-color:#0d6efd}.efb.page-item.disabled .efb.page-link{color:#6c757d;pointer-events:none;background-color:#fff;border-color:#dee2e6}.efb.page-link{padding:.375rem .75rem}.efb.page-item:first-child .efb.page-link{border-top-left-radius:.25rem;border-bottom-left-radius:.25rem}.efb.page-item:last-child .efb.page-link{border-top-right-radius:.25rem;border-bottom-right-radius:.25rem}.efb.pagination-lg .efb.page-link{padding:.75rem 1.5rem;font-size:1.25rem}.efb.pagination-lg .efb.page-item:first-child .efb.page-link{border-top-left-radius:.3rem;border-bottom-left-radius:.3rem}.efb.pagination-lg .efb.page-item:last-child .efb.page-link{border-top-right-radius:.3rem;border-bottom-right-radius:.3rem}.efb.pagination-sm .efb.page-link{padding:.25rem .5rem;font-size:.875rem}.efb.pagination-sm .efb.page-item:first-child .efb.page-link{border-top-left-radius:.2rem;border-bottom-left-radius:.2rem}.pagination-sm .efb.page-item:last-child .efb.page-link{border-top-right-radius:.2rem;border-bottom-right-radius:.2rem}.efb.badge{display:inline-block;padding:.35em .65em;font-size:.75em;font-weight:700;line-height:1;color:#fff;text-align:center;white-space:nowrap;vertical-align:baseline;border-radius:.25rem}.efb.badge:empty{display:none}.efb.btn .efb.badge{position:relative;top:-1px}.efb.alert{position:relative;padding:1rem 1rem;margin-bottom:1rem;border:1px solid transparent;border-radius:.25rem}.efb.alert-heading{color:inherit}.efb.alert-link{font-weight:700}.efb.alert-dismissible{padding-right:3rem}.efb.alert-dismissible .efb.btn-close{position:absolute;top:0;right:0;z-index:2;padding:1.25rem 1rem}.efb.alert-primary{color:#084298;background-color:#cfe2ff;border-color:#b6d4fe}.efb.alert-primary .efb.alert-link{color:#06357a}.efb.alert-secondary{color:#41464b;background-color:#e2e3e5;border-color:#d3d6d8}.efb.alert-secondary .efb.alert-link{color:#34383c}.efb.alert-success{color:#0f5132;background-color:#d1e7dd;border-color:#badbcc}.efb.alert-success .efb.alert-link{color:#0c4128}.efb.alert-info{color:#055160;background-color:#cff4fc;border-color:#b6effb}.efb.alert-info .efb.alert-link{color:#04414d}.efb.alert-warning{color:#664d03;background-color:#fff3cd;border-color:#ffecb5}.efb.alert-warning .efb.alert-link{color:#523e02}.efb.alert-danger{color:#842029;background-color:#f8d7da;border-color:#f5c2c7}.efb.alert-danger .efb.alert-link{color:#6a1a21}.efb.alert-light{color:#636464;background-color:#fefefe;border-color:#fdfdfe}.efb.alert-light .efb.alert-link{color:#4f5050}.efb.alert-dark{color:#141619;background-color:#d3d3d4;border-color:#bcbebf}.efb.alert-dark .efb.alert-link{color:#101214}@-webkit-keyframes progress-bar-stripes{0%{background-position-x:1rem}}@keyframes progress-bar-stripes{0%{background-position-x:1rem}}.efb.progress{display:flex;height:1rem;overflow:hidden;font-size:.75rem;background-color:#e9ecef;border-radius:.25rem}.efb.progress-bar{display:flex;flex-direction:column;justify-content:center;overflow:hidden;color:#fff;text-align:center;white-space:nowrap;background-color:#0d6efd;transition:width .6s ease}@media (prefers-reduced-motion:reduce){.efb.progress-bar{transition:none}}.efb.progress-bar-striped{background-image:linear-gradient(45deg,rgba(255,255,255,.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.15) 75%,transparent 75%,transparent)!important;background-size:1rem 1rem}.efb.progress-bar-animated{-webkit-animation:1s linear infinite progress-bar-stripes;animation:1s linear infinite progress-bar-stripes}@media (prefers-reduced-motion:reduce){.efb.progress-bar-animated{-webkit-animation:none;animation:none}}.efb.list-group{display:flex;flex-direction:column;padding-left:0;margin-bottom:0;border-radius:.25rem}.efb.list-group-numbered{list-style-type:none;counter-reset:section}.efb.list-group-numbered>li::before{content:counters(section,'.') '. ';counter-increment:section}.efb.list-group-item-action{width:100%;color:#495057;text-align:inherit}.efb.list-group-item-action:focus,.efb.list-group-item-action:hover{z-index:1;color:#495057;text-decoration:none;background-color:#f8f9fa}.efb.list-group-item-action:active{color:#212529;background-color:#e9ecef}.efb.list-group-item{position:relative;display:block;padding:.5rem 1rem;color:#212529;text-decoration:none;background-color:#fff;border:1px solid rgba(0,0,0,.125)}.efb.list-group-item:first-child{border-top-left-radius:inherit;border-top-right-radius:inherit}.efb.list-group-item:last-child{border-bottom-right-radius:inherit;border-bottom-left-radius:inherit}.efb.list-group-item.disabled,.efb.list-group-item:disabled{color:#6c757d;pointer-events:none;background-color:#fff}.efb.list-group-item.active{z-index:2;color:#fff;background-color:#0d6efd;border-color:#0d6efd}.efb.list-group-item+.efb.list-group-item{border-top-width:0}.efb.list-group-item+.efb.list-group-item.active{margin-top:-1px;border-top-width:1px}.efb.list-group-horizontal{flex-direction:row}.efb.list-group-horizontal>.efb.list-group-item:first-child{border-bottom-left-radius:.25rem;border-top-right-radius:0}.efb.list-group-horizontal>.efb.list-group-item:last-child{border-top-right-radius:.25rem;border-bottom-left-radius:0}.efb.list-group-horizontal>.efb.list-group-item.active{margin-top:0}.efb.list-group-horizontal>.efb.list-group-item+.efb.list-group-item{border-top-width:1px;border-left-width:0}.efb.list-group-horizontal>.efb.list-group-item+.efb.list-group-item.active{margin-left:-1px;border-left-width:1px}@media (min-width:576px){.efb.list-group-horizontal-sm{flex-direction:row}.efb.list-group-horizontal-sm>.efb.list-group-item:first-child{border-bottom-left-radius:.25rem;border-top-right-radius:0}.efb.list-group-horizontal-sm>.efb.list-group-item:last-child{border-top-right-radius:.25rem;border-bottom-left-radius:0}.efb.list-group-horizontal-sm>.efb.list-group-item.active{margin-top:0}.efb.list-group-horizontal-sm>.efb.list-group-item+.efb.list-group-item{border-top-width:1px;border-left-width:0}.efb.list-group-horizontal-sm>.efb.list-group-item+.efb.list-group-item.active{margin-left:-1px;border-left-width:1px}}@media (min-width:768px){.efb.list-group-horizontal-md{flex-direction:row}.efb.list-group-horizontal-md>.efb.list-group-item:first-child{border-bottom-left-radius:.25rem;border-top-right-radius:0}.efb.list-group-horizontal-md>.efb.list-group-item:last-child{border-top-right-radius:.25rem;border-bottom-left-radius:0}.efb.list-group-horizontal-md>.efb.list-group-item.active{margin-top:0}.efb.list-group-horizontal-md>.efb.list-group-item+.efb.list-group-item{border-top-width:1px;border-left-width:0}.efb.list-group-horizontal-md>.efb.list-group-item+.efb.list-group-item.active{margin-left:-1px;border-left-width:1px}}@media (min-width:992px){.efb.list-group-horizontal-lg{flex-direction:row}.efb.list-group-horizontal-lg>.efb.list-group-item:first-child{border-bottom-left-radius:.25rem;border-top-right-radius:0}.efb.list-group-horizontal-lg>.efb.list-group-item:last-child{border-top-right-radius:.25rem;border-bottom-left-radius:0}.efb.list-group-horizontal-lg>.efb.list-group-item.active{margin-top:0}.efb.list-group-horizontal-lg>.efb.list-group-item+.efb.list-group-item{border-top-width:1px;border-left-width:0}.efb.list-group-horizontal-lg>.efb.list-group-item+.efb.list-group-item.active{margin-left:-1px;border-left-width:1px}}@media (min-width:1200px){.efb.list-group-horizontal-xl{flex-direction:row}.efb.list-group-horizontal-xl>.efb.list-group-item:first-child{border-bottom-left-radius:.25rem;border-top-right-radius:0}.efb.list-group-horizontal-xl>.efb.list-group-item:last-child{border-top-right-radius:.25rem;border-bottom-left-radius:0}.efb.list-group-horizontal-xl>.efb.list-group-item.active{margin-top:0}.efb.list-group-horizontal-xl>.efb.list-group-item+.efb.list-group-item{border-top-width:1px;border-left-width:0}.efb.list-group-horizontal-xl>.efb.list-group-item+.efb.list-group-item.active{margin-left:-1px;border-left-width:1px}}@media (min-width:1400px){.efb.list-group-horizontal-xxl{flex-direction:row}.efb.list-group-horizontal-xxl>.efb.list-group-item:first-child{border-bottom-left-radius:.25rem;border-top-right-radius:0}.efb.list-group-horizontal-xxl>.efb.list-group-item:last-child{border-top-right-radius:.25rem;border-bottom-left-radius:0}.efb.list-group-horizontal-xxl>.efb.list-group-item.active{margin-top:0}.efb.list-group-horizontal-xxl>.efb.list-group-item+.efb.list-group-item{border-top-width:1px;border-left-width:0}.efb.list-group-horizontal-xxl>.efb.list-group-item+.efb.list-group-item.active{margin-left:-1px;border-left-width:1px}}.efb.list-group-flush{border-radius:0}.efb.list-group-flush>.efb.list-group-item{border-width:0 0 1px}.efb.list-group-flush>.efb.list-group-item:last-child{border-bottom-width:0}.efb.list-group-item-primary{color:#084298;background-color:#cfe2ff}.efb.list-group-item-primary.efb.list-group-item-action:focus,.efb.list-group-item-primary.efb.list-group-item-action:hover{color:#084298;background-color:#bacbe6}.efb.list-group-item-primary.efb.list-group-item-action.active{color:#fff;background-color:#084298;border-color:#084298}.efb.list-group-item-secondary{color:#41464b;background-color:#e2e3e5}.efb.list-group-item-secondary.efb.list-group-item-action:focus,.efb.list-group-item-secondary.efb.list-group-item-action:hover{color:#41464b;background-color:#cbccce}.efb.list-group-item-secondary.efb.list-group-item-action.active{color:#fff;background-color:#41464b;border-color:#41464b}.efb.list-group-item-success{color:#0f5132;background-color:#d1e7dd}.efb.list-group-item-success.efb.list-group-item-action:focus,.efb.list-group-item-success.efb.list-group-item-action:hover{color:#0f5132;background-color:#bcd0c7}.efb.list-group-item-success.efb.list-group-item-action.active{color:#fff;background-color:#0f5132;border-color:#0f5132}.efb.list-group-item-info{color:#055160;background-color:#cff4fc}.efb.list-group-item-info.efb.list-group-item-action:focus,.efb.list-group-item-info.efb.list-group-item-action:hover{color:#055160;background-color:#badce3}.efb.list-group-item-info.efb.list-group-item-action.active{color:#fff;background-color:#055160;border-color:#055160}.efb.list-group-item-warning{color:#664d03;background-color:#fff3cd}.efb.list-group-item-warning.efb.list-group-item-action:focus,.efb.list-group-item-warning.efb.list-group-item-action:hover{color:#664d03;background-color:#e6dbb9}.efb.list-group-item-warning.efb.list-group-item-action.active{color:#fff;background-color:#664d03;border-color:#664d03}.efb.list-group-item-danger{color:#842029;background-color:#f8d7da}.efb.list-group-item-danger.efb.list-group-item-action:focus,.efb.list-group-item-danger.efb.list-group-item-action:hover{color:#842029;background-color:#dfc2c4}.efb.list-group-item-danger.efb.list-group-item-action.active{color:#fff;background-color:#842029;border-color:#842029}.efb.list-group-item-light{color:#636464;background-color:#fefefe}.efb.list-group-item-light.efb.list-group-item-action:focus,.efb.list-group-item-light.efb.list-group-item-action:hover{color:#636464;background-color:#e5e5e5}.efb.list-group-item-light.efb.list-group-item-action.active{color:#fff;background-color:#636464;border-color:#636464}.efb.list-group-item-dark{color:#141619;background-color:#d3d3d4}.efb.list-group-item-dark.efb.list-group-item-action:focus,.efb.list-group-item-dark.efb.list-group-item-action:hover{color:#141619;background-color:#bebebf}.efb.list-group-item-dark.efb.list-group-item-action.active{color:#fff;background-color:#141619;border-color:#141619}.efb.btn-close{box-sizing:content-box;width:1em;height:1em;padding:.25em .25em;color:#000;background:transparent url('data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23000'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e') center/1em auto no-repeat;border:0;border-radius:.25rem;opacity:.5}.efb.btn-close:hover{color:#000;text-decoration:none;opacity:.75}.efb.btn-close:focus{outline:0;box-shadow:0 0 0 .25rem rgba(13,110,253,.25);opacity:1}.efb.btn-close.disabled,.efb.btn-close:disabled{pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none;opacity:.25}.efb.btn-close-white{filter:invert(1) grayscale(100%) brightness(200%)}.efb.modal{position:fixed;top:0;left:0;z-index:1060;display:none;width:100%;height:100%;overflow-x:hidden;overflow-y:auto;outline:0}.efb.modal-dialog{position:relative;width:auto;margin:.5rem;pointer-events:none}.efb.modal.efb.fade .efb.modal-dialog{transition:transform .3s ease-out;transform:translate(0,-50px)}@media (prefers-reduced-motion:reduce){.efb.modal.efb.fade .efb.modal-dialog{transition:none}}.efb.modal.show .modal-dialog{transform:none}.efb.modal.modal-static .efb.modal-dialog{transform:scale(1.02)}.efb.modal-dialog-scrollable{height:calc(100% - 1rem)}.efb.modal-dialog-scrollable .efb.modal-content{max-height:100%;overflow:hidden}.efb.modal-dialog-scrollable .efb.modal-body{overflow-y:auto}.efb.modal-dialog-centered{display:flex;align-items:center;min-height:calc(100% - 1rem)}.efb.modal-content{position:relative;display:flex;flex-direction:column;width:100%;pointer-events:auto;background-color:#fff;background-clip:padding-box;border:1px solid rgba(0,0,0,.2);border-radius:.3rem;outline:0}.efb.modal-backdrop{position:fixed;top:0;left:0;z-index:1040;width:100vw;height:100vh;background-color:#000}.efb.modal-backdrop.efb.fade{opacity:0}.efb.modal-backdrop.show{opacity:.5}.efb.modal-header{display:flex;flex-shrink:0;align-items:center;justify-content:space-between;padding:1rem 1rem;border-bottom:1px solid #dee2e6;border-top-left-radius:calc(.3rem - 1px);border-top-right-radius:calc(.3rem - 1px)}.efb.modal-header .efb.btn-close{padding:.5rem .5rem;margin:-.5rem -.5rem -.5rem auto}.efb.modal-title{margin-bottom:0;line-height:1.5}.efb.modal-body{position:relative;flex:1 1 auto;padding:1rem}.efb.modal-footer{display:flex;flex-wrap:wrap;flex-shrink:0;align-items:center;justify-content:flex-end;padding:.75rem;border-top:1px solid #dee2e6;border-bottom-right-radius:calc(.3rem - 1px);border-bottom-left-radius:calc(.3rem - 1px)}.efb.modal-footer>*{margin:.25rem}@media (min-width:576px){.efb.modal-dialog{max-width:500px;margin:1.75rem auto}.efb.modal-dialog-scrollable{height:calc(100% - 3.5rem)}.efb.modal-dialog-centered{min-height:calc(100% - 3.5rem)}.efb.modal-sm{max-width:300px}}.efb.modal-content{height:100%;border:0;border-radius:0}.efb.modal-header{border-radius:0}.efb.modal-body{overflow-y:auto}.efb.modal-footer{border-radius:0}.efb.tooltip{position:absolute;z-index:1080;display:block;margin:0;font-family:var(--bs-font-sans-serif);font-style:normal;font-weight:400;line-height:1.5;text-align:left;text-align:start;text-decoration:none;text-shadow:none;text-transform:none;letter-spacing:normal;word-break:normal;word-spacing:normal;white-space:normal;line-break:auto;font-size:.875rem;word-wrap:break-word;opacity:0}.efb.tooltip.show{opacity:.9}.efb.tooltip .efb.tooltip-arrow{position:absolute;display:block;width:.8rem;height:.4rem}.efb.tooltip .efb.tooltip-arrow::before{position:absolute;content:'';border-color:transparent;border-style:solid}.efb.bs-tooltip-auto[data-popper-placement^=top],.efb.bs-tooltip-top{padding:.4rem 0}.efb.bs-tooltip-auto[data-popper-placement^=top] .efb.tooltip-arrow,.efb.bs-tooltip-top .efb.tooltip-arrow{bottom:0}.efb.bs-tooltip-auto[data-popper-placement^=top] .efb.tooltip-arrow::before,.efb.bs-tooltip-top .efb.tooltip-arrow::before{top:-1px;border-width:.4rem .4rem 0;border-top-color:#000}.efb.bs-tooltip-auto[data-popper-placement^=right],.efb.bs-tooltip-end{padding:0 .4rem}.efb.bs-tooltip-auto[data-popper-placement^=right] .efb.tooltip-arrow,.efb.bs-tooltip-end .efb.tooltip-arrow{left:0;width:.4rem;height:.8rem}.efb.bs-tooltip-auto[data-popper-placement^=right] .efb.tooltip-arrow::before,.efb.bs-tooltip-end .efb.tooltip-arrow::before{right:-1px;border-width:.4rem .4rem .4rem 0;border-right-color:#000}.efb.bs-tooltip-auto[data-popper-placement^=bottom],.efb.bs-tooltip-bottom{padding:.4rem 0}.efb.bs-tooltip-auto[data-popper-placement^=bottom] .efb.tooltip-arrow,.efb.bs-tooltip-bottom .efb.tooltip-arrow{top:0}.efb.bs-tooltip-auto[data-popper-placement^=bottom] .efb.tooltip-arrow::before,.efb.bs-tooltip-bottom .efb.tooltip-arrow::before{bottom:-1px;border-width:0 .4rem .4rem;border-bottom-color:#000}.efb.bs-tooltip-auto[data-popper-placement^=left],.efb.bs-tooltip-start{padding:0 .4rem}.efb.bs-tooltip-auto[data-popper-placement^=left] .efb.tooltip-arrow,.efb.bs-tooltip-start .efb.tooltip-arrow{right:0;width:.4rem;height:.8rem}.efb.bs-tooltip-auto[data-popper-placement^=left] .efb.tooltip-arrow::before,.efb.bs-tooltip-start .efb.tooltip-arrow::before{left:-1px;border-width:.4rem 0 .4rem .4rem;border-left-color:#000}.efb.tooltip-inner{max-width:200px;padding:.25rem .5rem;color:#fff;text-align:center;background-color:#000;border-radius:.25rem}.efb.popover{position:absolute;top:0;left:0;z-index:1070;display:block;max-width:276px;font-family:var(--bs-font-sans-serif);font-style:normal;font-weight:400;line-height:1.5;text-align:left;text-align:start;text-decoration:none;text-shadow:none;text-transform:none;letter-spacing:normal;word-break:normal;word-spacing:normal;white-space:normal;line-break:auto;font-size:.875rem;word-wrap:break-word;background-color:#fff;background-clip:padding-box;border:1px solid rgba(0,0,0,.2);border-radius:.3rem}.efb.popover .efb.popover-arrow{position:absolute;display:block;width:1rem;height:.5rem}.efb.popover .efb.popover-arrow::after,.efb.popover .efb.popover-arrow::before{position:absolute;display:block;content:'';border-color:transparent;border-style:solid}.efb.bs-popover-auto[data-popper-placement^=top]>.efb.popover-arrow,.efb.bs-popover-top>.efb.popover-arrow{bottom:calc(-.5rem - 1px)}.efb.bs-popover-auto[data-popper-placement^=top]>.efb.popover-arrow::before,.efb.bs-popover-top>.efb.popover-arrow::before{bottom:0;border-width:.5rem .5rem 0;border-top-color:rgba(0,0,0,.25)}.efb.bs-popover-auto[data-popper-placement^=top]>.efb.popover-arrow::after,.efb.bs-popover-top>.efb.popover-arrow::after{bottom:1px;border-width:.5rem .5rem 0;border-top-color:#fff}.efb.bs-popover-auto[data-popper-placement^=right]>.efb.popover-arrow,.efb.bs-popover-end>.efb.popover-arrow{left:calc(-.5rem - 1px);width:.5rem;height:1rem}.efb.bs-popover-auto[data-popper-placement^=right]>.efb.popover-arrow::before,.efb.bs-popover-end>.efb.popover-arrow::before{left:0;border-width:.5rem .5rem .5rem 0;border-right-color:rgba(0,0,0,.25)}.efb.bs-popover-auto[data-popper-placement^=right]>.efb.popover-arrow::after,.efb.bs-popover-end>.efb.popover-arrow::after{left:1px;border-width:.5rem .5rem .5rem 0;border-right-color:#fff}.efb.bs-popover-auto[data-popper-placement^=bottom]>.efb.popover-arrow,.efb.bs-popover-bottom>.efb.popover-arrow{top:calc(-.5rem - 1px)}.efb.bs-popover-auto[data-popper-placement^=bottom]>.efb.popover-arrow::before,.efb.bs-popover-bottom>.efb.popover-arrow::before{top:0;border-width:0 .5rem .5rem .5rem;border-bottom-color:rgba(0,0,0,.25)}.efb.bs-popover-auto[data-popper-placement^=bottom]>.efb.popover-arrow::after,.efb.bs-popover-bottom>.efb.popover-arrow::after{top:1px;border-width:0 .5rem .5rem .5rem;border-bottom-color:#fff}.efb.bs-popover-auto[data-popper-placement^=bottom] .efb.popover-header::before,.efb.bs-popover-bottom .efb.popover-header::before{position:absolute;top:0;left:50%;display:block;width:1rem;margin-left:-.5rem;content:'';border-bottom:1px solid #f0f0f0}.efb.bs-popover-auto[data-popper-placement^=left]>.efb.popover-arrow,.efb.bs-popover-start>.efb.popover-arrow{right:calc(-.5rem - 1px);width:.5rem;height:1rem}.efb.bs-popover-auto[data-popper-placement^=left]>.efb.popover-arrow::before,.efb.bs-popover-start>.efb.popover-arrow::before{right:0;border-width:.5rem 0 .5rem .5rem;border-left-color:rgba(0,0,0,.25)}.efb.bs-popover-auto[data-popper-placement^=left]>.efb.popover-arrow::after,.efb.bs-popover-start>.efb.popover-arrow::after{right:1px;border-width:.5rem 0 .5rem .5rem;border-left-color:#fff}.efb.popover-header{padding:.5rem 1rem;margin-bottom:0;font-size:1rem;background-color:#f0f0f0;border-bottom:1px solid #d8d8d8;border-top-left-radius:calc(.3rem - 1px);border-top-right-radius:calc(.3rem - 1px)}.efb.popover-header:empty{display:none}.efb.popover-body{padding:1rem 1rem;color:#212529}.efb.carousel{position:relative}.efb.carousel.pointer-event{touch-action:pan-y}.efb.carousel-inner{position:relative;width:100%;overflow:hidden}.efb.carousel-inner::after{display:block;clear:both;content:''}.efb.carousel-item{position:relative;display:none;float:left;width:100%;margin-right:-100%;-webkit-backface-visibility:hidden;backface-visibility:hidden;transition:transform .6s ease-in-out}@media (prefers-reduced-motion:reduce){.efb.carousel-item{transition:none}}.efb.carousel-item-next,.efb.carousel-item-prev,.efb.carousel-item.active{display:block}.active.efb.carousel-item-end,.efb.carousel-item-next:not(.efb.carousel-item-start){transform:translateX(100%)}.active.efb.carousel-item-start,.efb.carousel-item-prev:not(.efb.carousel-item-end){transform:translateX(-100%)}.efb.carousel-fade .efb.carousel-item{opacity:0;transition-property:opacity;transform:none}.efb.carousel-fade .efb.carousel-item-next.efb.carousel-item-start,.efb.carousel-fade .efb.carousel-item-prev.efb.carousel-item-end,.efb.carousel-fade .efb.carousel-item.active{z-index:1;opacity:1}.efb.carousel-fade .active.efb.carousel-item-end,.efb.carousel-fade .active.efb.carousel-item-start{z-index:0;opacity:0;transition:opacity 0s .6s}@media (prefers-reduced-motion:reduce){.efb.carousel-fade .active.efb.carousel-item-end,.efb.carousel-fade .active.efb.carousel-item-start{transition:none}}.efb.carousel-control-next,.efb.carousel-control-prev{position:absolute;top:0;bottom:0;z-index:1;display:flex;align-items:center;justify-content:center;width:15%;padding:0;color:#fff;text-align:center;background:0 0;border:0;opacity:.5;transition:opacity .15s ease}@media (prefers-reduced-motion:reduce){.efb.carousel-control-next,.efb.carousel-control-prev{transition:none}}.efb.carousel-control-next:focus,.efb.carousel-control-next:hover,.efb.carousel-control-prev:focus,.efb.carousel-control-prev:hover{color:#fff;text-decoration:none;outline:0;opacity:.9}.efb.carousel-control-prev{left:0}.efb.carousel-control-next{right:0}.efb.carousel-control-next-icon,.efb.carousel-control-prev-icon{display:inline-block;width:2rem;height:2rem;background-repeat:no-repeat;background-position:50%;background-size:100% 100%}.efb.carousel-control-prev-icon{background-image:url('data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23fff'%3e%3cpath d='M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z'/%3e%3c/svg%3e')}.efb.carousel-control-next-icon{background-image:url('data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23fff'%3e%3cpath d='M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e')}.efb.carousel-indicators{position:absolute;right:0;bottom:0;left:0;z-index:2;display:flex;justify-content:center;padding:0;margin-right:15%;margin-bottom:1rem;margin-left:15%;list-style:none}.efb.carousel-indicators [data-bs-target]{box-sizing:content-box;flex:0 1 auto;width:30px;height:3px;padding:0;margin-right:3px;margin-left:3px;text-indent:-999px;cursor:pointer;background-color:#fff;background-clip:padding-box;border:0;border-top:10px solid transparent;border-bottom:10px solid transparent;opacity:.5;transition:opacity .6s ease}@media (prefers-reduced-motion:reduce){.efb.carousel-indicators [data-bs-target]{transition:none}}.efb.carousel-indicators .active{opacity:1}.efb.carousel-caption{position:absolute;right:15%;bottom:1.25rem;left:15%;padding-top:1.25rem;padding-bottom:1.25rem;color:#fff;text-align:center}.efb.carousel-dark .efb.carousel-control-next-icon,.efb.carousel-dark .efb.carousel-control-prev-icon{filter:invert(1) grayscale(100)}.efb.carousel-dark .efb.carousel-indicators [data-bs-target]{background-color:#000}.efb.carousel-dark .efb.carousel-caption{color:#000}@-webkit-keyframes spinner-border{to{transform:rotate(360deg)}}@keyframes spinner-border{to{transform:rotate(360deg)}}.efb.spinner-border{display:inline-block;width:2rem;height:2rem;vertical-align:-.125em;border:.25em solid currentColor;border-right-color:transparent;border-radius:50%;-webkit-animation:.75s linear infinite spinner-border;animation:.75s linear infinite spinner-border}.efb.spinner-border-sm{width:1rem;height:1rem;border-width:.2em}@-webkit-keyframes spinner-grow{0%{transform:scale(0)}50%{opacity:1;transform:none}}@keyframes spinner-grow{0%{transform:scale(0)}50%{opacity:1;transform:none}}.efb.spinner-grow{display:inline-block;width:2rem;height:2rem;vertical-align:-.125em;background-color:currentColor;border-radius:50%;opacity:0;-webkit-animation:.75s linear infinite spinner-grow;animation:.75s linear infinite spinner-grow}.efb.spinner-grow-sm{width:1rem;height:1rem}@media (prefers-reduced-motion:reduce){.efb.spinner-border,.efb.spinner-grow{-webkit-animation-duration:1.5s;animation-duration:1.5s}}.efb.offcanvas{position:fixed;bottom:0;z-index:1050;display:flex;flex-direction:column;max-width:100%;visibility:hidden;background-color:#fff;background-clip:padding-box;outline:0;transition:transform .3s ease-in-out}@media (prefers-reduced-motion:reduce){.efb.offcanvas{transition:none}}.efb.offcanvas-header{display:flex;align-items:center;justify-content:space-between;padding:1rem 1rem}.efb.offcanvas-header .efb.btn-close{padding:.5rem .5rem;margin:-.5rem -.5rem -.5rem auto}.efb.offcanvas-title{margin-bottom:0;line-height:1.5}.efb.offcanvas-body{flex-grow:1;padding:1rem 1rem;overflow-y:auto}.efb.offcanvas-start{top:0;left:0;width:400px;border-right:1px solid rgba(0,0,0,.2);transform:translateX(-100%)}.efb.offcanvas-end{top:0;right:0;width:400px;border-left:1px solid rgba(0,0,0,.2);transform:translateX(100%)}.efb.offcanvas-top{top:0;right:0;left:0;height:30vh;max-height:100%;border-bottom:1px solid rgba(0,0,0,.2);transform:translateY(-100%)}.efb.offcanvas-bottom{right:0;left:0;height:30vh;max-height:100%;border-top:1px solid rgba(0,0,0,.2);transform:translateY(100%)}.efb.offcanvas.show{transform:none}.efb.clearfix::after{display:block;clear:both;content:''}.efb.link-primary{color:#0d6efd}.efb.link-primary:focus,.efb.link-primary:hover{color:#0a58ca}.efb.link-secondary{color:#6c757d}.efb.link-secondary:focus,.efb.link-secondary:hover{color:#565e64}.efb.link-success{color:#198754}.efb.link-success:focus,.efb.link-success:hover{color:#146c43}.efb.link-info{color:#0dcaf0}.efb.link-info:focus,.efb.link-info:hover{color:#3dd5f3}.efb.link-warning{color:#ffc107}.efb.link-warning:focus,.efb.link-warning:hover{color:#ffcd39}.efb.link-danger{color:#dc3545}.efb.link-danger:focus,.efb.link-danger:hover{color:#b02a37}.efb.link-light{color:#f8f9fa}.efb.link-light:focus,.efb.link-light:hover{color:#f9fafb}.efb.link-dark{color:#212529}.efb.link-dark:focus,.efb.link-dark:hover{color:#1a1e21}.efb.ratio{position:relative;width:100%}.efb.ratio::before{display:block;padding-top:var(--bs-aspect-ratio);content:''}.efb.ratio>*{position:absolute;top:0;left:0;width:100%;height:100%}.efb.ratio-1x1{--bs-aspect-ratio:100%}.efb.ratio-4x3{--bs-aspect-ratio:calc(3 / 4 * 100%)}.efb.ratio-16x9{--bs-aspect-ratio:calc(9 / 16 * 100%)}.efb.ratio-21x9{--bs-aspect-ratio:calc(9 / 21 * 100%)}.efb.fixed-top{position:fixed;top:0;right:0;left:0;z-index:1030}.efb.fixed-bottom{position:fixed;right:0;bottom:0;left:0;z-index:1030}.efb.sticky-top{position:-webkit-sticky;position:sticky;top:0;z-index:1020}@media (min-width:576px){.efb.sticky-sm-top{position:-webkit-sticky;position:sticky;top:0;z-index:1020}}@media (min-width:768px){.efb.sticky-md-top{position:-webkit-sticky;position:sticky;top:0;z-index:1020}}@media (min-width:992px){.efb.sticky-lg-top{position:-webkit-sticky;position:sticky;top:0;z-index:1020}}@media (min-width:1200px){.efb.sticky-xl-top{position:-webkit-sticky;position:sticky;top:0;z-index:1020}}@media (min-width:1400px){.efb.sticky-xxl-top{position:-webkit-sticky;position:sticky;top:0;z-index:1020}}.efb.visually-hidden,.efb.visually-hidden-focusable:not(:focus):not(:focus-within){position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}.efb.stretched-link::after{position:absolute;top:0;right:0;bottom:0;left:0;z-index:1;content:''}.efb.text-truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.efb.align-baseline{vertical-align:baseline!important}.efb.align-top{vertical-align:top!important}.efb.align-middle{vertical-align:middle!important}.efb.align-bottom{vertical-align:bottom!important}.efb.align-text-bottom{vertical-align:text-bottom!important}.efb.align-text-top{vertical-align:text-top!important}.efb.float-start{float:left!important}.efb.float-end{float:right!important}.efb.float-none{float:none!important}.efb.overflow-auto{overflow:auto!important}.efb.overflow-hidden{overflow:hidden!important}.efb.overflow-visible{overflow:visible!important}.efb.overflow-scroll{overflow:scroll!important}.efb.d-inline{display:inline!important}.efb.d-inline-block{display:inline-block!important}.efb.d-block{display:block!important}.efb.d-grid{display:grid!important}.efb.d-table{display:table!important}.efb.d-table-row{display:table-row!important}.efb.d-table-cell{display:table-cell!important}.efb.d-flex{display:flex!important}.efb.d-inline-flex{display:inline-flex!important}.efb.d-none{display:none!important}.efb.shadow{box-shadow:0 .5rem 1rem rgba(0,0,0,.15)!important}.efb.shadow-sm{box-shadow:0 .125rem .25rem rgba(0,0,0,.075)!important}.efb.shadow-lg{box-shadow:0 1rem 3rem rgba(0,0,0,.175)!important}.efb.shadow-none{box-shadow:none!important}.efb.position-static{position:static!important}.efb.position-relative{position:relative!important}.efb.position-absolute{position:absolute!important}.efb.position-fixed{position:fixed!important}.efb.position-sticky{position:-webkit-sticky!important;position:sticky!important}.efb.top-0{top:0!important}.efb.top-50{top:50%!important}.efb.top-100{top:100%!important}.efb.bottom-0{bottom:0!important}.efb.bottom-50{bottom:50%!important}.efb.bottom-100{bottom:100%!important}.efb.start-0{left:0!important}.efb.start-50{left:50%!important}.efb.start-100{left:100%!important}.efb.end-0{right:0!important}.efb.end-50{right:50%!important}.efb.end-100{right:100%!important}.efb.translate-middle{transform:translate(-50%,-50%)!important}.efb.translate-middle-x{transform:translateX(-50%)!important}.efb.translate-middle-y{transform:translateY(-50%)!important}.efb.border{border:1px solid #dee2e6!important}.efb.border-0{border:0!important}.efb.border-top{border-top:1px solid #dee2e6!important}.efb.border-top-0{border-top:0!important}.efb.border-end{border-right:1px solid #dee2e6!important}.efb.border-end-0{border-right:0!important}.efb.border-bottom{border-bottom:1px solid #dee2e6!important}.efb.border-bottom-0{border-bottom:0!important}.efb.border-start{border-left:1px solid #dee2e6!important}.efb.border-start-0{border-left:0!important}.efb.border-primary{border-color:#0d6efd!important}.efb.border-secondary{border-color:#6c757d!important}.efb.border-success{border-color:#198754!important}.efb.border-info{border-color:#0dcaf0!important}.efb.border-warning{border-color:#ffc107!important}.efb.border-danger{border-color:#dc3545!important}.efb.border-light{border-color:#f8f9fa!important}.efb.border-dark{border-color:#212529!important}.efb.border-white{border-color:#fff!important}.efb.border-1{border-width:1px!important}.efb.border-2{border-width:2px!important}.efb.border-3{border-width:3px!important}.efb.border-4{border-width:4px!important}.efb.border-5{border-width:5px!important}.efb.w-25{width:25%!important}.efb.w-50{width:50%!important}.efb.w-75{width:75%!important}.efb.w-100{width:100%!important}.efb.w-auto{width:auto!important}.efb.mw-100{max-width:100%!important}.efb.vw-100{width:100vw!important}.efb.min-vw-100{min-width:100vw!important}.efb.h-25{height:25%!important}.efb.h-50{height:50%!important}.efb.h-75{height:75%!important}.efb.h-100{height:100%!important}.efb.h-auto{height:auto!important}.efb.mh-100{max-height:100%!important}.efb.vh-100{height:100vh!important}.efb.min-vh-100{min-height:100vh!important}.efb.flex-fill{flex:1 1 auto!important}.efb.flex-row{flex-direction:row!important}.efb.flex-column{flex-direction:column!important}.efb.flex-row-reverse{flex-direction:row-reverse!important}.efb.flex-column-reverse{flex-direction:column-reverse!important}.efb.flex-grow-0{flex-grow:0!important}.efb.flex-grow-1{flex-grow:1!important}.efb.flex-shrink-0{flex-shrink:0!important}.efb.flex-shrink-1{flex-shrink:1!important}.efb.flex-wrap{flex-wrap:wrap!important}.efb.flex-nowrap{flex-wrap:nowrap!important}.efb.flex-wrap-reverse{flex-wrap:wrap-reverse!important}.efb.gap-0{gap:0!important}.efb.gap-1{gap:.25rem!important}.efb.gap-2{gap:.5rem!important}.efb.gap-3{gap:1rem!important}.efb.gap-4{gap:1.5rem!important}.efb.gap-5{gap:3rem!important}.efb.justify-content-start{justify-content:flex-start!important}.efb.justify-content-end{justify-content:flex-end!important}.efb.justify-content-center{justify-content:center!important}.efb.justify-content-between{justify-content:space-between!important}.efb.justify-content-around{justify-content:space-around!important}.efb.justify-content-evenly{justify-content:space-evenly!important}.efb.align-items-start{align-items:flex-start!important}.efb.align-items-end{align-items:flex-end!important}.efb.align-items-center{align-items:center!important}.efb.align-items-baseline{align-items:baseline!important}.efb.align-items-stretch{align-items:stretch!important}.efb.align-content-start{align-content:flex-start!important}.efb.align-content-end{align-content:flex-end!important}.efb.align-content-center{align-content:center!important}.efb.align-content-between{align-content:space-between!important}.efb.align-content-around{align-content:space-around!important}.efb.align-content-stretch{align-content:stretch!important}.efb.align-self-auto{align-self:auto!important}.efb.align-self-start{align-self:flex-start!important}.efb.align-self-end{align-self:flex-end!important}.efb.align-self-center{align-self:center!important}.efb.align-self-baseline{align-self:baseline!important}.efb.align-self-stretch{align-self:stretch!important}.efb.order-first{order:-1!important}.efb.order-0{order:0!important}.efb.order-1{order:1!important}.efb.order-2{order:2!important}.efb.order-3{order:3!important}.efb.order-4{order:4!important}.efb.order-5{order:5!important}.efb.order-last{order:6!important}.efb.m-0{margin:0!important}.efb.m-1{margin:.25rem!important}.efb.m-2{margin:.5rem!important}.efb.m-3{margin:1rem!important}.efb.m-4{margin:1.5rem!important}.efb.m-5{margin:3rem!important}.efb.m-auto{margin:auto!important}.efb.mx-0{margin-right:0!important;margin-left:0!important}.efb.mx-1{margin-right:.25rem!important;margin-left:.25rem!important}.efb.mx-2{margin-right:.5rem!important;margin-left:.5rem!important}.efb.mx-3{margin-right:1rem!important;margin-left:1rem!important}.efb.mx-4{margin-right:1.5rem!important;margin-left:1.5rem!important}.efb.mx-5{margin-right:3rem!important;margin-left:3rem!important}.efb.mx-auto{margin-right:auto!important;margin-left:auto!important}.efb.my-0{margin-top:0!important;margin-bottom:0!important}.efb.my-1{margin-top:.25rem!important;margin-bottom:.25rem!important}.efb.my-2{margin-top:.5rem!important;margin-bottom:.5rem!important}.efb.my-3{margin-top:1rem!important;margin-bottom:1rem!important}.efb.my-4{margin-top:1.5rem!important;margin-bottom:1.5rem!important}.efb.my-5{margin-top:3rem!important;margin-bottom:3rem!important}.efb.my-auto{margin-top:auto!important;margin-bottom:auto!important}.efb.mt-0{margin-top:0!important}.efb.mt-1{margin-top:.25rem!important}.efb.mt-2{margin-top:.5rem!important}.efb.mt-3{margin-top:1rem!important}.efb.mt-4{margin-top:1.5rem!important}.efb.mt-5{margin-top:3rem!important}.efb.mt-auto{margin-top:auto!important}.efb.me-0{margin-right:0!important}.efb.me-1{margin-right:.25rem!important}.efb.me-2{margin-right:.5rem!important}.efb.me-3{margin-right:1rem!important}.efb.me-4{margin-right:1.5rem!important}.efb.me-5{margin-right:3rem!important}.efb.me-auto{margin-right:auto!important}.efb.mb-0{margin-bottom:0!important}.efb.mb-1{margin-bottom:.25rem!important}.efb.mb-2{margin-bottom:.5rem!important}.efb.mb-3{margin-bottom:1rem!important}.efb.mb-4{margin-bottom:1.5rem!important}.efb.mb-5{margin-bottom:3rem!important}.efb.mb-auto{margin-bottom:auto!important}.efb.ms-0{margin-left:0!important}.efb.ms-1{margin-left:.25rem!important}.efb.ms-2{margin-left:.5rem!important}.efb.ms-3{margin-left:1rem!important}.efb.ms-4{margin-left:1.5rem!important}.efb.ms-5{margin-left:3rem!important}.efb.ms-auto{margin-left:auto!important}.efb.p-0{padding:0!important}.efb.p-1{padding:.25rem!important}.efb.p-2{padding:.5rem!important}.efb.p-3{padding:1rem!important}.efb.p-4{padding:1.5rem!important}.efb.p-5{padding:3rem!important}.efb.px-0{padding-right:0!important;padding-left:0!important}.efb.px-1{padding-right:.25rem!important;padding-left:.25rem!important}.efb.px-2{padding-right:.5rem!important;padding-left:.5rem!important}.efb.px-3{padding-right:1rem!important;padding-left:1rem!important}.efb.px-4{padding-right:1.5rem!important;padding-left:1.5rem!important}.efb.px-5{padding-right:3rem!important;padding-left:3rem!important}.efb.py-0{padding-top:0!important;padding-bottom:0!important}.efb.py-1{padding-top:.25rem!important;padding-bottom:.25rem!important}.efb.py-2{padding-top:.5rem!important;padding-bottom:.5rem!important}.efb.py-3{padding-top:1rem!important;padding-bottom:1rem!important}.efb.py-4{padding-top:1.5rem!important;padding-bottom:1.5rem!important}.efb.py-5{padding-top:3rem!important;padding-bottom:3rem!important}.efb.pt-0{padding-top:0!important}.efb.pt-1{padding-top:.25rem!important}.efb.pt-2{padding-top:.5rem!important}.efb.pt-3{padding-top:1rem!important}.efb.pt-4{padding-top:1.5rem!important}.efb.pt-5{padding-top:3rem!important}.efb.pe-0{padding-right:0!important}.efb.pe-1{padding-right:.25rem!important}.efb.pe-2{padding-right:.5rem!important}.efb.pe-3{padding-right:1rem!important}.efb.pe-4{padding-right:1.5rem!important}.efb.pe-5{padding-right:3rem!important}.efb.pb-0{padding-bottom:0!important}.efb.pb-1{padding-bottom:.25rem!important}.efb.pb-2{padding-bottom:.5rem!important}.efb.pb-3{padding-bottom:1rem!important}.efb.pb-4{padding-bottom:1.5rem!important}.efb.pb-5{padding-bottom:3rem!important}.efb.ps-0{padding-left:0!important}.efb.ps-1{padding-left:.25rem!important}.efb.ps-2{padding-left:.5rem!important}.efb.ps-3{padding-left:1rem!important}.efb.ps-4{padding-left:1.5rem!important}.efb.ps-5{padding-left:3rem!important}.efb.font-monospace{font-family:var(--bs-font-monospace)!important}.efb.fst-italic{font-style:italic!important}.efb.fst-normal{font-style:normal!important}.efb.fw-light{font-weight:300!important}.efb.fw-lighter{font-weight:lighter!important}.efb.fw-normal{font-weight:400!important}.efb.fw-bold{font-weight:700!important}.efb.fw-bolder{font-weight:bolder!important}.efb.lh-1{line-height:1!important}.efb.lh-sm{line-height:1.25!important}.efb.lh-base{line-height:1.5!important}.efb.lh-lg{line-height:2!important}.efb.text-start{text-align:left!important}.efb.text-end{text-align:right!important}.efb.text-center{text-align:center!important}.efb.text-decoration-none{text-decoration:none!important}.efb.text-decoration-underline{text-decoration:underline!important}.efb.text-decoration-line-through{text-decoration:line-through!important}.efb.text-lowercase{text-transform:lowercase!important}.efb.text-uppercase{text-transform:uppercase!important}.efb.text-capitalize{text-transform:capitalize!important}.efb.text-wrap{white-space:normal!important}.efb.text-nowrap{white-space:nowrap!important}.efb.text-break{word-wrap:break-word!important;word-break:break-word!important}.efb.text-primary{color:#0d6efd!important}.efb.text-secondary{color:#6c757d!important}.efb.text-success{color:#198754!important}.efb.text-info{color:#0dcaf0!important}.efb.text-warning{color:#ffc107!important}.efb.text-danger{color:#dc3545!important}.efb.text-light{color:#f8f9fa!important}.efb.text-dark{color:#212529!important}.efb.text-white{color:#fff!important}.efb.text-body{color:#212529!important}.efb.text-muted{color:#6c757d!important}.efb.text-black-50{color:rgba(0,0,0,.5)!important}.efb.text-white-50{color:rgba(255,255,255,.5)!important}.efb.text-reset{color:inherit!important}.efb.bg-primary{background-color:#0d6efd!important}.efb.bg-secondary{background-color:#6c757d!important}.efb.bg-success{background-color:#198754!important}.efb.bg-info{background-color:#0dcaf0!important}.efb.bg-warning{background-color:#ffc107!important}.efb.bg-danger{background-color:#dc3545!important}.efb.bg-light{background-color:#f8f9fa!important}.efb.bg-dark{background-color:#212529!important}.efb.bg-body{background-color:#fff!important}.efb.bg-white{background-color:#fff!important}.efb.bg-transparent{background-color:transparent!important}.efb.bg-gradient{background-image:var(--bs-gradient)!important}.efb.user-select-all{-webkit-user-select:all!important;-moz-user-select:all!important;user-select:all!important}.efb.user-select-auto{-webkit-user-select:auto!important;-moz-user-select:auto!important;user-select:auto!important}.efb.user-select-none{-webkit-user-select:none!important;-moz-user-select:none!important;user-select:none!important}.efb.pe-none{pointer-events:none!important}.efb.pe-auto{pointer-events:auto!important}.efb.rounded{border-radius:.25rem!important}.efb.rounded-0{border-radius:0!important}.efb.rounded-1{border-radius:.2rem!important}.efb.rounded-2{border-radius:.25rem!important}.efb.rounded-3{border-radius:.3rem!important}.efb.rounded-circle{border-radius:50%!important}.efb.rounded-pill{border-radius:50rem!important}.efb.rounded-top{border-top-left-radius:.25rem!important;border-top-right-radius:.25rem!important}.efb.rounded-end{border-top-right-radius:.25rem!important;border-bottom-right-radius:.25rem!important}.efb.rounded-bottom{border-bottom-right-radius:.25rem!important;border-bottom-left-radius:.25rem!important}.efb.rounded-start{border-bottom-left-radius:.25rem!important;border-top-left-radius:.25rem!important}.efb.visible{visibility:visible!important}.efb.invisible{visibility:hidden!important}@media (min-width:576px){.efb.float-sm-start{float:left!important}.efb.float-sm-end{float:right!important}.efb.float-sm-none{float:none!important}.efb.d-sm-inline{display:inline!important}.efb.d-sm-inline-block{display:inline-block!important}.efb.d-sm-block{display:block!important}.efb.d-sm-grid{display:grid!important}.efb.d-sm-table{display:table!important}.efb.d-sm-table-row{display:table-row!important}.efb.d-sm-table-cell{display:table-cell!important}.efb.d-sm-flex{display:flex!important}.efb.d-sm-inline-flex{display:inline-flex!important}.efb.d-sm-none{display:none!important}.efb.flex-sm-fill{flex:1 1 auto!important}.efb.flex-sm-row{flex-direction:row!important}.efb.flex-sm-column{flex-direction:column!important}.efb.flex-sm-row-reverse{flex-direction:row-reverse!important}.efb.flex-sm-column-reverse{flex-direction:column-reverse!important}.efb.flex-sm-grow-0{flex-grow:0!important}.efb.flex-sm-grow-1{flex-grow:1!important}.efb.flex-sm-shrink-0{flex-shrink:0!important}.efb.flex-sm-shrink-1{flex-shrink:1!important}.efb.flex-sm-wrap{flex-wrap:wrap!important}.efb.flex-sm-nowrap{flex-wrap:nowrap!important}.efb.flex-sm-wrap-reverse{flex-wrap:wrap-reverse!important}.efb.gap-sm-0{gap:0!important}.efb.gap-sm-1{gap:.25rem!important}.efb.gap-sm-2{gap:.5rem!important}.efb.gap-sm-3{gap:1rem!important}.efb.gap-sm-4{gap:1.5rem!important}.efb.gap-sm-5{gap:3rem!important}.efb.justify-content-sm-start{justify-content:flex-start!important}.efb.justify-content-sm-end{justify-content:flex-end!important}.efb.justify-content-sm-center{justify-content:center!important}.efb.justify-content-sm-between{justify-content:space-between!important}.efb.justify-content-sm-around{justify-content:space-around!important}.efb.justify-content-sm-evenly{justify-content:space-evenly!important}.efb.align-items-sm-start{align-items:flex-start!important}.efb.align-items-sm-end{align-items:flex-end!important}.efb.align-items-sm-center{align-items:center!important}.efb.align-items-sm-baseline{align-items:baseline!important}.efb.align-items-sm-stretch{align-items:stretch!important}.efb.align-content-sm-start{align-content:flex-start!important}.efb.align-content-sm-end{align-content:flex-end!important}.efb.align-content-sm-center{align-content:center!important}.efb.align-content-sm-between{align-content:space-between!important}.efb.align-content-sm-around{align-content:space-around!important}.efb.align-content-sm-stretch{align-content:stretch!important}.efb.align-self-sm-auto{align-self:auto!important}.efb.align-self-sm-start{align-self:flex-start!important}.efb.align-self-sm-end{align-self:flex-end!important}.efb.align-self-sm-center{align-self:center!important}.efb.align-self-sm-baseline{align-self:baseline!important}.efb.align-self-sm-stretch{align-self:stretch!important}.efb.order-sm-first{order:-1!important}.efb.order-sm-0{order:0!important}.efb.order-sm-1{order:1!important}.efb.order-sm-2{order:2!important}.efb.order-sm-3{order:3!important}.efb.order-sm-4{order:4!important}.efb.order-sm-5{order:5!important}.efb.order-sm-last{order:6!important}.efb.m-sm-0{margin:0!important}.efb.m-sm-1{margin:.25rem!important}.efb.m-sm-2{margin:.5rem!important}.efb.m-sm-3{margin:1rem!important}.efb.m-sm-4{margin:1.5rem!important}.efb.m-sm-5{margin:3rem!important}.efb.m-sm-auto{margin:auto!important}.efb.mx-sm-0{margin-right:0!important;margin-left:0!important}.efb.mx-sm-1{margin-right:.25rem!important;margin-left:.25rem!important}.efb.mx-sm-2{margin-right:.5rem!important;margin-left:.5rem!important}.efb.mx-sm-3{margin-right:1rem!important;margin-left:1rem!important}.efb.mx-sm-4{margin-right:1.5rem!important;margin-left:1.5rem!important}.efb.mx-sm-5{margin-right:3rem!important;margin-left:3rem!important}.efb.mx-sm-auto{margin-right:auto!important;margin-left:auto!important}.efb.my-sm-0{margin-top:0!important;margin-bottom:0!important}.efb.my-sm-1{margin-top:.25rem!important;margin-bottom:.25rem!important}.efb.my-sm-2{margin-top:.5rem!important;margin-bottom:.5rem!important}.efb.my-sm-3{margin-top:1rem!important;margin-bottom:1rem!important}.efb.my-sm-4{margin-top:1.5rem!important;margin-bottom:1.5rem!important}.efb.my-sm-5{margin-top:3rem!important;margin-bottom:3rem!important}.efb.my-sm-auto{margin-top:auto!important;margin-bottom:auto!important}.efb.mt-sm-0{margin-top:0!important}.efb.mt-sm-1{margin-top:.25rem!important}.efb.mt-sm-2{margin-top:.5rem!important}.efb.mt-sm-3{margin-top:1rem!important}.efb.mt-sm-4{margin-top:1.5rem!important}.efb.mt-sm-5{margin-top:3rem!important}.efb.mt-sm-auto{margin-top:auto!important}.efb.me-sm-0{margin-right:0!important}.efb.me-sm-1{margin-right:.25rem!important}.efb.me-sm-2{margin-right:.5rem!important}.efb.me-sm-3{margin-right:1rem!important}.efb.me-sm-4{margin-right:1.5rem!important}.efb.me-sm-5{margin-right:3rem!important}.efb.me-sm-auto{margin-right:auto!important}.efb.mb-sm-0{margin-bottom:0!important}.efb.mb-sm-1{margin-bottom:.25rem!important}.efb.mb-sm-2{margin-bottom:.5rem!important}.efb.mb-sm-3{margin-bottom:1rem!important}.efb.mb-sm-4{margin-bottom:1.5rem!important}.efb.mb-sm-5{margin-bottom:3rem!important}.efb.mb-sm-auto{margin-bottom:auto!important}.efb.ms-sm-0{margin-left:0!important}.efb.ms-sm-1{margin-left:.25rem!important}.efb.ms-sm-2{margin-left:.5rem!important}.efb.ms-sm-3{margin-left:1rem!important}.efb.ms-sm-4{margin-left:1.5rem!important}.efb.ms-sm-5{margin-left:3rem!important}.efb.ms-sm-auto{margin-left:auto!important}.efb.p-sm-0{padding:0!important}.efb.p-sm-1{padding:.25rem!important}.efb.p-sm-2{padding:.5rem!important}.efb.p-sm-3{padding:1rem!important}.efb.p-sm-4{padding:1.5rem!important}.efb.p-sm-5{padding:3rem!important}.efb.px-sm-0{padding-right:0!important;padding-left:0!important}.efb.px-sm-1{padding-right:.25rem!important;padding-left:.25rem!important}.efb.px-sm-2{padding-right:.5rem!important;padding-left:.5rem!important}.efb.px-sm-3{padding-right:1rem!important;padding-left:1rem!important}.efb.px-sm-4{padding-right:1.5rem!important;padding-left:1.5rem!important}.efb.px-sm-5{padding-right:3rem!important;padding-left:3rem!important}.efb.py-sm-0{padding-top:0!important;padding-bottom:0!important}.efb.py-sm-1{padding-top:.25rem!important;padding-bottom:.25rem!important}.efb.py-sm-2{padding-top:.5rem!important;padding-bottom:.5rem!important}.efb.py-sm-3{padding-top:1rem!important;padding-bottom:1rem!important}.efb.py-sm-4{padding-top:1.5rem!important;padding-bottom:1.5rem!important}.efb.py-sm-5{padding-top:3rem!important;padding-bottom:3rem!important}.efb.pt-sm-0{padding-top:0!important}.efb.pt-sm-1{padding-top:.25rem!important}.efb.pt-sm-2{padding-top:.5rem!important}.efb.pt-sm-3{padding-top:1rem!important}.efb.pt-sm-4{padding-top:1.5rem!important}.efb.pt-sm-5{padding-top:3rem!important}.efb.pe-sm-0{padding-right:0!important}.efb.pe-sm-1{padding-right:.25rem!important}.efb.pe-sm-2{padding-right:.5rem!important}.efb.pe-sm-3{padding-right:1rem!important}.efb.pe-sm-4{padding-right:1.5rem!important}.efb.pe-sm-5{padding-right:3rem!important}.efb.pb-sm-0{padding-bottom:0!important}.efb.pb-sm-1{padding-bottom:.25rem!important}.efb.pb-sm-2{padding-bottom:.5rem!important}.efb.pb-sm-3{padding-bottom:1rem!important}.efb.pb-sm-4{padding-bottom:1.5rem!important}.efb.pb-sm-5{padding-bottom:3rem!important}.efb.ps-sm-0{padding-left:0!important}.efb.ps-sm-1{padding-left:.25rem!important}.efb.ps-sm-2{padding-left:.5rem!important}.efb.ps-sm-3{padding-left:1rem!important}.efb.ps-sm-4{padding-left:1.5rem!important}.efb.ps-sm-5{padding-left:3rem!important}.efb.text-sm-start{text-align:left!important}.efb.text-sm-end{text-align:right!important}.efb.text-sm-center{text-align:center!important}}@media (min-width:768px){.efb.float-md-start{float:left!important}.efb.float-md-end{float:right!important}.efb.float-md-none{float:none!important}.efb.d-md-inline{display:inline!important}.efb.d-md-inline-block{display:inline-block!important}.efb.d-md-block{display:block!important}.efb.d-md-grid{display:grid!important}.efb.d-md-table{display:table!important}.efb.d-md-table-row{display:table-row!important}.efb.d-md-table-cell{display:table-cell!important}.efb.d-md-flex{display:flex!important}.efb.d-md-inline-flex{display:inline-flex!important}.efb.d-md-none{display:none!important}.efb.flex-md-fill{flex:1 1 auto!important}.efb.flex-md-row{flex-direction:row!important}.efb.flex-md-column{flex-direction:column!important}.efb.flex-md-row-reverse{flex-direction:row-reverse!important}.efb.flex-md-column-reverse{flex-direction:column-reverse!important}.efb.flex-md-grow-0{flex-grow:0!important}.efb.flex-md-grow-1{flex-grow:1!important}.efb.flex-md-shrink-0{flex-shrink:0!important}.efb.flex-md-shrink-1{flex-shrink:1!important}.efb.flex-md-wrap{flex-wrap:wrap!important}.efb.flex-md-nowrap{flex-wrap:nowrap!important}.efb.flex-md-wrap-reverse{flex-wrap:wrap-reverse!important}.efb.gap-md-0{gap:0!important}.efb.gap-md-1{gap:.25rem!important}.efb.gap-md-2{gap:.5rem!important}.efb.gap-md-3{gap:1rem!important}.efb.gap-md-4{gap:1.5rem!important}.efb.gap-md-5{gap:3rem!important}.efb.justify-content-md-start{justify-content:flex-start!important}.efb.justify-content-md-end{justify-content:flex-end!important}.efb.justify-content-md-center{justify-content:center!important}.efb.justify-content-md-between{justify-content:space-between!important}.efb.justify-content-md-around{justify-content:space-around!important}.efb.justify-content-md-evenly{justify-content:space-evenly!important}.efb.align-items-md-start{align-items:flex-start!important}.efb.align-items-md-end{align-items:flex-end!important}.efb.align-items-md-center{align-items:center!important}.efb.align-items-md-baseline{align-items:baseline!important}.efb.align-items-md-stretch{align-items:stretch!important}.efb.align-content-md-start{align-content:flex-start!important}.efb.align-content-md-end{align-content:flex-end!important}.efb.align-content-md-center{align-content:center!important}.efb.align-content-md-between{align-content:space-between!important}.efb.align-content-md-around{align-content:space-around!important}.efb.align-content-md-stretch{align-content:stretch!important}.efb.align-self-md-auto{align-self:auto!important}.efb.align-self-md-start{align-self:flex-start!important}.efb.align-self-md-end{align-self:flex-end!important}.efb.align-self-md-center{align-self:center!important}.efb.align-self-md-baseline{align-self:baseline!important}.efb.align-self-md-stretch{align-self:stretch!important}.efb.order-md-first{order:-1!important}.efb.order-md-0{order:0!important}.efb.order-md-1{order:1!important}.efb.order-md-2{order:2!important}.efb.order-md-3{order:3!important}.efb.order-md-4{order:4!important}.efb.order-md-5{order:5!important}.efb.order-md-last{order:6!important}.efb.m-md-0{margin:0!important}.efb.m-md-1{margin:.25rem!important}.efb.m-md-2{margin:.5rem!important}.efb.m-md-3{margin:1rem!important}.efb.m-md-4{margin:1.5rem!important}.efb.m-md-5{margin:3rem!important}.efb.m-md-auto{margin:auto!important}.efb.mx-md-0{margin-right:0!important;margin-left:0!important}.efb.mx-md-1{margin-right:.25rem!important;margin-left:.25rem!important}.efb.mx-md-2{margin-right:.5rem!important;margin-left:.5rem!important}.efb.mx-md-3{margin-right:1rem!important;margin-left:1rem!important}.efb.mx-md-4{margin-right:1.5rem!important;margin-left:1.5rem!important}.efb.mx-md-5{margin-right:3rem!important;margin-left:3rem!important}.efb.mx-md-auto{margin-right:auto!important;margin-left:auto!important}.efb.my-md-0{margin-top:0!important;margin-bottom:0!important}.efb.my-md-1{margin-top:.25rem!important;margin-bottom:.25rem!important}.efb.my-md-2{margin-top:.5rem!important;margin-bottom:.5rem!important}.efb.my-md-3{margin-top:1rem!important;margin-bottom:1rem!important}.efb.my-md-4{margin-top:1.5rem!important;margin-bottom:1.5rem!important}.efb.my-md-5{margin-top:3rem!important;margin-bottom:3rem!important}.efb.my-md-auto{margin-top:auto!important;margin-bottom:auto!important}.efb.mt-md-0{margin-top:0!important}.efb.mt-md-1{margin-top:.25rem!important}.efb.mt-md-2{margin-top:.5rem!important}.efb.mt-md-3{margin-top:1rem!important}.efb.mt-md-4{margin-top:1.5rem!important}.efb.mt-md-5{margin-top:3rem!important}.efb.mt-md-auto{margin-top:auto!important}.efb.me-md-0{margin-right:0!important}.efb.me-md-1{margin-right:.25rem!important}.efb.me-md-2{margin-right:.5rem!important}.efb.me-md-3{margin-right:1rem!important}.efb.me-md-4{margin-right:1.5rem!important}.efb.me-md-5{margin-right:3rem!important}.efb.me-md-auto{margin-right:auto!important}.efb.mb-md-0{margin-bottom:0!important}.efb.mb-md-1{margin-bottom:.25rem!important}.efb.mb-md-2{margin-bottom:.5rem!important}.efb.mb-md-3{margin-bottom:1rem!important}.efb.mb-md-4{margin-bottom:1.5rem!important}.efb.mb-md-5{margin-bottom:3rem!important}.efb.mb-md-auto{margin-bottom:auto!important}.efb.ms-md-0{margin-left:0!important}.efb.ms-md-1{margin-left:.25rem!important}.efb.ms-md-2{margin-left:.5rem!important}.efb.ms-md-3{margin-left:1rem!important}.efb.ms-md-4{margin-left:1.5rem!important}.efb.ms-md-5{margin-left:3rem!important}.efb.ms-md-auto{margin-left:auto!important}.efb.p-md-0{padding:0!important}.efb.p-md-1{padding:.25rem!important}.efb.p-md-2{padding:.5rem!important}.efb.p-md-3{padding:1rem!important}.efb.p-md-4{padding:1.5rem!important}.efb.p-md-5{padding:3rem!important}.efb.px-md-0{padding-right:0!important;padding-left:0!important}.efb.px-md-1{padding-right:.25rem!important;padding-left:.25rem!important}.efb.px-md-2{padding-right:.5rem!important;padding-left:.5rem!important}.efb.px-md-3{padding-right:1rem!important;padding-left:1rem!important}.efb.px-md-4{padding-right:1.5rem!important;padding-left:1.5rem!important}.efb.px-md-5{padding-right:3rem!important;padding-left:3rem!important}.efb.py-md-0{padding-top:0!important;padding-bottom:0!important}.efb.py-md-1{padding-top:.25rem!important;padding-bottom:.25rem!important}.efb.py-md-2{padding-top:.5rem!important;padding-bottom:.5rem!important}.efb.py-md-3{padding-top:1rem!important;padding-bottom:1rem!important}.efb.py-md-4{padding-top:1.5rem!important;padding-bottom:1.5rem!important}.efb.py-md-5{padding-top:3rem!important;padding-bottom:3rem!important}.efb.pt-md-0{padding-top:0!important}.efb.pt-md-1{padding-top:.25rem!important}.efb.pt-md-2{padding-top:.5rem!important}.efb.pt-md-3{padding-top:1rem!important}.efb.pt-md-4{padding-top:1.5rem!important}.efb.pt-md-5{padding-top:3rem!important}.efb.pe-md-0{padding-right:0!important}.efb.pe-md-1{padding-right:.25rem!important}.efb.pe-md-2{padding-right:.5rem!important}.efb.pe-md-3{padding-right:1rem!important}.efb.pe-md-4{padding-right:1.5rem!important}.efb.pe-md-5{padding-right:3rem!important}.efb.pb-md-0{padding-bottom:0!important}.efb.pb-md-1{padding-bottom:.25rem!important}.efb.pb-md-2{padding-bottom:.5rem!important}.efb.pb-md-3{padding-bottom:1rem!important}.efb.pb-md-4{padding-bottom:1.5rem!important}.efb.pb-md-5{padding-bottom:3rem!important}.efb.ps-md-0{padding-left:0!important}.efb.ps-md-1{padding-left:.25rem!important}.efb.ps-md-2{padding-left:.5rem!important}.efb.ps-md-3{padding-left:1rem!important}.efb.ps-md-4{padding-left:1.5rem!important}.efb.ps-md-5{padding-left:3rem!important}.efb.text-md-start{text-align:left!important}.efb.text-md-end{text-align:right!important}.efb.text-md-center{text-align:center!important}}@media (min-width:992px){.efb.float-lg-start{float:left!important}.efb.float-lg-end{float:right!important}.efb.float-lg-none{float:none!important}.efb.d-lg-inline{display:inline!important}.efb.d-lg-inline-block{display:inline-block!important}.efb.d-lg-block{display:block!important}.efb.d-lg-grid{display:grid!important}.efb.d-lg-table{display:table!important}.efb.d-lg-table-row{display:table-row!important}.efb.d-lg-table-cell{display:table-cell!important}.efb.d-lg-flex{display:flex!important}.efb.d-lg-inline-flex{display:inline-flex!important}.efb.d-lg-none{display:none!important}.efb.flex-lg-fill{flex:1 1 auto!important}.efb.flex-lg-row{flex-direction:row!important}.efb.flex-lg-column{flex-direction:column!important}.efb.flex-lg-row-reverse{flex-direction:row-reverse!important}.efb.flex-lg-column-reverse{flex-direction:column-reverse!important}.efb.flex-lg-grow-0{flex-grow:0!important}.efb.flex-lg-grow-1{flex-grow:1!important}.efb.flex-lg-shrink-0{flex-shrink:0!important}.efb.flex-lg-shrink-1{flex-shrink:1!important}.efb.flex-lg-wrap{flex-wrap:wrap!important}.efb.flex-lg-nowrap{flex-wrap:nowrap!important}.efb.flex-lg-wrap-reverse{flex-wrap:wrap-reverse!important}.efb.gap-lg-0{gap:0!important}.efb.gap-lg-1{gap:.25rem!important}.efb.gap-lg-2{gap:.5rem!important}.efb.gap-lg-3{gap:1rem!important}.efb.gap-lg-4{gap:1.5rem!important}.efb.gap-lg-5{gap:3rem!important}.efb.justify-content-lg-start{justify-content:flex-start!important}.efb.justify-content-lg-end{justify-content:flex-end!important}.efb.justify-content-lg-center{justify-content:center!important}.efb.justify-content-lg-between{justify-content:space-between!important}.efb.justify-content-lg-around{justify-content:space-around!important}.efb.justify-content-lg-evenly{justify-content:space-evenly!important}.efb.align-items-lg-start{align-items:flex-start!important}.efb.align-items-lg-end{align-items:flex-end!important}.efb.align-items-lg-center{align-items:center!important}.efb.align-items-lg-baseline{align-items:baseline!important}.efb.align-items-lg-stretch{align-items:stretch!important}.efb.align-content-lg-start{align-content:flex-start!important}.efb.align-content-lg-end{align-content:flex-end!important}.efb.align-content-lg-center{align-content:center!important}.efb.align-content-lg-between{align-content:space-between!important}.efb.align-content-lg-around{align-content:space-around!important}.efb.align-content-lg-stretch{align-content:stretch!important}.efb.align-self-lg-auto{align-self:auto!important}.efb.align-self-lg-start{align-self:flex-start!important}.efb.align-self-lg-end{align-self:flex-end!important}.efb.align-self-lg-center{align-self:center!important}.efb.align-self-lg-baseline{align-self:baseline!important}.efb.align-self-lg-stretch{align-self:stretch!important}.efb.order-lg-first{order:-1!important}.efb.order-lg-0{order:0!important}.efb.order-lg-1{order:1!important}.efb.order-lg-2{order:2!important}.efb.order-lg-3{order:3!important}.efb.order-lg-4{order:4!important}.efb.order-lg-5{order:5!important}.efb.order-lg-last{order:6!important}.efb.m-lg-0{margin:0!important}.efb.m-lg-1{margin:.25rem!important}.efb.m-lg-2{margin:.5rem!important}.efb.m-lg-3{margin:1rem!important}.efb.m-lg-4{margin:1.5rem!important}.efb.m-lg-5{margin:3rem!important}.efb.m-lg-auto{margin:auto!important}.efb.mx-lg-0{margin-right:0!important;margin-left:0!important}.efb.mx-lg-1{margin-right:.25rem!important;margin-left:.25rem!important}.efb.mx-lg-2{margin-right:.5rem!important;margin-left:.5rem!important}.efb.mx-lg-3{margin-right:1rem!important;margin-left:1rem!important}.efb.mx-lg-4{margin-right:1.5rem!important;margin-left:1.5rem!important}.efb.mx-lg-5{margin-right:3rem!important;margin-left:3rem!important}.efb.mx-lg-auto{margin-right:auto!important;margin-left:auto!important}.efb.my-lg-0{margin-top:0!important;margin-bottom:0!important}.efb.my-lg-1{margin-top:.25rem!important;margin-bottom:.25rem!important}.efb.my-lg-2{margin-top:.5rem!important;margin-bottom:.5rem!important}.efb.my-lg-3{margin-top:1rem!important;margin-bottom:1rem!important}.efb.my-lg-4{margin-top:1.5rem!important;margin-bottom:1.5rem!important}.efb.my-lg-5{margin-top:3rem!important;margin-bottom:3rem!important}.efb.my-lg-auto{margin-top:auto!important;margin-bottom:auto!important}.efb.mt-lg-0{margin-top:0!important}.efb.mt-lg-1{margin-top:.25rem!important}.efb.mt-lg-2{margin-top:.5rem!important}.efb.mt-lg-3{margin-top:1rem!important}.efb.mt-lg-4{margin-top:1.5rem!important}.efb.mt-lg-5{margin-top:3rem!important}.efb.mt-lg-auto{margin-top:auto!important}.efb.me-lg-0{margin-right:0!important}.efb.me-lg-1{margin-right:.25rem!important}.efb.me-lg-2{margin-right:.5rem!important}.efb.me-lg-3{margin-right:1rem!important}.efb.me-lg-4{margin-right:1.5rem!important}.efb.me-lg-5{margin-right:3rem!important}.efb.me-lg-auto{margin-right:auto!important}.efb.mb-lg-0{margin-bottom:0!important}.efb.mb-lg-1{margin-bottom:.25rem!important}.efb.mb-lg-2{margin-bottom:.5rem!important}.efb.mb-lg-3{margin-bottom:1rem!important}.efb.mb-lg-4{margin-bottom:1.5rem!important}.efb.mb-lg-5{margin-bottom:3rem!important}.efb.mb-lg-auto{margin-bottom:auto!important}.efb.ms-lg-0{margin-left:0!important}.efb.ms-lg-1{margin-left:.25rem!important}.efb.ms-lg-2{margin-left:.5rem!important}.efb.ms-lg-3{margin-left:1rem!important}.efb.ms-lg-4{margin-left:1.5rem!important}.efb.ms-lg-5{margin-left:3rem!important}.efb.ms-lg-auto{margin-left:auto!important}.efb.p-lg-0{padding:0!important}.efb.p-lg-1{padding:.25rem!important}.efb.p-lg-2{padding:.5rem!important}.efb.p-lg-3{padding:1rem!important}.efb.p-lg-4{padding:1.5rem!important}.efb.p-lg-5{padding:3rem!important}.efb.px-lg-0{padding-right:0!important;padding-left:0!important}.efb.px-lg-1{padding-right:.25rem!important;padding-left:.25rem!important}.efb.px-lg-2{padding-right:.5rem!important;padding-left:.5rem!important}.efb.px-lg-3{padding-right:1rem!important;padding-left:1rem!important}.efb.px-lg-4{padding-right:1.5rem!important;padding-left:1.5rem!important}.efb.px-lg-5{padding-right:3rem!important;padding-left:3rem!important}.efb.py-lg-0{padding-top:0!important;padding-bottom:0!important}.efb.py-lg-1{padding-top:.25rem!important;padding-bottom:.25rem!important}.efb.py-lg-2{padding-top:.5rem!important;padding-bottom:.5rem!important}.efb.py-lg-3{padding-top:1rem!important;padding-bottom:1rem!important}.efb.py-lg-4{padding-top:1.5rem!important;padding-bottom:1.5rem!important}.efb.py-lg-5{padding-top:3rem!important;padding-bottom:3rem!important}.efb.pt-lg-0{padding-top:0!important}.efb.pt-lg-1{padding-top:.25rem!important}.efb.pt-lg-2{padding-top:.5rem!important}.efb.pt-lg-3{padding-top:1rem!important}.efb.pt-lg-4{padding-top:1.5rem!important}.efb.pt-lg-5{padding-top:3rem!important}.efb.pe-lg-0{padding-right:0!important}.efb.pe-lg-1{padding-right:.25rem!important}.efb.pe-lg-2{padding-right:.5rem!important}.efb.pe-lg-3{padding-right:1rem!important}.efb.pe-lg-4{padding-right:1.5rem!important}.efb.pe-lg-5{padding-right:3rem!important}.efb.pb-lg-0{padding-bottom:0!important}.efb.pb-lg-1{padding-bottom:.25rem!important}.efb.pb-lg-2{padding-bottom:.5rem!important}.efb.pb-lg-3{padding-bottom:1rem!important}.efb.pb-lg-4{padding-bottom:1.5rem!important}.efb.pb-lg-5{padding-bottom:3rem!important}.efb.ps-lg-0{padding-left:0!important}.efb.ps-lg-1{padding-left:.25rem!important}.efb.ps-lg-2{padding-left:.5rem!important}.efb.ps-lg-3{padding-left:1rem!important}.efb.ps-lg-4{padding-left:1.5rem!important}.efb.ps-lg-5{padding-left:3rem!important}.efb.text-lg-start{text-align:left!important}.efb.text-lg-end{text-align:right!important}.efb.text-lg-center{text-align:center!important}}@media (min-width:1200px){.efb.float-xl-start{float:left!important}.efb.float-xl-end{float:right!important}.efb.float-xl-none{float:none!important}.efb.d-xl-inline{display:inline!important}.efb.d-xl-inline-block{display:inline-block!important}.efb.d-xl-block{display:block!important}.efb.d-xl-grid{display:grid!important}.efb.d-xl-table{display:table!important}.efb.d-xl-table-row{display:table-row!important}.efb.d-xl-table-cell{display:table-cell!important}.efb.d-xl-flex{display:flex!important}.efb.d-xl-inline-flex{display:inline-flex!important}.efb.d-xl-none{display:none!important}.efb.flex-xl-fill{flex:1 1 auto!important}.efb.flex-xl-row{flex-direction:row!important}.efb.flex-xl-column{flex-direction:column!important}.efb.flex-xl-row-reverse{flex-direction:row-reverse!important}.efb.flex-xl-column-reverse{flex-direction:column-reverse!important}.efb.flex-xl-grow-0{flex-grow:0!important}.efb.flex-xl-grow-1{flex-grow:1!important}.efb.flex-xl-shrink-0{flex-shrink:0!important}.efb.flex-xl-shrink-1{flex-shrink:1!important}.efb.flex-xl-wrap{flex-wrap:wrap!important}.efb.flex-xl-nowrap{flex-wrap:nowrap!important}.efb.flex-xl-wrap-reverse{flex-wrap:wrap-reverse!important}.efb.gap-xl-0{gap:0!important}.efb.gap-xl-1{gap:.25rem!important}.efb.gap-xl-2{gap:.5rem!important}.efb.gap-xl-3{gap:1rem!important}.efb.gap-xl-4{gap:1.5rem!important}.efb.gap-xl-5{gap:3rem!important}.efb.justify-content-xl-start{justify-content:flex-start!important}.efb.justify-content-xl-end{justify-content:flex-end!important}.efb.justify-content-xl-center{justify-content:center!important}.efb.justify-content-xl-between{justify-content:space-between!important}.efb.justify-content-xl-around{justify-content:space-around!important}.efb.justify-content-xl-evenly{justify-content:space-evenly!important}.efb.align-items-xl-start{align-items:flex-start!important}.efb.align-items-xl-end{align-items:flex-end!important}.efb.align-items-xl-center{align-items:center!important}.efb.align-items-xl-baseline{align-items:baseline!important}.efb.align-items-xl-stretch{align-items:stretch!important}.efb.align-content-xl-start{align-content:flex-start!important}.efb.align-content-xl-end{align-content:flex-end!important}.efb.align-content-xl-center{align-content:center!important}.efb.align-content-xl-between{align-content:space-between!important}.efb.align-content-xl-around{align-content:space-around!important}.efb.align-content-xl-stretch{align-content:stretch!important}.efb.align-self-xl-auto{align-self:auto!important}.efb.align-self-xl-start{align-self:flex-start!important}.efb.align-self-xl-end{align-self:flex-end!important}.efb.align-self-xl-center{align-self:center!important}.efb.align-self-xl-baseline{align-self:baseline!important}.efb.align-self-xl-stretch{align-self:stretch!important}.efb.order-xl-first{order:-1!important}.efb.order-xl-0{order:0!important}.efb.order-xl-1{order:1!important}.efb.order-xl-2{order:2!important}.efb.order-xl-3{order:3!important}.efb.order-xl-4{order:4!important}.efb.order-xl-5{order:5!important}.efb.order-xl-last{order:6!important}.efb.m-xl-0{margin:0!important}.efb.m-xl-1{margin:.25rem!important}.efb.m-xl-2{margin:.5rem!important}.efb.m-xl-3{margin:1rem!important}.efb.m-xl-4{margin:1.5rem!important}.efb.m-xl-5{margin:3rem!important}.efb.m-xl-auto{margin:auto!important}.efb.mx-xl-0{margin-right:0!important;margin-left:0!important}.efb.mx-xl-1{margin-right:.25rem!important;margin-left:.25rem!important}.efb.mx-xl-2{margin-right:.5rem!important;margin-left:.5rem!important}.efb.mx-xl-3{margin-right:1rem!important;margin-left:1rem!important}.efb.mx-xl-4{margin-right:1.5rem!important;margin-left:1.5rem!important}.efb.mx-xl-5{margin-right:3rem!important;margin-left:3rem!important}.efb.mx-xl-auto{margin-right:auto!important;margin-left:auto!important}.efb.my-xl-0{margin-top:0!important;margin-bottom:0!important}.efb.my-xl-1{margin-top:.25rem!important;margin-bottom:.25rem!important}.efb.my-xl-2{margin-top:.5rem!important;margin-bottom:.5rem!important}.efb.my-xl-3{margin-top:1rem!important;margin-bottom:1rem!important}.efb.my-xl-4{margin-top:1.5rem!important;margin-bottom:1.5rem!important}.efb.my-xl-5{margin-top:3rem!important;margin-bottom:3rem!important}.efb.my-xl-auto{margin-top:auto!important;margin-bottom:auto!important}.efb.mt-xl-0{margin-top:0!important}.efb.mt-xl-1{margin-top:.25rem!important}.efb.mt-xl-2{margin-top:.5rem!important}.efb.mt-xl-3{margin-top:1rem!important}.efb.mt-xl-4{margin-top:1.5rem!important}.efb.mt-xl-5{margin-top:3rem!important}.efb.mt-xl-auto{margin-top:auto!important}.efb.me-xl-0{margin-right:0!important}.efb.me-xl-1{margin-right:.25rem!important}.efb.me-xl-2{margin-right:.5rem!important}.efb.me-xl-3{margin-right:1rem!important}.efb.me-xl-4{margin-right:1.5rem!important}.efb.me-xl-5{margin-right:3rem!important}.efb.me-xl-auto{margin-right:auto!important}.efb.mb-xl-0{margin-bottom:0!important}.efb.mb-xl-1{margin-bottom:.25rem!important}.efb.mb-xl-2{margin-bottom:.5rem!important}.efb.mb-xl-3{margin-bottom:1rem!important}.efb.mb-xl-4{margin-bottom:1.5rem!important}.efb.mb-xl-5{margin-bottom:3rem!important}.efb.mb-xl-auto{margin-bottom:auto!important}.efb.ms-xl-0{margin-left:0!important}.efb.ms-xl-1{margin-left:.25rem!important}.efb.ms-xl-2{margin-left:.5rem!important}.efb.ms-xl-3{margin-left:1rem!important}.efb.ms-xl-4{margin-left:1.5rem!important}.efb.ms-xl-5{margin-left:3rem!important}.efb.ms-xl-auto{margin-left:auto!important}.efb.p-xl-0{padding:0!important}.efb.p-xl-1{padding:.25rem!important}.efb.p-xl-2{padding:.5rem!important}.efb.p-xl-3{padding:1rem!important}.efb.p-xl-4{padding:1.5rem!important}.efb.p-xl-5{padding:3rem!important}.efb.px-xl-0{padding-right:0!important;padding-left:0!important}.efb.px-xl-1{padding-right:.25rem!important;padding-left:.25rem!important}.efb.px-xl-2{padding-right:.5rem!important;padding-left:.5rem!important}.efb.px-xl-3{padding-right:1rem!important;padding-left:1rem!important}.efb.px-xl-4{padding-right:1.5rem!important;padding-left:1.5rem!important}.efb.px-xl-5{padding-right:3rem!important;padding-left:3rem!important}.efb.py-xl-0{padding-top:0!important;padding-bottom:0!important}.efb.py-xl-1{padding-top:.25rem!important;padding-bottom:.25rem!important}.efb.py-xl-2{padding-top:.5rem!important;padding-bottom:.5rem!important}.efb.py-xl-3{padding-top:1rem!important;padding-bottom:1rem!important}.efb.py-xl-4{padding-top:1.5rem!important;padding-bottom:1.5rem!important}.efb.py-xl-5{padding-top:3rem!important;padding-bottom:3rem!important}.efb.pt-xl-0{padding-top:0!important}.efb.pt-xl-1{padding-top:.25rem!important}.efb.pt-xl-2{padding-top:.5rem!important}.efb.pt-xl-3{padding-top:1rem!important}.efb.pt-xl-4{padding-top:1.5rem!important}.efb.pt-xl-5{padding-top:3rem!important}.efb.pe-xl-0{padding-right:0!important}.efb.pe-xl-1{padding-right:.25rem!important}.efb.pe-xl-2{padding-right:.5rem!important}.efb.pe-xl-3{padding-right:1rem!important}.efb.pe-xl-4{padding-right:1.5rem!important}.efb.pe-xl-5{padding-right:3rem!important}.efb.pb-xl-0{padding-bottom:0!important}.efb.pb-xl-1{padding-bottom:.25rem!important}.efb.pb-xl-2{padding-bottom:.5rem!important}.efb.pb-xl-3{padding-bottom:1rem!important}.efb.pb-xl-4{padding-bottom:1.5rem!important}.efb.pb-xl-5{padding-bottom:3rem!important}.efb.ps-xl-0{padding-left:0!important}.efb.ps-xl-1{padding-left:.25rem!important}.efb.ps-xl-2{padding-left:.5rem!important}.efb.ps-xl-3{padding-left:1rem!important}.efb.ps-xl-4{padding-left:1.5rem!important}.efb.ps-xl-5{padding-left:3rem!important}.efb.text-xl-start{text-align:left!important}.efb.text-xl-end{text-align:right!important}.efb.text-xl-center{text-align:center!important}}@media (min-width:1400px){.efb.float-xxl-start{float:left!important}.efb.float-xxl-end{float:right!important}.efb.float-xxl-none{float:none!important}.efb.d-xxl-inline{display:inline!important}.efb.d-xxl-inline-block{display:inline-block!important}.efb.d-xxl-block{display:block!important}.efb.d-xxl-grid{display:grid!important}.efb.d-xxl-table{display:table!important}.efb.d-xxl-table-row{display:table-row!important}.efb.d-xxl-table-cell{display:table-cell!important}.efb.d-xxl-flex{display:flex!important}.efb.d-xxl-inline-flex{display:inline-flex!important}.efb.d-xxl-none{display:none!important}.efb.flex-xxl-fill{flex:1 1 auto!important}.efb.flex-xxl-row{flex-direction:row!important}.efb.flex-xxl-column{flex-direction:column!important}.efb.flex-xxl-row-reverse{flex-direction:row-reverse!important}.efb.flex-xxl-column-reverse{flex-direction:column-reverse!important}.efb.flex-xxl-grow-0{flex-grow:0!important}.efb.flex-xxl-grow-1{flex-grow:1!important}.efb.flex-xxl-shrink-0{flex-shrink:0!important}.efb.flex-xxl-shrink-1{flex-shrink:1!important}.efb.flex-xxl-wrap{flex-wrap:wrap!important}.efb.flex-xxl-nowrap{flex-wrap:nowrap!important}.efb.flex-xxl-wrap-reverse{flex-wrap:wrap-reverse!important}.efb.gap-xxl-0{gap:0!important}.efb.gap-xxl-1{gap:.25rem!important}.efb.gap-xxl-2{gap:.5rem!important}.efb.gap-xxl-3{gap:1rem!important}.efb.gap-xxl-4{gap:1.5rem!important}.efb.gap-xxl-5{gap:3rem!important}.efb.justify-content-xxl-start{justify-content:flex-start!important}.efb.justify-content-xxl-end{justify-content:flex-end!important}.efb.justify-content-xxl-center{justify-content:center!important}.efb.justify-content-xxl-between{justify-content:space-between!important}.efb.justify-content-xxl-around{justify-content:space-around!important}.efb.justify-content-xxl-evenly{justify-content:space-evenly!important}.efb.align-items-xxl-start{align-items:flex-start!important}.efb.align-items-xxl-end{align-items:flex-end!important}.efb.align-items-xxl-center{align-items:center!important}.efb.align-items-xxl-baseline{align-items:baseline!important}.efb.align-items-xxl-stretch{align-items:stretch!important}.efb.align-content-xxl-start{align-content:flex-start!important}.efb.align-content-xxl-end{align-content:flex-end!important}.efb.align-content-xxl-center{align-content:center!important}.efb.align-content-xxl-between{align-content:space-between!important}.efb.align-content-xxl-around{align-content:space-around!important}.efb.align-content-xxl-stretch{align-content:stretch!important}.efb.align-self-xxl-auto{align-self:auto!important}.efb.align-self-xxl-start{align-self:flex-start!important}.efb.align-self-xxl-end{align-self:flex-end!important}.efb.align-self-xxl-center{align-self:center!important}.efb.align-self-xxl-baseline{align-self:baseline!important}.efb.align-self-xxl-stretch{align-self:stretch!important}.efb.order-xxl-first{order:-1!important}.efb.order-xxl-0{order:0!important}.efb.order-xxl-1{order:1!important}.efb.order-xxl-2{order:2!important}.efb.order-xxl-3{order:3!important}.efb.order-xxl-4{order:4!important}.efb.order-xxl-5{order:5!important}.efb.order-xxl-last{order:6!important}.efb.m-xxl-0{margin:0!important}.efb.m-xxl-1{margin:.25rem!important}.efb.m-xxl-2{margin:.5rem!important}.efb.m-xxl-3{margin:1rem!important}.efb.m-xxl-4{margin:1.5rem!important}.efb.m-xxl-5{margin:3rem!important}.efb.m-xxl-auto{margin:auto!important}.efb.mx-xxl-0{margin-right:0!important;margin-left:0!important}.efb.mx-xxl-1{margin-right:.25rem!important;margin-left:.25rem!important}.efb.mx-xxl-2{margin-right:.5rem!important;margin-left:.5rem!important}.efb.mx-xxl-3{margin-right:1rem!important;margin-left:1rem!important}.efb.mx-xxl-4{margin-right:1.5rem!important;margin-left:1.5rem!important}.efb.mx-xxl-5{margin-right:3rem!important;margin-left:3rem!important}.efb.mx-xxl-auto{margin-right:auto!important;margin-left:auto!important}.efb.my-xxl-0{margin-top:0!important;margin-bottom:0!important}.efb.my-xxl-1{margin-top:.25rem!important;margin-bottom:.25rem!important}.efb.my-xxl-2{margin-top:.5rem!important;margin-bottom:.5rem!important}.efb.my-xxl-3{margin-top:1rem!important;margin-bottom:1rem!important}.efb.my-xxl-4{margin-top:1.5rem!important;margin-bottom:1.5rem!important}.efb.my-xxl-5{margin-top:3rem!important;margin-bottom:3rem!important}.efb.my-xxl-auto{margin-top:auto!important;margin-bottom:auto!important}.efb.mt-xxl-0{margin-top:0!important}.efb.mt-xxl-1{margin-top:.25rem!important}.efb.mt-xxl-2{margin-top:.5rem!important}.efb.mt-xxl-3{margin-top:1rem!important}.efb.mt-xxl-4{margin-top:1.5rem!important}.efb.mt-xxl-5{margin-top:3rem!important}.efb.mt-xxl-auto{margin-top:auto!important}.efb.me-xxl-0{margin-right:0!important}.efb.me-xxl-1{margin-right:.25rem!important}.efb.me-xxl-2{margin-right:.5rem!important}.efb.me-xxl-3{margin-right:1rem!important}.efb.me-xxl-4{margin-right:1.5rem!important}.efb.me-xxl-5{margin-right:3rem!important}.efb.me-xxl-auto{margin-right:auto!important}.efb.mb-xxl-0{margin-bottom:0!important}.efb.mb-xxl-1{margin-bottom:.25rem!important}.efb.mb-xxl-2{margin-bottom:.5rem!important}.efb.mb-xxl-3{margin-bottom:1rem!important}.efb.mb-xxl-4{margin-bottom:1.5rem!important}.efb.mb-xxl-5{margin-bottom:3rem!important}.efb.mb-xxl-auto{margin-bottom:auto!important}.efb.ms-xxl-0{margin-left:0!important}.efb.ms-xxl-1{margin-left:.25rem!important}.efb.ms-xxl-2{margin-left:.5rem!important}.efb.ms-xxl-3{margin-left:1rem!important}.efb.ms-xxl-4{margin-left:1.5rem!important}.efb.ms-xxl-5{margin-left:3rem!important}.efb.ms-xxl-auto{margin-left:auto!important}.efb.p-xxl-0{padding:0!important}.efb.p-xxl-1{padding:.25rem!important}.efb.p-xxl-2{padding:.5rem!important}.efb.p-xxl-3{padding:1rem!important}.efb.p-xxl-4{padding:1.5rem!important}.efb.p-xxl-5{padding:3rem!important}.efb.px-xxl-0{padding-right:0!important;padding-left:0!important}.efb.px-xxl-1{padding-right:.25rem!important;padding-left:.25rem!important}.efb.px-xxl-2{padding-right:.5rem!important;padding-left:.5rem!important}.efb.px-xxl-3{padding-right:1rem!important;padding-left:1rem!important}.efb.px-xxl-4{padding-right:1.5rem!important;padding-left:1.5rem!important}.efb.px-xxl-5{padding-right:3rem!important;padding-left:3rem!important}.efb.py-xxl-0{padding-top:0!important;padding-bottom:0!important}.efb.py-xxl-1{padding-top:.25rem!important;padding-bottom:.25rem!important}.efb.py-xxl-2{padding-top:.5rem!important;padding-bottom:.5rem!important}.efb.py-xxl-3{padding-top:1rem!important;padding-bottom:1rem!important}.efb.py-xxl-4{padding-top:1.5rem!important;padding-bottom:1.5rem!important}.efb.py-xxl-5{padding-top:3rem!important;padding-bottom:3rem!important}.efb.pt-xxl-0{padding-top:0!important}.efb.pt-xxl-1{padding-top:.25rem!important}.efb.pt-xxl-2{padding-top:.5rem!important}.efb.pt-xxl-3{padding-top:1rem!important}.efb.pt-xxl-4{padding-top:1.5rem!important}.efb.pt-xxl-5{padding-top:3rem!important}.efb.pe-xxl-0{padding-right:0!important}.efb.pe-xxl-1{padding-right:.25rem!important}.efb.pe-xxl-2{padding-right:.5rem!important}.efb.pe-xxl-3{padding-right:1rem!important}.efb.pe-xxl-4{padding-right:1.5rem!important}.efb.pe-xxl-5{padding-right:3rem!important}.efb.pb-xxl-0{padding-bottom:0!important}.efb.pb-xxl-1{padding-bottom:.25rem!important}.efb.pb-xxl-2{padding-bottom:.5rem!important}.efb.pb-xxl-3{padding-bottom:1rem!important}.efb.pb-xxl-4{padding-bottom:1.5rem!important}.efb.pb-xxl-5{padding-bottom:3rem!important}.efb.ps-xxl-0{padding-left:0!important}.efb.ps-xxl-1{padding-left:.25rem!important}.efb.ps-xxl-2{padding-left:.5rem!important}.efb.ps-xxl-3{padding-left:1rem!important}.efb.ps-xxl-4{padding-left:1.5rem!important}.efb.ps-xxl-5{padding-left:3rem!important}.efb.text-xxl-start{text-align:left!important}.efb.text-xxl-end{text-align:right!important}.efb.text-xxl-center{text-align:center!important}}@media (min-width:1200px){}@media print{.efb.d-print-inline{display:inline!important}.efb.d-print-inline-block{display:inline-block!important}.efb.d-print-block{display:block!important}.efb.d-print-grid{display:grid!important}.efb.d-print-table{display:table!important}.efb.d-print-table-row{display:table-row!important}.efb.d-print-table-cell{display:table-cell!important}.efb.d-print-flex{display:flex!important}.efb.d-print-inline-flex{display:inline-flex!important}.efb.d-print-none{display:none!important}}label input[type='radio'].efb{visibility:hidden}
+		@charset 'UTF-8';:root{--bs-blue:#0d6efd;--bs-indigo:#6610f2;--bs-purple:#6f42c1;--bs-pink:#d63384;--bs-red:#dc3545;--bs-orange:#fd7e14;--bs-yellow:#ffc107;--bs-green:#198754;--bs-teal:#20c997;--bs-cyan:#0dcaf0;--bs-white:#fff;--bs-gray:#6c757d;--bs-gray-dark:#343a40;--bs-primary:#0d6efd;--bs-secondary:#6c757d;--bs-success:#198754;--bs-info:#0dcaf0;--bs-warning:#ffc107;--bs-danger:#dc3545;--bs-light:#f8f9fa;--bs-dark:#212529;--bs-gradient:linear-gradient(180deg,rgba(255,255,255,.15),rgba(255,255,255,0))}.efb,.efb::after,.efb::before{box-sizing:border-box}@media (prefers-reduced-motion:no-preference){:root.efb{scroll-behavior:smooth}}hr .efb{margin:1rem 0;color:inherit;background-color:currentColor;border:0;opacity:.25}hr .efb:not([size]){height:1px}.efb.h1,.efb.h2,.efb.h3,.efb.h4,.efb.h5,.efb.h6,h1.efb,h2.efb,h3.efb,h4.efb,h5.efb,h6.efb{margin-top:0;margin-bottom:.5rem;font-weight:500;line-height:1.2}.efb.h1,h1.efb{font-size:calc(1.375rem + 1.5vw)}@media (min-width:1200px){.efb.h1,h1.efb{font-size:2.5rem}}.efb.h2,h2.efb{font-size:calc(1.325rem + .9vw)}@media (min-width:1200px){.h2.efb,h2.efb{font-size:2rem}}.efb.h3,h3.efb{font-size:calc(1.3rem + .6vw)}@media (min-width:1200px){.efb.h3,h3.efb{font-size:1.75rem}}.efb.h4,h4.efb{font-size:calc(1.275rem + .3vw)}@media (min-width:1200px){.h4.efb,h4.efb{font-size:1.5rem}}.efb.h5,h5.efb{font-size:1.25rem}.efb.h6,h6.efb{font-size:1rem}p.efb{margin-top:0;margin-bottom:1rem}abbr.efb[data-bs-original-title],abbr[title].efb{-webkit-text-decoration:underline dotted;text-decoration:underline dotted;cursor:help;-webkit-text-decoration-skip-ink:none;text-decoration-skip-ink:none}address.efb{margin-bottom:1rem;font-style:normal;line-height:inherit}ol.efb,ul.efb{padding-left:2rem}dl.efb,ol.efb,ul.efb{margin-top:0;margin-bottom:1rem}ol.efb ol.efb,ol.efb ul.efb,ul.efb ol.efb,ul.efb ul.efb{margin-bottom:0}dt.efb{font-weight:700}dd.efb{margin-bottom:.5rem;margin-left:0}blockquote.efb{margin:0 0 1rem}b.efb,strong.efb{font-weight:bolder}.efb.small,small.efb{font-size:.875em}.efb.mark,mark.efb{padding:.2em;background-color:#fcf8e3}sub.efb,sup.efb{position:relative;font-size:.75em;line-height:0;vertical-align:baseline}sub.efb{bottom:-.25em}sup.efb{top:-.5em}a.efb{color:#0d6efd;text-decoration:underline}a.efb:hover{color:#0a58ca}a.efb:not([href]):not([class]),a.efb:not([href]):not([class]):hover{color:inherit;text-decoration:none}code.efb,kbd.efb,pre.efb,samp.efb{font-family:var(--bs-font-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace);font-size:1em;direction:ltr;unicode-bidi:bidi-override}pre.efb{display:block;margin-top:0;margin-bottom:1rem;overflow:auto;font-size:.875em}pre code.efb{font-size:inherit;color:inherit;word-break:normal}code.efb{font-size:.875em;color:#d63384;word-wrap:break-word}a.efb>code{color:inherit}kbd.efb{padding:.2rem .4rem;font-size:.875em;color:#fff;background-color:#212529;border-radius:.2rem}kbd.efb kbd{padding:0;font-size:1em;font-weight:700}figure.efb{margin:0 0 1rem}img.efb,svg.efb{vertical-align:middle}table.efb{caption-side:bottom;border-collapse:collapse}caption.efb{padding-top:.5rem;padding-bottom:.5rem;color:#6c757d;text-align:left}th.efb{text-align:inherit;text-align:-webkit-match-parent}tbody.efb,td.efb,tfoot.efb,th.efb,thead.efb,tr.efb{border-color:inherit;border-style:solid;border-width:0}label.efb{display:inline-block}button.efb{border-radius:0}button.efb:focus:not(:focus-visible){outline:0}button.efb,input.efb,optgroup.efb,select.efb,textarea.efb{margin:0;font-family:inherit;font-size:inherit;line-height:inherit;color:#a5a3d1}textarea.efb:focus{box-shadow:0 2px 10px rgba(84,131,207,.25)!important;color:#a5a3d1}button.efb,select.efb{text-transform:none}[role=button]{cursor:pointer}select.efb{word-wrap:normal}select.efb:disabled{opacity:1}[list].efb::-webkit-calendar-picker-indicator{display:none}[type=button],[type=reset],[type=submit],button.efb{-webkit-appearance:button}[type=button]:not(:disabled) .efb,[type=reset]:not(:disabled) .efb,[type=submit]:not(:disabled) .efb,button:not(:disabled) .efb{cursor:pointer}.efb::-moz-focus-inner{padding:0;border-style:none}textarea.efb{resize:vertical}fieldset.efb{min-width:0;padding:0;margin:0;border:0}legend.efb{float:left;width:100%;padding:0;margin-bottom:.5rem;font-size:calc(1.275rem + .3vw);line-height:inherit}@media (min-width:1200px){legend.efb{font-size:1.5rem}}legend.efb+*{clear:left}.efb::-webkit-datetime-edit-day-field,.efb::-webkit-datetime-edit-fields-wrapper,.efb::-webkit-datetime-edit-hour-field,.efb::-webkit-datetime-edit-minute,.efb::-webkit-datetime-edit-month-field,.efb::-webkit-datetime-edit-text,.efb::-webkit-datetime-edit-year-field{padding:0}.efb::-webkit-inner-spin-button{height:auto}[type=search] .efb{outline-offset:-2px;-webkit-appearance:textfield}.efb::-webkit-search-decoration{-webkit-appearance:none}.efb::-webkit-color-swatch-wrapper{padding:0}.efb::file-selector-button{font:inherit}.efb::-webkit-file-upload-button{font:inherit;-webkit-appearance:button}output.efb{display:inline-block}iframe.efb{border:0}summary.efb{display:list-item;cursor:pointer}progress.efb{vertical-align:baseline}[hidden]{display:none!important}.efb.lead{font-size:1.25rem;font-weight:300}.efb.display-1{font-size:calc(1.625rem + 4.5vw);font-weight:300;line-height:1.2}@media (min-width:1200px){.efb.display-1{font-size:5rem}}.efb.display-2{font-size:calc(1.575rem + 3.9vw);font-weight:300;line-height:1.2}@media (min-width:1200px){.efb.display-2{font-size:4.5rem}}.efb.display-3{font-size:calc(1.525rem + 3.3vw);font-weight:300;line-height:1.2}@media (min-width:1200px){.efb.display-3{font-size:4rem}}.efb.display-4{font-size:calc(1.475rem + 2.7vw);font-weight:300;line-height:1.2}@media (min-width:1200px){.efb.display-4{font-size:3.5rem}}.efb.display-5{font-size:calc(1.425rem + 2.1vw);font-weight:300;line-height:1.2}@media (min-width:1200px){.efb.display-5{font-size:3rem}}.efb.display-6{font-size:calc(1.375rem + 1.5vw);font-weight:300;line-height:1.2}@media (min-width:1200px){.efb.display-6{font-size:2.5rem}}.efb.list-unstyled{padding-left:0;list-style:none}.efb.list-inline{padding-left:0;list-style:none}.efb.list-inline-item{display:inline-block}.efb.list-inline-item:not(:last-child){margin-right:.5rem}.efb.initialism{font-size:.875em;text-transform:uppercase}.efb.blockquote{margin-bottom:1rem;font-size:1.25rem}.efb.blockquote>:last-child{margin-bottom:0}.efb.blockquote-footer{margin-top:-1rem;margin-bottom:1rem;font-size:.875em;color:#6c757d}.efb.blockquote-footer::before{content:'— '}.efb.img-fluid{max-width:100%;height:auto}.efb.img-thumbnail{padding:.25rem;background-color:#fff;border:1px solid #dee2e6;border-radius:.25rem;max-width:100%;height:auto}.efb.figure{display:inline-block}.efb.figure-img{margin-bottom:.5rem;line-height:1}.efb.figure-caption{font-size:.875em;color:#6c757d}.efb.container,.efb.container-fluid,.efb.container-lg,.efb.container-md,.efb.container-sm,.efb.container-xl,.efb.container-xxl{width:100%;padding-right:var(--bs-gutter-x,.75rem);padding-left:var(--bs-gutter-x,.75rem);margin-right:auto;margin-left:auto}@media (min-width:576px){.efb.container,.efb.container-sm{max-width:540px}}@media (min-width:768px){.efb.container,.efb.container-md,.efb.container-sm{max-width:720px}}@media (min-width:992px){.efb.container,.efb.container-lg,.efb.container-md,.efb.container-sm{max-width:960px}}@media (min-width:1200px){.efb.container,.efb.container-lg,.efb.container-md,.efb.container-sm,.efb.container-xl{max-width:1140px}}@media (min-width:1400px){.efb.container,.efb.container-lg,.efb.container-md,.efb.container-sm,.efb.container-xl,.efb.container-xxl{max-width:1320px}}.row.efb{--bs-gutter-x:1.5rem;--bs-gutter-y:0;display:flex;flex-wrap:wrap;margin-top:calc(var(--bs-gutter-y) * -1);margin-right:calc(var(--bs-gutter-x)/ -2);margin-left:calc(var(--bs-gutter-x)/ -2)}.efb.row>*{flex-shrink:0;width:100%;max-width:100%;padding-right:calc(var(--bs-gutter-x)/ 2);padding-left:calc(var(--bs-gutter-x)/ 2);margin-top:var(--bs-gutter-y)}.efb.col{flex:1 0 0%}.efb.row-cols-auto>*{flex:0 0 auto;width:auto}.efb.row-cols-1>*{flex:0 0 auto;width:100%}.efb.row-cols-2>*{flex:0 0 auto;width:50%}.efb.row-cols-3>*{flex:0 0 auto;width:33.3333333333%}.efb.row-cols-4>*{flex:0 0 auto;width:25%}.efb.row-cols-5>*{flex:0 0 auto;width:20%}.efb.row-cols-6>*{flex:0 0 auto;width:16.6666666667%}.col-auto{flex:0 0 auto;width:auto}.efb.col-1{flex:0 0 auto;width:8.3333333333%}.efb.col-2{flex:0 0 auto;width:16.6666666667%}.efb.efb-col-3{flex:0 0 auto;width:25%}.efb.col-4{flex:0 0 auto;width:33.3333333333%}.efb.col-5{flex:0 0 auto;width:41.6666666667%}.efb.col-6{flex:0 0 auto;width:50%}.efb.col-7{flex:0 0 auto;width:58.3333333333%}.efb.col-8{flex:0 0 auto;width:66.6666666667%}.efb.col-9{flex:0 0 auto;width:75%}.efb.col-10{flex:0 0 auto;width:83.3333333333%}.efb.col-11{flex:0 0 auto;width:91.6666666667%}.efb.col-12{flex:0 0 auto;width:100%}.efb.offset-1{margin-left:8.3333333333%}.efb.offset-2{margin-left:16.6666666667%}.efb.offset-3{margin-left:25%}.efb.offset-4{margin-left:33.3333333333%}.efb.offset-5{margin-left:41.6666666667%}.efb.offset-6{margin-left:50%}.efb.offset-7{margin-left:58.3333333333%}.efb.offset-8{margin-left:66.6666666667%}.efb.offset-9{margin-left:75%}.efb.offset-10{margin-left:83.3333333333%}.efb.offset-11{margin-left:91.6666666667%}.efb.g-0,.efb.gx-0{--bs-gutter-x:0}.efb.g-0,.efb.gy-0{--bs-gutter-y:0}.efb.g-1,.efb.gx-1{--bs-gutter-x:.25rem}.efb.g-1,.efb.gy-1{--bs-gutter-y:.25rem}.efb.g-2,.efb.gx-2{--bs-gutter-x:.5rem}.efb.g-2,.efb.gy-2{--bs-gutter-y:.5rem}.efb.g-3,.efb.gx-3{--bs-gutter-x:1rem}.efb.g-3,.efb.gy-3{--bs-gutter-y:1rem}.efb.g-4,.efb.gx-4{--bs-gutter-x:1.5rem}.efb.g-4,.efb.gy-4{--bs-gutter-y:1.5rem}.efb.g-5,.efb.gx-5{--bs-gutter-x:3rem}.efb.g-5,.efb.gy-5{--bs-gutter-y:3rem}@media (min-width:576px){.efb.col-sm{flex:1 0 0%}.efb.row-cols-sm-auto>*{flex:0 0 auto;width:auto}.efb.row-cols-sm-1>*{flex:0 0 auto;width:100%}.efb.row-cols-sm-2>*{flex:0 0 auto;width:50%}.efb.row-cols-sm-3>*{flex:0 0 auto;width:33.3333333333%}.efb.row-cols-sm-4>*{flex:0 0 auto;width:25%}.efb.row-cols-sm-5>*{flex:0 0 auto;width:20%}.efb.row-cols-sm-6>*{flex:0 0 auto;width:16.6666666667%}.efb.col-sm-auto{flex:0 0 auto;width:auto}.efb.col-sm-1{flex:0 0 auto;width:8.3333333333%}.efb.col-sm-2{flex:0 0 auto;width:16.6666666667%}.efb.col-sm-3{flex:0 0 auto;width:25%}.efb.col-sm-4{flex:0 0 auto;width:33.3333333333%}.efb.col-sm-5{flex:0 0 auto;width:41.6666666667%}.efb.col-sm-6{flex:0 0 auto;width:50%}.efb.col-sm-7{flex:0 0 auto;width:58.3333333333%}.efb.col-sm-8{flex:0 0 auto;width:66.6666666667%}.efb.col-sm-9{flex:0 0 auto;width:75%}.efb.col-sm-10{flex:0 0 auto;width:83.3333333333%}.efb.col-sm-11{flex:0 0 auto;width:91.6666666667%}.efb.col-sm-12{flex:0 0 auto;width:100%}.efb.offset-sm-0{margin-left:0}.efb.offset-sm-1{margin-left:8.3333333333%}.efb.offset-sm-2{margin-left:16.6666666667%}.efb.offset-sm-3{margin-left:25%}.efb.offset-sm-4{margin-left:33.3333333333%}.efb.offset-sm-5{margin-left:41.6666666667%}.efb.offset-sm-6{margin-left:50%}.efb.offset-sm-7{margin-left:58.3333333333%}.efb.offset-sm-8{margin-left:66.6666666667%}.efb.offset-sm-9{margin-left:75%}.efb.offset-sm-10{margin-left:83.3333333333%}.efb.offset-sm-11{margin-left:91.6666666667%}.efb.g-sm-0,.efb.gx-sm-0{--bs-gutter-x:0}.efb.g-sm-0,.efb.gy-sm-0{--bs-gutter-y:0}.efb.g-sm-1,.efb.gx-sm-1{--bs-gutter-x:.25rem}.efb.g-sm-1,.efb.gy-sm-1{--bs-gutter-y:.25rem}.efb.g-sm-2,.efb.gx-sm-2{--bs-gutter-x:.5rem}.efb.g-sm-2,.efb.gy-sm-2{--bs-gutter-y:.5rem}.efb.g-sm-3,.efb.gx-sm-3{--bs-gutter-x:1rem}.efb.g-sm-3,.efb.gy-sm-3{--bs-gutter-y:1rem}.efb.g-sm-4,.efb.gx-sm-4{--bs-gutter-x:1.5rem}.efb.g-sm-4,.efb.gy-sm-4{--bs-gutter-y:1.5rem}.efb.g-sm-5,.efb.gx-sm-5{--bs-gutter-x:3rem}.efb.g-sm-5,.efb.gy-sm-5{--bs-gutter-y:3rem}}@media (min-width:768px){.efb.col-md{flex:1 0 0%}.efb.row-cols-md-auto>*{flex:0 0 auto;width:auto}.efb.row-cols-md-1>*{flex:0 0 auto;width:100%}.efb.row-cols-md-2>*{flex:0 0 auto;width:50%}.efb.row-cols-md-3>*{flex:0 0 auto;width:33.3333333333%}.efb.row-cols-md-4>*{flex:0 0 auto;width:25%}.efb.row-cols-md-5>*{flex:0 0 auto;width:20%}.efb.row-cols-md-6>*{flex:0 0 auto;width:16.6666666667%}.efb.col-md-auto{flex:0 0 auto;width:auto}.efb.col-md-1{flex:0 0 auto;width:8.3333333333%}.efb.col-md-2{flex:0 0 auto;width:16.6666666667%}.efb.col-md-3{flex:0 0 auto;width:25%}.efb.col-md-4{flex:0 0 auto;width:33.3333333333%}.efb.col-md-5{flex:0 0 auto;width:41.6666666667%}.efb.col-md-6{flex:0 0 auto;width:50%}.efb.col-md-7{flex:0 0 auto;width:58.3333333333%}.efb.col-md-8{flex:0 0 auto;width:66.6666666667%}.efb.col-md-9{flex:0 0 auto;width:75%}.efb.col-md-10{flex:0 0 auto;width:83.3333333333%}.efb.col-md-11{flex:0 0 auto;width:91.6666666667%}.efb.col-md-12{flex:0 0 auto;width:100%}.efb.offset-md-0{margin-left:0}.efb.offset-md-1{margin-left:8.3333333333%}.efb.offset-md-2{margin-left:16.6666666667%}.efb.offset-md-3{margin-left:25%}.efb.offset-md-4{margin-left:33.3333333333%}.efb.offset-md-5{margin-left:41.6666666667%}.efb.offset-md-6{margin-left:50%}.efb.offset-md-7{margin-left:58.3333333333%}.efb.offset-md-8{margin-left:66.6666666667%}.efb.offset-md-9{margin-left:75%}.efb.offset-md-10{margin-left:83.3333333333%}.efb.offset-md-11{margin-left:91.6666666667%}.efb.g-md-0,.efb.gx-md-0{--bs-gutter-x:0}.efb.g-md-0,.efb.gy-md-0{--bs-gutter-y:0}.efb.g-md-1,.efb.gx-md-1{--bs-gutter-x:.25rem}.efb.g-md-1,.efb.gy-md-1{--bs-gutter-y:.25rem}.efb.g-md-2,.efb.gx-md-2{--bs-gutter-x:.5rem}.efb.g-md-2,.efb.gy-md-2{--bs-gutter-y:.5rem}.efb.g-md-3,.efb.gx-md-3{--bs-gutter-x:1rem}.efb.g-md-3,.efb.gy-md-3{--bs-gutter-y:1rem}.efb.g-md-4,.efb.gx-md-4{--bs-gutter-x:1.5rem}.efb.g-md-4,.efb.gy-md-4{--bs-gutter-y:1.5rem}.efb.g-md-5,.efb.gx-md-5{--bs-gutter-x:3rem}.efb.g-md-5,.efb.gy-md-5{--bs-gutter-y:3rem}}@media (min-width:992px){.efb.col-lg{flex:1 0 0%}.efb.row-cols-lg-auto>*{flex:0 0 auto;width:auto}.efb.row-cols-lg-1>*{flex:0 0 auto;width:100%}.efb.row-cols-lg-2>*{flex:0 0 auto;width:50%}.efb.row-cols-lg-3>*{flex:0 0 auto;width:33.3333333333%}.efb.row-cols-lg-4>*{flex:0 0 auto;width:25%}.efb.row-cols-lg-5>*{flex:0 0 auto;width:20%}.efb.row-cols-lg-6>*{flex:0 0 auto;width:16.6666666667%}.efb.col-lg-auto{flex:0 0 auto;width:auto}.efb.col-lg-1{flex:0 0 auto;width:8.3333333333%}.efb.col-lg-2{flex:0 0 auto;width:16.6666666667%}.efb.col-lg-3{flex:0 0 auto;width:25%}.efb.col-lg-4{flex:0 0 auto;width:33.3333333333%}.efb.col-lg-5{flex:0 0 auto;width:41.6666666667%}.efb.col-lg-6{flex:0 0 auto;width:50%}.efb.col-lg-7{flex:0 0 auto;width:58.3333333333%}.efb.col-lg-8{flex:0 0 auto;width:66.6666666667%}.efb.col-lg-9{flex:0 0 auto;width:75%}.efb.col-lg-10{flex:0 0 auto;width:83.3333333333%}.efb.col-lg-11{flex:0 0 auto;width:91.6666666667%}.efb.col-lg-12{flex:0 0 auto;width:100%}.efb.offset-lg-0{margin-left:0}.efb.offset-lg-1{margin-left:8.3333333333%}.efb.offset-lg-2{margin-left:16.6666666667%}.efb.offset-lg-3{margin-left:25%}.efb.offset-lg-4{margin-left:33.3333333333%}.efb.offset-lg-5{margin-left:41.6666666667%}.efb.offset-lg-6{margin-left:50%}.efb.offset-lg-7{margin-left:58.3333333333%}.efb.offset-lg-8{margin-left:66.6666666667%}.efb.offset-lg-9{margin-left:75%}.efb.offset-lg-10{margin-left:83.3333333333%}.efb.offset-lg-11{margin-left:91.6666666667%}.efb.g-lg-0,.efb.gx-lg-0{--bs-gutter-x:0}.efb.g-lg-0,.efb.gy-lg-0{--bs-gutter-y:0}.efb.g-lg-1,.efb.gx-lg-1{--bs-gutter-x:.25rem}.efb.g-lg-1,.efb.gy-lg-1{--bs-gutter-y:.25rem}.efb.g-lg-2,.efb.gx-lg-2{--bs-gutter-x:.5rem}.efb.g-lg-2,.efb.gy-lg-2{--bs-gutter-y:.5rem}.efb.g-lg-3,.efb.gx-lg-3{--bs-gutter-x:1rem}.efb.g-lg-3,.efb.gy-lg-3{--bs-gutter-y:1rem}.efb.g-lg-4,.efb.gx-lg-4{--bs-gutter-x:1.5rem}.efb.g-lg-4,.efb.gy-lg-4{--bs-gutter-y:1.5rem}.efb.g-lg-5,.efb.gx-lg-5{--bs-gutter-x:3rem}.efb.g-lg-5,.efb.gy-lg-5{--bs-gutter-y:3rem}}@media (min-width:1200px){.efb.col-xl{flex:1 0 0%}.efb.row-cols-xl-auto>*{flex:0 0 auto;width:auto}.efb.row-cols-xl-1>*{flex:0 0 auto;width:100%}.efb.row-cols-xl-2>*{flex:0 0 auto;width:50%}.efb.row-cols-xl-3>*{flex:0 0 auto;width:33.3333333333%}.efb.row-cols-xl-4>*{flex:0 0 auto;width:25%}.efb.row-cols-xl-5>*{flex:0 0 auto;width:20%}.efb.row-cols-xl-6>*{flex:0 0 auto;width:16.6666666667%}.efb.col-xl-auto{flex:0 0 auto;width:auto}.efb.col-xl-1{flex:0 0 auto;width:8.3333333333%}.efb.col-xl-2{flex:0 0 auto;width:16.6666666667%}.efb.col-xl-3{flex:0 0 auto;width:25%}.efb.col-xl-4{flex:0 0 auto;width:33.3333333333%}.efb.col-xl-5{flex:0 0 auto;width:41.6666666667%}.efb.col-xl-6{flex:0 0 auto;width:50%}.efb.col-xl-7{flex:0 0 auto;width:58.3333333333%}.efb.col-xl-8{flex:0 0 auto;width:66.6666666667%}.efb.col-xl-9{flex:0 0 auto;width:75%}.efb.col-xl-10{flex:0 0 auto;width:83.3333333333%}.efb.col-xl-11{flex:0 0 auto;width:91.6666666667%}.efb.col-xl-12{flex:0 0 auto;width:100%}.efb.offset-xl-0{margin-left:0}.efb.offset-xl-1{margin-left:8.3333333333%}.efb.offset-xl-2{margin-left:16.6666666667%}.efb.offset-xl-3{margin-left:25%}.efb.offset-xl-4{margin-left:33.3333333333%}.efb.offset-xl-5{margin-left:41.6666666667%}.efb.offset-xl-6{margin-left:50%}.efb.offset-xl-7{margin-left:58.3333333333%}.efb.offset-xl-8{margin-left:66.6666666667%}.efb.offset-xl-9{margin-left:75%}.efb.offset-xl-10{margin-left:83.3333333333%}.efb.offset-xl-11{margin-left:91.6666666667%}.efb.g-xl-0,.efb.gx-xl-0{--bs-gutter-x:0}.efb.g-xl-0,.efb.gy-xl-0{--bs-gutter-y:0}.efb.g-xl-1,.efb.gx-xl-1{--bs-gutter-x:.25rem}.efb.g-xl-1,.efb.gy-xl-1{--bs-gutter-y:.25rem}.efb.g-xl-2,.efb.gx-xl-2{--bs-gutter-x:.5rem}.efb.g-xl-2,.efb.gy-xl-2{--bs-gutter-y:.5rem}.efb.g-xl-3,.efb.gx-xl-3{--bs-gutter-x:1rem}.efb.g-xl-3,.efb.gy-xl-3{--bs-gutter-y:1rem}.efb.g-xl-4,.efb.gx-xl-4{--bs-gutter-x:1.5rem}.efb.g-xl-4,.efb.gy-xl-4{--bs-gutter-y:1.5rem}.efb.g-xl-5,.efb.gx-xl-5{--bs-gutter-x:3rem}.efb.g-xl-5,.efb.gy-xl-5{--bs-gutter-y:3rem}}@media (min-width:1400px){.efb.col-xxl{flex:1 0 0%}.efb.row-cols-xxl-auto>*{flex:0 0 auto;width:auto}.efb.row-cols-xxl-1>*{flex:0 0 auto;width:100%}.efb.row-cols-xxl-2>*{flex:0 0 auto;width:50%}.efb.row-cols-xxl-3>*{flex:0 0 auto;width:33.3333333333%}.efb.row-cols-xxl-4>*{flex:0 0 auto;width:25%}.efb.row-cols-xxl-5>*{flex:0 0 auto;width:20%}.efb.row-cols-xxl-6>*{flex:0 0 auto;width:16.6666666667%}.efb.col-xxl-auto{flex:0 0 auto;width:auto}.efb.col-xxl-1{flex:0 0 auto;width:8.3333333333%}.efb.col-xxl-2{flex:0 0 auto;width:16.6666666667%}.efb.col-xxl-3{flex:0 0 auto;width:25%}.efb.col-xxl-4{flex:0 0 auto;width:33.3333333333%}.efb.col-xxl-5{flex:0 0 auto;width:41.6666666667%}.efb.col-xxl-6{flex:0 0 auto;width:50%}.efb.col-xxl-7{flex:0 0 auto;width:58.3333333333%}.efb.col-xxl-8{flex:0 0 auto;width:66.6666666667%}.efb.col-xxl-9{flex:0 0 auto;width:75%}.efb.col-xxl-10{flex:0 0 auto;width:83.3333333333%}.efb.col-xxl-11{flex:0 0 auto;width:91.6666666667%}.efb.col-xxl-12{flex:0 0 auto;width:100%}.efb.offset-xxl-0{margin-left:0}.efb.offset-xxl-1{margin-left:8.3333333333%}.efb.offset-xxl-2{margin-left:16.6666666667%}.efb.offset-xxl-3{margin-left:25%}.efb.offset-xxl-4{margin-left:33.3333333333%}.efb.offset-xxl-5{margin-left:41.6666666667%}.efb.offset-xxl-6{margin-left:50%}.efb.offset-xxl-7{margin-left:58.3333333333%}.efb.offset-xxl-8{margin-left:66.6666666667%}.efb.offset-xxl-9{margin-left:75%}.efb.offset-xxl-10{margin-left:83.3333333333%}.efb.offset-xxl-11{margin-left:91.6666666667%}.efb.g-xxl-0,.efb.gx-xxl-0{--bs-gutter-x:0}.efb.g-xxl-0,.efb.gy-xxl-0{--bs-gutter-y:0}.efb.g-xxl-1,.efb.gx-xxl-1{--bs-gutter-x:.25rem}.efb.g-xxl-1,.efb.gy-xxl-1{--bs-gutter-y:.25rem}.efb.g-xxl-2,.efb.gx-xxl-2{--bs-gutter-x:.5rem}.efb.g-xxl-2,.efb.gy-xxl-2{--bs-gutter-y:.5rem}.efb.g-xxl-3,.efb.gx-xxl-3{--bs-gutter-x:1rem}.efb.g-xxl-3,.efb.gy-xxl-3{--bs-gutter-y:1rem}.efb.g-xxl-4,.efb.gx-xxl-4{--bs-gutter-x:1.5rem}.efb.g-xxl-4,.efb.gy-xxl-4{--bs-gutter-y:1.5rem}.efb.g-xxl-5,.efb.gx-xxl-5{--bs-gutter-x:3rem}.efb.g-xxl-5,.efb.gy-xxl-5{--bs-gutter-y:3rem}}.efb.table{--bs-table-bg:transparent;--bs-table-accent-bg:transparent;--bs-table-striped-color:#212529;--bs-table-striped-bg:rgba(0,0,0,.05);--bs-table-active-color:#212529;--bs-table-active-bg:rgba(0,0,0,.1);--bs-table-hover-color:#212529;--bs-table-hover-bg:rgba(0,0,0,.075);width:100%;margin-bottom:1rem;color:#212529;vertical-align:top;border-color:#dee2e6;border-left:none;border-right:none;border-bottom:none}.efb.table>:not(caption)>*>*{padding:.5rem .5rem;background-color:var(--bs-table-bg);border-bottom-width:1px;box-shadow:inset 0 0 0 9999px var(--bs-table-accent-bg)}.efb.table>tbody{vertical-align:inherit}.efb.table>thead{vertical-align:bottom}.efb.table>:not(:last-child)>:last-child>*{border-bottom-color:currentColor}.efb.caption-top{caption-side:top}.efb.table-sm>:not(caption)>*>*{padding:.25rem .25rem}.efb.table-bordered>:not(caption)>*{border-width:1px 0}.efb.table-bordered>:not(caption)>*>*{border-width:0 1px}.efb.table-borderless>:not(caption)>*>*{border-bottom-width:0}.efb.table-striped>tbody>tr:nth-of-type(odd){--bs-table-accent-bg:var(--bs-table-striped-bg);color:var(--bs-table-striped-color)}.efb.table-active{--bs-table-accent-bg:var(--bs-table-active-bg);color:var(--bs-table-active-color)}.efb.table-hover>tbody>tr:hover{--bs-table-accent-bg:var(--bs-table-hover-bg);color:var(--bs-table-hover-color)}.efb.table-primary{--bs-table-bg:#cfe2ff;--bs-table-striped-bg:#c5d7f2;--bs-table-striped-color:#000;--bs-table-active-bg:#bacbe6;--bs-table-active-color:#000;--bs-table-hover-bg:#bfd1ec;--bs-table-hover-color:#000;color:#000;border-color:#bacbe6}.efb.table-secondary{--bs-table-bg:#e2e3e5;--bs-table-striped-bg:#d7d8da;--bs-table-striped-color:#000;--bs-table-active-bg:#cbccce;--bs-table-active-color:#000;--bs-table-hover-bg:#d1d2d4;--bs-table-hover-color:#000;color:#000;border-color:#cbccce}.efb.table-success{--bs-table-bg:#d1e7dd;--bs-table-striped-bg:#c7dbd2;--bs-table-striped-color:#000;--bs-table-active-bg:#bcd0c7;--bs-table-active-color:#000;--bs-table-hover-bg:#c1d6cc;--bs-table-hover-color:#000;color:#000;border-color:#bcd0c7}.efb.table-info{--bs-table-bg:#cff4fc;--bs-table-striped-bg:#c5e8ef;--bs-table-striped-color:#000;--bs-table-active-bg:#badce3;--bs-table-active-color:#000;--bs-table-hover-bg:#bfe2e9;--bs-table-hover-color:#000;color:#000;border-color:#badce3}.efb.table-warning{--bs-table-bg:#fff3cd;--bs-table-striped-bg:#f2e7c3;--bs-table-striped-color:#000;--bs-table-active-bg:#e6dbb9;--bs-table-active-color:#000;--bs-table-hover-bg:#ece1be;--bs-table-hover-color:#000;color:#000;border-color:#e6dbb9}.efb.table-danger{--bs-table-bg:#f8d7da;--bs-table-striped-bg:#eccccf;--bs-table-striped-color:#000;--bs-table-active-bg:#dfc2c4;--bs-table-active-color:#000;--bs-table-hover-bg:#e5c7ca;--bs-table-hover-color:#000;color:#000;border-color:#dfc2c4}.efb.table-light{--bs-table-bg:#f8f9fa;--bs-table-striped-bg:#ecedee;--bs-table-striped-color:#000;--bs-table-active-bg:#dfe0e1;--bs-table-active-color:#000;--bs-table-hover-bg:#e5e6e7;--bs-table-hover-color:#000;color:#000;border-color:#dfe0e1}.efb.table-dark{--bs-table-bg:#212529;--bs-table-striped-bg:#2c3034;--bs-table-striped-color:#fff;--bs-table-active-bg:#373b3e;--bs-table-active-color:#fff;--bs-table-hover-bg:#323539;--bs-table-hover-color:#fff;color:#fff;border-color:#373b3e}.efb.table-responsive{overflow-x:auto;-webkit-overflow-scrolling:touch}@media (max-width:575.98px){.efb.table-responsive-sm{overflow-x:auto;-webkit-overflow-scrolling:touch}}@media (max-width:767.98px){.efb.table-responsive-md{overflow-x:auto;-webkit-overflow-scrolling:touch}}@media (max-width:991.98px){.efb.table-responsive-lg{overflow-x:auto;-webkit-overflow-scrolling:touch}}@media (max-width:1199.98px){.efb.table-responsive-xl{overflow-x:auto;-webkit-overflow-scrolling:touch}}@media (max-width:1399.98px){.efb.table-responsive-xxl{overflow-x:auto;-webkit-overflow-scrolling:touch}}.efb.form-label{margin-bottom:.5rem}.efb.col-form-label{padding-top:calc(.375rem + 1px);padding-bottom:calc(.375rem + 1px);margin-bottom:0;font-size:inherit;line-height:1.5}.efb.col-form-label-lg{padding-top:calc(.5rem + 1px);padding-bottom:calc(.5rem + 1px);font-size:1.25rem}.efb.col-form-label-sm{padding-top:calc(.25rem + 1px);padding-bottom:calc(.25rem + 1px);font-size:.875rem}.efb.form-control{display:block;width:100%;padding:.375rem .75rem;font-size:1rem;font-weight:400;line-height:1.5;color:#212529;background-color:#fff;background-clip:padding-box;border:1px solid #ced4da;-webkit-appearance:none;-moz-appearance:none;appearance:none;border-radius:.25rem;transition:border-color .15s ease-in-out,box-shadow .15s ease-in-out}@media (prefers-reduced-motion:reduce){.efb.form-control{transition:none}}.efb.form-control[type=file]{overflow:hidden}.efb.form-control[type=file]:not(:disabled):not([readonly]){cursor:pointer}.efb.form-control:focus{color:#212529;background-color:#fff;border-color:#86b7fe;outline:0;box-shadow:0 0 0 .25rem rgba(13,110,253,.25)}.efb.form-control::-webkit-date-and-time-value{height:1.5em}.efb.form-control::-moz-placeholder{color:#6c757d;opacity:1}.efb.form-control::placeholder{color:#6c757d;opacity:1}.efb.form-control:disabled,.efb.form-control[readonly]{background-color:#e9ecef;opacity:1}.efb.form-control::file-selector-button{padding:.375rem .75rem;margin:-.375rem -.75rem;-webkit-margin-end:.75rem;margin-inline-end:.75rem;color:#212529;background-color:#e9ecef;pointer-events:none;border-color:inherit;border-style:solid;border-width:0;border-inline-end-width:1px;border-radius:0;transition:color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out}@media (prefers-reduced-motion:reduce){.efb.form-control::file-selector-button{transition:none}}.efb.form-control:hover:not(:disabled):not([readonly])::file-selector-button{background-color:#dde0e3}.efb.form-control::-webkit-file-upload-button{padding:.375rem .75rem;margin:-.375rem -.75rem;-webkit-margin-end:.75rem;margin-inline-end:.75rem;color:#212529;background-color:#e9ecef;pointer-events:none;border-color:inherit;border-style:solid;border-width:0;border-inline-end-width:1px;border-radius:0;-webkit-transition:color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;transition:color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out}@media (prefers-reduced-motion:reduce){.efb.form-control::-webkit-file-upload-button{-webkit-transition:none;transition:none}}.efb.form-control:hover:not(:disabled):not([readonly])::-webkit-file-upload-button{background-color:#dde0e3}.efb.form-control-plaintext{display:block;width:100%;padding:.375rem 0;margin-bottom:0;line-height:1.5;color:#212529;background-color:transparent;border:solid transparent;border-width:1px 0}.efb.form-control-plaintext.efb.form-control-lg,.efb.form-control-plaintext.efb.form-control-sm{padding-right:0;padding-left:0}.efb.form-control-sm{min-height:calc(1.5em + .5rem + 2px);padding:.25rem .5rem;font-size:.875rem;border-radius:.2rem}.efb.form-control-sm::file-selector-button{padding:.25rem .5rem;margin:-.25rem -.5rem;-webkit-margin-end:.5rem;margin-inline-end:.5rem}.efb.form-control-sm::-webkit-file-upload-button{padding:.25rem .5rem;margin:-.25rem -.5rem;-webkit-margin-end:.5rem;margin-inline-end:.5rem}.efb.form-control-lg{min-height:calc(1.5em + 1rem + 2px);padding:.5rem 1rem;font-size:1.25rem;border-radius:.3rem}.efb.form-control-lg::file-selector-button{padding:.5rem 1rem;margin:-.5rem -1rem;-webkit-margin-end:1rem;margin-inline-end:1rem}.efb.form-control-lg::-webkit-file-upload-button{padding:.5rem 1rem;margin:-.5rem -1rem;-webkit-margin-end:1rem;margin-inline-end:1rem}textarea.efb.form-control{min-height:calc(1.5em + .75rem + 2px)}textarea.efb.form-control-sm{min-height:calc(1.5em + .5rem + 2px)}textarea.efb.form-control-lg{min-height:calc(1.5em + 1rem + 2px)}.efb.form-control-color{max-width:3rem;height:auto;padding:.375rem}.efb.form-control-color:not(:disabled):not([readonly]){cursor:pointer}.efb.form-control-color::-moz-color-swatch{height:1.5em;border-radius:.25rem}.efb.form-control-color::-webkit-color-swatch{height:1.5em;border-radius:.25rem}.efb.form-select{display:block;width:100%;padding:.375rem 2.25rem .375rem .75rem;font-size:1rem;font-weight:400;line-height:1.5;color:#212529;background-color:#fff;background-image:url('data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e');background-repeat:no-repeat;background-position:right .75rem center;background-size:16px 12px;border:1px solid #ced4da;border-radius:.25rem;-webkit-appearance:none;-moz-appearance:none;appearance:none}.efb.form-select:focus{border-color:#86b7fe;outline:0;box-shadow:0 0 0 .25rem rgba(13,110,253,.25)}.efb.form-select[multiple],.efb.form-select[size]:not([size='1']){padding-right:.75rem;background-image:none}.efb.form-select:disabled{background-color:#e9ecef}.efb.form-select:-moz-focusring{color:transparent;text-shadow:0 0 0 #212529}.efb.form-select-sm{padding-top:.25rem;padding-bottom:.25rem;padding-left:.5rem;font-size:.875rem}.efb.form-select-lg{padding-top:.5rem;padding-bottom:.5rem;padding-left:1rem;font-size:1.25rem}.efb.form-check{display:flex;min-height:1.5rem;margin-bottom:.125rem;align-items:center;}.efb.form-check .efb.form-check-input{float:left}.efb.form-check-input{width:1em;height:1em;margin-top:.25em;vertical-align:top;background-color:#fff;background-repeat:no-repeat;background-position:center;background-size:contain;border:1px solid rgba(0,0,0,.25);-webkit-appearance:none;-moz-appearance:none;appearance:none;-webkit-print-color-adjust:exact;color-adjust:exact}.efb.form-check-input[type=checkbox]{border-radius:.25em}.efb.form-check-input[type=radio]{border-radius:50%}.efb.form-check-input:active{filter:brightness(90%)}.efb.form-check-input:focus{border-color:#86b7fe;outline:0;box-shadow:0 0 0 .25rem rgba(13,110,253,.25)}.efb.form-check-input:checked{background-color:#0d6efd;border-color:#0d6efd}.efb.form-check-input:checked[type=checkbox]{background-image:url('data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10l3 3l6-6'/%3e%3c/svg%3e')}.efb.form-check-input:checked[type=radio]{background-image:url('data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='2' fill='%23fff'/%3e%3c/svg%3e')}.efb.form-check-input[type=checkbox]:indeterminate{background-color:#0d6efd;border-color:#0d6efd;background-image:url('data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10h8'/%3e%3c/svg%3e')}.efb.form-check-input:disabled{pointer-events:none;filter:none;opacity:.5}.efb.form-check-input:disabled~.form-check-label,.efb.form-check-input[disabled]~.form-check-label{opacity:.5}.efb.form-switch{padding-left:2.5em}.efb.form-switch .efb.form-check-input{width:2em;margin-left:-2.5em;background-image:url('data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba%280,0,0,.25%29'/%3e%3c/svg%3e');background-position:left center;border-radius:2em;transition:background-position .15s ease-in-out}@media (prefers-reduced-motion:reduce){.efb.form-switch .efb.form-check-input{transition:none}}.efb.form-switch .efb.form-check-input:focus{background-image:url('data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%2386b7fe'/%3e%3c/svg%3e')}.efb.form-switch .efb.form-check-input:checked{background-position:right center;background-image:url('data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e')}.efb.btn-check{position:absolute;clip:rect(0,0,0,0);pointer-events:none}.efb.btn-check:disabled+.efb.btn,.efb.btn-check[disabled]+.efb.btn{pointer-events:none;filter:none;opacity:.65}.efb.form-range{width:100%;height:1.5rem;padding:0;background-color:transparent;-webkit-appearance:none;-moz-appearance:none;appearance:none}.efb.form-range:focus{outline:0}.efb.form-range:focus::-webkit-slider-thumb{box-shadow:0 0 0 1px #fff,0 0 0 .25rem rgba(13,110,253,.25)}.efb.form-range:focus::-moz-range-thumb{box-shadow:0 0 0 1px #fff,0 0 0 .25rem rgba(13,110,253,.25)}.efb.form-range::-moz-focus-outer{border:0}.efb.form-range::-webkit-slider-thumb{width:1rem;height:1rem;margin-top:-.25rem;background-color:#0d6efd;border:0;border-radius:1rem;-webkit-transition:background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;transition:background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;-webkit-appearance:none;appearance:none}@media (prefers-reduced-motion:reduce){.efb.form-range::-webkit-slider-thumb{-webkit-transition:none;transition:none}}.efb.form-range::-webkit-slider-thumb:active{background-color:#b6d4fe}.efb.form-range::-webkit-slider-runnable-track{width:100%;height:.5rem;color:transparent;cursor:pointer;background-color:#dee2e6;border-color:transparent;border-radius:1rem}.efb.form-range::-moz-range-thumb{width:1rem;height:1rem;background-color:#0d6efd;border:0;border-radius:1rem;-moz-transition:background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;transition:background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;-moz-appearance:none;appearance:none}@media (prefers-reduced-motion:reduce){.efb.form-range::-moz-range-thumb{-moz-transition:none;transition:none}}.efb.form-range::-moz-range-thumb:active{background-color:#b6d4fe}.efb.form-range::-moz-range-track{width:100%;height:.5rem;color:transparent;cursor:pointer;background-color:#dee2e6;border-color:transparent;border-radius:1rem}.efb.form-range:disabled{pointer-events:none}.efb.form-range:disabled::-webkit-slider-thumb{background-color:#adb5bd}.efb.form-range:disabled::-moz-range-thumb{background-color:#adb5bd}.efb.form-floating{position:relative}.efb.form-floating>.efb.form-control,.efb.form-floating>.efb.form-select{height:calc(3.5rem + 2px);padding:1rem .75rem}.efb.form-floating>label{position:absolute;top:0;left:0;height:100%;padding:1rem .75rem;pointer-events:none;border:1px solid transparent;transform-origin:0 0;transition:opacity .1s ease-in-out,transform .1s ease-in-out}@media (prefers-reduced-motion:reduce){.efb.form-floating>label{transition:none}}.efb.form-floating>.efb.form-control::-moz-placeholder{color:transparent}.efb.form-floating>.efb.form-control::placeholder{color:transparent}.efb.form-floating>.efb.form-control:not(:-moz-placeholder-shown){padding-top:1.625rem;padding-bottom:.625rem}.efb.form-floating>.efb.form-control:focus,.efb.form-floating>.efb.form-control:not(:placeholder-shown){padding-top:1.625rem;padding-bottom:.625rem}.efb.form-floating>.efb.form-control:-webkit-autofill{padding-top:1.625rem;padding-bottom:.625rem}.efb.form-floating>.efb.form-select{padding-top:1.625rem;padding-bottom:.625rem}.efb.form-floating>.efb.form-control:not(:-moz-placeholder-shown)~label{opacity:.65;transform:scale(.85) translateY(-.5rem) translateX(.15rem)}.efb.form-floating>.efb.form-control:focus~label,.efb.form-floating>.efb.form-control:not(:placeholder-shown)~label,.efb.form-floating>.efb.form-select~label{opacity:.65;transform:scale(.85) translateY(-.5rem) translateX(.15rem)}.efb.form-floating>.efb.form-control:-webkit-autofill~label{opacity:.65;transform:scale(.85) translateY(-.5rem) translateX(.15rem)}.efb.input-group{position:relative;display:flex;flex-wrap:wrap;align-items:stretch;width:100%}.efb.input-group>.efb.form-control,.efb.input-group>.efb.form-select{position:relative;flex:1 1 auto;width:1%;min-width:0}.efb.input-group>.efb.form-control:focus,.efb.input-group>.efb.form-select:focus{z-index:3}.efb.input-group .efb.btn{position:relative;z-index:2}.efb.input-group .efb.btn:focus{z-index:3}.efb.input-group-text{display:flex;align-items:center;padding:.375rem .75rem;font-size:1rem;font-weight:400;line-height:1.5;color:#212529;text-align:center;white-space:nowrap;background-color:#e9ecef;border:1px solid #ced4da;border-radius:.25rem}.efb.input-group-lg>.efb.btn,.efb.input-group-lg>.efb.form-control,.efb.input-group-lg>.efb.form-select,.efb.input-group-lg>.efb.input-group-text{padding:.5rem 1rem;font-size:1.25rem;border-radius:.3rem}.efb.input-group-sm>.efb.btn,.efb.input-group-sm>.efb.form-control,.efb.input-group-sm>.efb.form-select,.efb.input-group-sm>.efb.input-group-text{padding:.25rem .5rem;font-size:.875rem;border-radius:.2rem}.efb.input-group-lg>.efb.form-select,.efb.input-group-sm>.efb.form-select{padding-right:3rem}.efb.input-group:not(.has-validation)>.efb.dropdown-toggle:nth-last-child(n+3),.efb.input-group:not(.has-validation)>:not(:last-child):not(.efb.dropdown-toggle):not(.efb.dropdown-menu){border-top-right-radius:0;border-bottom-right-radius:0}.efb.input-group.has-validation>.efb.dropdown-toggle:nth-last-child(n+4),.efb.input-group.has-validation>:nth-last-child(n+3):not(.efb.dropdown-toggle):not(.efb.dropdown-menu){border-top-right-radius:0;border-bottom-right-radius:0}.efb.input-group>:not(:first-child):not(.efb.dropdown-menu):not(.valid-tooltip):not(.valid-feedback):not(.efb.invalid-tooltip):not(.efb.invalid-feedback){margin-left:-1px;border-top-left-radius:0;border-bottom-left-radius:0}.efb.valid-feedback{display:none;width:100%;margin-top:.25rem;font-size:.875em;color:#198754}.efb.valid-tooltip{position:absolute;top:100%;z-index:5;display:none;max-width:100%;padding:.25rem .5rem;margin-top:.1rem;font-size:.875rem;color:#fff;background-color:rgba(25,135,84,.9);border-radius:.25rem}.efb.is-valid~.efb.valid-feedback,.efb.was-validated:valid~.efb.valid-feedback,.efb.was-validated:valid~{display:block}.efb.form-control.is-valid,.efb.was-validated .efb.form-control:valid{border-color:#198754;padding-right:calc(1.5em + .75rem);background-image:url('data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e');background-repeat:no-repeat;background-position:right calc(.375em + .1875rem) center;background-size:calc(.75em + .375rem) calc(.75em + .375rem)}.efb.form-control.is-valid:focus,.efb.was-validated .efb.form-control:valid:focus{border-color:#198754;box-shadow:0 0 0 .25rem rgba(25,135,84,.25)}.efb.was-validated textarea.efb.form-control:valid,textarea.efb.form-control.is-valid{padding-right:calc(1.5em + .75rem);background-position:top calc(.375em + .1875rem) right calc(.375em + .1875rem)}.efb.form-select.is-valid,.efb.was-validated .efb.form-select:valid{border-color:#198754}.efb.form-select.is-valid:not([multiple]):not([size]),.efb.form-select.is-valid:not([multiple])[size='1'],.efb.was-validated .efb.form-select:valid:not([multiple]):not([size]),.efb.was-validated .efb.form-select:valid:not([multiple])[size='1']{padding-right:4.125rem;background-image:url('data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e'),url('data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e');background-position:right .75rem center,center right 2.25rem;background-size:16px 12px,calc(.75em + .375rem) calc(.75em + .375rem)}.efb.form-select.is-valid:focus,.efb.was-validated .efb.form-select:valid:focus{border-color:#198754;box-shadow:0 0 0 .25rem rgba(25,135,84,.25)}.efb.form-check-input.is-valid,.efb.was-validated .efb.form-check-input:valid{border-color:#198754}.efb.form-check-input.is-valid:checked,.efb.was-validated .efb.form-check-input:valid:checked{background-color:#198754}.efb.form-check-input.is-valid:focus,.efb.was-validated .efb.form-check-input:valid:focus{box-shadow:0 0 0 .25rem rgba(25,135,84,.25)}.efb.form-check-input.is-valid~.form-check-label,.efb.was-validated .efb.form-check-input:valid{color:#198754}.form-check-inline .efb.form-check-input~.efb.valid-feedback{margin-left:.5em}.efb.input-group .efb.form-control.is-valid,.efb.input-group .efb.form-select.is-valid,.efb.was-validated .efb.input-group .efb.form-control:valid,.efb.was-validated .efb.input-group .efb.form-select:valid{z-index:1}.efb.input-group .efb.form-control.is-valid:focus,.efb.input-group .efb.form-select.is-valid:focus,.efb.was-validated .efb.input-group .efb.form-control:valid:focus,.efb.was-validated .efb.input-group .efb.form-select:valid:focus{z-index:3}.efb.invalid-feedback{display:none;width:100%;margin-top:.25rem;font-size:.875em;color:#dc3545}.efb.invalid-tooltip{position:absolute;top:100%;z-index:5;display:none;max-width:100%;padding:.25rem .5rem;margin-top:.1rem;font-size:.875rem;color:#fff;background-color:rgba(220,53,69,.9);border-radius:.25rem}.efb.is-invalid~.efb.invalid-feedback,.efb.is-invalid~.efb.invalid-tooltip,.efb.was-validated:invalid~.efb.invalid-feedback,.efb.was-validated:invalid~.efb.invalid-tooltip{display:block}.efb.form-control.efb.is-invalid,.efb.was-validated .efb.form-control:invalid{border-color:#dc3545;padding-right:calc(1.5em + .75rem);background-image:url('data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e');background-repeat:no-repeat;background-position:right calc(.375em + .1875rem) center;background-size:calc(.75em + .375rem) calc(.75em + .375rem)}.efb.form-control.efb.is-invalid:focus,.efb.was-validated .efb.form-control:invalid:focus{border-color:#dc3545;box-shadow:0 0 0 .25rem rgba(220,53,69,.25)}.efb.was-validated textarea.efb.form-control:invalid,textarea.efb.form-control.efb.is-invalid{padding-right:calc(1.5em + .75rem);background-position:top calc(.375em + .1875rem) right calc(.375em + .1875rem)}.efb.form-select.efb.is-invalid,.efb.was-validated .efb.form-select:invalid{border-color:#dc3545}.efb.form-select.efb.is-invalid:not([multiple]):not([size]),.efb.form-select.efb.is-invalid:not([multiple])[size='1'],.efb.was-validated .efb.form-select:invalid:not([multiple]):not([size]),.efb.was-validated .efb.form-select:invalid:not([multiple])[size='1']{padding-right:4.125rem;background-image:url('data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e'),url('data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e');background-position:right .75rem center,center right 2.25rem;background-size:16px 12px,calc(.75em + .375rem) calc(.75em + .375rem)}.efb.form-select.efb.is-invalid:focus,.efb.was-validated .efb.form-select:invalid:focus{border-color:#dc3545;box-shadow:0 0 0 .25rem rgba(220,53,69,.25)}.efb.form-check-input.efb.is-invalid,.efb.was-validated .efb.form-check-input:invalid{border-color:#dc3545}.efb.form-check-input.efb.is-invalid:checked,.efb.was-validated .efb.form-check-input:invalid:checked{background-color:#dc3545}.efb.form-check-input.efb.is-invalid:focus,.efb.was-validated .efb.form-check-input:invalid:focus{box-shadow:0 0 0 .25rem rgba(220,53,69,.25)}.efb.form-check-input.efb.is-invalid~.form-check-label,.efb.was-validated .efb.form-check-input:invalid~.form-check-label{color:#dc3545}.efb.form-check-inline .efb.form-check-input~.efb.invalid-feedback{margin-left:.5em}.efb.input-group .efb.form-control.efb.is-invalid,.efb.input-group .efb.form-select.efb.is-invalid,.efb.was-validated .efb.input-group .efb.form-control:invalid,.efb.was-validated .efb.input-group .efb.form-select:invalid{z-index:2}.efb.input-group .efb.form-control.efb.is-invalid:focus,.efb.input-group .efb.form-select.efb.is-invalid:focus,.efb.was-validated .efb.input-group .efb.form-control:invalid:focus,.efb.was-validated .efb.input-group .efb.form-select:invalid:focus{z-index:3}.efb.btn{display:inline-block;font-weight:400;line-height:1.5;color:#212529;text-align:center;text-decoration:none;vertical-align:middle;cursor:pointer;-webkit-user-select:none;-moz-user-select:none;user-select:none;background-color:transparent;border:1px solid transparent;padding:.375rem .75rem;font-size:1rem;border-radius:.25rem;transition:color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out}@media (prefers-reduced-motion:reduce){.efb.btn{transition:none}}.efb.btn:hover{color:#212529}.efb.btn-check:focus+.efb.btn,.efb.btn:focus{outline:0;box-shadow:0 0 0 .25rem rgba(13,110,253,.25)}.efb.btn.disabled,.efb.btn:disabled,fieldset:disabled .efb.btn{pointer-events:none;opacity:.65}.efb.btn-primary{color:#fff;background-color:#0d6efd;border-color:#0d6efd}.efb.btn-primary:hover{color:#fff;background-color:#0b5ed7;border-color:#0a58ca}.efb.btn-check:focus+.efb.btn-primary,.efb.btn-primary:focus{color:#fff;background-color:#0b5ed7;border-color:#0a58ca;box-shadow:0 0 0 .25rem rgba(49,132,253,.5)}.efb.btn-check:active+.efb.btn-primary,.efb.btn-check:checked+.efb.btn-primary,.efb.btn-primary.active,.efb.btn-primary:active,.show>.efb.btn-primary.efb.dropdown-toggle{color:#fff;background-color:#0a58ca;border-color:#0a53be}.efb.btn-check:active+.efb.btn-primary:focus,.efb.btn-check:checked+.efb.btn-primary:focus,.efb.btn-primary.active:focus,.efb.btn-primary:active:focus,.show>.efb.btn-primary.efb.dropdown-toggle:focus{box-shadow:0 0 0 .25rem rgba(49,132,253,.5)}.efb.btn-primary.disabled,.efb.btn-primary:disabled{color:#fff;background-color:#0d6efd;border-color:#0d6efd}.efb.btn-secondary{color:#fff;background-color:#6c757d;border-color:#6c757d}.efb.btn-secondary:hover{color:#fff;background-color:#5c636a;border-color:#565e64}.efb.btn-check:focus+.efb.btn-secondary,.efb.btn-secondary:focus{color:#fff;background-color:#5c636a;border-color:#565e64;box-shadow:0 0 0 .25rem rgba(130,138,145,.5)}.efb.btn-check:active+.efb.btn-secondary,.efb.btn-check:checked+.efb.btn-secondary,.efb.btn-secondary.active,.efb.btn-secondary:active,.show>.efb.btn-secondary.efb.dropdown-toggle{color:#fff;background-color:#565e64;border-color:#51585e}.efb.btn-check:active+.efb.btn-secondary:focus,.efb.btn-check:checked+.efb.btn-secondary:focus,.efb.btn-secondary.active:focus,.efb.btn-secondary:active:focus,.show>.efb.btn-secondary.efb.dropdown-toggle:focus{box-shadow:0 0 0 .25rem rgba(130,138,145,.5)}.efb.btn-secondary.disabled,.efb.btn-secondary:disabled{color:#fff;background-color:#6c757d;border-color:#6c757d}.efb.btn-success{color:#fff;background-color:#198754;border-color:#198754}.efb.btn-success:hover{color:#fff;background-color:#157347;border-color:#146c43}.efb.btn-check:focus+.efb.btn-success,.efb.btn-success:focus{color:#fff;background-color:#157347;border-color:#146c43;box-shadow:0 0 0 .25rem rgba(60,153,110,.5)}.efb.btn-check:active+.efb.btn-success,.efb.btn-check:checked+.efb.btn-success,.efb.btn-success.active,.efb.btn-success:active,.show>.efb.btn-success.efb.dropdown-toggle{color:#fff;background-color:#146c43;border-color:#13653f}.efb.btn-check:active+.efb.btn-success:focus,.efb.btn-check:checked+.efb.btn-success:focus,.efb.btn-success.active:focus,.efb.btn-success:active:focus,.show>.efb.btn-success.efb.dropdown-toggle:focus{box-shadow:0 0 0 .25rem rgba(60,153,110,.5)}.efb.btn-success.disabled,.efb.btn-success:disabled{color:#fff;background-color:#198754;border-color:#198754}.efb.btn-info{color:#000;background-color:#0dcaf0;border-color:#0dcaf0}.efb.btn-info:hover{color:#000;background-color:#31d2f2;border-color:#25cff2}.efb.btn-check:focus+.efb.btn-info,.efb.btn-info:focus{color:#000;background-color:#31d2f2;border-color:#25cff2;box-shadow:0 0 0 .25rem rgba(11,172,204,.5)}.efb.btn-check:active+.efb.btn-info,.efb.btn-check:checked+.efb.btn-info,.efb.btn-info.active,.efb.btn-info:active,.show>.efb.btn-info.efb.dropdown-toggle{color:#000;background-color:#3dd5f3;border-color:#25cff2}.efb.btn-check:active+.efb.btn-info:focus,.efb.btn-check:checked+.efb.btn-info:focus,.efb.btn-info.active:focus,.efb.btn-info:active:focus,.show>.efb.btn-info.efb.dropdown-toggle:focus{box-shadow:0 0 0 .25rem rgba(11,172,204,.5)}.efb.btn-info.disabled,.efb.btn-info:disabled{color:#000;background-color:#0dcaf0;border-color:#0dcaf0}.efb.btn-warning{color:#000;background-color:#ffc107;border-color:#ffc107}.efb.btn-warning:hover{color:#000;background-color:#ffca2c;border-color:#ffc720}.efb.btn-check:focus+.efb.btn-warning,.efb.btn-warning:focus{color:#000;background-color:#ffca2c;border-color:#ffc720;box-shadow:0 0 0 .25rem rgba(217,164,6,.5)}.efb.btn-check:active+.efb.btn-warning,.efb.btn-check:checked+.efb.btn-warning,.efb.btn-warning.active,.efb.btn-warning:active,.show>.efb.btn-warning.efb.dropdown-toggle{color:#000;background-color:#ffcd39;border-color:#ffc720}.efb.btn-check:active+.efb.btn-warning:focus,.efb.btn-check:checked+.efb.btn-warning:focus,.efb.btn-warning.active:focus,.efb.btn-warning:active:focus,.show>.efb.btn-warning.efb.dropdown-toggle:focus{box-shadow:0 0 0 .25rem rgba(217,164,6,.5)}.efb.btn-warning.disabled,.efb.btn-warning:disabled{color:#000;background-color:#ffc107;border-color:#ffc107}.efb.btn-danger{color:#fff;background-color:#dc3545;border-color:#dc3545}.efb.btn-danger:hover{color:#fff;background-color:#bb2d3b;border-color:#b02a37}.efb.btn-check:focus+.efb.btn-danger,.efb.btn-danger:focus{color:#fff;background-color:#bb2d3b;border-color:#b02a37;box-shadow:0 0 0 .25rem rgba(225,83,97,.5)}.efb.btn-check:active+.efb.btn-danger,.efb.btn-check:checked+.efb.btn-danger,.efb.btn-danger.active,.efb.btn-danger:active,.show>.efb.btn-danger.efb.dropdown-toggle{color:#fff;background-color:#b02a37;border-color:#a52834}.efb.btn-check:active+.efb.btn-danger:focus,.efb.btn-check:checked+.efb.btn-danger:focus,.efb.btn-danger.active:focus,.efb.btn-danger:active:focus,.show>.efb.btn-danger.efb.dropdown-toggle:focus{box-shadow:0 0 0 .25rem rgba(225,83,97,.5)}.efb.btn-danger.disabled,.efb.btn-danger:disabled{color:#fff;background-color:#dc3545;border-color:#dc3545}.efb.btn-light{color:#000;background-color:#f8f9fa;border-color:#f8f9fa}.efb.btn-light:hover{color:#000;background-color:#f9fafb;border-color:#f9fafb}.efb.btn-check:focus+.efb.btn-light,.efb.btn-light:focus{color:#000;background-color:#f9fafb;border-color:#f9fafb;box-shadow:0 0 0 .25rem rgba(211,212,213,.5)}.efb.btn-check:active+.efb.btn-light,.efb.btn-check:checked+.efb.btn-light,.efb.btn-light.active,.efb.btn-light:active,.show>.efb.btn-light.efb.dropdown-toggle{color:#000;background-color:#f9fafb;border-color:#f9fafb}.efb.btn-check:active+.efb.btn-light:focus,.efb.btn-check:checked+.efb.btn-light:focus,.efb.btn-light.active:focus,.efb.btn-light:active:focus,.show>.efb.btn-light.efb.dropdown-toggle:focus{box-shadow:0 0 0 .25rem rgba(211,212,213,.5)}.efb.btn-light.disabled,.efb.btn-light:disabled{color:#000;background-color:#f8f9fa;border-color:#f8f9fa}.efb.btn-dark{color:#fff;background-color:#212529;border-color:#212529}.efb.btn-dark:hover{color:#fff;background-color:#1c1f23;border-color:#1a1e21}.efb.btn-check:focus+.efb.btn-dark,.efb.btn-dark:focus{color:#fff;background-color:#1c1f23;border-color:#1a1e21;box-shadow:0 0 0 .25rem rgba(66,70,73,.5)}.efb.btn-check:active+.efb.btn-dark,.efb.btn-check:checked+.efb.btn-dark,.efb.btn-dark.active,.efb.btn-dark:active,.show>.efb.btn-dark.efb.dropdown-toggle{color:#fff;background-color:#1a1e21;border-color:#191c1f}.efb.btn-check:active+.efb.btn-dark:focus,.efb.btn-check:checked+.efb.btn-dark:focus,.efb.btn-dark.active:focus,.efb.btn-dark:active:focus,.show>.efb.btn-dark.efb.dropdown-toggle:focus{box-shadow:0 0 0 .25rem rgba(66,70,73,.5)}.efb.btn-dark.disabled,.efb.btn-dark:disabled{color:#fff;background-color:#212529;border-color:#212529}.efb.btn-outline-primary{color:#0d6efd;border-color:#0d6efd}.efb.btn-outline-primary:hover{color:#fff;background-color:#0d6efd;border-color:#0d6efd}.efb.btn-check:focus+.efb.btn-outline-primary,.efb.btn-outline-primary:focus{box-shadow:0 0 0 .25rem rgba(13,110,253,.5)}.efb.btn-check:active+.efb.btn-outline-primary,.efb.btn-check:checked+.efb.btn-outline-primary,.efb.btn-outline-primary.active,.efb.btn-outline-primary.efb.dropdown-toggle.show,.efb.btn-outline-primary:active{color:#fff;background-color:#0d6efd;border-color:#0d6efd}.efb.btn-check:active+.efb.btn-outline-primary:focus,.efb.btn-check:checked+.efb.btn-outline-primary:focus,.efb.btn-outline-primary.active:focus,.efb.btn-outline-primary.efb.dropdown-toggle.show:focus,.efb.btn-outline-primary:active:focus{box-shadow:0 0 0 .25rem rgba(13,110,253,.5)}.efb.btn-outline-primary.disabled,.efb.btn-outline-primary:disabled{color:#0d6efd;background-color:transparent}.efb.btn-outline-secondary{color:#6c757d;border-color:#6c757d}.efb.btn-outline-secondary:hover{color:#fff;background-color:#6c757d;border-color:#6c757d}.efb.btn-check:focus+.efb.btn-outline-secondary,.efb.btn-outline-secondary:focus{box-shadow:0 0 0 .25rem rgba(108,117,125,.5)}.efb.btn-check:active+.efb.btn-outline-secondary,.efb.btn-check:checked+.efb.btn-outline-secondary,.efb.btn-outline-secondary.active,.efb.btn-outline-secondary.efb.dropdown-toggle.show,.efb.btn-outline-secondary:active{color:#fff;background-color:#6c757d;border-color:#6c757d}.efb.btn-check:active+.efb.btn-outline-secondary:focus,.efb.btn-check:checked+.efb.btn-outline-secondary:focus,.efb.btn-outline-secondary.active:focus,.efb.btn-outline-secondary.efb.dropdown-toggle.show:focus,.efb.btn-outline-secondary:active:focus{box-shadow:0 0 0 .25rem rgba(108,117,125,.5)}.efb.btn-outline-secondary.disabled,.efb.btn-outline-secondary:disabled{color:#6c757d;background-color:transparent}.efb.btn-outline-success{color:#198754;border-color:#198754}.efb.btn-outline-success:hover{color:#fff;background-color:#198754;border-color:#198754}.efb.btn-check:focus+.efb.btn-outline-success,.efb.btn-outline-success:focus{box-shadow:0 0 0 .25rem rgba(25,135,84,.5)}.efb.btn-check:active+.efb.btn-outline-success,.efb.btn-check:checked+.efb.btn-outline-success,.efb.btn-outline-success.active,.efb.btn-outline-success.efb.dropdown-toggle.show,.efb.btn-outline-success:active{color:#fff;background-color:#198754;border-color:#198754}.efb.btn-check:active+.efb.btn-outline-success:focus,.efb.btn-check:checked+.efb.btn-outline-success:focus,.efb.btn-outline-success.active:focus,.efb.btn-outline-success.efb.dropdown-toggle.show:focus,.efb.btn-outline-success:active:focus{box-shadow:0 0 0 .25rem rgba(25,135,84,.5)}.efb.btn-outline-success.disabled,.efb.btn-outline-success:disabled{color:#198754;background-color:transparent}.efb.btn-outline-info{color:#0dcaf0;border-color:#0dcaf0}.efb.btn-outline-info:hover{color:#000;background-color:#0dcaf0;border-color:#0dcaf0}.efb.btn-check:focus+.efb.btn-outline-info,.efb.btn-outline-info:focus{box-shadow:0 0 0 .25rem rgba(13,202,240,.5)}.efb.btn-check:active+.efb.btn-outline-info,.efb.btn-check:checked+.efb.btn-outline-info,.efb.btn-outline-info.active,.efb.btn-outline-info.efb.dropdown-toggle.show,.efb.btn-outline-info:active{color:#000;background-color:#0dcaf0;border-color:#0dcaf0}.efb.btn-check:active+.efb.btn-outline-info:focus,.efb.btn-check:checked+.efb.btn-outline-info:focus,.efb.btn-outline-info.active:focus,.efb.btn-outline-info.efb.dropdown-toggle.show:focus,.efb.btn-outline-info:active:focus{box-shadow:0 0 0 .25rem rgba(13,202,240,.5)}.efb.btn-outline-info.disabled,.efb.btn-outline-info:disabled{color:#0dcaf0;background-color:transparent}.efb.btn-outline-warning{color:#ffc107;border-color:#ffc107}.efb.btn-outline-warning:hover{color:#000;background-color:#ffc107;border-color:#ffc107}.efb.btn-check:focus+.efb.btn-outline-warning,.efb.btn-outline-warning:focus{box-shadow:0 0 0 .25rem rgba(255,193,7,.5)}.efb.btn-check:active+.efb.btn-outline-warning,.efb.btn-check:checked+.efb.btn-outline-warning,.efb.btn-outline-warning.active,.efb.btn-outline-warning.efb.dropdown-toggle.show,.efb.btn-outline-warning:active{color:#000;background-color:#ffc107;border-color:#ffc107}.efb.btn-check:active+.efb.btn-outline-warning:focus,.efb.btn-check:checked+.efb.btn-outline-warning:focus,.efb.btn-outline-warning.active:focus,.efb.btn-outline-warning.efb.dropdown-toggle.show:focus,.efb.btn-outline-warning:active:focus{box-shadow:0 0 0 .25rem rgba(255,193,7,.5)}.efb.btn-outline-warning.disabled,.efb.btn-outline-warning:disabled{color:#ffc107;background-color:transparent}.efb.btn-outline-danger{color:#dc3545;border-color:#dc3545}.efb.btn-outline-danger:hover{color:#fff;background-color:#dc3545;border-color:#dc3545}.efb.btn-check:focus+.efb.btn-outline-danger,.efb.btn-outline-danger:focus{box-shadow:0 0 0 .25rem rgba(220,53,69,.5)}.efb.btn-check:active+.efb.btn-outline-danger,.efb.btn-check:checked+.efb.btn-outline-danger,.efb.btn-outline-danger.active,.efb.btn-outline-danger.efb.dropdown-toggle.show,.efb.btn-outline-danger:active{color:#fff;background-color:#dc3545;border-color:#dc3545}.efb.btn-check:active+.efb.btn-outline-danger:focus,.efb.btn-check:checked+.efb.btn-outline-danger:focus,.efb.btn-outline-danger.active:focus,.efb.btn-outline-danger.efb.dropdown-toggle.show:focus,.efb.btn-outline-danger:active:focus{box-shadow:0 0 0 .25rem rgba(220,53,69,.5)}.efb.btn-outline-danger.disabled,.efb.btn-outline-danger:disabled{color:#dc3545;background-color:transparent}.efb.btn-outline-light{color:#f8f9fa;border-color:#f8f9fa}.efb.btn-outline-light:hover{color:#000;background-color:#f8f9fa;border-color:#f8f9fa}.efb.btn-check:focus+.efb.btn-outline-light,.efb.btn-outline-light:focus{box-shadow:0 0 0 .25rem rgba(248,249,250,.5)}.efb.btn-check:active+.efb.btn-outline-light,.efb.btn-check:checked+.efb.btn-outline-light,.efb.btn-outline-light.active,.efb.btn-outline-light.efb.dropdown-toggle.show,.efb.btn-outline-light:active{color:#000;background-color:#f8f9fa;border-color:#f8f9fa}.efb.btn-check:active+.efb.btn-outline-light:focus,.efb.btn-check:checked+.efb.btn-outline-light:focus,.efb.btn-outline-light.active:focus,.efb.btn-outline-light.efb.dropdown-toggle.show:focus,.efb.btn-outline-light:active:focus{box-shadow:0 0 0 .25rem rgba(248,249,250,.5)}.efb.btn-outline-light.disabled,.efb.btn-outline-light:disabled{color:#f8f9fa;background-color:transparent}.efb.btn-outline-dark{color:#212529;border-color:#212529}.efb.btn-outline-dark:hover{color:#fff;background-color:#212529;border-color:#212529}.efb.btn-check:focus+.efb.btn-outline-dark,.efb.btn-outline-dark:focus{box-shadow:0 0 0 .25rem rgba(33,37,41,.5)}.efb.btn-check:active+.efb.btn-outline-dark,.efb.btn-check:checked+.efb.btn-outline-dark,.efb.btn-outline-dark.active,.efb.btn-outline-dark.efb.dropdown-toggle.show,.efb.btn-outline-dark:active{color:#fff;background-color:#212529;border-color:#212529}.efb.btn-check:active+.efb.btn-outline-dark:focus,.efb.btn-check:checked+.efb.btn-outline-dark:focus,.efb.btn-outline-dark.active:focus,.efb.btn-outline-dark.efb.dropdown-toggle.show:focus,.efb.btn-outline-dark:active:focus{box-shadow:0 0 0 .25rem rgba(33,37,41,.5)}.efb.btn-outline-dark.disabled,.efb.btn-outline-dark:disabled{color:#212529;background-color:transparent}.efb.btn-link{font-weight:400;color:#0d6efd;text-decoration:underline}.efb.btn-link:hover{color:#0a58ca}.efb.btn-link.disabled,.efb.btn-link:disabled{color:#6c757d}.efb.btn-group-lg>.efb.btn,.efb.btn-lg{padding:.5rem 1rem;font-size:1.25rem;border-radius:.3rem}.efb.btn-group-sm>.efb.btn,.efb.btn-sm{padding:.2rem .3rem;font-size:.875rem;border-radius:.2rem}.efb.fade{transition:opacity .15s linear}@media (prefers-reduced-motion:reduce){.efb.fade{transition:none}}.efb.fade:not(.show){opacity:0}.efb.collapse:not(.show){display:none}.efb.collapsing{height:0;overflow:hidden;transition:height .35s ease}@media (prefers-reduced-motion:reduce){.efb.collapsing{transition:none}}.efb.dropdown,.efb.dropend,.efb.dropstart,.efb.dropup{position:relative}.efb.dropdown-toggle{white-space:nowrap}.efb.dropdown-toggle::after{display:inline-block;margin-left:.255em;vertical-align:.255em;content:'';border-top:.3em solid;border-right:.3em solid transparent;border-bottom:0;border-left:.3em solid transparent}.efb.dropdown-toggle:empty::after{margin-left:0}.efb.dropdown-menu{position:absolute;z-index:1000;display:none;min-width:10rem;padding:.5rem 0;margin:0;font-size:1rem;color:#212529;text-align:left;list-style:none;background-color:#fff;background-clip:padding-box;border:1px solid rgba(0,0,0,.15);border-radius:.25rem}.efb.dropdown-menu[data-bs-popper]{top:100%;left:0;margin-top:.125rem}.efb.dropdown-menu-start{--bs-position:start}.efb.dropdown-menu-start[data-bs-popper]{right:auto;left:0}.efb.dropdown-menu-end{--bs-position:end}.efb.dropdown-menu-end[data-bs-popper]{right:0;left:auto}.efb.dropup .efb.dropdown-menu[data-bs-popper]{top:auto;bottom:100%;margin-top:0;margin-bottom:.125rem}.efb.dropup .efb.dropdown-toggle::after{display:inline-block;margin-left:.255em;vertical-align:.255em;content:'';border-top:0;border-right:.3em solid transparent;border-bottom:.3em solid;border-left:.3em solid transparent}.efb.dropup .efb.dropdown-toggle:empty::after{margin-left:0}.efb.dropend .efb.dropdown-menu[data-bs-popper]{top:0;right:auto;left:100%;margin-top:0;margin-left:.125rem}.efb.dropend .efb.dropdown-toggle::after{display:inline-block;margin-left:.255em;vertical-align:.255em;content:'';border-top:.3em solid transparent;border-right:0;border-bottom:.3em solid transparent;border-left:.3em solid}.efb.dropend .efb.dropdown-toggle:empty::after{margin-left:0}.efb.dropend .efb.dropdown-toggle::after{vertical-align:0}.efb.dropstart .efb.dropdown-menu[data-bs-popper]{top:0;right:100%;left:auto;margin-top:0;margin-right:.125rem}.efb.dropstart .efb.dropdown-toggle::after{display:inline-block;margin-left:.255em;vertical-align:.255em;content:''}.efb.dropstart .efb.dropdown-toggle::after{display:none}.efb.dropstart .efb.dropdown-toggle::before{display:inline-block;margin-right:.255em;vertical-align:.255em;content:'';border-top:.3em solid transparent;border-right:.3em solid;border-bottom:.3em solid transparent}.efb.dropstart .efb.dropdown-toggle:empty::after{margin-left:0}.efb.dropstart .efb.dropdown-toggle::before{vertical-align:0}.efb.dropdown-divider{height:0;margin:.5rem 0;overflow:hidden;border-top:1px solid rgba(0,0,0,.15)}.efb.dropdown-item{display:block;width:100%;padding:.25rem 1rem;clear:both;font-weight:400;color:#212529;text-align:inherit;text-decoration:none;white-space:nowrap;background-color:transparent;border:0}.efb.dropdown-item:focus,.efb.dropdown-item:hover{color:#1e2125;background-color:#e9ecef}.efb.dropdown-item.active,.efb.dropdown-item:active{color:#fff;text-decoration:none;background-color:#0d6efd}.efb.dropdown-item.disabled,.efb.dropdown-item:disabled{color:#adb5bd;pointer-events:none;background-color:transparent}.efb.dropdown-menu.show{display:block}.efb.dropdown-header{display:block;padding:.5rem 1rem;margin-bottom:0;font-size:.875rem;color:#6c757d;white-space:nowrap}.efb.dropdown-item-text{display:block;padding:.25rem 1rem;color:#212529}.efb.dropdown-menu-dark{color:#dee2e6;background-color:#343a40;border-color:rgba(0,0,0,.15)}.efb.dropdown-menu-dark .efb.dropdown-item{color:#dee2e6}.efb.dropdown-menu-dark .efb.dropdown-item:focus,.efb.dropdown-menu-dark .efb.dropdown-item:hover{color:#fff;background-color:rgba(255,255,255,.15)}.efb.dropdown-menu-dark .efb.dropdown-item.active,.efb.dropdown-menu-dark .efb.dropdown-item:active{color:#fff;background-color:#0d6efd}.efb.dropdown-menu-dark .efb.dropdown-item.disabled,.efb.dropdown-menu-dark .efb.dropdown-item:disabled{color:#adb5bd}.efb.dropdown-menu-dark .efb.dropdown-divider{border-color:rgba(0,0,0,.15)}.efb.dropdown-menu-dark .efb.dropdown-item-text{color:#dee2e6}.efb.dropdown-menu-dark .efb.dropdown-header{color:#adb5bd}.efb.btn-group{position:relative;display:inline-flex;vertical-align:middle}.efb.btn-group>.efb.btn{position:relative;flex:1 1 auto}.efb.btn-group>.efb.btn-check:checked+.efb.btn,.efb.btn-group>.efb.btn-check:focus+.efb.btn,.efb.btn-group>.efb.btn.active,.efb.btn-group>.efb.btn:active,.efb.btn-group>.efb.btn:focus,.efb.btn-group>.efb.btn:hover{z-index:1}.efb.btn-toolbar{display:flex;flex-wrap:wrap;justify-content:flex-start}.efb.btn-toolbar .efb.input-group{width:auto}.efb.btn-group>.efb.btn-group:not(:first-child),.efb.btn-group>.efb.btn:not(:first-child){margin-left:-1px}.efb.btn-group>.efb.btn-group:not(:last-child)>.efb.btn,.efb.btn-group>.efb.btn:not(:last-child):not(.efb.dropdown-toggle){border-top-right-radius:0;border-bottom-right-radius:0}.efb.btn-group>.efb.btn-group:not(:first-child)>.efb.btn,.efb.btn-group>.efb.btn:nth-child(n+3),.efb.btn-group>:not(.efb.btn-check)+.efb.btn{border-top-left-radius:0;border-bottom-left-radius:0}.efb.dropdown-toggle-split{padding-right:.5625rem;padding-left:.5625rem}.efb.dropdown-toggle-split::after,.efb.dropend .efb.dropdown-toggle-split::after,.efb.dropup .efb.dropdown-toggle-split::after{margin-left:0}.efb.dropstart .efb.dropdown-toggle-split::before{margin-right:0}.efb.btn-group-sm>.efb.btn+.efb.dropdown-toggle-split,.efb.btn-sm+.efb.dropdown-toggle-split{padding-right:.375rem;padding-left:.375rem}.efb.btn-group-lg>.efb.btn+.efb.dropdown-toggle-split,.efb.btn-lg+.efb.dropdown-toggle-split{padding-right:.75rem;padding-left:.75rem}.efb.nav{display:flex;flex-wrap:wrap;padding-left:0;margin-bottom:0;list-style:none}.efb.nav-link{display:block;padding:.5rem 1rem;color:#0d6efd;text-decoration:none;transition:color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out}@media (prefers-reduced-motion:reduce){.efb.nav-link{transition:none}}.efb.nav-link:focus,.efb.nav-link:hover{color:#0a58ca}.efb.nav-link.disabled{color:#6c757d;pointer-events:none;cursor:default}.efb.nav-tabs{border-bottom:1px solid #dee2e6}.efb.nav-tabs .efb.nav-link{margin-bottom:-1px;background:0 0;border:1px solid transparent;border-top-left-radius:.25rem;border-top-right-radius:.25rem}.efb.nav-tabs .efb.nav-link:focus,.efb.nav-tabs .efb.nav-link:hover{border-color:#e9ecef #e9ecef #dee2e6;isolation:isolate}.efb.nav-tabs .efb.nav-link.disabled{color:#6c757d;background-color:transparent;border-color:transparent}.efb.nav-tabs .efb.nav-item.show .efb.nav-link,.efb.nav-tabs .efb.nav-link.active{color:#495057;background-color:#fff;border-color:#dee2e6 #dee2e6 #fff}.efb.nav-tabs .efb.dropdown-menu{margin-top:-1px;border-top-left-radius:0;border-top-right-radius:0}.efb.nav-pills .efb.nav-link{background:0 0;border:0;border-radius:.25rem}.efb.nav-pills .efb.nav-link.active,.efb.nav-pills .show>.efb.nav-link{color:#fff;background-color:#0d6efd}.efb.nav-fill .efb.nav-item,.efb.nav-fill>.efb.nav-link{flex:1 1 auto;text-align:center}.efb.nav-justified .efb.nav-item,.efb.nav-justified>.efb.nav-link{flex-basis:0;flex-grow:1;text-align:center}.efb.nav-fill .efb.nav-item .efb.nav-link,.efb.nav-justified .efb.nav-item .efb.nav-link{width:100%}.efb.tab-content>.tab-pane{display:none}.efb.tab-content>.active{display:block}.efb.navbar{position:relative;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;padding-top:.5rem;padding-bottom:.5rem}.efb.navbar>.efb.container,.efb.navbar>.efb.container-fluid,.efb.navbar>.efb.container-lg,.efb.navbar>.efb.container-md,.efb.navbar>.efb.container-sm,.efb.navbar>.efb.container-xl,.efb.navbar>.efb.container-xxl{display:flex;flex-wrap:inherit;align-items:center;justify-content:space-between}.efb.navbar-brand{padding-top:.3125rem;padding-bottom:.3125rem;margin-right:1rem;font-size:1.25rem;text-decoration:none;white-space:nowrap}.efb.navbar-nav{display:flex;flex-direction:column;padding-left:0;margin-bottom:0;list-style:none}.efb.navbar-nav .efb.nav-link{padding-right:0;padding-left:0}.efb.navbar-nav .efb.dropdown-menu{position:static}.efb.navbar-text{padding-top:.5rem;padding-bottom:.5rem}.efb.navbar-collapse{flex-basis:100%;flex-grow:1;align-items:center}.efb.navbar-toggler{padding:.25rem .75rem;font-size:1.25rem;line-height:1;background-color:transparent;border:1px solid transparent;border-radius:.25rem;transition:box-shadow .15s ease-in-out}@media (prefers-reduced-motion:reduce){.efb.navbar-toggler{transition:none}}.efb.navbar-toggler:hover{text-decoration:none}.efb.navbar-toggler:focus{text-decoration:none;outline:0;box-shadow:0 0 0 .25rem}.efb.navbar-toggler-icon{display:inline-block;width:1.5em;height:1.5em;vertical-align:middle;background-repeat:no-repeat;background-position:center;background-size:100%}.efb.navbar-nav-scroll{max-height:var(--bs-scroll-height,75vh);overflow-y:auto}@media (min-width:992px){.efb.navbar-expand-lg{flex-wrap:nowrap;justify-content:flex-start}.efb.navbar-expand-lg .efb.navbar-nav{flex-direction:row}.efb.navbar-expand-lg .efb.navbar-nav .efb.dropdown-menu{position:absolute}.efb.navbar-expand-lg .efb.navbar-nav .efb.nav-link{padding-right:.5rem;padding-left:.5rem}.efb.navbar-expand-lg .efb.navbar-nav-scroll{overflow:visible}.efb.navbar-expand-lg .efb.navbar-collapse{display:flex!important;flex-basis:auto}.efb.navbar-expand-lg .efb.navbar-toggler{display:none}}@media (min-width:1400px){.efb.card-img{flex-wrap:nowrap;justify-content:flex-start}.efb.card-img .efb.navbar-nav{flex-direction:row}.efb.card-img .efb.navbar-nav .efb.dropdown-menu{position:absolute}.efb.card-img .efb.navbar-nav .efb.nav-link{padding-right:.5rem;padding-left:.5rem}.efb.card-img .efb.navbar-nav-scroll{overflow:visible}.efb.card-img .efb.navbar-collapse{display:flex!important;flex-basis:auto}.efb.card-img .efb.navbar-toggler{display:none}}.efb.navbar-expand{flex-wrap:nowrap;justify-content:flex-start}.efb.navbar-expand .efb.navbar-nav{flex-direction:row}.efb.navbar-expand .efb.navbar-nav .efb.dropdown-menu{position:absolute}.efb.navbar-expand .efb.navbar-nav .efb.nav-link{padding-right:.5rem;padding-left:.5rem}.efb.navbar-expand .efb.navbar-nav-scroll{overflow:visible}.efb.navbar-expand .efb.navbar-collapse{display:flex!important;flex-basis:auto}.efb.navbar-expand .efb.navbar-toggler{display:none}.efb.navbar-light .efb.navbar-brand{color:rgba(0,0,0,.9)}.efb.navbar-light .efb.navbar-brand:focus,.efb.navbar-light .efb.navbar-brand:hover{color:rgba(0,0,0,.9)}.efb.navbar-light .efb.navbar-nav .efb.nav-link{color:rgba(0,0,0,.55)}.efb.navbar-light .efb.navbar-nav .efb.nav-link:focus,.efb.navbar-light .efb.navbar-nav .efb.nav-link:hover{color:rgba(0,0,0,.7)}.efb.navbar-light .efb.navbar-nav .efb.nav-link.disabled{color:rgba(0,0,0,.3)}.efb.navbar-light .efb.navbar-nav .efb.nav-link.active,.efb.navbar-light .efb.navbar-nav .show>.efb.nav-link{color:rgba(0,0,0,.9)}.efb.navbar-light .efb.navbar-toggler{color:rgba(0,0,0,.55);border-color:rgba(0,0,0,.1)}.efb.navbar-light .efb.navbar-toggler-icon{background-image:url('data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%280,0,0,.55%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e')}.efb.navbar-light .efb.navbar-text{color:rgba(0,0,0,.55)}.efb.navbar-light .efb.navbar-text a,.efb.navbar-light .efb.navbar-text a:focus,.efb.navbar-light .efb.navbar-text a:hover{color:rgba(0,0,0,.9)}.efb.navbar-dark .efb.navbar-brand{color:#fff}.efb.navbar-dark .efb.navbar-brand:focus,.efb.navbar-dark .efb.navbar-brand:hover{color:#fff}.efb.navbar-dark .efb.navbar-nav .efb.nav-link{color:rgba(255,255,255,.55)}.efb.navbar-dark .efb.navbar-nav .efb.nav-link:focus,.efb.navbar-dark .efb.navbar-nav .efb.nav-link:hover{color:rgba(255,255,255,.75)}.efb.navbar-dark .efb.navbar-nav .efb.nav-link.disabled{color:rgba(255,255,255,.25)}.efb.navbar-dark .efb.navbar-nav .efb.nav-link.active,.efb.navbar-dark .efb.navbar-nav .show>.efb.nav-link{color:#fff}.efb.navbar-dark .efb.navbar-toggler{color:rgba(255,255,255,.55);border-color:rgba(255,255,255,.1)}.efb.navbar-dark .efb.navbar-toggler-icon{background-image:url('data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255,255,255,.55%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e')}.efb.navbar-dark .efb.navbar-text{color:rgba(255,255,255,.55)}.efb.navbar-dark .efb.navbar-text a,.efb.navbar-dark .efb.navbar-text a:focus,.efb.navbar-dark .efb.navbar-text a:hover{color:#fff}.efb.card{position:relative;display:flex;flex-direction:column;min-width:0;word-wrap:break-word;background-color:#fff;background-clip:border-box;border:1px solid rgba(0,0,0,.125);border-radius:.25rem}.efb.card>hr{margin-right:0;margin-left:0}.efb.card>.efb.list-group{border-top:inherit;border-bottom:inherit}.efb.card>.efb.list-group:first-child{border-top-width:0;border-top-left-radius:calc(.25rem - 1px);border-top-right-radius:calc(.25rem - 1px)}.card>.efb.list-group:last-child{border-bottom-width:0;border-bottom-right-radius:calc(.25rem - 1px);border-bottom-left-radius:calc(.25rem - 1px)}.efb.card>.efb.card-header+.efb.list-group,.efb.card>.efb.list-group+.efb.card-footer{border-top:0}.efb.card-body{flex:1 1 auto;padding:1rem 1rem}.efb.card-title{margin-bottom:.5rem}.efb.card-text:last-child{margin-bottom:0}.efb.card-header{padding:.5rem 1rem;margin-bottom:0;background-color:rgba(0,0,0,.03);border-bottom:1px solid rgba(0,0,0,.125)}.efb.card-header:first-child{border-radius:calc(.25rem - 1px) calc(.25rem - 1px) 0 0}.efb.card-footer{padding:.5rem 1rem;background-color:rgba(0,0,0,.03);border-top:1px solid rgba(0,0,0,.125)}.efb.card-footer:last-child{border-radius:0 0 calc(.25rem - 1px) calc(.25rem - 1px)}.efb.card-header-tabs{margin-right:-.5rem;margin-bottom:-.5rem;margin-left:-.5rem;border-bottom:0}.efb.card-header-pills{margin-right:-.5rem;margin-left:-.5rem}.efb.card-img-overlay{position:absolute;top:0;right:0;bottom:0;left:0;padding:1rem;border-radius:calc(.25rem - 1px)}.efb.card-img,.efb.card-img-bottom,.efb.card-img-top{width:100%}.efb.card-img,.efb.card-img-top{border-top-left-radius:calc(.25rem - 1px);border-top-right-radius:calc(.25rem - 1px)}.efb.card-img,.efb.card-img-bottom{border-bottom-right-radius:calc(.25rem - 1px);border-bottom-left-radius:calc(.25rem - 1px)}.efb.card-group>.card{margin-bottom:.75rem}@media (min-width:576px){.efb.card-group{display:flex;flex-flow:row wrap}.efb.card-group>.card{flex:1 0 0%;margin-bottom:0}.efb.card-group>.card+.card{margin-left:0;border-left:0}.efb.card-group>.card:not(:last-child){border-top-right-radius:0;border-bottom-right-radius:0}.efb.card-group>.card:not(:last-child) .efb.card-header,.efb.card-group>.card:not(:last-child) .efb.card-img-top{border-top-right-radius:0}.efb.card-group>.card:not(:last-child) .efb.card-footer,.efb.card-group>.card:not(:last-child) .efb.card-img-bottom{border-bottom-right-radius:0}.efb.card-group>.card:not(:first-child){border-top-left-radius:0;border-bottom-left-radius:0}.efb.card-group>.card:not(:first-child) .efb.card-header,.efb.card-group>.card:not(:first-child) .efb.card-img-top{border-top-left-radius:0}.efb.card-group>.card:not(:first-child) .efb.card-footer,.efb.card-group>.card:not(:first-child) .efb.card-img-bottom{border-bottom-left-radius:0}}.efb.page-link{position:relative;display:block;color:#0d6efd;text-decoration:none;background-color:#fff;border:1px solid #dee2e6;transition:color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out}@media (prefers-reduced-motion:reduce){.efb.page-link{transition:none}}.efb.page-link:hover{z-index:2;color:#0a58ca;background-color:#e9ecef;border-color:#dee2e6}.efb.page-link:focus{z-index:3;color:#0a58ca;background-color:#e9ecef;outline:0;box-shadow:0 0 0 .25rem rgba(13,110,253,.25)}.efb.page-item:not(:first-child) .efb.page-link{margin-left:-1px}.efb.page-item.active .efb.page-link{z-index:3;color:#fff;background-color:#0d6efd;border-color:#0d6efd}.efb.page-item.disabled .efb.page-link{color:#6c757d;pointer-events:none;background-color:#fff;border-color:#dee2e6}.efb.page-link{padding:.375rem .75rem}.efb.page-item:first-child .efb.page-link{border-top-left-radius:.25rem;border-bottom-left-radius:.25rem}.efb.page-item:last-child .efb.page-link{border-top-right-radius:.25rem;border-bottom-right-radius:.25rem}.efb.pagination-lg .efb.page-link{padding:.75rem 1.5rem;font-size:1.25rem}.efb.pagination-lg .efb.page-item:first-child .efb.page-link{border-top-left-radius:.3rem;border-bottom-left-radius:.3rem}.efb.pagination-lg .efb.page-item:last-child .efb.page-link{border-top-right-radius:.3rem;border-bottom-right-radius:.3rem}.efb.pagination-sm .efb.page-link{padding:.25rem .5rem;font-size:.875rem}.efb.pagination-sm .efb.page-item:first-child .efb.page-link{border-top-left-radius:.2rem;border-bottom-left-radius:.2rem}.pagination-sm .efb.page-item:last-child .efb.page-link{border-top-right-radius:.2rem;border-bottom-right-radius:.2rem}.efb.badge{display:inline-block;padding:.35em .65em;font-size:.75em;font-weight:700;line-height:1;color:#fff;text-align:center;white-space:nowrap;vertical-align:baseline;border-radius:.25rem}.efb.badge:empty{display:none}.efb.btn .efb.badge{position:relative;top:-1px}.efb.alert{position:relative;padding:1rem 1rem;margin-bottom:1rem;border:1px solid transparent;border-radius:.25rem}.efb.alert-heading{color:inherit}.efb.alert-link{font-weight:700}.efb.alert-dismissible{padding-right:3rem}.efb.alert-dismissible .efb.btn-close{position:absolute;top:0;right:0;z-index:2;padding:1.25rem 1rem}.efb.alert-primary{color:#084298;background-color:#cfe2ff;border-color:#b6d4fe}.efb.alert-primary .efb.alert-link{color:#06357a}.efb.alert-secondary{color:#41464b;background-color:#e2e3e5;border-color:#d3d6d8}.efb.alert-secondary .efb.alert-link{color:#34383c}.efb.alert-success{color:#0f5132;background-color:#d1e7dd;border-color:#badbcc}.efb.alert-success .efb.alert-link{color:#0c4128}.efb.alert-info{color:#055160;background-color:#cff4fc;border-color:#b6effb}.efb.alert-info .efb.alert-link{color:#04414d}.efb.alert-warning{color:#664d03;background-color:#fff3cd;border-color:#ffecb5}.efb.alert-warning .efb.alert-link{color:#523e02}.efb.alert-danger{color:#842029;background-color:#f8d7da;border-color:#f5c2c7}.efb.alert-danger .efb.alert-link{color:#6a1a21}.efb.alert-light{color:#636464;background-color:#fefefe;border-color:#fdfdfe}.efb.alert-light .efb.alert-link{color:#4f5050}.efb.alert-dark{color:#141619;background-color:#d3d3d4;border-color:#bcbebf}.efb.alert-dark .efb.alert-link{color:#101214}@-webkit-keyframes progress-bar-stripes{0%{background-position-x:1rem}}@keyframes progress-bar-stripes{0%{background-position-x:1rem}}.efb.progress{display:flex;height:1rem;overflow:hidden;font-size:.75rem;background-color:#e9ecef;border-radius:.25rem}.efb.progress-bar{display:flex;flex-direction:column;justify-content:center;overflow:hidden;color:#fff;text-align:center;white-space:nowrap;background-color:#0d6efd;transition:width .6s ease}@media (prefers-reduced-motion:reduce){.efb.progress-bar{transition:none}}.efb.progress-bar-striped{background-image:linear-gradient(45deg,rgba(255,255,255,.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.15) 75%,transparent 75%,transparent)!important;background-size:1rem 1rem}.efb.progress-bar-animated{-webkit-animation:1s linear infinite progress-bar-stripes;animation:1s linear infinite progress-bar-stripes}@media (prefers-reduced-motion:reduce){.efb.progress-bar-animated{-webkit-animation:none;animation:none}}.efb.list-group{display:flex;flex-direction:column;padding-left:0;margin-bottom:0;border-radius:.25rem}.efb.list-group-numbered{list-style-type:none;counter-reset:section}.efb.list-group-numbered>li::before{content:counters(section,'.') '. ';counter-increment:section}.efb.list-group-item-action{width:100%;color:#495057;text-align:inherit}.efb.list-group-item-action:focus,.efb.list-group-item-action:hover{z-index:1;color:#495057;text-decoration:none;background-color:#f8f9fa}.efb.list-group-item-action:active{color:#212529;background-color:#e9ecef}.efb.list-group-item{position:relative;display:block;padding:.5rem 1rem;color:#212529;text-decoration:none;background-color:#fff;border:1px solid rgba(0,0,0,.125)}.efb.list-group-item:first-child{border-top-left-radius:inherit;border-top-right-radius:inherit}.efb.list-group-item:last-child{border-bottom-right-radius:inherit;border-bottom-left-radius:inherit}.efb.list-group-item.disabled,.efb.list-group-item:disabled{color:#6c757d;pointer-events:none;background-color:#fff}.efb.list-group-item.active{z-index:2;color:#fff;background-color:#0d6efd;border-color:#0d6efd}.efb.list-group-item+.efb.list-group-item{border-top-width:0}.efb.list-group-item+.efb.list-group-item.active{margin-top:-1px;border-top-width:1px}.efb.list-group-horizontal{flex-direction:row}.efb.list-group-horizontal>.efb.list-group-item:first-child{border-bottom-left-radius:.25rem;border-top-right-radius:0}.efb.list-group-horizontal>.efb.list-group-item:last-child{border-top-right-radius:.25rem;border-bottom-left-radius:0}.efb.list-group-horizontal>.efb.list-group-item.active{margin-top:0}.efb.list-group-horizontal>.efb.list-group-item+.efb.list-group-item{border-top-width:1px;border-left-width:0}.efb.list-group-horizontal>.efb.list-group-item+.efb.list-group-item.active{margin-left:-1px;border-left-width:1px}@media (min-width:576px){.efb.list-group-horizontal-sm{flex-direction:row}.efb.list-group-horizontal-sm>.efb.list-group-item:first-child{border-bottom-left-radius:.25rem;border-top-right-radius:0}.efb.list-group-horizontal-sm>.efb.list-group-item:last-child{border-top-right-radius:.25rem;border-bottom-left-radius:0}.efb.list-group-horizontal-sm>.efb.list-group-item.active{margin-top:0}.efb.list-group-horizontal-sm>.efb.list-group-item+.efb.list-group-item{border-top-width:1px;border-left-width:0}.efb.list-group-horizontal-sm>.efb.list-group-item+.efb.list-group-item.active{margin-left:-1px;border-left-width:1px}}@media (min-width:768px){.efb.list-group-horizontal-md{flex-direction:row}.efb.list-group-horizontal-md>.efb.list-group-item:first-child{border-bottom-left-radius:.25rem;border-top-right-radius:0}.efb.list-group-horizontal-md>.efb.list-group-item:last-child{border-top-right-radius:.25rem;border-bottom-left-radius:0}.efb.list-group-horizontal-md>.efb.list-group-item.active{margin-top:0}.efb.list-group-horizontal-md>.efb.list-group-item+.efb.list-group-item{border-top-width:1px;border-left-width:0}.efb.list-group-horizontal-md>.efb.list-group-item+.efb.list-group-item.active{margin-left:-1px;border-left-width:1px}}@media (min-width:992px){.efb.list-group-horizontal-lg{flex-direction:row}.efb.list-group-horizontal-lg>.efb.list-group-item:first-child{border-bottom-left-radius:.25rem;border-top-right-radius:0}.efb.list-group-horizontal-lg>.efb.list-group-item:last-child{border-top-right-radius:.25rem;border-bottom-left-radius:0}.efb.list-group-horizontal-lg>.efb.list-group-item.active{margin-top:0}.efb.list-group-horizontal-lg>.efb.list-group-item+.efb.list-group-item{border-top-width:1px;border-left-width:0}.efb.list-group-horizontal-lg>.efb.list-group-item+.efb.list-group-item.active{margin-left:-1px;border-left-width:1px}}@media (min-width:1200px){.efb.list-group-horizontal-xl{flex-direction:row}.efb.list-group-horizontal-xl>.efb.list-group-item:first-child{border-bottom-left-radius:.25rem;border-top-right-radius:0}.efb.list-group-horizontal-xl>.efb.list-group-item:last-child{border-top-right-radius:.25rem;border-bottom-left-radius:0}.efb.list-group-horizontal-xl>.efb.list-group-item.active{margin-top:0}.efb.list-group-horizontal-xl>.efb.list-group-item+.efb.list-group-item{border-top-width:1px;border-left-width:0}.efb.list-group-horizontal-xl>.efb.list-group-item+.efb.list-group-item.active{margin-left:-1px;border-left-width:1px}}@media (min-width:1400px){.efb.list-group-horizontal-xxl{flex-direction:row}.efb.list-group-horizontal-xxl>.efb.list-group-item:first-child{border-bottom-left-radius:.25rem;border-top-right-radius:0}.efb.list-group-horizontal-xxl>.efb.list-group-item:last-child{border-top-right-radius:.25rem;border-bottom-left-radius:0}.efb.list-group-horizontal-xxl>.efb.list-group-item.active{margin-top:0}.efb.list-group-horizontal-xxl>.efb.list-group-item+.efb.list-group-item{border-top-width:1px;border-left-width:0}.efb.list-group-horizontal-xxl>.efb.list-group-item+.efb.list-group-item.active{margin-left:-1px;border-left-width:1px}}.efb.list-group-flush{border-radius:0}.efb.list-group-flush>.efb.list-group-item{border-width:0 0 1px}.efb.list-group-flush>.efb.list-group-item:last-child{border-bottom-width:0}.efb.list-group-item-primary{color:#084298;background-color:#cfe2ff}.efb.list-group-item-primary.efb.list-group-item-action:focus,.efb.list-group-item-primary.efb.list-group-item-action:hover{color:#084298;background-color:#bacbe6}.efb.list-group-item-primary.efb.list-group-item-action.active{color:#fff;background-color:#084298;border-color:#084298}.efb.list-group-item-secondary{color:#41464b;background-color:#e2e3e5}.efb.list-group-item-secondary.efb.list-group-item-action:focus,.efb.list-group-item-secondary.efb.list-group-item-action:hover{color:#41464b;background-color:#cbccce}.efb.list-group-item-secondary.efb.list-group-item-action.active{color:#fff;background-color:#41464b;border-color:#41464b}.efb.list-group-item-success{color:#0f5132;background-color:#d1e7dd}.efb.list-group-item-success.efb.list-group-item-action:focus,.efb.list-group-item-success.efb.list-group-item-action:hover{color:#0f5132;background-color:#bcd0c7}.efb.list-group-item-success.efb.list-group-item-action.active{color:#fff;background-color:#0f5132;border-color:#0f5132}.efb.list-group-item-info{color:#055160;background-color:#cff4fc}.efb.list-group-item-info.efb.list-group-item-action:focus,.efb.list-group-item-info.efb.list-group-item-action:hover{color:#055160;background-color:#badce3}.efb.list-group-item-info.efb.list-group-item-action.active{color:#fff;background-color:#055160;border-color:#055160}.efb.list-group-item-warning{color:#664d03;background-color:#fff3cd}.efb.list-group-item-warning.efb.list-group-item-action:focus,.efb.list-group-item-warning.efb.list-group-item-action:hover{color:#664d03;background-color:#e6dbb9}.efb.list-group-item-warning.efb.list-group-item-action.active{color:#fff;background-color:#664d03;border-color:#664d03}.efb.list-group-item-danger{color:#842029;background-color:#f8d7da}.efb.list-group-item-danger.efb.list-group-item-action:focus,.efb.list-group-item-danger.efb.list-group-item-action:hover{color:#842029;background-color:#dfc2c4}.efb.list-group-item-danger.efb.list-group-item-action.active{color:#fff;background-color:#842029;border-color:#842029}.efb.list-group-item-light{color:#636464;background-color:#fefefe}.efb.list-group-item-light.efb.list-group-item-action:focus,.efb.list-group-item-light.efb.list-group-item-action:hover{color:#636464;background-color:#e5e5e5}.efb.list-group-item-light.efb.list-group-item-action.active{color:#fff;background-color:#636464;border-color:#636464}.efb.list-group-item-dark{color:#141619;background-color:#d3d3d4}.efb.list-group-item-dark.efb.list-group-item-action:focus,.efb.list-group-item-dark.efb.list-group-item-action:hover{color:#141619;background-color:#bebebf}.efb.list-group-item-dark.efb.list-group-item-action.active{color:#fff;background-color:#141619;border-color:#141619}.efb.btn-close{box-sizing:content-box;width:1em;height:1em;padding:.25em .25em;color:#000;background:transparent url('data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23000'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e') center/1em auto no-repeat;border:0;border-radius:.25rem;opacity:.5}.efb.btn-close:hover{color:#000;text-decoration:none;opacity:.75}.efb.btn-close:focus{outline:0;box-shadow:0 0 0 .25rem rgba(13,110,253,.25);opacity:1}.efb.btn-close.disabled,.efb.btn-close:disabled{pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none;opacity:.25}.efb.btn-close-white{filter:invert(1) grayscale(100%) brightness(200%)}.efb.modal{position:fixed;top:0;left:0;z-index:1060;display:none;width:100%;height:100%;overflow-x:hidden;overflow-y:auto;outline:0}.efb.modal-dialog{position:relative;width:auto;margin:.5rem;pointer-events:none}.efb.modal.efb.fade .efb.modal-dialog{transition:transform .3s ease-out;transform:translate(0,-50px)}@media (prefers-reduced-motion:reduce){.efb.modal.efb.fade .efb.modal-dialog{transition:none}}.efb.modal.show .modal-dialog{transform:none}.efb.modal.modal-static .efb.modal-dialog{transform:scale(1.02)}.efb.modal-dialog-scrollable{height:calc(100% - 1rem)}.efb.modal-dialog-scrollable .efb.modal-content{max-height:100%;overflow:hidden}.efb.modal-dialog-scrollable .efb.modal-body{overflow-y:auto}.efb.modal-dialog-centered{display:flex;align-items:center;min-height:calc(100% - 1rem)}.efb.modal-content{position:relative;display:flex;flex-direction:column;width:100%;pointer-events:auto;background-color:#fff;background-clip:padding-box;border:1px solid rgba(0,0,0,.2);border-radius:.3rem;outline:0}.efb.modal-backdrop{position:fixed;top:0;left:0;z-index:1040;width:100vw;height:100vh;background-color:#000}.efb.modal-backdrop.efb.fade{opacity:0}.efb.modal-backdrop.show{opacity:.5}.efb.modal-header{display:flex;flex-shrink:0;align-items:center;justify-content:space-between;padding:1rem 1rem;border-bottom:1px solid #dee2e6;border-top-left-radius:calc(.3rem - 1px);border-top-right-radius:calc(.3rem - 1px)}.efb.modal-header .efb.btn-close{padding:.5rem .5rem;margin:-.5rem -.5rem -.5rem auto}.efb.modal-title{margin-bottom:0;line-height:1.5}.efb.modal-body{position:relative;flex:1 1 auto;padding:1rem}.efb.modal-footer{display:flex;flex-wrap:wrap;flex-shrink:0;align-items:center;justify-content:flex-end;padding:.75rem;border-top:1px solid #dee2e6;border-bottom-right-radius:calc(.3rem - 1px);border-bottom-left-radius:calc(.3rem - 1px)}.efb.modal-footer>*{margin:.25rem}@media (min-width:576px){.efb.modal-dialog{max-width:500px;margin:1.75rem auto}.efb.modal-dialog-scrollable{height:calc(100% - 3.5rem)}.efb.modal-dialog-centered{min-height:calc(100% - 3.5rem)}.efb.modal-sm{max-width:300px}}.efb.modal-content{height:100%;border:0;border-radius:0}.efb.modal-header{border-radius:0}.efb.modal-body{overflow-y:auto}.efb.modal-footer{border-radius:0}.efb.tooltip{position:absolute;z-index:1080;display:block;margin:0;font-family:inherit;font-style:normal;font-weight:400;line-height:1.5;text-align:left;text-align:start;text-decoration:none;text-shadow:none;text-transform:none;letter-spacing:normal;word-break:normal;word-spacing:normal;white-space:normal;line-break:auto;font-size:.875rem;word-wrap:break-word;opacity:0}.efb.tooltip.show{opacity:.9}.efb.tooltip .efb.tooltip-arrow{position:absolute;display:block;width:.8rem;height:.4rem}.efb.tooltip .efb.tooltip-arrow::before{position:absolute;content:'';border-color:transparent;border-style:solid}.efb.bs-tooltip-auto[data-popper-placement^=top],.efb.bs-tooltip-top{padding:.4rem 0}.efb.bs-tooltip-auto[data-popper-placement^=top] .efb.tooltip-arrow,.efb.bs-tooltip-top .efb.tooltip-arrow{bottom:0}.efb.bs-tooltip-auto[data-popper-placement^=top] .efb.tooltip-arrow::before,.efb.bs-tooltip-top .efb.tooltip-arrow::before{top:-1px;border-width:.4rem .4rem 0;border-top-color:#000}.efb.bs-tooltip-auto[data-popper-placement^=right],.efb.bs-tooltip-end{padding:0 .4rem}.efb.bs-tooltip-auto[data-popper-placement^=right] .efb.tooltip-arrow,.efb.bs-tooltip-end .efb.tooltip-arrow{left:0;width:.4rem;height:.8rem}.efb.bs-tooltip-auto[data-popper-placement^=right] .efb.tooltip-arrow::before,.efb.bs-tooltip-end .efb.tooltip-arrow::before{right:-1px;border-width:.4rem .4rem .4rem 0;border-right-color:#000}.efb.bs-tooltip-auto[data-popper-placement^=bottom],.efb.bs-tooltip-bottom{padding:.4rem 0}.efb.bs-tooltip-auto[data-popper-placement^=bottom] .efb.tooltip-arrow,.efb.bs-tooltip-bottom .efb.tooltip-arrow{top:0}.efb.bs-tooltip-auto[data-popper-placement^=bottom] .efb.tooltip-arrow::before,.efb.bs-tooltip-bottom .efb.tooltip-arrow::before{bottom:-1px;border-width:0 .4rem .4rem;border-bottom-color:#000}.efb.bs-tooltip-auto[data-popper-placement^=left],.efb.bs-tooltip-start{padding:0 .4rem}.efb.bs-tooltip-auto[data-popper-placement^=left] .efb.tooltip-arrow,.efb.bs-tooltip-start .efb.tooltip-arrow{right:0;width:.4rem;height:.8rem}.efb.bs-tooltip-auto[data-popper-placement^=left] .efb.tooltip-arrow::before,.efb.bs-tooltip-start .efb.tooltip-arrow::before{left:-1px;border-width:.4rem 0 .4rem .4rem;border-left-color:#000}.efb.tooltip-inner{max-width:200px;padding:.25rem .5rem;color:#fff;text-align:center;background-color:#000;border-radius:.25rem}.efb.popover{position:absolute;top:0;left:0;z-index:1070;display:block;max-width:276px;font-family:inherit;font-style:normal;font-weight:400;line-height:1.5;text-align:left;text-align:start;text-decoration:none;text-shadow:none;text-transform:none;letter-spacing:normal;word-break:normal;word-spacing:normal;white-space:normal;line-break:auto;font-size:.875rem;word-wrap:break-word;background-color:#fff;background-clip:padding-box;border:1px solid rgba(0,0,0,.2);border-radius:.3rem}.efb.popover .efb.popover-arrow{position:absolute;display:block;width:1rem;height:.5rem}.efb.popover .efb.popover-arrow::after,.efb.popover .efb.popover-arrow::before{position:absolute;display:block;content:'';border-color:transparent;border-style:solid}.efb.bs-popover-auto[data-popper-placement^=top]>.efb.popover-arrow,.efb.bs-popover-top>.efb.popover-arrow{bottom:calc(-.5rem - 1px)}.efb.bs-popover-auto[data-popper-placement^=top]>.efb.popover-arrow::before,.efb.bs-popover-top>.efb.popover-arrow::before{bottom:0;border-width:.5rem .5rem 0;border-top-color:rgba(0,0,0,.25)}.efb.bs-popover-auto[data-popper-placement^=top]>.efb.popover-arrow::after,.efb.bs-popover-top>.efb.popover-arrow::after{bottom:1px;border-width:.5rem .5rem 0;border-top-color:#fff}.efb.bs-popover-auto[data-popper-placement^=right]>.efb.popover-arrow,.efb.bs-popover-end>.efb.popover-arrow{left:calc(-.5rem - 1px);width:.5rem;height:1rem}.efb.bs-popover-auto[data-popper-placement^=right]>.efb.popover-arrow::before,.efb.bs-popover-end>.efb.popover-arrow::before{left:0;border-width:.5rem .5rem .5rem 0;border-right-color:rgba(0,0,0,.25)}.efb.bs-popover-auto[data-popper-placement^=right]>.efb.popover-arrow::after,.efb.bs-popover-end>.efb.popover-arrow::after{left:1px;border-width:.5rem .5rem .5rem 0;border-right-color:#fff}.efb.bs-popover-auto[data-popper-placement^=bottom]>.efb.popover-arrow,.efb.bs-popover-bottom>.efb.popover-arrow{top:calc(-.5rem - 1px)}.efb.bs-popover-auto[data-popper-placement^=bottom]>.efb.popover-arrow::before,.efb.bs-popover-bottom>.efb.popover-arrow::before{top:0;border-width:0 .5rem .5rem .5rem;border-bottom-color:rgba(0,0,0,.25)}.efb.bs-popover-auto[data-popper-placement^=bottom]>.efb.popover-arrow::after,.efb.bs-popover-bottom>.efb.popover-arrow::after{top:1px;border-width:0 .5rem .5rem .5rem;border-bottom-color:#fff}.efb.bs-popover-auto[data-popper-placement^=bottom] .efb.popover-header::before,.efb.bs-popover-bottom .efb.popover-header::before{position:absolute;top:0;left:50%;display:block;width:1rem;margin-left:-.5rem;content:'';border-bottom:1px solid #f0f0f0}.efb.bs-popover-auto[data-popper-placement^=left]>.efb.popover-arrow,.efb.bs-popover-start>.efb.popover-arrow{right:calc(-.5rem - 1px);width:.5rem;height:1rem}.efb.bs-popover-auto[data-popper-placement^=left]>.efb.popover-arrow::before,.efb.bs-popover-start>.efb.popover-arrow::before{right:0;border-width:.5rem 0 .5rem .5rem;border-left-color:rgba(0,0,0,.25)}.efb.bs-popover-auto[data-popper-placement^=left]>.efb.popover-arrow::after,.efb.bs-popover-start>.efb.popover-arrow::after{right:1px;border-width:.5rem 0 .5rem .5rem;border-left-color:#fff}.efb.popover-header{padding:.5rem 1rem;margin-bottom:0;font-size:1rem;background-color:#f0f0f0;border-bottom:1px solid #d8d8d8;border-top-left-radius:calc(.3rem - 1px);border-top-right-radius:calc(.3rem - 1px)}.efb.popover-header:empty{display:none}.efb.popover-body{padding:1rem 1rem;color:#212529}.efb.carousel{position:relative}.efb.carousel.pointer-event{touch-action:pan-y}.efb.carousel-inner{position:relative;width:100%;overflow:hidden}.efb.carousel-inner::after{display:block;clear:both;content:''}.efb.carousel-item{position:relative;display:none;float:left;width:100%;margin-right:-100%;-webkit-backface-visibility:hidden;backface-visibility:hidden;transition:transform .6s ease-in-out}@media (prefers-reduced-motion:reduce){.efb.carousel-item{transition:none}}.efb.carousel-item-next,.efb.carousel-item-prev,.efb.carousel-item.active{display:block}.active.efb.carousel-item-end,.efb.carousel-item-next:not(.efb.carousel-item-start){transform:translateX(100%)}.active.efb.carousel-item-start,.efb.carousel-item-prev:not(.efb.carousel-item-end){transform:translateX(-100%)}.efb.carousel-fade .efb.carousel-item{opacity:0;transition-property:opacity;transform:none}.efb.carousel-fade .efb.carousel-item-next.efb.carousel-item-start,.efb.carousel-fade .efb.carousel-item-prev.efb.carousel-item-end,.efb.carousel-fade .efb.carousel-item.active{z-index:1;opacity:1}.efb.carousel-fade .active.efb.carousel-item-end,.efb.carousel-fade .active.efb.carousel-item-start{z-index:0;opacity:0;transition:opacity 0s .6s}@media (prefers-reduced-motion:reduce){.efb.carousel-fade .active.efb.carousel-item-end,.efb.carousel-fade .active.efb.carousel-item-start{transition:none}}.efb.carousel-control-next,.efb.carousel-control-prev{position:absolute;top:0;bottom:0;z-index:1;display:flex;align-items:center;justify-content:center;width:15%;padding:0;color:#fff;text-align:center;background:0 0;border:0;opacity:.5;transition:opacity .15s ease}@media (prefers-reduced-motion:reduce){.efb.carousel-control-next,.efb.carousel-control-prev{transition:none}}.efb.carousel-control-next:focus,.efb.carousel-control-next:hover,.efb.carousel-control-prev:focus,.efb.carousel-control-prev:hover{color:#fff;text-decoration:none;outline:0;opacity:.9}.efb.carousel-control-prev{left:0}.efb.carousel-control-next{right:0}.efb.carousel-control-next-icon,.efb.carousel-control-prev-icon{display:inline-block;width:2rem;height:2rem;background-repeat:no-repeat;background-position:50%;background-size:100% 100%}.efb.carousel-control-prev-icon{background-image:url('data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23fff'%3e%3cpath d='M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z'/%3e%3c/svg%3e')}.efb.carousel-control-next-icon{background-image:url('data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23fff'%3e%3cpath d='M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e')}.efb.carousel-indicators{position:absolute;right:0;bottom:0;left:0;z-index:2;display:flex;justify-content:center;padding:0;margin-right:15%;margin-bottom:1rem;margin-left:15%;list-style:none}.efb.carousel-indicators [data-bs-target]{box-sizing:content-box;flex:0 1 auto;width:30px;height:3px;padding:0;margin-right:3px;margin-left:3px;text-indent:-999px;cursor:pointer;background-color:#fff;background-clip:padding-box;border:0;border-top:10px solid transparent;border-bottom:10px solid transparent;opacity:.5;transition:opacity .6s ease}@media (prefers-reduced-motion:reduce){.efb.carousel-indicators [data-bs-target]{transition:none}}.efb.carousel-indicators .active{opacity:1}.efb.carousel-caption{position:absolute;right:15%;bottom:1.25rem;left:15%;padding-top:1.25rem;padding-bottom:1.25rem;color:#fff;text-align:center}.efb.carousel-dark .efb.carousel-control-next-icon,.efb.carousel-dark .efb.carousel-control-prev-icon{filter:invert(1) grayscale(100)}.efb.carousel-dark .efb.carousel-indicators [data-bs-target]{background-color:#000}.efb.carousel-dark .efb.carousel-caption{color:#000}@-webkit-keyframes spinner-border{to{transform:rotate(360deg)}}@keyframes spinner-border{to{transform:rotate(360deg)}}.efb.spinner-border{display:inline-block;width:2rem;height:2rem;vertical-align:-.125em;border:.25em solid currentColor;border-right-color:transparent;border-radius:50%;-webkit-animation:.75s linear infinite spinner-border;animation:.75s linear infinite spinner-border}.efb.spinner-border-sm{width:1rem;height:1rem;border-width:.2em}@-webkit-keyframes spinner-grow{0%{transform:scale(0)}50%{opacity:1;transform:none}}@keyframes spinner-grow{0%{transform:scale(0)}50%{opacity:1;transform:none}}.efb.spinner-grow{display:inline-block;width:2rem;height:2rem;vertical-align:-.125em;background-color:currentColor;border-radius:50%;opacity:0;-webkit-animation:.75s linear infinite spinner-grow;animation:.75s linear infinite spinner-grow}.efb.spinner-grow-sm{width:1rem;height:1rem}@media (prefers-reduced-motion:reduce){.efb.spinner-border,.efb.spinner-grow{-webkit-animation-duration:1.5s;animation-duration:1.5s}}.efb.offcanvas{position:fixed;bottom:0;z-index:1050;display:flex;flex-direction:column;max-width:100%;visibility:hidden;background-color:#fff;background-clip:padding-box;outline:0;transition:transform .3s ease-in-out}@media (prefers-reduced-motion:reduce){.efb.offcanvas{transition:none}}.efb.offcanvas-header{display:flex;align-items:center;justify-content:space-between;padding:1rem 1rem}.efb.offcanvas-header .efb.btn-close{padding:.5rem .5rem;margin:-.5rem -.5rem -.5rem auto}.efb.offcanvas-title{margin-bottom:0;line-height:1.5}.efb.offcanvas-body{flex-grow:1;padding:1rem 1rem;overflow-y:auto}.efb.offcanvas-start{top:0;left:0;width:400px;border-right:1px solid rgba(0,0,0,.2);transform:translateX(-100%)}.efb.offcanvas-end{top:0;right:0;width:400px;border-left:1px solid rgba(0,0,0,.2);transform:translateX(100%)}.efb.offcanvas-top{top:0;right:0;left:0;height:30vh;max-height:100%;border-bottom:1px solid rgba(0,0,0,.2);transform:translateY(-100%)}.efb.offcanvas-bottom{right:0;left:0;height:30vh;max-height:100%;border-top:1px solid rgba(0,0,0,.2);transform:translateY(100%)}.efb.offcanvas.show{transform:none}.efb.clearfix::after{display:block;clear:both;content:''}.efb.link-primary{color:#0d6efd}.efb.link-primary:focus,.efb.link-primary:hover{color:#0a58ca}.efb.link-secondary{color:#6c757d}.efb.link-secondary:focus,.efb.link-secondary:hover{color:#565e64}.efb.link-success{color:#198754}.efb.link-success:focus,.efb.link-success:hover{color:#146c43}.efb.link-info{color:#0dcaf0}.efb.link-info:focus,.efb.link-info:hover{color:#3dd5f3}.efb.link-warning{color:#ffc107}.efb.link-warning:focus,.efb.link-warning:hover{color:#ffcd39}.efb.link-danger{color:#dc3545}.efb.link-danger:focus,.efb.link-danger:hover{color:#b02a37}.efb.link-light{color:#f8f9fa}.efb.link-light:focus,.efb.link-light:hover{color:#f9fafb}.efb.link-dark{color:#212529}.efb.link-dark:focus,.efb.link-dark:hover{color:#1a1e21}.efb.ratio{position:relative;width:100%}.efb.ratio::before{display:block;padding-top:var(--bs-aspect-ratio);content:''}.efb.ratio>*{position:absolute;top:0;left:0;width:100%;height:100%}.efb.ratio-1x1{--bs-aspect-ratio:100%}.efb.ratio-4x3{--bs-aspect-ratio:calc(3 / 4 * 100%)}.efb.ratio-16x9{--bs-aspect-ratio:calc(9 / 16 * 100%)}.efb.ratio-21x9{--bs-aspect-ratio:calc(9 / 21 * 100%)}.efb.fixed-top{position:fixed;top:0;right:0;left:0;z-index:1030}.efb.fixed-bottom{position:fixed;right:0;bottom:0;left:0;z-index:1030}.efb.sticky-top{position:-webkit-sticky;position:sticky;top:0;z-index:1020}@media (min-width:576px){.efb.sticky-sm-top{position:-webkit-sticky;position:sticky;top:0;z-index:1020}}@media (min-width:768px){.efb.sticky-md-top{position:-webkit-sticky;position:sticky;top:0;z-index:1020}}@media (min-width:992px){.efb.sticky-lg-top{position:-webkit-sticky;position:sticky;top:0;z-index:1020}}@media (min-width:1200px){.efb.sticky-xl-top{position:-webkit-sticky;position:sticky;top:0;z-index:1020}}@media (min-width:1400px){.efb.sticky-xxl-top{position:-webkit-sticky;position:sticky;top:0;z-index:1020}}.efb.visually-hidden,.efb.visually-hidden-focusable:not(:focus):not(:focus-within){position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}.efb.stretched-link::after{position:absolute;top:0;right:0;bottom:0;left:0;z-index:1;content:''}.efb.text-truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.efb.align-baseline{vertical-align:baseline!important}.efb.align-top{vertical-align:top!important}.efb.align-middle{vertical-align:middle!important}.efb.align-bottom{vertical-align:bottom!important}.efb.align-text-bottom{vertical-align:text-bottom!important}.efb.align-text-top{vertical-align:text-top!important}.efb.float-start{float:left!important}.efb.float-end{float:right!important}.efb.float-none{float:none!important}.efb.overflow-auto{overflow:auto!important}.efb.overflow-hidden{overflow:hidden!important}.efb.overflow-visible{overflow:visible!important}.efb.overflow-scroll{overflow:scroll!important}.efb.d-inline{display:inline!important}.efb.d-inline-block{display:inline-block!important}.efb.d-block{display:block!important}.efb.d-grid{display:grid!important}.efb.d-table{display:table!important}.efb.d-table-row{display:table-row!important}.efb.d-table-cell{display:table-cell!important}.efb.d-flex{display:flex!important}.efb.d-inline-flex{display:inline-flex!important}.efb.d-none{display:none!important}.efb.shadow{box-shadow:0 .5rem 1rem rgba(0,0,0,.15)!important}.efb.shadow-sm{box-shadow:0 .125rem .25rem rgba(0,0,0,.075)!important}.efb.shadow-lg{box-shadow:0 1rem 3rem rgba(0,0,0,.175)!important}.efb.shadow-none{box-shadow:none!important}.efb.position-static{position:static!important}.efb.position-relative{position:relative!important}.efb.position-absolute{position:absolute!important}.efb.position-fixed{position:fixed!important}.efb.position-sticky{position:-webkit-sticky!important;position:sticky!important}.efb.top-0{top:0!important}.efb.top-50{top:50%!important}.efb.top-100{top:100%!important}.efb.bottom-0{bottom:0!important}.efb.bottom-50{bottom:50%!important}.efb.bottom-100{bottom:100%!important}.efb.start-0{left:0!important}.efb.start-50{left:50%!important}.efb.start-100{left:100%!important}.efb.end-0{right:0!important}.efb.end-50{right:50%!important}.efb.end-100{right:100%!important}.efb.translate-middle{transform:translate(-50%,-50%)!important}.efb.translate-middle-x{transform:translateX(-50%)!important}.efb.translate-middle-y{transform:translateY(-50%)!important}.efb.border{border:1px solid #dee2e6!important}.efb.border-0{border:0!important}.efb.border-top{border-top:1px solid #dee2e6!important}.efb.border-top-0{border-top:0!important}.efb.border-end{border-right:1px solid #dee2e6!important}.efb.border-end-0{border-right:0!important}.efb.border-bottom{border-bottom:1px solid #dee2e6!important}.efb.border-bottom-0{border-bottom:0!important}.efb.border-start{border-left:1px solid #dee2e6!important}.efb.border-start-0{border-left:0!important}.efb.border-primary{border-color:#0d6efd!important}.efb.border-secondary{border-color:#6c757d!important}.efb.border-success{border-color:#198754!important}.efb.border-info{border-color:#0dcaf0!important}.efb.border-warning{border-color:#ffc107!important}.efb.border-danger{border-color:#dc3545!important}.efb.border-light{border-color:#f8f9fa!important}.efb.border-dark{border-color:#212529!important}.efb.border-white{border-color:#fff!important}.efb.border-1{border-width:1px!important}.efb.border-2{border-width:2px!important}.efb.border-3{border-width:3px!important}.efb.border-4{border-width:4px!important}.efb.border-5{border-width:5px!important}.efb.w-25{width:25%!important}.efb.w-50{width:50%!important}.efb.w-75{width:75%!important}.efb.w-100{width:100%!important}.efb.w-auto{width:auto!important}.efb.mw-100{max-width:100%!important}.efb.vw-100{width:100vw!important}.efb.min-vw-100{min-width:100vw!important}.efb.h-25{height:25%!important}.efb.h-50{height:50%!important}.efb.h-75{height:75%!important}.efb.h-100{height:100%!important}.efb.h-auto{height:auto!important}.efb.mh-100{max-height:100%!important}.efb.vh-100{height:100vh!important}.efb.min-vh-100{min-height:100vh!important}.efb.flex-fill{flex:1 1 auto!important}.efb.flex-row{flex-direction:row!important}.efb.flex-column{flex-direction:column!important}.efb.flex-row-reverse{flex-direction:row-reverse!important}.efb.flex-column-reverse{flex-direction:column-reverse!important}.efb.flex-grow-0{flex-grow:0!important}.efb.flex-grow-1{flex-grow:1!important}.efb.flex-shrink-0{flex-shrink:0!important}.efb.flex-shrink-1{flex-shrink:1!important}.efb.flex-wrap{flex-wrap:wrap!important}.efb.flex-nowrap{flex-wrap:nowrap!important}.efb.flex-wrap-reverse{flex-wrap:wrap-reverse!important}.efb.gap-0{gap:0!important}.efb.gap-1{gap:.25rem!important}.efb.gap-2{gap:.5rem!important}.efb.gap-3{gap:1rem!important}.efb.gap-4{gap:1.5rem!important}.efb.gap-5{gap:3rem!important}.efb.justify-content-start{justify-content:flex-start!important}.efb.justify-content-end{justify-content:flex-end!important}.efb.justify-content-center{justify-content:center!important}.efb.justify-content-between{justify-content:space-between!important}.efb.justify-content-around{justify-content:space-around!important}.efb.justify-content-evenly{justify-content:space-evenly!important}.efb.align-items-start{align-items:flex-start!important}.efb.align-items-end{align-items:flex-end!important}.efb.align-items-center{align-items:center!important}.efb.align-items-baseline{align-items:baseline!important}.efb.align-items-stretch{align-items:stretch!important}.efb.align-content-start{align-content:flex-start!important}.efb.align-content-end{align-content:flex-end!important}.efb.align-content-center{align-content:center!important}.efb.align-content-between{align-content:space-between!important}.efb.align-content-around{align-content:space-around!important}.efb.align-content-stretch{align-content:stretch!important}.efb.align-self-auto{align-self:auto!important}.efb.align-self-start{align-self:flex-start!important}.efb.align-self-end{align-self:flex-end!important}.efb.align-self-center{align-self:center!important}.efb.align-self-baseline{align-self:baseline!important}.efb.align-self-stretch{align-self:stretch!important}.efb.order-first{order:-1!important}.efb.order-0{order:0!important}.efb.order-1{order:1!important}.efb.order-2{order:2!important}.efb.order-3{order:3!important}.efb.order-4{order:4!important}.efb.order-5{order:5!important}.efb.order-last{order:6!important}.efb.m-0{margin:0!important}.efb.m-1{margin:.25rem!important}.efb.m-2{margin:.5rem!important}.efb.m-3{margin:1rem!important}.efb.m-4{margin:1.5rem!important}.efb.m-5{margin:3rem!important}.efb.m-auto{margin:auto!important}.efb.mx-0{margin-right:0!important;margin-left:0!important}.efb.mx-1{margin-right:.25rem!important;margin-left:.25rem!important}.efb.mx-2{margin-right:.5rem!important;margin-left:.5rem!important}.efb.mx-3{margin-right:1rem!important;margin-left:1rem!important}.efb.mx-4{margin-right:1.5rem!important;margin-left:1.5rem!important}.efb.mx-5{margin-right:3rem!important;margin-left:3rem!important}.efb.mx-auto{margin-right:auto!important;margin-left:auto!important}.efb.my-0{margin-top:0!important;margin-bottom:0!important}.efb.my-1{margin-top:.25rem!important;margin-bottom:.25rem!important}.efb.my-2{margin-top:.5rem!important;margin-bottom:.5rem!important}.efb.my-3{margin-top:1rem!important;margin-bottom:1rem!important}.efb.my-4{margin-top:1.5rem!important;margin-bottom:1.5rem!important}.efb.my-5{margin-top:3rem!important;margin-bottom:3rem!important}.efb.my-auto{margin-top:auto!important;margin-bottom:auto!important}.efb.mt-0{margin-top:0!important}.efb.mt-1{margin-top:.25rem!important}.efb.mt-2{margin-top:.5rem!important}.efb.mt-3{margin-top:1rem!important}.efb.mt-4{margin-top:1.5rem!important}.efb.mt-5{margin-top:3rem!important}.efb.mt-auto{margin-top:auto!important}.efb.me-0{margin-right:0!important}.efb.me-1{margin-right:.25rem!important}.efb.me-2{margin-right:.5rem!important}.efb.me-3{margin-right:1rem!important}.efb.me-4{margin-right:1.5rem!important}.efb.me-5{margin-right:3rem!important}.efb.me-auto{margin-right:auto!important}.efb.mb-0{margin-bottom:0!important}.efb.mb-1{margin-bottom:.25rem!important}.efb.mb-2{margin-bottom:.5rem!important}.efb.mb-3{margin-bottom:1rem!important}.efb.mb-4{margin-bottom:1.5rem!important}.efb.mb-5{margin-bottom:3rem!important}.efb.mb-auto{margin-bottom:auto!important}.efb.ms-0{margin-left:0!important}.efb.ms-1{margin-left:.25rem!important}.efb.ms-2{margin-left:.5rem!important}.efb.ms-3{margin-left:1rem!important}.efb.ms-4{margin-left:1.5rem!important}.efb.ms-5{margin-left:3rem!important}.efb.ms-auto{margin-left:auto!important}.efb.p-0{padding:0!important}.efb.p-1{padding:.25rem!important}.efb.p-2{padding:.5rem!important}.efb.p-3{padding:1rem!important}.efb.p-4{padding:1.5rem!important}.efb.p-5{padding:3rem!important}.efb.px-0{padding-right:0!important;padding-left:0!important}.efb.px-1{padding-right:.25rem!important;padding-left:.25rem!important}.efb.px-2{padding-right:.5rem!important;padding-left:.5rem!important}.efb.px-3{padding-right:1rem!important;padding-left:1rem!important}.efb.px-4{padding-right:1.5rem!important;padding-left:1.5rem!important}.efb.px-5{padding-right:3rem!important;padding-left:3rem!important}.efb.py-0{padding-top:0!important;padding-bottom:0!important}.efb.py-1{padding-top:.25rem!important;padding-bottom:.25rem!important}.efb.py-2{padding-top:.5rem!important;padding-bottom:.5rem!important}.efb.py-3{padding-top:1rem!important;padding-bottom:1rem!important}.efb.py-4{padding-top:1.5rem!important;padding-bottom:1.5rem!important}.efb.py-5{padding-top:3rem!important;padding-bottom:3rem!important}.efb.pt-0{padding-top:0!important}.efb.pt-1{padding-top:.25rem!important}.efb.pt-2{padding-top:.5rem!important}.efb.pt-3{padding-top:1rem!important}.efb.pt-4{padding-top:1.5rem!important}.efb.pt-5{padding-top:3rem!important}.efb.pe-0{padding-right:0!important}.efb.pe-1{padding-right:.25rem!important}.efb.pe-2{padding-right:.5rem!important}.efb.pe-3{padding-right:1rem!important}.efb.pe-4{padding-right:1.5rem!important}.efb.pe-5{padding-right:3rem!important}.efb.pb-0{padding-bottom:0!important}.efb.pb-1{padding-bottom:.25rem!important}.efb.pb-2{padding-bottom:.5rem!important}.efb.pb-3{padding-bottom:1rem!important}.efb.pb-4{padding-bottom:1.5rem!important}.efb.pb-5{padding-bottom:3rem!important}.efb.ps-0{padding-left:0!important}.efb.ps-1{padding-left:.25rem!important}.efb.ps-2{padding-left:.5rem!important}.efb.ps-3{padding-left:1rem!important}.efb.ps-4{padding-left:1.5rem!important}.efb.ps-5{padding-left:3rem!important}.efb.font-monospace{font-family:var(--bs-font-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace)!important}.efb.fst-italic{font-style:italic!important}.efb.fst-normal{font-style:normal!important}.efb.fw-light{font-weight:300!important}.efb.fw-lighter{font-weight:lighter!important}.efb.fw-normal{font-weight:400!important}.efb.fw-bold{font-weight:700!important}.efb.fw-bolder{font-weight:bolder!important}.efb.lh-1{line-height:1!important}.efb.lh-sm{line-height:1.25!important}.efb.lh-base{line-height:1.5!important}.efb.lh-lg{line-height:2!important}.efb.text-start{text-align:left!important}.efb.text-end{text-align:right!important}.efb.text-center{text-align:center!important}.efb.text-decoration-none{text-decoration:none!important}.efb.text-decoration-underline{text-decoration:underline!important}.efb.text-decoration-line-through{text-decoration:line-through!important}.efb.text-lowercase{text-transform:lowercase!important}.efb.text-uppercase{text-transform:uppercase!important}.efb.text-capitalize{text-transform:capitalize!important}.efb.text-wrap{white-space:normal!important}.efb.text-nowrap{white-space:nowrap!important}.efb.text-break{word-wrap:break-word!important;word-break:break-word!important}.efb.text-primary{color:#0d6efd!important}.efb.text-secondary{color:#6c757d!important}.efb.text-success{color:#198754!important}.efb.text-info{color:#0dcaf0!important}.efb.text-warning{color:#ffc107!important}.efb.text-danger{color:#dc3545!important}.efb.text-light{color:#f8f9fa!important}.efb.text-dark{color:#212529!important}.efb.text-white{color:#fff!important}.efb.text-body{color:#212529!important}.efb.text-muted{color:#6c757d!important}.efb.text-black-50{color:rgba(0,0,0,.5)!important}.efb.text-white-50{color:rgba(255,255,255,.5)!important}.efb.text-reset{color:inherit!important}.efb.bg-primary{background-color:#0d6efd!important}.efb.bg-secondary{background-color:#6c757d!important}.efb.bg-success{background-color:#198754!important}.efb.bg-info{background-color:#0dcaf0!important}.efb.bg-warning{background-color:#ffc107!important}.efb.bg-danger{background-color:#dc3545!important}.efb.bg-light{background-color:#f8f9fa!important}.efb.bg-dark{background-color:#212529!important}.efb.bg-body{background-color:#fff!important}.efb.bg-white{background-color:#fff!important}.efb.bg-transparent{background-color:transparent!important}.efb.bg-gradient{background-image:var(--bs-gradient)!important}.efb.user-select-all{-webkit-user-select:all!important;-moz-user-select:all!important;user-select:all!important}.efb.user-select-auto{-webkit-user-select:auto!important;-moz-user-select:auto!important;user-select:auto!important}.efb.user-select-none{-webkit-user-select:none!important;-moz-user-select:none!important;user-select:none!important}.efb.pe-none{pointer-events:none!important}.efb.pe-auto{pointer-events:auto!important}.efb.rounded{border-radius:.25rem!important}.efb.rounded-0{border-radius:0!important}.efb.rounded-1{border-radius:.2rem!important}.efb.rounded-2{border-radius:.25rem!important}.efb.rounded-3{border-radius:.3rem!important}.efb.rounded-circle{border-radius:50%!important}.efb.rounded-pill{border-radius:50rem!important}.efb.rounded-top{border-top-left-radius:.25rem!important;border-top-right-radius:.25rem!important}.efb.rounded-end{border-top-right-radius:.25rem!important;border-bottom-right-radius:.25rem!important}.efb.rounded-bottom{border-bottom-right-radius:.25rem!important;border-bottom-left-radius:.25rem!important}.efb.rounded-start{border-bottom-left-radius:.25rem!important;border-top-left-radius:.25rem!important}.efb.visible{visibility:visible!important}.efb.invisible{visibility:hidden!important}@media (min-width:576px){.efb.float-sm-start{float:left!important}.efb.float-sm-end{float:right!important}.efb.float-sm-none{float:none!important}.efb.d-sm-inline{display:inline!important}.efb.d-sm-inline-block{display:inline-block!important}.efb.d-sm-block{display:block!important}.efb.d-sm-grid{display:grid!important}.efb.d-sm-table{display:table!important}.efb.d-sm-table-row{display:table-row!important}.efb.d-sm-table-cell{display:table-cell!important}.efb.d-sm-flex{display:flex!important}.efb.d-sm-inline-flex{display:inline-flex!important}.efb.d-sm-none{display:none!important}.efb.flex-sm-fill{flex:1 1 auto!important}.efb.flex-sm-row{flex-direction:row!important}.efb.flex-sm-column{flex-direction:column!important}.efb.flex-sm-row-reverse{flex-direction:row-reverse!important}.efb.flex-sm-column-reverse{flex-direction:column-reverse!important}.efb.flex-sm-grow-0{flex-grow:0!important}.efb.flex-sm-grow-1{flex-grow:1!important}.efb.flex-sm-shrink-0{flex-shrink:0!important}.efb.flex-sm-shrink-1{flex-shrink:1!important}.efb.flex-sm-wrap{flex-wrap:wrap!important}.efb.flex-sm-nowrap{flex-wrap:nowrap!important}.efb.flex-sm-wrap-reverse{flex-wrap:wrap-reverse!important}.efb.gap-sm-0{gap:0!important}.efb.gap-sm-1{gap:.25rem!important}.efb.gap-sm-2{gap:.5rem!important}.efb.gap-sm-3{gap:1rem!important}.efb.gap-sm-4{gap:1.5rem!important}.efb.gap-sm-5{gap:3rem!important}.efb.justify-content-sm-start{justify-content:flex-start!important}.efb.justify-content-sm-end{justify-content:flex-end!important}.efb.justify-content-sm-center{justify-content:center!important}.efb.justify-content-sm-between{justify-content:space-between!important}.efb.justify-content-sm-around{justify-content:space-around!important}.efb.justify-content-sm-evenly{justify-content:space-evenly!important}.efb.align-items-sm-start{align-items:flex-start!important}.efb.align-items-sm-end{align-items:flex-end!important}.efb.align-items-sm-center{align-items:center!important}.efb.align-items-sm-baseline{align-items:baseline!important}.efb.align-items-sm-stretch{align-items:stretch!important}.efb.align-content-sm-start{align-content:flex-start!important}.efb.align-content-sm-end{align-content:flex-end!important}.efb.align-content-sm-center{align-content:center!important}.efb.align-content-sm-between{align-content:space-between!important}.efb.align-content-sm-around{align-content:space-around!important}.efb.align-content-sm-stretch{align-content:stretch!important}.efb.align-self-sm-auto{align-self:auto!important}.efb.align-self-sm-start{align-self:flex-start!important}.efb.align-self-sm-end{align-self:flex-end!important}.efb.align-self-sm-center{align-self:center!important}.efb.align-self-sm-baseline{align-self:baseline!important}.efb.align-self-sm-stretch{align-self:stretch!important}.efb.order-sm-first{order:-1!important}.efb.order-sm-0{order:0!important}.efb.order-sm-1{order:1!important}.efb.order-sm-2{order:2!important}.efb.order-sm-3{order:3!important}.efb.order-sm-4{order:4!important}.efb.order-sm-5{order:5!important}.efb.order-sm-last{order:6!important}.efb.m-sm-0{margin:0!important}.efb.m-sm-1{margin:.25rem!important}.efb.m-sm-2{margin:.5rem!important}.efb.m-sm-3{margin:1rem!important}.efb.m-sm-4{margin:1.5rem!important}.efb.m-sm-5{margin:3rem!important}.efb.m-sm-auto{margin:auto!important}.efb.mx-sm-0{margin-right:0!important;margin-left:0!important}.efb.mx-sm-1{margin-right:.25rem!important;margin-left:.25rem!important}.efb.mx-sm-2{margin-right:.5rem!important;margin-left:.5rem!important}.efb.mx-sm-3{margin-right:1rem!important;margin-left:1rem!important}.efb.mx-sm-4{margin-right:1.5rem!important;margin-left:1.5rem!important}.efb.mx-sm-5{margin-right:3rem!important;margin-left:3rem!important}.efb.mx-sm-auto{margin-right:auto!important;margin-left:auto!important}.efb.my-sm-0{margin-top:0!important;margin-bottom:0!important}.efb.my-sm-1{margin-top:.25rem!important;margin-bottom:.25rem!important}.efb.my-sm-2{margin-top:.5rem!important;margin-bottom:.5rem!important}.efb.my-sm-3{margin-top:1rem!important;margin-bottom:1rem!important}.efb.my-sm-4{margin-top:1.5rem!important;margin-bottom:1.5rem!important}.efb.my-sm-5{margin-top:3rem!important;margin-bottom:3rem!important}.efb.my-sm-auto{margin-top:auto!important;margin-bottom:auto!important}.efb.mt-sm-0{margin-top:0!important}.efb.mt-sm-1{margin-top:.25rem!important}.efb.mt-sm-2{margin-top:.5rem!important}.efb.mt-sm-3{margin-top:1rem!important}.efb.mt-sm-4{margin-top:1.5rem!important}.efb.mt-sm-5{margin-top:3rem!important}.efb.mt-sm-auto{margin-top:auto!important}.efb.me-sm-0{margin-right:0!important}.efb.me-sm-1{margin-right:.25rem!important}.efb.me-sm-2{margin-right:.5rem!important}.efb.me-sm-3{margin-right:1rem!important}.efb.me-sm-4{margin-right:1.5rem!important}.efb.me-sm-5{margin-right:3rem!important}.efb.me-sm-auto{margin-right:auto!important}.efb.mb-sm-0{margin-bottom:0!important}.efb.mb-sm-1{margin-bottom:.25rem!important}.efb.mb-sm-2{margin-bottom:.5rem!important}.efb.mb-sm-3{margin-bottom:1rem!important}.efb.mb-sm-4{margin-bottom:1.5rem!important}.efb.mb-sm-5{margin-bottom:3rem!important}.efb.mb-sm-auto{margin-bottom:auto!important}.efb.ms-sm-0{margin-left:0!important}.efb.ms-sm-1{margin-left:.25rem!important}.efb.ms-sm-2{margin-left:.5rem!important}.efb.ms-sm-3{margin-left:1rem!important}.efb.ms-sm-4{margin-left:1.5rem!important}.efb.ms-sm-5{margin-left:3rem!important}.efb.ms-sm-auto{margin-left:auto!important}.efb.p-sm-0{padding:0!important}.efb.p-sm-1{padding:.25rem!important}.efb.p-sm-2{padding:.5rem!important}.efb.p-sm-3{padding:1rem!important}.efb.p-sm-4{padding:1.5rem!important}.efb.p-sm-5{padding:3rem!important}.efb.px-sm-0{padding-right:0!important;padding-left:0!important}.efb.px-sm-1{padding-right:.25rem!important;padding-left:.25rem!important}.efb.px-sm-2{padding-right:.5rem!important;padding-left:.5rem!important}.efb.px-sm-3{padding-right:1rem!important;padding-left:1rem!important}.efb.px-sm-4{padding-right:1.5rem!important;padding-left:1.5rem!important}.efb.px-sm-5{padding-right:3rem!important;padding-left:3rem!important}.efb.py-sm-0{padding-top:0!important;padding-bottom:0!important}.efb.py-sm-1{padding-top:.25rem!important;padding-bottom:.25rem!important}.efb.py-sm-2{padding-top:.5rem!important;padding-bottom:.5rem!important}.efb.py-sm-3{padding-top:1rem!important;padding-bottom:1rem!important}.efb.py-sm-4{padding-top:1.5rem!important;padding-bottom:1.5rem!important}.efb.py-sm-5{padding-top:3rem!important;padding-bottom:3rem!important}.efb.pt-sm-0{padding-top:0!important}.efb.pt-sm-1{padding-top:.25rem!important}.efb.pt-sm-2{padding-top:.5rem!important}.efb.pt-sm-3{padding-top:1rem!important}.efb.pt-sm-4{padding-top:1.5rem!important}.efb.pt-sm-5{padding-top:3rem!important}.efb.pe-sm-0{padding-right:0!important}.efb.pe-sm-1{padding-right:.25rem!important}.efb.pe-sm-2{padding-right:.5rem!important}.efb.pe-sm-3{padding-right:1rem!important}.efb.pe-sm-4{padding-right:1.5rem!important}.efb.pe-sm-5{padding-right:3rem!important}.efb.pb-sm-0{padding-bottom:0!important}.efb.pb-sm-1{padding-bottom:.25rem!important}.efb.pb-sm-2{padding-bottom:.5rem!important}.efb.pb-sm-3{padding-bottom:1rem!important}.efb.pb-sm-4{padding-bottom:1.5rem!important}.efb.pb-sm-5{padding-bottom:3rem!important}.efb.ps-sm-0{padding-left:0!important}.efb.ps-sm-1{padding-left:.25rem!important}.efb.ps-sm-2{padding-left:.5rem!important}.efb.ps-sm-3{padding-left:1rem!important}.efb.ps-sm-4{padding-left:1.5rem!important}.efb.ps-sm-5{padding-left:3rem!important}.efb.text-sm-start{text-align:left!important}.efb.text-sm-end{text-align:right!important}.efb.text-sm-center{text-align:center!important}}@media (min-width:768px){.efb.float-md-start{float:left!important}.efb.float-md-end{float:right!important}.efb.float-md-none{float:none!important}.efb.d-md-inline{display:inline!important}.efb.d-md-inline-block{display:inline-block!important}.efb.d-md-block{display:block!important}.efb.d-md-grid{display:grid!important}.efb.d-md-table{display:table!important}.efb.d-md-table-row{display:table-row!important}.efb.d-md-table-cell{display:table-cell!important}.efb.d-md-flex{display:flex!important}.efb.d-md-inline-flex{display:inline-flex!important}.efb.d-md-none{display:none!important}.efb.flex-md-fill{flex:1 1 auto!important}.efb.flex-md-row{flex-direction:row!important}.efb.flex-md-column{flex-direction:column!important}.efb.flex-md-row-reverse{flex-direction:row-reverse!important}.efb.flex-md-column-reverse{flex-direction:column-reverse!important}.efb.flex-md-grow-0{flex-grow:0!important}.efb.flex-md-grow-1{flex-grow:1!important}.efb.flex-md-shrink-0{flex-shrink:0!important}.efb.flex-md-shrink-1{flex-shrink:1!important}.efb.flex-md-wrap{flex-wrap:wrap!important}.efb.flex-md-nowrap{flex-wrap:nowrap!important}.efb.flex-md-wrap-reverse{flex-wrap:wrap-reverse!important}.efb.gap-md-0{gap:0!important}.efb.gap-md-1{gap:.25rem!important}.efb.gap-md-2{gap:.5rem!important}.efb.gap-md-3{gap:1rem!important}.efb.gap-md-4{gap:1.5rem!important}.efb.gap-md-5{gap:3rem!important}.efb.justify-content-md-start{justify-content:flex-start!important}.efb.justify-content-md-end{justify-content:flex-end!important}.efb.justify-content-md-center{justify-content:center!important}.efb.justify-content-md-between{justify-content:space-between!important}.efb.justify-content-md-around{justify-content:space-around!important}.efb.justify-content-md-evenly{justify-content:space-evenly!important}.efb.align-items-md-start{align-items:flex-start!important}.efb.align-items-md-end{align-items:flex-end!important}.efb.align-items-md-center{align-items:center!important}.efb.align-items-md-baseline{align-items:baseline!important}.efb.align-items-md-stretch{align-items:stretch!important}.efb.align-content-md-start{align-content:flex-start!important}.efb.align-content-md-end{align-content:flex-end!important}.efb.align-content-md-center{align-content:center!important}.efb.align-content-md-between{align-content:space-between!important}.efb.align-content-md-around{align-content:space-around!important}.efb.align-content-md-stretch{align-content:stretch!important}.efb.align-self-md-auto{align-self:auto!important}.efb.align-self-md-start{align-self:flex-start!important}.efb.align-self-md-end{align-self:flex-end!important}.efb.align-self-md-center{align-self:center!important}.efb.align-self-md-baseline{align-self:baseline!important}.efb.align-self-md-stretch{align-self:stretch!important}.efb.order-md-first{order:-1!important}.efb.order-md-0{order:0!important}.efb.order-md-1{order:1!important}.efb.order-md-2{order:2!important}.efb.order-md-3{order:3!important}.efb.order-md-4{order:4!important}.efb.order-md-5{order:5!important}.efb.order-md-last{order:6!important}.efb.m-md-0{margin:0!important}.efb.m-md-1{margin:.25rem!important}.efb.m-md-2{margin:.5rem!important}.efb.m-md-3{margin:1rem!important}.efb.m-md-4{margin:1.5rem!important}.efb.m-md-5{margin:3rem!important}.efb.m-md-auto{margin:auto!important}.efb.mx-md-0{margin-right:0!important;margin-left:0!important}.efb.mx-md-1{margin-right:.25rem!important;margin-left:.25rem!important}.efb.mx-md-2{margin-right:.5rem!important;margin-left:.5rem!important}.efb.mx-md-3{margin-right:1rem!important;margin-left:1rem!important}.efb.mx-md-4{margin-right:1.5rem!important;margin-left:1.5rem!important}.efb.mx-md-5{margin-right:3rem!important;margin-left:3rem!important}.efb.mx-md-auto{margin-right:auto!important;margin-left:auto!important}.efb.my-md-0{margin-top:0!important;margin-bottom:0!important}.efb.my-md-1{margin-top:.25rem!important;margin-bottom:.25rem!important}.efb.my-md-2{margin-top:.5rem!important;margin-bottom:.5rem!important}.efb.my-md-3{margin-top:1rem!important;margin-bottom:1rem!important}.efb.my-md-4{margin-top:1.5rem!important;margin-bottom:1.5rem!important}.efb.my-md-5{margin-top:3rem!important;margin-bottom:3rem!important}.efb.my-md-auto{margin-top:auto!important;margin-bottom:auto!important}.efb.mt-md-0{margin-top:0!important}.efb.mt-md-1{margin-top:.25rem!important}.efb.mt-md-2{margin-top:.5rem!important}.efb.mt-md-3{margin-top:1rem!important}.efb.mt-md-4{margin-top:1.5rem!important}.efb.mt-md-5{margin-top:3rem!important}.efb.mt-md-auto{margin-top:auto!important}.efb.me-md-0{margin-right:0!important}.efb.me-md-1{margin-right:.25rem!important}.efb.me-md-2{margin-right:.5rem!important}.efb.me-md-3{margin-right:1rem!important}.efb.me-md-4{margin-right:1.5rem!important}.efb.me-md-5{margin-right:3rem!important}.efb.me-md-auto{margin-right:auto!important}.efb.mb-md-0{margin-bottom:0!important}.efb.mb-md-1{margin-bottom:.25rem!important}.efb.mb-md-2{margin-bottom:.5rem!important}.efb.mb-md-3{margin-bottom:1rem!important}.efb.mb-md-4{margin-bottom:1.5rem!important}.efb.mb-md-5{margin-bottom:3rem!important}.efb.mb-md-auto{margin-bottom:auto!important}.efb.ms-md-0{margin-left:0!important}.efb.ms-md-1{margin-left:.25rem!important}.efb.ms-md-2{margin-left:.5rem!important}.efb.ms-md-3{margin-left:1rem!important}.efb.ms-md-4{margin-left:1.5rem!important}.efb.ms-md-5{margin-left:3rem!important}.efb.ms-md-auto{margin-left:auto!important}.efb.p-md-0{padding:0!important}.efb.p-md-1{padding:.25rem!important}.efb.p-md-2{padding:.5rem!important}.efb.p-md-3{padding:1rem!important}.efb.p-md-4{padding:1.5rem!important}.efb.p-md-5{padding:3rem!important}.efb.px-md-0{padding-right:0!important;padding-left:0!important}.efb.px-md-1{padding-right:.25rem!important;padding-left:.25rem!important}.efb.px-md-2{padding-right:.5rem!important;padding-left:.5rem!important}.efb.px-md-3{padding-right:1rem!important;padding-left:1rem!important}.efb.px-md-4{padding-right:1.5rem!important;padding-left:1.5rem!important}.efb.px-md-5{padding-right:3rem!important;padding-left:3rem!important}.efb.py-md-0{padding-top:0!important;padding-bottom:0!important}.efb.py-md-1{padding-top:.25rem!important;padding-bottom:.25rem!important}.efb.py-md-2{padding-top:.5rem!important;padding-bottom:.5rem!important}.efb.py-md-3{padding-top:1rem!important;padding-bottom:1rem!important}.efb.py-md-4{padding-top:1.5rem!important;padding-bottom:1.5rem!important}.efb.py-md-5{padding-top:3rem!important;padding-bottom:3rem!important}.efb.pt-md-0{padding-top:0!important}.efb.pt-md-1{padding-top:.25rem!important}.efb.pt-md-2{padding-top:.5rem!important}.efb.pt-md-3{padding-top:1rem!important}.efb.pt-md-4{padding-top:1.5rem!important}.efb.pt-md-5{padding-top:3rem!important}.efb.pe-md-0{padding-right:0!important}.efb.pe-md-1{padding-right:.25rem!important}.efb.pe-md-2{padding-right:.5rem!important}.efb.pe-md-3{padding-right:1rem!important}.efb.pe-md-4{padding-right:1.5rem!important}.efb.pe-md-5{padding-right:3rem!important}.efb.pb-md-0{padding-bottom:0!important}.efb.pb-md-1{padding-bottom:.25rem!important}.efb.pb-md-2{padding-bottom:.5rem!important}.efb.pb-md-3{padding-bottom:1rem!important}.efb.pb-md-4{padding-bottom:1.5rem!important}.efb.pb-md-5{padding-bottom:3rem!important}.efb.ps-md-0{padding-left:0!important}.efb.ps-md-1{padding-left:.25rem!important}.efb.ps-md-2{padding-left:.5rem!important}.efb.ps-md-3{padding-left:1rem!important}.efb.ps-md-4{padding-left:1.5rem!important}.efb.ps-md-5{padding-left:3rem!important}.efb.text-md-start{text-align:left!important}.efb.text-md-end{text-align:right!important}.efb.text-md-center{text-align:center!important}}@media (min-width:992px){.efb.float-lg-start{float:left!important}.efb.float-lg-end{float:right!important}.efb.float-lg-none{float:none!important}.efb.d-lg-inline{display:inline!important}.efb.d-lg-inline-block{display:inline-block!important}.efb.d-lg-block{display:block!important}.efb.d-lg-grid{display:grid!important}.efb.d-lg-table{display:table!important}.efb.d-lg-table-row{display:table-row!important}.efb.d-lg-table-cell{display:table-cell!important}.efb.d-lg-flex{display:flex!important}.efb.d-lg-inline-flex{display:inline-flex!important}.efb.d-lg-none{display:none!important}.efb.flex-lg-fill{flex:1 1 auto!important}.efb.flex-lg-row{flex-direction:row!important}.efb.flex-lg-column{flex-direction:column!important}.efb.flex-lg-row-reverse{flex-direction:row-reverse!important}.efb.flex-lg-column-reverse{flex-direction:column-reverse!important}.efb.flex-lg-grow-0{flex-grow:0!important}.efb.flex-lg-grow-1{flex-grow:1!important}.efb.flex-lg-shrink-0{flex-shrink:0!important}.efb.flex-lg-shrink-1{flex-shrink:1!important}.efb.flex-lg-wrap{flex-wrap:wrap!important}.efb.flex-lg-nowrap{flex-wrap:nowrap!important}.efb.flex-lg-wrap-reverse{flex-wrap:wrap-reverse!important}.efb.gap-lg-0{gap:0!important}.efb.gap-lg-1{gap:.25rem!important}.efb.gap-lg-2{gap:.5rem!important}.efb.gap-lg-3{gap:1rem!important}.efb.gap-lg-4{gap:1.5rem!important}.efb.gap-lg-5{gap:3rem!important}.efb.justify-content-lg-start{justify-content:flex-start!important}.efb.justify-content-lg-end{justify-content:flex-end!important}.efb.justify-content-lg-center{justify-content:center!important}.efb.justify-content-lg-between{justify-content:space-between!important}.efb.justify-content-lg-around{justify-content:space-around!important}.efb.justify-content-lg-evenly{justify-content:space-evenly!important}.efb.align-items-lg-start{align-items:flex-start!important}.efb.align-items-lg-end{align-items:flex-end!important}.efb.align-items-lg-center{align-items:center!important}.efb.align-items-lg-baseline{align-items:baseline!important}.efb.align-items-lg-stretch{align-items:stretch!important}.efb.align-content-lg-start{align-content:flex-start!important}.efb.align-content-lg-end{align-content:flex-end!important}.efb.align-content-lg-center{align-content:center!important}.efb.align-content-lg-between{align-content:space-between!important}.efb.align-content-lg-around{align-content:space-around!important}.efb.align-content-lg-stretch{align-content:stretch!important}.efb.align-self-lg-auto{align-self:auto!important}.efb.align-self-lg-start{align-self:flex-start!important}.efb.align-self-lg-end{align-self:flex-end!important}.efb.align-self-lg-center{align-self:center!important}.efb.align-self-lg-baseline{align-self:baseline!important}.efb.align-self-lg-stretch{align-self:stretch!important}.efb.order-lg-first{order:-1!important}.efb.order-lg-0{order:0!important}.efb.order-lg-1{order:1!important}.efb.order-lg-2{order:2!important}.efb.order-lg-3{order:3!important}.efb.order-lg-4{order:4!important}.efb.order-lg-5{order:5!important}.efb.order-lg-last{order:6!important}.efb.m-lg-0{margin:0!important}.efb.m-lg-1{margin:.25rem!important}.efb.m-lg-2{margin:.5rem!important}.efb.m-lg-3{margin:1rem!important}.efb.m-lg-4{margin:1.5rem!important}.efb.m-lg-5{margin:3rem!important}.efb.m-lg-auto{margin:auto!important}.efb.mx-lg-0{margin-right:0!important;margin-left:0!important}.efb.mx-lg-1{margin-right:.25rem!important;margin-left:.25rem!important}.efb.mx-lg-2{margin-right:.5rem!important;margin-left:.5rem!important}.efb.mx-lg-3{margin-right:1rem!important;margin-left:1rem!important}.efb.mx-lg-4{margin-right:1.5rem!important;margin-left:1.5rem!important}.efb.mx-lg-5{margin-right:3rem!important;margin-left:3rem!important}.efb.mx-lg-auto{margin-right:auto!important;margin-left:auto!important}.efb.my-lg-0{margin-top:0!important;margin-bottom:0!important}.efb.my-lg-1{margin-top:.25rem!important;margin-bottom:.25rem!important}.efb.my-lg-2{margin-top:.5rem!important;margin-bottom:.5rem!important}.efb.my-lg-3{margin-top:1rem!important;margin-bottom:1rem!important}.efb.my-lg-4{margin-top:1.5rem!important;margin-bottom:1.5rem!important}.efb.my-lg-5{margin-top:3rem!important;margin-bottom:3rem!important}.efb.my-lg-auto{margin-top:auto!important;margin-bottom:auto!important}.efb.mt-lg-0{margin-top:0!important}.efb.mt-lg-1{margin-top:.25rem!important}.efb.mt-lg-2{margin-top:.5rem!important}.efb.mt-lg-3{margin-top:1rem!important}.efb.mt-lg-4{margin-top:1.5rem!important}.efb.mt-lg-5{margin-top:3rem!important}.efb.mt-lg-auto{margin-top:auto!important}.efb.me-lg-0{margin-right:0!important}.efb.me-lg-1{margin-right:.25rem!important}.efb.me-lg-2{margin-right:.5rem!important}.efb.me-lg-3{margin-right:1rem!important}.efb.me-lg-4{margin-right:1.5rem!important}.efb.me-lg-5{margin-right:3rem!important}.efb.me-lg-auto{margin-right:auto!important}.efb.mb-lg-0{margin-bottom:0!important}.efb.mb-lg-1{margin-bottom:.25rem!important}.efb.mb-lg-2{margin-bottom:.5rem!important}.efb.mb-lg-3{margin-bottom:1rem!important}.efb.mb-lg-4{margin-bottom:1.5rem!important}.efb.mb-lg-5{margin-bottom:3rem!important}.efb.mb-lg-auto{margin-bottom:auto!important}.efb.ms-lg-0{margin-left:0!important}.efb.ms-lg-1{margin-left:.25rem!important}.efb.ms-lg-2{margin-left:.5rem!important}.efb.ms-lg-3{margin-left:1rem!important}.efb.ms-lg-4{margin-left:1.5rem!important}.efb.ms-lg-5{margin-left:3rem!important}.efb.ms-lg-auto{margin-left:auto!important}.efb.p-lg-0{padding:0!important}.efb.p-lg-1{padding:.25rem!important}.efb.p-lg-2{padding:.5rem!important}.efb.p-lg-3{padding:1rem!important}.efb.p-lg-4{padding:1.5rem!important}.efb.p-lg-5{padding:3rem!important}.efb.px-lg-0{padding-right:0!important;padding-left:0!important}.efb.px-lg-1{padding-right:.25rem!important;padding-left:.25rem!important}.efb.px-lg-2{padding-right:.5rem!important;padding-left:.5rem!important}.efb.px-lg-3{padding-right:1rem!important;padding-left:1rem!important}.efb.px-lg-4{padding-right:1.5rem!important;padding-left:1.5rem!important}.efb.px-lg-5{padding-right:3rem!important;padding-left:3rem!important}.efb.py-lg-0{padding-top:0!important;padding-bottom:0!important}.efb.py-lg-1{padding-top:.25rem!important;padding-bottom:.25rem!important}.efb.py-lg-2{padding-top:.5rem!important;padding-bottom:.5rem!important}.efb.py-lg-3{padding-top:1rem!important;padding-bottom:1rem!important}.efb.py-lg-4{padding-top:1.5rem!important;padding-bottom:1.5rem!important}.efb.py-lg-5{padding-top:3rem!important;padding-bottom:3rem!important}.efb.pt-lg-0{padding-top:0!important}.efb.pt-lg-1{padding-top:.25rem!important}.efb.pt-lg-2{padding-top:.5rem!important}.efb.pt-lg-3{padding-top:1rem!important}.efb.pt-lg-4{padding-top:1.5rem!important}.efb.pt-lg-5{padding-top:3rem!important}.efb.pe-lg-0{padding-right:0!important}.efb.pe-lg-1{padding-right:.25rem!important}.efb.pe-lg-2{padding-right:.5rem!important}.efb.pe-lg-3{padding-right:1rem!important}.efb.pe-lg-4{padding-right:1.5rem!important}.efb.pe-lg-5{padding-right:3rem!important}.efb.pb-lg-0{padding-bottom:0!important}.efb.pb-lg-1{padding-bottom:.25rem!important}.efb.pb-lg-2{padding-bottom:.5rem!important}.efb.pb-lg-3{padding-bottom:1rem!important}.efb.pb-lg-4{padding-bottom:1.5rem!important}.efb.pb-lg-5{padding-bottom:3rem!important}.efb.ps-lg-0{padding-left:0!important}.efb.ps-lg-1{padding-left:.25rem!important}.efb.ps-lg-2{padding-left:.5rem!important}.efb.ps-lg-3{padding-left:1rem!important}.efb.ps-lg-4{padding-left:1.5rem!important}.efb.ps-lg-5{padding-left:3rem!important}.efb.text-lg-start{text-align:left!important}.efb.text-lg-end{text-align:right!important}.efb.text-lg-center{text-align:center!important}}@media (min-width:1200px){.efb.float-xl-start{float:left!important}.efb.float-xl-end{float:right!important}.efb.float-xl-none{float:none!important}.efb.d-xl-inline{display:inline!important}.efb.d-xl-inline-block{display:inline-block!important}.efb.d-xl-block{display:block!important}.efb.d-xl-grid{display:grid!important}.efb.d-xl-table{display:table!important}.efb.d-xl-table-row{display:table-row!important}.efb.d-xl-table-cell{display:table-cell!important}.efb.d-xl-flex{display:flex!important}.efb.d-xl-inline-flex{display:inline-flex!important}.efb.d-xl-none{display:none!important}.efb.flex-xl-fill{flex:1 1 auto!important}.efb.flex-xl-row{flex-direction:row!important}.efb.flex-xl-column{flex-direction:column!important}.efb.flex-xl-row-reverse{flex-direction:row-reverse!important}.efb.flex-xl-column-reverse{flex-direction:column-reverse!important}.efb.flex-xl-grow-0{flex-grow:0!important}.efb.flex-xl-grow-1{flex-grow:1!important}.efb.flex-xl-shrink-0{flex-shrink:0!important}.efb.flex-xl-shrink-1{flex-shrink:1!important}.efb.flex-xl-wrap{flex-wrap:wrap!important}.efb.flex-xl-nowrap{flex-wrap:nowrap!important}.efb.flex-xl-wrap-reverse{flex-wrap:wrap-reverse!important}.efb.gap-xl-0{gap:0!important}.efb.gap-xl-1{gap:.25rem!important}.efb.gap-xl-2{gap:.5rem!important}.efb.gap-xl-3{gap:1rem!important}.efb.gap-xl-4{gap:1.5rem!important}.efb.gap-xl-5{gap:3rem!important}.efb.justify-content-xl-start{justify-content:flex-start!important}.efb.justify-content-xl-end{justify-content:flex-end!important}.efb.justify-content-xl-center{justify-content:center!important}.efb.justify-content-xl-between{justify-content:space-between!important}.efb.justify-content-xl-around{justify-content:space-around!important}.efb.justify-content-xl-evenly{justify-content:space-evenly!important}.efb.align-items-xl-start{align-items:flex-start!important}.efb.align-items-xl-end{align-items:flex-end!important}.efb.align-items-xl-center{align-items:center!important}.efb.align-items-xl-baseline{align-items:baseline!important}.efb.align-items-xl-stretch{align-items:stretch!important}.efb.align-content-xl-start{align-content:flex-start!important}.efb.align-content-xl-end{align-content:flex-end!important}.efb.align-content-xl-center{align-content:center!important}.efb.align-content-xl-between{align-content:space-between!important}.efb.align-content-xl-around{align-content:space-around!important}.efb.align-content-xl-stretch{align-content:stretch!important}.efb.align-self-xl-auto{align-self:auto!important}.efb.align-self-xl-start{align-self:flex-start!important}.efb.align-self-xl-end{align-self:flex-end!important}.efb.align-self-xl-center{align-self:center!important}.efb.align-self-xl-baseline{align-self:baseline!important}.efb.align-self-xl-stretch{align-self:stretch!important}.efb.order-xl-first{order:-1!important}.efb.order-xl-0{order:0!important}.efb.order-xl-1{order:1!important}.efb.order-xl-2{order:2!important}.efb.order-xl-3{order:3!important}.efb.order-xl-4{order:4!important}.efb.order-xl-5{order:5!important}.efb.order-xl-last{order:6!important}.efb.m-xl-0{margin:0!important}.efb.m-xl-1{margin:.25rem!important}.efb.m-xl-2{margin:.5rem!important}.efb.m-xl-3{margin:1rem!important}.efb.m-xl-4{margin:1.5rem!important}.efb.m-xl-5{margin:3rem!important}.efb.m-xl-auto{margin:auto!important}.efb.mx-xl-0{margin-right:0!important;margin-left:0!important}.efb.mx-xl-1{margin-right:.25rem!important;margin-left:.25rem!important}.efb.mx-xl-2{margin-right:.5rem!important;margin-left:.5rem!important}.efb.mx-xl-3{margin-right:1rem!important;margin-left:1rem!important}.efb.mx-xl-4{margin-right:1.5rem!important;margin-left:1.5rem!important}.efb.mx-xl-5{margin-right:3rem!important;margin-left:3rem!important}.efb.mx-xl-auto{margin-right:auto!important;margin-left:auto!important}.efb.my-xl-0{margin-top:0!important;margin-bottom:0!important}.efb.my-xl-1{margin-top:.25rem!important;margin-bottom:.25rem!important}.efb.my-xl-2{margin-top:.5rem!important;margin-bottom:.5rem!important}.efb.my-xl-3{margin-top:1rem!important;margin-bottom:1rem!important}.efb.my-xl-4{margin-top:1.5rem!important;margin-bottom:1.5rem!important}.efb.my-xl-5{margin-top:3rem!important;margin-bottom:3rem!important}.efb.my-xl-auto{margin-top:auto!important;margin-bottom:auto!important}.efb.mt-xl-0{margin-top:0!important}.efb.mt-xl-1{margin-top:.25rem!important}.efb.mt-xl-2{margin-top:.5rem!important}.efb.mt-xl-3{margin-top:1rem!important}.efb.mt-xl-4{margin-top:1.5rem!important}.efb.mt-xl-5{margin-top:3rem!important}.efb.mt-xl-auto{margin-top:auto!important}.efb.me-xl-0{margin-right:0!important}.efb.me-xl-1{margin-right:.25rem!important}.efb.me-xl-2{margin-right:.5rem!important}.efb.me-xl-3{margin-right:1rem!important}.efb.me-xl-4{margin-right:1.5rem!important}.efb.me-xl-5{margin-right:3rem!important}.efb.me-xl-auto{margin-right:auto!important}.efb.mb-xl-0{margin-bottom:0!important}.efb.mb-xl-1{margin-bottom:.25rem!important}.efb.mb-xl-2{margin-bottom:.5rem!important}.efb.mb-xl-3{margin-bottom:1rem!important}.efb.mb-xl-4{margin-bottom:1.5rem!important}.efb.mb-xl-5{margin-bottom:3rem!important}.efb.mb-xl-auto{margin-bottom:auto!important}.efb.ms-xl-0{margin-left:0!important}.efb.ms-xl-1{margin-left:.25rem!important}.efb.ms-xl-2{margin-left:.5rem!important}.efb.ms-xl-3{margin-left:1rem!important}.efb.ms-xl-4{margin-left:1.5rem!important}.efb.ms-xl-5{margin-left:3rem!important}.efb.ms-xl-auto{margin-left:auto!important}.efb.p-xl-0{padding:0!important}.efb.p-xl-1{padding:.25rem!important}.efb.p-xl-2{padding:.5rem!important}.efb.p-xl-3{padding:1rem!important}.efb.p-xl-4{padding:1.5rem!important}.efb.p-xl-5{padding:3rem!important}.efb.px-xl-0{padding-right:0!important;padding-left:0!important}.efb.px-xl-1{padding-right:.25rem!important;padding-left:.25rem!important}.efb.px-xl-2{padding-right:.5rem!important;padding-left:.5rem!important}.efb.px-xl-3{padding-right:1rem!important;padding-left:1rem!important}.efb.px-xl-4{padding-right:1.5rem!important;padding-left:1.5rem!important}.efb.px-xl-5{padding-right:3rem!important;padding-left:3rem!important}.efb.py-xl-0{padding-top:0!important;padding-bottom:0!important}.efb.py-xl-1{padding-top:.25rem!important;padding-bottom:.25rem!important}.efb.py-xl-2{padding-top:.5rem!important;padding-bottom:.5rem!important}.efb.py-xl-3{padding-top:1rem!important;padding-bottom:1rem!important}.efb.py-xl-4{padding-top:1.5rem!important;padding-bottom:1.5rem!important}.efb.py-xl-5{padding-top:3rem!important;padding-bottom:3rem!important}.efb.pt-xl-0{padding-top:0!important}.efb.pt-xl-1{padding-top:.25rem!important}.efb.pt-xl-2{padding-top:.5rem!important}.efb.pt-xl-3{padding-top:1rem!important}.efb.pt-xl-4{padding-top:1.5rem!important}.efb.pt-xl-5{padding-top:3rem!important}.efb.pe-xl-0{padding-right:0!important}.efb.pe-xl-1{padding-right:.25rem!important}.efb.pe-xl-2{padding-right:.5rem!important}.efb.pe-xl-3{padding-right:1rem!important}.efb.pe-xl-4{padding-right:1.5rem!important}.efb.pe-xl-5{padding-right:3rem!important}.efb.pb-xl-0{padding-bottom:0!important}.efb.pb-xl-1{padding-bottom:.25rem!important}.efb.pb-xl-2{padding-bottom:.5rem!important}.efb.pb-xl-3{padding-bottom:1rem!important}.efb.pb-xl-4{padding-bottom:1.5rem!important}.efb.pb-xl-5{padding-bottom:3rem!important}.efb.ps-xl-0{padding-left:0!important}.efb.ps-xl-1{padding-left:.25rem!important}.efb.ps-xl-2{padding-left:.5rem!important}.efb.ps-xl-3{padding-left:1rem!important}.efb.ps-xl-4{padding-left:1.5rem!important}.efb.ps-xl-5{padding-left:3rem!important}.efb.text-xl-start{text-align:left!important}.efb.text-xl-end{text-align:right!important}.efb.text-xl-center{text-align:center!important}}@media (min-width:1400px){.efb.float-xxl-start{float:left!important}.efb.float-xxl-end{float:right!important}.efb.float-xxl-none{float:none!important}.efb.d-xxl-inline{display:inline!important}.efb.d-xxl-inline-block{display:inline-block!important}.efb.d-xxl-block{display:block!important}.efb.d-xxl-grid{display:grid!important}.efb.d-xxl-table{display:table!important}.efb.d-xxl-table-row{display:table-row!important}.efb.d-xxl-table-cell{display:table-cell!important}.efb.d-xxl-flex{display:flex!important}.efb.d-xxl-inline-flex{display:inline-flex!important}.efb.d-xxl-none{display:none!important}.efb.flex-xxl-fill{flex:1 1 auto!important}.efb.flex-xxl-row{flex-direction:row!important}.efb.flex-xxl-column{flex-direction:column!important}.efb.flex-xxl-row-reverse{flex-direction:row-reverse!important}.efb.flex-xxl-column-reverse{flex-direction:column-reverse!important}.efb.flex-xxl-grow-0{flex-grow:0!important}.efb.flex-xxl-grow-1{flex-grow:1!important}.efb.flex-xxl-shrink-0{flex-shrink:0!important}.efb.flex-xxl-shrink-1{flex-shrink:1!important}.efb.flex-xxl-wrap{flex-wrap:wrap!important}.efb.flex-xxl-nowrap{flex-wrap:nowrap!important}.efb.flex-xxl-wrap-reverse{flex-wrap:wrap-reverse!important}.efb.gap-xxl-0{gap:0!important}.efb.gap-xxl-1{gap:.25rem!important}.efb.gap-xxl-2{gap:.5rem!important}.efb.gap-xxl-3{gap:1rem!important}.efb.gap-xxl-4{gap:1.5rem!important}.efb.gap-xxl-5{gap:3rem!important}.efb.justify-content-xxl-start{justify-content:flex-start!important}.efb.justify-content-xxl-end{justify-content:flex-end!important}.efb.justify-content-xxl-center{justify-content:center!important}.efb.justify-content-xxl-between{justify-content:space-between!important}.efb.justify-content-xxl-around{justify-content:space-around!important}.efb.justify-content-xxl-evenly{justify-content:space-evenly!important}.efb.align-items-xxl-start{align-items:flex-start!important}.efb.align-items-xxl-end{align-items:flex-end!important}.efb.align-items-xxl-center{align-items:center!important}.efb.align-items-xxl-baseline{align-items:baseline!important}.efb.align-items-xxl-stretch{align-items:stretch!important}.efb.align-content-xxl-start{align-content:flex-start!important}.efb.align-content-xxl-end{align-content:flex-end!important}.efb.align-content-xxl-center{align-content:center!important}.efb.align-content-xxl-between{align-content:space-between!important}.efb.align-content-xxl-around{align-content:space-around!important}.efb.align-content-xxl-stretch{align-content:stretch!important}.efb.align-self-xxl-auto{align-self:auto!important}.efb.align-self-xxl-start{align-self:flex-start!important}.efb.align-self-xxl-end{align-self:flex-end!important}.efb.align-self-xxl-center{align-self:center!important}.efb.align-self-xxl-baseline{align-self:baseline!important}.efb.align-self-xxl-stretch{align-self:stretch!important}.efb.order-xxl-first{order:-1!important}.efb.order-xxl-0{order:0!important}.efb.order-xxl-1{order:1!important}.efb.order-xxl-2{order:2!important}.efb.order-xxl-3{order:3!important}.efb.order-xxl-4{order:4!important}.efb.order-xxl-5{order:5!important}.efb.order-xxl-last{order:6!important}.efb.m-xxl-0{margin:0!important}.efb.m-xxl-1{margin:.25rem!important}.efb.m-xxl-2{margin:.5rem!important}.efb.m-xxl-3{margin:1rem!important}.efb.m-xxl-4{margin:1.5rem!important}.efb.m-xxl-5{margin:3rem!important}.efb.m-xxl-auto{margin:auto!important}.efb.mx-xxl-0{margin-right:0!important;margin-left:0!important}.efb.mx-xxl-1{margin-right:.25rem!important;margin-left:.25rem!important}.efb.mx-xxl-2{margin-right:.5rem!important;margin-left:.5rem!important}.efb.mx-xxl-3{margin-right:1rem!important;margin-left:1rem!important}.efb.mx-xxl-4{margin-right:1.5rem!important;margin-left:1.5rem!important}.efb.mx-xxl-5{margin-right:3rem!important;margin-left:3rem!important}.efb.mx-xxl-auto{margin-right:auto!important;margin-left:auto!important}.efb.my-xxl-0{margin-top:0!important;margin-bottom:0!important}.efb.my-xxl-1{margin-top:.25rem!important;margin-bottom:.25rem!important}.efb.my-xxl-2{margin-top:.5rem!important;margin-bottom:.5rem!important}.efb.my-xxl-3{margin-top:1rem!important;margin-bottom:1rem!important}.efb.my-xxl-4{margin-top:1.5rem!important;margin-bottom:1.5rem!important}.efb.my-xxl-5{margin-top:3rem!important;margin-bottom:3rem!important}.efb.my-xxl-auto{margin-top:auto!important;margin-bottom:auto!important}.efb.mt-xxl-0{margin-top:0!important}.efb.mt-xxl-1{margin-top:.25rem!important}.efb.mt-xxl-2{margin-top:.5rem!important}.efb.mt-xxl-3{margin-top:1rem!important}.efb.mt-xxl-4{margin-top:1.5rem!important}.efb.mt-xxl-5{margin-top:3rem!important}.efb.mt-xxl-auto{margin-top:auto!important}.efb.me-xxl-0{margin-right:0!important}.efb.me-xxl-1{margin-right:.25rem!important}.efb.me-xxl-2{margin-right:.5rem!important}.efb.me-xxl-3{margin-right:1rem!important}.efb.me-xxl-4{margin-right:1.5rem!important}.efb.me-xxl-5{margin-right:3rem!important}.efb.me-xxl-auto{margin-right:auto!important}.efb.mb-xxl-0{margin-bottom:0!important}.efb.mb-xxl-1{margin-bottom:.25rem!important}.efb.mb-xxl-2{margin-bottom:.5rem!important}.efb.mb-xxl-3{margin-bottom:1rem!important}.efb.mb-xxl-4{margin-bottom:1.5rem!important}.efb.mb-xxl-5{margin-bottom:3rem!important}.efb.mb-xxl-auto{margin-bottom:auto!important}.efb.ms-xxl-0{margin-left:0!important}.efb.ms-xxl-1{margin-left:.25rem!important}.efb.ms-xxl-2{margin-left:.5rem!important}.efb.ms-xxl-3{margin-left:1rem!important}.efb.ms-xxl-4{margin-left:1.5rem!important}.efb.ms-xxl-5{margin-left:3rem!important}.efb.ms-xxl-auto{margin-left:auto!important}.efb.p-xxl-0{padding:0!important}.efb.p-xxl-1{padding:.25rem!important}.efb.p-xxl-2{padding:.5rem!important}.efb.p-xxl-3{padding:1rem!important}.efb.p-xxl-4{padding:1.5rem!important}.efb.p-xxl-5{padding:3rem!important}.efb.px-xxl-0{padding-right:0!important;padding-left:0!important}.efb.px-xxl-1{padding-right:.25rem!important;padding-left:.25rem!important}.efb.px-xxl-2{padding-right:.5rem!important;padding-left:.5rem!important}.efb.px-xxl-3{padding-right:1rem!important;padding-left:1rem!important}.efb.px-xxl-4{padding-right:1.5rem!important;padding-left:1.5rem!important}.efb.px-xxl-5{padding-right:3rem!important;padding-left:3rem!important}.efb.py-xxl-0{padding-top:0!important;padding-bottom:0!important}.efb.py-xxl-1{padding-top:.25rem!important;padding-bottom:.25rem!important}.efb.py-xxl-2{padding-top:.5rem!important;padding-bottom:.5rem!important}.efb.py-xxl-3{padding-top:1rem!important;padding-bottom:1rem!important}.efb.py-xxl-4{padding-top:1.5rem!important;padding-bottom:1.5rem!important}.efb.py-xxl-5{padding-top:3rem!important;padding-bottom:3rem!important}.efb.pt-xxl-0{padding-top:0!important}.efb.pt-xxl-1{padding-top:.25rem!important}.efb.pt-xxl-2{padding-top:.5rem!important}.efb.pt-xxl-3{padding-top:1rem!important}.efb.pt-xxl-4{padding-top:1.5rem!important}.efb.pt-xxl-5{padding-top:3rem!important}.efb.pe-xxl-0{padding-right:0!important}.efb.pe-xxl-1{padding-right:.25rem!important}.efb.pe-xxl-2{padding-right:.5rem!important}.efb.pe-xxl-3{padding-right:1rem!important}.efb.pe-xxl-4{padding-right:1.5rem!important}.efb.pe-xxl-5{padding-right:3rem!important}.efb.pb-xxl-0{padding-bottom:0!important}.efb.pb-xxl-1{padding-bottom:.25rem!important}.efb.pb-xxl-2{padding-bottom:.5rem!important}.efb.pb-xxl-3{padding-bottom:1rem!important}.efb.pb-xxl-4{padding-bottom:1.5rem!important}.efb.pb-xxl-5{padding-bottom:3rem!important}.efb.ps-xxl-0{padding-left:0!important}.efb.ps-xxl-1{padding-left:.25rem!important}.efb.ps-xxl-2{padding-left:.5rem!important}.efb.ps-xxl-3{padding-left:1rem!important}.efb.ps-xxl-4{padding-left:1.5rem!important}.efb.ps-xxl-5{padding-left:3rem!important}.efb.text-xxl-start{text-align:left!important}.efb.text-xxl-end{text-align:right!important}.efb.text-xxl-center{text-align:center!important}}@media (min-width:1200px){}@media print{.efb.d-print-inline{display:inline!important}.efb.d-print-inline-block{display:inline-block!important}.efb.d-print-block{display:block!important}.efb.d-print-grid{display:grid!important}.efb.d-print-table{display:table!important}.efb.d-print-table-row{display:table-row!important}.efb.d-print-table-cell{display:table-cell!important}.efb.d-print-flex{display:flex!important}.efb.d-print-inline-flex{display:inline-flex!important}.efb.d-print-none{display:none!important}}label input[type='radio'].efb{visibility:hidden}
 		</style>
 		";
 	}
@@ -6689,7 +8031,7 @@ public function check_nonce_permission_efb($request) {
 				return  '
 				<!-- styleEfB bootstrap -->
 			<style>
-			@charset "UTF-8";:root{--bs-blue:#0d6efd;--bs-indigo:#6610f2;--bs-purple:#6f42c1;--bs-pink:#d63384;--bs-red:#dc3545;--bs-orange:#fd7e14;--bs-yellow:#ffc107;--bs-green:#198754;--bs-teal:#20c997;--bs-cyan:#0dcaf0;--bs-white:#fff;--bs-gray:#6c757d;--bs-gray-dark:#343a40;--bs-primary:#0d6efd;--bs-secondary:#6c757d;--bs-success:#198754;--bs-info:#0dcaf0;--bs-warning:#ffc107;--bs-danger:#dc3545;--bs-light:#f8f9fa;--bs-dark:#212529;--bs-font-sans-serif:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";--bs-font-monospace:SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;--bs-gradient:linear-gradient(180deg,rgba(255,255,255,.15),rgba(255,255,255,0))}.efb,.efb::after,.efb::before{box-sizing:border-box}@media (prefers-reduced-motion:no-preference){:root.efb{scroll-behavior:smooth}}hr .efb{margin:1rem 0;color:inherit;background-color:currentColor;border:0;opacity:.25}hr .efb:not([size]){height:1px}.efb.h1,.efb.h2,.efb.h3,.efb.h4,.efb.h5,.efb.h6,h1.efb,h2.efb,h3.efb,h4.efb,h5.efb,h6.efb{margin-top:0;margin-bottom:.5rem;font-weight:500;line-height:1.2}.efb.h1,h1.efb{font-size:calc(1.375rem + 1.5vw)}@media (min-width:1200px){.efb.h1,h1.efb{font-size:2.5rem}}.efb.h2,h2.efb{font-size:calc(1.325rem + .9vw)}@media (min-width:1200px){.h2.efb,h2.efb{font-size:2rem}}.efb.h3,h3.efb{font-size:calc(1.3rem + .6vw)}@media (min-width:1200px){.efb.h3,h3.efb{font-size:1.75rem}}.efb.h4,h4.efb{font-size:calc(1.275rem + .3vw)}@media (min-width:1200px){.h4.efb,h4.efb{font-size:1.5rem}}.efb.h5,h5.efb{font-size:1.25rem}.efb.h6,h6.efb{font-size:1rem}p.efb{margin-top:0;margin-bottom:1rem}abbr.efb[data-bs-original-title],abbr[title].efb{-webkit-text-decoration:underline dotted;text-decoration:underline dotted;cursor:help;-webkit-text-decoration-skip-ink:none;text-decoration-skip-ink:none}address.efb{margin-bottom:1rem;font-style:normal;line-height:inherit}ol.efb,ul.efb{padding-left:2rem}dl.efb,ol.efb,ul.efb{margin-top:0;margin-bottom:1rem}ol.efb ol.efb,ol.efb ul.efb,ul.efb ol.efb,ul.efb ul.efb{margin-bottom:0}dt.efb{font-weight:700}dd.efb{margin-bottom:.5rem;margin-left:0}blockquote.efb{margin:0 0 1rem}b.efb,strong.efb{font-weight:bolder}.efb.small,small.efb{font-size:.875em}.efb.mark,mark.efb{padding:.2em;background-color:#fcf8e3}sub.efb,sup.efb{position:relative;font-size:.75em;line-height:0;vertical-align:baseline}sub.efb{bottom:-.25em}sup.efb{top:-.5em}a.efb{color:#0d6efd;text-decoration:underline}a.efb:hover{color:#0a58ca}a.efb:not([href]):not([class]),a.efb:not([href]):not([class]):hover{color:inherit;text-decoration:none}code.efb,kbd.efb,pre.efb,samp.efb{font-family:var(--bs-font-monospace);font-size:1em;direction:ltr;unicode-bidi:bidi-override}pre.efb{display:block;margin-top:0;margin-bottom:1rem;overflow:auto;font-size:.875em}pre code.efb{font-size:inherit;color:inherit;word-break:normal}code.efb{font-size:.875em;color:#d63384;word-wrap:break-word}a.efb>code{color:inherit}kbd.efb{padding:.2rem .4rem;font-size:.875em;color:#fff;background-color:#212529;border-radius:.2rem}kbd.efb kbd{padding:0;font-size:1em;font-weight:700}figure.efb{margin:0 0 1rem}img.efb,svg.efb{vertical-align:middle}table.efb{caption-side:bottom;border-collapse:collapse}caption.efb{padding-top:.5rem;padding-bottom:.5rem;color:#6c757d;text-align:left}th.efb{text-align:inherit;text-align:-webkit-match-parent}tbody.efb,td.efb,tfoot.efb,th.efb,thead.efb,tr.efb{border-color:inherit;border-style:solid;border-width:0}label.efb{display:inline-block}button.efb{border-radius:0}button.efb:focus:not(:focus-visible){outline:0}button.efb,input.efb,optgroup.efb,select.efb,textarea.efb{margin:0;font-family:inherit;font-size:inherit;line-height:inherit;color:#a5a3d1}textarea.efb:focus{box-shadow:0 2px 10px rgba(84,131,207,.25)!important;color:#a5a3d1}button.efb,select.efb{text-transform:none}[role=button]{cursor:pointer}select.efb{word-wrap:normal}select.efb:disabled{opacity:1}[list].efb::-webkit-calendar-picker-indicator{display:none}[type=button],[type=reset],[type=submit],button.efb{-webkit-appearance:button}[type=button]:not(:disabled) .efb,[type=reset]:not(:disabled) .efb,[type=submit]:not(:disabled) .efb,button:not(:disabled) .efb{cursor:pointer}.efb::-moz-focus-inner{padding:0;border-style:none}textarea.efb{resize:vertical}fieldset.efb{min-width:0;padding:0;margin:0;border:0}legend.efb{float:left;width:100%;padding:0;margin-bottom:.5rem;font-size:calc(1.275rem + .3vw);line-height:inherit}@media (min-width:1200px){legend.efb{font-size:1.5rem}}legend.efb+*{clear:left}.efb::-webkit-datetime-edit-day-field,.efb::-webkit-datetime-edit-fields-wrapper,.efb::-webkit-datetime-edit-hour-field,.efb::-webkit-datetime-edit-minute,.efb::-webkit-datetime-edit-month-field,.efb::-webkit-datetime-edit-text,.efb::-webkit-datetime-edit-year-field{padding:0}.efb::-webkit-inner-spin-button{height:auto}[type=search] .efb{outline-offset:-2px;-webkit-appearance:textfield}.efb::-webkit-search-decoration{-webkit-appearance:none}.efb::-webkit-color-swatch-wrapper{padding:0}.efb::file-selector-button{font:inherit}.efb::-webkit-file-upload-button{font:inherit;-webkit-appearance:button}output.efb{display:inline-block}iframe.efb{border:0}summary.efb{display:list-item;cursor:pointer}progress.efb{vertical-align:baseline}[hidden]{display:none!important}.efb.lead{font-size:1.25rem;font-weight:300}.efb.display-1{font-size:calc(1.625rem + 4.5vw);font-weight:300;line-height:1.2}@media (min-width:1200px){.efb.display-1{font-size:5rem}}.efb.display-2{font-size:calc(1.575rem + 3.9vw);font-weight:300;line-height:1.2}@media (min-width:1200px){.efb.display-2{font-size:4.5rem}}.efb.display-3{font-size:calc(1.525rem + 3.3vw);font-weight:300;line-height:1.2}@media (min-width:1200px){.efb.display-3{font-size:4rem}}.efb.display-4{font-size:calc(1.475rem + 2.7vw);font-weight:300;line-height:1.2}@media (min-width:1200px){.efb.display-4{font-size:3.5rem}}.efb.display-5{font-size:calc(1.425rem + 2.1vw);font-weight:300;line-height:1.2}@media (min-width:1200px){.efb.display-5{font-size:3rem}}.efb.display-6{font-size:calc(1.375rem + 1.5vw);font-weight:300;line-height:1.2}@media (min-width:1200px){.efb.display-6{font-size:2.5rem}}.efb.list-unstyled{padding-left:0;list-style:none}.efb.list-inline{padding-left:0;list-style:none}.efb.list-inline-item{display:inline-block}.efb.list-inline-item:not(:last-child){margin-right:.5rem}.efb.initialism{font-size:.875em;text-transform:uppercase}.efb.blockquote{margin-bottom:1rem;font-size:1.25rem}.efb.blockquote>:last-child{margin-bottom:0}.efb.blockquote-footer{margin-top:-1rem;margin-bottom:1rem;font-size:.875em;color:#6c757d}.efb.blockquote-footer::before{content:"— "}.efb.img-fluid{max-width:100%;height:auto}.efb.img-thumbnail{padding:.25rem;background-color:#fff;border:1px solid #dee2e6;border-radius:.25rem;max-width:100%;height:auto}.efb.figure{display:inline-block}.efb.figure-img{margin-bottom:.5rem;line-height:1}.efb.figure-caption{font-size:.875em;color:#6c757d}.efb.container,.efb.container-fluid,.efb.container-lg,.efb.container-md,.efb.container-sm,.efb.container-xl,.efb.container-xxl{width:100%;padding-right:var(--bs-gutter-x,.75rem);padding-left:var(--bs-gutter-x,.75rem);margin-right:auto;margin-left:auto}@media (min-width:576px){.efb.container,.efb.container-sm{max-width:540px}}@media (min-width:768px){.efb.container,.efb.container-md,.efb.container-sm{max-width:720px}}@media (min-width:992px){.efb.container,.efb.container-lg,.efb.container-md,.efb.container-sm{max-width:960px}}@media (min-width:1200px){.efb.container,.efb.container-lg,.efb.container-md,.efb.container-sm,.efb.container-xl{max-width:1140px}}@media (min-width:1400px){.efb.container,.efb.container-lg,.efb.container-md,.efb.container-sm,.efb.container-xl,.efb.container-xxl{max-width:1320px}}.row.efb{--bs-gutter-x:1.5rem;--bs-gutter-y:0;display:flex;flex-wrap:wrap;margin-top:calc(var(--bs-gutter-y) * -1);margin-right:calc(var(--bs-gutter-x)/ -2);margin-left:calc(var(--bs-gutter-x)/ -2)}.efb.row>*{flex-shrink:0;width:100%;max-width:100%;padding-right:calc(var(--bs-gutter-x)/ 2);padding-left:calc(var(--bs-gutter-x)/ 2);margin-top:var(--bs-gutter-y)}.efb.col{flex:1 0 0%}.efb.row-cols-auto>*{flex:0 0 auto;width:auto}.efb.row-cols-1>*{flex:0 0 auto;width:100%}.efb.row-cols-2>*{flex:0 0 auto;width:50%}.efb.row-cols-3>*{flex:0 0 auto;width:33.3333333333%}.efb.row-cols-4>*{flex:0 0 auto;width:25%}.efb.row-cols-5>*{flex:0 0 auto;width:20%}.efb.row-cols-6>*{flex:0 0 auto;width:16.6666666667%}.col-auto{flex:0 0 auto;width:auto}.efb.col-1{flex:0 0 auto;width:8.3333333333%}.efb.col-2{flex:0 0 auto;width:16.6666666667%}.efb.efb-col-3{flex:0 0 auto;width:25%}.efb.col-4{flex:0 0 auto;width:33.3333333333%}.efb.col-5{flex:0 0 auto;width:41.6666666667%}.efb.col-6{flex:0 0 auto;width:50%}.efb.col-7{flex:0 0 auto;width:58.3333333333%}.efb.col-8{flex:0 0 auto;width:66.6666666667%}.efb.col-9{flex:0 0 auto;width:75%}.efb.col-10{flex:0 0 auto;width:83.3333333333%}.efb.col-11{flex:0 0 auto;width:91.6666666667%}.efb.col-12{flex:0 0 auto;width:100%}.efb.offset-1{margin-left:8.3333333333%}.efb.offset-2{margin-left:16.6666666667%}.efb.offset-3{margin-left:25%}.efb.offset-4{margin-left:33.3333333333%}.efb.offset-5{margin-left:41.6666666667%}.efb.offset-6{margin-left:50%}.efb.offset-7{margin-left:58.3333333333%}.efb.offset-8{margin-left:66.6666666667%}.efb.offset-9{margin-left:75%}.efb.offset-10{margin-left:83.3333333333%}.efb.offset-11{margin-left:91.6666666667%}.efb.g-0,.efb.gx-0{--bs-gutter-x:0}.efb.g-0,.efb.gy-0{--bs-gutter-y:0}.efb.g-1,.efb.gx-1{--bs-gutter-x:.25rem}.efb.g-1,.efb.gy-1{--bs-gutter-y:.25rem}.efb.g-2,.efb.gx-2{--bs-gutter-x:.5rem}.efb.g-2,.efb.gy-2{--bs-gutter-y:.5rem}.efb.g-3,.efb.gx-3{--bs-gutter-x:1rem}.efb.g-3,.efb.gy-3{--bs-gutter-y:1rem}.efb.g-4,.efb.gx-4{--bs-gutter-x:1.5rem}.efb.g-4,.efb.gy-4{--bs-gutter-y:1.5rem}.efb.g-5,.efb.gx-5{--bs-gutter-x:3rem}.efb.g-5,.efb.gy-5{--bs-gutter-y:3rem}@media (min-width:576px){.efb.col-sm{flex:1 0 0%}.efb.row-cols-sm-auto>*{flex:0 0 auto;width:auto}.efb.row-cols-sm-1>*{flex:0 0 auto;width:100%}.efb.row-cols-sm-2>*{flex:0 0 auto;width:50%}.efb.row-cols-sm-3>*{flex:0 0 auto;width:33.3333333333%}.efb.row-cols-sm-4>*{flex:0 0 auto;width:25%}.efb.row-cols-sm-5>*{flex:0 0 auto;width:20%}.efb.row-cols-sm-6>*{flex:0 0 auto;width:16.6666666667%}.efb.col-sm-auto{flex:0 0 auto;width:auto}.efb.col-sm-1{flex:0 0 auto;width:8.3333333333%}.efb.col-sm-2{flex:0 0 auto;width:16.6666666667%}.efb.col-sm-3{flex:0 0 auto;width:25%}.efb.col-sm-4{flex:0 0 auto;width:33.3333333333%}.efb.col-sm-5{flex:0 0 auto;width:41.6666666667%}.efb.col-sm-6{flex:0 0 auto;width:50%}.efb.col-sm-7{flex:0 0 auto;width:58.3333333333%}.efb.col-sm-8{flex:0 0 auto;width:66.6666666667%}.efb.col-sm-9{flex:0 0 auto;width:75%}.efb.col-sm-10{flex:0 0 auto;width:83.3333333333%}.efb.col-sm-11{flex:0 0 auto;width:91.6666666667%}.efb.col-sm-12{flex:0 0 auto;width:100%}}@media (min-width:768px){.efb.col-md{flex:1 0 0%}.efb.row-cols-md-auto>*{flex:0 0 auto;width:auto}.efb.row-cols-md-1>*{flex:0 0 auto;width:100%}.efb.row-cols-md-2>*{flex:0 0 auto;width:50%}.efb.row-cols-md-3>*{flex:0 0 auto;width:33.3333333333%}.efb.row-cols-md-4>*{flex:0 0 auto;width:25%}.efb.row-cols-md-5>*{flex:0 0 auto;width:20%}.efb.row-cols-md-6>*{flex:0 0 auto;width:16.6666666667%}.efb.col-md-auto{flex:0 0 auto;width:auto}.efb.col-md-1{flex:0 0 auto;width:8.3333333333%}.efb.col-md-2{flex:0 0 auto;width:16.6666666667%}.efb.col-md-3{flex:0 0 auto;width:25%}.efb.col-md-4{flex:0 0 auto;width:33.3333333333%}.efb.col-md-5{flex:0 0 auto;width:41.6666666667%}.efb.col-md-6{flex:0 0 auto;width:50%}.efb.col-md-7{flex:0 0 auto;width:58.3333333333%}.efb.col-md-8{flex:0 0 auto;width:66.6666666667%}.efb.col-md-9{flex:0 0 auto;width:75%}.efb.col-md-10{flex:0 0 auto;width:83.3333333333%}.efb.col-md-11{flex:0 0 auto;width:91.6666666667%}.efb.col-md-12{flex:0 0 auto;width:100%}}@media (min-width:992px){.efb.col-lg{flex:1 0 0%}.efb.row-cols-lg-auto>*{flex:0 0 auto;width:auto}.efb.row-cols-lg-1>*{flex:0 0 auto;width:100%}.efb.row-cols-lg-2>*{flex:0 0 auto;width:50%}.efb.row-cols-lg-3>*{flex:0 0 auto;width:33.3333333333%}.efb.row-cols-lg-4>*{flex:0 0 auto;width:25%}.efb.row-cols-lg-5>*{flex:0 0 auto;width:20%}.efb.row-cols-lg-6>*{flex:0 0 auto;width:16.6666666667%}.efb.col-lg-auto{flex:0 0 auto;width:auto}.efb.col-lg-1{flex:0 0 auto;width:8.3333333333%}.efb.col-lg-2{flex:0 0 auto;width:16.6666666667%}.efb.col-lg-3{flex:0 0 auto;width:25%}.efb.col-lg-4{flex:0 0 auto;width:33.3333333333%}.efb.col-lg-5{flex:0 0 auto;width:41.6666666667%}.efb.col-lg-6{flex:0 0 auto;width:50%}.efb.col-lg-7{flex:0 0 auto;width:58.3333333333%}.efb.col-lg-8{flex:0 0 auto;width:66.6666666667%}.efb.col-lg-9{flex:0 0 auto;width:75%}.efb.col-lg-10{flex:0 0 auto;width:83.3333333333%}.efb.col-lg-11{flex:0 0 auto;width:91.6666666667%}.efb.col-lg-12{flex:0 0 auto;width:100%}}@media (min-width:1200px){.efb.col-xl{flex:1 0 0%}.efb.row-cols-xl-auto>*{flex:0 0 auto;width:auto}.efb.row-cols-xl-1>*{flex:0 0 auto;width:100%}.efb.row-cols-xl-2>*{flex:0 0 auto;width:50%}.efb.row-cols-xl-3>*{flex:0 0 auto;width:33.3333333333%}.efb.row-cols-xl-4>*{flex:0 0 auto;width:25%}.efb.row-cols-xl-5>*{flex:0 0 auto;width:20%}.efb.row-cols-xl-6>*{flex:0 0 auto;width:16.6666666667%}.efb.col-xl-auto{flex:0 0 auto;width:auto}.efb.col-xl-1{flex:0 0 auto;width:8.3333333333%}.efb.col-xl-2{flex:0 0 auto;width:16.6666666667%}.efb.col-xl-3{flex:0 0 auto;width:25%}.efb.col-xl-4{flex:0 0 auto;width:33.3333333333%}.efb.col-xl-5{flex:0 0 auto;width:41.6666666667%}.efb.col-xl-6{flex:0 0 auto;width:50%}.efb.col-xl-7{flex:0 0 auto;width:58.3333333333%}.efb.col-xl-8{flex:0 0 auto;width:66.6666666667%}.efb.col-xl-9{flex:0 0 auto;width:75%}.efb.col-xl-10{flex:0 0 auto;width:83.3333333333%}.efb.col-xl-11{flex:0 0 auto;width:91.6666666667%}.efb.col-xl-12{flex:0 0 auto;width:100%}}.efb.table{--bs-table-bg:transparent;--bs-table-accent-bg:transparent;--bs-table-striped-color:#212529;--bs-table-striped-bg:rgba(0,0,0,.05);--bs-table-active-color:#212529;--bs-table-active-bg:rgba(0,0,0,.1);--bs-table-hover-color:#212529;--bs-table-hover-bg:rgba(0,0,0,.075);width:100%;margin-bottom:1rem;color:#212529;vertical-align:top;border-color:#dee2e6;border-left:none;border-right:none;border-bottom:none}.efb.table>:not(caption)>*>*{padding:.5rem .5rem;background-color:var(--bs-table-bg);border-bottom-width:1px;box-shadow:inset 0 0 0 9999px var(--bs-table-accent-bg)}.efb.table>tbody{vertical-align:inherit}.efb.table>thead{vertical-align:bottom}.efb.table>:not(:last-child)>:last-child>*{border-bottom-color:currentColor}.efb.caption-top{caption-side:top}.efb.form-label{margin-bottom:.5rem}.efb.col-form-label{padding-top:calc(.375rem + 1px);padding-bottom:calc(.375rem + 1px);margin-bottom:0;font-size:inherit;line-height:1.5}.efb.col-form-label-lg{padding-top:calc(.5rem + 1px);padding-bottom:calc(.5rem + 1px);font-size:1.25rem}.efb.col-form-label-sm{padding-top:calc(.25rem + 1px);padding-bottom:calc(.25rem + 1px);font-size:.875rem}.efb.form-control{display:block;width:100%;padding:.375rem .75rem;font-size:1rem;font-weight:400;line-height:1.5;color:#212529;background-color:#fff;background-clip:padding-box;border:1px solid #ced4da;-webkit-appearance:none;-moz-appearance:none;appearance:none;border-radius:.25rem;transition:border-color .15s ease-in-out,box-shadow .15s ease-in-out}@media (prefers-reduced-motion:reduce){.efb.form-control{transition:none}}.efb.form-control[type=file]{overflow:hidden}.efb.form-control[type=file]:not(:disabled):not([readonly]){cursor:pointer}.efb.form-control:focus{color:#212529;background-color:#fff;border-color:#86b7fe;outline:0;box-shadow:0 0 0 .25rem rgba(13,110,253,.25)}.efb.form-control::-webkit-date-and-time-value{height:1.5em}.efb.form-control::-moz-placeholder{color:#6c757d;opacity:1}.efb.form-control::placeholder{color:#6c757d;opacity:1}.efb.form-control:disabled,.efb.form-control[readonly]{background-color:#e9ecef;opacity:1}.efb.form-control::file-selector-button{padding:.375rem .75rem;margin:-.375rem -.75rem;-webkit-margin-end:.75rem;margin-inline-end:.75rem;color:#212529;background-color:#e9ecef;pointer-events:none;border-color:inherit;border-style:solid;border-width:0;border-inline-end-width:1px;border-radius:0;transition:color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out}@media (prefers-reduced-motion:reduce){.efb.form-control::file-selector-button{transition:none}}.efb.form-control:hover:not(:disabled):not([readonly])::file-selector-button{background-color:#dde0e3}.efb.form-control::-webkit-file-upload-button{padding:.375rem .75rem;margin:-.375rem -.75rem;-webkit-margin-end:.75rem;margin-inline-end:.75rem;color:#212529;background-color:#e9ecef;pointer-events:none;border-color:inherit;border-style:solid;border-width:0;border-inline-end-width:1px;border-radius:0;-webkit-transition:color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;transition:color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out}@media (prefers-reduced-motion:reduce){.efb.form-control::-webkit-file-upload-button{-webkit-transition:none;transition:none}}.efb.form-control:hover:not(:disabled):not([readonly])::-webkit-file-upload-button{background-color:#dde0e3}.efb.form-control-plaintext{display:block;width:100%;padding:.375rem 0;margin-bottom:0;line-height:1.5;color:#212529;background-color:transparent;border:solid transparent;border-width:1px 0}.efb.form-control-plaintext.efb.form-control-lg,.efb.form-control-plaintext.efb.form-control-sm{padding-right:0;padding-left:0}.efb.form-control-sm{min-height:calc(1.5em + .5rem + 2px);padding:.25rem .5rem;font-size:.875rem;border-radius:.2rem}.efb.form-control-sm::file-selector-button{padding:.25rem .5rem;margin:-.25rem -.5rem;-webkit-margin-end:.5rem;margin-inline-end:.5rem}.efb.form-control-sm::-webkit-file-upload-button{padding:.25rem .5rem;margin:-.25rem -.5rem;-webkit-margin-end:.5rem;margin-inline-end:.5rem}.efb.form-control-lg{min-height:calc(1.5em + 1rem + 2px);padding:.5rem 1rem;font-size:1.25rem;border-radius:.3rem}.efb.form-control-lg::file-selector-button{padding:.5rem 1rem;margin:-.5rem -1rem;-webkit-margin-end:1rem;margin-inline-end:1rem}.efb.form-control-lg::-webkit-file-upload-button{padding:.5rem 1rem;margin:-.5rem -1rem;-webkit-margin-end:1rem;margin-inline-end:1rem}textarea.efb.form-control{min-height:calc(1.5em + .75rem + 2px)}textarea.efb.form-control-sm{min-height:calc(1.5em + .5rem + 2px)}textarea.efb.form-control-lg{min-height:calc(1.5em + 1rem + 2px)}.efb.form-control-color{max-width:3rem;height:auto;padding:.375rem}.efb.form-control-color:not(:disabled):not([readonly]){cursor:pointer}.efb.form-control-color::-moz-color-swatch{height:1.5em;border-radius:.25rem}.efb.form-control-color::-webkit-color-swatch{height:1.5em;border-radius:.25rem}.efb.form-select{display:block;width:100%;padding:.375rem 2.25rem .375rem .75rem;font-size:1rem;font-weight:400;line-height:1.5;color:#212529;background-color:#fff;background-image:url("data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 16 16\'%3e%3cpath fill=\'none\' stroke=\'%23343a40\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M2 5l6 6 6-6\'/%3e%3c/svg%3e");background-repeat:no-repeat;background-position:right .75rem center;background-size:16px 12px;border:1px solid #ced4da;border-radius:.25rem;-webkit-appearance:none;-moz-appearance:none;appearance:none}.efb.form-select:focus{border-color:#86b7fe;outline:0;box-shadow:0 0 0 .25rem rgba(13,110,253,.25)}.efb.form-select[multiple],.efb.form-select[size]:not([size="1"]){padding-right:.75rem;background-image:none}.efb.form-select:disabled{background-color:#e9ecef}.efb.form-select:-moz-focusring{color:transparent;text-shadow:0 0 0 #212529}.efb.form-select-sm{padding-top:.25rem;padding-bottom:.25rem;padding-left:.5rem;font-size:.875rem}.efb.form-select-lg{padding-top:.5rem;padding-bottom:.5rem;padding-left:1rem;font-size:1.25rem}.efb.form-check{display:flex;min-height:1.5rem;margin-bottom:.125rem;align-items:center;}.efb.form-check .efb.form-check-input{float:left}.efb.form-check-input{width:1em;height:1em;margin-top:.25em;vertical-align:top;background-color:#fff;background-repeat:no-repeat;background-position:center;background-size:contain;border:1px solid rgba(0,0,0,.25);-webkit-appearance:none;-moz-appearance:none;appearance:none;-webkit-print-color-adjust:exact;color-adjust:exact}.efb.form-check-input[type=checkbox]{border-radius:.25em}.efb.form-check-input[type=radio]{border-radius:50%}.efb.form-check-input:active{filter:brightness(90%)}.efb.form-check-input:focus{border-color:#86b7fe;outline:0;box-shadow:0 0 0 .25rem rgba(13,110,253,.25)}.efb.form-check-input:checked{background-color:#0d6efd;border-color:#0d6efd}.efb.form-check-input:checked[type=checkbox]{background-image:url("data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 20 20\'%3e%3cpath fill=\'none\' stroke=\'%23fff\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'3\' d=\'M6 10l3 3l6-6\'/%3e%3c/svg%3e")}.efb.form-check-input:checked[type=radio]{background-image:url("data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'-4 -4 8 8\'%3e%3ccircle r=\'2\' fill=\'%23fff\'/%3e%3c/svg%3e")}.efb.form-check-input[type=checkbox]:indeterminate{background-color:#0d6efd;border-color:#0d6efd;background-image:url("data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 20 20\'%3e%3cpath fill=\'none\' stroke=\'%23fff\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'3\' d=\'M6 10h8\'/%3e%3c/svg%3e")}.efb.form-check-input:disabled{pointer-events:none;filter:none;opacity:.5}.efb.form-check-input:disabled~.form-check-label,.efb.form-check-input[disabled]~.form-check-label{opacity:.5}.efb.form-switch{padding-left:2.5em}.efb.form-switch .efb.form-check-input{width:2em;margin-left:-2.5em;background-image:url("data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'-4 -4 8 8\'%3e%3ccircle r=\'3\' fill=\'rgba%280,0,0,.25%29\'/%3e%3c/svg%3e");background-position:left center;border-radius:2em;transition:background-position .15s ease-in-out}@media (prefers-reduced-motion:reduce){.efb.form-switch .efb.form-check-input{transition:none}}.efb.form-switch .efb.form-check-input:focus{background-image:url("data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'-4 -4 8 8\'%3e%3ccircle r=\'3\' fill=\'%2386b7fe\'/%3e%3c/svg%3e")}.efb.form-switch .efb.form-check-input:checked{background-position:right center;background-image:url("data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'-4 -4 8 8\'%3e%3ccircle r=\'3\' fill=\'%23fff\'/%3e%3c/svg%3e")}.efb.btn-check{position:absolute;clip:rect(0,0,0,0);pointer-events:none}.efb.btn-check:disabled+.efb.btn,.efb.btn-check[disabled]+.efb.btn{pointer-events:none;filter:none;opacity:.65}.efb.form-range{width:100%;height:1.5rem;padding:0;background-color:transparent;-webkit-appearance:none;-moz-appearance:none;appearance:none}.efb.form-range:focus{outline:0}.efb.form-range:focus::-webkit-slider-thumb{box-shadow:0 0 0 1px #fff,0 0 0 .25rem rgba(13,110,253,.25)}.efb.form-range:focus::-moz-range-thumb{box-shadow:0 0 0 1px #fff,0 0 0 .25rem rgba(13,110,253,.25)}.efb.form-range::-moz-focus-outer{border:0}.efb.form-range::-webkit-slider-thumb{width:1rem;height:1rem;margin-top:-.25rem;background-color:#0d6efd;border:0;border-radius:1rem;-webkit-transition:background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;transition:background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;-webkit-appearance:none;appearance:none}@media (prefers-reduced-motion:reduce){.efb.form-range::-webkit-slider-thumb{-webkit-transition:none;transition:none}}.efb.form-range::-webkit-slider-thumb:active{background-color:#b6d4fe}.efb.form-range::-webkit-slider-runnable-track{width:100%;height:.5rem;color:transparent;cursor:pointer;background-color:#dee2e6;border-color:transparent;border-radius:1rem}.efb.form-range::-moz-range-thumb{width:1rem;height:1rem;background-color:#0d6efd;border:0;border-radius:1rem;-moz-transition:background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;transition:background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;-moz-appearance:none;appearance:none}@media (prefers-reduced-motion:reduce){.efb.form-range::-moz-range-thumb{-moz-transition:none;transition:none}}.efb.form-range::-moz-range-thumb:active{background-color:#b6d4fe}.efb.form-range::-moz-range-track{width:100%;height:.5rem;color:transparent;cursor:pointer;background-color:#dee2e6;border-color:transparent;border-radius:1rem}.efb.form-range:disabled{pointer-events:none}.efb.form-range:disabled::-webkit-slider-thumb{background-color:#adb5bd}.efb.form-range:disabled::-moz-range-thumb{background-color:#adb5bd}.efb.input-group{position:relative;display:flex;flex-wrap:wrap;align-items:stretch;width:100%}.efb.input-group>.efb.form-control,.efb.input-group>.efb.form-select{position:relative;flex:1 1 auto;width:1%;min-width:0}.efb.input-group>.efb.form-control:focus,.efb.input-group>.efb.form-select:focus{z-index:3}.efb.input-group .efb.btn{position:relative;z-index:2}.efb.input-group .efb.btn:focus{z-index:3}.efb.input-group-text{display:flex;align-items:center;padding:.375rem .75rem;font-size:1rem;font-weight:400;line-height:1.5;color:#212529;text-align:center;white-space:nowrap;background-color:#e9ecef;border:1px solid #ced4da;border-radius:.25rem}.efb.input-group-lg>.efb.btn,.efb.input-group-lg>.efb.form-control,.efb.input-group-lg>.efb.form-select,.efb.input-group-lg>.efb.input-group-text{padding:.5rem 1rem;font-size:1.25rem;border-radius:.3rem}.efb.input-group-sm>.efb.btn,.efb.input-group-sm>.efb.form-control,.efb.input-group-sm>.efb.form-select,.efb.input-group-sm>.efb.input-group-text{padding:.25rem .5rem;font-size:.875rem;border-radius:.2rem}.efb.input-group-lg>.efb.form-select,.efb.input-group-sm>.efb.form-select{padding-right:3rem}.efb.input-group:not(.has-validation)>.efb.dropdown-toggle:nth-last-child(n+3),.efb.input-group:not(.has-validation)>:not(:last-child):not(.efb.dropdown-toggle):not(.efb.dropdown-menu){border-top-right-radius:0;border-bottom-right-radius:0}.efb.input-group.has-validation>.efb.dropdown-toggle:nth-last-child(n+4),.efb.input-group.has-validation>:nth-last-child(n+3):not(.efb.dropdown-toggle):not(.efb.dropdown-menu){border-top-right-radius:0;border-bottom-right-radius:0}.efb.input-group>:not(:first-child):not(.efb.dropdown-menu):not(.valid-tooltip):not(.valid-feedback):not(.efb.invalid-tooltip):not(.efb.invalid-feedback){margin-left:-1px;border-top-left-radius:0;border-bottom-left-radius:0}.efb.valid-feedback{display:none;width:100%;margin-top:.25rem;font-size:.875em;color:#198754}.efb.valid-tooltip{position:absolute;top:100%;z-index:5;display:none;max-width:100%;padding:.25rem .5rem;margin-top:.1rem;font-size:.875rem;color:#fff;background-color:rgba(25,135,84,.9);border-radius:.25rem}.efb.is-valid~.efb.valid-feedback,.efb.was-validated:valid~.efb.valid-feedback,.efb.was-validated:valid~{display:block}.efb.form-control.is-valid,.efb.was-validated .efb.form-control:valid{border-color:#198754;padding-right:calc(1.5em + .75rem);background-image:url("data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 8 8\'%3e%3cpath fill=\'%23198754\' d=\'M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z\'/%3e%3c/svg%3e");background-repeat:no-repeat;background-position:right calc(.375em + .1875rem) center;background-size:calc(.75em + .375rem) calc(.75em + .375rem)}.efb.form-control.is-valid:focus,.efb.was-validated .efb.form-control:valid:focus{border-color:#198754;box-shadow:0 0 0 .25rem rgba(25,135,84,.25)}.efb.was-validated textarea.efb.form-control:valid,textarea.efb.form-control.is-valid{padding-right:calc(1.5em + .75rem);background-position:top calc(.375em + .1875rem) right calc(.375em + .1875rem)}.efb.form-select.is-valid,.efb.was-validated .efb.form-select:valid{border-color:#198754}.efb.form-select.is-valid:not([multiple]):not([size]),.efb.form-select.is-valid:not([multiple])[size="1"],.efb.was-validated .efb.form-select:valid:not([multiple]):not([size]),.efb.was-validated .efb.form-select:valid:not([multiple])[size="1"]{padding-right:4.125rem;background-image:url("data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 16 16\'%3e%3cpath fill=\'none\' stroke=\'%23343a40\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M2 5l6 6 6-6\'/%3e%3c/svg%3e"),url("data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 8 8\'%3e%3cpath fill=\'%23198754\' d=\'M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z\'/%3e%3c/svg%3e");background-position:right .75rem center,center right 2.25rem;background-size:16px 12px,calc(.75em + .375rem) calc(.75em + .375rem)}.efb.form-select.is-valid:focus,.efb.was-validated .efb.form-select:valid:focus{border-color:#198754;box-shadow:0 0 0 .25rem rgba(25,135,84,.25)}.efb.form-check-input.is-valid,.efb.was-validated .efb.form-check-input:valid{border-color:#198754}.efb.form-check-input.is-valid:checked,.efb.was-validated .efb.form-check-input:valid:checked{background-color:#198754}.efb.form-check-input.is-valid:focus,.efb.was-validated .efb.form-check-input:valid:focus{box-shadow:0 0 0 .25rem rgba(25,135,84,.25)}.efb.form-check-input.is-valid~.form-check-label,.efb.was-validated .efb.form-check-input:valid{color:#198754}.form-check-inline .efb.form-check-input~.efb.valid-feedback{margin-left:.5em}.efb.input-group .efb.form-control.is-valid,.efb.input-group .efb.form-select.is-valid,.efb.was-validated .efb.input-group .efb.form-control:valid,.efb.was-validated .efb.input-group .efb.form-select:valid{z-index:1}.efb.input-group .efb.form-control.is-valid:focus,.efb.input-group .efb.form-select.is-valid:focus,.efb.was-validated .efb.input-group .efb.form-control:valid:focus,.efb.was-validated .efb.input-group .efb.form-select:valid:focus{z-index:3}.efb.invalid-feedback{display:none;width:100%;margin-top:.25rem;font-size:.875em;color:#dc3545}.efb.invalid-tooltip{position:absolute;top:100%;z-index:5;display:none;max-width:100%;padding:.25rem .5rem;margin-top:.1rem;font-size:.875rem;color:#fff;background-color:rgba(220,53,69,.9);border-radius:.25rem}.efb.is-invalid~.efb.invalid-feedback,.efb.is-invalid~.efb.invalid-tooltip,.efb.was-validated:invalid~.efb.invalid-feedback,.efb.was-validated:invalid~.efb.invalid-tooltip{display:block}.efb.form-control.efb.is-invalid,.efb.was-validated .efb.form-control:invalid{border-color:#dc3545;padding-right:calc(1.5em + .75rem);background-image:url("data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 12 12\' width=\'12\' height=\'12\' fill=\'none\' stroke=\'%23dc3545\'%3e%3ccircle cx=\'6\' cy=\'6\' r=\'4.5\'/%3e%3cpath stroke-linejoin=\'round\' d=\'M5.8 3.6h.4L6 6.5z\'/%3e%3ccircle cx=\'6\' cy=\'8.2\' r=\'.6\' fill=\'%23dc3545\' stroke=\'none\'/%3e%3c/svg%3e");background-repeat:no-repeat;background-position:right calc(.375em + .1875rem) center;background-size:calc(.75em + .375rem) calc(.75em + .375rem)}.efb.form-control.efb.is-invalid:focus,.efb.was-validated .efb.form-control:invalid:focus{border-color:#dc3545;box-shadow:0 0 0 .25rem rgba(220,53,69,.25)}.efb.was-validated textarea.efb.form-control:invalid,textarea.efb.form-control.efb.is-invalid{padding-right:calc(1.5em + .75rem);background-position:top calc(.375em + .1875rem) right calc(.375em + .1875rem)}.efb.form-select.efb.is-invalid,.efb.was-validated .efb.form-select:invalid{border-color:#dc3545}.efb.form-select.efb.is-invalid:not([multiple]):not([size]),.efb.form-select.efb.is-invalid:not([multiple])[size="1"],.efb.was-validated .efb.form-select:invalid:not([multiple]):not([size]),.efb.was-validated .efb.form-select:invalid:not([multiple])[size="1"]{padding-right:4.125rem;background-image:url("data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 16 16\'%3e%3cpath fill=\'none\' stroke=\'%23343a40\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M2 5l6 6 6-6\'/%3e%3c/svg%3e"),url("data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 12 12\' width=\'12\' height=\'12\' fill=\'none\' stroke=\'%23dc3545\'%3e%3ccircle cx=\'6\' cy=\'6\' r=\'4.5\'/%3e%3cpath stroke-linejoin=\'round\' d=\'M5.8 3.6h.4L6 6.5z\'/%3e%3ccircle cx=\'6\' cy=\'8.2\' r=\'.6\' fill=\'%23dc3545\' stroke=\'none\'/%3e%3c/svg%3e");background-position:right .75rem center,center right 2.25rem;background-size:16px 12px,calc(.75em + .375rem) calc(.75em + .375rem)}.efb.form-select.efb.is-invalid:focus,.efb.was-validated .efb.form-select:invalid:focus{border-color:#dc3545;box-shadow:0 0 0 .25rem rgba(220,53,69,.25)}.efb.form-check-input.efb.is-invalid,.efb.was-validated .efb.form-check-input:invalid{border-color:#dc3545}.efb.form-check-input.efb.is-invalid:checked,.efb.was-validated .efb.form-check-input:invalid:checked{background-color:#dc3545}.efb.form-check-input.efb.is-invalid:focus,.efb.was-validated .efb.form-check-input:invalid:focus{box-shadow:0 0 0 .25rem rgba(220,53,69,.25)}.efb.form-check-input.efb.is-invalid~.form-check-label,.efb.was-validated .efb.form-check-input:invalid~.form-check-label{color:#dc3545}.efb.form-check-inline .efb.form-check-input~.efb.invalid-feedback{margin-left:.5em}.efb.input-group .efb.form-control.efb.is-invalid,.efb.input-group .efb.form-select.efb.is-invalid,.efb.was-validated .efb.input-group .efb.form-control:invalid,.efb.was-validated .efb.input-group .efb.form-select:invalid{z-index:2}.efb.input-group .efb.form-control.efb.is-invalid:focus,.efb.input-group .efb.form-select.efb.is-invalid:focus,.efb.was-validated .efb.input-group .efb.form-control:invalid:focus,.efb.was-validated .efb.input-group .efb.form-select:invalid:focus{z-index:3}.efb.btn{display:inline-block;font-weight:400;line-height:1.5;color:#212529;text-align:center;text-decoration:none;vertical-align:middle;cursor:pointer;-webkit-user-select:none;-moz-user-select:none;user-select:none;background-color:transparent;border:1px solid transparent;padding:.375rem .75rem;font-size:1rem;border-radius:.25rem;transition:color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out}@media (prefers-reduced-motion:reduce){.efb.btn{transition:none}}.efb.btn:hover{color:#212529}.efb.btn-check:focus+.efb.btn,.efb.btn:focus{outline:0;box-shadow:0 0 0 .25rem rgba(13,110,253,.25)}.efb.btn.disabled,.efb.btn:disabled,fieldset:disabled .efb.btn{pointer-events:none;opacity:.65}.efb.btn-primary{color:#fff;background-color:#0d6efd;border-color:#0d6efd}.efb.btn-primary:hover{color:#fff;background-color:#0b5ed7;border-color:#0a58ca}.efb.btn-check:focus+.efb.btn-primary,.efb.btn-primary:focus{color:#fff;background-color:#0b5ed7;border-color:#0a58ca;box-shadow:0 0 0 .25rem rgba(49,132,253,.5)}.efb.btn-check:active+.efb.btn-primary,.efb.btn-check:checked+.efb.btn-primary,.efb.btn-primary.active,.efb.btn-primary:active,.show>.efb.btn-primary.efb.dropdown-toggle{color:#fff;background-color:#0a58ca;border-color:#0a53be}.efb.btn-check:active+.efb.btn-primary:focus,.efb.btn-check:checked+.efb.btn-primary:focus,.efb.btn-primary.active:focus,.efb.btn-primary:active:focus,.show>.efb.btn-primary.efb.dropdown-toggle:focus{box-shadow:0 0 0 .25rem rgba(49,132,253,.5)}.efb.btn-primary.disabled,.efb.btn-primary:disabled{color:#fff;background-color:#0d6efd;border-color:#0d6efd}.efb.btn-secondary{color:#fff;background-color:#6c757d;border-color:#6c757d}.efb.btn-secondary:hover{color:#fff;background-color:#5c636a;border-color:#565e64}.efb.btn-check:focus+.efb.btn-secondary,.efb.btn-secondary:focus{color:#fff;background-color:#5c636a;border-color:#565e64;box-shadow:0 0 0 .25rem rgba(130,138,145,.5)}.efb.btn-check:active+.efb.btn-secondary,.efb.btn-check:checked+.efb.btn-secondary,.efb.btn-secondary.active,.efb.btn-secondary:active,.show>.efb.btn-secondary.efb.dropdown-toggle{color:#fff;background-color:#565e64;border-color:#51585e}.efb.btn-check:active+.efb.btn-secondary:focus,.efb.btn-check:checked+.efb.btn-secondary:focus,.efb.btn-secondary.active:focus,.efb.btn-secondary:active:focus,.show>.efb.btn-secondary.efb.dropdown-toggle:focus{box-shadow:0 0 0 .25rem rgba(130,138,145,.5)}.efb.btn-secondary.disabled,.efb.btn-secondary:disabled{color:#fff;background-color:#6c757d;border-color:#6c757d}.efb.btn-success{color:#fff;background-color:#198754;border-color:#198754}.efb.btn-success:hover{color:#fff;background-color:#157347;border-color:#146c43}.efb.btn-check:focus+.efb.btn-success,.efb.btn-success:focus{color:#fff;background-color:#157347;border-color:#146c43;box-shadow:0 0 0 .25rem rgba(60,153,110,.5)}.efb.btn-check:active+.efb.btn-success,.efb.btn-check:checked+.efb.btn-success,.efb.btn-success.active,.efb.btn-success:active,.show>.efb.btn-success.efb.dropdown-toggle{color:#fff;background-color:#146c43;border-color:#13653f}.efb.btn-check:active+.efb.btn-success:focus,.efb.btn-check:checked+.efb.btn-success:focus,.efb.btn-success.active:focus,.efb.btn-success:active:focus,.show>.efb.btn-success.efb.dropdown-toggle:focus{box-shadow:0 0 0 .25rem rgba(60,153,110,.5)}.efb.btn-success.disabled,.efb.btn-success:disabled{color:#fff;background-color:#198754;border-color:#198754}.efb.btn-info{color:#000;background-color:#0dcaf0;border-color:#0dcaf0}.efb.btn-info:hover{color:#000;background-color:#31d2f2;border-color:#25cff2}.efb.btn-check:focus+.efb.btn-info,.efb.btn-info:focus{color:#000;background-color:#31d2f2;border-color:#25cff2;box-shadow:0 0 0 .25rem rgba(11,172,204,.5)}.efb.btn-check:active+.efb.btn-info,.efb.btn-check:checked+.efb.btn-info,.efb.btn-info.active,.efb.btn-info:active,.show>.efb.btn-info.efb.dropdown-toggle{color:#000;background-color:#3dd5f3;border-color:#25cff2}.efb.btn-check:active+.efb.btn-info:focus,.efb.btn-check:checked+.efb.btn-info:focus,.efb.btn-info.active:focus,.efb.btn-info:active:focus,.show>.efb.btn-info.efb.dropdown-toggle:focus{box-shadow:0 0 0 .25rem rgba(11,172,204,.5)}.efb.btn-info.disabled,.efb.btn-info:disabled{color:#000;background-color:#0dcaf0;border-color:#0dcaf0}.efb.btn-warning{color:#000;background-color:#ffc107;border-color:#ffc107}.efb.btn-warning:hover{color:#000;background-color:#ffca2c;border-color:#ffc720}.efb.btn-check:focus+.efb.btn-warning,.efb.btn-warning:focus{color:#000;background-color:#ffca2c;border-color:#ffc720;box-shadow:0 0 0 .25rem rgba(217,164,6,.5)}.efb.btn-check:active+.efb.btn-warning,.efb.btn-check:checked+.efb.btn-warning,.efb.btn-warning.active,.efb.btn-warning:active,.show>.efb.btn-warning.efb.dropdown-toggle{color:#000;background-color:#ffcd39;border-color:#ffc720}.efb.btn-check:active+.efb.btn-warning:focus,.efb.btn-check:checked+.efb.btn-warning:focus,.efb.btn-warning.active:focus,.efb.btn-warning:active:focus,.show>.efb.btn-warning.efb.dropdown-toggle:focus{box-shadow:0 0 0 .25rem rgba(217,164,6,.5)}.efb.btn-warning.disabled,.efb.btn-warning:disabled{color:#000;background-color:#ffc107;border-color:#ffc107}.efb.btn-danger{color:#fff;background-color:#dc3545;border-color:#dc3545}.efb.btn-danger:hover{color:#fff;background-color:#bb2d3b;border-color:#b02a37}.efb.btn-check:focus+.efb.btn-danger,.efb.btn-danger:focus{color:#fff;background-color:#bb2d3b;border-color:#b02a37;box-shadow:0 0 0 .25rem rgba(225,83,97,.5)}.efb.btn-check:active+.efb.btn-danger,.efb.btn-check:checked+.efb.btn-danger,.efb.btn-danger.active,.efb.btn-danger:active,.show>.efb.btn-danger.efb.dropdown-toggle{color:#fff;background-color:#b02a37;border-color:#a52834}.efb.btn-check:active+.efb.btn-danger:focus,.efb.btn-check:checked+.efb.btn-danger:focus,.efb.btn-danger.active:focus,.efb.btn-danger:active:focus,.show>.efb.btn-danger.efb.dropdown-toggle:focus{box-shadow:0 0 0 .25rem rgba(225,83,97,.5)}.efb.btn-danger.disabled,.efb.btn-danger:disabled{color:#fff;background-color:#dc3545;border-color:#dc3545}.efb.btn-light{color:#000;background-color:#f8f9fa;border-color:#f8f9fa}.efb.btn-light:hover{color:#000;background-color:#f9fafb;border-color:#f9fafb}.efb.btn-check:focus+.efb.btn-light,.efb.btn-light:focus{color:#000;background-color:#f9fafb;border-color:#f9fafb;box-shadow:0 0 0 .25rem rgba(211,212,213,.5)}.efb.btn-check:active+.efb.btn-light,.efb.btn-check:checked+.efb.btn-light,.efb.btn-light.active,.efb.btn-light:active,.show>.efb.btn-light.efb.dropdown-toggle{color:#000;background-color:#f9fafb;border-color:#f9fafb}.efb.btn-check:active+.efb.btn-light:focus,.efb.btn-check:checked+.efb.btn-light:focus,.efb.btn-light.active:focus,.efb.btn-light:active:focus,.show>.efb.btn-light.efb.dropdown-toggle:focus{box-shadow:0 0 0 .25rem rgba(211,212,213,.5)}.efb.btn-light.disabled,.efb.btn-light:disabled{color:#000;background-color:#f8f9fa;border-color:#f8f9fa}.efb.btn-dark{color:#fff;background-color:#212529;border-color:#212529}.efb.btn-dark:hover{color:#fff;background-color:#1c1f23;border-color:#1a1e21}.efb.btn-check:focus+.efb.btn-dark,.efb.btn-dark:focus{color:#fff;background-color:#1c1f23;border-color:#1a1e21;box-shadow:0 0 0 .25rem rgba(66,70,73,.5)}.efb.btn-check:active+.efb.btn-dark,.efb.btn-check:checked+.efb.btn-dark,.efb.btn-dark.active,.efb.btn-dark:active,.show>.efb.btn-dark.efb.dropdown-toggle{color:#fff;background-color:#1a1e21;border-color:#191c1f}.efb.btn-check:active+.efb.btn-dark:focus,.efb.btn-check:checked+.efb.btn-dark:focus,.efb.btn-dark.active:focus,.efb.btn-dark:active:focus,.show>.efb.btn-dark.efb.dropdown-toggle:focus{box-shadow:0 0 0 .25rem rgba(66,70,73,.5)}.efb.btn-dark.disabled,.efb.btn-dark:disabled{color:#fff;background-color:#212529;border-color:#212529}.efb.btn-outline-primary{color:#0d6efd;border-color:#0d6efd}.efb.btn-outline-primary:hover{color:#fff;background-color:#0d6efd;border-color:#0d6efd}.efb.btn-check:focus+.efb.btn-outline-primary,.efb.btn-outline-primary:focus{box-shadow:0 0 0 .25rem rgba(13,110,253,.5)}.efb.btn-check:active+.efb.btn-outline-primary,.efb.btn-check:checked+.efb.btn-outline-primary,.efb.btn-outline-primary.active,.efb.btn-outline-primary.efb.dropdown-toggle.show,.efb.btn-outline-primary:active{color:#fff;background-color:#0d6efd;border-color:#0d6efd}.efb.btn-check:active+.efb.btn-outline-primary:focus,.efb.btn-check:checked+.efb.btn-outline-primary:focus,.efb.btn-outline-primary.active:focus,.efb.btn-outline-primary.efb.dropdown-toggle.show:focus,.efb.btn-outline-primary:active:focus{box-shadow:0 0 0 .25rem rgba(13,110,253,.5)}.efb.btn-outline-primary.disabled,.efb.btn-outline-primary:disabled{color:#0d6efd;background-color:transparent}.efb.btn-outline-secondary{color:#6c757d;border-color:#6c757d}.efb.btn-outline-secondary:hover{color:#fff;background-color:#6c757d;border-color:#6c757d}.efb.btn-check:focus+.efb.btn-outline-secondary,.efb.btn-outline-secondary:focus{box-shadow:0 0 0 .25rem rgba(108,117,125,.5)}.efb.btn-check:active+.efb.btn-outline-secondary,.efb.btn-check:checked+.efb.btn-outline-secondary,.efb.btn-outline-secondary.active,.efb.btn-outline-secondary.efb.dropdown-toggle.show,.efb.btn-outline-secondary:active{color:#fff;background-color:#6c757d;border-color:#6c757d}.efb.btn-check:active+.efb.btn-outline-secondary:focus,.efb.btn-check:checked+.efb.btn-outline-secondary:focus,.efb.btn-outline-secondary.active:focus,.efb.btn-outline-secondary.efb.dropdown-toggle.show:focus,.efb.btn-outline-secondary:active:focus{box-shadow:0 0 0 .25rem rgba(108,117,125,.5)}.efb.btn-outline-secondary.disabled,.efb.btn-outline-secondary:disabled{color:#6c757d;background-color:transparent}.efb.btn-outline-success{color:#198754;border-color:#198754}.efb.btn-outline-success:hover{color:#fff;background-color:#198754;border-color:#198754}.efb.btn-check:focus+.efb.btn-outline-success,.efb.btn-outline-success:focus{box-shadow:0 0 0 .25rem rgba(25,135,84,.5)}.efb.btn-check:active+.efb.btn-outline-success,.efb.btn-check:checked+.efb.btn-outline-success,.efb.btn-outline-success.active,.efb.btn-outline-success.efb.dropdown-toggle.show,.efb.btn-outline-success:active{color:#fff;background-color:#198754;border-color:#198754}.efb.btn-check:active+.efb.btn-outline-success:focus,.efb.btn-check:checked+.efb.btn-outline-success:focus,.efb.btn-outline-success.active:focus,.efb.btn-outline-success.efb.dropdown-toggle.show:focus,.efb.btn-outline-success:active:focus{box-shadow:0 0 0 .25rem rgba(25,135,84,.5)}.efb.btn-outline-success.disabled,.efb.btn-outline-success:disabled{color:#198754;background-color:transparent}.efb.btn-outline-info{color:#0dcaf0;border-color:#0dcaf0}.efb.btn-outline-info:hover{color:#000;background-color:#0dcaf0;border-color:#0dcaf0}.efb.btn-check:focus+.efb.btn-outline-info,.efb.btn-outline-info:focus{box-shadow:0 0 0 .25rem rgba(13,202,240,.5)}.efb.btn-check:active+.efb.btn-outline-info,.efb.btn-check:checked+.efb.btn-outline-info,.efb.btn-outline-info.active,.efb.btn-outline-info.efb.dropdown-toggle.show,.efb.btn-outline-info:active{color:#000;background-color:#0dcaf0;border-color:#0dcaf0}.efb.btn-check:active+.efb.btn-outline-info:focus,.efb.btn-check:checked+.efb.btn-outline-info:focus,.efb.btn-outline-info.active:focus,.efb.btn-outline-info.efb.dropdown-toggle.show:focus,.efb.btn-outline-info:active:focus{box-shadow:0 0 0 .25rem rgba(13,202,240,.5)}.efb.btn-outline-info.disabled,.efb.btn-outline-info:disabled{color:#0dcaf0;background-color:transparent}.efb.btn-outline-warning{color:#ffc107;border-color:#ffc107}.efb.btn-outline-warning:hover{color:#000;background-color:#ffc107;border-color:#ffc107}.efb.btn-check:focus+.efb.btn-outline-warning,.efb.btn-outline-warning:focus{box-shadow:0 0 0 .25rem rgba(255,193,7,.5)}.efb.btn-check:active+.efb.btn-outline-warning,.efb.btn-check:checked+.efb.btn-outline-warning,.efb.btn-outline-warning.active,.efb.btn-outline-warning.efb.dropdown-toggle.show,.efb.btn-outline-warning:active{color:#000;background-color:#ffc107;border-color:#ffc107}.efb.btn-check:active+.efb.btn-outline-warning:focus,.efb.btn-check:checked+.efb.btn-outline-warning:focus,.efb.btn-outline-warning.active:focus,.efb.btn-outline-warning.efb.dropdown-toggle.show:focus,.efb.btn-outline-warning:active:focus{box-shadow:0 0 0 .25rem rgba(255,193,7,.5)}.efb.btn-outline-warning.disabled,.efb.btn-outline-warning:disabled{color:#ffc107;background-color:transparent}.efb.btn-outline-danger{color:#dc3545;border-color:#dc3545}.efb.btn-outline-danger:hover{color:#fff;background-color:#dc3545;border-color:#dc3545}.efb.btn-check:focus+.efb.btn-outline-danger,.efb.btn-outline-danger:focus{box-shadow:0 0 0 .25rem rgba(220,53,69,.5)}.efb.btn-check:active+.efb.btn-outline-danger,.efb.btn-check:checked+.efb.btn-outline-danger,.efb.btn-outline-danger.active,.efb.btn-outline-danger.efb.dropdown-toggle.show,.efb.btn-outline-danger:active{color:#fff;background-color:#dc3545;border-color:#dc3545}.efb.btn-check:active+.efb.btn-outline-danger:focus,.efb.btn-check:checked+.efb.btn-outline-danger:focus,.efb.btn-outline-danger.active:focus,.efb.btn-outline-danger.efb.dropdown-toggle.show:focus,.efb.btn-outline-danger:active:focus{box-shadow:0 0 0 .25rem rgba(220,53,69,.5)}.efb.btn-outline-danger.disabled,.efb.btn-outline-danger:disabled{color:#dc3545;background-color:transparent}.efb.btn-outline-light{color:#f8f9fa;border-color:#f8f9fa}.efb.btn-outline-light:hover{color:#000;background-color:#f8f9fa;border-color:#f8f9fa}.efb.btn-check:focus+.efb.btn-outline-light,.efb.btn-outline-light:focus{box-shadow:0 0 0 .25rem rgba(248,249,250,.5)}.efb.btn-check:active+.efb.btn-outline-light,.efb.btn-check:checked+.efb.btn-outline-light,.efb.btn-outline-light.active,.efb.btn-outline-light.efb.dropdown-toggle.show,.efb.btn-outline-light:active{color:#000;background-color:#f8f9fa;border-color:#f8f9fa}.efb.btn-check:active+.efb.btn-outline-light:focus,.efb.btn-check:checked+.efb.btn-outline-light:focus,.efb.btn-outline-light.active:focus,.efb.btn-outline-light.efb.dropdown-toggle.show:focus,.efb.btn-outline-light:active:focus{box-shadow:0 0 0 .25rem rgba(248,249,250,.5)}.efb.btn-outline-light.disabled,.efb.btn-outline-light:disabled{color:#f8f9fa;background-color:transparent}.efb.btn-outline-dark{color:#212529;border-color:#212529}.efb.btn-outline-dark:hover{color:#fff;background-color:#212529;border-color:#212529}.efb.btn-check:focus+.efb.btn-outline-dark,.efb.btn-outline-dark:focus{box-shadow:0 0 0 .25rem rgba(33,37,41,.5)}.efb.btn-check:active+.efb.btn-outline-dark,.efb.btn-check:checked+.efb.btn-outline-dark,.efb.btn-outline-dark.active,.efb.btn-outline-dark.efb.dropdown-toggle.show,.efb.btn-outline-dark:active{color:#fff;background-color:#212529;border-color:#212529}.efb.btn-check:active+.efb.btn-outline-dark:focus,.efb.btn-check:checked+.efb.btn-outline-dark:focus,.efb.btn-outline-dark.active:focus,.efb.btn-outline-dark.efb.dropdown-toggle.show:focus,.efb.btn-outline-dark:active:focus{box-shadow:0 0 0 .25rem rgba(33,37,41,.5)}.efb.btn-outline-dark.disabled,.efb.btn-outline-dark:disabled{color:#212529;background-color:transparent}.efb.btn-link{font-weight:400;color:#0d6efd;text-decoration:underline}.efb.btn-link:hover{color:#0a58ca}.efb.btn-link.disabled,.efb.btn-link:disabled{color:#6c757d}.efb.btn-group-lg>.efb.btn,.efb.btn-lg{padding:.5rem 1rem;font-size:1.25rem;border-radius:.3rem}.efb.btn-group-sm>.efb.btn,.efb.btn-sm{padding:.2rem .3rem;font-size:.875rem;border-radius:.2rem}.efb.fade{transition:opacity .15s linear}@media (prefers-reduced-motion:reduce){.efb.fade{transition:none}}.efb.fade:not(.show){opacity:0}.efb.collapse:not(.show){display:none}.efb.collapsing{height:0;overflow:hidden;transition:height .35s ease}@media (prefers-reduced-motion:reduce){.efb.collapsing{transition:none}}.efb.dropdown,.efb.dropend,.efb.dropstart,.efb.dropup{position:relative}.efb.dropdown-toggle{white-space:nowrap}.efb.dropdown-toggle::after{display:inline-block;margin-left:.255em;vertical-align:.255em;content:"";border-top:.3em solid;border-right:.3em solid transparent;border-bottom:0;border-left:.3em solid transparent}.efb.dropdown-toggle:empty::after{margin-left:0}.efb.dropdown-menu{position:absolute;z-index:1000;display:none;min-width:10rem;padding:.5rem 0;margin:0;font-size:1rem;color:#212529;text-align:left;list-style:none;background-color:#fff;background-clip:padding-box;border:1px solid rgba(0,0,0,.15);border-radius:.25rem}.efb.dropdown-menu[data-bs-popper]{top:100%;left:0;margin-top:.125rem}.efb.dropdown-menu-start{--bs-position:start}.efb.dropdown-menu-start[data-bs-popper]{right:auto;left:0}.efb.dropdown-menu-end{--bs-position:end}.efb.dropdown-menu-end[data-bs-popper]{right:0;left:auto}.efb.dropup .efb.dropdown-menu[data-bs-popper]{top:auto;bottom:100%;margin-top:0;margin-bottom:.125rem}.efb.dropup .efb.dropdown-toggle::after{display:inline-block;margin-left:.255em;vertical-align:.255em;content:"";border-top:0;border-right:.3em solid transparent;border-bottom:.3em solid;border-left:.3em solid transparent}.efb.dropup .efb.dropdown-toggle:empty::after{margin-left:0}.efb.dropend .efb.dropdown-menu[data-bs-popper]{top:0;right:auto;left:100%;margin-top:0;margin-left:.125rem}.efb.dropend .efb.dropdown-toggle::after{display:inline-block;margin-left:.255em;vertical-align:.255em;content:"";border-top:.3em solid transparent;border-right:0;border-bottom:.3em solid transparent;border-left:.3em solid}.efb.dropend .efb.dropdown-toggle:empty::after{margin-left:0}.efb.dropend .efb.dropdown-toggle::after{vertical-align:0}.efb.dropstart .efb.dropdown-menu[data-bs-popper]{top:0;right:100%;left:auto;margin-top:0;margin-right:.125rem}.efb.dropstart .efb.dropdown-toggle::after{display:inline-block;margin-left:.255em;vertical-align:.255em;content:""}.efb.dropstart .efb.dropdown-toggle::after{display:none}.efb.dropstart .efb.dropdown-toggle::before{display:inline-block;margin-right:.255em;vertical-align:.255em;content:"";border-top:.3em solid transparent;border-right:.3em solid;border-bottom:.3em solid transparent}.efb.dropstart .efb.dropdown-toggle:empty::after{margin-left:0}.efb.dropstart .efb.dropdown-toggle::before{vertical-align:0}.efb.dropdown-divider{height:0;margin:.5rem 0;overflow:hidden;border-top:1px solid rgba(0,0,0,.15)}.efb.dropdown-item{display:block;width:100%;padding:.25rem 1rem;clear:both;font-weight:400;color:#212529;text-align:inherit;text-decoration:none;white-space:nowrap;background-color:transparent;border:0}.efb.dropdown-item:focus,.efb.dropdown-item:hover{color:#1e2125;background-color:#e9ecef}.efb.dropdown-item.active,.efb.dropdown-item:active{color:#fff;text-decoration:none;background-color:#0d6efd}.efb.dropdown-item.disabled,.efb.dropdown-item:disabled{color:#adb5bd;pointer-events:none;background-color:transparent}.efb.dropdown-menu.show{display:block}.efb.dropdown-header{display:block;padding:.5rem 1rem;margin-bottom:0;font-size:.875rem;color:#6c757d;white-space:nowrap}.efb.dropdown-item-text{display:block;padding:.25rem 1rem;color:#212529}.efb.dropdown-menu-dark{color:#dee2e6;background-color:#343a40;border-color:rgba(0,0,0,.15)}.efb.dropdown-menu-dark .efb.dropdown-item{color:#dee2e6}.efb.dropdown-menu-dark .efb.dropdown-item:focus,.efb.dropdown-menu-dark .efb.dropdown-item:hover{color:#fff;background-color:rgba(255,255,255,.15)}.efb.dropdown-menu-dark .efb.dropdown-item.active,.efb.dropdown-menu-dark .efb.dropdown-item:active{color:#fff;background-color:#0d6efd}.efb.dropdown-menu-dark .efb.dropdown-item.disabled,.efb.dropdown-menu-dark .efb.dropdown-item:disabled{color:#adb5bd}.efb.dropdown-menu-dark .efb.dropdown-divider{border-color:rgba(0,0,0,.15)}.efb.dropdown-menu-dark .efb.dropdown-item-text{color:#dee2e6}.efb.dropdown-menu-dark .efb.dropdown-header{color:#adb5bd}.efb.btn-group{position:relative;display:inline-flex;vertical-align:middle}.efb.btn-group>.efb.btn{position:relative;flex:1 1 auto}.efb.btn-group>.efb.btn-check:checked+.efb.btn,.efb.btn-group>.efb.btn-check:focus+.efb.btn,.efb.btn-group>.efb.btn.active,.efb.btn-group>.efb.btn:active,.efb.btn-group>.efb.btn:focus,.efb.btn-group>.efb.btn:hover{z-index:1}.efb.btn-toolbar{display:flex;flex-wrap:wrap;justify-content:flex-start}.efb.btn-toolbar .efb.input-group{width:auto}.efb.btn-group>.efb.btn-group:not(:first-child),.efb.btn-group>.efb.btn:not(:first-child){margin-left:-1px}.efb.btn-group>.efb.btn-group:not(:last-child)>.efb.btn,.efb.btn-group>.efb.btn:not(:last-child):not(.efb.dropdown-toggle){border-top-right-radius:0;border-bottom-right-radius:0}.efb.btn-group>.efb.btn-group:not(:first-child)>.efb.btn,.efb.btn-group>.efb.btn:nth-child(n+3),.efb.btn-group>:not(.efb.btn-check)+.efb.btn{border-top-left-radius:0;border-bottom-left-radius:0}.efb.dropdown-toggle-split{padding-right:.5625rem;padding-left:.5625rem}.efb.dropdown-toggle-split::after,.efb.dropend .efb.dropdown-toggle-split::after,.efb.dropup .efb.dropdown-toggle-split::after{margin-left:0}.efb.dropstart .efb.dropdown-toggle-split::before{margin-right:0}.efb.btn-group-sm>.efb.btn+.efb.dropdown-toggle-split,.efb.btn-sm+.efb.dropdown-toggle-split{padding-right:.375rem;padding-left:.375rem}.efb.btn-group-lg>.efb.btn+.efb.dropdown-toggle-split,.efb.btn-lg+.efb.dropdown-toggle-split{padding-right:.75rem;padding-left:.75rem}.efb.tab-content>.tab-pane{display:none}.efb.tab-content>.active{display:block}.efb.card{position:relative;display:flex;flex-direction:column;min-width:0;word-wrap:break-word;background-color:#fff;background-clip:border-box;border:1px solid rgba(0,0,0,.125);border-radius:.25rem}.efb.card>hr{margin-right:0;margin-left:0}.efb.card>.efb.list-group{border-top:inherit;border-bottom:inherit}.efb.card>.efb.list-group:first-child{border-top-width:0;border-top-left-radius:calc(.25rem - 1px);border-top-right-radius:calc(.25rem - 1px)}.card>.efb.list-group:last-child{border-bottom-width:0;border-bottom-right-radius:calc(.25rem - 1px);border-bottom-left-radius:calc(.25rem - 1px)}.efb.card>.efb.card-header+.efb.list-group,.efb.card>.efb.list-group+.efb.card-footer{border-top:0}.efb.card-body{flex:1 1 auto;padding:1rem 1rem}.efb.card-title{margin-bottom:.5rem}.efb.card-text:last-child{margin-bottom:0}.efb.card-header{padding:.5rem 1rem;margin-bottom:0;background-color:rgba(0,0,0,.03);border-bottom:1px solid rgba(0,0,0,.125)}.efb.card-header:first-child{border-radius:calc(.25rem - 1px) calc(.25rem - 1px) 0 0}.efb.card-footer{padding:.5rem 1rem;background-color:rgba(0,0,0,.03);border-top:1px solid rgba(0,0,0,.125)}.efb.card-footer:last-child{border-radius:0 0 calc(.25rem - 1px) calc(.25rem - 1px)}.efb.card-header-tabs{margin-right:-.5rem;margin-bottom:-.5rem;margin-left:-.5rem;border-bottom:0}.efb.card-header-pills{margin-right:-.5rem;margin-left:-.5rem}.efb.card-img-overlay{position:absolute;top:0;right:0;bottom:0;left:0;padding:1rem;border-radius:calc(.25rem - 1px)}.efb.card-img,.efb.card-img-bottom,.efb.card-img-top{width:100%}.efb.card-img,.efb.card-img-top{border-top-left-radius:calc(.25rem - 1px);border-top-right-radius:calc(.25rem - 1px)}.efb.card-img,.efb.card-img-bottom{border-bottom-right-radius:calc(.25rem - 1px);border-bottom-left-radius:calc(.25rem - 1px)}.efb.card-group>.card{margin-bottom:.75rem}@media (min-width:576px){.efb.card-group{display:flex;flex-flow:row wrap}.efb.card-group>.card{flex:1 0 0%;margin-bottom:0}.efb.card-group>.card+.card{margin-left:0;border-left:0}.efb.card-group>.card:not(:last-child){border-top-right-radius:0;border-bottom-right-radius:0}.efb.card-group>.card:not(:last-child) .efb.card-header,.efb.card-group>.card:not(:last-child) .efb.card-img-top{border-top-right-radius:0}.efb.card-group>.card:not(:last-child) .efb.card-footer,.efb.card-group>.card:not(:last-child) .efb.card-img-bottom{border-bottom-right-radius:0}.efb.card-group>.card:not(:first-child){border-top-left-radius:0;border-bottom-left-radius:0}.efb.card-group>.card:not(:first-child) .efb.card-header,.efb.card-group>.card:not(:first-child) .efb.card-img-top{border-top-left-radius:0}.efb.card-group>.card:not(:first-child) .efb.card-footer,.efb.card-group>.card:not(:first-child) .efb.card-img-bottom{border-bottom-left-radius:0}}.efb.page-link{position:relative;display:block;color:#0d6efd;text-decoration:none;background-color:#fff;border:1px solid #dee2e6;transition:color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out}@media (prefers-reduced-motion:reduce){.efb.page-link{transition:none}}.efb.page-link:hover{z-index:2;color:#0a58ca;background-color:#e9ecef;border-color:#dee2e6}.efb.page-link:focus{z-index:3;color:#0a58ca;background-color:#e9ecef;outline:0;box-shadow:0 0 0 .25rem rgba(13,110,253,.25)}.efb.page-item:not(:first-child) .efb.page-link{margin-left:-1px}.efb.page-item.active .efb.page-link{z-index:3;color:#fff;background-color:#0d6efd;border-color:#0d6efd}.efb.page-item.disabled .efb.page-link{color:#6c757d;pointer-events:none;background-color:#fff;border-color:#dee2e6}.efb.page-link{padding:.375rem .75rem}.efb.page-item:first-child .efb.page-link{border-top-left-radius:.25rem;border-bottom-left-radius:.25rem}.efb.page-item:last-child .efb.page-link{border-top-right-radius:.25rem;border-bottom-right-radius:.25rem}.efb.pagination-lg .efb.page-link{padding:.75rem 1.5rem;font-size:1.25rem}.efb.pagination-lg .efb.page-item:first-child .efb.page-link{border-top-left-radius:.3rem;border-bottom-left-radius:.3rem}.efb.pagination-lg .efb.page-item:last-child .efb.page-link{border-top-right-radius:.3rem;border-bottom-right-radius:.3rem}.efb.pagination-sm .efb.page-link{padding:.25rem .5rem;font-size:.875rem}.efb.pagination-sm .efb.page-item:first-child .efb.page-link{border-top-left-radius:.2rem;border-bottom-left-radius:.2rem}.pagination-sm .efb.page-item:last-child .efb.page-link{border-top-right-radius:.2rem;border-bottom-right-radius:.2rem}.efb.badge{display:inline-block;padding:.35em .65em;font-size:.75em;font-weight:700;line-height:1;color:#fff;text-align:center;white-space:nowrap;vertical-align:baseline;border-radius:.25rem}.efb.badge:empty{display:none}.efb.btn .efb.badge{position:relative;top:-1px}.efb.alert{position:relative;padding:1rem 1rem;margin-bottom:1rem;border:1px solid transparent;border-radius:.25rem}.efb.alert-heading{color:inherit}.efb.alert-link{font-weight:700}.efb.alert-dismissible{padding-right:3rem}.efb.alert-dismissible .efb.btn-close{position:absolute;top:0;right:0;z-index:2;padding:1.25rem 1rem}.efb.alert-primary{color:#084298;background-color:#cfe2ff;border-color:#b6d4fe}.efb.alert-primary .efb.alert-link{color:#06357a}.efb.alert-secondary{color:#41464b;background-color:#e2e3e5;border-color:#d3d6d8}.efb.alert-secondary .efb.alert-link{color:#34383c}.efb.alert-success{color:#0f5132;background-color:#d1e7dd;border-color:#badbcc}.efb.alert-success .efb.alert-link{color:#0c4128}.efb.alert-info{color:#055160;background-color:#cff4fc;border-color:#b6effb}.efb.alert-info .efb.alert-link{color:#04414d}.efb.alert-warning{color:#664d03;background-color:#fff3cd;border-color:#ffecb5}.efb.alert-warning .efb.alert-link{color:#523e02}.efb.alert-danger{color:#842029;background-color:#f8d7da;border-color:#f5c2c7}.efb.alert-danger .efb.alert-link{color:#6a1a21}.efb.alert-light{color:#636464;background-color:#fefefe;border-color:#fdfdfe}.efb.alert-light .efb.alert-link{color:#4f5050}.efb.alert-dark{color:#141619;background-color:#d3d3d4;border-color:#bcbebf}.efb.alert-dark .efb.alert-link{color:#101214}@-webkit-keyframes progress-bar-stripes{0%{background-position-x:1rem}}@keyframes progress-bar-stripes{0%{background-position-x:1rem}}.efb.progress{display:flex;height:1rem;overflow:hidden;font-size:.75rem;background-color:#e9ecef;border-radius:.25rem}.efb.progress-bar{display:flex;flex-direction:column;justify-content:center;overflow:hidden;color:#fff;text-align:center;white-space:nowrap;background-color:#0d6efd;transition:width .6s ease}@media (prefers-reduced-motion:reduce){.efb.progress-bar{transition:none}}.efb.progress-bar-striped{background-image:linear-gradient(45deg,rgba(255,255,255,.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.15) 75%,transparent 75%,transparent)!important;background-size:1rem 1rem}.efb.progress-bar-animated{-webkit-animation:1s linear infinite progress-bar-stripes;animation:1s linear infinite progress-bar-stripes}@media (prefers-reduced-motion:reduce){.efb.progress-bar-animated{-webkit-animation:none;animation:none}}.efb.list-group{display:flex;flex-direction:column;padding-left:0;margin-bottom:0;border-radius:.25rem}.efb.list-group-numbered{list-style-type:none;counter-reset:section}.efb.list-group-numbered>li::before{content:counters(section,".") ". ";counter-increment:section}.efb.list-group-item-action{width:100%;color:#495057;text-align:inherit}.efb.list-group-item-action:focus,.efb.list-group-item-action:hover{z-index:1;color:#495057;text-decoration:none;background-color:#f8f9fa}.efb.list-group-item-action:active{color:#212529;background-color:#e9ecef}.efb.list-group-item{position:relative;display:block;padding:.5rem 1rem;color:#212529;text-decoration:none;background-color:#fff;border:1px solid rgba(0,0,0,.125)}.efb.list-group-item:first-child{border-top-left-radius:inherit;border-top-right-radius:inherit}.efb.list-group-item:last-child{border-bottom-right-radius:inherit;border-bottom-left-radius:inherit}.efb.list-group-item.disabled,.efb.list-group-item:disabled{color:#6c757d;pointer-events:none;background-color:#fff}.efb.list-group-item.active{z-index:2;color:#fff;background-color:#0d6efd;border-color:#0d6efd}.efb.list-group-item+.efb.list-group-item{border-top-width:0}.efb.list-group-item+.efb.list-group-item.active{margin-top:-1px;border-top-width:1px}.efb.list-group-horizontal{flex-direction:row}.efb.list-group-horizontal>.efb.list-group-item:first-child{border-bottom-left-radius:.25rem;border-top-right-radius:0}.efb.list-group-horizontal>.efb.list-group-item:last-child{border-top-right-radius:.25rem;border-bottom-left-radius:0}.efb.list-group-horizontal>.efb.list-group-item.active{margin-top:0}.efb.list-group-horizontal>.efb.list-group-item+.efb.list-group-item{border-top-width:1px;border-left-width:0}.efb.list-group-horizontal>.efb.list-group-item+.efb.list-group-item.active{margin-left:-1px;border-left-width:1px}@media (min-width:576px){.efb.list-group-horizontal-sm{flex-direction:row}.efb.list-group-horizontal-sm>.efb.list-group-item:first-child{border-bottom-left-radius:.25rem;border-top-right-radius:0}.efb.list-group-horizontal-sm>.efb.list-group-item:last-child{border-top-right-radius:.25rem;border-bottom-left-radius:0}.efb.list-group-horizontal-sm>.efb.list-group-item.active{margin-top:0}.efb.list-group-horizontal-sm>.efb.list-group-item+.efb.list-group-item{border-top-width:1px;border-left-width:0}.efb.list-group-horizontal-sm>.efb.list-group-item+.efb.list-group-item.active{margin-left:-1px;border-left-width:1px}}@media (min-width:768px){.efb.list-group-horizontal-md{flex-direction:row}.efb.list-group-horizontal-md>.efb.list-group-item:first-child{border-bottom-left-radius:.25rem;border-top-right-radius:0}.efb.list-group-horizontal-md>.efb.list-group-item:last-child{border-top-right-radius:.25rem;border-bottom-left-radius:0}.efb.list-group-horizontal-md>.efb.list-group-item.active{margin-top:0}.efb.list-group-horizontal-md>.efb.list-group-item+.efb.list-group-item{border-top-width:1px;border-left-width:0}.efb.list-group-horizontal-md>.efb.list-group-item+.efb.list-group-item.active{margin-left:-1px;border-left-width:1px}}@media (min-width:992px){.efb.list-group-horizontal-lg{flex-direction:row}.efb.list-group-horizontal-lg>.efb.list-group-item:first-child{border-bottom-left-radius:.25rem;border-top-right-radius:0}.efb.list-group-horizontal-lg>.efb.list-group-item:last-child{border-top-right-radius:.25rem;border-bottom-left-radius:0}.efb.list-group-horizontal-lg>.efb.list-group-item.active{margin-top:0}.efb.list-group-horizontal-lg>.efb.list-group-item+.efb.list-group-item{border-top-width:1px;border-left-width:0}.efb.list-group-horizontal-lg>.efb.list-group-item+.efb.list-group-item.active{margin-left:-1px;border-left-width:1px}}@media (min-width:1200px){.efb.list-group-horizontal-xl{flex-direction:row}.efb.list-group-horizontal-xl>.efb.list-group-item:first-child{border-bottom-left-radius:.25rem;border-top-right-radius:0}.efb.list-group-horizontal-xl>.efb.list-group-item:last-child{border-top-right-radius:.25rem;border-bottom-left-radius:0}.efb.list-group-horizontal-xl>.efb.list-group-item.active{margin-top:0}.efb.list-group-horizontal-xl>.efb.list-group-item+.efb.list-group-item{border-top-width:1px;border-left-width:0}.efb.list-group-horizontal-xl>.efb.list-group-item+.efb.list-group-item.active{margin-left:-1px;border-left-width:1px}}@media (min-width:1400px){.efb.list-group-horizontal-xxl{flex-direction:row}.efb.list-group-horizontal-xxl>.efb.list-group-item:first-child{border-bottom-left-radius:.25rem;border-top-right-radius:0}.efb.list-group-horizontal-xxl>.efb.list-group-item:last-child{border-top-right-radius:.25rem;border-bottom-left-radius:0}.efb.list-group-horizontal-xxl>.efb.list-group-item.active{margin-top:0}.efb.list-group-horizontal-xxl>.efb.list-group-item+.efb.list-group-item{border-top-width:1px;border-left-width:0}.efb.list-group-horizontal-xxl>.efb.list-group-item+.efb.list-group-item.active{margin-left:-1px;border-left-width:1px}}.efb.list-group-flush{border-radius:0}.efb.list-group-flush>.efb.list-group-item{border-width:0 0 1px}.efb.list-group-flush>.efb.list-group-item:last-child{border-bottom-width:0}.efb.list-group-item-primary{color:#084298;background-color:#cfe2ff}.efb.list-group-item-primary.efb.list-group-item-action:focus,.efb.list-group-item-primary.efb.list-group-item-action:hover{color:#084298;background-color:#bacbe6}.efb.list-group-item-primary.efb.list-group-item-action.active{color:#fff;background-color:#084298;border-color:#084298}.efb.list-group-item-secondary{color:#41464b;background-color:#e2e3e5}.efb.list-group-item-secondary.efb.list-group-item-action:focus,.efb.list-group-item-secondary.efb.list-group-item-action:hover{color:#41464b;background-color:#cbccce}.efb.list-group-item-secondary.efb.list-group-item-action.active{color:#fff;background-color:#41464b;border-color:#41464b}.efb.list-group-item-success{color:#0f5132;background-color:#d1e7dd}.efb.list-group-item-success.efb.list-group-item-action:focus,.efb.list-group-item-success.efb.list-group-item-action:hover{color:#0f5132;background-color:#bcd0c7}.efb.list-group-item-success.efb.list-group-item-action.active{color:#fff;background-color:#0f5132;border-color:#0f5132}.efb.list-group-item-info{color:#055160;background-color:#cff4fc}.efb.list-group-item-info.efb.list-group-item-action:focus,.efb.list-group-item-info.efb.list-group-item-action:hover{color:#055160;background-color:#badce3}.efb.list-group-item-info.efb.list-group-item-action.active{color:#fff;background-color:#055160;border-color:#055160}.efb.list-group-item-warning{color:#664d03;background-color:#fff3cd}.efb.list-group-item-warning.efb.list-group-item-action:focus,.efb.list-group-item-warning.efb.list-group-item-action:hover{color:#664d03;background-color:#e6dbb9}.efb.list-group-item-warning.efb.list-group-item-action.active{color:#fff;background-color:#664d03;border-color:#664d03}.efb.list-group-item-danger{color:#842029;background-color:#f8d7da}.efb.list-group-item-danger.efb.list-group-item-action:focus,.efb.list-group-item-danger.efb.list-group-item-action:hover{color:#842029;background-color:#dfc2c4}.efb.list-group-item-danger.efb.list-group-item-action.active{color:#fff;background-color:#842029;border-color:#842029}.efb.list-group-item-light{color:#636464;background-color:#fefefe}.efb.list-group-item-light.efb.list-group-item-action:focus,.efb.list-group-item-light.efb.list-group-item-action:hover{color:#636464;background-color:#e5e5e5}.efb.list-group-item-light.efb.list-group-item-action.active{color:#fff;background-color:#636464;border-color:#636464}.efb.list-group-item-dark{color:#141619;background-color:#d3d3d4}.efb.list-group-item-dark.efb.list-group-item-action:focus,.efb.list-group-item-dark.efb.list-group-item-action:hover{color:#141619;background-color:#bebebf}.efb.list-group-item-dark.efb.list-group-item-action.active{color:#fff;background-color:#141619;border-color:#141619}.efb.btn-close{box-sizing:content-box;width:1em;height:1em;padding:.25em .25em;color:#000;background:transparent url("data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 16 16\' fill=\'%23000\'%3e%3cpath d=\'M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z\'/%3e%3c/svg%3e") center/1em auto no-repeat;border:0;border-radius:.25rem;opacity:.5}.efb.btn-close:hover{color:#000;text-decoration:none;opacity:.75}.efb.btn-close:focus{outline:0;box-shadow:0 0 0 .25rem rgba(13,110,253,.25);opacity:1}.efb.btn-close.disabled,.efb.btn-close:disabled{pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none;opacity:.25}.efb.btn-close-white{filter:invert(1) grayscale(100%) brightness(200%)}.efb.modal{position:fixed;top:0;left:0;z-index:1060;display:none;width:100%;height:100%;overflow-x:hidden;overflow-y:auto;outline:0}.efb.modal-dialog{position:relative;width:auto;margin:.5rem;pointer-events:none}.efb.modal.efb.fade .efb.modal-dialog{transition:transform .3s ease-out;transform:translate(0,-50px)}@media (prefers-reduced-motion:reduce){.efb.modal.efb.fade .efb.modal-dialog{transition:none}}.efb.modal.show .modal-dialog{transform:none}.efb.modal.modal-static .efb.modal-dialog{transform:scale(1.02)}.efb.modal-dialog-scrollable{height:calc(100% - 1rem)}.efb.modal-dialog-scrollable .efb.modal-content{max-height:100%;overflow:hidden}.efb.modal-dialog-scrollable .efb.modal-body{overflow-y:auto}.efb.modal-dialog-centered{display:flex;align-items:center;min-height:calc(100% - 1rem)}.efb.modal-content{position:relative;display:flex;flex-direction:column;width:100%;pointer-events:auto;background-color:#fff;background-clip:padding-box;border:1px solid rgba(0,0,0,.2);border-radius:.3rem;outline:0}.efb.modal-backdrop{position:fixed;top:0;left:0;z-index:1040;width:100vw;height:100vh;background-color:#000}.efb.modal-backdrop.efb.fade{opacity:0}.efb.modal-backdrop.show{opacity:.5}.efb.modal-header{display:flex;flex-shrink:0;align-items:center;justify-content:space-between;padding:1rem 1rem;border-bottom:1px solid #dee2e6;border-top-left-radius:calc(.3rem - 1px);border-top-right-radius:calc(.3rem - 1px)}.efb.modal-header .efb.btn-close{padding:.5rem .5rem;margin:-.5rem -.5rem -.5rem auto}.efb.modal-title{margin-bottom:0;line-height:1.5}.efb.modal-body{position:relative;flex:1 1 auto;padding:1rem}.efb.modal-footer{display:flex;flex-wrap:wrap;flex-shrink:0;align-items:center;justify-content:flex-end;padding:.75rem;border-top:1px solid #dee2e6;border-bottom-right-radius:calc(.3rem - 1px);border-bottom-left-radius:calc(.3rem - 1px)}.efb.modal-footer>*{margin:.25rem}@media (min-width:576px){.efb.modal-dialog{max-width:500px;margin:1.75rem auto}.efb.modal-dialog-scrollable{height:calc(100% - 3.5rem)}.efb.modal-dialog-centered{min-height:calc(100% - 3.5rem)}.efb.modal-sm{max-width:300px}}.efb.modal-content{height:100%;border:0;border-radius:0}.efb.modal-header{border-radius:0}.efb.modal-body{overflow-y:auto}.efb.modal-footer{border-radius:0}.efb.tooltip{position:absolute;z-index:1080;display:block;margin:0;font-family:var(--bs-font-sans-serif);font-style:normal;font-weight:400;line-height:1.5;text-align:left;text-align:start;text-decoration:none;text-shadow:none;text-transform:none;letter-spacing:normal;word-break:normal;word-spacing:normal;white-space:normal;line-break:auto;font-size:.875rem;word-wrap:break-word;opacity:0}.efb.tooltip.show{opacity:.9}.efb.tooltip .efb.tooltip-arrow{position:absolute;display:block;width:.8rem;height:.4rem}.efb.tooltip .efb.tooltip-arrow::before{position:absolute;content:"";border-color:transparent;border-style:solid}.efb.bs-tooltip-auto[data-popper-placement^=top],.efb.bs-tooltip-top{padding:.4rem 0}.efb.bs-tooltip-auto[data-popper-placement^=top] .efb.tooltip-arrow,.efb.bs-tooltip-top .efb.tooltip-arrow{bottom:0}.efb.bs-tooltip-auto[data-popper-placement^=top] .efb.tooltip-arrow::before,.efb.bs-tooltip-top .efb.tooltip-arrow::before{top:-1px;border-width:.4rem .4rem 0;border-top-color:#000}.efb.bs-tooltip-auto[data-popper-placement^=right],.efb.bs-tooltip-end{padding:0 .4rem}.efb.bs-tooltip-auto[data-popper-placement^=right] .efb.tooltip-arrow,.efb.bs-tooltip-end .efb.tooltip-arrow{left:0;width:.4rem;height:.8rem}.efb.bs-tooltip-auto[data-popper-placement^=right] .efb.tooltip-arrow::before,.efb.bs-tooltip-end .efb.tooltip-arrow::before{right:-1px;border-width:.4rem .4rem .4rem 0;border-right-color:#000}.efb.bs-tooltip-auto[data-popper-placement^=bottom],.efb.bs-tooltip-bottom{padding:.4rem 0}.efb.bs-tooltip-auto[data-popper-placement^=bottom] .efb.tooltip-arrow,.efb.bs-tooltip-bottom .efb.tooltip-arrow{top:0}.efb.bs-tooltip-auto[data-popper-placement^=bottom] .efb.tooltip-arrow::before,.efb.bs-tooltip-bottom .efb.tooltip-arrow::before{bottom:-1px;border-width:0 .4rem .4rem;border-bottom-color:#000}.efb.bs-tooltip-auto[data-popper-placement^=left],.efb.bs-tooltip-start{padding:0 .4rem}.efb.bs-tooltip-auto[data-popper-placement^=left] .efb.tooltip-arrow,.efb.bs-tooltip-start .efb.tooltip-arrow{right:0;width:.4rem;height:.8rem}.efb.bs-tooltip-auto[data-popper-placement^=left] .efb.tooltip-arrow::before,.efb.bs-tooltip-start .efb.tooltip-arrow::before{left:-1px;border-width:.4rem 0 .4rem .4rem;border-left-color:#000}.efb.tooltip-inner{max-width:200px;padding:.25rem .5rem;color:#fff;text-align:center;background-color:#000;border-radius:.25rem}.efb.clearfix::after{display:block;clear:both;content:""}.efb.stretched-link::after{position:absolute;top:0;right:0;bottom:0;left:0;z-index:1;content:""}.efb.text-truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.efb.align-baseline{vertical-align:baseline!important}.efb.align-top{vertical-align:top!important}.efb.align-middle{vertical-align:middle!important}.efb.align-bottom{vertical-align:bottom!important}.efb.align-text-bottom{vertical-align:text-bottom!important}.efb.align-text-top{vertical-align:text-top!important}.efb.float-start{float:left!important}.efb.float-end{float:right!important}.efb.float-none{float:none!important}.efb.overflow-auto{overflow:auto!important}.efb.overflow-hidden{overflow:hidden!important}.efb.overflow-visible{overflow:visible!important}.efb.overflow-scroll{overflow:scroll!important}.efb.d-inline{display:inline!important}.efb.d-inline-block{display:inline-block!important}.efb.d-block{display:block!important}.efb.d-grid{display:grid!important}.efb.d-flex{display:flex!important}.efb.d-inline-flex{display:inline-flex!important}.efb.d-none{display:none!important}.efb.shadow{box-shadow:0 .5rem 1rem rgba(0,0,0,.15)!important}.efb.shadow-sm{box-shadow:0 .125rem .25rem rgba(0,0,0,.075)!important}.efb.shadow-lg{box-shadow:0 1rem 3rem rgba(0,0,0,.175)!important}.efb.shadow-none{box-shadow:none!important}.efb.position-static{position:static!important}.efb.position-relative{position:relative!important}.efb.position-absolute{position:absolute!important}.efb.position-fixed{position:fixed!important}.efb.position-sticky{position:-webkit-sticky!important;position:sticky!important}.efb.top-0{top:0!important}.efb.top-50{top:50%!important}.efb.top-100{top:100%!important}.efb.bottom-0{bottom:0!important}.efb.bottom-50{bottom:50%!important}.efb.bottom-100{bottom:100%!important}.efb.start-0{left:0!important}.efb.start-50{left:50%!important}.efb.start-100{left:100%!important}.efb.end-0{right:0!important}.efb.end-50{right:50%!important}.efb.end-100{right:100%!important}.efb.translate-middle{transform:translate(-50%,-50%)!important}.efb.translate-middle-x{transform:translateX(-50%)!important}.efb.translate-middle-y{transform:translateY(-50%)!important}.efb.border{border:1px solid #dee2e6!important}.efb.border-0{border:0!important}.efb.border-top{border-top:1px solid #dee2e6!important}.efb.border-top-0{border-top:0!important}.efb.border-end{border-right:1px solid #dee2e6!important}.efb.border-end-0{border-right:0!important}.efb.border-bottom{border-bottom:1px solid #dee2e6!important}.efb.border-bottom-0{border-bottom:0!important}.efb.border-start{border-left:1px solid #dee2e6!important}.efb.border-start-0{border-left:0!important}.efb.border-primary{border-color:#0d6efd!important}.efb.border-secondary{border-color:#6c757d!important}.efb.border-success{border-color:#198754!important}.efb.border-info{border-color:#0dcaf0!important}.efb.border-warning{border-color:#ffc107!important}.efb.border-danger{border-color:#dc3545!important}.efb.border-light{border-color:#f8f9fa!important}.efb.border-dark{border-color:#212529!important}.efb.border-white{border-color:#fff!important}.efb.border-1{border-width:1px!important}.efb.border-2{border-width:2px!important}.efb.border-3{border-width:3px!important}.efb.border-4{border-width:4px!important}.efb.border-5{border-width:5px!important}.efb.w-25{width:25%!important}.efb.w-50{width:50%!important}.efb.w-75{width:75%!important}.efb.w-100{width:100%!important}.efb.w-auto{width:auto!important}.efb.mw-100{max-width:100%!important}.efb.vw-100{width:100vw!important}.efb.min-vw-100{min-width:100vw!important}.efb.h-25{height:25%!important}.efb.h-50{height:50%!important}.efb.h-75{height:75%!important}.efb.h-100{height:100%!important}.efb.h-auto{height:auto!important}.efb.mh-100{max-height:100%!important}.efb.vh-100{height:100vh!important}.efb.min-vh-100{min-height:100vh!important}.efb.flex-fill{flex:1 1 auto!important}.efb.flex-row{flex-direction:row!important}.efb.flex-column{flex-direction:column!important}.efb.flex-row-reverse{flex-direction:row-reverse!important}.efb.flex-column-reverse{flex-direction:column-reverse!important}.efb.flex-grow-0{flex-grow:0!important}.efb.flex-grow-1{flex-grow:1!important}.efb.flex-shrink-0{flex-shrink:0!important}.efb.flex-shrink-1{flex-shrink:1!important}.efb.flex-wrap{flex-wrap:wrap!important}.efb.flex-nowrap{flex-wrap:nowrap!important}.efb.flex-wrap-reverse{flex-wrap:wrap-reverse!important}.efb.justify-content-start{justify-content:flex-start!important}.efb.justify-content-end{justify-content:flex-end!important}.efb.justify-content-center{justify-content:center!important}.efb.justify-content-between{justify-content:space-between!important}.efb.justify-content-around{justify-content:space-around!important}.efb.justify-content-evenly{justify-content:space-evenly!important}.efb.align-items-start{align-items:flex-start!important}.efb.align-items-end{align-items:flex-end!important}.efb.align-items-center{align-items:center!important}.efb.align-items-baseline{align-items:baseline!important}.efb.align-items-stretch{align-items:stretch!important}.efb.m-0{margin:0!important}.efb.m-1{margin:.25rem!important}.efb.m-2{margin:.5rem!important}.efb.m-3{margin:1rem!important}.efb.m-4{margin:1.5rem!important}.efb.m-5{margin:3rem!important}.efb.m-auto{margin:auto!important}.efb.mx-0{margin-right:0!important;margin-left:0!important}.efb.mx-1{margin-right:.25rem!important;margin-left:.25rem!important}.efb.mx-2{margin-right:.5rem!important;margin-left:.5rem!important}.efb.mx-3{margin-right:1rem!important;margin-left:1rem!important}.efb.mx-4{margin-right:1.5rem!important;margin-left:1.5rem!important}.efb.mx-5{margin-right:3rem!important;margin-left:3rem!important}.efb.mx-auto{margin-right:auto!important;margin-left:auto!important}.efb.my-0{margin-top:0!important;margin-bottom:0!important}.efb.my-1{margin-top:.25rem!important;margin-bottom:.25rem!important}.efb.my-2{margin-top:.5rem!important;margin-bottom:.5rem!important}.efb.my-3{margin-top:1rem!important;margin-bottom:1rem!important}.efb.my-4{margin-top:1.5rem!important;margin-bottom:1.5rem!important}.efb.my-5{margin-top:3rem!important;margin-bottom:3rem!important}.efb.my-auto{margin-top:auto!important;margin-bottom:auto!important}.efb.mt-0{margin-top:0!important}.efb.mt-1{margin-top:.25rem!important}.efb.mt-2{margin-top:.5rem!important}.efb.mt-3{margin-top:1rem!important}.efb.mt-4{margin-top:1.5rem!important}.efb.mt-5{margin-top:3rem!important}.efb.mt-auto{margin-top:auto!important}.efb.me-0{margin-right:0!important}.efb.me-1{margin-right:.25rem!important}.efb.me-2{margin-right:.5rem!important}.efb.me-3{margin-right:1rem!important}.efb.me-4{margin-right:1.5rem!important}.efb.me-5{margin-right:3rem!important}.efb.me-auto{margin-right:auto!important}.efb.mb-0{margin-bottom:0!important}.efb.mb-1{margin-bottom:.25rem!important}.efb.mb-2{margin-bottom:.5rem!important}.efb.mb-3{margin-bottom:1rem!important}.efb.mb-4{margin-bottom:1.5rem!important}.efb.mb-5{margin-bottom:3rem!important}.efb.mb-auto{margin-bottom:auto!important}.efb.ms-0{margin-left:0!important}.efb.ms-1{margin-left:.25rem!important}.efb.ms-2{margin-left:.5rem!important}.efb.ms-3{margin-left:1rem!important}.efb.ms-4{margin-left:1.5rem!important}.efb.ms-5{margin-left:3rem!important}.efb.ms-auto{margin-left:auto!important}.efb.p-0{padding:0!important}.efb.p-1{padding:.25rem!important}.efb.p-2{padding:.5rem!important}.efb.p-3{padding:1rem!important}.efb.p-4{padding:1.5rem!important}.efb.p-5{padding:3rem!important}.efb.px-0{padding-right:0!important;padding-left:0!important}.efb.px-1{padding-right:.25rem!important;padding-left:.25rem!important}.efb.px-2{padding-right:.5rem!important;padding-left:.5rem!important}.efb.px-3{padding-right:1rem!important;padding-left:1rem!important}.efb.px-4{padding-right:1.5rem!important;padding-left:1.5rem!important}.efb.px-5{padding-right:3rem!important;padding-left:3rem!important}.efb.py-0{padding-top:0!important;padding-bottom:0!important}.efb.py-1{padding-top:.25rem!important;padding-bottom:.25rem!important}.efb.py-2{padding-top:.5rem!important;padding-bottom:.5rem!important}.efb.py-3{padding-top:1rem!important;padding-bottom:1rem!important}.efb.py-4{padding-top:1.5rem!important;padding-bottom:1.5rem!important}.efb.py-5{padding-top:3rem!important;padding-bottom:3rem!important}.efb.pt-0{padding-top:0!important}.efb.pt-1{padding-top:.25rem!important}.efb.pt-2{padding-top:.5rem!important}.efb.pt-3{padding-top:1rem!important}.efb.pt-4{padding-top:1.5rem!important}.efb.pt-5{padding-top:3rem!important}.efb.pe-0{padding-right:0!important}.efb.pe-1{padding-right:.25rem!important}.efb.pe-2{padding-right:.5rem!important}.efb.pe-3{padding-right:1rem!important}.efb.pe-4{padding-right:1.5rem!important}.efb.pe-5{padding-right:3rem!important}.efb.pb-0{padding-bottom:0!important}.efb.pb-1{padding-bottom:.25rem!important}.efb.pb-2{padding-bottom:.5rem!important}.efb.pb-3{padding-bottom:1rem!important}.efb.pb-4{padding-bottom:1.5rem!important}.efb.pb-5{padding-bottom:3rem!important}.efb.ps-0{padding-left:0!important}.efb.ps-1{padding-left:.25rem!important}.efb.ps-2{padding-left:.5rem!important}.efb.ps-3{padding-left:1rem!important}.efb.ps-4{padding-left:1.5rem!important}.efb.ps-5{padding-left:3rem!important}.efb.font-monospace{font-family:var(--bs-font-monospace)!important}.efb.fst-italic{font-style:italic!important}.efb.fst-normal{font-style:normal!important}.efb.fw-light{font-weight:300!important}.efb.fw-lighter{font-weight:lighter!important}.efb.fw-normal{font-weight:400!important}.efb.fw-bold{font-weight:700!important}.efb.fw-bolder{font-weight:bolder!important}.efb.lh-1{line-height:1!important}.efb.lh-sm{line-height:1.25!important}.efb.lh-base{line-height:1.5!important}.efb.lh-lg{line-height:2!important}.efb.text-start{text-align:left!important}.efb.text-end{text-align:right!important}.efb.text-center{text-align:center!important}.efb.text-decoration-none{text-decoration:none!important}.efb.text-decoration-underline{text-decoration:underline!important}.efb.text-decoration-line-through{text-decoration:line-through!important}.efb.text-lowercase{text-transform:lowercase!important}.efb.text-uppercase{text-transform:uppercase!important}.efb.text-capitalize{text-transform:capitalize!important}.efb.text-wrap{white-space:normal!important}.efb.text-nowrap{white-space:nowrap!important}.efb.text-break{word-wrap:break-word!important;word-break:break-word!important}.efb.text-primary{color:#0d6efd!important}.efb.text-secondary{color:#6c757d!important}.efb.text-success{color:#198754!important}.efb.text-info{color:#0dcaf0!important}.efb.text-warning{color:#ffc107!important}.efb.text-danger{color:#dc3545!important}.efb.text-light{color:#f8f9fa!important}.efb.text-dark{color:#212529!important}.efb.text-white{color:#fff!important}.efb.text-body{color:#212529!important}.efb.text-muted{color:#6c757d!important}.efb.text-black-50{color:rgba(0,0,0,.5)!important}.efb.text-white-50{color:rgba(255,255,255,.5)!important}.efb.text-reset{color:inherit!important}.efb.bg-primary{background-color:#0d6efd!important}.efb.bg-secondary{background-color:#6c757d!important}.efb.bg-success{background-color:#198754!important}.efb.bg-info{background-color:#0dcaf0!important}.efb.bg-warning{background-color:#ffc107!important}.efb.bg-danger{background-color:#dc3545!important}.efb.bg-light{background-color:#f8f9fa!important}.efb.bg-dark{background-color:#212529!important}.efb.bg-body{background-color:#fff!important}.efb.bg-white{background-color:#fff!important}.efb.bg-transparent{background-color:transparent!important}.efb.bg-gradient{background-image:var(--bs-gradient)!important}.efb.user-select-all{-webkit-user-select:all!important;-moz-user-select:all!important;user-select:all!important}.efb.user-select-auto{-webkit-user-select:auto!important;-moz-user-select:auto!important;user-select:auto!important}.efb.user-select-none{-webkit-user-select:none!important;-moz-user-select:none!important;user-select:none!important}.efb.pe-none{pointer-events:none!important}.efb.pe-auto{pointer-events:auto!important}.efb.rounded{border-radius:.25rem!important}.efb.rounded-0{border-radius:0!important}.efb.rounded-1{border-radius:.2rem!important}.efb.rounded-2{border-radius:.25rem!important}.efb.rounded-3{border-radius:.3rem!important}.efb.rounded-circle{border-radius:50%!important}.efb.rounded-pill{border-radius:50rem!important}.efb.rounded-top{border-top-left-radius:.25rem!important;border-top-right-radius:.25rem!important}.efb.rounded-end{border-top-right-radius:.25rem!important;border-bottom-right-radius:.25rem!important}.efb.rounded-bottom{border-bottom-right-radius:.25rem!important;border-bottom-left-radius:.25rem!important}.efb.rounded-start{border-bottom-left-radius:.25rem!important;border-top-left-radius:.25rem!important}.efb.visible{visibility:visible!important}.efb.invisible{visibility:hidden!important}@media (min-width:576px){.efb.float-sm-start{float:left!important}.efb.float-sm-end{float:right!important}.efb.float-sm-none{float:none!important}.efb.d-sm-inline{display:inline!important}.efb.d-sm-inline-block{display:inline-block!important}.efb.d-sm-block{display:block!important}.efb.d-sm-grid{display:grid!important}.efb.d-sm-flex{display:flex!important}.efb.d-sm-inline-flex{display:inline-flex!important}.efb.d-sm-none{display:none!important}.efb.flex-sm-fill{flex:1 1 auto!important}.efb.flex-sm-row{flex-direction:row!important}.efb.flex-sm-column{flex-direction:column!important}.efb.flex-sm-row-reverse{flex-direction:row-reverse!important}.efb.flex-sm-column-reverse{flex-direction:column-reverse!important}.efb.flex-sm-grow-0{flex-grow:0!important}.efb.flex-sm-grow-1{flex-grow:1!important}.efb.flex-sm-shrink-0{flex-shrink:0!important}.efb.flex-sm-shrink-1{flex-shrink:1!important}.efb.flex-sm-wrap{flex-wrap:wrap!important}.efb.flex-sm-nowrap{flex-wrap:nowrap!important}.efb.flex-sm-wrap-reverse{flex-wrap:wrap-reverse!important}.efb.justify-content-sm-start{justify-content:flex-start!important}.efb.justify-content-sm-end{justify-content:flex-end!important}.efb.justify-content-sm-center{justify-content:center!important}.efb.justify-content-sm-between{justify-content:space-between!important}.efb.justify-content-sm-around{justify-content:space-around!important}.efb.justify-content-sm-evenly{justify-content:space-evenly!important}.efb.align-items-sm-start{align-items:flex-start!important}.efb.align-items-sm-end{align-items:flex-end!important}.efb.align-items-sm-center{align-items:center!important}.efb.align-items-sm-baseline{align-items:baseline!important}.efb.align-items-sm-stretch{align-items:stretch!important}.efb.m-sm-0{margin:0!important}.efb.m-sm-1{margin:.25rem!important}.efb.m-sm-2{margin:.5rem!important}.efb.m-sm-3{margin:1rem!important}.efb.m-sm-4{margin:1.5rem!important}.efb.m-sm-5{margin:3rem!important}.efb.m-sm-auto{margin:auto!important}.efb.mx-sm-0{margin-right:0!important;margin-left:0!important}.efb.mx-sm-1{margin-right:.25rem!important;margin-left:.25rem!important}.efb.mx-sm-2{margin-right:.5rem!important;margin-left:.5rem!important}.efb.mx-sm-3{margin-right:1rem!important;margin-left:1rem!important}.efb.mx-sm-4{margin-right:1.5rem!important;margin-left:1.5rem!important}.efb.mx-sm-5{margin-right:3rem!important;margin-left:3rem!important}.efb.mx-sm-auto{margin-right:auto!important;margin-left:auto!important}.efb.my-sm-0{margin-top:0!important;margin-bottom:0!important}.efb.my-sm-1{margin-top:.25rem!important;margin-bottom:.25rem!important}.efb.my-sm-2{margin-top:.5rem!important;margin-bottom:.5rem!important}.efb.my-sm-3{margin-top:1rem!important;margin-bottom:1rem!important}.efb.my-sm-4{margin-top:1.5rem!important;margin-bottom:1.5rem!important}.efb.my-sm-5{margin-top:3rem!important;margin-bottom:3rem!important}.efb.my-sm-auto{margin-top:auto!important;margin-bottom:auto!important}.efb.mt-sm-0{margin-top:0!important}.efb.mt-sm-1{margin-top:.25rem!important}.efb.mt-sm-2{margin-top:.5rem!important}.efb.mt-sm-3{margin-top:1rem!important}.efb.mt-sm-4{margin-top:1.5rem!important}.efb.mt-sm-5{margin-top:3rem!important}.efb.mt-sm-auto{margin-top:auto!important}.efb.me-sm-0{margin-right:0!important}.efb.me-sm-1{margin-right:.25rem!important}.efb.me-sm-2{margin-right:.5rem!important}.efb.me-sm-3{margin-right:1rem!important}.efb.me-sm-4{margin-right:1.5rem!important}.efb.me-sm-5{margin-right:3rem!important}.efb.me-sm-auto{margin-right:auto!important}.efb.mb-sm-0{margin-bottom:0!important}.efb.mb-sm-1{margin-bottom:.25rem!important}.efb.mb-sm-2{margin-bottom:.5rem!important}.efb.mb-sm-3{margin-bottom:1rem!important}.efb.mb-sm-4{margin-bottom:1.5rem!important}.efb.mb-sm-5{margin-bottom:3rem!important}.efb.mb-sm-auto{margin-bottom:auto!important}.efb.ms-sm-0{margin-left:0!important}.efb.ms-sm-1{margin-left:.25rem!important}.efb.ms-sm-2{margin-left:.5rem!important}.efb.ms-sm-3{margin-left:1rem!important}.efb.ms-sm-4{margin-left:1.5rem!important}.efb.ms-sm-5{margin-left:3rem!important}.efb.ms-sm-auto{margin-left:auto!important}.efb.p-sm-0{padding:0!important}.efb.p-sm-1{padding:.25rem!important}.efb.p-sm-2{padding:.5rem!important}.efb.p-sm-3{padding:1rem!important}.efb.p-sm-4{padding:1.5rem!important}.efb.p-sm-5{padding:3rem!important}.efb.px-sm-0{padding-right:0!important;padding-left:0!important}.efb.px-sm-1{padding-right:.25rem!important;padding-left:.25rem!important}.efb.px-sm-2{padding-right:.5rem!important;padding-left:.5rem!important}.efb.px-sm-3{padding-right:1rem!important;padding-left:1rem!important}.efb.px-sm-4{padding-right:1.5rem!important;padding-left:1.5rem!important}.efb.px-sm-5{padding-right:3rem!important;padding-left:3rem!important}.efb.py-sm-0{padding-top:0!important;padding-bottom:0!important}.efb.py-sm-1{padding-top:.25rem!important;padding-bottom:.25rem!important}.efb.py-sm-2{padding-top:.5rem!important;padding-bottom:.5rem!important}.efb.py-sm-3{padding-top:1rem!important;padding-bottom:1rem!important}.efb.py-sm-4{padding-top:1.5rem!important;padding-bottom:1.5rem!important}.efb.py-sm-5{padding-top:3rem!important;padding-bottom:3rem!important}.efb.pt-sm-0{padding-top:0!important}.efb.pt-sm-1{padding-top:.25rem!important}.efb.pt-sm-2{padding-top:.5rem!important}.efb.pt-sm-3{padding-top:1rem!important}.efb.pt-sm-4{padding-top:1.5rem!important}.efb.pt-sm-5{padding-top:3rem!important}.efb.pe-sm-0{padding-right:0!important}.efb.pe-sm-1{padding-right:.25rem!important}.efb.pe-sm-2{padding-right:.5rem!important}.efb.pe-sm-3{padding-right:1rem!important}.efb.pe-sm-4{padding-right:1.5rem!important}.efb.pe-sm-5{padding-right:3rem!important}.efb.pb-sm-0{padding-bottom:0!important}.efb.pb-sm-1{padding-bottom:.25rem!important}.efb.pb-sm-2{padding-bottom:.5rem!important}.efb.pb-sm-3{padding-bottom:1rem!important}.efb.pb-sm-4{padding-bottom:1.5rem!important}.efb.pb-sm-5{padding-bottom:3rem!important}.efb.ps-sm-0{padding-left:0!important}.efb.ps-sm-1{padding-left:.25rem!important}.efb.ps-sm-2{padding-left:.5rem!important}.efb.ps-sm-3{padding-left:1rem!important}.efb.ps-sm-4{padding-left:1.5rem!important}.efb.ps-sm-5{padding-left:3rem!important}.efb.text-sm-start{text-align:left!important}.efb.text-sm-end{text-align:right!important}.efb.text-sm-center{text-align:center!important}}@media (min-width:768px){.efb.float-md-start{float:left!important}.efb.float-md-end{float:right!important}.efb.float-md-none{float:none!important}.efb.d-md-inline{display:inline!important}.efb.d-md-inline-block{display:inline-block!important}.efb.d-md-block{display:block!important}.efb.d-md-grid{display:grid!important}.efb.d-md-flex{display:flex!important}.efb.d-md-inline-flex{display:inline-flex!important}.efb.d-md-none{display:none!important}.efb.flex-md-fill{flex:1 1 auto!important}.efb.flex-md-row{flex-direction:row!important}.efb.flex-md-column{flex-direction:column!important}.efb.flex-md-row-reverse{flex-direction:row-reverse!important}.efb.flex-md-column-reverse{flex-direction:column-reverse!important}.efb.flex-md-grow-0{flex-grow:0!important}.efb.flex-md-grow-1{flex-grow:1!important}.efb.flex-md-shrink-0{flex-shrink:0!important}.efb.flex-md-shrink-1{flex-shrink:1!important}.efb.flex-md-wrap{flex-wrap:wrap!important}.efb.flex-md-nowrap{flex-wrap:nowrap!important}.efb.flex-md-wrap-reverse{flex-wrap:wrap-reverse!important}.efb.justify-content-md-start{justify-content:flex-start!important}.efb.justify-content-md-end{justify-content:flex-end!important}.efb.justify-content-md-center{justify-content:center!important}.efb.justify-content-md-between{justify-content:space-between!important}.efb.justify-content-md-around{justify-content:space-around!important}.efb.justify-content-md-evenly{justify-content:space-evenly!important}.efb.align-items-md-start{align-items:flex-start!important}.efb.align-items-md-end{align-items:flex-end!important}.efb.align-items-md-center{align-items:center!important}.efb.align-items-md-baseline{align-items:baseline!important}.efb.align-items-md-stretch{align-items:stretch!important}.efb.order-md-first{order:-1!important}.efb.order-md-0{order:0!important}.efb.order-md-1{order:1!important}.efb.order-md-2{order:2!important}.efb.order-md-3{order:3!important}.efb.order-md-4{order:4!important}.efb.order-md-5{order:5!important}.efb.order-md-last{order:6!important}.efb.m-md-0{margin:0!important}.efb.m-md-1{margin:.25rem!important}.efb.m-md-2{margin:.5rem!important}.efb.m-md-3{margin:1rem!important}.efb.m-md-4{margin:1.5rem!important}.efb.m-md-5{margin:3rem!important}.efb.m-md-auto{margin:auto!important}.efb.mx-md-0{margin-right:0!important;margin-left:0!important}.efb.mx-md-1{margin-right:.25rem!important;margin-left:.25rem!important}.efb.mx-md-2{margin-right:.5rem!important;margin-left:.5rem!important}.efb.mx-md-3{margin-right:1rem!important;margin-left:1rem!important}.efb.mx-md-4{margin-right:1.5rem!important;margin-left:1.5rem!important}.efb.mx-md-5{margin-right:3rem!important;margin-left:3rem!important}.efb.mx-md-auto{margin-right:auto!important;margin-left:auto!important}.efb.my-md-0{margin-top:0!important;margin-bottom:0!important}.efb.my-md-1{margin-top:.25rem!important;margin-bottom:.25rem!important}.efb.my-md-2{margin-top:.5rem!important;margin-bottom:.5rem!important}.efb.my-md-3{margin-top:1rem!important;margin-bottom:1rem!important}.efb.my-md-4{margin-top:1.5rem!important;margin-bottom:1.5rem!important}.efb.my-md-5{margin-top:3rem!important;margin-bottom:3rem!important}.efb.my-md-auto{margin-top:auto!important;margin-bottom:auto!important}.efb.mt-md-0{margin-top:0!important}.efb.mt-md-1{margin-top:.25rem!important}.efb.mt-md-2{margin-top:.5rem!important}.efb.mt-md-3{margin-top:1rem!important}.efb.mt-md-4{margin-top:1.5rem!important}.efb.mt-md-5{margin-top:3rem!important}.efb.mt-md-auto{margin-top:auto!important}.efb.me-md-0{margin-right:0!important}.efb.me-md-1{margin-right:.25rem!important}.efb.me-md-2{margin-right:.5rem!important}.efb.me-md-3{margin-right:1rem!important}.efb.me-md-4{margin-right:1.5rem!important}.efb.me-md-5{margin-right:3rem!important}.efb.me-md-auto{margin-right:auto!important}.efb.mb-md-0{margin-bottom:0!important}.efb.mb-md-1{margin-bottom:.25rem!important}.efb.mb-md-2{margin-bottom:.5rem!important}.efb.mb-md-3{margin-bottom:1rem!important}.efb.mb-md-4{margin-bottom:1.5rem!important}.efb.mb-md-5{margin-bottom:3rem!important}.efb.mb-md-auto{margin-bottom:auto!important}.efb.ms-md-0{margin-left:0!important}.efb.ms-md-1{margin-left:.25rem!important}.efb.ms-md-2{margin-left:.5rem!important}.efb.ms-md-3{margin-left:1rem!important}.efb.ms-md-4{margin-left:1.5rem!important}.efb.ms-md-5{margin-left:3rem!important}.efb.ms-md-auto{margin-left:auto!important}.efb.p-md-0{padding:0!important}.efb.p-md-1{padding:.25rem!important}.efb.p-md-2{padding:.5rem!important}.efb.p-md-3{padding:1rem!important}.efb.p-md-4{padding:1.5rem!important}.efb.p-md-5{padding:3rem!important}.efb.px-md-0{padding-right:0!important;padding-left:0!important}.efb.px-md-1{padding-right:.25rem!important;padding-left:.25rem!important}.efb.px-md-2{padding-right:.5rem!important;padding-left:.5rem!important}.efb.px-md-3{padding-right:1rem!important;padding-left:1rem!important}.efb.px-md-4{padding-right:1.5rem!important;padding-left:1.5rem!important}.efb.px-md-5{padding-right:3rem!important;padding-left:3rem!important}.efb.py-md-0{padding-top:0!important;padding-bottom:0!important}.efb.py-md-1{padding-top:.25rem!important;padding-bottom:.25rem!important}.efb.py-md-2{padding-top:.5rem!important;padding-bottom:.5rem!important}.efb.py-md-3{padding-top:1rem!important;padding-bottom:1rem!important}.efb.py-md-4{padding-top:1.5rem!important;padding-bottom:1.5rem!important}.efb.py-md-5{padding-top:3rem!important;padding-bottom:3rem!important}.efb.pt-md-0{padding-top:0!important}.efb.pt-md-1{padding-top:.25rem!important}.efb.pt-md-2{padding-top:.5rem!important}.efb.pt-md-3{padding-top:1rem!important}.efb.pt-md-4{padding-top:1.5rem!important}.efb.pt-md-5{padding-top:3rem!important}.efb.pe-md-0{padding-right:0!important}.efb.pe-md-1{padding-right:.25rem!important}.efb.pe-md-2{padding-right:.5rem!important}.efb.pe-md-3{padding-right:1rem!important}.efb.pe-md-4{padding-right:1.5rem!important}.efb.pe-md-5{padding-right:3rem!important}.efb.pb-md-0{padding-bottom:0!important}.efb.pb-md-1{padding-bottom:.25rem!important}.efb.pb-md-2{padding-bottom:.5rem!important}.efb.pb-md-3{padding-bottom:1rem!important}.efb.pb-md-4{padding-bottom:1.5rem!important}.efb.pb-md-5{padding-bottom:3rem!important}.efb.ps-md-0{padding-left:0!important}.efb.ps-md-1{padding-left:.25rem!important}.efb.ps-md-2{padding-left:.5rem!important}.efb.ps-md-3{padding-left:1rem!important}.efb.ps-md-4{padding-left:1.5rem!important}.efb.ps-md-5{padding-left:3rem!important}.efb.text-md-start{text-align:left!important}.efb.text-md-end{text-align:right!important}.efb.text-md-center{text-align:center!important}}@media (min-width:992px){.efb.float-lg-start{float:left!important}.efb.float-lg-end{float:right!important}.efb.float-lg-none{float:none!important}.efb.d-lg-inline{display:inline!important}.efb.d-lg-inline-block{display:inline-block!important}.efb.d-lg-block{display:block!important}.efb.d-lg-grid{display:grid!important}.efb.d-lg-flex{display:flex!important}.efb.d-lg-inline-flex{display:inline-flex!important}.efb.d-lg-none{display:none!important}.efb.flex-lg-fill{flex:1 1 auto!important}.efb.flex-lg-row{flex-direction:row!important}.efb.flex-lg-column{flex-direction:column!important}.efb.flex-lg-row-reverse{flex-direction:row-reverse!important}.efb.flex-lg-column-reverse{flex-direction:column-reverse!important}.efb.flex-lg-grow-0{flex-grow:0!important}.efb.flex-lg-grow-1{flex-grow:1!important}.efb.flex-lg-shrink-0{flex-shrink:0!important}.efb.flex-lg-shrink-1{flex-shrink:1!important}.efb.flex-lg-wrap{flex-wrap:wrap!important}.efb.flex-lg-nowrap{flex-wrap:nowrap!important}.efb.flex-lg-wrap-reverse{flex-wrap:wrap-reverse!important}.efb.justify-content-lg-start{justify-content:flex-start!important}.efb.justify-content-lg-end{justify-content:flex-end!important}.efb.justify-content-lg-center{justify-content:center!important}.efb.justify-content-lg-between{justify-content:space-between!important}.efb.justify-content-lg-around{justify-content:space-around!important}.efb.justify-content-lg-evenly{justify-content:space-evenly!important}.efb.align-items-lg-start{align-items:flex-start!important}.efb.align-items-lg-end{align-items:flex-end!important}.efb.align-items-lg-center{align-items:center!important}.efb.align-items-lg-baseline{align-items:baseline!important}.efb.align-items-lg-stretch{align-items:stretch!important}.efb.order-lg-first{order:-1!important}.efb.order-lg-0{order:0!important}.efb.order-lg-1{order:1!important}.efb.order-lg-2{order:2!important}.efb.order-lg-3{order:3!important}.efb.order-lg-4{order:4!important}.efb.order-lg-5{order:5!important}.efb.order-lg-last{order:6!important}.efb.m-lg-0{margin:0!important}.efb.m-lg-1{margin:.25rem!important}.efb.m-lg-2{margin:.5rem!important}.efb.m-lg-3{margin:1rem!important}.efb.m-lg-4{margin:1.5rem!important}.efb.m-lg-5{margin:3rem!important}.efb.m-lg-auto{margin:auto!important}.efb.mx-lg-0{margin-right:0!important;margin-left:0!important}.efb.mx-lg-1{margin-right:.25rem!important;margin-left:.25rem!important}.efb.mx-lg-2{margin-right:.5rem!important;margin-left:.5rem!important}.efb.mx-lg-3{margin-right:1rem!important;margin-left:1rem!important}.efb.mx-lg-4{margin-right:1.5rem!important;margin-left:1.5rem!important}.efb.mx-lg-5{margin-right:3rem!important;margin-left:3rem!important}.efb.mx-lg-auto{margin-right:auto!important;margin-left:auto!important}.efb.my-lg-0{margin-top:0!important;margin-bottom:0!important}.efb.my-lg-1{margin-top:.25rem!important;margin-bottom:.25rem!important}.efb.my-lg-2{margin-top:.5rem!important;margin-bottom:.5rem!important}.efb.my-lg-3{margin-top:1rem!important;margin-bottom:1rem!important}.efb.my-lg-4{margin-top:1.5rem!important;margin-bottom:1.5rem!important}.efb.my-lg-5{margin-top:3rem!important;margin-bottom:3rem!important}.efb.my-lg-auto{margin-top:auto!important;margin-bottom:auto!important}.efb.mt-lg-0{margin-top:0!important}.efb.mt-lg-1{margin-top:.25rem!important}.efb.mt-lg-2{margin-top:.5rem!important}.efb.mt-lg-3{margin-top:1rem!important}.efb.mt-lg-4{margin-top:1.5rem!important}.efb.mt-lg-5{margin-top:3rem!important}.efb.mt-lg-auto{margin-top:auto!important}.efb.me-lg-0{margin-right:0!important}.efb.me-lg-1{margin-right:.25rem!important}.efb.me-lg-2{margin-right:.5rem!important}.efb.me-lg-3{margin-right:1rem!important}.efb.me-lg-4{margin-right:1.5rem!important}.efb.me-lg-5{margin-right:3rem!important}.efb.me-lg-auto{margin-right:auto!important}.efb.mb-lg-0{margin-bottom:0!important}.efb.mb-lg-1{margin-bottom:.25rem!important}.efb.mb-lg-2{margin-bottom:.5rem!important}.efb.mb-lg-3{margin-bottom:1rem!important}.efb.mb-lg-4{margin-bottom:1.5rem!important}.efb.mb-lg-5{margin-bottom:3rem!important}.efb.mb-lg-auto{margin-bottom:auto!important}.efb.ms-lg-0{margin-left:0!important}.efb.ms-lg-1{margin-left:.25rem!important}.efb.ms-lg-2{margin-left:.5rem!important}.efb.ms-lg-3{margin-left:1rem!important}.efb.ms-lg-4{margin-left:1.5rem!important}.efb.ms-lg-5{margin-left:3rem!important}.efb.ms-lg-auto{margin-left:auto!important}.efb.p-lg-0{padding:0!important}.efb.p-lg-1{padding:.25rem!important}.efb.p-lg-2{padding:.5rem!important}.efb.p-lg-3{padding:1rem!important}.efb.p-lg-4{padding:1.5rem!important}.efb.p-lg-5{padding:3rem!important}.efb.px-lg-0{padding-right:0!important;padding-left:0!important}.efb.px-lg-1{padding-right:.25rem!important;padding-left:.25rem!important}.efb.px-lg-2{padding-right:.5rem!important;padding-left:.5rem!important}.efb.px-lg-3{padding-right:1rem!important;padding-left:1rem!important}.efb.px-lg-4{padding-right:1.5rem!important;padding-left:1.5rem!important}.efb.px-lg-5{padding-right:3rem!important;padding-left:3rem!important}.efb.py-lg-0{padding-top:0!important;padding-bottom:0!important}.efb.py-lg-1{padding-top:.25rem!important;padding-bottom:.25rem!important}.efb.py-lg-2{padding-top:.5rem!important;padding-bottom:.5rem!important}.efb.py-lg-3{padding-top:1rem!important;padding-bottom:1rem!important}.efb.py-lg-4{padding-top:1.5rem!important;padding-bottom:1.5rem!important}.efb.py-lg-5{padding-top:3rem!important;padding-bottom:3rem!important}.efb.pt-lg-0{padding-top:0!important}.efb.pt-lg-1{padding-top:.25rem!important}.efb.pt-lg-2{padding-top:.5rem!important}.efb.pt-lg-3{padding-top:1rem!important}.efb.pt-lg-4{padding-top:1.5rem!important}.efb.pt-lg-5{padding-top:3rem!important}.efb.pe-lg-0{padding-right:0!important}.efb.pe-lg-1{padding-right:.25rem!important}.efb.pe-lg-2{padding-right:.5rem!important}.efb.pe-lg-3{padding-right:1rem!important}.efb.pe-lg-4{padding-right:1.5rem!important}.efb.pe-lg-5{padding-right:3rem!important}.efb.pb-lg-0{padding-bottom:0!important}.efb.pb-lg-1{padding-bottom:.25rem!important}.efb.pb-lg-2{padding-bottom:.5rem!important}.efb.pb-lg-3{padding-bottom:1rem!important}.efb.pb-lg-4{padding-bottom:1.5rem!important}.efb.pb-lg-5{padding-bottom:3rem!important}.efb.ps-lg-0{padding-left:0!important}.efb.ps-lg-1{padding-left:.25rem!important}.efb.ps-lg-2{padding-left:.5rem!important}.efb.ps-lg-3{padding-left:1rem!important}.efb.ps-lg-4{padding-left:1.5rem!important}.efb.ps-lg-5{padding-left:3rem!important}.efb.text-lg-start{text-align:left!important}.efb.text-lg-end{text-align:right!important}.efb.text-lg-center{text-align:center!important}}@media (min-width:1200px){.efb.float-xl-start{float:left!important}.efb.float-xl-end{float:right!important}.efb.float-xl-none{float:none!important}.efb.d-xl-inline{display:inline!important}.efb.d-xl-inline-block{display:inline-block!important}.efb.d-xl-block{display:block!important}.efb.d-xl-grid{display:grid!important}.efb.d-xl-flex{display:flex!important}.efb.d-xl-inline-flex{display:inline-flex!important}.efb.d-xl-none{display:none!important}.efb.flex-xl-fill{flex:1 1 auto!important}.efb.flex-xl-row{flex-direction:row!important}.efb.flex-xl-column{flex-direction:column!important}.efb.flex-xl-row-reverse{flex-direction:row-reverse!important}.efb.flex-xl-column-reverse{flex-direction:column-reverse!important}.efb.flex-xl-grow-0{flex-grow:0!important}.efb.flex-xl-grow-1{flex-grow:1!important}.efb.flex-xl-shrink-0{flex-shrink:0!important}.efb.flex-xl-shrink-1{flex-shrink:1!important}.efb.flex-xl-wrap{flex-wrap:wrap!important}.efb.flex-xl-nowrap{flex-wrap:nowrap!important}.efb.flex-xl-wrap-reverse{flex-wrap:wrap-reverse!important}.efb.justify-content-xl-start{justify-content:flex-start!important}.efb.justify-content-xl-end{justify-content:flex-end!important}.efb.justify-content-xl-center{justify-content:center!important}.efb.justify-content-xl-between{justify-content:space-between!important}.efb.justify-content-xl-around{justify-content:space-around!important}.efb.justify-content-xl-evenly{justify-content:space-evenly!important}.efb.align-items-xl-start{align-items:flex-start!important}.efb.align-items-xl-end{align-items:flex-end!important}.efb.align-items-xl-center{align-items:center!important}.efb.align-items-xl-baseline{align-items:baseline!important}.efb.align-items-xl-stretch{align-items:stretch!important}.efb.order-xl-first{order:-1!important}.efb.order-xl-0{order:0!important}.efb.order-xl-1{order:1!important}.efb.order-xl-2{order:2!important}.efb.order-xl-3{order:3!important}.efb.order-xl-4{order:4!important}.efb.order-xl-5{order:5!important}.efb.order-xl-last{order:6!important}.efb.m-xl-0{margin:0!important}.efb.m-xl-1{margin:.25rem!important}.efb.m-xl-2{margin:.5rem!important}.efb.m-xl-3{margin:1rem!important}.efb.m-xl-4{margin:1.5rem!important}.efb.m-xl-5{margin:3rem!important}.efb.m-xl-auto{margin:auto!important}.efb.mx-xl-0{margin-right:0!important;margin-left:0!important}.efb.mx-xl-1{margin-right:.25rem!important;margin-left:.25rem!important}.efb.mx-xl-2{margin-right:.5rem!important;margin-left:.5rem!important}.efb.mx-xl-3{margin-right:1rem!important;margin-left:1rem!important}.efb.mx-xl-4{margin-right:1.5rem!important;margin-left:1.5rem!important}.efb.mx-xl-5{margin-right:3rem!important;margin-left:3rem!important}.efb.mx-xl-auto{margin-right:auto!important;margin-left:auto!important}.efb.my-xl-0{margin-top:0!important;margin-bottom:0!important}.efb.my-xl-1{margin-top:.25rem!important;margin-bottom:.25rem!important}.efb.my-xl-2{margin-top:.5rem!important;margin-bottom:.5rem!important}.efb.my-xl-3{margin-top:1rem!important;margin-bottom:1rem!important}.efb.my-xl-4{margin-top:1.5rem!important;margin-bottom:1.5rem!important}.efb.my-xl-5{margin-top:3rem!important;margin-bottom:3rem!important}.efb.my-xl-auto{margin-top:auto!important;margin-bottom:auto!important}.efb.mt-xl-0{margin-top:0!important}.efb.mt-xl-1{margin-top:.25rem!important}.efb.mt-xl-2{margin-top:.5rem!important}.efb.mt-xl-3{margin-top:1rem!important}.efb.mt-xl-4{margin-top:1.5rem!important}.efb.mt-xl-5{margin-top:3rem!important}.efb.mt-xl-auto{margin-top:auto!important}.efb.me-xl-0{margin-right:0!important}.efb.me-xl-1{margin-right:.25rem!important}.efb.me-xl-2{margin-right:.5rem!important}.efb.me-xl-3{margin-right:1rem!important}.efb.me-xl-4{margin-right:1.5rem!important}.efb.me-xl-5{margin-right:3rem!important}.efb.me-xl-auto{margin-right:auto!important}.efb.mb-xl-0{margin-bottom:0!important}.efb.mb-xl-1{margin-bottom:.25rem!important}.efb.mb-xl-2{margin-bottom:.5rem!important}.efb.mb-xl-3{margin-bottom:1rem!important}.efb.mb-xl-4{margin-bottom:1.5rem!important}.efb.mb-xl-5{margin-bottom:3rem!important}.efb.mb-xl-auto{margin-bottom:auto!important}.efb.ms-xl-0{margin-left:0!important}.efb.ms-xl-1{margin-left:.25rem!important}.efb.ms-xl-2{margin-left:.5rem!important}.efb.ms-xl-3{margin-left:1rem!important}.efb.ms-xl-4{margin-left:1.5rem!important}.efb.ms-xl-5{margin-left:3rem!important}.efb.ms-xl-auto{margin-left:auto!important}.efb.p-xl-0{padding:0!important}.efb.p-xl-1{padding:.25rem!important}.efb.p-xl-2{padding:.5rem!important}.efb.p-xl-3{padding:1rem!important}.efb.p-xl-4{padding:1.5rem!important}.efb.p-xl-5{padding:3rem!important}.efb.px-xl-0{padding-right:0!important;padding-left:0!important}.efb.px-xl-1{padding-right:.25rem!important;padding-left:.25rem!important}.efb.px-xl-2{padding-right:.5rem!important;padding-left:.5rem!important}.efb.px-xl-3{padding-right:1rem!important;padding-left:1rem!important}.efb.px-xl-4{padding-right:1.5rem!important;padding-left:1.5rem!important}.efb.px-xl-5{padding-right:3rem!important;padding-left:3rem!important}.efb.py-xl-0{padding-top:0!important;padding-bottom:0!important}.efb.py-xl-1{padding-top:.25rem!important;padding-bottom:.25rem!important}.efb.py-xl-2{padding-top:.5rem!important;padding-bottom:.5rem!important}.efb.py-xl-3{padding-top:1rem!important;padding-bottom:1rem!important}.efb.py-xl-4{padding-top:1.5rem!important;padding-bottom:1.5rem!important}.efb.py-xl-5{padding-top:3rem!important;padding-bottom:3rem!important}.efb.pt-xl-0{padding-top:0!important}.efb.pt-xl-1{padding-top:.25rem!important}.efb.pt-xl-2{padding-top:.5rem!important}.efb.pt-xl-3{padding-top:1rem!important}.efb.pt-xl-4{padding-top:1.5rem!important}.efb.pt-xl-5{padding-top:3rem!important}.efb.pe-xl-0{padding-right:0!important}.efb.pe-xl-1{padding-right:.25rem!important}.efb.pe-xl-2{padding-right:.5rem!important}.efb.pe-xl-3{padding-right:1rem!important}.efb.pe-xl-4{padding-right:1.5rem!important}.efb.pe-xl-5{padding-right:3rem!important}.efb.pb-xl-0{padding-bottom:0!important}.efb.pb-xl-1{padding-bottom:.25rem!important}.efb.pb-xl-2{padding-bottom:.5rem!important}.efb.pb-xl-3{padding-bottom:1rem!important}.efb.pb-xl-4{padding-bottom:1.5rem!important}.efb.pb-xl-5{padding-bottom:3rem!important}.efb.ps-xl-0{padding-left:0!important}.efb.ps-xl-1{padding-left:.25rem!important}.efb.ps-xl-2{padding-left:.5rem!important}.efb.ps-xl-3{padding-left:1rem!important}.efb.ps-xl-4{padding-left:1.5rem!important}.efb.ps-xl-5{padding-left:3rem!important}.efb.text-xl-start{text-align:left!important}.efb.text-xl-end{text-align:right!important}.efb.text-xl-center{text-align:center!important}}@media (min-width:1200px){}@media print{.efb.d-print-inline{display:inline!important}.efb.d-print-inline-block{display:inline-block!important}.efb.d-print-block{display:block!important}.efb.d-print-grid{display:grid!important}.efb.d-print-flex{display:flex!important}.efb.d-print-inline-flex{display:inline-flex!important}.efb.d-print-none{display:none!important}}label input[type="radio"].efb{visibility:hidden}
+			@charset "UTF-8";:root{--bs-blue:#0d6efd;--bs-indigo:#6610f2;--bs-purple:#6f42c1;--bs-pink:#d63384;--bs-red:#dc3545;--bs-orange:#fd7e14;--bs-yellow:#ffc107;--bs-green:#198754;--bs-teal:#20c997;--bs-cyan:#0dcaf0;--bs-white:#fff;--bs-gray:#6c757d;--bs-gray-dark:#343a40;--bs-primary:#0d6efd;--bs-secondary:#6c757d;--bs-success:#198754;--bs-info:#0dcaf0;--bs-warning:#ffc107;--bs-danger:#dc3545;--bs-light:#f8f9fa;--bs-dark:#212529;--bs-gradient:linear-gradient(180deg,rgba(255,255,255,.15),rgba(255,255,255,0))}.efb,.efb::after,.efb::before{box-sizing:border-box}@media (prefers-reduced-motion:no-preference){:root.efb{scroll-behavior:smooth}}hr .efb{margin:1rem 0;color:inherit;background-color:currentColor;border:0;opacity:.25}hr .efb:not([size]){height:1px}.efb.h1,.efb.h2,.efb.h3,.efb.h4,.efb.h5,.efb.h6,h1.efb,h2.efb,h3.efb,h4.efb,h5.efb,h6.efb{margin-top:0;margin-bottom:.5rem;font-weight:500;line-height:1.2}.efb.h1,h1.efb{font-size:calc(1.375rem + 1.5vw)}@media (min-width:1200px){.efb.h1,h1.efb{font-size:2.5rem}}.efb.h2,h2.efb{font-size:calc(1.325rem + .9vw)}@media (min-width:1200px){.h2.efb,h2.efb{font-size:2rem}}.efb.h3,h3.efb{font-size:calc(1.3rem + .6vw)}@media (min-width:1200px){.efb.h3,h3.efb{font-size:1.75rem}}.efb.h4,h4.efb{font-size:calc(1.275rem + .3vw)}@media (min-width:1200px){.h4.efb,h4.efb{font-size:1.5rem}}.efb.h5,h5.efb{font-size:1.25rem}.efb.h6,h6.efb{font-size:1rem}p.efb{margin-top:0;margin-bottom:1rem}abbr.efb[data-bs-original-title],abbr[title].efb{-webkit-text-decoration:underline dotted;text-decoration:underline dotted;cursor:help;-webkit-text-decoration-skip-ink:none;text-decoration-skip-ink:none}address.efb{margin-bottom:1rem;font-style:normal;line-height:inherit}ol.efb,ul.efb{padding-left:2rem}dl.efb,ol.efb,ul.efb{margin-top:0;margin-bottom:1rem}ol.efb ol.efb,ol.efb ul.efb,ul.efb ol.efb,ul.efb ul.efb{margin-bottom:0}dt.efb{font-weight:700}dd.efb{margin-bottom:.5rem;margin-left:0}blockquote.efb{margin:0 0 1rem}b.efb,strong.efb{font-weight:bolder}.efb.small,small.efb{font-size:.875em}.efb.mark,mark.efb{padding:.2em;background-color:#fcf8e3}sub.efb,sup.efb{position:relative;font-size:.75em;line-height:0;vertical-align:baseline}sub.efb{bottom:-.25em}sup.efb{top:-.5em}a.efb{color:#0d6efd;text-decoration:underline}a.efb:hover{color:#0a58ca}a.efb:not([href]):not([class]),a.efb:not([href]):not([class]):hover{color:inherit;text-decoration:none}code.efb,kbd.efb,pre.efb,samp.efb{font-family:var(--bs-font-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace);font-size:1em;direction:ltr;unicode-bidi:bidi-override}pre.efb{display:block;margin-top:0;margin-bottom:1rem;overflow:auto;font-size:.875em}pre code.efb{font-size:inherit;color:inherit;word-break:normal}code.efb{font-size:.875em;color:#d63384;word-wrap:break-word}a.efb>code{color:inherit}kbd.efb{padding:.2rem .4rem;font-size:.875em;color:#fff;background-color:#212529;border-radius:.2rem}kbd.efb kbd{padding:0;font-size:1em;font-weight:700}figure.efb{margin:0 0 1rem}img.efb,svg.efb{vertical-align:middle}table.efb{caption-side:bottom;border-collapse:collapse}caption.efb{padding-top:.5rem;padding-bottom:.5rem;color:#6c757d;text-align:left}th.efb{text-align:inherit;text-align:-webkit-match-parent}tbody.efb,td.efb,tfoot.efb,th.efb,thead.efb,tr.efb{border-color:inherit;border-style:solid;border-width:0}label.efb{display:inline-block}button.efb{border-radius:0}button.efb:focus:not(:focus-visible){outline:0}button.efb,input.efb,optgroup.efb,select.efb,textarea.efb{margin:0;font-family:inherit;font-size:inherit;line-height:inherit;color:#a5a3d1}textarea.efb:focus{box-shadow:0 2px 10px rgba(84,131,207,.25)!important;color:#a5a3d1}button.efb,select.efb{text-transform:none}[role=button]{cursor:pointer}select.efb{word-wrap:normal}select.efb:disabled{opacity:1}[list].efb::-webkit-calendar-picker-indicator{display:none}[type=button],[type=reset],[type=submit],button.efb{-webkit-appearance:button}[type=button]:not(:disabled) .efb,[type=reset]:not(:disabled) .efb,[type=submit]:not(:disabled) .efb,button:not(:disabled) .efb{cursor:pointer}.efb::-moz-focus-inner{padding:0;border-style:none}textarea.efb{resize:vertical}fieldset.efb{min-width:0;padding:0;margin:0;border:0}legend.efb{float:left;width:100%;padding:0;margin-bottom:.5rem;font-size:calc(1.275rem + .3vw);line-height:inherit}@media (min-width:1200px){legend.efb{font-size:1.5rem}}legend.efb+*{clear:left}.efb::-webkit-datetime-edit-day-field,.efb::-webkit-datetime-edit-fields-wrapper,.efb::-webkit-datetime-edit-hour-field,.efb::-webkit-datetime-edit-minute,.efb::-webkit-datetime-edit-month-field,.efb::-webkit-datetime-edit-text,.efb::-webkit-datetime-edit-year-field{padding:0}.efb::-webkit-inner-spin-button{height:auto}[type=search] .efb{outline-offset:-2px;-webkit-appearance:textfield}.efb::-webkit-search-decoration{-webkit-appearance:none}.efb::-webkit-color-swatch-wrapper{padding:0}.efb::file-selector-button{font:inherit}.efb::-webkit-file-upload-button{font:inherit;-webkit-appearance:button}output.efb{display:inline-block}iframe.efb{border:0}summary.efb{display:list-item;cursor:pointer}progress.efb{vertical-align:baseline}[hidden]{display:none!important}.efb.lead{font-size:1.25rem;font-weight:300}.efb.display-1{font-size:calc(1.625rem + 4.5vw);font-weight:300;line-height:1.2}@media (min-width:1200px){.efb.display-1{font-size:5rem}}.efb.display-2{font-size:calc(1.575rem + 3.9vw);font-weight:300;line-height:1.2}@media (min-width:1200px){.efb.display-2{font-size:4.5rem}}.efb.display-3{font-size:calc(1.525rem + 3.3vw);font-weight:300;line-height:1.2}@media (min-width:1200px){.efb.display-3{font-size:4rem}}.efb.display-4{font-size:calc(1.475rem + 2.7vw);font-weight:300;line-height:1.2}@media (min-width:1200px){.efb.display-4{font-size:3.5rem}}.efb.display-5{font-size:calc(1.425rem + 2.1vw);font-weight:300;line-height:1.2}@media (min-width:1200px){.efb.display-5{font-size:3rem}}.efb.display-6{font-size:calc(1.375rem + 1.5vw);font-weight:300;line-height:1.2}@media (min-width:1200px){.efb.display-6{font-size:2.5rem}}.efb.list-unstyled{padding-left:0;list-style:none}.efb.list-inline{padding-left:0;list-style:none}.efb.list-inline-item{display:inline-block}.efb.list-inline-item:not(:last-child){margin-right:.5rem}.efb.initialism{font-size:.875em;text-transform:uppercase}.efb.blockquote{margin-bottom:1rem;font-size:1.25rem}.efb.blockquote>:last-child{margin-bottom:0}.efb.blockquote-footer{margin-top:-1rem;margin-bottom:1rem;font-size:.875em;color:#6c757d}.efb.blockquote-footer::before{content:"— "}.efb.img-fluid{max-width:100%;height:auto}.efb.img-thumbnail{padding:.25rem;background-color:#fff;border:1px solid #dee2e6;border-radius:.25rem;max-width:100%;height:auto}.efb.figure{display:inline-block}.efb.figure-img{margin-bottom:.5rem;line-height:1}.efb.figure-caption{font-size:.875em;color:#6c757d}.efb.container,.efb.container-fluid,.efb.container-lg,.efb.container-md,.efb.container-sm,.efb.container-xl,.efb.container-xxl{width:100%;padding-right:var(--bs-gutter-x,.75rem);padding-left:var(--bs-gutter-x,.75rem);margin-right:auto;margin-left:auto}@media (min-width:576px){.efb.container,.efb.container-sm{max-width:540px}}@media (min-width:768px){.efb.container,.efb.container-md,.efb.container-sm{max-width:720px}}@media (min-width:992px){.efb.container,.efb.container-lg,.efb.container-md,.efb.container-sm{max-width:960px}}@media (min-width:1200px){.efb.container,.efb.container-lg,.efb.container-md,.efb.container-sm,.efb.container-xl{max-width:1140px}}@media (min-width:1400px){.efb.container,.efb.container-lg,.efb.container-md,.efb.container-sm,.efb.container-xl,.efb.container-xxl{max-width:1320px}}.row.efb{--bs-gutter-x:1.5rem;--bs-gutter-y:0;display:flex;flex-wrap:wrap;margin-top:calc(var(--bs-gutter-y) * -1);margin-right:calc(var(--bs-gutter-x)/ -2);margin-left:calc(var(--bs-gutter-x)/ -2)}.efb.row>*{flex-shrink:0;width:100%;max-width:100%;padding-right:calc(var(--bs-gutter-x)/ 2);padding-left:calc(var(--bs-gutter-x)/ 2);margin-top:var(--bs-gutter-y)}.efb.col{flex:1 0 0%}.efb.row-cols-auto>*{flex:0 0 auto;width:auto}.efb.row-cols-1>*{flex:0 0 auto;width:100%}.efb.row-cols-2>*{flex:0 0 auto;width:50%}.efb.row-cols-3>*{flex:0 0 auto;width:33.3333333333%}.efb.row-cols-4>*{flex:0 0 auto;width:25%}.efb.row-cols-5>*{flex:0 0 auto;width:20%}.efb.row-cols-6>*{flex:0 0 auto;width:16.6666666667%}.col-auto{flex:0 0 auto;width:auto}.efb.col-1{flex:0 0 auto;width:8.3333333333%}.efb.col-2{flex:0 0 auto;width:16.6666666667%}.efb.efb-col-3{flex:0 0 auto;width:25%}.efb.col-4{flex:0 0 auto;width:33.3333333333%}.efb.col-5{flex:0 0 auto;width:41.6666666667%}.efb.col-6{flex:0 0 auto;width:50%}.efb.col-7{flex:0 0 auto;width:58.3333333333%}.efb.col-8{flex:0 0 auto;width:66.6666666667%}.efb.col-9{flex:0 0 auto;width:75%}.efb.col-10{flex:0 0 auto;width:83.3333333333%}.efb.col-11{flex:0 0 auto;width:91.6666666667%}.efb.col-12{flex:0 0 auto;width:100%}.efb.offset-1{margin-left:8.3333333333%}.efb.offset-2{margin-left:16.6666666667%}.efb.offset-3{margin-left:25%}.efb.offset-4{margin-left:33.3333333333%}.efb.offset-5{margin-left:41.6666666667%}.efb.offset-6{margin-left:50%}.efb.offset-7{margin-left:58.3333333333%}.efb.offset-8{margin-left:66.6666666667%}.efb.offset-9{margin-left:75%}.efb.offset-10{margin-left:83.3333333333%}.efb.offset-11{margin-left:91.6666666667%}.efb.g-0,.efb.gx-0{--bs-gutter-x:0}.efb.g-0,.efb.gy-0{--bs-gutter-y:0}.efb.g-1,.efb.gx-1{--bs-gutter-x:.25rem}.efb.g-1,.efb.gy-1{--bs-gutter-y:.25rem}.efb.g-2,.efb.gx-2{--bs-gutter-x:.5rem}.efb.g-2,.efb.gy-2{--bs-gutter-y:.5rem}.efb.g-3,.efb.gx-3{--bs-gutter-x:1rem}.efb.g-3,.efb.gy-3{--bs-gutter-y:1rem}.efb.g-4,.efb.gx-4{--bs-gutter-x:1.5rem}.efb.g-4,.efb.gy-4{--bs-gutter-y:1.5rem}.efb.g-5,.efb.gx-5{--bs-gutter-x:3rem}.efb.g-5,.efb.gy-5{--bs-gutter-y:3rem}@media (min-width:576px){.efb.col-sm{flex:1 0 0%}.efb.row-cols-sm-auto>*{flex:0 0 auto;width:auto}.efb.row-cols-sm-1>*{flex:0 0 auto;width:100%}.efb.row-cols-sm-2>*{flex:0 0 auto;width:50%}.efb.row-cols-sm-3>*{flex:0 0 auto;width:33.3333333333%}.efb.row-cols-sm-4>*{flex:0 0 auto;width:25%}.efb.row-cols-sm-5>*{flex:0 0 auto;width:20%}.efb.row-cols-sm-6>*{flex:0 0 auto;width:16.6666666667%}.efb.col-sm-auto{flex:0 0 auto;width:auto}.efb.col-sm-1{flex:0 0 auto;width:8.3333333333%}.efb.col-sm-2{flex:0 0 auto;width:16.6666666667%}.efb.col-sm-3{flex:0 0 auto;width:25%}.efb.col-sm-4{flex:0 0 auto;width:33.3333333333%}.efb.col-sm-5{flex:0 0 auto;width:41.6666666667%}.efb.col-sm-6{flex:0 0 auto;width:50%}.efb.col-sm-7{flex:0 0 auto;width:58.3333333333%}.efb.col-sm-8{flex:0 0 auto;width:66.6666666667%}.efb.col-sm-9{flex:0 0 auto;width:75%}.efb.col-sm-10{flex:0 0 auto;width:83.3333333333%}.efb.col-sm-11{flex:0 0 auto;width:91.6666666667%}.efb.col-sm-12{flex:0 0 auto;width:100%}}@media (min-width:768px){.efb.col-md{flex:1 0 0%}.efb.row-cols-md-auto>*{flex:0 0 auto;width:auto}.efb.row-cols-md-1>*{flex:0 0 auto;width:100%}.efb.row-cols-md-2>*{flex:0 0 auto;width:50%}.efb.row-cols-md-3>*{flex:0 0 auto;width:33.3333333333%}.efb.row-cols-md-4>*{flex:0 0 auto;width:25%}.efb.row-cols-md-5>*{flex:0 0 auto;width:20%}.efb.row-cols-md-6>*{flex:0 0 auto;width:16.6666666667%}.efb.col-md-auto{flex:0 0 auto;width:auto}.efb.col-md-1{flex:0 0 auto;width:8.3333333333%}.efb.col-md-2{flex:0 0 auto;width:16.6666666667%}.efb.col-md-3{flex:0 0 auto;width:25%}.efb.col-md-4{flex:0 0 auto;width:33.3333333333%}.efb.col-md-5{flex:0 0 auto;width:41.6666666667%}.efb.col-md-6{flex:0 0 auto;width:50%}.efb.col-md-7{flex:0 0 auto;width:58.3333333333%}.efb.col-md-8{flex:0 0 auto;width:66.6666666667%}.efb.col-md-9{flex:0 0 auto;width:75%}.efb.col-md-10{flex:0 0 auto;width:83.3333333333%}.efb.col-md-11{flex:0 0 auto;width:91.6666666667%}.efb.col-md-12{flex:0 0 auto;width:100%}}@media (min-width:992px){.efb.col-lg{flex:1 0 0%}.efb.row-cols-lg-auto>*{flex:0 0 auto;width:auto}.efb.row-cols-lg-1>*{flex:0 0 auto;width:100%}.efb.row-cols-lg-2>*{flex:0 0 auto;width:50%}.efb.row-cols-lg-3>*{flex:0 0 auto;width:33.3333333333%}.efb.row-cols-lg-4>*{flex:0 0 auto;width:25%}.efb.row-cols-lg-5>*{flex:0 0 auto;width:20%}.efb.row-cols-lg-6>*{flex:0 0 auto;width:16.6666666667%}.efb.col-lg-auto{flex:0 0 auto;width:auto}.efb.col-lg-1{flex:0 0 auto;width:8.3333333333%}.efb.col-lg-2{flex:0 0 auto;width:16.6666666667%}.efb.col-lg-3{flex:0 0 auto;width:25%}.efb.col-lg-4{flex:0 0 auto;width:33.3333333333%}.efb.col-lg-5{flex:0 0 auto;width:41.6666666667%}.efb.col-lg-6{flex:0 0 auto;width:50%}.efb.col-lg-7{flex:0 0 auto;width:58.3333333333%}.efb.col-lg-8{flex:0 0 auto;width:66.6666666667%}.efb.col-lg-9{flex:0 0 auto;width:75%}.efb.col-lg-10{flex:0 0 auto;width:83.3333333333%}.efb.col-lg-11{flex:0 0 auto;width:91.6666666667%}.efb.col-lg-12{flex:0 0 auto;width:100%}}@media (min-width:1200px){.efb.col-xl{flex:1 0 0%}.efb.row-cols-xl-auto>*{flex:0 0 auto;width:auto}.efb.row-cols-xl-1>*{flex:0 0 auto;width:100%}.efb.row-cols-xl-2>*{flex:0 0 auto;width:50%}.efb.row-cols-xl-3>*{flex:0 0 auto;width:33.3333333333%}.efb.row-cols-xl-4>*{flex:0 0 auto;width:25%}.efb.row-cols-xl-5>*{flex:0 0 auto;width:20%}.efb.row-cols-xl-6>*{flex:0 0 auto;width:16.6666666667%}.efb.col-xl-auto{flex:0 0 auto;width:auto}.efb.col-xl-1{flex:0 0 auto;width:8.3333333333%}.efb.col-xl-2{flex:0 0 auto;width:16.6666666667%}.efb.col-xl-3{flex:0 0 auto;width:25%}.efb.col-xl-4{flex:0 0 auto;width:33.3333333333%}.efb.col-xl-5{flex:0 0 auto;width:41.6666666667%}.efb.col-xl-6{flex:0 0 auto;width:50%}.efb.col-xl-7{flex:0 0 auto;width:58.3333333333%}.efb.col-xl-8{flex:0 0 auto;width:66.6666666667%}.efb.col-xl-9{flex:0 0 auto;width:75%}.efb.col-xl-10{flex:0 0 auto;width:83.3333333333%}.efb.col-xl-11{flex:0 0 auto;width:91.6666666667%}.efb.col-xl-12{flex:0 0 auto;width:100%}}.efb.table{--bs-table-bg:transparent;--bs-table-accent-bg:transparent;--bs-table-striped-color:#212529;--bs-table-striped-bg:rgba(0,0,0,.05);--bs-table-active-color:#212529;--bs-table-active-bg:rgba(0,0,0,.1);--bs-table-hover-color:#212529;--bs-table-hover-bg:rgba(0,0,0,.075);width:100%;margin-bottom:1rem;color:#212529;vertical-align:top;border-color:#dee2e6;border-left:none;border-right:none;border-bottom:none}.efb.table>:not(caption)>*>*{padding:.5rem .5rem;background-color:var(--bs-table-bg);border-bottom-width:1px;box-shadow:inset 0 0 0 9999px var(--bs-table-accent-bg)}.efb.table>tbody{vertical-align:inherit}.efb.table>thead{vertical-align:bottom}.efb.table>:not(:last-child)>:last-child>*{border-bottom-color:currentColor}.efb.caption-top{caption-side:top}.efb.form-label{margin-bottom:.5rem}.efb.col-form-label{padding-top:calc(.375rem + 1px);padding-bottom:calc(.375rem + 1px);margin-bottom:0;font-size:inherit;line-height:1.5}.efb.col-form-label-lg{padding-top:calc(.5rem + 1px);padding-bottom:calc(.5rem + 1px);font-size:1.25rem}.efb.col-form-label-sm{padding-top:calc(.25rem + 1px);padding-bottom:calc(.25rem + 1px);font-size:.875rem}.efb.form-control{display:block;width:100%;padding:.375rem .75rem;font-size:1rem;font-weight:400;line-height:1.5;color:#212529;background-color:#fff;background-clip:padding-box;border:1px solid #ced4da;-webkit-appearance:none;-moz-appearance:none;appearance:none;border-radius:.25rem;transition:border-color .15s ease-in-out,box-shadow .15s ease-in-out}@media (prefers-reduced-motion:reduce){.efb.form-control{transition:none}}.efb.form-control[type=file]{overflow:hidden}.efb.form-control[type=file]:not(:disabled):not([readonly]){cursor:pointer}.efb.form-control:focus{color:#212529;background-color:#fff;border-color:#86b7fe;outline:0;box-shadow:0 0 0 .25rem rgba(13,110,253,.25)}.efb.form-control::-webkit-date-and-time-value{height:1.5em}.efb.form-control::-moz-placeholder{color:#6c757d;opacity:1}.efb.form-control::placeholder{color:#6c757d;opacity:1}.efb.form-control:disabled,.efb.form-control[readonly]{background-color:#e9ecef;opacity:1}.efb.form-control::file-selector-button{padding:.375rem .75rem;margin:-.375rem -.75rem;-webkit-margin-end:.75rem;margin-inline-end:.75rem;color:#212529;background-color:#e9ecef;pointer-events:none;border-color:inherit;border-style:solid;border-width:0;border-inline-end-width:1px;border-radius:0;transition:color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out}@media (prefers-reduced-motion:reduce){.efb.form-control::file-selector-button{transition:none}}.efb.form-control:hover:not(:disabled):not([readonly])::file-selector-button{background-color:#dde0e3}.efb.form-control::-webkit-file-upload-button{padding:.375rem .75rem;margin:-.375rem -.75rem;-webkit-margin-end:.75rem;margin-inline-end:.75rem;color:#212529;background-color:#e9ecef;pointer-events:none;border-color:inherit;border-style:solid;border-width:0;border-inline-end-width:1px;border-radius:0;-webkit-transition:color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;transition:color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out}@media (prefers-reduced-motion:reduce){.efb.form-control::-webkit-file-upload-button{-webkit-transition:none;transition:none}}.efb.form-control:hover:not(:disabled):not([readonly])::-webkit-file-upload-button{background-color:#dde0e3}.efb.form-control-plaintext{display:block;width:100%;padding:.375rem 0;margin-bottom:0;line-height:1.5;color:#212529;background-color:transparent;border:solid transparent;border-width:1px 0}.efb.form-control-plaintext.efb.form-control-lg,.efb.form-control-plaintext.efb.form-control-sm{padding-right:0;padding-left:0}.efb.form-control-sm{min-height:calc(1.5em + .5rem + 2px);padding:.25rem .5rem;font-size:.875rem;border-radius:.2rem}.efb.form-control-sm::file-selector-button{padding:.25rem .5rem;margin:-.25rem -.5rem;-webkit-margin-end:.5rem;margin-inline-end:.5rem}.efb.form-control-sm::-webkit-file-upload-button{padding:.25rem .5rem;margin:-.25rem -.5rem;-webkit-margin-end:.5rem;margin-inline-end:.5rem}.efb.form-control-lg{min-height:calc(1.5em + 1rem + 2px);padding:.5rem 1rem;font-size:1.25rem;border-radius:.3rem}.efb.form-control-lg::file-selector-button{padding:.5rem 1rem;margin:-.5rem -1rem;-webkit-margin-end:1rem;margin-inline-end:1rem}.efb.form-control-lg::-webkit-file-upload-button{padding:.5rem 1rem;margin:-.5rem -1rem;-webkit-margin-end:1rem;margin-inline-end:1rem}textarea.efb.form-control{min-height:calc(1.5em + .75rem + 2px)}textarea.efb.form-control-sm{min-height:calc(1.5em + .5rem + 2px)}textarea.efb.form-control-lg{min-height:calc(1.5em + 1rem + 2px)}.efb.form-control-color{max-width:3rem;height:auto;padding:.375rem}.efb.form-control-color:not(:disabled):not([readonly]){cursor:pointer}.efb.form-control-color::-moz-color-swatch{height:1.5em;border-radius:.25rem}.efb.form-control-color::-webkit-color-swatch{height:1.5em;border-radius:.25rem}.efb.form-select{display:block;width:100%;padding:.375rem 2.25rem .375rem .75rem;font-size:1rem;font-weight:400;line-height:1.5;color:#212529;background-color:#fff;background-image:url("data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 16 16\'%3e%3cpath fill=\'none\' stroke=\'%23343a40\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M2 5l6 6 6-6\'/%3e%3c/svg%3e");background-repeat:no-repeat;background-position:right .75rem center;background-size:16px 12px;border:1px solid #ced4da;border-radius:.25rem;-webkit-appearance:none;-moz-appearance:none;appearance:none}.efb.form-select:focus{border-color:#86b7fe;outline:0;box-shadow:0 0 0 .25rem rgba(13,110,253,.25)}.efb.form-select[multiple],.efb.form-select[size]:not([size="1"]){padding-right:.75rem;background-image:none}.efb.form-select:disabled{background-color:#e9ecef}.efb.form-select:-moz-focusring{color:transparent;text-shadow:0 0 0 #212529}.efb.form-select-sm{padding-top:.25rem;padding-bottom:.25rem;padding-left:.5rem;font-size:.875rem}.efb.form-select-lg{padding-top:.5rem;padding-bottom:.5rem;padding-left:1rem;font-size:1.25rem}.efb.form-check{display:flex;min-height:1.5rem;margin-bottom:.125rem;align-items:center;}.efb.form-check .efb.form-check-input{float:left}.efb.form-check-input{width:1em;height:1em;margin-top:.25em;vertical-align:top;background-color:#fff;background-repeat:no-repeat;background-position:center;background-size:contain;border:1px solid rgba(0,0,0,.25);-webkit-appearance:none;-moz-appearance:none;appearance:none;-webkit-print-color-adjust:exact;color-adjust:exact}.efb.form-check-input[type=checkbox]{border-radius:.25em}.efb.form-check-input[type=radio]{border-radius:50%}.efb.form-check-input:active{filter:brightness(90%)}.efb.form-check-input:focus{border-color:#86b7fe;outline:0;box-shadow:0 0 0 .25rem rgba(13,110,253,.25)}.efb.form-check-input:checked{background-color:#0d6efd;border-color:#0d6efd}.efb.form-check-input:checked[type=checkbox]{background-image:url("data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 20 20\'%3e%3cpath fill=\'none\' stroke=\'%23fff\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'3\' d=\'M6 10l3 3l6-6\'/%3e%3c/svg%3e")}.efb.form-check-input:checked[type=radio]{background-image:url("data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'-4 -4 8 8\'%3e%3ccircle r=\'2\' fill=\'%23fff\'/%3e%3c/svg%3e")}.efb.form-check-input[type=checkbox]:indeterminate{background-color:#0d6efd;border-color:#0d6efd;background-image:url("data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 20 20\'%3e%3cpath fill=\'none\' stroke=\'%23fff\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'3\' d=\'M6 10h8\'/%3e%3c/svg%3e")}.efb.form-check-input:disabled{pointer-events:none;filter:none;opacity:.5}.efb.form-check-input:disabled~.form-check-label,.efb.form-check-input[disabled]~.form-check-label{opacity:.5}.efb.form-switch{padding-left:2.5em}.efb.form-switch .efb.form-check-input{width:2em;margin-left:-2.5em;background-image:url("data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'-4 -4 8 8\'%3e%3ccircle r=\'3\' fill=\'rgba%280,0,0,.25%29\'/%3e%3c/svg%3e");background-position:left center;border-radius:2em;transition:background-position .15s ease-in-out}@media (prefers-reduced-motion:reduce){.efb.form-switch .efb.form-check-input{transition:none}}.efb.form-switch .efb.form-check-input:focus{background-image:url("data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'-4 -4 8 8\'%3e%3ccircle r=\'3\' fill=\'%2386b7fe\'/%3e%3c/svg%3e")}.efb.form-switch .efb.form-check-input:checked{background-position:right center;background-image:url("data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'-4 -4 8 8\'%3e%3ccircle r=\'3\' fill=\'%23fff\'/%3e%3c/svg%3e")}.efb.btn-check{position:absolute;clip:rect(0,0,0,0);pointer-events:none}.efb.btn-check:disabled+.efb.btn,.efb.btn-check[disabled]+.efb.btn{pointer-events:none;filter:none;opacity:.65}.efb.form-range{width:100%;height:1.5rem;padding:0;background-color:transparent;-webkit-appearance:none;-moz-appearance:none;appearance:none}.efb.form-range:focus{outline:0}.efb.form-range:focus::-webkit-slider-thumb{box-shadow:0 0 0 1px #fff,0 0 0 .25rem rgba(13,110,253,.25)}.efb.form-range:focus::-moz-range-thumb{box-shadow:0 0 0 1px #fff,0 0 0 .25rem rgba(13,110,253,.25)}.efb.form-range::-moz-focus-outer{border:0}.efb.form-range::-webkit-slider-thumb{width:1rem;height:1rem;margin-top:-.25rem;background-color:#0d6efd;border:0;border-radius:1rem;-webkit-transition:background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;transition:background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;-webkit-appearance:none;appearance:none}@media (prefers-reduced-motion:reduce){.efb.form-range::-webkit-slider-thumb{-webkit-transition:none;transition:none}}.efb.form-range::-webkit-slider-thumb:active{background-color:#b6d4fe}.efb.form-range::-webkit-slider-runnable-track{width:100%;height:.5rem;color:transparent;cursor:pointer;background-color:#dee2e6;border-color:transparent;border-radius:1rem}.efb.form-range::-moz-range-thumb{width:1rem;height:1rem;background-color:#0d6efd;border:0;border-radius:1rem;-moz-transition:background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;transition:background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;-moz-appearance:none;appearance:none}@media (prefers-reduced-motion:reduce){.efb.form-range::-moz-range-thumb{-moz-transition:none;transition:none}}.efb.form-range::-moz-range-thumb:active{background-color:#b6d4fe}.efb.form-range::-moz-range-track{width:100%;height:.5rem;color:transparent;cursor:pointer;background-color:#dee2e6;border-color:transparent;border-radius:1rem}.efb.form-range:disabled{pointer-events:none}.efb.form-range:disabled::-webkit-slider-thumb{background-color:#adb5bd}.efb.form-range:disabled::-moz-range-thumb{background-color:#adb5bd}.efb.input-group{position:relative;display:flex;flex-wrap:wrap;align-items:stretch;width:100%}.efb.input-group>.efb.form-control,.efb.input-group>.efb.form-select{position:relative;flex:1 1 auto;width:1%;min-width:0}.efb.input-group>.efb.form-control:focus,.efb.input-group>.efb.form-select:focus{z-index:3}.efb.input-group .efb.btn{position:relative;z-index:2}.efb.input-group .efb.btn:focus{z-index:3}.efb.input-group-text{display:flex;align-items:center;padding:.375rem .75rem;font-size:1rem;font-weight:400;line-height:1.5;color:#212529;text-align:center;white-space:nowrap;background-color:#e9ecef;border:1px solid #ced4da;border-radius:.25rem}.efb.input-group-lg>.efb.btn,.efb.input-group-lg>.efb.form-control,.efb.input-group-lg>.efb.form-select,.efb.input-group-lg>.efb.input-group-text{padding:.5rem 1rem;font-size:1.25rem;border-radius:.3rem}.efb.input-group-sm>.efb.btn,.efb.input-group-sm>.efb.form-control,.efb.input-group-sm>.efb.form-select,.efb.input-group-sm>.efb.input-group-text{padding:.25rem .5rem;font-size:.875rem;border-radius:.2rem}.efb.input-group-lg>.efb.form-select,.efb.input-group-sm>.efb.form-select{padding-right:3rem}.efb.input-group:not(.has-validation)>.efb.dropdown-toggle:nth-last-child(n+3),.efb.input-group:not(.has-validation)>:not(:last-child):not(.efb.dropdown-toggle):not(.efb.dropdown-menu){border-top-right-radius:0;border-bottom-right-radius:0}.efb.input-group.has-validation>.efb.dropdown-toggle:nth-last-child(n+4),.efb.input-group.has-validation>:nth-last-child(n+3):not(.efb.dropdown-toggle):not(.efb.dropdown-menu){border-top-right-radius:0;border-bottom-right-radius:0}.efb.input-group>:not(:first-child):not(.efb.dropdown-menu):not(.valid-tooltip):not(.valid-feedback):not(.efb.invalid-tooltip):not(.efb.invalid-feedback){margin-left:-1px;border-top-left-radius:0;border-bottom-left-radius:0}.efb.valid-feedback{display:none;width:100%;margin-top:.25rem;font-size:.875em;color:#198754}.efb.valid-tooltip{position:absolute;top:100%;z-index:5;display:none;max-width:100%;padding:.25rem .5rem;margin-top:.1rem;font-size:.875rem;color:#fff;background-color:rgba(25,135,84,.9);border-radius:.25rem}.efb.is-valid~.efb.valid-feedback,.efb.was-validated:valid~.efb.valid-feedback,.efb.was-validated:valid~{display:block}.efb.form-control.is-valid,.efb.was-validated .efb.form-control:valid{border-color:#198754;padding-right:calc(1.5em + .75rem);background-image:url("data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 8 8\'%3e%3cpath fill=\'%23198754\' d=\'M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z\'/%3e%3c/svg%3e");background-repeat:no-repeat;background-position:right calc(.375em + .1875rem) center;background-size:calc(.75em + .375rem) calc(.75em + .375rem)}.efb.form-control.is-valid:focus,.efb.was-validated .efb.form-control:valid:focus{border-color:#198754;box-shadow:0 0 0 .25rem rgba(25,135,84,.25)}.efb.was-validated textarea.efb.form-control:valid,textarea.efb.form-control.is-valid{padding-right:calc(1.5em + .75rem);background-position:top calc(.375em + .1875rem) right calc(.375em + .1875rem)}.efb.form-select.is-valid,.efb.was-validated .efb.form-select:valid{border-color:#198754}.efb.form-select.is-valid:not([multiple]):not([size]),.efb.form-select.is-valid:not([multiple])[size="1"],.efb.was-validated .efb.form-select:valid:not([multiple]):not([size]),.efb.was-validated .efb.form-select:valid:not([multiple])[size="1"]{padding-right:4.125rem;background-image:url("data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 16 16\'%3e%3cpath fill=\'none\' stroke=\'%23343a40\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M2 5l6 6 6-6\'/%3e%3c/svg%3e"),url("data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 8 8\'%3e%3cpath fill=\'%23198754\' d=\'M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z\'/%3e%3c/svg%3e");background-position:right .75rem center,center right 2.25rem;background-size:16px 12px,calc(.75em + .375rem) calc(.75em + .375rem)}.efb.form-select.is-valid:focus,.efb.was-validated .efb.form-select:valid:focus{border-color:#198754;box-shadow:0 0 0 .25rem rgba(25,135,84,.25)}.efb.form-check-input.is-valid,.efb.was-validated .efb.form-check-input:valid{border-color:#198754}.efb.form-check-input.is-valid:checked,.efb.was-validated .efb.form-check-input:valid:checked{background-color:#198754}.efb.form-check-input.is-valid:focus,.efb.was-validated .efb.form-check-input:valid:focus{box-shadow:0 0 0 .25rem rgba(25,135,84,.25)}.efb.form-check-input.is-valid~.form-check-label,.efb.was-validated .efb.form-check-input:valid{color:#198754}.form-check-inline .efb.form-check-input~.efb.valid-feedback{margin-left:.5em}.efb.input-group .efb.form-control.is-valid,.efb.input-group .efb.form-select.is-valid,.efb.was-validated .efb.input-group .efb.form-control:valid,.efb.was-validated .efb.input-group .efb.form-select:valid{z-index:1}.efb.input-group .efb.form-control.is-valid:focus,.efb.input-group .efb.form-select.is-valid:focus,.efb.was-validated .efb.input-group .efb.form-control:valid:focus,.efb.was-validated .efb.input-group .efb.form-select:valid:focus{z-index:3}.efb.invalid-feedback{display:none;width:100%;margin-top:.25rem;font-size:.875em;color:#dc3545}.efb.invalid-tooltip{position:absolute;top:100%;z-index:5;display:none;max-width:100%;padding:.25rem .5rem;margin-top:.1rem;font-size:.875rem;color:#fff;background-color:rgba(220,53,69,.9);border-radius:.25rem}.efb.is-invalid~.efb.invalid-feedback,.efb.is-invalid~.efb.invalid-tooltip,.efb.was-validated:invalid~.efb.invalid-feedback,.efb.was-validated:invalid~.efb.invalid-tooltip{display:block}.efb.form-control.efb.is-invalid,.efb.was-validated .efb.form-control:invalid{border-color:#dc3545;padding-right:calc(1.5em + .75rem);background-image:url("data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 12 12\' width=\'12\' height=\'12\' fill=\'none\' stroke=\'%23dc3545\'%3e%3ccircle cx=\'6\' cy=\'6\' r=\'4.5\'/%3e%3cpath stroke-linejoin=\'round\' d=\'M5.8 3.6h.4L6 6.5z\'/%3e%3ccircle cx=\'6\' cy=\'8.2\' r=\'.6\' fill=\'%23dc3545\' stroke=\'none\'/%3e%3c/svg%3e");background-repeat:no-repeat;background-position:right calc(.375em + .1875rem) center;background-size:calc(.75em + .375rem) calc(.75em + .375rem)}.efb.form-control.efb.is-invalid:focus,.efb.was-validated .efb.form-control:invalid:focus{border-color:#dc3545;box-shadow:0 0 0 .25rem rgba(220,53,69,.25)}.efb.was-validated textarea.efb.form-control:invalid,textarea.efb.form-control.efb.is-invalid{padding-right:calc(1.5em + .75rem);background-position:top calc(.375em + .1875rem) right calc(.375em + .1875rem)}.efb.form-select.efb.is-invalid,.efb.was-validated .efb.form-select:invalid{border-color:#dc3545}.efb.form-select.efb.is-invalid:not([multiple]):not([size]),.efb.form-select.efb.is-invalid:not([multiple])[size="1"],.efb.was-validated .efb.form-select:invalid:not([multiple]):not([size]),.efb.was-validated .efb.form-select:invalid:not([multiple])[size="1"]{padding-right:4.125rem;background-image:url("data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 16 16\'%3e%3cpath fill=\'none\' stroke=\'%23343a40\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M2 5l6 6 6-6\'/%3e%3c/svg%3e"),url("data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 12 12\' width=\'12\' height=\'12\' fill=\'none\' stroke=\'%23dc3545\'%3e%3ccircle cx=\'6\' cy=\'6\' r=\'4.5\'/%3e%3cpath stroke-linejoin=\'round\' d=\'M5.8 3.6h.4L6 6.5z\'/%3e%3ccircle cx=\'6\' cy=\'8.2\' r=\'.6\' fill=\'%23dc3545\' stroke=\'none\'/%3e%3c/svg%3e");background-position:right .75rem center,center right 2.25rem;background-size:16px 12px,calc(.75em + .375rem) calc(.75em + .375rem)}.efb.form-select.efb.is-invalid:focus,.efb.was-validated .efb.form-select:invalid:focus{border-color:#dc3545;box-shadow:0 0 0 .25rem rgba(220,53,69,.25)}.efb.form-check-input.efb.is-invalid,.efb.was-validated .efb.form-check-input:invalid{border-color:#dc3545}.efb.form-check-input.efb.is-invalid:checked,.efb.was-validated .efb.form-check-input:invalid:checked{background-color:#dc3545}.efb.form-check-input.efb.is-invalid:focus,.efb.was-validated .efb.form-check-input:invalid:focus{box-shadow:0 0 0 .25rem rgba(220,53,69,.25)}.efb.form-check-input.efb.is-invalid~.form-check-label,.efb.was-validated .efb.form-check-input:invalid~.form-check-label{color:#dc3545}.efb.form-check-inline .efb.form-check-input~.efb.invalid-feedback{margin-left:.5em}.efb.input-group .efb.form-control.efb.is-invalid,.efb.input-group .efb.form-select.efb.is-invalid,.efb.was-validated .efb.input-group .efb.form-control:invalid,.efb.was-validated .efb.input-group .efb.form-select:invalid{z-index:2}.efb.input-group .efb.form-control.efb.is-invalid:focus,.efb.input-group .efb.form-select.efb.is-invalid:focus,.efb.was-validated .efb.input-group .efb.form-control:invalid:focus,.efb.was-validated .efb.input-group .efb.form-select:invalid:focus{z-index:3}.efb.btn{display:inline-block;font-weight:400;line-height:1.5;color:#212529;text-align:center;text-decoration:none;vertical-align:middle;cursor:pointer;-webkit-user-select:none;-moz-user-select:none;user-select:none;background-color:transparent;border:1px solid transparent;padding:.375rem .75rem;font-size:1rem;border-radius:.25rem;transition:color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out}@media (prefers-reduced-motion:reduce){.efb.btn{transition:none}}.efb.btn:hover{color:#212529}.efb.btn-check:focus+.efb.btn,.efb.btn:focus{outline:0;box-shadow:0 0 0 .25rem rgba(13,110,253,.25)}.efb.btn.disabled,.efb.btn:disabled,fieldset:disabled .efb.btn{pointer-events:none;opacity:.65}.efb.btn-primary{color:#fff;background-color:#0d6efd;border-color:#0d6efd}.efb.btn-primary:hover{color:#fff;background-color:#0b5ed7;border-color:#0a58ca}.efb.btn-check:focus+.efb.btn-primary,.efb.btn-primary:focus{color:#fff;background-color:#0b5ed7;border-color:#0a58ca;box-shadow:0 0 0 .25rem rgba(49,132,253,.5)}.efb.btn-check:active+.efb.btn-primary,.efb.btn-check:checked+.efb.btn-primary,.efb.btn-primary.active,.efb.btn-primary:active,.show>.efb.btn-primary.efb.dropdown-toggle{color:#fff;background-color:#0a58ca;border-color:#0a53be}.efb.btn-check:active+.efb.btn-primary:focus,.efb.btn-check:checked+.efb.btn-primary:focus,.efb.btn-primary.active:focus,.efb.btn-primary:active:focus,.show>.efb.btn-primary.efb.dropdown-toggle:focus{box-shadow:0 0 0 .25rem rgba(49,132,253,.5)}.efb.btn-primary.disabled,.efb.btn-primary:disabled{color:#fff;background-color:#0d6efd;border-color:#0d6efd}.efb.btn-secondary{color:#fff;background-color:#6c757d;border-color:#6c757d}.efb.btn-secondary:hover{color:#fff;background-color:#5c636a;border-color:#565e64}.efb.btn-check:focus+.efb.btn-secondary,.efb.btn-secondary:focus{color:#fff;background-color:#5c636a;border-color:#565e64;box-shadow:0 0 0 .25rem rgba(130,138,145,.5)}.efb.btn-check:active+.efb.btn-secondary,.efb.btn-check:checked+.efb.btn-secondary,.efb.btn-secondary.active,.efb.btn-secondary:active,.show>.efb.btn-secondary.efb.dropdown-toggle{color:#fff;background-color:#565e64;border-color:#51585e}.efb.btn-check:active+.efb.btn-secondary:focus,.efb.btn-check:checked+.efb.btn-secondary:focus,.efb.btn-secondary.active:focus,.efb.btn-secondary:active:focus,.show>.efb.btn-secondary.efb.dropdown-toggle:focus{box-shadow:0 0 0 .25rem rgba(130,138,145,.5)}.efb.btn-secondary.disabled,.efb.btn-secondary:disabled{color:#fff;background-color:#6c757d;border-color:#6c757d}.efb.btn-success{color:#fff;background-color:#198754;border-color:#198754}.efb.btn-success:hover{color:#fff;background-color:#157347;border-color:#146c43}.efb.btn-check:focus+.efb.btn-success,.efb.btn-success:focus{color:#fff;background-color:#157347;border-color:#146c43;box-shadow:0 0 0 .25rem rgba(60,153,110,.5)}.efb.btn-check:active+.efb.btn-success,.efb.btn-check:checked+.efb.btn-success,.efb.btn-success.active,.efb.btn-success:active,.show>.efb.btn-success.efb.dropdown-toggle{color:#fff;background-color:#146c43;border-color:#13653f}.efb.btn-check:active+.efb.btn-success:focus,.efb.btn-check:checked+.efb.btn-success:focus,.efb.btn-success.active:focus,.efb.btn-success:active:focus,.show>.efb.btn-success.efb.dropdown-toggle:focus{box-shadow:0 0 0 .25rem rgba(60,153,110,.5)}.efb.btn-success.disabled,.efb.btn-success:disabled{color:#fff;background-color:#198754;border-color:#198754}.efb.btn-info{color:#000;background-color:#0dcaf0;border-color:#0dcaf0}.efb.btn-info:hover{color:#000;background-color:#31d2f2;border-color:#25cff2}.efb.btn-check:focus+.efb.btn-info,.efb.btn-info:focus{color:#000;background-color:#31d2f2;border-color:#25cff2;box-shadow:0 0 0 .25rem rgba(11,172,204,.5)}.efb.btn-check:active+.efb.btn-info,.efb.btn-check:checked+.efb.btn-info,.efb.btn-info.active,.efb.btn-info:active,.show>.efb.btn-info.efb.dropdown-toggle{color:#000;background-color:#3dd5f3;border-color:#25cff2}.efb.btn-check:active+.efb.btn-info:focus,.efb.btn-check:checked+.efb.btn-info:focus,.efb.btn-info.active:focus,.efb.btn-info:active:focus,.show>.efb.btn-info.efb.dropdown-toggle:focus{box-shadow:0 0 0 .25rem rgba(11,172,204,.5)}.efb.btn-info.disabled,.efb.btn-info:disabled{color:#000;background-color:#0dcaf0;border-color:#0dcaf0}.efb.btn-warning{color:#000;background-color:#ffc107;border-color:#ffc107}.efb.btn-warning:hover{color:#000;background-color:#ffca2c;border-color:#ffc720}.efb.btn-check:focus+.efb.btn-warning,.efb.btn-warning:focus{color:#000;background-color:#ffca2c;border-color:#ffc720;box-shadow:0 0 0 .25rem rgba(217,164,6,.5)}.efb.btn-check:active+.efb.btn-warning,.efb.btn-check:checked+.efb.btn-warning,.efb.btn-warning.active,.efb.btn-warning:active,.show>.efb.btn-warning.efb.dropdown-toggle{color:#000;background-color:#ffcd39;border-color:#ffc720}.efb.btn-check:active+.efb.btn-warning:focus,.efb.btn-check:checked+.efb.btn-warning:focus,.efb.btn-warning.active:focus,.efb.btn-warning:active:focus,.show>.efb.btn-warning.efb.dropdown-toggle:focus{box-shadow:0 0 0 .25rem rgba(217,164,6,.5)}.efb.btn-warning.disabled,.efb.btn-warning:disabled{color:#000;background-color:#ffc107;border-color:#ffc107}.efb.btn-danger{color:#fff;background-color:#dc3545;border-color:#dc3545}.efb.btn-danger:hover{color:#fff;background-color:#bb2d3b;border-color:#b02a37}.efb.btn-check:focus+.efb.btn-danger,.efb.btn-danger:focus{color:#fff;background-color:#bb2d3b;border-color:#b02a37;box-shadow:0 0 0 .25rem rgba(225,83,97,.5)}.efb.btn-check:active+.efb.btn-danger,.efb.btn-check:checked+.efb.btn-danger,.efb.btn-danger.active,.efb.btn-danger:active,.show>.efb.btn-danger.efb.dropdown-toggle{color:#fff;background-color:#b02a37;border-color:#a52834}.efb.btn-check:active+.efb.btn-danger:focus,.efb.btn-check:checked+.efb.btn-danger:focus,.efb.btn-danger.active:focus,.efb.btn-danger:active:focus,.show>.efb.btn-danger.efb.dropdown-toggle:focus{box-shadow:0 0 0 .25rem rgba(225,83,97,.5)}.efb.btn-danger.disabled,.efb.btn-danger:disabled{color:#fff;background-color:#dc3545;border-color:#dc3545}.efb.btn-light{color:#000;background-color:#f8f9fa;border-color:#f8f9fa}.efb.btn-light:hover{color:#000;background-color:#f9fafb;border-color:#f9fafb}.efb.btn-check:focus+.efb.btn-light,.efb.btn-light:focus{color:#000;background-color:#f9fafb;border-color:#f9fafb;box-shadow:0 0 0 .25rem rgba(211,212,213,.5)}.efb.btn-check:active+.efb.btn-light,.efb.btn-check:checked+.efb.btn-light,.efb.btn-light.active,.efb.btn-light:active,.show>.efb.btn-light.efb.dropdown-toggle{color:#000;background-color:#f9fafb;border-color:#f9fafb}.efb.btn-check:active+.efb.btn-light:focus,.efb.btn-check:checked+.efb.btn-light:focus,.efb.btn-light.active:focus,.efb.btn-light:active:focus,.show>.efb.btn-light.efb.dropdown-toggle:focus{box-shadow:0 0 0 .25rem rgba(211,212,213,.5)}.efb.btn-light.disabled,.efb.btn-light:disabled{color:#000;background-color:#f8f9fa;border-color:#f8f9fa}.efb.btn-dark{color:#fff;background-color:#212529;border-color:#212529}.efb.btn-dark:hover{color:#fff;background-color:#1c1f23;border-color:#1a1e21}.efb.btn-check:focus+.efb.btn-dark,.efb.btn-dark:focus{color:#fff;background-color:#1c1f23;border-color:#1a1e21;box-shadow:0 0 0 .25rem rgba(66,70,73,.5)}.efb.btn-check:active+.efb.btn-dark,.efb.btn-check:checked+.efb.btn-dark,.efb.btn-dark.active,.efb.btn-dark:active,.show>.efb.btn-dark.efb.dropdown-toggle{color:#fff;background-color:#1a1e21;border-color:#191c1f}.efb.btn-check:active+.efb.btn-dark:focus,.efb.btn-check:checked+.efb.btn-dark:focus,.efb.btn-dark.active:focus,.efb.btn-dark:active:focus,.show>.efb.btn-dark.efb.dropdown-toggle:focus{box-shadow:0 0 0 .25rem rgba(66,70,73,.5)}.efb.btn-dark.disabled,.efb.btn-dark:disabled{color:#fff;background-color:#212529;border-color:#212529}.efb.btn-outline-primary{color:#0d6efd;border-color:#0d6efd}.efb.btn-outline-primary:hover{color:#fff;background-color:#0d6efd;border-color:#0d6efd}.efb.btn-check:focus+.efb.btn-outline-primary,.efb.btn-outline-primary:focus{box-shadow:0 0 0 .25rem rgba(13,110,253,.5)}.efb.btn-check:active+.efb.btn-outline-primary,.efb.btn-check:checked+.efb.btn-outline-primary,.efb.btn-outline-primary.active,.efb.btn-outline-primary.efb.dropdown-toggle.show,.efb.btn-outline-primary:active{color:#fff;background-color:#0d6efd;border-color:#0d6efd}.efb.btn-check:active+.efb.btn-outline-primary:focus,.efb.btn-check:checked+.efb.btn-outline-primary:focus,.efb.btn-outline-primary.active:focus,.efb.btn-outline-primary.efb.dropdown-toggle.show:focus,.efb.btn-outline-primary:active:focus{box-shadow:0 0 0 .25rem rgba(13,110,253,.5)}.efb.btn-outline-primary.disabled,.efb.btn-outline-primary:disabled{color:#0d6efd;background-color:transparent}.efb.btn-outline-secondary{color:#6c757d;border-color:#6c757d}.efb.btn-outline-secondary:hover{color:#fff;background-color:#6c757d;border-color:#6c757d}.efb.btn-check:focus+.efb.btn-outline-secondary,.efb.btn-outline-secondary:focus{box-shadow:0 0 0 .25rem rgba(108,117,125,.5)}.efb.btn-check:active+.efb.btn-outline-secondary,.efb.btn-check:checked+.efb.btn-outline-secondary,.efb.btn-outline-secondary.active,.efb.btn-outline-secondary.efb.dropdown-toggle.show,.efb.btn-outline-secondary:active{color:#fff;background-color:#6c757d;border-color:#6c757d}.efb.btn-check:active+.efb.btn-outline-secondary:focus,.efb.btn-check:checked+.efb.btn-outline-secondary:focus,.efb.btn-outline-secondary.active:focus,.efb.btn-outline-secondary.efb.dropdown-toggle.show:focus,.efb.btn-outline-secondary:active:focus{box-shadow:0 0 0 .25rem rgba(108,117,125,.5)}.efb.btn-outline-secondary.disabled,.efb.btn-outline-secondary:disabled{color:#6c757d;background-color:transparent}.efb.btn-outline-success{color:#198754;border-color:#198754}.efb.btn-outline-success:hover{color:#fff;background-color:#198754;border-color:#198754}.efb.btn-check:focus+.efb.btn-outline-success,.efb.btn-outline-success:focus{box-shadow:0 0 0 .25rem rgba(25,135,84,.5)}.efb.btn-check:active+.efb.btn-outline-success,.efb.btn-check:checked+.efb.btn-outline-success,.efb.btn-outline-success.active,.efb.btn-outline-success.efb.dropdown-toggle.show,.efb.btn-outline-success:active{color:#fff;background-color:#198754;border-color:#198754}.efb.btn-check:active+.efb.btn-outline-success:focus,.efb.btn-check:checked+.efb.btn-outline-success:focus,.efb.btn-outline-success.active:focus,.efb.btn-outline-success.efb.dropdown-toggle.show:focus,.efb.btn-outline-success:active:focus{box-shadow:0 0 0 .25rem rgba(25,135,84,.5)}.efb.btn-outline-success.disabled,.efb.btn-outline-success:disabled{color:#198754;background-color:transparent}.efb.btn-outline-info{color:#0dcaf0;border-color:#0dcaf0}.efb.btn-outline-info:hover{color:#000;background-color:#0dcaf0;border-color:#0dcaf0}.efb.btn-check:focus+.efb.btn-outline-info,.efb.btn-outline-info:focus{box-shadow:0 0 0 .25rem rgba(13,202,240,.5)}.efb.btn-check:active+.efb.btn-outline-info,.efb.btn-check:checked+.efb.btn-outline-info,.efb.btn-outline-info.active,.efb.btn-outline-info.efb.dropdown-toggle.show,.efb.btn-outline-info:active{color:#000;background-color:#0dcaf0;border-color:#0dcaf0}.efb.btn-check:active+.efb.btn-outline-info:focus,.efb.btn-check:checked+.efb.btn-outline-info:focus,.efb.btn-outline-info.active:focus,.efb.btn-outline-info.efb.dropdown-toggle.show:focus,.efb.btn-outline-info:active:focus{box-shadow:0 0 0 .25rem rgba(13,202,240,.5)}.efb.btn-outline-info.disabled,.efb.btn-outline-info:disabled{color:#0dcaf0;background-color:transparent}.efb.btn-outline-warning{color:#ffc107;border-color:#ffc107}.efb.btn-outline-warning:hover{color:#000;background-color:#ffc107;border-color:#ffc107}.efb.btn-check:focus+.efb.btn-outline-warning,.efb.btn-outline-warning:focus{box-shadow:0 0 0 .25rem rgba(255,193,7,.5)}.efb.btn-check:active+.efb.btn-outline-warning,.efb.btn-check:checked+.efb.btn-outline-warning,.efb.btn-outline-warning.active,.efb.btn-outline-warning.efb.dropdown-toggle.show,.efb.btn-outline-warning:active{color:#000;background-color:#ffc107;border-color:#ffc107}.efb.btn-check:active+.efb.btn-outline-warning:focus,.efb.btn-check:checked+.efb.btn-outline-warning:focus,.efb.btn-outline-warning.active:focus,.efb.btn-outline-warning.efb.dropdown-toggle.show:focus,.efb.btn-outline-warning:active:focus{box-shadow:0 0 0 .25rem rgba(255,193,7,.5)}.efb.btn-outline-warning.disabled,.efb.btn-outline-warning:disabled{color:#ffc107;background-color:transparent}.efb.btn-outline-danger{color:#dc3545;border-color:#dc3545}.efb.btn-outline-danger:hover{color:#fff;background-color:#dc3545;border-color:#dc3545}.efb.btn-check:focus+.efb.btn-outline-danger,.efb.btn-outline-danger:focus{box-shadow:0 0 0 .25rem rgba(220,53,69,.5)}.efb.btn-check:active+.efb.btn-outline-danger,.efb.btn-check:checked+.efb.btn-outline-danger,.efb.btn-outline-danger.active,.efb.btn-outline-danger.efb.dropdown-toggle.show,.efb.btn-outline-danger:active{color:#fff;background-color:#dc3545;border-color:#dc3545}.efb.btn-check:active+.efb.btn-outline-danger:focus,.efb.btn-check:checked+.efb.btn-outline-danger:focus,.efb.btn-outline-danger.active:focus,.efb.btn-outline-danger.efb.dropdown-toggle.show:focus,.efb.btn-outline-danger:active:focus{box-shadow:0 0 0 .25rem rgba(220,53,69,.5)}.efb.btn-outline-danger.disabled,.efb.btn-outline-danger:disabled{color:#dc3545;background-color:transparent}.efb.btn-outline-light{color:#f8f9fa;border-color:#f8f9fa}.efb.btn-outline-light:hover{color:#000;background-color:#f8f9fa;border-color:#f8f9fa}.efb.btn-check:focus+.efb.btn-outline-light,.efb.btn-outline-light:focus{box-shadow:0 0 0 .25rem rgba(248,249,250,.5)}.efb.btn-check:active+.efb.btn-outline-light,.efb.btn-check:checked+.efb.btn-outline-light,.efb.btn-outline-light.active,.efb.btn-outline-light.efb.dropdown-toggle.show,.efb.btn-outline-light:active{color:#000;background-color:#f8f9fa;border-color:#f8f9fa}.efb.btn-check:active+.efb.btn-outline-light:focus,.efb.btn-check:checked+.efb.btn-outline-light:focus,.efb.btn-outline-light.active:focus,.efb.btn-outline-light.efb.dropdown-toggle.show:focus,.efb.btn-outline-light:active:focus{box-shadow:0 0 0 .25rem rgba(248,249,250,.5)}.efb.btn-outline-light.disabled,.efb.btn-outline-light:disabled{color:#f8f9fa;background-color:transparent}.efb.btn-outline-dark{color:#212529;border-color:#212529}.efb.btn-outline-dark:hover{color:#fff;background-color:#212529;border-color:#212529}.efb.btn-check:focus+.efb.btn-outline-dark,.efb.btn-outline-dark:focus{box-shadow:0 0 0 .25rem rgba(33,37,41,.5)}.efb.btn-check:active+.efb.btn-outline-dark,.efb.btn-check:checked+.efb.btn-outline-dark,.efb.btn-outline-dark.active,.efb.btn-outline-dark.efb.dropdown-toggle.show,.efb.btn-outline-dark:active{color:#fff;background-color:#212529;border-color:#212529}.efb.btn-check:active+.efb.btn-outline-dark:focus,.efb.btn-check:checked+.efb.btn-outline-dark:focus,.efb.btn-outline-dark.active:focus,.efb.btn-outline-dark.efb.dropdown-toggle.show:focus,.efb.btn-outline-dark:active:focus{box-shadow:0 0 0 .25rem rgba(33,37,41,.5)}.efb.btn-outline-dark.disabled,.efb.btn-outline-dark:disabled{color:#212529;background-color:transparent}.efb.btn-link{font-weight:400;color:#0d6efd;text-decoration:underline}.efb.btn-link:hover{color:#0a58ca}.efb.btn-link.disabled,.efb.btn-link:disabled{color:#6c757d}.efb.btn-group-lg>.efb.btn,.efb.btn-lg{padding:.5rem 1rem;font-size:1.25rem;border-radius:.3rem}.efb.btn-group-sm>.efb.btn,.efb.btn-sm{padding:.2rem .3rem;font-size:.875rem;border-radius:.2rem}.efb.fade{transition:opacity .15s linear}@media (prefers-reduced-motion:reduce){.efb.fade{transition:none}}.efb.fade:not(.show){opacity:0}.efb.collapse:not(.show){display:none}.efb.collapsing{height:0;overflow:hidden;transition:height .35s ease}@media (prefers-reduced-motion:reduce){.efb.collapsing{transition:none}}.efb.dropdown,.efb.dropend,.efb.dropstart,.efb.dropup{position:relative}.efb.dropdown-toggle{white-space:nowrap}.efb.dropdown-toggle::after{display:inline-block;margin-left:.255em;vertical-align:.255em;content:"";border-top:.3em solid;border-right:.3em solid transparent;border-bottom:0;border-left:.3em solid transparent}.efb.dropdown-toggle:empty::after{margin-left:0}.efb.dropdown-menu{position:absolute;z-index:1000;display:none;min-width:10rem;padding:.5rem 0;margin:0;font-size:1rem;color:#212529;text-align:left;list-style:none;background-color:#fff;background-clip:padding-box;border:1px solid rgba(0,0,0,.15);border-radius:.25rem}.efb.dropdown-menu[data-bs-popper]{top:100%;left:0;margin-top:.125rem}.efb.dropdown-menu-start{--bs-position:start}.efb.dropdown-menu-start[data-bs-popper]{right:auto;left:0}.efb.dropdown-menu-end{--bs-position:end}.efb.dropdown-menu-end[data-bs-popper]{right:0;left:auto}.efb.dropup .efb.dropdown-menu[data-bs-popper]{top:auto;bottom:100%;margin-top:0;margin-bottom:.125rem}.efb.dropup .efb.dropdown-toggle::after{display:inline-block;margin-left:.255em;vertical-align:.255em;content:"";border-top:0;border-right:.3em solid transparent;border-bottom:.3em solid;border-left:.3em solid transparent}.efb.dropup .efb.dropdown-toggle:empty::after{margin-left:0}.efb.dropend .efb.dropdown-menu[data-bs-popper]{top:0;right:auto;left:100%;margin-top:0;margin-left:.125rem}.efb.dropend .efb.dropdown-toggle::after{display:inline-block;margin-left:.255em;vertical-align:.255em;content:"";border-top:.3em solid transparent;border-right:0;border-bottom:.3em solid transparent;border-left:.3em solid}.efb.dropend .efb.dropdown-toggle:empty::after{margin-left:0}.efb.dropend .efb.dropdown-toggle::after{vertical-align:0}.efb.dropstart .efb.dropdown-menu[data-bs-popper]{top:0;right:100%;left:auto;margin-top:0;margin-right:.125rem}.efb.dropstart .efb.dropdown-toggle::after{display:inline-block;margin-left:.255em;vertical-align:.255em;content:""}.efb.dropstart .efb.dropdown-toggle::after{display:none}.efb.dropstart .efb.dropdown-toggle::before{display:inline-block;margin-right:.255em;vertical-align:.255em;content:"";border-top:.3em solid transparent;border-right:.3em solid;border-bottom:.3em solid transparent}.efb.dropstart .efb.dropdown-toggle:empty::after{margin-left:0}.efb.dropstart .efb.dropdown-toggle::before{vertical-align:0}.efb.dropdown-divider{height:0;margin:.5rem 0;overflow:hidden;border-top:1px solid rgba(0,0,0,.15)}.efb.dropdown-item{display:block;width:100%;padding:.25rem 1rem;clear:both;font-weight:400;color:#212529;text-align:inherit;text-decoration:none;white-space:nowrap;background-color:transparent;border:0}.efb.dropdown-item:focus,.efb.dropdown-item:hover{color:#1e2125;background-color:#e9ecef}.efb.dropdown-item.active,.efb.dropdown-item:active{color:#fff;text-decoration:none;background-color:#0d6efd}.efb.dropdown-item.disabled,.efb.dropdown-item:disabled{color:#adb5bd;pointer-events:none;background-color:transparent}.efb.dropdown-menu.show{display:block}.efb.dropdown-header{display:block;padding:.5rem 1rem;margin-bottom:0;font-size:.875rem;color:#6c757d;white-space:nowrap}.efb.dropdown-item-text{display:block;padding:.25rem 1rem;color:#212529}.efb.dropdown-menu-dark{color:#dee2e6;background-color:#343a40;border-color:rgba(0,0,0,.15)}.efb.dropdown-menu-dark .efb.dropdown-item{color:#dee2e6}.efb.dropdown-menu-dark .efb.dropdown-item:focus,.efb.dropdown-menu-dark .efb.dropdown-item:hover{color:#fff;background-color:rgba(255,255,255,.15)}.efb.dropdown-menu-dark .efb.dropdown-item.active,.efb.dropdown-menu-dark .efb.dropdown-item:active{color:#fff;background-color:#0d6efd}.efb.dropdown-menu-dark .efb.dropdown-item.disabled,.efb.dropdown-menu-dark .efb.dropdown-item:disabled{color:#adb5bd}.efb.dropdown-menu-dark .efb.dropdown-divider{border-color:rgba(0,0,0,.15)}.efb.dropdown-menu-dark .efb.dropdown-item-text{color:#dee2e6}.efb.dropdown-menu-dark .efb.dropdown-header{color:#adb5bd}.efb.btn-group{position:relative;display:inline-flex;vertical-align:middle}.efb.btn-group>.efb.btn{position:relative;flex:1 1 auto}.efb.btn-group>.efb.btn-check:checked+.efb.btn,.efb.btn-group>.efb.btn-check:focus+.efb.btn,.efb.btn-group>.efb.btn.active,.efb.btn-group>.efb.btn:active,.efb.btn-group>.efb.btn:focus,.efb.btn-group>.efb.btn:hover{z-index:1}.efb.btn-toolbar{display:flex;flex-wrap:wrap;justify-content:flex-start}.efb.btn-toolbar .efb.input-group{width:auto}.efb.btn-group>.efb.btn-group:not(:first-child),.efb.btn-group>.efb.btn:not(:first-child){margin-left:-1px}.efb.btn-group>.efb.btn-group:not(:last-child)>.efb.btn,.efb.btn-group>.efb.btn:not(:last-child):not(.efb.dropdown-toggle){border-top-right-radius:0;border-bottom-right-radius:0}.efb.btn-group>.efb.btn-group:not(:first-child)>.efb.btn,.efb.btn-group>.efb.btn:nth-child(n+3),.efb.btn-group>:not(.efb.btn-check)+.efb.btn{border-top-left-radius:0;border-bottom-left-radius:0}.efb.dropdown-toggle-split{padding-right:.5625rem;padding-left:.5625rem}.efb.dropdown-toggle-split::after,.efb.dropend .efb.dropdown-toggle-split::after,.efb.dropup .efb.dropdown-toggle-split::after{margin-left:0}.efb.dropstart .efb.dropdown-toggle-split::before{margin-right:0}.efb.btn-group-sm>.efb.btn+.efb.dropdown-toggle-split,.efb.btn-sm+.efb.dropdown-toggle-split{padding-right:.375rem;padding-left:.375rem}.efb.btn-group-lg>.efb.btn+.efb.dropdown-toggle-split,.efb.btn-lg+.efb.dropdown-toggle-split{padding-right:.75rem;padding-left:.75rem}.efb.tab-content>.tab-pane{display:none}.efb.tab-content>.active{display:block}.efb.card{position:relative;display:flex;flex-direction:column;min-width:0;word-wrap:break-word;background-color:#fff;background-clip:border-box;border:1px solid rgba(0,0,0,.125);border-radius:.25rem}.efb.card>hr{margin-right:0;margin-left:0}.efb.card>.efb.list-group{border-top:inherit;border-bottom:inherit}.efb.card>.efb.list-group:first-child{border-top-width:0;border-top-left-radius:calc(.25rem - 1px);border-top-right-radius:calc(.25rem - 1px)}.card>.efb.list-group:last-child{border-bottom-width:0;border-bottom-right-radius:calc(.25rem - 1px);border-bottom-left-radius:calc(.25rem - 1px)}.efb.card>.efb.card-header+.efb.list-group,.efb.card>.efb.list-group+.efb.card-footer{border-top:0}.efb.card-body{flex:1 1 auto;padding:1rem 1rem}.efb.card-title{margin-bottom:.5rem}.efb.card-text:last-child{margin-bottom:0}.efb.card-header{padding:.5rem 1rem;margin-bottom:0;background-color:rgba(0,0,0,.03);border-bottom:1px solid rgba(0,0,0,.125)}.efb.card-header:first-child{border-radius:calc(.25rem - 1px) calc(.25rem - 1px) 0 0}.efb.card-footer{padding:.5rem 1rem;background-color:rgba(0,0,0,.03);border-top:1px solid rgba(0,0,0,.125)}.efb.card-footer:last-child{border-radius:0 0 calc(.25rem - 1px) calc(.25rem - 1px)}.efb.card-header-tabs{margin-right:-.5rem;margin-bottom:-.5rem;margin-left:-.5rem;border-bottom:0}.efb.card-header-pills{margin-right:-.5rem;margin-left:-.5rem}.efb.card-img-overlay{position:absolute;top:0;right:0;bottom:0;left:0;padding:1rem;border-radius:calc(.25rem - 1px)}.efb.card-img,.efb.card-img-bottom,.efb.card-img-top{width:100%}.efb.card-img,.efb.card-img-top{border-top-left-radius:calc(.25rem - 1px);border-top-right-radius:calc(.25rem - 1px)}.efb.card-img,.efb.card-img-bottom{border-bottom-right-radius:calc(.25rem - 1px);border-bottom-left-radius:calc(.25rem - 1px)}.efb.card-group>.card{margin-bottom:.75rem}@media (min-width:576px){.efb.card-group{display:flex;flex-flow:row wrap}.efb.card-group>.card{flex:1 0 0%;margin-bottom:0}.efb.card-group>.card+.card{margin-left:0;border-left:0}.efb.card-group>.card:not(:last-child){border-top-right-radius:0;border-bottom-right-radius:0}.efb.card-group>.card:not(:last-child) .efb.card-header,.efb.card-group>.card:not(:last-child) .efb.card-img-top{border-top-right-radius:0}.efb.card-group>.card:not(:last-child) .efb.card-footer,.efb.card-group>.card:not(:last-child) .efb.card-img-bottom{border-bottom-right-radius:0}.efb.card-group>.card:not(:first-child){border-top-left-radius:0;border-bottom-left-radius:0}.efb.card-group>.card:not(:first-child) .efb.card-header,.efb.card-group>.card:not(:first-child) .efb.card-img-top{border-top-left-radius:0}.efb.card-group>.card:not(:first-child) .efb.card-footer,.efb.card-group>.card:not(:first-child) .efb.card-img-bottom{border-bottom-left-radius:0}}.efb.page-link{position:relative;display:block;color:#0d6efd;text-decoration:none;background-color:#fff;border:1px solid #dee2e6;transition:color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out}@media (prefers-reduced-motion:reduce){.efb.page-link{transition:none}}.efb.page-link:hover{z-index:2;color:#0a58ca;background-color:#e9ecef;border-color:#dee2e6}.efb.page-link:focus{z-index:3;color:#0a58ca;background-color:#e9ecef;outline:0;box-shadow:0 0 0 .25rem rgba(13,110,253,.25)}.efb.page-item:not(:first-child) .efb.page-link{margin-left:-1px}.efb.page-item.active .efb.page-link{z-index:3;color:#fff;background-color:#0d6efd;border-color:#0d6efd}.efb.page-item.disabled .efb.page-link{color:#6c757d;pointer-events:none;background-color:#fff;border-color:#dee2e6}.efb.page-link{padding:.375rem .75rem}.efb.page-item:first-child .efb.page-link{border-top-left-radius:.25rem;border-bottom-left-radius:.25rem}.efb.page-item:last-child .efb.page-link{border-top-right-radius:.25rem;border-bottom-right-radius:.25rem}.efb.pagination-lg .efb.page-link{padding:.75rem 1.5rem;font-size:1.25rem}.efb.pagination-lg .efb.page-item:first-child .efb.page-link{border-top-left-radius:.3rem;border-bottom-left-radius:.3rem}.efb.pagination-lg .efb.page-item:last-child .efb.page-link{border-top-right-radius:.3rem;border-bottom-right-radius:.3rem}.efb.pagination-sm .efb.page-link{padding:.25rem .5rem;font-size:.875rem}.efb.pagination-sm .efb.page-item:first-child .efb.page-link{border-top-left-radius:.2rem;border-bottom-left-radius:.2rem}.pagination-sm .efb.page-item:last-child .efb.page-link{border-top-right-radius:.2rem;border-bottom-right-radius:.2rem}.efb.badge{display:inline-block;padding:.35em .65em;font-size:.75em;font-weight:700;line-height:1;color:#fff;text-align:center;white-space:nowrap;vertical-align:baseline;border-radius:.25rem}.efb.badge:empty{display:none}.efb.btn .efb.badge{position:relative;top:-1px}.efb.alert{position:relative;padding:1rem 1rem;margin-bottom:1rem;border:1px solid transparent;border-radius:.25rem}.efb.alert-heading{color:inherit}.efb.alert-link{font-weight:700}.efb.alert-dismissible{padding-right:3rem}.efb.alert-dismissible .efb.btn-close{position:absolute;top:0;right:0;z-index:2;padding:1.25rem 1rem}.efb.alert-primary{color:#084298;background-color:#cfe2ff;border-color:#b6d4fe}.efb.alert-primary .efb.alert-link{color:#06357a}.efb.alert-secondary{color:#41464b;background-color:#e2e3e5;border-color:#d3d6d8}.efb.alert-secondary .efb.alert-link{color:#34383c}.efb.alert-success{color:#0f5132;background-color:#d1e7dd;border-color:#badbcc}.efb.alert-success .efb.alert-link{color:#0c4128}.efb.alert-info{color:#055160;background-color:#cff4fc;border-color:#b6effb}.efb.alert-info .efb.alert-link{color:#04414d}.efb.alert-warning{color:#664d03;background-color:#fff3cd;border-color:#ffecb5}.efb.alert-warning .efb.alert-link{color:#523e02}.efb.alert-danger{color:#842029;background-color:#f8d7da;border-color:#f5c2c7}.efb.alert-danger .efb.alert-link{color:#6a1a21}.efb.alert-light{color:#636464;background-color:#fefefe;border-color:#fdfdfe}.efb.alert-light .efb.alert-link{color:#4f5050}.efb.alert-dark{color:#141619;background-color:#d3d3d4;border-color:#bcbebf}.efb.alert-dark .efb.alert-link{color:#101214}@-webkit-keyframes progress-bar-stripes{0%{background-position-x:1rem}}@keyframes progress-bar-stripes{0%{background-position-x:1rem}}.efb.progress{display:flex;height:1rem;overflow:hidden;font-size:.75rem;background-color:#e9ecef;border-radius:.25rem}.efb.progress-bar{display:flex;flex-direction:column;justify-content:center;overflow:hidden;color:#fff;text-align:center;white-space:nowrap;background-color:#0d6efd;transition:width .6s ease}@media (prefers-reduced-motion:reduce){.efb.progress-bar{transition:none}}.efb.progress-bar-striped{background-image:linear-gradient(45deg,rgba(255,255,255,.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.15) 75%,transparent 75%,transparent)!important;background-size:1rem 1rem}.efb.progress-bar-animated{-webkit-animation:1s linear infinite progress-bar-stripes;animation:1s linear infinite progress-bar-stripes}@media (prefers-reduced-motion:reduce){.efb.progress-bar-animated{-webkit-animation:none;animation:none}}.efb.list-group{display:flex;flex-direction:column;padding-left:0;margin-bottom:0;border-radius:.25rem}.efb.list-group-numbered{list-style-type:none;counter-reset:section}.efb.list-group-numbered>li::before{content:counters(section,".") ". ";counter-increment:section}.efb.list-group-item-action{width:100%;color:#495057;text-align:inherit}.efb.list-group-item-action:focus,.efb.list-group-item-action:hover{z-index:1;color:#495057;text-decoration:none;background-color:#f8f9fa}.efb.list-group-item-action:active{color:#212529;background-color:#e9ecef}.efb.list-group-item{position:relative;display:block;padding:.5rem 1rem;color:#212529;text-decoration:none;background-color:#fff;border:1px solid rgba(0,0,0,.125)}.efb.list-group-item:first-child{border-top-left-radius:inherit;border-top-right-radius:inherit}.efb.list-group-item:last-child{border-bottom-right-radius:inherit;border-bottom-left-radius:inherit}.efb.list-group-item.disabled,.efb.list-group-item:disabled{color:#6c757d;pointer-events:none;background-color:#fff}.efb.list-group-item.active{z-index:2;color:#fff;background-color:#0d6efd;border-color:#0d6efd}.efb.list-group-item+.efb.list-group-item{border-top-width:0}.efb.list-group-item+.efb.list-group-item.active{margin-top:-1px;border-top-width:1px}.efb.list-group-horizontal{flex-direction:row}.efb.list-group-horizontal>.efb.list-group-item:first-child{border-bottom-left-radius:.25rem;border-top-right-radius:0}.efb.list-group-horizontal>.efb.list-group-item:last-child{border-top-right-radius:.25rem;border-bottom-left-radius:0}.efb.list-group-horizontal>.efb.list-group-item.active{margin-top:0}.efb.list-group-horizontal>.efb.list-group-item+.efb.list-group-item{border-top-width:1px;border-left-width:0}.efb.list-group-horizontal>.efb.list-group-item+.efb.list-group-item.active{margin-left:-1px;border-left-width:1px}@media (min-width:576px){.efb.list-group-horizontal-sm{flex-direction:row}.efb.list-group-horizontal-sm>.efb.list-group-item:first-child{border-bottom-left-radius:.25rem;border-top-right-radius:0}.efb.list-group-horizontal-sm>.efb.list-group-item:last-child{border-top-right-radius:.25rem;border-bottom-left-radius:0}.efb.list-group-horizontal-sm>.efb.list-group-item.active{margin-top:0}.efb.list-group-horizontal-sm>.efb.list-group-item+.efb.list-group-item{border-top-width:1px;border-left-width:0}.efb.list-group-horizontal-sm>.efb.list-group-item+.efb.list-group-item.active{margin-left:-1px;border-left-width:1px}}@media (min-width:768px){.efb.list-group-horizontal-md{flex-direction:row}.efb.list-group-horizontal-md>.efb.list-group-item:first-child{border-bottom-left-radius:.25rem;border-top-right-radius:0}.efb.list-group-horizontal-md>.efb.list-group-item:last-child{border-top-right-radius:.25rem;border-bottom-left-radius:0}.efb.list-group-horizontal-md>.efb.list-group-item.active{margin-top:0}.efb.list-group-horizontal-md>.efb.list-group-item+.efb.list-group-item{border-top-width:1px;border-left-width:0}.efb.list-group-horizontal-md>.efb.list-group-item+.efb.list-group-item.active{margin-left:-1px;border-left-width:1px}}@media (min-width:992px){.efb.list-group-horizontal-lg{flex-direction:row}.efb.list-group-horizontal-lg>.efb.list-group-item:first-child{border-bottom-left-radius:.25rem;border-top-right-radius:0}.efb.list-group-horizontal-lg>.efb.list-group-item:last-child{border-top-right-radius:.25rem;border-bottom-left-radius:0}.efb.list-group-horizontal-lg>.efb.list-group-item.active{margin-top:0}.efb.list-group-horizontal-lg>.efb.list-group-item+.efb.list-group-item{border-top-width:1px;border-left-width:0}.efb.list-group-horizontal-lg>.efb.list-group-item+.efb.list-group-item.active{margin-left:-1px;border-left-width:1px}}@media (min-width:1200px){.efb.list-group-horizontal-xl{flex-direction:row}.efb.list-group-horizontal-xl>.efb.list-group-item:first-child{border-bottom-left-radius:.25rem;border-top-right-radius:0}.efb.list-group-horizontal-xl>.efb.list-group-item:last-child{border-top-right-radius:.25rem;border-bottom-left-radius:0}.efb.list-group-horizontal-xl>.efb.list-group-item.active{margin-top:0}.efb.list-group-horizontal-xl>.efb.list-group-item+.efb.list-group-item{border-top-width:1px;border-left-width:0}.efb.list-group-horizontal-xl>.efb.list-group-item+.efb.list-group-item.active{margin-left:-1px;border-left-width:1px}}@media (min-width:1400px){.efb.list-group-horizontal-xxl{flex-direction:row}.efb.list-group-horizontal-xxl>.efb.list-group-item:first-child{border-bottom-left-radius:.25rem;border-top-right-radius:0}.efb.list-group-horizontal-xxl>.efb.list-group-item:last-child{border-top-right-radius:.25rem;border-bottom-left-radius:0}.efb.list-group-horizontal-xxl>.efb.list-group-item.active{margin-top:0}.efb.list-group-horizontal-xxl>.efb.list-group-item+.efb.list-group-item{border-top-width:1px;border-left-width:0}.efb.list-group-horizontal-xxl>.efb.list-group-item+.efb.list-group-item.active{margin-left:-1px;border-left-width:1px}}.efb.list-group-flush{border-radius:0}.efb.list-group-flush>.efb.list-group-item{border-width:0 0 1px}.efb.list-group-flush>.efb.list-group-item:last-child{border-bottom-width:0}.efb.list-group-item-primary{color:#084298;background-color:#cfe2ff}.efb.list-group-item-primary.efb.list-group-item-action:focus,.efb.list-group-item-primary.efb.list-group-item-action:hover{color:#084298;background-color:#bacbe6}.efb.list-group-item-primary.efb.list-group-item-action.active{color:#fff;background-color:#084298;border-color:#084298}.efb.list-group-item-secondary{color:#41464b;background-color:#e2e3e5}.efb.list-group-item-secondary.efb.list-group-item-action:focus,.efb.list-group-item-secondary.efb.list-group-item-action:hover{color:#41464b;background-color:#cbccce}.efb.list-group-item-secondary.efb.list-group-item-action.active{color:#fff;background-color:#41464b;border-color:#41464b}.efb.list-group-item-success{color:#0f5132;background-color:#d1e7dd}.efb.list-group-item-success.efb.list-group-item-action:focus,.efb.list-group-item-success.efb.list-group-item-action:hover{color:#0f5132;background-color:#bcd0c7}.efb.list-group-item-success.efb.list-group-item-action.active{color:#fff;background-color:#0f5132;border-color:#0f5132}.efb.list-group-item-info{color:#055160;background-color:#cff4fc}.efb.list-group-item-info.efb.list-group-item-action:focus,.efb.list-group-item-info.efb.list-group-item-action:hover{color:#055160;background-color:#badce3}.efb.list-group-item-info.efb.list-group-item-action.active{color:#fff;background-color:#055160;border-color:#055160}.efb.list-group-item-warning{color:#664d03;background-color:#fff3cd}.efb.list-group-item-warning.efb.list-group-item-action:focus,.efb.list-group-item-warning.efb.list-group-item-action:hover{color:#664d03;background-color:#e6dbb9}.efb.list-group-item-warning.efb.list-group-item-action.active{color:#fff;background-color:#664d03;border-color:#664d03}.efb.list-group-item-danger{color:#842029;background-color:#f8d7da}.efb.list-group-item-danger.efb.list-group-item-action:focus,.efb.list-group-item-danger.efb.list-group-item-action:hover{color:#842029;background-color:#dfc2c4}.efb.list-group-item-danger.efb.list-group-item-action.active{color:#fff;background-color:#842029;border-color:#842029}.efb.list-group-item-light{color:#636464;background-color:#fefefe}.efb.list-group-item-light.efb.list-group-item-action:focus,.efb.list-group-item-light.efb.list-group-item-action:hover{color:#636464;background-color:#e5e5e5}.efb.list-group-item-light.efb.list-group-item-action.active{color:#fff;background-color:#636464;border-color:#636464}.efb.list-group-item-dark{color:#141619;background-color:#d3d3d4}.efb.list-group-item-dark.efb.list-group-item-action:focus,.efb.list-group-item-dark.efb.list-group-item-action:hover{color:#141619;background-color:#bebebf}.efb.list-group-item-dark.efb.list-group-item-action.active{color:#fff;background-color:#141619;border-color:#141619}.efb.btn-close{box-sizing:content-box;width:1em;height:1em;padding:.25em .25em;color:#000;background:transparent url("data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 16 16\' fill=\'%23000\'%3e%3cpath d=\'M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z\'/%3e%3c/svg%3e") center/1em auto no-repeat;border:0;border-radius:.25rem;opacity:.5}.efb.btn-close:hover{color:#000;text-decoration:none;opacity:.75}.efb.btn-close:focus{outline:0;box-shadow:0 0 0 .25rem rgba(13,110,253,.25);opacity:1}.efb.btn-close.disabled,.efb.btn-close:disabled{pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none;opacity:.25}.efb.btn-close-white{filter:invert(1) grayscale(100%) brightness(200%)}.efb.modal{position:fixed;top:0;left:0;z-index:1060;display:none;width:100%;height:100%;overflow-x:hidden;overflow-y:auto;outline:0}.efb.modal-dialog{position:relative;width:auto;margin:.5rem;pointer-events:none}.efb.modal.efb.fade .efb.modal-dialog{transition:transform .3s ease-out;transform:translate(0,-50px)}@media (prefers-reduced-motion:reduce){.efb.modal.efb.fade .efb.modal-dialog{transition:none}}.efb.modal.show .modal-dialog{transform:none}.efb.modal.modal-static .efb.modal-dialog{transform:scale(1.02)}.efb.modal-dialog-scrollable{height:calc(100% - 1rem)}.efb.modal-dialog-scrollable .efb.modal-content{max-height:100%;overflow:hidden}.efb.modal-dialog-scrollable .efb.modal-body{overflow-y:auto}.efb.modal-dialog-centered{display:flex;align-items:center;min-height:calc(100% - 1rem)}.efb.modal-content{position:relative;display:flex;flex-direction:column;width:100%;pointer-events:auto;background-color:#fff;background-clip:padding-box;border:1px solid rgba(0,0,0,.2);border-radius:.3rem;outline:0}.efb.modal-backdrop{position:fixed;top:0;left:0;z-index:1040;width:100vw;height:100vh;background-color:#000}.efb.modal-backdrop.efb.fade{opacity:0}.efb.modal-backdrop.show{opacity:.5}.efb.modal-header{display:flex;flex-shrink:0;align-items:center;justify-content:space-between;padding:1rem 1rem;border-bottom:1px solid #dee2e6;border-top-left-radius:calc(.3rem - 1px);border-top-right-radius:calc(.3rem - 1px)}.efb.modal-header .efb.btn-close{padding:.5rem .5rem;margin:-.5rem -.5rem -.5rem auto}.efb.modal-title{margin-bottom:0;line-height:1.5}.efb.modal-body{position:relative;flex:1 1 auto;padding:1rem}.efb.modal-footer{display:flex;flex-wrap:wrap;flex-shrink:0;align-items:center;justify-content:flex-end;padding:.75rem;border-top:1px solid #dee2e6;border-bottom-right-radius:calc(.3rem - 1px);border-bottom-left-radius:calc(.3rem - 1px)}.efb.modal-footer>*{margin:.25rem}@media (min-width:576px){.efb.modal-dialog{max-width:500px;margin:1.75rem auto}.efb.modal-dialog-scrollable{height:calc(100% - 3.5rem)}.efb.modal-dialog-centered{min-height:calc(100% - 3.5rem)}.efb.modal-sm{max-width:300px}}.efb.modal-content{height:100%;border:0;border-radius:0}.efb.modal-header{border-radius:0}.efb.modal-body{overflow-y:auto}.efb.modal-footer{border-radius:0}.efb.tooltip{position:absolute;z-index:1080;display:block;margin:0;font-family:inherit;font-style:normal;font-weight:400;line-height:1.5;text-align:left;text-align:start;text-decoration:none;text-shadow:none;text-transform:none;letter-spacing:normal;word-break:normal;word-spacing:normal;white-space:normal;line-break:auto;font-size:.875rem;word-wrap:break-word;opacity:0}.efb.tooltip.show{opacity:.9}.efb.tooltip .efb.tooltip-arrow{position:absolute;display:block;width:.8rem;height:.4rem}.efb.tooltip .efb.tooltip-arrow::before{position:absolute;content:"";border-color:transparent;border-style:solid}.efb.bs-tooltip-auto[data-popper-placement^=top],.efb.bs-tooltip-top{padding:.4rem 0}.efb.bs-tooltip-auto[data-popper-placement^=top] .efb.tooltip-arrow,.efb.bs-tooltip-top .efb.tooltip-arrow{bottom:0}.efb.bs-tooltip-auto[data-popper-placement^=top] .efb.tooltip-arrow::before,.efb.bs-tooltip-top .efb.tooltip-arrow::before{top:-1px;border-width:.4rem .4rem 0;border-top-color:#000}.efb.bs-tooltip-auto[data-popper-placement^=right],.efb.bs-tooltip-end{padding:0 .4rem}.efb.bs-tooltip-auto[data-popper-placement^=right] .efb.tooltip-arrow,.efb.bs-tooltip-end .efb.tooltip-arrow{left:0;width:.4rem;height:.8rem}.efb.bs-tooltip-auto[data-popper-placement^=right] .efb.tooltip-arrow::before,.efb.bs-tooltip-end .efb.tooltip-arrow::before{right:-1px;border-width:.4rem .4rem .4rem 0;border-right-color:#000}.efb.bs-tooltip-auto[data-popper-placement^=bottom],.efb.bs-tooltip-bottom{padding:.4rem 0}.efb.bs-tooltip-auto[data-popper-placement^=bottom] .efb.tooltip-arrow,.efb.bs-tooltip-bottom .efb.tooltip-arrow{top:0}.efb.bs-tooltip-auto[data-popper-placement^=bottom] .efb.tooltip-arrow::before,.efb.bs-tooltip-bottom .efb.tooltip-arrow::before{bottom:-1px;border-width:0 .4rem .4rem;border-bottom-color:#000}.efb.bs-tooltip-auto[data-popper-placement^=left],.efb.bs-tooltip-start{padding:0 .4rem}.efb.bs-tooltip-auto[data-popper-placement^=left] .efb.tooltip-arrow,.efb.bs-tooltip-start .efb.tooltip-arrow{right:0;width:.4rem;height:.8rem}.efb.bs-tooltip-auto[data-popper-placement^=left] .efb.tooltip-arrow::before,.efb.bs-tooltip-start .efb.tooltip-arrow::before{left:-1px;border-width:.4rem 0 .4rem .4rem;border-left-color:#000}.efb.tooltip-inner{max-width:200px;padding:.25rem .5rem;color:#fff;text-align:center;background-color:#000;border-radius:.25rem}.efb.clearfix::after{display:block;clear:both;content:""}.efb.stretched-link::after{position:absolute;top:0;right:0;bottom:0;left:0;z-index:1;content:""}.efb.text-truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.efb.align-baseline{vertical-align:baseline!important}.efb.align-top{vertical-align:top!important}.efb.align-middle{vertical-align:middle!important}.efb.align-bottom{vertical-align:bottom!important}.efb.align-text-bottom{vertical-align:text-bottom!important}.efb.align-text-top{vertical-align:text-top!important}.efb.float-start{float:left!important}.efb.float-end{float:right!important}.efb.float-none{float:none!important}.efb.overflow-auto{overflow:auto!important}.efb.overflow-hidden{overflow:hidden!important}.efb.overflow-visible{overflow:visible!important}.efb.overflow-scroll{overflow:scroll!important}.efb.d-inline{display:inline!important}.efb.d-inline-block{display:inline-block!important}.efb.d-block{display:block!important}.efb.d-grid{display:grid!important}.efb.d-flex{display:flex!important}.efb.d-inline-flex{display:inline-flex!important}.efb.d-none{display:none!important}.efb.shadow{box-shadow:0 .5rem 1rem rgba(0,0,0,.15)!important}.efb.shadow-sm{box-shadow:0 .125rem .25rem rgba(0,0,0,.075)!important}.efb.shadow-lg{box-shadow:0 1rem 3rem rgba(0,0,0,.175)!important}.efb.shadow-none{box-shadow:none!important}.efb.position-static{position:static!important}.efb.position-relative{position:relative!important}.efb.position-absolute{position:absolute!important}.efb.position-fixed{position:fixed!important}.efb.position-sticky{position:-webkit-sticky!important;position:sticky!important}.efb.top-0{top:0!important}.efb.top-50{top:50%!important}.efb.top-100{top:100%!important}.efb.bottom-0{bottom:0!important}.efb.bottom-50{bottom:50%!important}.efb.bottom-100{bottom:100%!important}.efb.start-0{left:0!important}.efb.start-50{left:50%!important}.efb.start-100{left:100%!important}.efb.end-0{right:0!important}.efb.end-50{right:50%!important}.efb.end-100{right:100%!important}.efb.translate-middle{transform:translate(-50%,-50%)!important}.efb.translate-middle-x{transform:translateX(-50%)!important}.efb.translate-middle-y{transform:translateY(-50%)!important}.efb.border{border:1px solid #dee2e6!important}.efb.border-0{border:0!important}.efb.border-top{border-top:1px solid #dee2e6!important}.efb.border-top-0{border-top:0!important}.efb.border-end{border-right:1px solid #dee2e6!important}.efb.border-end-0{border-right:0!important}.efb.border-bottom{border-bottom:1px solid #dee2e6!important}.efb.border-bottom-0{border-bottom:0!important}.efb.border-start{border-left:1px solid #dee2e6!important}.efb.border-start-0{border-left:0!important}.efb.border-primary{border-color:#0d6efd!important}.efb.border-secondary{border-color:#6c757d!important}.efb.border-success{border-color:#198754!important}.efb.border-info{border-color:#0dcaf0!important}.efb.border-warning{border-color:#ffc107!important}.efb.border-danger{border-color:#dc3545!important}.efb.border-light{border-color:#f8f9fa!important}.efb.border-dark{border-color:#212529!important}.efb.border-white{border-color:#fff!important}.efb.border-1{border-width:1px!important}.efb.border-2{border-width:2px!important}.efb.border-3{border-width:3px!important}.efb.border-4{border-width:4px!important}.efb.border-5{border-width:5px!important}.efb.w-25{width:25%!important}.efb.w-50{width:50%!important}.efb.w-75{width:75%!important}.efb.w-100{width:100%!important}.efb.w-auto{width:auto!important}.efb.mw-100{max-width:100%!important}.efb.vw-100{width:100vw!important}.efb.min-vw-100{min-width:100vw!important}.efb.h-25{height:25%!important}.efb.h-50{height:50%!important}.efb.h-75{height:75%!important}.efb.h-100{height:100%!important}.efb.h-auto{height:auto!important}.efb.mh-100{max-height:100%!important}.efb.vh-100{height:100vh!important}.efb.min-vh-100{min-height:100vh!important}.efb.flex-fill{flex:1 1 auto!important}.efb.flex-row{flex-direction:row!important}.efb.flex-column{flex-direction:column!important}.efb.flex-row-reverse{flex-direction:row-reverse!important}.efb.flex-column-reverse{flex-direction:column-reverse!important}.efb.flex-grow-0{flex-grow:0!important}.efb.flex-grow-1{flex-grow:1!important}.efb.flex-shrink-0{flex-shrink:0!important}.efb.flex-shrink-1{flex-shrink:1!important}.efb.flex-wrap{flex-wrap:wrap!important}.efb.flex-nowrap{flex-wrap:nowrap!important}.efb.flex-wrap-reverse{flex-wrap:wrap-reverse!important}.efb.justify-content-start{justify-content:flex-start!important}.efb.justify-content-end{justify-content:flex-end!important}.efb.justify-content-center{justify-content:center!important}.efb.justify-content-between{justify-content:space-between!important}.efb.justify-content-around{justify-content:space-around!important}.efb.justify-content-evenly{justify-content:space-evenly!important}.efb.align-items-start{align-items:flex-start!important}.efb.align-items-end{align-items:flex-end!important}.efb.align-items-center{align-items:center!important}.efb.align-items-baseline{align-items:baseline!important}.efb.align-items-stretch{align-items:stretch!important}.efb.m-0{margin:0!important}.efb.m-1{margin:.25rem!important}.efb.m-2{margin:.5rem!important}.efb.m-3{margin:1rem!important}.efb.m-4{margin:1.5rem!important}.efb.m-5{margin:3rem!important}.efb.m-auto{margin:auto!important}.efb.mx-0{margin-right:0!important;margin-left:0!important}.efb.mx-1{margin-right:.25rem!important;margin-left:.25rem!important}.efb.mx-2{margin-right:.5rem!important;margin-left:.5rem!important}.efb.mx-3{margin-right:1rem!important;margin-left:1rem!important}.efb.mx-4{margin-right:1.5rem!important;margin-left:1.5rem!important}.efb.mx-5{margin-right:3rem!important;margin-left:3rem!important}.efb.mx-auto{margin-right:auto!important;margin-left:auto!important}.efb.my-0{margin-top:0!important;margin-bottom:0!important}.efb.my-1{margin-top:.25rem!important;margin-bottom:.25rem!important}.efb.my-2{margin-top:.5rem!important;margin-bottom:.5rem!important}.efb.my-3{margin-top:1rem!important;margin-bottom:1rem!important}.efb.my-4{margin-top:1.5rem!important;margin-bottom:1.5rem!important}.efb.my-5{margin-top:3rem!important;margin-bottom:3rem!important}.efb.my-auto{margin-top:auto!important;margin-bottom:auto!important}.efb.mt-0{margin-top:0!important}.efb.mt-1{margin-top:.25rem!important}.efb.mt-2{margin-top:.5rem!important}.efb.mt-3{margin-top:1rem!important}.efb.mt-4{margin-top:1.5rem!important}.efb.mt-5{margin-top:3rem!important}.efb.mt-auto{margin-top:auto!important}.efb.me-0{margin-right:0!important}.efb.me-1{margin-right:.25rem!important}.efb.me-2{margin-right:.5rem!important}.efb.me-3{margin-right:1rem!important}.efb.me-4{margin-right:1.5rem!important}.efb.me-5{margin-right:3rem!important}.efb.me-auto{margin-right:auto!important}.efb.mb-0{margin-bottom:0!important}.efb.mb-1{margin-bottom:.25rem!important}.efb.mb-2{margin-bottom:.5rem!important}.efb.mb-3{margin-bottom:1rem!important}.efb.mb-4{margin-bottom:1.5rem!important}.efb.mb-5{margin-bottom:3rem!important}.efb.mb-auto{margin-bottom:auto!important}.efb.ms-0{margin-left:0!important}.efb.ms-1{margin-left:.25rem!important}.efb.ms-2{margin-left:.5rem!important}.efb.ms-3{margin-left:1rem!important}.efb.ms-4{margin-left:1.5rem!important}.efb.ms-5{margin-left:3rem!important}.efb.ms-auto{margin-left:auto!important}.efb.p-0{padding:0!important}.efb.p-1{padding:.25rem!important}.efb.p-2{padding:.5rem!important}.efb.p-3{padding:1rem!important}.efb.p-4{padding:1.5rem!important}.efb.p-5{padding:3rem!important}.efb.px-0{padding-right:0!important;padding-left:0!important}.efb.px-1{padding-right:.25rem!important;padding-left:.25rem!important}.efb.px-2{padding-right:.5rem!important;padding-left:.5rem!important}.efb.px-3{padding-right:1rem!important;padding-left:1rem!important}.efb.px-4{padding-right:1.5rem!important;padding-left:1.5rem!important}.efb.px-5{padding-right:3rem!important;padding-left:3rem!important}.efb.py-0{padding-top:0!important;padding-bottom:0!important}.efb.py-1{padding-top:.25rem!important;padding-bottom:.25rem!important}.efb.py-2{padding-top:.5rem!important;padding-bottom:.5rem!important}.efb.py-3{padding-top:1rem!important;padding-bottom:1rem!important}.efb.py-4{padding-top:1.5rem!important;padding-bottom:1.5rem!important}.efb.py-5{padding-top:3rem!important;padding-bottom:3rem!important}.efb.pt-0{padding-top:0!important}.efb.pt-1{padding-top:.25rem!important}.efb.pt-2{padding-top:.5rem!important}.efb.pt-3{padding-top:1rem!important}.efb.pt-4{padding-top:1.5rem!important}.efb.pt-5{padding-top:3rem!important}.efb.pe-0{padding-right:0!important}.efb.pe-1{padding-right:.25rem!important}.efb.pe-2{padding-right:.5rem!important}.efb.pe-3{padding-right:1rem!important}.efb.pe-4{padding-right:1.5rem!important}.efb.pe-5{padding-right:3rem!important}.efb.pb-0{padding-bottom:0!important}.efb.pb-1{padding-bottom:.25rem!important}.efb.pb-2{padding-bottom:.5rem!important}.efb.pb-3{padding-bottom:1rem!important}.efb.pb-4{padding-bottom:1.5rem!important}.efb.pb-5{padding-bottom:3rem!important}.efb.ps-0{padding-left:0!important}.efb.ps-1{padding-left:.25rem!important}.efb.ps-2{padding-left:.5rem!important}.efb.ps-3{padding-left:1rem!important}.efb.ps-4{padding-left:1.5rem!important}.efb.ps-5{padding-left:3rem!important}.efb.font-monospace{font-family:var(--bs-font-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace)!important}.efb.fst-italic{font-style:italic!important}.efb.fst-normal{font-style:normal!important}.efb.fw-light{font-weight:300!important}.efb.fw-lighter{font-weight:lighter!important}.efb.fw-normal{font-weight:400!important}.efb.fw-bold{font-weight:700!important}.efb.fw-bolder{font-weight:bolder!important}.efb.lh-1{line-height:1!important}.efb.lh-sm{line-height:1.25!important}.efb.lh-base{line-height:1.5!important}.efb.lh-lg{line-height:2!important}.efb.text-start{text-align:left!important}.efb.text-end{text-align:right!important}.efb.text-center{text-align:center!important}.efb.text-decoration-none{text-decoration:none!important}.efb.text-decoration-underline{text-decoration:underline!important}.efb.text-decoration-line-through{text-decoration:line-through!important}.efb.text-lowercase{text-transform:lowercase!important}.efb.text-uppercase{text-transform:uppercase!important}.efb.text-capitalize{text-transform:capitalize!important}.efb.text-wrap{white-space:normal!important}.efb.text-nowrap{white-space:nowrap!important}.efb.text-break{word-wrap:break-word!important;word-break:break-word!important}.efb.text-primary{color:#0d6efd!important}.efb.text-secondary{color:#6c757d!important}.efb.text-success{color:#198754!important}.efb.text-info{color:#0dcaf0!important}.efb.text-warning{color:#ffc107!important}.efb.text-danger{color:#dc3545!important}.efb.text-light{color:#f8f9fa!important}.efb.text-dark{color:#212529!important}.efb.text-white{color:#fff!important}.efb.text-body{color:#212529!important}.efb.text-muted{color:#6c757d!important}.efb.text-black-50{color:rgba(0,0,0,.5)!important}.efb.text-white-50{color:rgba(255,255,255,.5)!important}.efb.text-reset{color:inherit!important}.efb.bg-primary{background-color:#0d6efd!important}.efb.bg-secondary{background-color:#6c757d!important}.efb.bg-success{background-color:#198754!important}.efb.bg-info{background-color:#0dcaf0!important}.efb.bg-warning{background-color:#ffc107!important}.efb.bg-danger{background-color:#dc3545!important}.efb.bg-light{background-color:#f8f9fa!important}.efb.bg-dark{background-color:#212529!important}.efb.bg-body{background-color:#fff!important}.efb.bg-white{background-color:#fff!important}.efb.bg-transparent{background-color:transparent!important}.efb.bg-gradient{background-image:var(--bs-gradient)!important}.efb.user-select-all{-webkit-user-select:all!important;-moz-user-select:all!important;user-select:all!important}.efb.user-select-auto{-webkit-user-select:auto!important;-moz-user-select:auto!important;user-select:auto!important}.efb.user-select-none{-webkit-user-select:none!important;-moz-user-select:none!important;user-select:none!important}.efb.pe-none{pointer-events:none!important}.efb.pe-auto{pointer-events:auto!important}.efb.rounded{border-radius:.25rem!important}.efb.rounded-0{border-radius:0!important}.efb.rounded-1{border-radius:.2rem!important}.efb.rounded-2{border-radius:.25rem!important}.efb.rounded-3{border-radius:.3rem!important}.efb.rounded-circle{border-radius:50%!important}.efb.rounded-pill{border-radius:50rem!important}.efb.rounded-top{border-top-left-radius:.25rem!important;border-top-right-radius:.25rem!important}.efb.rounded-end{border-top-right-radius:.25rem!important;border-bottom-right-radius:.25rem!important}.efb.rounded-bottom{border-bottom-right-radius:.25rem!important;border-bottom-left-radius:.25rem!important}.efb.rounded-start{border-bottom-left-radius:.25rem!important;border-top-left-radius:.25rem!important}.efb.visible{visibility:visible!important}.efb.invisible{visibility:hidden!important}@media (min-width:576px){.efb.float-sm-start{float:left!important}.efb.float-sm-end{float:right!important}.efb.float-sm-none{float:none!important}.efb.d-sm-inline{display:inline!important}.efb.d-sm-inline-block{display:inline-block!important}.efb.d-sm-block{display:block!important}.efb.d-sm-grid{display:grid!important}.efb.d-sm-flex{display:flex!important}.efb.d-sm-inline-flex{display:inline-flex!important}.efb.d-sm-none{display:none!important}.efb.flex-sm-fill{flex:1 1 auto!important}.efb.flex-sm-row{flex-direction:row!important}.efb.flex-sm-column{flex-direction:column!important}.efb.flex-sm-row-reverse{flex-direction:row-reverse!important}.efb.flex-sm-column-reverse{flex-direction:column-reverse!important}.efb.flex-sm-grow-0{flex-grow:0!important}.efb.flex-sm-grow-1{flex-grow:1!important}.efb.flex-sm-shrink-0{flex-shrink:0!important}.efb.flex-sm-shrink-1{flex-shrink:1!important}.efb.flex-sm-wrap{flex-wrap:wrap!important}.efb.flex-sm-nowrap{flex-wrap:nowrap!important}.efb.flex-sm-wrap-reverse{flex-wrap:wrap-reverse!important}.efb.justify-content-sm-start{justify-content:flex-start!important}.efb.justify-content-sm-end{justify-content:flex-end!important}.efb.justify-content-sm-center{justify-content:center!important}.efb.justify-content-sm-between{justify-content:space-between!important}.efb.justify-content-sm-around{justify-content:space-around!important}.efb.justify-content-sm-evenly{justify-content:space-evenly!important}.efb.align-items-sm-start{align-items:flex-start!important}.efb.align-items-sm-end{align-items:flex-end!important}.efb.align-items-sm-center{align-items:center!important}.efb.align-items-sm-baseline{align-items:baseline!important}.efb.align-items-sm-stretch{align-items:stretch!important}.efb.m-sm-0{margin:0!important}.efb.m-sm-1{margin:.25rem!important}.efb.m-sm-2{margin:.5rem!important}.efb.m-sm-3{margin:1rem!important}.efb.m-sm-4{margin:1.5rem!important}.efb.m-sm-5{margin:3rem!important}.efb.m-sm-auto{margin:auto!important}.efb.mx-sm-0{margin-right:0!important;margin-left:0!important}.efb.mx-sm-1{margin-right:.25rem!important;margin-left:.25rem!important}.efb.mx-sm-2{margin-right:.5rem!important;margin-left:.5rem!important}.efb.mx-sm-3{margin-right:1rem!important;margin-left:1rem!important}.efb.mx-sm-4{margin-right:1.5rem!important;margin-left:1.5rem!important}.efb.mx-sm-5{margin-right:3rem!important;margin-left:3rem!important}.efb.mx-sm-auto{margin-right:auto!important;margin-left:auto!important}.efb.my-sm-0{margin-top:0!important;margin-bottom:0!important}.efb.my-sm-1{margin-top:.25rem!important;margin-bottom:.25rem!important}.efb.my-sm-2{margin-top:.5rem!important;margin-bottom:.5rem!important}.efb.my-sm-3{margin-top:1rem!important;margin-bottom:1rem!important}.efb.my-sm-4{margin-top:1.5rem!important;margin-bottom:1.5rem!important}.efb.my-sm-5{margin-top:3rem!important;margin-bottom:3rem!important}.efb.my-sm-auto{margin-top:auto!important;margin-bottom:auto!important}.efb.mt-sm-0{margin-top:0!important}.efb.mt-sm-1{margin-top:.25rem!important}.efb.mt-sm-2{margin-top:.5rem!important}.efb.mt-sm-3{margin-top:1rem!important}.efb.mt-sm-4{margin-top:1.5rem!important}.efb.mt-sm-5{margin-top:3rem!important}.efb.mt-sm-auto{margin-top:auto!important}.efb.me-sm-0{margin-right:0!important}.efb.me-sm-1{margin-right:.25rem!important}.efb.me-sm-2{margin-right:.5rem!important}.efb.me-sm-3{margin-right:1rem!important}.efb.me-sm-4{margin-right:1.5rem!important}.efb.me-sm-5{margin-right:3rem!important}.efb.me-sm-auto{margin-right:auto!important}.efb.mb-sm-0{margin-bottom:0!important}.efb.mb-sm-1{margin-bottom:.25rem!important}.efb.mb-sm-2{margin-bottom:.5rem!important}.efb.mb-sm-3{margin-bottom:1rem!important}.efb.mb-sm-4{margin-bottom:1.5rem!important}.efb.mb-sm-5{margin-bottom:3rem!important}.efb.mb-sm-auto{margin-bottom:auto!important}.efb.ms-sm-0{margin-left:0!important}.efb.ms-sm-1{margin-left:.25rem!important}.efb.ms-sm-2{margin-left:.5rem!important}.efb.ms-sm-3{margin-left:1rem!important}.efb.ms-sm-4{margin-left:1.5rem!important}.efb.ms-sm-5{margin-left:3rem!important}.efb.ms-sm-auto{margin-left:auto!important}.efb.p-sm-0{padding:0!important}.efb.p-sm-1{padding:.25rem!important}.efb.p-sm-2{padding:.5rem!important}.efb.p-sm-3{padding:1rem!important}.efb.p-sm-4{padding:1.5rem!important}.efb.p-sm-5{padding:3rem!important}.efb.px-sm-0{padding-right:0!important;padding-left:0!important}.efb.px-sm-1{padding-right:.25rem!important;padding-left:.25rem!important}.efb.px-sm-2{padding-right:.5rem!important;padding-left:.5rem!important}.efb.px-sm-3{padding-right:1rem!important;padding-left:1rem!important}.efb.px-sm-4{padding-right:1.5rem!important;padding-left:1.5rem!important}.efb.px-sm-5{padding-right:3rem!important;padding-left:3rem!important}.efb.py-sm-0{padding-top:0!important;padding-bottom:0!important}.efb.py-sm-1{padding-top:.25rem!important;padding-bottom:.25rem!important}.efb.py-sm-2{padding-top:.5rem!important;padding-bottom:.5rem!important}.efb.py-sm-3{padding-top:1rem!important;padding-bottom:1rem!important}.efb.py-sm-4{padding-top:1.5rem!important;padding-bottom:1.5rem!important}.efb.py-sm-5{padding-top:3rem!important;padding-bottom:3rem!important}.efb.pt-sm-0{padding-top:0!important}.efb.pt-sm-1{padding-top:.25rem!important}.efb.pt-sm-2{padding-top:.5rem!important}.efb.pt-sm-3{padding-top:1rem!important}.efb.pt-sm-4{padding-top:1.5rem!important}.efb.pt-sm-5{padding-top:3rem!important}.efb.pe-sm-0{padding-right:0!important}.efb.pe-sm-1{padding-right:.25rem!important}.efb.pe-sm-2{padding-right:.5rem!important}.efb.pe-sm-3{padding-right:1rem!important}.efb.pe-sm-4{padding-right:1.5rem!important}.efb.pe-sm-5{padding-right:3rem!important}.efb.pb-sm-0{padding-bottom:0!important}.efb.pb-sm-1{padding-bottom:.25rem!important}.efb.pb-sm-2{padding-bottom:.5rem!important}.efb.pb-sm-3{padding-bottom:1rem!important}.efb.pb-sm-4{padding-bottom:1.5rem!important}.efb.pb-sm-5{padding-bottom:3rem!important}.efb.ps-sm-0{padding-left:0!important}.efb.ps-sm-1{padding-left:.25rem!important}.efb.ps-sm-2{padding-left:.5rem!important}.efb.ps-sm-3{padding-left:1rem!important}.efb.ps-sm-4{padding-left:1.5rem!important}.efb.ps-sm-5{padding-left:3rem!important}.efb.text-sm-start{text-align:left!important}.efb.text-sm-end{text-align:right!important}.efb.text-sm-center{text-align:center!important}}@media (min-width:768px){.efb.float-md-start{float:left!important}.efb.float-md-end{float:right!important}.efb.float-md-none{float:none!important}.efb.d-md-inline{display:inline!important}.efb.d-md-inline-block{display:inline-block!important}.efb.d-md-block{display:block!important}.efb.d-md-grid{display:grid!important}.efb.d-md-flex{display:flex!important}.efb.d-md-inline-flex{display:inline-flex!important}.efb.d-md-none{display:none!important}.efb.flex-md-fill{flex:1 1 auto!important}.efb.flex-md-row{flex-direction:row!important}.efb.flex-md-column{flex-direction:column!important}.efb.flex-md-row-reverse{flex-direction:row-reverse!important}.efb.flex-md-column-reverse{flex-direction:column-reverse!important}.efb.flex-md-grow-0{flex-grow:0!important}.efb.flex-md-grow-1{flex-grow:1!important}.efb.flex-md-shrink-0{flex-shrink:0!important}.efb.flex-md-shrink-1{flex-shrink:1!important}.efb.flex-md-wrap{flex-wrap:wrap!important}.efb.flex-md-nowrap{flex-wrap:nowrap!important}.efb.flex-md-wrap-reverse{flex-wrap:wrap-reverse!important}.efb.justify-content-md-start{justify-content:flex-start!important}.efb.justify-content-md-end{justify-content:flex-end!important}.efb.justify-content-md-center{justify-content:center!important}.efb.justify-content-md-between{justify-content:space-between!important}.efb.justify-content-md-around{justify-content:space-around!important}.efb.justify-content-md-evenly{justify-content:space-evenly!important}.efb.align-items-md-start{align-items:flex-start!important}.efb.align-items-md-end{align-items:flex-end!important}.efb.align-items-md-center{align-items:center!important}.efb.align-items-md-baseline{align-items:baseline!important}.efb.align-items-md-stretch{align-items:stretch!important}.efb.order-md-first{order:-1!important}.efb.order-md-0{order:0!important}.efb.order-md-1{order:1!important}.efb.order-md-2{order:2!important}.efb.order-md-3{order:3!important}.efb.order-md-4{order:4!important}.efb.order-md-5{order:5!important}.efb.order-md-last{order:6!important}.efb.m-md-0{margin:0!important}.efb.m-md-1{margin:.25rem!important}.efb.m-md-2{margin:.5rem!important}.efb.m-md-3{margin:1rem!important}.efb.m-md-4{margin:1.5rem!important}.efb.m-md-5{margin:3rem!important}.efb.m-md-auto{margin:auto!important}.efb.mx-md-0{margin-right:0!important;margin-left:0!important}.efb.mx-md-1{margin-right:.25rem!important;margin-left:.25rem!important}.efb.mx-md-2{margin-right:.5rem!important;margin-left:.5rem!important}.efb.mx-md-3{margin-right:1rem!important;margin-left:1rem!important}.efb.mx-md-4{margin-right:1.5rem!important;margin-left:1.5rem!important}.efb.mx-md-5{margin-right:3rem!important;margin-left:3rem!important}.efb.mx-md-auto{margin-right:auto!important;margin-left:auto!important}.efb.my-md-0{margin-top:0!important;margin-bottom:0!important}.efb.my-md-1{margin-top:.25rem!important;margin-bottom:.25rem!important}.efb.my-md-2{margin-top:.5rem!important;margin-bottom:.5rem!important}.efb.my-md-3{margin-top:1rem!important;margin-bottom:1rem!important}.efb.my-md-4{margin-top:1.5rem!important;margin-bottom:1.5rem!important}.efb.my-md-5{margin-top:3rem!important;margin-bottom:3rem!important}.efb.my-md-auto{margin-top:auto!important;margin-bottom:auto!important}.efb.mt-md-0{margin-top:0!important}.efb.mt-md-1{margin-top:.25rem!important}.efb.mt-md-2{margin-top:.5rem!important}.efb.mt-md-3{margin-top:1rem!important}.efb.mt-md-4{margin-top:1.5rem!important}.efb.mt-md-5{margin-top:3rem!important}.efb.mt-md-auto{margin-top:auto!important}.efb.me-md-0{margin-right:0!important}.efb.me-md-1{margin-right:.25rem!important}.efb.me-md-2{margin-right:.5rem!important}.efb.me-md-3{margin-right:1rem!important}.efb.me-md-4{margin-right:1.5rem!important}.efb.me-md-5{margin-right:3rem!important}.efb.me-md-auto{margin-right:auto!important}.efb.mb-md-0{margin-bottom:0!important}.efb.mb-md-1{margin-bottom:.25rem!important}.efb.mb-md-2{margin-bottom:.5rem!important}.efb.mb-md-3{margin-bottom:1rem!important}.efb.mb-md-4{margin-bottom:1.5rem!important}.efb.mb-md-5{margin-bottom:3rem!important}.efb.mb-md-auto{margin-bottom:auto!important}.efb.ms-md-0{margin-left:0!important}.efb.ms-md-1{margin-left:.25rem!important}.efb.ms-md-2{margin-left:.5rem!important}.efb.ms-md-3{margin-left:1rem!important}.efb.ms-md-4{margin-left:1.5rem!important}.efb.ms-md-5{margin-left:3rem!important}.efb.ms-md-auto{margin-left:auto!important}.efb.p-md-0{padding:0!important}.efb.p-md-1{padding:.25rem!important}.efb.p-md-2{padding:.5rem!important}.efb.p-md-3{padding:1rem!important}.efb.p-md-4{padding:1.5rem!important}.efb.p-md-5{padding:3rem!important}.efb.px-md-0{padding-right:0!important;padding-left:0!important}.efb.px-md-1{padding-right:.25rem!important;padding-left:.25rem!important}.efb.px-md-2{padding-right:.5rem!important;padding-left:.5rem!important}.efb.px-md-3{padding-right:1rem!important;padding-left:1rem!important}.efb.px-md-4{padding-right:1.5rem!important;padding-left:1.5rem!important}.efb.px-md-5{padding-right:3rem!important;padding-left:3rem!important}.efb.py-md-0{padding-top:0!important;padding-bottom:0!important}.efb.py-md-1{padding-top:.25rem!important;padding-bottom:.25rem!important}.efb.py-md-2{padding-top:.5rem!important;padding-bottom:.5rem!important}.efb.py-md-3{padding-top:1rem!important;padding-bottom:1rem!important}.efb.py-md-4{padding-top:1.5rem!important;padding-bottom:1.5rem!important}.efb.py-md-5{padding-top:3rem!important;padding-bottom:3rem!important}.efb.pt-md-0{padding-top:0!important}.efb.pt-md-1{padding-top:.25rem!important}.efb.pt-md-2{padding-top:.5rem!important}.efb.pt-md-3{padding-top:1rem!important}.efb.pt-md-4{padding-top:1.5rem!important}.efb.pt-md-5{padding-top:3rem!important}.efb.pe-md-0{padding-right:0!important}.efb.pe-md-1{padding-right:.25rem!important}.efb.pe-md-2{padding-right:.5rem!important}.efb.pe-md-3{padding-right:1rem!important}.efb.pe-md-4{padding-right:1.5rem!important}.efb.pe-md-5{padding-right:3rem!important}.efb.pb-md-0{padding-bottom:0!important}.efb.pb-md-1{padding-bottom:.25rem!important}.efb.pb-md-2{padding-bottom:.5rem!important}.efb.pb-md-3{padding-bottom:1rem!important}.efb.pb-md-4{padding-bottom:1.5rem!important}.efb.pb-md-5{padding-bottom:3rem!important}.efb.ps-md-0{padding-left:0!important}.efb.ps-md-1{padding-left:.25rem!important}.efb.ps-md-2{padding-left:.5rem!important}.efb.ps-md-3{padding-left:1rem!important}.efb.ps-md-4{padding-left:1.5rem!important}.efb.ps-md-5{padding-left:3rem!important}.efb.text-md-start{text-align:left!important}.efb.text-md-end{text-align:right!important}.efb.text-md-center{text-align:center!important}}@media (min-width:992px){.efb.float-lg-start{float:left!important}.efb.float-lg-end{float:right!important}.efb.float-lg-none{float:none!important}.efb.d-lg-inline{display:inline!important}.efb.d-lg-inline-block{display:inline-block!important}.efb.d-lg-block{display:block!important}.efb.d-lg-grid{display:grid!important}.efb.d-lg-flex{display:flex!important}.efb.d-lg-inline-flex{display:inline-flex!important}.efb.d-lg-none{display:none!important}.efb.flex-lg-fill{flex:1 1 auto!important}.efb.flex-lg-row{flex-direction:row!important}.efb.flex-lg-column{flex-direction:column!important}.efb.flex-lg-row-reverse{flex-direction:row-reverse!important}.efb.flex-lg-column-reverse{flex-direction:column-reverse!important}.efb.flex-lg-grow-0{flex-grow:0!important}.efb.flex-lg-grow-1{flex-grow:1!important}.efb.flex-lg-shrink-0{flex-shrink:0!important}.efb.flex-lg-shrink-1{flex-shrink:1!important}.efb.flex-lg-wrap{flex-wrap:wrap!important}.efb.flex-lg-nowrap{flex-wrap:nowrap!important}.efb.flex-lg-wrap-reverse{flex-wrap:wrap-reverse!important}.efb.justify-content-lg-start{justify-content:flex-start!important}.efb.justify-content-lg-end{justify-content:flex-end!important}.efb.justify-content-lg-center{justify-content:center!important}.efb.justify-content-lg-between{justify-content:space-between!important}.efb.justify-content-lg-around{justify-content:space-around!important}.efb.justify-content-lg-evenly{justify-content:space-evenly!important}.efb.align-items-lg-start{align-items:flex-start!important}.efb.align-items-lg-end{align-items:flex-end!important}.efb.align-items-lg-center{align-items:center!important}.efb.align-items-lg-baseline{align-items:baseline!important}.efb.align-items-lg-stretch{align-items:stretch!important}.efb.order-lg-first{order:-1!important}.efb.order-lg-0{order:0!important}.efb.order-lg-1{order:1!important}.efb.order-lg-2{order:2!important}.efb.order-lg-3{order:3!important}.efb.order-lg-4{order:4!important}.efb.order-lg-5{order:5!important}.efb.order-lg-last{order:6!important}.efb.m-lg-0{margin:0!important}.efb.m-lg-1{margin:.25rem!important}.efb.m-lg-2{margin:.5rem!important}.efb.m-lg-3{margin:1rem!important}.efb.m-lg-4{margin:1.5rem!important}.efb.m-lg-5{margin:3rem!important}.efb.m-lg-auto{margin:auto!important}.efb.mx-lg-0{margin-right:0!important;margin-left:0!important}.efb.mx-lg-1{margin-right:.25rem!important;margin-left:.25rem!important}.efb.mx-lg-2{margin-right:.5rem!important;margin-left:.5rem!important}.efb.mx-lg-3{margin-right:1rem!important;margin-left:1rem!important}.efb.mx-lg-4{margin-right:1.5rem!important;margin-left:1.5rem!important}.efb.mx-lg-5{margin-right:3rem!important;margin-left:3rem!important}.efb.mx-lg-auto{margin-right:auto!important;margin-left:auto!important}.efb.my-lg-0{margin-top:0!important;margin-bottom:0!important}.efb.my-lg-1{margin-top:.25rem!important;margin-bottom:.25rem!important}.efb.my-lg-2{margin-top:.5rem!important;margin-bottom:.5rem!important}.efb.my-lg-3{margin-top:1rem!important;margin-bottom:1rem!important}.efb.my-lg-4{margin-top:1.5rem!important;margin-bottom:1.5rem!important}.efb.my-lg-5{margin-top:3rem!important;margin-bottom:3rem!important}.efb.my-lg-auto{margin-top:auto!important;margin-bottom:auto!important}.efb.mt-lg-0{margin-top:0!important}.efb.mt-lg-1{margin-top:.25rem!important}.efb.mt-lg-2{margin-top:.5rem!important}.efb.mt-lg-3{margin-top:1rem!important}.efb.mt-lg-4{margin-top:1.5rem!important}.efb.mt-lg-5{margin-top:3rem!important}.efb.mt-lg-auto{margin-top:auto!important}.efb.me-lg-0{margin-right:0!important}.efb.me-lg-1{margin-right:.25rem!important}.efb.me-lg-2{margin-right:.5rem!important}.efb.me-lg-3{margin-right:1rem!important}.efb.me-lg-4{margin-right:1.5rem!important}.efb.me-lg-5{margin-right:3rem!important}.efb.me-lg-auto{margin-right:auto!important}.efb.mb-lg-0{margin-bottom:0!important}.efb.mb-lg-1{margin-bottom:.25rem!important}.efb.mb-lg-2{margin-bottom:.5rem!important}.efb.mb-lg-3{margin-bottom:1rem!important}.efb.mb-lg-4{margin-bottom:1.5rem!important}.efb.mb-lg-5{margin-bottom:3rem!important}.efb.mb-lg-auto{margin-bottom:auto!important}.efb.ms-lg-0{margin-left:0!important}.efb.ms-lg-1{margin-left:.25rem!important}.efb.ms-lg-2{margin-left:.5rem!important}.efb.ms-lg-3{margin-left:1rem!important}.efb.ms-lg-4{margin-left:1.5rem!important}.efb.ms-lg-5{margin-left:3rem!important}.efb.ms-lg-auto{margin-left:auto!important}.efb.p-lg-0{padding:0!important}.efb.p-lg-1{padding:.25rem!important}.efb.p-lg-2{padding:.5rem!important}.efb.p-lg-3{padding:1rem!important}.efb.p-lg-4{padding:1.5rem!important}.efb.p-lg-5{padding:3rem!important}.efb.px-lg-0{padding-right:0!important;padding-left:0!important}.efb.px-lg-1{padding-right:.25rem!important;padding-left:.25rem!important}.efb.px-lg-2{padding-right:.5rem!important;padding-left:.5rem!important}.efb.px-lg-3{padding-right:1rem!important;padding-left:1rem!important}.efb.px-lg-4{padding-right:1.5rem!important;padding-left:1.5rem!important}.efb.px-lg-5{padding-right:3rem!important;padding-left:3rem!important}.efb.py-lg-0{padding-top:0!important;padding-bottom:0!important}.efb.py-lg-1{padding-top:.25rem!important;padding-bottom:.25rem!important}.efb.py-lg-2{padding-top:.5rem!important;padding-bottom:.5rem!important}.efb.py-lg-3{padding-top:1rem!important;padding-bottom:1rem!important}.efb.py-lg-4{padding-top:1.5rem!important;padding-bottom:1.5rem!important}.efb.py-lg-5{padding-top:3rem!important;padding-bottom:3rem!important}.efb.pt-lg-0{padding-top:0!important}.efb.pt-lg-1{padding-top:.25rem!important}.efb.pt-lg-2{padding-top:.5rem!important}.efb.pt-lg-3{padding-top:1rem!important}.efb.pt-lg-4{padding-top:1.5rem!important}.efb.pt-lg-5{padding-top:3rem!important}.efb.pe-lg-0{padding-right:0!important}.efb.pe-lg-1{padding-right:.25rem!important}.efb.pe-lg-2{padding-right:.5rem!important}.efb.pe-lg-3{padding-right:1rem!important}.efb.pe-lg-4{padding-right:1.5rem!important}.efb.pe-lg-5{padding-right:3rem!important}.efb.pb-lg-0{padding-bottom:0!important}.efb.pb-lg-1{padding-bottom:.25rem!important}.efb.pb-lg-2{padding-bottom:.5rem!important}.efb.pb-lg-3{padding-bottom:1rem!important}.efb.pb-lg-4{padding-bottom:1.5rem!important}.efb.pb-lg-5{padding-bottom:3rem!important}.efb.ps-lg-0{padding-left:0!important}.efb.ps-lg-1{padding-left:.25rem!important}.efb.ps-lg-2{padding-left:.5rem!important}.efb.ps-lg-3{padding-left:1rem!important}.efb.ps-lg-4{padding-left:1.5rem!important}.efb.ps-lg-5{padding-left:3rem!important}.efb.text-lg-start{text-align:left!important}.efb.text-lg-end{text-align:right!important}.efb.text-lg-center{text-align:center!important}}@media (min-width:1200px){.efb.float-xl-start{float:left!important}.efb.float-xl-end{float:right!important}.efb.float-xl-none{float:none!important}.efb.d-xl-inline{display:inline!important}.efb.d-xl-inline-block{display:inline-block!important}.efb.d-xl-block{display:block!important}.efb.d-xl-grid{display:grid!important}.efb.d-xl-flex{display:flex!important}.efb.d-xl-inline-flex{display:inline-flex!important}.efb.d-xl-none{display:none!important}.efb.flex-xl-fill{flex:1 1 auto!important}.efb.flex-xl-row{flex-direction:row!important}.efb.flex-xl-column{flex-direction:column!important}.efb.flex-xl-row-reverse{flex-direction:row-reverse!important}.efb.flex-xl-column-reverse{flex-direction:column-reverse!important}.efb.flex-xl-grow-0{flex-grow:0!important}.efb.flex-xl-grow-1{flex-grow:1!important}.efb.flex-xl-shrink-0{flex-shrink:0!important}.efb.flex-xl-shrink-1{flex-shrink:1!important}.efb.flex-xl-wrap{flex-wrap:wrap!important}.efb.flex-xl-nowrap{flex-wrap:nowrap!important}.efb.flex-xl-wrap-reverse{flex-wrap:wrap-reverse!important}.efb.justify-content-xl-start{justify-content:flex-start!important}.efb.justify-content-xl-end{justify-content:flex-end!important}.efb.justify-content-xl-center{justify-content:center!important}.efb.justify-content-xl-between{justify-content:space-between!important}.efb.justify-content-xl-around{justify-content:space-around!important}.efb.justify-content-xl-evenly{justify-content:space-evenly!important}.efb.align-items-xl-start{align-items:flex-start!important}.efb.align-items-xl-end{align-items:flex-end!important}.efb.align-items-xl-center{align-items:center!important}.efb.align-items-xl-baseline{align-items:baseline!important}.efb.align-items-xl-stretch{align-items:stretch!important}.efb.order-xl-first{order:-1!important}.efb.order-xl-0{order:0!important}.efb.order-xl-1{order:1!important}.efb.order-xl-2{order:2!important}.efb.order-xl-3{order:3!important}.efb.order-xl-4{order:4!important}.efb.order-xl-5{order:5!important}.efb.order-xl-last{order:6!important}.efb.m-xl-0{margin:0!important}.efb.m-xl-1{margin:.25rem!important}.efb.m-xl-2{margin:.5rem!important}.efb.m-xl-3{margin:1rem!important}.efb.m-xl-4{margin:1.5rem!important}.efb.m-xl-5{margin:3rem!important}.efb.m-xl-auto{margin:auto!important}.efb.mx-xl-0{margin-right:0!important;margin-left:0!important}.efb.mx-xl-1{margin-right:.25rem!important;margin-left:.25rem!important}.efb.mx-xl-2{margin-right:.5rem!important;margin-left:.5rem!important}.efb.mx-xl-3{margin-right:1rem!important;margin-left:1rem!important}.efb.mx-xl-4{margin-right:1.5rem!important;margin-left:1.5rem!important}.efb.mx-xl-5{margin-right:3rem!important;margin-left:3rem!important}.efb.mx-xl-auto{margin-right:auto!important;margin-left:auto!important}.efb.my-xl-0{margin-top:0!important;margin-bottom:0!important}.efb.my-xl-1{margin-top:.25rem!important;margin-bottom:.25rem!important}.efb.my-xl-2{margin-top:.5rem!important;margin-bottom:.5rem!important}.efb.my-xl-3{margin-top:1rem!important;margin-bottom:1rem!important}.efb.my-xl-4{margin-top:1.5rem!important;margin-bottom:1.5rem!important}.efb.my-xl-5{margin-top:3rem!important;margin-bottom:3rem!important}.efb.my-xl-auto{margin-top:auto!important;margin-bottom:auto!important}.efb.mt-xl-0{margin-top:0!important}.efb.mt-xl-1{margin-top:.25rem!important}.efb.mt-xl-2{margin-top:.5rem!important}.efb.mt-xl-3{margin-top:1rem!important}.efb.mt-xl-4{margin-top:1.5rem!important}.efb.mt-xl-5{margin-top:3rem!important}.efb.mt-xl-auto{margin-top:auto!important}.efb.me-xl-0{margin-right:0!important}.efb.me-xl-1{margin-right:.25rem!important}.efb.me-xl-2{margin-right:.5rem!important}.efb.me-xl-3{margin-right:1rem!important}.efb.me-xl-4{margin-right:1.5rem!important}.efb.me-xl-5{margin-right:3rem!important}.efb.me-xl-auto{margin-right:auto!important}.efb.mb-xl-0{margin-bottom:0!important}.efb.mb-xl-1{margin-bottom:.25rem!important}.efb.mb-xl-2{margin-bottom:.5rem!important}.efb.mb-xl-3{margin-bottom:1rem!important}.efb.mb-xl-4{margin-bottom:1.5rem!important}.efb.mb-xl-5{margin-bottom:3rem!important}.efb.mb-xl-auto{margin-bottom:auto!important}.efb.ms-xl-0{margin-left:0!important}.efb.ms-xl-1{margin-left:.25rem!important}.efb.ms-xl-2{margin-left:.5rem!important}.efb.ms-xl-3{margin-left:1rem!important}.efb.ms-xl-4{margin-left:1.5rem!important}.efb.ms-xl-5{margin-left:3rem!important}.efb.ms-xl-auto{margin-left:auto!important}.efb.p-xl-0{padding:0!important}.efb.p-xl-1{padding:.25rem!important}.efb.p-xl-2{padding:.5rem!important}.efb.p-xl-3{padding:1rem!important}.efb.p-xl-4{padding:1.5rem!important}.efb.p-xl-5{padding:3rem!important}.efb.px-xl-0{padding-right:0!important;padding-left:0!important}.efb.px-xl-1{padding-right:.25rem!important;padding-left:.25rem!important}.efb.px-xl-2{padding-right:.5rem!important;padding-left:.5rem!important}.efb.px-xl-3{padding-right:1rem!important;padding-left:1rem!important}.efb.px-xl-4{padding-right:1.5rem!important;padding-left:1.5rem!important}.efb.px-xl-5{padding-right:3rem!important;padding-left:3rem!important}.efb.py-xl-0{padding-top:0!important;padding-bottom:0!important}.efb.py-xl-1{padding-top:.25rem!important;padding-bottom:.25rem!important}.efb.py-xl-2{padding-top:.5rem!important;padding-bottom:.5rem!important}.efb.py-xl-3{padding-top:1rem!important;padding-bottom:1rem!important}.efb.py-xl-4{padding-top:1.5rem!important;padding-bottom:1.5rem!important}.efb.py-xl-5{padding-top:3rem!important;padding-bottom:3rem!important}.efb.pt-xl-0{padding-top:0!important}.efb.pt-xl-1{padding-top:.25rem!important}.efb.pt-xl-2{padding-top:.5rem!important}.efb.pt-xl-3{padding-top:1rem!important}.efb.pt-xl-4{padding-top:1.5rem!important}.efb.pt-xl-5{padding-top:3rem!important}.efb.pe-xl-0{padding-right:0!important}.efb.pe-xl-1{padding-right:.25rem!important}.efb.pe-xl-2{padding-right:.5rem!important}.efb.pe-xl-3{padding-right:1rem!important}.efb.pe-xl-4{padding-right:1.5rem!important}.efb.pe-xl-5{padding-right:3rem!important}.efb.pb-xl-0{padding-bottom:0!important}.efb.pb-xl-1{padding-bottom:.25rem!important}.efb.pb-xl-2{padding-bottom:.5rem!important}.efb.pb-xl-3{padding-bottom:1rem!important}.efb.pb-xl-4{padding-bottom:1.5rem!important}.efb.pb-xl-5{padding-bottom:3rem!important}.efb.ps-xl-0{padding-left:0!important}.efb.ps-xl-1{padding-left:.25rem!important}.efb.ps-xl-2{padding-left:.5rem!important}.efb.ps-xl-3{padding-left:1rem!important}.efb.ps-xl-4{padding-left:1.5rem!important}.efb.ps-xl-5{padding-left:3rem!important}.efb.text-xl-start{text-align:left!important}.efb.text-xl-end{text-align:right!important}.efb.text-xl-center{text-align:center!important}}@media (min-width:1200px){}@media print{.efb.d-print-inline{display:inline!important}.efb.d-print-inline-block{display:inline-block!important}.efb.d-print-block{display:block!important}.efb.d-print-grid{display:grid!important}.efb.d-print-flex{display:flex!important}.efb.d-print-inline-flex{display:inline-flex!important}.efb.d-print-none{display:none!important}}label input[type="radio"].efb{visibility:hidden}
 			</style>
 			';
 	}
@@ -6983,12 +8325,22 @@ public function check_nonce_permission_efb($request) {
 
 		$active_plugins = array();
 
+		/* Stored folder slugs whose purge handler is keyed under another name.
+		 * Without this, a stored sg-cachepress / swift-performance-lite entry
+		 * fills $active_plugins with a slug no handler matches and the
+		 * probing fallback below never runs, so nothing is purged. */
+		$slug_aliases = array(
+			'sg-cachepress' => 'sg-optimizer',
+			'swift-performance-lite' => 'swift-performance',
+		);
+
 		if ($plugins !== null) {
 			$cache_plugins = json_decode($plugins);
 			if (!empty($cache_plugins) && is_array($cache_plugins)) {
 				foreach ($cache_plugins as $plugin) {
 					if (isset($plugin->slug)) {
-						$active_plugins[$plugin->slug] = true;
+						$slug = isset($slug_aliases[$plugin->slug]) ? $slug_aliases[$plugin->slug] : $plugin->slug;
+						$active_plugins[$slug] = true;
 					}
 				}
 			}
@@ -7174,22 +8526,62 @@ public function check_nonce_permission_efb($request) {
 		return md5($track . $this->setting->email_key);
 	}
 
-	/* Decode a settings JSON string without corrupting values that contain
-	 * escaped characters: plain decode first, then stripslashes passes, and
-	 * only as a last resort the legacy strip-all-backslashes transform. */
+	/* Use the shared decoder so all settings readers preserve JSON escapes. */
 	private function decode_settings_json_efb( $raw ) {
-		if ( ! is_string( $raw ) || $raw === '' ) {
+		$decoded = \emsfb_json_decode_efb($raw);
+		return is_object( $decoded ) ? $decoded : null;
+	}
+
+	/**
+	 * Encode validated rows for storage in emsfb_msg_.content.
+	 *
+	 * The stored string escapes its structural quotes as \" and every reader
+	 * (the response viewer, the entries list, the PHP readers) strips ALL
+	 * backslashes before json_decode. A literal double quote inside a value
+	 * would survive that strip as a bare " and break the whole record, so it
+	 * is carried as the @efb@dq# marker the viewers and emails already decode -
+	 * exactly what the form client does for its own values.
+	 *
+	 * @param array|object $rows Validated rows.
+	 * @return string The content to store.
+	 */
+	private function efb_encode_rows_for_storage_efb( $rows ) {
+		$walk = function ( &$v ) use ( &$walk ) {
+			if ( is_array( $v ) ) {
+				foreach ( $v as &$child ) { $walk( $child ); }
+				unset( $child );
+			} elseif ( is_object( $v ) ) {
+				foreach ( get_object_vars( $v ) as $k => $child ) { $walk( $child ); $v->$k = $child; }
+			} elseif ( is_string( $v ) ) {
+				$v = str_replace( '"', '@efb@dq#', $v );
+			}
+		};
+		$walk( $rows );
+		$json = json_encode( $rows, JSON_UNESCAPED_UNICODE );
+		return str_replace( '"', '\\"', is_string( $json ) ? $json : '' );
+	}
+
+	/**
+	 * Decode a client-sent JSON payload string into rows.
+	 *
+	 * The bundled clients send values as typed, so a double quote arrives
+	 * JSON-escaped (\"). Decoding the payload as sent is therefore tried first;
+	 * legacy quote escaping is decoded only as a fallback for an older or
+	 * page-cached client. Returns null when neither form is the expected shape.
+	 *
+	 * @param mixed $raw   The raw payload (expected: a JSON string).
+	 * @param bool  $assoc Whether to decode objects as associative arrays.
+	 * @return array|object|null
+	 */
+	private function efb_decode_client_rows_efb( $raw, $assoc = true ) {
+		if ( ! is_string( $raw ) ) {
 			return null;
 		}
-		$decoded = json_decode( $raw );
-		for ( $i = 0; $i < 5 && $decoded === null; $i++ ) {
-			$raw = stripslashes( $raw );
-			$decoded = json_decode( $raw );
+		$out = json_decode( $raw, $assoc );
+		if ( ! is_array( $out ) && ! is_object( $out ) ) {
+			$out = \emsfb_json_decode_efb($raw, $assoc);
 		}
-		if ( $decoded === null ) {
-			$decoded = json_decode( str_replace( '\\', '', $raw ) );
-		}
-		return is_object( $decoded ) ? $decoded : null;
+		return ( is_array( $out ) || is_object( $out ) ) ? $out : null;
 	}
 
 	/* Resolve a payment key (stripePKey/stripeSKey/paypalPKey/...) with the
@@ -7199,14 +8591,16 @@ public function check_nonce_permission_efb($request) {
 	 * Returns the key, or the string 'null' (legacy contract) when absent. */
 	private function resolve_payment_key_efb( $setting, $key ) {
 		$value = ( is_object( $setting ) && isset( $setting->$key ) ) ? trim( (string) $setting->$key ) : '';
-		if ( strlen( $value ) > 5 ) {
+		// The settings screen's "could not read this field" marker is never a key.
+		if ( $value === 'NotFoundEl' ) $value = '';
+		if ( strlen( $value ) > 5 && $value !== 'NotFoundEl' ) {
 			return $value;
 		}
 
 		$decoded = get_setting_Emsfb( 'decoded' );
 		if ( is_object( $decoded ) && isset( $decoded->$key ) ) {
 			$value = trim( (string) $decoded->$key );
-			if ( strlen( $value ) > 5 ) {
+			if ( strlen( $value ) > 5 && $value !== 'NotFoundEl' ) {
 				return $value;
 			}
 		}
@@ -7214,7 +8608,7 @@ public function check_nonce_permission_efb($request) {
 		$option_settings = $this->decode_settings_json_efb( get_option( 'emsfb_settings', '' ) );
 		if ( is_object( $option_settings ) && isset( $option_settings->$key ) ) {
 			$value = trim( (string) $option_settings->$key );
-			if ( strlen( $value ) > 5 ) {
+			if ( strlen( $value ) > 5 && $value !== 'NotFoundEl' ) {
 				return $value;
 			}
 		}
@@ -7228,7 +8622,7 @@ public function check_nonce_permission_efb($request) {
 		$latest_settings = $this->decode_settings_json_efb( $latest_raw );
 		if ( is_object( $latest_settings ) && isset( $latest_settings->$key ) ) {
 			$value = trim( (string) $latest_settings->$key );
-			if ( strlen( $value ) > 5 ) {
+			if ( strlen( $value ) > 5 && $value !== 'NotFoundEl' ) {
 				$healed_json = wp_json_encode( $latest_settings, JSON_UNESCAPED_UNICODE );
 				if ( ! empty( $healed_json ) ) {
 					update_option( 'emsfb_settings', $healed_json );
@@ -7332,16 +8726,34 @@ public function check_nonce_permission_efb($request) {
 	 * before that loop for every ordinary submission so the existing
 	 * "fill required fields" message is actually enforced server-side.
 	 */
-	private function validate_required_fields_present_efb($form_fields_array, $submitted_values) {
+	/**
+	 * Field types Formbuilder::addNewElement_efb() replaces with the plan notice
+	 * when the site's plan does not include them. Such a field is never shown,
+	 * so it cannot be filled in. Keep in step with the "$pro ? ... :
+	 * public_pro_message_efb()" branches there.
+	 */
+	private static function plan_locked_field_types_efb() {
+		return array('pdate', 'ardate', 'mobile', 'dadfile', 'audio_recorder', 'video_recorder', 'screen_recorder',
+			'esign', 'maps', 'stateprovince', 'statepro', 'city', 'citylist', 'html', 'link', 'yesno',
+			'pointr5', 'pointr10', 'smartcr', 'table_matrix', 'prcfld', 'ttlprc', 'stripe');
+	}
+
+	private function validate_required_fields_present_efb($form_fields_array, $submitted_values, $is_pro = true) {
 		static $structural_types = ['form', 'step', 'option', 'submit', 'r_matrix', 'buttonnav', 'payment', 'stripe', 'paypal', 'persiapay', 'prcfld'];
+		/* A Pro field on a site that moved to Free shows the plan notice
+		 * instead of the input, so "required" can never be met and every
+		 * submission was refused. Not shown means not required. */
+		$plan_locked = $is_pro ? array() : self::plan_locked_field_types_efb();
 		static $checkbox_types = ['checkbox', 'paycheckbox', 'chlcheckbox'];
 		static $radio_types = ['radio', 'payradio', 'imgradio', 'chlradio'];
 		$file_types = self::upload_row_types_efb();
 
 		$submitted_ids = [];
 		foreach ((array) $submitted_values as $row) {
-			if (!is_array($row) || empty($row['id_'])) continue;
-			$type = strtolower((string) ($row['type'] ?? ''));
+			/* id_ is used as an array key below; a non-scalar one is not a
+			 * field reference at all and would fatal with "Illegal offset". */
+			if (!is_array($row) || empty($row['id_']) || !is_scalar($row['id_'])) continue;
+			$type = strtolower((string) (is_scalar($row['type'] ?? null) ? $row['type'] : ''));
 			$value = $row['value'] ?? '';
 			if (in_array($type, $checkbox_types, true) && !empty($row['id_ob'])) {
 				$submitted_ids[$row['id_']] = true;
@@ -7354,7 +8766,7 @@ public function check_nonce_permission_efb($request) {
 				$has_url = isset($row['url']) && is_string($row['url']) && strlen(trim($row['url'])) > 5;
 				$has_value = is_string($value) ? ($value !== '' && $value !== '@file@') : !empty($value);
 				if ($has_url || $has_value) $submitted_ids[$row['id_']] = true;
-			} elseif (is_array($value) ? !empty($value) : ($value !== '' && $value !== null)) {
+			} elseif (is_array($value) ? !empty($value) : (is_string($value) ? trim($value) !== '' : $value !== null)) {
 				$submitted_ids[$row['id_']] = true;
 			}
 		}
@@ -7363,6 +8775,7 @@ public function check_nonce_permission_efb($request) {
 			if ($position < 1 || !is_array($field) || empty($field['id_'])) continue;
 			$type = strtolower((string) ($field['type'] ?? ''));
 			if (in_array($type, $structural_types, true)) continue;
+			if (in_array($type, $plan_locked, true)) continue;
 			$required = $field['required'] ?? false;
 			$is_required = $required === true || $required === 1 || $required === '1' || $required === 'true';
 			if ($is_required && !isset($submitted_ids[$field['id_']])) {
@@ -7371,6 +8784,302 @@ public function check_nonce_permission_efb($request) {
 		}
 
 		return ['valid' => true, 'missing_field' => null, 'missing_name' => null];
+	}
+
+	/**
+	 * Coerce a submitted row to the shapes the validator switch below reads.
+	 *
+	 * A row is attacker-shaped JSON. Every key the switch compares, measures or
+	 * sanitizes is handled as a string - except a maps value, which is a list of
+	 * markers - yet nothing enforced that, so an array where a string was
+	 * expected reached strlen()/strtolower()/sanitize_email() and fataled the
+	 * request before any field-level check could reject it. Scalars become
+	 * strings; arrays and objects collapse to '' so they fail validation the
+	 * same way an empty value does. null is left alone so isset() semantics in
+	 * the branches are unchanged.
+	 */
+	private function normalize_submitted_row_efb($item, $field_type) {
+		if (!is_array($item)) {
+			return array('id_' => '', 'id_ob' => '', 'type' => '', 'name' => '', 'amount' => '');
+		}
+		$to_string = function ($v) {
+			if (is_array($v) || is_object($v)) return '';
+			if (is_bool($v)) return $v ? '1' : '';
+			return (string) $v;
+		};
+		foreach (array('id_', 'id_ob', 'type', 'name', 'amount', 'url', 'qty', 'price') as $k) {
+			if (array_key_exists($k, $item) && $item[$k] !== null && !is_string($item[$k])) {
+				$item[$k] = $to_string($item[$k]);
+			}
+		}
+		if (array_key_exists('value', $item) && $item['value'] !== null) {
+			if ($field_type === 'maps') {
+				if (!is_array($item['value'])) $item['value'] = array();
+			} elseif (!is_string($item['value'])) {
+				$item['value'] = $to_string($item['value']);
+			}
+		}
+		return $item;
+	}
+
+	/**
+	 * Saved type of the field a row names as its parent, or '' when no such
+	 * field exists in the form structure.
+	 */
+	private function parent_field_type_efb($parent_id, $fields) {
+		if ($parent_id === null || $parent_id === '' || !is_array($fields)) return '';
+		foreach ($fields as $candidate) {
+			if (is_array($candidate) && isset($candidate['id_'], $candidate['type']) && (string) $candidate['id_'] === (string) $parent_id) {
+				return (string) $candidate['type'];
+			}
+		}
+		return '';
+	}
+
+	/**
+	 * The type a validated row is stored under.
+	 *
+	 * The response viewer, the notification email and the CSV export all pick a
+	 * render branch from this value, so it has to come from the saved form and
+	 * never from the browser: a text answer submitted as type "color" landed in
+	 * a style attribute, one submitted as "esign" in an <img src>. For an option
+	 * row the saved field is the option itself, so the owning checkbox-family
+	 * field supplies the type - that is what the bundled client sends and what
+	 * the readers group on. The payment catch-all is left alone: it stores
+	 * whichever row reaches it first under that row's own kind.
+	 */
+	private function stored_row_type_efb($row, $field, $fields) {
+		$saved = isset($field['type']) ? (string) $field['type'] : '';
+		$browser = isset($row['type']) ? (string) $row['type'] : '';
+		if ($saved === '' || in_array($saved, array('payment', 'persiaPay', 'persiapay'), true)) return $browser;
+		if ($saved !== 'option') return $saved;
+		$parent = $this->parent_field_type_efb(isset($row['id_']) ? $row['id_'] : (isset($field['parent']) ? $field['parent'] : null), $fields);
+		if ($parent !== '') return $parent;
+		return in_array($browser, array('checkbox', 'payCheckbox', 'chlCheckBox', 'trmCheckbox'), true) ? $browser : 'checkbox';
+	}
+
+	/**
+	 * The stored form of a submitted signature, or '' when the value is not one.
+	 *
+	 * A Signature field's value is the PNG data URL the bundled canvas exports
+	 * and nothing else. The value is rebuilt from scratch:
+	 *   - it must be a string starting with exactly "data:image/png;base64,";
+	 *   - the tail must be non-empty, strict base64 and decode cleanly;
+	 *   - the decoded bytes must carry the PNG signature and parse as a PNG
+	 *     image with real dimensions.
+	 * The decoded bytes are then re-encoded under the canonical prefix, so the
+	 * stored value is only ever bytes the server checked, never the browser's
+	 * string. Readers (response viewer, email, export) can rely on this value
+	 * being safe for an <img src>.
+	 */
+	private function canonical_esign_value_efb($value) {
+		$prefix = 'data:image/png;base64,';
+		if (!is_string($value) || strpos($value, $prefix) !== 0) return '';
+		$b64 = substr($value, strlen($prefix));
+		if ($b64 === '' || preg_match('/^[A-Za-z0-9+\/]+={0,2}$/', $b64) !== 1) return '';
+		$bin = base64_decode($b64, true);
+		if (!is_string($bin) || strlen($bin) < 24 || strncmp($bin, "\x89PNG\r\n\x1a\n", 8) !== 0) return '';
+		/* Walk the chunks: IHDR first, IEND last and at the very end, every
+		 * chunk's CRC intact. A header check alone accepts the PNG magic
+		 * followed by arbitrary bytes. */
+		$len = strlen($bin);
+		$pos = 8;
+		$first = true;
+		$ended = false;
+		while ($pos + 12 <= $len) {
+			$chunk = unpack('Nlength', substr($bin, $pos, 4));
+			$chunk_len = $chunk['length'];
+			if ($chunk_len < 0 || $chunk_len > $len - $pos - 12) return '';
+			$chunk_type = substr($bin, $pos + 4, 4);
+			if (preg_match('/^[A-Za-z]{4}$/', $chunk_type) !== 1) return '';
+			if ($first && ($chunk_type !== 'IHDR' || $chunk_len !== 13)) return '';
+			/* hash('crc32b') is the PNG/zlib CRC as a hex string, so the
+			 * comparison is the same on 32- and 64-bit PHP. */
+			if (hash('crc32b', $chunk_type . substr($bin, $pos + 8, $chunk_len)) !== bin2hex(substr($bin, $pos + 8 + $chunk_len, 4))) return '';
+			$pos += 12 + $chunk_len;
+			$first = false;
+			if ($chunk_type === 'IEND') { $ended = true; break; }
+		}
+		if (!$ended || $pos !== $len) return '';
+		if (function_exists('getimagesizefromstring')) {
+			$info = @getimagesizefromstring($bin);
+			if (!is_array($info) || !isset($info[0], $info[1], $info[2])
+				|| (int) $info[2] !== IMAGETYPE_PNG || (int) $info[0] < 1 || (int) $info[1] < 1) {
+				return '';
+			}
+		}
+		return $prefix . base64_encode($bin);
+	}
+
+	/**
+	 * Whether an absolute http(s) URL points at this site.
+	 *
+	 * Compares the parsed host (and port) with the host of this request and of
+	 * home_url(), allowing the www./bare variant of either. A prefix test on
+	 * the whole string accepted "https://example.com.evil.tld/" and
+	 * "https://example.com@evil.tld/".
+	 */
+	private function is_same_site_url_efb($url) {
+		if (!is_string($url) || $url === '' || preg_match('/[\x00-\x20\\\\]/', $url)) return false;
+		$parts = function_exists('wp_parse_url') ? wp_parse_url($url) : parse_url($url);
+		if (!is_array($parts) || empty($parts['host']) || empty($parts['scheme'])) return false;
+		$scheme = strtolower($parts['scheme']);
+		if ($scheme !== 'http' && $scheme !== 'https') return false;
+		if (isset($parts['user']) || isset($parts['pass'])) return false;
+		$host = rtrim(strtolower($parts['host']), '.');
+		$port = isset($parts['port']) ? (int) $parts['port'] : 0;
+		if ($port === ($scheme === 'https' ? 443 : 80)) $port = 0;
+
+		$allowed = array();
+		$add = function ($authority) use (&$allowed) {
+			$authority = strtolower(trim((string) $authority));
+			if ($authority === '') return;
+			$h = $authority;
+			$p = 0;
+			if (preg_match('/^(\[[0-9a-f:.]+\])(?::(\d+))?$/', $authority, $m)) {
+				$h = $m[1];
+				$p = isset($m[2]) ? (int) $m[2] : 0;
+			} elseif (preg_match('/^([^:]+):(\d+)$/', $authority, $m)) {
+				$h = $m[1];
+				$p = (int) $m[2];
+			}
+			if ($p === 80 || $p === 443) $p = 0;
+			$h = rtrim($h, '.');
+			if ($h === '') return;
+			$bare = strpos($h, 'www.') === 0 ? substr($h, 4) : $h;
+			$allowed[$bare . '|' . $p] = true;
+			$allowed['www.' . $bare . '|' . $p] = true;
+		};
+		if (isset($_SERVER['HTTP_HOST'])) $add(sanitize_text_field(wp_unslash($_SERVER['HTTP_HOST'])));
+		if (function_exists('home_url')) {
+			$home = function_exists('wp_parse_url') ? wp_parse_url(home_url()) : parse_url(home_url());
+			if (is_array($home) && !empty($home['host'])) {
+				$add($home['host'] . (isset($home['port']) ? ':' . $home['port'] : ''));
+			}
+		}
+		if (isset($allowed[$host . '|' . $port])) return true;
+		/* A proxy that serves the site on another port but forwards neither
+		 * the port in Host nor in the site address: same host, so accept it,
+		 * as the old check did. A different host is still refused. */
+		return $port !== 0 && isset($allowed[$host . '|0']);
+	}
+
+	/**
+	 * Rows of a register submission as they may be stored.
+	 *
+	 * Register forms do not pass through the per-field validator. Keep only
+	 * rows that answer a field of the saved form, never a password field, each
+	 * reduced to that field's attribute allow-list with a sanitized value and
+	 * the saved field's type (the same treatment as the payment merge). Upload
+	 * rows keep their URL only when it is a real upload for that field.
+	 */
+	private function sanitize_account_form_rows_efb($submitted_values, $fields, $page_url) {
+		$by_id = array();
+		foreach ((array) $fields as $field) {
+			if (is_array($field) && isset($field['id_']) && is_scalar($field['id_']) && (string) $field['id_'] !== '') {
+				$by_id[(string) $field['id_']] = $field;
+			}
+		}
+		$upload_types = self::upload_row_types_efb();
+		$rows = array();
+		$seen = array();
+		foreach ((array) $submitted_values as $item) {
+			if (!is_array($item) || !isset($item['id_']) || !is_scalar($item['id_'])) continue;
+			$id = (string) $item['id_'];
+			if (!isset($by_id[$id])) continue;
+			$field = $by_id[$id];
+			$type = isset($field['type']) ? (string) $field['type'] : '';
+			if ($type === 'password' || in_array($id, array('passwordRegisterEFB', 'repasswordRegisterEFB', 'passwordlogin'), true)) continue;
+			$key = $id . '|' . (isset($item['id_ob']) && is_scalar($item['id_ob']) ? (string) $item['id_ob'] : '');
+			if (isset($seen[$key])) continue;
+			$clean = $this->sanitize_payment_merge_row_efb($item, $field);
+			if (!is_array($clean)) continue;
+			if (in_array($type, $upload_types, true) && $type !== 'esign') {
+				$url = isset($clean['url']) ? (string) $clean['url'] : '';
+				if ($url === '' || $this->validate_submitted_upload_url_efb($url, $field) !== true) continue;
+				$clean['url'] = sanitize_url($url);
+				$clean['value'] = '@file@';
+			}
+			if (isset($field['name']) && is_scalar($field['name'])) $clean['name'] = sanitize_text_field((string) $field['name']);
+			$seen[$key] = true;
+			$rows[] = $clean;
+		}
+		/* Register/login forms skip the page-URL check the other form types
+		 * get, so only keep a link that points at this site. */
+		$link = (is_string($page_url) && $this->is_same_site_url_efb($page_url)) ? $page_url : (function_exists('home_url') ? home_url('/') : '');
+		$rows[] = array('type' => 'w_link', 'value' => $link, 'amount' => -1);
+		return $rows;
+	}
+
+	/**
+	 * The label a validated row is stored under.
+	 *
+	 * Like the type, it comes from the saved form: the bundled client sends the
+	 * field's own name (an option row sends its parent field's), but a crafted
+	 * request could send any text, which then became the label in the response
+	 * viewer, the notification email and the CSV header. Matrix rows keep the
+	 * label the validator gave them; the payment catch-all is left alone.
+	 */
+	private function stored_row_name_efb($row, $field, $fields) {
+		$current = isset($row['name']) && is_scalar($row['name']) ? (string) $row['name'] : '';
+		$saved_type = isset($field['type']) ? (string) $field['type'] : '';
+		if ($saved_type === '' || $saved_type === 'r_matrix' || in_array($saved_type, array('payment', 'persiaPay', 'persiapay'), true)) return $current;
+		$source = $field;
+		if ($saved_type === 'option') {
+			$parent_id = isset($row['id_']) ? $row['id_'] : (isset($field['parent']) ? $field['parent'] : null);
+			$source = null;
+			foreach ((array) $fields as $candidate) {
+				if (is_array($candidate) && isset($candidate['id_']) && $parent_id !== null && (string) $candidate['id_'] === (string) $parent_id) { $source = $candidate; break; }
+			}
+		}
+		if (is_array($source) && isset($source['name']) && is_scalar($source['name']) && trim((string) $source['name']) !== '') {
+			return sanitize_text_field((string) $source['name']);
+		}
+		return $current;
+	}
+
+	/**
+	 * The final payment submit re-reads the visitor's non-payment rows from the
+	 * raw request and merges them with the rows saved when the intent was
+	 * created, bypassing the per-field validator above. Give each such row the
+	 * same treatment: string shapes, the field's attribute allow-list, a
+	 * sanitized value (markers for a map) and the saved field's type - never
+	 * the browser's, and never a price on a row that is not a priced kind.
+	 */
+	private function sanitize_payment_merge_row_efb($item, $field) {
+		if (!is_array($item) || !is_array($field)) return null;
+		$type = isset($field['type']) ? (string) $field['type'] : '';
+		$item = $this->normalize_submitted_row_efb($item, $type);
+		$clean = $this->filter_attributes_by_type_efb($item, $type);
+		if (!is_array($clean)) return null;
+		if ($type === 'esign') {
+			/* Same rule as the main validator: a signature row carries a
+			 * checked, re-encoded PNG data URL or it is not stored at all.
+			 * sanitize_text_field() below would not reject markup-free junk
+			 * such as a quote-laden string, so do not let it reach that. */
+			$esign_value = isset($clean['value']) ? $this->canonical_esign_value_efb($clean['value']) : '';
+			if ($esign_value === '') return null;
+			$clean['value'] = $esign_value;
+		} elseif (isset($clean['value'])) {
+			if (is_array($clean['value'])) {
+				$markers = array();
+				foreach ($clean['value'] as $m) {
+					if (is_array($m) && isset($m['lat'], $m['lng']) && is_scalar($m['lat']) && is_scalar($m['lng']) && is_numeric($m['lat']) && is_numeric($m['lng'])) {
+						$markers[] = array(
+							'lat'     => $m['lat'],
+							'lng'     => $m['lng'],
+							'address' => isset($m['address']) && is_scalar($m['address']) ? sanitize_text_field((string) $m['address']) : '',
+						);
+					}
+				}
+				$clean['value'] = $markers;
+			} else {
+				$clean['value'] = sanitize_text_field((string) $clean['value']);
+			}
+		}
+		if (stripos($type, 'pay') === false) unset($clean['price']);
+		$clean['type'] = $type !== '' ? $type : (isset($clean['type']) ? (string) $clean['type'] : '');
+		return $clean;
 	}
 
 	private function filter_attributes_by_type_efb($data,$type) {
@@ -7384,7 +9093,7 @@ public function check_nonce_permission_efb($request) {
 			'multiselect' => true, 'select' => true, 'paySelect' => true,
 			'stateProvince' => true, 'statePro' => true, 'conturyList' => true,
 			'country' => true, 'city' => true, 'cityList' => true, 'sample' => true,
-			'persiapay' => ['amount' => true],'ardate'=>true,'pdate'=>true ,'textarea'=>true,
+			'persiapay' => ['amount' => true], 'persiaPay' => ['amount' => true],'ardate'=>true,'pdate'=>true ,'textarea'=>true,
 			'payment' => ['amount' => true], 'file' => ['url' => true], 'address_line'=>true,
 			'dadfile' => ['url' => true], 'esign' => true, 'maps' => true,
 			'audio_recorder' => ['url' => true, 'recording_duration' => true], 'video_recorder' => ['url' => true, 'recording_duration' => true], 'screen_recorder' => ['url' => true, 'recording_duration' => true],
@@ -7532,8 +9241,8 @@ public function check_nonce_permission_efb($request) {
 						</div>
 					</div>
 
-					<input type="hidden" name="stefb" id="stefb" value="'.$st.'">
-					<input type="hidden" name="fidfb" id="fidfb" value="'.$fid.'">
+					<input type="hidden" name="stefb" id="stefb" value="'.esc_attr($st).'">
+					<input type="hidden" name="fidfb" id="fidfb" value="'.esc_attr($fid).'">
 
 					<p class="efb text-danger efb fs-7" id="alert-efb"></p>
 
@@ -7560,6 +9269,7 @@ public function check_nonce_permission_efb($request) {
 
 				$user_id = $user->ID;
 				$user->set_role('subscriber');
+				delete_user_meta($user_id, 'efb_pending_verification');
 			}
 			return '<p text-align: center;">'.$lan['uraatn'].'</p>' . Js_();
 		}
@@ -7677,9 +9387,16 @@ public function check_nonce_permission_efb($request) {
 		$fid = sanitize_text_field($data['fid'] ?? '');
 		$this->efbFunction = get_efbFunction();
 
-		$password = sanitize_text_field($data['password'] ?? '');
+		// As typed: sanitize_text_field() changed passwords containing "<",
+		// "%41" or runs of spaces, so the new password did not work afterwards.
+		$password = isset($data['password']) && is_string($data['password']) ? $data['password'] : '';
 		if ($st === '' || strlen($st) < 32 || $fid === '' || $password === '') {
 			return new WP_REST_Response(array('success' => false, 'data' => esc_html__('Error! Please try again later.', 'easy-form-builder')), 400);
+		}
+		// The page enforces this in the browser only; the endpoint accepted "a".
+		$password_error = $this->password_policy_error_efb($password);
+		if ($password_error !== null) {
+			return new WP_REST_Response(array('success' => false, 'data' => $password_error), 400);
 		}
 		if(empty($this->db)){
             global $wpdb;
@@ -7695,7 +9412,8 @@ public function check_nonce_permission_efb($request) {
 			if ($diff < 86400 && $row->status_ == 0) {
 				$user = get_user_by('login', $row->username);
 				if ($user) {
-					wp_set_password($password, $user->ID);
+					// Slashed like wp-login.php's reset, so the same password logs in there.
+					wp_set_password(wp_slash($password), $user->ID);
 					$this->efbFunction->efb_code_validate_update($st, 'recovery', 1);
 					$this->db->delete($table_name, ['id' => (int) $row->id], ['%d']);
 					return new WP_REST_Response(array('success' => true, 'data' => esc_html__('Password has been changed successfully!', 'easy-form-builder')));
@@ -7784,6 +9502,14 @@ public function check_nonce_permission_efb($request) {
 			'admin_sc' => isset($_GET['sc']) ? sanitize_text_field(wp_unslash($_GET['sc'])) : '',
 			'nonce' => wp_create_nonce('wp_rest'),
 			'upload_max' => function_exists('wp_max_upload_size') ? (int) floor(wp_max_upload_size() / MB_IN_BYTES) : 0,
+			/* Conditional-logic runtime env (source: 'user'). core-efb.js replaces
+			 * efb_var with this object on a form page, so it must carry the same
+			 * user_state as the efb_var localized above, or every "logged in" and
+			 * "role" condition sees a guest. Public-safe role slugs only. */
+			'user_state' => array(
+				'logged_in' => is_user_logged_in(),
+				'roles' => is_user_logged_in() ? array_values((array) wp_get_current_user()->roles) : array(),
+			),
 
 			'respPrimary' => $pub_settings['respPrimary'] ?? '#3644d2',
 			'respPrimaryDark' => $pub_settings['respPrimaryDark'] ?? '#202a8d',
@@ -7803,21 +9529,17 @@ public function check_nonce_permission_efb($request) {
 			'respCustomFont' => $pub_settings['respCustomFont'] ?? '',
 		) );
 
-		$cache_plugins_public = get_option('emsfb_cache_plugins','0');
-		if ($cache_plugins_public !== '0' && !empty($cache_plugins_public)) {
-			$cache_plugins_public_list = json_decode($cache_plugins_public, true);
-			if (is_array($cache_plugins_public_list) && !empty($cache_plugins_public_list)) {
-				$ar_core['cache_plugins_public'] = wp_json_encode(array_map(function($p) {
-					return array('name' => $p['name'] ?? '');
-				}, $cache_plugins_public_list));
-			}
-		}
-
+		/* The plugin lists are for the administrator's diagnosis only; they used
+		 * to be sent to every visitor (cache_plugins_public). Only real page
+		 * caches are named: Jetpack, Autoptimize and the like never keep a copy
+		 * of a page, so blaming them was a false alarm. */
 		if (is_user_logged_in() && current_user_can('manage_options')) {
-			$cache_plugins = get_option('emsfb_cache_plugins','0');
-			if ($cache_plugins !== '0' && !empty($cache_plugins)) {
-				$ar_core['cache_plugins'] = $cache_plugins;
+			$page_caches = $this->page_cache_plugins_efb();
+			if (!empty($page_caches)) {
+				$ar_core['cache_plugins'] = wp_json_encode($page_caches);
 			}
+			// Whether this page told the cache plugins not to store it (Cache_Compat::bypass()).
+			$ar_core['cache_bypassed'] = class_exists('\\Emsfb\\Cache_Compat') && !\Emsfb\Cache_Compat::can_cache(true) ? 1 : 0;
 
 			$security_plugins = get_option('emsfb_security_plugins','0');
 			if ($security_plugins !== '0' && !empty($security_plugins)) {
@@ -7825,6 +9547,28 @@ public function check_nonce_permission_efb($request) {
 			}
 		}
 		wp_localize_script( 'Emsfb-core_js', 'ajax_object_efm',$ar_core);
+	}
+
+	/**
+	 * Active page-caching plugins from the stored list, without the ones that
+	 * never store a page (\Emsfb::NOT_PAGE_CACHE_SLUGS, a global class). Read-only: it does
+	 * not rebuild the list (that needs get_plugins()).
+	 *
+	 * @return array[] Each: name, version, slug.
+	 */
+	private function page_cache_plugins_efb() {
+		$raw = get_option('emsfb_cache_plugins', '0');
+		if (!is_string($raw) || $raw === '' || $raw === '0') return array();
+		$list = json_decode($raw, true);
+		if (!is_array($list)) return array();
+		$skip = defined('Emsfb::NOT_PAGE_CACHE_SLUGS') ? \Emsfb::NOT_PAGE_CACHE_SLUGS : array('jetpack', 'autoptimize', 'clear-cache-for-widgets', 'atec-cache-info');
+		$out = array();
+		foreach ($list as $p) {
+			if (!is_array($p) || empty($p['name'])) continue;
+			if (in_array((string) ($p['slug'] ?? ''), $skip, true)) continue;
+			$out[] = array('name' => (string) $p['name'], 'version' => (string) ($p['version'] ?? ''), 'slug' => (string) ($p['slug'] ?? ''));
+		}
+		return $out;
 	}
 
 	public function email_list_efb( &$email_user , $pointer , $email , $state_array){
@@ -7838,10 +9582,15 @@ public function check_nonce_permission_efb($request) {
 				if (strpos($email, ',') !== false){
 					$emails = explode(',', $email);
 					foreach ($emails as $email_) {
+						/* Owners type "a@x.com, b@x.com"; the space kept the second
+						 * address from ever receiving the notification. */
+						$email_ = trim($email_);
+						if ($email_ === '') continue;
 						if(!in_array($email_, $email_user[$pointer])){ array_push($email_user[$pointer] ,$email_); }
 					}
 					return true;
 				}else{
+					$email = trim($email);
 					if(!in_array($email, $email_user[$pointer])){ array_push($email_user[$pointer] ,$email); return true;}
 				}
 			}else{
@@ -7854,20 +9603,162 @@ public function check_nonce_permission_efb($request) {
 			}
 		}
 
+	/**
+	 * What the notification email carries: "msg" (submitted content and link),
+	 * "just_msg" (content only) or "cc" (confirmation code and link). A form
+	 * saved before the choice existed, or never changed, gets "msg".
+	 */
+	public function efb_email_noti_type_efb($formObj) {
+		$type = (is_array($formObj) && isset($formObj[0]['email_noti_type']) && is_string($formObj[0]['email_noti_type']))
+			? $formObj[0]['email_noti_type']
+			: '';
+		return in_array($type, ['msg', 'just_msg', 'cc'], true) ? $type : 'msg';
+	}
+
+	/**
+	 * Whether the form owner picked the email content themselves. The builder
+	 * stores email_noti_type only when the owner changes the select, so a form
+	 * without it is running on the default.
+	 */
+	public function efb_email_noti_type_chosen_efb($formObj) {
+		return is_array($formObj) && isset($formObj[0]['email_noti_type'])
+			&& in_array($formObj[0]['email_noti_type'], ['msg', 'just_msg', 'cc'], true);
+	}
+
+	/**
+	 * An email address as the visitor meant it. Persian and Arabic keyboards
+	 * type their own digits, RTL keyboards and pasting add invisible direction
+	 * marks, and some layouts give a fullwidth at sign or a Persian decimal
+	 * separator for the dot. All of these made a correct Gmail address fail
+	 * as "not valid". Mirrors efb_normalize_email_efb() in core-efb.js.
+	 *
+	 * @param mixed $value Raw value.
+	 * @return mixed The cleaned string, or the value unchanged if not a string.
+	 */
+	/**
+	 * A phone number with Persian/Arabic-Indic digits mapped to 0-9 and invisible
+	 * direction marks removed; spaces, dashes and the leading + are left alone.
+	 *
+	 * @param mixed $value Raw value.
+	 * @return mixed
+	 */
+	public static function normalize_phone_input_efb($value) {
+		if (!is_string($value) || '' === $value) {
+			return $value;
+		}
+		$value = strtr($value, array(
+			'۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4',
+			'۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9',
+			'٠' => '0', '١' => '1', '٢' => '2', '٣' => '3', '٤' => '4',
+			'٥' => '5', '٦' => '6', '٧' => '7', '٨' => '8', '٩' => '9',
+		));
+		$clean = preg_replace('/[\x{00A0}\x{061C}\x{200B}-\x{200F}\x{202A}-\x{202E}\x{2060}-\x{2069}\x{FEFF}]/u', '', $value);
+		return is_string($clean) ? trim($clean) : trim($value);
+	}
+
+	/**
+	 * A Jalali or Hijri date as YYYY-MM-DD with ASCII digits, or null when the
+	 * text is not a date. Persian/Arabic digits, "/" or "." and unpadded parts
+	 * are accepted (older entries and admin defaults use them). Mirrors
+	 * efb_typed_date_efb() in core-efb.js.
+	 *
+	 * @param string $value Raw value.
+	 * @param string $kind  'jalali' or 'hijri'.
+	 * @return string|null
+	 */
+	public static function normalize_typed_date_efb($value, $kind) {
+		$value = self::normalize_phone_input_efb((string) $value);
+		$value = preg_replace('/\s+/u', '', (string) $value);
+		$value = str_replace(array('/', '.'), '-', (string) $value);
+		if (!preg_match('/^(\d{4})-(\d{1,2})-(\d{1,2})$/', $value, $m)) {
+			return null;
+		}
+		$month = (int) $m[2];
+		$day   = (int) $m[3];
+		if ($month < 1 || $month > 12 || $day < 1) {
+			return null;
+		}
+		$max = 31;
+		if ('jalali' === $kind) {
+			$max = $month <= 6 ? 31 : 30;
+		} elseif ('hijri' === $kind) {
+			$max = 30;
+		}
+		if ($day > $max) {
+			return null;
+		}
+		return sprintf('%04d-%02d-%02d', (int) $m[1], $month, $day);
+	}
+
+	public static function normalize_email_input_efb($value) {
+		if (!is_string($value) || '' === $value) {
+			return $value;
+		}
+		$value = strtr($value, array(
+			'۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4',
+			'۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9',
+			'٠' => '0', '١' => '1', '٢' => '2', '٣' => '3', '٤' => '4',
+			'٥' => '5', '٦' => '6', '٧' => '7', '٨' => '8', '٩' => '9',
+			"\u{FF20}" => '@', "\u{FF0E}" => '.', "\u{3002}" => '.', "\u{066B}" => '.', "\u{06D4}" => '.',
+		));
+		$clean = preg_replace('/[\x{00A0}\x{061C}\x{200B}-\x{200F}\x{202A}-\x{202E}\x{2060}-\x{2069}\x{FEFF}]/u', '', $value);
+		if (is_string($clean)) {
+			$value = $clean;
+		}
+		return trim($value);
+	}
+
+	/**
+	 * The visitor's address for the owner's Reply-To: the field the form names
+	 * as the visitor's email (email_to) when it holds a valid address, else the
+	 * first email field that does. A form asking for a friend's address before
+	 * the visitor's own used to reply to the friend.
+	 */
+	private function efb_submitter_email_efb($values, $preferred_id = '') {
+		if (!is_array($values)) {
+			return '';
+		}
+		if (is_scalar($preferred_id) && (string) $preferred_id !== '') {
+			foreach ($values as $row) {
+				if (is_array($row) && isset($row['id_'], $row['value']) && (string) $row['id_'] === (string) $preferred_id && is_string($row['value'])) {
+					$email = sanitize_email(trim($row['value']));
+					if ('' !== $email && is_email($email)) {
+						return $email;
+					}
+				}
+			}
+		}
+		foreach ($values as $row) {
+			if (is_array($row) && isset($row['type'], $row['value']) && 'email' === $row['type'] && is_string($row['value'])) {
+				$email = sanitize_email(trim($row['value']));
+				if ('' !== $email && is_email($email)) {
+					return $email;
+				}
+			}
+		}
+		return '';
+	}
+
 	public function email_status_efb($formObj,$valobj,$check){
 
 			$msg_content='null';
 			$msg_type ='traking_link';
 			$msg_sub = 'null';
+			// The owner's Reply-To for this submission: the visitor's own address.
+			$this->owner_reply_to_efb = $this->efb_submitter_email_efb($valobj, isset($formObj[0]['email_to']) ? $formObj[0]['email_to'] : '');
+			// A form that never chose sends the submitted content and the link:
+			// an email that only says "log in to read it" looks like a broken
+			// plugin. "cc" (code and link only) stays for forms that chose it.
+			$noti_type = $this->efb_email_noti_type_efb($formObj);
 
-			if(isset($formObj[0]["email_noti_type"]) && ( $formObj[0]["email_noti_type"]=='msg' || $formObj[0]["email_noti_type"]=='just_msg' )){
+			if($noti_type=='msg' || $noti_type=='just_msg'){
 
-				if($formObj[0]["email_noti_type"]=='msg'){
+				if($noti_type=='msg'){
 
 					$msg_content_ = $this->email_get_content_efb($valobj ,$check);
 					$msg_content = str_replace("\"","'",$msg_content_);
 					$msg_type = 'message_link';
-				}else if ($formObj[0]["email_noti_type"]=='cc'){
+				}else if ($noti_type=='cc'){
 
 					$msg_type ='traking_link';
 					$msg_sub = 'null';
@@ -7882,6 +9773,13 @@ public function check_nonce_permission_efb($request) {
 			if(isset($formObj[0]["email_sub"]) && $formObj[0]["email_sub"]!=''){
 				$msg_sub = $formObj[0]["email_sub"];
 			}
+			// The visitor's own copy carries the submitted content only when the
+			// owner chose that. On the default, content goes to the owner alone:
+			// otherwise anybody could make the site email any text they like to
+			// any address they type into the form.
+			$visitor_type = ($this->efb_email_noti_type_chosen_efb($formObj) && $noti_type !== 'cc')
+				? $msg_type
+				: 'traking_link';
 			$this->efb_trace('email.status', [
 				'noti_type'   => $formObj[0]['email_noti_type'] ?? null,
 				'track'       => $check,
@@ -7890,7 +9788,7 @@ public function check_nonce_permission_efb($request) {
 				'content_len' => is_string($msg_content) ? strlen($msg_content) : gettype($msg_content),
 				'content_text'=> is_string($msg_content) && $msg_content !== 'null' ? mb_substr(trim(strip_tags($msg_content)), 0, 300) : '',
 			]);
-			return ['subject'=>$msg_sub,'content'=>$msg_content,'type'=>$msg_type];
+			return ['subject'=>$msg_sub,'content'=>$msg_content,'type'=>$msg_type,'visitor_type'=>$visitor_type];
 	}
 
 	public function fun_validation_pay_elements_efb($val_ ,$fs_){
@@ -7898,11 +9796,32 @@ public function check_nonce_permission_efb($request) {
 		$price_f =0;
 		$email ='';
 		$valobj =[];
+		/* The submitted values come straight from the request (the PayPal add-on also
+		 * calls this). A value that is not a list of rows, or a price that is not a
+		 * number, was a TypeError in count()/abs() on PHP 8 - a 500 instead of an answer. */
+		$invalid = static function () {
+			$msg = esc_html__('Invalid payment selection. Please review your choices and try again. If the problem persists, contact the site administrator.', 'easy-form-builder');
+			wp_send_json_success(['success' => false, 'm' => $msg], 200);
+		};
+		if (!is_array($val_) || !is_array($fs_)) {
+			$invalid();
+			return ['price_total' => 0, 'email' => '', 'valobj' => []];
+		}
 		for ($i=0; $i <count($val_) ; $i++) {
 			$a=-1;
-			if(isset($val_[$i]['price'])){
-				if($val_[$i]['price'] ) $price_c += abs($val_[$i]['price']);
-				if($val_[$i]['type']=="email" ) $email = $val_[$i]['value'];
+			if(isset($val_[$i]) && is_array($val_[$i]) && isset($val_[$i]['price'])){
+				$row_price = $val_[$i]['price'];
+				if (is_array($row_price) || is_object($row_price) || (is_string($row_price) && $row_price !== '' && !is_numeric($row_price))) {
+					$invalid();
+					return ['price_total' => 0, 'email' => '', 'valobj' => []];
+				}
+				if (isset($val_[$i]['ids']) && !is_string($val_[$i]['ids'])) {
+					$invalid();
+					return ['price_total' => 0, 'email' => '', 'valobj' => []];
+				}
+				if(!isset($val_[$i]['type'])) $val_[$i]['type'] = '';
+				if($row_price ) $price_c += abs($row_price);
+				if($val_[$i]['type']=="email" && isset($val_[$i]['value']) && is_string($val_[$i]['value']) ) $email = $val_[$i]['value'];
 				$iv = $val_[$i];
 				if($iv['type']=="paySelect" || $iv['type']=="payRadio" || $iv['type']=="payCheckbox"){
 					$filtered = array_filter($fs_, function($item) use ($iv) {
@@ -7956,7 +9875,24 @@ public function check_nonce_permission_efb($request) {
 					$a=-1;
 				}else if($iv['type']=="prcfld" ){
 					   $a=-1;
-					   $price_f += $iv['price'];
+					   /* The amount a visitor types (tip, donation). A negative one was
+					    * subtracted from the order: the page showed $34.99 and Stripe
+					    * was asked for $4.99. The owner's Min/Max apply as values. */
+					   $typed_price = (float) $iv['price'];
+					   if ($typed_price < 0) {
+						   $invalid();
+						   return ['price_total' => 0, 'email' => '', 'valobj' => []];
+					   }
+					   foreach ($fs_ as $field_def) {
+						   if (!is_array($field_def) || ($field_def['type'] ?? '') !== 'prcfld' || ($field_def['id_'] ?? null) !== ($iv['id_'] ?? '')) continue;
+						   $min_price = isset($field_def['milen']) && is_numeric($field_def['milen']) ? (float) $field_def['milen'] : null;
+						   $max_price = isset($field_def['mlen']) && is_numeric($field_def['mlen']) && (float) $field_def['mlen'] > 0 ? (float) $field_def['mlen'] : null;
+						   if ((null !== $min_price && $typed_price < $min_price) || (null !== $max_price && $typed_price > $max_price)) {
+							   $invalid();
+							   return ['price_total' => 0, 'email' => '', 'valobj' => []];
+						   }
+					   }
+					   $price_f += $typed_price;
 				}
 				if($a !=-1){
 					if($fs_[$a]['type']!="payMultiselect"){
@@ -7991,13 +9927,23 @@ public function check_nonce_permission_efb($request) {
 		return $obj;
 	}
 
+	/**
+	 * A select/multiselect answer matches its saved option. Template options
+	 * are stored HTML-escaped ("Accounting &amp; Sell question") while the
+	 * browser sends the text ("&"), so the Support template refused two of
+	 * its three default options.
+	 */
+	private function same_option_text_efb($saved, $sent) {
+		if (!is_scalar($saved) || !is_scalar($sent)) return false;
+		return wp_specialchars_decode((string) $saved, ENT_QUOTES) === wp_specialchars_decode((string) $sent, ENT_QUOTES);
+	}
 	public function dedupe_by_id_and_ob_efb(array $rows): array {
     $seen = [];
     $out  = [];
 
     foreach ($rows as $row) {
-        $id  = isset($row['id_'])   ? (string)$row['id_']   : '';
-        $ob  = isset($row['id_ob']) ? (string)$row['id_ob'] : '';
+        $id  = isset($row['id_'])   && is_scalar($row['id_'])   ? (string)$row['id_']   : '';
+        $ob  = isset($row['id_ob']) && is_scalar($row['id_ob']) ? (string)$row['id_ob'] : '';
 
         if ($id === '' && $ob === '') {
             $out[] = $row;
@@ -8216,7 +10162,7 @@ public function check_nonce_permission_efb($request) {
 			return [];
 		}
 
-		$test_content = stripslashes($messages[0]->content);
+		$test_content = \emsfb_json_normalize_efb($messages[0]->content);
 		$test_decode = json_decode($test_content, true);
 		if (is_array($test_decode)) {
 			foreach ($test_decode as $ti => $titem) {
@@ -8375,7 +10321,7 @@ public function check_nonce_permission_efb($request) {
 		$decode_failures = 0;
 
 		foreach ($messages as $message) {
-			$content = stripslashes($message->content);
+			$content = \emsfb_json_normalize_efb($message->content);
 			$data = json_decode($content, true);
 			if (!is_array($data)) {
 				$decode_failures++;
@@ -8706,9 +10652,58 @@ public function check_nonce_permission_efb($request) {
 		return $results;
 	}
 
+	/** Optional notification channels must not interrupt primary form processing. */
+	private function run_optional_notification_efb($channel, callable $callback) {
+		try {
+			$result = $callback();
+			if ($result === false || is_wp_error($result)) {
+				$reason = 'Optional channel reported failure';
+				if ($channel === 'sms' && isset($this->efbFunction) && is_object($this->efbFunction) && !empty($this->efbFunction->last_sms_error_efb)) {
+					// The gateway's own words (no credit, invalid number, ...).
+					$reason = 'SMS gateway: ' . $this->efbFunction->last_sms_error_efb;
+				} elseif (is_wp_error($result)) {
+					$reason = $result->get_error_message();
+				}
+				$this->efb_trace('notification.failed', ['channel' => $channel, 'form_id' => intval($this->id), 'reason' => $reason]);
+				return false;
+			}
+			return $result;
+		} catch (\Throwable $error) {
+			$this->efb_trace('notification.failed', ['channel' => $channel, 'form_id' => intval($this->id), 'reason' => 'Optional channel threw an error', 'error_type' => get_class($error)]);
+			return false;
+		}
+	}
+
+	private function send_optional_sms_efb(...$args) {
+		return $this->run_optional_notification_efb('sms', function () use ($args) {
+			return $this->efbFunction->sms_ready_for_send_efb(...$args) === true;
+		});
+	}
+
 	private function efb_intgrate_with_3rd_party_services_efb($track_code, $submitted_values, $form_fields_array, $event_type = 'form_submit', $integration_args = []) {
+		return $this->run_optional_notification_efb('integrations', function () use ($track_code, $submitted_values, $form_fields_array, $event_type, $integration_args) {
+			return $this->dispatch_optional_integrations_efb($track_code, $submitted_values, $form_fields_array, $event_type, $integration_args);
+		});
+	}
+
+	private function dispatch_optional_integrations_efb($track_code, $submitted_values, $form_fields_array, $event_type = 'form_submit', $integration_args = []) {
 
 		$integration_args = is_array($integration_args) ? $integration_args : [];
+		// No integration ever receives a password: a webhook rule on a register
+		// or login form sent the typed password to its endpoint.
+		$strip_passwords = static function ($rows) {
+			if (!is_array($rows)) return $rows;
+			return array_values(array_filter($rows, function ($row) {
+				if (!is_array($row)) return true;
+				$type = strtolower((string) ($row['type'] ?? ''));
+				$id   = (string) ($row['id_'] ?? '');
+				return $type !== 'password' && !in_array($id, array('passwordlogin', 'passwordRegisterEFB', 'repasswordRegisterEFB'), true);
+			}));
+		};
+		$submitted_values = $strip_passwords($submitted_values);
+		if (isset($integration_args['enriched_submitted_values'])) {
+			$integration_args['enriched_submitted_values'] = $strip_passwords($integration_args['enriched_submitted_values']);
+		}
 
 		$context = [
 			'track_code'       => $track_code,
@@ -8736,24 +10731,60 @@ public function check_nonce_permission_efb($request) {
 			'source'        => 'efb_intgrate_with_3rd_party_services_efb',
 		);
 
-		if ( apply_filters( 'efb_shield_allow_side_effect', true, array_merge( $shield_context, array( 'channel' => 'webhook' ) ) ) ) {
-			$context['conditional_webhooks'] = $this->process_conditional_webhook_rules($form_fields_array, $submitted_values, $track_code, $event_type, $context);
-		} else {
-			$context['conditional_webhooks'] = array();
+		// The gate spends one unit of the channel's daily stop-loss per question,
+		// so it is asked only when this submission really has something to send:
+		// otherwise busy forms without a webhook, Telegram or Google Sheets set up
+		// use up the budget of the forms that have one.
+		// The webhook channel is asked at most once per submission; the
+		// conditional webhook rules and the efb_after_form_integration listeners
+		// share that decision.
+		$webhooks_allowed = null;
+		$allow_webhooks = function () use ( &$webhooks_allowed, $shield_context ) {
+			if ( null === $webhooks_allowed ) {
+				$webhooks_allowed = (bool) apply_filters( 'efb_shield_allow_side_effect', true, array_merge( $shield_context, array( 'channel' => 'webhook' ) ) );
+			}
+			return $webhooks_allowed;
+		};
+
+		$context['conditional_webhooks'] = $this->run_optional_notification_efb('conditional_webhooks', function () use ($form_fields_array, $submitted_values, $track_code, $event_type, $context, $allow_webhooks) {
+			return $this->process_conditional_webhook_rules($form_fields_array, $submitted_values, $track_code, $event_type, $context, $allow_webhooks);
+		});
+		if (!is_array($context['conditional_webhooks'])) { $context['conditional_webhooks'] = []; }
+
+		if ( $this->efb_side_effect_has_work_efb( 'telegram', 'efb_3rd_party_telegram_notify', $context ) && apply_filters( 'efb_shield_allow_side_effect', true, array_merge( $shield_context, array( 'channel' => 'telegram' ) ) ) ) {
+			$this->run_optional_notification_efb('telegram', function () use ($context) { do_action('efb_3rd_party_telegram_notify', $context); });
 		}
 
-		if ( apply_filters( 'efb_shield_allow_side_effect', true, array_merge( $shield_context, array( 'channel' => 'telegram' ) ) ) ) {
-			do_action('efb_3rd_party_telegram_notify', $context);
+		if ( $this->efb_side_effect_has_work_efb( 'googlesheet', 'efb_3rd_party_google_sheet_sync', $context ) && apply_filters( 'efb_shield_allow_side_effect', true, array_merge( $shield_context, array( 'channel' => 'googlesheet' ) ) ) ) {
+			$this->run_optional_notification_efb('googlesheet', function () use ($context) { do_action('efb_3rd_party_google_sheet_sync', $context); });
 		}
 
-		if ( apply_filters( 'efb_shield_allow_side_effect', true, array_merge( $shield_context, array( 'channel' => 'googlesheet' ) ) ) ) {
-			do_action('efb_3rd_party_google_sheet_sync', $context);
+		if ( $this->efb_side_effect_has_work_efb( 'webhook', 'efb_after_form_integration', $context ) && $allow_webhooks() ) {
+			$this->run_optional_notification_efb('webhook', function () use ($context) { do_action('efb_after_form_integration', $context); });
 		}
 
-		if ( apply_filters( 'efb_shield_allow_side_effect', true, array_merge( $shield_context, array( 'channel' => 'webhook', 'source' => 'efb_after_form_integration' ) ) ) ) {
-			do_action('efb_after_form_integration', $context);
-		}
+	}
 
+	/**
+	 * Whether an integration has anything to send for this event.
+	 *
+	 * An integration that knows it will send nothing for this form (Telegram
+	 * notifications off, no Google Sheet linked) answers false through the
+	 * efb_shield_side_effect_has_work filter, so no stop-loss unit is spent on
+	 * it. An integration that does not answer (an older add-on) keeps being
+	 * treated as having work, which is how every event was counted before.
+	 *
+	 * @param string $channel Side-effect channel (telegram, googlesheet, webhook).
+	 * @param string $hook    Action the integration listens on.
+	 * @param array  $context Integration context passed to that action.
+	 * @return bool
+	 */
+	private function efb_side_effect_has_work_efb( $channel, $hook, $context ) {
+		if ( ! has_action( $hook ) ) {
+			return false;
+		}
+		$has_work = apply_filters( 'efb_shield_side_effect_has_work', null, $channel, $context );
+		return null === $has_work ? true : (bool) $has_work;
 	}
 
 }

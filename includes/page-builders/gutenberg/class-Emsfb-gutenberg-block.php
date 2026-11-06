@@ -33,12 +33,17 @@ class Emsfb_Gutenberg_Block {
             return;
         }
 
-        register_block_type(
-            EMSFB_PLUGIN_DIRECTORY . 'includes/page-builders/gutenberg/block.json',
-            [
-                'render_callback' => [$this, 'render_block']
-            ]
-        );
+        $block_json = EMSFB_PLUGIN_DIRECTORY . 'includes/page-builders/gutenberg/block.json';
+        $block_args = [
+            'render_callback' => [$this, 'render_block']
+        ];
+        // register_block_type() takes a block.json path only since WP 5.8;
+        // on 5.7 (the plugin's minimum) the block was silently not registered.
+        if (function_exists('register_block_type_from_metadata') && version_compare(get_bloginfo('version'), '5.8', '<')) {
+            register_block_type_from_metadata($block_json, $block_args);
+        } else {
+            register_block_type($block_json, $block_args);
+        }
     }
 
     public function enqueue_editor_assets() {
@@ -66,6 +71,8 @@ class Emsfb_Gutenberg_Block {
                 'selectForm' => __('— Select a Form —', 'easy-form-builder'),
                 'blockTitle' => __('Easy Form Builder', 'easy-form-builder'),
                 'selectFormHelp' => __('Select a form to display from the dropdown below.', 'easy-form-builder'),
+                // For the editor notice, which has no dropdown below it.
+                'selectFormNotice' => __('Please select a form to display.', 'easy-form-builder'),
                 'selectedForm' => __('Selected Form:', 'easy-form-builder'),
                 'formPreviewText' => __('Form will be displayed here on the frontend.', 'easy-form-builder'),
                 'loadingForms' => __('Loading forms&hellip;', 'easy-form-builder'),
@@ -151,7 +158,15 @@ class Emsfb_Gutenberg_Block {
         $align = isset($attributes['align']) ? ' align' . esc_attr($attributes['align']) : '';
 
         if (empty($form_id)) {
-
+            // Visitors see nothing; the owner previewing the page is told why
+            // the form is missing instead of finding an empty spot.
+            if (current_user_can('edit_posts')) {
+                return sprintf(
+                    '<div class="wp-block-easy-form-builder-form efb-block-empty" style="padding:12px 16px;border:1px dashed #c7d2fe;border-radius:8px;color:#3730a3;background:#f5f7ff">%s</div>',
+                    // The published page has no dropdown, so no "below".
+                    esc_html(__('Easy Form Builder', 'easy-form-builder') . ': ' . __('Please select a form to display.', 'easy-form-builder'))
+                );
+            }
             return '';
         }
 

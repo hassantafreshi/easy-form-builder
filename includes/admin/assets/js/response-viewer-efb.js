@@ -1,4 +1,42 @@
 
+/**
+ * HTML-escape a single value before it is interpolated into any innerHTML
+ * string in this file. A response row is attacker-controlled — an
+ * unauthenticated visitor chooses the submitted field values — so every stored
+ * value that reaches innerHTML (field values, names, labels, urls, ip) must
+ * pass through here first. Kept self-contained: this file also renders the
+ * public response box, where list_form-efb.js (and its escaper) is not loaded.
+ */
+function escHtmlEfb(value) {
+  return String(value == null ? '' : value).replace(/[&<>"'`]/g, function (ch) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '`': '&#96;' }[ch];
+  });
+}
+
+/**
+ * Recursively HTML-escape every string inside a parsed response object, while
+ * leaving structure (nested objects/arrays, e.g. a maps field's coordinate
+ * list) and non-string leaves intact. The one tag a value legitimately holds
+ * at render time is <br> — replaceContentMessageEfb turns the stored @efb@nq#
+ * line-break token into it — so that single bare tag is restored after
+ * escaping. Anything else an attacker smuggled in (<img onerror=...>,
+ * <script>) stays inert as &lt;…&gt;.
+ */
+function escResponseTreeEfb(node) {
+  if (typeof node === 'string') {
+    return escHtmlEfb(node).replace(/&lt;br\s*\/?&gt;/gi, '<br>');
+  }
+  if (Array.isArray(node)) return node.map(escResponseTreeEfb);
+  if (node && typeof node === 'object') {
+    const out = {};
+    for (const k in node) {
+      if (Object.prototype.hasOwnProperty.call(node, k)) out[k] = escResponseTreeEfb(node[k]);
+    }
+    return out;
+  }
+  return node;
+}
+
 const EfbResponseViewer = (function () {
   'use strict';
 
@@ -94,7 +132,10 @@ const EfbResponseViewer = (function () {
 
   function buildRichEditor(msgId, savedValue) {
     const placeholderText = _t('enterYourMessage') || 'Type your reply&hellip;';
-    const initialHtml = savedValue ? shortcodeToHtml(savedValue.replace(/@efb@nq#/g, '<br>')) : '';
+    /* The draft is the editor's *text* (htmlToShortcode strips tags and
+       decodes entities before saving it), so it must go back in as text: a
+       typed "<img onerror=…>" would otherwise be parsed as markup here. */
+    const initialHtml = savedValue ? shortcodeToHtml(escHtmlEfb(savedValue).replace(/@efb@nq#/g, '<br>')) : '';
 
     return `
     <div class="efb-reply-section ${isRtl() ? 'rtl-text' : ''} efb p-2" id="replay_section__emsFormBuilder">
@@ -230,7 +271,7 @@ const EfbResponseViewer = (function () {
     const userIp = valueJson_ws_messages[indx].ip;
     const track = valueJson_ws_messages[indx].track;
     const date = valueJson_ws_messages[indx].date;
-    const content = JSON.parse(replaceContentMessageEfb(valueJson_ws_messages[indx].content));
+    const content = efbParseJson(replaceContentMessageEfb(valueJson_ws_messages[indx].content, true));
 
     let by = valueJson_ws_messages[indx].read_by !== null ? valueJson_ws_messages[indx].read_by : "Unkown";
     if (by == 1) { by = 'Admin'; } else if (by == 0 || by.length == 0 || by.length == -1) { by = '#first'; }
@@ -258,11 +299,11 @@ const EfbResponseViewer = (function () {
     const msg_id = value.msg_id;
     const track = value.track;
     const date = value.date;
-    const val = JSON.parse(replaceContentMessageEfb(value.content));
+    const val = efbParseJson(replaceContentMessageEfb(value.content, true));
     let m = fun_emsFormBuilder_show_messages(val, '#first', '', track, date);
 
     for (let c of content) {
-      const cval = JSON.parse(c.content.replace(/[\\]/g, ''));
+      const cval = efbParseJson(c.content);
       m += `<div class="efb mb-3"><div class="efb clearfix">${fun_emsFormBuilder_show_messages(cval, c.rsp_by, '', track, c.date)}</div></div>`;
     }
 
@@ -294,7 +335,19 @@ const EfbResponseViewer = (function () {
 
     initRichEditor(msgId);
 
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const tracker = document.getElementById('body_efb-track');
+    if (tracker) {
+      const prefersReducedMotion = window.matchMedia &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const trackerTop = tracker.getBoundingClientRect().top + window.pageYOffset;
+
+      window.scrollTo({
+        top: Math.max(0, trackerTop - 24),
+        behavior: prefersReducedMotion ? 'auto' : 'smooth'
+      });
+    } else if (isPanel) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
 
 const chatHistory = document.getElementById('resp_efb');
     if (chatHistory) {
@@ -670,7 +723,7 @@ function efb_apply_resp_colors() {
   try {
     if (typeof ajax_object_efm !== 'undefined' && ajax_object_efm.setting && ajax_object_efm.setting[0]) {
       const raw = ajax_object_efm.setting[0].setting;
-      s = typeof raw === 'string' ? JSON.parse(raw.replace(/[\\]/g, '')) : raw;
+      s = typeof raw === 'string' ? efbParseJson(raw) : raw;
     }
   } catch (e) {  }
 
@@ -798,6 +851,24 @@ function efb_apply_resp_colors() {
 }
 
 function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
+  /* Single choke point for stored-response XSS: every caller (dashboard list,
+   * admin modal, public response box, reply thread) reaches innerHTML through
+   * here, so escaping the parsed content and the loose scalars once, on entry,
+   * neutralises hostile values for all of them without any render branch below
+   * having to remember to escape. Escaping happens exactly once — callers pass
+   * raw parsed content and never pre-escape — so there is no double-encoding. */
+  content = escResponseTreeEfb(content);
+  /* The stored double-quote token, now that the tree is escaped: &quot; is
+     right in element text and in attributes alike. */
+  content = (function decodeQuoteTokenEfb(node) {
+    if (typeof node === 'string') return node.replace(/@efb@dq#/g, '&quot;');
+    if (Array.isArray(node)) return node.map(decodeQuoteTokenEfb);
+    if (node && typeof node === 'object') { for (const k in node) { if (Object.prototype.hasOwnProperty.call(node, k)) node[k] = decodeQuoteTokenEfb(node[k]); } }
+    return node;
+  })(content);
+  userIp = escHtmlEfb(userIp);
+  track = escHtmlEfb(track);
+  date = escHtmlEfb(date);
   efb_apply_resp_colors();
   stock_state_efb=false;
   let totalpaid =0;
@@ -818,6 +889,9 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   }else {
     byName = by;
    }
+  /* A reply is credited to the sender's WordPress display name, which a
+     registered visitor chooses themselves. */
+  byName = escHtmlEfb(byName);
   const bySection = byName ? `<div class="efb-msg-sender">
     <div class="efb-msg-avatar ${byIsAdmin ? 'efb-msg-avatar--admin' : ''}"><i class="bi ${byIsAdmin ? 'bi-shield-check' : 'bi-person'}"></i></div>
     <div class="efb-msg-sender-info"><span class="efb-msg-sender-role">${byIsAdmin ? 'Admin' : efb_var.text.by}:</span><span class="efb-msg-sender-name">${byName}</span></div>
@@ -845,16 +919,25 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   let list = []
   let s = false;
   let checboxs=[];
-  let currency = content[0].hasOwnProperty('paymentcurrency') ? content[0].paymentcurrency :'usd';
+  /* toLocaleString() throws on a currency that is not an ISO code, which
+     left the whole response unreadable. */
+  const isCurrencyEfb = (v) => typeof v == 'string' && /^[A-Za-z]{3}$/.test(v);
+  let currency = content[0].hasOwnProperty('paymentcurrency') && isCurrencyEfb(content[0].paymentcurrency) ? content[0].paymentcurrency :'usd';
   let last_type ='';
   for (const c of content) {
     if (c.hasOwnProperty('price')){ totalpaid +=Number(c.price)}
     if(c.hasOwnProperty('value') && c.type!="maps"){ c.value = replaceContentMessageEfb(c.value)}
     if(c.hasOwnProperty('qty')){ c.qty = replaceContentMessageEfb(c.qty)}
-    if (c.hasOwnProperty('currency')){ currency = c.currency}
+    if (c.hasOwnProperty('currency') && isCurrencyEfb(c.currency)){ currency = c.currency}
     s = false;
     let value = typeof(c.value)=="string" ? `<span class="efb-formatted">${(typeof EfbResponseViewer !== 'undefined' ? EfbResponseViewer.formatMessageForDisplay(c.value.toString().replaceAll('@efb!', ',').replace(/,\s*$/, '')) : c.value.toString().replaceAll('@efb!', ',').replace(/,\s*$/, ''))}</span>` :'';
     if(c.hasOwnProperty('qty')!=false) value+=`: <b> ${c.qty}</b>`
+    if (c.value == "@file@") {
+      /* Escaping cannot neutralise a javascript: or data: address, and a
+         reply row could carry any url before the server rebuilt replies.
+         Only http(s) addresses become links or media sources. */
+      c.url = (typeof c.url == "string" && /^https?:\/\//i.test(c.url)) ? c.url : '';
+    }
     if (c.value == "@file@" && list.findIndex(x => x == c.url) == -1) {
       s = true;
       list.push(c.url);
@@ -889,13 +972,18 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'';
       title = efb_var.text[title] || c.name ;
       s = true;
-      value = `<img src="${c.value}" alt="${c.name}" class="efb img-thumbnail efb-msg-esign-img">`;
+      /* A signature is a canvas PNG data URL and nothing else; rows stored
+         before the server enforced that may hold any string. */
+      const esignSrc = /^data:image\/png;base64,[A-Za-z0-9+\/]+={0,2}$/.test(c.value) ? c.value : '';
+      value = esignSrc ? `<img src="${esignSrc}" alt="${c.name}" class="efb img-thumbnail efb-msg-esign-img">` : `<code>${c.value}</code>`;
       m += `<div class="efb efb-msg-field-row efb-msg-field-block"><span class="efb-msg-field-label"><i class="bi bi-pen"></i> ${title}:</span><div class="efb-msg-field-value"> ${value}</div></div>`;
     } else if (c.type == "color") {
       let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'';
       title = efb_var.text[title] || c.name ;
       s = true;
-      value = `<span class="efb-msg-color-swatch" style="background-color:${c.value};">&nbsp;</span><code>${c.value}</code>`;
+      /* Only a #rrggbb value may reach the style attribute. */
+      const colorOk = typeof c.value == "string" && /^#[0-9a-fA-F]{6}$/.test(c.value);
+      value = colorOk ? `<span class="efb-msg-color-swatch" style="background-color:${c.value};">&nbsp;</span><code>${c.value}</code>` : `<code>${c.value}</code>`;
       m += `<div class="efb efb-msg-field-row"><span class="efb-msg-field-label"><i class="bi bi-palette"></i> ${title}:</span> <span class="efb-msg-field-value">${value}</span></div>`;
     } else if (c.type == "maps") {
       if (typeof (c.value) == "object") {
@@ -912,7 +1000,8 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'';
       title = efb_var.text[title] || c.name ;
       value = `<div class='efb efb-msg-rating ${efb_var.rtl == 1 ? 'text-end' : 'text-start'}'>`;
-      for (let i = 0; i < parseInt(c.value); i++) {
+      const stars = Math.max(0, Math.min(10, parseInt(c.value) || 0));
+      for (let i = 0; i < stars; i++) {
         value += `<i class="efb bi bi-star-fill"></i>`
       }
       value += "</div>";
@@ -932,7 +1021,9 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       vc =`${c.hasOwnProperty('label') && last_type!='r_matrix' ? `<div class="efb-msg-field-label efb-msg-matrix-header">${c.label}</div>` : '' }<div class="efb efb-msg-field-row efb-msg-matrix-item"><span class="efb-msg-field-label">${c.name}:</span><span class="efb-msg-field-value">${c.value}</span></div>`
       m += `${vc}`;
     }
-    if (c.id_ == 'passwordRegisterEFB') { m += value; value = '**********' };
+    /* Entries saved before 4.3.1 may still hold a register form's password
+       as typed; mask it and never print the value itself. */
+    if (c.id_ == 'passwordRegisterEFB' || c.id_ == 'repasswordRegisterEFB' || c.id_ == 'passwordlogin' || c.type == 'password') { value = '**********' };
     if (((s == true && c.value == "@file@") || (s == false && c.value != "@file@")) && c.id_!="payment" && c.type!="checkbox"){
         let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'';
         if(title=="file") title ="atcfle"
@@ -943,7 +1034,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
           q+=`<span class="efb efb-msg-price-tag">${Number(price).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span>`
         }else if(c.type.includes('checkbox')){
         }else if(c.type.includes('imgRadio')){
-          q = typeof fun_imgRadio_efb === 'function' ? `<div class="efb w-100">`+fun_imgRadio_efb(c.id_, c.src ,c)+`</div>` : `<div class="efb w-100"><img src="${c.src || ''}" class="efb img-fluid rounded" alt="${c.value || ''}"></div>`
+          q = typeof fun_imgRadio_efb === 'function' ? `<div class="efb w-100">`+fun_imgRadio_efb(c.id_, typeof c.src == 'string' ? c.src : '' ,c)+`</div>` : `<div class="efb w-100"><img src="${c.src || ''}" class="efb img-fluid rounded" alt="${c.value || ''}"></div>`
         }
         m += `<div class="efb efb-msg-field-row"><span class="efb-msg-field-label">${title}:</span> <span class="efb-msg-field-value">${text_nr_efb(q,1)}</span></div>`
       }
@@ -1536,10 +1627,21 @@ document.addEventListener('keydown', function(e) {
 });
 /* ---------------------------------------------------------------------------- */
 
+/* A cell that starts with = + - @ or a tab/CR is evaluated as a formula when
+   the CSV is opened in Excel or LibreOffice, and every exported value was
+   typed by a visitor. Prefix such cells with an apostrophe so they stay text;
+   a plain number such as "-5" is left alone. */
+function csvNeutralizeFormula_EFB(val) {
+  if (/^[=+\-@\t\r]/.test(val) && !/^[+-]?\d+([.,]\d+)?$/.test(val)) return "'" + val;
+  return val;
+}
+
 function csvEscape_EFB(val) {
   if (val === null || val === undefined) return '';
-  val = String(val).trim();
-  if (val.search(/[,"\n\r]/) !== -1) {
+  val = csvNeutralizeFormula_EFB(String(val).trim());
+  /* ';' too: spreadsheets in many locales split on it, which would start a
+     new cell (and a formula) mid-value. */
+  if (val.search(/[,;"\n\r]/) !== -1) {
     val = '"' + val.replace(/"/g, '""') + '"';
   }
   return val;
@@ -1692,7 +1794,11 @@ function fun_tracking_show_emsFormBuilder() {
   const time = pro_efb==true ? 10 :900;
   const getUrlparams = new URLSearchParams(location.search);
   let get_track = getUrlparams.get('track') !=null ? sanitize_text_efb(getUrlparams.get('track')) :null;
-  if(get_track){ get_track= `value="${get_track}"`; change_url_back_persia_pay_efb()}else{get_track='';}
+  /* The code comes from the address bar, so anyone can craft it. It goes into
+     an attribute of markup assigned with innerHTML below: sanitize_text_efb()
+     drops < and > but not quotes, and a " closed the attribute and added an
+     event handler. Escape it for the attribute as well. */
+  if(get_track){ get_track= `value="${escHtmlEfb(get_track)}"`; change_url_back_persia_pay_efb()}else{get_track='';}
   setTimeout(() => {
     if (typeof efb_apply_resp_colors === 'function') efb_apply_resp_colors();
     document.getElementById("body_tracker_emsFormBuilder").innerHTML = `
@@ -1707,7 +1813,7 @@ function fun_tracking_show_emsFormBuilder() {
                         <i class="efb bi-hash efb-tracker-input-icon"></i>
                         <input type="text" class="efb input-efb efb-tracker-input" placeholder="${ajax_object_efm.text.entrTrkngNo}" id="trackingCodeEfb" ${get_track} autocomplete="off" spellcheck="false">
                       </div>
-                      ${setting_emsFormBuilder.scaptcha==true ? `<div class="efb efb-tracker-captcha"><div id="gRecaptcha" class="efb g-recaptcha" data-sitekey="${setting_emsFormBuilder.siteKey}" data-callback="verifyCaptcha"></div><small class="efb text-danger" id="recaptcha-message"></small></div>` : ``}
+                      ${setting_emsFormBuilder.scaptcha==true && setting_emsFormBuilder.siteKey ? `<div class="efb efb-tracker-captcha"><div id="gRecaptcha" class="efb g-recaptcha" data-sitekey="${escHtmlEfb(setting_emsFormBuilder.siteKey)}" data-formid="-1" data-callback="verifyCaptcha"></div><small class="efb text-danger" id="recaptcha-message"></small></div>` : ``}
                       <button type="submit" class="efb btn btn-pinkEfb efb-tracker-btn" id="vaid_check_emsFormBuilder" onclick="fun_vaid_tracker_check_emsFormBuilder()">
                         <i class="efb bi-search efb-tracker-btn-icon"></i> ${ajax_object_efm.text.search}
                       </button>
@@ -1716,7 +1822,7 @@ function fun_tracking_show_emsFormBuilder() {
           </div>
           <div id="alert_efb" class="efb mx-5"></div>
   `
-    if(setting_emsFormBuilder.scaptcha==true ){
+    if(setting_emsFormBuilder.scaptcha==true && setting_emsFormBuilder.siteKey){
       sitekye_emsFormBuilder=setting_emsFormBuilder.siteKey;
       loadCaptcha_efb(20);
     }
@@ -1909,7 +2015,9 @@ function response_rMessage_id(res, message) {
     if (richEditor) richEditor.innerHTML = '';
     document.getElementById('replay_state__emsFormBuilder').innerHTML = res.data.m;
     efb_reply_button_state_efb(false);
-    const date = Date();
+    // Same "Y-m-d H:i:s" as the replies the server lists, not Date()'s raw string.
+    const _now = new Date(), _p = (n) => String(n).padStart(2, '0');
+    const date = `${_now.getFullYear()}-${_p(_now.getMonth() + 1)}-${_p(_now.getDate())} ${_p(_now.getHours())}:${_p(_now.getMinutes())}:${_p(_now.getSeconds())}`;
     fun_emsFormBuilder__add_a_response_to_messages(message, efb_reply_sender_name_efb(res, message), 0, 0, date);
     const chatHistory = document.getElementById("resp_efb");
     chatHistory.scrollTop = chatHistory.scrollHeight;

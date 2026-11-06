@@ -3,13 +3,15 @@
  * Plugin Name:         Easy Form Builder
  * Plugin URI:          https://whitestudio.team
  * Description:         Create multi-step WordPress forms with drag and drop, confirmation codes, notification emails, and free custom email notification templates with a built-in visual editor. Build professional contact, survey, payment, login, and registration forms without coding.
- * Version:             4.2.0
+ * Version:             4.3.1
  * Author:              WhiteStudio
  * Author URI:          https://whitestudio.team
  * Text Domain:         easy-form-builder
  * License:             GPL v2 or later
  * License URI:         https://www.gnu.org/licenses/gpl-2.0.html
  * Domain Path:         /languages
+ * Requires at least:   5.7
+ * Requires PHP:        7.4
  */
 
 if (!defined('ABSPATH')) {
@@ -24,12 +26,12 @@ if (!defined("EMSFB_PLUGIN_DIRECTORY")) {
     define("EMSFB_PLUGIN_DIRECTORY", plugin_dir_path(__FILE__));
 }
 if (!defined("EMSFB_PLUGIN_VERSION")) {
-    define("EMSFB_PLUGIN_VERSION", "4.2.0");
+    define("EMSFB_PLUGIN_VERSION", "4.3.1");
 }
 if (!defined("EMSFB_DB_VERSION")) {
     // 1.2 adds the emsfb_stts_ indexes (sid, lookup, date). Bumping this is what
     // triggers Install::upgrade_schema() on sites that already have the tables.
-    define("EMSFB_DB_VERSION", 1.2);
+    define("EMSFB_DB_VERSION", 1.3);
 }
 
 if (!defined("EFB_DEBUG")) {
@@ -363,6 +365,19 @@ if (!function_exists('get_efbFunction')) {
 if (!function_exists('get_locale_script_chars_efb')) {
     function get_locale_script_chars_efb() {
         return Emsfb::get_locale_script_chars_efb();
+    }
+}
+
+if (!function_exists('emsfb_free_element_types_efb')) {
+    /**
+     * Field types that are free on every plan although they were Pro before
+     * 4.3.1 (the Free plan has 20 fields). Their render and their scripts must
+     * not depend on the plan. Keep in step with fields_efb in val-efb.js.
+     *
+     * @return string[]
+     */
+    function emsfb_free_element_types_efb() {
+        return array('trmCheckbox', 'conturyList', 'country', 'rating', 'heading');
     }
 }
 

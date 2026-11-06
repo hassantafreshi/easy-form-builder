@@ -1,33 +1,107 @@
 
-function confirm_stripe_payment_efb(paymentIntentId, trackid) {
+/* Payment tracing for support, off by default: set window.EFB_STRIPE_DEBUG = true in the
+ * browser console before paying. Failures still go to console.error. */
+function efb_stripe_debug_efb(level, message, details) {
+  try {
+    if (typeof window === 'undefined' || window.EFB_STRIPE_DEBUG !== true) return;
+    if (typeof console !== 'undefined' && typeof console[level] === 'function') {
+      console[level]('[EFB Stripe Debug] ' + message, details || {});
+    }
+  } catch (e) {}
+}
+
+/* Confirm a one-time Stripe charge with this site before the form is submitted.
+ * Resolves to
+ *   'verified'   the server retrieved the PaymentIntent from Stripe and it matches the payment record;
+ *   'rejected'   HTTP 409: the server compared it with its own record and it does not match;
+ *   'unverified' the check could not be completed (network, timeout, 5xx, session or nonce trouble).
+ * The card is already charged when this runs, so only 'rejected' may stop the submission. The server
+ * side only reads from Stripe, so it is retried: up to 4 attempts within about 45 s, waiting for the
+ * browser to come back online, with a fresh session after a nonce error. */
+async function confirm_stripe_payment_efb(paymentIntentId, trackid, formId) {
   const confirmUrl = efb_var.rest_url + 'Emsfb/v1/forms/payment/stripe/confirm';
-  const confirmHeaders = new Headers({
-    'Content-Type': 'application/json',
-    'X-WP-Nonce': efb_var.nonce,
+  const delays = [0, 2000, 5000, 10000];
+  const deadline = Date.now() + 45000;
+  const report = (status) => { if (window.EFBRequestHealth) window.EFBRequestHealth.report('payment', status); };
+  const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+  const backOnline = (ms) => new Promise((resolve) => {
+    if (typeof navigator === 'undefined' || navigator.onLine !== false || !window.addEventListener) { resolve(); return; }
+    let timer = null;
+    const done = () => { clearTimeout(timer); window.removeEventListener('online', done); resolve(); };
+    timer = setTimeout(done, ms);
+    window.addEventListener('online', done);
   });
-  console.log('[EFB Stripe Debug] confirm request start', {
-    confirmUrl,
-    paymentIntentId,
-    trackid
-  });
-  fetch(confirmUrl, {
-    method: 'POST',
-    headers: confirmHeaders,
-    body: JSON.stringify({ paymentIntentId: paymentIntentId, trackid: trackid })
-  }).then(function(response) {
-    console.log('[EFB Stripe Debug] confirm response received', {
+  let freshContext = false;
+  let refusedNonce = '';
+  for (let attempt = 0; attempt < delays.length; attempt++) {
+    if (attempt > 0) {
+      if (Date.now() + delays[attempt] > deadline) break;
+      await pause(delays[attempt]);
+      await backOnline(30000);
+    }
+    let context = null;
+    try {
+      // prepare() already answers a throttled, blocked or unreachable route with the page nonce and
+      // session ({legacy: true}). It throws only when the form context itself is refused (login,
+      // expired or changed identity). This request carries no runtime token, only reads from Stripe and
+      // runs after the charge, so it still goes out with the page nonce and session.
+      if (window.EFBRuntime) context = await window.EFBRuntime.prepare(formId, freshContext);
+    } catch (error) {
+      context = null;
+    }
+    if (freshContext && (!context || context.legacy || context.nonce === refusedNonce) && typeof efb_refresh_nonce === 'function') {
+      // The fallback context (the page nonce, or a context prepared earlier on this page when the
+      // route is unreachable) can hold the nonce the server just refused: fetch a new one.
+      let fresh = false;
+      try { fresh = await efb_refresh_nonce((context && context.sid) || efb_var.sid || '', formId); } catch (error) {}
+      if (context && fresh) context = Object.assign({}, context, { nonce: fresh });
+    }
+    freshContext = false;
+    const confirmHeaders = new Headers({
+      'Content-Type': 'application/json',
+      'X-WP-Nonce': context && context.nonce ? context.nonce : efb_var.nonce,
+      'form-id': String(formId || 0),
+      'sid': context && context.sid ? context.sid : (efb_var.sid || ''),
+    });
+    efb_stripe_debug_efb('log', 'confirm request start', {
+      confirmUrl,
+      paymentIntentId,
+      trackid,
+      attempt: attempt + 1
+    });
+    let response;
+    try {
+      response = await fetch(confirmUrl, {
+        method: 'POST',
+        cache: 'no-store',
+        credentials: 'same-origin',
+        signal: typeof AbortSignal !== 'undefined' && AbortSignal.timeout ? AbortSignal.timeout(25000) : undefined,
+        headers: confirmHeaders,
+        body: JSON.stringify({ paymentIntentId: paymentIntentId, trackid: trackid })
+      });
+    } catch (err) {
+      report(0);
+      console.error('[EFB Stripe Debug] confirm request failed', err);
+      continue;
+    }
+    let res = null;
+    try { res = await response.json(); } catch (err) { res = null; }
+    efb_stripe_debug_efb('log', 'confirm response received', {
       status: response.status,
       ok: response.ok
     });
-    return response.json();
-  }).then(function(res) {
-    console.log('[EFB Stripe Debug] confirm response body', res);
-    if (res && res.data && res.data.success) {
-    } else {
+    if (response.ok && res && res.data && res.data.success === true) return 'verified';
+    report(response.ok ? 0 : response.status);
+    if (response.status === 409 && res && res.data) return 'rejected';
+    if (response.status === 403 && res && ['rest_cookie_invalid_nonce', 'efb_nonce_expired', 'efb_nonce_missing'].includes(res.code)) {
+      freshContext = true;
+      refusedNonce = confirmHeaders.get('X-WP-Nonce') || '';
+      continue;
     }
-  }).catch(function(err) {
-    console.error('[EFB Stripe Debug] confirm request failed', err);
-  });
+    if (response.status === 408 || response.status === 425 || response.status === 429 || response.status >= 500 || (response.ok && !res)) continue;
+    break;
+  }
+  return 'unverified';
 }
 
   post_api_stripe_apay_efb=(form_id)=>{
@@ -44,7 +118,7 @@ function confirm_stripe_payment_efb(paymentIntentId, trackid) {
       'sid':efb_var.sid ? efb_var.sid : '',
       });
 
-        console.log('[EFB Stripe Debug] init stripe payment flow', {
+        efb_stripe_debug_efb('log', 'init stripe payment flow', {
           form_id,
           url,
           hasNonce: !!efb_var.nonce,
@@ -52,8 +126,13 @@ function confirm_stripe_payment_efb(paymentIntentId, trackid) {
         });
 
         const bdy = document.getElementById('body_efb_'+form_id);
+        if (!bdy) return;
         const cardnoEfb = bdy.querySelector('#cardnoEfb')
-        if (typeof cardnoEfb != "object") return;
+        const btnStripeEfb = bdy.querySelector('#btnStripeEfb');
+        const stsStripeEfb = bdy.querySelector('#statusStripEfb');
+        const statusStripEfb = stsStripeEfb;
+        let paymentStarted = false;
+        if (!cardnoEfb || !btnStripeEfb || !stsStripeEfb) return;
 
         if (ajax_object_efm.hasOwnProperty('paymentKey')) {
           const init_stripe_ui_efb = (stripePubKey) => {
@@ -63,32 +142,60 @@ function confirm_stripe_payment_efb(paymentIntentId, trackid) {
             base: {
               iconColor: '#6c757d',
               color: '#6c757d',
-              fontFamily: 'sans-serif',
               fontSize: '30px',
               '::placeholder': { color: '#757593' }
             },
-            complete: { color: 'green' }
-          }
-          const btntripeStyleEfb = {
-            fontFamily: 'sans-serif',
-            fontSize: '20px',
-            fontWeight: '400',
             complete: { color: 'green' }
           }
 
           const cardnoEfb = bdy.querySelector('#cardnoEfb')
           const cardexpEfb = bdy.querySelector('#cardexpEfb')
           const cardcvcEfb = bdy.querySelector('#cardcvcEfb')
-          const btnStripeEfb = bdy.querySelector('#btnStripeEfb')
-          const stsStripeEfb = bdy.querySelector('#statusStripEfb')
-          const elements = stripe.elements()
-          const numElm = elements.create('cardNumber', { showIcon: true, iconStyle: 'solid', style: elsStripeStyleEfb })
+          // The card fields are Stripe iframes and cannot inherit the page's
+          // font (they were fixed to sans-serif): hand them the font the form
+          // uses - the theme's - and the web-font files it comes from.
+          const stripeFontsEfb = []
+          try {
+            // Stripe rejects a font name with non-ASCII or special characters
+            // (Japanese, Chinese, Persian names, "Café Sans"), and then no card
+            // field mounts at all: pass only the names it accepts.
+            const pageFontEfb = (getComputedStyle(cardnoEfb).fontFamily || '').split(',')
+              .map((f) => f.trim())
+              .filter((f) => /^(["']?)[A-Za-z0-9 _.-]+\1$/.test(f))
+              .join(', ')
+            if (pageFontEfb) elsStripeStyleEfb.base.fontFamily = pageFontEfb
+            document.querySelectorAll('link[rel~="stylesheet"][href^="https://fonts.googleapis.com/"]').forEach((l) => {
+              if (stripeFontsEfb.length < 5) stripeFontsEfb.push({ cssSrc: l.href })
+            })
+            const firstFamilyEfb = pageFontEfb.split(',')[0].trim().replace(/^["']|["']$/g, '').toLowerCase()
+            for (const sheet of Array.from(document.styleSheets)) {
+              let rules = null
+              try { rules = sheet.cssRules } catch (e) { rules = null }
+              if (!rules) continue
+              for (const rule of Array.from(rules)) {
+                if (stripeFontsEfb.length >= 8 || !(window.CSSFontFaceRule && rule instanceof CSSFontFaceRule)) continue
+                const fam = (rule.style.getPropertyValue('font-family') || '').trim().replace(/^["']|["']$/g, '')
+                const srcUrl = ((rule.style.getPropertyValue('src') || '').match(/url\(\s*["']?(https:[^"')\s]+)/i) || [])[1]
+                if (!firstFamilyEfb || fam.toLowerCase() !== firstFamilyEfb || !srcUrl) continue
+                const weightEfb = (rule.style.getPropertyValue('font-weight') || '400').split(' ')[0]
+                stripeFontsEfb.push({ family: fam, src: 'url(' + srcUrl + ')', weight: weightEfb, style: rule.style.getPropertyValue('font-style') || 'normal' })
+              }
+            }
+          } catch (e) {}
+          // The font is a nicety: if Stripe refuses anything about it, mount
+          // the card fields exactly as before rather than not at all.
+          let elements, numElm, expElm, cvcElm
+          const mountCardEfb = (withFont) => {
+            const style = withFont ? elsStripeStyleEfb : { base: Object.assign({}, elsStripeStyleEfb.base, { fontFamily: undefined }), complete: elsStripeStyleEfb.complete }
+            if (!withFont) delete style.base.fontFamily
+            elements = withFont && stripeFontsEfb.length ? stripe.elements({ fonts: stripeFontsEfb }) : stripe.elements()
+            numElm = elements.create('cardNumber', { showIcon: true, iconStyle: 'solid', style: style })
+            expElm = elements.create('cardExpiry', { disabled: true, style: style })
+            cvcElm = elements.create('cardCvc', { disabled: true, style: style })
+          }
+          try { mountCardEfb(true) } catch (e) { mountCardEfb(false) }
           numElm.mount(cardnoEfb)
-
-          const expElm = elements.create('cardExpiry', { disabled: true, style: elsStripeStyleEfb })
           expElm.mount(cardexpEfb)
-
-          const cvcElm = elements.create('cardCvc', { disabled: true, style: elsStripeStyleEfb })
           cvcElm.mount(cardcvcEfb)
 
           numElm.on('change', (e) => {
@@ -114,64 +221,136 @@ function confirm_stripe_payment_efb(paymentIntentId, trackid) {
             }
           })
 
-          fun_fetch_api_efb=(data ,transStat)=>{
+          const fun_fetch_api_efb=async (data ,transStat)=>{
+            try {
+              if (window.EFBRuntime) {
+                const live = await window.EFBRuntime.prepare(form_id);
+                headers.set('X-WP-Nonce', live.nonce);
+                headers.set('sid', live.sid);
+                if (data && Object.prototype.hasOwnProperty.call(data, 'sid')) data.sid = live.sid;
+              }
+            } catch (error) {
+              // prepare() falls back to the page nonce on its own and throws only for a refusal a retry
+              // would not change (login required, form context expired, login changed). Nothing has
+              // been charged yet: stop and say why.
+              if (window.EFBRequestHealth) window.EFBRequestHealth.report('payment', 0);
+              if (typeof alert_message_efb === 'function') alert_message_efb(efb_var.text.error, error && error.message ? error.message : efb_var.text.error, 10, 'danger');
+              btnStripeEfb.classList.remove('disabled');
+              btnStripeEfb.innerHTML = efb_var.text.payNow;
+              paymentStarted = false;
+              return;
+            }
             const jsonData = JSON.stringify(data);
             const safeLogData = Object.assign({}, data, {
               token: data && data.token ? '[REDACTED]' : undefined,
               value: data && data.value ? '[JSON_PAYLOAD]' : undefined,
             });
-            console.log('[EFB Stripe Debug] card/add request payload', safeLogData);
+            efb_stripe_debug_efb('log', 'card/add request payload', safeLogData);
             const requestOptions = {
             method: 'POST',
+            cache: 'no-store',
+            credentials: 'same-origin',
+            signal: typeof AbortSignal !== 'undefined' && AbortSignal.timeout ? AbortSignal.timeout(45000) : undefined,
             headers,
             body: jsonData,
             };
 
+  /* Set just before the browser asks Stripe to charge the card. Until then
+     nothing can have been charged in "charge" mode (card/add only creates the
+     PaymentIntent), so a failure there must not say "may have been charged". */
+  let chargeAttempted = false;
   fetch(url, requestOptions)
-  .then(response => {
-    console.log('[EFB Stripe Debug] card/add response meta', {
+  .then(async response => {
+    efb_stripe_debug_efb('log', 'card/add response meta', {
       status: response.status,
       ok: response.ok
     });
     if (!response.ok) {
-      throw new Error(`Network response was not ok (HTTP ${response.status})`);
+      const error = typeof efb_request_error_efb === 'function' ? await efb_request_error_efb(response) : new Error(`HTTP ${response.status}`);
+      error.status = response.status;
+      throw error;
     }
     return response.json();
   })
   .then(res => {
-    console.log('[EFB Stripe Debug] card/add response body', res);
     if (res && res.data && res.data.success === true) {
       if (valj_efb[0].paymentmethod === "charge") {
+        chargeAttempted = true;
         stripe.confirmCardPayment(res.data.client_secret, {
           payment_method: { card: numElm }
-        }).then(transStat => {
-          console.log('[EFB Stripe Debug] confirmCardPayment result', transStat);
+        }).then(async transStat => {
+          /* A failed 3-D Secure check (payment_intent_authentication_failure) means
+             the card was not charged: report it like a decline so the customer can
+             try again, not as "may have been charged, do not pay again". */
+          if (transStat && transStat.error && !['card_error', 'validation_error'].includes(transStat.error.type)
+            && transStat.error.code !== 'payment_intent_authentication_failure') {
+            if (window.EFBRequestHealth) window.EFBRequestHealth.report('payment', 0);
+            stsStripeEfb.textContent = window.efb_request_health && efb_request_health.payment_pending_message || efb_var.text.error;
+            return;
+          }
           if (transStat && transStat.paymentIntent && transStat.paymentIntent.status === 'succeeded') {
-            confirm_stripe_payment_efb(transStat.paymentIntent.id, res.data.id);
+            const verification = await confirm_stripe_payment_efb(transStat.paymentIntent.id, res.data.id, form_id);
+            if (verification === 'rejected') {
+              const message = window.efb_request_health && efb_request_health.payment_pending_message || efb_var.text.error;
+              const label = efb_var.text && efb_var.text.trackingCode ? efb_var.text.trackingCode : 'Tracking code';
+              stsStripeEfb.textContent = res.data.id ? message + ' ' + label + ': ' + res.data.id : message;
+              stsStripeEfb.style.display = 'block';
+              // The card may already be charged; keep Pay Now disabled.
+              return;
+            }
+            // 'verified', or 'unverified': Stripe.js reported the charge as succeeded but this site could
+            // not confirm it yet. Continue so the entry and its notifications are kept; the payment record
+            // stays 'pending' and the server re-checks it with Stripe in the background.
           }
           fun_trans_efb(transStat, res.data.transStat, res.data.id);
+        }).catch(error => {
+          if (window.EFBRequestHealth) window.EFBRequestHealth.report('payment', 0);
+          stsStripeEfb.textContent = window.efb_request_health && efb_request_health.payment_pending_message || efb_var.text.error;
         });
       } else {
         fun_trans_efb(transStat, res.data.transStat, res.data.id);
       }
     } else {
+      if (window.EFBRequestHealth) window.EFBRequestHealth.report('payment', 0);
+      if (res && res.data && res.data.payment_uncertain) {
+        stsStripeEfb.textContent = window.efb_request_health && efb_request_health.payment_pending_message || efb_var.text.error;
+        return;
+      }
+      // The server refused before any charge: show its reason when it gave one.
+      const refusal = res && res.data && typeof res.data.m === 'string' && res.data.m ? res.data.m : '';
       stsStripeEfb.innerHTML = `<div class="text-danger"><strong>${efb_var.text.error}</strong></div>`;
+      if (refusal) { const reason = document.createElement('div'); reason.textContent = typeof efb_plain_text_efb === 'function' ? efb_plain_text_efb(refusal) : refusal; stsStripeEfb.appendChild(reason); }
       btnStripeEfb.classList.remove('disabled');
+      paymentStarted = false;
       btnStripeEfb.innerHTML = efb_var.text.payNow;
     }
   })
   .catch(error => {
+    if (window.EFBRequestHealth) window.EFBRequestHealth.report('payment', error && error.status ? error.status : 0);
     console.error('[EFB Stripe Debug] card/add request failed', error);
-    btnStripeEfb.classList.remove('disabled');
-    const errorMessage = `<p class="efb h4">${efb_var.text.error} ${error.message}</p>`;
-    alert_message_efb('Stripe', errorMessage, 120, 'danger');
-    btnStripeEfb.innerHTML = efb_var.text.payNow;
+    const status = error && error.status ? Number(error.status) : 0;
+    const beforeCharge = !chargeAttempted && (valj_efb[0].paymentmethod === 'charge' || (status >= 400 && status < 500));
+    if (beforeCharge) {
+      // Nothing was charged: say so and let the visitor try again.
+      const t = efb_var && efb_var.text ? efb_var.text : {};
+      const shown = (error && error.efb_visitor_text && status >= 400 && status < 500) ? error.message : (t.paymentNotStartedNoCharge || 'The payment could not be started and nothing was charged. Please try again.');
+      // Phrases arrive HTML-escaped; this element shows plain text.
+      stsStripeEfb.textContent = typeof efb_plain_text_efb === 'function' ? efb_plain_text_efb(shown) : shown;
+      btnStripeEfb.classList.remove('disabled');
+      paymentStarted = false;
+      btnStripeEfb.innerHTML = efb_var.text.payNow;
+      return;
+    }
+    stsStripeEfb.textContent = window.efb_request_health && efb_request_health.payment_pending_message || efb_var.text.error;
+    // A lost response can follow a subscription charge. Do not invite another payment.
   });
 
 }
 
           btnStripeEfb.addEventListener('click', () => {
-            console.log('[EFB Stripe Debug] Pay Now clicked', {
+            if (paymentStarted) return;
+            paymentStarted = true;
+            efb_stripe_debug_efb('log', 'Pay Now clicked', {
               form_id,
               paymentmethod: valj_efb[0] && valj_efb[0].paymentmethod ? valj_efb[0].paymentmethod : 'unknown'
             });
@@ -180,23 +359,27 @@ function confirm_stripe_payment_efb(paymentIntentId, trackid) {
 
             const v = fun_pay_valid_price();
             if (v == false) {
-              console.warn('[EFB Stripe Debug] blocked by empty cart validation', {
+              efb_stripe_debug_efb('warn', 'blocked by empty cart validation', {
                 form_id,
                 sendBackLength: Array.isArray(sendBack_emsFormBuilder_pub) ? sendBack_emsFormBuilder_pub.length : -1
               });
               alert_message_efb(efb_var.text.error, efb_var.text.emptyCartM, 10, 'warning')
               btnStripeEfb.innerHTML = efb_var.text.payNow;
               btnStripeEfb.classList.remove('disabled');
+              paymentStarted = false;
               return false;
             } else {
+                let data;
 
                 if(valj_efb[0].paymentmethod != "charge"){
                   stripe.createToken(numElm).then((transStat) => {
-                    console.log('[EFB Stripe Debug] createToken result', {
+                    efb_stripe_debug_efb('log', 'createToken result', {
                       hasError: !!(transStat && transStat.error),
                       hasToken: !!(transStat && transStat.token && transStat.token.id)
                     });
                     if (transStat.error) {
+                      paymentStarted = false;
+                      btnStripeEfb.classList.remove('disabled');
                       stsStripeEfb.innerHTML = `<p class="h4">${transStat.status}</p> ${transStat.statusText} </br> ${transStat.responseText}`
 
                     } else {
@@ -235,12 +418,12 @@ function confirm_stripe_payment_efb(paymentIntentId, trackid) {
             // "null" here usually means the page HTML (or the settings cache) was
             // cached before the keys were saved — ask the server for a fresh key
             // before giving up with an error.
-            console.warn('[EFB Stripe Debug] localized paymentKey is "null", requesting fresh key');
+            efb_stripe_debug_efb('warn', 'localized paymentKey is "null", requesting fresh key');
             fetch(efb_var.rest_url + 'Emsfb/v1/forms/payment/stripe/pkey')
               .then((response) => response.json())
               .then((res) => {
                 const freshKey = res && res.data && res.data.key ? res.data.key : 'null';
-                console.log('[EFB Stripe Debug] pkey fallback response', { hasKey: !!(freshKey && freshKey != 'null') });
+                efb_stripe_debug_efb('log', 'pkey fallback response', { hasKey: !!(freshKey && freshKey != 'null') });
                 if (freshKey && freshKey != 'null') {
                   ajax_object_efm.paymentKey = freshKey;
                   init_stripe_ui_efb(freshKey);
@@ -256,15 +439,16 @@ function confirm_stripe_payment_efb(paymentIntentId, trackid) {
           }else{
             if (efb_var.pro==true || efb_var.pro=="true") alert_message_efb(efb_var.text.error, `${efb_var.text.errorCode}: ${efb_var.text.payment}->${efb_var.text.proVersion}`, 100, 'danger');
           }
-          fun_trans_efb = (transStat, data, trackid) => {
+          const fun_trans_efb = (transStat, data, trackid) => {
 
-            console.log('[EFB Stripe Debug] fun_trans_efb called', {
+            efb_stripe_debug_efb('log', 'fun_trans_efb called', {
               hasError: !!(transStat && transStat.error),
               trackid,
               data
             });
 
             if (transStat.error) {
+              paymentStarted = false;
               stsStripeEfb.innerHTML = `
                   <strong>${efb_var.text.error}  </string> ${transStat.error.message}
                   `

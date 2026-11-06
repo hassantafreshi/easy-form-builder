@@ -144,7 +144,9 @@ class EmsfbEmailHandler {
 
         $mailResult = "n";
         $server_name = apply_filters('emsfb_get_server_host', 'yourdomain.com');
-        $from = get_bloginfo('name') . " <no-reply@" . $server_name . ">";
+        $configured_from = is_object($st) ? ($st->femail ?? '') : (is_array($st) ? ($st['femail'] ?? '') : '');
+        $from_email = is_email($configured_from) ? $configured_from : 'no-reply@' . $server_name;
+        $from = get_bloginfo('name') . " <" . $from_email . ">";
 
         if (is_array($to) && isset($to[2]) && is_email($to[2])) {
             $fromEmail = is_array($to[2]) ? array_pop($to[2]) : $to[2];
@@ -240,7 +242,7 @@ class EmsfbEmailHandler {
                 self::trace('send.vetoed', [
                     'event' => $efb_shield_email_context['event'],
                     'to'    => $to,
-                    'note'  => 'a guard (Human Shield or an efb_shield_allow_side_effect filter) blocked this email',
+                    'note'  => 'a guard (Form Security & Spam Protection or another efb_shield_allow_side_effect filter) blocked this email',
                 ]);
                 remove_filter('wp_mail_content_type', [$this, 'wpdocs_set_html_mail_content_type']);
                 remove_action('wp_mail_failed', $mail_failed_listener);
@@ -274,13 +276,27 @@ class EmsfbEmailHandler {
 
             for ($i = 0; $i < 2; $i++) {
                 if (!empty($to[$i]) && $to[$i] != "null") {
-                    $message = $this->email_template_efb($pro, $state[$i], $cont[$i], $link[$i], $email_content_type, $st);
+                    // The visitor's copy may carry less than the owner's: $state[3]
+                    // says what it carries when the form side set it.
+                    $copy_content_type = (1 === $i && is_array($state) && isset($state[3]) && is_string($state[3]))
+                        ? $state[3]
+                        : $email_content_type;
+                    $message = $this->email_template_efb($pro, $state[$i], $cont[$i], $link[$i], $copy_content_type, $st);
 
                     // DEBUG LOG: final composed email (gated on EMSFB_EMAIL_DEBUG)
-                    $this->log_email_debug($state[$i], $to[$i], $sub[$i], $message, $link[$i], $email_content_type);
+                    $this->log_email_debug($state[$i], $to[$i], $sub[$i], $message, $link[$i], $copy_content_type);
 
                     if ($state != "reportProblem") {
-                        $mailResult = $sendMail($to[$i], $sub[$i], $message, $headers);
+                        $pair_headers = $headers;
+                        // The owner's copy of a submission answers the visitor:
+                        // Reply-To is the address they typed (set by the form side).
+                        if (0 === $i && is_array($state) && isset($state[0]) && 'newMessage' === $state[0]) {
+                            $reply_to = apply_filters('emsfb_owner_reply_to_efb', '', $to, $state);
+                            if (is_string($reply_to) && '' !== $reply_to && is_email($reply_to)) {
+                                $pair_headers[] = 'Reply-To: ' . sanitize_email($reply_to);
+                            }
+                        }
+                        $mailResult = $sendMail($to[$i], $sub[$i], $message, $pair_headers);
                     }
                 }
             }
@@ -400,6 +416,15 @@ class EmsfbEmailHandler {
         $lang = $this->get_text_efb($text_keys);
 
         $automatic_email_disclaimer = '📧 ' . __('This email was sent automatically. Please do not reply.', 'easy-form-builder');
+        // The owner's copy of a submission carries Reply-To = the visitor, so
+        // "do not reply" would tell them the opposite of what works. The line
+        // is left out there (an empty string drops the whole footer row).
+        if ('newMessage' === $state && function_exists('apply_filters')) {
+            $owner_reply_to = apply_filters('emsfb_owner_reply_to_efb', '', array(), array('newMessage'));
+            if (is_string($owner_reply_to) && '' !== $owner_reply_to && is_email($owner_reply_to)) {
+                $automatic_email_disclaimer = '';
+            }
+        }
 
         $footer = "<a class='efb subtle-link' target='_blank' href='" . esc_url(home_url()) . "'>" . $lang['sentBy'] . " " . esc_html(get_bloginfo('name')) . "</a>";
         $align = is_rtl() ? 'right' : 'left';
@@ -452,8 +477,17 @@ class EmsfbEmailHandler {
             : $lang['newMessage'];
         $message = is_string($m) ? "<h3>$m</h3>" : "<h3>{$m[0]}</h3>";
         $blogName = get_bloginfo('name');
-        $user = function_exists("get_user_by") ? get_user_by('id', 1) : false;
-        $adminEmail = $user ? $user->user_email : '';
+        // shortcode_admin_email: the site's Administration Email Address
+        // (Settings > General); user #1 only when that option is empty, since
+        // user #1 is often the developer who installed the site, or gone.
+        $adminEmail = function_exists('get_option') ? trim((string) get_option('admin_email', '')) : '';
+        if ($adminEmail !== '' && function_exists('is_email') && !is_email($adminEmail)) {
+            $adminEmail = '';
+        }
+        if ($adminEmail === '' && function_exists('get_user_by')) {
+            $user = get_user_by('id', 1);
+            $adminEmail = $user ? $user->user_email : '';
+        }
         $blogURL = home_url();
 
         $track_id = '';
@@ -498,9 +532,14 @@ class EmsfbEmailHandler {
         // nowhere useful here, so this state renders the message exactly as the
         // caller composed it.
         $isAdminNoticeState = $state === 'licenseSuspended';
+        // Problem reports about the plugin itself (add-on reinstall failure,
+        // admin pages not loading). They are not form traffic: no "New message!"
+        // heading, no "View message" button (its link is 'null'), and the body
+        // is already composed and escaped by the caller.
+        $isProblemReportState = in_array($state, ['addonsDlProblem', 'reportProblem'], true);
 
         $tracking_section = "";
-        if ($email_content_type != 'just_message' && !$isRegistrationState && !$isRecoveryState && !$isAdminNoticeState) {
+        if ($email_content_type != 'just_message' && !$isRegistrationState && !$isRecoveryState && !$isAdminNoticeState && !$isProblemReportState) {
             $safe_link = esc_url($link);
             $tracking_section = "
             <div style='text-align:center; margin: 30px 0;'>
@@ -526,7 +565,9 @@ class EmsfbEmailHandler {
         }
 
         if ($isRegistrationState) {
-            $title = __('Welcome!', 'easy-form-builder');
+            $title = $state === 'newUser'
+                ? __('New user registration', 'easy-form-builder')
+                : __('Welcome!', 'easy-form-builder');
         }
 
         if ($isRecoveryState) {
@@ -537,14 +578,25 @@ class EmsfbEmailHandler {
             $title = __('Pro features are paused', 'easy-form-builder');
         }
 
+        if ($isProblemReportState) {
+            $title = esc_html__('Report problem', 'easy-form-builder') . ' [' . esc_html__('Easy Form Builder', 'easy-form-builder') . ']';
+        }
+
         if ($state == "testMailServer") {
             $title = $lang['serverEmailAble'];
             $message = $this->generate_test_server_message($lang, $l, $wp_lan);
-        } else if ($isAdminNoticeState) {
+        } else if ($isAdminNoticeState || $isProblemReportState) {
             $message = is_string($m) ? $m : '';
         } else if ($isRecoveryState) {
             // Recovery email - m contains username, link contains the full recovery URL
             $message = $this->generate_recovery_content($m, $lang, $link, $btnBgColor, $btnTextColor, $btnFontFamily);
+        } else if ($isRegistrationState && $state === 'newUser') {
+            // Administrator copy of a registration. It used to be the user's own
+            // email, "Verify Email" button included, so whoever read the admin
+            // mailbox could activate the account in the user's place.
+            $username = is_string($m) ? $m : (is_array($m) && isset($m[0]) && is_string($m[0]) ? $m[0] : '');
+            $message = '<h2>' . esc_html__('New user registration', 'easy-form-builder') . '</h2>'
+                . '<p>' . esc_html__('Username', 'easy-form-builder') . ': <strong>' . esc_html($username) . '</strong></p>';
         } else if ($isRegistrationState) {
             // Registration email to USER - m contains username, link contains the full verification URL
             $message = $this->generate_register_content($m, $lang, $link, $btnBgColor, $btnTextColor, $btnFontFamily);
@@ -772,7 +824,7 @@ class EmsfbEmailHandler {
 
         if (is_string($m)) {
 
-            $m = str_replace(['&quot;', '&amp;quot;'], '', $m);
+            // Encoded quotes belong to the message and must remain visible.
 
             if (strpos($m, '<h2>') !== false || strpos($m, '<div') !== false || strpos($m, '<p>') !== false) {
 
@@ -787,7 +839,7 @@ class EmsfbEmailHandler {
         } elseif (is_array($m) && count($m) >= 2) {
 
             $track_id = $m[0];
-            $content = str_replace(['&quot;', '&amp;quot;'], '', $m[1]);
+            $content = $m[1];
             $title = ($state == "newMessage") ? $lang["newMessageReceived"] : $lang["WeRecivedUrM"];
 
             if ($isRegistrationState && (strpos($content, '<') !== false)) {
@@ -1193,7 +1245,7 @@ class EmsfbEmailHandler {
                             $footer
                         </td>
                     </tr>
-                    <tr>
+" . ($disclaimer === '' ? '' : "                    <tr>
                         <td align=\"center\" style=\"padding-bottom: 20px;\">
                             <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\">
                                 <tr>
@@ -1205,7 +1257,7 @@ class EmsfbEmailHandler {
                                 </tr>
                             </table>
                         </td>
-                    </tr>
+                    </tr>") . "
                 </table>
                 </div>
                 <!--[if mso]></td></tr></table><![endif]-->
@@ -1249,6 +1301,47 @@ class EmsfbEmailHandler {
         return null;
     }
 
+    /**
+     * Remove the "sent automatically, please do not reply" line a saved email
+     * template carries as plain text (the default template seeds it in the
+     * site's language). Used for the owner's copy of a submission, whose
+     * Reply-To is the visitor. The whole table row goes when the line sits in
+     * one on its own, otherwise just the sentence.
+     *
+     * @param string $html Rendered template.
+     * @return string
+     */
+    private function strip_reply_disclaimer_efb($html) {
+        if (!is_string($html) || '' === $html) {
+            return $html;
+        }
+        $phrases = array(
+            'This email was sent automatically. Please do not reply directly.',
+            'This email was sent automatically. Please do not reply.',
+        );
+        if (function_exists('__')) {
+            $phrases[] = __('This email was sent automatically. Please do not reply directly.', 'easy-form-builder');
+            $phrases[] = __('This email was sent automatically. Please do not reply.', 'easy-form-builder');
+        }
+        $variants = array();
+        foreach (array_unique($phrases) as $phrase) {
+            $variants[] = $phrase;
+            $variants[] = function_exists('esc_html') ? esc_html($phrase) : htmlspecialchars($phrase, ENT_QUOTES, 'UTF-8');
+        }
+        foreach (array_unique($variants) as $text) {
+            if ('' === $text || false === strpos($html, $text)) {
+                continue;
+            }
+            $quoted = preg_quote($text, '/');
+            // The sentence may sit straight in the cell or inside a <p> (the
+            // builder's text block); either way the whole row goes, so no
+            // empty strip is left under the footer.
+            $row = preg_replace('/<tr>\s*<td[^>]*>\s*(?:<p[^>]*>\s*)?(?:📧\s*)?' . $quoted . '\s*(?:<\/p>\s*)?<\/td>\s*<\/tr>/u', '', $html);
+            $html = (is_string($row) && $row !== $html) ? $row : str_replace($text, '', $html);
+        }
+        return $html;
+    }
+
     private function apply_custom_template($temp, $message, $title, $blogName, $blogURL, $adminEmail, $footer, $disclaimer) {
         $replacements = [
             'shortcode_message' => $message,
@@ -1266,8 +1359,11 @@ class EmsfbEmailHandler {
         if ($efbdata_json) {
             $rebuilt = $this->generate_from_efbdata($efbdata_json, $replacements);
             if ($rebuilt !== false) {
-                return $rebuilt;
+                return '' === $disclaimer ? $this->strip_reply_disclaimer_efb($rebuilt) : $rebuilt;
             }
+        }
+        if ('' === $disclaimer) {
+            $temp = $this->strip_reply_disclaimer_efb($temp);
         }
 
         $temp = preg_replace('/\n?<!-- EFBDATA:.*? -->/', '', $temp);
@@ -1293,7 +1389,7 @@ class EmsfbEmailHandler {
                     $footer
                 </td>
             </tr>
-            <tr>
+" . ($disclaimer === '' ? '' : "            <tr>
                 <td align=\"center\" style=\"padding: 15px 30px;\">
                     <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\">
                         <tr>
@@ -1305,7 +1401,7 @@ class EmsfbEmailHandler {
                         </tr>
                     </table>
                 </td>
-            </tr>
+            </tr>") . "
         </table>
             ";
 

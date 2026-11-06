@@ -4,7 +4,7 @@
  *
  * When someone deactivates Easy Form Builder from the Plugins screen a modal
  * asks what went wrong. Choosing "a bug" opens a description box and promises a
- * 100% first-year discount code, which the White Studio feedback service issues
+ * 99% first-year discount code, which the White Studio feedback service issues
  * on the spot for a site that proved its own domain.
  *
  * Three rules this file must keep:
@@ -292,6 +292,18 @@ class Deactivation_Feedback {
 												maxlength="<?php echo esc_attr( (string) self::MAX_DETAILS ); ?>"
 												placeholder="<?php echo esc_attr( $reason['placeholder'] ); ?>"
 												aria-label="<?php echo esc_attr( $reason['label'] ); ?>"></textarea>
+											<?php if ( 'found_better' === $key ) : ?>
+												<?php
+												// One tap instead of a sentence: a required box with nothing
+												// to pick from was answered with "." or "bla bla" four times
+												// out of ten. Product names, so nothing to translate.
+												?>
+												<div class="efb-deactivate-chips">
+													<?php foreach ( array( 'Contact Form 7', 'WPForms', 'Forminator', 'Fluent Forms', 'Gravity Forms', 'Elementor Forms', 'Ninja Forms' ) as $chip ) : ?>
+														<button type="button" class="efb-deactivate-chip" data-efb-chip="<?php echo esc_attr( $chip ); ?>"><?php echo esc_html( $chip ); ?></button>
+													<?php endforeach; ?>
+												</div>
+											<?php endif; ?>
 										<?php endif; ?>
 									</div>
 								<?php endif; ?>
@@ -1003,7 +1015,7 @@ class Deactivation_Feedback {
 			'placeholderHardToUse'      => esc_html__( 'Which part was confusing?', 'easy-form-builder' ),
 			'placeholderFoundBetter'    => esc_html__( 'Which plugin did you choose?', 'easy-form-builder' ),
 			'placeholderOther'          => esc_html__( 'Anything you would like us to know', 'easy-form-builder' ),
-			'rewardTitle'               => esc_html__( 'Report the bug, get 100% off your first year', 'easy-form-builder' ),
+			'rewardTitle'               => esc_html__( 'Report the bug, get 99% off your first year', 'easy-form-builder' ),
 			'rewardBody'                => esc_html__( 'Describe the bug and we will send you a 99% discount code for your first year of the Pro version, as a thank you.', 'easy-form-builder' ),
 			'emailLabel'                => esc_html__( 'Email address for the discount code', 'easy-form-builder' ),
 			'consentLabel'              => esc_html__( 'Email me the discount code and any follow-up question', 'easy-form-builder' ),
@@ -1017,7 +1029,7 @@ class Deactivation_Feedback {
 			'thanksTitle'               => esc_html__( 'Thank you', 'easy-form-builder' ),
 			'thanksMessage'             => esc_html__( 'Your feedback has been received. It goes straight to the people who build this plugin.', 'easy-form-builder' ),
 			'couponIssued'              => esc_html__( 'Your bug report has been received. Within the next 2 days we will email you your discount code, and ask for a few more details if we need them.', 'easy-form-builder' ),
-			'couponPending'             => esc_html__( 'Your report has been received. We will email your 100% discount code after a quick check.', 'easy-form-builder' ),
+			'couponPending'             => esc_html__( 'Your report has been received. We will email your 99% discount code after a quick check.', 'easy-form-builder' ),
 			'sendFailed'                => esc_html__( 'We could not reach our server, so your note was not sent. The plugin will still be deactivated.', 'easy-form-builder' ),
 			// Two failures that look identical from the modal but need opposite
 			// things done about them, so they are never worded the same way.

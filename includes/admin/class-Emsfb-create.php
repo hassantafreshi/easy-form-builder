@@ -75,16 +75,20 @@ class Create {
 			echo $efbFunction->render_addon_recovery_reload_ui_efb(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			return;
 		}
-		$addon_health = $efbFunction->get_addon_local_health_efb( $settings );
+		// Scope 'admin': a package from before the add-on shipped its own translations
+		// counts as missing here (and only here and on Panel), so recovery replaces it.
+		$addon_health = $efbFunction->get_addon_local_health_efb( $settings, 'admin' );
 		$download_addons = ! empty( $addon_health['missing'] );
 
 		// After a plugin update, do not load the builder until missing add-on
 		// files have been reinstalled — show a blocking recovery screen instead.
-		$addon_recovery_state = $efbFunction->addon_recovery_state_efb( $settings );
+		$addon_recovery_state = $efbFunction->addon_recovery_state_efb( $settings, 'admin' );
 		if ( 'block' === $addon_recovery_state ) {
-			echo $efbFunction->render_addon_recovery_ui_efb( 'block' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo $efbFunction->render_addon_recovery_ui_efb( 'block', 'admin' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			return;
 		}
+		// A locale now in use may lack an add-on language file pruned at install.
+		$efbFunction->process_addon_i18n_refetch_efb();
 
 		if(isset($settings->AdnPAP) && $settings->AdnPAP==1){
 			if(!file_exists(EMSFB_PLUGIN_DIRECTORY."/vendor/paypal/paypalefb.php")) {
@@ -176,7 +180,7 @@ class Create {
 				<?php echo $noti_pro; ?>
 			<div id="alert_efb" class="efb mx-5"></div>
 			<?php if ( 'inline' === $addon_recovery_state ) : ?>
-				<?php echo $efbFunction->render_addon_recovery_ui_efb( 'inline' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+				<?php echo $efbFunction->render_addon_recovery_ui_efb( 'inline', 'admin' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 			<?php endif; ?>
 			<div class="efb modal fade " id="settingModalEfb" aria-hidden="true" aria-labelledby="settingModalEfb"  role="dialog" tabindex="-1" data-backdrop="static" >
 						<div class="efb modal-dialog modal-dialog-centered " id="settingModalEfb_" >
@@ -233,7 +237,9 @@ class Create {
 		wp_enqueue_script('jquery-ui-efb');
 		wp_register_script('jquery-dd-efb', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd-efb.js', array('jquery'),EMSFB_PLUGIN_VERSION,true);
 		wp_enqueue_script('jquery-dd-efb');
-		wp_register_script('countries-js', $url, null, null, true);
+		// async: a CDN that hangs (jsDelivr is often unreachable from Iran) must
+		// not hold back the builder scripts printed after it.
+		wp_register_script('countries-js', $url, null, null, array('in_footer' => true, 'strategy' => 'async'));
 		wp_enqueue_script('countries-js');
 		wp_register_script('intlTelInput-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/intlTelInput.min-efb.js', null, null, true);
 		wp_enqueue_script('intlTelInput-js');
@@ -306,6 +312,11 @@ class Create {
 			'zone_area'=>CDN_ZONE_AREA,
 			'plugins'=>$plugins,
 			'emailHealth'=>$email_health,
+			// What the owner did about delivery (unchecked / confirmed / tested)
+			// and the data the builder's email question and check need: the
+			// score thresholds and the guide links of the next-steps box.
+			'emailDelivery' => class_exists('\Emsfb\Email_Monitor') ? \Emsfb\Email_Monitor::get_delivery_state() : array(),
+			'emailMonitor' => class_exists('\Emsfb\Email_Monitor') ? \Emsfb\Email_Monitor::get_public_status() : array(),
 			'onboarding_pending' => emsfb_onboarding_pending_efb(),
 			// Hosting upload ceiling in MB - the builder warns when a field's
 			// max file size is configured above it (uploads would fail).
@@ -330,17 +341,25 @@ class Create {
 			wp_enqueue_script('efb-conditional-logic-preview-js', EMSFB_PLUGIN_URL . 'vendor/logic/logic/assets/public/js/conditional-logic-efb.js', array('Emsfb-core-js'), EMSFB_PLUGIN_VERSION, true);
 		}
 	}
+	/*
+	 * The delivery score the builder warns about, from the check the owner ran.
+	 * It used to be found by a recursive search over the saved status that
+	 * could return a SpamAssassin figure on another scale, against a threshold
+	 * of 75 that nothing else in the plugin uses; the line is now
+	 * Email_Monitor::HEALTHY_SCORE, the same one the panel and the wizard draw.
+	 */
 	private function get_email_health_status_for_builder() {
-		$status = get_option('emsfb_email_status', false);
 		$score = null;
-
-		if (is_array($status)) {
-			$score = $this->extract_email_score_from_status($status);
+		$threshold = 70;
+		if (class_exists('\Emsfb\Email_Monitor')) {
+			$delivery = \Emsfb\Email_Monitor::get_delivery_state();
+			$score = ('tested' === $delivery['state'] && isset($delivery['score'])) ? $delivery['score'] : null;
+			$threshold = \Emsfb\Email_Monitor::HEALTHY_SCORE;
 		}
 
 		return array(
 			'score' => $score,
-			'threshold' => 75,
+			'threshold' => $threshold,
 		);
 	}
 	private function extract_email_score_from_status($value) {
@@ -374,7 +393,7 @@ class Create {
 		$lang = $efbFunction->text_efb($creat);
 		$this->userId =get_current_user_id();
 
-		$nonce = $_POST['nonce'];
+		$nonce = isset($_POST['nonce']) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
 		if ( !wp_verify_nonce( $nonce, 'wp_rest' ) || !current_user_can('Emsfb') ) {
             $response = ['success' => false, 'm' =>  $lang['error403']];
             wp_send_json_success($response, 200);
@@ -391,7 +410,7 @@ class Create {
 		$this->name =  sanitize_text_field($_POST['name']);
 		$this->email =  $email;
 
-		$valp =str_replace('\\', '', $_POST['value']);
+		$valp =\emsfb_json_normalize_efb(wp_unslash($_POST['value']));
 		$valp = json_decode($valp,true);
 		$valp = $efbFunction->sanitize_obj_msg_efb($valp);
 		$this->formtype =  sanitize_text_field($_POST['type']);
@@ -412,11 +431,44 @@ class Create {
 			unset($valp[0]['sms_msg_new_noti']);
 			unset($valp[0]['sms_msg_responsed_noti']);
 			unset($valp[0]['sms_msg_recived_user']);
+			unset($valp[0]['sms_msg_recived_usr']);
 			if(isset($valp[0]['sms_admins_phone_no'])){unset($valp[0]['sms_admins_phone_no']);}
+		}
+		/* Telegram texts are stored like on a form update (class-Emsfb-admin.php):
+		   a new form had no Telegram row, so its notifications went out with the
+		   built-in English text instead of what the admin wrote. */
+		$telegram_contact_efb = null;
+		if(isset($valp[0]['telegramnoti']) && intval($valp[0]['telegramnoti'])==1){
+			$telegram_contact_efb = array(
+				'new'      => isset($valp[0]['telegram_msg_new_noti']) ? $valp[0]['telegram_msg_new_noti'] : $lang['newMessageReceived'] ."\n". $lang['trackNo'] .": [confirmation_code]\n". $lang['url'] .": [link_response]",
+				'response' => isset($valp[0]['telegram_msg_responsed_noti']) ? $valp[0]['telegram_msg_responsed_noti'] : $lang['newResponse']."\n". $lang['trackNo'] .": [confirmation_code]\n". $lang['url'] .": [link_response]",
+				'received' => isset($valp[0]['telegram_msg_recived_usr']) ? $valp[0]['telegram_msg_recived_usr'] : $lang['WeRecivedUrM'] ."\n". $lang['trackNo'] .": [confirmation_code]\n". $lang['url'] .": [link_response]",
+			);
+			foreach (array('telegram_msg_new_noti','telegram_msg_responsed_noti','telegram_msg_recived_user','telegram_msg_recived_usr','telegram_bot_token','telegram_admin_chat_ids') as $telegram_key_efb) {
+				unset($valp[0][$telegram_key_efb]);
+			}
 		}
 		$valx =json_encode($valp,JSON_UNESCAPED_UNICODE);
 		$this->value=str_replace('"', '\\"', $valx);
 		$this->insert_db();
+		if($telegram_contact_efb !== null && file_exists( EMSFB_PLUGIN_DIRECTORY . '/vendor/telegram/telegram-new-efb.php' )){
+			require_once( EMSFB_PLUGIN_DIRECTORY . '/vendor/telegram/telegram-new-efb.php' );
+			if (class_exists('\\Emsfb\\telegramsendefb') || class_exists('telegramsendefb')) {
+				$telegramsendefb = class_exists('\\Emsfb\\telegramsendefb') ? new \Emsfb\telegramsendefb() : new \telegramsendefb();
+				if (method_exists($telegramsendefb, 'add_telegram_contact_efb')) {
+					// Token and chat id come from the Telegram settings page.
+					$telegramsendefb->add_telegram_contact_efb(
+						$this->id_,
+						get_option('emsfb_telegram_chat_id', ''),
+						get_option('emsfb_telegram_bot_token', ''),
+						$telegram_contact_efb['received'],
+						$telegram_contact_efb['new'],
+						$telegram_contact_efb['new'],
+						$telegram_contact_efb['response']
+					);
+				}
+			}
+		}
 		if(isset($valp[0]['smsnoti']) && intval($valp[0]['smsnoti'])==1 ){
 
 			$sms_exists = get_option('emsfb_addon_AdnSS', false);
@@ -455,7 +507,10 @@ class Create {
 			'form_created_by' => $this->userId,
 			'form_type'=>$this->formtype,
 			'form_create_date' => wp_date('Y-m-d H:i:s'),
-		));    $this->id_  = $this->db->insert_id;
+		));
+		// A refused insert keeps whatever id an earlier insert in this request
+		// left behind; only a real insert may report an id.
+		$this->id_  = (false === $r) ? 0 : $this->db->insert_id;
 	}
 	public function check_temp_is_bootstrap (){
 

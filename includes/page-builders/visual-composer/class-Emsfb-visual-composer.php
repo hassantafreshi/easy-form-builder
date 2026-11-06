@@ -164,18 +164,25 @@ class Emsfb_Visual_Composer_Integration {
     }
 
     private function is_editor_mode() {
+        // Visual Composer's own editor requests only. Any REST or admin-ajax
+        // request counted before, so a visitor page that loads its content
+        // that way (AJAX popups, infinite scroll) got the placeholder instead
+        // of the form.
+        // VCV_AJAX_REQUEST is defined on every request (it holds a parameter
+        // name, not a flag), so it cannot tell the editor apart; the editor's
+        // requests carry these markers instead.
         return (
-            isset($_GET['vcv-action']) ||
-            isset($_GET['vcv-ajax']) ||
-            (defined('VCV_AJAX_REQUEST') && VCV_AJAX_REQUEST) ||
-            (defined('REST_REQUEST') && REST_REQUEST) ||
-            wp_doing_ajax()
+            isset($_REQUEST['vcv-action']) ||
+            isset($_REQUEST['vcv-ajax']) ||
+            isset($_REQUEST['vcv-admin-ajax']) ||
+            isset($_GET['vcv-editable']) ||
+            (defined('VCV_AJAX_REQUEST_CALL') && VCV_AJAX_REQUEST_CALL)
         );
     }
 
     private function get_editor_placeholder($message) {
         return sprintf(
-            '<div style="background: linear-gradient(135deg, #202a8d 0%%, #ff4b93 100%%); padding: 30px; border-radius: 12px; text-align: center; color: #fff; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, sans-serif; margin: 10px 0;">
+            '<div style="background: linear-gradient(135deg, #202a8d 0%%, #ff4b93 100%%); padding: 30px; border-radius: 12px; text-align: center; color: #fff; margin: 10px 0;">
                 <div style="font-size: 32px; margin-bottom: 10px;">📝</div>
                 <h3 style="margin: 15px 0 10px; font-size: 18px; font-weight: 600;">Easy Form Builder</h3>
                 <p style="opacity: 0.9; margin: 0; font-size: 14px;">%s</p>
@@ -384,7 +391,7 @@ class EFB_Visual_Composer_Widget extends WP_Widget {
         }
 
         return sprintf(
-            '<div style="background: linear-gradient(135deg, #202a8d 0%%, #ff4b93 100%%); padding: 30px; border-radius: 12px; text-align: center; color: #fff; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, sans-serif;">
+            '<div style="background: linear-gradient(135deg, #202a8d 0%%, #ff4b93 100%%); padding: 30px; border-radius: 12px; text-align: center; color: #fff;">
                 %s
                 <h3 style="margin: 15px 0 10px; font-size: 18px; font-weight: 600;">Easy Form Builder</h3>
                 <p style="opacity: 0.9; margin: 0; font-size: 14px;">%s</p>

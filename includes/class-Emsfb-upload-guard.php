@@ -3,6 +3,9 @@
 namespace Emsfb;
 
 defined('ABSPATH') || exit;
+if (is_readable(__DIR__ . '/json-efb.php')) {
+	require_once __DIR__ . '/json-efb.php';
+}
 
 /**
  * Single decision point for "may this file be written to disk, and may this
@@ -65,8 +68,8 @@ class Upload_Guard {
      */
     const RESPONSE_ATTACHMENT_PREFIX = 'emsfb_response_attachment_';
 
-    /** Response-box attachments may be submitted for up to thirty minutes. */
-    const RESPONSE_ATTACHMENT_TTL = 1800;
+    /** File ownership survives nonce/token refresh, within the orphan grace period. */
+    const RESPONSE_ATTACHMENT_TTL = 86400;
 
     /** Cron hook that sweeps abandoned uploads. */
     const CLEANUP_HOOK = 'emsfb_cleanup_orphan_uploads';
@@ -388,6 +391,120 @@ class Upload_Guard {
     }
 
     /**
+     * Leading bytes each archive extension must start with.
+     *
+     * The archive formats skip the MIME assertion (libmagic names them too
+     * differently between builds), so without this a renamed script or page
+     * was stored under any of them. The signatures themselves do not vary.
+     * tar has no leading signature; its "ustar" marker sits at offset 257.
+     *
+     * @return array<string,string[]> extension => accepted leading byte strings.
+     */
+    public static function archive_signatures() {
+        $gzip  = array("\x1f\x8b");
+        $bzip2 = array('BZh');
+        $unix  = array("\x1f\x9d", "\x1f\xa0", "\x1f\x1e", "\x1f\x8b");
+
+        return array(
+            'zip'   => array("PK\x03\x04", "PK\x05\x06", "PK\x07\x08"),
+            'rar'   => array("Rar!\x1a\x07"),
+            '7z'    => array("7z\xbc\xaf\x27\x1c"),
+            'gz'    => $gzip,
+            'gzip'  => $gzip,
+            'tgz'   => $gzip,
+            'bz'    => $bzip2,
+            'bz2'   => $bzip2,
+            'bzip'  => $bzip2,
+            'bzip2' => $bzip2,
+            'tbz'   => $bzip2,
+            'tbz2'  => $bzip2,
+            'tz2'   => $bzip2,
+            'tz'    => $unix,
+            'z'     => $unix,
+        );
+    }
+
+    /**
+     * Content checks the extension and MIME layers cannot make.
+     *
+     * 1. An archive must really be that archive (leading signature, or the
+     *    "ustar" marker for tar). Before this, the archive extensions were
+     *    trusted on their own.
+     * 2. No stored file may carry a PHP open tag. Such a file cannot run from
+     *    the uploads folder on a normal host, but it is exactly what server
+     *    malware scanners (ClamAV, Maldet, Imunify, Wordfence) look for, and a
+     *    hit under uploads/ named efb-... points the site owner at this plugin.
+     *    The tag must be followed by whitespace, so random bytes in a large
+     *    binary practically never match.
+     *
+     * Read in chunks with an overlap, so a large video costs a few reads and
+     * no more memory than one chunk.
+     *
+     * @param string $path      Absolute path to the file.
+     * @param string $extension Lowercase extension without a dot.
+     * @return bool true when the file may be kept.
+     */
+    public static function content_is_safe($path, $extension) {
+        /**
+         * Filter whether the content checks run at all.
+         *
+         * @param bool   $enabled   Default true.
+         * @param string $extension Lowercase extension.
+         */
+        if (!apply_filters('emsfb_upload_content_check', true, $extension)) {
+            return true;
+        }
+
+        $handle = @fopen($path, 'rb');
+        if (!$handle) {
+            return false;
+        }
+
+        $extension  = strtolower((string) $extension);
+        $signatures = self::archive_signatures();
+        $head       = (string) fread($handle, 512);
+
+        if (isset($signatures[$extension])) {
+            $matched = false;
+            foreach ($signatures[$extension] as $signature) {
+                if (strncmp($head, $signature, strlen($signature)) === 0) {
+                    $matched = true;
+                    break;
+                }
+            }
+            if (!$matched) {
+                fclose($handle);
+                return false;
+            }
+        } elseif ($extension === 'tar' && substr($head, 257, 5) !== 'ustar') {
+            fclose($handle);
+            return false;
+        }
+
+        $chunk_size = 1048576;
+        $carry      = '';
+        $buffer     = $head;
+        while (true) {
+            $window = $carry . $buffer;
+            if (preg_match('/<\?php[\s]/i', $window)) {
+                fclose($handle);
+                return false;
+            }
+            if (feof($handle)) {
+                break;
+            }
+            $carry  = substr($window, -5);
+            $buffer = (string) fread($handle, $chunk_size);
+            if ($buffer === '') {
+                break;
+            }
+        }
+
+        fclose($handle);
+        return true;
+    }
+
+    /**
      * Read the real MIME type from the file's bytes.
      *
      * @param string $path Absolute path to the uploaded temp file.
@@ -456,7 +573,7 @@ class Upload_Guard {
         $types = array('file', 'dadfile', 'audio_recorder', 'video_recorder', 'screen_recorder');
 
         if (is_string($structure)) {
-            $decoded = json_decode(str_replace('\\', '', $structure));
+            $decoded = \emsfb_json_decode_efb($structure);
             if (!is_array($decoded)) {
                 /* Undecodable structure: fall back to counting the type markers
                  * in the raw string so a stored-escaping quirk cannot collapse
@@ -797,6 +914,10 @@ class Upload_Guard {
             return self::type_message();
         }
 
+        if (!self::content_is_safe($tmp, $extension)) {
+            return self::type_message();
+        }
+
         return true;
     }
 
@@ -844,6 +965,10 @@ class Upload_Guard {
             return self::type_message();
         }
 
+        if (!self::content_is_safe($path, $extension)) {
+            return self::type_message();
+        }
+
         return true;
     }
 
@@ -877,13 +1002,11 @@ class Upload_Guard {
             'message_id' => $message_id,
             /* Never store a tracking code in a transient in clear text. */
             'track_hash' => hash('sha256', $track),
+            'expires' => time() + min(self::RESPONSE_ATTACHMENT_TTL, max(3600,(int)apply_filters('emsfb_upload_orphan_ttl',self::DEFAULT_ORPHAN_TTL))),
         );
-
-        return (bool) set_transient(
-            self::response_attachment_key($basename),
-            $record,
-            self::RESPONSE_ATTACHMENT_TTL
-        );
+        $key=self::response_attachment_key($basename);
+        // Ownership is durable; eviction of an object-cache transient must not orphan a valid file.
+        return update_option($key,$record,false) || get_option($key) === $record;
     }
 
     /**
@@ -902,10 +1025,12 @@ class Upload_Guard {
             return false;
         }
 
-        $record = get_transient(self::response_attachment_key($basename));
+        $record = get_option(self::response_attachment_key($basename));
+        if (!is_array($record)) $record = get_transient(self::response_attachment_key($basename)); // Existing uploads.
         if (!is_array($record) || !isset($record['message_id'], $record['track_hash'])) {
             return false;
         }
+        if (isset($record['expires']) && (int)$record['expires'] < time()) return false;
 
         return (int) $record['message_id'] === $message_id
             && hash_equals((string) $record['track_hash'], hash('sha256', $track));
@@ -958,6 +1083,7 @@ class Upload_Guard {
             $basename = wp_basename((string) $name);
             if ($basename !== '') {
                 delete_transient(self::response_attachment_key($basename));
+                delete_option(self::response_attachment_key($basename));
             }
         }
     }
@@ -1048,6 +1174,12 @@ class Upload_Guard {
      */
     public static function cleanup_orphan_uploads() {
         global $wpdb;
+        // A crash after claiming a file may leave its reservation outside the pending ledger.
+        $reservations=$wpdb->get_results($wpdb->prepare("SELECT option_name, option_value FROM {$wpdb->options} WHERE option_name LIKE %s ORDER BY option_id ASC LIMIT 500",$wpdb->esc_like(self::RESPONSE_ATTACHMENT_PREFIX).'%'));
+        foreach ((array)$reservations as $reservation) {
+            $record=maybe_unserialize($reservation->option_value);
+            if (!is_array($record) || (int)($record['expires'] ?? 0)<time()) delete_option($reservation->option_name);
+        }
 
         $pending = get_option(self::PENDING_OPTION, array());
         if (!is_array($pending) || empty($pending)) {
@@ -1084,6 +1216,7 @@ class Upload_Guard {
             $changed = true;
 
             $basename = wp_basename((string) $basename);
+			self::release_response_attachment_reservations(array($basename));
 
             /* Only ever touch names this plugin generated itself. */
             if (strpos($basename, 'efb-PLG-') !== 0 && strpos($basename, 'efb-rec-') !== 0) {

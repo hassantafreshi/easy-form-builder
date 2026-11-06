@@ -1,11 +1,17 @@
 <?php
  namespace Emsfb;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
     class Formbuilder {
        public $valj_efb;
        private $pro_efb = false;
 	   public $pub_bg_button_color_efb='btn-primary';
 	   public $package_type_efb = 0;
     private $mobile_pos = ['', 'col-12', 'col-12', 'col-12'];
+    /** The last plan notice built, so a field drawn as nothing but that notice can be wrapped like its real markup. */
+    private $last_pro_notice_efb = null;
         public function __construct( $valj_efb, $pro_efb ) {
 
             $this->valj_efb =  $valj_efb;
@@ -61,7 +67,7 @@
 
 		$label_class_str = implode(' ', array_filter($label_classes));
 
-		return '<label for="' . $rndm . '_" class="' . $label_class_str . '" id="' . $rndm . '_labG"><span id="' . $rndm . '_lab" class="efb ' . $label_text_size . '">' . $vj->name . '</span>' . $required . '</label>';
+		return '<label for="' . $rndm . '_" class="' . $label_class_str . '" id="' . $rndm . '_labG"><span id="' . $rndm . '_lab" class="efb ' . $label_text_size . '">' . esc_html($vj->name) . '</span>' . $required . '</label>';
 	}
 
 	/**
@@ -221,7 +227,7 @@
 		$additional_classes = isset($vj->classes) ? str_replace(',', ' ', $vj->classes) : '';
 
 		return sprintf(
-			'%s %s %s <input type="%s" class="efb input-efb px-2 mb-0 emsFormBuilder_v w-100 %s %s %s %s %s efbField efb1 %s" data-id="%s-el" data-vid="%s" data-formid="%s" data-css="%s" id="%s_" %s %s aria-required="%s" aria-label="%s" %s autocomplete="%s" %s %s %s %s> %s',  $label,  $div_f_id,  $ttip,  $type,  $classes,  $el_height,  $corener,  $el_text_color,  $required,  $additional_classes,  $rndm,  $rndm,  $form_id,  $rndm,  $rndm,  $placeholder,  $value,  $aria_required,  $vj->name,  $aire_describedby,  $autocomplete,  $lenAttributes['maxlen'],  $lenAttributes['minlen'],  $readonly,  $telPattern,  $desc
+			'%s %s %s <input type="%s" class="efb input-efb px-2 mb-0 emsFormBuilder_v w-100 %s %s %s %s %s efbField efb1 %s" data-id="%s-el" data-vid="%s" data-formid="%s" data-css="%s" id="%s_" %s %s aria-required="%s" aria-label="%s" %s autocomplete="%s" %s %s %s %s> %s',  $label,  $div_f_id,  $ttip,  $type,  $classes,  $el_height,  $corener,  $el_text_color,  $required,  $additional_classes,  $rndm,  $rndm,  $form_id,  $rndm,  $rndm,  $placeholder,  $value,  $aria_required,  esc_attr($vj->name),  $aire_describedby,  $autocomplete,  $lenAttributes['maxlen'],  $lenAttributes['minlen'],  $readonly,  $telPattern,  $desc
 		);
 	}
 
@@ -469,6 +475,7 @@
 			'<div class="efb text-white fs-6 bg-danger px-1 rounded px-2 py-1">%s</div>',
 			$text
 		);
+		$this->last_pro_notice_efb = $r;
 
 		return $r;
 	}
@@ -536,7 +543,7 @@
 			$rndm,
 			$rndm,
 			$ariaRequired,
-			$vj->name,
+			esc_attr($vj->name),
 			$ariaDescribedBy,
 			$type,
 			$formId,
@@ -611,7 +618,7 @@
 			$rndm,
 			$formId,
 			$ariaRequired,
-			$vj->name,
+			esc_attr($vj->name),
 			$ariaDescribedBy,
 			$readonly,
 			$disabled,
@@ -683,7 +690,7 @@
 			$rndm,
 			$formId,
 			$ariaRequired,
-			$vj->name,
+			esc_attr($vj->name),
 			$ariaDescribedBy,
 			$readonly,
 			$disabled,
@@ -1282,7 +1289,7 @@
 			}, 1000);',
 			$rndm,
 			$vj->id_,
-			$vj->name,
+			esc_attr($vj->name),
 			$vj->amount,
 			$vj->type,
 			$texts['cpnnc'],
@@ -1306,7 +1313,7 @@
 			$classes,
 			$rndm,
 			$ariaRequired,
-			$vj->name,
+			esc_attr($vj->name),
 			$ariaDescribedBy,
 			$readonly,
 			$disabled,
@@ -1330,7 +1337,7 @@
 				}, 4000);',
 				$vj->id_,
 				$vj->id_,
-				$vj->name,
+				esc_attr($vj->name),
 				$vj->amount,
 				$vj->type,
 				$value
@@ -2122,7 +2129,7 @@
             $rndm,
             $rndm,
             $ariaRequired,
-            $vj->name,
+            esc_attr($vj->name),
             $ariaDescribedBy,
             $readonly,
             $disabled,
@@ -2334,6 +2341,21 @@
 
 	function add_buttons_zone_efb($state, $id, $valj_efb, $efb_var, $formId) {
 
+		/* A form saved by an older builder, or imported, can lack keys the
+		 * current builder always writes: default them instead of reading null. */
+		if (isset($valj_efb[0]) && is_object($valj_efb[0])) {
+			$button_defaults = array(
+				'button_Previous_icon' => '', 'button_Next_icon' => '', 'icon' => '',
+				'button_Previous_text' => '', 'button_Next_text' => '', 'button_single_text' => '',
+				'button_color' => 'btn-primary', 'icon_color' => '', 'el_height' => '',
+			);
+			foreach ($button_defaults as $button_key => $button_default) {
+				if (!isset($valj_efb[0]->$button_key)) {
+					$valj_efb[0]->$button_key = $button_default;
+				}
+			}
+		}
+
 		$dis = '';
 		$t = array_search('stripe', array_column($valj_efb, 'type'));
 		$t = $t === false ? array_search('persiaPay', array_column($valj_efb, 'type')) : $t;
@@ -2350,12 +2372,12 @@
 		$icon_spacing_next_class = is_rtl() ? 'me-2' : 'ms-2';
 
 		$prev_icon = strlen($valj_efb[0]->button_Previous_icon) > 3 && $valj_efb[0]->button_Previous_icon != 'bi-undefined' &&  $valj_efb[0]->button_Previous_icon!='bXXX' ? sprintf('<i class="efb %s %s %s %s" id="button_group_icon"></i>', $valj_efb[0]->button_Previous_icon, $icon_spacing_class, $valj_efb[0]->icon_color, $valj_efb[0]->el_height) : '';
-		$next_icon = strlen($valj_efb[0]->button_Next_text) > 3 && $valj_efb[0]->button_Next_text != 'bi-undefined' && $valj_efb[0]->button_Next_text!='bXXX' ? sprintf('<i class="efb %s %s %s %s" id="button_group_icon"></i>', $valj_efb[0]->button_Next_icon, $icon_spacing_next_class, $valj_efb[0]->icon_color, $valj_efb[0]->el_height) : '';
+		$next_icon = strlen($valj_efb[0]->button_Next_icon) > 3 && $valj_efb[0]->button_Next_icon != 'bi-undefined' && $valj_efb[0]->button_Next_icon!='bXXX' ? sprintf('<i class="efb %s %s %s %s" id="button_group_icon"></i>', $valj_efb[0]->button_Next_icon, $icon_spacing_next_class, $valj_efb[0]->icon_color, $valj_efb[0]->el_height) : '';
 		$class_disabled = '';
 
 		$s = sprintf(
 			'<div class="efb d-flex %s %s text-center efb mx-3" id="f_btn_send_efb" data-tag="buttonNav" data-formid="%s">
-				<a id="btn_send_efb" role="button" class="efb text-decoration-none mx-0 btn p-2 %s %s %s %s %s efb-btn-lg btn_send_efb" data-formid="%s" data-currentstep="1" onclick="btn_navigate_handle_efb(\'%s\' ,\'%s\' ,\'%s\',this)">%s<span id="button_group_button_single_text" class="efb %s" >%s</span></a>
+				<a id="btn_send_efb" role="button" tabindex="0" class="efb text-decoration-none mx-0 btn p-2 %s %s %s %s %s efb-btn-lg btn_send_efb" data-formid="%s" data-currentstep="1" onclick="btn_navigate_handle_efb(\'%s\' ,\'%s\' ,\'%s\',this)">%s<span id="button_group_button_single_text" class="efb %s" >%s</span></a>
 			</div>',
 			$btns_align,
 			$state == 0 ? 'd-block' : 'd-none',
@@ -2376,8 +2398,8 @@
 
 		$d = sprintf(
 			'<div class="efb d-flex %s %s %s text-center efb" id="f_button_form_np" data-formid="%s" data-step="1">
-				<a id="prev_efb"  data-formid="%s" data-currentstep="1" role="button" class="efb text-decoration-none btn p-2  %s %s %s efb-btn-lg m-1 d-none prev_efb" onclick="btn_navigate_handle_efb(\'%s\' ,\'%s\' ,\'%s\',this)">%s<span id="button_group_Previous_button_text" class="efb %s">%s</span></a>
-				<a id="next_efb"  data-formid="%s" data-currentstep="1" role="button" class="efb text-decoration-none btn %s p-2 %s %s %s efb-btn-lg m-1 next_efb" onclick="btn_navigate_handle_efb(\'%s\' ,\'%s\' ,\'%s\',this)"><span id="button_group_Next_button_text" class="efb %s">%s</span>%s</a>
+				<a id="prev_efb"  data-formid="%s" data-currentstep="1" role="button" tabindex="0" class="efb text-decoration-none btn p-2  %s %s %s efb-btn-lg m-1 d-none prev_efb" onclick="btn_navigate_handle_efb(\'%s\' ,\'%s\' ,\'%s\',this)">%s<span id="button_group_Previous_button_text" class="efb %s">%s</span></a>
+				<a id="next_efb"  data-formid="%s" data-currentstep="1" role="button" tabindex="0" class="efb text-decoration-none btn %s p-2 %s %s %s efb-btn-lg m-1 next_efb" onclick="btn_navigate_handle_efb(\'%s\' ,\'%s\' ,\'%s\',this)"><span id="button_group_Next_button_text" class="efb %s">%s</span>%s</a>
 			</div>',
 			$btns_align,
 			$state == 1 ? 'd-block' : 'd-none',
@@ -2471,13 +2493,15 @@
 					$isPdate = $elementId === 'pdate';
 					$inputClass = $isPdate ? 'efb pdpF2 pdp-el' : 'efb hijri-picker';
 
-					$readonlyAttr = $elementId === 'ardate' && $disabled === "disabled" ? 'readonly' : '';
+					// A disabled date field is really disabled: the Jalali picker
+					// opened on it and the server then refused the whole form.
+					$readonlyAttr = $disabled === "disabled" ? ($elementId === 'ardate' ? 'readonly disabled' : 'disabled') : '';
 					$valueAttr = !empty($vj->value) ? sprintf('value="%s"', esc_attr($vj->value)) : '';
 					$requiredAttr = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
 					$ariaRequiredAttr = ($vj->required == 1) ? 'true' : 'false';
 
 					$ui = sprintf(
-						'%1$s %2$s %3$s <input type="text" class="%4$s input-efb px-2 mb-0 emsFormBuilder_v w-100 %5$s %6$s %7$s %8$s %9$s efbField efb1 %10$s" data-css="%11$s" data-id="%11$s-el" data-vid="%11$s" data-formid="%12$s" id="%11$s_" %13$s aria-required="%14$s" aria-label="%15$s" %16$s %17$s> %18$s',
+						'%1$s %2$s %3$s <input type="text" class="%4$s input-efb px-2 mb-0 emsFormBuilder_v w-100 %5$s %6$s %7$s %8$s %9$s efbField efb1 %10$s" data-css="%11$s" data-id="%11$s-el" data-vid="%11$s" data-formid="%12$s" id="%11$s_" autocomplete="off" %13$s aria-required="%14$s" aria-label="%15$s" %16$s %17$s> %18$s',
 						$label,
 						$div_f_id,
 						$ttip,
@@ -2492,7 +2516,7 @@
 						$form_id,
 						$valueAttr,
 						$ariaRequiredAttr,
-						$vj->name,
+						esc_attr($vj->name),
 						$aire_describedby,
 						$readonlyAttr,
 						$desc
@@ -2551,7 +2575,7 @@
 						$minlen,
 						$maxlen,
 						$ariaRequiredAttr,
-						$vj->name,
+						esc_attr($vj->name),
 						$aire_describedby,
 						$readonlyAttr,
 						$temp ?: 50,
@@ -2577,7 +2601,7 @@
 						str_replace(',', ' ', $vj->classes),
 						$element_Id,
 						($vj->required == 1 ? 'true' : 'false'),
-						$vj->name,
+						esc_attr($vj->name),
 						$aire_describedby,
 						($disabled == "disabled" ? 'readonly' : ''),
 						$desc,
@@ -2633,7 +2657,7 @@
 					}
 					wp_register_script('intlTelInput-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/intlTelInput.min-efb.js', array(), EMSFB_PLUGIN_VERSION, true);
 					wp_enqueue_script('intlTelInput-js');
-					wp_register_style('intlTelInput-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/intlTelInput.min-efb.css',true,EMSFB_PLUGIN_VERSION);
+					wp_register_style('intlTelInput-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/intlTelInput.min-efb.css',true, EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/css/intlTelInput.min-efb.css'));
 					wp_enqueue_style('intlTelInput-css');
 					$ui = sprintf('
 						%s
@@ -2722,7 +2746,7 @@
 							}
 
 							$imageRadio = $elementId == "imgRadio" ? $this->fun_imgRadio_efb($i->id_, $i->src, $i,true, $texts) : '';
-							$prc = isset($i->price) ? intval($i->price) : 0;
+							$prc = isset($i->price) ? (float) $i->price : 0; // intval() showed 19.99 as 19.00
 							if($pay!='') $prc = self::formatPrice_efb($prc, $currency );
 							$optn .= sprintf(
 								'<div class="efb form-check %s %s %s efb1 %s mt-1" data-css="%s" data-parent="%s" data-id="%s" data-formid="%s" id="%s-v">
@@ -2793,9 +2817,13 @@
 					$ui = '
 					' . $label . '
 					' . $ttip . '
-					' . ($pro == true ? $this->esign_el_pro_efb(true, $pos, $rndm, $vj, $desc,$form_id,$texts['updateUrbrowser']) : $this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : ''));
+					' . ($pro == true ? $this->esign_el_pro_efb(true, $pos, $rndm, $vj, $desc,$form_id,$texts['updateUrbrowser']) : '<div class="efb ' . $pos[3] . ' ' . $this->mobile_pos[3] . '" id="' . $element_Id . '-f">' . $this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : ''));
+					// Like esign_el_pro_efb(), the notice opens the field's "-f" wrapper,
+					// which the shared closing tag after the switch closes. Without it that
+					// tag closed the form itself and the following fields fell outside it.
+					// The signature pad script exists only where the pad is drawn.
 
-					$ui.= sprintf(
+					if ($pro == true) $ui.= sprintf(
 						"<script>
 							document.addEventListener('DOMContentLoaded', function() {
 								setTimeout(() => {
@@ -2806,7 +2834,7 @@
 						$element_Id,
 						$form_id,
 						($disabled == "disabled" ? 'true' : 'false'),
-						json_encode($vj)
+						json_encode($vj, JSON_HEX_TAG | JSON_HEX_AMP)
 					);
 					$dataTag = $elementId;
 				break;
@@ -2907,7 +2935,8 @@
 
 				case 'rating':
 
-					$ui = $pro == true ? $this->rating_el_pro_efb(true, $pos, $rndm, $vj, $desc, $form_id, $label, $ttip, $aire_describedby, $texts) : $this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
+					// Free on every plan since 4.3.1 (emsfb_free_element_types_efb()).
+					$ui = $this->rating_el_pro_efb(true, $pos, $rndm, $vj, $desc, $form_id, $label, $ttip, $aire_describedby, $texts);
 					$dataTag = $elementId;
 				break;
                 case 'select':
@@ -2919,7 +2948,8 @@
 				case 'conturyList':
 				case 'country':
 
-					$ui =$pro == true ? $this->generate_country_list_efb($rndm, $vj, $pos, $form_id, $texts ,$desc,$label,$ttip,$aire_describedby): $this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
+					// Free on every plan since 4.3.1 (emsfb_free_element_types_efb()).
+					$ui = $this->generate_country_list_efb($rndm, $vj, $pos, $form_id, $texts ,$desc,$label,$ttip,$aire_describedby);
 
 					$dataTag = $elementId;
 				break;
@@ -2947,7 +2977,8 @@
 				break;
 				case 'heading':
 
-					$ui = $pro == true ? $this->generate_heading_efb($rndm, $pos, $vj, $form_id) : $this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
+					// Free on every plan since 4.3.1 (emsfb_free_element_types_efb()).
+					$ui = $this->generate_heading_efb($rndm, $pos, $vj, $form_id);
 					$dataTag = $elementId;
 
 				break;
@@ -3030,7 +3061,7 @@
 							%s
 							<div class="efb input-group m-0 p-0">
 								%s
-								<input type="number" class="efb input-efb px-2 mb-0 payefb emsFormBuilder_v %s %s %s %s %s efbField efb1 %s" data-id="%s-el" data-vid="%s" data-css="%s" id="%s_" placeholder="%s" data-formid="%s" %s %s %s %s %s %s>
+								<input type="number" min="0" class="efb input-efb px-2 mb-0 payefb emsFormBuilder_v %s %s %s %s %s efbField efb1 %s" data-id="%s-el" data-vid="%s" data-css="%s" id="%s_" placeholder="%s" data-formid="%s" %s %s %s %s %s %s>
 								%s
 							</div>
 							%s',
@@ -3144,6 +3175,14 @@
 			$tagId = in_array($elementId, ["firstName", "lastName", "address", "address_line", "postalcode"]) ? 'text' : $elementId;
 			$tagT = in_array($elementId, ["esign", "yesNo", "rating"]) ? '' : 'def';
 			$stepNo = (int)$vj->step - 1;
+			// Field types whose markup opens no inner "-f" wrapper: they get one closing tag below.
+			$single_close_efb = ['option', 'html', 'stripe', 'heading', 'link','conturyList','country','stateProvince','statePro','city','cityList','maps','ttlprc','audio_recorder','video_recorder','screen_recorder'];
+			// Every other type gets two, the first for its "-f" wrapper. On a plan
+			// without the field, its markup is only the plan notice, so that first
+			// tag closed the form container and the following fields fell outside it.
+			if (!in_array($elementId, $single_close_efb, true) && $this->last_pro_notice_efb !== null && $ui === $this->last_pro_notice_efb) {
+				$ui = '<div class="efb ' . $pos[3] . ' ' . $this->mobile_pos[3] . '" id="' . $element_Id . '-f">' . $ui;
+			}
 			$newElement = sprintf(
 				'<!--startTag %1$s--><div class="efb my-1 mx-0 %1$s %2$s %3$s %4$s ttEfb %5$s %6$s %12$s efbField %7$s" data-step="%8$s" data-amount="%9$s" data-id="%10$s-id" id="%10$s" data-tag="%11$s">',
 				$elementId,
@@ -3164,7 +3203,7 @@
 				$newElement .= $ui;
 			}
 
-			if (!in_array($elementId, ['option', 'html', 'stripe', 'heading', 'link','conturyList','country','stateProvince','statePro','city','cityList','maps','ttlprc','audio_recorder','video_recorder','screen_recorder'])) {
+			if (!in_array($elementId, $single_close_efb)) {
 				$newElement .= '<!--test2--></div></div>';
 			} else {
 				$newElement .= '<!--test--></div>';
@@ -3504,7 +3543,7 @@
 
 		 return sprintf('efbCreateMap("%1$s", %2$s, %3$s);',
 			$element_Id,
-			json_encode($vj),
+			json_encode($vj, JSON_HEX_TAG | JSON_HEX_AMP),
 			'false'
 		);
 
@@ -3533,6 +3572,72 @@ public function check_error_console_efb(){
 		'warningBadge' => esc_html__('Warning', 'easy-form-builder'),
 		'jqueryMissing' => esc_html__('jQuery Dependency Issue', 'easy-form-builder'),
 		'jqueryMessage' => esc_html__('jQuery is not properly loaded or available. AJAX and interactive form features may not work correctly.', 'easy-form-builder'),
+		/* A failed submit, explained for the site owner: what happened, why, the
+		 * one thing to do, the visitor's own message and the details for support. */
+		'badge'        => esc_html__('Why did this fail?', 'easy-form-builder'),
+		'onlyYou'      => esc_html__('Only you can see this', 'easy-form-builder'),
+		'adminOnlyNow' => esc_html__('You see this panel because you are signed in as an administrator. Visitors only see the message in the form.', 'easy-form-builder'),
+		'formSubmit'   => esc_html__('Form submission', 'easy-form-builder'),
+		'whatToDo'     => esc_html__('What to do', 'easy-form-builder'),
+		'visitorSaw'   => esc_html__('What your visitor saw', 'easy-form-builder'),
+		'techDetails'  => esc_html__('Technical details for support', 'easy-form-builder'),
+		'copyDetails'  => esc_html__('Copy details', 'easy-form-builder'),
+		'copiedDone'   => esc_html__('Copied', 'easy-form-builder'),
+		'messagesUrl'  => esc_url(admin_url('admin.php?page=Emsfb')),
+		'f_expired_title'   => esc_html__('The form had expired in the visitor\'s browser', 'easy-form-builder'),
+		'f_expired_why'     => esc_html__('The page was open for a long time, so its security code expired. This is normal and is not caused by a cache plugin.', 'easy-form-builder'),
+		'f_do_refresh'      => esc_html__('No action needed. The visitor was asked to refresh the page and send the form again.', 'easy-form-builder'),
+		'f_do_send_again'   => esc_html__('No action needed. The visitor was asked to send the form again.', 'easy-form-builder'),
+		/* translators: %s: name of a page cache plugin, e.g. LiteSpeed Cache */
+		'f_cache_title'     => esc_html__('This page was probably shown from an old cached copy', 'easy-form-builder'),
+		/* translators: %s: name of a page cache plugin */
+		'f_cache_why'       => esc_html__('%s seems to have served a stored copy of this page whose security code had expired, so the form was refused.', 'easy-form-builder'),
+		/* translators: %s: name of a page cache plugin */
+		'f_cache_do'        => esc_html__('In %s, clear the cache (Purge All) and reload this page. If it happens again, exclude this page from caching.', 'easy-form-builder'),
+		'f_login_title'     => esc_html__('The visitor signed in or out in another tab', 'easy-form-builder'),
+		'f_login_why'       => esc_html__('The form was opened under a different login, so it was refused for safety. This is normal and is not caused by a cache plugin.', 'easy-form-builder'),
+		'f_refused_title'   => esc_html__('Easy Form Builder refused this submission', 'easy-form-builder'),
+		'f_refused_why'     => esc_html__('The reason is in the message your visitor saw, below.', 'easy-form-builder'),
+		'f_refused_do'      => esc_html__('If real visitors get this message, check the setting it names, for example Human Shield or the form\'s own rules.', 'easy-form-builder'),
+		'f_storage_title'   => esc_html__('The entry could not be saved', 'easy-form-builder'),
+		'f_storage_why'     => esc_html__('Your server could not save the entry. Nothing was saved, and the visitor was told so.', 'easy-form-builder'),
+		'f_storage_do'      => esc_html__('Ask your hosting company to check the database (disk space or a damaged table), then send a test form.', 'easy-form-builder'),
+		'f_closed_title'    => esc_html__('Your website does not accept form requests from visitors', 'easy-form-builder'),
+		/* translators: %d: HTTP status code */
+		'f_closed_why'      => esc_html__('Another plugin or a setting blocks the WordPress REST API for visitors (HTTP %d).', 'easy-form-builder'),
+		'f_closed_do'       => esc_html__('Allow the address /wp-json/Emsfb/ in that plugin (for example Disable REST API), or ask your hosting company.', 'easy-form-builder'),
+		'f_rate_title'      => esc_html__('Too many requests from one visitor', 'easy-form-builder'),
+		'f_rate_why'        => esc_html__('Human Shield or your server limited requests from this visitor\'s internet address (HTTP 429).', 'easy-form-builder'),
+		'f_rate_do'         => esc_html__('If real visitors are affected, raise the limit in the Human Shield settings.', 'easy-form-builder'),
+		'f_large_title'     => esc_html__('The form was larger than your server accepts', 'easy-form-builder'),
+		'f_large_why'       => esc_html__('Your web server refused the request because of its size (HTTP 413). This limit is set by your hosting company.', 'easy-form-builder'),
+		'f_large_do'        => esc_html__('Ask your hosting company to raise the request size limit, or ask visitors to use smaller files.', 'easy-form-builder'),
+		'f_blocked_title'   => esc_html__('Your website blocked the form request', 'easy-form-builder'),
+		/* translators: %d: HTTP status code */
+		'f_blocked_why'     => esc_html__('A security plugin, a firewall or your hosting company refused the request before it reached Easy Form Builder (HTTP %d). It is not caused by a cache plugin.', 'easy-form-builder'),
+		/* translators: 1: security plugin name, 2: time of the request */
+		'f_blocked_do_plugin' => esc_html__('Open %1$s and look for a blocked request at %2$s.', 'easy-form-builder'),
+		/* translators: %s: time of the request */
+		'f_blocked_do_host' => esc_html__('Ask your hosting company to check the firewall log for a blocked request to /wp-json/Emsfb/ at %s.', 'easy-form-builder'),
+		/* translators: %d: HTTP status code */
+		'f_rejected_title'  => esc_html__('The form request was refused (HTTP %d)', 'easy-form-builder'),
+		'f_rejected_why'    => esc_html__('Something between the visitor and Easy Form Builder refused the request.', 'easy-form-builder'),
+		'f_rejected_do'     => esc_html__('Copy the technical details below and send them to Easy Form Builder support.', 'easy-form-builder'),
+		'f_noanswer_title'  => esc_html__('Your server did not answer in time', 'easy-form-builder'),
+		'f_noanswer_why'    => esc_html__('The request took too long or the connection dropped. The entry may or may not have been saved.', 'easy-form-builder'),
+		/* translators: %s: time of the request */
+		'f_noanswer_do'     => esc_html__('Open Messages in Easy Form Builder and check for an entry at %s.', 'easy-form-builder'),
+		/* translators: %s: time of the request */
+		'f_challenge_do'    => esc_html__('Cloudflare showed the visitor a security check instead of sending the form. Open Cloudflare (Security, Events) and look for a challenged request at %s.', 'easy-form-builder'),
+		/* translators: %d: HTTP status code */
+		'f_server_title'    => esc_html__('Your server had an error (HTTP %d)', 'easy-form-builder'),
+		'f_server_why'      => esc_html__('PHP stopped with an error while handling the form. The entry may or may not have been saved.', 'easy-form-builder'),
+		/* translators: %s: time of the request */
+		'f_server_do'       => esc_html__('Open Messages and check for an entry at %s, then ask your hosting company for the PHP error log of that time.', 'easy-form-builder'),
+		'f_badjson_title'   => esc_html__('Your server sent an unreadable answer', 'easy-form-builder'),
+		'f_badjson_why'     => esc_html__('Extra text, often a PHP notice or another plugin\'s output, was printed before the answer, so it could not be read. The entry may or may not have been saved.', 'easy-form-builder'),
+		/* translators: %s: time of the request */
+		'f_badjson_do'      => esc_html__('Open Messages and check for an entry at %s. On a live site, turn off WP_DEBUG_DISPLAY or ask your hosting company to check the PHP error log.', 'easy-form-builder'),
 	];
 
 	$value = '
@@ -3638,7 +3743,7 @@ public function check_error_console_efb(){
 						<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
 						<line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
 					</svg>
-					<span class="efb-error-label">${this.t.warningBadge}</span>
+					<span class="efb-error-label">${this.t.badge || this.t.warningBadge}</span>
 					<svg class="efb-badge-chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
 						<path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708"/>
 					</svg>
@@ -3657,7 +3762,7 @@ public function check_error_console_efb(){
 					font-size: 13px !important; font-weight: 600 !important;
 					box-shadow: 0 4px 15px rgba(220,53,69,0.4) !important;
 					opacity: 0 !important; pointer-events: none !important; visibility: hidden !important;
-					direction: ltr !important; box-sizing: border-box !important;
+					direction: ${isRtl ? "rtl" : "ltr"} !important; box-sizing: border-box !important;
 					line-height: normal !important; text-transform: none !important;
 					text-decoration: none !important; letter-spacing: normal !important;
 					margin: 0 !important; float: none !important; border: none !important;
@@ -3686,9 +3791,9 @@ public function check_error_console_efb(){
 					<div class="efb-panel-warning">
 						<span>${this.t.warning}</span>
 					</div>
-					<div class="efb-admin-notice">
-						<!-- <span>${this.t.adminOnly}</span> -->
-						<span class="efb-admin-badge">ADMIN</span>
+					<div class="efb-admin-notice" dir="auto">
+						<span class="efb-admin-badge">${this.t.onlyYou}</span>
+						<span>${this.t.adminOnlyNow}</span>
 					</div>
 					<div class="efb-panel-body" id="efb-error-list">
 						<div class="efb-no-errors">✓ ${this.t.noErrors}</div>
@@ -4013,6 +4118,17 @@ public function check_error_console_efb(){
 					#efb-error-panel .efb-stack-source.unknown { background: #f5c6cb !important; color: #721c24 !important; }
 					#efb-error-panel .efb-stack-path { color: #a6adc8 !important; word-break: break-all !important; display: inline !important; }
 					#efb-error-panel .efb-error-meta { color: #6c757d !important; font-size: 11px !important; margin-top: 8px !important; }
+					#efb-error-panel .efb-failure-card { text-align: start !important; }
+					#efb-error-panel .efb-failure-title { font-size: 15px !important; font-weight: 700 !important; color: #212529 !important; margin: 8px 0 4px !important; line-height: 1.5 !important; }
+					#efb-error-panel .efb-failure-why, #efb-error-panel .efb-failure-do, #efb-error-panel .efb-failure-visitor { font-size: 13px !important; color: #343a40 !important; line-height: 1.7 !important; margin: 4px 0 !important; }
+					#efb-error-panel .efb-failure-do { background: #e7f5ff !important; border-radius: 8px !important; padding: 8px 10px !important; }
+					#efb-error-panel .efb-failure-do a { color: #0b5ed7 !important; text-decoration: none !important; font-weight: 700 !important; }
+					#efb-error-panel .efb-failure-visitor { background: #f8f9fa !important; border-radius: 8px !important; padding: 8px 10px !important; }
+					#efb-error-panel .efb-failure-tech { margin-top: 8px !important; font-size: 12px !important; color: #6c757d !important; }
+					#efb-error-panel .efb-failure-tech summary { cursor: pointer !important; }
+					#efb-error-panel .efb-failure-tech code { display: block !important; white-space: pre-wrap !important; word-break: break-all !important; background: #1e1e2e !important; color: #cdd6f4 !important; padding: 8px !important; border-radius: 6px !important; margin: 6px 0 !important; font-size: 11px !important; text-align: left !important; }
+					#efb-error-panel .efb-btn-copy { font-size: 11px !important; padding: 3px 10px !important; border-radius: 6px !important; border: 1px solid #ced4da !important; background: #fff !important; cursor: pointer !important; }
+					#efb-error-panel .efb-admin-notice span:not(.efb-admin-badge) { font-size: 12px !important; color: #495057 !important; margin-inline-start: 6px !important; }
 				`;
 				document.head.appendChild(style);
 			},
@@ -4094,9 +4210,11 @@ public function check_error_console_efb(){
 
 			addError(errorData) {
 				errorData = errorData || {};
-				const { message, source, lineno, stack = [], typeOverride = null, nameOverride = null, formatOptions = {}, showBadge = false, context = "", formId = null } = errorData;
+				const { message, source, lineno, stack = [], typeOverride = null, nameOverride = null, formatOptions = {}, showBadge = false, context = "", formId = null, failure = null } = errorData;
 				const shouldShowBadge = showBadge === true || context === "submissionAjax";
-				const errorKey = (message || "") + "|" + (source || "") + "|" + (lineno || "");
+				/* A failed submit gets its own key per occurrence: dismissing one must
+				   not hide the next failure, and it is never stored (see dismissError). */
+				const errorKey = failure ? "efb-submit:" + (failure.at || Date.now()) + ":" + (failure.cause || "") : (message || "") + "|" + (source || "") + "|" + (lineno || "");
 				if (this.dismissedKeys.has(errorKey)) return;
 				if (this.errorKeys.has(errorKey)) {
 					if (shouldShowBadge) {
@@ -4123,7 +4241,10 @@ public function check_error_console_efb(){
 				}
 				this.updateCount();
 
-				if (context === "submissionAjax") return;
+				if (context === "submissionAjax") {
+					if (failure) this.renderFailureCard(errorKey, failure, time);
+					return;
+				}
 
 				const list = document.getElementById("efb-error-list");
 				if (!list) return;
@@ -4188,6 +4309,94 @@ public function check_error_console_efb(){
 				list.insertBefore(item, list.firstChild);
 			},
 
+			/* The card for one failed submit: what happened, why, the one thing to
+			   do, the visitor message and the details for support. Every value that
+			   came from the request is escaped. */
+			failureTexts(f) {
+				const t = this.t;
+				const status = Number(f.status) || 0;
+				const at = f.timeLabel || "";
+				const fill = (str, a, b) => String(str || "").split("%1$s").join(a).split("%2$s").join(b).split("%s").join(a).split("%d").join(String(status));
+				const cachePlugin = this.escapeHtml(f.cachePlugin || "");
+				const securityPlugin = this.escapeHtml(f.securityPlugin || "");
+				switch (f.cause) {
+					case "stale_token":
+					case "stale_context":
+						if (f.cachePlugin) return { title: t.f_cache_title, why: fill(t.f_cache_why, cachePlugin), todo: fill(t.f_cache_do, cachePlugin) };
+						return { title: t.f_expired_title, why: t.f_expired_why, todo: f.cause === "stale_token" ? t.f_do_refresh : t.f_do_send_again };
+					case "identity_changed": return { title: t.f_login_title, why: t.f_login_why, todo: t.f_do_send_again };
+					case "server_refusal": return { title: t.f_refused_title, why: t.f_refused_why, todo: t.f_refused_do };
+					case "server_failed": return { title: t.f_storage_title, why: t.f_storage_why, todo: t.f_storage_do };
+					case "closed": return { title: t.f_closed_title, why: fill(t.f_closed_why), todo: t.f_closed_do };
+					case "rate_limited": return { title: t.f_rate_title, why: t.f_rate_why, todo: t.f_rate_do };
+					case "too_large": return { title: t.f_large_title, why: t.f_large_why, todo: t.f_large_do };
+					case "blocked": return { title: t.f_blocked_title, why: fill(t.f_blocked_why), todo: f.challenge ? fill(t.f_challenge_do, at) : (f.securityPlugin ? fill(t.f_blocked_do_plugin, securityPlugin, at) : fill(t.f_blocked_do_host, at)) };
+					case "unknown_outcome": return { title: t.f_noanswer_title, why: t.f_noanswer_why, todo: fill(t.f_noanswer_do, at), link: t.messagesUrl };
+					case "server_error": return { title: fill(t.f_server_title), why: t.f_server_why, todo: fill(t.f_server_do, at), link: t.messagesUrl };
+					case "bad_answer": return { title: t.f_badjson_title, why: t.f_badjson_why, todo: fill(t.f_badjson_do, at), link: t.messagesUrl };
+					default: return { title: fill(t.f_rejected_title), why: t.f_rejected_why, todo: t.f_rejected_do };
+				}
+			},
+
+			renderFailureCard(errorKey, f, time) {
+				const list = document.getElementById("efb-error-list");
+				if (!list) return;
+				const noErrors = list.querySelector(".efb-no-errors");
+				if (noErrors) noErrors.remove();
+				const esc = (v) => this.escapeHtml(v === undefined || v === null ? "" : String(v));
+				const x = this.failureTexts(f);
+				const tech = [
+					f.status ? "HTTP " + f.status : "no HTTP answer",
+					f.code || "",
+					f.step ? "step: " + f.step : "",
+					f.formId ? "form " + f.formId : "",
+					f.page || "",
+					f.at ? new Date(f.at).toISOString() : "",
+					f.legacy ? "runtime: page nonce" : "runtime: live",
+					f.serverMessage ? "server: " + f.serverMessage : ""
+				].filter(Boolean).join(" | ");
+				const item = document.createElement("div");
+				item.className = "efb-error-item is-efb efb-failure-card";
+				item.setAttribute("dir", "auto");
+				item.dataset.errorKey = errorKey;
+				item.innerHTML = `
+					<div class="efb-error-source">
+						<span class="type-badge type-plugin">${esc(this.t.formSubmit)}</span>
+						<span class="efb-error-source-name">${esc(this.t.easyformbuilder)}</span>
+						<button type="button" class="efb-btn-dismiss" aria-label="${this.getDismissLabel(this.t.formSubmit)}">${this.t.dismiss}</button>
+					</div>
+					<div class="efb-failure-title">${x.title || ""}</div>
+					<div class="efb-failure-why">${x.why || ""}</div>
+					<div class="efb-failure-do"><strong>${this.t.whatToDo}:</strong> ${x.todo || ""}${x.link ? ` <a href="${esc(x.link)}" target="_blank" rel="noopener noreferrer">&rarr;</a>` : ""}</div>
+					${f.visitorText ? `<div class="efb-failure-visitor"><strong>${this.t.visitorSaw}:</strong> <span dir="auto">${esc(f.visitorText)}</span></div>` : ""}
+					<details class="efb-failure-tech"><summary>${this.t.techDetails}</summary><code dir="ltr">${esc(tech)}</code><button type="button" class="efb-btn-copy">${this.t.copyDetails}</button></details>
+					<div class="efb-error-meta">${esc(time)}</div>
+				`;
+				const dismissBtn = item.querySelector(".efb-btn-dismiss");
+				if (dismissBtn) dismissBtn.addEventListener("click", () => this.dismissError(errorKey));
+				const copyBtn = item.querySelector(".efb-btn-copy");
+				if (copyBtn) copyBtn.addEventListener("click", () => {
+					const code = item.querySelector(".efb-failure-tech code");
+					const done = () => { copyBtn.textContent = this.t.copiedDone; };
+					/* Without a secure context (plain http) the Clipboard API is missing: select
+					   the text and use the old copy command; if that fails too, the text stays
+					   selected for a manual copy and "Copied" is not claimed. */
+					const fallback = () => {
+						try {
+							const range = document.createRange(); range.selectNodeContents(code);
+							const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
+							if (document.execCommand("copy")) done();
+						} catch (e) {}
+					};
+					if (window.isSecureContext && navigator.clipboard && navigator.clipboard.writeText) {
+						navigator.clipboard.writeText(tech).then(done, fallback);
+					} else {
+						fallback();
+					}
+				});
+				list.insertBefore(item, list.firstChild);
+			},
+
 			getDismissLabel(label) {
 				const template = this.t.dismissItem || "Dismiss %s";
 				return this.escapeHtml(template.replace("%s", label || ""));
@@ -4196,7 +4405,7 @@ public function check_error_console_efb(){
 			showEmptyState() {
 				const list = document.getElementById("efb-error-list");
 				if (list) {
-					list.innerHTML = "<div class=\"efb-no-errors\">âœ“ " + this.t.noErrors + "</div>";
+					list.innerHTML = "<div class=\"efb-no-errors\">&#10003; " + this.t.noErrors + "</div>";
 				}
 			},
 
@@ -4225,8 +4434,10 @@ public function check_error_console_efb(){
 
 			dismissError(errorKey) {
 				if (!errorKey) return;
-				this.dismissedKeys.add(errorKey);
-				this.saveDismissedKeys();
+				if (String(errorKey).indexOf("efb-submit:") !== 0) {
+					this.dismissedKeys.add(errorKey);
+					this.saveDismissedKeys();
+				}
 				this.errors = this.errors.filter(error => error.key !== errorKey);
 				this.errorKeys.delete(errorKey);
 				this.visibleErrorKeys.delete(errorKey);
@@ -4354,7 +4565,8 @@ public function check_error_console_efb(){
 				const showBadge = options.showBadge === true;
 				const context = options.context || "";
 				const formId = options.formId || options.form_id || null;
-				this.addError({ message, source, lineno, stack, typeOverride, nameOverride, formatOptions, showBadge, context, formId });
+				const failure = options.failure && typeof options.failure === "object" ? options.failure : null;
+				this.addError({ message, source, lineno, stack, typeOverride, nameOverride, formatOptions, showBadge, context, formId, failure });
 				console.info("%c[EFB Debug Panel]%c Logged: " + message, "color:#ff4b93;font-weight:bold", "color:inherit");
 			},
 

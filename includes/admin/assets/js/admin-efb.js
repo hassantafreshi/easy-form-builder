@@ -53,7 +53,8 @@ function efb_builder_email_warning_signature(kind) {
   return [
     kind,
     form_ID_emsFormBuilder || 0,
-    efb_builder_latest_email_spam_score()
+    efb_builder_latest_email_spam_score(),
+    efb_builder_form_has_email_field() ? 'email' : 'plain'
   ].join('|');
 }
 
@@ -87,16 +88,43 @@ function efb_builder_maybe_warn_email_delivery() {
     return;
   }
 
-  const signature = efb_builder_email_warning_signature(kind);
+  // A form with an email field on a site nobody checked: ask, with the two
+  // answers, unless the owner said "not now" this week. While the first-run
+  // guide is asking on top of the page nothing is shown and nothing is
+  // remembered, so the question still comes once the guide is gone.
+  const ask = kind === 'off' && efb_builder_form_has_email_field()
+    && efb_builder_delivery_needs_question() && !efb_builder_prompt_snoozed();
+  // Closed by the owner on this page: not again.
+  if (efb_builder_email_closed_kinds[ask ? 'question' : kind]) return;
+  // Closed earlier this week (the question or the "off" toast): the plain
+  // "off" toast does not stand in for the snoozed question.
+  if (kind === 'off' && !ask && efb_builder_prompt_snoozed()) return;
+  if (ask && document.getElementById('efb-setup-overlay')) return;
+  // A check is running on this page: it will answer; no question meanwhile.
+  const running = typeof efb_onboarding_email_test_state_efb !== 'undefined' && efb_onboarding_email_test_state_efb && efb_onboarding_email_test_state_efb.type === 'checking';
+  if (ask && running) return;
+  // The score warning says delivery "has not been verified": not after a
+  // check on this page, whose card has just said what it found.
+  if (kind === 'score' && efb_var.emailDelivery && efb_var.emailDelivery.fresh) return;
+
+  // The question and the plain "notifications are off" toast are different
+  // messages: one may follow the other on the same form (an email field is
+  // dragged in after the form was loaded without one).
+  const signature = efb_builder_email_warning_signature(ask ? 'ask' : kind);
   if (efb_builder_last_email_warning_signature === signature) {
     return;
   }
   efb_builder_last_email_warning_signature = signature;
 
   if (kind === 'off') {
+    if (ask) {
+      efb_builder_email_delivery_toast();
+      return;
+    }
     const offTitle = efb_var.text.emailSendingOffTitle || 'Notification emails are turned off';
     const offDesc = efb_var.text.emailSendingOffDesc || 'Easy Form Builder will not send any email - neither to you nor to the person who submits this form - until "This site can send emails" is enabled in Email Settings.';
     alert_message_efb(offTitle, offDesc + efb_builder_email_settings_button(), 30, 'warning');
+    efb_builder_email_tag_last_toast('off');
     return;
   }
 
@@ -104,11 +132,409 @@ function efb_builder_maybe_warn_email_delivery() {
   const template = efb_var.text.emailNotificationRiskDesc || 'This form\'s email notification feature is enabled, but email delivery has not been verified and the latest spam score is %s/100. The form was saved, but admin notification emails may not reach you until SMTP/email delivery is fixed.';
   const helpText = efb_var.text.clcdetls || efb_var.text.smtpSetupGuideBtn || efb_var.text.clickHere || 'Click here for more details';
   const helpLink = `<br><a class="efb alert-link text-dark fw-semibold pointer-efb" onclick="Link_emsFormBuilder('EmailSpam')">${helpText}</a>`;
-  alert_message_efb(title, template.replace('%s', `<b>${score}</b>`) + helpLink, 30, 'warning');
+  // This shows when the builder opens or an email field is added, not only
+  // after a save, so the old text's "The form was saved" was often untrue.
+  // The check result sentence says the same thing without that claim.
+  const body = efb_var.text.emailResultMostSpam
+    ? `${efb_var.text.emailResultMostSpam} (<b>${score}</b>/100)`
+    : template.replace('%s', `<b>${score}</b>`);
+  alert_message_efb(title, body + helpLink, 30, 'warning');
+  efb_builder_email_tag_last_toast('score');
 }
 
-function efb_builder_maybe_warn_email_delivery_after_save() {
-  efb_builder_maybe_warn_email_delivery();
+/* ---------------------------------------------------------------------- *
+ * The builder's question about email delivery
+ *
+ * A fresh site sends nothing until the owner checks or confirms that the
+ * host can send email. The moment a form gets an email field (a toast with
+ * the two answers) and the moment the owner turns a field's notification on
+ * (a dialog, because they just asked for an email), the question is put to
+ * them instead of a dead-end "notifications are off" warning.
+ *
+ * What the owner has done so far comes from efb_var.emailDelivery
+ * (Email_Monitor::get_delivery_state): unchecked, confirmed or tested.
+ * ---------------------------------------------------------------------- */
+
+function efb_builder_delivery_state() {
+  return (typeof efb_var !== 'undefined' && efb_var.emailDelivery && typeof efb_var.emailDelivery === 'object')
+    ? efb_var.emailDelivery
+    : null;
+}
+
+/* The switch is off (never "unreadable", which is a different problem) and
+   either nobody checked, or the owner's own check found nothing arrives. */
+function efb_builder_delivery_needs_question() {
+  if (typeof efb_var === 'undefined' || Number(efb_var.smtp) !== 0) return false;
+  const d = efb_builder_delivery_state();
+  if (!d || !d.state) return false;
+  if (d.state === 'unchecked') return true;
+  return d.state === 'tested' && d.outcome === 'undelivered';
+}
+
+/* A form built while sending was off was saved with its admin notification
+   off (the templates copy the switch at creation). Once the owner turns
+   sending on from inside the builder, the open form follows, so the address
+   it already has receives the notifications the owner just asked for. */
+function efb_builder_after_sending_switch(on) {
+  if (!on) { efb_builder_email_forget_origin(); return; }
+  // The save result still on screen says "notification emails are turned
+  // off"; it is not true any more.
+  if (typeof efb_modal_current_flow_efb === 'function' && efb_modal_current_flow_efb() === 'save') {
+    const icon = document.querySelector('#settingModalEfb-body .efb-dlg__note .bi-envelope-slash');
+    if (icon && icon.closest('.efb-dlg__note')) icon.closest('.efb-dlg__note').remove();
+  }
+  if (Array.isArray(valj_efb) && valj_efb[0] && typeof valj_efb[0].email === 'string' && valj_efb[0].email.length > 1) {
+    valj_efb[0].sendEmail = true;
+  }
+  // Whether the owner confirmed or the check passed, the click that raised
+  // the question is made again now, so they are not told to click twice.
+  efb_builder_email_replay_origin();
+}
+
+function efb_builder_delivery_can_manage() {
+  const d = efb_builder_delivery_state();
+  return !!(d && d.can_manage);
+}
+
+/* "Not now" is remembered for a week, in this browser, so the toast does
+   not come back on every reload of every form. The dialog on a notification
+   switch is never snoozed: that click is the owner asking for an email. */
+function efb_builder_prompt_snooze_key() {
+  // Per install: two WordPress sites on one origin (a subdirectory multisite)
+  // must not share the owner's "not now".
+  const site = (typeof efb_var !== 'undefined' && efb_var.ajax_url) ? String(efb_var.ajax_url) : '';
+  return 'efb_email_prompt_snooze:' + site;
+}
+function efb_builder_prompt_snoozed() {
+  try { return Number(localStorage.getItem(efb_builder_prompt_snooze_key()) || 0) > Date.now(); } catch (e) { return false; }
+}
+function efb_builder_prompt_snooze() {
+  try { localStorage.setItem(efb_builder_prompt_snooze_key(), String(Date.now() + 7 * 24 * 60 * 60 * 1000)); } catch (e) {}
+}
+
+function efb_builder_prompt_copy() {
+  const t = (key, fallback) => (efb_var.text && efb_var.text[key]) || fallback;
+  const d = efb_builder_delivery_state() || {};
+  const failed = d.state === 'tested' && d.outcome === 'undelivered';
+  const canManage = efb_builder_delivery_can_manage();
+  let body;
+  if (failed && !canManage) {
+    // No instructions for someone who cannot act on them.
+    body = t('emailPromptBodyFailedPlain', 'The last email check found that emails from this site do not reach the inbox.');
+  } else if (failed) {
+    body = d.checked_at_display
+      ? t('emailPromptBodyFailed', 'Your last check on %s found that emails from this site do not reach the inbox. Fix it at your hosting company, then check again.').replace('%s', d.checked_at_display)
+      : t('emailPromptBodyFailedNoDate', 'Your last check found that emails from this site do not reach the inbox. Fix it at your hosting company, then check again.');
+  } else if (d.pending_since && canManage) {
+    body = d.pending_since_display
+      ? t('emailPromptBodyPending', 'A check started on %s did not finish. Look for the emailed report in your inbox, or run it again.').replace('%s', d.pending_since_display)
+      : t('emailPromptBodyPendingNoDate', 'A check was started but did not finish. Look for the emailed report in your inbox, or run it again.');
+  } else if (d.monitor_outcome === 'undelivered' && !canManage) {
+    body = t('emailPromptBodyFailedPlain', 'The last email check found that emails from this site do not reach the inbox.');
+  } else if (d.monitor_outcome === 'undelivered') {
+    body = t('emailPromptBodyMonitorFailed', 'We noticed that emails from your site may not be arriving. Let us check before you rely on notifications.');
+  } else {
+    body = t('emailPromptBody', 'You will want an email when someone fills in this form. We have not checked yet that emails from your site arrive.');
+  }
+  return {
+    failed: failed,
+    title: t('emailPromptTitle', 'Can your site send email?'),
+    body: body,
+    check: failed ? t('emailPromptCheckAgain', 'Check again') : t('emailPromptCheck', 'Check for me'),
+    checkNote: t('emailPromptCheckNote', 'Takes about a minute'),
+    confirm: t('emailPromptConfirm', 'Yes, turn notifications on'),
+    confirmNote: t('emailPromptConfirmNote', 'Use this if you already know your site sends email'),
+    seeFix: t('emailSeeTheFix', 'See the fix'),
+    fixedNote: t('emailPromptFixedNote', 'Already fixed it or know it works? Turn notifications on in Email Settings.'),
+    notNow: t('emailPromptNotNow', 'Not now'),
+    askAdmin: t('emailPromptAskAdmin', 'Only a site administrator can check email delivery or turn notifications on. Ask them before you rely on this form.'),
+    settings: t('emailSendingOffCta', 'Enable email sending')
+  };
+}
+
+/* The guide that fits a failed check, from the same list the wizard uses. */
+function efb_builder_fix_url() {
+  const d = efb_builder_delivery_state() || {};
+  if (typeof efb_onboarding_help_url_efb === 'function') {
+    return efb_onboarding_help_url_efb({}, d.outcome === 'undelivered' ? 'overview' : 'fix');
+  }
+  return (typeof link_url_emsFormBuilder === 'function') ? link_url_emsFormBuilder('EmailSpam') : '';
+}
+
+/* The toast: the question with its two answers, out of the way of the work. */
+function efb_builder_email_delivery_toast() {
+  const c = efb_builder_prompt_copy();
+  let actions = '';
+  if (!efb_builder_delivery_can_manage()) {
+    actions = `<br>${c.askAdmin}`;
+  } else if (c.failed) {
+    const fix = efb_builder_fix_url();
+    actions = `<br>` + (fix ? `<a class="efb btn btn-sm btn-dark fw-semibold mt-2 me-1" href="${fix}" target="_blank" rel="noopener noreferrer"><i class="efb bi-box-arrow-up-right mx-1"></i>${c.seeFix}</a>` : '')
+      + `<button type="button" class="efb btn btn-sm btn-outline-dark fw-semibold mt-2" onclick="efb_builder_email_check_open()">${c.check}</button>`;
+  } else {
+    actions = `<br><button type="button" class="efb btn btn-sm btn-dark fw-semibold mt-2 me-1" onclick="efb_builder_email_check_open()"><i class="efb bi-send-check mx-1"></i>${c.check}</button>`
+      + `<button type="button" class="efb btn btn-sm btn-outline-dark fw-semibold mt-2" onclick="efb_builder_email_confirm()">${c.confirm}</button>`;
+  }
+  alert_message_efb(c.title, c.body + actions, 30, 'warning');
+  efb_builder_email_tag_last_toast('question');
+}
+
+/* Tagged, so the dialog that asks about email can take these toasts down:
+   on a phone a toast sits over the dialog's own title otherwise. */
+function efb_builder_email_tag_last_toast(kind) {
+  const items = document.querySelectorAll('#alert_container_efb .alert_item_efb');
+  if (items.length) items[items.length - 1].setAttribute('data-efb-email-toast', kind);
+}
+
+/* The toast's question is answered or superseded by a dialog: it goes. */
+function efb_builder_email_toast_dismiss() {
+  document.querySelectorAll('#alert_container_efb [data-efb-email-toast]').forEach((el) => el.remove());
+}
+
+let efb_builder_email_prompt_origin = null;
+
+/* The dialog: the owner just turned a field's notification on, so the
+   answer is needed before the switch can mean anything. */
+function efb_builder_email_delivery_dialog(origin) {
+  if (document.getElementById('efb-setup-overlay')) return false;
+  const keepOrigin = () => {
+    if (origin && !(origin.tagName === 'INPUT' && String(origin.value || '').trim() === '')) efb_builder_email_prompt_origin = origin;
+  };
+  // Another dialog holds the screen. A parked question would surface later,
+  // after nobody asked; so it is not asked now. While the check or this same
+  // question is on screen, the click that raised it is kept for the replay.
+  if (typeof efb_modal_shell_busy_efb === 'function' && efb_modal_shell_busy_efb()) {
+    const flow = typeof efb_modal_current_flow_efb === 'function' ? efb_modal_current_flow_efb() : '';
+    if (flow === 'email-check' || flow === 'email-question') {
+      keepOrigin();
+      return true;
+    }
+    return false;
+  }
+  // A check is running on this page (its window was closed): that check is
+  // the answer. "We have not checked yet" and "Yes" would both be wrong now.
+  if (typeof efb_onboarding_email_test_state_efb !== 'undefined' && efb_onboarding_email_test_state_efb && efb_onboarding_email_test_state_efb.type === 'checking') {
+    keepOrigin();
+    efb_builder_email_check_open();
+    return true;
+  }
+  efb_builder_email_toast_dismiss();
+  efb_builder_email_prompt_origin = origin || null;
+  const c = efb_builder_prompt_copy();
+  const canManage = efb_builder_delivery_can_manage();
+  const fix = c.failed ? efb_builder_fix_url() : '';
+  let choices = '';
+  if (!canManage) {
+    choices = `<div class="efb-dlg__note efb-dlg__note--warn"><i class="bi bi-person-lock" aria-hidden="true"></i><span>${c.askAdmin}</span></div>`;
+  } else if (c.failed) {
+    choices = `<div class="efb-email-choices">`
+      + (fix ? `<a class="efb-email-choice efb-email-choice--primary" href="${fix}" target="_blank" rel="noopener noreferrer"><span class="efb-email-choice__label"><i class="bi bi-box-arrow-up-right" aria-hidden="true"></i>${c.seeFix}</span></a>` : '')
+      + `<button type="button" class="efb-email-choice" onclick="efb_builder_email_check_open()"><span class="efb-email-choice__label"><i class="bi bi-send-check" aria-hidden="true"></i>${c.check}</span><span class="efb-email-choice__note">${c.checkNote}</span></button>`
+      + `</div><p class="efb-email-choices__foot">${c.fixedNote} <a href="${efb_builder_email_settings_url()}">${c.settings}</a></p>`;
+  } else {
+    choices = `<div class="efb-email-choices">`
+      + `<button type="button" class="efb-email-choice efb-email-choice--primary" onclick="efb_builder_email_check_open()"><span class="efb-email-choice__label"><i class="bi bi-send-check" aria-hidden="true"></i>${c.check}</span><span class="efb-email-choice__note">${c.checkNote}</span></button>`
+      + `<button type="button" class="efb-email-choice" onclick="efb_builder_email_confirm()"><span class="efb-email-choice__label"><i class="bi bi-check2-circle" aria-hidden="true"></i>${c.confirm}</span><span class="efb-email-choice__note">${c.confirmNote}</span></button>`
+      + `</div>`;
+  }
+  const body = `
+    <div class="efb-dlg__centered">
+      <div class="efb-dlg__badge"><i class="bi bi-envelope-check" aria-hidden="true"></i></div>
+      <div class="efb-dlg__headline">${c.title}</div>
+      <div class="efb-dlg__text">${c.body}</div>
+    </div>
+    ${choices}
+    <style>.efb-email-choices{display:flex;flex-direction:column;gap:10px;margin:18px auto 0;max-width:420px}.efb-email-choice{display:flex;flex-direction:column;align-items:center;gap:3px;padding:12px 16px;border:1px solid #c7d2fe;border-radius:12px;background:#fff;color:#3730a3;font:inherit;text-decoration:none;cursor:pointer;transition:background .15s ease,transform .15s ease}.efb-email-choice:hover{background:#eef2ff;transform:translateY(-1px)}.efb-email-choice--primary{border:0;color:#fff;background:linear-gradient(135deg,#312e81,#5b21b6);box-shadow:0 9px 20px rgba(79,70,229,.26)}.efb-email-choice--primary:hover{background:linear-gradient(135deg,#312e81,#5b21b6);color:#fff}.efb-email-choice__label{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:15px}.efb-email-choice__note{font-size:12px;opacity:.85}.efb-email-choices__foot{margin:14px 0 0;text-align:center;font-size:12.5px;color:#64748b}</style>`;
+  const painted = show_modal_efb(body, c.title, 'bi-envelope-check', 'saveBox', {
+    flow: 'email-question',
+    onShown: () => {
+      if (typeof efb_dlg_set_tone_efb === 'function') efb_dlg_set_tone_efb('efb-tone-warn');
+      efb_builder_email_narrow_shell();
+      const sections = document.getElementById('settingModalEfb-sections');
+      if (!sections) return;
+      const foot = document.createElement('div');
+      // The id the shell's footer sweepers know, so "Not now" leaves with
+      // this dialog instead of sitting under the next one.
+      foot.id = 'save-result-foot-efb';
+      foot.className = 'efb modal-footer efb-dlg__foot';
+      foot.innerHTML = `<a role="button" class="efb-dlg-btn efb-dlg-btn--ghost" onclick="efb_builder_email_not_now()">${c.notNow}</a>`;
+      sections.appendChild(foot);
+    }
+  });
+  // show_modal_efb() paints; the shell is opened by the caller, as the save
+  // flow does, so a dialog parked behind another never flashes open.
+  if (painted) state_modal_show_efb(1);
+  return painted;
+}
+
+/* The question and the check are short: the narrow shell, not the 70%-wide
+   save box (which on a phone is 252px, left-aligned). Removed again by
+   state_modal_show_efb(0). */
+function efb_builder_email_narrow_shell() {
+  const dialog = document.getElementById('settingModalEfb_');
+  if (dialog && dialog.classList) dialog.classList.add('efb-save-narrow');
+}
+
+function efb_builder_email_not_now() {
+  efb_builder_prompt_snooze();
+  efb_builder_email_prompt_origin = null;
+  if (typeof state_modal_show_efb === 'function') state_modal_show_efb(0);
+}
+
+/* The owner's answer: the switch goes on, dated as theirs, and the page
+   follows without a reload. */
+let efb_builder_email_confirm_busy = false;
+function efb_builder_email_confirm() {
+  // A double click is one answer, not two posts and two toasts.
+  if (efb_builder_email_confirm_busy) return;
+  efb_builder_email_confirm_busy = true;
+  const email = (efb_var.setting && efb_var.setting.emailSupporter) ? efb_var.setting.emailSupporter : '';
+  jQuery.ajax({
+    url: efb_var.ajax_url, type: 'POST', dataType: 'json',
+    data: { action: 'efb_confirm_email_sending', nonce: efb_var.nonce, email: email }
+  }).done((r) => {
+    if (!r || !r.success) {
+      alert_message_efb(efb_var.text.error || 'Error', (r && r.data && r.data.message) || efb_var.text.somethingWentWrongPleaseRefresh || 'Please try again.', 15, 'danger');
+      return;
+    }
+    efb_builder_email_toast_dismiss();
+    const before = efb_builder_delivery_state() || {};
+    if (typeof efb_onboarding_mark_sending_efb === 'function') efb_onboarding_mark_sending_efb(true, '');
+    const delivery = Object.assign({}, efb_var.emailDelivery || {}, r.data.delivery || {}, { state: 'confirmed', notifications: true });
+    if (typeof efb_var_patch_efb === 'function') efb_var_patch_efb({ emailDelivery: delivery });
+    const msg = before.monitor_outcome === 'undelivered'
+      ? (efb_var.text.emailConfirmedMonitorToast || 'Notifications are on. An earlier automatic check found that emails from this site may not reach the inbox; if none arrive, run the check from Email Settings.')
+      : (efb_var.text.emailConfirmedToast || 'Notifications are on. You can run the check any time from Email Settings.');
+    // Only the question dialog is closed: answered from the toast while the
+    // save result is on screen, that dialog stays where the owner left it.
+    if (typeof state_modal_show_efb === 'function' && typeof efb_modal_current_flow_efb === 'function' && efb_modal_current_flow_efb() === 'email-question') state_modal_show_efb(0);
+    alert_message_efb(efb_var.text.hostSupportSmtp || 'This site can send emails', msg, 12, 'success');
+    // The replay itself happens in efb_builder_after_sending_switch(true),
+    // which efb_onboarding_mark_sending_efb() has just called.
+  }).fail(() => {
+    alert_message_efb(efb_var.text.error || 'Error', efb_var.text.somethingWentWrongPleaseRefresh || 'Please try again.', 15, 'danger');
+  }).always(() => {
+    efb_builder_email_confirm_busy = false;
+  });
+}
+
+/* The click that raised the question - a field's notification switch - is
+   made again once the answer allows it, so the owner is not told to click
+   twice. */
+function efb_builder_email_replay_origin() {
+  const origin = efb_builder_email_prompt_origin;
+  efb_builder_email_prompt_origin = null;
+  if (!origin || Number(efb_var.smtp) !== 1) return;
+  // The side box may have been redrawn for another field since the question
+  // was asked; a detached element has nothing to replay into.
+  if (origin.isConnected === false) return;
+  if (origin.tagName === 'INPUT' && String(origin.value || '').trim() === '') return;
+  setTimeout(() => {
+    try {
+      if (origin.tagName === 'INPUT') {
+        // The admin address: its change handler, with the typed value kept.
+        origin.dispatchEvent(new Event('change', { bubbles: true }));
+      } else if (typeof origin.click === 'function') {
+        origin.click();
+      }
+    } catch (e) {}
+  }, 50);
+}
+
+/* The question was closed without an answer that allows the click: the
+   element is forgotten, so a later answer from the toast replays nothing
+   stale. */
+function efb_builder_email_forget_origin() {
+  efb_builder_email_prompt_origin = null;
+}
+
+/* The same check the wizard runs, in the builder's modal: the card, the
+   runner and the result are the wizard's own (val-efb.js), only the way
+   out closes a modal instead of the overlay. */
+function efb_builder_email_check_open() {
+  if (document.getElementById('efb-setup-overlay')) return;
+  if (typeof efb_onboarding_card_markup_efb !== 'function' || typeof efb_onboarding_start_email_test_efb !== 'function') {
+    window.location.href = efb_builder_email_settings_url();
+    return;
+  }
+  const shell = document.getElementById('settingModalEfb');
+  const showing = !!(shell && shell.classList.contains('show'));
+  // Already on screen (a double click on "Check for me"): one check, not two
+  // spending the site's daily quota and writing into one card.
+  if (showing && window._efb_modal_flow_efb === 'email-check') return;
+  // Asked from inside the question dialog: that one closes first, and the
+  // check takes the screen once the close has played out. The element that
+  // raised the question survives the close so a passing check can replay it.
+  if (showing && window._efb_modal_flow_efb === 'email-question') {
+    const origin = efb_builder_email_prompt_origin;
+    state_modal_show_efb(0);
+    setTimeout(() => {
+      if (efb_builder_email_prompt_origin === null) efb_builder_email_prompt_origin = origin;
+      efb_builder_email_check_open();
+    }, 420);
+    return;
+  }
+  efb_builder_email_toast_dismiss();
+  efb_onboarding_host_efb = 'builder';
+  const email = (efb_var.setting && efb_var.setting.emailSupporter) ? efb_var.setting.emailSupporter : (efb_var.adminEmail || '');
+  const body = efb_onboarding_card_markup_efb(email, { builder: true }) + '<style>' + efb_onboarding_card_css_efb() + '</style>';
+  const title = (efb_var.text && efb_var.text.onboardingStepEmailCheck) || 'Email check';
+  const painted = show_modal_efb(body, title, 'bi-envelope-check', 'saveBox', {
+    flow: 'email-check',
+    // Asked from the toast while another dialog (the save result) holds the
+    // shell: this answers the toast, so that dialog is closed and the check
+    // takes over, rather than popping up later when nobody asked.
+    replace: true,
+    onShown: () => {
+      if (typeof efb_dlg_set_tone_efb === 'function') efb_dlg_set_tone_efb('');
+      efb_builder_email_narrow_shell();
+      efb_onboarding_bind_card_efb();
+      // Decided now, not when asked: a parked card can paint after the run
+      // it would attach to has ended.
+      const s = efb_onboarding_email_test_state_efb;
+      if (s && s.type === 'checking') {
+        // A check from earlier on this page (the wizard's, or one whose modal
+        // was closed) is still running: show it. A second one would spend the
+        // site's free daily check and drop the first verdict.
+        efb_onboarding_card_phase_efb('running');
+        efb_onboarding_render_live_report_efb();
+        const button = document.getElementById('efb-onboarding-test-email');
+        if (button) { button.disabled = true; button.classList.add('is-loading'); }
+        return;
+      }
+      if (s && s.test && s.test.test_hash && s.type && typeof efb_onboarding_summary_efb === 'function' && efb_onboarding_summary_efb(s).tryAgain) {
+        // An earlier check ended without an answer: ask about that same test
+        // again (what its Try again does), instead of starting a new one.
+        efb_onboarding_render_live_report_efb();
+        efb_onboarding_run_or_retry_efb();
+        return;
+      }
+      efb_onboarding_email_test_state_efb = null;
+      efb_onboarding_start_email_test_efb();
+    }
+  });
+  if (painted) state_modal_show_efb(1);
+}
+
+/* After a save the result dialog is on screen and already carries the email
+   note when sending is off; a toast on top of it said the same thing twice
+   and covered the builder's buttons. The warning comes from its own moments
+   (an email field added, the form opened) instead. */
+function efb_builder_maybe_warn_email_delivery_after_save() {}
+
+/* An email toast the owner closed stays closed for this page: the same
+   warning never comes back on the next save or edit. Closing the question
+   is "Not now" (a week). */
+const efb_builder_email_closed_kinds = {};
+function efb_builder_email_toast_closed(kind) {
+  if (!kind) return;
+  efb_builder_email_closed_kinds[kind] = true;
+  // The question and the "notifications are off" toast are one subject: closing
+  // either keeps both away for the week, instead of the other one taking its
+  // place on the next email field or the next builder visit.
+  if ((kind === 'question' || kind === 'off') && typeof efb_builder_prompt_snooze === 'function') efb_builder_prompt_snooze();
+  if (kind === 'question') efb_builder_email_closed_kinds.off = true;
+  if (kind === 'off') efb_builder_email_closed_kinds.question = true;
 }
 
 function deepFreeze_efb_admin(obj) {
@@ -270,7 +696,10 @@ donwload_event_icon_efb =(color)=>{
 </div>
 `
 }
-function Link_emsFormBuilder(state) {
+// The guide URL for a help topic, without opening it. Code that only needs
+// the address (a link in rendered markup) calls this; Link_emsFormBuilder()
+// opens it and belongs in click handlers.
+function link_url_emsFormBuilder(state) {
   const lan =lan_subdomain_wsteam_efb();
   let link = `https://${lan}whitestudio.team/document`
   const github = 'https://github.com/hassantafreshi/easy-form-builder/wiki/'
@@ -443,7 +872,11 @@ function Link_emsFormBuilder(state) {
     }
   }
 
-  window.open(link, "_blank");
+  return link;
+}
+
+function Link_emsFormBuilder(state) {
+  window.open(link_url_emsFormBuilder(state), "_blank");
 }
 
 function show_message_result_form_set_EFB(state, m) {
@@ -525,6 +958,12 @@ function show_message_result_form_set_EFB(state, m) {
     flow: 'save',
     onShown: () => {
       if (typeof efb_dlg_set_tone_efb === 'function') efb_dlg_set_tone_efb(tone);
+      // Built while sending was off, shown after a check turned it on (this
+      // dialog was parked behind the check): the note is not true any more.
+      if (!efb_builder_email_setting_smtp_disabled()) {
+        const icon = document.querySelector('#settingModalEfb-body .efb-dlg__note .bi-envelope-slash');
+        if (icon && icon.closest('.efb-dlg__note')) icon.closest('.efb-dlg__note').remove();
+      }
       const sections = document.getElementById('settingModalEfb-sections');
       if (!sections) return;
       const foot = document.createElement('div');
@@ -592,7 +1031,7 @@ async function  actionSendData_emsFormBuilder(saveMode) {
           show_message_result_form_set_EFB(0, res.data.value, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`)
           fun_pr(0);
         }
-      } else if (res.data.r == "update" || res.data.r == "updated" && res.data.success == true) {
+      } else if ((res.data.r == "update" || res.data.r == "updated") && res.data.success == true) {
         show_message_result_form_set_EFB(2, res.data.value);
         if (!_efb_autosave_in_progress) efb_builder_maybe_warn_email_delivery_after_save();
         if (saveMode === 1) clear_auto_save_efb();
@@ -768,16 +1207,45 @@ createCardFormEfb = (i) => {
   ${prw}
   </div></div></div>`
 }
+/* The plan an add-on needs: 0 = every plan, 3 = Free Plus or Pro, 1 = Pro.
+   Mirrors addon_required_package_efb() in functions.php - the install endpoint
+   enforces the same table, so a card can never offer what the server refuses.
+   `pro` comes from the remote catalogue and only speaks for add-ons that are
+   sold; it cannot place one in the Free Plus tier. */
+function efb_addon_required_package_efb(item) {
+  const name = typeof item === 'string' ? item : (item && item.name);
+  if (name === 'AdnOF') return 0;
+  if (name === 'AdnSMF') return 3;
+  // Stripe and PayPal: Free Plus and Pro since 4.3.1.
+  if (name === 'AdnSPF' || name === 'AdnPAP') return 3;
+  /* Called with a name by the click handler and with a catalogue row by the
+     card, so resolve the row either way - otherwise the two could disagree
+     about a future add-on the catalogue does not sell. */
+  let row = typeof item === 'object' ? item : null;
+  if (!row && typeof fun_get_addons_efb_admin === 'function') {
+    row = (fun_get_addons_efb_admin() || []).find((a) => a && a.name === name) || null;
+  }
+  return row && row.pro != true ? 0 : 1;
+}
+
+/* One answer for both the card and the click. */
+function efb_addon_can_install_efb(item) {
+  const required = efb_addon_required_package_efb(item);
+  if (required === 0) return true;
+  const packageType = (typeof setting_emsFormBuilder !== 'undefined' && setting_emsFormBuilder
+    && setting_emsFormBuilder.package_type != undefined)
+    ? Number(setting_emsFormBuilder.package_type)
+    : 2;
+  if (packageType === 1) return true;
+  return packageType === 3 && required === 3;
+}
+
 createCardAddoneEfb = (i) => {
 
   tag_efb =tag_efb.concat(i.tag.split(' ')).filter((item, i, ar) => ar.indexOf(item) === i);;
 
-  const packageType = setting_emsFormBuilder.package_type != undefined ? Number(setting_emsFormBuilder.package_type) : 2;
   const isInstalled = efb_var.setting[i.name] == 1;
-  const canInstallAddon = i.name === 'AdnOF'
-    || (i.name === 'AdnSMF' && [1, 3].includes(packageType))
-    || (i.name !== 'AdnSMF' && i.pro != true)
-    || (i.pro == true && packageType === 1);
+  const canInstallAddon = efb_addon_can_install_efb(i);
   const isLockedAddon = !isInstalled && !canInstallAddon;
 
   let funNtn =   `funBTNAddOnsEFB('${i.name}','${i.v_required}')`;
@@ -790,11 +1258,16 @@ createCardAddoneEfb = (i) => {
     iconNtn ='';
     colorNtn = 'btn-secondary';
   }else if (isLockedAddon) {
-    // The licensing server is the source of truth for package access. Its
-    // response determines which upgrade message is shown after the request.
-    funNtn=`funBTNAddOnsEFB('${i.name}','${i.v_required}')`;
-    nameNtn = efb_var.text.install;
-    iconNtn ='bi-download';
+    /* A locked card used to keep the word Install and the download icon, so
+       the only hint was the button colour - and the click went through to the
+       install endpoint regardless. Name the plan that unlocks it instead, and
+       open that plan's dialog rather than attempting an install. */
+    const requiredPackage = efb_addon_required_package_efb(i);
+    funNtn=`pro_show_efb(${requiredPackage === 3 ? 3 : 1})`;
+    nameNtn = requiredPackage === 3
+      ? (efb_var.text.freePlus || 'Free Plus')
+      : (efb_var.text.pro || 'Pro');
+    iconNtn ='bi-gem';
     colorNtn = 'btn-warning';
   }
 
@@ -1487,16 +1960,19 @@ function sideMenuEfb(s) {
     if(ch)ch.classList.add('d-none');
     el.classList.add('show');
   }
+  // A save that lands within these 2 s clears the auto-save; storing after it
+  // brought back a "restore the auto-saved version?" prompt for saved work.
+  const store_scheduled_at = Date.now();
   if (s == 0) {
     side_hide(el)
        setTimeout(() => {
-      store_form_efb();
+      if (efb_auto_save_cleared_at_efb < store_scheduled_at) store_form_efb();
     }, 2000);
   } else if( s == 1) {
    side_show(el)
   } else if (s == 2) {
    setTimeout(() => {
-      store_form_efb();
+      if (efb_auto_save_cleared_at_efb < store_scheduled_at) store_form_efb();
     }, 2000);
     const lenV = valj_efb.length
     const timeout = lenV < 100 ? 800 : lenV<500 ? 3000 : 5000;
@@ -1714,44 +2190,42 @@ let change_el_edit_Efb = (el) => {
         }
         break;
       case "adminFormEmailEl":
+        // "a@x.com, b@x.com": each address is checked and stored without the
+        // spaces (the server dropped " b@x.com"); a list with an invalid one is
+        // not saved. Plus addressing and TLDs longer than 4 letters are valid.
+        const emailFormat = /^[\w.+'-]+@([\w-]+\.)+[\w-]{2,}$/;
+        const emails = el.value.split(',').map((email) => email.trim()).filter((email) => email !== '');
+        const invalid = emails.find((email) => !emailFormat.test(email));
         if (efb_var.smtp == "1") {
-           if(el.value.includes(',')){
-
-            let emails=el.value.split(',');
-            let isEmail=true;
-              emails.forEach((email)=>{
-                email=email.trim();
-                if (email.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)==null) isEmail=false;
-                if(isEmail==false) {
-                  alert_message_efb(efb_var.text.error, efb_var.text.invalidEmail+ ` (${email})`, 10, "danger");
-                  valj_efb[0].email="";
-                  return false;
-                }
-              })
-              valj_efb[0].email = el.value.trim();
-              valj_efb[0].sendEmail=true;
-              break;
-            }else{
-
-              if (el.value.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/))
-              {
-                valj_efb[0].email = el.value;
-                valj_efb[0].sendEmail=true;
-                break;
-              }
-              else {
-                if (el.value!="") alert_message_efb(efb_var.text.error, efb_var.text.invalidEmail, 10, "danger");
-                document.getElementById("adminFormEmailEl").value = "";
-                valj_efb[0].email="";
-
-              }
-            }
+          if (emails.length > 0 && invalid === undefined) {
+            valj_efb[0].email = emails.join(',');
+            valj_efb[0].sendEmail = true;
+            break;
+          }
+          if (invalid !== undefined) alert_message_efb(efb_var.text.error, efb_var.text.invalidEmail + (emails.length > 1 ? ` (${invalid})` : ''), 10, "danger");
+          if (emails.length < 2) document.getElementById("adminFormEmailEl").value = "";
+          valj_efb[0].email = "";
         } else if (efb_var.smtp == '-1') {
           if(document.getElementById("adminFormEmailEl"))document.getElementById("adminFormEmailEl").value = "";
 
           alert_message_efb(efb_var.text.error, efb_var.text.goToEFBAddEmailM, 30, "danger");
         } else {
-          if(document.getElementById("adminFormEmailEl"))document.getElementById("adminFormEmailEl").value = "";
+          if (emails.length > 0 && invalid !== undefined) {
+            alert_message_efb(efb_var.text.error, efb_var.text.invalidEmail + (emails.length > 1 ? ` (${invalid})` : ''), 10, "danger");
+            break;
+          }
+          // Sending is off. The address is still the form's: kept, so it is
+          // there the day sending is turned on, and nothing is sent meanwhile
+          // (sendEmail stays as it is until the switch goes on).
+          valj_efb[0].email = emails.join(',');
+          // Cleared: the owner asked for no admin email, nothing to ask.
+          if (emails.length === 0) break;
+          if (efb_builder_delivery_needs_question()) {
+            // Asked now; once the owner answers yes or a check passes, this
+            // same change is replayed and turns the form's notification on.
+            if (!efb_builder_email_delivery_dialog(el) && !efb_builder_prompt_snoozed()) efb_builder_email_delivery_toast();
+            break;
+          }
           alert_message_efb(efb_var.text.error, efb_var.text.sMTPNotWork, 20, "danger")
         }
 
@@ -1908,6 +2382,11 @@ let change_el_edit_Efb = (el) => {
 
         } else {
           el.classList.remove('active');
+          if (efb_builder_delivery_needs_question()) {
+            // Asked now, or by the toast when another dialog holds the screen.
+            if (!efb_builder_email_delivery_dialog(el) && !efb_builder_prompt_snoozed()) efb_builder_email_delivery_toast();
+            break;
+          }
           const msg =  efb_var.text.sMTPNotWork + '' + `<a class="efb alert-link ec-efb" data-eventform="links" data-linkname="EmailNoti"> ${efb_var.text.orClickHere}</a>`;
           alert_message_efb(efb_var.text.error,msg, 20, "danger")
         }
@@ -2038,36 +2517,33 @@ let change_el_edit_Efb = (el) => {
         }
 
         break;
-      case "smsAdminsPhoneNoEl":
-
-        if(el.value.includes(',')){
-          let phones=el.value.split(',');
-          let isPhone=true;
-            phones.forEach((phone)=>{
-              phone=phone.trim();
-              if (phone.match(/^\+[0-9]{8,15}$/)==null) isPhone=false;
-              if(isPhone==false) {
-                alert_message_efb(efb_var.text.error, efb_var.text.pleaseEnterVaildValue + ` (${phone})`, 10, "danger");
-                valj_efb[0].sms_admins_phone_no="";
-                return false;
-              }
-            })
-            valj_efb[0].sms_admins_phone_no = el.value.trim();
-          }
-          else{
-            if (el.value.match(/^\+[0-9]{8,15}$/))
-            {
-              valj_efb[0].sms_admins_phone_no = el.value;
-              return true;
-            }
-            else {
-              alert_message_efb(efb_var.text.error, efb_var.text.pleaseEnterVaildValue + ` (${phone})`, 10, "danger");
-              valj_efb[0].sms_admins_phone_no="";
-              return false;
-            }
-          }
-
-        break;
+      case "smsAdminsPhoneNoEl": {
+        /* One number or a comma-separated list, in international format.
+           Persian/Arabic digits, spaces, dashes and direction marks are
+           cleaned first; on a Persian site 09xxxxxxxxx becomes +989xxxxxxxxx.
+           (The old single-number branch threw "phone is not defined", so no
+           warning appeared and nothing was saved.) */
+        const efbIsFaSite = String((efb_var && efb_var.language) || '').toLowerCase().indexOf('fa') === 0;
+        const efbCleanPhone = (raw) => {
+          let p = String(raw || '')
+            .replace(/[\u06F0-\u06F9]/g, (d) => String(d.charCodeAt(0) - 0x06F0))
+            .replace(/[\u0660-\u0669]/g, (d) => String(d.charCodeAt(0) - 0x0660))
+            .replace(/[\s\-().\u200C\u200E\u200F\u202A-\u202E]/g, '');
+          if (p.indexOf('00') === 0) p = '+' + p.slice(2);
+          if (efbIsFaSite && /^09[0-9]{9}$/.test(p)) p = '+98' + p.slice(1);
+          return p;
+        };
+        const efbPhones = el.value.split(',').map(efbCleanPhone).filter((p) => p !== '');
+        const efbBad = efbPhones.filter((p) => !/^\+[0-9]{8,15}$/.test(p));
+        if (efbPhones.length === 0 || efbBad.length) {
+          alert_message_efb(efb_var.text.error, efb_var.text.pleaseEnterVaildValue + ` (${efbBad.length ? efbBad.join(', ') : el.value}) — +989123456789`, 10, "danger");
+          valj_efb[0].sms_admins_phone_no = "";
+          return false;
+        }
+        valj_efb[0].sms_admins_phone_no = efbPhones.join(',');
+        el.value = valj_efb[0].sms_admins_phone_no;
+        return true;
+      }
       case "formNameEl":
         valj_efb[0].formName = sanitize_text_efb(el.value)
         break;
@@ -2135,7 +2611,9 @@ let change_el_edit_Efb = (el) => {
       case 'emailNotiContainsEl':
         if(pro_efb!=true){
           pro_show_efb(3);
-          el.value="";
+          // Keep showing what the form really sends (the stored choice, or the
+          // default "content and link"); a blank select looked like no email.
+          el.value = (valj_efb[0].email_noti_type || 'msg');
           break;
         }
         if(valj_efb[0].hasOwnProperty('email_noti_type')==false) Object.assign(valj_efb[0],{'email_noti_type':el.options[el.selectedIndex].value})
@@ -3119,16 +3597,20 @@ let change_el_edit_Efb = (el) => {
           document.getElementById('optionListefb').innerHTML=donwload_event_icon_efb('text-darkb');
            let url = efb_var.zone_area ?? ajax_object_efm.zone_area
            url= url +`json/states/${valj_efb[indx].country.toLowerCase()}.json`;
+          const states_cdn_url = url;
            if(efb_var.setting.hasOwnProperty('AdnOF') && efb_var.setting.AdnOF==true){
-            url =efb_var.images.plugin_url+`/vendor/offline/json/states/${valj_efb[indx].country.toLowerCase()}.json`;
+            url =efb_var.images.plugin_url+`/vendor/offline/json/states/${efb_admin_offline_name_efb(valj_efb[indx].country.toLowerCase())}.json`;
              url = url.replaceAll('//vendor','/vendor');
           }
           temp_efb= await fetch_json_from_url_efb_admin(url);
+          // A missing local file (incomplete offline add-on): try the CDN copy.
+          if((temp_efb.s==false || temp_efb=="null") && url!==states_cdn_url) temp_efb = await fetch_json_from_url_efb_admin(states_cdn_url);
           let  opetions;
           const newRndm = Math.random().toString(36).substr(2, 9);
           setTimeout(() => {
             if(temp_efb.s==false ||temp_efb=="null" ) {
-              alert_message_efb(efb_var.text.error, temp_efb.r ,15 , "danger")
+              console.error('[EFB] address list', temp_efb.r);
+              alert_message_efb(efb_var.text.error, efb_var.text.errorSomthingWrong || temp_efb.r ,15 , "danger")
               return;
             }
 
@@ -3179,16 +3661,19 @@ let change_el_edit_Efb = (el) => {
           document.getElementById('optionListefb').innerHTML=donwload_event_icon_efb('text-darkb');
           let url = efb_var.zone_area ?? ajax_object_efm.zone_area
           url = url + `json/cites/${temp}/${valj_efb[indx].statePov}.json`;
+          const cities_cdn_url = url;
           if(efb_var.setting.hasOwnProperty('AdnOF') && efb_var.setting.AdnOF==true){
-            url =efb_var.images.plugin_url+'/vendor/offline/json/cites/'+temp+'/'+valj_efb[indx].statePov+'.json';
+            url =efb_var.images.plugin_url+'/vendor/offline/json/cites/'+temp+'/'+efb_admin_offline_name_efb(valj_efb[indx].statePov)+'.json';
             url = url.replaceAll('//vendor','/vendor');
           }
           temp_efb = await fetch_json_from_url_efb_admin(url);
+          if((temp_efb.s==false || temp_efb=="null") && url!==cities_cdn_url) temp_efb = await fetch_json_from_url_efb_admin(cities_cdn_url);
           let  opetions;
           const newRndm = Math.random().toString(36).substr(2, 9);
 
             if(temp_efb.s==false ||temp_efb=="null" ) {
-              alert_message_efb(efb_var.text.error, temp_efb.r ,15 , "danger")
+              console.error('[EFB] address list', temp_efb.r);
+              alert_message_efb(efb_var.text.error, efb_var.text.errorSomthingWrong || temp_efb.r ,15 , "danger")
               return;
             }
             obj_delete_options(valj_efb[indx].id_)
@@ -3535,9 +4020,12 @@ const saveFormEfb = async (stated) => {
           btnFun = `open_whiteStudio_efb('notInput')`;
           message = efb_var.text.youDoNotAddAnyInput;
           icon = "";
+          // No later branch handles an empty form: without this the save box
+          // waited on "Please Wait..." for ever.
+          returnState = true;
         } else {
           if (pro_efb == false) {
-            proState = valj_efb.findIndex(x => x.pro == true) != -1 ? false : true;
+            proState = valj_efb.findIndex(x => efb_field_is_pro_efb(x)) != -1 ? false : true;
           }
           for (let s = 1; s <= valj_efb[0].steps; s++) {
             const stp = valj_efb.findIndex(x => x.step == s && x.type != "step");
@@ -3705,6 +4193,19 @@ function obj_resort_row(step) {
   fub_shwBtns_efb()
   if (valj_efb[0].steps == 1) fun_handle_buttons_efb(false);
 }
+/* Whether a field needs Free Plus/Pro, from today's field list rather than the
+   flag saved with the form: forms saved before a field became free (terms,
+   country list, rating, heading in 4.3.1) still carry pro:true. A type the
+   list does not know keeps its saved flag. */
+function efb_field_is_pro_efb(el) {
+  if (!el || typeof el !== 'object') return false;
+  if (typeof fields_efb !== 'undefined' && el.type) {
+    const def = fields_efb.find(x => x.id === el.type);
+    if (def && Object.prototype.hasOwnProperty.call(def, 'pro')) return def.pro === true;
+  }
+  return el.pro === true || el.pro === 1 || el.pro === '1';
+}
+
 let sampleElpush_efb = (rndm, elementId) => {
 
   const testb = valj_efb.length;
@@ -4555,6 +5056,16 @@ funBTNAddOnsEFB=(val,v_required)=>{
   }
   // console.log('efb_version', efb_version, 'v_required', v_required);
  if(efb_version>=v_required){
+  /* Never post an install the plan does not allow. The card already draws the
+     lock; without this the click was sent anyway and whether it installed was
+     left to the licensing server, which does not know about the Free Plus
+     tier and approves every add-on for localhost. */
+  if (typeof efb_addon_can_install_efb === 'function'
+      && efb_var.setting[val] != 1
+      && !efb_addon_can_install_efb(val)) {
+    pro_show_efb(efb_addon_required_package_efb(val) === 3 ? 3 : 1);
+    return;
+  }
   if(check_ar_pr(val)==true){
     addons_btn_state_efb(val);
     actionSendAddons_efb(val);
@@ -4839,6 +5350,10 @@ state_modal_show_efb=(i)=>{
        match only, so a dialog that had somehow ended up with two footers
        would leave one of them behind for the next dialog to wear. */
     document.querySelectorAll('#modal-footer-efb, #save-result-foot-efb').forEach((foot) => foot.remove());
+    /* The email question closed without an answer (backdrop, x): the click
+       that raised it is forgotten. efb_builder_email_check_open() keeps it
+       across its own close. */
+    if (window._efb_modal_flow_efb === 'email-question' && typeof efb_builder_email_forget_origin === 'function') efb_builder_email_forget_origin();
     /* The shell no longer belongs to any flow; the next dialog to ask for
        it gets it, and anything parked behind this one can now be shown. */
     window._efb_modal_flow_efb = '';
@@ -5055,10 +5570,16 @@ function efb_check_el_pro(el){
   }
 
   if(el.id=="scaptcha_emsFormBuilder"){
-    if (document.getElementById('sitekey_emsFormBuilder').value.length <5) {
-      f_b();
-      alert_message_efb(efb_var.text.reCAPTCHA, efb_var.text.reCAPTCHASetError, 20, "danger");
-    }
+    /* The site key is needed to switch this ON. Checked once the click has
+       toggled the button, so switching it OFF always works - before, a key
+       field emptied first left the option stuck on, and the confirmation-code
+       page then drew a reCAPTCHA that could never be solved. */
+    setTimeout(function () {
+      if (el.classList.contains('active') && document.getElementById('sitekey_emsFormBuilder').value.length <5) {
+        el.classList.remove('active');
+        alert_message_efb(efb_var.text.reCAPTCHA, efb_var.text.reCAPTCHASetError, 20, "danger");
+      }
+    }, 0);
   }
   return true;
 }
@@ -5416,7 +5937,9 @@ store_form_efb =()=>{
           localStorage.setItem('efb_auto_save_time', String(Date.now()));
 }
 
+var efb_auto_save_cleared_at_efb = 0;
 clear_auto_save_efb =()=>{
+  efb_auto_save_cleared_at_efb = Date.now();
   localStorage.setItem('efb_auto_save', 0);
   localStorage.removeItem('efb_auto_save_form_id');
   localStorage.removeItem('efb_auto_save_valj_efb');
@@ -5662,7 +6185,8 @@ function addClickListenerToElementListEFB(element) {
                               emsFormBuilder_duplicate(temp2, 'form', temp);
                               break;
                           case 'generateCSV':
-                              pro ? generat_csv_emsFormBuilder() : pro_show_efb(3);
+                              // CSV export is free on every plan since 4.3.1.
+                              generat_csv_emsFormBuilder();
                               break;
                           case 'generateChart':
                               convert_to_dataset_emsFormBuilder();
@@ -6393,7 +6917,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       ${label}
       <div class="efb  ${pos[3]} col-sm-12 px-0 mx-0 ttEfb show"  id='${rndm}-f'>
         ${ttip}
-        <input type="text"   class="efb pdpF2 input-efb px-2 mb-0 emsFormBuilder_v w-100 ${classes} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}" data-id="${rndm}-el" data-vid='${rndm}'  id="${rndm}_"   ${valj_efb[iVJ].value.length > 0 ? `value ="${valj_efb[iVJ].value}"` : ''} aria-required="${valj_efb[iVJ].required==1 ? true : false}" aria-label="${valj_efb[iVJ].name}" ${aire_describedby} ${previewSate != true ? 'readonly' : ''}>
+        <input type="text"   class="efb pdpF2 input-efb px-2 mb-0 emsFormBuilder_v w-100 ${classes} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}" data-id="${rndm}-el" data-vid='${rndm}'  id="${rndm}_" autocomplete="off"   ${valj_efb[iVJ].value.length > 0 ? `value ="${valj_efb[iVJ].value}"` : ''} aria-required="${valj_efb[iVJ].required==1 ? true : false}" aria-label="${valj_efb[iVJ].name}" ${aire_describedby} ${previewSate != true ? 'readonly' : ''}>
         ${desc}`
       dataTag = elementId;
       typeof rating_el_pro_efb =="function" ? 0 : ui=public_pro_message()
@@ -6404,7 +6928,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       ${label}
       <div class="efb  ${pos[3]} col-sm-12 px-0 mx-0 ttEfb show"  id='${rndm}-f'>
         ${ttip}
-        <input type="text"   class="efb hijri-picker input-efb px-2 mb-0 emsFormBuilder_v w-100 ${classes}  ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}" data-id="${rndm}-el" data-vid='${rndm}' id="${rndm}_"   ${valj_efb[iVJ].value.length > 0 ? `value ="${valj_efb[iVJ].value}"` : ''} aria-required="${valj_efb[iVJ].required==1 ? true : false}" aria-label="${valj_efb[iVJ].name}" ${aire_describedby} ${previewSate != true ? 'readonly' : ''} ${disabled =="disabled" ? 'readonly' :''}>
+        <input type="text"   class="efb hijri-picker input-efb px-2 mb-0 emsFormBuilder_v w-100 ${classes}  ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}" data-id="${rndm}-el" data-vid='${rndm}' id="${rndm}_" autocomplete="off"   ${valj_efb[iVJ].value.length > 0 ? `value ="${valj_efb[iVJ].value}"` : ''} aria-required="${valj_efb[iVJ].required==1 ? true : false}" aria-label="${valj_efb[iVJ].name}" ${aire_describedby} ${previewSate != true ? 'readonly' : ''} ${disabled =="disabled" ? 'readonly' :''}>
         ${desc}`
       dataTag = elementId;
       typeof rating_el_pro_efb =="function" ? 0 : ui=public_pro_message()
@@ -7136,7 +7660,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
   const addDeleteBtnState = (formName_Efb == "login" && (valj_efb[iVJ].id_ == "emaillogin" || valj_efb[iVJ].id_ == "passwordlogin")) || (formName_Efb == "register" && (valj_efb[iVJ].id_ == "usernameRegisterEFB" || valj_efb[iVJ].id_ == "passwordRegisterEFB" || valj_efb[iVJ].id_ == "emailRegisterEFB")) ? true : false;
   if (elementId != "form" && dataTag != "step" && ((previewSate == true && elementId != 'option') || previewSate != true))
     {
-    const pro_el = valj_efb[iVJ].hasOwnProperty('pro') ? valj_efb[iVJ].pro :false ;
+    const pro_el = efb_field_is_pro_efb(valj_efb[iVJ]);
     const contorl = ` <div class="efb btn-edit-holder d-none efb" id="btnSetting-${rndm}-id">
     <button type="button" class="efb  btn btn-edit btn-sm BtnSideEfb" id="settingElEFb"  data-id="${rndm}-id" data-bs-toggle="tooltip"  title="${efb_var.text.edit}" onclick="show_setting_window_efb('${rndm}-id')">
     <div class="icon-container efb"><i class="efb bi-gear-wide-connected  text-success BtnSideEfb"></i></div>
@@ -8336,6 +8860,12 @@ const add_r_matrix_view_select = (idin, value, id_ob, tag, parentsID) => {
     `
 }
 
+/* The offline add-on ships Windows-reserved names (con, prn, aux, nul,
+ * com1..9, lpt1..9) with a leading "_": con.json cannot be unpacked there. */
+function efb_admin_offline_name_efb(name) {
+  name = String(name);
+  return /^(con|prn|aux|nul|com[1-9]|lpt[1-9])$/i.test(name) ? '_' + name : name;
+}
 async function fetch_json_from_url_efb_admin(url) {
   let r = { s: false, r: "false" };
   try {
@@ -8873,8 +9403,11 @@ function previewFormEfb(state) {
     }
   }
   step_el_efb = Number(valj_efb[0].steps);
+  // AdnOF may be {active:true}; AfLnFrm is saved as a boolean. Both branches
+  // only apply in 'run' (the persiaPay one ran in previews too).
+  const efb_offline_on = addons_emsFormBuilder.AdnOF==1 || (addons_emsFormBuilder.AdnOF && (addons_emsFormBuilder.AdnOF.active===true || addons_emsFormBuilder.AdnOF.active==1));
   if ( state == 'run' &&
-  ( (addons_emsFormBuilder.AdnOF==1 && typeof valj_efb[0].AfLnFrm =='string' &&  valj_efb[0].AfLnFrm==1) ) || (valj_efb[0].getway=="persiaPay" && typeof get_authority_efb =="string") ) { fun_offline_Efb()
+  ( (efb_offline_on && Number(valj_efb[0].AfLnFrm)===1) || (valj_efb[0].getway=="persiaPay" && typeof get_authority_efb =="string") ) ) { fun_offline_Efb()
   }
   if (ttype=='ardate'){
     if(typeof  load_hijir_data_picker_efb=="function"){

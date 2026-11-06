@@ -1,4 +1,4 @@
-.efb {direction: rtl !important; font-family: 'Roboto', sans-serif!important;}
+.efb {direction: rtl !important;}
 .wp-menu-name {text-align: initial;}
 .search-form-control.efb {    padding-right: 40px!important;padding-left:10px!important;}
 input[type=file].efb {    padding: 3px 14px;}
@@ -216,3 +216,7 @@ body.rtl .efb input.intlPhone::placeholder,
     margin-right: 0 !important;
     margin-left: .25rem !important;
 }
+/* Confirmation codes and shortcodes are Latin text: read them left to right.
+   The RTL rule above (direction: rtl !important on .efb) together with
+   Bootstrap's bidi-override on <code> printed 261102XUJMS as SMJUX201162. */
+code.efb, .efb code {direction: ltr !important; unicode-bidi: isolate !important;}

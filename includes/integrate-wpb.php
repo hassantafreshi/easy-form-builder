@@ -1,4 +1,7 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 /* add_action( 'vc_before_init', 'ems_Form_Builders_visual_composer_shortcode' );
 add_shortcode('EMS_Form_Builder', 'render_ems_Form_Builder');
@@ -31,7 +34,7 @@ function ems_Form_Builders_visual_composer_shortcode() {
 
 
 function ems_Form_Builders_visual_composer_shortcode_css() {
-  wp_enqueue_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min-efb.css', array(), EMSFB_PLUGIN_VERSION);
+  wp_enqueue_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min-efb.css', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/css/bootstrap.min-efb.css'));
  
 }
 add_action( 'vc_load_iframe_jscss', 'ems_Form_Builders_visual_composer_shortcode_css' );

@@ -28,12 +28,20 @@
  *     rows:    [ { label, value, badge: 'ok'|'bad', mono: true } ],
  *     groups:  [ { title, items: [ '' ] } ],
  *     tips:    [ '' ],
+ *     note:    '',            a quiet secondary line (e.g. "forms are unaffected")
+ *     technical: [ '' ],      raw service/transport text, behind a <details>
  *     strings: { ... },
  *     inline:  false,
  *     activeTab: 'delivery'
  *   }
  *
  * `phase` picks the tone, so a caller never names a colour.
+ *
+ * outcome() is the one piece of shared judgement here: it names what the
+ * evidence from /start and /result actually proves (see the state table in
+ * docs/email-server-test.md), so both callers keep "the check could not run"
+ * apart from "the email did not arrive". It reads only the payloads it is
+ * handed and still needs no plugin globals.
  */
 
 (function (root) {
@@ -73,8 +81,77 @@
 		tabDelivery: 'Delivery details',
 		tabDiagnosis: 'Diagnosis',
 		tabTips: 'Recommendations',
-		scoreOutOf: '/ 100'
+		scoreOutOf: '/ 100',
+		technical: 'Technical details',
+		showDetails: 'Show details'
 	};
+
+	/**
+	 * What the evidence proves, as one word.
+	 *
+	 *   start_failed       /start was not accepted (or input invalid): nothing sent
+	 *   wp_mail_failed     wp_mail() returned false: the message never left the site
+	 *   accepted           wp_mail() returned true and a test hash exists; waiting
+	 *   pending            the service has no arrival yet (pending / delayed)
+	 *   delivered          the service saw the probe arrive (can_send_email true);
+	 *                      the score decides healthy vs spam risk, callers own that
+	 *   not_delivered      the service closed the window without an arrival (expired)
+	 *   timeout            the browser stopped polling before any final answer
+	 *   invalid_response   an answer arrived that could not be read
+	 *   tester_unreachable the site got no usable answer from the service
+	 *   connection_lost    the browser got no usable answer from this site
+	 *   upgrade_required   the service refused the test for the plan / quota
+	 *
+	 * Only not_delivered and wp_mail_failed say anything negative about email.
+	 *
+	 * @param {Object} input { stage: 'start'|'result', payload, result,
+	 *                         requestFailed, parseError, timedOut }
+	 * @return {string}
+	 */
+	function outcome(input) {
+		input = input || {};
+
+		var payload = input.payload || {};
+		var result = input.result || payload.result || (input.stage === 'start' ? payload.test : null) || {};
+		var status = result.status ? String(result.status) : '';
+
+		if (input.requestFailed) {
+			return input.parseError ? 'invalid_response' : 'connection_lost';
+		}
+		if (result.can_send_email === true) {
+			return 'delivered';
+		}
+		if (result.upgrade_required) {
+			return 'upgrade_required';
+		}
+		if (status === 'failed' || (input.stage === 'start' && payload.stage === 'send')) {
+			return 'wp_mail_failed';
+		}
+		if (status === 'expired') {
+			return 'not_delivered';
+		}
+		if (status === 'pending' || status === 'delayed' || result.analysis_stage === 'pending') {
+			return input.timedOut ? 'timeout' : 'pending';
+		}
+		if (input.timedOut) {
+			return 'timeout';
+		}
+
+		if (input.stage === 'start') {
+			if (payload.success && result.test_hash) {
+				return 'accepted';
+			}
+			return 'start_failed';
+		}
+
+		if (payload.success === false || !status) {
+			return payload.reason === 'invalid_response' ? 'invalid_response' : 'tester_unreachable';
+		}
+
+		// An analyzed report without an arrival is not something the service
+		// sends today; treat it as the definite answer it claims to be.
+		return status === 'analyzed' ? 'not_delivered' : 'tester_unreachable';
+	}
 
 	function escapeHtml(value) {
 		return String(value === null || value === undefined ? '' : value)
@@ -184,32 +261,106 @@
 			'</div></div>';
 	}
 
-	function renderHero(view, s, rtl, running) {
-		var hero = view.hero || {};
+	/** The gauge when there is a score, the icon when there is not. */
+	function renderFigure(hero, s, rtl) {
 		var hasScore = hero.score !== undefined && hero.score !== null && hero.score !== '';
-		var figure;
 
 		if (hasScore) {
-			var score = Math.max(0, Math.min(100, Number(hero.score) || 0));
-			// The sweep is the datum, so it is the one inline style here.
-			figure = '<div class="efb-est__gauge" style="background:conic-gradient(var(--efb-est-tone) ' +
-				(score * 3.6) + 'deg, #e7e9f4 0deg);" role="img" aria-label="' +
+			var score = Math.round(Math.max(0, Math.min(100, Number(hero.score) || 0)));
+			// A thin round ring: a light track and the score's arc, with
+			// rounded ends, drawn from the top. pathLength="100" makes the
+			// dash the score itself - the one datum written into the markup.
+			// No arc at 0, or its rounded ends would show as a dot.
+			return '<div class="efb-est__gauge" role="img" aria-label="' +
 				escapeHtml(score + ' / 100') + '">' +
+				'<svg class="efb-est__gauge-svg" viewBox="0 0 100 100" aria-hidden="true" focusable="false">' +
+				'<circle class="efb-est__gauge-track" cx="50" cy="50" r="44" pathLength="100"></circle>' +
+				(score > 0
+					? '<circle class="efb-est__gauge-arc" cx="50" cy="50" r="44" pathLength="100" stroke-dasharray="' + score + ' 100"></circle>'
+					: '') +
+				'</svg>' +
 				'<span class="efb-est__gauge-inner">' +
 				'<span class="efb-est__score">' + escapeHtml(localeDigits(score, rtl)) + '</span>' +
 				'<span class="efb-est__score-max">' + escapeHtml(s.scoreOutOf) + '</span>' +
 				'</span></div>';
-		} else {
-			figure = '<div class="efb-est__hero-icon"><i class="bi ' +
-				escapeHtml(hero.icon || 'bi-envelope-check') + '" aria-hidden="true"></i></div>';
 		}
+
+		return '<div class="efb-est__hero-icon"><i class="bi ' +
+			escapeHtml(hero.icon || 'bi-envelope-check') + '" aria-hidden="true"></i></div>';
+	}
+
+	function renderProgress(view, rtl) {
+		var percent = Math.max(0, Math.min(100, Number(view.percent) || 0));
+		var percentLabel = localeDigits(percent, rtl) + (rtl ? '٪' : '%');
+
+		return '<div class="efb-est__progress">' +
+			'<div class="efb-est__track" role="progressbar" aria-valuenow="' + percent +
+			'" aria-valuemin="0" aria-valuemax="100">' +
+			'<div class="efb-est__bar" style="width:' + percent + '%;"></div></div>' +
+			'<span class="efb-est__percent">' + escapeHtml(percentLabel) + '</span>' +
+			'</div>';
+	}
+
+	/**
+	 * The short form of a result: the figure, one label, one sentence, the
+	 * line about the emailed report, and nothing else in sight. Everything
+	 * the full panel shows waits behind one "Show details".
+	 *
+	 * Built for the setup wizard and the form builder, where the person
+	 * reading it is a site owner, not a mail administrator: a score they can
+	 * place, a sentence that says whether notifications are on, and the step
+	 * rail, the diagnosis and the raw service text only on request.
+	 *
+	 *   summary: {
+	 *     label:    '',                  one or two words next to the figure
+	 *     sentence: '',                  the one sentence
+	 *     report:   { text, email },     optional; text already contains the
+	 *                                    address when email is empty
+	 *     note:     '',                  optional quiet line under the sentence
+	 *     detailsLabel: ''               optional, defaults to strings.showDetails
+	 *   }
+	 */
+	function renderSummary(view, s, rtl, running) {
+		var sum = view.summary || {};
+		var hero = view.hero || {};
+		var lines = '';
+
+		if (sum.sentence) {
+			lines += '<p class="efb-est__sum-sentence" dir="auto">' + escapeHtml(sum.sentence) + '</p>';
+		}
+		if (running) {
+			lines += renderProgress(view, rtl);
+		}
+		if (sum.report && sum.report.text) {
+			// The sentence carries a %s where the address goes, so a translator
+			// can put it anywhere; the address itself stays left to right.
+			var parts = String(sum.report.text).split('%s');
+			var mail = sum.report.email ? '<b class="efb-est__mail">' + escapeHtml(sum.report.email) + '</b>' : '';
+			var reportHtml = parts.length > 1
+				? escapeHtml(parts[0]) + mail + escapeHtml(parts.slice(1).join('%s'))
+				: escapeHtml(sum.report.text) + (mail ? ' ' + mail : '');
+			lines += '<div class="efb-est__sum-report"><i class="bi bi-envelope-paper" aria-hidden="true"></i>' +
+				'<span dir="auto">' + reportHtml + '</span></div>';
+		}
+		if (sum.note) {
+			lines += '<div class="efb-est__sum-note" dir="auto">' + escapeHtml(sum.note) + '</div>';
+		}
+
+		return '<div class="efb-est__sum">' +
+			'<div class="efb-est__sum-figure">' + renderFigure(hero, s, rtl) + '</div>' +
+			'<div class="efb-est__sum-main">' +
+			(sum.label ? '<div class="efb-est__sum-label" dir="auto">' + escapeHtml(sum.label) + '</div>' : '') +
+			lines +
+			'</div></div>';
+	}
+
+	function renderHero(view, s, rtl, running) {
+		var hero = view.hero || {};
+		var figure = renderFigure(hero, s, rtl);
 
 		var grade = hero.grade
 			? '<span class="efb-est__grade">' + escapeHtml(hero.grade) + '</span>'
 			: '';
-
-		var percent = Math.max(0, Math.min(100, Number(view.percent) || 0));
-		var percentLabel = localeDigits(percent, rtl) + (rtl ? '٪' : '%');
 
 		return '<div class="efb-est__hero">' +
 			'<div class="efb-est__hero-figure">' + figure + '</div>' +
@@ -218,12 +369,8 @@
 			'<span class="efb-est__hero-title" dir="auto">' + escapeHtml(hero.title || '') + '</span>' + grade +
 			'</div>' +
 			(hero.sub ? '<div class="efb-est__hero-sub" dir="auto">' + escapeHtml(hero.sub) + '</div>' : '') +
-			'<div class="efb-est__progress">' +
-			'<div class="efb-est__track" role="progressbar" aria-valuenow="' + percent +
-			'" aria-valuemin="0" aria-valuemax="100">' +
-			'<div class="efb-est__bar" style="width:' + percent + '%;"></div></div>' +
-			'<span class="efb-est__percent">' + escapeHtml(percentLabel) + '</span>' +
-			'</div></div></div>';
+			renderProgress(view, rtl) +
+			'</div></div>';
 	}
 
 	function renderBlocks(view) {
@@ -232,6 +379,11 @@
 		if (view.message) {
 			out += '<div class="efb-est__note"><i class="bi bi-arrow-right-circle-fill" aria-hidden="true"></i>' +
 				'<span>' + escapeHtml(view.message) + '</span></div>';
+		}
+
+		if (view.note) {
+			out += '<div class="efb-est__note efb-est__note--aside"><i class="bi bi-info-circle" aria-hidden="true"></i>' +
+				'<span dir="auto">' + escapeHtml(view.note) + '</span></div>';
 		}
 
 		if (view.smtp && view.smtp.title) {
@@ -277,6 +429,31 @@
 		}
 
 		return out;
+	}
+
+	/**
+	 * Raw transport or service text (a cURL error, an HTTP code) is useful to a
+	 * host's support desk and noise to everyone else, so it sits behind a
+	 * native <details>: keyboard operable and announced without extra script.
+	 */
+	function renderTechnical(view, s) {
+		var lines = Array.isArray(view.technical)
+			? view.technical
+			: (view.technical ? [view.technical] : []);
+
+		lines = lines.filter(function (line) {
+			return line !== null && line !== undefined && String(line).trim() !== '';
+		});
+
+		if (!lines.length) {
+			return '';
+		}
+
+		return '<details class="efb-est__tech"><summary dir="auto">' + escapeHtml(s.technical) + '</summary>' +
+			lines.map(function (line) {
+				return '<div class="efb-est__tech-line" dir="auto">' + escapeHtml(line) + '</div>';
+			}).join('') +
+			'</details>';
 	}
 
 	function renderDetails(view, s) {
@@ -363,6 +540,134 @@
 	 * @return {string} HTML for the body of the test, head and foot excluded -
 	 *                  the modal supplies those, the wizard does not want them.
 	 */
+	/**
+	 * The two ways out of a low score, built from what the test proved and
+	 * what the server told the admin page (efb_var.emailMonitor.next_steps).
+	 *
+	 * Shown only when the result needs it: the mail arrived with a score under
+	 * the healthy line, or it never arrived. A healthy result or a run that
+	 * could not finish gets nothing - there is nothing to fix yet.
+	 *
+	 * @param {Object} input { show, auth: {spf,dkim,dmarc}, data, text(key, fallback), docsBase }
+	 * @return {Object|null}
+	 */
+	function nextSteps(input) {
+		input = input || {};
+		if (!input.show) return null;
+		var data = input.data || {};
+		var text = typeof input.text === 'function' ? input.text : function (k, f) { return f; };
+		var docs = data.docs || {};
+		var base = String(input.docsBase || '').replace(/\/+$/, '');
+		var docUrl = function (key) { return docs[key] && base ? base + '/' + docs[key] + '/' : ''; };
+		var auth = input.auth || {};
+		var status = function (value) {
+			value = String(value || 'unknown').toLowerCase();
+			// The service reports a published DMARC record (and a DKIM signature it
+			// could not verify) as "present"; its own report counts that as set up.
+			if (['pass', 'passed', 'present', 'ok', 'valid'].indexOf(value) !== -1) return 'ok';
+			if (value === 'unknown' || value === '') return 'unknown';
+			return 'needs'; // missing, fail, softfail, none
+		};
+		var checks = [
+			{ key: 'spf', label: text('emailNextStepsSpf', 'Sender permission (SPF)') },
+			{ key: 'dkim', label: text('emailNextStepsDkim', 'Email signature (DKIM)') },
+			{ key: 'dmarc', label: text('emailNextStepsDmarc', 'Domain protection policy (DMARC)') }
+		].map(function (c) {
+			var st = status(auth[c.key]);
+			return {
+				label: c.label,
+				status: st,
+				statusLabel: st === 'ok' ? text('emailNextStepsOk', 'Looks good') : (st === 'needs' ? text('emailNextStepsNeedsSetup', 'Needs setup') : text('emailNextStepsUnknown', 'Not checked')),
+				url: docUrl(c.key),
+				linkLabel: text('emailNextStepsGuide', 'Guide, video and AI prompt')
+			};
+		});
+		var services = (Array.isArray(data.services) ? data.services : []).map(function (sv) {
+			return {
+				name: sv.name || '',
+				note: sv.note || '',
+				site: sv.site || '',
+				installed: !!sv.installed,
+				installUrl: (!sv.installed && data.can_install && data.install_base) ? data.install_base + encodeURIComponent(sv.slug || '') : '',
+				pluginsUrl: sv.installed ? (data.plugins_url || '') : ''
+			};
+		});
+		return {
+			title: text('emailNextStepsTitle', 'What you can do now'),
+			intro: text('emailNextStepsIntro', 'These settings belong to your hosting and your domain name, not to Easy Form Builder. The plugin only runs the test and shows the result; it cannot change them for you. Both options below are free.'),
+			overviewUrl: docUrl('overview'),
+			overviewLabel: text('emailNextStepsOverview', 'Why this happens and which option to pick'),
+			free: {
+				title: text('emailNextStepsFreeTitle', 'Option 1: set up your domain records (free, about 15 minutes)'),
+				desc: text('emailNextStepsFreeDesc', 'Each guide has a short video, screenshots and a ready-made prompt you can paste into any AI assistant to be walked through it step by step.'),
+				checks: checks
+			},
+			services: {
+				title: text('emailNextStepsServicesTitle', 'Option 2: send through an email service (free plans available)'),
+				desc: text('emailNextStepsServicesDesc', 'A sending service delivers your form emails from its own trusted servers. Install the official plugin with one click, sign in and connect; most services also give you the SPF and DKIM records to copy.'),
+				items: services,
+				canInstall: !!data.can_install,
+				askAdmin: text('emailNextStepsAskAdmin', 'Ask a site administrator to install one of these plugins.'),
+				installLabel: text('emailNextStepsInstall', 'Install'),
+				installedLabel: text('emailNextStepsInstalled', 'Installed'),
+				openPluginsLabel: text('emailNextStepsOpenPlugins', 'Open Plugins'),
+				compareUrl: docUrl('services'),
+				compareLabel: text('emailNextStepsCompare', 'Compare the free plans'),
+				plansNote: text('emailNextStepsPlansNote', 'Free-plan limits are set by each service and change over time; check the plan before you rely on it.')
+			}
+		};
+	}
+
+	function renderNextSteps(view) {
+		var n = view.nextSteps;
+		if (!n || !n.title) return '';
+		var link = function (url, label, cls) {
+			var u = safeUrl(url);
+			return u ? '<a class="' + cls + '" href="' + u + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(label) + '<i class="bi bi-box-arrow-up-right" aria-hidden="true"></i></a>' : '';
+		};
+		var out = '<div class="efb-est__next"><div class="efb-est__next-head">' +
+			'<i class="bi bi-signpost-2-fill" aria-hidden="true"></i>' +
+			'<div><div class="efb-est__next-title" dir="auto">' + escapeHtml(n.title) + '</div>' +
+			'<div class="efb-est__next-intro" dir="auto">' + escapeHtml(n.intro) + ' ' + link(n.overviewUrl, n.overviewLabel, 'efb-est__next-link') + '</div></div></div>';
+
+		out += '<div class="efb-est__next-grid">';
+		// option 1
+		out += '<div class="efb-est__next-card"><div class="efb-est__next-card-title" dir="auto">' + escapeHtml(n.free.title) + '</div>' +
+			'<div class="efb-est__next-card-desc" dir="auto">' + escapeHtml(n.free.desc) + '</div><ul class="efb-est__next-checks">';
+		n.free.checks.forEach(function (c) {
+			out += '<li class="efb-est__next-check efb-est__next-check--' + c.status + '">' +
+				'<span class="efb-est__next-check-label" dir="auto">' + escapeHtml(c.label) + '</span>' +
+				'<span class="efb-est__next-chip">' + escapeHtml(c.statusLabel) + '</span>' +
+				link(c.url, c.linkLabel, 'efb-est__next-link') + '</li>';
+		});
+		out += '</ul></div>';
+		// option 2
+		out += '<div class="efb-est__next-card"><div class="efb-est__next-card-title" dir="auto">' + escapeHtml(n.services.title) + '</div>' +
+			'<div class="efb-est__next-card-desc" dir="auto">' + escapeHtml(n.services.desc) + '</div>';
+		if (n.services.items.length) {
+			out += '<ul class="efb-est__next-services">';
+			n.services.items.forEach(function (sv) {
+				var action = '';
+				if (sv.installed) {
+					action = '<span class="efb-est__next-chip efb-est__next-chip--ok">' + escapeHtml(n.services.installedLabel) + '</span>' + link(sv.pluginsUrl, n.services.openPluginsLabel, 'efb-est__next-link');
+				} else if (sv.installUrl) {
+					action = link(sv.installUrl, n.services.installLabel, 'efb-est__next-btn');
+				}
+				out += '<li class="efb-est__next-service"><div class="efb-est__next-service-main">' +
+					'<span class="efb-est__next-service-name">' + escapeHtml(sv.name) + '</span>' +
+					'<span class="efb-est__next-service-note" dir="auto">' + escapeHtml(sv.note) + '</span></div>' +
+					'<div class="efb-est__next-service-actions">' + action + '</div></li>';
+			});
+			out += '</ul>';
+		}
+		if (!n.services.canInstall) {
+			out += '<div class="efb-est__next-card-desc" dir="auto">' + escapeHtml(n.services.askAdmin) + '</div>';
+		}
+		out += '<div class="efb-est__next-small" dir="auto">' + escapeHtml(n.services.plansNote) + ' ' + link(n.services.compareUrl, n.services.compareLabel, 'efb-est__next-link') + '</div></div>';
+		out += '</div></div>';
+		return out;
+	}
+
 	function render(view) {
 		view = view || {};
 
@@ -379,10 +684,31 @@
 			classes.push('efb-est--inline');
 		}
 
+		// The short form: everything the full panel draws is still there, but
+		// folded behind a native <details>, so the tabs keep working and the
+		// person who wants the step rail or the raw service text can have it.
+		if (view.summary) {
+			classes.push('efb-est--summary');
+			var sum = view.summary || {};
+			var more = renderSteps(view, s, rtl) +
+				renderBlocks(view) +
+				renderNextSteps(view) +
+				renderTechnical(view, s) +
+				renderDetails(view, s);
+			return '<div class="' + classes.join(' ') + '" data-efb-est>' +
+				renderSummary(view, s, rtl, running) +
+				'<details class="efb-est__more"' + (sum.open ? ' open' : '') + '><summary dir="auto">' +
+				escapeHtml(sum.detailsLabel || s.showDetails) + '</summary>' +
+				'<div class="efb-est__more-body">' + more + '</div></details>' +
+				'</div>';
+		}
+
 		return '<div class="' + classes.join(' ') + '" data-efb-est>' +
 			renderHero(view, s, rtl, running) +
 			renderSteps(view, s, rtl) +
 			renderBlocks(view) +
+			renderNextSteps(view) +
+			renderTechnical(view, s) +
 			renderDetails(view, s) +
 			'</div>';
 	}
@@ -449,9 +775,11 @@
 
 	root.efbEmailTestUI = {
 		render: render,
+		nextSteps: nextSteps,
 		phaseChip: phaseChip,
 		bindTabs: bindTabs,
 		activeTab: activeTab,
+		outcome: outcome,
 		escapeHtml: escapeHtml,
 		localeDigits: localeDigits,
 		STEP_KEYS: STEP_KEYS

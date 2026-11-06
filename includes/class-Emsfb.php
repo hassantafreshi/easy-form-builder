@@ -3,6 +3,11 @@
 if (!defined('ABSPATH')) {
     die("Direct access of plugin files is not allowed.");
 }
+// Loaded through the missing-file guard as well (see includes()), so an
+// incomplete package leaves the plugin inert instead of fataling every request.
+if (is_readable(__DIR__ . '/json-efb.php')) {
+    require_once __DIR__ . '/json-efb.php';
+}
 
 class Emsfb {
     public $plugin_path = "";
@@ -45,6 +50,12 @@ class Emsfb {
 
         add_action('activated_plugin', [$this, 'handle_new_plugin_activation_efb'], 10, 2);
         add_action('deactivated_plugin', [$this, 'handle_plugin_deactivation_efb'], 10, 1);
+        /* deactivate_plugins() fires deactivated_plugin inside its loop and only
+         * saves the shortened active_plugins list afterwards, so the rebuild
+         * above still saw the plugin as active and the cache warning kept
+         * naming a plugin that was off. Rebuild once the list is saved. */
+        add_action('update_option_active_plugins', [$this, 'refresh_plugin_lists_efb'], 10, 0);
+        add_action('update_site_option_active_sitewide_plugins', [$this, 'refresh_plugin_lists_efb'], 10, 0);
 
         add_action('emsfb_update_cache_plugins_list', [$this, 'update_cache_plugins_list']);
         add_action('emsfb_update_security_plugins_list', [$this, 'update_security_plugins_list']);
@@ -63,6 +74,9 @@ class Emsfb {
         add_action('plugins_loaded', [$this, 'check_version_and_upgrade_efb']);
         add_action('plugins_loaded', [$this, 'maybe_upgrade_schema_efb'], 11);
 
+        // Accounts from an EFB register form sign in only after the e-mail link.
+        add_filter('wp_authenticate_user', [$this, 'block_unverified_login_efb'], 10, 2);
+
         // Must sit after rest_cookie_check_errors (priority 100) so it can see,
         // and selectively undo, the 403 that core raises for a stale nonce.
         add_filter('rest_authentication_errors', [$this, 'allow_anonymous_stale_nonce_efb'], 101);
@@ -75,6 +89,58 @@ class Emsfb {
         // that would create it. The listener has to exist before the event fires.
         add_action('emsfb_addon_recovery_event', [$this, 'run_addon_recovery_efb'], 10, 1);
         add_action('init', [$this, 'schedule_background_jobs_efb']);
+        // A new site or profile language can need an add-on language file that was
+        // pruned when the add-on was installed. Flag it; the next Add-ons, Create or
+        // Panel screen downloads the add-on again.
+        add_action('add_option_WPLANG', [$this, 'addon_site_locale_changed_efb'], 10, 0);
+        add_action('update_option_WPLANG', [$this, 'addon_site_locale_changed_efb'], 10, 0);
+        add_action('added_user_meta', [$this, 'addon_user_locale_changed_efb'], 10, 4);
+        add_action('updated_user_meta', [$this, 'addon_user_locale_changed_efb'], 10, 4);
+    }
+
+    /**
+     * add_option_WPLANG / update_option_WPLANG: queue add-on translations for the new site language.
+     *
+     * @return void
+     */
+    public function addon_site_locale_changed_efb() {
+        $this->flag_addon_locale_efb((string) get_option('WPLANG', ''));
+    }
+
+    /**
+     * added_user_meta / updated_user_meta: queue add-on translations for a new profile language.
+     *
+     * @param int    $meta_id    Meta row id.
+     * @param int    $object_id  User id.
+     * @param string $meta_key   Meta key.
+     * @param mixed  $meta_value Meta value.
+     * @return void
+     */
+    public function addon_user_locale_changed_efb($meta_id, $object_id, $meta_key, $meta_value) {
+        if ('locale' !== $meta_key || !is_string($meta_value)) {
+            return;
+        }
+        $this->flag_addon_locale_efb($meta_value);
+    }
+
+    /**
+     * Load functions.php and hand the locale to the shared flagger.
+     *
+     * @param string $locale WordPress locale; '' means English.
+     * @return void
+     */
+    private function flag_addon_locale_efb($locale) {
+        if ('' === $locale || 'en_US' === $locale) {
+            return;
+        }
+        try {
+            self::get_efbFunction();
+            if (function_exists('emsfb_flag_addon_i18n_refetch_efb')) {
+                emsfb_flag_addon_i18n_refetch_efb(null, $locale);
+            }
+        } catch (\Throwable $e) {
+            // A language change must never fail because of add-on translations.
+        }
     }
 
     /**
@@ -88,6 +154,30 @@ class Emsfb {
      *
      * @return void
      */
+    /**
+     * An account created by an EFB register form waits for its e-mail link
+     * (register_() gives it the subscriber role and clears the mark). Until
+     * then it has no role, yet wp_signon() let it in. A role the owner sets by
+     * hand also counts as approval. Accounts made before 4.3.1 carry no mark.
+     *
+     * @param \WP_User|\WP_Error $user
+     * @return \WP_User|\WP_Error
+     */
+    public function block_unverified_login_efb($user, $password = '') {
+        if (!($user instanceof \WP_User) || empty($user->ID)) {
+            return $user;
+        }
+        if (get_user_meta($user->ID, 'efb_pending_verification', true) && empty($user->roles)) {
+            // This filter runs before core checks the password: only someone who
+            // knows it learns that the account exists and is waiting.
+            if (!wp_check_password($password, $user->user_pass, $user->ID)) {
+                return $user;
+            }
+            return new \WP_Error('efb_pending_verification', esc_html__('Please confirm your email address with the link we sent you before logging in.', 'easy-form-builder'));
+        }
+        return $user;
+    }
+
     public function maybe_upgrade_schema_efb(): void {
         $stored = get_option('Emsfb_db_version', '0');
 
@@ -192,8 +282,16 @@ class Emsfb {
         $events = [
             'emsfb_daily_maintenance'    => 'daily',
             'emsfb_revalidate_license'   => 'daily',
-            'emsfb_refresh_ir_cdn_status' => 'hourly',
         ];
+
+        // Only Persian sites read the Iran CDN verdict (emsfb.php). Any other
+        // site has no reason to contact cdn.easyformbuilder.ir every hour, and
+        // to a server monitor such a call looks like a plugin phoning home.
+        if ('fa_IR' === get_locale()) {
+            $events['emsfb_refresh_ir_cdn_status'] = 'hourly';
+        } elseif (wp_next_scheduled('emsfb_refresh_ir_cdn_status')) {
+            wp_clear_scheduled_hook('emsfb_refresh_ir_cdn_status');
+        }
 
         foreach ($events as $hook => $recurrence) {
             if (!wp_next_scheduled($hook)) {
@@ -250,14 +348,27 @@ class Emsfb {
      * @return void
      */
     public function refresh_ir_cdn_status_efb(): void {
-        if (!function_exists('emsfb_probe_ir_cdn_status_efb')) {
+        if (!function_exists('emsfb_probe_ir_cdn_status_efb') || 'fa_IR' !== get_locale()) {
             return;
         }
         emsfb_probe_ir_cdn_status_efb();
     }
 
     public function includes(): void {
-        $core_ok = $this->require_plugin_file_efb('includes/class-Emsfb-install.php');
+        // The JSON helpers are used by settings, forms, uploads and add-ons alike.
+        $json_ok = function_exists('emsfb_json_decode_efb') || $this->require_plugin_file_efb('includes/json-efb.php');
+        $runtime_ok = $this->require_plugin_file_efb('includes/class-Emsfb-form-runtime.php');
+        if ($runtime_ok) {
+            \Emsfb\Form_Runtime::register();
+            add_action('emsfb_daily_maintenance', array('\Emsfb\Form_Runtime', 'cleanup'));
+        }
+        $health_ok = $this->require_plugin_file_efb('includes/class-Emsfb-request-health.php');
+        if ($health_ok) {
+            \Emsfb\Request_Health::register();
+        }
+        $cache_ok = $this->require_plugin_file_efb('includes/class-Emsfb-cache-compat.php');
+        if ($cache_ok) \Emsfb\Cache_Compat::register();
+        $core_ok = $this->require_plugin_file_efb('includes/class-Emsfb-install.php') && $json_ok && $runtime_ok && $health_ok && $cache_ok;
         $core_ok = $this->require_plugin_file_efb('includes/class-Emsfb-email-monitor.php') && $core_ok;
         $core_ok = $this->require_plugin_file_efb('includes/class-Emsfb-addon-compatibility.php') && $core_ok;
 
@@ -299,6 +410,38 @@ class Emsfb {
             new \Emsfb\Review_Request();
         }
 
+        // Translations for every locale the site uses except the four shipped with the
+        // plugin (exact locales: fa_AF, ary, en_GB, de_AT... are downloaded):
+        // WhiteStudio first, wordpress.org second. Not counted into $core_ok - a site
+        // without language packs is still a working form builder.
+        // See docs/language-packs/README.md.
+        if ($this->require_plugin_file_efb('includes/class-Emsfb-language-packs.php')) {
+            \Emsfb\Language_Packs::boot([
+                'product'           => 'easy-form-builder',
+                'text_domain'       => 'easy-form-builder',
+                'wporg_slug'        => 'easy-form-builder',
+                'version'           => EMSFB_PLUGIN_VERSION,
+                'plugin_file'       => EMSFB_PLUGIN_FILE,
+                'plugin_name'       => 'Easy Form Builder',
+                'prefix'            => 'emsfb_language_packs',
+                'servers'           => [defined('EMSFB_LANGUAGE_PACKS_SERVER_URL') ? EMSFB_LANGUAGE_PACKS_SERVER_URL : EMSFB_SERVER_URL],
+                'bundled_locales'   => ['fa_IR', 'ar', 'en_US', 'de_DE'],
+                'bundled_dir'       => EMSFB_PLUGIN_DIRECTORY . 'languages/',
+                'guide_url'         => 'https://github.com/hassantafreshi/easy-form-builder/blob/HEAD/docs/language-packs/manual-install.md',
+                'extra_locales'     => 'emsfb_get_active_locales_efb',
+                'enabled'           => !(defined('EMSFB_DISABLE_LANGUAGE_PACKS') && EMSFB_DISABLE_LANGUAGE_PACKS),
+                'debug'             => defined('EFB_DEBUG') && EFB_DEBUG,
+                // Without WP-Cron the first visit installs a missing pack: Panel and Create
+                // block and reload (like add-on recovery), other screens only show a notice.
+                'blocking_screens'     => ['Emsfb', 'Emsfb_create'],
+                'front_script_handles' => ['efb-main-js'],
+            ]);
+            // text_efb() caches the built phrase array per locale; a new pack must not be hidden by it.
+            add_action('emsfb_language_packs_installed', static function () {
+                update_option('emsfb_text_version', time());
+            });
+        }
+
         if (is_admin()) {
             $admin_ok = $this->require_plugin_file_efb('includes/admin/class-Emsfb-admin.php');
             $admin_ok = $this->require_plugin_file_efb('includes/admin/class-Emsfb-create.php') && $admin_ok;
@@ -309,6 +452,17 @@ class Emsfb {
                 return;
             }
             new \Emsfb\Dashboard_Widget();
+
+            // Import from Contact Form 7: a self-contained module, loaded only
+            // where it is offered (Panel, Create) and for its own admin-ajax
+            // actions. Optional - the plugin works the same without the folder.
+            if (self::is_cf7_importer_request_efb()) {
+                $cf7_importer = $this->plugin_path . 'includes/importers/cf7/class-Emsfb-cf7-importer.php';
+                if (is_readable($cf7_importer)) {
+                    require_once $cf7_importer;
+                }
+            }
+
             $ac = self::get_setting_Emsfb('decoded');
 
             $payment_exists = isset($ac->AdnPAP) ? (int) $ac->AdnPAP : 0;
@@ -461,7 +615,8 @@ class Emsfb {
 			new Emsfb_Shield_SilentCaptcha_Integration();
 		}
 
-		// Form Security & Spam Protection (Human Shield) ships inside the plugin.
+		// Form Security & Spam Protection (Human Shield) is a downloaded add-on in
+		// vendor/human-shield: a plugin update removes it and add-on recovery restores it.
 		// The protection *runtime* only activates when the add-on is switched on
 		// (AdnHSH >= 1); it stays off by default so form/submission behaviour does
 		// not change until the user opts in. The *admin settings page* is always
@@ -499,6 +654,21 @@ class Emsfb {
 
        $this->load_page_builder_integrations();
 
+    }
+
+    /**
+     * Whether this admin request is one the Contact Form 7 importer serves:
+     * the Panel or Create screen, or one of its efb_cf7_* admin-ajax actions.
+     */
+    private static function is_cf7_importer_request_efb(): bool {
+        // phpcs:disable WordPress.Security.NonceVerification -- routing only; the module verifies its own requests.
+        if (wp_doing_ajax()) {
+            $action = isset($_REQUEST['action']) ? sanitize_key(wp_unslash($_REQUEST['action'])) : '';
+            return 0 === strpos($action, 'efb_cf7_');
+        }
+        $page = isset($_GET['page']) ? sanitize_key(wp_unslash($_GET['page'])) : '';
+        // phpcs:enable
+        return 'emsfb' === $page || 'emsfb_create' === $page;
     }
 
     /**
@@ -710,14 +880,14 @@ class Emsfb {
             'autoptimize', 'wp-rest-cache', 'speedycache', 'clear-cache-for-widgets',
             'wp-cache', 'wp-cache-system', 'atec-cache-info', 'atec-cache-apcu',
             'wpspeed', 'wp-speed', 'flying-press',
-            'sg-optimizer', 'swift-performance', 'powered-cache'
+            'sg-optimizer', 'sg-cachepress', 'swift-performance', 'swift-performance-lite', 'powered-cache'
         );
 
         $security_plugins_slug = array(
             'wordfence', 'better-wp-security', 'all-in-one-wp-security-and-firewall',
             'disable-json-api', 'wp-rest-api-authentication', 'jwt-authentication-for-wp-rest-api',
             'limit-login-attempts-reloaded', 'loginizer', 'shield-security',
-            'sucuri-scanner', 'bbq-firewall', 'wp-cerber', 'anti-spam-bee',
+            'sucuri-scanner', 'bbq-firewall', 'wp-cerber', 'antispam-bee',
             'bulletproof-security'
         );
 
@@ -732,13 +902,29 @@ class Emsfb {
         }
     }
 
+    public function refresh_plugin_lists_efb() {
+        // When Easy Form Builder itself was just deactivated, its cleanup has removed
+        // these lists; rebuilding them here would leave them behind.
+        if (defined('EMSFB_PLUGIN_FILE')) {
+            $self = plugin_basename(EMSFB_PLUGIN_FILE);
+            $active = in_array($self, (array) get_option('active_plugins', array()), true);
+            if (!$active && is_multisite()) {
+                $network = (array) get_site_option('active_sitewide_plugins', array());
+                $active = isset($network[$self]);
+            }
+            if (!$active) return;
+        }
+        do_action('emsfb_update_cache_plugins_list');
+        do_action('emsfb_update_security_plugins_list');
+    }
+
     public function handle_plugin_deactivation_efb($plugin) {
         $this->clear_server_host_cache_efb();
         $security_plugins_slug = array(
             'wordfence', 'better-wp-security', 'all-in-one-wp-security-and-firewall',
             'disable-json-api', 'wp-rest-api-authentication', 'jwt-authentication-for-wp-rest-api',
             'limit-login-attempts-reloaded', 'loginizer', 'shield-security',
-            'sucuri-scanner', 'bbq-firewall', 'wp-cerber', 'anti-spam-bee',
+            'sucuri-scanner', 'bbq-firewall', 'wp-cerber', 'antispam-bee',
             'bulletproof-security'
         );
         $cache_plugins_slug = array(
@@ -749,7 +935,7 @@ class Emsfb {
             'autoptimize', 'wp-rest-cache', 'speedycache', 'clear-cache-for-widgets',
             'wp-cache', 'wp-cache-system', 'atec-cache-info', 'atec-cache-apcu',
             'wpspeed', 'wp-speed', 'flying-press',
-            'sg-optimizer', 'swift-performance', 'powered-cache'
+            'sg-optimizer', 'sg-cachepress', 'swift-performance', 'swift-performance-lite', 'powered-cache'
         );
         $slug = dirname($plugin);
         if (in_array($slug, $cache_plugins_slug)) {
@@ -769,7 +955,7 @@ class Emsfb {
             'autoptimize', 'wp-rest-cache', 'speedycache', 'clear-cache-for-widgets',
             'wp-cache', 'wp-cache-system', 'atec-cache-info', 'atec-cache-apcu',
             'wpspeed', 'wp-speed', 'flying-press',
-            'sg-optimizer', 'swift-performance', 'powered-cache'
+            'sg-optimizer', 'sg-cachepress', 'swift-performance', 'swift-performance-lite', 'powered-cache'
         );
 
         $cache_plugins_slug = apply_filters('emsfb_cache_plugins_slug', $cache_plugins_slug);
@@ -780,6 +966,13 @@ class Emsfb {
 
         $plugins = get_plugins();
         $active_plugins = get_option('active_plugins', array());
+        if (!is_array($active_plugins)) $active_plugins = array();
+        /* On multisite, cache plugins (LiteSpeed, WP Rocket...) are usually
+         * network-activated and so are missing from the site's own list. */
+        if (is_multisite()) {
+            $network_plugins = get_site_option('active_sitewide_plugins', array());
+            if (is_array($network_plugins)) $active_plugins = array_merge($active_plugins, array_keys($network_plugins));
+        }
         $plugin_list = array();
 
         foreach ($plugins as $plugin_file => $plugin_data) {
@@ -803,11 +996,88 @@ class Emsfb {
         $val = !empty($plugin_list) ? json_encode($plugin_list) : 0;
         $old_val = get_option('emsfb_cache_plugins', 0);
 
-        if ($val != $old_val) {
+        // Compared as strings: on PHP 7 a stored "[...]" == 0 is true, so an
+        // emptied list was never saved.
+        if ((string) $val !== (string) $old_val) {
             update_option('emsfb_cache_plugins', $val);
         }
 
         return $plugin_list;
+    }
+
+    /**
+     * Slugs in the stored caching list that never keep a saved copy of a page.
+     *
+     * The stored list is wider on purpose (the public cache cleaner and the
+     * builder hints use it), but the email test report tells the administrator
+     * that a cached page can break their forms, and saying that about Jetpack
+     * or an asset optimizer is a false alarm on a very large number of sites.
+     */
+    const NOT_PAGE_CACHE_SLUGS = [
+        // atec-cache-apcu is NOT listed: EFB's own public cache purger treats it
+        // as a page cache (atec_wpca_delete_page with the '_p' suffix), so the
+        // notice must fire for it too.
+        'jetpack', 'autoptimize', 'clear-cache-for-widgets', 'atec-cache-info',
+    ];
+
+    /**
+     * Comma separated names of the page caching plugins this site runs, or ''.
+     *
+     * Sent with the email delivery test so the report the administrator gets
+     * after the first-run guide or a manual test can carry the cache exclusion
+     * notice. The weekly report never carries it.
+     *
+     * The stored list is only rebuilt on plugin install/activation/update, so
+     * the rebuild is triggered first: a caching plugin activated since then
+     * would otherwise stay invisible here. The value is capped because the
+     * tester service stores it in a fixed width column, and a site cannot run
+     * enough caching plugins for the cap to ever shorten a real list.
+     *
+     * @return string
+     */
+    public static function cache_plugins_names() {
+        if (has_action('emsfb_update_cache_plugins_list')) {
+            do_action('emsfb_update_cache_plugins_list');
+        }
+
+        $raw = get_option('emsfb_cache_plugins', 0);
+        if (!is_string($raw) || '' === $raw || '0' === $raw) {
+            return '';
+        }
+
+        $plugins = json_decode($raw, true);
+        if (!is_array($plugins) || empty($plugins)) {
+            return '';
+        }
+
+        $names = [];
+        foreach ($plugins as $plugin) {
+            if (is_array($plugin) && isset($plugin['slug']) && in_array((string) $plugin['slug'], self::NOT_PAGE_CACHE_SLUGS, true)) {
+                continue;
+            }
+            $name = is_array($plugin) && isset($plugin['name']) ? sanitize_text_field((string) $plugin['name']) : '';
+            if ('' !== $name && !in_array($name, $names, true)) {
+                $names[] = $name;
+            }
+        }
+
+        // Cap to the width of the service column (500) in BYTES, on a whole-name
+        // boundary. The service stores this in a fixed 500-char column and its
+        // own sanitizer cuts by bytes, so a byte cut through the middle of a
+        // multibyte name (a Persian or Cyrillic plugin name) would be invalid
+        // UTF-8 and make the service reject or mangle the value. Dropping whole
+        // names keeps it valid without mbstring. A real site never runs enough
+        // caching plugins for the cap to shorten the list at all.
+        $list = '';
+        foreach ($names as $name) {
+            $next = '' === $list ? $name : $list . ', ' . $name;
+            if (strlen($next) > 500) {
+                break;
+            }
+            $list = $next;
+        }
+
+        return $list;
     }
 
 
@@ -817,7 +1087,7 @@ class Emsfb {
             'wordfence', 'better-wp-security', 'all-in-one-wp-security-and-firewall',
             'disable-json-api', 'wp-rest-api-authentication', 'jwt-authentication-for-wp-rest-api',
             'limit-login-attempts-reloaded', 'loginizer', 'shield-security',
-            'sucuri-scanner', 'bbq-firewall', 'wp-cerber', 'anti-spam-bee',
+            'sucuri-scanner', 'bbq-firewall', 'wp-cerber', 'antispam-bee',
             'bulletproof-security'
         );
 
@@ -829,6 +1099,11 @@ class Emsfb {
 
         $plugins      = get_plugins();
         $active       = get_option('active_plugins', array());
+        if (!is_array($active)) $active = array();
+        if (is_multisite()) {
+            $network_plugins = get_site_option('active_sitewide_plugins', array());
+            if (is_array($network_plugins)) $active = array_merge($active, array_keys($network_plugins));
+        }
         $plugin_list  = array();
 
         foreach ($plugins as $plugin_file => $plugin_data) {
@@ -848,7 +1123,7 @@ class Emsfb {
         $val     = !empty($plugin_list) ? json_encode($plugin_list) : 0;
         $old_val = get_option('emsfb_security_plugins', 0);
 
-        if ($val != $old_val) {
+        if ((string) $val !== (string) $old_val) {
             update_option('emsfb_security_plugins', $val);
         }
 
@@ -952,7 +1227,7 @@ class Emsfb {
         if (!empty($trimmedEnd) && !preg_match('/[}\]]$/', $trimmedEnd)) {
         }
 
-        $decoded = json_decode($raw);
+        $decoded = emsfb_json_decode_efb($raw);
         if ($decoded === null) {
 
             $clean = $raw;
@@ -1036,7 +1311,12 @@ class Emsfb {
 
                 $settings_changed = false;
                 if (!isset($decoded->AdnGoS)) {
-                    $decoded->AdnGoS = 0;
+                    // Same rule as normalize_addon_settings_efb(): a site whose add-ons
+                    // were put in place by the Add-ons Handler or an older release has
+                    // emsfb_addon_AdnGoS=1 but no flag in the settings row yet. A plain 0
+                    // here ran first and switched Google Sheets off on every such site.
+                    $legacy_gos = get_option('emsfb_addon_AdnGoS', false);
+                    $decoded->AdnGoS = $legacy_gos !== false && absint($legacy_gos) >= 1 ? 1 : 0;
                     $settings_changed = true;
                 }
                 if ($settings_changed) {
@@ -1185,6 +1465,9 @@ class Emsfb {
 
     public static function plugin_deactivation_cleanup_efb()
     {
+        wp_clear_scheduled_hook('emsfb_cache_scan_v1');
+        wp_clear_scheduled_hook('emsfb_cache_scan_v2');
+        wp_clear_scheduled_hook('emsfb_stripe_reconcile_efb');
         if (class_exists('\Emsfb\Email_Monitor')) {
             \Emsfb\Email_Monitor::deactivate();
         }
@@ -1413,14 +1696,103 @@ class Emsfb {
 			return;
 		}
 
+        // Network activation runs the activation hook for the main site only, so a
+        // sub-site (existing or created later) had no EFB tables and could not save a
+        // form. Install once per site the first time its dashboard loads.
+        if (is_multisite() && !get_option('emsfb_site_installed_efb')) {
+            $this->ensure_site_tables_efb();
+        }
+
         if (version_compare($installed_version, $current_version, '<')) {
             $this->run_upgrade_tasks_efb($installed_version, $current_version);
             update_option('emsfb_version', $current_version);
             if (class_exists('\Emsfb\Email_Monitor')) {
                 \Emsfb\Email_Monitor::plugin_updated();
             }
+        } elseif (get_option('emsfb_sending_default_431', '') === 'pending') {
+            // The 4.3.1 upgrade could not read the settings at the time.
+            $this->enable_email_sending_after_upgrade_efb();
         }
 
+    }
+
+    private function ensure_site_tables_efb() {
+        global $wpdb;
+        $table = $wpdb->prefix . 'emsfb_form';
+        $exists = static function () use ($wpdb, $table) {
+            return $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $wpdb->esc_like($table))) === $table;
+        };
+        if (!$exists() && class_exists('\Emsfb\Install')) {
+            try {
+                \Emsfb\Install::install();
+            } catch (\Throwable $e) {
+                return; // Retried on the next dashboard load.
+            }
+        }
+        if ($exists()) {
+            update_option('emsfb_site_installed_efb', 1);
+        }
+    }
+
+    /**
+     * Turn form emails on once for a site that updates to 4.3.1 with them off.
+     *
+     * Before 4.3.1 new installs started with "This site can send emails" off
+     * and an email check that did not pass switched it off. Nobody chose that,
+     * and the result was forms whose owners never heard of a submission.
+     * Runs once per site (an option records it); an owner who turns sending
+     * off afterwards keeps it off. The filter lets a site or a host opt out.
+     *
+     * @return void
+     */
+    private function enable_email_sending_after_upgrade_efb() {
+        $state = (string) get_option('emsfb_sending_default_431', '');
+        if ($state !== '' && $state !== 'pending') {
+            return;
+        }
+        /* Recorded once the question is settled (opted out, already on, or
+         * switched on). Recording it before reading the settings meant a
+         * moment with no readable settings row skipped the switch for good;
+         * such a run now leaves 'pending' and check_version_and_upgrade_efb()
+         * retries it on a later dashboard load. */
+        $done = function () {
+            update_option('emsfb_sending_default_431', (string) time(), false);
+        };
+
+        /**
+         * Filter whether the 4.3.1 update may switch form emails on.
+         *
+         * @param bool $enable Default true.
+         */
+        if (!apply_filters('emsfb_upgrade_enable_email_sending', true)) {
+            $done();
+            return;
+        }
+
+        try {
+            self::get_setting_Emsfb('_clear_cache');
+            $settings = self::get_setting_Emsfb('decoded');
+            if (!is_object($settings)) {
+                update_option('emsfb_sending_default_431', 'pending', false);
+                return; // Nothing readable yet: try again on a later load.
+            }
+            if (self::is_email_sending_enabled_efb($settings)) {
+                $done();
+                return;
+            }
+            $settings->smtp = true;
+            $supporter = (isset($settings->emailSupporter) && is_string($settings->emailSupporter) && is_email($settings->emailSupporter))
+                ? $settings->emailSupporter
+                : '';
+            $efb_function = self::get_efbFunction();
+            if (is_object($efb_function) && method_exists($efb_function, 'set_setting_Emsfb')) {
+                $efb_function->set_setting_Emsfb($settings, $supporter);
+                delete_transient('emsfb_settings_transient');
+                $done();
+            }
+        } catch (\Throwable $e) {
+            // An upgrade must never fail because of this.
+        }
     }
 
     private function run_upgrade_tasks_efb($old_version, $new_version) {
@@ -1428,10 +1800,26 @@ class Emsfb {
         $table_setting = $wpdb->prefix . 'emsfb_setting';
 
         // A plugin update can wipe downloaded add-on files. Flag that add-ons may
-        // need reinstalling; Create/Panel/Add-ons block on this until a local
-        // health check confirms every enabled add-on is present again (the flag
-        // clears itself at that point via addon_recovery_state_efb()).
+        // need reinstalling; Create and Panel block on this until a local health
+        // check confirms every enabled add-on is present again (the flag clears
+        // itself at that point via addon_recovery_state_efb()).
         update_option('emsfb_addons_reinstall_required', time());
+        // A new release is a new situation: let the first page load retry at once
+        // instead of waiting out a backoff left by a failure on the old version.
+        delete_transient('emsfb_addons_dl_backoff');
+        delete_transient('emsfb_addon_recovery_running');
+        delete_option('emsfb_addons_dl_failures');
+
+        // Keep only the add-on language files of locales this site uses. A no-op on
+        // local sites and git checkouts; never throws, never affects the upgrade.
+        try {
+            self::get_efbFunction();
+            if (function_exists('emsfb_prune_addon_languages_efb')) {
+                emsfb_prune_addon_languages_efb();
+            }
+        } catch (\Throwable $e) {
+            // Translations must never break an upgrade.
+        }
 
         if (function_exists('wp_cache_flush')) {
             wp_cache_flush();
@@ -1452,6 +1840,13 @@ class Emsfb {
         }
 
         $this->migrate_fix_double_escaped_settings_efb($wpdb);
+
+        // 4.3.1: form emails are on by default. Sites set up on an older
+        // version start with them off, and a failed check used to switch them
+        // off too, so most owners never received a single submission by email.
+        if (version_compare((string) $old_version, '4.3.1', '<')) {
+            $this->enable_email_sending_after_upgrade_efb();
+        }
 
         if (version_compare($old_version, '4', '<')) {
             do_action('emsfb_update_cache_plugins_list');
@@ -1555,18 +1950,19 @@ class Emsfb {
             $raw = substr($raw, 3);
         }
 
-        $raw = str_replace("\0", '', $raw);
-
-        $raw = preg_replace('/[\x{200B}-\x{200D}\x{FEFF}\x{00AD}\x{2060}]/u', '', $raw);
-
         $raw = trim($raw);
-
-        if (function_exists('mb_convert_encoding')) {
-
-            $raw = mb_convert_encoding($raw, 'UTF-8', 'UTF-8');
+        $raw = emsfb_json_normalize_efb($raw);
+        // Invisible characters and HTML entities inside valid JSON values are
+        // data (including Persian joining characters), not broken encoding.
+        if (json_decode($raw) === null && json_last_error() !== JSON_ERROR_NONE) {
+            $raw = str_replace("\0", '', $raw);
+            $raw = preg_replace('/[\x{200B}-\x{200D}\x{FEFF}\x{00AD}\x{2060}]/u', '', $raw);
+            if (function_exists('mb_convert_encoding')) {
+                $raw = mb_convert_encoding($raw, 'UTF-8', 'UTF-8');
+            }
         }
 
-        if (strpos($raw, '&quot;') !== false || strpos($raw, '&#34;') !== false) {
+        if (json_decode($raw) === null && (strpos($raw, '&quot;') !== false || strpos($raw, '&#34;') !== false)) {
             $candidate = html_entity_decode($raw, ENT_QUOTES | ENT_HTML5, 'UTF-8');
             if (json_decode($candidate) !== null) {
                 $raw = $candidate;
@@ -1609,6 +2005,30 @@ class Emsfb {
      *
      * @return string
      */
+    /**
+     * Rewrite double-quoted HTML attributes as single-quoted ones (apostrophes inside
+     * become &#39;) and turn any remaining double quote into an apostrophe.
+     *
+     * The settings row is JSON, and readers shipped before 4.3.1 (add-ons, and 4.3.0
+     * itself after a rollback) decode it with json_decode(str_replace('\\', '', $raw)),
+     * which fails as soon as a value contains an escaped double quote.
+     *
+     * @param string $html Email template HTML.
+     * @return string
+     */
+    public static function normalize_email_template_quotes_efb($html) {
+        if (!is_string($html) || $html === '' || strpos($html, '"') === false) {
+            return $html;
+        }
+        $normalized = preg_replace_callback('/(\s[\w:.-]+)\s*=\s*"([^"]*)"/', static function ($m) {
+            return $m[1] . "='" . str_replace("'", '&#39;', $m[2]) . "'";
+        }, $html);
+        if (!is_string($normalized)) {
+            $normalized = $html;
+        }
+        return str_replace('"', "'", $normalized);
+    }
+
     public static function get_default_email_template_efb() {
         $direction = function_exists('is_rtl') && is_rtl() ? 'rtl' : 'ltr';
         $message_align = $direction === 'rtl' ? 'right' : 'left';
@@ -1734,7 +2154,7 @@ class Emsfb {
             . '<tr><td style="padding:15px 25px;color:#64748b;font:12px/1.6 Arial,sans-serif;text-align:center;">' . $safe_disclaimer . '</td></tr>'
             . '</table></td></tr></table></body></html>';
 
-        return $html . "\n<!-- EFBDATA:" . rawurlencode($builder_json) . ' -->';
+        return self::normalize_email_template_quotes_efb($html . "\n<!-- EFBDATA:" . rawurlencode($builder_json) . ' -->');
     }
 
     public static function get_default_settings_efb() {
@@ -1744,7 +2164,7 @@ class Emsfb {
         $defaults->secretKey         = '';
         $defaults->emailSupporter    = get_option('admin_email', '');
         $defaults->apiKeyMap         = '';
-        $defaults->smtp              = false;
+        $defaults->smtp              = true;
         $defaults->weeklyEmailReport = true;
         $defaults->emailStatsReport  = true;
         $defaults->text              = '';

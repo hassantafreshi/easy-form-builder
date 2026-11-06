@@ -10,6 +10,14 @@
 
 
 A WordPress plugin for create forms by using an interactive drag & drop wizard. The plugin is published in [WordPress' plugin repository](https://wordpress.org/plugins/easy-form-builder/).
+
+<div align="center">
+    <a href="https://youtu.be/XBVyCFP36OY">
+        <img src="https://img.youtube.com/vi/XBVyCFP36OY/hqdefault.jpg" alt="Easy Form Builder video" width="560" />
+    </a>
+    <br>
+    <a href="https://youtu.be/XBVyCFP36OY">▶ Watch the video on YouTube</a>
+</div>
 <br>
 > Call for translators! [We're looking for translators](https://translate.wordpress.org/projects/wp-plugins/easy-form-builder/) to help translate this Plugin for everyone!
 
@@ -32,7 +40,7 @@ A WordPress plugin for create forms by using an interactive drag & drop wizard. 
       <td>हिन्दी, <a href="https://hi.wordpress.org/plugins/easy-form-builder/">आसान फॉर्म बिल्डर</a></td>
       <td>Danish, <a href="https://da.wordpress.org/plugins/easy-form-builder/">Nem formularbygger</a></td>
       <td>فارسی, <a href="https://fa.wordpress.org/plugins/easy-form-builder/">فرم ساز آسان</a></td>
-      <td>العربی, <a href="https://ar.wordpress.org/plugins/easy-form-builder/">منشئ النموذج السهل</a></td>
+      <td>العربی, <a href="https://ar.wordpress.org/plugins/easy-form-builder/">مُنشيء النماذج السهل</a></td>
     </tr>
   </tbody>
 </table>
@@ -47,6 +55,8 @@ A WordPress plugin for create forms by using an interactive drag & drop wizard. 
 * [Easy Form Builder 3.X.X](https://github.com/hassantafreshi/easy-form-builder/tree/v3) is deprecated.
 * [Easy Form Builder 4.X.X](https://github.com/hassantafreshi/easy-form-builder/tree/v4) is under active development. (recommended)
 
+**Latest release: 4.3.1** - forms use your theme's font, Stripe payments are verified on the server, form emails are on by default, Contact Form 7 import, and fixes across the payment, SMS, Telegram, Google Sheets, Conditional Logic, Auto-Populate and date picker add-ons. See the [changelog](https://wordpress.org/plugins/easy-form-builder/#developers).
+
 
 ## Features 💡
 
@@ -54,7 +64,7 @@ You don't need any coding skills to use Easy Form Builder. Simply drag and drop 
 
 Features:
 
-### Core Features
+### Plugin Features
 
 #### Form Builder & Creation
 - **Drag & Drop Form Builder** - Visual interface to create forms without coding
@@ -192,8 +202,8 @@ The most recent documentation for Easy Form Builder can be found at:
 
 
 ## Requirements 🔨
-* [WordPress](https://wordpress.org/) >= `4.7`
-* [PHP](https://secure.php.net/manual/en/install.php) >= `7`
+* [WordPress](https://wordpress.org/) >= `5.7`
+* [PHP](https://secure.php.net/manual/en/install.php) >= `7.4`
 
 
 
@@ -293,7 +303,6 @@ Contributions of any kind are welcome!
 ### SMS (Text message) Notifications
 Notification System for Form Submissions.
 - ✔️ Seamless Integration with [WSMS](https://wordpress.org/plugins/wp-sms/)
-- White Studio SMS Service (Coming soon)
 - Twilio (Coming soon)
 
 ### Telegram Notifications
@@ -332,12 +341,21 @@ Notification System for Form Submissions.
 - ✔️ Conditional Webhook
 
 ### Google Sheet Export
-- Service Account Connection & Existing/New Spreadsheet Binding
-- Sync Logs
-- Field Mapping & Retry Queue (Coming soon)
+- ✔️ Service Account Connection & Existing/New Spreadsheet Binding
+- ✔️ Sync Logs
+- ✔️ Field Mapping (column order, titles, per-field on/off)
+- Retry Queue (Coming soon)
 
-### Shield Security
+### Shield Security Plugin Integration
 - ✔️ [Shield Security](https://wordpress.org/plugins/wp-simple-firewall/) silentCAPTCHA Integration
+
+### Security & Spam Protection
+- ✔️ blocking WordPress form spam without CAPTCHA - invisible, behavior-based bot detection with a hidden honeypot field, signed single-use security tokens, and per-IP rate limiting for form submissions, file uploads, confirmation-code lookups, public replies, and payment requests. It also protects your notification budget by stopping suspicious entries from consuming email, SMS, Telegram, webhook, or Google Sheets quota, supports an IP allowlist and blocklist, and keeps privacy-aware security logs that store hashed identifiers instead of raw IP addresses. It starts in Monitor-only mode, so you can review real traffic before turning on blocking
+
+### AI Integration
+
+
+
 
 <!-- markdownlint-restore -->
 <!-- prettier-ignore-end -->

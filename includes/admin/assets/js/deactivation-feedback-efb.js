@@ -376,6 +376,20 @@
 		});
 
 		modal.addEventListener('click', function (event) {
+			// "Which plugin did you choose?" - one tap fills the answer.
+			var chip = event.target && event.target.closest ? event.target.closest('.efb-deactivate-chip') : null;
+			if (chip) {
+				var reasonItem = chip.closest('.efb-deactivate-reason');
+				var box = reasonItem ? reasonItem.querySelector('.efb-deactivate-details') : null;
+				if (box) {
+					box.value = chip.getAttribute('data-efb-chip') || '';
+					box.focus();
+				}
+				[].slice.call(chip.parentNode.querySelectorAll('.efb-deactivate-chip')).forEach(function (other) {
+					other.setAttribute('aria-pressed', other === chip ? 'true' : 'false');
+				});
+				return;
+			}
 			if (event.target && event.target.getAttribute && event.target.getAttribute('data-efb-close')) {
 				closeModal();
 			}

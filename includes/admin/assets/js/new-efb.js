@@ -241,17 +241,32 @@ const efb_modal_watch_efb = () => {
       window._efb_modal_watch_efb = 0;
       return;
     }
-    if (efb_modal_shell_busy_efb()) return;
-    /* A backdrop that outlives its dialog means the close is still playing
-       out. Its teardown runs on a timer, so opening now would hand the new
-       dialog a backdrop that is about to be removed. */
-    if (document.querySelector('.efb-modal-backdrop')) return;
-
-    const spec = window._efb_modal_parked_efb.shift();
-    efb_modal_paint_efb(spec.body, spec.title, spec.icon, spec.type, spec.opts);
-    state_modal_show_efb(1);
-    efb_modal_after_shown_efb(spec.opts);
+    efb_modal_drain_efb();
   }, 400);
+};
+
+/**
+ * Paint the oldest waiting request, if the screen is free right now.
+ *
+ * Split out of the poll so a caller that has just freed the screen itself -
+ * see {replace} below - can hand the waiting dialog over as soon as the
+ * close has played out, instead of sitting through up to a full poll tick.
+ *
+ * @returns {boolean} true when a parked dialog was painted.
+ */
+const efb_modal_drain_efb = () => {
+  if (!window._efb_modal_parked_efb.length) return false;
+  if (efb_modal_shell_busy_efb()) return false;
+  /* A backdrop that outlives its dialog means the close is still playing
+     out. Its teardown runs on a timer, so opening now would hand the new
+     dialog a backdrop that is about to be removed. */
+  if (document.querySelector('.efb-modal-backdrop')) return false;
+
+  const spec = window._efb_modal_parked_efb.shift();
+  efb_modal_paint_efb(spec.body, spec.title, spec.icon, spec.type, spec.opts);
+  state_modal_show_efb(1);
+  efb_modal_after_shown_efb(spec.opts);
+  return true;
 };
 
 /** Run a caller's post-paint wiring once the dialog is really on screen. */
@@ -268,6 +283,12 @@ const efb_modal_after_shown_efb = (opts) => {
  *                        of a deleteBox/duplicateBox footer;
  *                        {flow} names the flow this dialog belongs to, so a
  *                        later call naming the same flow may paint over it;
+ *                        {replace} is for a dialog that is *answering* the
+ *                        one on screen - a confirmation asked by a button
+ *                        inside it. Waiting its turn there would mean
+ *                        waiting for the person to close the dialog they
+ *                        just acted in, so the shell is closed for them and
+ *                        this dialog takes over by itself;
  *                        {onShown} runs once the dialog is actually visible,
  *                        which is where button wiring belongs - a parked
  *                        dialog is not in the DOM when show_modal_efb()
@@ -287,8 +308,28 @@ const show_modal_efb = (body, title, icon, type, opts) => {
   // Painting is allowed when the screen is free, or when this call belongs
   // to the flow already on it. Everything else waits its turn.
   const owns = !!opts.flow && opts.flow === efb_modal_current_flow_efb();
-  if (!owns && efb_modal_shell_busy_efb()) {
+  /* A request of this flow still waiting must not be jumped: the screen can
+     be momentarily free between a {replace} close and the hand-over, and
+     painting into that gap would leave the earlier ask queued behind this
+     one, to surface later as a dialog nobody asked for. Parking supersedes
+     it in place instead - see efb_modal_park_efb(). */
+  const queued = !!opts.flow &&
+    window._efb_modal_parked_efb.some((q) => q.opts.flow === opts.flow);
+  if (!owns && (queued || efb_modal_shell_busy_efb())) {
     efb_modal_park_efb({ body: body, title: title, icon: icon, type: type, opts: opts });
+    /* {replace}: this dialog answers the one holding the shell, so nobody is
+       going to close that one first. Close it here and hand the screen over
+       as soon as the close has played out - the poll started by the park is
+       the fallback if it has not. Only the shared shell is closed this way;
+       a dialog of its own, such as the review invitation, is still somebody
+       else's and waits its turn. */
+    if (opts.replace) {
+      const shell = document.getElementById('settingModalEfb');
+      if (shell && shell.classList.contains('show')) {
+        state_modal_show_efb(0);
+        setTimeout(efb_modal_drain_efb, 300);
+      }
+    }
     return false;
   }
 
@@ -399,12 +440,12 @@ let add_buttons_zone_efb = (state, id) => {
   const  row = Number(valj_efb[0].steps)==1 ? '' : 'row';
   const s = `
   <div class="efb d-flex ${btns_align} ${state == 0 ? 'd-block' : 'd-none'} ${btnPos} efb " id="f_btn_send_efb" data-tag="buttonNav">
-    <a id="btn_send_efb" role="button" class="efb text-decoration-none mx-0 btn p-2 ${dis} ${valj_efb[0].button_color}  ${corner} ${valj_efb[0].el_height}  efb-btn-lg ${floatEnd}"> ${valj_efb[0].icon.length > 3 && valj_efb[0].icon != 'bi-undefined' && valj_efb[0].icon != 'bXXX' ? `<i class="efb   ${valj_efb[0].icon} mx-2  ${valj_efb[0].icon_color}   ${valj_efb[0].el_height}" id="button_group_icon"> </i>` : `<i class="efb d-none   ${valj_efb[0].icon} mx-2  ${valj_efb[0].icon_color}   ${valj_efb[0].el_height}" id="button_group_icon"> </i>`}<span id="button_group_button_single_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_single_text}</span></a>
+    <a id="btn_send_efb" role="button" tabindex="0" class="efb text-decoration-none mx-0 btn p-2 ${dis} ${valj_efb[0].button_color}  ${corner} ${valj_efb[0].el_height}  efb-btn-lg ${floatEnd}"> ${valj_efb[0].icon.length > 3 && valj_efb[0].icon != 'bi-undefined' && valj_efb[0].icon != 'bXXX' ? `<i class="efb   ${valj_efb[0].icon} mx-2  ${valj_efb[0].icon_color}   ${valj_efb[0].el_height}" id="button_group_icon"> </i>` : `<i class="efb d-none   ${valj_efb[0].icon} mx-2  ${valj_efb[0].icon_color}   ${valj_efb[0].el_height}" id="button_group_icon"> </i>`}<span id="button_group_button_single_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_single_text}</span></a>
   </div>`
   const d = `
   <div class="efb d-flex ${btns_align} ${state == 1 ? 'd-block' : 'd-none'} ${btnPos} ${efb_var.rtl == 1 ?'flex-row-reverse' :''} efb" id="f_button_form_np">
-  <a id="prev_efb" role="button" class="efb text-decoration-none btn  p-2  ${valj_efb[0].button_color}    ${corner}   ${valj_efb[0].el_height}   efb-btn-lg ${floatEnd} m-1">${valj_efb[0].button_Previous_icon.length > 2 ? `<i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} ${valj_efb[0].el_height}" id="button_group_Previous_icon"></i>` : ``} <span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ${valj_efb[0].button_Previous_icon != 'bi-undefined' ? 'mx-2' : ''}">${valj_efb[0].button_Previous_text}</span></a>
-  <a id="next_efb" role="button" class="efb text-decoration-none btn  ${dis} p-2 ${valj_efb[0].button_color}    ${corner}  ${valj_efb[0].el_height}    efb-btn-lg ${floatEnd} m-1"><span id="button_group_Next_button_text" class="efb  ${valj_efb[0].el_text_color} ${valj_efb[0].button_Next_text != 'bi-undefined' ? ' mx-2' : ''}">${valj_efb[0].button_Next_text}</span> ${valj_efb[0].button_Next_icon.length > 3 ? ` <i class="efb  ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color}  ${valj_efb[0].el_height}" id="button_group_Next_icon"></i>` : ``}</a>
+  <a id="prev_efb" role="button" tabindex="0" class="efb text-decoration-none btn  p-2  ${valj_efb[0].button_color}    ${corner}   ${valj_efb[0].el_height}   efb-btn-lg ${floatEnd} m-1">${valj_efb[0].button_Previous_icon.length > 2 ? `<i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} ${valj_efb[0].el_height}" id="button_group_Previous_icon"></i>` : ``} <span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ${valj_efb[0].button_Previous_icon != 'bi-undefined' ? 'mx-2' : ''}">${valj_efb[0].button_Previous_text}</span></a>
+  <a id="next_efb" role="button" tabindex="0" class="efb text-decoration-none btn  ${dis} p-2 ${valj_efb[0].button_color}    ${corner}  ${valj_efb[0].el_height}    efb-btn-lg ${floatEnd} m-1"><span id="button_group_Next_button_text" class="efb  ${valj_efb[0].el_text_color} ${valj_efb[0].button_Next_text != 'bi-undefined' ? ' mx-2' : ''}">${valj_efb[0].button_Next_text}</span> ${valj_efb[0].button_Next_icon.length > 3 ? ` <i class="efb  ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color}  ${valj_efb[0].el_height}" id="button_group_Next_icon"></i>` : ``}</a>
   </div>
   `
   let c = `<div class="efb footer-test efb">`
@@ -615,7 +656,9 @@ function alert_message_efb(title, message, sec, alertType) {
       container = document.createElement('div');
       container.id = 'alert_container_efb';
       container.className = 'efb';
-      container.style.cssText = `position:fixed; top:80px; ${isRtl ? 'right' : 'left'}:${width}px; z-index:9999999; width:${isMobile ? 'calc(100vw - 40px)' : '33%'}; min-width:280px; max-width:450px; display:flex; flex-direction:column; gap:10px; pointer-events:none;`;
+      // Bottom corner, not the top: at the top the toasts covered the form
+      // builder's own toolbar (Save, Preview, Form Settings).
+      container.style.cssText = `position:fixed; bottom:${isMobile ? 16 : 24}px; ${isRtl ? 'right' : 'left'}:${isMobile ? 16 : width}px; z-index:9999999; width:${isMobile ? 'calc(100vw - 32px)' : '33%'}; min-width:280px; max-width:450px; display:flex; flex-direction:column; gap:10px; pointer-events:none;`;
       document.body.appendChild(container);
     }
 
@@ -629,7 +672,7 @@ function alert_message_efb(title, message, sec, alertType) {
             ${title ? `<h6 class="efb mb-0" style="color:${style.color}; font-weight:600; font-size:0.9rem;">${title}</h6>` : ''}
             ${message ? `<p class="efb mb-0" style="color:${style.color}; opacity:0.95; font-size:0.8rem; line-height:1.4;">${message}</p>` : ''}
           </div>
-          <button type="button" class="efb p-0" onclick="close_msg_efb('${alertId}')" style="display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.2); border:none; border-radius:50%; width:26px; height:26px; cursor:pointer; flex-shrink:0; margin-${isRtl ? 'right' : 'left'}:8px; color:${style.color};">
+          <button type="button" class="efb p-0" aria-label="${(efb_var.text && efb_var.text.close) ? efb_var.text.close : 'Close'}" onclick="close_msg_efb('${alertId}')" style="display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.2); border:none; border-radius:50%; width:26px; height:26px; cursor:pointer; flex-shrink:0; margin-${isRtl ? 'right' : 'left'}:8px; color:${style.color};">
             ${alertIconSvg_efb(alertCloseIconPath_efb, 1)}
           </button>
         </div>
@@ -654,6 +697,9 @@ function alert_message_efb(title, message, sec, alertType) {
 function close_msg_efb(alertId) {
   const el = alertId ? document.getElementById(alertId) : document.querySelector('.alert_item_efb');
   if (el) {
+    // An email toast the owner closed is remembered (see admin-efb.js).
+    const emailKind = el.getAttribute && el.getAttribute('data-efb-email-toast');
+    if (emailKind && typeof efb_builder_email_toast_closed === 'function') efb_builder_email_toast_closed(emailKind);
     const isRtl = efb_var.rtl == 1;
     el.style.opacity = '0';
     el.style.transform = `translateX(${isRtl ? '' : '-'}20px)`;
@@ -722,6 +768,27 @@ async function fun_offline_Efb() {
 
         el=value.type;
         break;
+      case 'pdate':
+      case 'ardate': {
+        /* Auto-Populate and stored rows reach here without the field's own
+         * check: a date the server cannot read ("12/05/1370 08:00") refused the
+         * whole submission while the field looked empty. Show a readable date
+         * as YYYY-MM-DD; drop one that is not a date, so the field is empty
+         * for real and the usual required check applies. */
+        const date_el = document.getElementById(value.id_ob) || document.getElementById(value.id_ + '_');
+        const date_value = typeof efb_typed_date_efb === 'function'
+          ? efb_typed_date_efb(value.value, value.type === 'pdate' ? 'jalali' : 'hijri')
+          : (/^\d{4}-\d{2}-\d{2}$/.test(String(value.value)) ? String(value.value) : null);
+        if (date_value === null) {
+          sendBack_emsFormBuilder_pub.splice(sendBack_emsFormBuilder_pub.lastIndexOf(value), 1);
+          if (date_el) date_el.value = '';
+        } else {
+          value.value = date_value;
+          if (date_el) date_el.value = date_value;
+        }
+        el=value.type;
+        break;
+      }
       case 'checkbox':
       case 'radio':
       case 'payCheckbox':
@@ -919,18 +986,51 @@ function calPLenEfb(len) {
   else { p = 1.1 }
   return p;
 }
-function replaceContentMessageEfb(value){
+// Parse ordinary JSON first. Older EFB storage escaped every quote once more;
+// reverse only that layer, preserving backslashes and escapes inside values.
+function efbParseJson(value, preserveEncoding = false) {
+  if (typeof value !== 'string') return value;
+  if (value.charCodeAt(0) === 0xFEFF) value = value.slice(1);
+  let originalError;
+  try { const decoded = JSON.parse(value); return preserveEncoding ? value : decoded; } catch (error) { originalError = error; }
+  const firstQuote = value.indexOf('"');
+  if (firstQuote <= 0 || value[firstQuote - 1] !== '\\') throw originalError;
+  let candidate = value;
+  for (let i = 0; i < 5; i++) {
+    const next = candidate.replace(/\\(?=")/g, '');
+    if (next === candidate) break;
+    candidate = next;
+    try { const decoded = JSON.parse(candidate); return preserveEncoding ? candidate : decoded; } catch (error) {}
+  }
+  candidate = value;
+  for (let i = 0; i < 5; i++) {
+    const next = candidate.replace(/\\([\\'"0])/g, function (_, char) { return char === '0' ? '\0' : char; });
+    if (next === candidate) break;
+    candidate = next;
+    try { const decoded = JSON.parse(candidate); return preserveEncoding ? candidate : decoded; } catch (error) {}
+  }
+  throw originalError;
+}
+
+function efbNormalizeJson(value) {
+  if (typeof value !== 'string') return value;
+  return efbParseJson(value, true);
+}
+
+function replaceContentMessageEfb(value, keepQuotes){
   if(typeof value !== 'string') return value;
-  value = value.replace(/[\\]/g, '');
-  value = value.replaceAll(/(\\"|"\\)/g, '"');
-  value = value.replaceAll(/(\\\\n|\\\\r)/g, '<br>');
+  // Field text can itself look like JSON; only parsers should normalize it.
    value = value.replaceAll("@efb@sq#","'");
    value = value.replaceAll("@efb@vq#","`");
-   value = value.replaceAll("@efb@dq#",`''`);
+   /* A double quote is stored as @efb@dq#. Turned into a real " before the
+      JSON is parsed it would break the JSON, so this used to write '' instead
+      and every reader showed two apostrophes. Callers that parse first pass
+      keepQuotes and turn the token into " afterwards (viewer, preview, CSV). */
+   if (!keepQuotes) value = value.replaceAll("@efb@dq#",`''`);
    value = value.replaceAll("@efb@nq#",`<br>`);
   return value;
 }
-function fun_upload_file_api_emsFormBuilder(id, type,tp,file,options) {
+async function fun_upload_file_api_emsFormBuilder(id, type,tp,file,options) {
   options = options || {};
   if (!navigator.onLine) {
 	const msg = efb_var.text.fileUploadNetworkError || efb_var.text.offlineSend;
@@ -957,6 +1057,19 @@ function fun_upload_file_api_emsFormBuilder(id, type,tp,file,options) {
     files_emsFormBuilder[indx].recording_duration = Number(options.recording_duration) || 0;
   }
   const form_id = files_emsFormBuilder[indx].hasOwnProperty('form_id') ? files_emsFormBuilder[indx].form_id : 0;
+  let runtime;
+  try {
+    if (window.EFBRuntime) runtime=await window.EFBRuntime.prepare(Number(form_id)||0);
+    if (window.EFBRuntime && options.response_id) {
+      const ticket=await window.EFBRuntime.prepareTicket(options.response_id);
+      if (ticket) options=Object.assign({},options,{response_token:ticket.response_upload_token});
+    }
+  } catch(error) {
+    const current=files_emsFormBuilder.find(x=>x.id_===id && Number(x.form_id||0)===Number(form_id));
+    if (current) current.state=0;
+    if (!options.silent) alert_message_efb('',error.message,17,'danger');
+    return {success:false,error:error.message};
+  }
   let nonce_msg =''
   let sid =''
   if(form_id==0){
@@ -967,6 +1080,7 @@ function fun_upload_file_api_emsFormBuilder(id, type,tp,file,options) {
     sid = vj.sid;
   }
   nonce_msg = efb_var.nonce ?? '';
+  if (runtime) { sid=runtime.sid; nonce_msg=runtime.nonce; }
   const page_id = efb_var.page_id ;
   const idn =  id + '_';
   const delay = options.hasOwnProperty('delay') ? Math.max(0, Number(options.delay) || 0) : 500;
@@ -1117,6 +1231,7 @@ function efb_fetch_fresh_nonce_efb() {
 }
 function fetch_uploadFile(file, id, pl, nonce_msg,page_id ,fid ,sid,options) {
   options = options || {};
+  let ticketRetried=false;
   var idB =id+'-prB';
   return new Promise((resolve, reject) => {
     /* An upload may be sent twice. A 403 means the nonce baked into the page
@@ -1165,14 +1280,26 @@ function fetch_uploadFile(file, id, pl, nonce_msg,page_id ,fid ,sid,options) {
           if (jsonMatch) {
             cleanResponseText = jsonMatch[0];
           } else {
+            if (window.EFBRequestHealth) window.EFBRequestHealth.report('upload', 0);
             reject('Server returned invalid JSON: ' + cleanResponseText.substring(0, 100));
             return;
           }
         }
 
         const response = JSON.parse(cleanResponseText);
+        const failure=response && response.data ? response.data : response;
+        if (failure && failure.code==='efb_ticket_access_expired' && options.response_id && window.EFBRuntime && !ticketRetried) {
+          ticketRetried=true;
+          window.EFBRuntime.prepareTicket(options.response_id,true).then(ticket=>{
+            if (!ticket) { reject(failure.error || 'Reopen the conversation.'); return; }
+            options=Object.assign({},options,{response_token:ticket.response_upload_token});
+            send(activeNonce,isRetry);
+          }).catch(error=>reject(error.message));
+          return;
+        }
         resolve(response);
       } catch (parseError) {
+        if (window.EFBRequestHealth) window.EFBRequestHealth.report('upload', 0);
         reject('Invalid JSON response from server. Check console for details.');
       }
     } else {
@@ -1185,20 +1312,35 @@ function fetch_uploadFile(file, id, pl, nonce_msg,page_id ,fid ,sid,options) {
         const payload = response && response.data ? response.data : response;
         errorMessage = (payload && (payload.m || payload.error || payload.message)) || errorMessage;
       } catch (e) {}
-      if (xhr.status === 403 && !isRetry) {
+      let nonceError = false;
+      try {
+        const failure = JSON.parse(xhr.responseText || '{}');
+        nonceError = ['rest_cookie_invalid_nonce', 'efb_nonce_expired', 'efb_nonce_missing'].includes(failure.code);
+      } catch (e) {}
+      if (xhr.status === 403 && nonceError && !isRetry) {
         efb_fetch_fresh_nonce_efb().then((fresh) => {
-          if (fresh && fresh !== activeNonce) send(fresh, true);
-          else reject(errorMessage);
+          if (fresh) send(fresh, true);
+          else {
+            if (window.EFBRequestHealth) window.EFBRequestHealth.report('upload', xhr.status);
+            reject(errorMessage);
+          }
         });
         return;
       }
+      if (window.EFBRequestHealth) window.EFBRequestHealth.report('upload', xhr.status);
       reject(errorMessage);
     }
     });
     xhr.addEventListener('error', () => {
+    if (window.EFBRequestHealth) window.EFBRequestHealth.report('upload', 0);
     reject(xhr.statusText);
     });
+    ['timeout','abort'].forEach(event=>xhr.addEventListener(event,()=>{
+      if (window.EFBRequestHealth) window.EFBRequestHealth.report('upload',0);
+      reject(efb_var.text.fileUploadNetworkError || 'The upload could not be confirmed.');
+    }));
     xhr.open('POST', url, true);
+    xhr.timeout=300000;
     xhr.setRequestHeader('X-WP-Nonce', activeNonce);
     if (sid) xhr.setRequestHeader('sid', sid);
     /* Apache/PHP installations commonly discard or do not expose headers with

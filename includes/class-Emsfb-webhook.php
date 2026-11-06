@@ -4,6 +4,10 @@ namespace Emsfb;
 
 use WP_REST_Response;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 class webhook {
 
     public function __construct() {
