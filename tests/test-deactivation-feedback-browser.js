@@ -143,7 +143,7 @@ async function shot(page, name) {
 
     t('the reward banner appears', await page.locator('.efb-deactivate-reward').isVisible());
     const reward = (await page.locator('.efb-deactivate-reward-title').textContent()) || '';
-    t('the reward promises 100% off the first year', /100%/.test(reward), reward.trim());
+    t('the reward promises 99% off the first year', /99%/.test(reward), reward.trim());
     t('a description box appears', await page.locator('.efb-deactivate-reason[data-reason="bug"] .efb-deactivate-details').isVisible());
     t('the contact block appears', await page.locator('.efb-deactivate-contact').isVisible());
     t('the email field is pre-filled', ((await page.inputValue('.efb-deactivate-email')) || '').includes('@'));

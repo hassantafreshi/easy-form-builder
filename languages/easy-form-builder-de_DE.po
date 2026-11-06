@@ -8,7 +8,7 @@ msgstr ""
 "POT-Creation-Date: 2026-11-03 00:00+0000\n"
 "X-Generator: EFB tests/core-i18n/build.php\n"
 "X-Domain: easy-form-builder\n"
-"PO-Revision-Date: 2026-11-05 19:04+0000\n"
+"PO-Revision-Date: 2026-11-06 05:18+0000\n"
 "Last-Translator: WhiteStudio <hi@whitestudio.team>\n"
 "Language-Team: de_DE\n"
 "Language: de_DE\n"
@@ -2711,7 +2711,7 @@ msgstr "Der Demo-Modus war in Contact Form 7 aktiviert. Das neue Formular speich
 #  origin: wporg-stable
 #: includes/class-Emsfb-deactivation-feedback.php:1019
 msgid "Describe the bug and we will send you a 99% discount code for your first year of the Pro version, as a thank you."
-msgstr "Beschreibe den Fehler, und wir schicken dir als Dankeschön einen Rabattcode für das erste Jahr der Pro-Version."
+msgstr "Beschreibe den Fehler, und wir schicken dir als Dankeschön einen Rabattcode über 99 % für das erste Jahr der Pro-Version."
 
 #  origin: wporg-stable
 #: includes/functions.php:1762
@@ -14016,3 +14016,13 @@ msgstr "Sicherheitsfehler"
 #: includes/admin/class-Emsfb-admin.php:3607
 msgid "SMS Add-on Not Installed"
 msgstr "SMS-Add-on ist nicht installiert"
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-deactivation-feedback.php:1018
+msgid "Report the bug, get 99% off your first year"
+msgstr "Melde den Fehler und erhalte im ersten Jahr 99 % Rabatt"
+
+#  origin: claude (de_DE)
+#: includes/class-Emsfb-deactivation-feedback.php:1032
+msgid "Your report has been received. We will email your 99% discount code after a quick check."
+msgstr "Deine Meldung ist bei uns eingegangen. Wir schicken dir deinen Rabattcode über 99 % nach einer kurzen Überprüfung per E-Mail zu."

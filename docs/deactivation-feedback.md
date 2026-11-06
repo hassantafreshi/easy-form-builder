@@ -2,7 +2,7 @@
 
 When someone clicks **Deactivate** on the Plugins screen, Easy Form Builder asks
 one question first: what went wrong. Choosing "I found a bug" opens a
-description box and promises a **100% discount code for the first year**, which
+description box and promises a **99% discount code for the first year**, which
 the White Studio feedback service issues on the spot.
 
 Two halves, one contract:

@@ -8,7 +8,7 @@ msgstr ""
 "POT-Creation-Date: 2026-11-03 00:00+0000\n"
 "X-Generator: EFB tests/core-i18n/build.php\n"
 "X-Domain: easy-form-builder\n"
-"PO-Revision-Date: 2026-11-05 16:04+0000\n"
+"PO-Revision-Date: 2026-11-06 05:18+0000\n"
 "Last-Translator: WhiteStudio <hi@whitestudio.team>\n"
 "Language-Team: fa_IR\n"
 "Language: fa_IR\n"
@@ -14017,3 +14017,13 @@ msgstr "خطای امنیتی"
 #: includes/admin/class-Emsfb-admin.php:3607
 msgid "SMS Add-on Not Installed"
 msgstr "افزودنی پیامک نصب نشده است"
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-deactivation-feedback.php:1018
+msgid "Report the bug, get 99% off your first year"
+msgstr "خطا را گزارش کنید و برای سال اول ۹۹٪ تخفیف بگیرید"
+
+#  origin: claude (fa_IR)
+#: includes/class-Emsfb-deactivation-feedback.php:1032
+msgid "Your report has been received. We will email your 99% discount code after a quick check."
+msgstr "گزارش شما دریافت شد. پس از یک بررسی سریع، کد تخفیف ۹۹٪ را برایتان ایمیل می‌کنیم."

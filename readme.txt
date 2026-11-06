@@ -5,7 +5,7 @@ Tags: form builder, contact form, email notification, multi step form, payment f
 Requires at least: 5.7
 Tested up to: 7.1
 Stable tag: 4.3.1
-Requires PHP: 7.3
+Requires PHP: 7.4
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
 Drag-and-drop WordPress forms with a built-in email delivery test, a tracking code for every entry, multi-step forms and free CSV export.
@@ -471,7 +471,7 @@ For more information, visit the official website:
 
 = 4.3.1 =
 
-Recommended update. Turns form emails on if they were off (you now receive each submission by email), verifies Stripe payments on the server and keeps form pages out of page caches. Purge your page cache and CDN after updating. Requires WordPress 5.7+ and PHP 7.3+.
+Recommended update. Turns form emails on if they were off (you now receive each submission by email), verifies Stripe payments on the server and keeps form pages out of page caches. Purge your page cache and CDN after updating. Requires WordPress 5.7+ and PHP 7.4+.
 
 = 4.3.0 =
 
@@ -492,6 +492,8 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 == Changelog ==
 
 = 4.3.1 =
+
+* Improved: Forms use your theme's font; typed Jalali and Hijri dates are checked; offline answers come back after a reload; fixes for Stripe, PayPal, ZarinPal, SMS, Telegram, Google Sheets, Conditional Logic, Auto-Populate and the date pickers.
 
 * Security: Stripe one-time payments are now verified with Stripe on the server before the form is submitted. A confirmation that fails for a moment after the card was charged is retried and the form is still submitted, and pending payments are re-checked in the background; an attempt that was declined or abandoned is marked Failed after an hour.
 
@@ -575,7 +577,7 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 
 * Improved: When a submission is refused (for example by Form Security & Spam Protection in strict mode or a rate limit), visitors see the actual reason instead of a generic error.
 
-* Changed: Requires WordPress 5.7 or later and PHP 7.3 or later.
+* Changed: Requires WordPress 5.7 or later and PHP 7.4 or later.
 
 = 4.3.0 =
 

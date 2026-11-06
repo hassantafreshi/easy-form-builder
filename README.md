@@ -47,6 +47,8 @@ A WordPress plugin for create forms by using an interactive drag & drop wizard. 
 * [Easy Form Builder 3.X.X](https://github.com/hassantafreshi/easy-form-builder/tree/v3) is deprecated.
 * [Easy Form Builder 4.X.X](https://github.com/hassantafreshi/easy-form-builder/tree/v4) is under active development. (recommended)
 
+**Latest release: 4.3.1** - forms use your theme's font, Stripe payments are verified on the server, form emails are on by default, Contact Form 7 import, and fixes across the payment, SMS, Telegram, Google Sheets, Conditional Logic, Auto-Populate and date picker add-ons. See the [changelog](https://wordpress.org/plugins/easy-form-builder/#developers).
+
 
 ## Features 💡
 
@@ -192,8 +194,8 @@ The most recent documentation for Easy Form Builder can be found at:
 
 
 ## Requirements 🔨
-* [WordPress](https://wordpress.org/) >= `4.7`
-* [PHP](https://secure.php.net/manual/en/install.php) >= `7`
+* [WordPress](https://wordpress.org/) >= `5.7`
+* [PHP](https://secure.php.net/manual/en/install.php) >= `7.4`
 
 
 
@@ -333,7 +335,8 @@ Notification System for Form Submissions.
 ### Google Sheet Export
 - ✔️ Service Account Connection & Existing/New Spreadsheet Binding
 - ✔️ Sync Logs
-- ✔️ Field Mapping & Retry Queue (Coming soon)
+- ✔️ Field Mapping (column order, titles, per-field on/off)
+- Retry Queue (Coming soon)
 
 ### Shield Security Plugin Integration
 - ✔️ [Shield Security](https://wordpress.org/plugins/wp-simple-firewall/) silentCAPTCHA Integration
