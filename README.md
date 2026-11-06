@@ -10,6 +10,14 @@
 
 
 A WordPress plugin for create forms by using an interactive drag & drop wizard. The plugin is published in [WordPress' plugin repository](https://wordpress.org/plugins/easy-form-builder/).
+
+<div align="center">
+    <a href="https://youtu.be/XBVyCFP36OY">
+        <img src="https://img.youtube.com/vi/XBVyCFP36OY/hqdefault.jpg" alt="Easy Form Builder video" width="560" />
+    </a>
+    <br>
+    <a href="https://youtu.be/XBVyCFP36OY">▶ Watch the video on YouTube</a>
+</div>
 <br>
 > Call for translators! [We're looking for translators](https://translate.wordpress.org/projects/wp-plugins/easy-form-builder/) to help translate this Plugin for everyone!
 

@@ -16,7 +16,7 @@ Drag-and-drop WordPress forms with a built-in email delivery test, a tracking co
 
 Most "my contact form is not sending email" problems are not caused by the form. The host's mail server, a missing SMTP service, or missing SPF, DKIM and DMARC records for your domain send the message to spam or drop it. No form plugin can guarantee delivery, because delivery depends on your hosting and your domain. What Easy Form Builder does is show you, inside WordPress, whether your form emails get through and what to fix when they do not.
 
-[youtube https://www.youtube.com/watch?v=m92rq2X1Rv4]
+[youtube https://www.youtube.com/watch?v=XBVyCFP36OY]
 
 = Test, monitor, fix =
 
