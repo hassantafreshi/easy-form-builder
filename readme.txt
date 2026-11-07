@@ -12,30 +12,13 @@ Drag-and-drop WordPress forms with a built-in email delivery test, a tracking co
 
 == Description ==
 
-**Easy Form Builder is a free drag-and-drop form builder for WordPress that tests whether your form emails actually arrive.** It sends a real test email, shows the result with a deliverability score out of 100, keeps an Email Error Log, and emails the site admin a full report with SPF, DKIM and DMARC checks. Every submission also gets a confirmation code, so the visitor can look up their request later and reply to you.
+ Easy Form Builder is a comprehensive WordPress form plugin designed to help website owners create, manage, and maintain a wide variety of forms using a visual drag-and-drop form builder interface. The plugin is suitable for users who want to build professional forms without writing code, while still keeping full control over form data, submissions, and communication workflows, including free custom email notification templates with a built-in visual editor.
 
-Most "my contact form is not sending email" problems are not caused by the form. The host's mail server, a missing SMTP service, or missing SPF, DKIM and DMARC records for your domain send the message to spam or drop it. No form plugin can guarantee delivery, because delivery depends on your hosting and your domain. What Easy Form Builder does is show you, inside WordPress, whether your form emails get through and what to fix when they do not.
+This form builder plugin can be used to create contact forms, support request forms, survey and feedback forms, payment forms using Stripe, subscription forms and custom login or registration forms for WordPress users. All form data is stored directly on your WordPress website, ensuring transparency, data ownership, and predictable behavior.
 
 [youtube https://www.youtube.com/watch?v=XBVyCFP36OY]
 
-= Test, monitor, fix =
-
-- **Test:** in Panel > Settings > Email Settings, click "Check Email Server". Easy Form Builder sends a real test message and tells you plainly what happened: "Your email server is healthy", "Delivered, but likely to be filtered as spam", "Delivered, but deliverability is weak", or "No email arrived".
-- **Monitor:** the Easy Form Builder dashboard widget counts sent and failed emails and opens the Email Error Log. Once a week, Easy Form Builder also runs a delivery test and emails the site admin a health report with the score and SPF, DKIM and DMARC results.
-- **Fix:** when the result is weak, a "What you can do now" box explains that the fix lies with your hosting and domain, not the form, suggests free email sending services, and links to step-by-step guides for SMTP, SPF, DKIM and DMARC.
-- **On by default:** since version 4.3.1, form emails are switched on. The owner's notification includes the submitted answers and its Reply-To is the visitor's address, so you can answer with one click.
-
-= A tracking code for every submission =
-
-Each submission gets a unique confirmation code (tracking ID), shown to the visitor after sending and included in the confirmation email. Add the confirmation code finder to any page with the `[Easy_Form_Builder_confirmation_code_finder]` shortcode: the visitor enters the code to see the request and your replies, and can answer from the same page. You reply from the WordPress dashboard, with file attachments if needed.
-
-= What is included =
-
-- **Free:** the drag-and-drop builder with 20 form fields (including terms and conditions, country list, star rating and heading), multi-step forms, file uploads, entries stored in your own WordPress database, CSV export, confirmation codes with a public lookup page, the visual email template editor, the email delivery check, the weekly email health report and the Email Error Log.
-- **Free Plus (also free):** everything in Free plus conditional logic (up to 3 rules per form), advanced fields, PDF download of responses, and Stripe and PayPal payments. The only difference from Free is a small "Powered by Easy Form Builder" credit on the page where the form is published.
-- **Pro:** everything in Free Plus plus the official add-ons and integrations (such as SMS and Telegram notifications, Google Sheets, Auto-Populate and Security & Spam Protection) and conditional logic without limits. Paid plans come with a 14-day money-back guarantee.
-
-All form data stays on your WordPress site: Easy Form Builder does not send form submissions to third-party servers by default. The admin and the forms are translated into 58 locales, with full right-to-left (RTL) support.
+ Easy Form Builder focuses on clarity, extensibility, and usability. The plugin does not rely on external form services by default and does not send form submissions to third-party servers. This makes it suitable for websites that require clear data handling policies and on-site form management.
 
 
 == What Can This Form Plugin Do? ==
@@ -78,13 +61,11 @@ Custom email notification templates are included for free. The built-in visual e
 
 To help you keep WordPress form notifications reliable, Easy Form Builder includes an email delivery check ("Check Email Server") that sends a real test message the same way a form email is sent, waits for it to arrive, and reports a deliverability score out of 100. A detailed report with spam score, SPF, DKIM and DMARC results and recommendations is emailed to the site admin. The Easy Form Builder dashboard widget also shows useful form activity insights, including page views for pages containing forms, completed form submissions, sent email counts, failed email counts, and an **Email Error Log** button where you can review any email sending errors when needed.
 
-The owner's notification email includes the submitted answers and uses the visitor's address as Reply-To. The visitor's confirmation email carries the confirmation code and a link to look up the submission.
-
 For detailed setup instructions, see:
 [How to set up form notification emails in Easy Form Builder](https://whitestudio.team/document/how-to-set-up-form-notification-emails-in-easy-form-builder/)
 
 = Confirmation Code (Tracking ID) =
-Each form submission generates a unique confirmation code. This tracking ID allows administrators and users to reference, search, and manage individual submissions efficiently. Visitors can enter their code in the confirmation code finder (shortcode `[Easy_Form_Builder_confirmation_code_finder]`) to see their submission and your replies, and to reply back.
+Each form submission generates a unique confirmation code. This tracking ID allows administrators and users to reference, search, and manage individual submissions efficiently.
 
 Learn more about this feature:
 [How to activate a Confirmation Code in Easy Form Builder](https://whitestudio.team/document/how-to-activate-confirmation-code-in-easy-form-builder/)
@@ -237,7 +218,6 @@ Many WordPress form plugins only offer these features in a paid plan. In Easy Fo
 - File upload forms (Free)
 - Confirmation code (tracking ID) for every submission (Free)
 - Multi-step forms (Free)
-- 20 form fields, including terms and conditions, country list, star rating and heading (Free)
 - Basic survey and poll fields (Free)
 - Exporting form entries to CSV (Free)
 - Conditional logic to show or hide fields based on answers (Free Plus)
