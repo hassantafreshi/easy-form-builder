@@ -1,0 +1,1440 @@
+{
+  "description": "Verified calendar conversion vectors for F06 advanced calendar field. JDN = Julian Day Number (integer). weekday_iso: 1=Monday..7=Sunday. All dates are calendar-local YYYY-MM-DD with ASCII digits.",
+  "generated": "2026-11-10",
+  "generator": "scratch scripts engines.js / verify.js / verify.php / browser-probe.js (see calendar-engine-contract.en.md §Verification)",
+  "algorithms": {
+    "persian": "Borkowski breaks algorithm (as in jalaali-js, MIT)",
+    "islamic-umalqura": "table lookup: ummalqura_compact below (from dotnet/runtime UmAlQuraCalendar.cs, MIT; 1420..1500 identical to hijridate, MIT)",
+    "islamic-civil": "tabular, epoch JDN 1948440 (Friday 16 July 622 Julian), leap iff (14+11y) mod 30 < 11",
+    "islamic-tbla": "tabular, epoch JDN 1948439 (Thursday 15 July 622 Julian), same leap rule",
+    "gregory": "proleptic Gregorian <-> JDN (Fliegel-Van Flandern)"
+  },
+  "verification": {
+    "node": {
+      "node": "v22.23.4",
+      "icu": "78.3",
+      "tz": "2026e"
+    },
+    "node_checks": {
+      "jalali": {
+        "range": "1300-01-01..1499-12-29",
+        "days": 73049,
+        "agree_with_icu": 73049,
+        "roundtrip_ok": 73049,
+        "diff_count": 0,
+        "leap_years_borkowski_vs_33rule": [],
+        "diff_years": []
+      },
+      "ummalqura": {
+        "range": "AH 1318-01-01..1500-12-30",
+        "gregorian": "1900-04-30..2077-11-16",
+        "days": 64850,
+        "agree_with_icu": 28930,
+        "diff_days": 35920,
+        "month_starts": 2196,
+        "month_starts_agree": 987,
+        "month_starts_differ": 1209,
+        "icu_month_starts_1318_1419": "226/1224",
+        "icu_month_starts_1420_1450": "372/372",
+        "icu_month_starts_1451_1500": "389/600"
+      },
+      "islamic-civil": {
+        "range": "AH 1300..1599",
+        "days": 106310,
+        "agree_with_icu": 106310,
+        "roundtrip_ok": 106310
+      },
+      "islamic-tbla": {
+        "range": "AH 1300..1599",
+        "days": 106310,
+        "agree_with_icu": 106310,
+        "roundtrip_ok": 106310
+      },
+      "gregorian_jdn": {
+        "range": "1800..2200",
+        "days": 146462,
+        "agree_with_Date": 146462
+      },
+      "ummalqura_dotnet_vs_hijridate": {
+        "1343-1419": "17996/27287 days",
+        "1420-1450": "10985/10985 days",
+        "1451-1500": "17719/17719 days"
+      }
+    },
+    "php": {
+      "php": "8.3.6",
+      "intl": "74.2",
+      "vectors_php_vs_js": "91/91",
+      "intl_calendar_types": {
+        "persian": "persian",
+        "islamic-umalqura": "islamic-umalqura",
+        "islamic-civil": "islamic-civil",
+        "islamic-tbla": "islamic-tbla"
+      },
+      "persian_1300_1499_vs_php_intl": "73049/73049 days",
+      "islamic-civil_1300_1599_vs_php_intl": "106310/106310 days",
+      "islamic-tbla_1300_1599_vs_php_intl": "106310/106310 days",
+      "umalqura_month_starts_1318_1419_vs_php_intl": "226/1224",
+      "umalqura_month_starts_1420_1450_vs_php_intl": "372/372",
+      "umalqura_month_starts_1451_1500_vs_php_intl": "389/600",
+      "fa_IR_display_2025-03-20": "۱۴۰۳ اسفند ۳۰, پنجشنبه",
+      "ar_SA_display_2025-03-30": "الأحد، ١ شوال ١٤٤٦ هـ"
+    },
+    "browsers": {
+      "chromium": {
+        "version": "153.0.8010.12",
+        "supported": "buddhist chinese coptic dangi ethioaa ethiopic gregory hebrew indian islamic islamic-civil islamic-rgsa islamic-tbla islamic-umalqura iso8601 japanese persian roc",
+        "temporal": true,
+        "persian": "73049/73049 days",
+        "islamic-umalqura": "28930/64850 days",
+        "islamic-umalqura_windows": {
+          "1318-1419": "6555/36146",
+          "1420-1450": "10985/10985",
+          "1451-1500": "11390/17719"
+        },
+        "islamic-civil": "106310/106310 days",
+        "islamic-tbla": "106310/106310 days",
+        "ar_SA_default_calendar": "gregory",
+        "fa_IR_default_calendar": "persian",
+        "ar_EG_default_numbering": "arab",
+        "weekinfo_fa_IR": "{\"firstDay\":6,\"weekend\":[5]}"
+      },
+      "firefox": {
+        "version": "155.0",
+        "supported": "buddhist chinese coptic dangi ethioaa ethiopic gregory hebrew indian islamic-civil islamic-tbla islamic-umalqura iso8601 japanese persian roc",
+        "temporal": true,
+        "persian": "73049/73049 days",
+        "islamic-umalqura": "28930/64850 days",
+        "islamic-umalqura_windows": {
+          "1318-1419": "6555/36146",
+          "1420-1450": "10985/10985",
+          "1451-1500": "11390/17719"
+        },
+        "islamic-civil": "106310/106310 days",
+        "islamic-tbla": "106310/106310 days",
+        "ar_SA_default_calendar": "gregory",
+        "fa_IR_default_calendar": "persian",
+        "ar_EG_default_numbering": "arab",
+        "weekinfo_fa_IR": "{\"firstDay\":6,\"weekend\":[5]}"
+      },
+      "webkit": "could not launch: browserType.launch: "
+    },
+    "ummalqura_three_sources": {
+      "years": "183 (.NET 1318..1500)",
+      "net_vs_hijridate": {
+        "agree": 1584,
+        "differ": 312,
+        "differYears": "54 years, e.g. 1343,1344,1345,1346,1347,1348,1349,1350…1393,1394,1400,1401"
+      },
+      "net_vs_icu": {
+        "agree": 987,
+        "differ": 1209,
+        "differYears": "152 years, e.g. 1318,1319,1320,1321,1322,1323,1324,1325…1497,1498,1499,1500"
+      },
+      "hijridate_vs_icu": {
+        "agree": 1156,
+        "differ": 740
+      },
+      "windows": {
+        "1343-1419": {
+          "net_hd": 612,
+          "net_icu": 171,
+          "hd_icu": 395,
+          "n": 924
+        },
+        "1420-1450": {
+          "net_hd": 372,
+          "net_icu": 372,
+          "hd_icu": 372,
+          "n": 372
+        },
+        "1451-1500": {
+          "net_hd": 600,
+          "net_icu": 389,
+          "hd_icu": 389,
+          "n": 600
+        }
+      },
+      "net_year_chain_breaks": 0
+    }
+  },
+  "vectors": [
+    {
+      "calendar": "persian",
+      "date": "1300-01-01",
+      "gregorian": "1921-03-21",
+      "jdn": 2422770,
+      "weekday_iso": 1,
+      "note": "Nowruz 1300 (leap year)",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1300-12-30",
+      "gregorian": "1922-03-21",
+      "jdn": 2423135,
+      "weekday_iso": 2,
+      "note": "last day of 1300 (30 Esfand, leap)",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1309-01-01",
+      "gregorian": "1930-03-21",
+      "jdn": 2426057,
+      "weekday_iso": 5,
+      "note": "Nowruz 1309 (leap year)",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1309-12-30",
+      "gregorian": "1931-03-21",
+      "jdn": 2426422,
+      "weekday_iso": 6,
+      "note": "last day of 1309 (30 Esfand, leap)",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1342-01-01",
+      "gregorian": "1963-03-21",
+      "jdn": 2438110,
+      "weekday_iso": 4,
+      "note": "Nowruz 1342 (leap year)",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1342-12-30",
+      "gregorian": "1964-03-20",
+      "jdn": 2438475,
+      "weekday_iso": 5,
+      "note": "last day of 1342 (30 Esfand, leap)",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1354-01-01",
+      "gregorian": "1975-03-21",
+      "jdn": 2442493,
+      "weekday_iso": 5,
+      "note": "Nowruz 1354 (leap year)",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1354-12-30",
+      "gregorian": "1976-03-20",
+      "jdn": 2442858,
+      "weekday_iso": 6,
+      "note": "last day of 1354 (30 Esfand, leap)",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1357-01-01",
+      "gregorian": "1978-03-21",
+      "jdn": 2443589,
+      "weekday_iso": 2,
+      "note": "Nowruz 1357",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1357-12-29",
+      "gregorian": "1979-03-20",
+      "jdn": 2443953,
+      "weekday_iso": 2,
+      "note": "last day of 1357 (29 Esfand)",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1370-01-01",
+      "gregorian": "1991-03-21",
+      "jdn": 2448337,
+      "weekday_iso": 4,
+      "note": "Nowruz 1370 (leap year)",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1370-12-30",
+      "gregorian": "1992-03-20",
+      "jdn": 2448702,
+      "weekday_iso": 5,
+      "note": "last day of 1370 (30 Esfand, leap)",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1375-01-01",
+      "gregorian": "1996-03-20",
+      "jdn": 2450163,
+      "weekday_iso": 3,
+      "note": "Nowruz 1375 (leap year)",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1375-12-30",
+      "gregorian": "1997-03-20",
+      "jdn": 2450528,
+      "weekday_iso": 4,
+      "note": "last day of 1375 (30 Esfand, leap)",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1379-01-01",
+      "gregorian": "2000-03-20",
+      "jdn": 2451624,
+      "weekday_iso": 1,
+      "note": "Nowruz 1379 (leap year)",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1379-12-30",
+      "gregorian": "2001-03-20",
+      "jdn": 2451989,
+      "weekday_iso": 2,
+      "note": "last day of 1379 (30 Esfand, leap)",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1380-01-01",
+      "gregorian": "2001-03-21",
+      "jdn": 2451990,
+      "weekday_iso": 3,
+      "note": "Nowruz 1380",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1380-12-29",
+      "gregorian": "2002-03-20",
+      "jdn": 2452354,
+      "weekday_iso": 3,
+      "note": "last day of 1380 (29 Esfand)",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1387-01-01",
+      "gregorian": "2008-03-20",
+      "jdn": 2454546,
+      "weekday_iso": 4,
+      "note": "Nowruz 1387 (leap year)",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1387-12-30",
+      "gregorian": "2009-03-20",
+      "jdn": 2454911,
+      "weekday_iso": 5,
+      "note": "last day of 1387 (30 Esfand, leap)",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1391-01-01",
+      "gregorian": "2012-03-20",
+      "jdn": 2456007,
+      "weekday_iso": 2,
+      "note": "Nowruz 1391 (leap year)",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1391-12-30",
+      "gregorian": "2013-03-20",
+      "jdn": 2456372,
+      "weekday_iso": 3,
+      "note": "last day of 1391 (30 Esfand, leap)",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1395-01-01",
+      "gregorian": "2016-03-20",
+      "jdn": 2457468,
+      "weekday_iso": 7,
+      "note": "Nowruz 1395 (leap year)",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1395-12-30",
+      "gregorian": "2017-03-20",
+      "jdn": 2457833,
+      "weekday_iso": 1,
+      "note": "last day of 1395 (30 Esfand, leap)",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1399-01-01",
+      "gregorian": "2020-03-20",
+      "jdn": 2458929,
+      "weekday_iso": 5,
+      "note": "Nowruz 1399 (leap year)",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1399-12-30",
+      "gregorian": "2021-03-20",
+      "jdn": 2459294,
+      "weekday_iso": 6,
+      "note": "last day of 1399 (30 Esfand, leap)",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1400-01-01",
+      "gregorian": "2021-03-21",
+      "jdn": 2459295,
+      "weekday_iso": 7,
+      "note": "Nowruz 1400",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1400-12-29",
+      "gregorian": "2022-03-20",
+      "jdn": 2459659,
+      "weekday_iso": 7,
+      "note": "last day of 1400 (29 Esfand)",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1402-01-01",
+      "gregorian": "2023-03-21",
+      "jdn": 2460025,
+      "weekday_iso": 2,
+      "note": "Nowruz 1402",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1402-12-29",
+      "gregorian": "2024-03-19",
+      "jdn": 2460389,
+      "weekday_iso": 2,
+      "note": "last day of 1402 (29 Esfand)",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1403-01-01",
+      "gregorian": "2024-03-20",
+      "jdn": 2460390,
+      "weekday_iso": 3,
+      "note": "Nowruz 1403 (leap year)",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1403-12-30",
+      "gregorian": "2025-03-20",
+      "jdn": 2460755,
+      "weekday_iso": 4,
+      "note": "last day of 1403 (30 Esfand, leap)",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1404-01-01",
+      "gregorian": "2025-03-21",
+      "jdn": 2460756,
+      "weekday_iso": 5,
+      "note": "Nowruz 1404",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1404-12-29",
+      "gregorian": "2026-03-20",
+      "jdn": 2461120,
+      "weekday_iso": 5,
+      "note": "last day of 1404 (29 Esfand)",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1405-01-01",
+      "gregorian": "2026-03-21",
+      "jdn": 2461121,
+      "weekday_iso": 6,
+      "note": "Nowruz 1405",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1405-12-29",
+      "gregorian": "2027-03-20",
+      "jdn": 2461485,
+      "weekday_iso": 6,
+      "note": "last day of 1405 (29 Esfand)",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1407-01-01",
+      "gregorian": "2028-03-20",
+      "jdn": 2461851,
+      "weekday_iso": 1,
+      "note": "Nowruz 1407",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1407-12-29",
+      "gregorian": "2029-03-19",
+      "jdn": 2462215,
+      "weekday_iso": 1,
+      "note": "last day of 1407 (29 Esfand)",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1408-01-01",
+      "gregorian": "2029-03-20",
+      "jdn": 2462216,
+      "weekday_iso": 2,
+      "note": "Nowruz 1408 (leap year)",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1408-12-30",
+      "gregorian": "2030-03-20",
+      "jdn": 2462581,
+      "weekday_iso": 3,
+      "note": "last day of 1408 (30 Esfand, leap)",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1420-01-01",
+      "gregorian": "2041-03-20",
+      "jdn": 2466599,
+      "weekday_iso": 3,
+      "note": "Nowruz 1420 (leap year)",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1420-12-30",
+      "gregorian": "2042-03-20",
+      "jdn": 2466964,
+      "weekday_iso": 4,
+      "note": "last day of 1420 (30 Esfand, leap)",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1437-01-01",
+      "gregorian": "2058-03-21",
+      "jdn": 2472809,
+      "weekday_iso": 4,
+      "note": "Nowruz 1437",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1437-12-29",
+      "gregorian": "2059-03-20",
+      "jdn": 2473173,
+      "weekday_iso": 4,
+      "note": "last day of 1437 (29 Esfand)",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1440-01-01",
+      "gregorian": "2061-03-20",
+      "jdn": 2473904,
+      "weekday_iso": 7,
+      "note": "Nowruz 1440",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1440-12-29",
+      "gregorian": "2062-03-19",
+      "jdn": 2474268,
+      "weekday_iso": 7,
+      "note": "last day of 1440 (29 Esfand)",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1450-01-01",
+      "gregorian": "2071-03-21",
+      "jdn": 2477557,
+      "weekday_iso": 6,
+      "note": "Nowruz 1450",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1450-12-29",
+      "gregorian": "2072-03-19",
+      "jdn": 2477921,
+      "weekday_iso": 6,
+      "note": "last day of 1450 (29 Esfand)",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1454-01-01",
+      "gregorian": "2075-03-21",
+      "jdn": 2479018,
+      "weekday_iso": 4,
+      "note": "Nowruz 1454",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1454-12-29",
+      "gregorian": "2076-03-19",
+      "jdn": 2479382,
+      "weekday_iso": 4,
+      "note": "last day of 1454 (29 Esfand)",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1470-01-01",
+      "gregorian": "2091-03-21",
+      "jdn": 2484862,
+      "weekday_iso": 3,
+      "note": "Nowruz 1470",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1470-12-29",
+      "gregorian": "2092-03-19",
+      "jdn": 2485226,
+      "weekday_iso": 3,
+      "note": "last day of 1470 (29 Esfand)",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1473-01-01",
+      "gregorian": "2094-03-20",
+      "jdn": 2485957,
+      "weekday_iso": 6,
+      "note": "Nowruz 1473",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1473-12-29",
+      "gregorian": "2095-03-19",
+      "jdn": 2486321,
+      "weekday_iso": 6,
+      "note": "last day of 1473 (29 Esfand)",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1499-01-01",
+      "gregorian": "2120-03-21",
+      "jdn": 2495454,
+      "weekday_iso": 4,
+      "note": "Nowruz 1499",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1499-12-29",
+      "gregorian": "2121-03-20",
+      "jdn": 2495818,
+      "weekday_iso": 4,
+      "note": "last day of 1499 (29 Esfand)",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1403-06-31",
+      "gregorian": "2024-09-21",
+      "jdn": 2460575,
+      "weekday_iso": 6,
+      "note": "last 31-day month end",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1403-07-01",
+      "gregorian": "2024-09-22",
+      "jdn": 2460576,
+      "weekday_iso": 7,
+      "note": "first 30-day month",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1357-11-22",
+      "gregorian": "1979-02-11",
+      "jdn": 2443916,
+      "weekday_iso": 7,
+      "note": "Iranian national holiday 22 Bahman",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "persian",
+      "date": "1404-01-13",
+      "gregorian": "2025-04-02",
+      "jdn": 2460768,
+      "weekday_iso": 3,
+      "note": "Sizdah Bedar",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "islamic-umalqura",
+      "date": "1318-01-01",
+      "gregorian": "1900-04-30",
+      "jdn": 2415140,
+      "weekday_iso": 1,
+      "note": "first day of table",
+      "intl_agrees": true,
+      "hijridate_agrees": null
+    },
+    {
+      "calendar": "islamic-umalqura",
+      "date": "1343-01-01",
+      "gregorian": "1924-08-01",
+      "jdn": 2423999,
+      "weekday_iso": 5,
+      "note": "hijridate table start",
+      "intl_agrees": false,
+      "hijridate_agrees": true
+    },
+    {
+      "calendar": "islamic-umalqura",
+      "date": "1356-01-01",
+      "gregorian": "1937-03-13",
+      "jdn": 2428606,
+      "weekday_iso": 6,
+      "note": "van Gent table start",
+      "intl_agrees": false,
+      "hijridate_agrees": false
+    },
+    {
+      "calendar": "islamic-umalqura",
+      "date": "1400-01-01",
+      "gregorian": "1979-11-20",
+      "jdn": 2444198,
+      "weekday_iso": 2,
+      "note": "historical (pre-1420 sources disagree)",
+      "intl_agrees": false,
+      "hijridate_agrees": true
+    },
+    {
+      "calendar": "islamic-umalqura",
+      "date": "1410-06-15",
+      "gregorian": "1990-01-12",
+      "jdn": 2447904,
+      "weekday_iso": 5,
+      "note": "typical Saudi birth date (historical)",
+      "intl_agrees": false,
+      "hijridate_agrees": true
+    },
+    {
+      "calendar": "islamic-umalqura",
+      "date": "1420-01-01",
+      "gregorian": "1999-04-17",
+      "jdn": 2451286,
+      "weekday_iso": 6,
+      "note": "start of the window where all sources agree",
+      "intl_agrees": true,
+      "hijridate_agrees": true
+    },
+    {
+      "calendar": "islamic-umalqura",
+      "date": "1440-09-01",
+      "gregorian": "2019-05-06",
+      "jdn": 2458610,
+      "weekday_iso": 1,
+      "note": "Ramadan 1440",
+      "intl_agrees": true,
+      "hijridate_agrees": true
+    },
+    {
+      "calendar": "islamic-umalqura",
+      "date": "1444-10-01",
+      "gregorian": "2023-04-21",
+      "jdn": 2460056,
+      "weekday_iso": 5,
+      "note": "Eid al-Fitr 1444",
+      "intl_agrees": true,
+      "hijridate_agrees": true
+    },
+    {
+      "calendar": "islamic-umalqura",
+      "date": "1445-09-01",
+      "gregorian": "2024-03-11",
+      "jdn": 2460381,
+      "weekday_iso": 1,
+      "note": "Ramadan 1445",
+      "intl_agrees": true,
+      "hijridate_agrees": true
+    },
+    {
+      "calendar": "islamic-umalqura",
+      "date": "1445-12-10",
+      "gregorian": "2024-06-16",
+      "jdn": 2460478,
+      "weekday_iso": 7,
+      "note": "Eid al-Adha 1445",
+      "intl_agrees": true,
+      "hijridate_agrees": true
+    },
+    {
+      "calendar": "islamic-umalqura",
+      "date": "1446-01-01",
+      "gregorian": "2024-07-07",
+      "jdn": 2460499,
+      "weekday_iso": 7,
+      "note": "Hijri new year 1446",
+      "intl_agrees": true,
+      "hijridate_agrees": true
+    },
+    {
+      "calendar": "islamic-umalqura",
+      "date": "1446-09-01",
+      "gregorian": "2025-03-01",
+      "jdn": 2460736,
+      "weekday_iso": 6,
+      "note": "Ramadan 1446",
+      "intl_agrees": true,
+      "hijridate_agrees": true
+    },
+    {
+      "calendar": "islamic-umalqura",
+      "date": "1446-10-01",
+      "gregorian": "2025-03-30",
+      "jdn": 2460765,
+      "weekday_iso": 7,
+      "note": "Eid al-Fitr 1446",
+      "intl_agrees": true,
+      "hijridate_agrees": true
+    },
+    {
+      "calendar": "islamic-umalqura",
+      "date": "1447-01-01",
+      "gregorian": "2025-06-26",
+      "jdn": 2460853,
+      "weekday_iso": 4,
+      "note": "",
+      "intl_agrees": true,
+      "hijridate_agrees": true
+    },
+    {
+      "calendar": "islamic-umalqura",
+      "date": "1447-09-01",
+      "gregorian": "2026-02-18",
+      "jdn": 2461090,
+      "weekday_iso": 3,
+      "note": "Ramadan 1447",
+      "intl_agrees": true,
+      "hijridate_agrees": true
+    },
+    {
+      "calendar": "islamic-umalqura",
+      "date": "1450-01-01",
+      "gregorian": "2028-05-25",
+      "jdn": 2461917,
+      "weekday_iso": 4,
+      "note": "",
+      "intl_agrees": true,
+      "hijridate_agrees": true
+    },
+    {
+      "calendar": "islamic-umalqura",
+      "date": "1452-01-01",
+      "gregorian": "2030-05-03",
+      "jdn": 2462625,
+      "weekday_iso": 5,
+      "note": "ICU-vs-table check",
+      "intl_agrees": false,
+      "hijridate_agrees": true
+    },
+    {
+      "calendar": "islamic-umalqura",
+      "date": "1460-01-01",
+      "gregorian": "2038-02-05",
+      "jdn": 2465460,
+      "weekday_iso": 5,
+      "note": "ICU-vs-table check",
+      "intl_agrees": false,
+      "hijridate_agrees": true
+    },
+    {
+      "calendar": "islamic-umalqura",
+      "date": "1500-12-30",
+      "gregorian": "2077-11-16",
+      "jdn": 2479989,
+      "weekday_iso": 2,
+      "note": "last day of table",
+      "intl_agrees": true,
+      "hijridate_agrees": true
+    },
+    {
+      "calendar": "islamic-civil",
+      "date": "0001-01-01",
+      "gregorian": "0622-07-19",
+      "jdn": 1948440,
+      "weekday_iso": 5,
+      "note": "",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "islamic-tbla",
+      "date": "0001-01-01",
+      "gregorian": "0622-07-18",
+      "jdn": 1948439,
+      "weekday_iso": 4,
+      "note": "",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "islamic-civil",
+      "date": "1000-12-29",
+      "gregorian": "1592-10-06",
+      "jdn": 2302805,
+      "weekday_iso": 2,
+      "note": "",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "islamic-tbla",
+      "date": "1000-12-29",
+      "gregorian": "1592-10-05",
+      "jdn": 2302804,
+      "weekday_iso": 1,
+      "note": "",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "islamic-civil",
+      "date": "1445-12-30",
+      "gregorian": "2024-07-07",
+      "jdn": 2460499,
+      "weekday_iso": 7,
+      "note": "",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "islamic-tbla",
+      "date": "1445-12-30",
+      "gregorian": "2024-07-06",
+      "jdn": 2460498,
+      "weekday_iso": 6,
+      "note": "",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "islamic-civil",
+      "date": "1446-01-01",
+      "gregorian": "2024-07-08",
+      "jdn": 2460500,
+      "weekday_iso": 1,
+      "note": "",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "islamic-tbla",
+      "date": "1446-01-01",
+      "gregorian": "2024-07-07",
+      "jdn": 2460499,
+      "weekday_iso": 7,
+      "note": "",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "islamic-civil",
+      "date": "1446-12-29",
+      "gregorian": "2025-06-26",
+      "jdn": 2460853,
+      "weekday_iso": 4,
+      "note": "",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "islamic-tbla",
+      "date": "1446-12-29",
+      "gregorian": "2025-06-25",
+      "jdn": 2460852,
+      "weekday_iso": 3,
+      "note": "",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "islamic-civil",
+      "date": "1447-09-01",
+      "gregorian": "2026-02-18",
+      "jdn": 2461090,
+      "weekday_iso": 3,
+      "note": "",
+      "intl_agrees": true
+    },
+    {
+      "calendar": "islamic-tbla",
+      "date": "1447-09-01",
+      "gregorian": "2026-02-17",
+      "jdn": 2461089,
+      "weekday_iso": 2,
+      "note": "",
+      "intl_agrees": true
+    }
+  ],
+  "edge_cases": [
+    {
+      "kind": "validity",
+      "calendar": "persian",
+      "date": "1403-12-30",
+      "valid": true,
+      "gregorian": "2025-03-20"
+    },
+    {
+      "kind": "validity",
+      "calendar": "persian",
+      "date": "1404-12-30",
+      "valid": false,
+      "note": "legacy efb_typed_date_efb()/normalize_typed_date_efb() accept this (max 30 for months 7-12): the new engine must reject it"
+    },
+    {
+      "kind": "validity",
+      "calendar": "persian",
+      "date": "1402-12-30",
+      "valid": false
+    },
+    {
+      "kind": "validity",
+      "calendar": "persian",
+      "date": "1399-12-30",
+      "valid": true,
+      "gregorian": "2021-03-20"
+    },
+    {
+      "kind": "validity",
+      "calendar": "persian",
+      "date": "1403-07-31",
+      "valid": false
+    },
+    {
+      "kind": "validity",
+      "calendar": "persian",
+      "date": "1403-06-31",
+      "valid": true,
+      "gregorian": "2024-09-21"
+    },
+    {
+      "kind": "validity",
+      "calendar": "islamic-umalqura",
+      "date": "1446-09-30",
+      "valid": false
+    },
+    {
+      "kind": "validity",
+      "calendar": "islamic-umalqura",
+      "date": "1446-09-29",
+      "valid": true,
+      "gregorian": "2025-03-29"
+    },
+    {
+      "kind": "validity",
+      "calendar": "islamic-umalqura",
+      "date": "1445-12-30",
+      "valid": true,
+      "gregorian": "2024-07-06"
+    },
+    {
+      "kind": "validity",
+      "calendar": "islamic-civil",
+      "date": "1445-12-30",
+      "valid": true,
+      "gregorian": "2024-07-07"
+    },
+    {
+      "kind": "validity",
+      "calendar": "islamic-civil",
+      "date": "1446-12-30",
+      "valid": false
+    },
+    {
+      "kind": "validity",
+      "calendar": "gregory",
+      "date": "1900-02-29",
+      "valid": false
+    },
+    {
+      "kind": "validity",
+      "calendar": "gregory",
+      "date": "2000-02-29",
+      "valid": true
+    },
+    {
+      "kind": "validity",
+      "calendar": "gregory",
+      "date": "2100-02-29",
+      "valid": false
+    },
+    {
+      "kind": "validity",
+      "calendar": "gregory",
+      "date": "2024-02-29",
+      "valid": true
+    },
+    {
+      "kind": "month_lengths",
+      "calendar": "islamic-umalqura",
+      "year": 1445,
+      "lengths": [
+        29,
+        30,
+        30,
+        30,
+        29,
+        30,
+        29,
+        29,
+        30,
+        29,
+        29,
+        30
+      ],
+      "year_length": 354
+    },
+    {
+      "kind": "month_lengths",
+      "calendar": "islamic-umalqura",
+      "year": 1446,
+      "lengths": [
+        29,
+        30,
+        30,
+        30,
+        29,
+        30,
+        30,
+        29,
+        29,
+        30,
+        29,
+        29
+      ],
+      "year_length": 354
+    },
+    {
+      "kind": "month_lengths",
+      "calendar": "islamic-umalqura",
+      "year": 1447,
+      "lengths": [
+        30,
+        29,
+        30,
+        30,
+        30,
+        29,
+        30,
+        29,
+        30,
+        29,
+        30,
+        29
+      ],
+      "year_length": 355
+    },
+    {
+      "kind": "month_lengths",
+      "calendar": "islamic-umalqura",
+      "year": 1448,
+      "lengths": [
+        29,
+        30,
+        29,
+        30,
+        30,
+        29,
+        30,
+        30,
+        29,
+        30,
+        29,
+        30
+      ],
+      "year_length": 355
+    },
+    {
+      "kind": "month_lengths",
+      "calendar": "persian",
+      "year": 1403,
+      "lengths": [
+        31,
+        31,
+        31,
+        31,
+        31,
+        31,
+        30,
+        30,
+        30,
+        30,
+        30,
+        30
+      ]
+    },
+    {
+      "kind": "month_lengths",
+      "calendar": "persian",
+      "year": 1404,
+      "lengths": [
+        31,
+        31,
+        31,
+        31,
+        31,
+        31,
+        30,
+        30,
+        30,
+        30,
+        30,
+        29
+      ]
+    },
+    {
+      "kind": "hijri_adjust",
+      "gregorian": "2025-03-30",
+      "cal_hijri_adjust": -2,
+      "displayed": "1446-09-28",
+      "rule": "displayed = UQ.fromJdn(jdn + adjust); toJdn(displayed) - adjust = jdn"
+    },
+    {
+      "kind": "hijri_adjust",
+      "gregorian": "2025-03-30",
+      "cal_hijri_adjust": -1,
+      "displayed": "1446-09-29",
+      "rule": "displayed = UQ.fromJdn(jdn + adjust); toJdn(displayed) - adjust = jdn"
+    },
+    {
+      "kind": "hijri_adjust",
+      "gregorian": "2025-03-30",
+      "cal_hijri_adjust": 0,
+      "displayed": "1446-10-01",
+      "rule": "displayed = UQ.fromJdn(jdn + adjust); toJdn(displayed) - adjust = jdn"
+    },
+    {
+      "kind": "hijri_adjust",
+      "gregorian": "2025-03-30",
+      "cal_hijri_adjust": 1,
+      "displayed": "1446-10-02",
+      "rule": "displayed = UQ.fromJdn(jdn + adjust); toJdn(displayed) - adjust = jdn"
+    },
+    {
+      "kind": "hijri_adjust",
+      "gregorian": "2025-03-30",
+      "cal_hijri_adjust": 2,
+      "displayed": "1446-10-03",
+      "rule": "displayed = UQ.fromJdn(jdn + adjust); toJdn(displayed) - adjust = jdn"
+    },
+    {
+      "kind": "normalize",
+      "calendar": "persian",
+      "input": "۱۴۰۳/۱۲/۳۰",
+      "normalized": "1403-12-30",
+      "valid": true,
+      "gregorian": "2025-03-20"
+    },
+    {
+      "kind": "normalize",
+      "calendar": "persian",
+      "input": "‏۱۴۰۴/۱/۱",
+      "normalized": "1404-01-01",
+      "valid": true,
+      "gregorian": "2025-03-21"
+    },
+    {
+      "kind": "normalize",
+      "calendar": "islamic-umalqura",
+      "input": "١٤٤٦-١٠-٠١",
+      "normalized": "1446-10-01",
+      "valid": true,
+      "gregorian": "2025-03-30"
+    },
+    {
+      "kind": "normalize",
+      "calendar": "persian",
+      "input": "1403.7.1",
+      "normalized": "1403-07-01",
+      "valid": true,
+      "gregorian": "2024-09-22"
+    },
+    {
+      "kind": "normalize",
+      "calendar": "persian",
+      "input": "فردا",
+      "normalized": null,
+      "valid": false
+    },
+    {
+      "kind": "normalize",
+      "calendar": "gregory",
+      "input": "2026-3-5",
+      "normalized": "2026-03-05",
+      "valid": true,
+      "gregorian": "2026-03-05"
+    },
+    {
+      "kind": "normalize",
+      "calendar": "gregory",
+      "input": "05/03/2026",
+      "normalized": null,
+      "valid": false,
+      "note": "ambiguous D/M vs M/D: typed input is parsed only in the field's display_format, never guessed"
+    },
+    {
+      "kind": "range",
+      "calendar": "islamic-umalqura",
+      "first": "1318-01-01",
+      "first_gregorian": "1900-04-30",
+      "last": "1500-12-30",
+      "last_gregorian": "2077-11-16",
+      "outside": "falls back to islamic-civil and the value carries approximate:true"
+    },
+    {
+      "kind": "range",
+      "calendar": "persian",
+      "verified_against_icu": "1179-01-01..1501-12-end (Gregorian 1800-03-21..2123-03-20): identical; first ICU disagreement on 2124-03-20 (Borkowski 1502-12-30, ICU 1503-01-01)"
+    },
+    {
+      "kind": "today_in_timezone",
+      "instant": "2026-03-20T21:00:00Z",
+      "tz": "Asia/Tehran",
+      "utc_offset": "GMT+03:30",
+      "local_date": "2026-03-21",
+      "persian": "1405-01-01",
+      "umalqura": "1447-10-02"
+    },
+    {
+      "kind": "today_in_timezone",
+      "instant": "2026-03-20T21:00:00Z",
+      "tz": "UTC",
+      "utc_offset": "GMT+00:00",
+      "local_date": "2026-03-20",
+      "persian": "1404-12-29",
+      "umalqura": "1447-10-01"
+    },
+    {
+      "kind": "today_in_timezone",
+      "instant": "2026-03-20T21:00:00Z",
+      "tz": "America/Los_Angeles",
+      "utc_offset": "GMT-07:00",
+      "local_date": "2026-03-20",
+      "persian": "1404-12-29",
+      "umalqura": "1447-10-01"
+    },
+    {
+      "kind": "today_in_timezone",
+      "instant": "2025-03-29T21:30:00Z",
+      "tz": "Asia/Riyadh",
+      "utc_offset": "GMT+03:00",
+      "local_date": "2025-03-30",
+      "persian": "1404-01-10",
+      "umalqura": "1446-10-01"
+    },
+    {
+      "kind": "age",
+      "birth": "2008-11-10",
+      "on": "2026-11-10",
+      "completed_years": 18
+    },
+    {
+      "kind": "age",
+      "birth": "2008-11-11",
+      "on": "2026-11-10",
+      "completed_years": 17
+    },
+    {
+      "kind": "age",
+      "birth": "2008-02-29",
+      "on": "2026-02-28",
+      "completed_years": 17
+    },
+    {
+      "kind": "age",
+      "birth": "2008-02-29",
+      "on": "2026-03-01",
+      "completed_years": 18
+    },
+    {
+      "kind": "age",
+      "birth": "2008-02-29",
+      "on": "2028-02-29",
+      "completed_years": 20
+    },
+    {
+      "kind": "age",
+      "birth_persian": "1387-08-19",
+      "birth": "2008-11-09",
+      "on": "2026-11-10",
+      "completed_years": 18,
+      "note": "age is always computed on the Gregorian canonical value"
+    },
+    {
+      "kind": "range_nights",
+      "start": "2026-03-19",
+      "end": "2026-03-22",
+      "nights": 3,
+      "start_persian": "1404-12-28",
+      "end_persian": "1405-01-02"
+    },
+    {
+      "kind": "range_nights",
+      "start": "2026-02-27",
+      "end": "2026-03-02",
+      "nights": 3,
+      "start_persian": "1404-12-08",
+      "end_persian": "1404-12-11"
+    },
+    {
+      "kind": "range_nights",
+      "start": "2028-02-27",
+      "end": "2028-03-02",
+      "nights": 4,
+      "start_persian": "1406-12-08",
+      "end_persian": "1406-12-12"
+    },
+    {
+      "kind": "weekday",
+      "gregorian": "2026-03-20",
+      "weekday_iso": 5,
+      "note": "Friday: weekend in Iran; formula weekday_iso = (jdn mod 7) + 1"
+    },
+    {
+      "kind": "week_info",
+      "locale": "fa-IR",
+      "intl_getWeekInfo": "{\"firstDay\":6,\"weekend\":[5]}",
+      "note": "firstDay 6 = Saturday, weekend [5] = Friday (Chromium/Firefox Intl.Locale weekInfo)"
+    }
+  ],
+  "ummalqura_compact": {
+    "format": "masksHex: 3 hex chars per Hijri year from firstYear; bit (m-1) set = month m has 30 days, else 29. Month starts are chained from firstJdn (1 Muharram firstYear).",
+    "firstYear": 1318,
+    "lastYear": 1500,
+    "firstJdn": 2415140,
+    "masksHex": "2ea6e9ed2ea4d4aa96536ab5daaba4b49a9352ba574b6ab55aad55d2aa564ae95d2ec6d56aa5554ab95b2ba575bb27647496552ab55bada6d4ec9d92d25a4d2ad56db6ab52aa5a4b4979372b6575d6ad52a9692d25d4ddada5d4da9d52aaa4d69b63747697526a554baab55aad5dd2da4d49a9552da5d55aad56aa69552ba574ae97656cb55aaaa554ad95d2da5d9db2ba4b4aa552b5575b6abd2bc4b89a9552d5adb6a6d4dc9d92aa69562ae56d36ab55aaa94d49d95d2ba5b55aad55a9a92e26e55dada6d46a554ba9754eaae5acba9d92b2564bcab55ab556d2ea5e4aa9552daad36c7596d269552da5b4ba9ba3b4b69b52aa64b696d2ec6d9eb2d54d2aa564ae96dd6ab54b29a9352ba57536ab56aae93",
+    "source": "dotnet/runtime UmAlQuraCalendar.cs (MIT), cross-checked with hijridate (MIT) and ICU"
+  }
+}
