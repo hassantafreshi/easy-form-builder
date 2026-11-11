@@ -1780,7 +1780,10 @@ class Admin {
          * not read. Stored as a key it silently replaced a working Stripe or
          * PayPal secret (the payment then failed with HTTP 401), so keep the
          * saved value for any key field that arrives as that marker. */
-        if (is_array($m)) {
+        if (is_array($m) && class_exists('\Emsfb\Builder_Api')) {
+            // A7: every key, not only the secrets; the stored value stays, a new key is dropped.
+            $m = Builder_Api::drop_unread_setting_markers($m, $ac);
+        } elseif (is_array($m)) {
             foreach (array('stripeSKey', 'stripePKey', 'paypalSKey', 'paypalPKey', 'secretKey', 'siteKey', 'apiKeyMap', 'activeCode') as $secret_key_efb) {
                 if (isset($m[$secret_key_efb]) && $m[$secret_key_efb] === 'NotFoundEl') {
                     $m[$secret_key_efb] = (is_object($ac) && isset($ac->$secret_key_efb) && $ac->$secret_key_efb !== 'NotFoundEl') ? $ac->$secret_key_efb : '';

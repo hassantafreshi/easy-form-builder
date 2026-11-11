@@ -77,4 +77,28 @@ class Builder_Api {
 		}
 		return array($rows, $warnings);
 	}
+
+	/**
+	 * A7: "NotFoundEl" is what the settings screen reports for a control it could not
+	 * read. It must never be stored as a value (it replaced a working Stripe secret on
+	 * an old build). For every key that arrives as the marker the stored value is
+	 * kept; a key with no usable stored value is left out. Only the key name is logged.
+	 *
+	 * @param array             $m      Settings as posted by the screen.
+	 * @param object|array|null $stored Settings currently saved.
+	 * @return array
+	 */
+	public static function drop_unread_setting_markers(array $m, $stored) {
+		$stored = is_array($stored) ? (object) $stored : (is_object($stored) ? $stored : null);
+		foreach ($m as $key => $value) {
+			if ($value !== 'NotFoundEl') continue;
+			if ($stored !== null && isset($stored->$key) && $stored->$key !== 'NotFoundEl') {
+				$m[$key] = $stored->$key;
+			} else {
+				unset($m[$key]);
+			}
+			error_log('[EFB] settings: "' . preg_replace('/[^A-Za-z0-9_]/', '', (string) $key) . '" arrived unread (NotFoundEl); the stored value was kept.');
+		}
+		return $m;
+	}
 }

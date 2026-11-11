@@ -3006,6 +3006,8 @@ function fun_set_setting_emsFormBuilder(state_auto = 0, done) {
       return url;
      }
     const el = document.getElementById(id)
+    // A7: a control that is not on this screen is reported, never thrown on.
+    if (!el) { console.error('[EFB] settings: control not found:', id); return "NotFoundEl"; }
 
     if(el.hasAttribute('value') && el.id!="emailTemp_emsFirmBuilder"){
 
@@ -3014,7 +3016,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0, done) {
     let r = "NotFoundEl"
     /* password: the Stripe and PayPal secret fields. Missing here, Save sent
        "NotFoundEl" as the secret and every payment failed with HTTP 401. */
-    if (el.type == "text" || el.type == "password" || el.type == "email" || el.type == "textarea" || el.type == "hidden" || el.type == "color" || el.type == "tel") {
+    if (el.type == "text" || el.type == "password" || el.type == "email" || el.type == "textarea" || el.type == "hidden" || el.type == "color" || el.type == "tel" || el.type == "number" || el.type == "url" || el.type == "search") {
       if (id == "emailTemp_emsFirmBuilder") {
         let v = el.value.replace(/(\r\n|\r|\n|\t)+/g, '');
         // The server rewrites double quotes attribute by attribute; a blind swap here
@@ -3344,14 +3346,25 @@ function fun_set_setting_emsFormBuilder(state_auto = 0, done) {
           devMode: devMode_efb
         };
 
-        for (const [key, val] of Object.entries(patch)) {
-          if (val !== undefined) {
-            setting[key] = val;
-          }
-        }
+        setting = efb_merge_setting_patch_efb(setting, patch);
     fun_send_setting_emsFormBuilder( setting , state_auto, done);
   }
 
+}
+
+/* A7: copy the values read from the settings screen over the stored settings.
+   "NotFoundEl" means a control could not be read; it is never saved (the stored
+   value stays, and a new key is not added) and only the key name is logged. */
+function efb_merge_setting_patch_efb(setting, patch) {
+  for (const [key, val] of Object.entries(patch)) {
+    if (val === undefined) continue;
+    if (val === 'NotFoundEl') {
+      console.error('[EFB] settings: "' + key + '" could not be read; the saved value is kept.');
+      continue;
+    }
+    setting[key] = val;
+  }
+  return setting;
 }
 
 function efb_build_track_options(sel) {

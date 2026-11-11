@@ -14,6 +14,7 @@ node tests/test-ap-a3-redirect-url.js
 node tests/test-ap-a4-plan-messages.js
 php tests/test-ap-a5-save-without-sms-addon.php
 node tests/test-ap-a6-intltelinput-late.js
+node tests/test-ap-a7-settings-notfound.js
 ```
 
 (The full list is in [Tests](#tests) at the end.)
@@ -181,3 +182,24 @@ node tests/test-ap-a6-intltelinput-late.js
   (8 passed).
 - **AutoPilot.** Nothing to change. A form with a mobile field no longer logs this error on a cached
   site, so AutoPilot's console checks after publishing stay clean.
+
+### A7. Settings: `"NotFoundEl"` is never stored
+
+- **Cause.** `f(id)` inside `fun_set_setting_emsFormBuilder()` (`list_form-efb.js`) returns the
+  marker `"NotFoundEl"` for an input type it does not read; the marker was then copied into the
+  settings and saved (on an old demo build the Stripe secret, a `password` input, was stored that
+  way). A control missing from the screen threw. The server already protected eight secret keys.
+- **Fix.**
+  - `f()` reads every text-like input (`password`, `number`, `url`, `search` added) and returns the
+    marker for a missing control instead of throwing (with a console error naming the control).
+  - New `efb_merge_setting_patch_efb(setting, patch)` copies the read values over the stored
+    settings and skips the marker (stored value kept, new key not added, key name logged).
+  - Server: `Builder_Api::drop_unread_setting_markers($m, $stored)` in `set_settings_Emsfb()` does
+    the same for **every** key, not only the eight secrets, and `error_log`s the key name (never the
+    value). The old list stays as the fallback when the class file is missing.
+- **Test.** `node tests/test-ap-a7-settings-notfound.js`: `f()` lifted from the shipped file
+  (password/number/url read, missing control), the merge helper, and the server helper through the
+  PHP CLI. Before: 8 failures; after: 13 passed. `php tests/test-addon-settings.php` still 16/16.
+- **AutoPilot.** AutoPilot only checks whether gateway keys are present; a key can no longer be
+  "present" with the value `NotFoundEl`. The capability registry (B3) reports gateway keys as
+  `configured: true/false`, computed the same way.
