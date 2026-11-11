@@ -9867,6 +9867,19 @@ public function check_nonce_permission_efb($request) {
 			$invalid();
 			return ['price_total' => 0, 'email' => '', 'valobj' => []];
 		}
+		/* B7: a price field that a logic rule computes (calculate, e.g. guests x 5) is
+		 * priced here by the add-on's engine from the submitted answers; what the
+		 * browser sent for it is replaced, so it cannot be lowered. */
+		$tampered_efb = false;
+		if (class_exists('\Emsfb\Builder_Api')) {
+			$before_efb = json_encode($val_);
+			list($val_, $price_error_efb) = \Emsfb\Builder_Api::apply_server_prices($val_, $fs_);
+			if ($price_error_efb !== null) {
+				$invalid();
+				return ['price_total' => 0, 'email' => '', 'valobj' => []];
+			}
+			$tampered_efb = $before_efb !== json_encode($val_) && \Emsfb\Builder_Api::server_price_differs(json_decode($before_efb, true), $val_);
+		}
 		for ($i=0; $i <count($val_) ; $i++) {
 			$a=-1;
 			if(isset($val_[$i]) && is_array($val_[$i]) && isset($val_[$i]['price'])){
@@ -9966,7 +9979,7 @@ public function check_nonce_permission_efb($request) {
 		}
 		$ip =$this->get_ip_address();
 		$this->ip = $ip;
-		if($price_c != $price_f) {
+		if($price_c != $price_f || $tampered_efb) {
 			$t=time();
 			$SERVER_NAME = apply_filters('emsfb_get_server_host', 'yourdomain.com');
 			$from =get_bloginfo('name')." <Alert@".$SERVER_NAME.">";

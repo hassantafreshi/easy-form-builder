@@ -23,6 +23,8 @@ php tests/test-ap-b4-auth-save.php
 node tests/test-ap-b5-sms-filler.js
 php tests/test-ap-b5-sms-save.php
 php tests/test-ap-b6-logic-validate.php
+php tests/test-ap-b7-computed-price.php
+node tests/test-ap-b7-total-display.js
 ```
 
 (The full list is in [Tests](#tests) at the end.)
@@ -474,3 +476,159 @@ Events on `document`:
 - **AutoPilot.** Before writing `logic_rules` (or the three other collections), call
   `efb_logic_validate_rules($form)` on the server and write only when `ok` is true; show `errors` to
   the admin by `code`. In chat, read `limits` to say what the plan allows.
+
+### B7. Price × quantity ("$5 per guest")
+
+- **What happens today, verified in code** (core + `vendores-efb`):
+  - A `calculate` rule (Pro) can target a price field (`prcfld`). The add-on's browser runtime
+    writes the result into the field and replaces its submission row with
+    `{id_, type:'prcfld', value}`: **no `price` key**, and it does not ask core to redraw the total
+    (`syncResultData()` / `rowsForValue()` in `logic/logic/assets/public/js/conditional-logic-efb.js`).
+  - Core's total (`fun_total_pay_efb()`, `new-efb.js`; the `ttlprc` field drawn by
+    `add_ui_totalprice_efb()`) sums only `price` keys, so the computed price was not shown.
+  - Server: `fun_validation_pay_elements_efb()` (`class-Emsfb-public.php`) recomputes option prices
+    (`payRadio`, `payCheckbox`, `paySelect`, `payMultiselect`) from the stored form but took a
+    `prcfld` price from the browser row (within the field's min/max). The Stripe intent
+    (`pay_stripe_sub_Emsfb_api()`, **core**; the Stripe add-on only registers the REST routes and
+    the refund screen) charges that `price_total`. **PayPal** (add-on,
+    `paypal/class-Emsfb-paypal-handler.php`) calls the same function but then creates the order
+    with the `amount` the browser posted. **Persia Pay** (add-on, `persiapay/zarinpal.php`) has its
+    own copy of the price loop and also trusts the browser's `prcfld` price.
+  - So "3 guests × $5" charged $0 on Stripe (no price key), any edited amount on PayPal, and a
+    lowered browser price on Stripe/Persia Pay.
+- **Fixed in core.**
+  - `Builder_Api::apply_server_prices($rows, $form)`: when a logic rule writes a `prcfld`
+    (`calculate`, `set_value`, `copy_value`, `clear_value`), the add-on's engine is run on the
+    submitted answers and every browser row of that field is replaced by one row whose `value` and
+    `price` are the computed number; a field the rules hide or disable is not charged; a set of
+    rules that never settles refuses the payment instead of guessing. Forms without such a rule are
+    unchanged; without the add-on nothing changes either (no rule runs in the browser then, so the
+    field is a typed price as before).
+  - `fun_validation_pay_elements_efb()` calls it first, so the Stripe intent (and every add-on that
+    uses this function) gets the server amount; a browser price that differed triggers the existing
+    "invalid value" warning mail to the owner.
+  - `fun_total_pay_efb()` counts a `prcfld` row without `price` by its `value`, so the total shows
+    $15.00 once the row is there.
+- **Needs the add-ons** (patches below, core degrades safely without them): PayPal must charge
+  `price_total`, Persia Pay must call `apply_server_prices()`, and the logic runtime should call
+  `fun_total_pay_efb()` after it writes a value so the total updates while the visitor types.
+- **Tests.** `php tests/test-ap-b7-computed-price.php` runs the real `fun_validation_pay_elements_efb()`
+  with the real `Emsfb_Logic_Validator`: 3 guests → 15 (runtime row without price), a lowered
+  browser price → 15 plus the warning mail, a missing row → 15, 4 guests → 20 although the browser
+  says 15, a non-settling rule refused, a hidden price field not charged, 15 + an option of 7 = 22,
+  forms without a rule unchanged. Against the previous `class-Emsfb-public.php`
+  (`EFB_PUBLIC_FILE=...`): 8 failures; now 10 passed. `node tests/test-ap-b7-total-display.js`: the
+  displayed total (4 passed).
+- **AutoPilot.** Build "price per guest" as: a number field, a `prcfld` (it can be disabled so the
+  visitor does not type in it), a `ttlprc` total, and a rule
+  `{type:'calculate', target:'<prcfld>', value:'{guests} * 5', decimals:2}` (Pro, needs `AdnSMF`;
+  check with `efb_logic_validate_rules()`). Stripe then charges exactly the computed amount. Tell the
+  admin that PayPal and Persia Pay need the add-on updates listed below before they do the same.
+
+---
+
+## Add-on changes needed (vendores-efb)
+
+These add-ons live in the separate `vendores-efb` repository (git-ignored `vendor/` here). Core
+degrades safely without the patches; each is needed for the behaviour named in its heading. Paths
+are relative to that repository. Diffs were made against its `main` branch on 2026-11-11 and checked
+with `php -l` / a JS parse.
+
+1. **PayPal charges the server total (B7, security).** `paypal/class-Emsfb-paypal-handler.php`
+   creates the order with the `amount` the browser posts; `fun_validation_pay_elements_efb()`
+   already returns the server total.
+2. **Persia Pay prices computed fields on the server (B7).** `persiapay/zarinpal.php` has its own
+   copy of the price loop; call core's `apply_server_prices()` first.
+3. **Logic runtime redraws the total (B7, display).** After writing a value
+   (`syncResultData()`), call core's `fun_total_pay_efb()`.
+4. **SMS contact uses prepared queries (B5).** `smssended/smsefb.php` builds its SQL with the texts
+   inside quotes; a text with an apostrophe (e.g. "We've received your message") breaks the query and
+   the SMS settings are not stored. (Admin-only input, but also an injection pattern.)
+
+```diff
+diff -ru a/logic/logic/assets/public/js/conditional-logic-efb.js b/logic/logic/assets/public/js/conditional-logic-efb.js
+--- a/logic/logic/assets/public/js/conditional-logic-efb.js	2026-11-11 20:53:24.280835900 +0000
++++ b/logic/logic/assets/public/js/conditional-logic-efb.js	2026-11-11 20:53:44.627328953 +0000
+@@ -1103,6 +1103,11 @@
+         // Storage can be unavailable in privacy modes; in-memory submit remains valid.
+       }
+     }
++    /* A computed price field changes the order total: let core redraw it (and the
++       PayPal button state) like a typed price does. */
++    if (changed && typeof root.fun_total_pay_efb === 'function') {
++      try { root.fun_total_pay_efb(context.formId); } catch (error) { /* display only */ }
++    }
+     return changed;
+   }
+ 
+diff -ru a/paypal/class-Emsfb-paypal-handler.php b/paypal/class-Emsfb-paypal-handler.php
+--- a/paypal/class-Emsfb-paypal-handler.php	2026-11-11 20:53:24.265612693 +0000
++++ b/paypal/class-Emsfb-paypal-handler.php	2026-11-11 20:53:44.626586358 +0000
+@@ -283,6 +283,14 @@
+ 		$email    = $obj['email'];
+ 		$valobj   = $obj['valobj'];
+ 
++		/* Charge what the server computed from the stored form (option prices, and
++		 * since EFB API 1 the price fields a logic rule computes), never the amount
++		 * the browser posted: that one can be edited in the page. */
++		$server_amount = isset( $obj['price_total'] ) && is_numeric( $obj['price_total'] ) ? (float) $obj['price_total'] : 0.0;
++		if ( $server_amount > 0 ) {
++			$amount = number_format( $server_amount, 2, '.', '' );
++		}
++
+ 		/* ── Step 6: Amount validation ──
+ 		 * If this fails, the form did not send a valid numeric amount.
+ 		 * Possible causes:
+diff -ru a/persiapay/zarinpal.php b/persiapay/zarinpal.php
+--- a/persiapay/zarinpal.php	2026-11-11 20:53:24.273800856 +0000
++++ b/persiapay/zarinpal.php	2026-11-11 20:53:44.626723135 +0000
+@@ -213,6 +213,13 @@
+ 		$email ='no@email.com';
+ 		$des = ':پرداختی فرم' . $fs_[0]['formName'];
+ 		$valobj=[];
++		/* EFB API 1: a price field computed by a logic rule is priced by the server. */
++		if ( is_array( $val_ ) && is_array( $fs_ ) && class_exists( '\Emsfb\Builder_Api' ) ) {
++			list( $val_, $price_error_efb ) = \Emsfb\Builder_Api::apply_server_prices( $val_, $fs_ );
++			if ( $price_error_efb !== null ) {
++				wp_send_json_success( array( 'success' => false, 'm' => esc_html__( 'error', 'easy-form-builder' ) . ' 405' ), 200 );
++			}
++		}
+ 		for ($i=0; $i <count($val_) ; $i++) {
+ 			$a=-1;
+ 			if(isset($val_[$i]['price'])){
+diff -ru a/smssended/smsefb.php b/smssended/smsefb.php
+--- a/smssended/smsefb.php	2026-11-11 20:53:24.292835901 +0000
++++ b/smssended/smsefb.php	2026-11-11 20:53:44.628272121 +0000
+@@ -159,19 +159,21 @@
+ 
+         global $wpdb;
+         $table_name = $wpdb->prefix . 'emsfb_sms_contact';
+-        $sql = "SELECT * FROM $table_name WHERE form_id = $form_id";
+-        $result = $wpdb->get_results($sql);
+-        //error_log(json_encode($result));
++        $form_id = (int) $form_id;
++        $result = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name WHERE form_id = %d", $form_id));
++        $row = array(
++            'admin_numbers' => (string) $admin_numbers,
++            'recived_message_noti_user' => (string) $recived_message_noti_user,
++            'new_message_noti_user' => (string) $new_message_noti_user,
++            'new_message_noti_admin' => (string) $new_message_noti_admin,
++            'new_response_noti' => (string) $new_response_noti,
++        );
+         if(count($result) == 0){
+-            //get id after insert
+-            //error_log('inside add_sms_contact_efb=>insert');
+-            $sql = "INSERT INTO $table_name (form_id,admin_numbers,recived_message_noti_user,new_message_noti_user,new_message_noti_admin,new_response_noti) VALUES ('$form_id','$admin_numbers','$recived_message_noti_user','$new_message_noti_user','$new_message_noti_admin','$new_response_noti')";
+-            $wpdb->query($sql);
++            // Prepared: a text with an apostrophe ("We've received...") broke the raw query and was not stored.
++            $wpdb->insert($table_name, array('form_id' => $form_id) + $row);
+             return $wpdb->insert_id;
+         }else{
+-            //error_log('inside add_sms_contact_efb=>update');
+-            $sql = "UPDATE $table_name SET admin_numbers = '$admin_numbers',recived_message_noti_user = '$recived_message_noti_user',new_message_noti_user = '$new_message_noti_user',new_message_noti_admin = '$new_message_noti_admin',new_response_noti = '$new_response_noti' WHERE form_id = $form_id";
+-            $wpdb->query($sql);
++            $wpdb->update($table_name, $row, array('form_id' => $form_id));
+             //get id after update
+             return $result[0]->id;
+         }
+```

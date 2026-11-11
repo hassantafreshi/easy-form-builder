@@ -1924,6 +1924,8 @@ function fun_total_pay_efb(form_id) {
     }
   }
   for (let r of sendBack_emsFormBuilder_pub) {
+    // B7: a price field whose value a logic rule wrote (calculate) has no `price` key; its value is the price.
+    if (r.type === 'prcfld' && !r.hasOwnProperty('price') && r.value !== '' && !isNaN(parseFloat(r.value))) { total += Math.abs(parseFloat(r.value)); continue; }
     if (r.hasOwnProperty('price') ) total += Math.abs(parseFloat(r.price));
   }
   setTimeout(() => { updateTotal_efb(total,form_id); }, 800);

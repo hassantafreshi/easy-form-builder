@@ -301,6 +301,86 @@ class Builder_Api {
 		return $vars;
 	}
 
+	/* ---------------------------------------------------------------- B7 */
+
+	/**
+	 * B7: the price of a price field (prcfld) that a logic rule computes (calculate,
+	 * set_value, copy_value, clear_value) comes from the server, never from the browser.
+	 * The add-on's engine runs on the submitted answers; every browser row of such a field
+	 * is replaced by one row carrying the computed value as `value` and `price`, or removed
+	 * when the field is hidden / disabled by the rules or computes to nothing. Forms
+	 * without such a rule are returned unchanged (a price field the visitor types stays as
+	 * it was, bounded by its min/max in fun_validation_pay_elements_efb()).
+	 *
+	 * @param array $rows Submitted rows (list of associative arrays).
+	 * @param array $form The stored form (associative rows).
+	 * @return array{0:array,1:string|null} [rows, error code or null]
+	 */
+	public static function apply_server_prices(array $rows, array $form) {
+		$fields = array();
+		foreach ($form as $i => $r) {
+			if ($i > 0 && is_array($r) && isset($r['id_'], $r['type'])) $fields[(string) $r['id_']] = $r;
+		}
+		$targets = array();
+		$rules = isset($form[0]['logic_rules']) && is_array($form[0]['logic_rules']) ? $form[0]['logic_rules'] : array();
+		foreach ($rules as $rule) {
+			if (!is_array($rule) || (array_key_exists('enabled', $rule) && empty($rule['enabled'])) || empty($rule['actions']) || !is_array($rule['actions'])) continue;
+			foreach ($rule['actions'] as $a) {
+				$t = is_array($a) && isset($a['target']) ? (string) $a['target'] : '';
+				if ($t !== '' && isset($fields[$t]) && $fields[$t]['type'] === 'prcfld' && in_array(isset($a['type']) ? $a['type'] : '', array('calculate', 'set_value', 'copy_value', 'clear_value'), true)) {
+					$targets[$t] = true;
+				}
+			}
+		}
+		if (empty($targets)) return array($rows, null);
+		$validator = self::logic_validator();
+		// Without the add-on no rule runs in the browser either: the field is typed, as before.
+		if ($validator === null) return array($rows, null);
+		try {
+			$result = $validator->evaluate($form, $rows);
+		} catch (\Throwable $e) {
+			return array($rows, 'price_not_computable');
+		}
+		if (!is_array($result) || empty($result['is_conditional'])) return array($rows, null);
+		if (isset($result['stabilized']) && $result['stabilized'] === false) return array($rows, 'price_not_computable');
+		$ignored = array_flip(isset($result['ignored_fields']) ? (array) $result['ignored_fields'] : array());
+		$values = isset($result['values_map']) && is_array($result['values_map']) ? $result['values_map'] : array();
+		$out = array();
+		foreach ($rows as $row) {
+			if (is_array($row) && isset($row['id_']) && isset($targets[(string) $row['id_']])) continue;
+			$out[] = $row;
+		}
+		foreach (array_keys($targets) as $id) {
+			if (isset($ignored[$id])) continue;
+			$v = array_key_exists($id, $values) ? $values[$id] : '';
+			if (is_array($v) || $v === '' || $v === null || !is_numeric($v)) continue;
+			$v = (string) (0 + $v);
+			$out[] = array(
+				'id_' => $id, 'id_ob' => $id . '_', 'type' => 'prcfld',
+				'name' => isset($fields[$id]['name']) ? (string) $fields[$id]['name'] : '',
+				'amount' => isset($fields[$id]['amount']) ? $fields[$id]['amount'] : '',
+				'value' => $v, 'price' => $v,
+			);
+		}
+		return array($out, null);
+	}
+
+	/** B7: the browser sent a price for a server-priced field that differs from what the server computed. */
+	public static function server_price_differs(array $before, array $after) {
+		$sum = function ($rows, $only) {
+			$s = 0.0;
+			foreach ($rows as $r) {
+				if (is_array($r) && isset($r['type'], $r['id_']) && $r['type'] === 'prcfld' && isset($only[(string) $r['id_']]) && isset($r['price']) && is_numeric($r['price'])) $s += abs((float) $r['price']);
+			}
+			return $s;
+		};
+		$ids = array();
+		foreach ($after as $r) { if (is_array($r) && isset($r['type'], $r['id_']) && $r['type'] === 'prcfld') $ids[(string) $r['id_']] = true; }
+		$sent = false;
+		foreach ($before as $r) { if (is_array($r) && isset($r['id_'], $ids[(string) $r['id_']]) && isset($r['price'])) $sent = true; }
+		return $sent && abs($sum($before, $ids) - $sum($after, $ids)) > 0.000001;
+	}
+
 	/* ---------------------------------------------------------------- B6 */
 
 	const LOGIC_ACTIONS = array('show_field', 'hide_field', 'set_required', 'set_optional', 'enable_field', 'disable_field', 'show_step', 'hide_step', 'jump_to_step', 'set_value', 'copy_value', 'calculate', 'clear_value', 'show_message', 'set_placeholder', 'set_help', 'set_label', 'focus_field', 'scroll_to_field', 'block_submit', 'end_form');
