@@ -436,7 +436,7 @@ if ($is_valid == 1 && is_array($validated_item) && class_exists('\Emsfb\Field_Ru
 ### J3. ویژگی name سفارشی (Fluent، Ninja)
 - کلید `name_attr`: `^[A-Za-z][A-Za-z0-9_\-:.]{0,63}$`، یکتا در فرم (بررسی سازنده)، و فهرست رزرو: `submit|action|method|target|length|elements|id|name|form`.
 - فقط برای ورودی‌های متنی. radio و checkbox از `name` برای گروه‌بندی استفاده می‌کنند (`formbuilder.php:2753`) و دست نمی‌خورند.
-- اثر جانبی: ردیف اولیهٔ sendBack در `createStepsOfPublic` نام را از `el.name` برمی‌دارد (`core-efb.js:595`). ولی `handle_change_event_efb_v4` از `ob.name` استفاده می‌کند و سرور نام را از فیلد ذخیره‌شده تثبیت می‌کند (`stored_row_name_efb`، پس از 3424)، پس مقدار ذخیره‌شده تغییری نمی‌کند. تست این را ثابت می‌کند.
+- اثر جانبی: ردیف اولیهٔ sendBack در `createStepsOfPublic` نام را از `el.name` برمی‌دارد (`core-efb.js:596`). ولی `handle_change_event_efb_v4` از `ob.name` استفاده می‌کند و سرور نام را از فیلد ذخیره‌شده تثبیت می‌کند (`stored_row_name_efb`، پس از 3424)، پس مقدار ذخیره‌شده تغییری نمی‌کند. تست این را ثابت می‌کند.
 - رشته: `tvNameAttr` «HTML name attribute (for developers)».
 
 **Checkpoint**
