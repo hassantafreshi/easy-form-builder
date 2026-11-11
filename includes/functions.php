@@ -2666,6 +2666,10 @@ class efbFunction {
 			"wpsms_nm" => $state  &&  isset($ac->text->wpsms_nm) ? $ac->text->wpsms_nm : esc_html__('WSMS plugin by VeronaLabs is not installed or activated. Please select another option, or install and configure WSMS.','easy-form-builder'),
 			/* translators: NN = Name of the add-on */
 			"msg_adons" => $state  &&  isset($ac->text->msg_adons) ? $ac->text->msg_adons : esc_html__('To use this option, please install the NN add-ons from the Easy Form Builder plugin\'s add-ons page.','easy-form-builder'),
+			/* translators: AutoPilot A5: shown after Save when the form asked for SMS notifications but the SMS add-on is not active */
+			"smsOffAddonMissing" => $state && isset($ac->text->smsOffAddonMissing) ? $ac->text->smsOffAddonMissing : esc_html__('SMS notifications were turned off because the SMS add-on is not active. Everything else was saved.','easy-form-builder'),
+			/* translators: AutoPilot A5: shown after Save when the form asked for Telegram notifications but the Telegram add-on is not active */
+			"telegramOffAddonMissing" => $state && isset($ac->text->telegramOffAddonMissing) ? $ac->text->telegramOffAddonMissing : esc_html__('Telegram notifications were turned off because the Telegram add-on is not active. Everything else was saved.','easy-form-builder'),
 			"sms_noti" => $state  &&  isset($ac->text->sms_noti) ? $ac->text->sms_noti : esc_html__('SMS Notifications','easy-form-builder'),
 			"sms_dnoti" => $state  &&  isset($ac->text->sms_dnoti) ? $ac->text->sms_dnoti : esc_html__('Enter the administrators’ mobile numbers to receive SMS notifications, such as alerts or new messages.','easy-form-builder'),
 			"sms_ndnoti" => $state  &&  isset($ac->text->sms_ndnoti) ? $ac->text->sms_ndnoti : esc_html__('All SMS notifications sent by Easy Form Builder will be delivered to the numbers entered here.','easy-form-builder'),

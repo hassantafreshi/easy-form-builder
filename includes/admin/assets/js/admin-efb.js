@@ -975,6 +975,22 @@ function show_message_result_form_set_EFB(state, m) {
   });
 }
 
+/* A5: the server saved the form but switched a notification off (its add-on is not
+   active). Mirror that in the builder state so the next save agrees, and say why. */
+function efb_apply_save_warnings_efb(warnings) {
+  if (!Array.isArray(warnings) || warnings.length === 0) return;
+  for (const w of warnings) {
+    if (!w || typeof w !== 'object') continue;
+    if (w.code === 'sms_disabled_addon_missing' && Array.isArray(valj_efb)) {
+      valj_efb.forEach((row) => { if (row && Object.prototype.hasOwnProperty.call(row, 'smsnoti')) row.smsnoti = 0; });
+    } else if (w.code === 'telegram_disabled_addon_missing' && Array.isArray(valj_efb) && valj_efb[0]) {
+      valj_efb[0].telegramnoti = 0;
+    }
+    if (typeof alert_message_efb === 'function') alert_message_efb('', String(w.m || ''), 20, 'warning');
+  }
+  try { sessionStorage.setItem('valj_efb', JSON.stringify(valj_efb)); } catch (e) {}
+}
+
 async function  actionSendData_emsFormBuilder(saveMode) {
   if (!navigator.onLine) {
     alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')
@@ -1021,6 +1037,7 @@ async function  actionSendData_emsFormBuilder(saveMode) {
         if (res.data.value && res.data.success == true) {
           state_check_ws_p = 0;
           form_ID_emsFormBuilder = parseInt(res.data.id)
+          efb_apply_save_warnings_efb(res.data.warnings);
 
           show_message_result_form_set_EFB(1, res.data.value);
           if (!_efb_autosave_in_progress) efb_builder_maybe_warn_email_delivery_after_save();
@@ -1033,6 +1050,7 @@ async function  actionSendData_emsFormBuilder(saveMode) {
         }
       } else if ((res.data.r == "update" || res.data.r == "updated") && res.data.success == true) {
         show_message_result_form_set_EFB(2, res.data.value);
+        efb_apply_save_warnings_efb(res.data.warnings);
         if (!_efb_autosave_in_progress) efb_builder_maybe_warn_email_delivery_after_save();
         if (saveMode === 1) clear_auto_save_efb();
 

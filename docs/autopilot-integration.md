@@ -12,6 +12,7 @@ node tests/test-ap-a1-geo-link-order.js
 node tests/test-ap-a2-order-type.js
 node tests/test-ap-a3-redirect-url.js
 node tests/test-ap-a4-plan-messages.js
+php tests/test-ap-a5-save-without-sms-addon.php
 ```
 
 (The full list is in [Tests](#tests) at the end.)
@@ -125,3 +126,31 @@ node tests/test-ap-a4-plan-messages.js
   `pro_show_efb(1)` is a real Pro lock. Before: 6 failures; after: 16 passed.
 - **AutoPilot.** Keep calling `pro_show_efb(n)` if needed (it is unchanged); prefer the B3
   registry (`efb_var.capabilities`) to decide which plan to name.
+
+### A5. Save no longer fails because of SMS / Telegram
+
+- **Cause.** `update_form_id_Emsfb()` (`includes/admin/class-Emsfb-admin.php`) wrote the form and
+  then, when `smsnoti=1` and the SMS add-on (`AdnSS` / `vendor/smssended/smsefb.php`) was not
+  active, answered `success:false` ("install the add-on"). The builder treated that as a failed
+  save and kept the draft, and the stored form still had `smsnoti=1`. Telegram (`AdnTLG`) the same.
+- **Fix.** New file `includes/class-Emsfb-builder-api.php` (class `Emsfb\Builder_Api`, loaded for
+  every request from `includes/class-Emsfb.php`, optional like the masks class):
+  `Builder_Api::disable_unavailable_notifiers($rows, $settings, $lang)` runs before the SMS/Telegram
+  texts are moved out of row 0. When the add-on cannot run it sets `smsnoti=0` on row 0 and on every
+  field (or `telegramnoti=0`), drops the admins' phone numbers and the Telegram bot token / chat ids
+  from the form JSON (visitors can read that JSON), and returns a warning. The save answers
+  `success:true, r:'updated'` plus `warnings: [{code:'sms_disabled_addon_missing'|'telegram_disabled_addon_missing', m}]`.
+  The same runs for a new form in `Create::add_form_structure()`, which stored `smsnoti=1` silently.
+  The builder (`efb_apply_save_warnings_efb()` in `admin-efb.js`) shows the message and switches the
+  toggle off in its state so the next save agrees. The SMS texts stay in the form so switching SMS
+  on later keeps what the admin wrote.
+- **Phrases.** `smsOffAddonMissing`, `telegramOffAddonMissing` (`text_efb()`), Persian added to
+  `languages/easy-form-builder-fa_IR.po`.
+- **Test.** `php tests/test-ap-a5-save-without-sms-addon.php` runs the real `update_form_id_Emsfb()`
+  and `add_form_structure()` with WordPress stubs and an in-memory `$wpdb`: SMS on without the
+  add-on saves with a warning, `smsnoti` is 0 on the form and the mobile field, other changes are
+  stored, phone numbers are not in the JSON; Telegram the same without the token; a form without
+  notifications answers exactly as before; a new form too. Before: 6 failures; after: 9 passed.
+- **AutoPilot.** Read `data.warnings` after `saveFormEfb()` / the save AJAX: code
+  `sms_disabled_addon_missing` means "tell the admin SMS needs the SMS add-on (Pro)". The capability
+  registry (B3) says beforehand whether `addon:AdnSS` is `available_now`.

@@ -391,7 +391,7 @@ class Create {
 	}
 	public function add_form_structure(){
 		$efbFunction = get_efbFunction();
-		$creat=["errorCheckInputs","NAllowedscriptTag","formNcreated","newMessageReceived","newResponse","WeRecivedUrM","trackNo","url",'error403'];
+		$creat=["errorCheckInputs","NAllowedscriptTag","formNcreated","newMessageReceived","newResponse","WeRecivedUrM","trackNo","url",'error403',"smsOffAddonMissing","telegramOffAddonMissing"];
 		$lang = $efbFunction->text_efb($creat);
 		$this->userId =get_current_user_id();
 
@@ -415,6 +415,11 @@ class Create {
 		$valp =\emsfb_json_normalize_efb(wp_unslash($_POST['value']));
 		$valp = json_decode($valp,true);
 		$valp = $efbFunction->sanitize_obj_msg_efb($valp);
+		// A5: a notification whose add-on is not active is stored switched off, with a warning.
+		$save_warnings_efb = array();
+		if (is_array($valp) && class_exists('\Emsfb\Builder_Api')) {
+			list($valp, $save_warnings_efb) = Builder_Api::disable_unavailable_notifiers($valp, get_setting_Emsfb('decoded', array()), $lang);
+		}
 		$this->formtype =  sanitize_text_field($_POST['type']);
 		if($this->isScript($_POST['value']) ||$this->isScript($_POST['type'])){
 			$response = array( 'success' => false , "m"=> $lang['NAllowedscriptTag']);
@@ -492,6 +497,7 @@ class Create {
 		}
 		if($this->id_ !=0){
 			$response = array( 'success' => true ,'r'=>"insert" , 'value' => "[EMS_Form_Builder id=$this->id_]" , "id"=>$this->id_);
+			if (!empty($save_warnings_efb)) $response['warnings'] = $save_warnings_efb;
 		}else{$response = array( 'success' => false , "m"=> $lang['formNcreated']);}
 		wp_send_json_success($response, 200);
 	}

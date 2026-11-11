@@ -326,7 +326,7 @@ class Admin {
     }
     public function update_form_id_Emsfb() {
         $efbFunction = get_efbFunction();
-        $text = ["sms_noti","msg_adons","error403","invalidRequire","nAllowedUseHtml","updated","upDMsg" ,"newMessageReceived","trackNo","url","newResponse","WeRecivedUrM","somethingWentWrongPleaseRefresh"];
+        $text = ["sms_noti","msg_adons","error403","invalidRequire","nAllowedUseHtml","updated","upDMsg" ,"newMessageReceived","trackNo","url","newResponse","WeRecivedUrM","somethingWentWrongPleaseRefresh","smsOffAddonMissing","telegramOffAddonMissing"];
         $lang= $efbFunction->text_efb($text);
         $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
         $post_value = isset($_POST['value']) ? wp_unslash( $_POST['value'] ) : '';
@@ -360,6 +360,14 @@ class Admin {
         $telegram_bot_token = "";
         $telegram_admin_chat_ids = "";
         $settings = get_setting_Emsfb('decoded', []);
+
+        /* A5: SMS or Telegram switched on while that add-on is not active used to
+         * refuse the whole save (after writing it). The form is saved with the
+         * notification off and the answer says why. */
+        $save_warnings_efb = array();
+        if (is_array($valp) && class_exists('\Emsfb\Builder_Api')) {
+            list($valp, $save_warnings_efb) = Builder_Api::disable_unavailable_notifiers($valp, $settings, $lang);
+        }
 
         if(isset($valp[0]['smsnoti']) && intval($valp[0]['smsnoti'])==1){
 			$sms_msg_new_noti = isset($valp[0]['sms_msg_new_noti']) ?$valp[0]['sms_msg_new_noti'] :$lang['newMessageReceived'] ."\n". $lang['trackNo'] .": [confirmation_code]\n". $lang['url'] .": [link_response]";
@@ -467,6 +475,7 @@ class Admin {
 		}
         $m = $lang['updated'];
         $response = ['success' => true, 'r' =>"updated", 'value' => "[EMS_Form_Builder id=$id]"];
+        if (!empty($save_warnings_efb)) $response['warnings'] = $save_warnings_efb;
         wp_send_json_success($response, 200);
     }
     /**

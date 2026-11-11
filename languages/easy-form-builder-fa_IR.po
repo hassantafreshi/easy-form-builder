@@ -14859,3 +14859,15 @@ msgstr "%s مقداری دارد که ممکن نیست، مثلاً تاریخ�
 #, php-format
 msgid "Please complete the %s field."
 msgstr "لطفاً فیلد %s را کامل کنید."
+
+#  origin: claude (fa_IR) AutoPilot
+#. translators: AutoPilot A5: shown after Save when the form asked for SMS notifications but the SMS add-on is not active
+#: includes/functions.php
+msgid "SMS notifications were turned off because the SMS add-on is not active. Everything else was saved."
+msgstr "اعلان پیامکی خاموش شد، چون افزونهٔ پیامک فعال نیست. بقیهٔ تغییرها ذخیره شد."
+
+#  origin: claude (fa_IR) AutoPilot
+#. translators: AutoPilot A5: shown after Save when the form asked for Telegram notifications but the Telegram add-on is not active
+#: includes/functions.php
+msgid "Telegram notifications were turned off because the Telegram add-on is not active. Everything else was saved."
+msgstr "اعلان تلگرام خاموش شد، چون افزونهٔ تلگرام فعال نیست. بقیهٔ تغییرها ذخیره شد."
