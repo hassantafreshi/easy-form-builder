@@ -391,6 +391,10 @@ class Emsfb {
             \Emsfb\Upload_Guard::register();
         }
 
+        // Shared entry purge (replies and uploaded files go with the entry).
+        // Every dashboard delete path calls it, so it loads with the core.
+        $core_ok = $this->require_plugin_file_efb('includes/class-Emsfb-privacy.php') && $core_ok;
+
         if (!$core_ok) {
             $this->core_files_ok = false;
             return;

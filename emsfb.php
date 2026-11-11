@@ -31,7 +31,8 @@ if (!defined("EMSFB_PLUGIN_VERSION")) {
 if (!defined("EMSFB_DB_VERSION")) {
     // 1.2 adds the emsfb_stts_ indexes (sid, lookup, date). Bumping this is what
     // triggers Install::upgrade_schema() on sites that already have the tables.
-    define("EMSFB_DB_VERSION", 1.3);
+    // 1.4 adds emsfb_msg_.form_date (form_id,date) and emsfb_rsp_.msg_id.
+    define("EMSFB_DB_VERSION", 1.4);
 }
 
 if (!defined("EFB_DEBUG")) {

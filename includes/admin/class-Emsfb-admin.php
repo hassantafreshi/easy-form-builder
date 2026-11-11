@@ -5,6 +5,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+require_once __DIR__ . '/class-Emsfb-entries.php';
+
 class Admin {
 
     public $ip;
@@ -256,12 +258,11 @@ class Admin {
             $this->clear_form_cache_efb($id);
         }
 
+        // Entries go through the shared purge so their replies and uploaded
+        // files are removed with them (F13 §6.3).
         $table_name = $this->db->prefix . "emsfb_msg_";
-         $this->db->delete(
-            $table_name,
-            ['form_id' => $id],
-            ['%d']
-        );
+        $msg_ids    = $this->db->get_col($this->db->prepare("SELECT msg_id FROM `$table_name` WHERE form_id = %d", $id));
+        $this->purge_entries_efb((array) $msg_ids);
         $response = ['success' => true, 'r' => $r];
         wp_send_json_success($response, 200);
     }
@@ -287,14 +288,23 @@ class Admin {
             global $wpdb;
             $this->db = $wpdb;
         }
-        $table_name = $this->db->prefix . "emsfb_msg_";
-        $r          = $this->db->delete(
-            $table_name,
-            ['msg_id' => $id],
-            ['%d']
-        );
-        $response = ['success' => true, 'r' => $r];
+        $purged   = $this->purge_entries_efb([$id]);
+        $r        = $purged === false ? false : $purged['deleted'];
+        $response = ['success' => $r !== false, 'r' => $r];
         wp_send_json_success($response, 200);
+    }
+
+    /**
+     * Delete entries with their replies and files.
+     *
+     * @param int[] $msg_ids
+     * @return array{deleted:int, anonymized:int, files:int}|false
+     */
+    private function purge_entries_efb(array $msg_ids) {
+        if (class_exists('\\Emsfb\\Privacy')) {
+            return \Emsfb\Privacy::purge_entries($msg_ids, 'delete', true);
+        }
+        return false;
     }
     public function update_form_id_Emsfb() {
         $efbFunction = get_efbFunction();
@@ -1297,7 +1307,7 @@ class Admin {
             wp_send_json_success($response, 200);
             die("secure!");
         }
-        if (empty($_POST['id']) && $this->isHTML(json_encode($_POST['value'] ?? ''),JSON_UNESCAPED_UNICODE)) {
+        if (empty($_POST['id']) && $this->isHTML(json_encode($_POST['value'] ?? '', JSON_UNESCAPED_UNICODE))) {
             $m =   $lang['somethingWentWrongPleaseRefresh'];
             $response = ['success' => false, "m" => esc_html__("Something went wrong, please refresh the page." ,'easy-form-builder')];
             wp_send_json_success($response, 200);
@@ -1430,10 +1440,8 @@ class Admin {
         $date_format = get_option( 'date_format' ) . ' ' . get_option( 'time_format' );
         foreach ( $value as $row ) {
             if ( ! empty( $row->date ) ) {
-                $timestamp = strtotime( $row->date );
-                if ( $timestamp !== false ) {
-                    $row->date = wp_date( $date_format, $timestamp );
-                }
+                // Stored in the site time zone (wp_date), not UTC.
+                $row->date = Entries::format_entry_date( $row->date, $date_format );
             }
         }
         $response   = ['success' => true, 'ajax_value' => $value, 'id' => $id,'nonce_msg'=> $code];
@@ -1519,17 +1527,8 @@ class Admin {
         $value      = $this->db->get_results("SELECT * FROM `$table_name` WHERE msg_id = '$id'");
         $this->db->update($table_name, ['read_' => 1], ['msg_id' => $id, 'read_' => 0]);
         foreach ($value as $key => $val) {
-            $r = (int)$val->rsp_by;
-            if ($r > 0) {
-                $usr         = get_user_by('id', $r);
-                $val->rsp_by = $usr->display_name;
-            }else if ($r==-1){
-                $val->rsp_by= $lang['spprt'];
-            }
-            else {
-                $m =   $lang['guest'];
-                $val->rsp_by =$m;
-            }
+            // A deleted user reads as a guest instead of a fatal on false.
+            $val->rsp_by = Entries::responder_name($val->rsp_by, $lang['guest'], $lang['spprt']);
         }
         $response = ['success' => true, 'ajax_value' => $value, 'id' => $id];
         wp_send_json_success($response, 200);
@@ -1945,12 +1944,18 @@ class Admin {
         $value = $this->db->get_results($this->db->prepare("SELECT * FROM `$table_name` WHERE track = %s", $id));
 
         if (count($value) > 0) {
+            foreach ( $value as $row ) {
+                if ( ! empty( $row->date ) ) {
+                    $row->date = Entries::format_entry_date( $row->date );
+                }
+            }
             $code = 'efb'. $value[0]->msg_id;
 			$code = wp_create_nonce($code);
             $response = ['success' => true, "ajax_value" => $value,'nonce_msg'=> $code , 'id'=>$value[0]->msg_id];
         }
         else {
-            $search_term = "%$id%";
+            // User text is literal here: % and _ must not act as wildcards.
+            $search_term = '%' . $this->db->esc_like($id) . '%';
 
             $sql_msg = $this->db->prepare(
                 "SELECT DISTINCT m.* FROM {$table_name} m
@@ -1970,6 +1975,13 @@ class Admin {
             $value = $this->db->get_results($combined_sql);
 
             if(count($value) > 0){
+                // Same display date as the entries list (stored in site time).
+                $date_format = get_option( 'date_format' ) . ' ' . get_option( 'time_format' );
+                foreach ( $value as $row ) {
+                    if ( ! empty( $row->date ) ) {
+                        $row->date = Entries::format_entry_date( $row->date, $date_format );
+                    }
+                }
                 $code = 'efb'. $value[0]->msg_id;
                 $code = wp_create_nonce($code);
                 $response = ['success' => true, "ajax_value" => $value,'nonce_msg'=> $code , 'id'=>$value[0]->msg_id];
@@ -3710,15 +3722,10 @@ class Admin {
             }
             $response = ['success' => false, "m" =>$lang['somethingWentWrongPleaseRefresh']];
             if(!empty($msg_id_list)){
-                $placeholders = implode(',', array_fill(0, count($msg_id_list), '%d'));
-                $sql = $this->db->prepare("DELETE FROM `$table_name` WHERE msg_id IN ($placeholders)", ...$msg_id_list);
-                $r = $this->db->query($sql);
-                if($r>0){
-                    $table_name = $this->db->prefix . "emsfb_rsp_";
-                    $sql = $this->db->prepare("DELETE FROM `$table_name` WHERE msg_id IN ($placeholders)", ...$msg_id_list);
-                    $r = $this->db->query($sql);
+                // Same purge as the single delete: rows, replies and files.
+                if ($this->purge_entries_efb($msg_id_list) !== false) {
+                    $response = ['success' => true, "m" =>$lang['delete']];
                 }
-                $response = ['success' => true, "m" =>$lang['delete']];
             }
             wp_send_json_success($response, 200);
         }

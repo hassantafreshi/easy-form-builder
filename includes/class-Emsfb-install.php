@@ -9,6 +9,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Install {
 
 	/**
+	 * True when a schema step was skipped because another request held the
+	 * lock; the stored DB version must then stay put so the step runs again.
+	 *
+	 * @var bool
+	 */
+	private static $schema_deferred = false;
+
+	/**
 	 * Create a table only when it does not exist yet.
 	 *
 	 * The statements below are deliberately kept away from dbDelta's column
@@ -96,7 +104,8 @@ class Install {
 							`read_date` datetime  DEFAULT CURRENT_TIMESTAMP,
 							`read_` int(10) COLLATE utf8mb4_unicode_ci NOT NULL,
 							`read_by` varchar(45) COLLATE utf8mb4_unicode_ci NOT NULL,
-							PRIMARY KEY  (msg_id)
+							PRIMARY KEY  (msg_id),
+							KEY form_date (form_id,date)
 						) {$charset_collate};";
 
 						self::create_table_if_absent( $sql );
@@ -112,7 +121,8 @@ class Install {
 							`read_` int(10) COLLATE utf8mb4_unicode_ci NOT NULL,
 							`reader_ip` varchar(45) COLLATE utf8mb4_unicode_ci NOT NULL,
 							`rsp_by` int(1) COLLATE utf8mb4_unicode_ci NOT NULL,
-							PRIMARY KEY  (rsp_id)
+							PRIMARY KEY  (rsp_id),
+							KEY msg_id (msg_id)
 						) {$charset_collate};";
 
 						self::create_table_if_absent( $sql );
@@ -221,6 +231,7 @@ class Install {
 		// maybe_upgrade_schema_efb() skip it forever, which is exactly the
 		// situation the stored version is supposed to protect against.
 		self::upgrade_schema();
+		$deferred = self::$schema_deferred;
 
 		// upgrade_schema() records the version itself, but it returns early when
 		// the table is absent, so this stays as the unconditional writer.
@@ -228,7 +239,9 @@ class Install {
 		// untouched, so the stored schema version could never move past whatever
 		// an old install first wrote, making every version-guarded migration a
 		// no-op on exactly the sites that needed it.
-		update_option( 'Emsfb_db_version', EMSFB_DB_VERSION );
+		if ( ! $deferred ) {
+			update_option( 'Emsfb_db_version', EMSFB_DB_VERSION );
+		}
 
 		do_action('emsfb_update_cache_plugins_list');
 		do_action('emsfb_update_security_plugins_list');
@@ -259,6 +272,7 @@ class Install {
 		global $wpdb;
 
 		$applied = array();
+		self::$schema_deferred = false;
 
 		// emsfb_form.status came after 3.9.x and create_table_if_absent() never
 		// alters an existing table, so sites updated from 3.9 had no column for
@@ -272,6 +286,22 @@ class Install {
 				$applied[] = 'emsfb_form: ADD COLUMN status';
 			}
 		}
+
+		// Entries and replies had only a primary key, so every per-form list
+		// and every reply lookup / purge was a full table scan. Index names
+		// and columns follow F13 §5.4 (form_date, msg_id), which F14 also
+		// relies on. DB version 1.4. Kept before the emsfb_stts_ early return
+		// below (playbook §7), and each key is added only when missing, so it
+		// is safe on every run and in any order relative to other features'
+		// steps that bump EMSFB_DB_VERSION.
+		$applied = array_merge( $applied, self::add_missing_indexes(
+			$wpdb->prefix . 'emsfb_msg_',
+			array( 'form_date' => 'ADD KEY `form_date` (`form_id`,`date`)' )
+		) );
+		$applied = array_merge( $applied, self::add_missing_indexes(
+			$wpdb->prefix . 'emsfb_rsp_',
+			array( 'msg_id' => 'ADD KEY `msg_id` (`msg_id`)' )
+		) );
 
 		$table   = $wpdb->prefix . 'emsfb_stts_';
 
@@ -308,7 +338,71 @@ class Install {
 			}
 		}
 
-		update_option( 'Emsfb_db_version', EMSFB_DB_VERSION );
+		if ( ! self::$schema_deferred ) {
+			update_option( 'Emsfb_db_version', EMSFB_DB_VERSION );
+		}
+
+		return $applied;
+	}
+
+	/**
+	 * Add the given indexes to a table when they are not there yet.
+	 *
+	 * Idempotent: an index already present (by name) is skipped, and a missing
+	 * table is a no-op. A short lock stops two concurrent requests (both run
+	 * upgrade_schema() on plugins_loaded) from running the same ALTER on a
+	 * large table at once; the loser simply retries on a later request
+	 * because the stored DB version is only advanced at the end.
+	 *
+	 * @param string               $table  Full table name (prefix included).
+	 * @param array<string,string> $wanted Index name => ALTER clause (literal).
+	 * @return array<int, string> Applied descriptions.
+	 */
+	private static function add_missing_indexes( $table, array $wanted ) {
+		global $wpdb;
+
+		$applied = array();
+		if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
+			return $applied;
+		}
+
+		$present = array();
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix
+		foreach ( (array) $wpdb->get_results( "SHOW INDEX FROM `{$table}`", ARRAY_A ) as $row ) {
+			if ( isset( $row['Key_name'] ) ) {
+				$present[ $row['Key_name'] ] = true;
+			}
+		}
+		$missing = array_diff_key( $wanted, $present );
+		if ( empty( $missing ) ) {
+			return $applied;
+		}
+
+		$lock = 'emsfb_schema_lock';
+		$held = get_option( $lock );
+		if ( $held !== false && ( time() - (int) $held ) < 60 ) {
+			self::$schema_deferred = true;
+			return $applied;
+		}
+		if ( $held !== false ) {
+			delete_option( $lock );
+		}
+		if ( ! add_option( $lock, time(), '', false ) ) {
+			self::$schema_deferred = true;
+			return $applied;
+		}
+
+		$short = substr( $table, strlen( $wpdb->prefix ) );
+		foreach ( $missing as $clause ) {
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix, clause from a literal map
+			if ( false !== $wpdb->query( "ALTER TABLE `{$table}` {$clause}" ) ) {
+				$applied[] = "{$short}: {$clause}";
+			}
+			// A failed ALTER is not retried forever: the version still moves
+			// on, matching the emsfb_stts_ step below.
+		}
+
+		delete_option( $lock );
 
 		return $applied;
 	}

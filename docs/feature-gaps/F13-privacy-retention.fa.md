@@ -143,9 +143,11 @@ ALTER TABLE `{p}emsfb_msg_` ADD KEY `date` (`date`);
 -- emsfb_rsp_
 ALTER TABLE `{p}emsfb_rsp_` ADD KEY `msg_id` (`msg_id`);
 ```
+> **انجام‌شده (۲۰۲۶-۱۱-۱۱، DB 1.4):** `form_date` روی `emsfb_msg_` و `msg_id` روی `emsfb_rsp_` با `Install::add_missing_indexes()` و قفل `emsfb_schema_lock` اضافه شده‌اند (`docs/migrations/entries-purge-and-msg-index-2026-11-11.md`). بقیهٔ این بخش (ستون‌های `uid` و `prv_state`، ایندکس‌های `track` و `date`) هنوز مانده و نسخهٔ آزاد بعدی را می‌گیرد. برای ایندکس‌ها از همان `add_missing_indexes()` استفاده شود.
+
 - هر گام جداگانه و idempotent، به الگوی `status` (`class-Emsfb-install.php:263-274`): `SHOW COLUMNS ... LIKE` برای ستون و `SHOW INDEX` برای ایندکس (الگوی 292-309). همه **پیش از return زودهنگام 279-281** قرار گیرند.
 - همین ستون‌ها و ایندکس‌ها به `CREATE TABLE` در `install()` (88-100 و 104-116) هم اضافه شوند.
-- `EMSFB_DB_VERSION` به نسخهٔ آزاد بعدی برود. F02 نسخهٔ 1.4 را برای جدول‌های خودش برداشته است؛ هر کدام زودتر ادغام شد 1.4 و دیگری 1.5. این گام‌ها به ترتیب مستقل‌اند.
+- `EMSFB_DB_VERSION` به نسخهٔ آزاد بعدی برود. نسخهٔ 1.4 را رفع ایندکس بالا گرفته است؛ F02 و F13 هر کدام زودتر ادغام شد 1.5 و دیگری 1.6. این گام‌ها به ترتیب مستقل‌اند.
 - یادداشت مهاجرت: `docs/migrations/privacy-retention-YYYY-MM-DD.md` در قالب جدول و پیوند از `docs/migrations/README.md`. هشدار: روی جدولی با صدها هزار ردیف، `ALTER` چند ثانیه تا چند دقیقه طول می‌کشد. چون روی `plugins_loaded` اجرا می‌شود، قفل گذرا `emsfb_schema_lock` (60 ثانیه) گذاشته شود تا دو درخواست هم‌زمان آن را دو بار اجرا نکنند.
 - `insert_message_db()` در 4684-4692 مقدار `'uid' => get_current_user_id()` بنویسد (۰ برای مهمان).
 
@@ -178,6 +180,8 @@ ALTER TABLE `{p}emsfb_rsp_` ADD KEY `msg_id` (`msg_id`);
 - `efb_code_validate_update($session_id,'send',$track_code)` (3700) بی‌تغییر می‌ماند تا آمار داشبورد درست بماند.
 
 ### ۶.۳ حذف مشترک و فایل‌ها
+> **انجام‌شده (۲۰۲۶-۱۱-۱۱):** `includes/class-Emsfb-privacy.php` با `Privacy::purge_entries()` (فقط حالت `delete`؛ `anonymize` تا پیاده‌سازی §۴.۳ بی‌اثر است و صفر برمی‌گرداند) و `Upload_Guard::path_from_url()` اضافه شده‌اند و هر سه مسیر حذف به آن وصل‌اند. تست: `tests/test-entries-purge.php`. `Privacy::register()` و بقیهٔ کلاس هنوز مانده‌اند. sweeper ‏(1226) هنوز به `path_from_url` وصل نشده است.
+
 - `Privacy::purge_entries(array $msg_ids, $mode = 'delete', $with_files = true)`: در دسته‌های ۱۰۰تایی، `content` پاسخ و پاسخ‌های گفتگو را می‌خواند. نشانی فایل‌ها با regex موجود `efb-(?:PLG|rec)-[0-9]{6}-[A-Za-z0-9]+\.[A-Za-z0-9]{1,10}` (همان `claim_uploaded_files_efb`، 4660) و کلیدهای `url` ردیف‌ها استخراج می‌شود. سپس msg و rsp با `DELETE ... WHERE msg_id IN (...)` و `prepare` حذف می‌شوند، یا ناشناس‌سازی §۴.۳ انجام می‌شود. نتیجه `['deleted'=>n,'anonymized'=>n,'files'=>n]` است و `do_action('efb_entries_purged', $msg_ids, $mode)` برای افزونه‌ها صدا زده می‌شود.
 - `Upload_Guard::path_from_url($url)` (متد جدید): `baseurl` و `basedir` از `wp_upload_dir()` گرفته می‌شود و پیشوند نشانی برداشته می‌شود (شامل پوشهٔ سال/ماه). سپس `realpath` باید داخل `basedir` باشد و basename با `efb-PLG-` یا `efb-rec-` شروع شود. پیش از `wp_delete_file`، مانند 1234-1246 بررسی می‌شود که هیچ ردیف msg یا rsp **دیگری** به همان basename اشاره نکند.
 - سه مسیر حذف موجود به این تابع وصل می‌شوند: `delete_message_id_public` (268)، `delete_messages_Emsfb` (3700-3724) و حذف فرم (259-264). این کار پاسخ‌های یتیم را هم برطرف می‌کند (§۱۹).

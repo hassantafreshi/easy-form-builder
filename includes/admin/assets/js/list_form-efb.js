@@ -442,9 +442,11 @@ function fun_confirm_remove_message_emsFormBuilder(id) {
 
   fun_delete_message_with_id_by_server(parseInt(id));
 
-  const foundIndex = Object.keys(valueJson_ws_form).length > 0 ? valueJson_ws_form.findIndex(x => Number(x.form_id) == Number(id)) : -1
-  if (foundIndex != -1) valueJson_ws_form.splice(foundIndex, 1);
-  fun_emsFormBuilder_render_view(count_row_emsFormBuilder);
+  // id is an entry (msg_id): drop it from the entries list and redraw that
+  // list, as the bulk delete below does. The forms list is not involved.
+  const foundIndex = Array.isArray(valueJson_ws_messages) ? valueJson_ws_messages.findIndex(x => Number(x.msg_id) == Number(id)) : -1
+  if (foundIndex != -1) valueJson_ws_messages.splice(foundIndex, 1);
+  fun_ws_show_list_messages(valueJson_ws_messages);
 
 }
 function fun_confirm_remove_all_message_emsFormBuilder(val) {

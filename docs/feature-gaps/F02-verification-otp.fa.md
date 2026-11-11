@@ -279,7 +279,7 @@
 | `public/assets/js/core-efb.js` | گارد ارسال و `data.verifications` (§3.2) |
 | `public/assets/js/request-health-efb.js` و `includes/class-Emsfb-form-runtime.php` | `verifications` و `email_confirms` به فهرست کلیدهای خارج از fingerprint اضافه شوند: JS در `request-health-efb.js:177` (`['sid','runtime_token','request_id','valid','nonce']`) و PHP در `Form_Runtime::fingerprint()` (`class-Emsfb-form-runtime.php:15`). **دلیل:** اگر ارسال اول نامطمئن بود (مثلاً timeout) ولی ذخیره شده بود، و کاربر دوباره تأیید کرد، باید همان `request_id` حفظ شود تا `replay` نتیجهٔ ذخیره‌شده را برگرداند و پیام تکراری ساخته نشود. |
 | `includes/class-email-handler.php` | state جدید `otpCode` (§7.4) |
-| `includes/class-Emsfb-install.php`، `emsfb.php` | جدول‌ها (§5.3)؛ `EMSFB_DB_VERSION` از `1.3` (`emsfb.php:34`) به `1.4` |
+| `includes/class-Emsfb-install.php`، `emsfb.php` | جدول‌ها (§5.3)؛ `EMSFB_DB_VERSION` به نسخهٔ آزاد بعدی (`1.5`؛ ۱.۴ را رفع ایندکس `emsfb_msg_` گرفته است) |
 
 ### 5.2 مسیرهای REST
 
@@ -395,7 +395,7 @@ CREATE TABLE {$wpdb->prefix}emsfb_vrfy_rl_ (
 - `status`: `pending | verified | consumed | expired | locked | superseded | failed`.
 - `dest_hash = hash_hmac('sha256', $channel.'|'.$normalized, Verification::key('dest'))`. **مقصد خام ذخیره نمی‌شود** (حریم خصوصی و GDPR). `dest_mask` برای لاگ ادمین است.
 - `ip_hash` به همین شکل، با کلید `ip`.
-- **مهاجرت:** هر دو `CREATE` در `Install::install()` و **همچنین** در `Install::upgrade_schema()` قرار بگیرند. در `upgrade_schema()` باید **پیش از** `return $applied;` زودهنگام خط 280 بیایند، که وقتی `emsfb_stts_` نیست برمی‌گردد. `EMSFB_DB_VERSION` به `1.4` برسد تا `maybe_upgrade_schema_efb` (`class-Emsfb.php:181`) روی سایت‌های موجود اجرا شود. یک سند تاریخ‌دار در `docs/migrations/` به قالب جدول‌های موجود نوشته شود. پیش از هر کوئری، اگر جدول نبود (`SHOW TABLES LIKE`)، `send` با 503 `efb_verify_unavailable` جواب بدهد (fail-closed).
+- **مهاجرت:** هر دو `CREATE` در `Install::install()` و **همچنین** در `Install::upgrade_schema()` قرار بگیرند. در `upgrade_schema()` باید **پیش از** `return $applied;` زودهنگام خط 280 بیایند، که وقتی `emsfb_stts_` نیست برمی‌گردد. `EMSFB_DB_VERSION` به نسخهٔ آزاد بعدی (`1.5`) برسد تا `maybe_upgrade_schema_efb` (`class-Emsfb.php:181`) روی سایت‌های موجود اجرا شود. یک سند تاریخ‌دار در `docs/migrations/` به قالب جدول‌های موجود نوشته شود. پیش از هر کوئری، اگر جدول نبود (`SHOW TABLES LIKE`)، `send` با 503 `efb_verify_unavailable` جواب بدهد (fail-closed).
 
 ### 5.4 محدودیت اتمیک
 ```php
@@ -802,7 +802,7 @@ final class WP_SMS_Bridge implements Provider {
 - تست: `tests/test-verify-core.php` (حداقل ۴۰ assert). stub‌ها: `wp_salt`، `wp_json_encode`.
 
 **B. جدول‌ها و مهاجرت**
-- فایل‌ها: `includes/class-Emsfb-install.php` (در `install()` و پیش از خط 280 در `upgrade_schema()`)، `emsfb.php` (`EMSFB_DB_VERSION` = 1.4)، `docs/migrations/<date>-verification-tables.md`.
+- فایل‌ها: `includes/class-Emsfb-install.php` (در `install()` و پیش از خط 280 در `upgrade_schema()`)، `emsfb.php` (`EMSFB_DB_VERSION` = نسخهٔ آزاد بعدی، `1.5`)، `docs/migrations/<date>-verification-tables.md`.
 - پذیرش: نصب تازه و ارتقا از 1.3 هر دو جدول را می‌سازند. اجرای دوباره بی‌اثر است. اگر جدول نباشد، مسیرها پاسخ 503 می‌دهند.
 - تست: `tests/test-verify-schema.php` با stub ‏`$wpdb` که SQL اجراشده را ضبط می‌کند. بررسی ترتیب (پیش از return زودهنگام) و DDL.
 

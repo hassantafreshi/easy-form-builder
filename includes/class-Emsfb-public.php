@@ -4600,8 +4600,9 @@ public function check_nonce_permission_efb($request) {
 				foreach($content as $key=>$val){
 					$r = (int)$val->rsp_by;
 					if ($r>0){
+						// The replying user may have been deleted since.
 						$usr =get_user_by('id',$r);
-						$val->rsp_by= $usr->display_name;
+						$val->rsp_by= ($usr && !empty($usr->display_name)) ? $usr->display_name : $lanText['guest'];
 					}else if ($r==-1){
 						$val->rsp_by=$lanText['spprt'];
 					}else{

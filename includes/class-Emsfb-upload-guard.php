@@ -1262,6 +1262,62 @@ class Upload_Guard {
     }
 
     /**
+     * Resolve a stored upload address to the file on disk, or false.
+     *
+     * Uploads land in uploads/YYYY/MM/ (wp_upload_bits / wp_handle_upload with
+     * the default "organize by month" setting), so the address, not just the
+     * basename, decides the directory. The result is accepted only when:
+     *  - the address starts with the uploads base URL (scheme ignored: the
+     *    handlers rewrite http:// to https:// on SSL sites),
+     *  - the basename is one this plugin generated (efb-PLG- / efb-rec-),
+     *  - realpath() lands inside the uploads base directory, as a file.
+     * Anything else - another host, a path with "..", media library items,
+     * a missing file - returns false and is never touched by a caller.
+     *
+     * @param string $url Address as stored in an entry or a reply.
+     * @return string|false Absolute, normalised path.
+     */
+    public static function path_from_url($url) {
+        if (!is_string($url) || $url === '') {
+            return false;
+        }
+
+        $uploads = wp_upload_dir(null, false);
+        if (!empty($uploads['error']) || empty($uploads['basedir']) || empty($uploads['baseurl'])) {
+            return false;
+        }
+
+        $strip_scheme = static function ($u) {
+            return preg_replace('#^[a-z][a-z0-9+.-]*://#i', '//', trim((string) $u));
+        };
+
+        $url = $strip_scheme(str_replace('\\/', '/', $url));
+        $url = preg_replace('/[?#].*$/', '', $url);
+        $base = trailingslashit($strip_scheme($uploads['baseurl']));
+        if (stripos($url, $base) !== 0) {
+            return false;
+        }
+
+        $relative = rawurldecode(substr($url, strlen($base)));
+        $basename = wp_basename($relative);
+        if (strpos($basename, 'efb-PLG-') !== 0 && strpos($basename, 'efb-rec-') !== 0) {
+            return false;
+        }
+
+        $basedir = wp_normalize_path(trailingslashit($uploads['basedir']));
+        $real    = realpath($basedir . $relative);
+        if ($real === false) {
+            return false;
+        }
+        $real = wp_normalize_path($real);
+        if (strpos($real, $basedir) !== 0 || !is_file($real) || wp_basename($real) !== $basename) {
+            return false;
+        }
+
+        return $real;
+    }
+
+    /**
      * Bind the sweeper. Called once from Emsfb::includes().
      *
      * @return void
