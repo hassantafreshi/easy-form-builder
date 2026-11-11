@@ -721,6 +721,11 @@ class Masks {
 		if (self::length($pattern) > self::MAX_CUSTOM_MASK || preg_match('/[\x00-\x1F\x7F<>"%]/', $pattern)) {
 			return false;
 		}
+		// A trailing backslash would sit right before the closing quote in the builder's JSON, where its
+		// save transport (replace \" -> ") breaks the whole form. Use the literal earlier in the mask.
+		if (substr($pattern, -1) === '\\') {
+			return false;
+		}
 		$chars = preg_split('//u', $pattern, -1, PREG_SPLIT_NO_EMPTY);
 		$n = count($chars);
 		$depth = 0;

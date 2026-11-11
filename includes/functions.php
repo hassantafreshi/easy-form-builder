@@ -4140,6 +4140,26 @@ class efbFunction {
 					case 'webhook_rules':
 						$valp[$key][$k] = is_array($v) ? $this->sanitize_webhook_rules($v, $valp) : array();
 					break;
+					// F01 input masks: allow-lists, so a save accepts exactly what the builder offers.
+					case 'mask_preset':
+						$valp[$key][$k] = $this->sanitize_mask_preset_efb($v);
+					break;
+					case 'mask_custom':
+						// Not sanitize_text_field(): it collapses spaces and strips %XX, which changes a mask.
+						$valp[$key][$k] = $this->sanitize_mask_custom_efb($v);
+					break;
+					case 'mask_checksum':
+						$valp[$key][$k] = is_string($v) && in_array($v, array('luhn', 'iso7064_mod97_10', 'iran_national_code', 'verhoeff'), true) ? $v : '';
+					break;
+					case 'mask_store':
+						$valp[$key][$k] = $v === 'display' ? 'display' : 'canonical';
+					break;
+					case 'mask_strict':
+						$valp[$key][$k] = in_array($v, array(1, '1', true), true) ? '1' : '0';
+					break;
+					case 'inputmode':
+						$valp[$key][$k] = is_string($v) && in_array($v, array('auto', 'text', 'numeric', 'decimal', 'tel', 'email', 'url', 'none'), true) ? $v : 'auto';
+					break;
 					default:
 					$k =sanitize_text_field($k);
 					$valp[$key][$k]=sanitize_text_field($v);
@@ -4149,6 +4169,49 @@ class efbFunction {
 			}
 		}
 		return $valp;
+	}
+
+	/**
+	 * F01: a stored mask preset is a catalog id, "custom" or "". Anything else (an unknown or forged id
+	 * such as "../x") becomes "", so no made-up id reaches the renderers.
+	 */
+	public function sanitize_mask_preset_efb($v) {
+		if (!is_string($v)) {
+			return '';
+		}
+		$v = trim($v);
+		if ($v === '' || $v === 'custom') {
+			return $v;
+		}
+		if (!preg_match('/^[a-z]{2,4}\.[a-z0-9_]{2,40}$/', $v)) {
+			return '';
+		}
+		if (class_exists('\\Emsfb\\Masks')) {
+			return \Emsfb\Masks::preset($v) !== null ? $v : '';
+		}
+		return $v;
+	}
+
+	/**
+	 * F01: a custom token mask (9 a * [ ] {n,m} \x). Valid UTF-8, no control characters or < > " %,
+	 * at most 64 characters, and a syntax the mask engine accepts; otherwise "".
+	 */
+	public function sanitize_mask_custom_efb($v) {
+		if (!is_string($v) || $v === '') {
+			return '';
+		}
+		if (function_exists('wp_check_invalid_utf8')) {
+			$v = wp_check_invalid_utf8($v);
+		} elseif (!preg_match('//u', $v)) {
+			return '';
+		}
+		if ($v === '' || preg_match('/[\x00-\x1F\x7F<>"%]/', $v)) {
+			return '';
+		}
+		if (class_exists('\\Emsfb\\Masks')) {
+			return \Emsfb\Masks::check_mask($v) ? $v : '';
+		}
+		return preg_match_all('/./us', $v) <= 64 ? $v : '';
 	}
 
 	/**

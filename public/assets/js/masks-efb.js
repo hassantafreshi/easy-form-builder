@@ -496,6 +496,9 @@
     if (typeof pattern !== 'string' || pattern === '') { return false; }
     var chars = Array.from(pattern);
     if (chars.length > MAX_CUSTOM_MASK || /[\x00-\x1F\x7F<>"%]/.test(pattern)) { return false; }
+    // A trailing backslash would sit right before the closing quote in the builder's JSON, where its save
+    // transport (replace \" -> ") breaks the whole form. Use the literal earlier in the mask.
+    if (chars[chars.length - 1] === '\\') { return false; }
     var n = chars.length, depth = 0, count = 0, slots = 0, last = null;
     for (var i = 0; i < n; i++) {
       var ch = chars[i];

@@ -773,6 +773,20 @@
   {
    "mask": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
    "expect": true
+  },
+  {
+   "mask": "99\\\\",
+   "expect": false,
+   "note": "escaped backslash at the end: refused (breaks the builder save transport)"
+  },
+  {
+   "mask": "\\\\99",
+   "expect": true,
+   "note": "escaped backslash at the start is fine"
+  },
+  {
+   "mask": "9\\\\9",
+   "expect": true
   }
  ]
 }

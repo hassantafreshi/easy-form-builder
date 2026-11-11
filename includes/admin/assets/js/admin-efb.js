@@ -2042,6 +2042,142 @@ function efbSyncCornerGroupEfb(dataId, selectedCorner) {
   });
 }
 
+// ---- F01 input masks: builder helpers -------------------------------------------------------
+// Which preset list a field gets: 'tel' (phone presets), 'postal' (postal codes), 'text' (all), or null.
+function efb_mask_field_kind_efb(row) {
+  if (!row || typeof row !== 'object') return null;
+  if (['firstName', 'lastName', 'address_line'].includes(row.elementId)) return null;
+  if (row.type === 'tel') return 'tel';
+  if (row.elementId === 'postalcode' || row.type === 'postalcode') return 'postal';
+  if (row.type === 'text') return 'text';
+  return null;
+}
+// Keep only characters a mask may contain (no controls, < > " %), at most 64 code points.
+// Not sanitize_text_efb(): that collapses spaces and strips %XX, which would change a mask.
+function sanitize_mask_efb(s) {
+  return Array.from(String(s == null ? '' : s).replace(/[\x00-\x1F\x7F<>"%]/g, '')).slice(0, 64).join('');
+}
+// Sample value that fills every slot of a mask, for the live preview.
+function efb_mask_sample_efb(mask) {
+  if (typeof EfbMasks === 'undefined' || !EfbMasks.checkMask(mask)) return '';
+  const toks = EfbMasks.compileMask(mask);
+  let d = 0, l = 0, out = '';
+  for (const t of toks) {
+    if (t.k === 'digit') out += String((d++ + 1) % 10);
+    else if (t.k === 'letter') out += String.fromCharCode(65 + (l++ % 26));
+    else if (t.k === 'alnum') out += (d + l) % 2 ? String.fromCharCode(65 + (l++ % 26)) : String((d++ + 1) % 10);
+    else out += t.ch;
+  }
+  return EfbMasks.finishMask(mask, out);
+}
+// The builder's preset list, fetched once per page load (admin AJAX efb_masks_catalog_Emsfb).
+function efb_masks_catalog_load_efb() {
+  if (window.efbMasksCatalogEfb) return window.efbMasksCatalogEfb;
+  window.efbMasksCatalogEfb = new Promise((resolve) => {
+    if (typeof jQuery === 'undefined' || typeof ajaxurl === 'undefined') { resolve(null); return; }
+    jQuery.post(ajaxurl, { action: 'efb_masks_catalog_Emsfb', nonce: _efb_nonce_ }, (res) => {
+      resolve(res && res.data && res.data.success === true && Array.isArray(res.data.groups) ? res.data : null);
+    }).fail(() => resolve(null));
+  }).then((data) => {
+    if (data === null) window.efbMasksCatalogEfb = null; // retry on the next panel open
+    return data;
+  });
+  return window.efbMasksCatalogEfb;
+}
+function efb_masks_preset_efb(id) {
+  const cat = window.efbMasksCatalogDataEfb;
+  if (!cat || !id) return null;
+  for (const g of cat.groups) for (const p of g.presets) if (p.id === id) return p;
+  return null;
+}
+function efb_masks_group_allowed_efb(kind, p) {
+  if (kind === 'tel') return p.category === 'phone_mobile' || p.category === 'phone_landline';
+  if (kind === 'postal') return p.category === 'postal_code';
+  return true;
+}
+// Canvas preview: the attributes the renderers emit for a masked field.
+function efb_masks_canvas_efb(row) {
+  const inp = document.getElementById(`${row.id_}_`);
+  if (!inp) return;
+  const p = row.mask_preset || '';
+  ['data-mask-preset', 'data-mask'].forEach((a) => inp.removeAttribute(a));
+  if (p === '') {
+    if (inp.dataset.efbMaskDir === '1') { inp.removeAttribute('dir'); delete inp.dataset.efbMaskDir; }
+    if (inp.dataset.efbMaskIm === '1') { inp.removeAttribute('inputmode'); delete inp.dataset.efbMaskIm; }
+    return;
+  }
+  if (p === 'custom') { if (row.mask_custom) inp.setAttribute('data-mask', row.mask_custom); }
+  else inp.setAttribute('data-mask-preset', p);
+  if (!inp.getAttribute('dir')) { inp.setAttribute('dir', 'ltr'); inp.dataset.efbMaskDir = '1'; }
+  const def = efb_masks_preset_efb(p);
+  if (def && def.inputmode && (!row.inputmode || row.inputmode === 'auto')) { inp.setAttribute('inputmode', def.inputmode); inp.dataset.efbMaskIm = '1'; }
+  if (typeof row.placeholder === 'string') inp.placeholder = row.placeholder;
+}
+// Shows/hides the parts of the mask control that depend on the chosen preset.
+function efb_masks_panel_state_efb(row) {
+  const p = row.mask_preset || '';
+  const def = efb_masks_preset_efb(p);
+  const box = (id) => document.getElementById(id);
+  if (box('maskCustomBoxEl')) box('maskCustomBoxEl').classList.toggle('d-none', p !== 'custom');
+  if (box('maskStoreBoxEl')) box('maskStoreBoxEl').classList.toggle('d-none', p === '');
+  if (box('maskStrictBoxEl')) box('maskStrictBoxEl').classList.toggle('d-none', !(def && def.has_strict));
+  const note = box('maskPresetNoteEl');
+  if (note) {
+    let txt = '';
+    if (def) {
+      txt = def.placeholder ? `${def.placeholder}` : '';
+      if (def.verification === 'unverified') txt += (txt ? ' · ' : '') + (efb_var.text.mskUnverified || 'Not checked against an official source');
+    }
+    note.textContent = txt;
+  }
+  for (const id of ['miLenEl', 'mLenEl']) {
+    const inp = box(id);
+    if (!inp) continue;
+    inp.classList.toggle('d-none', p !== '');
+    const lab = document.querySelector(`label[for="${id}"]`);
+    if (lab) lab.classList.toggle('d-none', p !== '');
+  }
+  const prev = box('maskPreviewEl');
+  if (prev) prev.textContent = p === 'custom' ? efb_mask_sample_efb(row.mask_custom || '') : '';
+}
+// Fills the "Format / mask" select once the catalog is loaded (called by show_setting_window_efb).
+function efb_masks_builder_init_efb(idset, indx) {
+  const row = valj_efb[indx];
+  const custom = document.getElementById('maskCustomEl');
+  if (custom) custom.value = row.mask_custom ? String(row.mask_custom) : '';
+  efb_masks_panel_state_efb(row);
+  efb_masks_catalog_load_efb().then((data) => {
+    const sel = document.getElementById('maskPresetEl');
+    if (!sel || sel.dataset.id !== idset) return;
+    const loading = sel.querySelector('option[data-efb-loading]');
+    if (loading) loading.remove();
+    if (!data) return;
+    window.efbMasksCatalogDataEfb = data;
+    const kind = efb_mask_field_kind_efb(row);
+    const cur = row.mask_preset || '';
+    let found = false;
+    for (const g of data.groups) {
+      const list = g.presets.filter((p) => efb_masks_group_allowed_efb(kind, p));
+      if (!list.length) continue;
+      const og = document.createElement('optgroup');
+      og.label = g.label;
+      for (const p of list) {
+        const o = document.createElement('option');
+        o.value = p.id;
+        o.textContent = p.placeholder ? `${p.label} (${p.placeholder})` : p.label;
+        if (p.verification === 'unverified') { o.textContent += ' *'; o.title = efb_var.text.mskUnverified || 'Not checked against an official source'; }
+        if (p.id === cur) { o.selected = true; found = true; }
+        og.appendChild(o);
+      }
+      sel.appendChild(og);
+    }
+    // A preset id from another catalog version stays selectable as its raw id.
+    if (found) { for (const o of Array.from(sel.children)) { if (o.tagName === 'OPTION' && o.value === cur) o.remove(); } }
+    efb_masks_panel_state_efb(row);
+  });
+}
+// ----------------------------------------------------------------------------------------------
+
 let change_el_edit_Efb = (el) => {
   let lenV = valj_efb.length
   if (el.value && el.value.length > 0 && (el.value.search(/(")+/g) != -1 || el.value.search(/(>)+/g) != -1 || el.value.search(/(<)+/g) != -1) && el.id !="htmlCodeEl") {
@@ -2079,7 +2215,7 @@ let change_el_edit_Efb = (el) => {
   let c, color;
   setTimeout(async() => {
 
-    if(el.hasAttribute('value') && el.id!="htmlCodeEl"){
+    if(el.hasAttribute('value') && el.id!="htmlCodeEl" && el.id!="maskCustomEl"){
 
       el.value = el.type!="url" ? sanitize_text_efb(el.value) :el.value.replace(/[<>()[\ ]]/g, '');
     }
@@ -2624,6 +2760,68 @@ let change_el_edit_Efb = (el) => {
         document.querySelector(`[data-id="${valj_efb[indx].id_}-el"]`).placeholder = sanitize_text_efb(el.value);
 
         valj_efb[indx].placeholder = sanitize_text_efb(el.value);
+        break;
+      case "maskPresetEl": {
+        // F01: preset id, "custom" or "" (no mask). An empty choice removes every mask key.
+        const row = valj_efb[indx];
+        const v = String(el.value || '');
+        if (v !== '' && v !== 'custom' && !/^[a-z]{2,4}\.[a-z0-9_]{2,40}$/.test(v)) break;
+        const prevDef = efb_masks_preset_efb(row.mask_preset || '');
+        const def = efb_masks_preset_efb(v);
+        if (v === '') {
+          for (const k of ['mask_preset', 'mask_custom', 'mask_checksum', 'mask_store', 'mask_strict']) delete row[k];
+          if (prevDef && row.placeholder === prevDef.placeholder) row.placeholder = '';
+        } else {
+          row.mask_preset = v;
+          if (def && def.placeholder) {
+            const ph = typeof row.placeholder === 'string' ? row.placeholder : '';
+            if (ph === '' || (prevDef && ph === prevDef.placeholder)) row.placeholder = def.placeholder;
+          }
+          const hasLen = (k) => row.hasOwnProperty(k) && String(row[k]) !== '' && String(row[k]) !== '0';
+          if ((hasLen('milen') || hasLen('mlen')) && window.confirm(efb_var.text.mskLenReplaced || 'This format sets the length. Remove the minimum and maximum length?')) {
+            delete row.milen; delete row.mlen;
+            const a = document.getElementById('miLenEl'); if (a) a.value = '';
+            const b = document.getElementById('mLenEl'); if (b) b.value = '';
+          }
+        }
+        const phEl = document.getElementById('placeholderEl');
+        if (phEl) phEl.value = row.placeholder || '';
+        efb_masks_panel_state_efb(row);
+        efb_masks_canvas_efb(row);
+        break;
+      }
+      case "maskCustomEl": {
+        const row = valj_efb[indx];
+        const v = sanitize_mask_efb(el.value);
+        const err = document.getElementById('maskCustomErrEl');
+        const ok = typeof EfbMasks !== 'undefined' ? EfbMasks.checkMask(v) : false;
+        if (!ok) {
+          el.classList.add('is-invalid');
+          if (err) err.classList.remove('d-none');
+          const prev = document.getElementById('maskPreviewEl'); if (prev) prev.textContent = '';
+          if (v !== '') alert_message_efb('', efb_var.text.mskInvalidMask || 'This mask is not valid.', 8, 'warning');
+          break;
+        }
+        el.classList.remove('is-invalid');
+        if (err) err.classList.add('d-none');
+        el.value = v;
+        row.mask_custom = v;
+        efb_masks_panel_state_efb(row);
+        efb_masks_canvas_efb(row);
+        break;
+      }
+      case "maskChecksumEl": {
+        const v = ['', 'luhn', 'iso7064_mod97_10', 'iran_national_code', 'verhoeff'].includes(el.value) ? el.value : '';
+        if (v === '') delete valj_efb[indx].mask_checksum; else valj_efb[indx].mask_checksum = v;
+        break;
+      }
+      case "maskStoreCanonicalEl":
+      case "maskStoreDisplayEl":
+        if (el.checked) valj_efb[indx].mask_store = el.value === 'display' ? 'display' : 'canonical';
+        break;
+      case "maskStrictEl":
+        valj_efb[indx].mask_strict = el.classList.contains('active') ? 1 : 0;
+        el.setAttribute('aria-pressed', valj_efb[indx].mask_strict ? 'true' : 'false');
         break;
       case "customRequiredMsgEl":
         // Save custom required validation message for the field
