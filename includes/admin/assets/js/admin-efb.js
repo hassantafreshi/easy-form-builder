@@ -7016,23 +7016,6 @@ function fub_shwBtns_efb() {
   }
 }
 
-/**
- * The upgrade dialog, shown wherever a click lands on something this site's
- * plan does not include.
- *
- * Three lock reasons share it, and the caller says which by the argument it
- * passes - the numbers are the plan gate, not a style:
- *
- *   1  a Pro-only field or setting
- *   2  the two-step limit
- *   3  a feature Free Plus unlocks as well, so the cheaper answer is offered
- *      first and the two plans are put side by side
- *
- * A string argument is that caller's own sentence, and takes the shape of
- * reason 1. Every call site keeps working unchanged; what they get back is
- * the design system's gold-toned dialog rather than the bootstrap grid the
- * body used to be.
- */
 /* B3: one registry for locks and dialogs. efb_var.capabilities is built by
    Emsfb\Builder_Api::capabilities(); these read it so the plan a gate checks and the
    plan its dialog names come from the same entry (the root of A4). The plan is read
@@ -7070,87 +7053,22 @@ function efb_capability_prompt_efb(key, fallback) {
   pro_show_efb(efb_capability_state_efb(key, fallback));
 }
 
+/* F18: pro_show_efb(state) is kept for callers outside core (add-ons, AutoPilot) and maps onto
+   the upgrade dialog (plan-gate-efb.js, efb_upgrade_prompt_efb). Core call sites name their
+   feature instead, so the dialog can say what is locked and unlock it in place.
+     1 → a Pro feature   2 → the step limit   3 → a Free Plus feature   string → a Pro lock with
+     that caller's sentence (shown as text, never as markup). */
 function pro_show_efb(state) {
+  let o;
+  if (typeof state === 'string') o = { feature: 'generic', required: 'pro', message: state };
+  else if (Number(state) === 2) o = { feature: 'limit:steps' };
+  else if (Number(state) === 3) o = { feature: 'generic', required: 'free_plus' };
+  else o = { feature: 'generic', required: 'pro' };
+  if (typeof window !== 'undefined' && window.EFB_DEBUG && typeof console !== 'undefined') console.warn('pro_show_efb(' + JSON.stringify(state) + ') - name the feature with efb_upgrade_prompt_efb()');
+  if (typeof efb_upgrade_prompt_efb === 'function') return efb_upgrade_prompt_efb(o);
+  // plan-gate-efb.js missing (a page cached before 4.3.2): a plain notice instead of nothing.
   const t = (key, fallback) => (typeof efb_var !== 'undefined' && efb_var.text && efb_var.text[key]) || fallback;
-  const price = t('priceyr', '$NN/year').replace('NN', pro_price_efb);
-  // Only reason 3 is the one Free Plus can answer. A caller's own sentence
-  // is a Pro lock, so it stays on the Pro side of that line.
-  const freePlusAnswers = typeof state != "string" && state == 3;
-
-  let message = state;
-  if (typeof state != "string") {
-    if (state == 1) {
-      message = t('proUnlockMsg', '');
-    } else if (state == 2) {
-      message = t('ifYouNeedCreateMoreThan2Steps', '');
-    } else if (state == 3) {
-      message = t('thisFeatureAvailableFreePlusPro', '');
-    }
-  }
-
-  /* Reason 3 compares the two plans that would unlock the click; the others
-     name what Pro adds, because there is nothing to compare it against. */
-  let detail = '';
-  if (freePlusAnswers) {
-    detail = `
-    <div class="efb-dlg__plans">
-      <div class="efb-dlg__plan efb-dlg__plan--enough">
-        <div class="efb-dlg__plan-head">
-          <i class="efb bi-unlock"></i>
-          <span class="efb-dlg__plan-name">${t('freePlus', 'Free Plus')}</span>
-          <span class="efb-dlg__plan-price">${t('free', 'Free')}</span>
-        </div>
-        <div class="efb-dlg__plan-desc">${t('planFreePlusDesc', 'Unlocked by a free activation, which is enough for this feature.')}</div>
-      </div>
-      <div class="efb-dlg__plan">
-        <div class="efb-dlg__plan-head">
-          <i class="efb bi-gem"></i>
-          <span class="efb-dlg__plan-name">${t('pro', 'Pro')}</span>
-          <span class="efb-dlg__plan-price">${price}</span>
-        </div>
-        <div class="efb-dlg__plan-desc">${t('planProDesc', 'Every feature, with no limits, and support included.')}</div>
-      </div>
-    </div>`;
-  } else {
-
-  }
-
-  const body = `<div class="efb-dlg__centered">
-    <div class="efb-dlg__badge efb-dlg__badge--square"><i class="efb bi-gem"></i></div>
-    <div class="efb-dlg__headline">${freePlusAnswers ? t('freePlusUnlocksThis', 'Free Plus unlocks this too') : t('proFeatureTitle', 'A Pro version feature')}</div>
-    <div class="efb-dlg__text">${message}</div>
-  </div>`;
-
-  /* The quieter of the two actions is the one that costs least: the guide to
-     the free activation when that would do, and the price otherwise - a
-     person who is only checking what this costs should not have to press
-     "Upgrade" to find out. */
-  const secondary = freePlusAnswers
-    ? { link: 'free_plus_guide', icon: 'bi-book', label: t('freePlusActivation', 'Free Plus Guide') }
-    : { link: 'pro', icon: 'bi-tag', label: price };
-  const footInner = `
-    <a role="button" class="efb-dlg-btn efb-dlg-btn--ghost" onclick="open_whiteStudio_efb('${secondary.link}')"><i class="efb ${secondary.icon}"></i>${secondary.label}</a>
-    <a role="button" class="efb-dlg-btn efb-dlg-btn--gold" onclick="open_whiteStudio_efb('pro')"><i class="efb bi-gem"></i>${t('activateProVersion', 'Upgrade to Pro')}</a>`;
-
-  /* 'proBpx' is not one of the types show_modal_efb() builds a footer for, so
-     this dialog appends its own - in onShown, because a call that arrives
-     while another dialog holds the screen is parked and replayed later, and
-     until then none of this markup is in the page. */
-  const painted = show_modal_efb(body, t('proVersion', 'Pro Version'), 'bi-gem', 'proBpx', {
-    onShown: () => {
-      if (typeof efb_dlg_set_tone_efb === 'function') efb_dlg_set_tone_efb('efb-tone-gold');
-      const sections = document.getElementById('settingModalEfb-sections');
-      if (!sections) return;
-      const foot = document.createElement('div');
-      foot.className = 'efb modal-footer efb-dlg__foot';
-      foot.id = 'save-result-foot-efb';
-      foot.innerHTML = footInner;
-      sections.appendChild(foot);
-    }
-  });
-  // A parked dialog is opened by the queue itself; opening the shell here
-  // would show whatever the previous dialog left in it.
-  if (painted) state_modal_show_efb(1);
+  if (typeof alert_message_efb === 'function') alert_message_efb(t('proVersion', 'Pro Version'), o.required === 'free_plus' ? t('thisFeatureAvailableFreePlusPro', '') : t('proUnlockMsg', ''), 15, 'info');
 }
 
 function move_show_efb() {
@@ -8298,6 +8216,7 @@ const sub =lan_subdomain_wsteam_efb();
       link += `How-to-Install-and-Use-the-Location-Picker-(geolocation)-with-Easy-Form-Builder`
       break;
     case 'pro':
+    case 'renew_pro':
       link = `https://${sub}whitestudio.team/#pricing`
       break;
     case 'publishForm':
@@ -8326,6 +8245,11 @@ const sub =lan_subdomain_wsteam_efb();
       link += `%da%86%da%af%d9%88%d9%86%d9%87-%d8%a7%d9%86%d8%aa%d8%ae%d8%a7%d8%a8%da%af%d8%b1-%d9%85%d9%88%d9%82%d8%b9%db%8c%d8%aa-%d9%85%da%a9%d8%a7%d9%86%db%8c-%d9%85%d9%88%d9%82%d8%b9%db%8c%d8%aa-%d8%ac%d8%ba/`
       break;
     case 'pro':
+    case 'renew_pro':
+      link = `https://easyformbuilder.ir/#pricing`
+      break;
+    // F18: no Persian Free Plus guide exists; the pricing page explains both plans (was the docs index).
+    case 'free_plus_guide':
       link = `https://easyformbuilder.ir/#pricing`
       break;
     case 'publishForm':

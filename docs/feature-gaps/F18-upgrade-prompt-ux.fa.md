@@ -1,4 +1,4 @@
-وضعیت: در حال پیاده‌سازی (A انجام شد) · اولویت: P0 · تلاش: M · وابستگی: — (F16 برای الگوی فوکوس دیالوگ؛ هم‌زمان با کار ماسک F01 فایل‌های JS/PHP مشترک را ویرایش نکنید مگر پس از ادغام آن)
+وضعیت: در حال پیاده‌سازی (A و B انجام شد) · اولویت: P0 · تلاش: M · وابستگی: — (F16 برای الگوی فوکوس دیالوگ؛ هم‌زمان با کار ماسک F01 فایل‌های JS/PHP مشترک را ویرایش نکنید مگر پس از ادغام آن)
 
 # F18 — پنجرهٔ ارتقا: فعال‌سازی درجای Free Plus و خرید Pro
 
@@ -441,12 +441,13 @@ do_action('efb_plan_changed', int $new, int $old, array $context); // context: s
 - پذیرش: حالت‌های S1 تا S8 با متن §۴.۳. `detail` مرده حذف می‌شود. Tab، Escape و بازگشت فوکوس کار می‌کنند. افشا با `aria-describedby` به دکمهٔ اصلی وصل است. بدون `innerHTML` برای ورودی فراخواننده.
 - تست‌ها: `node tests/test-upgrade-prompt-states.js` (vm + DOM جعلی؛ برای هر ترکیب ماتریس §۴.۲، headline، دکمه‌ها و ترتیب آن‌ها assert می‌شود؛ shim برای ۱، ۲، ۳ و رشته)؛ Playwright `tests/test-upgrade-prompt-browser.js` (فوکوس، Tab، Escape، اسکرین‌شات en/fa در 1280 و 375px).
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint** (انجام شد، ۲۰ آبان ۱۴۰۵)
+- فایل‌های تغییرکرده: `includes/admin/assets/js/plan-gate-efb.js` (بخش B: `efb_upgrade_prompt_efb`، `efb_upgrade_state_efb`، رندر حالت‌ها، تله‌ی فوکوس، Escape، بازگشت فوکوس، درخواست فعال‌سازی با `source: 'upgrade_prompt'` و `credit_ack`، حالت‌های بارگذاری و خطا، 409 → تأیید درون‌خطی، `efb:upgrade-prompt`، یادداشت درون‌خطی پس از سه «فعلاً نه»، و یک `efb_on_plan_changed_efb` موقت تا D)، `admin-efb.js` (بدنهٔ `pro_show_efb` با shim جایگزین شد و `detail` مرده و `innerHTML` رشتهٔ فراخواننده حذف شد؛ `open_whiteStudio_efb` حالت `renew_pro` و `free_plus_guide` فارسی گرفت)، `includes/admin/assets/css/modal-system-efb.css` (کلاس‌های `efb-upg*`، پشتهٔ تمام‌عرض زیر ۴۸۰px، هدف لمسی ۴۴px، ویژگی‌های منطقی برای RTL)، `tests/f18-harness.js` (عبارت‌های واقعی en و fa، رجیستری واقعی PHP، CSS پیشخوان، پاسخ‌دهندهٔ `efb_save_plan_selection`)، `includes/functions.php`، `.po` فارسی.
+- رفتار مطابق متن: دکمهٔ «فعال‌سازی Free Plus» فقط با کلیک واقعی (`event.isTrusted`) درخواست می‌فرستد؛ کلیک اسکریپتی پیام «فقط با کلیک روی همین دکمه» می‌دهد (سازگاری با SitePilot، §۱۴). shim رشتهٔ فراخواننده را به‌صورت متن در بدنه نشان می‌دهد (نه برچسب در headline، چون این رشته‌ها جمله‌اند). برای حالت بدون نام ویژگی کلیدهای `upgThisInFreePlus`، `upgThisIsPro`، `upgDialogTitleGeneric` و `upgThisFeature` اضافه شد؛ برای S8 پیش از فعال‌سازی `upgAddonNeeded`؛ برای کلیک غیرانسانی `upgNeedsClick`؛ برای یادداشت `upgSeeOptions`؛ پیش‌نمایش نوشته `upgCreditPreview` (همان متن صفحهٔ عمومی).
+- تست‌ها: `node tests/test-upgrade-prompt-states.js` با کد زیرتسک A: 8 passed، 8 failed و سه سناریوی متوقف؛ پس از کار: 58 passed. پوشش: همهٔ حالت‌های S1، S2، S3، S4a، تأیید S4a، S4b، S5، S6، S7، S8؛ ترتیب دکمه‌ها؛ `aria-describedby` افشا؛ پیوند قیمت با `target=_blank`؛ shim برای ۱، ۲، ۳ و رشته؛ escape برچسب و پیام؛ Tab و Shift+Tab درون دیالوگ؛ Escape؛ بازگشت فوکوس؛ بازگرداندن `aria-labelledby`؛ درخواست فعال‌سازی، حالت مشغول، موفقیت، 500، 403 و 409؛ کلیک غیرانسانی؛ سه «فعلاً نه»؛ fa_IR در 375px (headline دقیق فارسی، `<bdi>`، دکمه‌های عمودی تمام‌عرض، ۴۴px، بدون سرریز افقی) و en در 375px. اسکرین‌شات‌ها: `tests/screenshots/f18-s1-en-1280.png`، `f18-s1-fa-375.png`، `f18-s1-en-375.png` (پوشه git-ignored است). مرتبط‌ها سبز: A4 16، B3 49، B1 22، B8 8، contract 16، plan selection 23، masks builder 50، logic gating 53، A3 20، B4 11، registry 29 و 13.
+- وضعیت ترجمه: ۴۶ کلید B با فارسی (چهار msgid «Not now»، «Renew Pro»، «Switch to Free Plus»، «Try again» از پیش در `.po` بودند و همان ترجمه به کار می‌رود). pack built نه.
+- مورد باز: قیمت فارسی از ترجمهٔ ثابت `priceyr` می‌آید («۱.۴۲۰.۰۰تومان»)، نه از عدد ۲۷. راهنمای فارسی Free Plus وجود ندارد؛ `free_plus_guide` در fa به صفحهٔ قیمت می‌رود.
+- اقدام بعدی: زیرتسک C (سرور).
 
 ### C. فعال‌سازی درجا و سرور
 - فایل‌ها: `class-Emsfb-admin.php` (`efb_save_plan_selection`: `efb_can_change_plan_efb`، `source`، `credit_ack`، `previous_package_type`، `do_action('efb_plan_changed')`، پاک کردن کش)، `class-Emsfb-cache-compat.php` (`purge_marked_pages`)، `val-efb.js` (`savePlanSelection_efb` پارامترهای تازه را می‌پذیرد؛ پاسخ به `efb_on_plan_changed_efb` می‌رود).

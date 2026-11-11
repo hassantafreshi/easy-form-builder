@@ -6,6 +6,7 @@
  * no plan table of its own - and adds, on top of it:
  *
  *   A  read-only plan helpers (efb_current_package_efb, efb_feature_required_efb, ...);
+ *   B  the upgrade dialog, efb_upgrade_prompt_efb() (pro_show_efb() in admin-efb.js is its shim);
  *
  * Loaded on the Create, Panel and Add-ons screens after admin-efb.js. Everything here is a
  * function or a var, so the file also runs in a vm for the tests.
@@ -95,4 +96,613 @@ function efb_feature_label_efb(key, label) {
   if (lk && typeof t[lk] === 'string' && t[lk] !== '' && t[lk].indexOf('%') === -1) return t[lk];
   var raw = parts.length > 1 ? parts.slice(1).join(':') : String(key || '');
   return raw.replace(/[_-]+/g, ' ').replace(/^./, function (c) { return c.toUpperCase(); });
+}
+
+/* ------------------------------------------------------------------ B: the upgrade dialog */
+/*
+ * efb_upgrade_prompt_efb({feature, required, label, limit, resume, origin, message, opener})
+ *
+ * One dialog for every lock (F18 §4). It names the feature and the plan that unlocks it, says
+ * what that plan costs, and for Free Plus activates it in place: the credit-link disclosure sits
+ * next to the button before the click, so no second dialog is needed. States (§4.2):
+ *   S1 Free → Free Plus feature (activate in place)   S2 Free → Pro feature (buy Pro)
+ *   S3 Free Plus → Pro feature                         S4a/S4b lapsed Pro licence (renew; or Free Plus)
+ *   S5 the two-step limit (as S1)                      S6 a Free Plus limit (as S3)
+ *   S7 a user who may not change the plan              S8 Free Plus is on, an add-on is still needed
+ * Every text is escaped; a caller's label or message is never written as markup.
+ * An agent (SitePilot / AutoPilot) may open it, never press its buttons: activation needs a
+ * trusted click (event.isTrusted) on the button next to the disclosure.
+ */
+
+var efb_upg_state_efb = null; // the dialog on screen: {opts, view, busy, opener, onKey, observer}
+
+function efb_upg_t_efb(key, fallback) {
+  var t = (typeof efb_var !== 'undefined' && efb_var && efb_var.text) ? efb_var.text : {};
+  var v = t[key];
+  return typeof v === 'string' && v !== '' && v.indexOf('T:') !== 0 ? v : fallback;
+}
+
+function efb_upg_esc_efb(s) {
+  return String(s === undefined || s === null ? '' : s).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+
+/* Latin product names keep their direction inside Persian or Arabic text. */
+function efb_upg_bdi_efb(escaped) {
+  return escaped.replace(/(Easy Form Builder|Free Plus|PayPal|Stripe|\bPro\b)/g, '<bdi>$1</bdi>');
+}
+
+/**
+ * A translated sentence with its placeholders (%s, %d, %1$s, %2$s, %1$d …) filled. The sentence
+ * and every argument are escaped; arguments are isolated in <bdi>.
+ */
+function efb_upg_fmt_efb(template, args) {
+  args = args || [];
+  var i = 0;
+  var out = '';
+  var re = /%(?:(\d)\$)?([sd])/g;
+  var last = 0;
+  var m;
+  template = String(template);
+  while ((m = re.exec(template)) !== null) {
+    out += efb_upg_bdi_efb(efb_upg_esc_efb(template.slice(last, m.index)));
+    var idx = m[1] ? Number(m[1]) - 1 : i++;
+    var a = args[idx] === undefined ? '' : args[idx];
+    if (m[2] === 'd' && typeof a === 'number') a = efb_upg_num_efb(a);
+    out += '<bdi>' + efb_upg_esc_efb(a) + '</bdi>';
+    last = re.lastIndex;
+  }
+  return out + efb_upg_bdi_efb(efb_upg_esc_efb(template.slice(last)));
+}
+
+function efb_upg_locale_efb() {
+  var l = (typeof lan_name_emsFormBuilder !== 'undefined' && lan_name_emsFormBuilder) ? lan_name_emsFormBuilder
+    : ((typeof efb_var !== 'undefined' && efb_var && efb_var.language) ? String(efb_var.language).replace('_', '-') : 'en');
+  return l;
+}
+function efb_upg_num_efb(n) {
+  try { return Number(n).toLocaleString(efb_upg_locale_efb()); } catch (e) { return String(n); }
+}
+
+/** "$27/year" in the site language. */
+function efb_upg_price_efb() {
+  var p = (typeof pro_price_efb !== 'undefined' && pro_price_efb) ? pro_price_efb : 27;
+  return efb_upg_t_efb('priceyr', '$NN/year').replace('NN', efb_upg_num_efb(p));
+}
+
+/** May this user change the site's plan? efb_var.can_change_plan (PHP efb_can_change_plan_efb()). */
+function efb_can_change_plan_efb() {
+  if (typeof efb_var === 'undefined' || !efb_var || efb_var.can_change_plan === undefined || efb_var.can_change_plan === null) return true;
+  var v = efb_var.can_change_plan;
+  return v === true || v === 1 || v === '1' || v === 'true';
+}
+
+/* Links of the dialog. The purchase page is the one open_whiteStudio_efb('pro') opens. */
+function efb_upg_link_efb(kind) {
+  var fa = typeof efb_var !== 'undefined' && efb_var && efb_var.language === 'fa_IR';
+  if (kind === 'pro' || kind === 'renew') {
+    if (fa) return 'https://easyformbuilder.ir/#pricing';
+    var sub = typeof lan_subdomain_wsteam_efb === 'function' ? lan_subdomain_wsteam_efb() : '';
+    return 'https://' + sub + 'whitestudio.team/#pricing';
+  }
+  if (kind === 'licence') return 'admin.php?page=Emsfb&state=setting&tab=general';
+  return '#';
+}
+
+/** The state of §4.2 for a request. */
+function efb_upgrade_state_efb(opts, pkg) {
+  var feature = opts.feature || 'generic';
+  var need = efb_feature_required_efb(feature, opts.required);
+  if (opts.required && EFB_PLAN_RANK_EFB.hasOwnProperty(opts.required)) need = opts.required;
+  var p = pkg === undefined ? efb_current_package_efb() : pkg;
+  if (!efb_can_change_plan_efb()) return 'S7';
+  var e = efb_feature_entry_efb(feature);
+  var planOk = efb_plan_rank_efb(p) >= EFB_PLAN_RANK_EFB[need];
+  if (planOk) return e && e.addon && !efb_addon_installed_efb(e.addon) ? 'S8' : 'open';
+  if (p === 0) return need === 'pro' ? 'S4b' : 'S4a';
+  if (need === 'free_plus') return feature === 'limit:steps' ? 'S5' : 'S1';
+  if (feature.indexOf('limit:') === 0 && p === 3) return 'S6';
+  return p === 3 ? 'S3' : 'S2';
+}
+
+function efb_upg_event_efb(action, extra) {
+  var s = efb_upg_state_efb;
+  var o = s ? s.opts : (extra && extra.opts) || {};
+  var detail = { action: action, feature: o.feature || 'generic', required: s ? s.need : (o.required || null), origin: o.origin || null, state: s ? s.view : null };
+  if (extra && extra.detail) for (var k in extra.detail) detail[k] = extra.detail[k];
+  try { document.dispatchEvent(new CustomEvent('efb:upgrade-prompt', { detail: detail })); } catch (e) { /* no DOM */ }
+}
+
+/* "Not now" three times for one feature in this session: the next click shows a small inline
+   note with a link to the dialog instead of the dialog itself (§4.8). */
+function efb_upg_dismiss_count_efb(feature, add) {
+  var key = 'efb_upg_notnow_efb';
+  var map = {};
+  try { map = JSON.parse(sessionStorage.getItem(key) || '{}') || {}; } catch (e) { map = {}; }
+  if (add) {
+    map[feature] = (map[feature] || 0) + 1;
+    try { sessionStorage.setItem(key, JSON.stringify(map)); } catch (e) { /* storage off */ }
+  }
+  return map[feature] || 0;
+}
+
+function efb_upg_inline_tip_efb(opts) {
+  var opener = opts.opener && opts.opener.nodeType === 1 ? opts.opener : null;
+  var old = document.getElementById('efbUpgTipEfb');
+  if (old) old.remove();
+  var tip = document.createElement('span');
+  tip.id = 'efbUpgTipEfb';
+  tip.className = 'efb efb-upg-tip';
+  tip.setAttribute('role', 'status');
+  var need = efb_feature_required_efb(opts.feature || 'generic', opts.required);
+  tip.textContent = need === 'free_plus' ? efb_upg_t_efb('upgTipFreePlus', 'Included in Free Plus (free)') : efb_upg_t_efb('upgTipPro', 'Pro feature');
+  var more = document.createElement('button');
+  more.type = 'button';
+  more.className = 'efb efb-upg-tip__more';
+  more.textContent = efb_upg_t_efb('upgSeeOptions', 'See options');
+  more.addEventListener('click', function () { tip.remove(); efb_upgrade_prompt_efb(Object.assign({}, opts, { force: true })); });
+  tip.appendChild(document.createTextNode(' '));
+  tip.appendChild(more);
+  if (opener && opener.parentNode) opener.parentNode.insertBefore(tip, opener.nextSibling); else document.body.appendChild(tip);
+  setTimeout(function () { if (tip.parentNode) tip.remove(); }, 8000);
+  return tip;
+}
+
+/**
+ * Open the dialog for a locked feature. When the plan already unlocks it (a stale flag), the
+ * caller's action runs at once instead. Returns {shown, state}.
+ */
+function efb_upgrade_prompt_efb(opts) {
+  opts = Object.assign({}, opts || {});
+  if (!opts.feature) opts.feature = 'generic';
+  // What opened the dialog gets the focus back. Inline onclick callers pass `opener: this`; else
+  // the element of the click in progress, else the focused element.
+  if (!opts.opener && typeof window !== 'undefined' && window.event && window.event.target && window.event.target.closest) {
+    opts.opener = window.event.target.closest('button, a, input, select, textarea, [tabindex], [onclick]');
+  }
+  if (!opts.opener && typeof document !== 'undefined' && document.activeElement && document.activeElement !== document.body) opts.opener = document.activeElement;
+  var view = efb_upgrade_state_efb(opts);
+  if (view === 'open') {
+    if (opts.resume && typeof efb_run_resume_efb === 'function') efb_run_resume_efb(opts.resume, opts);
+    return { shown: false, state: 'open' };
+  }
+  if (!opts.force && opts.feature !== 'generic' && efb_upg_dismiss_count_efb(opts.feature) >= 3) {
+    efb_upg_inline_tip_efb(opts);
+    return { shown: false, state: 'tip' };
+  }
+  var need = efb_feature_required_efb(opts.feature, opts.required);
+  if (opts.required && EFB_PLAN_RANK_EFB.hasOwnProperty(opts.required)) need = opts.required;
+  efb_upg_state_efb = { opts: opts, view: view, need: need, busy: false, opener: opts.opener || null, done: false };
+  efb_upg_render_efb(view);
+  efb_upg_event_efb('shown');
+  return { shown: true, state: view };
+}
+
+/* The name shown for the feature: the caller's label, else the registry's. */
+function efb_upg_feature_name_efb(opts) {
+  if (opts.label) return String(opts.label);
+  if (!opts.feature || opts.feature === 'generic') return '';
+  return efb_feature_label_efb(opts.feature);
+}
+
+/* Copy and actions of one view. Text is markup-safe (efb_upg_fmt_efb). */
+function efb_upg_view_efb(view, opts, need) {
+  var T = efb_upg_t_efb;
+  var f = efb_upg_feature_name_efb(opts);
+  var price = efb_upg_price_efb();
+  var planName = need === 'pro' ? T('pro', 'Pro') : T('freePlus', 'Free Plus');
+  var limit = opts.limit || {};
+  var e = efb_feature_entry_efb(opts.feature);
+  var v = { title: '', icon: 'bi-unlock', tone: 'efb-tone-brand', headline: '', text: '', note: '', disclosure: false, removesKey: false, actions: [] };
+  var headFP = f ? efb_upg_fmt_efb(T('upgInFreePlus', '%s is included in Free Plus — free'), [f]) : efb_upg_fmt_efb(T('upgThisInFreePlus', 'This feature is included in Free Plus — free'));
+  var headPro = f ? efb_upg_fmt_efb(T('upgIsPro', '%s is a Pro feature'), [f]) : efb_upg_fmt_efb(T('upgThisIsPro', 'This is a Pro feature'));
+  var notNow = { id: 'notnow', kind: 'quiet', label: T('upgNotNow', 'Not now') };
+  var buyPro = function (labelKey, fallback, primary) {
+    return { id: 'buy', kind: primary ? 'gold' : 'ghost', href: efb_upg_link_efb('pro'), icon: 'bi-gem', label: efb_upg_fmt_efb(T(labelKey, fallback), [price]), html: true };
+  };
+  v.title = f ? efb_upg_fmt_efb(T('upgDialogTitle', 'Unlock %s'), [f]) : efb_upg_fmt_efb(T('upgDialogTitleGeneric', 'Unlock this feature'));
+  switch (view) {
+    case 'S1':
+    case 'S5':
+      if (view === 'S5') {
+        var max = limit.max || (e && e.limits && e.limits.free) || 2;
+        v.headline = efb_upg_fmt_efb(T('upgStepsTitle', 'Free allows up to %d steps per form'), [max]);
+        v.text = efb_upg_fmt_efb(T('upgStepsBody', 'Free Plus and Pro allow unlimited steps.'));
+      } else {
+        v.headline = headFP;
+        v.text = efb_upg_fmt_efb(T('upgFreePlusBody', 'Free Plus costs nothing. It also unlocks advanced fields, conditional logic, and Stripe and PayPal payments.'));
+      }
+      if (opts.message) v.text = efb_upg_esc_efb(opts.message) + ' ' + v.text;
+      v.disclosure = true;
+      v.actions = [{ id: 'activate', kind: 'primary', icon: 'bi-unlock', label: efb_upg_fmt_efb(T('upgActivateFreePlus', 'Activate Free Plus')), html: true, describedby: true },
+        buyPro('upgGetProNoCredit', 'Get Pro — no credit · %s', false), notNow];
+      break;
+    case 'S2':
+    case 'S3':
+    case 'S6':
+      v.icon = 'bi-gem';
+      v.tone = 'efb-tone-gold';
+      if (view === 'S6') {
+        var lim = limit.max !== undefined ? limit.max : '';
+        v.headline = efb_upg_fmt_efb(T('upgLimitTitle', 'Free Plus allows up to %1$d %2$s per form'), [lim, limit.unit_label || limit.unit || '']);
+        v.text = efb_upg_fmt_efb(T('upgProBody', 'Pro includes every feature and add-on, shows no credit on your pages, and includes support.'));
+      } else if (view === 'S3') {
+        v.headline = headPro;
+        v.text = f ? efb_upg_fmt_efb(T('upgOnFreePlus', 'Your site uses Free Plus. %s needs Pro.'), [f]) + ' ' + efb_upg_fmt_efb(T('upgProBody', 'Pro includes every feature and add-on, shows no credit on your pages, and includes support.'))
+          : efb_upg_fmt_efb(T('upgProBody', 'Pro includes every feature and add-on, shows no credit on your pages, and includes support.'));
+      } else {
+        v.headline = headPro;
+        v.text = efb_upg_fmt_efb(T('upgProBody', 'Pro includes every feature and add-on, shows no credit on your pages, and includes support.'));
+        v.note = efb_upg_fmt_efb(T('upgNotInFreePlus', 'Free Plus does not include this.'));
+      }
+      if (opts.message) v.text = efb_upg_esc_efb(opts.message) + ' ' + v.text;
+      v.actions = [buyPro('upgGetPro', 'Get Pro · %s', true),
+        { id: 'licence', kind: 'quiet', href: efb_upg_link_efb('licence'), label: efb_upg_fmt_efb(T('upgHaveKey', 'I have a licence key')), html: true }, notNow];
+      break;
+    case 'S4a':
+    case 'S4b':
+      v.icon = 'bi-shield-exclamation';
+      v.tone = 'efb-tone-warn';
+      v.headline = efb_upg_fmt_efb(T('upgLapsedTitle', 'Your Pro licence is not active'));
+      v.text = efb_upg_fmt_efb(T('upgLapsedBody', '%1$s needs %2$s. Renew Pro to get it back, or check your licence key.'), [f || T('upgThisFeature', 'This feature'), planName]);
+      v.actions = [{ id: 'renew', kind: 'gold', href: efb_upg_link_efb('renew'), icon: 'bi-arrow-repeat', label: efb_upg_fmt_efb(T('upgRenewPro', 'Renew Pro')), html: true },
+        { id: 'licence', kind: 'ghost', href: efb_upg_link_efb('licence'), label: efb_upg_fmt_efb(T('upgCheckLicence', 'Check licence')), html: true }];
+      if (view === 'S4a') v.actions.push({ id: 'usefp', kind: 'quiet', label: efb_upg_fmt_efb(T('upgUseFreePlus', 'Use Free Plus instead')), html: true });
+      v.actions.push(notNow);
+      break;
+    case 'S4a-confirm':
+      v.icon = 'bi-unlock';
+      v.headline = headFP;
+      v.text = efb_upg_fmt_efb(T('upgFreePlusBody', 'Free Plus costs nothing. It also unlocks advanced fields, conditional logic, and Stripe and PayPal payments.'));
+      v.disclosure = true;
+      v.removesKey = true;
+      v.actions = [{ id: 'activate', kind: 'primary', icon: 'bi-unlock', label: efb_upg_fmt_efb(T('upgSwitchFreePlus', 'Switch to Free Plus')), html: true, describedby: true, downgrade: true },
+        { id: 'back', kind: 'quiet', label: efb_upg_fmt_efb(T('upgBack', 'Back')), html: true }];
+      break;
+    case 'S7':
+      v.icon = need === 'pro' ? 'bi-gem' : 'bi-unlock';
+      v.headline = need === 'pro' ? headPro : headFP;
+      v.text = efb_upg_fmt_efb(T('upgAskAdmin', 'Only a site administrator can change the plan. Ask them to activate Free Plus (free) or Pro.'));
+      v.actions = [{ id: 'close', kind: 'primary', label: efb_upg_fmt_efb(T('close', 'Close')), html: true }];
+      break;
+    case 'S8':
+      var addon = e && e.addon ? e.addon : '';
+      var addonName = addon ? efb_feature_label_efb('addon:' + addon) : f;
+      v.icon = 'bi-puzzle';
+      v.tone = 'efb-tone-success';
+      v.headline = efb_upg_state_efb && efb_upg_state_efb.activated ? efb_upg_fmt_efb(T('upgFreePlusOn', 'Free Plus is on'))
+        : (f ? efb_upg_fmt_efb(T('upgAddonNeeded', '%s needs an add-on'), [f]) : efb_upg_fmt_efb(T('upgFreePlusOn', 'Free Plus is on')));
+      v.text = efb_upg_fmt_efb(T('upgAddonNext', 'One more step: install the %s add-on.'), [addonName]);
+      v.actions = [{ id: 'install', kind: 'primary', icon: 'bi-download', label: efb_upg_fmt_efb(T('upgInstallAddon', 'Install %s'), [addonName]), html: true, addon: addon }, notNow];
+      break;
+  }
+  return v;
+}
+
+function efb_upg_disclosure_html_efb(removesKey) {
+  var T = efb_upg_t_efb;
+  var credit = efb_upg_t_efb('upgCreditPreview', 'Powered by Easy Form Builder');
+  return '<div class="efb efb-upg__disclosure" id="efbUpgDiscEfb">'
+    + '<i class="efb bi-info-circle" aria-hidden="true"></i>'
+    + '<div class="efb efb-upg__disclosure-body">'
+    + '<p class="efb efb-upg__disclosure-text">' + efb_upg_fmt_efb(T('upgCreditDisclosure', 'With Free Plus, pages that show a form also show a small “Powered by Easy Form Builder” credit with a link. You can change your plan at any time in Settings.')) + '</p>'
+    + (removesKey ? '<p class="efb efb-upg__disclosure-text efb-upg__removes-key">' + efb_upg_fmt_efb(T('upgRemovesKey', 'This also removes the stored licence key from this site. You can enter it again later.')) + '</p>' : '')
+    + '<details class="efb efb-upg__details"><summary>' + efb_upg_fmt_efb(T('upgCreditWhat', 'What will appear?')) + '</summary>'
+    + '<div class="efb efb-upg__preview" dir="ltr" aria-label="' + efb_upg_esc_efb(credit) + '"><span>' + efb_upg_esc_efb(credit) + '</span> <span class="efb efb-upg__preview-link">easyformbuilder</span></div>'
+    + '<p class="efb efb-upg__meta">' + efb_upg_fmt_efb(T('upgCreditMeta', 'It also adds page metadata (structured data and an author link) that names Easy Form Builder.')) + '</p>'
+    + '</details></div></div>';
+}
+
+function efb_upg_action_html_efb(a) {
+  var label = a.html ? a.label : efb_upg_esc_efb(a.label);
+  var icon = a.icon ? '<i class="efb ' + a.icon + '" aria-hidden="true"></i>' : '';
+  var cls = 'efb efb-dlg-btn efb-dlg-btn--' + a.kind + ' efb-upg__btn efb-upg__btn--' + a.id;
+  var data = ' data-efb-upg-action="' + a.id + '"' + (a.addon ? ' data-efb-addon="' + efb_upg_esc_efb(a.addon) + '"' : '') + (a.downgrade ? ' data-efb-downgrade="1"' : '');
+  if (a.href) {
+    var newTab = a.href.indexOf('http') === 0;
+    return '<a class="' + cls + '"' + data + ' href="' + efb_upg_esc_efb(a.href) + '" target="_blank" rel="noopener noreferrer">' + icon + '<span>' + label + '</span>'
+      + '<span class="efb efb-upg__sr">' + efb_upg_esc_efb(' ' + efb_upg_t_efb('upgNewTab', '(opens in a new tab)')) + '</span></a>';
+  }
+  return '<button type="button" class="' + cls + '"' + data + (a.describedby ? ' aria-describedby="efbUpgDiscEfb"' : '') + '>' + icon + '<span class="efb efb-upg__btn-label">' + label + '</span></button>';
+}
+
+/* Paint (or repaint in place) the dialog for a view. */
+function efb_upg_render_efb(view) {
+  var s = efb_upg_state_efb;
+  if (!s) return;
+  s.view = view;
+  var v = efb_upg_view_efb(view, s.opts, s.need);
+  s.copy = v;
+  var body = '<div class="efb efb-upg" data-efb-upg-state="' + view + '" data-efb-feature="' + efb_upg_esc_efb(s.opts.feature) + '">'
+    + '<div class="efb efb-dlg__badge efb-dlg__badge--square" aria-hidden="true"><i class="efb ' + v.icon + '"></i></div>'
+    + '<h2 class="efb efb-dlg__headline efb-upg__headline" id="efbUpgHeadEfb" tabindex="-1">' + v.headline + '</h2>'
+    + '<p class="efb efb-dlg__text efb-upg__text" id="efbUpgTextEfb">' + v.text + '</p>'
+    + (v.note ? '<p class="efb efb-upg__note">' + v.note + '</p>' : '')
+    + (v.disclosure ? efb_upg_disclosure_html_efb(v.removesKey) : '')
+    + '<div class="efb efb-upg__alert" id="efbUpgAlertEfb" role="alert"></div>'
+    + '</div>';
+  var foot = v.actions.map(efb_upg_action_html_efb).join('');
+  var onShown = function () {
+    if (efb_upg_state_efb !== s) return;
+    if (typeof efb_dlg_set_tone_efb === 'function') efb_dlg_set_tone_efb(v.tone);
+    var sections = document.getElementById('settingModalEfb-sections');
+    if (!sections) return;
+    document.querySelectorAll('#save-result-foot-efb').forEach(function (el) { el.remove(); });
+    var f = document.createElement('div');
+    f.className = 'efb modal-footer efb-dlg__foot efb-upg__foot';
+    f.id = 'save-result-foot-efb';
+    f.innerHTML = foot;
+    sections.appendChild(f);
+    efb_upg_wire_efb();
+  };
+  var shell = document.getElementById('settingModalEfb');
+  var mine = shell && shell.classList.contains('show') && s.wired;
+  if (mine) {
+    // A new view of the dialog already on screen: repaint in place, keep the shell and focus logic.
+    document.getElementById('settingModalEfb-title').innerHTML = v.title;
+    document.getElementById('settingModalEfb-body').innerHTML = body;
+    onShown();
+    var h = document.getElementById('efbUpgHeadEfb');
+    if (h) h.focus();
+    return;
+  }
+  if (typeof show_modal_efb !== 'function') return;
+  var painted = show_modal_efb(body, v.title, 'efb ' + v.icon, 'proBpx', { onShown: onShown, flow: 'upgrade' });
+  if (painted && typeof state_modal_show_efb === 'function') state_modal_show_efb(1);
+}
+
+/* ARIA, focus trap, Escape, focus return, button wiring. Runs once per paint. */
+function efb_upg_wire_efb() {
+  var s = efb_upg_state_efb;
+  var shell = document.getElementById('settingModalEfb');
+  if (!s || !shell) return;
+  if (!s.wired) {
+    s.wired = true;
+    s.prevAria = { role: shell.getAttribute('role'), labelledby: shell.getAttribute('aria-labelledby'), describedby: shell.getAttribute('aria-describedby') };
+    shell.setAttribute('role', 'dialog');
+    shell.setAttribute('aria-modal', 'true');
+    s.onKey = function (ev) { efb_upg_keydown_efb(ev); };
+    document.addEventListener('keydown', s.onKey, true);
+    if (typeof MutationObserver === 'function') {
+      s.observer = new MutationObserver(function () { if (!shell.classList.contains('show')) efb_upg_closed_efb(); });
+      s.observer.observe(shell, { attributes: true, attributeFilter: ['class'] });
+    }
+  }
+  var dlg = document.getElementById('settingModalEfb_');
+  if (dlg) dlg.classList.add('efb-upg-open');
+  shell.setAttribute('aria-labelledby', 'efbUpgHeadEfb');
+  shell.setAttribute('aria-describedby', 'efbUpgTextEfb');
+  document.querySelectorAll('#save-result-foot-efb [data-efb-upg-action]').forEach(function (b) {
+    b.addEventListener('click', function (ev) { efb_upg_click_efb(b.getAttribute('data-efb-upg-action'), b, ev); });
+  });
+  var h = document.getElementById('efbUpgHeadEfb');
+  // Focus the headline, not the button: the disclosure is read before anything can be activated.
+  if (h) setTimeout(function () { if (efb_upg_state_efb === s && !s.closed) h.focus(); }, 30);
+}
+
+function efb_upg_focusables_efb() {
+  var shell = document.getElementById('settingModalEfb');
+  if (!shell) return [];
+  return Array.prototype.filter.call(shell.querySelectorAll('button, a[href], summary, input, select, textarea, [tabindex]:not([tabindex="-1"])'), function (el) {
+    return !el.disabled && el.offsetParent !== null && el.getAttribute('aria-hidden') !== 'true';
+  });
+}
+
+function efb_upg_keydown_efb(ev) {
+  var s = efb_upg_state_efb;
+  var shell = document.getElementById('settingModalEfb');
+  if (!s || s.closed || !shell || !shell.classList.contains('show')) return;
+  if (ev.key === 'Escape' || ev.key === 'Esc') {
+    ev.preventDefault();
+    ev.stopPropagation();
+    efb_upg_close_efb('dismiss');
+    return;
+  }
+  if (ev.key !== 'Tab') return;
+  var items = efb_upg_focusables_efb();
+  if (!items.length) return;
+  var first = items[0];
+  var last = items[items.length - 1];
+  var inside = shell.contains(document.activeElement);
+  if (ev.shiftKey && (document.activeElement === first || !inside || document.activeElement.id === 'efbUpgHeadEfb')) { ev.preventDefault(); last.focus(); }
+  else if (!ev.shiftKey && (document.activeElement === last || !inside)) { ev.preventDefault(); first.focus(); }
+}
+
+/* Close the dialog (by its own buttons or Escape). The shell's own close paths (backdrop) end in
+   efb_upg_closed_efb() through the observer. */
+function efb_upg_close_efb(reason) {
+  var s = efb_upg_state_efb;
+  if (!s) return;
+  s.closeReason = s.closeReason || reason;
+  if (typeof state_modal_show_efb === 'function') state_modal_show_efb(0);
+  efb_upg_closed_efb();
+}
+
+function efb_upg_closed_efb() {
+  var s = efb_upg_state_efb;
+  if (!s || s.closed) return;
+  s.closed = true;
+  var shell = document.getElementById('settingModalEfb');
+  if (s.onKey) document.removeEventListener('keydown', s.onKey, true);
+  var dlg = document.getElementById('settingModalEfb_');
+  if (dlg) dlg.classList.remove('efb-upg-open');
+  if (s.observer) s.observer.disconnect();
+  if (shell && s.prevAria) {
+    ['role', 'labelledby', 'describedby'].forEach(function (k) {
+      var attr = k === 'role' ? 'role' : 'aria-' + k;
+      if (s.prevAria[k] === null || s.prevAria[k] === undefined) shell.removeAttribute(attr); else shell.setAttribute(attr, s.prevAria[k]);
+    });
+  }
+  if (!s.closeReason || s.closeReason === 'dismiss') {
+    s.closeReason = 'dismiss';
+    if (!s.activated) {
+      efb_upg_dismiss_count_efb(s.opts.feature, true);
+      efb_upg_event_efb('dismiss');
+    }
+  }
+  efb_upgrade_prompt_efb_last = s;
+  if (efb_upg_state_efb === s) efb_upg_state_efb = null;
+  // Focus goes back to what opened the dialog, unless the resumed action moved it on purpose.
+  if (!s.focusMoved && s.opener && typeof s.opener.focus === 'function' && document.contains(s.opener)) {
+    try { s.opener.focus(); } catch (e) { /* gone */ }
+  }
+}
+var efb_upgrade_prompt_efb_last = null;
+
+function efb_upg_alert_efb(html) {
+  var a = document.getElementById('efbUpgAlertEfb');
+  if (!a) return;
+  a.innerHTML = html;
+  a.classList.toggle('is-visible', !!html);
+}
+
+function efb_upg_busy_efb(on) {
+  var s = efb_upg_state_efb;
+  if (!s) return;
+  s.busy = on;
+  var btn = document.querySelector('#save-result-foot-efb [data-efb-upg-action="activate"]');
+  document.querySelectorAll('#save-result-foot-efb [data-efb-upg-action]').forEach(function (b) {
+    if (b === btn) return;
+    if (b.tagName === 'A') { if (on) { b.setAttribute('aria-disabled', 'true'); b.tabIndex = -1; } else { b.removeAttribute('aria-disabled'); b.removeAttribute('tabindex'); } }
+    else b.disabled = on;
+  });
+  if (!btn) return;
+  var label = btn.querySelector('.efb-upg__btn-label');
+  if (on) {
+    btn.setAttribute('aria-busy', 'true');
+    btn.disabled = true;
+    btn.dataset.efbLabel = label ? label.innerHTML : '';
+    if (label) label.innerHTML = '<span class="efb efb-upg__spinner" aria-hidden="true"></span>' + efb_upg_fmt_efb(efb_upg_t_efb('upgActivating', 'Activating…'));
+  } else {
+    btn.removeAttribute('aria-busy');
+    btn.disabled = false;
+    if (label && btn.dataset.efbLabel !== undefined) label.innerHTML = btn.dataset.efbLabel;
+  }
+}
+
+function efb_upg_click_efb(action, btn, ev) {
+  var s = efb_upg_state_efb;
+  if (!s) return;
+  if (btn.getAttribute('aria-disabled') === 'true') { if (ev) ev.preventDefault(); return; }
+  switch (action) {
+    case 'activate':
+      // A person has to press this button: an agent's synthetic click (isTrusted false) is refused (§14).
+      if (!ev || ev.isTrusted !== true) {
+        efb_upg_alert_efb(efb_upg_fmt_efb(efb_upg_t_efb('upgNeedsClick', 'Free Plus can only be activated by a click on this button.')));
+        efb_upg_event_efb('refused', { detail: { reason: 'untrusted_click' } });
+        return;
+      }
+      efb_upg_activate_efb(btn.getAttribute('data-efb-downgrade') === '1');
+      break;
+    case 'buy':
+    case 'renew':
+    case 'licence':
+      efb_upg_event_efb(action === 'licence' ? 'licence' : 'buy');
+      break;
+    case 'usefp':
+      efb_upg_render_efb('S4a-confirm');
+      break;
+    case 'back':
+      efb_upg_render_efb('S4a');
+      break;
+    case 'install':
+      var code = btn.getAttribute('data-efb-addon');
+      efb_upg_event_efb('install', { detail: { addon: code } });
+      if (code && typeof efb_save_resume_efb === 'function') efb_save_resume_efb(s.opts);
+      s.closeReason = 'install';
+      efb_upg_close_efb('install');
+      if (code && typeof actionSendAddons_efb === 'function') actionSendAddons_efb(code);
+      break;
+    case 'notnow':
+    case 'close':
+      efb_upg_close_efb('dismiss');
+      break;
+  }
+}
+
+/* The Free Plus request (§4.5, §8): source upgrade_prompt, credit_ack, the feature for the log. */
+function efb_upg_activate_efb(downgradeConfirmed) {
+  var s = efb_upg_state_efb;
+  if (!s || s.busy) return;
+  efb_upg_alert_efb('');
+  efb_upg_busy_efb(true);
+  efb_upg_event_efb('activate');
+  var url = (typeof efb_var !== 'undefined' && efb_var && efb_var.ajax_url) || (typeof ajaxurl !== 'undefined' ? ajaxurl : '');
+  var nonce = (typeof _efb_nonce_ !== 'undefined' && _efb_nonce_) || (typeof efb_var !== 'undefined' && efb_var ? efb_var.nonce : '');
+  var data = {
+    selected_plan: 'free_plus',
+    plan_data: { plan_name: 'Free Plus Plan', show_credit: true },
+    timestamp: Date.now(),
+    downgrade_confirmed: downgradeConfirmed === true,
+    source: 'upgrade_prompt',
+    feature: String(s.opts.feature || '').slice(0, 64),
+    credit_ack: true
+  };
+  var done = function (ok, payload, status) { efb_upg_activation_result_efb(s, ok, payload, status); };
+  if (typeof jQuery === 'undefined' || !jQuery.ajax) { done(false, null, 0); return; }
+  jQuery.ajax({ url: url, type: 'POST', dataType: 'json', data: { action: 'efb_save_plan_selection', plan_data: JSON.stringify(data), nonce: nonce } })
+    .done(function (res) { done(!!(res && res.success && res.data && Number(res.data.package_type) === 3), res && res.data ? res.data : null, 200); })
+    .fail(function (xhr) { done(false, xhr && xhr.responseJSON && xhr.responseJSON.data ? xhr.responseJSON.data : null, xhr ? xhr.status : 0); });
+}
+
+function efb_upg_activation_result_efb(s, ok, payload, status) {
+  var T = efb_upg_t_efb;
+  var onScreen = efb_upg_state_efb === s && !s.closed;
+  if (ok) {
+    s.activated = true;
+    if (typeof efb_on_plan_changed_efb === 'function') efb_on_plan_changed_efb(3, { source: 'upgrade_prompt', feature: s.opts.feature, response: payload });
+    if (payload && payload.activation_code_removed && typeof efb_var_patch_efb === 'function') efb_var_patch_efb(null, { activeCode: '' });
+    efb_upg_event_efb('activated', { detail: { package_type: 3 } });
+    var e = efb_feature_entry_efb(s.opts.feature);
+    if (e && e.addon && !efb_addon_installed_efb(e.addon)) {
+      // S8: Free Plus is on; the add-on is the one step left. Shown in the same dialog.
+      if (onScreen) { efb_upg_render_efb('S8'); return; }
+    }
+    var name = efb_upg_feature_name_efb(s.opts);
+    s.closeReason = 'activated';
+    if (onScreen) efb_upg_close_efb('activated');
+    var toast = name ? T('upgReadyToast', 'Free Plus is on. %s is ready.').replace('%s', name) : T('upgFreePlusOn', 'Free Plus is on');
+    if (typeof show_success_notification_efb === 'function') show_success_notification_efb(toast);
+    if (s.opts.resume && typeof efb_run_resume_efb === 'function') {
+      Promise.resolve(efb_run_resume_efb(s.opts.resume, s.opts)).then(function (target) {
+        if (target && target.nodeType === 1) { s.focusMoved = true; try { target.focus(); } catch (er) { /* fine */ } }
+      });
+    }
+    return;
+  }
+  if (!onScreen) {
+    if (status === 409 || status === 403) return;
+    var msg = payload && payload.message ? String(payload.message) : '';
+    if (typeof alert_message_efb === 'function') alert_message_efb('', efb_upg_esc_efb(T('upgFailed', 'Free Plus could not be activated. %s').replace('%s', msg)), 10, 'danger');
+    return;
+  }
+  efb_upg_busy_efb(false);
+  if (status === 409 && payload && payload.code === 'downgrade_confirmation_required') {
+    // A stored licence key would be removed: confirm in place (S4a), no second dialog.
+    efb_upg_render_efb('S4a-confirm');
+    return;
+  }
+  efb_upg_event_efb('error', { detail: { status: status } });
+  if (status === 403) {
+    efb_upg_alert_efb(efb_upg_fmt_efb(T('upgSessionExpired', 'Your session has expired. Save your work and reload the page.')));
+    return;
+  }
+  var m = payload && (payload.message || payload.m) ? String(payload.message || payload.m) : '';
+  efb_upg_alert_efb(efb_upg_fmt_efb(T('upgFailed', 'Free Plus could not be activated. %s'), [m])
+    + ' <button type="button" class="efb efb-dlg-btn efb-dlg-btn--ghost efb-upg__retry" data-efb-upg-retry="1">' + efb_upg_fmt_efb(T('upgTryAgain', 'Try again')) + '</button>');
+  var retry = document.querySelector('#efbUpgAlertEfb [data-efb-upg-retry]');
+  if (retry) retry.addEventListener('click', function (ev) {
+    if (!ev.isTrusted) return;
+    efb_upg_activate_efb(s.view === 'S4a-confirm');
+  });
+}
+
+/* Until D: the page takes the new plan the way efb_apply_package_type_efb() always did. */
+function efb_on_plan_changed_efb(newType, ctx) {
+  ctx = ctx || {};
+  var prev = efb_current_package_efb();
+  if (typeof efb_apply_package_type_efb === 'function') efb_apply_package_type_efb(newType);
+  if (typeof updatePlanBadge_efb === 'function') updatePlanBadge_efb();
+  try { document.dispatchEvent(new CustomEvent('efb:plan-changed', { detail: { package_type: Number(newType), previous: prev, source: ctx.source || null, feature: ctx.feature || null } })); } catch (e) { /* no DOM */ }
 }

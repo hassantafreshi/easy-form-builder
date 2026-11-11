@@ -2706,6 +2706,98 @@ class efbFunction {
 			"upgFtrPaymentForm" => $state && isset($ac->text->upgFtrPaymentForm) ? $ac->text->upgFtrPaymentForm : esc_html__('Payment form','easy-form-builder'),
 			/* translators: F18: name of a locked feature in the upgrade dialog (saving a form that uses them) */
 			"upgFtrLockedFields" => $state && isset($ac->text->upgFtrLockedFields) ? $ac->text->upgFtrLockedFields : esc_html__('Advanced fields in this form','easy-form-builder'),
+			/* translators: F18: upgrade dialog title. %s: name of the locked feature */
+			"upgDialogTitle" => $state && isset($ac->text->upgDialogTitle) ? $ac->text->upgDialogTitle : esc_html__('Unlock %s','easy-form-builder'),
+			/* translators: F18: upgrade dialog title when the feature has no name */
+			"upgDialogTitleGeneric" => $state && isset($ac->text->upgDialogTitleGeneric) ? $ac->text->upgDialogTitleGeneric : esc_html__('Unlock this feature','easy-form-builder'),
+			/* translators: F18: upgrade dialog headline. %s: name of the locked feature */
+			"upgInFreePlus" => $state && isset($ac->text->upgInFreePlus) ? $ac->text->upgInFreePlus : esc_html__('%s is included in Free Plus — free','easy-form-builder'),
+			/* translators: F18: upgrade dialog headline without a feature name */
+			"upgThisInFreePlus" => $state && isset($ac->text->upgThisInFreePlus) ? $ac->text->upgThisInFreePlus : esc_html__('This feature is included in Free Plus — free','easy-form-builder'),
+			/* translators: F18: upgrade dialog headline. %s: name of the locked feature */
+			"upgIsPro" => $state && isset($ac->text->upgIsPro) ? $ac->text->upgIsPro : esc_html__('%s is a Pro feature','easy-form-builder'),
+			/* translators: F18: upgrade dialog headline without a feature name */
+			"upgThisIsPro" => $state && isset($ac->text->upgThisIsPro) ? $ac->text->upgThisIsPro : esc_html__('This is a Pro feature','easy-form-builder'),
+			/* translators: F18: stands in for a feature name in the upgrade dialog */
+			"upgThisFeature" => $state && isset($ac->text->upgThisFeature) ? $ac->text->upgThisFeature : esc_html__('This feature','easy-form-builder'),
+			/* translators: F18: upgrade dialog text for a Free Plus feature */
+			"upgFreePlusBody" => $state && isset($ac->text->upgFreePlusBody) ? $ac->text->upgFreePlusBody : esc_html__('Free Plus costs nothing. It also unlocks advanced fields, conditional logic, and Stripe and PayPal payments.','easy-form-builder'),
+			/* translators: F18: disclosure next to the Activate Free Plus button */
+			"upgCreditDisclosure" => $state && isset($ac->text->upgCreditDisclosure) ? $ac->text->upgCreditDisclosure : esc_html__('With Free Plus, pages that show a form also show a small “Powered by Easy Form Builder” credit with a link. You can change your plan at any time in Settings.','easy-form-builder'),
+			/* translators: F18: expands a preview of the Free Plus credit */
+			"upgCreditWhat" => $state && isset($ac->text->upgCreditWhat) ? $ac->text->upgCreditWhat : esc_html__('What will appear?','easy-form-builder'),
+			/* translators: F18: preview of the credit Free Plus shows under forms; keep it identical to the public credit text */
+			"upgCreditPreview" => $state && isset($ac->text->upgCreditPreview) ? $ac->text->upgCreditPreview : esc_html__('Powered by Easy Form Builder . best Form plugin for Wordpress.','easy-form-builder'),
+			/* translators: F18: part of the Free Plus disclosure */
+			"upgCreditMeta" => $state && isset($ac->text->upgCreditMeta) ? $ac->text->upgCreditMeta : esc_html__('It also adds page metadata (structured data and an author link) that names Easy Form Builder.','easy-form-builder'),
+			/* translators: F18: main button of the upgrade dialog */
+			"upgActivateFreePlus" => $state && isset($ac->text->upgActivateFreePlus) ? $ac->text->upgActivateFreePlus : esc_html__('Activate Free Plus','easy-form-builder'),
+			/* translators: F18: button text while Free Plus is being activated */
+			"upgActivating" => $state && isset($ac->text->upgActivating) ? $ac->text->upgActivating : esc_html__('Activating…','easy-form-builder'),
+			/* translators: F18: button. %s: price per year */
+			"upgGetProNoCredit" => $state && isset($ac->text->upgGetProNoCredit) ? $ac->text->upgGetProNoCredit : esc_html__('Get Pro — no credit · %s','easy-form-builder'),
+			/* translators: F18: button. %s: price per year */
+			"upgGetPro" => $state && isset($ac->text->upgGetPro) ? $ac->text->upgGetPro : esc_html__('Get Pro · %s','easy-form-builder'),
+			/* translators: F18: closes the upgrade dialog */
+			"upgNotNow" => $state && isset($ac->text->upgNotNow) ? $ac->text->upgNotNow : esc_html__('Not now','easy-form-builder'),
+			/* translators: F18: link to the licence key setting */
+			"upgHaveKey" => $state && isset($ac->text->upgHaveKey) ? $ac->text->upgHaveKey : esc_html__('I have a licence key','easy-form-builder'),
+			/* translators: F18: upgrade dialog text for a Pro feature */
+			"upgProBody" => $state && isset($ac->text->upgProBody) ? $ac->text->upgProBody : esc_html__('Pro includes every feature and add-on, shows no credit on your pages, and includes support.','easy-form-builder'),
+			/* translators: F18: small note in the Pro upgrade dialog */
+			"upgNotInFreePlus" => $state && isset($ac->text->upgNotInFreePlus) ? $ac->text->upgNotInFreePlus : esc_html__('Free Plus does not include this.','easy-form-builder'),
+			/* translators: F18: %s: name of the locked feature */
+			"upgOnFreePlus" => $state && isset($ac->text->upgOnFreePlus) ? $ac->text->upgOnFreePlus : esc_html__('Your site uses Free Plus. %s needs Pro.','easy-form-builder'),
+			/* translators: F18: headline when the Pro licence lapsed */
+			"upgLapsedTitle" => $state && isset($ac->text->upgLapsedTitle) ? $ac->text->upgLapsedTitle : esc_html__('Your Pro licence is not active','easy-form-builder'),
+			/* translators: F18: %1$s: feature name, %2$s: plan name */
+			"upgLapsedBody" => $state && isset($ac->text->upgLapsedBody) ? $ac->text->upgLapsedBody : esc_html__('%1$s needs %2$s. Renew Pro to get it back, or check your licence key.','easy-form-builder'),
+			/* translators: F18: button */
+			"upgRenewPro" => $state && isset($ac->text->upgRenewPro) ? $ac->text->upgRenewPro : esc_html__('Renew Pro','easy-form-builder'),
+			/* translators: F18: button */
+			"upgCheckLicence" => $state && isset($ac->text->upgCheckLicence) ? $ac->text->upgCheckLicence : esc_html__('Check licence','easy-form-builder'),
+			/* translators: F18: button for a lapsed Pro licence */
+			"upgUseFreePlus" => $state && isset($ac->text->upgUseFreePlus) ? $ac->text->upgUseFreePlus : esc_html__('Use Free Plus instead','easy-form-builder'),
+			/* translators: F18: warning before switching a lapsed Pro site to Free Plus */
+			"upgRemovesKey" => $state && isset($ac->text->upgRemovesKey) ? $ac->text->upgRemovesKey : esc_html__('This also removes the stored licence key from this site. You can enter it again later.','easy-form-builder'),
+			/* translators: F18: button */
+			"upgSwitchFreePlus" => $state && isset($ac->text->upgSwitchFreePlus) ? $ac->text->upgSwitchFreePlus : esc_html__('Switch to Free Plus','easy-form-builder'),
+			/* translators: F18: button */
+			"upgBack" => $state && isset($ac->text->upgBack) ? $ac->text->upgBack : esc_html__('Back','easy-form-builder'),
+			/* translators: F18: %d: number of steps */
+			"upgStepsTitle" => $state && isset($ac->text->upgStepsTitle) ? $ac->text->upgStepsTitle : esc_html__('Free allows up to %d steps per form','easy-form-builder'),
+			/* translators: F18: upgrade dialog text for the step limit */
+			"upgStepsBody" => $state && isset($ac->text->upgStepsBody) ? $ac->text->upgStepsBody : esc_html__('Free Plus and Pro allow unlimited steps.','easy-form-builder'),
+			/* translators: F18: %1$d: number, %2$s: what is limited (rules, conditions) */
+			"upgLimitTitle" => $state && isset($ac->text->upgLimitTitle) ? $ac->text->upgLimitTitle : esc_html__('Free Plus allows up to %1$d %2$s per form','easy-form-builder'),
+			/* translators: F18: upgrade dialog for a user who may not change the plan */
+			"upgAskAdmin" => $state && isset($ac->text->upgAskAdmin) ? $ac->text->upgAskAdmin : esc_html__('Only a site administrator can change the plan. Ask them to activate Free Plus (free) or Pro.','easy-form-builder'),
+			/* translators: F18: headline after activation */
+			"upgFreePlusOn" => $state && isset($ac->text->upgFreePlusOn) ? $ac->text->upgFreePlusOn : esc_html__('Free Plus is on','easy-form-builder'),
+			/* translators: F18: %s: feature name */
+			"upgAddonNeeded" => $state && isset($ac->text->upgAddonNeeded) ? $ac->text->upgAddonNeeded : esc_html__('%s needs an add-on','easy-form-builder'),
+			/* translators: F18: %s: add-on name */
+			"upgAddonNext" => $state && isset($ac->text->upgAddonNext) ? $ac->text->upgAddonNext : esc_html__('One more step: install the %s add-on.','easy-form-builder'),
+			/* translators: F18: button. %s: add-on name */
+			"upgInstallAddon" => $state && isset($ac->text->upgInstallAddon) ? $ac->text->upgInstallAddon : esc_html__('Install %s','easy-form-builder'),
+			/* translators: F18: notice after activation. %s: feature name */
+			"upgReadyToast" => $state && isset($ac->text->upgReadyToast) ? $ac->text->upgReadyToast : esc_html__('Free Plus is on. %s is ready.','easy-form-builder'),
+			/* translators: F18: %s: the server's message */
+			"upgFailed" => $state && isset($ac->text->upgFailed) ? $ac->text->upgFailed : esc_html__('Free Plus could not be activated. %s','easy-form-builder'),
+			/* translators: F18: button */
+			"upgTryAgain" => $state && isset($ac->text->upgTryAgain) ? $ac->text->upgTryAgain : esc_html__('Try again','easy-form-builder'),
+			/* translators: F18: error in the upgrade dialog */
+			"upgSessionExpired" => $state && isset($ac->text->upgSessionExpired) ? $ac->text->upgSessionExpired : esc_html__('Your session has expired. Save your work and reload the page.','easy-form-builder'),
+			/* translators: F18: for screen readers, after a link that opens a new tab */
+			"upgNewTab" => $state && isset($ac->text->upgNewTab) ? $ac->text->upgNewTab : esc_html__('(opens in a new tab)','easy-form-builder'),
+			/* translators: F18: shown when a script, not a person, pressed the button */
+			"upgNeedsClick" => $state && isset($ac->text->upgNeedsClick) ? $ac->text->upgNeedsClick : esc_html__('Free Plus can only be activated by a click on this button.','easy-form-builder'),
+			/* translators: F18: short note next to a locked control */
+			"upgTipFreePlus" => $state && isset($ac->text->upgTipFreePlus) ? $ac->text->upgTipFreePlus : esc_html__('Included in Free Plus (free)','easy-form-builder'),
+			/* translators: F18: short note next to a locked control */
+			"upgTipPro" => $state && isset($ac->text->upgTipPro) ? $ac->text->upgTipPro : esc_html__('Pro feature','easy-form-builder'),
+			/* translators: F18: opens the upgrade dialog from the short note */
+			"upgSeeOptions" => $state && isset($ac->text->upgSeeOptions) ? $ac->text->upgSeeOptions : esc_html__('See options','easy-form-builder'),
 			"sms_noti" => $state  &&  isset($ac->text->sms_noti) ? $ac->text->sms_noti : esc_html__('SMS Notifications','easy-form-builder'),
 			"sms_dnoti" => $state  &&  isset($ac->text->sms_dnoti) ? $ac->text->sms_dnoti : esc_html__('Enter the administrators’ mobile numbers to receive SMS notifications, such as alerts or new messages.','easy-form-builder'),
 			"sms_ndnoti" => $state  &&  isset($ac->text->sms_ndnoti) ? $ac->text->sms_ndnoti : esc_html__('All SMS notifications sent by Easy Form Builder will be delivered to the numbers entered here.','easy-form-builder'),

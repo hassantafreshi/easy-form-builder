@@ -15492,3 +15492,269 @@ msgstr "فرم پرداخت"
 #: includes/functions.php
 msgid "Advanced fields in this form"
 msgstr "فیلدهای پیشرفتهٔ این فرم"
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: upgrade dialog title. %s: name of the locked feature
+#: includes/functions.php
+#, php-format
+msgid "Unlock %s"
+msgstr "باز کردن «%s»"
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: upgrade dialog title when the feature has no name
+#: includes/functions.php
+msgid "Unlock this feature"
+msgstr "باز کردن این امکان"
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: upgrade dialog headline. %s: name of the locked feature
+#: includes/functions.php
+#, php-format
+msgid "%s is included in Free Plus — free"
+msgstr "«%s» در Free Plus است — رایگان"
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: upgrade dialog headline without a feature name
+#: includes/functions.php
+msgid "This feature is included in Free Plus — free"
+msgstr "این امکان در Free Plus است — رایگان"
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: upgrade dialog headline. %s: name of the locked feature
+#: includes/functions.php
+#, php-format
+msgid "%s is a Pro feature"
+msgstr "«%s» از امکانات Pro است"
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: upgrade dialog headline without a feature name
+#: includes/functions.php
+msgid "This is a Pro feature"
+msgstr "این امکان مخصوص Pro است"
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: stands in for a feature name in the upgrade dialog
+#: includes/functions.php
+msgid "This feature"
+msgstr "این امکان"
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: upgrade dialog text for a Free Plus feature
+#: includes/functions.php
+msgid "Free Plus costs nothing. It also unlocks advanced fields, conditional logic, and Stripe and PayPal payments."
+msgstr "Free Plus هزینه‌ای ندارد. فیلدهای پیشرفته، منطق شرطی و پرداخت با Stripe و PayPal را هم باز می‌کند."
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: disclosure next to the Activate Free Plus button
+#: includes/functions.php
+msgid "With Free Plus, pages that show a form also show a small “Powered by Easy Form Builder” credit with a link. You can change your plan at any time in Settings."
+msgstr "با Free Plus، صفحه‌هایی که فرم دارند یک نوشتهٔ کوچک «Powered by Easy Form Builder» همراه پیوند هم نشان می‌دهند. هر زمان بخواهید می‌توانید پلن را از تنظیمات عوض کنید."
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: expands a preview of the Free Plus credit
+#: includes/functions.php
+msgid "What will appear?"
+msgstr "چه چیزی نمایش داده می‌شود؟"
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: preview of the credit Free Plus shows under forms; keep it identical to the public credit text
+#: includes/functions.php
+msgid "Powered by Easy Form Builder . best Form plugin for Wordpress."
+msgstr "قدرت‌گرفته از فرم ساز آسان. بهترین افزونه فرم برای وردپرس."
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: part of the Free Plus disclosure
+#: includes/functions.php
+msgid "It also adds page metadata (structured data and an author link) that names Easy Form Builder."
+msgstr "همچنین اطلاعات پنهان صفحه (دادهٔ ساختاریافته و پیوند author) که نام فرم‌ساز آسان را دارد، اضافه می‌شود."
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: main button of the upgrade dialog
+#: includes/functions.php
+msgid "Activate Free Plus"
+msgstr "فعال‌سازی Free Plus"
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: button text while Free Plus is being activated
+#: includes/functions.php
+msgid "Activating…"
+msgstr "در حال فعال‌سازی…"
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: button. %s: price per year
+#: includes/functions.php
+#, php-format
+msgid "Get Pro — no credit · %s"
+msgstr "خرید Pro — بدون نوشته · %s"
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: button. %s: price per year
+#: includes/functions.php
+#, php-format
+msgid "Get Pro · %s"
+msgstr "خرید Pro · %s"
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: link to the licence key setting
+#: includes/functions.php
+msgid "I have a licence key"
+msgstr "کد فعال‌سازی دارم"
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: upgrade dialog text for a Pro feature
+#: includes/functions.php
+msgid "Pro includes every feature and add-on, shows no credit on your pages, and includes support."
+msgstr "Pro همهٔ امکانات و افزونه‌ها را دارد، هیچ نوشتهٔ معرفی در صفحه‌های شما نمایش نمی‌دهد و پشتیبانی هم دارد."
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: small note in the Pro upgrade dialog
+#: includes/functions.php
+msgid "Free Plus does not include this."
+msgstr "Free Plus این امکان را ندارد."
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: %s: name of the locked feature
+#: includes/functions.php
+#, php-format
+msgid "Your site uses Free Plus. %s needs Pro."
+msgstr "سایت شما Free Plus است. «%s» به Pro نیاز دارد."
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: headline when the Pro licence lapsed
+#: includes/functions.php
+msgid "Your Pro licence is not active"
+msgstr "مجوز Pro سایت شما فعال نیست"
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: %1$s: feature name, %2$s: plan name
+#: includes/functions.php
+#, php-format
+msgid "%1$s needs %2$s. Renew Pro to get it back, or check your licence key."
+msgstr "«%1$s» به %2$s نیاز دارد. برای استفادهٔ دوباره Pro را تمدید کنید یا کد فعال‌سازی را بررسی کنید."
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: button
+#: includes/functions.php
+msgid "Check licence"
+msgstr "بررسی مجوز"
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: button for a lapsed Pro licence
+#: includes/functions.php
+msgid "Use Free Plus instead"
+msgstr "به‌جای آن Free Plus"
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: warning before switching a lapsed Pro site to Free Plus
+#: includes/functions.php
+msgid "This also removes the stored licence key from this site. You can enter it again later."
+msgstr "این کار کد فعال‌سازی ذخیره‌شده را هم از این سایت پاک می‌کند. بعداً می‌توانید دوباره واردش کنید."
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: button
+#: includes/functions.php
+msgid "Back"
+msgstr "بازگشت"
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: %d: number of steps
+#: includes/functions.php
+#, php-format
+msgid "Free allows up to %d steps per form"
+msgstr "نسخهٔ رایگان حداکثر %d مرحله در هر فرم دارد"
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: upgrade dialog text for the step limit
+#: includes/functions.php
+msgid "Free Plus and Pro allow unlimited steps."
+msgstr "Free Plus و Pro مرحلهٔ نامحدود دارند."
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: %1$d: number, %2$s: what is limited (rules, conditions)
+#: includes/functions.php
+#, php-format
+msgid "Free Plus allows up to %1$d %2$s per form"
+msgstr "Free Plus حداکثر %1$d %2$s در هر فرم دارد"
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: upgrade dialog for a user who may not change the plan
+#: includes/functions.php
+msgid "Only a site administrator can change the plan. Ask them to activate Free Plus (free) or Pro."
+msgstr "فقط مدیر سایت می‌تواند پلن را عوض کند. از او بخواهید Free Plus (رایگان) یا Pro را فعال کند."
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: headline after activation
+#: includes/functions.php
+msgid "Free Plus is on"
+msgstr "Free Plus فعال شد"
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: %s: feature name
+#: includes/functions.php
+#, php-format
+msgid "%s needs an add-on"
+msgstr "«%s» به یک افزونه نیاز دارد"
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: %s: add-on name
+#: includes/functions.php
+#, php-format
+msgid "One more step: install the %s add-on."
+msgstr "یک قدم دیگر: افزونهٔ %s را نصب کنید."
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: button. %s: add-on name
+#: includes/functions.php
+#, php-format
+msgid "Install %s"
+msgstr "نصب %s"
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: notice after activation. %s: feature name
+#: includes/functions.php
+#, php-format
+msgid "Free Plus is on. %s is ready."
+msgstr "Free Plus فعال شد. «%s» آماده است."
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: %s: the server's message
+#: includes/functions.php
+#, php-format
+msgid "Free Plus could not be activated. %s"
+msgstr "Free Plus فعال نشد. %s"
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: error in the upgrade dialog
+#: includes/functions.php
+msgid "Your session has expired. Save your work and reload the page."
+msgstr "نشست شما منقضی شده است. کارتان را ذخیره و صفحه را دوباره بارگذاری کنید."
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: for screen readers, after a link that opens a new tab
+#: includes/functions.php
+msgid "(opens in a new tab)"
+msgstr "(در زبانهٔ تازه باز می‌شود)"
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: shown when a script, not a person, pressed the button
+#: includes/functions.php
+msgid "Free Plus can only be activated by a click on this button."
+msgstr "Free Plus فقط با کلیک روی همین دکمه فعال می‌شود."
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: short note next to a locked control
+#: includes/functions.php
+msgid "Included in Free Plus (free)"
+msgstr "در Free Plus (رایگان)"
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: short note next to a locked control
+#: includes/functions.php
+msgid "Pro feature"
+msgstr "امکان Pro"
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: opens the upgrade dialog from the short note
+#: includes/functions.php
+msgid "See options"
+msgstr "دیدن گزینه‌ها"
