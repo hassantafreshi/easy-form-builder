@@ -41,3 +41,13 @@ if (!function_exists('efb_feature_available_efb')) {
 		return !empty($r[$feature]['available_now']);
 	}
 }
+if (!function_exists('efb_logic_validate_rules')) {
+	/**
+	 * B6 (AutoPilot): check conditional-logic rules before writing them. Errors carry a stable
+	 * code and the rule id; without the Conditional Logic add-on the result has logic_addon_missing.
+	 * Contract: docs/logic-rules-schema.md.
+	 */
+	function efb_logic_validate_rules( array $form_items, array $args = array() ) {
+		return \Emsfb\Builder_Api::logic_validate_rules($form_items, $args);
+	}
+}

@@ -301,6 +301,254 @@ class Builder_Api {
 		return $vars;
 	}
 
+	/* ---------------------------------------------------------------- B6 */
+
+	const LOGIC_ACTIONS = array('show_field', 'hide_field', 'set_required', 'set_optional', 'enable_field', 'disable_field', 'show_step', 'hide_step', 'jump_to_step', 'set_value', 'copy_value', 'calculate', 'clear_value', 'show_message', 'set_placeholder', 'set_help', 'set_label', 'focus_field', 'scroll_to_field', 'block_submit', 'end_form');
+	const LOGIC_COMPARES = array('is', 'is_not', 'contains', 'not_contains', 'starts_with', 'ends_with', 'gt', 'gte', 'lt', 'lte', 'between', 'not_between', 'is_empty', 'is_not_empty', 'is_paid', 'is_not_paid', 'amount_eq', 'amount_gt', 'amount_lt', 'date_before', 'date_after', 'date_between');
+	const LOGIC_SOURCES = array('field', 'query_param', 'user', 'current_step');
+	const LOGIC_SCOPES = array('field', 'step', 'notification', 'confirmation', 'webhook', 'pricing');
+
+	/**
+	 * The Conditional Logic add-on's validator, when the add-on is active (class-Emsfb.php
+	 * loads its file then). The file is never loaded from here: loading it registers the
+	 * add-on's submission filters, which must stay off while the add-on is switched off.
+	 */
+	public static function logic_validator() {
+		return class_exists('\Emsfb\Emsfb_Logic_Validator') ? new \Emsfb\Emsfb_Logic_Validator() : null;
+	}
+
+	/**
+	 * B6: check the conditional-logic rules of a form before they are written, so nothing
+	 * EFB would drop or refuse reaches the form. The structural checks mirror what
+	 * sanitize_obj_msg_efb() keeps (functions.php: sanitize_logic_rules() and siblings,
+	 * which silently drop what is wrong); the evaluation runs through the add-on's own
+	 * Emsfb_Logic_Validator (formula, loops) when it is installed, otherwise the result
+	 * carries the error logic_addon_missing. Plan limits come from the capability registry.
+	 * Contract and codes: docs/logic-rules-schema.md.
+	 *
+	 * @param array $form_items The whole form (row 0 holds the rule collections).
+	 * @param array $args       package (plan override, 0|1|2|3).
+	 * @return array{ok:bool, available:bool, errors:array, warnings:array, limits:array, api_version:int}
+	 */
+	public static function logic_validate_rules(array $form_items, array $args = array()) {
+		$errors = array();
+		$warnings = array();
+		$err = function ($code, $collection, $rule_id, $path, $extra = array()) use (&$errors) {
+			$errors[] = array_merge(array('code' => $code, 'collection' => $collection, 'rule_id' => ($rule_id === '' ? null : $rule_id), 'path' => $path), $extra);
+		};
+		$warn = function ($code, $collection, $rule_id, $path, $extra = array()) use (&$warnings) {
+			$warnings[] = array_merge(array('code' => $code, 'collection' => $collection, 'rule_id' => ($rule_id === '' ? null : $rule_id), 'path' => $path), $extra);
+		};
+		$row0 = isset($form_items[0]) && is_array($form_items[0]) ? $form_items[0] : array();
+		$fields = array();
+		$steps = array();
+		foreach ($form_items as $i => $r) {
+			if ($i === 0 || !is_array($r) || !isset($r['id_']) || $r['id_'] === '') continue;
+			$t = isset($r['type']) ? (string) $r['type'] : '';
+			if ($t === 'step') $steps[(string) $r['id_']] = $r;
+			elseif (!in_array($t, array('form', 'option', 'r_matrix', 'buttonNav'), true)) $fields[(string) $r['id_']] = $r;
+		}
+		$package = isset($args['package']) ? (int) $args['package'] : self::current_package();
+		$plan = self::plan($package);
+		$caps = self::capabilities(array('package' => $package, 'settings' => isset($args['settings']) ? $args['settings'] : null));
+		$logic_limits = isset($caps['features']['limit:logic']['limits']) ? $caps['features']['limit:logic']['limits'] : array();
+		$limits = ($plan === 'pro') ? null : (isset($logic_limits[$plan]) ? $logic_limits[$plan] : (isset($logic_limits['free']) ? $logic_limits['free'] : null));
+
+		$check_group = function ($group, $collection, $rule_id, $path, $depth = 0) use (&$check_group, $err, $warn, $fields, $limits) {
+			if (!is_array($group)) { $err('invalid_conditions', $collection, $rule_id, $path); return 0; }
+			$op = strtoupper((string) (isset($group['operator']) ? $group['operator'] : 'AND'));
+			if (!in_array($op, array('AND', 'OR'), true)) $err('invalid_group_operator', $collection, $rule_id, $path . '.operator');
+			$items = isset($group['items']) && is_array($group['items']) ? $group['items'] : array();
+			// The add-on's builder counts direct conditions (not nested groups), on field rules only.
+			$direct = count(array_filter($items, function ($it) { return is_array($it) && !((isset($it['type']) && $it['type'] === 'group') || isset($it['items'])); }));
+			if ($collection === 'logic_rules' && is_array($limits) && isset($limits['conditions_per_group']) && $direct > $limits['conditions_per_group']) {
+				$err('limit_conditions_per_group', $collection, $rule_id, $path, array('max' => $limits['conditions_per_group']));
+			}
+			$count = 0;
+			foreach ($items as $k => $it) {
+				$p = $path . '.items[' . $k . ']';
+				if (!is_array($it)) { $err('invalid_condition', $collection, $rule_id, $p); continue; }
+				if ((isset($it['type']) && $it['type'] === 'group') || isset($it['items'])) {
+					if ($depth >= 5) { $err('conditions_too_deep', $collection, $rule_id, $p); continue; }
+					$count += $check_group($it, $collection, $rule_id, $p, $depth + 1);
+					continue;
+				}
+				$count++;
+				$source = isset($it['source']) ? (string) $it['source'] : 'field';
+				$fid = isset($it['field_id']) ? (string) $it['field_id'] : '';
+				$cmp = isset($it['compare']) ? (string) $it['compare'] : 'is';
+				if (!in_array($source, self::LOGIC_SOURCES, true)) $err('invalid_source', $collection, $rule_id, $p . '.source');
+				elseif ($source === 'field' && ($fid === '' || !isset($fields[$fid]))) $err('unknown_field', $collection, $rule_id, $p . '.field_id', array('field_id' => $fid));
+				elseif ($source === 'user' && !in_array($fid, array('logged_in', 'role'), true)) $err('invalid_user_condition', $collection, $rule_id, $p . '.field_id');
+				elseif ($source === 'query_param' && preg_replace('/[^A-Za-z0-9_\-\[\]]/', '', (string) (isset($it['param']) ? $it['param'] : $fid)) === '') $err('missing_param', $collection, $rule_id, $p . '.param');
+				if (!in_array($cmp, self::LOGIC_COMPARES, true)) $err('invalid_compare', $collection, $rule_id, $p . '.compare', array('compare' => $cmp));
+				$v = isset($it['value']) ? $it['value'] : '';
+				if (in_array($cmp, array('between', 'not_between', 'date_between'), true) && !(is_array($v) && count($v) === 2) && !(is_string($v) && count(explode(',', $v)) === 2)) {
+					$err('invalid_range', $collection, $rule_id, $p . '.value');
+				}
+				if (in_array($cmp, array('is_paid', 'is_not_paid', 'amount_eq', 'amount_gt', 'amount_lt'), true) && isset($fields[$fid]) && !in_array(strtolower((string) $fields[$fid]['type']), array('payment', 'stripe', 'paypal', 'persiapay'), true)) {
+					$warn('payment_compare_on_non_payment_field', $collection, $rule_id, $p);
+				}
+			}
+			return $count;
+		};
+
+		$collections = array('logic_rules', 'notification_rules', 'confirmation_rules', 'webhook_rules');
+		$counts = array();
+		foreach ($collections as $col) {
+			if (!isset($row0[$col])) { $counts[$col] = 0; continue; }
+			if (!is_array($row0[$col])) { $err('invalid_collection', $col, null, $col); $counts[$col] = 0; continue; }
+			$rules = $row0[$col];
+			$counts[$col] = count($rules);
+			$ids = array();
+			foreach ($rules as $n => $rule) {
+				$path = $col . '[' . $n . ']';
+				if (!is_array($rule)) { $err('invalid_rule', $col, null, $path); continue; }
+				$rid = isset($rule['id']) && is_scalar($rule['id']) ? (string) $rule['id'] : '';
+				if ($rid === '') $err('missing_rule_id', $col, null, $path . '.id');
+				elseif (isset($ids[$rid])) $err('duplicate_rule_id', $col, $rid, $path . '.id');
+				$ids[$rid] = true;
+				if (isset($rule['scope']) && !in_array($rule['scope'], self::LOGIC_SCOPES, true)) $err('invalid_scope', $col, $rid, $path . '.scope');
+				$conds = $check_group(isset($rule['conditions']) ? $rule['conditions'] : array(), $col, $rid, $path . '.conditions');
+				if ($col === 'logic_rules') {
+					$actions = isset($rule['actions']) && is_array($rule['actions']) ? $rule['actions'] : array();
+					if ($conds === 0 || empty($actions)) $warn('rule_inactive', $col, $rid, $path); // the validator ignores it
+					if (array_key_exists('enabled', $rule) && empty($rule['enabled'])) $warn('rule_disabled', $col, $rid, $path);
+					foreach ($actions as $a => $act) {
+						$ap = $path . '.actions[' . $a . ']';
+						$type = is_array($act) && isset($act['type']) ? (string) $act['type'] : '';
+						if (!in_array($type, self::LOGIC_ACTIONS, true)) { $err('invalid_action', $col, $rid, $ap . '.type', array('type' => $type)); continue; }
+						$target = isset($act['target']) ? (string) $act['target'] : '';
+						$is_step = in_array($type, array('show_step', 'hide_step', 'jump_to_step'), true);
+						if (!in_array($type, array('block_submit', 'end_form'), true)) {
+							if ($target === '' || ($is_step ? !isset($steps[$target]) : !isset($fields[$target]))) {
+								$err($is_step ? 'unknown_step' : 'unknown_target', $col, $rid, $ap . '.target', array('target' => $target));
+							}
+						}
+						if ($type === 'copy_value' && (!isset($act['value']) || !is_string($act['value']) || !isset($fields[$act['value']]))) $err('unknown_source_field', $col, $rid, $ap . '.value');
+						if ($type === 'set_value' && isset($act['value_type']) && !in_array($act['value_type'], array('static', 'autofill_key'), true)) $err('invalid_value_type', $col, $rid, $ap . '.value_type');
+						if ($type === 'calculate') {
+							$f = self::check_formula(isset($act['value']) ? $act['value'] : '', $fields);
+							if ($f !== true) $err($f, $col, $rid, $ap . '.value');
+							if (isset($act['decimals']) && (!is_numeric($act['decimals']) || (int) $act['decimals'] < 0 || (int) $act['decimals'] > 6)) $err('invalid_decimals', $col, $rid, $ap . '.decimals');
+							if (!self::plan_at_least('pro', $package)) $err('plan_required', $col, $rid, $ap, array('feature' => 'setting:logic_calculate', 'required_plan' => 'pro'));
+						}
+						if (in_array($type, array('show_message', 'block_submit', 'end_form', 'set_placeholder', 'set_help', 'set_label'), true) && isset($act['value']) && !is_scalar($act['value'])) {
+							$err('invalid_value', $col, $rid, $ap . '.value');
+						}
+					}
+				} elseif ($col === 'notification_rules') {
+					$to = isset($rule['recipient']) ? trim((string) $rule['recipient']) : '';
+					if ($to === '' || !filter_var($to, FILTER_VALIDATE_EMAIL)) $err('invalid_recipient', $col, $rid, $path . '.recipient');
+				} elseif ($col === 'confirmation_rules') {
+					$action = isset($rule['action']) ? (string) $rule['action'] : 'message';
+					if (!in_array($action, array('message', 'redirect'), true)) $err('invalid_confirmation_action', $col, $rid, $path . '.action');
+					if ($action === 'redirect' && !preg_match('#^https?://[^\s]+$#i', isset($rule['url']) ? (string) $rule['url'] : '')) $err('invalid_url', $col, $rid, $path . '.url');
+				} elseif ($col === 'webhook_rules') {
+					$action = isset($rule['action']) && $rule['action'] === 'stop' ? 'stop' : 'trigger';
+					if ($action === 'trigger' && !preg_match('#^https?://[^\s]+$#i', isset($rule['url']) ? (string) $rule['url'] : '')) $err('invalid_url', $col, $rid, $path . '.url');
+					if (isset($rule['method']) && !in_array(strtoupper((string) $rule['method']), array('POST', 'GET'), true)) $err('invalid_method', $col, $rid, $path . '.method');
+				}
+			}
+		}
+
+		// Plan limits (the add-on's builder enforces them; checked here so nothing is written that its UI refuses).
+		$total = array_sum($counts);
+		if ($total > 0 && !self::plan_at_least('free_plus', $package)) {
+			$err('plan_required', 'logic_rules', null, 'logic_rules', array('feature' => 'setting:logic_rules', 'required_plan' => 'free_plus'));
+		} elseif (is_array($limits)) {
+			if (isset($limits['field_rules']) && $counts['logic_rules'] > $limits['field_rules']) $err('limit_field_rules', 'logic_rules', null, 'logic_rules', array('max' => $limits['field_rules']));
+			if (isset($limits['notification_rules']) && $counts['notification_rules'] > $limits['notification_rules']) $err('limit_notification_rules', 'notification_rules', null, 'notification_rules', array('max' => $limits['notification_rules']));
+			foreach (array('confirmation_rules' => 'setting:confirmation_rules', 'webhook_rules' => 'setting:webhook_rules') as $col => $feature) {
+				if ($counts[$col] > 0 && !self::plan_at_least('pro', $package)) $err('plan_required', $col, null, $col, array('feature' => $feature, 'required_plan' => 'pro'));
+			}
+		}
+
+		// The add-on's own engine: it must run the rules without failing, and settle.
+		$validator = self::logic_validator();
+		$available = $validator !== null;
+		if (!$available) {
+			if ($total > 0 || !empty($args['require_addon'])) $err('logic_addon_missing', 'logic_rules', null, 'logic_rules', array('addon' => 'AdnSMF'));
+		} elseif (!empty($row0['logic_rules']) && is_array($row0['logic_rules'])) {
+			try {
+				if (method_exists($validator, 'set_environment')) $validator->set_environment(array('query' => array(), 'user' => array('logged_in' => false, 'roles' => array()), 'current_step' => 1));
+				$result = $validator->evaluate($form_items, array());
+				if (is_array($result) && isset($result['stabilized']) && $result['stabilized'] === false) $warn('rules_do_not_settle', 'logic_rules', null, 'logic_rules');
+			} catch (\Throwable $e) {
+				$err('evaluation_failed', 'logic_rules', null, 'logic_rules', array('message' => substr($e->getMessage(), 0, 200)));
+			}
+		}
+
+		return array(
+			'ok'          => empty($errors),
+			'available'   => $available,
+			'api_version' => defined('EMSFB_API_VERSION') ? EMSFB_API_VERSION : 1,
+			'plan'        => $plan,
+			'limits'      => $limits,
+			'counts'      => $counts,
+			'errors'      => $errors,
+			'warnings'    => $warnings,
+		);
+	}
+
+	/**
+	 * The calculate formula grammar of Emsfb_Logic_Validator::tokenize_calculation_formula()
+	 * and parse_calculation_*(): numbers, + - * / ( ), unary +/-, field references as {id},
+	 * [id] or a bare id; at most 500 characters. Returns true or an error code.
+	 */
+	public static function check_formula($formula, array $fields) {
+		if (!is_string($formula) || trim($formula) === '') return 'empty_formula';
+		if (strlen($formula) > 500) return 'formula_too_long';
+		$tokens = array();
+		$n = strlen($formula);
+		for ($i = 0; $i < $n;) {
+			$ch = $formula[$i];
+			if (ctype_space($ch)) { $i++; continue; }
+			if ($ch === '{' || $ch === '[') {
+				$end = strpos($formula, $ch === '{' ? '}' : ']', $i + 1);
+				if ($end === false) return 'formula_syntax';
+				$ref = trim(substr($formula, $i + 1, $end - $i - 1));
+				if ($ref === '') return 'formula_syntax';
+				$tokens[] = array('ref', $ref);
+				$i = $end + 1;
+				continue;
+			}
+			if (preg_match('/[0-9.]/', $ch)) {
+				$s = $i;
+				while ($i < $n && preg_match('/[0-9.]/', $formula[$i])) $i++;
+				if (!is_numeric(substr($formula, $s, $i - $s))) return 'formula_syntax';
+				$tokens[] = array('num', 0);
+				continue;
+			}
+			if (preg_match('/[A-Za-z_]/', $ch)) {
+				$s = $i;
+				while ($i < $n && preg_match('/[A-Za-z0-9_-]/', $formula[$i])) $i++;
+				$tokens[] = array('ref', substr($formula, $s, $i - $s));
+				continue;
+			}
+			if (strpos('+-*/()', $ch) !== false) { $tokens[] = array($ch === '(' || $ch === ')' ? $ch : 'op', $ch); $i++; continue; }
+			return 'formula_syntax';
+		}
+		foreach ($tokens as $t) {
+			if ($t[0] === 'ref' && !isset($fields[$t[1]])) return 'formula_unknown_field';
+		}
+		// Expression shape: operand (op operand)*, with unary signs and balanced parentheses.
+		$expect_operand = true;
+		$depth = 0;
+		foreach ($tokens as $t) {
+			if ($expect_operand) {
+				if ($t[0] === 'num' || $t[0] === 'ref') { $expect_operand = false; continue; }
+				if ($t[0] === '(') { $depth++; continue; }
+				if ($t[0] === 'op' && ($t[1] === '+' || $t[1] === '-')) continue;
+				return 'formula_syntax';
+			}
+			if ($t[0] === 'op') { $expect_operand = true; continue; }
+			if ($t[0] === ')') { if (--$depth < 0) return 'formula_syntax'; continue; }
+			return 'formula_syntax';
+		}
+		return (!$expect_operand && $depth === 0) ? true : 'formula_syntax';
+	}
+
 	/* ---------------------------------------------------------------- B2 */
 
 	private static $templates_cache = null;

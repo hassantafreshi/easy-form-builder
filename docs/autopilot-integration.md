@@ -22,6 +22,7 @@ node tests/test-ap-b4-login-register.js
 php tests/test-ap-b4-auth-save.php
 node tests/test-ap-b5-sms-filler.js
 php tests/test-ap-b5-sms-save.php
+php tests/test-ap-b6-logic-validate.php
 ```
 
 (The full list is in [Tests](#tests) at the end.)
@@ -436,3 +437,40 @@ Events on `document`:
   registry says whether `setting:sms_notifications` is `available_now`.
 - **Add-on note.** See "Add-on changes needed": the SMS add-on writes the texts into SQL without
   `$wpdb->prepare()`, so a text with an apostrophe is not stored.
+
+### B6. Conditional logic: validation API and documented schema
+
+- **What exists (verified in the add-on source, `vendores-efb/logic`).** `Emsfb_Logic_Validator`
+  has no "validate rules" method; it is the evaluator (`evaluate()`, `prepare_submission()`,
+  `validate_required_fields()`), with a real formula parser, a fixed-point loop (25 passes, reports
+  `stabilized:false`) and server-side sources. What EFB accepts on save is decided by core
+  (`sanitize_logic_rules()` and siblings in `functions.php`), which **drops** anything wrong
+  without a word. Plan limits live in the add-on's builder JS (`FREE_PLUS_LIMITS`: 3 field rules,
+  2 notification rules, 2 conditions per field-rule group; `PRO_ONLY_TABS`: confirmation, webhook;
+  `PRO_ONLY_ACTIONS`: calculate).
+- **New.** `efb_logic_validate_rules( array $form_items, array $args = [] ): array`
+  (`includes/builder-api-functions-efb.php` → `Builder_Api::logic_validate_rules()`):
+  - structural checks that report, with a stable `code`, the rule id and a path, everything the
+    save sanitizer would drop (unknown action / compare / source, unknown field, step or copy
+    source, bad ranges, notification without recipient, redirect / webhook without an http(s)
+    URL, …) and the formula grammar of the add-on's parser (`Builder_Api::check_formula()`);
+  - the plan limits from the capability registry (`limit:logic`, B3): Free has no rules,
+    Free Plus 3 / 2 / 2 and no `calculate`, confirmation or webhook rules;
+  - when the add-on is active its own engine runs the rules (`evaluate()`), reporting
+    `evaluation_failed` or the warning `rules_do_not_settle`; when it is not, the result carries
+    `available:false` and the error `logic_addon_missing`. The add-on's file is never loaded from
+    here (loading it registers its submission filters).
+- **Schema.** [`docs/logic-rules-schema.md`](logic-rules-schema.md): every collection, condition
+  source and operator (with the engine's semantics), every action with its `value` (in particular
+  `calculate`, `end_form`, `block_submit`, `set_value`), notification / confirmation / webhook rule
+  keys, the error codes, the stability promise (a breaking change bumps `EMSFB_API_VERSION`), and a
+  "not verified" list.
+- **Test.** `php tests/test-ap-b6-logic-validate.php`, against the real add-on validator (found in
+  `vendor/logic`, `EFB_LOGIC_VALIDATOR`, or `/home/user/vendores-efb`; the add-on part is skipped
+  without it) and in a second process without it: a valid Pro set passes; 18 error codes; Free /
+  Free Plus limits and `args.package`; the inactive-rule and non-settling warnings; the formula check
+  equals the add-on's parser on 15 formulas; the allowed action and operator lists equal the
+  sanitizer's; `logic_addon_missing` without the add-on. 33 passed.
+- **AutoPilot.** Before writing `logic_rules` (or the three other collections), call
+  `efb_logic_validate_rules($form)` on the server and write only when `ok` is true; show `errors` to
+  the admin by `code`. In chat, read `limits` to say what the plan allows.
