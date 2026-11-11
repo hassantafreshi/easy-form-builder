@@ -1360,7 +1360,7 @@ function efb_mask_fd_efb(el) {
     const all = (typeof ajax_object_efm !== 'undefined' && ajax_object_efm && ajax_object_efm.masks) ? ajax_object_efm.masks : null;
     let def = all ? all[ds.maskPreset] : null;
     if (!def || !def.regex) return null;
-    if (ds.maskStrict === '1' && def.regex_strict) def = Object.assign({}, def, { regex: def.regex_strict });
+    if (ds.maskStrict === '1' && EfbMasks.hasStrict(def)) def = EfbMasks.strictDef(def);
     return { kind: 'preset', def: def, store: store };
   }
   return null;

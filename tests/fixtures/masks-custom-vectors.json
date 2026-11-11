@@ -623,6 +623,41 @@
    "input": "+961 3 123 456",
    "expect": "+961 3 123 456",
    "note": "no typing mask: unchanged"
+  },
+  {
+   "preset": "in.mobile",
+   "input": "+91 98765 43210",
+   "expect": "9876543210",
+   "note": "mask without the trunk: no 0 added"
+  },
+  {
+   "preset": "in.mobile",
+   "input": "09876543210",
+   "expect": "9876543210",
+   "note": "typed trunk dropped for a mask without it"
+  },
+  {
+   "preset": "uk.mobile",
+   "input": "+44 7911 123456",
+   "expect": "07911123456",
+   "note": "mask with the trunk keeps it"
+  },
+  {
+   "preset": "br.mobile",
+   "input": "+55 11 91234-5678",
+   "expect": "11912345678",
+   "note": "Brazil masks do not show the trunk 0"
+  },
+  {
+   "preset": "br.mobile",
+   "input": "011912345678",
+   "expect": "11912345678",
+   "note": "domestic trunk 0 dropped"
+  },
+  {
+   "preset": "tr.mobile",
+   "input": "+90 532 123 4567",
+   "expect": "05321234567"
   }
  ],
  "format_display": [
@@ -655,6 +690,26 @@
    "preset": "ir.national_id",
    "input": "0012345679",
    "expect": "001-234567-9"
+  },
+  {
+   "preset": "in.mobile",
+   "input": "+919876543210",
+   "expect": "98765 43210"
+  },
+  {
+   "preset": "br.mobile",
+   "input": "+5511912345678",
+   "expect": "(11) 91234-5678"
+  },
+  {
+   "preset": "br.cnpj",
+   "input": "12abc34501de35",
+   "expect": "12.ABC.345/01DE-35"
+  },
+  {
+   "preset": "ly.mobile",
+   "input": "+218912345678",
+   "expect": "091-2345678"
   }
  ],
  "check_mask": [

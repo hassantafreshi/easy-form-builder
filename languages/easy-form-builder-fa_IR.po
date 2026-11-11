@@ -14901,3 +14901,339 @@ msgstr "نشانی وب"
 #: includes/functions.php
 msgid "No keyboard (custom widget)"
 msgstr "بدون صفحه‌کلید (ابزار اختصاصی)"
+
+#  origin: claude (fa_IR) F01
+#. translators: input format preset shown in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "Brazilian CPF"
+msgstr "کد CPF برزیل"
+
+#  origin: claude (fa_IR) F01
+#. translators: input format preset shown in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "Brazilian CNPJ (numeric or alphanumeric)"
+msgstr "شماره CNPJ برزیل (عددی یا حرفی‌عددی)"
+
+#  origin: claude (fa_IR) F01
+#. translators: input format preset shown in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "Brazilian CEP"
+msgstr "کد پستی برزیل (CEP)"
+
+#  origin: claude (fa_IR) F01
+#. translators: input format preset shown in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "Brazilian mobile"
+msgstr "شماره موبایل برزیل"
+
+#  origin: claude (fa_IR) F01
+#. translators: input format preset shown in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "Brazilian landline"
+msgstr "تلفن ثابت برزیل"
+
+#  origin: claude (fa_IR) F01
+#. translators: input format preset shown in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "Canadian SIN"
+msgstr "شماره بیمهٔ اجتماعی کانادا (SIN)"
+
+#  origin: claude (fa_IR) F01
+#. translators: input format preset shown in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "US ABA routing number"
+msgstr "شماره مسیریابی بانکی آمریکا (ABA)"
+
+#  origin: claude (fa_IR) F01
+#. translators: input format preset shown in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "US phone with extension"
+msgstr "تلفن آمریکا با داخلی"
+
+#  origin: claude (fa_IR) F01
+#. translators: input format preset shown in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "Time (HH:MM:SS)"
+msgstr "ساعت با ثانیه (۲۴ ساعته)"
+
+#  origin: claude (fa_IR) F01
+#. translators: input format preset shown in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "Date and time (DD/MM/YYYY HH:MM[:SS])"
+msgstr "تاریخ و ساعت (روز/ماه/سال)"
+
+#  origin: claude (fa_IR) F01
+#. translators: input format preset shown in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "Month and year (MM/YYYY)"
+msgstr "ماه و سال (MM/YYYY)"
+
+#  origin: claude (fa_IR) F01
+#. translators: input format preset shown in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "Vehicle identification number (VIN)"
+msgstr "شماره شناسایی خودرو (VIN)"
+
+#  origin: claude (fa_IR) F01
+#. translators: input format preset shown in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "SWIFT / BIC code"
+msgstr "کد SWIFT / BIC"
+
+#  origin: claude (fa_IR) F01
+#. translators: input format preset shown in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "UK bank sort code"
+msgstr "کد شعبهٔ بانک بریتانیا (Sort code)"
+
+#  origin: claude (fa_IR) F01
+#. translators: input format preset shown in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "Spanish DNI"
+msgstr "کارت ملی اسپانیا (DNI)"
+
+#  origin: claude (fa_IR) F01
+#. translators: input format preset shown in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "Spanish NIE"
+msgstr "شمارهٔ شناسایی اتباع خارجی اسپانیا (NIE)"
+
+#  origin: claude (fa_IR) F01
+#. translators: input format preset shown in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "Italian codice fiscale"
+msgstr "کد مالیاتی ایتالیا (Codice fiscale)"
+
+#  origin: claude (fa_IR) F01
+#. translators: input format preset shown in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "French SIREN"
+msgstr "شماره SIREN فرانسه"
+
+#  origin: claude (fa_IR) F01
+#. translators: input format preset shown in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "French SIRET"
+msgstr "شماره SIRET فرانسه"
+
+#  origin: claude (fa_IR) F01
+#. translators: input format preset shown in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "Dutch BSN"
+msgstr "شماره شهروندی هلند (BSN)"
+
+#  origin: claude (fa_IR) F01
+#. translators: input format preset shown in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "Dutch postcode"
+msgstr "کد پستی هلند"
+
+#  origin: claude (fa_IR) F01
+#. translators: input format preset shown in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "Mexican CURP"
+msgstr "کد CURP مکزیک"
+
+#  origin: claude (fa_IR) F01
+#. translators: input format preset shown in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "Turkish mobile"
+msgstr "شماره موبایل ترکیه"
+
+#  origin: claude (fa_IR) F01
+#. translators: input format preset shown in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "Turkish T.C. Kimlik No"
+msgstr "کد ملی ترکیه (TC Kimlik)"
+
+#  origin: claude (fa_IR) F01
+#. translators: input format preset shown in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "Pakistani mobile"
+msgstr "شماره موبایل پاکستان"
+
+#  origin: claude (fa_IR) F01
+#. translators: input format preset shown in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "Pakistani CNIC"
+msgstr "کارت ملی پاکستان (CNIC)"
+
+#  origin: claude (fa_IR) F01
+#. translators: input format preset shown in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "Afghan mobile"
+msgstr "شماره موبایل افغانستان"
+
+#  origin: claude (fa_IR) F01
+#. translators: input format preset shown in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "Palestinian mobile"
+msgstr "شماره موبایل فلسطین"
+
+#  origin: claude (fa_IR) F01
+#. translators: input format preset shown in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "Libyan mobile"
+msgstr "شماره موبایل لیبی"
+
+#  origin: claude (fa_IR) F01
+#. translators: input format preset shown in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "Sudanese mobile"
+msgstr "شماره موبایل سودان"
+
+#  origin: claude (fa_IR) F01
+#. translators: input format preset shown in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "Yemeni mobile"
+msgstr "شماره موبایل یمن"
+
+#  origin: claude (fa_IR) F01
+#. translators: input format preset shown in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "Syrian mobile"
+msgstr "شماره موبایل سوریه"
+
+#  origin: claude (fa_IR) F01
+#. translators: input format preset shown in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "Mauritanian mobile"
+msgstr "شماره موبایل موریتانی"
+
+#  origin: claude (fa_IR) F01
+#. translators: input format preset shown in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "Egyptian tax registration number"
+msgstr "شماره ثبت مالیاتی مصر"
+
+#  origin: claude (fa_IR) F01
+#. translators: input format preset shown in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "Moroccan ICE"
+msgstr "شناسهٔ مشترک شرکت مراکش (ICE)"
+
+#  origin: claude (fa_IR) F01
+#. translators: input format preset shown in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "Algerian NIF"
+msgstr "شماره شناسایی مالیاتی الجزایر (NIF)"
+
+#  origin: claude (fa_IR) F01
+#. translators: input format preset shown in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "Tunisian matricule fiscal"
+msgstr "شناسهٔ مالیاتی تونس (Matricule fiscal)"
+
+#  origin: claude (fa_IR) F01
+#. translators: input format preset shown in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "Indian GSTIN"
+msgstr "شماره GSTIN هند"
+
+#  origin: claude (fa_IR) F01
+#. translators: input format preset shown in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "Indian IFSC"
+msgstr "کد IFSC بانک هند"
+
+#  origin: claude (fa_IR) F01
+#. translators: input format preset shown in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "IMEI"
+msgstr "شماره IMEI گوشی"
+
+#  origin: claude (fa_IR) F01
+#. translators: input format preset shown in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "GTIN / EAN / UPC barcode"
+msgstr "بارکد کالا (GTIN / EAN / UPC)"
+
+#  origin: claude (fa_IR) F01
+#. translators: country group in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "Brazil"
+msgstr "برزیل"
+
+#  origin: claude (fa_IR) F01
+#. translators: country group in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "Spain"
+msgstr "اسپانیا"
+
+#  origin: claude (fa_IR) F01
+#. translators: country group in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "Italy"
+msgstr "ایتالیا"
+
+#  origin: claude (fa_IR) F01
+#. translators: country group in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "France"
+msgstr "فرانسه"
+
+#  origin: claude (fa_IR) F01
+#. translators: country group in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "Netherlands"
+msgstr "هلند"
+
+#  origin: claude (fa_IR) F01
+#. translators: country group in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "Mexico"
+msgstr "مکزیک"
+
+#  origin: claude (fa_IR) F01
+#. translators: country group in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "Türkiye"
+msgstr "ترکیه"
+
+#  origin: claude (fa_IR) F01
+#. translators: country group in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "Pakistan"
+msgstr "پاکستان"
+
+#  origin: claude (fa_IR) F01
+#. translators: country group in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "Afghanistan"
+msgstr "افغانستان"
+
+#  origin: claude (fa_IR) F01
+#. translators: country group in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "Palestine"
+msgstr "فلسطین"
+
+#  origin: claude (fa_IR) F01
+#. translators: country group in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "Libya"
+msgstr "لیبی"
+
+#  origin: claude (fa_IR) F01
+#. translators: country group in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "Sudan"
+msgstr "سودان"
+
+#  origin: claude (fa_IR) F01
+#. translators: country group in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "Yemen"
+msgstr "یمن"
+
+#  origin: claude (fa_IR) F01
+#. translators: country group in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "Syria"
+msgstr "سوریه"
+
+#  origin: claude (fa_IR) F01
+#. translators: country group in the form builder's "Format / mask" list
+#: includes/data/masks-labels-efb.php
+msgid "Mauritania"
+msgstr "موریتانی"

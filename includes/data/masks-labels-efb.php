@@ -217,6 +217,88 @@ class Masks_Labels {
 			'intl.license_key' => __('License key (XXXX-XXXX-XXXX-XXXX)', 'easy-form-builder'),
 			/* translators: input format preset shown in the form builder's "Format / mask" list */
 			'intl.passport' => __('Passport number (generic)', 'easy-form-builder'),
+			/* translators: input format preset shown in the form builder's "Format / mask" list */
+			'br.cpf' => __('Brazilian CPF', 'easy-form-builder'),
+			/* translators: input format preset shown in the form builder's "Format / mask" list */
+			'br.cnpj' => __('Brazilian CNPJ (numeric or alphanumeric)', 'easy-form-builder'),
+			/* translators: input format preset shown in the form builder's "Format / mask" list */
+			'br.cep' => __('Brazilian CEP', 'easy-form-builder'),
+			/* translators: input format preset shown in the form builder's "Format / mask" list */
+			'br.mobile' => __('Brazilian mobile', 'easy-form-builder'),
+			/* translators: input format preset shown in the form builder's "Format / mask" list */
+			'br.phone' => __('Brazilian landline', 'easy-form-builder'),
+			/* translators: input format preset shown in the form builder's "Format / mask" list */
+			'ca.sin' => __('Canadian SIN', 'easy-form-builder'),
+			/* translators: input format preset shown in the form builder's "Format / mask" list */
+			'us.routing_number' => __('US ABA routing number', 'easy-form-builder'),
+			/* translators: input format preset shown in the form builder's "Format / mask" list */
+			'us.phone_ext' => __('US phone with extension', 'easy-form-builder'),
+			/* translators: input format preset shown in the form builder's "Format / mask" list */
+			'intl.time_24s' => __('Time (HH:MM:SS)', 'easy-form-builder'),
+			/* translators: input format preset shown in the form builder's "Format / mask" list */
+			'intl.datetime_dmy' => __('Date and time (DD/MM/YYYY HH:MM[:SS])', 'easy-form-builder'),
+			/* translators: input format preset shown in the form builder's "Format / mask" list */
+			'intl.month_year' => __('Month and year (MM/YYYY)', 'easy-form-builder'),
+			/* translators: input format preset shown in the form builder's "Format / mask" list */
+			'intl.vin' => __('Vehicle identification number (VIN)', 'easy-form-builder'),
+			/* translators: input format preset shown in the form builder's "Format / mask" list */
+			'intl.swift_bic' => __('SWIFT / BIC code', 'easy-form-builder'),
+			/* translators: input format preset shown in the form builder's "Format / mask" list */
+			'uk.sort_code' => __('UK bank sort code', 'easy-form-builder'),
+			/* translators: input format preset shown in the form builder's "Format / mask" list */
+			'es.dni' => __('Spanish DNI', 'easy-form-builder'),
+			/* translators: input format preset shown in the form builder's "Format / mask" list */
+			'es.nie' => __('Spanish NIE', 'easy-form-builder'),
+			/* translators: input format preset shown in the form builder's "Format / mask" list */
+			'it.codice_fiscale' => __('Italian codice fiscale', 'easy-form-builder'),
+			/* translators: input format preset shown in the form builder's "Format / mask" list */
+			'fr.siren' => __('French SIREN', 'easy-form-builder'),
+			/* translators: input format preset shown in the form builder's "Format / mask" list */
+			'fr.siret' => __('French SIRET', 'easy-form-builder'),
+			/* translators: input format preset shown in the form builder's "Format / mask" list */
+			'nl.bsn' => __('Dutch BSN', 'easy-form-builder'),
+			/* translators: input format preset shown in the form builder's "Format / mask" list */
+			'nl.postcode' => __('Dutch postcode', 'easy-form-builder'),
+			/* translators: input format preset shown in the form builder's "Format / mask" list */
+			'mx.curp' => __('Mexican CURP', 'easy-form-builder'),
+			/* translators: input format preset shown in the form builder's "Format / mask" list */
+			'tr.mobile' => __('Turkish mobile', 'easy-form-builder'),
+			/* translators: input format preset shown in the form builder's "Format / mask" list */
+			'tr.tc_kimlik' => __('Turkish T.C. Kimlik No', 'easy-form-builder'),
+			/* translators: input format preset shown in the form builder's "Format / mask" list */
+			'pk.mobile' => __('Pakistani mobile', 'easy-form-builder'),
+			/* translators: input format preset shown in the form builder's "Format / mask" list */
+			'pk.cnic' => __('Pakistani CNIC', 'easy-form-builder'),
+			/* translators: input format preset shown in the form builder's "Format / mask" list */
+			'af.mobile' => __('Afghan mobile', 'easy-form-builder'),
+			/* translators: input format preset shown in the form builder's "Format / mask" list */
+			'ps.mobile' => __('Palestinian mobile', 'easy-form-builder'),
+			/* translators: input format preset shown in the form builder's "Format / mask" list */
+			'ly.mobile' => __('Libyan mobile', 'easy-form-builder'),
+			/* translators: input format preset shown in the form builder's "Format / mask" list */
+			'sd.mobile' => __('Sudanese mobile', 'easy-form-builder'),
+			/* translators: input format preset shown in the form builder's "Format / mask" list */
+			'ye.mobile' => __('Yemeni mobile', 'easy-form-builder'),
+			/* translators: input format preset shown in the form builder's "Format / mask" list */
+			'sy.mobile' => __('Syrian mobile', 'easy-form-builder'),
+			/* translators: input format preset shown in the form builder's "Format / mask" list */
+			'mr.mobile' => __('Mauritanian mobile', 'easy-form-builder'),
+			/* translators: input format preset shown in the form builder's "Format / mask" list */
+			'eg.tax_id' => __('Egyptian tax registration number', 'easy-form-builder'),
+			/* translators: input format preset shown in the form builder's "Format / mask" list */
+			'ma.ice' => __('Moroccan ICE', 'easy-form-builder'),
+			/* translators: input format preset shown in the form builder's "Format / mask" list */
+			'dz.nif' => __('Algerian NIF', 'easy-form-builder'),
+			/* translators: input format preset shown in the form builder's "Format / mask" list */
+			'tn.mf' => __('Tunisian matricule fiscal', 'easy-form-builder'),
+			/* translators: input format preset shown in the form builder's "Format / mask" list */
+			'in.gstin' => __('Indian GSTIN', 'easy-form-builder'),
+			/* translators: input format preset shown in the form builder's "Format / mask" list */
+			'in.ifsc' => __('Indian IFSC', 'easy-form-builder'),
+			/* translators: input format preset shown in the form builder's "Format / mask" list */
+			'intl.imei' => __('IMEI', 'easy-form-builder'),
+			/* translators: input format preset shown in the form builder's "Format / mask" list */
+			'intl.gtin' => __('GTIN / EAN / UPC barcode', 'easy-form-builder'),
 		);
 	}
 
@@ -265,6 +347,36 @@ class Masks_Labels {
 			'de' => __('Germany', 'easy-form-builder'),
 			/* translators: country group in the form builder's "Format / mask" list */
 			'intl' => __('International', 'easy-form-builder'),
+			/* translators: country group in the form builder's "Format / mask" list */
+			'br' => __('Brazil', 'easy-form-builder'),
+			/* translators: country group in the form builder's "Format / mask" list */
+			'es' => __('Spain', 'easy-form-builder'),
+			/* translators: country group in the form builder's "Format / mask" list */
+			'it' => __('Italy', 'easy-form-builder'),
+			/* translators: country group in the form builder's "Format / mask" list */
+			'fr' => __('France', 'easy-form-builder'),
+			/* translators: country group in the form builder's "Format / mask" list */
+			'nl' => __('Netherlands', 'easy-form-builder'),
+			/* translators: country group in the form builder's "Format / mask" list */
+			'mx' => __('Mexico', 'easy-form-builder'),
+			/* translators: country group in the form builder's "Format / mask" list */
+			'tr' => __('Türkiye', 'easy-form-builder'),
+			/* translators: country group in the form builder's "Format / mask" list */
+			'pk' => __('Pakistan', 'easy-form-builder'),
+			/* translators: country group in the form builder's "Format / mask" list */
+			'af' => __('Afghanistan', 'easy-form-builder'),
+			/* translators: country group in the form builder's "Format / mask" list */
+			'ps' => __('Palestine', 'easy-form-builder'),
+			/* translators: country group in the form builder's "Format / mask" list */
+			'ly' => __('Libya', 'easy-form-builder'),
+			/* translators: country group in the form builder's "Format / mask" list */
+			'sd' => __('Sudan', 'easy-form-builder'),
+			/* translators: country group in the form builder's "Format / mask" list */
+			'ye' => __('Yemen', 'easy-form-builder'),
+			/* translators: country group in the form builder's "Format / mask" list */
+			'sy' => __('Syria', 'easy-form-builder'),
+			/* translators: country group in the form builder's "Format / mask" list */
+			'mr' => __('Mauritania', 'easy-form-builder'),
 		);
 	}
 

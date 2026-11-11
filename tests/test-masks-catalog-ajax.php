@@ -84,7 +84,7 @@ sort($catIds);
 efbt_reset(array('user_locale' => 'fa_IR', 'site_locale' => 'fa_IR'));
 $r = efbt_call();
 efbt('fa_IR: success', is_array($r) && $r['success'] === true && $r['version'] === 1);
-efbt('fa_IR: Iran group first, International second', $r['groups'][0]['country'] === 'ir' && $r['groups'][1]['country'] === 'intl');
+efbt('fa_IR: Iran first, then Afghanistan, then International', $r['groups'][0]['country'] === 'ir' && $r['groups'][1]['country'] === 'af' && $r['groups'][2]['country'] === 'intl');
 $ir = $r['groups'][0]['presets'][0];
 efbt('fa_IR: Persian label and placeholder', $ir['id'] === 'ir.mobile' && $ir['label'] === 'شماره موبایل' && $ir['placeholder'] === '۰۹۱۲ ۳۴۵ ۶۷۸۹');
 efbt('preset row has exactly the documented keys', array_keys($ir) === array('id', 'label', 'placeholder', 'category', 'mask', 'formatter', 'checksum', 'inputmode', 'autocomplete', 'verification', 'has_strict'));
@@ -99,14 +99,14 @@ foreach ($r['groups'] as $g) {
 	}
 }
 sort($ids);
-efbt('every catalog id is listed once (99)', $ids === $catIds && count($ids) === 99);
+efbt('every catalog id is listed once (' . count($catIds) . ')', $ids === $catIds && count($ids) >= 140);
 efbt('every preset has a label', $labelled);
 efbt('no regex or examples are sent to the builder', !$leak);
 $rtLeak = false;
 foreach ($r['runtime'] as $rt) {
 	$rtLeak = $rtLeak || isset($rt['examples_valid']) || isset($rt['metadata']) || isset($rt['sources']) || !isset($rt['regex']);
 }
-efbt('runtime entries for the builder preview: 99, engine fields only', count($r['runtime']) === 99 && !$rtLeak && $r['runtime']['ir.mobile']['placeholder'] === '۰۹۱۲ ۳۴۵ ۶۷۸۹');
+efbt('runtime entries for the builder preview: one per preset, engine fields only', count($r['runtime']) === count($catIds) && !$rtLeak && $r['runtime']['ir.mobile']['placeholder'] === '۰۹۱۲ ۳۴۵ ۶۷۸۹');
 efbt('response is cached for a day', $GLOBALS['efbt']['cache_sets'] === 1 && $GLOBALS['efbt']['last_expire'] === 86400 && isset($GLOBALS['efbt']['cache']['emsfb|efb_masks_cat_fa_IR_fa_IR_4.3.1-test']));
 $r2 = efbt_call();
 efbt('second call served from the cache', $GLOBALS['efbt']['cache_sets'] === 1 && $r2 === $r);
@@ -120,17 +120,25 @@ efbt('translation pack label is used', $r['groups'][0]['presets'][0]['label'] ==
 efbt_reset(array('user_locale' => 'ar', 'site_locale' => 'ar_EG'));
 $r = efbt_call();
 $order = array_map(function ($g) { return $g['country']; }, $r['groups']);
-efbt('ar_EG: Egypt first, Arab countries next, then International', array_slice($order, 0, 14) === array('eg', 'sa', 'ae', 'kw', 'qa', 'bh', 'om', 'jo', 'iq', 'lb', 'ma', 'dz', 'tn', 'intl'));
+efbt('ar_EG: Egypt first, Arab countries next, then International', array_slice($order, 0, 20) === array('eg', 'sa', 'ae', 'kw', 'qa', 'bh', 'om', 'jo', 'iq', 'lb', 'ma', 'dz', 'tn', 'ps', 'ly', 'sd', 'ye', 'sy', 'mr', 'intl'));
 efbt('ar: Arabic labels from the catalog', $r['groups'][0]['presets'][0]['label'] === 'رقم المحمول المصري');
 
 efbt_reset(array('user_locale' => 'en_US', 'site_locale' => 'en_US'));
 $r = efbt_call();
 $order = array_map(function ($g) { return $g['country']; }, $r['groups']);
+efbt_reset(array('user_locale' => 'pt_BR', 'site_locale' => 'pt_BR'));
+$r = efbt_call();
+efbt('pt_BR: Brazil group first', $r['groups'][0]['country'] === 'br' && $r['groups'][1]['country'] === 'intl');
+efbt_reset(array('user_locale' => 'tr_TR', 'site_locale' => 'tr_TR'));
+$r = efbt_call();
+efbt('tr_TR: Türkiye group first', $r['groups'][0]['country'] === 'tr');
+efbt_reset(array('user_locale' => 'en_US', 'site_locale' => 'en_US'));
+$r = efbt_call();
 efbt('en_US: United States first, then International', $order[0] === 'us' && $order[1] === 'intl');
 $restLabels = array_map(function ($g) { return $g['label']; }, array_slice($r['groups'], 2));
 $sorted = $restLabels;
 sort($sorted, SORT_STRING);
-efbt('en_US: remaining groups alphabetical', $restLabels === $sorted && count($r['groups']) === 21);
+efbt('en_US: remaining groups alphabetical', $restLabels === $sorted && count($r['groups']) === count(\Emsfb\Masks_Labels::groups()));
 efbt('en_US: English labels', $r['groups'][0]['presets'][0]['label'] === 'US / Canada phone (NANP)');
 
 efbt_reset(array('user_locale' => 'en_GB', 'site_locale' => 'en_GB'));
@@ -153,9 +161,10 @@ foreach ($cat['masks'] as $m) {
 	$same = $same && $labels[$m['id']] === $m['label']['en'];
 }
 efbt('labels file English text equals catalog label.en', $same);
-efbt('labels file has 21 groups', count(\Emsfb\Masks_Labels::groups()) === 21);
+$prefixes = array_unique(array_map(function ($id) { return substr($id, 0, strpos($id, '.')); }, $catIds));
+efbt('labels file has one group per id prefix (' . count($prefixes) . ')', count(\Emsfb\Masks_Labels::groups()) === count($prefixes) && !array_diff($prefixes, array_keys(\Emsfb\Masks_Labels::groups())));
 $lsrc = file_get_contents(__DIR__ . '/../includes/data/masks-labels-efb.php');
-efbt('labels are literal __() calls with the plugin text domain', preg_match_all("/__\\('[^']+', 'easy-form-builder'\\)/", $lsrc) === 120);
+efbt('labels are literal __() calls with the plugin text domain', preg_match_all("/__\\('[^']+', 'easy-form-builder'\\)/", $lsrc) === count($catIds) + count(\Emsfb\Masks_Labels::groups()));
 
 // Builder phrases exist in text_efb().
 $fsrc = file_get_contents(__DIR__ . '/../includes/functions.php');

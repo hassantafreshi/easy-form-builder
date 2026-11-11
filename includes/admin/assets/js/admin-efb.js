@@ -2166,7 +2166,7 @@ function efb_mask_preview_fd_efb(el) {
   const rt = window.efbMasksCatalogDataEfb && window.efbMasksCatalogDataEfb.runtime;
   let def = ds.maskPreset && rt ? rt[ds.maskPreset] : null;
   if (!def || !def.regex) return null;
-  if (ds.maskStrict === '1' && def.regex_strict) def = Object.assign({}, def, { regex: def.regex_strict });
+  if (ds.maskStrict === '1' && EfbMasks.hasStrict(def)) def = EfbMasks.strictDef(def);
   return { kind: 'preset', def: def, store: store };
 }
 function efb_mask_preview_error_efb(el, code, fd) {

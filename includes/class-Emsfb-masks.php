@@ -39,7 +39,7 @@ class Masks {
 	const CUSTOM_CHECKSUMS = array('luhn', 'iso7064_mod97_10', 'iran_national_code', 'verhoeff');
 
 	/** Catalog fields sent to the browser for one preset (no examples, metadata, notes or sources). */
-	const RUNTIME_FIELDS = array('id', 'category', 'mask', 'formatter', 'regex', 'regex_strict', 'checksum', 'validator',
+	const RUNTIME_FIELDS = array('id', 'category', 'mask', 'formatter', 'regex', 'regex_strict', 'checksum', 'checksum_strict', 'validator',
 		'calendar', 'date_order', 'year_range', 'strip', 'uppercase', 'fold_letters', 'pad_left', 'store', 'e164',
 		'inputmode', 'dir');
 
@@ -343,7 +343,7 @@ class Masks {
 	}
 
 	public static function nanp($v) {
-		$d = preg_replace('/^\+?1(?=\d{10}$)/', '', $v);
+		$d = preg_replace('/^\+?1(?=\d{10}$)/', '', preg_replace('/x\d{1,5}$/', '', $v)); // extension is not part of the number
 		if (!preg_match('/^[2-9]\d{2}[2-9]\d{6}$/', $d)) {
 			return false;
 		}
@@ -487,6 +487,194 @@ class Masks {
 	}
 	// #endregion dates
 
+	// #region market-research checksums (F01-I; twins of the JS functions of the same names)
+	// A checksum may return 'rule' for a value that passes the arithmetic but is never issued.
+	public static function br_cpf($v) {
+		if (!preg_match('/^\d{11}$/', $v)) {
+			return false;
+		}
+		if (preg_match('/^(\d)\1{10}$/', $v)) {
+			return 'rule';
+		}
+		$s = 0;
+		for ($i = 0; $i < 9; $i++) {
+			$s += (int) $v[$i] * (10 - $i);
+		}
+		$r = $s % 11;
+		if (($r < 2 ? 0 : 11 - $r) !== (int) $v[9]) {
+			return false;
+		}
+		$s = 0;
+		for ($i = 0; $i < 10; $i++) {
+			$s += (int) $v[$i] * (11 - $i);
+		}
+		$r = $s % 11;
+		return ($r < 2 ? 0 : 11 - $r) === (int) $v[10];
+	}
+
+	public static function br_cnpj($v) {
+		if (!preg_match('/^[0-9A-Z]{12}\d{2}$/', $v)) {
+			return false;
+		}
+		if (strpos($v, '000000000000') === 0) {
+			return 'rule';
+		}
+		$w1 = array(5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2);
+		$w2 = array(6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2);
+		$s = 0;
+		for ($i = 0; $i < 12; $i++) {
+			$s += (ord($v[$i]) - 48) * $w1[$i];
+		}
+		$r = $s % 11;
+		if (($r < 2 ? 0 : 11 - $r) !== ord($v[12]) - 48) {
+			return false;
+		}
+		$s = 0;
+		for ($i = 0; $i < 13; $i++) {
+			$s += (ord($v[$i]) - 48) * $w2[$i];
+		}
+		$r = $s % 11;
+		return ($r < 2 ? 0 : 11 - $r) === ord($v[13]) - 48;
+	}
+
+	public static function us_aba($v) {
+		if (!preg_match('/^\d{9}$/', $v)) {
+			return false;
+		}
+		$d = array_map('intval', str_split($v));
+		return (3 * ($d[0] + $d[3] + $d[6]) + 7 * ($d[1] + $d[4] + $d[7]) + ($d[2] + $d[5] + $d[8])) % 10 === 0;
+	}
+
+	public static function es_dni($v) {
+		return (bool) preg_match('/^\d{8}[A-Z]$/', $v) && substr('TRWAGMYFPDXBNJZSQVHLCKE', ((int) substr($v, 0, 8)) % 23, 1) === $v[8];
+	}
+
+	public static function es_nie($v) {
+		return (bool) preg_match('/^[XYZ]\d{7}[A-Z]$/', $v) && self::es_dni((string) strpos('XYZ', $v[0]) . substr($v, 1));
+	}
+
+	public static function it_codice_fiscale($v) {
+		static $odd = array('0' => 1, '1' => 0, '2' => 5, '3' => 7, '4' => 9, '5' => 13, '6' => 15, '7' => 17, '8' => 19, '9' => 21,
+			'A' => 1, 'B' => 0, 'C' => 5, 'D' => 7, 'E' => 9, 'F' => 13, 'G' => 15, 'H' => 17, 'I' => 19, 'J' => 21, 'K' => 2, 'L' => 4,
+			'M' => 18, 'N' => 20, 'O' => 11, 'P' => 3, 'Q' => 6, 'R' => 8, 'S' => 12, 'T' => 14, 'U' => 16, 'V' => 10, 'W' => 22, 'X' => 25,
+			'Y' => 24, 'Z' => 23);
+		if (!preg_match('/^[A-Z0-9]{15}[A-Z]$/', $v)) {
+			return false;
+		}
+		$s = 0;
+		for ($i = 0; $i < 15; $i++) {
+			$c = $v[$i];
+			$s += $i % 2 === 0 ? $odd[$c] : (ctype_digit($c) ? ord($c) - 48 : ord($c) - 65);
+		}
+		return chr(65 + $s % 26) === $v[15];
+	}
+
+	public static function tr_tckimlik($v) {
+		if (!preg_match('/^[1-9]\d{10}$/', $v)) {
+			return false;
+		}
+		$d = array_map('intval', str_split($v));
+		$t = (($d[0] + $d[2] + $d[4] + $d[6] + $d[8]) * 7 - ($d[1] + $d[3] + $d[5] + $d[7])) % 10;
+		if ($t < 0) {
+			$t += 10;
+		}
+		return $t === $d[9] && array_sum(array_slice($d, 0, 10)) % 10 === $d[10];
+	}
+
+	public static function vin_na($v) {
+		static $values = '0123456789.ABCDEFGH..JKLMN.P.R..STUVWXYZ';
+		static $weights = array(8, 7, 6, 5, 4, 3, 2, 10, 0, 9, 8, 7, 6, 5, 4, 3, 2);
+		if (!preg_match('/^[A-HJ-NPR-Z0-9]{17}$/', $v)) {
+			return false;
+		}
+		$s = 0;
+		for ($i = 0; $i < 17; $i++) {
+			$s += (strpos($values, $v[$i]) % 10) * $weights[$i];
+		}
+		$r = $s % 11;
+		return ($r === 10 ? 'X' : (string) $r) === $v[8];
+	}
+
+	public static function mod97_0($v) {
+		return (bool) preg_match('/^\d+$/', $v) && self::mod97($v) === 0;
+	}
+
+	public static function nl_bsn($v) {
+		if (!preg_match('/^\d{9}$/', $v)) {
+			return false;
+		}
+		$s = 0;
+		for ($i = 0; $i < 8; $i++) {
+			$s += (int) $v[$i] * (9 - $i);
+		}
+		return ($s - (int) $v[8]) % 11 === 0;
+	}
+
+	public static function mx_curp($v) {
+		static $alphabet = '0123456789ABCDEFGHIJKLMN&OPQRSTUVWXYZ';
+		if (!preg_match('/^[A-Z]{4}\d{6}[A-Z]{6}[0-9A-Z]\d$/', $v)) {
+			return false;
+		}
+		$s = 0;
+		for ($i = 0; $i < 17; $i++) {
+			$s += strpos($alphabet, $v[$i]) * (18 - $i);
+		}
+		return (10 - $s % 10) % 10 === (int) $v[17];
+	}
+
+	public static function luhn_mod36($v) {
+		static $alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+		if (!preg_match('/^[0-9A-Z]+$/', $v)) {
+			return false;
+		}
+		$s = 0;
+		$len = strlen($v);
+		for ($i = 0; $i < $len; $i++) {
+			$x = strpos($alphabet, $v[$len - 1 - $i]);
+			if ($i % 2 === 1) {
+				$x *= 2;
+				$x = intdiv($x, 36) + $x % 36;
+			}
+			$s += $x;
+		}
+		return $s % 36 === 0;
+	}
+
+	public static function gs1_mod10($v) {
+		if (!preg_match('/^\d{8,14}$/', $v)) {
+			return false;
+		}
+		$s = 0;
+		$len = strlen($v);
+		for ($i = 0; $i < $len; $i++) {
+			$s += (int) $v[$len - 1 - $i] * ($i % 2 ? 3 : 1);
+		}
+		return $s % 10 === 0;
+	}
+
+	public static function fr_siret($v) {
+		if (!preg_match('/^\d{14}$/', $v)) {
+			return false;
+		}
+		if (substr($v, 0, 9) === '356000000') {
+			return array_sum(array_map('intval', str_split($v))) % 5 === 0;
+		}
+		return self::luhn($v);
+	}
+
+	public static function valid_datetime($v, $mask) {
+		$sp = strpos($v, ' ');
+		return $sp !== false && $sp > 0 && self::valid_date(substr($v, 0, $sp), $mask);
+	}
+
+	public static function month_year($v) {
+		if (!preg_match('/^(\d{2})\/(\d{4})$/', $v, $m)) {
+			return false;
+		}
+		return (int) $m[1] >= 1 && (int) $m[1] <= 12;
+	}
+	// #endregion market-research checksums
+
 	// #region dispatch
 	public static function validate($mask, $raw) {
 		static $checksums = array(
@@ -494,10 +682,14 @@ class Masks {
 			'iran_national_code' => 'iran_national_code', 'iran_legal_id' => 'iran_legal_id',
 			'saudi_nin' => 'saudi_nin', 'emirates_id' => 'emirates_id',
 			'kuwait_civil_id' => 'kuwait_civil_id', 'au_abn' => 'au_abn', 'card' => 'card',
+			'br_cpf' => 'br_cpf', 'br_cnpj' => 'br_cnpj', 'us_aba' => 'us_aba', 'es_dni' => 'es_dni', 'es_nie' => 'es_nie',
+			'it_codice_fiscale' => 'it_codice_fiscale', 'tr_tckimlik' => 'tr_tckimlik', 'vin_na' => 'vin_na', 'mod97_0' => 'mod97_0',
+			'nl_bsn' => 'nl_bsn', 'mx_curp' => 'mx_curp', 'luhn_mod36' => 'luhn_mod36', 'gs1_mod10' => 'gs1_mod10', 'fr_siret' => 'fr_siret',
 		);
 		static $validators = array(
 			'date' => 'valid_date', 'card_expiry' => 'card_expiry', 'egypt_nid' => 'egypt_nid',
 			'uk_nino' => 'uk_nino', 'us_ssn' => 'us_ssn', 'us_ein' => 'us_ein', 'nanp' => 'nanp',
+			'datetime' => 'valid_datetime', 'month_year' => 'month_year',
 		);
 		$v = self::normalize($raw, $mask);
 		if ($v === '') {
@@ -514,7 +706,11 @@ class Masks {
 			if (!isset($checksums[$mask['checksum']])) {
 				throw new \InvalidArgumentException('Unknown checksum ' . $mask['checksum']);
 			}
-			if (!call_user_func(array(__CLASS__, $checksums[$mask['checksum']]), $v)) {
+			$cr = call_user_func(array(__CLASS__, $checksums[$mask['checksum']]), $v);
+			if ($cr === 'rule') {
+				return array('ok' => false, 'code' => 'rule', 'value' => $v);
+			}
+			if (!$cr) {
 				return array('ok' => false, 'code' => 'checksum', 'value' => $v);
 			}
 		}
@@ -930,13 +1126,25 @@ class Masks {
 			&& in_array(strlen($d) - $ccl, $nsn, true)) {
 			$rest = (string) substr($d, $ccl);
 		}
+		// Masks that do not show the trunk (Brazil, India) get the bare national number; a national number
+		// typed with its trunk drops it there too.
+		$toks = self::compile_mask($mask['mask']);
+		$shows_trunk = $trunk !== '';
+		for ($k = 0; $k < strlen($trunk); $k++) {
+			if (!isset($toks[$k]) || $toks[$k]['k'] !== 'lit' || $toks[$k]['ch'] !== $trunk[$k]) {
+				$shows_trunk = false;
+			}
+		}
 		if ($rest === null) {
+			if ($trunk !== '' && !$shows_trunk && substr($d, 0, strlen($trunk)) === $trunk && in_array(strlen($d) - strlen($trunk), $nsn, true)) {
+				return (string) substr($d, strlen($trunk));
+			}
 			return $s;
 		}
 		if ($trunk !== '' && substr($rest, 0, strlen($trunk)) === $trunk) {
 			$rest = (string) substr($rest, strlen($trunk));
 		}
-		return $trunk . $rest;
+		return ($shows_trunk ? $trunk : '') . $rest;
 	}
 
 	/** What the input box shows for a stored or pasted value. */
@@ -990,6 +1198,22 @@ class Masks {
 		self::$catalog = null;
 		self::$index = null;
 		self::$logged = array();
+	}
+
+	/** True when a preset has a strict variant (regex_strict and/or checksum_strict). */
+	public static function has_strict($m) {
+		return is_array($m) && (!empty($m['regex_strict']) || !empty($m['checksum_strict']));
+	}
+
+	/** The preset with its strict rules switched on (mask_strict = 1). */
+	public static function strict_def($m) {
+		if (!empty($m['regex_strict'])) {
+			$m['regex'] = $m['regex_strict'];
+		}
+		if (!empty($m['checksum_strict'])) {
+			$m['checksum'] = $m['checksum_strict'];
+		}
+		return $m;
 	}
 
 	/** Shape of a stored preset id. */
@@ -1053,7 +1277,7 @@ class Masks {
 			foreach (array('country', 'category', 'label', 'placeholder', 'mask', 'formatter', 'inputmode', 'autocomplete', 'checksum', 'validator', 'store', 'verification') as $k) {
 				$row[$k] = array_key_exists($k, $m) ? $m[$k] : null;
 			}
-			$row['has_strict'] = !empty($m['regex_strict']);
+			$row['has_strict'] = self::has_strict($m);
 			// Connector hints: show a warning for presets not checked against an official source, and keep
 			// personal data (national ids, cards, IBANs, CVC) out of assistant logs.
 			$row['warning'] = (isset($m['verification']) && $m['verification'] === 'unverified') ? 'unverified' : null;
@@ -1086,7 +1310,7 @@ class Masks {
 	}
 
 	/** Arab-country groups, in the order shown to Arabic sites (the site's own country moves to the front). */
-	const ARAB_GROUPS = array('sa', 'ae', 'eg', 'kw', 'qa', 'bh', 'om', 'jo', 'iq', 'lb', 'ma', 'dz', 'tn');
+	const ARAB_GROUPS = array('sa', 'ae', 'eg', 'kw', 'qa', 'bh', 'om', 'jo', 'iq', 'lb', 'ma', 'dz', 'tn', 'ps', 'ly', 'sd', 'ye', 'sy', 'mr');
 
 	/** Load the translatable labels (includes/data/masks-labels-efb.php). */
 	public static function load_labels() {
@@ -1104,21 +1328,29 @@ class Masks {
 		$lang = strtolower(substr((string) $site_locale, 0, 2));
 		$region = strtolower(substr((string) $site_locale, 3, 2));
 		if ($lang === 'fa') {
-			return array('ir');
+			return $region === 'af' ? array('af', 'ir') : array('ir', 'af');
+		}
+		if ($lang === 'ps') {
+			return array('af', 'pk');
 		}
 		if ($lang === 'ar') {
-			$own = array('sa' => 'sa', 'ae' => 'ae', 'eg' => 'eg', 'kw' => 'kw', 'qa' => 'qa', 'bh' => 'bh', 'om' => 'om', 'jo' => 'jo', 'iq' => 'iq', 'lb' => 'lb', 'ma' => 'ma', 'dz' => 'dz', 'tn' => 'tn');
 			$list = self::ARAB_GROUPS;
-			if (isset($own[$region])) {
-				$list = array_values(array_unique(array_merge(array($own[$region]), $list)));
+			if (in_array($region, $list, true)) {
+				$list = array_values(array_unique(array_merge(array($region), $list)));
 			}
 			return $list;
+		}
+		if ($lang === 'es') {
+			return $region === 'mx' ? array('mx', 'es') : array('es', 'mx');
+		}
+		if ($lang === 'pt') {
+			return array('br');
 		}
 		if ($lang === 'en') {
 			$map = array('gb' => 'uk', 'ca' => 'ca', 'au' => 'au', 'in' => 'in');
 			return array(isset($map[$region]) ? $map[$region] : 'us');
 		}
-		$map = array('de' => 'de', 'hi' => 'in');
+		$map = array('de' => 'de', 'hi' => 'in', 'tr' => 'tr', 'ur' => 'pk', 'it' => 'it', 'fr' => 'fr', 'nl' => 'nl');
 		return isset($map[$lang]) ? array($map[$lang]) : array();
 	}
 
@@ -1158,7 +1390,7 @@ class Masks {
 				'inputmode' => isset($m['inputmode']) ? $m['inputmode'] : null,
 				'autocomplete' => isset($m['autocomplete']) ? $m['autocomplete'] : null,
 				'verification' => isset($m['verification']) ? $m['verification'] : 'unverified',
-				'has_strict' => !empty($m['regex_strict']),
+				'has_strict' => self::has_strict($m),
 			);
 		}
 		$lead = array();
@@ -1239,8 +1471,8 @@ class Masks {
 			self::log_once('preset:' . $p, 'unknown preset "' . (self::is_preset_id($p) ? $p : 'invalid') . '"; length rules only');
 			return null;
 		}
-		if (self::flag($f, 'mask_strict') && !empty($m['regex_strict'])) {
-			$m['regex'] = $m['regex_strict'];
+		if (self::flag($f, 'mask_strict')) {
+			$m = self::strict_def($m);
 		}
 		return array('kind' => 'preset', 'def' => $m);
 	}

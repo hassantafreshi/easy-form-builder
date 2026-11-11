@@ -244,7 +244,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			}
 		}
 		$attrs[] = sprintf('data-mask-store="%s"', isset($row['mask_store']) && $row['mask_store'] === 'display' ? 'display' : 'canonical');
-		if ($fd['kind'] === 'preset' && isset($row['mask_strict']) && in_array($row['mask_strict'], [1, '1', true], true) && !empty($def['regex_strict'])) {
+		if ($fd['kind'] === 'preset' && isset($row['mask_strict']) && in_array($row['mask_strict'], [1, '1', true], true) && \Emsfb\Masks::has_strict($def)) {
 			$attrs[] = 'data-mask-strict="1"';
 		}
 		if ($im !== '') {

@@ -112,7 +112,9 @@ async function launchChromiumEfb() {
     const s = document.getElementById('maskPresetEl');
     return { groups: s.querySelectorAll('optgroup').length, options: s.querySelectorAll('optgroup option').length, first: s.querySelector('optgroup').label, loading: !!s.querySelector('[data-efb-loading]'), minLen: !!document.getElementById('miLenEl') };
   });
-  check('text field: 21 groups, 99 presets, loading option gone', sel.groups === 21 && sel.options === 99 && !sel.loading, sel);
+  const catData = JSON.parse(catalogJson).data;
+  const nPresets = catData.groups.reduce((n, g) => n + g.presets.length, 0);
+  check(`text field: ${catData.groups.length} groups, ${nPresets} presets, loading option gone`, sel.groups === catData.groups.length && sel.options === nPresets && nPresets >= 140 && !sel.loading, sel);
   check('en_US: United States group first', sel.first === 'United States', sel.first);
   check('catalog requested once with the builder nonce', ajaxCalls === 1, ajaxCalls);
 
@@ -192,7 +194,7 @@ async function launchChromiumEfb() {
   await page.waitForFunction(() => document.querySelectorAll('#maskPresetEl optgroup').length > 0, null, { timeout: 5000 });
   const tel = await page.evaluate(() => Array.from(document.querySelectorAll('#maskPresetEl optgroup option')).map((o) => o.value));
   const cats = JSON.parse(catalogJson).data.groups.flatMap((g) => g.presets).filter((p) => p.category === 'phone_mobile' || p.category === 'phone_landline').map((p) => p.id).sort();
-  check('tel field lists only phone presets', JSON.stringify(tel.slice().sort()) === JSON.stringify(cats) && tel.length === 22, tel.length);
+  check('tel field lists only phone presets', JSON.stringify(tel.slice().sort()) === JSON.stringify(cats) && tel.length === cats.length && tel.length >= 22, tel.length);
 
   // JS renderer twin (canvas + in-admin preview), with the catalog loaded.
   const tw = await page.evaluate(() => ({

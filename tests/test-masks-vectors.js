@@ -19,6 +19,8 @@ function vectorRows() {
     for (const v of m.examples_valid) { const r = E.validate(m, v); rows.push({ id: m.id, kind: 'valid', input: v, ok: r.ok, code: r.code, value: r.value, stored: r.ok ? E.toStored(m, r.value) : null, pass: r.ok }); }
     for (const x of m.examples_invalid) { const r = E.validate(m, x.value); rows.push({ id: m.id, kind: 'invalid', input: x.value, ok: r.ok, code: r.code, value: r.value, stored: null, pass: !r.ok && r.code === x.expect }); }
     for (const f of (m.examples_format || [])) { const out = E.formatValue(m, f.input); rows.push({ id: m.id, kind: 'format', input: f.input, ok: out === f.output, code: null, value: out, stored: null, pass: out === f.output }); }
+    // Strict-only failures (checksum_strict / regex_strict, mask_strict = 1).
+    for (const x of (m.examples_invalid_strict || [])) { const r = E.validate(E.strictDef(m), x.value); rows.push({ id: m.id, kind: 'invalid_strict', input: x.value, ok: r.ok, code: r.code, value: r.value, stored: null, pass: !r.ok && r.code === x.expect }); }
   }
   return rows;
 }
@@ -40,7 +42,7 @@ function check(label, cond, detail) {
 
 // 1. Catalog vectors, reported per preset.
 const rows = vectorRows();
-const counts = { valid: [0, 0], invalid: [0, 0], format: [0, 0] };
+const counts = { valid: [0, 0], invalid: [0, 0], format: [0, 0], invalid_strict: [0, 0] };
 const byId = {};
 for (const r of rows) {
   counts[r.kind][r.pass ? 0 : 1]++;
@@ -51,9 +53,11 @@ for (const id of Object.keys(byId)) {
   if (bad.length === 0) { pass++; console.log(`[PASS] ${id}: ${byId[id].length} vectors`); continue; }
   for (const r of bad) { fail++; console.log(`[FAIL] ${id} ${r.kind} ${JSON.stringify(r.input)} -> ok=${r.ok} code=${r.code} value=${JSON.stringify(r.value)}`); }
 }
-console.log(`vectors: valid ${counts.valid[0]}/${counts.valid[0] + counts.valid[1]}, invalid ${counts.invalid[0]}/${counts.invalid[0] + counts.invalid[1]}, format ${counts.format[0]}/${counts.format[0] + counts.format[1]}`);
-const vectorFails = counts.valid[1] + counts.invalid[1] + counts.format[1];
-check('all 612 catalog vectors present', rows.length === 612, `(got ${rows.length})`);
+console.log(`vectors: valid ${counts.valid[0]}/${counts.valid[0] + counts.valid[1]}, invalid ${counts.invalid[0]}/${counts.invalid[0] + counts.invalid[1]}, format ${counts.format[0]}/${counts.format[0] + counts.format[1]}, invalid (strict) ${counts.invalid_strict[0]}/${counts.invalid_strict[0] + counts.invalid_strict[1]}`);
+const vectorFails = counts.valid[1] + counts.invalid[1] + counts.format[1] + counts.invalid_strict[1];
+const expectedRows = cat.masks.reduce((n, m) => n + m.examples_valid.length + m.examples_invalid.length + (m.examples_format || []).length + (m.examples_invalid_strict || []).length, 0);
+check(`all ${expectedRows} catalog vectors present (${cat.masks.length} presets)`, rows.length === expectedRows && expectedRows >= 612, `(got ${rows.length})`);
+check('every checksum / validator named in the catalog exists in the engine', cat.masks.every((m) => (!m.checksum || E.CHECKSUMS[m.checksum]) && (!m.checksum_strict || E.CHECKSUMS[m.checksum_strict]) && (!m.validator || E.VALIDATORS[m.validator])));
 
 // 2. Extra checks ported from docs/feature-gaps/reference/masks-ref/extra-test.js.
 let extraBefore = pass + fail;

@@ -35,6 +35,12 @@ function efbm_test_rows($cat) {
 				$rows[] = array('id' => $m['id'], 'kind' => 'format', 'input' => $f['input'], 'ok' => $out === $f['output'], 'code' => null, 'value' => $out, 'stored' => null, 'pass' => $out === $f['output']);
 			}
 		}
+		if (!empty($m['examples_invalid_strict'])) {
+			foreach ($m['examples_invalid_strict'] as $x) {
+				$r = Masks::validate(Masks::strict_def($m), $x['value']);
+				$rows[] = array('id' => $m['id'], 'kind' => 'invalid_strict', 'input' => $x['value'], 'ok' => $r['ok'], 'code' => $r['code'], 'value' => $r['value'], 'stored' => null, 'pass' => !$r['ok'] && $r['code'] === $x['expect']);
+			}
+		}
 	}
 	return $rows;
 }
@@ -91,7 +97,7 @@ function efbm_check($label, $cond, $detail = '') {
 }
 
 $rows = efbm_test_rows($cat);
-$counts = array('valid' => array(0, 0), 'invalid' => array(0, 0), 'format' => array(0, 0));
+$counts = array('valid' => array(0, 0), 'invalid' => array(0, 0), 'format' => array(0, 0), 'invalid_strict' => array(0, 0));
 $byId = array();
 foreach ($rows as $r) {
 	$counts[$r['kind']][$r['pass'] ? 0 : 1]++;
@@ -112,7 +118,13 @@ foreach ($byId as $id => $list) {
 	}
 }
 printf("vectors: valid %d/%d, invalid %d/%d, format %d/%d\n", $counts['valid'][0], array_sum($counts['valid']), $counts['invalid'][0], array_sum($counts['invalid']), $counts['format'][0], array_sum($counts['format']));
-efbm_check('all 612 catalog vectors present', count($rows) === 612, '(got ' . count($rows) . ')');
+$expected_rows = 0;
+foreach ($cat['masks'] as $m) {
+	$expected_rows += count($m['examples_valid']) + count($m['examples_invalid']) + (empty($m['examples_format']) ? 0 : count($m['examples_format'])) + (empty($m['examples_invalid_strict']) ? 0 : count($m['examples_invalid_strict']));
+}
+printf("strict vectors: %d/%d\n", $counts['invalid_strict'][0], array_sum($counts['invalid_strict']));
+efbm_check("all $expected_rows catalog vectors present", count($rows) === $expected_rows && $expected_rows >= 612, '(got ' . count($rows) . ')');
+$npresets = count($cat['masks']);
 
 // Catalog loading, preset lookup and the browser subset.
 Masks::reset();
@@ -120,7 +132,7 @@ $t0 = microtime(true);
 $loaded = Masks::catalog();
 $ms = (microtime(true) - $t0) * 1000;
 echo sprintf("catalog decode: %.2f ms, %d presets, %d bytes\n", $ms, count($loaded['masks']), filesize(Masks::catalog_path()));
-efbm_check('catalog() loads 99 presets', count($loaded['masks']) === 99);
+efbm_check("catalog() loads all $npresets presets", count($loaded['masks']) === $npresets);
 efbm_check('preset() finds ir.mobile', is_array(Masks::preset('ir.mobile')) && Masks::preset('ir.mobile')['mask'] === '0\\999 999 9999');
 efbm_check('preset() refuses a path-like id', Masks::preset('../x') === null && Masks::preset('IR.MOBILE') === null);
 efbm_check('preset() returns null for an unknown id', Masks::preset('zz.nothing') === null);
@@ -142,8 +154,8 @@ $all = Masks::runtime_subset(array_map(function ($m) {
 	return $m['id'];
 }, $loaded['masks']), 'en_US');
 $size = strlen(json_encode($all, JSON_UNESCAPED_UNICODE));
-echo "runtime subset of all 99 presets: $size bytes\n";
-efbm_check('runtime subset of all presets stays small (< 40 KB)', $size < 40960);
+echo "runtime subset of all $npresets presets: $size bytes\n";
+efbm_check('runtime subset stays small (< 400 bytes per preset on average)', $size < 400 * $npresets);
 efbm_check('is_sensitive: national id, cards, iban, cvc', Masks::is_sensitive(Masks::preset('ir.national_id')) && Masks::is_sensitive(Masks::preset('intl.card')) && Masks::is_sensitive(Masks::preset('ir.bank_card')) && Masks::is_sensitive(Masks::preset('ir.sheba')) && Masks::is_sensitive(Masks::preset('intl.cvc')));
 efbm_check('is_sensitive: mobile is not', !Masks::is_sensitive(Masks::preset('ir.mobile')));
 
@@ -187,7 +199,7 @@ efbm_check('check_field: 50% is a valid percentage', $r['ok'] && $r['stored'] ==
 
 // Connector API (SitePilot AI): catalog_public() and check_value().
 $pub = Masks::catalog_public();
-efbm_check('catalog_public lists 99 presets', isset($pub['presets']) && count($pub['presets']) === 99);
+efbm_check("catalog_public lists all $npresets presets", isset($pub['presets']) && count($pub['presets']) === $npresets);
 $p0 = $pub['presets'][0];
 efbm_check('catalog_public row has the discovery fields', $p0['id'] === 'ir.mobile' && $p0['country'] === 'IR' && $p0['category'] === 'phone_mobile'
 	&& $p0['label']['fa'] === 'شماره موبایل' && $p0['inputmode'] === 'tel' && array_key_exists('checksum', $p0) && $p0['verification'] === 'secondary' && $p0['has_strict'] === false);
@@ -235,6 +247,6 @@ efbm_check('message checksum / rule / empty', Masks::message('checksum', array('
 efbm_check('message English fallback', Masks::message('checksum', array('name' => 'N'), array()) === 'N is not valid. Please check the digits for typos.');
 
 echo "\n========================================\n";
-echo "RESULTS: $pass passed, $fail failed (catalog vectors failing: " . ($counts['valid'][1] + $counts['invalid'][1] + $counts['format'][1]) . ")\n";
+echo "RESULTS: $pass passed, $fail failed (catalog vectors failing: " . ($counts['valid'][1] + $counts['invalid'][1] + $counts['format'][1] + $counts['invalid_strict'][1]) . ")\n";
 echo "========================================\n";
 exit($fail > 0 ? 1 : 0);

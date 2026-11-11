@@ -107,7 +107,21 @@
     "emirates_id": "starts 784 and Luhn over 15 digits",
     "kuwait_civil_id": "first digit 1|2|3, valid birth date YYMMDD, 11 - (Σ w[i]*d[i] mod 11) == d[11], w=[2,1,6,3,7,9,10,5,8,4,2]",
     "au_abn": "(d[0]-1)*10 + Σ d[i]*[1,3,5,...,19]; Σ mod 89 == 0",
-    "card": "Luhn + length allowed for the detected brand"
+    "card": "Luhn + length allowed for the detected brand",
+    "br_cpf": "Brazil CPF: two mod-11 check digits (weights 10..2 then 11..2); 11 equal digits -> rule.",
+    "br_cnpj": "Brazil CNPJ, numeric or alphanumeric: value = ASCII - 48, weights 5..2,9..2 then 6..2,9..2, mod 11; all-zero base -> rule.",
+    "us_aba": "US ABA routing number: 3(d1+d4+d7) + 7(d2+d5+d8) + (d3+d6+d9) = 0 mod 10.",
+    "es_dni": "Spain DNI: letter = TRWAGMYFPDXBNJZSQVHLCKE[n mod 23].",
+    "es_nie": "Spain NIE: X/Y/Z -> 0/1/2, then the DNI letter.",
+    "it_codice_fiscale": "Italy codice fiscale: odd/even value tables, sum mod 26 -> check letter.",
+    "tr_tckimlik": "Turkey TC Kimlik: d10 = ((d1+d3+d5+d7+d9)*7 - (d2+d4+d6+d8)) mod 10, d11 = (d1..d10) mod 10.",
+    "vin_na": "North American VIN check digit at position 9 (strict mode only).",
+    "mod97_0": "The whole number mod 97 = 0 (Morocco ICE).",
+    "nl_bsn": "Netherlands BSN 11-proef.",
+    "mx_curp": "Mexico CURP: sum idx(c)*(18-i), dv = (10 - sum mod 10) mod 10.",
+    "luhn_mod36": "Luhn mod 36 over 0-9A-Z (India GSTIN).",
+    "gs1_mod10": "GS1 mod 10, weights 1/3 from the right (EAN/UPC/GTIN).",
+    "fr_siret": "France SIRET: Luhn, La Poste (356000000) digit sum mod 5."
   },
   "validators": {
     "date": "split on non-digits, order by date_order, year_range, calendar gregorian|jalali|hijri day limits",
@@ -116,7 +130,9 @@
     "uk_nino": "HMRC prefix letter rules",
     "us_ssn": "area not 000/666/9xx, group not 00, serial not 0000",
     "us_ein": "IRS campus prefix list",
-    "nanp": "NXX NXX XXXX and no N11 area code / exchange"
+    "nanp": "NXX NXX XXXX and no N11 area code / exchange",
+    "datetime": "date rule on the part before the space (date + time).",
+    "month_year": "MM/YYYY with a month 1-12."
   },
   "masks": [
     {
@@ -6689,6 +6705,2499 @@
       "notes": "ICAO 9303 MRZ document numbers are up to 9 characters [A-Z0-9]. Country formats vary widely; do not over-validate.",
       "sources": [
         "https://www.icao.int/publications/pages/publication.aspx?docnum=9303"
+      ]
+    },
+    {
+      "id": "br.cpf",
+      "country": "BR",
+      "category": "national_id",
+      "label": {
+        "en": "Brazilian CPF",
+        "fa": "کد CPF برزیل",
+        "ar": "رقم CPF البرازيلي"
+      },
+      "mask": "999.999.999-99",
+      "formatter": null,
+      "placeholder": {
+        "en": "123.456.789-09",
+        "fa": "۱۲۳.۴۵۶.۷۸۹-۰۹",
+        "ar": "123.456.789-09"
+      },
+      "regex": "^\\d{11}$",
+      "regex_strict": null,
+      "length": 11,
+      "checksum": "br_cpf",
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " .-",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "digits",
+      "examples_valid": [
+        "123.456.789-09",
+        "12345678909",
+        "529.982.247-25",
+        "۱۲۳۴۵۶۷۸۹۰۹"
+      ],
+      "examples_invalid": [
+        {
+          "value": "123.456.789-00",
+          "expect": "checksum"
+        },
+        {
+          "value": "111.111.111-11",
+          "expect": "rule"
+        },
+        {
+          "value": "1234567890",
+          "expect": "format"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "12345678909",
+          "output": "123.456.789-09"
+        }
+      ],
+      "synthetic_examples": false,
+      "verification": "secondary",
+      "priority": "P0",
+      "notes": "Added in F01 sub-task I from docs/feature-gaps/reference/masks-market-research.en.md Appendix A (P0). fa/ar labels written for F01, not reviewed by a native translator yet; placeholder = formatted first example.",
+      "sources": [
+        "https://github.com/arthurdejong/python-stdnum/blob/master/stdnum/br/cpf.py",
+        "https://wordpress.org/plugins/masks-form-fields/",
+        "https://wordpress.org/support/topic/cpf-validation/"
+      ]
+    },
+    {
+      "id": "br.cnpj",
+      "country": "BR",
+      "category": "company_id",
+      "label": {
+        "en": "Brazilian CNPJ (numeric or alphanumeric)",
+        "fa": "شماره CNPJ برزیل (عددی یا حرفی‌عددی)",
+        "ar": "رقم CNPJ البرازيلي (رقمي أو أبجدي رقمي)"
+      },
+      "mask": "**.***.***/****-99",
+      "formatter": null,
+      "placeholder": {
+        "en": "12.ABC.345/01DE-35",
+        "fa": "۱۲.ABC.۳۴۵/۰۱DE-۳۵",
+        "ar": "12.ABC.345/01DE-35"
+      },
+      "regex": "^[0-9A-Z]{12}\\d{2}$",
+      "regex_strict": null,
+      "length": 14,
+      "checksum": "br_cnpj",
+      "validator": null,
+      "inputmode": "text",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " .-/",
+      "uppercase": true,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "11.222.333/0001-81",
+        "11222333000181",
+        "12.ABC.345/01DE-35",
+        "12abc34501de35"
+      ],
+      "examples_invalid": [
+        {
+          "value": "11.222.333/0001-80",
+          "expect": "checksum"
+        },
+        {
+          "value": "12.ABC.345/01DE-3A",
+          "expect": "format"
+        },
+        {
+          "value": "00000000000000",
+          "expect": "rule"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "12abc34501de35",
+          "output": "12.ABC.345/01DE-35"
+        },
+        {
+          "input": "11222333000181",
+          "output": "11.222.333/0001-81"
+        }
+      ],
+      "synthetic_examples": false,
+      "verification": "secondary",
+      "priority": "P0",
+      "notes": "Added in F01 sub-task I from docs/feature-gaps/reference/masks-market-research.en.md Appendix A (P0). fa/ar labels written for F01, not reviewed by a native translator yet; placeholder = formatted first example.",
+      "sources": [
+        "https://github.com/arthurdejong/python-stdnum/blob/master/stdnum/br/cnpj.py",
+        "https://www.gov.br/receitafederal/pt-br/centrais-de-conteudo/publicacoes/perguntas-e-respostas/cnpj/cnpj-alfanumerico.pdf",
+        "https://wordpress.org/support/topic/cnpj-nao-aceita-letras/"
+      ]
+    },
+    {
+      "id": "br.cep",
+      "country": "BR",
+      "category": "postal_code",
+      "label": {
+        "en": "Brazilian CEP",
+        "fa": "کد پستی برزیل (CEP)",
+        "ar": "الرمز البريدي البرازيلي (CEP)"
+      },
+      "mask": "99999-999",
+      "formatter": null,
+      "placeholder": {
+        "en": "01310-100",
+        "fa": "۰۱۳۱۰-۱۰۰",
+        "ar": "01310-100"
+      },
+      "regex": "^\\d{8}$",
+      "regex_strict": null,
+      "length": 8,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": "postal-code",
+      "dir": "ltr",
+      "strip": " .-",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "digits",
+      "examples_valid": [
+        "01310-100",
+        "01310100"
+      ],
+      "examples_invalid": [
+        {
+          "value": "1310-100",
+          "expect": "format"
+        },
+        {
+          "value": "0131010",
+          "expect": "format",
+          "reason": "one character short (added in F01-I)"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "01310100",
+          "output": "01310-100"
+        }
+      ],
+      "synthetic_examples": false,
+      "verification": "secondary",
+      "priority": "P0",
+      "notes": "Added in F01 sub-task I from docs/feature-gaps/reference/masks-market-research.en.md Appendix A (P0). fa/ar labels written for F01, not reviewed by a native translator yet; placeholder = formatted first example.",
+      "sources": [
+        "https://wordpress.org/plugins/form-masks-for-elementor/",
+        "https://wordpress.org/plugins/masks-form-fields/"
+      ]
+    },
+    {
+      "id": "br.mobile",
+      "country": "BR",
+      "category": "phone_mobile",
+      "label": {
+        "en": "Brazilian mobile",
+        "fa": "شماره موبایل برزیل",
+        "ar": "رقم الجوال البرازيلي"
+      },
+      "mask": "(99) 99999-9999",
+      "formatter": null,
+      "placeholder": {
+        "en": "(11) 91234-5678",
+        "fa": "(۱۱) ۹۱۲۳۴-۵۶۷۸",
+        "ar": "(11) 91234-5678"
+      },
+      "regex": "^(?:\\+55|0055|55|0)?(?:[14689][1-9]|2[12478]|3[1-578]|5[13-5]|7[13-579])9\\d{8}$",
+      "regex_strict": null,
+      "length": 14,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "tel",
+      "autocomplete": "tel-national",
+      "dir": "ltr",
+      "strip": " -().",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "e164",
+      "e164": {
+        "cc": "55",
+        "trunk": "0",
+        "nsn_length": [
+          11
+        ]
+      },
+      "examples_valid": [
+        "(11) 91234-5678",
+        "+55 11 91234-5678",
+        "11912345678",
+        "(55) 99123-4567"
+      ],
+      "examples_invalid": [
+        {
+          "value": "(11) 81234-5678",
+          "expect": "format"
+        },
+        {
+          "value": "(10) 91234-5678",
+          "expect": "format"
+        },
+        {
+          "value": "(11) 1234-5678",
+          "expect": "format"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "11912345678",
+          "output": "(11) 91234-5678"
+        }
+      ],
+      "synthetic_examples": false,
+      "verification": "secondary",
+      "priority": "P0",
+      "notes": "Added in F01 sub-task I from docs/feature-gaps/reference/masks-market-research.en.md Appendix A (P0). fa/ar labels written for F01, not reviewed by a native translator yet; placeholder = formatted first example.",
+      "sources": [
+        "https://unpkg.com/libphonenumber-js@1.11.20/metadata.max.json",
+        "https://wordpress.org/support/topic/mascara-com-ddi-ddd-9-digitos/"
+      ]
+    },
+    {
+      "id": "br.phone",
+      "country": "BR",
+      "category": "phone_landline",
+      "label": {
+        "en": "Brazilian landline",
+        "fa": "تلفن ثابت برزیل",
+        "ar": "الهاتف الأرضي البرازيلي"
+      },
+      "mask": "(99) 9999-9999",
+      "formatter": null,
+      "placeholder": {
+        "en": "(11) 3456-7890",
+        "fa": "(۱۱) ۳۴۵۶-۷۸۹۰",
+        "ar": "(11) 3456-7890"
+      },
+      "regex": "^(?:\\+55|0055|55|0)?(?:[14689][1-9]|2[12478]|3[1-578]|5[13-5]|7[13-579])[2-5]\\d{7}$",
+      "regex_strict": null,
+      "length": 13,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "tel",
+      "autocomplete": "tel-national",
+      "dir": "ltr",
+      "strip": " -().",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "e164",
+      "e164": {
+        "cc": "55",
+        "trunk": "0",
+        "nsn_length": [
+          10
+        ]
+      },
+      "examples_valid": [
+        "(11) 3456-7890",
+        "+55 21 2345-6789"
+      ],
+      "examples_invalid": [
+        {
+          "value": "(11) 9345-6789",
+          "expect": "format"
+        },
+        {
+          "value": "(20) 3456-7890",
+          "expect": "format"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "1134567890",
+          "output": "(11) 3456-7890"
+        }
+      ],
+      "synthetic_examples": false,
+      "verification": "unverified",
+      "priority": "P1",
+      "notes": "Added in F01 sub-task I from docs/feature-gaps/reference/masks-market-research.en.md Appendix A (P1). fa/ar labels written for F01, not reviewed by a native translator yet; placeholder = formatted first example.",
+      "sources": [
+        "https://unpkg.com/libphonenumber-js@1.11.20/metadata.max.json"
+      ]
+    },
+    {
+      "id": "ca.sin",
+      "country": "CA",
+      "category": "national_id",
+      "label": {
+        "en": "Canadian SIN",
+        "fa": "شماره بیمهٔ اجتماعی کانادا (SIN)",
+        "ar": "رقم التأمين الاجتماعي الكندي (SIN)"
+      },
+      "mask": "999 999 999",
+      "formatter": null,
+      "placeholder": {
+        "en": "130 692 544",
+        "fa": "۱۳۰ ۶۹۲ ۵۴۴",
+        "ar": "130 692 544"
+      },
+      "regex": "^[1-79]\\d{8}$",
+      "regex_strict": null,
+      "length": 9,
+      "checksum": "luhn",
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " -",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "digits",
+      "examples_valid": [
+        "130 692 544",
+        "130-692-544",
+        "912345675"
+      ],
+      "examples_invalid": [
+        {
+          "value": "130 692 545",
+          "expect": "checksum"
+        },
+        {
+          "value": "046 454 286",
+          "expect": "format"
+        },
+        {
+          "value": "812 345 671",
+          "expect": "format"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "130692544",
+          "output": "130 692 544"
+        }
+      ],
+      "synthetic_examples": false,
+      "verification": "secondary",
+      "priority": "P1",
+      "notes": "Added in F01 sub-task I from docs/feature-gaps/reference/masks-market-research.en.md Appendix A (P1). fa/ar labels written for F01, not reviewed by a native translator yet; placeholder = formatted first example.",
+      "sources": [
+        "https://github.com/arthurdejong/python-stdnum/blob/master/stdnum/ca/sin.py"
+      ]
+    },
+    {
+      "id": "us.routing_number",
+      "country": "US",
+      "category": "bank_account",
+      "label": {
+        "en": "US ABA routing number",
+        "fa": "شماره مسیریابی بانکی آمریکا (ABA)",
+        "ar": "رقم التوجيه المصرفي الأمريكي (ABA)"
+      },
+      "mask": "999999999",
+      "formatter": null,
+      "placeholder": {
+        "en": "011000015",
+        "fa": "۰۱۱۰۰۰۰۱۵",
+        "ar": "011000015"
+      },
+      "regex": "^(?:0\\d|1[0-2]|2[1-9]|3[0-2]|6[1-9]|7[0-2]|80)\\d{7}$",
+      "regex_strict": null,
+      "length": 9,
+      "checksum": "us_aba",
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " -",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "digits",
+      "examples_valid": [
+        "011000015",
+        "021000021",
+        "122105155"
+      ],
+      "examples_invalid": [
+        {
+          "value": "011000016",
+          "expect": "checksum"
+        },
+        {
+          "value": "01100001",
+          "expect": "format"
+        },
+        {
+          "value": "500000005",
+          "expect": "format"
+        }
+      ],
+      "examples_format": [],
+      "synthetic_examples": false,
+      "verification": "unverified",
+      "priority": "P2",
+      "notes": "Added in F01 sub-task I from docs/feature-gaps/reference/masks-market-research.en.md Appendix A (P2). fa/ar labels written for F01, not reviewed by a native translator yet; placeholder = formatted first example.",
+      "sources": [
+        "https://github.com/arthurdejong/python-stdnum/blob/master/stdnum/us/rtn.py",
+        "https://en.wikipedia.org/wiki/ABA_routing_transit_number"
+      ]
+    },
+    {
+      "id": "us.phone_ext",
+      "country": "US",
+      "category": "phone_landline",
+      "label": {
+        "en": "US phone with extension",
+        "fa": "تلفن آمریکا با داخلی",
+        "ar": "هاتف أمريكي مع رقم داخلي"
+      },
+      "mask": "(999) 999-9999[ x9{1,5}]",
+      "formatter": null,
+      "placeholder": {
+        "en": "(202) 555-0123",
+        "fa": "(۲۰۲) ۵۵۵-۰۱۲۳",
+        "ar": "(202) 555-0123"
+      },
+      "regex": "^(?:\\+1|1)?[2-9]\\d{2}[2-9]\\d{6}(?:x\\d{1,5})?$",
+      "regex_strict": null,
+      "length": 10,
+      "checksum": null,
+      "validator": "nanp",
+      "inputmode": "tel",
+      "autocomplete": "tel-national",
+      "dir": "ltr",
+      "strip": " -().",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "(202) 555-0123",
+        "(202) 555-0123 x45",
+        "2025550123x12345"
+      ],
+      "examples_invalid": [
+        {
+          "value": "(202) 555-0123 x123456",
+          "expect": "format"
+        },
+        {
+          "value": "(102) 555-0123",
+          "expect": "format"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "2025550123",
+          "output": "(202) 555-0123"
+        },
+        {
+          "input": "202555012345",
+          "output": "(202) 555-0123 x45"
+        }
+      ],
+      "synthetic_examples": false,
+      "verification": "secondary",
+      "priority": "P1",
+      "notes": "Added in F01 sub-task I from docs/feature-gaps/reference/masks-market-research.en.md Appendix A (P1). fa/ar labels written for F01, not reviewed by a native translator yet; placeholder = formatted first example.",
+      "sources": [
+        "https://docs.gravityforms.com/gform_input_masks/"
+      ]
+    },
+    {
+      "id": "intl.time_24s",
+      "country": "intl",
+      "category": "time",
+      "label": {
+        "en": "Time (HH:MM:SS)",
+        "fa": "ساعت با ثانیه (۲۴ ساعته)",
+        "ar": "الوقت مع الثواني (24 ساعة)"
+      },
+      "mask": "99:99:99",
+      "formatter": null,
+      "placeholder": {
+        "en": "08:30:00",
+        "fa": "۰۸:۳۰:۰۰",
+        "ar": "08:30:00"
+      },
+      "regex": "^(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d$",
+      "regex_strict": null,
+      "length": 8,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " ",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "23:59:59",
+        "00:00:00",
+        "۰۸:۳۰:۰۰"
+      ],
+      "examples_invalid": [
+        {
+          "value": "24:00:00",
+          "expect": "format"
+        },
+        {
+          "value": "12:60:00",
+          "expect": "format"
+        },
+        {
+          "value": "12:30",
+          "expect": "format"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "083000",
+          "output": "08:30:00"
+        }
+      ],
+      "synthetic_examples": false,
+      "verification": "secondary",
+      "priority": "P0",
+      "notes": "Added in F01 sub-task I from docs/feature-gaps/reference/masks-market-research.en.md Appendix A (P0). fa/ar labels written for F01, not reviewed by a native translator yet; placeholder = formatted first example.",
+      "sources": [
+        "https://wordpress.org/plugins/fluentform/",
+        "https://wordpress.org/plugins/masks-form-fields/"
+      ]
+    },
+    {
+      "id": "intl.datetime_dmy",
+      "country": "intl",
+      "category": "date",
+      "label": {
+        "en": "Date and time (DD/MM/YYYY HH:MM[:SS])",
+        "fa": "تاریخ و ساعت (روز/ماه/سال)",
+        "ar": "التاريخ والوقت (يوم/شهر/سنة)"
+      },
+      "mask": "99/99/9999 99:99[:99]",
+      "formatter": null,
+      "placeholder": {
+        "en": "29/02/2024 13:45",
+        "fa": "۲۹/۰۲/۲۰۲۴ ۱۳:۴۵",
+        "ar": "29/02/2024 13:45"
+      },
+      "regex": "^\\d{2}/\\d{2}/\\d{4} (?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d)?$",
+      "regex_strict": null,
+      "length": 16,
+      "checksum": null,
+      "validator": "datetime",
+      "inputmode": "numeric",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": "",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "calendar": "gregorian",
+      "date_order": "DMY",
+      "year_range": [
+        1900,
+        2100
+      ],
+      "examples_valid": [
+        "29/02/2024 13:45",
+        "31/12/2024 23:59:59"
+      ],
+      "examples_invalid": [
+        {
+          "value": "31/12/2024 24:00",
+          "expect": "format"
+        },
+        {
+          "value": "29/02/2024 13:4",
+          "expect": "format",
+          "reason": "one character short (added in F01-I)"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "290220241345",
+          "output": "29/02/2024 13:45"
+        },
+        {
+          "input": "31122024235959",
+          "output": "31/12/2024 23:59:59"
+        }
+      ],
+      "synthetic_examples": false,
+      "verification": "secondary",
+      "priority": "P1",
+      "notes": "Added in F01 sub-task I from docs/feature-gaps/reference/masks-market-research.en.md Appendix A (P1). fa/ar labels written for F01, not reviewed by a native translator yet; placeholder = formatted first example.",
+      "sources": [
+        "https://wordpress.org/plugins/fluentform/",
+        "https://wordpress.org/plugins/form-masks-for-elementor/"
+      ]
+    },
+    {
+      "id": "intl.month_year",
+      "country": "intl",
+      "category": "date",
+      "label": {
+        "en": "Month and year (MM/YYYY)",
+        "fa": "ماه و سال (MM/YYYY)",
+        "ar": "الشهر والسنة (MM/YYYY)"
+      },
+      "mask": "99/9999",
+      "formatter": null,
+      "placeholder": {
+        "en": "02/2027",
+        "fa": "۰۲/۲۰۲۷",
+        "ar": "02/2027"
+      },
+      "regex": "^(?:0[1-9]|1[0-2])/\\d{4}$",
+      "regex_strict": null,
+      "length": 7,
+      "checksum": null,
+      "validator": "month_year",
+      "inputmode": "numeric",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " ",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "02/2027",
+        "12/1999"
+      ],
+      "examples_invalid": [
+        {
+          "value": "13/2024",
+          "expect": "format"
+        },
+        {
+          "value": "2/2024",
+          "expect": "format"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "022027",
+          "output": "02/2027"
+        }
+      ],
+      "synthetic_examples": false,
+      "verification": "secondary",
+      "priority": "P1",
+      "notes": "Added in F01 sub-task I from docs/feature-gaps/reference/masks-market-research.en.md Appendix A (P1). fa/ar labels written for F01, not reviewed by a native translator yet; placeholder = formatted first example.",
+      "sources": [
+        "https://wordpress.org/plugins/masks-form-fields/"
+      ]
+    },
+    {
+      "id": "intl.vin",
+      "country": "intl",
+      "category": "generic",
+      "label": {
+        "en": "Vehicle identification number (VIN)",
+        "fa": "شماره شناسایی خودرو (VIN)",
+        "ar": "رقم تعريف المركبة (VIN)"
+      },
+      "mask": "*{17}",
+      "formatter": null,
+      "placeholder": {
+        "en": "1M8GDM9AXKP042788",
+        "fa": "۱M۸GDM۹AXKP۰۴۲۷۸۸",
+        "ar": "1M8GDM9AXKP042788"
+      },
+      "regex": "^[A-HJ-NPR-Z0-9]{17}$",
+      "regex_strict": null,
+      "length": 17,
+      "checksum": null,
+      "checksum_strict": "vin_na",
+      "validator": null,
+      "inputmode": "text",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " -",
+      "uppercase": true,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "1M8GDM9AXKP042788",
+        "5GZCZ43D13S812715",
+        "WVWZZZ1JZXW000001",
+        "1m8gdm9axkp042788"
+      ],
+      "examples_invalid": [
+        {
+          "value": "1M8GDM9AIKP042788",
+          "expect": "format"
+        },
+        {
+          "value": "1M8GDM9AXKP04278",
+          "expect": "format"
+        }
+      ],
+      "examples_invalid_strict": [
+        {
+          "value": "1M8GDM9A1KP042788",
+          "expect": "checksum"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "1m8gdm9axkp042788",
+          "output": "1M8GDM9AXKP042788"
+        }
+      ],
+      "synthetic_examples": false,
+      "verification": "secondary",
+      "priority": "P1",
+      "notes": "Added in F01 sub-task I from docs/feature-gaps/reference/masks-market-research.en.md Appendix A (P1). fa/ar labels written for F01, not reviewed by a native translator yet; placeholder = formatted first example. checksum_strict applies only with mask_strict = 1.",
+      "sources": [
+        "https://unpkg.com/inputmask@5.0.9/lib/extensions/inputmask.extensions.js",
+        "https://en.wikipedia.org/wiki/Vehicle_identification_number"
+      ]
+    },
+    {
+      "id": "intl.swift_bic",
+      "country": "intl",
+      "category": "bank_account",
+      "label": {
+        "en": "SWIFT / BIC code",
+        "fa": "کد SWIFT / BIC",
+        "ar": "رمز SWIFT / BIC"
+      },
+      "mask": "aaaaaa**[***]",
+      "formatter": null,
+      "placeholder": {
+        "en": "DEUTDEFF500",
+        "fa": "DEUTDEFF۵۰۰",
+        "ar": "DEUTDEFF500"
+      },
+      "regex": "^[A-Z]{6}[A-Z0-9]{2}(?:[A-Z0-9]{3})?$",
+      "regex_strict": null,
+      "length": 8,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "text",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " ",
+      "uppercase": true,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "DEUTDEFF",
+        "DEUTDEFF500",
+        "deutdeff"
+      ],
+      "examples_invalid": [
+        {
+          "value": "DEUT1EFF",
+          "expect": "format"
+        },
+        {
+          "value": "DEUTDEF",
+          "expect": "format"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "deutdeff500",
+          "output": "DEUTDEFF500"
+        }
+      ],
+      "synthetic_examples": false,
+      "verification": "secondary",
+      "priority": "P1",
+      "notes": "Added in F01 sub-task I from docs/feature-gaps/reference/masks-market-research.en.md Appendix A (P1). fa/ar labels written for F01, not reviewed by a native translator yet; placeholder = formatted first example.",
+      "sources": [
+        "https://github.com/arthurdejong/python-stdnum/blob/master/stdnum/bic.py"
+      ]
+    },
+    {
+      "id": "uk.sort_code",
+      "country": "UK",
+      "category": "bank_account",
+      "label": {
+        "en": "UK bank sort code",
+        "fa": "کد شعبهٔ بانک بریتانیا (Sort code)",
+        "ar": "رمز فرز البنك البريطاني (Sort code)"
+      },
+      "mask": "99-99-99",
+      "formatter": null,
+      "placeholder": {
+        "en": "20-00-00",
+        "fa": "۲۰-۰۰-۰۰",
+        "ar": "20-00-00"
+      },
+      "regex": "^\\d{6}$",
+      "regex_strict": null,
+      "length": 6,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " -",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "digits",
+      "examples_valid": [
+        "20-00-00",
+        "200000"
+      ],
+      "examples_invalid": [
+        {
+          "value": "20-00-0",
+          "expect": "format"
+        },
+        {
+          "value": "20000",
+          "expect": "format",
+          "reason": "one character short (added in F01-I)"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "200000",
+          "output": "20-00-00"
+        }
+      ],
+      "synthetic_examples": false,
+      "verification": "secondary",
+      "priority": "P2",
+      "notes": "Added in F01 sub-task I from docs/feature-gaps/reference/masks-market-research.en.md Appendix A (P2). fa/ar labels written for F01, not reviewed by a native translator yet; placeholder = formatted first example.",
+      "sources": [
+        "https://en.wikipedia.org/wiki/Sort_code"
+      ]
+    },
+    {
+      "id": "es.dni",
+      "country": "ES",
+      "category": "national_id",
+      "label": {
+        "en": "Spanish DNI",
+        "fa": "کارت ملی اسپانیا (DNI)",
+        "ar": "رقم الهوية الإسبانية (DNI)"
+      },
+      "mask": "99999999a",
+      "formatter": null,
+      "placeholder": {
+        "en": "12345678Z",
+        "fa": "۱۲۳۴۵۶۷۸Z",
+        "ar": "12345678Z"
+      },
+      "regex": "^\\d{8}[A-Z]$",
+      "regex_strict": null,
+      "length": 9,
+      "checksum": "es_dni",
+      "validator": null,
+      "inputmode": "text",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " -",
+      "uppercase": true,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "12345678Z",
+        "12345678-z"
+      ],
+      "examples_invalid": [
+        {
+          "value": "12345678A",
+          "expect": "checksum"
+        },
+        {
+          "value": "1234567Z",
+          "expect": "format"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "12345678z",
+          "output": "12345678Z"
+        }
+      ],
+      "synthetic_examples": false,
+      "verification": "secondary",
+      "priority": "P1",
+      "notes": "Added in F01 sub-task I from docs/feature-gaps/reference/masks-market-research.en.md Appendix A (P1). fa/ar labels written for F01, not reviewed by a native translator yet; placeholder = formatted first example.",
+      "sources": [
+        "https://github.com/arthurdejong/python-stdnum/blob/master/stdnum/es/dni.py"
+      ]
+    },
+    {
+      "id": "es.nie",
+      "country": "ES",
+      "category": "national_id",
+      "label": {
+        "en": "Spanish NIE",
+        "fa": "شمارهٔ شناسایی اتباع خارجی اسپانیا (NIE)",
+        "ar": "رقم هوية الأجانب في إسبانيا (NIE)"
+      },
+      "mask": "a9999999a",
+      "formatter": null,
+      "placeholder": {
+        "en": "X1234567L",
+        "fa": "X۱۲۳۴۵۶۷L",
+        "ar": "X1234567L"
+      },
+      "regex": "^[XYZ]\\d{7}[A-Z]$",
+      "regex_strict": null,
+      "length": 9,
+      "checksum": "es_nie",
+      "validator": null,
+      "inputmode": "text",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " -",
+      "uppercase": true,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "X1234567L",
+        "Y1234567X",
+        "x-1234567-l"
+      ],
+      "examples_invalid": [
+        {
+          "value": "X1234567A",
+          "expect": "checksum"
+        },
+        {
+          "value": "W1234567L",
+          "expect": "format"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "x1234567l",
+          "output": "X1234567L"
+        }
+      ],
+      "synthetic_examples": false,
+      "verification": "secondary",
+      "priority": "P1",
+      "notes": "Added in F01 sub-task I from docs/feature-gaps/reference/masks-market-research.en.md Appendix A (P1). fa/ar labels written for F01, not reviewed by a native translator yet; placeholder = formatted first example.",
+      "sources": [
+        "https://github.com/arthurdejong/python-stdnum/blob/master/stdnum/es/nie.py"
+      ]
+    },
+    {
+      "id": "it.codice_fiscale",
+      "country": "IT",
+      "category": "tax_id",
+      "label": {
+        "en": "Italian codice fiscale",
+        "fa": "کد مالیاتی ایتالیا (Codice fiscale)",
+        "ar": "الرمز الضريبي الإيطالي (Codice fiscale)"
+      },
+      "mask": "aaaaaa**a**a***a",
+      "formatter": null,
+      "placeholder": {
+        "en": "RCCMNL83S18D969H",
+        "fa": "RCCMNL۸۳S۱۸D۹۶۹H",
+        "ar": "RCCMNL83S18D969H"
+      },
+      "regex": "^[A-Z]{6}[0-9LMNP-V]{2}[ABCDEHLMPRST][0-9LMNP-V]{2}[A-Z][0-9LMNP-V]{3}[A-Z]$",
+      "regex_strict": null,
+      "length": 16,
+      "checksum": "it_codice_fiscale",
+      "validator": null,
+      "inputmode": "text",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " ",
+      "uppercase": true,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "RCCMNL83S18D969H",
+        "rccmnl83s18d969h"
+      ],
+      "examples_invalid": [
+        {
+          "value": "RCCMNL83S18D969A",
+          "expect": "checksum"
+        },
+        {
+          "value": "RCCMNL83S18D96",
+          "expect": "format"
+        },
+        {
+          "value": "RCCMNL83X18D969H",
+          "expect": "format"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "rccmnl83s18d969h",
+          "output": "RCCMNL83S18D969H"
+        }
+      ],
+      "synthetic_examples": false,
+      "verification": "secondary",
+      "priority": "P1",
+      "notes": "Added in F01 sub-task I from docs/feature-gaps/reference/masks-market-research.en.md Appendix A (P1). fa/ar labels written for F01, not reviewed by a native translator yet; placeholder = formatted first example.",
+      "sources": [
+        "https://github.com/arthurdejong/python-stdnum/blob/master/stdnum/it/codicefiscale.py"
+      ]
+    },
+    {
+      "id": "fr.siren",
+      "country": "FR",
+      "category": "company_id",
+      "label": {
+        "en": "French SIREN",
+        "fa": "شماره SIREN فرانسه",
+        "ar": "رقم SIREN الفرنسي"
+      },
+      "mask": "999 999 999",
+      "formatter": null,
+      "placeholder": {
+        "en": "732 829 320",
+        "fa": "۷۳۲ ۸۲۹ ۳۲۰",
+        "ar": "732 829 320"
+      },
+      "regex": "^\\d{9}$",
+      "regex_strict": null,
+      "length": 9,
+      "checksum": "luhn",
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " ",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "digits",
+      "examples_valid": [
+        "732 829 320",
+        "732829320"
+      ],
+      "examples_invalid": [
+        {
+          "value": "732 829 321",
+          "expect": "checksum"
+        },
+        {
+          "value": "73282932",
+          "expect": "format",
+          "reason": "one character short (added in F01-I)"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "732829320",
+          "output": "732 829 320"
+        }
+      ],
+      "synthetic_examples": false,
+      "verification": "secondary",
+      "priority": "P2",
+      "notes": "Added in F01 sub-task I from docs/feature-gaps/reference/masks-market-research.en.md Appendix A (P2). fa/ar labels written for F01, not reviewed by a native translator yet; placeholder = formatted first example.",
+      "sources": [
+        "https://github.com/arthurdejong/python-stdnum/blob/master/stdnum/fr/siren.py"
+      ]
+    },
+    {
+      "id": "fr.siret",
+      "country": "FR",
+      "category": "company_id",
+      "label": {
+        "en": "French SIRET",
+        "fa": "شماره SIRET فرانسه",
+        "ar": "رقم SIRET الفرنسي"
+      },
+      "mask": "999 999 999 99999",
+      "formatter": null,
+      "placeholder": {
+        "en": "732 829 320 00074",
+        "fa": "۷۳۲ ۸۲۹ ۳۲۰ ۰۰۰۷۴",
+        "ar": "732 829 320 00074"
+      },
+      "regex": "^\\d{14}$",
+      "regex_strict": null,
+      "length": 14,
+      "checksum": "fr_siret",
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " ",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "digits",
+      "examples_valid": [
+        "732 829 320 00074",
+        "73282932000074"
+      ],
+      "examples_invalid": [
+        {
+          "value": "732 829 320 00075",
+          "expect": "checksum"
+        },
+        {
+          "value": "7328293200007",
+          "expect": "format",
+          "reason": "one character short (added in F01-I)"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "73282932000074",
+          "output": "732 829 320 00074"
+        }
+      ],
+      "synthetic_examples": false,
+      "verification": "secondary",
+      "priority": "P2",
+      "notes": "Added in F01 sub-task I from docs/feature-gaps/reference/masks-market-research.en.md Appendix A (P2). fa/ar labels written for F01, not reviewed by a native translator yet; placeholder = formatted first example.",
+      "sources": [
+        "https://github.com/arthurdejong/python-stdnum/blob/master/stdnum/fr/siret.py"
+      ]
+    },
+    {
+      "id": "nl.bsn",
+      "country": "NL",
+      "category": "national_id",
+      "label": {
+        "en": "Dutch BSN",
+        "fa": "شماره شهروندی هلند (BSN)",
+        "ar": "رقم المواطن الهولندي (BSN)"
+      },
+      "mask": "999999999",
+      "formatter": null,
+      "placeholder": {
+        "en": "111222333",
+        "fa": "۱۱۱۲۲۲۳۳۳",
+        "ar": "111222333"
+      },
+      "regex": "^\\d{9}$",
+      "regex_strict": null,
+      "length": 9,
+      "checksum": "nl_bsn",
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " .-",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "digits",
+      "examples_valid": [
+        "111222333",
+        "123456782"
+      ],
+      "examples_invalid": [
+        {
+          "value": "111222334",
+          "expect": "checksum"
+        },
+        {
+          "value": "11122233",
+          "expect": "format",
+          "reason": "one character short (added in F01-I)"
+        }
+      ],
+      "examples_format": [],
+      "synthetic_examples": false,
+      "verification": "secondary",
+      "priority": "P2",
+      "notes": "Added in F01 sub-task I from docs/feature-gaps/reference/masks-market-research.en.md Appendix A (P2). fa/ar labels written for F01, not reviewed by a native translator yet; placeholder = formatted first example.",
+      "sources": [
+        "https://github.com/arthurdejong/python-stdnum/blob/master/stdnum/nl/bsn.py"
+      ]
+    },
+    {
+      "id": "nl.postcode",
+      "country": "NL",
+      "category": "postal_code",
+      "label": {
+        "en": "Dutch postcode",
+        "fa": "کد پستی هلند",
+        "ar": "الرمز البريدي الهولندي"
+      },
+      "mask": "9999 aa",
+      "formatter": null,
+      "placeholder": {
+        "en": "1234 AB",
+        "fa": "۱۲۳۴ AB",
+        "ar": "1234 AB"
+      },
+      "regex": "^[1-9]\\d{3}[A-Z]{2}$",
+      "regex_strict": null,
+      "length": 6,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "text",
+      "autocomplete": "postal-code",
+      "dir": "ltr",
+      "strip": " ",
+      "uppercase": true,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "1234 AB",
+        "1234ab"
+      ],
+      "examples_invalid": [
+        {
+          "value": "0123 AB",
+          "expect": "format"
+        },
+        {
+          "value": "1234A",
+          "expect": "format",
+          "reason": "one character short (added in F01-I)"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "1234ab",
+          "output": "1234 AB"
+        }
+      ],
+      "synthetic_examples": false,
+      "verification": "unverified",
+      "priority": "P2",
+      "notes": "Added in F01 sub-task I from docs/feature-gaps/reference/masks-market-research.en.md Appendix A (P2). fa/ar labels written for F01, not reviewed by a native translator yet; placeholder = formatted first example.",
+      "sources": [
+        "https://en.wikipedia.org/wiki/Postal_codes_in_the_Netherlands"
+      ]
+    },
+    {
+      "id": "mx.curp",
+      "country": "MX",
+      "category": "national_id",
+      "label": {
+        "en": "Mexican CURP",
+        "fa": "کد CURP مکزیک",
+        "ar": "رمز CURP المكسيكي"
+      },
+      "mask": "aaaa999999aaaaaa*9",
+      "formatter": null,
+      "placeholder": {
+        "en": "BOXW310820HNERXN09",
+        "fa": "BOXW۳۱۰۸۲۰HNERXN۰۹",
+        "ar": "BOXW310820HNERXN09"
+      },
+      "regex": "^[A-Z]{4}\\d{6}[A-Z]{6}[0-9A-Z]\\d$",
+      "regex_strict": null,
+      "length": 18,
+      "checksum": "mx_curp",
+      "validator": null,
+      "inputmode": "text",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " ",
+      "uppercase": true,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "BOXW310820HNERXN09",
+        "boxw310820hnerxn09"
+      ],
+      "examples_invalid": [
+        {
+          "value": "BOXW310820HNERXN08",
+          "expect": "checksum"
+        },
+        {
+          "value": "BOXW310820HNERXN0",
+          "expect": "format",
+          "reason": "one character short (added in F01-I)"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "boxw310820hnerxn09",
+          "output": "BOXW310820HNERXN09"
+        }
+      ],
+      "synthetic_examples": false,
+      "verification": "secondary",
+      "priority": "P2",
+      "notes": "Added in F01 sub-task I from docs/feature-gaps/reference/masks-market-research.en.md Appendix A (P2). fa/ar labels written for F01, not reviewed by a native translator yet; placeholder = formatted first example.",
+      "sources": [
+        "https://github.com/arthurdejong/python-stdnum/blob/master/stdnum/mx/curp.py"
+      ]
+    },
+    {
+      "id": "tr.mobile",
+      "country": "TR",
+      "category": "phone_mobile",
+      "label": {
+        "en": "Turkish mobile",
+        "fa": "شماره موبایل ترکیه",
+        "ar": "رقم الجوال التركي"
+      },
+      "mask": "0599 999 99 99",
+      "formatter": null,
+      "placeholder": {
+        "en": "0532 123 45 67",
+        "fa": "۰۵۳۲ ۱۲۳ ۴۵ ۶۷",
+        "ar": "0532 123 45 67"
+      },
+      "regex": "^(?:\\+90|0090|90|0)?5(?:0[15-7]|1[06]|24|[34]\\d|5[1-59]|9[46])\\d{7}$",
+      "regex_strict": null,
+      "length": 13,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "tel",
+      "autocomplete": "tel-national",
+      "dir": "ltr",
+      "strip": " -().",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "e164",
+      "e164": {
+        "cc": "90",
+        "trunk": "0",
+        "nsn_length": [
+          10
+        ]
+      },
+      "examples_valid": [
+        "0532 123 45 67",
+        "+90 532 123 4567",
+        "5321234567"
+      ],
+      "examples_invalid": [
+        {
+          "value": "0212 123 45 67",
+          "expect": "format"
+        },
+        {
+          "value": "0532 123 45 6",
+          "expect": "format"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "05321234567",
+          "output": "0532 123 45 67"
+        },
+        {
+          "input": "5321234567",
+          "output": "0532 123 45 67"
+        }
+      ],
+      "synthetic_examples": false,
+      "verification": "secondary",
+      "priority": "P1",
+      "notes": "Added in F01 sub-task I from docs/feature-gaps/reference/masks-market-research.en.md Appendix A (P1). fa/ar labels written for F01, not reviewed by a native translator yet; placeholder = formatted first example.",
+      "sources": [
+        "https://unpkg.com/libphonenumber-js@1.11.20/metadata.max.json"
+      ]
+    },
+    {
+      "id": "tr.tc_kimlik",
+      "country": "TR",
+      "category": "national_id",
+      "label": {
+        "en": "Turkish T.C. Kimlik No",
+        "fa": "کد ملی ترکیه (TC Kimlik)",
+        "ar": "رقم الهوية التركية (TC Kimlik)"
+      },
+      "mask": "99999999999",
+      "formatter": null,
+      "placeholder": {
+        "en": "10000000146",
+        "fa": "۱۰۰۰۰۰۰۰۱۴۶",
+        "ar": "10000000146"
+      },
+      "regex": "^[1-9]\\d{10}$",
+      "regex_strict": null,
+      "length": 11,
+      "checksum": "tr_tckimlik",
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " ",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "digits",
+      "examples_valid": [
+        "10000000146",
+        "۱۰۰۰۰۰۰۰۱۴۶"
+      ],
+      "examples_invalid": [
+        {
+          "value": "10000000147",
+          "expect": "checksum"
+        },
+        {
+          "value": "01234567890",
+          "expect": "format"
+        }
+      ],
+      "examples_format": [],
+      "synthetic_examples": false,
+      "verification": "secondary",
+      "priority": "P1",
+      "notes": "Added in F01 sub-task I from docs/feature-gaps/reference/masks-market-research.en.md Appendix A (P1). fa/ar labels written for F01, not reviewed by a native translator yet; placeholder = formatted first example.",
+      "sources": [
+        "https://github.com/arthurdejong/python-stdnum/blob/master/stdnum/tr/tckimlik.py"
+      ]
+    },
+    {
+      "id": "pk.mobile",
+      "country": "PK",
+      "category": "phone_mobile",
+      "label": {
+        "en": "Pakistani mobile",
+        "fa": "شماره موبایل پاکستان",
+        "ar": "رقم الجوال الباكستاني"
+      },
+      "mask": "0399 9999999",
+      "formatter": null,
+      "placeholder": {
+        "en": "0300 1234567",
+        "fa": "۰۳۰۰ ۱۲۳۴۵۶۷",
+        "ar": "0300 1234567"
+      },
+      "regex": "^(?:\\+92|0092|92|0)?3(?:[0-247]\\d|3[0-79]|55|64)\\d{7}$",
+      "regex_strict": null,
+      "length": 13,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "tel",
+      "autocomplete": "tel-national",
+      "dir": "ltr",
+      "strip": " -().",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "e164",
+      "e164": {
+        "cc": "92",
+        "trunk": "0",
+        "nsn_length": [
+          10
+        ]
+      },
+      "examples_valid": [
+        "0300 1234567",
+        "+92 300 1234567",
+        "3001234567"
+      ],
+      "examples_invalid": [
+        {
+          "value": "0500 1234567",
+          "expect": "format"
+        },
+        {
+          "value": "0300 123456",
+          "expect": "format"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "03001234567",
+          "output": "0300 1234567"
+        }
+      ],
+      "synthetic_examples": false,
+      "verification": "secondary",
+      "priority": "P1",
+      "notes": "Added in F01 sub-task I from docs/feature-gaps/reference/masks-market-research.en.md Appendix A (P1). fa/ar labels written for F01, not reviewed by a native translator yet; placeholder = formatted first example.",
+      "sources": [
+        "https://unpkg.com/libphonenumber-js@1.11.20/metadata.max.json"
+      ]
+    },
+    {
+      "id": "pk.cnic",
+      "country": "PK",
+      "category": "national_id",
+      "label": {
+        "en": "Pakistani CNIC",
+        "fa": "کارت ملی پاکستان (CNIC)",
+        "ar": "رقم بطاقة الهوية الباكستانية (CNIC)"
+      },
+      "mask": "99999-9999999-9",
+      "formatter": null,
+      "placeholder": {
+        "en": "34201-0891231-8",
+        "fa": "۳۴۲۰۱-۰۸۹۱۲۳۱-۸",
+        "ar": "34201-0891231-8"
+      },
+      "regex": "^\\d{13}$",
+      "regex_strict": null,
+      "length": 13,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " -",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "digits",
+      "examples_valid": [
+        "34201-0891231-8",
+        "3420108912318"
+      ],
+      "examples_invalid": [
+        {
+          "value": "34201-0891231",
+          "expect": "format"
+        },
+        {
+          "value": "342010891231",
+          "expect": "format",
+          "reason": "one character short (added in F01-I)"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "3420108912318",
+          "output": "34201-0891231-8"
+        }
+      ],
+      "synthetic_examples": false,
+      "verification": "secondary",
+      "priority": "P1",
+      "notes": "Added in F01 sub-task I from docs/feature-gaps/reference/masks-market-research.en.md Appendix A (P1). fa/ar labels written for F01, not reviewed by a native translator yet; placeholder = formatted first example.",
+      "sources": [
+        "https://github.com/arthurdejong/python-stdnum/blob/master/stdnum/pk/cnic.py"
+      ]
+    },
+    {
+      "id": "af.mobile",
+      "country": "AF",
+      "category": "phone_mobile",
+      "label": {
+        "en": "Afghan mobile",
+        "fa": "شماره موبایل افغانستان",
+        "ar": "رقم الجوال الأفغاني"
+      },
+      "mask": "079 999 9999",
+      "formatter": null,
+      "placeholder": {
+        "en": "070 123 4567",
+        "fa": "۰۷۰ ۱۲۳ ۴۵۶۷",
+        "ar": "070 123 4567"
+      },
+      "regex": "^(?:\\+93|0093|93|0)?7\\d{8}$",
+      "regex_strict": null,
+      "length": 12,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "tel",
+      "autocomplete": "tel-national",
+      "dir": "ltr",
+      "strip": " -().",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "e164",
+      "e164": {
+        "cc": "93",
+        "trunk": "0",
+        "nsn_length": [
+          9
+        ]
+      },
+      "examples_valid": [
+        "070 123 4567",
+        "+93 70 123 4567",
+        "0791234567",
+        "۰۷۰۱۲۳۴۵۶۷"
+      ],
+      "examples_invalid": [
+        {
+          "value": "020 123 4567",
+          "expect": "format"
+        },
+        {
+          "value": "070 123 456",
+          "expect": "format"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "0701234567",
+          "output": "070 123 4567"
+        }
+      ],
+      "synthetic_examples": false,
+      "verification": "secondary",
+      "priority": "P1",
+      "notes": "Added in F01 sub-task I from docs/feature-gaps/reference/masks-market-research.en.md Appendix A (P1). fa/ar labels written for F01, not reviewed by a native translator yet; placeholder = formatted first example.",
+      "sources": [
+        "https://unpkg.com/libphonenumber-js@1.11.20/metadata.max.json"
+      ]
+    },
+    {
+      "id": "ps.mobile",
+      "country": "PS",
+      "category": "phone_mobile",
+      "label": {
+        "en": "Palestinian mobile",
+        "fa": "شماره موبایل فلسطین",
+        "ar": "رقم الجوال الفلسطيني"
+      },
+      "mask": "0599 999 999",
+      "formatter": null,
+      "placeholder": {
+        "en": "0599 123 456",
+        "fa": "۰۵۹۹ ۱۲۳ ۴۵۶",
+        "ar": "0599 123 456"
+      },
+      "regex": "^(?:\\+970|00970|970|0)?5[69]\\d{7}$",
+      "regex_strict": null,
+      "length": 13,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "tel",
+      "autocomplete": "tel-national",
+      "dir": "ltr",
+      "strip": " -().",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "e164",
+      "e164": {
+        "cc": "970",
+        "trunk": "0",
+        "nsn_length": [
+          9
+        ]
+      },
+      "examples_valid": [
+        "0599 123 456",
+        "+970 599 123 456",
+        "0569123456"
+      ],
+      "examples_invalid": [
+        {
+          "value": "0579 123 456",
+          "expect": "format"
+        },
+        {
+          "value": "059912345",
+          "expect": "format",
+          "reason": "one character short (added in F01-I)"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "0599123456",
+          "output": "0599 123 456"
+        }
+      ],
+      "synthetic_examples": false,
+      "verification": "secondary",
+      "priority": "P1",
+      "notes": "Added in F01 sub-task I from docs/feature-gaps/reference/masks-market-research.en.md Appendix A (P1). fa/ar labels written for F01, not reviewed by a native translator yet; placeholder = formatted first example.",
+      "sources": [
+        "https://unpkg.com/libphonenumber-js@1.11.20/metadata.max.json"
+      ]
+    },
+    {
+      "id": "ly.mobile",
+      "country": "LY",
+      "category": "phone_mobile",
+      "label": {
+        "en": "Libyan mobile",
+        "fa": "شماره موبایل لیبی",
+        "ar": "رقم الجوال الليبي"
+      },
+      "mask": "0\\99-9999999",
+      "formatter": null,
+      "placeholder": {
+        "en": "091-2345678",
+        "fa": "۰۹۱-۲۳۴۵۶۷۸",
+        "ar": "091-2345678"
+      },
+      "regex": "^(?:\\+218|00218|218|0)?9[1-6]\\d{7}$",
+      "regex_strict": null,
+      "length": 13,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "tel",
+      "autocomplete": "tel-national",
+      "dir": "ltr",
+      "strip": " -().",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "e164",
+      "e164": {
+        "cc": "218",
+        "trunk": "0",
+        "nsn_length": [
+          9
+        ]
+      },
+      "examples_valid": [
+        "091-2345678",
+        "+218 91 234 5678"
+      ],
+      "examples_invalid": [
+        {
+          "value": "097-2345678",
+          "expect": "format"
+        },
+        {
+          "value": "091234567",
+          "expect": "format",
+          "reason": "one character short (added in F01-I)"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "0912345678",
+          "output": "091-2345678"
+        }
+      ],
+      "synthetic_examples": false,
+      "verification": "secondary",
+      "priority": "P1",
+      "notes": "Added in F01 sub-task I from docs/feature-gaps/reference/masks-market-research.en.md Appendix A (P1). fa/ar labels written for F01, not reviewed by a native translator yet; placeholder = formatted first example.",
+      "sources": [
+        "https://unpkg.com/libphonenumber-js@1.11.20/metadata.max.json"
+      ]
+    },
+    {
+      "id": "sd.mobile",
+      "country": "SD",
+      "category": "phone_mobile",
+      "label": {
+        "en": "Sudanese mobile",
+        "fa": "شماره موبایل سودان",
+        "ar": "رقم الجوال السوداني"
+      },
+      "mask": "099 999 9999",
+      "formatter": null,
+      "placeholder": {
+        "en": "091 234 5678",
+        "fa": "۰۹۱ ۲۳۴ ۵۶۷۸",
+        "ar": "091 234 5678"
+      },
+      "regex": "^(?:\\+249|00249|249|0)?(?:1[0-2]|9[0-3569])\\d{7}$",
+      "regex_strict": null,
+      "length": 13,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "tel",
+      "autocomplete": "tel-national",
+      "dir": "ltr",
+      "strip": " -().",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "e164",
+      "e164": {
+        "cc": "249",
+        "trunk": "0",
+        "nsn_length": [
+          9
+        ]
+      },
+      "examples_valid": [
+        "091 234 5678",
+        "+249 91 234 5678",
+        "012 345 6789"
+      ],
+      "examples_invalid": [
+        {
+          "value": "094 234 5678",
+          "expect": "format"
+        },
+        {
+          "value": "091234567",
+          "expect": "format",
+          "reason": "one character short (added in F01-I)"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "0912345678",
+          "output": "091 234 5678"
+        }
+      ],
+      "synthetic_examples": false,
+      "verification": "secondary",
+      "priority": "P1",
+      "notes": "Added in F01 sub-task I from docs/feature-gaps/reference/masks-market-research.en.md Appendix A (P1). fa/ar labels written for F01, not reviewed by a native translator yet; placeholder = formatted first example.",
+      "sources": [
+        "https://unpkg.com/libphonenumber-js@1.11.20/metadata.max.json"
+      ]
+    },
+    {
+      "id": "ye.mobile",
+      "country": "YE",
+      "category": "phone_mobile",
+      "label": {
+        "en": "Yemeni mobile",
+        "fa": "شماره موبایل یمن",
+        "ar": "رقم الجوال اليمني"
+      },
+      "mask": "0799 999 999",
+      "formatter": null,
+      "placeholder": {
+        "en": "0771 234 567",
+        "fa": "۰۷۷۱ ۲۳۴ ۵۶۷",
+        "ar": "0771 234 567"
+      },
+      "regex": "^(?:\\+967|00967|967|0)?7[01378]\\d{7}$",
+      "regex_strict": null,
+      "length": 13,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "tel",
+      "autocomplete": "tel-national",
+      "dir": "ltr",
+      "strip": " -().",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "e164",
+      "e164": {
+        "cc": "967",
+        "trunk": "0",
+        "nsn_length": [
+          9
+        ]
+      },
+      "examples_valid": [
+        "0771 234 567",
+        "+967 771 234 567"
+      ],
+      "examples_invalid": [
+        {
+          "value": "0751 234 567",
+          "expect": "format"
+        },
+        {
+          "value": "077123456",
+          "expect": "format",
+          "reason": "one character short (added in F01-I)"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "0771234567",
+          "output": "0771 234 567"
+        }
+      ],
+      "synthetic_examples": false,
+      "verification": "secondary",
+      "priority": "P1",
+      "notes": "Added in F01 sub-task I from docs/feature-gaps/reference/masks-market-research.en.md Appendix A (P1). fa/ar labels written for F01, not reviewed by a native translator yet; placeholder = formatted first example.",
+      "sources": [
+        "https://unpkg.com/libphonenumber-js@1.11.20/metadata.max.json"
+      ]
+    },
+    {
+      "id": "sy.mobile",
+      "country": "SY",
+      "category": "phone_mobile",
+      "label": {
+        "en": "Syrian mobile",
+        "fa": "شماره موبایل سوریه",
+        "ar": "رقم الجوال السوري"
+      },
+      "mask": "0999 999 999",
+      "formatter": null,
+      "placeholder": {
+        "en": "0944 567 890",
+        "fa": "۰۹۴۴ ۵۶۷ ۸۹۰",
+        "ar": "0944 567 890"
+      },
+      "regex": "^(?:\\+963|00963|963|0)?(?:50|9[1-689])\\d{7}$",
+      "regex_strict": null,
+      "length": 13,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "tel",
+      "autocomplete": "tel-national",
+      "dir": "ltr",
+      "strip": " -().",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "e164",
+      "e164": {
+        "cc": "963",
+        "trunk": "0",
+        "nsn_length": [
+          9
+        ]
+      },
+      "examples_valid": [
+        "0944 567 890",
+        "+963 944 567 890"
+      ],
+      "examples_invalid": [
+        {
+          "value": "0974 567 890",
+          "expect": "format"
+        },
+        {
+          "value": "094456789",
+          "expect": "format",
+          "reason": "one character short (added in F01-I)"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "0944567890",
+          "output": "0944 567 890"
+        }
+      ],
+      "synthetic_examples": false,
+      "verification": "secondary",
+      "priority": "P1",
+      "notes": "Added in F01 sub-task I from docs/feature-gaps/reference/masks-market-research.en.md Appendix A (P1). fa/ar labels written for F01, not reviewed by a native translator yet; placeholder = formatted first example.",
+      "sources": [
+        "https://unpkg.com/libphonenumber-js@1.11.20/metadata.max.json"
+      ]
+    },
+    {
+      "id": "mr.mobile",
+      "country": "MR",
+      "category": "phone_mobile",
+      "label": {
+        "en": "Mauritanian mobile",
+        "fa": "شماره موبایل موریتانی",
+        "ar": "رقم الجوال الموريتاني"
+      },
+      "mask": "99 99 99 99",
+      "formatter": null,
+      "placeholder": {
+        "en": "22 12 34 56",
+        "fa": "۲۲ ۱۲ ۳۴ ۵۶",
+        "ar": "22 12 34 56"
+      },
+      "regex": "^(?:\\+222|00222|222)?[2-4][0-46-9]\\d{6}$",
+      "regex_strict": null,
+      "length": 12,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "tel",
+      "autocomplete": "tel-national",
+      "dir": "ltr",
+      "strip": " -().",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "e164",
+      "e164": {
+        "cc": "222",
+        "trunk": "",
+        "nsn_length": [
+          8
+        ]
+      },
+      "examples_valid": [
+        "22 12 34 56",
+        "+222 36 12 34 56"
+      ],
+      "examples_invalid": [
+        {
+          "value": "25 12 34 56",
+          "expect": "format"
+        },
+        {
+          "value": "2212345",
+          "expect": "format",
+          "reason": "one character short (added in F01-I)"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "22123456",
+          "output": "22 12 34 56"
+        }
+      ],
+      "synthetic_examples": false,
+      "verification": "secondary",
+      "priority": "P2",
+      "notes": "Added in F01 sub-task I from docs/feature-gaps/reference/masks-market-research.en.md Appendix A (P2). fa/ar labels written for F01, not reviewed by a native translator yet; placeholder = formatted first example.",
+      "sources": [
+        "https://unpkg.com/libphonenumber-js@1.11.20/metadata.max.json"
+      ]
+    },
+    {
+      "id": "eg.tax_id",
+      "country": "EG",
+      "category": "tax_id",
+      "label": {
+        "en": "Egyptian tax registration number",
+        "fa": "شماره ثبت مالیاتی مصر",
+        "ar": "رقم التسجيل الضريبي المصري"
+      },
+      "mask": "999-999-999",
+      "formatter": null,
+      "placeholder": {
+        "en": "100-531-385",
+        "fa": "۱۰۰-۵۳۱-۳۸۵",
+        "ar": "100-531-385"
+      },
+      "regex": "^\\d{9}$",
+      "regex_strict": null,
+      "length": 9,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " -",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "digits",
+      "examples_valid": [
+        "100-531-385",
+        "٣٣١-١٠٥-٢٦٨"
+      ],
+      "examples_invalid": [
+        {
+          "value": "12345",
+          "expect": "format"
+        },
+        {
+          "value": "10053138",
+          "expect": "format",
+          "reason": "one character short (added in F01-I)"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "100531385",
+          "output": "100-531-385"
+        }
+      ],
+      "synthetic_examples": false,
+      "verification": "secondary",
+      "priority": "P1",
+      "notes": "Added in F01 sub-task I from docs/feature-gaps/reference/masks-market-research.en.md Appendix A (P1). fa/ar labels written for F01, not reviewed by a native translator yet; placeholder = formatted first example.",
+      "sources": [
+        "https://github.com/arthurdejong/python-stdnum/blob/master/stdnum/eg/tn.py"
+      ]
+    },
+    {
+      "id": "ma.ice",
+      "country": "MA",
+      "category": "company_id",
+      "label": {
+        "en": "Moroccan ICE",
+        "fa": "شناسهٔ مشترک شرکت مراکش (ICE)",
+        "ar": "المعرف الموحد للمقاولة المغربية (ICE)"
+      },
+      "mask": "999999999999999",
+      "formatter": null,
+      "placeholder": {
+        "en": "001561191000066",
+        "fa": "۰۰۱۵۶۱۱۹۱۰۰۰۰۶۶",
+        "ar": "001561191000066"
+      },
+      "regex": "^\\d{15}$",
+      "regex_strict": null,
+      "length": 15,
+      "checksum": "mod97_0",
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " ",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "digits",
+      "examples_valid": [
+        "001561191000066",
+        "00 21 36 09 30 00 040"
+      ],
+      "examples_invalid": [
+        {
+          "value": "001561191000065",
+          "expect": "checksum"
+        },
+        {
+          "value": "00156119100006",
+          "expect": "format",
+          "reason": "one character short (added in F01-I)"
+        }
+      ],
+      "examples_format": [],
+      "synthetic_examples": false,
+      "verification": "secondary",
+      "priority": "P1",
+      "notes": "Added in F01 sub-task I from docs/feature-gaps/reference/masks-market-research.en.md Appendix A (P1). fa/ar labels written for F01, not reviewed by a native translator yet; placeholder = formatted first example.",
+      "sources": [
+        "https://github.com/arthurdejong/python-stdnum/blob/master/stdnum/ma/ice.py"
+      ]
+    },
+    {
+      "id": "dz.nif",
+      "country": "DZ",
+      "category": "tax_id",
+      "label": {
+        "en": "Algerian NIF",
+        "fa": "شماره شناسایی مالیاتی الجزایر (NIF)",
+        "ar": "رقم التعريف الجبائي الجزائري (NIF)"
+      },
+      "mask": "999999999999999[99999]",
+      "formatter": null,
+      "placeholder": {
+        "en": "408020000150039",
+        "fa": "۴۰۸۰۲۰۰۰۰۱۵۰۰۳۹",
+        "ar": "408020000150039"
+      },
+      "regex": "^(?:\\d{15}|\\d{20})$",
+      "regex_strict": null,
+      "length": 15,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " ",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "digits",
+      "examples_valid": [
+        "408020000150039",
+        "41201600000606600001"
+      ],
+      "examples_invalid": [
+        {
+          "value": "4080200001500391",
+          "expect": "format"
+        },
+        {
+          "value": "40802000015003",
+          "expect": "format",
+          "reason": "one character short (added in F01-I)"
+        }
+      ],
+      "examples_format": [],
+      "synthetic_examples": false,
+      "verification": "secondary",
+      "priority": "P2",
+      "notes": "Added in F01 sub-task I from docs/feature-gaps/reference/masks-market-research.en.md Appendix A (P2). fa/ar labels written for F01, not reviewed by a native translator yet; placeholder = formatted first example.",
+      "sources": [
+        "https://github.com/arthurdejong/python-stdnum/blob/master/stdnum/dz/nif.py"
+      ]
+    },
+    {
+      "id": "tn.mf",
+      "country": "TN",
+      "category": "tax_id",
+      "label": {
+        "en": "Tunisian matricule fiscal",
+        "fa": "شناسهٔ مالیاتی تونس (Matricule fiscal)",
+        "ar": "المعرف الجبائي التونسي (Matricule fiscal)"
+      },
+      "mask": "9999999/a[/a/a/999]",
+      "formatter": null,
+      "placeholder": {
+        "en": "1234567/M/A/E/001",
+        "fa": "۱۲۳۴۵۶۷/M/A/E/۰۰۱",
+        "ar": "1234567/M/A/E/001"
+      },
+      "regex": "^\\d{7}[A-HJ-NP-TV-Z](?:[ABDNP][MPCNE]\\d{3})?$",
+      "regex_strict": null,
+      "length": 13,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "text",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " /.-",
+      "uppercase": true,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "1234567/M/A/E/001",
+        "1282182W",
+        "1496298/T/P/N/000"
+      ],
+      "examples_invalid": [
+        {
+          "value": "1219773U",
+          "expect": "format"
+        },
+        {
+          "value": "1234567/M/A/X/000",
+          "expect": "format"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "1234567MAE001",
+          "output": "1234567/M/A/E/001"
+        }
+      ],
+      "synthetic_examples": false,
+      "verification": "secondary",
+      "priority": "P2",
+      "notes": "Added in F01 sub-task I from docs/feature-gaps/reference/masks-market-research.en.md Appendix A (P2). fa/ar labels written for F01, not reviewed by a native translator yet; placeholder = formatted first example.",
+      "sources": [
+        "https://github.com/arthurdejong/python-stdnum/blob/master/stdnum/tn/mf.py"
+      ]
+    },
+    {
+      "id": "in.gstin",
+      "country": "IN",
+      "category": "tax_id",
+      "label": {
+        "en": "Indian GSTIN",
+        "fa": "شماره GSTIN هند",
+        "ar": "رقم GSTIN الهندي"
+      },
+      "mask": "99aaaaa9999a*a*",
+      "formatter": null,
+      "placeholder": {
+        "en": "27AAPFU0939F1ZV",
+        "fa": "۲۷AAPFU۰۹۳۹F۱ZV",
+        "ar": "27AAPFU0939F1ZV"
+      },
+      "regex": "^\\d{2}[A-Z]{5}\\d{4}[A-Z][1-9A-Z]Z[0-9A-Z]$",
+      "regex_strict": null,
+      "length": 15,
+      "checksum": "luhn_mod36",
+      "validator": null,
+      "inputmode": "text",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " ",
+      "uppercase": true,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "27AAPFU0939F1ZV",
+        "27aapfu0939f1zv"
+      ],
+      "examples_invalid": [
+        {
+          "value": "27AAPFU0939F1ZW",
+          "expect": "checksum"
+        },
+        {
+          "value": "27AAPFU0939F1YV",
+          "expect": "format"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "27aapfu0939f1zv",
+          "output": "27AAPFU0939F1ZV"
+        }
+      ],
+      "synthetic_examples": false,
+      "verification": "secondary",
+      "priority": "P2",
+      "notes": "Added in F01 sub-task I from docs/feature-gaps/reference/masks-market-research.en.md Appendix A (P2). fa/ar labels written for F01, not reviewed by a native translator yet; placeholder = formatted first example.",
+      "sources": [
+        "https://github.com/arthurdejong/python-stdnum/blob/master/stdnum/in_/gstin.py"
+      ]
+    },
+    {
+      "id": "in.ifsc",
+      "country": "IN",
+      "category": "bank_account",
+      "label": {
+        "en": "Indian IFSC",
+        "fa": "کد IFSC بانک هند",
+        "ar": "رمز IFSC للبنوك الهندية"
+      },
+      "mask": "aaaa0******",
+      "formatter": null,
+      "placeholder": {
+        "en": "SBIN0001234",
+        "fa": "SBIN۰۰۰۱۲۳۴",
+        "ar": "SBIN0001234"
+      },
+      "regex": "^[A-Z]{4}0[A-Z0-9]{6}$",
+      "regex_strict": null,
+      "length": 11,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "text",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " ",
+      "uppercase": true,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "SBIN0001234",
+        "sbin0001234"
+      ],
+      "examples_invalid": [
+        {
+          "value": "SBIN1001234",
+          "expect": "format"
+        },
+        {
+          "value": "SBIN000123",
+          "expect": "format",
+          "reason": "one character short (added in F01-I)"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "sbin0001234",
+          "output": "SBIN0001234"
+        }
+      ],
+      "synthetic_examples": false,
+      "verification": "secondary",
+      "priority": "P2",
+      "notes": "Added in F01 sub-task I from docs/feature-gaps/reference/masks-market-research.en.md Appendix A (P2). fa/ar labels written for F01, not reviewed by a native translator yet; placeholder = formatted first example.",
+      "sources": [
+        "https://en.wikipedia.org/wiki/Indian_Financial_System_Code"
+      ]
+    },
+    {
+      "id": "intl.imei",
+      "country": "intl",
+      "category": "generic",
+      "label": {
+        "en": "IMEI",
+        "fa": "شماره IMEI گوشی",
+        "ar": "رقم IMEI للهاتف"
+      },
+      "mask": "99-999999-999999-9",
+      "formatter": null,
+      "placeholder": {
+        "en": "49-015420-323751-8",
+        "fa": "۴۹-۰۱۵۴۲۰-۳۲۳۷۵۱-۸",
+        "ar": "49-015420-323751-8"
+      },
+      "regex": "^\\d{15}$",
+      "regex_strict": null,
+      "length": 15,
+      "checksum": "luhn",
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " -/",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "digits",
+      "examples_valid": [
+        "49-015420-323751-8",
+        "490154203237518"
+      ],
+      "examples_invalid": [
+        {
+          "value": "490154203237519",
+          "expect": "checksum"
+        },
+        {
+          "value": "49015420323751",
+          "expect": "format",
+          "reason": "one character short (added in F01-I)"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "490154203237518",
+          "output": "49-015420-323751-8"
+        }
+      ],
+      "synthetic_examples": false,
+      "verification": "secondary",
+      "priority": "P2",
+      "notes": "Added in F01 sub-task I from docs/feature-gaps/reference/masks-market-research.en.md Appendix A (P2). fa/ar labels written for F01, not reviewed by a native translator yet; placeholder = formatted first example.",
+      "sources": [
+        "https://github.com/arthurdejong/python-stdnum/blob/master/stdnum/imei.py"
+      ]
+    },
+    {
+      "id": "intl.gtin",
+      "country": "intl",
+      "category": "generic",
+      "label": {
+        "en": "GTIN / EAN / UPC barcode",
+        "fa": "بارکد کالا (GTIN / EAN / UPC)",
+        "ar": "الرمز الشريطي للمنتج (GTIN / EAN / UPC)"
+      },
+      "mask": "9{8,14}",
+      "formatter": null,
+      "placeholder": {
+        "en": "4006381333931",
+        "fa": "۴۰۰۶۳۸۱۳۳۳۹۳۱",
+        "ar": "4006381333931"
+      },
+      "regex": "^(?:\\d{8}|\\d{12,14})$",
+      "regex_strict": null,
+      "length": 13,
+      "checksum": "gs1_mod10",
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " -",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "digits",
+      "examples_valid": [
+        "4006381333931",
+        "036000291452",
+        "96385074"
+      ],
+      "examples_invalid": [
+        {
+          "value": "4006381333932",
+          "expect": "checksum"
+        },
+        {
+          "value": "123456789",
+          "expect": "format"
+        }
+      ],
+      "examples_format": [],
+      "synthetic_examples": false,
+      "verification": "secondary",
+      "priority": "P2",
+      "notes": "Added in F01 sub-task I from docs/feature-gaps/reference/masks-market-research.en.md Appendix A (P2). fa/ar labels written for F01, not reviewed by a native translator yet; placeholder = formatted first example.",
+      "sources": [
+        "https://github.com/arthurdejong/python-stdnum/blob/master/stdnum/ean.py"
       ]
     }
   ]

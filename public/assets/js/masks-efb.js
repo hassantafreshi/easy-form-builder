@@ -261,7 +261,7 @@
   }
   // NANP (US/CA): optional country code 1, then NXX NXX XXXX; N = 2-9; area code and exchange may not be N11.
   function nanp(v) {
-    var d = v.replace(/^\+?1(?=\d{10}$)/, '');
+    var d = v.replace(/x\d{1,5}$/, '').replace(/^\+?1(?=\d{10}$)/, ''); // extension (us.phone_ext) is not part of the number
     if (!/^[2-9]\d{2}[2-9]\d{6}$/.test(d)) { return false; }
     return d.substr(1, 2) !== '11' && d.substr(4, 2) !== '11';
   }
@@ -351,15 +351,124 @@
   }
   // #endregion dates
 
+  // #region market-research checksums (F01-I, docs/feature-gaps/reference/masks-market-research.en.md App. A)
+  // A checksum may return the string 'rule' for a value that passes the arithmetic but is never issued
+  // (all-equal CPF digits, all-zero CNPJ base); validate() reports it with the 'rule' code.
+  function digitsOf(v) { var a = []; for (var i = 0; i < v.length; i++) { a.push(v.charCodeAt(i) - 48); } return a; }
+  function brCpf(v) {
+    if (!/^\d{11}$/.test(v)) { return false; }
+    if (/^(\d)\1{10}$/.test(v)) { return 'rule'; }
+    var d = digitsOf(v), s = 0, i, r;
+    for (i = 0; i < 9; i++) { s += d[i] * (10 - i); }
+    r = s % 11; if ((r < 2 ? 0 : 11 - r) !== d[9]) { return false; }
+    for (s = 0, i = 0; i < 10; i++) { s += d[i] * (11 - i); }
+    r = s % 11; return (r < 2 ? 0 : 11 - r) === d[10];
+  }
+  // CNPJ, numeric or alphanumeric (2026): character value = ASCII code - 48, so A = 17.
+  function brCnpj(v) {
+    if (!/^[0-9A-Z]{12}\d{2}$/.test(v)) { return false; }
+    if (/^0{12}/.test(v)) { return 'rule'; }
+    var w1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2], w2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2], s = 0, i, r;
+    for (i = 0; i < 12; i++) { s += (v.charCodeAt(i) - 48) * w1[i]; }
+    r = s % 11; if ((r < 2 ? 0 : 11 - r) !== v.charCodeAt(12) - 48) { return false; }
+    for (s = 0, i = 0; i < 13; i++) { s += (v.charCodeAt(i) - 48) * w2[i]; }
+    r = s % 11; return (r < 2 ? 0 : 11 - r) === v.charCodeAt(13) - 48;
+  }
+  function usAba(v) {
+    if (!/^\d{9}$/.test(v)) { return false; }
+    var d = digitsOf(v);
+    return (3 * (d[0] + d[3] + d[6]) + 7 * (d[1] + d[4] + d[7]) + (d[2] + d[5] + d[8])) % 10 === 0;
+  }
+  var DNI_LETTERS = 'TRWAGMYFPDXBNJZSQVHLCKE';
+  function esDni(v) { return /^\d{8}[A-Z]$/.test(v) && DNI_LETTERS.charAt(parseInt(v.substr(0, 8), 10) % 23) === v.charAt(8); }
+  function esNie(v) { return /^[XYZ]\d{7}[A-Z]$/.test(v) && esDni(String('XYZ'.indexOf(v.charAt(0))) + v.substr(1)); }
+  var CF_ODD = { '0': 1, '1': 0, '2': 5, '3': 7, '4': 9, '5': 13, '6': 15, '7': 17, '8': 19, '9': 21, A: 1, B: 0, C: 5, D: 7, E: 9, F: 13, G: 15, H: 17, I: 19, J: 21, K: 2, L: 4, M: 18, N: 20, O: 11, P: 3, Q: 6, R: 8, S: 12, T: 14, U: 16, V: 10, W: 22, X: 25, Y: 24, Z: 23 };
+  function itCodiceFiscale(v) {
+    if (!/^[A-Z0-9]{15}[A-Z]$/.test(v)) { return false; }
+    var s = 0;
+    for (var i = 0; i < 15; i++) {
+      var c = v.charAt(i);
+      s += i % 2 === 0 ? CF_ODD[c] : (/\d/.test(c) ? c.charCodeAt(0) - 48 : c.charCodeAt(0) - 65);
+    }
+    return String.fromCharCode(65 + s % 26) === v.charAt(15);
+  }
+  function trTckimlik(v) {
+    if (!/^[1-9]\d{10}$/.test(v)) { return false; }
+    var d = digitsOf(v), t = ((d[0] + d[2] + d[4] + d[6] + d[8]) * 7 - (d[1] + d[3] + d[5] + d[7])) % 10, s = 0;
+    if (t < 0) { t += 10; }
+    for (var i = 0; i < 10; i++) { s += d[i]; }
+    return t === d[9] && s % 10 === d[10];
+  }
+  var VIN_VALUES = '0123456789.ABCDEFGH..JKLMN.P.R..STUVWXYZ', VIN_WEIGHTS = [8, 7, 6, 5, 4, 3, 2, 10, 0, 9, 8, 7, 6, 5, 4, 3, 2];
+  // North American VIN check digit (position 9). EU VINs often lack it: used only as a strict option.
+  function vinNa(v) {
+    if (!/^[A-HJ-NPR-Z0-9]{17}$/.test(v)) { return false; }
+    var s = 0;
+    for (var i = 0; i < 17; i++) { s += (VIN_VALUES.indexOf(v.charAt(i)) % 10) * VIN_WEIGHTS[i]; }
+    var r = s % 11;
+    return (r === 10 ? 'X' : String(r)) === v.charAt(8);
+  }
+  function mod97Zero(v) { return /^\d+$/.test(v) && mod97(v) === 0; }
+  function nlBsn(v) {
+    if (!/^\d{9}$/.test(v)) { return false; }
+    var d = digitsOf(v), s = 0;
+    for (var i = 0; i < 8; i++) { s += d[i] * (9 - i); }
+    return (s - d[8]) % 11 === 0;
+  }
+  var CURP_ALPHABET = '0123456789ABCDEFGHIJKLMN&OPQRSTUVWXYZ';
+  function mxCurp(v) {
+    if (!/^[A-Z]{4}\d{6}[A-Z]{6}[0-9A-Z]\d$/.test(v)) { return false; }
+    var s = 0;
+    for (var i = 0; i < 17; i++) { s += CURP_ALPHABET.indexOf(v.charAt(i)) * (18 - i); }
+    return (10 - s % 10) % 10 === v.charCodeAt(17) - 48;
+  }
+  // Luhn mod N over 0-9A-Z (India GSTIN), as python-stdnum luhn.checksum(alphabet=...).
+  function luhnMod36(v) {
+    var A = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', n = 36, s = 0;
+    if (!/^[0-9A-Z]+$/.test(v)) { return false; }
+    for (var i = 0; i < v.length; i++) {
+      var x = A.indexOf(v.charAt(v.length - 1 - i));
+      if (i % 2 === 1) { x = x * 2; x = Math.floor(x / n) + x % n; }
+      s += x;
+    }
+    return s % n === 0;
+  }
+  // GS1 (EAN/UPC/GTIN): weights 1, 3, 1, 3 ... from the right, including the check digit.
+  function gs1Mod10(v) {
+    if (!/^\d{8,14}$/.test(v)) { return false; }
+    var s = 0;
+    for (var i = 0; i < v.length; i++) { s += (v.charCodeAt(v.length - 1 - i) - 48) * (i % 2 ? 3 : 1); }
+    return s % 10 === 0;
+  }
+  // SIRET: Luhn, except La Poste establishments (SIREN 356000000): digit sum mod 5.
+  function frSiret(v) {
+    if (!/^\d{14}$/.test(v)) { return false; }
+    if (v.substr(0, 9) === '356000000') { var s = 0; for (var i = 0; i < 14; i++) { s += v.charCodeAt(i) - 48; } return s % 5 === 0; }
+    return luhn(v);
+  }
+  // Date + time ("31/12/2024 23:59[:59]"): the date rule on the part before the space.
+  function validDateTime(v, mask) {
+    var sp = v.indexOf(' ');
+    return sp > 0 && validDate(v.substr(0, sp), mask);
+  }
+  function monthYear(v) {
+    var m = /^(\d{2})\/(\d{4})$/.exec(v);
+    return !!m && parseInt(m[1], 10) >= 1 && parseInt(m[1], 10) <= 12;
+  }
+  // #endregion market-research checksums
+
   // #region dispatch
   var CHECKSUMS = {
     luhn: luhn, verhoeff: verhoeff, iso7064_mod97_10: iban, iran_national_code: iranNationalCode,
     iran_legal_id: iranLegalId, saudi_nin: saudiNin, emirates_id: emiratesId, kuwait_civil_id: kuwaitCivilId,
-    au_abn: auAbn, card: card
+    au_abn: auAbn, card: card,
+    br_cpf: brCpf, br_cnpj: brCnpj, us_aba: usAba, es_dni: esDni, es_nie: esNie, it_codice_fiscale: itCodiceFiscale,
+    tr_tckimlik: trTckimlik, vin_na: vinNa, mod97_0: mod97Zero, nl_bsn: nlBsn, mx_curp: mxCurp, luhn_mod36: luhnMod36,
+    gs1_mod10: gs1Mod10, fr_siret: frSiret
   };
   var VALIDATORS = {
     date: validDate, card_expiry: cardExpiry, egypt_nid: egyptNid, uk_nino: ukNino, us_ssn: usSsn,
-    us_ein: usEin, nanp: nanp
+    us_ein: usEin, nanp: nanp, datetime: validDateTime, month_year: monthYear
   };
   var regexCache = {};
   function compiled(src) { return regexCache[src] || (regexCache[src] = new RegExp(src, 'u')); }
@@ -373,7 +482,9 @@
     if (mask.checksum) {
       var fn = CHECKSUMS[mask.checksum];
       if (!fn) { throw new Error('Unknown checksum ' + mask.checksum); }
-      if (!fn(v)) { return { ok: false, code: 'checksum', value: v }; }
+      var cr = fn(v);
+      if (cr === 'rule') { return { ok: false, code: 'rule', value: v }; }
+      if (!cr) { return { ok: false, code: 'checksum', value: v }; }
     }
     if (mask.validator) {
       var vf = VALIDATORS[mask.validator];
@@ -611,9 +722,16 @@
       nsn.indexOf(d.length - cc.length) !== -1) {
       rest = d.substr(cc.length);
     }
-    if (rest === null) { return s; }
+    // Masks that do not show the trunk (Brazil "(99) 99999-9999", India "99999 99999") get the bare
+    // national number; a national number typed with its trunk drops it there too.
+    var toks = compileMask(mask.mask), showsTrunk = !!trunk;
+    for (var k = 0; k < trunk.length; k++) { if (!toks[k] || toks[k].k !== 'lit' || toks[k].ch !== trunk.charAt(k)) { showsTrunk = false; } }
+    if (rest === null) {
+      if (trunk && !showsTrunk && d.substr(0, trunk.length) === trunk && nsn.indexOf(d.length - trunk.length) !== -1) { return d.substr(trunk.length); }
+      return s;
+    }
     if (trunk && rest.substr(0, trunk.length) === trunk) { rest = rest.substr(trunk.length); } // "+966 05..." typo
-    return trunk + rest;
+    return (showsTrunk ? trunk : '') + rest;
   }
   /** formatDisplay(mask, v): what the input box shows for a stored or pasted value (prefix handling + formatValue). */
   function formatDisplay(mask, v) {
@@ -680,6 +798,15 @@
   // #endregion dom_binding
 
   // #region field helpers (shared by core-efb.js and the builder preview)
+  /** hasStrict(def) / strictDef(def): a preset's opt-in strict variant (regex_strict, checksum_strict). */
+  function hasStrict(d) { return !!(d && (d.regex_strict || d.checksum_strict)); }
+  function strictDef(d) {
+    var o = {}, k;
+    for (k in d) { if (Object.prototype.hasOwnProperty.call(d, k)) { o[k] = d[k]; } }
+    if (d.regex_strict) { o.regex = d.regex_strict; }
+    if (d.checksum_strict) { o.checksum = d.checksum_strict; }
+    return o;
+  }
   /*
    * A field definition fd = { kind: 'preset' | 'custom', def: <runtime catalog entry | {mask, checksum}>,
    * store: 'canonical' | 'display' }. Callers build it from the input's data-mask-* attributes.
@@ -740,7 +867,7 @@
     toStoredCustom: toStoredCustom, toNationalDisplay: toNationalDisplay, formatDisplay: formatDisplay,
     CUSTOM_CHECKSUMS: CUSTOM_CHECKSUMS, MAX_INPUT: MAX_INPUT, MAX_CUSTOM_MASK: MAX_CUSTOM_MASK, checkMask: checkMask,
     dataOnly: dataOnly, finishMask: finishMask, fieldCheck: fieldCheck, fieldFormatter: fieldFormatter,
-    bindField: bindField, fieldMessage: fieldMessage,
+    bindField: bindField, fieldMessage: fieldMessage, hasStrict: hasStrict, strictDef: strictDef,
     luhn: luhn, luhnCheckDigit: luhnCheckDigit, verhoeff: verhoeff, verhoeffCheckDigit: verhoeffCheckDigit,
     iban: iban, ibanCheckDigits: ibanCheckDigits, IBAN_LENGTHS: IBAN_LENGTHS, mod97: mod97,
     iranNationalCode: iranNationalCode, iranLegalId: iranLegalId, saudiNin: saudiNin, emiratesId: emiratesId,
