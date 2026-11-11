@@ -3888,6 +3888,38 @@ class efbFunction {
 			"mskChecksum_" => $state && isset($ac->text->mskChecksum_) ? $ac->text->mskChecksum_ : esc_html__('%s is not valid. Please check the digits for typos.','easy-form-builder'),
 			/* translators: F01 visitor error for an impossible value (a date that does not exist, a reserved number). %s: the field label */
 			"mskRule_" => $state && isset($ac->text->mskRule_) ? $ac->text->mskRule_ : esc_html__('%s contains a value that is not possible, for example a date that does not exist.','easy-form-builder'),
+			/* translators: F01 visitor error when a number is below the minimum, above the maximum or negative where not allowed. %s: the field label */
+			"mskRange_" => $state && isset($ac->text->mskRange_) ? $ac->text->mskRange_ : esc_html__('%s is outside the allowed range.','easy-form-builder'),
+			/* translators: F01 builder: format option for numbers and money amounts with separators */
+			"mskNumeric" => $state && isset($ac->text->mskNumeric) ? $ac->text->mskNumeric : esc_html__('Number or amount','easy-form-builder'),
+			/* translators: F01 builder, number format: the character between groups of digits (1,234,567) */
+			"mskNumGroup" => $state && isset($ac->text->mskNumGroup) ? $ac->text->mskNumGroup : esc_html__('Thousands separator','easy-form-builder'),
+			/* translators: F01 builder, number format: the character before the decimals (12.5 or 12,5) */
+			"mskNumRadix" => $state && isset($ac->text->mskNumRadix) ? $ac->text->mskNumRadix : esc_html__('Decimal separator','easy-form-builder'),
+			/* translators: F01 builder, number format: how many digits after the decimal separator */
+			"mskNumDigits" => $state && isset($ac->text->mskNumDigits) ? $ac->text->mskNumDigits : esc_html__('Decimal places','easy-form-builder'),
+			/* translators: F01 builder, number format: 12.5 is shown and saved as 12.50 */
+			"mskNumFixed" => $state && isset($ac->text->mskNumFixed) ? $ac->text->mskNumFixed : esc_html__('Always show all decimal places','easy-form-builder'),
+			/* translators: F01 builder, number format */
+			"mskNumNegative" => $state && isset($ac->text->mskNumNegative) ? $ac->text->mskNumNegative : esc_html__('Allow negative numbers','easy-form-builder'),
+			/* translators: F01 builder, number format */
+			"mskNumMin" => $state && isset($ac->text->mskNumMin) ? $ac->text->mskNumMin : esc_html__('Minimum value','easy-form-builder'),
+			/* translators: F01 builder, number format */
+			"mskNumMax" => $state && isset($ac->text->mskNumMax) ? $ac->text->mskNumMax : esc_html__('Maximum value','easy-form-builder'),
+			/* translators: F01 builder, number format: for example a currency sign such as $ */
+			"mskNumPrefix" => $state && isset($ac->text->mskNumPrefix) ? $ac->text->mskNumPrefix : esc_html__('Text before the number','easy-form-builder'),
+			/* translators: F01 builder, number format: for example a unit such as kg or a currency name */
+			"mskNumSuffix" => $state && isset($ac->text->mskNumSuffix) ? $ac->text->mskNumSuffix : esc_html__('Text after the number','easy-form-builder'),
+			/* translators: F01 builder, number format: thousands (1,234,567) or Indian lakh (12,34,567) */
+			"mskNumGrouping" => $state && isset($ac->text->mskNumGrouping) ? $ac->text->mskNumGrouping : esc_html__('Digit grouping','easy-form-builder'),
+			/* translators: F01 builder, digit grouping option; keep the example digits */
+			"mskNumThousand" => $state && isset($ac->text->mskNumThousand) ? $ac->text->mskNumThousand : esc_html__('Thousands (1,234,567)','easy-form-builder'),
+			/* translators: F01 builder, digit grouping option (Indian numbering); keep the example digits */
+			"mskNumLakh" => $state && isset($ac->text->mskNumLakh) ? $ac->text->mskNumLakh : esc_html__('Lakh (12,34,567)','easy-form-builder'),
+			/* translators: F01 builder, thousands separator option */
+			"mskNumNoGroup" => $state && isset($ac->text->mskNumNoGroup) ? $ac->text->mskNumNoGroup : esc_html__('No separator','easy-form-builder'),
+			/* translators: F01 builder, thousands separator option: a space character */
+			"mskNumSpace" => $state && isset($ac->text->mskNumSpace) ? $ac->text->mskNumSpace : esc_html__('Space','easy-form-builder'),
 			/* translators: F01 visitor error when a formatted field is only partly filled. %s: the field label */
 			"mskIncomplete_" => $state && isset($ac->text->mskIncomplete_) ? $ac->text->mskIncomplete_ : esc_html__('Please complete the %s field.','easy-form-builder'),
 
@@ -4189,6 +4221,31 @@ class efbFunction {
 					case 'mask_checksum':
 						$valp[$key][$k] = is_string($v) && in_array($v, array('luhn', 'iso7064_mod97_10', 'iran_national_code', 'verhoeff'), true) ? $v : '';
 					break;
+					// F01-I1 numeric mode keys (allow-lists; anything else falls back to the default).
+					case 'num_group':
+						$valp[$key][$k] = in_array($v, array('', ',', '.', ' ', "'", "\u{066C}"), true) ? $v : ',';
+					break;
+					case 'num_radix':
+						$valp[$key][$k] = in_array($v, array('.', ',', "\u{066B}"), true) ? $v : '.';
+					break;
+					case 'num_digits':
+						$valp[$key][$k] = is_scalar($v) && preg_match('/^[0-6]$/', (string) $v) ? (string) $v : '0';
+					break;
+					case 'num_digits_fixed':
+					case 'num_negative':
+						$valp[$key][$k] = in_array($v, array(1, '1', true), true) ? '1' : '0';
+					break;
+					case 'num_min':
+					case 'num_max':
+						$valp[$key][$k] = is_string($v) && preg_match('/^-?\d{1,30}(\.\d{1,6})?$/', $v) ? $v : '';
+					break;
+					case 'num_prefix':
+					case 'num_suffix':
+						$valp[$key][$k] = is_string($v) && preg_match('//u', $v) && preg_match_all('/./us', $v) <= 8 && !preg_match('/[0-9<>"%\x00-\x1F]/', $v) ? $v : '';
+					break;
+					case 'num_grouping':
+						$valp[$key][$k] = $v === 'lakh' ? 'lakh' : 'thousand';
+					break;
 					case 'mask_case':
 						$valp[$key][$k] = in_array($v, array('upper', 'lower'), true) ? $v : '';
 					break;
@@ -4221,7 +4278,7 @@ class efbFunction {
 			return '';
 		}
 		$v = trim($v);
-		if ($v === '' || $v === 'custom') {
+		if ($v === '' || $v === 'custom' || $v === 'numeric') {
 			return $v;
 		}
 		if (!preg_match('/^[a-z]{2,4}\.[a-z0-9_]{2,40}$/', $v)) {

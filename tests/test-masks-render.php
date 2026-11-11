@@ -94,6 +94,14 @@ rt('custom + mask_case: data-mask-case', strpos($tag, 'data-mask-case="upper"') 
 $tag = input_tag(render_efb('text', base_row('c5', 'text', array('mask_preset' => 'custom', 'mask_custom' => 'aa99', 'mask_case' => 'title'))));
 rt('custom + invalid mask_case: no attribute', strpos($tag, 'data-mask-case') === false, $tag);
 
+// I1: numeric mode.
+$tag = input_tag(render_efb('text', base_row('n1', 'text', array('mask_preset' => 'numeric', 'num_digits' => '2', 'mlen' => '5'))));
+rt('I1: numeric attrs, decimal keyboard, no length/maxlength', strpos($tag, 'data-mask-preset="numeric"') !== false && strpos($tag, 'inputmode="decimal"') !== false && strpos($tag, 'dir="ltr"') !== false && strpos($tag, 'maxlength') === false, $tag);
+$tag = input_tag(render_efb('text', base_row('n2', 'text', array('mask_preset' => 'numeric', 'num_negative' => '1'))));
+rt('I1: negative allowed -> no inputmode (minus key)', strpos($tag, 'inputmode') === false && strpos($tag, 'data-mask-preset="numeric"') !== false, $tag);
+$tag = input_tag(render_efb('tel', base_row('n3', 'tel', array('mask_preset' => 'numeric'))));
+rt('I1: numeric on tel field drops the fixed pattern', strpos($tag, 'pattern=') === false && strpos($tag, 'inputmode="numeric"') !== false, $tag);
+
 // 4. Mask control not applied to name / address parts even with keys.
 $tag = input_tag(render_efb('firstName', base_row('n1', 'text', array('mask_preset' => 'ir.mobile'))));
 rt('firstName ignores mask keys', strpos($tag, 'data-mask') === false);

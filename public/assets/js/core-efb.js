@@ -1356,6 +1356,11 @@ function efb_mask_fd_efb(el) {
     } catch (e) {}
     return { kind: 'custom', def: { mask: ds.mask, checksum: checksum, case: ds.maskCase === 'upper' || ds.maskCase === 'lower' ? ds.maskCase : '' }, store: store };
   }
+  if (ds.maskPreset === 'numeric') {
+    let row = null;
+    try { row = get_structure_by_form_id_efb(ds.formid || 0).find(x => x.id_ === ds.vid); } catch (e) {}
+    return row ? { kind: 'numeric', def: EfbMasks.numDef(row), store: store } : null;
+  }
   if (ds.maskPreset) {
     const all = (typeof ajax_object_efm !== 'undefined' && ajax_object_efm && ajax_object_efm.masks) ? ajax_object_efm.masks : null;
     let def = all ? all[ds.maskPreset] : null;

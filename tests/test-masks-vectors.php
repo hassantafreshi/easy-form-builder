@@ -51,7 +51,7 @@ function efbm_test_custom_rows($cat) {
 	foreach ($cat['masks'] as $m) {
 		$byId[$m['id']] = $m;
 	}
-	$out = array('validate_custom' => array(), 'is_complete' => array(), 'to_national_display' => array(), 'format_display' => array(), 'check_mask' => array(), 'apply_mask' => array());
+	$out = array('validate_custom' => array(), 'is_complete' => array(), 'to_national_display' => array(), 'format_display' => array(), 'check_mask' => array(), 'apply_mask' => array(), 'numeric' => array());
 	foreach ($fx['validate_custom'] as $c) {
 		$def = array('mask' => $c['mask'], 'checksum' => $c['checksum'], 'case' => isset($c['case']) ? $c['case'] : '');
 		$r = Masks::validate_custom($def, $c['input']);
@@ -68,6 +68,11 @@ function efbm_test_custom_rows($cat) {
 	}
 	foreach ($fx['check_mask'] as $c) {
 		$out['check_mask'][] = Masks::check_mask($c['mask']);
+	}
+	foreach ($fx['numeric'] as $c) {
+		$def = Masks::num_def($c['cfg']);
+		$r = Masks::num_parse($def, $c['input']);
+		$out['numeric'][] = array('ok' => $r['ok'], 'code' => $r['code'], 'value' => $r['value'], 'display' => $r['ok'] ? Masks::num_format($def, $r['value']) : null);
 	}
 	foreach ($fx['apply_mask'] as $c) {
 		$out['apply_mask'][] = Masks::apply_mask($c['mask'], $c['input']);
@@ -210,7 +215,7 @@ foreach ($pub['presets'] as $row) {
 	}
 }
 efbm_check('catalog_public has no regex, examples or metadata', !$hasRegex);
-efbm_check('catalog_public documents the field keys', array_keys($pub['field_keys']) === array('mask_preset', 'mask_custom', 'mask_checksum', 'mask_store', 'mask_strict', 'mask_case', 'inputmode'));
+efbm_check('catalog_public documents the field keys', array_keys($pub['field_keys']) === array('mask_preset', 'num_group', 'num_radix', 'num_digits', 'num_digits_fixed', 'num_negative', 'num_min', 'num_max', 'num_prefix', 'num_suffix', 'num_grouping', 'mask_custom', 'mask_checksum', 'mask_store', 'mask_strict', 'mask_case', 'inputmode'));
 $cv = Masks::check_value('ir.mobile', '0912 123 4567');
 efbm_check('check_value preset ok', $cv === array('ok' => true, 'code' => null, 'stored' => '+989121234567'));
 $cv = Masks::check_value('ir.national_id', '1234567892');

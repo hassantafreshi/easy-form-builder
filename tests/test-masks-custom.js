@@ -36,6 +36,7 @@ function jsResults() {
     format_display: fx.format_display.map((c) => E.formatDisplay(byId[c.preset], c.input)),
     check_mask: fx.check_mask.map((c) => E.checkMask(c.mask)),
     apply_mask: fx.apply_mask.map((c) => E.applyMask(c.mask, c.input)),
+    numeric: fx.numeric.map((c) => { const def = E.numDef(c.cfg); const r = E.numParse(def, c.input); return { ok: r.ok, code: r.code, value: r.value, display: r.ok ? E.numFormat(def, r.value) : null }; }),
   };
 }
 
@@ -47,6 +48,7 @@ function verify(lang, res) {
   fx.is_complete.forEach((c, i) => check(`${lang} isComplete ${JSON.stringify(c.mask)} ${JSON.stringify(c.input)}`, res.is_complete[i], c.expect));
   fx.to_national_display.forEach((c, i) => check(`${lang} toNationalDisplay ${c.preset} ${JSON.stringify(c.input)}`, res.to_national_display[i], c.expect));
   fx.format_display.forEach((c, i) => check(`${lang} formatDisplay ${c.preset} ${JSON.stringify(c.input)}`, res.format_display[i], c.expect));
+  fx.numeric.forEach((c, i) => check(`${lang} numeric ${JSON.stringify(c.cfg)} ${JSON.stringify(c.input)}`, res.numeric[i], c.display === null ? { ok: c.ok, code: c.code, value: c.value, display: c.ok ? res.numeric[i].display : null } : { ok: c.ok, code: c.code, value: c.value, display: c.display }));
   fx.apply_mask.forEach((c, i) => check(`${lang} applyMask ${JSON.stringify(c.mask)} ${JSON.stringify(c.input)}`, res.apply_mask[i], c.expect));
   fx.check_mask.forEach((c, i) => check(`${lang} checkMask ${JSON.stringify(c.mask.length > 20 ? c.mask.slice(0, 20) + '...' : c.mask)}`, res.check_mask[i], c.expect));
 }
@@ -55,6 +57,7 @@ const js = jsResults();
 verify('js', js);
 
 // JS-only behaviours
+fx.numeric_live.forEach((c) => check(`js numeric live ${JSON.stringify(c.cfg)} ${JSON.stringify(c.input)}`, E.numLive(E.numDef(c.cfg), c.input), c.expect));
 let threw = false;
 try { E.validateCustom({ mask: '9999', checksum: 'bogus' }, '1234'); } catch (e) { threw = true; }
 check('js validateCustom refuses an unknown checksum', threw, true);

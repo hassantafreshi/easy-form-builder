@@ -2129,6 +2129,13 @@ function efb_mask_attrs_efb(row, elementId) {
   const esc = (v) => String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   const custom = p === 'custom' && typeof EfbMasks !== 'undefined' && EfbMasks.checkMask(row.mask_custom || '');
   const preset = p !== '' && p !== 'custom' && /^[a-z]{2,4}\.[a-z0-9_]{2,40}$/.test(p);
+  if (kindOk && p === 'numeric' && typeof EfbMasks !== 'undefined') {
+    const nd = EfbMasks.numDef(row);
+    if (!im) im = nd.negative ? '' : (nd.digits > 0 ? 'decimal' : 'numeric');
+    out.masked = true;
+    out.attrs = ['data-mask-preset="numeric"', `data-mask-store="${row.mask_store === 'display' ? 'display' : 'canonical'}"`].concat(im ? [`inputmode="${im}"`] : [], ['dir="ltr"']).join(' ');
+    return out;
+  }
   if (!kindOk || (!custom && !preset)) {
     if (im) out.attrs = `inputmode="${im}"`;
     return out;
@@ -2166,6 +2173,10 @@ function efb_mask_preview_fd_efb(el) {
     const cs = row && EfbMasks.CUSTOM_CHECKSUMS.indexOf(row.mask_checksum) !== -1 ? row.mask_checksum : '';
     return { kind: 'custom', def: { mask: ds.mask, checksum: cs, case: ds.maskCase === 'upper' || ds.maskCase === 'lower' ? ds.maskCase : '' }, store: store };
   }
+  if (ds.maskPreset === 'numeric') {
+    const row = valj_efb.find((x) => x.id_ === ds.vid);
+    return row ? { kind: 'numeric', def: EfbMasks.numDef(row), store: store } : null;
+  }
   const rt = window.efbMasksCatalogDataEfb && window.efbMasksCatalogDataEfb.runtime;
   let def = ds.maskPreset && rt ? rt[ds.maskPreset] : null;
   if (!def || !def.regex) return null;
@@ -2196,6 +2207,7 @@ function efb_masks_panel_state_efb(row) {
   const def = efb_masks_preset_efb(p);
   const box = (id) => document.getElementById(id);
   if (box('maskCustomBoxEl')) box('maskCustomBoxEl').classList.toggle('d-none', p !== 'custom');
+  if (box('maskNumBoxEl')) box('maskNumBoxEl').classList.toggle('d-none', p !== 'numeric');
   if (box('maskStoreBoxEl')) box('maskStoreBoxEl').classList.toggle('d-none', p === '');
   if (box('maskStrictBoxEl')) box('maskStrictBoxEl').classList.toggle('d-none', !(def && def.has_strict));
   const note = box('maskPresetNoteEl');
@@ -2842,11 +2854,11 @@ let change_el_edit_Efb = (el) => {
         // F01: preset id, "custom" or "" (no mask). An empty choice removes every mask key.
         const row = valj_efb[indx];
         const v = String(el.value || '');
-        if (v !== '' && v !== 'custom' && !/^[a-z]{2,4}\.[a-z0-9_]{2,40}$/.test(v)) break;
+        if (v !== '' && v !== 'custom' && v !== 'numeric' && !/^[a-z]{2,4}\.[a-z0-9_]{2,40}$/.test(v)) break;
         const prevDef = efb_masks_preset_efb(row.mask_preset || '');
         const def = efb_masks_preset_efb(v);
         if (v === '') {
-          for (const k of ['mask_preset', 'mask_custom', 'mask_checksum', 'mask_store', 'mask_strict', 'mask_case']) delete row[k];
+          for (const k of Object.keys(row)) { if (/^(mask_|num_)/.test(k)) delete row[k]; }
           if (prevDef && row.placeholder === prevDef.placeholder) row.placeholder = '';
         } else {
           row.mask_preset = v;
@@ -2885,6 +2897,25 @@ let change_el_edit_Efb = (el) => {
         row.mask_custom = v;
         efb_masks_panel_state_efb(row);
         efb_masks_canvas_efb(row);
+        break;
+      }
+      case "numGroupEl": case "numRadixEl": case "numDigitsEl": case "numGroupingEl":
+      case "numMinEl": case "numMaxEl": case "numPrefixEl": case "numSuffixEl": {
+        // F01-I1: numeric mode settings; numDef() decides what is valid, so the stored keys match the runtime.
+        const key = { numGroupEl: 'num_group', numRadixEl: 'num_radix', numDigitsEl: 'num_digits', numGroupingEl: 'num_grouping', numMinEl: 'num_min', numMaxEl: 'num_max', numPrefixEl: 'num_prefix', numSuffixEl: 'num_suffix' }[el.id];
+        const row = valj_efb[indx];
+        const v = String(el.value);
+        const probe = EfbMasks.numDef(Object.assign({}, row, { [key]: v }));
+        const ok = { num_group: probe.group === v, num_radix: probe.radix === v, num_digits: String(probe.digits) === v, num_grouping: probe.grouping === v,
+          num_min: probe.min === v, num_max: probe.max === v, num_prefix: probe.prefix === v, num_suffix: probe.suffix === v }[key];
+        if (v === '' && key !== 'num_group') { delete row[key]; el.classList.remove('is-invalid'); break; }
+        if (!ok) { el.classList.add('is-invalid'); break; }
+        el.classList.remove('is-invalid');
+        row[key] = v;
+        break;
+      }
+      case "numFixedEl": case "numNegativeEl": {
+        valj_efb[indx][el.id === 'numFixedEl' ? 'num_digits_fixed' : 'num_negative'] = el.checked ? '1' : '0';
         break;
       }
       case "maskCaseEl": {

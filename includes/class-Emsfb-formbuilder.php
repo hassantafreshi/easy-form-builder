@@ -220,7 +220,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 		}
 		$def = $fd['def'];
 		$attrs = [];
-		if ($fd['kind'] === 'custom') {
+		$pattern = '';
+		if ($fd['kind'] === 'numeric') {
+			// F01-I1: the number settings stay in the form structure; the runtime reads them from there.
+			$attrs[] = 'data-mask-preset="numeric"';
+			if ($im === '') {
+				$im = $def['negative'] ? '' : ($def['digits'] > 0 ? 'decimal' : 'numeric');
+			}
+		} elseif ($fd['kind'] === 'custom') {
 			$attrs[] = sprintf('data-mask="%s"', esc_attr($def['mask']));
 			if (!empty($def['case'])) {
 				$attrs[] = sprintf('data-mask-case="%s"', esc_attr($def['case']));

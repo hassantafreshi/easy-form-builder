@@ -1204,7 +1204,7 @@ public function check_nonce_permission_efb($request) {
 			/* Submit failures: the cause in plain words (core-efb.js efb_visitor_text_efb). */
 			'requestBlocked','formsClosed','formTooLarge','formNotSentCode','formExpiredSendAgain','loginChangedSendAgain','noAnswerCheckFirst','requestFailedCode','noAnswerRetry','tooManyRequests','paymentNotCompleted','paymentNotStartedNoCharge',
 			/* F01 input masks: messages of masked fields (core-efb.js efb_mask_error_efb). */
-			'mskFormat_','mskChecksum_','mskRule_','mskIncomplete_'];
+			'mskFormat_','mskChecksum_','mskRule_','mskIncomplete_','mskRange_'];
 
 			/* Only now is a form or response box really printed. A form in a widget,
 			 * footer or popup keeps the page cacheable (EFBRuntime.prepare() fetches a
@@ -1601,7 +1601,7 @@ public function check_nonce_permission_efb($request) {
 
 				if($i>1){
 					// F01: remember the presets this page uses; their catalog entries go to the browser.
-					if (isset($valj_efb[$i]->mask_preset) && is_string($valj_efb[$i]->mask_preset) && $valj_efb[$i]->mask_preset !== '' && $valj_efb[$i]->mask_preset !== 'custom') {
+					if (isset($valj_efb[$i]->mask_preset) && is_string($valj_efb[$i]->mask_preset) && $valj_efb[$i]->mask_preset !== '' && $valj_efb[$i]->mask_preset !== 'custom' && $valj_efb[$i]->mask_preset !== 'numeric') {
 						$this->mask_ids_efb[] = $valj_efb[$i]->mask_preset;
 					}
 					// Their scripts live in pro_els-efb.js; the fields that became
@@ -2419,7 +2419,7 @@ public function check_nonce_permission_efb($request) {
 			'clcdetls', 'vmgs', 'youRecivedNewMessage', 'WeRecivedUrM', 'thankRegistering', 'welcome', 'thankSubscribing', 'thankDonePoll', 'thankFillForm', 'trackNo', 'fernvtf', 'msgdml', 'newMessageReceived','sxnlex','snotfound','response','fform','msgSndBut','smsWPN',
 			'surveyResults', 'responses', 'submitBlocked', 'enterValidDate',
 			/* F01 input masks: server messages for masked fields. */
-			'mskFormat_', 'mskChecksum_', 'mskRule_', 'mskIncomplete_'
+			'mskFormat_', 'mskChecksum_', 'mskRule_', 'mskIncomplete_', 'mskRange_'
 		];
 		$efbFunction = get_efbFunction();
 

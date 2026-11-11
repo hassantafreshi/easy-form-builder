@@ -837,7 +837,8 @@
       if (caret >= before.length && after !== null && after !== undefined) { dataBeforeCaret = countData(after, after.length); }
       if (after !== null && after !== undefined && after !== before) {
         input.value = after;
-        var pos = caretForDataIndex(after, dataBeforeCaret);
+        // Typing at the end keeps the caret at the end (a typed separator such as "." has no data to count).
+        var pos = caret >= before.length ? after.length : caretForDataIndex(after, dataBeforeCaret);
         if (typeof input.setSelectionRange === 'function' && input === (input.ownerDocument || {}).activeElement) {
           input.setSelectionRange(pos, pos);
         }
@@ -850,6 +851,103 @@
     return { format: run };
   }
   // #endregion dom_binding
+
+  // #region numeric mode (F01-I1)
+  /*
+   * mask_preset "numeric" with flat field keys num_group ("" , . space ' ٬), num_radix (. , ٫), num_digits
+   * (0-6), num_digits_fixed, num_negative, num_min / num_max (decimal strings), num_prefix / num_suffix
+   * (max 8 characters, no digits) and num_grouping (thousand | lakh). Stored value: canonical ASCII decimal
+   * ("-1234567.89"); min / max are compared as decimal strings, never as floats.
+   */
+  var NUM_GROUPS = ['', ',', '.', ' ', "'", '٬'], NUM_RADIX = ['.', ',', '٫'];
+  function numDef(f) {
+    f = f || {};
+    var pick = function (v, list, d) { return list.indexOf(v) !== -1 ? v : d; };
+    var dec = function (v) { return typeof v === 'string' && /^-?\d{1,30}(\.\d{1,6})?$/.test(v) ? v : ''; };
+    var txt = function (v) { return typeof v === 'string' && v.length <= 8 && !/[0-9<>"%\x00-\x1F]/.test(v) ? v : ''; };
+    var d = parseInt(f.num_digits, 10);
+    var def = {
+      group: pick(f.num_group === undefined ? ',' : f.num_group, NUM_GROUPS, ','), radix: pick(f.num_radix, NUM_RADIX, '.'),
+      digits: isNaN(d) || d < 0 ? 0 : Math.min(d, 6), fixed: f.num_digits_fixed == 1, negative: f.num_negative == 1,
+      min: dec(f.num_min), max: dec(f.num_max), prefix: txt(f.num_prefix), suffix: txt(f.num_suffix),
+      grouping: f.num_grouping === 'lakh' ? 'lakh' : 'thousand'
+    };
+    if (def.radix === def.group || (def.group === '٬' && def.radix === ',')) { def.radix = def.group === '.' ? ',' : '.'; }
+    return def;
+  }
+  // Raw text -> { neg, int, hasRadix, dec } or null when a character does not belong to a number.
+  function numSplit(def, raw) {
+    var s = String(raw === null || raw === undefined ? '' : raw);
+    s = s.replace(/٬/g, def.group === '٬' ? '٬' : '').replace(/٫/g, def.radix);
+    s = normalizeDigits(s).replace(INVISIBLE_RE, '').replace(/[−‐-―﹣－]/g, '-');
+    s = s.replace(/[   　]/g, ' ').trim();
+    if (def.prefix && s.indexOf(def.prefix) === 0) { s = s.substr(def.prefix.length).trim(); }
+    if (def.suffix && s.length >= def.suffix.length && s.substr(s.length - def.suffix.length) === def.suffix) { s = s.substr(0, s.length - def.suffix.length).trim(); }
+    var neg = s.charAt(0) === '-';
+    if (neg) { s = s.substr(1).trim(); }
+    var out = '', radixAt = -1, ch;
+    for (var i = 0; i < s.length; i++) {
+      ch = s.charAt(i);
+      if (/\d/.test(ch)) { out += ch; continue; }
+      var isRadix = ch === def.radix || (def.group === '' && (ch === '.' || ch === ','));
+      if (isRadix && radixAt === -1) { radixAt = out.length; continue; }
+      if (ch === def.group || (def.group === ' ' && ch === ' ') || (def.group !== '' && ch === ' ')) { continue; }
+      return null;
+    }
+    return { neg: neg, int: radixAt === -1 ? out : out.substr(0, radixAt), hasRadix: radixAt !== -1, dec: radixAt === -1 ? '' : out.substr(radixAt) };
+  }
+  function cmpDec(a, b) { // decimal strings, sign-aware, no floats
+    var na = a.charAt(0) === '-', nb = b.charAt(0) === '-';
+    if (na !== nb) { return na ? -1 : 1; }
+    var pa = a.replace('-', '').split('.'), pb = b.replace('-', '').split('.');
+    var ia = pa[0].replace(/^0+(?=\d)/, ''), ib = pb[0].replace(/^0+(?=\d)/, ''), r = 0;
+    if (ia.length !== ib.length) { r = ia.length < ib.length ? -1 : 1; } else if (ia !== ib) { r = ia < ib ? -1 : 1; } else {
+      var da = pa[1] || '', db = pb[1] || '', n = Math.max(da.length, db.length);
+      while (da.length < n) { da += '0'; } while (db.length < n) { db += '0'; }
+      r = da === db ? 0 : (da < db ? -1 : 1);
+    }
+    return na ? -r : r;
+  }
+  /** numParse(def, raw) -> { ok, code: null|'empty'|'format'|'range', value: canonical decimal string }. */
+  function numParse(def, raw) {
+    if (Array.from(String(raw === null || raw === undefined ? '' : raw)).length > MAX_INPUT) { return { ok: false, code: 'format', value: '' }; }
+    var p = numSplit(def, raw);
+    if (p !== null && p.int === '' && p.dec === '' && !p.hasRadix && !p.neg) { return { ok: false, code: 'empty', value: '' }; }
+    if (p === null || (p.int === '' && p.dec === '') || p.dec.length > def.digits || (p.hasRadix && def.digits === 0)) {
+      return { ok: false, code: 'format', value: '' };
+    }
+    var int = p.int.replace(/^0+(?=\d)/, '') || '0', dec = p.dec;
+    if (def.fixed) { while (dec.length < def.digits) { dec += '0'; } } else { dec = dec.replace(/0+$/, ''); }
+    var v = int + (dec ? '.' + dec : '');
+    if (p.neg && /[1-9]/.test(v)) { v = '-' + v; }
+    if (v.charAt(0) === '-' && !def.negative) { return { ok: false, code: 'range', value: v }; }
+    if ((def.min !== '' && cmpDec(v, def.min) < 0) || (def.max !== '' && cmpDec(v, def.max) > 0)) { return { ok: false, code: 'range', value: v }; }
+    return { ok: true, code: null, value: v };
+  }
+  function numGroupInt(def, int) {
+    if (def.group === '' || int.length <= 3) { return int; }
+    var out = int.substr(int.length - 3), rest = int.substr(0, int.length - 3), size = def.grouping === 'lakh' ? 2 : 3;
+    while (rest.length > 0) { out = rest.substr(Math.max(0, rest.length - size)) + def.group + out; rest = rest.substr(0, Math.max(0, rest.length - size)); }
+    return out;
+  }
+  /** numFormat(def, canonical): display form of a stored value ("1234567.5" -> "1,234,567.50" with fixed 2 digits). */
+  function numFormat(def, v) {
+    var neg = v.charAt(0) === '-', parts = v.replace('-', '').split('.'), dec = parts[1] || '';
+    if (def.fixed) { while (dec.length < def.digits) { dec += '0'; } }
+    return def.prefix + (neg ? '-' : '') + numGroupInt(def, parts[0]) + (dec ? def.radix + dec : '') + def.suffix;
+  }
+  /** numLive(def, typed): while typing - group the integer part, keep a typed radix, cut extra decimals. */
+  function numLive(def, raw) {
+    var p = numSplit(def, raw);
+    if (p === null) { p = numSplit(def, String(raw).replace(/[^0-9۰-۹٠-٩.,٫٬\-− ]/g, '')); }
+    if (p === null) { return null; }
+    if (p.int === '' && p.dec === '' && !p.hasRadix) { return p.neg && def.negative ? '-' : ''; }
+    var int = p.int.replace(/^0+(?=\d)/, '');
+    if (int === '' && p.hasRadix) { int = '0'; }
+    var dec = p.dec.substr(0, def.digits);
+    return def.prefix + (p.neg && def.negative ? '-' : '') + numGroupInt(def, int) + (p.hasRadix && def.digits > 0 ? def.radix + dec : '') + def.suffix;
+  }
+  // #endregion numeric mode
 
   // #region field helpers (shared by core-efb.js and the builder preview)
   /** hasStrict(def) / strictDef(def): a preset's opt-in strict variant (regex_strict, checksum_strict). */
@@ -869,6 +967,10 @@
   function fieldCheck(fd, raw) {
     var display = fd.store === 'display', r;
     try {
+      if (fd.kind === 'numeric') {
+        r = numParse(fd.def, raw);
+        return { ok: r.ok, code: r.code, stored: r.ok ? (display ? numFormat(fd.def, r.value) : r.value) : '' };
+      }
       if (fd.kind === 'custom') {
         r = validateCustom(fd.def, raw);
         return { ok: r.ok, code: r.code, stored: r.ok ? (display ? r.value : toStoredCustom(fd.def, r.value)) : '' };
@@ -882,6 +984,7 @@
   /** fieldFormatter(fd) -> { format(value) -> string|null, live } for attachMask(). */
   function fieldFormatter(fd) {
     var d = fd.def;
+    if (fd.kind === 'numeric') { return { live: true, format: function (v) { return numLive(d, v); } }; }
     if (fd.kind === 'custom') { return { live: true, format: function (v) { return applyMask(d.mask, applyCase(d, v)); } }; }
     if (d.mask) {
       return { live: true, format: function (v) { var n = toNationalDisplay(d, v); return n === null ? null : formatValue(d, n); } };
@@ -907,6 +1010,7 @@
     var t = function (k, en) { return typeof text[k] === 'string' && text[k] !== '' ? text[k] : en; };
     if (code === 'checksum') { return t('mskChecksum_', '%s is not valid. Please check the digits for typos.').replace('%s', name); }
     if (code === 'rule') { return t('mskRule_', '%s contains a value that is not possible, for example a date that does not exist.').replace('%s', name); }
+    if (code === 'range') { return t('mskRange_', '%s is outside the allowed range.').replace('%s', name); }
     if (code === 'format' && example) {
       return t('mskFormat_', 'The %1$s field is not in the correct format (example: %2$s).').replace('%1$s', name).replace('%2$s', example);
     }
@@ -922,6 +1026,7 @@
     CUSTOM_CHECKSUMS: CUSTOM_CHECKSUMS, MAX_INPUT: MAX_INPUT, MAX_CUSTOM_MASK: MAX_CUSTOM_MASK, checkMask: checkMask,
     dataOnly: dataOnly, finishMask: finishMask, splitAlternatives: splitAlternatives, fieldCheck: fieldCheck, fieldFormatter: fieldFormatter,
     bindField: bindField, fieldMessage: fieldMessage, hasStrict: hasStrict, strictDef: strictDef, applyCase: applyCase,
+    numDef: numDef, numParse: numParse, numFormat: numFormat, numLive: numLive, cmpDec: cmpDec,
     luhn: luhn, luhnCheckDigit: luhnCheckDigit, verhoeff: verhoeff, verhoeffCheckDigit: verhoeffCheckDigit,
     iban: iban, ibanCheckDigits: ibanCheckDigits, IBAN_LENGTHS: IBAN_LENGTHS, mod97: mod97,
     iranNationalCode: iranNationalCode, iranLegalId: iranLegalId, saudiNin: saudiNin, emiratesId: emiratesId,

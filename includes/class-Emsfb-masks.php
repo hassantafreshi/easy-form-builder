@@ -1192,6 +1192,156 @@ class Masks {
 	}
 	// #endregion custom masks
 
+	// #region numeric mode (F01-I1; twins of numDef / numParse / numFormat / numLive in masks-efb.js)
+	const NUM_GROUPS = array('', ',', '.', ' ', "'", "\u{066C}");
+	const NUM_RADIX = array('.', ',', "\u{066B}");
+
+	public static function num_def($f) {
+		$f = is_array($f) ? $f : array();
+		$group = array_key_exists('num_group', $f) ? $f['num_group'] : ',';
+		$group = in_array($group, self::NUM_GROUPS, true) ? $group : ',';
+		$radix = isset($f['num_radix']) && in_array($f['num_radix'], self::NUM_RADIX, true) ? $f['num_radix'] : '.';
+		$dec = function ($v) {
+			return is_string($v) && preg_match('/^-?\d{1,30}(\.\d{1,6})?$/', $v) ? $v : '';
+		};
+		$txt = function ($v) {
+			return is_string($v) && preg_match('//u', $v) && self::length($v) <= 8 && !preg_match('/[0-9<>"%\x00-\x1F]/', $v) ? $v : '';
+		};
+		$d = isset($f['num_digits']) && is_numeric($f['num_digits']) ? (int) $f['num_digits'] : 0;
+		$def = array(
+			'group' => $group, 'radix' => $radix, 'digits' => $d < 0 ? 0 : min($d, 6),
+			'fixed' => isset($f['num_digits_fixed']) && in_array($f['num_digits_fixed'], array(1, '1', true), true),
+			'negative' => isset($f['num_negative']) && in_array($f['num_negative'], array(1, '1', true), true),
+			'min' => $dec(isset($f['num_min']) ? $f['num_min'] : ''), 'max' => $dec(isset($f['num_max']) ? $f['num_max'] : ''),
+			'prefix' => $txt(isset($f['num_prefix']) ? $f['num_prefix'] : ''), 'suffix' => $txt(isset($f['num_suffix']) ? $f['num_suffix'] : ''),
+			'grouping' => isset($f['num_grouping']) && $f['num_grouping'] === 'lakh' ? 'lakh' : 'thousand',
+		);
+		if ($def['radix'] === $def['group'] || ($def['group'] === "\u{066C}" && $def['radix'] === ',')) {
+			$def['radix'] = $def['group'] === '.' ? ',' : '.';
+		}
+		return $def;
+	}
+
+	private static function num_split($def, $raw) {
+		$s = (string) $raw;
+		if ($s !== '' && !preg_match('//u', $s)) {
+			return null;
+		}
+		$s = str_replace(array("\u{066C}", "\u{066B}"), array($def['group'] === "\u{066C}" ? "\u{066C}" : '', $def['radix']), $s);
+		$s = self::normalize_digits($s);
+		$s = preg_replace('/[\x{200B}-\x{200F}\x{202A}-\x{202E}\x{2066}-\x{2069}\x{FEFF}\x{00AD}]/u', '', $s);
+		$s = preg_replace('/[\x{2212}\x{2010}-\x{2015}\x{FE63}\x{FF0D}]/u', '-', $s);
+		$s = trim(preg_replace('/[\x{00A0}\x{2007}\x{202F}\x{3000}]/u', ' ', $s));
+		if ($def['prefix'] !== '' && strpos($s, $def['prefix']) === 0) {
+			$s = trim(substr($s, strlen($def['prefix'])));
+		}
+		if ($def['suffix'] !== '' && strlen($s) >= strlen($def['suffix']) && substr($s, -strlen($def['suffix'])) === $def['suffix']) {
+			$s = trim(substr($s, 0, -strlen($def['suffix'])));
+		}
+		$neg = substr($s, 0, 1) === '-';
+		if ($neg) {
+			$s = trim(substr($s, 1));
+		}
+		$out = '';
+		$radix_at = -1;
+		foreach (preg_split('//u', $s, -1, PREG_SPLIT_NO_EMPTY) as $ch) {
+			if (preg_match('/^\d$/', $ch)) {
+				$out .= $ch;
+				continue;
+			}
+			$is_radix = $ch === $def['radix'] || ($def['group'] === '' && ($ch === '.' || $ch === ','));
+			if ($is_radix && $radix_at === -1) {
+				$radix_at = strlen($out);
+				continue;
+			}
+			if ($ch === $def['group'] || ($def['group'] !== '' && $ch === ' ')) {
+				continue;
+			}
+			return null;
+		}
+		return array('neg' => $neg, 'int' => $radix_at === -1 ? $out : substr($out, 0, $radix_at), 'has_radix' => $radix_at !== -1,
+			'dec' => $radix_at === -1 ? '' : (string) substr($out, $radix_at));
+	}
+
+	/** Compares two decimal strings (sign-aware) without floats: -1, 0 or 1. */
+	public static function cmp_dec($a, $b) {
+		$na = substr($a, 0, 1) === '-';
+		$nb = substr($b, 0, 1) === '-';
+		if ($na !== $nb) {
+			return $na ? -1 : 1;
+		}
+		$pa = explode('.', str_replace('-', '', $a));
+		$pb = explode('.', str_replace('-', '', $b));
+		$ia = preg_replace('/^0+(?=\d)/', '', $pa[0]);
+		$ib = preg_replace('/^0+(?=\d)/', '', $pb[0]);
+		if (strlen($ia) !== strlen($ib)) {
+			$r = strlen($ia) < strlen($ib) ? -1 : 1;
+		} elseif ($ia !== $ib) {
+			$r = strcmp($ia, $ib) < 0 ? -1 : 1;
+		} else {
+			$da = isset($pa[1]) ? $pa[1] : '';
+			$db = isset($pb[1]) ? $pb[1] : '';
+			$n = max(strlen($da), strlen($db));
+			$da = str_pad($da, $n, '0');
+			$db = str_pad($db, $n, '0');
+			$r = $da === $db ? 0 : (strcmp($da, $db) < 0 ? -1 : 1);
+		}
+		return $na ? -$r : $r;
+	}
+
+	public static function num_parse($def, $raw) {
+		if (self::length((string) $raw) > self::MAX_INPUT) {
+			return array('ok' => false, 'code' => 'format', 'value' => '');
+		}
+		$p = self::num_split($def, $raw);
+		if ($p !== null && $p['int'] === '' && $p['dec'] === '' && !$p['has_radix'] && !$p['neg']) {
+			return array('ok' => false, 'code' => 'empty', 'value' => '');
+		}
+		if ($p === null || ($p['int'] === '' && $p['dec'] === '') || strlen($p['dec']) > $def['digits'] || ($p['has_radix'] && $def['digits'] === 0)) {
+			return array('ok' => false, 'code' => 'format', 'value' => '');
+		}
+		$int = preg_replace('/^0+(?=\d)/', '', $p['int']);
+		$int = $int === '' ? '0' : $int;
+		$dec = $def['fixed'] ? str_pad($p['dec'], $def['digits'], '0') : rtrim($p['dec'], '0');
+		$v = $int . ($dec !== '' ? '.' . $dec : '');
+		if ($p['neg'] && preg_match('/[1-9]/', $v)) {
+			$v = '-' . $v;
+		}
+		if (substr($v, 0, 1) === '-' && !$def['negative']) {
+			return array('ok' => false, 'code' => 'range', 'value' => $v);
+		}
+		if (($def['min'] !== '' && self::cmp_dec($v, $def['min']) < 0) || ($def['max'] !== '' && self::cmp_dec($v, $def['max']) > 0)) {
+			return array('ok' => false, 'code' => 'range', 'value' => $v);
+		}
+		return array('ok' => true, 'code' => null, 'value' => $v);
+	}
+
+	private static function num_group_int($def, $int) {
+		if ($def['group'] === '' || strlen($int) <= 3) {
+			return $int;
+		}
+		$out = substr($int, -3);
+		$rest = substr($int, 0, -3);
+		$size = $def['grouping'] === 'lakh' ? 2 : 3;
+		while ($rest !== '' && $rest !== false) {
+			$cut = max(0, strlen($rest) - $size);
+			$out = substr($rest, $cut) . $def['group'] . $out;
+			$rest = (string) substr($rest, 0, $cut);
+		}
+		return $out;
+	}
+
+	public static function num_format($def, $v) {
+		$neg = substr($v, 0, 1) === '-';
+		$parts = explode('.', str_replace('-', '', $v));
+		$dec = isset($parts[1]) ? $parts[1] : '';
+		if ($def['fixed']) {
+			$dec = str_pad($dec, $def['digits'], '0');
+		}
+		return $def['prefix'] . ($neg ? '-' : '') . self::num_group_int($def, $parts[0]) . ($dec !== '' ? $def['radix'] . $dec : '') . $def['suffix'];
+	}
+	// #endregion numeric mode
+
 	// #region display
 	/**
 	 * Phone presets with a national typing mask: +98 912..., 0098 912... or 98 + a full national number become
@@ -1390,7 +1540,10 @@ class Masks {
 		$out = array(
 			'version' => isset($cat['version']) ? $cat['version'] : 0,
 			'field_keys' => array(
-				'mask_preset' => 'preset id, "custom" or ""',
+				'mask_preset' => 'preset id, "custom", "numeric" or ""',
+				'num_group' => '""|,|.| |\'|U+066C (numeric)', 'num_radix' => '.|,|U+066B (numeric)', 'num_digits' => '0-6',
+				'num_digits_fixed' => '0|1', 'num_negative' => '0|1', 'num_min' => 'decimal string', 'num_max' => 'decimal string',
+				'num_prefix' => 'text, max 8, no digits', 'num_suffix' => 'text, max 8, no digits', 'num_grouping' => 'thousand|lakh',
 				'mask_custom' => 'token mask (9 digit, a letter, * either, A capital letter, & capital letter or digit, [ ] optional, {n,m} repeat, \\x literal; up to ' . self::MAX_ALTERNATIVES . ' masks joined by ||), max ' . self::MAX_CUSTOM_MASK . ' characters',
 				'mask_checksum' => implode('|', self::CUSTOM_CHECKSUMS) . ' (custom masks only)',
 				'mask_store' => 'canonical|display',
@@ -1559,6 +1712,9 @@ class Masks {
 		if ($p === '') {
 			return null;
 		}
+		if ($p === 'numeric') {
+			return array('kind' => 'numeric', 'def' => self::num_def($f));
+		}
 		if ($p === 'custom') {
 			$mask = isset($f['mask_custom']) && is_string($f['mask_custom']) ? $f['mask_custom'] : '';
 			if (!self::check_mask($mask)) {
@@ -1595,7 +1751,10 @@ class Masks {
 		}
 		$display = isset($f['mask_store']) && $f['mask_store'] === 'display';
 		try {
-			if ($fd['kind'] === 'custom') {
+			if ($fd['kind'] === 'numeric') {
+				$r = self::num_parse($fd['def'], $v);
+				$stored = $r['ok'] ? ($display ? self::num_format($fd['def'], $r['value']) : $r['value']) : '';
+			} elseif ($fd['kind'] === 'custom') {
 				$r = self::validate_custom($fd['def'], $v);
 				$stored = $r['ok'] ? ($display ? $r['value'] : self::to_stored_custom($fd['def'], $r['value'])) : '';
 			} else {
@@ -1627,7 +1786,7 @@ class Masks {
 		$row = is_array($row) ? $row : (is_object($row) ? get_object_vars($row) : array());
 		$p = isset($row['mask_preset']) ? $row['mask_preset'] : '';
 		if ($p !== '' && $p !== null) {
-			if (!is_string($p) || ($p !== 'custom' && self::preset($p) === null)) {
+			if (!is_string($p) || ($p !== 'custom' && $p !== 'numeric' && self::preset($p) === null)) {
 				$errors[] = array('key' => 'mask_preset', 'code' => 'unknown_mask');
 			} elseif ($p === 'custom') {
 				if (!self::check_mask(isset($row['mask_custom']) ? $row['mask_custom'] : '')) {
@@ -1698,6 +1857,7 @@ class Masks {
 			'mskChecksum_' => '%s is not valid. Please check the digits for typos.',
 			'mskRule_' => '%s contains a value that is not possible, for example a date that does not exist.',
 			'mskIncomplete_' => 'Please complete the %s field.',
+			'mskRange_' => '%s is outside the allowed range.',
 		);
 		foreach ($t as $k => $en) {
 			if (isset($lan[$k]) && is_string($lan[$k]) && $lan[$k] !== '') {
@@ -1709,6 +1869,8 @@ class Masks {
 				return sprintf($t['mskChecksum_'], $name);
 			case 'rule':
 				return sprintf($t['mskRule_'], $name);
+			case 'range':
+				return sprintf($t['mskRange_'], $name);
 			case 'empty':
 			case 'incomplete':
 				return sprintf($t['mskIncomplete_'], $name);

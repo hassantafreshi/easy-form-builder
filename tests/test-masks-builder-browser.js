@@ -172,10 +172,22 @@ async function launchChromiumEfb() {
   check('reopened panel shows the saved values', re.sel === 'custom' && re.custom === '(999) 999-9999' && re.cs === 'luhn' && re.disp, re);
   check('catalog not fetched again', ajaxCalls === 1, ajaxCalls);
 
+  // I1: number / amount option.
+  await change('#maskPresetEl', 'numeric');
+  check('I1: numeric box shown', await page.evaluate(() => !document.getElementById('maskNumBoxEl').classList.contains('d-none')));
+  await change('#numDigitsEl', '2');
+  await change('#numMaxEl', '5000');
+  await change('#numMinEl', '1e5');
+  await page.evaluate(() => { const e = document.getElementById('numNegativeEl'); e.checked = true; e.dispatchEvent(new Event('change')); });
+  await page.waitForTimeout(120);
+  r = await row('ftxt');
+  check('I1: numeric keys written, invalid min refused', r.mask_preset === 'numeric' && r.num_digits === '2' && r.num_max === '5000' && !('num_min' in r) && r.num_negative === '1', r);
+  check('I1: canvas marked numeric', await page.evaluate(() => document.getElementById('ftxt_').getAttribute('data-mask-preset') === 'numeric'));
+
   // None removes every mask key and the canvas attributes.
   await change('#maskPresetEl', '');
   r = await row('ftxt');
-  check('"None" removes every mask key', !Object.keys(r).some((k) => k.startsWith('mask_')), Object.keys(r));
+  check('"None" removes every mask and number key', !Object.keys(r).some((k) => k.startsWith('mask_') || k.startsWith('num_')), Object.keys(r));
   check('"None" clears the canvas attributes', await page.evaluate(() => { const i = document.getElementById('ftxt_'); return !i.hasAttribute('data-mask') && !i.hasAttribute('data-mask-preset') && !i.hasAttribute('dir'); }));
 
   // H: mobile keyboard select.

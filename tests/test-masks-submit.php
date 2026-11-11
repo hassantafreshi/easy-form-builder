@@ -71,7 +71,7 @@ function st($label, $cond, $detail = '') {
 	echo "[FAIL] $label" . ($detail !== '' ? "\n      $detail" : '') . "\n";
 }
 $fx = new MaskSubmitFixture();
-$fx->lanText = array('mskFormat_' => 'F[%1$s][%2$s]', 'mskChecksum_' => 'C[%s]', 'mskRule_' => 'R[%s]', 'mskIncomplete_' => 'I[%s]',
+$fx->lanText = array('mskFormat_' => 'F[%1$s][%2$s]', 'mskChecksum_' => 'C[%s]', 'mskRule_' => 'R[%s]', 'mskIncomplete_' => 'I[%s]', 'mskRange_' => 'RG[%s]',
 	'ptrnMmm_' => 'MIN[%1$s][%2$s]', 'ptrnMmx_' => 'MAX[%1$s][%2$s]');
 function row_item($id, $type, $value) {
 	return array('id_' => $id, 'name' => 'F', 'id_ob' => $id . '_', 'amount' => '2', 'type' => $type, 'value' => $value, 'session' => 's', 'form_id' => '7', 'junk' => 'x');
@@ -160,6 +160,16 @@ st('I4: alternation on the server picks the mobile mask', $r['is_valid'] === 1 &
 $r = $fx->run($fa, row_item('al', 'tel', '113456789'));
 st('I4: alternation incomplete', $r['is_valid'] === 0 && $r['m'] === 'I[Phone]', json_encode($r));
 
+$fn = array('id_' => 'nm', 'type' => 'text', 'name' => 'Amount', 'mask_preset' => 'numeric', 'num_group' => ',', 'num_digits' => '2', 'num_max' => '1000');
+$r = $fx->run($fn, row_item('nm', 'text', '۱٬۲۳۴٫۵'));
+st('I1: server range check (1234.5 > 1000)', $r['is_valid'] === 0 && $r['m'] === 'RG[Amount]', json_encode($r));
+$r = $fx->run($fn, row_item('nm', 'text', '999.5'));
+st('I1: server stores the canonical number', $r['is_valid'] === 1 && $r['item']['value'] === '999.5', json_encode($r));
+$r = $fx->run($fn + array('mask_store' => 'display'), row_item('nm', 'text', '999.5'));
+st('I1: display storage', $r['is_valid'] === 1 && $r['item']['value'] === '999.5', json_encode($r));
+$r = $fx->run($fn, row_item('nm', 'text', '12abc'));
+st('I1: server rejects text', $r['is_valid'] === 0, json_encode($r));
+
 // 3. Fallbacks: never lock a form.
 $r = $fx->run(array('id_' => 'u', 'type' => 'text', 'name' => 'U', 'mask_preset' => 'zz.unknown', 'mlen' => '5'), row_item('u', 'text', 'abcdefgh'));
 st('unknown preset: old max length rule applies', $r['is_valid'] === 0 && $r['m'] === 'MAX[<b>U</b>][<b>5</b>]', json_encode($r));
@@ -177,8 +187,8 @@ $r = $fx->run(array('id_' => 'k', 'type' => 'checkbox', 'name' => 'K', 'mask_pre
 st('checkbox-family rows pass before any mask check', $r['is_valid'] === 1, json_encode($r));
 
 // 5. Wiring.
-st('message keys in $translation_keys', preg_match("/'mskFormat_', 'mskChecksum_', 'mskRule_', 'mskIncomplete_'/", $src) === 1);
-st('message keys in the public text subset', strpos($src, "'mskFormat_','mskChecksum_','mskRule_','mskIncomplete_'];") !== false);
+st('message keys in $translation_keys', preg_match("/'mskFormat_', 'mskChecksum_', 'mskRule_', 'mskIncomplete_', 'mskRange_'/", $src) === 1);
+st('message keys in the public text subset', strpos($src, "'mskFormat_','mskChecksum_','mskRule_','mskIncomplete_','mskRange_'];") !== false);
 $gate = substr($src, $marker, strpos($src, '// End mask gate.', $marker) - $marker);
 st('the gate runs inside the per-row validation (only submitted rows are checked)', strpos($src, '// Mask gate:') > strpos($src, '$_ignored_set') - 200000 && strpos($gate, '$item[\'value\']') !== false);
 st('the gate never reads a regex from the request', strpos($gate, '$request_data') === false && strpos($gate, '$_POST') === false && strpos($gate, 'preg_match') === false);

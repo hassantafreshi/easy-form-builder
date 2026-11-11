@@ -102,6 +102,7 @@ foreach ($keep as $i => $m) {
 $rows[] = fld('p1', array('type' => 'tel', 'elementId' => 'tel', 'mask_preset' => 'ir.mobile', 'mask_store' => 'canonical', 'mask_strict' => '0', 'inputmode' => 'auto'));
 $rows[] = fld('p2', array('elementId' => 'postalcode', 'mask_preset' => 'ir.postal_code', 'mask_strict' => true, 'inputmode' => 'tel'));
 $rows[] = fld('p3', array('mask_preset' => '', 'inputmode' => 'decimal'));
+$rows[] = fld('n1', array('mask_preset' => 'numeric', 'num_group' => "\u{066C}", 'num_radix' => "\u{066B}", 'num_digits' => '2', 'num_digits_fixed' => true, 'num_negative' => '1', 'num_min' => '-10.5', 'num_max' => '99999999999999999999', 'num_prefix' => 'Rs ', 'num_suffix' => ' ﷼', 'num_grouping' => 'lakh'));
 $out = save_and_read($fn, builder_payload(form_with($rows)));
 t('form with masks decodes after the round trip', is_array($out), true);
 foreach ($keep as $i => $m) {
@@ -114,6 +115,9 @@ t('preset row keys (tel, ir.mobile)', array($out[$n]['mask_preset'], $out[$n]['m
 t('mask_strict true is stored as "1"', $out[$n + 1]['mask_strict'], '1');
 t('empty mask_preset is kept as ""', $out[$n + 2]['mask_preset'], '');
 t('inputmode decimal kept', $out[$n + 2]['inputmode'], 'decimal');
+$nr = $out[$n + 3];
+t('I1: numeric keys kept', array($nr['mask_preset'], $nr['num_group'], $nr['num_radix'], $nr['num_digits'], $nr['num_digits_fixed'], $nr['num_negative'], $nr['num_min'], $nr['num_max'], $nr['num_prefix'], $nr['num_suffix'], $nr['num_grouping']),
+	array('numeric', "\u{066C}", "\u{066B}", '2', '1', '1', '-10.5', '99999999999999999999', 'Rs ', ' ﷼', 'lakh'));
 t('custom mask still validates after the round trip', \Emsfb\Masks::check_field(array('mask_preset' => 'custom', 'mask_custom' => $out[2]['mask_custom']), '0991 234 5678')['stored'], '09912345678');
 
 // 2. Values the builder refuses are reset.
@@ -124,6 +128,8 @@ $bad = array(
 	array('mask_custom', str_repeat('9', 65), ''), array('mask_custom', '----', ''), array('mask_custom', array('99'), ''),
 	array('mask_checksum', 'bogus', ''), array('mask_checksum', 'card', ''), array('mask_store', 'raw', 'canonical'), array('mask_store', '', 'canonical'),
 	array('mask_strict', 'yes', '0'), array('mask_strict', 2, '0'), array('inputmode', 'bogus', 'auto'), array('inputmode', 'NUMERIC', 'auto'), array('inputmode', '', 'auto'),
+	array('num_group', ';', ','), array('num_radix', ':', '.'), array('num_digits', '7', '0'), array('num_digits', '-1', '0'), array('num_negative', 'yes', '0'),
+	array('num_min', '1e5', ''), array('num_max', '12.1234567', ''), array('num_prefix', 'US$1', ''), array('num_prefix', '<b>', ''), array('num_suffix', 'kilograms', ''), array('num_grouping', 'wan', 'thousand'),
 	array('mask_case', 'UPPER', ''), array('mask_case', 'title', ''), array('mask_case', array('upper'), ''),
 );
 $rows = array();

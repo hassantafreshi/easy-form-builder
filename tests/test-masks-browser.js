@@ -30,6 +30,7 @@ const forms = {
   ],
   202: [
     { id_: 'smob', type: 'tel', elementId: 'tel', name: 'Saudi mobile', required: '0', mask_preset: 'sa.mobile' },
+    { id_: 'amt', type: 'text', elementId: 'text', name: 'Amount', required: '0', mask_preset: 'numeric', num_group: ',', num_radix: '.', num_digits: '2', num_max: '10000000' },
     { id_: 'alt', type: 'tel', elementId: 'tel', name: 'BR phone', required: '0', mask_preset: 'custom', mask_custom: '(99) 9999-9999||(99) 99999-9999' },
   ],
 };
@@ -64,7 +65,7 @@ function page_html(dir) {
   <div id="body_efb_${fid}" class="efb body_efb" data-formid="${fid}" data-currentstep="1" data-steps="1">
     <fieldset data-step="step-1-efb" id="step-1-efb" data-formid="${fid}">${rendered.html[fid].join('\n')}</fieldset>
   </div>`).join('\n');
-  const text = { mskFormat_: 'FMT:%1$s:%2$s', mskChecksum_: 'CHK:%s', mskRule_: 'RULE:%s', mskIncomplete_: 'INC:%s', enterThePhones: 'PHONE?', enterTheValueThisField: 'REQ', mmplen: 'min NN', mmxplen: 'max NN' };
+  const text = { mskFormat_: 'FMT:%1$s:%2$s', mskChecksum_: 'CHK:%s', mskRule_: 'RULE:%s', mskIncomplete_: 'INC:%s', mskRange_: 'RANGE:%s', enterThePhones: 'PHONE?', enterTheValueThisField: 'REQ', mmplen: 'min NN', mmxplen: 'max NN' };
   const ajax = {
     ajax_value: JSON.stringify(Object.values(forms)), text, language: dir === 'rtl' ? 'fa_IR' : 'en_US', rtl: dir === 'rtl', form_setting: {}, masks: rendered.masks, nonce: 'n', id: 101,
     ajax_value_forms: Object.keys(forms).map((fid) => ({ id: Number(fid), type: 'form', form_structer: JSON.stringify([{ type: 'form', steps: 1, captcha: 0 }, { type: 'step', id_: '1', step: 1 }].concat(forms[fid].map((r, i) => Object.assign({ step: 1, amount: i + 2, el_border_color: 'border-d' }, r)))) })),
@@ -223,6 +224,15 @@ async function launchChromiumEfb() {
   await blur(page); await page.waitForTimeout(100);
   check('alternation: 10 digits landline, 11 digits mobile', alt10 === '(11) 3456-7890' && alt11 === '(11) 34567-8901', [alt10, alt11]);
   check('alternation: stored clean value', (await sendBack(page, 'alt')) === '11345678901', await sendBack(page, 'alt'));
+  // I1: numeric mode with Persian digits and separators.
+  await typeIn(page, 'amt_', '۱۲۳۴۵۶۷٫۸۹');
+  const amt = await val(page, 'amt_');
+  await blur(page); await page.waitForTimeout(100);
+  check('numeric: live grouping while typing Persian digits', amt === '1,234,567.89', amt);
+  check('numeric: stored as a plain ASCII number', (await sendBack(page, 'amt')) === '1234567.89', await sendBack(page, 'amt'));
+  await typeIn(page, 'amt_', '20000000');
+  await blur(page); await page.waitForTimeout(100);
+  check('numeric: above the maximum -> range message', (await page.evaluate(() => document.getElementById('amt_-message').textContent)) === 'RANGE:Amount');
   check('no page errors (LTR)', page.errors.length === 0, page.errors);
   await ctx.close();
 

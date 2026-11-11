@@ -15273,3 +15273,100 @@ msgstr "حروف کوچک (lowercase)"
 #: includes/functions.php
 msgid "Separate masks with || to accept any of them, for example (99) 9999-9999||(99) 99999-9999."
 msgstr "برای پذیرفتن چند قالب، ماسک‌ها را با || جدا کنید؛ مثلاً (99) 9999-9999||(99) 99999-9999."
+
+#  origin: claude (fa_IR) F01
+#. translators: F01 visitor error when a number is below the minimum, above the maximum or negative where not allowed. %s: the field label
+#: includes/functions.php
+#, php-format
+msgid "%s is outside the allowed range."
+msgstr "%s خارج از محدودهٔ مجاز است."
+
+#  origin: claude (fa_IR) F01
+#. translators: F01 builder: format option for numbers and money amounts with separators
+#: includes/functions.php
+msgid "Number or amount"
+msgstr "عدد یا مبلغ"
+
+#  origin: claude (fa_IR) F01
+#. translators: F01 builder, number format: the character between groups of digits (1,234,567)
+#: includes/functions.php
+msgid "Thousands separator"
+msgstr "جداکنندهٔ هزارگان"
+
+#  origin: claude (fa_IR) F01
+#. translators: F01 builder, number format: the character before the decimals (12.5 or 12,5)
+#: includes/functions.php
+msgid "Decimal separator"
+msgstr "جداکنندهٔ اعشار"
+
+#  origin: claude (fa_IR) F01
+#. translators: F01 builder, number format: how many digits after the decimal separator
+#: includes/functions.php
+msgid "Decimal places"
+msgstr "تعداد رقم اعشار"
+
+#  origin: claude (fa_IR) F01
+#. translators: F01 builder, number format: 12.5 is shown and saved as 12.50
+#: includes/functions.php
+msgid "Always show all decimal places"
+msgstr "همیشه همهٔ ارقام اعشار نمایش داده شود"
+
+#  origin: claude (fa_IR) F01
+#. translators: F01 builder, number format
+#: includes/functions.php
+msgid "Allow negative numbers"
+msgstr "اجازهٔ عدد منفی"
+
+#  origin: claude (fa_IR) F01
+#. translators: F01 builder, number format
+#: includes/functions.php
+msgid "Minimum value"
+msgstr "کمترین مقدار"
+
+#  origin: claude (fa_IR) F01
+#. translators: F01 builder, number format
+#: includes/functions.php
+msgid "Maximum value"
+msgstr "بیشترین مقدار"
+
+#  origin: claude (fa_IR) F01
+#. translators: F01 builder, number format: for example a currency sign such as $
+#: includes/functions.php
+msgid "Text before the number"
+msgstr "متن پیش از عدد"
+
+#  origin: claude (fa_IR) F01
+#. translators: F01 builder, number format: for example a unit such as kg or a currency name
+#: includes/functions.php
+msgid "Text after the number"
+msgstr "متن پس از عدد"
+
+#  origin: claude (fa_IR) F01
+#. translators: F01 builder, number format: thousands (1,234,567) or Indian lakh (12,34,567)
+#: includes/functions.php
+msgid "Digit grouping"
+msgstr "گروه‌بندی ارقام"
+
+#  origin: claude (fa_IR) F01
+#. translators: F01 builder, digit grouping option; keep the example digits
+#: includes/functions.php
+msgid "Thousands (1,234,567)"
+msgstr "هزارگان (1,234,567)"
+
+#  origin: claude (fa_IR) F01
+#. translators: F01 builder, digit grouping option (Indian numbering); keep the example digits
+#: includes/functions.php
+msgid "Lakh (12,34,567)"
+msgstr "لَک هندی (12,34,567)"
+
+#  origin: claude (fa_IR) F01
+#. translators: F01 builder, thousands separator option
+#: includes/functions.php
+msgid "No separator"
+msgstr "بدون جداکننده"
+
+#  origin: claude (fa_IR) F01
+#. translators: F01 builder, thousands separator option: a space character
+#: includes/functions.php
+msgid "Space"
+msgstr "فاصله"

@@ -1,4 +1,4 @@
-وضعیت: A تا H، I2، I3 و I4 پیاده‌سازی و تست شد؛ I1 در راه · اولویت: P0 · تلاش: M · وابستگی: — (F02، F03، F06 و F17 به این تسک وابسته‌اند)
+وضعیت: پیاده‌سازی و تست شد (A تا I)؛ ترجمهٔ ۶۸ زبان و بازسازی `.mo`/`.l10n.php` باقی است · اولویت: P0 · تلاش: M · وابستگی: — (F02، F03، F06 و F17 به این تسک وابسته‌اند)
 
 # F01 — ماسک ورودی و اعتبارسنج‌های قالب
 
@@ -398,6 +398,16 @@ if (!empty($f['mask_preset']) && class_exists('\Emsfb\Masks')) {
 - validatorهای تاریخ‌وساعت (`datetime`) و ساعت با ثانیه (`intl.time_24s`) در I3 آمده‌اند.
 - تست‌ها (اجراشده): `node tests/test-masks-custom.js` → 352 passed (۹ `validateCustom`، ۷ `checkMask`، ۳ `applyMask` و ۳ `isComplete` تازه برای alternation؛ JS و PHP برابر)؛ `node tests/test-masks-browser.js` → 32 passed (تایپ ۱۰ رقم `(11) 3456-7890` و با رقم یازدهم `(11) 34567-8901` و ذخیرهٔ `11345678901`)؛ `php tests/test-masks-submit.php` → 1147 passed؛ `php tests/test-masks-save-roundtrip.php` → 53 passed؛ `node tests/test-masks-builder-browser.js` → 47 passed؛ vectors JS 1332، PHP 192، parity 5.
 - وضعیت ترجمه: `mskCustomHelpAlt`؛ فارسی در `.po`.
+
+**Checkpoint I1** (انجام شد، 2026-11-11)
+- فایل‌های تغییرکرده: `public/assets/js/masks-efb.js` (`numDef`، `numParse`، `numFormat`، `numLive`، `cmpDec`؛ نگاشت `٬`/`٫` پیش از نرمال‌ساز؛ `fieldCheck`/`fieldFormatter` با نوع `numeric`؛ پیام `range`؛ caret در انتهای ورودی حالا همان‌جا می‌ماند (پیش از این، پس از تایپ جداکنندهٔ اعشار caret پیش از آن می‌نشست))، `includes/class-Emsfb-masks.php` (`num_def`، `num_parse`، `num_format`، `cmp_dec`؛ `field_def` و `check_field` نوع `numeric`؛ `message('range')`؛ `field_keys` و `validate_field_keys` با `numeric`)، `includes/functions.php` (caseهای `num_*` با allow-list؛ `mask_preset` مقدار `numeric` را می‌پذیرد؛ ۱۶ عبارت)، `includes/class-Emsfb-public.php` (`mskRange_` در `$translation_keys` و زیرمجموعهٔ عمومی؛ `numeric` در `ajax_object_efm.masks` جمع نمی‌شود)، `includes/class-Emsfb-formbuilder.php` و `admin-efb.js` (`data-mask-preset="numeric"`، `inputmode` بر اساس اعشار و منفی، بدون `maxlength`)، `public/assets/js/core-efb.js` و پیش‌نمایش (تنظیمات عدد از ساختار فرم خوانده می‌شود)، `val-efb.js` (گزینهٔ «عدد یا مبلغ» برای فیلد متنی و جعبهٔ تنظیمات)، `.po` (۱۶ مدخل)، تست‌ها.
+- انحراف: `num_prefix`/`num_suffix` داخل مقدار نمایش داده می‌شوند (مثلاً `$1,234.5 USD`) نه بیرون از ورودی، چون افزودن برچسب جدا به markup با قاعدهٔ wpautop و چهار renderer هزینهٔ بیشتری داشت؛ مقدار ذخیره‌شده پیشوند و پسوند ندارد و ورودی با یا بدون آن‌ها پذیرفته می‌شود. گروه‌بندی `wan` پژوهش اضافه نشد (`thousand` و `lakh`). میان‌بر `k`/`m` (E15) اضافه نشد.
+- تست‌ها (اجراشده): `node tests/test-masks-custom.js` → 409 passed (۲۴ بردار `numParse`/`numFormat` در JS و PHP، برابر؛ ۹ بردار `numLive`)؛ `php tests/test-masks-render.php` → 55؛ `php tests/test-masks-save-roundtrip.php` → 65 (همهٔ کلیدهای `num_*` شامل `٬`، `٫` و پسوند `﷼`، و ۱۱ مقدار نامعتبر)؛ `php tests/test-masks-submit.php` → 1151 (محدوده، ذخیرهٔ متعارف، ذخیرهٔ نمایشی، متن نامعتبر)؛ `node tests/test-masks-browser.js` → 35 (تایپ `۱۲۳۴۵۶۷٫۸۹` → `1,234,567.89` و ذخیرهٔ `1234567.89`، پیام محدوده)؛ `node tests/test-masks-builder-browser.js` → 50؛ vectors JS 1332، PHP 192، parity 5، runtime 21، catalog-ajax 30.
+- وضعیت ترجمه: کلیدهای تازه `mskRange_` (عمومی)، `mskNumeric`، `mskNumGroup`، `mskNumRadix`، `mskNumDigits`، `mskNumFixed`، `mskNumNegative`، `mskNumMin`، `mskNumMax`، `mskNumPrefix`، `mskNumSuffix`، `mskNumGrouping`، `mskNumThousand`، `mskNumLakh`، `mskNumNoGroup`، `mskNumSpace`؛ فارسی در `.po`.
+
+**سازگاری با SitePilot AI (جمع‌بندی درخواست‌های هماهنگ‌کننده)**
+- انجام‌شده: کلیدهای تخت و پایدار (`mask_preset`، `mask_custom`، `mask_checksum`، `mask_store`، `mask_strict`، `mask_case`، `inputmode`، `num_*`) که sanitizer برای ذخیرهٔ سازنده و API یکسان اعمال می‌کند؛ `Masks::catalog_public($locale)` با فیلتر `efb_mask_catalog`، بدون regex، با `warning: "unverified"` و `pii`؛ `Masks::check_value()` با کدهای `empty|format|incomplete|checksum|rule|range|unknown_mask` (`length` برای F03 رزرو است)؛ `Masks::validate_field_keys()` برای اجرای آزمایشی `form.validate` (`unknown_mask` به‌جای خالی کردن بی‌صدا)؛ `autocomplete` پیش‌تنظیم فقط وقتی کلید `autocomplete` فیلد خالی است.
+- باز (بیرون از F01، طبق پیام): wrapper REST `GET Emsfb/v1/admin/masks` و `manifest.features.masks` در تسک API SitePilot.
 
 ## ۱۶. گسترش‌های فاز ۲ مرتبط
 

@@ -1192,5 +1192,453 @@
    "input": "12",
    "expect": "1||2"
   }
+ ],
+ "numeric": [
+  {
+   "cfg": {
+    "num_group": ",",
+    "num_radix": ".",
+    "num_digits": "2",
+    "num_negative": "1",
+    "num_min": "-100",
+    "num_max": "1000000"
+   },
+   "input": "1,234.5",
+   "ok": true,
+   "code": null,
+   "value": "1234.5",
+   "display": "1,234.5",
+   "note": ""
+  },
+  {
+   "cfg": {
+    "num_group": ",",
+    "num_radix": ".",
+    "num_digits": "2",
+    "num_negative": "1",
+    "num_min": "-100",
+    "num_max": "1000000"
+   },
+   "input": "۱٬۲۳۴٫۵",
+   "ok": true,
+   "code": null,
+   "value": "1234.5",
+   "display": "1,234.5",
+   "note": "Persian digits with Arabic separators"
+  },
+  {
+   "cfg": {
+    "num_group": ",",
+    "num_radix": ".",
+    "num_digits": "2",
+    "num_negative": "1",
+    "num_min": "-100",
+    "num_max": "1000000"
+   },
+   "input": "-50",
+   "ok": true,
+   "code": null,
+   "value": "-50",
+   "display": "-50",
+   "note": ""
+  },
+  {
+   "cfg": {
+    "num_group": ",",
+    "num_radix": ".",
+    "num_digits": "2",
+    "num_negative": "1",
+    "num_min": "-100",
+    "num_max": "1000000"
+   },
+   "input": "−50",
+   "ok": true,
+   "code": null,
+   "value": "-50",
+   "display": "-50",
+   "note": "minus sign U+2212"
+  },
+  {
+   "cfg": {
+    "num_group": ",",
+    "num_radix": ".",
+    "num_digits": "2",
+    "num_negative": "1",
+    "num_min": "-100",
+    "num_max": "1000000"
+   },
+   "input": "-150",
+   "ok": false,
+   "code": "range",
+   "value": "-150",
+   "display": null,
+   "note": "below num_min"
+  },
+  {
+   "cfg": {
+    "num_group": ",",
+    "num_radix": ".",
+    "num_digits": "2",
+    "num_negative": "1",
+    "num_min": "-100",
+    "num_max": "1000000"
+   },
+   "input": "1000000.01",
+   "ok": false,
+   "code": "range",
+   "value": "1000000.01",
+   "display": null,
+   "note": "above num_max (string compare, no float)"
+  },
+  {
+   "cfg": {
+    "num_group": ",",
+    "num_radix": ".",
+    "num_digits": "2",
+    "num_negative": "1",
+    "num_min": "-100",
+    "num_max": "1000000"
+   },
+   "input": "1000000",
+   "ok": true,
+   "code": null,
+   "value": "1000000",
+   "display": "1,000,000",
+   "note": "equal to num_max"
+  },
+  {
+   "cfg": {
+    "num_group": ",",
+    "num_radix": ".",
+    "num_digits": "2",
+    "num_negative": "1",
+    "num_min": "-100",
+    "num_max": "1000000"
+   },
+   "input": "12.345",
+   "ok": false,
+   "code": "format",
+   "value": "",
+   "display": null,
+   "note": "more decimals than num_digits"
+  },
+  {
+   "cfg": {
+    "num_group": ",",
+    "num_radix": ".",
+    "num_digits": "2",
+    "num_negative": "1",
+    "num_min": "-100",
+    "num_max": "1000000"
+   },
+   "input": "abc",
+   "ok": false,
+   "code": "format",
+   "value": "",
+   "display": null,
+   "note": ""
+  },
+  {
+   "cfg": {
+    "num_group": ",",
+    "num_radix": ".",
+    "num_digits": "2",
+    "num_negative": "1",
+    "num_min": "-100",
+    "num_max": "1000000"
+   },
+   "input": "",
+   "ok": false,
+   "code": "empty",
+   "value": "",
+   "display": null,
+   "note": ""
+  },
+  {
+   "cfg": {
+    "num_group": ",",
+    "num_radix": ".",
+    "num_digits": "2",
+    "num_negative": "1",
+    "num_min": "-100",
+    "num_max": "1000000"
+   },
+   "input": "0012",
+   "ok": true,
+   "code": null,
+   "value": "12",
+   "display": "12",
+   "note": "leading zeros dropped"
+  },
+  {
+   "cfg": {
+    "num_group": ",",
+    "num_radix": ".",
+    "num_digits": "2",
+    "num_negative": "1",
+    "num_min": "-100",
+    "num_max": "1000000"
+   },
+   "input": "-0",
+   "ok": true,
+   "code": null,
+   "value": "0",
+   "display": "0",
+   "note": "negative zero is zero"
+  },
+  {
+   "cfg": {
+    "num_group": ",",
+    "num_radix": ".",
+    "num_digits": "2",
+    "num_negative": "1",
+    "num_min": "-100",
+    "num_max": "1000000"
+   },
+   "input": "1.2.3",
+   "ok": false,
+   "code": "format",
+   "value": "",
+   "display": null,
+   "note": "two radix points"
+  },
+  {
+   "cfg": {
+    "num_group": ".",
+    "num_radix": ",",
+    "num_digits": "2",
+    "num_digits_fixed": "1"
+   },
+   "input": "1.234.567,8",
+   "ok": true,
+   "code": null,
+   "value": "1234567.80",
+   "display": "1.234.567,80",
+   "note": "EU separators, fixed 2 decimals"
+  },
+  {
+   "cfg": {
+    "num_group": ".",
+    "num_radix": ",",
+    "num_digits": "2",
+    "num_digits_fixed": "1"
+   },
+   "input": "-5",
+   "ok": false,
+   "code": "range",
+   "value": "-5.00",
+   "display": null,
+   "note": "negative not allowed"
+  },
+  {
+   "cfg": {
+    "num_group": "٬",
+    "num_radix": "٫",
+    "num_digits": "0"
+   },
+   "input": "۱٬۲۵۰٬۰۰۰",
+   "ok": true,
+   "code": null,
+   "value": "1250000",
+   "display": "1٬250٬000",
+   "note": "Persian thousands separator"
+  },
+  {
+   "cfg": {
+    "num_group": "٬",
+    "num_radix": "٫",
+    "num_digits": "0"
+   },
+   "input": "1250000٫5",
+   "ok": false,
+   "code": "format",
+   "value": "",
+   "display": null,
+   "note": "no decimals allowed"
+  },
+  {
+   "cfg": {
+    "num_grouping": "lakh",
+    "num_digits": "2"
+   },
+   "input": "12,34,567.89",
+   "ok": true,
+   "code": null,
+   "value": "1234567.89",
+   "display": "12,34,567.89",
+   "note": "Indian lakh grouping"
+  },
+  {
+   "cfg": {
+    "num_prefix": "$",
+    "num_suffix": " USD",
+    "num_digits": "2"
+   },
+   "input": "$1,234.50 USD",
+   "ok": true,
+   "code": null,
+   "value": "1234.5",
+   "display": "$1,234.5 USD",
+   "note": "prefix and suffix are not stored"
+  },
+  {
+   "cfg": {
+    "num_prefix": "$",
+    "num_suffix": " USD",
+    "num_digits": "2"
+   },
+   "input": "1234.5",
+   "ok": true,
+   "code": null,
+   "value": "1234.5",
+   "display": "$1,234.5 USD",
+   "note": ""
+  },
+  {
+   "cfg": {
+    "num_group": "",
+    "num_digits": "3"
+   },
+   "input": "3,14159",
+   "ok": false,
+   "code": "format",
+   "value": "",
+   "display": null,
+   "note": "no group: comma is the radix, but 5 decimals > 3"
+  },
+  {
+   "cfg": {
+    "num_group": "",
+    "num_digits": "3"
+   },
+   "input": "3,141",
+   "ok": true,
+   "code": null,
+   "value": "3.141",
+   "display": "3.141",
+   "note": "no group separator: , and . both work as radix"
+  },
+  {
+   "cfg": {
+    "num_digits": "0",
+    "num_max": "99999999999999999999999999999"
+   },
+   "input": "99999999999999999999999999998",
+   "ok": true,
+   "code": null,
+   "value": "99999999999999999999999999998",
+   "display": null,
+   "note": "29-digit value compared exactly"
+  },
+  {
+   "cfg": {
+    "num_digits": "0",
+    "num_min": "10"
+   },
+   "input": "9",
+   "ok": false,
+   "code": "range",
+   "value": "9",
+   "display": null,
+   "note": ""
+  }
+ ],
+ "numeric_live": [
+  {
+   "cfg": {
+    "num_group": ",",
+    "num_radix": ".",
+    "num_digits": "2",
+    "num_negative": "1",
+    "num_min": "-100",
+    "num_max": "1000000"
+   },
+   "input": "1234",
+   "expect": "1,234"
+  },
+  {
+   "cfg": {
+    "num_group": ",",
+    "num_radix": ".",
+    "num_digits": "2",
+    "num_negative": "1",
+    "num_min": "-100",
+    "num_max": "1000000"
+   },
+   "input": "1234.",
+   "expect": "1,234."
+  },
+  {
+   "cfg": {
+    "num_group": ",",
+    "num_radix": ".",
+    "num_digits": "2",
+    "num_negative": "1",
+    "num_min": "-100",
+    "num_max": "1000000"
+   },
+   "input": "1234.567",
+   "expect": "1,234.56"
+  },
+  {
+   "cfg": {
+    "num_group": ",",
+    "num_radix": ".",
+    "num_digits": "2",
+    "num_negative": "1",
+    "num_min": "-100",
+    "num_max": "1000000"
+   },
+   "input": "-",
+   "expect": "-"
+  },
+  {
+   "cfg": {
+    "num_group": ".",
+    "num_radix": ",",
+    "num_digits": "2",
+    "num_digits_fixed": "1"
+   },
+   "input": "1234567,8",
+   "expect": "1.234.567,8"
+  },
+  {
+   "cfg": {
+    "num_grouping": "lakh",
+    "num_digits": "2"
+   },
+   "input": "1234567",
+   "expect": "12,34,567"
+  },
+  {
+   "cfg": {
+    "num_prefix": "$",
+    "num_suffix": " USD",
+    "num_digits": "2"
+   },
+   "input": "12",
+   "expect": "$12 USD"
+  },
+  {
+   "cfg": {
+    "num_group": "٬",
+    "num_radix": "٫",
+    "num_digits": "0"
+   },
+   "input": "۱۲۳۴",
+   "expect": "1٬234"
+  },
+  {
+   "cfg": {
+    "num_group": ",",
+    "num_radix": ".",
+    "num_digits": "2",
+    "num_negative": "1",
+    "num_min": "-100",
+    "num_max": "1000000"
+   },
+   "input": ".5",
+   "expect": "0.5"
+  }
  ]
 }

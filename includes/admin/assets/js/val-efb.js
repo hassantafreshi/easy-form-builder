@@ -1199,6 +1199,29 @@ function show_setting_window_efb(idset) {
 
     // F01: "Format / mask" control. The preset list is filled by efb_masks_builder_init_efb()
     // (admin-efb.js) after the catalog AJAX answers; the custom mask value is set there too.
+    // F01-I1: number / amount settings (shown for mask_preset "numeric").
+    const numEls = () => {
+      const r = valj_efb[indx], t = efb_var.text;
+      const g = r.hasOwnProperty('num_group') ? String(r.num_group) : ',';
+      const sel = (id, cur, opts) => `<select data-id="${idset}" class="efb elEdit form-select border-d rounded-4" id="${id}">${opts.map((o) => `<option value="${o[0]}" ${cur === o[0] ? 'selected' : ''}>${o[1]}</option>`).join('')}</select>`;
+      const inp = (id, key, ph) => `<input type="text" data-id="${idset}" class="efb elEdit form-control text-muted border-d rounded-4 h-d-efb mb-1" id="${id}" dir="ltr" maxlength="${key.indexOf('fix') > 0 ? 8 : 38}" placeholder="${ph}" value="${typeof r[key] === 'string' ? r[key].replace(/"/g, '') : ''}">`;
+      const chk = (id, key, label) => `<div class="efb form-check mx-2"><input class="efb elEdit form-check-input" type="checkbox" id="${id}" data-id="${idset}" ${Number(r[key]) === 1 ? 'checked' : ''}><label class="efb form-check-label" for="${id}">${label}</label></div>`;
+      return `
+        <label for="numGroupEl" class="efb mt-2">${t.mskNumGroup || 'Thousands separator'}</label>
+        ${sel('numGroupEl', g, [[',', ', (1,234)'], ['.', '. (1.234)'], [' ', t.mskNumSpace || 'Space'], ["'", "' (1'234)"], ['\u066C', '٬ (۱٬۲۳۴)'], ['', t.mskNumNoGroup || 'No separator']])}
+        <label for="numRadixEl" class="efb mt-2">${t.mskNumRadix || 'Decimal separator'}</label>
+        ${sel('numRadixEl', r.num_radix || '.', [['.', '. (12.5)'], [',', ', (12,5)'], ['\u066B', '٫ (۱۲٫۵)']])}
+        <label for="numDigitsEl" class="efb mt-2">${t.mskNumDigits || 'Decimal places'}</label>
+        ${sel('numDigitsEl', String(r.num_digits || '0'), [['0', '0'], ['1', '1'], ['2', '2'], ['3', '3'], ['4', '4'], ['5', '5'], ['6', '6']])}
+        ${chk('numFixedEl', 'num_digits_fixed', t.mskNumFixed || 'Always show all decimal places')}
+        ${chk('numNegativeEl', 'num_negative', t.mskNumNegative || 'Allow negative numbers')}
+        <label for="numMinEl" class="efb mt-2">${t.mskNumMin || 'Minimum value'}</label>${inp('numMinEl', 'num_min', '0')}
+        <label for="numMaxEl" class="efb mt-2">${t.mskNumMax || 'Maximum value'}</label>${inp('numMaxEl', 'num_max', '1000000')}
+        <label for="numPrefixEl" class="efb mt-2">${t.mskNumPrefix || 'Text before the number'}</label>${inp('numPrefixEl', 'num_prefix', '$')}
+        <label for="numSuffixEl" class="efb mt-2">${t.mskNumSuffix || 'Text after the number'}</label>${inp('numSuffixEl', 'num_suffix', 'kg')}
+        <label for="numGroupingEl" class="efb mt-2">${t.mskNumGrouping || 'Digit grouping'}</label>
+        ${sel('numGroupingEl', r.num_grouping === 'lakh' ? 'lakh' : 'thousand', [['thousand', t.mskNumThousand || 'Thousands (1,234,567)'], ['lakh', t.mskNumLakh || 'Lakh (12,34,567)']])}`;
+    }
     const maskEls = () => {
       const row = valj_efb[indx];
       const t = efb_var.text;
@@ -1216,6 +1239,7 @@ function show_setting_window_efb(idset) {
         <select data-id="${idset}" class="efb elEdit form-select border-d rounded-4" id="maskPresetEl" data-tag="${row.type}">
           <option value="" ${cur === '' ? 'selected' : ''}>${t.mskNone || 'None'}</option>
           <option value="custom" ${isCustom ? 'selected' : ''}>${t.mskCustom || 'Custom mask'}</option>
+          ${maskKindEfb === 'text' ? `<option value="numeric" ${cur === 'numeric' ? 'selected' : ''}>${t.mskNumeric || 'Number or amount'}</option>` : ''}
           ${known ? `<option value="${cur}" selected>${cur}</option>` : ''}
           <option value="" disabled data-efb-loading="1">${t.mskLoading || 'Loading formats…'}</option>
         </select>
@@ -1236,6 +1260,9 @@ function show_setting_window_efb(idset) {
           </select>
           <label for="maskChecksumEl" class="efb mt-2">${t.mskChecksum || 'Check digit'}</label>
           <select data-id="${idset}" class="efb elEdit form-select border-d rounded-4" id="maskChecksumEl">${csOpts}</select>
+        </div>
+        <div class="efb efb-mask-num ${cur === 'numeric' ? '' : 'd-none'}" id="maskNumBoxEl">
+          ${numEls()}
         </div>
         <div class="efb efb-mask-store mt-2 ${cur !== '' ? '' : 'd-none'}" id="maskStoreBoxEl" role="radiogroup" aria-labelledby="maskStoreLabEl">
           <span class="efb d-block" id="maskStoreLabEl">${t.mskStore || 'Save the value'}</span>
