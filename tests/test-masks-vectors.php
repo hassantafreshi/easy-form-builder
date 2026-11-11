@@ -182,6 +182,32 @@ efbm_check('check_field: invalid UTF-8 -> format', !$r['ok'] && $r['code'] === '
 $r = Masks::check_field(array('mask_preset' => 'intl.percentage'), '50%');
 efbm_check('check_field: 50% is a valid percentage', $r['ok'] && $r['stored'] === '50%');
 
+// Connector API (SitePilot AI): catalog_public() and check_value().
+$pub = Masks::catalog_public();
+efbm_check('catalog_public lists 99 presets', isset($pub['presets']) && count($pub['presets']) === 99);
+$p0 = $pub['presets'][0];
+efbm_check('catalog_public row has the discovery fields', $p0['id'] === 'ir.mobile' && $p0['country'] === 'IR' && $p0['category'] === 'phone_mobile'
+	&& $p0['label']['fa'] === 'شماره موبایل' && $p0['inputmode'] === 'tel' && array_key_exists('checksum', $p0) && $p0['verification'] === 'secondary' && $p0['has_strict'] === false);
+$hasRegex = false;
+foreach ($pub['presets'] as $row) {
+	if (array_key_exists('regex', $row) || array_key_exists('regex_strict', $row) || array_key_exists('examples_valid', $row) || array_key_exists('metadata', $row)) {
+		$hasRegex = true;
+	}
+}
+efbm_check('catalog_public has no regex, examples or metadata', !$hasRegex);
+efbm_check('catalog_public documents the field keys', array_keys($pub['field_keys']) === array('mask_preset', 'mask_custom', 'mask_checksum', 'mask_store', 'mask_strict', 'inputmode'));
+$cv = Masks::check_value('ir.mobile', '0912 123 4567');
+efbm_check('check_value preset ok', $cv === array('ok' => true, 'code' => null, 'stored' => '+989121234567'));
+$cv = Masks::check_value('ir.national_id', '1234567892');
+efbm_check('check_value preset checksum', $cv['ok'] === false && $cv['code'] === 'checksum' && $cv['stored'] === '');
+$cv = Masks::check_value('custom:999-999', '123456');
+efbm_check('check_value custom mask', $cv === array('ok' => true, 'code' => null, 'stored' => '123456'));
+$cv = Masks::check_value(array('mask_preset' => 'ir.mobile', 'mask_store' => 'display'), '+989121234567');
+efbm_check('check_value with field keys (display storage)', $cv['ok'] && $cv['stored'] === '0912 123 4567');
+efbm_check('check_value empty -> empty', Masks::check_value('ir.mobile', '')['code'] === 'empty');
+efbm_check('check_value unknown preset -> unknown_mask', Masks::check_value('zz.nothing', 'x') === array('ok' => false, 'code' => 'unknown_mask', 'stored' => ''));
+efbm_check('check_value hostile id -> unknown_mask', Masks::check_value('../../etc', 'x')['code'] === 'unknown_mask' && Masks::check_value(null, 'x')['code'] === 'unknown_mask');
+
 // message()
 $lan = array('mskFormat_' => 'F:%1$s|%2$s', 'mskChecksum_' => 'C:%s', 'mskRule_' => 'R:%s', 'mskIncomplete_' => 'I:%s');
 efbm_check('message format uses the field placeholder', Masks::message('format', array('name' => 'M', 'placeholder' => 'ex', 'mask_preset' => 'ir.mobile'), $lan) === 'F:M|ex');

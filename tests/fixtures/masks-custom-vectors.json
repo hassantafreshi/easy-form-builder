@@ -137,9 +137,9 @@
    "input": "A123",
    "ok": false,
    "code": "format",
-   "value": "A12",
+   "value": "A",
    "stored": null,
-   "note": "digit in a letter slot is dropped"
+   "note": "a digit in a letter slot is dropped, so the value can never complete"
   },
   {
    "mask": "aa99[ ****]",
@@ -505,6 +505,24 @@
    "input": "AB12 C3",
    "expect": true,
    "note": "each optional slot is optional on its own"
+  },
+  {
+   "mask": "\\[99\\]",
+   "input": "[12]",
+   "expect": true,
+   "note": "closing literal written"
+  },
+  {
+   "mask": "\\[99\\]",
+   "input": "[12",
+   "expect": true,
+   "note": "lazy form (as typed) is complete too"
+  },
+  {
+   "mask": "9999",
+   "input": "12345",
+   "expect": false,
+   "note": "extra data"
   }
  ],
  "to_national_display": [

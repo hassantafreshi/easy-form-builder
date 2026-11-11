@@ -439,7 +439,7 @@
    * A data char that fits no slot is dropped; an optional slot that does not fit is skipped.
    */
   function runMask(pattern, input) {
-    var tokens = compileMask(pattern), s = Array.from(normalize(input, {})), out = '', pending = [], i = 0, t = 0;
+    var tokens = compileMask(pattern), s = Array.from(normalize(input, {})), out = '', pending = [], i = 0, t = 0, dropped = 0;
     for (t = 0; t < tokens.length && i < s.length; t++) {
       var tok = tokens[t];
       if (tok.k === 'lit') {
@@ -455,10 +455,11 @@
       } else if (tok.opt) {
         pending = pending.filter(function (x) { return !x.opt; });
       } else {
-        i++; t--;                                   // drop the char, retry the same slot
+        i++; t--; dropped++;                        // drop the char, retry the same slot
       }
     }
-    return { out: out, tokens: tokens, next: t };
+    for (var j = i; j < s.length; j++) { if (isDataChar(s[j])) { dropped++; } } // data beyond the last slot
+    return { out: out, tokens: tokens, next: t, pending: pending, dropped: dropped };
   }
   function applyMask(pattern, input) { return runMask(pattern, input).out; }
   /** maxLength of a pattern (all optional parts filled) - use for the input's maxlength attribute. */
@@ -521,17 +522,33 @@
     }
     return depth === 0 && slots > 0 && count >= 1 && count <= MAX_CUSTOM_MASK;
   }
+  /** Required slots left after a runMask() result: none means the value is complete. */
+  function requiredLeft(r) {
+    for (var t = r.next; t < r.tokens.length; t++) {
+      if (r.tokens[t].k !== 'lit' && !r.tokens[t].opt) { return true; }
+    }
+    return false;
+  }
+  /** Output plus the required literals that close the mask (applyMask writes literals lazily, so "[12" -> "[12]"). */
+  function finishRun(r) {
+    var out = r.out, t;
+    for (t = 0; t < r.pending.length; t++) { if (!r.pending[t].opt) { out += r.pending[t].ch; } }
+    for (t = r.next; t < r.tokens.length; t++) { if (r.tokens[t].k === 'lit' && !r.tokens[t].opt) { out += r.tokens[t].ch; } }
+    return out;
+  }
+  /** finishMask(pattern, input): applyMask plus closing literals once every required slot is filled. */
+  function finishMask(pattern, input) {
+    var r = runMask(pattern, input);
+    return requiredLeft(r) ? r.out : finishRun(r);
+  }
   /**
    * isComplete(pattern, formatted): every non-optional slot is filled and the value is already in mask shape
-   * (applyMask(pattern, formatted) === formatted). Linear walk over the tokens; no regex is built (no ReDoS).
+   * (applyMask or finishMask of it gives it back). Linear walk over the tokens; no regex is built (no ReDoS).
    */
   function isComplete(pattern, formatted) {
     var v = normalize(formatted, {}), r = runMask(pattern, v);
-    if (r.out !== v) { return false; }
-    for (var t = r.next; t < r.tokens.length; t++) {
-      if (r.tokens[t].k !== 'lit' && !r.tokens[t].opt) { return false; }
-    }
-    return true;
+    if (r.dropped > 0 || requiredLeft(r)) { return false; }
+    return r.out === v || finishRun(r) === v;
   }
   function dataOnly(s) {
     var a = Array.from(s), out = '';
@@ -549,8 +566,9 @@
     var v = normalize(raw, {});
     if (v === '') { return { ok: false, code: 'empty', value: v }; }
     if (Array.from(v).length > MAX_INPUT || !def || !def.mask) { return { ok: false, code: 'format', value: v }; }
-    var f = applyMask(def.mask, v);
-    if (dataOnly(f).length !== dataOnly(v).length || !isComplete(def.mask, f)) { return { ok: false, code: 'format', value: f }; }
+    var r = runMask(def.mask, v);
+    if (r.dropped > 0 || requiredLeft(r)) { return { ok: false, code: 'format', value: r.out }; }
+    var f = finishRun(r);
     if (def.checksum) {
       if (CUSTOM_CHECKSUMS.indexOf(def.checksum) === -1) { throw new Error('Unknown checksum ' + def.checksum); }
       if (!CHECKSUMS[def.checksum](toAsciiUpper(f).replace(/[^0-9A-Z]/g, ''))) { return { ok: false, code: 'checksum', value: f }; }
@@ -649,7 +667,7 @@
     caretForDataIndex: caretForDataIndex, isComplete: isComplete, validateCustom: validateCustom,
     toStoredCustom: toStoredCustom, toNationalDisplay: toNationalDisplay, formatDisplay: formatDisplay,
     CUSTOM_CHECKSUMS: CUSTOM_CHECKSUMS, MAX_INPUT: MAX_INPUT, MAX_CUSTOM_MASK: MAX_CUSTOM_MASK, checkMask: checkMask,
-    dataOnly: dataOnly,
+    dataOnly: dataOnly, finishMask: finishMask,
     luhn: luhn, luhnCheckDigit: luhnCheckDigit, verhoeff: verhoeff, verhoeffCheckDigit: verhoeffCheckDigit,
     iban: iban, ibanCheckDigits: ibanCheckDigits, IBAN_LENGTHS: IBAN_LENGTHS, mod97: mod97,
     iranNationalCode: iranNationalCode, iranLegalId: iranLegalId, saudiNin: saudiNin, emiratesId: emiratesId,

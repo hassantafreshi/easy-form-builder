@@ -1,4 +1,4 @@
-وضعیت: سند آماده، پیاده‌سازی نشده · اولویت: P0 · تلاش: M · وابستگی: — (F02، F03، F06 و F17 به این تسک وابسته‌اند)
+وضعیت: در حال پیاده‌سازی (A انجام شد) · اولویت: P0 · تلاش: M · وابستگی: — (F02، F03، F06 و F17 به این تسک وابسته‌اند)
 
 # F01 — ماسک ورودی و اعتبارسنج‌های قالب
 
@@ -260,12 +260,15 @@ if (!empty($f['mask_preset']) && class_exists('\Emsfb\Masks')) {
 - پذیرش: ۶۱۲ بردار در JS و PHP پاس شوند و اختلاف فیلدبه‌فیلد (ok، code، value، stored، format) صفر باشد. کاتالوگ افزونه با کاتالوگ docs برابر باشد. بردارهای تازهٔ ماسک دلخواه (دست‌کم ۴۰ مورد: اختیاری، `{n,m}`، literal با `\`، checksum) پاس شوند. `php -l` روی PHP 7.4 تمیز باشد.
 - تست‌ها: `node tests/test-masks-vectors.js`، `php tests/test-masks-vectors.php`، `node tests/test-masks-parity.js` (هر دو را اجرا و مقایسه می‌کند)، `node tests/test-masks-custom.js`. خروجی به الگوی playbook §9.1: `[PASS]/[FAIL]` و یک خط `RESULTS:`.
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint** (A انجام شد، 2026-11-11)
+- فایل‌های تغییرکرده: `public/assets/js/masks-efb.js` (پورت مرجع + `checkMask`، `isComplete`، `finishMask`، `validateCustom`، `toStoredCustom`، `toNationalDisplay`، `formatDisplay`؛ `attachMask` حالا `opts.format`، `opts.live` و `opts.maxlength` می‌پذیرد و رفتار قبلی با رشتهٔ ماسک دست نخورده است؛ سقف ۲۵۶ نویسه در `validate`)، `includes/class-Emsfb-masks.php` (کلاس `Emsfb\Masks`: همهٔ `efbm_*` به‌صورت متد استاتیک، به‌علاوهٔ `check_mask`، `is_complete`، `validate_custom`، `to_national_display`، `catalog()`، `preset()`، `runtime_subset()`، `is_sensitive()`، `field_def()`، `check_field()`، `message()`، `catalog_public()`، `check_value()`)، `includes/data/masks-catalog-efb.json` (کپی بایت‌به‌بایت)، `includes/class-Emsfb.php` (بارگذاری اختیاری پس از upload guard)، `tests/test-masks-vectors.js|php`، `tests/test-masks-parity.js`، `tests/test-masks-custom.js`، `tests/fixtures/masks-custom-vectors.json` (۴۵ بردار validateCustom، ۱۳ isComplete، ۱۹ toNationalDisplay، ۶ formatDisplay، ۲۹ checkMask؛ مقادیر مورد انتظار دستی از قواعد توکن نوشته شده‌اند).
+- تست‌ها (اجراشده): `node tests/test-masks-vectors.js` → 962 passed, 0 failed (معتبر 283/283، نامعتبر 255/255، قالب 74/74 + ۸۶۲ بررسی اضافه)؛ `php tests/test-masks-vectors.php` → 143 passed, 0 failed (همان ۶۱۲ بردار + catalog/runtime_subset/check_field/message/catalog_public/check_value)؛ `node tests/test-masks-parity.js` → 5 passed (۰ اختلاف JS/PHP روی ۶۱۲ بردار، کاتالوگ افزونه = کاتالوگ docs)؛ `node tests/test-masks-custom.js` → 228 passed, 0 failed (JS و PHP، برابر هم). `php -l` تمیز. decode کاتالوگ ۱٫۷ ms (PHP 8.3)؛ زیرمجموعهٔ زمان اجرای هر ۹۹ مورد ۳۵ KB (فرم معمولی زیر ۱ KB). تست‌های موجود بدون تغییر نتیجه: `test-password-placeholder-render.php` 4/4، `test-json-preservation.php` 30، `test-legacy-json-compatibility.php` 43، `test-recorder-generic-style-render.php` 34/34، `test-upload-field-presets.php` 79/79، `test-function-class-self-calls.php` 12/12، `test-addon-require-guards.php` 75/75.
+- وضعیت ترجمه: در A رشتهٔ رابط تازه‌ای اضافه نشد. پیام‌های انگلیسی fallback در `Masks::message()` فقط وقتی به کار می‌روند که کلیدهای `msk*_` (زیرتسک F) در دسترس نباشند.
+- تصمیم‌ها و انحراف‌ها: (۱) ماسک دلخواه: مقدار «تمیز» = فقط حرف و رقم (جداکننده‌ها حذف، literalهای حرفی/رقمی مثل `0` و `9` در `0\999` می‌مانند)؛ این مقدار دوباره با همان ماسک معتبر می‌شود (بردار رفت‌وبرگشت). نویسهٔ دادهٔ دورریخته‌شده (حرف در جای رقم یا داده بیش از ماسک) خطای `format` می‌دهد. (۲) literal پایانی (`\[99\]`) با `finishMask` نوشته می‌شود؛ `isComplete` هر دو شکل را می‌پذیرد. (۳) `runtime_subset` علاوه بر فهرست §۷ کلید `category` را هم دارد، چون §۹.۱ (حذف از localStorage) به آن نیاز دارد. (۴) فیلتر افزودن پیش‌تنظیم `efb_mask_presets` است (روی کاتالوگ کامل)؛ فیلتر `efb_mask_catalog` روی خروجی عمومی `catalog_public()` اجرا می‌شود.
+- سازگاری با SitePilot AI (درخواست مالک): کلیدهای فیلد تخت، scalar و پایدارند (`mask_preset`، `mask_custom`، `mask_checksum`، `mask_store`، `mask_strict`، `inputmode`) و در `catalog_public()['field_keys']` مستند شده‌اند. `Emsfb\Masks::catalog_public($locale)` فهرست ماشین‌خوان (id، country، category، label، placeholder، mask، formatter، inputmode، autocomplete، checksum، validator، store، verification، has_strict؛ بدون regex) با فیلتر `efb_mask_catalog` بدون nonce AJAX در دسترس است. `Emsfb\Masks::check_value($preset|'custom:<mask>'|$field_keys, $value)` خروجی `{ok, code, stored}` می‌دهد و برای شناسهٔ ناشناخته یا خصمانه `unknown_mask` برمی‌گرداند. هم‌خوانی sanitizer ذخیره با سازنده در زیرتسک C انجام می‌شود.
+- نقاط گسترش: پیش‌تنظیم تازه = ورودی کاتالوگ (یا فیلتر `efb_mask_presets`) بدون تغییر کلید ذخیره‌شده؛ checksum یا rule تازه = تابع در `CHECKSUMS`/`VALIDATORS` و متد PHP هم‌نام؛ حالت عددی/ارزی با جداکننده یا تبدیل حروف بزرگ = شاخهٔ تازه در `formatValue`/`format_value` با کلید `formatter`؛ تلفن پویای هر کشور = `formatter` یا `validator` تازه، با همان `mask_preset`؛ شکل ذخیرهٔ تازه = شاخه در `toStored`/`to_stored` با کلید `store`.
+- مورد باز: ندارد برای A. پرسش‌های باز §۱۷ همچنان باز است.
+- اقدام بعدی: زیرتسک B (برچسب‌های قابل ترجمه و AJAX کاتالوگ سازنده).
 
 ### B. برچسب‌های قابل ترجمه و AJAX کاتالوگ سازنده
 - فایل‌ها: `includes/data/masks-labels-efb.php`، `includes/admin/class-Emsfb-admin.php` (ثبت و handler `efb_masks_catalog_Emsfb`)، و کلیدهای سازندهٔ §۱۴ در `functions.php`.

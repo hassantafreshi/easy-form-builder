@@ -8,11 +8,17 @@
  * PHP 7.4 compatible. Regexes come only from the catalog file shipped with the plugin, never from a request.
  *
  * Extension points (stored form keys stay stable):
- * - new presets: add catalog entries (or filter 'efb_masks_catalog'); forms store only the preset id.
+ * - new presets: add catalog entries (or filter 'efb_mask_presets'); forms store only the preset id.
  * - new checksum / rule: add a method and list it in validate() (and the JS CHECKSUMS / VALIDATORS).
  * - new formatter (numeric/currency with group separators, ...): a branch in format_value() keyed by 'formatter'.
  * - new storage shape: a branch in to_stored() keyed by 'store'.
  * - per-country dynamic phone: a new 'formatter' or 'validator' name; the field keeps mask_preset as is.
+ *
+ * Connector API (SitePilot AI and other callers that do not go through the builder's AJAX nonce):
+ * - Masks::catalog_public($locale)   machine-readable preset list, filter 'efb_mask_catalog'.
+ * - Masks::check_value($mask, $v)    validate one value outside a form submit -> {ok, code, stored}.
+ * - Field keys (flat scalars on a form_structer row): mask_preset, mask_custom, mask_checksum, mask_store,
+ *   mask_strict, inputmode. Values outside the allow-lists are reset by sanitize_obj_msg_efb() on save.
  */
 
 namespace Emsfb;
@@ -36,6 +42,9 @@ class Masks {
 	const RUNTIME_FIELDS = array('id', 'category', 'mask', 'formatter', 'regex', 'regex_strict', 'checksum', 'validator',
 		'calendar', 'date_order', 'year_range', 'strip', 'uppercase', 'fold_letters', 'pad_left', 'store', 'e164',
 		'inputmode', 'dir');
+
+	/** Allowed values of the per-field inputmode key ('auto' = from the preset, else no attribute). */
+	const INPUTMODES = array('auto', 'text', 'numeric', 'decimal', 'tel', 'email', 'url', 'none');
 
 	/** Preset categories whose values are not kept in the visitor's localStorage draft. */
 	const SENSITIVE_CATEGORIES = array('national_id', 'bank_card', 'iban', 'tax_id', 'passport');
@@ -619,6 +628,7 @@ class Masks {
 		$pending = array();
 		$i = 0;
 		$t = 0;
+		$dropped = 0;
 		$ns = count($s);
 		$nt = count($tokens);
 		for ($t = 0; $t < $nt && $i < $ns; $t++) {
@@ -650,9 +660,15 @@ class Masks {
 			} else {
 				$i++;
 				$t--;
+				$dropped++;
 			}
 		}
-		return array('out' => $out, 'tokens' => $tokens, 'next' => $t);
+		for ($j = $i; $j < $ns; $j++) {
+			if (self::slot_accepts('alnum', $s[$j])) {
+				$dropped++; // data beyond the last slot
+			}
+		}
+		return array('out' => $out, 'tokens' => $tokens, 'next' => $t, 'pending' => $pending, 'dropped' => $dropped);
 	}
 
 	public static function apply_mask($pattern, $input) {
@@ -769,20 +785,48 @@ class Masks {
 		return $depth === 0 && $slots > 0 && $count >= 1 && $count <= self::MAX_CUSTOM_MASK;
 	}
 
+	/** Required slots left after a run_mask() result: none means the value is complete. */
+	private static function required_left($r) {
+		$nt = count($r['tokens']);
+		for ($t = $r['next']; $t < $nt; $t++) {
+			if ($r['tokens'][$t]['k'] !== 'lit' && !$r['tokens'][$t]['opt']) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/** Output plus the required literals that close the mask (literals are written lazily). */
+	private static function finish_run($r) {
+		$out = $r['out'];
+		foreach ($r['pending'] as $p) {
+			if (!$p['opt']) {
+				$out .= $p['ch'];
+			}
+		}
+		$nt = count($r['tokens']);
+		for ($t = $r['next']; $t < $nt; $t++) {
+			if ($r['tokens'][$t]['k'] === 'lit' && !$r['tokens'][$t]['opt']) {
+				$out .= $r['tokens'][$t]['ch'];
+			}
+		}
+		return $out;
+	}
+
+	/** apply_mask plus closing literals once every required slot is filled. */
+	public static function finish_mask($pattern, $input) {
+		$r = self::run_mask($pattern, $input);
+		return self::required_left($r) ? $r['out'] : self::finish_run($r);
+	}
+
 	/** Every non-optional slot is filled and the value already has the mask's shape. Linear, no regex built. */
 	public static function is_complete($pattern, $formatted) {
 		$v = self::normalize($formatted, array());
 		$r = self::run_mask($pattern, $v);
-		if ($r['out'] !== $v) {
+		if ($r['dropped'] > 0 || self::required_left($r)) {
 			return false;
 		}
-		$nt = count($r['tokens']);
-		for ($t = $r['next']; $t < $nt; $t++) {
-			if ($r['tokens'][$t]['k'] !== 'lit' && !$r['tokens'][$t]['opt']) {
-				return false;
-			}
-		}
-		return true;
+		return $r['out'] === $v || self::finish_run($r) === $v;
 	}
 
 	/** Letters and digits only (what the mask engine calls data characters). */
@@ -805,10 +849,11 @@ class Masks {
 		if (self::length($v) > self::MAX_INPUT || empty($def['mask'])) {
 			return array('ok' => false, 'code' => 'format', 'value' => $v);
 		}
-		$f = self::apply_mask($def['mask'], $v);
-		if (self::length(self::data_only($f)) !== self::length(self::data_only($v)) || !self::is_complete($def['mask'], $f)) {
-			return array('ok' => false, 'code' => 'format', 'value' => $f);
+		$r = self::run_mask($def['mask'], $v);
+		if ($r['dropped'] > 0 || self::required_left($r)) {
+			return array('ok' => false, 'code' => 'format', 'value' => $r['out']);
 		}
+		$f = self::finish_run($r);
 		if (!empty($def['checksum'])) {
 			if (!in_array($def['checksum'], self::CUSTOM_CHECKSUMS, true)) {
 				throw new \InvalidArgumentException('Unknown checksum ' . $def['checksum']);
@@ -900,7 +945,8 @@ class Masks {
 			$data = array('version' => 0, 'masks' => array());
 		}
 		if (function_exists('apply_filters')) {
-			$filtered = apply_filters('efb_masks_catalog', $data);
+			// Add or adjust presets (each needs at least id + regex). Runs once per request.
+			$filtered = apply_filters('efb_mask_presets', $data);
 			if (is_array($filtered) && isset($filtered['masks']) && is_array($filtered['masks'])) {
 				$data = $filtered;
 			}
@@ -962,6 +1008,51 @@ class Masks {
 			}
 			$row['placeholder'] = isset($m['placeholder'][$lang]) ? $m['placeholder'][$lang] : (isset($m['placeholder']['en']) ? $m['placeholder']['en'] : '');
 			$out[$id] = $row;
+		}
+		return $out;
+	}
+
+	/**
+	 * Machine-readable preset list for connectors (no regex, examples, metadata or sources):
+	 * array('version' => int, 'tokens' => array, 'checksums' => array, 'presets' => array(array(id, country,
+	 * category, label{en,fa,ar}, placeholder{en,fa,ar}, mask, formatter, inputmode, autocomplete, checksum,
+	 * validator, store, verification, has_strict))). Filter: 'efb_mask_catalog'.
+	 */
+	public static function catalog_public($locale = null) {
+		$cat = self::catalog();
+		$presets = array();
+		foreach ($cat['masks'] as $m) {
+			if (!is_array($m) || !isset($m['id']) || !self::is_preset_id($m['id'])) {
+				continue;
+			}
+			$row = array('id' => $m['id']);
+			foreach (array('country', 'category', 'label', 'placeholder', 'mask', 'formatter', 'inputmode', 'autocomplete', 'checksum', 'validator', 'store', 'verification') as $k) {
+				$row[$k] = array_key_exists($k, $m) ? $m[$k] : null;
+			}
+			$row['has_strict'] = !empty($m['regex_strict']);
+			if ($locale !== null && class_exists('\\Emsfb\\Masks_Labels')) {
+				$row['label_localized'] = \Emsfb\Masks_Labels::label($m['id'], isset($m['label']['en']) ? $m['label']['en'] : $m['id']);
+			}
+			$presets[] = $row;
+		}
+		$out = array(
+			'version' => isset($cat['version']) ? $cat['version'] : 0,
+			'field_keys' => array(
+				'mask_preset' => 'preset id, "custom" or ""',
+				'mask_custom' => 'token mask (9 digit, a letter, * either, [ ] optional, {n,m} repeat, \\x literal), max ' . self::MAX_CUSTOM_MASK . ' characters',
+				'mask_checksum' => implode('|', self::CUSTOM_CHECKSUMS) . ' (custom masks only)',
+				'mask_store' => 'canonical|display',
+				'mask_strict' => '0|1',
+				'inputmode' => implode('|', self::INPUTMODES),
+			),
+			'custom_checksums' => self::CUSTOM_CHECKSUMS,
+			'presets' => $presets,
+		);
+		if (function_exists('apply_filters')) {
+			$f = apply_filters('efb_mask_catalog', $out, $locale);
+			if (is_array($f)) {
+				$out = $f;
+			}
 		}
 		return $out;
 	}
@@ -1054,6 +1145,30 @@ class Masks {
 			}
 		}
 		return array('ok' => (bool) $r['ok'], 'code' => $r['code'], 'stored' => $stored, 'legacy' => false);
+	}
+
+	/**
+	 * Validate one value outside a form submit (connectors, assistants). $mask is a preset id ("ir.mobile"),
+	 * "custom:<token mask>", or an array of field keys (mask_preset, mask_custom, mask_checksum, mask_store,
+	 * mask_strict, required). Returns array('ok' => bool, 'code' => null|'empty'|'format'|'checksum'|'rule'|
+	 * 'unknown_mask', 'stored' => string). An empty value is 'empty' unless the array says required = 0.
+	 */
+	public static function check_value($mask, $value) {
+		if (is_string($mask)) {
+			$f = strpos($mask, 'custom:') === 0
+				? array('mask_preset' => 'custom', 'mask_custom' => (string) substr($mask, 7))
+				: array('mask_preset' => $mask);
+			$f['required'] = '1';
+		} elseif (is_array($mask)) {
+			$f = $mask + array('required' => '1');
+		} else {
+			$f = array();
+		}
+		if (self::field_def($f) === null) {
+			return array('ok' => false, 'code' => 'unknown_mask', 'stored' => '');
+		}
+		$r = self::check_field($f, is_scalar($value) ? (string) $value : '');
+		return array('ok' => $r['ok'], 'code' => $r['code'], 'stored' => $r['stored']);
 	}
 
 	/**

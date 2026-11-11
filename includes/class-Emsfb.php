@@ -391,6 +391,10 @@ class Emsfb {
             \Emsfb\Upload_Guard::register();
         }
 
+        // Input masks and format validators (F01). Optional: every caller checks
+        // class_exists('\Emsfb\Masks'), so a missing file only disables masks.
+        $this->require_plugin_file_efb('includes/class-Emsfb-masks.php');
+
         if (!$core_ok) {
             $this->core_files_ok = false;
             return;
