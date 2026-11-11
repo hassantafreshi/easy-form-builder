@@ -1286,6 +1286,10 @@ class Admin {
         ]);
 
         $response = ['success' => true, 'r' => "done", 'value' => "add_addons_Emsfb", 'new' => $newAc];
+        // B8: fresh add-on flags and registry for the page; no secrets in `new` any more.
+        if (class_exists('\Emsfb\Builder_Api')) {
+            $response = Builder_Api::addon_install_response($post_value, $ac, $efbFunction);
+        }
         wp_send_json_success($response, 200);
     }
     public function remove_addons_Emsfb() {

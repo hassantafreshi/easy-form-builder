@@ -1098,7 +1098,20 @@ function actionSendAddons_efb(val) {
           let m = efb_var.text.tshbc;
           m =m.replace('%s', `<b>${efb_var.text.installation}</b>`);
           alert_message_efb(m,'', 40,'info');
-          location.reload();
+          /* B8: the page learns the new add-on flags and registry at once, and
+             efb:addon-installed tells listeners. A listener that has unsaved work
+             (AutoPilot, an open builder) can cancel the reload with preventDefault()
+             and reload later; the add-on's own scripts only load with a page load. */
+          const fresh = {};
+          if (payload.addons && typeof payload.addons === 'object') fresh.addons = payload.addons;
+          if (payload.capabilities && typeof payload.capabilities === 'object') fresh.capabilities = payload.capabilities;
+          if (Object.keys(fresh).length && typeof efb_var_patch_efb === 'function') {
+            efb_var_patch_efb(fresh, fresh.addons || null);
+            if (typeof addons_emsFormBuilder !== 'undefined' && fresh.addons) addons_emsFormBuilder = Object.assign({}, addons_emsFormBuilder, fresh.addons);
+          }
+          const evt = new CustomEvent('efb:addon-installed', { cancelable: true, detail: { addon: payload.addon || snd, addons: payload.addons || null, requires_reload: payload.requires_reload !== false } });
+          const proceed = document.dispatchEvent(evt);
+          if (proceed && payload.requires_reload !== false) location.reload();
         } else {
           addons_btn_reset_efb(snd);
           alert_message_efb(efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`, 30, "danger");

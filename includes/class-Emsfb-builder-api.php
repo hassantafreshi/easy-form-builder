@@ -301,6 +301,44 @@ class Builder_Api {
 		return $vars;
 	}
 
+	/* ---------------------------------------------------------------- B8 */
+
+	/** Settings without secrets: gateway secret keys, the licence, tokens, passwords. */
+	public static function redact_settings($settings) {
+		$s = is_object($settings) ? clone $settings : (is_array($settings) ? (object) $settings : new \stdClass());
+		foreach (array_keys(get_object_vars($s)) as $k) {
+			if (in_array($k, array('stripeSKey', 'paypalSKey', 'secretKey', 'activeCode', 'payToken', 'email_key', 'apiKeyMap'), true)
+				|| preg_match('/(secret|token|password|passwd|apikey|_key$|SKey$)/i', $k)) {
+				unset($s->$k);
+			}
+		}
+		return $s;
+	}
+
+	/**
+	 * B8: the answer of add_addons_Emsfb after an install. Keeps the old keys
+	 * (r = done, value, new) and adds the fresh add-on flags (efb_var.addons), the
+	 * capability registry and requires_reload, so the page (or an integration) can
+	 * update itself without reloading first. `new` no longer carries secrets.
+	 */
+	public static function addon_install_response($addon, $settings, $fn = null) {
+		$fn = $fn ?: (function_exists('get_efbFunction') ? get_efbFunction() : null);
+		$addons = ($fn && method_exists($fn, 'fun_get_addons_list_efb')) ? $fn->fun_get_addons_list_efb(is_object($settings) ? $settings : (object) $settings) : array();
+		return array(
+			'success'         => true,
+			'r'               => 'done',
+			'value'           => 'add_addons_Emsfb',
+			'addon'           => (string) $addon,
+			'addons'          => $addons,
+			'capabilities'    => self::capabilities(array('settings' => $settings)),
+			// The add-on's own scripts are enqueued on the next page load; nothing in core
+			// can load them safely in place, so the page is reloaded unless the listener of
+			// efb:addon-installed cancels it (and reloads later, e.g. after a Save).
+			'requires_reload' => true,
+			'new'             => json_encode(self::redact_settings($settings), JSON_UNESCAPED_UNICODE),
+		);
+	}
+
 	/* ---------------------------------------------------------------- B7 */
 
 	/**

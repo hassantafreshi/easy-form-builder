@@ -25,6 +25,7 @@ php tests/test-ap-b5-sms-save.php
 php tests/test-ap-b6-logic-validate.php
 php tests/test-ap-b7-computed-price.php
 node tests/test-ap-b7-total-display.js
+node tests/test-ap-b8-addon-installed.js
 ```
 
 (The full list is in [Tests](#tests) at the end.)
@@ -632,3 +633,30 @@ diff -ru a/smssended/smsefb.php b/smssended/smsefb.php
              return $result[0]->id;
          }
 ```
+
+### B8. Installing an add-on without losing the page
+
+- **Before.** `add_addons_Emsfb` answered `{r:'done', value, new}` where `new` was the whole settings
+  JSON **including the Stripe/PayPal secret keys, the licence code and the reCAPTCHA secret**; the
+  page then always called `location.reload()`.
+- **Now.**
+  - Server: `Builder_Api::addon_install_response()` builds the answer:
+    `{success, r:'done', value:'add_addons_Emsfb', addon, addons:{AdnXX:0|1,…}, capabilities:{…B3…},
+    requires_reload:true, new}`. `new` is kept for compatibility but without secrets
+    (`Builder_Api::redact_settings()`). The error answers (`addon_plan_required`,
+    `required_package`) are unchanged.
+  - Browser (`actionSendAddons_efb()`, `admin-efb.js`): patches `efb_var.addons`,
+    `efb_var.setting` and `efb_var.capabilities` with `efb_var_patch_efb()`, then dispatches a
+    **cancelable** `efb:addon-installed` with `detail {addon, addons, requires_reload}`. The page
+    reloads only when no listener called `preventDefault()`.
+  - Loading the add-on's scripts in place was not done: each add-on enqueues its own scripts and
+    localizations in PHP on the next page load (e.g. the logic builder in `class-Emsfb-create.php`),
+    so a partial in-page load would leave a half-initialised add-on. A listener that cancels the
+    reload should reload when the work is saved.
+- **Test.** `node tests/test-ap-b8-addon-installed.js`: the server answer (flags, registry, no
+  secret, the handler uses it) and, in the real builder scripts, the patched `efb_var`, the event,
+  no reload when cancelled and a reload otherwise. 8 passed. Existing add-on tests still pass
+  (install plan gate 27, recovery flow 7, require guards 75).
+- **AutoPilot.** After its own `add_addons_Emsfb` call, read `data.addons` / `data.capabilities`
+  instead of reloading to find out; inside EFB pages listen to `efb:addon-installed`, call
+  `event.preventDefault()` while the builder has unsaved changes, ask the admin to save, then reload.
