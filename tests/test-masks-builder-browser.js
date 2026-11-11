@@ -166,6 +166,21 @@ const catalogJson = execFileSync('php', ['-r', `
   const cats = JSON.parse(catalogJson).data.groups.flatMap((g) => g.presets).filter((p) => p.category === 'phone_mobile' || p.category === 'phone_landline').map((p) => p.id).sort();
   check('tel field lists only phone presets', JSON.stringify(tel.slice().sort()) === JSON.stringify(cats) && tel.length === 22, tel.length);
 
+  // JS renderer twin (canvas + in-admin preview), with the catalog loaded.
+  const tw = await page.evaluate(() => ({
+    tel: efb_mask_attrs_efb({ mask_preset: 'ir.mobile' }, 'tel'),
+    custom: efb_mask_attrs_efb({ mask_preset: 'custom', mask_custom: '(999) 999-9999', mask_store: 'display' }, 'text'),
+    none: efb_mask_attrs_efb({ placeholder: 'x' }, 'text'),
+    im: efb_mask_attrs_efb({ inputmode: 'decimal' }, 'number'),
+    name: efb_mask_attrs_efb({ mask_preset: 'ir.mobile' }, 'firstName'),
+    ac: efb_mask_attrs_efb({ mask_preset: 'intl.card', autocomplete: 'off' }, 'text'),
+  }));
+  check('JS twin: preset attrs match the PHP renderer', tw.tel.masked && tw.tel.attrs === 'data-mask-preset="ir.mobile" data-mask-store="canonical" inputmode="tel" dir="ltr"' && tw.tel.autocomplete === 'tel-national', tw.tel);
+  check('JS twin: custom attrs match the PHP renderer', tw.custom.attrs === 'data-mask="(999) 999-9999" data-mask-store="display" inputmode="numeric" dir="ltr" maxlength="14"', tw.custom);
+  check('JS twin: unmasked field adds nothing', !tw.none.masked && tw.none.attrs === '', tw.none);
+  check('JS twin: inputmode alone (H)', !tw.im.masked && tw.im.attrs === 'inputmode="decimal"', tw.im);
+  check('JS twin: name parts ignore masks', !tw.name.masked, tw.name);
+  check('JS twin: explicit autocomplete wins', tw.ac.autocomplete === '', tw.ac);
   check('no page errors while using the control', errors.length === 0, errors);
   if (bootErrors.length) console.log('note: errors while loading the builder scripts without WordPress (not from F01): ' + JSON.stringify(bootErrors));
   await browser.close();

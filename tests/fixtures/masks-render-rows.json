@@ -1,0 +1,12 @@
+[
+ {"elementId": "text", "row": {"type": "text", "id_": "t1", "name": "Code", "placeholder": "Type it", "el_border_color": "border-d", "required": "1", "value": "", "classes": "", "milen": "2", "mlen": "30"}},
+ {"elementId": "text", "row": {"type": "text", "id_": "t2", "name": "Plain", "placeholder": "", "el_border_color": "border-d", "required": "0", "value": "abc", "classes": "a,b"}},
+ {"elementId": "tel", "row": {"type": "tel", "id_": "t3", "name": "Phone", "placeholder": "0912", "el_border_color": "border-d", "required": "1", "value": "", "classes": "", "mlen": "15"}},
+ {"elementId": "postalcode", "row": {"type": "postalcode", "id_": "t4", "name": "Zip", "placeholder": "", "el_border_color": "border-d", "required": "0", "value": "", "classes": ""}},
+ {"elementId": "email", "row": {"type": "email", "id_": "t5", "name": "Mail", "placeholder": "a@b.c", "el_border_color": "border-d", "required": "1", "value": "", "classes": "", "mlen": "80"}},
+ {"elementId": "firstName", "row": {"type": "text", "id_": "t6", "name": "First", "placeholder": "", "el_border_color": "border-d", "required": "0", "value": "", "classes": ""}},
+ {"elementId": "number", "row": {"type": "number", "id_": "t7", "name": "Num", "placeholder": "", "el_border_color": "border-d", "required": "0", "value": "", "classes": "", "milen": "1", "mlen": "9"}},
+ {"elementId": "address_line", "row": {"type": "address_line", "id_": "t8", "name": "Addr", "placeholder": "", "el_border_color": "border-d", "required": "0", "value": "", "classes": ""}},
+ {"elementId": "url", "row": {"type": "url", "id_": "t9", "name": "Site", "placeholder": "", "el_border_color": "border-d", "required": "0", "value": "", "classes": ""}},
+ {"elementId": "password", "row": {"type": "password", "id_": "t10", "name": "Pass", "placeholder": "x\"y", "el_border_color": "border-d", "required": "1", "value": "", "classes": ""}}
+]

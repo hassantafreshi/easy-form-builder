@@ -208,6 +208,22 @@ efbm_check('check_value empty -> empty', Masks::check_value('ir.mobile', '')['co
 efbm_check('check_value unknown preset -> unknown_mask', Masks::check_value('zz.nothing', 'x') === array('ok' => false, 'code' => 'unknown_mask', 'stored' => ''));
 efbm_check('check_value hostile id -> unknown_mask', Masks::check_value('../../etc', 'x')['code'] === 'unknown_mask' && Masks::check_value(null, 'x')['code'] === 'unknown_mask');
 
+$byPub = array();
+foreach ($pub['presets'] as $row) {
+	$byPub[$row['id']] = $row;
+}
+efbm_check('catalog_public: unverified presets carry a warning', $byPub['ir.legal_id']['warning'] === 'unverified' && $byPub['ir.mobile']['warning'] === null);
+efbm_check('catalog_public: pii flag on national ids, cards, IBAN, CVC only', $byPub['ir.national_id']['pii'] && $byPub['intl.card']['pii'] && $byPub['ir.sheba']['pii'] && $byPub['intl.cvc']['pii'] && !$byPub['ir.mobile']['pii'] && !$byPub['us.zip']['pii']);
+efbm_check('check_value custom incomplete -> incomplete', Masks::check_value('custom:999-999', '123')['code'] === 'incomplete');
+efbm_check('message for incomplete', Masks::message('incomplete', array('name' => 'N'), array('mskIncomplete_' => 'I:%s')) === 'I:N');
+$vk = Masks::validate_field_keys(array('mask_preset' => 'zz.nothing', 'mask_checksum' => 'bogus', 'mask_store' => 'raw', 'inputmode' => 'x'));
+efbm_check('validate_field_keys reports unknown_mask and bad keys', array_map(function ($e) { return $e['code']; }, $vk['errors']) === array('unknown_mask', 'invalid_checksum', 'invalid_store', 'invalid_inputmode'));
+$vk = Masks::validate_field_keys(array('mask_preset' => 'custom', 'mask_custom' => '9{'));
+efbm_check('validate_field_keys reports invalid_mask', $vk['errors'] === array(array('key' => 'mask_custom', 'code' => 'invalid_mask')));
+$vk = Masks::validate_field_keys(array('mask_preset' => 'ir.legal_id', 'mask_store' => 'canonical', 'inputmode' => 'auto'));
+efbm_check('validate_field_keys warns on unverified presets', $vk['errors'] === array() && $vk['warnings'] === array(array('key' => 'mask_preset', 'code' => 'unverified')));
+efbm_check('validate_field_keys accepts an unmasked row', Masks::validate_field_keys(array('name' => 'x')) === array('errors' => array(), 'warnings' => array()));
+
 // message()
 $lan = array('mskFormat_' => 'F:%1$s|%2$s', 'mskChecksum_' => 'C:%s', 'mskRule_' => 'R:%s', 'mskIncomplete_' => 'I:%s');
 efbm_check('message format uses the field placeholder', Masks::message('format', array('name' => 'M', 'placeholder' => 'ex', 'mask_preset' => 'ir.mobile'), $lan) === 'F:M|ex');

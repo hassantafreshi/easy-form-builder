@@ -238,7 +238,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 			if ($im === '' && !empty($def['inputmode'])) {
 				$im = $def['inputmode'];
 			}
-			if (!empty($def['autocomplete'])) {
+			// The preset's autocomplete is only a default: an explicit field value (F16) wins.
+			if (!empty($def['autocomplete']) && !(isset($row['autocomplete']) && is_string($row['autocomplete']) && $row['autocomplete'] !== '')) {
 				$out['autocomplete'] = $def['autocomplete'];
 			}
 		}

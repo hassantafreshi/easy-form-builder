@@ -26,7 +26,7 @@
    "checksum": "",
    "input": "0912 123 456",
    "ok": false,
-   "code": "format",
+   "code": "incomplete",
    "value": "0912 123 456",
    "stored": null,
    "note": "one digit short"
@@ -196,7 +196,7 @@
    "checksum": "",
    "input": "12",
    "ok": false,
-   "code": "format",
+   "code": "incomplete",
    "value": "12",
    "stored": null,
    "note": "below {n}"
@@ -246,7 +246,7 @@
    "checksum": "",
    "input": "202555012",
    "ok": false,
-   "code": "format",
+   "code": "incomplete",
    "value": "(202) 555-012",
    "stored": null,
    "note": ""
@@ -266,7 +266,7 @@
    "checksum": "",
    "input": "01/02/24",
    "ok": false,
-   "code": "format",
+   "code": "incomplete",
    "value": "01/02/24",
    "stored": null,
    "note": ""

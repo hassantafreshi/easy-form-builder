@@ -562,7 +562,8 @@
   var MAX_INPUT = 256;
   /**
    * validateCustom({mask, checksum}, raw) -> { ok, code, value } for an admin's custom token mask.
-   * Order: empty -> format (incomplete, or data that fits no slot) -> checksum (only when chosen explicitly).
+   * Order: empty -> format (data that fits no slot) -> incomplete (a required slot is empty)
+   * -> checksum (only when chosen explicitly).
    * value is the formatted (display) string; toStoredCustom() turns it into the clean value.
    */
   function validateCustom(def, raw) {
@@ -570,7 +571,8 @@
     if (v === '') { return { ok: false, code: 'empty', value: v }; }
     if (Array.from(v).length > MAX_INPUT || !def || !def.mask) { return { ok: false, code: 'format', value: v }; }
     var r = runMask(def.mask, v);
-    if (r.dropped > 0 || requiredLeft(r)) { return { ok: false, code: 'format', value: r.out }; }
+    if (r.dropped > 0) { return { ok: false, code: 'format', value: r.out }; }
+    if (requiredLeft(r)) { return { ok: false, code: 'incomplete', value: r.out }; }
     var f = finishRun(r);
     if (def.checksum) {
       if (CUSTOM_CHECKSUMS.indexOf(def.checksum) === -1) { throw new Error('Unknown checksum ' + def.checksum); }

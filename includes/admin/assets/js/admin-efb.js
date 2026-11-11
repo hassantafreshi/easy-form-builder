@@ -2113,6 +2113,44 @@ function efb_masks_canvas_efb(row) {
   if (def && def.inputmode && (!row.inputmode || row.inputmode === 'auto')) { inp.setAttribute('inputmode', def.inputmode); inp.dataset.efbMaskIm = '1'; }
   if (typeof row.placeholder === 'string') inp.placeholder = row.placeholder;
 }
+// JS twin of Formbuilder::generateMaskAttributes_efb() for the canvas and the in-admin preview.
+// Preset details (inputmode, autocomplete) are known once the catalog is loaded; the public page
+// always gets them from the PHP renderer.
+function efb_mask_attrs_efb(row, elementId) {
+  const out = { masked: false, attrs: '', autocomplete: '' };
+  if (!row) return out;
+  const modes = ['text', 'numeric', 'decimal', 'tel', 'email', 'url', 'none'];
+  let im = typeof row.inputmode === 'string' && modes.includes(row.inputmode) ? row.inputmode : '';
+  const p = typeof row.mask_preset === 'string' ? row.mask_preset : '';
+  const kindOk = ['text', 'tel', 'postalcode'].includes(elementId);
+  const esc = (v) => String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const custom = p === 'custom' && typeof EfbMasks !== 'undefined' && EfbMasks.checkMask(row.mask_custom || '');
+  const preset = p !== '' && p !== 'custom' && /^[a-z]{2,4}\.[a-z0-9_]{2,40}$/.test(p);
+  if (!kindOk || (!custom && !preset)) {
+    if (im) out.attrs = `inputmode="${im}"`;
+    return out;
+  }
+  const a = [];
+  if (custom) {
+    a.push(`data-mask="${esc(row.mask_custom)}"`);
+    if (!im) { const ks = EfbMasks.compileMask(row.mask_custom).filter((t) => t.k !== 'lit').map((t) => t.k); im = ks.every((k) => k === 'digit') ? 'numeric' : ''; }
+  } else {
+    a.push(`data-mask-preset="${esc(p)}"`);
+    const def = efb_masks_preset_efb(p);
+    if (def) {
+      if (!im && def.inputmode) im = def.inputmode;
+      if (def.autocomplete && !(typeof row.autocomplete === 'string' && row.autocomplete !== '')) out.autocomplete = def.autocomplete;
+    }
+  }
+  a.push(`data-mask-store="${row.mask_store === 'display' ? 'display' : 'canonical'}"`);
+  if (preset && Number(row.mask_strict) === 1) { const def = efb_masks_preset_efb(p); if (!def || def.has_strict) a.push('data-mask-strict="1"'); }
+  if (im) a.push(`inputmode="${im}"`);
+  a.push('dir="ltr"');
+  if (custom) a.push(`maxlength="${EfbMasks.maskMaxLength(row.mask_custom)}"`);
+  out.masked = true;
+  out.attrs = a.join(' ');
+  return out;
+}
 // Shows/hides the parts of the mask control that depend on the chosen preset.
 function efb_masks_panel_state_efb(row) {
   const p = row.mask_preset || '';
@@ -7101,11 +7139,17 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       }
 
       classes = elementId != 'range' ? `form-control ${valj_efb[iVJ].el_border_color} ` : 'form-range';
+      // F01: a masked field drops min/max length and carries the mask attributes in their place;
+      // an unmasked field renders exactly as before.
+      const maskEfb = efb_mask_attrs_efb(valj_efb[iVJ], elementId);
+      if (maskEfb.masked) { maxlen = maskEfb.attrs; minlen = ''; classes += ' efb-ltr-in-rtl'; }
+      else if (maskEfb.attrs) { minlen = `${minlen} ${maskEfb.attrs}`.trim(); }
+      const autocompleteEfb = maskEfb.autocomplete || autocomplete;
       ui = `
       ${label}
       <div class="efb  ${pos[3]} col-sm-12 px-0 mx-0 ttEfb show"  id='${rndm}-f'>
         ${ttip}
-        <input type="${type}"   class="efb input-efb px-2 mb-0 emsFormBuilder_v w-100 ${classes} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-id="${rndm}-el" data-vid='${rndm}' data-css="${rndm}" id="${rndm}_" ${placeholder}  ${valj_efb[iVJ].value.length > 0 ? `value ="${valj_efb[iVJ].value}"` : ''} aria-required="${valj_efb[iVJ].required==1 ? true : false}" aria-label="${valj_efb[iVJ].name}" ${aire_describedby} autocomplete="${autocomplete}"  ${maxlen} ${minlen} ${previewSate != true ? 'readonly' : ''} ${disabled =="disabled" ? 'readonly' :''}>
+        <input type="${type}"   class="efb input-efb px-2 mb-0 emsFormBuilder_v w-100 ${classes} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-id="${rndm}-el" data-vid='${rndm}' data-css="${rndm}" id="${rndm}_" ${placeholder}  ${valj_efb[iVJ].value.length > 0 ? `value ="${valj_efb[iVJ].value}"` : ''} aria-required="${valj_efb[iVJ].required==1 ? true : false}" aria-label="${valj_efb[iVJ].name}" ${aire_describedby} autocomplete="${autocompleteEfb}"  ${maxlen} ${minlen} ${previewSate != true ? 'readonly' : ''} ${disabled =="disabled" ? 'readonly' :''}>
         ${desc}`
       dataTag = elementId;
       break;

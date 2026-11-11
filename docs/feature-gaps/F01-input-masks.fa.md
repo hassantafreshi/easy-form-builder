@@ -1,4 +1,4 @@
-وضعیت: در حال پیاده‌سازی (A، B و C انجام شد) · اولویت: P0 · تلاش: M · وابستگی: — (F02، F03، F06 و F17 به این تسک وابسته‌اند)
+وضعیت: در حال پیاده‌سازی (A تا D انجام شد) · اولویت: P0 · تلاش: M · وابستگی: — (F02، F03، F06 و F17 به این تسک وابسته‌اند)
 
 # F01 — ماسک ورودی و اعتبارسنج‌های قالب
 
@@ -304,12 +304,14 @@ if (!empty($f['mask_preset']) && class_exists('\Emsfb\Masks')) {
 - پذیرش: فرم بدون ماسک markup یکسان با امروز دارد. فیلد ماسک‌دار `data-mask-preset`، `inputmode`، `dir="ltr"`، `maxlength` و `autocomplete` کاتالوگ دارد و `pattern` ثابت tel را ندارد. `masks-efb.js` فقط در صفحه‌ای enqueue می‌شود که فیلد ماسک‌دار دارد. `ajax_object_efm.masks` فقط idهای همان صفحه را دارد و هیچ `examples_*`، `metadata` یا `sources` در آن نیست.
 - تست‌ها: `php tests/test-masks-render.php` (الگوی `tests/test-password-placeholder-render.php` با ReflectionMethod)، و تست قدیمی `php tests/test-password-placeholder-render.php` که باید همچنان پاس شود.
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint** (D انجام شد، 2026-11-11)
+- فایل‌های تغییرکرده: `includes/class-Emsfb-formbuilder.php` (متد `generateMaskAttributes_efb`؛ attributeها در جای خالی `$telPattern` می‌نشینند تا خروجی فیلد بدون ماسک بایت‌به‌بایت عوض نشود؛ برای فیلد ماسک‌دار `pattern` ثابت tel و `minlength`/`maxlength` قدیمی حذف و کلاس `efb-ltr-in-rtl` اضافه می‌شود؛ `autocomplete` کاتالوگ فقط وقتی کلید صریح `autocomplete` فیلد خالی است)، `includes/admin/assets/js/admin-efb.js` (`efb_mask_attrs_efb`، دوقلوی JS، در case متنی `addNewElement`؛ خروجی رشته‌ای آن با PHP برابر است)، `includes/class-Emsfb-public.php` (`$mask_ids_efb`، جمع‌آوری id در حلقهٔ فیلدها، enqueue `efb-masks-js` فقط وقتی JSON فرم `mask_preset` غیرخالی دارد و افزودنش به وابستگی‌های `Emsfb-core_js`، و `ajax_object_efm.masks` = `runtime_subset` فقط برای idهای همان صفحه و فقط وقتی ماسکی هست)، `includes/admin/assets/css/admin-rtl-efb.css` (قاعدهٔ `direction: ltr !important; text-align: right` برای ورودی ماسک‌دار، چون `.efb {direction: rtl !important}` attribute `dir="ltr"` را بی‌اثر می‌کرد)، `includes/class-Emsfb-masks.php` (موارد SitePilot، پایین)، `tests/test-masks-render.php`، `tests/fixtures/masks-render-rows.json`، `tests/fixtures/masks-render-golden.json` (خروجی renderer پیش از F01، از کامیت `3ec6ea5`).
+- انحراف: برای پیش‌تنظیم‌های تلفن دارای `e164` (مثلاً `ir.mobile`) `maxlength` گذاشته نمی‌شود، چون مرورگر متن چسبانده‌شدهٔ `+98 912 345 6789` (۱۶ نویسه) را پیش از رسیدن به ماسک (۱۳ نویسه) می‌برد و پذیرش «paste با `+98`» زیرتسک E را می‌شکند. ماسک در هر حال طول را محدود می‌کند. برای پیش‌تنظیم‌های formatter (`thousands`، `card`) هم `maxlength` نیست. `pro_els-efb.js` و مبدل CF7 طبق §۷ تغییری نکردند.
+- SitePilot (پیام هماهنگ‌کننده): `catalog_public()` حالا `warning: "unverified"|null` و `pii: bool` (از `is_sensitive`) دارد و هیچ regex نمی‌دهد؛ `Masks::validate_field_keys($row)` اجرای آزمایشی برای `form.validate` است و `unknown_mask`، `invalid_mask`، `invalid_checksum`، `invalid_store`، `invalid_inputmode` و هشدار `unverified` برمی‌گرداند (ذخیره همچنان مقدار بد را خالی می‌کند)؛ ماسک دلخواه ناقص حالا کد `incomplete` می‌گیرد (پیام `mskIncomplete_`) و `format` فقط برای دادهٔ بی‌جا می‌ماند؛ کدهای ممکن `check_value`: `empty|format|incomplete|checksum|rule|unknown_mask` (`length` برای قواعد طول F03 رزرو است)؛ sanitizer سازنده و API یکی است (زیرتسک C). باز: wrapper REST `GET Emsfb/v1/admin/masks` و `manifest.features.masks` (تسک API SitePilot).
+- تست‌ها (اجراشده): `php tests/test-masks-render.php` → 41 passed, 0 failed (۱۰ فیلد بدون ماسک برابر خروجی پیش از F01، `mask_preset` خالی یا ناشناخته هم برابر؛ attributeهای `ir.mobile`، `ir.national_id`، `ir.postal_code` با strict، `intl.card`، ماسک دلخواه، escape، ماسک خراب، firstName؛ inputmode تنها (H)؛ regex enqueue روی JSON ذخیره‌شده؛ سیم‌کشی public و CSS). `test-masks-builder-browser.js` → 37 passed (۶ بررسی تازهٔ دوقلوی JS). `test-masks-vectors.php` → 151 passed. `test-masks-custom.js` 234، `test-masks-vectors.js` 962، parity 5، catalog-ajax 27، save-roundtrip 47، همه 0 failed. موجود: `test-password-placeholder-render.php` 4/4، `test-recorder-generic-style-render.php` 34/34، `test-upload-field-presets.php` 79/79، `test-core-multiform-validation-scope.js` 27/27، `test-response-viewer-escaping.js` 31/31، `test-json-preservation.php` 30.
+- وضعیت ترجمه: عبارت تازه‌ای در D اضافه نشد.
+- مورد باز: تست با WordPress واقعی (صفحه با دو فرم، یکی ماسک‌دار) در این محیط ممکن نیست؛ enqueue و `ajax_object_efm.masks` فقط با بررسی سورس و تست واحد پوشش داده شده‌اند.
+- اقدام بعدی: زیرتسک E (زمان اجرای مرورگر).
 
 ### E. زمان اجرای مرورگر
 - فایل‌ها: `core-efb.js` (`efb_bind_mask_efb`، شاخه‌های text و tel در `handle_change_event_efb_v4`، `valid_typed_value_efb`، `fun_validation_efb_v4`، `efb_sendback_for_storage_efb` و بازیابی آفلاین)، `new-efb.js:1546` و `admin-efb.js:7925` (پیش‌نمایش).

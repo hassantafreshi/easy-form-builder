@@ -845,7 +845,10 @@ class Masks {
 		return $out;
 	}
 
-	/** validate_custom(array('mask'=>..., 'checksum'=>...), $raw): empty -> format -> checksum. 'value' = display form. */
+	/**
+	 * validate_custom(array('mask'=>..., 'checksum'=>...), $raw): empty -> format (data that fits no slot)
+	 * -> incomplete (a required slot is still empty) -> checksum. 'value' = display form.
+	 */
 	public static function validate_custom($def, $raw) {
 		$v = self::normalize($raw, array());
 		if ($v === '') {
@@ -855,8 +858,11 @@ class Masks {
 			return array('ok' => false, 'code' => 'format', 'value' => $v);
 		}
 		$r = self::run_mask($def['mask'], $v);
-		if ($r['dropped'] > 0 || self::required_left($r)) {
+		if ($r['dropped'] > 0) {
 			return array('ok' => false, 'code' => 'format', 'value' => $r['out']);
+		}
+		if (self::required_left($r)) {
+			return array('ok' => false, 'code' => 'incomplete', 'value' => $r['out']);
 		}
 		$f = self::finish_run($r);
 		if (!empty($def['checksum'])) {
@@ -1035,6 +1041,10 @@ class Masks {
 				$row[$k] = array_key_exists($k, $m) ? $m[$k] : null;
 			}
 			$row['has_strict'] = !empty($m['regex_strict']);
+			// Connector hints: show a warning for presets not checked against an official source, and keep
+			// personal data (national ids, cards, IBANs, CVC) out of assistant logs.
+			$row['warning'] = (isset($m['verification']) && $m['verification'] === 'unverified') ? 'unverified' : null;
+			$row['pii'] = self::is_sensitive($m);
 			if ($locale !== null && self::load_labels()) {
 				$row['label_localized'] = \Emsfb\Masks_Labels::label($m['id'], isset($m['label']['en']) ? $m['label']['en'] : $m['id']);
 			}
@@ -1247,6 +1257,43 @@ class Masks {
 	}
 
 	/**
+	 * Dry-run check of a field's mask keys, for form.validate in connectors (the save sanitizer blanks bad
+	 * values silently; this reports them). Returns array('errors' => list, 'warnings' => list), each item
+	 * array('key' => field key, 'code' => ...): unknown_mask, invalid_mask, invalid_checksum, invalid_store,
+	 * invalid_inputmode; warning 'unverified' for presets not checked against an official source.
+	 */
+	public static function validate_field_keys($row) {
+		$errors = array();
+		$warnings = array();
+		$row = is_array($row) ? $row : (is_object($row) ? get_object_vars($row) : array());
+		$p = isset($row['mask_preset']) ? $row['mask_preset'] : '';
+		if ($p !== '' && $p !== null) {
+			if (!is_string($p) || ($p !== 'custom' && self::preset($p) === null)) {
+				$errors[] = array('key' => 'mask_preset', 'code' => 'unknown_mask');
+			} elseif ($p === 'custom') {
+				if (!self::check_mask(isset($row['mask_custom']) ? $row['mask_custom'] : '')) {
+					$errors[] = array('key' => 'mask_custom', 'code' => 'invalid_mask');
+				}
+			} else {
+				$m = self::preset($p);
+				if (isset($m['verification']) && $m['verification'] === 'unverified') {
+					$warnings[] = array('key' => 'mask_preset', 'code' => 'unverified');
+				}
+			}
+		}
+		if (isset($row['mask_checksum']) && $row['mask_checksum'] !== '' && !in_array($row['mask_checksum'], self::CUSTOM_CHECKSUMS, true)) {
+			$errors[] = array('key' => 'mask_checksum', 'code' => 'invalid_checksum');
+		}
+		if (isset($row['mask_store']) && !in_array($row['mask_store'], array('canonical', 'display'), true)) {
+			$errors[] = array('key' => 'mask_store', 'code' => 'invalid_store');
+		}
+		if (isset($row['inputmode']) && !in_array($row['inputmode'], self::INPUTMODES, true)) {
+			$errors[] = array('key' => 'inputmode', 'code' => 'invalid_inputmode');
+		}
+		return array('errors' => $errors, 'warnings' => $warnings);
+	}
+
+	/**
 	 * Validate one value outside a form submit (connectors, assistants). $mask is a preset id ("ir.mobile"),
 	 * "custom:<token mask>", or an array of field keys (mask_preset, mask_custom, mask_checksum, mask_store,
 	 * mask_strict, required). Returns array('ok' => bool, 'code' => null|'empty'|'format'|'checksum'|'rule'|
@@ -1301,6 +1348,7 @@ class Masks {
 			case 'rule':
 				return sprintf($t['mskRule_'], $name);
 			case 'empty':
+			case 'incomplete':
 				return sprintf($t['mskIncomplete_'], $name);
 			default:
 				return $example !== '' ? sprintf($t['mskFormat_'], $name, $example) : sprintf($t['mskIncomplete_'], $name);
