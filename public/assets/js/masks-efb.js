@@ -533,16 +533,24 @@
         for (var r = 0; r < max; r++) { tokens.push({ k: prev.k, ch: prev.ch, opt: prev.opt || r >= min }); }
         i = close + 1; continue;
       }
-      if (ch === '9') { tokens.push({ k: 'digit', opt: optional > 0 }); } else if (ch === 'a') { tokens.push({ k: 'letter', opt: optional > 0 }); } else if (ch === '*') { tokens.push({ k: 'alnum', opt: optional > 0 }); } else { tokens.push({ k: 'lit', ch: ch, opt: optional > 0 }); }
+      var kind = SLOT_TOKENS[ch];
+      if (kind) { tokens.push({ k: kind, opt: optional > 0 }); } else { tokens.push({ k: 'lit', ch: ch, opt: optional > 0 }); }
       i++;
     }
     return tokens;
   }
+  // 9 digit, a letter (ASCII or Arabic-script), * either; A ASCII letter shown in capitals, & ASCII letter
+  // or digit shown in capitals (F01-I2, Inputmask / WPForms compatible). Literal A or & is written \\A, \\&.
+  var SLOT_TOKENS = { '9': 'digit', a: 'letter', '*': 'alnum', A: 'upper', '&': 'upalnum' };
+  var ASCII_LETTER_RE = /^[A-Za-z]$/;
   function slotAccepts(k, c) {
     if (k === 'digit') { return DIGIT_RE.test(c); }
     if (k === 'letter') { return LETTER_RE.test(c); }
+    if (k === 'upper') { return ASCII_LETTER_RE.test(c); }
+    if (k === 'upalnum') { return ASCII_LETTER_RE.test(c) || DIGIT_RE.test(c); }
     return DIGIT_RE.test(c) || LETTER_RE.test(c);
   }
+  function slotChar(k, c) { return k === 'upper' || k === 'upalnum' ? toAsciiUpper(c) : c; }
   function isDataChar(c) { return DIGIT_RE.test(c) || LETTER_RE.test(c); }
   /**
    * applyMask(pattern, input) -> formatted string. Input is normalized first (digits -> ASCII).
@@ -564,7 +572,7 @@
       if (i >= s.length) { break; }
       if (slotAccepts(tok.k, s[i])) {
         for (var p = 0; p < pending.length; p++) { out += pending[p].ch; }
-        pending = []; out += s[i]; i++;
+        pending = []; out += slotChar(tok.k, s[i]); i++;
       } else if (tok.opt) {
         pending = pending.filter(function (x) { return !x.opt; });
       } else {
@@ -640,7 +648,7 @@
       }
       if (ch === '}') { return false; }
       count++;
-      if (ch === '9' || ch === 'a' || ch === '*') { slots++; last = 'slot'; } else { last = 'lit'; }
+      if (SLOT_TOKENS[ch]) { slots++; last = 'slot'; } else { last = 'lit'; }
     }
     return depth === 0 && slots > 0 && count >= 1 && count <= MAX_CUSTOM_MASK;
   }
@@ -685,8 +693,15 @@
    * -> checksum (only when chosen explicitly).
    * value is the formatted (display) string; toStoredCustom() turns it into the clean value.
    */
+  function toAsciiLower(s) { return s.replace(/[A-Z]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) + 32); }); }
+  /** applyCase(def, s): the field's mask_case (upper | lower), ASCII only (never locale rules, no Turkish i). */
+  function applyCase(def, s) {
+    if (def && def.case === 'upper') { return toAsciiUpper(s); }
+    if (def && def.case === 'lower') { return toAsciiLower(s); }
+    return s;
+  }
   function validateCustom(def, raw) {
-    var v = normalize(raw, {});
+    var v = applyCase(def, normalize(raw, {}));
     if (v === '') { return { ok: false, code: 'empty', value: v }; }
     if (Array.from(v).length > MAX_INPUT || !def || !def.mask) { return { ok: false, code: 'format', value: v }; }
     var r = runMask(def.mask, v);
@@ -828,7 +843,7 @@
   /** fieldFormatter(fd) -> { format(value) -> string|null, live } for attachMask(). */
   function fieldFormatter(fd) {
     var d = fd.def;
-    if (fd.kind === 'custom') { return { live: true, format: function (v) { return applyMask(d.mask, v); } }; }
+    if (fd.kind === 'custom') { return { live: true, format: function (v) { return applyMask(d.mask, applyCase(d, v)); } }; }
     if (d.mask) {
       return { live: true, format: function (v) { var n = toNationalDisplay(d, v); return n === null ? null : formatValue(d, n); } };
     }
@@ -867,7 +882,7 @@
     toStoredCustom: toStoredCustom, toNationalDisplay: toNationalDisplay, formatDisplay: formatDisplay,
     CUSTOM_CHECKSUMS: CUSTOM_CHECKSUMS, MAX_INPUT: MAX_INPUT, MAX_CUSTOM_MASK: MAX_CUSTOM_MASK, checkMask: checkMask,
     dataOnly: dataOnly, finishMask: finishMask, fieldCheck: fieldCheck, fieldFormatter: fieldFormatter,
-    bindField: bindField, fieldMessage: fieldMessage, hasStrict: hasStrict, strictDef: strictDef,
+    bindField: bindField, fieldMessage: fieldMessage, hasStrict: hasStrict, strictDef: strictDef, applyCase: applyCase,
     luhn: luhn, luhnCheckDigit: luhnCheckDigit, verhoeff: verhoeff, verhoeffCheckDigit: verhoeffCheckDigit,
     iban: iban, ibanCheckDigits: ibanCheckDigits, IBAN_LENGTHS: IBAN_LENGTHS, mod97: mod97,
     iranNationalCode: iranNationalCode, iranLegalId: iranLegalId, saudiNin: saudiNin, emiratesId: emiratesId,

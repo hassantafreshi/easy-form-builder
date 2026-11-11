@@ -27,7 +27,7 @@ const short = (s) => { const a = Array.from(String(s)); return JSON.stringify(a.
 function jsResults() {
   return {
     validate_custom: fx.validate_custom.map((c) => {
-      const def = { mask: c.mask, checksum: c.checksum };
+      const def = { mask: c.mask, checksum: c.checksum, case: c.case || '' };
       const r = E.validateCustom(def, c.input);
       return { ok: r.ok, code: r.code, value: r.value, stored: r.ok ? E.toStoredCustom(def, r.value) : null };
     }),
@@ -41,7 +41,7 @@ function jsResults() {
 
 function verify(lang, res) {
   fx.validate_custom.forEach((c, i) => {
-    check(`${lang} validateCustom ${JSON.stringify(c.mask)}${c.checksum ? ' +' + c.checksum : ''} ${short(c.input)}`,
+    check(`${lang} validateCustom ${JSON.stringify(c.mask)}${c.checksum ? ' +' + c.checksum : ''}${c.case ? ' case=' + c.case : ''} ${short(c.input)}`,
       res.validate_custom[i], { ok: c.ok, code: c.code, value: c.value, stored: c.stored });
   });
   fx.is_complete.forEach((c, i) => check(`${lang} isComplete ${JSON.stringify(c.mask)} ${JSON.stringify(c.input)}`, res.is_complete[i], c.expect));

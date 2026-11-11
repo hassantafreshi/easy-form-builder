@@ -15237,3 +15237,33 @@ msgstr "سوریه"
 #: includes/data/masks-labels-efb.php
 msgid "Mauritania"
 msgstr "موریتانی"
+
+#  origin: claude (fa_IR) F01
+#. translators: F01 builder: second help line under the custom mask box. Keep A, &, a and * as they are; they are mask tokens
+#: includes/functions.php
+msgid "A and & work like a and * and turn letters into capitals."
+msgstr "A و & مانند a و * عمل می‌کنند و حروف را به حروف بزرگ تبدیل می‌کنند."
+
+#  origin: claude (fa_IR) F01
+#. translators: F01 builder: select that turns the letters of a custom-mask field into capitals or small letters
+#: includes/functions.php
+msgid "Letter case"
+msgstr "بزرگی و کوچکی حروف"
+
+#  origin: claude (fa_IR) F01
+#. translators: F01 builder, letter case option
+#: includes/functions.php
+msgid "As typed"
+msgstr "همان‌طور که تایپ شده"
+
+#  origin: claude (fa_IR) F01
+#. translators: F01 builder, letter case option: capitals
+#: includes/functions.php
+msgid "UPPERCASE"
+msgstr "حروف بزرگ (UPPERCASE)"
+
+#  origin: claude (fa_IR) F01
+#. translators: F01 builder, letter case option: small letters
+#: includes/functions.php
+msgid "lowercase"
+msgstr "حروف کوچک (lowercase)"

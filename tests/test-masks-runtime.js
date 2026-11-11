@@ -83,7 +83,9 @@ check('…with the format message (field name from the structure is missing -> a
 
 // Custom masks: checksum from the form structure (allow-list), broken mask ignored.
 const cc = makeEl('c_', { mask: '9999 9999 9999 9999', vid: 'c', formid: '1' }, '4111 1111 1111 1112');
-check('custom: checksum read from the structure', s.efb_mask_fd_efb(cc).def, { mask: '9999 9999 9999 9999', checksum: 'luhn' });
+check('custom: checksum read from the structure', s.efb_mask_fd_efb(cc).def, { mask: '9999 9999 9999 9999', checksum: 'luhn', case: '' });
+check('custom: mask_case read from data-mask-case', s.efb_mask_fd_efb(makeEl('u2_', { mask: 'aa99', maskCase: 'upper', vid: 'x', formid: '1' })).def.case, 'upper');
+check('custom: unknown mask_case ignored', s.efb_mask_fd_efb(makeEl('u3_', { mask: 'aa99', maskCase: 'title', vid: 'x', formid: '1' })).def.case, '');
 check('custom: bad luhn rejected with the checksum message', [s.valid_typed_value_efb('masked', cc), s.msgs['c_-message'].textContent], [false, 'CHK:Card']);
 check('custom: unknown checksum in the structure ignored', s.efb_mask_fd_efb(makeEl('x_', { mask: '9999', vid: 'x', formid: '1' })).def.checksum, '');
 check('custom: broken mask -> no definition', s.efb_mask_fd_efb(makeEl('b_', { mask: '9{', vid: 'b', formid: '1' })), null);

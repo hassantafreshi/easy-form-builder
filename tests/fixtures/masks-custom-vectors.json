@@ -450,6 +450,94 @@
    "value": "111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111",
    "stored": null,
    "note": "input longer than 256 characters"
+  },
+  {
+   "mask": "AA99",
+   "checksum": "",
+   "case": "",
+   "input": "ab12",
+   "ok": true,
+   "code": null,
+   "value": "AB12",
+   "stored": "AB12",
+   "note": "A turns letters into capitals"
+  },
+  {
+   "mask": "AA99",
+   "checksum": "",
+   "case": "",
+   "input": "بج12",
+   "ok": false,
+   "code": "format",
+   "value": "",
+   "stored": null,
+   "note": "A accepts ASCII letters only (Arabic letters have no case)"
+  },
+  {
+   "mask": "&&&-999",
+   "checksum": "",
+   "case": "",
+   "input": "x1z-123",
+   "ok": true,
+   "code": null,
+   "value": "X1Z-123",
+   "stored": "X1Z123",
+   "note": "& takes a letter or digit in capitals"
+  },
+  {
+   "mask": "\\A99",
+   "checksum": "",
+   "case": "",
+   "input": "12",
+   "ok": true,
+   "code": null,
+   "value": "A12",
+   "stored": "A12",
+   "note": "escaped A is a literal"
+  },
+  {
+   "mask": "aa99",
+   "checksum": "",
+   "case": "upper",
+   "input": "ab12",
+   "ok": true,
+   "code": null,
+   "value": "AB12",
+   "stored": "AB12",
+   "note": "mask_case upper on a plain a slot"
+  },
+  {
+   "mask": "aa99",
+   "checksum": "",
+   "case": "lower",
+   "input": "AB12",
+   "ok": true,
+   "code": null,
+   "value": "ab12",
+   "stored": "ab12",
+   "note": "mask_case lower"
+  },
+  {
+   "mask": "aa99",
+   "checksum": "",
+   "case": "upper",
+   "input": "i012",
+   "ok": false,
+   "code": "format",
+   "value": "I",
+   "stored": null,
+   "note": "i is ASCII: becomes I, never a dotted capital; 0 in a letter slot is dropped"
+  },
+  {
+   "mask": "aa99",
+   "checksum": "",
+   "case": "upper",
+   "input": "iX12",
+   "ok": true,
+   "code": null,
+   "value": "IX12",
+   "stored": "IX12",
+   "note": "ASCII uppercase only (no Turkish dotted I)"
   }
  ],
  "is_complete": [
@@ -842,6 +930,23 @@
   {
    "mask": "9\\\\9",
    "expect": true
+  },
+  {
+   "mask": "A&9",
+   "expect": true
+  },
+  {
+   "mask": "AAAA",
+   "expect": true
+  },
+  {
+   "mask": "\\A\\&",
+   "expect": false,
+   "note": "only literals"
+  },
+  {
+   "mask": "S\\A99 99**",
+   "expect": true
   }
  ],
  "apply_mask": [
@@ -910,6 +1015,21 @@
    "input": "ir",
    "expect": "",
    "note": "lowercase does not match the literal IR (formatValue uppercases first for presets)"
+  },
+  {
+   "mask": "AA-99",
+   "input": "ab12",
+   "expect": "AB-12"
+  },
+  {
+   "mask": "S\\A99",
+   "input": "SA12",
+   "expect": "SA12"
+  },
+  {
+   "mask": "S\\A99",
+   "input": "12",
+   "expect": "SA12"
   }
  ]
 }

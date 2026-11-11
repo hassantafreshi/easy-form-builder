@@ -89,6 +89,11 @@ rt('custom: attribute escaped, no numeric keyboard for letters', strpos($tag, 'd
 $tag = input_tag(render_efb('text', base_row('c3', 'text', array('mask_preset' => 'custom', 'mask_custom' => '9{'))));
 rt('custom: broken mask renders as unmasked', strpos($tag, 'data-mask') === false && strpos($tag, 'dir=') === false);
 
+$tag = input_tag(render_efb('text', base_row('c4', 'text', array('mask_preset' => 'custom', 'mask_custom' => 'aa99', 'mask_case' => 'upper'))));
+rt('custom + mask_case: data-mask-case', strpos($tag, 'data-mask-case="upper"') !== false, $tag);
+$tag = input_tag(render_efb('text', base_row('c5', 'text', array('mask_preset' => 'custom', 'mask_custom' => 'aa99', 'mask_case' => 'title'))));
+rt('custom + invalid mask_case: no attribute', strpos($tag, 'data-mask-case') === false, $tag);
+
 // 4. Mask control not applied to name / address parts even with keys.
 $tag = input_tag(render_efb('firstName', base_row('n1', 'text', array('mask_preset' => 'ir.mobile'))));
 rt('firstName ignores mask keys', strpos($tag, 'data-mask') === false);

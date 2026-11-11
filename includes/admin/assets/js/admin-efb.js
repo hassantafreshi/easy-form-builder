@@ -2065,7 +2065,8 @@ function efb_mask_sample_efb(mask) {
   for (const t of toks) {
     if (t.k === 'digit') out += String((d++ + 1) % 10);
     else if (t.k === 'letter') out += String.fromCharCode(65 + (l++ % 26));
-    else if (t.k === 'alnum') out += (d + l) % 2 ? String.fromCharCode(65 + (l++ % 26)) : String((d++ + 1) % 10);
+    else if (t.k === 'upper') out += String.fromCharCode(65 + (l++ % 26));
+    else if (t.k === 'alnum' || t.k === 'upalnum') out += (d + l) % 2 ? String.fromCharCode(65 + (l++ % 26)) : String((d++ + 1) % 10);
     else out += t.ch;
   }
   return EfbMasks.finishMask(mask, out);
@@ -2107,7 +2108,8 @@ function efb_masks_canvas_efb(row) {
     if (inp.dataset.efbMaskIm === '1') { inp.removeAttribute('inputmode'); delete inp.dataset.efbMaskIm; }
     return;
   }
-  if (p === 'custom') { if (row.mask_custom) inp.setAttribute('data-mask', row.mask_custom); }
+  inp.removeAttribute('data-mask-case');
+  if (p === 'custom') { if (row.mask_custom) inp.setAttribute('data-mask', row.mask_custom); if (row.mask_case) inp.setAttribute('data-mask-case', row.mask_case); }
   else inp.setAttribute('data-mask-preset', p);
   if (!inp.getAttribute('dir')) { inp.setAttribute('dir', 'ltr'); inp.dataset.efbMaskDir = '1'; }
   const def = efb_masks_preset_efb(p);
@@ -2134,6 +2136,7 @@ function efb_mask_attrs_efb(row, elementId) {
   const a = [];
   if (custom) {
     a.push(`data-mask="${esc(row.mask_custom)}"`);
+    if (row.mask_case === 'upper' || row.mask_case === 'lower') a.push(`data-mask-case="${row.mask_case}"`);
     if (!im) { const ks = EfbMasks.compileMask(row.mask_custom).filter((t) => t.k !== 'lit').map((t) => t.k); im = ks.every((k) => k === 'digit') ? 'numeric' : ''; }
   } else {
     a.push(`data-mask-preset="${esc(p)}"`);
@@ -2161,7 +2164,7 @@ function efb_mask_preview_fd_efb(el) {
     if (!EfbMasks.checkMask(ds.mask)) return null;
     const row = valj_efb.find((x) => x.id_ === ds.vid);
     const cs = row && EfbMasks.CUSTOM_CHECKSUMS.indexOf(row.mask_checksum) !== -1 ? row.mask_checksum : '';
-    return { kind: 'custom', def: { mask: ds.mask, checksum: cs }, store: store };
+    return { kind: 'custom', def: { mask: ds.mask, checksum: cs, case: ds.maskCase === 'upper' || ds.maskCase === 'lower' ? ds.maskCase : '' }, store: store };
   }
   const rt = window.efbMasksCatalogDataEfb && window.efbMasksCatalogDataEfb.runtime;
   let def = ds.maskPreset && rt ? rt[ds.maskPreset] : null;
@@ -2843,7 +2846,7 @@ let change_el_edit_Efb = (el) => {
         const prevDef = efb_masks_preset_efb(row.mask_preset || '');
         const def = efb_masks_preset_efb(v);
         if (v === '') {
-          for (const k of ['mask_preset', 'mask_custom', 'mask_checksum', 'mask_store', 'mask_strict']) delete row[k];
+          for (const k of ['mask_preset', 'mask_custom', 'mask_checksum', 'mask_store', 'mask_strict', 'mask_case']) delete row[k];
           if (prevDef && row.placeholder === prevDef.placeholder) row.placeholder = '';
         } else {
           row.mask_preset = v;
@@ -2882,6 +2885,12 @@ let change_el_edit_Efb = (el) => {
         row.mask_custom = v;
         efb_masks_panel_state_efb(row);
         efb_masks_canvas_efb(row);
+        break;
+      }
+      case "maskCaseEl": {
+        const v = el.value === 'upper' || el.value === 'lower' ? el.value : '';
+        if (v === '') delete valj_efb[indx].mask_case; else valj_efb[indx].mask_case = v;
+        efb_masks_canvas_efb(valj_efb[indx]);
         break;
       }
       case "maskChecksumEl": {

@@ -1354,7 +1354,7 @@ function efb_mask_fd_efb(el) {
       const row = get_structure_by_form_id_efb(ds.formid || 0).find(x => x.id_ === ds.vid);
       if (row && EfbMasks.CUSTOM_CHECKSUMS.indexOf(row.mask_checksum) !== -1) checksum = row.mask_checksum;
     } catch (e) {}
-    return { kind: 'custom', def: { mask: ds.mask, checksum: checksum }, store: store };
+    return { kind: 'custom', def: { mask: ds.mask, checksum: checksum, case: ds.maskCase === 'upper' || ds.maskCase === 'lower' ? ds.maskCase : '' }, store: store };
   }
   if (ds.maskPreset) {
     const all = (typeof ajax_object_efm !== 'undefined' && ajax_object_efm && ajax_object_efm.masks) ? ajax_object_efm.masks : null;

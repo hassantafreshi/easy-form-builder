@@ -3852,6 +3852,16 @@ class efbFunction {
 			"mskLenReplaced" => $state && isset($ac->text->mskLenReplaced) ? $ac->text->mskLenReplaced : esc_html__('This format sets the length. Remove the minimum and maximum length?','easy-form-builder'),
 			/* translators: F01 builder: group name for formats that are not tied to one country (IBAN, card, dates) */
 			"mskIntl" => $state && isset($ac->text->mskIntl) ? $ac->text->mskIntl : esc_html__('International','easy-form-builder'),
+			/* translators: F01 builder: second help line under the custom mask box. Keep A, &, a and * as they are; they are mask tokens */
+			"mskCustomHelpCase" => $state && isset($ac->text->mskCustomHelpCase) ? $ac->text->mskCustomHelpCase : esc_html__('A and & work like a and * and turn letters into capitals.','easy-form-builder'),
+			/* translators: F01 builder: select that turns the letters of a custom-mask field into capitals or small letters */
+			"mskCase" => $state && isset($ac->text->mskCase) ? $ac->text->mskCase : esc_html__('Letter case','easy-form-builder'),
+			/* translators: F01 builder, letter case option: keep the letters as the visitor types them */
+			"mskCaseNone" => $state && isset($ac->text->mskCaseNone) ? $ac->text->mskCaseNone : esc_html__('As typed','easy-form-builder'),
+			/* translators: F01 builder, letter case option: capitals; write it in capitals where the script has case */
+			"mskCaseUpper" => $state && isset($ac->text->mskCaseUpper) ? $ac->text->mskCaseUpper : esc_html__('UPPERCASE','easy-form-builder'),
+			/* translators: F01 builder, letter case option: small letters */
+			"mskCaseLower" => $state && isset($ac->text->mskCaseLower) ? $ac->text->mskCaseLower : esc_html__('lowercase','easy-form-builder'),
 			/* translators: F01 builder: select of the on-screen keyboard phones show for a field (HTML inputmode) */
 			"mskKeyboard" => $state && isset($ac->text->mskKeyboard) ? $ac->text->mskKeyboard : esc_html__('Mobile keyboard','easy-form-builder'),
 			/* translators: F01 builder, mobile keyboard option: chosen from the field format, or the phone default */
@@ -4176,6 +4186,9 @@ class efbFunction {
 					break;
 					case 'mask_checksum':
 						$valp[$key][$k] = is_string($v) && in_array($v, array('luhn', 'iso7064_mod97_10', 'iran_national_code', 'verhoeff'), true) ? $v : '';
+					break;
+					case 'mask_case':
+						$valp[$key][$k] = in_array($v, array('upper', 'lower'), true) ? $v : '';
 					break;
 					case 'mask_store':
 						$valp[$key][$k] = $v === 'display' ? 'display' : 'canonical';

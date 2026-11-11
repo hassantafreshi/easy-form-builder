@@ -794,7 +794,7 @@ class Masks {
 				}
 				continue;
 			}
-			$kinds = array('9' => 'digit', 'a' => 'letter', '*' => 'alnum');
+			$kinds = array('9' => 'digit', 'a' => 'letter', '*' => 'alnum', 'A' => 'upper', '&' => 'upalnum');
 			$tokens[] = isset($kinds[$ch])
 				? array('k' => $kinds[$ch], 'ch' => null, 'opt' => $optional > 0)
 				: array('k' => 'lit', 'ch' => $ch, 'opt' => $optional > 0);
@@ -813,6 +813,12 @@ class Masks {
 		}
 		if ($k === 'letter') {
 			return self::is_letter($c);
+		}
+		if ($k === 'upper') {
+			return (bool) preg_match('/^[A-Za-z]$/', $c);
+		}
+		if ($k === 'upalnum') {
+			return $digit || (bool) preg_match('/^[A-Za-z]$/', $c);
 		}
 		return $digit || self::is_letter($c);
 	}
@@ -848,7 +854,7 @@ class Masks {
 					$out .= $p['ch'];
 				}
 				$pending = array();
-				$out .= $s[$i];
+				$out .= ($tok['k'] === 'upper' || $tok['k'] === 'upalnum') ? self::ascii_upper($s[$i]) : $s[$i];
 				$i++;
 			} elseif ($tok['opt']) {
 				$pending = array_values(array_filter($pending, function ($x) {
@@ -989,7 +995,7 @@ class Masks {
 				return false;
 			}
 			$count++;
-			if ($ch === '9' || $ch === 'a' || $ch === '*') {
+			if ($ch === '9' || $ch === 'a' || $ch === '*' || $ch === 'A' || $ch === '&') {
 				$slots++;
 				$last = 'slot';
 			} else {
@@ -1058,8 +1064,20 @@ class Masks {
 	 * validate_custom(array('mask'=>..., 'checksum'=>...), $raw): empty -> format (data that fits no slot)
 	 * -> incomplete (a required slot is still empty) -> checksum. 'value' = display form.
 	 */
+	/** The field's mask_case (upper | lower), ASCII only. */
+	public static function apply_case($def, $s) {
+		$c = isset($def['case']) ? $def['case'] : '';
+		if ($c === 'upper') {
+			return self::ascii_upper($s);
+		}
+		if ($c === 'lower') {
+			return strtr($s, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz');
+		}
+		return $s;
+	}
+
 	public static function validate_custom($def, $raw) {
-		$v = self::normalize($raw, array());
+		$v = self::apply_case($def, self::normalize($raw, array()));
 		if ($v === '') {
 			return array('ok' => false, 'code' => 'empty', 'value' => $v);
 		}
@@ -1291,10 +1309,11 @@ class Masks {
 			'version' => isset($cat['version']) ? $cat['version'] : 0,
 			'field_keys' => array(
 				'mask_preset' => 'preset id, "custom" or ""',
-				'mask_custom' => 'token mask (9 digit, a letter, * either, [ ] optional, {n,m} repeat, \\x literal), max ' . self::MAX_CUSTOM_MASK . ' characters',
+				'mask_custom' => 'token mask (9 digit, a letter, * either, A capital letter, & capital letter or digit, [ ] optional, {n,m} repeat, \\x literal), max ' . self::MAX_CUSTOM_MASK . ' characters',
 				'mask_checksum' => implode('|', self::CUSTOM_CHECKSUMS) . ' (custom masks only)',
 				'mask_store' => 'canonical|display',
 				'mask_strict' => '0|1',
+				'mask_case' => '""|upper|lower (custom masks: letters typed in that case)',
 				'inputmode' => implode('|', self::INPUTMODES),
 			),
 			'custom_checksums' => self::CUSTOM_CHECKSUMS,
@@ -1464,7 +1483,8 @@ class Masks {
 				return null;
 			}
 			$cs = isset($f['mask_checksum']) && in_array($f['mask_checksum'], self::CUSTOM_CHECKSUMS, true) ? $f['mask_checksum'] : '';
-			return array('kind' => 'custom', 'def' => array('mask' => $mask, 'checksum' => $cs));
+			$case = isset($f['mask_case']) && in_array($f['mask_case'], array('upper', 'lower'), true) ? $f['mask_case'] : '';
+			return array('kind' => 'custom', 'def' => array('mask' => $mask, 'checksum' => $cs, 'case' => $case));
 		}
 		$m = self::preset($p);
 		if (!$m) {
@@ -1540,6 +1560,9 @@ class Masks {
 		}
 		if (isset($row['mask_checksum']) && $row['mask_checksum'] !== '' && !in_array($row['mask_checksum'], self::CUSTOM_CHECKSUMS, true)) {
 			$errors[] = array('key' => 'mask_checksum', 'code' => 'invalid_checksum');
+		}
+		if (isset($row['mask_case']) && !in_array($row['mask_case'], array('', 'upper', 'lower'), true)) {
+			$errors[] = array('key' => 'mask_case', 'code' => 'invalid_case');
 		}
 		if (isset($row['mask_store']) && !in_array($row['mask_store'], array('canonical', 'display'), true)) {
 			$errors[] = array('key' => 'mask_store', 'code' => 'invalid_store');

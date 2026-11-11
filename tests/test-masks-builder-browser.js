@@ -160,6 +160,8 @@ async function launchChromiumEfb() {
   const prev = await page.evaluate(() => document.getElementById('maskPreviewEl').textContent);
   check('live preview of the custom mask', prev === '(123) 456-7890', prev);
   check('canvas carries data-mask for a custom mask', await page.evaluate(() => document.getElementById('ftxt_').getAttribute('data-mask') === '(999) 999-9999'));
+  await change('#maskCaseEl', 'upper');
+  check('I2: mask_case written and on the canvas', (await row('ftxt')).mask_case === 'upper' && await page.evaluate(() => document.getElementById('ftxt_').getAttribute('data-mask-case') === 'upper'));
   await change('#maskChecksumEl', 'luhn');
   check('mask_checksum written', (await row('ftxt')).mask_checksum === 'luhn');
 

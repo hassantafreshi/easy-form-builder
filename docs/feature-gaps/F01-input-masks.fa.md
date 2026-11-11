@@ -1,4 +1,4 @@
-وضعیت: A تا H و I3 پیاده‌سازی و تست شد؛ I1، I2، I4 در راه · اولویت: P0 · تلاش: M · وابستگی: — (F02، F03، F06 و F17 به این تسک وابسته‌اند)
+وضعیت: A تا H، I2 و I3 پیاده‌سازی و تست شد؛ I1 و I4 در راه · اولویت: P0 · تلاش: M · وابستگی: — (F02، F03، F06 و F17 به این تسک وابسته‌اند)
 
 # F01 — ماسک ورودی و اعتبارسنج‌های قالب
 
@@ -386,6 +386,12 @@ if (!empty($f['mask_preset']) && class_exists('\Emsfb\Masks')) {
 - تست‌ها (اجراشده): `node tests/test-masks-vectors.js` → 1332 passed, 0 failed (معتبر 387/387، نامعتبر 344/344، قالب 113/113، strict 1/1؛ ۸۴۵ بردار در برابر ۶۱۲ قبلی؛ هر checksum/validator نام‌برده در کاتالوگ در موتور هست)؛ `php tests/test-masks-vectors.php` → 192 passed؛ `node tests/test-masks-parity.js` → 5 passed (۰ اختلاف JS/PHP روی ۸۴۵ بردار، دو کاتالوگ برابر)؛ `php tests/test-masks-submit.php` → 1143 passed (همهٔ بردارهای ۱۴۰ پیش‌تنظیم از دروازهٔ سرور با مقدار ذخیرهٔ برابر JS)؛ `node tests/test-masks-custom.js` → 278 passed (بردارهای تازهٔ برزیل، ترکیه، لیبی و هند)؛ `php tests/test-masks-catalog-ajax.php` → 30 passed (ترتیب گروه pt_BR و tr_TR، ۳۶ گروه، ۱۷۶ فراخوانی `__()`)؛ `node tests/test-masks-builder-browser.js` → 46 passed؛ `node tests/test-masks-browser.js` → 30 passed؛ render 50، save-roundtrip 47، runtime 19.
 - وضعیت ترجمه: ۴۱ برچسب پیش‌تنظیم و ۱۵ نام گروه تازه (فارسی در `.po`؛ عربی فقط در ستون `label.ar` کاتالوگ که fallback سازنده است). `.mo`/`.l10n.php` بازسازی نشدند.
 - مورد باز: پیش‌تنظیم‌های «هنوز تأییدنشده» بخش §۶.۱ پژوهش (`af.tazkira` و دیگران) اضافه نشدند.
+
+**Checkpoint I2** (انجام شد، 2026-11-11)
+- فایل‌های تغییرکرده: `public/assets/js/masks-efb.js` و `includes/class-Emsfb-masks.php` (توکن‌های `A` و `&` در `compileMask`/`slotAccepts`/`checkMask`؛ خروجی این slotها با تبدیل ASCII بزرگ می‌شود؛ `applyCase`/`apply_case` برای `mask_case`؛ `field_def` و `catalog_public()['field_keys']` و `validate_field_keys()` با `mask_case`)، هر دو کاتالوگ (چهار literal `A` در `sa.iban`، `ae.iban`، `qa.iban` و `ma.iban` به `\A` تبدیل شد تا معنا عوض نشود؛ همهٔ بردارها همچنان پاس)، `includes/functions.php` (`case 'mask_case'`: `upper|lower` یا `""`؛ ۵ عبارت)، `includes/class-Emsfb-formbuilder.php` و `admin-efb.js` (`data-mask-case`)، `public/assets/js/core-efb.js` و پیش‌نمایش (`case` از `data-mask-case`)، `val-efb.js` (select «بزرگی و کوچکی حروف» و راهنمای `A`/`&` در جعبهٔ ماسک دلخواه)، `languages/easy-form-builder-fa_IR.po` (۵ مدخل)، تست‌ها.
+- رفتار: `mask_case` فقط روی ماسک دلخواه اثر دارد (روی پیش‌تنظیم‌ها، که `uppercase` خودشان را دارند، اعمال نمی‌شود تا regex کاتالوگ نشکند). تبدیل فقط ASCII است: `i` به `I` می‌رود، نه `İ`. حرف عربی در `A` و `&` پذیرفته نمی‌شود. ماسک دلخواه ذخیره‌شدهٔ پیش از I2 وجود ندارد (F01 منتشر نشده)، پس تغییر معنای `A`/`&` روی دادهٔ کسی اثر ندارد.
+- تست‌ها (اجراشده): `node tests/test-masks-custom.js` → 308 passed (۸ بردار تازهٔ `validateCustom` با `A`، `&`، `\A` و `mask_case`، ۴ `checkMask`، ۳ `applyMask`؛ JS و PHP برابر)؛ `php tests/test-masks-save-roundtrip.php` → 52 passed (`mask_case` و دو ماسک تازه)؛ `php tests/test-masks-render.php` → 52 passed؛ `php tests/test-masks-submit.php` → 1145 passed (دو بررسی سرور)؛ `node tests/test-masks-runtime.js` → 21 passed؛ `node tests/test-masks-builder-browser.js` → 47 passed؛ `node tests/test-masks-browser.js` → 30 passed؛ vectors JS 1332، PHP 192، parity 5، catalog-ajax 30.
+- وضعیت ترجمه: کلیدهای تازه `mskCustomHelpCase`، `mskCase`، `mskCaseNone`، `mskCaseUpper`، `mskCaseLower`؛ فارسی در `.po`.
 
 ## ۱۶. گسترش‌های فاز ۲ مرتبط
 

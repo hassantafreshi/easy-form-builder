@@ -93,11 +93,11 @@ function fld($id, $extra) {
 // 1. Values the builder accepts come back byte for byte.
 $keep = array(
 	'0\\999 999 9999', 'aa99[ ****]', '9{3,4}', '(999) 999-9999', '\\\\99', '9\\\\9', '99  99', '\\a\\9-999',
-	'IR99 9999 9999 9999 9999 9999 99', 'aa99[ ****][ ****][ ****][ ****][ ****][ ****][ ****][ **]', '99/99/9999', 'بب99',
+	'IR99 9999 9999 9999 9999 9999 99', 'aa99[ ****][ ****][ ****][ ****][ ****][ ****][ ****][ **]', '99/99/9999', 'بب99', 'AA&&-99', 'S\\A99',
 );
 $rows = array();
 foreach ($keep as $i => $m) {
-	$rows[] = fld('c' . $i, array('mask_preset' => 'custom', 'mask_custom' => $m, 'mask_checksum' => 'luhn', 'mask_store' => 'display', 'mask_strict' => 1, 'inputmode' => 'numeric'));
+	$rows[] = fld('c' . $i, array('mask_preset' => 'custom', 'mask_custom' => $m, 'mask_checksum' => 'luhn', 'mask_store' => 'display', 'mask_strict' => 1, 'inputmode' => 'numeric', 'mask_case' => 'upper'));
 }
 $rows[] = fld('p1', array('type' => 'tel', 'elementId' => 'tel', 'mask_preset' => 'ir.mobile', 'mask_store' => 'canonical', 'mask_strict' => '0', 'inputmode' => 'auto'));
 $rows[] = fld('p2', array('elementId' => 'postalcode', 'mask_preset' => 'ir.postal_code', 'mask_strict' => true, 'inputmode' => 'tel'));
@@ -108,7 +108,7 @@ foreach ($keep as $i => $m) {
 	t('mask_custom kept: ' . $m, $out[$i + 2]['mask_custom'], $m);
 }
 $c0 = $out[2];
-t('custom row keys', array($c0['mask_preset'], $c0['mask_checksum'], $c0['mask_store'], $c0['mask_strict'], $c0['inputmode']), array('custom', 'luhn', 'display', '1', 'numeric'));
+t('custom row keys', array($c0['mask_preset'], $c0['mask_checksum'], $c0['mask_store'], $c0['mask_strict'], $c0['inputmode'], $c0['mask_case']), array('custom', 'luhn', 'display', '1', 'numeric', 'upper'));
 $n = count($keep) + 2;
 t('preset row keys (tel, ir.mobile)', array($out[$n]['mask_preset'], $out[$n]['mask_store'], $out[$n]['mask_strict'], $out[$n]['inputmode']), array('ir.mobile', 'canonical', '0', 'auto'));
 t('mask_strict true is stored as "1"', $out[$n + 1]['mask_strict'], '1');
@@ -124,6 +124,7 @@ $bad = array(
 	array('mask_custom', str_repeat('9', 65), ''), array('mask_custom', '----', ''), array('mask_custom', array('99'), ''),
 	array('mask_checksum', 'bogus', ''), array('mask_checksum', 'card', ''), array('mask_store', 'raw', 'canonical'), array('mask_store', '', 'canonical'),
 	array('mask_strict', 'yes', '0'), array('mask_strict', 2, '0'), array('inputmode', 'bogus', 'auto'), array('inputmode', 'NUMERIC', 'auto'), array('inputmode', '', 'auto'),
+	array('mask_case', 'UPPER', ''), array('mask_case', 'title', ''), array('mask_case', array('upper'), ''),
 );
 $rows = array();
 foreach ($bad as $i => $b) {

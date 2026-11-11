@@ -222,6 +222,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 		$attrs = [];
 		if ($fd['kind'] === 'custom') {
 			$attrs[] = sprintf('data-mask="%s"', esc_attr($def['mask']));
+			if (!empty($def['case'])) {
+				$attrs[] = sprintf('data-mask-case="%s"', esc_attr($def['case']));
+			}
 			$pattern = $def['mask'];
 			if ($im === '') {
 				$kinds = [];
