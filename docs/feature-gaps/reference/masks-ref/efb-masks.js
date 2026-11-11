@@ -1,0 +1,535 @@
+/*!
+ * Easy Form Builder - input masks, normalizers and validators (reference implementation)
+ * ES2017, no build step, no dependencies. Works in browsers (window.EfbMasks) and Node (module.exports).
+ * Every function here has a line-for-line twin in efb-masks.php; both are tested against masks-catalog.json.
+ */
+(function (root, factory) {
+  var api = factory();
+  if (typeof module === 'object' && module.exports) { module.exports = api; } else { root.EfbMasks = api; }
+})(typeof self !== 'undefined' ? self : this, function () {
+  'use strict';
+
+  // #region normalize
+  // Characters removed before anything else (zero-width, bidi controls, BOM, soft hyphen).
+  var INVISIBLE_RE = /[​-‏‪-‮⁦-⁩﻿­]/g;
+
+  function normalizeDigits(s) {
+    return s.replace(/[۰-۹٠-٩０-９]/g, function (ch) {
+      var c = ch.charCodeAt(0);
+      if (c >= 0xFF10) { return String.fromCharCode(c - 0xFF10 + 48); }   // full-width
+      if (c >= 0x06F0) { return String.fromCharCode(c - 0x06F0 + 48); }   // Persian (Extended Arabic-Indic)
+      return String.fromCharCode(c - 0x0660 + 48);                          // Arabic-Indic
+    });
+  }
+
+  function toAsciiUpper(s) {
+    return s.replace(/[a-z]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 32); });
+  }
+
+  /**
+   * normalize(raw, mask) -> canonical string used for regex/checksum checks.
+   * mask fields used: fold_letters ('fa'), uppercase (bool), strip (string of chars), pad_left ({to, min}).
+   */
+  function normalize(raw, mask) {
+    mask = mask || {};
+    var s = String(raw === null || raw === undefined ? '' : raw);
+    s = normalizeDigits(s);
+    s = s.replace(INVISIBLE_RE, '');
+    s = s.replace(/[   　]/g, ' ');                // no-break / figure / narrow / ideographic space
+    s = s.replace(/٫/g, '.');                                      // ARABIC DECIMAL SEPARATOR
+    s = s.replace(/[٬،]/g, ',');                              // ARABIC THOUSANDS SEPARATOR, ARABIC COMMA
+    s = s.replace(/[‐-―−﹘﹣－]/g, '-');    // dash / minus variants
+    s = s.replace(/＋/g, '+').replace(/／/g, '/').replace(/：/g, ':');
+    if (mask.fold_letters === 'fa') {
+      s = s.replace(/[يى]/g, 'ی').replace(/ك/g, 'ک'); // ي ى -> ی , ك -> ک
+    }
+    s = s.replace(/[\t\n\v\f\r ]+/g, ' ').trim();
+    if (mask.uppercase) { s = toAsciiUpper(s); }
+    if (mask.strip) {
+      var out = '';
+      for (var i = 0; i < s.length; i++) { if (mask.strip.indexOf(s.charAt(i)) === -1) { out += s.charAt(i); } }
+      s = out;
+    }
+    if (mask.pad_left && /^\d+$/.test(s) && s.length >= mask.pad_left.min && s.length < mask.pad_left.to) {
+      while (s.length < mask.pad_left.to) { s = '0' + s; }
+    }
+    return s;
+  }
+  // #endregion normalize
+
+  // #region luhn
+  function luhn(digits) {
+    if (!/^\d+$/.test(digits)) { return false; }
+    var sum = 0, dbl = false;
+    for (var i = digits.length - 1; i >= 0; i--) {
+      var d = digits.charCodeAt(i) - 48;
+      if (dbl) { d *= 2; if (d > 9) { d -= 9; } }
+      sum += d;
+      dbl = !dbl;
+    }
+    return sum % 10 === 0;
+  }
+  function luhnCheckDigit(partial) { // digit to append so that luhn(partial + d) is true
+    for (var d = 0; d <= 9; d++) { if (luhn(partial + d)) { return String(d); } }
+    return null;
+  }
+  // #endregion luhn
+
+  // #region iran_national_code
+  function iranNationalCode(code) {
+    if (!/^\d{10}$/.test(code)) { return false; }
+    if (/^(\d)\1{9}$/.test(code)) { return false; }            // 0000000000 ... 9999999999
+    if (code.substr(3, 6) === '000000') { return false; }      // middle block may not be all zero
+    var sum = 0;
+    for (var i = 0; i < 9; i++) { sum += (code.charCodeAt(i) - 48) * (10 - i); }
+    var r = sum % 11, c = code.charCodeAt(9) - 48;
+    return r < 2 ? c === r : c === 11 - r;
+  }
+  // #endregion iran_national_code
+
+  // #region iran_legal_id
+  function iranLegalId(code) {
+    if (!/^\d{11}$/.test(code)) { return false; }
+    if (/^(\d)\1{10}$/.test(code)) { return false; }
+    if (code.substr(3, 6) === '000000') { return false; }
+    var weights = [29, 27, 23, 19, 17];
+    var add = (code.charCodeAt(9) - 48) + 2;                  // tenth digit + 2 is added to every digit
+    var sum = 0;
+    for (var i = 0; i < 10; i++) { sum += ((code.charCodeAt(i) - 48) + add) * weights[i % 5]; }
+    var r = sum % 11;
+    if (r === 10) { r = 0; }
+    return r === code.charCodeAt(10) - 48;
+  }
+  // #endregion iran_legal_id
+
+  // #region verhoeff
+  var VH_D = [
+    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [1, 2, 3, 4, 0, 6, 7, 8, 9, 5], [2, 3, 4, 0, 1, 7, 8, 9, 5, 6],
+    [3, 4, 0, 1, 2, 8, 9, 5, 6, 7], [4, 0, 1, 2, 3, 9, 5, 6, 7, 8], [5, 9, 8, 7, 6, 0, 4, 3, 2, 1],
+    [6, 5, 9, 8, 7, 1, 0, 4, 3, 2], [7, 6, 5, 9, 8, 2, 1, 0, 4, 3], [8, 7, 6, 5, 9, 3, 2, 1, 0, 4],
+    [9, 8, 7, 6, 5, 4, 3, 2, 1, 0]];
+  var VH_P = [
+    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [1, 5, 7, 6, 2, 8, 3, 0, 9, 4], [5, 8, 0, 3, 7, 9, 6, 1, 4, 2],
+    [8, 9, 1, 6, 0, 4, 3, 5, 2, 7], [9, 4, 5, 3, 1, 2, 6, 8, 7, 0], [4, 2, 8, 6, 5, 7, 3, 9, 0, 1],
+    [2, 7, 9, 3, 8, 0, 6, 4, 1, 5], [7, 0, 4, 6, 9, 1, 3, 2, 5, 8]];
+  var VH_INV = [0, 4, 3, 2, 1, 5, 6, 7, 8, 9];
+  function verhoeff(digits) {
+    if (!/^\d+$/.test(digits)) { return false; }
+    var c = 0, n = digits.length;
+    for (var i = 0; i < n; i++) { c = VH_D[c][VH_P[i % 8][digits.charCodeAt(n - 1 - i) - 48]]; }
+    return c === 0;
+  }
+  function verhoeffCheckDigit(partial) {
+    var c = 0, n = partial.length;
+    for (var i = 0; i < n; i++) { c = VH_D[c][VH_P[(i + 1) % 8][partial.charCodeAt(n - 1 - i) - 48]]; }
+    return String(VH_INV[c]);
+  }
+  // #endregion verhoeff
+
+  // #region iban
+  // SWIFT IBAN registry lengths (+ national-use / "aspirational" countries marked in the catalog).
+  var IBAN_LENGTHS = {
+    AD: 24, AE: 23, AL: 28, AT: 20, AZ: 28, BA: 20, BE: 16, BG: 22, BH: 22, BI: 27, BR: 29, BY: 28, CH: 21,
+    CR: 22, CY: 28, CZ: 24, DE: 22, DJ: 27, DK: 18, DO: 28, EE: 20, EG: 29, ES: 24, FI: 18, FK: 18, FO: 18,
+    FR: 27, GB: 22, GE: 22, GI: 23, GL: 18, GR: 27, GT: 28, HN: 28, HR: 21, HU: 28, IE: 22, IL: 23, IQ: 23,
+    IS: 26, IT: 27, JO: 30, KW: 30, KZ: 20, LB: 28, LC: 32, LI: 21, LT: 20, LU: 20, LV: 21, LY: 25, MC: 27,
+    MD: 24, ME: 22, MK: 19, MN: 20, MR: 27, MT: 31, MU: 30, NI: 28, NL: 18, NO: 15, OM: 23, PK: 24, PL: 28,
+    PS: 29, PT: 25, QA: 29, RO: 24, RS: 22, RU: 33, SA: 24, SC: 31, SD: 18, SE: 24, SI: 19, SK: 24, SM: 27,
+    SO: 23, ST: 25, SV: 28, TL: 23, TN: 24, TR: 26, UA: 29, VA: 22, VG: 24, XK: 20, YE: 30,
+    // national use only (not in the SWIFT registry): Iran (Sheba), Algeria, Morocco + other partial adopters
+    IR: 26, DZ: 26, MA: 28, AO: 25, BJ: 28, BF: 28, CV: 25, CM: 27, CF: 27, TD: 27, KM: 27, CG: 27, CI: 28,
+    GQ: 27, GA: 27, GW: 25, MG: 27, ML: 28, MZ: 25, NE: 28, SN: 28, TG: 28
+  };
+  // Returns (numeric string of s) mod 97, processing in 7-digit chunks so no BigInt is needed.
+  function mod97(numeric) {
+    var rem = 0;
+    for (var i = 0; i < numeric.length; i += 7) {
+      rem = parseInt(String(rem) + numeric.substr(i, 7), 10) % 97;
+    }
+    return rem;
+  }
+  function ibanToNumeric(iban) { // move first 4 chars to the end, letters -> 10..35
+    var r = iban.substr(4) + iban.substr(0, 4), out = '';
+    for (var i = 0; i < r.length; i++) {
+      var c = r.charCodeAt(i);
+      out += (c >= 65 && c <= 90) ? String(c - 55) : r.charAt(i);
+    }
+    return out;
+  }
+  function iban(value) {
+    if (!/^[A-Z]{2}\d{2}[A-Z0-9]{11,30}$/.test(value)) { return false; }
+    var len = IBAN_LENGTHS[value.substr(0, 2)];
+    if (!len || value.length !== len) { return false; }
+    return mod97(ibanToNumeric(value)) === 1;
+  }
+  function ibanCheckDigits(country, bban) { // ISO 7064 MOD 97-10 check digits
+    var cd = 98 - mod97(ibanToNumeric(country + '00' + bban));
+    return (cd < 10 ? '0' : '') + cd;
+  }
+  // #endregion iban
+
+  // #region saudi_nin
+  // 10 digits, first digit 1 = Saudi citizen, 2 = resident (Iqama); last digit = Luhn check digit.
+  function saudiNin(id) {
+    return /^[12]\d{9}$/.test(id) && luhn(id);
+  }
+  // #endregion saudi_nin
+
+  // #region emirates_id
+  // 784-YYYY-NNNNNNN-C : 15 digits, 784 = ISO 3166 numeric code of the UAE, C = Luhn check digit.
+  function emiratesId(id) {
+    return /^784\d{12}$/.test(id) && luhn(id);
+  }
+  // #endregion emirates_id
+
+  // #region kuwait_civil_id
+  function isValidGregorian(y, m, d) {
+    if (m < 1 || m > 12 || d < 1) { return false; }
+    var dim = [31, (y % 4 === 0 && (y % 100 !== 0 || y % 400 === 0)) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    return d <= dim[m - 1];
+  }
+  // C YYMMDD NNNN K - C: 1=1800s 2=1900s 3=2000s; K = 11 - (weighted sum mod 11), 10/11 never valid.
+  function kuwaitCivilId(id) {
+    if (!/^[123]\d{11}$/.test(id)) { return false; }
+    var century = { '1': 1800, '2': 1900, '3': 2000 }[id.charAt(0)];
+    if (!isValidGregorian(century + parseInt(id.substr(1, 2), 10), parseInt(id.substr(3, 2), 10), parseInt(id.substr(5, 2), 10))) { return false; }
+    var w = [2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2], sum = 0;
+    for (var i = 0; i < 11; i++) { sum += w[i] * (id.charCodeAt(i) - 48); }
+    return 11 - (sum % 11) === id.charCodeAt(11) - 48;
+  }
+  // #endregion kuwait_civil_id
+
+  // #region egypt_nid
+  var EG_GOVERNORATES = ['01', '02', '03', '04', '11', '12', '13', '14', '15', '16', '17', '18', '19', '21', '22',
+    '23', '24', '25', '26', '27', '28', '29', '31', '32', '33', '34', '35', '88'];
+  // C YYMMDD GG SSSS K (14 digits). C: 2 = 1900-1999, 3 = 2000-2099. GG governorate. 13th digit odd = male.
+  // The check digit algorithm is not published -> structural check only.
+  function egyptNid(id) {
+    if (!/^[23]\d{13}$/.test(id)) { return false; }
+    var year = (id.charAt(0) === '2' ? 1900 : 2000) + parseInt(id.substr(1, 2), 10);
+    if (!isValidGregorian(year, parseInt(id.substr(3, 2), 10), parseInt(id.substr(5, 2), 10))) { return false; }
+    return EG_GOVERNORATES.indexOf(id.substr(7, 2)) !== -1;
+  }
+  // #endregion egypt_nid
+
+  // #region au_abn
+  function auAbn(abn) {
+    if (!/^\d{11}$/.test(abn)) { return false; }
+    var w = [10, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19], sum = 0;
+    for (var i = 0; i < 11; i++) {
+      var d = abn.charCodeAt(i) - 48;
+      if (i === 0) { d -= 1; }
+      sum += d * w[i];
+    }
+    return sum % 89 === 0;
+  }
+  // #endregion au_abn
+
+  // #region uk_nino
+  // HMRC: 2 prefix letters + 6 digits + suffix A-D. First letter not D F I Q U V; second not D F I O Q U V;
+  // prefixes BG GB KN NK NT TN ZZ are never allocated (temporary TRN-style numbers are rejected too).
+  function ukNino(v) {
+    var m = /^([A-Z])([A-Z])\d{6}[A-D]$/.exec(v);
+    if (!m) { return false; }
+    if ('DFIQUV'.indexOf(m[1]) !== -1 || 'DFIOQUV'.indexOf(m[2]) !== -1) { return false; }
+    return ['BG', 'GB', 'KN', 'NK', 'NT', 'TN', 'ZZ'].indexOf(m[1] + m[2]) === -1;
+  }
+  // #endregion uk_nino
+
+  // #region us_ssn
+  // 9 digits AAA-GG-SSSS. Never issued: area 000, 666, 900-999; group 00; serial 0000.
+  function usSsn(v) {
+    if (!/^\d{9}$/.test(v)) { return false; }
+    var area = v.substr(0, 3);
+    if (area === '000' || area === '666' || area.charAt(0) === '9') { return false; }
+    return v.substr(3, 2) !== '00' && v.substr(5, 4) !== '0000';
+  }
+  // US EIN: 9 digits, the 2-digit prefix must be on the IRS list of valid campus prefixes.
+  var EIN_PREFIXES = ('01 02 03 04 05 06 10 11 12 13 14 15 16 20 21 22 23 24 25 26 27 30 31 32 33 34 35 36 37 38 39 ' +
+    '40 41 42 43 44 45 46 47 48 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 71 72 73 74 75 76 77 80 81 ' +
+    '82 83 84 85 86 87 88 90 91 92 93 94 95 98 99').split(' ');
+  function usEin(v) {
+    return /^\d{9}$/.test(v) && EIN_PREFIXES.indexOf(v.substr(0, 2)) !== -1;
+  }
+  // NANP (US/CA): optional country code 1, then NXX NXX XXXX; N = 2-9; area code and exchange may not be N11.
+  function nanp(v) {
+    var d = v.replace(/^\+?1(?=\d{10}$)/, '');
+    if (!/^[2-9]\d{2}[2-9]\d{6}$/.test(d)) { return false; }
+    return d.substr(1, 2) !== '11' && d.substr(4, 2) !== '11';
+  }
+  // #endregion us_ssn
+
+  // #region card_brand
+  // Ordered: first match wins. lengths = allowed PAN lengths; groups = display grouping.
+  var CARD_BRANDS = [
+    { brand: 'amex', re: /^3[47]/, lengths: [15], groups: [4, 6, 5], cvc: 4 },
+    { brand: 'diners', re: /^3(?:0[0-5]|095|[689])/, lengths: [14, 15, 16, 17, 18, 19], groups: [4, 6, 4], cvc: 3 },
+    { brand: 'jcb', re: /^35(?:2[89]|[3-8]\d)/, lengths: [16, 17, 18, 19], groups: [4, 4, 4, 4, 3], cvc: 3 },
+    { brand: 'mir', re: /^220[0-4]/, lengths: [16, 17, 18, 19], groups: [4, 4, 4, 4, 3], cvc: 3 },
+    { brand: 'mastercard', re: /^(?:5[1-5]|222[1-9]|22[3-9]\d|2[3-6]\d\d|27[01]\d|2720)/, lengths: [16], groups: [4, 4, 4, 4], cvc: 3 },
+    { brand: 'discover', re: /^(?:6011|64[4-9]|65)/, lengths: [16, 17, 18, 19], groups: [4, 4, 4, 4, 3], cvc: 3 },
+    { brand: 'unionpay', re: /^62/, lengths: [16, 17, 18, 19], groups: [4, 4, 4, 4, 3], cvc: 3 },
+    { brand: 'maestro', re: /^(?:5[06-9]|6[37])/, lengths: [12, 13, 14, 15, 16, 17, 18, 19], groups: [4, 4, 4, 4, 3], cvc: 3 },
+    { brand: 'visa', re: /^4/, lengths: [13, 16, 19], groups: [4, 4, 4, 4, 3], cvc: 3 }
+  ];
+  function cardBrand(pan) {
+    for (var i = 0; i < CARD_BRANDS.length; i++) { if (CARD_BRANDS[i].re.test(pan)) { return CARD_BRANDS[i]; } }
+    return null;
+  }
+  // Iranian Shetab card: 16 digits + Luhn. Brand = issuing bank by 6-digit BIN (optional metadata in the catalog).
+  function card(pan) {
+    if (!/^\d{12,19}$/.test(pan) || !luhn(pan)) { return false; }
+    var b = cardBrand(pan);
+    return b ? b.lengths.indexOf(pan.length) !== -1 : (pan.length >= 12 && pan.length <= 19);
+  }
+  function formatCard(pan) {
+    var b = cardBrand(pan), groups = b ? b.groups : [4, 4, 4, 4, 3], out = [], pos = 0;
+    for (var i = 0; i < groups.length && pos < pan.length; i++) { out.push(pan.substr(pos, groups[i])); pos += groups[i]; }
+    if (pos < pan.length) { out.push(pan.substr(pos)); }
+    return out.join(' ');
+  }
+  // #endregion card_brand
+
+  // #region jalali
+  // Jalali (Solar Hijri) leap years from the Borkowski break table (same as jalaali-js); valid for 1-3177 AP.
+  var JALALI_BREAKS = [-61, 9, 38, 199, 426, 686, 756, 818, 1111, 1181, 1210, 1635, 2060, 2097, 2192, 2262, 2324,
+    2394, 2456, 3178];
+  function jalaliIsLeap(jy) {
+    var jp = JALALI_BREAKS[0], jump = 0;
+    for (var i = 1; i < JALALI_BREAKS.length; i++) {
+      var jm = JALALI_BREAKS[i];
+      jump = jm - jp;
+      if (jy < jm) { break; }
+      jp = jm;
+    }
+    var n = jy - jp;
+    if (jump - n < 6) { n = n - jump + Math.floor((jump + 4) / 33) * 33; }
+    var leap = (((n + 1) % 33) - 1) % 4;   // JS % truncates like the original
+    if (leap === -1) { leap = 4; }
+    return leap === 0;
+  }
+  function jalaliMonthLength(y, m) {
+    if (m <= 6) { return 31; }
+    if (m <= 11) { return 30; }
+    return jalaliIsLeap(y) ? 30 : 29;
+  }
+  // #endregion jalali
+
+  // #region dates
+  // Splits on any non-digit, orders by mask.date_order (YMD | DMY | MDY) and checks per calendar.
+  function dateParts(v, order) {
+    var p = v.split(/\D+/);
+    if (p.length !== 3) { return null; }
+    var y = parseInt(p[order.indexOf('Y')], 10), m = parseInt(p[order.indexOf('M')], 10), d = parseInt(p[order.indexOf('D')], 10);
+    return { y: y, m: m, d: d };
+  }
+  function validDate(v, mask) {
+    var o = dateParts(v, mask.date_order || 'YMD');
+    if (!o) { return false; }
+    var yr = mask.year_range || [1, 9999];
+    if (o.y < yr[0] || o.y > yr[1] || o.m < 1 || o.m > 12 || o.d < 1) { return false; }
+    if (mask.calendar === 'jalali') { return o.d <= jalaliMonthLength(o.y, o.m); }
+    if (mask.calendar === 'hijri') { return o.d <= 30; } // Umm al-Qura month = 29 or 30 days (table-driven)
+    return isValidGregorian(o.y, o.m, o.d);
+  }
+  // MM/YY. Pass `now` (Date) to also reject expired cards; without it only the structure is checked.
+  function cardExpiry(v, mask, now) {
+    var m = /^(\d{2})\/(\d{2})$/.exec(v);
+    if (!m) { return false; }
+    var mm = parseInt(m[1], 10), yy = 2000 + parseInt(m[2], 10);
+    if (mm < 1 || mm > 12) { return false; }
+    if (now) { return yy > now.getFullYear() || (yy === now.getFullYear() && mm >= now.getMonth() + 1); }
+    return true;
+  }
+  // #endregion dates
+
+  // #region dispatch
+  var CHECKSUMS = {
+    luhn: luhn, verhoeff: verhoeff, iso7064_mod97_10: iban, iran_national_code: iranNationalCode,
+    iran_legal_id: iranLegalId, saudi_nin: saudiNin, emirates_id: emiratesId, kuwait_civil_id: kuwaitCivilId,
+    au_abn: auAbn, card: card
+  };
+  var VALIDATORS = {
+    date: validDate, card_expiry: cardExpiry, egypt_nid: egyptNid, uk_nino: ukNino, us_ssn: usSsn,
+    us_ein: usEin, nanp: nanp
+  };
+  var regexCache = {};
+  function compiled(src) { return regexCache[src] || (regexCache[src] = new RegExp(src, 'u')); }
+
+  /** validate(mask, raw) -> { ok, code: null|'empty'|'format'|'checksum'|'rule', value } */
+  function validate(mask, raw) {
+    var v = normalize(raw, mask);
+    if (v === '') { return { ok: false, code: 'empty', value: v }; }
+    if (!compiled(mask.regex).test(v)) { return { ok: false, code: 'format', value: v }; }
+    if (mask.checksum) {
+      var fn = CHECKSUMS[mask.checksum];
+      if (!fn) { throw new Error('Unknown checksum ' + mask.checksum); }
+      if (!fn(v)) { return { ok: false, code: 'checksum', value: v }; }
+    }
+    if (mask.validator) {
+      var vf = VALIDATORS[mask.validator];
+      if (!vf) { throw new Error('Unknown validator ' + mask.validator); }
+      if (!vf(v, mask)) { return { ok: false, code: 'rule', value: v }; }
+    }
+    return { ok: true, code: null, value: v };
+  }
+  // #endregion dispatch
+
+  // #region store
+  /** toStored(mask, normalizedValidValue): the canonical value to save in the database. */
+  function toStored(mask, v) {
+    if (mask.store === 'e164' && mask.e164) {
+      var cc = mask.e164.cc, trunk = mask.e164.trunk || '', nsn = mask.e164.nsn_length || [];
+      if (v.charAt(0) === '+') { return v; }
+      if (v.substr(0, 2) === '00') { return '+' + v.substr(2); }
+      if (trunk && v.substr(0, trunk.length) === trunk) { return '+' + cc + v.substr(trunk.length); }
+      if (nsn.indexOf(v.length) !== -1) { return '+' + cc + v; }
+      if (v.substr(0, cc.length) === cc) { return '+' + v; }
+      return v;
+    }
+    if (mask.store === 'digits') { return v.replace(/\D+/g, ''); }
+    if (mask.store === 'strip_grouping') { return v.replace(/,/g, ''); }
+    return v;
+  }
+  // #endregion store
+
+  // #region mask_engine
+  /*
+   * Token language: 9 digit | a letter (ASCII or Arabic-script) | * letter or digit
+   *                 [ ... ] optional part | {n} / {n,m} repeat previous token | \x literal x | anything else literal
+   */
+  var LETTER_RE = /^[A-Za-zء-غف-يٮ-ۓۺ-ۼ]$/;
+  var DIGIT_RE = /^[0-9]$/;
+  function compileMask(pattern) {
+    var tokens = [], optional = 0, i = 0;
+    while (i < pattern.length) {
+      var ch = pattern.charAt(i);
+      if (ch === '\\' && i + 1 < pattern.length) { tokens.push({ k: 'lit', ch: pattern.charAt(i + 1), opt: optional > 0 }); i += 2; continue; }
+      if (ch === '[') { optional++; i++; continue; }
+      if (ch === ']') { optional = Math.max(0, optional - 1); i++; continue; }
+      if (ch === '{') {
+        var close = pattern.indexOf('}', i), spec = pattern.substring(i + 1, close).split(',');
+        var min = parseInt(spec[0], 10), max = spec.length > 1 ? parseInt(spec[1], 10) : min, prev = tokens.pop();
+        for (var r = 0; r < max; r++) { tokens.push({ k: prev.k, ch: prev.ch, opt: prev.opt || r >= min }); }
+        i = close + 1; continue;
+      }
+      if (ch === '9') { tokens.push({ k: 'digit', opt: optional > 0 }); } else if (ch === 'a') { tokens.push({ k: 'letter', opt: optional > 0 }); } else if (ch === '*') { tokens.push({ k: 'alnum', opt: optional > 0 }); } else { tokens.push({ k: 'lit', ch: ch, opt: optional > 0 }); }
+      i++;
+    }
+    return tokens;
+  }
+  function slotAccepts(k, c) {
+    if (k === 'digit') { return DIGIT_RE.test(c); }
+    if (k === 'letter') { return LETTER_RE.test(c); }
+    return DIGIT_RE.test(c) || LETTER_RE.test(c);
+  }
+  function isDataChar(c) { return DIGIT_RE.test(c) || LETTER_RE.test(c); }
+  /**
+   * applyMask(pattern, input) -> formatted string. Input is normalized first (digits -> ASCII).
+   * Literals are written lazily: only when a following slot is filled (keeps Backspace natural).
+   * A data char that fits no slot is dropped; an optional slot that does not fit is skipped.
+   */
+  function applyMask(pattern, input) {
+    var tokens = compileMask(pattern), s = Array.from(normalize(input, {})), out = '', pending = [], i = 0;
+    for (var t = 0; t < tokens.length && i < s.length; t++) {
+      var tok = tokens[t];
+      if (tok.k === 'lit') {
+        pending.push(tok);
+        if (s[i] === tok.ch) { i++; }
+        continue;
+      }
+      while (i < s.length && !isDataChar(s[i])) { i++; }
+      if (i >= s.length) { break; }
+      if (slotAccepts(tok.k, s[i])) {
+        for (var p = 0; p < pending.length; p++) { out += pending[p].ch; }
+        pending = []; out += s[i]; i++;
+      } else if (tok.opt) {
+        pending = pending.filter(function (x) { return !x.opt; });
+      } else {
+        i++; t--;                                   // drop the char, retry the same slot
+      }
+    }
+    return out;
+  }
+  /** maxLength of a pattern (all optional parts filled) - use for the input's maxlength attribute. */
+  function maskMaxLength(pattern) { return compileMask(pattern).length; }
+
+  /** formatThousands('-1234567.5') -> '-1,234,567.5' (sep defaults to ','; display may swap in U+066C). */
+  function formatThousands(v, sep) {
+    sep = sep || ',';
+    var s = normalize(v, {}).replace(/[^0-9.\-]/g, '');
+    var neg = s.charAt(0) === '-' ? '-' : '';
+    s = s.replace(/-/g, '');
+    var dot = s.indexOf('.'), intPart = dot === -1 ? s : s.substr(0, dot), dec = dot === -1 ? '' : s.substr(dot).replace(/\./g, function (m, off) { return off === 0 ? '.' : ''; });
+    intPart = intPart.replace(/^0+(?=\d)/, '');
+    var out = '';
+    for (var i = intPart.length; i > 0; i -= 3) { out = intPart.substring(Math.max(0, i - 3), i) + (out ? sep + out : ''); }
+    return neg + out + dec;
+  }
+  /** formatValue(mask, input): the one entry point the front-end calls while typing / on blur. */
+  function formatValue(mask, input) {
+    var s = mask.uppercase ? toAsciiUpper(normalize(input, {})) : input;
+    if (mask.formatter === 'thousands') { return formatThousands(s); }
+    if (mask.formatter === 'card') { return formatCard(normalize(s, { strip: ' -' }).replace(/\D/g, '').substr(0, 19)); }
+    if (mask.mask) { return applyMask(mask.mask, s); }
+    return normalize(s, {});
+  }
+  // #endregion mask_engine
+
+  // #region dom_binding
+  /**
+   * attachMask(input, pattern): formats on every 'input' event, keeps the caret after the same number of
+   * data characters, waits for IME composition to finish, and sets inputmode/dir if missing.
+   */
+  function countData(str, end) {
+    var n = 0, a = Array.from(str.slice(0, end));
+    for (var i = 0; i < a.length; i++) { if (isDataChar(normalizeDigits(a[i]))) { n++; } }
+    return n;
+  }
+  function caretForDataIndex(formatted, n) {
+    if (n === 0) { return 0; }
+    var seen = 0;
+    for (var i = 0; i < formatted.length; i++) {
+      if (isDataChar(formatted.charAt(i))) { seen++; if (seen === n) { return i + 1; } }
+    }
+    return formatted.length;
+  }
+  function attachMask(input, pattern, opts) {
+    opts = opts || {};
+    var composing = false;
+    if (!input.getAttribute('inputmode') && opts.inputmode) { input.setAttribute('inputmode', opts.inputmode); }
+    if (!input.getAttribute('dir')) { input.setAttribute('dir', opts.dir || 'ltr'); }
+    input.setAttribute('maxlength', String(maskMaxLength(pattern)));
+    function run() {
+      var before = input.value, caret = input.selectionStart === null ? before.length : input.selectionStart;
+      var dataBeforeCaret = countData(before, caret);
+      var after = applyMask(pattern, before);
+      if (after !== before) {
+        input.value = after;
+        var pos = caretForDataIndex(after, dataBeforeCaret);
+        if (typeof input.setSelectionRange === 'function' && input === (input.ownerDocument || {}).activeElement) {
+          input.setSelectionRange(pos, pos);
+        }
+      }
+    }
+    input.addEventListener('compositionstart', function () { composing = true; });
+    input.addEventListener('compositionend', function () { composing = false; run(); });
+    input.addEventListener('input', function () { if (!composing) { run(); } });
+    input.addEventListener('blur', run);
+    return { format: run };
+  }
+  // #endregion dom_binding
+
+  return {
+    normalize: normalize, normalizeDigits: normalizeDigits, validate: validate, toStored: toStored,
+    applyMask: applyMask, compileMask: compileMask, formatThousands: formatThousands, formatValue: formatValue, maskMaxLength: maskMaxLength, attachMask: attachMask,
+    caretForDataIndex: caretForDataIndex,
+    luhn: luhn, luhnCheckDigit: luhnCheckDigit, verhoeff: verhoeff, verhoeffCheckDigit: verhoeffCheckDigit,
+    iban: iban, ibanCheckDigits: ibanCheckDigits, IBAN_LENGTHS: IBAN_LENGTHS, mod97: mod97,
+    iranNationalCode: iranNationalCode, iranLegalId: iranLegalId, saudiNin: saudiNin, emiratesId: emiratesId,
+    kuwaitCivilId: kuwaitCivilId, egyptNid: egyptNid, auAbn: auAbn, ukNino: ukNino, usSsn: usSsn, usEin: usEin,
+    nanp: nanp, cardBrand: function (pan) { var b = cardBrand(pan); return b ? b.brand : null; }, card: card,
+    formatCard: formatCard, jalaliIsLeap: jalaliIsLeap, validDate: validDate, cardExpiry: cardExpiry,
+    CHECKSUMS: CHECKSUMS, VALIDATORS: VALIDATORS
+  };
+});
