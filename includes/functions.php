@@ -3854,6 +3854,8 @@ class efbFunction {
 			"mskIntl" => $state && isset($ac->text->mskIntl) ? $ac->text->mskIntl : esc_html__('International','easy-form-builder'),
 			/* translators: F01 builder: second help line under the custom mask box. Keep A, &, a and * as they are; they are mask tokens */
 			"mskCustomHelpCase" => $state && isset($ac->text->mskCustomHelpCase) ? $ac->text->mskCustomHelpCase : esc_html__('A and & work like a and * and turn letters into capitals.','easy-form-builder'),
+			/* translators: F01 builder: third help line under the custom mask box. Keep || and the example mask exactly as they are */
+			"mskCustomHelpAlt" => $state && isset($ac->text->mskCustomHelpAlt) ? $ac->text->mskCustomHelpAlt : esc_html__('Separate masks with || to accept any of them, for example (99) 9999-9999||(99) 99999-9999.','easy-form-builder'),
 			/* translators: F01 builder: select that turns the letters of a custom-mask field into capitals or small letters */
 			"mskCase" => $state && isset($ac->text->mskCase) ? $ac->text->mskCase : esc_html__('Letter case','easy-form-builder'),
 			/* translators: F01 builder, letter case option: keep the letters as the visitor types them */

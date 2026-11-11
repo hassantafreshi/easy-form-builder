@@ -761,7 +761,50 @@ class Masks {
 	// #endregion store
 
 	// #region mask_engine
+	/** Most alternatives one custom mask may hold ("a||b"). */
+	const MAX_ALTERNATIVES = 4;
+
+	/** "a||b" -> array('a', 'b'); an escaped "\|" stays a literal. */
+	public static function split_alternatives($pattern) {
+		$chars = preg_split('//u', (string) $pattern, -1, PREG_SPLIT_NO_EMPTY);
+		$parts = array();
+		$cur = '';
+		$n = count($chars);
+		for ($i = 0; $i < $n; $i++) {
+			if ($chars[$i] === '\\' && $i + 1 < $n) {
+				$cur .= $chars[$i] . $chars[$i + 1];
+				$i++;
+				continue;
+			}
+			if ($chars[$i] === '|' && $i + 1 < $n && $chars[$i + 1] === '|') {
+				$parts[] = $cur;
+				$cur = '';
+				$i++;
+				continue;
+			}
+			$cur .= $chars[$i];
+		}
+		$parts[] = $cur;
+		return $parts;
+	}
+
+	/** Tokens of a mask; for an alternation, those of its longest alternative (twin of the JS compileMask). */
 	public static function compile_mask($pattern) {
+		$alts = self::split_alternatives($pattern);
+		if (count($alts) < 2) {
+			return self::compile_single($pattern);
+		}
+		$best = null;
+		foreach ($alts as $a) {
+			$t = self::compile_single($a);
+			if ($best === null || count($t) > count($best)) {
+				$best = $t;
+			}
+		}
+		return $best;
+	}
+
+	public static function compile_single($pattern) {
 		$chars = preg_split('//u', $pattern, -1, PREG_SPLIT_NO_EMPTY);
 		$tokens = array();
 		$optional = 0;
@@ -823,8 +866,35 @@ class Masks {
 		return $digit || self::is_letter($c);
 	}
 
+	/** Picks the alternative of an alternation like the JS runMask(): complete first, then fitting, else longest. */
 	public static function run_mask($pattern, $input) {
-		$tokens = self::compile_mask($pattern);
+		$alts = self::split_alternatives($pattern);
+		if (count($alts) < 2) {
+			return self::run_single($pattern, $input);
+		}
+		$runs = array();
+		foreach ($alts as $k => $a) {
+			$runs[] = array('r' => self::run_single($a, $input), 'i' => $k);
+		}
+		usort($runs, function ($x, $y) {
+			$d = count($x['r']['tokens']) - count($y['r']['tokens']);
+			return $d !== 0 ? $d : $x['i'] - $y['i'];
+		});
+		foreach ($runs as $x) {
+			if ($x['r']['dropped'] === 0 && !self::required_left($x['r'])) {
+				return $x['r'];
+			}
+		}
+		foreach ($runs as $x) {
+			if ($x['r']['dropped'] === 0) {
+				return $x['r'];
+			}
+		}
+		return $runs[count($runs) - 1]['r'];
+	}
+
+	public static function run_single($pattern, $input) {
+		$tokens = self::compile_single($pattern);
 		$s = preg_split('//u', self::normalize($input, array()), -1, PREG_SPLIT_NO_EMPTY);
 		$out = '';
 		$pending = array();
@@ -933,6 +1003,18 @@ class Masks {
 		if (!is_string($pattern) || $pattern === '' || !preg_match('//u', $pattern)) {
 			return false;
 		}
+		$alts = self::split_alternatives($pattern);
+		if (count($alts) > 1) {
+			if (count($alts) > self::MAX_ALTERNATIVES || self::length($pattern) > self::MAX_CUSTOM_MASK) {
+				return false;
+			}
+			foreach ($alts as $a) {
+				if (!self::check_mask($a)) {
+					return false;
+				}
+			}
+			return true;
+		}
 		if (self::length($pattern) > self::MAX_CUSTOM_MASK || preg_match('/[\x00-\x1F\x7F<>"%]/', $pattern)) {
 			return false;
 		}
@@ -1006,7 +1088,7 @@ class Masks {
 	}
 
 	/** Required slots left after a run_mask() result: none means the value is complete. */
-	private static function required_left($r) {
+	public static function required_left($r) {
 		$nt = count($r['tokens']);
 		for ($t = $r['next']; $t < $nt; $t++) {
 			if ($r['tokens'][$t]['k'] !== 'lit' && !$r['tokens'][$t]['opt']) {
@@ -1309,7 +1391,7 @@ class Masks {
 			'version' => isset($cat['version']) ? $cat['version'] : 0,
 			'field_keys' => array(
 				'mask_preset' => 'preset id, "custom" or ""',
-				'mask_custom' => 'token mask (9 digit, a letter, * either, A capital letter, & capital letter or digit, [ ] optional, {n,m} repeat, \\x literal), max ' . self::MAX_CUSTOM_MASK . ' characters',
+				'mask_custom' => 'token mask (9 digit, a letter, * either, A capital letter, & capital letter or digit, [ ] optional, {n,m} repeat, \\x literal; up to ' . self::MAX_ALTERNATIVES . ' masks joined by ||), max ' . self::MAX_CUSTOM_MASK . ' characters',
 				'mask_checksum' => implode('|', self::CUSTOM_CHECKSUMS) . ' (custom masks only)',
 				'mask_store' => 'canonical|display',
 				'mask_strict' => '0|1',

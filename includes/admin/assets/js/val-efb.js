@@ -1227,6 +1227,7 @@ function show_setting_window_efb(idset) {
           <small class="efb text-danger fs-8 mx-2 d-none" id="maskCustomErrEl">${t.mskInvalidMask || 'This mask is not valid.'}</small>
           <div class="efb fs-7 mx-2 my-1">${t.mskPreview || 'Preview'}: <output id="maskPreviewEl" dir="ltr" class="efb fw-bold"></output></div>
           <small class="efb text-muted fs-8 mx-2 d-block">${t.mskCustomHelpCase || 'A and & work like a and * and turn letters into capitals.'}</small>
+          <small class="efb text-muted fs-8 mx-2 d-block">${t.mskCustomHelpAlt || 'Separate masks with || to accept any of them, for example (99) 9999-9999||(99) 99999-9999.'}</small>
           <label for="maskCaseEl" class="efb mt-2">${t.mskCase || 'Letter case'}</label>
           <select data-id="${idset}" class="efb elEdit form-select border-d rounded-4" id="maskCaseEl">
             <option value="" ${!row.mask_case ? 'selected' : ''}>${t.mskCaseNone || 'As typed'}</option>

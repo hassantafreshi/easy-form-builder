@@ -154,6 +154,12 @@ st('I2: mask_case upper applied on the server', $r['is_valid'] === 1 && $r['item
 $r = $fx->run(array('id_' => 'cs', 'type' => 'text', 'name' => 'Code', 'mask_preset' => 'custom', 'mask_custom' => '&&&-99', 'mask_store' => 'display'), row_item('cs', 'text', 'x1z45'));
 st('I2: & token stores capitals', $r['is_valid'] === 1 && $r['item']['value'] === 'X1Z-45', json_encode($r));
 
+$fa = array('id_' => 'al', 'type' => 'tel', 'name' => 'Phone', 'mask_preset' => 'custom', 'mask_custom' => '(99) 9999-9999||(99) 99999-9999', 'mask_store' => 'display');
+$r = $fx->run($fa, row_item('al', 'tel', '11912345678'));
+st('I4: alternation on the server picks the mobile mask', $r['is_valid'] === 1 && $r['item']['value'] === '(11) 91234-5678', json_encode($r));
+$r = $fx->run($fa, row_item('al', 'tel', '113456789'));
+st('I4: alternation incomplete', $r['is_valid'] === 0 && $r['m'] === 'I[Phone]', json_encode($r));
+
 // 3. Fallbacks: never lock a form.
 $r = $fx->run(array('id_' => 'u', 'type' => 'text', 'name' => 'U', 'mask_preset' => 'zz.unknown', 'mlen' => '5'), row_item('u', 'text', 'abcdefgh'));
 st('unknown preset: old max length rule applies', $r['is_valid'] === 0 && $r['m'] === 'MAX[<b>U</b>][<b>5</b>]', json_encode($r));

@@ -520,7 +520,30 @@
    */
   var LETTER_RE = /^[A-Za-zء-غف-يٮ-ۓۺ-ۼ]$/;
   var DIGIT_RE = /^[0-9]$/;
+  /*
+   * Alternation (F01-I4): "(99) 9999-9999||(99) 99999-9999" holds several masks. runMask() takes a complete
+   * one first, then the shortest one the typed data still fits, else the longest; compileMask() of an
+   * alternation returns the longest alternative (maxlength, preview). Linear: no regex is built.
+   */
+  var MAX_ALTERNATIVES = 4;
+  function splitAlternatives(pattern) {
+    var parts = [], cur = '', i = 0;
+    while (i < pattern.length) {
+      var ch = pattern.charAt(i);
+      if (ch === '\\' && i + 1 < pattern.length) { cur += ch + pattern.charAt(i + 1); i += 2; continue; }
+      if (ch === '|' && pattern.charAt(i + 1) === '|') { parts.push(cur); cur = ''; i += 2; continue; }
+      cur += ch; i++;
+    }
+    parts.push(cur);
+    return parts;
+  }
   function compileMask(pattern) {
+    var alts = splitAlternatives(pattern), best = null;
+    if (alts.length < 2) { return compileSingle(pattern); }
+    for (var a = 0; a < alts.length; a++) { var t = compileSingle(alts[a]); if (!best || t.length > best.length) { best = t; } }
+    return best;
+  }
+  function compileSingle(pattern) {
     var tokens = [], optional = 0, i = 0;
     while (i < pattern.length) {
       var ch = pattern.charAt(i);
@@ -559,7 +582,17 @@
    * A data char that fits no slot is dropped; an optional slot that does not fit is skipped.
    */
   function runMask(pattern, input) {
-    var tokens = compileMask(pattern), s = Array.from(normalize(input, {})), out = '', pending = [], i = 0, t = 0, dropped = 0;
+    var alts = splitAlternatives(pattern);
+    if (alts.length < 2) { return runSingle(pattern, input); }
+    var runs = [], k;
+    for (k = 0; k < alts.length; k++) { runs.push({ r: runSingle(alts[k], input), i: k }); }
+    runs.sort(function (x, y) { return x.r.tokens.length - y.r.tokens.length || x.i - y.i; });
+    for (k = 0; k < runs.length; k++) { if (runs[k].r.dropped === 0 && !requiredLeft(runs[k].r)) { return runs[k].r; } }
+    for (k = 0; k < runs.length; k++) { if (runs[k].r.dropped === 0) { return runs[k].r; } }
+    return runs[runs.length - 1].r;
+  }
+  function runSingle(pattern, input) {
+    var tokens = compileSingle(pattern), s = Array.from(normalize(input, {})), out = '', pending = [], i = 0, t = 0, dropped = 0;
     for (t = 0; t < tokens.length && i < s.length; t++) {
       var tok = tokens[t];
       if (tok.k === 'lit') {
@@ -621,6 +654,12 @@
    */
   function checkMask(pattern) {
     if (typeof pattern !== 'string' || pattern === '') { return false; }
+    var alts = splitAlternatives(pattern);
+    if (alts.length > 1) {
+      if (alts.length > MAX_ALTERNATIVES || Array.from(pattern).length > MAX_CUSTOM_MASK) { return false; }
+      for (var q = 0; q < alts.length; q++) { if (!checkMask(alts[q])) { return false; } }
+      return true;
+    }
     var chars = Array.from(pattern);
     if (chars.length > MAX_CUSTOM_MASK || /[\x00-\x1F\x7F<>"%]/.test(pattern)) { return false; }
     // A trailing backslash would sit right before the closing quote in the builder's JSON, where its save
@@ -881,7 +920,7 @@
     caretForDataIndex: caretForDataIndex, isComplete: isComplete, validateCustom: validateCustom,
     toStoredCustom: toStoredCustom, toNationalDisplay: toNationalDisplay, formatDisplay: formatDisplay,
     CUSTOM_CHECKSUMS: CUSTOM_CHECKSUMS, MAX_INPUT: MAX_INPUT, MAX_CUSTOM_MASK: MAX_CUSTOM_MASK, checkMask: checkMask,
-    dataOnly: dataOnly, finishMask: finishMask, fieldCheck: fieldCheck, fieldFormatter: fieldFormatter,
+    dataOnly: dataOnly, finishMask: finishMask, splitAlternatives: splitAlternatives, fieldCheck: fieldCheck, fieldFormatter: fieldFormatter,
     bindField: bindField, fieldMessage: fieldMessage, hasStrict: hasStrict, strictDef: strictDef, applyCase: applyCase,
     luhn: luhn, luhnCheckDigit: luhnCheckDigit, verhoeff: verhoeff, verhoeffCheckDigit: verhoeffCheckDigit,
     iban: iban, ibanCheckDigits: ibanCheckDigits, IBAN_LENGTHS: IBAN_LENGTHS, mod97: mod97,

@@ -1,4 +1,4 @@
-وضعیت: A تا H، I2 و I3 پیاده‌سازی و تست شد؛ I1 و I4 در راه · اولویت: P0 · تلاش: M · وابستگی: — (F02، F03، F06 و F17 به این تسک وابسته‌اند)
+وضعیت: A تا H، I2، I3 و I4 پیاده‌سازی و تست شد؛ I1 در راه · اولویت: P0 · تلاش: M · وابستگی: — (F02، F03، F06 و F17 به این تسک وابسته‌اند)
 
 # F01 — ماسک ورودی و اعتبارسنج‌های قالب
 
@@ -392,6 +392,12 @@ if (!empty($f['mask_preset']) && class_exists('\Emsfb\Masks')) {
 - رفتار: `mask_case` فقط روی ماسک دلخواه اثر دارد (روی پیش‌تنظیم‌ها، که `uppercase` خودشان را دارند، اعمال نمی‌شود تا regex کاتالوگ نشکند). تبدیل فقط ASCII است: `i` به `I` می‌رود، نه `İ`. حرف عربی در `A` و `&` پذیرفته نمی‌شود. ماسک دلخواه ذخیره‌شدهٔ پیش از I2 وجود ندارد (F01 منتشر نشده)، پس تغییر معنای `A`/`&` روی دادهٔ کسی اثر ندارد.
 - تست‌ها (اجراشده): `node tests/test-masks-custom.js` → 308 passed (۸ بردار تازهٔ `validateCustom` با `A`، `&`، `\A` و `mask_case`، ۴ `checkMask`، ۳ `applyMask`؛ JS و PHP برابر)؛ `php tests/test-masks-save-roundtrip.php` → 52 passed (`mask_case` و دو ماسک تازه)؛ `php tests/test-masks-render.php` → 52 passed؛ `php tests/test-masks-submit.php` → 1145 passed (دو بررسی سرور)؛ `node tests/test-masks-runtime.js` → 21 passed؛ `node tests/test-masks-builder-browser.js` → 47 passed؛ `node tests/test-masks-browser.js` → 30 passed؛ vectors JS 1332، PHP 192، parity 5، catalog-ajax 30.
 - وضعیت ترجمه: کلیدهای تازه `mskCustomHelpCase`، `mskCase`، `mskCaseNone`، `mskCaseUpper`، `mskCaseLower`؛ فارسی در `.po`.
+
+**Checkpoint I4** (انجام شد، 2026-11-11)
+- فایل‌های تغییرکرده: `public/assets/js/masks-efb.js` و `includes/class-Emsfb-masks.php` (`splitAlternatives`/`split_alternatives` با رعایت `\|`، `compileMask` برای alternation طولانی‌ترین گزینه را برمی‌گرداند (maxlength و پیش‌نمایش)، `runMask` به ترتیب: گزینهٔ کامل، سپس کوتاه‌ترین گزینه‌ای که داده در آن جا می‌شود، وگرنه طولانی‌ترین؛ `checkMask` حداکثر ۴ گزینه و ۶۴ نویسه برای کل رشته، هر گزینه باید معتبر باشد)، `val-efb.js` (راهنمای `||`)، `includes/functions.php` (`mskCustomHelpAlt`)، `.po` (۱ مدخل)، تست‌ها. کلید ذخیره‌ای تازه‌ای لازم نشد: همان `mask_custom`.
+- validatorهای تاریخ‌وساعت (`datetime`) و ساعت با ثانیه (`intl.time_24s`) در I3 آمده‌اند.
+- تست‌ها (اجراشده): `node tests/test-masks-custom.js` → 352 passed (۹ `validateCustom`، ۷ `checkMask`، ۳ `applyMask` و ۳ `isComplete` تازه برای alternation؛ JS و PHP برابر)؛ `node tests/test-masks-browser.js` → 32 passed (تایپ ۱۰ رقم `(11) 3456-7890` و با رقم یازدهم `(11) 34567-8901` و ذخیرهٔ `11345678901`)؛ `php tests/test-masks-submit.php` → 1147 passed؛ `php tests/test-masks-save-roundtrip.php` → 53 passed؛ `node tests/test-masks-builder-browser.js` → 47 passed؛ vectors JS 1332، PHP 192، parity 5.
+- وضعیت ترجمه: `mskCustomHelpAlt`؛ فارسی در `.po`.
 
 ## ۱۶. گسترش‌های فاز ۲ مرتبط
 

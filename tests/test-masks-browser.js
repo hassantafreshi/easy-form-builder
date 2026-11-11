@@ -30,6 +30,7 @@ const forms = {
   ],
   202: [
     { id_: 'smob', type: 'tel', elementId: 'tel', name: 'Saudi mobile', required: '0', mask_preset: 'sa.mobile' },
+    { id_: 'alt', type: 'tel', elementId: 'tel', name: 'BR phone', required: '0', mask_preset: 'custom', mask_custom: '(99) 9999-9999||(99) 99999-9999' },
   ],
 };
 // Markup from the real PHP renderer, and the runtime subset the page would get.
@@ -214,6 +215,14 @@ async function launchChromiumEfb() {
   const two = await page.evaluate(() => ({ v: document.getElementById('smob_').value, r: sendBack_emsFormBuilder_pub.find((x) => x.id_ === 'smob'), mob: sendBack_emsFormBuilder_pub.find((x) => x.id_ === 'mob') }));
   check('second form: sa.mobile formatted and stored for form 202', two.v === '050 123 4567' && two.r && two.r.value === '+966501234567' && Number(two.r.form_id) === 202, two);
   check('first form untouched by the second', two.mob && Number(two.mob.form_id) === 101 && two.mob.value === '+989121234567', two.mob);
+  // I4: alternation switches from the landline to the mobile mask at the 11th digit.
+  await typeIn(page, 'alt_', '1134567890');
+  const alt10 = await val(page, 'alt_');
+  await page.keyboard.type('1');
+  const alt11 = await val(page, 'alt_');
+  await blur(page); await page.waitForTimeout(100);
+  check('alternation: 10 digits landline, 11 digits mobile', alt10 === '(11) 3456-7890' && alt11 === '(11) 34567-8901', [alt10, alt11]);
+  check('alternation: stored clean value', (await sendBack(page, 'alt')) === '11345678901', await sendBack(page, 'alt'));
   check('no page errors (LTR)', page.errors.length === 0, page.errors);
   await ctx.close();
 

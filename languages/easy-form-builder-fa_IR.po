@@ -15267,3 +15267,9 @@ msgstr "حروف بزرگ (UPPERCASE)"
 #: includes/functions.php
 msgid "lowercase"
 msgstr "حروف کوچک (lowercase)"
+
+#  origin: claude (fa_IR) F01
+#. translators: F01 builder: third help line under the custom mask box. Keep || and the example mask exactly as they are
+#: includes/functions.php
+msgid "Separate masks with || to accept any of them, for example (99) 9999-9999||(99) 99999-9999."
+msgstr "برای پذیرفتن چند قالب، ماسک‌ها را با || جدا کنید؛ مثلاً (99) 9999-9999||(99) 99999-9999."
