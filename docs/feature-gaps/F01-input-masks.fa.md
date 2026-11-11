@@ -121,7 +121,7 @@
 - درج: در `case 'text'…'prcfld'` (`val-efb.js:1481-1538`)، درست پس از `${placeholderEls}`:
   `${['text','tel','postalcode'].includes(el.dataset.tag) || valj_efb[indx].elementId=='postalcode' ? maskEls() : ''}`.
   یادآوری: `postalcode` و `address_line` با `data-tag="text"` می‌آیند (`admin-efb.js:7679`). برای تمایز از `valj_efb[indx].type`/`elementId` استفاده کن. برای `tel` فقط گروه‌های `phone_mobile`/`phone_landline` نشان داده شوند.
-- وقتی `mask_preset` پر است، `miLenEls()`/`mLenEls()` (خط‌های 1518-1519) رندر نشوند.
+- وقتی `mask_preset` پر است، `miLenEls()`/`mLenEls()` (خط‌های 1515-1516) رندر نشوند.
 
 در `change_el_edit_Efb` (`admin-efb.js:2045`)، `case`های تازه به الگوی `customRequiredMsgEl` (2628):
 - `maskPresetEl`: نوشتن `mask_preset`، تنظیم placeholder پیش‌فرض (اگر placeholder فعلی خالی است یا با `placeholder` پیش‌تنظیم قبلی برابر است)، حذف `milen`/`mlen` (پس از تأیید مدیر با `confirm` ترجمه‌شده) و به‌روزرسانی کانواس: `data-mask`، `inputmode`، `dir="ltr"` و `placeholder` روی `${id_}_`.

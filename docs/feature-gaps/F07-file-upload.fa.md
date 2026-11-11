@@ -268,10 +268,10 @@ public static function verify_upload_token($token, $basename, $form_id, $field_i
 - صفحات کش‌شده: هیچ قاعدهٔ رندری نیست که فقط در رندر اجرا شود. همهٔ سقف‌ها در ثبت دوباره بررسی می‌شوند.
 
 ### ۱۱.۱ حذف فایل‌ها با پاسخ
-- تابع مشترک `Upload_Guard::delete_files_for_messages(array $msg_ids)`: محتوای هر پاسخ را می‌خواند، نام‌ها را با همان regex claim استخراج می‌کند، برای هر نام بررسی می‌کند که در **پاسخ دیگری** نیامده باشد (LIKE با `msg_id NOT IN`)، و سپس `wp_delete_file` یا برای پیوست رسانه `wp_delete_attachment($id, true)` اجرا می‌کند. فایل‌های پیوست `emsfb_rsp_` همان پاسخ هم حذف می‌شوند.
-- این تابع از `delete_message_id_public` (`admin:268`)، `delete_messages_Emsfb` (3676-3722) و `delete_form_id_public` (226) و فقط وقتی `delFilesEntry==1` باشد فراخوانی می‌شود. هم‌زمان، حذف تکی ردیف‌های `emsfb_rsp_` را هم پاک کند. حذف فرم هم `emsfb_rsp_` پاسخ‌هایش را پاک کند (رفع ناهماهنگی §۱، ردیف ۲۱).
-- برای پاسخ‌های خیلی زیاد (حذف فرم)، کار به `wp_schedule_single_event` با دسته‌های ۲۰۰تایی سپرده می‌شود.
-- F13 (نگهداری خودکار) از همین تابع استفاده می‌کند.
+- **یک تابع مشترک با F13:** F13 §۶.۳ تابع `Privacy::purge_entries(array $msg_ids, $mode, $with_files)` و `Upload_Guard::path_from_url($url)` را تعریف می‌کند (`F13-privacy-retention.fa.md`). F07 تابع دومی نمی‌سازد. هر کدام از F07 یا F13 که زودتر اجرا شود، این دو را می‌سازد و دیگری از آن استفاده می‌کند.
+- سهم F07 در آن تابع: (۱) پشتیبانی `path_from_url` از پوشهٔ `efb-private/` و از پیوست‌های کتابخانهٔ رسانه (`attachment_url_to_postid` و سپس `wp_delete_attachment($id, true)` به‌جای `wp_delete_file`). (۲) حذف پیوست‌های response box (`emsfb_rsp_`) همان پاسخ. (۳) بررسی «در پاسخ دیگری نیامده» (همان LIKE پاک‌کن، `upload-guard.php:1234-1246`، با `msg_id NOT IN`).
+- حذف دستی: `delete_message_id_public` (`admin:268`)، `delete_messages_Emsfb` (3676-3722) و `delete_form_id_public` (226) همه به `purge_entries` واگذار می‌شوند، با `$with_files = (delFilesEntry == 1)`. این کار ناهماهنگی §۱، ردیف ۲۱ را هم رفع می‌کند: حذف تکی و حذف فرم، `emsfb_rsp_` را هم پاک می‌کنند.
+- برای پاسخ‌های خیلی زیاد (حذف فرم)، کار با دسته‌های F13 (۱۰۰تایی) و `wp_schedule_single_event` انجام می‌شود.
 
 ---
 
@@ -430,9 +430,9 @@ Checkpoint
 - اقدام بعدی:
 
 ### H — حذف فایل با پاسخ
-- فایل‌ها: `class-Emsfb-upload-guard.php` (`delete_files_for_messages`)، `admin/class-Emsfb-admin.php` (226، 268، 3676) و تنظیم `delFilesEntry` در صفحهٔ تنظیمات.
+- فایل‌ها: `class-Emsfb-privacy.php` و `class-Emsfb-upload-guard.php` (تابع مشترک F13 §۶.۳: `purge_entries`، `path_from_url`، با سهم F07 در §۱۱.۱)، `admin/class-Emsfb-admin.php` (226، 268، 3676)، و تنظیم `delFilesEntry` در صفحهٔ تنظیمات. اگر F13 پیش‌تر اجرا شده، فقط سهم F07 اضافه می‌شود.
 - پذیرش: با تنظیم روشن، حذف تکی و گروهی و حذف فرم، فایل‌ها، پیوست‌های رسانه و پیوست‌های response box را حذف می‌کند؛ فایلی که در پاسخ دیگری آمده حذف نمی‌شود؛ با تنظیم خاموش هیچ فایلی حذف نمی‌شود؛ حذف تکی `emsfb_rsp_` را هم پاک می‌کند.
-- تست: `php tests/test-upload-delete-with-entry.php` (stub ‏`$wpdb` و پوشهٔ موقت).
+- تست: `php tests/test-upload-delete-with-entry.php` (stub ‏`$wpdb` و پوشهٔ موقت)، و اگر F13 اجرا شده، رگرسیون تست‌های purge آن.
 
 Checkpoint
 - فایل‌های تغییرکرده:

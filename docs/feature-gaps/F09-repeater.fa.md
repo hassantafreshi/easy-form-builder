@@ -4,7 +4,7 @@
 
 > شاخهٔ مبنا `dev4`، نسخهٔ 4.3.1، بررسی‌شده در 2026-11-11. همهٔ `file:line`ها با خواندن کد تأیید شده‌اند. پیش از ویرایش، نام تابع را دوباره grep کن.
 > مرجع‌ها: [راهنمای پیاده‌سازی](IMPLEMENTATION-PLAYBOOK.en.md) (به‌ویژه §1.2، §1.6، §2.3، §2.5، §2.6، §2.7، Recipe B §3، §10)، [امکانات فعلی](reference/current-capabilities.en.md)، [ماتریس رقبا](reference/competitor-matrix.en.md) §5، و اسناد بازطراحی `_workspace/easy-form-builder-form-builder/docs/STATE_SCHEMA.md` و `REDESIGN_HANDOFF.md`.
-> اسناد F04 و F08 هنوز نوشته نشده‌اند. §۱۱ قراردادی را تعریف می‌کند که F04 باید بپذیرد. اگر F04 چیز دیگری تصمیم گرفت، §۱۱ و زیرتسک J با آن هماهنگ می‌شوند، نه برعکس.
+> محاسبات طبق قرارداد F04 §۶.۴ نوشته شده‌اند (`F04-number-calculation.fa.md`). سند F08 هنوز نوشته نشده است. §۱۱.۳ قالب برچسب هوشمند را موقتاً فرض می‌کند و پس از F08 با آن هماهنگ می‌شود.
 
 ---
 
@@ -39,7 +39,7 @@
 | 7 | پیش‌نمایش ادمین | `previewFormEfb` با `addNewElement(type,id,true,true)` رشته می‌سازد (`return newElement`، 7713) | `admin-efb.js:9017، 9071` |
 | 8 | رندر عمومی | حلقهٔ آرایه در `EFB_Form_Builder()`. `option`/`r_matrix` رد می‌شوند و بقیه `addNewElement_efb($i,…)` می‌گیرند | `class-Emsfb-public.php:1595-1617`؛ `class-Emsfb-formbuilder.php:2434` |
 | 9 | شمارش تگ بسته | نوع‌های `$single_close_efb` یک `</div>` می‌گیرند و بقیه دو | `class-Emsfb-formbuilder.php:3179` |
-| 10 | راه‌اندازی کلاینت | یک حلقه روی همهٔ `.emsFormBuilder_v` در `createStepsOfPublic()`. تابعی برای راه‌اندازی یک بخش جدید DOM وجود ندارد | `public/assets/js/core-efb.js:578-760` |
+| 10 | راه‌اندازی کلاینت | یک حلقه روی همهٔ `.emsFormBuilder_v` در `createStepsOfPublic()`. تابعی برای راه‌اندازی یک بخش جدید DOM وجود ندارد | `public/assets/js/core-efb.js:578-826` (حلقهٔ اصلی 584-792) |
 | 11 | ساختار در حافظه | `get_structure_by_form_id_efb()` یک کپی فیلترشده از آرایهٔ همان شیء `valj_efb_new[i].form_structer` برمی‌گرداند (عناصر مشترک‌اند) | `core-efb.js:3453-3458` |
 | 12 | صف ارسال | `fun_sendBack_emsFormBuilder()` ردیف را با `id_` پیدا و جایگزین می‌کند | `core-efb.js:827-880` |
 | 13 | ارسال | `actionSendData_emsFormBuilder()` با `JSON.stringify(sendback)` | `core-efb.js:1167-1201` |
@@ -139,7 +139,7 @@
 
 | مجاز | ممنوع (دلیل) |
 |---|---|
-| `text`، `firstName`/`lastName` (به‌صورت `text`)، `email`، `number`، `tel`، `url`، `textarea`، `date`، `range`، `color`، `select`، `radio`، `checkbox`، `multiselect`، `switch`، `yesNo`، `rating`، `pointr5`، `pointr10`، `heading`، `html`، `file` (تک‌فایل، §۱۲)، `mobile`، فیلد فرمول F04، فیلد پنهان F08 | `repeater` (تودرتو)، `password` (ثبت‌نام)، `dadfile`/recorderها/`esign`/`maps` (وابستگی به سهمیه، canvas و سنگینی؛ فاز ۲)، `pdate`/`ardate` (گیرندهٔ افزونه روی کلاس سراسری بسته می‌شود؛ پس از F06 با `advdate` بازنگری شود)، `conturyList`/`stateProvince`/`cityList` (زنجیرهٔ وابسته با شناسهٔ ثابت)، `pay*`/`prcfld`/`ttlprc`/`stripe`/`paypal`/`persiaPay` (قیمت هر ردیف؛ سؤال باز ۳)، `table_matrix`، `chlCheckBox`، `imgRadio`، `trmCheckbox`، `step`، captcha |
+| `text`، `firstName`/`lastName` (به‌صورت `text`)، `email`، `number`، `tel`، `url`، `textarea`، `date`، `range`، `color`، `select`، `radio`، `checkbox`، `multiselect`، `switch`، `yesNo`، `rating`، `pointr5`، `pointr10`، `heading`، `html`، `file` (تک‌فایل، §۱۲)، `mobile`، `calc` (F04)، فیلد پنهان F08 | `repeater` (تودرتو)، `password` (ثبت‌نام)، `dadfile`/recorderها/`esign`/`maps` (وابستگی به سهمیه، canvas و سنگینی؛ فاز ۲)، `pdate`/`ardate` (گیرندهٔ افزونه روی کلاس سراسری بسته می‌شود؛ پس از F06 با `advdate` بازنگری شود)، `conturyList`/`stateProvince`/`cityList` (زنجیرهٔ وابسته با شناسهٔ ثابت)، `pay*`/`prcfld`/`ttlprc`/`stripe`/`paypal`/`persiaPay` (قیمت هر ردیف؛ سؤال باز ۳)، `table_matrix`، `chlCheckBox`، `imgRadio`، `trmCheckbox`، `step`، captcha |
 
 فهرست در یک ثابت مشترک قرار می‌گیرد: `EFB_REPEATER_CHILD_TYPES` در `val-efb.js`، و `Emsfb\Repeater::child_types()` در PHP، با فیلتر `efb_repeater_child_types`.
 
@@ -200,7 +200,7 @@
   2. ساختار: `<fieldset class="efb efb-rpt …" id="{g}-f" data-rpt="{g}" data-min data-max data-default data-from data-layout data-collapsible data-formid>` + `<legend>` + توضیح + `<div class="efb efb-rpt-rows" role="list" id="{g}_rows">` (ردیف‌ها) + `<template id="{g}_tpl">` (یک ردیف با `__RI__`) + `<button type="button" class="efb btn efb-rpt-add" id="{g}_add">` + `<small id="{g}_-message">` (tooltip، playbook §10.7) + `<div class="efb visually-hidden" aria-live="polite" id="{g}_live">`.
   3. داخل template، `__RI__` فقط در ویژگی‌ها (id، for، data-*، aria-*) و عنوان «{n}» می‌آید. مقادیر پیش‌فرض با `esc_attr` نوشته می‌شوند. JS همه را با `n` جایگزین می‌کند.
   4. **شمارش تگ‌ها:** خروجی گروه کامل بسته است. `repeater` به `$single_close_efb` (3179) اضافه می‌شود و خروجی دقیقاً یک `<div>` بازِ wrapper را باز می‌گذارد، همان قرارداد `heading`. تست زیرتسک C تعداد `<div`/`</div>` و `<fieldset`/`</fieldset>` کل فرم را برابر می‌خواهد.
-  5. wpautop: خروجی با تگ بلوکی شروع می‌شود و `<template>` جزو تگ‌های بلوکی `emsfb_autop_safe_markup_efb` (`functions.php:68`) بررسی شود. اگر نبود، template داخل placeholder ‏`deferred_form_markup` (§2.8) محافظت شود.
+  5. wpautop: خروجی با تگ بلوکی شروع می‌شود. `emsfb_autop_safe_markup_efb` (`functions.php:68`) خطوط جدید markup را حذف می‌کند (فقط `script`، `style`، `pre` و `textarea` استثنا هستند)، پس محتوای `<template>` هم بی‌خطر است. تست C این را با اجرای `wpautop` واقعی روی خروجی ثابت می‌کند. اگر شکست خورد، template داخل placeholder ‏`deferred_form_markup` (playbook §2.8) قرار می‌گیرد.
 - `generate_mobile_css_efb()` (344) روی کپی‌های موقت هم اجرا می‌شود. چون CSS بر اساس `id_` است، کپی‌ها باید در حلقهٔ CSS هم حاضر باشند. ساده‌ترین راه: CSS فرزندان را با انتخاب‌گر `[data-rpt-base="{base}"]` بنویس، که روی همهٔ نمونه‌ها و ردیف‌های آینده اعمال شود. هر نمونه ویژگی `data-rpt-base` را روی wrapper ‏`-f` دارد.
 
 ### ۷.۲ JS بوم و پیش‌نمایش ادمین
@@ -217,7 +217,7 @@
 - رویداد DOM: `efb:repeater:rowadded` / `rowremoved` با `detail:{form_id, group, n}` تا افزونه‌ها (منطق، autofill) بتوانند وصل شوند.
 
 ### ۷.۴ `core-efb.js`
-- **جداسازی راه‌اندازی:** بدنهٔ حلقهٔ `createStepsOfPublic` (584-760) به `efb_init_fields_in_efb(root, form_id)` منتقل می‌شود. `createStepsOfPublic` آن را با `document` صدا می‌زند. رفتار برای فرم بدون گروه یکسان می‌ماند (تست رگرسیون C).
+- **جداسازی راه‌اندازی:** بدنهٔ حلقه‌های `createStepsOfPublic` (584-826، شامل حلقه‌های switch و multiselect در 794-826) به `efb_init_fields_in_efb(root, form_id)` منتقل می‌شود. `createStepsOfPublic` آن را با `document` صدا می‌زند. رفتار برای فرم بدون گروه یکسان می‌ماند (تست رگرسیون C).
 - ورودی‌های داخل `<template>` جزو `querySelectorAll('.emsFormBuilder_v')` در document نیستند، چون محتوای template ‏inert است. پس راه‌اندازی دوبار انجام نمی‌شود.
 
 ### ۷.۵ CF7
@@ -282,17 +282,18 @@ CF7 هسته تکرارشونده ندارد. اگر importer به تگ ناشن
 
 ## ۱۱. محاسبات (با F04)
 
-قرارداد پیشنهادی برای F04. مالکیت parser و ارزیاب با F04 است.
+قرارداد از F04 §۶.۴ گرفته شده است (`docs/feature-gaps/F04-number-calculation.fa.md`). parser، ارزیاب، نوع فیلد `calc` و بردارهای آزمون (`reference/calc-test-vectors.json`) مال F04 هستند. F09 فقط resolver و زمینهٔ ردیف را فراهم می‌کند.
 
-### ۱۱.۱ مرجع‌دهی
-- فرمولی که **داخل** گروه است (`group==g`)، وقتی به فرزند دیگری از `g` ارجاع می‌دهد، مقدار **همان ردیف** را می‌گیرد: `{price} * {qty}`.
-- فرمولی **بیرون** از گروه فقط از طریق تابع تجمیعی به فرزند ارجاع می‌دهد: `SUM({rowTotal})`، `AVG(…)`، `MIN(…)`، `MAX(…)`، `COUNT({g})` (تعداد ردیف) و `COUNTIF({c}, "x")` (اختیاری). ارجاع مستقیم به فرزند از بیرون در سازنده خطای `rptAggRequired` می‌دهد.
-- فرمول داخل گروه می‌تواند فیلدهای بیرونی را مستقیم بخواند (مثل نرخ ارز).
-- `{n}`، یعنی شمارهٔ ردیف (از ۱)، در فرمول داخل گروه در دسترس است.
+### ۱۱.۱ مرجع‌دهی (طبق F04 §۶.۲ و §۶.۴)
+- فیلد `calc` که **داخل** گروه است (`group==g`)، با `{child}` به فرزند دیگری از `g` ارجاع می‌دهد و مقدار **همان ردیف** را می‌گیرد: `{price} * {qty}`.
+- بیرون از گروه، `{rep.child}` یک **فهرست** است و فقط داخل `sum`، `avg`، `min`، `max` و `count` مجاز است. `count({rep})` تعداد ردیف‌هاست. استفادهٔ مستقیم، خطای parse ‏`calcListCtx` (مال F04) می‌دهد. پس F09 کلید خطای جدیدی برای این حالت نمی‌سازد.
+- `calc` داخل گروه می‌تواند فیلدهای بیرونی را مستقیم بخواند (مثل نرخ ارز).
+- پیشنهاد F09 به F04 (سؤال باز ۸): متغیر `{rep.n}` (شمارهٔ ردیف از ۱) داخل گروه. اگر F04 نپذیرفت، حذف می‌شود.
+- F04 ارجاع به `file` را ممنوع می‌کند (F04 §۶.۳). پس فرزند فایل در فرمول قابل‌استفاده نیست.
 
 ### ۱۱.۲ اجرا
-- کلاینت: ارزیاب F04 تابع `evaluate(expr, resolver)` را می‌پذیرد. resolver برای فرمول کپی‌شدهٔ ردیف `n` نام پایه را به `{base}_r{n}` نگاشت می‌کند. تجمیع روی `EFBRepeater.rowsOf`. با `rowadded`/`rowremoved`، فرمول‌های وابسته دوباره محاسبه می‌شوند.
-- سرور (مرجع، اگر F04 بازمحاسبه سروری دارد): `Emsfb\Repeater::row_context($rows, $g, $ri)` نقشهٔ مقدار همان ردیف را می‌سازد و `aggregate($rows, $childId)` آرایهٔ مقادیر را. فرمول هر ردیف با زمینهٔ همان ردیف دوباره محاسبه و مقدار ارسالی بازنویسی می‌شود.
+- کلاینت: ارزیاب F04 یک `resolver(ref) → number | number[] | Error` می‌گیرد. resolver ‏F09 برای `calc` کپی‌شدهٔ ردیف `n`، `{child}` را به کپی `{child}_r{n}` و `{rep.child}` را به آرایهٔ مقادیر کپی‌ها به ترتیب `EFBRepeater.rowsOf` نگاشت می‌کند. فرزند پنهان در یک ردیف، طبق F04، خالی است. با `rowadded`/`rowremoved`، فرمول‌های وابسته دوباره محاسبه می‌شوند.
+- سرور: `Emsfb\Repeater::resolver($rows, $g, $ri)` همان resolver را در PHP می‌سازد، بر پایهٔ ردیف‌های تأییدشدهٔ پس از §۹.۲. مقدار `calc` هر ردیف با زمینهٔ همان ردیف دوباره محاسبه و مقدار ارسالی بازنویسی می‌شود، طبق قاعدهٔ بازمحاسبهٔ سرور در F04.
 - مقدار محاسباتی گزینه‌ها (F05/F04، `calc` روی option) داخل ردیف طبیعی کار می‌کند، چون هر ردیف گزینهٔ خودش را دارد.
 - قیمت و پرداخت داخل ردیف در نسخهٔ اول ممنوع است (§۵.۴). جمع بین ردیف برای `prcfld`/`ttlprc` به سؤال باز ۳ بستگی دارد.
 
@@ -352,7 +353,7 @@ CF7 هسته تکرارشونده ندارد. اگر importer به تگ ناشن
 ### ۱۵.۲ فرم‌ها و داده‌های قدیمی
 - فرم بدون `repeater`: هیچ مسیر جدیدی فعال نمی‌شود. تغییرات مشترک (جداسازی `efb_init_fields_in_efb`، کلید dedupe با `ri` خالی، `rg`/`ri` در فهرست مجاز، سقف ستون CSV) برای این فرم‌ها خنثی‌اند و با تست‌های رگرسیون ثابت می‌شوند.
 - پاسخ‌های قدیمی `rg` ندارند و مثل امروز نمایش داده می‌شوند.
-- سازندهٔ قدیمی (پیش از F09) که فرم دارای گروه را باز کند: `repeater` را نمی‌شناسد. `addNewElement` برای نوع ناشناخته پیام خطا می‌سازد (7717) و فرزندان به‌صورت عادی دیده می‌شوند. ذخیره کلیدها را نگه می‌دارد. این وضعیت پس از به‌روزرسانی همه‌جانبه پیش نمی‌آید، ولی ضرر هم ندارد.
+- سازندهٔ قدیمی (پیش از F09) که فرم دارای گروه را باز کند: `repeater` را نمی‌شناسد. `addNewElement` (6746) برای نوع ناشناخته شاخه‌ای ندارد و فقط قاب عمومی فیلد را می‌سازد (در زیرتسک B با یک فرم آزمایشی تأیید شود). فرزندان به‌صورت عادی دیده می‌شوند. ذخیره کلیدها را نگه می‌دارد. این وضعیت پس از به‌روزرسانی همه‌جانبه پیش نمی‌آید، ولی ضرر هم ندارد.
 - downgrade پلن: گروه پیام پلن را نشان می‌دهد (`public_pro_message_efb`). فرزندان رندر نمی‌شوند و الزامی بودنشان در سرور نادیده گرفته می‌شود (§۹.۲ گام ۳).
 
 ---
@@ -399,7 +400,6 @@ CF7 هسته تکرارشونده ندارد. اگر importer به تگ ناشن
 | `rptRowRequired` | %1$s in row %2$s is required. | ✓ | ✓ |
 | `rptTypeNotAllowed` | This field type cannot be placed inside a repeater group. | | |
 | `rptNoChildren` | Add at least one field to the repeater group %s. | | |
-| `rptAggRequired` | Fields inside a repeater group can only be used here with SUM, AVG, MIN, MAX or COUNT. | | |
 | `moveToGroup` / `moveOutGroup` | Move into group / Move out of group | | |
 | `rptDeleteConfirm` | Delete the group and the %s fields inside it? | | |
 | `rptLogicRowsUnsupported` | Your Conditional Logic add-on does not support per-row rules yet; required checks inside rows are relaxed on the server. | | |
@@ -450,7 +450,7 @@ Checkpoint
 - اقدام بعدی:
 
 ### D — جداسازی راه‌اندازی کلاینت (`efb_init_fields_in_efb`)
-- فایل‌ها: `core-efb.js` (584-760).
+- فایل‌ها: `core-efb.js` (584-826).
 - پذیرش: فرم‌های موجود رفتار یکسان دارند (همهٔ تست‌های رگرسیون پایه). صدا زدن تابع روی یک زیردرخت فقط فیلدهای همان زیردرخت را راه‌اندازی می‌کند. دو بار صدا زدن روی یک ریشه listener تکراری اضافه نمی‌کند (نشانهٔ `data-efb-init="1"`).
 - تست: `node tests/test-init-fields-scope.js` (vm، الگوی `test-core-multiform-validation-scope.js`).
 
@@ -522,9 +522,9 @@ Checkpoint
 - اقدام بعدی:
 
 ### J — محاسبات داخل ردیف و جمع بین ردیف (پس از F04)
-- فایل‌ها: ماژول فرمول F04 (resolver با زمینهٔ ردیف)، `EFBRepeater` (رویدادها)، `Emsfb\Repeater::row_context/aggregate`، و اعتبارسنجی مرجع در سازنده (`rptAggRequired`).
-- پذیرش: `{price}*{qty}` در هر ردیف مستقل است. `SUM({rowTotal})` با افزودن و حذف ردیف به‌روز می‌شود. `COUNT({g})` تعداد را می‌دهد. سرور (اگر F04 بازمحاسبه دارد) مقدار جعلی ردیف را بازنویسی می‌کند. مرجع مستقیم بیرونی به فرزند در سازنده خطا می‌دهد.
-- تست: بخش «repeater» در تست‌های F04 (`tests/test-formula-*.js|php`).
+- فایل‌ها: ماژول فرمول F04 (resolver با زمینهٔ ردیف)، `EFBRepeater` (رویدادها)، `Emsfb\Repeater::row_context/aggregate`، و فهرست «ردیف‌ها» در `calcInsertEl` ‏F04.
+- پذیرش: `{price}*{qty}` در هر ردیف مستقل است. `sum({rep.rowTotal})` با افزودن و حذف ردیف به‌روز می‌شود. `count({rep})` تعداد را می‌دهد. سرور مقدار جعلی ردیف را بازنویسی می‌کند. `{rep.x}+1` خطای `calcListCtx` می‌دهد. نتیجهٔ JS و PHP برای بردارهای ردیفی یکسان است.
+- تست: موارد ردیفی در `reference/calc-test-vectors.json`، که `node tests/test-calc-engine.js` و `php tests/test-calc-engine.php` اجرا می‌کنند، به‌علاوهٔ `node tests/test-repeater-calc.js` (resolver روی DOM ساختگی).
 
 Checkpoint
 - فایل‌های تغییرکرده:
@@ -608,3 +608,4 @@ Checkpoint
 5. **CSV پیش‌فرض:** ستون‌های `#k` (پیشنهاد) یا «یک خط برای هر ردیف»؟
 6. **`rows_from` از گزینهٔ select:** مقدار عددی از متن گزینه گرفته شود یا با F05 (جدایی مقدار از برچسب) از `value` گزینه؟ پیشنهاد: پس از F05 از `value` و تا آن زمان `parseInt` روی متن.
 7. **تودرتو:** آیا نیاز واقعی به گروه داخل گروه (مثلاً «خانواده › فرزندان») وجود دارد؟ مدل `group` آن را منع نمی‌کند (`group` می‌تواند به یک گروه فرزند اشاره کند)، ولی شناسهٔ مجازی دوسطحی (`_r1_r2`) و سرور باید دوباره طراحی شوند.
+8. **شمارهٔ ردیف در فرمول:** F04 متغیر `{rep.n}` را بپذیرد (§۱۱.۱)؟
