@@ -539,7 +539,7 @@ function fun_ws_show_list_messages(value) {
   let iconNotRead = ' <path  d="M.05 3.555A2 2 0 0 1 2 2h12a2 2 0 0 1 1.95 1.555L8 8.414.05 3.555zM0 4.697v7.104l5.803-3.558L0 4.697zM6.761 8.83l-6.57 4.027A2 2 0 0 0 2 14h12a2 2 0 0 0 1.808-1.144l-6.57-4.027L8 9.586l-1.239-.757zm3.436-.586L16 11.801V4.697l-5.803 3.546z"/>';
   // CSV export is free on every plan since 4.3.1.
   const fun = "generat_csv_emsFormBuilder()";
-  const fun1 = pro_ws_efb == true ? "event_selected_row_emsFormBuilder('read')" : `pro_show_efb('${efb_var.text.availableInProversion}')`;
+  const fun1 = pro_ws_efb == true ? "event_selected_row_emsFormBuilder('read')" : `pro_show_efb(3)`;
 
   if (form_type_emsFormBuilder == 'subscribe') {
     head = `<div class="efb d-flex mb-3"><button class="efb  btn efb btn-primary text-white mt-2 mx-1 ec-efb" data-eventform="generateCSV" data-formtype="subscribe" title="${efb_var.text.downloadCSVFileSub}" >  <i class="efb  bi-download mx-2"></i><span class="efb d-none d-sm-inline">${efb_var.text.downloadCSVFile}</span></button >
@@ -1317,7 +1317,7 @@ function fun_show_setting__emsFormBuilder() {
   const mxCSize4 = !mobile_view_efb ? 'mx-4' : 'mx-1';
   let msg_email = efb_var.text.mlntip.replace('%1$s', `<a class="efb pointer-efb ec-efb" data-eventform="links" data-linkname="EmailSpam" >`).replace('%2$s', '</a>').replace('%3$s', `<a class="efb pointer-efb ec-efb" data-eventform="links" data-linkname="support" >`).replace('%4$s', '</a>');
   const is_pro = efb_var.pro == true || efb_var.pro == "true" ? true : false;
-  const proChckEvent = !is_pro ? `onChange="pro_show_efb('${efb_var.text.proUnlockMsg}')"` : '';
+  const proChckEvent = !is_pro ? `onChange="pro_show_efb(3)"` : '';
   const stripemessage = efb_var.text.ufinyf.replace('%1$s', efb_var.text.payment.toLowerCase()).replace('%2$s', efb_var.text.stripe);
   const paypalmessage = efb_var.text.ufinyf.replace('%1$s', efb_var.text.payment.toLowerCase()).replace('%2$s', efb_var.text.paypal);
   const package_type = efb_var.setting.hasOwnProperty('package_type') ? Number(efb_var.setting.package_type) : Number(efb_var.pro) ;
@@ -1647,7 +1647,7 @@ function fun_show_setting__emsFormBuilder() {
                                 </div>
                                 <div class="efb card-body mx-0 py-1 ${mxCSize4} mb-3">
                                     <label class="efb form-label mx-2 fs-6">${efb_var.text.from}</label>
-                                    <input type="email" class="efb form-control w-75 h-d-efb border-d efb-rounded mb-1 ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="femail_emsFormBuilder"  ${efb_var.pro != true  &&  efb_var.pro != 1 ? 'onclick="pro_show_efb(1)"' :''} placeholder="${'no-reply@'+ window.location.hostname}" ${femail !== "null" ? `value="${femail}"` : ""} data-tab="${efb_var.text.emailSetting}">
+                                    <input type="email" class="efb form-control w-75 h-d-efb border-d efb-rounded mb-1 ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="femail_emsFormBuilder"  ${efb_var.pro != true  &&  efb_var.pro != 1 ? 'onclick="pro_show_efb(3)"' :''} placeholder="${'no-reply@'+ window.location.hostname}" ${femail !== "null" ? `value="${femail}"` : ""} data-tab="${efb_var.text.emailSetting}">
                                     <span id="femail_emsFormBuilder-message" class="efb  text-danger  w-75 efb"></span>
                                     <span  class="efb  form-control border-0  w-75 efb">${efb_var.text.msgfml}</span>
                                 </div>
@@ -1675,7 +1675,7 @@ function fun_show_setting__emsFormBuilder() {
                                     <button type="button" id="weeklyEmailReport_emsFormBuilder" data-state="off" data-name="disabled"
                                         class="efb mx-0 btn h-s-efb btn-toggle ${weeklyEmailReport ? "active" : ""}"
                                         data-toggle="button" aria-pressed="false" autocomplete="off"
-                                        ${weeklyEmailReportAllowed ? '' : 'onclick="pro_show_efb(1)"'}>
+                                        ${weeklyEmailReportAllowed ? '' : 'onclick="pro_show_efb(3)"'}>
                                         <div class="efb handle"></div>
                                     </button>
                                     <label class="efb form-check-label fs-6 efb mx-2 my-3" for="weeklyEmailReport_emsFormBuilder">${efb_var.text.weeklyEmailReport}</label>
@@ -4924,7 +4924,7 @@ function funNproEmailTemp() {
  const ws = efb_var.language != "fa_IR" ? "https://whitestudio.team/" : 'https://easyformbuilder.ir';
 
   return `<table role='presentation' bgcolor='#F5F8FA' width='100%'>
-  <a type="button" onclick="pro_show_efb(1)" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.availableInProversion}" data-original-title="${efb_var.text.availableInProversion}"><i class="efb  bi-gem text-light"></i></a>
+  <a type="button" onclick="pro_show_efb(3)" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.availableInProversion}" data-original-title="${efb_var.text.availableInProversion}"><i class="efb  bi-gem text-light"></i></a>
   <tr> <td align='left' style='padding: 30px 30px; font-size:12px; text-align:center'><a class='efb subtle-link' target='_blank' href='https://wordpress.org/plugins/easy-form-builder/'><img src="https://ps.w.org/easy-form-builder/assets/icon-256x256.gif" style="margin: 5px; width:16px;height:16px" >  ${efb_var.text.easyFormBuilder}</a>
  <br> <img src="${ws}img/favicon.png" style="margin: 5px"> <a class='efb subtle-link' target='_blank' href='${ws}'>White Studio Team</a></td></tr>`
 }

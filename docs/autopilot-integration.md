@@ -11,6 +11,7 @@ Run every test of this work with:
 node tests/test-ap-a1-geo-link-order.js
 node tests/test-ap-a2-order-type.js
 node tests/test-ap-a3-redirect-url.js
+node tests/test-ap-a4-plan-messages.js
 ```
 
 (The full list is in [Tests](#tests) at the end.)
@@ -89,3 +90,38 @@ node tests/test-ap-a3-redirect-url.js
   needed.
 - **Related, not changed here.** `BUGS-FOUND.fa.md` (security, row 1): `rePage` is blanked only in
   the decoded copy, not in the JSON string sent to visitors. That is a separate security task.
+
+### A4. Plan message for the redirect (and the other plan dialogs)
+
+- **Cause.** `pro_show_efb(1)` shows the "Pro only" text (`proUnlockMsg`), `pro_show_efb(3)` the
+  "Free Plus and Pro" text (`thisFeatureAvailableFreePlusPro`). The redirect handler
+  (`change_el_edit_Efb`, `case "thankYouredirectEl"`) is gated on `pro_efb`, which is true on Free
+  Plus too, but opened state 1. `smsEnableEl` and `telegramEnableEl` opened state 1 and then fell
+  through to a second message ("install the add-on"); on Free Plus they skipped the plan dialog and
+  asked for an add-on that plan cannot install.
+- **Fix** (state numbers only; the dialog itself is F18's and was not redesigned):
+  - redirect handler → `pro_show_efb(3)`;
+  - SMS / Telegram: one message, then `return false`. Free, and Free Plus without the add-on
+    (`efb_addon_can_install_efb()` says the plan cannot install it), get the Pro dialog; Pro without
+    the add-on gets the "install the add-on" message;
+  - `funProEfb(state = 1)` takes the state; its Free Plus callers pass 3 (email subject, email
+    content type, redirect, payment template card); the add-on card passes the add-on's own level;
+  - gems whose gate is `efb_var.pro`/`pro_efb` (Free Plus) now open 3: custom required message and
+    the six colour controls (`val-efb.js`), attachment in replies (`response-viewer-efb.js`,
+    `pro_els-efb.js`), sender email, weekly report, email-template footer, bulk "mark as read" and
+    the payment/map key inputs (`list_form-efb.js`); the canvas gem of a locked field opens 3, or 1
+    for `pdate`/`ardate`/`persiaPay` whose add-ons are Pro.
+  - Left on state 1 because they are real Pro locks: the mobile-layout gem, the email-statistics
+    switch, SMS/Telegram (and their message boxes), Pro add-ons.
+  This follows the audit table in `docs/feature-gaps/F18-upgrade-prompt-ux.fa.md` §2.3 (rows 1, 3–9,
+  12, 16, 17, 18, 20, 33, 36, 37, 39, 40, 41). Rows 27/29 (`youUseProElements` text) and 32 (steps
+  text) are left to F18's dialog work. B3 below moves the call sites the brief names onto the
+  capability registry so the text and the gate cannot drift again.
+- **Test.** `node tests/test-ap-a4-plan-messages.js`: the real builder in Chromium with
+  `pro_show_efb` and `alert_message_efb` counted. Free: redirect opens 3; SMS and Telegram open the
+  Pro dialog once and nothing else; every Free Plus gem in form settings opens 3 and the mobile gem
+  1. Free Plus: SMS without the add-on opens the Pro dialog once; the redirect is allowed. Pro
+  without the add-on: one install message. Plus a static audit that every remaining
+  `pro_show_efb(1)` is a real Pro lock. Before: 6 failures; after: 16 passed.
+- **AutoPilot.** Keep calling `pro_show_efb(n)` if needed (it is unchanged); prefer the B3
+  registry (`efb_var.capabilities`) to decide which plan to name.

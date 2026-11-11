@@ -382,7 +382,7 @@ const chatHistory = document.getElementById('resp_efb');
         <span class="efb-editor-toolbar-sep"></span>
         <button type="button" class="efb-editor-btn efb-attach-btn efb-attach-disabled"
                 id="efb_attach_btn" title="${proText}"
-                onclick="pro_show_efb(1)">
+                onclick="pro_show_efb(3)">
           <i class="bi bi-paperclip"></i>
           <span class="efb-attach-pro-tag"><i class="bi bi-gem"></i></span>
         </button>`;

@@ -1200,7 +1200,7 @@ createCardFormEfb = (i) => {
   }
   return `
   <div class="efb tag  col ${rtl == 1 ? 'rtl-text' : ''} ${i.tag}" id="${i.id}"> <div class="efb card efb"><div class="efb card-body">
-  ${i.pro == true && efb_var.pro != 1 ? funProEfb() : ''}
+  ${i.pro == true && efb_var.pro != 1 ? funProEfb(3) : ''}
   <h5 class="efb card-title efb"><i class="efb ${m_space} ${i.icon} "></i>${i.title} </h5>
   <div class="efb row" ><p class="efb card-text efb ${mobile_view_efb ? '' : 'fs-7'} float-start my-3">${i.desc}  <b>${efb_var.text.freefeatureNotiEmail}</b> </p></div>
   ${(i.pro == true && Number(setting_emsFormBuilder.package_type) != 2) || i.pro==false ? btn : btnPro}
@@ -1273,7 +1273,7 @@ createCardAddoneEfb = (i) => {
 
   return `
   <div class="efb tag mt-0 mb-2 col ${efb_var.rtl == 1 ? 'rtl-text' : ''} ${i.tag}" id="${i.id}"> <div class="efb card efb"><div class="efb card-body">
-  ${isLockedAddon ? funProEfb() : ''}
+  ${isLockedAddon ? funProEfb(efb_addon_required_package_efb(i) === 3 ? 3 : 1) : ''}
   <h5 class="efb card-title efb"><i class="efb  ${i.icon} mx-1"></i>${i.title} </h5>
   <div class="efb row" ><p class="efb card-text efb ${mobile_view_efb ? '' : 'fs-7'} float-start my-3">${i.desc}  </p></div>
   <a id="${i.name}" data-vrequired="${i.v_required}" class="efb float-end btn addons mb-1 efb ${colorNtn} btn-lg float-end btn-r" onClick="${funNtn}"><i class="efb ${iconNtn} mx-1"></i>${nameNtn}</b></a>
@@ -1282,7 +1282,8 @@ createCardAddoneEfb = (i) => {
   <!-- 3.8.6 end -->
   </div></div></div>`
 }
-funProEfb=()=>{return `<div class="efb  pro-card"><a type="button" onclick='pro_show_efb(1)' class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}"><i class="efb  bi-gem text-light"></i></a></div>`}
+/* state: 1 = Pro only, 3 = Free Plus and Pro (A4): pass the plan that really unlocks the setting. */
+funProEfb=(state = 1)=>{return `<div class="efb  pro-card"><a type="button" onclick='pro_show_efb(${state == 3 ? 3 : 1})' class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}"><i class="efb  bi-gem text-light"></i></a></div>`}
 const boxs_efb = [
   { id: 'form', title: efb_var.text.newForm, desc: efb_var.text.createBlankMultistepsForm, status: true, icon: 'bi-check2-square', tag: 'all new', pro: false },
   { id: 'contact', title: efb_var.text.contactusForm, desc: efb_var.text.createContactusForm, status: true, icon: 'bi-envelope', tag: 'all contactUs', pro: false },
@@ -2604,10 +2605,14 @@ let change_el_edit_Efb = (el) => {
         break;
       case "smsEnableEl":
 
-       if(pro_efb!=true){
+       /* SMS is a Pro add-on (AdnSS). One message, then stop (A4): Free, and Free Plus
+          without the add-on (a plan that cannot install it), get the Pro dialog; Pro
+          without it gets "install the add-on". */
+       if(pro_efb!=true || (Number(efb_var.setting.AdnSS)!=1 && typeof efb_addon_can_install_efb === 'function' && !efb_addon_can_install_efb('AdnSS'))){
           pro_show_efb(1);
           document.getElementById("smsEnableEl").checked = false;
           document.getElementById("smsEnableEl").classList.remove('active') ;
+          return false;
        }
        if(Number(efb_var.setting.AdnSS)!=1){
 
@@ -2672,10 +2677,12 @@ let change_el_edit_Efb = (el) => {
 
         break;
       case "telegramEnableEl":
-        if(pro_efb!=true){
+        // Telegram is a Pro add-on (AdnTLG): one message, then stop (A4).
+        if(pro_efb!=true || (Number(efb_var.addons.AdnTLG)!=1 && typeof efb_addon_can_install_efb === 'function' && !efb_addon_can_install_efb('AdnTLG'))){
           pro_show_efb(1);
           document.getElementById("telegramEnableEl").checked = false;
           document.getElementById("telegramEnableEl").classList.remove('active') ;
+          return false;
         }
         if(Number(efb_var.addons.AdnTLG)!=1){
           document.getElementById("telegramEnableEl").classList.remove('active') ;
@@ -3089,7 +3096,8 @@ let change_el_edit_Efb = (el) => {
 
         postId = el.value.match(/^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?!&\/=;',]*)$/gi)
         if(pro_efb!=true){
-          pro_show_efb(1);
+          // Free Plus and Pro both have the redirect (the gate is pro_efb), so the dialog says so (A4).
+          pro_show_efb(3);
           valj_efb[0].thank_you ='msg';
           valj_efb[0].rePage = '';
           break;
@@ -7948,7 +7956,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     `
     const proActiv = `
     <div class="efb btn-edit-holder efb d-none zindex-10-efb " id="btnSetting-${rndm}-id">
-    <button type="button" class="efb btn efb pro-bg btn-pro-efb btn-sm px-2 mx-3" id="pro" data-id="${rndm}-id" data-bs-toggle="tooltip"  title="${efb_var.text.proVersion}" onclick="pro_show_efb(1)">
+    <button type="button" class="efb btn efb pro-bg btn-pro-efb btn-sm px-2 mx-3" id="pro" data-id="${rndm}-id" data-bs-toggle="tooltip"  title="${efb_var.text.proVersion}" onclick="pro_show_efb(${['pdate','ardate','persiaPay'].includes(valj_efb[iVJ].type) ? 1 : 3})">
     <i class="efb  bi-gem pro"> ${efb_var.text.pro}</i>`;
     endTags = previewSate == false ? `</button> </button></div></div>` : `</div></div>`
     const tagId = elementId == "firstName" || elementId == "lastName" || elementId == "address" || elementId == "address_line" || elementId == "postalcode" ? 'text' : elementId;

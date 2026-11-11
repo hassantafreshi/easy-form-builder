@@ -99,7 +99,7 @@ async function openBuilder(opts) {
   for (const f of files) await page.addScriptTag({ path: JS + f });
   if (fs.existsSync(JS + 'builder-api-efb.js')) await page.addScriptTag({ path: JS + 'builder-api-efb.js' });
   for (const s of (opts.scripts || [])) await page.addScriptTag({ path: path.join(ROOT, s) });
-  await page.evaluate(() => { _efb_nonce_ = 'n0nce'; });
+  await page.evaluate(() => { _efb_nonce_ = 'n0nce'; setting_emsFormBuilder = efb_var.setting; });
   const bootErrors = errors.splice(0);
   if (opts.builder) {
     await page.evaluate((rows) => {
