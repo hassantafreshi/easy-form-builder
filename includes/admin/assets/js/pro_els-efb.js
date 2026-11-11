@@ -1030,7 +1030,10 @@ fun_check_link_state_efb=async(iso2_country , indx,form_id)=>{
  if(form_ID_emsFormBuilder!=parseInt(form_id) || valj_efb.length<1 )valj_efb= await fun_valj_efb_run(form_id);
   for (let i = indx+1; i < valj_efb.length; i++) {
     if(valj_efb[i].type=='option'){
-    }else if((valj_efb[i].type=='statePro' || valj_efb[i].type=='stateProvince') && valj_efb[i].amount>valj_efb[indx].amount){
+    /* Compared as numbers: after Save every amount is a string, and "10" > "9" is
+       false as text, so a state list right after a single-digit country never
+       followed the country again (the city link below always used Number()). */
+    }else if((valj_efb[i].type=='statePro' || valj_efb[i].type=='stateProvince') && Number(valj_efb[i].amount)>Number(valj_efb[indx].amount)){
       indx_state =i;
       break;
     }else{
