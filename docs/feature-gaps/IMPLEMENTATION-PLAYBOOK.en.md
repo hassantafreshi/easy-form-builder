@@ -172,17 +172,19 @@ instead of a raw regex.
 
 ### 1.7 What the browser sees
 
-`EFB_Form_Builder()` (`class-Emsfb-public.php:887`) sends the whole `form_structer` to the front end as
-`ajax_object_efm.ajax_value_forms[].form_structer` (`1836-1842`, `9469-9476`). The only redactions are:
+`EFB_Form_Builder()` sends the form to the front end as `ajax_object_efm.ajax_value` and
+`ajax_object_efm.ajax_value_forms[].form_structer`. Both pass through
+`emsfb_public_form_json_efb()` (`includes/public-form-filter-efb.php`) inside `ajax_object_efm_efb()`, the
+single place form JSON is localized into the page. It removes server-only keys from **index 0 only**:
+`email`, `email_*`, `sendEmail`, `rePage`, `notification_rules`, `webhook_rules`, `confirmation_rules`,
+`smsnoti`, `telegramnoti`, every `sms_*` / `telegram_*` / `webhook_*` / `notification_*` key, and any key
+ending in `_token`, `_secret`, `_password` or `_api_key`. Field rows are not filtered. The submit handlers
+re-read the stored form, so they still see everything.
 
-```php
-$fs = preg_replace('/"email":"[^"]*"/', '"email":""', $fs);   // 1391
-if($valj_efb[0]->thank_you=="rdrct"){ $valj_efb[0]->rePage=""; ... }   // 1400-1404
-```
-
-**Every other key, including `notification_rules` recipients and `webhook_rules` URLs, is readable by
-visitors.** Any new setting that must stay secret (tokens, internal emails, unique-check salts) must be
-stripped here and in `ajax_object_efm_efb()` (9473), or kept out of `form_structer` and in its own option or table.
+A new header setting that must stay secret (tokens, internal emails, unique-check salts) must be added to
+`emsfb_public_form_private_keys_efb()` (add-ons: the `emsfb_public_form_private_keys` filter), or kept out of
+`form_structer`. A new header key the public runtime **reads** must not match the list:
+`tests/test-public-form-structure-filter.php` scans the public scripts and fails if it does.
 
 ---
 
@@ -710,8 +712,8 @@ Verified runnable here (PHP 8.3, Node 22): `php tests/test-legacy-json-compatibi
    tags, `%XX` octets and newlines. `thank_you_message` keeps only five sub-keys, so `.error` written by the
    builder (`admin-efb.js:2563`) is lost.
 2. **Unknown submitted types are dropped** by `filter_attributes_by_type_efb()` returning `false` (9119), with no error.
-3. **The whole form JSON is public** except `email` and `rePage` (§1.7). As far as the render path shows,
-   `notification_rules` recipients and `webhook_rules` URLs reach the browser.
+3. **Form JSON is public except the header keys filtered in §1.7.** Anything on a field row, and any
+   header key not on that list, reaches the browser.
 4. **Spellings that must stay**: `form_structer`; label position `'besie'` is accepted next to `'beside'`
    (`val-efb.js:1094`); `conturyList`, `stateProvince`/`statePro`, `cityList`/`city`; `getway`;
    `persiaPay`/`persiapay`; `previewSate`; `aire_describedby`; `fun_booking_avilable`;

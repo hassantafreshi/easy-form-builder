@@ -7,6 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 require_once('functions.php');
+require_once __DIR__ . '/public-form-filter-efb.php';
 class _Public {
 	public $value;
 	public $id;
@@ -1388,19 +1389,18 @@ public function check_nonce_permission_efb($request) {
 			if ($is_track==null){
 
 					$fs =\emsfb_json_normalize_efb($value_form_data->form_structer);
-					$fs = preg_replace('/"email":"[^"]*"/', '"email":""', $fs);
-					$formObj= json_decode($fs,true);
+					/* $valj_efb is the full stored form for server-side rendering only.
+					 * What goes to the browser ($fs here, $values in
+					 * ajax_object_efm_efb()) is filtered by
+					 * emsfb_public_form_json_efb(): no recipients, templates,
+					 * webhook URLs or redirect targets (public-form-filter-efb.php). */
 					$valj_efb = json_decode($fs, false, 512, JSON_UNESCAPED_UNICODE);
+					$fs = \emsfb_public_form_json_efb($fs);
 					if(($valj_efb[0]->stateForm==true || $valj_efb[0]->stateForm==1) &&  is_user_logged_in()==false ){
 						$typeOfForm="";
 						$value="";
 						$stng="";
 						$fs= "";
-					}
-					if($valj_efb[0]->thank_you=="rdrct"){
-						$valj_efb[0]->rePage="";
-						$val_ = json_encode($valj_efb,JSON_UNESCAPED_UNICODE);
-						$value = str_replace('"', '\\"', $val_);
 					}
 
 				$k="";
@@ -9470,7 +9470,14 @@ public function check_nonce_permission_efb($request) {
 		$page_id = get_the_ID();
 		$json_settings= get_setting_Emsfb('pub')[0];
 		$pub_settings = get_setting_Emsfb('pub')[1];
-		$values =  preg_replace('/"email":"[^"]*"/', '"email":""', $values);
+		/* The one place form JSON leaves for the page: both the single-form
+		 * value and every form collected on this page are filtered here, so
+		 * a render path that forgets to filter its own copy still cannot
+		 * leak server-only settings. Idempotent on already-filtered JSON. */
+		$values = \emsfb_public_form_json_efb($values);
+		foreach ($this->value_forms as $i => $row_form) {
+			if (isset($row_form['form_structer'])) $this->value_forms[$i]['form_structer'] = \emsfb_public_form_json_efb($row_form['form_structer']);
+		}
 		$ar_core = array_merge($ar_core , array(
 			'ajax_value_forms' =>$this->value_forms,
 			'ajax_value' =>$values,

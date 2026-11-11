@@ -390,6 +390,10 @@ class Emsfb {
         if (class_exists('\\Emsfb\\Upload_Guard')) {
             \Emsfb\Upload_Guard::register();
         }
+        // Strips server-only settings from form JSON before it reaches visitors.
+        // The public class requires it as well; listing it here turns a missing
+        // file into the reinstall notice instead of a fatal on the first form.
+        $core_ok = $this->require_plugin_file_efb('includes/public-form-filter-efb.php') && $core_ok;
 
         if (!$core_ok) {
             $this->core_files_ok = false;
