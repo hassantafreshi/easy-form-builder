@@ -140,6 +140,12 @@ class Builder_Api {
 
 	const PLAN_RANK = array('free' => 0, 'free_plus' => 1, 'pro' => 2);
 
+	/** B9: row-0 keys that no JS or PHP reads (checked by tests/test-ap-b9-deprecated-keys.js). */
+	const DEPRECATED_FORM_KEYS = array(
+		'private'    => 'Not read. A private form (logged-in visitors only) is stateForm = 1.',
+		'email_temp' => 'Not read. The notification email template is the global setting emailTemp.',
+	);
+
 	/** emsfb_pro as 0|1|2|3 (-1, 10 or missing = 2). Reads the option only: no network, no write. */
 	public static function current_package() {
 		$v = function_exists('get_option') ? get_option('emsfb_pro', -1) : -1;
@@ -280,6 +286,8 @@ class Builder_Api {
 		};
 		$out = array(
 			'api_version'  => defined('EMSFB_API_VERSION') ? EMSFB_API_VERSION : 1,
+			// B9: form keys nothing reads any more; kept on old forms, never needed on new ones.
+			'deprecated_keys' => self::DEPRECATED_FORM_KEYS,
 			'efb_version'  => defined('EMSFB_PLUGIN_VERSION') ? EMSFB_PLUGIN_VERSION : '',
 			'plan'         => array('package_type' => $package, 'name' => self::plan($package)),
 			'features'     => $features,

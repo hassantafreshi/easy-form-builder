@@ -26,6 +26,7 @@ php tests/test-ap-b6-logic-validate.php
 php tests/test-ap-b7-computed-price.php
 node tests/test-ap-b7-total-display.js
 node tests/test-ap-b8-addon-installed.js
+node tests/test-ap-b9-deprecated-keys.js
 ```
 
 (The full list is in [Tests](#tests) at the end.)
@@ -660,3 +661,18 @@ diff -ru a/smssended/smsefb.php b/smssended/smsefb.php
 - **AutoPilot.** After its own `add_addons_Emsfb` call, read `data.addons` / `data.capabilities`
   instead of reloading to find out; inside EFB pages listen to `efb:addon-installed`, call
   `event.preventDefault()` while the builder has unsaved changes, ask the admin to save, then reload.
+
+### B9. Dead keys `private` and `email_temp` (documentation only)
+
+- **Verified.** No shipped JS or PHP reads `valj_efb[0].private` or `valj_efb[0].email_temp`
+  (78 files under `includes/` and `public/` scanned). They are still written by
+  `creator_form_builder_Efb()` (`val-efb.js`), the templates (`admin-efb.js`,
+  `forms-efb.js`) and the CF7 importer. A private form (only logged-in visitors) is `stateForm`
+  (enforced at render, in `forms/session/prepare` and on submit); the notification email template
+  is the global setting `emailTemp`.
+- **Done.** Not removed (old forms carry them). Marked deprecated in the code
+  (`creator_form_builder_Efb()`), in the registry (`capabilities.deprecated_keys`, B3) and here.
+- **Test.** `node tests/test-ap-b9-deprecated-keys.js` fails if a reader appears (then the key is no
+  longer dead and this note must change). 3 passed.
+- **AutoPilot.** Write `stateForm: 1` for "make the form private"; do not write `private` or
+  `email_temp`.

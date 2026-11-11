@@ -2336,6 +2336,9 @@ function creator_form_builder_Efb() {
   if (valj_efb.length < 2) {
     const btn_pois = Number(efb_var.rtl) == 1 ? 'justify-content-center' : 'justify-content-center';
     step_el_efb = 1;
+    /* Deprecated keys, still written so old readers see the shape they know, but read by
+       nothing in EFB (B9): `private` (a private form is `stateForm`) and `email_temp` (the
+       email template is the global setting emailTemp). Do not remove them from old forms. */
     valj_efb.push({
       type: form_type_emsFormBuilder, steps: 1, formName: efb_var.text.form, email: '', trackingCode: true, EfbVersion: 2,
       button_single_text: efb_var.text.submit, button_color: pub_bg_button_color_efb, icon: 'bi-ui-checks-grid', button_Next_text: efb_var.text.next, button_Previous_text: efb_var.text.previous,
