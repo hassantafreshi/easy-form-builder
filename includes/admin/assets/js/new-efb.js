@@ -2040,6 +2040,30 @@ function efbNormalizeOrderEfb(rows) {
 }
 /* efbOrderOf:end */
 
+/* efbUrlCodec:start */
+/* A URL stored in the form JSON (rePage, imgRadio src) writes "/" as @efb@:
+   "https://example.com/thanks" is stored as "https:@efb@example.com@efb@thanks".
+   These two are the only encoder and decoder; the server twin is
+   Emsfb\_Public::string_to_url(). The decoder handles the scheme first, so the
+   "//" after it comes back as two slashes (a single replace of @efb@ by "/"
+   showed "https:/example.com", and re-saving that failed the URL check). It
+   also reads a URL that was stored plain, and repairs "https:/host" left by
+   that old display. */
+function efb_url_to_storage_efb(url) {
+  if (typeof url !== 'string' || url === '') return '';
+  return url.replace(/(http:\/\/)+/g, 'http:@efb@')
+    .replace(/(https:\/\/)+/g, 'https:@efb@')
+    .replace(/([/])+/g, '@efb@');
+}
+function efb_url_from_storage_efb(stored) {
+  if (typeof stored !== 'string' || stored === '') return '';
+  return stored.replace(/(http:@efb@)+/g, 'http://')
+    .replace(/(https:@efb@)+/g, 'https://')
+    .replace(/(@efb@)+/g, '/')
+    .replace(/^(https?):\/(?!\/)/i, '$1://');
+}
+/* efbUrlCodec:end */
+
 async function fun_valj_efb_run(form_id){
   form_id = isNaN(form_id) ? form_id : parseInt(form_id);
   form_ID_emsFormBuilder = form_id;

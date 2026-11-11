@@ -3094,14 +3094,9 @@ let change_el_edit_Efb = (el) => {
           valj_efb[0].rePage = '';
           break;
         }
-        const u = (url)=>{
-          url = url.replace(/(http:\/\/)+/g, 'http:@efb@');
-          url = url.replace(/(https:\/\/)+/g, 'https:@efb@');
-          url = url.replace(/([/])+/g, '@efb@');
-          return url
-         }
        if (postId != null) {
-        valj_efb[0].rePage = u(el.value);
+        // The one encoder (new-efb.js); the panel shows it back with efb_url_from_storage_efb (A3).
+        valj_efb[0].rePage = efb_url_to_storage_efb(el.value);
         valj_efb[0].thank_you ='rdrct';
        }else{
         valj_efb[0].thank_you ='msg';

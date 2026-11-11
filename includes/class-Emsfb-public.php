@@ -7657,6 +7657,8 @@ public function check_nonce_permission_efb($request) {
 			$rePage= preg_replace('/(http:@efb@)+/','http://',$string);
 			$rePage= preg_replace('/(https:@efb@)+/','https://',$rePage);
 			$rePage =preg_replace('/(@efb@)+/','/',$rePage);
+			// Same as efb_url_from_storage_efb() in new-efb.js: repair "https:/host" saved by the old panel.
+			$rePage = preg_replace('#^(https?):/(?!/)#i', '$1://', $rePage);
 		return $rePage;
 	}
 	public function new_user_validate_efb($username,$email,$password){

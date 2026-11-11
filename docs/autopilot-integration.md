@@ -10,6 +10,7 @@ Run every test of this work with:
 ```bash
 node tests/test-ap-a1-geo-link-order.js
 node tests/test-ap-a2-order-type.js
+node tests/test-ap-a3-redirect-url.js
 ```
 
 (The full list is in [Tests](#tests) at the end.)
@@ -60,3 +61,31 @@ node tests/test-ap-a2-order-type.js
   fails); after: 15 passed.
 - **AutoPilot.** Keep writing the documented rule. Numbers or numeric strings are both accepted.
   `efbOrderOf` is a global in the builder if AutoPilot needs to sort rows the same way.
+
+### A3. Redirect address shown and re-saved correctly
+
+- **Cause.** `rePage` is stored with every `/` written as `@efb@`
+  (`https:@efb@example.com@efb@thanks`). The form-settings panel (`thankYouredirectEls` in
+  `val-efb.js`) decoded it with one `replace(/(@efb@)+/g, '/')` and showed
+  `https:/example.com/thanks`. Saving that field again failed the `^https?://` check in
+  `change_el_edit_Efb` (`case "thankYouredirectEl"`), which set `thank_you = 'msg'` and emptied
+  `rePage` (with a warning the owner could easily miss).
+- **Fix.** One encoder/decoder pair in `new-efb.js` (markers `efbUrlCodec:start/end`):
+  `efb_url_to_storage_efb(url)` and `efb_url_from_storage_efb(stored)`. The decoder handles
+  `http:@efb@` / `https:@efb@` first, like the server's `string_to_url()`
+  (`includes/class-Emsfb-public.php`), reads a plain URL unchanged, and repairs a value with a single
+  slash after the scheme. The panel and the change handler use the pair. `string_to_url()` got the
+  same one-line repair so both sides decode identically.
+- **Storage format kept.** The brief suggested storing plain URLs. Part C of the brief lists
+  "`rePage` with the `@efb@` shape" as part of the contract AutoPilot relies on, so the stored
+  shape is unchanged; plain URLs are accepted when read (builder and server), so either form works.
+- **Test.** `node tests/test-ap-a3-redirect-url.js`: round trips, legacy and broken shapes, parity
+  with the server `string_to_url()` (run through the PHP CLI), then the real form-settings panel in
+  Chromium: the redirect shows with both slashes, re-saving it keeps `thank_you: 'rdrct'` and the
+  same stored value, a typed address is stored encoded and reopens as typed. Before the fix:
+  5 failures (panel showed `https:/example.com/thanks`; re-save emptied `rePage`); after: 20 passed.
+- **AutoPilot.** Keep writing `rePage` with `@efb@` (or a plain URL; both are read). In the builder,
+  `efb_url_to_storage_efb()` / `efb_url_from_storage_efb()` are globals if the same conversion is
+  needed.
+- **Related, not changed here.** `BUGS-FOUND.fa.md` (security, row 1): `rePage` is blanked only in
+  the decoded copy, not in the JSON string sent to visitors. That is a separate security task.

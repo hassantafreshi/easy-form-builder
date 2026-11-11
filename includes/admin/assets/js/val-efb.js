@@ -1073,7 +1073,7 @@ function show_setting_window_efb(idset) {
     const thankYouredirectEls = `<div id="tnxrdrct" class="efb tnxrdrct my-1 ${ valj_efb[0].thank_you == 'rdrct'? 'd-block' :'d-none' }">
     ${pro_efb==true ?"":funProEfb()}
     <label for="thankYouredirectEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.redirectPage} <i class="efb bi-patch-question fs-7 text-success pointer-efb" onclick="Link_emsFormBuilder('redirectPage')"> </i></label>
-    <input type="url" data-id="thankYouredirectEl" class="efb elEdit text-muted form-control h-d-efb border-d rounded-4  mb-1 efb" placeholder="${efb_var.text.url}" id="thankYouredirectEl" required value="${ valj_efb[0].hasOwnProperty('rePage') ? valj_efb[0].rePage.replace(/(@efb@)+/g, '/') : ''}"></div>`
+    <input type="url" data-id="thankYouredirectEl" class="efb elEdit text-muted form-control h-d-efb border-d rounded-4  mb-1 efb" placeholder="${efb_var.text.url}" id="thankYouredirectEl" required value="${ valj_efb[0].hasOwnProperty('rePage') ? efb_url_from_storage_efb(valj_efb[0].rePage) : ''}"></div>`
     const paymentGetWayEls =()=>{
       return`<label for="paymentGetWayEl" class="efb mt-3 efb"><i class="efb bi-wallet-fill fs-7 ${iconMarginGlobal}"></i>${efb_var.text.paymentGateway}</label>
       <select  data-id="${idset}" class="efb elEdit form-select efb border-d rounded-4"  id="paymentGetWayEl"  data-tag="${valj_efb[0].type}">
