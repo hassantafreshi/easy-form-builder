@@ -2666,6 +2666,20 @@ class efbFunction {
 			"wpsms_nm" => $state  &&  isset($ac->text->wpsms_nm) ? $ac->text->wpsms_nm : esc_html__('WSMS plugin by VeronaLabs is not installed or activated. Please select another option, or install and configure WSMS.','easy-form-builder'),
 			/* translators: NN = Name of the add-on */
 			"msg_adons" => $state  &&  isset($ac->text->msg_adons) ? $ac->text->msg_adons : esc_html__('To use this option, please install the NN add-ons from the Easy Form Builder plugin\'s add-ons page.','easy-form-builder'),
+			/* translators: AutoPilot B4: Save refused. %1$s: the form type (Login or Register), %2$s: the missing field ids */
+			"authFieldsMissing" => $state && isset($ac->text->authFieldsMissing) ? $ac->text->authFieldsMissing : esc_html__('A %1$s form needs these fields: %2$s. Choose the form type again to add them.','easy-form-builder'),
+			/* translators: AutoPilot B4: asked when the admin changes a login or registration form to another type */
+			"authFieldsRemoveQ" => $state && isset($ac->text->authFieldsRemoveQ) ? $ac->text->authFieldsRemoveQ : esc_html__('Remove the login and registration fields from this form?','easy-form-builder'),
+			/* translators: AutoPilot B5: shown when the SMS switch of a mobile field also turns on the form's SMS notifications */
+			"smsOnForForm" => $state && isset($ac->text->smsOnForForm) ? $ac->text->smsOnForForm : esc_html__('SMS notifications for this form were turned on too, so the person who fills the form gets the confirmation SMS.','easy-form-builder'),
+			/* translators: AutoPilot B5: shown after Save. %s: the admin phone numbers that were removed */
+			"smsAdminPhoneInvalid" => $state && isset($ac->text->smsAdminPhoneInvalid) ? $ac->text->smsAdminPhoneInvalid : esc_html__('These admin phone numbers were not saved because they are not in the international format (+ and 8 to 15 digits): %s','easy-form-builder'),
+			/* translators: AutoPilot B5: shown after Save when a mobile field asks for the confirmation SMS but the form's SMS is off */
+			"smsFieldWithoutForm" => $state && isset($ac->text->smsFieldWithoutForm) ? $ac->text->smsFieldWithoutForm : esc_html__('A mobile field asks for the confirmation SMS, but SMS notifications are off for this form, so no SMS will be sent.','easy-form-builder'),
+			/* translators: AutoPilot A5: shown after Save when the form asked for SMS notifications but the SMS add-on is not active */
+			"smsOffAddonMissing" => $state && isset($ac->text->smsOffAddonMissing) ? $ac->text->smsOffAddonMissing : esc_html__('SMS notifications were turned off because the SMS add-on is not active. Everything else was saved.','easy-form-builder'),
+			/* translators: AutoPilot A5: shown after Save when the form asked for Telegram notifications but the Telegram add-on is not active */
+			"telegramOffAddonMissing" => $state && isset($ac->text->telegramOffAddonMissing) ? $ac->text->telegramOffAddonMissing : esc_html__('Telegram notifications were turned off because the Telegram add-on is not active. Everything else was saved.','easy-form-builder'),
 			"sms_noti" => $state  &&  isset($ac->text->sms_noti) ? $ac->text->sms_noti : esc_html__('SMS Notifications','easy-form-builder'),
 			"sms_dnoti" => $state  &&  isset($ac->text->sms_dnoti) ? $ac->text->sms_dnoti : esc_html__('Enter the administrators’ mobile numbers to receive SMS notifications, such as alerts or new messages.','easy-form-builder'),
 			"sms_ndnoti" => $state  &&  isset($ac->text->sms_ndnoti) ? $ac->text->sms_ndnoti : esc_html__('All SMS notifications sent by Easy Form Builder will be delivered to the numbers entered here.','easy-form-builder'),
@@ -4727,6 +4741,22 @@ class efbFunction {
 		);
 		$addon = (string) $addon;
 		return isset($tiers[$addon]) ? $tiers[$addon] : 1;
+	}
+
+	/**
+	 * B2 (AutoPilot): the builder's field templates for server-side form building.
+	 * See \Emsfb\Builder_Api::field_templates(); filter efb_field_templates.
+	 */
+	public function field_templates_efb($palette_id = null, $args = array()) {
+		return class_exists('\Emsfb\Builder_Api') ? \Emsfb\Builder_Api::field_templates($palette_id, is_array($args) ? $args : array()) : array();
+	}
+
+	/**
+	 * B3 (AutoPilot, F18): the plan and add-on registry, the same data as efb_var.capabilities.
+	 * See \Emsfb\Builder_Api::capabilities(); filter efb_capabilities.
+	 */
+	public function capabilities_efb($args = array()) {
+		return class_exists('\Emsfb\Builder_Api') ? \Emsfb\Builder_Api::capabilities(is_array($args) ? $args : array()) : array();
 	}
 
 	/**

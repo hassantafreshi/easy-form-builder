@@ -382,7 +382,7 @@ const chatHistory = document.getElementById('resp_efb');
         <span class="efb-editor-toolbar-sep"></span>
         <button type="button" class="efb-editor-btn efb-attach-btn efb-attach-disabled"
                 id="efb_attach_btn" title="${proText}"
-                onclick="pro_show_efb(1)">
+                onclick="pro_show_efb(3)">
           <i class="bi bi-paperclip"></i>
           <span class="efb-attach-pro-tag"><i class="bi bi-gem"></i></span>
         </button>`;
@@ -915,7 +915,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   <div class="efb-msg-divider"></div>
   <div class="efb-msg-fields">
   `;
-  content.sort((a, b) => (Number(a.amount) > Number(b.amount)) ? 1 : -1);
+  content.sort((a, b) => (efbOrderOf(a) > efbOrderOf(b)) ? 1 : -1);
   let list = []
   let s = false;
   let checboxs=[];

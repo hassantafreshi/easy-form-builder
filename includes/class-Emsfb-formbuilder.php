@@ -1322,7 +1322,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 				inputEl.style.setProperty("text-align", "left", "important");
 				inputEl.style.setProperty("unicode-bidi", "plaintext", "important");
 			};
-			setTimeout(function() {
+			/* A6: this inline script runs before the footer scripts. A cache plugin that
+			 * delays or combines them (LiteSpeed, Rocket Loader) can load intlTelInput
+			 * later than the first try, so wait for it instead of throwing. */
+			const efbItiInit_%1$s = function(n) {
+				if (typeof window.intlTelInput !== "function") {
+					if (n < 900) setTimeout(function() { efbItiInit_%1$s(n + 1); }, n < 300 ? 100 : 1000);
+					return;
+				}
 				const iti = window.intlTelInput(el_emsfb_%1$s, {
 					onlyCountries: %11$s,
 					nationalMode: true,
@@ -1373,7 +1380,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 						}
 					}
 				});
-			}, 1000);',
+			};
+			setTimeout(function() { efbItiInit_%1$s(0); }, 1000);',
 			$rndm,
 			$vj->id_,
 			esc_attr($vj->name),

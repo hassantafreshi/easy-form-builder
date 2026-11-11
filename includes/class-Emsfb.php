@@ -395,6 +395,10 @@ class Emsfb {
         // class_exists('\Emsfb\Masks'), so a missing file only disables masks.
         $this->require_plugin_file_efb('includes/class-Emsfb-masks.php');
 
+        // Builder API for integrations such as AutoPilot (docs/autopilot-integration.md).
+        // Optional: callers check class_exists('\Emsfb\Builder_Api').
+        $this->require_plugin_file_efb('includes/class-Emsfb-builder-api.php');
+
         if (!$core_ok) {
             $this->core_files_ok = false;
             return;

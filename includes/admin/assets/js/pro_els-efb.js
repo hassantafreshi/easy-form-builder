@@ -591,7 +591,7 @@ function fun_clear_esign_efb(id) {
       ${btnC}
     </div>`
     }else{
-      const $pr = `<a type="button" class="efb pro-v-btn" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}" onclick="pro_show_efb(1)"><i class="efb  bi-gem text-light" ></i></a>`;
+      const $pr = `<a type="button" class="efb pro-v-btn" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}" onclick="pro_show_efb(3)"><i class="efb  bi-gem text-light" ></i></a>`;
       if (page_state_efb=="panel") btnC =`<div class="efb col fs-5 h-d-efb pointer-efb text-darkb d-flex justify-content-end">
       <button type="button" class="efb btn mt-1 efb ${stock_state_efb ==true ? 'btn-outline-success' :"btn-outline-pink"} "id="respStateEfb">
       <i class="efb  bi-x-lg mx-1 efb mobile-text">${stock_state_efb ==true ?  efb_var.text.open : efb_var.text.close}</i>
@@ -720,8 +720,14 @@ function create_intlTelInput_efb(rndm,iVJ,previewSate,corner){
  `;
 }
 
-load_intlTelInput_efb = (rndm, iVJ) => {
+load_intlTelInput_efb = (rndm, iVJ, tries = 0) => {
   setTimeout(() => {
+    /* A6: the library is a separate script that a cache plugin may delay; wait for it
+       (every 0.8 s, about 12 minutes at most) instead of throwing. */
+    if (typeof window.intlTelInput !== 'function') {
+      if (tries < 900) load_intlTelInput_efb(rndm, iVJ, tries + 1);
+      return;
+    }
     const onlyCountries = valj_efb[iVJ].hasOwnProperty("c_c") && valj_efb[iVJ].c_c.length > 0 ? valj_efb[iVJ].c_c : "";
     const forceIntlContainerRtlEfb = (inputEl) => {
       if (!inputEl) return;
@@ -876,13 +882,13 @@ const fun_check_link_city_efb = async (iso2_country, iso2_statePove, indx, form_
   let id_city = '';
 
   const base = valj_efb[indx];
-  const amount = Number(base.amount) || 0;
+  const amount = efbOrderOf(base);
 
   let i = indx;
   const len = valj_efb.length;
   while (i < len) {
     const item = valj_efb[i];
-    if (Number(item.amount) > amount) {
+    if (efbOrderOf(item) > amount) {
       const t = item.type;
       if (t === 'city' || t === 'cityList') {
         indx_state = i;
@@ -1030,7 +1036,10 @@ fun_check_link_state_efb=async(iso2_country , indx,form_id)=>{
  if(form_ID_emsFormBuilder!=parseInt(form_id) || valj_efb.length<1 )valj_efb= await fun_valj_efb_run(form_id);
   for (let i = indx+1; i < valj_efb.length; i++) {
     if(valj_efb[i].type=='option'){
-    }else if((valj_efb[i].type=='statePro' || valj_efb[i].type=='stateProvince') && valj_efb[i].amount>valj_efb[indx].amount){
+    /* Compared as numbers: after Save every amount is a string, and "10" > "9" is
+       false as text, so a state list right after a single-digit country never
+       followed the country again (the city link below always used Number()). */
+    }else if((valj_efb[i].type=='statePro' || valj_efb[i].type=='stateProvince') && efbOrderOf(valj_efb[i])>efbOrderOf(valj_efb[indx])){
       indx_state =i;
       break;
     }else{

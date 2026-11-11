@@ -216,7 +216,7 @@ const formTypeEls =()=>{
   <option value="payment" ${valj_efb[0].type=='payment' ? 'selected' :''}>${efb_var.text.payment}</option>
   <option value="survey" ${valj_efb[0].type=='survey' ? 'selected' :''}>${efb_var.text.survey}</option>
   <option value="login" ${valj_efb[0].type=='login' ? 'selected' :''}>${efb_var.text.login}</option>
-  <option value="register" ${valj_efb[0].type=='register' ? 'selected' :''} disabled>${efb_var.text.register}</option>
+  <option value="register" ${valj_efb[0].type=='register' ? 'selected' :''}>${efb_var.text.register}</option>
   </select></span>`;
 }
 
@@ -712,8 +712,10 @@ function open_conditional_logic_efb() {
    closing - only asking again for the element already on screen still toggles it shut. */
 window.efbOpenSettingIdEfb = window.efbOpenSettingIdEfb || null;
 
-function show_setting_window_efb(idset) {
-  if(document.getElementById('sideBoxEfb').classList.contains('show')){
+/* opts.refresh (B1, efbBuilderApi): redraw the panel with fresh values even when it
+   already shows this element, instead of toggling it shut. */
+function show_setting_window_efb(idset, opts) {
+  if(document.getElementById('sideBoxEfb').classList.contains('show') && !(opts && opts.refresh)){
     if (window.efbOpenSettingIdEfb === idset || window.efbOpenSettingIdEfb === null) {
       window.efbOpenSettingIdEfb = null;
       sideMenuEfb(0);
@@ -783,7 +785,7 @@ function show_setting_window_efb(idset) {
         : 'Leave empty to use default message';
       const isVisible = valj_efb[indx].hasOwnProperty('required') && Number(valj_efb[indx].required) == 1;
       return `<div class="efb mx-1 my-1 efb customRequiredMsgWrapper" style="transition: opacity 0.3s ease, max-height 0.3s ease; overflow: hidden; ${isVisible ? 'opacity: 1; max-height: 200px;' : 'opacity: 0; max-height: 0; padding: 0; margin: 0;'}">
-        ${!isPro ? '<div class="efb pro-card"><a type="button" onclick="pro_show_efb(1)" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="' + (efb_var.text.fieldAvailableInProversion || 'PRO') + '"><i class="efb bi-gem text-light"></i></a></div>' : ''}
+        ${!isPro ? '<div class="efb pro-card"><a type="button" onclick="pro_show_efb(3)" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="' + (efb_var.text.fieldAvailableInProversion || 'PRO') + '"><i class="efb bi-gem text-light"></i></a></div>' : ''}
         <label for="customRequiredMsgEl" class="efb form-label mt-2 mb-1 efb"><i class="efb bi-chat-square-text fs-7 me-1"></i>${labelTxt}</label>
         <input type="text" data-id="${idset}" class="efb elEdit form-control text-muted efb border-d rounded-4 h-d-efb mb-1" placeholder="${placeholderTxt}" id="customRequiredMsgEl" value="${currentValue}" ${!isPro ? 'disabled' : ''}>
         <small class="efb text-muted fs-8 mx-2">${hintTxt}</small>
@@ -843,7 +845,7 @@ function show_setting_window_efb(idset) {
         : 'Leave empty to use default message';
       return `
       <div class="efb mx-1 efb ">
-      ${pro_efb==true ?"":funProEfb()}
+      ${pro_efb==true ?"":funProEfb(efb_capability_state_efb('setting:email_sub', 3))}
       <label for="FormEmailSubjectEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.mlsbjt}</label>
       <input type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d rounded-4 efb" placeholder="${efb_var.text.emailSubject || 'Email Subject'}" id="FormEmailSubjectEl" required value="${value}">
       <small class="efb text-muted fs-8 mx-2">${hintTxt}</small>
@@ -857,7 +859,7 @@ function show_setting_window_efb(idset) {
       // Changing it is a Pro option: badge it like the Email Subject above,
       // so the badge is not mistaken for belonging to only one of them.
       return `
-    ${pro_efb==true ?"":funProEfb()}
+    ${pro_efb==true ?"":funProEfb(efb_capability_state_efb('setting:email_noti_type', 3))}
     <label for="emailNotiContainsEl" class="efb mt-2 mb-1   efb">${efb_var.text.emlc}</label>
                         <select  class="efb elEdit form-select efb border-d rounded-4 mb-1" data-id="${idset}"  id="emailNotiContainsEl" >
                             <option value="cc" ${val == 'cc' ? `selected` : ''}>${efb_var.text.emlacl}</option>
@@ -1002,7 +1004,7 @@ function show_setting_window_efb(idset) {
       const isPro = (typeof pro_efb !== 'undefined' && pro_efb === true) || (typeof efb_var !== 'undefined' && (efb_var.pro == "1" || efb_var.pro == 1 || efb_var.pro === true));
       return `<span class="efb">
         <label for="selectCheckedColorEl" class="efb mt-3 efb"><i class="efb bi-check-circle-fill fs-7 ${iconMarginGlobal}"></i>${labelText}</label>
-        ${!isPro ? '<div class="efb pro-card"><a type="button" onclick="pro_show_efb(1)" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="' + (efb_var.text.fieldAvailableInProversion || 'PRO') + '"><i class="efb bi-gem text-light"></i></a></div>' : ''}
+        ${!isPro ? '<div class="efb pro-card"><a type="button" onclick="pro_show_efb(3)" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="' + (efb_var.text.fieldAvailableInProversion || 'PRO') + '"><i class="efb bi-gem text-light"></i></a></div>' : ''}
         <input type="color" id="selectCheckedColorEl" class="efb elEdit form-select efb border-d rounded-4" data-id="${idset}" data-el="checked" data-type="checked" data-tag="${valj_efb[indx].type}" value="${checkedClrHex}" name="selectCheckedColorEl" ${!isPro ? 'disabled' : ''}></span>`;
     };
 
@@ -1014,7 +1016,7 @@ function show_setting_window_efb(idset) {
       const isPro = (typeof pro_efb !== 'undefined' && pro_efb === true) || (typeof efb_var !== 'undefined' && (efb_var.pro == "1" || efb_var.pro == 1 || efb_var.pro === true));
       return `<span class="efb">
         <label for="selectRangeThumbColorEl" class="efb mt-3 efb"><i class="efb bi-sliders fs-7 ${iconMarginGlobal}"></i>${labelText}</label>
-        ${!isPro ? '<div class="efb pro-card"><a type="button" onclick="pro_show_efb(1)" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="' + (efb_var.text.fieldAvailableInProversion || 'PRO') + '"><i class="efb bi-gem text-light"></i></a></div>' : ''}
+        ${!isPro ? '<div class="efb pro-card"><a type="button" onclick="pro_show_efb(3)" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="' + (efb_var.text.fieldAvailableInProversion || 'PRO') + '"><i class="efb bi-gem text-light"></i></a></div>' : ''}
         <input type="color" id="selectRangeThumbColorEl" class="efb elEdit form-select efb border-d rounded-4" data-id="${idset}" data-el="rangeThumb" data-type="rangeThumb" data-tag="${valj_efb[indx].type}" value="${thumbClrHex}" name="selectRangeThumbColorEl" ${!isPro ? 'disabled' : ''}></span>`;
     };
 
@@ -1026,7 +1028,7 @@ function show_setting_window_efb(idset) {
       const isPro = (typeof pro_efb !== 'undefined' && pro_efb === true) || (typeof efb_var !== 'undefined' && (efb_var.pro == "1" || efb_var.pro == 1 || efb_var.pro === true));
       return `<span class="efb">
         <label for="selectRangeValueColorEl" class="efb mt-3 efb"><i class="efb bi-fonts fs-7 ${iconMarginGlobal}"></i>${labelText}</label>
-        ${!isPro ? '<div class="efb pro-card"><a type="button" onclick="pro_show_efb(1)" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="' + (efb_var.text.fieldAvailableInProversion || 'PRO') + '"><i class="efb bi-gem text-light"></i></a></div>' : ''}
+        ${!isPro ? '<div class="efb pro-card"><a type="button" onclick="pro_show_efb(3)" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="' + (efb_var.text.fieldAvailableInProversion || 'PRO') + '"><i class="efb bi-gem text-light"></i></a></div>' : ''}
         <input type="color" id="selectRangeValueColorEl" class="efb elEdit form-select efb border-d rounded-4" data-id="${idset}" data-el="rangeValue" data-type="rangeValue" data-tag="${valj_efb[indx].type}" value="${valueClrHex}" name="selectRangeValueColorEl" ${!isPro ? 'disabled' : ''}></span>`;
     };
 
@@ -1037,7 +1039,7 @@ function show_setting_window_efb(idset) {
       const isPro = (typeof pro_efb !== 'undefined' && pro_efb === true) || (typeof efb_var !== 'undefined' && (efb_var.pro == "1" || efb_var.pro == 1 || efb_var.pro === true));
       return `<span class="efb">
         <label for="selectSwitchOnColorEl" class="efb mt-3 efb"><i class="efb bi-toggle-on fs-7 ${iconMarginGlobal}"></i>${labelText}</label>
-        ${!isPro ? '<div class="efb pro-card"><a type="button" onclick="pro_show_efb(1)" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="' + (efb_var.text.fieldAvailableInProversion || 'PRO') + '"><i class="efb bi-gem text-light"></i></a></div>' : ''}
+        ${!isPro ? '<div class="efb pro-card"><a type="button" onclick="pro_show_efb(3)" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="' + (efb_var.text.fieldAvailableInProversion || 'PRO') + '"><i class="efb bi-gem text-light"></i></a></div>' : ''}
         <input type="color" id="selectSwitchOnColorEl" class="efb elEdit form-select efb border-d rounded-4" data-id="${idset}" data-el="switchOn" data-type="switchOn" data-tag="${valj_efb[indx].type}" value="${switchOnClrHex}" name="selectSwitchOnColorEl" ${!isPro ? 'disabled' : ''}></span>`;
     };
 
@@ -1048,7 +1050,7 @@ function show_setting_window_efb(idset) {
       const isPro = (typeof pro_efb !== 'undefined' && pro_efb === true) || (typeof efb_var !== 'undefined' && (efb_var.pro == "1" || efb_var.pro == 1 || efb_var.pro === true));
       return `<span class="efb">
         <label for="selectSwitchOffColorEl" class="efb mt-3 efb"><i class="efb bi-toggle-off fs-7 ${iconMarginGlobal}"></i>${labelText}</label>
-        ${!isPro ? '<div class="efb pro-card"><a type="button" onclick="pro_show_efb(1)" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="' + (efb_var.text.fieldAvailableInProversion || 'PRO') + '"><i class="efb bi-gem text-light"></i></a></div>' : ''}
+        ${!isPro ? '<div class="efb pro-card"><a type="button" onclick="pro_show_efb(3)" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="' + (efb_var.text.fieldAvailableInProversion || 'PRO') + '"><i class="efb bi-gem text-light"></i></a></div>' : ''}
         <input type="color" id="selectSwitchOffColorEl" class="efb elEdit form-select efb border-d rounded-4" data-id="${idset}" data-el="switchOff" data-type="switchOff" data-tag="${valj_efb[indx].type}" value="${switchOffClrHex}" name="selectSwitchOffColorEl" ${!isPro ? 'disabled' : ''}></span>`;
     };
 
@@ -1059,7 +1061,7 @@ function show_setting_window_efb(idset) {
       const isPro = (typeof pro_efb !== 'undefined' && pro_efb === true) || (typeof efb_var !== 'undefined' && (efb_var.pro == "1" || efb_var.pro == 1 || efb_var.pro === true));
       return `<span class="efb">
         <label for="selectSwitchHandleColorEl" class="efb mt-3 efb"><i class="efb bi-circle-fill fs-7 ${iconMarginGlobal}"></i>${labelText}</label>
-        ${!isPro ? '<div class="efb pro-card"><a type="button" onclick="pro_show_efb(1)" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="' + (efb_var.text.fieldAvailableInProversion || 'PRO') + '"><i class="efb bi-gem text-light"></i></a></div>' : ''}
+        ${!isPro ? '<div class="efb pro-card"><a type="button" onclick="pro_show_efb(3)" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="' + (efb_var.text.fieldAvailableInProversion || 'PRO') + '"><i class="efb bi-gem text-light"></i></a></div>' : ''}
         <input type="color" id="selectSwitchHandleColorEl" class="efb elEdit form-select efb border-d rounded-4" data-id="${idset}" data-el="switchHandle" data-type="switchHandle" data-tag="${valj_efb[indx].type}" value="${switchHandleClrHex}" name="selectSwitchHandleColorEl" ${!isPro ? 'disabled' : ''}></span>`;
     };
 
@@ -1071,9 +1073,9 @@ function show_setting_window_efb(idset) {
                         </select>`;
 
     const thankYouredirectEls = `<div id="tnxrdrct" class="efb tnxrdrct my-1 ${ valj_efb[0].thank_you == 'rdrct'? 'd-block' :'d-none' }">
-    ${pro_efb==true ?"":funProEfb()}
+    ${pro_efb==true ?"":funProEfb(efb_capability_state_efb('setting:thank_you_redirect', 3))}
     <label for="thankYouredirectEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.redirectPage} <i class="efb bi-patch-question fs-7 text-success pointer-efb" onclick="Link_emsFormBuilder('redirectPage')"> </i></label>
-    <input type="url" data-id="thankYouredirectEl" class="efb elEdit text-muted form-control h-d-efb border-d rounded-4  mb-1 efb" placeholder="${efb_var.text.url}" id="thankYouredirectEl" required value="${ valj_efb[0].hasOwnProperty('rePage') ? valj_efb[0].rePage.replace(/(@efb@)+/g, '/') : ''}"></div>`
+    <input type="url" data-id="thankYouredirectEl" class="efb elEdit text-muted form-control h-d-efb border-d rounded-4  mb-1 efb" placeholder="${efb_var.text.url}" id="thankYouredirectEl" required value="${ valj_efb[0].hasOwnProperty('rePage') ? efb_url_from_storage_efb(valj_efb[0].rePage) : ''}"></div>`
     const paymentGetWayEls =()=>{
       return`<label for="paymentGetWayEl" class="efb mt-3 efb"><i class="efb bi-wallet-fill fs-7 ${iconMarginGlobal}"></i>${efb_var.text.paymentGateway}</label>
       <select  data-id="${idset}" class="efb elEdit form-select efb border-d rounded-4"  id="paymentGetWayEl"  data-tag="${valj_efb[0].type}">
@@ -2383,6 +2385,9 @@ function creator_form_builder_Efb() {
   if (valj_efb.length < 2) {
     const btn_pois = Number(efb_var.rtl) == 1 ? 'justify-content-center' : 'justify-content-center';
     step_el_efb = 1;
+    /* Deprecated keys, still written so old readers see the shape they know, but read by
+       nothing in EFB (B9): `private` (a private form is `stateForm`) and `email_temp` (the
+       email template is the global setting emailTemp). Do not remove them from old forms. */
     valj_efb.push({
       type: form_type_emsFormBuilder, steps: 1, formName: efb_var.text.form, email: '', trackingCode: true, EfbVersion: 2,
       button_single_text: efb_var.text.submit, button_color: pub_bg_button_color_efb, icon: 'bi-ui-checks-grid', button_Next_text: efb_var.text.next, button_Previous_text: efb_var.text.previous,

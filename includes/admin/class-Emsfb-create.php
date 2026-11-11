@@ -336,6 +336,8 @@ class Create {
 		// F01 mask engine (window.EfbMasks): custom-mask check and preview in the builder, masks in the preview.
 		wp_enqueue_script('efb-masks-js', EMSFB_PLUGIN_URL . 'public/assets/js/masks-efb.js', array(), EMSFB_PLUGIN_VERSION, true);
 		wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION, true);
+		// window.efbBuilderApi for integrations (docs/autopilot-integration.md, B1/B2/B4).
+		wp_enqueue_script('efb-builder-api-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/builder-api-efb.js', array('Emsfb-admin-js', 'efb-val-js', 'efb-pro-els', 'efb-main-js'), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/builder-api-efb.js'), true);
 
 		if ( isset( $addons['AdnSMF'] ) && (int) $addons['AdnSMF'] >= 1 ) {
 			wp_enqueue_style('efb-conditional-logic-css', EMSFB_PLUGIN_URL . 'vendor/logic/logic/assets/admin/css/conditional-logic-efb.css', array(), EMSFB_PLUGIN_VERSION);
@@ -391,7 +393,7 @@ class Create {
 	}
 	public function add_form_structure(){
 		$efbFunction = get_efbFunction();
-		$creat=["errorCheckInputs","NAllowedscriptTag","formNcreated","newMessageReceived","newResponse","WeRecivedUrM","trackNo","url",'error403'];
+		$creat=["errorCheckInputs","NAllowedscriptTag","formNcreated","newMessageReceived","newResponse","WeRecivedUrM","trackNo","url",'error403',"smsOffAddonMissing","telegramOffAddonMissing","authFieldsMissing","login","register","smsAdminPhoneInvalid","smsFieldWithoutForm"];
 		$lang = $efbFunction->text_efb($creat);
 		$this->userId =get_current_user_id();
 
@@ -415,6 +417,20 @@ class Create {
 		$valp =\emsfb_json_normalize_efb(wp_unslash($_POST['value']));
 		$valp = json_decode($valp,true);
 		$valp = $efbFunction->sanitize_obj_msg_efb($valp);
+		// A5: a notification whose add-on is not active is stored switched off, with a warning.
+		$save_warnings_efb = array();
+		if (is_array($valp) && class_exists('\Emsfb\Builder_Api')) {
+			list($valp, $save_warnings_efb) = Builder_Api::disable_unavailable_notifiers($valp, get_setting_Emsfb('decoded', array()), $lang);
+			if (Builder_Api::sms_field_without_form($valp)) {
+				$save_warnings_efb[] = array('code' => 'sms_field_without_form', 'm' => $lang['smsFieldWithoutForm']);
+			}
+			$auth_missing_efb = Builder_Api::auth_fields_missing($valp);
+			if (!empty($auth_missing_efb)) {
+				$type_label_efb = isset($lang[$valp[0]['type']]) ? $lang[$valp[0]['type']] : $valp[0]['type'];
+				$m = str_replace(array('%1$s', '%2$s'), array($type_label_efb, implode(', ', $auth_missing_efb)), isset($lang['authFieldsMissing']) ? $lang['authFieldsMissing'] : 'A %1$s form needs these fields: %2$s.');
+				wp_send_json_success(array('success' => false, 'm' => $m, 'code' => 'auth_fields_missing', 'missing' => $auth_missing_efb), 200);
+			}
+		}
 		$this->formtype =  sanitize_text_field($_POST['type']);
 		if($this->isScript($_POST['value']) ||$this->isScript($_POST['type'])){
 			$response = array( 'success' => false , "m"=> $lang['NAllowedscriptTag']);
@@ -426,10 +442,18 @@ class Create {
 		$sms_msg_recived_user="";
 		$sms_admins_phoneno="";
 		if(isset($valp[0]['smsnoti']) && intval($valp[0]['smsnoti'])==1){
-			$sms_msg_new_noti = isset($valp[0]['sms_msg_new_noti']) ?$valp[0]['sms_msg_new_noti'] :$lang['newMessageReceived'] ."\n". $lang['trackNo'] .": [confirmation_code]\n". $lang['url'] .": [link_response]";
-			$sms_msg_responsed_noti = isset($valp[0]['sms_msg_responsed_noti']) ? $valp[0]['sms_msg_responsed_noti'] :  $lang['newResponse']."\n". $lang['trackNo'] .": [confirmation_code]\n". $lang['url'] .": [link_response]";
-			$sms_msg_recived_user = isset($valp[0]['sms_msg_recived_usr']) ? $valp[0]['sms_msg_recived_usr'] : $lang['WeRecivedUrM'] ."\n". $lang['trackNo'] .": [confirmation_code]\n". $lang['url'] .": [link_response]";
+			// B5: empty texts get the defaults; admin numbers are checked on the server.
+			$sms_msg_new_noti = !empty($valp[0]['sms_msg_new_noti']) ?$valp[0]['sms_msg_new_noti'] :$lang['newMessageReceived'] ."\n". $lang['trackNo'] .": [confirmation_code]\n". $lang['url'] .": [link_response]";
+			$sms_msg_responsed_noti = !empty($valp[0]['sms_msg_responsed_noti']) ? $valp[0]['sms_msg_responsed_noti'] :  $lang['newResponse']."\n". $lang['trackNo'] .": [confirmation_code]\n". $lang['url'] .": [link_response]";
+			$sms_msg_recived_user = !empty($valp[0]['sms_msg_recived_usr']) ? $valp[0]['sms_msg_recived_usr'] : $lang['WeRecivedUrM'] ."\n". $lang['trackNo'] .": [confirmation_code]\n". $lang['url'] .": [link_response]";
 			$sms_admins_phoneno = isset($valp[0]['sms_admins_phone_no']) ? $valp[0]['sms_admins_phone_no'] : "";
+			if (class_exists('\Emsfb\Builder_Api')) {
+				list($sms_ok_efb, $sms_bad_efb) = Builder_Api::sms_admin_numbers($sms_admins_phoneno, function_exists('get_locale') ? get_locale() : '');
+				$sms_admins_phoneno = implode(',', $sms_ok_efb);
+				if (!empty($sms_bad_efb)) {
+					$save_warnings_efb[] = array('code' => 'sms_admin_phone_invalid', 'm' => str_replace('%s', implode(', ', array_map('sanitize_text_field', $sms_bad_efb)), $lang['smsAdminPhoneInvalid']), 'numbers' => array_map('sanitize_text_field', $sms_bad_efb));
+				}
+			}
 			unset($valp[0]['sms_msg_new_noti']);
 			unset($valp[0]['sms_msg_responsed_noti']);
 			unset($valp[0]['sms_msg_recived_user']);
@@ -492,6 +516,7 @@ class Create {
 		}
 		if($this->id_ !=0){
 			$response = array( 'success' => true ,'r'=>"insert" , 'value' => "[EMS_Form_Builder id=$this->id_]" , "id"=>$this->id_);
+			if (!empty($save_warnings_efb)) $response['warnings'] = $save_warnings_efb;
 		}else{$response = array( 'success' => false , "m"=> $lang['formNcreated']);}
 		wp_send_json_success($response, 200);
 	}

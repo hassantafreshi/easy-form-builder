@@ -975,6 +975,22 @@ function show_message_result_form_set_EFB(state, m) {
   });
 }
 
+/* A5: the server saved the form but switched a notification off (its add-on is not
+   active). Mirror that in the builder state so the next save agrees, and say why. */
+function efb_apply_save_warnings_efb(warnings) {
+  if (!Array.isArray(warnings) || warnings.length === 0) return;
+  for (const w of warnings) {
+    if (!w || typeof w !== 'object') continue;
+    if (w.code === 'sms_disabled_addon_missing' && Array.isArray(valj_efb)) {
+      valj_efb.forEach((row) => { if (row && Object.prototype.hasOwnProperty.call(row, 'smsnoti')) row.smsnoti = 0; });
+    } else if (w.code === 'telegram_disabled_addon_missing' && Array.isArray(valj_efb) && valj_efb[0]) {
+      valj_efb[0].telegramnoti = 0;
+    }
+    if (typeof alert_message_efb === 'function') alert_message_efb('', String(w.m || ''), 20, 'warning');
+  }
+  try { sessionStorage.setItem('valj_efb', JSON.stringify(valj_efb)); } catch (e) {}
+}
+
 async function  actionSendData_emsFormBuilder(saveMode) {
   if (!navigator.onLine) {
     alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')
@@ -1021,6 +1037,7 @@ async function  actionSendData_emsFormBuilder(saveMode) {
         if (res.data.value && res.data.success == true) {
           state_check_ws_p = 0;
           form_ID_emsFormBuilder = parseInt(res.data.id)
+          efb_apply_save_warnings_efb(res.data.warnings);
 
           show_message_result_form_set_EFB(1, res.data.value);
           if (!_efb_autosave_in_progress) efb_builder_maybe_warn_email_delivery_after_save();
@@ -1033,6 +1050,7 @@ async function  actionSendData_emsFormBuilder(saveMode) {
         }
       } else if ((res.data.r == "update" || res.data.r == "updated") && res.data.success == true) {
         show_message_result_form_set_EFB(2, res.data.value);
+        efb_apply_save_warnings_efb(res.data.warnings);
         if (!_efb_autosave_in_progress) efb_builder_maybe_warn_email_delivery_after_save();
         if (saveMode === 1) clear_auto_save_efb();
 
@@ -1080,7 +1098,20 @@ function actionSendAddons_efb(val) {
           let m = efb_var.text.tshbc;
           m =m.replace('%s', `<b>${efb_var.text.installation}</b>`);
           alert_message_efb(m,'', 40,'info');
-          location.reload();
+          /* B8: the page learns the new add-on flags and registry at once, and
+             efb:addon-installed tells listeners. A listener that has unsaved work
+             (AutoPilot, an open builder) can cancel the reload with preventDefault()
+             and reload later; the add-on's own scripts only load with a page load. */
+          const fresh = {};
+          if (payload.addons && typeof payload.addons === 'object') fresh.addons = payload.addons;
+          if (payload.capabilities && typeof payload.capabilities === 'object') fresh.capabilities = payload.capabilities;
+          if (Object.keys(fresh).length && typeof efb_var_patch_efb === 'function') {
+            efb_var_patch_efb(fresh, fresh.addons || null);
+            if (typeof addons_emsFormBuilder !== 'undefined' && fresh.addons) addons_emsFormBuilder = Object.assign({}, addons_emsFormBuilder, fresh.addons);
+          }
+          const evt = new CustomEvent('efb:addon-installed', { cancelable: true, detail: { addon: payload.addon || snd, addons: payload.addons || null, requires_reload: payload.requires_reload !== false } });
+          const proceed = document.dispatchEvent(evt);
+          if (proceed && payload.requires_reload !== false) location.reload();
         } else {
           addons_btn_reset_efb(snd);
           alert_message_efb(efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`, 30, "danger");
@@ -1200,7 +1231,7 @@ createCardFormEfb = (i) => {
   }
   return `
   <div class="efb tag  col ${rtl == 1 ? 'rtl-text' : ''} ${i.tag}" id="${i.id}"> <div class="efb card efb"><div class="efb card-body">
-  ${i.pro == true && efb_var.pro != 1 ? funProEfb() : ''}
+  ${i.pro == true && efb_var.pro != 1 ? funProEfb(3) : ''}
   <h5 class="efb card-title efb"><i class="efb ${m_space} ${i.icon} "></i>${i.title} </h5>
   <div class="efb row" ><p class="efb card-text efb ${mobile_view_efb ? '' : 'fs-7'} float-start my-3">${i.desc}  <b>${efb_var.text.freefeatureNotiEmail}</b> </p></div>
   ${(i.pro == true && Number(setting_emsFormBuilder.package_type) != 2) || i.pro==false ? btn : btnPro}
@@ -1273,7 +1304,7 @@ createCardAddoneEfb = (i) => {
 
   return `
   <div class="efb tag mt-0 mb-2 col ${efb_var.rtl == 1 ? 'rtl-text' : ''} ${i.tag}" id="${i.id}"> <div class="efb card efb"><div class="efb card-body">
-  ${isLockedAddon ? funProEfb() : ''}
+  ${isLockedAddon ? funProEfb(efb_addon_required_package_efb(i) === 3 ? 3 : 1) : ''}
   <h5 class="efb card-title efb"><i class="efb  ${i.icon} mx-1"></i>${i.title} </h5>
   <div class="efb row" ><p class="efb card-text efb ${mobile_view_efb ? '' : 'fs-7'} float-start my-3">${i.desc}  </p></div>
   <a id="${i.name}" data-vrequired="${i.v_required}" class="efb float-end btn addons mb-1 efb ${colorNtn} btn-lg float-end btn-r" onClick="${funNtn}"><i class="efb ${iconNtn} mx-1"></i>${nameNtn}</b></a>
@@ -1282,7 +1313,8 @@ createCardAddoneEfb = (i) => {
   <!-- 3.8.6 end -->
   </div></div></div>`
 }
-funProEfb=()=>{return `<div class="efb  pro-card"><a type="button" onclick='pro_show_efb(1)' class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}"><i class="efb  bi-gem text-light"></i></a></div>`}
+/* state: 1 = Pro only, 3 = Free Plus and Pro (A4): pass the plan that really unlocks the setting. */
+funProEfb=(state = 1)=>{return `<div class="efb  pro-card"><a type="button" onclick='pro_show_efb(${state == 3 ? 3 : 1})' class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}"><i class="efb  bi-gem text-light"></i></a></div>`}
 const boxs_efb = [
   { id: 'form', title: efb_var.text.newForm, desc: efb_var.text.createBlankMultistepsForm, status: true, icon: 'bi-check2-square', tag: 'all new', pro: false },
   { id: 'contact', title: efb_var.text.contactusForm, desc: efb_var.text.createContactusForm, status: true, icon: 'bi-envelope', tag: 'all contactUs', pro: false },
@@ -2619,10 +2651,16 @@ let change_el_edit_Efb = (el) => {
         break;
       case "smsEnableEl":
 
-       if(pro_efb!=true){
-          pro_show_efb(1);
+       /* SMS is a Pro add-on (AdnSS). One message, then stop (A4): Free, and Free Plus
+          without the add-on (a plan that cannot install it), get the Pro dialog; Pro
+          without it gets "install the add-on". */
+       const smsCap = efb_capability_efb('addon:AdnSS');
+       const smsPlanOk = smsCap ? (efb_current_plan_rank_efb() >= 2 || Number(efb_var.setting.AdnSS)==1) : !(pro_efb!=true || (Number(efb_var.setting.AdnSS)!=1 && typeof efb_addon_can_install_efb === 'function' && !efb_addon_can_install_efb('AdnSS')));
+       if(pro_efb!=true || !smsPlanOk){
+          efb_capability_prompt_efb('setting:sms_notifications', 1);
           document.getElementById("smsEnableEl").checked = false;
           document.getElementById("smsEnableEl").classList.remove('active') ;
+          return false;
        }
        if(Number(efb_var.setting.AdnSS)!=1){
 
@@ -2638,6 +2676,13 @@ let change_el_edit_Efb = (el) => {
 
         if(indx!=0){
           if(c==1){
+            /* B5: the visitor's SMS is sent only when the form's SMS is on as well
+               (class-Emsfb-public.php reads valj_efb[0].smsnoti), so this switch turns
+               it on too and says so. */
+            if (Number(valj_efb[0].smsnoti) !== 1) {
+              valj_efb[0].smsnoti = 1;
+              alert_message_efb('', efb_var.text.smsOnForForm || 'SMS notifications for this form were turned on too, so the person who fills the form gets the confirmation SMS.', 12, 'info');
+            }
             indx=0;
           }else{
             clss=-1;
@@ -2663,7 +2708,8 @@ let change_el_edit_Efb = (el) => {
             })
           }
 
-          if(valj_efb[0].hasOwnProperty('smsnoti')!=false){
+          // The message boxes are on the form-settings panel only, not on a mobile field's panel.
+          if(valj_efb[0].hasOwnProperty('smsnoti')!=false && document.querySelector(`[data-id="newMessageReceived"]`)){
 
             c= document.querySelector(`[data-id="newMessageReceived`).value
             c= sanitize_text_efb(c ,true);
@@ -2683,14 +2729,19 @@ let change_el_edit_Efb = (el) => {
             }
 
           }
+          if (Number(valj_efb[0].smsnoti) === 1) efb_sms_fill_defaults_efb();
         }
 
         break;
       case "telegramEnableEl":
-        if(pro_efb!=true){
-          pro_show_efb(1);
+        // Telegram is a Pro add-on (AdnTLG): one message, then stop (A4).
+        const tlgCap = efb_capability_efb('addon:AdnTLG');
+        const tlgPlanOk = tlgCap ? (efb_current_plan_rank_efb() >= 2 || Number(efb_var.addons.AdnTLG)==1) : !(Number(efb_var.addons.AdnTLG)!=1 && typeof efb_addon_can_install_efb === 'function' && !efb_addon_can_install_efb('AdnTLG'));
+        if(pro_efb!=true || !tlgPlanOk){
+          efb_capability_prompt_efb('setting:telegram_notifications', 1);
           document.getElementById("telegramEnableEl").checked = false;
           document.getElementById("telegramEnableEl").classList.remove('active') ;
+          return false;
         }
         if(Number(efb_var.addons.AdnTLG)!=1){
           document.getElementById("telegramEnableEl").classList.remove('active') ;
@@ -2834,8 +2885,8 @@ let change_el_edit_Efb = (el) => {
         valj_efb[0].stateForm = el.classList.contains('active')==true ? true : false
         break;
       case 'emailNotiContainsEl':
-        if(pro_efb!=true){
-          pro_show_efb(3);
+        if(!efb_capability_available_efb('setting:email_noti_type', pro_efb==true)){
+          efb_capability_prompt_efb('setting:email_noti_type', 3);
           // Keep showing what the form really sends (the stored choice, or the
           // default "content and link"); a blank select looked like no email.
           el.value = (valj_efb[0].email_noti_type || 'msg');
@@ -3142,20 +3193,16 @@ let change_el_edit_Efb = (el) => {
       case "thankYouredirectEl":
 
         postId = el.value.match(/^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?!&\/=;',]*)$/gi)
-        if(pro_efb!=true){
-          pro_show_efb(1);
+        if(!efb_capability_available_efb('setting:thank_you_redirect', pro_efb==true)){
+          // Free Plus and Pro both have the redirect, so the dialog says so (A4, B3 registry).
+          efb_capability_prompt_efb('setting:thank_you_redirect', 3);
           valj_efb[0].thank_you ='msg';
           valj_efb[0].rePage = '';
           break;
         }
-        const u = (url)=>{
-          url = url.replace(/(http:\/\/)+/g, 'http:@efb@');
-          url = url.replace(/(https:\/\/)+/g, 'https:@efb@');
-          url = url.replace(/([/])+/g, '@efb@');
-          return url
-         }
        if (postId != null) {
-        valj_efb[0].rePage = u(el.value);
+        // The one encoder (new-efb.js); the panel shows it back with efb_url_from_storage_efb (A3).
+        valj_efb[0].rePage = efb_url_to_storage_efb(el.value);
         valj_efb[0].thank_you ='rdrct';
        }else{
         valj_efb[0].thank_you ='msg';
@@ -3223,6 +3270,8 @@ let change_el_edit_Efb = (el) => {
             toggle.classList.add('d-none');
           }
         });
+        // B4: login / register add the fields their handler reads; leaving them asks first.
+        if (typeof efb_after_form_type_change_efb === 'function') efb_after_form_type_change_efb(oldFormType, valj_efb[0].type);
         break;
       case "surveyChartTypeEl":
         if (!valj_efb[0].hasOwnProperty('survey_chart_type')) {
@@ -3231,8 +3280,8 @@ let change_el_edit_Efb = (el) => {
         valj_efb[0].survey_chart_type = el.options[el.selectedIndex].value;
         break;
       case "loadingTypeEl":
-        if(pro_efb!=true){
-          pro_show_efb(3);
+        if(!efb_capability_available_efb('setting:loading_type', pro_efb==true)){
+          efb_capability_prompt_efb('setting:loading_type', 3);
           return;
         }else{
           valj_efb[0].loading_type ='bars';
@@ -3244,8 +3293,8 @@ let change_el_edit_Efb = (el) => {
         }
         break;
       case "loadingColorEl":
-        if(pro_efb!=true){
-          pro_show_efb(3);
+        if(!efb_capability_available_efb('setting:loading_type', pro_efb==true)){
+          efb_capability_prompt_efb('setting:loading_type', 3);
           return;
         }else{
           if (!valj_efb[0].hasOwnProperty('loading_color')) {
@@ -4149,8 +4198,8 @@ let change_el_edit_Efb = (el) => {
             document.getElementById('optionListefb').innerHTML=opetions
       break;
       case 'FormEmailSubjectEl':
-        if(pro_efb!=true){
-          pro_show_efb(3);
+        if(!efb_capability_available_efb('setting:email_sub', pro_efb==true)){
+          efb_capability_prompt_efb('setting:email_sub', 3);
           valj_efb[0].email_sub ='';
           break;
         }
@@ -4283,6 +4332,30 @@ async function create_form_efb() {
   return content
 }
 
+/* B5: the three SMS texts get the same defaults the server writes when they are empty. */
+function efb_sms_fill_defaults_efb() {
+  const t = (typeof efb_var !== 'undefined' && efb_var.text) ? efb_var.text : {};
+  const tail = `\n${t.trackNo}: [confirmation_code]\n${t.url}: [link_response]`;
+  const auth = valj_efb[0].type === 'login' || valj_efb[0].type === 'register';
+  const defaults = { sms_msg_new_noti: t.newMessageReceived + tail };
+  if (!auth) {
+    defaults.sms_msg_recived_usr = t.WeRecivedUrM + tail;
+    defaults.sms_msg_responsed_noti = t.newResponse + tail;
+  }
+  Object.keys(defaults).forEach((k) => {
+    if (typeof valj_efb[0][k] !== 'string' || valj_efb[0][k].trim() === '') valj_efb[0][k] = defaults[k];
+  });
+}
+
+/* B4: the fixed field ids the public login and registration handlers read
+   (class-Emsfb-public.php, case "login" / "register"). */
+const EFB_AUTH_FIELDS_EFB = { login: ['emaillogin', 'passwordlogin'], register: ['usernameRegisterEFB', 'passwordRegisterEFB', 'emailRegisterEFB'] };
+function efb_auth_fields_missing_efb(rows) {
+  if (!Array.isArray(rows) || !rows[0]) return [];
+  const need = EFB_AUTH_FIELDS_EFB[rows[0].type] || [];
+  return need.filter((id) => !rows.some((r, i) => i > 0 && r && r.id_ === id));
+}
+
 const saveFormEfb = async (stated) => {
 
   const isAutoSave = stated === -1;
@@ -4361,8 +4434,9 @@ const saveFormEfb = async (stated) => {
             }
           }
         }
+        const authMissing = efb_auth_fields_missing_efb(valj_efb);
 
-        if (valj_efb.length > 2 && proState == true && stepState == true && (((valj_efb[0].type == "payment" && gateway != -1) || (valj_efb[0].type == "persiaPay" && gateway != -1)) || valj_efb[0].type != "payment")) {
+        if (valj_efb.length > 2 && proState == true && stepState == true && authMissing.length === 0 && (((valj_efb[0].type == "payment" && gateway != -1) || (valj_efb[0].type == "persiaPay" && gateway != -1)) || valj_efb[0].type != "payment")) {
           title = efb_var.text.save;
           box = `saveBox`;
           icon = `bi-check2-circle`;
@@ -4389,6 +4463,13 @@ const saveFormEfb = async (stated) => {
           btnText = efb_var.text.help;
           btnFun = `open_whiteStudio_efb('emptyStep')`;
           message = efb_var.text.itAppearedStepsEmpty;
+          returnState = true;
+        } else if (authMissing.length > 0) {
+          // B4: a login / registration form without the fields its handler reads cannot work.
+          btnText = efb_var.text.help;
+          btnFun = `open_whiteStudio_efb('${valj_efb[0].type}')`;
+          message = String(efb_var.text.authFieldsMissing || 'A %1$s form needs these fields: %2$s. Choose the form type again to add them.')
+            .replace('%1$s', efb_var.text[valj_efb[0].type] || valj_efb[0].type).replace('%2$s', authMissing.join(', '));
           returnState = true;
         } else if (valj_efb[0].type == "payment" && gateway == -1) {
           btnText = efb_var.text.help;
@@ -4458,10 +4539,13 @@ let editFormEfb =async () => {
   let dropZoneEFB = document.getElementById('dropZoneEFB');
   dropZoneEFB.innerHTML = efbLoadingCard('',4);
   if (sessionStorage.getItem('valj_efb')) { valj_efb = JSON.parse(sessionStorage.getItem('valj_efb')); }
+  // A saved form has every amount/step as a string; the builder compares them as numbers (A2).
+  if (typeof efbNormalizeOrderEfb === 'function') efbNormalizeOrderEfb(valj_efb);
   let p = calPLenEfb(valj_efb.length)
   const len = (valj_efb.length) * p || 10;
 
-  setTimeout(() => {
+  // B1: resolves once the canvas is drawn, so callers (efbBuilderApi.render) need no guessed timer.
+  return new Promise((efbCanvasDrawn) => setTimeout(() => {
     dropZoneEFB.innerHTML = "<!-- edit efb -->"
     for (let v in valj_efb) {
 
@@ -4500,7 +4584,9 @@ let editFormEfb =async () => {
     setTimeout(() => {
       efb_builder_maybe_warn_email_delivery();
     }, 250);
-  }, len);
+    efbCanvasDrawn();
+    if (typeof efb_after_canvas_draw_efb === 'function') efb_after_canvas_draw_efb();
+  }, len));
 
 }
 
@@ -5183,7 +5269,7 @@ const sort_obj_efb = () => {
 
   let p = calPLenEfb(len)
   setTimeout(() => {
-   const  valj_efb_ = valj_efb.sort((a, b) => (Number(a.amount) > Number(b.amount)) ? 1 : ((Number(b.amount) > Number(a.amount)) ? -1 : 0))
+   const  valj_efb_ = valj_efb.sort((a, b) => (efbOrderOf(a) > efbOrderOf(b)) ? 1 : ((efbOrderOf(b) > efbOrderOf(a)) ? -1 : 0))
      valj_efb= valj_efb_;
 
   }, ((len * p))
@@ -6947,6 +7033,43 @@ function fub_shwBtns_efb() {
  * the design system's gold-toned dialog rather than the bootstrap grid the
  * body used to be.
  */
+/* B3: one registry for locks and dialogs. efb_var.capabilities is built by
+   Emsfb\Builder_Api::capabilities(); these read it so the plan a gate checks and the
+   plan its dialog names come from the same entry (the root of A4). The plan is read
+   live (efb_var.setting.package_type), so a plan change in the page is honoured. */
+function efb_capability_efb(key) {
+  const caps = (typeof efb_var !== 'undefined' && efb_var && efb_var.capabilities) ? efb_var.capabilities : null;
+  return caps && caps.features && caps.features[key] ? caps.features[key] : null;
+}
+function efb_current_plan_rank_efb() {
+  const s = (typeof efb_var !== 'undefined' && efb_var && efb_var.setting) ? efb_var.setting : {};
+  const pkg = s.package_type !== undefined ? Number(s.package_type) : NaN;
+  if (pkg === 1) return 2;
+  if (pkg === 3) return 1;
+  if (pkg === 2 || pkg === 0) return 0;
+  return (typeof pro_efb !== 'undefined' && pro_efb === true) ? 1 : 0;
+}
+/* fallback: what the caller used before the registry (an old cached page has none). */
+function efb_capability_available_efb(key, fallback) {
+  const c = efb_capability_efb(key);
+  if (!c) return fallback;
+  const need = c.package === 'pro' ? 2 : (c.package === 'free_plus' ? 1 : 0);
+  if (efb_current_plan_rank_efb() < need) return false;
+  if (c.addon) {
+    const flags = Object.assign({}, (efb_var && efb_var.addons) || {}, (efb_var && efb_var.setting) || {});
+    return Number(flags[c.addon]) === 1;
+  }
+  return true;
+}
+function efb_capability_state_efb(key, fallback) {
+  const c = efb_capability_efb(key);
+  if (!c || !c.prompt_state) return fallback;
+  return c.prompt_state;
+}
+function efb_capability_prompt_efb(key, fallback) {
+  pro_show_efb(efb_capability_state_efb(key, fallback));
+}
+
 function pro_show_efb(state) {
   const t = (key, fallback) => (typeof efb_var !== 'undefined' && efb_var.text && efb_var.text[key]) || fallback;
   const price = t('priceyr', '$NN/year').replace('NN', pro_price_efb);
@@ -8006,7 +8129,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     `
     const proActiv = `
     <div class="efb btn-edit-holder efb d-none zindex-10-efb " id="btnSetting-${rndm}-id">
-    <button type="button" class="efb btn efb pro-bg btn-pro-efb btn-sm px-2 mx-3" id="pro" data-id="${rndm}-id" data-bs-toggle="tooltip"  title="${efb_var.text.proVersion}" onclick="pro_show_efb(1)">
+    <button type="button" class="efb btn efb pro-bg btn-pro-efb btn-sm px-2 mx-3" id="pro" data-id="${rndm}-id" data-bs-toggle="tooltip"  title="${efb_var.text.proVersion}" onclick="pro_show_efb(${['pdate','ardate','persiaPay'].includes(valj_efb[iVJ].type) ? 1 : 3})">
     <i class="efb  bi-gem pro"> ${efb_var.text.pro}</i>`;
     endTags = previewSate == false ? `</button> </button></div></div>` : `</div></div>`
     const tagId = elementId == "firstName" || elementId == "lastName" || elementId == "address" || elementId == "address_line" || elementId == "postalcode" ? 'text' : elementId;

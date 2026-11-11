@@ -2236,6 +2236,14 @@ public function check_nonce_permission_efb($request) {
 			wp_enqueue_script('efb-masks-js');
 			$core_deps[] = 'efb-masks-js';
 		}
+		// A6: a mobile field needs intlTelInput before its init runs; declare it as a
+		// dependency so script optimisers keep the order (the renderer registers the
+		// same handle later, which is then a no-op).
+		if (is_string($form_structure_json) && preg_match('/type\\\\?"\s*:\s*\\\\?"mobile\\\\?"/', $form_structure_json)) {
+			wp_register_script('intlTelInput-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/intlTelInput.min-efb.js', array(), EMSFB_PLUGIN_VERSION, true);
+			wp_enqueue_script('intlTelInput-js');
+			$core_deps[] = 'intlTelInput-js';
+		}
 		wp_register_style('Emsfb-response-viewer-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/response-viewer-efb.css', true, EMSFB_PLUGIN_VERSION);
 		wp_enqueue_style('Emsfb-response-viewer-css');
 		wp_register_script('efb-response-viewer-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/response-viewer-efb.js', array('efb-main-js'), $response_viewer_js_version, true);
@@ -7657,6 +7665,8 @@ public function check_nonce_permission_efb($request) {
 			$rePage= preg_replace('/(http:@efb@)+/','http://',$string);
 			$rePage= preg_replace('/(https:@efb@)+/','https://',$rePage);
 			$rePage =preg_replace('/(@efb@)+/','/',$rePage);
+			// Same as efb_url_from_storage_efb() in new-efb.js: repair "https:/host" saved by the old panel.
+			$rePage = preg_replace('#^(https?):/(?!/)#i', '$1://', $rePage);
 		return $rePage;
 	}
 	public function new_user_validate_efb($username,$email,$password){
@@ -9857,6 +9867,19 @@ public function check_nonce_permission_efb($request) {
 			$invalid();
 			return ['price_total' => 0, 'email' => '', 'valobj' => []];
 		}
+		/* B7: a price field that a logic rule computes (calculate, e.g. guests x 5) is
+		 * priced here by the add-on's engine from the submitted answers; what the
+		 * browser sent for it is replaced, so it cannot be lowered. */
+		$tampered_efb = false;
+		if (class_exists('\Emsfb\Builder_Api')) {
+			$before_efb = json_encode($val_);
+			list($val_, $price_error_efb) = \Emsfb\Builder_Api::apply_server_prices($val_, $fs_);
+			if ($price_error_efb !== null) {
+				$invalid();
+				return ['price_total' => 0, 'email' => '', 'valobj' => []];
+			}
+			$tampered_efb = $before_efb !== json_encode($val_) && \Emsfb\Builder_Api::server_price_differs(json_decode($before_efb, true), $val_);
+		}
 		for ($i=0; $i <count($val_) ; $i++) {
 			$a=-1;
 			if(isset($val_[$i]) && is_array($val_[$i]) && isset($val_[$i]['price'])){
@@ -9956,7 +9979,7 @@ public function check_nonce_permission_efb($request) {
 		}
 		$ip =$this->get_ip_address();
 		$this->ip = $ip;
-		if($price_c != $price_f) {
+		if($price_c != $price_f || $tampered_efb) {
 			$t=time();
 			$SERVER_NAME = apply_filters('emsfb_get_server_host', 'yourdomain.com');
 			$from =get_bloginfo('name')." <Alert@".$SERVER_NAME.">";

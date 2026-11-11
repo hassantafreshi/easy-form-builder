@@ -33,6 +33,11 @@ if (!defined("EMSFB_DB_VERSION")) {
     // triggers Install::upgrade_schema() on sites that already have the tables.
     define("EMSFB_DB_VERSION", 1.3);
 }
+if (!defined("EMSFB_API_VERSION")) {
+    // Version of the integration API (efbBuilderApi, efb_var.capabilities, field templates,
+    // efb_logic_validate_rules). Bumped only on a breaking change; see docs/autopilot-integration.md.
+    define("EMSFB_API_VERSION", 1);
+}
 
 if (!defined("EFB_DEBUG")) {
     // Single global switch for Easy Form Builder's own diagnostic logging

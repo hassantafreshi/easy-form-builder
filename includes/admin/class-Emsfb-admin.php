@@ -326,7 +326,7 @@ class Admin {
     }
     public function update_form_id_Emsfb() {
         $efbFunction = get_efbFunction();
-        $text = ["sms_noti","msg_adons","error403","invalidRequire","nAllowedUseHtml","updated","upDMsg" ,"newMessageReceived","trackNo","url","newResponse","WeRecivedUrM","somethingWentWrongPleaseRefresh"];
+        $text = ["sms_noti","msg_adons","error403","invalidRequire","nAllowedUseHtml","updated","upDMsg" ,"newMessageReceived","trackNo","url","newResponse","WeRecivedUrM","somethingWentWrongPleaseRefresh","smsOffAddonMissing","telegramOffAddonMissing","authFieldsMissing","login","register","smsAdminPhoneInvalid","smsFieldWithoutForm"];
         $lang= $efbFunction->text_efb($text);
         $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
         $post_value = isset($_POST['value']) ? wp_unslash( $_POST['value'] ) : '';
@@ -361,11 +361,38 @@ class Admin {
         $telegram_admin_chat_ids = "";
         $settings = get_setting_Emsfb('decoded', []);
 
+        /* A5: SMS or Telegram switched on while that add-on is not active used to
+         * refuse the whole save (after writing it). The form is saved with the
+         * notification off and the answer says why. */
+        $save_warnings_efb = array();
+        if (is_array($valp) && class_exists('\Emsfb\Builder_Api')) {
+            list($valp, $save_warnings_efb) = Builder_Api::disable_unavailable_notifiers($valp, $settings, $lang);
+            if (Builder_Api::sms_field_without_form($valp)) {
+                $save_warnings_efb[] = array('code' => 'sms_field_without_form', 'm' => $lang['smsFieldWithoutForm']);
+            }
+            // B4: a login / registration form must keep the fields its handler reads.
+            $auth_missing_efb = Builder_Api::auth_fields_missing($valp);
+            if (!empty($auth_missing_efb)) {
+                $type_label_efb = isset($lang[$valp[0]['type']]) ? $lang[$valp[0]['type']] : $valp[0]['type'];
+                $m = str_replace(array('%1$s', '%2$s'), array($type_label_efb, implode(', ', $auth_missing_efb)), isset($lang['authFieldsMissing']) ? $lang['authFieldsMissing'] : 'A %1$s form needs these fields: %2$s.');
+                wp_send_json_success(['success' => false, 'm' => $m, 'code' => 'auth_fields_missing', 'missing' => $auth_missing_efb], 200);
+            }
+        }
+
         if(isset($valp[0]['smsnoti']) && intval($valp[0]['smsnoti'])==1){
-			$sms_msg_new_noti = isset($valp[0]['sms_msg_new_noti']) ?$valp[0]['sms_msg_new_noti'] :$lang['newMessageReceived'] ."\n". $lang['trackNo'] .": [confirmation_code]\n". $lang['url'] .": [link_response]";
-			$sms_msg_responsed_noti = isset($valp[0]['sms_msg_responsed_noti']) ? $valp[0]['sms_msg_responsed_noti'] :  $lang['newResponse']."\n". $lang['trackNo'] .": [confirmation_code]\n". $lang['url'] .": [link_response]";
-			$sms_msg_recived_user = isset($valp[0]['sms_msg_recived_usr']) ? $valp[0]['sms_msg_recived_usr'] : $lang['WeRecivedUrM'] ."\n". $lang['trackNo'] .": [confirmation_code]\n". $lang['url'] .": [link_response]";
+			// B5: an empty text gets the default too, not only a missing one.
+			$sms_msg_new_noti = !empty($valp[0]['sms_msg_new_noti']) ?$valp[0]['sms_msg_new_noti'] :$lang['newMessageReceived'] ."\n". $lang['trackNo'] .": [confirmation_code]\n". $lang['url'] .": [link_response]";
+			$sms_msg_responsed_noti = !empty($valp[0]['sms_msg_responsed_noti']) ? $valp[0]['sms_msg_responsed_noti'] :  $lang['newResponse']."\n". $lang['trackNo'] .": [confirmation_code]\n". $lang['url'] .": [link_response]";
+			$sms_msg_recived_user = !empty($valp[0]['sms_msg_recived_usr']) ? $valp[0]['sms_msg_recived_usr'] : $lang['WeRecivedUrM'] ."\n". $lang['trackNo'] .": [confirmation_code]\n". $lang['url'] .": [link_response]";
 			$sms_admins_phoneno = isset($valp[0]['sms_admins_phone_no']) ? $valp[0]['sms_admins_phone_no'] : "";
+			// B5: the admin numbers are checked here too, not only in the builder.
+			if (class_exists('\Emsfb\Builder_Api')) {
+				list($sms_ok_efb, $sms_bad_efb) = Builder_Api::sms_admin_numbers($sms_admins_phoneno, function_exists('get_locale') ? get_locale() : '');
+				$sms_admins_phoneno = implode(',', $sms_ok_efb);
+				if (!empty($sms_bad_efb)) {
+					$save_warnings_efb[] = array('code' => 'sms_admin_phone_invalid', 'm' => str_replace('%s', implode(', ', array_map('sanitize_text_field', $sms_bad_efb)), $lang['smsAdminPhoneInvalid']), 'numbers' => array_map('sanitize_text_field', $sms_bad_efb));
+				}
+			}
 			unset($valp[0]['sms_msg_new_noti']);
 			unset($valp[0]['sms_msg_responsed_noti']);
 			unset($valp[0]['sms_msg_recived_user']);
@@ -465,8 +492,13 @@ class Admin {
                 $telegram_msg_responsed_noti
             );
 		}
+        // B4: a form changed to login / register needs the temporary-links table, as a new one does.
+        if ($form_type === 'login' || $form_type === 'register') {
+            do_action('create_temporary_links_table_Emsfb');
+        }
         $m = $lang['updated'];
         $response = ['success' => true, 'r' =>"updated", 'value' => "[EMS_Form_Builder id=$id]"];
+        if (!empty($save_warnings_efb)) $response['warnings'] = $save_warnings_efb;
         wp_send_json_success($response, 200);
     }
     /**
@@ -1254,6 +1286,10 @@ class Admin {
         ]);
 
         $response = ['success' => true, 'r' => "done", 'value' => "add_addons_Emsfb", 'new' => $newAc];
+        // B8: fresh add-on flags and registry for the page; no secrets in `new` any more.
+        if (class_exists('\Emsfb\Builder_Api')) {
+            $response = Builder_Api::addon_install_response($post_value, $ac, $efbFunction);
+        }
         wp_send_json_success($response, 200);
     }
     public function remove_addons_Emsfb() {
@@ -1771,7 +1807,10 @@ class Admin {
          * not read. Stored as a key it silently replaced a working Stripe or
          * PayPal secret (the payment then failed with HTTP 401), so keep the
          * saved value for any key field that arrives as that marker. */
-        if (is_array($m)) {
+        if (is_array($m) && class_exists('\Emsfb\Builder_Api')) {
+            // A7: every key, not only the secrets; the stored value stays, a new key is dropped.
+            $m = Builder_Api::drop_unread_setting_markers($m, $ac);
+        } elseif (is_array($m)) {
             foreach (array('stripeSKey', 'stripePKey', 'paypalSKey', 'paypalPKey', 'secretKey', 'siteKey', 'apiKeyMap', 'activeCode') as $secret_key_efb) {
                 if (isset($m[$secret_key_efb]) && $m[$secret_key_efb] === 'NotFoundEl') {
                     $m[$secret_key_efb] = (is_object($ac) && isset($ac->$secret_key_efb) && $ac->$secret_key_efb !== 'NotFoundEl') ? $ac->$secret_key_efb : '';

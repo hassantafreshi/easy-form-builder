@@ -414,6 +414,8 @@ if (typeof(ajax_object_efm)=='object' && ajax_object_efm.hasOwnProperty('ajax_va
   g_timeout_efb = g_timeout_efb * calPLenEfb(g_timeout_efb);
   ajax_object_efm.ajax_value_forms.forEach(form => {
     form.form_structer = efbParseJson(form.form_structer);
+    // Saved amounts/steps are strings; every position compare is numeric (A2, efbOrderOf in new-efb.js).
+    if (typeof efbNormalizeOrderEfb === 'function') efbNormalizeOrderEfb(form.form_structer);
   });
   valj_efb_new = ajax_object_efm.ajax_value_forms
 }

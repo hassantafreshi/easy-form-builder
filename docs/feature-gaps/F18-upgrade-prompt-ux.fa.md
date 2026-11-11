@@ -350,6 +350,8 @@ add-on منطق (git-ignored) باید به‌جای upsell خودش `efb_upgrad
 
 SitePilot (ADR-0002: EFB نخستین connector با قابلیت‌های `form.create` و `form.read`) پیش از ساخت فرم باید بداند کدام فیلد روی این سایت مجاز است. کد `EfbPlanManager` و `EfbLicense` که در `PROJECT_STATUS_REPORT.md:81` آمده‌اند، در clone فعلی نیستند. پس قرارداد از سمت EFB تعریف می‌شود:
 
+**وضعیت (۲۰ آبان ۱۴۰۵):** رجیستری این بخش با پیاده‌سازی AutoPilot (B3) ساخته شد: `\Emsfb\Builder_Api::capabilities()` = `get_efbFunction()->capabilities_efb()` و در JS `efb_var.capabilities` با کلیدهای `field:*`، `setting:*`، `addon:*` و `limit:*`، و توابع زیر با همین نام‌ها در `includes/builder-api-functions-efb.php` (خروجی `efb_feature_required_package_efb` همان ۰/۳/۱ است). زیرتسک A این سند باید دیالوگ را روی همین رجیستری بسازد و جدول دوم نسازد. ممیزی §۲.۳ در بند A4 همان کار برای عدد پیام‌ها اعمال شده است (جزئیات در `docs/autopilot-integration.md`).
+
 **PHP، فقط‌خواندنی** (در `includes/functions.php`، تابع سراسری با `function_exists`):
 ```php
 efb_current_package_efb(): int            // 0|1|2|3؛ ‎-1 و 10 → 2. فقط get_option، بدون تماس شبکه و بدون is_efb_pro (که ممکن است گزینه را بنویسد)
