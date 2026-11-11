@@ -720,8 +720,14 @@ function create_intlTelInput_efb(rndm,iVJ,previewSate,corner){
  `;
 }
 
-load_intlTelInput_efb = (rndm, iVJ) => {
+load_intlTelInput_efb = (rndm, iVJ, tries = 0) => {
   setTimeout(() => {
+    /* A6: the library is a separate script that a cache plugin may delay; wait for it
+       (every 0.8 s, about 12 minutes at most) instead of throwing. */
+    if (typeof window.intlTelInput !== 'function') {
+      if (tries < 900) load_intlTelInput_efb(rndm, iVJ, tries + 1);
+      return;
+    }
     const onlyCountries = valj_efb[iVJ].hasOwnProperty("c_c") && valj_efb[iVJ].c_c.length > 0 ? valj_efb[iVJ].c_c : "";
     const forceIntlContainerRtlEfb = (inputEl) => {
       if (!inputEl) return;

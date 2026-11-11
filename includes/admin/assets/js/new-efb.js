@@ -918,6 +918,8 @@ async function fun_offline_Efb() {
           storedPhoneNumber ='+'+ v[2];
         }
         const country =efb_var.wp_lan.split('_')[1].toUpperCase();
+        // A6: without the library (not loaded, or delayed) the number is still shown as text.
+        if (typeof window.intlTelInput !== 'function' || !el) { el=value.type; break; }
         const iti = window.intlTelInput(el, {
             initialCountry: country,
             loadUtils: () => import(efb_var.images.utilsJs)

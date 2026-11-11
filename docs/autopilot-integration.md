@@ -13,6 +13,7 @@ node tests/test-ap-a2-order-type.js
 node tests/test-ap-a3-redirect-url.js
 node tests/test-ap-a4-plan-messages.js
 php tests/test-ap-a5-save-without-sms-addon.php
+node tests/test-ap-a6-intltelinput-late.js
 ```
 
 (The full list is in [Tests](#tests) at the end.)
@@ -154,3 +155,29 @@ php tests/test-ap-a5-save-without-sms-addon.php
 - **AutoPilot.** Read `data.warnings` after `saveFormEfb()` / the save AJAX: code
   `sms_disabled_addon_missing` means "tell the admin SMS needs the SMS add-on (Pro)". The capability
   registry (B3) says beforehand whether `addon:AdnSS` is `available_now`.
+
+### A6. `window.intlTelInput is not a function` on the public page
+
+- **Reproduced.** The PHP renderer (`Formbuilder::create_intlTelInput_efb()`) prints the mobile
+  field's init as an inline `<script>` inside the form markup and calls `window.intlTelInput` one
+  second later. The library (`intlTelInput-js`) is a footer script with no declared relation to it.
+  A cache plugin that delays or combines footer scripts (LiteSpeed "delay JS", Cloudflare Rocket
+  Loader, both on the demo) loads it after that second and the call throws. The JS renderer
+  (`load_intlTelInput_efb()` in `pro_els-efb.js`, 0.8 s timer) has the same race, and the response
+  viewer (`new-efb.js`, `case 'mobile'`) called it unguarded.
+- **Fix.**
+  - PHP inline init and `load_intlTelInput_efb()` check `typeof window.intlTelInput === 'function'`
+    and retry (PHP: every 0.1 s for 30 s, then every 1 s; JS: every 0.8 s; both give up after about
+    12 minutes without an error), so the field attaches whenever the library arrives.
+  - `public_scripts_and_css_head()` registers and enqueues `intlTelInput-js` when the form JSON has a
+    `mobile` field and adds it to `$core_deps` of `Emsfb-core_js`, so optimisers that honour
+    dependencies keep the order. The renderer's later `wp_register_script` of the same handle is a
+    no-op.
+  - The response viewer only formats the number when the library is there.
+- **Test.** `node tests/test-ap-a6-intltelinput-late.js`: the real PHP output (through reflection)
+  and the real `pro_els-efb.js` in Chromium with the library injected 2.5 s late. Before: the page
+  threw `window.intlTelInput is not a function` and the field never attached (8 failures); after:
+  no error, the `.iti` wrapper appears once the library loads, dependency and guard checks pass
+  (8 passed).
+- **AutoPilot.** Nothing to change. A form with a mobile field no longer logs this error on a cached
+  site, so AutoPilot's console checks after publishing stay clean.

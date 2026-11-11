@@ -2236,6 +2236,14 @@ public function check_nonce_permission_efb($request) {
 			wp_enqueue_script('efb-masks-js');
 			$core_deps[] = 'efb-masks-js';
 		}
+		// A6: a mobile field needs intlTelInput before its init runs; declare it as a
+		// dependency so script optimisers keep the order (the renderer registers the
+		// same handle later, which is then a no-op).
+		if (is_string($form_structure_json) && preg_match('/type\\\\?"\s*:\s*\\\\?"mobile\\\\?"/', $form_structure_json)) {
+			wp_register_script('intlTelInput-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/intlTelInput.min-efb.js', array(), EMSFB_PLUGIN_VERSION, true);
+			wp_enqueue_script('intlTelInput-js');
+			$core_deps[] = 'intlTelInput-js';
+		}
 		wp_register_style('Emsfb-response-viewer-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/response-viewer-efb.css', true, EMSFB_PLUGIN_VERSION);
 		wp_enqueue_style('Emsfb-response-viewer-css');
 		wp_register_script('efb-response-viewer-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/response-viewer-efb.js', array('efb-main-js'), $response_viewer_js_version, true);
