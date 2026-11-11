@@ -1130,6 +1130,9 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id,fid,sid,option
           if (files_emsFormBuilder[currentIndx].recorder_type) {
             o[0].recording_duration = files_emsFormBuilder[currentIndx].recording_duration || 0;
           }
+          /* Upload token: binds this file to the form, field and session.
+             The server checks it on submit and does not store it. */
+          if (typeof responseData.ut === 'string' && responseData.ut !== '') o[0].ut = responseData.ut;
           fun_sendBack_emsFormBuilder(o[0]);
           files_emsFormBuilder.splice(currentIndx, 1);
           const el = document.getElementById(idB)

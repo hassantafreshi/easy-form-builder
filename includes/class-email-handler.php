@@ -70,20 +70,11 @@ class EmsfbEmailHandler {
     }
 
     public function get_ip_address() {
-        $ip = '1.1.1.1';
-        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
-            $ip = sanitize_text_field(wp_unslash($_SERVER['HTTP_CLIENT_IP']));
-        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            $ip = sanitize_text_field(wp_unslash($_SERVER['HTTP_X_FORWARDED_FOR']));
-        } elseif (!empty($_SERVER['REMOTE_ADDR'])) {
-            $ip = sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR']));
-        }
-        $ip = strval($ip);
-        $check = strpos($ip, ',');
-        if ($check !== false) {
-            $ip = substr($ip, 0, $check);
-        }
-        return $ip;
+        /* REMOTE_ADDR unless it is a trusted proxy (efb_trusted_proxies /
+         * EMSFB_TRUSTED_PROXIES). Client-IP and X-Forwarded-For are never
+         * trusted on their own: any visitor can send them. */
+        if (!class_exists('\\Emsfb\\Client_IP')) require_once __DIR__ . '/class-Emsfb-client-ip.php';
+        return \Emsfb\Client_IP::resolve();
     }
 
     public function getVisitorOS() {

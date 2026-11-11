@@ -31,6 +31,8 @@ class _Public {
 	private $deferred_form_key = '';
 	private $operation_key = '';
 	private $operation_data = array();
+	/** sid of the live form session of the submission being validated, '' when none. */
+	private $upload_session_sid_efb = '';
 
 	/* Head hoisting - see open_head_hoist_buffer_efb(). */
 	private $head_chunks_efb      = [];
@@ -2417,6 +2419,8 @@ public function check_nonce_permission_efb($request) {
 		}
 
 		$session_is_valid = $this->efbFunction->efb_code_validate_select($session_id, $this->id);
+		// Upload tokens issued in this live session are bound to its sid.
+		$this->upload_session_sid_efb = (int) $session_is_valid === 1 ? (string) $session_id : '';
 		/*
 		 * Session check. A current client sends the runtime token it got from
 		 * forms/session/prepare together with the sid that token was issued
@@ -3189,6 +3193,9 @@ public function check_nonce_permission_efb($request) {
 								case 'video_recorder':
 								case 'screen_recorder':
 									$d = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) :'';
+									/* The upload token is checked, never stored: read it
+									 * before the attribute allow-list drops it. */
+									$upload_token = isset($item['ut']) && is_string($item['ut']) ? $item['ut'] : '';
 									$item = $this->filter_attributes_by_type_efb($item,$f['type']);
 									/* The server determines the kind from the saved form. Do not
 									 * retain a browser-supplied MIME/type in the response row. */
@@ -3203,7 +3210,7 @@ public function check_nonce_permission_efb($request) {
 												$s = 1;
 											}
 										}
-									$upload_validation = $s == 1 ? $this->validate_submitted_upload_url_efb($item['url'], $f) : false;
+									$upload_validation = $s == 1 ? $this->validate_submitted_upload_url_efb($item['url'], $f, $upload_token) : false;
 									if ($upload_validation === true) {
 											$item['url'] = sanitize_url($item['url']);
 											/* The client always sends the "@file@" marker here and
@@ -4765,31 +4772,12 @@ public function check_nonce_permission_efb($request) {
 
 	}
 	public function get_ip_address() {
-
-        $ip='1.1.1.1';
-		if (!empty($_SERVER['HTTP_CLIENT_IP'])) {$ip = sanitize_text_field( wp_unslash( $_SERVER['HTTP_CLIENT_IP'] ) );
-        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) { $ip = sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_FORWARDED_FOR'] ) );
-        } else {$ip = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );}
-        $ip = strval($ip);
-        $check =strpos($ip,',');
-        if($check !== false){$ip = substr($ip,0,$check);}
-        $ip = trim($ip);
-        /* Some proxies (Azure App Service, IIS ARR) forward "IP:port" or
-         * "[IPv6]:port"; keep the address part. */
-        if (preg_match('/^\[([0-9a-fA-F:.]+)\](?::\d+)?$/', $ip, $ip_m)) {
-            $ip = $ip_m[1];
-        } elseif (preg_match('/^(\d{1,3}(?:\.\d{1,3}){3}):\d+$/', $ip, $ip_m)) {
-            $ip = $ip_m[1];
-        }
-        /* Client-IP / X-Forwarded-For are request headers: anything that is
-         * not an address was stored as the visitor's IP and used as a rate
-         * limit key. Fall back to the connection address in that case. */
-        if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
-            $remote = isset($_SERVER['REMOTE_ADDR']) ? trim(sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR']))) : '';
-            $ip = filter_var($remote, FILTER_VALIDATE_IP) !== false ? $remote : '1.1.1.1';
-        }
-        return $ip;
-    }
+		/* REMOTE_ADDR unless it is a trusted proxy (efb_trusted_proxies /
+		 * EMSFB_TRUSTED_PROXIES). Client-IP and X-Forwarded-For are never
+		 * trusted on their own: any visitor can send them. */
+		if (!class_exists('\\Emsfb\\Client_IP')) require_once __DIR__ . '/class-Emsfb-client-ip.php';
+		return \Emsfb\Client_IP::resolve();
+	}
 	public function file_upload_public(){
         $_POST['id']=intval( wp_unslash( $_POST['id'] ) );
         $_POST['pl']=sanitize_text_field($_POST['pl']);
@@ -4855,7 +4843,7 @@ public function check_nonce_permission_efb($request) {
 		$file_name_raw = isset($_FILES['file']['name']) ? sanitize_file_name( wp_unslash( $_FILES['file']['name'] ) ) : '';
 		$file_tmp = isset($_FILES['file']['tmp_name']) ? $_FILES['file']['tmp_name'] : '';
 
-		$name = 'efb-PLG-'. wp_date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($file_name_raw, PATHINFO_EXTENSION) ;
+		$name = 'efb-PLG-'. wp_date("ymd"). '-'.wp_generate_password(12, false, false).'.'.pathinfo($file_name_raw, PATHINFO_EXTENSION) ;
 
 		if (\Emsfb\Upload_Guard::is_blocked_extension(\Emsfb\Upload_Guard::extension_of($name))) {
 			wp_send_json_success($this->upload_rejected_response_efb(\Emsfb\Upload_Guard::type_message()), 200);
@@ -5206,13 +5194,48 @@ public function check_nonce_permission_efb($request) {
 			return $this->recorder_upload_error_response_efb(esc_html__('The server could not store the recording. Please try again or contact the site administrator.','easy-form-builder'));
 		}
 		if (is_ssl()) $upload['url'] = str_replace('http://', 'https://', $upload['url']);
-		return array('success' => true, 'ID' => 'id', 'file' => array('url' => $upload['url'], 'type' => $upload['type'] ?? ''), 'name' => $stored_file['name'], 'type' => $detected_mime, 'duration' => $actual_duration);
+		return array('success' => true, 'ID' => 'id', 'file' => array('url' => $upload['url'], 'type' => $upload['type'] ?? ''), 'name' => $stored_file['name'], 'type' => $detected_mime, 'duration' => $actual_duration, '_path' => isset($upload['file']) ? (string) $upload['file'] : '');
+	}
+
+	/**
+	 * Upload token for a file just stored for form $fid, field $field_id.
+	 *
+	 * Bound to the request's live form session: the sid header, when it is a
+	 * live session of this form (the sid forms/session/prepare issued and the
+	 * Form_Runtime token carries), or the visitor IP when there is none.
+	 */
+	private function issue_upload_token_efb($basename, $fid, $field_id) {
+		$sid = isset($_SERVER['HTTP_SID']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_SID'])) : '';
+		$live = false;
+		if ($sid !== '' && (int) $fid > 0) {
+			if ($this->efbFunction === null) $this->efbFunction = get_efbFunction();
+			$live = (int) $this->efbFunction->efb_code_validate_select($sid, (int) $fid) === 1;
+		}
+		$bucket = \Emsfb\Upload_Guard::upload_token_bucket($sid, $live, $this->get_ip_address());
+		return \Emsfb\Upload_Guard::issue_upload_token($basename, (int) $fid, (string) $field_id, $bucket);
+	}
+
+	/**
+	 * Sessions a submission may hold, for verify_upload_token(): its live sid
+	 * (when the session check passed) and its IP.
+	 */
+	private function upload_token_buckets_efb() {
+		$buckets = array();
+		if (is_string($this->upload_session_sid_efb) && $this->upload_session_sid_efb !== '') {
+			$buckets[] = \Emsfb\Upload_Guard::upload_token_bucket($this->upload_session_sid_efb, true, '');
+		}
+		$buckets[] = \Emsfb\Upload_Guard::upload_token_bucket('', false, $this->get_ip_address());
+		return $buckets;
 	}
 
 	/* Final form submission is separate from the upload request. Re-check every
 	 * submitted file against the saved field, so changing pl/fid in a direct
-	 * request cannot turn a restricted field into an unrestricted attachment. */
-	private function validate_submitted_upload_url_efb($url, $field) {
+	 * request cannot turn a restricted field into an unrestricted attachment.
+	 *
+	 * $token is the row's upload token ("ut"). Ownership is checked first:
+	 * a URL that merely lies inside the uploads folder (site media, another
+	 * visitor's file, another form's or field's upload) is refused. */
+	private function validate_submitted_upload_url_efb($url, $field, $token = '') {
 		if (!is_string($url) || $url === '' || !function_exists('wp_upload_dir')) return false;
 		if (!is_array($field) || empty($field['type'])) return false;
 		$uploads = wp_upload_dir();
@@ -5225,6 +5248,15 @@ public function check_nonce_permission_efb($request) {
 		$base_path = wp_normalize_path(realpath($base_dir));
 		$real_path = realpath($path);
 		if ($base_path === false || $real_path === false || strpos(wp_normalize_path($real_path), trailingslashit($base_path)) !== 0 || !is_file($real_path)) return false;
+		if (!\Emsfb\Upload_Guard::verify_upload_ownership(
+			$url,
+			$token,
+			isset($this->id) ? absint($this->id) : 0,
+			isset($field['id_']) ? (string) $field['id_'] : '',
+			$this->upload_token_buckets_efb()
+		)) {
+			return esc_html__('This file could not be verified. Please attach it again.', 'easy-form-builder');
+		}
 		$field_max_mb = isset($field['max_fsize']) && is_numeric($field['max_fsize']) && floatval($field['max_fsize']) > 0
 			? floatval($field['max_fsize'])
 			: null;
@@ -5417,9 +5449,16 @@ public function check_nonce_permission_efb($request) {
 			}
 			$duration = isset($_POST['recording_duration']) ? sanitize_text_field(wp_unslash($_POST['recording_duration'])) : '';
 			$response = $this->process_recorder_upload_efb($recorder_field, $_FILES['async-upload'], $duration);
-			if (!empty($response['success']) && !empty($response['file']['file'])) {
+			/* The stored path travels in '_path' and never reaches the browser.
+			 * The check used to read $response['file']['file'], which the
+			 * recorder response never had, so recordings were neither charged
+			 * to the quota nor entered in the pending ledger. */
+			$stored_path = isset($response['_path']) ? (string) $response['_path'] : '';
+			unset($response['_path']);
+			if (!empty($response['success']) && $stored_path !== '') {
 				\Emsfb\Upload_Guard::quota_consume($upload_context);
-				\Emsfb\Upload_Guard::track_pending_upload($response['file']['file']);
+				\Emsfb\Upload_Guard::track_pending_upload($stored_path);
+				$response['ut'] = $this->issue_upload_token_efb(wp_basename($stored_path), $fid, $_POST['id']);
 			}
 			wp_send_json_success($response, 200);
 		}
@@ -5459,7 +5498,10 @@ public function check_nonce_permission_efb($request) {
 		$async_file_tmp  = isset($_FILES['async-upload']['tmp_name']) ? $_FILES['async-upload']['tmp_name'] : '';
 		$async_file_type = isset($_FILES['async-upload']['type']) ? sanitize_text_field( wp_unslash( $_FILES['async-upload']['type'] ) ) : '';
 
-		$name = 'efb-PLG-'. wp_date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($async_file_name, PATHINFO_EXTENSION) ;
+		/* wp_generate_password() draws from a CSPRNG; str_shuffle() does not.
+		 * Without a token, an unclaimed upload is accepted by name (pending
+		 * ledger), so the name must not be guessable. */
+		$name = 'efb-PLG-'. wp_date("ymd"). '-'.wp_generate_password(12, false, false).'.'.pathinfo($async_file_name, PATHINFO_EXTENSION) ;
 
 		/* Redundant with the allow-list above, kept as a second net so that a
 		 * future allow-list entry cannot quietly re-admit an executable. */
@@ -5498,6 +5540,11 @@ public function check_nonce_permission_efb($request) {
 		/* wp_handle_upload() also returns the absolute server path in 'file';
 		 * the browser only needs the address. */
 		$response = array( 'success' => true  ,'ID'=>"id" , "file"=>array('url' => $upload['url'], 'type' => $upload['type'] ?? '') ,"name"=>$name ,'type'=>$async_file_type);
+		if ($is_form_upload && !empty($upload['file'])) {
+			/* F07 §7.1: the submission has to present this token for the file. */
+			$response['ut'] = $this->issue_upload_token_efb(wp_basename($upload['file']), $fid, $_POST['id']);
+			$response['size'] = (int) @filesize($upload['file']);
+		}
 		wp_send_json_success($response,200);
 	}
 	public function set_rMessage_id_Emsfb_api($data_POST_) {
@@ -8992,11 +9039,12 @@ public function check_nonce_permission_efb($request) {
 			if ($type === 'password' || in_array($id, array('passwordRegisterEFB', 'repasswordRegisterEFB', 'passwordlogin'), true)) continue;
 			$key = $id . '|' . (isset($item['id_ob']) && is_scalar($item['id_ob']) ? (string) $item['id_ob'] : '');
 			if (isset($seen[$key])) continue;
+			$upload_token = isset($item['ut']) && is_string($item['ut']) ? $item['ut'] : '';
 			$clean = $this->sanitize_payment_merge_row_efb($item, $field);
 			if (!is_array($clean)) continue;
 			if (in_array($type, $upload_types, true) && $type !== 'esign') {
 				$url = isset($clean['url']) ? (string) $clean['url'] : '';
-				if ($url === '' || $this->validate_submitted_upload_url_efb($url, $field) !== true) continue;
+				if ($url === '' || $this->validate_submitted_upload_url_efb($url, $field, $upload_token) !== true) continue;
 				$clean['url'] = sanitize_url($url);
 				$clean['value'] = '@file@';
 			}

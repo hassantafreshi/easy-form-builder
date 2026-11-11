@@ -358,16 +358,10 @@ class Panel_edit  {
 				}
 			}
 			$lng = get_locale();
-			$ip =0;
-			if ( ! empty( $_SERVER['HTTP_CLIENT_IP'] ) ) {
-
-				$ip = isset($_SERVER['HTTP_CLIENT_IP']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_CLIENT_IP'] ) ) : '0.0.0.0';
-			} elseif ( ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
-
-				$ip = isset($_SERVER['HTTP_X_FORWARDED_FOR']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) : '0.0.0.0';
-			} else {
-				$ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '0.0.0.0';
-			}
+			/* Same resolver as the public side: forwarded headers only via a
+			 * trusted proxy (efb_trusted_proxies). */
+			if (!class_exists('\\Emsfb\\Client_IP')) require_once dirname(__DIR__) . '/class-Emsfb-client-ip.php';
+			$ip = \Emsfb\Client_IP::resolve();
 			wp_register_script('Emsfb-list_form-efb-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/list_form-efb.js', array('efb-main-js', 'efb-email-test-ui'),EMSFB_PLUGIN_VERSION, true);
 			wp_enqueue_script('Emsfb-list_form-efb-js');
 

@@ -357,6 +357,8 @@ class Emsfb {
     public function includes(): void {
         // The JSON helpers are used by settings, forms, uploads and add-ons alike.
         $json_ok = function_exists('emsfb_json_decode_efb') || $this->require_plugin_file_efb('includes/json-efb.php');
+        // Visitor IP resolver; forwarded headers only behind a trusted proxy.
+        $this->require_plugin_file_efb('includes/class-Emsfb-client-ip.php');
         $runtime_ok = $this->require_plugin_file_efb('includes/class-Emsfb-form-runtime.php');
         if ($runtime_ok) {
             \Emsfb\Form_Runtime::register();

@@ -49,7 +49,10 @@ foreach (array('is_same_site_url_efb', 'normalize_submitted_row_efb', 'sanitize_
 	if (!preg_match('/\t(?:public|private)(?: static)? function ' . $fn . '\(.*?\n\t\}\n/s', $src, $m)) { echo "[FAIL] $fn() not found\n"; exit(1); }
 	$body .= str_replace('private function', 'public function', $m[0]);
 }
-if (preg_match('/\tpublic function get_ip_address\(\) \{.*?\n    \}\n/s', $src, $m)) $body .= $m[0];
+if (preg_match('/\tpublic function get_ip_address\(\) \{.*?\n\t\}\n/s', $src, $m)) $body .= str_replace('__DIR__', "'" . __DIR__ . "/../includes'", $m[0]);
+if (!defined('ABSPATH')) define('ABSPATH', __DIR__ . '/');
+$GLOBALS['efb_trusted_proxies_test'] = array();
+eval('function apply_filters($hook, $value) { return $hook === "efb_trusted_proxies" ? array_merge((array) $value, $GLOBALS["efb_trusted_proxies_test"]) : $value; }');
 preg_match('/\tprivate static function upload_row_types_efb\(\) \{.*?\n\t\}\n/s', $src, $m);
 $body .= $m[0];
 eval('namespace Emsfb; class Harness_Efb { public $id = 1; public $setting; public $efbFunction; function __construct() { $this->efbFunction = new FakeFunctions_Efb(); } ' . $body . '}');
@@ -143,10 +146,19 @@ t_sec('email: a quote token cannot open markup', strpos($out, '<img src=x') === 
 $rows = array(array('id_' => 'friend', 'type' => 'email', 'value' => 'friend@example.com'), array('id_' => 'me', 'type' => 'email', 'value' => 'me@example.com'));
 t_sec('Reply-To uses the form\'s visitor-email field', $h->efb_submitter_email_efb($rows, 'me') === 'me@example.com');
 t_sec('Reply-To falls back to the first valid email field', $h->efb_submitter_email_efb($rows, '') === 'friend@example.com' && $h->efb_submitter_email_efb($rows, 'missing') === 'friend@example.com');
-foreach (array(array('203.0.113.5:54321', '203.0.113.5'), array('[2001:db8::1]:443', '2001:db8::1'), array('203.0.113.5, 10.0.0.1', '203.0.113.5'), array('<script>', '198.51.100.9')) as $c) {
-	$_SERVER['HTTP_CLIENT_IP'] = ''; $_SERVER['HTTP_X_FORWARDED_FOR'] = $c[0]; $_SERVER['REMOTE_ADDR'] = '198.51.100.9';
-	t_sec('visitor IP from "' . $c[0] . '"', $h->get_ip_address() === $c[1]);
+/* Forwarded headers are spoofable: without a trusted proxy the connection
+ * address wins, whatever Client-IP / X-Forwarded-For say. */
+foreach (array('203.0.113.5:54321', '[2001:db8::1]:443', '203.0.113.5, 10.0.0.1', '<script>') as $c) {
+	$_SERVER['HTTP_CLIENT_IP'] = '203.0.113.77'; $_SERVER['HTTP_X_FORWARDED_FOR'] = $c; $_SERVER['REMOTE_ADDR'] = '198.51.100.9';
+	t_sec('untrusted peer: visitor IP ignores "' . $c . '"', $h->get_ip_address() === '198.51.100.9');
 }
+/* Behind a declared proxy the forwarded chain is read and normalised. */
+$GLOBALS['efb_trusted_proxies_test'] = array('198.51.100.9', '10.0.0.0/8');
+foreach (array(array('203.0.113.5:54321', '203.0.113.5'), array('[2001:db8::1]:443', '2001:db8::1'), array('203.0.113.5, 10.0.0.1', '203.0.113.5'), array('<script>', '198.51.100.9')) as $c) {
+	$_SERVER['HTTP_CLIENT_IP'] = '203.0.113.77'; $_SERVER['HTTP_X_FORWARDED_FOR'] = $c[0]; $_SERVER['REMOTE_ADDR'] = '198.51.100.9';
+	t_sec('trusted proxy: visitor IP from "' . $c[0] . '"', $h->get_ip_address() === $c[1]);
+}
+$GLOBALS['efb_trusted_proxies_test'] = array();
 $req_fields = array(array('type' => 'form'), array('id_' => 'n', 'type' => 'text', 'required' => 1, 'name' => 'Name'),
 	array('id_' => 'sig', 'type' => 'esign', 'required' => 1, 'name' => 'Sign'), array('id_' => 'm', 'type' => 'mobile', 'required' => true, 'name' => 'Mobile'));
 $only_name = array(array('id_' => 'n', 'type' => 'text', 'value' => 'Ali'));

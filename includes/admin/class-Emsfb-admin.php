@@ -3400,14 +3400,11 @@ class Admin {
         return preg_match("/\/[a-z]*>/i", $str) != 0;
     }
     public function get_ip_address() {
-        $ip='1.1.1.1';
-        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {$ip = sanitize_text_field( wp_unslash( $_SERVER['HTTP_CLIENT_IP'] ) );
-        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) { $ip = sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_FORWARDED_FOR'] ) );
-        } elseif (isset($_SERVER['REMOTE_ADDR'])) {$ip = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );}
-        $ip = strval($ip);
-        $check =strpos($ip,',');
-        if($check !== false){$ip = substr($ip,0,$check);}
-        return $ip;
+        /* REMOTE_ADDR unless it is a trusted proxy (efb_trusted_proxies /
+         * EMSFB_TRUSTED_PROXIES). Client-IP and X-Forwarded-For are never
+         * trusted on their own: any visitor can send them. */
+        if (!class_exists('\\Emsfb\\Client_IP')) require_once dirname(__DIR__) . '/class-Emsfb-client-ip.php';
+        return \Emsfb\Client_IP::resolve();
     }
     public function get_not_read_message() {
         if(empty($this->db)){
@@ -3555,7 +3552,7 @@ class Admin {
 		$file_tmp  = isset($_FILES['file']['tmp_name']) ? $_FILES['file']['tmp_name'] : '';
 		$file_type = isset($_FILES['file']['type']) ? sanitize_text_field( wp_unslash( $_FILES['file']['type'] ) ) : '';
 
-		$name = 'efb-PLG-'. wp_date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($file_name, PATHINFO_EXTENSION) ;
+		$name = 'efb-PLG-'. wp_date("ymd"). '-'.wp_generate_password(12, false, false).'.'.pathinfo($file_name, PATHINFO_EXTENSION) ;
 
 		if (\Emsfb\Upload_Guard::is_blocked_extension(\Emsfb\Upload_Guard::extension_of($name))) {
 			$response = array( 'success' => false, 'error' => \Emsfb\Upload_Guard::type_message(), 'efb_user_message' => true );
