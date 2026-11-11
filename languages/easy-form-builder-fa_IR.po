@@ -14884,3 +14884,22 @@ msgstr "فرم %1$s به این فیلدها نیاز دارد: %2$s. برای �
 #: includes/functions.php
 msgid "Remove the login and registration fields from this form?"
 msgstr "فیلدهای ورود و ثبت‌نام از این فرم حذف شوند؟"
+
+#  origin: claude (fa_IR) AutoPilot
+#. translators: AutoPilot B5: shown when the SMS switch of a mobile field also turns on the form's SMS notifications
+#: includes/functions.php
+msgid "SMS notifications for this form were turned on too, so the person who fills the form gets the confirmation SMS."
+msgstr "اعلان پیامکی این فرم هم روشن شد تا پرکنندهٔ فرم پیامک تأیید را دریافت کند."
+
+#  origin: claude (fa_IR) AutoPilot
+#. translators: AutoPilot B5: shown after Save. %s: the admin phone numbers that were removed
+#: includes/functions.php
+#, php-format
+msgid "These admin phone numbers were not saved because they are not in the international format (+ and 8 to 15 digits): %s"
+msgstr "این شماره‌های مدیر ذخیره نشدند، چون در قالب بین‌المللی (+ و ۸ تا ۱۵ رقم) نیستند: %s"
+
+#  origin: claude (fa_IR) AutoPilot
+#. translators: AutoPilot B5: shown after Save when a mobile field asks for the confirmation SMS but the form's SMS is off
+#: includes/functions.php
+msgid "A mobile field asks for the confirmation SMS, but SMS notifications are off for this form, so no SMS will be sent."
+msgstr "یک فیلد موبایل پیامک تأیید می‌خواهد، ولی اعلان پیامکی این فرم خاموش است، پس پیامکی فرستاده نمی‌شود."

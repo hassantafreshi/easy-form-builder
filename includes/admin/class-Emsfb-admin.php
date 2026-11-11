@@ -326,7 +326,7 @@ class Admin {
     }
     public function update_form_id_Emsfb() {
         $efbFunction = get_efbFunction();
-        $text = ["sms_noti","msg_adons","error403","invalidRequire","nAllowedUseHtml","updated","upDMsg" ,"newMessageReceived","trackNo","url","newResponse","WeRecivedUrM","somethingWentWrongPleaseRefresh","smsOffAddonMissing","telegramOffAddonMissing","authFieldsMissing","login","register"];
+        $text = ["sms_noti","msg_adons","error403","invalidRequire","nAllowedUseHtml","updated","upDMsg" ,"newMessageReceived","trackNo","url","newResponse","WeRecivedUrM","somethingWentWrongPleaseRefresh","smsOffAddonMissing","telegramOffAddonMissing","authFieldsMissing","login","register","smsAdminPhoneInvalid","smsFieldWithoutForm"];
         $lang= $efbFunction->text_efb($text);
         $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
         $post_value = isset($_POST['value']) ? wp_unslash( $_POST['value'] ) : '';
@@ -367,6 +367,9 @@ class Admin {
         $save_warnings_efb = array();
         if (is_array($valp) && class_exists('\Emsfb\Builder_Api')) {
             list($valp, $save_warnings_efb) = Builder_Api::disable_unavailable_notifiers($valp, $settings, $lang);
+            if (Builder_Api::sms_field_without_form($valp)) {
+                $save_warnings_efb[] = array('code' => 'sms_field_without_form', 'm' => $lang['smsFieldWithoutForm']);
+            }
             // B4: a login / registration form must keep the fields its handler reads.
             $auth_missing_efb = Builder_Api::auth_fields_missing($valp);
             if (!empty($auth_missing_efb)) {
@@ -377,10 +380,19 @@ class Admin {
         }
 
         if(isset($valp[0]['smsnoti']) && intval($valp[0]['smsnoti'])==1){
-			$sms_msg_new_noti = isset($valp[0]['sms_msg_new_noti']) ?$valp[0]['sms_msg_new_noti'] :$lang['newMessageReceived'] ."\n". $lang['trackNo'] .": [confirmation_code]\n". $lang['url'] .": [link_response]";
-			$sms_msg_responsed_noti = isset($valp[0]['sms_msg_responsed_noti']) ? $valp[0]['sms_msg_responsed_noti'] :  $lang['newResponse']."\n". $lang['trackNo'] .": [confirmation_code]\n". $lang['url'] .": [link_response]";
-			$sms_msg_recived_user = isset($valp[0]['sms_msg_recived_usr']) ? $valp[0]['sms_msg_recived_usr'] : $lang['WeRecivedUrM'] ."\n". $lang['trackNo'] .": [confirmation_code]\n". $lang['url'] .": [link_response]";
+			// B5: an empty text gets the default too, not only a missing one.
+			$sms_msg_new_noti = !empty($valp[0]['sms_msg_new_noti']) ?$valp[0]['sms_msg_new_noti'] :$lang['newMessageReceived'] ."\n". $lang['trackNo'] .": [confirmation_code]\n". $lang['url'] .": [link_response]";
+			$sms_msg_responsed_noti = !empty($valp[0]['sms_msg_responsed_noti']) ? $valp[0]['sms_msg_responsed_noti'] :  $lang['newResponse']."\n". $lang['trackNo'] .": [confirmation_code]\n". $lang['url'] .": [link_response]";
+			$sms_msg_recived_user = !empty($valp[0]['sms_msg_recived_usr']) ? $valp[0]['sms_msg_recived_usr'] : $lang['WeRecivedUrM'] ."\n". $lang['trackNo'] .": [confirmation_code]\n". $lang['url'] .": [link_response]";
 			$sms_admins_phoneno = isset($valp[0]['sms_admins_phone_no']) ? $valp[0]['sms_admins_phone_no'] : "";
+			// B5: the admin numbers are checked here too, not only in the builder.
+			if (class_exists('\Emsfb\Builder_Api')) {
+				list($sms_ok_efb, $sms_bad_efb) = Builder_Api::sms_admin_numbers($sms_admins_phoneno, function_exists('get_locale') ? get_locale() : '');
+				$sms_admins_phoneno = implode(',', $sms_ok_efb);
+				if (!empty($sms_bad_efb)) {
+					$save_warnings_efb[] = array('code' => 'sms_admin_phone_invalid', 'm' => str_replace('%s', implode(', ', array_map('sanitize_text_field', $sms_bad_efb)), $lang['smsAdminPhoneInvalid']), 'numbers' => array_map('sanitize_text_field', $sms_bad_efb));
+				}
+			}
 			unset($valp[0]['sms_msg_new_noti']);
 			unset($valp[0]['sms_msg_responsed_noti']);
 			unset($valp[0]['sms_msg_recived_user']);

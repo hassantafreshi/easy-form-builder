@@ -58,7 +58,8 @@ a5('Telegram on without the add-on: the save succeeds with a warning', is_array(
 a5('telegramnoti stored as 0, bot token and chat ids not stored', is_array($st) && intval($st[0]['telegramnoti']) === 0 && !isset($st[0]['telegram_bot_token']) && !isset($st[0]['telegram_admin_chat_ids']), $st);
 
 // 3. Nothing switched on: unchanged answer, no warnings key.
-list($r, $db) = a5_update(a5_form());
+$plain = a5_form(); unset($plain[2]["smsnoti"]); // (a mobile field asking for SMS alone gets the B5 warning)
+list($r, $db) = a5_update(array_values($plain));
 a5('a form without SMS/Telegram saves exactly as before', is_array($r) && $r['success'] === true && $r['r'] === 'updated' && !isset($r['warnings']), $r);
 
 // 4. New form (Create::add_form_structure) with SMS on and no add-on.

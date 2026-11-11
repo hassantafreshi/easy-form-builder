@@ -2648,6 +2648,13 @@ let change_el_edit_Efb = (el) => {
 
         if(indx!=0){
           if(c==1){
+            /* B5: the visitor's SMS is sent only when the form's SMS is on as well
+               (class-Emsfb-public.php reads valj_efb[0].smsnoti), so this switch turns
+               it on too and says so. */
+            if (Number(valj_efb[0].smsnoti) !== 1) {
+              valj_efb[0].smsnoti = 1;
+              alert_message_efb('', efb_var.text.smsOnForForm || 'SMS notifications for this form were turned on too, so the person who fills the form gets the confirmation SMS.', 12, 'info');
+            }
             indx=0;
           }else{
             clss=-1;
@@ -2673,7 +2680,8 @@ let change_el_edit_Efb = (el) => {
             })
           }
 
-          if(valj_efb[0].hasOwnProperty('smsnoti')!=false){
+          // The message boxes are on the form-settings panel only, not on a mobile field's panel.
+          if(valj_efb[0].hasOwnProperty('smsnoti')!=false && document.querySelector(`[data-id="newMessageReceived"]`)){
 
             c= document.querySelector(`[data-id="newMessageReceived`).value
             c= sanitize_text_efb(c ,true);
@@ -2693,6 +2701,7 @@ let change_el_edit_Efb = (el) => {
             }
 
           }
+          if (Number(valj_efb[0].smsnoti) === 1) efb_sms_fill_defaults_efb();
         }
 
         break;
@@ -4254,6 +4263,21 @@ async function create_form_efb() {
     </div>
     `
   return content
+}
+
+/* B5: the three SMS texts get the same defaults the server writes when they are empty. */
+function efb_sms_fill_defaults_efb() {
+  const t = (typeof efb_var !== 'undefined' && efb_var.text) ? efb_var.text : {};
+  const tail = `\n${t.trackNo}: [confirmation_code]\n${t.url}: [link_response]`;
+  const auth = valj_efb[0].type === 'login' || valj_efb[0].type === 'register';
+  const defaults = { sms_msg_new_noti: t.newMessageReceived + tail };
+  if (!auth) {
+    defaults.sms_msg_recived_usr = t.WeRecivedUrM + tail;
+    defaults.sms_msg_responsed_noti = t.newResponse + tail;
+  }
+  Object.keys(defaults).forEach((k) => {
+    if (typeof valj_efb[0][k] !== 'string' || valj_efb[0][k].trim() === '') valj_efb[0][k] = defaults[k];
+  });
 }
 
 /* B4: the fixed field ids the public login and registration handlers read

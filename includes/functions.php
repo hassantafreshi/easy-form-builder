@@ -2670,6 +2670,12 @@ class efbFunction {
 			"authFieldsMissing" => $state && isset($ac->text->authFieldsMissing) ? $ac->text->authFieldsMissing : esc_html__('A %1$s form needs these fields: %2$s. Choose the form type again to add them.','easy-form-builder'),
 			/* translators: AutoPilot B4: asked when the admin changes a login or registration form to another type */
 			"authFieldsRemoveQ" => $state && isset($ac->text->authFieldsRemoveQ) ? $ac->text->authFieldsRemoveQ : esc_html__('Remove the login and registration fields from this form?','easy-form-builder'),
+			/* translators: AutoPilot B5: shown when the SMS switch of a mobile field also turns on the form's SMS notifications */
+			"smsOnForForm" => $state && isset($ac->text->smsOnForForm) ? $ac->text->smsOnForForm : esc_html__('SMS notifications for this form were turned on too, so the person who fills the form gets the confirmation SMS.','easy-form-builder'),
+			/* translators: AutoPilot B5: shown after Save. %s: the admin phone numbers that were removed */
+			"smsAdminPhoneInvalid" => $state && isset($ac->text->smsAdminPhoneInvalid) ? $ac->text->smsAdminPhoneInvalid : esc_html__('These admin phone numbers were not saved because they are not in the international format (+ and 8 to 15 digits): %s','easy-form-builder'),
+			/* translators: AutoPilot B5: shown after Save when a mobile field asks for the confirmation SMS but the form's SMS is off */
+			"smsFieldWithoutForm" => $state && isset($ac->text->smsFieldWithoutForm) ? $ac->text->smsFieldWithoutForm : esc_html__('A mobile field asks for the confirmation SMS, but SMS notifications are off for this form, so no SMS will be sent.','easy-form-builder'),
 			/* translators: AutoPilot A5: shown after Save when the form asked for SMS notifications but the SMS add-on is not active */
 			"smsOffAddonMissing" => $state && isset($ac->text->smsOffAddonMissing) ? $ac->text->smsOffAddonMissing : esc_html__('SMS notifications were turned off because the SMS add-on is not active. Everything else was saved.','easy-form-builder'),
 			/* translators: AutoPilot A5: shown after Save when the form asked for Telegram notifications but the Telegram add-on is not active */

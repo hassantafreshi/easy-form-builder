@@ -78,6 +78,41 @@ class Builder_Api {
 		return array($rows, $warnings);
 	}
 
+	/* ---------------------------------------------------------------- B5 */
+
+	/**
+	 * B5: the admins' SMS numbers, checked on the server as the builder checks them
+	 * (admin-efb.js, case smsAdminsPhoneNoEl): Persian/Arabic digits to 0-9, spaces,
+	 * dashes, dots, brackets and direction marks removed, 00 -> +, and on a Persian site
+	 * 09xxxxxxxxx -> +989xxxxxxxxx; then ^\+[0-9]{8,15}$.
+	 *
+	 * @return array{0:string[],1:string[]} [valid, invalid]
+	 */
+	public static function sms_admin_numbers($raw, $locale = '') {
+		$ok = array();
+		$bad = array();
+		$fa = stripos((string) $locale, 'fa') === 0;
+		foreach (explode(',', is_scalar($raw) ? (string) $raw : '') as $p) {
+			$p = strtr($p, array('۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4', '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9',
+				'٠' => '0', '١' => '1', '٢' => '2', '٣' => '3', '٤' => '4', '٥' => '5', '٦' => '6', '٧' => '7', '٨' => '8', '٩' => '9'));
+			$p = preg_replace('/[\s\-().\x{200C}\x{200E}\x{200F}\x{202A}-\x{202E}]/u', '', $p);
+			if ($p === '' || $p === null) continue;
+			if (strpos($p, '00') === 0) $p = '+' . substr($p, 2);
+			if ($fa && preg_match('/^09[0-9]{9}$/', $p)) $p = '+98' . substr($p, 1);
+			if (preg_match('/^\+[0-9]{8,15}$/', $p)) $ok[] = $p; else $bad[] = $p;
+		}
+		return array(array_values(array_unique($ok)), $bad);
+	}
+
+	/** B5: a mobile field asks for the visitor's SMS while the form's SMS is off (no SMS would go out). */
+	public static function sms_field_without_form(array $rows) {
+		if (!isset($rows[0]) || (isset($rows[0]['smsnoti']) && intval($rows[0]['smsnoti']) === 1)) return false;
+		foreach ($rows as $i => $r) {
+			if ($i > 0 && is_array($r) && isset($r['type'], $r['smsnoti']) && $r['type'] === 'mobile' && intval($r['smsnoti']) === 1) return true;
+		}
+		return false;
+	}
+
 	/* ---------------------------------------------------------------- B4 */
 
 	/** The fixed field ids the public login / registration handlers read. */

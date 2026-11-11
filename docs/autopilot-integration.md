@@ -20,6 +20,8 @@ node tests/test-ap-b2-field-templates.js
 node tests/test-ap-b3-capabilities.js
 node tests/test-ap-b4-login-register.js
 php tests/test-ap-b4-auth-save.php
+node tests/test-ap-b5-sms-filler.js
+php tests/test-ap-b5-sms-save.php
 ```
 
 (The full list is in [Tests](#tests) at the end.)
@@ -403,3 +405,34 @@ Events on `document`:
   unaffected (8 passed). The shared PHP stubs moved to `tests/ap-admin-stubs.php` (A5 still 9/9).
 - **AutoPilot.** Stop adding the two login fields yourself: `await efbBuilderApi.setFormType('login')`.
   On the server, check `\Emsfb\Builder_Api::auth_fields_missing($rows)` before saving.
+
+### B5. SMS for the person who fills the form
+
+- **Verified.** The confirmation SMS to the visitor needs `smsnoti=1` on the mobile field (the
+  number is collected in `get_form_public_efb()`, `case 'mobile'`) **and** on row 0 (every send
+  site checks `$form_fields_array[0]['smsnoti'] == 1`). The SMS add-on
+  (`vendores-efb/smssended/smsefb.php`) stores the texts and numbers per form and sends nothing on
+  its own; there is no other condition.
+- **Builder.** The SMS switch on a mobile field (`change_el_edit_Efb`, `case "smsEnableEl"`) now also
+  sets `valj_efb[0].smsnoti = 1` and tells the admin (`smsOnForForm`); the three texts
+  (`sms_msg_new_noti`, `sms_msg_recived_usr`, `sms_msg_responsed_noti`) get the same defaults as the
+  server when empty (`efb_sms_fill_defaults_efb()`); a text already written is kept. It also no
+  longer throws: it used to read the form-settings message boxes, which are not on a field's panel.
+- **Server** (`update_form_id_Emsfb()` and `add_form_structure()`): empty texts get the defaults
+  (only missing ones did); the admin numbers go through `Builder_Api::sms_admin_numbers()`, the PHP
+  twin of the builder's clean-up and `^\+[0-9]{8,15}$` check (Persian/Arabic digits, separators and
+  direction marks removed, `00` → `+`, `09…` → `+98…` on a Persian site). Valid numbers are passed to
+  the add-on, invalid ones are dropped with a warning `sms_admin_phone_invalid` that names them. A
+  mobile field asking for SMS while the form's SMS is off saves with the warning
+  `sms_field_without_form`; the server does not switch it on by itself, because that would also start
+  the admin SMS.
+- **Phrases.** `smsOnForForm`, `smsAdminPhoneInvalid`, `smsFieldWithoutForm` with Persian.
+- **Tests.** `node tests/test-ap-b5-sms-filler.js` (real builder: field switch turns the form SMS on,
+  defaults, kept text, message, no TypeError; 5 failures before, 6 passed after).
+  `php tests/test-ap-b5-sms-save.php` (real handlers with a recording SMS add-on: numbers cleaned and
+  checked, invalid ones warned, defaults, the field-without-form warning, create path; 7 passed).
+- **AutoPilot.** To turn on the visitor SMS, set `smsnoti: 1` on the mobile field and on row 0 (or use
+  the builder switch); leave the texts empty to get the defaults; read `warnings` after Save. The
+  registry says whether `setting:sms_notifications` is `available_now`.
+- **Add-on note.** See "Add-on changes needed": the SMS add-on writes the texts into SQL without
+  `$wpdb->prepare()`, so a text with an apostrophe is not stored.
