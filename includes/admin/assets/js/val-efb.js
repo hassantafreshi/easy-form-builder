@@ -1197,6 +1197,60 @@ function show_setting_window_efb(idset) {
       <input type="text"  data-id="${idset}" class="efb  elEdit form-control text-muted border-d rounded-4 h-d-efb mb-1"id="placeholderEl" placeholder="${efb_var.text.placeholder}" ${valj_efb[indx].placeholder && valj_efb[indx].placeholder.length > 1 ? `value="${valj_efb[indx].placeholder}"` : ''}>
       `
 
+    // F01: "Format / mask" control. The preset list is filled by efb_masks_builder_init_efb()
+    // (admin-efb.js) after the catalog AJAX answers; the custom mask value is set there too.
+    const maskEls = () => {
+      const row = valj_efb[indx];
+      const t = efb_var.text;
+      const cur = row.hasOwnProperty('mask_preset') ? String(row.mask_preset) : '';
+      const isCustom = cur === 'custom';
+      const cs = row.hasOwnProperty('mask_checksum') ? String(row.mask_checksum) : '';
+      const store = row.mask_store === 'display' ? 'display' : 'canonical';
+      const strict = row.hasOwnProperty('mask_strict') && Number(row.mask_strict) === 1;
+      const known = cur !== '' && !isCustom && /^[a-z]{2,4}\.[a-z0-9_]{2,40}$/.test(cur);
+      const csOpts = [['', t.mskNone || 'None'], ['luhn', t.mskCsLuhn || 'Luhn (card numbers)'], ['iso7064_mod97_10', t.mskCsIban || 'IBAN (MOD 97-10)'], ['iran_national_code', t.mskCsIrNc || 'Iranian national code'], ['verhoeff', t.mskCsVerhoeff || 'Verhoeff (Aadhaar)']]
+        .map((o) => `<option value="${o[0]}" ${cs === o[0] ? 'selected' : ''}>${o[1]}</option>`).join('');
+      return `
+      <div class="efb efb-mask-settings mt-3" id="efbMaskBoxEl" data-id="${idset}">
+        <label for="maskPresetEl" class="efb mt-1"><i class="efb bi-input-cursor-text fs-7 ${iconMarginGlobal}"></i>${t.mskFormat || 'Format / mask'}</label>
+        <select data-id="${idset}" class="efb elEdit form-select border-d rounded-4" id="maskPresetEl" data-tag="${row.type}">
+          <option value="" ${cur === '' ? 'selected' : ''}>${t.mskNone || 'None'}</option>
+          <option value="custom" ${isCustom ? 'selected' : ''}>${t.mskCustom || 'Custom mask'}</option>
+          ${known ? `<option value="${cur}" selected>${cur}</option>` : ''}
+          <option value="" disabled data-efb-loading="1">${t.mskLoading || 'Loading formats…'}</option>
+        </select>
+        <small class="efb text-muted fs-8 mx-2 d-block" id="maskPresetNoteEl"></small>
+        <div class="efb efb-mask-custom ${isCustom ? '' : 'd-none'}" id="maskCustomBoxEl">
+          <label for="maskCustomEl" class="efb mt-2">${t.mskCustom || 'Custom mask'}</label>
+          <input type="text" data-id="${idset}" class="efb elEdit form-control text-muted border-d rounded-4 h-d-efb mb-1" id="maskCustomEl" dir="ltr" maxlength="64" autocomplete="off" spellcheck="false" placeholder="(999) 999-9999">
+          <small class="efb text-muted fs-8 mx-2 d-block">${t.mskCustomHelp || 'Use 9 for a digit, a for a letter, * for a letter or digit and [ ] for an optional part.'}</small>
+          <small class="efb text-danger fs-8 mx-2 d-none" id="maskCustomErrEl">${t.mskInvalidMask || 'This mask is not valid.'}</small>
+          <div class="efb fs-7 mx-2 my-1">${t.mskPreview || 'Preview'}: <output id="maskPreviewEl" dir="ltr" class="efb fw-bold"></output></div>
+          <label for="maskChecksumEl" class="efb mt-2">${t.mskChecksum || 'Check digit'}</label>
+          <select data-id="${idset}" class="efb elEdit form-select border-d rounded-4" id="maskChecksumEl">${csOpts}</select>
+        </div>
+        <div class="efb efb-mask-store mt-2 ${cur !== '' ? '' : 'd-none'}" id="maskStoreBoxEl" role="radiogroup" aria-labelledby="maskStoreLabEl">
+          <span class="efb d-block" id="maskStoreLabEl">${t.mskStore || 'Save the value'}</span>
+          <div class="efb form-check mx-2">
+            <input class="efb elEdit form-check-input" type="radio" name="maskStoreEfb" id="maskStoreCanonicalEl" data-id="${idset}" value="canonical" ${store === 'canonical' ? 'checked' : ''}>
+            <label class="efb form-check-label" for="maskStoreCanonicalEl">${t.mskStoreCanonical || 'Clean value (recommended)'}</label>
+          </div>
+          <div class="efb form-check mx-2">
+            <input class="efb elEdit form-check-input" type="radio" name="maskStoreEfb" id="maskStoreDisplayEl" data-id="${idset}" value="display" ${store === 'display' ? 'checked' : ''}>
+            <label class="efb form-check-label" for="maskStoreDisplayEl">${t.mskStoreDisplay || 'As shown to the visitor'}</label>
+          </div>
+        </div>
+        <div class="efb mx-1 my-2 d-none" id="maskStrictBoxEl">
+          <button type="button" id="maskStrictEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb btn-toggle ${strict ? 'active' : ''}" data-toggle="button" aria-pressed="${strict ? 'true' : 'false'}" autocomplete="off" data-id="${idset}" onclick="fun_switch_form_efb(this)">
+          <div class="efb handle"></div>
+          </button>
+          <label class="efb form-check-label pt-1" for="maskStrictEl">${t.mskStrict || 'Strict format'}</label>
+        </div>
+      </div>`;
+    }
+    const maskKindEfb = typeof efb_mask_field_kind_efb === 'function' ? efb_mask_field_kind_efb(valj_efb[indx]) : null;
+    const maskSetEfb = maskKindEfb !== null && valj_efb[indx].hasOwnProperty('mask_preset') && String(valj_efb[indx].mask_preset) !== '';
+
     const iconEls = (side) => {
       let icon = "";
       let t = ""
@@ -1494,6 +1548,7 @@ function show_setting_window_efb(idset) {
                 <!--  not   advanced-->
                 ${Nadvanced}
                 ${placeholderEls}
+                ${maskKindEfb !== null ? maskEls() : ''}
                 ${el.dataset.tag == "mobile" ? smsEnableEls : ''}
                 ${el.dataset.tag == "email" ? emailEls : ''}
                 ${el.dataset.tag == "mobile" ? ElcountriesListSelections(idset,indx) : ''}
@@ -1512,8 +1567,8 @@ function show_setting_window_efb(idset) {
                         ${selectColorEls('description','text')}
                         ${selectColorEls('el','text')}
                         ${selectBorderColorEls('element',indx,idset)}
-                        ${ el.dataset.tag != "ardate"  && el.dataset.tag != "pdate" && el.dataset.tag != "mobile"  ? miLenEls() :''}
-                        ${el.dataset.tag != "textarea" && el.dataset.tag != "ardate"  && el.dataset.tag != "pdate"  && el.dataset.tag != "mobile" ? mLenEls() :''}
+                        ${ el.dataset.tag != "ardate"  && el.dataset.tag != "pdate" && el.dataset.tag != "mobile" && !maskSetEfb ? miLenEls() :''}
+                        ${el.dataset.tag != "textarea" && el.dataset.tag != "ardate"  && el.dataset.tag != "pdate"  && el.dataset.tag != "mobile" && !maskSetEfb ? mLenEls() :''}
 
                         ${labelPostionEls}
     ${mobileLabelPostionEls}
@@ -2268,6 +2323,7 @@ function show_setting_window_efb(idset) {
       if(el.tagName!="DIV"){el.addEventListener("change", (e) => { change_el_edit_Efb(el);})}
       else{ }
     }
+    if (document.getElementById('maskPresetEl') && typeof efb_masks_builder_init_efb === 'function') efb_masks_builder_init_efb(idset, indx);
     setTimeout(() => {
       document.getElementById('loadingSideMenuConEfb').classList.add('d-none');
       document.getElementById('childsSideMenuConEfb').classList.remove('d-none');
