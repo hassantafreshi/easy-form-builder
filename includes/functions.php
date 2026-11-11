@@ -3852,6 +3852,24 @@ class efbFunction {
 			"mskLenReplaced" => $state && isset($ac->text->mskLenReplaced) ? $ac->text->mskLenReplaced : esc_html__('This format sets the length. Remove the minimum and maximum length?','easy-form-builder'),
 			/* translators: F01 builder: group name for formats that are not tied to one country (IBAN, card, dates) */
 			"mskIntl" => $state && isset($ac->text->mskIntl) ? $ac->text->mskIntl : esc_html__('International','easy-form-builder'),
+			/* translators: F01 builder: select of the on-screen keyboard phones show for a field (HTML inputmode) */
+			"mskKeyboard" => $state && isset($ac->text->mskKeyboard) ? $ac->text->mskKeyboard : esc_html__('Mobile keyboard','easy-form-builder'),
+			/* translators: F01 builder, mobile keyboard option: chosen from the field format, or the phone default */
+			"mskKbAuto" => $state && isset($ac->text->mskKbAuto) ? $ac->text->mskKbAuto : esc_html__('Automatic','easy-form-builder'),
+			/* translators: F01 builder, mobile keyboard option: the normal letters keyboard */
+			"mskKbText" => $state && isset($ac->text->mskKbText) ? $ac->text->mskKbText : esc_html__('Text','easy-form-builder'),
+			/* translators: F01 builder, mobile keyboard option: digits only */
+			"mskKbNumeric" => $state && isset($ac->text->mskKbNumeric) ? $ac->text->mskKbNumeric : esc_html__('Numbers','easy-form-builder'),
+			/* translators: F01 builder, mobile keyboard option: digits and a decimal separator */
+			"mskKbDecimal" => $state && isset($ac->text->mskKbDecimal) ? $ac->text->mskKbDecimal : esc_html__('Numbers with decimals','easy-form-builder'),
+			/* translators: F01 builder, mobile keyboard option: telephone keypad with + * # */
+			"mskKbTel" => $state && isset($ac->text->mskKbTel) ? $ac->text->mskKbTel : esc_html__('Phone keypad','easy-form-builder'),
+			/* translators: F01 builder, mobile keyboard option: keyboard with @ and . */
+			"mskKbEmail" => $state && isset($ac->text->mskKbEmail) ? $ac->text->mskKbEmail : esc_html__('Email','easy-form-builder'),
+			/* translators: F01 builder, mobile keyboard option: keyboard with / and .com */
+			"mskKbUrl" => $state && isset($ac->text->mskKbUrl) ? $ac->text->mskKbUrl : esc_html__('Web address','easy-form-builder'),
+			/* translators: F01 builder, mobile keyboard option: no on-screen keyboard, for fields that open their own picker */
+			"mskKbNone" => $state && isset($ac->text->mskKbNone) ? $ac->text->mskKbNone : esc_html__('No keyboard (custom widget)','easy-form-builder'),
 			/* translators: F01 visitor error. %1$s: the field label, %2$s: an example of the expected format such as 0912 345 6789 */
 			"mskFormat_" => $state && isset($ac->text->mskFormat_) ? $ac->text->mskFormat_ : esc_html__('The %1$s field is not in the correct format (example: %2$s).','easy-form-builder'),
 			/* translators: F01 visitor error when the check digit of an ID, card or IBAN is wrong. %s: the field label */

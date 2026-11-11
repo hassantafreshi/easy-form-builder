@@ -2893,6 +2893,20 @@ let change_el_edit_Efb = (el) => {
       case "maskStoreDisplayEl":
         if (el.checked) valj_efb[indx].mask_store = el.value === 'display' ? 'display' : 'canonical';
         break;
+      case "inputmodeEl": {
+        // F01-H: mobile keyboard. "auto" (or anything not on the list) removes the key: the preset's
+        // keyboard, or no attribute at all, as before.
+        const row = valj_efb[indx];
+        const v = ['text', 'numeric', 'decimal', 'tel', 'email', 'url', 'none'].includes(el.value) ? el.value : 'auto';
+        if (v === 'auto') delete row.inputmode; else row.inputmode = v;
+        const inp = document.getElementById(`${row.id_}_`);
+        if (inp) {
+          const def = efb_masks_preset_efb(row.mask_preset || '');
+          const eff = v !== 'auto' ? v : (def && def.inputmode ? def.inputmode : (row.mask_preset === 'custom' ? (efb_mask_attrs_efb(row, 'text').attrs.match(/inputmode="([a-z]+)"/) || [])[1] : '')) || '';
+          if (eff) inp.setAttribute('inputmode', eff); else inp.removeAttribute('inputmode');
+        }
+        break;
+      }
       case "maskStrictEl":
         valj_efb[indx].mask_strict = el.classList.contains('active') ? 1 : 0;
         el.setAttribute('aria-pressed', valj_efb[indx].mask_strict ? 'true' : 'false');
@@ -7258,6 +7272,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     case "textarea":
       minlen = valj_efb[iVJ].hasOwnProperty('milen') && valj_efb[iVJ].milen >0 ? valj_efb[iVJ].milen :0;
       minlen = Number(minlen)!=0 ? `minlength="${minlen}"`:``;
+      { const imEfb = efb_mask_attrs_efb(valj_efb[iVJ], 'textarea'); if (imEfb.attrs) minlen = `${minlen} ${imEfb.attrs}`.trim(); } // F01-H
       ui = `
                 ${label}
                 <div class="efb  ${pos[3]} col-sm-12 px-0 mx-0 ttEfb show"  id='${rndm}-f' >

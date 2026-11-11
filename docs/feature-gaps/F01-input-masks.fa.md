@@ -1,4 +1,4 @@
-وضعیت: در حال پیاده‌سازی (A تا G انجام شد) · اولویت: P0 · تلاش: M · وابستگی: — (F02، F03، F06 و F17 به این تسک وابسته‌اند)
+وضعیت: A تا H پیاده‌سازی و تست شد؛ I در راه · اولویت: P0 · تلاش: M · وابستگی: — (F02، F03، F06 و F17 به این تسک وابسته‌اند)
 
 # F01 — ماسک ورودی و اعتبارسنج‌های قالب
 
@@ -363,12 +363,12 @@ if (!empty($f['mask_preset']) && class_exists('\Emsfb\Masks')) {
 - پذیرش: مقدار نامعتبر در save به `auto` تبدیل می‌شود. markup فقط وقتی مقدار غیر از `auto` است تغییر می‌کند.
 - تست‌ها: بخشی از `test-masks-render.php` و `test-masks-save-roundtrip.php`.
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint** (H انجام شد، 2026-11-11)
+- فایل‌های تغییرکرده: `includes/admin/assets/js/val-efb.js` (`inputmodeEls` برای data-tagهای `text` (شامل نام، نام خانوادگی، نشانی و کد پستی)، `textarea`، `tel`، `number`، `url` و `email`)، `includes/admin/assets/js/admin-efb.js` (`case "inputmodeEl"`: allow-list، `auto` یا مقدار جعلی کلید را حذف می‌کند تا فرم بایت‌به‌بایت مثل قبل بماند، و attribute کانواس با `inputmode` پیش‌تنظیم یا ماسک دلخواه هماهنگ می‌شود؛ textarea در `addNewElement`)، `includes/class-Emsfb-formbuilder.php` (textarea از همان `generateMaskAttributes_efb` در جای `minlength`؛ ورودی‌های تک‌خطی از D)، `includes/functions.php` (۹ عبارت)، `languages/easy-form-builder-fa_IR.po` (۷ مدخل؛ `Text` و `Email` از قبل ترجمه داشتند)، `tests/test-masks-render.php`، `tests/test-masks-catalog-ajax.php`، `tests/test-masks-builder-browser.js`.
+- رفتار: `auto` یعنی `inputmode` پیش‌تنظیم و اگر ماسکی نیست هیچ attribute (همان امروز). مقدار صریح بر پیش‌تنظیم مقدم است. `type` عوض نمی‌شود. sanitizer ذخیره (زیرتسک C) مقدار نامعتبر را `auto` می‌کند. پیشنهاد `decimal` برای `number` فقط در این سند آمده و پیش‌فرض نشده است، چون تغییر پیش‌فرض markup فرم‌های قدیمی را عوض می‌کرد.
+- تست‌ها (اجراشده): `php tests/test-masks-render.php` → 50 passed (۹ تازه: textarea، email، url، firstName، address_line؛ ۱۰ فیلد بدون کلید همچنان برابر golden پیش از F01)؛ `node tests/test-masks-builder-browser.js` → 46 passed (۵ تازه: select در ایمیل و نام، نوشتن کلید و attribute کانواس، `auto` و مقدار جعلی)؛ `php tests/test-masks-catalog-ajax.php` → 28 passed (الگوی ۲۸ کلید سازنده)؛ `php tests/test-masks-save-roundtrip.php` → 47 passed (مقادیر `inputmode` و reset به `auto`).
+- وضعیت ترجمه: کلیدهای تازه: `mskKeyboard`، `mskKbAuto`، `mskKbText`، `mskKbNumeric`، `mskKbDecimal`، `mskKbTel`، `mskKbEmail`، `mskKbUrl`، `mskKbNone`؛ فارسی در `.po`؛ `.mo`/`.l10n.php` بازسازی نشدند (همان دلیل B).
+- اقدام بعدی: زیرتسک I (پیشنهادهای پژوهش بازار).
 
 ## ۱۶. گسترش‌های فاز ۲ مرتبط
 

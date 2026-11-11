@@ -174,6 +174,19 @@ async function launchChromiumEfb() {
   check('"None" removes every mask key', !Object.keys(r).some((k) => k.startsWith('mask_')), Object.keys(r));
   check('"None" clears the canvas attributes', await page.evaluate(() => { const i = document.getElementById('ftxt_'); return !i.hasAttribute('data-mask') && !i.hasAttribute('data-mask-preset') && !i.hasAttribute('dir'); }));
 
+  // H: mobile keyboard select.
+  await open('fmail-id');
+  check('H: email field has the keyboard select, set to auto', await page.evaluate(() => document.getElementById('inputmodeEl') && document.getElementById('inputmodeEl').value === 'auto'));
+  await change('#inputmodeEl', 'email');
+  check('H: inputmode written and shown on the canvas', (await row('fmail')).inputmode === 'email' && await page.evaluate(() => document.getElementById('fmail_').getAttribute('inputmode') === 'email'));
+  await change('#inputmodeEl', 'auto');
+  check('H: auto removes the key and the attribute', !('inputmode' in (await row('fmail'))) && await page.evaluate(() => !document.getElementById('fmail_').hasAttribute('inputmode')));
+  await page.evaluate(() => { const s = document.getElementById('inputmodeEl'); const o = document.createElement('option'); o.value = 'bogus'; s.appendChild(o); });
+  await change('#inputmodeEl', 'bogus');
+  check('H: a forged value is treated as auto', !('inputmode' in (await row('fmail'))));
+  await open('fname-id');
+  check('H: first-name field has the keyboard select', await page.evaluate(() => !!document.getElementById('inputmodeEl')));
+
   // Tel field: phone presets only.
   await open('ftel-id');
   await page.waitForFunction(() => document.querySelectorAll('#maskPresetEl optgroup').length > 0, null, { timeout: 5000 });

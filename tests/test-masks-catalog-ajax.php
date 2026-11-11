@@ -159,7 +159,8 @@ efbt('labels are literal __() calls with the plugin text domain', preg_match_all
 
 // Builder phrases exist in text_efb().
 $fsrc = file_get_contents(__DIR__ . '/../includes/functions.php');
-$keys = array('mskFormat', 'mskNone', 'mskCustom', 'mskCustomHelp', 'mskPreview', 'mskChecksum', 'mskStore', 'mskStoreCanonical', 'mskStoreDisplay', 'mskStrict', 'mskUnverified', 'mskInvalidMask', 'mskLoading', 'mskLenReplaced', 'mskIntl', 'mskCsLuhn', 'mskCsIban', 'mskCsIrNc', 'mskCsVerhoeff');
+$keys = array('mskFormat', 'mskNone', 'mskCustom', 'mskCustomHelp', 'mskPreview', 'mskChecksum', 'mskStore', 'mskStoreCanonical', 'mskStoreDisplay', 'mskStrict', 'mskUnverified', 'mskInvalidMask', 'mskLoading', 'mskLenReplaced', 'mskIntl', 'mskCsLuhn', 'mskCsIban', 'mskCsIrNc', 'mskCsVerhoeff',
+	'mskKeyboard', 'mskKbAuto', 'mskKbText', 'mskKbNumeric', 'mskKbDecimal', 'mskKbTel', 'mskKbEmail', 'mskKbUrl', 'mskKbNone');
 $missing = array();
 foreach ($keys as $k) {
 	if (!preg_match('/"' . $k . '" => \$state && isset\(\$ac->text->' . $k . '\) \? \$ac->text->' . $k . " : esc_html__\\('[^']+','easy-form-builder'\\),/", $fsrc)) {

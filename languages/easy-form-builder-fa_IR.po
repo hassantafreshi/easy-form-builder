@@ -14859,3 +14859,45 @@ msgstr "%s مقداری دارد که ممکن نیست، مثلاً تاریخ�
 #, php-format
 msgid "Please complete the %s field."
 msgstr "لطفاً فیلد %s را کامل کنید."
+
+#  origin: claude (fa_IR) F01
+#. translators: F01 builder: select of the on-screen keyboard phones show for a field (HTML inputmode)
+#: includes/functions.php
+msgid "Mobile keyboard"
+msgstr "صفحه‌کلید موبایل"
+
+#  origin: claude (fa_IR) F01
+#. translators: F01 builder, mobile keyboard option: chosen from the field format, or the phone default
+#: includes/functions.php
+msgid "Automatic"
+msgstr "خودکار"
+
+#  origin: claude (fa_IR) F01
+#. translators: F01 builder, mobile keyboard option: digits only
+#: includes/functions.php
+msgid "Numbers"
+msgstr "عدد"
+
+#  origin: claude (fa_IR) F01
+#. translators: F01 builder, mobile keyboard option: digits and a decimal separator
+#: includes/functions.php
+msgid "Numbers with decimals"
+msgstr "عدد اعشاری"
+
+#  origin: claude (fa_IR) F01
+#. translators: F01 builder, mobile keyboard option: telephone keypad with + * #
+#: includes/functions.php
+msgid "Phone keypad"
+msgstr "صفحه‌کلید تلفن"
+
+#  origin: claude (fa_IR) F01
+#. translators: F01 builder, mobile keyboard option: keyboard with / and .com
+#: includes/functions.php
+msgid "Web address"
+msgstr "نشانی وب"
+
+#  origin: claude (fa_IR) F01
+#. translators: F01 builder, mobile keyboard option: no on-screen keyboard, for fields that open their own picker
+#: includes/functions.php
+msgid "No keyboard (custom widget)"
+msgstr "بدون صفحه‌کلید (ابزار اختصاصی)"

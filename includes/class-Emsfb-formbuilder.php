@@ -2690,6 +2690,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 				case "textarea":
 					$minlen = isset($vj->milen) && $vj->milen > 0 ? 'minlength="' . $vj->milen . '"' : '';
+					// F01-H: mobile keyboard choice; nothing is added unless the field sets one.
+					$im_efb = $this->generateMaskAttributes_efb('textarea', $vj);
+					if ($im_efb['attrs'] !== '') {
+						$minlen = trim($minlen . ' ' . $im_efb['attrs']);
+					}
 
 					$ui = sprintf('
 						%1$s

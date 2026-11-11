@@ -105,6 +105,22 @@ rt('H: invalid inputmode ignored', strpos($tag, 'inputmode') === false && strpos
 $tag = input_tag(render_efb('text', base_row('h5', 'text', array('mask_preset' => 'ir.national_id', 'inputmode' => 'tel'))));
 rt('H: explicit inputmode overrides the preset', strpos($tag, 'inputmode="tel"') !== false && substr_count($tag, 'inputmode=') === 1, $tag);
 
+// H: textarea gets the keyboard through the same helper; nothing when unset.
+$im = new ReflectionMethod('\\Emsfb\\Formbuilder', 'generateMaskAttributes_efb');
+$im->setAccessible(true);
+$fbx = new \Emsfb\Formbuilder(array(), false);
+rt('H: textarea + inputmode=text', $im->invoke($fbx, 'textarea', (object) array('inputmode' => 'text')) === array('masked' => false, 'attrs' => 'inputmode="text"', 'autocomplete' => ''));
+rt('H: textarea ignores mask keys (no mask on textarea)', $im->invoke($fbx, 'textarea', (object) array('mask_preset' => 'ir.mobile'))['attrs'] === '');
+rt('H: textarea without inputmode adds nothing', $im->invoke($fbx, 'textarea', (object) array())['attrs'] === '');
+$fbsrc = file_get_contents(__DIR__ . '/../includes/class-Emsfb-formbuilder.php');
+rt('H: PHP textarea case uses the helper through the minlength slot', strpos($fbsrc, "\$im_efb = \$this->generateMaskAttributes_efb('textarea', \$vj);") !== false);
+$adm = file_get_contents(__DIR__ . '/../includes/admin/assets/js/admin-efb.js');
+rt('H: JS textarea case uses the helper', strpos($adm, "const imEfb = efb_mask_attrs_efb(valj_efb[iVJ], 'textarea');") !== false);
+foreach (array('email', 'url', 'firstName', 'address_line') as $et) {
+	$tag = input_tag(render_efb($et, base_row('h_' . $et, $et === 'firstName' ? 'text' : $et, array('inputmode' => 'email'))));
+	rt("H: $et + inputmode", strpos($tag, 'inputmode="email"') !== false, $tag);
+}
+
 // 6. Wiring: public enqueue only with masks, runtime subset, JS renderer twin.
 $pub = file_get_contents(__DIR__ . '/../includes/class-Emsfb-public.php');
 rt('public: masks-efb.js enqueued only when the form JSON has a non-empty mask_preset', strpos($pub, "wp_register_script('efb-masks-js'") !== false && strpos($pub, "preg_match('/mask_preset") !== false);

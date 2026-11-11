@@ -1248,6 +1248,19 @@ function show_setting_window_efb(idset) {
         </div>
       </div>`;
     }
+    // F01-H: "Mobile keyboard" (inputmode) for single-line text-like fields and textarea.
+    const inputmodeEls = () => {
+      const t = efb_var.text;
+      const cur = typeof valj_efb[indx].inputmode === 'string' ? valj_efb[indx].inputmode : 'auto';
+      const opts = [['auto', t.mskKbAuto || 'Automatic'], ['text', t.mskKbText || 'Text'], ['numeric', t.mskKbNumeric || 'Numbers'],
+        ['decimal', t.mskKbDecimal || 'Numbers with decimals'], ['tel', t.mskKbTel || 'Phone keypad'], ['email', t.mskKbEmail || 'Email'],
+        ['url', t.mskKbUrl || 'Web address'], ['none', t.mskKbNone || 'No keyboard (custom widget)']]
+        .map((o) => `<option value="${o[0]}" ${cur === o[0] ? 'selected' : ''}>${o[1]}</option>`).join('');
+      return `
+      <label for="inputmodeEl" class="efb mt-3"><i class="efb bi-phone fs-7 ${iconMarginGlobal}"></i>${t.mskKeyboard || 'Mobile keyboard'}</label>
+      <select data-id="${idset}" class="efb elEdit form-select border-d rounded-4" id="inputmodeEl" data-tag="${valj_efb[indx].type}">${opts}</select>`;
+    }
+    const inputmodeTypesEfb = ['text', 'textarea', 'tel', 'number', 'url', 'email'];
     const maskKindEfb = typeof efb_mask_field_kind_efb === 'function' ? efb_mask_field_kind_efb(valj_efb[indx]) : null;
     const maskSetEfb = maskKindEfb !== null && valj_efb[indx].hasOwnProperty('mask_preset') && String(valj_efb[indx].mask_preset) !== '';
 
@@ -1549,6 +1562,7 @@ function show_setting_window_efb(idset) {
                 ${Nadvanced}
                 ${placeholderEls}
                 ${maskKindEfb !== null ? maskEls() : ''}
+                ${inputmodeTypesEfb.includes(el.dataset.tag) ? inputmodeEls() : ''}
                 ${el.dataset.tag == "mobile" ? smsEnableEls : ''}
                 ${el.dataset.tag == "email" ? emailEls : ''}
                 ${el.dataset.tag == "mobile" ? ElcountriesListSelections(idset,indx) : ''}
