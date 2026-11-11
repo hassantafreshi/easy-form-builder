@@ -326,7 +326,7 @@ class Admin {
     }
     public function update_form_id_Emsfb() {
         $efbFunction = get_efbFunction();
-        $text = ["sms_noti","msg_adons","error403","invalidRequire","nAllowedUseHtml","updated","upDMsg" ,"newMessageReceived","trackNo","url","newResponse","WeRecivedUrM","somethingWentWrongPleaseRefresh","smsOffAddonMissing","telegramOffAddonMissing"];
+        $text = ["sms_noti","msg_adons","error403","invalidRequire","nAllowedUseHtml","updated","upDMsg" ,"newMessageReceived","trackNo","url","newResponse","WeRecivedUrM","somethingWentWrongPleaseRefresh","smsOffAddonMissing","telegramOffAddonMissing","authFieldsMissing","login","register"];
         $lang= $efbFunction->text_efb($text);
         $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
         $post_value = isset($_POST['value']) ? wp_unslash( $_POST['value'] ) : '';
@@ -367,6 +367,13 @@ class Admin {
         $save_warnings_efb = array();
         if (is_array($valp) && class_exists('\Emsfb\Builder_Api')) {
             list($valp, $save_warnings_efb) = Builder_Api::disable_unavailable_notifiers($valp, $settings, $lang);
+            // B4: a login / registration form must keep the fields its handler reads.
+            $auth_missing_efb = Builder_Api::auth_fields_missing($valp);
+            if (!empty($auth_missing_efb)) {
+                $type_label_efb = isset($lang[$valp[0]['type']]) ? $lang[$valp[0]['type']] : $valp[0]['type'];
+                $m = str_replace(array('%1$s', '%2$s'), array($type_label_efb, implode(', ', $auth_missing_efb)), isset($lang['authFieldsMissing']) ? $lang['authFieldsMissing'] : 'A %1$s form needs these fields: %2$s.');
+                wp_send_json_success(['success' => false, 'm' => $m, 'code' => 'auth_fields_missing', 'missing' => $auth_missing_efb], 200);
+            }
         }
 
         if(isset($valp[0]['smsnoti']) && intval($valp[0]['smsnoti'])==1){
@@ -473,6 +480,10 @@ class Admin {
                 $telegram_msg_responsed_noti
             );
 		}
+        // B4: a form changed to login / register needs the temporary-links table, as a new one does.
+        if ($form_type === 'login' || $form_type === 'register') {
+            do_action('create_temporary_links_table_Emsfb');
+        }
         $m = $lang['updated'];
         $response = ['success' => true, 'r' =>"updated", 'value' => "[EMS_Form_Builder id=$id]"];
         if (!empty($save_warnings_efb)) $response['warnings'] = $save_warnings_efb;

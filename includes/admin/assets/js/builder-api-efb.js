@@ -439,9 +439,88 @@
     return out;
   }
 
+  /* ---------------- B4: login / register form type ---------------- */
+
+  var FORM_TYPES = ['form', 'payment', 'survey', 'login', 'register'];
+  function authFieldSpec(type) {
+    var t = (typeof efb_var !== 'undefined' && efb_var.text) ? efb_var.text : {};
+    if (type === 'login') return [
+      { id: 'emaillogin', palette: 'text', label: t.emailOrUsername },
+      { id: 'passwordlogin', palette: 'password', label: t.password },
+    ];
+    if (type === 'register') return [
+      { id: 'usernameRegisterEFB', palette: 'text', label: t.username },
+      { id: 'passwordRegisterEFB', palette: 'password', label: t.password },
+      { id: 'emailRegisterEFB', palette: 'email', label: t.email, extra: { noti: 1 } },
+    ];
+    return [];
+  }
+  function authFieldIds(type) { return authFieldSpec(type).map(function (s) { return s.id; }); }
+
+  /* Changes valj_efb[0].type. login / register add the fixed-id fields the public handler
+     reads (emaillogin, passwordlogin / usernameRegisterEFB, passwordRegisterEFB,
+     emailRegisterEFB) right after the step-1 heading when they are missing. Leaving login /
+     register keeps those fields unless opts.removeAuthFields is true. */
+  function setFormTypeCore(type, opts) {
+    opts = opts || {};
+    if (FORM_TYPES.indexOf(type) < 0) throw fail('invalid_type', 'Unknown form type ' + type + '.');
+    var list = rows();
+    var old = opts.previous !== undefined ? opts.previous : list[0].type;
+    list[0].type = type;
+    if (typeof form_type_emsFormBuilder !== 'undefined') form_type_emsFormBuilder = type;
+    var removed = [];
+    if (opts.removeAuthFields === true && old !== type && (old === 'login' || old === 'register')) {
+      var gone = authFieldIds(old);
+      valj_efb = list.filter(function (r, i) { if (i > 0 && r && gone.indexOf(r.id_) >= 0) { removed.push(r.id_); return false; } return true; });
+      list = valj_efb;
+    }
+    var added = [];
+    var want = authFieldSpec(type).filter(function (s) { return !list.some(function (r, i) { return i > 0 && r && r.id_ === s.id; }); });
+    if (want.length) {
+      var newRows = [];
+      want.forEach(function (s) {
+        var made = newItems(s.palette, { required: true });
+        var f = made[0];
+        f.id_ = s.id; f.dataId = s.id + '-id';
+        if (s.label) { f.name = s.label; f.placeholder = s.label; }
+        if (s.extra) Object.keys(s.extra).forEach(function (k) { f[k] = s.extra[k]; });
+        newRows.push(f);
+        added.push(s.id);
+      });
+      var first = -1;
+      for (var i = 2; i < list.length; i++) { if (list[i] && list[i].type !== 'step' && !isOptionRow(list[i])) { first = i; break; } if (list[i] && list[i].type === 'step') break; }
+      Array.prototype.splice.apply(list, [first > 0 ? first : 2, 0].concat(newRows));
+    }
+    if (type === 'register' && (!list[0].email_to || list[0].email_to === 'false')) list[0].email_to = 'emailRegisterEFB';
+    renumber(list);
+    persist();
+    baselineJson = snapshot();
+    emit('efb:form-changed', { source: opts.source || 'api', action: 'setFormType', ids: added.concat(removed) });
+    return { type: type, previous: old, added: added, removed: removed };
+  }
+  function setFormType(type, opts) {
+    var result = setFormTypeCore(String(type), opts);
+    if (opts && opts.render === false) return Promise.resolve(result);
+    return render(opts).then(function () { refreshSettingsPanel(); return result; });
+  }
+  // Called by the form-type select (change_el_edit_Efb, case formTypeEl) after it set the type.
+  window.efb_after_form_type_change_efb = function (oldType, newType) {
+    var leaving = (oldType === 'login' || oldType === 'register') && oldType !== newType;
+    var present = leaving ? authFieldIds(oldType).filter(function (id) { return rows().some(function (r, i) { return i > 0 && r && r.id_ === id; }); }) : [];
+    var ask = present.length && typeof window.efb_confirm_efb === 'function'
+      ? window.efb_confirm_efb({ variant: 'warning', message: (efb_var.text && efb_var.text.authFieldsRemoveQ) || 'Remove the login and registration fields from this form?' })
+      : Promise.resolve(false);
+    return ask.then(function (yes) {
+      var r = setFormTypeCore(newType, { removeAuthFields: yes === true, source: 'user', previous: oldType });
+      if (r.added.length || r.removed.length) return render().then(function () { refreshSettingsPanel(); return r; });
+      return r;
+    });
+  };
+
   var api = {
     version: API_VERSION,
     newItems: newItems,
+    setFormType: setFormType,
     paletteIds: function () { return paletteIds().slice(); },
     getForm: function () { return clone(rows()); },
     setForm: setForm,

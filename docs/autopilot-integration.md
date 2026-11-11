@@ -18,6 +18,8 @@ node tests/test-ap-a7-settings-notfound.js
 node tests/test-ap-b1-builder-api.js
 node tests/test-ap-b2-field-templates.js
 node tests/test-ap-b3-capabilities.js
+node tests/test-ap-b4-login-register.js
+php tests/test-ap-b4-auth-save.php
 ```
 
 (The full list is in [Tests](#tests) at the end.)
@@ -369,3 +371,35 @@ Events on `document`:
   `package`/`addon` say what to tell the admin, `message_key` gives the translated sentence
   (`efb_var.text[message_key]`), `prompt_state` opens EFB's own dialog (`pro_show_efb(state)`).
   Gateway readiness: `payment_keys.stripe`. Plans are reported, never changed by an agent (F18).
+
+### B4. Form type "login" and "register"
+
+- **Before.** `formTypeEl` only changed `valj_efb[0].type`; the register option was disabled; a login
+  form without `emaillogin` / `passwordlogin` saved fine and could never log anyone in.
+- **Now.**
+  - `efbBuilderApi.setFormType(type, {removeAuthFields?, render?})` (`builder-api-efb.js`):
+    `login` adds `emaillogin` (text, label `emailOrUsername`) and `passwordlogin` (password);
+    `register` adds `usernameRegisterEFB`, `passwordRegisterEFB`, `emailRegisterEFB` (email, `noti:1`)
+    and sets `email_to` to `emailRegisterEFB` when unset. Missing fields only, required, built with
+    `newItems()` (B2) and given the fixed ids, inserted right after the step-1 heading; then the canvas
+    is redrawn and an open panel refreshed. Leaving login/register keeps those fields unless
+    `removeAuthFields: true`. Types: `form`, `payment`, `survey`, `login`, `register`
+    (`invalid_type` otherwise).
+  - The form-type select in the form settings does the same (`efb_after_form_type_change_efb()`,
+    called from `change_el_edit_Efb`, `case "formTypeEl"`), and asks with EFB's own confirm dialog
+    ("Remove the login and registration fields from this form?") before removing them.
+  - The register option is enabled. It was disabled because choosing it produced a form without the
+    fields the registration handler reads; with the fields added automatically that reason is gone.
+  - Save: `saveFormEfb()` refuses a login/register form that lacks its fields with a clear message
+    (`authFieldsMissing`), and the server does too (`Builder_Api::auth_fields_missing()` in
+    `update_form_id_Emsfb()` and `add_form_structure()`: `success:false, code:'auth_fields_missing',
+    missing:[ids]`). An updated login/register form now also runs
+    `create_temporary_links_table_Emsfb`, as a new one always did.
+- **Phrases.** `authFieldsMissing`, `authFieldsRemoveQ` with Persian.
+- **Tests.** `node tests/test-ap-b4-login-register.js` (real builder): register enabled, fields
+  added in place and drawn, idempotent, register with removal, the select path with the confirm,
+  Save refusal (11 passed). `php tests/test-ap-b4-auth-save.php` (real handlers): refusal in update
+  and create, nothing written, complete forms save, the temporary-links action, normal forms
+  unaffected (8 passed). The shared PHP stubs moved to `tests/ap-admin-stubs.php` (A5 still 9/9).
+- **AutoPilot.** Stop adding the two login fields yourself: `await efbBuilderApi.setFormType('login')`.
+  On the server, check `\Emsfb\Builder_Api::auth_fields_missing($rows)` before saving.

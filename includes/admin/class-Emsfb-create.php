@@ -393,7 +393,7 @@ class Create {
 	}
 	public function add_form_structure(){
 		$efbFunction = get_efbFunction();
-		$creat=["errorCheckInputs","NAllowedscriptTag","formNcreated","newMessageReceived","newResponse","WeRecivedUrM","trackNo","url",'error403',"smsOffAddonMissing","telegramOffAddonMissing"];
+		$creat=["errorCheckInputs","NAllowedscriptTag","formNcreated","newMessageReceived","newResponse","WeRecivedUrM","trackNo","url",'error403',"smsOffAddonMissing","telegramOffAddonMissing","authFieldsMissing","login","register"];
 		$lang = $efbFunction->text_efb($creat);
 		$this->userId =get_current_user_id();
 
@@ -421,6 +421,12 @@ class Create {
 		$save_warnings_efb = array();
 		if (is_array($valp) && class_exists('\Emsfb\Builder_Api')) {
 			list($valp, $save_warnings_efb) = Builder_Api::disable_unavailable_notifiers($valp, get_setting_Emsfb('decoded', array()), $lang);
+			$auth_missing_efb = Builder_Api::auth_fields_missing($valp);
+			if (!empty($auth_missing_efb)) {
+				$type_label_efb = isset($lang[$valp[0]['type']]) ? $lang[$valp[0]['type']] : $valp[0]['type'];
+				$m = str_replace(array('%1$s', '%2$s'), array($type_label_efb, implode(', ', $auth_missing_efb)), isset($lang['authFieldsMissing']) ? $lang['authFieldsMissing'] : 'A %1$s form needs these fields: %2$s.');
+				wp_send_json_success(array('success' => false, 'm' => $m, 'code' => 'auth_fields_missing', 'missing' => $auth_missing_efb), 200);
+			}
 		}
 		$this->formtype =  sanitize_text_field($_POST['type']);
 		if($this->isScript($_POST['value']) ||$this->isScript($_POST['type'])){

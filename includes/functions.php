@@ -2666,6 +2666,10 @@ class efbFunction {
 			"wpsms_nm" => $state  &&  isset($ac->text->wpsms_nm) ? $ac->text->wpsms_nm : esc_html__('WSMS plugin by VeronaLabs is not installed or activated. Please select another option, or install and configure WSMS.','easy-form-builder'),
 			/* translators: NN = Name of the add-on */
 			"msg_adons" => $state  &&  isset($ac->text->msg_adons) ? $ac->text->msg_adons : esc_html__('To use this option, please install the NN add-ons from the Easy Form Builder plugin\'s add-ons page.','easy-form-builder'),
+			/* translators: AutoPilot B4: Save refused. %1$s: the form type (Login or Register), %2$s: the missing field ids */
+			"authFieldsMissing" => $state && isset($ac->text->authFieldsMissing) ? $ac->text->authFieldsMissing : esc_html__('A %1$s form needs these fields: %2$s. Choose the form type again to add them.','easy-form-builder'),
+			/* translators: AutoPilot B4: asked when the admin changes a login or registration form to another type */
+			"authFieldsRemoveQ" => $state && isset($ac->text->authFieldsRemoveQ) ? $ac->text->authFieldsRemoveQ : esc_html__('Remove the login and registration fields from this form?','easy-form-builder'),
 			/* translators: AutoPilot A5: shown after Save when the form asked for SMS notifications but the SMS add-on is not active */
 			"smsOffAddonMissing" => $state && isset($ac->text->smsOffAddonMissing) ? $ac->text->smsOffAddonMissing : esc_html__('SMS notifications were turned off because the SMS add-on is not active. Everything else was saved.','easy-form-builder'),
 			/* translators: AutoPilot A5: shown after Save when the form asked for Telegram notifications but the Telegram add-on is not active */

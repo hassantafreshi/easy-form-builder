@@ -3194,6 +3194,8 @@ let change_el_edit_Efb = (el) => {
             toggle.classList.add('d-none');
           }
         });
+        // B4: login / register add the fields their handler reads; leaving them asks first.
+        if (typeof efb_after_form_type_change_efb === 'function') efb_after_form_type_change_efb(oldFormType, valj_efb[0].type);
         break;
       case "surveyChartTypeEl":
         if (!valj_efb[0].hasOwnProperty('survey_chart_type')) {
@@ -4254,6 +4256,15 @@ async function create_form_efb() {
   return content
 }
 
+/* B4: the fixed field ids the public login and registration handlers read
+   (class-Emsfb-public.php, case "login" / "register"). */
+const EFB_AUTH_FIELDS_EFB = { login: ['emaillogin', 'passwordlogin'], register: ['usernameRegisterEFB', 'passwordRegisterEFB', 'emailRegisterEFB'] };
+function efb_auth_fields_missing_efb(rows) {
+  if (!Array.isArray(rows) || !rows[0]) return [];
+  const need = EFB_AUTH_FIELDS_EFB[rows[0].type] || [];
+  return need.filter((id) => !rows.some((r, i) => i > 0 && r && r.id_ === id));
+}
+
 const saveFormEfb = async (stated) => {
 
   const isAutoSave = stated === -1;
@@ -4332,8 +4343,9 @@ const saveFormEfb = async (stated) => {
             }
           }
         }
+        const authMissing = efb_auth_fields_missing_efb(valj_efb);
 
-        if (valj_efb.length > 2 && proState == true && stepState == true && (((valj_efb[0].type == "payment" && gateway != -1) || (valj_efb[0].type == "persiaPay" && gateway != -1)) || valj_efb[0].type != "payment")) {
+        if (valj_efb.length > 2 && proState == true && stepState == true && authMissing.length === 0 && (((valj_efb[0].type == "payment" && gateway != -1) || (valj_efb[0].type == "persiaPay" && gateway != -1)) || valj_efb[0].type != "payment")) {
           title = efb_var.text.save;
           box = `saveBox`;
           icon = `bi-check2-circle`;
@@ -4360,6 +4372,13 @@ const saveFormEfb = async (stated) => {
           btnText = efb_var.text.help;
           btnFun = `open_whiteStudio_efb('emptyStep')`;
           message = efb_var.text.itAppearedStepsEmpty;
+          returnState = true;
+        } else if (authMissing.length > 0) {
+          // B4: a login / registration form without the fields its handler reads cannot work.
+          btnText = efb_var.text.help;
+          btnFun = `open_whiteStudio_efb('${valj_efb[0].type}')`;
+          message = String(efb_var.text.authFieldsMissing || 'A %1$s form needs these fields: %2$s. Choose the form type again to add them.')
+            .replace('%1$s', efb_var.text[valj_efb[0].type] || valj_efb[0].type).replace('%2$s', authMissing.join(', '));
           returnState = true;
         } else if (valj_efb[0].type == "payment" && gateway == -1) {
           btnText = efb_var.text.help;

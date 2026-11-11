@@ -78,6 +78,29 @@ class Builder_Api {
 		return array($rows, $warnings);
 	}
 
+	/* ---------------------------------------------------------------- B4 */
+
+	/** The fixed field ids the public login / registration handlers read. */
+	public static function auth_field_ids($type) {
+		if ($type === 'login') return array('emaillogin', 'passwordlogin');
+		if ($type === 'register') return array('usernameRegisterEFB', 'passwordRegisterEFB', 'emailRegisterEFB');
+		return array();
+	}
+
+	/** B4: ids a login / register form lacks (an empty list for every other form type). */
+	public static function auth_fields_missing(array $rows) {
+		$type = isset($rows[0]['type']) ? (string) $rows[0]['type'] : '';
+		$have = array();
+		foreach ($rows as $i => $r) {
+			if ($i > 0 && is_array($r) && isset($r['id_'])) $have[(string) $r['id_']] = true;
+		}
+		$missing = array();
+		foreach (self::auth_field_ids($type) as $id) {
+			if (!isset($have[$id])) $missing[] = $id;
+		}
+		return $missing;
+	}
+
 	/* ---------------------------------------------------------------- B3 */
 
 	const PLAN_RANK = array('free' => 0, 'free_plus' => 1, 'pro' => 2);

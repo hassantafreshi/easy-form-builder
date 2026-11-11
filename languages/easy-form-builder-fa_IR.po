@@ -14871,3 +14871,16 @@ msgstr "اعلان پیامکی خاموش شد، چون افزونهٔ پیام
 #: includes/functions.php
 msgid "Telegram notifications were turned off because the Telegram add-on is not active. Everything else was saved."
 msgstr "اعلان تلگرام خاموش شد، چون افزونهٔ تلگرام فعال نیست. بقیهٔ تغییرها ذخیره شد."
+
+#  origin: claude (fa_IR) AutoPilot
+#. translators: AutoPilot B4: Save refused. %1$s: the form type (Login or Register), %2$s: the missing field ids
+#: includes/functions.php
+#, php-format
+msgid "A %1$s form needs these fields: %2$s. Choose the form type again to add them."
+msgstr "فرم %1$s به این فیلدها نیاز دارد: %2$s. برای افزودن آن‌ها، نوع فرم را دوباره انتخاب کنید."
+
+#  origin: claude (fa_IR) AutoPilot
+#. translators: AutoPilot B4: asked when the admin changes a login or registration form to another type
+#: includes/functions.php
+msgid "Remove the login and registration fields from this form?"
+msgstr "فیلدهای ورود و ثبت‌نام از این فرم حذف شوند؟"
