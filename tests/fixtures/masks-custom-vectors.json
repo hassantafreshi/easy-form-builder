@@ -1,0 +1,760 @@
+{
+ "note": "F01 custom-mask vectors. Expected values written by hand from the token rules in docs/feature-gaps/reference/masks-and-validators.en.md section 3; run by tests/test-masks-custom.js in JS and PHP.",
+ "validate_custom": [
+  {
+   "mask": "0\\999 999 9999",
+   "checksum": "",
+   "input": "09121234567",
+   "ok": true,
+   "code": null,
+   "value": "0912 123 4567",
+   "stored": "09121234567",
+   "note": "literal 0 and 9 then digits"
+  },
+  {
+   "mask": "0\\999 999 9999",
+   "checksum": "",
+   "input": "۰۹۱۲۱۲۳۴۵۶۷",
+   "ok": true,
+   "code": null,
+   "value": "0912 123 4567",
+   "stored": "09121234567",
+   "note": "Persian digits"
+  },
+  {
+   "mask": "0\\999 999 9999",
+   "checksum": "",
+   "input": "0912 123 456",
+   "ok": false,
+   "code": "format",
+   "value": "0912 123 456",
+   "stored": null,
+   "note": "one digit short"
+  },
+  {
+   "mask": "0\\999 999 9999",
+   "checksum": "",
+   "input": "0912 123 45678",
+   "ok": false,
+   "code": "format",
+   "value": "0912 123 4567",
+   "stored": null,
+   "note": "one digit too many"
+  },
+  {
+   "mask": "0\\999 999 9999",
+   "checksum": "",
+   "input": "",
+   "ok": false,
+   "code": "empty",
+   "value": "",
+   "stored": null,
+   "note": ""
+  },
+  {
+   "mask": "0\\999 999 9999",
+   "checksum": "",
+   "input": "   ",
+   "ok": false,
+   "code": "empty",
+   "value": "",
+   "stored": null,
+   "note": "only spaces"
+  },
+  {
+   "mask": "0\\999 999 9999",
+   "checksum": "",
+   "input": "0991 234 5678",
+   "ok": true,
+   "code": null,
+   "value": "0991 234 5678",
+   "stored": "09912345678",
+   "note": "data starting with 9 right after the literal 9"
+  },
+  {
+   "mask": "0\\999 999 9999",
+   "checksum": "",
+   "input": "09912345678",
+   "ok": true,
+   "code": null,
+   "value": "0991 234 5678",
+   "stored": "09912345678",
+   "note": "stored value validates again (round trip)"
+  },
+  {
+   "mask": "0\\999 999 9999",
+   "checksum": "",
+   "input": "‏0912‌123‎4567",
+   "ok": true,
+   "code": null,
+   "value": "0912 123 4567",
+   "stored": "09121234567",
+   "note": "RLM, ZWNJ and LRM removed"
+  },
+  {
+   "mask": "0\\999 999 9999",
+   "checksum": "",
+   "input": "0912-123-4567",
+   "ok": true,
+   "code": null,
+   "value": "0912 123 4567",
+   "stored": "09121234567",
+   "note": "dashes instead of spaces"
+  },
+  {
+   "mask": "aa99[ ****]",
+   "checksum": "",
+   "input": "AB12",
+   "ok": true,
+   "code": null,
+   "value": "AB12",
+   "stored": "AB12",
+   "note": "optional group left empty"
+  },
+  {
+   "mask": "aa99[ ****]",
+   "checksum": "",
+   "input": "AB12 C3D4",
+   "ok": true,
+   "code": null,
+   "value": "AB12 C3D4",
+   "stored": "AB12C3D4",
+   "note": "optional group filled"
+  },
+  {
+   "mask": "aa99[ ****]",
+   "checksum": "",
+   "input": "AB12C3D4",
+   "ok": true,
+   "code": null,
+   "value": "AB12 C3D4",
+   "stored": "AB12C3D4",
+   "note": "optional separator inserted"
+  },
+  {
+   "mask": "aa99[ ****]",
+   "checksum": "",
+   "input": "A123",
+   "ok": false,
+   "code": "format",
+   "value": "A12",
+   "stored": null,
+   "note": "digit in a letter slot is dropped"
+  },
+  {
+   "mask": "aa99[ ****]",
+   "checksum": "",
+   "input": "ab12",
+   "ok": true,
+   "code": null,
+   "value": "ab12",
+   "stored": "ab12",
+   "note": "lowercase letters fit a"
+  },
+  {
+   "mask": "aa99[ ****]",
+   "checksum": "",
+   "input": "بج12",
+   "ok": true,
+   "code": null,
+   "value": "بج12",
+   "stored": "بج12",
+   "note": "Arabic-script letters fit a"
+  },
+  {
+   "mask": "aa99[ ****]",
+   "checksum": "",
+   "input": "AB12 C3D4E",
+   "ok": false,
+   "code": "format",
+   "value": "AB12 C3D4",
+   "stored": null,
+   "note": "data beyond the mask"
+  },
+  {
+   "mask": "9{3,4}",
+   "checksum": "",
+   "input": "123",
+   "ok": true,
+   "code": null,
+   "value": "123",
+   "stored": "123",
+   "note": ""
+  },
+  {
+   "mask": "9{3,4}",
+   "checksum": "",
+   "input": "1234",
+   "ok": true,
+   "code": null,
+   "value": "1234",
+   "stored": "1234",
+   "note": ""
+  },
+  {
+   "mask": "9{3,4}",
+   "checksum": "",
+   "input": "12",
+   "ok": false,
+   "code": "format",
+   "value": "12",
+   "stored": null,
+   "note": "below {n}"
+  },
+  {
+   "mask": "9{3,4}",
+   "checksum": "",
+   "input": "12345",
+   "ok": false,
+   "code": "format",
+   "value": "1234",
+   "stored": null,
+   "note": "above {m}"
+  },
+  {
+   "mask": "(999) 999-9999",
+   "checksum": "",
+   "input": "2025550123",
+   "ok": true,
+   "code": null,
+   "value": "(202) 555-0123",
+   "stored": "2025550123",
+   "note": ""
+  },
+  {
+   "mask": "(999) 999-9999",
+   "checksum": "",
+   "input": "(202) 555-0123",
+   "ok": true,
+   "code": null,
+   "value": "(202) 555-0123",
+   "stored": "2025550123",
+   "note": ""
+  },
+  {
+   "mask": "(999) 999-9999",
+   "checksum": "",
+   "input": "202.555.0123",
+   "ok": true,
+   "code": null,
+   "value": "(202) 555-0123",
+   "stored": "2025550123",
+   "note": "other separators"
+  },
+  {
+   "mask": "(999) 999-9999",
+   "checksum": "",
+   "input": "202555012",
+   "ok": false,
+   "code": "format",
+   "value": "(202) 555-012",
+   "stored": null,
+   "note": ""
+  },
+  {
+   "mask": "99/99/9999",
+   "checksum": "",
+   "input": "01022024",
+   "ok": true,
+   "code": null,
+   "value": "01/02/2024",
+   "stored": "01022024",
+   "note": ""
+  },
+  {
+   "mask": "99/99/9999",
+   "checksum": "",
+   "input": "01/02/24",
+   "ok": false,
+   "code": "format",
+   "value": "01/02/24",
+   "stored": null,
+   "note": ""
+  },
+  {
+   "mask": "\\a\\9-999",
+   "checksum": "",
+   "input": "123",
+   "ok": true,
+   "code": null,
+   "value": "a9-123",
+   "stored": "a9123",
+   "note": "escaped letter and digit literals"
+  },
+  {
+   "mask": "\\a\\9-999",
+   "checksum": "",
+   "input": "a9123",
+   "ok": true,
+   "code": null,
+   "value": "a9-123",
+   "stored": "a9123",
+   "note": "clean value validates again"
+  },
+  {
+   "mask": "\\[99\\]",
+   "checksum": "",
+   "input": "12",
+   "ok": true,
+   "code": null,
+   "value": "[12]",
+   "stored": "12",
+   "note": "escaped brackets are literals"
+  },
+  {
+   "mask": "\\\\99",
+   "checksum": "",
+   "input": "12",
+   "ok": true,
+   "code": null,
+   "value": "\\12",
+   "stored": "12",
+   "note": "escaped backslash literal"
+  },
+  {
+   "mask": "9999 9999 9999 9999",
+   "checksum": "luhn",
+   "input": "4111111111111111",
+   "ok": true,
+   "code": null,
+   "value": "4111 1111 1111 1111",
+   "stored": "4111111111111111",
+   "note": ""
+  },
+  {
+   "mask": "9999 9999 9999 9999",
+   "checksum": "luhn",
+   "input": "4111 1111 1111 1112",
+   "ok": false,
+   "code": "checksum",
+   "value": "4111 1111 1111 1112",
+   "stored": null,
+   "note": ""
+  },
+  {
+   "mask": "9999 9999 9999 9999",
+   "checksum": "",
+   "input": "4111111111111112",
+   "ok": true,
+   "code": null,
+   "value": "4111 1111 1111 1112",
+   "stored": "4111111111111112",
+   "note": "no checksum unless chosen"
+  },
+  {
+   "mask": "999-999999-9",
+   "checksum": "iran_national_code",
+   "input": "1234567891",
+   "ok": true,
+   "code": null,
+   "value": "123-456789-1",
+   "stored": "1234567891",
+   "note": ""
+  },
+  {
+   "mask": "999-999999-9",
+   "checksum": "iran_national_code",
+   "input": "۹۸۷۶۵۴۳۲۱۰",
+   "ok": true,
+   "code": null,
+   "value": "987-654321-0",
+   "stored": "9876543210",
+   "note": ""
+  },
+  {
+   "mask": "999-999999-9",
+   "checksum": "iran_national_code",
+   "input": "1234567892",
+   "ok": false,
+   "code": "checksum",
+   "value": "123-456789-2",
+   "stored": null,
+   "note": ""
+  },
+  {
+   "mask": "999-999999-9",
+   "checksum": "iran_national_code",
+   "input": "1111111111",
+   "ok": false,
+   "code": "checksum",
+   "value": "111-111111-1",
+   "stored": null,
+   "note": ""
+  },
+  {
+   "mask": "IR99 9999 9999 9999 9999 9999 99",
+   "checksum": "iso7064_mod97_10",
+   "input": "IR84 0120 0000 0000 0123 4567 89",
+   "ok": true,
+   "code": null,
+   "value": "IR84 0120 0000 0000 0123 4567 89",
+   "stored": "IR840120000000000123456789",
+   "note": ""
+  },
+  {
+   "mask": "IR99 9999 9999 9999 9999 9999 99",
+   "checksum": "iso7064_mod97_10",
+   "input": "840120000000000123456789",
+   "ok": true,
+   "code": null,
+   "value": "IR84 0120 0000 0000 0123 4567 89",
+   "stored": "IR840120000000000123456789",
+   "note": "literal IR inserted for a bare 24-digit Sheba"
+  },
+  {
+   "mask": "IR99 9999 9999 9999 9999 9999 99",
+   "checksum": "iso7064_mod97_10",
+   "input": "IR84 0120 0000 0000 0123 4567 88",
+   "ok": false,
+   "code": "checksum",
+   "value": "IR84 0120 0000 0000 0123 4567 88",
+   "stored": null,
+   "note": ""
+  },
+  {
+   "mask": "aa99 9999 9999 9999 9999 9999 99",
+   "checksum": "iso7064_mod97_10",
+   "input": "ir310560987654321000000001",
+   "ok": true,
+   "code": null,
+   "value": "ir31 0560 9876 5432 1000 0000 01",
+   "stored": "ir310560987654321000000001",
+   "note": "lowercase is uppercased for the checksum only"
+  },
+  {
+   "mask": "9999 9999 9999",
+   "checksum": "verhoeff",
+   "input": "234567890124",
+   "ok": true,
+   "code": null,
+   "value": "2345 6789 0124",
+   "stored": "234567890124",
+   "note": ""
+  },
+  {
+   "mask": "9999 9999 9999",
+   "checksum": "verhoeff",
+   "input": "234567890125",
+   "ok": false,
+   "code": "checksum",
+   "value": "2345 6789 0125",
+   "stored": null,
+   "note": ""
+  },
+  {
+   "mask": "9999",
+   "checksum": "",
+   "input": "111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111",
+   "ok": false,
+   "code": "format",
+   "value": "111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111",
+   "stored": null,
+   "note": "input longer than 256 characters"
+  }
+ ],
+ "is_complete": [
+  {
+   "mask": "99/99",
+   "input": "12/34",
+   "expect": true
+  },
+  {
+   "mask": "99/99",
+   "input": "12/3",
+   "expect": false
+  },
+  {
+   "mask": "99/99",
+   "input": "1234",
+   "expect": false,
+   "note": "not in mask shape yet"
+  },
+  {
+   "mask": "99[-99]",
+   "input": "12",
+   "expect": true
+  },
+  {
+   "mask": "99[-99]",
+   "input": "12-34",
+   "expect": true
+  },
+  {
+   "mask": "99",
+   "input": "1x",
+   "expect": false
+  },
+  {
+   "mask": "9{2,3}",
+   "input": "12",
+   "expect": true
+  },
+  {
+   "mask": "9{2,3}",
+   "input": "1",
+   "expect": false
+  },
+  {
+   "mask": "99)",
+   "input": "12",
+   "expect": true,
+   "note": "a trailing literal is written lazily"
+  },
+  {
+   "mask": "aa99[ ****]",
+   "input": "AB12 C3",
+   "expect": true,
+   "note": "each optional slot is optional on its own"
+  }
+ ],
+ "to_national_display": [
+  {
+   "preset": "ir.mobile",
+   "input": "+98 912 123 4567",
+   "expect": "09121234567"
+  },
+  {
+   "preset": "ir.mobile",
+   "input": "0098-912-123-4567",
+   "expect": "09121234567"
+  },
+  {
+   "preset": "ir.mobile",
+   "input": "989121234567",
+   "expect": "09121234567"
+  },
+  {
+   "preset": "ir.mobile",
+   "input": "+۹۸۹۱۲",
+   "expect": "0912"
+  },
+  {
+   "preset": "ir.mobile",
+   "input": "+9",
+   "expect": null
+  },
+  {
+   "preset": "ir.mobile",
+   "input": "+98",
+   "expect": "0"
+  },
+  {
+   "preset": "ir.mobile",
+   "input": "00",
+   "expect": null
+  },
+  {
+   "preset": "ir.mobile",
+   "input": "009",
+   "expect": null
+  },
+  {
+   "preset": "ir.mobile",
+   "input": "09121234567",
+   "expect": "09121234567"
+  },
+  {
+   "preset": "ir.mobile",
+   "input": "+1 912",
+   "expect": "+1 912"
+  },
+  {
+   "preset": "ir.mobile",
+   "input": "+98 0912 123 4567",
+   "expect": "09121234567",
+   "note": "trunk kept after the country code"
+  },
+  {
+   "preset": "sa.mobile",
+   "input": "+966 50 123 4567",
+   "expect": "0501234567"
+  },
+  {
+   "preset": "kw.mobile",
+   "input": "+965 5123 4567",
+   "expect": "51234567"
+  },
+  {
+   "preset": "kw.mobile",
+   "input": "96551234567",
+   "expect": "51234567"
+  },
+  {
+   "preset": "us.phone",
+   "input": "+1 202 555 0123",
+   "expect": "2025550123"
+  },
+  {
+   "preset": "us.phone",
+   "input": "12025550123",
+   "expect": "2025550123"
+  },
+  {
+   "preset": "us.phone",
+   "input": "2025550123",
+   "expect": "2025550123"
+  },
+  {
+   "preset": "ir.national_id",
+   "input": "+98 001",
+   "expect": "+98 001",
+   "note": "no e164: unchanged"
+  },
+  {
+   "preset": "lb.mobile",
+   "input": "+961 3 123 456",
+   "expect": "+961 3 123 456",
+   "note": "no typing mask: unchanged"
+  }
+ ],
+ "format_display": [
+  {
+   "preset": "ir.mobile",
+   "input": "+989121234567",
+   "expect": "0912 123 4567"
+  },
+  {
+   "preset": "sa.mobile",
+   "input": "+966501234567",
+   "expect": "050 123 4567"
+  },
+  {
+   "preset": "ir.sheba",
+   "input": "ir840120000000000123456789",
+   "expect": "IR84 0120 0000 0000 0123 4567 89"
+  },
+  {
+   "preset": "ir.amount_toman",
+   "input": "1250000",
+   "expect": "1,250,000"
+  },
+  {
+   "preset": "intl.card",
+   "input": "378282246310005",
+   "expect": "3782 822463 10005"
+  },
+  {
+   "preset": "ir.national_id",
+   "input": "0012345679",
+   "expect": "001-234567-9"
+  }
+ ],
+ "check_mask": [
+  {
+   "mask": "0\\999 999 9999",
+   "expect": true
+  },
+  {
+   "mask": "aa99[ ****]",
+   "expect": true
+  },
+  {
+   "mask": "9{3,4}",
+   "expect": true
+  },
+  {
+   "mask": "(999) 999-9999",
+   "expect": true
+  },
+  {
+   "mask": "99/99/9999",
+   "expect": true
+  },
+  {
+   "mask": "\\a\\9-999",
+   "expect": true
+  },
+  {
+   "mask": "9{64}",
+   "expect": true
+  },
+  {
+   "mask": "9{65}",
+   "expect": false
+  },
+  {
+   "mask": "{3}",
+   "expect": false
+  },
+  {
+   "mask": "99{",
+   "expect": false
+  },
+  {
+   "mask": "99{2",
+   "expect": false
+  },
+  {
+   "mask": "9{a}",
+   "expect": false
+  },
+  {
+   "mask": "9{3,2}",
+   "expect": false
+  },
+  {
+   "mask": "9{0}",
+   "expect": false
+  },
+  {
+   "mask": "9]",
+   "expect": false
+  },
+  {
+   "mask": "[9",
+   "expect": false
+  },
+  {
+   "mask": "9}",
+   "expect": false
+  },
+  {
+   "mask": "\\",
+   "expect": false
+  },
+  {
+   "mask": "99<",
+   "expect": false
+  },
+  {
+   "mask": "99>",
+   "expect": false
+  },
+  {
+   "mask": "9\"9",
+   "expect": false
+  },
+  {
+   "mask": "99%41",
+   "expect": false
+  },
+  {
+   "mask": "",
+   "expect": false
+  },
+  {
+   "mask": "----",
+   "expect": false
+  },
+  {
+   "mask": "\\9\\9",
+   "expect": false
+  },
+  {
+   "mask": "9\t9",
+   "expect": false
+  },
+  {
+   "mask": "99999999999999999999999999999999999999999999999999999999999999999",
+   "expect": false
+  },
+  {
+   "mask": "[ ]{2}",
+   "expect": false
+  },
+  {
+   "mask": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "expect": true
+  }
+ ]
+}

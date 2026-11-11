@@ -485,6 +485,42 @@
     return normalize(s, {});
   }
 
+  var MAX_CUSTOM_MASK = 64;
+  /**
+   * checkMask(pattern): syntax check for an admin's custom mask (twin of Masks::check_mask): 1-64 characters,
+   * no control characters or < > " %, balanced [ ], every {n} / {n,m} closed and placed after a token,
+   * 1-64 tokens after expansion, at least one 9 / a / * slot.
+   */
+  function checkMask(pattern) {
+    if (typeof pattern !== 'string' || pattern === '') { return false; }
+    var chars = Array.from(pattern);
+    if (chars.length > MAX_CUSTOM_MASK || /[\x00-\x1F\x7F<>"%]/.test(pattern)) { return false; }
+    var n = chars.length, depth = 0, count = 0, slots = 0, last = null;
+    for (var i = 0; i < n; i++) {
+      var ch = chars[i];
+      if (ch === '\\') {
+        if (i + 1 >= n) { return false; }
+        i++; count++; last = 'lit'; continue;
+      }
+      if (ch === '[') { depth++; last = null; continue; }
+      if (ch === ']') { if (depth === 0) { return false; } depth--; last = null; continue; }
+      if (ch === '{') {
+        var spec = '';
+        while (++i < n && chars[i] !== '}') { spec += chars[i]; }
+        var m = /^(\d{1,2})(?:,(\d{1,2}))?$/.exec(spec);
+        if (i >= n || last === null || !m) { return false; }
+        var min = parseInt(m[1], 10), max = m[2] !== undefined ? parseInt(m[2], 10) : min;
+        if (max < 1 || min > max) { return false; }
+        count += max - 1;
+        if (last === 'slot') { slots += max - 1; }
+        last = null; continue;
+      }
+      if (ch === '}') { return false; }
+      count++;
+      if (ch === '9' || ch === 'a' || ch === '*') { slots++; last = 'slot'; } else { last = 'lit'; }
+    }
+    return depth === 0 && slots > 0 && count >= 1 && count <= MAX_CUSTOM_MASK;
+  }
   /**
    * isComplete(pattern, formatted): every non-optional slot is filled and the value is already in mask shape
    * (applyMask(pattern, formatted) === formatted). Linear walk over the tokens; no regex is built (no ReDoS).
@@ -612,7 +648,8 @@
     applyMask: applyMask, compileMask: compileMask, formatThousands: formatThousands, formatValue: formatValue, maskMaxLength: maskMaxLength, attachMask: attachMask,
     caretForDataIndex: caretForDataIndex, isComplete: isComplete, validateCustom: validateCustom,
     toStoredCustom: toStoredCustom, toNationalDisplay: toNationalDisplay, formatDisplay: formatDisplay,
-    CUSTOM_CHECKSUMS: CUSTOM_CHECKSUMS, MAX_INPUT: MAX_INPUT,
+    CUSTOM_CHECKSUMS: CUSTOM_CHECKSUMS, MAX_INPUT: MAX_INPUT, MAX_CUSTOM_MASK: MAX_CUSTOM_MASK, checkMask: checkMask,
+    dataOnly: dataOnly,
     luhn: luhn, luhnCheckDigit: luhnCheckDigit, verhoeff: verhoeff, verhoeffCheckDigit: verhoeffCheckDigit,
     iban: iban, ibanCheckDigits: ibanCheckDigits, IBAN_LENGTHS: IBAN_LENGTHS, mod97: mod97,
     iranNationalCode: iranNationalCode, iranLegalId: iranLegalId, saudiNin: saudiNin, emiratesId: emiratesId,
