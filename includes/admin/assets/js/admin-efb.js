@@ -2185,7 +2185,9 @@ let change_el_edit_Efb = (el) => {
             }
 
           }
-          if(valj_efb[indx].type!="range" || valj_efb[indx].type!="date")valj_efb[indx].required=1;
+          // Setting a minimum no longer makes the field required. The old test
+          // (type!="range" || type!="date") was always true, so any minimum did,
+          // without the Required switch showing it. Required comes from requiredEl.
 
         }
         break;

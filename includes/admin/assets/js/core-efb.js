@@ -648,12 +648,11 @@ function valid_file_emsFormBuilder(id) {
   const isRecorderField_efb = f && recorderTypes_efb.indexOf(f.type) !== -1;
   const i = isRecorderField_efb ? `${id}_file` : `${id}_`;
   let message = "";
-  let file_size = 8*1024*1024;
   const indx = valj_efb.findIndex(x => x.id_ === id);
   let val_in = valj_efb[indx];
-  if(val_in.hasOwnProperty('max_fsize') && val_in.max_fsize.length>0){
-    file_size = Number(val_in.max_fsize) * 1024 * 1024;
-  }
+  // Same default as the public page and the server: 20 MB.
+  const max_mb = val_in.hasOwnProperty('max_fsize') && Number(val_in.max_fsize) > 0 ? Number(val_in.max_fsize) : 20;
+  let file_size = max_mb * 1024 * 1024;
   const el = document.getElementById(i);
   setTimeout(() => {
   if (el.files[0] && el.files[0].size < file_size) {
@@ -689,7 +688,7 @@ function valid_file_emsFormBuilder(id) {
   } else {
     const prA = document.getElementById(id+'-prA');
     if (prA) prA.classList.add('d-none');
-    const f_s_l = val_in.hasOwnProperty('max_fsize') && val_in.max_fsize.length>0 ? val_in.max_fsize : 8;
+    const f_s_l = max_mb;
     const m =efb_var.text.pleaseUploadA.replace('NN', efb_var.text[val_in.file]);
     const size_m = efb_var.text.fileSizeIsTooLarge.replace('NN', f_s_l);
     if (el.files[0] && message.length < 2) message = el.files[0].size < file_size ? m : size_m;

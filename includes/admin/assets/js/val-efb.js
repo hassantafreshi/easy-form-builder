@@ -1308,7 +1308,8 @@ function show_setting_window_efb(idset) {
     }
 
     const fileSizeMaxEls =()=>{
-      const file_size = valj_efb[indx].hasOwnProperty('max_fsize') ? valj_efb[indx].max_fsize : 8;
+      // 20 MB is what the browser and the server apply when no size is saved.
+      const file_size = valj_efb[indx].hasOwnProperty('max_fsize') && Number(valj_efb[indx].max_fsize) > 0 ? valj_efb[indx].max_fsize : 20;
       // Host awareness: the real ceiling is the hosting's upload_max_filesize -
       // configuring a larger value here silently breaks uploads for visitors.
       const hostMax = Number(efb_var.upload_max) || 0;
@@ -1317,7 +1318,7 @@ function show_setting_window_efb(idset) {
       <div class="efb  mt-3">
       <label for="fileSizeMaxEl" class="efb  mt-3"><i class="efb bi-file-earmark-medical fs-7 ${iconMarginGlobal}"></i>${efb_var.text.maxfs} <small>(MB)</small> <i class="efb bi-patch-question fs-7 text-success pointer-efb" onclick="Link_emsFormBuilder('file_size')"> </i></label>
 
-      <input type="number" min="1" max="300" data-id="${idset}" class="efb  elEdit form-control text-muted border-d rounded-4 h-d-efb mb-1 efb" placeholder=""${efb_var.text.exDot} 8" id="fileSizeMaxEl" required value="${file_size}">
+      <input type="number" min="1" max="300" data-id="${idset}" class="efb  elEdit form-control text-muted border-d rounded-4 h-d-efb mb-1 efb" placeholder=""${efb_var.text.exDot} 20" id="fileSizeMaxEl" required value="${file_size}">
       ${hostMax > 0 ? `<small class="efb text-muted fs-8 mx-2 d-block">${(efb_var.text.hostUploadLimit || 'Your hosting accepts uploads up to %s MB.').replace('%s', hostMax)}</small>` : ''}
       ${hostMax > 0 ? `<small class="efb text-danger fs-8 mx-2 d-block ${overHost ? '' : 'd-none'}" id="fileSizeMaxWarnEfb"><i class="efb bi-exclamation-triangle-fill ${iconMarginGlobal}"></i>${(efb_var.text.hostUploadLimitOver || 'This is larger than the hosting limit (%s MB); uploads will fail.').replace('%s', hostMax)}</small>` : ''}
       </div>

@@ -2758,10 +2758,10 @@ public function check_nonce_permission_efb($request) {
 						if (((isset($f['disabled']) == true &&  $f['disabled'] == 1  && isset($f['hidden']) == false)
 								|| (isset($f['disabled']) == true && $f['disabled'] == 1 && isset($f['hidden']) == true && $f['hidden'] == false))
 							&& ($item['id_'] == $f['id_'] || $f['id_'] == $item['id_'])
-							&& $item_value_len > 1
+							&& $this->disabled_field_value_submitted_efb($item_value_len)
 						) {
 							$is_valid = 0;
-							$still_processing == false;
+							$still_processing = false;
 							// Name the field, so the visitor is not shown an empty error.
 							if (isset($f['name']) && isset($this->lanText['mnvvXXX_'])) {
 								$error_message = str_replace('%s', "<b>" . esc_html($f['name']) . "</b>", $this->lanText['mnvvXXX_']);
@@ -2796,7 +2796,7 @@ public function check_nonce_permission_efb($request) {
 										}
 
 										$e_ar = isset($form_fields_array[0]['email_send_type']) ? $form_fields_array[0]['email_send_type'] : false;
-										if ((isset($f['milen']) && $f['milen'] > $l) || (isset($f['mlen']) && $f['mlen'] < $l)) {
+										if ($this->length_outside_limits_efb($f, $l)) {
 											$is_valid = 0;
 										}
 										if (isset($f['noti']) == true && intval($f['noti']) == 1)  $this->email_list_efb($email_recipients, 1, $item['value'], $e_ar);
@@ -2850,7 +2850,7 @@ public function check_nonce_permission_efb($request) {
 											}
 										}
 										$l = strlen($item['value']);
-										if ((isset($f['milen']) && $f['milen'] > $l) || (isset($f['mlen']) && $f['mlen'] < $l)) {
+										if ($this->length_outside_limits_efb($f, $l)) {
 											$is_valid = 0;
 										}
 									}
@@ -3085,15 +3085,22 @@ public function check_nonce_permission_efb($request) {
 										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
 										$validated_item = null;
 										$rs = explode("@efb!", $item['value']);
-										array_filter($form_fields_array, function ($fr) use ($item, &$validated_item, $rs) {
+										$picked = array();
+										array_filter($form_fields_array, function ($fr) use ($item, &$validated_item, $rs, &$picked) {
 											// "&amp;" in a template option vs the "&" the browser sends
 											foreach ($rs as $k => $v) {
 												if (isset($item['type'])  && $fr['type'] == "option" && isset($fr['value']) && isset($v) && $this->same_option_text_efb($fr['value'], $v) &&  $fr['parent'] == $item['id_']) {
 													$validated_item == null ? $validated_item = $v . '@efb!' : $validated_item = $validated_item . $v . '@efb!';
+													$picked[$k] = true;
 												}
 											}
 										});
 										if ($validated_item != null) $is_valid = 1;
+										/* The browser stops at maxSelect and asks for minSelect,
+										 * but a crafted request could pick any number of options. */
+										if ($is_valid == 1 && !$this->selection_count_within_limits_efb($f, count($picked))) {
+											$is_valid = 0;
+										}
 										$item['value'] = $validated_item;
 										$validated_item = $item;
 									}
@@ -3386,7 +3393,7 @@ public function check_nonce_permission_efb($request) {
 										$is_valid = 1;
 										$item['value'] = sanitize_text_field($item['value']);
 										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
-										$l = mb_strlen($item['value'], 'UTF-8');
+										$l = $this->submitted_text_length_efb($item['value']);
 										$min_len = isset($f['milen']) ? (int) $f['milen'] : 0;
 										$max_len = isset($f['mlen']) ? (int) $f['mlen'] : 0;
 
@@ -8798,6 +8805,49 @@ public function check_nonce_permission_efb($request) {
 	 * same way an empty value does. null is left alone so isset() semantics in
 	 * the branches are unchanged.
 	 */
+	/**
+	 * Length of a submitted text value as the visitor sees it. The browser
+	 * sends each textarea line break as "@n#" (sanitize_text_efb), which is
+	 * one character, not three. Characters are code points, as in core-efb.js
+	 * (efb_value_length_efb).
+	 */
+	private function submitted_text_length_efb($value) {
+		return mb_strlen(str_replace('@n#', "\n", (string) $value), 'UTF-8');
+	}
+
+	/**
+	 * True when a value of $len characters breaks the field's Min or Max
+	 * length. A Max that is missing, empty, "0" or not a number means no
+	 * maximum, as in the renderer and the browser: the builder writes
+	 * mlen:'0' the first time the Max control is touched.
+	 */
+	private function length_outside_limits_efb($f, $len) {
+		$min = isset($f['milen']) && is_numeric($f['milen']) ? (int) $f['milen'] : 0;
+		$max = isset($f['mlen']) && is_numeric($f['mlen']) ? (int) $f['mlen'] : 0;
+		return ($min > 0 && $len < $min) || ($max > 0 && $len > $max);
+	}
+
+	/**
+	 * True when the number of options picked in a multiselect respects the
+	 * field's minSelect and maxSelect. A limit that is missing, empty, zero
+	 * or not a number is no limit, so forms saved without them keep working.
+	 */
+	private function selection_count_within_limits_efb($f, $count) {
+		$min = isset($f['minSelect']) && is_numeric($f['minSelect']) ? (int) $f['minSelect'] : 0;
+		$max = isset($f['maxSelect']) && is_numeric($f['maxSelect']) ? (int) $f['maxSelect'] : 0;
+		if ($min > 0 && $count < $min) return false;
+		if ($max > 0 && $count > $max) return false;
+		return true;
+	}
+
+	/**
+	 * A disabled field must not carry a visitor's answer. Any non-empty
+	 * value counts; a one-character answer used to slip through.
+	 */
+	private function disabled_field_value_submitted_efb($item_value_len) {
+		return (int) $item_value_len > 0;
+	}
+
 	private function normalize_submitted_row_efb($item, $field_type) {
 		if (!is_array($item)) {
 			return array('id_' => '', 'id_ob' => '', 'type' => '', 'name' => '', 'amount' => '');

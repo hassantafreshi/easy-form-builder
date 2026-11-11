@@ -1335,6 +1335,80 @@ function valid_email_emsFormBuilder(el) {
   }
   return check > 0 ? false : true
 }
+/* Length of a value as the server counts it (submitted_text_length_efb): a
+ * textarea line break travels as "@n#" and is one character, and characters
+ * are code points, as PHP's mb_strlen counts them. */
+function efb_value_length_efb(value) {
+  return Array.from(String(value == null ? '' : value).replace(/@n#/g, '\n')).length;
+}
+/* Min and Max of a number field, as numbers, or null when not set. The PHP
+ * renderer prints min/max; the builder preview and pages rendered before it
+ * did carry them in minlength/maxlength. The attributes are read as text:
+ * el.minLength turns a negative minimum into -1 and el.maxLength drops
+ * decimals. A Max of 0 means no maximum, as on the server. When both min and
+ * minlength are set (the price field always has min="0"), the larger wins. */
+function efb_number_bounds_efb(el) {
+  const num = (name) => {
+    if (!el || !el.hasAttribute(name)) return null;
+    const raw = String(el.getAttribute(name)).trim();
+    if (raw === '' || !isFinite(Number(raw))) return null;
+    return Number(raw);
+  };
+  const mins = [num('min'), num('minlength')].filter((v) => v !== null);
+  let max = num('max');
+  if (max === null || max === 0) max = num('maxlength');
+  if (max === 0) max = null;
+  return { min: mins.length ? Math.max.apply(null, mins) : null, max: max };
+}
+/* The Min/Max length rule a text, textarea or number input breaks, or null.
+ * Text has no minimum unless minlength is set (the server has none either). */
+function efb_length_violation_efb(el, value) {
+  if (el.type == 'number') {
+    const n = Number(value);
+    const b = efb_number_bounds_efb(el);
+    if (b.min !== null && n < b.min) return { key: 'mcplen', limit: b.min };
+    if (b.max !== null && n > b.max) return { key: 'mxcplen', limit: b.max };
+    return null;
+  }
+  const len = efb_value_length_efb(value);
+  const attr = (name) => {
+    const n = el.hasAttribute(name) ? Number(el.getAttribute(name)) : 0;
+    return isFinite(n) && n > 0 ? Math.floor(n) : 0;
+  };
+  const min = attr('minlength');
+  const max = attr('maxlength');
+  if (min > 0 && len < min) return { key: 'mmplen', limit: min };
+  if (max > 0 && len > max) return { key: 'mmxplen', limit: max };
+  return null;
+}
+/* A Min/Max length failure stops the field, except on the quantity box of a
+ * checklist option (data-type="chlCheckBox"). Inputs printed by PHP carry no
+ * data-type, and their failures used to be ignored. */
+function efb_length_failure_blocks_efb(el) {
+  return !(el && el.dataset && el.dataset.type == 'chlCheckBox');
+}
+/* Options picked in a multiselect value ("a@efb!b@efb!"). */
+function efb_multiselect_count_efb(value) {
+  if (typeof value !== 'string' || value === '') return 0;
+  return value.split('@efb!').filter((v) => v !== '').length;
+}
+/* Mirrors selection_count_within_limits_efb() in class-Emsfb-public.php: a
+ * missing, empty, zero or non-numeric minSelect/maxSelect is no limit. */
+function efb_selection_within_limits_efb(field, count) {
+  const lim = (k) => {
+    const n = field && field.hasOwnProperty(k) && String(field[k]).trim() !== '' ? Number(field[k]) : 0;
+    return isFinite(n) && n > 0 ? Math.floor(n) : 0;
+  };
+  const min = lim('minSelect');
+  const max = lim('maxSelect');
+  return !((min > 0 && count < min) || (max > 0 && count > max));
+}
+/* Upload limit of a file field in MB. Same default as the server
+ * (Upload_Guard / validate_submitted_upload_url_efb) and the builder: 20. */
+function efb_max_file_mb_efb(field) {
+  const n = field && field.hasOwnProperty('max_fsize') ? Number(field.max_fsize) : 0;
+  return isFinite(n) && n > 0 ? n : 20;
+}
 /* Email, phone, URL and number fields: true when the typed value is acceptable.
  * Email and phone show their message here; URL and number already show it from
  * the change handler (number Min/Max are values, carried in minlength/maxlength). */
@@ -1344,9 +1418,8 @@ function valid_typed_value_efb(type, el) {
   if (type == 'number') {
     const n = Number(el.value);
     if (isNaN(n)) return false;
-    if (el.hasAttribute('minlength') && n < el.minLength) return false;
-    const max = el.hasAttribute('maxlength') ? el.maxLength : 0;
-    return !(max > 0 && n > max);
+    const b = efb_number_bounds_efb(el);
+    return !((b.min !== null && n < b.min) || (b.max !== null && n > b.max));
   }
   return /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?!&\/=;',]*)$/.test(el.value);
 }
@@ -1427,12 +1500,9 @@ function valid_file_emsFormBuilder(id,tp,filed,form_id) {
   const recorderTypes_efb = ["audio_recorder", "video_recorder", "screen_recorder"];
   const i = recorderTypes_efb.indexOf(valj_efb.find(x => x.id_ === id)?.type) !== -1 ? `${id}_file` : `${id}_`;
   let message = "";
-  let file_size = 8*1024*1024;
   const indx = valj_efb.findIndex(x => x.id_ === id);
   let val_in = valj_efb[indx];
-    if(val_in.hasOwnProperty('max_fsize') && val_in.max_fsize.length>0){
-      file_size = Number(val_in.max_fsize) * 1024 * 1024;
-    }
+  let file_size = efb_max_file_mb_efb(val_in) * 1024 * 1024;
     const el = document.getElementById(i);
     if(filed==''){
       if (el.files[0] && el.files[0].size <= file_size) {
@@ -1460,7 +1530,7 @@ function valid_file_emsFormBuilder(id,tp,filed,form_id) {
       fun_upload_file_api_emsFormBuilder(id, filed[0].type,tp,filed[0]);
       rtrn = true;
     } else {
-      const f_s_l = val_in.hasOwnProperty('max_fsize') && val_in.max_fsize.length>0 ? val_in.max_fsize : 20;
+      const f_s_l = efb_max_file_mb_efb(val_in);
       const m =ajax_object_efm.text.pleaseUploadA.replace('NN', efb_var.text[val_in.file]);
       const size_m = ajax_object_efm.text.fileSizeIsTooLarge.replace('NN', f_s_l);
       if (filed[0] && message.length < 2){ message = filed[0].size <= file_size ? m : size_m;}
@@ -3958,75 +4028,24 @@ async function handle_change_event_efb_v4(el ,form_id=0){
     efb_reevaluate_logic_after_change_efb(form_id, el);
   }
   validate_len_efb_v4 =async()=>{
-
+    // The rules live in efb_length_violation_efb(), shared with the step check.
+    const bad = efb_length_violation_efb(el, value);
+    if (bad === null) return 1;
     let offsetw = offset_view_efb();
-    const mi=()=> {return  el.type!="number" ? 2 :0}
-    let len = el.hasAttribute('minlength')  ? el.minLength :mi();
-    if (value.length < len && el.type!="number") {
-      state = false;
-      el.className = colorBorderChangerEfb(el.className, "border-danger");
-      vd = document.getElementById(`${el.id}-message`);
-      let m = efb_var.text.mmplen.replace('NN',len);
-      let msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onclick="alert_message_efb('${m}','',10,'danger')"></div>` : m ;
-            if(vd){
-              if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
-                vd.classList.add('unpx');
-              }
-              vd.innerHTML =msg;
-              vd.style.display='block';
-            }
-            delete_by_id(id_);
-            return 0;
-    }else if(el.type=="number" && el.hasAttribute('minlength') && Number(value) < len){
-      state = false;
-      el.className = colorBorderChangerEfb(el.className, "border-danger");
-      vd = document.getElementById(`${el.id}-message`);
-      let m = efb_var.text.mcplen.replace('NN',len);
-      let msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onclick="alert_message_efb('${m}','',10,'danger')"></div>` : m ;
-            if(vd){
-              if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
-                vd.classList.add('unpx');
-              }
-              vd.innerHTML =msg;
-              vd.style.display='block';
-            }
-            delete_by_id(id_);
-            return 0;
+    state = false;
+    el.className = colorBorderChangerEfb(el.className, "border-danger");
+    vd = document.getElementById(`${el.id}-message`);
+    let m = efb_var.text[bad.key].replace('NN', bad.limit);
+    let msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onclick="alert_message_efb('${m}','',10,'danger')"></div>` : m ;
+    if(vd){
+      if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
+        vd.classList.add('unpx');
+      }
+      vd.innerHTML =msg;
+      vd.style.display='block';
     }
-    len =  el.hasAttribute('maxlength') ? el.maxLength :0;
-    if(len==0) return 1;
-    if (value.length > len && el.type!="number") {
-      state = false;
-      el.className = colorBorderChangerEfb(el.className, "border-danger");
-      vd = document.getElementById(`${el.id}-message`);
-      let m = efb_var.text.mmxplen.replace('NN',len);
-      let msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onclick="alert_message_efb('${m}','',10,'danger')"></div>` : m ;
-            if(vd){
-              if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
-                vd.classList.add('unpx');
-              }
-              vd.innerHTML =msg;
-              vd.style.display='block';
-            }
-            delete_by_id(id_);
-            return 0;
-    }else if(value > len && el.type=="number"){
-      state = false;
-      el.className = colorBorderChangerEfb(el.className, "border-danger");
-      vd = document.getElementById(`${el.id}-message`);
-      let m = efb_var.text.mxcplen.replace('NN',len);
-      let msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onclick="alert_message_efb('${m}','',10,'danger')"></div>` : m ;
-            if(vd){
-              if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
-                vd.classList.add('unpx');
-              }
-              vd.innerHTML =msg;
-              vd.style.display='block';
-            }
-            delete_by_id(id_);
-            return 0;
-    }
-          return 1;
+    delete_by_id(id_);
+    return 0;
   }
 
   if(form_id==0) form_id = el.dataset.formid;
@@ -4082,8 +4101,8 @@ async function handle_change_event_efb_v4(el ,form_id=0){
       }
       {
         let lenResult = await validate_len_efb_v4();
-        // Number inputs carry no data-type, so their Min/Max message was shown and then ignored.
-        if(lenResult===0 && (el.type=="number" || (el.dataset.hasOwnProperty('type') && el.dataset.type!="chlCheckBox"))){
+        // Inputs printed by PHP carry no data-type, so their Min/Max message was shown and then ignored.
+        if(lenResult===0 && efb_length_failure_blocks_efb(el)){
           sendback_state_handler_efb_v4(id_,false,0,form_id);
           updateStepButtonState_efb(form_id);
           return;
@@ -4419,6 +4438,24 @@ async function fun_validation_efb_v4(form_id) {
         });
       }
       continue;
+    }
+    /* An optional multiselect with fewer picks than minSelect: the required
+     * branch below checked this only for required fields, and the server
+     * (selection_count_within_limits_efb) refuses it either way. */
+    if (row > 1 && valj_efb[row].type == 'multiselect' && valj_efb[row].required != true && current_s_efb == valj_efb[row].step && s !== -1 && s !== undefined && sendBack_emsFormBuilder_pub[s]) {
+      const picked = efb_multiselect_count_efb(sendBack_emsFormBuilder_pub[s].value);
+      if (picked > 0 && !efb_selection_within_limits_efb(valj_efb[row], picked)) {
+        const msEl = efb_get_by_id_in_form_efb(form_id, `${valj_efb[row].id_}_-message`);
+        const msInput = efb_get_by_id_in_form_efb(form_id, `${valj_efb[row].id_}_options`);
+        if (msInput) msInput.className = colorBorderChangerEfb(msInput.className, "border-danger");
+        if (msEl) {
+          const overMax = Number(valj_efb[row].maxSelect) > 0 && picked > Number(valj_efb[row].maxSelect);
+          msEl.innerHTML = overMax ? efb_var.text.maxSelect + " " + valj_efb[row].maxSelect : efb_var.text.minSelect + " " + valj_efb[row].minSelect;
+          show_msg_efb(msEl);
+        }
+        if (state == true) { state = false; idi = valj_efb[row].id_; name_field = valj_efb[row].name; }
+        continue;
+      }
     }
     /* An email field holding text that is not an address. valid_email_emsFormBuilder()
      * already dropped the value, so an optional field used to submit without it,

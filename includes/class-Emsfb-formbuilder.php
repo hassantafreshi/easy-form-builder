@@ -204,7 +204,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 		$minlen = '';
 		$today = date("Y-m-d");
 
-		if ($elementId != 'date') {
+		if ($elementId == 'number') {
+			/* Min and Max of a number are values, not lengths. They used to be
+			 * printed only as minlength/maxlength, with the Max cut to an
+			 * integer by %d, and el.minLength reads a negative minimum as -1.
+			 * Print the real min/max (as the server compares them); keep
+			 * minlength/maxlength for pages still running an older core-efb.js.
+			 * step="any" stops the browser marking decimals :invalid once a
+			 * min is set. A Max of 0 or empty means no maximum, as on the
+			 * server. */
+			$min = isset($vj->milen) && is_numeric($vj->milen) ? (string) $vj->milen : null;
+			$max = isset($vj->mlen) && is_numeric($vj->mlen) && (float) $vj->mlen != 0 ? (string) $vj->mlen : null;
+			$minlen = $min !== null ? sprintf('min="%1$s" minlength="%1$s"', esc_attr(trim($min))) : '';
+			$maxlen = $max !== null ? sprintf('max="%s"', esc_attr(trim($max))) . ((float) $max > 0 ? sprintf(' maxlength="%d"', $max) : '') : '';
+			$minlen .= ' step="any"';
+		} else if ($elementId != 'date') {
 			$maxlen = isset($vj->mlen) && $vj->mlen > 0 ? sprintf('maxlength="%d"', $vj->mlen) : '';
 			$minlen = isset($vj->milen) ? sprintf('minlength="%d"', $vj->milen) : '';
 		} else {
