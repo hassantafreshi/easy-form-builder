@@ -24,9 +24,13 @@ function vectorRows() {
 }
 
 if (process.argv.includes('--json')) {
+  // No process.exit() here: on a pipe it would drop whatever stdout has not flushed yet (64 KB cut).
   process.stdout.write(JSON.stringify(vectorRows()));
-  process.exit(0);
+} else {
+  runChecks();
 }
+
+function runChecks() {
 
 let pass = 0, fail = 0;
 function check(label, cond, detail) {
@@ -88,3 +92,4 @@ console.log('\n========================================');
 console.log(`RESULTS: ${pass} passed, ${fail} failed (catalog vectors failing: ${vectorFails})`);
 console.log('========================================');
 process.exit(fail > 0 ? 1 : 0);
+}

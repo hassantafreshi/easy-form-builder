@@ -1202,7 +1202,9 @@ public function check_nonce_permission_efb($request) {
 			/* Conditional Logic messages (block_submit / end_form) and the date pickers. */
 			'submitBlocked','formEnded','enterValidDate','selectMonth','selectYear','selectDecade',
 			/* Submit failures: the cause in plain words (core-efb.js efb_visitor_text_efb). */
-			'requestBlocked','formsClosed','formTooLarge','formNotSentCode','formExpiredSendAgain','loginChangedSendAgain','noAnswerCheckFirst','requestFailedCode','noAnswerRetry','tooManyRequests','paymentNotCompleted','paymentNotStartedNoCharge'];
+			'requestBlocked','formsClosed','formTooLarge','formNotSentCode','formExpiredSendAgain','loginChangedSendAgain','noAnswerCheckFirst','requestFailedCode','noAnswerRetry','tooManyRequests','paymentNotCompleted','paymentNotStartedNoCharge',
+			/* F01 input masks: messages of masked fields (core-efb.js efb_mask_error_efb). */
+			'mskFormat_','mskChecksum_','mskRule_','mskIncomplete_'];
 
 			/* Only now is a form or response box really printed. A form in a widget,
 			 * footer or popup keeps the page cacheable (EFBRuntime.prepare() fetches a
@@ -2415,7 +2417,9 @@ public function check_nonce_permission_efb($request) {
 			'somethingWentWrongPleaseRefresh', 'pleaseMakeSureAllFields', 'PleaseFillForm', 'bkXpM_', 'bkFlM_', 'mnvvXXX_', 'ptrnMmm_', 'ptrnMmx_', 'payment', 'error403', 'errorSiteKeyM',
 			'errorCaptcha', 'pleaseEnterVaildValue', 'createAcountDoneM', 'uraatn', 'incorrectUP', 'sentBy', 'newPassM', 'done', 'surveyComplatedM', 'error405', 'errorSettingNFound', 'errorMRobot',
 			'clcdetls', 'vmgs', 'youRecivedNewMessage', 'WeRecivedUrM', 'thankRegistering', 'welcome', 'thankSubscribing', 'thankDonePoll', 'thankFillForm', 'trackNo', 'fernvtf', 'msgdml', 'newMessageReceived','sxnlex','snotfound','response','fform','msgSndBut','smsWPN',
-			'surveyResults', 'responses', 'submitBlocked', 'enterValidDate'
+			'surveyResults', 'responses', 'submitBlocked', 'enterValidDate',
+			/* F01 input masks: server messages for masked fields. */
+			'mskFormat_', 'mskChecksum_', 'mskRule_', 'mskIncomplete_'
 		];
 		$efbFunction = get_efbFunction();
 
@@ -3398,6 +3402,24 @@ public function check_nonce_permission_efb($request) {
 										$is_valid = 1;
 										$item['value'] = sanitize_text_field($item['value']);
 										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
+										// Mask gate: replaces the length-only check for masked fields (F01).
+										if (!empty($f['mask_preset']) && is_array($item) && class_exists('\\Emsfb\\Masks')) {
+											$mask_res_efb = \Emsfb\Masks::check_field($f, (string) $item['value']); // normalize -> validate -> stored value
+											if (empty($mask_res_efb['legacy'])) {
+												if (!$mask_res_efb['ok']) {
+													$is_valid = 0;
+													$error_message = \Emsfb\Masks::message($mask_res_efb['code'], $f, $this->lanText);
+													$error_field_id = isset($f['id_']) ? $f['id_'] : '';
+												} else {
+													$item['value'] = $mask_res_efb['stored'];
+												}
+												$validated_item = $item;
+												$still_processing = false;
+												break;
+											}
+											// Unknown preset (other catalog version) or broken custom mask: the old length rules below.
+										}
+										// End mask gate.
 										$l = mb_strlen($item['value'], 'UTF-8');
 										$min_len = isset($f['milen']) ? (int) $f['milen'] : 0;
 										$max_len = isset($f['mlen']) ? (int) $f['mlen'] : 0;

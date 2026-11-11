@@ -14831,3 +14831,31 @@ msgstr "در حال بارگذاری قالب‌ها…"
 #: includes/functions.php
 msgid "This format sets the length. Remove the minimum and maximum length?"
 msgstr "این قالب طول را تعیین می‌کند. حداقل و حداکثر طول حذف شود؟"
+
+#  origin: claude (fa_IR) F01
+#. translators: F01 visitor error. %1$s: the field label, %2$s: an example of the expected format such as 0912 345 6789
+#: includes/functions.php
+#, php-format
+msgid "The %1$s field is not in the correct format (example: %2$s)."
+msgstr "قالب فیلد %1$s درست نیست (نمونه: %2$s)."
+
+#  origin: claude (fa_IR) F01
+#. translators: F01 visitor error when the check digit of an ID, card or IBAN is wrong. %s: the field label
+#: includes/functions.php
+#, php-format
+msgid "%s is not valid. Please check the digits for typos."
+msgstr "%s معتبر نیست. لطفاً ارقام را دوباره بررسی کنید."
+
+#  origin: claude (fa_IR) F01
+#. translators: F01 visitor error for an impossible value (a date that does not exist, a reserved number). %s: the field label
+#: includes/functions.php
+#, php-format
+msgid "%s contains a value that is not possible, for example a date that does not exist."
+msgstr "%s مقداری دارد که ممکن نیست، مثلاً تاریخی که وجود ندارد."
+
+#  origin: claude (fa_IR) F01
+#. translators: F01 visitor error when a formatted field is only partly filled. %s: the field label
+#: includes/functions.php
+#, php-format
+msgid "Please complete the %s field."
+msgstr "لطفاً فیلد %s را کامل کنید."

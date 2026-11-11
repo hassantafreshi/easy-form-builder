@@ -3852,6 +3852,14 @@ class efbFunction {
 			"mskLenReplaced" => $state && isset($ac->text->mskLenReplaced) ? $ac->text->mskLenReplaced : esc_html__('This format sets the length. Remove the minimum and maximum length?','easy-form-builder'),
 			/* translators: F01 builder: group name for formats that are not tied to one country (IBAN, card, dates) */
 			"mskIntl" => $state && isset($ac->text->mskIntl) ? $ac->text->mskIntl : esc_html__('International','easy-form-builder'),
+			/* translators: F01 visitor error. %1$s: the field label, %2$s: an example of the expected format such as 0912 345 6789 */
+			"mskFormat_" => $state && isset($ac->text->mskFormat_) ? $ac->text->mskFormat_ : esc_html__('The %1$s field is not in the correct format (example: %2$s).','easy-form-builder'),
+			/* translators: F01 visitor error when the check digit of an ID, card or IBAN is wrong. %s: the field label */
+			"mskChecksum_" => $state && isset($ac->text->mskChecksum_) ? $ac->text->mskChecksum_ : esc_html__('%s is not valid. Please check the digits for typos.','easy-form-builder'),
+			/* translators: F01 visitor error for an impossible value (a date that does not exist, a reserved number). %s: the field label */
+			"mskRule_" => $state && isset($ac->text->mskRule_) ? $ac->text->mskRule_ : esc_html__('%s contains a value that is not possible, for example a date that does not exist.','easy-form-builder'),
+			/* translators: F01 visitor error when a formatted field is only partly filled. %s: the field label */
+			"mskIncomplete_" => $state && isset($ac->text->mskIncomplete_) ? $ac->text->mskIncomplete_ : esc_html__('Please complete the %s field.','easy-form-builder'),
 
 		];
 

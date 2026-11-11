@@ -1,4 +1,4 @@
-وضعیت: در حال پیاده‌سازی (A تا E انجام شد) · اولویت: P0 · تلاش: M · وابستگی: — (F02، F03، F06 و F17 به این تسک وابسته‌اند)
+وضعیت: در حال پیاده‌سازی (A تا F انجام شد) · اولویت: P0 · تلاش: M · وابستگی: — (F02، F03، F06 و F17 به این تسک وابسته‌اند)
 
 # F01 — ماسک ورودی و اعتبارسنج‌های قالب
 
@@ -334,12 +334,14 @@ if (!empty($f['mask_preset']) && class_exists('\Emsfb\Masks')) {
 - پذیرش: برای هر بردار نامعتبر کاتالوگ، سرور `success:false` و `field_id` درست و پیام ترجمه‌شده برمی‌گرداند. برای بردارهای معتبر، مقدار `toStored` در `content` ذخیره می‌شود. با `mask_store=display`، مقدار `formatValue` ذخیره می‌شود. فیلد اختیاری خالی رد نمی‌شود. فیلد پنهان با منطق شرطی رد نمی‌شود. پیش‌تنظیم ناشناخته فرم را نمی‌شکند.
 - تست‌ها: `php tests/test-masks-submit.php`. بلوک بین نشانگر ثابت `// Mask gate:` از سورس استخراج و با fixture اجرا می‌شود (الگوی `tests/test-sms-failure-email-continuation.php` که F02 هم استفاده می‌کند). با WordPress: `tests/test-submit-payload-robustness.php` همچنان پاس شود و یک سناریوی تازه با `seed-masks-form.php` اضافه شود.
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint** (F انجام شد، 2026-11-11)
+- فایل‌های تغییرکرده: `includes/class-Emsfb-public.php` (دروازهٔ ماسک بین نشانگرهای `// Mask gate:` و `// End mask gate.` در شاخهٔ `default:`، پس از `filter_attributes_by_type_efb` و پیش از بررسی `milen`/`mlen`؛ وقتی `check_field` نتیجهٔ `legacy` بدهد (پیش‌تنظیم ناشناخته یا ماسک دلخواه خراب) قواعد طول قدیمی اجرا می‌شوند؛ کلیدهای `mskFormat_`، `mskChecksum_`، `mskRule_`، `mskIncomplete_` به `$translation_keys` و `$this->text_` اضافه شدند)، `includes/functions.php` (۴ عبارت عمومی با توضیح مترجم)، `languages/easy-form-builder-fa_IR.po` (۴ مدخل با `php-format`)، `tests/test-masks-submit.php`، `tests/seed-masks-form.php`، `tests/test-masks-vectors.js` (حالت `--json` دیگر پس از نوشتن `process.exit` نمی‌کند؛ خروجی روی pipe در ۶۴ KB بریده می‌شد).
+- رفتار: مقدار ذخیره‌شده = `toStored` (یا `formatDisplay` با `mask_store=display`)؛ فیلد اختیاری خالی رد نمی‌شود؛ فیلد الزامی خالی پیام `mskIncomplete_` می‌گیرد؛ دروازه فقط روی ردیف ارسال‌شده اجرا می‌شود، پس فیلدی که منطق شرطی پنهانش کرده و ردیفی ندارد بررسی نمی‌شود و ردیف‌های `$_ignored_set` هم پس از حلقه حذف می‌شوند؛ regex فقط از فایل کاتالوگ می‌آید و از درخواست چیزی جز مقدار خوانده نمی‌شود.
+- تست‌ها (اجراشده): `php tests/test-masks-submit.php` → 846 passed, 0 failed: شاخهٔ واقعی `default:` و `filter_attributes_by_type_efb` واقعی از سورس استخراج و اجرا شدند؛ ۲۸۳ بردار معتبر کاتالوگ با `is_valid=1` و مقدار ذخیره‌شده‌ای برابر خروجی `toStored` موتور JS (`node tests/test-masks-vectors.js --json`، پس مرورگر و سرور یکسان‌اند)، ۲۵۵ بردار نامعتبر با `is_valid=0`، `field_id` درست و پیام ترجمه‌شدهٔ همان کد؛ به‌علاوهٔ ذخیرهٔ نمایشی، placeholder فیلد در پیام، فیلد اختیاری خالی، `50%`، ماسک دلخواه (نمایشی، ناقص، luhn)، strict، نوع `postalcode`، مقدار بیش از ۲۵۶ نویسه، پیش‌تنظیم ناشناخته و ماسک خراب (قواعد طول قدیمی)، فیلد بدون ماسک (همان رفتار)، و سیم‌کشی کلیدها. تکرار: vectors JS 962، PHP 151، parity 5، custom 258، runtime 19، render 41، save-roundtrip 47، catalog-ajax 28 — همه 0 failed. `php -l` تمیز.
+- اجرانشده (نیاز به WordPress): `tests/test-submit-payload-robustness.php`، `test-submission-row-hardening-e2e.php` و `test-email-input-normalize.php` در این محیط `[SKIP] WordPress bootstrap was not found` می‌دهند. `tests/seed-masks-form.php` نوشته و با `php -l` بررسی شد، ولی اجرا نشده است.
+- وضعیت ترجمه: ۴ کلید عمومی تازه: `mskFormat_`، `mskChecksum_`، `mskRule_`، `mskIncomplete_`؛ ترجمهٔ فارسی در `.po` اضافه شد؛ `.mo`/`.l10n.php` به همان دلیل B بازسازی نشدند؛ ۶۸ زبان دیگر با خط لولهٔ جلسهٔ والد.
+- مورد باز: سناریوی HTTP واقعی با `seed-masks-form.php` روی سرور تست.
+- اقدام بعدی: زیرتسک G (نمایش در پاسخ‌ها و ایمیل).
 
 ### G. نمایش و خروجی
 - فایل‌ها: `response-viewer-efb.js` (ردیف 1039، `<bdi>`)، و `class-Emsfb-public.php` (ردیف عمومی `email_get_content_efb`).
