@@ -590,7 +590,8 @@ jQuery(function () {
   state_check_ws_p = Number(efb_var.check);
   setting_emsFormBuilder=efb_var.setting;
   pro_ws_efb = (efb_var.pro == '1' || efb_var.pro == true) ? true : false;
-  if (typeof pro_whitestudio !== 'undefined') { pro_ws_efb = pro_whitestudio; } else { pro_ws_efb = false; }
+  // F18: the else branch set it back to false on every page (pro_whitestudio is defined nowhere).
+  if (typeof pro_whitestudio !== 'undefined') { pro_ws_efb = pro_whitestudio; }
   if (state_check_ws_p==1) {
     history.replaceState("templates",null,'?page=Emsfb_create');
     add_dasboard_emsFormBuilder();
@@ -4807,6 +4808,25 @@ let optionElpush_efb = async (parent, value, rndm, op, tag) => {
 
 }
 
+/* F18: drag and click of the palette tiles. Bound per tile, once (a redrawn palette after a plan
+   change binds its new tiles; the drop zone's own listeners are never bound twice). */
+function efb_bind_palette_tiles_efb(root) {
+  for (const el_efb of (root || document).querySelectorAll(".draggable-efb")) {
+    if (el_efb.dataset.efbBound === '1') continue;
+    el_efb.dataset.efbBound = '1';
+
+    el_efb.addEventListener("dragstart", (event) => {
+      event.dataTransfer.setData("text/plain", el_efb.id)
+      event.dataTransfer.effectAllowed = 'copy';
+    });
+
+    el_efb.addEventListener("click", (event) => {
+      if( document.body.classList.contains('mobile')==false && (el_efb.getAttribute('draggable')==true ||el_efb.getAttribute('draggable')=="true") ){
+        fun_efb_add_el(el_efb.id);}
+      });
+  }
+}
+
 function create_dargAndDrop_el() {
 
   const dropZoneEFB = document.getElementById("dropZoneEFB");
@@ -4889,18 +4909,7 @@ function create_dargAndDrop_el() {
     }
   });
 
-  for (const el_efb of document.querySelectorAll(".draggable-efb")) {
-
-    el_efb.addEventListener("dragstart", (event) => {
-      event.dataTransfer.setData("text/plain", el_efb.id)
-      event.dataTransfer.effectAllowed = 'copy';
-    });
-
-    el_efb.addEventListener("click", (event) => {
-      if( document.body.classList.contains('mobile')==false && (el_efb.getAttribute('draggable')==true ||el_efb.getAttribute('draggable')=="true") ){
-        fun_efb_add_el(el_efb.id);}
-      });
-  }
+  efb_bind_palette_tiles_efb(document);
 
   dropZoneEFB.addEventListener("drop", (event) => {
     event.preventDefault();

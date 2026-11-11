@@ -1,4 +1,4 @@
-وضعیت: در حال پیاده‌سازی (A، B و C انجام شد) · اولویت: P0 · تلاش: M · وابستگی: — (F16 برای الگوی فوکوس دیالوگ؛ هم‌زمان با کار ماسک F01 فایل‌های JS/PHP مشترک را ویرایش نکنید مگر پس از ادغام آن)
+وضعیت: در حال پیاده‌سازی (A تا D انجام شد) · اولویت: P0 · تلاش: M · وابستگی: — (F16 برای الگوی فوکوس دیالوگ؛ هم‌زمان با کار ماسک F01 فایل‌های JS/PHP مشترک را ویرایش نکنید مگر پس از ادغام آن)
 
 # F18 — پنجرهٔ ارتقا: فعال‌سازی درجای Free Plus و خرید Pro
 
@@ -466,12 +466,12 @@ do_action('efb_plan_changed', int $old, int $new, array $context); // context: s
 - پذیرش: پس از فعال‌سازی، هیچ `.pro-version-efb` یا `.btn-pro-efb` برای ویژگی‌های Free Plus در DOM نمی‌ماند. کاشی‌ها کشیدنی‌اند. فیلد قفل موجود در بوم بدون پوشش gem دوباره رسم می‌شود. پنل باز دوباره رسم می‌شود. شنوندهٔ drop تکراری نمی‌شود (یک drop یعنی یک فیلد). `efb:plan-changed` یک‌بار dispatch می‌شود.
 - تست‌ها: `node tests/test-plan-change-rerender.js` (vm: شمارش مشترکان، ترتیب، و پرچم‌ها پس از تغییر برای همهٔ جفت‌های ۰/۱/۲/۳)؛ `node tests/test-setup-plan-selection-browser-state.js` سبز بماند.
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint** (انجام شد، ۲۰ آبان ۱۴۰۵)
+- فایل‌های تغییرکرده: `plan-gate-efb.js` (بخش D: `efb_on_plan_changed_efb` که Promise برمی‌گرداند و مشترکان را به ترتیب و پشت سر هم اجرا می‌کند، `efb_plan_subscribe_efb`، `efb_patch_legacy_plan_flags_efb` برای `ajax_object_efm.pro` و `pro_ws_efb`، `efb_plan_reload_efb` که پیش از reload فرم را در sessionStorage می‌نویسد، `efb_unlock_dom_efb` برای نشانگرهای `data-efb-lock`، و مشترکان `palette`، `canvas`، `settings_panel`، `templates`، `addons`، `locks`، `reply_box`؛ فعال‌سازی دیالوگ پیش از اجرای `resume` منتظر پایان بازسازی می‌ماند)، `val-efb.js` (`efb_palette_tiles_html_efb()` از `creator_form_builder_Efb` جدا شد و قفل هر کاشی را از رجیستری می‌گیرد؛ کاشی قفل `efb_upgrade_prompt_efb` با `resume: add_field` باز می‌کند؛ gem کاشی `aria-label` و Enter/Space دارد؛ `persiaPay` فقط یک‌بار push می‌شود؛ کاشی قفل در نمای موبایل دیگر فیلد اضافه نمی‌کند؛ ظرف `#efbPaletteTilesEfb`؛ مسیر انتخاب پلن از همان گذرگاه می‌گذرد و `gtag` حذف شد، پرسش باز ۴ طبق پیشنهاد سند)، `admin-efb.js` (`efb_bind_palette_tiles_efb()` با نگهبان اتصال دوباره؛ شنوندهٔ drop فقط یک‌بار؛ خط مردهٔ `pro_ws_efb = false`)، `response-viewer-efb.js` (`EfbResponseViewer.refreshAttachButton()`).
+- تست‌ها: `node tests/test-plan-change-rerender.js` روی کد زیرتسک C: 9 شکست؛ پس از کار: 19 passed (بدون reload، همهٔ پرچم‌ها، نشان پلن، پالت بی‌gem برای Free Plus و gem ماندگار برای Pro، کلیک و drop هرکدام دقیقاً یک فیلد، بوم بدون نشان Pro، پنل باز بازسازی‌شده، نشانگرهای قفل، گیرهٔ پیوست جعبهٔ پاسخ، یک رویداد، ۱۲ جفت پلن ۰/۱/۲/۳، بازگشت قفل‌ها با Free Plus → Free، مشترک خراب → یک reload، مسیر انتخاب‌گر پلن). مرتبط‌ها سبز: states 58، registry 13، A4 16، B3 49، B1 22، B2 30، B4 11، B5 6، B8 8، contract 16، A3 20، A6 8، plan selection 23، masks builder 50، logic gating 53، response viewer escaping 46، B9 3، A2 15.
+- وضعیت ترجمه: `upgReloading` با فارسی. pack built نه.
+- مورد باز: پنل منطق شرطی (add-on بیرونی) محدودیت‌ها را هنگام باز شدن از `efb_var` زنده می‌خواند، پس پس از فعال‌سازی درست است؛ اگر هنگام تغییر پلن باز باشد، فقط با گوش دادن به `efb:plan-changed` در خود add-on دوباره رسم می‌شود (وصلهٔ `vendores-efb`، §۱۱).
+- اقدام بعدی: زیرتسک E (مهاجرت فراخوانی‌ها).
 
 ### E. مهاجرت ۴۳ فراخوانی و دروازه‌های جانبی
 - فایل‌ها: همهٔ محل‌های §۲.۳ و §۲.۴، از جمله `funProEfb`، `efb_check_el_pro`، `efbRequireMobileProEfb`، `show_pro_message_for_elm` (با دکمهٔ دارای متن)، دروازهٔ ذخیره (`admin-efb.js:4053-4056` → دیالوگ با `feature:'form:locked_fields'` و فهرست نام فیلدها)، پالت برای ۰ و ‎-1 (مثل ۲ قفل شود)، کارت قالب‌ها (1206)، و `return` گمشده در 2397 و 2465. SMS، Telegram و روش SMS برای Free Plus به S3 می‌روند، نه پیام «add-on را نصب کنید».

@@ -381,7 +381,7 @@ const chatHistory = document.getElementById('resp_efb');
       return `
         <span class="efb-editor-toolbar-sep"></span>
         <button type="button" class="efb-editor-btn efb-attach-btn efb-attach-disabled"
-                id="efb_attach_btn" title="${proText}"
+                id="efb_attach_btn" title="${proText}" data-id="${msgId}"
                 onclick="pro_show_efb(3)">
           <i class="bi bi-paperclip"></i>
           <span class="efb-attach-pro-tag"><i class="bi bi-gem"></i></span>
@@ -673,7 +673,27 @@ const chatHistory = document.getElementById('resp_efb');
     if (legacyName) legacyName.innerHTML = _t('file');
   }
 
+  /* F18: after a plan change in the page, a locked paperclip of an open reply box becomes the
+     real one (the upload area itself is drawn on every plan). Returns true when it changed. */
+  function refreshAttachButton() {
+    const locked = document.querySelector('#efb_attach_btn.efb-attach-disabled');
+    if (!locked || !(typeof pro_efb !== 'undefined' && pro_efb === true)) return false;
+    const msgId = locked.getAttribute('data-id') || '';
+    const holder = document.createElement('div');
+    holder.innerHTML = _buildAttachToolbarBtn(msgId);
+    const btn = holder.querySelector('#efb_attach_btn');
+    const input = holder.querySelector('#resp_file_efb_');
+    if (!btn) return false;
+    const old = document.getElementById('resp_file_efb_');
+    if (old && input) old.remove();
+    locked.replaceWith(btn);
+    if (input) btn.insertAdjacentElement('afterend', input);
+    initFileUpload(msgId);
+    return true;
+  }
+
   return {
+    refreshAttachButton: refreshAttachButton,
     buildAdminResponseBody: buildAdminResponseBody,
     buildPublicResponseBody: buildPublicResponseBody,
     buildRichEditor: buildRichEditor,

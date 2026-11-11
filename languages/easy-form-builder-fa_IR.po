@@ -15764,3 +15764,9 @@ msgstr "دیدن گزینه‌ها"
 #: includes/admin/class-Emsfb-admin.php
 msgid "Free Plus shows a credit link on your pages. Please activate it from the button that explains this."
 msgstr "Free Plus یک پیوند معرفی در صفحه‌های شما نشان می‌دهد. لطفاً آن را با دکمه‌ای فعال کنید که این را توضیح می‌دهد."
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: shown before a reload when the page could not be redrawn after a plan change
+#: includes/functions.php
+msgid "To finish, the page reloads now."
+msgstr "برای تکمیل، صفحه اکنون دوباره بارگذاری می‌شود."

@@ -7,6 +7,7 @@
  *
  *   A  read-only plan helpers (efb_current_package_efb, efb_feature_required_efb, ...);
  *   B  the upgrade dialog, efb_upgrade_prompt_efb() (pro_show_efb() in admin-efb.js is its shim);
+ *   D  the in-page plan change: efb_on_plan_changed_efb() and its subscribers;
  *
  * Loaded on the Create, Panel and Add-ons screens after admin-efb.js. Everything here is a
  * function or a var, so the file also runs in a vm for the tests.
@@ -651,8 +652,8 @@ function efb_upg_activation_result_efb(s, ok, payload, status) {
   var onScreen = efb_upg_state_efb === s && !s.closed;
   if (ok) {
     s.activated = true;
-    if (typeof efb_on_plan_changed_efb === 'function') efb_on_plan_changed_efb(3, { source: 'upgrade_prompt', feature: s.opts.feature, response: payload });
     if (payload && payload.activation_code_removed && typeof efb_var_patch_efb === 'function') efb_var_patch_efb(null, { activeCode: '' });
+    s.planChanged = Promise.resolve(efb_on_plan_changed_efb(3, { source: 'upgrade_prompt', feature: s.opts.feature, resume: s.opts.resume, response: payload }));
     efb_upg_event_efb('activated', { detail: { package_type: 3 } });
     var e = efb_feature_entry_efb(s.opts.feature);
     if (e && e.addon && !efb_addon_installed_efb(e.addon)) {
@@ -665,7 +666,7 @@ function efb_upg_activation_result_efb(s, ok, payload, status) {
     var toast = name ? T('upgReadyToast', 'Free Plus is on. %s is ready.').replace('%s', name) : T('upgFreePlusOn', 'Free Plus is on');
     if (typeof show_success_notification_efb === 'function') show_success_notification_efb(toast);
     if (s.opts.resume && typeof efb_run_resume_efb === 'function') {
-      Promise.resolve(efb_run_resume_efb(s.opts.resume, s.opts)).then(function (target) {
+      s.planChanged.then(function () { return efb_run_resume_efb(s.opts.resume, s.opts); }).then(function (target) {
         if (target && target.nodeType === 1) { s.focusMoved = true; try { target.focus(); } catch (er) { /* fine */ } }
       });
     }
@@ -698,11 +699,135 @@ function efb_upg_activation_result_efb(s, ok, payload, status) {
   });
 }
 
-/* Until D: the page takes the new plan the way efb_apply_package_type_efb() always did. */
+/* ------------------------------------------------------------------ D: in-page plan change */
+/*
+ * efb_on_plan_changed_efb(newType, ctx): the page reaches the state a reload would give, without
+ * the reload. The globals first (efb_var.pro, efb_var.setting.package_type, setting_emsFormBuilder,
+ * valueJson_ws_setting, pro_efb through efb_apply_package_type_efb; ajax_object_efm.pro and
+ * pro_ws_efb here), then every subscriber redraws what it locked, in order, then the plan badge
+ * and one efb:plan-changed event. Returns a Promise resolved when the redraws are done (the
+ * canvas draws on a timer), so the caller's action runs on the new screen.
+ * Add-ons (Conditional Logic) register with efb_plan_subscribe_efb() or listen to the event.
+ */
+var EFB_PLAN_SUBSCRIBERS_EFB = [];
+
+function efb_plan_subscribe_efb(name, fn) {
+  if (typeof fn !== 'function') return;
+  EFB_PLAN_SUBSCRIBERS_EFB = EFB_PLAN_SUBSCRIBERS_EFB.filter(function (s) { return s[0] !== name; });
+  EFB_PLAN_SUBSCRIBERS_EFB.push([String(name), fn]);
+}
+
+/* The two plan flags efb_apply_package_type_efb() does not know: the panel's localized copy and
+   the panel's own boolean. */
+function efb_patch_legacy_plan_flags_efb(newType) {
+  var isPro = newType === 1 || newType === 3;
+  try { if (typeof ajax_object_efm === 'object' && ajax_object_efm) ajax_object_efm.pro = isPro ? '1' : '0'; } catch (e) { /* frozen */ }
+  try { if (typeof pro_ws_efb !== 'undefined') pro_ws_efb = isPro; } catch (e) { /* not on this screen */ }
+}
+
 function efb_on_plan_changed_efb(newType, ctx) {
+  newType = Number(newType);
   ctx = ctx || {};
+  if ([0, 1, 2, 3].indexOf(newType) === -1) return Promise.resolve(false);
   var prev = efb_current_package_efb();
   if (typeof efb_apply_package_type_efb === 'function') efb_apply_package_type_efb(newType);
-  if (typeof updatePlanBadge_efb === 'function') updatePlanBadge_efb();
-  try { document.dispatchEvent(new CustomEvent('efb:plan-changed', { detail: { package_type: Number(newType), previous: prev, source: ctx.source || null, feature: ctx.feature || null } })); } catch (e) { /* no DOM */ }
+  efb_patch_legacy_plan_flags_efb(newType);
+  var chain = Promise.resolve();
+  EFB_PLAN_SUBSCRIBERS_EFB.slice().forEach(function (sub) {
+    chain = chain.then(function () {
+      try { return sub[1](newType, prev, ctx); } catch (e) {
+        ctx.needsReload = true;
+        if (typeof console !== 'undefined') console.error('efb plan subscriber', sub[0], e);
+      }
+    }).catch(function (e) {
+      ctx.needsReload = true;
+      if (typeof console !== 'undefined') console.error('efb plan subscriber', sub[0], e);
+    });
+  });
+  return chain.then(function () {
+    if (typeof updatePlanBadge_efb === 'function') { try { updatePlanBadge_efb(); } catch (e) { /* no badge here */ } }
+    try {
+      document.dispatchEvent(new CustomEvent('efb:plan-changed', { detail: { package_type: newType, previous: prev, plan: efb_plan_name_efb(newType), source: ctx.source || null, feature: ctx.feature || null } }));
+    } catch (e) { /* no DOM */ }
+    if (ctx.needsReload) efb_plan_reload_efb(ctx);
+    return true;
+  });
 }
+
+/* A redraw failed: keep the work, then reload once (§6). The caller's action survives the reload. */
+function efb_plan_reload_efb(ctx) {
+  try {
+    if (typeof valj_efb !== 'undefined' && Array.isArray(valj_efb) && valj_efb.length > 1) sessionStorage.setItem('valj_efb', JSON.stringify(valj_efb));
+    if (ctx && ctx.resume && typeof efb_save_resume_efb === 'function') efb_save_resume_efb({ feature: ctx.feature, resume: ctx.resume });
+  } catch (e) { return; } // storage failed: no reload, nothing is lost
+  if (typeof show_info_notification_efb === 'function') show_info_notification_efb(efb_upg_t_efb('upgReloading', 'To finish, the page reloads now.'));
+  setTimeout(function () { location.reload(); }, 1200);
+}
+
+/* Remove the lock markers of features the plan now opens: elements marked
+   data-efb-lock="<feature>" are removed (data-efb-unlock="remove", gems) or lose the attributes
+   named in data-efb-unlock-attrs (onclick/onchange that opened the dialog). */
+function efb_unlock_dom_efb(root) {
+  var n = 0;
+  (root || document).querySelectorAll('[data-efb-lock]').forEach(function (el) {
+    var key = el.getAttribute('data-efb-lock');
+    if (!efb_feature_available_efb(key)) return;
+    var mode = el.getAttribute('data-efb-unlock') || 'remove';
+    if (mode === 'remove') { el.remove(); n++; return; }
+    (el.getAttribute('data-efb-unlock-attrs') || '').split(',').forEach(function (a) { a = a.trim(); if (a) el.removeAttribute(a); });
+    el.classList.remove('efb-locked', 'efb-attach-disabled', 'is-locked');
+    if (el.hasAttribute('readonly') && el.getAttribute('data-efb-unlock-readonly') === '1') el.removeAttribute('readonly');
+    el.removeAttribute('data-efb-lock');
+    n++;
+  });
+  return n;
+}
+
+/* Built-in subscribers. Each one works only when its screen is in the page. */
+efb_plan_subscribe_efb('palette', function () {
+  var box = document.getElementById('efbPaletteTilesEfb');
+  if (!box || typeof efb_palette_tiles_html_efb !== 'function') return;
+  box.innerHTML = efb_palette_tiles_html_efb();
+  if (typeof efb_bind_palette_tiles_efb === 'function') efb_bind_palette_tiles_efb(box);
+  var active = document.querySelector('#listCatEfb .efb.cat.active');
+  var cat = active ? ['all', 'basic', 'payment', 'advance'].filter(function (c) { return active.classList.contains(c); })[0] : null;
+  if (cat && cat !== 'all' && typeof change_visible_el_efb === 'function') change_visible_el_efb(cat);
+});
+
+efb_plan_subscribe_efb('canvas', function () {
+  var zone = document.getElementById('dropZoneEFB');
+  if (!zone || typeof editFormEfb !== 'function' || typeof valj_efb === 'undefined' || !Array.isArray(valj_efb) || valj_efb.length < 2) return;
+  // Only a canvas whose locks change needs the redraw: it shows a lock now (the Pro badge over a
+  // field), or the plan went down and a field of the form is no longer included.
+  var shown = !!zone.querySelector('.btn-pro-efb, [data-efb-lock]');
+  var lockedNow = typeof efb_field_is_pro_efb === 'function' && typeof pro_efb !== 'undefined' && pro_efb === false
+    && valj_efb.some(function (r, i) { return i > 0 && r && efb_field_is_pro_efb(r); });
+  if (!shown && !lockedNow) return;
+  var scroller = document.scrollingElement || document.documentElement;
+  var y = scroller ? scroller.scrollTop : 0;
+  // editFormEfb() reads sessionStorage first: write the live form there or it draws an old copy.
+  sessionStorage.setItem('valj_efb', JSON.stringify(valj_efb));
+  return Promise.resolve(editFormEfb()).then(function () { if (scroller) scroller.scrollTop = y; });
+});
+
+efb_plan_subscribe_efb('settings_panel', function () {
+  var side = document.getElementById('sideBoxEfb');
+  if (!side || !side.classList.contains('show')) return;
+  if (window.efbBuilderApi && typeof window.efbBuilderApi.refreshSettingsPanel === 'function') { window.efbBuilderApi.refreshSettingsPanel(); return; }
+  var id = window.efbOpenSettingIdEfb;
+  if (id && typeof show_setting_window_efb === 'function') show_setting_window_efb(id, { refresh: true });
+});
+
+efb_plan_subscribe_efb('templates', function () {
+  if (document.getElementById('findCardFormEFB') && document.getElementById('listFormCardsEFB') && typeof FunfindCardFormEFB === 'function') FunfindCardFormEFB();
+});
+
+efb_plan_subscribe_efb('addons', function () {
+  if (document.getElementById('findCardAddonEFB') && document.getElementById('listFormCardsEFB') && typeof FunfindCardAddonEFB === 'function') FunfindCardAddonEFB();
+});
+
+efb_plan_subscribe_efb('locks', function () { efb_unlock_dom_efb(document); });
+
+efb_plan_subscribe_efb('reply_box', function () {
+  if (typeof EfbResponseViewer !== 'undefined' && EfbResponseViewer && typeof EfbResponseViewer.refreshAttachButton === 'function') EfbResponseViewer.refreshAttachButton();
+});

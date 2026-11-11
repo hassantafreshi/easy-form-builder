@@ -2798,6 +2798,8 @@ class efbFunction {
 			"upgTipPro" => $state && isset($ac->text->upgTipPro) ? $ac->text->upgTipPro : esc_html__('Pro feature','easy-form-builder'),
 			/* translators: F18: opens the upgrade dialog from the short note */
 			"upgSeeOptions" => $state && isset($ac->text->upgSeeOptions) ? $ac->text->upgSeeOptions : esc_html__('See options','easy-form-builder'),
+			/* translators: F18: shown before a reload when the page could not be redrawn after a plan change */
+			"upgReloading" => $state && isset($ac->text->upgReloading) ? $ac->text->upgReloading : esc_html__('To finish, the page reloads now.','easy-form-builder'),
 			"sms_noti" => $state  &&  isset($ac->text->sms_noti) ? $ac->text->sms_noti : esc_html__('SMS Notifications','easy-form-builder'),
 			"sms_dnoti" => $state  &&  isset($ac->text->sms_dnoti) ? $ac->text->sms_dnoti : esc_html__('Enter the administrators’ mobile numbers to receive SMS notifications, such as alerts or new messages.','easy-form-builder'),
 			"sms_ndnoti" => $state  &&  isset($ac->text->sms_ndnoti) ? $ac->text->sms_ndnoti : esc_html__('All SMS notifications sent by Easy Form Builder will be delivered to the numbers entered here.','easy-form-builder'),

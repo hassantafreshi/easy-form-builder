@@ -2381,6 +2381,91 @@ function show_setting_window_efb(idset, opts) {
      }, timeout);
   }
 
+/**
+ * F18: the palette tiles for the current form type and plan. A tile the plan or a missing
+ * add-on keeps closed opens the upgrade dialog (efb_upgrade_prompt_efb) with the field to add
+ * once it is unlocked; its gem names the plan. Without the registry (a page cached before
+ * 4.3.2) the old rule is kept: Free (2) locks the Free Plus fields, add-ons show their notice.
+ */
+function efb_palette_tiles_html_efb() {
+  let els = "<!--efb.app-->";
+  let dragab = true;
+  let disable = "disable";
+  const formType = valj_efb.length && valj_efb[0] ? valj_efb[0].type : form_type_emsFormBuilder;
+
+  const ond = `onclick="alert_message_efb('${efb_var.text.error}','${efb_var.text.thisElemantNotAvailable}',7,'danger')"`
+  if (formType == "login") {
+    dragab = false;
+    disable = ond;
+  }
+
+  const registry = typeof efb_feature_entry_efb === 'function' && !!efb_feature_entry_efb('field:text');
+  const isPackageTypeLimited = pro_efb == false && Number(setting_emsFormBuilder.package_type) == 2;
+  const packageLimitMessage = `onclick='pro_show_efb(3)'`
+
+  // Pushed once: the palette is redrawn after a plan change.
+  if( efb_var.language=='fa_IR' && !fields_efb.some(x => x.id === 'persiaPay')) fields_efb.push( { name: efb_var.text.persiaPayment, icon: 'bi-credit-card-2-front', id: 'persiaPay', pro: true, tag:'payment all' });
+  for (let ob of fields_efb) {
+    let gem = '';
+
+    if (formType == "login") { if (ob.id == "html" || ob.id == "link" || ob.id == "heading") { dragab = true; disable = "disable" } else { dragab = false; disable = ond } }
+    if (registry) {
+      const key = 'field:' + ob.id;
+      if (efb_feature_entry_efb(key) && !efb_feature_available_efb(key)) {
+        const call = `efb_upgrade_prompt_efb({feature:'${key}', resume:{kind:'add_field', id:'${ob.id}'}, origin:'palette', opener:this})`;
+        disable = `onclick="${call}"`;
+        dragab = false;
+        if (!efb_feature_plan_ok_efb(key)) {
+          const tip = efb_feature_required_efb(key) === 'pro' ? (efb_var.text.upgTipPro || 'Pro feature') : (efb_var.text.upgTipFreePlus || 'Included in Free Plus (free)');
+          gem = ` <a type="button" role="button" tabindex="0" onclick="${call}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}" class="efb pro-version-efb" data-efb-feature="${key}" data-bs-toggle="tooltip" data-bs-placement="top" title="${tip}" aria-label="${ob.name}: ${tip}"><i class="efb  bi-gem text-light" aria-hidden="true"></i></a>`;
+        }
+      }
+    } else {
+      if(ob.id=="stripe" && efb_var.addons.AdnSPF !=1){
+        const msg =efb_var.text.IMAddonPMsg.replace('%s',`<b>${efb_var.text.stripe}</b>`) + ' '+ efb_var.text.INAddonMsg.replace('%s',`<b>${efb_var.text.stripe}</b>`).toLowerCase()
+        disable = `onclick="alert_message_efb('${efb_var.text.iaddon}', '${msg}', 20 , 'info')"`
+        dragab = false;
+      }else if(ob.id=="persiaPay" && efb_var.addons.AdnPPF !=1){
+        disable = `onclick="alert_message_efb('${efb_var.text.iaddon}', '${efb_var.text.IMAddonP}', 20 , 'info')"`
+        dragab = false;
+      }else if (ob.id=="pdate" && (efb_var.addons.hasOwnProperty('AdnPDP')==false || efb_var.addons.AdnPDP !=1)){
+        disable = `onclick="alert_message_efb('${efb_var.text.iaddon}', '${efb_var.text.IMAddonPD}', 20 , 'info')"`
+        dragab = false;
+      }else if (ob.id=="ardate" && (efb_var.addons.hasOwnProperty('AdnADP')==false || efb_var.addons.AdnADP !=1)){
+        disable = `onclick="alert_message_efb('${efb_var.text.iaddon}', '${efb_var.text.IMAddonAD}', 20 , 'info')"`
+        dragab = false;
+      }else if (ob.id =='paypal' && (efb_var.addons.hasOwnProperty('AdnPAP')==false || efb_var.addons.AdnPAP !=1)){
+        const msg =efb_var.text.IMAddonPMsg.replace('%s',`<b>${efb_var.text.paypal}</b>`) + ' '+ efb_var.text.INAddonMsg.replace('%s',`<b>${efb_var.text.paypal}</b>`).toLowerCase()
+        disable = `onClick="alert_message_efb('${efb_var.text.iaddon}', '${msg}', 20 , 'info')"`
+        dragab = false;
+      }
+      if (isPackageTypeLimited && ob.pro == true) {
+        disable = packageLimitMessage;
+        dragab = false;
+      }
+      if (ob.pro == true && pro_efb == false) gem = ` <a type="button"  onclick='pro_show_efb(3)' class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}"><i class="efb  bi-gem text-light"></i></a>`;
+    }
+
+    /* A tile is a fixed square, but the label is a translated field name and languages
+       disagree wildly on length: "Text" in English against "Bildschirmaufnahme" or
+       "Allgemeine Geschaeftsbedingungen" in German. Step the type down for the long ones
+       instead of shrinking every label, so languages that already fit look unchanged.
+       The CSS for these classes also hyphenates and caps the label at three lines. */
+    const nameLen = String(ob.name || '').length;
+    const lblSize = nameLen > 16 ? 'efb-tile-label-xs' : nameLen > 10 ? 'efb-tile-label-sm' : '';
+
+    els += `
+    <div class="efb tag efb-col-3 draggable-efb ${ob.tag}" draggable="${dragab}" id="${ob.id}" ${mobile_view_efb && dragab ? `onclick="add_element_dpz_efb('${ob.id}')"` : ''}>
+     ${gem}
+      <button type="button" class="efb btn efb btn-select-form float-end ${disable != "disable" ? "btn-muted" : ''}" id="${ob.id}_b" title="${ob.name}" ${disable}><i class="efb bi tagIcon  ${ob.icon}"></i><span class="efb d-block text-capitalize ${lblSize}">${ob.name}</span></button>
+    </div>
+    `
+    dragab = true;
+    disable = "disable";
+  }
+  return els;
+}
+
 function creator_form_builder_Efb() {
   if (valj_efb.length < 2) {
     const btn_pois = Number(efb_var.rtl) == 1 ? 'justify-content-center' : 'justify-content-center';
@@ -2404,68 +2489,9 @@ function creator_form_builder_Efb() {
 
   }
 
-  let els = "<!--efb.app-->";
-  let dragab = true;
-  let disable = "disable";
-  let formType = valj_efb[0].type
-
-  const ond = `onclick="alert_message_efb('${efb_var.text.error}','${efb_var.text.thisElemantNotAvailable}',7,'danger')"`
-  if (formType == "login") {
-    dragab = false;
-    disable = ond;
-  }
-
-  const isPackageTypeLimited = pro_efb == false && Number(setting_emsFormBuilder.package_type) == 2;
-  const packageLimitMessage = `onclick='pro_show_efb(3)'`
-
-  if( efb_var.language=='fa_IR')fields_efb.push( { name: efb_var.text.persiaPayment, icon: 'bi-credit-card-2-front', id: 'persiaPay', pro: true, tag:'payment all' });
-  for (let ob of fields_efb) {
-
-    if (formType == "login") { if (ob.id == "html" || ob.id == "link" || ob.id == "heading") { dragab = true; disable = "disable" } else { dragab = false; disable = ond } }
-    if(ob.id=="stripe" && efb_var.addons.AdnSPF !=1){
-      const msg =efb_var.text.IMAddonPMsg.replace('%s',`<b>${efb_var.text.stripe}</b>`) + ' '+ efb_var.text.INAddonMsg.replace('%s',`<b>${efb_var.text.stripe}</b>`).toLowerCase()
-      disable = `onclick="alert_message_efb('${efb_var.text.iaddon}', '${msg}', 20 , 'info')"`
-      dragab = false;
-    }else if(ob.id=="persiaPay" && efb_var.addons.AdnPPF !=1){
-
-      disable = `onclick="alert_message_efb('${efb_var.text.iaddon}', '${efb_var.text.IMAddonP}', 20 , 'info')"`
-      dragab = false;
-    }else if (ob.id=="pdate" && (efb_var.addons.hasOwnProperty('AdnPDP')==false || efb_var.addons.AdnPDP !=1)){
-
-      disable = `onclick="alert_message_efb('${efb_var.text.iaddon}', '${efb_var.text.IMAddonPD}', 20 , 'info')"`
-      dragab = false;
-    }else if (ob.id=="ardate" && (efb_var.addons.hasOwnProperty('AdnADP')==false || efb_var.addons.AdnADP !=1)){
-
-      disable = `onclick="alert_message_efb('${efb_var.text.iaddon}', '${efb_var.text.IMAddonAD}', 20 , 'info')"`
-      dragab = false;
-    }else if (ob.id =='paypal' && (efb_var.addons.hasOwnProperty('AdnPAP')==false || efb_var.addons.AdnPAP !=1)){
-      const msg =efb_var.text.IMAddonPMsg.replace('%s',`<b>${efb_var.text.paypal}</b>`) + ' '+ efb_var.text.INAddonMsg.replace('%s',`<b>${efb_var.text.paypal}</b>`).toLowerCase()
-      disable = `onClick="alert_message_efb('${efb_var.text.iaddon}', '${msg}', 20 , 'info')"`
-      dragab = false;
-    }
-
-    if (isPackageTypeLimited && ob.pro == true) {
-      disable = packageLimitMessage;
-      dragab = false;
-    }
-
-    /* A tile is a fixed square, but the label is a translated field name and languages
-       disagree wildly on length: "Text" in English against "Bildschirmaufnahme" or
-       "Allgemeine Geschaeftsbedingungen" in German. Step the type down for the long ones
-       instead of shrinking every label, so languages that already fit look unchanged.
-       The CSS for these classes also hyphenates and caps the label at three lines. */
-    const nameLen = String(ob.name || '').length;
-    const lblSize = nameLen > 16 ? 'efb-tile-label-xs' : nameLen > 10 ? 'efb-tile-label-sm' : '';
-
-    els += `
-    <div class="efb tag efb-col-3 draggable-efb ${ob.tag}" draggable="${dragab}" id="${ob.id}" ${mobile_view_efb ? `onclick="add_element_dpz_efb('${ob.id}')"` : ''}>
-     ${ob.pro == true && pro_efb == false ? ` <a type="button"  onclick='pro_show_efb(3)' class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}"><i class="efb  bi-gem text-light"></i></a>` : ''}
-      <button type="button" class="efb btn efb btn-select-form float-end ${disable != "disable" ? "btn-muted" : ''}" id="${ob.id}_b" title="${ob.name}" ${disable}><i class="efb bi tagIcon  ${ob.icon}"></i><span class="efb d-block text-capitalize ${lblSize}">${ob.name}</span></button>
-    </div>
-    `
-    dragab = true;
-    disable = "disable";
-  }
+  // F18: the tiles are drawn by efb_palette_tiles_html_efb() so a plan change in the page can
+  // redraw them alone (plan-gate-efb.js, palette subscriber).
+  const els = efb_palette_tiles_html_efb();
 
   let navs = [
     { name: efb_var.text.save, icon: 'bi-save', fun: `saveFormEfb(1)` },
@@ -2513,7 +2539,7 @@ function creator_form_builder_Efb() {
                 </li>
                 <hr class="efb hr">
             </ul>
-          <div class="efb row">${els}</div></div>
+          <div class="efb row" id="efbPaletteTilesEfb">${els}</div></div>
          <div class="efb  col-md-8 body-dpz-efb">
          <div class="efb d-flex justify-content-center mb-2" id="viewToggleEfb">
            <div class="efb btn-group" role="group" aria-label="${efb_var.text.viewToggle}">
@@ -5273,7 +5299,9 @@ function sendPlanSelectionToServer_efb(selectionData) {
                     }
                     return;
                 }
-                efb_apply_package_type_efb(response.data.package_type);
+                // F18: one path for every plan change in the page; it redraws what the plan locks.
+                if (typeof efb_on_plan_changed_efb === 'function') efb_on_plan_changed_efb(response.data.package_type, { source: selectionData.source || 'settings' });
+                else efb_apply_package_type_efb(response.data.package_type);
                 if (response.data.activation_code_removed) {
                     const input = document.getElementById('activeCode_emsFormBuilder');
                     if (input) input.value = '';
@@ -5291,7 +5319,8 @@ function sendPlanSelectionToServer_efb(selectionData) {
                 } else {
                     closeSetupOverlay_efb();
                 }
-                if (typeof gtag !== 'undefined') gtag('event', 'plan_selected', { event_category: 'easy_form_builder', event_label: selectionData.selected_plan, value: 1 });
+                // F18 §14: no event goes to the site's Analytics (it did, through gtag, without consent);
+                // integrations listen to efb:plan-changed instead.
             } else if (response.data && response.data.message) {
                 alert_message_efb('', response.data.message, 10, 'danger');
             }
