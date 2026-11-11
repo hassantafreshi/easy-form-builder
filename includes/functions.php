@@ -2802,6 +2802,10 @@ class efbFunction {
 			"upgReloading" => $state && isset($ac->text->upgReloading) ? $ac->text->upgReloading : esc_html__('To finish, the page reloads now.','easy-form-builder'),
 			/* translators: F18: in the upgrade dialog when a form with locked fields is saved. %s: the field names */
 			"upgLockedFieldsList" => $state && isset($ac->text->upgLockedFieldsList) ? $ac->text->upgLockedFieldsList : esc_html__('This form uses: %s.','easy-form-builder'),
+			/* translators: F18: on the public page, only for a user who can change the plan, in place of a locked field */
+			"upgAdminFieldNote" => $state && isset($ac->text->upgAdminFieldNote) ? $ac->text->upgAdminFieldNote : esc_html__('Visitors see this field once Free Plus or Pro is active.','easy-form-builder'),
+			/* translators: F18: link after upgAdminFieldNote; opens the upgrade dialog in the form builder */
+			"upgAdminFieldLink" => $state && isset($ac->text->upgAdminFieldLink) ? $ac->text->upgAdminFieldLink : esc_html__('Activate it in the form builder','easy-form-builder'),
 			"sms_noti" => $state  &&  isset($ac->text->sms_noti) ? $ac->text->sms_noti : esc_html__('SMS Notifications','easy-form-builder'),
 			"sms_dnoti" => $state  &&  isset($ac->text->sms_dnoti) ? $ac->text->sms_dnoti : esc_html__('Enter the administrators’ mobile numbers to receive SMS notifications, such as alerts or new messages.','easy-form-builder'),
 			"sms_ndnoti" => $state  &&  isset($ac->text->sms_ndnoti) ? $ac->text->sms_ndnoti : esc_html__('All SMS notifications sent by Easy Form Builder will be delivered to the numbers entered here.','easy-form-builder'),

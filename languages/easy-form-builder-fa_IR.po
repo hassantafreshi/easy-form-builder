@@ -15777,3 +15777,15 @@ msgstr "برای تکمیل، صفحه اکنون دوباره بارگذاری 
 #, php-format
 msgid "This form uses: %s."
 msgstr "این فرم از این‌ها استفاده می‌کند: %s."
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: on the public page, only for a user who can change the plan, in place of a locked field
+#: includes/functions.php
+msgid "Visitors see this field once Free Plus or Pro is active."
+msgstr "بازدیدکنندگان پس از فعال شدن Free Plus یا Pro این فیلد را می‌بینند."
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: link after upgAdminFieldNote; opens the upgrade dialog in the form builder
+#: includes/functions.php
+msgid "Activate it in the form builder"
+msgstr "در فرم‌ساز فعالش کنید"

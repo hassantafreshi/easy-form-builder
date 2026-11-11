@@ -233,5 +233,36 @@ const freePlusGems = (page) => page.evaluate(() => fields_efb.filter((f) => efb_
     c.check('10: Install starts the add-on install and keeps "add the Stripe field" for after the reload', k.installed.join() === 'AdnSPF' && k.kept && k.kept.feature === 'field:stripe' && k.kept.resume.kind === 'add_field', k);
   });
 
+  // 11 SitePilot / the public note's link: ?efb_upgrade=<feature> opens the dialog, never activates
+  await scenario('11 efb_upgrade link', { pro: 0, packageType: 2 }, async (page, h) => {
+    const r = await page.evaluate(() => {
+      window.__upg = [];
+      document.addEventListener('efb:upgrade-prompt', (e) => __upg.push(e.detail.action + ':' + e.detail.origin));
+      history.replaceState(null, '', '/wp-admin/admin.php?page=Emsfb_create&efb_upgrade=field:esign&efb_origin=sitepilot');
+      const res = efb_upgrade_from_url_efb();
+      return { res, url: location.search };
+    });
+    await page.waitForTimeout(250);
+    const st = await dialogState(page);
+    c.check('11: ?efb_upgrade=field:esign&efb_origin=sitepilot opens S1 for Signature, origin sitepilot', st.state === 'S1' && st.feature === 'field:esign' && (await page.evaluate(() => __upg.join())) === 'shown:sitepilot', st);
+    c.check('11: the link alone changes nothing (no request) and leaves the address clean', h.planCalls.length === 0 && r.url === '?page=Emsfb_create' && (await page.evaluate(() => efb_var.setting.package_type)) === 2, r);
+    await page.evaluate(() => document.querySelector('[data-efb-upg-action="activate"]').click());
+    await page.waitForTimeout(300);
+    c.check('11: an agent\'s scripted click on Activate is refused', h.planCalls.length === 0 && (await page.evaluate(() => efb_var.setting.package_type)) === 2);
+    await page.click('[data-efb-upg-action="activate"]');
+    await waitClosed(page);
+    await page.waitForTimeout(600);
+    const ev = await page.evaluate(() => __events.map((e) => e.package_type));
+    c.check('11: after the person\'s click, a listener gets exactly one efb:plan-changed with package_type 3', ev.length === 1 && ev[0] === 3, ev);
+    const bad = await page.evaluate(() => {
+      history.replaceState(null, '', '/wp-admin/admin.php?page=Emsfb_create&efb_upgrade=%3Cimg%20src%3Dx%3E');
+      const a = efb_upgrade_from_url_efb();
+      history.replaceState(null, '', '/wp-admin/admin.php?page=Emsfb_create&efb_upgrade=field:nosuchfield');
+      const b = efb_upgrade_from_url_efb();
+      return { a, b };
+    });
+    c.check('11: an unknown or malformed feature opens nothing', bad.a === null && bad.b === null, bad);
+  });
+
   c.done();
 })();

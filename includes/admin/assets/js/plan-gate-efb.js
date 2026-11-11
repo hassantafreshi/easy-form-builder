@@ -10,6 +10,7 @@
  *   D  the in-page plan change: efb_on_plan_changed_efb() and its subscribers;
  *   F  what the person clicked is done once the lock is gone (efb_run_resume_efb), also after a
  *      reload (add-on install), through sessionStorage efb_resume_efb.
+ *   H  ?efb_upgrade=<feature> (the public page's note, SitePilot) opens the dialog - never activates.
  *
  * Loaded on the Create, Panel and Add-ons screens after admin-efb.js. Everything here is a
  * function or a var, so the file also runs in a vm for the tests.
@@ -965,4 +966,30 @@ function efb_resume_after_load_efb() {
 if (typeof document !== 'undefined' && document.addEventListener) {
   document.addEventListener('efb:canvas-rendered', function () { efb_resume_after_load_efb(); });
   document.addEventListener('DOMContentLoaded', function () { setTimeout(efb_resume_after_load_efb, 800); });
+}
+
+/* ------------------------------------------------------------------ H: ?efb_upgrade=<feature> */
+/*
+ * The administrator's note on a locked public field links to
+ * admin.php?page=Emsfb_create&efb_upgrade=field:<type>; SitePilot sends the admin to the same URL
+ * with &efb_origin=sitepilot. The dialog opens for that feature and waits for a person's click: the
+ * link itself never changes the plan. The parameters are removed from the address so a reload
+ * does not ask again. Only registry keys are accepted.
+ */
+function efb_upgrade_from_url_efb() {
+  var params;
+  try { params = new URLSearchParams(location.search); } catch (e) { return null; }
+  var feature = params.get('efb_upgrade');
+  if (!feature) return null;
+  var origin = params.get('efb_origin') === 'sitepilot' ? 'sitepilot' : 'public_page';
+  params.delete('efb_upgrade');
+  params.delete('efb_origin');
+  try { history.replaceState(history.state, '', location.pathname + (params.toString() ? '?' + params.toString() : '') + location.hash); } catch (e) { /* fine */ }
+  if (!/^(field|setting|addon|limit|template|form):[A-Za-z0-9_]{1,60}$/.test(feature) || !efb_feature_entry_efb(feature)) return null;
+  return efb_upgrade_prompt_efb({ feature: feature, origin: origin });
+}
+
+if (typeof document !== 'undefined' && document.addEventListener) {
+  // After the screen has drawn (the shell, the builder or the templates list).
+  document.addEventListener('DOMContentLoaded', function () { setTimeout(efb_upgrade_from_url_efb, 1200); });
 }

@@ -10,6 +10,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	   public $pub_bg_button_color_efb='btn-primary';
 	   public $package_type_efb = 0;
     private $mobile_pos = ['', 'col-12', 'col-12', 'col-12'];
+    /* F18: the element being rendered and the phrases, for the administrator's note on a locked field. */
+    private $pro_notice_type_efb = '';
+    private $pro_notice_texts_efb = array();
     /** The last plan notice built, so a field drawn as nothing but that notice can be wrapped like its real markup. */
     private $last_pro_notice_efb = null;
         public function __construct( $valj_efb, $pro_efb ) {
@@ -554,8 +557,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 	 * gets the neutral $text notice. When $admin_text is empty every viewer gets
 	 * $text (backward compatible with the existing callers).
 	 */
-	private function public_pro_message_efb($text, $admin_text = ''){
-		if ($admin_text !== '' && function_exists('current_user_can') && current_user_can('edit_posts')) {
+	private function public_pro_message_efb($text, $admin_text = '', $texts = null){
+		$texts = is_array($texts) ? $texts : $this->pro_notice_texts_efb;
+		$type = preg_replace('/[^A-Za-z0-9_]/', '', (string) $this->pro_notice_type_efb);
+		/* F18 §7: whoever can change the plan is told what visitors see and gets a link that opens the
+		   upgrade dialog for this field in the form builder (never activates anything by itself). */
+		if ($type !== '' && !empty($texts['upgAdminFieldNote']) && function_exists('efb_can_change_plan_efb') && efb_can_change_plan_efb()) {
+			$url = admin_url('admin.php?page=Emsfb_create&efb_upgrade=field:' . $type);
+			$link = !empty($texts['upgAdminFieldLink']) ? $texts['upgAdminFieldLink'] : '';
+			$text = esc_html($texts['upgAdminFieldNote'])
+				. ($link !== '' ? ' <a class="efb text-white text-decoration-underline" href="' . esc_url($url) . '">' . esc_html($link) . '</a>' : '');
+		} elseif ($admin_text !== '' && function_exists('current_user_can') && current_user_can('edit_posts')) {
 			$text = $admin_text;
 		}
 		$r = sprintf(
@@ -2537,6 +2549,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 		$indexVJ = $i;
 		$position_l_efb = is_rtl() ? "end" : "start";
 		$vj = $this->valj_efb[$indexVJ];
+		$this->pro_notice_type_efb = $elementId;
+		$this->pro_notice_texts_efb = is_array($texts) ? $texts : array();
 
 		if(in_array($elementId, ["option","r_matrix"])) return;
 

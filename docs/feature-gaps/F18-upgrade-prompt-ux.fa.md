@@ -1,4 +1,4 @@
-وضعیت: در حال پیاده‌سازی (A تا F انجام شد) · اولویت: P0 · تلاش: M · وابستگی: — (F16 برای الگوی فوکوس دیالوگ؛ هم‌زمان با کار ماسک F01 فایل‌های JS/PHP مشترک را ویرایش نکنید مگر پس از ادغام آن)
+وضعیت: پیاده‌سازی و تست شد (A تا F و H)؛ ترجمهٔ ۶۸ زبان دیگر (G) باقی · اولویت: P0 · تلاش: M · وابستگی: — (F16 برای الگوی فوکوس دیالوگ؛ هم‌زمان با کار ماسک F01 فایل‌های JS/PHP مشترک را ویرایش نکنید مگر پس از ادغام آن)
 
 # F18 — پنجرهٔ ارتقا: فعال‌سازی درجای Free Plus و خرید Pro
 
@@ -413,7 +413,7 @@ do_action('efb_plan_changed', int $old, int $new, array $context); // context: s
 | `upgSessionExpired` | Your session has expired. Save your work and reload the page. |
 | `upgNewTab` | (opens in a new tab) |
 | `upgTipFreePlus` / `upgTipPro` | Included in Free Plus (free) / Pro feature |
-| `upgAdminFieldNote` | Visitors see this field once Free Plus or Pro is active. Activate it in the form builder. |
+| `upgAdminFieldNote` / `upgAdminFieldLink` | Visitors see this field once Free Plus or Pro is active. / Activate it in the form builder |
 | `upgFtrMobileLayout`، `upgFtrHideDisable`، `upgFtrReplyAttach`، `upgFtrSenderEmail`، `upgFtrPaymentKeys`، `upgFtrMapKey`، `upgFtrColors`، `upgFtrBulkRead`، `upgFtrEmailCredit` | Mobile layout settings / Hidden and disabled fields / File attachments in replies / Sender email address / Payment gateway keys / Map API key / Custom colors / Mark selected as read / Email without the Easy Form Builder footer |
 
 برای بقیهٔ برچسب‌ها، کلیدهای موجود دوباره استفاده می‌شوند (نام فیلدها در `fields_efb`، `redirectPage`، `weeklyEmailReport`، `emailStatsReport`، `mlsbjt`، `emlc`، `stripe`، `paypal`).
@@ -545,12 +545,13 @@ do_action('efb_plan_changed', int $old, int $new, array $context); // context: s
 - پذیرش: مدیر در صفحهٔ عمومی پیوندی می‌بیند که دیالوگ همان فیلد را باز می‌کند. بازدیدکننده همان `tfnapca` را می‌بیند.
 - تست‌ها: `php tests/test-public-locked-field-note.php` (stub `current_user_can`).
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint** (انجام شد، ۲۰ آبان ۱۴۰۵)
+- فایل‌های تغییرکرده: `includes/class-Emsfb-formbuilder.php` (`public_pro_message_efb`: کاربری که `efb_can_change_plan_efb()` دارد متن `upgAdminFieldNote` و پیوند `upgAdminFieldLink` به `admin.php?page=Emsfb_create&efb_upgrade=field:<type>` را می‌بیند؛ ویرایشگری که نمی‌تواند پلن را عوض کند همان جملهٔ قبلی Free Plus/Pro را؛ بازدیدکننده همان `tfnapca`؛ نوع عنصر در `addNewElement_efb` ثبت و برای URL پاک‌سازی می‌شود)، `includes/class-Emsfb-public.php` (دو کلید در زیرمجموعهٔ عمومی)، `plan-gate-efb.js` (بخش H: `efb_upgrade_from_url_efb()` پارامتر `efb_upgrade` و `efb_origin=sitepilot` را می‌خواند، فقط کلید معتبر رجیستری را می‌پذیرد، دیالوگ را باز می‌کند و هرگز فعال نمی‌کند، و پارامترها را از نشانی پاک می‌کند)، `functions.php`، `.po`.
+- همگام‌سازی سند: §۱۶ متن `upgAdminFieldNote` به دو کلید شکسته شد: `upgAdminFieldNote` = «Visitors see this field once Free Plus or Pro is active.» و `upgAdminFieldLink` = «Activate it in the form builder» (متن پیوند).
+- تست‌ها: `php tests/test-public-locked-field-note.php` روی کد زیرتسک F: 3 passed، 4 failed؛ پس از کار: 7 passed. سناریوی ۸ Playwright (SitePilot) در `tests/test-upgrade-prompt-browser.js` افزوده شد: پیوند دیالوگ S1 را با `origin: sitepilot` باز می‌کند، بدون درخواست، نشانی پاک می‌شود، کلیک اسکریپتی رد می‌شود، پس از کلیک انسان دقیقاً یک `efb:plan-changed` با `package_type: 3`، و کلید ناشناخته یا مخرب چیزی باز نمی‌کند؛ کل فایل 43 passed. مرتبط‌ها سبز: password placeholder 4، recorder render 34، upload presets 79، legacy JSON 43، JSON preservation 30، states 58، rerender 19، callsites 6، registry 13، B3 49، A6 8، B7 10.
+- وضعیت ترجمه: `upgAdminFieldNote`، `upgAdminFieldLink` با فارسی. pack built نه.
+- مورد باز: رندر صفحهٔ عمومی با کاربر واقعی وارد شده فقط با WordPress واقعی آزمودنی است. اگر صفحه برای کاربران واردشده کش شود (کم‌رایج)، متن مدیر می‌تواند در کش بماند؛ همان رفتار پیشین متن `edit_posts`.
+- اقدام بعدی: زیرتسک G (ترجمهٔ زبان‌های دیگر).
 
 ## ۱۸. ماتریس QA و سناریوهای Playwright
 
