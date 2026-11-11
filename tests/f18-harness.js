@@ -74,6 +74,8 @@ async function openF18(opts) {
   const pkg = opts.packageType === undefined ? 1 : opts.packageType;
   const caps = opts.noRegistry ? undefined : capabilities([0, 1, 2, 3].includes(Number(pkg)) ? Number(pkg) : 2, Object.assign({}, opts.setting || {}, opts.addons || {}));
   opts.extraVar = Object.assign({ rtl: rtl ? 1 : 0, language: locale, wp_lan: locale, capabilities: caps, api_version: 1, ajax_url: 'http://site.test/wp-admin/admin-ajax.php' }, opts.extraVar || {});
+  // The admin enqueues Bootstrap's bundle (class-Emsfb-admin.php); its button plugin flips the switches.
+  opts.scripts = ['includes/admin/assets/js/bootstrap.bundle.min-efb.js'].concat(opts.scripts || []);
   const h = await openBuilder(opts);
   const { page } = h;
   if (opts.width) await page.setViewportSize({ width: opts.width, height: opts.height || 740 });

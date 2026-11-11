@@ -8,6 +8,8 @@
  *   A  read-only plan helpers (efb_current_package_efb, efb_feature_required_efb, ...);
  *   B  the upgrade dialog, efb_upgrade_prompt_efb() (pro_show_efb() in admin-efb.js is its shim);
  *   D  the in-page plan change: efb_on_plan_changed_efb() and its subscribers;
+ *   F  what the person clicked is done once the lock is gone (efb_run_resume_efb), also after a
+ *      reload (add-on install), through sessionStorage efb_resume_efb.
  *
  * Loaded on the Create, Panel and Add-ons screens after admin-efb.js. Everything here is a
  * function or a var, so the file also runs in a vm for the tests.
@@ -843,3 +845,124 @@ efb_plan_subscribe_efb('locks', function () { efb_unlock_dom_efb(document); });
 efb_plan_subscribe_efb('reply_box', function () {
   if (typeof EfbResponseViewer !== 'undefined' && EfbResponseViewer && typeof EfbResponseViewer.refreshAttachButton === 'function') EfbResponseViewer.refreshAttachButton();
 });
+
+/* ------------------------------------------------------------------ F: the person's action resumes */
+/*
+ * resume = {kind, …} says what the click wanted (§4.6):
+ *   add_field {id}   the palette id: the field is added, focused and scrolled into view
+ *   add_step         a step is added
+ *   toggle {id}      that switch is pressed (on the redrawn panel)
+ *   focus {id}       that control gets the focus (a typed value stays)
+ *   callback {name, args}  a function registered by name in EFB_RESUME_FNS_EFB (never a string to run)
+ *   none             nothing; the focus goes back to the opener
+ * efb_run_resume_efb() returns a Promise of the element that should take the focus (or null).
+ */
+var EFB_RESUME_FNS_EFB = {
+  create_template: function (id) { if (typeof create_form_by_type_emsfb === 'function') { form_type_emsFormBuilder = id; create_form_by_type_emsfb(id, 'npreview'); } },
+  bulk_read: function () { if (typeof event_selected_row_emsFormBuilder === 'function') event_selected_row_emsFormBuilder('read'); },
+  delete_response: function (msg, track) { if (typeof emsFormBuilder_delete === 'function') emsFormBuilder_delete(msg, 'message', track); },
+  open_color_modal: function () { if (typeof efb_open_color_modal === 'function') efb_open_color_modal(); },
+  save_form: function (stated) { if (typeof saveFormEfb === 'function') saveFormEfb(stated === undefined || stated === null ? 1 : stated); }
+};
+
+/** Add-ons register their own resumable actions by name. */
+function efb_resume_register_efb(name, fn) {
+  if (typeof fn === 'function' && /^[A-Za-z0-9_]+$/.test(String(name))) EFB_RESUME_FNS_EFB[name] = fn;
+}
+
+function efb_resume_wait_efb(find, ms) {
+  return new Promise(function (resolve) {
+    var t0 = Date.now();
+    (function poll() {
+      var el = null;
+      try { el = find(); } catch (e) { el = null; }
+      if (el || Date.now() - t0 > (ms || 2500)) { resolve(el || null); return; }
+      setTimeout(poll, 60);
+    })();
+  });
+}
+
+function efb_resume_focusable_efb(el) {
+  if (!el) return null;
+  if (!el.matches('a[href], button, input, select, textarea, [tabindex]')) el.setAttribute('tabindex', '-1');
+  try { el.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (e) { /* old browser */ }
+  return el;
+}
+
+function efb_run_resume_efb(resume, opts) {
+  resume = resume || {};
+  var byId = function (id) { return id ? document.getElementById(String(id)) : null; };
+  switch (resume.kind) {
+    case 'add_field':
+    case 'add_step': {
+      if (typeof fun_efb_add_el !== 'function' || typeof valj_efb === 'undefined' || !document.getElementById('dropZoneEFB')) return Promise.resolve(null);
+      var before = {};
+      valj_efb.forEach(function (r) { if (r && r.id_ !== undefined) before[r.id_] = 1; });
+      var paletteId = resume.kind === 'add_step' ? 'steps' : String(resume.id || '');
+      if (!/^[A-Za-z0-9_]+$/.test(paletteId)) return Promise.resolve(null);
+      fun_efb_add_el(paletteId);
+      return efb_resume_wait_efb(function () {
+        var added = valj_efb.filter(function (r) { return r && r.id_ !== undefined && !before[r.id_] && r.type !== 'option'; });
+        if (!added.length) return null;
+        var row = added[0];
+        return document.querySelector('#dropZoneEFB [data-id="' + String(row.dataId || row.id_).replace(/"/g, '') + '"]') || byId(row.id_);
+      }).then(efb_resume_focusable_efb);
+    }
+    case 'toggle': {
+      // The panel that holds the switch is redrawn after the plan change (on its own timers): press
+      // the switch once that has settled, then hand back the node that is on screen by then.
+      var later = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
+      return later(350).then(function () { return efb_resume_wait_efb(function () { return byId(resume.id); }); })
+        .then(function (el) { if (!el) return null; el.click(); return later(250).then(function () { return byId(resume.id) || el; }); });
+    }
+    case 'focus':
+      return efb_resume_wait_efb(function () { var el = byId(resume.id); return el && !el.disabled ? el : null; }).then(efb_resume_focusable_efb);
+    case 'callback': {
+      var fn = Object.prototype.hasOwnProperty.call(EFB_RESUME_FNS_EFB, resume.name) ? EFB_RESUME_FNS_EFB[resume.name] : null;
+      if (fn) { try { fn.apply(null, Array.isArray(resume.args) ? resume.args : []); } catch (e) { if (typeof console !== 'undefined') console.error('efb resume', resume.name, e); } }
+      return Promise.resolve(null);
+    }
+    default:
+      return Promise.resolve(null);
+  }
+}
+
+/* Across a reload (an add-on install reloads the page): the action is kept for 5 minutes. */
+var EFB_RESUME_KEY_EFB = 'efb_resume_efb';
+var EFB_RESUME_TTL_EFB = 5 * 60 * 1000;
+
+function efb_save_resume_efb(opts) {
+  if (!opts || !opts.resume) return false;
+  try {
+    if (typeof valj_efb !== 'undefined' && Array.isArray(valj_efb) && valj_efb.length > 1) sessionStorage.setItem('valj_efb', JSON.stringify(valj_efb));
+    sessionStorage.setItem(EFB_RESUME_KEY_EFB, JSON.stringify({ feature: String(opts.feature || ''), resume: opts.resume, at: Date.now() }));
+    return true;
+  } catch (e) { return false; }
+}
+
+/**
+ * After a load (or once the builder canvas is drawn): run a kept action once, if it is younger than
+ * five minutes and the plan (and add-on) now opens its feature. The key is removed before running,
+ * so the action can never run twice. Returns the Promise of efb_run_resume_efb, or null.
+ */
+function efb_resume_after_load_efb() {
+  var raw = null;
+  try { raw = sessionStorage.getItem(EFB_RESUME_KEY_EFB); } catch (e) { return null; }
+  if (!raw) return null;
+  var saved = null;
+  try { saved = JSON.parse(raw); } catch (e) { saved = null; }
+  if (!saved || !saved.resume || !(Date.now() - Number(saved.at) < EFB_RESUME_TTL_EFB)) {
+    try { sessionStorage.removeItem(EFB_RESUME_KEY_EFB); } catch (e) { /* storage off */ }
+    return null;
+  }
+  // A field or step needs the builder canvas; wait for it (the draft may be reopened later).
+  if ((saved.resume.kind === 'add_field' || saved.resume.kind === 'add_step') && !(document.querySelector('#dropZoneEFB') && typeof valj_efb !== 'undefined' && valj_efb.length > 1)) return null;
+  if (saved.feature && efb_feature_entry_efb(saved.feature) && !efb_feature_available_efb(saved.feature)) return null;
+  try { sessionStorage.removeItem(EFB_RESUME_KEY_EFB); } catch (e) { return null; }
+  return efb_run_resume_efb(saved.resume, saved).then(function (el) { if (el && el.focus) { try { el.focus(); } catch (e) { /* fine */ } } return el; });
+}
+
+if (typeof document !== 'undefined' && document.addEventListener) {
+  document.addEventListener('efb:canvas-rendered', function () { efb_resume_after_load_efb(); });
+  document.addEventListener('DOMContentLoaded', function () { setTimeout(efb_resume_after_load_efb, 800); });
+}

@@ -1,4 +1,4 @@
-وضعیت: در حال پیاده‌سازی (A تا E انجام شد) · اولویت: P0 · تلاش: M · وابستگی: — (F16 برای الگوی فوکوس دیالوگ؛ هم‌زمان با کار ماسک F01 فایل‌های JS/PHP مشترک را ویرایش نکنید مگر پس از ادغام آن)
+وضعیت: در حال پیاده‌سازی (A تا F انجام شد) · اولویت: P0 · تلاش: M · وابستگی: — (F16 برای الگوی فوکوس دیالوگ؛ هم‌زمان با کار ماسک F01 فایل‌های JS/PHP مشترک را ویرایش نکنید مگر پس از ادغام آن)
 
 # F18 — پنجرهٔ ارتقا: فعال‌سازی درجای Free Plus و خرید Pro
 
@@ -521,12 +521,12 @@ do_action('efb_plan_changed', int $old, int $new, array $context); // context: s
 - پذیرش: کلیک روی کاشی امضا → فعال‌سازی → فیلد امضا اضافه می‌شود و فوکوس می‌گیرد. toggle ریدایرکت روشن می‌شود. مرحلهٔ سوم اضافه می‌شود. پس از نصب Stripe و reload، فیلد Stripe یک‌بار اضافه می‌شود (نه دوبار). کلید resume پس از ۵ دقیقه نادیده گرفته می‌شود.
 - تست‌ها: در `test-plan-change-rerender.js`، به‌علاوهٔ Playwright (§۱۸).
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint** (انجام شد، ۲۰ آبان ۱۴۰۵)
+- فایل‌های تغییرکرده: `plan-gate-efb.js` (بخش F: `efb_run_resume_efb` برای `add_field`، `add_step`، `toggle`، `focus`، `callback` و `none` که Promise عنصر هدف فوکوس را برمی‌گرداند؛ `EFB_RESUME_FNS_EFB` با `create_template`، `bulk_read`، `delete_response`، `open_color_modal` و `save_form`، و `efb_resume_register_efb` برای add-onها؛ فقط نام ثبت‌شده اجرا می‌شود، هیچ رشته‌ای eval نمی‌شود؛ `efb_save_resume_efb` و `efb_resume_after_load_efb` با کلید `sessionStorage.efb_resume_efb` و عمر ۵ دقیقه، اجرای یک‌باره (کلید پیش از اجرا پاک می‌شود)، انتظار تا رسم بوم برای `add_field` و تا نصب add-on برای ویژگی وابسته؛ اجرا پس از `DOMContentLoaded` و هر `efb:canvas-rendered`؛ «نصب» در S8 پیش از درخواست نصب کار را نگه می‌دارد)، `tests/f18-harness.js` (bundle بوت‌استرپ مثل پیشخوان واقعی بارگذاری می‌شود، چون کلیدهای toggle با آن جابه‌جا می‌شوند).
+- تست‌ها: `node tests/test-upgrade-prompt-browser.js` روی کد زیرتسک E: 24 passed، 8 failed؛ پس از کار: 37 passed. سناریوهای §۱۸ که با harness بدون WordPress اجراشدنی‌اند: ۱ (کاشی امضا → S1 → فعال‌سازی → بدون reload، فیلد یک‌بار افزوده و فوکوس‌شده، بدون gem، یک رویداد، ذخیره بدون دیالوگ)، ۲ (ویژگی Pro پس از Free Plus → S3 با پیوند `#pricing`)، ۳ (مرحلهٔ سوم → S5 → مرحلهٔ ۳ روی بوم)، toggle «پنهان» (روشن، ذخیره در فرم، فوکوس)، ذخیرهٔ فرم قفل (نام فیلد، سپس ذخیره)، ۴ (Pro منقضی → S4a → Switch با `downgrade_confirmed`)، ۵ بخش Pro (کاشی بی‌دیالوگ)، ۶ بخش JS (S7)، ۷ (fa_IR در 375px: headline دقیق، rtl، دکمه‌های عمودی، `<bdi>`، افزوده شدن فیلد؛ اسکرین‌شات `tests/screenshots/f18-s1-fa-375-builder.png`)، و تحویل پس از reload (یک‌بار، نه دوبار؛ کهنه‌تر از ۵ دقیقه رها می‌شود؛ add-on نصب‌نشده منتظر می‌ماند؛ callback ناشناخته اجرا نمی‌شود؛ S8 «نصب» کار را نگه می‌دارد). مرتبط‌ها سبز: states 58، rerender 19، callsites 6، registry 13، A4 16، B3 49، B1 22، B2 30، contract 16، plan selection 23، masks builder 50، logic gating 53.
+- وضعیت ترجمه: کلید تازه‌ای نیست.
+- مورد باز: بخش‌های §۱۸ که WordPress واقعی می‌خواهند اینجا اجرا نشدند: انتشار فرم و رندر صفحهٔ عمومی به‌عنوان مهمان، `get_option('emsfb_pro')===3` در پایگاه داده، چندسایته، کش صفحه با فرم در ابزارک، کاربر واقعی با نقش `Emsfb`، و reload واقعی پس از نصب Stripe (در این harness نصب stub شده و تحویل با `efb_resume_after_load_efb()` مستقیم آزموده شد). پس از reload صفحهٔ Create به فهرست قالب‌ها برمی‌گردد؛ `add_field` تا وقتی پیش‌نویس در بوم باز شود (کمتر از ۵ دقیقه) منتظر می‌ماند.
+- اقدام بعدی: زیرتسک H (پیام مدیر در صفحهٔ عمومی و پیوند `efb_upgrade`)، سپس G (ترجمه).
 
 ### G. ترجمه
 - فایل‌ها: `includes/functions.php` (کلیدهای §۱۶)، `languages/` از راه pipeline.
