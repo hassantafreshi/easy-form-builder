@@ -116,7 +116,9 @@ Principles:
    client validators; the visitor submits; the server re-checks everything (masks, rules, OTP,
    limits, spam, calc, hidden values).
 
-Contract version: `EMSFB_CONNECTOR_API = 1` (integer constant) and schema version `efb_schema: 1`
+Contract version: `EMSFB_API_VERSION = 1` (integer constant in `emsfb.php`, also
+`efb_var.api_version` in the builder; shipped with the AutoPilot integration, see §12; this
+replaces the name `EMSFB_CONNECTOR_API` proposed earlier) and schema version `efb_schema: 1`
 (the same key `calendar-engine-contract.en.md` §7.2 already uses). Both bump only on breaking change.
 
 ---
@@ -215,6 +217,13 @@ PHP source of truth: move `fields_efb[].pro` into a PHP table (`efb_field_types_
 `val-efb.js` read it through `efb_var`, and keep `emsfb_free_element_types_efb()` as a derived
 helper. This removes the JS-only gate in G5.
 
+**Shipped (AutoPilot B2/B3, §12):** the plan of every palette type is now readable in PHP through the
+capability registry (`get_efbFunction()->capabilities_efb()['features']['field:<type>']`, also
+`efb_var.capabilities`), generated from `fields_efb[].pro` into `includes/data/field-templates-efb.json`
+with a drift test; the rows of every palette type (composites included) come from
+`get_efbFunction()->field_templates_efb($type)`. A future `efb_api_field_types()` should be built on
+these two, not on a third table.
+
 ### 4.3 Mask catalog — F01
 
 `efb_api_mask_catalog( $locale )` = `Emsfb\Masks::catalog_public($locale)`
@@ -230,7 +239,10 @@ filter `efb_mask_catalog`). REST: `GET Emsfb/v1/admin/masks?locale=fa_IR`. Pre-c
 
 - `efb_plan_efb(): string` returns `free|free_plus|pro|pro_pending` from `emsfb_pro` (G6). Every
   server-side gate in F02–F17 should use `efb_plan_at_least_efb('free_plus'|'pro')` instead of
-  `is_efb_pro(1)`, which cannot tell Pro from Free Plus.
+  `is_efb_pro(1)`, which cannot tell Pro from Free Plus. **Shipped** (`includes/builder-api-functions-efb.php`,
+  AutoPilot B3) with F18's `efb_current_package_efb()`, `efb_feature_registry_efb()`,
+  `efb_feature_required_package_efb()`, `efb_feature_available_efb()`; `efb_plan_at_least_efb()`
+  also accepts EFB's numbers (3 = Free Plus, 1 = Pro). All read the capability registry.
 - `form.validate` and `form.create/update` return `efb_api_plan_required` (blocking) when a row
   uses a type or a gated key the current plan does not allow, with `data: {feature_id, required_plan,
   path, upgrade:{…same object as manifest.plan.upgrade…}}`. Option `allow_plan_downgrade_keys: true`
@@ -452,10 +464,16 @@ JS (visitor page): `window.EFBForm` (§8.2), `window.EFBCalendar` (F06), `window
 `efb:step-change`, `efb:date-change` (F06), `efb:verify-state` (F02), `efb:submit-result {ok, code,
 field_id}`.
 
-JS (builder, for SitePilot Phase 2 `efb-copilot.js`, T11): `window.EFBBuilder` with
-`getState()`, `applyPatch(ops)` (the §5.2 ops; one F15 history entry per patch, so Ctrl+Z undoes
-the AI change), `validate()` (calls `admin/forms/validate`), `on('change')`. The copilot must not
-assign `valj_efb` or call internal builder functions; they will change with the redesign
+JS (builder, for SitePilot's in-editor assistant, T11): **`window.efbBuilderApi`** (shipped, API
+version 1; the AutoPilot brief's names win over the `window.EFBBuilder` proposed here earlier):
+`getForm()` (was `getState()`), `setForm(rows)`, `insertItems(rows, {after|before|step})`,
+`removeItems(ids)`, `newItems(paletteId, opts)`, `setFormType(type)`, `render()` (Promise),
+`refreshSettingsPanel()`, `openSettings(id)`, `closeSettings()`, and the DOM events
+`efb:form-changed {source:'user'|'api'}` (was `on('change')`) and `efb:canvas-rendered`. Contract:
+`docs/autopilot-integration.md` (B1, B2, B4). Still open from the earlier proposal: `applyPatch(ops)`
+with the §5.2 ops and one F15 history entry per call, and `validate()` against `admin/forms/validate`;
+when F15 adds history, `efbBuilderApi` calls `begin/commit` around each API change. The copilot must
+not assign `valj_efb` or call internal builder functions; they will change with the redesign
 (`_workspace/easy-form-builder-form-builder/docs/REDESIGN_HANDOFF.md`).
 
 ---
@@ -991,7 +1009,8 @@ for API reads. Conflict C1 on `entry_status`. No API write to entries in v1.
 `normalize_import_rows_efb()`, `remap_import_ids_efb()`, the export envelope (the create body is one
 envelope entry), revisions with `note` = actor, `struct_hash` = `base_hash`. Must add: revision
 writing moves from `update_form_id_Emsfb()` to the shared pipeline (§7.1) so API updates are
-revisioned; the history module exposes `EFBBuilder.applyPatch()` for SitePilot's in-editor copilot.
+revisioned; the history module wraps `window.efbBuilderApi` (shipped, §12): one history entry per
+API call, and `applyPatch()` is added there, not as a second `EFBBuilder` object.
 
 **F16 accessibility and inline validation.** Create: row-0 `val_timing`, `err_summary`,
 `warn_unsaved`; field `autocomplete`. Must add: new-form defaults also applied by
@@ -1005,7 +1024,9 @@ revisioned; the history module exposes `EFBBuilder.applyPatch()` for SitePilot's
 agent emits all parts with one `cmp_grp`; validate checks a group is complete; geo search REST is
 visitor-only (not for agents).
 
-**F18 upgrade prompt.** See §4.4. Must add: a stable `feature_id` for each of the audited call
+**F18 upgrade prompt.** See §4.4. The feature registry is shipped as the capability registry
+(`efb_var.capabilities`, `capabilities_efb()`, keys `field:*`, `setting:*`, `addon:*`, `limit:*`,
+§12); F18's dialog reads it instead of adding a second table. Must add: a stable `feature_id` for each of the audited call
 sites (same ids as `manifest.features.*` and `gated_keys` where they overlap), a deep link
 `admin.php?page=Emsfb&efb_upgrade=<feature_id>[&plan=pro]` that opens the new dialog, the cost text
 for both options exposed in `manifest.plan.upgrade` (Free Plus: the public "Powered by" credit with
@@ -1022,13 +1043,13 @@ remains a human click in EFB admin; it must not be callable through the connecto
 |---|---|---|---|
 | C1 | F12 vs F14 vs F11 | `emsfb_msg_.entry_status` is `varchar(10)` with `''`/`'spam'` in F12, `TINYINT` 0 active / 1 spam / 2 trash in F14, and F11 seeds counts with `NOT IN ('spam','trash')` | Pick one storage before either ships (F14's TINYINT plus F12 using `1`, and F11 `entry_status = 0`). The API always exposes `active|spam|trash` |
 | C2 | F05 vs F09 | Key `group`: optgroup label on option rows (F05 phase 2) and repeater membership on field rows (F09) | Rename F05's to `optgroup` before release |
-| C3 | F05, F07, F09, F11, F17 (and others) | "Pro" gates written as `is_efb_pro(1)`, which is also true on Free Plus | Add `efb_plan_efb()`/`efb_plan_at_least_efb()` and use it in every server gate; manifest reports the real tier |
+| C3 | F05, F07, F09, F11, F17 (and others) | "Pro" gates written as `is_efb_pro(1)`, which is also true on Free Plus | Add `efb_plan_efb()`/`efb_plan_at_least_efb()` and use it in every server gate; manifest reports the real tier. **Helpers shipped (§12); gates still to migrate per task** |
 | C4 | F02 vs F03/F06/F07/F09/F10 | After downgrade: F02 refuses submissions; F03 ignores rules; F06 ignores keys on render; F07 clamps; F09 locks the group; F10 always enforces | Keep each spec's choice but report it as `downgrade` per feature in the manifest so the assistant can warn |
 | C5 | SitePilot T1 vs T3 vs EFB | `min_plugin_version` 4.0.0 vs shipped gate 4.1+ vs real 4.3.1; the schema gate checks columns that F-specs extend (F12/F13/F14 add columns to `emsfb_msg_`, F15 adds a table) | SitePilot gates on `efb_api_manifest()`; the column check, if kept for the legacy path, must check only `emsfb_form` columns it writes and tolerate extra columns |
 | C6 | SitePilot T4 vs EFB G2 | Direct `emsfb_form` insert bypasses sanitiser, add-on table split, cache, revisions and F-spec save side effects | Legacy fallback only for EFB without the API: call `get_efbFunction()->sanitize_obj_msg_efb()` (public today), escape quotes like `add_form_structure`, set `form_created_by`, MVP field subset only, no updates. With the API: never write tables |
 | C7 | SitePilot SP-WP08 vs G7 | "Create as draft" has no effect in EFB | §5.3 (`status` honoured by render and submit, with F11's gate) |
 | C8 | SitePilot T6 vs G8 | `phone` type | Map to `tel` (+ F01 preset); `mobile` only when available |
-| C9 | SitePilot T10/G18 | Private copy of EFB capability catalog and form model | Replace with `efb_api_field_types()` and `efb_api_mask_catalog()` |
+| C9 | SitePilot T10/G18 | Private copy of EFB capability catalog and form model | Replace with `capabilities_efb()` / `efb_var.capabilities`, `field_templates_efb()` / `efbBuilderApi.newItems()` (shipped, §12) and `efb_api_mask_catalog()` |
 | C10 | SitePilot T10 vs G15 | `EfbPlanManager`/`EfbLicense` near `emsfb_pro`; EFB's plan switch AJAX accepts the `Emsfb` capability | SitePilot reads `manifest.plan` only; EFB tightens `efb_save_plan_selection` to `manage_options` (F18) |
 | C11 | calendar contract §7.2 vs F10/F11 | The public schema was specified as cacheable (`public, max-age`) but must vary by viewer once `vis_mode`/`allowed_roles` exist | §8.1: `private, no-store` when any per-viewer rule is present |
 | C12 | calendar contract §6.1 "published form" | EFB has no published state | "published" = `status = 1` after §5.3 |
@@ -1054,3 +1075,25 @@ remains a human click in EFB admin; it must not be callable through the connecto
 Tests to add with each step: builder-save vs API byte equality; unknown-key round trip through a
 patch; plan gating per tier (1/2/3/0/-1); secret-key refusal; idempotent replay; `base_hash`
 conflict; schema per viewer (`vis_mode`, `allowed_roles`, draft); entries redaction by `prv_pii`.
+
+---
+
+## 12. Shipped for AI Site Assistant AutoPilot (API version 1)
+
+Implemented from `docs/autopilot/EFB_INTEGRATION_PROMPT_FA.md`; details, tests and usage in
+[`docs/autopilot-integration.md`](../../autopilot-integration.md). Where that brief and this proposal
+named the same thing differently, the brief's name was used (AutoPilot is the consumer).
+
+| Proposed here | Shipped as |
+|---|---|
+| `EMSFB_CONNECTOR_API = 1` | `EMSFB_API_VERSION = 1`, `efb_var.api_version` |
+| `window.EFBBuilder` (`getState`, `applyPatch`, `validate`, `on('change')`) | `window.efbBuilderApi` (`getForm`, `setForm`, `insertItems`, `removeItems`, `newItems`, `setFormType`, `render`, `refreshSettingsPanel`, `openSettings`, `closeSettings`; events `efb:form-changed`, `efb:canvas-rendered`). `applyPatch`/`validate` not yet |
+| `efb_api_field_types()`, PHP field registry | `get_efbFunction()->field_templates_efb($type)` (rows, generated from the builder's own code) + `capabilities_efb()['features']['field:<type>']` (plan, add-on, available now) |
+| `efb_plan_efb()`, `efb_plan_at_least_efb()`, F18 `efb_feature_*` | shipped with these names, one registry behind them |
+| `manifest.plan` / `features` | `capabilities_efb()` (`plan`, `features`, `addons`, `payment_keys` as booleans, `deprecated_keys`) |
+| validate for logic rules | `efb_logic_validate_rules($form)` (codes in `docs/logic-rules-schema.md`) |
+
+Server-side for every gateway that uses `fun_validation_pay_elements_efb()`: a price field computed by
+a logic rule is priced by the server (`Builder_Api::apply_server_prices()`). Not shipped yet: the
+REST `admin/*` routes, `form.create/update` with patches and `base_hash`, the shared save pipeline
+with `efb_form_saved` hooks, draft status, the entries API.

@@ -27,9 +27,10 @@ php tests/test-ap-b7-computed-price.php
 node tests/test-ap-b7-total-display.js
 node tests/test-ap-b8-addon-installed.js
 node tests/test-ap-b9-deprecated-keys.js
+node tests/test-ap-contract.js
 ```
 
-(The full list is in [Tests](#tests) at the end.)
+(The results are in [Tests](#tests) at the end; the add-on patches in [Add-on changes needed](#add-on-changes-needed-vendores-efb).)
 
 ---
 
@@ -527,6 +528,162 @@ Events on `document`:
   check with `efb_logic_validate_rules()`). Stripe then charges exactly the computed amount. Tell the
   admin that PayPal and Persia Pay need the add-on updates listed below before they do the same.
 
+
+### B8. Installing an add-on without losing the page
+
+- **Before.** `add_addons_Emsfb` answered `{r:'done', value, new}` where `new` was the whole settings
+  JSON **including the Stripe/PayPal secret keys, the licence code and the reCAPTCHA secret**; the
+  page then always called `location.reload()`.
+- **Now.**
+  - Server: `Builder_Api::addon_install_response()` builds the answer:
+    `{success, r:'done', value:'add_addons_Emsfb', addon, addons:{AdnXX:0|1,…}, capabilities:{…B3…},
+    requires_reload:true, new}`. `new` is kept for compatibility but without secrets
+    (`Builder_Api::redact_settings()`). The error answers (`addon_plan_required`,
+    `required_package`) are unchanged.
+  - Browser (`actionSendAddons_efb()`, `admin-efb.js`): patches `efb_var.addons`,
+    `efb_var.setting` and `efb_var.capabilities` with `efb_var_patch_efb()`, then dispatches a
+    **cancelable** `efb:addon-installed` with `detail {addon, addons, requires_reload}`. The page
+    reloads only when no listener called `preventDefault()`.
+  - Loading the add-on's scripts in place was not done: each add-on enqueues its own scripts and
+    localizations in PHP on the next page load (e.g. the logic builder in `class-Emsfb-create.php`),
+    so a partial in-page load would leave a half-initialised add-on. A listener that cancels the
+    reload should reload when the work is saved.
+- **Test.** `node tests/test-ap-b8-addon-installed.js`: the server answer (flags, registry, no
+  secret, the handler uses it) and, in the real builder scripts, the patched `efb_var`, the event,
+  no reload when cancelled and a reload otherwise. 8 passed. Existing add-on tests still pass
+  (install plan gate 27, recovery flow 7, require guards 75).
+- **AutoPilot.** After its own `add_addons_Emsfb` call, read `data.addons` / `data.capabilities`
+  instead of reloading to find out; inside EFB pages listen to `efb:addon-installed`, call
+  `event.preventDefault()` while the builder has unsaved changes, ask the admin to save, then reload.
+
+### B9. Dead keys `private` and `email_temp` (documentation only)
+
+- **Verified.** No shipped JS or PHP reads `valj_efb[0].private` or `valj_efb[0].email_temp`
+  (78 files under `includes/` and `public/` scanned). They are still written by
+  `creator_form_builder_Efb()` (`val-efb.js`), the templates (`admin-efb.js`,
+  `forms-efb.js`) and the CF7 importer. A private form (only logged-in visitors) is `stateForm`
+  (enforced at render, in `forms/session/prepare` and on submit); the notification email template
+  is the global setting `emailTemp`.
+- **Done.** Not removed (old forms carry them). Marked deprecated in the code
+  (`creator_form_builder_Efb()`), in the registry (`capabilities.deprecated_keys`, B3) and here.
+- **Test.** `node tests/test-ap-b9-deprecated-keys.js` fails if a reader appears (then the key is no
+  longer dead and this note must change). 3 passed.
+- **AutoPilot.** Write `stateForm: 1` for "make the form private"; do not write `private` or
+  `email_temp`.
+
+---
+
+## Part C: the contract is kept
+
+Everything Part C of the brief lists still works as before (`node tests/test-ap-contract.js`, 16
+static checks): `valj_efb`, `sessionStorage['valj_efb']` (still read by `editFormEfb()`, which now
+also returns a Promise), `editFormEfb()`, `addNewElement()`, `show_setting_window_efb(idset)`
+(without its new optional second argument it toggles exactly as before), `sideMenuEfb(0)`,
+`window.efbOpenSettingIdEfb`, `#sideBoxEfb.show`, `saveFormEfb()`, `pro_show_efb(n)`,
+`efb_var.addons` / `pro` / `text`, `form_type_emsFormBuilder`, `fun_check_link_state_efb`;
+`add_addons_Emsfb` (still `data.r == 'done'`, `addon_plan_required`, `required_package`; the
+answer gained keys, and its legacy `new` key lost its secrets) and `remove_id_Emsfb`; the options
+`emsfb_pro` and `emsfb_settings`; the form keys (`rePage` with `@efb@` is still stored and read);
+the fixed login ids; the shortcode. Old forms open, save and render unchanged: new keys are optional,
+`amount`/`step` are only converted in memory, the stored JSON shape is the same.
+
+Behaviour changes AutoPilot may notice: Save of a login/register form without its fixed fields is
+refused (`auth_fields_missing`); a save with SMS/Telegram on and the add-on missing succeeds with
+`warnings` instead of failing; the register option is enabled.
+
+## Summary
+
+**Done** (one commit each): A1–A7, B1–B9, `EMSFB_API_VERSION = 1` / `efb_var.api_version = 1`
+(with B3), the documentation alignment (SitePilot contract §12, F15 and F18 SitePilot sections,
+README row AP), the changelog entry "برای یکپارچگی با AutoPilot" in `readme.txt`.
+
+**Already existed, AutoPilot only has to use it:**
+
+- the conditional-logic engine with server-side `calculate`, `set_value`, `copy_value`,
+  `block_submit`, `end_form`, query/user/step sources, date and payment operators, and
+  `notification_rules` / `confirmation_rules` / `webhook_rules` (documented in
+  `docs/logic-rules-schema.md`);
+- server recomputation of option prices for gateways (`fun_validation_pay_elements_efb()`);
+- the redirect `@efb@` decoding on the server (`string_to_url()`);
+- `efb_var_patch_efb()` for in-page plan changes, which the registry reads live;
+- the SMS add-on's own storage of texts and numbers per form.
+
+**Intentionally not done:**
+
+- Storing `rePage` as a plain URL (A3): Part C lists the `@efb@` shape as relied upon; plain URLs
+  are accepted on read instead.
+- The F18 dialog redesign (A4/B3): only the dialog states were corrected and the registry built; the
+  dialog itself is F18's task.
+- Loading an add-on's scripts in place after install (B8): each add-on enqueues its scripts and data
+  in PHP on page load; a partial in-page load would leave it half initialised. The reload can be
+  postponed by the listener instead.
+- Auto-enabling the form's SMS on the server when only a mobile field asks for it (B5): that would
+  also start admin SMS without the admin's click; the server warns, the builder switch enables both.
+- Changes inside the add-ons (PayPal, Persia Pay, Conditional Logic runtime, SMS): they live in
+  `vendores-efb`; the exact patches are below and core degrades safely without them.
+- `applyPatch()` / `validate()` on the builder API and history (undo) integration: F15's work, to be
+  built on `efbBuilderApi`.
+- The other 68 locales and the compiled `.mo` / `.l10n.php` (see Translations).
+
+## Translations
+
+New phrases in `efbFunction::text_efb()` (`includes/functions.php`, placed after `msg_adons`), with
+Persian added to `languages/easy-form-builder-fa_IR.po`:
+`smsOffAddonMissing`, `telegramOffAddonMissing` (A5), `authFieldsMissing`, `authFieldsRemoveQ` (B4),
+`smsOnForForm`, `smsAdminPhoneInvalid`, `smsFieldWithoutForm` (B5).
+
+States: implemented yes; tested yes (the tests use the keys); pack built **no**: the repository tools
+(`tests/core-i18n/extract.php`, `build.php`) need a WordPress checkout (`pomo`) and the WhiteStudio
+storage, and `msgfmt` is not installed here, so `languages/easy-form-builder-fa_IR.mo` and
+`.l10n.php` were not regenerated; published no. Next: `php tests/core-i18n/extract.php`, then the
+`efb-core-i18n-translate` skill for the other locales (delta only), then `build.php --only=fa_IR,...`.
+
+## Tests
+
+All new tests, with the results of the final run (2026-11-11, PHP 8.3, Node 22, Chromium headless):
+
+| Test | Result |
+|---|---|
+| `node tests/test-ap-a1-geo-link-order.js` | 25 passed |
+| `node tests/test-ap-a2-order-type.js` | 15 passed |
+| `node tests/test-ap-a3-redirect-url.js` | 20 passed |
+| `node tests/test-ap-a4-plan-messages.js` | 16 passed |
+| `php tests/test-ap-a5-save-without-sms-addon.php` | 9 passed |
+| `node tests/test-ap-a6-intltelinput-late.js` | 8 passed |
+| `node tests/test-ap-a7-settings-notfound.js` | 13 passed |
+| `node tests/test-ap-b1-builder-api.js` | 22 passed |
+| `node tests/test-ap-b2-field-templates.js` | 30 passed |
+| `node tests/test-ap-b3-capabilities.js` | 49 passed |
+| `node tests/test-ap-b4-login-register.js` | 11 passed |
+| `php tests/test-ap-b4-auth-save.php` | 8 passed |
+| `node tests/test-ap-b5-sms-filler.js` | 6 passed |
+| `php tests/test-ap-b5-sms-save.php` | 7 passed |
+| `php tests/test-ap-b6-logic-validate.php` | 33 passed (with the add-on validator) |
+| `php tests/test-ap-b7-computed-price.php` | 10 passed (with the add-on validator) |
+| `node tests/test-ap-b7-total-display.js` | 4 passed |
+| `node tests/test-ap-b8-addon-installed.js` | 8 passed |
+| `node tests/test-ap-b9-deprecated-keys.js` | 3 passed |
+| `node tests/test-ap-contract.js` | 16 passed |
+
+Total: 354 checks, 0 failed. Helpers: `tests/ap-builder-harness.js` (the real builder scripts in
+Chromium with WordPress-shaped globals), `tests/ap-admin-stubs.php` (WordPress stubs for the admin
+handlers), `tests/build-field-templates.js` (regenerates `includes/data/field-templates-efb.json`).
+
+B6 and B7 use the real `Emsfb_Logic_Validator`: they look in `vendor/logic` (git-ignored; a symlink
+to the add-on repository works), `EFB_LOGIC_VALIDATOR=<file>`, or `/home/user/vendores-efb`, and
+skip those checks when none is found.
+
+Existing tests run again after the changes, all passing: masks builder 41, masks browser 30, masks
+render 41, masks catalog AJAX 28, masks submit 846, masks save round trip 47, plan selection 23,
+conditional-logic plan gating 53, validator 92, payment 42, add-on install plan gate 27, add-on
+settings 16, add-on recovery flow 7, add-on require guards 75, password placeholder 4, recorder
+render 34, JSON preservation (PHP 30, JS 43), legacy JSON 43, multiform validation 27, response
+viewer escaping 46, final-step loading 17. Not runnable here for reasons outside this work:
+`test-conditional-logic-save-roundtrip.php` (hard-coded `c:/xampp` path),
+`test-response-viewer-hostile-rows-browser.js` and `test-onboarding-wizard-browser.js` (launch a
+Chromium build that is not installed, without the harness fallback), tests that need WordPress
+(`[SKIP]`).
+
 ---
 
 ## Add-on changes needed (vendores-efb)
@@ -634,45 +791,3 @@ diff -ru a/smssended/smsefb.php b/smssended/smsefb.php
              return $result[0]->id;
          }
 ```
-
-### B8. Installing an add-on without losing the page
-
-- **Before.** `add_addons_Emsfb` answered `{r:'done', value, new}` where `new` was the whole settings
-  JSON **including the Stripe/PayPal secret keys, the licence code and the reCAPTCHA secret**; the
-  page then always called `location.reload()`.
-- **Now.**
-  - Server: `Builder_Api::addon_install_response()` builds the answer:
-    `{success, r:'done', value:'add_addons_Emsfb', addon, addons:{AdnXX:0|1,…}, capabilities:{…B3…},
-    requires_reload:true, new}`. `new` is kept for compatibility but without secrets
-    (`Builder_Api::redact_settings()`). The error answers (`addon_plan_required`,
-    `required_package`) are unchanged.
-  - Browser (`actionSendAddons_efb()`, `admin-efb.js`): patches `efb_var.addons`,
-    `efb_var.setting` and `efb_var.capabilities` with `efb_var_patch_efb()`, then dispatches a
-    **cancelable** `efb:addon-installed` with `detail {addon, addons, requires_reload}`. The page
-    reloads only when no listener called `preventDefault()`.
-  - Loading the add-on's scripts in place was not done: each add-on enqueues its own scripts and
-    localizations in PHP on the next page load (e.g. the logic builder in `class-Emsfb-create.php`),
-    so a partial in-page load would leave a half-initialised add-on. A listener that cancels the
-    reload should reload when the work is saved.
-- **Test.** `node tests/test-ap-b8-addon-installed.js`: the server answer (flags, registry, no
-  secret, the handler uses it) and, in the real builder scripts, the patched `efb_var`, the event,
-  no reload when cancelled and a reload otherwise. 8 passed. Existing add-on tests still pass
-  (install plan gate 27, recovery flow 7, require guards 75).
-- **AutoPilot.** After its own `add_addons_Emsfb` call, read `data.addons` / `data.capabilities`
-  instead of reloading to find out; inside EFB pages listen to `efb:addon-installed`, call
-  `event.preventDefault()` while the builder has unsaved changes, ask the admin to save, then reload.
-
-### B9. Dead keys `private` and `email_temp` (documentation only)
-
-- **Verified.** No shipped JS or PHP reads `valj_efb[0].private` or `valj_efb[0].email_temp`
-  (78 files under `includes/` and `public/` scanned). They are still written by
-  `creator_form_builder_Efb()` (`val-efb.js`), the templates (`admin-efb.js`,
-  `forms-efb.js`) and the CF7 importer. A private form (only logged-in visitors) is `stateForm`
-  (enforced at render, in `forms/session/prepare` and on submit); the notification email template
-  is the global setting `emailTemp`.
-- **Done.** Not removed (old forms carry them). Marked deprecated in the code
-  (`creator_form_builder_Efb()`), in the registry (`capabilities.deprecated_keys`, B3) and here.
-- **Test.** `node tests/test-ap-b9-deprecated-keys.js` fails if a reader appears (then the key is no
-  longer dead and this note must change). 3 passed.
-- **AutoPilot.** Write `stateForm: 1` for "make the form private"; do not write `private` or
-  `email_temp`.

@@ -471,6 +471,22 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 
 == Changelog ==
 
+= Unreleased =
+
+* برای یکپارچگی با AutoPilot (for the AI Site Assistant AutoPilot integration, API version 1):
+* New: A builder API for assistants and integrations, window.efbBuilderApi: read, replace and insert fields, field templates without the canvas, a render that resolves when the canvas is really drawn, refresh of the open settings panel, and events for every change (efb:form-changed, efb:canvas-rendered). PHP: get_efbFunction()->field_templates_efb() and capabilities_efb(), efb_logic_validate_rules(), efb_plan_efb() and efb_plan_at_least_efb(). See docs/autopilot-integration.md.
+* New: One plan and add-on registry (efb_var.capabilities) used by the builder's own locks, so a lock and its upgrade message always name the same plan.
+* New: Choosing "Login" or "Register" as the form type adds the fields those forms need; Register is available again; Save refuses a login form without them.
+* Improved: The SMS switch of a mobile field also turns on the form's SMS, fills the default messages and checks admin phone numbers on the server.
+* Improved: A price field computed by a conditional-logic rule (for example $5 per guest) is shown in the total and charged as the server computes it.
+* Improved: Installing an add-on updates the page without an immediate reload when an integration asks for it; the install answer no longer contains secret keys.
+* Fixed: The state list stopped following the country after a form was saved.
+* Fixed: A redirect address was shown with one slash and could switch the form back to "show a message" when saved again.
+* Fixed: The redirect, sender email, weekly report, colours and reply attachments showed "Pro only" although Free Plus includes them; SMS and Telegram showed two messages.
+* Fixed: Saving a form with SMS or Telegram switched on failed when that add-on was not active; it is now saved with the notification off and a warning.
+* Fixed: "window.intlTelInput is not a function" on pages with a mobile field behind a cache plugin that delays scripts.
+* Fixed: The settings screen could store "NotFoundEl" as a value.
+
 = 4.3.1 =
 
 * Improved: Forms use your theme's font; typed Jalali and Hijri dates are checked; offline answers come back after a reload; fixes for Stripe, PayPal, ZarinPal, SMS, Telegram, Google Sheets, Conditional Logic, Auto-Populate and the date pickers.
