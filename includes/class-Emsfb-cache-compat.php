@@ -219,6 +219,22 @@ class Cache_Compat {
         return array_values(array_unique($urls));
     }
 
+    /**
+     * F18: purge every page marked as holding a form, e.g. after a plan change, so a cached
+     * copy does not keep the "field unavailable" message or miss the Free Plus credit.
+     * Returns the number of pages purged. Failures of a cache adapter are swallowed by invoke().
+     */
+    public static function purge_marked_pages() {
+        $ids = self::page_ids();
+        $blog = get_current_blog_id();
+        foreach ($ids as $id) {
+            $url = isset(self::$canonical[$blog][$id]) ? self::$canonical[$blog][$id] : '';
+            self::purge($id, $url !== '' ? array($url) : array());
+        }
+        if ($ids) self::refresh_config();
+        return count($ids);
+    }
+
     public static function rocket_paths($paths) {
         $paths = (array) $paths;
         foreach (self::urls() as $url) {

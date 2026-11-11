@@ -4151,7 +4151,9 @@ function admin_notices_efb () {
         $efbFunction = get_efbFunction();
         $text = ["error403","somethingWentWrongPleaseRefresh"];
         $lang= $efbFunction->text_efb($text);
-        $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
+        // F18 §8: the plan is a site-wide choice (Free Plus adds a public credit). Same permission as
+        // the plugin's admin screens, filter efb_can_change_plan; never from cron or REST.
+        $currrent_user_can = function_exists('efb_can_change_plan_efb') ? efb_can_change_plan_efb() : $efbFunction->user_permission_efb_admin_dashboard();
 
         $nonce = isset($_POST['nonce']) ? sanitize_text_field($_POST['nonce']) : '';
         if (!wp_verify_nonce($nonce, 'wp_rest') || !$currrent_user_can) {
@@ -4182,6 +4184,22 @@ function admin_notices_efb () {
         if (!in_array($selected_plan, array('free', 'free_plus', 'pro'))) {
             wp_send_json_error(array(
                 'message' => __('Invalid plan type.', 'easy-form-builder')
+            ), 400);
+            return;
+        }
+
+        /*
+         * F18 §8: where the request comes from. From the upgrade dialog, Free Plus is only accepted
+         * with credit_ack: the dialog shows the public-credit disclosure next to the button, and
+         * credit_ack says the request came from that button (a person's click).
+         */
+        $source = isset($plan_data['source']) && in_array($plan_data['source'], array('upgrade_prompt', 'setup', 'settings'), true) ? $plan_data['source'] : 'setup';
+        $feature = isset($plan_data['feature']) && is_string($plan_data['feature']) ? substr(preg_replace('/[^a-zA-Z0-9_:\-]/', '', $plan_data['feature']), 0, 64) : '';
+        $credit_ack = isset($plan_data['credit_ack']) && in_array($plan_data['credit_ack'], array(true, 1, '1', 'true'), true);
+        if ($selected_plan === 'free_plus' && $source === 'upgrade_prompt' && !$credit_ack) {
+            wp_send_json_error(array(
+                'code' => 'credit_ack_required',
+                'message' => __('Free Plus shows a credit link on your pages. Please activate it from the button that explains this.', 'easy-form-builder'),
             ), 400);
             return;
         }
@@ -4229,6 +4247,7 @@ function admin_notices_efb () {
                 'package_type' => $current_package_type,
                 'plan_changed' => false,
                 'unchanged' => true,
+                'previous_package_type' => $current_package_type,
                 'onboarding_pending' => $onboarding_pending,
             ));
         }
@@ -4324,6 +4343,25 @@ function admin_notices_efb () {
             $settings->package_type = $package_type_efb;
             $email = isset($settings->emailSupporter) ? $settings->emailSupporter : '';
             $efbFunction->set_setting_Emsfb($settings, $email);
+
+            // F18 §7: forms render from the plan on every request; cached copies are refreshed.
+            $this->clear_form_cache_efb();
+            if (class_exists('\Emsfb\Cache_Compat') && method_exists('\Emsfb\Cache_Compat', 'purge_marked_pages')) {
+                \Emsfb\Cache_Compat::purge_marked_pages();
+            }
+            /**
+             * F18 / SitePilot: the plan changed (after the option and settings were written).
+             * @param int   $old     0|1|2|3 before (-1/10 read as 2)
+             * @param int   $new     0|1|2|3 now
+             * @param array $context source (upgrade_prompt|setup|settings), feature, user_id
+             */
+            if ($package_type_efb !== $current_package_type || !$has_saved_plan) {
+                do_action('efb_plan_changed', $current_package_type, $package_type_efb, array(
+                    'source' => $source,
+                    'feature' => $feature,
+                    'user_id' => function_exists('get_current_user_id') ? get_current_user_id() : 0,
+                ));
+            }
         }
 
         // The email card is shown immediately in the existing first-run
@@ -4343,6 +4381,8 @@ function admin_notices_efb () {
             'timestamp' => $timestamp,
             'saved_at' => current_time('mysql'),
             'package_type' => $package_type_efb,
+            'previous_package_type' => $current_package_type,
+            'source' => $source,
             'plan_changed' => $plan_changed,
             'activation_code_removed' => $removes_activation_code,
             'disabled_addons' => $disabled_addons,

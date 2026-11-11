@@ -61,6 +61,21 @@ if (!function_exists('efb_feature_available_efb')) {
 		return !empty($c['addons'][$e['addon']]);
 	}
 }
+if (!function_exists('efb_can_change_plan_efb')) {
+	/**
+	 * F18 §8: may the current user change the site's plan (which can add the public Free Plus
+	 * credit)? The plugin's own admin permission (manage_options or the Emsfb capability), filter
+	 * efb_can_change_plan. Read by efb_save_plan_selection and shown to the dialog as
+	 * efb_var.can_change_plan. Never true for cron or REST requests (no human click there).
+	 */
+	function efb_can_change_plan_efb() {
+		if ((function_exists('wp_doing_cron') && wp_doing_cron()) || (defined('REST_REQUEST') && REST_REQUEST)) return false;
+		$fn = function_exists('get_efbFunction') ? get_efbFunction() : null;
+		$ok = $fn && method_exists($fn, 'user_permission_efb_admin_dashboard') ? (bool) $fn->user_permission_efb_admin_dashboard()
+			: (function_exists('current_user_can') && current_user_can('manage_options'));
+		return function_exists('apply_filters') ? (bool) apply_filters('efb_can_change_plan', $ok) : $ok;
+	}
+}
 if (!function_exists('efb_logic_validate_rules')) {
 	/**
 	 * B6 (AutoPilot): check conditional-logic rules before writing them. Errors carry a stable

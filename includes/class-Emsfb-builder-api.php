@@ -339,6 +339,8 @@ class Builder_Api {
 		if (!is_array($vars)) return $vars;
 		$vars['api_version'] = defined('EMSFB_API_VERSION') ? EMSFB_API_VERSION : 1;
 		$vars['capabilities'] = self::capabilities();
+		// F18: the upgrade dialog shows "ask an administrator" (S7) when this is false.
+		$vars['can_change_plan'] = function_exists('efb_can_change_plan_efb') ? efb_can_change_plan_efb() : true;
 		return $vars;
 	}
 

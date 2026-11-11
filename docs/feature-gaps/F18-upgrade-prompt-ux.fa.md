@@ -1,4 +1,4 @@
-وضعیت: در حال پیاده‌سازی (A و B انجام شد) · اولویت: P0 · تلاش: M · وابستگی: — (F16 برای الگوی فوکوس دیالوگ؛ هم‌زمان با کار ماسک F01 فایل‌های JS/PHP مشترک را ویرایش نکنید مگر پس از ادغام آن)
+وضعیت: در حال پیاده‌سازی (A، B و C انجام شد) · اولویت: P0 · تلاش: M · وابستگی: — (F16 برای الگوی فوکوس دیالوگ؛ هم‌زمان با کار ماسک F01 فایل‌های JS/PHP مشترک را ویرایش نکنید مگر پس از ادغام آن)
 
 # F18 — پنجرهٔ ارتقا: فعال‌سازی درجای Free Plus و خرید Pro
 
@@ -15,7 +15,7 @@
 3. عنوان دیالوگ نام ویژگی را دارد («فیلد امضا در Free Plus رایگان است»). اقدام اصلی برای ویژگی‌های Free Plus دکمهٔ **«فعال‌سازی Free Plus»** است که همان‌جا، بدون رفتن به صفحهٔ راهنما، پلن را عوض می‌کند. اقدام دوم «خرید Pro — بدون نوشتهٔ معرفی» است.
 4. افشای نوشتهٔ «Powered by Easy Form Builder» **درون همان دیالوگ و درست بالای دکمه** می‌آید، همراه یک پیش‌نمایش بازشونده. دیالوگ دومی باز نمی‌شود. این رفتار با رهنمود ۱۰ وردپرس (اعتبار و پیوند فقط با رضایت صریح) سازگار است.
 5. پس از فعال‌سازی، صفحه **بدون بارگذاری مجدد** به حالتی می‌رسد که بارگذاری مجدد می‌ساخت. یک گذرگاه رویداد واحد (`efb_on_plan_changed_efb`) همهٔ UIهای قفل‌دار را دوباره می‌سازد. سپس کاری که کاربر خواسته بود (افزودن فیلد، روشن کردن toggle، افزودن مرحله) خودکار انجام می‌شود و فوکوس به همان‌جا می‌رود.
-6. تغییر پلن فقط برای مدیر (`manage_options`، با فیلتر) و با nonce مجاز است. فعال‌سازی Free Plus از این مسیر پارامتر `credit_ack` را الزامی می‌کند. هیچ عامل هوش مصنوعی (SitePilot) نمی‌تواند بدون کلیک انسان آن را فعال کند (§۱۴).
+6. تغییر پلن فقط برای کاربری با دسترسی مدیریت افزونه (`manage_options` یا قابلیت `Emsfb`، با فیلتر `efb_can_change_plan`؛ تصمیم مالک، پرسش باز ۲) و با nonce مجاز است. فعال‌سازی Free Plus از این مسیر پارامتر `credit_ack` را الزامی می‌کند. هیچ عامل هوش مصنوعی (SitePilot) نمی‌تواند بدون کلیک انسان آن را فعال کند (§۱۴).
 7. برای SitePilot یک API فقط‌خواندنی PHP (`efb_current_package_efb()`، `efb_feature_required_package_efb()`) و رویداد JS `efb:plan-changed` تعریف می‌شود.
 
 ## ۱. هدف
@@ -314,9 +314,9 @@ function efb_plan_subscribe_efb(name, fn) {}           // add-onها (منطق �
 ## ۸. مسیر AJAX
 
 همان `efb_save_plan_selection` (`class-Emsfb-admin.php:4083`) با این تغییرها می‌ماند و endpoint تازه‌ای ساخته نمی‌شود (playbook §5.2):
-- دسترسی: `efb_can_change_plan_efb()` = `current_user_can('manage_options')`، با فیلتر `efb_can_change_plan`. این تابع جای `user_permission_efb_admin_dashboard()` را **فقط در این handler** می‌گیرد (پرسش باز ۲). JS مقدار `efb_var.can_change_plan` را از `efb_admin_localize_vars` می‌گیرد و S7 را انتخاب می‌کند.
+- دسترسی: `efb_can_change_plan_efb()` = `user_permission_efb_admin_dashboard()` (یعنی `manage_options` **یا** قابلیت `Emsfb`؛ تصمیم مالک در پرسش باز ۲)، با فیلتر `efb_can_change_plan`، و همیشه false در `wp_doing_cron()` و درخواست REST. این تابع در `includes/builder-api-functions-efb.php` است و در این handler به کار می‌رود. JS مقدار `efb_var.can_change_plan` را از `efb_admin_localize_vars` می‌گیرد و S7 را انتخاب می‌کند.
 - پارامترهای تازه در `plan_data`: `source` (`upgrade_prompt`|`setup`|`settings`)، `feature` (اختیاری؛ فقط با `sanitize_key` لاگ می‌شود)، `credit_ack`. اگر `selected_plan === 'free_plus'` و `source === 'upgrade_prompt'` و `credit_ack` درست نباشد → 400 با `code: 'credit_ack_required'`.
-- پاسخ: `package_type` و `previous_package_type`. پس از نوشتن، `do_action('efb_plan_changed', $new, $old, $context)` اجرا و کش پاک می‌شود (§۷).
+- پاسخ: `package_type`، `previous_package_type` و `source`. پس از نوشتن، `do_action('efb_plan_changed', $old, $new, $context)` اجرا و کش پاک می‌شود (§۷). ترتیب آرگومان‌ها `$old, $new` است (همان قرارداد SitePilot §4.4).
 - بدون تغییر: منطق downgrade، 409 و پاک کردن کد.
 
 ## ۹. اعتبارسنجی مرورگر و سرور
@@ -359,11 +359,11 @@ efb_feature_required_package_efb(string $feature): int   // 0 = رایگان، 3
 efb_feature_available_efb(string $feature, ?int $package = null): bool
 apply_filters('efb_feature_registry', $registry);
 apply_filters('efb_feature_required_package', $required, $feature);
-do_action('efb_plan_changed', int $new, int $old, array $context); // context: source، user_id
+do_action('efb_plan_changed', int $old, int $new, array $context); // context: source، feature، user_id
 ```
 - connector `form.create` پیش از ذخیره برای هر فیلد `efb_feature_available_efb('field:'.$type)` را بررسی می‌کند. فیلد غیرمجاز ذخیره نمی‌شود و پاسخ `needs_plan` با فهرست `{feature, required}` برمی‌گردد. دستیار به مدیر می‌گوید: «این فرم به Free Plus نیاز دارد. فعال شود؟»
 - پاسخ «بله» در چت پلن را عوض **نمی‌کند**. دستیار مدیر را به `admin.php?page=Emsfb_create&efb_upgrade=<feature>&efb_origin=sitepilot` می‌فرستد یا در صفحهٔ پیشخوانی که باز است `efb_upgrade_prompt_efb({feature, origin:'sitepilot'})` را صدا می‌زند. فعال‌سازی فقط با کلیک انسان روی دکمهٔ دارای افشا انجام می‌شود.
-- تغییر پلن در کاتالوگ قابلیت‌های SitePilot قرار نمی‌گیرد. endpoint REST برای آن ساخته نمی‌شود. `efb_save_plan_selection` فقط AJAX مدیر با کوکی، nonce، `manage_options` و `credit_ack` است. دستیار سمت بازدیدکننده (`Frontend/ChatWidget.php`) نشست مدیر ندارد و به آن دسترسی ندارد. اگر handler در `wp_doing_cron()` یا درخواست REST صدا زده شود، رد می‌شود.
+- تغییر پلن در کاتالوگ قابلیت‌های SitePilot قرار نمی‌گیرد. endpoint REST برای آن ساخته نمی‌شود. `efb_save_plan_selection` فقط AJAX مدیر با کوکی، nonce، دسترسی مدیریت افزونه و `credit_ack` است، و در JS دکمهٔ فعال‌سازی فقط به کلیک واقعی (`event.isTrusted`) پاسخ می‌دهد. دستیار سمت بازدیدکننده (`Frontend/ChatWidget.php`) نشست مدیر ندارد و به آن دسترسی ندارد. اگر handler در `wp_doing_cron()` یا درخواست REST صدا زده شود، رد می‌شود.
 - JS: رویدادهای `efb:plan-changed` (§۶) و `efb:upgrade-prompt` با `detail: {action: 'shown'|'activate'|'buy'|'dismiss'|'error', feature, required, origin}` روی `document`. هیچ رویدادی به بیرون فرستاده نمی‌شود. `gtag` موجود (`val-efb.js:5182`) حذف می‌شود، چون رویداد افزونه را بدون رضایت به Analytics سایت می‌فرستد (پرسش باز ۴).
 
 ## ۱۵. سطح نسخه
@@ -454,12 +454,12 @@ do_action('efb_plan_changed', int $new, int $old, array $context); // context: s
 - پذیرش: Free → Free Plus از دیالوگ با `credit_ack` موفق است و بدون آن 400 می‌گیرد. نقش `Emsfb` بدون `manage_options` 403 می‌گیرد. مسیرهای downgrade و 409 تغییر نمی‌کنند. از ۰ به ۳ با کد، 409 → تأیید درون‌خطی → موفق، و add-onهای Pro خاموش می‌شوند.
 - تست‌ها: `php tests/test-plan-change-upgrade-prompt.php` (stub یا WordPress واقعی با `[SKIP]`)؛ `php tests/test-plan-selection-first-run.php` و `php tests/test-addon-plan-gate.php` سبز بمانند.
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint** (انجام شد، ۲۰ آبان ۱۴۰۵)
+- فایل‌های تغییرکرده: `includes/admin/class-Emsfb-admin.php` (`efb_save_plan_selection`: `efb_can_change_plan_efb()`، `source` در فهرست بسته با پیش‌فرض `setup`، `feature` پاک‌سازی‌شده تا ۶۴ نویسه، `credit_ack` الزامی برای Free Plus از `upgrade_prompt` با خطای 400 `credit_ack_required`، `previous_package_type` و `source` در پاسخ، `do_action('efb_plan_changed', $old, $new, $context)` پس از نوشتن، `clear_form_cache_efb()` و پاک کردن کش صفحه‌ها)، `includes/class-Emsfb-cache-compat.php` (`purge_marked_pages()`)، `includes/builder-api-functions-efb.php` (`efb_can_change_plan_efb()`)، `includes/class-Emsfb-builder-api.php` (`efb_var.can_change_plan`)، `val-efb.js` (`savePlanSelection_efb` مقدار `source` را `setup` یا `settings` می‌فرستد)، `.po` فارسی (پیام 400).
+- تست‌ها: `php tests/test-plan-change-upgrade-prompt.php` روی کد زیرتسک B: 8 passed، 20 failed؛ پس از کار: 28 passed (credit_ack، منابع setup/settings/قدیمی، نقش `Emsfb` مجاز، کاربر بدون دسترسی 403، فیلتر، cron، nonce، 409 و حذف کد و خاموش شدن add-onهای Pro، مسیرهای بی‌تغییر، ‎-1، `do_action` یک‌بار و پس از نوشتن گزینه، پاک شدن کش، `can_change_plan`). `test-plan-selection-first-run.php` و `test-addon-plan-gate.php` به WordPress واقعی نیاز دارند و اینجا `[SKIP]` می‌دهند. مرتبط‌ها سبز: plan selection 23، B3 49، registry 29/13، states 58، A5 9، B4 8، B5 7، add-on install gate 27، contract 16، B8 8.
+- وضعیت ترجمه: پیام سرور «Free Plus shows a credit link on your pages…» با فارسی در `.po` (از `__()` در handler، نه `text_efb`). pack built نه.
+- مورد باز: `do_action` برای سایت بدون پلن (‎-1) مقدار قبلی را ۲ گزارش می‌کند (همان قاعدهٔ `efb_current_package_efb`). سناریوی چندسایته فقط با WordPress واقعی آزمودنی است.
+- اقدام بعدی: زیرتسک D (گذرگاه و بازسازی بدون reload).
 
 ### D. گذرگاه `efb_on_plan_changed_efb` و بازسازی سازنده
 - فایل‌ها: `plan-gate-efb.js` (گذرگاه)، `val-efb.js` (استخراج `efb_palette_tiles_html_efb`، id `efbPaletteTilesEfb`، و صدا زدن گذرگاه در 5164)، `admin-efb.js` (استخراج `efb_bind_palette_tiles_efb` از 4480-4490، مشترکان canvas و settings_panel، `efb_patch_legacy_plan_flags_efb`، حذف خط مردهٔ 593).
@@ -555,7 +555,7 @@ do_action('efb_plan_changed', int $new, int $old, array $context); // context: s
 ## ۲۰. پرسش‌های باز
 
 1. آیا برای رهنمود ۱۰ checkbox صریح «موافقم که نوشته نمایش داده شود» لازم است؟ پیشنهاد: نه؛ افشای کنار دکمه کافی است. در صورت اعتراض بازبین، checkbox با پیش‌فرض خاموش اضافه شود.
-2. محدود کردن تغییر پلن به `manage_options` نقش `Emsfb` را از overlay انتخاب پلن هم محروم می‌کند. پذیرفته است؟ پیشنهاد: بله، چون نوشتهٔ عمومی تصمیمی در سطح سایت است.
+2. ~~محدود کردن تغییر پلن به `manage_options`؟~~ **تصمیم مالک:** دسترسی مدیریت افزونه (`manage_options` یا `Emsfb`) کافی است، ولی فعال‌سازی Free Plus از دیالوگ nonce و `credit_ack` می‌خواهد. پیاده شد (زیرتسک C).
 3. گزارش هفتگی: کد آن را Free Plus می‌داند (`list_form-efb.js:1324`، `class-Emsfb-email-monitor.php:846`) ولی `readme.txt:326` می‌گوید «در همهٔ نسخه‌ها». کدام درست است؟
 4. حذف `gtag('event','plan_selected')`: پیشنهاد: حذف، و جایگزینی با `efb:upgrade-prompt` محلی.
 5. JSON-LD، `<link rel="author">` و meta `generator` هم بخشی از «اعتبار» هستند. آیا Free Plus باید فقط نوشتهٔ قابل‌مشاهده را اضافه کند؟ این کار افشا را ساده‌تر و صادقانه‌تر می‌کند.

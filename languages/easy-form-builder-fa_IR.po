@@ -15758,3 +15758,9 @@ msgstr "امکان Pro"
 #: includes/functions.php
 msgid "See options"
 msgstr "دیدن گزینه‌ها"
+
+#  origin: claude (fa_IR) F18
+#. F18: server answer when Free Plus is requested from the upgrade dialog without the credit acknowledgement
+#: includes/admin/class-Emsfb-admin.php
+msgid "Free Plus shows a credit link on your pages. Please activate it from the button that explains this."
+msgstr "Free Plus یک پیوند معرفی در صفحه‌های شما نشان می‌دهد. لطفاً آن را با دکمه‌ای فعال کنید که این را توضیح می‌دهد."

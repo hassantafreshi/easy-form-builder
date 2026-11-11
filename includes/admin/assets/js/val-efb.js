@@ -5183,7 +5183,9 @@ function savePlanSelection_efb(plan, downgradeConfirmed) {
             selected_plan: plan,
             plan_data: plans[plan] || {},
             timestamp: Date.now(),
-            downgrade_confirmed: downgradeConfirmed === true
+            downgrade_confirmed: downgradeConfirmed === true,
+            // F18 §8: the first-run picker or the settings "Change plan" (the upgrade dialog sends its own).
+            source: efb_is_onboarding_overlay_efb() ? 'setup' : 'settings'
         };
         sendPlanSelectionToServer_efb(selectionData);
     } catch (error) {
