@@ -4430,7 +4430,8 @@ let editFormEfb =async () => {
   let p = calPLenEfb(valj_efb.length)
   const len = (valj_efb.length) * p || 10;
 
-  setTimeout(() => {
+  // B1: resolves once the canvas is drawn, so callers (efbBuilderApi.render) need no guessed timer.
+  return new Promise((efbCanvasDrawn) => setTimeout(() => {
     dropZoneEFB.innerHTML = "<!-- edit efb -->"
     for (let v in valj_efb) {
 
@@ -4469,7 +4470,9 @@ let editFormEfb =async () => {
     setTimeout(() => {
       efb_builder_maybe_warn_email_delivery();
     }, 250);
-  }, len);
+    efbCanvasDrawn();
+    if (typeof efb_after_canvas_draw_efb === 'function') efb_after_canvas_draw_efb();
+  }, len));
 
 }
 

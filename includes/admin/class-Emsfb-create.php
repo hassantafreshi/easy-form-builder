@@ -336,6 +336,8 @@ class Create {
 		// F01 mask engine (window.EfbMasks): custom-mask check and preview in the builder, masks in the preview.
 		wp_enqueue_script('efb-masks-js', EMSFB_PLUGIN_URL . 'public/assets/js/masks-efb.js', array(), EMSFB_PLUGIN_VERSION, true);
 		wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION, true);
+		// window.efbBuilderApi for integrations (docs/autopilot-integration.md, B1/B2/B4).
+		wp_enqueue_script('efb-builder-api-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/builder-api-efb.js', array('Emsfb-admin-js', 'efb-val-js', 'efb-pro-els', 'efb-main-js'), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/builder-api-efb.js'), true);
 
 		if ( isset( $addons['AdnSMF'] ) && (int) $addons['AdnSMF'] >= 1 ) {
 			wp_enqueue_style('efb-conditional-logic-css', EMSFB_PLUGIN_URL . 'vendor/logic/logic/assets/admin/css/conditional-logic-efb.css', array(), EMSFB_PLUGIN_VERSION);

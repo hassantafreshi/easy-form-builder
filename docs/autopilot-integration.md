@@ -15,6 +15,7 @@ node tests/test-ap-a4-plan-messages.js
 php tests/test-ap-a5-save-without-sms-addon.php
 node tests/test-ap-a6-intltelinput-late.js
 node tests/test-ap-a7-settings-notfound.js
+node tests/test-ap-b1-builder-api.js
 ```
 
 (The full list is in [Tests](#tests) at the end.)
@@ -203,3 +204,68 @@ node tests/test-ap-a7-settings-notfound.js
 - **AutoPilot.** AutoPilot only checks whether gateway keys are present; a key can no longer be
   "present" with the value `NotFoundEl`. The capability registry (B3) reports gateway keys as
   `configured: true/false`, computed the same way.
+
+---
+
+## Part B: features
+
+### B1. `window.efbBuilderApi` (version 1)
+
+New file `includes/admin/assets/js/builder-api-efb.js`, enqueued as `efb-builder-api-js` on the
+Create screen (`class-Emsfb-create.php`) and in the panel where the builder also opens
+(`class-Emsfb-panel.php`), after `admin-efb.js`, `val-efb.js`, `pro_els-efb.js` and `new-efb.js`.
+Two small core changes support it:
+
+- `editFormEfb()` (`admin-efb.js`) now returns a Promise that resolves when the canvas is drawn
+  (it was an `async` function that returned before its drawing timer), and calls
+  `efb_after_canvas_draw_efb()` so redraws the user triggers are reported too.
+- `show_setting_window_efb(idset, opts)` (`val-efb.js`) takes `opts.refresh`: redraw the panel with
+  fresh values even when it already shows that element, instead of toggling it shut. Without
+  `opts` it behaves as before, so `window.efbOpenSettingIdEfb` no longer needs a dummy value.
+
+| Member | What it does |
+|---|---|
+| `version` | `1` (same as `efb_var.api_version`) |
+| `getForm()` | deep copy of `valj_efb` (amounts and steps as numbers, A2) |
+| `setForm(rows, {render?, timeout?})` | replaces the whole form (row 0 = settings), checks ids, normalizes amounts, syncs the builder globals (`form_type_emsFormBuilder`, `formName_Efb`, `step_el_efb`, `amount_el_efb`), writes `sessionStorage.valj_efb`, then `render()` (skip with `render:false`). Returns the render Promise |
+| `insertItems(rows, {after?, before?, step?, render?})` | inserts a field with its option rows: after a field (after its last option), before a field, at the end of step *n*, or at the end of the form. A `step` row goes alone at the end and becomes step *n+1*. Fills a missing `dataId`, applies `rows.formPatch` (from `newItems`, B2), renumbers by the A2 rule, writes `sessionStorage`. Returns `{ids}` (or a Promise with `render:true`) |
+| `removeItems(ids)` | removes fields with their option rows (not steps) |
+| `render({timeout?})` | Promise resolved when the canvas is really drawn: every field is on the canvas, every map has its map element, every mobile field has intlTelInput attached (when the library is loaded). Resolves `{complete, pending}`; `complete:false` lists ids still pending after `timeout` (default 15 s) |
+| `refreshSettingsPanel()` | if the panel is open, redraws the same field / step / form settings with the current values (no toggle); if that field was removed, closes the panel. Returns `{refreshed, closed, id}` |
+| `openSettings(id)` / `closeSettings()` | open by `id_`, `dataId` or `'formSet'`; never toggles an open panel shut |
+| `newItems(paletteId, opts)` | B2 |
+| `setFormType(type, opts)` | B4 |
+
+Errors are thrown as `Error` with a stable `code`: `builder_not_ready`, `invalid_form`,
+`invalid_items`, `invalid_id`, `invalid_type`, `duplicate_id`, `orphan_option`, `unknown_target`,
+`unknown_step`, `unknown_field`, `unsupported_position`, `unsupported_type`, `not_rendered`.
+A refused call leaves the form unchanged.
+
+Events on `document`:
+
+- `efb:form-changed` with `detail = {source: 'api'|'user', action, ids}`. API calls report
+  `source:'api'` with the action (`setForm`, `insertItems`, `removeItems`, `setFormType`). Any edit by
+  the user (settings panel, drag and drop, delete, duplicate, an add-on panel) is reported once with
+  `source:'user'`: after an interaction the API compares `valj_efb` with the last state it reported,
+  once the builder's own timers have settled.
+- `efb:canvas-rendered` with `detail = {source, complete, pending}` after every canvas draw.
+
+- **Test.** `node tests/test-ap-b1-builder-api.js` (real builder in Chromium, intlTelInput loaded):
+  the brief's acceptance (panel of a field open → `setForm`/`insertItems` + `render()` +
+  `refreshSettingsPanel()` → the panel shows the new label and stays open, no timer in the test),
+  render waits for the mobile field, deep copy, placement and numbering, every error code, removal
+  closes the panel, sessionStorage kept in sync, user and API events. 22 passed. The builder tests of
+  A3/A4 and `test-masks-builder-browser.js` (41) still pass with the changed `editFormEfb()` and
+  `show_setting_window_efb()`.
+- **AutoPilot.** Replace the direct `valj_efb` edits, `sessionStorage` writes, `editFormEfb()` calls,
+  timers and the `efbOpenSettingIdEfb` trick with:
+  ```js
+  if (window.efb_var && Number(efb_var.api_version) >= 1 && window.efbBuilderApi) {
+    const rows = efbBuilderApi.newItems('address');           // B2
+    efbBuilderApi.insertItems(rows, { after: 'email1a2b3' });
+    await efbBuilderApi.render();
+    efbBuilderApi.refreshSettingsPanel();
+  } // else: the old path
+  ```
+  Saving stays the owner's click on Save (`saveFormEfb()`), as the brief requires. Listen to
+  `efb:form-changed` with `source === 'user'` to notice the owner's own edits.

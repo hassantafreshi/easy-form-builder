@@ -712,8 +712,10 @@ function open_conditional_logic_efb() {
    closing - only asking again for the element already on screen still toggles it shut. */
 window.efbOpenSettingIdEfb = window.efbOpenSettingIdEfb || null;
 
-function show_setting_window_efb(idset) {
-  if(document.getElementById('sideBoxEfb').classList.contains('show')){
+/* opts.refresh (B1, efbBuilderApi): redraw the panel with fresh values even when it
+   already shows this element, instead of toggling it shut. */
+function show_setting_window_efb(idset, opts) {
+  if(document.getElementById('sideBoxEfb').classList.contains('show') && !(opts && opts.refresh)){
     if (window.efbOpenSettingIdEfb === idset || window.efbOpenSettingIdEfb === null) {
       window.efbOpenSettingIdEfb = null;
       sideMenuEfb(0);
