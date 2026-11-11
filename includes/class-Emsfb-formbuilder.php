@@ -126,6 +126,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 				$telPattern = ($elementId === 'tel') ? 'pattern="^\+?(?:[0-9]|\s|\.|\(|\)|-){7,25}$"' : '';
 				$lenAttributes = $this->generateLengthAttributes_efb($elementId, $vj);
 				$classes = $elementId !== 'range' ? sprintf('form-control %s', $vj->el_border_color) : 'form-range';
+				// F01: masked fields replace the fixed tel pattern and the min/max length attributes. The
+				// extra attributes travel in the tel-pattern slot, so an unmasked field renders byte for byte
+				// as before.
+				$mask = $this->generateMaskAttributes_efb($elementId, $vj);
+				if ($mask['masked']) {
+					$telPattern = $mask['attrs'];
+					$lenAttributes = ['maxlen' => '', 'minlen' => ''];
+					$classes .= ' efb-ltr-in-rtl';
+					if ($mask['autocomplete'] !== '') {
+						$autocomplete = $mask['autocomplete'];
+					}
+				} elseif ($mask['attrs'] !== '') {
+					$telPattern = trim($telPattern . ' ' . $mask['attrs']);
+				}
 
 				$fields['ui'] = $this->generateTextInput_efb(
 				$type,$classes,$vj,$rndm,$desc,$label,$ttip,$div_f_id,$placeholder,$lenAttributes,$aire_describedby,$disabled,$autocomplete,$form_id,$telPattern
@@ -182,6 +196,68 @@ if ( ! defined( 'ABSPATH' ) ) {
 		}
 
 		return $fields;
+	}
+
+	/**
+	 * F01: attributes of a masked text-like input (and the H inputmode choice for any text-like field).
+	 * Returns ['masked' => bool, 'attrs' => string, 'autocomplete' => string]. Everything is escaped.
+	 * A field without mask keys gets masked=false and attrs='' (unchanged markup).
+	 */
+	private function generateMaskAttributes_efb($elementId, $vj) {
+		$out = ['masked' => false, 'attrs' => '', 'autocomplete' => ''];
+		$row = is_object($vj) ? get_object_vars($vj) : (is_array($vj) ? $vj : []);
+		$inputmodes = ['text', 'numeric', 'decimal', 'tel', 'email', 'url', 'none'];
+		$im = isset($row['inputmode']) && is_string($row['inputmode']) && in_array($row['inputmode'], $inputmodes, true) ? $row['inputmode'] : '';
+		$fd = null;
+		if (in_array($elementId, ['text', 'tel', 'postalcode'], true) && !empty($row['mask_preset']) && class_exists('\\Emsfb\\Masks')) {
+			$fd = \Emsfb\Masks::field_def($row);
+		}
+		if ($fd === null) {
+			if ($im !== '') {
+				$out['attrs'] = sprintf('inputmode="%s"', esc_attr($im));
+			}
+			return $out;
+		}
+		$def = $fd['def'];
+		$attrs = [];
+		if ($fd['kind'] === 'custom') {
+			$attrs[] = sprintf('data-mask="%s"', esc_attr($def['mask']));
+			$pattern = $def['mask'];
+			if ($im === '') {
+				$kinds = [];
+				foreach (\Emsfb\Masks::compile_mask($pattern) as $t) {
+					if ($t['k'] !== 'lit') {
+						$kinds[$t['k']] = true;
+					}
+				}
+				$im = array_keys($kinds) === ['digit'] ? 'numeric' : '';
+			}
+		} else {
+			$attrs[] = sprintf('data-mask-preset="%s"', esc_attr($def['id']));
+			$pattern = !empty($def['mask']) && empty($def['e164']) ? $def['mask'] : '';
+			if ($im === '' && !empty($def['inputmode'])) {
+				$im = $def['inputmode'];
+			}
+			if (!empty($def['autocomplete'])) {
+				$out['autocomplete'] = $def['autocomplete'];
+			}
+		}
+		$attrs[] = sprintf('data-mask-store="%s"', isset($row['mask_store']) && $row['mask_store'] === 'display' ? 'display' : 'canonical');
+		if ($fd['kind'] === 'preset' && isset($row['mask_strict']) && in_array($row['mask_strict'], [1, '1', true], true) && !empty($def['regex_strict'])) {
+			$attrs[] = 'data-mask-strict="1"';
+		}
+		if ($im !== '') {
+			$attrs[] = sprintf('inputmode="%s"', esc_attr($im));
+		}
+		$attrs[] = 'dir="ltr"';
+		// maxlength = tokens of the mask. Not for phone presets: a pasted +98 912 ... is longer than the
+		// national mask and the browser would cut it before the mask turns it into 0912 ...
+		if ($pattern !== '') {
+			$attrs[] = sprintf('maxlength="%d"', count(\Emsfb\Masks::compile_mask($pattern)));
+		}
+		$out['masked'] = true;
+		$out['attrs'] = implode(' ', $attrs);
+		return $out;
 	}
 
 	private function generateAutocomplete_efb($elementId) {

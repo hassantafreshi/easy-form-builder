@@ -31,6 +31,8 @@ class _Public {
 	private $deferred_form_key = '';
 	private $operation_key = '';
 	private $operation_data = array();
+	/* F01: catalog ids of the masked fields rendered on this page (sent as ajax_object_efm.masks). */
+	private $mask_ids_efb = array();
 
 	/* Head hoisting - see open_head_hoist_buffer_efb(). */
 	private $head_chunks_efb      = [];
@@ -1596,6 +1598,10 @@ public function check_nonce_permission_efb($request) {
 				}
 
 				if($i>1){
+					// F01: remember the presets this page uses; their catalog entries go to the browser.
+					if (isset($valj_efb[$i]->mask_preset) && is_string($valj_efb[$i]->mask_preset) && $valj_efb[$i]->mask_preset !== '' && $valj_efb[$i]->mask_preset !== 'custom') {
+						$this->mask_ids_efb[] = $valj_efb[$i]->mask_preset;
+					}
 					// Their scripts live in pro_els-efb.js; the fields that became
 					// free in 4.3.1 need it on every plan.
 					if(in_array($valj_efb[$i]->type, $list_pro_elements) && $pro_element_exists == false && ($pro == true || in_array($valj_efb[$i]->type, emsfb_free_element_types_efb(), true))){
@@ -2222,6 +2228,12 @@ public function check_nonce_permission_efb($request) {
 			$main_deps[] = 'efb-recorder-js';
 		}
 
+		// F01: the mask engine only on pages with a masked field (a preset id or "custom").
+		if (is_string($form_structure_json) && preg_match('/mask_preset\\\\?"\s*:\s*\\\\?"[a-z]/', $form_structure_json)) {
+			wp_register_script('efb-masks-js', EMSFB_PLUGIN_URL . 'public/assets/js/masks-efb.js', array(), $asset_version('public/assets/js/masks-efb.js'), true);
+			wp_enqueue_script('efb-masks-js');
+			$core_deps[] = 'efb-masks-js';
+		}
 		wp_register_style('Emsfb-response-viewer-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/response-viewer-efb.css', true, EMSFB_PLUGIN_VERSION);
 		wp_enqueue_style('Emsfb-response-viewer-css');
 		wp_register_script('efb-response-viewer-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/response-viewer-efb.js', array('efb-main-js'), $response_viewer_js_version, true);
@@ -9528,6 +9540,15 @@ public function check_nonce_permission_efb($request) {
 			'respFontSize' => $pub_settings['respFontSize'] ?? '0.9rem',
 			'respCustomFont' => $pub_settings['respCustomFont'] ?? '',
 		) );
+
+		/* F01: catalog entries of the presets on this page only (no examples, metadata or sources).
+		 * Regexes reach the browser only from the plugin's own catalog file. */
+		if (!empty($this->mask_ids_efb) && class_exists('\\Emsfb\\Masks')) {
+			$masks_efb = \Emsfb\Masks::runtime_subset($this->mask_ids_efb, function_exists('determine_locale') ? determine_locale() : get_locale());
+			if (!empty($masks_efb)) {
+				$ar_core['masks'] = $masks_efb;
+			}
+		}
 
 		/* The plugin lists are for the administrator's diagnosis only; they used
 		 * to be sent to every visitor (cache_plugins_public). Only real page

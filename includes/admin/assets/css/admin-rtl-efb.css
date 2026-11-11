@@ -220,3 +220,7 @@ body.rtl .efb input.intlPhone::placeholder,
    The RTL rule above (direction: rtl !important on .efb) together with
    Bootstrap's bidi-override on <code> printed 261102XUJMS as SMJUX201162. */
 code.efb, .efb code {direction: ltr !important; unicode-bidi: isolate !important;}
+/* F01 input masks: phone numbers, IDs and IBANs are LTR sequences. Without this the
+   ".efb {direction: rtl !important}" rule above shows +98 912 as "912 98+" and the caret
+   jumps between bidi runs. The field still lines up with the RTL form on the right. */
+input.efb.efb-ltr-in-rtl, input.efb[data-mask-preset], input.efb[data-mask] {direction: ltr !important; text-align: right;}
