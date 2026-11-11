@@ -1,4 +1,4 @@
-وضعیت: در حال پیاده‌سازی (A انجام شد) · اولویت: P0 · تلاش: M · وابستگی: — (F02، F03، F06 و F17 به این تسک وابسته‌اند)
+وضعیت: در حال پیاده‌سازی (A و B انجام شد) · اولویت: P0 · تلاش: M · وابستگی: — (F02، F03، F06 و F17 به این تسک وابسته‌اند)
 
 # F01 — ماسک ورودی و اعتبارسنج‌های قالب
 
@@ -275,12 +275,14 @@ if (!empty($f['mask_preset']) && class_exists('\Emsfb\Masks')) {
 - پذیرش: بدون nonce یا بدون مجوز، `success:false` برمی‌گردد. برای fa_IR گروه ایران اول است و برچسب‌ها فارسی‌اند. پاسخ کش می‌شود و برای هر ۹۹ id برچسب دارد (تست برابری مجموعهٔ idها با کاتالوگ).
 - تست‌ها: `php tests/test-masks-catalog-ajax.php` (stubهای `check_ajax_referer`، `current_user_can`، `wp_send_json_success`، `get_user_locale`).
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint** (B انجام شد، 2026-11-11)
+- فایل‌های تغییرکرده: `includes/data/masks-labels-efb.php` (کلاس `Emsfb\Masks_Labels`: ۹۹ برچسب پیش‌تنظیم و ۲۱ نام گروه، هر کدام یک فراخوانی literal `__()` با توضیح مترجم؛ متن انگلیسی = `label.en` کاتالوگ)، `includes/class-Emsfb-masks.php` (`load_labels()`، `leading_groups()`، `builder_catalog()`؛ `catalog_public($locale)` حالا `label_localized` هم می‌دهد)، `includes/admin/class-Emsfb-admin.php` (ثبت `wp_ajax_efb_masks_catalog_Emsfb` و handler `masks_catalog_Emsfb` به الگوی `delete_message_id_public`، کش `efb_masks_cat_{user}_{site}_{version}` در گروه `emsfb` برای یک روز؛ هیچ nopriv اضافه نشد)، `includes/functions.php` (۱۹ کلید سازنده در `text_efb()`: ۱۵ کلید §۱۴ به‌علاوهٔ `mskCsLuhn`، `mskCsIban`، `mskCsIrNc`، `mskCsVerhoeff` برای select رقم کنترل)، `languages/easy-form-builder-fa_IR.po`، `tests/test-masks-catalog-ajax.php`.
+- رفتار: ترتیب گروه‌ها با زبان سایت (`get_locale()`): fa → ایران؛ ar → کشور خود سایت (مثلاً ar_EG → مصر) و بعد بقیهٔ کشورهای عربی؛ en_US → آمریکا، en_GB → بریتانیا، en_CA/en_AU/en_IN → کانادا/استرالیا/هند؛ de → آلمان؛ سپس «بین‌المللی» و بقیه به ترتیب الفبایی برچسب. برچسب‌ها با زبان مدیر (`get_user_locale()`). اگر بستهٔ ترجمه برای fa یا ar بارگذاری نشده باشد (`__()` متن انگلیسی برمی‌گرداند)، برچسب از ستون fa/ar کاتالوگ گرفته می‌شود. placeholder از `placeholder[fa|ar|en]`.
+- تست‌ها (اجراشده): `php tests/test-masks-catalog-ajax.php` → 27 passed, 0 failed (بدون nonce و بدون مجوز `success:false`، fa_IR ایران اول و برچسب فارسی، برابری مجموعهٔ ۹۹ id با کاتالوگ، نبود regex در پاسخ، کش یک‌روزه و پاسخ دوم از کش، ترتیب ar_EG/en_US/en_GB/de_DE، برابری فایل برچسب با کاتالوگ، الگوی ۱۹ کلید `text_efb`). تست‌های A دوباره: 962/143/5/228 passed، 0 failed. `test-password-placeholder-render.php` 4/4.
+- وضعیت ترجمه: ۱۳۴ مدخل تازه در `languages/easy-form-builder-fa_IR.po` (۹۸ برچسب پیش‌تنظیم از ستون fa کاتالوگ، ۲۱ نام گروه و ۱۵ عبارت سازنده؛ `None`، `Preview`، `Iranian national code` و `Time (24-hour)` از قبل ترجمه داشتند). **`.mo` و `.l10n.php` بازسازی نشدند:** `tests/core-i18n/build.php`، `extract.php`، `check-locale.php` و `test-core-i18n-tools.php` به `wp-includes/pomo` یک WordPress محلی و `wp-cli.phar` نیاز دارند که در این محیط نیست (`[SKIP] WordPress or wp-cli.phar not found`). تا اجرای خط لوله، برچسب‌های پیش‌تنظیم فارسی و عربی از fallback کاتالوگ می‌آیند، ولی ۱۹ عبارت سازنده در fa به انگلیسی نمایش داده می‌شوند. ۶۸ زبان دیگر: انجام نشده (خط لولهٔ جلسهٔ والد).
+- کلیدهای تازه برای ترجمه: `mskFormat`، `mskNone`، `mskCustom`، `mskCustomHelp`، `mskPreview`، `mskChecksum`، `mskCsLuhn`، `mskCsIban`، `mskCsIrNc`، `mskCsVerhoeff`، `mskStore`، `mskStoreCanonical`، `mskStoreDisplay`، `mskStrict`، `mskUnverified`، `mskInvalidMask`، `mskLoading`، `mskLenReplaced`، `mskIntl`، به‌علاوهٔ ۹۹ برچسب و ۲۱ نام گروه در `masks-labels-efb.php`.
+- مورد باز: اجرای `extract.php` → `prepare-locale.php` → skill ترجمه → `build.php` در محیطی با WordPress و wp-cli.
+- اقدام بعدی: زیرتسک C (UI سازنده و ذخیره).
 
 ### C. UI سازنده و ذخیره
 - فایل‌ها: `val-efb.js` (`maskEls`)، `admin-efb.js` (`change_el_edit_Efb`، `sanitize_mask_efb`، استثنای خط 2082)، `functions.php` (`case`های `mask_preset`، `mask_custom`، `mask_checksum` و `inputmode` در `sanitize_obj_msg_efb`)، و `class-Emsfb-create.php` (enqueue `efb-masks-js`).

@@ -68,6 +68,7 @@ class Admin {
             add_action('wp_ajax_heartbeat_Emsfb' , [$this, 'heartbeat_Emsfb'] );
             add_action('wp_ajax_report_problem_Emsfb' , [$this, 'report_problem_Emsfb'] );
             add_action('wp_ajax_efb_save_plan_selection', [$this, 'efb_save_plan_selection']);
+            add_action('wp_ajax_efb_masks_catalog_Emsfb', [$this, 'masks_catalog_Emsfb']);
 
             add_action('create_temporary_links_table_Emsfb' , [$this , 'create_temporary_links_table_Emsfb']);
 
@@ -265,6 +266,33 @@ class Admin {
         $response = ['success' => true, 'r' => $r];
         wp_send_json_success($response, 200);
     }
+    /**
+     * Grouped, translated input-mask presets for the builder's "Format / mask" select (F01).
+     * Fetched once, when the settings panel of a text-like field first opens.
+     */
+    public function masks_catalog_Emsfb() {
+        $efbFunction = get_efbFunction();
+        $lang = $efbFunction->text_efb(["error403","somethingWentWrongPleaseRefresh"]);
+        if (!check_ajax_referer('wp_rest', 'nonce', false) || !$efbFunction->user_permission_efb_admin_dashboard()) {
+            wp_send_json_success(['success' => false, 'm' => $lang['error403']], 200);
+            die();
+        }
+        if (!class_exists('\Emsfb\Masks')) {
+            wp_send_json_success(['success' => false, 'm' => $lang['somethingWentWrongPleaseRefresh']], 200);
+            die();
+        }
+        $user_locale = function_exists('get_user_locale') ? get_user_locale() : get_locale();
+        $site_locale = get_locale();
+        $key = 'efb_masks_cat_' . $user_locale . '_' . $site_locale . '_' . EMSFB_PLUGIN_VERSION;
+        $data = wp_cache_get($key, 'emsfb');
+        if (!is_array($data)) {
+            $data = \Emsfb\Masks::builder_catalog($user_locale, $site_locale);
+            wp_cache_set($key, $data, 'emsfb', DAY_IN_SECONDS);
+        }
+        wp_send_json_success($data, 200);
+        die();
+    }
+
     public function delete_message_id_public() {
         $efbFunction = get_efbFunction();
         $text = ["error403","somethingWentWrongPleaseRefresh"];

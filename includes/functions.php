@@ -3814,6 +3814,45 @@ class efbFunction {
 			"pcMax" => $state && isset($ac->text->pcMax) ? $ac->text->pcMax : esc_html__('Max','easy-form-builder'),
 			"pcAvgLength" => $state && isset($ac->text->pcAvgLength) ? $ac->text->pcAvgLength : esc_html__('Avg Length','easy-form-builder'),
 
+			/* translators: F01 builder: label of the select that picks an input format (phone, national ID, IBAN ...) for a text field */
+			"mskFormat" => $state && isset($ac->text->mskFormat) ? $ac->text->mskFormat : esc_html__('Format / mask','easy-form-builder'),
+			/* translators: F01 builder: "no input format" option, and "no check digit" option */
+			"mskNone" => $state && isset($ac->text->mskNone) ? $ac->text->mskNone : esc_html__('None','easy-form-builder'),
+			/* translators: F01 builder: option that lets the admin type their own input mask */
+			"mskCustom" => $state && isset($ac->text->mskCustom) ? $ac->text->mskCustom : esc_html__('Custom mask','easy-form-builder'),
+			/* translators: F01 builder: help under the custom mask box. Keep 9, a, * and [ ] exactly as they are; they are mask tokens */
+			"mskCustomHelp" => $state && isset($ac->text->mskCustomHelp) ? $ac->text->mskCustomHelp : esc_html__('Use 9 for a digit, a for a letter, * for a letter or digit and [ ] for an optional part.','easy-form-builder'),
+			/* translators: F01 builder: label of the live preview of a custom mask */
+			"mskPreview" => $state && isset($ac->text->mskPreview) ? $ac->text->mskPreview : esc_html__('Preview','easy-form-builder'),
+			/* translators: F01 builder: select of the check-digit algorithm (Luhn, IBAN ...) for a custom mask */
+			"mskChecksum" => $state && isset($ac->text->mskChecksum) ? $ac->text->mskChecksum : esc_html__('Check digit','easy-form-builder'),
+			/* translators: F01 builder: check-digit algorithm option; Luhn is a proper name */
+			"mskCsLuhn" => $state && isset($ac->text->mskCsLuhn) ? $ac->text->mskCsLuhn : esc_html__('Luhn (card numbers)','easy-form-builder'),
+			/* translators: F01 builder: check-digit algorithm option; keep "IBAN" and "MOD 97-10" */
+			"mskCsIban" => $state && isset($ac->text->mskCsIban) ? $ac->text->mskCsIban : esc_html__('IBAN (MOD 97-10)','easy-form-builder'),
+			/* translators: F01 builder: check-digit algorithm option (Iranian national ID number) */
+			"mskCsIrNc" => $state && isset($ac->text->mskCsIrNc) ? $ac->text->mskCsIrNc : esc_html__('Iranian national code','easy-form-builder'),
+			/* translators: F01 builder: check-digit algorithm option; Verhoeff and Aadhaar are proper names */
+			"mskCsVerhoeff" => $state && isset($ac->text->mskCsVerhoeff) ? $ac->text->mskCsVerhoeff : esc_html__('Verhoeff (Aadhaar)','easy-form-builder'),
+			/* translators: F01 builder: radio group that decides how a formatted value is stored in the entries */
+			"mskStore" => $state && isset($ac->text->mskStore) ? $ac->text->mskStore : esc_html__('Save the value','easy-form-builder'),
+			/* translators: F01 builder: store digits only / +98912... (no spaces or dashes) */
+			"mskStoreCanonical" => $state && isset($ac->text->mskStoreCanonical) ? $ac->text->mskStoreCanonical : esc_html__('Clean value (recommended)','easy-form-builder'),
+			/* translators: F01 builder: store the value with its spaces and dashes, as formatted on screen */
+			"mskStoreDisplay" => $state && isset($ac->text->mskStoreDisplay) ? $ac->text->mskStoreDisplay : esc_html__('As shown to the visitor','easy-form-builder'),
+			/* translators: F01 builder: toggle that applies a stricter (community, unofficial) rule to a format */
+			"mskStrict" => $state && isset($ac->text->mskStrict) ? $ac->text->mskStrict : esc_html__('Strict format','easy-form-builder'),
+			/* translators: F01 builder: badge / tooltip on formats whose rules were not confirmed with an official source */
+			"mskUnverified" => $state && isset($ac->text->mskUnverified) ? $ac->text->mskUnverified : esc_html__('Not checked against an official source','easy-form-builder'),
+			/* translators: F01 builder: error when a custom mask has an unclosed [ or {, is too long or has no 9, a or * slot */
+			"mskInvalidMask" => $state && isset($ac->text->mskInvalidMask) ? $ac->text->mskInvalidMask : esc_html__('This mask is not valid.','easy-form-builder'),
+			/* translators: F01 builder: shown in the format select while the list loads */
+			"mskLoading" => $state && isset($ac->text->mskLoading) ? $ac->text->mskLoading : esc_html__('Loading formats…','easy-form-builder'),
+			/* translators: F01 builder: confirm dialog when a format is chosen on a field that has min/max length */
+			"mskLenReplaced" => $state && isset($ac->text->mskLenReplaced) ? $ac->text->mskLenReplaced : esc_html__('This format sets the length. Remove the minimum and maximum length?','easy-form-builder'),
+			/* translators: F01 builder: group name for formats that are not tied to one country (IBAN, card, dates) */
+			"mskIntl" => $state && isset($ac->text->mskIntl) ? $ac->text->mskIntl : esc_html__('International','easy-form-builder'),
+
 		];
 
 		$rtrn =[];

@@ -1030,7 +1030,7 @@ class Masks {
 				$row[$k] = array_key_exists($k, $m) ? $m[$k] : null;
 			}
 			$row['has_strict'] = !empty($m['regex_strict']);
-			if ($locale !== null && class_exists('\\Emsfb\\Masks_Labels')) {
+			if ($locale !== null && self::load_labels()) {
 				$row['label_localized'] = \Emsfb\Masks_Labels::label($m['id'], isset($m['label']['en']) ? $m['label']['en'] : $m['id']);
 			}
 			$presets[] = $row;
@@ -1055,6 +1055,100 @@ class Masks {
 			}
 		}
 		return $out;
+	}
+
+	/** Arab-country groups, in the order shown to Arabic sites (the site's own country moves to the front). */
+	const ARAB_GROUPS = array('sa', 'ae', 'eg', 'kw', 'qa', 'bh', 'om', 'jo', 'iq', 'lb', 'ma', 'dz', 'tn');
+
+	/** Load the translatable labels (includes/data/masks-labels-efb.php). */
+	public static function load_labels() {
+		if (!class_exists('\\Emsfb\\Masks_Labels')) {
+			$f = dirname(__FILE__) . '/data/masks-labels-efb.php';
+			if (is_readable($f)) {
+				require_once $f;
+			}
+		}
+		return class_exists('\\Emsfb\\Masks_Labels');
+	}
+
+	/** Group keys that come first for a site locale, before "International" and the alphabetical rest. */
+	public static function leading_groups($site_locale) {
+		$lang = strtolower(substr((string) $site_locale, 0, 2));
+		$region = strtolower(substr((string) $site_locale, 3, 2));
+		if ($lang === 'fa') {
+			return array('ir');
+		}
+		if ($lang === 'ar') {
+			$own = array('sa' => 'sa', 'ae' => 'ae', 'eg' => 'eg', 'kw' => 'kw', 'qa' => 'qa', 'bh' => 'bh', 'om' => 'om', 'jo' => 'jo', 'iq' => 'iq', 'lb' => 'lb', 'ma' => 'ma', 'dz' => 'dz', 'tn' => 'tn');
+			$list = self::ARAB_GROUPS;
+			if (isset($own[$region])) {
+				$list = array_values(array_unique(array_merge(array($own[$region]), $list)));
+			}
+			return $list;
+		}
+		if ($lang === 'en') {
+			$map = array('gb' => 'uk', 'ca' => 'ca', 'au' => 'au', 'in' => 'in');
+			return array(isset($map[$region]) ? $map[$region] : 'us');
+		}
+		$map = array('de' => 'de', 'hi' => 'in');
+		return isset($map[$lang]) ? array($map[$lang]) : array();
+	}
+
+	/**
+	 * Grouped, translated preset list for the builder's "Format / mask" select (admin AJAX
+	 * efb_masks_catalog_Emsfb). Labels follow the admin's locale ($user_locale, through __() and, for fa/ar
+	 * when no translation is loaded, the catalog's own fa/ar labels); group order follows the site locale.
+	 */
+	public static function builder_catalog($user_locale, $site_locale) {
+		$cat = self::catalog();
+		self::load_labels();
+		$labels = class_exists('\\Emsfb\\Masks_Labels') ? Masks_Labels::presets() : array();
+		$names = class_exists('\\Emsfb\\Masks_Labels') ? Masks_Labels::groups() : array();
+		$ulang = self::placeholder_lang($user_locale);
+		$groups = array();
+		foreach ($cat['masks'] as $m) {
+			if (!is_array($m) || !isset($m['id']) || !self::is_preset_id($m['id'])) {
+				continue;
+			}
+			$g = substr($m['id'], 0, strpos($m['id'], '.'));
+			$en = isset($m['label']['en']) ? $m['label']['en'] : $m['id'];
+			$label = isset($labels[$m['id']]) ? $labels[$m['id']] : $en;
+			if ($label === $en && $ulang !== 'en' && !empty($m['label'][$ulang])) {
+				$label = $m['label'][$ulang];
+			}
+			if (!isset($groups[$g])) {
+				$groups[$g] = array('country' => $g, 'label' => isset($names[$g]) ? $names[$g] : strtoupper($g), 'presets' => array());
+			}
+			$groups[$g]['presets'][] = array(
+				'id' => $m['id'],
+				'label' => $label,
+				'placeholder' => isset($m['placeholder'][$ulang]) ? $m['placeholder'][$ulang] : (isset($m['placeholder']['en']) ? $m['placeholder']['en'] : ''),
+				'category' => isset($m['category']) ? $m['category'] : '',
+				'mask' => isset($m['mask']) ? $m['mask'] : null,
+				'formatter' => isset($m['formatter']) ? $m['formatter'] : null,
+				'checksum' => isset($m['checksum']) ? $m['checksum'] : null,
+				'inputmode' => isset($m['inputmode']) ? $m['inputmode'] : null,
+				'autocomplete' => isset($m['autocomplete']) ? $m['autocomplete'] : null,
+				'verification' => isset($m['verification']) ? $m['verification'] : 'unverified',
+				'has_strict' => !empty($m['regex_strict']),
+			);
+		}
+		$lead = array();
+		foreach (self::leading_groups($site_locale) as $g) {
+			if (isset($groups[$g])) {
+				$lead[] = $groups[$g];
+				unset($groups[$g]);
+			}
+		}
+		if (isset($groups['intl'])) {
+			$lead[] = $groups['intl'];
+			unset($groups['intl']);
+		}
+		$rest = array_values($groups);
+		usort($rest, function ($a, $b) {
+			return strcmp($a['label'], $b['label']);
+		});
+		return array('success' => true, 'version' => isset($cat['version']) ? $cat['version'] : 0, 'groups' => array_merge($lead, $rest));
 	}
 
 	/** True for preset values that must not be kept in the visitor's localStorage draft. */
