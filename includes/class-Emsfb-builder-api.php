@@ -78,6 +78,171 @@ class Builder_Api {
 		return array($rows, $warnings);
 	}
 
+	/* ---------------------------------------------------------------- B3 */
+
+	const PLAN_RANK = array('free' => 0, 'free_plus' => 1, 'pro' => 2);
+
+	/** emsfb_pro as 0|1|2|3 (-1, 10 or missing = 2). Reads the option only: no network, no write. */
+	public static function current_package() {
+		$v = function_exists('get_option') ? get_option('emsfb_pro', -1) : -1;
+		$v = is_numeric($v) ? (int) $v : -1;
+		return in_array($v, array(0, 1, 2, 3), true) ? $v : 2;
+	}
+
+	/** free | free_plus | pro | pro_pending (a Pro licence that is not active: 0). */
+	public static function plan($package = null) {
+		$p = $package === null ? self::current_package() : (int) $package;
+		if ($p === 1) return 'pro';
+		if ($p === 3) return 'free_plus';
+		if ($p === 0) return 'pro_pending';
+		return 'free';
+	}
+
+	/** 'free'|'free_plus'|'pro', or the numbers EFB uses (0 = every plan, 3 = Free Plus, 1 = Pro). */
+	public static function normalize_plan($p) {
+		if (is_int($p) || (is_string($p) && is_numeric($p))) {
+			$p = (int) $p;
+			return $p === 1 ? 'pro' : ($p === 3 ? 'free_plus' : 'free');
+		}
+		$p = (string) $p;
+		return isset(self::PLAN_RANK[$p]) ? $p : 'pro';
+	}
+
+	public static function plan_at_least($required, $package = null) {
+		$have = self::plan($package);
+		$rank = isset(self::PLAN_RANK[$have]) ? self::PLAN_RANK[$have] : 0; // pro_pending counts as free
+		return $rank >= self::PLAN_RANK[self::normalize_plan($required)];
+	}
+
+	/**
+	 * B3: the single plan and add-on registry. One entry per field type, form setting and
+	 * add-on: which plan unlocks it, which add-on it needs, whether it can be used on this
+	 * site now, and the phrase keys and dialog state the builder uses for its lock (so the
+	 * text and the gate cannot drift, A4). Exposed to JS as efb_var.capabilities and in
+	 * PHP as get_efbFunction()->capabilities_efb(). It is also the registry F18 builds on
+	 * (efb_feature_registry_efb(), efb_feature_required_package_efb()).
+	 *
+	 * Keys: field:<palette id>, setting:<name>, addon:<code>, limit:<name>.
+	 * No secret is returned: payment keys are reported as configured true/false only.
+	 *
+	 * @param array $args package (int, default emsfb_pro), settings (decoded settings object).
+	 */
+	public static function capabilities(array $args = array()) {
+		$package = isset($args['package']) ? (int) $args['package'] : self::current_package();
+		$settings = isset($args['settings']) ? $args['settings'] : (function_exists('get_setting_Emsfb') ? get_setting_Emsfb('decoded') : null);
+		$settings = is_array($settings) ? (object) $settings : (is_object($settings) ? $settings : new \stdClass());
+		$fn = function_exists('get_efbFunction') ? get_efbFunction() : null;
+
+		$addon_keys = ($fn && method_exists($fn, 'get_all_addon_keys_efb')) ? $fn->get_all_addon_keys_efb()
+			: array('AdnSPF', 'AdnOF', 'AdnPPF', 'AdnATC', 'AdnSS', 'AdnCPF', 'AdnESZ', 'AdnSE', 'AdnWHS', 'AdnPAP', 'AdnWSP', 'AdnSMF', 'AdnPLF', 'AdnMSF', 'AdnBEF', 'AdnPDP', 'AdnADP', 'AdnATF', 'AdnTLG', 'AdnGoS', 'AdnHSH');
+		$addon_level = function ($code) use ($fn) {
+			if ($fn && method_exists($fn, 'addon_required_package_efb')) return (int) $fn->addon_required_package_efb($code);
+			$t = array('AdnOF' => 0, 'AdnSMF' => 3, 'AdnSPF' => 3, 'AdnPAP' => 3);
+			return isset($t[$code]) ? $t[$code] : 1;
+		};
+		$installed = function ($code) use ($settings) {
+			if (isset($settings->$code)) return intval($settings->$code) === 1;
+			return function_exists('get_option') && intval(get_option('emsfb_addon_' . $code, 0)) === 1;
+		};
+
+		$features = array();
+		$add = function ($key, $kind, $pkg, $addon, $extra = array()) use (&$features, $package, $installed) {
+			$plan_ok = self::plan_at_least($pkg, $package);
+			$addon_ok = $addon === null || $installed($addon);
+			$entry = array(
+				'kind'          => $kind,
+				'package'       => $pkg,
+				'addon'         => $addon,
+				'available_now' => $plan_ok && $addon_ok,
+				'reason'        => $plan_ok ? ($addon_ok ? null : 'addon') : 'plan',
+				// pro_show_efb(n) state and the phrase it shows: 3 = Free Plus and Pro, 1 = Pro only.
+				'prompt_state'  => $pkg === 'free_plus' ? 3 : ($pkg === 'pro' ? 1 : 0),
+				'message_key'   => $pkg === 'free_plus' ? 'thisFeatureAvailableFreePlusPro' : ($pkg === 'pro' ? 'proUnlockMsg' : null),
+			);
+			$features[$key] = array_merge($entry, $extra);
+		};
+
+		// Fields: fields_efb[].pro (val-efb.js) through the generated template file; a type whose
+		// add-on is Pro stays Pro whatever the palette says.
+		$field_addons = array('pdate' => 'AdnPDP', 'ardate' => 'AdnADP', 'persiaPay' => 'AdnPPF', 'stripe' => 'AdnSPF', 'paypal' => 'AdnPAP');
+		$file = dirname(__FILE__) . '/data/field-templates-efb.json';
+		$data = is_readable($file) ? json_decode((string) file_get_contents($file), true) : null;
+		$palette = is_array($data) && isset($data['palette']) ? $data['palette'] : array();
+		foreach (array('persiaPay' => array('pro' => true), 'paySelect' => array('pro' => true), 'payMultiselect' => array('pro' => true), 'chlRadio' => array('pro' => true)) as $k => $v) {
+			if (!isset($palette[$k])) $palette[$k] = $v;
+		}
+		foreach ($palette as $type => $info) {
+			$addon = isset($field_addons[$type]) ? $field_addons[$type] : null;
+			$pkg = empty($info['pro']) ? 'free' : 'free_plus';
+			if ($addon !== null) $pkg = self::normalize_plan($addon_level($addon)) === 'pro' ? 'pro' : 'free_plus';
+			$add('field:' . $type, 'field', $pkg, $addon, array('label_key' => $type));
+		}
+
+		// Form settings (brief B3 list; code evidence in docs/autopilot-integration.md).
+		$settings_list = array(
+			'setting:email_sub'              => array('free_plus', null, array('email_sub'), 'mlsbjt'),
+			'setting:email_noti_type'        => array('free_plus', null, array('email_noti_type'), 'emlc'),
+			'setting:thank_you_redirect'     => array('free_plus', null, array('thank_you=rdrct', 'rePage'), 'redirectPage'),
+			'setting:loading_type'           => array('free_plus', null, array('loading_type', 'loading_color'), 'loadingType'),
+			'setting:custom_required_msg'    => array('free_plus', null, array('customRequiredMsg'), 'customMessage'),
+			'setting:custom_colors'          => array('free_plus', null, array('checked_color', 'range_thumb_color', 'range_value_color', 'switch_on_color', 'switch_off_color', 'switch_handle_color'), 'colors'),
+			'setting:hidden_disabled'        => array('free_plus', null, array('hidden', 'disabled'), 'hide'),
+			'setting:mobile_layout'          => array('pro', null, array('mobile_*'), 'mobileView'),
+			'setting:sms_notifications'      => array('pro', 'AdnSS', array('smsnoti', 'sms_admins_phone_no', 'sms_msg_new_noti', 'sms_msg_recived_usr', 'sms_msg_responsed_noti'), 'sms_noti'),
+			'setting:telegram_notifications' => array('pro', 'AdnTLG', array('telegramnoti', 'telegram_msg_new_noti', 'telegram_msg_responsed_noti'), 'etelegramno'),
+			'setting:logic_rules'            => array('free_plus', 'AdnSMF', array('logic_rules', 'notification_rules'), 'conditionalLogic'),
+			'setting:logic_calculate'        => array('pro', 'AdnSMF', array('logic_rules[].actions[].type=calculate'), 'conditionalLogic'),
+			'setting:confirmation_rules'     => array('pro', 'AdnSMF', array('confirmation_rules'), 'conditionalLogic'),
+			'setting:webhook_rules'          => array('pro', 'AdnSMF', array('webhook_rules'), 'conditionalLogic'),
+			'setting:payment_stripe'         => array('free_plus', 'AdnSPF', array('getway=stripe', 'currency', 'paymentmethod'), 'stripe'),
+			'setting:payment_paypal'         => array('free_plus', 'AdnPAP', array('getway=paypal', 'currency', 'paymentmethod'), 'paypal'),
+			'setting:payment_persiapay'      => array('pro', 'AdnPPF', array('getway=persiaPay', 'persiaPay'), 'persiaPayment'),
+		);
+		foreach ($settings_list as $key => $s) $add($key, 'setting', $s[0], $s[1], array('form_keys' => $s[2], 'label_key' => $s[3]));
+
+		// Limits.
+		$add('limit:steps', 'limit', 'free_plus', null, array('limits' => array('free' => 2, 'free_plus' => null, 'pro' => null), 'label_key' => 'step'));
+		$add('limit:logic', 'limit', 'pro', 'AdnSMF', array('limits' => array(
+			'free'      => array('field_rules' => 0, 'notification_rules' => 0, 'conditions_per_group' => 0),
+			'free_plus' => array('field_rules' => 3, 'notification_rules' => 2, 'conditions_per_group' => 2),
+			'pro'       => null,
+		), 'label_key' => 'conditionalLogic'));
+
+		// Add-ons.
+		$addons = array();
+		foreach ($addon_keys as $code) {
+			$pkg = self::normalize_plan($addon_level($code));
+			$is = $installed($code);
+			$add('addon:' . $code, 'addon', $pkg, $code, array('installed' => $is, 'can_install' => self::plan_at_least($pkg, $package)));
+			$addons[$code] = $is;
+		}
+
+		$key_set = function ($name) use ($settings) {
+			return isset($settings->$name) && is_string($settings->$name) && strlen(trim($settings->$name)) > 5 && $settings->$name !== 'NotFoundEl';
+		};
+		$out = array(
+			'api_version'  => defined('EMSFB_API_VERSION') ? EMSFB_API_VERSION : 1,
+			'efb_version'  => defined('EMSFB_PLUGIN_VERSION') ? EMSFB_PLUGIN_VERSION : '',
+			'plan'         => array('package_type' => $package, 'name' => self::plan($package)),
+			'features'     => $features,
+			'addons'       => $addons,
+			// Presence only, never the keys (brief rule 4).
+			'payment_keys' => array(
+				'stripe' => $key_set('stripeSKey') && $key_set('stripePKey'),
+				'paypal' => $key_set('paypalSKey') && $key_set('paypalPKey'),
+			),
+		);
+		return function_exists('apply_filters') ? apply_filters('efb_capabilities', $out, $args) : $out;
+	}
+
+	/** efb_admin_localize_vars: efb_var.api_version and efb_var.capabilities on every EFB admin screen. */
+	public static function localize_vars($vars, $context = '') {
+		if (!is_array($vars)) return $vars;
+		$vars['api_version'] = defined('EMSFB_API_VERSION') ? EMSFB_API_VERSION : 1;
+		$vars['capabilities'] = self::capabilities();
+		return $vars;
+	}
+
 	/* ---------------------------------------------------------------- B2 */
 
 	private static $templates_cache = null;
@@ -263,3 +428,10 @@ class Builder_Api {
 		return $m;
 	}
 }
+
+if (function_exists('add_filter')) {
+	add_filter('efb_admin_localize_vars', array('\Emsfb\Builder_Api', 'localize_vars'), 10, 2);
+}
+
+// Global plan helpers (efb_plan_efb(), efb_plan_at_least_efb(), ...): one registry for every gate.
+require_once __DIR__ . '/builder-api-functions-efb.php';

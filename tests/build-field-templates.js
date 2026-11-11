@@ -48,9 +48,12 @@ async function generate() {
         });
         out[id] = { rows, form_patch: rows.formPatch || null };
       }
-      return out;
+      // The palette's plan flags (fields_efb[].pro in val-efb.js): the source of the field part of the capability registry (B3).
+      const palette = {};
+      fields_efb.forEach((f) => { palette[f.id] = { pro: f.pro === true }; });
+      return { out, palette };
     });
-    return { generator: 'tests/build-field-templates.js', source: 'efbBuilderApi.newItems() = addNewElement()', templates: data };
+    return { generator: 'tests/build-field-templates.js', source: 'efbBuilderApi.newItems() = addNewElement()', palette: data.palette, templates: data.out };
   } finally {
     await h.browser.close();
   }

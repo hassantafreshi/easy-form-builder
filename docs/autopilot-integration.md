@@ -17,6 +17,7 @@ node tests/test-ap-a6-intltelinput-late.js
 node tests/test-ap-a7-settings-notfound.js
 node tests/test-ap-b1-builder-api.js
 node tests/test-ap-b2-field-templates.js
+node tests/test-ap-b3-capabilities.js
 ```
 
 (The full list is in [Tests](#tests) at the end.)
@@ -315,3 +316,56 @@ Events on `document`:
   the server (a new form): `get_efbFunction()->field_templates_efb('address')['rows']`, or
   `\Emsfb\Builder_Api::geo_defaults()` for the countries. Check `efb_version` to know which EFB built
   them.
+
+### B3. Plan and add-on registry (`efb_var.capabilities`, `capabilities_efb()`)
+
+- **PHP.** `\Emsfb\Builder_Api::capabilities($args)` = `get_efbFunction()->capabilities_efb()`,
+  filter `efb_capabilities`. Answer:
+  ```json
+  { "api_version": 1, "efb_version": "4.3.1",
+    "plan": { "package_type": 3, "name": "free_plus" },
+    "features": { "setting:thank_you_redirect": { "kind": "setting", "package": "free_plus", "addon": null,
+        "available_now": true, "reason": null, "prompt_state": 3, "message_key": "thisFeatureAvailableFreePlusPro",
+        "form_keys": ["thank_you=rdrct", "rePage"], "label_key": "redirectPage" }, "…": {} },
+    "addons": { "AdnSS": false, "…": false },
+    "payment_keys": { "stripe": true, "paypal": false } }
+  ```
+  Keys: `field:<palette id>` (56; level from `fields_efb[].pro` through the generated template file,
+  Pro for `pdate`/`ardate`/`persiaPay` whose add-ons are Pro, Free Plus + add-on for
+  `stripe`/`paypal`), `setting:*` (email subject, email content type, redirect, loading type/colour,
+  custom required message, custom colours, hidden/disabled, mobile layout, SMS, Telegram, logic
+  rules, calculate, confirmation and webhook rules, the three gateways), `addon:<code>` (every
+  add-on, level from `addon_required_package_efb()`, plus `installed` / `can_install`),
+  `limit:steps` (Free 2) and `limit:logic` (Free Plus: 3 field rules, 2 notification rules,
+  2 conditions per group). `reason` is `plan` or `addon` when `available_now` is false.
+  `payment_keys` says only whether gateway keys are configured; no key, licence or account value is
+  returned (brief rule 4).
+- **Plan helpers (the F18 / README "shared decisions" names, all from this registry)**, in
+  `includes/builder-api-functions-efb.php`: `efb_current_package_efb()` (0|1|2|3; −1/10 → 2; reads
+  the option only), `efb_plan_efb()` (`free|free_plus|pro|pro_pending`),
+  `efb_plan_at_least_efb('free_plus'|'pro'|3|1)`, `efb_feature_registry_efb()`,
+  `efb_feature_required_package_efb($key)` (0/3/1; unknown → 1; filter
+  `efb_feature_required_package`), `efb_feature_available_efb($key)`. F18 can build its dialog on
+  these instead of a second table.
+- **JS.** `efb_var.capabilities` and `efb_var.api_version` are added to every EFB admin screen
+  through the existing `efb_admin_localize_vars` filter (Create, panel, add-ons pages). In
+  `admin-efb.js`: `efb_capability_efb(key)`, `efb_capability_available_efb(key, fallback)` (reads
+  the plan live from `efb_var.setting.package_type`, so a plan change in the page counts),
+  `efb_capability_state_efb(key, fallback)` and `efb_capability_prompt_efb(key, fallback)`. The
+  gates and dialogs of the redirect, email subject, email content type, loading type/colour, SMS and
+  Telegram, and the gems of the email subject / content / redirect, read the registry, so a gate
+  and the text of its dialog come from one entry (the root of A4). A page without the registry
+  (an old cached page) keeps the previous behaviour through the fallbacks.
+- **Version.** `EMSFB_API_VERSION = 1` (`emsfb.php`) and `efb_var.api_version = 1`, now that B1–B3
+  are in place.
+- **Test.** `node tests/test-ap-b3-capabilities.js`: plan helpers for `emsfb_pro` −1/0/1/2/3/10;
+  every entry the brief lists; availability per plan and add-on; no secret in the output; every
+  add-on level equals `addon_required_package_efb()` and every field level equals
+  `fields_efb[].pro`; `efb_admin_localize_vars` adds both keys; in the builder the gate and the gem
+  follow a changed registry entry and a plan change in the page. 49 passed. A4 (16) still passes.
+- **AutoPilot.** Delete the hand-kept plan list. Before writing a setting or field, read
+  `efb_var.capabilities.features['setting:email_sub']` (builder) or
+  `get_efbFunction()->capabilities_efb()['features'][...]` (server): `available_now` decides,
+  `package`/`addon` say what to tell the admin, `message_key` gives the translated sentence
+  (`efb_var.text[message_key]`), `prompt_state` opens EFB's own dialog (`pro_show_efb(state)`).
+  Gateway readiness: `payment_keys.stripe`. Plans are reported, never changed by an agent (F18).

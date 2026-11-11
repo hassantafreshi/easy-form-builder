@@ -1,6 +1,152 @@
 {
  "generator": "tests/build-field-templates.js",
  "source": "efbBuilderApi.newItems() = addNewElement()",
+ "palette": {
+  "text": {
+   "pro": false
+  },
+  "name": {
+   "pro": false
+  },
+  "password": {
+   "pro": false
+  },
+  "email": {
+   "pro": false
+  },
+  "number": {
+   "pro": false
+  },
+  "textarea": {
+   "pro": false
+  },
+  "steps": {
+   "pro": false
+  },
+  "checkbox": {
+   "pro": false
+  },
+  "radio": {
+   "pro": false
+  },
+  "select": {
+   "pro": false
+  },
+  "multiselect": {
+   "pro": false
+  },
+  "tel": {
+   "pro": false
+  },
+  "mobile": {
+   "pro": true
+  },
+  "range": {
+   "pro": false
+  },
+  "date": {
+   "pro": false
+  },
+  "file": {
+   "pro": false
+  },
+  "dadfile": {
+   "pro": true
+  },
+  "audio_recorder": {
+   "pro": true
+  },
+  "video_recorder": {
+   "pro": true
+  },
+  "screen_recorder": {
+   "pro": true
+  },
+  "address": {
+   "pro": true
+  },
+  "payCheckbox": {
+   "pro": true
+  },
+  "payRadio": {
+   "pro": true
+  },
+  "prcfld": {
+   "pro": true
+  },
+  "ttlprc": {
+   "pro": true
+  },
+  "maps": {
+   "pro": true
+  },
+  "stripe": {
+   "pro": true
+  },
+  "paypal": {
+   "pro": true
+  },
+  "url": {
+   "pro": false
+  },
+  "conturyList": {
+   "pro": false
+  },
+  "stateProvince": {
+   "pro": true
+  },
+  "cityList": {
+   "pro": true
+  },
+  "esign": {
+   "pro": true
+  },
+  "switch": {
+   "pro": true
+  },
+  "chlCheckBox": {
+   "pro": true
+  },
+  "heading": {
+   "pro": false
+  },
+  "color": {
+   "pro": true
+  },
+  "rating": {
+   "pro": false
+  },
+  "yesNo": {
+   "pro": true
+  },
+  "link": {
+   "pro": true
+  },
+  "html": {
+   "pro": true
+  },
+  "pointr5": {
+   "pro": true
+  },
+  "pointr10": {
+   "pro": true
+  },
+  "imgRadio": {
+   "pro": true
+  },
+  "pdate": {
+   "pro": true
+  },
+  "ardate": {
+   "pro": true
+  },
+  "trmCheckbox": {
+   "pro": false
+  },
+  "table_matrix": {
+   "pro": true
+  }
+ },
  "templates": {
   "text": {
    "rows": [

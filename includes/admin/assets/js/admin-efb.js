@@ -2626,8 +2626,10 @@ let change_el_edit_Efb = (el) => {
        /* SMS is a Pro add-on (AdnSS). One message, then stop (A4): Free, and Free Plus
           without the add-on (a plan that cannot install it), get the Pro dialog; Pro
           without it gets "install the add-on". */
-       if(pro_efb!=true || (Number(efb_var.setting.AdnSS)!=1 && typeof efb_addon_can_install_efb === 'function' && !efb_addon_can_install_efb('AdnSS'))){
-          pro_show_efb(1);
+       const smsCap = efb_capability_efb('addon:AdnSS');
+       const smsPlanOk = smsCap ? (efb_current_plan_rank_efb() >= 2 || Number(efb_var.setting.AdnSS)==1) : !(pro_efb!=true || (Number(efb_var.setting.AdnSS)!=1 && typeof efb_addon_can_install_efb === 'function' && !efb_addon_can_install_efb('AdnSS')));
+       if(pro_efb!=true || !smsPlanOk){
+          efb_capability_prompt_efb('setting:sms_notifications', 1);
           document.getElementById("smsEnableEl").checked = false;
           document.getElementById("smsEnableEl").classList.remove('active') ;
           return false;
@@ -2696,8 +2698,10 @@ let change_el_edit_Efb = (el) => {
         break;
       case "telegramEnableEl":
         // Telegram is a Pro add-on (AdnTLG): one message, then stop (A4).
-        if(pro_efb!=true || (Number(efb_var.addons.AdnTLG)!=1 && typeof efb_addon_can_install_efb === 'function' && !efb_addon_can_install_efb('AdnTLG'))){
-          pro_show_efb(1);
+        const tlgCap = efb_capability_efb('addon:AdnTLG');
+        const tlgPlanOk = tlgCap ? (efb_current_plan_rank_efb() >= 2 || Number(efb_var.addons.AdnTLG)==1) : !(Number(efb_var.addons.AdnTLG)!=1 && typeof efb_addon_can_install_efb === 'function' && !efb_addon_can_install_efb('AdnTLG'));
+        if(pro_efb!=true || !tlgPlanOk){
+          efb_capability_prompt_efb('setting:telegram_notifications', 1);
           document.getElementById("telegramEnableEl").checked = false;
           document.getElementById("telegramEnableEl").classList.remove('active') ;
           return false;
@@ -2844,8 +2848,8 @@ let change_el_edit_Efb = (el) => {
         valj_efb[0].stateForm = el.classList.contains('active')==true ? true : false
         break;
       case 'emailNotiContainsEl':
-        if(pro_efb!=true){
-          pro_show_efb(3);
+        if(!efb_capability_available_efb('setting:email_noti_type', pro_efb==true)){
+          efb_capability_prompt_efb('setting:email_noti_type', 3);
           // Keep showing what the form really sends (the stored choice, or the
           // default "content and link"); a blank select looked like no email.
           el.value = (valj_efb[0].email_noti_type || 'msg');
@@ -3113,9 +3117,9 @@ let change_el_edit_Efb = (el) => {
       case "thankYouredirectEl":
 
         postId = el.value.match(/^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?!&\/=;',]*)$/gi)
-        if(pro_efb!=true){
-          // Free Plus and Pro both have the redirect (the gate is pro_efb), so the dialog says so (A4).
-          pro_show_efb(3);
+        if(!efb_capability_available_efb('setting:thank_you_redirect', pro_efb==true)){
+          // Free Plus and Pro both have the redirect, so the dialog says so (A4, B3 registry).
+          efb_capability_prompt_efb('setting:thank_you_redirect', 3);
           valj_efb[0].thank_you ='msg';
           valj_efb[0].rePage = '';
           break;
@@ -3198,8 +3202,8 @@ let change_el_edit_Efb = (el) => {
         valj_efb[0].survey_chart_type = el.options[el.selectedIndex].value;
         break;
       case "loadingTypeEl":
-        if(pro_efb!=true){
-          pro_show_efb(3);
+        if(!efb_capability_available_efb('setting:loading_type', pro_efb==true)){
+          efb_capability_prompt_efb('setting:loading_type', 3);
           return;
         }else{
           valj_efb[0].loading_type ='bars';
@@ -3211,8 +3215,8 @@ let change_el_edit_Efb = (el) => {
         }
         break;
       case "loadingColorEl":
-        if(pro_efb!=true){
-          pro_show_efb(3);
+        if(!efb_capability_available_efb('setting:loading_type', pro_efb==true)){
+          efb_capability_prompt_efb('setting:loading_type', 3);
           return;
         }else{
           if (!valj_efb[0].hasOwnProperty('loading_color')) {
@@ -4116,8 +4120,8 @@ let change_el_edit_Efb = (el) => {
             document.getElementById('optionListefb').innerHTML=opetions
       break;
       case 'FormEmailSubjectEl':
-        if(pro_efb!=true){
-          pro_show_efb(3);
+        if(!efb_capability_available_efb('setting:email_sub', pro_efb==true)){
+          efb_capability_prompt_efb('setting:email_sub', 3);
           valj_efb[0].email_sub ='';
           break;
         }
@@ -6919,6 +6923,43 @@ function fub_shwBtns_efb() {
  * the design system's gold-toned dialog rather than the bootstrap grid the
  * body used to be.
  */
+/* B3: one registry for locks and dialogs. efb_var.capabilities is built by
+   Emsfb\Builder_Api::capabilities(); these read it so the plan a gate checks and the
+   plan its dialog names come from the same entry (the root of A4). The plan is read
+   live (efb_var.setting.package_type), so a plan change in the page is honoured. */
+function efb_capability_efb(key) {
+  const caps = (typeof efb_var !== 'undefined' && efb_var && efb_var.capabilities) ? efb_var.capabilities : null;
+  return caps && caps.features && caps.features[key] ? caps.features[key] : null;
+}
+function efb_current_plan_rank_efb() {
+  const s = (typeof efb_var !== 'undefined' && efb_var && efb_var.setting) ? efb_var.setting : {};
+  const pkg = s.package_type !== undefined ? Number(s.package_type) : NaN;
+  if (pkg === 1) return 2;
+  if (pkg === 3) return 1;
+  if (pkg === 2 || pkg === 0) return 0;
+  return (typeof pro_efb !== 'undefined' && pro_efb === true) ? 1 : 0;
+}
+/* fallback: what the caller used before the registry (an old cached page has none). */
+function efb_capability_available_efb(key, fallback) {
+  const c = efb_capability_efb(key);
+  if (!c) return fallback;
+  const need = c.package === 'pro' ? 2 : (c.package === 'free_plus' ? 1 : 0);
+  if (efb_current_plan_rank_efb() < need) return false;
+  if (c.addon) {
+    const flags = Object.assign({}, (efb_var && efb_var.addons) || {}, (efb_var && efb_var.setting) || {});
+    return Number(flags[c.addon]) === 1;
+  }
+  return true;
+}
+function efb_capability_state_efb(key, fallback) {
+  const c = efb_capability_efb(key);
+  if (!c || !c.prompt_state) return fallback;
+  return c.prompt_state;
+}
+function efb_capability_prompt_efb(key, fallback) {
+  pro_show_efb(efb_capability_state_efb(key, fallback));
+}
+
 function pro_show_efb(state) {
   const t = (key, fallback) => (typeof efb_var !== 'undefined' && efb_var.text && efb_var.text[key]) || fallback;
   const price = t('priceyr', '$NN/year').replace('NN', pro_price_efb);

@@ -845,7 +845,7 @@ function show_setting_window_efb(idset, opts) {
         : 'Leave empty to use default message';
       return `
       <div class="efb mx-1 efb ">
-      ${pro_efb==true ?"":funProEfb(3)}
+      ${pro_efb==true ?"":funProEfb(efb_capability_state_efb('setting:email_sub', 3))}
       <label for="FormEmailSubjectEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.mlsbjt}</label>
       <input type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d rounded-4 efb" placeholder="${efb_var.text.emailSubject || 'Email Subject'}" id="FormEmailSubjectEl" required value="${value}">
       <small class="efb text-muted fs-8 mx-2">${hintTxt}</small>
@@ -859,7 +859,7 @@ function show_setting_window_efb(idset, opts) {
       // Changing it is a Pro option: badge it like the Email Subject above,
       // so the badge is not mistaken for belonging to only one of them.
       return `
-    ${pro_efb==true ?"":funProEfb(3)}
+    ${pro_efb==true ?"":funProEfb(efb_capability_state_efb('setting:email_noti_type', 3))}
     <label for="emailNotiContainsEl" class="efb mt-2 mb-1   efb">${efb_var.text.emlc}</label>
                         <select  class="efb elEdit form-select efb border-d rounded-4 mb-1" data-id="${idset}"  id="emailNotiContainsEl" >
                             <option value="cc" ${val == 'cc' ? `selected` : ''}>${efb_var.text.emlacl}</option>
@@ -1073,7 +1073,7 @@ function show_setting_window_efb(idset, opts) {
                         </select>`;
 
     const thankYouredirectEls = `<div id="tnxrdrct" class="efb tnxrdrct my-1 ${ valj_efb[0].thank_you == 'rdrct'? 'd-block' :'d-none' }">
-    ${pro_efb==true ?"":funProEfb(3)}
+    ${pro_efb==true ?"":funProEfb(efb_capability_state_efb('setting:thank_you_redirect', 3))}
     <label for="thankYouredirectEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.redirectPage} <i class="efb bi-patch-question fs-7 text-success pointer-efb" onclick="Link_emsFormBuilder('redirectPage')"> </i></label>
     <input type="url" data-id="thankYouredirectEl" class="efb elEdit text-muted form-control h-d-efb border-d rounded-4  mb-1 efb" placeholder="${efb_var.text.url}" id="thankYouredirectEl" required value="${ valj_efb[0].hasOwnProperty('rePage') ? efb_url_from_storage_efb(valj_efb[0].rePage) : ''}"></div>`
     const paymentGetWayEls =()=>{

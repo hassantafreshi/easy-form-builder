@@ -98,6 +98,6 @@ const toggle = async (page, id) => {
   const val = fs.readFileSync(path.join(ROOT, 'includes/admin/assets/js/val-efb.js'), 'utf8');
   c.check('Free Plus settings gems (custom required message, colours, email subject/content, redirect) use state 3',
     !/onclick="pro_show_efb\(1\)" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="' \+ \(efb_var\.text\.fieldAvailableInProversion/.test(val)
-    && (val.match(/funProEfb\(3\)/g) || []).length >= 3);
+    && (val.match(/funProEfb\((3|efb_capability_state_efb\('setting:[a-z_]+', 3\))\)/g) || []).length >= 3); // B3 reads the state from the registry
   c.done();
 })();

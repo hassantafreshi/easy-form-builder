@@ -4652,6 +4652,14 @@ class efbFunction {
 	}
 
 	/**
+	 * B3 (AutoPilot, F18): the plan and add-on registry, the same data as efb_var.capabilities.
+	 * See \Emsfb\Builder_Api::capabilities(); filter efb_capabilities.
+	 */
+	public function capabilities_efb($args = array()) {
+		return class_exists('\Emsfb\Builder_Api') ? \Emsfb\Builder_Api::capabilities(is_array($args) ? $args : array()) : array();
+	}
+
+	/**
 	 * Add-on keys this plan keeps when downgrading to it.
 	 *
 	 * @param int $package_type Plan being moved to.
