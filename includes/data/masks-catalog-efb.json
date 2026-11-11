@@ -1,0 +1,6695 @@
+{
+  "version": 1,
+  "generated": "by scratchpad/masks-verify/build-catalog.js; examples tested with efb-masks.js (node) and efb-masks.php (php)",
+  "token_syntax": {
+    "tokens": {
+      "9": "one ASCII digit 0-9 (Persian/Arabic-Indic/full-width digits are normalized to ASCII first)",
+      "a": "one letter: A-Z, a-z or an Arabic-script letter (U+0621-063A, U+0641-064A, U+066E-06D3, U+06FA-06FC)",
+      "*": "one letter or digit (as above)",
+      "[": "start of an optional part - everything up to the matching ] may be left empty",
+      "]": "end of an optional part",
+      "{n}": "repeat the previous token exactly n times",
+      "{n,m}": "repeat the previous token n to m times (n required + m-n optional)",
+      "\\": "escape: the next character is a literal (\\9, \\a, \\*, \\[, \\{, \\\\)"
+    },
+    "literal": "every other character is a literal that is auto-inserted while typing",
+    "behaviour": [
+      "Literals are emitted lazily: only when the next slot is filled (so Backspace never gets stuck on a separator).",
+      "If the user types the literal itself it is consumed, not duplicated.",
+      "A character that fits no slot is dropped; an optional slot that does not fit is skipped.",
+      "maxlength = number of tokens after expansion (all optional parts filled)."
+    ],
+    "examples": {
+      "(999) 999-9999": "(202) 555-0123",
+      "99999[-9999]": "12345 or 12345-6789",
+      "0\\999 999 9999": "0912 345 6789 (literal 0 and 9)",
+      "9{3,4}": "3 or 4 digits",
+      "aa99[ ****]{...}": "IBAN groups"
+    },
+    "compatibility": {
+      "gravity_forms": "Same 9 / a / * tokens (jQuery Masked Input). Gravity Forms uses \"?\" to make the REST of the mask optional: convert \"999?9\" -> \"999[9]\". Source: https://docs.gravityforms.com/input-mask/",
+      "wpforms": "WPForms custom masks use the Inputmask library: 9 / a / * plus [ ] optional and {n} / {n,m} repeat - identical syntax (unverified for every WPForms version).",
+      "fluent_forms": "Fluent Forms uses jQuery Mask Plugin tokens (0 = digit, 9 = optional digit, # = recursive digits, A = alphanumeric, S = letter). Convert 0->9, 9->[9], A->*, S->a when importing (unverified).",
+      "import_rule": "When importing a mask from another plugin, translate tokens; when exporting keep 9/a/* which every one of them understands."
+    }
+  },
+  "normalization": {
+    "order": [
+      "1. digits: U+06F0-06F9 (Persian ۰-۹), U+0660-0669 (Arabic-Indic ٠-٩), U+FF10-FF19 (full-width ０-９) -> ASCII 0-9",
+      "2. remove invisible characters: U+200B-200F (ZWSP, ZWNJ, ZWJ, LRM, RLM), U+202A-202E, U+2066-2069 (bidi embeddings/isolates), U+FEFF (BOM), U+00AD (soft hyphen)",
+      "3. spaces: U+00A0, U+2007, U+202F, U+3000 -> U+0020",
+      "4. separators: U+066B ARABIC DECIMAL SEPARATOR (٫) -> \".\"; U+066C ARABIC THOUSANDS SEPARATOR (٬) and U+060C ARABIC COMMA (،) -> \",\"",
+      "5. dashes: U+2010-2015, U+2212 (minus), U+FE58, U+FE63, U+FF0D -> \"-\"; full-width + / : -> ASCII",
+      "6. letters (only when the mask sets fold_letters = \"fa\"): U+064A ي and U+0649 ى -> U+06CC ی; U+0643 ك -> U+06A9 ک",
+      "7. collapse ASCII whitespace runs to one space, trim",
+      "8. uppercase ASCII a-z when mask.uppercase (never locale-dependent upper-casing: Turkish i problem)",
+      "9. remove every character listed in mask.strip (e.g. \" -\" for IDs, \" -().\" for phones)",
+      "10. left-pad with zeros when mask.pad_left = {to, min} and the value is all digits with min <= length < to (Iran national code typed without leading zeros)"
+    ],
+    "digit_map": {
+      "persian": "۰۱۲۳۴۵۶۷۸۹",
+      "arabic_indic": "٠١٢٣٤٥٦٧٨٩",
+      "full_width": "０１２３４５６７８９"
+    },
+    "letter_folding": {
+      "ي (U+064A)": "ی (U+06CC)",
+      "ى (U+0649)": "ی (U+06CC)",
+      "ك (U+0643)": "ک (U+06A9)",
+      "note": "Apply only to Persian-context masks (fold_letters=\"fa\"); in Arabic forms ي/ك are the correct letters and must be kept. ZWNJ is meaningful in Persian TEXT fields - strip it only in masked fields."
+    },
+    "stored_vs_displayed": {
+      "stored": "Always store the canonical value: ASCII digits, no invisible chars, uppercase where mask.uppercase, and per mask.store: \"digits\" (separators removed), \"e164\" (+CCNSN for phones), \"strip_grouping\" (amount without thousands separators), \"normalized\" (as normalized).",
+      "displayed": "Display may re-apply the mask and optionally convert digits to the viewer's script (Persian digits for fa_IR, Arabic-Indic for ar where the site prefers them). Never store the display form.",
+      "server": "The server MUST re-run normalize + validate on submit; client formatting is a convenience only."
+    },
+    "pitfalls": [
+      "Persian digits from mobile keyboards",
+      "ي vs ی",
+      "copy-pasted IBAN with spaces / RLM marks",
+      "Saudi/UAE numbers typed with 00966 / +966 0",
+      "Iran national code with leading zeros typed as 8-9 digits"
+    ]
+  },
+  "error_messages": {
+    "empty": {
+      "en": "Please enter {label}.",
+      "fa": "لطفاً {label} را وارد کنید.",
+      "ar": "يرجى إدخال {label}."
+    },
+    "format": {
+      "en": "{label} is not in the correct format (example: {placeholder}).",
+      "fa": "قالب {label} درست نیست (نمونه: {placeholder}).",
+      "ar": "تنسيق {label} غير صحيح (مثال: {placeholder})."
+    },
+    "checksum": {
+      "en": "{label} is not valid. Please check the digits for typos.",
+      "fa": "{label} معتبر نیست. لطفاً ارقام را دوباره بررسی کنید.",
+      "ar": "{label} غير صالح. يرجى التحقق من الأرقام."
+    },
+    "rule": {
+      "en": "{label} contains an impossible value (for example a date that does not exist or a reserved number).",
+      "fa": "{label} مقدار غیرممکن دارد (مثلاً تاریخی که وجود ندارد یا شماره رزروشده).",
+      "ar": "{label} يحتوي على قيمة غير ممكنة (مثل تاريخ غير موجود أو رقم محجوز)."
+    },
+    "length": {
+      "en": "{label} must be {length} characters.",
+      "fa": "{label} باید {length} کاراکتر باشد.",
+      "ar": "يجب أن يتكون {label} من {length} خانات."
+    }
+  },
+  "checksums": {
+    "iran_national_code": "Σ d[i]*(10-i), i=0..8; r = Σ mod 11; check = r<2 ? r : 11-r; reject repdigits and middle block 000000",
+    "iran_legal_id": "add = d[9]+2; Σ (d[i]+add)*[29,27,23,19,17][i mod 5], i=0..9; r = Σ mod 11; r==10 -> 0; r == d[10] (unverified)",
+    "luhn": "from the right, double every 2nd digit, subtract 9 if > 9, Σ mod 10 == 0",
+    "verhoeff": "dihedral group D5 tables d/p/inv; c = d[c][p[i mod 8][digit_i_from_right]]; valid when c == 0",
+    "iso7064_mod97_10": "country length table; move 4 chars to end; A=10..Z=35; integer mod 97 == 1 (chunked, no BigInt)",
+    "saudi_nin": "first digit 1|2 and Luhn over 10 digits",
+    "emirates_id": "starts 784 and Luhn over 15 digits",
+    "kuwait_civil_id": "first digit 1|2|3, valid birth date YYMMDD, 11 - (Σ w[i]*d[i] mod 11) == d[11], w=[2,1,6,3,7,9,10,5,8,4,2]",
+    "au_abn": "(d[0]-1)*10 + Σ d[i]*[1,3,5,...,19]; Σ mod 89 == 0",
+    "card": "Luhn + length allowed for the detected brand"
+  },
+  "validators": {
+    "date": "split on non-digits, order by date_order, year_range, calendar gregorian|jalali|hijri day limits",
+    "card_expiry": "MM/YY, MM 01-12, optional not-expired check",
+    "egypt_nid": "century 2|3, valid birth date, governorate code in list",
+    "uk_nino": "HMRC prefix letter rules",
+    "us_ssn": "area not 000/666/9xx, group not 00, serial not 0000",
+    "us_ein": "IRS campus prefix list",
+    "nanp": "NXX NXX XXXX and no N11 area code / exchange"
+  },
+  "masks": [
+    {
+      "id": "ir.mobile",
+      "country": "IR",
+      "category": "phone_mobile",
+      "label": {
+        "en": "Iran mobile number",
+        "fa": "شماره موبایل",
+        "ar": "رقم الجوال الإيراني"
+      },
+      "mask": "0\\999 999 9999",
+      "formatter": null,
+      "placeholder": {
+        "en": "0912 345 6789",
+        "fa": "۰۹۱۲ ۳۴۵ ۶۷۸۹",
+        "ar": "0912 345 6789"
+      },
+      "regex": "^(?:\\+98|0098|98|0)?9(?:0[0-5]|1\\d|2[0-3]|3\\d|41|9\\d)\\d{7}$",
+      "regex_strict": null,
+      "length": 11,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "tel",
+      "autocomplete": "tel-national",
+      "dir": "ltr",
+      "strip": " -().",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "e164",
+      "e164": {
+        "cc": "98",
+        "trunk": "0",
+        "nsn_length": [
+          10
+        ]
+      },
+      "metadata": {
+        "operator_prefixes": {
+          "MCI": [
+            "910",
+            "911",
+            "912",
+            "913",
+            "914",
+            "915",
+            "916",
+            "917",
+            "918",
+            "919",
+            "990",
+            "991",
+            "992",
+            "993",
+            "994",
+            "995",
+            "996"
+          ],
+          "Irancell": [
+            "900",
+            "901",
+            "902",
+            "903",
+            "904",
+            "905",
+            "930",
+            "933",
+            "935",
+            "936",
+            "937",
+            "938",
+            "939",
+            "941"
+          ],
+          "RighTel": [
+            "920",
+            "921",
+            "922",
+            "923"
+          ],
+          "Taliya_defunct": [
+            "932"
+          ],
+          "ShatelMobile": [
+            "998"
+          ],
+          "Aptel": [
+            "999"
+          ]
+        }
+      },
+      "examples_valid": [
+        "09121234567",
+        "+98 912 345 6789",
+        "۰۹۳۵۱۲۳۴۵۶۷",
+        "0098-921-123-4567",
+        "9901234567"
+      ],
+      "examples_invalid": [
+        {
+          "value": "0812345678",
+          "expect": "format",
+          "reason": "does not start with 09 (landline-like)"
+        },
+        {
+          "value": "0912123456",
+          "expect": "format",
+          "reason": "only 10 digits with trunk 0"
+        },
+        {
+          "value": "09511234567",
+          "expect": "format",
+          "reason": "095x is not an allocated mobile prefix"
+        },
+        {
+          "value": "+1 912 123 4567",
+          "expect": "format",
+          "reason": "wrong country code"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "09121234567",
+          "output": "0912 123 4567"
+        },
+        {
+          "input": "۰۹۱۲۱۲۳۴۵۶۷",
+          "output": "0912 123 4567"
+        },
+        {
+          "input": "9121234567",
+          "output": "0912 123 4567"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "Canonical storage is E.164 (+989XXXXXXXXX). Operator prefix table is optional metadata (from persian-tools); prefixes change with MNP (number portability) so never reject on operator. Regex accepts every 09[0-5|1x|2[0-3]|3x|41|9x] block.",
+      "sources": [
+        "https://en.wikipedia.org/wiki/Telephone_numbers_in_Iran",
+        "https://github.com/persian-tools/persian-tools"
+      ]
+    },
+    {
+      "id": "ir.landline",
+      "country": "IR",
+      "category": "phone_landline",
+      "label": {
+        "en": "Iran landline (with area code)",
+        "fa": "تلفن ثابت با کد شهر",
+        "ar": "هاتف أرضي إيراني مع رمز المنطقة"
+      },
+      "mask": "099 9999 9999",
+      "formatter": null,
+      "placeholder": {
+        "en": "021 1234 5678",
+        "fa": "۰۲۱ ۱۲۳۴ ۵۶۷۸",
+        "ar": "021 1234 5678"
+      },
+      "regex": "^(?:\\+98|0098|0)(?:11|13|17|21|23|24|25|26|28|31|34|35|38|41|44|45|51|54|56|58|61|66|71|74|76|77|81|83|84|86|87)\\d{8}$",
+      "regex_strict": null,
+      "length": 11,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "tel",
+      "autocomplete": "tel-national",
+      "dir": "ltr",
+      "strip": " -().",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "e164",
+      "e164": {
+        "cc": "98",
+        "trunk": "0",
+        "nsn_length": [
+          10
+        ]
+      },
+      "metadata": {
+        "area_codes": {
+          "11": "Mazandaran",
+          "13": "Gilan",
+          "17": "Golestan",
+          "21": "Tehran",
+          "23": "Semnan",
+          "24": "Zanjan",
+          "25": "Qom",
+          "26": "Alborz",
+          "28": "Qazvin",
+          "31": "Isfahan",
+          "34": "Kerman",
+          "35": "Yazd",
+          "38": "Chaharmahal and Bakhtiari",
+          "41": "East Azerbaijan",
+          "44": "West Azerbaijan",
+          "45": "Ardabil",
+          "51": "Razavi Khorasan",
+          "54": "Sistan and Baluchestan",
+          "56": "South Khorasan",
+          "58": "North Khorasan",
+          "61": "Khuzestan",
+          "66": "Lorestan",
+          "71": "Fars",
+          "74": "Kohgiluyeh and Boyer-Ahmad",
+          "76": "Hormozgan",
+          "77": "Bushehr",
+          "81": "Hamadan",
+          "83": "Kermanshah",
+          "84": "Ilam",
+          "86": "Markazi",
+          "87": "Kurdistan"
+        }
+      },
+      "examples_valid": [
+        "02112345678",
+        "+98 31 3123 4567",
+        "۰۵۱-۳۸۱۲۳۴۵۶"
+      ],
+      "examples_invalid": [
+        {
+          "value": "12345678",
+          "expect": "format",
+          "reason": "no area code"
+        },
+        {
+          "value": "02912345678",
+          "expect": "format",
+          "reason": "029 is not an Iranian area code"
+        },
+        {
+          "value": "0211234567",
+          "expect": "format",
+          "reason": "subscriber part is 7 digits, needs 8"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "02112345678",
+          "output": "021 1234 5678"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "Area code (2 digits after trunk 0) + 8-digit subscriber number. Users often type the local 8 digits only: offer a separate area-code select if that matters.",
+      "sources": [
+        "https://en.wikipedia.org/wiki/Telephone_numbers_in_Iran"
+      ]
+    },
+    {
+      "id": "ir.national_id",
+      "country": "IR",
+      "category": "national_id",
+      "label": {
+        "en": "Iranian national code",
+        "fa": "کد ملی",
+        "ar": "الرقم الوطني الإيراني"
+      },
+      "mask": "999-999999-9",
+      "formatter": null,
+      "placeholder": {
+        "en": "012-345678-9",
+        "fa": "۰۱۲-۳۴۵۶۷۸-۹",
+        "ar": "012-345678-9"
+      },
+      "regex": "^\\d{10}$",
+      "regex_strict": null,
+      "length": 10,
+      "checksum": "iran_national_code",
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " -.",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": {
+        "to": 10,
+        "min": 8
+      },
+      "store": "digits",
+      "examples_valid": [
+        "1234567891",
+        "001-234567-9",
+        "12345679",
+        "۹۸۷۶۵۴۳۲۱۰"
+      ],
+      "examples_invalid": [
+        {
+          "value": "1111111111",
+          "expect": "checksum",
+          "reason": "all digits identical (passes the raw formula, always rejected)"
+        },
+        {
+          "value": "1234567892",
+          "expect": "checksum",
+          "reason": "wrong check digit"
+        },
+        {
+          "value": "0000000000",
+          "expect": "checksum",
+          "reason": "all zeros"
+        },
+        {
+          "value": "12345678901",
+          "expect": "format",
+          "reason": "11 digits"
+        },
+        {
+          "value": "1234567",
+          "expect": "format",
+          "reason": "7 digits (too short to left-pad)"
+        },
+        {
+          "value": "1230000001",
+          "expect": "checksum",
+          "reason": "middle block 000000"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "1234567891",
+          "output": "123-456789-1"
+        },
+        {
+          "input": "۹۸۷۶۵۴۳۲۱۰",
+          "output": "987-654321-0"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "Checksum: s = Σ d[i]*(10-i) for i=0..8, r = s mod 11; check digit = r if r<2 else 11-r. Codes starting with 00 are common (Tehran); if the user typed 8 or 9 digits, left-pad with zeros to 10 BEFORE checking (pad_left). Persian-tools additionally checks the first 3 digits against the city-code list (optional, not applied here). Valid examples are synthetic sequences with a computed check digit.",
+      "sources": [
+        "https://persian-tools.js.org/functions/verifyIranianNationalId.html",
+        "https://github.com/persian-tools/persian-tools"
+      ]
+    },
+    {
+      "id": "ir.legal_id",
+      "country": "IR",
+      "category": "company_id",
+      "label": {
+        "en": "Iranian legal-entity national ID",
+        "fa": "شناسه ملی اشخاص حقوقی",
+        "ar": "المعرّف الوطني للأشخاص الاعتباريين (إيران)"
+      },
+      "mask": "99999999999",
+      "formatter": null,
+      "placeholder": {
+        "en": "10101234567",
+        "fa": "۱۰۱۰۱۲۳۴۵۶۷",
+        "ar": "10101234567"
+      },
+      "regex": "^\\d{11}$",
+      "regex_strict": null,
+      "length": 11,
+      "checksum": "iran_legal_id",
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " -.",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "digits",
+      "examples_valid": [
+        "10101230031",
+        "14007650021",
+        "۱۰۱۰۱۲۳۰۰۳۱"
+      ],
+      "examples_invalid": [
+        {
+          "value": "10101230032",
+          "expect": "checksum",
+          "reason": "wrong check digit"
+        },
+        {
+          "value": "11111111111",
+          "expect": "checksum",
+          "reason": "all digits identical"
+        },
+        {
+          "value": "1010123456",
+          "expect": "format",
+          "reason": "10 digits (that is a personal national code length)"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "unverified",
+      "notes": "add = d[9] + 2; s = Σ (d[i] + add) * W[i mod 5] for i=0..9 with W = [29,27,23,19,17]; r = s mod 11; r==10 -> 0; r must equal d[10]. (unverified against an official spec) The final mapping differs between libraries: persian-tools uses \"r==10 -> 0\", parsitext uses \"r<2 ? r : 11-r\". This catalog implements persian-tools; the synthetic examples are chosen with r in {0,1} so they satisfy BOTH variants.",
+      "sources": [
+        "https://github.com/persian-tools/persian-tools",
+        "https://docs.rs/crate/parsitext/0.1.3/source/src/validators/legal_id.rs"
+      ]
+    },
+    {
+      "id": "ir.economic_code",
+      "country": "IR",
+      "category": "tax_id",
+      "label": {
+        "en": "Iranian economic code",
+        "fa": "کد اقتصادی",
+        "ar": "الرمز الاقتصادي (إيران)"
+      },
+      "mask": "999999999999",
+      "formatter": null,
+      "placeholder": {
+        "en": "411111111111",
+        "fa": "۴۱۱۱۱۱۱۱۱۱۱۱",
+        "ar": "411111111111"
+      },
+      "regex": "^(?:\\d{10}|\\d{11}|\\d{12})$",
+      "regex_strict": null,
+      "length": [
+        10,
+        12
+      ],
+      "checksum": null,
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " -.",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "digits",
+      "examples_valid": [
+        "411123456789",
+        "10101230031",
+        "1234567891"
+      ],
+      "examples_invalid": [
+        {
+          "value": "12345",
+          "expect": "format",
+          "reason": "too short"
+        },
+        {
+          "value": "4111234567890",
+          "expect": "format",
+          "reason": "13 digits"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "unverified",
+      "notes": "(unverified) The legacy economic code was 12 digits. Since the tax-procedure reform the national ID (11 digits) is used as the economic code for legal entities and the national code (10 digits) for natural persons. No checksum on the 12-digit legacy form; when 10/11 digits are entered you may additionally run iran_national_code / iran_legal_id.",
+      "sources": [
+        "https://github.com/persian-tools/persian-tools"
+      ]
+    },
+    {
+      "id": "ir.postal_code",
+      "country": "IR",
+      "category": "postal_code",
+      "label": {
+        "en": "Iranian postal code",
+        "fa": "کد پستی",
+        "ar": "الرمز البريدي الإيراني"
+      },
+      "mask": "99999-99999",
+      "formatter": null,
+      "placeholder": {
+        "en": "13456-78913",
+        "fa": "۱۳۴۵۶-۷۸۹۱۳",
+        "ar": "13456-78913"
+      },
+      "regex": "^(?!(\\d)\\1{9})\\d{10}$",
+      "regex_strict": "^(?!(\\d)\\1{3})[13-9]{4}[1346-9][013-9]{5}$",
+      "length": 10,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": "postal-code",
+      "dir": "ltr",
+      "strip": " -",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "digits",
+      "examples_valid": [
+        "1345678913",
+        "71345-67891",
+        "۱۳۴۵۶۷۸۹۱۳"
+      ],
+      "examples_invalid": [
+        {
+          "value": "134567891",
+          "expect": "format",
+          "reason": "9 digits"
+        },
+        {
+          "value": "0000000000",
+          "expect": "format",
+          "reason": "all digits identical"
+        },
+        {
+          "value": "13456789134",
+          "expect": "format",
+          "reason": "11 digits"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "1345678913",
+          "output": "13456-78913"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "unverified",
+      "notes": "10 digits, first 5 = area/route, last 5 = building. `regex_strict` encodes a widely-copied community rule (no 0 or 2 in the first 4 digits, 5th digit not 0/2/5, no 2 in the last 5, no 4 identical leading digits) - (unverified, not found in an official Iran Post document); use it only as an opt-in \"strict\" toggle.",
+      "sources": [
+        "https://www.ekhtebar.ir/کدملی-و-کدپستی/"
+      ]
+    },
+    {
+      "id": "ir.bank_card",
+      "country": "IR",
+      "category": "bank_card",
+      "label": {
+        "en": "Iranian bank card (Shetab)",
+        "fa": "شماره کارت بانکی",
+        "ar": "رقم البطاقة المصرفية الإيرانية"
+      },
+      "mask": "9999 9999 9999 9999",
+      "formatter": null,
+      "placeholder": {
+        "en": "6037 9912 3456 7890",
+        "fa": "۶۰۳۷ ۹۹۱۲ ۳۴۵۶ ۷۸۹۰",
+        "ar": "6037 9912 3456 7890"
+      },
+      "regex": "^\\d{16}$",
+      "regex_strict": null,
+      "length": 16,
+      "checksum": "luhn",
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": "cc-number",
+      "dir": "ltr",
+      "strip": " -",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "digits",
+      "metadata": {
+        "bins": {
+          "170019": "Melli",
+          "207177": "Tosee Saderat",
+          "502229": "Pasargad",
+          "502806": "Shahr",
+          "502908": "Tosee Taavon",
+          "502910": "Karafarin",
+          "502938": "Day",
+          "504172": "Resalat",
+          "504706": "Shahr",
+          "505416": "Gardeshgari",
+          "505426": "Gardeshgari",
+          "505785": "Iran Zamin",
+          "505801": "Kosar (merged)",
+          "507677": "Noor credit inst.",
+          "585947": "Khavarmianeh",
+          "585983": "Tejarat",
+          "589210": "Sepah",
+          "589463": "Refah",
+          "603769": "Saderat",
+          "603770": "Keshavarzi",
+          "603799": "Melli",
+          "606256": "Melal",
+          "606373": "Mehr Iran",
+          "610433": "Mellat",
+          "621986": "Saman",
+          "622106": "Parsian",
+          "627353": "Tejarat",
+          "627381": "Ansar (merged into Sepah)",
+          "627412": "Eghtesad Novin",
+          "627488": "Karafarin",
+          "627648": "Tosee Saderat",
+          "627760": "Post Bank",
+          "627884": "Parsian",
+          "627961": "Sanat va Madan",
+          "628023": "Maskan",
+          "628157": "Tosee credit inst.",
+          "636214": "Ayandeh",
+          "636795": "Central Bank",
+          "636797": "Central Bank",
+          "636949": "Hekmat Iranian (merged)",
+          "639194": "Parsian",
+          "639217": "Keshavarzi",
+          "639346": "Sina",
+          "639347": "Pasargad",
+          "639370": "Mehr Iran (Gharzolhasaneh)",
+          "639599": "Ghavamin (merged)",
+          "639607": "Sarmayeh",
+          "903769": "Saderat",
+          "991975": "Mellat"
+        }
+      },
+      "examples_valid": [
+        "6037991234567893",
+        "6104 3398 7654 3210",
+        "۶۲۱۹-۸۶۰۰-۰۰۱۱-۱۱۲۱"
+      ],
+      "examples_invalid": [
+        {
+          "value": "6037991234567894",
+          "expect": "checksum",
+          "reason": "Luhn failure"
+        },
+        {
+          "value": "603799123456789",
+          "expect": "format",
+          "reason": "15 digits"
+        },
+        {
+          "value": "6037 99a1 2345 6789",
+          "expect": "format",
+          "reason": "contains a letter"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "6037991234567893",
+          "output": "6037 9912 3456 7893"
+        },
+        {
+          "input": "۶۱۰۴۳۳۹۸۷۶۵۴۳۲۱۰",
+          "output": "6104 3398 7654 3210"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "Shetab cards are 16 digits + Luhn. BIN (first 6 digits) -> bank name table is optional metadata copied from persian-tools (several banks merged into Sepah in 1399-1400; their BINs still appear). Show the bank name/logo as a hint, never reject unknown BINs. Valid examples are synthetic (real BIN + synthetic account digits + computed Luhn digit) and are not real cards.",
+      "sources": [
+        "https://en.wikipedia.org/wiki/Shetab_Banking_System",
+        "https://github.com/persian-tools/persian-tools",
+        "https://en.wikipedia.org/wiki/Luhn_algorithm"
+      ]
+    },
+    {
+      "id": "ir.sheba",
+      "country": "IR",
+      "category": "iban",
+      "label": {
+        "en": "Sheba (Iranian IBAN)",
+        "fa": "شماره شبا",
+        "ar": "رقم الشبا (آيبان إيران)"
+      },
+      "mask": "IR99 9999 9999 9999 9999 9999 99",
+      "formatter": null,
+      "placeholder": {
+        "en": "IR06 0170 0000 0012 3456 7890 12",
+        "fa": "IR۰۶ ۰۱۷۰ ۰۰۰۰ ۰۰۱۲ ۳۴۵۶ ۷۸۹۰ ۱۲",
+        "ar": "IR06 0170 0000 0012 3456 7890 12"
+      },
+      "regex": "^IR\\d{24}$",
+      "regex_strict": null,
+      "length": 26,
+      "checksum": "iso7064_mod97_10",
+      "validator": null,
+      "inputmode": "text",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " -",
+      "uppercase": true,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "metadata": {
+        "bank_code_position": "characters 5-7 (after IRkk)",
+        "bank_codes": {
+          "010": "Central Bank",
+          "011": "Sanat va Madan",
+          "012": "Mellat",
+          "013": "Refah",
+          "014": "Maskan",
+          "015": "Sepah",
+          "016": "Keshavarzi",
+          "017": "Melli",
+          "018": "Tejarat",
+          "019": "Saderat",
+          "020": "Tosee Saderat",
+          "021": "Post Bank",
+          "022": "Tosee Taavon",
+          "051": "Tosee credit inst.",
+          "052": "Ghavamin",
+          "053": "Karafarin",
+          "054": "Parsian",
+          "055": "Eghtesad Novin",
+          "056": "Saman",
+          "057": "Pasargad",
+          "058": "Sarmayeh",
+          "059": "Sina",
+          "060": "Mehr Iran",
+          "061": "Shahr",
+          "062": "Ayandeh",
+          "063": "Ansar",
+          "064": "Gardeshgari",
+          "065": "Hekmat Iranian",
+          "066": "Day",
+          "069": "Iran Zamin",
+          "070": "Resalat",
+          "073": "Kosar",
+          "075": "Melal",
+          "078": "Khavarmianeh",
+          "079": "Mehr Eghtesad",
+          "080": "Noor",
+          "095": "Iran-Venezuela"
+        }
+      },
+      "examples_valid": [
+        "IR120170000001234567890123",
+        "IR84 0120 0000 0000 0123 4567 89",
+        "ir310560987654321000000001",
+        "IR۱۲۰۱۷۰۰۰۰۰۰۱۲۳۴۵۶۷۸۹۰۱۲۳"
+      ],
+      "examples_invalid": [
+        {
+          "value": "IR120170000001234567890124",
+          "expect": "checksum",
+          "reason": "mod-97 check fails (one digit changed)"
+        },
+        {
+          "value": "120170000001234567890123",
+          "expect": "format",
+          "reason": "IR prefix missing (24 digits only) - see notes"
+        },
+        {
+          "value": "IR12017000000123456789012",
+          "expect": "format",
+          "reason": "25 characters"
+        },
+        {
+          "value": "DE89370400440532013000",
+          "expect": "format",
+          "reason": "not an IR IBAN"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "IR120170000001234567890123",
+          "output": "IR12 0170 0000 0123 4567 8901 23"
+        },
+        {
+          "input": "120170000001234567890123",
+          "output": "IR12 0170 0000 0123 4567 8901 23"
+        },
+        {
+          "input": "ir120170000001234567890123",
+          "output": "IR12 0170 0000 0123 4567 8901 23"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "IR + 2 check digits + 22 digits (bank code is chars 5-7). Iran is not in the SWIFT IBAN registry (national use), but Sheba follows ISO 13616 mod-97. Many users paste only the 24 digits: the mask engine auto-inserts the literal \"IR\" while typing (see examples_format), but server-side validation requires the prefix, so prepend \"IR\" when the value is exactly 24 digits before validating. Synthetic examples.",
+      "sources": [
+        "https://en.wikipedia.org/wiki/International_Bank_Account_Number",
+        "https://github.com/persian-tools/persian-tools",
+        "https://www.iso.org/standard/81090.html"
+      ]
+    },
+    {
+      "id": "ir.account_number",
+      "country": "IR",
+      "category": "bank_account",
+      "label": {
+        "en": "Iranian bank account number",
+        "fa": "شماره حساب بانکی",
+        "ar": "رقم الحساب المصرفي (إيران)"
+      },
+      "mask": null,
+      "formatter": null,
+      "placeholder": {
+        "en": "0123456789012",
+        "fa": "۰۱۲۳۴۵۶۷۸۹۰۱۲",
+        "ar": "0123456789012"
+      },
+      "regex": "^\\d{6,20}$",
+      "regex_strict": null,
+      "length": [
+        6,
+        20
+      ],
+      "checksum": null,
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " -./",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "digits",
+      "examples_valid": [
+        "0123456789012",
+        "۱۲۳-۴۵۶۷۸۹-۱",
+        "12.345.678.9"
+      ],
+      "examples_invalid": [
+        {
+          "value": "12345",
+          "expect": "format",
+          "reason": "too short"
+        },
+        {
+          "value": "12345A6789",
+          "expect": "format",
+          "reason": "letter"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "unverified",
+      "notes": "Each bank uses its own length and separators (e.g. dots or dashes); no common checksum. Prefer collecting Sheba instead. Store digits only.",
+      "sources": [
+        "https://github.com/persian-tools/persian-tools"
+      ]
+    },
+    {
+      "id": "ir.vehicle_plate",
+      "country": "IR",
+      "category": "vehicle_plate",
+      "label": {
+        "en": "Iranian car plate",
+        "fa": "پلاک خودرو",
+        "ar": "لوحة السيارة الإيرانية"
+      },
+      "mask": "99 a 999 - 99",
+      "formatter": null,
+      "placeholder": {
+        "en": "12 B 345 - 67",
+        "fa": "۱۲ ب ۳۴۵ - ۶۷",
+        "ar": "12 ب 345 - 67"
+      },
+      "regex": "^[1-9]\\d(?:الف|ب|پ|ت|ث|ج|د|ز|س|ش|ص|ط|ع|ف|ق|ک|گ|ل|م|ن|و|ه|ی|ژ|D|S)\\d{3}(?:ایران)?[1-9]\\d$",
+      "regex_strict": null,
+      "length": 8,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "text",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " -|",
+      "uppercase": true,
+      "fold_letters": "fa",
+      "pad_left": null,
+      "store": "normalized",
+      "metadata": {
+        "letters": [
+          "الف",
+          "ب",
+          "پ",
+          "ت",
+          "ث",
+          "ج",
+          "د",
+          "ز",
+          "س",
+          "ش",
+          "ص",
+          "ط",
+          "ع",
+          "ف",
+          "ق",
+          "ک",
+          "گ",
+          "ل",
+          "م",
+          "ن",
+          "و",
+          "ه",
+          "ی",
+          "ژ",
+          "D",
+          "S"
+        ],
+        "layout": "NN L NNN | IR NN (two digits, letter, three digits, province code)",
+        "motorcycle": "NNN-NNNNN (8 digits, no letter) - separate preset if needed"
+      },
+      "examples_valid": [
+        "12ب34567",
+        "12 ب 345 - 67",
+        "۴۵ ی ۶۷۸ ایران ۱۰",
+        "22 D 123 - 11",
+        "12 ي 345 67"
+      ],
+      "examples_invalid": [
+        {
+          "value": "12A34567",
+          "expect": "format",
+          "reason": "Latin letter not used on plates"
+        },
+        {
+          "value": "1ب34567",
+          "expect": "format",
+          "reason": "first block must be 2 digits"
+        },
+        {
+          "value": "02ب34567",
+          "expect": "format",
+          "reason": "first block cannot start with 0"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "12ب34567",
+          "output": "12 ب 345 - 67"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "unverified",
+      "notes": "Letter list from persian-tools plate categories (ب ج د س ص ط ق ل م ن و ه ی = private, الف = government, پ = police, ت = taxi (unverified), ع = public transport, ک = agricultural, ژ = disabled/veterans, D/S = diplomatic, ...). \"الف\" is 3 code points so the typing mask cannot represent it: for a real UI build a 4-part composite widget (2 digits | letter select | 3 digits | province code). fold_letters=fa turns Arabic ي/ك into ی/ک so Arabic keyboards still match.",
+      "sources": [
+        "https://en.wikipedia.org/wiki/Vehicle_registration_plates_of_Iran",
+        "https://github.com/persian-tools/persian-tools"
+      ]
+    },
+    {
+      "id": "ir.passport",
+      "country": "IR",
+      "category": "passport",
+      "label": {
+        "en": "Iranian passport number",
+        "fa": "شماره گذرنامه",
+        "ar": "رقم جواز السفر الإيراني"
+      },
+      "mask": "a99999999",
+      "formatter": null,
+      "placeholder": {
+        "en": "A12345678",
+        "fa": "A۱۲۳۴۵۶۷۸",
+        "ar": "A12345678"
+      },
+      "regex": "^[A-Z]\\d{8}$",
+      "regex_strict": null,
+      "length": 9,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "text",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " -",
+      "uppercase": true,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "A12345678",
+        "z98765432"
+      ],
+      "examples_invalid": [
+        {
+          "value": "12345678",
+          "expect": "format",
+          "reason": "letter missing"
+        },
+        {
+          "value": "AB1234567",
+          "expect": "format",
+          "reason": "two letters"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "a12345678",
+          "output": "A12345678"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "unverified",
+      "notes": "(unverified) Current biometric passports show one Latin letter followed by 8 digits. Older booklets differ; for international travellers use intl.passport.",
+      "sources": [
+        "https://en.wikipedia.org/wiki/Iranian_passport"
+      ]
+    },
+    {
+      "id": "ir.date_jalali",
+      "country": "IR",
+      "category": "date",
+      "label": {
+        "en": "Jalali (Solar Hijri) date",
+        "fa": "تاریخ شمسی",
+        "ar": "تاريخ هجري شمسي"
+      },
+      "mask": "9999/99/99",
+      "formatter": null,
+      "placeholder": {
+        "en": "1403/01/15",
+        "fa": "۱۴۰۳/۰۱/۱۵",
+        "ar": "1403/01/15"
+      },
+      "regex": "^1[34]\\d{2}[/\\-.](?:0?[1-9]|1[0-2])[/\\-.](?:0?[1-9]|[12]\\d|3[01])$",
+      "regex_strict": null,
+      "length": 10,
+      "checksum": null,
+      "validator": "date",
+      "inputmode": "numeric",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " ",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "calendar": "jalali",
+      "date_order": "YMD",
+      "year_range": [
+        1300,
+        1499
+      ],
+      "examples_valid": [
+        "1403/12/30",
+        "1402/06/31",
+        "۱۴۰۲/۰۷/۳۰",
+        "1399/12/30",
+        "1300-1-1"
+      ],
+      "examples_invalid": [
+        {
+          "value": "1402/12/30",
+          "expect": "rule",
+          "reason": "1402 is not a leap year (Esfand has 29 days)"
+        },
+        {
+          "value": "1402/07/31",
+          "expect": "rule",
+          "reason": "months 7-11 have 30 days"
+        },
+        {
+          "value": "1500/01/01",
+          "expect": "format",
+          "reason": "year outside 1300-1499"
+        },
+        {
+          "value": "1402/13/01",
+          "expect": "format",
+          "reason": "month 13"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "14030115",
+          "output": "1403/01/15"
+        },
+        {
+          "input": "۱۴۰۳۰۱۱۵",
+          "output": "1403/01/15"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "Months 1-6 have 31 days, 7-11 have 30, month 12 (Esfand) has 29 or 30. Leap years computed with the jalaali-js break table (1399, 1403, 1408 are leap). Store as YYYY/MM/DD with ASCII digits, and optionally also the Gregorian equivalent (jalaali-js toGregorian) for sorting.",
+      "sources": [
+        "https://github.com/jalaali/jalaali-js",
+        "https://en.wikipedia.org/wiki/Solar_Hijri_calendar"
+      ]
+    },
+    {
+      "id": "ir.time",
+      "country": "IR",
+      "category": "time",
+      "label": {
+        "en": "Time (24-hour)",
+        "fa": "ساعت (۲۴ ساعته)",
+        "ar": "الوقت (24 ساعة)"
+      },
+      "mask": "99:99",
+      "formatter": null,
+      "placeholder": {
+        "en": "14:30",
+        "fa": "۱۴:۳۰",
+        "ar": "14:30"
+      },
+      "regex": "^(?:[01]\\d|2[0-3]):[0-5]\\d$",
+      "regex_strict": null,
+      "length": 5,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " ",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "14:30",
+        "۰۸:۰۵",
+        "00:00"
+      ],
+      "examples_invalid": [
+        {
+          "value": "24:00",
+          "expect": "format",
+          "reason": "hour 24"
+        },
+        {
+          "value": "9:5",
+          "expect": "format",
+          "reason": "needs HH:MM"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "1430",
+          "output": "14:30"
+        },
+        {
+          "input": "۰۸۰۵",
+          "output": "08:05"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "Iran uses the 24-hour clock in forms. Same rules as intl.time_24.",
+      "sources": [
+        "https://en.wikipedia.org/wiki/ISO_8601"
+      ]
+    },
+    {
+      "id": "ir.amount_toman",
+      "country": "IR",
+      "category": "currency",
+      "label": {
+        "en": "Amount in Toman",
+        "fa": "مبلغ (تومان)",
+        "ar": "المبلغ بالتومان"
+      },
+      "mask": null,
+      "formatter": "thousands",
+      "placeholder": {
+        "en": "1,250,000",
+        "fa": "۱,۲۵۰,۰۰۰",
+        "ar": "1,250,000"
+      },
+      "regex": "^(?:\\d{1,3}(?:,\\d{3})*|\\d+)$",
+      "regex_strict": null,
+      "length": null,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " ",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "strip_grouping",
+      "examples_valid": [
+        "1,250,000",
+        "۱٬۲۵۰٬۰۰۰",
+        "500000",
+        "۵۰۰،۰۰۰"
+      ],
+      "examples_invalid": [
+        {
+          "value": "1,25,000",
+          "expect": "format",
+          "reason": "wrong grouping"
+        },
+        {
+          "value": "12.5",
+          "expect": "format",
+          "reason": "Toman/Rial amounts have no decimals"
+        },
+        {
+          "value": "-500",
+          "expect": "format",
+          "reason": "negative"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "1250000",
+          "output": "1,250,000"
+        },
+        {
+          "input": "۱۲۵۰۰۰۰",
+          "output": "1,250,000"
+        },
+        {
+          "input": "0001250",
+          "output": "1,250"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "1 Toman = 10 Rial. Display grouping may use the Persian thousands separator U+066C (٬) and Persian digits; store the integer without separators. Show the amount in words (persian-tools numberToWords) under the field to prevent extra-zero mistakes.",
+      "sources": [
+        "https://github.com/persian-tools/persian-tools"
+      ]
+    },
+    {
+      "id": "ir.amount_rial",
+      "country": "IR",
+      "category": "currency",
+      "label": {
+        "en": "Amount in Rial",
+        "fa": "مبلغ (ریال)",
+        "ar": "المبلغ بالريال الإيراني"
+      },
+      "mask": null,
+      "formatter": "thousands",
+      "placeholder": {
+        "en": "12,500,000",
+        "fa": "۱۲,۵۰۰,۰۰۰",
+        "ar": "12,500,000"
+      },
+      "regex": "^(?:\\d{1,3}(?:,\\d{3})*|\\d+)$",
+      "regex_strict": null,
+      "length": null,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " ",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "strip_grouping",
+      "examples_valid": [
+        "12,500,000",
+        "۱۲٬۵۰۰٬۰۰۰"
+      ],
+      "examples_invalid": [
+        {
+          "value": "12,50,000",
+          "expect": "format",
+          "reason": "wrong grouping"
+        },
+        {
+          "value": "1250.5",
+          "expect": "format",
+          "reason": "no decimals"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "12500000",
+          "output": "12,500,000"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "Same as ir.amount_toman; label differs. Payment gateways (Shaparak) take Rial.",
+      "sources": [
+        "https://github.com/persian-tools/persian-tools"
+      ]
+    },
+    {
+      "id": "sa.mobile",
+      "country": "SA",
+      "category": "phone_mobile",
+      "label": {
+        "en": "Saudi mobile number",
+        "fa": "شماره موبایل عربستان",
+        "ar": "رقم الجوال السعودي"
+      },
+      "mask": "059 999 9999",
+      "formatter": null,
+      "placeholder": {
+        "en": "050 123 4567",
+        "fa": "۰۵۰ ۱۲۳ ۴۵۶۷",
+        "ar": "050 123 4567"
+      },
+      "regex": "^(?:\\+966|00966|966|0)?5\\d{8}$",
+      "regex_strict": null,
+      "length": 10,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "tel",
+      "autocomplete": "tel-national",
+      "dir": "ltr",
+      "strip": " -().",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "e164",
+      "e164": {
+        "cc": "966",
+        "trunk": "0",
+        "nsn_length": [
+          9
+        ]
+      },
+      "examples_valid": [
+        "0501234567",
+        "+966 50 123 4567",
+        "00966501234567",
+        "٠٥٥١٢٣٤٥٦٧",
+        "551234567"
+      ],
+      "examples_invalid": [
+        {
+          "value": "0412345678",
+          "expect": "format",
+          "reason": "mobile numbers start with 05"
+        },
+        {
+          "value": "050123456",
+          "expect": "format",
+          "reason": "9 digits with trunk"
+        },
+        {
+          "value": "+966 050 123 4567",
+          "expect": "format",
+          "reason": "trunk 0 kept after +966"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "0501234567",
+          "output": "050 123 4567"
+        },
+        {
+          "input": "٠٥٠١٢٣٤٥٦٧",
+          "output": "050 123 4567"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "NSN is 9 digits starting with 5 (05X XXX XXXX nationally). 00966 and 966 prefixes are accepted and converted to E.164 on save. \"+966 05...\" (trunk kept) is a very common user error: optionally auto-fix by removing the 0 after +966 before validating.",
+      "sources": [
+        "https://en.wikipedia.org/wiki/Telephone_numbers_in_Saudi_Arabia"
+      ]
+    },
+    {
+      "id": "sa.landline",
+      "country": "SA",
+      "category": "phone_landline",
+      "label": {
+        "en": "Saudi landline",
+        "fa": "تلفن ثابت عربستان",
+        "ar": "الهاتف الثابت السعودي"
+      },
+      "mask": "019 999 9999",
+      "formatter": null,
+      "placeholder": {
+        "en": "011 234 5678",
+        "fa": "۰۱۱ ۲۳۴ ۵۶۷۸",
+        "ar": "011 234 5678"
+      },
+      "regex": "^(?:\\+966|00966|966|0)?1[1-7]\\d{7}$",
+      "regex_strict": null,
+      "length": 10,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "tel",
+      "autocomplete": "tel-national",
+      "dir": "ltr",
+      "strip": " -().",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "e164",
+      "e164": {
+        "cc": "966",
+        "trunk": "0",
+        "nsn_length": [
+          9
+        ]
+      },
+      "examples_valid": [
+        "0112345678",
+        "+966 12 345 6789"
+      ],
+      "examples_invalid": [
+        {
+          "value": "0182345678",
+          "expect": "format",
+          "reason": "area code 018 not used"
+        },
+        {
+          "value": "011234567",
+          "expect": "format",
+          "reason": "too short"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "unverified",
+      "notes": "Area codes 011 Riyadh, 012 Makkah/Jeddah, 013 Eastern, 014 Madinah/Tabuk/North, 016 Qassim/Hail, 017 South (unverified list).",
+      "sources": [
+        "https://en.wikipedia.org/wiki/Telephone_numbers_in_Saudi_Arabia"
+      ]
+    },
+    {
+      "id": "sa.national_id",
+      "country": "SA",
+      "category": "national_id",
+      "label": {
+        "en": "Saudi National ID / Iqama",
+        "fa": "شماره ملی / اقامه عربستان",
+        "ar": "رقم الهوية الوطنية / الإقامة"
+      },
+      "mask": "9999999999",
+      "formatter": null,
+      "placeholder": {
+        "en": "1012345672",
+        "fa": "۱۰۱۲۳۴۵۶۷۲",
+        "ar": "1012345672"
+      },
+      "regex": "^[12]\\d{9}$",
+      "regex_strict": null,
+      "length": 10,
+      "checksum": "saudi_nin",
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " -",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "digits",
+      "examples_valid": [
+        "1000000008",
+        "2123456788",
+        "١٢٣٤٥٦٧٨٩٧",
+        "1012345672",
+        "2100000005"
+      ],
+      "examples_invalid": [
+        {
+          "value": "1012345671",
+          "expect": "checksum",
+          "reason": "check digit wrong (published test vector)"
+        },
+        {
+          "value": "3012345678",
+          "expect": "format",
+          "reason": "must start with 1 (citizen) or 2 (resident)"
+        },
+        {
+          "value": "2123456789",
+          "expect": "checksum",
+          "reason": "wrong check digit"
+        },
+        {
+          "value": "101234567",
+          "expect": "format",
+          "reason": "9 digits"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "10 digits; first digit 1 = Saudi citizen (National ID), 2 = resident (Iqama); the 10th digit is a check digit (SAMA rulebook). The algorithm used by every public library is Luhn over all 10 digits (digits at even indexes 0,2,4,6,8 doubled). Official formula is only available from NIC (unverified). Border numbers (start with 3) and visa numbers are out of scope. 1012345672 / 2100000005 / 1012345671 are test vectors published by the arabicfmt package; the others are synthetic.",
+      "sources": [
+        "https://rulebook.sama.gov.sa/en/node/2420",
+        "https://app.unpkg.com/arabicfmt@0.1.3/files/dist/validate/index.d.ts",
+        "https://en.wikipedia.org/wiki/Luhn_algorithm"
+      ]
+    },
+    {
+      "id": "sa.cr_number",
+      "country": "SA",
+      "category": "company_id",
+      "label": {
+        "en": "Saudi Commercial Registration (CR) number",
+        "fa": "شماره ثبت تجاری عربستان",
+        "ar": "رقم السجل التجاري"
+      },
+      "mask": "9999999999",
+      "formatter": null,
+      "placeholder": {
+        "en": "1010123456",
+        "fa": "۱۰۱۰۱۲۳۴۵۶",
+        "ar": "1010123456"
+      },
+      "regex": "^[1-7]\\d{9}$",
+      "regex_strict": null,
+      "length": 10,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " -",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "digits",
+      "examples_valid": [
+        "1010123456",
+        "7001234567",
+        "4030123456"
+      ],
+      "examples_invalid": [
+        {
+          "value": "101012345",
+          "expect": "format",
+          "reason": "9 digits"
+        },
+        {
+          "value": "0010123456",
+          "expect": "format",
+          "reason": "cannot start with 0"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "unverified",
+      "notes": "(unverified) Classic CRs are 10 digits whose first 4 digits identify the issuing office (e.g. 1010 Riyadh, 4030 Jeddah). Since the 2025 Commercial Registration Law every establishment also has a unified national number starting with 7. No public checksum.",
+      "sources": [
+        "https://mc.gov.sa/en/eservices/Pages/default.aspx"
+      ]
+    },
+    {
+      "id": "sa.vat",
+      "country": "SA",
+      "category": "tax_id",
+      "label": {
+        "en": "Saudi VAT number",
+        "fa": "شماره مالیات بر ارزش افزوده عربستان",
+        "ar": "الرقم الضريبي (ضريبة القيمة المضافة)"
+      },
+      "mask": "999999999999999",
+      "formatter": null,
+      "placeholder": {
+        "en": "300000000000003",
+        "fa": "۳۰۰۰۰۰۰۰۰۰۰۰۰۰۳",
+        "ar": "300000000000003"
+      },
+      "regex": "^3\\d{13}3$",
+      "regex_strict": null,
+      "length": 15,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " -",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "digits",
+      "examples_valid": [
+        "300000000000003",
+        "310123456700003",
+        "٣٠٠٠٠٠٠٠٠٠٠٠٠٠٣"
+      ],
+      "examples_invalid": [
+        {
+          "value": "300000000000004",
+          "expect": "format",
+          "reason": "must end with 3"
+        },
+        {
+          "value": "30000000000003",
+          "expect": "format",
+          "reason": "14 digits"
+        },
+        {
+          "value": "200000000000003",
+          "expect": "format",
+          "reason": "must start with 3"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "ZATCA VAT registration numbers are 15 digits, first and last digit 3 (ZATCA e-invoicing XML implementation standard, BR-KSA-39/40). Group VAT numbers have 1 as the 11th digit. No public checksum.",
+      "sources": [
+        "https://zatca.gov.sa/en/E-Invoicing/Introduction/Guidelines/Documents/E-invoicing-Detailed-Guidelines.pdf"
+      ]
+    },
+    {
+      "id": "sa.iban",
+      "country": "SA",
+      "category": "iban",
+      "label": {
+        "en": "Saudi IBAN",
+        "fa": "شبا عربستان",
+        "ar": "رقم الآيبان السعودي"
+      },
+      "mask": "SA99 99** **** **** **** ****",
+      "formatter": null,
+      "placeholder": {
+        "en": "SA03 8000 0000 6080 1016 7519",
+        "fa": "SA۰۳ ۸۰۰۰ ۰۰۰۰ ۶۰۸۰ ۱۰۱۶ ۷۵۱۹",
+        "ar": "SA03 8000 0000 6080 1016 7519"
+      },
+      "regex": "^SA\\d{4}[A-Z0-9]{18}$",
+      "regex_strict": null,
+      "length": 24,
+      "checksum": "iso7064_mod97_10",
+      "validator": null,
+      "inputmode": "text",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " -",
+      "uppercase": true,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "SA0380000000608010167519",
+        "SA85 1000 0012 3456 7890 1234",
+        "sa0380000000608010167519"
+      ],
+      "examples_invalid": [
+        {
+          "value": "SA0380000000608010167518",
+          "expect": "checksum",
+          "reason": "mod-97 failure"
+        },
+        {
+          "value": "SA038000000060801016751",
+          "expect": "format",
+          "reason": "23 characters"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "sa0380000000608010167519",
+          "output": "SA03 8000 0000 6080 1016 7519"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "SA + 2 check + 2-digit bank code + 18 alphanumeric account. SA0380000000608010167519 is the SWIFT registry example (fictitious).",
+      "sources": [
+        "https://www.swift.com/standards/data-standards/iban-international-bank-account-number",
+        "https://en.wikipedia.org/wiki/International_Bank_Account_Number"
+      ]
+    },
+    {
+      "id": "sa.postal_code",
+      "country": "SA",
+      "category": "postal_code",
+      "label": {
+        "en": "Saudi postal code",
+        "fa": "کد پستی عربستان",
+        "ar": "الرمز البريدي السعودي"
+      },
+      "mask": "99999[-9999]",
+      "formatter": null,
+      "placeholder": {
+        "en": "12345-6789",
+        "fa": "۱۲۳۴۵-۶۷۸۹",
+        "ar": "12345-6789"
+      },
+      "regex": "^\\d{5}(?:-\\d{4})?$",
+      "regex_strict": null,
+      "length": [
+        5,
+        10
+      ],
+      "checksum": null,
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": "postal-code",
+      "dir": "ltr",
+      "strip": " ",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "12345",
+        "12345-6789",
+        "١٢٣٤٥"
+      ],
+      "examples_invalid": [
+        {
+          "value": "1234",
+          "expect": "format",
+          "reason": "4 digits"
+        },
+        {
+          "value": "12345-678",
+          "expect": "format",
+          "reason": "additional number must be 4 digits"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "123456789",
+          "output": "12345-6789"
+        },
+        {
+          "input": "12345",
+          "output": "12345"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "National Address: 5-digit postal code + optional 4-digit additional number.",
+      "sources": [
+        "https://en.wikipedia.org/wiki/Postal_codes_in_Saudi_Arabia",
+        "https://splonline.com.sa/en/national-address-1/"
+      ]
+    },
+    {
+      "id": "sa.short_address",
+      "country": "SA",
+      "category": "postal_code",
+      "label": {
+        "en": "Saudi National Address short code",
+        "fa": "کد آدرس کوتاه عربستان",
+        "ar": "العنوان المختصر"
+      },
+      "mask": "aaaa9999",
+      "formatter": null,
+      "placeholder": {
+        "en": "RRRD2929",
+        "fa": "RRRD۲۹۲۹",
+        "ar": "RRRD2929"
+      },
+      "regex": "^[A-Z]{4}\\d{4}$",
+      "regex_strict": null,
+      "length": 8,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "text",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " -",
+      "uppercase": true,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "RRRD2929",
+        "abcd1234"
+      ],
+      "examples_invalid": [
+        {
+          "value": "RRR2929",
+          "expect": "format",
+          "reason": "3 letters"
+        },
+        {
+          "value": "RRRD292",
+          "expect": "format",
+          "reason": "3 digits"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "rrrd2929",
+          "output": "RRRD2929"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "unverified",
+      "notes": "(unverified) 4 letters (region, branch, division, unique) + 4 digits (building number) as printed by Saudi Post / SPL.",
+      "sources": [
+        "https://splonline.com.sa/en/national-address-1/"
+      ]
+    },
+    {
+      "id": "sa.date_hijri",
+      "country": "SA",
+      "category": "date",
+      "label": {
+        "en": "Hijri date (Umm al-Qura)",
+        "fa": "تاریخ هجری قمری",
+        "ar": "التاريخ الهجري"
+      },
+      "mask": "9999/99/99",
+      "formatter": null,
+      "placeholder": {
+        "en": "1446/09/01",
+        "fa": "۱۴۴۶/۰۹/۰۱",
+        "ar": "1446/09/01"
+      },
+      "regex": "^1(?:[34]\\d{2}|500)[/\\-.](?:0?[1-9]|1[0-2])[/\\-.](?:0?[1-9]|[12]\\d|30)$",
+      "regex_strict": null,
+      "length": 10,
+      "checksum": null,
+      "validator": "date",
+      "inputmode": "numeric",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " ",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "calendar": "hijri",
+      "date_order": "YMD",
+      "year_range": [
+        1300,
+        1500
+      ],
+      "examples_valid": [
+        "1446/09/01",
+        "١٤٤٥/١٢/٣٠",
+        "1500-01-29"
+      ],
+      "examples_invalid": [
+        {
+          "value": "1446/09/31",
+          "expect": "format",
+          "reason": "Hijri months have at most 30 days"
+        },
+        {
+          "value": "1299/01/01",
+          "expect": "format",
+          "reason": "year below 1300"
+        },
+        {
+          "value": "1446/13/01",
+          "expect": "format",
+          "reason": "month 13"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "14460901",
+          "output": "1446/09/01"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "Lunar months have 29 or 30 days; which one depends on the Umm al-Qura table (or moon sighting), so this validator only enforces 1-30. For exact validation convert with Intl.DateTimeFormat(\"ar-SA-u-ca-islamic-umalqura\") in the browser / IntlDateFormatter (ext-intl) in PHP when available. Also used in other Arab countries (labels may say هـ).",
+      "sources": [
+        "https://en.wikipedia.org/wiki/Islamic_calendar#Saudi_Arabia%27s_Umm_al-Qura_calendar"
+      ]
+    },
+    {
+      "id": "ae.mobile",
+      "country": "AE",
+      "category": "phone_mobile",
+      "label": {
+        "en": "UAE mobile number",
+        "fa": "شماره موبایل امارات",
+        "ar": "رقم الجوال الإماراتي"
+      },
+      "mask": "059 999 9999",
+      "formatter": null,
+      "placeholder": {
+        "en": "050 123 4567",
+        "fa": "۰۵۰ ۱۲۳ ۴۵۶۷",
+        "ar": "050 123 4567"
+      },
+      "regex": "^(?:\\+971|00971|971|0)?5[024568]\\d{7}$",
+      "regex_strict": null,
+      "length": 10,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "tel",
+      "autocomplete": "tel-national",
+      "dir": "ltr",
+      "strip": " -().",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "e164",
+      "e164": {
+        "cc": "971",
+        "trunk": "0",
+        "nsn_length": [
+          9
+        ]
+      },
+      "examples_valid": [
+        "0501234567",
+        "+971 55 123 4567",
+        "٠٥٨١٢٣٤٥٦٧"
+      ],
+      "examples_invalid": [
+        {
+          "value": "0511234567",
+          "expect": "format",
+          "reason": "051 is not an allocated mobile prefix"
+        },
+        {
+          "value": "050123456",
+          "expect": "format",
+          "reason": "too short"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "0521234567",
+          "output": "052 123 4567"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "Mobile prefixes 050, 052, 054, 055, 056, 058 (etisalat/e& and du).",
+      "sources": [
+        "https://en.wikipedia.org/wiki/Telephone_numbers_in_the_United_Arab_Emirates"
+      ]
+    },
+    {
+      "id": "ae.emirates_id",
+      "country": "AE",
+      "category": "national_id",
+      "label": {
+        "en": "Emirates ID number",
+        "fa": "شماره کارت شناسایی امارات",
+        "ar": "رقم الهوية الإماراتية"
+      },
+      "mask": "784-9999-9999999-9",
+      "formatter": null,
+      "placeholder": {
+        "en": "784-1990-1234567-1",
+        "fa": "۷۸۴-۱۹۹۰-۱۲۳۴۵۶۷-۱",
+        "ar": "784-1990-1234567-1"
+      },
+      "regex": "^784\\d{12}$",
+      "regex_strict": null,
+      "length": 15,
+      "checksum": "emirates_id",
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " -",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "digits",
+      "examples_valid": [
+        "784199012345676",
+        "784-2001-7654321-1",
+        "٧٨٤١٩٩٠١٢٣٤٥٦٧٦"
+      ],
+      "examples_invalid": [
+        {
+          "value": "784199012345677",
+          "expect": "checksum",
+          "reason": "Luhn failure"
+        },
+        {
+          "value": "785199012345678",
+          "expect": "format",
+          "reason": "must start with 784"
+        },
+        {
+          "value": "78419901234567",
+          "expect": "format",
+          "reason": "14 digits"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "784199012345676",
+          "output": "784-1990-1234567-6"
+        },
+        {
+          "input": "199012345676",
+          "output": "784-1990-1234567-6"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "784 (ISO 3166 numeric for UAE) + birth year (YYYY) + 7-digit serial + Luhn check digit. Some developers report real IDs failing Luhn (unverified); consider making the checksum a warning rather than a hard error. Synthetic examples.",
+      "sources": [
+        "https://learn.microsoft.com/en-in/purview/sit-defn-uae-identity-card-number",
+        "https://economymiddleeast.com/news/uae-emirates-id-why-does-the-number-begin-with-784",
+        "https://en.wikipedia.org/wiki/Luhn_algorithm"
+      ]
+    },
+    {
+      "id": "ae.iban",
+      "country": "AE",
+      "category": "iban",
+      "label": {
+        "en": "UAE IBAN",
+        "fa": "شبا امارات",
+        "ar": "رقم الآيبان الإماراتي"
+      },
+      "mask": "AE99 9999 9999 9999 9999 999",
+      "formatter": null,
+      "placeholder": {
+        "en": "AE07 0331 2345 6789 0123 456",
+        "fa": "AE۰۷ ۰۳۳۱ ۲۳۴۵ ۶۷۸۹ ۰۱۲۳ ۴۵۶",
+        "ar": "AE07 0331 2345 6789 0123 456"
+      },
+      "regex": "^AE\\d{21}$",
+      "regex_strict": null,
+      "length": 23,
+      "checksum": "iso7064_mod97_10",
+      "validator": null,
+      "inputmode": "text",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " -",
+      "uppercase": true,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "AE070331234567890123456",
+        "AE57 0330 0000 0123 4567 890"
+      ],
+      "examples_invalid": [
+        {
+          "value": "AE070331234567890123457",
+          "expect": "checksum",
+          "reason": "mod-97 failure"
+        },
+        {
+          "value": "AE07033123456789012345",
+          "expect": "format",
+          "reason": "22 characters"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "ae070331234567890123456",
+          "output": "AE07 0331 2345 6789 0123 456"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "AE + 2 check + 3-digit bank code + 16-digit account. AE070331234567890123456 is the SWIFT registry example.",
+      "sources": [
+        "https://www.swift.com/standards/data-standards/iban-international-bank-account-number",
+        "https://en.wikipedia.org/wiki/International_Bank_Account_Number"
+      ]
+    },
+    {
+      "id": "ae.trn",
+      "country": "AE",
+      "category": "tax_id",
+      "label": {
+        "en": "UAE Tax Registration Number (TRN)",
+        "fa": "شماره ثبت مالیاتی امارات",
+        "ar": "رقم التسجيل الضريبي"
+      },
+      "mask": "999-9999-9999-9999",
+      "formatter": null,
+      "placeholder": {
+        "en": "100-1234-5678-9003",
+        "fa": "۱۰۰-۱۲۳۴-۵۶۷۸-۹۰۰۳",
+        "ar": "100-1234-5678-9003"
+      },
+      "regex": "^\\d{15}$",
+      "regex_strict": null,
+      "length": 15,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " -",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "digits",
+      "examples_valid": [
+        "100123456789003",
+        "100-9876-5432-1003"
+      ],
+      "examples_invalid": [
+        {
+          "value": "10012345678900",
+          "expect": "format",
+          "reason": "14 digits"
+        },
+        {
+          "value": "10012345678900A",
+          "expect": "format",
+          "reason": "letter"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "100123456789003",
+          "output": "100-1234-5678-9003"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "unverified",
+      "notes": "(unverified) 15 digits issued by the Federal Tax Authority, in practice starting with 100. No public checksum.",
+      "sources": [
+        "https://tax.gov.ae/en/services/vat.registration.aspx"
+      ]
+    },
+    {
+      "id": "eg.mobile",
+      "country": "EG",
+      "category": "phone_mobile",
+      "label": {
+        "en": "Egyptian mobile number",
+        "fa": "شماره موبایل مصر",
+        "ar": "رقم المحمول المصري"
+      },
+      "mask": "019 9999 9999",
+      "formatter": null,
+      "placeholder": {
+        "en": "010 1234 5678",
+        "fa": "۰۱۰ ۱۲۳۴ ۵۶۷۸",
+        "ar": "010 1234 5678"
+      },
+      "regex": "^(?:\\+20|0020|20|0)?1[0125]\\d{8}$",
+      "regex_strict": null,
+      "length": 11,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "tel",
+      "autocomplete": "tel-national",
+      "dir": "ltr",
+      "strip": " -().",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "e164",
+      "e164": {
+        "cc": "20",
+        "trunk": "0",
+        "nsn_length": [
+          10
+        ]
+      },
+      "examples_valid": [
+        "01012345678",
+        "+20 112 345 6789",
+        "٠١٢١٢٣٤٥٦٧٨",
+        "01512345678"
+      ],
+      "examples_invalid": [
+        {
+          "value": "01312345678",
+          "expect": "format",
+          "reason": "013 is not a mobile prefix"
+        },
+        {
+          "value": "0101234567",
+          "expect": "format",
+          "reason": "10 digits"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "01012345678",
+          "output": "010 1234 5678"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "Prefixes 010 (Vodafone), 011 (Etisalat/e&), 012 (Orange), 015 (WE).",
+      "sources": [
+        "https://en.wikipedia.org/wiki/Telephone_numbers_in_Egypt"
+      ]
+    },
+    {
+      "id": "eg.national_id",
+      "country": "EG",
+      "category": "national_id",
+      "label": {
+        "en": "Egyptian national ID",
+        "fa": "شماره ملی مصر",
+        "ar": "الرقم القومي المصري"
+      },
+      "mask": "99999999999999",
+      "formatter": null,
+      "placeholder": {
+        "en": "29001010100015",
+        "fa": "۲۹۰۰۱۰۱۰۱۰۰۰۱۵",
+        "ar": "29001010100015"
+      },
+      "regex": "^[23]\\d{13}$",
+      "regex_strict": null,
+      "length": 14,
+      "checksum": null,
+      "validator": "egypt_nid",
+      "inputmode": "numeric",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " -",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "digits",
+      "metadata": {
+        "structure": "C YYMMDD GG SSSS K",
+        "century": {
+          "2": "1900-1999",
+          "3": "2000-2099"
+        },
+        "gender": "13th digit (index 12) odd = male, even = female (unverified)",
+        "governorates": {
+          "11": "Damietta",
+          "12": "Dakahlia",
+          "13": "Sharqia",
+          "14": "Qalyubia",
+          "15": "Kafr El Sheikh",
+          "16": "Gharbia",
+          "17": "Monufia",
+          "18": "Beheira",
+          "19": "Ismailia",
+          "21": "Giza",
+          "22": "Beni Suef",
+          "23": "Faiyum",
+          "24": "Minya",
+          "25": "Asyut",
+          "26": "Sohag",
+          "27": "Qena",
+          "28": "Aswan",
+          "29": "Luxor",
+          "31": "Red Sea",
+          "32": "New Valley",
+          "33": "Matrouh",
+          "34": "North Sinai",
+          "35": "South Sinai",
+          "88": "Born abroad (unverified)",
+          "01": "Cairo",
+          "02": "Alexandria",
+          "03": "Port Said",
+          "04": "Suez"
+        }
+      },
+      "examples_valid": [
+        "29001010100015",
+        "30512311234567",
+        "٢٩٠٠١٠١٠١٠٠٠١٥"
+      ],
+      "examples_invalid": [
+        {
+          "value": "29013010100015",
+          "expect": "rule",
+          "reason": "month 13 in birth date"
+        },
+        {
+          "value": "29001019900015",
+          "expect": "rule",
+          "reason": "governorate code 99 does not exist"
+        },
+        {
+          "value": "19001010100015",
+          "expect": "format",
+          "reason": "century digit must be 2 or 3"
+        },
+        {
+          "value": "29002300100015",
+          "expect": "rule",
+          "reason": "30 February"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "Structural check only: century digit, valid Gregorian birth date, governorate code. The 14th digit is a check digit whose algorithm is not published (unverified; some libraries try Luhn, which fails on real IDs). Optionally reject birth dates in the future. Synthetic examples.",
+      "sources": [
+        "https://en.wikipedia.org/wiki/Egyptian_National_Identity_Card",
+        "https://django-localflavor.readthedocs.io/en/stable/localflavor/eg/"
+      ]
+    },
+    {
+      "id": "eg.iban",
+      "country": "EG",
+      "category": "iban",
+      "label": {
+        "en": "Egyptian IBAN",
+        "fa": "شبا مصر",
+        "ar": "رقم الآيبان المصري"
+      },
+      "mask": "EG99 9999 9999 9999 9999 9999 9999 9",
+      "formatter": null,
+      "placeholder": {
+        "en": "EG38 0019 0005 0000 0000 2631 8000 2",
+        "fa": "EG۳۸ ۰۰۱۹ ۰۰۰۵ ۰۰۰۰ ۰۰۰۰ ۲۶۳۱ ۸۰۰۰ ۲",
+        "ar": "EG38 0019 0005 0000 0000 2631 8000 2"
+      },
+      "regex": "^EG\\d{27}$",
+      "regex_strict": null,
+      "length": 29,
+      "checksum": "iso7064_mod97_10",
+      "validator": null,
+      "inputmode": "text",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " -",
+      "uppercase": true,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "EG380019000500000000263180002",
+        "EG48 0003 0001 0000 0001 2345 6789 0"
+      ],
+      "examples_invalid": [
+        {
+          "value": "EG380019000500000000263180003",
+          "expect": "checksum",
+          "reason": "mod-97 failure"
+        },
+        {
+          "value": "EG38001900050000000026318000",
+          "expect": "format",
+          "reason": "28 characters"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "EG + 2 check + 4-digit bank + 4-digit branch + 17-digit account (registry since 2020). EG380019000500000000263180002 is the SWIFT registry example.",
+      "sources": [
+        "https://www.swift.com/standards/data-standards/iban-international-bank-account-number",
+        "https://en.wikipedia.org/wiki/International_Bank_Account_Number"
+      ]
+    },
+    {
+      "id": "eg.postal_code",
+      "country": "EG",
+      "category": "postal_code",
+      "label": {
+        "en": "Egyptian postal code",
+        "fa": "کد پستی مصر",
+        "ar": "الرمز البريدي المصري"
+      },
+      "mask": "99999",
+      "formatter": null,
+      "placeholder": {
+        "en": "11511",
+        "fa": "۱۱۵۱۱",
+        "ar": "11511"
+      },
+      "regex": "^\\d{5}$",
+      "regex_strict": null,
+      "length": 5,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": "postal-code",
+      "dir": "ltr",
+      "strip": " ",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "11511",
+        "٢١٥٣١"
+      ],
+      "examples_invalid": [
+        {
+          "value": "1151",
+          "expect": "format",
+          "reason": "4 digits"
+        },
+        {
+          "value": "115111",
+          "expect": "format",
+          "reason": "6 digits"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "5 digits.",
+      "sources": [
+        "https://www.upu.int/en/Postal-Solutions/Programmes-Services/Addressing-Solutions"
+      ]
+    },
+    {
+      "id": "kw.mobile",
+      "country": "KW",
+      "category": "phone_mobile",
+      "label": {
+        "en": "Kuwaiti mobile number",
+        "fa": "شماره موبایل کویت",
+        "ar": "رقم الهاتف النقال الكويتي"
+      },
+      "mask": "9999 9999",
+      "formatter": null,
+      "placeholder": {
+        "en": "5123 4567",
+        "fa": "۵۱۲۳ ۴۵۶۷",
+        "ar": "5123 4567"
+      },
+      "regex": "^(?:\\+965|00965|965)?(?:[569]\\d{7}|41\\d{6})$",
+      "regex_strict": null,
+      "length": 8,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "tel",
+      "autocomplete": "tel-national",
+      "dir": "ltr",
+      "strip": " -().",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "e164",
+      "e164": {
+        "cc": "965",
+        "trunk": "",
+        "nsn_length": [
+          8
+        ]
+      },
+      "examples_valid": [
+        "51234567",
+        "+965 9123 4567",
+        "٦٥٤٣٢١٠٩"
+      ],
+      "examples_invalid": [
+        {
+          "value": "21234567",
+          "expect": "format",
+          "reason": "landline (starts with 2)"
+        },
+        {
+          "value": "5123456",
+          "expect": "format",
+          "reason": "7 digits"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "51234567",
+          "output": "5123 4567"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "No trunk prefix. Mobile ranges start with 5, 6, 9 (and 41 for newer allocations - unverified).",
+      "sources": [
+        "https://en.wikipedia.org/wiki/Telephone_numbers_in_Kuwait"
+      ]
+    },
+    {
+      "id": "kw.civil_id",
+      "country": "KW",
+      "category": "national_id",
+      "label": {
+        "en": "Kuwaiti Civil ID",
+        "fa": "شماره مدنی کویت",
+        "ar": "الرقم المدني الكويتي"
+      },
+      "mask": "999999999999",
+      "formatter": null,
+      "placeholder": {
+        "en": "290010112345",
+        "fa": "۲۹۰۰۱۰۱۱۲۳۴۵",
+        "ar": "290010112345"
+      },
+      "regex": "^[123]\\d{11}$",
+      "regex_strict": null,
+      "length": 12,
+      "checksum": "kuwait_civil_id",
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " -",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "digits",
+      "examples_valid": [
+        "290010112346",
+        "305061512349",
+        "٢٩٠٠١٠١١٢٣٤٦"
+      ],
+      "examples_invalid": [
+        {
+          "value": "290010112347",
+          "expect": "checksum",
+          "reason": "wrong check digit"
+        },
+        {
+          "value": "290130112346",
+          "expect": "checksum",
+          "reason": "birth month 13"
+        },
+        {
+          "value": "4900101123456",
+          "expect": "format",
+          "reason": "13 digits"
+        },
+        {
+          "value": "490010112345",
+          "expect": "format",
+          "reason": "century digit 4"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "C YYMMDD NNNN K - C: 1 = 1800s, 2 = 1900s, 3 = 2000s; YYMMDD = birth date; K = 11 - (Σ w[i]*d[i] mod 11) with w = [2,1,6,3,7,9,10,5,8,4,2]; results 10/11 are never issued. Algorithm from django-localflavor (secondary). Synthetic examples.",
+      "sources": [
+        "https://github.com/django/django-localflavor/blob/master/localflavor/kw/utils.py"
+      ]
+    },
+    {
+      "id": "kw.iban",
+      "country": "KW",
+      "category": "iban",
+      "label": {
+        "en": "Kuwaiti IBAN",
+        "fa": "شبا کویت",
+        "ar": "رقم الآيبان الكويتي"
+      },
+      "mask": "KW99 aaaa **** **** **** **** **** **",
+      "formatter": null,
+      "placeholder": {
+        "en": "KW81 CBKU 0000 0000 0000 1234 5601 01",
+        "fa": "KW۸۱ CBKU ۰۰۰۰ ۰۰۰۰ ۰۰۰۰ ۱۲۳۴ ۵۶۰۱ ۰۱",
+        "ar": "KW81 CBKU 0000 0000 0000 1234 5601 01"
+      },
+      "regex": "^KW\\d{2}[A-Z]{4}[A-Z0-9]{22}$",
+      "regex_strict": null,
+      "length": 30,
+      "checksum": "iso7064_mod97_10",
+      "validator": null,
+      "inputmode": "text",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " -",
+      "uppercase": true,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "KW81CBKU0000000000001234560101",
+        "KW09 NBOK 0000 0000 0000 1234 5678 90"
+      ],
+      "examples_invalid": [
+        {
+          "value": "KW81CBKU0000000000001234560102",
+          "expect": "checksum",
+          "reason": "mod-97 failure"
+        },
+        {
+          "value": "KW81CBKU000000000000123456010",
+          "expect": "format",
+          "reason": "29 characters"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "kw81cbku0000000000001234560101",
+          "output": "KW81 CBKU 0000 0000 0000 1234 5601 01"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "KW + 2 check + 4-letter bank code + 22 alphanumeric. Registry example.",
+      "sources": [
+        "https://www.swift.com/standards/data-standards/iban-international-bank-account-number",
+        "https://en.wikipedia.org/wiki/International_Bank_Account_Number"
+      ]
+    },
+    {
+      "id": "kw.postal_code",
+      "country": "KW",
+      "category": "postal_code",
+      "label": {
+        "en": "Kuwaiti postal code",
+        "fa": "کد پستی کویت",
+        "ar": "الرمز البريدي الكويتي"
+      },
+      "mask": "99999",
+      "formatter": null,
+      "placeholder": {
+        "en": "13001",
+        "fa": "۱۳۰۰۱",
+        "ar": "13001"
+      },
+      "regex": "^\\d{5}$",
+      "regex_strict": null,
+      "length": 5,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": "postal-code",
+      "dir": "ltr",
+      "strip": " ",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "13001",
+        "٧٠٠٥٠"
+      ],
+      "examples_invalid": [
+        {
+          "value": "1300",
+          "expect": "format",
+          "reason": "4 digits"
+        },
+        {
+          "value": "130011",
+          "expect": "format",
+          "reason": "6 digits"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "unverified",
+      "notes": "5 digits (rarely used in addresses).",
+      "sources": [
+        "https://www.upu.int/en/Postal-Solutions/Programmes-Services/Addressing-Solutions"
+      ]
+    },
+    {
+      "id": "qa.mobile",
+      "country": "QA",
+      "category": "phone_mobile",
+      "label": {
+        "en": "Qatari mobile number",
+        "fa": "شماره موبایل قطر",
+        "ar": "رقم الجوال القطري"
+      },
+      "mask": "9999 9999",
+      "formatter": null,
+      "placeholder": {
+        "en": "3312 3456",
+        "fa": "۳۳۱۲ ۳۴۵۶",
+        "ar": "3312 3456"
+      },
+      "regex": "^(?:\\+974|00974|974)?[3567]\\d{7}$",
+      "regex_strict": null,
+      "length": 8,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "tel",
+      "autocomplete": "tel-national",
+      "dir": "ltr",
+      "strip": " -().",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "e164",
+      "e164": {
+        "cc": "974",
+        "trunk": "",
+        "nsn_length": [
+          8
+        ]
+      },
+      "examples_valid": [
+        "33123456",
+        "+974 5512 3456",
+        "٧٠١٢٣٤٥٦"
+      ],
+      "examples_invalid": [
+        {
+          "value": "44123456",
+          "expect": "format",
+          "reason": "landline (starts with 4)"
+        },
+        {
+          "value": "3312345",
+          "expect": "format",
+          "reason": "7 digits"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "33123456",
+          "output": "3312 3456"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "Mobile numbers start with 3, 5, 6 or 7; no trunk prefix.",
+      "sources": [
+        "https://en.wikipedia.org/wiki/Telephone_numbers_in_Qatar"
+      ]
+    },
+    {
+      "id": "qa.qid",
+      "country": "QA",
+      "category": "national_id",
+      "label": {
+        "en": "Qatar ID (QID)",
+        "fa": "شماره شناسایی قطر",
+        "ar": "رقم البطاقة الشخصية القطرية"
+      },
+      "mask": "99999999999",
+      "formatter": null,
+      "placeholder": {
+        "en": "28563412345",
+        "fa": "۲۸۵۶۳۴۱۲۳۴۵",
+        "ar": "28563412345"
+      },
+      "regex": "^[23]\\d{10}$",
+      "regex_strict": null,
+      "length": 11,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " -",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "digits",
+      "examples_valid": [
+        "28563412345",
+        "30135612345"
+      ],
+      "examples_invalid": [
+        {
+          "value": "18563412345",
+          "expect": "format",
+          "reason": "first digit must be 2 or 3"
+        },
+        {
+          "value": "2856341234",
+          "expect": "format",
+          "reason": "10 digits"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "unverified",
+      "notes": "(unverified) 11 digits: century (2 = 1900s, 3 = 2000s), 2-digit birth year, 3-digit ISO 3166 numeric nationality code (634 = Qatar), 5-digit serial. No public checksum.",
+      "sources": [
+        "https://en.wikipedia.org/wiki/Qatari_identity_card"
+      ]
+    },
+    {
+      "id": "qa.iban",
+      "country": "QA",
+      "category": "iban",
+      "label": {
+        "en": "Qatari IBAN",
+        "fa": "شبا قطر",
+        "ar": "رقم الآيبان القطري"
+      },
+      "mask": "QA99 aaaa **** **** **** **** **** *",
+      "formatter": null,
+      "placeholder": {
+        "en": "QA58 DOHB 0000 1234 5678 90AB CDEF G",
+        "fa": "QA۵۸ DOHB ۰۰۰۰ ۱۲۳۴ ۵۶۷۸ ۹۰AB CDEF G",
+        "ar": "QA58 DOHB 0000 1234 5678 90AB CDEF G"
+      },
+      "regex": "^QA\\d{2}[A-Z]{4}[A-Z0-9]{21}$",
+      "regex_strict": null,
+      "length": 29,
+      "checksum": "iso7064_mod97_10",
+      "validator": null,
+      "inputmode": "text",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " -",
+      "uppercase": true,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "QA58DOHB00001234567890ABCDEFG",
+        "QA78QNBA000000000123456789012"
+      ],
+      "examples_invalid": [
+        {
+          "value": "QA58DOHB00001234567890ABCDEFH",
+          "expect": "checksum",
+          "reason": "mod-97 failure"
+        },
+        {
+          "value": "QA58DOHB00001234567890ABCDEF",
+          "expect": "format",
+          "reason": "28 characters"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "QA + 2 check + 4-letter bank + 21 alphanumeric. Registry example.",
+      "sources": [
+        "https://www.swift.com/standards/data-standards/iban-international-bank-account-number",
+        "https://en.wikipedia.org/wiki/International_Bank_Account_Number"
+      ]
+    },
+    {
+      "id": "bh.mobile",
+      "country": "BH",
+      "category": "phone_mobile",
+      "label": {
+        "en": "Bahraini mobile number",
+        "fa": "شماره موبایل بحرین",
+        "ar": "رقم الهاتف النقال البحريني"
+      },
+      "mask": "9999 9999",
+      "formatter": null,
+      "placeholder": {
+        "en": "3612 3456",
+        "fa": "۳۶۱۲ ۳۴۵۶",
+        "ar": "3612 3456"
+      },
+      "regex": "^(?:\\+973|00973|973)?(?:3\\d{7}|66\\d{6})$",
+      "regex_strict": null,
+      "length": 8,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "tel",
+      "autocomplete": "tel-national",
+      "dir": "ltr",
+      "strip": " -().",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "e164",
+      "e164": {
+        "cc": "973",
+        "trunk": "",
+        "nsn_length": [
+          8
+        ]
+      },
+      "examples_valid": [
+        "36123456",
+        "+973 6612 3456"
+      ],
+      "examples_invalid": [
+        {
+          "value": "17123456",
+          "expect": "format",
+          "reason": "landline (starts with 1)"
+        },
+        {
+          "value": "3612345",
+          "expect": "format",
+          "reason": "7 digits"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "Mobile: 3XXXXXXX and 66XXXXXX.",
+      "sources": [
+        "https://en.wikipedia.org/wiki/Telephone_numbers_in_Bahrain"
+      ]
+    },
+    {
+      "id": "bh.cpr",
+      "country": "BH",
+      "category": "national_id",
+      "label": {
+        "en": "Bahraini CPR number",
+        "fa": "شماره CPR بحرین",
+        "ar": "الرقم الشخصي البحريني (CPR)"
+      },
+      "mask": "999999999",
+      "formatter": null,
+      "placeholder": {
+        "en": "900112345",
+        "fa": "۹۰۰۱۱۲۳۴۵",
+        "ar": "900112345"
+      },
+      "regex": "^\\d{9}$",
+      "regex_strict": null,
+      "length": 9,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " -",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "digits",
+      "examples_valid": [
+        "900112345",
+        "٠٥٠٦١٢٣٤٥"
+      ],
+      "examples_invalid": [
+        {
+          "value": "90011234",
+          "expect": "format",
+          "reason": "8 digits"
+        },
+        {
+          "value": "9001123456",
+          "expect": "format",
+          "reason": "10 digits"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "unverified",
+      "notes": "(unverified) 9 digits: YYMM of birth + 4-digit serial + check digit (algorithm not public).",
+      "sources": [
+        "https://en.wikipedia.org/wiki/Telephone_numbers_in_Bahrain"
+      ]
+    },
+    {
+      "id": "bh.iban",
+      "country": "BH",
+      "category": "iban",
+      "label": {
+        "en": "Bahraini IBAN",
+        "fa": "شبا بحرین",
+        "ar": "رقم الآيبان البحريني"
+      },
+      "mask": "BH99 aaaa **** **** **** **",
+      "formatter": null,
+      "placeholder": {
+        "en": "BH67 BMAG 0000 1299 1234 56",
+        "fa": "BH۶۷ BMAG ۰۰۰۰ ۱۲۹۹ ۱۲۳۴ ۵۶",
+        "ar": "BH67 BMAG 0000 1299 1234 56"
+      },
+      "regex": "^BH\\d{2}[A-Z]{4}[A-Z0-9]{14}$",
+      "regex_strict": null,
+      "length": 22,
+      "checksum": "iso7064_mod97_10",
+      "validator": null,
+      "inputmode": "text",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " -",
+      "uppercase": true,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "BH67BMAG00001299123456",
+        "BH57NBOB00001234567890"
+      ],
+      "examples_invalid": [
+        {
+          "value": "BH67BMAG00001299123457",
+          "expect": "checksum",
+          "reason": "mod-97 failure"
+        },
+        {
+          "value": "BH67BMAG0000129912345",
+          "expect": "format",
+          "reason": "21 characters"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "Registry example.",
+      "sources": [
+        "https://www.swift.com/standards/data-standards/iban-international-bank-account-number",
+        "https://en.wikipedia.org/wiki/International_Bank_Account_Number"
+      ]
+    },
+    {
+      "id": "om.mobile",
+      "country": "OM",
+      "category": "phone_mobile",
+      "label": {
+        "en": "Omani mobile number",
+        "fa": "شماره موبایل عمان",
+        "ar": "رقم الهاتف النقال العماني"
+      },
+      "mask": "9999 9999",
+      "formatter": null,
+      "placeholder": {
+        "en": "9212 3456",
+        "fa": "۹۲۱۲ ۳۴۵۶",
+        "ar": "9212 3456"
+      },
+      "regex": "^(?:\\+968|00968|968)?[79]\\d{7}$",
+      "regex_strict": null,
+      "length": 8,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "tel",
+      "autocomplete": "tel-national",
+      "dir": "ltr",
+      "strip": " -().",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "e164",
+      "e164": {
+        "cc": "968",
+        "trunk": "",
+        "nsn_length": [
+          8
+        ]
+      },
+      "examples_valid": [
+        "92123456",
+        "+968 7212 3456"
+      ],
+      "examples_invalid": [
+        {
+          "value": "24123456",
+          "expect": "format",
+          "reason": "landline (starts with 2)"
+        },
+        {
+          "value": "9212345",
+          "expect": "format",
+          "reason": "7 digits"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "Mobile: 7XXXXXXX, 9XXXXXXX.",
+      "sources": [
+        "https://en.wikipedia.org/wiki/Telephone_numbers_in_Oman"
+      ]
+    },
+    {
+      "id": "om.iban",
+      "country": "OM",
+      "category": "iban",
+      "label": {
+        "en": "Omani IBAN",
+        "fa": "شبا عمان",
+        "ar": "رقم الآيبان العماني"
+      },
+      "mask": "OM99 999* **** **** **** ***",
+      "formatter": null,
+      "placeholder": {
+        "en": "OM81 0180 0000 0129 9123 456",
+        "fa": "OM۸۱ ۰۱۸۰ ۰۰۰۰ ۰۱۲۹ ۹۱۲۳ ۴۵۶",
+        "ar": "OM81 0180 0000 0129 9123 456"
+      },
+      "regex": "^OM\\d{5}[A-Z0-9]{16}$",
+      "regex_strict": null,
+      "length": 23,
+      "checksum": "iso7064_mod97_10",
+      "validator": null,
+      "inputmode": "text",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " -",
+      "uppercase": true,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "OM810180000001299123456",
+        "OM880180000001234567890"
+      ],
+      "examples_invalid": [
+        {
+          "value": "OM810180000001299123457",
+          "expect": "checksum",
+          "reason": "mod-97 failure"
+        },
+        {
+          "value": "OM81018000000129912345",
+          "expect": "format",
+          "reason": "22 characters"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "Oman joined the IBAN registry in 2024: OM + 2 check + 3-digit bank + 16 alphanumeric.",
+      "sources": [
+        "https://www.swift.com/standards/data-standards/iban-international-bank-account-number",
+        "https://en.wikipedia.org/wiki/International_Bank_Account_Number"
+      ]
+    },
+    {
+      "id": "om.postal_code",
+      "country": "OM",
+      "category": "postal_code",
+      "label": {
+        "en": "Omani postal code",
+        "fa": "کد پستی عمان",
+        "ar": "الرمز البريدي العماني"
+      },
+      "mask": "999",
+      "formatter": null,
+      "placeholder": {
+        "en": "112",
+        "fa": "۱۱۲",
+        "ar": "112"
+      },
+      "regex": "^\\d{3}$",
+      "regex_strict": null,
+      "length": 3,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": "postal-code",
+      "dir": "ltr",
+      "strip": " ",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "112",
+        "١٣٣"
+      ],
+      "examples_invalid": [
+        {
+          "value": "11",
+          "expect": "format",
+          "reason": "2 digits"
+        },
+        {
+          "value": "1121",
+          "expect": "format",
+          "reason": "4 digits"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "3 digits.",
+      "sources": [
+        "https://www.upu.int/en/Postal-Solutions/Programmes-Services/Addressing-Solutions"
+      ]
+    },
+    {
+      "id": "jo.mobile",
+      "country": "JO",
+      "category": "phone_mobile",
+      "label": {
+        "en": "Jordanian mobile number",
+        "fa": "شماره موبایل اردن",
+        "ar": "رقم الهاتف المتنقل الأردني"
+      },
+      "mask": "079 999 9999",
+      "formatter": null,
+      "placeholder": {
+        "en": "079 123 4567",
+        "fa": "۰۷۹ ۱۲۳ ۴۵۶۷",
+        "ar": "079 123 4567"
+      },
+      "regex": "^(?:\\+962|00962|962|0)?7[789]\\d{7}$",
+      "regex_strict": null,
+      "length": 10,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "tel",
+      "autocomplete": "tel-national",
+      "dir": "ltr",
+      "strip": " -().",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "e164",
+      "e164": {
+        "cc": "962",
+        "trunk": "0",
+        "nsn_length": [
+          9
+        ]
+      },
+      "examples_valid": [
+        "0791234567",
+        "+962 77 123 4567",
+        "٠٧٨١٢٣٤٥٦٧"
+      ],
+      "examples_invalid": [
+        {
+          "value": "0761234567",
+          "expect": "format",
+          "reason": "076 not a mobile prefix"
+        },
+        {
+          "value": "079123456",
+          "expect": "format",
+          "reason": "too short"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "0791234567",
+          "output": "079 123 4567"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "Prefixes 077 (Orange), 078 (Umniah), 079 (Zain).",
+      "sources": [
+        "https://en.wikipedia.org/wiki/Telephone_numbers_in_Jordan"
+      ]
+    },
+    {
+      "id": "jo.national_number",
+      "country": "JO",
+      "category": "national_id",
+      "label": {
+        "en": "Jordanian national number",
+        "fa": "شماره ملی اردن",
+        "ar": "الرقم الوطني الأردني"
+      },
+      "mask": "9999999999",
+      "formatter": null,
+      "placeholder": {
+        "en": "9901234567",
+        "fa": "۹۹۰۱۲۳۴۵۶۷",
+        "ar": "9901234567"
+      },
+      "regex": "^\\d{10}$",
+      "regex_strict": null,
+      "length": 10,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " -",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "digits",
+      "examples_valid": [
+        "9901234567",
+        "2000123456"
+      ],
+      "examples_invalid": [
+        {
+          "value": "990123456",
+          "expect": "format",
+          "reason": "9 digits"
+        },
+        {
+          "value": "99012345678",
+          "expect": "format",
+          "reason": "11 digits"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "unverified",
+      "notes": "(unverified) 10 digits; older numbers encode birth year and gender (e.g. 9YY... male, 2YY... female). No public checksum.",
+      "sources": [
+        "https://en.wikipedia.org/wiki/Telephone_numbers_in_Jordan"
+      ]
+    },
+    {
+      "id": "jo.iban",
+      "country": "JO",
+      "category": "iban",
+      "label": {
+        "en": "Jordanian IBAN",
+        "fa": "شبا اردن",
+        "ar": "رقم الآيبان الأردني"
+      },
+      "mask": "JO99 aaaa 9999 **** **** **** **",
+      "formatter": null,
+      "placeholder": {
+        "en": "JO94 CBJO 0010 0000 0000 0131 0003 02",
+        "fa": "JO۹۴ CBJO ۰۰۱۰ ۰۰۰۰ ۰۰۰۰ ۰۱۳۱ ۰۰۰۳ ۰۲",
+        "ar": "JO94 CBJO 0010 0000 0000 0131 0003 02"
+      },
+      "regex": "^JO\\d{2}[A-Z]{4}\\d{4}[A-Z0-9]{18}$",
+      "regex_strict": null,
+      "length": 30,
+      "checksum": "iso7064_mod97_10",
+      "validator": null,
+      "inputmode": "text",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " -",
+      "uppercase": true,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "JO94CBJO0010000000000131000302",
+        "JO65ARAB1234000000001234567890"
+      ],
+      "examples_invalid": [
+        {
+          "value": "JO94CBJO0010000000000131000303",
+          "expect": "checksum",
+          "reason": "mod-97 failure"
+        },
+        {
+          "value": "JO94CBJO001000000000013100030",
+          "expect": "format",
+          "reason": "29 characters"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "Registry example.",
+      "sources": [
+        "https://www.swift.com/standards/data-standards/iban-international-bank-account-number",
+        "https://en.wikipedia.org/wiki/International_Bank_Account_Number"
+      ]
+    },
+    {
+      "id": "jo.postal_code",
+      "country": "JO",
+      "category": "postal_code",
+      "label": {
+        "en": "Jordanian postal code",
+        "fa": "کد پستی اردن",
+        "ar": "الرمز البريدي الأردني"
+      },
+      "mask": "99999",
+      "formatter": null,
+      "placeholder": {
+        "en": "11118",
+        "fa": "۱۱۱۱۸",
+        "ar": "11118"
+      },
+      "regex": "^\\d{5}$",
+      "regex_strict": null,
+      "length": 5,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": "postal-code",
+      "dir": "ltr",
+      "strip": " ",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "11118",
+        "٢٦١١٠"
+      ],
+      "examples_invalid": [
+        {
+          "value": "1111",
+          "expect": "format",
+          "reason": "4 digits"
+        },
+        {
+          "value": "111180",
+          "expect": "format",
+          "reason": "6 digits"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "5 digits.",
+      "sources": [
+        "https://www.upu.int/en/Postal-Solutions/Programmes-Services/Addressing-Solutions"
+      ]
+    },
+    {
+      "id": "iq.mobile",
+      "country": "IQ",
+      "category": "phone_mobile",
+      "label": {
+        "en": "Iraqi mobile number",
+        "fa": "شماره موبایل عراق",
+        "ar": "رقم الهاتف المحمول العراقي"
+      },
+      "mask": "0799 999 9999",
+      "formatter": null,
+      "placeholder": {
+        "en": "0770 123 4567",
+        "fa": "۰۷۷۰ ۱۲۳ ۴۵۶۷",
+        "ar": "0770 123 4567"
+      },
+      "regex": "^(?:\\+964|00964|964|0)?7[3-9]\\d{8}$",
+      "regex_strict": null,
+      "length": 11,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "tel",
+      "autocomplete": "tel-national",
+      "dir": "ltr",
+      "strip": " -().",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "e164",
+      "e164": {
+        "cc": "964",
+        "trunk": "0",
+        "nsn_length": [
+          10
+        ]
+      },
+      "examples_valid": [
+        "07701234567",
+        "+964 750 123 4567",
+        "٠٧٨١٢٣٤٥٦٧٨"
+      ],
+      "examples_invalid": [
+        {
+          "value": "07201234567",
+          "expect": "format",
+          "reason": "072 is not a mobile prefix"
+        },
+        {
+          "value": "0770123456",
+          "expect": "format",
+          "reason": "10 digits"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "07701234567",
+          "output": "0770 123 4567"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "Prefixes 073-079 (Asiacell 077, Zain 078/079, Korek 075 ...).",
+      "sources": [
+        "https://en.wikipedia.org/wiki/Telephone_numbers_in_Iraq"
+      ]
+    },
+    {
+      "id": "iq.iban",
+      "country": "IQ",
+      "category": "iban",
+      "label": {
+        "en": "Iraqi IBAN",
+        "fa": "شبا عراق",
+        "ar": "رقم الآيبان العراقي"
+      },
+      "mask": "IQ99 aaaa 9999 9999 9999 999",
+      "formatter": null,
+      "placeholder": {
+        "en": "IQ98 NBIQ 8501 2345 6789 012",
+        "fa": "IQ۹۸ NBIQ ۸۵۰۱ ۲۳۴۵ ۶۷۸۹ ۰۱۲",
+        "ar": "IQ98 NBIQ 8501 2345 6789 012"
+      },
+      "regex": "^IQ\\d{2}[A-Z]{4}\\d{15}$",
+      "regex_strict": null,
+      "length": 23,
+      "checksum": "iso7064_mod97_10",
+      "validator": null,
+      "inputmode": "text",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " -",
+      "uppercase": true,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "IQ98NBIQ850123456789012",
+        "IQ36RAFB100000001234567"
+      ],
+      "examples_invalid": [
+        {
+          "value": "IQ98NBIQ850123456789013",
+          "expect": "checksum",
+          "reason": "mod-97 failure"
+        },
+        {
+          "value": "IQ98NBIQ85012345678901",
+          "expect": "format",
+          "reason": "22 characters"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "Registry example.",
+      "sources": [
+        "https://www.swift.com/standards/data-standards/iban-international-bank-account-number",
+        "https://en.wikipedia.org/wiki/International_Bank_Account_Number"
+      ]
+    },
+    {
+      "id": "lb.mobile",
+      "country": "LB",
+      "category": "phone_mobile",
+      "label": {
+        "en": "Lebanese mobile number",
+        "fa": "شماره موبایل لبنان",
+        "ar": "رقم الخلوي اللبناني"
+      },
+      "mask": null,
+      "formatter": null,
+      "placeholder": {
+        "en": "71 123 456",
+        "fa": "۷۱ ۱۲۳ ۴۵۶",
+        "ar": "71 123 456"
+      },
+      "regex": "^(?:\\+961|00961|961|0)?(?:3\\d{6}|7[016-9]\\d{6}|81\\d{6})$",
+      "regex_strict": null,
+      "length": [
+        7,
+        9
+      ],
+      "checksum": null,
+      "validator": null,
+      "inputmode": "tel",
+      "autocomplete": "tel-national",
+      "dir": "ltr",
+      "strip": " -().",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "e164",
+      "e164": {
+        "cc": "961",
+        "trunk": "0",
+        "nsn_length": [
+          7,
+          8
+        ]
+      },
+      "examples_valid": [
+        "03123456",
+        "71123456",
+        "+961 3 123 456",
+        "+961 81 123 456"
+      ],
+      "examples_invalid": [
+        {
+          "value": "72123456",
+          "expect": "format",
+          "reason": "72 is not a mobile prefix"
+        },
+        {
+          "value": "0312345",
+          "expect": "format",
+          "reason": "too short"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "Mobile: 03 + 6 digits (7-digit NSN), or 70/71/76/78/79/81 + 6 digits (8-digit NSN). Variable length -> no fixed typing mask.",
+      "sources": [
+        "https://en.wikipedia.org/wiki/Telephone_numbers_in_Lebanon"
+      ]
+    },
+    {
+      "id": "lb.iban",
+      "country": "LB",
+      "category": "iban",
+      "label": {
+        "en": "Lebanese IBAN",
+        "fa": "شبا لبنان",
+        "ar": "رقم الآيبان اللبناني"
+      },
+      "mask": "LB99 9999 **** **** **** **** ****",
+      "formatter": null,
+      "placeholder": {
+        "en": "LB62 0999 0000 0001 0019 0122 9114",
+        "fa": "LB۶۲ ۰۹۹۹ ۰۰۰۰ ۰۰۰۱ ۰۰۱۹ ۰۱۲۲ ۹۱۱۴",
+        "ar": "LB62 0999 0000 0001 0019 0122 9114"
+      },
+      "regex": "^LB\\d{6}[A-Z0-9]{20}$",
+      "regex_strict": null,
+      "length": 28,
+      "checksum": "iso7064_mod97_10",
+      "validator": null,
+      "inputmode": "text",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " -",
+      "uppercase": true,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "LB62099900000001001901229114",
+        "LB94001000000000001234567890"
+      ],
+      "examples_invalid": [
+        {
+          "value": "LB62099900000001001901229115",
+          "expect": "checksum",
+          "reason": "mod-97 failure"
+        },
+        {
+          "value": "LB6209990000000100190122911",
+          "expect": "format",
+          "reason": "27 characters"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "Registry example.",
+      "sources": [
+        "https://www.swift.com/standards/data-standards/iban-international-bank-account-number",
+        "https://en.wikipedia.org/wiki/International_Bank_Account_Number"
+      ]
+    },
+    {
+      "id": "ma.mobile",
+      "country": "MA",
+      "category": "phone_mobile",
+      "label": {
+        "en": "Moroccan mobile number",
+        "fa": "شماره موبایل مراکش",
+        "ar": "رقم الهاتف المحمول المغربي"
+      },
+      "mask": "09 99 99 99 99",
+      "formatter": null,
+      "placeholder": {
+        "en": "06 12 34 56 78",
+        "fa": "۰۶ ۱۲ ۳۴ ۵۶ ۷۸",
+        "ar": "06 12 34 56 78"
+      },
+      "regex": "^(?:\\+212|00212|212|0)?[67]\\d{8}$",
+      "regex_strict": null,
+      "length": 10,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "tel",
+      "autocomplete": "tel-national",
+      "dir": "ltr",
+      "strip": " -().",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "e164",
+      "e164": {
+        "cc": "212",
+        "trunk": "0",
+        "nsn_length": [
+          9
+        ]
+      },
+      "examples_valid": [
+        "0612345678",
+        "+212 7 12 34 56 78"
+      ],
+      "examples_invalid": [
+        {
+          "value": "0512345678",
+          "expect": "format",
+          "reason": "05 is fixed-line"
+        },
+        {
+          "value": "061234567",
+          "expect": "format",
+          "reason": "too short"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "0612345678",
+          "output": "06 12 34 56 78"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "Mobile: 06XXXXXXXX and 07XXXXXXXX.",
+      "sources": [
+        "https://en.wikipedia.org/wiki/Telephone_numbers_in_Morocco"
+      ]
+    },
+    {
+      "id": "ma.cin",
+      "country": "MA",
+      "category": "national_id",
+      "label": {
+        "en": "Moroccan CIN (national ID card)",
+        "fa": "کارت ملی مراکش",
+        "ar": "رقم البطاقة الوطنية المغربية"
+      },
+      "mask": null,
+      "formatter": null,
+      "placeholder": {
+        "en": "AB123456",
+        "fa": "AB۱۲۳۴۵۶",
+        "ar": "AB123456"
+      },
+      "regex": "^[A-Z]{1,2}\\d{1,6}$",
+      "regex_strict": null,
+      "length": [
+        2,
+        8
+      ],
+      "checksum": null,
+      "validator": null,
+      "inputmode": "text",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " -",
+      "uppercase": true,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "AB123456",
+        "X12345"
+      ],
+      "examples_invalid": [
+        {
+          "value": "123456",
+          "expect": "format",
+          "reason": "letters missing"
+        },
+        {
+          "value": "ABC123",
+          "expect": "format",
+          "reason": "3 letters"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "unverified",
+      "notes": "(unverified) 1-2 letters (issuing region) followed by up to 6 digits.",
+      "sources": [
+        "https://en.wikipedia.org/wiki/Telephone_numbers_in_Morocco"
+      ]
+    },
+    {
+      "id": "ma.iban",
+      "country": "MA",
+      "category": "iban",
+      "label": {
+        "en": "Moroccan IBAN (RIB)",
+        "fa": "شبا مراکش",
+        "ar": "رقم الآيبان المغربي"
+      },
+      "mask": "MA99 9999 9999 9999 9999 9999 9999",
+      "formatter": null,
+      "placeholder": {
+        "en": "MA64 0119 0000 0123 4567 8901 2345",
+        "fa": "MA۶۴ ۰۱۱۹ ۰۰۰۰ ۰۱۲۳ ۴۵۶۷ ۸۹۰۱ ۲۳۴۵",
+        "ar": "MA64 0119 0000 0123 4567 8901 2345"
+      },
+      "regex": "^MA\\d{26}$",
+      "regex_strict": null,
+      "length": 28,
+      "checksum": "iso7064_mod97_10",
+      "validator": null,
+      "inputmode": "text",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " -",
+      "uppercase": true,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "MA89011780000012345678901234",
+        "MA64007810000123456789012345"
+      ],
+      "examples_invalid": [
+        {
+          "value": "MA89011780000012345678901235",
+          "expect": "checksum",
+          "reason": "mod-97 failure"
+        },
+        {
+          "value": "MA6401190000012345678901234",
+          "expect": "format",
+          "reason": "27 characters"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "National use (not in the SWIFT registry): MA + 2 check + 24-digit RIB. Synthetic examples.",
+      "sources": [
+        "https://en.wikipedia.org/wiki/International_Bank_Account_Number"
+      ]
+    },
+    {
+      "id": "ma.postal_code",
+      "country": "MA",
+      "category": "postal_code",
+      "label": {
+        "en": "Moroccan postal code",
+        "fa": "کد پستی مراکش",
+        "ar": "الرمز البريدي المغربي"
+      },
+      "mask": "99999",
+      "formatter": null,
+      "placeholder": {
+        "en": "10000",
+        "fa": "۱۰۰۰۰",
+        "ar": "10000"
+      },
+      "regex": "^\\d{5}$",
+      "regex_strict": null,
+      "length": 5,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": "postal-code",
+      "dir": "ltr",
+      "strip": " ",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "10000",
+        "20250"
+      ],
+      "examples_invalid": [
+        {
+          "value": "1000",
+          "expect": "format",
+          "reason": "4 digits"
+        },
+        {
+          "value": "100000",
+          "expect": "format",
+          "reason": "6 digits"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "5 digits.",
+      "sources": [
+        "https://www.upu.int/en/Postal-Solutions/Programmes-Services/Addressing-Solutions"
+      ]
+    },
+    {
+      "id": "dz.mobile",
+      "country": "DZ",
+      "category": "phone_mobile",
+      "label": {
+        "en": "Algerian mobile number",
+        "fa": "شماره موبایل الجزایر",
+        "ar": "رقم الهاتف النقال الجزائري"
+      },
+      "mask": "0999 99 99 99",
+      "formatter": null,
+      "placeholder": {
+        "en": "0555 12 34 56",
+        "fa": "۰۵۵۵ ۱۲ ۳۴ ۵۶",
+        "ar": "0555 12 34 56"
+      },
+      "regex": "^(?:\\+213|00213|213|0)?[567]\\d{8}$",
+      "regex_strict": null,
+      "length": 10,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "tel",
+      "autocomplete": "tel-national",
+      "dir": "ltr",
+      "strip": " -().",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "e164",
+      "e164": {
+        "cc": "213",
+        "trunk": "0",
+        "nsn_length": [
+          9
+        ]
+      },
+      "examples_valid": [
+        "0555123456",
+        "+213 661 23 45 67",
+        "0770123456"
+      ],
+      "examples_invalid": [
+        {
+          "value": "0455123456",
+          "expect": "format",
+          "reason": "04 is not mobile"
+        },
+        {
+          "value": "055512345",
+          "expect": "format",
+          "reason": "too short"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "0555123456",
+          "output": "0555 12 34 56"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "Mobile: 05 (Ooredoo), 06 (Mobilis), 07 (Djezzy).",
+      "sources": [
+        "https://en.wikipedia.org/wiki/Telephone_numbers_in_Algeria"
+      ]
+    },
+    {
+      "id": "dz.iban",
+      "country": "DZ",
+      "category": "iban",
+      "label": {
+        "en": "Algerian IBAN",
+        "fa": "شبا الجزایر",
+        "ar": "رقم الآيبان الجزائري"
+      },
+      "mask": "DZ99 9999 9999 9999 9999 9999 99",
+      "formatter": null,
+      "placeholder": {
+        "en": "DZ58 0002 1000 0111 3000 0005 70",
+        "fa": "DZ۵۸ ۰۰۰۲ ۱۰۰۰ ۰۱۱۱ ۳۰۰۰ ۰۰۰۵ ۷۰",
+        "ar": "DZ58 0002 1000 0111 3000 0005 70"
+      },
+      "regex": "^DZ\\d{24}$",
+      "regex_strict": null,
+      "length": 26,
+      "checksum": "iso7064_mod97_10",
+      "validator": null,
+      "inputmode": "text",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " -",
+      "uppercase": true,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "DZ580002100001113000000570",
+        "DZ910001234567890123456789"
+      ],
+      "examples_invalid": [
+        {
+          "value": "DZ580002100001113000000571",
+          "expect": "checksum",
+          "reason": "mod-97 failure"
+        },
+        {
+          "value": "DZ58000210000111300000057",
+          "expect": "format",
+          "reason": "25 characters"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "National use (not in the SWIFT registry). Synthetic examples.",
+      "sources": [
+        "https://en.wikipedia.org/wiki/International_Bank_Account_Number"
+      ]
+    },
+    {
+      "id": "dz.postal_code",
+      "country": "DZ",
+      "category": "postal_code",
+      "label": {
+        "en": "Algerian postal code",
+        "fa": "کد پستی الجزایر",
+        "ar": "الرمز البريدي الجزائري"
+      },
+      "mask": "99999",
+      "formatter": null,
+      "placeholder": {
+        "en": "16000",
+        "fa": "۱۶۰۰۰",
+        "ar": "16000"
+      },
+      "regex": "^\\d{5}$",
+      "regex_strict": null,
+      "length": 5,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": "postal-code",
+      "dir": "ltr",
+      "strip": " ",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "16000",
+        "31000"
+      ],
+      "examples_invalid": [
+        {
+          "value": "1600",
+          "expect": "format",
+          "reason": "4 digits"
+        },
+        {
+          "value": "160000",
+          "expect": "format",
+          "reason": "6 digits"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "5 digits (first 2 = wilaya).",
+      "sources": [
+        "https://www.upu.int/en/Postal-Solutions/Programmes-Services/Addressing-Solutions"
+      ]
+    },
+    {
+      "id": "tn.mobile",
+      "country": "TN",
+      "category": "phone_mobile",
+      "label": {
+        "en": "Tunisian mobile number",
+        "fa": "شماره موبایل تونس",
+        "ar": "رقم الهاتف الجوال التونسي"
+      },
+      "mask": "99 999 999",
+      "formatter": null,
+      "placeholder": {
+        "en": "20 123 456",
+        "fa": "۲۰ ۱۲۳ ۴۵۶",
+        "ar": "20 123 456"
+      },
+      "regex": "^(?:\\+216|00216|216)?[2459]\\d{7}$",
+      "regex_strict": null,
+      "length": 8,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "tel",
+      "autocomplete": "tel-national",
+      "dir": "ltr",
+      "strip": " -().",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "e164",
+      "e164": {
+        "cc": "216",
+        "trunk": "",
+        "nsn_length": [
+          8
+        ]
+      },
+      "examples_valid": [
+        "20123456",
+        "+216 98 123 456",
+        "50123456"
+      ],
+      "examples_invalid": [
+        {
+          "value": "71123456",
+          "expect": "format",
+          "reason": "7x is fixed-line"
+        },
+        {
+          "value": "2012345",
+          "expect": "format",
+          "reason": "7 digits"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "20123456",
+          "output": "20 123 456"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "Mobile: 2X, 4X, 5X, 9X; no trunk prefix.",
+      "sources": [
+        "https://en.wikipedia.org/wiki/Telephone_numbers_in_Tunisia"
+      ]
+    },
+    {
+      "id": "tn.cin",
+      "country": "TN",
+      "category": "national_id",
+      "label": {
+        "en": "Tunisian CIN",
+        "fa": "کارت ملی تونس",
+        "ar": "رقم بطاقة التعريف الوطنية التونسية"
+      },
+      "mask": "99999999",
+      "formatter": null,
+      "placeholder": {
+        "en": "01234567",
+        "fa": "۰۱۲۳۴۵۶۷",
+        "ar": "01234567"
+      },
+      "regex": "^\\d{8}$",
+      "regex_strict": null,
+      "length": 8,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " -",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "digits",
+      "examples_valid": [
+        "01234567",
+        "12345678"
+      ],
+      "examples_invalid": [
+        {
+          "value": "1234567",
+          "expect": "format",
+          "reason": "7 digits"
+        },
+        {
+          "value": "123456789",
+          "expect": "format",
+          "reason": "9 digits"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "unverified",
+      "notes": "(unverified) 8 digits, no public checksum.",
+      "sources": [
+        "https://en.wikipedia.org/wiki/Telephone_numbers_in_Tunisia"
+      ]
+    },
+    {
+      "id": "tn.iban",
+      "country": "TN",
+      "category": "iban",
+      "label": {
+        "en": "Tunisian IBAN",
+        "fa": "شبا تونس",
+        "ar": "رقم الآيبان التونسي"
+      },
+      "mask": "TN99 9999 9999 9999 9999 9999",
+      "formatter": null,
+      "placeholder": {
+        "en": "TN59 1000 6035 1835 9847 8831",
+        "fa": "TN۵۹ ۱۰۰۰ ۶۰۳۵ ۱۸۳۵ ۹۸۴۷ ۸۸۳۱",
+        "ar": "TN59 1000 6035 1835 9847 8831"
+      },
+      "regex": "^TN\\d{22}$",
+      "regex_strict": null,
+      "length": 24,
+      "checksum": "iso7064_mod97_10",
+      "validator": null,
+      "inputmode": "text",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " -",
+      "uppercase": true,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "TN5910006035183598478831",
+        "TN2401234000001234567890"
+      ],
+      "examples_invalid": [
+        {
+          "value": "TN5910006035183598478832",
+          "expect": "checksum",
+          "reason": "mod-97 failure"
+        },
+        {
+          "value": "TN591000603518359847883",
+          "expect": "format",
+          "reason": "23 characters"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "Registry example.",
+      "sources": [
+        "https://www.swift.com/standards/data-standards/iban-international-bank-account-number",
+        "https://en.wikipedia.org/wiki/International_Bank_Account_Number"
+      ]
+    },
+    {
+      "id": "tn.postal_code",
+      "country": "TN",
+      "category": "postal_code",
+      "label": {
+        "en": "Tunisian postal code",
+        "fa": "کد پستی تونس",
+        "ar": "الرمز البريدي التونسي"
+      },
+      "mask": "9999",
+      "formatter": null,
+      "placeholder": {
+        "en": "1000",
+        "fa": "۱۰۰۰",
+        "ar": "1000"
+      },
+      "regex": "^\\d{4}$",
+      "regex_strict": null,
+      "length": 4,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": "postal-code",
+      "dir": "ltr",
+      "strip": " ",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "1000",
+        "٣٠٠٠"
+      ],
+      "examples_invalid": [
+        {
+          "value": "100",
+          "expect": "format",
+          "reason": "3 digits"
+        },
+        {
+          "value": "10000",
+          "expect": "format",
+          "reason": "5 digits"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "4 digits.",
+      "sources": [
+        "https://www.upu.int/en/Postal-Solutions/Programmes-Services/Addressing-Solutions"
+      ]
+    },
+    {
+      "id": "intl.phone_e164",
+      "country": "intl",
+      "category": "phone_mobile",
+      "label": {
+        "en": "International phone (E.164)",
+        "fa": "شماره تلفن بین‌المللی",
+        "ar": "رقم هاتف دولي"
+      },
+      "mask": null,
+      "formatter": null,
+      "placeholder": {
+        "en": "+44 7700 900123",
+        "fa": "+۴۴ ۷۷۰۰ ۹۰۰۱۲۳",
+        "ar": "+44 7700 900123"
+      },
+      "regex": "^\\+[1-9]\\d{6,14}$",
+      "regex_strict": null,
+      "length": [
+        8,
+        16
+      ],
+      "checksum": null,
+      "validator": null,
+      "inputmode": "tel",
+      "autocomplete": "tel",
+      "dir": "ltr",
+      "strip": " -().",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "+44 7700 900123",
+        "+98 912 345 6789",
+        "+1 (202) 555-0123",
+        "＋９６６５０１２３４５６７"
+      ],
+      "examples_invalid": [
+        {
+          "value": "+0123456789",
+          "expect": "format",
+          "reason": "country code cannot start with 0"
+        },
+        {
+          "value": "+12345",
+          "expect": "format",
+          "reason": "too short"
+        },
+        {
+          "value": "0912345678",
+          "expect": "format",
+          "reason": "no leading +"
+        },
+        {
+          "value": "+1234567890123456",
+          "expect": "format",
+          "reason": "more than 15 digits"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "E.164: \"+\" then up to 15 digits, country code first. Convert \"00\" prefixes to \"+\" before validating if you want to be lenient. For per-country rules prefer libphonenumber metadata (large) or the country presets here.",
+      "sources": [
+        "https://www.itu.int/rec/T-REC-E.164"
+      ]
+    },
+    {
+      "id": "us.phone",
+      "country": "US",
+      "category": "phone_landline",
+      "label": {
+        "en": "US / Canada phone (NANP)",
+        "fa": "شماره تلفن آمریکا/کانادا",
+        "ar": "رقم هاتف أمريكا الشمالية"
+      },
+      "mask": "(999) 999-9999",
+      "formatter": null,
+      "placeholder": {
+        "en": "(202) 555-0123",
+        "fa": "(۲۰۲) ۵۵۵-۰۱۲۳",
+        "ar": "(202) 555-0123"
+      },
+      "regex": "^(?:\\+?1)?[2-9]\\d{2}[2-9]\\d{6}$",
+      "regex_strict": null,
+      "length": 10,
+      "checksum": null,
+      "validator": "nanp",
+      "inputmode": "tel",
+      "autocomplete": "tel-national",
+      "dir": "ltr",
+      "strip": " -().",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "e164",
+      "e164": {
+        "cc": "1",
+        "trunk": "",
+        "nsn_length": [
+          10
+        ]
+      },
+      "examples_valid": [
+        "(202) 555-0123",
+        "+1 415 555 0199",
+        "12125550147"
+      ],
+      "examples_invalid": [
+        {
+          "value": "(102) 555-0123",
+          "expect": "format",
+          "reason": "area code cannot start with 0/1"
+        },
+        {
+          "value": "(202) 155-0123",
+          "expect": "format",
+          "reason": "exchange cannot start with 0/1"
+        },
+        {
+          "value": "(211) 555-0123",
+          "expect": "rule",
+          "reason": "N11 is a service code, not an area code"
+        },
+        {
+          "value": "(202) 411-0123",
+          "expect": "rule",
+          "reason": "N11 exchange"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "2025550123",
+          "output": "(202) 555-0123"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "NXX-NXX-XXXX, N = 2-9; N11 codes are reserved. 555-0100..0199 are fictional numbers used in the examples. NANP also covers many Caribbean countries.",
+      "sources": [
+        "https://en.wikipedia.org/wiki/North_American_Numbering_Plan",
+        "https://nationalnanpa.com/number_resource_info/555_numbers.html"
+      ]
+    },
+    {
+      "id": "us.zip",
+      "country": "US",
+      "category": "postal_code",
+      "label": {
+        "en": "US ZIP code",
+        "fa": "کد پستی آمریکا (ZIP)",
+        "ar": "الرمز البريدي الأمريكي"
+      },
+      "mask": "99999[-9999]",
+      "formatter": null,
+      "placeholder": {
+        "en": "20500",
+        "fa": "۲۰۵۰۰",
+        "ar": "20500"
+      },
+      "regex": "^\\d{5}(?:-\\d{4})?$",
+      "regex_strict": null,
+      "length": [
+        5,
+        10
+      ],
+      "checksum": null,
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": "postal-code",
+      "dir": "ltr",
+      "strip": " ",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "20500",
+        "20500-0003",
+        "90210"
+      ],
+      "examples_invalid": [
+        {
+          "value": "2050",
+          "expect": "format",
+          "reason": "4 digits"
+        },
+        {
+          "value": "20500-03",
+          "expect": "format",
+          "reason": "ZIP+4 needs 4 digits"
+        },
+        {
+          "value": "205000003",
+          "expect": "format",
+          "reason": "9 digits without hyphen (format it first)"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "205000003",
+          "output": "20500-0003"
+        },
+        {
+          "input": "20500",
+          "output": "20500"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "5-digit ZIP or ZIP+4. Leading zeros are significant (store as text).",
+      "sources": [
+        "https://en.wikipedia.org/wiki/ZIP_Code"
+      ]
+    },
+    {
+      "id": "us.ssn",
+      "country": "US",
+      "category": "national_id",
+      "label": {
+        "en": "US Social Security number",
+        "fa": "شماره تأمین اجتماعی آمریکا",
+        "ar": "رقم الضمان الاجتماعي الأمريكي"
+      },
+      "mask": "999-99-9999",
+      "formatter": null,
+      "placeholder": {
+        "en": "123-45-6789",
+        "fa": "۱۲۳-۴۵-۶۷۸۹",
+        "ar": "123-45-6789"
+      },
+      "regex": "^\\d{9}$",
+      "regex_strict": null,
+      "length": 9,
+      "checksum": null,
+      "validator": "us_ssn",
+      "inputmode": "numeric",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " -",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "digits",
+      "examples_valid": [
+        "123-45-6789",
+        "321549876",
+        "234 56 7890"
+      ],
+      "examples_invalid": [
+        {
+          "value": "000-12-3456",
+          "expect": "rule",
+          "reason": "area 000"
+        },
+        {
+          "value": "666-12-3456",
+          "expect": "rule",
+          "reason": "area 666"
+        },
+        {
+          "value": "912-34-5678",
+          "expect": "rule",
+          "reason": "area 900-999 (ITIN range)"
+        },
+        {
+          "value": "123-00-4567",
+          "expect": "rule",
+          "reason": "group 00"
+        },
+        {
+          "value": "123-45-0000",
+          "expect": "rule",
+          "reason": "serial 0000"
+        },
+        {
+          "value": "123-45-678",
+          "expect": "format",
+          "reason": "8 digits"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "123456789",
+          "output": "123-45-6789"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "Since 2011 SSNs are randomized; only these ranges are never issued. Mask on display (***-**-6789) and never log. Examples are synthetic sequences.",
+      "sources": [
+        "https://www.ssa.gov/employer/randomization.html",
+        "https://en.wikipedia.org/wiki/Social_Security_number"
+      ]
+    },
+    {
+      "id": "us.ein",
+      "country": "US",
+      "category": "tax_id",
+      "label": {
+        "en": "US Employer Identification Number (EIN)",
+        "fa": "شماره شناسایی کارفرما (EIN)",
+        "ar": "رقم تعريف صاحب العمل الأمريكي"
+      },
+      "mask": "99-9999999",
+      "formatter": null,
+      "placeholder": {
+        "en": "12-3456789",
+        "fa": "۱۲-۳۴۵۶۷۸۹",
+        "ar": "12-3456789"
+      },
+      "regex": "^\\d{9}$",
+      "regex_strict": null,
+      "length": 9,
+      "checksum": null,
+      "validator": "us_ein",
+      "inputmode": "numeric",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " -",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "digits",
+      "examples_valid": [
+        "12-3456789",
+        "98-7654321"
+      ],
+      "examples_invalid": [
+        {
+          "value": "07-1234567",
+          "expect": "rule",
+          "reason": "prefix 07 is not an IRS campus prefix"
+        },
+        {
+          "value": "00-1234567",
+          "expect": "rule",
+          "reason": "prefix 00"
+        },
+        {
+          "value": "12-345678",
+          "expect": "format",
+          "reason": "8 digits"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "123456789",
+          "output": "12-3456789"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "confirmed",
+      "notes": "Prefix list from the IRS page (confirmed this session). No check digit.",
+      "sources": [
+        "https://www.irs.gov/businesses/small-businesses-self-employed/how-eins-are-assigned-and-valid-ein-prefixes"
+      ]
+    },
+    {
+      "id": "uk.mobile",
+      "country": "UK",
+      "category": "phone_mobile",
+      "label": {
+        "en": "UK mobile number",
+        "fa": "شماره موبایل بریتانیا",
+        "ar": "رقم الجوال البريطاني"
+      },
+      "mask": "07999 999999",
+      "formatter": null,
+      "placeholder": {
+        "en": "07700 900123",
+        "fa": "۰۷۷۰۰ ۹۰۰۱۲۳",
+        "ar": "07700 900123"
+      },
+      "regex": "^(?:\\+44|0044|0)7\\d{9}$",
+      "regex_strict": null,
+      "length": 11,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "tel",
+      "autocomplete": "tel-national",
+      "dir": "ltr",
+      "strip": " -().",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "e164",
+      "e164": {
+        "cc": "44",
+        "trunk": "0",
+        "nsn_length": [
+          10
+        ]
+      },
+      "examples_valid": [
+        "07700 900123",
+        "+44 7700 900456",
+        "00447700900789"
+      ],
+      "examples_invalid": [
+        {
+          "value": "7700900123",
+          "expect": "format",
+          "reason": "trunk 0 or +44 required"
+        },
+        {
+          "value": "0770090012",
+          "expect": "format",
+          "reason": "10 digits"
+        },
+        {
+          "value": "+44 07700 900123",
+          "expect": "format",
+          "reason": "trunk 0 kept after +44"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "07700900123",
+          "output": "07700 900123"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "07700 900000-900999 are Ofcom drama numbers (safe examples). 076 pagers excluded only by policy (not enforced).",
+      "sources": [
+        "https://en.wikipedia.org/wiki/Telephone_numbers_in_the_United_Kingdom",
+        "https://www.ofcom.org.uk/phones-and-broadband/phone-numbers/numbers-for-drama"
+      ]
+    },
+    {
+      "id": "uk.landline",
+      "country": "UK",
+      "category": "phone_landline",
+      "label": {
+        "en": "UK landline",
+        "fa": "تلفن ثابت بریتانیا",
+        "ar": "الهاتف الأرضي البريطاني"
+      },
+      "mask": null,
+      "formatter": null,
+      "placeholder": {
+        "en": "020 7946 0123",
+        "fa": "۰۲۰ ۷۹۴۶ ۰۱۲۳",
+        "ar": "020 7946 0123"
+      },
+      "regex": "^(?:\\+44|0044|0)[123]\\d{8,9}$",
+      "regex_strict": null,
+      "length": [
+        10,
+        11
+      ],
+      "checksum": null,
+      "validator": null,
+      "inputmode": "tel",
+      "autocomplete": "tel-national",
+      "dir": "ltr",
+      "strip": " -().",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "e164",
+      "e164": {
+        "cc": "44",
+        "trunk": "0",
+        "nsn_length": [
+          9,
+          10
+        ]
+      },
+      "examples_valid": [
+        "020 7946 0123",
+        "0113 496 0456",
+        "+44 1632 960123"
+      ],
+      "examples_invalid": [
+        {
+          "value": "020 7946 01",
+          "expect": "format",
+          "reason": "too short (9 digits)"
+        },
+        {
+          "value": "0800 123 4567",
+          "expect": "format",
+          "reason": "08 is non-geographic (use intl.phone_e164)"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "01/02 geographic + 03 non-geographic. Area-code length varies (2-5 digits) so there is no single typing mask. Ofcom drama ranges used in examples.",
+      "sources": [
+        "https://en.wikipedia.org/wiki/Telephone_numbers_in_the_United_Kingdom",
+        "https://www.ofcom.org.uk/phones-and-broadband/phone-numbers/numbers-for-drama"
+      ]
+    },
+    {
+      "id": "uk.postcode",
+      "country": "UK",
+      "category": "postal_code",
+      "label": {
+        "en": "UK postcode",
+        "fa": "کد پستی بریتانیا",
+        "ar": "الرمز البريدي البريطاني"
+      },
+      "mask": null,
+      "formatter": null,
+      "placeholder": {
+        "en": "SW1A 1AA",
+        "fa": "SW۱A ۱AA",
+        "ar": "SW1A 1AA"
+      },
+      "regex": "^(?:GIR ?0AA|(?:[A-PR-UWYZ][0-9]{1,2}|[A-PR-UWYZ][A-HK-Y][0-9]{1,2}|[A-PR-UWYZ][0-9][A-HJKPSTUW]|[A-PR-UWYZ][A-HK-Y][0-9][ABEHMNPRVWXY]) ?[0-9][ABD-HJLNP-UW-Z]{2})$",
+      "regex_strict": null,
+      "length": [
+        5,
+        8
+      ],
+      "checksum": null,
+      "validator": null,
+      "inputmode": "text",
+      "autocomplete": "postal-code",
+      "dir": "ltr",
+      "strip": "",
+      "uppercase": true,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "SW1A 1AA",
+        "ec1a1bb",
+        "W1A 0AX",
+        "M1 1AE",
+        "B33 8TH",
+        "CR2 6XH",
+        "DN55 1PT",
+        "GIR 0AA"
+      ],
+      "examples_invalid": [
+        {
+          "value": "QW1 1AA",
+          "expect": "format",
+          "reason": "Q never used as first letter"
+        },
+        {
+          "value": "SW1A 1CA",
+          "expect": "format",
+          "reason": "C never used in the inward letters"
+        },
+        {
+          "value": "SW1A",
+          "expect": "format",
+          "reason": "outward code only"
+        },
+        {
+          "value": "1AA 1AA",
+          "expect": "format",
+          "reason": "must start with a letter"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "Anchored, grouped version of the Royal Mail / gov.uk BS7666 pattern (the gov.uk Bulk Data Transfer regex has an anchoring bug: ^ only applies to the GIR branch). Validates shape only; use a PAF lookup for existence. Display with one space before the last 3 characters.",
+      "sources": [
+        "https://assets.publishing.service.gov.uk/media/5a7f3ff4ed915d74e33f5438/Bulk_Data_Transfer_-_additional_validation_valid_from_12_November_2015.pdf",
+        "https://en.wikipedia.org/wiki/Postcodes_in_the_United_Kingdom"
+      ]
+    },
+    {
+      "id": "uk.nino",
+      "country": "UK",
+      "category": "national_id",
+      "label": {
+        "en": "UK National Insurance number",
+        "fa": "شماره بیمه ملی بریتانیا",
+        "ar": "رقم التأمين الوطني البريطاني"
+      },
+      "mask": "aa 99 99 99 a",
+      "formatter": null,
+      "placeholder": {
+        "en": "AB 12 34 56 C",
+        "fa": "AB ۱۲ ۳۴ ۵۶ C",
+        "ar": "AB 12 34 56 C"
+      },
+      "regex": "^[A-Z]{2}\\d{6}[A-D]$",
+      "regex_strict": null,
+      "length": 9,
+      "checksum": null,
+      "validator": "uk_nino",
+      "inputmode": "text",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " ",
+      "uppercase": true,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "AB 12 34 56 C",
+        "ce987654d",
+        "JG103759A"
+      ],
+      "examples_invalid": [
+        {
+          "value": "QQ123456C",
+          "expect": "rule",
+          "reason": "Q not allowed (QQ is the HMRC \"example\" prefix)"
+        },
+        {
+          "value": "GB123456A",
+          "expect": "rule",
+          "reason": "GB prefix never allocated"
+        },
+        {
+          "value": "AO123456A",
+          "expect": "rule",
+          "reason": "second letter O not allowed"
+        },
+        {
+          "value": "AB123456E",
+          "expect": "format",
+          "reason": "suffix must be A-D"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "ab123456c",
+          "output": "AB 12 34 56 C"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "HMRC NIM39110: first letter not D F I Q U V; second letter not D F I O Q U V; prefixes BG GB KN NK NT TN ZZ not allocated; suffix A-D. No check digit.",
+      "sources": [
+        "https://www.gov.uk/hmrc-internal-manuals/national-insurance-manual/nim39110"
+      ]
+    },
+    {
+      "id": "ca.postal_code",
+      "country": "CA",
+      "category": "postal_code",
+      "label": {
+        "en": "Canadian postal code",
+        "fa": "کد پستی کانادا",
+        "ar": "الرمز البريدي الكندي"
+      },
+      "mask": "a9a 9a9",
+      "formatter": null,
+      "placeholder": {
+        "en": "K1A 0B1",
+        "fa": "K۱A ۰B۱",
+        "ar": "K1A 0B1"
+      },
+      "regex": "^[ABCEGHJ-NPRSTVXY][0-9][ABCEGHJ-NPRSTV-Z] ?[0-9][ABCEGHJ-NPRSTV-Z][0-9]$",
+      "regex_strict": null,
+      "length": [
+        6,
+        7
+      ],
+      "checksum": null,
+      "validator": null,
+      "inputmode": "text",
+      "autocomplete": "postal-code",
+      "dir": "ltr",
+      "strip": "",
+      "uppercase": true,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "K1A 0B1",
+        "h0h0h0",
+        "M5V 3L9"
+      ],
+      "examples_invalid": [
+        {
+          "value": "W1A 1A1",
+          "expect": "format",
+          "reason": "W never used as first letter"
+        },
+        {
+          "value": "K1A 0D1",
+          "expect": "format",
+          "reason": "D never used"
+        },
+        {
+          "value": "K1A0B",
+          "expect": "format",
+          "reason": "too short"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "k1a0b1",
+          "output": "K1A 0B1"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "ANA NAN; letters D F I O Q U never used, W and Z never first.",
+      "sources": [
+        "https://en.wikipedia.org/wiki/Postal_codes_in_Canada"
+      ]
+    },
+    {
+      "id": "au.mobile",
+      "country": "AU",
+      "category": "phone_mobile",
+      "label": {
+        "en": "Australian mobile number",
+        "fa": "شماره موبایل استرالیا",
+        "ar": "رقم الجوال الأسترالي"
+      },
+      "mask": "0499 999 999",
+      "formatter": null,
+      "placeholder": {
+        "en": "0491 570 156",
+        "fa": "۰۴۹۱ ۵۷۰ ۱۵۶",
+        "ar": "0491 570 156"
+      },
+      "regex": "^(?:\\+61|0061|0)4\\d{8}$",
+      "regex_strict": null,
+      "length": 10,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "tel",
+      "autocomplete": "tel-national",
+      "dir": "ltr",
+      "strip": " -().",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "e164",
+      "e164": {
+        "cc": "61",
+        "trunk": "0",
+        "nsn_length": [
+          9
+        ]
+      },
+      "examples_valid": [
+        "0491 570 156",
+        "+61 491 570 110"
+      ],
+      "examples_invalid": [
+        {
+          "value": "0291 570 156",
+          "expect": "format",
+          "reason": "02 is a landline"
+        },
+        {
+          "value": "0491 570 15",
+          "expect": "format",
+          "reason": "too short"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "0491570156",
+          "output": "0491 570 156"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "0491 570 006-159 etc. are ACMA fictional numbers (safe examples).",
+      "sources": [
+        "https://www.acma.gov.au/phone-numbers-use-tv-shows-films-and-creative-works"
+      ]
+    },
+    {
+      "id": "au.postcode",
+      "country": "AU",
+      "category": "postal_code",
+      "label": {
+        "en": "Australian postcode",
+        "fa": "کد پستی استرالیا",
+        "ar": "الرمز البريدي الأسترالي"
+      },
+      "mask": "9999",
+      "formatter": null,
+      "placeholder": {
+        "en": "2000",
+        "fa": "۲۰۰۰",
+        "ar": "2000"
+      },
+      "regex": "^(?:0[289]\\d{2}|[1-9]\\d{3})$",
+      "regex_strict": null,
+      "length": 4,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": "postal-code",
+      "dir": "ltr",
+      "strip": " ",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "2000",
+        "0800",
+        "3000"
+      ],
+      "examples_invalid": [
+        {
+          "value": "200",
+          "expect": "format",
+          "reason": "3 digits"
+        },
+        {
+          "value": "0100",
+          "expect": "format",
+          "reason": "01xx not used"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "4 digits; NT/ACT codes start with 02/08/09.",
+      "sources": [
+        "https://en.wikipedia.org/wiki/Postcodes_in_Australia"
+      ]
+    },
+    {
+      "id": "au.abn",
+      "country": "AU",
+      "category": "company_id",
+      "label": {
+        "en": "Australian Business Number (ABN)",
+        "fa": "شماره کسب‌وکار استرالیا (ABN)",
+        "ar": "رقم الأعمال الأسترالي"
+      },
+      "mask": "99 999 999 999",
+      "formatter": null,
+      "placeholder": {
+        "en": "51 824 753 556",
+        "fa": "۵۱ ۸۲۴ ۷۵۳ ۵۵۶",
+        "ar": "51 824 753 556"
+      },
+      "regex": "^\\d{11}$",
+      "regex_strict": null,
+      "length": 11,
+      "checksum": "au_abn",
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " -",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "digits",
+      "examples_valid": [
+        "51 824 753 556",
+        "18123456789",
+        "18 123 456 789"
+      ],
+      "examples_invalid": [
+        {
+          "value": "51 824 753 557",
+          "expect": "checksum",
+          "reason": "weighted sum not divisible by 89"
+        },
+        {
+          "value": "5182475355",
+          "expect": "format",
+          "reason": "10 digits"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "51824753556",
+          "output": "51 824 753 556"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "Subtract 1 from the first digit, weights [10,1,3,5,7,9,11,13,15,17,19], Σ mod 89 must be 0. 51 824 753 556 is the example used by the ABR help page.",
+      "sources": [
+        "https://abr.business.gov.au/Help/AbnFormat"
+      ]
+    },
+    {
+      "id": "in.mobile",
+      "country": "IN",
+      "category": "phone_mobile",
+      "label": {
+        "en": "Indian mobile number",
+        "fa": "شماره موبایل هند",
+        "ar": "رقم الجوال الهندي"
+      },
+      "mask": "99999 99999",
+      "formatter": null,
+      "placeholder": {
+        "en": "98765 43210",
+        "fa": "۹۸۷۶۵ ۴۳۲۱۰",
+        "ar": "98765 43210"
+      },
+      "regex": "^(?:\\+91|0091|91|0)?[6-9]\\d{9}$",
+      "regex_strict": null,
+      "length": 10,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "tel",
+      "autocomplete": "tel-national",
+      "dir": "ltr",
+      "strip": " -().",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "e164",
+      "e164": {
+        "cc": "91",
+        "trunk": "0",
+        "nsn_length": [
+          10
+        ]
+      },
+      "examples_valid": [
+        "98765 43210",
+        "+91 70123 45678",
+        "09876543210"
+      ],
+      "examples_invalid": [
+        {
+          "value": "58765 43210",
+          "expect": "format",
+          "reason": "mobile numbers start with 6-9"
+        },
+        {
+          "value": "98765 4321",
+          "expect": "format",
+          "reason": "9 digits"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "9876543210",
+          "output": "98765 43210"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "10 digits starting 6-9.",
+      "sources": [
+        "https://en.wikipedia.org/wiki/Telephone_numbers_in_India"
+      ]
+    },
+    {
+      "id": "in.pin",
+      "country": "IN",
+      "category": "postal_code",
+      "label": {
+        "en": "Indian PIN code",
+        "fa": "کد پستی هند (PIN)",
+        "ar": "الرمز البريدي الهندي"
+      },
+      "mask": "999 999",
+      "formatter": null,
+      "placeholder": {
+        "en": "110 001",
+        "fa": "۱۱۰ ۰۰۱",
+        "ar": "110 001"
+      },
+      "regex": "^[1-9]\\d{5}$",
+      "regex_strict": null,
+      "length": 6,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": "postal-code",
+      "dir": "ltr",
+      "strip": " ",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "digits",
+      "examples_valid": [
+        "110001",
+        "560 001"
+      ],
+      "examples_invalid": [
+        {
+          "value": "012345",
+          "expect": "format",
+          "reason": "cannot start with 0"
+        },
+        {
+          "value": "11000",
+          "expect": "format",
+          "reason": "5 digits"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "110001",
+          "output": "110 001"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "6 digits, first digit 1-9 (region).",
+      "sources": [
+        "https://en.wikipedia.org/wiki/Postal_Index_Number"
+      ]
+    },
+    {
+      "id": "in.pan",
+      "country": "IN",
+      "category": "tax_id",
+      "label": {
+        "en": "Indian PAN",
+        "fa": "شماره PAN هند",
+        "ar": "رقم حساب ضريبي هندي (PAN)"
+      },
+      "mask": "aaaaa9999a",
+      "formatter": null,
+      "placeholder": {
+        "en": "ABCPE1234F",
+        "fa": "ABCPE۱۲۳۴F",
+        "ar": "ABCPE1234F"
+      },
+      "regex": "^[A-Z]{3}[ABCFGHJLPT][A-Z]\\d{4}[A-Z]$",
+      "regex_strict": null,
+      "length": 10,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "text",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " ",
+      "uppercase": true,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "ABCPE1234F",
+        "aaacb1234c"
+      ],
+      "examples_invalid": [
+        {
+          "value": "ABCXE1234F",
+          "expect": "format",
+          "reason": "4th character X is not a holder type"
+        },
+        {
+          "value": "ABCPE12345",
+          "expect": "format",
+          "reason": "last character must be a letter"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "abcpe1234f",
+          "output": "ABCPE1234F"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "4th char = holder type (P person, C company, H HUF, F firm, A AOP, T trust, B BOI, L local authority, J artificial juridical person, G government). The last letter is a check character whose algorithm is not public.",
+      "sources": [
+        "https://en.wikipedia.org/wiki/Permanent_account_number"
+      ]
+    },
+    {
+      "id": "in.aadhaar",
+      "country": "IN",
+      "category": "national_id",
+      "label": {
+        "en": "Aadhaar number",
+        "fa": "شماره آدهار هند",
+        "ar": "رقم آدهار الهندي"
+      },
+      "mask": "9999 9999 9999",
+      "formatter": null,
+      "placeholder": {
+        "en": "2345 6789 0123",
+        "fa": "۲۳۴۵ ۶۷۸۹ ۰۱۲۳",
+        "ar": "2345 6789 0123"
+      },
+      "regex": "^[2-9]\\d{11}$",
+      "regex_strict": null,
+      "length": 12,
+      "checksum": "verhoeff",
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " -",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "digits",
+      "examples_valid": [
+        "234567890124",
+        "9876 5432 1012"
+      ],
+      "examples_invalid": [
+        {
+          "value": "234567890125",
+          "expect": "checksum",
+          "reason": "Verhoeff failure"
+        },
+        {
+          "value": "1234 5678 9012",
+          "expect": "format",
+          "reason": "cannot start with 0 or 1"
+        },
+        {
+          "value": "2345 6789 012",
+          "expect": "format",
+          "reason": "11 digits"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "234567890124",
+          "output": "2345 6789 0124"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "12 digits, first digit 2-9, last digit Verhoeff. Display masked (XXXX XXXX 1234) per UIDAI guidance. Synthetic examples.",
+      "sources": [
+        "https://en.wikipedia.org/wiki/Aadhaar",
+        "https://en.wikipedia.org/wiki/Verhoeff_algorithm"
+      ]
+    },
+    {
+      "id": "de.plz",
+      "country": "DE",
+      "category": "postal_code",
+      "label": {
+        "en": "German postal code (PLZ)",
+        "fa": "کد پستی آلمان",
+        "ar": "الرمز البريدي الألماني"
+      },
+      "mask": "99999",
+      "formatter": null,
+      "placeholder": {
+        "en": "10115",
+        "fa": "۱۰۱۱۵",
+        "ar": "10115"
+      },
+      "regex": "^(?!00)\\d{5}$",
+      "regex_strict": null,
+      "length": 5,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": "postal-code",
+      "dir": "ltr",
+      "strip": " ",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "10115",
+        "01067",
+        "80331"
+      ],
+      "examples_invalid": [
+        {
+          "value": "00123",
+          "expect": "format",
+          "reason": "00 is not used"
+        },
+        {
+          "value": "1011",
+          "expect": "format",
+          "reason": "4 digits"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "5 digits 01001-99998.",
+      "sources": [
+        "https://en.wikipedia.org/wiki/Postal_codes_in_Germany"
+      ]
+    },
+    {
+      "id": "intl.iban",
+      "country": "intl",
+      "category": "iban",
+      "label": {
+        "en": "IBAN (any country)",
+        "fa": "شماره IBAN (همه کشورها)",
+        "ar": "رقم الآيبان (جميع الدول)"
+      },
+      "mask": "aa99[ ****][ ****][ ****][ ****][ ****][ ****][ ****][ **]",
+      "formatter": null,
+      "placeholder": {
+        "en": "DE89 3704 0044 0532 0130 00",
+        "fa": "DE۸۹ ۳۷۰۴ ۰۰۴۴ ۰۵۳۲ ۰۱۳۰ ۰۰",
+        "ar": "DE89 3704 0044 0532 0130 00"
+      },
+      "regex": "^[A-Z]{2}\\d{2}[A-Z0-9]{11,30}$",
+      "regex_strict": null,
+      "length": [
+        15,
+        34
+      ],
+      "checksum": "iso7064_mod97_10",
+      "validator": null,
+      "inputmode": "text",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " -",
+      "uppercase": true,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "metadata": {
+        "lengths_registry": {
+          "AD": 24,
+          "AE": 23,
+          "AL": 28,
+          "AT": 20,
+          "AZ": 28,
+          "BA": 20,
+          "BE": 16,
+          "BG": 22,
+          "BH": 22,
+          "BI": 27,
+          "BR": 29,
+          "BY": 28,
+          "CH": 21,
+          "CR": 22,
+          "CY": 28,
+          "CZ": 24,
+          "DE": 22,
+          "DJ": 27,
+          "DK": 18,
+          "DO": 28,
+          "EE": 20,
+          "EG": 29,
+          "ES": 24,
+          "FI": 18,
+          "FK": 18,
+          "FO": 18,
+          "FR": 27,
+          "GB": 22,
+          "GE": 22,
+          "GI": 23,
+          "GL": 18,
+          "GR": 27,
+          "GT": 28,
+          "HN": 28,
+          "HR": 21,
+          "HU": 28,
+          "IE": 22,
+          "IL": 23,
+          "IQ": 23,
+          "IS": 26,
+          "IT": 27,
+          "JO": 30,
+          "KW": 30,
+          "KZ": 20,
+          "LB": 28,
+          "LC": 32,
+          "LI": 21,
+          "LT": 20,
+          "LU": 20,
+          "LV": 21,
+          "LY": 25,
+          "MC": 27,
+          "MD": 24,
+          "ME": 22,
+          "MK": 19,
+          "MN": 20,
+          "MR": 27,
+          "MT": 31,
+          "MU": 30,
+          "NI": 28,
+          "NL": 18,
+          "NO": 15,
+          "OM": 23,
+          "PK": 24,
+          "PL": 28,
+          "PS": 29,
+          "PT": 25,
+          "QA": 29,
+          "RO": 24,
+          "RS": 22,
+          "RU": 33,
+          "SA": 24,
+          "SC": 31,
+          "SD": 18,
+          "SE": 24,
+          "SI": 19,
+          "SK": 24,
+          "SM": 27,
+          "SO": 23,
+          "ST": 25,
+          "SV": 28,
+          "TL": 23,
+          "TN": 24,
+          "TR": 26,
+          "UA": 29,
+          "VA": 22,
+          "VG": 24,
+          "XK": 20,
+          "YE": 30
+        },
+        "lengths_national_use": {
+          "IR": 26,
+          "DZ": 26,
+          "MA": 28,
+          "AO": 25,
+          "BJ": 28,
+          "BF": 28,
+          "CV": 25,
+          "CM": 27,
+          "CF": 27,
+          "TD": 27,
+          "KM": 27,
+          "CG": 27,
+          "CI": 28,
+          "GQ": 27,
+          "GA": 27,
+          "GW": 25,
+          "MG": 27,
+          "ML": 28,
+          "MZ": 25,
+          "NE": 28,
+          "SN": 28,
+          "TG": 28
+        }
+      },
+      "examples_valid": [
+        "DE89 3704 0044 0532 0130 00",
+        "GB82WEST12345698765432",
+        "fr1420041010050500013m02606",
+        "IR120170000001234567890123",
+        "NO9386011117947"
+      ],
+      "examples_invalid": [
+        {
+          "value": "DE89 3704 0044 0532 0130 01",
+          "expect": "checksum",
+          "reason": "mod-97 failure"
+        },
+        {
+          "value": "DE8937040044053201300",
+          "expect": "checksum",
+          "reason": "wrong length for DE (21 instead of 22)"
+        },
+        {
+          "value": "XX89370400440532013000",
+          "expect": "checksum",
+          "reason": "unknown country code"
+        },
+        {
+          "value": "DE89-3704",
+          "expect": "format",
+          "reason": "too short"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "de89370400440532013000",
+          "output": "DE89 3704 0044 0532 0130 00"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "confirmed",
+      "notes": "Strip spaces/dashes, uppercase, check country length table, then ISO 7064 MOD 97-10: move first 4 chars to the end, letters A=10..Z=35, the number mod 97 must be 1. Display in groups of 4. DE89..., GB82..., FR14..., NO93... are the SWIFT registry examples. The national-use table (IR, DZ, MA and some African countries) is accepted too; set a \"registry only\" option if needed.",
+      "sources": [
+        "https://www.swift.com/standards/data-standards/iban-international-bank-account-number",
+        "https://en.wikipedia.org/wiki/International_Bank_Account_Number",
+        "https://www.iso.org/standard/81090.html"
+      ]
+    },
+    {
+      "id": "intl.card",
+      "country": "intl",
+      "category": "bank_card",
+      "label": {
+        "en": "Credit / debit card number",
+        "fa": "شماره کارت اعتباری",
+        "ar": "رقم بطاقة الائتمان"
+      },
+      "mask": null,
+      "formatter": "card",
+      "placeholder": {
+        "en": "4111 1111 1111 1111",
+        "fa": "۴۱۱۱ ۱۱۱۱ ۱۱۱۱ ۱۱۱۱",
+        "ar": "4111 1111 1111 1111"
+      },
+      "regex": "^\\d{12,19}$",
+      "regex_strict": null,
+      "length": [
+        12,
+        19
+      ],
+      "checksum": "card",
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": "cc-number",
+      "dir": "ltr",
+      "strip": " -",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "digits",
+      "metadata": {
+        "brands": {
+          "amex": "34, 37 / 15 / 4-6-5",
+          "diners": "300-305, 3095, 36, 38, 39 / 14-19 / 4-6-4",
+          "jcb": "3528-3589 / 16-19",
+          "mir": "2200-2204 / 16-19",
+          "mastercard": "51-55, 2221-2720 / 16",
+          "discover": "6011, 644-649, 65 / 16-19",
+          "unionpay": "62 / 16-19",
+          "maestro": "50, 56-59, 63, 67 / 12-19",
+          "visa": "4 / 13, 16, 19"
+        }
+      },
+      "examples_valid": [
+        "4111 1111 1111 1111",
+        "5555555555554444",
+        "378282246310005",
+        "6011111111111117",
+        "3530111333300000",
+        "2223003122003222",
+        "30569309025904",
+        "6200000000000005"
+      ],
+      "examples_invalid": [
+        {
+          "value": "4111 1111 1111 1112",
+          "expect": "checksum",
+          "reason": "Luhn failure"
+        },
+        {
+          "value": "411111111111111",
+          "expect": "checksum",
+          "reason": "Visa cannot be 15 digits (and Luhn fails)"
+        },
+        {
+          "value": "37828224631000",
+          "expect": "checksum",
+          "reason": "Amex must be 15 digits"
+        },
+        {
+          "value": "1234",
+          "expect": "format",
+          "reason": "too short"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "4111111111111111",
+          "output": "4111 1111 1111 1111"
+        },
+        {
+          "input": "378282246310005",
+          "output": "3782 822463 10005"
+        },
+        {
+          "input": "30569309025904",
+          "output": "3056 930902 5904"
+        },
+        {
+          "input": "۵۵۵۵۵۵۵۵۵۵۵۵۴۴۴۴",
+          "output": "5555 5555 5555 4444"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "Luhn + brand length. Grouping follows the brand (Amex 4-6-5, Diners 14-digit 4-6-4, others 4-4-4-4[-3]). Examples are the public test numbers from payment-provider documentation (Stripe). Never store full PANs unless you are PCI-DSS compliant; prefer payment-gateway fields.",
+      "sources": [
+        "https://en.wikipedia.org/wiki/Luhn_algorithm",
+        "https://en.wikipedia.org/wiki/Payment_card_number",
+        "https://docs.stripe.com/testing"
+      ]
+    },
+    {
+      "id": "intl.cvc",
+      "country": "intl",
+      "category": "bank_card",
+      "label": {
+        "en": "Card security code (CVC)",
+        "fa": "کد CVV2",
+        "ar": "رمز التحقق (CVC)"
+      },
+      "mask": "999[9]",
+      "formatter": null,
+      "placeholder": {
+        "en": "123",
+        "fa": "۱۲۳",
+        "ar": "123"
+      },
+      "regex": "^\\d{3,4}$",
+      "regex_strict": null,
+      "length": [
+        3,
+        4
+      ],
+      "checksum": null,
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": "cc-csc",
+      "dir": "ltr",
+      "strip": " ",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "123",
+        "۱۲۳۴"
+      ],
+      "examples_invalid": [
+        {
+          "value": "12",
+          "expect": "format",
+          "reason": "2 digits"
+        },
+        {
+          "value": "12345",
+          "expect": "format",
+          "reason": "5 digits"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "12345",
+          "output": "1234"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "3 digits (4 for Amex). If the card brand is known, require exactly cvc digits. Never store.",
+      "sources": [
+        "https://en.wikipedia.org/wiki/Payment_card_number"
+      ]
+    },
+    {
+      "id": "intl.card_expiry",
+      "country": "intl",
+      "category": "date",
+      "label": {
+        "en": "Card expiry (MM/YY)",
+        "fa": "تاریخ انقضای کارت",
+        "ar": "تاريخ انتهاء البطاقة"
+      },
+      "mask": "99/99",
+      "formatter": null,
+      "placeholder": {
+        "en": "12/28",
+        "fa": "۱۲/۲۸",
+        "ar": "12/28"
+      },
+      "regex": "^\\d{2}/\\d{2}$",
+      "regex_strict": null,
+      "length": 5,
+      "checksum": null,
+      "validator": "card_expiry",
+      "inputmode": "numeric",
+      "autocomplete": "cc-exp",
+      "dir": "ltr",
+      "strip": " ",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "12/28",
+        "01/30",
+        "۰۵/۲۹"
+      ],
+      "examples_invalid": [
+        {
+          "value": "13/28",
+          "expect": "rule",
+          "reason": "month 13"
+        },
+        {
+          "value": "00/28",
+          "expect": "rule",
+          "reason": "month 00"
+        },
+        {
+          "value": "1/28",
+          "expect": "format",
+          "reason": "month needs 2 digits"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "1228",
+          "output": "12/28"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "Structure only in tests; pass `now` to reject expired cards (card valid through the last day of the month). Iranian cards print expiry as YY/MM in Jalali (e.g. 05/03 = 1405 Khordad) - offer a separate \"ir\" variant if needed (unverified).",
+      "sources": [
+        "https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofill"
+      ]
+    },
+    {
+      "id": "intl.date_mdy",
+      "country": "intl",
+      "category": "date",
+      "label": {
+        "en": "Date (MM/DD/YYYY)",
+        "fa": "تاریخ میلادی (ماه/روز/سال)",
+        "ar": "التاريخ (شهر/يوم/سنة)"
+      },
+      "mask": "99/99/9999",
+      "formatter": null,
+      "placeholder": {
+        "en": "12/31/2024",
+        "fa": "۱۲/۳۱/۲۰۲۴",
+        "ar": "12/31/2024"
+      },
+      "regex": "^\\d{2}/\\d{2}/\\d{4}$",
+      "regex_strict": null,
+      "length": 10,
+      "checksum": null,
+      "validator": "date",
+      "inputmode": "numeric",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " ",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "calendar": "gregorian",
+      "date_order": "MDY",
+      "year_range": [
+        1900,
+        2100
+      ],
+      "examples_valid": [
+        "02/29/2024",
+        "12/31/1999"
+      ],
+      "examples_invalid": [
+        {
+          "value": "02/29/2023",
+          "expect": "rule",
+          "reason": "2023 is not a leap year"
+        },
+        {
+          "value": "13/01/2024",
+          "expect": "rule",
+          "reason": "month 13"
+        },
+        {
+          "value": "2/9/2024",
+          "expect": "format",
+          "reason": "needs 2-digit month/day"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "02292024",
+          "output": "02/29/2024"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "US order.",
+      "sources": [
+        "https://en.wikipedia.org/wiki/ISO_8601"
+      ]
+    },
+    {
+      "id": "intl.date_dmy",
+      "country": "intl",
+      "category": "date",
+      "label": {
+        "en": "Date (DD/MM/YYYY)",
+        "fa": "تاریخ میلادی (روز/ماه/سال)",
+        "ar": "التاريخ (يوم/شهر/سنة)"
+      },
+      "mask": "99/99/9999",
+      "formatter": null,
+      "placeholder": {
+        "en": "31/12/2024",
+        "fa": "۳۱/۱۲/۲۰۲۴",
+        "ar": "31/12/2024"
+      },
+      "regex": "^\\d{2}/\\d{2}/\\d{4}$",
+      "regex_strict": null,
+      "length": 10,
+      "checksum": null,
+      "validator": "date",
+      "inputmode": "numeric",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " ",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "calendar": "gregorian",
+      "date_order": "DMY",
+      "year_range": [
+        1900,
+        2100
+      ],
+      "examples_valid": [
+        "29/02/2024",
+        "31/12/1999",
+        "٢٥/١٢/٢٠٢٤"
+      ],
+      "examples_invalid": [
+        {
+          "value": "31/04/2024",
+          "expect": "rule",
+          "reason": "April has 30 days"
+        },
+        {
+          "value": "29/02/1900",
+          "expect": "rule",
+          "reason": "1900 is not a leap year"
+        },
+        {
+          "value": "31-12-2024",
+          "expect": "format",
+          "reason": "wrong separator"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "29022024",
+          "output": "29/02/2024"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "UK / Arab countries order.",
+      "sources": [
+        "https://en.wikipedia.org/wiki/ISO_8601"
+      ]
+    },
+    {
+      "id": "intl.date_iso",
+      "country": "intl",
+      "category": "date",
+      "label": {
+        "en": "Date (YYYY-MM-DD)",
+        "fa": "تاریخ ISO",
+        "ar": "التاريخ (ISO)"
+      },
+      "mask": "9999-99-99",
+      "formatter": null,
+      "placeholder": {
+        "en": "2024-12-31",
+        "fa": "۲۰۲۴-۱۲-۳۱",
+        "ar": "2024-12-31"
+      },
+      "regex": "^\\d{4}-\\d{2}-\\d{2}$",
+      "regex_strict": null,
+      "length": 10,
+      "checksum": null,
+      "validator": "date",
+      "inputmode": "numeric",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " ",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "calendar": "gregorian",
+      "date_order": "YMD",
+      "year_range": [
+        1900,
+        2100
+      ],
+      "examples_valid": [
+        "2024-02-29",
+        "1999-12-31"
+      ],
+      "examples_invalid": [
+        {
+          "value": "2023-02-29",
+          "expect": "rule",
+          "reason": "not a leap year"
+        },
+        {
+          "value": "2024-00-10",
+          "expect": "rule",
+          "reason": "month 00"
+        },
+        {
+          "value": "2024/02/29",
+          "expect": "format",
+          "reason": "wrong separator"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "20240229",
+          "output": "2024-02-29"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "ISO 8601 calendar date; also the HTML <input type=\"date\"> value format.",
+      "sources": [
+        "https://en.wikipedia.org/wiki/ISO_8601"
+      ]
+    },
+    {
+      "id": "intl.time_24",
+      "country": "intl",
+      "category": "time",
+      "label": {
+        "en": "Time (24-hour)",
+        "fa": "ساعت (۲۴ ساعته)",
+        "ar": "الوقت (24 ساعة)"
+      },
+      "mask": "99:99",
+      "formatter": null,
+      "placeholder": {
+        "en": "23:59",
+        "fa": "۲۳:۵۹",
+        "ar": "23:59"
+      },
+      "regex": "^(?:[01]\\d|2[0-3]):[0-5]\\d$",
+      "regex_strict": null,
+      "length": 5,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " ",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "23:59",
+        "00:00"
+      ],
+      "examples_invalid": [
+        {
+          "value": "24:00",
+          "expect": "format",
+          "reason": "hour 24"
+        },
+        {
+          "value": "12:60",
+          "expect": "format",
+          "reason": "minute 60"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "2359",
+          "output": "23:59"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "HH:MM.",
+      "sources": [
+        "https://en.wikipedia.org/wiki/ISO_8601"
+      ]
+    },
+    {
+      "id": "intl.time_12",
+      "country": "intl",
+      "category": "time",
+      "label": {
+        "en": "Time (12-hour)",
+        "fa": "ساعت (۱۲ ساعته)",
+        "ar": "الوقت (12 ساعة)"
+      },
+      "mask": "99:99 aa",
+      "formatter": null,
+      "placeholder": {
+        "en": "09:30 AM",
+        "fa": "۰۹:۳۰ AM",
+        "ar": "09:30 AM"
+      },
+      "regex": "^(?:0?[1-9]|1[0-2]):[0-5]\\d ?[AP]M$",
+      "regex_strict": null,
+      "length": [
+        6,
+        8
+      ],
+      "checksum": null,
+      "validator": null,
+      "inputmode": "text",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": "",
+      "uppercase": true,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "09:30 AM",
+        "12:05pm",
+        "1:15 PM"
+      ],
+      "examples_invalid": [
+        {
+          "value": "13:00 PM",
+          "expect": "format",
+          "reason": "hour 13"
+        },
+        {
+          "value": "00:30 AM",
+          "expect": "format",
+          "reason": "hour 00"
+        },
+        {
+          "value": "09:30",
+          "expect": "format",
+          "reason": "AM/PM missing"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "0930am",
+          "output": "09:30 AM"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "Arabic UIs may show ص / م and Persian ق.ظ / ب.ظ: map them to AM/PM before validating (not done by the reference normalizer).",
+      "sources": [
+        "https://en.wikipedia.org/wiki/ISO_8601"
+      ]
+    },
+    {
+      "id": "intl.currency",
+      "country": "intl",
+      "category": "currency",
+      "label": {
+        "en": "Currency amount",
+        "fa": "مبلغ",
+        "ar": "المبلغ"
+      },
+      "mask": null,
+      "formatter": "thousands",
+      "placeholder": {
+        "en": "1,234.56",
+        "fa": "۱,۲۳۴.۵۶",
+        "ar": "1,234.56"
+      },
+      "regex": "^-?(?:\\d{1,3}(?:,\\d{3})*|\\d+)(?:\\.\\d{1,2})?$",
+      "regex_strict": null,
+      "length": null,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "numeric",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " $€£",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "strip_grouping",
+      "examples_valid": [
+        "1,234.56",
+        "1234",
+        "-15.5",
+        "١٬٢٣٤٫٥٦",
+        "$1,000"
+      ],
+      "examples_invalid": [
+        {
+          "value": "1,23.45",
+          "expect": "format",
+          "reason": "wrong grouping"
+        },
+        {
+          "value": "12.345",
+          "expect": "format",
+          "reason": "more than 2 decimals"
+        },
+        {
+          "value": "1.234,56",
+          "expect": "format",
+          "reason": "European style (use a locale-specific preset)"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "1234567.891",
+          "output": "1,234,567.891"
+        },
+        {
+          "input": "-0001234",
+          "output": "-1,234"
+        },
+        {
+          "input": "١٢٣٤٫٥",
+          "output": "1,234.5"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "Point decimal, comma grouping (en). Arabic ٫ (U+066B) / ٬ (U+066C) are normalized to . and ,. Store as a decimal string without grouping; never use floats for money server-side. The formatter does not cut decimals - the validator enforces at most 2.",
+      "sources": [
+        "https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofill"
+      ]
+    },
+    {
+      "id": "intl.percentage",
+      "country": "intl",
+      "category": "generic",
+      "label": {
+        "en": "Percentage",
+        "fa": "درصد",
+        "ar": "نسبة مئوية"
+      },
+      "mask": null,
+      "formatter": null,
+      "placeholder": {
+        "en": "12.5",
+        "fa": "۱۲.۵",
+        "ar": "12.5"
+      },
+      "regex": "^(?:100(?:\\.0{1,2})?|\\d{1,2}(?:\\.\\d{1,2})?)%?$",
+      "regex_strict": null,
+      "length": null,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "decimal",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " ",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "12.5",
+        "100%",
+        "۵۰٫۲۵",
+        "0"
+      ],
+      "examples_invalid": [
+        {
+          "value": "100.5",
+          "expect": "format",
+          "reason": "over 100"
+        },
+        {
+          "value": "101",
+          "expect": "format",
+          "reason": "over 100"
+        },
+        {
+          "value": "-5",
+          "expect": "format",
+          "reason": "negative"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "0-100 with up to 2 decimals and optional % sign. Strip \"%\" before storing as a number. Persian ٪ (U+066A) should be mapped to % (not done by the reference normalizer).",
+      "sources": []
+    },
+    {
+      "id": "intl.ipv4",
+      "country": "intl",
+      "category": "generic",
+      "label": {
+        "en": "IPv4 address",
+        "fa": "آدرس IPv4",
+        "ar": "عنوان IPv4"
+      },
+      "mask": null,
+      "formatter": null,
+      "placeholder": {
+        "en": "192.0.2.1",
+        "fa": "۱۹۲.۰.۲.۱",
+        "ar": "192.0.2.1"
+      },
+      "regex": "^(?:(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.){3}(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)$",
+      "regex_strict": null,
+      "length": [
+        7,
+        15
+      ],
+      "checksum": null,
+      "validator": null,
+      "inputmode": "decimal",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " ",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "192.0.2.1",
+        "198.51.100.255",
+        "0.0.0.0"
+      ],
+      "examples_invalid": [
+        {
+          "value": "256.1.1.1",
+          "expect": "format",
+          "reason": "octet > 255"
+        },
+        {
+          "value": "01.2.3.4",
+          "expect": "format",
+          "reason": "leading zero (ambiguous octal)"
+        },
+        {
+          "value": "1.2.3",
+          "expect": "format",
+          "reason": "3 octets"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "Dotted-quad, no leading zeros. Examples are RFC 5737 documentation addresses. Server side PHP: filter_var($v, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) gives the same result.",
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc791",
+        "https://www.rfc-editor.org/rfc/rfc5737"
+      ]
+    },
+    {
+      "id": "intl.mac",
+      "country": "intl",
+      "category": "generic",
+      "label": {
+        "en": "MAC address",
+        "fa": "آدرس MAC",
+        "ar": "عنوان MAC"
+      },
+      "mask": "**:**:**:**:**:**",
+      "formatter": null,
+      "placeholder": {
+        "en": "00:1A:2B:3C:4D:5E",
+        "fa": "۰۰:۱A:۲B:۳C:۴D:۵E",
+        "ar": "00:1A:2B:3C:4D:5E"
+      },
+      "regex": "^[0-9A-F]{2}([:-])[0-9A-F]{2}(?:\\1[0-9A-F]{2}){4}$",
+      "regex_strict": null,
+      "length": 17,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "text",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " ",
+      "uppercase": true,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "00:1A:2B:3C:4D:5E",
+        "00-1a-2b-3c-4d-5e"
+      ],
+      "examples_invalid": [
+        {
+          "value": "00:1A:2B:3C:4D",
+          "expect": "format",
+          "reason": "5 groups"
+        },
+        {
+          "value": "00:1A-2B:3C:4D:5E",
+          "expect": "format",
+          "reason": "mixed separators"
+        },
+        {
+          "value": "GG:1A:2B:3C:4D:5E",
+          "expect": "format",
+          "reason": "non-hex"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "001a2b3c4d5e",
+          "output": "00:1A:2B:3C:4D:5E"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "EUI-48 in colon or hyphen notation (one separator style).",
+      "sources": [
+        "https://en.wikipedia.org/wiki/MAC_address"
+      ]
+    },
+    {
+      "id": "intl.hex_color",
+      "country": "intl",
+      "category": "generic",
+      "label": {
+        "en": "Hex colour",
+        "fa": "رنگ هگز",
+        "ar": "لون سداسي عشري"
+      },
+      "mask": null,
+      "formatter": null,
+      "placeholder": {
+        "en": "#1A2B3C",
+        "fa": "#۱A۲B۳C",
+        "ar": "#1A2B3C"
+      },
+      "regex": "^#(?:[0-9A-F]{3}|[0-9A-F]{6})$",
+      "regex_strict": null,
+      "length": [
+        4,
+        7
+      ],
+      "checksum": null,
+      "validator": null,
+      "inputmode": "text",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " ",
+      "uppercase": true,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "#FFF",
+        "#1a2b3c"
+      ],
+      "examples_invalid": [
+        {
+          "value": "#12345",
+          "expect": "format",
+          "reason": "5 hex digits"
+        },
+        {
+          "value": "123456",
+          "expect": "format",
+          "reason": "# missing"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "#RGB or #RRGGBB (add 4/8-digit alpha forms if needed).",
+      "sources": [
+        "https://www.w3.org/TR/css-color-4/#hex-notation"
+      ]
+    },
+    {
+      "id": "intl.slug",
+      "country": "intl",
+      "category": "generic",
+      "label": {
+        "en": "URL slug",
+        "fa": "نامک (اسلاگ)",
+        "ar": "المعرّف النصي للرابط"
+      },
+      "mask": null,
+      "formatter": null,
+      "placeholder": {
+        "en": "contact-form-2",
+        "fa": "contact-form-۲",
+        "ar": "contact-form-2"
+      },
+      "regex": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "regex_strict": null,
+      "length": null,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "text",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": "",
+      "uppercase": false,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "contact-form-2",
+        "hello"
+      ],
+      "examples_invalid": [
+        {
+          "value": "Hello World",
+          "expect": "format",
+          "reason": "uppercase and space"
+        },
+        {
+          "value": "-leading",
+          "expect": "format",
+          "reason": "leading hyphen"
+        },
+        {
+          "value": "double--hyphen",
+          "expect": "format",
+          "reason": "double hyphen"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "Lowercase ASCII words joined by single hyphens. WordPress itself allows UTF-8 slugs (Persian/Arabic) via sanitize_title(); add a separate preset if needed.",
+      "sources": []
+    },
+    {
+      "id": "intl.license_key",
+      "country": "intl",
+      "category": "generic",
+      "label": {
+        "en": "License key (XXXX-XXXX-XXXX-XXXX)",
+        "fa": "کلید لایسنس",
+        "ar": "مفتاح الترخيص"
+      },
+      "mask": "****-****-****-****",
+      "formatter": null,
+      "placeholder": {
+        "en": "ABCD-1234-EFGH-5678",
+        "fa": "ABCD-۱۲۳۴-EFGH-۵۶۷۸",
+        "ar": "ABCD-1234-EFGH-5678"
+      },
+      "regex": "^[A-Z0-9]{4}(?:-[A-Z0-9]{4}){3}$",
+      "regex_strict": null,
+      "length": 19,
+      "checksum": null,
+      "validator": null,
+      "inputmode": "text",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " ",
+      "uppercase": true,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "ABCD-1234-EFGH-5678",
+        "abcd-1234-efgh-5678"
+      ],
+      "examples_invalid": [
+        {
+          "value": "ABCD-1234-EFGH",
+          "expect": "format",
+          "reason": "3 groups"
+        },
+        {
+          "value": "ABCD_1234_EFGH_5678",
+          "expect": "format",
+          "reason": "underscore separators"
+        }
+      ],
+      "examples_format": [
+        {
+          "input": "abcd1234efgh5678",
+          "output": "ABCD-1234-EFGH-5678"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "4 groups of 4 uppercase alphanumerics.",
+      "sources": []
+    },
+    {
+      "id": "intl.passport",
+      "country": "intl",
+      "category": "passport",
+      "label": {
+        "en": "Passport number (generic)",
+        "fa": "شماره گذرنامه (عمومی)",
+        "ar": "رقم جواز السفر (عام)"
+      },
+      "mask": null,
+      "formatter": null,
+      "placeholder": {
+        "en": "X1234567",
+        "fa": "X۱۲۳۴۵۶۷",
+        "ar": "X1234567"
+      },
+      "regex": "^[A-Z0-9]{6,9}$",
+      "regex_strict": null,
+      "length": [
+        6,
+        9
+      ],
+      "checksum": null,
+      "validator": null,
+      "inputmode": "text",
+      "autocomplete": null,
+      "dir": "ltr",
+      "strip": " -",
+      "uppercase": true,
+      "fold_letters": null,
+      "pad_left": null,
+      "store": "normalized",
+      "examples_valid": [
+        "X1234567",
+        "a12345678",
+        "123456789"
+      ],
+      "examples_invalid": [
+        {
+          "value": "12345",
+          "expect": "format",
+          "reason": "too short"
+        },
+        {
+          "value": "X12345678901",
+          "expect": "format",
+          "reason": "too long"
+        }
+      ],
+      "synthetic_examples": true,
+      "verification": "secondary",
+      "notes": "ICAO 9303 MRZ document numbers are up to 9 characters [A-Z0-9]. Country formats vary widely; do not over-validate.",
+      "sources": [
+        "https://www.icao.int/publications/pages/publication.aspx?docnum=9303"
+      ]
+    }
+  ]
+}
