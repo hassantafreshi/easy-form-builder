@@ -30,6 +30,8 @@ class _Public {
 	private $deferred_form_markup = [];
 	private $deferred_form_key = '';
 	private $operation_key = '';
+	/** Booking seats this submission needs (Stock::claim_from_option rows), taken in reserve_stock_efb(). */
+	private $stock_claims = array();
 	private $operation_data = array();
 
 	/* Head hoisting - see open_head_hoist_buffer_efb(). */
@@ -1197,6 +1199,8 @@ public function check_nonce_permission_efb($request) {
 			 * English on every translated site. These two are the step counter
 			 * and the completion caption on the progress indicator. */
 			'stepXofY','percentComplete',
+			/* Booking: option expired / full (core-efb.js fun_booking_avilable). */
+			'bkXpM_','bkFlM_',
 			/* Conditional Logic messages (block_submit / end_form) and the date pickers. */
 			'submitBlocked','formEnded','enterValidDate','selectMonth','selectYear','selectDecade',
 			/* Submit failures: the cause in plain words (core-efb.js efb_visitor_text_efb). */
@@ -1401,6 +1405,11 @@ public function check_nonce_permission_efb($request) {
 						$valj_efb[0]->rePage="";
 						$val_ = json_encode($valj_efb,JSON_UNESCAPED_UNICODE);
 						$value = str_replace('"', '\\"', $val_);
+					}
+					/* Booking: show the live seat counters (emsfb_stock_) so full
+					 * options are greyed out. Display only; the submit decides. */
+					if ($fs !== '' && isset($formObj[0]['booking']) && $formObj[0]['booking'] == 1 && class_exists('\\Emsfb\\Stock')) {
+						$fs = \Emsfb\Stock::overlay_json($fs, (int) $this->id);
 					}
 
 				$k="";
@@ -2398,6 +2407,7 @@ public function check_nonce_permission_efb($request) {
 		}
 		$this->operation_key = '';
 		$this->operation_data = is_array($request_data) ? $request_data : array();
+		$this->stock_claims = array();
 
 		$translation_keys = [
 			'somethingWentWrongPleaseRefresh', 'pleaseMakeSureAllFields', 'PleaseFillForm', 'bkXpM_', 'bkFlM_', 'mnvvXXX_', 'ptrnMmm_', 'ptrnMmx_', 'payment', 'error403', 'errorSiteKeyM',
@@ -2923,12 +2933,14 @@ public function check_nonce_permission_efb($request) {
 														}
 													}
 													if (isset($fr['mlen']) == true) {
-														if ($fr['mlen'] <= $fr['registered_count']) {
+														$claim = class_exists('\\Emsfb\\Stock') ? \Emsfb\Stock::claim_from_option($fr) : null;
+														if ($claim === null || $claim['cap'] <= $claim['seed']) {
 															$is_valid = 0;
 															$error_message = $this->lanText['bkFlM_'];
 															$error_message = str_replace('%s', $fr['value'], $error_message);
 														} else {
-															$form_fields_array[$ki]['registered_count'] = (int) $form_fields_array[$ki]['registered_count'] + 1;
+															// Taken atomically right before the entry is stored (reserve_stock_efb).
+															$this->stock_claims[] = $claim;
 														}
 													}
 												}
@@ -3004,12 +3016,14 @@ public function check_nonce_permission_efb($request) {
 													}
 												}
 												if (isset($f['mlen']) == true) {
-													if ($f['mlen'] <= $f['registered_count']) {
+													$claim = class_exists('\\Emsfb\\Stock') ? \Emsfb\Stock::claim_from_option($f) : null;
+													if ($claim === null || $claim['cap'] <= $claim['seed']) {
 														$is_valid = 0;
 														$error_message = $this->lanText['bkFlM_'];
 														$error_message = str_replace('%s', $f['value'], $error_message);
 													} else {
-														$form_fields_array[$key]['registered_count'] = (int) $form_fields_array[$key]['registered_count'] + 1;
+														// Taken atomically right before the entry is stored (reserve_stock_efb).
+														$this->stock_claims[] = $claim;
 													}
 												}
 											}
@@ -3120,12 +3134,14 @@ public function check_nonce_permission_efb($request) {
 														}
 													}
 													if (isset($fr['mlen']) == true) {
-														if ($fr['mlen'] <= $fr['registered_count']) {
+														$claim = class_exists('\\Emsfb\\Stock') ? \Emsfb\Stock::claim_from_option($fr) : null;
+														if ($claim === null || $claim['cap'] <= $claim['seed']) {
 															$is_valid = 0;
 															$error_message = $this->lanText['bkFlM_'];
 															$error_message = str_replace('%s', $fr['value'], $error_message);
 														} else {
-															$form_fields_array[$ki]['registered_count'] = (int) $form_fields_array[$ki]['registered_count'] + 1;
+															// Taken atomically right before the entry is stored (reserve_stock_efb).
+															$this->stock_claims[] = $claim;
 														}
 													}
 												}
@@ -3444,6 +3460,10 @@ public function check_nonce_permission_efb($request) {
 						$vid = is_array( $vi ) && isset( $vi['id_'] ) ? $vi['id_'] : null;
 						return $vid === null || ! isset( $_ignored_set[ $vid ] );
 					} ) );
+					// A booking field hidden by logic is not stored, so it takes no seat.
+					$this->stock_claims = array_values( array_filter( $this->stock_claims, function ( $c ) use ( $_ignored_set ) {
+						return ! isset( $_ignored_set[ $c['field_id'] ] );
+					} ) );
 				}
 
 				$count = count($validated_items);
@@ -3469,12 +3489,14 @@ public function check_nonce_permission_efb($request) {
 					wp_send_json_success($response, 200);
 				}
 				$this->value = $this->efb_encode_rows_for_storage_efb($validated_items);
-				if ($form_condition == 'booking') {
-					$table_name = $this->db->prefix . "emsfb_form";
-					$id = sanitize_text_field($request_data['id']);
-					$value = json_encode($form_fields_array, JSON_UNESCAPED_UNICODE);
-					$r = $this->db->update($table_name, ['form_structer' => $value], ['form_id' => $id]);
-				}
+				/* Booking seats are no longer counted here. This used to write the
+				 * whole in-memory form back to emsfb_form: before captcha and Shield,
+				 * without a lock, and with the required/disabled flags conditional
+				 * logic set for this one submission. The submit path never writes
+				 * the form definition now; the seats collected in $this->stock_claims
+				 * are taken atomically in reserve_stock_efb(), next to the entry
+				 * insert, after every rejection check. */
+				if ($form_condition !== 'booking') $this->stock_claims = array();
 			}elseif($form_type=='register' || $form_type=='login'){
 
 				if($submission_type=='logout'){
@@ -4009,7 +4031,9 @@ public function check_nonce_permission_efb($request) {
 								$email_content_rows = array_values($filtered);
 								$this->value = sanitize_text_field(json_encode($filtered, JSON_UNESCAPED_UNICODE));
 								$this->id = isset($request_data['payid']) ? sanitize_text_field($request_data['payid']) : '';
+								$stock_taken = $this->reserve_stock_efb();
 								$db_update_result = $this->update_message_db();
+								if ($db_update_result != 1) $this->release_stock_efb($stock_taken);
 								if ($payment_gateway == "paypal") {
 									// error_log('[EFB][PayPal][SUBMIT] update_message_db result=' . var_export($db_update_result, true) . ', track=' . $this->id . ', final_count=' . count($filtered));
 								}
@@ -4664,6 +4688,52 @@ public function check_nonce_permission_efb($request) {
 		\Emsfb\Upload_Guard::release_pending_uploads(array_unique($matches[0]));
 	}
 
+	/**
+	 * Take the booking seats collected during validation, atomically
+	 * (Stock::reserve). Called right before the entry is written, after
+	 * captcha, Shield and every other rejection check. Ends the request with
+	 * the "full" message when a seat is gone, or a 503 when the counter table
+	 * is missing; it never falls back to the old unlocked count.
+	 *
+	 * @return array Seats taken, for release_stock_efb() if the write fails.
+	 */
+	private function reserve_stock_efb() {
+		if (empty($this->stock_claims)) return array();
+		$claims = $this->stock_claims;
+		$this->stock_claims = array();
+		if(empty($this->db)){
+			global $wpdb;
+			$this->db = $wpdb;
+		}
+		$form_id = isset($this->operation_data['id']) ? (int) $this->operation_data['id'] : (int) $this->id;
+		$r = class_exists('\\Emsfb\\Stock')
+			? \Emsfb\Stock::reserve($form_id, $claims, $this->db)
+			: array('ok' => false, 'reason' => 'unavailable', 'taken' => array());
+		if (!empty($r['ok'])) {
+			return array('form_id' => $form_id, 'taken' => $r['taken']);
+		}
+		if (class_exists('\\Emsfb\\Form_Runtime')) \Emsfb\Form_Runtime::abort($this->operation_key);
+		$this->operation_key = '';
+		if (($r['reason'] ?? '') === 'full') {
+			$label = isset($r['claim']['label']) ? $r['claim']['label'] : '';
+			$m = str_replace('%s', esc_html($label), $this->lanText['bkFlM_'] ?? '%s');
+			wp_send_json_success(array('success' => false, 'm' => $m, 'field_id' => $r['claim']['field_id'] ?? ''), 200);
+		}
+		$this->efb_trace('submit.blocked', [
+			'form_id' => $form_id,
+			'gate'    => 'stock_unavailable',
+			'reason'  => 'The emsfb_stock_ table is missing or a counter query failed; booking submits are refused until Install::upgrade_schema() succeeds.',
+		]);
+		if (class_exists('\\Emsfb\\Request_Health')) \Emsfb\Request_Health::record('form',503,'server','stock_unavailable');
+		wp_send_json_error(array('code' => 'efb_stock_unavailable', 'm' => __('Booking is temporarily unavailable. Your input has been kept. Please try again later.', 'easy-form-builder')), 503);
+		return array();
+	}
+
+	private function release_stock_efb($stock_taken) {
+		if (empty($stock_taken['taken']) || !class_exists('\\Emsfb\\Stock')) return;
+		\Emsfb\Stock::release($stock_taken['form_id'], $stock_taken['taken'], $this->db);
+	}
+
 	public function insert_message_db($read,$uniqid,$style_trackingCode = 'date_en_mix'){
 		if (($this->operation_data['type'] ?? '') === 'form' && class_exists('\\Emsfb\\Form_Runtime')) {
 			$guard = \Emsfb\Form_Runtime::begin('form',$this->id,$this->operation_data);
@@ -4672,6 +4742,9 @@ public function check_nonce_permission_efb($request) {
 			$this->operation_key = $guard;
 		}
 		if(isset($read)==false) $read=0;
+		// After Form_Runtime::begin(): a replayed request returned above and
+		// never takes a second seat.
+		$stock_taken = $this->reserve_stock_efb();
 
 		if($uniqid==false){
 			$uniqid = $this->generate_track_code_efb($style_trackingCode);
@@ -4691,6 +4764,7 @@ public function check_nonce_permission_efb($request) {
 			'date'=>wp_date('Y-m-d H:i:s')
 		));
 		if ($inserted === false) {
+			$this->release_stock_efb($stock_taken);
 			\Emsfb\Form_Runtime::abort($this->operation_key);
 			if (class_exists('\\Emsfb\\Request_Health')) \Emsfb\Request_Health::record('form',500,'server','storage_failed');
 			wp_send_json_error(array('code'=>'efb_storage_failed','m'=>__('The form could not be saved. Your input has been kept.', 'easy-form-builder')),500);

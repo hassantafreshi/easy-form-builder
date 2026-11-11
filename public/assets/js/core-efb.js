@@ -2195,13 +2195,21 @@ window.addEventListener("popstate",e=>{
       uncheck();
       return r;
     }
+  /* Translated phrases (bkXpM_ / bkFlM_, "%s" = the option's label), the
+   * same ones the server answers with. The label is escaped because
+   * alert_message_efb() inserts the message as HTML. */
+  const bk_text_efb = (key, fallback) => {
+    const t = (typeof efb_var !== 'undefined' && efb_var && efb_var.text && typeof efb_var.text[key] === 'string') ? efb_var.text[key] : fallback;
+    const label = String(row.value == null ? '' : row.value).replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    return t.replace('%s', label);
+  };
     if( row.hasOwnProperty('dateExp') && row.dateExp<ndate){
-      r=[false,'Sorry, the selected option is no longer available as its expiration date has passed. Please choose another option.'];
+      r=[false,bk_text_efb('bkXpM_','We are sorry, the booking time for the %s option has expired. Please choose from the other available options.')];
       uncheck();
       return  r;
     }
     if( row.hasOwnProperty('mlen') && Number(row.mlen)<= Number(row.registered_count)){
-      r=[false,'Unfortunately, the option you selected is no longer available. Please choose from the other available options.'];
+      r=[false,bk_text_efb('bkFlM_','We are sorry, the %s option is currently at full capacity. Please choose from the other available options.')];
       uncheck();
       return  r;
     }

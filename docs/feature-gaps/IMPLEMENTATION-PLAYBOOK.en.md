@@ -734,8 +734,10 @@ Verified runnable here (PHP 8.3, Node 22): `php tests/test-legacy-json-compatibi
     notification/confirmation/webhook rules run without it.
 11. **`stateForm` is enforced in three places** (render 1394/1439, session prepare 230, submit 2509). Any
     access rule needs all three.
-12. **Booking writes the form row on submit** (3472-3477) without the escaped-quote format of the admin save,
-    without a cache refresh and without locking. Two parallel submits can oversell. `registered_count` lives inside `form_structer`.
+12. **Booking capacity is counted in `emsfb_stock_`** (fixed 2026-11-11, F05 sub-task D). The submit path used to
+    rewrite the form row (old 3472-3477) without locking or a cache refresh. Now validation only collects claims;
+    `Emsfb\Stock::reserve()` takes them atomically inside `insert_message_db()` and releases on insert failure.
+    `registered_count` in `form_structer` is only the lazy seed. **Never write `form_structer` from a submit.**
 13. **URL prefill (`iefb`/`sefb`/`defb`/`hefb`/`vefb`) is effectively dead.** `fun_gets_url_efb()` is only called
     from `fun_render_view_efb()` (`core-efb.js:427`), which runs only when `ajax_value_forms` is absent (526-530).
     The server always sends it, and the markup is rendered by PHP before the JS could change `valj_efb`. The

@@ -362,6 +362,8 @@ class Emsfb {
             \Emsfb\Form_Runtime::register();
             add_action('emsfb_daily_maintenance', array('\Emsfb\Form_Runtime', 'cleanup'));
         }
+        // Booking capacity counters; a missing file only disables booking submits.
+        $this->require_plugin_file_efb('includes/class-Emsfb-stock.php');
         $health_ok = $this->require_plugin_file_efb('includes/class-Emsfb-request-health.php');
         if ($health_ok) {
             \Emsfb\Request_Health::register();

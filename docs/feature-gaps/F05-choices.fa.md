@@ -1,6 +1,6 @@
 # F05 — گزینه‌ها و انتخاب‌ها (Choices: bulk add, value vs label, randomize, Other, select all, limits, inventory, dynamic choices, ranking)
 
-وضعیت: سند آماده، پیاده‌سازی نشده · اولویت: P1 · تلاش: M (با موجودی اتمیک و گزینهٔ پویا نزدیک L) · وابستگی: — (F04 کلید `calc` گزینه را روی ستون «ویژگی‌ها»ی همین تسک می‌گذارد؛ F08 برای `{field:id.value}` از `opt_value` استفاده می‌کند)
+وضعیت: سند آماده؛ زیرتسک D (رزرو اتمیک، بخش رزرو) پیاده‌سازی شد، بقیه پیاده‌سازی نشده · اولویت: P1 · تلاش: M (با موجودی اتمیک و گزینهٔ پویا نزدیک L) · وابستگی: — (F04 کلید `calc` گزینه را روی ستون «ویژگی‌ها»ی همین تسک می‌گذارد؛ F08 برای `{field:id.value}` از `opt_value` استفاده می‌کند)
 
 > شاخهٔ مبنا `dev4`، نسخهٔ 4.3.1، `EMSFB_DB_VERSION = 1.3`، بررسی ۲۰ آبان ۱۴۰۵ (2026-11-11). شماره‌خط‌ها جابه‌جا می‌شوند؛ پیش از ویرایش دوباره grep کن.
 > مرجع‌ها: [راهنمای پیاده‌سازی](IMPLEMENTATION-PLAYBOOK.en.md) (§۱.۲ ردیف گزینه، §۱.۳ معنای `mlen` در رزرو، §۱.۶ sanitizer، §۲ Recipe A، §۳ Recipe B، §۵ endpoint، §۷ Recipe F، §۱۰ دام‌های ۱، ۲، ۸، ۱۲)، [امکانات فعلی](reference/current-capabilities.en.md) §۲ و §۴، [ماتریس رقبا](reference/competitor-matrix.en.md) §۲ (موجودی) و §۳.
@@ -418,12 +418,24 @@ Checkpoint
 - پذیرش: ۲۰ درخواست هم‌زمان روی ظرفیت ۵ دقیقاً ۵ پاسخ ثبت‌شده بدهد. ارسالی که در کپچا رد شود ظرفیت مصرف نکند. `form_structer` پس از ارسال بایت‌به‌بایت تغییر نکند، یعنی `required` تغییریافته توسط منطق شرطی دیگر ذخیره نمی‌شود. فرم رزرو قدیمی با `registered_count=3` و `mlen=4` فقط یک ارسال دیگر بپذیرد. replay دوباره رزرو نکند. اجرای دوبارهٔ ارتقا بی‌اثر باشد و جدول پیش از `return` زودهنگام ساخته شود.
 - آزمون: `php tests/test-stock-schema.php` (stub `$wpdb` که SQL را ضبط می‌کند، الگوی F02 زیرتسک B)، `php tests/test-stock-reserve.php` (stub با شبیه‌سازی `affected_rows`)، `php tests/test-stock-concurrency-wp.php` (WP، `curl_multi` با ۲۰ درخواست، `[SKIP]` بدون وردپرس)، و `node tests/test-booking-client-date.js`.
 
-Checkpoint
+Checkpoint (۲۰۲۶-۱۱-۱۱، بخش رزرو اتمیک انجام شد؛ موجودی عمومی `inv_*` جزو زیرتسک E است و دست نخورده)
 - فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
+  - `includes/class-Emsfb-stock.php` (تازه): `Emsfb\Stock` با `claim_from_option`، `reserve` (برای هر گزینه `INSERT IGNORE` با seed از `registered_count` و سپس `UPDATE … SET used=used+1 … AND used < cap`؛ ادعاها یکتا و به ترتیب کلید؛ همه یا هیچ)، `release` (`used>0`)، `used`، `overlay_json`، `forget_form` و `create_table_sql`.
+  - `emsfb.php`: `EMSFB_DB_VERSION` از 1.3 به **1.4**.
+  - `includes/class-Emsfb-install.php`: ساخت جدول در `install()` با `create_table_if_absent`، و در `upgrade_schema()` **پیش از `return` زودهنگام `emsfb_stts_`** با `SHOW TABLES LIKE` و سپس `CREATE TABLE IF NOT EXISTS`. اجرای دوباره بی‌اثر است. اگر CREATE شکست بخورد، نسخه ثبت نمی‌شود تا در بارگذاری بعد دوباره تلاش شود.
+  - `includes/class-Emsfb.php`: بارگذاری فایل Stock در `includes()`.
+  - `includes/class-Emsfb-public.php`: سه افزایش `registered_count` (radio، option چک‌باکس، select) به جمع ادعا در `$this->stock_claims` تبدیل شد؛ پیش‌بررسی `mlen <= registered_count` و بررسی `dateExp` ماند. بلوک بازنویسی `form_structer` (3472-3477 سابق) حذف شد، پس پرچم‌های `required`/`disabled` منطق شرطی دیگر ذخیره نمی‌شوند و کش فرم نیازی به تازه‌سازی ندارد. `reserve_stock_efb()` داخل `insert_message_db()` پس از `Form_Runtime::begin()` و پیش از `insert` اجرا می‌شود، یعنی پس از کپچا، Shield و همهٔ ردها؛ در شکست درج `release_stock_efb()`. شاخهٔ `payment` همین کار را دور `update_message_db()` می‌کند. پر بودن: پاسخ `bkFlM_` با نام گزینه و `field_id`. نبود جدول: `efb_stock_unavailable` با 503 و ثبت در trace، بدون برگشت به مسیر ناامن. در رندر، شمار زنده با `Stock::overlay_json` در `registered_count` JSON ارسالی گذاشته می‌شود (فقط نمایشی). `bkXpM_` و `bkFlM_` به `$this->text_` اضافه شدند.
+  - `includes/admin/class-Emsfb-admin.php`: `delete_form_id_public()` شمارنده‌های فرم حذف‌شده را با `Stock::forget_form` پاک می‌کند.
+  - `public/assets/js/core-efb.js`: پیام‌های انگلیسی hardcode در `fun_booking_avilable` با `bkXpM_` و `bkFlM_` (با escape نام گزینه) جایگزین شدند.
+  - `docs/migrations/stock-table-2026-11-11.md` و پیوند آن در `docs/migrations/README.md`.
+- تست‌ها: `php tests/test-stock-reserve.php` (۳۹ مورد، همه موفق). کلاس واقعی Stock و `Install::upgrade_schema()` واقعی روی stub `$wpdb` که هر دستور SQL را اتمیک اجرا می‌کند؛ دو درخواست با Fiber دستوربه‌دستور در هم اجرا می‌شوند. نتیجه: روی آخرین صندلی (۳ از ۴) دقیقاً یکی برنده است، و همان ترتیب روی الگوریتم قدیمی دو رزرو می‌دهد (کنترل منفی). ۲۰ درخواست روی ظرفیت ۲ دقیقاً ۲ رزرو می‌دهند. ارسال ردشده در کپچا هیچ شمارنده‌ای را لمس نمی‌کند. درج ناموفق صندلی را برمی‌گرداند. ارتقای دوباره بی‌اثر است و جدول بدون `emsfb_stts_` هم ساخته می‌شود. چند نگهبان سورس هم ترتیب begin < reserve < insert < release و حذف نوشتن فرم را قفل می‌کنند. تست‌های PHP و JS موجود همان نتیجهٔ پیش از تغییر را دارند (آن‌هایی که شکست می‌خورند به وردپرس زنده یا افزونهٔ منطق شرطی نیاز دارند).
+- وضعیت ترجمه: عبارت تازه‌ای در `text_efb` اضافه نشد. فقط پیام 503 «Booking is temporarily unavailable…» با `__()` آمده و در فایل‌های ترجمه نیست.
 - مورد باز:
-- اقدام بعدی:
+  - تازه‌سازی شمار باقی‌مانده در `forms/session/prepare` (220-248) انجام نشد. صفحهٔ کش‌شده ممکن است گزینهٔ پر را فعال نشان دهد، ولی سرور رد می‌کند.
+  - آزادسازی هنگام حذف پاسخ (`inv_release`) و نمایش فقط‌خواندنی `registered_count` در سازنده انجام نشد. ویرایش دستی `registered_count` در سازنده پس از نخستین رزرو اثری ندارد، چون seed فقط یک بار خوانده می‌شود.
+  - `tests/test-stock-concurrency-wp.php` (`curl_multi` روی وردپرس واقعی) و `node tests/test-booking-client-date.js` نوشته نشدند. مقایسهٔ تاریخ در مرورگر (`row.dateExp<ndate` با رشتهٔ محلی) همچنان نادرست است.
+  - در فرم پرداختی، اگر گزینه بین پرداخت و ارسال نهایی پر شود، ارسال مثل قبل رد می‌شود، ولی پول گرفته شده است. سیاست این حالت تصمیم محصول است.
+- اقدام بعدی: کلید `stock` در پاسخ prepare و اعمالش در `core-efb.js`، سپس آزمون `curl_multi` روی وردپرس واقعی، سپس زیرتسک E.
 
 ### E. موجودی عمومی برای غیررزرو (UI و نمایش)
 - فایل‌ها: `val-efb.js` (`invOnEl` …)، `admin-efb.js`، `class-Emsfb-formbuilder.php` (`efb-soldout`، `data-cap-left`)، و `core-efb.js` (اعمال `stock` از prepare).

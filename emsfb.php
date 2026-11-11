@@ -31,7 +31,8 @@ if (!defined("EMSFB_PLUGIN_VERSION")) {
 if (!defined("EMSFB_DB_VERSION")) {
     // 1.2 adds the emsfb_stts_ indexes (sid, lookup, date). Bumping this is what
     // triggers Install::upgrade_schema() on sites that already have the tables.
-    define("EMSFB_DB_VERSION", 1.3);
+    // 1.4 adds the emsfb_stock_ booking capacity table (F05 sub-task D).
+    define("EMSFB_DB_VERSION", 1.4);
 }
 
 if (!defined("EFB_DEBUG")) {

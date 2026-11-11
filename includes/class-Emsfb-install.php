@@ -139,6 +139,11 @@ class Install {
 
 						self::create_table_if_absent( $sql );
 
+						// Booking/option capacity counters (F05 sub-task D, DB 1.4).
+						if ( self::load_stock_class() ) {
+							self::create_table_if_absent( \Emsfb\Stock::create_table_sql( $wpdb->prefix . \Emsfb\Stock::TABLE, $charset_collate ) );
+						}
+
 				$user_id = get_current_user_id();
 				$usr =get_user_by('id',$user_id);
 				// Activation may run without a current user (ID 0). Do not read a
@@ -255,6 +260,20 @@ class Install {
 	 *
 	 * @return array<int, string> Applied migration descriptions.
 	 */
+	/**
+	 * The install routines can run before the plugin bootstrap loaded the
+	 * Stock class (activation), so load it here when needed.
+	 */
+	private static function load_stock_class() {
+		if ( ! class_exists( '\\Emsfb\\Stock' ) ) {
+			$file = __DIR__ . '/class-Emsfb-stock.php';
+			if ( is_readable( $file ) ) {
+				require_once $file;
+			}
+		}
+		return class_exists( '\\Emsfb\\Stock' );
+	}
+
 	static function upgrade_schema() {
 		global $wpdb;
 
@@ -270,6 +289,24 @@ class Install {
 			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix, literal clause
 			if ( empty( $has_status ) && false !== $wpdb->query( "ALTER TABLE `{$form_table}` ADD COLUMN `status` TINYINT NULL DEFAULT 1" ) ) {
 				$applied[] = 'emsfb_form: ADD COLUMN status';
+			}
+		}
+
+		// emsfb_stock_ (DB 1.4): booking capacity counters, taken atomically on
+		// submit instead of rewriting form_structer. Runs before the early return
+		// below, so it does not depend on emsfb_stts_. Safe to run any number of
+		// times: SHOW TABLES first, and CREATE ... IF NOT EXISTS. When it fails
+		// the version is not recorded, so the next load tries again; until then
+		// Stock::reserve() refuses booking submits instead of overselling.
+		if ( self::load_stock_class() ) {
+			$stock_table = $wpdb->prefix . \Emsfb\Stock::TABLE;
+			if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $stock_table ) ) !== $stock_table ) {
+				// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- DDL built from $wpdb->prefix and a literal
+				$created = $wpdb->query( \Emsfb\Stock::create_table_sql( $stock_table, $wpdb->get_charset_collate(), true ) );
+				if ( false === $created ) {
+					return $applied;
+				}
+				$applied[] = 'emsfb_stock_: CREATE TABLE';
 			}
 		}
 

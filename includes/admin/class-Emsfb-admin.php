@@ -254,6 +254,8 @@ class Admin {
 
         if ($r !== false) {
             $this->clear_form_cache_efb($id);
+            // Booking seat counters of the deleted form (F05 sub-task D).
+            if (class_exists('\Emsfb\Stock')) \Emsfb\Stock::forget_form($id, $this->db);
         }
 
         $table_name = $this->db->prefix . "emsfb_msg_";
