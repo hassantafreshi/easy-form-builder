@@ -128,7 +128,7 @@ const efbMobileProControlEfb = (html) => {
     ? `onclick="if (!event.target.closest('.pro-version-efb')) efbRequireMobileProEfb(event)"`
     : '';
   const proGem = efbMobileProLockedEfb()
-    ? `<a type="button" onclick="pro_show_efb(1)" class="efb pro-version-efb efb-mobile-pro-gem" data-bs-toggle="tooltip" data-bs-placement="top" title="${proTitle}" data-original-title="${proTitle}"><i class="efb bi-gem text-light"></i></a>`
+    ? `<a type="button" role="button" tabindex="0" onclick="efb_upgrade_prompt_efb({feature:'setting:mobile_layout', fallback:'pro', origin:'field_settings', opener:this})" aria-label="${proTitle}" class="efb pro-version-efb efb-mobile-pro-gem" data-bs-toggle="tooltip" data-bs-placement="top" title="${proTitle}" data-original-title="${proTitle}"><i class="efb bi-gem text-light"></i></a>`
     : '';
   return `<div class="efb efb-mobile-pro-control ${mobileOnly ? 'efb-mobile-pro-control--field' : ''} ${hidden} ${efbMobileProLockedEfb() ? 'is-locked' : ''}" ${lockedAction}>${html}${proGem}</div>`;
 };
@@ -785,7 +785,7 @@ function show_setting_window_efb(idset, opts) {
         : 'Leave empty to use default message';
       const isVisible = valj_efb[indx].hasOwnProperty('required') && Number(valj_efb[indx].required) == 1;
       return `<div class="efb mx-1 my-1 efb customRequiredMsgWrapper" style="transition: opacity 0.3s ease, max-height 0.3s ease; overflow: hidden; ${isVisible ? 'opacity: 1; max-height: 200px;' : 'opacity: 0; max-height: 0; padding: 0; margin: 0;'}">
-        ${!isPro ? '<div class="efb pro-card"><a type="button" onclick="pro_show_efb(3)" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="' + (efb_var.text.fieldAvailableInProversion || 'PRO') + '"><i class="efb bi-gem text-light"></i></a></div>' : ''}
+        ${!isPro ? '<div class="efb pro-card" data-efb-lock="setting:custom_required_msg"><a type="button" role="button" tabindex="0" onclick="efb_upgrade_prompt_efb({feature:\'setting:custom_required_msg\', fallback:\'free_plus\', origin:\'field_settings\', resume:{kind:\'focus\', id:\'customRequiredMsgEl\'}, opener:this})" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="' + (efb_var.text.upgTipFreePlus || 'Free Plus') + '" aria-label="' + (efb_var.text.upgTipFreePlus || 'Free Plus') + '"><i class="efb bi-gem text-light" aria-hidden="true"></i></a></div>' : ''}
         <label for="customRequiredMsgEl" class="efb form-label mt-2 mb-1 efb"><i class="efb bi-chat-square-text fs-7 me-1"></i>${labelTxt}</label>
         <input type="text" data-id="${idset}" class="efb elEdit form-control text-muted efb border-d rounded-4 h-d-efb mb-1" placeholder="${placeholderTxt}" id="customRequiredMsgEl" value="${currentValue}" ${!isPro ? 'disabled' : ''}>
         <small class="efb text-muted fs-8 mx-2">${hintTxt}</small>
@@ -845,7 +845,7 @@ function show_setting_window_efb(idset, opts) {
         : 'Leave empty to use default message';
       return `
       <div class="efb mx-1 efb ">
-      ${pro_efb==true ?"":funProEfb(efb_capability_state_efb('setting:email_sub', 3))}
+      ${pro_efb==true ?"":funProEfb('setting:email_sub', { fallback: 'free_plus', resume: { kind: 'focus', id: 'FormEmailSubjectEl' } })}
       <label for="FormEmailSubjectEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.mlsbjt}</label>
       <input type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d rounded-4 efb" placeholder="${efb_var.text.emailSubject || 'Email Subject'}" id="FormEmailSubjectEl" required value="${value}">
       <small class="efb text-muted fs-8 mx-2">${hintTxt}</small>
@@ -859,7 +859,7 @@ function show_setting_window_efb(idset, opts) {
       // Changing it is a Pro option: badge it like the Email Subject above,
       // so the badge is not mistaken for belonging to only one of them.
       return `
-    ${pro_efb==true ?"":funProEfb(efb_capability_state_efb('setting:email_noti_type', 3))}
+    ${pro_efb==true ?"":funProEfb('setting:email_noti_type', { fallback: 'free_plus', resume: { kind: 'focus', id: 'emailNotiContainsEl' } })}
     <label for="emailNotiContainsEl" class="efb mt-2 mb-1   efb">${efb_var.text.emlc}</label>
                         <select  class="efb elEdit form-select efb border-d rounded-4 mb-1" data-id="${idset}"  id="emailNotiContainsEl" >
                             <option value="cc" ${val == 'cc' ? `selected` : ''}>${efb_var.text.emlacl}</option>
@@ -1004,7 +1004,7 @@ function show_setting_window_efb(idset, opts) {
       const isPro = (typeof pro_efb !== 'undefined' && pro_efb === true) || (typeof efb_var !== 'undefined' && (efb_var.pro == "1" || efb_var.pro == 1 || efb_var.pro === true));
       return `<span class="efb">
         <label for="selectCheckedColorEl" class="efb mt-3 efb"><i class="efb bi-check-circle-fill fs-7 ${iconMarginGlobal}"></i>${labelText}</label>
-        ${!isPro ? '<div class="efb pro-card"><a type="button" onclick="pro_show_efb(3)" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="' + (efb_var.text.fieldAvailableInProversion || 'PRO') + '"><i class="efb bi-gem text-light"></i></a></div>' : ''}
+        ${!isPro ? '<div class="efb pro-card" data-efb-lock="setting:custom_colors"><a type="button" role="button" tabindex="0" onclick="efb_upgrade_prompt_efb({feature:\'setting:custom_colors\', fallback:\'free_plus\', origin:\'field_settings\', resume:{kind:\'focus\', id:\'selectCheckedColorEl\'}, opener:this})" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="' + (efb_var.text.upgTipFreePlus || 'Free Plus') + '" aria-label="' + (efb_var.text.upgTipFreePlus || 'Free Plus') + '"><i class="efb bi-gem text-light" aria-hidden="true"></i></a></div>' : ''}
         <input type="color" id="selectCheckedColorEl" class="efb elEdit form-select efb border-d rounded-4" data-id="${idset}" data-el="checked" data-type="checked" data-tag="${valj_efb[indx].type}" value="${checkedClrHex}" name="selectCheckedColorEl" ${!isPro ? 'disabled' : ''}></span>`;
     };
 
@@ -1016,7 +1016,7 @@ function show_setting_window_efb(idset, opts) {
       const isPro = (typeof pro_efb !== 'undefined' && pro_efb === true) || (typeof efb_var !== 'undefined' && (efb_var.pro == "1" || efb_var.pro == 1 || efb_var.pro === true));
       return `<span class="efb">
         <label for="selectRangeThumbColorEl" class="efb mt-3 efb"><i class="efb bi-sliders fs-7 ${iconMarginGlobal}"></i>${labelText}</label>
-        ${!isPro ? '<div class="efb pro-card"><a type="button" onclick="pro_show_efb(3)" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="' + (efb_var.text.fieldAvailableInProversion || 'PRO') + '"><i class="efb bi-gem text-light"></i></a></div>' : ''}
+        ${!isPro ? '<div class="efb pro-card" data-efb-lock="setting:custom_colors"><a type="button" role="button" tabindex="0" onclick="efb_upgrade_prompt_efb({feature:\'setting:custom_colors\', fallback:\'free_plus\', origin:\'field_settings\', resume:{kind:\'focus\', id:\'selectRangeThumbColorEl\'}, opener:this})" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="' + (efb_var.text.upgTipFreePlus || 'Free Plus') + '" aria-label="' + (efb_var.text.upgTipFreePlus || 'Free Plus') + '"><i class="efb bi-gem text-light" aria-hidden="true"></i></a></div>' : ''}
         <input type="color" id="selectRangeThumbColorEl" class="efb elEdit form-select efb border-d rounded-4" data-id="${idset}" data-el="rangeThumb" data-type="rangeThumb" data-tag="${valj_efb[indx].type}" value="${thumbClrHex}" name="selectRangeThumbColorEl" ${!isPro ? 'disabled' : ''}></span>`;
     };
 
@@ -1028,7 +1028,7 @@ function show_setting_window_efb(idset, opts) {
       const isPro = (typeof pro_efb !== 'undefined' && pro_efb === true) || (typeof efb_var !== 'undefined' && (efb_var.pro == "1" || efb_var.pro == 1 || efb_var.pro === true));
       return `<span class="efb">
         <label for="selectRangeValueColorEl" class="efb mt-3 efb"><i class="efb bi-fonts fs-7 ${iconMarginGlobal}"></i>${labelText}</label>
-        ${!isPro ? '<div class="efb pro-card"><a type="button" onclick="pro_show_efb(3)" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="' + (efb_var.text.fieldAvailableInProversion || 'PRO') + '"><i class="efb bi-gem text-light"></i></a></div>' : ''}
+        ${!isPro ? '<div class="efb pro-card" data-efb-lock="setting:custom_colors"><a type="button" role="button" tabindex="0" onclick="efb_upgrade_prompt_efb({feature:\'setting:custom_colors\', fallback:\'free_plus\', origin:\'field_settings\', resume:{kind:\'focus\', id:\'selectRangeValueColorEl\'}, opener:this})" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="' + (efb_var.text.upgTipFreePlus || 'Free Plus') + '" aria-label="' + (efb_var.text.upgTipFreePlus || 'Free Plus') + '"><i class="efb bi-gem text-light" aria-hidden="true"></i></a></div>' : ''}
         <input type="color" id="selectRangeValueColorEl" class="efb elEdit form-select efb border-d rounded-4" data-id="${idset}" data-el="rangeValue" data-type="rangeValue" data-tag="${valj_efb[indx].type}" value="${valueClrHex}" name="selectRangeValueColorEl" ${!isPro ? 'disabled' : ''}></span>`;
     };
 
@@ -1039,7 +1039,7 @@ function show_setting_window_efb(idset, opts) {
       const isPro = (typeof pro_efb !== 'undefined' && pro_efb === true) || (typeof efb_var !== 'undefined' && (efb_var.pro == "1" || efb_var.pro == 1 || efb_var.pro === true));
       return `<span class="efb">
         <label for="selectSwitchOnColorEl" class="efb mt-3 efb"><i class="efb bi-toggle-on fs-7 ${iconMarginGlobal}"></i>${labelText}</label>
-        ${!isPro ? '<div class="efb pro-card"><a type="button" onclick="pro_show_efb(3)" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="' + (efb_var.text.fieldAvailableInProversion || 'PRO') + '"><i class="efb bi-gem text-light"></i></a></div>' : ''}
+        ${!isPro ? '<div class="efb pro-card" data-efb-lock="setting:custom_colors"><a type="button" role="button" tabindex="0" onclick="efb_upgrade_prompt_efb({feature:\'setting:custom_colors\', fallback:\'free_plus\', origin:\'field_settings\', resume:{kind:\'focus\', id:\'selectSwitchOnColorEl\'}, opener:this})" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="' + (efb_var.text.upgTipFreePlus || 'Free Plus') + '" aria-label="' + (efb_var.text.upgTipFreePlus || 'Free Plus') + '"><i class="efb bi-gem text-light" aria-hidden="true"></i></a></div>' : ''}
         <input type="color" id="selectSwitchOnColorEl" class="efb elEdit form-select efb border-d rounded-4" data-id="${idset}" data-el="switchOn" data-type="switchOn" data-tag="${valj_efb[indx].type}" value="${switchOnClrHex}" name="selectSwitchOnColorEl" ${!isPro ? 'disabled' : ''}></span>`;
     };
 
@@ -1050,7 +1050,7 @@ function show_setting_window_efb(idset, opts) {
       const isPro = (typeof pro_efb !== 'undefined' && pro_efb === true) || (typeof efb_var !== 'undefined' && (efb_var.pro == "1" || efb_var.pro == 1 || efb_var.pro === true));
       return `<span class="efb">
         <label for="selectSwitchOffColorEl" class="efb mt-3 efb"><i class="efb bi-toggle-off fs-7 ${iconMarginGlobal}"></i>${labelText}</label>
-        ${!isPro ? '<div class="efb pro-card"><a type="button" onclick="pro_show_efb(3)" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="' + (efb_var.text.fieldAvailableInProversion || 'PRO') + '"><i class="efb bi-gem text-light"></i></a></div>' : ''}
+        ${!isPro ? '<div class="efb pro-card" data-efb-lock="setting:custom_colors"><a type="button" role="button" tabindex="0" onclick="efb_upgrade_prompt_efb({feature:\'setting:custom_colors\', fallback:\'free_plus\', origin:\'field_settings\', resume:{kind:\'focus\', id:\'selectSwitchOffColorEl\'}, opener:this})" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="' + (efb_var.text.upgTipFreePlus || 'Free Plus') + '" aria-label="' + (efb_var.text.upgTipFreePlus || 'Free Plus') + '"><i class="efb bi-gem text-light" aria-hidden="true"></i></a></div>' : ''}
         <input type="color" id="selectSwitchOffColorEl" class="efb elEdit form-select efb border-d rounded-4" data-id="${idset}" data-el="switchOff" data-type="switchOff" data-tag="${valj_efb[indx].type}" value="${switchOffClrHex}" name="selectSwitchOffColorEl" ${!isPro ? 'disabled' : ''}></span>`;
     };
 
@@ -1061,7 +1061,7 @@ function show_setting_window_efb(idset, opts) {
       const isPro = (typeof pro_efb !== 'undefined' && pro_efb === true) || (typeof efb_var !== 'undefined' && (efb_var.pro == "1" || efb_var.pro == 1 || efb_var.pro === true));
       return `<span class="efb">
         <label for="selectSwitchHandleColorEl" class="efb mt-3 efb"><i class="efb bi-circle-fill fs-7 ${iconMarginGlobal}"></i>${labelText}</label>
-        ${!isPro ? '<div class="efb pro-card"><a type="button" onclick="pro_show_efb(3)" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="' + (efb_var.text.fieldAvailableInProversion || 'PRO') + '"><i class="efb bi-gem text-light"></i></a></div>' : ''}
+        ${!isPro ? '<div class="efb pro-card" data-efb-lock="setting:custom_colors"><a type="button" role="button" tabindex="0" onclick="efb_upgrade_prompt_efb({feature:\'setting:custom_colors\', fallback:\'free_plus\', origin:\'field_settings\', resume:{kind:\'focus\', id:\'selectSwitchHandleColorEl\'}, opener:this})" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="' + (efb_var.text.upgTipFreePlus || 'Free Plus') + '" aria-label="' + (efb_var.text.upgTipFreePlus || 'Free Plus') + '"><i class="efb bi-gem text-light" aria-hidden="true"></i></a></div>' : ''}
         <input type="color" id="selectSwitchHandleColorEl" class="efb elEdit form-select efb border-d rounded-4" data-id="${idset}" data-el="switchHandle" data-type="switchHandle" data-tag="${valj_efb[indx].type}" value="${switchHandleClrHex}" name="selectSwitchHandleColorEl" ${!isPro ? 'disabled' : ''}></span>`;
     };
 
@@ -1073,7 +1073,7 @@ function show_setting_window_efb(idset, opts) {
                         </select>`;
 
     const thankYouredirectEls = `<div id="tnxrdrct" class="efb tnxrdrct my-1 ${ valj_efb[0].thank_you == 'rdrct'? 'd-block' :'d-none' }">
-    ${pro_efb==true ?"":funProEfb(efb_capability_state_efb('setting:thank_you_redirect', 3))}
+    ${pro_efb==true ?"":funProEfb('setting:thank_you_redirect', { fallback: 'free_plus', resume: { kind: 'focus', id: 'thankYouredirectEl' } })}
     <label for="thankYouredirectEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.redirectPage} <i class="efb bi-patch-question fs-7 text-success pointer-efb" onclick="Link_emsFormBuilder('redirectPage')"> </i></label>
     <input type="url" data-id="thankYouredirectEl" class="efb elEdit text-muted form-control h-d-efb border-d rounded-4  mb-1 efb" placeholder="${efb_var.text.url}" id="thankYouredirectEl" required value="${ valj_efb[0].hasOwnProperty('rePage') ? efb_url_from_storage_efb(valj_efb[0].rePage) : ''}"></div>`
     const paymentGetWayEls =()=>{
@@ -2401,7 +2401,6 @@ function efb_palette_tiles_html_efb() {
 
   const registry = typeof efb_feature_entry_efb === 'function' && !!efb_feature_entry_efb('field:text');
   const isPackageTypeLimited = pro_efb == false && Number(setting_emsFormBuilder.package_type) == 2;
-  const packageLimitMessage = `onclick='pro_show_efb(3)'`
 
   // Pushed once: the palette is redrawn after a plan change.
   if( efb_var.language=='fa_IR' && !fields_efb.some(x => x.id === 'persiaPay')) fields_efb.push( { name: efb_var.text.persiaPayment, icon: 'bi-credit-card-2-front', id: 'persiaPay', pro: true, tag:'payment all' });
@@ -2439,11 +2438,12 @@ function efb_palette_tiles_html_efb() {
         disable = `onClick="alert_message_efb('${efb_var.text.iaddon}', '${msg}', 20 , 'info')"`
         dragab = false;
       }
+      const fallbackCall = `efb_upgrade_prompt_efb({feature:'field:${ob.id}', fallback:'free_plus', resume:{kind:'add_field', id:'${ob.id}'}, origin:'palette', opener:this})`;
       if (isPackageTypeLimited && ob.pro == true) {
-        disable = packageLimitMessage;
+        disable = `onclick="${fallbackCall}"`;
         dragab = false;
       }
-      if (ob.pro == true && pro_efb == false) gem = ` <a type="button"  onclick='pro_show_efb(3)' class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}"><i class="efb  bi-gem text-light"></i></a>`;
+      if (ob.pro == true && pro_efb == false) gem = ` <a type="button"  onclick="${fallbackCall}" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}"><i class="efb  bi-gem text-light"></i></a>`;
     }
 
     /* A tile is a fixed square, but the label is a translated field name and languages

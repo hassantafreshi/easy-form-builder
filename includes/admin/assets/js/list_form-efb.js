@@ -539,7 +539,8 @@ function fun_ws_show_list_messages(value) {
   let iconNotRead = ' <path  d="M.05 3.555A2 2 0 0 1 2 2h12a2 2 0 0 1 1.95 1.555L8 8.414.05 3.555zM0 4.697v7.104l5.803-3.558L0 4.697zM6.761 8.83l-6.57 4.027A2 2 0 0 0 2 14h12a2 2 0 0 0 1.808-1.144l-6.57-4.027L8 9.586l-1.239-.757zm3.436-.586L16 11.801V4.697l-5.803 3.546z"/>';
   // CSV export is free on every plan since 4.3.1.
   const fun = "generat_csv_emsFormBuilder()";
-  const fun1 = pro_ws_efb == true ? "event_selected_row_emsFormBuilder('read')" : `pro_show_efb(3)`;
+  // F18: the gate is read when clicked (a plan change in the page counts).
+  const fun1 = "if (efb_gate_efb('setting:bulk_read', {fallback:'free_plus', origin:'responses', resume:{kind:'callback', name:'bulk_read'}, opener:this})) event_selected_row_emsFormBuilder('read')";
 
   if (form_type_emsFormBuilder == 'subscribe') {
     head = `<div class="efb d-flex mb-3"><button class="efb  btn efb btn-primary text-white mt-2 mx-1 ec-efb" data-eventform="generateCSV" data-formtype="subscribe" title="${efb_var.text.downloadCSVFileSub}" >  <i class="efb  bi-download mx-2"></i><span class="efb d-none d-sm-inline">${efb_var.text.downloadCSVFile}</span></button >
@@ -1317,7 +1318,9 @@ function fun_show_setting__emsFormBuilder() {
   const mxCSize4 = !mobile_view_efb ? 'mx-4' : 'mx-1';
   let msg_email = efb_var.text.mlntip.replace('%1$s', `<a class="efb pointer-efb ec-efb" data-eventform="links" data-linkname="EmailSpam" >`).replace('%2$s', '</a>').replace('%3$s', `<a class="efb pointer-efb ec-efb" data-eventform="links" data-linkname="support" >`).replace('%4$s', '</a>');
   const is_pro = efb_var.pro == true || efb_var.pro == "true" ? true : false;
-  const proChckEvent = !is_pro ? `onChange="pro_show_efb(3)"` : '';
+  /* F18: a locked key field opens the dialog on the first click or key press (it used to ask only after
+     the whole key was typed). readonly until the plan opens it; a plan change in the page unlocks it. */
+  const lockedInput = (key, id) => is_pro ? '' : `readonly data-efb-lock="${key}" data-efb-unlock="attrs" data-efb-unlock-attrs="onclick,onkeydown" data-efb-unlock-readonly="1" onclick="efb_upgrade_prompt_efb({feature:'${key}', fallback:'free_plus', origin:'panel_settings', resume:{kind:'focus', id:'${id}'}, opener:this})" onkeydown="if(event.key.length===1||event.key==='Enter'){event.preventDefault();this.click();}"`;
   const stripemessage = efb_var.text.ufinyf.replace('%1$s', efb_var.text.payment.toLowerCase()).replace('%2$s', efb_var.text.stripe);
   const paypalmessage = efb_var.text.ufinyf.replace('%1$s', efb_var.text.payment.toLowerCase()).replace('%2$s', efb_var.text.paypal);
   const package_type = efb_var.setting.hasOwnProperty('package_type') ? Number(efb_var.setting.package_type) : Number(efb_var.pro) ;
@@ -1556,7 +1559,7 @@ function fun_show_setting__emsFormBuilder() {
                               </h5>
                               <p class="efb ${mxCSize}">${efb_var.text.respColorsDesc}</p>
                               <div class="efb card-body mx-0 py-1 ${mxCSize4}">
-                                <button type="button" class="efb efb-customize-colors-btn" onclick="${is_pro ? 'efb_open_color_modal()' : 'pro_show_efb(3)'}">
+                                <button type="button" class="efb efb-customize-colors-btn" onclick="if (efb_gate_efb('setting:response_colors', {fallback:'free_plus', origin:'panel_settings', resume:{kind:'callback', name:'open_color_modal'}, opener:this})) efb_open_color_modal()">
                                   <i class="efb bi-palette2"></i> ${efb_var.text.respClrCustomize}
                                 </button>
                               </div>
@@ -1625,7 +1628,7 @@ function fun_show_setting__emsFormBuilder() {
                             <p class="efb ${mxCSize} d-none">${efb_var.text.youNeedAPIgMaps}</p>
                             <div class="efb  d-none card-body mx-0 py-1 ${mxCSize4}">
                                 <label class="efb form-label mx-2 fs-6">${efb_var.text.aPIKey}</label>
-                                <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="apikey_map_emsFormBuilder" placeholder="${efb_var.text.enterAPIKey}" ${apiKeyMap !== "null" ? `value="${apiKeyMap}"` : ""} ${proChckEvent} data-tab="${efb_var.text.captchas}">
+                                <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="apikey_map_emsFormBuilder" placeholder="${efb_var.text.enterAPIKey}" ${apiKeyMap !== "null" ? `value="${apiKeyMap}"` : ""} ${lockedInput('setting:map_key', 'apikey_map_emsFormBuilder')} data-tab="${efb_var.text.captchas}">
                                 <span id="apikey_map_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                             </div>
 
@@ -1647,7 +1650,7 @@ function fun_show_setting__emsFormBuilder() {
                                 </div>
                                 <div class="efb card-body mx-0 py-1 ${mxCSize4} mb-3">
                                     <label class="efb form-label mx-2 fs-6">${efb_var.text.from}</label>
-                                    <input type="email" class="efb form-control w-75 h-d-efb border-d efb-rounded mb-1 ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="femail_emsFormBuilder"  ${efb_var.pro != true  &&  efb_var.pro != 1 ? 'onclick="pro_show_efb(3)"' :''} placeholder="${'no-reply@'+ window.location.hostname}" ${femail !== "null" ? `value="${femail}"` : ""} data-tab="${efb_var.text.emailSetting}">
+                                    <input type="email" class="efb form-control w-75 h-d-efb border-d efb-rounded mb-1 ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="femail_emsFormBuilder"  ${efb_var.pro != true  &&  efb_var.pro != 1 ? lockedInput('setting:sender_email', 'femail_emsFormBuilder') :''} placeholder="${'no-reply@'+ window.location.hostname}" ${femail !== "null" ? `value="${femail}"` : ""} data-tab="${efb_var.text.emailSetting}">
                                     <span id="femail_emsFormBuilder-message" class="efb  text-danger  w-75 efb"></span>
                                     <span  class="efb  form-control border-0  w-75 efb">${efb_var.text.msgfml}</span>
                                 </div>
@@ -1675,7 +1678,7 @@ function fun_show_setting__emsFormBuilder() {
                                     <button type="button" id="weeklyEmailReport_emsFormBuilder" data-state="off" data-name="disabled"
                                         class="efb mx-0 btn h-s-efb btn-toggle ${weeklyEmailReport ? "active" : ""}"
                                         data-toggle="button" aria-pressed="false" autocomplete="off"
-                                        ${weeklyEmailReportAllowed ? '' : 'onclick="pro_show_efb(3)"'}>
+                                        ${weeklyEmailReportAllowed ? '' : `data-efb-lock="setting:weekly_report" data-efb-unlock="attrs" data-efb-unlock-attrs="onclick" onclick="efb_upgrade_prompt_efb({feature:'setting:weekly_report', fallback:'free_plus', origin:'panel_settings', resume:{kind:'toggle', id:'weeklyEmailReport_emsFormBuilder'}, opener:this})"`}>
                                         <div class="efb handle"></div>
                                     </button>
                                     <label class="efb form-check-label fs-6 efb mx-2 my-3" for="weeklyEmailReport_emsFormBuilder">${efb_var.text.weeklyEmailReport}</label>
@@ -1727,10 +1730,10 @@ function fun_show_setting__emsFormBuilder() {
                                 <!-- 3.8.6 end -->
                                 <div class="efb card-body mx-0 py-1 ${mxCSize4}">
                                   <label class="efb form-label mx-2 fs-6">${efb_var.text.publicKey}</label>
-                                  <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="stripePKey_emsFormBuilder" placeholder="${efb_var.text.publicKey}" ${stripePKey !== "null" ? `value="${stripePKey}"` : ""} ${proChckEvent} data-tab="${efb_var.text.payment}">
+                                  <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="stripePKey_emsFormBuilder" placeholder="${efb_var.text.publicKey}" ${stripePKey !== "null" ? `value="${stripePKey}"` : ""} ${lockedInput('setting:payment_keys', 'stripePKey_emsFormBuilder')} data-tab="${efb_var.text.payment}">
                                   <span id="stripePKey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                                   <label class="efb  form-label mx-2 fs-6 col-12  mt-4">${efb_var.text.SecreTKey}</label>
-                                  <input type="password" autocomplete="new-password" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="stripeSKey_emsFormBuilder" placeholder="${efb_var.text.SecreTKey}" ${stripeSKey !== "null" ? `value="${stripeSKey}"` : ""} ${proChckEvent} data-tab="${efb_var.text.payment}">
+                                  <input type="password" autocomplete="new-password" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="stripeSKey_emsFormBuilder" placeholder="${efb_var.text.SecreTKey}" ${stripeSKey !== "null" ? `value="${stripeSKey}"` : ""} ${lockedInput('setting:payment_keys', 'stripeSKey_emsFormBuilder')} data-tab="${efb_var.text.payment}">
                                   <span id="stripeSKey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
 
                               </div>
@@ -1741,10 +1744,10 @@ function fun_show_setting__emsFormBuilder() {
                                 <p class="efb ${mxCSize}">${paypalmessage} <a class="efb  pointer-efb" onclick="Link_emsFormBuilder('paypal')" >${efb_var.text.lrnmrs.replace('%s', '')}</a></p>
                                   <div class="efb card-body mx-0 py-1 ${mxCSize4}">
                                     <label class="efb form-label mx-2 fs-6">${efb_var.text.publicKey}</label>
-                                    <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="paypalPKey_emsFormBuilder" placeholder="${efb_var.text.publicKey}" value="${paypalPKey}" ${proChckEvent} data-tab="${efb_var.text.payment}">
+                                    <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="paypalPKey_emsFormBuilder" placeholder="${efb_var.text.publicKey}" value="${paypalPKey}" ${lockedInput('setting:payment_keys', 'paypalPKey_emsFormBuilder')} data-tab="${efb_var.text.payment}">
                                     <span id="paypalPKey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                                     <label class="efb  form-label mx-2 fs-6 col-12  mt-4">${efb_var.text.SecreTKey}</label>
-                                    <input type="password" autocomplete="new-password" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="paypalSKey_emsFormBuilder" placeholder="${efb_var.text.SecreTKey}" value="${paypalSKey}" ${proChckEvent} data-tab="${efb_var.text.payment}">
+                                    <input type="password" autocomplete="new-password" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="paypalSKey_emsFormBuilder" placeholder="${efb_var.text.SecreTKey}" value="${paypalSKey}" ${lockedInput('setting:payment_keys', 'paypalSKey_emsFormBuilder')} data-tab="${efb_var.text.payment}">
                                     <span id="paypalSKey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                                   </div>
                               </div>
@@ -4937,14 +4940,14 @@ function funNproEmailTemp() {
  const ws = efb_var.language != "fa_IR" ? "https://whitestudio.team/" : 'https://easyformbuilder.ir';
 
   return `<table role='presentation' bgcolor='#F5F8FA' width='100%'>
-  <a type="button" onclick="pro_show_efb(3)" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.availableInProversion}" data-original-title="${efb_var.text.availableInProversion}"><i class="efb  bi-gem text-light"></i></a>
+  <a type="button" role="button" tabindex="0" data-efb-lock="setting:email_footer" onclick="efb_upgrade_prompt_efb({feature:'setting:email_footer', fallback:'free_plus', origin:'panel_settings', opener:this})" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.upgTipFreePlus || efb_var.text.availableInProversion}" aria-label="${efb_var.text.upgFtrEmailCredit || efb_var.text.availableInProversion}"><i class="efb  bi-gem text-light" aria-hidden="true"></i></a>
   <tr> <td align='left' style='padding: 30px 30px; font-size:12px; text-align:center'><a class='efb subtle-link' target='_blank' href='https://wordpress.org/plugins/easy-form-builder/'><img src="https://ps.w.org/easy-form-builder/assets/icon-256x256.gif" style="margin: 5px; width:16px;height:16px" >  ${efb_var.text.easyFormBuilder}</a>
  <br> <img src="${ws}img/favicon.png" style="margin: 5px"> <a class='efb subtle-link' target='_blank' href='${ws}'>White Studio Team</a></td></tr>`
 }
 
 function lock_email_stats_toggle_efb(el, event){
   if (event) event.stopPropagation();
-  pro_show_efb(1);
+  efb_upgrade_prompt_efb({ feature: 'setting:email_stats_off', fallback: 'pro', origin: 'panel_settings', opener: el });
   setTimeout(() => {
     el.classList.add('active');
     el.setAttribute('aria-pressed', 'true');
@@ -4961,8 +4964,10 @@ function act_local_efb_event(t){
 
 function check_server_sms_method_efb(el){
 
-  if(Number(efb_var.pro)!=1){
-    pro_show_efb(efb_var.text.proUnlockMsg)
+  // F18: SMS is a Pro add-on; Free Plus cannot install it, so it gets the Pro dialog, not "install the add-on".
+  const smsPlanOk = typeof efb_feature_plan_ok_efb === 'function' ? efb_feature_plan_ok_efb('addon:AdnSS', undefined, 'pro') : Number(efb_var.pro) == 1;
+  if(!smsPlanOk){
+    efb_upgrade_prompt_efb({ feature: 'addon:AdnSS', fallback: 'pro', origin: 'panel_settings', opener: el });
     el.checked = false;
     return;
   } else if(valueJson_ws_setting.AdnSS!=1){

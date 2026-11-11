@@ -1121,7 +1121,7 @@ function actionSendAddons_efb(val) {
       } else {
         addons_btn_reset_efb(snd);
         if (payload.code === 'addon_plan_required') {
-          pro_show_efb(Number(payload.required_package) === 3 ? 3 : 1);
+          efb_upgrade_prompt_efb({ feature: 'addon:' + snd, fallback: Number(payload.required_package) === 3 ? 'free_plus' : 'pro', origin: 'addons' });
           return;
         }
         if (payload.m == null || payload.m.length > 1) {
@@ -1224,7 +1224,9 @@ createCardFormEfb = (i) => {
   const package_type = setting_emsFormBuilder.package_type != undefined ? Number(setting_emsFormBuilder.package_type) : 0;
   let prw = `<a class="efb float-end btn mx-1 efb rounded-pill border-danger text-danger " onclick="fun_preview_before_efb('${i.id}' ,'local' ,${i.pro})"><i class="efb  bi-eye ${m_space}"></i>${efb_var.text.preview}</a>`;
   let btn = `<button type="button" id="${i.id}" class="efb float-end btn mb-1 efb btn-primary btn-lg float-end emsFormBuilder btn-r efbCreateNewForm"><i class="efb  bi-plus-circle ${m_space}"></i>${efb_var.text.create}</b></button>`;
-  let btnPro = `<a class="efb float-end btn mb-1 efb btn-warning btn-lg float-end emsFormBuilder btn-r" onclick="pro_show_efb(3)"><i class="efb  bi-gem ${m_space}"></i>${efb_var.text.pro}</b></a>`;
+  // F18: a payment template needs Free Plus (and its gateway add-on); the dialog creates it after.
+  const tplCall = `efb_upgrade_prompt_efb({feature:'template:payment', fallback:'free_plus', label:'${String(i.title || '').replace(/[\\'"<>&`\r\n]/g, '')}', resume:{kind:'callback', name:'create_template', args:['${i.id}']}, origin:'templates', opener:this})`;
+  let btnPro = `<button type="button" class="efb float-end btn mb-1 efb btn-warning btn-lg float-end emsFormBuilder btn-r" onclick="${tplCall}"><i class="efb  bi-gem ${m_space}" aria-hidden="true"></i>${efb_var.text.freePlus || efb_var.text.pro}</button>`;
   if (i.id == "form" || i.id == "payment") prw = "<!--not preview-->"
   if(i.tag.search("payment")!=-1 && ( !payment_addon ) ) {
     const fn = `alert_message_efb('${efb_var.text.error}', '${efb_var.text.IMAddonP}', 20 , 'danger')`
@@ -1232,10 +1234,10 @@ createCardFormEfb = (i) => {
   }
   return `
   <div class="efb tag  col ${rtl == 1 ? 'rtl-text' : ''} ${i.tag}" id="${i.id}"> <div class="efb card efb"><div class="efb card-body">
-  ${i.pro == true && efb_var.pro != 1 ? funProEfb(3) : ''}
+  ${i.pro == true && !efb_template_plan_ok_efb(i) ? funProEfb('template:payment', { fallback: 'free_plus', label: i.title, resume: { kind: 'callback', name: 'create_template', args: [i.id] }, origin: 'templates' }) : ''}
   <h5 class="efb card-title efb"><i class="efb ${m_space} ${i.icon} "></i>${i.title} </h5>
   <div class="efb row" ><p class="efb card-text efb ${mobile_view_efb ? '' : 'fs-7'} float-start my-3">${i.desc}  <b>${efb_var.text.freefeatureNotiEmail}</b> </p></div>
-  ${(i.pro == true && Number(setting_emsFormBuilder.package_type) != 2) || i.pro==false ? btn : btnPro}
+  ${i.pro==false || efb_template_plan_ok_efb(i) ? btn : btnPro}
   ${prw}
   </div></div></div>`
 }
@@ -1295,7 +1297,7 @@ createCardAddoneEfb = (i) => {
        install endpoint regardless. Name the plan that unlocks it instead, and
        open that plan's dialog rather than attempting an install. */
     const requiredPackage = efb_addon_required_package_efb(i);
-    funNtn=`pro_show_efb(${requiredPackage === 3 ? 3 : 1})`;
+    funNtn=`efb_upgrade_prompt_efb({feature:'addon:${i.name}', fallback:'${requiredPackage === 3 ? 'free_plus' : 'pro'}', origin:'addons', opener:this})`;
     nameNtn = requiredPackage === 3
       ? (efb_var.text.freePlus || 'Free Plus')
       : (efb_var.text.pro || 'Pro');
@@ -1305,7 +1307,7 @@ createCardAddoneEfb = (i) => {
 
   return `
   <div class="efb tag mt-0 mb-2 col ${efb_var.rtl == 1 ? 'rtl-text' : ''} ${i.tag}" id="${i.id}"> <div class="efb card efb"><div class="efb card-body">
-  ${isLockedAddon ? funProEfb(efb_addon_required_package_efb(i) === 3 ? 3 : 1) : ''}
+  ${isLockedAddon ? funProEfb('addon:' + i.name, { fallback: efb_addon_required_package_efb(i) === 3 ? 'free_plus' : 'pro', origin: 'addons' }) : ''}
   <h5 class="efb card-title efb"><i class="efb  ${i.icon} mx-1"></i>${i.title} </h5>
   <div class="efb row" ><p class="efb card-text efb ${mobile_view_efb ? '' : 'fs-7'} float-start my-3">${i.desc}  </p></div>
   <a id="${i.name}" data-vrequired="${i.v_required}" class="efb float-end btn addons mb-1 efb ${colorNtn} btn-lg float-end btn-r" onClick="${funNtn}"><i class="efb ${iconNtn} mx-1"></i>${nameNtn}</b></a>
@@ -1314,8 +1316,27 @@ createCardAddoneEfb = (i) => {
   <!-- 3.8.6 end -->
   </div></div></div>`
 }
-/* state: 1 = Pro only, 3 = Free Plus and Pro (A4): pass the plan that really unlocks the setting. */
-funProEfb=(state = 1)=>{return `<div class="efb  pro-card"><a type="button" onclick='pro_show_efb(${state == 3 ? 3 : 1})' class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}"><i class="efb  bi-gem text-light"></i></a></div>`}
+/* F18: the gem of a locked control. feature: a registry key ('setting:email_sub', 'addon:AdnSS', …);
+   the dialog it opens names that feature and its plan. opts: fallback (level without the registry),
+   resume, label, origin. A number (1 Pro, 3 Free Plus) is still accepted from old callers. The gem
+   carries data-efb-lock so a plan change in the page removes it (efb_unlock_dom_efb). */
+const efb_js_literal_efb = (v) => {
+  if (Array.isArray(v)) return '[' + v.map(efb_js_literal_efb).join(', ') + ']';
+  if (v && typeof v === 'object') return '{' + Object.keys(v).map((k) => k + ':' + efb_js_literal_efb(v[k])).join(', ') + '}';
+  if (typeof v === 'number' || typeof v === 'boolean') return String(v);
+  // Written inside onclick="…": quotes, backslashes, markup and line breaks are dropped, letters of any script kept.
+  return "'" + String(v === undefined || v === null ? '' : v).replace(/[\\'"<>&`\r\n]/g, '') + "'";
+};
+funProEfb=(feature = 1, opts = {})=>{
+  if (typeof feature === 'number' || /^\d+$/.test(String(feature))) {
+    opts = Object.assign({ required: Number(feature) === 3 ? 'free_plus' : 'pro' }, opts);
+    feature = 'generic';
+  }
+  const o = Object.assign({ feature: feature, origin: opts.origin || 'form_settings' }, opts);
+  const call = `efb_upgrade_prompt_efb(${efb_js_literal_efb(o).slice(0, -1)}, opener:this})`;
+  const need = typeof efb_feature_required_efb === 'function' ? efb_feature_required_efb(feature, o.required || o.fallback) : (o.required || o.fallback || 'pro');
+  const tip = need === 'pro' ? (efb_var.text.upgTipPro || efb_var.text.fieldAvailableInProversion) : (efb_var.text.upgTipFreePlus || efb_var.text.fieldAvailableInProversion);
+  return `<div class="efb  pro-card" data-efb-lock="${feature}"><a type="button" role="button" tabindex="0" onclick="${call}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="${tip}" data-original-title="${tip}" aria-label="${tip}"><i class="efb  bi-gem text-light" aria-hidden="true"></i></a></div>`}
 const boxs_efb = [
   { id: 'form', title: efb_var.text.newForm, desc: efb_var.text.createBlankMultistepsForm, status: true, icon: 'bi-check2-square', tag: 'all new', pro: false },
   { id: 'contact', title: efb_var.text.contactusForm, desc: efb_var.text.createContactusForm, status: true, icon: 'bi-envelope', tag: 'all contactUs', pro: false },
@@ -1352,6 +1373,14 @@ const boxs_efb = [
   { id: 'bookClubForm', title: efb_var.text.bookClubFormT, desc: efb_var.text.bookClubFormD, status: true, icon: 'bi-book', tag: 'all', pro: false },
 ]
 let tag_efb=[];
+/* F18: may this site's plan create a Pro-marked template now? The registry decides (template:payment,
+   Free Plus); without it the old rule (locked on Free only). Lapsed Pro and "no plan yet" are locked too. */
+function efb_template_plan_ok_efb(i) {
+  if (!i || i.pro != true) return true;
+  if (typeof efb_feature_plan_ok_efb === 'function' && typeof efb_feature_entry_efb === 'function' && efb_feature_entry_efb('template:payment')) return efb_feature_plan_ok_efb('template:payment');
+  return Number(setting_emsFormBuilder.package_type) != 2;
+}
+
 function add_dasboard_emsFormBuilder() {
 
   let value = `<!-- boxs -->`;
@@ -4134,8 +4163,8 @@ let change_el_edit_Efb = (el) => {
 
         break;
       case 'smsContentEl':
-         if(pro_efb!=true){
-           pro_show_efb(1);
+         if(!efb_capability_available_efb('setting:sms_notifications', pro_efb==true)){
+           efb_capability_prompt_efb('setting:sms_notifications', 1, el);
            return;
          }
 
@@ -4153,8 +4182,8 @@ let change_el_edit_Efb = (el) => {
 
       break;
       case 'telegramContentEl':
-         if(pro_efb!=true){
-           pro_show_efb(1);
+         if(!efb_capability_available_efb('setting:telegram_notifications', pro_efb==true)){
+           efb_capability_prompt_efb('setting:telegram_notifications', 1, el);
            return;
          }
 
@@ -4378,6 +4407,7 @@ const saveFormEfb = async (stated) => {
       let icon = `bi-exclamation-triangle-fill`;
       let box = `error`;
       let btnIcon = `bi-question-lg`;
+      let lockedPromptEfb = null;
       let returnState = false;
       let returnn = false;
       let gateway = '';
@@ -4452,12 +4482,19 @@ const saveFormEfb = async (stated) => {
           _efb_autosave_in_progress = isAutoSave;
           actionSendData_emsFormBuilder(stated);
         } else if (proState == false) {
-          btnText = efb_var.text.activateProVersion;
-          btnFun = `open_whiteStudio_efb('pro')`;
-          message = efb_var.text.youUseProElements;
-          title = efb_var.text.proVersion;
-          icon = 'bi-gem';
-          btnIcon = icon;
+          /* F18: the form holds fields this plan does not include (imported, or saved before a
+             downgrade). Instead of a link to the Pro price page, the upgrade dialog names them and
+             offers the plan that is enough - Free Plus unless one of them is Pro only - and saves
+             the form once it is unlocked. */
+          const lockedRows = valj_efb.filter((x, n) => n > 0 && x && x.type !== 'option' && efb_field_is_pro_efb(x));
+          const fieldKey = (x) => 'field:' + (x.elementId || x.type);
+          const names = Array.from(new Set(lockedRows.map((x) => (typeof efb_feature_label_efb === 'function' ? efb_feature_label_efb(fieldKey(x)) : (efb_var.text[x.type] || x.type)))));
+          const needPro = lockedRows.some((x) => typeof efb_feature_required_efb === 'function' && efb_feature_required_efb(fieldKey(x), 'free_plus') === 'pro');
+          lockedPromptEfb = {
+            feature: 'form:locked_fields', required: needPro ? 'pro' : 'free_plus', origin: 'save',
+            message: String(efb_var.text.upgLockedFieldsList || 'This form uses: %s.').replace('%s', names.join(', ')),
+            resume: { kind: 'callback', name: 'save_form', args: [stated] },
+          };
           returnState = true;
 
         } else if (stepState == false) {
@@ -4492,6 +4529,21 @@ const saveFormEfb = async (stated) => {
           returnState = true;
         }
 
+        if (lockedPromptEfb && typeof efb_upgrade_prompt_efb === 'function') {
+          // The save box gives way to the upgrade dialog (it waits for the close to finish).
+          if (stated !== -1) state_modal_show_efb(0);
+          efb_upgrade_prompt_efb(lockedPromptEfb);
+          resolve(false);
+          return;
+        }
+        if (lockedPromptEfb) {
+          btnText = efb_var.text.activateProVersion;
+          btnFun = `open_whiteStudio_efb('pro')`;
+          message = efb_var.text.youUseProElements;
+          title = efb_var.text.proVersion;
+          icon = 'bi-gem';
+          btnIcon = icon;
+        }
         if (state == false) {
           btn = `<button type="button" class="efb btn efb btn-outline-pink efb-btn-lg mt-3 mb-3" onclick ="${btnFun}">
             <i class="efb ${btnIcon} mx-2"></i> ${btnText} </button>`;
@@ -5484,7 +5536,7 @@ funBTNAddOnsEFB=(val,v_required)=>{
   if (typeof efb_addon_can_install_efb === 'function'
       && efb_var.setting[val] != 1
       && !efb_addon_can_install_efb(val)) {
-    pro_show_efb(efb_addon_required_package_efb(val) === 3 ? 3 : 1);
+    efb_upgrade_prompt_efb({ feature: 'addon:' + val, fallback: efb_addon_required_package_efb(val) === 3 ? 'free_plus' : 'pro', origin: 'addons' });
     return;
   }
   if(check_ar_pr(val)==true){
@@ -5980,12 +6032,14 @@ function efb_check_el_pro(el){
     el.classList.contains('active') ? el.classList.remove('active') :  el.classList.add('active');
   }
   if(efb_var.pro==false || efb_var.pro=="false" || efb_var.pro=="") {
+    // F18: the dialog names the switch; once Free Plus is on, the switch is pressed for the user.
+    const settingKeys = { scaptcha_emsFormBuilder: 'setting:response_captcha', showUpfile_emsFormBuilder: 'setting:response_upload', activeDlBtn_emsFormBuilder: 'setting:response_download', adminSN_emsFormBuilder: 'setting:response_admin_login' };
     if(el.type=="button" && el.classList.contains('setting')==false){
       f_b();
-      pro_show_efb(efb_var.text.youUseProElements)
+      efb_upgrade_prompt_efb({ feature: 'setting:hidden_disabled', fallback: 'free_plus', origin: 'field_settings', resume: { kind: 'toggle', id: el.id }, opener: el });
     }else if(el.type=="button" && el.classList.contains('setting')==true){
       f_b();
-      pro_show_efb(3)
+      efb_upgrade_prompt_efb({ feature: settingKeys[el.id] || 'generic', required: settingKeys[el.id] ? undefined : 'free_plus', fallback: 'free_plus', origin: 'panel_settings', resume: { kind: 'toggle', id: el.id }, opener: el });
     }
     return false ;
   }
@@ -6016,7 +6070,7 @@ function efbRequireMobileProEfb(event) {
     event.preventDefault();
     event.stopPropagation();
   }
-  pro_show_efb(efb_var.text.youUseProElements || 1);
+  efb_upgrade_prompt_efb({ feature: 'setting:mobile_layout', fallback: 'pro', origin: 'field_settings' });
   return false;
 }
 
@@ -6616,7 +6670,7 @@ function addClickListenerToElementListEFB(element) {
                               event_selected_row_emsFormBuilder('delete');
                               break;
                           case 'readSelectedRow':
-                              pro ? event_selected_row_emsFormBuilder('read') :pro_show_efb(3);
+                              if (efb_gate_efb('setting:bulk_read', { fallback: 'free_plus', origin: 'responses', resume: { kind: 'callback', name: 'bulk_read' } })) event_selected_row_emsFormBuilder('read');
                               break;
                           case 'setting':
                               fun_show_content_page_emsFormBuilder('setting');
@@ -6649,7 +6703,7 @@ function addClickListenerToElementListEFB(element) {
                           case 'deleteMsg':
                             temp = sanitize_text_efb(dataset.msgid);
                             temp2 = sanitize_text_efb(dataset.trackid);
-                            pro ? emsFormBuilder_delete(temp ,'message',temp2) : pro_show_efb(3);
+                            if (efb_gate_efb('setting:delete_response', { fallback: 'free_plus', origin: 'responses', resume: { kind: 'callback', name: 'delete_response', args: [temp, temp2] } })) emsFormBuilder_delete(temp ,'message',temp2);
 
                           break;
                           default:
@@ -7058,7 +7112,12 @@ function efb_capability_state_efb(key, fallback) {
   if (!c || !c.prompt_state) return fallback;
   return c.prompt_state;
 }
-function efb_capability_prompt_efb(key, fallback) {
+/* F18: the dialog for a registry key. fallback: 3 or 1, the level on a page without the registry.
+   el: the control that asked; once unlocked the focus goes back to it (its id). */
+function efb_capability_prompt_efb(key, fallback, el) {
+  const o = { feature: key, fallback: Number(fallback) === 3 ? 'free_plus' : (Number(fallback) === 1 ? 'pro' : undefined), origin: 'form_settings' };
+  if (el && el.id) { o.resume = { kind: 'focus', id: el.id }; o.opener = el; }
+  if (typeof efb_upgrade_prompt_efb === 'function') return efb_upgrade_prompt_efb(o);
   pro_show_efb(efb_capability_state_efb(key, fallback));
 }
 
@@ -7549,7 +7608,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         </section>
         `
       } else {
-        pro_show_efb(2);
+        efb_upgrade_prompt_efb({ feature: 'limit:steps', fallback: 'free_plus', limit: { max: 2, unit: 'steps' }, resume: { kind: 'add_step' }, origin: 'canvas' });
       }
       break;
     case 'select':
@@ -7858,7 +7917,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         alert_message_efb(efb_var.text.error, efb_var.text.IMAddonP, 20 , 'danger');
         const l = valj_efb.length -1;
         valj_efb.splice(l,1);
-        ui = show_pro_message_for_elm(1);
+        ui = show_pro_message_for_elm('field:stripe');
       }
       break;
         case 'paypal':
@@ -7881,7 +7940,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         alert_message_efb(efb_var.text.iaddon, dataTag, 20 , 'danger');
         const l = valj_efb.length -1;
         valj_efb.splice(l,1);
-        ui = show_pro_message_for_elm(1);
+        ui = show_pro_message_for_elm('field:paypal');
       }
     break;
     case "persiaPay":
@@ -7896,7 +7955,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
           alert_message_efb(efb_var.text.error, efb_var.text.IMAddonP, 20 , 'danger');
           const l = valj_efb.length -1;
           valj_efb.splice(l,1);
-          ui = show_pro_message_for_elm(1);
+          ui = show_pro_message_for_elm('field:persiaPay');
         }
       break;
     case 'heading':
@@ -8056,7 +8115,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     `
     const proActiv = `
     <div class="efb btn-edit-holder efb d-none zindex-10-efb " id="btnSetting-${rndm}-id">
-    <button type="button" class="efb btn efb pro-bg btn-pro-efb btn-sm px-2 mx-3" id="pro" data-id="${rndm}-id" data-bs-toggle="tooltip"  title="${efb_var.text.proVersion}" onclick="pro_show_efb(${['pdate','ardate','persiaPay'].includes(valj_efb[iVJ].type) ? 1 : 3})">
+    <button type="button" class="efb btn efb pro-bg btn-pro-efb btn-sm px-2 mx-3" id="pro" data-id="${rndm}-id" data-bs-toggle="tooltip"  title="${efb_var.text.proVersion}" aria-label="${efb_var.text.upgTipFreePlus || efb_var.text.proVersion}" onclick="efb_upgrade_prompt_efb({feature:'field:${valj_efb[iVJ].elementId || valj_efb[iVJ].type}', fallback:'${['pdate','ardate','persiaPay'].includes(valj_efb[iVJ].type) ? 'pro' : 'free_plus'}', resume:{kind:'focus', id:'${rndm}'}, origin:'canvas', opener:this})">
     <i class="efb  bi-gem pro"> ${efb_var.text.pro}</i>`;
     endTags = previewSate == false ? `</button> </button></div></div>` : `</div></div>`
     const tagId = elementId == "firstName" || elementId == "lastName" || elementId == "address" || elementId == "address_line" || elementId == "postalcode" ? 'text' : elementId;
@@ -8106,18 +8165,24 @@ return `<div class="efb alert alert-danger d-flex align-items-center gap-2 py-3 
     </div>`
 }
 
-const show_pro_message_for_elm = (i) =>{
-  const message = i == 1 ?  efb_var.text.proUnlockMsg: efb_var.text.thisFeatureAvailableFreePlusPro;
-  const fun = i == 1 ?`pro_show_efb(${i})` : `showSetupAsOverlayPage()`;
+/* F18: shown on the canvas in place of a payment field whose plan or add-on is missing. The button
+   names what it does and opens the dialog for that field (the plan, or the add-on install). */
+const show_pro_message_for_elm = (feature) =>{
+  if (typeof feature === 'number' || !feature) feature = 'generic';
+  const need = typeof efb_feature_plan_ok_efb === 'function' && feature !== 'generic' && efb_feature_plan_ok_efb(feature) ? 'addon' : 'plan';
+  const name = typeof efb_feature_label_efb === 'function' && feature !== 'generic' ? efb_feature_label_efb(feature) : '';
+  const message = need === 'addon'
+    ? (efb_var.text.upgAddonNeeded || '%s needs an add-on').replace('%s', name)
+    : (typeof efb_feature_required_efb === 'function' && efb_feature_required_efb(feature) === 'free_plus' ? (efb_var.text.upgInFreePlus || '%s is included in Free Plus — free').replace('%s', name) : (efb_var.text.upgIsPro || '%s is a Pro feature').replace('%s', name));
+  const label = efb_var.text.upgSeeOptions || 'See options';
   return `
     <div class="efb alert alert-warning d-flex align-items-center gap-2 py-3 px-4 rounded-2 border-0" role="alert">
-      <i class="efb bi-gem fs-5" style="color: #ffc107;"></i>
+      <i class="efb bi-gem fs-5" style="color: #ffc107;" aria-hidden="true"></i>
       <div class="efb flex-grow-1">
-        <strong class="efb d-block mb-1">${efb_var.text.proVersion}</strong>
         <small class="efb d-block text-muted">${message}</small>
       </div>
-      <button type="button" class="efb btn btn-sm btn-warning text-dark fw-bold px-3" onclick="${fun}">
-        <i class="efb bi-unlock-fill me-1"></i>
+      <button type="button" class="efb btn btn-sm btn-warning text-dark fw-bold px-3" onclick="efb_upgrade_prompt_efb({feature:'${feature}', origin:'canvas', opener:this})">
+        <i class="efb bi-unlock-fill me-1" aria-hidden="true"></i>${label}
       </button>
     </div>
   `;
@@ -9307,7 +9372,6 @@ let currentViewEfb = 'desktop';
 
 const hiddenMarkEl=(id) =>{ return`
 <div id="${id}-hidden">
-<!--<button type="button" class="efb btn efb pro-bg btn-pro-efb btn-sm px-2 mx-3" id="pro"  data-bs-toggle="tooltip" onclick="pro_show_efb(1)"> -->
 <i class="efb  bi-eye-slash pro efb-hidden mx-3" > ${efb_var.text.hField}</i>
 </div>
 `}

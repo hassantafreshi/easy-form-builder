@@ -381,8 +381,8 @@ const chatHistory = document.getElementById('resp_efb');
       return `
         <span class="efb-editor-toolbar-sep"></span>
         <button type="button" class="efb-editor-btn efb-attach-btn efb-attach-disabled"
-                id="efb_attach_btn" title="${proText}" data-id="${msgId}"
-                onclick="pro_show_efb(3)">
+                id="efb_attach_btn" title="${proText}" data-id="${msgId}" aria-label="${attachTitle}: ${proText}"
+                onclick="efb_upgrade_prompt_efb({feature:'setting:reply_attachments', fallback:'free_plus', origin:'responses', opener:this})">
           <i class="bi bi-paperclip"></i>
           <span class="efb-attach-pro-tag"><i class="bi bi-gem"></i></span>
         </button>`;

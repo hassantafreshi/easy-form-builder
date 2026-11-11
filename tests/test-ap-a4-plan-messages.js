@@ -6,7 +6,10 @@
  * opened state 1 and then fell through to a second message ("install the add-on"), and on Free Plus
  * they asked for an add-on that plan cannot install. The gems of Free Plus settings also opened 1.
  *
- * The real builder runs in Chromium with pro_show_efb / alert_message_efb counted.
+ * The real builder runs in Chromium with the plan dialogs and alert_message_efb counted. Since F18
+ * core opens efb_upgrade_prompt_efb({feature}) instead of pro_show_efb(n); a call is counted as the
+ * state it shows (3 = Free Plus and Pro, 1 = Pro only), read from the feature's level, and the
+ * feature key is recorded too.
  * The second half is a static audit of every pro_show_efb( call site against the F18 audit table.
  *
  * Run: node tests/test-ap-a4-plan-messages.js
@@ -20,8 +23,11 @@ const c = makeChecker();
 async function scenario(label, opts, fn) {
   const h = await openBuilder(Object.assign({ builder: true, form: blankForm() }, opts));
   await h.page.evaluate(() => {
-    window.__calls = { pro: [], alert: [] };
+    window.__calls = { pro: [], alert: [], feature: [] };
     pro_show_efb = (s) => { window.__calls.pro.push(s); };
+    // F18: the state the dialog shows for a feature: its required level (registry, else the caller's fallback).
+    window.__stateOf = (o) => ((o.required || efb_feature_required_efb(o.feature, o.fallback)) === 'free_plus' ? 3 : 1);
+    efb_upgrade_prompt_efb = (o) => { window.__calls.pro.push(window.__stateOf(o)); window.__calls.feature.push(o.feature); return { shown: true }; };
     const a = alert_message_efb;
     alert_message_efb = function () { window.__calls.alert.push(String(arguments[1] || arguments[0])); };
     window.efbOpenSettingIdEfb = null;
@@ -33,7 +39,15 @@ async function scenario(label, opts, fn) {
   await h.browser.close();
 }
 const calls = (page) => page.evaluate(() => JSON.parse(JSON.stringify(window.__calls)));
-const reset = (page) => page.evaluate(() => { window.__calls = { pro: [], alert: [] }; });
+const reset = (page) => page.evaluate(() => { window.__calls = { pro: [], alert: [], feature: [] }; });
+/* The state a gem's onclick opens: pro_show_efb(n), or the level of efb_upgrade_prompt_efb({feature, fallback}). */
+const gemStates = (page, sel) => page.evaluate((sel) => Array.from(document.querySelectorAll(sel)).map((a) => {
+  const g = a.getAttribute('onclick') || '';
+  const old = g.match(/pro_show_efb\((\d)\)/);
+  if (old) return Number(old[1]);
+  const f = g.match(/feature:'([^']+)'/); const fb = g.match(/fallback:'([^']+)'/);
+  return f ? window.__stateOf({ feature: f[1], fallback: fb ? fb[1] : undefined }) : 0;
+}), sel);
 const toggle = async (page, id) => {
   await page.evaluate((i) => { const b = document.getElementById(i); b.classList.add('active'); change_el_edit_Efb(b); }, id);
   await page.waitForTimeout(150);
@@ -46,7 +60,7 @@ const toggle = async (page, id) => {
     await page.evaluate(() => { const el = document.getElementById('thankYouredirectEl'); el.value = 'https://example.com/x'; el.dispatchEvent(new Event('change')); });
     await page.waitForTimeout(150);
     let r = await calls(page);
-    c.check(l + ': redirect opens the Free Plus + Pro dialog (3)', r.pro.length === 1 && r.pro[0] === 3, r);
+    c.check(l + ': redirect opens the Free Plus + Pro dialog (3)', r.pro.length === 1 && r.pro[0] === 3 && r.feature[0] === 'setting:thank_you_redirect', r);
     c.check(l + ': redirect is not stored', await page.evaluate(() => valj_efb[0].thank_you === 'msg' && valj_efb[0].rePage === ''));
     for (const id of ['smsEnableEl', 'telegramEnableEl']) {
       await reset(page);
@@ -55,10 +69,10 @@ const toggle = async (page, id) => {
       c.check(`${l}: ${id} shows exactly one message, the Pro dialog`, r.pro.length === 1 && r.pro[0] === 1 && r.alert.length === 0, r);
       c.check(`${l}: ${id} is switched off again`, await page.evaluate((i) => !document.getElementById(i).classList.contains('active') && !(valj_efb[0].smsnoti == 1 || valj_efb[0].telegramnoti == 1), id));
     }
-    const gems = await page.evaluate(() => Array.from(document.querySelectorAll('#sideMenuConEfb .pro-version-efb:not(.efb-mobile-pro-gem)')).map((a) => a.getAttribute('onclick')));
-    c.check(l + ': every Free Plus gem in the form settings opens the Free Plus + Pro dialog', gems.length >= 3 && gems.every((g) => /pro_show_efb\(3\)/.test(g)), gems);
-    const mobile = await page.evaluate(() => Array.from(document.querySelectorAll('#sideMenuConEfb .efb-mobile-pro-gem')).map((a) => a.getAttribute('onclick')));
-    c.check(l + ': the mobile-layout gem (real Pro) keeps the Pro dialog', mobile.every((g) => /pro_show_efb\(1\)/.test(g)), mobile);
+    const gems = await gemStates(page, '#sideMenuConEfb .pro-version-efb:not(.efb-mobile-pro-gem)');
+    c.check(l + ': every Free Plus gem in the form settings opens the Free Plus + Pro dialog', gems.length >= 3 && gems.every((g) => g === 3), gems);
+    const mobile = await gemStates(page, '#sideMenuConEfb .efb-mobile-pro-gem');
+    c.check(l + ': the mobile-layout gem (real Pro) keeps the Pro dialog', mobile.every((g) => g === 1), mobile);
   });
 
   // Free Plus (pro 1, package 3), SMS / Telegram add-ons are Pro and not installed
@@ -96,8 +110,10 @@ const toggle = async (page, id) => {
   const unexplained = ones.filter((l) => !allowed.some((re) => re.test(l))).map((l) => l.slice(0, 110));
   c.check('every remaining pro_show_efb(1) is a real Pro lock (mobile layout, SMS, Telegram, email stats, Pro add-ons)', unexplained.length === 0, unexplained);
   const val = fs.readFileSync(path.join(ROOT, 'includes/admin/assets/js/val-efb.js'), 'utf8');
+  // F18: the gems name a Free Plus registry key (with fallback 'free_plus' for a page without the registry).
   c.check('Free Plus settings gems (custom required message, colours, email subject/content, redirect) use state 3',
     !/onclick="pro_show_efb\(1\)" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="' \+ \(efb_var\.text\.fieldAvailableInProversion/.test(val)
-    && (val.match(/funProEfb\((3|efb_capability_state_efb\('setting:[a-z_]+', 3\))\)/g) || []).length >= 3); // B3 reads the state from the registry
+    && (val.match(/funProEfb\('setting:(email_sub|email_noti_type|thank_you_redirect)', \{ fallback: 'free_plus'/g) || []).length >= 3
+    && (val.match(/feature:\\'setting:(custom_colors|custom_required_msg)\\', fallback:\\'free_plus\\'/g) || []).length === 7);
   c.done();
 })();

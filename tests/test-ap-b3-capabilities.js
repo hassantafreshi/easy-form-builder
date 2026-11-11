@@ -99,12 +99,17 @@ c.check('EMSFB_API_VERSION = 1 in emsfb.php', /define\("EMSFB_API_VERSION", 1\);
     const out = {};
     window.__calls = [];
     pro_show_efb = (s) => __calls.push(s);
+    // F18: core opens efb_upgrade_prompt_efb({feature}); count it as the state the registry gives it now.
+    const stateOf = (o) => ((o.required || efb_feature_required_efb(o.feature, o.fallback)) === 'free_plus' ? 3 : 1);
+    efb_upgrade_prompt_efb = (o) => { __calls.push(stateOf(o)); return { shown: true }; };
+    const gemState = (a) => { const g = a.getAttribute('onclick') || ''; const m = g.match(/pro_show_efb\((\d)\)/); if (m) return 'pro_show_efb(' + m[1] + ')';
+      const f = g.match(/feature:'([^']+)'/); const fb = g.match(/fallback:'([^']+)'/); return f ? 'pro_show_efb(' + stateOf({ feature: f[1], fallback: fb ? fb[1] : undefined }) + ') ' + f[1] : g; };
     alert_message_efb = () => __calls.push('alert');
     out.freeRedirect = efb_capability_available_efb('setting:thank_you_redirect', true);
     out.freeState = efb_capability_state_efb('setting:thank_you_redirect', 1);
     show_setting_window_efb('formSet');
     await new Promise((r) => setTimeout(r, 200));
-    out.gems = Array.from(document.querySelectorAll('#sideMenuConEfb .pro-version-efb:not(.efb-mobile-pro-gem)')).map((a) => a.getAttribute('onclick'));
+    out.gems = Array.from(document.querySelectorAll('#sideMenuConEfb .pro-version-efb:not(.efb-mobile-pro-gem)')).map(gemState);
     // The registry decides: say the email subject became Pro only; the gate's dialog follows.
     // (efb_var is frozen in the builder; efb_var_patch_efb() is how the page replaces it.)
     const caps = JSON.parse(JSON.stringify(efb_var.capabilities));
@@ -118,7 +123,7 @@ c.check('EMSFB_API_VERSION = 1 in emsfb.php', /define\("EMSFB_API_VERSION", 1\);
     window.efbOpenSettingIdEfb = null; document.getElementById('sideBoxEfb').classList.remove('show');
     show_setting_window_efb('formSet');
     await new Promise((r) => setTimeout(r, 200));
-    out.subjectGem = document.getElementById('FormEmailSubjectEl').parentElement.querySelector('.pro-version-efb').getAttribute('onclick');
+    out.subjectGem = gemState(document.getElementById('FormEmailSubjectEl').parentElement.querySelector('.pro-version-efb'));
     // A plan change in the page (efb_apply_package_type_efb writes setting.package_type) is honoured.
     efb_apply_package_type_efb(3);
     out.afterChange = efb_capability_available_efb('setting:thank_you_redirect', false);

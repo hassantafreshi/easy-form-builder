@@ -1,4 +1,4 @@
-وضعیت: در حال پیاده‌سازی (A تا D انجام شد) · اولویت: P0 · تلاش: M · وابستگی: — (F16 برای الگوی فوکوس دیالوگ؛ هم‌زمان با کار ماسک F01 فایل‌های JS/PHP مشترک را ویرایش نکنید مگر پس از ادغام آن)
+وضعیت: در حال پیاده‌سازی (A تا E انجام شد) · اولویت: P0 · تلاش: M · وابستگی: — (F16 برای الگوی فوکوس دیالوگ؛ هم‌زمان با کار ماسک F01 فایل‌های JS/PHP مشترک را ویرایش نکنید مگر پس از ادغام آن)
 
 # F18 — پنجرهٔ ارتقا: فعال‌سازی درجای Free Plus و خرید Pro
 
@@ -478,12 +478,43 @@ do_action('efb_plan_changed', int $old, int $new, array $context); // context: s
 - پذیرش: `grep -rn "pro_show_efb(" includes public` فقط shim را نشان می‌دهد. هر محل `feature` و `resume` درست دارد. جدول §۲.۳ با ستون «پس از کار» در Checkpoint به‌روز می‌شود.
 - تست‌ها: `node tests/test-upgrade-prompt-callsites.js` (اسکن ایستا: نبود `pro_show_efb(` و `onclick` با عدد؛ هر `efb_upgrade_prompt_efb` کلید معتبر رجیستری دارد).
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint** (انجام شد، ۲۰ آبان ۱۴۰۵)
+- ممیزی دوباره پس از AutoPilot A4: عددهای ۱/۳ در ردیف‌های ۱، ۳-۹، ۱۲، ۱۶-۱۸، ۲۰، ۳۳، ۳۶، ۳۷، ۳۹-۴۱ را A4 درست کرده بود و B3 دروازه و متن ریدایرکت، موضوع و محتوای ایمیل، بارگذاری، SMS و Telegram را به رجیستری برده بود. شماره‌خط‌ها جابه‌جا شده‌اند. زیرتسک E همهٔ ۴۳ محل را از عدد به **کلید ویژگی** برد:
+
+| ردیف §۲.۳ | پس از کار |
+|---|---|
+| 1، 12 | `setting:reply_attachments` (gem جعبهٔ پاسخ؛ پس از فعال‌سازی گیره واقعی می‌شود، D) |
+| 2، 29 | `setting:mobile_layout` (Pro، `fallback: 'pro'`)؛ متن `youUseProElements` حذف شد |
+| 3 | `setting:custom_required_msg`، `resume: focus customRequiredMsgEl` |
+| 4-9 | `setting:custom_colors`، `resume: focus` همان ورودی رنگ |
+| 10، 11 | کاشی پالت: `field:<id>` از رجیستری؛ `pdate`/`ardate`/`persiaPay` Pro؛ `resume: add_field`؛ قفل برای ۰، ‎-1 و ۱۰ هم (باگ ۵ و ۶ بخش ۲۱) |
+| 13، 26 | `addon:<code>` با سطح پاسخ سرور یا جدول add-on |
+| 14، §۲.۴ کارت قالب | `template:payment` با `resume: callback create_template`؛ قفل برای ۰، ‎-1 و ۱۰ هم (`efb_template_plan_ok_efb`) |
+| 15، 16 | `funProEfb('addon:…' / 'setting:…', opts)` (عدد هنوز پذیرفته می‌شود)؛ دکمهٔ کارت add-on `addon:<code>` |
+| 17، 18، 23، 24 | `setting:sms_notifications` / `setting:telegram_notifications` (Pro؛ Free Plus هم S3 می‌گیرد، نه «add-on را نصب کنید») |
+| 19-22، 25 | `efb_capability_prompt_efb(key, fallback, el)` → دیالوگ با `resume: focus` همان کنترل |
+| 27 | `setting:hidden_disabled`، `resume: toggle` |
+| 28 | `setting:response_captcha` / `response_upload` / `response_download` / `response_admin_login`، `resume: toggle` |
+| 30، 36 | `efb_gate_efb('setting:bulk_read')`، `resume: callback bulk_read` |
+| 31 | `efb_gate_efb('setting:delete_response')`، `resume: callback delete_response` |
+| 32 | `limit:steps` (S5)، `resume: add_step` |
+| 33 | `field:<type>` روی بوم، `resume: focus` همان فیلد |
+| 34 | `show_pro_message_for_elm('field:stripe'|'field:paypal'|'field:persiaPay')` با دکمهٔ متن‌دار |
+| 35 | کامنت مرده حذف شد |
+| 37 | `setting:map_key` و `setting:payment_keys`: ورودی readonly که با اولین کلیک یا کلید دیالوگ را باز می‌کند (باگ ۸)؛ پس از فعال‌سازی باز می‌شود |
+| 38 | `efb_gate_efb('setting:response_colors')`، `resume: callback open_color_modal` |
+| 39 | `setting:sender_email` (همان الگوی ۳۷) |
+| 40 | `setting:weekly_report`، `resume: toggle` (پرسش باز ۳ هنوز باز؛ سطح همان کد امروز) |
+| 41 | `setting:email_footer` |
+| 42 | `setting:email_stats_off` (Pro) |
+| 43 | `addon:AdnSS`: Free و Free Plus دیالوگ Pro؛ Pro بدون add-on همان پیام نصب |
+| §۲.۴ ذخیره | `form:locked_fields` با نام فیلدها (`upgLockedFieldsList`) و `required: pro` اگر یکی Pro باشد؛ پس از فعال‌سازی فرم ذخیره می‌شود (`resume: callback save_form`) |
+
+- فایل‌های تغییرکرده: `admin-efb.js`، `val-efb.js`، `list_form-efb.js`، `pro_els-efb.js`، `response-viewer-efb.js`، `plan-gate-efb.js` (`efb_gate_efb`، پارامتر `fallback` برای صفحهٔ بدون رجیستری)، `builder-api-efb.js` (`newItems()` دیالوگ تازه را هم مثل `pro_show_efb` نگه می‌دارد تا `plan_required` درست بماند)، `functions.php` و `.po` (`upgLockedFieldsList`).
+- تست‌ها: `node tests/test-upgrade-prompt-callsites.js` روی کد زیرتسک D: 2 passed، 4 failed؛ پس از کار: 6 passed (۲۸ کلید لفظی همه در رجیستری، ۳۱ محل ممیزی‌شده، `opener:this` در هر onclick). **تغییر در تست‌های موجود:** `tests/test-ap-a4-plan-messages.js` و `tests/test-ap-b3-capabilities.js` فراخوانی `pro_show_efb` را می‌شمردند که هسته دیگر صدا نمی‌زند؛ اکنون `efb_upgrade_prompt_efb` را هم رهگیری می‌کنند و هر فراخوانی را با سطح ویژگی‌اش (رجیستری زنده، یا `fallback`) به همان عدد ۳/۱ تبدیل می‌کنند. هیچ assertion حذف یا سست نشد؛ A4 علاوه بر عدد، کلید `setting:thank_you_redirect` را هم می‌سنجد. نتیجه: A4 16، B3 49. بقیهٔ مرتبط‌ها سبز: rerender 19، states 58، registry 13، B1 22، B2 30، B4 11، B5 6، B8 8، contract 16، A3 20، A7 13، plan selection 23، masks builder 50، logic gating 53، response viewer escaping 46، A6 8، B7 4.
+- وضعیت ترجمه: `upgLockedFieldsList` با فارسی. کلیدهای `youUseProElements`، `fieldAvailableInProversion` و `availableInProversion` هنوز در چند tooltip قدیمی به کار می‌روند و حذف نشدند.
+- مورد باز: `pro_show_efb` در خود add-on منطق شرطی (`vendores-efb/logic`) هنوز با عدد ۳ صدا زده می‌شود و از راه shim دیالوگ عمومی Free Plus را می‌دهد؛ وصلهٔ پیشنهادی در §۱۱.
+- اقدام بعدی: زیرتسک F (اجرای `resume` و reload ایمن).
 
 ### F. ادامهٔ کار (`resume`) و reload ایمن
 - فایل‌ها: `plan-gate-efb.js` (`EFB_RESUME_FNS_EFB`، اجرای `resume`، `sessionStorage.efb_resume_efb`)، `admin-efb.js` (بررسی resume پس از `editFormEfb`/بارگذاری)، مسیر نصب add-on (`actionSendAddons_efb`، 1076-1083) پیش از `location.reload()`.

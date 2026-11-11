@@ -194,7 +194,7 @@ function efb_upg_link_efb(kind) {
 /** The state of §4.2 for a request. */
 function efb_upgrade_state_efb(opts, pkg) {
   var feature = opts.feature || 'generic';
-  var need = efb_feature_required_efb(feature, opts.required);
+  var need = efb_feature_required_efb(feature, opts.required || opts.fallback);
   if (opts.required && EFB_PLAN_RANK_EFB.hasOwnProperty(opts.required)) need = opts.required;
   var p = pkg === undefined ? efb_current_package_efb() : pkg;
   if (!efb_can_change_plan_efb()) return 'S7';
@@ -213,6 +213,18 @@ function efb_upg_event_efb(action, extra) {
   var detail = { action: action, feature: o.feature || 'generic', required: s ? s.need : (o.required || null), origin: o.origin || null, state: s ? s.view : null };
   if (extra && extra.detail) for (var k in extra.detail) detail[k] = extra.detail[k];
   try { document.dispatchEvent(new CustomEvent('efb:upgrade-prompt', { detail: detail })); } catch (e) { /* no DOM */ }
+}
+
+/**
+ * The gate every locked control uses: true when the feature can be used now (plan and add-on,
+ * read live), else the upgrade dialog opens for it and the answer is false. opts as
+ * efb_upgrade_prompt_efb(); opts.fallback is the level to assume on a page without the registry.
+ */
+function efb_gate_efb(key, opts) {
+  opts = opts || {};
+  if (efb_feature_available_efb(key, undefined, opts.fallback)) return true;
+  efb_upgrade_prompt_efb(Object.assign({ feature: key }, opts));
+  return false;
 }
 
 /* "Not now" three times for one feature in this session: the next click shows a small inline
@@ -236,7 +248,7 @@ function efb_upg_inline_tip_efb(opts) {
   tip.id = 'efbUpgTipEfb';
   tip.className = 'efb efb-upg-tip';
   tip.setAttribute('role', 'status');
-  var need = efb_feature_required_efb(opts.feature || 'generic', opts.required);
+  var need = efb_feature_required_efb(opts.feature || 'generic', opts.required || opts.fallback);
   tip.textContent = need === 'free_plus' ? efb_upg_t_efb('upgTipFreePlus', 'Included in Free Plus (free)') : efb_upg_t_efb('upgTipPro', 'Pro feature');
   var more = document.createElement('button');
   more.type = 'button';
@@ -272,7 +284,7 @@ function efb_upgrade_prompt_efb(opts) {
     efb_upg_inline_tip_efb(opts);
     return { shown: false, state: 'tip' };
   }
-  var need = efb_feature_required_efb(opts.feature, opts.required);
+  var need = efb_feature_required_efb(opts.feature, opts.required || opts.fallback);
   if (opts.required && EFB_PLAN_RANK_EFB.hasOwnProperty(opts.required)) need = opts.required;
   efb_upg_state_efb = { opts: opts, view: view, need: need, busy: false, opener: opts.opener || null, done: false };
   efb_upg_render_efb(view);

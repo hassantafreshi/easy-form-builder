@@ -362,7 +362,7 @@
       valj: valj_efb, step: step_el_efb, amount: amount_el_efb, type: form_type_emsFormBuilder,
       setTimeout: window.setTimeout, buttons: (typeof add_buttons_zone_efb !== 'undefined') ? add_buttons_zone_efb : null,
       style: window.fun_addStyle_costumize_efb, warn: window.efb_builder_maybe_warn_email_delivery,
-      pro: window.pro_show_efb, iti: window.load_intlTelInput_efb,
+      pro: window.pro_show_efb, upg: window.efb_upgrade_prompt_efb, iti: window.load_intlTelInput_efb,
     };
     var row0 = clone(live[0] || { type: 'form', steps: 1 });
     var stepRow = clone(live[1] && live[1].type === 'step' ? live[1] : { type: 'step', id_: '1', dataId: '1', step: 1, amount: 1 });
@@ -378,6 +378,8 @@
       window.fun_addStyle_costumize_efb = function () {};
       window.efb_builder_maybe_warn_email_delivery = function () {};
       window.pro_show_efb = function () { blocked = true; };
+      // F18: core locks open efb_upgrade_prompt_efb() directly; a template must never show it.
+      if (saved.upg) window.efb_upgrade_prompt_efb = function () { blocked = true; return { shown: false }; };
       window.load_intlTelInput_efb = function () {};
       try {
         parts.forEach(function (p) { addNewElement(p, randomId(), false, false); });
@@ -401,6 +403,7 @@
       window.fun_addStyle_costumize_efb = saved.style;
       window.efb_builder_maybe_warn_email_delivery = saved.warn;
       window.pro_show_efb = saved.pro;
+      if (saved.upg) window.efb_upgrade_prompt_efb = saved.upg;
       window.load_intlTelInput_efb = saved.iti;
     }
     if (blocked || out.length === 0) throw fail('plan_required', 'The builder refused ' + paletteId + ' on this plan.');

@@ -15770,3 +15770,10 @@ msgstr "Free Plus یک پیوند معرفی در صفحه‌های شما نش�
 #: includes/functions.php
 msgid "To finish, the page reloads now."
 msgstr "برای تکمیل، صفحه اکنون دوباره بارگذاری می‌شود."
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: in the upgrade dialog when a form with locked fields is saved. %s: the field names
+#: includes/functions.php
+#, php-format
+msgid "This form uses: %s."
+msgstr "این فرم از این‌ها استفاده می‌کند: %s."

@@ -591,7 +591,7 @@ function fun_clear_esign_efb(id) {
       ${btnC}
     </div>`
     }else{
-      const $pr = `<a type="button" class="efb pro-v-btn" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}" onclick="pro_show_efb(3)"><i class="efb  bi-gem text-light" ></i></a>`;
+      const $pr = `<a type="button" class="efb pro-v-btn" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}" aria-label="${efb_var.text.upgFtrReplyAttach || efb_var.text.file}" role="button" tabindex="0" data-efb-lock="setting:reply_attachments" onclick="event.stopPropagation();efb_upgrade_prompt_efb({feature:'setting:reply_attachments', fallback:'free_plus', origin:'responses', opener:this})"><i class="efb  bi-gem text-light" aria-hidden="true"></i></a>`;
       if (page_state_efb=="panel") btnC =`<div class="efb col fs-5 h-d-efb pointer-efb text-darkb d-flex justify-content-end">
       <button type="button" class="efb btn mt-1 efb ${stock_state_efb ==true ? 'btn-outline-success' :"btn-outline-pink"} "id="respStateEfb">
       <i class="efb  bi-x-lg mx-1 efb mobile-text">${stock_state_efb ==true ?  efb_var.text.open : efb_var.text.close}</i>
