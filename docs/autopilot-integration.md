@@ -613,7 +613,14 @@ README row AP), the changelog entry "برای یکپارچگی با AutoPilot" i
 - Storing `rePage` as a plain URL (A3): Part C lists the `@efb@` shape as relied upon; plain URLs
   are accepted on read instead.
 - The F18 dialog redesign (A4/B3): only the dialog states were corrected and the registry built; the
-  dialog itself is F18's task.
+  dialog itself was F18's task. **Since done (F18, `docs/feature-gaps/F18-upgrade-prompt-ux.fa.md`):**
+  core opens `efb_upgrade_prompt_efb({feature})` (registry key) instead of `pro_show_efb(n)` (kept as a
+  shim); a plan change in the page goes through `efb_on_plan_changed_efb()` and fires
+  `efb:plan-changed` (`detail {package_type, previous, plan, source, feature}`); the server fires
+  `do_action('efb_plan_changed', $old, $new, $context)`. AutoPilot may open the dialog
+  (`efb_upgrade_prompt_efb({feature, origin:'sitepilot'})` or the URL
+  `admin.php?page=Emsfb_create&efb_upgrade=<feature>&efb_origin=sitepilot`); only a person's click on
+  its button activates Free Plus (the button ignores scripted clicks).
 - Loading an add-on's scripts in place after install (B8): each add-on enqueues its scripts and data
   in PHP on page load; a partial in-page load would leave it half initialised. The reload can be
   postponed by the listener instead.

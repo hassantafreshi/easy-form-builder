@@ -1092,6 +1092,7 @@ named the same thing differently, the brief's name was used (AutoPilot is the co
 | `efb_plan_efb()`, `efb_plan_at_least_efb()`, F18 `efb_feature_*` | shipped with these names, one registry behind them |
 | `manifest.plan` / `features` | `capabilities_efb()` (`plan`, `features`, `addons`, `payment_keys` as booleans, `deprecated_keys`) |
 | validate for logic rules | `efb_logic_validate_rules($form)` (codes in `docs/logic-rules-schema.md`) |
+| F18 upgrade flow (§4.4) | shipped: `efb_upgrade_prompt_efb({feature, origin:'sitepilot'})` / `admin.php?page=Emsfb_create&efb_upgrade=<feature>&efb_origin=sitepilot` opens the dialog, never activates (scripted clicks are refused); `efb:plan-changed` in the page; `do_action('efb_plan_changed', $old, $new, $context)`; `efb_can_change_plan_efb()`; Free Plus from the dialog needs `credit_ack` |
 
 Server-side for every gateway that uses `fun_validation_pay_elements_efb()`: a price field computed by
 a logic rule is priced by the server (`Builder_Api::apply_server_prices()`). Not shipped yet: the

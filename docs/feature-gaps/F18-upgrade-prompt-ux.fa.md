@@ -329,7 +329,7 @@ function efb_plan_subscribe_efb(name, fn) {}           // add-onها (منطق �
 
 ## ۱۱. منطق شرطی
 
-add-on منطق (git-ignored) باید به‌جای upsell خودش `efb_upgrade_prompt_efb({feature:'addon:AdnSMF'})` برای Free و `{feature:'limit:logic_rules', limit:{max:3, unit:'rules'}}` برای Free Plus را صدا بزند و به `efb:plan-changed` گوش دهد. تست `tests/test-conditional-logic-plan-gating.js` باید سبز بماند. پس از فعال‌سازی Free Plus، add-on `AdnSMF` هنوز نصب نیست، پس S8 لازم است.
+add-on منطق (git-ignored) باید به‌جای upsell خودش `efb_upgrade_prompt_efb({feature:'setting:logic_rules'})` برای Free و `{feature:'limit:logic', limit:{max:3, unit_label:'…'}}` برای Free Plus را صدا بزند و به `efb:plan-changed` گوش دهد. (کلیدهای واقعی رجیستری `setting:logic_rules` و `limit:logic` هستند، نه `addon:AdnSMF`/`limit:logic_rules`.) **وضعیت پس از پیاده‌سازی:** add-on محدودیت‌ها را در هر باز شدن پنل از `efb_var.pro` و `efb_var.setting.package_type` زنده می‌خواند، پس پس از فعال‌سازی درجا درست است (`test-conditional-logic-plan-gating.js` 53 passed). فراخوانی `pro_show_efb(3)` آن از راه shim دیالوگ عمومی Free Plus را باز می‌کند. وصلهٔ پیشنهادی در `vendores-efb/logic/logic/assets/admin/js/conditional-logic-efb.js` (این مخزن نیست): در `getPlanTier() === 'free'` به‌جای `pro_show_efb(3)` فراخوانی `efb_upgrade_prompt_efb({feature: 'setting:logic_rules', origin: 'logic'})` در صورت وجود، و یک `document.addEventListener('efb:plan-changed', …)` که پنل باز را دوباره رسم کند. تست `tests/test-conditional-logic-plan-gating.js` باید سبز بماند. پس از فعال‌سازی Free Plus، add-on `AdnSMF` هنوز نصب نیست، پس S8 لازم است.
 
 ## ۱۲. کش و امنیت
 
@@ -350,7 +350,7 @@ SitePilot (ADR-0002: EFB نخستین connector با قابلیت‌های `form
 
 **وضعیت (۲۰ آبان ۱۴۰۵):** رجیستری این بخش با پیاده‌سازی AutoPilot (B3) ساخته شد: `\Emsfb\Builder_Api::capabilities()` = `get_efbFunction()->capabilities_efb()` و در JS `efb_var.capabilities` با کلیدهای `field:*`، `setting:*`، `addon:*` و `limit:*`، و توابع زیر با همین نام‌ها در `includes/builder-api-functions-efb.php` (خروجی `efb_feature_required_package_efb` همان ۰/۳/۱ است). زیرتسک A این سند باید دیالوگ را روی همین رجیستری بسازد و جدول دوم نسازد. ممیزی §۲.۳ در بند A4 همان کار برای عدد پیام‌ها اعمال شده است (جزئیات در `docs/autopilot-integration.md`).
 
-**PHP، فقط‌خواندنی** (در `includes/functions.php`، تابع سراسری با `function_exists`):
+**PHP، فقط‌خواندنی** (پیاده‌شده در `includes/builder-api-functions-efb.php`، نه `functions.php`؛ تابع سراسری با `function_exists`). امضاهای واقعی: `efb_feature_registry_efb(?int $package = null)` و `efb_feature_available_efb(string $feature, ?int $package = null)` (پلن و add-on)، و افزون بر آن‌ها `efb_plan_efb()`، `efb_plan_at_least_efb()` و `efb_can_change_plan_efb()`:
 ```php
 efb_current_package_efb(): int            // 0|1|2|3؛ ‎-1 و 10 → 2. فقط get_option، بدون تماس شبکه و بدون is_efb_pro (که ممکن است گزینه را بنویسد)
 efb_plan_chosen_efb(): bool               // false برای ‎-1 و 10
@@ -364,7 +364,7 @@ do_action('efb_plan_changed', int $old, int $new, array $context); // context: s
 - connector `form.create` پیش از ذخیره برای هر فیلد `efb_feature_available_efb('field:'.$type)` را بررسی می‌کند. فیلد غیرمجاز ذخیره نمی‌شود و پاسخ `needs_plan` با فهرست `{feature, required}` برمی‌گردد. دستیار به مدیر می‌گوید: «این فرم به Free Plus نیاز دارد. فعال شود؟»
 - پاسخ «بله» در چت پلن را عوض **نمی‌کند**. دستیار مدیر را به `admin.php?page=Emsfb_create&efb_upgrade=<feature>&efb_origin=sitepilot` می‌فرستد یا در صفحهٔ پیشخوانی که باز است `efb_upgrade_prompt_efb({feature, origin:'sitepilot'})` را صدا می‌زند. فعال‌سازی فقط با کلیک انسان روی دکمهٔ دارای افشا انجام می‌شود.
 - تغییر پلن در کاتالوگ قابلیت‌های SitePilot قرار نمی‌گیرد. endpoint REST برای آن ساخته نمی‌شود. `efb_save_plan_selection` فقط AJAX مدیر با کوکی، nonce، دسترسی مدیریت افزونه و `credit_ack` است، و در JS دکمهٔ فعال‌سازی فقط به کلیک واقعی (`event.isTrusted`) پاسخ می‌دهد. دستیار سمت بازدیدکننده (`Frontend/ChatWidget.php`) نشست مدیر ندارد و به آن دسترسی ندارد. اگر handler در `wp_doing_cron()` یا درخواست REST صدا زده شود، رد می‌شود.
-- JS: رویدادهای `efb:plan-changed` (§۶) و `efb:upgrade-prompt` با `detail: {action: 'shown'|'activate'|'buy'|'dismiss'|'error', feature, required, origin}` روی `document`. هیچ رویدادی به بیرون فرستاده نمی‌شود. `gtag` موجود (`val-efb.js:5182`) حذف می‌شود، چون رویداد افزونه را بدون رضایت به Analytics سایت می‌فرستد (پرسش باز ۴).
+- JS: رویدادهای `efb:plan-changed` (§۶؛ `detail: {package_type, previous, plan, source, feature}`) و `efb:upgrade-prompt` با `detail: {action: 'shown'|'activate'|'activated'|'buy'|'licence'|'install'|'dismiss'|'error'|'refused', feature, required, origin, state}` روی `document`. دکمهٔ فعال‌سازی فقط به کلیک واقعی (`event.isTrusted`) پاسخ می‌دهد؛ کلیک اسکریپتی رویداد `refused` می‌دهد. پیوند `admin.php?page=Emsfb_create&efb_upgrade=<feature>&efb_origin=sitepilot` دیالوگ را باز می‌کند و فعال نمی‌کند (زیرتسک H). هیچ رویدادی به بیرون فرستاده نمی‌شود. `gtag` موجود (`val-efb.js:5182`) حذف می‌شود، چون رویداد افزونه را بدون رضایت به Analytics سایت می‌فرستد (پرسش باز ۴).
 
 ## ۱۵. سطح نسخه
 
@@ -533,12 +533,13 @@ do_action('efb_plan_changed', int $old, int $new, array $context); // context: s
 - پذیرش: `php tests/core-i18n/check-locale.php --locale=<each> --quiet` برای ۷۰ زبان PASS. وضعیت «implemented»، «tested»، «pack built» و «published» جدا گزارش می‌شود.
 - تست‌ها: `php tests/core-i18n/extract.php` و `delta.php`.
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint** (بخشی انجام شد، ۲۰ آبان ۱۴۰۵)
+- فایل‌های تغییرکرده: `includes/functions.php` (۶۳ کلید تازه با `/* translators: F18: … */`، کنار کلیدهای AutoPilot، همه در `text_efb(1)` و `text_efb(2)`؛ `upgAdminFieldNote` و `upgAdminFieldLink` در زیرمجموعهٔ عمومی `class-Emsfb-public.php`)، `languages/easy-form-builder-fa_IR.po` (۶۰ ورودی تازهٔ فارسی؛ چهار msgid از پیش بود؛ یک پیام سرور با `__()`).
+- کلیدها: `upgFtrMobileLayout`، `upgFtrHideDisable`، `upgFtrRequiredMsg`، `upgFtrColors`، `upgFtrReplyAttach`، `upgFtrSenderEmail`، `upgFtrEmailCredit`، `upgFtrBulkRead`، `upgFtrDeleteResponse`، `upgFtrPaymentKeys`، `upgFtrMapKey`، `upgFtrPaymentForm`، `upgFtrLockedFields`، `upgDialogTitle`، `upgDialogTitleGeneric`، `upgInFreePlus`، `upgThisInFreePlus`، `upgIsPro`، `upgThisIsPro`، `upgThisFeature`، `upgFreePlusBody`، `upgCreditDisclosure`، `upgCreditWhat`، `upgCreditPreview`، `upgCreditMeta`، `upgActivateFreePlus`، `upgActivating`، `upgGetProNoCredit`، `upgGetPro`، `upgNotNow`، `upgHaveKey`، `upgProBody`، `upgNotInFreePlus`، `upgOnFreePlus`، `upgLapsedTitle`، `upgLapsedBody`، `upgRenewPro`، `upgCheckLicence`، `upgUseFreePlus`، `upgRemovesKey`، `upgSwitchFreePlus`، `upgBack`، `upgStepsTitle`، `upgStepsBody`، `upgLimitTitle`، `upgAskAdmin`، `upgFreePlusOn`، `upgAddonNeeded`، `upgAddonNext`، `upgInstallAddon`، `upgReadyToast`، `upgFailed`، `upgTryAgain`، `upgSessionExpired`، `upgNewTab`، `upgNeedsClick`، `upgTipFreePlus`، `upgTipPro`، `upgSeeOptions`، `upgReloading`، `upgLockedFieldsList`، `upgAdminFieldNote`، `upgAdminFieldLink`؛ و پیام سرور «Free Plus shows a credit link on your pages. Please activate it from the button that explains this.»
+- تست‌ها: بررسی ساختار `.po` (۶۰ ورودی F18، msgstr خالی ندارد، placeholderها در en و fa یکسان‌اند؛ تنها msgid تکراری فایل، «Easy Form Builder»، از پیش بود). `php tests/core-i18n/extract.php` اجرا **نشد**: `tests/core-i18n/lib.php` به `wp-includes/compat.php` یک checkout وردپرس نیاز دارد که اینجا نیست (همان مانع AutoPilot).
+- وضعیت ترجمه: fa_IR: implemented بله، tested بله (تست‌های مرورگر با متن واقعی فارسی)، pack built **نه** (`.mo`/`.l10n.php` طبق دستور مالک ساخته نشد)، published نه. ۶۸ زبان دیگر: **باز**.
+- مورد باز: اجرای `extract.php`، سپس skill `efb-core-i18n-translate` فقط برای delta و `check-locale.php --quiet` برای هر زبان، در محیطی با WordPress و مخزن WhiteStudio؛ سپس `build.php --only=fa_IR,…`. کلیدهای بی‌استفاده پس از کار (`freePlusUnlocksThis`، `proFeatureTitle`، `freePlusActivation`، `planFreePlusDesc`، `planProDesc`، `ifYouNeedCreateMoreThan2Steps`) حذف نشدند.
+- اقدام بعدی: اجرای pipeline ترجمه در محیط دارای WordPress.
 
 ### H. صفحهٔ عمومی و پیوند مدیر
 - فایل‌ها: `class-Emsfb-formbuilder.php` (`public_pro_message_efb` با `upgAdminFieldNote` و پیوند `efb_upgrade`)، و `admin-efb.js`/`val-efb.js` (خواندن `efb_upgrade` از URL و باز کردن دیالوگ پس از آماده شدن سازنده).
@@ -586,13 +587,14 @@ do_action('efb_plan_changed', int $old, int $new, array $context); // context: s
 
 ## ۲۰. پرسش‌های باز
 
-1. آیا برای رهنمود ۱۰ checkbox صریح «موافقم که نوشته نمایش داده شود» لازم است؟ پیشنهاد: نه؛ افشای کنار دکمه کافی است. در صورت اعتراض بازبین، checkbox با پیش‌فرض خاموش اضافه شود.
+1. آیا برای رهنمود ۱۰ checkbox صریح «موافقم که نوشته نمایش داده شود» لازم است؟ پیشنهاد: نه؛ افشای کنار دکمه کافی است. در صورت اعتراض بازبین، checkbox با پیش‌فرض خاموش اضافه شود. **پیاده‌شده طبق پیشنهاد** (بدون checkbox؛ افشا کنار دکمه و `credit_ack` در سرور).
 2. ~~محدود کردن تغییر پلن به `manage_options`؟~~ **تصمیم مالک:** دسترسی مدیریت افزونه (`manage_options` یا `Emsfb`) کافی است، ولی فعال‌سازی Free Plus از دیالوگ nonce و `credit_ack` می‌خواهد. پیاده شد (زیرتسک C).
-3. گزارش هفتگی: کد آن را Free Plus می‌داند (`list_form-efb.js:1324`، `class-Emsfb-email-monitor.php:846`) ولی `readme.txt:326` می‌گوید «در همهٔ نسخه‌ها». کدام درست است؟
-4. حذف `gtag('event','plan_selected')`: پیشنهاد: حذف، و جایگزینی با `efb:upgrade-prompt` محلی.
-5. JSON-LD، `<link rel="author">` و meta `generator` هم بخشی از «اعتبار» هستند. آیا Free Plus باید فقط نوشتهٔ قابل‌مشاهده را اضافه کند؟ این کار افشا را ساده‌تر و صادقانه‌تر می‌کند.
-6. برای کاربر fa_IR، قالب «فرم پرداخت» با درگاه ایرانی (AdnPPF، Pro) کار می‌کند. آیا S1 باید بگوید «Stripe و PayPal با Free Plus؛ درگاه ایرانی با Pro»؟
-7. کنترل‌های موبایل امروز Pro واقعی‌اند (`package_type==1`). مالک در پیام اخیر آن‌ها را در فهرست چیزهایی آورده که با Free Plus باز می‌شوند. سطح درست کدام است؟ این سند کد فعلی (Pro) را مبنا گرفته است.
+3. گزارش هفتگی: کد آن را Free Plus می‌داند (`list_form-efb.js:1324`، `class-Emsfb-email-monitor.php:846`) ولی `readme.txt:326` می‌گوید «در همهٔ نسخه‌ها». کدام درست است؟ **باز.** پیاده‌سازی سطح امروز کد (Free Plus، `setting:weekly_report`) را نگه داشت.
+4. حذف `gtag('event','plan_selected')`: پیشنهاد: حذف، و جایگزینی با `efb:upgrade-prompt` محلی. **پیاده‌شده طبق پیشنهاد** (زیرتسک D).
+5. JSON-LD، `<link rel="author">` و meta `generator` هم بخشی از «اعتبار» هستند. آیا Free Plus باید فقط نوشتهٔ قابل‌مشاهده را اضافه کند؟ این کار افشا را ساده‌تر و صادقانه‌تر می‌کند. **جهت مالک:** Free Plus فقط پیوند قابل‌مشاهده را نگه دارد؛ ولی کد دادهٔ ساختاریافته در این کار تغییر نکرد و پرسش باز ماند. تا تغییر آن کد، افشا (`upgCreditMeta` در بخش بازشوی «چه چیزی نمایش داده می‌شود؟») آن را صادقانه می‌گوید.
+6. برای کاربر fa_IR، قالب «فرم پرداخت» با درگاه ایرانی (AdnPPF، Pro) کار می‌کند. آیا S1 باید بگوید «Stripe و PayPal با Free Plus؛ درگاه ایرانی با Pro»؟ **باز.** متن S1 فعلاً همان §۴.۳ است.
+7. کنترل‌های موبایل امروز Pro واقعی‌اند (`package_type==1`). مالک در پیام اخیر آن‌ها را در فهرست چیزهایی آورده که با Free Plus باز می‌شوند. سطح درست کدام است؟ این سند کد فعلی (Pro) را مبنا گرفته است. **تصمیم مالک:** همان Pro بماند (پیاده‌شده: `setting:mobile_layout` → S2/S3).
+8. (تازه) قیمت فارسی در دیالوگ از ترجمهٔ ثابت `priceyr` می‌آید، نه از `pro_price_efb`. قیمت بومی از سرور (§۱۹) هنوز ساخته نشده است.
 
 ## ۲۱. باگ‌های یافته‌شده در مسیر
 
