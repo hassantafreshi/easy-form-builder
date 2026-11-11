@@ -2012,6 +2012,34 @@ fun_get_links_from_string_Efb=(str , handler)=>{
 
 }
 
+/* efbOrderOf:start */
+/* Sort position of one row of valj_efb.
+   The numbering rule (kept since 3.x, and what AutoPilot writes):
+   - fields and steps are numbered one after another in form order (`amount`);
+   - an option row (type 'option') or a matrix row (type 'r_matrix') carries the
+     `amount` of its parent field, so it never takes a slot of its own.
+   The builder writes numbers, but a saved form comes back with every amount and
+   step as a string ("10"), and "10" > "9" is false as text. Every comparison of
+   two positions goes through this helper, and efbNormalizeOrderEfb() turns the
+   strings back into numbers when a form is loaded (builder and public page). */
+function efbOrderOf(item) {
+  if (!item || typeof item !== 'object') return 0;
+  const n = Number(item.amount);
+  return Number.isFinite(n) ? n : 0;
+}
+function efbNormalizeOrderEfb(rows) {
+  if (!Array.isArray(rows)) return rows;
+  for (const row of rows) {
+    if (!row || typeof row !== 'object') continue;
+    for (const key of ['amount', 'step']) {
+      const v = row[key];
+      if (typeof v === 'string' && v.trim() !== '' && Number.isFinite(Number(v))) row[key] = Number(v);
+    }
+  }
+  return rows;
+}
+/* efbOrderOf:end */
+
 async function fun_valj_efb_run(form_id){
   form_id = isNaN(form_id) ? form_id : parseInt(form_id);
   form_ID_emsFormBuilder = form_id;

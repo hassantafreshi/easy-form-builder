@@ -915,7 +915,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   <div class="efb-msg-divider"></div>
   <div class="efb-msg-fields">
   `;
-  content.sort((a, b) => (Number(a.amount) > Number(b.amount)) ? 1 : -1);
+  content.sort((a, b) => (efbOrderOf(a) > efbOrderOf(b)) ? 1 : -1);
   let list = []
   let s = false;
   let checboxs=[];

@@ -389,7 +389,7 @@ function createStepsOfPublic() {
   }
 
   exportView_emsFormBuilder = exportView_emsFormBuilder.sort(function (a, b) {
-    return Number(a.amount) - Number(b.amount);
+    return efbOrderOf(a) - efbOrderOf(b);
   })
   for (let i = 1; i <= stepsCountEfb; i++) {
     tags = "";

@@ -4404,6 +4404,8 @@ let editFormEfb =async () => {
   let dropZoneEFB = document.getElementById('dropZoneEFB');
   dropZoneEFB.innerHTML = efbLoadingCard('',4);
   if (sessionStorage.getItem('valj_efb')) { valj_efb = JSON.parse(sessionStorage.getItem('valj_efb')); }
+  // A saved form has every amount/step as a string; the builder compares them as numbers (A2).
+  if (typeof efbNormalizeOrderEfb === 'function') efbNormalizeOrderEfb(valj_efb);
   let p = calPLenEfb(valj_efb.length)
   const len = (valj_efb.length) * p || 10;
 
@@ -5129,7 +5131,7 @@ const sort_obj_efb = () => {
 
   let p = calPLenEfb(len)
   setTimeout(() => {
-   const  valj_efb_ = valj_efb.sort((a, b) => (Number(a.amount) > Number(b.amount)) ? 1 : ((Number(b.amount) > Number(a.amount)) ? -1 : 0))
+   const  valj_efb_ = valj_efb.sort((a, b) => (efbOrderOf(a) > efbOrderOf(b)) ? 1 : ((efbOrderOf(b) > efbOrderOf(a)) ? -1 : 0))
      valj_efb= valj_efb_;
 
   }, ((len * p))

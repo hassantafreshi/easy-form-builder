@@ -876,13 +876,13 @@ const fun_check_link_city_efb = async (iso2_country, iso2_statePove, indx, form_
   let id_city = '';
 
   const base = valj_efb[indx];
-  const amount = Number(base.amount) || 0;
+  const amount = efbOrderOf(base);
 
   let i = indx;
   const len = valj_efb.length;
   while (i < len) {
     const item = valj_efb[i];
-    if (Number(item.amount) > amount) {
+    if (efbOrderOf(item) > amount) {
       const t = item.type;
       if (t === 'city' || t === 'cityList') {
         indx_state = i;
@@ -1033,7 +1033,7 @@ fun_check_link_state_efb=async(iso2_country , indx,form_id)=>{
     /* Compared as numbers: after Save every amount is a string, and "10" > "9" is
        false as text, so a state list right after a single-digit country never
        followed the country again (the city link below always used Number()). */
-    }else if((valj_efb[i].type=='statePro' || valj_efb[i].type=='stateProvince') && Number(valj_efb[i].amount)>Number(valj_efb[indx].amount)){
+    }else if((valj_efb[i].type=='statePro' || valj_efb[i].type=='stateProvince') && efbOrderOf(valj_efb[i])>efbOrderOf(valj_efb[indx])){
       indx_state =i;
       break;
     }else{
