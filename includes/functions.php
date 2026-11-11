@@ -2680,6 +2680,32 @@ class efbFunction {
 			"smsOffAddonMissing" => $state && isset($ac->text->smsOffAddonMissing) ? $ac->text->smsOffAddonMissing : esc_html__('SMS notifications were turned off because the SMS add-on is not active. Everything else was saved.','easy-form-builder'),
 			/* translators: AutoPilot A5: shown after Save when the form asked for Telegram notifications but the Telegram add-on is not active */
 			"telegramOffAddonMissing" => $state && isset($ac->text->telegramOffAddonMissing) ? $ac->text->telegramOffAddonMissing : esc_html__('Telegram notifications were turned off because the Telegram add-on is not active. Everything else was saved.','easy-form-builder'),
+			/* translators: F18: name of a locked feature in the upgrade dialog */
+			"upgFtrMobileLayout" => $state && isset($ac->text->upgFtrMobileLayout) ? $ac->text->upgFtrMobileLayout : esc_html__('Mobile layout settings','easy-form-builder'),
+			/* translators: F18: name of a locked feature in the upgrade dialog */
+			"upgFtrHideDisable" => $state && isset($ac->text->upgFtrHideDisable) ? $ac->text->upgFtrHideDisable : esc_html__('Hidden and disabled fields','easy-form-builder'),
+			/* translators: F18: name of a locked feature in the upgrade dialog */
+			"upgFtrRequiredMsg" => $state && isset($ac->text->upgFtrRequiredMsg) ? $ac->text->upgFtrRequiredMsg : esc_html__('Custom “required” message','easy-form-builder'),
+			/* translators: F18: name of a locked feature in the upgrade dialog */
+			"upgFtrColors" => $state && isset($ac->text->upgFtrColors) ? $ac->text->upgFtrColors : esc_html__('Custom colors','easy-form-builder'),
+			/* translators: F18: name of a locked feature in the upgrade dialog */
+			"upgFtrReplyAttach" => $state && isset($ac->text->upgFtrReplyAttach) ? $ac->text->upgFtrReplyAttach : esc_html__('File attachments in replies','easy-form-builder'),
+			/* translators: F18: name of a locked feature in the upgrade dialog */
+			"upgFtrSenderEmail" => $state && isset($ac->text->upgFtrSenderEmail) ? $ac->text->upgFtrSenderEmail : esc_html__('Sender email address','easy-form-builder'),
+			/* translators: F18: name of a locked feature in the upgrade dialog */
+			"upgFtrEmailCredit" => $state && isset($ac->text->upgFtrEmailCredit) ? $ac->text->upgFtrEmailCredit : esc_html__('Email without the Easy Form Builder footer','easy-form-builder'),
+			/* translators: F18: name of a locked feature in the upgrade dialog */
+			"upgFtrBulkRead" => $state && isset($ac->text->upgFtrBulkRead) ? $ac->text->upgFtrBulkRead : esc_html__('Mark selected as read','easy-form-builder'),
+			/* translators: F18: name of a locked feature in the upgrade dialog */
+			"upgFtrDeleteResponse" => $state && isset($ac->text->upgFtrDeleteResponse) ? $ac->text->upgFtrDeleteResponse : esc_html__('Deleting responses','easy-form-builder'),
+			/* translators: F18: name of a locked feature in the upgrade dialog */
+			"upgFtrPaymentKeys" => $state && isset($ac->text->upgFtrPaymentKeys) ? $ac->text->upgFtrPaymentKeys : esc_html__('Payment gateway keys','easy-form-builder'),
+			/* translators: F18: name of a locked feature in the upgrade dialog */
+			"upgFtrMapKey" => $state && isset($ac->text->upgFtrMapKey) ? $ac->text->upgFtrMapKey : esc_html__('Map API key','easy-form-builder'),
+			/* translators: F18: name of a locked feature in the upgrade dialog (the payment form template) */
+			"upgFtrPaymentForm" => $state && isset($ac->text->upgFtrPaymentForm) ? $ac->text->upgFtrPaymentForm : esc_html__('Payment form','easy-form-builder'),
+			/* translators: F18: name of a locked feature in the upgrade dialog (saving a form that uses them) */
+			"upgFtrLockedFields" => $state && isset($ac->text->upgFtrLockedFields) ? $ac->text->upgFtrLockedFields : esc_html__('Advanced fields in this form','easy-form-builder'),
 			"sms_noti" => $state  &&  isset($ac->text->sms_noti) ? $ac->text->sms_noti : esc_html__('SMS Notifications','easy-form-builder'),
 			"sms_dnoti" => $state  &&  isset($ac->text->sms_dnoti) ? $ac->text->sms_dnoti : esc_html__('Enter the administrators’ mobile numbers to receive SMS notifications, such as alerts or new messages.','easy-form-builder'),
 			"sms_ndnoti" => $state  &&  isset($ac->text->sms_ndnoti) ? $ac->text->sms_ndnoti : esc_html__('All SMS notifications sent by Easy Form Builder will be delivered to the numbers entered here.','easy-form-builder'),

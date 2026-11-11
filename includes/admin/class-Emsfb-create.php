@@ -323,6 +323,8 @@ class Create {
 			'upload_max'=>(int) floor(wp_max_upload_size() / MB_IN_BYTES)
 		), 'create');
 		wp_localize_script('Emsfb-admin-js','efb_var',$efb_var_data);
+		// F18: plan gate, upgrade dialog and in-page plan change (reads efb_var.capabilities).
+		wp_enqueue_script('efb-plan-gate-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/plan-gate-efb.js', array('Emsfb-admin-js'), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/plan-gate-efb.js'), true);
 		$efb_val_js_path = EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/val-efb.js';
 		$efb_val_js_version = is_readable($efb_val_js_path) ? (string) filemtime($efb_val_js_path) : EMSFB_PLUGIN_VERSION;
 		wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val-efb.js', array('jquery', 'efb-email-test-ui'), $efb_val_js_version, true);

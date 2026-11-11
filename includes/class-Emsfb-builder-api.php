@@ -140,6 +140,13 @@ class Builder_Api {
 
 	const PLAN_RANK = array('free' => 0, 'free_plus' => 1, 'pro' => 2);
 
+	/** F18: the phrase that names each add-on (the titles of the Add-ons page). */
+	const ADDON_LABEL_KEYS = array(
+		'AdnSS' => 'smsTAddon', 'AdnSPF' => 'stripeTAddon', 'AdnPPF' => 'persiaPayTAddon', 'AdnATC' => 'trackCTAddon',
+		'AdnPDP' => 'datePTAddon', 'AdnADP' => 'dateATAddon', 'AdnOF' => 'offlineTAddon', 'AdnATF' => 'TAdnAtF',
+		'AdnPAP' => 'payPalTAddon', 'AdnTLG' => 'tlgmAddon', 'AdnGoS' => 'TAdnGoS', 'AdnSMF' => 'condATAddon', 'AdnHSH' => 'TAdnHSH',
+	);
+
 	/** B9: row-0 keys that no JS or PHP reads (checked by tests/test-ap-b9-deprecated-keys.js). */
 	const DEPRECATED_FORM_KEYS = array(
 		'private'    => 'Not read. A private form (logged-in visitors only) is stateForm = 1.',
@@ -248,21 +255,47 @@ class Builder_Api {
 			'setting:email_noti_type'        => array('free_plus', null, array('email_noti_type'), 'emlc'),
 			'setting:thank_you_redirect'     => array('free_plus', null, array('thank_you=rdrct', 'rePage'), 'redirectPage'),
 			'setting:loading_type'           => array('free_plus', null, array('loading_type', 'loading_color'), 'loadingType'),
-			'setting:custom_required_msg'    => array('free_plus', null, array('customRequiredMsg'), 'customMessage'),
-			'setting:custom_colors'          => array('free_plus', null, array('checked_color', 'range_thumb_color', 'range_value_color', 'switch_on_color', 'switch_off_color', 'switch_handle_color'), 'colors'),
-			'setting:hidden_disabled'        => array('free_plus', null, array('hidden', 'disabled'), 'hide'),
-			'setting:mobile_layout'          => array('pro', null, array('mobile_*'), 'mobileView'),
+			'setting:custom_required_msg'    => array('free_plus', null, array('customRequiredMsg'), 'upgFtrRequiredMsg'),
+			'setting:custom_colors'          => array('free_plus', null, array('checked_color', 'range_thumb_color', 'range_value_color', 'switch_on_color', 'switch_off_color', 'switch_handle_color'), 'upgFtrColors'),
+			'setting:hidden_disabled'        => array('free_plus', null, array('hidden', 'disabled'), 'upgFtrHideDisable'),
+			'setting:mobile_layout'          => array('pro', null, array('mobile_*'), 'upgFtrMobileLayout'),
 			'setting:sms_notifications'      => array('pro', 'AdnSS', array('smsnoti', 'sms_admins_phone_no', 'sms_msg_new_noti', 'sms_msg_recived_usr', 'sms_msg_responsed_noti'), 'sms_noti'),
 			'setting:telegram_notifications' => array('pro', 'AdnTLG', array('telegramnoti', 'telegram_msg_new_noti', 'telegram_msg_responsed_noti'), 'etelegramno'),
-			'setting:logic_rules'            => array('free_plus', 'AdnSMF', array('logic_rules', 'notification_rules'), 'conditionalLogic'),
-			'setting:logic_calculate'        => array('pro', 'AdnSMF', array('logic_rules[].actions[].type=calculate'), 'conditionalLogic'),
-			'setting:confirmation_rules'     => array('pro', 'AdnSMF', array('confirmation_rules'), 'conditionalLogic'),
-			'setting:webhook_rules'          => array('pro', 'AdnSMF', array('webhook_rules'), 'conditionalLogic'),
+			'setting:logic_rules'            => array('free_plus', 'AdnSMF', array('logic_rules', 'notification_rules'), 'conlog'),
+			'setting:logic_calculate'        => array('pro', 'AdnSMF', array('logic_rules[].actions[].type=calculate'), 'conlog'),
+			'setting:confirmation_rules'     => array('pro', 'AdnSMF', array('confirmation_rules'), 'conlog'),
+			'setting:webhook_rules'          => array('pro', 'AdnSMF', array('webhook_rules'), 'conlog'),
 			'setting:payment_stripe'         => array('free_plus', 'AdnSPF', array('getway=stripe', 'currency', 'paymentmethod'), 'stripe'),
 			'setting:payment_paypal'         => array('free_plus', 'AdnPAP', array('getway=paypal', 'currency', 'paymentmethod'), 'paypal'),
 			'setting:payment_persiapay'      => array('pro', 'AdnPPF', array('getway=persiaPay', 'persiaPay'), 'persiaPayment'),
 		);
 		foreach ($settings_list as $key => $s) $add($key, 'setting', $s[0], $s[1], array('form_keys' => $s[2], 'label_key' => $s[3]));
+
+		// F18: site settings and screens outside the form JSON that the upgrade dialog names. No form
+		// key (scope "site"); the level is the gate the code uses today (pro_efb = Free Plus and Pro,
+		// package_type 1 = Pro only).
+		$site_list = array(
+			'setting:reply_attachments'    => array('free_plus', 'upgFtrReplyAttach'),
+			'setting:sender_email'         => array('free_plus', 'upgFtrSenderEmail'),
+			'setting:weekly_report'        => array('free_plus', 'weeklyEmailReport'),
+			'setting:email_stats_off'      => array('pro', 'emailStatsReport'),
+			'setting:email_footer'         => array('free_plus', 'upgFtrEmailCredit'),
+			'setting:bulk_read'            => array('free_plus', 'upgFtrBulkRead'),
+			'setting:delete_response'      => array('free_plus', 'upgFtrDeleteResponse'),
+			'setting:payment_keys'         => array('free_plus', 'upgFtrPaymentKeys'),
+			'setting:map_key'              => array('free_plus', 'upgFtrMapKey'),
+			'setting:response_colors'      => array('free_plus', 'respColors'),
+			'setting:response_captcha'     => array('free_plus', 'scaptcha'),
+			'setting:response_upload'      => array('free_plus', 'dsupfile'),
+			'setting:response_download'    => array('free_plus', 'sdlbtn'),
+			'setting:response_admin_login' => array('free_plus', 'admines'),
+		);
+		foreach ($site_list as $key => $s) $add($key, 'setting', $s[0], null, array('form_keys' => array(), 'scope' => 'site', 'label_key' => $s[1]));
+		// The "payment form" template starts a Stripe form: Free Plus, and the Stripe add-on.
+		$add('template:payment', 'template', 'free_plus', 'AdnSPF', array('label_key' => 'upgFtrPaymentForm'));
+		// Saving a form that holds fields the plan does not include (imported, or after a downgrade).
+		// The dialog asks for Pro instead when one of those fields is Pro only.
+		$add('form:locked_fields', 'form', 'free_plus', null, array('label_key' => 'upgFtrLockedFields'));
 
 		// Limits.
 		$add('limit:steps', 'limit', 'free_plus', null, array('limits' => array('free' => 2, 'free_plus' => null, 'pro' => null), 'label_key' => 'step'));
@@ -270,14 +303,14 @@ class Builder_Api {
 			'free'      => array('field_rules' => 0, 'notification_rules' => 0, 'conditions_per_group' => 0),
 			'free_plus' => array('field_rules' => 3, 'notification_rules' => 2, 'conditions_per_group' => 2),
 			'pro'       => null,
-		), 'label_key' => 'conditionalLogic'));
+		), 'label_key' => 'conlog'));
 
 		// Add-ons.
 		$addons = array();
 		foreach ($addon_keys as $code) {
 			$pkg = self::normalize_plan($addon_level($code));
 			$is = $installed($code);
-			$add('addon:' . $code, 'addon', $pkg, $code, array('installed' => $is, 'can_install' => self::plan_at_least($pkg, $package)));
+			$add('addon:' . $code, 'addon', $pkg, $code, array('installed' => $is, 'can_install' => self::plan_at_least($pkg, $package), 'label_key' => isset(self::ADDON_LABEL_KEYS[$code]) ? self::ADDON_LABEL_KEYS[$code] : $code));
 			$addons[$code] = $is;
 		}
 

@@ -2,7 +2,7 @@
  * Shared Chromium harness for the AutoPilot (test-ap-*) builder checks.
  *
  * Loads the shipped builder scripts (jquery, new-efb.js, admin-efb.js, steps-progress-builder-efb.js,
- * val-efb.js, pro_els-efb.js, admin core-efb.js and, when present, builder-api-efb.js) into a blank
+ * val-efb.js, pro_els-efb.js, admin core-efb.js and, when present, plan-gate-efb.js and builder-api-efb.js) into a blank
  * page with WordPress-shaped globals (efb_var with every phrase as "T:<key>", ajaxurl) and every
  * admin-ajax call answered by the test. No WordPress is needed.
  *
@@ -99,6 +99,7 @@ async function openBuilder(opts) {
   for (const s of (opts.preScripts || [])) await page.addScriptTag({ path: path.join(ROOT, s) });
   const files = ['jquery.min-efb.js', 'jquery-ui-efb.js', 'jquery-dd-efb.js', 'bootstrap-icon-efb.js', 'new-efb.js', 'admin-efb.js', 'steps-progress-builder-efb.js', 'val-efb.js', 'pro_els-efb.js', 'core-efb.js'];
   for (const f of files) await page.addScriptTag({ path: JS + f });
+  if (fs.existsSync(JS + 'plan-gate-efb.js')) await page.addScriptTag({ path: JS + 'plan-gate-efb.js' });
   if (fs.existsSync(JS + 'builder-api-efb.js')) await page.addScriptTag({ path: JS + 'builder-api-efb.js' });
   for (const s of (opts.scripts || [])) await page.addScriptTag({ path: path.join(ROOT, s) });
   await page.evaluate(() => { _efb_nonce_ = 'n0nce'; setting_emsFormBuilder = efb_var.setting; });

@@ -15414,3 +15414,81 @@ msgstr "این شماره‌های مدیر ذخیره نشدند، چون در 
 #: includes/functions.php
 msgid "A mobile field asks for the confirmation SMS, but SMS notifications are off for this form, so no SMS will be sent."
 msgstr "یک فیلد موبایل پیامک تأیید می‌خواهد، ولی اعلان پیامکی این فرم خاموش است، پس پیامکی فرستاده نمی‌شود."
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: name of a locked feature in the upgrade dialog
+#: includes/functions.php
+msgid "Mobile layout settings"
+msgstr "تنظیمات چیدمان موبایل"
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: name of a locked feature in the upgrade dialog
+#: includes/functions.php
+msgid "Hidden and disabled fields"
+msgstr "فیلدهای پنهان و غیرفعال"
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: name of a locked feature in the upgrade dialog
+#: includes/functions.php
+msgid "Custom “required” message"
+msgstr "پیام سفارشی «الزامی»"
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: name of a locked feature in the upgrade dialog
+#: includes/functions.php
+msgid "Custom colors"
+msgstr "رنگ‌های سفارشی"
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: name of a locked feature in the upgrade dialog
+#: includes/functions.php
+msgid "File attachments in replies"
+msgstr "پیوست فایل در پاسخ‌ها"
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: name of a locked feature in the upgrade dialog
+#: includes/functions.php
+msgid "Sender email address"
+msgstr "نشانی ایمیل فرستنده"
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: name of a locked feature in the upgrade dialog
+#: includes/functions.php
+msgid "Email without the Easy Form Builder footer"
+msgstr "ایمیل بدون پانویس Easy Form Builder"
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: name of a locked feature in the upgrade dialog
+#: includes/functions.php
+msgid "Mark selected as read"
+msgstr "علامت‌گذاری موارد انتخاب‌شده به‌عنوان خوانده‌شده"
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: name of a locked feature in the upgrade dialog
+#: includes/functions.php
+msgid "Deleting responses"
+msgstr "حذف پاسخ‌ها"
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: name of a locked feature in the upgrade dialog
+#: includes/functions.php
+msgid "Payment gateway keys"
+msgstr "کلیدهای درگاه پرداخت"
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: name of a locked feature in the upgrade dialog
+#: includes/functions.php
+msgid "Map API key"
+msgstr "کلید API نقشه"
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: name of a locked feature in the upgrade dialog (the payment form template)
+#: includes/functions.php
+msgid "Payment form"
+msgstr "فرم پرداخت"
+
+#  origin: claude (fa_IR) F18
+#. translators: F18: name of a locked feature in the upgrade dialog (saving a form that uses them)
+#: includes/functions.php
+msgid "Advanced fields in this form"
+msgstr "فیلدهای پیشرفتهٔ این فرم"

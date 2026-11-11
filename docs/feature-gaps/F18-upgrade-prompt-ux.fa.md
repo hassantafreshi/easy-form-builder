@@ -1,4 +1,4 @@
-وضعیت: سند آماده، پیاده‌سازی نشده · اولویت: P0 · تلاش: M · وابستگی: — (F16 برای الگوی فوکوس دیالوگ؛ هم‌زمان با کار ماسک F01 فایل‌های JS/PHP مشترک را ویرایش نکنید مگر پس از ادغام آن)
+وضعیت: در حال پیاده‌سازی (A انجام شد) · اولویت: P0 · تلاش: M · وابستگی: — (F16 برای الگوی فوکوس دیالوگ؛ هم‌زمان با کار ماسک F01 فایل‌های JS/PHP مشترک را ویرایش نکنید مگر پس از ادغام آن)
 
 # F18 — پنجرهٔ ارتقا: فعال‌سازی درجای Free Plus و خرید Pro
 
@@ -260,23 +260,21 @@ efb_upgrade_prompt_efb({
 
 هیچ کلید تازه‌ای در JSON فرم، جدول یا DB اضافه نمی‌شود. تنها دادهٔ تازه، رجیستری است:
 
+**پس از AutoPilot B3 (اجراشده در زیرتسک A):** جدول دوم ساخته نشد. تنها منبع، رجیستری PHP است (`\Emsfb\Builder_Api::capabilities()` در `includes/class-Emsfb-builder-api.php`) که به‌صورت `efb_var.capabilities` به JS می‌رسد. زیرتسک A فقط کلیدهای تازهٔ لازم برای دیالوگ را به همان رجیستری اضافه کرد و `includes/admin/assets/js/plan-gate-efb.js` فقط آن را می‌خواند:
+
 ```js
-// includes/admin/assets/js/plan-gate-efb.js (فایل تازه، پیش از val-efb.js و admin-efb.js enqueue شود)
-const EFB_FEATURES_EFB = {
-  'limit:steps':             { required: 'free_plus', kind: 'limit', max: 2, label: 'step' },
-  'setting:thank_you_redirect': { required: 'free_plus', label: 'redirectPage' },
-  'setting:mobile_layout':   { required: 'pro', label: 'upgFtrMobileLayout' },
-  'setting:email_stats_off': { required: 'pro', label: 'emailStatsReport' },
-  'addon:AdnSPF':            { required: 'free_plus', addon: 'AdnSPF', label: 'stripe' },
-  // field:<type> از fields_efb ساخته می‌شود: pro:false → 'free'؛ pro:true → 'free_plus'؛
-  // و اگر فیلد به add-on با سطح ۱ وابسته است (pdate→AdnPDP، ardate→AdnADP، persiaPay→AdnPPF) → 'pro'.
-};
-function efb_feature_required_efb(key) {}   // 'free' | 'free_plus' | 'pro'
-function efb_feature_available_efb(key, pkg) {} // pkg پیش‌فرض: efb_current_package_efb()
-function efb_current_package_efb() {}        // ۰/۱/۲/۳؛ ‎-1 و ۱۰ → ۲
+// includes/admin/assets/js/plan-gate-efb.js (پس از admin-efb.js؛ Create، Panel و Add-ons)
+efb_current_package_efb()                 // ۰/۱/۲/۳ از efb_var.setting.package_type؛ ‎-1، ۱۰ یا نبودن → ۲
+efb_plan_chosen_efb()                     // false برای ‎-1 و ۱۰
+efb_feature_entry_efb(key)                // efb_var.capabilities.features[key] یا null
+efb_feature_required_efb(key, fallback)   // 'free' | 'free_plus' | 'pro'؛ کلید ناشناخته → 'pro'
+efb_feature_available_efb(key, pkg)       // پلن و add-on؛ pkg پیش‌فرض پلن زندهٔ صفحه
+efb_feature_label_efb(key, label)         // نام ترجمه‌شده از label_key یا نام فیلد در fields_efb
 ```
 
-آینهٔ PHP در §۱۴ است. تست برابری (زیرتسک A) دو رجیستری را مقایسه می‌کند. `addon_required_package_efb` همچنان منبع add-onهاست و هر دو رجیستری از آن می‌خوانند.
+کلیدهای تازهٔ رجیستری (همه با `label_key`): `setting:reply_attachments`، `setting:sender_email`، `setting:weekly_report`، `setting:email_stats_off` (Pro)، `setting:email_footer`، `setting:bulk_read`، `setting:delete_response`، `setting:payment_keys`، `setting:map_key`، `setting:response_colors`، `setting:response_captcha`، `setting:response_upload`، `setting:response_download`، `setting:response_admin_login` (همه با `scope: 'site'`)، `template:payment` (Free Plus + `AdnSPF`) و `form:locked_fields`. هر add-on هم `label_key` عنوان کارت خودش را گرفت. سطح هر کلید همان دروازهٔ امروز کد است.
+
+توابع PHP در §۱۴ است. تست برابری (زیرتسک A) پاسخ JS و PHP را برای هر کلید و هر پلن مقایسه می‌کند. `addon_required_package_efb` همچنان منبع add-onهاست و هر دو رجیستری از آن می‌خوانند.
 
 ## ۶. تغییرات سازنده و پیشخوان: گذرگاه تغییر پلن
 
@@ -431,12 +429,12 @@ do_action('efb_plan_changed', int $new, int $old, array $context); // context: s
 - پذیرش: `efb_feature_required_efb('field:esign')==='free_plus'`، `field:pdate`/`field:ardate`/`field:persiaPay` → `'pro'`، `field:text` → `'free'`، `setting:mobile_layout` → `'pro'`. خروجی PHP و JS برای همهٔ کلیدها یکسان است. `efb_current_package_efb()` گزینه را نمی‌نویسد.
 - تست‌ها: `node tests/test-plan-gate-registry.js` (بارگذاری `plan-gate-efb.js` و `val-efb.js` در `vm`، و مقایسه با JSON خروجی PHP)؛ `php tests/test-plan-gate-registry.php` (stub `get_option` برای ‎-1، ۰، ۱، ۲، ۳ و ۱۰؛ برابری با `addon_required_package_efb`).
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint** (انجام شد، ۲۰ آبان ۱۴۰۵)
+- فایل‌های تغییرکرده: `includes/class-Emsfb-builder-api.php` (۱۶ کلید تازه، `label_key` برای همهٔ add-onها، `label_key`های بی‌متن `colors`/`conditionalLogic`/`hide`/`mobileView`/`customMessage` با کلیدهای واقعی جایگزین شدند)، `includes/builder-api-functions-efb.php` (`efb_plan_chosen_efb()`، فیلتر `efb_feature_registry`، آرگومان `$package` در `efb_feature_registry_efb()` و `efb_feature_available_efb()` که حالا add-on را هم می‌سنجد)، `includes/admin/assets/js/plan-gate-efb.js` (تازه، فقط خواننده)، enqueue در `class-Emsfb-create.php`، `class-Emsfb-panel.php` و `class-Emsfb-addon.php` با handle `efb-plan-gate-js`، `tests/ap-builder-harness.js` (بارگذاری فایل تازه)، `includes/functions.php` و `languages/easy-form-builder-fa_IR.po`.
+- تست‌ها: `php tests/test-plan-gate-registry.php` پیش از کار ۱۳ شکست، پس از کار 29 passed. `node tests/test-plan-gate-registry.js` پیش از کار شکست (فایل نبود)، پس از کار 13 passed (برابری JS و PHP برای همهٔ کلیدها × پلن‌های ۰ تا ۳، و ۵۶ فیلد پالت با `fields_efb[].pro`). مرتبط‌ها سبز ماندند: همهٔ `tests/test-ap-*` (۲۰ فایل)، `test-setup-plan-selection-browser-state.js` 23، `test-masks-builder-browser.js` 50، `test-conditional-logic-plan-gating.js` 53 (با symlink `vendor/logic` → `vendores-efb/logic`)، `test-addon-install-plan-gate.php` 27.
+- وضعیت ترجمه: کلیدهای `upgFtrMobileLayout`، `upgFtrHideDisable`، `upgFtrRequiredMsg`، `upgFtrColors`، `upgFtrReplyAttach`، `upgFtrSenderEmail`، `upgFtrEmailCredit`، `upgFtrBulkRead`، `upgFtrDeleteResponse`، `upgFtrPaymentKeys`، `upgFtrMapKey`، `upgFtrPaymentForm`، `upgFtrLockedFields` با فارسی در `.po`. implemented بله؛ tested بله؛ pack built نه (`.mo` ساخته نشد)؛ published نه. ۶۸ زبان دیگر در زیرتسک G.
+- مورد باز: تست برابری `fields_efb` با regex از `val-efb.js` خوانده می‌شود، نه با اجرای کامل آن در vm (B3 همین را از راه فایل قالب‌ها هم می‌سنجد).
+- اقدام بعدی: زیرتسک B (دیالوگ).
 
 ### B. دیالوگ تازه و shim
 - فایل‌ها: `admin-efb.js` (جایگزینی بدنهٔ `pro_show_efb` در 6624-6705 با `efb_upgrade_prompt_efb` و shim)، `includes/admin/assets/css/modal-system-efb.css` (کلاس‌های `efb-dlg__disclosure`، `efb-dlg__foot--stack` و RTL)، `open_whiteStudio_efb` (حالت `renew_pro`، و رفع `free_plus_guide` برای fa در 7866).
