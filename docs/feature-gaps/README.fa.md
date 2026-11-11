@@ -11,7 +11,8 @@
 1. [راهنمای پیاده‌سازی و نقشهٔ کد](IMPLEMENTATION-PLAYBOOK.en.md): کدام فایل و تابع، برای هر نوع تغییر.
 2. [امکانات فعلی، با شاهد در کد](reference/current-capabilities.en.md): تا چیزی که وجود دارد دوباره ساخته نشود.
 3. فایل تسک مورد نظر از جدول زیر.
-4. فقط در صورت نیاز: [ماتریس رقبا](reference/competitor-matrix.en.md)، [کاتالوگ ماسک‌ها](reference/masks-catalog.json) و [راهنمای ماسک و اعتبارسنج](reference/masks-and-validators.en.md)، [قرارداد موتور تقویم](reference/calendar-engine-contract.en.md)، [بردارهای آزمون تقویم](reference/calendar-test-vectors.json).
+4. [باگ‌های کد فعلی که هنگام نوشتن تسک‌ها پیدا شد](BUGS-FOUND.fa.md): پیش از تغییر هر بخش، باگ‌های همان بخش را ببینید.
+5. فقط در صورت نیاز: [ماتریس رقبا](reference/competitor-matrix.en.md)، [کاتالوگ ماسک‌ها](reference/masks-catalog.json) و [راهنمای ماسک و اعتبارسنج](reference/masks-and-validators.en.md)، [قرارداد موتور تقویم](reference/calendar-engine-contract.en.md)، [بردارهای آزمون تقویم](reference/calendar-test-vectors.json).
 
 قوانین ترجمه، تست، امنیت و سرور تست همان [هندآف تسک‌های قبلی](../tasks/CLAUDE-HANDOFF.fa.md) است و برای این صف هم الزامی است. پرامپت آماده: [CLAUDE-PROMPT.fa.md](CLAUDE-PROMPT.fa.md). راهنمای نوشتن تسک‌های جدید در همین قالب: [SPEC-WRITING-BRIEF.en.md](SPEC-WRITING-BRIEF.en.md).
 
