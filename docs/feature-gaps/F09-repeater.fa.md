@@ -609,3 +609,15 @@ Checkpoint
 6. **`rows_from` از گزینهٔ select:** مقدار عددی از متن گزینه گرفته شود یا با F05 (جدایی مقدار از برچسب) از `value` گزینه؟ پیشنهاد: پس از F05 از `value` و تا آن زمان `parseInt` روی متن.
 7. **تودرتو:** آیا نیاز واقعی به گروه داخل گروه (مثلاً «خانواده › فرزندان») وجود دارد؟ مدل `group` آن را منع نمی‌کند (`group` می‌تواند به یک گروه فرزند اشاره کند)، ولی شناسهٔ مجازی دوسطحی (`_r1_r2`) و سرور باید دوباره طراحی شوند.
 8. **شمارهٔ ردیف در فرمول:** F04 متغیر `{rep.n}` را بپذیرد (§۱۱.۱)؟
+
+---
+
+## سازگاری با SitePilot AI
+
+قرارداد کامل: [reference/sitepilot-compatibility.en.md](reference/sitepilot-compatibility.en.md) (§۵.۲ عملیات patch، §۶.۲ `keys_repeater`، §۸.۲ و چک‌لیست F09 در §۹).
+
+- ردیف `repeater` با `min_rows`، `max_rows`، `default_rows`، `rows_from`، `row_label`، `collapsible`، `collapse_prev`، `rpt_layout`، `btn_add_text` و `rmv_confirm`، و کلید `group` روی فرزندان، با همین نام‌ها در قرارداد هستند. `rpt_base`، `rpt_n` و `rpt_group` فقط در زمان اجرا هستند و هرگز در JSON ذخیره‌شده یا ورودی API نمی‌آیند.
+- **تعارض C2:** کلید فاز ۲ `group` در F05 (روی ردیف گزینه) هم‌نام است. خواننده‌ها فقط وقتی `group` را عضویت بدانند که به ردیف `repeater` موجود اشاره کند؛ F05 باید نامش را به `optgroup` تغییر دهد.
+- عملیات patch گروه را یک بلوک می‌داند: `remove_field` و `move_field` روی گروه، فرزندان و گزینه‌هایشان را هم جابه‌جا یا حذف می‌کنند. `efb_api_form_validate` فهرست مجاز `Emsfb\Repeater::child_types()`، هم‌مرحله بودن فرزند و نبود گروه تودرتو را بررسی کند.
+- گیت Pro با `efb_plan_at_least_efb('pro')` باشد، نه `is_efb_pro(1)` که Free Plus را هم می‌پذیرد (تعارض C3).
+- دستیار بازدیدکننده ردیف را با `handle.addRow(groupId)` (از `EFBForm.whenReady(formId)`) اضافه و فرزندان را با شناسهٔ مجازی `{child}_r{n}` پر می‌کند. در `entries.read` ردیف‌ها `rg` و `ri` دارند.

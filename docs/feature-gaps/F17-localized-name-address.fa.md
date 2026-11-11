@@ -433,3 +433,15 @@ Checkpoint
 - `includes/admin/assets/js/pro_els-efb.js:1401`: `q=${efbQuery}` بدون `encodeURIComponent`؛ نشانی شامل `&` یا `#` جست‌وجو را می‌شکند و پارامتر می‌تواند تزریق شود.
 - `pro_els-efb.js:1445`, `1515`, `1572`: درخواست reverse به Nominatim پس از **هر** نشانه‌گذاری روی نقشه، بدون کش و بدون فاصلهٔ زمانی؛ با سیاست «نتایج باید کش شوند» و «۱ درخواست در ثانیه» در تضاد است وقتی کاربر چند نشانه سریع می‌گذارد.
 - `includes/class-Emsfb-public.php:3138-3152`: مقدار `stateProvince`/`conturyList`/`cityList` با گزینه‌های ذخیره‌شده مقایسه نمی‌شود (برخلاف `select`، 3102)؛ هر رشته‌ای پذیرفته می‌شود.
+
+---
+
+## سازگاری با SitePilot AI
+
+قرارداد کامل: [reference/sitepilot-compatibility.en.md](reference/sitepilot-compatibility.en.md) (§۴.۲ `composite`، §۶.۲ `keys_name_address`، §۶.۳ و چک‌لیست F17 در §۹).
+
+- کلیدهای `cmp_grp`، `cmp_kind`، `name_format`، `name_part`، `name_strict`، `addr_scheme`، `addr_part`، `addr_cascade`، `addr_lookup` و `addr_req_mode` و `elementId`های تازه با همین نام‌ها در قرارداد هستند.
+- `efb_api_field_types()` برای هر قالب نام و طرح نشانی آرایهٔ `composite` (اجزا و ترتیبشان) را برگرداند، تا دستیار مدیر همهٔ اجزا را با یک `cmp_grp` بسازد. نوع‌های `name` و `address` هرگز ذخیره نمی‌شوند.
+- `efb_api_form_validate` کامل بودن گروه و مجاز بودن `addr_part` را بررسی کند و برای پیش‌تنظیم کد پستی از `mask_preset` F01 استفاده کند.
+- جست‌وجوی نشانی (`Emsfb/v1/geo/*`) فقط برای مرورگر بازدیدکننده است و برای دستیار یا API مدیر نیست. گیت Pro آن با `efb_plan_at_least_efb('pro')` باشد.
+- دستیار بازدیدکننده اجزا را با توکن `autocomplete` هر جزء پر می‌کند؛ در آبشار استان → شهر، `setValue` شهر پس از بارگذاری فهرست شهرها پذیرفته می‌شود.

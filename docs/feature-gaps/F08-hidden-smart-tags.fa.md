@@ -476,3 +476,14 @@ Checkpoint
 - `class-Emsfb-public.php:6309-6316` همراه با 5986-6005: توکن `{field_id}` برای radio و checkbox شناسهٔ گزینه را در موضوع ایمیل و نشانی بازگشت می‌گذارد.
 - `new-efb.js:950, 970`: `thankYou` با `innerHTML` درج می‌شود. امروز فقط متن ادمین است، ولی با هر قابلیتی که دادهٔ بازدیدکننده را وارد آن کند، XSS ایجاد می‌شود.
 - `class-Emsfb-public.php:4770-4772`: `HTTP_CLIENT_IP` و `X-Forwarded-For` بدون فهرست پراکسی مورداعتماد پذیرفته می‌شوند. هم IP ذخیره‌شده و هم کلید محدودیت نرخ (`efb_ip_rate_allowed_efb`) قابل جعل‌اند. این مورد به F12 و F13 مربوط است.
+
+---
+
+## سازگاری با SitePilot AI
+
+قرارداد کامل: [reference/sitepilot-compatibility.en.md](reference/sitepilot-compatibility.en.md) (§۶.۱ بند ۷، §۶.۲ `keys_hidden`، §۷.۲ و چک‌لیست F08 در §۹).
+
+- نوع `hiddenField` با `value` (الگوی `{ns:arg|fallback}`) و `hdn_visitor_mail`، و کلیدهای `prefill_key` و `prefill_lock` با همین نام‌ها در قرارداد هستند. `st_uses` فقط‌خواندنی است و دستیار آن را نمی‌نویسد.
+- ساختن `st_uses` باید در مسیر ذخیرهٔ مشترک (هوک `efb_form_saved` یا `Form_Store::save`) انجام شود، نه فقط در `update_form_id_Emsfb()`. وگرنه فرمی که API ساخته، برچسب `user:*` را در `forms/session/prepare` دریافت نمی‌کند.
+- `efb_api_form_validate` نام‌فضای ناشناخته را خطا بداند و برای `{user:email}`، `{ip}` و `{cookie:*}` پرچم `pii_capture` در `risk.flags` برگرداند.
+- فیلد پنهان برای دستیار بازدیدکننده `assistant: "none"` است و الگوی آن در schema عمومی نمی‌آید. سرور مقدار را دوباره می‌سازد. `prefill_key` در schema می‌آید تا SitePilot بتواند لینک پیش‌پرشده (`?key=value`) بسازد. فیلد `prefill_lock` را دستیار پر نمی‌کند.

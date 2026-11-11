@@ -457,3 +457,14 @@ Checkpoint
 - `includes/functions.php:3980`: `$type = $val['type'];` بدون `isset`؛ و 4029-4047: foreach روی `autofill_conditions`، `c_c`، `c_n` بدون `is_array`. با ذخیرهٔ دستی AJAX warning و در PHP 8 ممکن است خطا بدهد. در زیرتسک D با پیش‌پاک‌ساز دور زده می‌شود؛ اصلاح خود تابع پیشنهاد می‌شود.
 - `includes/importers/cf7/class-Emsfb-cf7-importer.php:466`: `form_type` همیشه `'form'` است، حتی اگر ردیف 0 نوع دیگری داشته باشد (امروز Mapper فقط `form` می‌سازد، پس بی‌اثر است ولی برای درج مشترک باید اصلاح شود).
 - `includes/admin/assets/js/admin-efb.js:4780-4783`: `obj_delete_options` به `valj_efb_` بدون اعلان (سراسری ضمنی) انتساب می‌دهد.
+
+---
+
+## سازگاری با SitePilot AI
+
+قرارداد کامل: [reference/sitepilot-compatibility.en.md](reference/sitepilot-compatibility.en.md) (§۵.۲، §۵.۸، §۷.۱ و چک‌لیست F15 در §۹). این سند ستون فقرات قرارداد است.
+
+- بدنهٔ `form.create` در API همان یک عضو `forms[]` پاکت خروجی §۵.۵ است، به‌علاوهٔ `efb_schema: 1` و `status`. `insert_form_structure_efb()`، `normalize_import_rows_efb()` و `remap_import_ids_efb()` باید در یک مسیر ذخیرهٔ مشترک (`Form_Store::save` در فایل مرجع §۷.۱) قرار گیرند که سازنده، ورودی JSON، CF7، بازگردانی نسخه و API همه از آن بگذرند و هوک‌های `efb_form_before_save`، `efb_form_saved` و `efb_form_created` را اجرا کند.
+- نوشتن نسخه از `update_form_id_Emsfb()` به همان مسیر مشترک منتقل شود تا تغییرهای API هم نسخه بگیرند. ستون `note` نسخه، شناسهٔ عمل SitePilot را نگه می‌دارد (`actor`)، چون JSON فرم عمومی است و جای آن نیست.
+- `struct_hash` همان `base_hash` قرارداد است: `form.update` با `base_hash` قدیمی خطای `efb_api_conflict` می‌گیرد.
+- ماژول history یک API عمومی `window.EFBBuilder` با `getState()`، `applyPatch(ops)`، `validate()` و `on('change')` بدهد تا دستیار داخل ویرایشگر SitePilot (`efb-copilot.js`) به‌جای دست‌کاری `valj_efb` از آن استفاده کند. هر patch یک ورودی undo است.

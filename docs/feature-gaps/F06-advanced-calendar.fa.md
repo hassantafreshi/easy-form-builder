@@ -641,3 +641,15 @@
 - WooCommerce Bookings، Availability و Priority: woocommerce.com/document/…/availability-settings
 - Amelia (Days off و Special days) و LatePoint (برنامه، تعطیلات، ظرفیت)؛ Jotform Appointment (slot duration، intervals، Vacation & Holidays، حد روزانه): jotform.com/help/how-to-add-and-set-up-the-appointment-element-on-your-form/
 - npm registry برای نسخه، تاریخ و مجوز کتابخانه‌های جدول §۱۲
+
+---
+
+## سازگاری با SitePilot AI
+
+قرارداد دستیار برای تقویم همان `reference/calendar-engine-contract.en.md` است. این بخش فقط اتصال آن را به قرارداد کلی [reference/sitepilot-compatibility.en.md](reference/sitepilot-compatibility.en.md) (§۴.۵، §۶.۲ `keys_advdate`، §۸ و چک‌لیست F06 در §۹) مشخص می‌کند.
+
+- کلیدهای آرایه‌ای و شیئی (`cal_allowed`، `date_min`/`date_max`، `disabled_weekdays`، `disabled_dates`، `enabled_dates`، `holiday_sets`، `holidays_custom`، `time_by_weekday`) بدون `case` اختصاصی در `sanitize_obj_msg_efb()` پاک می‌شوند. همین `case`ها مسیر API را هم پوشش می‌دهند و `efb_api_form_validate` باید ردیف را با JSON Schema §۷.۱ (`advdate-config.v1.json`) بسنجد.
+- `date_min.type = "field"` با ارجاع دایره‌ای یا به فیلد ناموجود در validate خطاست، و حذف فیلد مبدأ در patch هشدار `dangling_reference` می‌دهد.
+- schema عمومی `forms/{id}/schema` باید قواعد نمایش هر بیننده (F10 `vis_mode`، F11 `allowed_roles`، `stateForm` و حالت پیش‌نویس) را اعمال کند. در این حالت پاسخ `Cache-Control: private, no-store` است، نه `public` (تعارض C11). «فرم منتشرشده» یعنی `emsfb_form.status = 1` (تعارض C12).
+- `manifest.features.advdate` با `gated_keys` (مثلاً `cal_switch`، `date_mode=range`) گزارش شود. گیت Pro با `efb_plan_at_least_efb('pro')` باشد، نه `is_efb_pro(1)`.
+- `window.EFBForm` (فایل مرجع §۸.۲) برای `advdate` به `EFBCalendar` واگذار می‌کند. کدهای خطای §۴.۳ همان کدهای `SetResult` در قرارداد کلی‌اند.

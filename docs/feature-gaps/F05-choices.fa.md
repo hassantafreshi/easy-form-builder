@@ -518,3 +518,15 @@ Checkpoint
 - `core-efb.js:2199` و `2204`: پیام‌های رزرو انگلیسی hard-coded هستند، با اینکه `bkXpM_`/`bkFlM_` وجود دارند.
 - `class-Emsfb-public.php:3081-3101`: حدهای `minSelect`/`maxSelect` multiselect در سرور اجرا نمی‌شوند.
 - `class-Emsfb-formbuilder.php:2088-2094` و `2753`: برچسب و مقدار گزینه بدون `esc_attr`/`esc_html` چاپ می‌شوند. پاک‌سازی ذخیره آن را محدود می‌کند، ولی `&` و `'` می‌توانند HTML را بشکنند.
+
+---
+
+## سازگاری با SitePilot AI
+
+قرارداد کامل: [reference/sitepilot-compatibility.en.md](reference/sitepilot-compatibility.en.md) (§۶.۲ `option` و `keys_choices`، §۶.۳، چک‌لیست F05 در §۹).
+
+- کلیدهای گزینه (`opt_value`، `op_lock`، `inv_cap`، `icon`) و والد (`op_random`، `op_other`، `op_other_label`، `op_other_max`، `op_select_all`، `minSelect`، `maxSelect`، `inv_on`، `inv_show`، `inv_left`، `inv_release`، `dyn_*`، `rank_top`، `rank_touch`) و نوع `ranking` با همین نام‌ها در قرارداد هستند. `options[].value` در SitePilot به `opt_value` و برچسب به `value` ردیف گزینه نگاشت می‌شود.
+- **تعارض C2:** کلید فاز ۲ `group` روی ردیف گزینه با کلید `group` فیلد فرزند در F09 هم‌نام است. پیشنهاد: پیش از انتشار به `optgroup` تغییر نام دهد.
+- پاک کردن transientهای `efb_dyn_*` باید از هوک مشترک `efb_form_saved` انجام شود تا ذخیره از مسیر API هم آن‌ها را پاک کند.
+- `dyn_src: "users"` نام کاربران را عمومی می‌کند؛ دستیار فقط با `allow.dyn_users` می‌تواند آن را بسازد. `inv_on` و `dyn_src` در `gated_keys` با سطح Pro و گیت `efb_plan_at_least_efb('pro')` گزارش شوند (تعارض C3).
+- schema عمومی برای هر گزینه `id`، `label` و `value` (از `opt_value`) می‌دهد. موجودی فقط وقتی `inv_left` روشن است. `setValue` شناسهٔ گزینه، برچسب یا `opt_value` را می‌پذیرد. ردیف پاسخ `ov` را سرور می‌نویسد.

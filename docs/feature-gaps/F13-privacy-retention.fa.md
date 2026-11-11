@@ -401,3 +401,15 @@ ALTER TABLE `{p}emsfb_rsp_` ADD KEY `msg_id` (`msg_id`);
 - `get_ip_address()` به `HTTP_CLIENT_IP` و `X-Forwarded-For` پیش از `REMOTE_ADDR` اعتماد می‌کند (`class-Emsfb-public.php:4770-4771`). بازدیدکننده می‌تواند IP ذخیره‌شده و کلید محدودیت نرخ را جعل کند. پیشنهاد تسک جدا: پذیرفتن سرآیند فقط وقتی `REMOTE_ADDR` در فهرست proxyهای مورد اعتماد (فیلتر) است.
 - دکمهٔ تنظیمات `sips` کامنت شده و مقدارش همیشه `false` ذخیره می‌شود (`list_form-efb.js:3195`)، در حالی که عبارتش هنوز ترجمه می‌شود.
 - `get_all_response_id_Emsfb` (`class-Emsfb-admin.php:1524-1525`) و `get_track_public_api` (`class-Emsfb-public.php:4603-4604`) روی خروجی `get_user_by()` بدون بررسی `false`، `display_name` می‌خوانند. اگر کاربرِ پاسخ‌دهنده حذف شده باشد، خطای PHP رخ می‌دهد. با ناشناس‌سازی (`uid` صفر) این مسیر بیشتر دیده می‌شود.
+
+---
+
+## سازگاری با SitePilot AI
+
+قرارداد کامل: [reference/sitepilot-compatibility.en.md](reference/sitepilot-compatibility.en.md) (§۵.۵، §۶.۳، §۸.۲ و چک‌لیست F13 در §۹).
+
+- کلیدهای فرم `prv_nostore`، `prv_ip`، `prv_days`، `prv_id_field` و کلید فیلد `prv_pii` با همین نام‌ها در قرارداد هستند. ترجیح «فقط ایمیل، بدون ذخیرهٔ پاسخ» در SitePilot هنگام ساخت فرم EFB به `prv_nostore: "1"` نگاشت می‌شود.
+- به‌روزرسانی نقشهٔ `emsfb_prv_forms` باید از هوک مشترک `efb_form_saved`/`efb_form_created` انجام شود، نه فقط در `update_form_id_Emsfb()` و `add_form_structure()`. وگرنه فرمی که API ساخته از cron نگهداری جا می‌ماند.
+- `entries.read` در API فیلدهایی را که `prv_pii` مؤثرشان `"1"` است به‌صورت `"[redacted]"` برمی‌گرداند، مگر `include_pii` و `manage_options`. IP، user agent و `uid` هرگز برنمی‌گردند. فرم `prv_nostore` در پاسخ API `stored: false` دارد.
+- schema عمومی برای هر فیلد `pii` و برای فرم `stored` را نشان می‌دهد تا دستیار بازدیدکننده مقدار شخصی را در لاگ گفتگو کپی نکند و به بازدیدکننده بگوید پاسخ ذخیره نمی‌شود.
+- خاموش کردن `prv_nostore` یا تغییر `prv_ip`/`prv_days` در `security_changes` گزارش می‌شود.

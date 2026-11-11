@@ -511,3 +511,15 @@ Checkpoint
 - `admin-efb.js:2186`: `if(type!="range" || type!="date") required=1` همیشه درست است. هر حداقل غیرصفر فیلد را اجباری می‌کند.
 - `core-efb.js:1347` و `3980`: حد عدد از `el.minLength` خوانده می‌شود. طبق HTML، این ویژگی برای `minlength` منفی `-1` برمی‌گرداند، پس حداقل `-5` در مرورگر به‌صورت `-1` اعمال می‌شود. سرور (3341) همان `-5` را اعمال می‌کند، پس `-3` در مرورگر رد و در سرور پذیرفته می‌شود.
 - `admin-efb.js:6884-6887`: حداقل و حداکثر صفر در رندر JS حذف می‌شوند (`Number(minlen)!=0`)، ولی PHP (`formbuilder:209`) `minlength="0"` را چاپ می‌کند. پیش‌نمایش سازنده و صفحهٔ واقعی در این حالت ناهم‌خوان‌اند، هرچند اثر عملی‌اش کم است.
+
+---
+
+## سازگاری با SitePilot AI
+
+قرارداد کامل: [reference/sitepilot-compatibility.en.md](reference/sitepilot-compatibility.en.md) (§۶.۲ `keys_number` و `keys_calc`، چک‌لیست F04 در §۹).
+
+- کلیدهای `num_step`، `num_decimals`، `num_format`، `num_dec_sep`، `num_grp_sep`، `num_digits`، `num_prefix`، `num_suffix`، `num_currency`، `num_max_zero`، نوع `calc` با `formula`، `calc_show`، `calc_empty`، کلید `calc` روی گزینه و `range_mode` با همین نام‌ها در قرارداد آمده‌اند. `formula_err` فقط‌خواندنی است و در ذخیره دوباره ساخته می‌شود.
+- `efb_api_form_validate` فرمول را با همان گرامر مشترک JS/PHP تجزیه کند و هر ارجاع `{id}` یا `{field:id}` به فیلد ناموجود را خطا بداند. حذف فیلدی که در فرمول آمده، در عملیات patch هشدار `dangling_reference` بدهد.
+- دستیار هرگز گام را در کلید `step` نمی‌نویسد (شمارهٔ مرحله است). schema عمومی `num_step` و `num_decimals` را نشان می‌دهد ولی `formula` را نه.
+- فیلد `calc` برای دستیار بازدیدکننده `assistant: "none"` است، چون سرور دوباره حساب می‌کند. ورودی عددی با ارقام فارسی و عربی و جداکننده پذیرفته و ASCII ذخیره می‌شود.
+- `calc` به‌عنوان مبلغ پرداخت (زیرتسک G) فقط با `allow.payment` و ریسک «high» در پیش‌نمایش ممکن است. سطح Free Plus در `manifest.features.calc` گزارش شود.

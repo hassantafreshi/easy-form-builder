@@ -486,3 +486,15 @@ Checkpoint
 4. بارگذاری تکه‌ای در این فاز ساخته شود یا به فاز ۲ برود؟
 5. پیوست ایمیل برای ایمیل بازدیدکننده هم باشد؟ پیشنهاد: خیر (ریسک ارسال بدافزار با ایمیل سایت).
 6. سقف ۲۰ فایل در هر فیلد و سقف سهمیهٔ ۶۰ در ساعت کافی است؟
+
+---
+
+## سازگاری با SitePilot AI
+
+قرارداد کامل: [reference/sitepilot-compatibility.en.md](reference/sitepilot-compatibility.en.md) (§۶.۲ `keys_file`، §۵.۵، §۸.۲ و چک‌لیست F07 در §۹).
+
+- کلیدهای `max_files`، `min_files`، `max_total_mb`، `capture`، `img_max_px`، `img_quality`، `file_store` و کلید فرم `email_attach` با همین نام‌ها در قرارداد هستند. دستیار مدیر می‌تواند فیلد فایل بسازد. نوع `file` رایگان است و فقط با کلیدهای فهرست‌شده در `manifest.features.multi_file` چندفایلی می‌شود.
+- `efb_api_form_validate` مقدار `max_files` را به سقف پلن و `emsfb_upload_max_files_cap` محدود کند و هشدار بدهد، همان کاری که رندر انجام می‌دهد. گیت Pro برای `dadfile` و `email_attach` با `efb_plan_at_least_efb('pro')` باشد (تعارض C3).
+- فیلد فایل برای دستیار بازدیدکننده `assistant: "visitor_only"` است. توکن `ut` به نشست خود بازدیدکننده گره خورده است و دستیار فایلی آپلود یا ضمیمه نمی‌کند. schema فقط `accept`، `max_files` و حجم مجاز را نشان می‌دهد.
+- در API خواندن پاسخ‌ها (`entries.read`) برای فایل فقط `fnm` و `fsz` برمی‌گردد. نشانی فایل خصوصی (`file_store: "private"`) هرگز برنمی‌گردد و لینک امضاشده فقط برای ایمیل است.
+- تغییر `file_store` یا `max_files` روی فرم موجود در `security_changes` پیش‌نمایش SitePilot گزارش می‌شود.

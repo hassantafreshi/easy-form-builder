@@ -419,3 +419,14 @@ Checkpoint
 
 - `class-Emsfb-public.php:1400-1404`: حذف `rePage` روی `$fs` (رشته‌ای که در 1455 و 1836 به مرورگر می‌رود) اثر ندارد؛ نشانی تغییر مسیر همچنان در `ajax_value_forms` است. ادعای پلی‌بوک §1.7 در عمل برقرار نیست.
 - `class-Emsfb-formbuilder.php:2629`: `placeholder` در textarea بدون `esc_attr` چاپ می‌شود (در input متنی `esc_attr` هست، 125). ذخیره‌ای که از بیلدر نگذرد (مثلاً import یا درخواست مستقیم AJAX) می‌تواند ویژگی تزریق کند.
+
+---
+
+## سازگاری با SitePilot AI
+
+قرارداد کامل: [reference/sitepilot-compatibility.en.md](reference/sitepilot-compatibility.en.md) (§۶.۲، §۷.۲، §۸.۱ و چک‌لیست F10 در §۹).
+
+- کلیدهای فرم `review_before_submit`، `review_hide_empty`، `review_title`، `section_accordion`، نوع `section` (با `collapsible`، `collapsed`)، `rich_text`، `rich_toolbar`، `vis_mode`، `vis_roles`، `esign_mode` و `esign_font` با همین نام‌ها در قرارداد هستند.
+- `vis_mode` و `vis_roles` باید روی schema عمومی (`forms/{id}/schema`) و `entries.read` هم مثل رندر اعمال شوند: فیلدی که این بیننده نمی‌بیند در schema نمی‌آید و پاسخ `Cache-Control: private, no-store` می‌گیرد.
+- تغییر `vis_mode`/`vis_roles` یا روشن کردن `rich_text` در `security_changes` پیش‌نمایش گزارش می‌شود. گیت Pro نمایش بر اساس نقش با `efb_plan_at_least_efb('pro')` باشد.
+- برای دستیار بازدیدکننده: `section` بدون مقدار است (`assistant: "none"`)؛ `esign` در هر دو حالت `visitor_only` است؛ textarea غنی متن ساده می‌گیرد و سرور HTML را پاک می‌کند. دستیار مرور پیش از ارسال را دور نمی‌زند و دکمهٔ ارسال را خودش نمی‌زند.

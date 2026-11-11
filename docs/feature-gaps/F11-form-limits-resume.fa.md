@@ -482,3 +482,16 @@ if (($this->operation_data['type'] ?? '') !== 'payment_followup' && class_exists
 6. پنجره‌های تکراری هفتگی (مثلاً فقط روزهای کاری ۹ تا ۱۷، مثل FF) در v1 لازم است یا فاز بعد؟
 7. «حذف پاسخ ظرفیت را آزاد می‌کند» برای سقف کل درست است. آیا برای محدودیت هر کاربر هم باید همین‌طور باشد؟ در آن صورت باید کلید bucket کنار هر پاسخ ذخیره شود.
 8. اصلاح `get_ip_address()` (اعتماد به هدر قابل جعل) در همین نسخه انجام شود یا تسک جداگانه؟ آدرس ذخیره‌شده در پاسخ‌ها و Human Shield به آن وابسته‌اند.
+
+---
+
+## سازگاری با SitePilot AI
+
+قرارداد کامل: [reference/sitepilot-compatibility.en.md](reference/sitepilot-compatibility.en.md) (§۵.۳ پیش‌نویس، §۵.۷ کدهای خطا، §۸.۱ و چک‌لیست F11 در §۹).
+
+- کلیدهای `lim_*`، `sched_*`، `draft_on`، `draft_days`، `partial_on`، `partial_days`، `partial_consent`، `partial_need_contact`، `allowed_roles` و `custom_css` با همین نام‌ها در قرارداد هستند. `custom_css` فقط با `allow.custom_css` و وقتی کاربر اجراکننده `unfiltered_html` دارد پذیرفته می‌شود.
+- `Form_Gate::check()` حالت پیش‌نویس قرارداد را هم اجرا کند: `emsfb_form.status = 0` برای بازدیدکننده رندر نمی‌شود و `forms/message/add` خطای `efb_form_draft` می‌دهد (SitePilot فرم را به‌صورت draft می‌سازد، تعارض C7).
+- خواندن شناسهٔ فرم در شورت‌کد با `end($id)` (`class-Emsfb-public.php:1118`) باید هم‌زمان با ویژگی‌های `popup*` اصلاح شود تا SitePilot بتواند شورت‌کد پنجرهٔ بازشو برگرداند.
+- کدهای `efb_form_pending`، `efb_form_closed`، `efb_form_full`، `efb_limit_reached` و `efb_role_denied` کدهای پایدار برای دستیارند. schema عمومی بلوک `gate: {state, closes_at, left?}` دارد (`left` فقط با `lim_show_left`).
+- دستیار بازدیدکننده پاسخ نیمه‌کاره یا پیش‌نویس را از طرف بازدیدکننده ذخیره نمی‌کند و رضایت `partial_consent` را خودش نمی‌زند. تغییر `lim_*`، `sched_*` و `allowed_roles` در `security_changes` گزارش می‌شود.
+- اگر F11 زودتر از F12 و F14 اجرا شود، فیلتر شمارش (`entry_status NOT IN ('spam','trash')`) باید با تصمیم نهایی تعارض C1 هم‌خوان شود.

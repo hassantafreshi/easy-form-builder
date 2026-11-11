@@ -389,3 +389,14 @@ F16 قاعدهٔ اعتبارسنجی تازه‌ای اضافه نمی‌کند
 3. استفاده از `axe-core` در تست‌های Playwright نیاز به افزودن devDependency دارد (امروز فقط `playwright ^1.60`). مالک تأیید می‌کند؟ بدون آن، تست‌ها assertهای دستی دارند.
 4. برای فرم‌های قدیمی هم `val_timing=blur` با یک «پیشنهاد ارتقا» در بررسی‌کننده (A12) فعال شود، یا فقط با تصمیم دستی مدیر؟
 5. حذف حالت آیکون‌تنها در عرض باریک چیدمان بعضی فرم‌های فشرده را بلندتر می‌کند. پذیرفته است؟ (پیشنهاد: بله، چون متن خطا ضروری است.)
+
+---
+
+## سازگاری با SitePilot AI
+
+قرارداد کامل: [reference/sitepilot-compatibility.en.md](reference/sitepilot-compatibility.en.md) (§۵.۲ `apply_defaults`، §۵.۸، §۸ و چک‌لیست F16 در §۹).
+
+- کلیدهای فرم `val_timing`، `err_summary`، `warn_unsaved` و کلید فیلد `autocomplete` با همین نام‌ها در قرارداد هستند. `inputmode` همان کلید F01 است.
+- پیش‌فرض‌های «فرم تازه» (`val_timing: "blur"`، `err_summary: "1"`، `warn_unsaved: "1"`) باید در یک تابع PHP مشترک (`efb_form_defaults_efb()`) هم باشند که سازنده، CF7 Mapper و API از آن استفاده کنند. وگرنه فرمی که SitePilot می‌سازد با فرم سازنده فرق دارد (تعارض C15).
+- schema عمومی توکن مؤثر `autocomplete` هر فیلد را نشان می‌دهد. دستیار بازدیدکننده با آن تشخیص می‌دهد کدام دادهٔ بازدیدکننده به کدام فیلد می‌رود.
+- `efb_set_field_error_efb` باید هنگام `setValue` با `source: "assistant"` هم اجرا شود. رویداد `efb:submit-result` شامل `ok`، `code` و `field_id` باشد تا دستیار خطای سرور را به بازدیدکننده توضیح دهد.

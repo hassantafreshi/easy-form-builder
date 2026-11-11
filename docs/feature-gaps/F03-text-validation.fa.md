@@ -489,3 +489,15 @@ if ($is_valid == 1 && is_array($validated_item) && class_exists('\Emsfb\Field_Ru
 4. حساسیت unique به حروف بزرگ و کوچک برای متن آزاد: پیش‌فرض بدون حساسیت است. گزینهٔ `unique_case` لازم است؟
 5. پیشوند و پسوند (مثلاً «تومان») در خروجی ایمیل و CSV کنار مقدار بیاید؟ پیشنهاد: نه در v1.
 6. سطح Free Plus برای unique و Regex تأیید شود. رقبا این‌ها را بیشتر در نسخهٔ پولی دارند.
+
+---
+
+## سازگاری با SitePilot AI
+
+قرارداد کامل: [reference/sitepilot-compatibility.en.md](reference/sitepilot-compatibility.en.md) (§۶.۲ `keys_masks_rules`، §۷.۲ و چک‌لیست F03 در §۹).
+
+- کلیدهای `unique`، `unique_scope`، `wmin`، `wmax`، `counter`، `counter_style`، `pattern_b64`، `pattern_case`، `pattern_ascii`، `email_domain_mode`، `email_domains`، `readonly`، `prefix`، `suffix`، `message_place`، `pw_*`، `msg_*` و `name_attr` (J3) با همین نام‌ها در قرارداد هستند. دستیار regex را فقط به‌صورت base64url در `pattern_b64` می‌فرستد.
+- `efb_api_form_validate` همان lint ضد ReDoS زمان ذخیره را اجرا کند و برای الگوی نامعتبر خطای `pattern_invalid` با `path` بدهد، نه اینکه کلید را بی‌صدا خالی کند.
+- backfill یکتایی (`efb_unique_backfill_Emsfb`) باید از هوک مشترک `efb_form_saved` راه بیفتد، نه فقط از JS سازنده؛ وگرنه فیلد `unique` که API ساخته هرگز backfill نمی‌شود.
+- کلیدهای پولی در `manifest.features.field_rules.gated_keys` گزارش شوند (`unique`، `pattern_b64`، `email_domain_mode`، `pw_strength_min`). گیت سرور با `efb_plan_at_least_efb('free_plus')` انجام شود، نه `is_efb_pro(1)` (تعارض C3).
+- schema عمومی `pattern_b64` و `email_domains` را نشان نمی‌دهد. کدهای خطای `Field_Rules` (`unique`، `pattern`، `domain`، `mismatch`، `strength`، `words`) کدهای پایداری هستند که دستیار بازدیدکننده از `setValue`/`validate` دریافت می‌کند.

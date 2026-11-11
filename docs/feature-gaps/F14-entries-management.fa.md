@@ -513,3 +513,14 @@ CREATE TABLE {p}emsfb_stats_ (
 - `update_message_state_Emsfb` (`class-Emsfb-admin.php:1300`) آرگومان `JSON_UNESCAPED_UNICODE` را به `isHTML()` می‌دهد، نه به `json_encode`. شرط هم با `&&` نوشته شده و فقط وقتی id خالی **و** HTML دارد رد می‌کند.
 - ویجت داشبورد «بازدیدها» را کمتر نشان می‌دهد، چون ردیف `visit` هنگام submit به `send` تبدیل می‌شود (`functions.php:6970-6983`). بازدید واقعی برابر `visit + submissions` است. مجوز ویجت (`class-Emsfb-dashboard-widget.php:149`) فقط `manage_options` است و نقش `Emsfb` را نمی‌پذیرد.
 - `current-capabilities.en.md` می‌گوید PDF مخصوص Free Plus/Pro است، ولی در پیشخوان دکمه همیشه هست و فقط نشان «ساخته‌شده با» برای غیر Pro واقعی اضافه می‌شود (`response-viewer-efb.js:899`، 1436).
+
+---
+
+## سازگاری با SitePilot AI
+
+قرارداد کامل: [reference/sitepilot-compatibility.en.md](reference/sitepilot-compatibility.en.md) (§۵.۵ `entries.read`، §۵.۸ و چک‌لیست F14 در §۹).
+
+- قابلیت `entries.read` در API روی همین سند ساخته می‌شود: `efb_api_entries_query($form_id, $q)` همان منطق `efb_entries_query_Emsfb` (§۸.۱، با همان پارامترها و سقف `per_page` ۱۰۰) را صدا می‌زند و `efb_api_entry_get($msg_id)` یک پاسخ را برمی‌گرداند. پیش‌فرض خاموش است و با تنظیم سراسری `ai_entries_access` (`off|stats|rows`) باز می‌شود؛ حالت `stats` فقط از `emsfb_stats_` می‌خواند.
+- وضعیت در API رشتهٔ `active|spam|trash` است و `read_state` = `new|read|pending_payment|new_reply|closed` از `read_` ۰ تا ۴. **تعارض C1** با F12 و F11 دربارهٔ نوع ستون `entry_status` پیش از ادغام حل شود.
+- هر خواندن از API یک ردیف `emsfb_msg_log_` با `action: "api_read"` (بدون مقدار، فقط نام برنامه و تعداد) و `do_action('efb_api_entries_read', ...)` می‌نویسد.
+- ویرایش، حذف، ارسال دوباره و خروجی در نسخهٔ ۱ قرارداد برای دستیار باز نیستند و فقط در پیشخوان EFB انجام می‌شوند. `efb_entry_updated` و `efb_message_deleted` برای همگام‌سازی SitePilot کافی‌اند.

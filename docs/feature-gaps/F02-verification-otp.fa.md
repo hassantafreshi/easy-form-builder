@@ -903,3 +903,16 @@ sms.ir، Melipayamak، Ghasedak، IPPanel، Unifonic و Taqnyat. هر کدام �
 - Twilio Verify API: https://www.twilio.com/docs/verify/api/verification
 - رقبا: پیوندهای جدول §2، به‌علاوهٔ `docs/feature-gaps/reference/competitor-matrix.en.md`
 - ارائه‌دهندگان: پیوندهای جدول §6.5. صفحهٔ Kavenegar (`kavenegar.com/rest.html`) هنگام نگارش 503 برگرداند و شکل `verify/lookup` باید پیش از پیاده‌سازی تأیید شود.
+
+---
+
+## سازگاری با SitePilot AI
+
+قرارداد کامل: [reference/sitepilot-compatibility.en.md](reference/sitepilot-compatibility.en.md) (§۴.۱، §۷.۲، §۸.۲ و چک‌لیست F02 در §۹).
+
+- کلیدهای این سند (`otp_enabled`، `otp_channel`، `otp_required_when`، `otp_countries`، `otp_btn_label`، `email_confirm_mode`، `email_retype_label`، `email_otp_required_when`، `email_otp_subject`، `email_otp_body`) با همین نام‌ها در JSON Schema قرارداد آمده‌اند. `otp_countries` آرایه است و بدون `case` اختصاصی در `sanitize_obj_msg_efb()` پاک می‌شود؛ این `case` برای مسیر API هم لازم است.
+- `efb_api_manifest()` باید `features.verify_email` و `features.verify_sms` را با `ready` (همان `verify_email_ready`/`verify_sms_ready`) و سطح پلن گزارش کند، بدون نام ارائه‌دهنده یا اعتبارنامه. اگر دستیار OTP بخواهد و کانال آماده نباشد، `efb_api_form_validate` خطای `efb_verify_unavailable` بدهد.
+- دستیار مدیر فقط با پلن مجاز و کانال آماده می‌تواند OTP را روشن کند. خاموش کردن OTP یا تغییر `email_confirm_mode` روی فرم موجود در `security_changes` گزارش می‌شود و تأیید صریح لازم دارد.
+- دستیار بازدیدکننده فقط مقصد (شماره یا ایمیل) را پر می‌کند. دکمهٔ «ارسال کد» صفحه با `runtime_token` خود صفحه `verify/send` را صدا می‌زند. دستیار کد را در چت یا صدا نمی‌پرسد و منتقل نمی‌کند. `forms/message/add` بدون توکن معتبر همچنان رد می‌کند.
+- schema عمومی (`GET Emsfb/v1/forms/{id}/schema`) برای فیلد بلوک `verify: {channel, required_when}` دارد. وضعیت تأیید با رویداد DOM `efb:verify-state` اعلام شود.
+- رفتار پس از downgrade (fail-closed این سند) در manifest با `downgrade: "blocks_submit"` گزارش شود (تعارض C4 در فایل مرجع).

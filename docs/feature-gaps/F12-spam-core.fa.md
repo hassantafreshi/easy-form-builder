@@ -375,3 +375,14 @@ ALTER TABLE `{prefix}emsfb_msg_` ADD KEY form_status (form_id, entry_status, `da
 4. شرط `isset($valj_efb[0]->logic)` در رندر کپچا (`class-Emsfb-public.php:1733`): آیا افزونهٔ AdnSMF کپچا را رندر می‌کند؟ اگر نه، حذف شرط یک اصلاح فوری است.
 5. آیا `remoteip` باید به siteverify ارسال شود؟ فقط پس از اصلاح منبع IP.
 6. نام ستون `entry_status` برای F14 قابل قبول است، یا F14 ترجیح می‌دهد `status_` یا یک جدول meta داشته باشد؟
+
+---
+
+## سازگاری با SitePilot AI
+
+قرارداد کامل: [reference/sitepilot-compatibility.en.md](reference/sitepilot-compatibility.en.md) (§۵.۵، §۷.۲، §۸.۱ و چک‌لیست F12 در §۹).
+
+- کلیدهای فرم `captcha_provider`، `rc3_threshold`، `spam_off` و `spam_akismet` با همین نام‌ها در قرارداد هستند. secretها (`rc3SecretKey`، `hcSecretKey`، `tsSecretKey`) در فهرست کلیدهای ممنوع JSON فرم‌اند و API به تنظیمات سراسری دسترسی ندارد.
+- فرمی که API می‌سازد پیش‌فرض‌های «فرم تازه» (هانی‌پات و زمان پر کردن) را از `efb_form_defaults_efb()` می‌گیرد. خاموش کردن `captcha` یا روشن کردن `spam_off` در `security_changes` گزارش و با ریسک «high» نشان داده می‌شود.
+- **تعارض C1:** این سند `entry_status` را `varchar` با `''`/`'spam'` تعریف کرده، F14 آن را `TINYINT` ۰/۱/۲ و F11 با `'spam','trash'` می‌خواند. پیش از ادغام یکی انتخاب شود. API در هر حال `status` را به‌صورت `active|spam|trash` نشان می‌دهد.
+- schema عمومی هرگز نام هانی‌پات را نشان نمی‌دهد و دستیار بازدیدکننده آن را پر نمی‌کند. کپچا را خود بازدیدکننده حل می‌کند. ارسال سرور به سرور از طرف بازدیدکننده در قرارداد وجود ندارد، پس توکن JS و حداقل زمان دور زده نمی‌شوند.
