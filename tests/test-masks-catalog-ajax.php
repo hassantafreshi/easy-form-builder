@@ -102,6 +102,11 @@ sort($ids);
 efbt('every catalog id is listed once (99)', $ids === $catIds && count($ids) === 99);
 efbt('every preset has a label', $labelled);
 efbt('no regex or examples are sent to the builder', !$leak);
+$rtLeak = false;
+foreach ($r['runtime'] as $rt) {
+	$rtLeak = $rtLeak || isset($rt['examples_valid']) || isset($rt['metadata']) || isset($rt['sources']) || !isset($rt['regex']);
+}
+efbt('runtime entries for the builder preview: 99, engine fields only', count($r['runtime']) === 99 && !$rtLeak && $r['runtime']['ir.mobile']['placeholder'] === '۰۹۱۲ ۳۴۵ ۶۷۸۹');
 efbt('response is cached for a day', $GLOBALS['efbt']['cache_sets'] === 1 && $GLOBALS['efbt']['last_expire'] === 86400 && isset($GLOBALS['efbt']['cache']['emsfb|efb_masks_cat_fa_IR_fa_IR_4.3.1-test']));
 $r2 = efbt_call();
 efbt('second call served from the cache', $GLOBALS['efbt']['cache_sets'] === 1 && $r2 === $r);

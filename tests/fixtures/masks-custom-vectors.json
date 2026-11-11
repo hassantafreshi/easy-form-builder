@@ -788,5 +788,73 @@
    "mask": "9\\\\9",
    "expect": true
   }
+ ],
+ "apply_mask": [
+  {
+   "mask": "0\\999 999 9999",
+   "input": "0",
+   "expect": "0",
+   "note": "typed literal shown at once"
+  },
+  {
+   "mask": "0\\999 999 9999",
+   "input": "09",
+   "expect": "09"
+  },
+  {
+   "mask": "0\\999 999 9999",
+   "input": "9",
+   "expect": "09",
+   "note": "typed 9 matches the literal 9; the 0 before it is inserted"
+  },
+  {
+   "mask": "0\\999 999 9999",
+   "input": "1",
+   "expect": "091"
+  },
+  {
+   "mask": "0\\999 999 9999",
+   "input": "0912",
+   "expect": "0912",
+   "note": "auto-inserted separator stays lazy"
+  },
+  {
+   "mask": "059 999 9999",
+   "input": "05",
+   "expect": "05"
+  },
+  {
+   "mask": "059 999 9999",
+   "input": "050",
+   "expect": "050"
+  },
+  {
+   "mask": "(999) 999-9999",
+   "input": "(",
+   "expect": "(",
+   "note": "typed opening parenthesis kept"
+  },
+  {
+   "mask": "(999) 999-9999",
+   "input": "202",
+   "expect": "(202"
+  },
+  {
+   "mask": "\\[99\\]",
+   "input": "[12]",
+   "expect": "[12]",
+   "note": "typed closing literal kept"
+  },
+  {
+   "mask": "99[-99]",
+   "input": "12-",
+   "expect": "12-"
+  },
+  {
+   "mask": "IR99 9999",
+   "input": "ir",
+   "expect": "",
+   "note": "lowercase does not match the literal IR (formatValue uppercases first for presets)"
+  }
  ]
 }

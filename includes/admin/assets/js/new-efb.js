@@ -1637,7 +1637,9 @@ function handle_change_event_efb(el){
             return 1;
     }
     const formid = el.dataset.hasOwnProperty('formid') ? el.dataset.formid : -1;
-    valj_efb =  get_structure_by_form_id_efb(formid);
+    // get_structure_by_form_id_efb() lives in the public core-efb.js; the builder preview has only its own
+    // valj_efb, and the call threw there on every field change.
+    if (typeof get_structure_by_form_id_efb === 'function') valj_efb = get_structure_by_form_id_efb(formid);
     let ob = valj_efb.find(x => x.id_ === el.dataset.vid);
     let value = ""
     const id_ = el.dataset.vid
@@ -1655,6 +1657,18 @@ function handle_change_event_efb(el){
         return
       }
     }
+    // F01: in the builder preview a masked field is checked like on the public page (core-efb.js).
+    const mask_fd_efb = typeof efb_mask_preview_fd_efb === 'function' && (el.type === 'text' || el.type === 'tel') ? efb_mask_preview_fd_efb(el) : null;
+    if (mask_fd_efb) {
+      if (EfbMasks.normalize(el.value, {}) === '') { el_empty_value(id_); return; }
+      const mr = EfbMasks.fieldCheck(mask_fd_efb, el.value);
+      if (!mr.ok) { efb_mask_preview_error_efb(el, mr.code, mask_fd_efb); delete_by_id(id_); return; }
+      value = mr.stored;
+      state = true;
+      el.className = colorBorderChangerEfb(el.className, "border-success");
+      vd = document.getElementById(`${el.id}-message`);
+      if (vd) { vd.textContent = ''; vd.classList.remove('show'); vd.style.display = 'none'; }
+    } else
     switch (el.type) {
       case "text":
       case "color":

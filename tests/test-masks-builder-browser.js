@@ -13,6 +13,7 @@
  */
 'use strict';
 const { chromium } = require('playwright');
+const fs = require('fs');
 const path = require('path');
 const { execFileSync } = require('child_process');
 
@@ -29,9 +30,23 @@ const catalogJson = execFileSync('php', ['-r', `
   echo json_encode(array('success' => true, 'data' => \\Emsfb\\Masks::builder_catalog('en_US', 'en_US')), JSON_UNESCAPED_UNICODE);
 `]).toString('utf8');
 
+/* EFB_CHROMIUM picks a build; otherwise Playwright's own, then any installed headless shell
+ * (the repository pins an older Playwright than the browsers some machines have). */
+async function launchChromiumEfb() {
+  if (process.env.EFB_CHROMIUM) return chromium.launch({ executablePath: process.env.EFB_CHROMIUM });
+  try { return await chromium.launch(); } catch (e) {
+    const base = process.env.PLAYWRIGHT_BROWSERS_PATH || '/opt/pw-browsers';
+    const dirs = fs.existsSync(base) ? fs.readdirSync(base).filter((d) => /^chromium_headless_shell-\d+$/.test(d)).sort().reverse() : [];
+    for (const d of dirs) {
+      const exe = path.join(base, d, 'chrome-headless-shell-linux64', 'chrome-headless-shell');
+      if (fs.existsSync(exe)) return chromium.launch({ executablePath: exe });
+    }
+    throw e;
+  }
+}
+
 (async () => {
-  const launch = process.env.EFB_CHROMIUM ? { executablePath: process.env.EFB_CHROMIUM } : {};
-  const browser = await chromium.launch(launch);
+  const browser = await launchChromiumEfb();
   const page = await browser.newPage();
   const errors = [];
   let ajaxCalls = 0;
@@ -49,8 +64,8 @@ const catalogJson = execFileSync('php', ['-r', `
     return r.fulfill({ status: 200, contentType: 'text/html', body: '<!doctype html><datalist id="color_list_efb"><option value="#000000"></option></datalist><div id="sideMenuFEfb"></div><div id="sideBoxEfb"></div><div id="sideMenuConEfb"></div><div id="overlay_efb" class="d-none"></div><div id="canvas"></div>' });
   });
   await page.goto('http://site.test/wp-admin/admin.php?page=Emsfb_create');
-  await page.addScriptTag({ content: "var efb_var={rtl:0,nonce:'n0nce',pro:1,text:new Proxy({}, {get:(t,k)=>typeof k==='string'?'T:'+k:undefined}),images:{},setting:{},addons:{}};var ajaxurl='http://site.test/wp-admin/admin-ajax.php';" });
-  for (const f of ['jquery.min-efb.js', 'new-efb.js', 'admin-efb.js', 'steps-progress-builder-efb.js', 'val-efb.js']) await page.addScriptTag({ path: R + f });
+  await page.addScriptTag({ content: "var efb_var={rtl:0,language:'en_US',nonce:'n0nce',pro:1,text:new Proxy({}, {get:(t,k)=>typeof k==='string'?'T:'+k:undefined}),images:{},setting:{},addons:{}};var ajaxurl='http://site.test/wp-admin/admin-ajax.php';" });
+  for (const f of ['jquery.min-efb.js', 'new-efb.js', 'admin-efb.js', 'steps-progress-builder-efb.js', 'val-efb.js', 'core-efb.js']) await page.addScriptTag({ path: R + f });
   await page.addScriptTag({ path: path.join(ROOT, 'public', 'assets', 'js', 'masks-efb.js') });
   const bootErrors = errors.splice(0);
 
@@ -181,6 +196,29 @@ const catalogJson = execFileSync('php', ['-r', `
   check('JS twin: inputmode alone (H)', !tw.im.masked && tw.im.attrs === 'inputmode="decimal"', tw.im);
   check('JS twin: name parts ignore masks', !tw.name.masked, tw.name);
   check('JS twin: explicit autocomplete wins', tw.ac.autocomplete === '', tw.ac);
+  // In-admin preview: masks bound from the builder catalog's runtime entries, same checks as the public page.
+  const pv = await page.evaluate(async () => {
+    const c = document.getElementById('canvas');
+    c.insertAdjacentHTML('beforeend', '<div id="pvw"><input id="ftel_" data-vid="ftel" data-formid="-1" type="tel" class="efb emsFormBuilder_v form-control" data-mask-preset="ir.national_id" data-mask-store="canonical" dir="ltr"><small id="ftel_-message"></small></div>');
+    const old = document.querySelectorAll('#ftel_');
+    if (old.length > 1) old[0].id = 'ftel_old';
+    const el = document.querySelectorAll('#ftel_')[0];
+    sendBack_emsFormBuilder_pub = [];
+    await efb_masks_preview_bind_efb();
+    el.focus(); el.value = ''; el.value = '1234567892'; el.dispatchEvent(new Event('input'));
+    const shown = el.value;
+    let err = null;
+    try { handle_change_event_efb(el); } catch (e) { err = e.message; }
+    const msg = document.getElementById('ftel_-message').textContent;
+    el.value = '0012345679'; el.dispatchEvent(new Event('input'));
+    try { handle_change_event_efb(el); } catch (e) { err = err || e.message; }
+    const row = sendBack_emsFormBuilder_pub.find((r) => r.id_ === 'ftel');
+    return { shown, err, msg, stored: row ? row.value : null };
+  });
+  check('preview: mask bound and formats while typing', pv.shown === '123-456789-2', pv);
+  check('preview: change handler runs without errors', pv.err === null, pv.err);
+  check('preview: checksum message (phrase mskChecksum_)', pv.msg === 'T:mskChecksum_', pv.msg);
+  check('preview: valid value stored canonical', pv.stored === '0012345679', pv.stored);
   check('no page errors while using the control', errors.length === 0, errors);
   if (bootErrors.length) console.log('note: errors while loading the builder scripts without WordPress (not from F01): ' + JSON.stringify(bootErrors));
   await browser.close();

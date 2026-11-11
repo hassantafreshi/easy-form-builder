@@ -2080,6 +2080,7 @@ function efb_masks_catalog_load_efb() {
     }).fail(() => resolve(null));
   }).then((data) => {
     if (data === null) window.efbMasksCatalogEfb = null; // retry on the next panel open
+    else window.efbMasksCatalogDataEfb = data;
     return data;
   });
   return window.efbMasksCatalogEfb;
@@ -2150,6 +2151,41 @@ function efb_mask_attrs_efb(row, elementId) {
   out.masked = true;
   out.attrs = a.join(' ');
   return out;
+}
+// In-admin preview (PC / mobile): the same engine and checks as the public page (core-efb.js).
+function efb_mask_preview_fd_efb(el) {
+  if (typeof EfbMasks === 'undefined' || !el || !el.dataset) return null;
+  const ds = el.dataset;
+  const store = ds.maskStore === 'display' ? 'display' : 'canonical';
+  if (ds.mask) {
+    if (!EfbMasks.checkMask(ds.mask)) return null;
+    const row = valj_efb.find((x) => x.id_ === ds.vid);
+    const cs = row && EfbMasks.CUSTOM_CHECKSUMS.indexOf(row.mask_checksum) !== -1 ? row.mask_checksum : '';
+    return { kind: 'custom', def: { mask: ds.mask, checksum: cs }, store: store };
+  }
+  const rt = window.efbMasksCatalogDataEfb && window.efbMasksCatalogDataEfb.runtime;
+  let def = ds.maskPreset && rt ? rt[ds.maskPreset] : null;
+  if (!def || !def.regex) return null;
+  if (ds.maskStrict === '1' && def.regex_strict) def = Object.assign({}, def, { regex: def.regex_strict });
+  return { kind: 'preset', def: def, store: store };
+}
+function efb_mask_preview_error_efb(el, code, fd) {
+  const row = valj_efb.find((x) => x.id_ === el.dataset.vid);
+  const example = String(el.getAttribute('placeholder') || '') || (fd.kind === 'preset' && fd.def.placeholder ? fd.def.placeholder : '');
+  const msg = EfbMasks.fieldMessage(code, row && row.name ? String(row.name) : '', example, efb_var.text);
+  el.className = colorBorderChangerEfb(el.className, 'border-danger');
+  const vd = document.getElementById(`${el.id}-message`);
+  if (vd) { vd.textContent = msg; vd.style.display = 'block'; vd.classList.add('show'); }
+}
+async function efb_masks_preview_bind_efb() {
+  if (typeof EfbMasks === 'undefined') return;
+  const els = document.querySelectorAll('input[data-mask-preset], input[data-mask]');
+  if (!els.length) return;
+  if (document.querySelector('input[data-mask-preset]')) await efb_masks_catalog_load_efb();
+  for (const el of els) {
+    const fd = efb_mask_preview_fd_efb(el);
+    if (fd) EfbMasks.bindField(el, fd);
+  }
 }
 // Shows/hides the parts of the mask control that depend on the chosen preset.
 function efb_masks_panel_state_efb(row) {
@@ -8171,6 +8207,19 @@ async function fun_validation_efb() {
   let idi = "null";
   for (let row in valj_efb) {
     let s =  get_row_sendback_by_id_efb(valj_efb[row].id_);
+    // F01: a masked field holding an invalid value stops the step, as on the public page.
+    if (row > 1 && current_s_efb == valj_efb[row].step && typeof valj_efb[row].mask_preset === 'string' && valj_efb[row].mask_preset !== '') {
+      const mEl = document.getElementById(`${valj_efb[row].id_}_`);
+      const mfd = mEl ? efb_mask_preview_fd_efb(mEl) : null;
+      if (mfd && String(mEl.value).trim() !== '') {
+        const mr = EfbMasks.fieldCheck(mfd, mEl.value);
+        if (!mr.ok) {
+          efb_mask_preview_error_efb(mEl, mr.code, mfd);
+          if (state == true) { state = false; idi = valj_efb[row].id_ }
+          continue;
+        }
+      }
+    }
     if (row > 1 && valj_efb[row].required == true && current_s_efb == valj_efb[row].step && valj_efb[row].type != "chlCheckBox") {
       const id = fun_el_select_in_efb(valj_efb[row].type) == false ? `${valj_efb[row].id_}_` : `${valj_efb[row].id_}_options`;
       let el =document.getElementById(`${valj_efb[row].id_}_-message`);
@@ -9643,6 +9692,7 @@ function previewFormEfb(state) {
         handle_change_event_efb(el);
       });
     }
+    efb_masks_preview_bind_efb(); // F01: live masks in the preview
   }
   step_el_efb = Number(valj_efb[0].steps);
   // AdnOF may be {active:true}; AfLnFrm is saved as a boolean. Both branches

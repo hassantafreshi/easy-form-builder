@@ -626,6 +626,8 @@ async function createStepsOfPublic() {
               // than store text the visitor never sees, or flag it before any input.
               el.value = '';
             }
+            // F01: bind the mask first, so a default value is formatted before it is checked.
+            const mask_bound_efb = (el.type === 'text' || el.type === 'tel') ? efb_bind_mask_efb(el, form_id) : false;
             let init_change_efb = null;
             if(el.value && el.value.length>0){
               if(el.type!="range" && el.type!="color"){
@@ -672,7 +674,9 @@ async function createStepsOfPublic() {
               load_intlTelInput_efb(id,indx);
 
             }
-            if(el.type === 'tel') {
+            // Not on a masked field: two rewrites on 'input' fight over the caret, and the keydown filter
+            // breaks IMEs and Android keyboards (keyCode 229).
+            if(el.type === 'tel' && !mask_bound_efb) {
               el.setAttribute('inputmode', 'tel');
               el.addEventListener('input', function() {
                 var cursorPos = this.selectionStart;
@@ -1335,10 +1339,78 @@ function valid_email_emsFormBuilder(el) {
   }
   return check > 0 ? false : true
 }
+/* F01 input masks. A masked input carries data-mask-preset (catalog id; the entry comes from
+ * ajax_object_efm.masks) or data-mask (the admin's own token mask), plus data-mask-store and
+ * data-mask-strict. Without masks-efb.js, or for a preset the page has no entry for, the field keeps
+ * the checks it had before F01 (the server does the same). */
+function efb_mask_fd_efb(el) {
+  if (typeof EfbMasks === 'undefined' || !el || !el.dataset) return null;
+  const ds = el.dataset;
+  const store = ds.maskStore === 'display' ? 'display' : 'canonical';
+  if (ds.mask) {
+    if (!EfbMasks.checkMask(ds.mask)) return null;
+    let checksum = '';
+    try {
+      const row = get_structure_by_form_id_efb(ds.formid || 0).find(x => x.id_ === ds.vid);
+      if (row && EfbMasks.CUSTOM_CHECKSUMS.indexOf(row.mask_checksum) !== -1) checksum = row.mask_checksum;
+    } catch (e) {}
+    return { kind: 'custom', def: { mask: ds.mask, checksum: checksum }, store: store };
+  }
+  if (ds.maskPreset) {
+    const all = (typeof ajax_object_efm !== 'undefined' && ajax_object_efm && ajax_object_efm.masks) ? ajax_object_efm.masks : null;
+    let def = all ? all[ds.maskPreset] : null;
+    if (!def || !def.regex) return null;
+    if (ds.maskStrict === '1' && def.regex_strict) def = Object.assign({}, def, { regex: def.regex_strict });
+    return { kind: 'preset', def: def, store: store };
+  }
+  return null;
+}
+/* Live formatting while typing (no keydown filtering: IME, Android and paste keep working). */
+function efb_bind_mask_efb(el, form_id) {
+  const fd = efb_mask_fd_efb(el);
+  if (!fd) return false;
+  EfbMasks.bindField(el, fd);
+  return true;
+}
+/* The message for a failure code, written as text (never HTML) into the field's message box. */
+function efb_mask_error_efb(el, code, fd) {
+  let row = null;
+  try { row = get_structure_by_form_id_efb(el.dataset.formid || 0).find(x => x.id_ === el.dataset.vid); } catch (e) {}
+  const name = row && row.name ? String(row.name) : String(el.getAttribute('aria-label') || '');
+  const example = String(el.getAttribute('placeholder') || '') || (fd && fd.kind === 'preset' && fd.def.placeholder ? fd.def.placeholder : '');
+  const text = (typeof ajax_object_efm !== 'undefined' && ajax_object_efm && ajax_object_efm.text) ? ajax_object_efm.text : {};
+  const msg = EfbMasks.fieldMessage(code, name, example, text);
+  el.className = colorBorderChangerEfb(el.className, "border-danger");
+  if (typeof efb_set_field_error_efb === 'function') { efb_set_field_error_efb(el, msg); return; }
+  const vd = document.getElementById(`${el.id}-message`);
+  if (vd) { vd.textContent = msg; show_msg_efb(vd); }
+}
+/* Stored value -> what the input shows (offline restore puts +98912... back as 0912 ...). */
+function efb_mask_display_efb(el, value) {
+  const fd = efb_mask_fd_efb(el);
+  if (!fd || value === '') return value;
+  return fd.kind === 'custom' ? EfbMasks.applyMask(fd.def.mask, value) : EfbMasks.formatDisplay(fd.def, value);
+}
+/* National ids, card numbers, IBANs and CVCs are not kept in localStorage drafts (like passwords). */
+function efb_mask_row_sensitive_efb(r) {
+  if (!r || typeof r !== 'object' || !r.id_ob || typeof document === 'undefined') return false;
+  const el = document.getElementById(r.id_ob);
+  const fd = el ? efb_mask_fd_efb(el) : null;
+  if (!fd) return false;
+  if (fd.kind === 'custom') return fd.def.checksum !== '';
+  return ['national_id', 'bank_card', 'iban', 'tax_id', 'passport'].indexOf(fd.def.category) !== -1 || fd.def.id === 'intl.cvc';
+}
 /* Email, phone, URL and number fields: true when the typed value is acceptable.
  * Email and phone show their message here; URL and number already show it from
  * the change handler (number Min/Max are values, carried in minlength/maxlength). */
 function valid_typed_value_efb(type, el) {
+  if (type == 'masked') {
+    const fd = efb_mask_fd_efb(el);
+    if (!fd) return el.type == 'tel' ? valid_phone_emsFormBuilder(el) : true;
+    const r = EfbMasks.fieldCheck(fd, el.value);
+    if (!r.ok) efb_mask_error_efb(el, r.code, fd);
+    return r.ok;
+  }
   if (type == 'email') return valid_email_emsFormBuilder(el);
   if (type == 'tel') return valid_phone_emsFormBuilder(el);
   if (type == 'number') {
@@ -1702,7 +1774,7 @@ function efb_sendback_for_storage_efb(rows) {
   // answers left behind expire (efb_expire_stored_answers_efb).
   try { localStorage.setItem('sendback_t', String(Date.now())); } catch (e) {}
   if (!Array.isArray(rows)) return JSON.stringify(rows);
-  return JSON.stringify(rows.filter(r => !(r && typeof r === 'object' && String(r.type || '').toLowerCase() === 'password')));
+  return JSON.stringify(rows.filter(r => !(r && typeof r === 'object' && String(r.type || '').toLowerCase() === 'password') && !(typeof efb_mask_row_sensitive_efb === 'function' && efb_mask_row_sensitive_efb(r))));
 }
 function efb_scrub_stored_passwords_efb() {
   try {
@@ -1787,6 +1859,7 @@ async function efb_restore_offline_answers_efb() {
       if (tag === 'TEXTAREA' || (tag === 'INPUT' && ['text', 'email', 'tel', 'url', 'number', 'date', 'color', 'range'].indexOf(type) !== -1)) {
         // Stored textarea answers carry line breaks as "@n#".
         if (tag === 'TEXTAREA') value = typeof text_nr_efb === 'function' ? text_nr_efb(value, 0) : value.replace(/@n#/g, '\n');
+        else value = efb_mask_display_efb(el, value); // F01: canonical +98912... back to 0912 ...
         if (value === '' || el.value === value) continue;
         el.value = value;
       } else if (tag === 'INPUT' && (type === 'radio' || type === 'checkbox')) {
@@ -4048,6 +4121,25 @@ async function handle_change_event_efb_v4(el ,form_id=0){
       return
     }
   }
+  // F01: a masked field is checked by the mask engine instead of the length / phone rules, and the
+  // value kept for the entry is the stored form (canonical, or as displayed when the field says so).
+  const mask_fd_efb = (el.type === 'text' || el.type === 'tel') ? efb_mask_fd_efb(el) : null;
+  if (mask_fd_efb) {
+    if (EfbMasks.normalize(el.value, {}) === '') { el_empty_value(id_); return; }
+    const mr = EfbMasks.fieldCheck(mask_fd_efb, el.value);
+    if (!mr.ok) {
+      efb_mask_error_efb(el, mr.code, mask_fd_efb);
+      sendback_state_handler_efb_v4(id_,false,0,form_id);
+      delete_by_id(id_);
+      updateStepButtonState_efb(form_id);
+      efb_reevaluate_logic_after_change_efb(form_id, el);
+      return;
+    }
+    value = mr.stored;
+    state = true;
+    el.className = colorBorderChangerEfb(el.className, "border-success");
+    hide_msg_efb(document.getElementById(`${el.id}-message`));
+  } else
   switch (el.type) {
     case "text":
     case "color":
@@ -4423,10 +4515,11 @@ async function fun_validation_efb_v4(form_id) {
     /* An email field holding text that is not an address. valid_email_emsFormBuilder()
      * already dropped the value, so an optional field used to submit without it,
      * silently, and a required one said "required" instead of what is wrong. */
-    if (row > 1 && ['email', 'tel', 'url', 'number'].includes(valj_efb[row].type) && current_s_efb == valj_efb[row].step) {
-      // The same holds for phone, URL and number fields: their change handlers drop an invalid value too.
+    const masked_row_efb = row > 1 && typeof valj_efb[row].mask_preset === 'string' && valj_efb[row].mask_preset !== '';
+    if (row > 1 && (masked_row_efb || ['email', 'tel', 'url', 'number'].includes(valj_efb[row].type)) && current_s_efb == valj_efb[row].step) {
+      // The same holds for phone, URL, number and masked (F01) fields: their change handlers drop an invalid value too.
       const typedEl = efb_get_by_id_in_form_efb(form_id, `${valj_efb[row].id_}_`);
-      if (typedEl && typeof typedEl.value === 'string' && typedEl.value.trim() !== '' && !valid_typed_value_efb(valj_efb[row].type, typedEl)) {
+      if (typedEl && typeof typedEl.value === 'string' && typedEl.value.trim() !== '' && !valid_typed_value_efb(masked_row_efb ? 'masked' : valj_efb[row].type, typedEl)) {
         if (state == true) { state = false; idi = valj_efb[row].id_; name_field = valj_efb[row].name; }
         continue; // the field already shows its "enter a valid …" message
       }

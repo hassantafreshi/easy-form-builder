@@ -35,6 +35,7 @@ function jsResults() {
     to_national_display: fx.to_national_display.map((c) => E.toNationalDisplay(byId[c.preset], c.input)),
     format_display: fx.format_display.map((c) => E.formatDisplay(byId[c.preset], c.input)),
     check_mask: fx.check_mask.map((c) => E.checkMask(c.mask)),
+    apply_mask: fx.apply_mask.map((c) => E.applyMask(c.mask, c.input)),
   };
 }
 
@@ -46,6 +47,7 @@ function verify(lang, res) {
   fx.is_complete.forEach((c, i) => check(`${lang} isComplete ${JSON.stringify(c.mask)} ${JSON.stringify(c.input)}`, res.is_complete[i], c.expect));
   fx.to_national_display.forEach((c, i) => check(`${lang} toNationalDisplay ${c.preset} ${JSON.stringify(c.input)}`, res.to_national_display[i], c.expect));
   fx.format_display.forEach((c, i) => check(`${lang} formatDisplay ${c.preset} ${JSON.stringify(c.input)}`, res.format_display[i], c.expect));
+  fx.apply_mask.forEach((c, i) => check(`${lang} applyMask ${JSON.stringify(c.mask)} ${JSON.stringify(c.input)}`, res.apply_mask[i], c.expect));
   fx.check_mask.forEach((c, i) => check(`${lang} checkMask ${JSON.stringify(c.mask.length > 20 ? c.mask.slice(0, 20) + '...' : c.mask)}`, res.check_mask[i], c.expect));
 }
 

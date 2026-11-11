@@ -45,7 +45,7 @@ function efbm_test_custom_rows($cat) {
 	foreach ($cat['masks'] as $m) {
 		$byId[$m['id']] = $m;
 	}
-	$out = array('validate_custom' => array(), 'is_complete' => array(), 'to_national_display' => array(), 'format_display' => array(), 'check_mask' => array());
+	$out = array('validate_custom' => array(), 'is_complete' => array(), 'to_national_display' => array(), 'format_display' => array(), 'check_mask' => array(), 'apply_mask' => array());
 	foreach ($fx['validate_custom'] as $c) {
 		$def = array('mask' => $c['mask'], 'checksum' => $c['checksum']);
 		$r = Masks::validate_custom($def, $c['input']);
@@ -62,6 +62,9 @@ function efbm_test_custom_rows($cat) {
 	}
 	foreach ($fx['check_mask'] as $c) {
 		$out['check_mask'][] = Masks::check_mask($c['mask']);
+	}
+	foreach ($fx['apply_mask'] as $c) {
+		$out['apply_mask'][] = Masks::apply_mask($c['mask'], $c['input']);
 	}
 	return $out;
 }

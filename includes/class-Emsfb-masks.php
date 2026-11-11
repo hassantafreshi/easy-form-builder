@@ -634,8 +634,9 @@ class Masks {
 		for ($t = 0; $t < $nt && $i < $ns; $t++) {
 			$tok = $tokens[$t];
 			if ($tok['k'] === 'lit') {
-				$pending[] = $tok;
-				if ($s[$i] === $tok['ch']) {
+				$typed = $s[$i] === $tok['ch'];
+				$pending[] = array('k' => 'lit', 'ch' => $tok['ch'], 'opt' => $tok['opt'], 'typed' => $typed);
+				if ($typed) {
 					$i++;
 				}
 				continue;
@@ -668,6 +669,18 @@ class Masks {
 				$dropped++; // data beyond the last slot
 			}
 		}
+		// A literal the visitor typed is shown even before the next slot is filled; literals only inserted
+		// by the mask stay lazy (twin of the JS runMask).
+		$last_typed = -1;
+		foreach ($pending as $q => $p) {
+			if (!empty($p['typed'])) {
+				$last_typed = $q;
+			}
+		}
+		for ($q = 0; $q <= $last_typed; $q++) {
+			$out .= $pending[$q]['ch'];
+		}
+		$pending = array_slice($pending, $last_typed + 1);
 		return array('out' => $out, 'tokens' => $tokens, 'next' => $t, 'pending' => $pending, 'dropped' => $dropped);
 	}
 
@@ -1163,7 +1176,19 @@ class Masks {
 		usort($rest, function ($a, $b) {
 			return strcmp($a['label'], $b['label']);
 		});
-		return array('success' => true, 'version' => isset($cat['version']) ? $cat['version'] : 0, 'groups' => array_merge($lead, $rest));
+		$ids = array();
+		foreach ($cat['masks'] as $m) {
+			if (is_array($m) && isset($m['id'])) {
+				$ids[] = $m['id'];
+			}
+		}
+		return array(
+			'success' => true,
+			'version' => isset($cat['version']) ? $cat['version'] : 0,
+			'groups' => array_merge($lead, $rest),
+			// Engine entries for the in-admin preview (same subset the public page gets), keyed by id.
+			'runtime' => self::runtime_subset($ids, $user_locale),
+		);
 	}
 
 	/** True for preset values that must not be kept in the visitor's localStorage draft. */

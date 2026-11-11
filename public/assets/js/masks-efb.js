@@ -435,7 +435,8 @@
   function isDataChar(c) { return DIGIT_RE.test(c) || LETTER_RE.test(c); }
   /**
    * applyMask(pattern, input) -> formatted string. Input is normalized first (digits -> ASCII).
-   * Literals are written lazily: only when a following slot is filled (keeps Backspace natural).
+   * Literals are written lazily: only when a following slot is filled (keeps Backspace natural), except a
+   * literal the input itself contains, which is kept.
    * A data char that fits no slot is dropped; an optional slot that does not fit is skipped.
    */
   function runMask(pattern, input) {
@@ -443,8 +444,9 @@
     for (t = 0; t < tokens.length && i < s.length; t++) {
       var tok = tokens[t];
       if (tok.k === 'lit') {
-        pending.push(tok);
-        if (s[i] === tok.ch) { i++; }
+        var typed = s[i] === tok.ch;
+        pending.push({ k: 'lit', ch: tok.ch, opt: tok.opt, typed: typed });
+        if (typed) { i++; }
         continue;
       }
       while (i < s.length && !isDataChar(s[i])) { i++; }
@@ -459,6 +461,12 @@
       }
     }
     for (var j = i; j < s.length; j++) { if (isDataChar(s[j])) { dropped++; } } // data beyond the last slot
+    // A literal the visitor typed is shown even before the next slot is filled (typing "0", "9" into
+    // 0\999 ... must not show an empty box); literals only inserted by the mask stay lazy.
+    var lastTyped = -1;
+    for (var q = 0; q < pending.length; q++) { if (pending[q].typed) { lastTyped = q; } }
+    for (q = 0; q <= lastTyped; q++) { out += pending[q].ch; }
+    pending = pending.slice(lastTyped + 1);
     return { out: out, tokens: tokens, next: t, pending: pending, dropped: dropped };
   }
   function applyMask(pattern, input) { return runMask(pattern, input).out; }
@@ -648,8 +656,13 @@
     if (maxlen > 0) { input.setAttribute('maxlength', String(maxlen)); }
     function run() {
       var before = input.value, caret = input.selectionStart === null ? before.length : input.selectionStart;
-      var dataBeforeCaret = countData(before, caret);
+      // Format the text left of the caret the same way and count its data characters: literal letters or
+      // digits of the mask (the 0 and 9 of 0\999 ...) then count on both sides, so the caret lands after
+      // the character just typed. (Counting the raw typed characters put it before inserted literals.)
+      var head = caret < before.length ? fmt(before.slice(0, caret)) : null;
+      var dataBeforeCaret = head === null || head === undefined ? countData(before, caret) : countData(head, head.length);
       var after = fmt(before);
+      if (caret >= before.length && after !== null && after !== undefined) { dataBeforeCaret = countData(after, after.length); }
       if (after !== null && after !== undefined && after !== before) {
         input.value = after;
         var pos = caretForDataIndex(after, dataBeforeCaret);
@@ -666,13 +679,68 @@
   }
   // #endregion dom_binding
 
+  // #region field helpers (shared by core-efb.js and the builder preview)
+  /*
+   * A field definition fd = { kind: 'preset' | 'custom', def: <runtime catalog entry | {mask, checksum}>,
+   * store: 'canonical' | 'display' }. Callers build it from the input's data-mask-* attributes.
+   */
+  /** fieldCheck(fd, raw) -> { ok, code, stored }: same rules as Masks::check_field() on the server. */
+  function fieldCheck(fd, raw) {
+    var display = fd.store === 'display', r;
+    try {
+      if (fd.kind === 'custom') {
+        r = validateCustom(fd.def, raw);
+        return { ok: r.ok, code: r.code, stored: r.ok ? (display ? r.value : toStoredCustom(fd.def, r.value)) : '' };
+      }
+      r = validate(fd.def, raw);
+      return { ok: r.ok, code: r.code, stored: r.ok ? (display ? formatDisplay(fd.def, r.value) : toStored(fd.def, r.value)) : '' };
+    } catch (e) {
+      return { ok: true, code: null, stored: normalize(raw, {}), legacy: true }; // never lock a form on a bad entry
+    }
+  }
+  /** fieldFormatter(fd) -> { format(value) -> string|null, live } for attachMask(). */
+  function fieldFormatter(fd) {
+    var d = fd.def;
+    if (fd.kind === 'custom') { return { live: true, format: function (v) { return applyMask(d.mask, v); } }; }
+    if (d.mask) {
+      return { live: true, format: function (v) { var n = toNationalDisplay(d, v); return n === null ? null : formatValue(d, n); } };
+    }
+    if (d.formatter) { return { live: true, format: function (v) { return formatValue(d, v); } }; }
+    return { live: false, format: function (v) { return formatValue(d, v); } }; // free shape: tidy on blur only
+  }
+  /** bindField(input, fd): live formatting (IME-safe, caret kept), formats a value already in the box. */
+  function bindField(input, fd) {
+    if (input.getAttribute('data-efb-mask-bound') === '1') { return null; }
+    input.setAttribute('data-efb-mask-bound', '1');
+    var f = fieldFormatter(fd);
+    var h = attachMask(input, null, { format: f.format, live: f.live, maxlength: 0, inputmode: fd.def.inputmode || '', dir: 'ltr' });
+    if (input.value) { var out = f.format(input.value); if (out !== null && out !== undefined) { input.value = out; } }
+    return h;
+  }
+  /**
+   * fieldMessage(code, name, example, text): the visitor message for a failure code. text holds the
+   * translated phrases (mskFormat_, mskChecksum_, mskRule_, mskIncomplete_); English fallbacks otherwise.
+   */
+  function fieldMessage(code, name, example, text) {
+    text = text || {};
+    var t = function (k, en) { return typeof text[k] === 'string' && text[k] !== '' ? text[k] : en; };
+    if (code === 'checksum') { return t('mskChecksum_', '%s is not valid. Please check the digits for typos.').replace('%s', name); }
+    if (code === 'rule') { return t('mskRule_', '%s contains a value that is not possible, for example a date that does not exist.').replace('%s', name); }
+    if (code === 'format' && example) {
+      return t('mskFormat_', 'The %1$s field is not in the correct format (example: %2$s).').replace('%1$s', name).replace('%2$s', example);
+    }
+    return t('mskIncomplete_', 'Please complete the %s field.').replace('%s', name);
+  }
+  // #endregion field helpers
+
   return {
     normalize: normalize, normalizeDigits: normalizeDigits, validate: validate, toStored: toStored,
     applyMask: applyMask, compileMask: compileMask, formatThousands: formatThousands, formatValue: formatValue, maskMaxLength: maskMaxLength, attachMask: attachMask,
     caretForDataIndex: caretForDataIndex, isComplete: isComplete, validateCustom: validateCustom,
     toStoredCustom: toStoredCustom, toNationalDisplay: toNationalDisplay, formatDisplay: formatDisplay,
     CUSTOM_CHECKSUMS: CUSTOM_CHECKSUMS, MAX_INPUT: MAX_INPUT, MAX_CUSTOM_MASK: MAX_CUSTOM_MASK, checkMask: checkMask,
-    dataOnly: dataOnly, finishMask: finishMask,
+    dataOnly: dataOnly, finishMask: finishMask, fieldCheck: fieldCheck, fieldFormatter: fieldFormatter,
+    bindField: bindField, fieldMessage: fieldMessage,
     luhn: luhn, luhnCheckDigit: luhnCheckDigit, verhoeff: verhoeff, verhoeffCheckDigit: verhoeffCheckDigit,
     iban: iban, ibanCheckDigits: ibanCheckDigits, IBAN_LENGTHS: IBAN_LENGTHS, mod97: mod97,
     iranNationalCode: iranNationalCode, iranLegalId: iranLegalId, saudiNin: saudiNin, emiratesId: emiratesId,
