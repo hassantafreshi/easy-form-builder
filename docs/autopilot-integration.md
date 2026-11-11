@@ -16,6 +16,7 @@ php tests/test-ap-a5-save-without-sms-addon.php
 node tests/test-ap-a6-intltelinput-late.js
 node tests/test-ap-a7-settings-notfound.js
 node tests/test-ap-b1-builder-api.js
+node tests/test-ap-b2-field-templates.js
 ```
 
 (The full list is in [Tests](#tests) at the end.)
@@ -269,3 +270,48 @@ Events on `document`:
   ```
   Saving stays the owner's click on Save (`saveFormEfb()`), as the brief requires. Listen to
   `efb:form-changed` with `source === 'user'` to notice the owner's own edits.
+
+### B2. Field templates without the DOM
+
+- **JS: `efbBuilderApi.newItems(paletteId, {label?, options?, required?, size?})`** in
+  `builder-api-efb.js`. It runs the builder's own `addNewElement()` on a scratch copy of the form,
+  so the rows are exactly what a drop on the canvas creates, while every side effect is held back
+  (canvas, button zone, styles, the map / email / intlTelInput timers, the plan dialog); the live
+  form, `sessionStorage`, the DOM and the builder globals are restored before it returns.
+  - `'name'` → `firstName` + `lastName`; `'address'` → `conturyList` (241 countries), `stateProvince`
+    (default country GB with its states), `cityList` (default cities), `address_line`, `postalcode`,
+    each with its option rows. `efbBuilderApi.paletteIds()` lists the ids.
+  - `options` replaces the option rows (strings, or `{value, price?, id_op?}`), copying the shape of
+    the builder's first option (so `price` stays on pay fields, `src`/`sub_value` on `imgRadio`).
+  - Fixed option ids (the UK states and cities) are renamed when the open form already has them, so
+    a second address block can be inserted (the builder itself gives a second city list no options).
+  - A gateway (`stripe`, `paypal`, `persiaPay`) needs its add-on installed, like a drop: otherwise
+    `addon_required`. The row-0 changes a drop makes (`type:'payment'`, `getway`, `currency`,
+    `paymentmethod`) come back as a non-enumerable `rows.formPatch`, which `insertItems()` applies.
+  - Errors: `unknown_palette_id`, `addon_required`, `plan_required` (the builder refused it, e.g. a
+    third step on Free), `template_failed`, `no_options`.
+- **PHP: `get_efbFunction()->field_templates_efb($palette_id = null, $args = [])`** =
+  `\Emsfb\Builder_Api::field_templates()`, filter `efb_field_templates`. Returns
+  `{efb_version, api_version, palette_id, rows, form_patch}` (or every template under `templates`
+  when `$palette_id` is null), phrases in the site language (`text_efb(1)`), fresh 9-character ids
+  on every call, `label_align` mirrored for RTL. `$args`: `label`, `options`, `required`, `size`,
+  `step` (number for a new step row), `rtl`, `text`. `\Emsfb\Builder_Api::geo_defaults()` returns the
+  241 countries (name and ISO code) and the default states and cities from the same data.
+- **One source.** The PHP side reads `includes/data/field-templates-efb.json`, which
+  `node tests/build-field-templates.js --write` generates by running `newItems()` for every palette
+  id in Chromium (phrases and ids written as tokens). `tests/test-ap-b2-field-templates.js`
+  regenerates it and fails when the builder's defaults changed without regenerating, so the two
+  cannot drift. The country list comes from the tracked copy
+  `_workspace/.../vendor/offline/json/countries.js` (the builder loads the same list from the CDN or
+  the Offline add-on).
+- **Test.** `node tests/test-ap-b2-field-templates.js`: drift check; `newItems()` for all 56 palette
+  ids leaves the DOM, the form, sessionStorage and the globals untouched (also after the timers a
+  drop would start); composites; for 12 types the rows equal what a real `fun_efb_add_el()` drop
+  adds; options/label/required/size; two address blocks; gateway add-on rule and `formPatch`;
+  PHP rows equal JS rows for all 56 ids, fresh unique ids, PHP arguments and RTL, `geo_defaults()`.
+  30 passed.
+- **AutoPilot.** Drop the recorded `efb-form-model.json` and `efb-geo-presets.json`. In the builder:
+  `efbBuilderApi.newItems('email', {label: 'Work email', required: true})` then `insertItems()`. On
+  the server (a new form): `get_efbFunction()->field_templates_efb('address')['rows']`, or
+  `\Emsfb\Builder_Api::geo_defaults()` for the countries. Check `efb_version` to know which EFB built
+  them.

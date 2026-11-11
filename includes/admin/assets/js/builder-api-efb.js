@@ -327,8 +327,122 @@
     return { ids: Object.keys(drop) };
   }
 
+  /* ---------------- B2: field templates without the DOM ---------------- */
+
+  var COMPOSITES = {
+    name: ['firstName', 'lastName'],
+    address: ['conturyList', 'stateProvince', 'cityList', 'address_line', 'postalcode'],
+  };
+  function paletteIds() {
+    var ids = (typeof fields_efb !== 'undefined' && Array.isArray(fields_efb)) ? fields_efb.map(function (f) { return f.id; }) : [];
+    ['firstName', 'lastName', 'address_line', 'postalcode', 'paySelect', 'payMultiselect', 'persiaPay', 'chlRadio'].forEach(function (x) { if (ids.indexOf(x) < 0) ids.push(x); });
+    return ids;
+  }
+  function randomId() { return Math.random().toString(36).substr(2, 9); }
+
+  /* Runs the builder's own addNewElement() on a scratch copy of the form, so the rows
+     are exactly what a drop on the canvas creates, while every side effect is held
+     back: the canvas, the button zone, styles, timers (map and email checks, the
+     intlTelInput init) and the plan dialog. The live form, the DOM and the globals
+     are restored before returning. */
+  function newItems(paletteId, opts) {
+    opts = opts || {};
+    paletteId = String(paletteId || '');
+    if (typeof addNewElement !== 'function') throw fail('builder_not_ready', 'The form builder is not loaded.');
+    var parts = COMPOSITES[paletteId] || [paletteId];
+    if (!COMPOSITES[paletteId] && paletteIds().indexOf(paletteId) < 0) throw fail('unknown_palette_id', 'Unknown palette id ' + paletteId + '.');
+    // The builder draws a gateway only when its add-on is installed (otherwise it shows a notice).
+    var gatewayAddon = { stripe: 'AdnSPF', paypal: 'AdnPAP', persiaPay: 'AdnPPF' }[paletteId];
+    if (gatewayAddon && !(typeof addons_emsFormBuilder === 'object' && addons_emsFormBuilder && Number(addons_emsFormBuilder[gatewayAddon]) === 1)) {
+      throw fail('addon_required', paletteId + ' needs the ' + gatewayAddon + ' add-on.');
+    }
+
+    var live = rows();
+    var saved = {
+      valj: valj_efb, step: step_el_efb, amount: amount_el_efb, type: form_type_emsFormBuilder,
+      setTimeout: window.setTimeout, buttons: (typeof add_buttons_zone_efb !== 'undefined') ? add_buttons_zone_efb : null,
+      style: window.fun_addStyle_costumize_efb, warn: window.efb_builder_maybe_warn_email_delivery,
+      pro: window.pro_show_efb, iti: window.load_intlTelInput_efb,
+    };
+    var row0 = clone(live[0] || { type: 'form', steps: 1 });
+    var stepRow = clone(live[1] && live[1].type === 'step' ? live[1] : { type: 'step', id_: '1', dataId: '1', step: 1, amount: 1 });
+    var scratch = [row0, stepRow];
+    var blocked = false;
+    var out;
+    try {
+      valj_efb = scratch;
+      step_el_efb = 1;
+      amount_el_efb = 1;
+      window.setTimeout = function () { return 0; };
+      if (saved.buttons) add_buttons_zone_efb = function () { return ''; };
+      window.fun_addStyle_costumize_efb = function () {};
+      window.efb_builder_maybe_warn_email_delivery = function () {};
+      window.pro_show_efb = function () { blocked = true; };
+      window.load_intlTelInput_efb = function () {};
+      try {
+        parts.forEach(function (p) { addNewElement(p, randomId(), false, false); });
+      } catch (e) {
+        throw fail('template_failed', 'The builder could not create ' + paletteId + ': ' + (e && e.message));
+      }
+      out = clone(scratch.slice(2));
+      var patch = {};
+      Object.keys(scratch[0]).forEach(function (k) {
+        if (k === 'steps') return; // insertItems() counts steps itself
+        if (JSON.stringify(scratch[0][k]) !== JSON.stringify(live[0] ? live[0][k] : undefined)) patch[k] = clone(scratch[0][k]);
+      });
+      out.__patch = patch;
+    } finally {
+      valj_efb = saved.valj;
+      step_el_efb = saved.step;
+      amount_el_efb = saved.amount;
+      form_type_emsFormBuilder = saved.type;
+      window.setTimeout = saved.setTimeout;
+      if (saved.buttons) add_buttons_zone_efb = saved.buttons;
+      window.fun_addStyle_costumize_efb = saved.style;
+      window.efb_builder_maybe_warn_email_delivery = saved.warn;
+      window.pro_show_efb = saved.pro;
+      window.load_intlTelInput_efb = saved.iti;
+    }
+    if (blocked || out.length === 0) throw fail('plan_required', 'The builder refused ' + paletteId + ' on this plan.');
+    var formPatch = out.__patch;
+    delete out.__patch;
+
+    // Fixed option ids (the UK states and cities of a new address) are renamed when
+    // the open form already has them, so a second address block can be inserted.
+    var used = {};
+    live.forEach(function (r) { if (r && r.id_ !== undefined) used[String(r.id_)] = true; });
+    out.forEach(function (r) {
+      if (isOptionRow(r) && used[r.id_]) { var n = randomId(); r.id_ = n; r.dataId = n + '-id'; }
+      used[r.id_] = true;
+    });
+
+    var fieldsOut = out.filter(function (r) { return !isOptionRow(r); });
+    if (opts.label !== undefined && fieldsOut.length === 1) fieldsOut[0].name = String(opts.label);
+    if (opts.required !== undefined) fieldsOut.forEach(function (r) { if ('required' in r) r.required = opts.required ? 1 : 0; });
+    if (opts.size !== undefined) fieldsOut.forEach(function (r) { if ('size' in r) r.size = opts.size; });
+    if (Array.isArray(opts.options) && fieldsOut.length === 1) {
+      var parent = fieldsOut[0];
+      var tpl = out.filter(function (r) { return r.parent === parent.id_; })[0];
+      if (!tpl) throw fail('no_options', paletteId + ' has no option rows.');
+      out = out.filter(function (r) { return r.parent !== parent.id_; });
+      opts.options.forEach(function (o) {
+        var row = clone(tpl);
+        var id = randomId();
+        var value = (o && typeof o === 'object') ? o.value : o;
+        row.id_ = id; row.dataId = id + '-id'; row.id_op = (o && typeof o === 'object' && o.id_op) ? String(o.id_op) : id;
+        row.value = String(value == null ? '' : value);
+        if (o && typeof o === 'object' && o.price !== undefined && 'price' in tpl) row.price = Number(o.price) || 0;
+        out.push(row);
+      });
+    }
+    if (Object.keys(formPatch).length) Object.defineProperty(out, 'formPatch', { value: formPatch, enumerable: false });
+    return out;
+  }
+
   var api = {
     version: API_VERSION,
+    newItems: newItems,
+    paletteIds: function () { return paletteIds().slice(); },
     getForm: function () { return clone(rows()); },
     setForm: setForm,
     insertItems: insertItems,

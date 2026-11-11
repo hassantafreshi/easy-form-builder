@@ -4644,6 +4644,14 @@ class efbFunction {
 	}
 
 	/**
+	 * B2 (AutoPilot): the builder's field templates for server-side form building.
+	 * See \Emsfb\Builder_Api::field_templates(); filter efb_field_templates.
+	 */
+	public function field_templates_efb($palette_id = null, $args = array()) {
+		return class_exists('\Emsfb\Builder_Api') ? \Emsfb\Builder_Api::field_templates($palette_id, is_array($args) ? $args : array()) : array();
+	}
+
+	/**
 	 * Add-on keys this plan keeps when downgrading to it.
 	 *
 	 * @param int $package_type Plan being moved to.

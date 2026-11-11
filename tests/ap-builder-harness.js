@@ -94,7 +94,9 @@ async function openBuilder(opts) {
     setting: Object.assign({ package_type: opts.packageType === undefined ? 1 : opts.packageType }, opts.setting || {}),
     addons: Object.assign({}, opts.addons || {}), smtp: 1, maps: false, captcha: false, plugins: { wpsms: 0, cache: 0 },
   }, opts.extraVar || {});
-  await page.addScriptTag({ content: `var efb_var=${JSON.stringify(efbVar)};efb_var.text=new Proxy(${JSON.stringify(opts.text || {})}, {get:(t,k)=>typeof k==='string'?(k in t?t[k]:'T:'+k):undefined});var ajaxurl='http://site.test/wp-admin/admin-ajax.php';` });
+  const getter = opts.textGetter || "(k)=>'T:'+k";
+  await page.addScriptTag({ content: `var efb_var=${JSON.stringify(efbVar)};efb_var.text=new Proxy(${JSON.stringify(opts.text || {})}, {get:(t,k)=>typeof k==='string'?(k in t?t[k]:(${getter})(k)):undefined});var ajaxurl='http://site.test/wp-admin/admin-ajax.php';` });
+  for (const s of (opts.preScripts || [])) await page.addScriptTag({ path: path.join(ROOT, s) });
   const files = ['jquery.min-efb.js', 'jquery-ui-efb.js', 'jquery-dd-efb.js', 'bootstrap-icon-efb.js', 'new-efb.js', 'admin-efb.js', 'steps-progress-builder-efb.js', 'val-efb.js', 'pro_els-efb.js', 'core-efb.js'];
   for (const f of files) await page.addScriptTag({ path: JS + f });
   if (fs.existsSync(JS + 'builder-api-efb.js')) await page.addScriptTag({ path: JS + 'builder-api-efb.js' });
