@@ -1,4 +1,4 @@
-وضعیت: در حال پیاده‌سازی (A تا F انجام شد) · اولویت: P0 · تلاش: M · وابستگی: — (F02، F03، F06 و F17 به این تسک وابسته‌اند)
+وضعیت: در حال پیاده‌سازی (A تا G انجام شد) · اولویت: P0 · تلاش: M · وابستگی: — (F02، F03، F06 و F17 به این تسک وابسته‌اند)
 
 # F01 — ماسک ورودی و اعتبارسنج‌های قالب
 
@@ -348,12 +348,13 @@ if (!empty($f['mask_preset']) && class_exists('\Emsfb\Masks')) {
 - پذیرش: `+989121234567` در نمایشگر fa_IR و ایمیل درست، از چپ به راست، نمایش داده می‌شود. مقادیر خصمانه همچنان escape می‌شوند.
 - تست‌ها: گسترش `node tests/test-response-viewer-escaping.js`، و `node tests/test-response-viewer-hostile-rows-browser.js`.
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint** (G انجام شد، 2026-11-11)
+- فایل‌های تغییرکرده: `includes/admin/assets/js/response-viewer-efb.js` (مقدار ردیف عمومی داخل `<bdi>`؛ برای مقدار عددگونه `<bdi dir="ltr">`؛ ردیف `imgRadio` که `div` دارد بدون `bdi`)، `includes/class-Emsfb-public.php` (ردیف عمومی `email_get_content_efb`: `<span dir="ltr" style="unicode-bidi:embed">` فقط برای مقدار مطابق الگو)، `tests/test-response-viewer-escaping.js`، `tests/test-response-viewer-hostile-rows-browser.js`، `tests/test-masks-email-display.php` (تازه).
+- انحراف: الگوی §۱۰ (`^[+0-9A-Z][0-9A-Z +\-/().:]*$`) پرانتز ابتدایی را نمی‌پذیرفت، پس `(202) 555-0123` (ماسک دلخواه با ذخیرهٔ نمایشی) جدا نمی‌شد. در نمایشگر و ایمیل `(` هم در ابتدای مقدار مجاز شد: `^[+(0-9A-Z][0-9A-Z +\-/().:]*$`. `dir="ltr"` صریح به‌جای تکیه بر `dir=auto` پیش‌فرض `bdi` گذاشته شد، چون مقدار `+98912…` هیچ نویسهٔ جهت‌دار ندارد.
+- تست‌ها (اجراشده): `node tests/test-response-viewer-escaping.js` → 46 passed, 0 failed (۱۵ بررسی تازه: سیم‌کشی `bdi` در نمایشگر، الگوی یکسان در نمایشگر و ایمیل، ۶ مقدار LTR و ۶ مقدار غیر LTR). `node tests/test-response-viewer-hostile-rows-browser.js` (Chromium) → all passed (۴ بررسی تازه در صفحهٔ RTL: `+989121234567` و شبا با `direction: ltr` و `unicode-bidi: isolate`، متن فارسی بدون اجبار ltr و با `direction: rtl`، مقدار خصمانه escape‌شده و بدون اجبار ltr؛ همهٔ موارد قدیمی خصمانه همچنان پاس). `php tests/test-masks-email-display.php` → 11 passed (قطعهٔ واقعی ایمیل و `email_escape_leaf_efb` واقعی از سورس). موجود: `test-email-template-style-quotes.php` 16 PASS، `test-maps-stored-xss.php` 13/13، `test-esign-stored-xss.php` 23/23. `test-payment-notification-email-content.php` به `vendor/logic` نیاز دارد و پیش و پس از تغییر به همان دلیل اجرا نمی‌شود؛ `test-response-reply-special-chars.php` به WordPress نیاز دارد.
+- وضعیت ترجمه: عبارت تازه‌ای در G نیست.
+- مورد باز: PDF از DOM کارت چاپ می‌شود و همین `bdi` را دارد، ولی خروجی PDF واقعی بررسی نشد. CSV طبق §۱۰ تغییری نکرد (پرسش باز ۱).
+- اقدام بعدی: زیرتسک H (انتخاب صفحه‌کلید موبایل).
 
 ### H. انتخاب صفحه‌کلید موبایل (`inputmode`، مورد ادغام‌شدهٔ فاز ۲)
 - رفتار: select «صفحه‌کلید موبایل» با گزینه‌های `auto`، `text`، `numeric`، `decimal`، `tel`، `email`، `url` و `none`، برای text، textarea، tel، number، url، email، postalcode، address_line و firstName/lastName. `auto` یعنی ابتدا `inputmode` پیش‌تنظیم، و اگر پیش‌تنظیمی نیست، هیچ attribute (همان امروز). برای `number`، گزینهٔ `decimal` پیشنهاد می‌شود. نوع `type` عوض نمی‌شود.

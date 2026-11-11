@@ -89,6 +89,26 @@ const check = (label, ok, detail) => { console.log((ok ? '[PASS] ' : '[FAIL] ') 
     }[label];
     check(label, r.err === null && expect, r);
   }
+  // F01: masked values (E.164 phones, IBANs) read left to right in an RTL panel; text keeps its own direction.
+  const bidi = await p.evaluate(() => {
+    document.documentElement.dir = 'rtl';
+    const box = document.getElementById('resp_efb');
+    const rows = [
+      { id_: 'm', name: 'موبایل', type: 'tel', value: '+989121234567', amount: 1 },
+      { id_: 'i', name: 'شبا', type: 'text', value: 'IR840120000000000123456789', amount: 2 },
+      { id_: 'n', name: 'نام', type: 'text', value: 'سلام دنیا', amount: 3 },
+      { id_: 'h', name: 'x', type: 'text', value: '+98<img src=x onerror=alert(1)>', amount: 4 },
+    ];
+    box.innerHTML = fun_emsFormBuilder_show_messages(rows.concat([{ type: 'w_link', value: 'x' }]), 0, '1.2.3.4', 'TRK1', '2026-11-04');
+    const vals = [...box.querySelectorAll('.efb-msg-field-value')];
+    const find = (txt) => vals.find((v) => v.textContent.includes(txt));
+    const info = (el) => { const b = el && el.querySelector('bdi'); return b ? { dir: b.getAttribute('dir'), css: getComputedStyle(b).direction, ub: getComputedStyle(b).unicodeBidi } : null; };
+    return { phone: info(find('+989121234567')), iban: info(find('IR8401')), fa: info(find('سلام')), hostileImg: !!box.querySelector('.efb-msg-field-value img'), hostile: info(find('+98<img')) };
+  });
+  check('RTL viewer: +989121234567 isolated and left to right', bidi.phone && bidi.phone.dir === 'ltr' && bidi.phone.css === 'ltr' && bidi.phone.ub === 'isolate', bidi.phone);
+  check('RTL viewer: IBAN left to right', bidi.iban && bidi.iban.dir === 'ltr' && bidi.iban.css === 'ltr', bidi.iban);
+  check('RTL viewer: Persian text isolated with its own direction (no forced ltr)', bidi.fa && bidi.fa.dir === null && bidi.fa.css === 'rtl', bidi.fa);
+  check('RTL viewer: hostile value still escaped and not forced ltr', !bidi.hostileImg && bidi.hostile && bidi.hostile.dir === null, bidi);
   check('no script ran', dialogs === 0, dialogs);
   check('no request left the site', external.every(u => u.startsWith('https://site.test/')), external);
   check('no page errors', errs.length === 0, errs);

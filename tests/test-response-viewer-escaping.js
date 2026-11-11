@@ -81,6 +81,17 @@ t('plain text is left alone', csvEscape_EFB('hello') === 'hello');
 t('a cell holding a comma is still quoted', csvEscape_EFB('a,b') === '"a,b"');
 t('null becomes an empty cell', csvEscape_EFB(null) === '');
 
+console.log('\n=== F01: left-to-right values (viewer <bdi>, email span) ===');
+{
+  const ltrRe = /^[+(0-9A-Z][0-9A-Z +\-\/().:]*$/;
+  t('viewer wraps the generic value in <bdi>', /<bdi\$\{ltrEfb \? ' dir="ltr"' : ''\}>\$\{text_nr_efb\(q,1\)\}<\/bdi>/.test(src));
+  t('viewer uses the same LTR test as the email', src.includes("/^[+(0-9A-Z][0-9A-Z +\\-\\/().:]*$/.test(c.value)"));
+  const pub = fs.readFileSync(path.join(ROOT, 'includes/class-Emsfb-public.php'), 'utf8');
+  t('email wraps matching values in <span dir="ltr" style="unicode-bidi:embed">', pub.includes(`$q = '<span dir="ltr" style="unicode-bidi:embed">'.$q.'</span>';`) && pub.includes("preg_match('/^[+(0-9A-Z][0-9A-Z +\\-\\/().:]*$/', $c['value'])"));
+  for (const v of ['+989121234567', '0012345679', 'IR840120000000000123456789', '0912 123 4567', '(202) 555-0123', '12345-6789']) t('LTR value: ' + v, ltrRe.test(v));
+  for (const v of ['سلام', 'hello', '+98<img>', '"x"', '', 'ir84']) t('not forced LTR: ' + JSON.stringify(v), !ltrRe.test(v));
+}
+
 console.log('\n=== the shipped sources still wire these in ===');
 t('the render entry escapes the whole tree once', /content = escResponseTreeEfb\(content\);/.test(src));
 t('the ip meta value is escaped', /userIp = escHtmlEfb\(userIp\);/.test(src));

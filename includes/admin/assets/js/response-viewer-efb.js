@@ -1038,7 +1038,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
         }
         // F01: the value is isolated from the page direction, so +989121234567 is not shown as
         // 989121234567+ in an RTL panel; number-like values are explicitly left to right.
-        const ltrEfb = typeof c.value === 'string' && /^[+0-9A-Z][0-9A-Z +\-\/().:]*$/.test(c.value);
+        const ltrEfb = typeof c.value === 'string' && /^[+(0-9A-Z][0-9A-Z +\-\/().:]*$/.test(c.value);
         const bdiEfb = c.type.includes('imgRadio') ? text_nr_efb(q,1) : `<bdi${ltrEfb ? ' dir="ltr"' : ''}>${text_nr_efb(q,1)}</bdi>`;
         m += `<div class="efb efb-msg-field-row"><span class="efb-msg-field-label">${title}:</span> <span class="efb-msg-field-value">${bdiEfb}</span></div>`
       }

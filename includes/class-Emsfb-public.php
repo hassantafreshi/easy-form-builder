@@ -7843,7 +7843,7 @@ public function check_nonce_permission_efb($request) {
 						$q = '<b>'.$q.'</b>';
 						// F01: phone numbers, IDs and IBANs read left to right in RTL mail clients
 						// (+989121234567, not 989121234567+). Only values made of those characters.
-						if (preg_match('/^[+0-9A-Z][0-9A-Z +\-\/().:]*$/', $c['value'])) {
+						if (preg_match('/^[+(0-9A-Z][0-9A-Z +\-\/().:]*$/', $c['value'])) {
 							$q = '<span dir="ltr" style="unicode-bidi:embed">'.$q.'</span>';
 						}
 					}
