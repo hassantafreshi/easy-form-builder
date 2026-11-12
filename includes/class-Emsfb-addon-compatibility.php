@@ -66,6 +66,21 @@ class Emsfb_Addon_Compatibility {
 				'functions' => array( 'hash_hmac', 'hash', 'json_encode', 'json_decode', 'base64_encode', 'base64_decode' ),
 			),
 		);
+		// PAY00 gateway add-ons (the add-on catalogue, Payments\Registry::ADDONS): they reach the
+		// provider through WordPress's HTTP API and need what the framework needs to sign return
+		// and webhook addresses, check signatures and read their encrypted keys.
+		$gateway = array( 'hash_hmac', 'hash', 'hash_equals', 'random_bytes', 'json_encode', 'json_decode', 'base64_encode', 'base64_decode' );
+		foreach ( array(
+			'AdnMOL' => 'Mollie',
+			'AdnPPG' => 'Payplug',
+			'AdnTAP' => 'Tap Payments',
+			'AdnOMS' => 'Omise',
+			'AdnPTB' => 'PayTabs',
+			'AdnPMB' => 'Paymob',
+			'AdnXND' => 'Xendit',
+		) as $key => $name ) {
+			$requirements[ $key ] = array( 'name' => $name, 'functions' => $gateway );
+		}
 
 		return function_exists( 'apply_filters' )
 			? apply_filters( 'emsfb_addon_php_requirements', $requirements )

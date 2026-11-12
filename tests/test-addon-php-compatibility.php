@@ -68,6 +68,19 @@ efb_php_compat_check(
 	&& in_array( 'hash_hmac', emsfb_get_missing_addon_functions_efb( 'AdnHSH' ), true )
 );
 
+// PAY00 gateway add-ons are in the list (they were missing: "compatible" by default).
+$req = Emsfb_Addon_Compatibility::addon_requirements();
+efb_php_compat_check(
+	'The seven payment gateway add-ons are listed with their requirements',
+	7 === count( array_intersect( array( 'AdnMOL', 'AdnPPG', 'AdnTAP', 'AdnOMS', 'AdnPTB', 'AdnPMB', 'AdnXND' ), array_keys( $req ) ) )
+	&& in_array( 'hash_hmac', $req['AdnMOL']['functions'], true )
+);
+efb_php_compat_check(
+	'A gateway add-on is blocked when hash_hmac is restricted',
+	! emsfb_is_addon_compatible_efb( 'AdnOMS' )
+	&& in_array( 'hash_hmac', emsfb_get_missing_addon_functions_efb( 'AdnOMS' ), true )
+);
+
 $issues = emsfb_get_incompatible_addons_efb( (object) array( 'AdnSPF' => 1, 'AdnPPF' => 0 ) );
 efb_php_compat_check(
 	'Compatibility report preserves the add-on enabled state',
