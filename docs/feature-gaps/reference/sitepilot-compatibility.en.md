@@ -1132,3 +1132,23 @@ REST `admin/*` routes, `form.create/update` with patches and `base_hash`, the sh
 (the `efb_form_saved` / `efb_form_created` / `efb_form_deleted` actions exist since F13 and fire from the
 builder save, the builder create, the CF7 import and the form delete, without the `efb_form_before_save`
 veto), draft status, the entries API.
+
+### 12.1 Payments (PAY00, payment framework)
+
+Shipped in core (details: [`docs/autopilot-integration.md`](../../autopilot-integration.md#pay00-payment-framework-gateway-fields-new-form-keys-registry-entries),
+spec [PAY00](../../payments/PAY00-payment-framework.fa.md)). What SitePilot reads and may write:
+
+| Need | Shipped as |
+|---|---|
+| Which gateways can this site use? | `capabilities_efb()['payment_gateways']` / `efb_var.capabilities.payment_gateways`: per slug `addon`, `installed`, `label`, `configured` (`test`/`live` booleans), `mode`, `currencies`, `countries`, `methods`, `supports`. Never a key, account id or webhook secret. `payment_keys.<slug>` = configured in the current mode |
+| Plan of a gateway field | `features['field:<slug>']` (Free Plus + its add-on; `form_patch`), `setting:pay_style`, `setting:pay_pwyw`, `setting:pay_delayed_actions` (Free Plus), `setting:pay_style_mobile` (Pro) — proposed levels, owner to confirm |
+| Add a payment field | builder: `efbBuilderApi.newItems('<slug>')` + `insertItems()`; server: `field_templates_efb('<slug>')` (`rows` + `form_patch`); `addon_required` without the add-on |
+| Style / texts / amounts | flat `pf_*` keys on the field row, `pay_act_*` on row 0 (table in the AutoPilot doc); `pf_i18n_b64` = base64url(JSON) for texts per language |
+| Amount | always the server's (`Payments\Pricing::quote()`): saved option prices, price fields within Min/Max, B7 computed fields, fixed amount, donation presets / limits |
+| Payment state of an entry | the entry's `payment` row: `paymentGateway`, `paymentIntent` (provider reference), `paymentAmount`, `paymentcurrency`, `status` (`pending` / `paid` / …), `mode` (`test` / `live`), `pay_uid`; an unpaid entry has `read_ = 2` |
+| Hooks | `efb_payment_status_changed($payment, $from, $to, $source)`, `efb_payment_paid`, `efb_payment_failed`, `efb_payment_refunded`, `efb_payment_quote`, `efb_payment_create_args`, `efb_payment_gateways` |
+
+Safety rules (§7.2) apply unchanged: SitePilot may add and style a gateway field, but never stores a
+gateway key, never switches a gateway to Live, never refunds and never creates a real payment. The
+manifest entry `features.payments = {v:1, plan:'free_plus', spec:'PAY00'}` is `capabilities_efb()['payments']`
+until `efb_api_manifest()` exists.

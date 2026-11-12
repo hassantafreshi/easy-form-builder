@@ -208,10 +208,10 @@ class Builder_Api {
 		$fn = function_exists('get_efbFunction') ? get_efbFunction() : null;
 
 		$addon_keys = ($fn && method_exists($fn, 'get_all_addon_keys_efb')) ? $fn->get_all_addon_keys_efb()
-			: array('AdnSPF', 'AdnOF', 'AdnPPF', 'AdnATC', 'AdnSS', 'AdnCPF', 'AdnESZ', 'AdnSE', 'AdnWHS', 'AdnPAP', 'AdnWSP', 'AdnSMF', 'AdnPLF', 'AdnMSF', 'AdnBEF', 'AdnPDP', 'AdnADP', 'AdnATF', 'AdnTLG', 'AdnGoS', 'AdnHSH');
+			: array('AdnSPF', 'AdnOF', 'AdnPPF', 'AdnATC', 'AdnSS', 'AdnCPF', 'AdnESZ', 'AdnSE', 'AdnWHS', 'AdnPAP', 'AdnWSP', 'AdnSMF', 'AdnPLF', 'AdnMSF', 'AdnBEF', 'AdnPDP', 'AdnADP', 'AdnATF', 'AdnTLG', 'AdnGoS', 'AdnHSH', 'AdnMOL', 'AdnPPG', 'AdnTAP', 'AdnOMS', 'AdnPTB', 'AdnPMB', 'AdnXND');
 		$addon_level = function ($code) use ($fn) {
 			if ($fn && method_exists($fn, 'addon_required_package_efb')) return (int) $fn->addon_required_package_efb($code);
-			$t = array('AdnOF' => 0, 'AdnSMF' => 3, 'AdnSPF' => 3, 'AdnPAP' => 3);
+			$t = array('AdnOF' => 0, 'AdnSMF' => 3, 'AdnSPF' => 3, 'AdnPAP' => 3, 'AdnMOL' => 3, 'AdnPPG' => 3, 'AdnTAP' => 3, 'AdnOMS' => 3, 'AdnPTB' => 3, 'AdnPMB' => 3, 'AdnXND' => 3);
 			return isset($t[$code]) ? $t[$code] : 1;
 		};
 		$installed = function ($code) use ($settings) {

@@ -1,4 +1,4 @@
-وضعیت: سند آماده، پیاده‌سازی نشده · اولویت: P0 · تلاش: L (هسته حدود ۴ تا ۶ هفته؛ هر درگاه جدا در PAY01 تا PAY07) · وابستگی: B3 (رجیستری قابلیت‌ها)، B7 (قیمت سمت سرور)، F18 (دیالوگ ارتقا)، F19 (الگوی ظاهر قابل تنظیم و هم‌خوانی PHP/JS)، F13 (حریم خصوصی)، اختیاری: F04 (فیلد محاسبه)، F05 (موجودی)، F14 (مدیریت پاسخ‌ها)
+وضعیت: هستهٔ چارچوب پیاده و تست شد (زیرتسک‌های B تا J، ۲۰۲۶-۱۱-۱۲؛ جزئیات در «پیوست: آنچه پیاده شد») · کوپن، مالیات، کارمزد، دوره‌ای، رسید و چند درگاه در فاز بعد · اولویت: P0 · تلاش: L (هسته حدود ۴ تا ۶ هفته؛ هر درگاه جدا در PAY01 تا PAY07) · وابستگی: B3 (رجیستری قابلیت‌ها)، B7 (قیمت سمت سرور)، F18 (دیالوگ ارتقا)، F19 (الگوی ظاهر قابل تنظیم و هم‌خوانی PHP/JS)، F13 (حریم خصوصی)، اختیاری: F04 (فیلد محاسبه)، F05 (موجودی)، F14 (مدیریت پاسخ‌ها)
 
 # PAY00 — چارچوب مشترک پرداخت در هسته و فیلد پرداخت قابل سفارشی‌سازی
 
@@ -730,11 +730,11 @@ public function handle_webhook( \WP_REST_Request $r ) {
 - تست‌ها: `php tests/test-pay-store.php`.
 
 **Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `includes/payments/class-Emsfb-payment-store.php`، `class-Emsfb-install.php` (`upgrade_payments_schema()`)، `emsfb.php` (1.5)، `docs/migrations/payments-schema-2026-11-12.md`
+- تست‌ها: `php tests/test-pay-store.php` ۴۶ موفق؛ `test-privacy-schema.php` ۳۵ موفق
+- وضعیت ترجمه: عبارت‌ها در text domain `easy-form-builder`؛ `extract.php` اجرا شد (فهرست و `.pot` به‌روز)؛ به دستور مالک ترجمه نشد (۱۷۳ عبارت تازه/بازگشته در fa_IR و de_DE ترجمه‌نشده)
+- مورد باز: ستون `next_json` (پاسخ ساخت برای تکرار کلیک) به DDL اضافه شد.
+- اقدام بعدی: —
 
 ### C. Money و Pricing
 - فایل‌ها: `class-Emsfb-payment-money.php`، `class-Emsfb-payment-pricing.php`، `class-Emsfb-public.php` (`fun_validation_pay_elements_efb()` به `Pricing::items()` delegate می‌کند و رفتار و پاسخ‌های خطای امروزش را نگه می‌دارد)، `tests/fixtures/pay-pricing-vectors.json`.
@@ -742,11 +742,11 @@ public function handle_webhook( \WP_REST_Request $r ) {
 - تست‌ها: `php tests/test-pay-money.php`، `php tests/test-pay-pricing.php`، `node tests/test-pay-pricing-parity.js`، تست‌های موجود B7.
 
 **Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `class-Emsfb-payment-money.php`، `class-Emsfb-payment-pricing.php`، `public/assets/js/payment-core-efb.js` (`quote`)، `tests/fixtures/pay-pricing-vectors.json`
+- تست‌ها: `test-pay-money.php` ۲۱، `test-pay-pricing.php` ۲۲ (با موتور واقعی منطق شرطی)، `test-pay-pricing-parity.js` ۱۱؛ B7 و PayPal/Persia Pay سبز
+- وضعیت ترجمه: عبارت‌ها در text domain `easy-form-builder`؛ `extract.php` اجرا شد (فهرست و `.pot` به‌روز)؛ به دستور مالک ترجمه نشد (۱۷۳ عبارت تازه/بازگشته در fa_IR و de_DE ترجمه‌نشده)
+- مورد باز: `fun_validation_pay_elements_efb()` هنوز به `Pricing` واگذار نمی‌کند (مسیر Stripe/PayPal دست نخورد؛ PAY08). تعداد (`pay_qty`) فاز بعد؛ «مبلغ دلخواه» روی خود فیلد پرداخت است (`pf_amount=donation`، `pf_presets`…) نه روی `prcfld`.
+- اقدام بعدی: کوپن، مالیات، کارمزد
 
 ### D. رابط درگاه، رجیستری، رازها، HTTP، صفحهٔ تنظیمات
 - فایل‌ها: `class-Emsfb-payment-gateway.php`، `-registry.php`، `-secrets.php`، `-http.php`، `-admin.php` (بخش تنظیمات)، `includes/class-Emsfb.php`، `includes/functions.php` (هفت کلید افزونه در `get_all_addon_keys_efb()`، `get_addon_required_files_efb()`، `get_addon_i18n_required_files_efb()`، `addon_required_package_efb()`، نام‌ها در نقشهٔ برچسب)، `includes/class-Emsfb-addon-compatibility.php` (حداقل PHP هر افزونه)، `class-Emsfb-builder-api.php` (`redact_settings`).
@@ -754,11 +754,11 @@ public function handle_webhook( \WP_REST_Request $r ) {
 - تست‌ها: `php tests/test-pay-secrets.php`، تست‌های موجود افزونه (`test-addon-install-plan-gate`، `test-addon-recovery-flow`، `test-addon-require-guards`).
 
 **Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `class-Emsfb-payment-gateway.php`، `-registry.php`، `-secrets.php`، `-http.php`، `gateways/class-Emsfb-payment-mock.php`، `payments-efb.php`، `class-Emsfb.php`، `functions.php` (هفت کلید افزونه)، `admin-efb.js` (همزاد سطح)
+- تست‌ها: `test-pay-secrets.php` ۳۸؛ `test-ap-b3-capabilities.js` ۴۹
+- وضعیت ترجمه: عبارت‌ها در text domain `easy-form-builder`؛ `extract.php` اجرا شد (فهرست و `.pot` به‌روز)؛ به دستور مالک ترجمه نشد (۱۷۳ عبارت تازه/بازگشته در fa_IR و de_DE ترجمه‌نشده)
+- مورد باز: حداقل PHP هر افزونه در `class-Emsfb-addon-compatibility.php` هنگام ساخت افزونه‌ها.
+- اقدام بعدی: افزونه‌های درگاه در `vendores-efb`
 
 ### E. مسیرهای REST: ساخت، webhook، بازگشت، وضعیت، کوپن
 - فایل‌ها: `class-Emsfb-payment-routes.php`، `class-Emsfb-payment-service.php`، `class-Emsfb-public.php` (فقط فراخوانی ثبت مسیرها کنار اکشن قدیمی و استخراج تابع اعتبارسنجی ردیف‌ها برای استفادهٔ دوباره).
@@ -766,11 +766,11 @@ public function handle_webhook( \WP_REST_Request $r ) {
 - تست‌ها: `php tests/test-pay-webhook.php`، `php tests/test-pay-return-status.php`.
 
 **Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `class-Emsfb-payment-service.php`، `class-Emsfb-payment-frontend.php` (`Routes`)، `class-Emsfb-public.php` (`payment_create_api_efb`، شاخهٔ چارچوب در `case "payment"`، ردیف فیلد درگاه، `filter_attributes_by_type_efb`)
+- تست‌ها: `test-pay-webhook.php` ۳۵، `test-pay-return-status.php` ۱۹
+- وضعیت ترجمه: عبارت‌ها در text domain `easy-form-builder`؛ `extract.php` اجرا شد (فهرست و `.pot` به‌روز)؛ به دستور مالک ترجمه نشد (۱۷۳ عبارت تازه/بازگشته در fa_IR و de_DE ترجمه‌نشده)
+- مورد باز: نشانی جایگزین `?efb_pay_webhook=` برای میزبان بدون REST پیاده نشد.
+- اقدام بعدی: —
 
 ### F. نهایی‌سازی، اقدام‌های تأخیری، رسید
 - فایل‌ها: `class-Emsfb-public.php` (استخراج `run_post_submit_actions_efb()` از شاخهٔ `case "payment"` و ارسال عادی بدون تغییر رفتار آن‌ها)، `class-Emsfb-payment-service.php`، قالب ایمیل (برچسب‌های `shortcode_payment_*`)، `val-efb.js` (کلیدهای `pay_act_*` در تنظیمات فرم).
@@ -778,11 +778,11 @@ public function handle_webhook( \WP_REST_Request $r ) {
 - تست‌ها: `php tests/test-pay-finalize-once.php`، تست‌های موجود ایمیل و `test-ap-*`.
 
 **Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `class-Emsfb-payment-service.php` (`finalize`)، `class-Emsfb-public.php` (`run_payment_actions_efb()`، `channels` در `dispatch_optional_integrations_efb`)
+- تست‌ها: `test-pay-finalize-once.php` ۱۴؛ سناریوی ۹ (ایمیل فقط پس از پرداخت)
+- وضعیت ترجمه: عبارت‌ها در text domain `easy-form-builder`؛ `extract.php` اجرا شد (فهرست و `.pot` به‌روز)؛ به دستور مالک ترجمه نشد (۱۷۳ عبارت تازه/بازگشته در fa_IR و de_DE ترجمه‌نشده)
+- مورد باز: برچسب‌های `shortcode_payment_*` و رسید جدا فاز بعد؛ شاخهٔ قدیمی پرداخت و ارسال عادی دست نخورده‌اند (تابع تازه، نه استخراج). رویداد یکپارچگی پس از پرداخت `payment` و هنگام ساخت `payment_pending` است.
+- اقدام بعدی: —
 
 ### G. تطبیق دوره‌ای
 - فایل‌ها: `class-Emsfb-payment-service.php`، `class-Emsfb-public.php` (ثبت اکشن کنار `emsfb_stripe_reconcile_efb`)، فرمان WP-CLI اختیاری.
@@ -790,11 +790,11 @@ public function handle_webhook( \WP_REST_Request $r ) {
 - تست‌ها: `php tests/test-pay-reconcile.php`.
 
 **Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `class-Emsfb-payment-service.php` (`reconcile`)، `payments-efb.php` (اکشن‌ها)
+- تست‌ها: `test-pay-reconcile.php` ۱۱
+- وضعیت ترجمه: عبارت‌ها در text domain `easy-form-builder`؛ `extract.php` اجرا شد (فهرست و `.pot` به‌روز)؛ به دستور مالک ترجمه نشد (۱۷۳ عبارت تازه/بازگشته در fa_IR و de_DE ترجمه‌نشده)
+- مورد باز: فرمان WP-CLI پیاده نشد (`ctl.php reconcile` برای آزمون).
+- اقدام بعدی: —
 
 ### H. فیلد پرداخت قابل سفارشی‌سازی و runtime عمومی
 - فایل‌ها: `payment-field-functions-efb.php`، `payment-field-efb.js`، `payment-runtime-efb.js`، `payment-field-efb.css` و RTL، `functions.php` (case پاک‌ساز برای هر کلید §۱۰.۲)، `class-Emsfb-formbuilder.php`، `admin-efb.js` (`addNewElement` و `sampleElpush_efb`)، `val-efb.js` (پنل و palette از رجیستری)، `core-efb.js` (`createStepsOfPublic`)، `class-Emsfb-public.php` (`filter_attributes_by_type_efb`، enqueue شرطی)، `tests/fixtures/pay-field-vectors.json`.
@@ -802,11 +802,11 @@ public function handle_webhook( \WP_REST_Request $r ) {
 - تست‌ها: `node tests/test-pay-field-parity.js`، `node tests/test-pay-field-builder-browser.js`، `node tests/test-pay-public-browser.js`.
 
 **Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `payment-field-functions-efb.php`، `public/assets/js/payment-core-efb.js`، `includes/admin/assets/js/payment-field-efb.js`، `public/assets/js/payment-runtime-efb.js`، `public/assets/css/payment-field-efb.css` (ویژگی‌های منطقی؛ فایل RTL جدا لازم نشد)، `functions.php` (۵۱ case)، `class-Emsfb-formbuilder.php`، `admin-efb.js`، `val-efb.js`، `core-efb.js`، `class-Emsfb-admin.php`
+- تست‌ها: `test-pay-field-parity.js` ۱۳ (۵۶۳ بردار + ۶۰ تصادفی)، `test-pay-save-roundtrip.php` ۴، سناریوی ۹ (سازنده، عمومی، RTL، ۳۷۵px)
+- وضعیت ترجمه: عبارت‌ها در text domain `easy-form-builder`؛ `extract.php` اجرا شد (فهرست و `.pot` به‌روز)؛ به دستور مالک ترجمه نشد (۱۷۳ عبارت تازه/بازگشته در fa_IR و de_DE ترجمه‌نشده)
+- مورد باز: کشیدن ترتیب با دکمه‌های بالا/پایین (دسترس‌پذیرتر از کشیدن)؛ ترتیب موبایل با `order:` CSS.
+- اقدام بعدی: —
 
 ### I. صفحهٔ پرداخت‌ها، کوپن‌ها، بازپرداخت، CSV، نمایشگر پاسخ
 - فایل‌ها: `class-Emsfb-payment-admin.php`، `class-Emsfb-payment-legacy.php`، `includes/admin/assets/js/payments-admin-efb.js` و CSS، `response-viewer-efb.js`، `list_form-efb.js`.
@@ -814,11 +814,11 @@ public function handle_webhook( \WP_REST_Request $r ) {
 - تست‌ها: `php tests/test-pay-legacy.php`، `node tests/test-pay-admin-browser.js` (تازه).
 
 **Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `class-Emsfb-payment-admin.php`، `response-viewer-efb.js`
+- تست‌ها: سناریوی ۹f (فهرست، جزئیات، بازپرداخت، کلید پنهان، آزمودن اتصال)
+- وضعیت ترجمه: عبارت‌ها در text domain `easy-form-builder`؛ `extract.php` اجرا شد (فهرست و `.pot` به‌روز)؛ به دستور مالک ترجمه نشد (۱۷۳ عبارت تازه/بازگشته در fa_IR و de_DE ترجمه‌نشده)
+- مورد باز: نمایش فقط‌خواندنی `emsfb_pay_` (Legacy)، CSV پرداخت‌ها و ستون‌های CSV پاسخ‌ها فاز بعد.
+- اقدام بعدی: —
 
 ### J. رجیستری قابلیت‌ها، پلن، SitePilot
 - فایل‌ها: `class-Emsfb-builder-api.php`، `builder-api-functions-efb.php`، `builder-api-efb.js`، `includes/data/field-templates-efb.json`، `docs/autopilot-integration.md` (بخش تازهٔ PAY)، `docs/feature-gaps/reference/sitepilot-compatibility.en.md`.
@@ -826,11 +826,11 @@ public function handle_webhook( \WP_REST_Request $r ) {
 - تست‌ها: `node tests/test-pay-capabilities.js`، `node tests/test-ap-b3-capabilities.js`، `node tests/test-ap-b2-field-templates.js`.
 
 **Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `class-Emsfb-builder-api.php`، `builder-api-efb.js`، `docs/autopilot-integration.md`، `docs/feature-gaps/reference/sitepilot-compatibility.en.md`
+- تست‌ها: `test-pay-capabilities.php` ۱۳، `test-ap-b2-field-templates.js` ۳۰، سناریوی ۹a
+- وضعیت ترجمه: عبارت‌ها در text domain `easy-form-builder`؛ `extract.php` اجرا شد (فهرست و `.pot` به‌روز)؛ به دستور مالک ترجمه نشد (۱۷۳ عبارت تازه/بازگشته در fa_IR و de_DE ترجمه‌نشده)
+- مورد باز: `efb_api_manifest()` هنوز وجود ندارد؛ نشانگر در `capabilities_efb()['payments']` است.
+- اقدام بعدی: —
 
 ### K. داده‌های قدیمی (اختیاری، پس از PAY08)
 - فایل‌ها: `class-Emsfb-payment-legacy.php` (مهاجرت)، ستون `legacy_id`.
@@ -881,3 +881,57 @@ public function handle_webhook( \WP_REST_Request $r ) {
 8. ترجمهٔ متن‌های فیلد با WPML/Polylang در فاز ۱ لازم است یا ویرایشگر زبان داخلی کافی است؟
 9. پاک‌سازی خودکار پاسخ‌های پرداخت‌نشده: پیش‌فرض ۳۰ روز مناسب است؟
 10. آیا لوگوی روش‌ها (iDEAL | Wero، mada، KNET، PromptPay، QRIS) با رعایت راهنمای برند هر طرح در افزونه‌ها بسته‌بندی شوند یا از CDN درگاه (مثلاً `image.svg` Mollie) گرفته شوند؟
+
+
+## پیوست: آنچه پیاده شد (۲۰۲۶-۱۱-۱۲)
+
+### پیش‌فرض‌های پیشنهادی (هنوز با مالک تأیید نشده)
+
+| موضوع | پیش‌فرض پیاده‌شده | کجا تغییر می‌کند |
+|---|---|---|
+| سطح چارچوب | Free Plus | فیلتر `efb_payments_required_plan` |
+| کلید و پوشهٔ افزونه‌ها | `AdnMOL`/mollie، `AdnPPG`/payplug، `AdnTAP`/tappay، `AdnOMS`/omise، `AdnPTB`/paytabs، `AdnPMB`/paymob، `AdnXND`/xendit؛ همه Free Plus | `Registry::ADDONS`، فیلتر `efb_payment_gateway_addons`، `addon_required_package_efb()` |
+| دوره‌ای | در فاز ۱ نیست (Tap، PayTabs و Payplug هم) | `supports['recurring']` |
+| کارمزد اجباری کارت در اتحادیهٔ اروپا | کارمزد پیاده نشده؛ پنل برای ارزهای EEA هشدار می‌دهد | — |
+| شمارهٔ فاکتور | ندارد | — |
+| صفحه‌های Stripe و PayPal | همان‌طور که هستند | — |
+| نوار حالت آزمایشی | برای همهٔ بازدیدکنندگان | — |
+| WPML | در فاز ۱ نیست (ویرایشگر زبان داخلی `pf_i18n_b64`) | — |
+| پاک‌سازی | از مسیر F13 (`efb_entries_purged` → `Store::anonymize_for_messages()`) | فیلتر `efb_privacy_keep_payment_entries` |
+| لوگوها | از پوشهٔ خود افزونه (`Gateway::logos()`)، نه CDN | — |
+
+### Add-on contract (for PAY01–PAY07 in `vendores-efb`, no core change needed)
+
+```
+vendor/<dir>/                       e.g. vendor/mollie/  (add-on key AdnMOL; dir from Registry::ADDONS)
+  routes-efb.php                    loaded by core when the add-on flag is on (Registry::load_addons):
+                                      add_action('efb_register_payment_gateways', fn($reg) => $reg->register(new Mollie_Gateway()));
+  class-Emsfb-<dir>-gateway.php     class Mollie_Gateway extends \Emsfb\Payments\Gateway
+  <dir>-phrases-efb.php             phrases class (SLUG/DOMAIN 'efb-<dir>'), emsfb_load_addon_textdomain_efb('<dir>')
+  languages/locales.json, efb-<dir>-<locale>.po/.mo/.l10n.php
+  assets/js/<dir>-efb.js            optional browser adapter: EFBPay.registerAdapter('<slug>', {mount(ctx){…}}) for embedded/QR
+  assets/img/*.svg                  method logos, served locally (Gateway::logos())
+```
+
+`\Emsfb\Payments\Gateway` (const `API = 1`; `Registry::API` = `EMSFB_PAYMENTS_API` = 1):
+
+| Method | Must | Notes |
+|---|---|---|
+| `slug()` | yes | `[a-z][a-z0-9]{1,19}`, = field type, option `emsfb_pgw_<slug>`, `payments/webhook/<slug>`, `payments/return/<slug>` |
+| `addon_key()`, `label()` | yes | label in the add-on's text domain |
+| `supports()` | no | `flows`, `refund`, `partial_refund`, `recurring`, `currencies`, `countries`, `min_minor`, `max_minor` (checked by Pricing), `webhook_auth` |
+| `settings_schema()` | yes | `[{key, type: secret\|text\|select\|checkbox, per_mode, required, label, help, pattern, options}]`; the Gateway settings card, encryption and "•••• abcd" come from core |
+| `test_connection(Settings $s, $mode)` | yes | `Result::ok()` / `Result::fail(code, message)` (e.g. "a Live key in Test") |
+| `create(Payment $p, Settings $s, Checkout_Context $ctx)` | yes | charge `$p->amount_minor` `$p->currency` (`format_amount()`); idempotency `$p->idem_key`; `$ctx->return_url`, `webhook_url`, `cancel_url`, `locale`, `method`, `metadata['efb_uid']`; return `Create_Result::redirect($ref, $url)` or `next` = `{type: embedded\|qr, client: public data only, expires_at}` |
+| `fetch(Payment $p, Settings $s)` | yes | the provider's truth: `Remote_State::of(status, amount_minor, currency, [paid_at, method, refunded_minor, raw])`; statuses `pending authorized paid failed canceled expired refunded partially_refunded`; `Remote_State::error(code)` on network/HTTP errors |
+| `parse_webhook(\WP_REST_Request $r, Settings $s)` | yes | `null` = not ours (200, no call); `Webhook_Event::rejected()` = bad signature (401); otherwise `new Webhook_Event([verified, gateway_ref, event_id, type, needs_refetch, state?, payload])`; raw body `$r->get_body()`; refetch is the default |
+| `parse_return(array $query, Payment $p)` | no | the reference to check (never a status) |
+| `refund(…)`, `cancel(…)` | no | `Refund_Result` / `Result::unsupported()` |
+| `methods(Settings $s)`, `logos()`, `api_hosts()`, `pending_ttl()`, `public_assets()`, `dashboard_url()`, `is_configured()` | no | `api_hosts()` is the allow-list of `$this->request()` (SSRF); tests answer with `pre_http_request` fixtures |
+
+Core does everything else: tables, pricing (the gateway never sees a browser amount), the state
+machine and `finalize()` once, notifications by `pay_act_*`, reconcile cron (back-off, expiry,
+`cancel()`), Payments screen, refunds with idempotency, F13 anonymization, the payment field and its
+runtime (`EFBPay`), test-mode banner, capabilities (`field:<slug>`, `payment_gateways`). The
+reference implementation is `includes/payments/gateways/class-Emsfb-payment-mock.php` (`efbmock`,
+only with `EFB_PAYMENTS_MOCK`), tested by `tests/test-pay-*.php` and scenario 9 of `tests/e2e-wp/run.js`.

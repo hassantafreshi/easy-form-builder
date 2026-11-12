@@ -473,6 +473,13 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 
 = Unreleased =
 
+* New: Payment framework for new gateway add-ons (Mollie, Payplug, Tap, Omise, PayTabs, Paymob, Xendit, coming as separate add-ons). The amount is always computed on the server (option prices, price fields, computed prices, a fixed amount and donations with suggested amounts); a payment is recorded only after the gateway confirms it, once, whether the confirmation comes from the gateway's webhook, the visitor's return or the background check.
+* New: A customizable payment field: button colour, text and icon, the order of its parts, the summary, payment methods, texts per language, phone layout (Pro). A banner tells every visitor when a gateway is in test mode.
+* New: Easy Form Builder → Payments: every payment with filters and totals, its event history, re-check, refund (when the gateway supports it), and the gateway settings. Keys are stored encrypted and never shown again.
+* New: For payment forms, choose when each notification goes out (after payment, when the form is sent, or both); an entry waits as "pending payment" until the payment is confirmed.
+* Fixed: The builder preview of a multi-step PayPal payment form stopped with an error and its buttons did not work.
+* Developers: database version 1.5 (payment tables); hooks efb_register_payment_gateways, efb_payment_paid, efb_payment_status_changed and more; see docs/payments/PAY00-payment-framework.fa.md.
+
 * برای یکپارچگی با AutoPilot (for the AI Site Assistant AutoPilot integration, API version 1):
 * New: A builder API for assistants and integrations, window.efbBuilderApi: read, replace and insert fields, field templates without the canvas, a render that resolves when the canvas is really drawn, refresh of the open settings panel, and events for every change (efb:form-changed, efb:canvas-rendered). PHP: get_efbFunction()->field_templates_efb() and capabilities_efb(), efb_logic_validate_rules(), efb_plan_efb() and efb_plan_at_least_efb(). See docs/autopilot-integration.md.
 * New: One plan and add-on registry (efb_var.capabilities) used by the builder's own locks, so a lock and its upgrade message always name the same plan.

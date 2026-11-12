@@ -30,6 +30,10 @@
  *      "Run now" + the response viewer; "do not store entries": builder switch (en, fa RTL), a guest
  *      submission that leaves no row; WordPress Tools > Export / Erase Personal Data find and erase
  *      the guest's entry by e-mail
+ *   9  PAY00 payments with the test gateway efbmock (fake provider on the site, no network): builder
+ *      tile + panel + Save, AutoPilot API; fixed / computed (B7) / donation amounts from the server;
+ *      pending → paid only after the provider confirms; webhook before return, twice, bad signature;
+ *      tampered amounts; e-mails only after payment; failed payment; Payments screen; fa_IR at 375 px
  *
  * Run: node tests/e2e-wp/run.js [scenario ids...]   (env: see README.md)
  */

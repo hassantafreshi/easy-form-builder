@@ -651,6 +651,57 @@ SitePilot contract §5.5, §6.2, §9):
   exist yet): `entries.read` redaction by `prv_pii`, `stored: false` in the schema, `security_changes`
   when `prv_nostore` is turned off.
 
+### PAY00. Payment framework (gateway fields, new form keys, registry entries)
+
+Not an AutoPilot bug fix, but new field types and keys in the contract
+(`docs/payments/PAY00-payment-framework.fa.md` §10, §18, §19). Gateways are add-ons (Mollie, Payplug,
+Tap, Omise, PayTabs, Paymob, Xendit, keys `AdnMOL` … `AdnXND`); each registers a field type equal to
+its slug (`mollie`, `payplug`, `tappay`, `omise`, `paytabs`, `paymob`, `xendit`). The test gateway
+`efbmock` exists only on test sites (`EFB_PAYMENTS_MOCK`).
+
+| Key | Where | Values |
+|---|---|---|
+| `pf_btn_text` | gateway field | text ≤ 60, `%amount%` = the amount |
+| `pf_btn_bg`, `pf_btn_bg_h`, `pf_btn_fg_h`, `pf_card_bg`, `pf_card_border`, `pf_accent` | gateway field | `#rrggbb` or `''` |
+| `pf_btn_fg` | gateway field | `auto` (readable black/white) or `#rrggbb` |
+| `pf_btn_radius` / `pf_card_radius` | gateway field | `"0"`–`"40"` / `"0"`–`"24"` |
+| `pf_btn_size`, `pf_btn_width`, `pf_btn_icon`, `pf_btn_icon_pos` | gateway field | `sm/md/lg`, `auto/full`, `none`/`bi-lock`/`bi-lock-fill`/`bi-credit-card`/`bi-wallet2`/`bi-qr-code`/`bi-bag-check`/`bi-heart`, `start/end` |
+| `pf_order` / `pf_hide` | gateway field | comma list of `summary,amount,coupon,methods,fields,button,secure,logos` (each once; `fields` and `button` cannot be hidden; `coupon` is reserved for phase 2) |
+| `pf_layout`, `pf_methods_style`, `pf_methods`, `pf_summary`, `pf_label_pos`, `pf_logo_size`, `pf_digits` | gateway field | `stack/split`, `list/grid/tabs/select`, method ids, `lines/total`, `top/start/hidden`, `sm/md`, `latn/locale` |
+| `pf_i18n_b64` | gateway field | base64url(JSON `{"de_DE":{"btn":"…","secure":"…",…}}`), keys `btn secure summary methods pending success fail redirect test amount other total`, ≤ 30 locales, ≤ 200 characters each |
+| `pf_secure_text`, `pf_t_summary`, `pf_t_methods`, `pf_t_pending`, `pf_t_success`, `pf_t_fail`, `pf_t_amount` | gateway field | text ≤ 200 |
+| `pf_fixed`, `pf_fixed_label` | gateway field | fixed amount added to the total (major units, `"2.50"`) and its name |
+| `pf_amount`, `pf_presets`, `pf_other`, `pf_default`, `pf_min`, `pf_max` | gateway field | donation: `donation`, up to 8 amounts `"10,25,50"`, `"1"` = other amount allowed, preselected, limits |
+| `mobile_pf_order`, `mobile_pf_hide`, `mobile_pf_btn_size`, `mobile_pf_btn_width`, `mobile_pf_methods_style` | gateway field | as above, phones only (Pro) |
+| `pay_act_admin_mail`, `pay_act_user_mail`, `pay_act_sms`, `pay_act_tlg`, `pay_act_gs`, `pay_act_wh` | row 0 | `paid` (default) · `submit` · `both` |
+| `pay_fail_notify` | row 0 | `''` · `admin` |
+
+- **Builder.** `efbBuilderApi.newItems('<slug>')` returns the field row and `formPatch`
+  `{type:'payment', getway:'<slug>', currency, paymentmethod}`; `insertItems()` applies it. Without
+  the add-on: `addon_required`. `getForm()`/`setForm()` keep every `pf_*` key. The settings panel is
+  `efbPayPanelEfb(indx)`; after `setForm()` call `render()` (or `efbPayRepaintEfb()`).
+  PHP: `get_efbFunction()->field_templates_efb('<slug>')` (rows + `form_patch`; `addon_required` without the add-on).
+- **Save.** Every key has its own case in `sanitize_obj_msg_efb()` (`Payments\Field::sanitize_key()`);
+  an invalid value is stored as `''`. Write strings.
+- **Registry.** `field:<slug>` (Free Plus + its add-on, `form_patch`), `setting:pay_style`,
+  `setting:pay_pwyw`, `setting:pay_delayed_actions` (Free Plus), `setting:pay_style_mobile` (Pro),
+  `addon:AdnMOL` … `addon:AdnXND` (Free Plus). New top-level `payment_gateways.<slug>` =
+  `{addon, installed, label, configured:{test,live}, mode, currencies, countries, methods, supports}`
+  and `payment_keys.<slug>` (configured in the current mode). **No key, account id or webhook
+  secret is ever returned.** `payments` = `{api:1, plan:'free_plus', spec:'PAY00'}`.
+- **Agent rules.** An agent may add a gateway field and style it. It never enters gateway keys,
+  never switches a gateway to Live, never refunds and never creates a real test payment
+  (settings are under Easy Form Builder → Payments → Gateway settings, `manage_options` /
+  `Emsfb_payments`).
+- **Server pricing.** The amount is computed on the server only (`Payments\Pricing::quote()`): option
+  prices from the stored form, typed price fields within Min/Max, B7 computed price fields
+  (`apply_server_prices()`), the fixed amount and the donation. A browser price is never read.
+- **Hooks.** `efb_register_payment_gateways`, `efb_payment_gateways`, `efb_payment_quote`,
+  `efb_payment_create_args`, `efb_payment_status_changed`, `efb_payment_paid`, `efb_payment_failed`,
+  `efb_payment_refunded`, `efb_payment_run_actions`, `efb_payments_required_plan`, `efb_currency_exponent`.
+- **Tests.** `php tests/test-pay-capabilities.php`, `php tests/test-pay-save-roundtrip.php`,
+  `node tests/test-pay-field-parity.js`, scenario 9 of `tests/e2e-wp/run.js` (9a: builder + API).
+
 ---
 
 ## Part C: the contract is kept

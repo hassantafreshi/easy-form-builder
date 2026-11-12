@@ -4,8 +4,8 @@
     "plugin_version": "4.3.1",
     "updated": "2026-11-12",
     "counts": {
-        "active": 2805,
-        "obsolete": 378
+        "active": 2978,
+        "obsolete": 370
     },
     "entries": [
         {
@@ -1361,6 +1361,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "A payment was not completed",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "A required Google API is not enabled for this project. Enable Google Sheets API and Google Drive API in Google Cloud Console, then try again.",
             "context": null,
             "plural": null,
@@ -1602,6 +1617,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "API key",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/gateways/class-Emsfb-payment-mock.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "API returned error: %d",
             "context": null,
             "plural": null,
@@ -1632,6 +1662,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Above",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Accent",
             "context": null,
             "plural": null,
@@ -1643,6 +1688,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Accent and focus colour",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -1954,7 +2014,8 @@
             "plural": null,
             "translators": "",
             "files": [
-                "includes/functions.php"
+                "includes/functions.php",
+                "includes/payments/class-Emsfb-payment-frontend.php"
             ],
             "scope": [
                 "core"
@@ -2052,6 +2113,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "Add a language (locale, e.g. de_DE)",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Add color",
@@ -2580,6 +2656,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "After payment",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "After submission, visitors can see aggregate survey results",
             "context": null,
             "plural": null,
@@ -2591,6 +2682,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "After the text",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -2720,7 +2826,8 @@
             "plural": null,
             "translators": "",
             "files": [
-                "includes/functions.php"
+                "includes/functions.php",
+                "includes/payments/class-Emsfb-payment-admin.php"
             ],
             "scope": [
                 "core"
@@ -2820,6 +2927,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "All payments",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "All required add-ons were restored.",
             "context": null,
             "plural": null,
@@ -2863,6 +2985,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "Allow another amount",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Allow negative numbers",
@@ -2988,16 +3125,33 @@
             "msgid": "Amount",
             "context": null,
             "plural": null,
-            "translators": "Amount = field label",
+            "translators": "",
             "files": [
-                "includes/phrases.php"
+                "includes/payments/class-Emsfb-payment-admin.php",
+                "includes/payments/class-Emsfb-payment-frontend.php",
+                "includes/payments/class-Emsfb-payment-service.php"
             ],
             "scope": [
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.2.0"
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Amount (donation)",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Amount in Rial",
@@ -3021,6 +3175,21 @@
             "translators": "input format preset shown in the form builder's \"Format / mask\" list",
             "files": [
                 "includes/data/masks-labels-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Amount title",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
             ],
             "scope": [
                 "core"
@@ -3111,6 +3280,21 @@
             "translators": "",
             "files": [
                 "includes/importers/cf7/class-Emsfb-cf7-mapper.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "An unpaid entry stays \"pending payment\". Choose when each notification goes out.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
             ],
             "scope": [
                 "core"
@@ -3435,6 +3619,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "As on wide screens",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "As shown to the visitor",
             "context": null,
             "plural": null,
@@ -3750,6 +3949,21 @@
             "obsolete_since": "4.3.1"
         },
         {
+            "msgid": "Authorized",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Auto-Populate",
             "context": null,
             "plural": null,
@@ -3846,7 +4060,8 @@
             "plural": null,
             "translators": "F19: text colour option: black or white, whichever is easier to read",
             "files": [
-                "includes/functions.php"
+                "includes/functions.php",
+                "includes/payments/class-Emsfb-payment-frontend.php"
             ],
             "scope": [
                 "core"
@@ -3976,12 +4191,28 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Back to the default translation",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Background",
             "context": null,
             "plural": null,
             "translators": "",
             "files": [
-                "includes/functions.php"
+                "includes/functions.php",
+                "includes/payments/class-Emsfb-payment-frontend.php"
             ],
             "scope": [
                 "core"
@@ -4187,6 +4418,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Before the text",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Behavior checks and rate limits are running.",
             "context": null,
             "plural": null,
@@ -4267,7 +4513,8 @@
             "plural": null,
             "translators": "Beside = next to/alongside (label position)",
             "files": [
-                "includes/functions.php"
+                "includes/functions.php",
+                "includes/payments/class-Emsfb-payment-frontend.php"
             ],
             "scope": [
                 "core"
@@ -4522,7 +4769,8 @@
             "plural": null,
             "translators": "",
             "files": [
-                "includes/page-builders/elementor/class-Emsfb-elementor-widget.php"
+                "includes/page-builders/elementor/class-Emsfb-elementor-widget.php",
+                "includes/payments/class-Emsfb-payment-frontend.php"
             ],
             "scope": [
                 "core"
@@ -4573,6 +4821,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Both",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -4633,6 +4896,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Box corner radius (px)",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -4927,7 +5205,8 @@
             "plural": null,
             "translators": "",
             "files": [
-                "includes/functions.php"
+                "includes/functions.php",
+                "includes/payments/class-Emsfb-payment-frontend.php"
             ],
             "scope": [
                 "core"
@@ -5023,6 +5302,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Button colour",
+            "context": null,
+            "plural": null,
+            "translators": "%s is a number or %amount% stays as written",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Button text (%amount% = amount)",
+            "context": null,
+            "plural": null,
+            "translators": "%s is a number or %amount% stays as written",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -5406,6 +5715,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Canceled",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Cancelled",
             "context": null,
             "plural": null,
@@ -5602,6 +5926,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Card",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/gateways/class-Emsfb-payment-mock.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Card / QR area",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -5831,6 +6185,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Charging a mandatory fee on consumer cards is not allowed in the EU. Use the optional \"cover the fee\" setting for donations instead.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Chart",
             "context": null,
             "plural": null,
@@ -5966,6 +6335,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Check status now",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Check whether your server can send emails, so you know you will receive form notifications.",
             "context": null,
             "plural": null,
@@ -6022,6 +6406,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Checking the payment…",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -6128,6 +6527,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Choose a payment method",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -6964,6 +7378,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Colour on hover",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Come back and claim the code",
             "context": null,
             "plural": null,
@@ -7180,7 +7609,9 @@
             "translators": "Confirmation Code is a unique identifier and after filling the form, users receive this code to track their submission",
             "files": [
                 "includes/class-email-handler.php",
-                "includes/functions.php"
+                "includes/functions.php",
+                "includes/payments/class-Emsfb-payment-admin.php",
+                "includes/payments/class-Emsfb-payment-service.php"
             ],
             "scope": [
                 "core"
@@ -7309,6 +7740,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.3.1"
+        },
+        {
+            "msgid": "Connected.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Connecting to WhiteStudio to generate a unique test email address.",
@@ -7599,6 +8045,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Contrast %s:1, readable.",
+            "context": null,
+            "plural": null,
+            "translators": "%s is a number or %amount% stays as written",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Controls that run before EFB REST callbacks.",
             "context": null,
             "plural": null,
@@ -7843,6 +8304,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Corner radius (px)",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -8208,6 +8684,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Created",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Created by",
             "context": null,
             "plural": null,
@@ -8259,7 +8750,8 @@
             "plural": null,
             "translators": "",
             "files": [
-                "includes/functions.php"
+                "includes/functions.php",
+                "includes/payments/class-Emsfb-payment-frontend.php"
             ],
             "scope": [
                 "core"
@@ -8349,7 +8841,8 @@
             "plural": null,
             "translators": "F19: text colour option: a colour the admin picks translators: Fallback label shown for a social link with no preset name",
             "files": [
-                "includes/functions.php"
+                "includes/functions.php",
+                "includes/payments/class-Emsfb-payment-frontend.php"
             ],
             "scope": [
                 "core"
@@ -8734,6 +9227,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Data",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Database insert failed",
             "context": null,
             "plural": null,
@@ -8785,6 +9293,7 @@
             "translators": "Date = column header",
             "files": [
                 "includes/functions.php",
+                "includes/payments/class-Emsfb-payment-admin.php",
                 "includes/phrases.php"
             ],
             "scope": [
@@ -8980,7 +9489,8 @@
             "plural": null,
             "translators": "",
             "files": [
-                "includes/functions.php"
+                "includes/functions.php",
+                "includes/payments/class-Emsfb-payment-frontend.php"
             ],
             "scope": [
                 "core"
@@ -9621,6 +10131,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Digits",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Digits of the language",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Direction",
             "context": null,
             "plural": null,
@@ -9970,6 +10510,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Donation amounts on payments",
+            "context": null,
+            "plural": null,
+            "translators": "PAY00: name of a locked feature in the upgrade dialog",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Donation: the visitor chooses the amount",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Done",
             "context": null,
             "plural": null,
@@ -10258,6 +10828,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Drop-down",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Dropoff Address",
             "context": null,
             "plural": null,
@@ -10354,6 +10939,51 @@
             "translators": "input format preset shown in the form builder's \"Format / mask\" list",
             "files": [
                 "includes/data/masks-labels-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "E-mail the owner when a payment fails or expires",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "E-mail to the owner",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "E-mail to the payer",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
             ],
             "scope": [
                 "core"
@@ -12727,6 +13357,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Events",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Every feature, with no limits, and support included.",
             "context": null,
             "plural": null,
@@ -12738,6 +13383,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Every item",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -12798,6 +13458,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Expired",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -12943,7 +13618,8 @@
             "plural": null,
             "translators": "Title shown when a required-field validation step fails translators: Status chip shown when the email test failed",
             "files": [
-                "includes/functions.php"
+                "includes/functions.php",
+                "includes/payments/class-Emsfb-payment-admin.php"
             ],
             "scope": [
                 "core"
@@ -13024,6 +13700,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Failure message",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -13299,6 +13990,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Filter",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Final values",
             "context": null,
             "plural": null,
@@ -13464,6 +14170,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Fit the text",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Fix system requirements before protection can run.",
             "context": null,
             "plural": null,
@@ -13477,6 +14198,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "Fixed amount (added to the total)",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Flyer",
@@ -13681,7 +14417,8 @@
             "files": [
                 "includes/functions.php",
                 "includes/page-builders/gutenberg/editor.js",
-                "includes/page-builders/visual-composer/class-Emsfb-visual-composer.php"
+                "includes/page-builders/visual-composer/class-Emsfb-visual-composer.php",
+                "includes/payments/class-Emsfb-payment-admin.php"
             ],
             "scope": [
                 "core"
@@ -14690,6 +15427,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "From",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "From Address",
             "context": null,
             "plural": null,
@@ -14750,6 +15502,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Full width",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "GTIN / EAN / UPC barcode",
             "context": null,
             "plural": null,
@@ -14776,6 +15543,68 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Gateway",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php",
+                "includes/payments/class-Emsfb-payment-frontend.php",
+                "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Gateway reference",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Gateway settings",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Gateway settings and keys",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -15381,6 +16210,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Grid",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Group",
             "context": null,
             "plural": null,
@@ -15789,6 +16633,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Hidden (screen readers only)",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Hidden Field",
             "context": null,
             "plural": null,
@@ -15905,6 +16764,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Hide on phones (comma separated: summary, secure, logos, methods, amount)",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -16604,7 +17478,8 @@
             "plural": null,
             "translators": "Field label for the icon picker on a social-link block",
             "files": [
-                "includes/functions.php"
+                "includes/functions.php",
+                "includes/payments/class-Emsfb-payment-frontend.php"
             ],
             "scope": [
                 "core"
@@ -16657,6 +17532,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "Icon position",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Icons",
@@ -17715,7 +18605,8 @@
             "plural": null,
             "translators": "",
             "files": [
-                "includes/class-Emsfb-public.php"
+                "includes/class-Emsfb-public.php",
+                "includes/payments/class-Emsfb-payment-service.php"
             ],
             "scope": [
                 "core"
@@ -18611,6 +19502,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Keys are stored encrypted and are never shown again. Leave a key field empty to keep the stored key. For extra protection define EFB_PAYMENTS_KEY in wp-config.php.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Kosher",
             "context": null,
             "plural": null,
@@ -18706,7 +19612,8 @@
             "plural": null,
             "translators": "Label = text label for a form element",
             "files": [
-                "includes/functions.php"
+                "includes/functions.php",
+                "includes/payments/class-Emsfb-payment-frontend.php"
             ],
             "scope": [
                 "core"
@@ -18821,6 +19728,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Language",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Language files installed. Reloading&hellip;",
             "context": null,
             "plural": null,
@@ -18871,7 +19793,8 @@
             "plural": null,
             "translators": "",
             "files": [
-                "includes/functions.php"
+                "includes/functions.php",
+                "includes/payments/class-Emsfb-payment-frontend.php"
             ],
             "scope": [
                 "core"
@@ -19006,7 +19929,8 @@
             "plural": null,
             "translators": "Category labels for email builder blocks panel",
             "files": [
-                "includes/functions.php"
+                "includes/functions.php",
+                "includes/payments/class-Emsfb-payment-frontend.php"
             ],
             "scope": [
                 "core"
@@ -19451,6 +20375,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "List",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Live",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Live Preview",
             "context": null,
             "plural": null,
@@ -19462,6 +20416,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Live: connected",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -19747,6 +20716,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Logo size",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Logos",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -20306,6 +21305,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Maximum",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Maximum date",
             "context": null,
             "plural": null,
@@ -20417,7 +21431,8 @@
             "plural": null,
             "translators": "",
             "files": [
-                "includes/functions.php"
+                "includes/functions.php",
+                "includes/payments/class-Emsfb-payment-frontend.php"
             ],
             "scope": [
                 "core"
@@ -20627,6 +21642,7 @@
             "plural": null,
             "translators": "Method = HTTP method summary label",
             "files": [
+                "includes/payments/class-Emsfb-payment-admin.php",
                 "includes/phrases.php"
             ],
             "scope": [
@@ -20648,6 +21664,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Methods",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Methods title",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -20753,6 +21799,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Minimum",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -21000,16 +22061,16 @@
             "msgid": "Mode",
             "context": null,
             "plural": null,
-            "translators": "Mode = field label for the protection mode selector",
+            "translators": "",
             "files": [
-                "includes/phrases.php"
+                "includes/payments/class-Emsfb-payment-admin.php"
             ],
             "scope": [
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.2.0"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Modern Dark",
@@ -21023,6 +22084,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Mollie payments",
+            "context": null,
+            "plural": null,
+            "translators": "PAY00: add-on name",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -21233,6 +22309,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Move down",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Move up",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -21489,6 +22595,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Name of the fixed amount",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -22282,6 +23403,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "No keys yet",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "No keys yet.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "No logs yet.",
             "context": null,
             "plural": null,
@@ -22342,6 +23493,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "No payment gateway add-on is installed yet. Install one from the Add-ons page.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "No payments found.",
             "context": null,
             "plural": null,
@@ -22355,6 +23521,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "No payments yet.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "No query parameters",
@@ -22542,7 +23723,8 @@
             "plural": null,
             "translators": "F19: background mode: no background for this step translators: F01 builder: \"no input format\" option, and \"no check digit\" option",
             "files": [
-                "includes/functions.php"
+                "includes/functions.php",
+                "includes/payments/class-Emsfb-payment-frontend.php"
             ],
             "scope": [
                 "core"
@@ -22915,16 +24097,16 @@
             "msgid": "Notifications",
             "context": null,
             "plural": null,
-            "translators": "Notifications = action type/tab for sending notifications",
+            "translators": "",
             "files": [
-                "includes/functions.php"
+                "includes/payments/class-Emsfb-payment-frontend.php"
             ],
             "scope": [
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.2.0"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Notifications about your submission are sent by email, and may also be sent to: %s.",
@@ -23272,6 +24454,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Omise payments",
+            "context": null,
+            "plural": null,
+            "translators": "PAY00: add-on name",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "On",
             "context": null,
             "plural": null,
@@ -23313,6 +24510,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "One column",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -23737,6 +24949,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Open in the gateway dashboard",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Opens in a new tab; this window stays open.",
             "context": null,
             "plural": null,
@@ -23902,6 +25129,37 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Order of the parts",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Order summary",
+            "context": null,
+            "plural": null,
+            "translators": "%s is a number or %amount% stays as written",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php",
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Other",
             "context": null,
             "plural": null,
@@ -23913,6 +25171,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Other amount",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -24085,6 +25358,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Pages",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Paid",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Paid Limits",
             "context": null,
             "plural": null,
@@ -24201,6 +25504,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Partially refunded",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -24401,6 +25719,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Pay %s",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Pay Now",
             "context": null,
             "plural": null,
@@ -24427,6 +25760,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Pay button",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -24519,6 +25867,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "PayTabs payments",
+            "context": null,
+            "plural": null,
+            "translators": "PAY00: add-on name",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Payer",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -24721,6 +26099,36 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Payment amount does not match",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Payment button and layout design",
+            "context": null,
+            "plural": null,
+            "translators": "PAY00: name of a locked feature in the upgrade dialog",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Payment could not be started. Please try again later.",
             "context": null,
             "plural": null,
@@ -24781,6 +26189,67 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Payment gateways",
+            "context": null,
+            "plural": null,
+            "translators": "PAY00: name of a locked feature in the upgrade dialog",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Payment methods",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Payment not completed",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Payment received. Thank you!",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php",
+                "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Payment refunded successfully.",
             "context": null,
             "plural": null,
@@ -24826,13 +26295,29 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Payment successful",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Payments",
             "context": null,
             "plural": null,
             "translators": "",
             "files": [
                 "includes/class-Emsfb-review-request.php",
-                "includes/functions.php"
+                "includes/functions.php",
+                "includes/payments/class-Emsfb-payment-admin.php"
             ],
             "scope": [
                 "core"
@@ -24842,19 +26327,64 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Payments are processed securely by %s. Your card details never reach this website.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Paymob payments",
+            "context": null,
+            "plural": null,
+            "translators": "PAY00: add-on name",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Payplug payments",
+            "context": null,
+            "plural": null,
+            "translators": "PAY00: add-on name",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Pending",
             "context": null,
             "plural": null,
-            "translators": "Pending = payment status",
+            "translators": "",
             "files": [
-                "includes/phrases.php"
+                "includes/payments/class-Emsfb-payment-admin.php"
             ],
             "scope": [
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.2.0"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Per-IP submit limit.",
@@ -25083,6 +26613,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Phone layout of the field is part of Pro.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Phone numbers must include country code (e.g. +1 for US, +44 for UK)",
             "context": null,
             "plural": null,
@@ -25096,6 +26641,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "Phones",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Pickup Address",
@@ -25488,6 +27048,23 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.3.1"
+        },
+        {
+            "msgid": "Please choose a valid amount.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php",
+                "includes/payments/class-Emsfb-payment-frontend.php",
+                "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Please choose one of the options.",
@@ -26529,6 +28106,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Preselected amount",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Preset %s",
             "context": null,
             "plural": null,
@@ -27370,6 +28962,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Quote",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "REST API:",
             "context": null,
             "plural": null,
@@ -27730,6 +29337,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Real payments will be taken from now on. Continue?",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Reason",
             "context": null,
             "plural": null,
@@ -28030,6 +29652,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Reference, confirmation code, e-mail",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Refresh",
             "context": null,
             "plural": null,
@@ -28048,31 +29685,46 @@
             "msgid": "Refund",
             "context": null,
             "plural": null,
-            "translators": "Refund = action button",
+            "translators": "%1$s: amount with currency",
             "files": [
-                "includes/phrases.php"
+                "includes/payments/class-Emsfb-payment-admin.php"
             ],
             "scope": [
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.2.0"
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Refund %1$s to the payer? This cannot be undone.",
+            "context": null,
+            "plural": null,
+            "translators": "%1$s: amount with currency",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Refunded",
             "context": null,
             "plural": null,
-            "translators": "Refunded = payment status",
+            "translators": "",
             "files": [
-                "includes/phrases.php"
+                "includes/payments/class-Emsfb-payment-admin.php"
             ],
             "scope": [
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.2.0"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Regions Drop-Down",
@@ -29317,6 +30969,7 @@
             "translators": "",
             "files": [
                 "includes/functions.php",
+                "includes/payments/class-Emsfb-payment-frontend.php",
                 "vendor/smssended/class-Emsfb-sms.php"
             ],
             "scope": [
@@ -29801,6 +31454,7 @@
                 "includes/admin/class-Emsfb-create.php",
                 "includes/admin/class-Emsfb-panel.php",
                 "includes/functions.php",
+                "includes/payments/class-Emsfb-payment-admin.php",
                 "includes/phrases.php"
             ],
             "scope": [
@@ -30071,7 +31725,8 @@
             "plural": null,
             "translators": "",
             "files": [
-                "includes/functions.php"
+                "includes/functions.php",
+                "includes/payments/class-Emsfb-payment-admin.php"
             ],
             "scope": [
                 "core"
@@ -30293,6 +31948,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "Security note",
+            "context": null,
+            "plural": null,
+            "translators": "%s is a number or %amount% stays as written",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "See options",
@@ -31324,6 +32994,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Set up the payment gateway",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Setting",
             "context": null,
             "plural": null,
@@ -31373,16 +33058,16 @@
             "msgid": "Settings saved.",
             "context": null,
             "plural": null,
-            "translators": "Success message after settings are saved",
+            "translators": "",
             "files": [
-                "includes/phrases.php"
+                "includes/payments/class-Emsfb-payment-admin.php"
             ],
             "scope": [
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.2.0"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Setup finished. Notifications are on.",
@@ -31570,7 +33255,8 @@
             "plural": null,
             "translators": "Show = field-level show/hide action option",
             "files": [
-                "includes/functions.php"
+                "includes/functions.php",
+                "includes/payments/class-Emsfb-payment-frontend.php"
             ],
             "scope": [
                 "core"
@@ -31912,6 +33598,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Size",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Skip and deactivate",
             "context": null,
             "plural": null,
@@ -32007,7 +33708,8 @@
             "plural": null,
             "translators": "",
             "files": [
-                "includes/functions.php"
+                "includes/functions.php",
+                "includes/payments/class-Emsfb-payment-frontend.php"
             ],
             "scope": [
                 "core"
@@ -32182,6 +33884,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Some keys were not saved because they do not look like keys of this gateway.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Some plugin files are missing, so the plugin stopped loading to keep your site running. Please reinstall Easy Form Builder from the Plugins page — your forms, messages, and settings are kept.",
             "context": null,
             "plural": null,
@@ -32329,6 +34046,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Sorry, you are not allowed to access this page.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Sorry, you are not allowed to do that.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -32758,6 +34505,8 @@
             "plural": null,
             "translators": "Status = generic column header",
             "files": [
+                "includes/payments/class-Emsfb-payment-admin.php",
+                "includes/payments/class-Emsfb-payment-service.php",
                 "includes/phrases.php"
             ],
             "scope": [
@@ -33596,6 +35345,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Success message",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Success payment",
             "context": null,
             "plural": null,
@@ -33632,6 +35396,66 @@
             "translators": "input format preset shown in the form builder's \"Format / mask\" list",
             "files": [
                 "includes/data/masks-labels-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Suggested amounts (comma separated, up to 8)",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Summary",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Summary beside (wide screens)",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Summary title",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
             ],
             "scope": [
                 "core"
@@ -34121,12 +35945,42 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Tabs",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Takes about a minute",
             "context": null,
             "plural": null,
             "translators": "Small print under the \"Check for me\" button.",
             "files": [
                 "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Taking you to the secure payment page…",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
             ],
             "scope": [
                 "core"
@@ -34147,6 +36001,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Tap payments",
+            "context": null,
+            "plural": null,
+            "translators": "PAY00: add-on name",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -34467,6 +36336,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Test (no real payments)",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Test Connection",
             "context": null,
             "plural": null,
@@ -34512,6 +36396,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Test connection (Live)",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Test connection (Test)",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Test email could not be sent.",
             "context": null,
             "plural": null,
@@ -34548,6 +36462,51 @@
             "translators": "%1$s, %2$s, %3$s, %4$s are opening and closing link tags for help resources",
             "files": [
                 "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Test gateway",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/gateways/class-Emsfb-payment-mock.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Test mode only (no real payments)",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Test mode: no real payment will be taken.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
             ],
             "scope": [
                 "core"
@@ -34692,12 +36651,42 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Text colour",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Text may be hard to read: contrast %s:1, at least 4.5:1 is needed. Choose “Automatic” text color or change the background.",
             "context": null,
             "plural": null,
             "translators": "F19: contrast warning. %s: the ratio, e.g. 2.1",
             "files": [
                 "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Texts and languages",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
             ],
             "scope": [
                 "core"
@@ -35488,6 +37477,53 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The amount must be at least %s.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php",
+                "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The amount must be at most %s.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php",
+                "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The amount was updated to %s. Please check and press Pay again.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The attachment session could not be saved.",
             "context": null,
             "plural": null,
@@ -35524,6 +37560,21 @@
             "translators": "F13: status when the automatic deletion never ran",
             "files": [
                 "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The button text may be hard to read: contrast %s:1, at least 4.5:1 is needed.",
+            "context": null,
+            "plural": null,
+            "translators": "%s is a number or %amount% stays as written",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
             ],
             "scope": [
                 "core"
@@ -35704,6 +37755,21 @@
             "translators": "",
             "files": [
                 "includes/importers/cf7/class-Emsfb-cf7-mapper.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The connection failed (%s).",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
             ],
             "scope": [
                 "core"
@@ -36436,6 +38502,21 @@
             "obsolete_since": "4.3.1"
         },
         {
+            "msgid": "The gateway could not be reached (%s).",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The hidden field “%s” was not carried over: Easy Form Builder has no hidden field.",
             "context": null,
             "plural": null,
@@ -36796,12 +38877,104 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The payment add-on %s was made for another version of Easy Form Builder. Please update the add-on and Easy Form Builder.",
+            "context": null,
+            "plural": null,
+            "translators": "%s: add-on key, e.g. AdnMOL",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The payment could not be started and nothing was charged. Please try again.",
             "context": null,
             "plural": null,
             "translators": "",
             "files": [
                 "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The payment could not be started. You have not been charged. Please try again in a moment.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The payment page or card fields of the gateway open here.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The payment tables are being created. Please reload this page in a moment.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The payment time ran out. Please try again.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php",
+                "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The payment was not completed. You have not been charged. You can try again.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php",
+                "includes/payments/class-Emsfb-payment-service.php"
             ],
             "scope": [
                 "core"
@@ -36963,6 +39136,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The refund failed (%s).",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The request could not be safely recorded. Your input has been kept.",
             "context": null,
             "plural": null,
@@ -37111,6 +39299,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The saved keys can no longer be read. Please enter them again.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -37490,6 +39693,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The total also counts the priced choices and price fields of the form. The server computes the amount; the browser only shows it.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The upload field could not be verified. Please refresh the form and try again.",
             "context": null,
             "plural": null,
@@ -37816,6 +40034,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "There is nothing to pay yet. Please choose an amount.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -38242,6 +40475,22 @@
             "obsolete_since": null
         },
         {
+            "msgid": "This form cannot take payments at the moment. Please contact the site owner.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php",
+                "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "This form could not be imported.",
             "context": null,
             "plural": null,
@@ -38369,6 +40618,21 @@
             "translators": "F01 builder: confirm dialog when a format is chosen on a field that has min/max length",
             "files": [
                 "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "This gateway has no keys yet. Visitors will see \"cannot take payments\" until it is set up.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
             ],
             "scope": [
                 "core"
@@ -38573,6 +40837,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "This key is not a %s key.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/gateways/class-Emsfb-payment-mock.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "This link uses an older format. For improved security, new email notifications include updated links.",
             "context": null,
             "plural": null,
@@ -38648,12 +40927,57 @@
             "obsolete_since": null
         },
         {
+            "msgid": "This payment attempt has already been used. Please reload the page and try again.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "This payment does not exist.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "This payment has already been used for another entry. If you think this is a mistake, contact the site owner with your payment receipt.",
             "context": null,
             "plural": null,
             "translators": "",
             "files": [
                 "includes/class-Emsfb-public.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "This payment method cannot be refunded through the API. Use the %s dashboard.",
+            "context": null,
+            "plural": null,
+            "translators": "%s: gateway name",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
             ],
             "scope": [
                 "core"
@@ -38998,14 +41322,14 @@
             "plural": null,
             "translators": "",
             "files": [
-                "includes/functions.php"
+                "includes/payments/class-Emsfb-payment-admin.php"
             ],
             "scope": [
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.2.0"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "To create a payment form to collect online payments, install a payment add-on such as the %s Add-on first.",
@@ -39279,6 +41603,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Too many payment attempts. Please wait a minute and try again.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-public.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Too many requests from one visitor",
             "context": null,
             "plural": null,
@@ -39346,7 +41685,8 @@
             "plural": null,
             "translators": "",
             "files": [
-                "includes/functions.php"
+                "includes/functions.php",
+                "includes/payments/class-Emsfb-payment-frontend.php"
             ],
             "scope": [
                 "core"
@@ -39369,6 +41709,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "Total only",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Total price",
@@ -39617,7 +41972,8 @@
             "translators": "Button that runs the email check again. translators: F18: button",
             "files": [
                 "includes/class-Emsfb-review-request.php",
-                "includes/functions.php"
+                "includes/functions.php",
+                "includes/payments/class-Emsfb-payment-frontend.php"
             ],
             "scope": [
                 "core"
@@ -40376,6 +42732,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.3.1"
+        },
+        {
+            "msgid": "Unknown payment gateway.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Unknown request.",
@@ -41387,6 +43758,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "WP-Cron is disabled and pending payments are not being checked.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "WPBakery form plugin",
             "context": null,
             "plural": null,
@@ -41518,6 +43904,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Waiting message",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -41683,6 +44084,22 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "We are waiting for the payment confirmation. You can keep this page open; we will update it automatically.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php",
+                "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -42063,6 +44480,36 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Webhook address",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Webhook signing secret",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/gateways/class-Emsfb-payment-mock.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Webhook/Email daily stop-loss",
             "context": null,
             "plural": null,
@@ -42076,6 +44523,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "Webhooks",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Website",
@@ -42438,12 +44900,42 @@
             "obsolete_since": null
         },
         {
+            "msgid": "When payment notifications are sent",
+            "context": null,
+            "plural": null,
+            "translators": "PAY00: name of a locked feature in the upgrade dialog",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "When someone fills in a form, your site emails you. Email is sent by your hosting company, so it sometimes goes missing or lands in spam. We can check this in about a minute and email you the full report.",
             "context": null,
             "plural": null,
             "translators": "First-run setup, explanation under the question, for a site owner without technical background.",
             "files": [
                 "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "When the form is sent (before payment)",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
             ],
             "scope": [
                 "core"
@@ -42653,7 +45145,8 @@
             "plural": null,
             "translators": "",
             "files": [
-                "includes/functions.php"
+                "includes/functions.php",
+                "includes/payments/class-Emsfb-payment-frontend.php"
             ],
             "scope": [
                 "core"
@@ -43620,6 +46113,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Xendit payments",
+            "context": null,
+            "plural": null,
+            "translators": "PAY00: add-on name",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -45214,6 +47722,21 @@
             "files": [
                 "includes/class-Emsfb-public.php",
                 "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Your payment is already being prepared. Please wait a moment.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-service.php"
             ],
             "scope": [
                 "core"
