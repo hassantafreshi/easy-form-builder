@@ -1588,6 +1588,10 @@ scenario('mollie', 'PAY01 Mollie add-on (fake api.mollie.com): settings + Test c
   await admin.click('[data-efb-pay="refund"]');
   await admin.waitForLoadState('load');
   await sleep(1500);
+  // Mollie accepts a refund as pending: EFB counts it once Mollie reports it (its next webhook → GET payment).
+  R.check('mollie/admin: the refund is waiting for Mollie (pending refund, payment still paid)', payRows(fid).find((p) => p.id === first.id).status === 'paid');
+  await sleep(61000); // Mollie webhooks are keyed per minute
+  await mollieWebhook(first.gateway_ref);
   st = ctlMollie('state');
   const rf = st.log.filter((l) => l.method === 'POST' && /\/refunds$/.test(l.path)).pop();
   R.check('mollie/admin: full refund → POST /v2/payments/{id}/refunds "25.00" EUR with an Idempotency-Key → refunded', payRows(fid).find((p) => p.id === first.id).status === 'refunded' && rf && rf.path === '/v2/payments/' + first.gateway_ref + '/refunds' && rf.body.amount.value === '25.00' && rf.idem.length === 64, rf);
@@ -1783,7 +1787,7 @@ scenario('tappay', 'PAY03 Tap Payments add-on (fake api.tap.company): settings +
   const pf = await addTile(admin, 'tappay');
   const f0 = await admin.evaluate(() => ({ type: valj_efb[0].type, getway: valj_efb[0].getway, currency: valj_efb[0].currency }));
   R.check('tappay/builder: the Tap Payments tile adds the payment field; the form becomes a KWD payment form', pf && pf.type === 'tappay' && f0.type === 'payment' && f0.getway === 'tappay' && f0.currency === 'KWD', { pf: pf && pf.type, f0 });
-  R.check('tappay/builder: the canvas shows the field with the five methods (no Tap script in the builder)', await admin.isVisible(`#dropZoneEFB .efb-pf[data-pf="${pf.id_}"] [data-pf-pay]`) && (await admin.$$(`#dropZoneEFB .efb-pf[data-pf="${pf.id_}"] [data-pf-method]`)).length === 5 && !(await admin.evaluate(() => !!window.EFBTapPay)));
+  R.check('tappay/builder: the canvas shows the field with the three methods a KWD form can use (all, card, KNET: each method declares its currency) (no Tap script in the builder)', await admin.isVisible(`#dropZoneEFB .efb-pf[data-pf="${pf.id_}"] [data-pf-pay]`) && (await admin.$$(`#dropZoneEFB .efb-pf[data-pf="${pf.id_}"] [data-pf-method]`)).length === 3 && !(await admin.evaluate(() => !!window.EFBTapPay)));
   await closePanel(admin);
   await admin.click(`#dropZoneEFB [data-id="${pf.dataId}"] .efb-pf-label`);
   await admin.waitForSelector('#efbPfPanelEl', { timeout: 8000 });
@@ -1807,7 +1811,7 @@ scenario('tappay', 'PAY03 Tap Payments add-on (fake api.tap.company): settings +
   const fill = (mail) => async (p) => { await p.fill(`[data-id="${nm.id_}-el"]`, 'Fatima Al Sabah'); await p.fill(`[data-id="${em.id_}-el"]`, mail); };
   let g = await payGuest(context, url, fill('payer@example.test'));
   await g.waitForFunction(() => { const e = document.querySelector('.efb-pf'); return e && e._efbTap; }, null, { timeout: 10000 });
-  const shown = await g.evaluate(() => ({ total: (document.querySelector('[data-pf-total]') || {}).textContent, banner: !document.querySelector('.efb-pf [data-pf-el="test"]').hidden, methods: Array.from(document.querySelectorAll('.efb-pf [data-pf-method]')).map((b) => b.getAttribute('data-pf-method')), marks: Array.from(document.querySelectorAll('.efb-pf .efb-tap-mark')).map((i) => i.getAttribute('src')), logos: Array.from(document.querySelectorAll('.efb-pf-logo')).map((i) => i.getAttribute('src')) }));
+  const shown = await g.evaluate(() => ({ total: (document.querySelector('[data-pf-total]') || {}).textContent, banner: !document.querySelector('.efb-pf [data-pf-el="test"]').hidden, methods: Array.from(document.querySelectorAll('.efb-pf [data-pf-method]')).map((b) => b.getAttribute('data-pf-method')), marks: Array.from(document.querySelectorAll('.efb-pf .efb-pf-method-logo')).map((i) => i.getAttribute('src')), logos: Array.from(document.querySelectorAll('.efb-pf-logo')).map((i) => i.getAttribute('src')) }));
   R.check('tappay/public: KWD 12.500 with three decimals, test banner, mada removed for KWD (KNET and card left, as a grid), marks and logos from the add-on folder', /12\.500/.test(shown.total) && shown.banner && shown.methods.join(',') === 'knet,card' && shown.marks.length >= 1 && shown.logos.length === 6 && shown.marks.concat(shown.logos).every((s) => s.indexOf('/vendor/tappay/assets/img/') !== -1), shown);
   await g.click('.efb-pf [data-pf-method="knet"]');
   R.check('tappay/public: KNET chosen → "KNET page … PIN" note', /KNET page/.test(await g.textContent('.efb-pf .efb-tap-note')));
@@ -1875,21 +1879,24 @@ scenario('tappay', 'PAY03 Tap Payments add-on (fake api.tap.company): settings +
   const rf = st.refunds[st.refunds.length - 1];
   R.check('tappay/admin: full refund → POST /v2/refunds 12.500 KWD for the charge, reference EFB-R-… with idempotent → refunded', payRows(fid).find((p) => p.id === first.id).status === 'refunded' && rf && rf.charge_id === first.gateway_ref && rf.amount === '12.500' && rf.currency === 'KWD' && /^EFB-R-/.test(rf.reference.merchant) && rf.reference.idempotent.length === 32, rf);
 
-  /* right to left at 375 px */
+  /* right to left at 375 px (the site language is restored even when a check throws, so one failure cannot cascade) */
   ctl('locale', 'fa_IR');
+  try {
   const ph = await (await context({ viewport: { width: 375, height: 800 } }, 'guest-rtl')).newPage();
   await ph.goto(url, { waitUntil: 'networkidle' });
   await ph.waitForFunction(() => { const e = document.querySelector('.efb-pf'); return e && e._efbTap; }, null, { timeout: 15000 });
   const rtl = await ph.evaluate(() => {
     const b = document.querySelector('.efb-pf [data-pf-method="knet"]');
-    const m = b.querySelector('.efb-tap-marks').getBoundingClientRect(); const r = b.getBoundingClientRect();
+    const m = b.querySelector('.efb-pf-method-logo').getBoundingClientRect(); const r = b.getBoundingClientRect();
     const col = getComputedStyle(b).flexDirection === 'column';
     return { dir: getComputedStyle(document.querySelector('.efb-pf')).direction, bdi: !!document.querySelector('.efb-pf bdi[data-pf-total]'), fit: document.documentElement.scrollWidth <= window.innerWidth + 1, h: r.height, grid: col, start: col ? m.top - r.top < r.height / 2 : (r.right - m.right) < (m.left - r.left) };
   });
   R.check('tappay/RTL: fa_IR at 375 px: the field right to left, amount in <bdi>, no horizontal scroll, 44 px method tiles, the scheme mark above the name in the grid (on the start, right, side in a list)', rtl.dir === 'rtl' && rtl.bdi && rtl.fit && rtl.h >= 44 && rtl.start, rtl);
   await ph.screenshot({ path: SHOT('tappay-rtl-375') });
-  ctl('locale', '');
   await ph.close();
+  } finally {
+    ctl('locale', '');
+  }
 
   ctl('addon-flag', 'AdnTAP', '0');
   ctlTap('fake', '0');
@@ -1922,6 +1929,8 @@ require('./scenario-xendit.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNe
     } catch (e) {
       errs = e.errorsSoFar || [];
       R.check(`${s.id}: ran to the end without an exception`, false, String(e && e.stack || e).split('\n').slice(0, 6).join(' | '));
+      // A scenario that stopped half-way must not leave the site in another language for the next ones.
+      try { ctl('locale', ''); } catch (e2) { /* the site is down: the next scenario says so */ }
     }
     R.check(`${s.id}/7: no uncaught page error and no console error from the plugin`, errs.length === 0, errs.slice(0, 8));
   }

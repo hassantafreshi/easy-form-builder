@@ -14,8 +14,8 @@
  *     same webhook again → nothing twice; the visitor's page turns to the thank-you with the code
  *  c  no webhook at all: the page's poll asks Omise → paid
  *  d  Omise says failed → "not completed" and "Try again"
- *  e  Payments screen: the Omise rows (TEST), details without a Refund button and with the
- *     "cannot be refunded through the API" text (PromptPay)
+ *  e  Payments screen: the Omise rows (TEST), details without a Refund button, with the add-on's
+ *     own "cannot be refunded through Omise" text (PromptPay) and core's "Mark as refunded outside EFB"
  */
 'use strict';
 const path = require('path');
@@ -164,8 +164,8 @@ module.exports = function (S) {
     const list = await admin.evaluate(() => ({ rows: document.querySelectorAll('.efb-pay-table tbody tr').length, text: document.body.innerText }));
     R.check('omise/e: Payments lists the Omise payments (TEST) with the paid total in THB', list.rows >= 3 && /Omise/.test(list.text) && /Paid THB/.test(list.text), list.rows);
     await admin.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb_payments&payment=' + P.id, { waitUntil: 'load' });
-    const det = await admin.evaluate(() => ({ text: document.body.innerText, refund: !!document.querySelector('[data-efb-pay="refund"]'), dash: (document.querySelector('a[href*="dashboard.omise.co"]') || {}).href || '' }));
-    R.check('omise/e: details: webhook and finalized events, PromptPay, no Refund button but the "cannot be refunded through the API" text, a link to the Omise dashboard', /finalized/.test(det.text) && /promptpay/i.test(det.text) && !det.refund && /cannot be refunded through the API/.test(det.text) && /dashboard\.omise\.co\/test\/charges\/chrg_test_/.test(det.dash), { refund: det.refund, dash: det.dash });
+    const det = await admin.evaluate(() => ({ text: document.body.innerText, refund: !!document.querySelector('[data-efb-pay="refund"]'), ext: !!document.querySelector('[data-efb-pay="mark_refunded"]'), dash: (document.querySelector('a[href*="dashboard.omise.co"]') || {}).href || '' }));
+    R.check('omise/e: details: webhook and finalized events, PromptPay, no Refund button but the add-on\'s "cannot be refunded through Omise" text and "Mark as refunded outside EFB", a link to the Omise dashboard', /finalized/.test(det.text) && /promptpay/i.test(det.text) && !det.refund && /cannot be refunded through Omise/.test(det.text) && det.ext && /dashboard\.omise\.co\/test\/charges\/chrg_test_/.test(det.dash), { refund: det.refund, ext: det.ext, dash: det.dash });
     await admin.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb_payments&tab=gateways', { waitUntil: 'load' });
     const gwPage = await admin.content();
     R.check('omise/e: gateway settings: keys never shown (•••• and the last four), the webhook address payments/webhook/omise', gwPage.indexOf(secret) === -1 && !/efbe2efixture001/.test(gwPage.replace(/value="pkey_test_efbe2efixture001"/g, '')) && gwPage.indexOf('•••• ' + K.key_tail) !== -1 && /payments\/webhook\/omise/.test(gwPage));
