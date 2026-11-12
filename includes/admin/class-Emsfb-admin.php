@@ -202,6 +202,10 @@ class Admin {
                  * here as a file because the builder needs it on every screen. */
                 wp_enqueue_script('efb-steps-progress-runtime', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/steps-progress-runtime-efb.js', array('efb-main-js'), EMSFB_PLUGIN_VERSION);
                 wp_enqueue_script('efb-steps-progress-builder', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/steps-progress-builder-efb.js', array('efb-steps-progress-runtime'), EMSFB_PLUGIN_VERSION);
+                /* F19: step backgrounds - the panel, the canvas paint and the preview CSS (the
+                 * front end needs no script: its CSS comes from PHP). */
+                $efb_step_bg_js_path = EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/step-bg-efb.js';
+                wp_enqueue_script('efb-step-bg', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/step-bg-efb.js', array('efb-main-js'), is_readable($efb_step_bg_js_path) ? EMSFB_PLUGIN_VERSION . '.' . filemtime($efb_step_bg_js_path) : EMSFB_PLUGIN_VERSION);
                 wp_enqueue_script('efb-response-viewer-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/response-viewer-efb.js', array('efb-main-js', 'jquery'), $efb_response_viewer_js_version);
         }
     }

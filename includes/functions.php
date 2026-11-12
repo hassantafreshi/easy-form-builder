@@ -10,6 +10,9 @@ if (is_readable(__DIR__ . '/json-efb.php')) {
 if (is_readable(__DIR__ . '/email-next-steps-efb.php')) {
     require_once __DIR__ . '/email-next-steps-efb.php';
 }
+if (is_readable(__DIR__ . '/step-bg-functions-efb.php')) {
+    require_once __DIR__ . '/step-bg-functions-efb.php';
+}
 
 /**
  * Return whether a genuinely new installation should show first-run setup.
@@ -2682,6 +2685,80 @@ class efbFunction {
 			"telegramOffAddonMissing" => $state && isset($ac->text->telegramOffAddonMissing) ? $ac->text->telegramOffAddonMissing : esc_html__('Telegram notifications were turned off because the Telegram add-on is not active. Everything else was saved.','easy-form-builder'),
 			/* translators: F18: name of a locked feature in the upgrade dialog */
 			"upgFtrMobileLayout" => $state && isset($ac->text->upgFtrMobileLayout) ? $ac->text->upgFtrMobileLayout : esc_html__('Mobile layout settings','easy-form-builder'),
+			/* translators: F19: name of a locked feature in the upgrade dialog (solid background colour per form step) */
+			"upgFtrStepBgColor" => $state && isset($ac->text->upgFtrStepBgColor) ? $ac->text->upgFtrStepBgColor : esc_html__('Step background colors','easy-form-builder'),
+			/* translators: F19: name of a locked feature in the upgrade dialog (gradient background per form step) */
+			"upgFtrStepBgGradient" => $state && isset($ac->text->upgFtrStepBgGradient) ? $ac->text->upgFtrStepBgGradient : esc_html__('Gradient step backgrounds','easy-form-builder'),
+			/* translators: F19: heading of the background section in the step settings panel */
+			"sbgTitle" => $state && isset($ac->text->sbgTitle) ? $ac->text->sbgTitle : esc_html__('Step background','easy-form-builder'),
+			/* translators: F19: background mode: the step uses the background set for all steps */
+			"sbgInherit" => $state && isset($ac->text->sbgInherit) ? $ac->text->sbgInherit : esc_html__('Form default','easy-form-builder'),
+			/* translators: F19: background mode: no background for this step */
+			"sbgNone" => $state && isset($ac->text->sbgNone) ? $ac->text->sbgNone : esc_html__('None','easy-form-builder'),
+			/* translators: F19: background mode: one colour */
+			"sbgSolid" => $state && isset($ac->text->sbgSolid) ? $ac->text->sbgSolid : esc_html__('Solid color','easy-form-builder'),
+			/* translators: F19: background mode: colour gradient */
+			"sbgGradient" => $state && isset($ac->text->sbgGradient) ? $ac->text->sbgGradient : esc_html__('Gradient','easy-form-builder'),
+			/* translators: F19: gradient type */
+			"sbgLinear" => $state && isset($ac->text->sbgLinear) ? $ac->text->sbgLinear : esc_html__('Linear','easy-form-builder'),
+			/* translators: F19: gradient type */
+			"sbgRadial" => $state && isset($ac->text->sbgRadial) ? $ac->text->sbgRadial : esc_html__('Radial','easy-form-builder'),
+			/* translators: F19: direction of a linear gradient in degrees */
+			"sbgAngle" => $state && isset($ac->text->sbgAngle) ? $ac->text->sbgAngle : esc_html__('Angle','easy-form-builder'),
+			/* translators: F19: where a radial gradient starts */
+			"sbgCenter" => $state && isset($ac->text->sbgCenter) ? $ac->text->sbgCenter : esc_html__('Center point','easy-form-builder'),
+			/* translators: F19: position of a radial gradient */
+			"sbgPosCenter" => $state && isset($ac->text->sbgPosCenter) ? $ac->text->sbgPosCenter : esc_html__('Center','easy-form-builder'),
+			/* translators: F19: position of a radial gradient */
+			"sbgPosTop" => $state && isset($ac->text->sbgPosTop) ? $ac->text->sbgPosTop : esc_html__('Top','easy-form-builder'),
+			/* translators: F19: position of a radial gradient */
+			"sbgPosBottom" => $state && isset($ac->text->sbgPosBottom) ? $ac->text->sbgPosBottom : esc_html__('Bottom','easy-form-builder'),
+			/* translators: F19: position of a radial gradient */
+			"sbgPosLeft" => $state && isset($ac->text->sbgPosLeft) ? $ac->text->sbgPosLeft : esc_html__('Left','easy-form-builder'),
+			/* translators: F19: position of a radial gradient */
+			"sbgPosRight" => $state && isset($ac->text->sbgPosRight) ? $ac->text->sbgPosRight : esc_html__('Right','easy-form-builder'),
+			/* translators: F19: list of the colours of a gradient */
+			"sbgStops" => $state && isset($ac->text->sbgStops) ? $ac->text->sbgStops : esc_html__('Colors','easy-form-builder'),
+			/* translators: F19: button that adds a colour to a gradient */
+			"sbgAddStop" => $state && isset($ac->text->sbgAddStop) ? $ac->text->sbgAddStop : esc_html__('Add color','easy-form-builder'),
+			/* translators: F19: button that removes a colour from a gradient */
+			"sbgRemoveStop" => $state && isset($ac->text->sbgRemoveStop) ? $ac->text->sbgRemoveStop : esc_html__('Remove this color','easy-form-builder'),
+			/* translators: F19: where a gradient colour sits, 0 to 100 */
+			"sbgStopPos" => $state && isset($ac->text->sbgStopPos) ? $ac->text->sbgStopPos : esc_html__('Position (%)','easy-form-builder'),
+			/* translators: F19: background opacity, 0 to 100 percent */
+			"sbgOpacity" => $state && isset($ac->text->sbgOpacity) ? $ac->text->sbgOpacity : esc_html__('Opacity','easy-form-builder'),
+			/* translators: F19: ready-made backgrounds */
+			"sbgPresets" => $state && isset($ac->text->sbgPresets) ? $ac->text->sbgPresets : esc_html__('Presets','easy-form-builder'),
+			/* translators: F19: accessible name of a ready-made background. %s: its number */
+			"sbgPreset" => $state && isset($ac->text->sbgPreset) ? $ac->text->sbgPreset : esc_html__('Preset %s','easy-form-builder'),
+			/* translators: F19: colour of labels and descriptions on the background */
+			"sbgText" => $state && isset($ac->text->sbgText) ? $ac->text->sbgText : esc_html__('Text color','easy-form-builder'),
+			/* translators: F19: text colour option: keep the colours set on each field */
+			"sbgTextKeep" => $state && isset($ac->text->sbgTextKeep) ? $ac->text->sbgTextKeep : esc_html__('Keep field colors','easy-form-builder'),
+			/* translators: F19: text colour option: black or white, whichever is easier to read */
+			"sbgTextAuto" => $state && isset($ac->text->sbgTextAuto) ? $ac->text->sbgTextAuto : esc_html__('Automatic (readable)','easy-form-builder'),
+			/* translators: F19: text colour option: a colour the admin picks */
+			"sbgTextCustom" => $state && isset($ac->text->sbgTextCustom) ? $ac->text->sbgTextCustom : esc_html__('Custom','easy-form-builder'),
+			/* translators: F19: contrast check result. %s: the ratio, e.g. 7.2 */
+			"sbgContrastOk" => $state && isset($ac->text->sbgContrastOk) ? $ac->text->sbgContrastOk : esc_html__('Contrast %s:1 — easy to read','easy-form-builder'),
+			/* translators: F19: contrast warning. %s: the ratio, e.g. 2.1 */
+			"sbgContrastLow" => $state && isset($ac->text->sbgContrastLow) ? $ac->text->sbgContrastLow : esc_html__('Text may be hard to read: contrast %s:1, at least 4.5:1 is needed. Choose “Automatic” text color or change the background.','easy-form-builder'),
+			/* translators: F19: button: make this background the form default for every step */
+			"sbgApplyAll" => $state && isset($ac->text->sbgApplyAll) ? $ac->text->sbgApplyAll : esc_html__('Use for all steps','easy-form-builder'),
+			/* translators: F19: confirmation before applying a background to every step */
+			"sbgApplyAllConfirm" => $state && isset($ac->text->sbgApplyAllConfirm) ? $ac->text->sbgApplyAllConfirm : esc_html__('Use this background for every step? Steps with their own background will use it too.','easy-form-builder'),
+			/* translators: F19: shown when the step follows the form default but none is set */
+			"sbgInheritNone" => $state && isset($ac->text->sbgInheritNone) ? $ac->text->sbgInheritNone : esc_html__('No form default is set. Use “Use for all steps” to set one.','easy-form-builder'),
+			/* translators: F19: shown when the step follows the form default */
+			"sbgInheritHint" => $state && isset($ac->text->sbgInheritHint) ? $ac->text->sbgInheritHint : esc_html__('This step uses the form default.','easy-form-builder'),
+			/* translators: F19: mobile-only setting of the step background */
+			"sbgMobile" => $state && isset($ac->text->sbgMobile) ? $ac->text->sbgMobile : esc_html__('Background on mobile','easy-form-builder'),
+			/* translators: F19: mobile background option */
+			"sbgMobileSame" => $state && isset($ac->text->sbgMobileSame) ? $ac->text->sbgMobileSame : esc_html__('Same as desktop','easy-form-builder'),
+			/* translators: F19: mobile background option */
+			"sbgMobileNone" => $state && isset($ac->text->sbgMobileNone) ? $ac->text->sbgMobileNone : esc_html__('No background','easy-form-builder'),
+			/* translators: F19: mobile background option: use only the first gradient colour */
+			"sbgMobileSolid" => $state && isset($ac->text->sbgMobileSolid) ? $ac->text->sbgMobileSolid : esc_html__('First color only','easy-form-builder'),
 			/* translators: F18: name of a locked feature in the upgrade dialog */
 			"upgFtrHideDisable" => $state && isset($ac->text->upgFtrHideDisable) ? $ac->text->upgFtrHideDisable : esc_html__('Hidden and disabled fields','easy-form-builder'),
 			/* translators: F18: name of a locked feature in the upgrade dialog */
@@ -4397,6 +4474,17 @@ class efbFunction {
 					break;
 					case 'inputmode':
 						$valp[$key][$k] = is_string($v) && in_array($v, array('auto', 'text', 'numeric', 'decimal', 'tel', 'email', 'url', 'none'), true) ? $v : 'auto';
+					break;
+					// F19 step background: allow-lists and a canonical stop list; never a CSS string.
+					case 'step_bg_type':
+					case 'step_bg_color':
+					case 'step_bg_stops':
+					case 'step_bg_angle':
+					case 'step_bg_pos':
+					case 'step_bg_opacity':
+					case 'step_bg_text':
+					case 'mobile_step_bg':
+						$valp[$key][$k] = function_exists('efb_step_bg_sanitize_key_efb') ? efb_step_bg_sanitize_key_efb($k, $v) : '';
 					break;
 					default:
 					$k =sanitize_text_field($k);

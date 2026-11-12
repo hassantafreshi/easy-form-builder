@@ -573,6 +573,33 @@ Events on `document`:
 - **AutoPilot.** Write `stateForm: 1` for "make the form private"; do not write `private` or
   `email_temp`.
 
+### F19. Step backgrounds (colours and step style, new form keys)
+
+Not an AutoPilot bug fix, but new keys in the "colours and step style" part of the contract
+(`docs/feature-gaps/F19-step-backgrounds.fa.md` §5, §14):
+
+| Key (on a `step` row, or on row 0 as the default for every step) | Values |
+|---|---|
+| `step_bg_type` | `''`/absent = follow row 0 · `none` · `solid` · `linear` · `radial` |
+| `step_bg_color` | `#rrggbb` (solid) |
+| `step_bg_stops` | `"#rrggbb P,#rrggbb P"`, 2–5 stops, `P` 0–100 without `%` |
+| `step_bg_angle` | `"0"`–`"360"` (linear, default 135) |
+| `step_bg_pos` | `center`/`top`/`bottom`/`left`/`right` (radial) |
+| `step_bg_opacity` | `"0"`–`"100"` (default 100) |
+| `step_bg_text` | `''` keep field colours · `auto` (readable black or white) · `#rrggbb` |
+| `mobile_step_bg` | `''` · `none` · `solid` (Pro) |
+
+- **Registry.** `setting:step_bg_color` (free) and `setting:step_bg_gradient` (`free_plus`), with
+  `form_keys` and `label_key`; `mobile_step_bg` is covered by `setting:mobile_layout` (`mobile_*`).
+  Read `available_now` before writing a gradient.
+- **Save.** Each key has its own case in `sanitize_obj_msg_efb()`; an invalid value is stored as
+  `''` (not set). Write strings or numbers; the sanitizer stores strings.
+- **Builder.** `efbStepBgPanelEfb(indx)` is the panel; after `setForm()` call
+  `efbStepBgPaintCanvasEfb()` (or `render()`) to repaint the canvas. `efbStepBgCoreEfb` exposes the
+  pure helpers (`sanitizeKey`, `resolve`, `css`, `contrast`, `autoText`).
+- **Test.** `php tests/test-step-bg-core.php`, `node tests/test-step-bg-parity.js`,
+  `node tests/test-step-bg-builder-browser.js`, `node tests/test-step-bg-public-browser.js`.
+
 ---
 
 ## Part C: the contract is kept

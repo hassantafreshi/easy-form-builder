@@ -2090,6 +2090,7 @@ function show_setting_window_efb(idset, opts) {
                 ${selectColorEls('label','text')}
                 ${selectColorEls('description','text')}
                 ${selectColorEls('icon','text')}
+                ${typeof efbStepBgPanelEfb === 'function' ? efbStepBgPanelEfb(indx) : ''}
                 <!-- {classesEls} -->
                 </div>
             </div>

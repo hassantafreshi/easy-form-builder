@@ -50,7 +50,7 @@ multiselect, tel, range, date, file, url, conturyList, heading, rating, trmCheck
 | `email` | `email` | `noti` = send the confirmation email to this address (`SendemailEl`, 2356); sets `valj_efb[0].email_to` | `FILTER_VALIDATE_EMAIL`, length 2785 |
 | `number` | `number` | min/max **value** | numeric, min/max 3325 |
 | `textarea` | `textarea` | min length only (no max control, `val-efb.js:1516`) | default |
-| `steps` | `step` rows | `name`, `message`, `icon`, `icon_color`, label/description colours (`val-efb.js:1964-1993`) | – |
+| `steps` | `step` rows | `name`, `message`, `icon`, `icon_color`, label/description colours (`val-efb.js:1964-1993`); F19 background keys `step_bg_*`, `mobile_step_bg` | – |
 | `checkbox` | `checkbox` + `option` rows | options; `op_style` columns 1/2/3 and `mobile_op_style`; `checked_color` (Pro) | option rows 2958 (saved text replaces the browser text) |
 | `radio` | `radio` + options | as checkbox | 2888 |
 | `select` | `select` + options | options | must match a saved option 3102 |
@@ -106,6 +106,7 @@ Types with renderer and validator support but **no palette entry**: `paySelect`,
 | `global_mobile_hflabel` | hide all labels on mobile (real Pro) | 2321 |
 | `stateForm` | **logged-in users only**: yes. Lock card at render (`class-Emsfb-public.php:1439`), 403 at session prepare (230) and submit (2509) | 2607 |
 | `dShowBg` | do not show the card background | 2242 |
+| `step_bg_*`, `mobile_step_bg` (row 0 = default; also on every `step` row) | F19 per-step background: solid / linear / radial gradient, opacity, readable text colour, mobile override. CSS from `includes/step-bg-functions-efb.php`, builder `step-bg-efb.js` | `docs/feature-gaps/F19-step-backgrounds.fa.md` |
 | `AfLnFrm` | offline mode: answers kept in `localStorage` and restored on next visit (needs `AdnOF`) | 2246; `core-efb.js:1755-1804` |
 | `email` | admin notification addresses (comma list, validated) | `adminFormEmailEl` 2192 |
 | `email_sub` | custom email subject (Pro) | 3825 |

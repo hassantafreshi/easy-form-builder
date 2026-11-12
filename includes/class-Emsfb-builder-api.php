@@ -259,6 +259,9 @@ class Builder_Api {
 			'setting:custom_colors'          => array('free_plus', null, array('checked_color', 'range_thumb_color', 'range_value_color', 'switch_on_color', 'switch_off_color', 'switch_handle_color'), 'upgFtrColors'),
 			'setting:hidden_disabled'        => array('free_plus', null, array('hidden', 'disabled'), 'upgFtrHideDisable'),
 			'setting:mobile_layout'          => array('pro', null, array('mobile_*'), 'upgFtrMobileLayout'),
+			// F19: per-step background (step rows, and row 0 as the form default). mobile_step_bg is under mobile_layout.
+			'setting:step_bg_color'          => array('free', null, array('step_bg_type=solid', 'step_bg_color', 'step_bg_opacity', 'step_bg_text'), 'upgFtrStepBgColor'),
+			'setting:step_bg_gradient'       => array('free_plus', null, array('step_bg_type=linear', 'step_bg_type=radial', 'step_bg_stops', 'step_bg_angle', 'step_bg_pos'), 'upgFtrStepBgGradient'),
 			'setting:sms_notifications'      => array('pro', 'AdnSS', array('smsnoti', 'sms_admins_phone_no', 'sms_msg_new_noti', 'sms_msg_recived_usr', 'sms_msg_responsed_noti'), 'sms_noti'),
 			'setting:telegram_notifications' => array('pro', 'AdnTLG', array('telegramnoti', 'telegram_msg_new_noti', 'telegram_msg_responsed_noti'), 'etelegramno'),
 			'setting:logic_rules'            => array('free_plus', 'AdnSMF', array('logic_rules', 'notification_rules'), 'conlog'),

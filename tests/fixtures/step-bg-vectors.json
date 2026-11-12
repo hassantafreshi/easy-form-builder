@@ -1,0 +1,161 @@
+{
+  "_doc": "F19 step backgrounds: shared vectors for includes/step-bg-functions-efb.php and includes/admin/assets/js/step-bg-efb.js. sanitize = [key, input, expected]; contrast = [text hex, background hex, opacity, expected lowest ratio]; auto = [stops, opacity, expected text colour]; css.expected = exact output, or null when only PHP/JS parity and the listed contains/absent checks apply.",
+  "sanitize": [
+    ["step_bg_type", "solid", "solid"],
+    ["step_bg_type", "linear", "linear"],
+    ["step_bg_type", "radial", "radial"],
+    ["step_bg_type", "none", "none"],
+    ["step_bg_type", "", ""],
+    ["step_bg_type", "Solid", ""],
+    ["step_bg_type", "gradient", ""],
+    ["step_bg_type", "solid;}", ""],
+    ["step_bg_type", true, ""],
+    ["step_bg_type", null, ""],
+    ["step_bg_type", ["solid"], ""],
+    ["step_bg_color", "#ABC", "#aabbcc"],
+    ["step_bg_color", "#E0F2FE", "#e0f2fe"],
+    ["step_bg_color", " #e0f2fe ", "#e0f2fe"],
+    ["step_bg_color", "e0f2fe", ""],
+    ["step_bg_color", "#e0f2fe;}body{display:none", ""],
+    ["step_bg_color", "red", ""],
+    ["step_bg_color", "url(javascript:alert(1))", ""],
+    ["step_bg_color", "#12345", ""],
+    ["step_bg_color", 123, ""],
+    ["step_bg_color", {"a": "#fff"}, ""],
+    ["step_bg_stops", "#e0f2fe 0,#c7d2fe 100", "#e0f2fe 0,#c7d2fe 100"],
+    ["step_bg_stops", "#C7D2FE 100, #e0f2fe 0", "#e0f2fe 0,#c7d2fe 100"],
+    ["step_bg_stops", "#fff 0,#000 150", "#ffffff 0,#000000 100"],
+    ["step_bg_stops", "#fff 0", ""],
+    ["step_bg_stops", "#fff 0,red 50,#000 100", "#ffffff 0,#000000 100"],
+    ["step_bg_stops", "#111 0,#222 20,#333 40,#444 60,#555 80,#666 100", "#111111 0,#222222 20,#333333 40,#444444 60,#555555 80"],
+    ["step_bg_stops", "#fff 0%,#000 100%", ""],
+    ["step_bg_stops", "#fff 10,#000 10,#f00 5", "#ff0000 5,#ffffff 10,#000000 10"],
+    ["step_bg_stops", "#fff 0,#000 100);}body{x:y", ""],
+    ["step_bg_stops", "expression(alert(1)) 0,#000 100", ""],
+    ["step_bg_stops", "</style><script>x</script> 0,#000 100", ""],
+    ["step_bg_stops", ["#fff 0", "#000 100"], ""],
+    ["step_bg_stops", "#fff 0,#000 100,#fff 0,#000 100,#fff 0,#000 100,#fff 0,#000 100,#fff 0,#000 100,#fff 0,#000 100,#fff 0,#000 100,#fff 0,#000 100,#fff 0,#000 100,#fff 0,#000 100,#fff 0,#000 100,#fff 0,#000 100,#fff 0,#000 100", ""],
+    ["step_bg_angle", 45, "45"],
+    ["step_bg_angle", "45", "45"],
+    ["step_bg_angle", 45.6, "46"],
+    ["step_bg_angle", "45.5", "46"],
+    ["step_bg_angle", -10, "0"],
+    ["step_bg_angle", 400, "360"],
+    ["step_bg_angle", "abc", ""],
+    ["step_bg_angle", "45deg", ""],
+    ["step_bg_angle", true, ""],
+    ["step_bg_angle", null, ""],
+    ["step_bg_opacity", 80, "80"],
+    ["step_bg_opacity", "150", "100"],
+    ["step_bg_opacity", "0", "0"],
+    ["step_bg_opacity", "-5", "0"],
+    ["step_bg_opacity", "50%", ""],
+    ["step_bg_pos", "center", "center"],
+    ["step_bg_pos", "top", "top"],
+    ["step_bg_pos", "bottom", "bottom"],
+    ["step_bg_pos", "left", "left"],
+    ["step_bg_pos", "right", "right"],
+    ["step_bg_pos", "top left", ""],
+    ["step_bg_pos", "center;}", ""],
+    ["step_bg_text", "auto", "auto"],
+    ["step_bg_text", "#FFF", "#ffffff"],
+    ["step_bg_text", "", ""],
+    ["step_bg_text", "white", ""],
+    ["step_bg_text", "AUTO", ""],
+    ["mobile_step_bg", "none", "none"],
+    ["mobile_step_bg", "solid", "solid"],
+    ["mobile_step_bg", "", ""],
+    ["mobile_step_bg", "same", ""],
+    ["step_bg_image", "https://example.test/a.png", ""]
+  ],
+  "contrast": [
+    ["#000000", "#ffffff", 100, 21],
+    ["#ffffff", "#000000", 100, 21],
+    ["#777777", "#ffffff", 100, 4.48],
+    ["#767676", "#ffffff", 100, 4.54],
+    ["#ffffff", "#0d6efd", 100, 4.5],
+    ["#ffffff", "#000000", 0, 1],
+    ["#111827", "#ffffff", 100, 17.74]
+  ],
+  "auto": [
+    ["#e0f2fe 0,#c7d2fe 100", 100, "#111827"],
+    ["#0f172a 0,#334155 100", 100, "#ffffff"],
+    ["#0f172a 0,#334155 100", 10, "#111827"],
+    ["#ffffff 0,#000000 100", 100, "#111827"],
+    ["#0ea5e9 0,#4f46e5 100", 100, "#111827"]
+  ],
+  "css": [
+    {
+      "name": "old form without any step_bg key: nothing",
+      "rows": [{"type": "form", "steps": 2, "formName": "Old"}, {"type": "step", "id_": "1", "dataId": "1", "step": 1, "name": "A"}, {"type": "text", "id_": "t1", "step": 1}, {"type": "step", "id_": "2", "dataId": "2", "step": 2, "name": "B"}],
+      "prefix": "fieldset.steps-efb[data-formid=\"12\"]",
+      "opts": {"gradient": true, "mobile": true},
+      "expected": ""
+    },
+    {
+      "name": "one solid step",
+      "rows": [{"type": "form", "steps": 2}, {"type": "step", "id_": "1", "step": 1, "step_bg_type": "solid", "step_bg_color": "#e0f2fe"}, {"type": "step", "id_": "2", "step": 2}],
+      "prefix": "fieldset.steps-efb[data-formid=\"12\"]",
+      "opts": {"gradient": false, "mobile": false},
+      "expected": "fieldset.steps-efb[data-formid=\"12\"][data-step=\"step-1-efb\"]{position:relative;isolation:isolate;border-radius:.75rem;padding:1rem .75rem!important}fieldset.steps-efb[data-formid=\"12\"][data-step=\"step-1-efb\"]::before{content:\"\";position:absolute;inset:0;z-index:-1;border-radius:inherit;pointer-events:none;animation:efb-sbg-in .4s ease-out both}@keyframes efb-sbg-in{from{opacity:0}to{opacity:1}}fieldset.steps-efb[data-formid=\"12\"][data-step=\"step-1-efb\"]::before{background-color:#e0f2fe}@media (prefers-reduced-motion:reduce){fieldset.steps-efb[data-formid=\"12\"][data-step=\"step-1-efb\"]::before{animation:none}}@media (forced-colors:active){fieldset.steps-efb[data-formid=\"12\"][data-step=\"step-1-efb\"]::before{display:none}}@media print{fieldset.steps-efb[data-formid=\"12\"][data-step=\"step-1-efb\"]::before{display:none}}"
+    },
+    {
+      "name": "linear gradient with opacity and white text",
+      "rows": [{"type": "form"}, {"type": "step", "id_": "1", "step": 1, "step_bg_type": "linear", "step_bg_stops": "#0f172a 0,#334155 100", "step_bg_angle": "160", "step_bg_opacity": "80", "step_bg_text": "#ffffff"}],
+      "prefix": "P",
+      "opts": {"gradient": true, "mobile": false},
+      "expected": "P[data-step=\"step-1-efb\"]{position:relative;isolation:isolate;border-radius:.75rem;padding:1rem .75rem!important}P[data-step=\"step-1-efb\"]::before{content:\"\";position:absolute;inset:0;z-index:-1;border-radius:inherit;pointer-events:none;animation:efb-sbg-in .4s ease-out both}@keyframes efb-sbg-in{from{opacity:0}to{opacity:1}}P[data-step=\"step-1-efb\"]::before{background-color:rgba(15,23,42,0.8);background-image:linear-gradient(160deg,rgba(15,23,42,0.8) 0%,rgba(51,65,85,0.8) 100%)}P[data-step=\"step-1-efb\"]{color:#ffffff}P[data-step=\"step-1-efb\"] :is(.col-form-label,.col-form-label>span:not(.text-danger),label.hStyleOpEfb,small.form-text[id$=\"-des\"]){color:#ffffff!important}@media (prefers-reduced-motion:reduce){P[data-step=\"step-1-efb\"]::before{animation:none}}@media (forced-colors:active){P[data-step=\"step-1-efb\"]::before{display:none}}@media print{P[data-step=\"step-1-efb\"]::before{display:none}P[data-step=\"step-1-efb\"],P[data-step=\"step-1-efb\"] :is(.col-form-label,.col-form-label>span:not(.text-danger),label.hStyleOpEfb,small.form-text[id$=\"-des\"]){color:#000!important}}"
+    },
+    {
+      "name": "form default gradient, a step opting out, a radial override, final screen, mobile",
+      "rows": [
+        {"type": "form", "step_bg_type": "linear", "step_bg_stops": "#e0f2fe 0,#c7d2fe 100", "mobile_step_bg": "solid"},
+        {"type": "step", "id_": "1", "step": 1},
+        {"type": "step", "id_": "2", "step": 2, "step_bg_type": "none"},
+        {"type": "step", "id_": "3", "step": 3, "step_bg_type": "radial", "step_bg_stops": "#0ea5e9 0,#4f46e5 100", "step_bg_pos": "top", "step_bg_text": "auto", "mobile_step_bg": "none"}
+      ],
+      "prefix": "P",
+      "opts": {"gradient": true, "mobile": true},
+      "expected": null,
+      "contains": [
+        "P[data-step=\"step-1-efb\"]::before{background-color:#e0f2fe;background-image:linear-gradient(135deg,#e0f2fe 0%,#c7d2fe 100%)}",
+        "P[data-step=\"step-3-efb\"]::before{background-color:#0ea5e9;background-image:radial-gradient(ellipse at top,#0ea5e9 0%,#4f46e5 100%)}",
+        "P#efb-final-step::before{background-color:#e0f2fe;",
+        "@media (min-width:768px){P[data-step=\"step-3-efb\"]{color:",
+        "@media (max-width:767.98px){P[data-step=\"step-1-efb\"]::before{background-image:none;background-color:#e0f2fe}",
+        "P[data-step=\"step-3-efb\"]::before{display:none}P[data-step=\"step-3-efb\"]{padding:0 2%!important;border-radius:0}"
+      ],
+      "absent": ["step-2-efb"]
+    },
+    {
+      "name": "Free plan: a gradient falls back to its first colour, no mobile override",
+      "rows": [{"type": "form"}, {"type": "step", "id_": "1", "step": 1, "step_bg_type": "linear", "step_bg_stops": "#0ea5e9 0,#4f46e5 100", "mobile_step_bg": "none"}],
+      "prefix": "P",
+      "opts": {"gradient": false, "mobile": false},
+      "expected": null,
+      "contains": ["P[data-step=\"step-1-efb\"]::before{background-color:#0ea5e9}"],
+      "absent": ["gradient(", "max-width"]
+    },
+    {
+      "name": "hostile values never reach the CSS",
+      "rows": [{"type": "form", "step_bg_type": "solid", "step_bg_color": "red;}body{display:none"}, {"type": "step", "id_": "1", "step": 1, "step_bg_type": "linear", "step_bg_stops": "#fff 0,#000 100);}body{x:y", "step_bg_angle": "45;}x{"}, {"type": "step", "id_": "2", "step": 2, "step_bg_type": "solid;}", "step_bg_color": "#fff"}],
+      "prefix": "P",
+      "opts": {"gradient": true, "mobile": true},
+      "expected": ""
+    },
+    {
+      "name": "steps numbered by their step key, final screen follows the form default only",
+      "rows": [{"type": "form", "step_bg_type": "solid", "step_bg_color": "#f8fafc", "step_bg_opacity": "50"}, {"type": "step", "id_": "1", "step": "1"}, {"type": "step", "id_": "2", "step": "2", "step_bg_type": "solid", "step_bg_color": "#000", "step_bg_text": "auto"}],
+      "prefix": "P",
+      "opts": {"gradient": true, "mobile": false},
+      "expected": null,
+      "contains": [
+        "P[data-step=\"step-1-efb\"]::before{background-color:rgba(248,250,252,0.5)}",
+        "P[data-step=\"step-2-efb\"]::before{background-color:#000000}",
+        "P[data-step=\"step-2-efb\"]{color:#ffffff}",
+        "P#efb-final-step::before{background-color:rgba(248,250,252,0.5)}"
+      ],
+      "absent": []
+    }
+  ]
+}

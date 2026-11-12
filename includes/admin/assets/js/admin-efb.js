@@ -7602,7 +7602,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         const clss = valj_efb[iVJ].classes!="" ? 'efb1 '+valj_efb[iVJ].classes.replace(`,`, ` `) : "";
         const sort = iVJ<3 ? 'unsortable'  : 'sortable';
         newElement += `
-        <section class="efb ${sort}  row my-2  ${shwBtn} efbField stepNavEfb stepNo ${clss}" data-step="${valj_efb[iVJ].id_}" id="${valj_efb[iVJ].id_}" data-amount="${step_el_efb}" data-id="${valj_efb[iVJ].id_}" data-tag="${elementId}">
+        <section class="efb ${sort}  row my-2  ${shwBtn} efbField stepNavEfb stepNo ${clss}" data-step="${valj_efb[iVJ].id_}" id="${valj_efb[iVJ].id_}" data-amount="${step_el_efb}" data-id="${valj_efb[iVJ].id_}" data-tag="${elementId}"${typeof efbStepBgCanvasAttrEfb === 'function' ? efbStepBgCanvasAttrEfb(iVJ) : ''}>
        <!-- <div class="efb  row my-2  ${shwBtn} efbField ${valj_efb[iVJ].classes.replace(`,`, ` `)} stepNavEfb" data-step="${valj_efb[iVJ].id_}" id="${valj_efb[iVJ].id_}" data-amount="${step_el_efb}" data-id="${valj_efb[iVJ].id_}" data-tag="${elementId}"> -->
         <h2 class="efb  col-md-10 col-sm-12 mx-2 my-0"><i class="efb  ${valj_efb[iVJ].icon} ${valj_efb[iVJ].label_text_size} ${valj_efb[iVJ].icon_color} "
         id="${valj_efb[iVJ].id_}_icon"></i> <span id="${valj_efb[iVJ].id_}_lab" class="efb  ${valj_efb[iVJ].label_text_size}  ${valj_efb[iVJ].label_text_color}  ">${valj_efb[iVJ].name}</span></span></h2>
@@ -9667,8 +9667,10 @@ function previewFormEfb(state) {
     })}
   const idn = state == "pre" ? "pre-form-efb" : "pre-efb";
   document.getElementById(id).classList.add(idn)
-  content = `
-    <div class="efb px-0 pt-2 pb-0 my-1 col-12 mb-2" id="view-efb">
+  /* F19: the step backgrounds, the same CSS the front end prints, scoped to this preview. */
+  const sbgCssEfb = typeof efbStepBgPreviewCssEfb === 'function' ? efbStepBgPreviewCssEfb() : '';
+  content = `${sbgCssEfb ? `<style>${sbgCssEfb}</style>` : ''}
+    <div class="efb px-0 pt-2 pb-0 my-1 col-12 mb-2${sbgCssEfb ? ' efb-sbg-preview' : ''}" id="view-efb">
     ${Number(valj_efb[0].show_icon)!=1 ? `<h4 id="title_efb" class="efb fs-3 ${valj_efb[1].label_text_color} text-center mt-3 mb-0">${valj_efb[1].name}</h4><p id="desc_efb" class="efb ${valj_efb[1].message_text_color} text-center  fs-6 mb-2">${valj_efb[1].message}</p>` : ``}
       ${head} <div class="efb mt-1 px-2">${content}</div>
     </div>

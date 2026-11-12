@@ -579,13 +579,29 @@ not assign `valj_efb` or call internal builder functions; they will change with 
         "prv_nostore": { "$ref": "#/$defs/flag", "x-efb-spec": "F13" }, "prv_ip": { "enum": ["", "store", "anon", "none"] },
         "prv_days": { "type": "string", "pattern": "^$|^[0-9]{1,4}$" }, "prv_id_field": { "type": "string" },
         "val_timing": { "enum": ["change", "blur"], "x-efb-spec": "F16" },
-        "err_summary": { "$ref": "#/$defs/flag" }, "warn_unsaved": { "$ref": "#/$defs/flag" }
+        "err_summary": { "$ref": "#/$defs/flag" }, "warn_unsaved": { "$ref": "#/$defs/flag" },
+        "step_bg_type":    { "$ref": "#/$defs/step_bg_type", "x-efb-spec": "F19", "description": "form default for every step without its own type" },
+        "step_bg_color":   { "$ref": "#/$defs/hex6" }, "step_bg_stops": { "$ref": "#/$defs/step_bg_stops" },
+        "step_bg_angle":   { "type": "string", "pattern": "^$|^([0-9]|[1-9][0-9]|[12][0-9]{2}|3[0-5][0-9]|360)$" },
+        "step_bg_pos":     { "enum": ["", "center", "top", "bottom", "left", "right"] },
+        "step_bg_opacity": { "type": "string", "pattern": "^$|^([0-9]|[1-9][0-9]|100)$" },
+        "step_bg_text":    { "type": "string", "pattern": "^$|^auto$|^#[0-9a-f]{6}$" },
+        "mobile_step_bg":  { "enum": ["", "none", "solid"], "x-efb-plan": "pro" }
       }
     },
 
     "step": { "type": "object", "required": ["type", "id_"], "additionalProperties": true,
       "properties": { "type": { "const": "step" }, "id_": { "type": "string", "pattern": "^[0-9]+$" },
-        "name": { "type": "string" }, "message": { "type": "string" }, "icon": { "type": "string" }, "step": { "$ref": "#/$defs/intstr" } } },
+        "name": { "type": "string" }, "message": { "type": "string" }, "icon": { "type": "string" }, "step": { "$ref": "#/$defs/intstr" },
+        "step_bg_type": { "$ref": "#/$defs/step_bg_type", "x-efb-spec": "F19", "description": "own background; absent or '' = the form default (row 0)" },
+        "step_bg_color": { "$ref": "#/$defs/hex6" }, "step_bg_stops": { "$ref": "#/$defs/step_bg_stops" },
+        "step_bg_angle": { "type": "string" }, "step_bg_pos": { "type": "string" }, "step_bg_opacity": { "type": "string" },
+        "step_bg_text": { "type": "string" }, "mobile_step_bg": { "enum": ["", "none", "solid"] } } },
+
+    "step_bg_type":  { "enum": ["", "none", "solid", "linear", "radial"], "x-efb-plan": { "solid": "free", "linear": "free_plus", "radial": "free_plus" } },
+    "hex6":          { "type": "string", "pattern": "^$|^#[0-9a-f]{6}$" },
+    "step_bg_stops": { "type": "string", "pattern": "^$|^#[0-9a-f]{6} ([0-9]|[1-9][0-9]|100)(,#[0-9a-f]{6} ([0-9]|[1-9][0-9]|100)){1,4}$",
+      "description": "2-5 stops sorted by position (0-100, no % sign); the save sanitizer canonicalises or empties it" },
 
     "option": { "type": "object", "required": ["type", "parent", "value"], "additionalProperties": true,
       "properties": {
@@ -1034,6 +1050,17 @@ sponsored links and schema.org output, `class-Emsfb-formbuilder.php:2298-2340`; 
 `do_action('efb_plan_changed', $old, $new)` after a successful switch. The instant Free Plus button
 remains a human click in EFB admin; it must not be callable through the connector API, and
 `efb_save_plan_selection` should require `manage_options`, not only `Emsfb`.
+
+**F19 step backgrounds** (shipped). Create: `step_bg_type`, `step_bg_color`, `step_bg_stops`,
+`step_bg_angle`, `step_bg_pos`, `step_bg_opacity`, `step_bg_text`, `mobile_step_bg` on a `step` row
+(that step) or on row 0 (default for every step without its own type; row 0 `none` = no default).
+Structured values only, never CSS: `sanitize_obj_msg_efb()` routes each key to
+`efb_step_bg_sanitize_key_efb()` (`includes/step-bg-functions-efb.php`), which empties anything
+outside §6.2. Plan: `setting:step_bg_color` (free), `setting:step_bg_gradient` (Free Plus; on a
+lower plan the public form shows the first colour), `mobile_step_bg` under `setting:mobile_layout`
+(Pro). Readability: write `step_bg_text: "auto"` on dark backgrounds, or check with
+`efbStepBgContrastEfb()` / `efb_step_bg_contrast_efb()` (worst stop, 4.5:1). Nothing secret; no
+submit-side effect.
 
 ---
 
