@@ -856,8 +856,15 @@ class Service {
 		}
 		$gw = Registry::get( $slug );
 		if ( $gw && in_array( $p['status'], array( 'created', 'pending', 'authorized' ), true ) ) {
+			// The query and, for a provider that comes back with a POST (signed fields), the body fields.
 			$q = $r->get_query_params();
-			$ref = $gw->parse_return( is_array( $q ) ? $q : array(), new Payment( $p ) );
+			$q = is_array( $q ) ? $q : array();
+			if ( method_exists( $r, 'get_body_params' ) && is_array( $r->get_body_params() ) ) {
+				foreach ( $r->get_body_params() as $k => $v ) {
+					if ( is_string( $k ) && ! isset( $q[ $k ] ) && ( is_scalar( $v ) || is_array( $v ) ) ) $q[ $k ] = $v;
+				}
+			}
+			$ref = $gw->parse_return( $q, new Payment( $p ) );
 			if ( is_string( $ref ) && $ref !== '' && $ref === $p['gateway_ref'] ) self::refresh( $p, 'return' );
 		}
 		$to = $p['return_to'] !== '' ? $p['return_to'] : home_url( '/' );

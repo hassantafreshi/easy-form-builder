@@ -137,6 +137,14 @@ class Settings {
 	}
 
 	/**
+	 * A schema pattern (regex without delimiters) as a PCRE: a slash is escaped unless it already
+	 * is, so "[A-Za-z0-9+\/=]" and "a/b" both work.
+	 */
+	public static function pattern_re( $pattern ) {
+		return '/' . preg_replace( '#(?<!\\\\)/#', '\\/', (string) $pattern ) . '/';
+	}
+
+	/**
 	 * Applies a settings form post ($in: key => value, '<key>__<mode>' for per-mode fields).
 	 * A secret left empty keeps the stored one; '__clear' as the value removes it. Values are
 	 * checked against the schema (type, pattern, options) and anything not in it is dropped.
@@ -159,14 +167,14 @@ class Settings {
 					$targets = $m === '' ? array( 'test', 'live' ) : array( $sm );
 					if ( $v === '' ) continue;
 					if ( $v === '__clear' ) { foreach ( $targets as $tm ) unset( $this->data['secret'][ $tm ][ $f['key'] ] ); continue; }
-					if ( ! empty( $f['pattern'] ) && ! @preg_match( '/' . str_replace( '/', '\/', $f['pattern'] ) . '/', $v ) ) { $refused[] = $name; continue; }
+					if ( ! empty( $f['pattern'] ) && ! @preg_match( self::pattern_re( $f['pattern'] ), $v ) ) { $refused[] = $name; continue; }
 					foreach ( $targets as $tm ) $this->data['secret'][ $tm ][ $f['key'] ] = Secrets::encrypt( $v );
 					continue;
 				}
 				if ( $type === 'checkbox' ) $v = in_array( $v, array( '1', 'on', 'true' ), true ) ? '1' : '';
 				elseif ( $type === 'select' ) $v = isset( $f['options'] ) && is_array( $f['options'] ) && array_key_exists( $v, $f['options'] ) ? $v : '';
 				else $v = function_exists( 'sanitize_text_field' ) ? sanitize_text_field( $v ) : strip_tags( $v );
-				if ( $v !== '' && ! empty( $f['pattern'] ) && ! @preg_match( '/' . str_replace( '/', '\/', $f['pattern'] ) . '/', $v ) ) { $refused[] = $name; continue; }
+				if ( $v !== '' && ! empty( $f['pattern'] ) && ! @preg_match( self::pattern_re( $f['pattern'] ), $v ) ) { $refused[] = $name; continue; }
 				if ( $m === '' ) $this->data['public'][ $f['key'] ] = $v; else $this->data['public'][ $m ][ $f['key'] ] = $v;
 			}
 		}

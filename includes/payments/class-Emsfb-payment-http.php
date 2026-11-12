@@ -109,7 +109,8 @@ class Redactor {
 	/** Card-like digit runs (13-19) and bearer tokens inside free text. */
 	public static function redact_string( $s ) {
 		$s = preg_replace_callback( '/\b\d{13,19}\b/', function ( $m ) { return '****' . substr( $m[0], -4 ); }, (string) $s );
-		$s = preg_replace( '/(Bearer|Basic)\s+[A-Za-z0-9._~+\/=-]+/i', '$1 ***', $s );
-		return preg_replace( '/\b(sk|pk|rk|live|test|whsec|skey|pkey)_[A-Za-z0-9_]{6,}/', '$1_***', $s );
+		$s = preg_replace( '/(Bearer|Basic|Token)\s+[A-Za-z0-9._~+\/=-]+/i', '$1 ***', $s );
+		// Also keys with a region prefix (egy_sk_test_…, omn_sk_live_…).
+		return preg_replace( '/(?<![A-Za-z0-9])(?:[a-z]{2,4}_)?(sk|pk|rk|live|test|whsec|skey|pkey)_[A-Za-z0-9_]{6,}/', '$1_***', $s );
 	}
 }
