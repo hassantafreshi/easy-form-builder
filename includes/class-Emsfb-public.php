@@ -9971,6 +9971,9 @@ public function check_nonce_permission_efb($request) {
 			'expected_minor' => isset($pay['expected_minor']) && is_numeric($pay['expected_minor']) ? (int) $pay['expected_minor'] : null,
 			'page_url'       => esc_url_raw($scalar('page_url')),
 			'locale'         => sanitize_text_field($scalar('locale')),
+			// The gateway adapter's opaque token (prepare()): checked by shape only, never stored or logged.
+			'client_token'   => \Emsfb\Payments\Service::client_token($scalar('client_token')),
+			'client_data'    => isset($pay['client_data']) && is_array($pay['client_data']) ? \Emsfb\Payments\Service::client_data($pay['client_data']) : array(),
 		);
 		return $this->get_form_public_efb($request);
 	}
@@ -10013,6 +10016,8 @@ public function check_nonce_permission_efb($request) {
 			'locale'         => $ctx['locale'],
 			'ip'             => $this->ip,
 			'payer_email'    => $payer_email,
+			'client_token'   => isset($ctx['client_token']) ? $ctx['client_token'] : '',
+			'client_data'    => isset($ctx['client_data']) ? $ctx['client_data'] : array(),
 			'description'    => (isset($request_data['name']) && is_scalar($request_data['name']) ? sanitize_text_field($request_data['name']) : ''),
 			'store_entry'    => $store_entry,
 		));
