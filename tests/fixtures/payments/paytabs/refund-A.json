@@ -1,0 +1,54 @@
+{
+ "source_url": "https://support.paytabs.com/en/support/solutions/articles/60000980531-7-4-invoices-apis-refund-transaction",
+ "captured": "2026-11-12",
+ "note": "Shape copied from the official example; references, dates and keys replaced (no real key or profile). Sent to {domain}/payment/request with tran_type refund (the page shows /payment/query, the HPP manual and PayTabs' SDKs use /payment/request).",
+ "request": {
+  "method": "POST",
+  "url": "https://secure.paytabs.sa/payment/request",
+  "body": {
+   "profile_id": 10001,
+   "tran_type": "refund",
+   "tran_class": "ecom",
+   "cart_id": "R-<IDEM20>",
+   "cart_currency": "SAR",
+   "cart_amount": 50.0,
+   "cart_description": "refund reason",
+   "tran_ref": "TST2231600000001"
+  }
+ },
+ "response": {
+  "code": 200,
+  "headers": {
+   "content-type": "application/json"
+  },
+  "body": {
+   "tran_ref": "TST2231600000099",
+   "tran_type": "Refund",
+   "cart_id": "R-<IDEM20>",
+   "cart_description": "refund reason",
+   "cart_currency": "SAR",
+   "cart_amount": "50.00",
+   "customer_details": {
+    "name": "first last",
+    "email": "payer@example.test",
+    "phone": "0522222222",
+    "street1": "address street",
+    "city": "dubai",
+    "state": "DU",
+    "country": "AE",
+    "ip": "203.0.113.7"
+   },
+   "payment_result": {
+    "response_status": "A",
+    "response_code": "G97111",
+    "response_message": "Authorised",
+    "transaction_time": "2026-11-12T09:25:11Z"
+   },
+   "payment_info": {
+    "card_type": "Credit",
+    "card_scheme": "Visa",
+    "payment_description": "4111 11## #### 1111"
+   }
+  }
+ }
+}

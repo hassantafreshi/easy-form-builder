@@ -1,0 +1,16 @@
+{
+ "source_url": "https://docs.paytabs.com/manuals/PT-API-Endpoints/Integration-Types-Manuals/Hosted-Payment-Page/HPP-Step-7-Manage-Transactions/HPP-Step-7-Query-Transaction",
+ "captured": "2026-11-12",
+ "note": "Error shape of the query manual (400 {code, message, trace}); the wording for an unknown tran_ref is not documented (to be confirmed with a real sandbox).",
+ "response": {
+  "code": 400,
+  "headers": {
+   "content-type": "application/json"
+  },
+  "body": {
+   "code": 2,
+   "message": "Transaction not found",
+   "trace": "PMNT0401.00000000.00000003"
+  }
+ }
+}

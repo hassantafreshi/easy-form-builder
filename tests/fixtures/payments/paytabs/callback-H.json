@@ -1,0 +1,52 @@
+{
+ "source_url": "https://support.paytabs.com/en/support/solutions/articles/60000718961",
+ "captured": "2026-11-12",
+ "note": "Shape copied from the official example; references, dates and keys replaced (no real key or profile). PayTabs posts this body to the callback URL with the header Signature = hash_hmac('sha256', <raw body>, <server key>); the test signs it with its fake key.",
+ "request": {
+  "method": "POST",
+  "headers": {
+   "Signature": "<HMAC_SHA256_OF_RAW_BODY>"
+  }
+ },
+ "body": {
+  "tran_ref": "TST2231600000001",
+  "tran_type": "Sale",
+  "cart_id": "<EFB_UID>",
+  "cart_description": "Workshop registration EFB-7KQ2M9",
+  "cart_currency": "SAR",
+  "cart_amount": "200.00",
+  "customer_details": {
+   "name": "Technical Support",
+   "email": "payer@example.test",
+   "phone": "+966 55 xxxxxx6",
+   "street1": "address street",
+   "city": "Jeddah",
+   "state": "Makkah",
+   "country": "SA",
+   "ip": "203.0.113.7"
+  },
+  "payment_result": {
+   "response_status": "H",
+   "response_code": "036502",
+   "response_message": "Authorised (hold)",
+   "acquirer_message": "00:Approved",
+   "transaction_time": "2026-11-12T09:01:51Z"
+  },
+  "payment_info": {
+   "payment_method": "MasterCard",
+   "card_type": "Credit",
+   "card_scheme": "MasterCard",
+   "payment_description": "5500 00## #### 5559",
+   "expiryMonth": 12,
+   "expiryYear": 2029
+  },
+  "user_defined": {
+   "udf1": "efb",
+   "udf2": "12"
+  },
+  "serviceId": 2,
+  "profileId": 10001,
+  "merchantId": 20001,
+  "trace": "PMNT0401.00000000.00000001"
+ }
+}

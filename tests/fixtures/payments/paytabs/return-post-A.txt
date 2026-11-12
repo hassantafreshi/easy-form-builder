@@ -1,0 +1,2 @@
+# https://support.paytabs.com/en/support/solutions/articles/60000718961 (example fields of the browser POST to the return URL; the test signs them with its fake key)
+acquirerMessage=&acquirerRRN=&cartId=<EFB_UID>&customerEmail=payer%40example.test&respCode=G96376&respMessage=Authorised&respStatus=A&token=&tranRef=TST2231600000001

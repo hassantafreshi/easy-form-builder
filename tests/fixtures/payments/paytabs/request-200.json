@@ -1,0 +1,36 @@
+{
+ "source_url": "https://docs.paytabs.com/PT2-API-Endpoints/Integration-Types-Manuals/Hosted-Payment-Page/HPP-Step-3-Initiating-Payment/HPP-Initiating-Payment",
+ "captured": "2026-11-12",
+ "note": "Shape copied from the official example; references, dates and keys replaced (no real key or profile).",
+ "request": {
+  "method": "POST",
+  "url": "https://secure.paytabs.sa/payment/request",
+  "headers": {
+   "authorization": "<PAYTABS_TEST_SERVER_KEY>"
+  }
+ },
+ "response": {
+  "code": 200,
+  "headers": {
+   "content-type": "application/json"
+  },
+  "body": {
+   "tran_ref": "TST2231600000001",
+   "tran_type": "Sale",
+   "cart_id": "<EFB_UID>",
+   "cart_description": "Workshop registration EFB-7KQ2M9",
+   "cart_currency": "SAR",
+   "cart_amount": "200.00",
+   "tran_currency": "SAR",
+   "tran_total": "200.00",
+   "callback": "https://site.example/wp-json/Emsfb/v1/payments/webhook/paytabs",
+   "return": "https://site.example/wp-json/Emsfb/v1/payments/return/paytabs",
+   "redirect_url": "https://secure.paytabs.sa/payment/page/0000000000000000000000000000000000000000000000000001",
+   "serviceId": 2,
+   "profileId": 10001,
+   "merchantId": 20001,
+   "trace": "PMNT0401.00000000.00000001",
+   "paymentChannel": "Payment Page"
+  }
+ }
+}

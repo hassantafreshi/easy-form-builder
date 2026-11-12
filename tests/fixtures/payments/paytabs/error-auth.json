@@ -1,0 +1,16 @@
+{
+ "source_url": "https://support.paytabs.com/en/support/solutions/articles/60000712880",
+ "captured": "2026-11-12",
+ "note": "PayTabs' error shape {code, message, trace} (query manual, 400/429 examples); the wording of the authentication error is what PayTabs answers for a key of another profile or region (to be confirmed with a real sandbox).",
+ "response": {
+  "code": 401,
+  "headers": {
+   "content-type": "application/json"
+  },
+  "body": {
+   "code": 1,
+   "message": "Authentication failed. Check authentication header.",
+   "trace": "PMNT0401.00000000.00000002"
+  }
+ }
+}
