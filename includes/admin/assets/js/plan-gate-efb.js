@@ -976,12 +976,26 @@ if (typeof document !== 'undefined' && document.addEventListener) {
  * link itself never changes the plan. The parameters are removed from the address so a reload
  * does not ask again. Only registry keys are accepted.
  */
+/* The query string as the page was opened. On the Create screen admin-efb.js rewrites the address
+   to ?page=Emsfb_create when jQuery is ready, before the timer below runs, so efb_upgrade was gone
+   and the link from the public page (or SitePilot) opened nothing. Read once. */
+var efb_upgrade_boot_search_efb = (typeof location !== 'undefined' && location.search) ? String(location.search) : '';
+
 function efb_upgrade_from_url_efb() {
   var params;
   try { params = new URLSearchParams(location.search); } catch (e) { return null; }
   var feature = params.get('efb_upgrade');
+  var originParam = params.get('efb_origin');
+  if (!feature && efb_upgrade_boot_search_efb) {
+    try {
+      var boot = new URLSearchParams(efb_upgrade_boot_search_efb);
+      feature = boot.get('efb_upgrade');
+      originParam = boot.get('efb_origin');
+    } catch (e) { /* fine */ }
+  }
+  efb_upgrade_boot_search_efb = '';
   if (!feature) return null;
-  var origin = params.get('efb_origin') === 'sitepilot' ? 'sitepilot' : 'public_page';
+  var origin = originParam === 'sitepilot' ? 'sitepilot' : 'public_page';
   params.delete('efb_upgrade');
   params.delete('efb_origin');
   try { history.replaceState(history.state, '', location.pathname + (params.toString() ? '?' + params.toString() : '') + location.hash); } catch (e) { /* fine */ }
