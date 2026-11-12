@@ -344,6 +344,12 @@ scenario('2', 'Builder: masked text fields, country/state/city, redirect, save a
   await page.waitForSelector(`.efb-act-edit[data-id="${formId}"]`, { timeout: 20000 });
   const reloaded = await page.evaluate(() => ({ pkg: Number(efb_var.setting.package_type), pro: String(efb_var.pro) }));
   R.check('4a: after a reload the plan is still Free Plus (efb_var package_type 3)', reloaded.pkg === 3 && reloaded.pro === '1', reloaded);
+  // The visible plan badge (panel settings) after the reload.
+  const setPage = await page.context().newPage();
+  await setPage.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb&state=setting', { waitUntil: 'load' });
+  const badgeTxt = await setPage.waitForSelector('#efbCurrentPlanBadge', { timeout: 20000 }).then((h) => h.innerText()).catch(() => null);
+  R.check('4a: the plan badge in the panel settings says Free Plus after the reload', /Free Plus/i.test(badgeTxt || ''), badgeTxt);
+  await setPage.close();
   await page.click(`.efb-act-edit[data-id="${formId}"]`);
   await builderReady(page);
   await canvasDrawn(page);
@@ -847,6 +853,7 @@ scenario('6', 'fa_IR and 375 px: F18 dialog (en/fa × desktop/phone), RTL public
 
   // Public form in fa_IR, desktop and phone.
   if (!SHARED.pageUrl) throw new Error('scenario 3 must run first');
+  ctl('locale', 'fa_IR');
   for (const [w, h] of [[1280, 900], [375, 740]]) {
     const ctx = await context({ viewport: { width: w, height: h } }, `guest-fa-${w}`);
     const g = await ctx.newPage();

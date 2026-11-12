@@ -18,7 +18,7 @@ const CFG = {
   // WP-CLI: a command (EFB_E2E_WPCLI, e.g. "wp" or "php /path/wp-cli.phar") and the site folder.
   wpcli: (process.env.EFB_E2E_WPCLI || 'wp').split(' ').filter(Boolean),
   site: process.env.EFB_E2E_SITE_DIR || '',
-  out: process.env.EFB_E2E_OUT || path.join(__dirname, 'out'),
+  out: process.env.EFB_E2E_OUT || path.join(require('os').tmpdir(), 'efb-e2e-out'),
   slow: Number(process.env.EFB_E2E_SLOWMO || 0),
 };
 fs.mkdirSync(CFG.out, { recursive: true });

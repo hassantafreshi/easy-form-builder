@@ -65,7 +65,7 @@ repository. Admin user `admin` / `admin-pass-123` are local test defaults only.
 cd /path/to/easy-form-builder
 export EFB_E2E_WPCLI="php /path/to/wp-cli.phar"   # default: wp
 export EFB_E2E_SITE_DIR=/path/to/wpsite/site
-export EFB_E2E_OUT=/tmp/efb-e2e-out                # screenshots + results.json (default tests/e2e-wp/out)
+export EFB_E2E_OUT=/tmp/efb-e2e-out                # screenshots + results.json
 node tests/e2e-wp/run.js            # all scenarios (about 2-3 minutes)
 node tests/e2e-wp/run.js 1 2 3      # some of them (2 and later need 1 or a site already on Free Plus)
 ```
@@ -76,7 +76,7 @@ node tests/e2e-wp/run.js 1 2 3      # some of them (2 and later need 1 or a site
 | `EFB_E2E_USER` / `EFB_E2E_PASS` | `admin` / `admin-pass-123` |
 | `EFB_E2E_WPCLI` | `wp` |
 | `EFB_E2E_SITE_DIR` | (WP-CLI's own lookup from the current folder) |
-| `EFB_E2E_OUT` | `tests/e2e-wp/out` (git-ignored) |
+| `EFB_E2E_OUT` | `<system temp>/efb-e2e-out` (screenshots, `results.json`) |
 | `EFB_CHROMIUM` | Playwright's Chromium; falls back to an installed headless shell like the other browser tests |
 
 Scenario 1 **wipes the plugin's data** on the site it points at (tables, options, pages and users this
