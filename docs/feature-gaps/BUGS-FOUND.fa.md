@@ -202,8 +202,8 @@
 | شدت | مشکل | محل | وضعیت |
 |---|---|---|---|
 | کم | `Service::handle_return()` به `Gateway::parse_return()` فقط `get_query_params()` را می‌دهد، ولی PayTabs پرداخت‌کننده را با POST فیلدهای امضاشده (`tranRef`، `cartId`، `respStatus`، `signature`…) برمی‌گرداند؛ درگاه بدنهٔ POST را نمی‌بیند. | `includes/payments/class-Emsfb-payment-service.php` (`handle_return`) | **رفع شد (هسته)**: فیلدهای بدنهٔ POST بازگشت هم به `parse_return()` می‌رسند؛ `3d510534`؛ تست `test-pay-gateway-gaps.php` |
-| کم | درگاه راهی برای صفحهٔ بازگشت مخصوص خود (حالت framed: صفحهٔ کوچکی که فقط به صفحهٔ والد `postMessage` می‌دهد) ندارد؛ بازگشت هسته 303 به صفحهٔ فرم است که درون iframe کل فرم را بار می‌کند. | `class-Emsfb-payment-frontend.php` (`Routes`)، `handle_return` | **باز**: افزونه صفحهٔ خود را با هوک `init` روی `/?efb_ptb_frame=1&p&s` (امضای `Service::sign`) می‌دهد |
-| کم | `Remote_State` جای یادداشت ندارد: وضعیت PayTabs `H` (مجاز ولی در بررسی ضدتقلب، PAY05 §۹) فقط «معلق» دیده می‌شود؛ ایمیل مدیر «در بررسی» و متن مخصوص بازدیدکننده (`paytabsHold`) ممکن نیست. | `class-Emsfb-payment-gateway.php` (`Remote_State`)، `Service::apply_remote_state()` | **باز** |
+| کم | درگاه راهی برای صفحهٔ بازگشت مخصوص خود (حالت framed: صفحهٔ کوچکی که فقط به صفحهٔ والد `postMessage` می‌دهد) ندارد؛ بازگشت هسته 303 به صفحهٔ فرم است که درون iframe کل فرم را بار می‌کند. | `class-Emsfb-payment-frontend.php` (`Routes`)، `handle_return` | **رفع شد (هسته)**: `Gateway::return_page($p, $query, $continue)` پس از پرسش هسته از درگاه؛ `531c0e70`؛ تست `test-pay-gateway-gaps.php`. افزونهٔ PayTabs هنوز راه خودش را دارد |
+| کم | `Remote_State` جای یادداشت ندارد: وضعیت PayTabs `H` (مجاز ولی در بررسی ضدتقلب، PAY05 §۹) فقط «معلق» دیده می‌شود؛ ایمیل مدیر «در بررسی» و متن مخصوص بازدیدکننده (`paytabsHold`) ممکن نیست. | `class-Emsfb-payment-gateway.php` (`Remote_State`)، `Service::apply_remote_state()` | **رفع شد (هسته)**: `Remote_State::$visitor_message` (صفحهٔ وضعیت) و `$note`/`$notify_owner` (رویداد و ایمیل مدیر)؛ `531c0e70`؛ تست `test-pay-gateway-gaps.php` |
 
 ## Xendit (PAY07، ۲۰۲۶-۱۱-۱۲)
 
@@ -212,7 +212,7 @@
 | شدت | مشکل | محل | وضعیت |
 |---|---|---|---|
 | کم | فیلتر `efb_currency_exponent` با نام درگاه فقط در `Pricing` (`Money::from_decimal(…, $gateway)`) اثر دارد؛ `Money::format()`، `to_decimal_string()` ردیف پرداخت پاسخ، ورودی مبلغ بازپرداخت صفحهٔ پرداخت‌ها و runtime مرورگر توان را بی‌درگاه می‌خوانند. پس درگاهی که IDR را بی‌اعشار می‌خواهد (Xendit) نمی‌تواند توان ۰ بدهد بی‌آنکه نمایش و بازپرداخت صد برابر شوند. | `includes/payments/class-Emsfb-payment-money.php`، `class-Emsfb-payment-admin.php` (`refund`)، `Service::create()` (`paymentAmount`) | **دور زده**: افزونه توان ISO (۲) را نگه می‌دارد، مبلغ را به روپیهٔ صحیح تبدیل می‌کند و مبلغ با سِن را پیش از Xendit رد می‌کند؛ نمایش IDR «Rp 150.000,00» است |
-| کم | `pf_methods` حداکثر ۲۰ شناسه نگه می‌دارد؛ Xendit ۲۱ کانال و «any» دارد، پس فهرست صریح همهٔ کانال‌ها در فیلد بریده می‌شود (فیلد خالی = همه، که کار می‌کند). | `payment-field-functions-efb.php` (`sanitize_key`، `pf_methods`) | **باز** |
+| کم | `pf_methods` حداکثر ۲۰ شناسه نگه می‌دارد؛ Xendit ۲۱ کانال و «any» دارد، پس فهرست صریح همهٔ کانال‌ها در فیلد بریده می‌شود (فیلد خالی = همه، که کار می‌کند). | `payment-field-functions-efb.php` (`sanitize_key`، `pf_methods`) | **رفع شد**: تا ۴۰ شناسه (هر دو همزاد)؛ `531c0e70` |
 | کم | بازپرداختی که مالک در داشبورد درگاه انجام دهد با webhook درگاه به پرداخت EFB وصل نمی‌شود: هسته شناسهٔ پرداخت دوم درگاه (`payment_id` در Xendit، در ستون `gateway_sub_ref`) را نه می‌نویسد و نه یابنده‌ای برای آن دارد. | `Store` (`find_by_ref`)، `Service::handle_webhook()` | **باز**: افزونه رویداد بازپرداخت بی‌`metadata.efb_uid` را نادیده می‌گیرد (۲۰۰)؛ مالک «ثبت بازپرداخت بیرونی» را به کار می‌برد |
 
 ## Paymob (PAY06، ۲۰۲۶-۱۱-۱۲)
@@ -221,7 +221,7 @@
 
 | شدت | مشکل | محل | وضعیت |
 |---|---|---|---|
-| کم | درگاه راهی برای متن خود در صفحهٔ وضعیت/بازگشت ندارد: پرداخت کیوسک (Aman/Masary) «معلق» با کد مرجع و مهلت است (PAY06 §۶ و §۱۰: کد بزرگ و قابل کپی)، ولی `Service::status_answer()` فقط پیام کلی «منتظر تأیید» را می‌دهد؛ کد فقط در لاگ رویداد (`bill_reference`) و صفحهٔ خود Paymob است. | `class-Emsfb-payment-service.php` (`status_answer`)، `Remote_State` | **باز** |
+| کم | درگاه راهی برای متن خود در صفحهٔ وضعیت/بازگشت ندارد: پرداخت کیوسک (Aman/Masary) «معلق» با کد مرجع و مهلت است (PAY06 §۶ و §۱۰: کد بزرگ و قابل کپی)، ولی `Service::status_answer()` فقط پیام کلی «منتظر تأیید» را می‌دهد؛ کد فقط در لاگ رویداد (`bill_reference`) و صفحهٔ خود Paymob است. | `class-Emsfb-payment-service.php` (`status_answer`)، `Remote_State` | **رفع شد (هسته)**: `Remote_State::$visitor_message` در صفحهٔ وضعیت تا وقتی معلق است؛ `531c0e70`؛ تست `test-pay-gateway-gaps.php` |
 | کم | `Redactor::redact_string()` کلیدهای دارای پیشوند منطقه (`egy_sk_test_…`، `omn_sk_live_…`) و سرآیند `Token <key>` را نمی‌پوشاند (`\b` پیش از `sk` پس از `egy_` برقرار نیست؛ فقط `Bearer`/`Basic`). | `includes/payments/class-Emsfb-payment-http.php` (`Redactor`) | **رفع شد (هسته)**: کلید با پیشوند منطقه و سرآیند `Token` پوشانده می‌شوند؛ `3d510534`؛ تست `test-pay-gateway-gaps.php` |
 | کم | `Settings::apply()` هر `/` الگو را بی‌قید `\/` می‌کند؛ الگویی که خودش `\/` دارد (مثل `[A-Za-z0-9+\/=]`) نامعتبر می‌شود و **هر** مقدار رد می‌شود، بی‌پیام برای نویسندهٔ افزونه. | `includes/payments/class-Emsfb-payment-secrets.php` (`apply`) | **رفع شد (هسته)**: `Settings::pattern_re()` فقط اسلش بی‌گریز را گریز می‌دهد؛ `3d510534`؛ تست `test-pay-gateway-gaps.php` |
 | کم | کارت تنظیمات درگاه کنترل جدول ندارد؛ Integration ID هر روش در Test و Live متنی `card=123, wallet=456` در یک فیلد per_mode وارد می‌شود. | `class-Emsfb-payment-admin.php` (کارت درگاه) | **باز** |
