@@ -16169,3 +16169,133 @@ msgstr "گزینهٔ «ارسال ایمیل همراه با کد تأیید و 
 #: includes/functions.php
 msgid "Keep the files of entries that are not stored for (days)"
 msgstr "نگهداری فایل‌های پاسخ‌های ذخیره‌نشده تا (روز)"
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: setting: what happens to a person's entries when WordPress' Erase Personal Data tool runs
+#: includes/functions.php
+msgid "When a WordPress erasure request is processed"
+msgstr "هنگام اجرای درخواست حذف دادهٔ وردپرس"
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: form setting: which email field WordPress' export and erase tools match
+#: includes/functions.php
+msgid "Email field that identifies the person in privacy requests"
+msgstr "فیلد ایمیلی که شخص را در درخواست‌های حریم خصوصی مشخص می‌کند"
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: field setting: whether anonymization removes this field's answer
+#: includes/functions.php
+msgid "Clear this answer when anonymizing"
+msgstr "این پاسخ در ناشناس‌سازی پاک شود"
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: option of the anonymization field setting. %s: Yes or No, the default for this field type
+#: includes/functions.php
+#, php-format
+msgid "By field type (%s)"
+msgstr "بر اساس نوع فیلد (%s)"
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: name of the plugin in WordPress' personal data export and erase tools
+#: includes/functions.php
+msgid "Easy Form Builder entries"
+msgstr "پاسخ‌های فرم‌ساز آسان"
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: section title of a personal data export
+#: includes/functions.php
+msgid "Form entries"
+msgstr "پاسخ‌های فرم"
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: section title of a personal data export: emails the plugin sent to the address
+#: includes/functions.php
+msgid "Email delivery log"
+msgstr "گزارش ارسال ایمیل"
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: message after a WordPress erasure request. %s: number of entries
+#: includes/functions.php
+#, php-format
+msgid "%s payment entries were anonymized and kept for financial records."
+msgstr "%s پاسخ پرداختی ناشناس شد و برای سوابق مالی نگه داشته شد."
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: link to WordPress' Tools > Export Personal Data
+#: includes/functions.php
+msgid "Export personal data"
+msgstr "برون‌بری دادهٔ شخصی"
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: link to WordPress' Tools > Erase Personal Data
+#: includes/functions.php
+msgid "Erase personal data"
+msgstr "پاک‌کردن دادهٔ شخصی"
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: link to WordPress' Settings > Privacy > Policy guide
+#: includes/functions.php
+msgid "Privacy policy guide"
+msgstr "راهنمای سیاست حریم خصوصی"
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: suggested privacy policy text
+#: includes/functions.php
+msgid "When you submit a form on this site, the answers you enter are sent to us together with the form."
+msgstr "وقتی فرمی را در این سایت ارسال می‌کنید، پاسخ‌هایی که وارد کرده‌اید همراه فرم برای ما فرستاده می‌شود."
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: suggested privacy policy text
+#: includes/functions.php
+msgid "We store the answers, the files you upload and the replies exchanged about them, unless a form says that its entries are not stored."
+msgstr "پاسخ‌ها، فایل‌هایی که بارگذاری می‌کنید و پیام‌هایی که دربارهٔ آن‌ها رد و بدل می‌شود را ذخیره می‌کنیم، مگر اینکه در فرم گفته شده باشد پاسخ‌هایش ذخیره نمی‌شود."
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: suggested privacy policy text, when IP addresses are stored
+#: includes/functions.php
+msgid "We also store your IP address and the type of your browser."
+msgstr "نشانی IP و نوع مرورگر شما را هم ذخیره می‌کنیم."
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: suggested privacy policy text, when IP addresses are anonymized
+#: includes/functions.php
+msgid "We store your IP address only in anonymized form (its last part removed), and the type of your browser."
+msgstr "نشانی IP شما را فقط به‌صورت ناشناس (بدون بخش آخر) و نوع مرورگرتان را ذخیره می‌کنیم."
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: suggested privacy policy text, when IP addresses are not stored
+#: includes/functions.php
+msgid "We do not store your IP address or your browser."
+msgstr "نشانی IP و مرورگر شما را ذخیره نمی‌کنیم."
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: suggested privacy policy text. %s: number of days
+#: includes/functions.php
+#, php-format
+msgid "Entries are deleted automatically %s days after their last activity."
+msgstr "پاسخ‌ها %s روز پس از آخرین فعالیت به‌طور خودکار حذف می‌شوند."
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: suggested privacy policy text, when there is no automatic deletion
+#: includes/functions.php
+msgid "Entries are kept until a site administrator deletes them."
+msgstr "پاسخ‌ها تا زمانی که مدیر سایت آن‌ها را حذف کند نگه داشته می‌شوند."
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: suggested privacy policy text. %s: list of services such as Telegram or Google Sheets
+#: includes/functions.php
+#, php-format
+msgid "Notifications about your submission are sent by email, and may also be sent to: %s."
+msgstr "اعلان ارسال شما با ایمیل فرستاده می‌شود و ممکن است به این سرویس‌ها هم فرستاده شود: %s."
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: suggested privacy policy text, when reCAPTCHA is configured
+#: includes/functions.php
+msgid "Some forms use Google reCAPTCHA to tell people from automated programs; Google's privacy policy applies to it."
+msgstr "برخی فرم‌ها برای تشخیص انسان از برنامه‌های خودکار از Google reCAPTCHA استفاده می‌کنند و سیاست حریم خصوصی گوگل دربارهٔ آن اعمال می‌شود."
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: suggested privacy policy text about the visitor's rights
+#: includes/functions.php
+msgid "You can ask for a copy of the personal data your entries contain, or for its deletion, through this site's privacy request."
+msgstr "می‌توانید از طریق درخواست حریم خصوصی این سایت، نسخه‌ای از دادهٔ شخصی موجود در پاسخ‌هایتان یا حذف آن را درخواست کنید."

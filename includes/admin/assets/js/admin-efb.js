@@ -3323,6 +3323,18 @@ let change_el_edit_Efb = (el) => {
         }
         break;
       }
+      case "prvIdFieldEl": {
+        // F13: '' = automatic (email_to, then any email field); else the id_ of an email field.
+        const v = el.options[el.selectedIndex].value;
+        valj_efb[0].prv_id_field = valj_efb.some((x, i) => i > 0 && x && x.type === 'email' && x.id_ === v) ? v : '';
+        break;
+      }
+      case "prvPiiEl": {
+        // F13: per field, '' = by type, '1' = cleared when anonymizing, '0' = kept.
+        const v = el.options[el.selectedIndex].value;
+        valj_efb[indx].prv_pii = ['1', '0'].includes(v) ? v : '';
+        break;
+      }
       case "prvIpEl": {
         // F13: '' = follow the site's setting; the server allow-lists the value again on save.
         const v = el.options[el.selectedIndex].value;

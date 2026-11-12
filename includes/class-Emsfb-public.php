@@ -4655,7 +4655,8 @@ public function check_nonce_permission_efb($request) {
 					$r = (int)$val->rsp_by;
 					if ($r>0){
 						$usr =get_user_by('id',$r);
-						$val->rsp_by= $usr->display_name;
+						// A replier whose account was deleted: get_user_by() is false (BUGS-FOUND).
+						$val->rsp_by= $usr ? $usr->display_name : $lanText['spprt'];
 					}else if ($r==-1){
 						$val->rsp_by=$lanText['spprt'];
 					}else{

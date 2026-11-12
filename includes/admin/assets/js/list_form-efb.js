@@ -1900,9 +1900,31 @@ function efb_privacy_tab_efb(prv, mx) {
         <span class="efb mx-2 text-muted" id="prvPurgeIpResult_efb" aria-live="polite"></span>
       </div>
       ${efb_privacy_retention_html_efb(prv, mx, dis)}
+      ${efb_privacy_requests_html_efb(prv, mx, dis)}
       <!--efb-privacy-extra-->
     </div>`;
 }
+/* WordPress personal-data requests (F13 E): what an erasure does, and where the tools are. */
+function efb_privacy_requests_html_efb(prv, mx, dis) {
+  const radio = (val, key, fb) => `
+      <div class="efb form-check my-1">
+        <input class="efb form-check-input" type="radio" name="prvEraseMode_efb" id="prvEraseMode_${val}_efb" value="${val}" ${prv.prv_erase_mode === val ? 'checked' : ''} ${dis}>
+        <label class="efb form-check-label mx-2" for="prvEraseMode_${val}_efb">${efb_prv_t_efb(key, fb)}</label>
+      </div>`;
+  const admin = String((typeof ajax_object_efm !== 'undefined' && ajax_object_efm.ajax_url) || '/wp-admin/admin-ajax.php').replace(/admin-ajax\.php.*$/, '');
+  return `
+      <fieldset class="efb card-body ${mx} py-1 mt-3 border-0" id="prvEraseModeSet_efb">
+        <legend class="efb fs-6 fw-bold mb-1">${efb_prv_t_efb('prvEraseMode', 'When a WordPress erasure request is processed')}</legend>
+        ${radio('delete', 'prvActDelete', 'Delete completely')}
+        ${radio('anon', 'prvActAnon', 'Anonymize (keep choice answers for statistics)')}
+      </fieldset>
+      <div class="efb card-body ${mx} py-1" id="prvLinks_efb">
+        <a class="efb mx-1" href="${admin}export-personal-data.php">${efb_prv_t_efb('prvLinkExport', 'Export personal data')}</a> ·
+        <a class="efb mx-1" href="${admin}erase-personal-data.php">${efb_prv_t_efb('prvLinkErase', 'Erase personal data')}</a> ·
+        <a class="efb mx-1" href="${admin}options-privacy.php?tab=policyguide">${efb_prv_t_efb('prvLinkPolicy', 'Privacy policy guide')}</a>
+      </div>`;
+}
+
 /* Automatic deletion (F13 D): days, what happens, files, preview, last run, run now. */
 function efb_privacy_retention_html_efb(prv, mx, dis) {
   const radio = (val, key, fb) => `
@@ -2004,6 +2026,8 @@ function efb_privacy_patch_efb() {
   if (act && ['delete', 'anon'].includes(act.value)) out.prv_action = act.value;
   const files = document.getElementById('prvFiles_efb');
   if (files) out.prv_files = files.checked ? '1' : '';
+  const er = document.querySelector('input[name="prvEraseMode_efb"]:checked');
+  if (er && ['delete', 'anon'].includes(er.value)) out.prv_erase_mode = er.value;
   const nf = document.getElementById('prvNoStoreFileDays_efb');
   if (nf) { const d = Number(efb_prv_digits_efb(nf.value).replace(/[^0-9]/g, '')) || 30; out.prv_nostore_file_days = String(Math.min(365, Math.max(1, d))); }
   return out;
@@ -3949,7 +3973,17 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
     }
   }
 
-  localStorage.setItem('rows_ws_p', JSON.stringify(exp));
+  /* F13 (BUGS-FOUND): the rows are personal data of every entry; they stay in this page's memory
+     for the CSV download and the survey chart, never in localStorage, where they outlived the
+     session on a shared browser. A copy left there by an older version is removed. */
+  window.efb_export_rows_efb = exp;
+  try { localStorage.removeItem('rows_ws_p'); } catch (e) { /* storage blocked */ }
+}
+
+/* The export rows of the open form: memory first, an older version's localStorage copy as fallback. */
+function efb_rows_ws_p_efb() {
+  if (Array.isArray(window.efb_export_rows_efb)) return window.efb_export_rows_efb;
+  try { const r = JSON.parse(localStorage.getItem('rows_ws_p')); localStorage.removeItem('rows_ws_p'); return r; } catch (e) { return null; }
 }
 
 function exportCSVFile_emsFormBuilder(items, fileTitle) {
@@ -4015,14 +4049,14 @@ function convertToCSV_emsFormBuilder(objArray) {
 }
 
 function generat_csv_emsFormBuilder() {
-  const exp = JSON.parse(localStorage.getItem("rows_ws_p"));
+  const exp = efb_rows_ws_p_efb();
   const filename = `EasyFormBuilder-${form_type_emsFormBuilder}-export-${Math.random().toString(36).substr(2, 3)}`
   exportCSVFile_emsFormBuilder(exp, filename);
 }
 
 function convert_to_dataset_emsFormBuilder() {
   const head = JSON.parse(localStorage.getItem("head_ws_p"));
-  const exp = JSON.parse(localStorage.getItem("rows_ws_p"));
+  const exp = efb_rows_ws_p_efb();
   let rows = exp;
   let countEnrty = Array.from(Array(rows[0].length), () => Array(0).fill(0));
   let entry = Array.from(Array(rows[0].length), () => Array(0).fill(0));

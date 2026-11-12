@@ -2820,6 +2820,56 @@ class efbFunction {
 			"prvNoStoreCc" => $state && isset($ac->text->prvNoStoreCc) ? $ac->text->prvNoStoreCc : esc_html__('“Send email with confirmation code and link” is not available when entries are not stored.','easy-form-builder'),
 			/* translators: F13: setting: how long uploads of forms that do not store entries are kept */
 			"prvNoStoreFileDays" => $state && isset($ac->text->prvNoStoreFileDays) ? $ac->text->prvNoStoreFileDays : esc_html__('Keep the files of entries that are not stored for (days)','easy-form-builder'),
+			/* translators: F13: setting: what happens to a person's entries when WordPress' Erase Personal Data tool runs */
+			"prvEraseMode" => $state && isset($ac->text->prvEraseMode) ? $ac->text->prvEraseMode : esc_html__('When a WordPress erasure request is processed','easy-form-builder'),
+			/* translators: F13: form setting: which email field WordPress' export and erase tools match */
+			"prvIdField" => $state && isset($ac->text->prvIdField) ? $ac->text->prvIdField : esc_html__('Email field that identifies the person in privacy requests','easy-form-builder'),
+			/* translators: F13: option of the identifying email field: the form's user email field, else any email field */
+			"prvIdAuto" => $state && isset($ac->text->prvIdAuto) ? $ac->text->prvIdAuto : esc_html__('Automatic','easy-form-builder'),
+			/* translators: F13: field setting: whether anonymization removes this field's answer */
+			"prvPii" => $state && isset($ac->text->prvPii) ? $ac->text->prvPii : esc_html__('Clear this answer when anonymizing','easy-form-builder'),
+			/* translators: F13: option of the anonymization field setting. %s: Yes or No, the default for this field type */
+			"prvPiiAuto" => $state && isset($ac->text->prvPiiAuto) ? $ac->text->prvPiiAuto : esc_html__('By field type (%s)','easy-form-builder'),
+			/* translators: F13: option of the anonymization field setting: keep the answer */
+			"prvPiiNo" => $state && isset($ac->text->prvPiiNo) ? $ac->text->prvPiiNo : esc_html__('No','easy-form-builder'),
+			/* translators: F13: name of the plugin in WordPress' personal data export and erase tools */
+			"prvExporterName" => $state && isset($ac->text->prvExporterName) ? $ac->text->prvExporterName : esc_html__('Easy Form Builder entries','easy-form-builder'),
+			/* translators: F13: section title of a personal data export */
+			"prvGroupLabel" => $state && isset($ac->text->prvGroupLabel) ? $ac->text->prvGroupLabel : esc_html__('Form entries','easy-form-builder'),
+			/* translators: F13: section title of a personal data export: emails the plugin sent to the address */
+			"prvEmailLog" => $state && isset($ac->text->prvEmailLog) ? $ac->text->prvEmailLog : esc_html__('Email delivery log','easy-form-builder'),
+			/* translators: F13: label in the email delivery log export */
+			"prvLogTo" => $state && isset($ac->text->prvLogTo) ? $ac->text->prvLogTo : esc_html__('Recipient','easy-form-builder'),
+			/* translators: F13: label in the email delivery log export */
+			"prvLogSubject" => $state && isset($ac->text->prvLogSubject) ? $ac->text->prvLogSubject : esc_html__('Subject','easy-form-builder'),
+			/* translators: F13: message after a WordPress erasure request. %s: number of entries */
+			"prvRetainedPay" => $state && isset($ac->text->prvRetainedPay) ? $ac->text->prvRetainedPay : esc_html__('%s payment entries were anonymized and kept for financial records.','easy-form-builder'),
+			/* translators: F13: link to WordPress' Tools > Export Personal Data */
+			"prvLinkExport" => $state && isset($ac->text->prvLinkExport) ? $ac->text->prvLinkExport : esc_html__('Export personal data','easy-form-builder'),
+			/* translators: F13: link to WordPress' Tools > Erase Personal Data */
+			"prvLinkErase" => $state && isset($ac->text->prvLinkErase) ? $ac->text->prvLinkErase : esc_html__('Erase personal data','easy-form-builder'),
+			/* translators: F13: link to WordPress' Settings > Privacy > Policy guide */
+			"prvLinkPolicy" => $state && isset($ac->text->prvLinkPolicy) ? $ac->text->prvLinkPolicy : esc_html__('Privacy policy guide','easy-form-builder'),
+			/* translators: F13: suggested privacy policy text */
+			"prvPolicyIntro" => $state && isset($ac->text->prvPolicyIntro) ? $ac->text->prvPolicyIntro : esc_html__('When you submit a form on this site, the answers you enter are sent to us together with the form.','easy-form-builder'),
+			/* translators: F13: suggested privacy policy text */
+			"prvPolicyStored" => $state && isset($ac->text->prvPolicyStored) ? $ac->text->prvPolicyStored : esc_html__('We store the answers, the files you upload and the replies exchanged about them, unless a form says that its entries are not stored.','easy-form-builder'),
+			/* translators: F13: suggested privacy policy text, when IP addresses are stored */
+			"prvPolicyIp" => $state && isset($ac->text->prvPolicyIp) ? $ac->text->prvPolicyIp : esc_html__('We also store your IP address and the type of your browser.','easy-form-builder'),
+			/* translators: F13: suggested privacy policy text, when IP addresses are anonymized */
+			"prvPolicyIpAnon" => $state && isset($ac->text->prvPolicyIpAnon) ? $ac->text->prvPolicyIpAnon : esc_html__('We store your IP address only in anonymized form (its last part removed), and the type of your browser.','easy-form-builder'),
+			/* translators: F13: suggested privacy policy text, when IP addresses are not stored */
+			"prvPolicyNoIp" => $state && isset($ac->text->prvPolicyNoIp) ? $ac->text->prvPolicyNoIp : esc_html__('We do not store your IP address or your browser.','easy-form-builder'),
+			/* translators: F13: suggested privacy policy text. %s: number of days */
+			"prvPolicyRetention" => $state && isset($ac->text->prvPolicyRetention) ? $ac->text->prvPolicyRetention : esc_html__('Entries are deleted automatically %s days after their last activity.','easy-form-builder'),
+			/* translators: F13: suggested privacy policy text, when there is no automatic deletion */
+			"prvPolicyForever" => $state && isset($ac->text->prvPolicyForever) ? $ac->text->prvPolicyForever : esc_html__('Entries are kept until a site administrator deletes them.','easy-form-builder'),
+			/* translators: F13: suggested privacy policy text. %s: list of services such as Telegram or Google Sheets */
+			"prvPolicyShare" => $state && isset($ac->text->prvPolicyShare) ? $ac->text->prvPolicyShare : esc_html__('Notifications about your submission are sent by email, and may also be sent to: %s.','easy-form-builder'),
+			/* translators: F13: suggested privacy policy text, when reCAPTCHA is configured */
+			"prvPolicyCaptcha" => $state && isset($ac->text->prvPolicyCaptcha) ? $ac->text->prvPolicyCaptcha : esc_html__('Some forms use Google reCAPTCHA to tell people from automated programs; Google\'s privacy policy applies to it.','easy-form-builder'),
+			/* translators: F13: suggested privacy policy text about the visitor's rights */
+			"prvPolicyRights" => $state && isset($ac->text->prvPolicyRights) ? $ac->text->prvPolicyRights : esc_html__('You can ask for a copy of the personal data your entries contain, or for its deletion, through this site\'s privacy request.','easy-form-builder'),
 			/* translators: F18: name of a locked feature in the upgrade dialog */
 			"upgFtrHideDisable" => $state && isset($ac->text->upgFtrHideDisable) ? $ac->text->upgFtrHideDisable : esc_html__('Hidden and disabled fields','easy-form-builder'),
 			/* translators: F18: name of a locked feature in the upgrade dialog */

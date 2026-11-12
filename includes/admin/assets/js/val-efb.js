@@ -266,6 +266,37 @@ const prvNoStoreEls = () => {
     <div class="efb alert alert-warning fs-7 mt-2 mb-0 p-2 ${on ? '' : 'd-none'}" role="note" id="prvNoStoreNote">${efb_prv_nostore_note_efb()}</div>
   </div>`;
 };
+/* F13 E: the email field that identifies the person in WordPress export / erase requests. */
+const prvIdFieldEls = () => {
+  const cur = valj_efb[0].hasOwnProperty('prv_id_field') ? String(valj_efb[0].prv_id_field) : '';
+  const opts = [`<option value="" ${cur === '' ? 'selected' : ''}>${efb_prv_text_efb('prvIdAuto', 'Automatic')}</option>`]
+    .concat(valj_efb.filter((x, i) => i > 0 && x && x.type === 'email').map((x) => `<option value="${x.id_}" ${cur === x.id_ ? 'selected' : ''}>${sanitize_text_efb(String(x.name || x.id_))}</option>`)).join('');
+  return `
+  <div class="efb mt-2 mb-2">
+    <label for="prvIdFieldEl" class="efb mb-1"><i class="efb bi-person-badge fs-7 ${iconMarginGlobal}"></i>${efb_prv_text_efb('prvIdField', 'Email field that identifies the person in privacy requests')}</label>
+    <select data-id="formSet" class="efb elEdit form-select efb border-d rounded-4" id="prvIdFieldEl">${opts}</select>
+  </div>`;
+};
+/* F13: answer types anonymization keeps (the server's Privacy::NON_PII_TYPES); everything else is cleared. */
+const EFB_PRV_NON_PII_TYPES = ['radio', 'checkbox', 'option', 'select', 'multiselect', 'switch', 'yesNo', 'color', 'rating', 'pointr5', 'pointr10', 'r_matrix', 'range', 'number', 'date', 'pdate', 'ardate', 'conturyList', 'stateProvince', 'cityList', 'imgRadio', 'chlCheckBox', 'chlRadio', 'trmCheckbox', 'prcfld', 'payment'];
+const efb_prv_pii_default_efb = (type) => !(EFB_PRV_NON_PII_TYPES.includes(type) || String(type).indexOf('pay') === 0);
+const prvPiiEls = (indx) => {
+  const row = valj_efb[indx];
+  if (!row || ['ttlprc', 'html', 'heading', 'link', 'step', 'steps'].includes(row.type)) return '';
+  const cur = row.hasOwnProperty('prv_pii') ? String(row.prv_pii) : '';
+  const yes = (efb_var.text && efb_var.text.yes) || 'Yes';
+  const no = efb_prv_text_efb('prvPiiNo', 'No');
+  const auto = efb_prv_text_efb('prvPiiAuto', 'By field type (%s)').replace('%s', efb_prv_pii_default_efb(row.type) ? yes : no);
+  return `
+  <div class="efb mt-2 mb-1">
+    <label for="prvPiiEl" class="efb mb-1"><i class="efb bi-incognito fs-7 ${iconMarginGlobal}"></i>${efb_prv_text_efb('prvPii', 'Clear this answer when anonymizing')}</label>
+    <select data-id="${row.dataId || row.id_ + '-id'}" class="efb elEdit form-select efb border-d rounded-4" id="prvPiiEl">
+      <option value="" ${cur === '' ? 'selected' : ''}>${auto}</option>
+      <option value="1" ${cur === '1' ? 'selected' : ''}>${yes}</option>
+      <option value="0" ${cur === '0' ? 'selected' : ''}>${no}</option>
+    </select>
+  </div>`;
+};
 const privacyEls = () => `
           <!-- privacy section (F13) -->
           <div class="efb d-grid gap-2">
@@ -278,6 +309,7 @@ const privacyEls = () => `
               ${prvNoStoreEls()}
               ${prvIpEls()}
               ${prvDaysEls()}
+              ${prvIdFieldEls()}
             </div>
           </div>
           <!-- privacy section end -->`;
@@ -1028,7 +1060,8 @@ function show_setting_window_efb(idset, opts) {
     ${hideLabelEls}
     ${el.dataset.tag != 'ttlprc' ? requireEls : ''}
     ${el.dataset.tag != 'ttlprc' ? customRequiredMsgEls() : ''}
-    ${desEls}`
+    ${desEls}
+    ${prvPiiEls(indx)}`
     const deskHideEfb = typeof currentViewEfb !== 'undefined' && currentViewEfb === 'mobile' ? 'd-none' : '';
     const mobHideEfb = typeof currentViewEfb === 'undefined' || currentViewEfb !== 'mobile' ? 'd-none' : '';
 

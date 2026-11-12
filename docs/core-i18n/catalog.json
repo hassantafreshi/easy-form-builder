@@ -4,7 +4,7 @@
     "plugin_version": "4.3.1",
     "updated": "2026-11-12",
     "counts": {
-        "active": 2784,
+        "active": 2805,
         "obsolete": 378
     },
     "entries": [
@@ -637,6 +637,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%s payment entries were anonymized and kept for financial records.",
+            "context": null,
+            "plural": null,
+            "translators": "F13: message after a WordPress erasure request. %s: number of entries",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -3814,7 +3829,7 @@
             "msgid": "Automatic",
             "context": null,
             "plural": null,
-            "translators": "F01 builder, mobile keyboard option: chosen from the field format, or the phone default",
+            "translators": "F13: option of the identifying email field: the form's user email field, else any email field translators: F01 builder, mobile keyboard option: chosen from the field format, or the phone default",
             "files": [
                 "includes/functions.php"
             ],
@@ -5068,6 +5083,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "By field type (%s)",
+            "context": null,
+            "plural": null,
+            "translators": "F13: option of the anonymization field setting. %s: Yes or No, the default for this field type",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -6406,6 +6436,21 @@
             "context": null,
             "plural": null,
             "translators": "F13: confirmation before clearing stored IP addresses",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Clear this answer when anonymizing",
+            "context": null,
+            "plural": null,
+            "translators": "F13: field setting: whether anonymization removes this field's answer",
             "files": [
                 "includes/functions.php"
             ],
@@ -10376,6 +10421,7 @@
                 "includes/class-Emsfb-admin-bar.php",
                 "includes/class-Emsfb-email-monitor.php",
                 "includes/class-Emsfb-formbuilder.php",
+                "includes/class-Emsfb-privacy.php",
                 "includes/class-Emsfb-public.php",
                 "includes/class-email-handler.php",
                 "includes/functions.php",
@@ -10555,6 +10601,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Easy Form Builder entries",
+            "context": null,
+            "plural": null,
+            "translators": "F13: name of the plugin in WordPress' personal data export and erase tools",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -11267,6 +11328,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Email delivery log",
+            "context": null,
+            "plural": null,
+            "translators": "F13: section title of a personal data export: emails the plugin sent to the address",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Email delivery test failed.",
             "context": null,
             "plural": null,
@@ -11293,6 +11369,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Email field that identifies the person in privacy requests",
+            "context": null,
+            "plural": null,
+            "translators": "F13: form setting: which email field WordPress' export and erase tools match",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -12350,10 +12441,55 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Entries are deleted automatically %s days after their last activity.",
+            "context": null,
+            "plural": null,
+            "translators": "F13: suggested privacy policy text. %s: number of days",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Entries are kept until a site administrator deletes them.",
+            "context": null,
+            "plural": null,
+            "translators": "F13: suggested privacy policy text, when there is no automatic deletion",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Entries older than %1$s days will be removed. This cannot be undone. Continue?",
             "context": null,
             "plural": null,
             "translators": "F13: confirmation before saving automatic deletion. %1$s: number of days",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Erase personal data",
+            "context": null,
+            "plural": null,
+            "translators": "F13: link to WordPress' Tools > Erase Personal Data",
             "files": [
                 "includes/functions.php"
             ],
@@ -12709,6 +12845,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "Export personal data",
+            "context": null,
+            "plural": null,
+            "translators": "F13: link to WordPress' Tools > Export Personal Data",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "External",
@@ -13826,6 +13977,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Form entries",
+            "context": null,
+            "plural": null,
+            "translators": "F13: section title of a personal data export",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -21602,7 +21768,7 @@
             "msgid": "No",
             "context": null,
             "plural": null,
-            "translators": "Form template option values",
+            "translators": "F13: option of the anonymization field setting: keep the answer translators: Form template option values",
             "files": [
                 "includes/functions.php",
                 "includes/page-builders/elementor/class-Emsfb-elementor-widget.php",
@@ -22759,6 +22925,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "Notifications about your submission are sent by email, and may also be sent to: %s.",
+            "context": null,
+            "plural": null,
+            "translators": "F13: suggested privacy policy text. %s: list of services such as Telegram or Google Sheets",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Notifications and the report go here.",
@@ -26544,6 +26725,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Privacy policy guide",
+            "context": null,
+            "plural": null,
+            "translators": "F13: link to WordPress' Settings > Privacy > Policy guide",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Private and Restricted-Access Forms",
             "context": null,
             "plural": null,
@@ -27597,7 +27793,7 @@
             "msgid": "Recipient",
             "context": null,
             "plural": null,
-            "translators": "Dashboard widget — table column header: recipient email address",
+            "translators": "F13: label in the email delivery log export translators: Dashboard widget — table column header: recipient email address",
             "files": [
                 "includes/functions.php"
             ],
@@ -31971,6 +32167,21 @@
             "obsolete_since": "4.3.1"
         },
         {
+            "msgid": "Some forms use Google reCAPTCHA to tell people from automated programs; Google's privacy policy applies to it.",
+            "context": null,
+            "plural": null,
+            "translators": "F13: suggested privacy policy text, when reCAPTCHA is configured",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Some plugin files are missing, so the plugin stopped loading to keep your site running. Please reinstall Easy Form Builder from the Plugins page — your forms, messages, and settings are kept.",
             "context": null,
             "plural": null,
@@ -33071,7 +33282,7 @@
             "msgid": "Subject",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "F13: label in the email delivery log export",
             "files": [
                 "includes/functions.php"
             ],
@@ -41401,6 +41612,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "We also store your IP address and the type of your browser.",
+            "context": null,
+            "plural": null,
+            "translators": "F13: suggested privacy policy text, when IP addresses are stored",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "We are sorry, but the message was not sent due to a settings error. Please contact the admin for assistance.",
             "context": null,
             "plural": null,
@@ -41611,6 +41837,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "We do not store your IP address or your browser.",
+            "context": null,
+            "plural": null,
+            "translators": "F13: suggested privacy policy text, when IP addresses are not stored",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "We emailed the full report to %s.",
             "context": null,
             "plural": null,
@@ -41728,6 +41969,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "We store the answers, the files you upload and the replies exchanged about them, unless a form says that its entries are not stored.",
+            "context": null,
+            "plural": null,
+            "translators": "F13: suggested privacy policy text",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "We store your IP address only in anonymized form (its last part removed), and the type of your browser.",
+            "context": null,
+            "plural": null,
+            "translators": "F13: suggested privacy policy text, when IP addresses are anonymized",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -42122,6 +42393,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "When a WordPress erasure request is processed",
+            "context": null,
+            "plural": null,
+            "translators": "F13: setting: what happens to a person's entries when WordPress' Erase Personal Data tool runs",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "When a new message is received through an Easy Form Builder form, an alert email is sent to the site administrator.",
             "context": null,
             "plural": null,
@@ -42171,6 +42457,21 @@
             "context": null,
             "plural": null,
             "translators": "F13: setting: what happens to an entry when its retention time is over",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "When you submit a form on this site, the answers you enter are sent to us together with the form.",
+            "context": null,
+            "plural": null,
+            "translators": "F13: suggested privacy policy text",
             "files": [
                 "includes/functions.php"
             ],
@@ -43581,6 +43882,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "You can ask for a copy of the personal data your entries contain, or for its deletion, through this site's privacy request.",
+            "context": null,
+            "plural": null,
+            "translators": "F13: suggested privacy policy text about the visitor's rights",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },

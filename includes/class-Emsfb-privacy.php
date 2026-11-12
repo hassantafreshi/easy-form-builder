@@ -73,6 +73,10 @@ class Privacy {
 		add_action(self::CONTINUE_HOOK, array(__CLASS__, 'run_retention'), 10, 0);
 		add_action('wp_ajax_efb_privacy_preview_Emsfb', array(__CLASS__, 'ajax_preview'));
 		add_action('wp_ajax_efb_privacy_run_now_Emsfb', array(__CLASS__, 'ajax_run_now'));
+		// E: WordPress' own personal-data tools (Tools > Export / Erase Personal Data).
+		add_filter('wp_privacy_personal_data_exporters', array(__CLASS__, 'register_exporter'));
+		add_filter('wp_privacy_personal_data_erasers', array(__CLASS__, 'register_eraser'));
+		add_action('admin_init', array(__CLASS__, 'policy_text'));
 	}
 
 	/** efb_var.privacy on the EFB admin screens: what the settings tab needs besides the settings. */
@@ -925,4 +929,243 @@ class Privacy {
 		update_option(self::NOSTORE_FILES_OPTION, $ledger, false);
 		return $deleted;
 	}
+
+	/* ------------------------------------------------------------ WordPress export / erase, policy (E) */
+
+	const EXPORT_PAGE = 50;
+
+	/** Phrases from text_efb() (the owner's custom texts included), with English fallbacks. */
+	private static function t(array $keys) {
+		$fn = function_exists('get_efbFunction') ? get_efbFunction() : null;
+		$out = ($fn && method_exists($fn, 'text_efb')) ? (array) $fn->text_efb($keys) : array();
+		foreach ($keys as $k) if (!isset($out[$k])) $out[$k] = $k;
+		return $out;
+	}
+
+	public static function register_exporter($exporters) {
+		$l = self::t(array('prvExporterName'));
+		$exporters['easy-form-builder'] = array('exporter_friendly_name' => $l['prvExporterName'], 'callback' => array(__CLASS__, 'export'));
+		return $exporters;
+	}
+
+	public static function register_eraser($erasers) {
+		$l = self::t(array('prvExporterName'));
+		$erasers['easy-form-builder'] = array('eraser_friendly_name' => $l['prvExporterName'], 'callback' => array(__CLASS__, 'erase'));
+		return $erasers;
+	}
+
+	/** row 0 of a stored form (email_to, prv_id_field), cached for the request. */
+	private static function form_settings_row($form_id) {
+		static $cache = array();
+		$form_id = (int) $form_id;
+		if (array_key_exists($form_id, $cache)) return $cache[$form_id];
+		global $wpdb;
+		$rows = self::decode_content($wpdb->get_var($wpdb->prepare("SELECT form_structer FROM `{$wpdb->prefix}emsfb_form` WHERE form_id = %d", $form_id)));
+		return $cache[$form_id] = (is_array($rows) && isset($rows[0]) && is_array($rows[0])) ? $rows[0] : array();
+	}
+
+	/**
+	 * Whether an entry belongs to this address: the answer of the form's identifying field
+	 * (prv_id_field, else email_to, else every email field) equals it. An address that only
+	 * appears inside some other answer (a message text) does not count: that would export or
+	 * erase someone else's entry.
+	 */
+	public static function entry_matches_email($rows, $form_row, $email) {
+		$email = strtolower(trim((string) $email));
+		if ($email === '' || !is_array($rows)) return false;
+		$id_field = '';
+		if (!empty($form_row['prv_id_field'])) $id_field = (string) $form_row['prv_id_field'];
+		elseif (!empty($form_row['email_to'])) $id_field = (string) $form_row['email_to'];
+		foreach ($rows as $r) {
+			if (!is_array($r) || !isset($r['value']) || !is_string($r['value'])) continue;
+			$is_id = $id_field !== '' ? (isset($r['id_']) && (string) $r['id_'] === $id_field) : (isset($r['type']) && $r['type'] === 'email');
+			if ($is_id && strtolower(trim($r['value'])) === $email) return true;
+		}
+		return false;
+	}
+
+	/**
+	 * One batch of the entries of a person, after $after_id. Candidates: the address
+	 * anywhere in the content (LIKE, escaped), or the logged-in sender (uid). Returns
+	 * [matching entries (ARRAY_A rows with 'rows' decoded), last candidate id, more].
+	 */
+	public static function find_entries($email, $after_id = 0, $limit = self::EXPORT_PAGE) {
+		global $wpdb;
+		$email = trim((string) $email);
+		$user = (function_exists('get_user_by') && $email !== '') ? get_user_by('email', $email) : false;
+		$uid = $user && isset($user->ID) ? (int) $user->ID : 0;
+		$msg = $wpdb->prefix . 'emsfb_msg_';
+		$like = '%' . $wpdb->esc_like($email) . '%';
+		$cols = 'msg_id, form_id, form_title_x, track, ip, date, content, read_';
+		if (self::schema_ready()) {
+			$cols .= ', uid, prv_state';
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix
+			$sql = $wpdb->prepare("SELECT {$cols} FROM `{$msg}` WHERE msg_id > %d AND (content LIKE %s OR (uid > 0 AND uid = %d)) ORDER BY msg_id ASC LIMIT %d", (int) $after_id, $like, $uid, (int) $limit);
+		} else {
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix
+			$sql = $wpdb->prepare("SELECT {$cols} FROM `{$msg}` WHERE msg_id > %d AND content LIKE %s ORDER BY msg_id ASC LIMIT %d", (int) $after_id, $like, (int) $limit);
+		}
+		$candidates = (array) $wpdb->get_results($sql, ARRAY_A);
+		$found = array();
+		$last = (int) $after_id;
+		foreach ($candidates as $c) {
+			$last = max($last, (int) $c['msg_id']);
+			$rows = self::decode_content($c['content']);
+			$by_uid = $uid > 0 && isset($c['uid']) && (int) $c['uid'] === $uid;
+			if ($by_uid || self::entry_matches_email($rows, self::form_settings_row($c['form_id']), $email)) {
+				$c['rows'] = is_array($rows) ? $rows : array();
+				$found[] = $c;
+			}
+		}
+		return array($found, $last, count($candidates) >= $limit);
+	}
+
+	/** Cursor of a paged export / erasure: WordPress gives page numbers, deletion moves rows. */
+	private static function cursor($email, $op, $page, $value = null) {
+		$key = 'efb_prv_cur_' . md5(strtolower(trim((string) $email)) . '|' . $op);
+		if ($value !== null) { set_transient($key, (int) $value, HOUR_IN_SECONDS); return (int) $value; }
+		if ((int) $page <= 1) { delete_transient($key); return 0; }
+		return (int) get_transient($key);
+	}
+
+	/** A stored value as a person reads it: tokens decoded, multi-values joined, files as links. */
+	public static function readable_value(array $r, array $l) {
+		$type = isset($r['type']) ? (string) $r['type'] : '';
+		$v = isset($r['value']) ? $r['value'] : '';
+		if ($v === self::REDACTED) return $l['prvRedacted'];
+		if ($type === 'maps' && is_array($v)) {
+			$out = array();
+			foreach ($v as $p) if (is_array($p)) $out[] = trim(implode(', ', array_filter(array(isset($p['lat']) ? $p['lat'] : '', isset($p['lng']) ? $p['lng'] : '', isset($p['address']) ? $p['address'] : ''), 'strlen')));
+			return implode('; ', $out);
+		}
+		if ($type === 'esign') return '[' . $l['esign'] . ']';
+		if ($v === '@file@' || (isset($r['url']) && is_string($r['url']) && $r['url'] !== '' && in_array($type, array('file', 'dadfile', 'allformat', 'audio_recorder', 'video_recorder', 'screen_recorder', 'image', 'media', 'document'), true))) {
+			return isset($r['url']) && is_string($r['url']) ? $r['url'] : '';
+		}
+		if (is_array($v)) $v = wp_json_encode($v);
+		$v = str_replace(array('@efb@dq#', '@efb@sq#', '@efb@vq#', '@efb@nq#', '@n#'), array('"', "'", '`', "\n", "\n"), (string) $v);
+		$v = rtrim(str_replace('@efb!', ', ', $v), ', ');
+		if (isset($r['qty']) && $r['qty'] !== '') $v .= ' (' . $r['qty'] . ')';
+		return $v;
+	}
+
+	/** WordPress exporter: one item per entry (form, code, date, IP, every answer, replies), then the e-mail log. */
+	public static function export($email, $page = 1) {
+		global $wpdb;
+		$l = self::t(array('prvGroupLabel', 'prvRedacted', 'prvEmailLog', 'prvLogTo', 'prvLogSubject', 'form', 'trackNo', 'ddate', 'ip', 'esign', 'reply', 'guest', 'spprt', 'by'));
+		$after = self::cursor($email, 'export', $page);
+		list($entries, $last, $more) = self::find_entries($email, $after);
+		self::cursor($email, 'export', $page, $last);
+		$items = array();
+		foreach ($entries as $e) {
+			$data = array(
+				array('name' => $l['form'], 'value' => (string) $e['form_title_x']),
+				array('name' => $l['trackNo'], 'value' => (string) $e['track']),
+				array('name' => $l['ddate'], 'value' => (string) $e['date']),
+			);
+			if (!empty($e['ip'])) $data[] = array('name' => $l['ip'], 'value' => (string) $e['ip']);
+			foreach ($e['rows'] as $r) {
+				if (!is_array($r) || !isset($r['type']) || $r['type'] === 'w_link') continue;
+				$name = isset($r['name']) && $r['name'] !== '' ? (string) $r['name'] : (isset($r['id_']) ? (string) $r['id_'] : '');
+				$name = str_replace('@efb@dq#', '"', $name);
+				$val = self::readable_value($r, $l);
+				if ($r['type'] === 'payment' && !empty($r['paymentIntent'])) $val .= ' (' . $r['paymentIntent'] . ')';
+				$data[] = array('name' => $name, 'value' => $val);
+			}
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix
+			$replies = (array) $wpdb->get_results($wpdb->prepare("SELECT content, date, rsp_by FROM `{$wpdb->prefix}emsfb_rsp_` WHERE msg_id = %d ORDER BY rsp_id ASC", (int) $e['msg_id']), ARRAY_A);
+			foreach ($replies as $i => $rp) {
+				$texts = array();
+				foreach ((array) self::decode_content($rp['content']) as $r) {
+					if (is_array($r) && (!isset($r['type']) || !in_array($r['type'], array('closed', 'opened'), true))) $texts[] = self::readable_value($r, $l);
+				}
+				$by_user = (int) $rp['rsp_by'] > 0 && function_exists('get_user_by') ? get_user_by('id', (int) $rp['rsp_by']) : false;
+				// A deleted user (get_user_by() false) must not break the export.
+				$by = (int) $rp['rsp_by'] > 0 ? ($by_user && isset($by_user->display_name) ? $by_user->display_name : $l['by'] . ' #' . (int) $rp['rsp_by']) : ((int) $rp['rsp_by'] === -1 ? $l['spprt'] : $l['guest']);
+				$data[] = array('name' => $l['reply'] . ' ' . ($i + 1), 'value' => $rp['date'] . ' — ' . $by . ': ' . implode(' ', array_filter($texts, 'strlen')));
+			}
+			$items[] = array('group_id' => 'efb-entries', 'group_label' => $l['prvGroupLabel'], 'item_id' => 'efb-entry-' . (int) $e['msg_id'], 'data' => $data);
+		}
+		if ((int) $page <= 1) {
+			$logs = get_option('efb_email_log', array());
+			foreach ((array) $logs as $i => $row) {
+				if (!is_array($row) || !isset($row['to']) || stripos((string) $row['to'], trim((string) $email)) === false) continue;
+				$items[] = array('group_id' => 'efb-email-log', 'group_label' => $l['prvEmailLog'], 'item_id' => 'efb-email-log-' . $i, 'data' => array(
+					array('name' => $l['ddate'], 'value' => isset($row['date']) ? (string) $row['date'] : ''),
+					array('name' => $l['prvLogTo'], 'value' => (string) $row['to']),
+					array('name' => $l['prvLogSubject'], 'value' => isset($row['subject']) ? (string) $row['subject'] : ''),
+				));
+			}
+		}
+		return array('data' => $items, 'done' => !$more);
+	}
+
+	/**
+	 * WordPress eraser: the person's entries are deleted or anonymized (prv_erase_mode); a
+	 * payment entry is anonymized and kept for financial records (filter
+	 * efb_privacy_keep_payment_entries). E-mail log rows to the address are removed.
+	 */
+	public static function erase($email, $page = 1) {
+		$l = self::t(array('prvRetainedPay'));
+		$after = self::cursor($email, 'erase', $page);
+		list($entries, $last, $more) = self::find_entries($email, $after);
+		self::cursor($email, 'erase', $page, $last);
+		$mode = self::setting('prv_erase_mode');
+		$keep = function_exists('apply_filters') ? (bool) apply_filters('efb_privacy_keep_payment_entries', true) : true;
+		$ids = array();
+		$payments = 0;
+		foreach ($entries as $e) {
+			if (isset($e['prv_state']) && (string) $e['prv_state'] === '1') continue;
+			$ids[] = (int) $e['msg_id'];
+			if ($keep && self::is_payment_entry($e['rows'], $e['read_'])) $payments++;
+		}
+		$r = self::purge_entries($ids, $mode, true, $keep);
+		$removed = ($r['deleted'] + $r['anonymized']) > 0;
+		$messages = array();
+		$retained = $r['retained'] > 0 || ($mode === 'anon' && $payments > 0);
+		if ($payments > 0) $messages[] = sprintf($l['prvRetainedPay'], number_format_i18n_efb($payments));
+		if ((int) $page <= 1) {
+			$logs = get_option('efb_email_log', array());
+			if (is_array($logs) && !empty($logs)) {
+				$keep_logs = array_values(array_filter($logs, function ($row) use ($email) { return !is_array($row) || !isset($row['to']) || stripos((string) $row['to'], trim((string) $email)) === false; }));
+				if (count($keep_logs) !== count($logs)) { update_option('efb_email_log', $keep_logs, false); $removed = true; }
+			}
+		}
+		return array('items_removed' => $removed, 'items_retained' => $retained, 'messages' => $messages, 'done' => !$more);
+	}
+
+	/**
+	 * Suggested text for the site's privacy policy (Settings > Privacy > Policy guide),
+	 * built from the real settings. The owner edits it before use.
+	 */
+	public static function policy_text() {
+		if (!function_exists('wp_add_privacy_policy_content')) return;
+		wp_add_privacy_policy_content(__('Easy Form Builder', 'easy-form-builder'), self::policy_html());
+	}
+
+	public static function policy_html($settings = null) {
+		$l = self::t(array('prvPolicyIntro', 'prvPolicyStored', 'prvPolicyIp', 'prvPolicyIpAnon', 'prvPolicyNoIp', 'prvPolicyRetention', 'prvPolicyForever', 'prvPolicyShare', 'prvPolicyCaptcha', 'prvPolicyRights'));
+		if ($settings === null && function_exists('get_setting_Emsfb')) $settings = get_setting_Emsfb('decoded');
+		$s = is_object($settings) ? $settings : (object) (array) $settings;
+		$p = array($l['prvPolicyIntro'], $l['prvPolicyStored']);
+		$mode = self::setting('prv_ip_mode', $s);
+		$p[] = $mode === 'none' ? $l['prvPolicyNoIp'] : ($mode === 'anon' ? $l['prvPolicyIpAnon'] : $l['prvPolicyIp']);
+		$days = (int) self::setting('prv_days', $s);
+		$p[] = $days > 0 ? sprintf($l['prvPolicyRetention'], number_format_i18n_efb($days)) : $l['prvPolicyForever'];
+		$services = array();
+		foreach (array('AdnTLG' => 'Telegram', 'AdnGoS' => 'Google Sheets', 'AdnWHS' => 'Webhook', 'AdnSS' => 'SMS') as $code => $name) {
+			if (isset($s->$code) && (int) $s->$code === 1) $services[] = $name;
+		}
+		$p[] = sprintf($l['prvPolicyShare'], $services ? implode(', ', $services) : '—');
+		if (isset($s->siteKey) && is_string($s->siteKey) && strlen(trim($s->siteKey)) > 5) $p[] = $l['prvPolicyCaptcha'];
+		$p[] = $l['prvPolicyRights'];
+		$html = '';
+		foreach ($p as $para) $html .= '<p>' . esc_html(html_entity_decode((string) $para, ENT_QUOTES, 'UTF-8')) . '</p>';
+		return function_exists('wp_kses_post') ? wp_kses_post($html) : $html;
+	}
+}
+
+/** number_format_i18n() when WordPress is loaded, else a plain number. */
+function number_format_i18n_efb($n) {
+	return function_exists('number_format_i18n') ? number_format_i18n($n) : (string) $n;
 }

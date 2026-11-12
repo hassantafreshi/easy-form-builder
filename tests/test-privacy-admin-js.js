@@ -111,14 +111,40 @@ t('viewer: the "Anonymized" badge', /efb-prv-badge[\s\S]{0,200}prvAnonBadge/.tes
 
 // Builder handlers
 const handler = (id) => { const m = ADMIN.match(new RegExp('case "' + id + '": \\{([\\s\\S]*?)\\n      \\}')); return m ? m[1] : null; };
-for (const [id, input, want] of [['prvIpEl', 'none', 'none'], ['prvIpEl', 'bogus', ''], ['prvIpEl', '', ''], ['prvDaysEl', '۴۵', '45'], ['prvDaysEl', '99999', '3650'], ['prvDaysEl', '', '']]) {
+const keyOf = { prvIpEl: 'prv_ip', prvDaysEl: 'prv_days', prvIdFieldEl: 'prv_id_field', prvPiiEl: 'prv_pii' };
+for (const [id, input, want] of [['prvIpEl', 'none', 'none'], ['prvIpEl', 'bogus', ''], ['prvIpEl', '', ''], ['prvDaysEl', '۴۵', '45'], ['prvDaysEl', '99999', '3650'], ['prvDaysEl', '', ''],
+  ['prvIdFieldEl', 'em1', 'em1'], ['prvIdFieldEl', 'tx1', ''], ['prvIdFieldEl', '', ''], ['prvPiiEl', '1', '1'], ['prvPiiEl', '0', '0'], ['prvPiiEl', 'x', '']]) {
   const body = handler(id);
-  const valj_efb = [{}];
-  const el = id === 'prvIpEl' ? { selectedIndex: 0, options: [{ value: input }] } : { value: input };
-  try { new Function('el', 'valj_efb', 'switch (1) { case 1: ' + body + ' }')(el, valj_efb); } catch (err) { t(id + ' handler runs', false, String(err)); continue; }
-  const key = id === 'prvIpEl' ? 'prv_ip' : 'prv_days';
-  t(`builder ${id} "${input}" → ${key} "${want}"`, valj_efb[0][key] === want, valj_efb[0][key]);
+  const valj_efb = [{}, { id_: 'em1', type: 'email' }, { id_: 'tx1', type: 'text' }];
+  const indx = id === 'prvPiiEl' ? 2 : 0;
+  const el = ['prvIpEl', 'prvIdFieldEl', 'prvPiiEl'].includes(id) ? { selectedIndex: 0, options: [{ value: input }] } : { value: input };
+  try { new Function('el', 'valj_efb', 'indx', 'switch (1) { case 1: ' + body + ' }')(el, valj_efb, indx); } catch (err) { t(id + ' handler runs', false, String(err)); continue; }
+  const key = keyOf[id];
+  t(`builder ${id} "${input}" → ${key} "${want}"`, valj_efb[indx][key] === want, valj_efb[indx][key]);
 }
+t('builder: the per-field "clear when anonymizing" control is in the shared advanced block', /\$\{desEls\}\s*\$\{prvPiiEls\(indx\)\}`/.test(VAL));
+t('builder: the field-type default mirrors the server list', (() => {
+  const m = VAL.match(/const EFB_PRV_NON_PII_TYPES = (\[[^\]]*\]);/);
+  const php = fs.readFileSync(path.join(ROOT, 'includes/class-Emsfb-privacy.php'), 'utf8').match(/const NON_PII_TYPES = array\(([\s\S]*?)\);/);
+  const a = m ? JSON.parse(m[1].replace(/'/g, '"')) : [];
+  const b = php ? php[1].match(/'([^']+)'/g).map((x) => x.slice(1, -1)) : [];
+  return a.length > 10 && JSON.stringify(a) === JSON.stringify(b);
+})());
+
+// rows_ws_p (BUGS-FOUND): the export rows stay in memory, never in localStorage
+const store = { rows_ws_p: '[["old"]]' };
+const ls = { setItem: (k, v) => { store[k] = v; }, getItem: (k) => (k in store ? store[k] : null), removeItem: (k) => { delete store[k]; } };
+const exportFns = grab(LIST, 'fun_export_rows_for_Subscribe_emsFormBuilder') + grab(LIST, 'efb_rows_ws_p_efb');
+const ex = new Function('localStorage', 'window', `let form_type_emsFormBuilder = 'form'; let efb_var = { text: { createDate: 'Date', noComment: '-' } };
+  const efbParseJson = (s) => JSON.parse(s); const replaceContentMessageEfb = (s) => s; let add_multi;
+  ${exportFns}; return { fun_export_rows_for_Subscribe_emsFormBuilder, efb_rows_ws_p_efb };`);
+const win = {};
+const E = ex(ls, win);
+t('an older version\'s copy is read once and removed', JSON.stringify(E.efb_rows_ws_p_efb()) === '[["old"]]' && !('rows_ws_p' in store));
+E.fun_export_rows_for_Subscribe_emsFormBuilder([{ msg_id: 1, date: 'd', content: JSON.stringify([{ id_: 'e1', name: 'Email', type: 'email', value: 'a@example.test' }]) }]);
+t('the export rows are kept in memory for the CSV and the chart', Array.isArray(win.efb_export_rows_efb) && JSON.stringify(win.efb_export_rows_efb).includes('a@example.test'));
+t('...and never written to localStorage', Object.keys(store).length === 0, store);
+t('CSV and chart read the rows through efb_rows_ws_p_efb()', /function generat_csv_emsFormBuilder\(\) \{\s*const exp = efb_rows_ws_p_efb\(\);/.test(LIST) && /const exp = efb_rows_ws_p_efb\(\);\s*let rows = exp;/.test(LIST));
 t('builder: the Privacy section sits before Advanced in formSet', /\$\{privacyEls\(\)\}\s*<div class="efb  d-grid gap-2">\s*<button class="efb btn btn-outline-light mt-3" id="advanced_collapse"/.test(VAL));
 
 // Dead setting and the tab

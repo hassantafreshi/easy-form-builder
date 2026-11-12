@@ -28,7 +28,8 @@
  *      Persian digits, preview, confirmation, the real daily cron deletes an old entry with its
  *      reply and its file in uploads/YYYY/MM (an entry with a recent reply stays); anonymize +
  *      "Run now" + the response viewer; "do not store entries": builder switch (en, fa RTL), a guest
- *      submission that leaves no row
+ *      submission that leaves no row; WordPress Tools > Export / Erase Personal Data find and erase
+ *      the guest's entry by e-mail
  *
  * Run: node tests/e2e-wp/run.js [scenario ids...]   (env: see README.md)
  */
@@ -956,9 +957,13 @@ async function f13GuestSubmit(context, url, F, values) {
   return body;
 }
 
-scenario('8', 'F13 privacy: IP setting, guest entry without IP, retention cron with replies and files, anonymization, entries not stored', async ({ context, adminPage }) => {
+scenario('8', 'F13 privacy: IP setting, guest entry without IP, retention cron with replies and files, anonymization, entries not stored, WordPress export / erase', async ({ context, adminPage }) => {
   if (!['1', '3'].includes(String(ctl('state').emsfb_pro))) ctl('plan', 3);
-  const admin = await adminPage();
+  // WordPress 7 animates admin navigations (wp-admin/css/view-transitions.css, @view-transition);
+  // the quick form posts of Tools > Erase Personal Data made Chromium abort that core transition
+  // ("Transition was aborted because of invalid state"), which is not the plugin's. Reduced motion
+  // switches the core animation off for this scenario.
+  const admin = await adminPage({ reducedMotion: 'reduce' });
 
   // 8a Settings > Privacy (the real screen and Save button) → "Do not store".
   await f13OpenPrivacyTab(admin);
@@ -1135,12 +1140,72 @@ scenario('8', 'F13 privacy: IP setting, guest entry without IP, retention cron w
     await fa.screenshot({ path: SHOT('8g-nostore-builder-fa') });
   } finally { ctl('locale', ''); }
 
+  // 8h WordPress Tools > Export / Erase Personal Data find the guest's entry by e-mail.
+  const who = 'f13-guest@example.test';
+  const guestId = Number(SHARED.f13.entry.msg_id);
+  const privacyRequest = async (screen) => {
+    await admin.goto(CFG.base + '/wp-admin/' + screen, { waitUntil: 'load' });
+    await admin.fill('#username_or_email_for_privacy_request', who);
+    await admin.uncheck('#send_confirmation_email'); // no mail on the test box: the request is confirmed at once
+    await Promise.all([admin.waitForNavigation({ waitUntil: 'load' }), admin.click('#submit')]);
+    return admin.locator('tr', { hasText: who }).first();
+  };
+  let row = await privacyRequest('export-personal-data.php');
+  const exportAnswers = [];
+  admin.on('response', async (r) => {
+    if (!(r.request().postData() || '').includes('action=wp-privacy-export-personal-data')) return;
+    try { exportAnswers.push(await r.json()); } catch (e) { /* the download */ }
+  });
+  await row.hover();
+  const dl = admin.waitForEvent('download', { timeout: 30000 }).catch(() => null);
+  await row.locator('.export-personal-data-idle .export-personal-data-handle').first().click({ force: true });
+  const download = await dl;
+  await sleep(500);
+  const ours = exportAnswers.map((a) => a && a.data && a.data.data ? a.data.data : []).flat().filter((i) => i.group_id === 'efb-entries');
+  const item = ours.find((i) => i.item_id === 'efb-entry-' + guestId) || { data: [] };
+  const vals = item.data.map((d) => d.value);
+  R.check('8h: Tools > Export Personal Data: the plugin\'s exporter returns the guest\'s entry (group efb-entries) with its answers', ours.length >= 1 && vals.includes(who) && vals.includes('Guest One') && item.group_label === 'Form entries', { n: ours.length, item });
+  R.check('8h: ...and not the other guest\'s entry', !ours.some((i) => JSON.stringify(i).includes('f13-other@example.test')), ours.map((i) => i.item_id));
+  let zipHasGroup = false;
+  if (download) {
+    const zipPath = path.join(CFG.out, 'f13-export.zip');
+    await download.saveAs(zipPath);
+    try { zipHasGroup = require('child_process').execFileSync('python3', ['-c', 'import sys,zipfile;z=zipfile.ZipFile(sys.argv[1]);print(" ".join(z.read(n).decode("utf-8","ignore") for n in z.namelist()))', zipPath], { encoding: 'utf8' }).includes('Form entries'); } catch (e) { zipHasGroup = false; }
+  }
+  R.check('8h: the downloaded export file holds the "Form entries" group', !!download && zipHasGroup, download ? download.suggestedFilename() : null);
+  await admin.screenshot({ path: SHOT('8h-export-personal-data') });
+  // The download is a navigation of this page; let it settle before the next screen.
+  await admin.waitForLoadState('load').catch(() => {});
+  await sleep(1500);
+
+  row = await privacyRequest('erase-personal-data.php');
+  const eraseResp = admin.waitForResponse((r) => (r.request().postData() || '').includes('action=wp-privacy-erase-personal-data') && /eraser=\d+/.test(r.request().postData() || ''), { timeout: 30000 });
+  await row.locator('.remove-personal-data-idle .remove-personal-data-handle').first().click({ force: true });
+  await eraseResp.catch(() => null);
+  await admin.waitForSelector('tr .remove-personal-data-success:not(.hidden)', { timeout: 30000 }).catch(() => {});
+  await sleep(800);
+  const left = ctl('entries', formId).map((x) => Number(x.msg_id));
+  R.check('8h: Tools > Erase Personal Data: the guest\'s entry is erased (default "Delete completely")', !left.includes(guestId), left);
+  R.check('8h: ...the other entries of the form stay', left.length >= 2, left);
+  await admin.screenshot({ path: SHOT('8h-erase-personal-data') });
+
+  // 8i the suggested privacy policy text (Settings > Privacy > Policy guide) follows the settings.
+  const guide = async () => {
+    await admin.goto(CFG.base + '/wp-admin/options-privacy.php?tab=policyguide', { waitUntil: 'load' });
+    // textContent: the guide shows each plugin's section folded (hidden from innerText).
+    return admin.evaluate(() => document.body.textContent.replace(/\s+/g, ' '));
+  };
+  let g = await guide();
+  R.check('8i: the policy guide has an "Easy Form Builder" section built from the settings (90 days, IP stored)', /Easy Form Builder/.test(g) && /Entries are deleted automatically 90 days after their last activity\./.test(g) && /We also store your IP address/.test(g), g.slice(g.lastIndexOf('Easy Form Builder'), g.lastIndexOf('Easy Form Builder') + 600));
+
   // Leave the site as the other scenarios expect it: no automatic deletion.
   await f13OpenPrivacyTab(admin);
   await admin.fill('#prvDays_efb', '0');
   await admin.check('#prvAction_delete_efb');
   await f13SaveSettings(admin);
   R.check('8: automatic deletion switched off again (prv_days 0)', ctl('setting', 'prv_days') === '0');
+  g = await guide();
+  R.check('8i: ...and says "kept until a site administrator deletes them" once it is off', /Entries are kept until a site administrator deletes them\./.test(g));
 });
 
 /* ---------------------------------------------------------------------------------------------
