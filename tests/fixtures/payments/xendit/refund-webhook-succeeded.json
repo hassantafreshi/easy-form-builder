@@ -1,0 +1,40 @@
+{
+ "source_url": "https://docs.xendit.co/apidocs/refund-webhook-notification.md",
+ "captured": "2026-11-12",
+ "request": {
+  "method": "POST",
+  "url": "<site>/wp-json/Emsfb/v1/payments/webhook/xendit",
+  "headers": {
+   "x-callback-token": "<XENDIT_CALLBACK_TOKEN>"
+  }
+ },
+ "response": {
+  "code": 200,
+  "headers": {
+   "content-type": "application/json"
+  },
+  "body": {
+   "event": "refund.succeeded",
+   "business_id": "62440e322008e87fb29c1fd0",
+   "created": "2024-10-28T05:29:08Z",
+   "api_version": "v3",
+   "data": {
+    "refund_id": "rfd-1402feb0-8b79-85ae-9d1e-e69394d3949c",
+    "reference_id": "<REFUND_REFERENCE>",
+    "business_id": "62440e322008e87fb29c1fd0",
+    "payment_id": "py-661f87c614802d6c402cd82d",
+    "status": "SUCCEEDED",
+    "amount": 10000,
+    "currency": "IDR",
+    "channel_code": "QRIS",
+    "reason": "REQUESTED_BY_CUSTOMER",
+    "created": "2024-10-28T05:29:07Z",
+    "updated": "2024-10-28T05:29:07Z",
+    "metadata": {
+     "efb_uid": "<EFB_UID>"
+    }
+   }
+  }
+ },
+ "note": "The request Xendit posts. Shape of the official example."
+}

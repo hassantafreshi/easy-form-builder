@@ -1,0 +1,19 @@
+{
+ "source_url": "https://docs.xendit.co/apidocs/get-session.md",
+ "captured": "2026-11-12",
+ "request": {
+  "method": "GET",
+  "url": "https://api.xendit.co/sessions/ps-000000000000000000000000"
+ },
+ "response": {
+  "code": 404,
+  "headers": {
+   "content-type": "application/json"
+  },
+  "body": {
+   "error_code": "NOT_FOUND",
+   "message": "Session not found"
+  }
+ },
+ "note": "Error code of the reference's 404 (the session does not exist or is not of this business)."
+}

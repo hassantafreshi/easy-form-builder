@@ -1,0 +1,38 @@
+{
+ "source_url": "https://docs.xendit.co/apidocs/create-a-refund.md",
+ "captured": "2026-11-12",
+ "request": {
+  "method": "POST",
+  "url": "https://api.xendit.co/v3/refunds",
+  "headers": {
+   "api-version": "2024-11-11"
+  }
+ },
+ "response": {
+  "code": 200,
+  "headers": {
+   "content-type": "application/json"
+  },
+  "body": {
+   "refund_id": "rfd-1402feb0-8b79-85ae-9d1e-e69394d3949c",
+   "reference_id": "<REFUND_REFERENCE>",
+   "business_id": "62440e322008e87fb29c1fd0",
+   "payment_id": "py-661f87c614802d6c402cd82d",
+   "status": "SUCCEEDED",
+   "amount": 10000,
+   "currency": "IDR",
+   "channel_code": "QRIS",
+   "reason": "REQUESTED_BY_CUSTOMER",
+   "created": "2024-10-28T05:29:07Z",
+   "updated": "2024-10-28T05:29:07Z",
+   "failure_code": null,
+   "refund_details": {
+    "acquirer_reference_id": null
+   },
+   "metadata": {
+    "efb_uid": "<EFB_UID>"
+   }
+  }
+ },
+ "note": "Shape of the official example. No key."
+}

@@ -1,0 +1,19 @@
+{
+ "source_url": "https://docs.xendit.co/apidocs/create-session.md",
+ "captured": "2026-11-12",
+ "request": {
+  "method": "POST",
+  "url": "https://api.xendit.co/sessions"
+ },
+ "response": {
+  "code": 400,
+  "headers": {
+   "content-type": "application/json"
+  },
+  "body": {
+   "error_code": "INVALID_EXPIRY_DATE",
+   "message": "expires_at must be at least 10 minutes in the future"
+  }
+ },
+ "note": "Body of the reference's 400 example."
+}

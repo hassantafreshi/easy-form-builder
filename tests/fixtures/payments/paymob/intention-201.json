@@ -1,0 +1,88 @@
+{
+ "source_url": "https://developers.paymob.com/paymob-docs/developers/intention-apis/create-intention",
+ "captured": "2026-11-12",
+ "request": {
+  "method": "POST",
+  "url": "https://accept.paymob.com/v1/intention/",
+  "auth": "Token <PAYMOB_TEST_SECRET_KEY>"
+ },
+ "response": {
+  "code": "201",
+  "headers": {
+   "content-type": "application/json"
+  },
+  "body": {
+   "payment_keys": [
+    {
+     "integration": 158,
+     "key": "<PAYMENT_KEY>",
+     "gateway_type": "MIGS",
+     "iframe_id": null,
+     "order_id": 265715202
+    }
+   ],
+   "intention_order_id": 265715202,
+   "id": "<INTENTION_ID>",
+   "intention_detail": {
+    "amount": 10,
+    "items": [
+     {
+      "name": "Item name",
+      "amount": 5,
+      "description": "Item description",
+      "quantity": 1,
+      "image": null
+     },
+     {
+      "name": "Item name",
+      "amount": 5,
+      "description": "Item description",
+      "quantity": 1,
+      "image": null
+     }
+    ],
+    "currency": "EGP",
+    "billing_data": {
+     "apartment": "dumy",
+     "floor": "dumy",
+     "first_name": "Andrea",
+     "last_name": "Nicolas",
+     "street": "dumy",
+     "building": "dumy",
+     "phone_number": "+201010101010",
+     "shipping_method": null,
+     "city": "dumy",
+     "country": "dumy",
+     "state": "dumy",
+     "email": "test@test.com",
+     "postal_code": null
+    }
+   },
+   "client_secret": "<CLIENT_SECRET>",
+   "payment_methods": [
+    {
+     "integration_id": 4345907,
+     "alias": null,
+     "name": "CardF",
+     "method_type": "online",
+     "currency": "EGP",
+     "live": false,
+     "use_cvc_with_moto": false
+    }
+   ],
+   "special_reference": "phe4sjw111q-11221-221",
+   "extras": {
+    "creation_extras": {
+     "ee": 22
+    },
+    "confirmation_extras": null
+   },
+   "confirmed": false,
+   "status": "intended",
+   "created": "2024-11-18T13:42:08.456634",
+   "card_detail": null,
+   "card_tokens": [],
+   "object": "paymentintention"
+  }
+ }
+}

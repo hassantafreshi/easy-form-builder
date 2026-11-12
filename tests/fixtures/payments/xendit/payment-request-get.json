@@ -1,0 +1,32 @@
+{
+ "source_url": "https://docs.xendit.co/apidocs/get-payment-request.md",
+ "captured": "2026-11-12",
+ "request": {
+  "method": "GET",
+  "url": "https://api.xendit.co/v3/payment_requests/pr-661f87c614802d6c402cd82d",
+  "headers": {
+   "api-version": "2024-11-11"
+  }
+ },
+ "response": {
+  "code": 200,
+  "headers": {
+   "content-type": "application/json"
+  },
+  "body": {
+   "payment_request_id": "pr-661f87c614802d6c402cd82d",
+   "reference_id": "<EFB_UID>",
+   "business_id": "62440e322008e87fb29c1fd0",
+   "type": "PAY",
+   "country": "ID",
+   "currency": "IDR",
+   "request_amount": 150000,
+   "capture_method": "AUTOMATIC",
+   "channel_code": "QRIS",
+   "status": "SUCCEEDED",
+   "created": "2026-11-12T03:39:00Z",
+   "updated": "2026-11-12T03:40:11Z"
+  }
+ },
+ "note": "Fields of the reference's example (channel_code is what EFB reads)."
+}

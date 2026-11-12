@@ -1,0 +1,25 @@
+{
+ "source_url": "https://developers.paymob.com/paymob-docs/authentication-request-generate-auth-token-1",
+ "captured": "2026-11-12",
+ "request": {
+  "method": "POST",
+  "url": "https://accept.paymob.com/api/auth/tokens",
+  "body": {
+   "api_key": "<PAYMOB_API_KEY>"
+  }
+ },
+ "response": {
+  "code": 201,
+  "headers": {
+   "content-type": "application/json"
+  },
+  "body": {
+   "profile": {
+    "id": 106,
+    "profile_type": "Merchant"
+   },
+   "token": "<AUTH_TOKEN>"
+  }
+ },
+ "note": "profile trimmed to its id (the doc sample carries a masked merchant profile)"
+}

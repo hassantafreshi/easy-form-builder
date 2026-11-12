@@ -1,0 +1,19 @@
+{
+ "source_url": "https://docs.xendit.co/apidocs/create-a-refund.md",
+ "captured": "2026-11-12",
+ "request": {
+  "method": "POST",
+  "url": "https://api.xendit.co/v3/refunds"
+ },
+ "response": {
+  "code": 400,
+  "headers": {
+   "content-type": "application/json"
+  },
+  "body": {
+   "error_code": "PARTIAL_REFUND_NOT_SUPPORTED",
+   "message": "Partial refunds are not supported for this payment or channel."
+  }
+ },
+ "note": "Error code and message of the reference's 400 table."
+}

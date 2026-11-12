@@ -1,0 +1,126 @@
+{
+ "source_url": "https://developers.paymob.com/pak/payment-actions/refund-transaction",
+ "captured": "2026-11-12",
+ "request": {
+  "method": "POST",
+  "url": "https://pakistan.paymob.com/api/acceptance/void_refund/refund",
+  "auth": "Token <PAYMOB_TEST_SECRET_KEY>"
+ },
+ "response": {
+  "code": 200,
+  "headers": {
+   "content-type": "application/json"
+  },
+  "body": {
+   "type": "TRANSACTION",
+   "obj": {
+    "id": 78,
+    "pending": false,
+    "amount_cents": 100,
+    "success": true,
+    "is_auth": false,
+    "is_capture": false,
+    "is_standalone_payment": true,
+    "is_voided": false,
+    "is_refunded": false,
+    "is_3d_secure": false,
+    "integration_id": 1,
+    "profile_id": 1,
+    "has_parent_transaction": true,
+    "order": {
+     "id": 94,
+     "created_at": "2016-12-26T06:49:16.651010Z",
+     "delivery_needed": false,
+     "merchant": {
+      "id": 1
+     },
+     "collector": null,
+     "amount_cents": 100,
+     "shipping_data": {
+      "id": 73,
+      "first_name": "Clifford",
+      "last_name": "Nicolas",
+      "street": "Ethan Land",
+      "building": "8028",
+      "floor": "42",
+      "apartment": "803",
+      "city": "Jaskolskiburgh",
+      "state": "Utah",
+      "country": "CR",
+      "email": "claudette09@exa.com",
+      "phone_number": "+86(8)9135210486",
+      "postal_code": "01898",
+      "extra_description": null,
+      "shipping_method": "UNK",
+      "order_id": 94,
+      "order": 94
+     },
+     "currency": "PKR",
+     "is_payment_locked": true,
+     "merchant_order_id": null,
+     "wallet_notification": null,
+     "paid_amount_cents": "0",
+     "items": []
+    },
+    "created_at": "2016-12-26T06:49:16.680871Z",
+    "transaction_processed_callback_responses": [],
+    "currency": "PKR",
+    "source_data": {
+     "sub_type": "MasterCard",
+     "pan": "2346",
+     "type": "card"
+    },
+    "data": {
+     "merchant_txn_ref": "1_6b30848c28c455de9bcb0c693e9f85a3",
+     "card_num": null,
+     "avs_result_code": "Unsupported",
+     "order_info": "claudette09@exa.com",
+     "merchant": "TEST290510AED",
+     "avs_acq_response_code": "Unsupported",
+     "transaction_no": "2000004112",
+     "batch_no": "20161226",
+     "message": "Approved",
+     "txn_response_code": "0",
+     "secure_hash": "DF6CF1D9CFF09F9C6AE1EC86F6ED4BFE4E5BAE8CE7705ED05E61A264839FEA7A",
+     "card_type": "MC",
+     "receipt_no": "636117634097",
+     "created_at": "2016-12-26T06:49:19.593479",
+     "currency": "PKR",
+     "klass": "VPCPayment",
+     "authorize_id": "634097",
+     "amount": "100",
+     "acq_response_code": "00",
+     "command": "pay",
+     "gateway_integration_pk": 1
+    },
+    "payment_key_claims": {
+     "exp": 1482770369,
+     "currency": "PKR",
+     "amount_cents": 100,
+     "user_id": 2,
+     "integration_id": 1,
+     "shipping_data": {
+      "state": "Utah",
+      "country": "CR",
+      "first_name": "Clifford",
+      "last_name": "Nicolas",
+      "postal_code": "01898",
+      "floor": "42",
+      "city": "Jaskolskiburgh",
+      "street": "Ethan Land",
+      "building": "8028",
+      "phone_number": "+86(8)9135210486",
+      "extra_description": null,
+      "shipping_method": "PKG",
+      "apartment": "803",
+      "email": "claudette09@exa.com"
+     }
+    },
+    "error_occured": false,
+    "owner": 2,
+    "parent_transaction": 660
+   }
+  }
+ },
+ "note": "order.merchant trimmed to its id"
+}

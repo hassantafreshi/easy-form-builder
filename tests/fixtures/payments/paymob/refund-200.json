@@ -1,0 +1,189 @@
+{
+ "source_url": "https://developers.paymob.com/paymob-docs/manage-payment-apis/refund",
+ "captured": "2026-11-12",
+ "request": {
+  "method": "POST",
+  "url": "https://accept.paymob.com/api/acceptance/void_refund/refund",
+  "auth": "Token <PAYMOB_TEST_SECRET_KEY>",
+  "body": {
+   "transaction_id": "574588",
+   "amount_cents": "1000"
+  }
+ },
+ "response": {
+  "code": 200,
+  "headers": {
+   "content-type": "application/json"
+  },
+  "body": {
+   "id": "579305",
+   "pending": "",
+   "amount_cents": "1000",
+   "success": "true",
+   "is_auth": "",
+   "is_capture": "",
+   "is_standalone_payment": "",
+   "is_voided": "",
+   "is_refunded": "",
+   "is_3d_secure": "",
+   "integration_id": "158",
+   "profile_id": "106",
+   "has_parent_transaction": "true",
+   "order": {
+    "id": "690898",
+    "created_at": "2024-10-02T16:31:23.273982+04:00",
+    "delivery_needed": "",
+    "merchant": {
+     "id": "106"
+    },
+    "collector": "",
+    "amount_cents": "2000",
+    "shipping_data": {
+     "id": "488035",
+     "first_name": "ala",
+     "last_name": "zain",
+     "street": "",
+     "building": "",
+     "floor": "",
+     "apartment": "",
+     "city": "",
+     "state": "",
+     "country": "",
+     "email": "payer@example.test",
+     "phone_number": "+923459989111",
+     "postal_code": "NA",
+     "extra_description": "",
+     "shipping_method": "UNK",
+     "order_id": "690898",
+     "order": "690898"
+    },
+    "currency": "EGP",
+    "is_payment_locked": "",
+    "is_return": "",
+    "is_cancel": "",
+    "is_returned": "",
+    "is_canceled": "",
+    "merchant_order_id": "phe4sjw11q-11212-221",
+    "wallet_notification": "",
+    "paid_amount_cents": "2000",
+    "notify_user_with_email": "",
+    "items": [
+     [
+      {
+       "name": "Item name",
+       "description": "Item description",
+       "amount_cents": "2000",
+       "quantity": "1"
+      }
+     ]
+    ],
+    "order_url": "NA",
+    "commission_fees": "",
+    "delivery_fees_cents": "",
+    "delivery_vat_cents": "",
+    "payment_method": "tbc",
+    "merchant_staff_tag": "",
+    "api_source": "OTHER",
+    "data": {}
+   },
+   "created_at": "2024-10-03T21:03:33.057183+04:00",
+   "transaction_processed_callback_responses": [],
+   "currency": "EGP",
+   "source_data": {
+    "type": "card",
+    "pan": "2346",
+    "sub_type": "MasterCard",
+    "tenure": ""
+   },
+   "api_source": "OTHER",
+   "terminal_id": "",
+   "merchant_commission": "",
+   "installment": "",
+   "discount_details": [],
+   "is_void": "",
+   "is_refund": "true",
+   "data": {
+    "gateway_integration_pk": "158",
+    "klass": "MigsPayment",
+    "created_at": "2024-10-03T17:03:34.533231",
+    "amount": "1000",
+    "currency": "EGP",
+    "migs_order": {
+     "amount": "20",
+     "chargeback": {
+      "amount": "",
+      "currency": "EGP"
+     },
+     "creationTime": "2024-10-02T12:33:48.655Z",
+     "currency": "EGP",
+     "id": "690898",
+     "lastUpdatedTime": "2024-10-03T17:03:34.362Z",
+     "merchantAmount": "20",
+     "merchantCategoryCode": "1234",
+     "merchantCurrency": "EGP",
+     "status": "REFUNDED",
+     "totalAuthorizedAmount": "20",
+     "totalCapturedAmount": "20",
+     "totalDisbursedAmount": "",
+     "totalRefundedAmount": "20"
+    },
+    "merchant": "TEST10102022",
+    "migs_result": "SUCCESS",
+    "migs_transaction": {
+     "acquirer": {
+      "batch": "20241003",
+      "date": "1003",
+      "id": "MASHREQ_S2I",
+      "merchantId": "10102022",
+      "settlementDate": "2024-10-03",
+      "timeZone": "+0400",
+      "transactionId": "123456789"
+     },
+     "amount": "10",
+     "currency": "EGP",
+     "id": "579305",
+     "receipt": "427717001085",
+     "source": "INTERNET",
+     "stan": "1085",
+     "terminal": "MASS2I05",
+     "type": "REFUND"
+    },
+    "txn_response_code": "APPROVED",
+    "acq_response_code": "00",
+    "message": "Approved",
+    "merchant_txn_ref": "579305",
+    "order_info": "690898",
+    "receipt_no": "427717001085",
+    "transaction_no": "123456789",
+    "batch_no": "20241003",
+    "authorize_id": "",
+    "card_type": "MASTERCARD",
+    "card_num": "512345xxxxxx2346",
+    "secure_hash": "",
+    "avs_result_code": "",
+    "avs_acq_response_code": "00",
+    "captured_amount": "20",
+    "authorised_amount": "20",
+    "refunded_amount": "20",
+    "acs_eci": ""
+   },
+   "is_hidden": "",
+   "payment_key_claims": "",
+   "error_occured": "",
+   "is_live": "",
+   "other_endpoint_reference": "",
+   "refunded_amount_cents": "",
+   "source_id": "-1",
+   "is_captured": "",
+   "captured_amount": "",
+   "merchant_staff_tag": "",
+   "updated_at": "2024-10-03T21:03:34.541820+04:00",
+   "is_settled": "",
+   "bill_balanced": "",
+   "is_bill": "",
+   "owner": "211",
+   "parent_transaction": "574588"
+  }
+ },
+ "note": "order.merchant trimmed to its id, shipping e-mail replaced; every value is a string in the doc sample"
+}

@@ -1,0 +1,19 @@
+{
+ "source_url": "https://docs.xendit.co/apidocs/create-session.md",
+ "captured": "2026-11-12",
+ "request": {
+  "method": "POST",
+  "url": "https://api.xendit.co/sessions"
+ },
+ "response": {
+  "code": 401,
+  "headers": {
+   "content-type": "application/json"
+  },
+  "body": {
+   "error_code": "INVALID_API_KEY",
+   "message": "API key is not authorized for this API"
+  }
+ },
+ "note": "Body of the reference's 401 example."
+}

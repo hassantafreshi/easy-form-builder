@@ -1,0 +1,46 @@
+{
+ "source_url": "https://docs.xendit.co/apidocs/webhook-notification-sent-defined-webhook-url-updates-payment-session.md",
+ "captured": "2026-11-12",
+ "request": {
+  "method": "POST",
+  "url": "<site>/wp-json/Emsfb/v1/payments/webhook/xendit",
+  "headers": {
+   "x-callback-token": "<XENDIT_CALLBACK_TOKEN>"
+  }
+ },
+ "response": {
+  "code": 200,
+  "headers": {
+   "content-type": "application/json"
+  },
+  "body": {
+   "event": "payment_session.completed",
+   "business_id": "62440e322008e87fb29c1fd0",
+   "created": "2026-11-12T03:40:12Z",
+   "data": {
+    "payment_session_id": "ps-661f87c614802d6c402cd82d",
+    "created": "2026-11-12T03:35:36.032Z",
+    "updated": "2026-11-12T03:40:11Z",
+    "reference_id": "<EFB_UID>",
+    "customer_id": "cust-fe8743c3-f554-4d25-a0e9-9980226c4b1b",
+    "session_type": "PAY",
+    "currency": "IDR",
+    "amount": 150000,
+    "country": "ID",
+    "mode": "PAYMENT_LINK",
+    "expires_at": "2026-11-12T04:35:35.049Z",
+    "locale": "en",
+    "description": "Workshop EFB-7KQ2M9",
+    "status": "COMPLETED",
+    "payment_link_url": "https://dev.xen.to/qZx5RD_7",
+    "payment_token_id": "pt-661f87c614802d6c402cd82d",
+    "payment_request_id": "pr-661f87c614802d6c402cd82d",
+    "latest_payment_request_id": "pr-661f87c614802d6c402cd82d",
+    "latest_payment_token_id": "pt-661f87c614802d6c402cd82d",
+    "payment_id": "py-661f87c614802d6c402cd82d",
+    "business_id": "62440e322008e87fb29c1fd0"
+   }
+  }
+ },
+ "note": "The request Xendit posts (body under response.body for the test's convenience). Shape copied from the official example; ids and dates as in the example, reference_id / amounts filled by the test (<EFB_UID>). No key."
+}

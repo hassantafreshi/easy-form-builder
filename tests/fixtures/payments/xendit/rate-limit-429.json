@@ -1,0 +1,22 @@
+{
+ "source_url": "https://docs.xendit.co/apidocs/rate-limits.md",
+ "captured": "2026-11-12",
+ "request": {
+  "method": "GET",
+  "url": "https://api.xendit.co/sessions/ps-661f87c614802d6c402cd82d"
+ },
+ "response": {
+  "code": 429,
+  "headers": {
+   "content-type": "application/json",
+   "rate-limit-limit": "60",
+   "rate-limit-remaining": "0",
+   "rate-limit-reset": "58.37"
+  },
+  "body": {
+   "error_code": "RATE_LIMIT_EXCEEDED",
+   "message": "Rate limit exceeded"
+  }
+ },
+ "note": "Status, error code and headers as documented on the rate limits page."
+}
