@@ -713,6 +713,49 @@ body.efb-dlg-open {
 	outline-offset: 2px;
 }
 
+/* bootstrap.min-efb.css colours button.efb (#a5a3d1) and a.efb (link blue, underlined) with a
+   higher specificity than one class, and every dialog button also carries class "efb". On a real
+   admin page the white label of a primary button became light purple on blue (about 3:1) and a
+   ghost link turned blue and underlined. The colours above, restated with two classes. */
+.efb.efb-dlg-btn {
+	text-decoration: none;
+}
+
+.efb.efb-dlg-btn--primary,
+.efb.efb-dlg-btn--primary:hover,
+.efb.efb-dlg-btn--primary:focus-visible,
+.efb.efb-dlg-btn--danger,
+.efb.efb-dlg-btn--danger:hover,
+.efb.efb-dlg-btn--gold,
+.efb.efb-dlg-btn--gold:hover,
+.efb.efb-dlg-btn--success,
+.efb.efb-dlg-btn--success:hover {
+	color: #fff;
+}
+
+.efb.efb-dlg-btn--ghost {
+	color: var(--efb-dlg-ink-soft);
+}
+
+.efb.efb-dlg-btn--ghost:hover,
+.efb.efb-dlg-btn--ghost:focus-visible {
+	color: var(--efb-dlg-brand);
+}
+
+.efb.efb-dlg-btn--quiet {
+	color: var(--efb-dlg-ink-muted);
+}
+
+.efb.efb-dlg-btn--quiet:hover,
+.efb.efb-dlg-btn--quiet:focus-visible {
+	color: var(--efb-dlg-ink-soft);
+}
+
+.efb.efb-dlg-btn[disabled],
+.efb.efb-dlg-btn--disabled {
+	color: #b9bed6;
+}
+
 /* A tighter pill for a button that lives inside a panel rather than the
    dialog's own footer - the shortcode copy action. */
 .efb-dlg-btn--sm {
