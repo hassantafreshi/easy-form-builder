@@ -212,7 +212,7 @@ Settings::load('tappay')->set_mode('test');
 // Tap answers an error / a declined charge at once.
 TapFake::$create_status = 'DECLINED';
 $r = tap_create($db);
-$t('a charge Tap declines at creation: gateway_error, payment failed', array($r['success'], $r['code'], Store::get((int) $db->get_var("SELECT id FROM wp_emsfb_pmt_ ORDER BY id DESC LIMIT 1"))['status']), array(false, 'gateway_error', 'failed'));
+$t('a charge Tap declines at creation: declined (its own words for the visitor), payment failed', array($r['success'], $r['code'], Store::get((int) $db->get_var("SELECT id FROM wp_emsfb_pmt_ ORDER BY id DESC LIMIT 1"))['status']), array(false, 'declined', 'failed'));
 TapFake::$create_status = 'INITIATED';
 TapFake::$down = true;
 $r = tap_create($db);
@@ -241,9 +241,10 @@ $t('methods by currency (core): KWD keeps KNET, drops mada and BENEFIT; SAR keep
 $t('each local scheme tile has its own mark', array(substr($kwd['methods'][2][2]['logo'], -8), substr($sar['methods'][2][2]['logo'], -8)), array('knet.svg', 'mada.svg'));
 $t('field_schema(): payer name and e-mail pickers (e-mail fields only for the e-mail)', array(array_column($gw->field_schema(), 'key'), $gw->field_schema()[1]['field_types']), array(array('pgw_map_name', 'pgw_map_email'), array('email')));
 $noemail = tap_form(); unset($noemail[0]['email_to']); unset($noemail[3]);
-$t('form_warnings(): a form without any e-mail → "Tap needs the payer\'s name and email"; with one → none', array(count($gw->form_warnings(array_values($noemail), $noemail[7], Settings::load('tappay'))), count($gw->form_warnings(tap_form(), tap_form()[7], Settings::load('tappay')))), array(1, 0));
-$w = \Emsfb\Payments\Registry::form_warnings(array_values($noemail));
-$t('...shown at Save through core (pay_gw_needs_name_email)', in_array('pay_gw_needs_name_email', array_column($w, 'code'), true), true);
+$t('form_warnings(): Tap has none of its own any more: the required e-mail is core\'s check (field_schema required + format)', array(count($gw->form_warnings(array_values($noemail), $noemail[7], Settings::load('tappay'))), $gw->field_schema()[1]['required'], $gw->field_schema()[1]['format']), array(0, true, 'email'));
+$w = array_values(array_filter(\Emsfb\Payments\Registry::form_warnings(array_values($noemail)), function ($x) { return $x['level'] !== 'info'; }));
+$t('...a form without any e-mail → core\'s error pay_option_required naming the option to set', array(array_column($w, 'code'), array_column($w, 'level'), $w[0]['m']), array(array('pay_option_required'), array('error'), 'Tap Payments requires "Payer e-mail". Add an Email field to the form and select it in the payment field\'s "Payer e-mail" option.'));
+$t('...the form\'s confirmation e-mail field counts (no warning)', array_column(array_filter(\Emsfb\Payments\Registry::form_warnings(tap_form()), function ($x) { return $x['level'] !== 'info'; }), 'code'), array());
 $mapped = tap_create($db, array('form' => tap_form('kwd', array('pgw_map_name' => 'nk', 'pgw_map_email' => 'em2')), 'rows' => tap_rows('ro1', array(array('id_' => 'nk', 'type' => 'text', 'name' => 'Contact', 'value' => 'Noor Haddad'), array('id_' => 'em2', 'type' => 'email', 'name' => 'Work e-mail', 'value' => 'noor@example.test')))));
 list($cb) = tap_last_charge_body();
 $t('the payer comes from the mapped fields core resolved ($ctx->payer), not from the stored entry', array($mapped['success'], $cb['customer']['first_name'], $cb['customer']['last_name'], $cb['customer']['email']), array(true, 'Noor', 'Haddad', 'noor@example.test'));

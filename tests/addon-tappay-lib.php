@@ -73,6 +73,8 @@ class TapFake {
 				if (!isset($b[$k])) return self::answer(400, array('errors' => array(array('code' => '1104', 'description' => "$k is required"))));
 			}
 			if (empty($b['customer']['first_name']) || empty($b['customer']['email'])) return self::answer(400, array('errors' => array(array('code' => '1107', 'description' => 'customer first_name and email are required'))));
+			// An address Tap's own check refuses (the tests use a "reject" mailbox for it).
+			if (strpos($b['customer']['email'], 'reject') === 0) return self::answer(400, array('errors' => array(array('code' => '1108', 'description' => 'customer.email is invalid'))));
 			$idem = isset($b['reference']['idempotent']) ? $b['reference']['idempotent'] : '';
 			if ($idem !== '' && isset(self::$idem[$idem])) return self::answer(200, self::$charges[self::$idem[$idem]]);
 			$c = tap_fixture('charge-create-200')['response']['body'];
