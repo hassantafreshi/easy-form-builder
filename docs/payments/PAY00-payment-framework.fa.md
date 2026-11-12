@@ -23,6 +23,8 @@
 9. **فیلد پرداخت قابل سفارشی‌سازی** با کلیدهای تخت و پاک‌سازی‌شدهٔ `pf_*` روی ردیف فیلد درگاه: رنگ، حالت hover، گردی، اندازه و آیکون دکمه، ترتیب و نمایش اجزای داخلی (خلاصهٔ مبلغ، انتخاب روش، کوپن، مبلغ دلخواه، ناحیهٔ کارت یا QR، یادداشت امنیت، لوگوها)، جای برچسب، تنظیم جدای موبایل، و متن‌های هر زبان در `pf_i18n_b64`. هیچ CSS خامی پذیرفته نمی‌شود؛ CSS و HTML در PHP و JS از یک داده ساخته می‌شوند و تست هم‌خوانی مثل F19 دارند.
 10. **پیشنهاد پلن** (تصمیم با مالک): خود افزونه‌های درگاه Free Plus مثل Stripe/PayPal؛ مبلغ دلخواه، رسید، اقدام‌های تأخیری و ظاهر پایه Free Plus؛ کوپن، مالیات، کارمزد، چند درگاه در یک فرم، پرداخت دوره‌ای و تنظیم موبایل Pro.
 
+11. **قاعدهٔ مالک (۲۰۲۶-۱۱-۱۲): هیچ درگاهی در هسته نیست.** هر درگاه یک افزونهٔ جدا و نصب‌شدنی است، مثل Stripe و PayPal. هسته فقط چارچوب بی‌طرف را دارد (فیلد، قیمت‌گذاری، Store، مسیریابی webhook، صفحهٔ پرداخت‌ها، قرارداد). درگاه آزمایشی `efbmock` در `tests/payments-mock/` است و تست‌ها و mu-plugin سایت e2e آن را مثل یک افزونه با `efb_register_payment_gateways` ثبت می‌کنند. زیرمنوی «پرداخت‌ها»، صفحهٔ آن و کاشی فیلد پرداخت در پالت فقط وقتی دیده می‌شوند که دست‌کم یک افزونهٔ درگاه نصب و فعال باشد. کد هسته جز در فهرست افزونه‌ها (کلید → پوشه، پلن، برچسب) نام هیچ درگاهی را نمی‌برد. هر چیز مخصوص درگاه (روش‌ها، متن دکمه، هشدارها، گزینه‌های فیلد، لوگوها) از افزونه و با هوک‌های اختیاری می‌آید، هرگز سخت‌کد در هسته نیست.
+
 ## ۱. هدف
 
 مالک سایت بتواند هر درگاه جدید را مثل Stripe و PayPal به‌شکل یک فیلد پرداخت روی فرم بگذارد، ظاهر و متن‌هایش را به هر زبانی کامل تنظیم کند، و برای خدمات، ثبت‌نام، رزرو و کمک مالی (ثابت، محاسبه‌شده یا دلخواه) پول بگیرد، بی‌آنکه WooCommerce لازم باشد؛ و مطمئن باشد که پاسخ «پرداخت‌شده» فقط وقتی ثبت و اعلان می‌شود که درگاه واقعاً پرداخت را تأیید کرده است، یک بار و فقط یک بار.
@@ -134,7 +136,7 @@ flowchart LR
 | `includes/payments/class-Emsfb-payment-admin.php` | صفحهٔ «پرداخت‌ها»، کوپن‌ها، تنظیمات درگاه، AJAX مدیریتی |
 | `includes/payments/class-Emsfb-payment-legacy.php` | خواندن فقط‌خواندنی `emsfb_pay_` برای صفحهٔ پرداخت‌ها |
 | `includes/payments/payment-field-functions-efb.php` | پاک‌ساز، حل، CSS و HTML فیلد پرداخت (همزاد PHP) |
-| `includes/payments/gateways/class-Emsfb-payment-mock.php` | درگاه ساختگی `efbmock` برای تست؛ فقط با ثابت `EFB_PAYMENTS_MOCK` بارگذاری می‌شود |
+| `tests/payments-mock/class-Emsfb-payment-mock.php` | درگاه ساختگی `efbmock` برای تست؛ در افزونهٔ منتشرشده نیست (قاعدهٔ ۱۱ بالا)؛ تست‌ها و mu-plugin سایت e2e آن را مثل یک افزونه ثبت می‌کنند |
 | `includes/admin/assets/js/payment-field-efb.js` | هستهٔ JS فیلد (همزاد) + پنل سازنده |
 | `public/assets/js/payment-runtime-efb.js` | `window.EFBPay`: ثبت آداپتورها، ساخت پرداخت، بازگشت، نمایش وضعیت |
 | `public/assets/css/payment-field-efb.css` و `-rtl` | سبک پایهٔ فیلد با ویژگی‌های منطقی CSS |
@@ -690,7 +692,7 @@ public function handle_webhook( \WP_REST_Request $r ) {
 ## ۲۱. تست
 
 - قرارداد ثبت پاسخ HTTP: `tests/fixtures/payments/<gateway>/<name>.json` با `{source_url, captured:'2026-11-12', request:{method,url,headers?,body?}, response:{code, headers, body}}`. نمونه‌ها از مثال‌های **رسمی** مستندات کپی می‌شوند (منبع در `source_url`) و رازها جایگزین می‌شوند. کمک‌کنندهٔ `tests/pay-http-mock.php` فیلتر `pre_http_request` را با این فایل‌ها پاسخ می‌دهد و درخواست‌ها را ضبط می‌کند تا تست ترتیب و بدنه را بسنجد.
-- درگاه ساختگی `efbmock` (هسته، فقط با `EFB_PAYMENTS_MOCK`) هر سه جریان redirect/embedded/qr و webhook امضاشده را بدون شبکه شبیه‌سازی می‌کند تا تست‌های Playwright کل چرخه را بسنجند.
+- درگاه ساختگی `efbmock` (در `tests/payments-mock/`، مثل یک افزونه ثبت می‌شود) هر سه جریان redirect/embedded/qr و webhook امضاشده را بدون شبکه شبیه‌سازی می‌کند تا تست‌های Playwright کل چرخه را بسنجند.
 
 | تست | چه می‌سنجد |
 |---|---|
@@ -754,7 +756,7 @@ public function handle_webhook( \WP_REST_Request $r ) {
 - تست‌ها: `php tests/test-pay-secrets.php`، تست‌های موجود افزونه (`test-addon-install-plan-gate`، `test-addon-recovery-flow`، `test-addon-require-guards`).
 
 **Checkpoint**
-- فایل‌های تغییرکرده: `class-Emsfb-payment-gateway.php`، `-registry.php`، `-secrets.php`، `-http.php`، `gateways/class-Emsfb-payment-mock.php`، `payments-efb.php`، `class-Emsfb.php`، `functions.php` (هفت کلید افزونه)، `admin-efb.js` (همزاد سطح)
+- فایل‌های تغییرکرده: `class-Emsfb-payment-gateway.php`، `-registry.php`، `-secrets.php`، `-http.php`، `gateways/class-Emsfb-payment-mock.php` (اکنون `tests/payments-mock/`)، `payments-efb.php`، `class-Emsfb.php`، `functions.php` (هفت کلید افزونه)، `admin-efb.js` (همزاد سطح)
 - تست‌ها: `test-pay-secrets.php` ۳۸؛ `test-ap-b3-capabilities.js` ۴۹
 - وضعیت ترجمه: عبارت‌ها در text domain `easy-form-builder`؛ `extract.php` اجرا شد (فهرست و `.pot` به‌روز)؛ به دستور مالک ترجمه نشد (۱۷۳ عبارت تازه/بازگشته در fa_IR و de_DE ترجمه‌نشده)
 - مورد باز: حداقل PHP هر افزونه در `class-Emsfb-addon-compatibility.php` هنگام ساخت افزونه‌ها.
@@ -933,5 +935,71 @@ Core does everything else: tables, pricing (the gateway never sees a browser amo
 machine and `finalize()` once, notifications by `pay_act_*`, reconcile cron (back-off, expiry,
 `cancel()`), Payments screen, refunds with idempotency, F13 anonymization, the payment field and its
 runtime (`EFBPay`), test-mode banner, capabilities (`field:<slug>`, `payment_gateways`). The
-reference implementation is `includes/payments/gateways/class-Emsfb-payment-mock.php` (`efbmock`,
-only with `EFB_PAYMENTS_MOCK`), tested by `tests/test-pay-*.php` and scenario 9 of `tests/e2e-wp/run.js`.
+reference implementation is `tests/payments-mock/class-Emsfb-payment-mock.php` (`efbmock`, not shipped;
+registered like an add-on by the tests and by the e2e site's mu-plugin), tested by `tests/test-pay-*.php`
+and scenario 9 of `tests/e2e-wp/run.js`.
+
+#### Optional hooks (Gateway API stays 1; every one has a safe default in the base class)
+
+Added 2026-11-12 from the gaps the gateway add-on builders reported (BUGS-FOUND, payment sections).
+An add-on written before them works unchanged; an add-on that uses them still says `API = 1`.
+
+| Hook / value | Default | What core does with it |
+|---|---|---|
+| `methods( $s )` entries `array( id, label, extras )` | `[id, label]` | `extras`: `logo` (URL of the method's mark, drawn in its tile, decorative), `currencies` (core drops the method for other form currencies), `min_minor` / `max_minor` (`CUR => int`: checked before `create()`, the visitor sees "iDEAL accepts amounts from €50.00…", the page checks it too) |
+| `methods_for( $s, array $ctx )` | `methods( $s )` | `$ctx = ['currency' => 'EUR', 'amount_minor' => int\|null]`; for lists that depend on the currency or the amount (public page, builder, `create()` limits) |
+| `field_schema()` | `[]` | options on the gateway field row: `[{key: pgw_[a-z0-9_]{1,40}, type: field\|select\|text\|code\|checkbox, label, help, required, options, max, field_types, default}]`; each key is sanitized from this schema on Save (`sanitize_obj_msg_efb` → `Field::sanitize_gateway_key`, JS twin `efbPayCoreEfb.sanitizeGatewayKey`; unknown `pgw_*` kept conservatively, malformed dropped), drawn in the builder panel ("Payer details and gateway options": field pickers list the form's own fields of `field_types`), round-tripped by getForm / setForm / insertItems, listed for AutoPilot (`payment_gateways[slug].field_schema`, feature `setting:pay_gateway_options`). Standard payer keys: `pgw_map_name/first/last/email/phone/address/postcode/city/state/country` |
+| `Checkout_Context::$payer` | — | `name, first_name, last_name, email, phone, address, postcode, city, state, country` resolved by core from the `pgw_map_*` options (e-mail falls back to the form's confirmation e-mail; name joined / split); stored as `payer_email` / `payer_name` |
+| `Checkout_Context::$rows` / `$field` | — | the submitted rows (read only, no payment row) and the field's options (`pf_methods` + every schema key, defaults applied): no gateway reads the stored entry or form again |
+| `Checkout_Context::$client_token` / `$client_data` | `''` / `[]` | from the browser adapter's optional `prepare(ctx)` (`EFBPay.registerAdapter(slug, {prepare(ctx){ return {token, data}; }, mount(ctx){…}})`), run after the form is valid and before `payments/create`; token: ≤ 4096 printable ASCII, used once, never stored or logged; data: ≤ 20 flat scalar values, 2 KB. `prepare` may resolve `false` (stop, the adapter showed its message) or throw (message shown) |
+| `Result::for_visitor( $text )` | — | a `create()` refusal the visitor may read ("Instalments are available for orders between €100 and €3,000.") instead of core's generic one |
+| `field_defaults()` | `[]` | `['texts' => [btn, secure, …], 'pf' => [style keys of Field::DEFAULTABLE]]`; the field's own values win (e.g. `btn = "Show PromptPay QR (%amount%)"`, `pf_btn_icon = bi-qr-code`, `pf_methods_style = grid`) |
+| `form_warnings( $form, $field, $s )` | `[]` | `[{code, m}]` shown after Save (builder alert) and returned in the save answer (`warnings`, codes `pay_gw_<code>`) to AutoPilot; core adds its own from the declarations: currency outside `supports()['currencies']` (`pay_currency`), a required option empty (`pay_option_required`), a mapped field gone or of the wrong type (`pay_option_field_missing` / `_type`); the builder panel shows core's live |
+| `settings_notices( $s )`, `settings_actions( $s )`, `run_settings_action( $id, $s, $mode )` | `[]`, `[]`, unsupported | notices (`info\|warning\|error`) and extra buttons on the gateway's settings card (capability + nonce, audit event); "Test connection" and the buttons show the gateway's own `Result` message |
+| `Remote_State::mismatch( $code )` | — | the provider's answer is about another payment, site or mode: core logs a `mismatch` event, answers the webhook `200` (no endless retries), never applies it; past `pending_ttl()` the payment expires |
+| `Remote_State::$refunds` | `[]` | `[{ref, status: refunded\|failed\|pending, amount_minor}]`: core settles its pending refunds by reference (else oldest first while the provider's `refunded_minor` covers them) |
+| `Refund_Result` status `pending` | — | the refund row stays pending, `refunded_minor` counts confirmed refunds only, a pending amount cannot be refunded again; the owner can "Confirm refund" / "Mark as declined" |
+| `pending_ttl( $p )` | 1 day | also the browser's polling window (`poll_until` in the create and status answers, 15 minutes to 24 hours) and the reconcile window (31 days, filter `efb_payment_reconcile_days`) |
+
+Core also added, for every gateway: `payments/retry` (Try again / a new QR for the same pending entry,
+the adapter's `ctx.retry()` / `EFBPay.retry(el)`), the Payments screen's "Mark as refunded outside EFB",
+pending → refunded when the provider refunded first, the method stored without a status change, and
+the webhook through the front door `home_url('/?efb_pay_webhook=<slug>')` (same handler and checks).
+
+Example (a QR gateway):
+
+```php
+public function methods( Settings $s ) {
+	return array( array( 'promptpay', __( 'PromptPay', 'efb-x' ), array( 'logo' => $this->asset( 'img/promptpay.svg' ), 'currencies' => array( 'THB' ), 'min_minor' => array( 'THB' => 2000 ) ) ) );
+}
+public function field_schema() {
+	return array( array( 'key' => 'pgw_map_email', 'type' => 'field', 'label' => __( 'Payer e-mail', 'efb-x' ), 'field_types' => array( 'email' ), 'required' => true ) );
+}
+public function field_defaults() {
+	return array( 'texts' => array( 'btn' => __( 'Show PromptPay QR (%amount%)', 'efb-x' ) ), 'pf' => array( 'pf_btn_icon' => 'bi-qr-code' ) );
+}
+public function create( Payment $p, Settings $s, Checkout_Context $ctx ) {
+	$email = $ctx->payer['email'];               // resolved by core from pgw_map_email
+	$card  = $ctx->client_token;                 // from the adapter's prepare(), when it has one
+	if ( $declined ) return Create_Result::fail( 'declined', 'log text' )->for_visitor( __( 'The card was declined.', 'efb-x' ) );
+	// …
+}
+public function fetch( Payment $p, Settings $s ) {
+	if ( $answer_uid !== $p->uid ) return Remote_State::mismatch( 'uid_mismatch' );
+	// …
+}
+```
+
+```js
+EFBPay.registerAdapter('x', {
+  prepare(ctx) { return fields.createToken().then((t) => ({ token: t.id, data: { brand: t.brand } })); },
+  mount(ctx) { /* QR / 3-D Secure …; ctx.poll(), ctx.retry() */ }
+});
+```
+
+#### Checkpoint: core gaps of the gateway add-ons closed (2026-11-12)
+
+- Files: `includes/payments/*` (Gateway hooks, Registry `normalize_methods` / `field_defaults` / `field_schema` / `form_warnings`, Field gateway options + payer + warnings + defaults + method logos, Service retry / refunds / mismatch / poll window / token, Store refund settle, Admin card and refunds, Frontend fallback webhook and `payments/retry`), `public/assets/js/payment-core-efb.js` (twins), `payment-runtime-efb.js` (prepare, retry, poll_until, method limits), `payment-field-efb.js` (options, methods order, live warnings, defaults), `payment-field-efb.css` (method logos), `functions.php` (`pgw_*` sanitizer path), `class-Emsfb-builder-api.php` (capabilities), save handlers (warnings), `class-Emsfb-public.php` (token pass-through), `class-Emsfb-addon-compatibility.php` (seven keys). The test gateway moved to `tests/payments-mock/`.
+- Tests: `test-pay-hooks.php` 34, `test-pay-lifecycle.php` 45, `test-pay-gateway-options.js` 32, `test-pay-runtime-hooks.js` (Chromium) 19, `test-pay-no-gateway.php` 11, `test-pay-save-roundtrip.php` 8, `test-pay-capabilities.php` 15; the four finished add-ons use the hooks and their tests were extended (Mollie 119, Payplug 165, Tap 237, Omise 151).
+- Commits were partly absorbed by shared "wip(payments): snapshot" commits taken while the work was in progress (7a66549c, e6c9f828, 3300ce09, 0d87ec50 in core; e067a46 in vendores-efb).
+- To confirm with the owner: pending → refunded without finalize (no "paid" notifications for a payment refunded before EFB saw it paid) while partial refund first finalizes; 10 attempts per entry; the reconcile window 31 days; a second paid attempt of the same entry is kept paid but not finalized again (owner mailed to refund one); the description sent to the gateway is the stored form name.
