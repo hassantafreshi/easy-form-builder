@@ -61,7 +61,7 @@ $a1 = Service::create($args);
 $a2 = Service::create($args);
 $t('a double click (same attempt key): one Mollie payment, the same answer', array($a1['pay']['uid'] === $a2['pay']['uid'], !empty($a2['replay']), efb_mollie_count('POST', '#^/v2/payments$#') - $n0), array(true, true, 1));
 $pp = Store::find_by_uid($a1['pay']['uid']);
-$again = $gw->create(new Payment($pp), Settings::load('mollie'), new Checkout_Context(array('return_url' => Service::return_url($pp), 'cancel_url' => Service::return_url($pp) . '&c=1', 'webhook_url' => Service::webhook_url('mollie'), 'locale' => 'nl_NL', 'metadata' => array())));
+$again = $gw->create(new Payment($pp), Settings::load('mollie'), new Checkout_Context(array('return_url' => Service::return_url($pp), 'cancel_url' => Service::return_url($pp) . '&c=1', 'webhook_url' => Service::webhook_url('mollie'), 'locale' => 'en_US', 'metadata' => array())));
 $t('the same create sent twice (lost answer): Mollie answers the same tr_ for the same Idempotency-Key', array($again->ok, $again->gateway_ref), array(true, $pp['gateway_ref']));
 $t('12.50 sent as "12.50"', efb_mollie_last('POST', '#^/v2/payments$#')['body']['amount']['value'], '12.50');
 
