@@ -1,0 +1,100 @@
+/* PAY00: the payment field. Colours, sizes and the phone order come from per-field custom
+   properties (Payments\Field::css / efbPayCoreEfb.css); this file only has fixed rules. Logical
+   properties only, so right-to-left pages need no second file. */
+.efb-pf {
+	--efb-pf-btn-bg: #202a8d;
+	--efb-pf-btn-fg: #ffffff;
+	--efb-pf-btn-bg-h: #1d2782;
+	--efb-pf-btn-fg-h: #ffffff;
+	--efb-pf-btn-radius: 8px;
+	--efb-pf-btn-pad: .65rem 1.1rem;
+	--efb-pf-btn-fs: 1rem;
+	--efb-pf-btn-w: 100%;
+	--efb-pf-accent: #202a8d;
+	--efb-pf-card-radius: 12px;
+	--efb-pf-card-bg: transparent;
+	--efb-pf-card-border: #dee2e6;
+	display: block;
+	background: var(--efb-pf-card-bg);
+	border: 1px solid var(--efb-pf-card-border);
+	border-radius: var(--efb-pf-card-radius);
+	padding: .9rem 1rem;
+	margin-block: .5rem;
+	text-align: start;
+}
+.efb-pf-label { font-weight: 600; margin-block-end: .5rem; }
+.efb-pf[data-label-pos="start"] { display: grid; grid-template-columns: minmax(6rem, 30%) 1fr; column-gap: 1rem; }
+.efb-pf[data-label-pos="start"] > .efb-pf-test,
+.efb-pf[data-label-pos="start"] > .efb-pf-status { grid-column: 1 / -1; }
+.efb-pf-sr {
+	position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden;
+	clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+.efb-pf-test {
+	background: #fff3cd; color: #664d03; border: 1px solid #ffda6a; border-radius: .4rem;
+	padding: .4rem .6rem; margin-block-end: .6rem; font-size: .9rem;
+}
+.efb-pf-test[hidden] { display: none; }
+.efb-pf-body { display: flex; flex-direction: column; gap: .7rem; }
+@media (min-width: 768px) {
+	.efb-pf[data-layout="split"] .efb-pf-body { display: grid; grid-template-columns: 1fr 1fr; align-items: start; }
+	.efb-pf[data-layout="split"] .efb-pf-summary { grid-row: span 6; }
+}
+.efb-pf-sum-title { font-weight: 600; font-size: .95rem; margin-block-end: .3rem; }
+.efb-pf ul.efb-pf-lines { list-style: none; margin: 0; padding: 0; }
+.efb-pf .efb-pf-line, .efb-pf .efb-pf-total { font-size: 1rem; line-height: 1.5; display: flex; justify-content: space-between; gap: 1rem; padding-block: .15rem; }
+.efb-pf-total { font-weight: 700; border-block-start: 1px solid var(--efb-pf-card-border); margin-block-start: .3rem; padding-block-start: .4rem; }
+.efb-pf-amount { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+.efb-pf button.efb-pf-chip, .efb-pf button.efb-pf-method {
+	min-height: 44px; min-width: 44px; padding: .4rem .9rem; border-radius: 999px;
+	border: 1px solid var(--efb-pf-card-border); background: #fff; color: #212529; cursor: pointer; font: inherit;
+}
+.efb-pf button.efb-pf-method { border-radius: .5rem; }
+.efb-pf button.efb-pf-chip[aria-checked="true"], .efb-pf button.efb-pf-method[aria-checked="true"] {
+	border-color: var(--efb-pf-accent); box-shadow: inset 0 0 0 1px var(--efb-pf-accent); font-weight: 600;
+}
+.efb-pf-other { display: inline-flex; align-items: center; gap: .4rem; margin: 0; }
+.efb-pf input.efb-pf-other-in { color: #212529; min-height: 44px; width: 8rem; padding: .3rem .6rem; border: 1px solid var(--efb-pf-card-border); border-radius: .5rem; }
+.efb-pf-method-list { display: flex; flex-direction: column; gap: .4rem; }
+.efb-pf-methods[data-style="grid"] .efb-pf-method-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr)); }
+.efb-pf-methods[data-style="tabs"] .efb-pf-method-list { flex-direction: row; flex-wrap: wrap; }
+.efb-pf select.efb-pf-method-select { color: #212529; background: #fff; min-height: 44px; width: 100%; border: 1px solid var(--efb-pf-card-border); border-radius: .5rem; padding-inline: .6rem; }
+.efb-pf-fields:empty { display: none; }
+.efb-pf-placeholder { border: 1px dashed var(--efb-pf-card-border); border-radius: .5rem; padding: .7rem; font-size: .85rem; color: #6c757d; text-align: center; }
+.efb-pf button.efb-pf-btn {
+	display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+	width: var(--efb-pf-btn-w); min-height: 44px; padding: var(--efb-pf-btn-pad); font-size: var(--efb-pf-btn-fs); font-weight: 600;
+	background: var(--efb-pf-btn-bg); color: var(--efb-pf-btn-fg); border: 0; border-radius: var(--efb-pf-btn-radius); cursor: pointer;
+	transition: background-color .15s ease;
+}
+.efb-pf button.efb-pf-btn:hover { background: var(--efb-pf-btn-bg-h); color: var(--efb-pf-btn-fg-h); }
+.efb-pf-btn:focus-visible, .efb-pf-chip:focus-visible, .efb-pf-method:focus-visible, .efb-pf-other-in:focus-visible, .efb-pf-method-select:focus-visible {
+	outline: 3px solid var(--efb-pf-accent); outline-offset: 2px;
+}
+.efb-pf button.efb-pf-btn[disabled] { opacity: .65; cursor: progress; }
+.efb-pf button.efb-pf-btn[aria-busy="true"]::after {
+	content: ""; width: 1em; height: 1em; border: 2px solid currentColor; border-inline-end-color: transparent; border-radius: 50%;
+	animation: efb-pf-spin .8s linear infinite;
+}
+@keyframes efb-pf-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .efb-pf-btn[aria-busy="true"]::after { animation: none; } .efb-pf-btn { transition: none; } }
+.efb-pf-secure { font-size: .85rem; color: #495057; }
+.efb-pf-logos { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+.efb-pf-logo { height: 24px; width: auto; }
+.efb-pf-logos[data-size="md"] .efb-pf-logo { height: 32px; }
+.efb-pf-status { margin-block-start: .6rem; font-size: .95rem; }
+.efb-pf-status:empty { display: none; }
+.efb-pf-status-error { color: #b02a37; }
+.efb-pf-status-ok { color: #146c43; font-weight: 600; }
+.efb-pf-status-info { color: #055160; }
+[dir="rtl"] .efb-pf .bi-chevron-right, [dir="rtl"] .efb-pf .bi-arrow-right { transform: scaleX(-1); }
+/* The Pay button sends the form: the form's own Send button is not shown next to it. */
+.efb-pf-form #btn_send_efb { display: none !important; }
+.efb-pf-done #btn_send_efb, .efb-pf-done #next_efb, .efb-pf-done #prev_efb { display: none !important; }
+@media (max-width: 767.98px) {
+	.efb-pf { padding: .8rem; }
+}
+@media (forced-colors: active) {
+	.efb-pf, .efb-pf-btn, .efb-pf-chip, .efb-pf-method { border: 1px solid CanvasText; background: Canvas; color: CanvasText; forced-color-adjust: auto; }
+	.efb-pf-chip[aria-checked="true"], .efb-pf-method[aria-checked="true"] { outline: 2px solid Highlight; }
+}

@@ -38,6 +38,8 @@ class Frontend {
 			'titleOk'    => __( 'Payment successful', 'easy-form-builder' ),
 			'titleFail'  => __( 'Payment not completed', 'easy-form-builder' ),
 			'noScript'   => __( 'This form cannot take payments at the moment. Please contact the site owner.', 'easy-form-builder' ),
+			'min'        => __( 'The amount must be at least %s.', 'easy-form-builder' ),
+			'max'        => __( 'The amount must be at most %s.', 'easy-form-builder' ),
 		);
 	}
 
@@ -146,6 +148,117 @@ class Frontend {
 		return (bool) preg_match( '/type\\\\?"\s*:\s*\\\\?"' . preg_quote( $slug, '/' ) . '\\\\?"/', $json );
 	}
 
+	/** The labels of the builder's settings panel (payment-field-efb.js L()). */
+	public static function builder_labels() {
+		return array(
+			'slot' => __( 'The payment page or card fields of the gateway open here.', 'easy-form-builder' ),
+			'notConfigured' => __( 'This gateway has no keys yet. Visitors will see "cannot take payments" until it is set up.', 'easy-form-builder' ),
+			'reset' => __( 'Default', 'easy-form-builder' ),
+			'contrastOk' => /* translators: %s is a number or %amount% stays as written */ __( 'Contrast %s:1, readable.', 'easy-form-builder' ),
+			'contrastLow' => /* translators: %s is a number or %amount% stays as written */ __( 'The button text may be hard to read: contrast %s:1, at least 4.5:1 is needed.', 'easy-form-builder' ),
+			'elSummary' => __( 'Order summary', 'easy-form-builder' ),
+			'elAmount' => __( 'Amount (donation)', 'easy-form-builder' ),
+			'elMethods' => __( 'Payment methods', 'easy-form-builder' ),
+			'elFields' => __( 'Card / QR area', 'easy-form-builder' ),
+			'elButton' => __( 'Pay button', 'easy-form-builder' ),
+			'elSecure' => __( 'Security note', 'easy-form-builder' ),
+			'elLogos' => __( 'Logos', 'easy-form-builder' ),
+			'order' => __( 'Order of the parts', 'easy-form-builder' ),
+			'show' => __( 'Show', 'easy-form-builder' ),
+			'up' => __( 'Move up', 'easy-form-builder' ),
+			'down' => __( 'Move down', 'easy-form-builder' ),
+			'tBtn' => /* translators: %s is a number or %amount% stays as written */ __( 'Button text (%amount% = amount)', 'easy-form-builder' ),
+			'tSecure' => __( 'Security note', 'easy-form-builder' ),
+			'tSummary' => __( 'Summary title', 'easy-form-builder' ),
+			'tMethods' => __( 'Methods title', 'easy-form-builder' ),
+			'tAmount' => __( 'Amount title', 'easy-form-builder' ),
+			'tOther' => __( 'Other amount', 'easy-form-builder' ),
+			'tPending' => __( 'Waiting message', 'easy-form-builder' ),
+			'tSuccess' => __( 'Success message', 'easy-form-builder' ),
+			'tFail' => __( 'Failure message', 'easy-form-builder' ),
+			'language' => __( 'Language', 'easy-form-builder' ),
+			'addLanguage' => __( 'Add a language (locale, e.g. de_DE)', 'easy-form-builder' ),
+			'add' => __( 'Add', 'easy-form-builder' ),
+			'resetTexts' => __( 'Back to the default translation', 'easy-form-builder' ),
+			'stLive' => __( 'Live: connected', 'easy-form-builder' ),
+			'stTest' => __( 'Test mode only (no real payments)', 'easy-form-builder' ),
+			'stNoKeys' => __( 'No keys yet', 'easy-form-builder' ),
+			'settings' => __( 'Gateway settings and keys', 'easy-form-builder' ),
+			'label' => __( 'Label', 'easy-form-builder' ),
+			'currency' => __( 'Currency', 'easy-form-builder' ),
+			'fixed' => __( 'Fixed amount (added to the total)', 'easy-form-builder' ),
+			'fixedLabel' => __( 'Name of the fixed amount', 'easy-form-builder' ),
+			'donation' => __( 'Donation: the visitor chooses the amount', 'easy-form-builder' ),
+			'presets' => __( 'Suggested amounts (comma separated, up to 8)', 'easy-form-builder' ),
+			'other' => __( 'Allow another amount', 'easy-form-builder' ),
+			'min' => __( 'Minimum', 'easy-form-builder' ),
+			'max' => __( 'Maximum', 'easy-form-builder' ),
+			'default' => __( 'Preselected amount', 'easy-form-builder' ),
+			'amountHelp' => __( 'The total also counts the priced choices and price fields of the form. The server computes the amount; the browser only shows it.', 'easy-form-builder' ),
+			'surchargeEu' => __( 'Charging a mandatory fee on consumer cards is not allowed in the EU. Use the optional "cover the fee" setting for donations instead.', 'easy-form-builder' ),
+			'btnText' => /* translators: %s is a number or %amount% stays as written */ __( 'Button text (%amount% = amount)', 'easy-form-builder' ),
+			'btnBg' => __( 'Button colour', 'easy-form-builder' ),
+			'btnFg' => __( 'Text colour', 'easy-form-builder' ),
+			'auto' => __( 'Automatic (readable)', 'easy-form-builder' ),
+			'custom' => __( 'Custom', 'easy-form-builder' ),
+			'btnHover' => __( 'Colour on hover', 'easy-form-builder' ),
+			'radius' => __( 'Corner radius (px)', 'easy-form-builder' ),
+			'size' => __( 'Size', 'easy-form-builder' ),
+			'small' => __( 'Small', 'easy-form-builder' ),
+			'medium' => __( 'Medium', 'easy-form-builder' ),
+			'large' => __( 'Large', 'easy-form-builder' ),
+			'width' => __( 'Width', 'easy-form-builder' ),
+			'full' => __( 'Full width', 'easy-form-builder' ),
+			'fit' => __( 'Fit the text', 'easy-form-builder' ),
+			'icon' => __( 'Icon', 'easy-form-builder' ),
+			'none' => __( 'None', 'easy-form-builder' ),
+			'iconPos' => __( 'Icon position', 'easy-form-builder' ),
+			'start' => __( 'Before the text', 'easy-form-builder' ),
+			'end' => __( 'After the text', 'easy-form-builder' ),
+			'layout' => __( 'Layout', 'easy-form-builder' ),
+			'stack' => __( 'One column', 'easy-form-builder' ),
+			'split' => __( 'Summary beside (wide screens)', 'easy-form-builder' ),
+			'methodsStyle' => __( 'Methods', 'easy-form-builder' ),
+			'list' => __( 'List', 'easy-form-builder' ),
+			'grid' => __( 'Grid', 'easy-form-builder' ),
+			'tabs' => __( 'Tabs', 'easy-form-builder' ),
+			'select' => __( 'Drop-down', 'easy-form-builder' ),
+			'summary' => __( 'Summary', 'easy-form-builder' ),
+			'lines' => __( 'Every item', 'easy-form-builder' ),
+			'totalOnly' => __( 'Total only', 'easy-form-builder' ),
+			'labelPos' => __( 'Label', 'easy-form-builder' ),
+			'top' => __( 'Above', 'easy-form-builder' ),
+			'beside' => __( 'Beside', 'easy-form-builder' ),
+			'hidden' => __( 'Hidden (screen readers only)', 'easy-form-builder' ),
+			'cardBg' => __( 'Background', 'easy-form-builder' ),
+			'cardBorder' => __( 'Border', 'easy-form-builder' ),
+			'cardRadius' => __( 'Box corner radius (px)', 'easy-form-builder' ),
+			'accent' => __( 'Accent and focus colour', 'easy-form-builder' ),
+			'logoSize' => __( 'Logo size', 'easy-form-builder' ),
+			'digits' => __( 'Digits', 'easy-form-builder' ),
+			'localeDigits' => __( 'Digits of the language', 'easy-form-builder' ),
+			'actAdmin' => __( 'E-mail to the owner', 'easy-form-builder' ),
+			'actUser' => __( 'E-mail to the payer', 'easy-form-builder' ),
+			'actSms' => __( 'SMS', 'easy-form-builder' ),
+			'actWh' => __( 'Webhooks', 'easy-form-builder' ),
+			'whenPaid' => __( 'After payment', 'easy-form-builder' ),
+			'whenSubmit' => __( 'When the form is sent (before payment)', 'easy-form-builder' ),
+			'whenBoth' => __( 'Both', 'easy-form-builder' ),
+			'actHelp' => __( 'An unpaid entry stays "pending payment". Choose when each notification goes out.', 'easy-form-builder' ),
+			'failNotify' => __( 'E-mail the owner when a payment fails or expires', 'easy-form-builder' ),
+			'asDesktop' => __( 'As on wide screens', 'easy-form-builder' ),
+			'mobileHide' => __( 'Hide on phones (comma separated: summary, secure, logos, methods, amount)', 'easy-form-builder' ),
+			'mobilePro' => __( 'Phone layout of the field is part of Pro.', 'easy-form-builder' ),
+			'secGateway' => __( 'Gateway', 'easy-form-builder' ),
+			'secAmount' => __( 'Amount', 'easy-form-builder' ),
+			'secButton' => __( 'Button', 'easy-form-builder' ),
+			'secLayout' => __( 'Layout', 'easy-form-builder' ),
+			'secTexts' => __( 'Texts and languages', 'easy-form-builder' ),
+			'secNotify' => __( 'Notifications', 'easy-form-builder' ),
+			'secMobile' => __( 'Phones', 'easy-form-builder' ),
+		);
+	}
+
 	/** efb_var.pay on the builder screens: every gateway, without any secret. */
 	public static function builder_vars() {
 		$g = array();
@@ -156,8 +269,15 @@ class Frontend {
 			'mobile'   => self::mobile_ok(),
 			'settings' => admin_url( 'admin.php?page=Emsfb_payments&tab=gateways' ),
 			'text'     => self::default_texts( '%s' ),
+			'labels'   => self::builder_labels(),
 			'locale'   => self::locale(),
 		);
+	}
+
+	/** efb_admin_localize_vars: efb_var.pay (only when a gateway is registered). */
+	public static function localize_vars( $vars, $context = '' ) {
+		if ( is_array( $vars ) && Registry::all() ) $vars['pay'] = self::builder_vars();
+		return $vars;
 	}
 }
 

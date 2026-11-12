@@ -4789,6 +4789,9 @@ let sampleElpush_efb = (rndm, elementId) => {
       valj_efb[0].type = 'payment';
       form_type_emsFormBuilder = "payment";
       valj_efb[testb].el_text_color="text-white"
+    }else if (typeof efbPayIsGatewayEfb === 'function' && efbPayIsGatewayEfb(elementId)) {
+      // PAY00: a framework gateway (registered by its add-on): the form becomes a payment form.
+      efbPayOnAddEfb(valj_efb.length - 1);
     }else if (elementId == "persiaPay") {
       Object.assign(valj_efb[0], { getway: 'persiaPay', currency: 'irr', paymentmethod: 'charge', persiaPay:'zarinPal' });
       valj_efb[0].type = 'payment';
@@ -8157,6 +8160,15 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         `
         form_type_emsFormBuilder=valj_efb[0].type;
       break;
+    default:
+      // PAY00: a framework gateway field; the same markup as the PHP renderer (efbPayCoreEfb.html).
+      if (typeof efbPayIsGatewayEfb === 'function' && efbPayIsGatewayEfb(elementId)) {
+        dataTag = elementId;
+        ui = efbPayCanvasHtmlEfb(iVJ, rndm, previewSate);
+        if (valj_efb[0].type != 'payment') valj_efb[0].type = 'payment';
+        form_type_emsFormBuilder = valj_efb[0].type;
+      }
+      break;
   }
   const addDeleteBtnState = (formName_Efb == "login" && (valj_efb[iVJ].id_ == "emaillogin" || valj_efb[iVJ].id_ == "passwordlogin")) || (formName_Efb == "register" && (valj_efb[iVJ].id_ == "usernameRegisterEFB" || valj_efb[iVJ].id_ == "passwordRegisterEFB" || valj_efb[iVJ].id_ == "emailRegisterEFB")) ? true : false;
   if (elementId != "form" && dataTag != "step" && ((previewSate == true && elementId != 'option') || previewSate != true))
@@ -9445,7 +9457,8 @@ function handle_navbtn_efb(steps, device) {
     if (valj_efb[0].type == "payment" && preview_efb != true) {
       let state = valj_efb.findIndex(x => x.type == "stripe");
       state = state == -1 ? valj_efb.findIndex(x => x.type == "persiaPay") : state;
-      if (valj_efb[state].step == current_s_efb) {
+      // A PayPal or framework-gateway form has neither: valj_efb[-1] threw here.
+      if (state > -1 && valj_efb[state].step == current_s_efb) {
         document.getElementById("next_efb").classList.add("disabled");
       }
     }
@@ -9517,7 +9530,7 @@ function handle_navbtn_efb(steps, device) {
           if (valj_efb[0].type == "payment" && preview_efb != true) {
             let state = valj_efb.findIndex(x => x.type == "stripe");
             state = state == -1 ? valj_efb.findIndex(x => x.type == "persiaPay") : state;
-            if (valj_efb[state].step == current_s_efb && !efb_var.hasOwnProperty("payId") == true) {
+            if (state > -1 && valj_efb[state].step == current_s_efb && !efb_var.hasOwnProperty("payId") == true) {
               document.getElementById("next_efb").classList.add("disabled");
             }
           }

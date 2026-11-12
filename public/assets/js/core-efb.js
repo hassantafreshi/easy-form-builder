@@ -1269,6 +1269,17 @@ async function actionSendData_emsFormBuilder(form_id=0) {
         };
       }
     }
+    /* PAY00: a framework gateway field (Mollie, Payplug, … or the test gateway) sends the form to
+       payments/create: the server validates it, stores it as "pending payment" and starts the payment. */
+    if (vj.type == "payment" && window.EFBPay && typeof window.EFBPay.isGateway === 'function') {
+      let pay_structure = null;
+      try { pay_structure = get_structure_by_form_id_efb(form_id); } catch (e) { pay_structure = valj_efb; }
+      const pay_gateway = Array.isArray(pay_structure) && pay_structure[0] ? pay_structure[0].getway : '';
+      if (window.EFBPay.isGateway(pay_gateway)) {
+        window.EFBPay.submit(data, form_id);
+        return;
+      }
+    }
     post_api_forms_efb(data,form_id);
 }
 /* Persian (۰-۹) and Arabic-Indic (٠-٩) digits to 0-9: phone keyboards in

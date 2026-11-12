@@ -1082,6 +1082,21 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
             <div class="efb-msg-payment-item"><span class="efb-msg-payment-label">${efb_var.text.methodPayment}</span><span class="efb-msg-payment-val"><span class="efb-msg-payment-badge">${c.paymentmethod}</span></span></div>
             ${c.paymentmethod != 'charge' ? `<div class="efb-msg-payment-item"><span class="efb-msg-payment-label">${efb_var.text.interval}</span><span class="efb-msg-payment-val text-capitalize">${c.interval}</span></div>` : ''}
             </div></div>`
+      }else if (c.pay_uid) {
+        /* PAY00: a payment of a framework gateway (Mollie, Payplug, … or the test gateway). The values
+           were escaped with the whole entry above. */
+        const pcur = /^[A-Za-z]{3}$/.test(String(c.paymentcurrency || '')) ? String(c.paymentcurrency).toUpperCase() : currency;
+        let pamt = c.paymentAmount;
+        try { pamt = Number(c.paymentAmount).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: pcur }); } catch (e) {}
+        m += `<div class="efb efb-msg-payment" data-pay-uid="${c.pay_uid}">
+            <div class="efb-msg-payment-header"><i class="bi bi-credit-card"></i> ${efb_var.text.payment} ${c.mode == 'test' ? '<span class="efb badge bg-warning text-dark ms-1">TEST</span>' : ''}</div>
+            <div class="efb-msg-payment-grid">
+            <div class="efb-msg-payment-item"><span class="efb-msg-payment-label">${efb_var.text.payment}</span><span class="efb-msg-payment-val">${c.paymentGateway}${c.method ? ' · ' + c.method : ''}</span></div>
+            <div class="efb-msg-payment-item"><span class="efb-msg-payment-label">${efb_var.text.payment} ${efb_var.text.id}</span><span class="efb-msg-payment-val efb-msg-payment-id"><bdi dir="ltr">${c.paymentIntent || '-'}</bdi></span></div>
+            <div class="efb-msg-payment-item"><span class="efb-msg-payment-label">${efb_var.text.payAmount}</span><span class="efb-msg-payment-val efb-msg-payment-amount"><bdi>${pamt}</bdi></span></div>
+            <div class="efb-msg-payment-item"><span class="efb-msg-payment-label">${efb_var.text.status || 'Status'}</span><span class="efb-msg-payment-val"><span class="efb-msg-payment-badge">${c.status || ''}</span></span></div>
+            <div class="efb-msg-payment-item"><span class="efb-msg-payment-label">${efb_var.text.ddate}</span><span class="efb-msg-payment-val">${c.paymentCreated || ''}</span></div>
+            </div></div>`
       }else {
         m += `<div class="efb efb-msg-payment">
             <div class="efb-msg-payment-header"><i class="bi bi-credit-card"></i> ${efb_var.text.payment}</div>

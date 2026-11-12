@@ -47,3 +47,5 @@ add_action( 'emsfb_pmt_finalize', array( '\Emsfb\Payments\Service', 'finalize_by
 add_action( 'emsfb_daily_maintenance', array( '\Emsfb\Payments\Service', 'reconcile' ) );
 // F13: entries deleted or anonymized → their payment rows are anonymized (amount and reference kept).
 add_action( 'efb_entries_purged', array( '\Emsfb\Payments\Store', 'on_entries_purged' ), 10, 3 );
+// Builder screens: efb_var.pay (gateways without secrets, default texts, panel labels).
+add_filter( 'efb_admin_localize_vars', array( '\Emsfb\Payments\Frontend', 'localize_vars' ), 30, 2 );

@@ -32,6 +32,18 @@
  *                             reply; prints msg_id, file path and URL
  *   replies <msg_id>          replies of an entry
  *   file-exists <path>        whether a file is on disk
+ *   PAY00 (scenario 9):
+ *   pay-mock <0|1>            load the test gateway efbmock (mu-plugin, option efb_e2e_payments_mock)
+ *   pay-keys <test|live>      store the test gateway's keys (test placeholders) and the mode
+ *   pay-form <kind> [name]    a payment form (kind: fixed | donation | computed) saved through the
+ *                             builder's sanitizer; prints form id and field ids
+ *   payments [form_id]        payment rows (newest first)
+ *   pay-events <payment_id>   the event log of a payment
+ *   pay-provider <ref> <status> [amount]   the fake provider's state of a payment
+ *   pay-webhook-secret        the test webhook secret (to sign a webhook like the provider)
+ *   mails [clear]             e-mails recorded by the mu-plugin (efb_e2e_capture_mail)
+ *   reconcile                 run the reconcile job now
+ *   addon-flag <key> <0|1>    switch an add-on in the settings (its files must be in vendor/)
  *
  * Local test site only. Nothing here is meant for a production site.
  */
@@ -67,7 +79,7 @@ global $wpdb;
 switch ( $efb_e2e_cmd ) {
 	case 'wipe':
 		$dropped = array();
-		foreach ( array( 'emsfb_form', 'emsfb_msg_', 'emsfb_rsp_', 'emsfb_setting', 'emsfb_stts_' ) as $t ) {
+		foreach ( array( 'emsfb_form', 'emsfb_msg_', 'emsfb_rsp_', 'emsfb_setting', 'emsfb_stts_', 'emsfb_pmt_', 'emsfb_pmt_evt_', 'emsfb_pmt_rfd_', 'emsfb_coupon_' ) as $t ) {
 			$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}{$t}" ); // phpcs:ignore
 			$dropped[] = $wpdb->prefix . $t;
 		}
@@ -255,6 +267,111 @@ switch ( $efb_e2e_cmd ) {
 	case 'sessions':
 		$id = isset( $efb_e2e_rest[0] ) ? (int) $efb_e2e_rest[0] : 0;
 		efb_e2e_out( $wpdb->get_results( $wpdb->prepare( "SELECT id, sid, fid, status, ip, os, browser, tc FROM {$wpdb->prefix}emsfb_stts_ WHERE fid = %d ORDER BY id", $id ), ARRAY_A ) ); // phpcs:ignore
+		break;
+
+	case 'pay-mock':
+		update_option( 'efb_e2e_payments_mock', ( isset( $efb_e2e_rest[0] ) && '1' === $efb_e2e_rest[0] ) ? 1 : 0 );
+		efb_e2e_out( array( 'ok' => true ) );
+		break;
+
+	case 'pay-keys':
+		if ( ! class_exists( '\Emsfb\Payments\Mock_Gateway' ) ) efb_e2e_out( array( 'error' => 'mock gateway not loaded (pay-mock 1 first)' ) );
+		$gw = new \Emsfb\Payments\Mock_Gateway();
+		$st = \Emsfb\Payments\Settings::load( 'efbmock' );
+		// Local test placeholders of the fake provider, not real keys.
+		$st->apply( $gw->settings_schema(), array( 'api_key__test' => 'mock_test_E2Ekey000', 'webhook_secret__test' => 'e2e-mock-webhook-secret', 'api_key__live' => 'mock_live_E2Ekey000', 'webhook_secret__live' => 'e2e-mock-webhook-secret-live' ), isset( $efb_e2e_rest[0] ) && 'live' === $efb_e2e_rest[0] ? 'live' : 'test' );
+		efb_e2e_out( array( 'ok' => true, 'mode' => \Emsfb\Payments\Settings::load( 'efbmock' )->mode() ) );
+		break;
+
+	case 'pay-form':
+		$kind = isset( $efb_e2e_rest[0] ) ? $efb_e2e_rest[0] : 'fixed';
+		$name = isset( $efb_e2e_rest[1] ) ? $efb_e2e_rest[1] : 'Payment ' . $kind;
+		$rid  = function () { return substr( str_shuffle( 'abcdefghijklmnopqrstuvwxyz0123456789' ), 0, 9 ); };
+		$em = $rid(); $pf = $rid(); $rad = $rid(); $o1 = $rid(); $o2 = $rid(); $num = $rid(); $tot = $rid();
+		$base = array( 'step' => 1, 'amount' => 0, 'size' => 100, 'required' => 0, 'label_text_size' => 'fs-6', 'label_position' => 'up', 'el_text_size' => 'fs-6', 'label_text_color' => 'text-labelEfb', 'el_border_color' => 'border-d', 'el_text_color' => 'text-labelEfb', 'message_text_color' => 'text-muted', 'el_height' => 'h-d-efb', 'label_align' => 'txt-left', 'message_align' => 'justify-content-start', 'el_align' => 'justify-content-start', 'classes' => '', 'message' => '', 'placeholder' => '', 'value' => '', 'icon_input' => '' );
+		$row0 = array( 'type' => 'payment', 'steps' => 1, 'formName' => $name, 'email' => 'owner@example.test', 'trackingCode' => '1', 'EfbVersion' => 2, 'button_single_text' => 'Send', 'button_color' => 'btn-darkb', 'icon' => 'bi-ui-checks-grid', 'button_state' => 'single', 'email_to' => $em, 'show_icon' => '1', 'captcha' => '', 'sendEmail' => '1', 'stateForm' => 0, 'thank_you' => 'msg', 'thank_you_message' => array( 'icon' => 'bi-hand-thumbs-up', 'thankYou' => 'Thank you', 'done' => 'Done', 'trackingCode' => 'Confirmation Code', 'pleaseFillInRequiredFields' => 'Please fill in all required fields.' ), 'getway' => 'efbmock', 'currency' => 'EUR', 'paymentmethod' => 'charge', 'dShowBg' => '1', 'btns_align' => 'justify-content-center', 'label_text_color' => 'text-labelEfb', 'el_text_color' => 'text-labelEfb', 'message_text_color' => 'text-muted', 'icon_color' => 'text-white', 'el_height' => 'h-d-efb' );
+		$rows = array( $row0, array( 'id_' => '1', 'type' => 'step', 'dataId' => '1', 'classes' => '', 'id' => '1', 'name' => 'Step', 'icon' => 'bi-ui-checks-grid', 'step' => 1, 'amount' => 1, 'EfbVersion' => 2, 'message' => '', 'label_text_size' => 'fs-5', 'el_text_size' => 'fs-5', 'label_text_color' => 'text-darkb', 'el_text_color' => 'text-labelEfb', 'message_text_color' => 'text-muted', 'icon_color' => 'text-darkb', 'visible' => 1 ) );
+		$rows[] = array_merge( $base, array( 'id_' => $em, 'dataId' => $em . '-id', 'type' => 'email', 'elementId' => 'email', 'name' => 'Email', 'amount' => 2, 'required' => 1, 'noti' => 1 ) );
+		$pf_row = array_merge( $base, array( 'id_' => $pf, 'dataId' => $pf . '-id', 'type' => 'efbmock', 'elementId' => 'efbmock', 'name' => 'Payment', 'amount' => 5 ) );
+		if ( 'fixed' === $kind ) {
+			$rows[] = array_merge( $base, array( 'id_' => $rad, 'dataId' => $rad . '-id', 'type' => 'payRadio', 'elementId' => 'payRadio', 'name' => 'Ticket', 'amount' => 3, 'required' => 1 ) );
+			$rows[] = array( 'id_' => $o1, 'dataId' => $o1 . '-id', 'parent' => $rad, 'type' => 'option', 'value' => 'Adult', 'id_op' => $o1, 'step' => 1, 'amount' => 4, 'price' => '25' );
+			$rows[] = array( 'id_' => $o2, 'dataId' => $o2 . '-id', 'parent' => $rad, 'type' => 'option', 'value' => 'Child', 'id_op' => $o2, 'step' => 1, 'amount' => 4, 'price' => '12.5' );
+			$pf_row['pf_fixed'] = '2';
+			$pf_row['pf_fixed_label'] = 'Booking fee';
+		} elseif ( 'donation' === $kind ) {
+			$pf_row['pf_amount'] = 'donation';
+			$pf_row['pf_presets'] = '10,25,50';
+			$pf_row['pf_other'] = '1';
+			$pf_row['pf_min'] = '5';
+			$pf_row['pf_max'] = '500';
+			$pf_row['pf_default'] = '25';
+			$pf_row['pf_btn_text'] = 'Donate %amount%';
+			$pf_row['pf_btn_bg'] = '#14532d';
+			$pf_row['pf_btn_icon'] = 'bi-heart';
+		} elseif ( 'computed' === $kind ) {
+			$rows[] = array_merge( $base, array( 'id_' => $num, 'dataId' => $num . '-id', 'type' => 'number', 'elementId' => 'number', 'name' => 'Guests', 'amount' => 3, 'required' => 1 ) );
+			$rows[] = array_merge( $base, array( 'id_' => $tot, 'dataId' => $tot . '-id', 'type' => 'prcfld', 'elementId' => 'prcfld', 'name' => 'Total', 'amount' => 4, 'milen' => '0' ) );
+			$rows[0]['logic'] = '1';
+			$rows[0]['logic_rules'] = array( array( 'id' => 'calc', 'enabled' => true, 'priority' => 1, 'conditions' => array( 'type' => 'group', 'operator' => 'AND', 'items' => array( array( 'type' => 'condition', 'source' => 'field', 'field_id' => $num, 'compare' => 'is_not_empty', 'value' => '' ) ) ), 'actions' => array( array( 'type' => 'calculate', 'target' => $tot, 'value' => '{' . $num . '} * 5', 'decimals' => 2 ) ) ) );
+		}
+		if ( isset( $efb_e2e_rest[2] ) ) {
+			foreach ( explode( '&', $efb_e2e_rest[2] ) as $kv ) {
+				list( $k, $v ) = array_pad( explode( '=', $kv, 2 ), 2, '' );
+				$rows[0][ $k ] = urldecode( $v );
+			}
+		}
+		$rows[] = $pf_row;
+		$fn = get_efbFunction();
+		$clean = $fn->sanitize_obj_msg_efb( $rows );
+		$json = str_replace( '"', '\\"', wp_json_encode( $clean, JSON_UNESCAPED_UNICODE ) );
+		$wpdb->insert( $wpdb->prefix . 'emsfb_form', array( 'form_name' => $name, 'form_structer' => $json, 'form_email' => '', 'form_type' => 'payment', 'form_created_by' => '1', 'form_access_by' => '', 'form_create_date' => current_time( 'mysql' ), 'status' => 1 ) );
+		$fid = (int) $wpdb->insert_id;
+		do_action( 'efb_form_created', $fid, $clean, array( 'form_id' => $fid, 'source' => 'e2e', 'user_id' => 1 ) );
+		efb_e2e_out( array( 'form_id' => $fid, 'email' => $em, 'pf' => $pf, 'radio' => $rad, 'o1' => $o1, 'o2' => $o2, 'guests' => $num, 'total' => $tot ) );
+		break;
+
+	case 'payments':
+		$fid = isset( $efb_e2e_rest[0] ) ? (int) $efb_e2e_rest[0] : 0;
+		$sql = $fid ? $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}emsfb_pmt_ WHERE form_id = %d ORDER BY id DESC", $fid ) : "SELECT * FROM {$wpdb->prefix}emsfb_pmt_ ORDER BY id DESC"; // phpcs:ignore
+		efb_e2e_out( $wpdb->get_results( $sql, ARRAY_A ) ); // phpcs:ignore
+		break;
+
+	case 'pay-events':
+		efb_e2e_out( $wpdb->get_results( $wpdb->prepare( "SELECT id, source, type, from_status, to_status, http_code, note FROM {$wpdb->prefix}emsfb_pmt_evt_ WHERE payment_id = %d ORDER BY id", isset( $efb_e2e_rest[0] ) ? (int) $efb_e2e_rest[0] : 0 ), ARRAY_A ) ); // phpcs:ignore
+		break;
+
+	case 'pay-provider':
+		if ( ! class_exists( '\Emsfb\Payments\Mock_Provider' ) ) efb_e2e_out( array( 'error' => 'mock gateway not loaded' ) );
+		$ok = \Emsfb\Payments\Mock_Provider::set_status( $efb_e2e_rest[0], $efb_e2e_rest[1], isset( $efb_e2e_rest[2] ) ? $efb_e2e_rest[2] : null );
+		efb_e2e_out( array( 'ok' => $ok ) );
+		break;
+
+	case 'pay-webhook-secret':
+		$s = \Emsfb\Payments\Settings::load( 'efbmock' );
+		efb_e2e_out( array( 'secret' => $s->secret( 'webhook_secret', $s->mode() ) ) );
+		break;
+
+	case 'mails':
+		if ( isset( $efb_e2e_rest[0] ) && 'clear' === $efb_e2e_rest[0] ) {
+			update_option( 'efb_e2e_mails', array(), false );
+			update_option( 'efb_e2e_capture_mail', 1, false );
+		}
+		efb_e2e_out( get_option( 'efb_e2e_mails', array() ) );
+		break;
+
+	case 'addon-flag':
+		// An add-on switch in the plugin settings (the add-on's files must already be in vendor/).
+		$s = get_setting_Emsfb( 'decoded' );
+		$key = isset( $efb_e2e_rest[0] ) ? preg_replace( '/[^A-Za-z]/', '', $efb_e2e_rest[0] ) : '';
+		if ( ! is_object( $s ) || '' === $key ) efb_e2e_out( array( 'error' => 'no settings' ) );
+		$s->$key = ( isset( $efb_e2e_rest[1] ) && '1' === $efb_e2e_rest[1] ) ? 1 : 0;
+		\efbFunction::set_setting_Emsfb( $s );
+		efb_e2e_out( array( 'ok' => true, $key => get_setting_Emsfb( 'decoded' )->$key ) );
+		break;
+
+	case 'reconcile':
+		efb_e2e_out( \Emsfb\Payments\Service::reconcile() );
 		break;
 
 	default:

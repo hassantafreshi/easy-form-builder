@@ -1208,6 +1208,238 @@ scenario('8', 'F13 privacy: IP setting, guest entry without IP, retention cron w
   R.check('8i: ...and says "kept until a site administrator deletes them" once it is off', /Entries are kept until a site administrator deletes them\./.test(g));
 });
 
+/* =============================================================================================
+ * 9. PAY00 payment framework with the test gateway (efbmock, a fake provider on the site itself)
+ * =========================================================================================== */
+const crypto = require('crypto');
+
+/** The fake provider's webhook, signed like the provider signs it. */
+const PAY_RUN = Date.now().toString(36);
+async function payWebhook(ref, eventId, secret) {
+  // Provider event ids are unique: one per run here, as the de-duplication keeps them for good.
+  const body = JSON.stringify({ id: eventId + '_' + PAY_RUN, type: 'payment.updated', data: { id: ref } });
+  const sig = crypto.createHmac('sha256', secret).update(body).digest('hex');
+  const r = await fetch(CFG.base + '/wp-json/Emsfb/v1/payments/webhook/efbmock', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Mock-Signature': sig }, body });
+  return r.status;
+}
+const payRows = (fid) => ctl('payments', String(fid)) || [];
+const payEntry = (fid, track) => (ctl('entries', String(fid)) || []).find((e) => e.track === track) || null;
+
+/** A guest opens the page, fills the e-mail (and optionally more), returns the page. */
+async function payGuest(context, url, fill) {
+  const g = await (await context({}, 'guest-pay')).newPage();
+  await g.goto(url, { waitUntil: 'networkidle' });
+  await g.waitForSelector('.efb-pf [data-pf-pay]', { timeout: 20000 });
+  if (fill) await fill(g);
+  await sleep(400);
+  return g;
+}
+async function payClick(g) {
+  await Promise.all([g.waitForURL(/payments\/mock\/checkout/, { timeout: 20000 }), g.click('.efb-pf [data-pf-pay]')]);
+  await g.waitForSelector('#pay', { timeout: 10000 });
+}
+
+scenario('9', 'PAY00 payments with the test gateway: builder, fixed / computed / donation amounts, webhook twice and before return, tampered amount, pending→paid e-mail, test banner, fa_IR', async ({ context, adminPage }) => {
+  ctl('pay-mock', '1');
+  ctl('pay-keys', 'test');
+  ctl('mails', 'clear');
+  const secret = ctl('pay-webhook-secret').secret;
+  R.check('9: the test gateway is registered and configured (keys stored encrypted)', !!secret && ctl('option', 'emsfb_pgw_efbmock') && JSON.stringify(ctl('option', 'emsfb_pgw_efbmock')).indexOf(secret) === -1);
+
+  /* 9a builder: palette tile, panel, canvas preview, Save, AutoPilot API */
+  const admin = await adminPage();
+  await openNewForm(admin);
+  await addTile(admin, 'email');
+  // AutoPilot on a form without a gateway yet: the template carries the row-0 changes as formPatch.
+  const api0 = await admin.evaluate(() => { const it = efbBuilderApi.newItems('efbmock'); return { patch: it.formPatch, type: it[0].type, live: valj_efb[0].type }; });
+  R.check('9a/AutoPilot: newItems("efbmock") gives the field and formPatch {type: payment, getway: efbmock}; the open form is untouched', api0.type === 'efbmock' && api0.patch && api0.patch.getway === 'efbmock' && api0.patch.type === 'payment' && api0.live !== 'payment', api0);
+  const pf = await addTile(admin, 'efbmock');
+  const f0 = await admin.evaluate(() => ({ type: valj_efb[0].type, getway: valj_efb[0].getway, currency: valj_efb[0].currency }));
+  R.check('9a: the "Test gateway" tile adds a payment field and makes the form a payment form', pf && pf.type === 'efbmock' && f0.type === 'payment' && f0.getway === 'efbmock' && !!f0.currency, { pf, f0 });
+  R.check('9a: the canvas shows the field (same markup as the public page)', await admin.isVisible(`#dropZoneEFB .efb-pf[data-pf="${pf.id_}"] [data-pf-pay]`));
+  await closePanel(admin);
+  await admin.click(`#dropZoneEFB [data-id="${pf.dataId}"] .efb-pf-label`);
+  await admin.waitForSelector('#efbPfPanelEl', { timeout: 8000 });
+  R.check('9a: its settings panel opens', true);
+  await admin.fill('#efbPfFixedEl', '15');
+  await admin.press('#efbPfFixedEl', 'Tab');
+  await admin.click('#efbPfSecBtn summary');
+  await admin.fill('#efbPfBtnTextEl', 'Pay now %amount%');
+  await admin.press('#efbPfBtnTextEl', 'Tab');
+  await admin.evaluate(() => { const c = document.getElementById('efbPfBtnBgEl'); c.value = '#ffee00'; c.dispatchEvent(new Event('input', { bubbles: true })); c.dispatchEvent(new Event('change', { bubbles: true })); });
+  await sleep(300);
+  const contrast = await admin.textContent('#efbPfContrastEl');
+  const btnText = await admin.textContent(`#dropZoneEFB .efb-pf[data-pf="${pf.id_}"] .efb-pf-btn-t`);
+  R.check('9a: button text and colour change the canvas live; automatic text colour keeps it readable (contrast badge)', /Pay now/.test(btnText) && /readable/.test(contrast), { btnText, contrast });
+  await admin.click('#efbPfSecLayout summary');
+  await admin.click('#efbPfOrderEl li[data-el="button"] [data-efb-pf-move="up"]');
+  await sleep(200);
+  const order = await admin.evaluate((id) => valj_efb.find((r) => r.id_ === id).pf_order, pf.id_);
+  R.check('9a: moving "Pay button" up writes pf_order', /fields,button/.test(String(order)) === false && /button/.test(String(order)), order);
+  // AutoPilot: newItems / insertItems / getForm / setForm keep the payment keys.
+  const api = await admin.evaluate(() => {
+    const out = {};
+    try { efbBuilderApi.newItems('mollie'); out.mollie = 'no error'; } catch (e) { out.mollie = e.code; }
+    const items = efbBuilderApi.newItems('efbmock');
+    out.patch = items.formPatch;
+    out.rowType = items[0].type;
+    const f = efbBuilderApi.getForm();
+    out.roundtrip = JSON.stringify(f) === JSON.stringify(efbBuilderApi.getForm());
+    out.cap = efb_var.capabilities.features['field:efbmock'];
+    out.gw = efb_var.capabilities.payment_gateways && efb_var.capabilities.payment_gateways.efbmock;
+    out.capJson = JSON.stringify(efb_var.capabilities);
+    return out;
+  });
+  R.check('9a/AutoPilot: getForm() round trip keeps the pf_* keys', api.roundtrip && api.rowType === 'efbmock');
+  R.check('9a/AutoPilot: newItems("mollie") without its add-on → addon_required', api.mollie === 'addon_required', api.mollie);
+  R.check('9a/AutoPilot: capabilities field:efbmock (Free Plus) and payment_gateways without any key', api.cap && api.cap.package === 'free_plus' && api.gw && api.gw.configured.test === true && api.capJson.indexOf(secret) === -1 && !/mock_test_/.test(api.capJson), { cap: api.cap, gw: api.gw });
+  await closePanel(admin);
+  await admin.evaluate(() => saveFormEfb(1));
+  await admin.waitForFunction(() => { const s = sessionStorage.getItem('valj_efb'); return !!document.querySelector('#settingModalEfb .efb-save-ok, #settingModalEfb [data-efb-save-state="saved"]') || (window.form_ID_emsFormBuilder && Number(form_ID_emsFormBuilder) > 0); }, null, { timeout: 15000 }).catch(() => {});
+  await sleep(1500);
+  const forms = ctl('forms');
+  const saved = forms.length ? ctl('form', String(forms[forms.length - 1].form_id)) : null;
+  const srow = saved && saved.form_structer ? saved.form_structer.find((r) => r.type === 'efbmock') : null;
+  R.check('9a: Save stores the pf_* keys through the sanitizer (pf_fixed 15, button text, colour, order)', srow && srow.pf_fixed === '15' && srow.pf_btn_text === 'Pay now %amount%' && srow.pf_btn_bg === '#ffee00' && /button/.test(srow.pf_order || ''), srow);
+
+  /* 9b fixed amount, pending → paid, e-mail only after payment, webhook before return and twice */
+  const F = ctl('pay-form', 'fixed', 'Pay fixed e2e');
+  const url = ctl('page', String(F.form_id)).url;
+  ctl('mails', 'clear');
+  let g = await payGuest(context, url, async (p) => { await p.fill(`[data-id="${F.email}-el"]`, 'payer@example.test'); await p.click(`[id="${F.o1}"]`); });
+  const shown = await g.evaluate(() => ({ total: document.querySelector('[data-pf-total]').textContent, banner: !document.querySelector('.efb-pf [data-pf-el="test"]').hidden, send: getComputedStyle(document.querySelector('[id="btn_send_efb"]')).display }));
+  R.check('9b: live total 25.00 + 2.00 booking fee = €27.00; test banner shown to the visitor; the form\'s own Send button replaced by Pay', shown.total === '€27.00' && shown.banner && shown.send === 'none', shown);
+  await payClick(g);
+  R.check('9b: the provider page asks for 27.00 EUR', /27\.00 EUR/.test(await g.textContent('#amount')));
+  let P = payRows(F.form_id)[0];
+  let E = payEntry(F.form_id, P.track);
+  R.check('9b: payment pending (amount 2700 EUR, test mode), entry stored as "pending payment" (read_ 2)', P.status === 'pending' && Number(P.amount_minor) === 2700 && P.mode === 'test' && E && String(E.read_) === '2', { P, read: E && E.read_ });
+  R.check('9b: no e-mail while the payment is pending (default: after payment)', (ctl('mails') || []).length === 0, ctl('mails'));
+  ctl('pay-provider', P.gateway_ref, 'paid');
+  R.check('9b: a webhook with a bad signature is refused (401)', (await payWebhook(P.gateway_ref, 'evt_bad', 'wrong-secret')) === 401);
+  R.check('9b: the signed webhook arrives before the visitor returns: 200', (await payWebhook(P.gateway_ref, 'evt_e2e_1', secret)) === 200);
+  P = payRows(F.form_id)[0];
+  E = payEntry(F.form_id, P.track);
+  const mails1 = ctl('mails') || [];
+  R.check('9b: → paid (verified at the provider), entry is a new entry (read_ 0), finalized', P.status === 'paid' && !!P.finalized_at && String(E.read_) === '0', { status: P.status, read: E.read_ });
+  R.check('9b: the owner and the payer get their e-mails now', mails1.length >= 2 && mails1.some((m) => JSON.stringify(m.to).indexOf('owner@example.test') !== -1) && mails1.some((m) => JSON.stringify(m.to).indexOf('payer@example.test') !== -1), mails1);
+  R.check('9b: the same webhook again: 200, nothing runs twice', (await payWebhook(P.gateway_ref, 'evt_e2e_1', secret)) === 200 && (await payWebhook(P.gateway_ref, 'evt_e2e_2', secret)) === 200 && (ctl('mails') || []).length === mails1.length);
+  const ev = ctl('pay-events', String(P.id));
+  R.check('9b: one "finalized" event', ev.filter((e) => e.type === 'finalized').length === 1, ev.map((e) => e.type));
+  await Promise.all([g.waitForURL(/efb-e2e-shortcode/, { timeout: 20000 }), g.click('#pay')]);
+  await g.waitForFunction(() => /Confirmation Code/i.test(document.body.innerText), null, { timeout: 15000 });
+  const done = await g.evaluate(() => ({ text: document.body.innerText, url: location.href, title: document.title }));
+  R.check('9b: back on the page: the thank-you with the confirmation code, the address cleaned, the title says so', done.text.indexOf(P.track) !== -1 && done.url.indexOf('efb_pay') === -1 && /Payment successful/.test(done.title), { url: done.url, title: done.title });
+  await g.screenshot({ path: SHOT('9b-paid') });
+  await g.close();
+
+  /* 9c return before webhook; tampered amount */
+  g = await payGuest(context, url, async (p) => { await p.fill(`[data-id="${F.email}-el"]`, 'tamper@example.test'); await p.click(`[id="${F.o2}"]`); });
+  await g.route('**/wp-json/Emsfb/v1/payments/create', async (route) => {
+    const b = JSON.parse(route.request().postData());
+    const rows = JSON.parse(b.value).map((r) => (r.type === 'payRadio' ? Object.assign(r, { price: '0.01' }) : r));
+    b.value = JSON.stringify(rows);
+    delete b.pay.expected_minor;
+    await route.continue({ postData: JSON.stringify(b) });
+  });
+  await payClick(g);
+  R.check('9c: a request with the option price changed to 0.01 still pays the server amount (12.50 + 2.00 = 14.50)', /14\.50 EUR/.test(await g.textContent('#amount')));
+  await Promise.all([g.waitForURL(/efb-e2e-shortcode/, { timeout: 20000 }), g.click('#pay')]);
+  await g.waitForFunction(() => /Confirmation Code/i.test(document.body.innerText), null, { timeout: 15000 });
+  P = payRows(F.form_id)[0];
+  R.check('9c: return before any webhook: the return URL asks the provider → paid, finalized once', P.status === 'paid' && Number(P.amount_minor) === 1450 && ctl('pay-events', String(P.id)).filter((e) => e.type === 'finalized').length === 1);
+  R.check('9c: the late webhook changes nothing', (await payWebhook(P.gateway_ref, 'evt_late', secret)) === 200 && ctl('pay-events', String(P.id)).filter((e) => e.type === 'finalized').length === 1);
+  await g.close();
+  g = await payGuest(context, url, async (p) => { await p.fill(`[data-id="${F.email}-el"]`, 'tamper2@example.test'); await p.click(`[id="${F.o1}"]`); });
+  const before = payRows(F.form_id).length;
+  await g.route('**/wp-json/Emsfb/v1/payments/create', async (route) => { const b = JSON.parse(route.request().postData()); b.pay.expected_minor = 100; await route.continue({ postData: JSON.stringify(b) }); });
+  await g.click('.efb-pf [data-pf-pay]');
+  await g.waitForFunction(() => /amount was updated/i.test(document.body.innerText), null, { timeout: 15000 });
+  R.check('9c: the browser says 1.00 but the server quote is 27.00: "amount was updated", nothing created', payRows(F.form_id).length === before);
+  await g.close();
+
+  /* 9d computed amount (B7: guests × 5 with the Conditional Logic engine) */
+  ctl('addon-flag', 'AdnSMF', '1');
+  const C = ctl('pay-form', 'computed', 'Pay computed e2e');
+  const curl = ctl('page', String(C.form_id)).url;
+  g = await payGuest(context, curl, async (p) => { await p.fill(`[data-id="${C.email}-el"]`, 'calc@example.test'); await p.fill(`[data-id="${C.guests}-el"]`, '3'); await p.press(`[data-id="${C.guests}-el"]`, 'Tab'); });
+  await sleep(800);
+  R.check('9d: 3 guests × 5 shown as €15.00', (await g.textContent('[data-pf-total]')) === '€15.00');
+  await g.route('**/wp-json/Emsfb/v1/payments/create', async (route) => {
+    const b = JSON.parse(route.request().postData());
+    b.value = JSON.stringify(JSON.parse(b.value).map((r) => (r.type === 'prcfld' ? Object.assign(r, { value: '1', price: '1' }) : r)));
+    delete b.pay.expected_minor;
+    await route.continue({ postData: JSON.stringify(b) });
+  });
+  await payClick(g);
+  R.check('9d: a request with the computed price lowered to 1 pays 15.00 (the server runs the rule)', /15\.00 EUR/.test(await g.textContent('#amount')));
+  await g.close();
+  ctl('addon-flag', 'AdnSMF', '0');
+
+  /* 9e donation: presets, other amount, limits */
+  const D = ctl('pay-form', 'donation', 'Donate e2e');
+  const durl = ctl('page', String(D.form_id)).url;
+  g = await payGuest(context, durl, async (p) => { await p.fill(`[data-id="${D.email}-el"]`, 'donor@example.test'); });
+  R.check('9e: preselected 25 shown; the button says "Donate €25.00"', (await g.textContent('.efb-pf-btn-t')).replace(/\s+/g, ' ').trim() === 'Donate €25.00');
+  await g.click('[data-pf-preset="50"]');
+  R.check('9e: choosing 50 → €50.00, the chip is checked', (await g.textContent('[data-pf-total]')) === '€50.00' && (await g.getAttribute('[data-pf-preset="50"]', 'aria-checked')) === 'true');
+  await g.fill('[data-pf-other]', '3');
+  await g.click('.efb-pf [data-pf-pay]');
+  R.check('9e: 3 is below the minimum: the page says so and nothing is sent', /valid amount/i.test(await g.textContent('[data-pf-status]')) && !/mock\/checkout/.test(g.url()));
+  await g.fill('[data-pf-other]', '۷۰');
+  await sleep(200);
+  R.check('9e: 70 typed in Persian digits → €70.00', (await g.textContent('[data-pf-total]')) === '€70.00');
+  await g.route('**/wp-json/Emsfb/v1/payments/create', async (route) => {
+    const b = JSON.parse(route.request().postData());
+    b.value = JSON.stringify(JSON.parse(b.value).map((r) => (r.type === 'efbmock' ? Object.assign(r, { value: '2' }) : r)));
+    delete b.pay.expected_minor;
+    await route.continue({ postData: JSON.stringify(b) });
+  });
+  await g.click('.efb-pf [data-pf-pay]');
+  await g.waitForFunction(() => /valid amount/i.test(document.body.innerText), null, { timeout: 15000 });
+  R.check('9e: a request with 2 (below the minimum) is refused by the server', payRows(D.form_id).length === 0);
+  await g.unroute('**/wp-json/Emsfb/v1/payments/create');
+  await g.close();
+  g = await payGuest(context, durl, async (p) => { await p.fill(`[data-id="${D.email}-el"]`, 'donor@example.test'); await p.fill('[data-pf-other]', '70'); });
+  await payClick(g);
+  R.check('9e: the provider is asked for 70.00 EUR', /70\.00 EUR/.test(await g.textContent('#amount')));
+  await Promise.all([g.waitForURL(/efb-e2e-shortcode/, { timeout: 20000 }), g.click('#fail')]);
+  await g.waitForFunction(() => /not completed/i.test(document.body.innerText), null, { timeout: 15000 });
+  R.check('9e: failed at the provider → "not completed, not charged" and a "Try again" button; payment failed', await g.isVisible('.efb-pf-retry') && payRows(D.form_id)[0].status === 'failed');
+  await g.close();
+
+  /* 9f admin Payments screen */
+  await admin.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb_payments', { waitUntil: 'load' });
+  const list = await admin.evaluate(() => ({ rows: document.querySelectorAll('.efb-pay-table tbody tr').length, test: document.querySelectorAll('.efb-pay-table .efb-pay-test').length, html: document.body.innerText }));
+  R.check('9f: Payments lists the payments with TEST badges and paid totals', list.rows >= 4 && list.test >= 4 && /Paid EUR/.test(list.html), list.rows);
+  await admin.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb_payments&payment=' + payRows(F.form_id)[1].id, { waitUntil: 'load' });
+  R.check('9f: details show the events (webhook, finalized) and a Refund button', /finalized/.test(await admin.textContent('.efb-pay-events')) && await admin.isVisible('[data-efb-pay="refund"]'));
+  await admin.click('[data-efb-pay="refund"]');
+  await admin.waitForLoadState('load');
+  await sleep(1500);
+  R.check('9f: a full refund through the gateway → refunded', payRows(F.form_id).some((p) => p.status === 'refunded'));
+  await admin.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb_payments&tab=gateways', { waitUntil: 'load' });
+  const gwPage = await admin.content();
+  R.check('9f: gateway settings: keys never shown (only •••• and the last four), webhook address listed', gwPage.indexOf(secret) === -1 && gwPage.indexOf('mock_test_E2Ekey000') === -1 && /•••• y000/.test(gwPage) && /payments\/webhook\/efbmock/.test(gwPage));
+  await admin.click('[data-efb-pay="test_connection"][data-mode="test"]');
+  await admin.waitForFunction(() => /Connected/.test((document.querySelector('.efb-pay-msg') || {}).textContent || ''), null, { timeout: 10000 });
+  R.check('9f: Test connection (Test) → Connected', true);
+
+  /* 9g fa_IR: right to left, Persian texts, the amount isolated */
+  ctl('locale', 'fa_IR');
+  const page = await (await context({}, 'guest-fa')).newPage();
+  await page.goto(url, { waitUntil: 'networkidle' });
+  await page.waitForSelector('.efb-pf [data-pf-pay]', { timeout: 20000 });
+  const fa = await page.evaluate(() => ({ dir: document.documentElement.dir || getComputedStyle(document.querySelector('.efb-pf')).direction, bdi: !!document.querySelector('.efb-pf bdi[data-pf-amount]'), start: document.querySelector('.efb-pf').getBoundingClientRect().right }));
+  await page.setViewportSize({ width: 375, height: 800 });
+  await page.screenshot({ path: SHOT('9g-fa-375'), fullPage: true });
+  const fit = await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1 && document.querySelector('.efb-pf-btn').getBoundingClientRect().height >= 44);
+  R.check('9g: fa_IR: the field is right to left, the amount in <bdi>, no horizontal scroll at 375 px, 44 px button', fa.dir === 'rtl' && fa.bdi && fit, fa);
+  ctl('locale', '');
+  await page.close();
+  ctl('pay-mock', '0');
+});
+
 /* ---------------------------------------------------------------------------------------------
  * main
  * ------------------------------------------------------------------------------------------- */

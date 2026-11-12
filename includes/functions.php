@@ -2875,6 +2875,28 @@ class efbFunction {
 			"prvPolicyCaptcha" => $state && isset($ac->text->prvPolicyCaptcha) ? $ac->text->prvPolicyCaptcha : esc_html__('Some forms use Google reCAPTCHA to tell people from automated programs; Google\'s privacy policy applies to it.','easy-form-builder'),
 			/* translators: F13: suggested privacy policy text about the visitor's rights */
 			"prvPolicyRights" => $state && isset($ac->text->prvPolicyRights) ? $ac->text->prvPolicyRights : esc_html__('You can ask for a copy of the personal data your entries contain, or for its deletion, through this site\'s privacy request.','easy-form-builder'),
+			/* translators: PAY00: name of a locked feature in the upgrade dialog */
+			"upgFtrPayStyle" => $state && isset($ac->text->upgFtrPayStyle) ? $ac->text->upgFtrPayStyle : esc_html__('Payment button and layout design','easy-form-builder'),
+			/* translators: PAY00: name of a locked feature in the upgrade dialog */
+			"upgFtrPayDonation" => $state && isset($ac->text->upgFtrPayDonation) ? $ac->text->upgFtrPayDonation : esc_html__('Donation amounts on payments','easy-form-builder'),
+			/* translators: PAY00: name of a locked feature in the upgrade dialog */
+			"upgFtrPayActions" => $state && isset($ac->text->upgFtrPayActions) ? $ac->text->upgFtrPayActions : esc_html__('When payment notifications are sent','easy-form-builder'),
+			/* translators: PAY00: name of a locked feature in the upgrade dialog */
+			"upgFtrPayGateway" => $state && isset($ac->text->upgFtrPayGateway) ? $ac->text->upgFtrPayGateway : esc_html__('Payment gateways','easy-form-builder'),
+			/* translators: PAY00: add-on name */
+			"mollieTAddon" => $state && isset($ac->text->mollieTAddon) ? $ac->text->mollieTAddon : esc_html__('Mollie payments','easy-form-builder'),
+			/* translators: PAY00: add-on name */
+			"payplugTAddon" => $state && isset($ac->text->payplugTAddon) ? $ac->text->payplugTAddon : esc_html__('Payplug payments','easy-form-builder'),
+			/* translators: PAY00: add-on name */
+			"tapTAddon" => $state && isset($ac->text->tapTAddon) ? $ac->text->tapTAddon : esc_html__('Tap payments','easy-form-builder'),
+			/* translators: PAY00: add-on name */
+			"omiseTAddon" => $state && isset($ac->text->omiseTAddon) ? $ac->text->omiseTAddon : esc_html__('Omise payments','easy-form-builder'),
+			/* translators: PAY00: add-on name */
+			"paytabsTAddon" => $state && isset($ac->text->paytabsTAddon) ? $ac->text->paytabsTAddon : esc_html__('PayTabs payments','easy-form-builder'),
+			/* translators: PAY00: add-on name */
+			"paymobTAddon" => $state && isset($ac->text->paymobTAddon) ? $ac->text->paymobTAddon : esc_html__('Paymob payments','easy-form-builder'),
+			/* translators: PAY00: add-on name */
+			"xenditTAddon" => $state && isset($ac->text->xenditTAddon) ? $ac->text->xenditTAddon : esc_html__('Xendit payments','easy-form-builder'),
 			/* translators: F18: name of a locked feature in the upgrade dialog */
 			"upgFtrHideDisable" => $state && isset($ac->text->upgFtrHideDisable) ? $ac->text->upgFtrHideDisable : esc_html__('Hidden and disabled fields','easy-form-builder'),
 			/* translators: F18: name of a locked feature in the upgrade dialog */

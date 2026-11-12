@@ -206,6 +206,13 @@ class Admin {
                  * front end needs no script: its CSS comes from PHP). */
                 $efb_step_bg_js_path = EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/step-bg-efb.js';
                 wp_enqueue_script('efb-step-bg', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/step-bg-efb.js', array('efb-main-js'), is_readable($efb_step_bg_js_path) ? EMSFB_PLUGIN_VERSION . '.' . filemtime($efb_step_bg_js_path) : EMSFB_PLUGIN_VERSION);
+                /* PAY00: the payment field (core twin, canvas, settings panel) and its style. */
+                if (class_exists('\\Emsfb\\Payments\\Registry') && \Emsfb\Payments\Registry::all()) {
+                    $efb_pay_ver = function ($rel) { $p = EMSFB_PLUGIN_DIRECTORY . $rel; return EMSFB_PLUGIN_VERSION . '.' . (is_readable($p) ? filemtime($p) : '0'); };
+                    wp_enqueue_style('efb-payment-field', EMSFB_PLUGIN_URL . 'public/assets/css/payment-field-efb.css', array(), $efb_pay_ver('public/assets/css/payment-field-efb.css'));
+                    wp_enqueue_script('efb-payment-core', EMSFB_PLUGIN_URL . 'public/assets/js/payment-core-efb.js', array(), $efb_pay_ver('public/assets/js/payment-core-efb.js'));
+                    wp_enqueue_script('efb-payment-field-builder', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/payment-field-efb.js', array('efb-payment-core', 'efb-main-js'), $efb_pay_ver('includes/admin/assets/js/payment-field-efb.js'));
+                }
                 wp_enqueue_script('efb-response-viewer-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/response-viewer-efb.js', array('efb-main-js', 'jquery'), $efb_response_viewer_js_version);
         }
     }

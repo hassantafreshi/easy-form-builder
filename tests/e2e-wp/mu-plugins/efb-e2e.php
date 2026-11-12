@@ -18,3 +18,31 @@ add_filter(
 		return $ok;
 	}
 );
+
+/*
+ * PAY00 (scenario 9): the test gateway "efbmock" and its fake provider are loaded only when the
+ * suite switches them on (option efb_e2e_payments_mock); e-mails are recorded instead of sent while
+ * efb_e2e_capture_mail is set, so the scenario can see when a notification goes out.
+ */
+if ( get_option( 'efb_e2e_payments_mock' ) && ! defined( 'EFB_PAYMENTS_MOCK' ) ) {
+	define( 'EFB_PAYMENTS_MOCK', true );
+}
+add_filter(
+	'pre_wp_mail',
+	static function ( $pre, $atts ) {
+		if ( ! get_option( 'efb_e2e_capture_mail' ) ) {
+			return $pre;
+		}
+		$log   = get_option( 'efb_e2e_mails', array() );
+		$log   = is_array( $log ) ? $log : array();
+		$log[] = array(
+			'to'      => $atts['to'],
+			'subject' => (string) $atts['subject'],
+			'time'    => time(),
+		);
+		update_option( 'efb_e2e_mails', $log, false );
+		return true;
+	},
+	10,
+	2
+);

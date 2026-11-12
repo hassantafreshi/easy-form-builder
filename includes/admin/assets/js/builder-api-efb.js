@@ -350,6 +350,12 @@
     paletteId = String(paletteId || '');
     if (typeof addNewElement !== 'function') throw fail('builder_not_ready', 'The form builder is not loaded.');
     var parts = COMPOSITES[paletteId] || [paletteId];
+    // PAY00: a framework gateway field exists once its add-on registered the gateway.
+    var payAddon = { mollie: 'AdnMOL', payplug: 'AdnPPG', tappay: 'AdnTAP', omise: 'AdnOMS', paytabs: 'AdnPTB', paymob: 'AdnPMB', xendit: 'AdnXND' }[paletteId];
+    if (payAddon && !(typeof efbPayIsGatewayEfb === 'function' && efbPayIsGatewayEfb(paletteId))) {
+      throw fail('addon_required', paletteId + ' needs the ' + payAddon + ' add-on.');
+    }
+    if (typeof efbPayPaletteEfb === 'function' && typeof fields_efb !== 'undefined') efbPayPaletteEfb(fields_efb);
     if (!COMPOSITES[paletteId] && paletteIds().indexOf(paletteId) < 0) throw fail('unknown_palette_id', 'Unknown palette id ' + paletteId + '.');
     // The builder draws a gateway only when its add-on is installed (otherwise it shows a notice).
     var gatewayAddon = { stripe: 'AdnSPF', paypal: 'AdnPAP', persiaPay: 'AdnPPF' }[paletteId];

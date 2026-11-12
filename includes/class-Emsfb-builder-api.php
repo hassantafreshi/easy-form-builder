@@ -145,6 +145,9 @@ class Builder_Api {
 		'AdnSS' => 'smsTAddon', 'AdnSPF' => 'stripeTAddon', 'AdnPPF' => 'persiaPayTAddon', 'AdnATC' => 'trackCTAddon',
 		'AdnPDP' => 'datePTAddon', 'AdnADP' => 'dateATAddon', 'AdnOF' => 'offlineTAddon', 'AdnATF' => 'TAdnAtF',
 		'AdnPAP' => 'payPalTAddon', 'AdnTLG' => 'tlgmAddon', 'AdnGoS' => 'TAdnGoS', 'AdnSMF' => 'condATAddon', 'AdnHSH' => 'TAdnHSH',
+		// PAY00 gateway add-ons.
+		'AdnMOL' => 'mollieTAddon', 'AdnPPG' => 'payplugTAddon', 'AdnTAP' => 'tapTAddon', 'AdnOMS' => 'omiseTAddon',
+		'AdnPTB' => 'paytabsTAddon', 'AdnPMB' => 'paymobTAddon', 'AdnXND' => 'xenditTAddon',
 	);
 
 	/** B9: row-0 keys that no JS or PHP reads (checked by tests/test-ap-b9-deprecated-keys.js). */
@@ -307,6 +310,19 @@ class Builder_Api {
 		// emsfb_setting keys; only an administrator (manage_options) may change them.
 		$add('setting:privacy_site', 'setting', 'free', null, array('form_keys' => array(), 'scope' => 'site', 'label_key' => 'prvTitle',
 			'settings_keys' => array('prv_ip_mode', 'prv_days', 'prv_action', 'prv_files', 'prv_nostore_file_days', 'prv_erase_mode')));
+		// PAY00 payment framework: one field:<slug> per registered gateway (Free Plus, plus its add-on),
+		// and the settings of the payment field. Proposed levels; the owner confirms them.
+		if (class_exists('\\Emsfb\\Payments\\Registry')) {
+			foreach (\Emsfb\Payments\Registry::all() as $slug => $g) {
+				$ak = (string) $g->addon_key();
+				$add('field:' . $slug, 'field', 'free_plus', $ak !== '' ? $ak : null, array('label_key' => isset(self::ADDON_LABEL_KEYS[$ak]) ? self::ADDON_LABEL_KEYS[$ak] : 'upgFtrPayGateway', 'pii_default' => false, 'payment_gateway' => true,
+					'form_patch' => array('type' => 'payment', 'getway' => $slug)));
+			}
+			$add('setting:pay_style', 'setting', 'free_plus', null, array('form_keys' => array('pf_btn_*', 'pf_order', 'pf_hide', 'pf_layout', 'pf_methods*', 'pf_summary', 'pf_label_pos', 'pf_card_*', 'pf_accent', 'pf_logo_size', 'pf_digits', 'pf_i18n_b64', 'pf_secure_text', 'pf_t_*'), 'label_key' => 'upgFtrPayStyle'));
+			$add('setting:pay_pwyw', 'setting', 'free_plus', null, array('form_keys' => array('pf_amount=donation', 'pf_presets', 'pf_other', 'pf_default', 'pf_min', 'pf_max', 'pf_fixed', 'pf_fixed_label'), 'label_key' => 'upgFtrPayDonation'));
+			$add('setting:pay_delayed_actions', 'setting', 'free_plus', null, array('form_keys' => array('pay_act_admin_mail', 'pay_act_user_mail', 'pay_act_sms', 'pay_act_tlg', 'pay_act_gs', 'pay_act_wh', 'pay_fail_notify'), 'label_key' => 'upgFtrPayActions'));
+			$add('setting:pay_style_mobile', 'setting', 'pro', null, array('form_keys' => array('mobile_pf_order', 'mobile_pf_hide', 'mobile_pf_btn_size', 'mobile_pf_btn_width', 'mobile_pf_methods_style'), 'label_key' => 'upgFtrMobileLayout'));
+		}
 		// The "payment form" template starts a Stripe form: Free Plus, and the Stripe add-on.
 		$add('template:payment', 'template', 'free_plus', 'AdnSPF', array('label_key' => 'upgFtrPaymentForm'));
 		// Saving a form that holds fields the plan does not include (imported, or after a downgrade).
@@ -347,6 +363,18 @@ class Builder_Api {
 				'paypal' => $key_set('paypalSKey') && $key_set('paypalPKey'),
 			),
 		);
+		// PAY00: every framework gateway, without any key or account value (configured = yes/no only).
+		if (class_exists('\\Emsfb\\Payments\\Registry')) {
+			$out['payment_gateways'] = array();
+			foreach (\Emsfb\Payments\Registry::slugs() as $slug) {
+				$i = \Emsfb\Payments\Registry::public_info($slug);
+				if (!$i) continue;
+				$out['payment_gateways'][$slug] = array('addon' => $i['addon'], 'installed' => true, 'label' => $i['label'], 'configured' => $i['configured'], 'mode' => $i['mode'],
+					'currencies' => $i['currencies'], 'countries' => $i['countries'], 'methods' => $i['methods'], 'supports' => $i['supports']);
+				$out['payment_keys'][$slug] = !empty($i['configured'][$i['mode']]);
+			}
+			$out['payments'] = array('api' => defined('EMSFB_PAYMENTS_API') ? EMSFB_PAYMENTS_API : 1, 'plan' => 'free_plus', 'spec' => 'PAY00');
+		}
 		return function_exists('apply_filters') ? apply_filters('efb_capabilities', $out, $args) : $out;
 	}
 
@@ -811,6 +839,24 @@ class Builder_Api {
 			$out = $version + array('templates' => $all);
 		} else {
 			$palette_id = (string) $palette_id;
+			// PAY00: a framework gateway field (the builder makes the same row; payment-field-efb.js onAdd).
+			if (!isset($catalog[$palette_id]) && class_exists('\\Emsfb\\Payments\\Registry')) {
+				$pay_addons = array('mollie' => 'AdnMOL', 'payplug' => 'AdnPPG', 'tappay' => 'AdnTAP', 'omise' => 'AdnOMS', 'paytabs' => 'AdnPTB', 'paymob' => 'AdnPMB', 'xendit' => 'AdnXND');
+				$info = \Emsfb\Payments\Registry::public_info($palette_id);
+				if (!$info && isset($pay_addons[$palette_id])) {
+					return class_exists('\WP_Error') ? new \WP_Error('addon_required', $palette_id . ' needs the ' . $pay_addons[$palette_id] . ' add-on.') : null;
+				}
+				if ($info) {
+					$id = self::new_id();
+					$row = array('id_' => $id, 'dataId' => $id . '-id', 'type' => $palette_id, 'elementId' => $palette_id, 'placeholder' => '', 'value' => '', 'size' => 100, 'message' => '', 'id' => '', 'classes' => '',
+						'name' => isset($args['label']) ? (string) $args['label'] : $info['label'], 'required' => 0, 'amount' => 1, 'step' => isset($args['step']) ? (int) $args['step'] : 1, 'label_text_size' => 'fs-6', 'label_position' => 'up',
+						'el_text_size' => 'fs-6', 'label_text_color' => 'text-labelEfb', 'el_border_color' => 'border-d', 'el_text_color' => 'text-labelEfb', 'message_text_color' => 'text-muted', 'el_height' => 'h-d-efb',
+						'label_align' => !empty($args['rtl']) ? 'txt-right' : 'txt-left', 'message_align' => 'justify-content-start', 'el_align' => 'justify-content-start', 'pro' => false, 'icon_input' => '');
+					$cur = !empty($info['currencies']) ? $info['currencies'][0] : 'EUR';
+					$out = $version + array('palette_id' => $palette_id, 'rows' => array($row), 'form_patch' => array('type' => 'payment', 'getway' => $palette_id, 'currency' => $cur, 'paymentmethod' => 'charge'));
+					return function_exists('apply_filters') ? apply_filters('efb_field_templates', $out, $palette_id, $args) : $out;
+				}
+			}
 			if (!isset($catalog[$palette_id])) {
 				return class_exists('\WP_Error') ? new \WP_Error('unknown_palette_id', 'Unknown palette id.') : null;
 			}

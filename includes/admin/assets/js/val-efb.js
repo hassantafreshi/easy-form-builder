@@ -2456,6 +2456,12 @@ function show_setting_window_efb(idset, opts) {
                         </div><div class="efb  clearfix"></div>
                         `
               break;
+      default:
+        // PAY00: the settings of a framework gateway field (payment-field-efb.js).
+        if (typeof efbPayIsGatewayEfb === 'function' && efbPayIsGatewayEfb(el.dataset.tag)) {
+          body = efbPayPanelEfb(indx);
+        }
+        break;
 
     }
 
@@ -2499,6 +2505,8 @@ function efb_palette_tiles_html_efb() {
   const registry = typeof efb_feature_entry_efb === 'function' && !!efb_feature_entry_efb('field:text');
   const isPackageTypeLimited = pro_efb == false && Number(setting_emsFormBuilder.package_type) == 2;
 
+  // PAY00: one tile per registered framework gateway (pushed once).
+  if (typeof efbPayPaletteEfb === 'function') efbPayPaletteEfb(fields_efb);
   // Pushed once: the palette is redrawn after a plan change.
   if( efb_var.language=='fa_IR' && !fields_efb.some(x => x.id === 'persiaPay')) fields_efb.push( { name: efb_var.text.persiaPayment, icon: 'bi-credit-card-2-front', id: 'persiaPay', pro: true, tag:'payment all' });
   for (let ob of fields_efb) {
