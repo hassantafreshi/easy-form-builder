@@ -1,4 +1,4 @@
-وضعیت: سند آماده، پیاده‌سازی نشده · اولویت: P0 (موج دوم) · تلاش: M · وابستگی: PAY00 (B تا H)
+وضعیت: افزونه پیاده و تست شد (زیرتسک‌های A تا E، ۲۰۲۶-۱۱-۱۲؛ جزئیات در «پیوست: آنچه پیاده شد»؛ دوره‌ای، authorize و Managed Form فاز بعد؛ ترجمه به دستور مالک انجام نشد) · اولویت: P0 (موج دوم) · تلاش: M · وابستگی: PAY00 (B تا H)
 
 # PAY05 — افزونهٔ PayTabs (خاورمیانه: کارت، mada، STC Pay، Apple Pay، KNET، OmanNet، Meeza QR، valU و روش‌های منطقه‌ای)
 
@@ -231,11 +231,11 @@ fixtureها `tests/fixtures/payments/paytabs/`: `request-200.json` (نمونهٔ
 - تست‌ها: `test-pay-paytabs-create.php` (بخش تنظیمات).
 
 **Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `vendores-efb/paytabs/` (`paytabsefb.php`، `routes-efb.php`، `class-Emsfb-paytabs-gateway.php`، `class-Emsfb-paytabs-client.php`، `paytabs-phrases-efb.php`، `index.php`ها)؛ هسته: هیچ (رجیستری `AdnPTB` → `paytabs` از PAY00 بود)
+- تست‌ها: `php tests/test-addon-paytabs-create.php` ۹۳ موفق (ثبت، `supports()`، `api_hosts()` = هفت دامنهٔ رسمی، طرح تنظیمات، رمزنگاری کلید، منطقهٔ ناشناخته/پروفایل غیرعددی/کلید بدشکل، «آزمودن اتصال» Test روی `secure.paytabs.sa` و Live روی `secure.paytabs.com`، منطقهٔ اشتباه → `authentication` با پیام منطقه، پروفایل کلید دیگر، کلید ردشده، شبکهٔ قطع، هیچ راز در خروجی)
+- وضعیت ترجمه: فقط انگلیسی؛ `languages/efb-paytabs.pot` (۵۳ عبارت) و `locales.json` بدون زبان (به دستور مالک ترجمه نشد)
+- مورد باز: `client_key` (Managed Form) فاز ۲؛ «آزمودن اتصال» پیام «Connected to PayTabs (منطقه)» را برمی‌گرداند ولی هسته فقط «Connected.» نشان می‌دهد (BUGS-FOUND، ردیف Omise)
+- اقدام بعدی: —
 
 ### B. ساخت، callback، بازگشت POST، query
 - فایل‌ها: gateway، client، آداپتور.
@@ -243,11 +243,11 @@ fixtureها `tests/fixtures/payments/paytabs/`: `request-200.json` (نمونهٔ
 - تست‌ها: `test-pay-paytabs-signature.php`، `test-pay-paytabs-create.php`، `test-pay-paytabs-status-map.php`.
 
 **Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `class-Emsfb-paytabs-gateway.php` (`create`، `fetch`، `parse_webhook`، `parse_return`)، `class-Emsfb-paytabs-client.php` (امضاها، نگاشت وضعیت، مبلغ بی‌float)
+- تست‌ها: `test-addon-paytabs-create.php` (ساخت: ثابت، متغیر، محاسبه‌شدهٔ B7 با موتور واقعی منطق، کمک مالی BHD، `"cart_amount":200.00`/`12.625`/`25020.750` دقیق، `cart_id` = uid، `paypage_lang`، `payment_methods` هر روش و «all» بی‌آن، ارز روش‌های محلی، فهرست مالک، طول آدرس‌ها، `customer_details` از پاسخ، بررسی پاسخ: میزبان صفحه/مبلغ/ارز/سبد، Live)؛ `test-addon-paytabs-signature.php` ۳۳ (HMAC بدنهٔ callback، HMAC فیلدهای بازگشت با هر دو خوانش «خالی»، دستکاری هر فیلد، عربی و `+`، ۵۰۰ نمونهٔ تصادفی با امضاکنندهٔ مستقل، `parse_return` با `$_POST`)؛ `test-addon-paytabs-webhook.php` ۵۸ (نگاشت §۹، callback معتبر → query → paid یک بار، جعلی، تکراری، خارج از ترتیب، پیش از بازگشت، بازگشت امضاشده بی‌callback، بازگشت جعلی بی‌query، مبلغ/ارز/سبد ناسازگار، D E C V X H، صفحهٔ بازشده و پرداخت‌نشده → معلق → انقضای ۲ ساعت و Aman ۷۲ ساعت، callback تراکنش بازپرداخت، Live، PayTabs در دسترس نیست → 503)
+- وضعیت ترجمه: همان A
+- مورد باز: هسته به `parse_return()` فقط query را می‌دهد؛ افزونه فیلدهای POST بازگشت را از `$_POST` می‌خواند (BUGS-FOUND)؛ نام فیلدها (`tranRef`، `cartId`، `respStatus`…) از نمونهٔ مقالهٔ رسمی است و با Sandbox واقعی تأیید نشد
+- اقدام بعدی: —
 
 ### C. حالت framed
 - فایل‌ها: آداپتور، صفحهٔ کوچک بازگشت framed.
@@ -255,11 +255,11 @@ fixtureها `tests/fixtures/payments/paytabs/`: `request-200.json` (نمونهٔ
 - تست‌ها: `test-pay-paytabs-framed.js`.
 
 **Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `assets/js/paytabs-efb.js` (روش‌ها برای ارز فرم، یادداشت Aman/valU، نشان‌ها، `mount()` حالت framed)، `assets/css/paytabs-efb.css` (فقط ویژگی‌های منطقی)، `assets/img/*.svg` (۹ نشان سادهٔ متنی)، صفحهٔ کوچک بازگشت framed در `Paytabs_Gateway::framed_return_page()` (هوک `init`، `?efb_ptb_frame=1&p&s`)
+- تست‌ها: `node tests/test-addon-paytabs-framed.js` ۳۶ موفق (markup واقعی `Field::html()` و runtime هسته در Chromium: SAR/EGP/KWD/OMR، list/grid/select، یک روش → انتخاب پنهان، یادداشت با `aria-live`، عربی RTL در ۳۷۵px، iframe با `title`، `allow="payment"`، `referrerpolicy`، بی‌`sandbox`، پیوند «پنجرهٔ کامل»، پیام از مبدأ PayTabs/خود صفحه/uid دیگر نادیده، صفحهٔ بازگشت واقعی PHP درون قاب → poll → بسته شدن قاب، نشانی غیر PayTabs هرگز در قاب نمی‌رود، صفحهٔ بازگشت بیرون از قاب → بازگشت هسته)
+- وضعیت ترجمه: متن‌ها از `efb-paytabs` با `wp_localize_script` (`efb_paytabs_vars`) و `next.client.text`
+- مورد باز: ارتفاع قاب ثابت و پاسخ‌گو است (`min(720px, 85vh)`)، نه پویا (صفحهٔ PayTabs ارتفاع را اعلام نمی‌کند)؛ Apple Pay درون قاب کار نمی‌کند (پیوند پنجرهٔ کامل)؛ هسته راهی برای صفحهٔ بازگشت مخصوص درگاه ندارد (BUGS-FOUND)
+- اقدام بعدی: —
 
 ### D. بازپرداخت
 - فایل‌ها: gateway.
@@ -267,11 +267,11 @@ fixtureها `tests/fixtures/payments/paytabs/`: `request-200.json` (نمونهٔ
 - تست‌ها: `test-pay-paytabs-refund.php`.
 
 **Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `class-Emsfb-paytabs-gateway.php` (`refund`)
+- تست‌ها: `php tests/test-addon-paytabs-refund.php` ۲۱ موفق (جزئی ۵۰٫۰۰ SAR سپس باقی‌مانده، `tran_type: refund` با `tran_ref` فروش، `cart_id` = `R-` + ۲۰ نویسه، تلاش دوباره با همان `cart_id`، بیش از باقی‌مانده، P → معلق، D → ناموفق با پیام PayTabs، شبکهٔ قطع، Live روی منطقهٔ Live حتی وقتی سایت روی Test است، KWD `2.625`)
+- وضعیت ترجمه: —
+- مورد باز: بازپرداخت در داشبورد PayTabs (callback با `tran_ref` خودش) در EFB شمرده نمی‌شود؛ بازپرداخت P همان لحظه در وضعیت پرداخت حساب می‌شود (همان ردیف Tap در BUGS-FOUND)
+- اقدام بعدی: —
 
 ### E. ترجمه (عربی، انگلیسی، فرانسوی، فارسی) و zip
 - فایل‌ها: phrases، `languages/`، `paytabs.zip`.
@@ -279,11 +279,11 @@ fixtureها `tests/fixtures/payments/paytabs/`: `request-200.json` (نمونهٔ
 - تست‌ها: خط لولهٔ i18n افزونه.
 
 **Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `paytabs-phrases-efb.php`، `languages/efb-paytabs.pot`، `languages/locales.json`، `languages/index.php`، `vendores-efb/paytabs.zip` (با `build_zip.php`)
+- تست‌ها: `php tests/test-addon-paytabs-package.php` ۱۶ موفق (فایل‌های لازم هسته، همهٔ رشته‌ها در `.pot`، دامنهٔ متن، zip: یک پوشهٔ بالا، مرتب، ۰۷۵۵/۰۶۴۴، تاریخ ثابت، همان محتوا، بی‌کلید، فقط هفت میزبان رسمی، بی‌require هسته)؛ سناریوی `paytabs` در `tests/e2e-wp/run.js` روی وردپرس واقعی: ۳۲ بررسی
+- وضعیت ترجمه: به دستور مالک ترجمه نشد؛ فقط انگلیسی و `.pot` (۵۳ عبارت، `tests/addon-i18n/build-l10n.php --pot-only`)
+- مورد باز: ترجمهٔ عربی، فرانسوی و فارسی؛ آزمون دستی Sandbox (§۱۵)
+- اقدام بعدی: —
 
 ## ۱۷. پرسش‌های باز
 
@@ -292,3 +292,19 @@ fixtureها `tests/fixtures/payments/paytabs/`: `request-200.json` (نمونهٔ
 3. سیاست تلاش دوبارهٔ callback و پاسخ مورد انتظار (فقط `200`؟).
 4. نام دقیق فیلدهای POST بازگشت (`tranRef`، `respStatus`، `cartId`…) و اینکه callback هم برای `D`/`E` فرستاده می‌شود.
 5. نیاز به ثبت «Plugin/Platform» نزد PayTabs برای شناسایی افزونه.
+
+## پیوست: آنچه پیاده شد (۲۰۲۶-۱۱-۱۲)
+
+- **افزونه:** `vendores-efb/paytabs` (کلید `AdnPTB`، نوع فیلد و slug `paytabs`، text domain `efb-paytabs`)، فقط از قرارداد PAY00؛ هیچ تغییری در هستهٔ `includes/` یا `public/`. ثبت در `routes-efb.php` با `efb_register_payment_gateways`.
+- **منطقه:** تنظیم `region` جدا برای Test و Live (`sa`، `ae`، `eg`، `om`، `jo`، `iq`، `global`)؛ میزبان همیشه از تنظیم ساخته می‌شود و `api_hosts()` فقط هفت دامنهٔ رسمی است (`secure.paytabs.sa`، `secure.paytabs.com`، `secure-egypt|oman|jordan|iraq|global.paytabs.com`). کویت، مراکش و قطر (پرسش باز ۱) زیر `global` می‌مانند تا PayTabs دامنهٔ جدا اعلام کند. هر درخواستِ یک پرداخت (query، بازپرداخت) با منطقه، پروفایل و کلید حالتِ همان پرداخت است.
+- **جریان:** `POST /payment/request` (`sale`، `ecom`، `cart_id` = uid، مبلغ `$p->amount_minor`/`$p->currency` با رقم ISO و بی‌float، `paypage_lang` از تنظیم یا زبان پرداخت‌کننده، `payment_methods` تک‌عضوی یا هیچ برای «all»، `hide_shipping`، `customer_details` فقط با نام و ایمیل موجود در پاسخ، `user_defined` بی‌داده شخصی)؛ پاسخ بررسی می‌شود (سبد، مبلغ، ارز، `redirect_url` https روی میزبان رسمی). `donation_mode` استفاده نشد (§۰-۶). PayTabs سرآیند یکتایی ندارد: یکتایی با کلید تلاش هسته، `cart_id` یکتا، و `udf3` = ۳۲ نویسهٔ `idem_key` برای پشتیبانی.
+- **تأیید callback:** هدر `Signature` = HMAC-SHA256 بدنهٔ خام با Server Key حالتِ پرداخت (یافتن با `tran_ref`)، `hash_equals`؛ بد یا بی‌هدر → 401. حتی callback درست هرگز وضعیت را از بدنه نمی‌گیرد: `needs_refetch` → `POST /payment/query` و بررسی `tran_ref`، `cart_id`، نوع `sale`، مبلغ و ارز (قاعدهٔ PAY00). payload رویداد بی‌مشتری و کارت.
+- **بازگشت:** POST امضاشدهٔ مرورگر (حذف `signature` و خالی‌ها، `ksort`، `http_build_query`، HMAC؛ هر دو خوانش «خالی» پذیرفته می‌شود چون نمونهٔ PHP رسمی `array_filter()` است) از `$_POST` خوانده می‌شود؛ امضای درست و `tranRef`/`cartId` همین پرداخت → هسته query می‌کند؛ جعلی → هیچ (poll صفحه و cron می‌پرسند).
+- **framed:** `framed: true` و `return` = صفحهٔ کوچک خود سایت (`/?efb_ptb_frame=1&p&s`، امضای سایت)؛ `next = embedded` با نشانی صفحه، میزبان‌های رسمی و مبدأ سایت. آداپتور صفحه را درون فیلد در iframe می‌گذارد؛ صفحهٔ بازگشت فقط `postMessage` به مبدأ سایت می‌فرستد و فرم وضعیت را از EFB می‌پرسد. بیرون از قاب به نشانی بازگشت هسته می‌رود.
+- **وضعیت‌ها:** §۹ به‌علاوهٔ `X` → `expired` و `C` (کد ۳۲۱، لغو در صفحه) → `canceled` از مرجع رسمی؛ پاسخ «تراکنش پیدا نشد» یا بی‌`payment_result` → معلق تا `pending_ttl` (۲ ساعت؛ Aman ۷۲ ساعت). Fawry در فهرست رسمی `payment_methods` نیست؛ Aman جایش.
+- **روش‌ها:** `all`، `creditcard`، `mada`، `stcpay`، `applepay`، `knet`، `omannet`، `meezaqr`، `valu`، `aman`، `urpay`، `amex`، `unionpay`، `tabby`، `tamara`، `souhoola` (مقادیر رسمی)؛ پیش‌فرض فقط `all`. ارز روش‌های محلی (mada/STC Pay/urpay SAR، KNET KWD، OmanNet OMR، Meeza/valU/Aman/Souhoola EGP) در سرور و آداپتور سنجیده می‌شود (فقط valU EGP در مستند صریح است).
+- **ارزها و حدود (پیشنهاد، تأیید مالک):** SAR، AED، EGP، QAR، USD، EUR، GBP (۲ رقم)، KWD، BHD، OMR، JOD، IQD (۳ رقم ISO)؛ حداقل/حداکثر همان مستند `cart_amount`: ۰٫۰۱ تا ۹٬۹۹۹٬۹۹۹٬۹۹۹٫۹۹.
+- **تست‌ها:** ۲۵۷ بررسی در ۶ فایل (`test-addon-paytabs-create.php` ۹۳، `-signature.php` ۳۳، `-webhook.php` ۵۸، `-refund.php` ۲۱، `-package.php` ۱۶، `-framed.js` ۳۶)؛ fixtureها در `tests/fixtures/payments/paytabs/` از نمونه‌های رسمی؛ سناریوی e2e `paytabs` (`tests/e2e-wp/scenario-paytabs.js`): ۳۲ بررسی.
+- **تصمیم‌هایی که مالک باید تأیید کند:** فهرست ارزها (به‌ویژه IQD با ۳ رقم) و حدود؛ ارز روش‌های محلی؛ پیش‌فرض «all» برای روش‌ها؛ پذیرش هر دو خوانش «خالی» در امضای بازگشت؛ پاسخ «پیدا نشد» = معلق؛ ارسال `customer_details` ناقص (فقط نام و ایمیل)؛ ارتفاع ثابت قاب؛ نشان‌های SVG ساده به‌جای آثار رسمی برندها؛ صفحهٔ بازگشت framed روی `home_url` با هوک `init`.
+- **فقط با Sandbox واقعی قابل آزمودن:** متن و کد خطای احراز و «پیدا نشد»، شکل callback برای D/E و برای بازپرداخت، نام دقیق فیلدهای POST بازگشت، رفتار `framed` (پیام‌ها و ارتفاع)، روش‌های منطقه‌ای (mada، Meeza QR، Aman)، بازپرداخت جزئی، پرسش‌های باز ۲ تا ۵.
+
