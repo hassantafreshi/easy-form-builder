@@ -321,6 +321,9 @@ class Builder_Api {
 			$add('setting:pay_style', 'setting', 'free_plus', null, array('form_keys' => array('pf_btn_*', 'pf_order', 'pf_hide', 'pf_layout', 'pf_methods*', 'pf_summary', 'pf_label_pos', 'pf_card_*', 'pf_accent', 'pf_logo_size', 'pf_digits', 'pf_i18n_b64', 'pf_secure_text', 'pf_t_*'), 'label_key' => 'upgFtrPayStyle'));
 			$add('setting:pay_pwyw', 'setting', 'free_plus', null, array('form_keys' => array('pf_amount=donation', 'pf_presets', 'pf_other', 'pf_default', 'pf_min', 'pf_max', 'pf_fixed', 'pf_fixed_label'), 'label_key' => 'upgFtrPayDonation'));
 			$add('setting:pay_delayed_actions', 'setting', 'free_plus', null, array('form_keys' => array('pay_act_admin_mail', 'pay_act_user_mail', 'pay_act_sms', 'pay_act_tlg', 'pay_act_gs', 'pay_act_wh', 'pay_fail_notify'), 'label_key' => 'upgFtrPayActions'));
+			// The gateways' own options on their field (Gateway::field_schema(): payer mapping pgw_map_*,
+			// other pgw_* keys); each gateway lists its keys in payment_gateways[slug].field_schema.
+			$add('setting:pay_gateway_options', 'setting', 'free_plus', null, array('form_keys' => array('pgw_*'), 'label_key' => 'upgFtrPayStyle'));
 			$add('setting:pay_style_mobile', 'setting', 'pro', null, array('form_keys' => array('mobile_pf_order', 'mobile_pf_hide', 'mobile_pf_btn_size', 'mobile_pf_btn_width', 'mobile_pf_methods_style'), 'label_key' => 'upgFtrMobileLayout'));
 		}
 		// The "payment form" template starts a Stripe form: Free Plus, and the Stripe add-on.
@@ -370,7 +373,9 @@ class Builder_Api {
 				$i = \Emsfb\Payments\Registry::public_info($slug);
 				if (!$i) continue;
 				$out['payment_gateways'][$slug] = array('addon' => $i['addon'], 'installed' => true, 'label' => $i['label'], 'configured' => $i['configured'], 'mode' => $i['mode'],
-					'currencies' => $i['currencies'], 'countries' => $i['countries'], 'methods' => $i['methods'], 'supports' => $i['supports']);
+					'currencies' => $i['currencies'], 'countries' => $i['countries'], 'methods' => $i['methods'], 'supports' => $i['supports'],
+					// PAY00 optional hooks: the field's gateway options (pgw_*: type, label, allowed values, required) and its defaults.
+					'field_schema' => $i['field_schema'], 'defaults' => $i['defaults']);
 				$out['payment_keys'][$slug] = !empty($i['configured'][$i['mode']]);
 			}
 			$out['payments'] = array('api' => defined('EMSFB_PAYMENTS_API') ? EMSFB_PAYMENTS_API : 1, 'plan' => 'free_plus', 'spec' => 'PAY00');

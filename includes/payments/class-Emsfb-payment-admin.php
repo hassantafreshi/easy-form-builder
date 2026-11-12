@@ -201,7 +201,7 @@ class Admin {
 		if ( in_array( $p['status'], array( 'created', 'pending', 'authorized' ), true ) ) echo '<button type="button" class="button" data-efb-pay="recheck">' . esc_html__( 'Check status now', 'easy-form-builder' ) . '</button> ';
 		if ( in_array( $p['status'], array( 'paid', 'partially_refunded' ), true ) ) {
 			if ( ! empty( $sup['refund'] ) ) {
-				$left = Money::to_decimal_string( $p['amount_minor'] - $p['refunded_minor'], $p['currency'] );
+				$left = Money::to_decimal_string( max( 0, $p['amount_minor'] - $p['refunded_minor'] - Service::pending_refunds( $p['id'] ) ), $p['currency'] );
 				echo '<label>' . esc_html__( 'Amount', 'easy-form-builder' ) . ' <input type="text" inputmode="decimal" dir="ltr" size="8" id="efbPayRefundAmt" value="' . esc_attr( $left ) . '"' . ( empty( $sup['partial_refund'] ) ? ' readonly' : '' ) . '></label> ';
 				/* translators: %1$s: amount with currency */
 				echo '<button type="button" class="button button-secondary" data-efb-pay="refund" data-confirm="' . esc_attr( __( 'Refund %1$s to the payer? This cannot be undone.', 'easy-form-builder' ) ) . '" data-currency="' . esc_attr( $p['currency'] ) . '">' . esc_html__( 'Refund', 'easy-form-builder' ) . '</button>';
@@ -212,7 +212,7 @@ class Admin {
 		}
 		if ( in_array( $p['status'], array( 'paid', 'partially_refunded' ), true ) ) {
 			// Money given back from the provider's dashboard or the bank: recorded here, no call to the provider.
-			$left = Money::to_decimal_string( $p['amount_minor'] - $p['refunded_minor'], $p['currency'] );
+			$left = Money::to_decimal_string( max( 0, $p['amount_minor'] - $p['refunded_minor'] - Service::pending_refunds( $p['id'] ) ), $p['currency'] );
 			echo '<details class="efb-pay-ext"><summary>' . esc_html__( 'Mark as refunded outside EFB', 'easy-form-builder' ) . '</summary>';
 			echo '<p class="description">' . esc_html__( 'Use this when the money was given back in the gateway dashboard or by the bank. Nothing is sent to the gateway.', 'easy-form-builder' ) . '</p>';
 			echo '<label>' . esc_html__( 'Amount', 'easy-form-builder' ) . ' <input type="text" inputmode="decimal" dir="ltr" size="8" id="efbPayExtAmt" value="' . esc_attr( $left ) . '"></label> ';

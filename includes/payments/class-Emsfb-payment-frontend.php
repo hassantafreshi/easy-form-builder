@@ -280,6 +280,17 @@ class Frontend {
 			'secTexts' => __( 'Texts and languages', 'easy-form-builder' ),
 			'secNotify' => __( 'Notifications', 'easy-form-builder' ),
 			'secMobile' => __( 'Phones', 'easy-form-builder' ),
+			'secOptions' => __( 'Payer details and gateway options', 'easy-form-builder' ),
+			'methodsPick' => __( 'Payment methods (order and choice)', 'easy-form-builder' ),
+			'methodsHelp' => __( 'Unticked methods are not offered on this form. The gateway still checks every payment.', 'easy-form-builder' ),
+			/* translators: %1$s: gateway name, %2$s: currency codes, %3$s: the form's currency */
+			'wCurrency' => __( '%1$s only accepts %2$s. This form uses %3$s, so visitors cannot pay. Change the currency in the payment field.', 'easy-form-builder' ),
+			/* translators: %1$s: gateway name, %2$s: name of an option of the payment field */
+			'wRequired' => __( '%1$s needs "%2$s". Choose it in the payment field\'s settings.', 'easy-form-builder' ),
+			/* translators: %1$s: gateway name, %2$s: name of an option of the payment field */
+			'wMissing' => __( '%1$s: the field chosen for "%2$s" is no longer in the form. Choose another one.', 'easy-form-builder' ),
+			/* translators: %1$s: gateway name, %2$s: name of an option of the payment field */
+			'wType' => __( '%1$s: the field chosen for "%2$s" is not the right kind of field.', 'easy-form-builder' ),
 		);
 	}
 

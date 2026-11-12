@@ -55,17 +55,104 @@
       if (typeof form_type_emsFormBuilder !== 'undefined') form_type_emsFormBuilder = 'payment';
    }
 
+   /** Core's default texts with the gateway's own (field_defaults()['texts']), filled with its name. */
    function defaults(slug) {
       var t = Object.assign({}, P().text || {});
-      var label = info(slug) ? info(slug).label : slug;
+      var g = info(slug);
+      var own = (g && g.defaults && g.defaults.texts) || {};
+      Object.keys(own).forEach(function (k) { if (k !== 'test' && Object.prototype.hasOwnProperty.call(t, k) && own[k]) t[k] = own[k]; });
+      var label = g ? g.label : slug;
       Object.keys(t).forEach(function (k) { t[k] = String(t[k]).split('%s').join(label); });
       return t;
+   }
+
+   /** The gateway's methods the form's currency can use (a method's extras may name its currencies). */
+   function methodsFor(g) {
+      var r = rows();
+      var cur = String((r && r[0] && r[0].currency) || '').toUpperCase();
+      return (g.methods || []).filter(function (m) {
+         var x = m && m[2];
+         return !(cur && x && Array.isArray(x.currencies) && x.currencies.length && x.currencies.indexOf(cur) === -1);
+      });
    }
 
    function resolved(row) {
       var r = rows();
       var g = info(row.type) || {};
-      return core().resolve(row, r ? r[0] : {}, { methods: g.methods || [], logos: g.logos || [], mobile: !!P().mobile });
+      return core().resolve(row, r ? r[0] : {}, { methods: methodsFor(g), logos: g.logos || [], mobile: !!P().mobile, defaults: (g.defaults && g.defaults.pf) || {} });
+   }
+
+   /** Core's save-time checks for this field, worded (twin of Registry::form_warnings() without the gateway's own). */
+   function warningsHtml(row) {
+      var r = rows();
+      if (!r || !core().warnings) return '';
+      var infos = {};
+      Object.keys(P().gateways || {}).forEach(function (k) { var g = info(k); infos[k] = { currencies: g.currencies || [], field_schema: g.field_schema || [] }; });
+      var label = (info(row.type) || {}).label || row.type;
+      var list = core().warnings(r, infos).filter(function (w) { return w.field_id === row.id_; });
+      if (!list.length) return '';
+      var text = function (w) {
+         if (w.code === 'pay_currency') return L('wCurrency', '%1$s only accepts %2$s. This form uses %3$s, so visitors cannot pay. Change the currency in the payment field.').replace('%1$s', label).replace('%2$s', w.allowed.join(', ')).replace('%3$s', w.currency || '-');
+         if (w.code === 'pay_option_required') return L('wRequired', '%1$s needs "%2$s". Choose it in the payment field\'s settings.').replace('%1$s', label).replace('%2$s', w.label);
+         if (w.code === 'pay_option_field_missing') return L('wMissing', '%1$s: the field chosen for "%2$s" is no longer in the form. Choose another one.').replace('%1$s', label).replace('%2$s', w.label);
+         return L('wType', '%1$s: the field chosen for "%2$s" is not the right kind of field.').replace('%1$s', label).replace('%2$s', w.label);
+      };
+      return '<div class="efb alert alert-warning py-1 px-2 my-1 fs-7" role="status" id="efbPfWarnEl"><ul class="efb mb-0 ps-3">' + list.map(function (w) { return '<li data-code="' + esc(w.code) + '">' + esc(text(w)) + '</li>'; }).join('') + '</ul></div>';
+   }
+
+   /** The gateway's own options (field_schema()): field pickers list the form's own fields. */
+   function optionsHtml(row) {
+      var g = info(row.type) || {};
+      var schema = core().cleanSchema ? core().cleanSchema(g.field_schema || []) : [];
+      if (!schema.length) return '';
+      var r = rows() || [];
+      var none = L('none', 'None');
+      return schema.map(function (d) {
+         var id = 'efbPfOpt_' + d.key;
+         var v = core().sanitizeGatewayKey(d.key, row[d.key], schema);
+         var help = d.help ? '<div class="efb form-text small">' + esc(d.help) + '</div>' : '';
+         var label = d.label + (d.required ? ' *' : '');
+         if (d.type === 'field') {
+            var opts = [['', none]];
+            r.forEach(function (f, i) {
+               if (i === 0 || !f || !f.id_ || f.type === 'option' || f.type === 'step' || f.id_ === row.id_ || isGateway(f.type)) return;
+               if (d.field_types.length && d.field_types.indexOf(f.type) === -1) return;
+               opts.push([String(f.id_), (f.name || f.id_) + ' (' + f.type + ')']);
+            });
+            if (v !== '' && !opts.some(function (o) { return o[0] === v; })) opts.push([v, v + ' ?']);
+            return selectRow(id, d.key, label, v, opts) + help;
+         }
+         if (d.type === 'select') return selectRow(id, d.key, label, v !== '' ? v : d.default, [['', none]].concat(d.options)) + help;
+         if (d.type === 'checkbox') return '<div class="efb form-check mt-2"><input class="efb form-check-input" type="checkbox" id="' + id + '" data-efb-pf="' + d.key + '"' + (v === '1' ? ' checked' : '') + '><label class="efb form-check-label" for="' + id + '">' + esc(label) + '</label></div>' + help;
+         return inputRow(id, d.key, label, v, 'maxlength="' + d.max + '"' + (d.type === 'code' ? ' dir="ltr"' : '') + (d.default ? ' placeholder="' + esc(d.default) + '"' : '')) + help;
+      }).join('');
+   }
+
+   /** Which methods the field offers and in which order (pf_methods; empty = all of the gateway's). */
+   function methodsHtml(row) {
+      var g = info(row.type) || {};
+      var avail = methodsFor(g);
+      if (avail.length < 2) return '';
+      var cur = core().sanitizeKey('pf_methods', row.pf_methods);
+      var on = cur ? cur.split(',') : avail.map(function (m) { return String(m[0]); });
+      var ids = on.filter(function (id) { return avail.some(function (m) { return String(m[0]) === id; }); });
+      avail.forEach(function (m) { if (ids.indexOf(String(m[0])) === -1) ids.push(String(m[0])); });
+      var label = function (id) { var m = avail.find(function (x) { return String(x[0]) === id; }); return m ? m[1] : id; };
+      return '<p class="efb form-label mt-2 mb-1" id="efbPfMethodsLab">' + esc(L('methodsPick', 'Payment methods (order and choice)')) + '</p><ol class="efb list-unstyled mb-1" id="efbPfMethodsEl" aria-labelledby="efbPfMethodsLab">' + ids.map(function (id, i) {
+         return '<li class="efb d-flex align-items-center gap-1 py-1 border-bottom" data-m="' + esc(id) + '"><label class="efb flex-grow-1 small"><input type="checkbox" data-efb-pf-method="' + esc(id) + '"' + (on.indexOf(id) !== -1 ? ' checked' : '') + '> ' + esc(label(id)) + '</label>' +
+            '<button type="button" class="efb btn btn-sm btn-light" data-efb-pf-mmove="up" data-i="' + i + '" aria-label="' + esc(L('up', 'Move up') + ': ' + label(id)) + '"' + (i === 0 ? ' disabled' : '') + '>↑</button>' +
+            '<button type="button" class="efb btn btn-sm btn-light" data-efb-pf-mmove="down" data-i="' + i + '" aria-label="' + esc(L('down', 'Move down') + ': ' + label(id)) + '"' + (i === ids.length - 1 ? ' disabled' : '') + '>↓</button></li>';
+      }).join('') + '</ol><p class="efb small text-muted">' + esc(L('methodsHelp', 'Unticked methods are not offered on this form. The gateway still checks every payment.')) + '</p>';
+   }
+
+   /** The methods list as shown (ticked first in their order), for the up/down and tick handlers. */
+   function methodOrder(row) {
+      var g = info(row.type) || {};
+      var avail = methodsFor(g).map(function (m) { return String(m[0]); });
+      var cur = core().sanitizeKey('pf_methods', row.pf_methods);
+      var on = cur ? cur.split(',').filter(function (id) { return avail.indexOf(id) !== -1; }) : avail.slice();
+      var all = on.concat(avail.filter(function (id) { return on.indexOf(id) === -1; }));
+      return { on: on, all: all, avail: avail };
    }
 
    /** The field's markup (without the builder wrappers). preview = the admin preview / canvas. */
@@ -194,7 +281,9 @@
       var gw = '<p class="efb mb-1"><strong>' + esc(g.label) + '</strong> · <span class="efb ' + (conf ? 'text-success' : 'text-danger') + '">' + esc(state) + '</span></p>' +
          '<a class="efb small" href="' + esc(P().settings || '#') + '" target="_blank" rel="noopener">' + esc(L('settings', 'Gateway settings and keys')) + '</a>' +
          inputRow('efbPfNameEl', '_name', L('label', 'Label'), row.name || '', 'maxlength="120"') +
-         selectRow('efbPfCurrencyEl', '_currency', L('currency', 'Currency'), cur, curList);
+         selectRow('efbPfCurrencyEl', '_currency', L('currency', 'Currency'), cur, curList) +
+         methodsHtml(row);
+      var opts = optionsHtml(row);
       var amount = inputRow('efbPfFixedEl', 'pf_fixed', L('fixed', 'Fixed amount (added to the total)'), s('pf_fixed'), 'inputmode="decimal" dir="ltr"') +
          inputRow('efbPfFixedLabelEl', 'pf_fixed_label', L('fixedLabel', 'Name of the fixed amount'), s('pf_fixed_label'), 'maxlength="60"') +
          '<div class="efb form-check mt-2"><input class="efb form-check-input" type="checkbox" id="efbPfDonEl" data-efb-pf="pf_amount"' + (s('pf_amount') === 'donation' ? ' checked' : '') + '><label class="efb form-check-label" for="efbPfDonEl">' + esc(L('donation', 'Donation: the visitor chooses the amount')) + '</label></div>' +
@@ -239,7 +328,8 @@
          selectRow('efbPfMWidthEl', 'mobile_pf_btn_width', L('width', 'Width'), s('mobile_pf_btn_width'), [['', L('asDesktop', 'As on wide screens')], ['full', L('full', 'Full width')], ['auto', L('fit', 'Fit the text')]]) +
          inputRow('efbPfMHideEl', 'mobile_pf_hide', L('mobileHide', 'Hide on phones (comma separated: summary, secure, logos, methods, amount)'), s('mobile_pf_hide'), 'dir="ltr"')
          : '<p class="efb small text-muted">' + esc(L('mobilePro', 'Phone layout of the field is part of Pro.')) + '</p>';
-      return section('efbPfSecGw', L('secGateway', 'Gateway'), gw, true) +
+      return warningsHtml(row) + section('efbPfSecGw', L('secGateway', 'Gateway'), gw, true) +
+         (opts ? section('efbPfSecOpts', L('secOptions', 'Payer details and gateway options'), opts, true) : '') +
          section('efbPfSecAmount', L('secAmount', 'Amount'), amount, true) +
          section('efbPfSecBtn', L('secButton', 'Button'), button, false) +
          section('efbPfSecLayout', L('secLayout', 'Layout'), layout, false) +
@@ -279,7 +369,7 @@
    }
 
    function handle(e) {
-      var el = e.target && e.target.closest ? e.target.closest('[data-efb-pf],[data-efb-pf-move],[data-efb-pf-show],[data-efb-pf-reset],[data-efb-pf-lang-add],[data-efb-pf-lang-reset]') : null;
+      var el = e.target && e.target.closest ? e.target.closest('[data-efb-pf],[data-efb-pf-move],[data-efb-pf-show],[data-efb-pf-reset],[data-efb-pf-lang-add],[data-efb-pf-lang-reset],[data-efb-pf-method],[data-efb-pf-mmove]') : null;
       if (!el) return;
       var p = el.closest('[data-efb-pf-panel]');
       if (!p) return;
@@ -289,6 +379,24 @@
       if (!row || !isGateway(row.type)) return;
       var click = e.type === 'click';
       var C = core();
+      if (el.hasAttribute('data-efb-pf-mmove') || el.hasAttribute('data-efb-pf-method')) {
+         var mo = methodOrder(row);
+         if (el.hasAttribute('data-efb-pf-method')) {
+            if (e.type !== 'change') return;
+            var mid = el.getAttribute('data-efb-pf-method');
+            var on2 = mo.all.filter(function (x) { return x === mid ? el.checked : mo.on.indexOf(x) !== -1; });
+            if (!on2.length) { el.checked = true; return; } // at least one method
+            setKey(row, 'pf_methods', on2.length === mo.avail.length && on2.join(',') === mo.avail.join(',') ? '' : on2.join(','));
+         } else {
+            if (!click) return;
+            var list2 = mo.all.slice(), a = parseInt(el.getAttribute('data-i'), 10), b2 = el.getAttribute('data-efb-pf-mmove') === 'up' ? a - 1 : a + 1;
+            if (b2 < 0 || b2 >= list2.length) return;
+            var tmp2 = list2[a]; list2[a] = list2[b2]; list2[b2] = tmp2;
+            setKey(row, 'pf_methods', list2.filter(function (x) { return mo.on.indexOf(x) !== -1; }).join(','));
+         }
+         rerender(indx); repaint(row); changed();
+         return;
+      }
       if (el.hasAttribute('data-efb-pf-move')) {
          if (!click) return;
          var order = C.sanitizeKey('pf_order', row.pf_order);
@@ -339,6 +447,16 @@
       }
       var key = el.getAttribute('data-efb-pf');
       var isCheck = el.type === 'checkbox';
+      if (key.indexOf('pgw_') === 0) {
+         // A gateway option: sanitized from the gateway's own field_schema(), like the server does.
+         if (isCheck ? e.type !== 'change' : (e.type !== 'change' && !(e.type === 'input' && el.tagName === 'INPUT'))) return;
+         var schema = (info(row.type) || {}).field_schema || [];
+         var gv = C.sanitizeGatewayKey(key, isCheck ? (el.checked ? '1' : '') : el.value, schema);
+         if (gv === '') delete row[key]; else row[key] = gv;
+         if (e.type === 'change') { var w = document.getElementById('efbPfWarnEl'); var nw = warningsHtml(row); if (w) w.outerHTML = nw || '<span id="efbPfWarnEl"></span>'; else if (nw) rerender(indx, el.id); }
+         changed();
+         return;
+      }
       if (isCheck ? e.type !== 'change' : (e.type !== 'change' && e.type !== 'input')) return;
       if (el.type === 'color' && e.type === 'input') { /* live */ }
       else if (e.type === 'input' && el.tagName === 'SELECT') return;

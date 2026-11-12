@@ -30,6 +30,8 @@ $t('payment_gateways.efbmock: configured, mode, methods, supports', array($g['co
 $t('payment_keys.efbmock = true; stripe/paypal still reported', array($cap['payment_keys']['efbmock'], array_key_exists('stripe', $cap['payment_keys'])), array(true, true));
 $t('no secret anywhere in the registry', preg_match('/mock_(test|live)_ABC|whs_unit|enc:v1/', json_encode($cap)), 0);
 $t('payments marker for the manifest', $cap['payments']['spec'], 'PAY00');
+$t('payment_gateways.efbmock lists its field options (field_schema) and field defaults for AutoPilot', array(array_key_exists('field_schema', $g), array_key_exists('defaults', $g), isset($g['defaults']['texts'], $g['defaults']['pf'])), array(true, true, true));
+$t('setting:pay_gateway_options covers the gateway options (pgw_*)', isset($cap['features']['setting:pay_gateway_options']) ? $cap['features']['setting:pay_gateway_options']['form_keys'] : null, array('pgw_*'));
 $free = Builder_Api::capabilities(array('package' => 2, 'settings' => (object) array()));
 $t('on Free the gateway field is closed (reason plan)', array($free['features']['field:efbmock']['available_now'], $free['features']['field:efbmock']['reason']), array(false, 'plan'));
 

@@ -979,7 +979,7 @@ class Service {
 	public static function refund( array $p, $amount_minor, $reason, $user_id ) {
 		$gw = Registry::get( $p['gateway'] );
 		$amount_minor = (int) $amount_minor;
-		$left = (int) $p['amount_minor'] - (int) $p['refunded_minor'];
+		$left = (int) $p['amount_minor'] - (int) $p['refunded_minor'] - self::pending_refunds( $p['id'] );
 		if ( ! $gw ) return array( 'ok' => false, 'error' => 'no_gateway', 'message' => '' );
 		$sup = array_merge( ( new Gateway_Defaults() )->supports(), (array) $gw->supports() );
 		if ( empty( $sup['refund'] ) ) return array( 'ok' => false, 'error' => 'unsupported', 'message' => '' );
@@ -1015,6 +1015,15 @@ class Service {
 		return array( 'ok' => true, 'error' => '', 'message' => '', 'pending' => false );
 	}
 
+	/** The amount of a payment's refunds still waiting for the provider (they are not counted, but not refundable again). */
+	public static function pending_refunds( $payment_id ) {
+		$n = 0;
+		foreach ( Store::refunds( $payment_id ) as $r ) {
+			if ( $r['status'] === 'pending' ) $n += (int) $r['amount_minor'];
+		}
+		return $n;
+	}
+
 	/**
 	 * "Mark as refunded outside EFB": the owner gave the money back from the provider's dashboard
 	 * or the bank (a method without an API refund, or a refund made elsewhere). No call to the
@@ -1024,7 +1033,7 @@ class Service {
 	 */
 	public static function record_external_refund( array $p, $amount_minor, $reason, $user_id ) {
 		$amount_minor = (int) $amount_minor;
-		$left = (int) $p['amount_minor'] - (int) $p['refunded_minor'];
+		$left = (int) $p['amount_minor'] - (int) $p['refunded_minor'] - self::pending_refunds( $p['id'] );
 		$reason = Field::text( (string) $reason, 200 );
 		if ( ! in_array( $p['status'], array( 'paid', 'partially_refunded' ), true ) || $amount_minor <= 0 || $amount_minor > $left ) return array( 'ok' => false, 'error' => 'bad_amount' );
 		if ( $reason === '' ) return array( 'ok' => false, 'error' => 'reason_required' );

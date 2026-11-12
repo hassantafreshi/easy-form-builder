@@ -79,6 +79,7 @@ $out = Service::refund(Store::get($p['id']), 1000, 'customer asked', 1);
 $a = Store::get($p['id']);
 $rf = Store::refunds($p['id']);
 $t('8 (old code: counted at once): a refund the provider only accepted → pending row, payment still paid, refunded_minor 0', array($out['ok'], $out['pending'], $a['status'], $a['refunded_minor'], $rf[0]['status']), array(true, true, 'paid', 0, 'pending'));
+$t('8: a pending refund is not counted but cannot be refunded again (2700 - 1000 pending → 1800 is too much)', Service::refund(Store::get($p['id']), 1800, '', 1)['error'], 'bad_amount');
 Mock_Provider::set_refund($p['gateway_ref'], $rf[0]['gateway_ref'], 'refunded');
 Service::refresh($a, 'cron');
 $a = Store::get($p['id']);
