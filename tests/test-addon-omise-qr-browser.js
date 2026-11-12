@@ -136,9 +136,12 @@ window.ctxFor = function (expiresInMs, image) {
   });
   t('an image that is not a base64 SVG data: URI (javascript:, a URL, broken base64) is never drawn; the status poll still runs', bad.r && !bad.box && bad.polls === 3, bad);
 
-  // Steps hidden after submit → the final step hosts the QR.
-  await page.evaluate((img) => { document.getElementById('step1').classList.add('d-none'); window.registered.omise.mount(window.ctxFor(60000, img)); }, IMG);
-  t('steps hidden after submit: the QR is shown in the form\'s final step', await page.evaluate(() => !!document.querySelector('#final [data-omise-qr]') && !document.getElementById('final').classList.contains('d-none')));
+  // Core's Send hid the step and showed the final step: the field's step comes back with the QR.
+  await page.evaluate((img) => { document.getElementById('step1').classList.add('d-none'); document.getElementById('final').classList.remove('d-none'); document.getElementById('body_efb_7').dataset.currentstep = '2'; window.registered.omise.mount(window.ctxFor(60000, img)); }, IMG);
+  const back = await page.evaluate(() => ({ slot: !!document.querySelector('[data-pf-slot] [data-omise-qr]'), step: !document.getElementById('step1').classList.contains('d-none'), fin: document.getElementById('final').classList.contains('d-none'), cur: document.getElementById('body_efb_7').dataset.currentstep }));
+  t('steps hidden after Send: the field\'s step is shown again with the QR in its slot (so the runtime\'s messages and "Try again" are visible), the final step hidden', back.slot && back.step && back.fin && back.cur === '1', back);
+  await page.evaluate((img) => { const f = document.querySelector('.efb-pf'); f.style.display = 'none'; window.registered.omise.mount(window.ctxFor(60000, img)); f.style.display = ''; }, IMG);
+  t('a field that cannot be shown: the QR goes to the form\'s final step', await page.evaluate(() => !!document.querySelector('#final [data-omise-qr]') && !document.getElementById('final').classList.contains('d-none')));
 
   // RTL, 375 px.
   const p2 = await browser.newPage({ viewport: { width: 375, height: 800 }, hasTouch: true, isMobile: true });
