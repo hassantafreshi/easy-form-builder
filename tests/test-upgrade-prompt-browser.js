@@ -264,5 +264,28 @@ const freePlusGems = (page) => page.evaluate(() => fields_efb.filter((f) => efb_
     c.check('11: an unknown or malformed feature opens nothing', bad.a === null && bad.b === null, bad);
   });
 
+  // 12 the same link on the real Create screen: admin-efb.js rewrites the address to
+  // ?page=Emsfb_create (jQuery ready) before the timer reads it; the query as opened still counts.
+  await scenario('12 efb_upgrade link after the Create screen rewrote the address', { pro: 0, packageType: 2 }, async (page, h) => {
+    const r = await page.evaluate(() => {
+      window.__upg = [];
+      document.addEventListener('efb:upgrade-prompt', (e) => __upg.push(e.detail.action + ':' + e.detail.origin));
+      // As loaded from admin.php?page=Emsfb_create&efb_upgrade=field:stateProvince&efb_origin=sitepilot …
+      if (typeof efb_upgrade_boot_search_efb === 'undefined') return { missing: true };
+      efb_upgrade_boot_search_efb = '?page=Emsfb_create&efb_upgrade=field:stateProvince&efb_origin=sitepilot';
+      // … then admin-efb.js: history.replaceState("templates", null, '?page=Emsfb_create')
+      history.replaceState('templates', null, '/wp-admin/admin.php?page=Emsfb_create');
+      return { res: efb_upgrade_from_url_efb(), url: location.search };
+    });
+    await page.waitForTimeout(250);
+    const st = await dialogState(page);
+    c.check('12: the dialog opens for field:stateProvince (origin sitepilot) although the address was rewritten', st.state === 'S1' && st.feature === 'field:stateProvince' && (await page.evaluate(() => (window.__upg || []).join())) === 'shown:sitepilot', { r, st });
+    c.check('12: nothing activated, the address stays clean', h.planCalls.length === 0 && r.url === '?page=Emsfb_create', r);
+    await page.evaluate(() => state_modal_show_efb(0));
+    await page.waitForTimeout(300);
+    const again = await page.evaluate(() => efb_upgrade_from_url_efb());
+    c.check('12: the remembered query is used once', again === null, again);
+  });
+
   c.done();
 })();
