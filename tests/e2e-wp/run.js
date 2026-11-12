@@ -1880,6 +1880,131 @@ scenario('tappay', 'PAY03 Tap Payments add-on (fake api.tap.company): settings +
   ctlTap('clear-settings');
 });
 
+/* =============================================================================================
+ * payplug. PAY02 Payplug add-on (vendor/payplug, AdnPPG) with a fake api.payplug.com: the mu-plugin
+ * efb-e2e-payplug.php answers api.payplug.com from the documented responses in
+ * tests/fixtures/payments/payplug and serves a fake hosted payment page on the site. No network.
+ * =========================================================================================== */
+function ctlPayplug(...args) {
+  const out = wp('eval-file', path.join(__dirname, 'ctl-payplug.php'), ...args).trim().split('\n');
+  return JSON.parse(out[out.length - 1]);
+}
+async function payplugNotify(url, body) {
+  const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  return r.status;
+}
+
+scenario('payplug', 'PAY02 Payplug add-on (fake api.payplug.com): builder + AutoPilot, guest pays, notification refetch / forged / duplicate / before return, return without notification, cancel, Payments screen, refund, Test connection', async ({ context, adminPage }) => {
+  const fk = ctlPayplug('fake', '1');
+  R.check('pp: the fake Payplug and the add-on are in place (vendor/payplug, AdnPPG on)', fk.mu && fk.addon, fk);
+  ctlPayplug('keys', 'test');
+  ctl('mails', 'clear');
+  const finals = (id) => ctl('pay-events', String(id)).filter((e) => e.type === 'finalized').length;
+
+  /* builder: tile, canvas, AutoPilot, capabilities without keys, Save */
+  const admin = await adminPage();
+  await openNewForm(admin);
+  await addTile(admin, 'email');
+  const api0 = await admin.evaluate(() => { const it = efbBuilderApi.newItems('payplug'); return { patch: it.formPatch, type: it[0].type }; });
+  R.check('pp/AutoPilot: newItems("payplug") gives the field and formPatch {type: payment, getway: payplug}', api0.type === 'payplug' && api0.patch && api0.patch.getway === 'payplug' && api0.patch.type === 'payment', api0);
+  const pf = await addTile(admin, 'payplug');
+  const f0 = await admin.evaluate(() => ({ type: valj_efb[0].type, getway: valj_efb[0].getway, currency: String(valj_efb[0].currency || '') }));
+  R.check('pp: the Payplug tile adds the field; the form becomes a payment form in EUR', pf && pf.type === 'payplug' && f0.type === 'payment' && f0.getway === 'payplug' && f0.currency.toUpperCase() === 'EUR', { pf: pf && pf.type, f0 });
+  R.check('pp: the canvas shows the field with its Pay button', await admin.isVisible(`#dropZoneEFB .efb-pf[data-pf="${pf.id_}"] [data-pf-pay]`));
+  const capPP = await admin.evaluate(() => ({ gw: efb_var.capabilities.payment_gateways && efb_var.capabilities.payment_gateways.payplug, field: efb_var.capabilities.features['field:payplug'], json: JSON.stringify(efb_var.capabilities) + JSON.stringify(efb_var.pay || {}) }));
+  R.check('pp/AutoPilot: capabilities payment_gateways.payplug (AdnPPG, configured Test, EUR) and field:payplug, without any key', capPP.gw && capPP.gw.addon === 'AdnPPG' && capPP.gw.configured.test === true && capPP.gw.currencies[0] === 'EUR' && capPP.field && !/e2e-ppg-key|notasignature/.test(capPP.json), { gw: capPP.gw, field: capPP.field });
+  await closePanel(admin);
+  await admin.click(`#dropZoneEFB [data-id="${pf.dataId}"] .efb-pf-label`);
+  await admin.waitForSelector('#efbPfPanelEl', { timeout: 8000 });
+  await admin.fill('#efbPfFixedEl', '12');
+  await admin.press('#efbPfFixedEl', 'Tab');
+  await sleep(300);
+  await closePanel(admin);
+  await admin.evaluate(() => saveFormEfb(1));
+  await sleep(2500);
+  const forms = ctl('forms');
+  const saved = forms.length ? ctl('form', String(forms[forms.length - 1].form_id)) : null;
+  const srow = saved && saved.form_structer ? saved.form_structer.find((r) => r.type === 'payplug') : null;
+  R.check('pp: Save stores the Payplug field with pf_fixed 12 (core sanitizer), no key in the form', srow && srow.pf_fixed === '12' && !/e2e-ppg-key/.test(JSON.stringify(saved)), srow);
+
+  /* guest pays: notification before return, forged, duplicate */
+  const F = ctlPayplug('form', 'Payplug e2e');
+  const url = ctl('page', String(F.form_id)).url;
+  let g = await payGuest(context, url, async (p) => {
+    await p.fill(`[data-id="${F.email}-el"]`, 'jeanne@example.test');
+    await p.fill(`[data-id="${F.first}-el"]`, 'Jeanne');
+    await p.fill(`[data-id="${F.last}-el"]`, 'Martin');
+    await p.fill(`[data-id="${F.city}-el"]`, 'Paris');
+    await p.click(`[id="${F.o1}"]`);
+  });
+  const shown = await g.evaluate(() => ({ total: document.querySelector('[data-pf-total]').textContent, banner: !document.querySelector('.efb-pf [data-pf-el="test"]').hidden }));
+  R.check('pp: live total 25.00 + 8.00 = €33.00; test banner shown', shown.total === '€33.00' && shown.banner, shown);
+  await Promise.all([g.waitForURL(/efb-e2e\/v1\/payplug-pay/, { timeout: 20000 }), g.click('.efb-pf [data-pf-pay]')]);
+  await g.waitForSelector('#pay', { timeout: 10000 });
+  R.check('pp: Payplug\'s page asks for 33.00 EUR, billing from the mapped fields', /33\.00 EUR/.test(await g.textContent('#amount')) && /Jeanne Martin, Paris FR/.test(await g.textContent('#billing')));
+  let P = payRows(F.form_id)[0];
+  let E = payEntry(F.form_id, P.track);
+  R.check('pp: payment pending (3300 EUR, test, pay_…), entry "pending payment" (read_ 2), no e-mail yet', P.gateway === 'payplug' && P.status === 'pending' && Number(P.amount_minor) === 3300 && P.mode === 'test' && /^pay_/.test(P.gateway_ref) && E && String(E.read_) === '2' && (ctl('mails') || []).length === 0, { P, read: E && E.read_ });
+  const nu = ctlPayplug('notify-url', P.gateway_ref).url;
+  R.check('pp: the notification URL is core\'s webhook route with p (uid) and our token t', nu.indexOf('/payments/webhook/payplug') !== -1 && nu.indexOf('p=' + P.uid) !== -1 && /[?&]t=[0-9a-f]{32}/.test(nu), nu);
+  const nbody = { id: P.gateway_ref, object: 'payment', is_live: false };
+  R.check('pp: a notification with a forged token → 401', (await payplugNotify(nu.replace(/t=[0-9a-f]{32}/, 't=' + '0'.repeat(32)), nbody)) === 401);
+  ctlPayplug('provider', P.gateway_ref, 'get-paid');
+  R.check('pp: the notification arrives before the visitor returns: 200', (await payplugNotify(nu, nbody)) === 200);
+  P = payRows(F.form_id)[0];
+  E = payEntry(F.form_id, P.track);
+  const mails1 = ctl('mails') || [];
+  R.check('pp: → paid (read back from Payplug), finalized, entry new (read_ 0), e-mails to owner and payer', P.status === 'paid' && !!P.finalized_at && String(E.read_) === '0' && mails1.length >= 2, { status: P.status, read: E.read_, mails: mails1.length });
+  R.check('pp: the same notification again: 200, finalized once, no new e-mail', (await payplugNotify(nu, nbody)) === 200 && finals(P.id) === 1 && (ctl('mails') || []).length === mails1.length);
+  await Promise.all([g.waitForURL((u) => u.toString().indexOf('payplug-pay') === -1, { timeout: 20000 }), g.click('#pay')]);
+  await g.waitForFunction(() => /Confirmation Code/i.test(document.body.innerText), null, { timeout: 15000 });
+  const done = await g.evaluate(() => ({ text: document.body.innerText, url: location.href }));
+  R.check('pp: back on the form: thank-you with the confirmation code, address cleaned; still finalized once', done.text.indexOf(P.track) !== -1 && done.url.indexOf('efb_pay') === -1 && finals(P.id) === 1, done.url);
+  await g.screenshot({ path: SHOT('pp-paid') });
+  await g.close();
+  const paidId = P.id;
+
+  /* return without notification (Grand atelier 150 + 8 = 158.00) */
+  g = await payGuest(context, url, async (p) => { await p.fill(`[data-id="${F.email}-el"]`, 'paul@example.test'); await p.click(`[id="${F.o2}"]`); });
+  await Promise.all([g.waitForURL(/efb-e2e\/v1\/payplug-pay/, { timeout: 20000 }), g.click('.efb-pf [data-pf-pay]')]);
+  await g.waitForSelector('#pay', { timeout: 10000 });
+  R.check('pp: 158.00 EUR asked; billing country FR by default when the form has none', /158\.00 EUR/.test(await g.textContent('#amount')) && /FR/.test(await g.textContent('#billing')));
+  await Promise.all([g.waitForURL((u) => u.toString().indexOf('payplug-pay') === -1, { timeout: 20000 }), g.click('#pay')]);
+  await g.waitForFunction(() => /Confirmation Code/i.test(document.body.innerText), null, { timeout: 15000 });
+  P = payRows(F.form_id)[0];
+  R.check('pp: return without any notification: the return reads Payplug → paid, finalized once', P.status === 'paid' && Number(P.amount_minor) === 15800 && finals(P.id) === 1, P.status);
+  await g.close();
+
+  /* cancel on Payplug's page: no notification; the status still comes from Payplug */
+  g = await payGuest(context, url, async (p) => { await p.fill(`[data-id="${F.email}-el"]`, 'cancel@example.test'); await p.click(`[id="${F.o1}"]`); });
+  await Promise.all([g.waitForURL(/efb-e2e\/v1\/payplug-pay/, { timeout: 20000 }), g.click('.efb-pf [data-pf-pay]')]);
+  await g.waitForSelector('#cancel', { timeout: 10000 });
+  await Promise.all([g.waitForURL((u) => u.toString().indexOf('payplug-pay') === -1, { timeout: 20000 }), g.click('#cancel')]);
+  await sleep(2500);
+  P = payRows(F.form_id)[0];
+  R.check('pp: cancel on Payplug\'s page: the payment stays unpaid (pending), nothing finalized', P.status === 'pending' && !P.finalized_at, P.status);
+  await g.close();
+  const log = ctlPayplug('log');
+  R.check('pp: every request to Payplug carried PayPlug-Version 2019-08-06', log.length > 0 && log.every((l) => l.version === '2019-08-06'), log.slice(-3));
+
+  /* Payments screen: list, details, refund; gateway settings */
+  await admin.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb_payments&payment=' + paidId, { waitUntil: 'load' });
+  R.check('pp: Payments details show the notification refetch and "finalized", and a Refund button', /finalized/.test(await admin.textContent('.efb-pay-events')) && await admin.isVisible('[data-efb-pay="refund"]'));
+  await admin.click('[data-efb-pay="refund"]');
+  await admin.waitForLoadState('load');
+  await sleep(2000);
+  const ref = payRows(F.form_id).find((p) => Number(p.id) === Number(paidId));
+  R.check('pp: a full refund through Payplug → refunded 3300', ref.status === 'refunded' && Number(ref.refunded_minor) === 3300, ref.status);
+  R.check('pp: the refund went to Payplug (POST …/refunds after reading the refund list)', ctlPayplug('log').some((l) => l.method === 'POST' && /\/refunds$/.test(l.path)) && ctlPayplug('log').some((l) => l.method === 'GET' && /\/refunds$/.test(l.path)));
+  await admin.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb_payments&tab=gateways', { waitUntil: 'load' });
+  const gwPage = await admin.content();
+  R.check('pp: gateway settings: the Payplug card, keys never shown (•••• and the last four only), webhook address', /Payplug/.test(gwPage) && gwPage.indexOf('e2e-ppg-key') === -1 && /•••• ure0/.test(gwPage) && /payments\/webhook\/payplug/.test(gwPage));
+  await admin.click('[data-efb-pay="test_connection"][data-gateway="payplug"][data-mode="test"]');
+  await admin.waitForFunction(() => /Connected/.test(Array.from(document.querySelectorAll('.efb-pay-msg')).map((e) => e.textContent).join(' ')), null, { timeout: 10000 });
+  R.check('pp: Test connection (Test) → Connected', true);
+  ctlPayplug('fake', '0');
+});
+
 /* ---------------------------------------------------------------------------------------------
  * main
  * ------------------------------------------------------------------------------------------- */
