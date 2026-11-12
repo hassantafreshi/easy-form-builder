@@ -293,5 +293,14 @@ if (method_exists('\Emsfb\Builder_Api', 'capabilities')) {
 $log = json_encode($db->get_results('SELECT * FROM wp_emsfb_pmt_evt_', ARRAY_A));
 $t('the event log never holds a key, API key, HMAC secret or auth token', !preg_match('/_sk_(test|live)|FakePaymobApiKey|FakePaymobHmac|FakeAuthToken/', $log), true);
 
+// PAY00 optional hooks adopted: the submitted rows core hands to create() ($ctx->rows), not the stored entry.
+$px = Store::find_by_uid(pmb_create($db)['pay']['uid']);
+$gx = \Emsfb\Payments\Registry::get('paymob');
+$ctx = new \Emsfb\Payments\Checkout_Context(array('return_url' => \Emsfb\Payments\Service::return_url($px), 'webhook_url' => \Emsfb\Payments\Service::webhook_url('paymob'), 'locale' => 'en_US', 'payer_email' => 'rows@example.test',
+	'rows' => array(array('id_' => 'nmx', 'type' => 'text', 'name' => 'Full name', 'value' => 'Hana Fouad'), array('id_' => 'mox', 'type' => 'mobile', 'name' => 'Mobile', 'value' => '01098765432'))));
+$gx->create(new \Emsfb\Payments\Payment(array_merge($px, array('msg_id' => 0, 'idem_key' => hash('sha256', 'adopt-pmb')))), Settings::load('paymob'), $ctx);
+$bd = pmb_last_intention()['billing_data'];
+$t('billing_data from $ctx->rows (no read of the stored entry)', array($bd['first_name'], $bd['last_name'], $bd['phone_number']), array('Hana', 'Fouad', '01098765432'));
+
 echo "\nRESULTS: {$passed} passed, {$failed} failed\n";
 exit($failed ? 1 : 0);

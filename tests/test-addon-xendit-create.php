@@ -291,5 +291,9 @@ $t('the request log of the fake has no Authorization header kept and no token', 
 $ev = json_encode($db->get_results('SELECT * FROM wp_emsfb_pmt_evt_', ARRAY_A));
 $t('no key or token in the payment events', strpos($ev, 'xnd_development') === false && strpos($ev, 'efbFakeCallback') === false, true);
 
+// PAY00 optional hooks adopted: the field's pf_methods from $ctx->field (no read of the stored form).
+$px = \Emsfb\Payments\Store::find_by_uid(xnd_create($db)['pay']['uid']);
+$t('choose_channels(): the field options core passes ($ctx->field) decide, not the stored form', $g->choose_channels(new \Emsfb\Payments\Payment(array_merge($px, array('form_id' => 999999))), Settings::load('xendit'), '', array('pf_methods' => 'qris')), array('qris'));
+
 echo "\nRESULTS: {$passed} passed, {$failed} failed\n";
 exit($failed ? 1 : 0);

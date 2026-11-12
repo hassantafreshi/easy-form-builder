@@ -274,5 +274,15 @@ $t('the status answer (REST payments/status) carries no secret or reference', st
 $log = json_encode($db->get_results('SELECT * FROM wp_emsfb_pmt_evt_', ARRAY_A));
 $t('the event log never holds a key', strpos($log, ptb_key('test')) === false && strpos($log, ptb_key('live')) === false, true);
 
+// PAY00 optional hooks adopted: the rows and the payer core hands to create(), Remote_State::mismatch().
+$px = Store::find_by_uid(ptb_create($db)['pay']['uid']);
+$ctx = new \Emsfb\Payments\Checkout_Context(array('return_url' => \Emsfb\Payments\Service::return_url($px), 'webhook_url' => \Emsfb\Payments\Service::webhook_url('paytabs'), 'locale' => 'en_US',
+	'rows' => array(array('id_' => 'nm', 'type' => 'text', 'name' => 'Full name', 'value' => 'Noura Saleh')), 'payer' => array('email' => 'noura@example.test', 'name' => '')));
+$noentry = new \Emsfb\Payments\Payment(array_merge($px, array('msg_id' => 0, 'attempt_key' => $px['attempt_key'], 'idem_key' => hash('sha256', 'adopt'))));
+$g->create($noentry, Settings::load('paytabs'), $ctx);
+$bb = ptb_last_request();
+$bb = is_array($bb) && isset($bb[0]) ? $bb[0] : $bb;
+$t('customer_details from $ctx->rows and $ctx->payer (no read of the stored entry)', isset($bb['customer_details']) ? $bb['customer_details'] : null, array('name' => 'Noura Saleh', 'email' => 'noura@example.test'));
+
 echo "\nRESULTS: {$passed} passed, {$failed} failed\n";
 exit($failed ? 1 : 0);
