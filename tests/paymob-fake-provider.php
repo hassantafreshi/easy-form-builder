@@ -81,7 +81,9 @@ class Efb_Test_Paymob_Fake {
 
 	public static function state() {
 		$s = get_option( self::OPTION, array() );
-		return ( is_array( $s ) ? $s : array() ) + array( 'intentions' => array(), 'orders' => array(), 'txns' => array(), 'tokens' => array(), 'refs' => array(), 'log' => array(), 'n' => 0, 'down' => false, 'inquiry_404' => false, 'refund_declined' => false );
+		// Paymob's ids are unique for good; the fake starts each reset at a time-based offset so that a
+		// new run never repeats an id the site has already seen (its event de-duplication keeps them).
+		return ( is_array( $s ) ? $s : array() ) + array( 'intentions' => array(), 'orders' => array(), 'txns' => array(), 'tokens' => array(), 'refs' => array(), 'log' => array(), 'n' => ( time() % 1000000 ) * 100, 'down' => false, 'inquiry_404' => false, 'refund_declined' => false );
 	}
 
 	public static function save( array $s ) {
@@ -249,7 +251,7 @@ class Efb_Test_Paymob_Fake {
 	private static function txn( array &$s, $order, $integration, $currency, $amount, $mode, $type ) {
 		$s['n']++;
 		$t = self::fixture( 'inquiry-200' );
-		$t['id'] = 400000000 + $s['n'];
+		$t['id'] = 500000000 + $s['n'];
 		$t['amount_cents'] = (int) $amount;
 		$t['amount_cents_int'] = (int) $amount;
 		$t['original_amount'] = (int) $amount;

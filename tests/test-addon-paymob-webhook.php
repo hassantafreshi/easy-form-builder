@@ -80,7 +80,7 @@ $c0 = count(PmbFake::log());
 $t('a TOKEN (saved card) callback: 200, ignored, no outbound call', array(Service::handle_webhook($r)->status, count(PmbFake::log()) - $c0), array(200, 0));
 $r->set_body('not json');
 $t('a body that is not JSON: 200, ignored', Service::handle_webhook($r)->status, 200);
-$alien = $tx; $alien['order']['id'] = 399999999; $alien['order']['merchant_order_id'] = $q['uid']; $alien['id'] = 499999999;
+$alien = $tx; $alien['order']['id'] = 299999999; $alien['order']['merchant_order_id'] = $q['uid']; $alien['id'] = 299999998;
 $c0 = count(PmbFake::log());
 $t('a signed transaction of an order the site does not know (even with our uid as merchant_order_id): 200, no call, our payment untouched', array($hook($alien), count(PmbFake::log()) - $c0, Store::get($q['id'])['status']), array(200, 0, 'pending'));
 
