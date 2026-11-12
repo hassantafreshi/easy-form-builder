@@ -33,6 +33,7 @@ $t('the add-on registers the gateway "mollie" (AdnMOL) through efb_register_paym
 $sup = $gw->supports();
 $t('supports: redirect, refunds (partial too), refetch webhooks, EUR/JPY/ISK yes, KWD no, per-currency minimum', array($sup['flows'], $sup['refund'], $sup['partial_refund'], $sup['webhook_auth'], in_array('EUR', $sup['currencies'], true), in_array('JPY', $sup['currencies'], true), in_array('KWD', $sup['currencies'], true), $sup['min_minor']['EUR'], $sup['max_minor']['EUR']), array(array('redirect'), true, true, 'refetch', true, true, false, 1, 5000000));
 $t('api_hosts allow-list is only api.mollie.com', $gw->api_hosts(), array('api.mollie.com'));
+$t('EUR is the first currency (the builder gives a new Mollie form the first one)', $sup['currencies'][0], 'EUR');
 
 /* fixed amount */
 $res = efb_mollie_create($db);
