@@ -2945,7 +2945,10 @@ let change_el_edit_Efb = (el) => {
           row.mask_preset = v;
           if (def && def.placeholder) {
             const ph = typeof row.placeholder === 'string' ? row.placeholder : '';
-            if (ph === '' || (prevDef && ph === prevDef.placeholder)) row.placeholder = def.placeholder;
+            // A new field from the palette carries the field type's name as placeholder ("Text",
+            // sampleElpush_efb); that is the builder's default, not the owner's text.
+            const paletteDefault = efb_var.text[row.elementId || row.type];
+            if (ph === '' || (prevDef && ph === prevDef.placeholder) || (typeof paletteDefault === 'string' && ph === paletteDefault)) row.placeholder = def.placeholder;
           }
           const hasLen = (k) => row.hasOwnProperty(k) && String(row[k]) !== '' && String(row[k]) !== '0';
           if ((hasLen('milen') || hasLen('mlen')) && window.confirm(efb_var.text.mskLenReplaced || 'This format sets the length. Remove the minimum and maximum length?')) {
