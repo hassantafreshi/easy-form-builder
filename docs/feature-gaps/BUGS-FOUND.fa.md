@@ -157,3 +157,16 @@
 | کم | `Remote_State` حالت «ناسازگار» ندارد؛ پاسخی از درگاه با `mode` یا شناسهٔ دیگر مثل «در دسترس نبود» رفتار می‌شود: webhook پاسخ `503` می‌گیرد و درگاه تا ۲۶ ساعت دوباره می‌فرستد. (آزموده‌شده) | `class-Emsfb-payment-gateway.php`، `Service::handle_webhook()` | **باز** |
 | کم | `class-Emsfb-addon-compatibility.php` مدخل `AdnMOL` (و دیگر کلیدهای درگاه) ندارد؛ پیش‌فرض «سازگار» است. | `includes/class-Emsfb-addon-compatibility.php` | **باز** |
 
+## پرداخت: افزونهٔ Payplug (PAY02، ۲۰۲۶-۱۱-۱۲)
+
+کمبودهای هسته که هنگام ساخت افزونهٔ Payplug پیدا شد. هیچ‌کدام مانع فاز ۱ نبود، پس هسته تغییر نکرد.
+
+| شدت | مشکل | محل | وضعیت |
+|---|---|---|---|
+| متوسط | `Store::TRANSITIONS` از `pending` به `refunded`/`partially_refunded` راه ندارد. اگر پرداخت در پورتال درگاه بازپرداخت شود پیش از آنکه EFB پرداخت‌شدنش را ببیند (اعلان گم‌شده، سایت در دسترس نبود)، `fetch()` «بازپرداخت‌شده» می‌گوید، ردیف `pending` می‌ماند و پاسخ هرگز نهایی نمی‌شود. | `class-Emsfb-payment-store.php` (`TRANSITIONS`)، `Service::apply_remote_state()` | **باز** |
+| کم | `Checkout_Context` ردیف‌های فرم را ندارد؛ درگاهی که آدرس صورت‌حساب می‌خواهد (Payplug برای 3DS2) ردیف‌های پاسخ معلق را خودش از `emsfb_msg_` می‌خواند (`Service::decode_content`)، یعنی به قالب ذخیره وابسته است. | `class-Emsfb-payment-gateway.php` (`Checkout_Context`)، `Service::create()` | **باز** |
+| کم | کلیدهای مخصوص درگاه روی ردیف فیلد (نگاشت آدرس `pgw_map_*`) فقط از مسیر پیش‌فرض `sanitize_text_field` می‌گذرند (پاک‌ساز اختصاصی افزونه یا فیلتر ندارد) و پنل سازنده برایشان رابطی ندارد؛ فقط از API/JSON نوشته می‌شوند. افزونه شناسه را هنگام استفاده دوباره می‌سنجد. | `functions.php` (`sanitize_obj_msg_efb`، `default`)، `payment-field-efb.js` | **باز** |
+| کم | `supports()` حد مبلغ را فقط برای هر ارز می‌پذیرد، نه برای هر روش (Oney ۱۰۰ تا ۳۰۰۰ یورو)؛ درگاه در `create()` رد می‌کند و بازدیدکننده پیام عمومی «پرداخت آغاز نشد» می‌بیند (`Create_Result::fail` پیام قابل نمایش ندارد). | `class-Emsfb-payment-gateway.php`، `Service::create()` | **باز** |
+| کم | پنل سازنده هشدار مخصوص درگاه ندارد (PAY02 §۱۰: هشدار سرخ «Payplug فقط یورو» وقتی ارز فرم EUR نیست)؛ فرم عمومی فقط پیام کلی `payUnavailable` می‌دهد. | `includes/admin/assets/js/payment-field-efb.js` | **باز** |
+| کم | آداپتور فقط پس از `payments/create` سوار می‌شود؛ Integrated Payment پیاده شد ولی دومرحله‌ای است (کلیک «پرداخت»، سپس فیلدهای کارت و «تأیید پرداخت»). همان ردیف Mollie دربارهٔ Components. | `public/assets/js/payment-runtime-efb.js` (`submit`) | **باز** |
+

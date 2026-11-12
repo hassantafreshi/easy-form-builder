@@ -721,6 +721,26 @@ Add-on `vendores-efb/mollie` on the PAY00 contract; nothing new in core. For age
 - **Tests.** `php tests/test-addon-mollie-create.php` (43), `…-webhook.php` (38),
   `…-refund-settings.php` (31); e2e scenario `mollie` (25).
 
+### PAY02. Payplug gateway field (`payplug`, add-on `AdnPPG`)
+
+Add-on `vendores-efb/payplug` on the PAY00 contract; nothing new in core. For agents:
+
+- **Field.** Type `payplug`; `efbBuilderApi.newItems('payplug')` → the row and `formPatch`
+  `{type:'payment', getway:'payplug', currency:'EUR'}`. Payplug takes **EUR only**, 0.30 to 20,000 EUR
+  (Oney 100 to 3,000 EUR): set no other currency. Only the core `pf_*` keys, plus the optional billing
+  map `pgw_map_first`, `pgw_map_last`, `pgw_map_email`, `pgw_map_address`, `pgw_map_postcode`,
+  `pgw_map_city`, `pgw_map_country` (each = the `id_` of a field of the same form; written with
+  `setForm`, there is no panel control yet). `pf_methods` takes `card`, `american_express`,
+  `bancontact`, `ideal`, `mybank`, `satispay`, `scalapay`, `wero`, `oney_x3_with_fees`, … (only those
+  the owner switched on are offered).
+- **Registry.** `payment_gateways.payplug` lists `methods` and `configured` per mode; never a key.
+- **Server only.** The amount is core's quote; notifications are never trusted (token in the URL, then
+  the payment is read from Payplug). Agents never enter Payplug keys, switch to Live, choose Integrated
+  Payment for the owner or refund.
+- **Tests.** `php tests/test-addon-payplug-create.php` (51), `…-webhook.php` (35), `…-status-map.php`
+  (23), `…-refund.php` (17), `…-secrets.php` (18), `node tests/test-addon-payplug-adapter.js` (19);
+  e2e scenario `payplug` (25).
+
 ## Part C: the contract is kept
 
 Everything Part C of the brief lists still works as before (`node tests/test-ap-contract.js`, 16
