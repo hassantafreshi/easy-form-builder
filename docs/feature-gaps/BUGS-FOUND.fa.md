@@ -141,3 +141,19 @@
 | متوسط | `fun_validation_pay_elements_efb()` ردیف انتخابِ قیمت‌دار را فقط وقتی حساب می‌کند که کلید `price` داشته باشد؛ درخواستی که `price` ردیف `payRadio`/`paySelect` را حذف کند، آن گزینه را بی‌پرداخت ثبت می‌کند (Stripe و PayPal). (با خواندن کد؛ بازتولید نشده) | `class-Emsfb-public.php` (`fun_validation_pay_elements_efb`) | **باز**: `Payments\Pricing` قیمت را همیشه از فرم ذخیره‌شده می‌خواند |
 | کم | اعتبارسنج ارسال، قیمت ردیف `paySelect` را از گزینهٔ ذخیره‌شده جایگزین نمی‌کند (برای `payRadio` می‌کند)؛ پاسخ ذخیره‌شده قیمت مرورگر را دارد. | `class-Emsfb-public.php` (`case 'paySelect'` در حلقهٔ اعتبارسنجی) | **باز** |
 | متوسط | اسکریپت منطق شرطی در صفحهٔ عمومی فقط وقتی بارگذاری می‌شود که ردیف ۰ کلید `logic: "1"` داشته باشد؛ بررسی دوم `strpos($value,'"logic_rules"')` روی JSON ذخیره‌شده (با `\"`) هیچ‌وقت پیدا نمی‌کند. فرمی که با API یا ورود JSON قانون دارد ولی این پرچم را ندارد، در مرورگر قانونی اجرا نمی‌کند (سرور اجرا می‌کند). (آزموده‌شده در سناریوی ۹) | `includes/class-Emsfb-public.php` (`$_efb_form_has_logic`) | **باز**: خارج از دامنه |
+
+## پرداخت: افزونهٔ Mollie (PAY01، ۲۰۲۶-۱۱-۱۲)
+
+کمبودهای هسته که هنگام ساخت افزونهٔ Mollie پیدا شد. هیچ‌کدام مانع فاز ۱ نبود، پس هسته تغییر نکرد.
+
+| شدت | مشکل | محل | وضعیت |
+|---|---|---|---|
+| متوسط | آداپتور درگاه نمی‌تواند پیش از `payments/create` داده‌ای (مثل `cardToken` یک‌ساعتهٔ Mollie Components) به درخواست اضافه کند و `Checkout_Context` هم جایی برای آن ندارد؛ آداپتور فقط پس از ساخت (`mount`) صدا زده می‌شود. پس فیلدهای کارت درون فرم (Components، و مشابه آن در Payplug Integrated و Omise.js) با قرارداد فعلی ممکن نیست. | `public/assets/js/payment-runtime-efb.js` (`submit`)، `class-Emsfb-payment-gateway.php` (`Checkout_Context`) | **باز**: Mollie فاز ۱ فقط صفحهٔ میزبان |
+| کم | پنل سازندهٔ فیلد پرداخت برای `pf_methods` (زیرمجموعه و ترتیب روش‌ها) رابطی ندارد؛ فقط از API (`setForm`) نوشته می‌شود. | `includes/admin/assets/js/payment-field-efb.js` | **باز** |
+| کم | درگاه نمی‌تواند پیش‌فرض کلیدهای `pf_*` خودش را بدهد (PAY01 می‌خواهد `pf_methods_style=grid`). | `payment-field-functions-efb.php` (`resolve`) | **باز** |
+| کم | کارت تنظیمات درگاه جایی برای هشدار یا دکمهٔ اختصاصی درگاه ندارد (هشدار «سایت محلی، webhook نمی‌رسد»، «Wero بتا»، دکمهٔ «تازه‌سازی روش‌ها»)؛ Mollie روش‌ها را با «آزمودن اتصال» تازه می‌کند. | `class-Emsfb-payment-admin.php` (برگهٔ gateways) | **باز** |
+| کم | `Gateway::methods(Settings)` ارز و مبلغ فرم را نمی‌گیرد؛ فهرست روش‌های فیلد ممکن است روشی را نشان دهد که برای ارز فرم فعال نیست (سرور هنگام ساخت دوباره می‌سنجد). | `class-Emsfb-payment-registry.php` (`public_info`) | **باز** |
+| کم | `Service::apply_remote_state()` وقتی وضعیت عوض نمی‌شود فیلدهای دیگر (مثل `method`) را نمی‌نویسد؛ روش پرداختِ معلق (مثلاً Wero در `pending`) تا پرداخت‌شدن خالی می‌ماند. (آزموده‌شده) | `class-Emsfb-payment-service.php` | **باز** |
+| کم | `Remote_State` حالت «ناسازگار» ندارد؛ پاسخی از درگاه با `mode` یا شناسهٔ دیگر مثل «در دسترس نبود» رفتار می‌شود: webhook پاسخ `503` می‌گیرد و درگاه تا ۲۶ ساعت دوباره می‌فرستد. (آزموده‌شده) | `class-Emsfb-payment-gateway.php`، `Service::handle_webhook()` | **باز** |
+| کم | `class-Emsfb-addon-compatibility.php` مدخل `AdnMOL` (و دیگر کلیدهای درگاه) ندارد؛ پیش‌فرض «سازگار» است. | `includes/class-Emsfb-addon-compatibility.php` | **باز** |
+

@@ -704,6 +704,23 @@ its slug (`mollie`, `payplug`, `tappay`, `omise`, `paytabs`, `paymob`, `xendit`)
 
 ---
 
+### PAY01. Mollie gateway field (`mollie`, add-on `AdnMOL`)
+
+Add-on `vendores-efb/mollie` on the PAY00 contract; nothing new in core. For agents:
+
+- **Field.** Type `mollie`; `efbBuilderApi.newItems('mollie')` → the row and `formPatch`
+  `{type:'payment', getway:'mollie', currency:'EUR'}` (EUR is the first of Mollie's 29 currencies;
+  3-decimal currencies such as KWD are refused). Only the core `pf_*` keys; `pf_methods` takes Mollie
+  method ids (`ideal`, `creditcard`, `bancontact`, `paypal`, `wero`, …), `pf_methods_style` any core value.
+- **Registry.** `payment_gateways.mollie` lists `methods` (the account's activated methods, cached by
+  the owner's "Test connection") and `configured` per mode; never a key (`test_api_key` /
+  `live_api_key` are encrypted, `•••• abcd` on the settings card only).
+- **Server only.** The amount is core's quote; the browser's method choice is cut to `pf_methods` and to
+  what Mollie offers for that amount. Webhooks are never trusted: each one only triggers a read of the
+  payment at Mollie. Agents never enter Mollie keys, switch to Live or refund.
+- **Tests.** `php tests/test-addon-mollie-create.php` (43), `…-webhook.php` (38),
+  `…-refund-settings.php` (31); e2e scenario `mollie` (25).
+
 ## Part C: the contract is kept
 
 Everything Part C of the brief lists still works as before (`node tests/test-ap-contract.js`, 16
