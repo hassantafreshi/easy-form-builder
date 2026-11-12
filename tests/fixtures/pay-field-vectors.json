@@ -1,0 +1,3183 @@
+{
+ "note": "PAY00 payment field: inputs only; tests/test-pay-field-parity.js runs PHP and JS on each and compares byte for byte.",
+ "sanitize": [
+  {
+   "op": "sanitize",
+   "k": "pf_btn_text",
+   "v": "Pay %amount% now"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_text",
+   "v": "\"><script>alert(1)</script>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_text",
+   "v": "url(javascript:alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_text",
+   "v": "expression(alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_text",
+   "v": "a\u0000b"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_text",
+   "v": "<img src=x onerror=alert(1)>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_text",
+   "v": "it's & \"quoted\""
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_text",
+   "v": "  many    spaces  "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_text",
+   "v": " line "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_text",
+   "v": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_text",
+   "v": "پرداخت امن ✓"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_text",
+   "v": 12
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_text",
+   "v": true
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_text",
+   "v": null
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_text",
+   "v": [
+    "a"
+   ]
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_text",
+   "v": {
+    "a": 1
+   }
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_bg",
+   "v": "#ABC"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_bg",
+   "v": "\"><script>alert(1)</script>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_bg",
+   "v": "url(javascript:alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_bg",
+   "v": "expression(alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_bg",
+   "v": "a\u0000b"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_bg",
+   "v": "<img src=x onerror=alert(1)>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_bg",
+   "v": "it's & \"quoted\""
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_bg",
+   "v": "  many    spaces  "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_bg",
+   "v": " line "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_bg",
+   "v": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_bg",
+   "v": "پرداخت امن ✓"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_bg",
+   "v": 12
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_bg",
+   "v": true
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_bg",
+   "v": null
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_bg",
+   "v": [
+    "a"
+   ]
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_bg",
+   "v": {
+    "a": 1
+   }
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_fg",
+   "v": "auto"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_fg",
+   "v": "\"><script>alert(1)</script>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_fg",
+   "v": "url(javascript:alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_fg",
+   "v": "expression(alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_fg",
+   "v": "a\u0000b"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_fg",
+   "v": "<img src=x onerror=alert(1)>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_fg",
+   "v": "it's & \"quoted\""
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_fg",
+   "v": "  many    spaces  "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_fg",
+   "v": " line "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_fg",
+   "v": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_fg",
+   "v": "پرداخت امن ✓"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_fg",
+   "v": 12
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_fg",
+   "v": true
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_fg",
+   "v": null
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_fg",
+   "v": [
+    "a"
+   ]
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_fg",
+   "v": {
+    "a": 1
+   }
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_bg_h",
+   "v": "#112233"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_bg_h",
+   "v": "\"><script>alert(1)</script>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_bg_h",
+   "v": "url(javascript:alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_bg_h",
+   "v": "expression(alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_bg_h",
+   "v": "a\u0000b"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_bg_h",
+   "v": "<img src=x onerror=alert(1)>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_bg_h",
+   "v": "it's & \"quoted\""
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_bg_h",
+   "v": "  many    spaces  "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_bg_h",
+   "v": " line "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_bg_h",
+   "v": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_bg_h",
+   "v": "پرداخت امن ✓"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_bg_h",
+   "v": 12
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_bg_h",
+   "v": true
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_bg_h",
+   "v": null
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_bg_h",
+   "v": [
+    "a"
+   ]
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_bg_h",
+   "v": {
+    "a": 1
+   }
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_radius",
+   "v": "12.6"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_radius",
+   "v": "\"><script>alert(1)</script>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_radius",
+   "v": "url(javascript:alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_radius",
+   "v": "expression(alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_radius",
+   "v": "a\u0000b"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_radius",
+   "v": "<img src=x onerror=alert(1)>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_radius",
+   "v": "it's & \"quoted\""
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_radius",
+   "v": "  many    spaces  "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_radius",
+   "v": " line "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_radius",
+   "v": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_radius",
+   "v": "پرداخت امن ✓"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_radius",
+   "v": 12
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_radius",
+   "v": true
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_radius",
+   "v": null
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_radius",
+   "v": [
+    "a"
+   ]
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_radius",
+   "v": {
+    "a": 1
+   }
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_size",
+   "v": "lg"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_size",
+   "v": "\"><script>alert(1)</script>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_size",
+   "v": "url(javascript:alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_size",
+   "v": "expression(alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_size",
+   "v": "a\u0000b"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_size",
+   "v": "<img src=x onerror=alert(1)>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_size",
+   "v": "it's & \"quoted\""
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_size",
+   "v": "  many    spaces  "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_size",
+   "v": " line "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_size",
+   "v": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_size",
+   "v": "پرداخت امن ✓"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_size",
+   "v": 12
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_size",
+   "v": true
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_size",
+   "v": null
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_size",
+   "v": [
+    "a"
+   ]
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_size",
+   "v": {
+    "a": 1
+   }
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_width",
+   "v": "auto"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_width",
+   "v": "\"><script>alert(1)</script>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_width",
+   "v": "url(javascript:alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_width",
+   "v": "expression(alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_width",
+   "v": "a\u0000b"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_width",
+   "v": "<img src=x onerror=alert(1)>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_width",
+   "v": "it's & \"quoted\""
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_width",
+   "v": "  many    spaces  "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_width",
+   "v": " line "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_width",
+   "v": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_width",
+   "v": "پرداخت امن ✓"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_width",
+   "v": 12
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_width",
+   "v": true
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_width",
+   "v": null
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_width",
+   "v": [
+    "a"
+   ]
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_width",
+   "v": {
+    "a": 1
+   }
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_icon",
+   "v": "bi-heart"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_icon",
+   "v": "\"><script>alert(1)</script>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_icon",
+   "v": "url(javascript:alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_icon",
+   "v": "expression(alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_icon",
+   "v": "a\u0000b"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_icon",
+   "v": "<img src=x onerror=alert(1)>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_icon",
+   "v": "it's & \"quoted\""
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_icon",
+   "v": "  many    spaces  "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_icon",
+   "v": " line "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_icon",
+   "v": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_icon",
+   "v": "پرداخت امن ✓"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_icon",
+   "v": 12
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_icon",
+   "v": true
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_icon",
+   "v": null
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_icon",
+   "v": [
+    "a"
+   ]
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_icon",
+   "v": {
+    "a": 1
+   }
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_icon_pos",
+   "v": "end"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_icon_pos",
+   "v": "\"><script>alert(1)</script>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_icon_pos",
+   "v": "url(javascript:alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_icon_pos",
+   "v": "expression(alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_icon_pos",
+   "v": "a\u0000b"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_icon_pos",
+   "v": "<img src=x onerror=alert(1)>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_icon_pos",
+   "v": "it's & \"quoted\""
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_icon_pos",
+   "v": "  many    spaces  "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_icon_pos",
+   "v": " line "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_icon_pos",
+   "v": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_icon_pos",
+   "v": "پرداخت امن ✓"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_icon_pos",
+   "v": 12
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_icon_pos",
+   "v": true
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_icon_pos",
+   "v": null
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_icon_pos",
+   "v": [
+    "a"
+   ]
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_btn_icon_pos",
+   "v": {
+    "a": 1
+   }
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_order",
+   "v": "button,summary,button,evil,secure"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_order",
+   "v": "\"><script>alert(1)</script>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_order",
+   "v": "url(javascript:alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_order",
+   "v": "expression(alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_order",
+   "v": "a\u0000b"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_order",
+   "v": "<img src=x onerror=alert(1)>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_order",
+   "v": "it's & \"quoted\""
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_order",
+   "v": "  many    spaces  "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_order",
+   "v": " line "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_order",
+   "v": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_order",
+   "v": "پرداخت امن ✓"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_order",
+   "v": 12
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_order",
+   "v": true
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_order",
+   "v": null
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_order",
+   "v": [
+    "a"
+   ]
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_order",
+   "v": {
+    "a": 1
+   }
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_hide",
+   "v": "logos,fields,button,secure"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_hide",
+   "v": "\"><script>alert(1)</script>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_hide",
+   "v": "url(javascript:alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_hide",
+   "v": "expression(alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_hide",
+   "v": "a\u0000b"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_hide",
+   "v": "<img src=x onerror=alert(1)>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_hide",
+   "v": "it's & \"quoted\""
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_hide",
+   "v": "  many    spaces  "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_hide",
+   "v": " line "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_hide",
+   "v": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_hide",
+   "v": "پرداخت امن ✓"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_hide",
+   "v": 12
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_hide",
+   "v": true
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_hide",
+   "v": null
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_hide",
+   "v": [
+    "a"
+   ]
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_hide",
+   "v": {
+    "a": 1
+   }
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_layout",
+   "v": "split"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_layout",
+   "v": "\"><script>alert(1)</script>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_layout",
+   "v": "url(javascript:alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_layout",
+   "v": "expression(alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_layout",
+   "v": "a\u0000b"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_layout",
+   "v": "<img src=x onerror=alert(1)>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_layout",
+   "v": "it's & \"quoted\""
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_layout",
+   "v": "  many    spaces  "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_layout",
+   "v": " line "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_layout",
+   "v": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_layout",
+   "v": "پرداخت امن ✓"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_layout",
+   "v": 12
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_layout",
+   "v": true
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_layout",
+   "v": null
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_layout",
+   "v": [
+    "a"
+   ]
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_layout",
+   "v": {
+    "a": 1
+   }
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_methods_style",
+   "v": "grid"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_methods_style",
+   "v": "\"><script>alert(1)</script>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_methods_style",
+   "v": "url(javascript:alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_methods_style",
+   "v": "expression(alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_methods_style",
+   "v": "a\u0000b"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_methods_style",
+   "v": "<img src=x onerror=alert(1)>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_methods_style",
+   "v": "it's & \"quoted\""
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_methods_style",
+   "v": "  many    spaces  "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_methods_style",
+   "v": " line "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_methods_style",
+   "v": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_methods_style",
+   "v": "پرداخت امن ✓"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_methods_style",
+   "v": 12
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_methods_style",
+   "v": true
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_methods_style",
+   "v": null
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_methods_style",
+   "v": [
+    "a"
+   ]
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_methods_style",
+   "v": {
+    "a": 1
+   }
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_methods",
+   "v": "ideal, card ,IDEAL,bad-id,card"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_methods",
+   "v": "\"><script>alert(1)</script>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_methods",
+   "v": "url(javascript:alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_methods",
+   "v": "expression(alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_methods",
+   "v": "a\u0000b"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_methods",
+   "v": "<img src=x onerror=alert(1)>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_methods",
+   "v": "it's & \"quoted\""
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_methods",
+   "v": "  many    spaces  "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_methods",
+   "v": " line "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_methods",
+   "v": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_methods",
+   "v": "پرداخت امن ✓"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_methods",
+   "v": 12
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_methods",
+   "v": true
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_methods",
+   "v": null
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_methods",
+   "v": [
+    "a"
+   ]
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_methods",
+   "v": {
+    "a": 1
+   }
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_summary",
+   "v": "total"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_summary",
+   "v": "\"><script>alert(1)</script>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_summary",
+   "v": "url(javascript:alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_summary",
+   "v": "expression(alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_summary",
+   "v": "a\u0000b"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_summary",
+   "v": "<img src=x onerror=alert(1)>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_summary",
+   "v": "it's & \"quoted\""
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_summary",
+   "v": "  many    spaces  "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_summary",
+   "v": " line "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_summary",
+   "v": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_summary",
+   "v": "پرداخت امن ✓"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_summary",
+   "v": 12
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_summary",
+   "v": true
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_summary",
+   "v": null
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_summary",
+   "v": [
+    "a"
+   ]
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_summary",
+   "v": {
+    "a": 1
+   }
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_label_pos",
+   "v": "hidden"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_label_pos",
+   "v": "\"><script>alert(1)</script>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_label_pos",
+   "v": "url(javascript:alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_label_pos",
+   "v": "expression(alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_label_pos",
+   "v": "a\u0000b"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_label_pos",
+   "v": "<img src=x onerror=alert(1)>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_label_pos",
+   "v": "it's & \"quoted\""
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_label_pos",
+   "v": "  many    spaces  "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_label_pos",
+   "v": " line "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_label_pos",
+   "v": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_label_pos",
+   "v": "پرداخت امن ✓"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_label_pos",
+   "v": 12
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_label_pos",
+   "v": true
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_label_pos",
+   "v": null
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_label_pos",
+   "v": [
+    "a"
+   ]
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_label_pos",
+   "v": {
+    "a": 1
+   }
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_card_bg",
+   "v": "#fafafa"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_card_bg",
+   "v": "\"><script>alert(1)</script>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_card_bg",
+   "v": "url(javascript:alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_card_bg",
+   "v": "expression(alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_card_bg",
+   "v": "a\u0000b"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_card_bg",
+   "v": "<img src=x onerror=alert(1)>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_card_bg",
+   "v": "it's & \"quoted\""
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_card_bg",
+   "v": "  many    spaces  "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_card_bg",
+   "v": " line "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_card_bg",
+   "v": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_card_bg",
+   "v": "پرداخت امن ✓"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_card_bg",
+   "v": 12
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_card_bg",
+   "v": true
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_card_bg",
+   "v": null
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_card_bg",
+   "v": [
+    "a"
+   ]
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_card_bg",
+   "v": {
+    "a": 1
+   }
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_card_radius",
+   "v": 99
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_card_radius",
+   "v": "\"><script>alert(1)</script>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_card_radius",
+   "v": "url(javascript:alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_card_radius",
+   "v": "expression(alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_card_radius",
+   "v": "a\u0000b"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_card_radius",
+   "v": "<img src=x onerror=alert(1)>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_card_radius",
+   "v": "it's & \"quoted\""
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_card_radius",
+   "v": "  many    spaces  "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_card_radius",
+   "v": " line "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_card_radius",
+   "v": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_card_radius",
+   "v": "پرداخت امن ✓"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_card_radius",
+   "v": 12
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_card_radius",
+   "v": true
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_card_radius",
+   "v": null
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_card_radius",
+   "v": [
+    "a"
+   ]
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_card_radius",
+   "v": {
+    "a": 1
+   }
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_accent",
+   "v": "#0D6EFD"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_accent",
+   "v": "\"><script>alert(1)</script>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_accent",
+   "v": "url(javascript:alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_accent",
+   "v": "expression(alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_accent",
+   "v": "a\u0000b"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_accent",
+   "v": "<img src=x onerror=alert(1)>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_accent",
+   "v": "it's & \"quoted\""
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_accent",
+   "v": "  many    spaces  "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_accent",
+   "v": " line "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_accent",
+   "v": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_accent",
+   "v": "پرداخت امن ✓"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_accent",
+   "v": 12
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_accent",
+   "v": true
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_accent",
+   "v": null
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_accent",
+   "v": [
+    "a"
+   ]
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_accent",
+   "v": {
+    "a": 1
+   }
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_logo_size",
+   "v": "md"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_logo_size",
+   "v": "\"><script>alert(1)</script>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_logo_size",
+   "v": "url(javascript:alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_logo_size",
+   "v": "expression(alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_logo_size",
+   "v": "a\u0000b"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_logo_size",
+   "v": "<img src=x onerror=alert(1)>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_logo_size",
+   "v": "it's & \"quoted\""
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_logo_size",
+   "v": "  many    spaces  "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_logo_size",
+   "v": " line "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_logo_size",
+   "v": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_logo_size",
+   "v": "پرداخت امن ✓"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_logo_size",
+   "v": 12
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_logo_size",
+   "v": true
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_logo_size",
+   "v": null
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_logo_size",
+   "v": [
+    "a"
+   ]
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_logo_size",
+   "v": {
+    "a": 1
+   }
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_digits",
+   "v": "locale"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_digits",
+   "v": "\"><script>alert(1)</script>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_digits",
+   "v": "url(javascript:alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_digits",
+   "v": "expression(alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_digits",
+   "v": "a\u0000b"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_digits",
+   "v": "<img src=x onerror=alert(1)>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_digits",
+   "v": "it's & \"quoted\""
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_digits",
+   "v": "  many    spaces  "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_digits",
+   "v": " line "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_digits",
+   "v": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_digits",
+   "v": "پرداخت امن ✓"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_digits",
+   "v": 12
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_digits",
+   "v": true
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_digits",
+   "v": null
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_digits",
+   "v": [
+    "a"
+   ]
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_digits",
+   "v": {
+    "a": 1
+   }
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_i18n_b64",
+   "v": "eyJmYV9JUiI6eyJidG4iOiLZvtix2K_Yp9iu2KogJWFtb3VudCUiLCJzZWN1cmUiOiI8Yj7Yp9mF2YY8L2I-IiwiZXZpbCI6IngifSwiZGUiOnsiYnRuIjoiQmV6YWhsZW4ifSwiLi4veCI6eyJidG4iOiJubyJ9LCJlbl9VU19mb3JtYWwiOnsiZmFpbCI6Ik5vcGUifX0"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_i18n_b64",
+   "v": "\"><script>alert(1)</script>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_i18n_b64",
+   "v": "url(javascript:alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_i18n_b64",
+   "v": "expression(alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_i18n_b64",
+   "v": "a\u0000b"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_i18n_b64",
+   "v": "<img src=x onerror=alert(1)>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_i18n_b64",
+   "v": "it's & \"quoted\""
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_i18n_b64",
+   "v": "  many    spaces  "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_i18n_b64",
+   "v": " line "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_i18n_b64",
+   "v": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_i18n_b64",
+   "v": "پرداخت امن ✓"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_i18n_b64",
+   "v": 12
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_i18n_b64",
+   "v": true
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_i18n_b64",
+   "v": null
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_i18n_b64",
+   "v": [
+    "a"
+   ]
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_i18n_b64",
+   "v": {
+    "a": 1
+   }
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_secure_text",
+   "v": "Secure by Mollie"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_secure_text",
+   "v": "\"><script>alert(1)</script>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_secure_text",
+   "v": "url(javascript:alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_secure_text",
+   "v": "expression(alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_secure_text",
+   "v": "a\u0000b"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_secure_text",
+   "v": "<img src=x onerror=alert(1)>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_secure_text",
+   "v": "it's & \"quoted\""
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_secure_text",
+   "v": "  many    spaces  "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_secure_text",
+   "v": " line "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_secure_text",
+   "v": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_secure_text",
+   "v": "پرداخت امن ✓"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_secure_text",
+   "v": 12
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_secure_text",
+   "v": true
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_secure_text",
+   "v": null
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_secure_text",
+   "v": [
+    "a"
+   ]
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_secure_text",
+   "v": {
+    "a": 1
+   }
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_fixed",
+   "v": "۲۵.۵"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_fixed",
+   "v": "\"><script>alert(1)</script>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_fixed",
+   "v": "url(javascript:alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_fixed",
+   "v": "expression(alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_fixed",
+   "v": "a\u0000b"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_fixed",
+   "v": "<img src=x onerror=alert(1)>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_fixed",
+   "v": "it's & \"quoted\""
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_fixed",
+   "v": "  many    spaces  "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_fixed",
+   "v": " line "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_fixed",
+   "v": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_fixed",
+   "v": "پرداخت امن ✓"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_fixed",
+   "v": 12
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_fixed",
+   "v": true
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_fixed",
+   "v": null
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_fixed",
+   "v": [
+    "a"
+   ]
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_fixed",
+   "v": {
+    "a": 1
+   }
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_amount",
+   "v": "donation"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_amount",
+   "v": "\"><script>alert(1)</script>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_amount",
+   "v": "url(javascript:alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_amount",
+   "v": "expression(alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_amount",
+   "v": "a\u0000b"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_amount",
+   "v": "<img src=x onerror=alert(1)>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_amount",
+   "v": "it's & \"quoted\""
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_amount",
+   "v": "  many    spaces  "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_amount",
+   "v": " line "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_amount",
+   "v": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_amount",
+   "v": "پرداخت امن ✓"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_amount",
+   "v": 12
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_amount",
+   "v": true
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_amount",
+   "v": null
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_amount",
+   "v": [
+    "a"
+   ]
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_amount",
+   "v": {
+    "a": 1
+   }
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_presets",
+   "v": "5,10,10,0,abc,25.50,1,2,3,4,5,6,7"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_presets",
+   "v": "\"><script>alert(1)</script>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_presets",
+   "v": "url(javascript:alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_presets",
+   "v": "expression(alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_presets",
+   "v": "a\u0000b"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_presets",
+   "v": "<img src=x onerror=alert(1)>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_presets",
+   "v": "it's & \"quoted\""
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_presets",
+   "v": "  many    spaces  "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_presets",
+   "v": " line "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_presets",
+   "v": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_presets",
+   "v": "پرداخت امن ✓"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_presets",
+   "v": 12
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_presets",
+   "v": true
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_presets",
+   "v": null
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_presets",
+   "v": [
+    "a"
+   ]
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_presets",
+   "v": {
+    "a": 1
+   }
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_other",
+   "v": 1
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_other",
+   "v": "\"><script>alert(1)</script>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_other",
+   "v": "url(javascript:alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_other",
+   "v": "expression(alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_other",
+   "v": "a\u0000b"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_other",
+   "v": "<img src=x onerror=alert(1)>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_other",
+   "v": "it's & \"quoted\""
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_other",
+   "v": "  many    spaces  "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_other",
+   "v": " line "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_other",
+   "v": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_other",
+   "v": "پرداخت امن ✓"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_other",
+   "v": 12
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_other",
+   "v": true
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_other",
+   "v": null
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_other",
+   "v": [
+    "a"
+   ]
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_other",
+   "v": {
+    "a": 1
+   }
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_default",
+   "v": "10"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_default",
+   "v": "\"><script>alert(1)</script>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_default",
+   "v": "url(javascript:alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_default",
+   "v": "expression(alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_default",
+   "v": "a\u0000b"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_default",
+   "v": "<img src=x onerror=alert(1)>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_default",
+   "v": "it's & \"quoted\""
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_default",
+   "v": "  many    spaces  "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_default",
+   "v": " line "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_default",
+   "v": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_default",
+   "v": "پرداخت امن ✓"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_default",
+   "v": 12
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_default",
+   "v": true
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_default",
+   "v": null
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_default",
+   "v": [
+    "a"
+   ]
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_default",
+   "v": {
+    "a": 1
+   }
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_min",
+   "v": "1"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_min",
+   "v": "\"><script>alert(1)</script>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_min",
+   "v": "url(javascript:alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_min",
+   "v": "expression(alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_min",
+   "v": "a\u0000b"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_min",
+   "v": "<img src=x onerror=alert(1)>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_min",
+   "v": "it's & \"quoted\""
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_min",
+   "v": "  many    spaces  "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_min",
+   "v": " line "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_min",
+   "v": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_min",
+   "v": "پرداخت امن ✓"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_min",
+   "v": 12
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_min",
+   "v": true
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_min",
+   "v": null
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_min",
+   "v": [
+    "a"
+   ]
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_min",
+   "v": {
+    "a": 1
+   }
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_max",
+   "v": "500"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_max",
+   "v": "\"><script>alert(1)</script>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_max",
+   "v": "url(javascript:alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_max",
+   "v": "expression(alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_max",
+   "v": "a\u0000b"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_max",
+   "v": "<img src=x onerror=alert(1)>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_max",
+   "v": "it's & \"quoted\""
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_max",
+   "v": "  many    spaces  "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_max",
+   "v": " line "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_max",
+   "v": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_max",
+   "v": "پرداخت امن ✓"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_max",
+   "v": 12
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_max",
+   "v": true
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_max",
+   "v": null
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_max",
+   "v": [
+    "a"
+   ]
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_max",
+   "v": {
+    "a": 1
+   }
+  },
+  {
+   "op": "sanitize",
+   "k": "mobile_pf_order",
+   "v": "secure,button"
+  },
+  {
+   "op": "sanitize",
+   "k": "mobile_pf_order",
+   "v": "\"><script>alert(1)</script>"
+  },
+  {
+   "op": "sanitize",
+   "k": "mobile_pf_order",
+   "v": "url(javascript:alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "mobile_pf_order",
+   "v": "expression(alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "mobile_pf_order",
+   "v": "a\u0000b"
+  },
+  {
+   "op": "sanitize",
+   "k": "mobile_pf_order",
+   "v": "<img src=x onerror=alert(1)>"
+  },
+  {
+   "op": "sanitize",
+   "k": "mobile_pf_order",
+   "v": "it's & \"quoted\""
+  },
+  {
+   "op": "sanitize",
+   "k": "mobile_pf_order",
+   "v": "  many    spaces  "
+  },
+  {
+   "op": "sanitize",
+   "k": "mobile_pf_order",
+   "v": " line "
+  },
+  {
+   "op": "sanitize",
+   "k": "mobile_pf_order",
+   "v": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+  {
+   "op": "sanitize",
+   "k": "mobile_pf_order",
+   "v": "پرداخت امن ✓"
+  },
+  {
+   "op": "sanitize",
+   "k": "mobile_pf_order",
+   "v": 12
+  },
+  {
+   "op": "sanitize",
+   "k": "mobile_pf_order",
+   "v": true
+  },
+  {
+   "op": "sanitize",
+   "k": "mobile_pf_order",
+   "v": null
+  },
+  {
+   "op": "sanitize",
+   "k": "mobile_pf_order",
+   "v": [
+    "a"
+   ]
+  },
+  {
+   "op": "sanitize",
+   "k": "mobile_pf_order",
+   "v": {
+    "a": 1
+   }
+  },
+  {
+   "op": "sanitize",
+   "k": "mobile_pf_btn_size",
+   "v": "sm"
+  },
+  {
+   "op": "sanitize",
+   "k": "mobile_pf_btn_size",
+   "v": "\"><script>alert(1)</script>"
+  },
+  {
+   "op": "sanitize",
+   "k": "mobile_pf_btn_size",
+   "v": "url(javascript:alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "mobile_pf_btn_size",
+   "v": "expression(alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "mobile_pf_btn_size",
+   "v": "a\u0000b"
+  },
+  {
+   "op": "sanitize",
+   "k": "mobile_pf_btn_size",
+   "v": "<img src=x onerror=alert(1)>"
+  },
+  {
+   "op": "sanitize",
+   "k": "mobile_pf_btn_size",
+   "v": "it's & \"quoted\""
+  },
+  {
+   "op": "sanitize",
+   "k": "mobile_pf_btn_size",
+   "v": "  many    spaces  "
+  },
+  {
+   "op": "sanitize",
+   "k": "mobile_pf_btn_size",
+   "v": " line "
+  },
+  {
+   "op": "sanitize",
+   "k": "mobile_pf_btn_size",
+   "v": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+  {
+   "op": "sanitize",
+   "k": "mobile_pf_btn_size",
+   "v": "پرداخت امن ✓"
+  },
+  {
+   "op": "sanitize",
+   "k": "mobile_pf_btn_size",
+   "v": 12
+  },
+  {
+   "op": "sanitize",
+   "k": "mobile_pf_btn_size",
+   "v": true
+  },
+  {
+   "op": "sanitize",
+   "k": "mobile_pf_btn_size",
+   "v": null
+  },
+  {
+   "op": "sanitize",
+   "k": "mobile_pf_btn_size",
+   "v": [
+    "a"
+   ]
+  },
+  {
+   "op": "sanitize",
+   "k": "mobile_pf_btn_size",
+   "v": {
+    "a": 1
+   }
+  },
+  {
+   "op": "sanitize",
+   "k": "pay_act_admin_mail",
+   "v": "both"
+  },
+  {
+   "op": "sanitize",
+   "k": "pay_act_admin_mail",
+   "v": "\"><script>alert(1)</script>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pay_act_admin_mail",
+   "v": "url(javascript:alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pay_act_admin_mail",
+   "v": "expression(alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pay_act_admin_mail",
+   "v": "a\u0000b"
+  },
+  {
+   "op": "sanitize",
+   "k": "pay_act_admin_mail",
+   "v": "<img src=x onerror=alert(1)>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pay_act_admin_mail",
+   "v": "it's & \"quoted\""
+  },
+  {
+   "op": "sanitize",
+   "k": "pay_act_admin_mail",
+   "v": "  many    spaces  "
+  },
+  {
+   "op": "sanitize",
+   "k": "pay_act_admin_mail",
+   "v": " line "
+  },
+  {
+   "op": "sanitize",
+   "k": "pay_act_admin_mail",
+   "v": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+  {
+   "op": "sanitize",
+   "k": "pay_act_admin_mail",
+   "v": "پرداخت امن ✓"
+  },
+  {
+   "op": "sanitize",
+   "k": "pay_act_admin_mail",
+   "v": 12
+  },
+  {
+   "op": "sanitize",
+   "k": "pay_act_admin_mail",
+   "v": true
+  },
+  {
+   "op": "sanitize",
+   "k": "pay_act_admin_mail",
+   "v": null
+  },
+  {
+   "op": "sanitize",
+   "k": "pay_act_admin_mail",
+   "v": [
+    "a"
+   ]
+  },
+  {
+   "op": "sanitize",
+   "k": "pay_act_admin_mail",
+   "v": {
+    "a": 1
+   }
+  },
+  {
+   "op": "sanitize",
+   "k": "pay_fail_notify",
+   "v": "admin"
+  },
+  {
+   "op": "sanitize",
+   "k": "pay_fail_notify",
+   "v": "\"><script>alert(1)</script>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pay_fail_notify",
+   "v": "url(javascript:alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pay_fail_notify",
+   "v": "expression(alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pay_fail_notify",
+   "v": "a\u0000b"
+  },
+  {
+   "op": "sanitize",
+   "k": "pay_fail_notify",
+   "v": "<img src=x onerror=alert(1)>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pay_fail_notify",
+   "v": "it's & \"quoted\""
+  },
+  {
+   "op": "sanitize",
+   "k": "pay_fail_notify",
+   "v": "  many    spaces  "
+  },
+  {
+   "op": "sanitize",
+   "k": "pay_fail_notify",
+   "v": " line "
+  },
+  {
+   "op": "sanitize",
+   "k": "pay_fail_notify",
+   "v": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+  {
+   "op": "sanitize",
+   "k": "pay_fail_notify",
+   "v": "پرداخت امن ✓"
+  },
+  {
+   "op": "sanitize",
+   "k": "pay_fail_notify",
+   "v": 12
+  },
+  {
+   "op": "sanitize",
+   "k": "pay_fail_notify",
+   "v": true
+  },
+  {
+   "op": "sanitize",
+   "k": "pay_fail_notify",
+   "v": null
+  },
+  {
+   "op": "sanitize",
+   "k": "pay_fail_notify",
+   "v": [
+    "a"
+   ]
+  },
+  {
+   "op": "sanitize",
+   "k": "pay_fail_notify",
+   "v": {
+    "a": 1
+   }
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_unknown",
+   "v": "x"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_unknown",
+   "v": "\"><script>alert(1)</script>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_unknown",
+   "v": "url(javascript:alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_unknown",
+   "v": "expression(alert(1))"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_unknown",
+   "v": "a\u0000b"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_unknown",
+   "v": "<img src=x onerror=alert(1)>"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_unknown",
+   "v": "it's & \"quoted\""
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_unknown",
+   "v": "  many    spaces  "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_unknown",
+   "v": " line "
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_unknown",
+   "v": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_unknown",
+   "v": "پرداخت امن ✓"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_unknown",
+   "v": 12
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_unknown",
+   "v": true
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_unknown",
+   "v": null
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_unknown",
+   "v": [
+    "a"
+   ]
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_unknown",
+   "v": {
+    "a": 1
+   }
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_i18n_b64",
+   "v": "!!notbase64"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_i18n_b64",
+   "v": "WzEsMl0"
+  },
+  {
+   "op": "sanitize",
+   "k": "pf_i18n_b64",
+   "v": "eyJlbiI6eyJidG4iOiJcIj48c2NyaXB0Png8L3NjcmlwdD4ifX0"
+  }
+ ],
+ "field": [
+  {
+   "op": "field",
+   "row": {
+    "id_": "pf1",
+    "type": "efbmock",
+    "name": "Payment"
+   },
+   "form0": {
+    "button_color": "btn-primary"
+   },
+   "opts": {},
+   "locale": "en_US",
+   "defaults": {
+    "btn": "Pay %amount%",
+    "secure": "Payments are processed securely by Mock. Your card details never reach this website.",
+    "summary": "Order summary",
+    "methods": "Choose a payment method",
+    "pending": "Waiting",
+    "success": "Paid",
+    "fail": "Not paid",
+    "redirect": "Taking you…",
+    "test": "Test mode: no real payment will be taken.",
+    "amount": "Amount",
+    "other": "Other amount",
+    "total": "Total"
+   },
+   "ctx": {
+    "id": "pf1",
+    "gateway": "efbmock",
+    "form_id": "7",
+    "label": "Payment",
+    "test": true,
+    "preview": false
+   }
+  },
+  {
+   "op": "field",
+   "row": {
+    "id_": "pf2",
+    "type": "efbmock",
+    "name": "Donate <b>",
+    "pf_btn_text": "Pay %amount% now",
+    "pf_btn_bg": "#ABC",
+    "pf_btn_fg": "auto",
+    "pf_btn_bg_h": "#112233",
+    "pf_btn_radius": "12.6",
+    "pf_btn_size": "lg",
+    "pf_btn_width": "auto",
+    "pf_btn_icon": "bi-heart",
+    "pf_btn_icon_pos": "end",
+    "pf_order": "button,summary,button,evil,secure",
+    "pf_hide": "logos,fields,button,secure",
+    "pf_layout": "split",
+    "pf_methods_style": "grid",
+    "pf_methods": "ideal, card ,IDEAL,bad-id,card",
+    "pf_summary": "total",
+    "pf_label_pos": "hidden",
+    "pf_card_bg": "#fafafa",
+    "pf_card_radius": 99,
+    "pf_accent": "#0D6EFD",
+    "pf_logo_size": "md",
+    "pf_digits": "locale",
+    "pf_i18n_b64": "eyJmYV9JUiI6eyJidG4iOiLZvtix2K_Yp9iu2KogJWFtb3VudCUiLCJzZWN1cmUiOiI8Yj7Yp9mF2YY8L2I-IiwiZXZpbCI6IngifSwiZGUiOnsiYnRuIjoiQmV6YWhsZW4ifSwiLi4veCI6eyJidG4iOiJubyJ9LCJlbl9VU19mb3JtYWwiOnsiZmFpbCI6Ik5vcGUifX0",
+    "pf_secure_text": "Secure by Mollie",
+    "pf_fixed": "۲۵.۵",
+    "pf_amount": "donation",
+    "pf_presets": "5,10,10,0,abc,25.50,1,2,3,4,5,6,7",
+    "pf_other": 1,
+    "pf_default": "10",
+    "pf_min": "1",
+    "pf_max": "500",
+    "mobile_pf_order": "secure,button",
+    "mobile_pf_btn_size": "sm",
+    "pay_act_admin_mail": "both",
+    "pay_fail_notify": "admin",
+    "pf_unknown": "x"
+   },
+   "form0": {
+    "button_color": "btn-darkb"
+   },
+   "opts": {
+    "methods": [
+     [
+      "ideal",
+      "iDEAL"
+     ],
+     [
+      "card",
+      "Card"
+     ],
+     [
+      "wero",
+      "Wero \"x\""
+     ]
+    ],
+    "logos": [
+     [
+      "https://site.example/wp-content/plugins/x/logo.svg",
+      "Mollie <logo>"
+     ]
+    ],
+    "mobile": true
+   },
+   "locale": "fa_IR",
+   "defaults": {
+    "btn": "Pay %amount%",
+    "secure": "Payments are processed securely by Mock. Your card details never reach this website.",
+    "summary": "Order summary",
+    "methods": "Choose a payment method",
+    "pending": "Waiting",
+    "success": "Paid",
+    "fail": "Not paid",
+    "redirect": "Taking you…",
+    "test": "Test mode: no real payment will be taken.",
+    "amount": "Amount",
+    "other": "Other amount",
+    "total": "Total"
+   },
+   "ctx": {
+    "id": "pf2",
+    "gateway": "efbmock",
+    "form_id": "8",
+    "label": "Donate <b>",
+    "test": false,
+    "preview": true,
+    "placeholder": "Card fields appear here"
+   }
+  },
+  {
+   "op": "field",
+   "row": {
+    "id_": "pf3",
+    "pf_btn_fg": "#ffffff",
+    "pf_btn_bg": "#ffff00",
+    "pf_methods_style": "select",
+    "pf_hide": "summary",
+    "pf_btn_icon": "none",
+    "pf_label_pos": "start",
+    "pf_t_success": "Thanks!",
+    "pf_i18n_b64": "eyJkZV9ERSI6eyJidG4iOiJKZXR6dCAlYW1vdW50JSB6YWhsZW4ifSwiZGUiOnsic2VjdXJlIjoiU2ljaGVyIn19"
+   },
+   "form0": {
+    "button_color": "#123456 x"
+   },
+   "opts": {
+    "methods": [
+     [
+      "ideal",
+      "iDEAL"
+     ],
+     [
+      "card",
+      "Card"
+     ],
+     [
+      "wero",
+      "Wero \"x\""
+     ]
+    ],
+    "mobile": false
+   },
+   "locale": "de_DE",
+   "defaults": {
+    "btn": "Pay %amount%",
+    "secure": "Payments are processed securely by Mock. Your card details never reach this website.",
+    "summary": "Order summary",
+    "methods": "Choose a payment method",
+    "pending": "Waiting",
+    "success": "Paid",
+    "fail": "Not paid",
+    "redirect": "Taking you…",
+    "test": "Test mode: no real payment will be taken.",
+    "amount": "Amount",
+    "other": "Other amount",
+    "total": "Total"
+   },
+   "ctx": {
+    "id": "pf3",
+    "gateway": "efbmock",
+    "form_id": "9",
+    "label": "Zahlung",
+    "test": false
+   }
+  },
+  {
+   "op": "field",
+   "row": {
+    "id_": "pf4",
+    "pf_amount": "donation",
+    "pf_presets": "",
+    "pf_order": "amount,button",
+    "pf_hide": "secure",
+    "mobile_pf_hide": "amount",
+    "mobile_pf_btn_width": "full"
+   },
+   "form0": {},
+   "opts": {
+    "mobile": true
+   },
+   "locale": "de",
+   "defaults": {
+    "btn": "Pay %amount%",
+    "secure": "Payments are processed securely by Mock. Your card details never reach this website.",
+    "summary": "Order summary",
+    "methods": "Choose a payment method",
+    "pending": "Waiting",
+    "success": "Paid",
+    "fail": "Not paid",
+    "redirect": "Taking you…",
+    "test": "Test mode: no real payment will be taken.",
+    "amount": "Amount",
+    "other": "Other amount",
+    "total": "Total"
+   },
+   "ctx": {
+    "id": "pf4",
+    "gateway": "efbmock",
+    "form_id": "1",
+    "label": "x"
+   }
+  }
+ ]
+}

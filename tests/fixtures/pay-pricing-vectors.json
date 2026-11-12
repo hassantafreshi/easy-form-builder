@@ -1,0 +1,3412 @@
+{
+ "note": "PAY00 money and pricing: inputs only; tests/test-pay-pricing-parity.js and test-pay-pricing.php run them.",
+ "money": [
+  {
+   "op": "money",
+   "value": "12.5",
+   "currency": "KWD"
+  },
+  {
+   "op": "money",
+   "value": "12.5",
+   "currency": "EUR"
+  },
+  {
+   "op": "money",
+   "value": "500",
+   "currency": "JPY"
+  },
+  {
+   "op": "money",
+   "value": "499.5",
+   "currency": "JPY"
+  },
+  {
+   "op": "money",
+   "value": "0.005",
+   "currency": "EUR"
+  },
+  {
+   "op": "money",
+   "value": "0.004",
+   "currency": "EUR"
+  },
+  {
+   "op": "money",
+   "value": "1,25",
+   "currency": "EUR"
+  },
+  {
+   "op": "money",
+   "value": "۱۲٫۵",
+   "currency": "USD"
+  },
+  {
+   "op": "money",
+   "value": "-1.239",
+   "currency": "USD"
+  },
+  {
+   "op": "money",
+   "value": ".5",
+   "currency": "EUR"
+  },
+  {
+   "op": "money",
+   "value": "abc",
+   "currency": "EUR"
+  },
+  {
+   "op": "money",
+   "value": "1e3",
+   "currency": "EUR"
+  },
+  {
+   "op": "money",
+   "value": "12.3456789",
+   "currency": "BHD"
+  },
+  {
+   "op": "money",
+   "value": 12.5,
+   "currency": "EUR"
+  },
+  {
+   "op": "money",
+   "value": 0.1,
+   "currency": "USD"
+  },
+  {
+   "op": "money",
+   "value": true,
+   "currency": "EUR"
+  },
+  {
+   "op": "money",
+   "value": null,
+   "currency": "EUR"
+  },
+  {
+   "op": "money",
+   "value": "99999999999999999",
+   "currency": "EUR"
+  },
+  {
+   "op": "money",
+   "value": "10",
+   "currency": "xx"
+  },
+  {
+   "op": "tominor",
+   "minor": 12500,
+   "currency": "KWD"
+  },
+  {
+   "op": "tominor",
+   "minor": 1250,
+   "currency": "EUR"
+  },
+  {
+   "op": "tominor",
+   "minor": 500,
+   "currency": "JPY"
+  },
+  {
+   "op": "tominor",
+   "minor": 5,
+   "currency": "EUR"
+  },
+  {
+   "op": "tominor",
+   "minor": -5,
+   "currency": "USD"
+  },
+  {
+   "op": "tominor",
+   "minor": 0,
+   "currency": "BHD"
+  }
+ ],
+ "quote": [
+  {
+   "op": "quote",
+   "form": [
+    {
+     "type": "payment",
+     "currency": "eur",
+     "getway": "efbmock"
+    },
+    {
+     "id_": "1",
+     "type": "step"
+    },
+    {
+     "id_": "rad",
+     "type": "payRadio",
+     "name": "Ticket"
+    },
+    {
+     "id_": "ro1",
+     "parent": "rad",
+     "type": "option",
+     "value": "Adult",
+     "price": "25"
+    },
+    {
+     "id_": "ro2",
+     "parent": "rad",
+     "type": "option",
+     "value": "Child",
+     "price": "12.5"
+    },
+    {
+     "id_": "sel",
+     "type": "paySelect",
+     "name": "Size"
+    },
+    {
+     "id_": "so1",
+     "parent": "sel",
+     "type": "option",
+     "value": "Large &amp; tall",
+     "price": "3.333"
+    },
+    {
+     "id_": "so2",
+     "parent": "sel",
+     "type": "option",
+     "value": "Small",
+     "price": ""
+    },
+    {
+     "id_": "chk",
+     "type": "payCheckbox",
+     "name": "Extras"
+    },
+    {
+     "id_": "co1",
+     "parent": "chk",
+     "type": "option",
+     "value": "Lunch",
+     "price": "9.99"
+    },
+    {
+     "id_": "co2",
+     "parent": "chk",
+     "type": "option",
+     "value": "Dinner",
+     "price": "15"
+    },
+    {
+     "id_": "mul",
+     "type": "payMultiselect",
+     "name": "Addons"
+    },
+    {
+     "id_": "mo1",
+     "parent": "mul",
+     "type": "option",
+     "value": "A",
+     "price": "1"
+    },
+    {
+     "id_": "mo2",
+     "parent": "mul",
+     "type": "option",
+     "value": "B",
+     "price": "2"
+    },
+    {
+     "id_": "tip",
+     "type": "prcfld",
+     "name": "Tip",
+     "milen": "1",
+     "mlen": "50"
+    },
+    {
+     "id_": "pf",
+     "type": "efbmock",
+     "name": "Pay",
+     "pf_fixed": "2",
+     "pf_fixed_label": "Fee"
+    },
+    {
+     "id_": "don",
+     "type": "efbmock",
+     "name": "Donate",
+     "pf_amount": "donation",
+     "pf_presets": "10,25,50",
+     "pf_other": "1",
+     "pf_min": "5",
+     "pf_max": "1000",
+     "pf_default": "25"
+    },
+    {
+     "id_": "don2",
+     "type": "efbmock",
+     "name": "Donate fixed",
+     "pf_amount": "donation",
+     "pf_presets": "10,25"
+    }
+   ],
+   "rows": [
+    {
+     "id_": "rad",
+     "id_ob": "ro1",
+     "type": "payRadio",
+     "value": "Adult",
+     "price": "0.01"
+    }
+   ],
+   "ctx": {
+    "field_id": "pf"
+   }
+  },
+  {
+   "op": "quote",
+   "form": [
+    {
+     "type": "payment",
+     "currency": "eur",
+     "getway": "efbmock"
+    },
+    {
+     "id_": "1",
+     "type": "step"
+    },
+    {
+     "id_": "rad",
+     "type": "payRadio",
+     "name": "Ticket"
+    },
+    {
+     "id_": "ro1",
+     "parent": "rad",
+     "type": "option",
+     "value": "Adult",
+     "price": "25"
+    },
+    {
+     "id_": "ro2",
+     "parent": "rad",
+     "type": "option",
+     "value": "Child",
+     "price": "12.5"
+    },
+    {
+     "id_": "sel",
+     "type": "paySelect",
+     "name": "Size"
+    },
+    {
+     "id_": "so1",
+     "parent": "sel",
+     "type": "option",
+     "value": "Large &amp; tall",
+     "price": "3.333"
+    },
+    {
+     "id_": "so2",
+     "parent": "sel",
+     "type": "option",
+     "value": "Small",
+     "price": ""
+    },
+    {
+     "id_": "chk",
+     "type": "payCheckbox",
+     "name": "Extras"
+    },
+    {
+     "id_": "co1",
+     "parent": "chk",
+     "type": "option",
+     "value": "Lunch",
+     "price": "9.99"
+    },
+    {
+     "id_": "co2",
+     "parent": "chk",
+     "type": "option",
+     "value": "Dinner",
+     "price": "15"
+    },
+    {
+     "id_": "mul",
+     "type": "payMultiselect",
+     "name": "Addons"
+    },
+    {
+     "id_": "mo1",
+     "parent": "mul",
+     "type": "option",
+     "value": "A",
+     "price": "1"
+    },
+    {
+     "id_": "mo2",
+     "parent": "mul",
+     "type": "option",
+     "value": "B",
+     "price": "2"
+    },
+    {
+     "id_": "tip",
+     "type": "prcfld",
+     "name": "Tip",
+     "milen": "1",
+     "mlen": "50"
+    },
+    {
+     "id_": "pf",
+     "type": "efbmock",
+     "name": "Pay",
+     "pf_fixed": "2",
+     "pf_fixed_label": "Fee"
+    },
+    {
+     "id_": "don",
+     "type": "efbmock",
+     "name": "Donate",
+     "pf_amount": "donation",
+     "pf_presets": "10,25,50",
+     "pf_other": "1",
+     "pf_min": "5",
+     "pf_max": "1000",
+     "pf_default": "25"
+    },
+    {
+     "id_": "don2",
+     "type": "efbmock",
+     "name": "Donate fixed",
+     "pf_amount": "donation",
+     "pf_presets": "10,25"
+    }
+   ],
+   "rows": [
+    {
+     "id_": "rad",
+     "id_ob": "ro2",
+     "type": "payRadio",
+     "price": "999"
+    },
+    {
+     "id_": "chk",
+     "id_ob": "co1",
+     "type": "payCheckbox"
+    },
+    {
+     "id_": "chk",
+     "id_ob": "co2",
+     "type": "payCheckbox"
+    },
+    {
+     "id_": "chk",
+     "id_ob": "co2",
+     "type": "payCheckbox"
+    }
+   ],
+   "ctx": {}
+  },
+  {
+   "op": "quote",
+   "form": [
+    {
+     "type": "payment",
+     "currency": "eur",
+     "getway": "efbmock"
+    },
+    {
+     "id_": "1",
+     "type": "step"
+    },
+    {
+     "id_": "rad",
+     "type": "payRadio",
+     "name": "Ticket"
+    },
+    {
+     "id_": "ro1",
+     "parent": "rad",
+     "type": "option",
+     "value": "Adult",
+     "price": "25"
+    },
+    {
+     "id_": "ro2",
+     "parent": "rad",
+     "type": "option",
+     "value": "Child",
+     "price": "12.5"
+    },
+    {
+     "id_": "sel",
+     "type": "paySelect",
+     "name": "Size"
+    },
+    {
+     "id_": "so1",
+     "parent": "sel",
+     "type": "option",
+     "value": "Large &amp; tall",
+     "price": "3.333"
+    },
+    {
+     "id_": "so2",
+     "parent": "sel",
+     "type": "option",
+     "value": "Small",
+     "price": ""
+    },
+    {
+     "id_": "chk",
+     "type": "payCheckbox",
+     "name": "Extras"
+    },
+    {
+     "id_": "co1",
+     "parent": "chk",
+     "type": "option",
+     "value": "Lunch",
+     "price": "9.99"
+    },
+    {
+     "id_": "co2",
+     "parent": "chk",
+     "type": "option",
+     "value": "Dinner",
+     "price": "15"
+    },
+    {
+     "id_": "mul",
+     "type": "payMultiselect",
+     "name": "Addons"
+    },
+    {
+     "id_": "mo1",
+     "parent": "mul",
+     "type": "option",
+     "value": "A",
+     "price": "1"
+    },
+    {
+     "id_": "mo2",
+     "parent": "mul",
+     "type": "option",
+     "value": "B",
+     "price": "2"
+    },
+    {
+     "id_": "tip",
+     "type": "prcfld",
+     "name": "Tip",
+     "milen": "1",
+     "mlen": "50"
+    },
+    {
+     "id_": "pf",
+     "type": "efbmock",
+     "name": "Pay",
+     "pf_fixed": "2",
+     "pf_fixed_label": "Fee"
+    },
+    {
+     "id_": "don",
+     "type": "efbmock",
+     "name": "Donate",
+     "pf_amount": "donation",
+     "pf_presets": "10,25,50",
+     "pf_other": "1",
+     "pf_min": "5",
+     "pf_max": "1000",
+     "pf_default": "25"
+    },
+    {
+     "id_": "don2",
+     "type": "efbmock",
+     "name": "Donate fixed",
+     "pf_amount": "donation",
+     "pf_presets": "10,25"
+    }
+   ],
+   "rows": [
+    {
+     "id_": "sel",
+     "type": "paySelect",
+     "value": "Large & tall"
+    }
+   ],
+   "ctx": {}
+  },
+  {
+   "op": "quote",
+   "form": [
+    {
+     "type": "payment",
+     "currency": "eur",
+     "getway": "efbmock"
+    },
+    {
+     "id_": "1",
+     "type": "step"
+    },
+    {
+     "id_": "rad",
+     "type": "payRadio",
+     "name": "Ticket"
+    },
+    {
+     "id_": "ro1",
+     "parent": "rad",
+     "type": "option",
+     "value": "Adult",
+     "price": "25"
+    },
+    {
+     "id_": "ro2",
+     "parent": "rad",
+     "type": "option",
+     "value": "Child",
+     "price": "12.5"
+    },
+    {
+     "id_": "sel",
+     "type": "paySelect",
+     "name": "Size"
+    },
+    {
+     "id_": "so1",
+     "parent": "sel",
+     "type": "option",
+     "value": "Large &amp; tall",
+     "price": "3.333"
+    },
+    {
+     "id_": "so2",
+     "parent": "sel",
+     "type": "option",
+     "value": "Small",
+     "price": ""
+    },
+    {
+     "id_": "chk",
+     "type": "payCheckbox",
+     "name": "Extras"
+    },
+    {
+     "id_": "co1",
+     "parent": "chk",
+     "type": "option",
+     "value": "Lunch",
+     "price": "9.99"
+    },
+    {
+     "id_": "co2",
+     "parent": "chk",
+     "type": "option",
+     "value": "Dinner",
+     "price": "15"
+    },
+    {
+     "id_": "mul",
+     "type": "payMultiselect",
+     "name": "Addons"
+    },
+    {
+     "id_": "mo1",
+     "parent": "mul",
+     "type": "option",
+     "value": "A",
+     "price": "1"
+    },
+    {
+     "id_": "mo2",
+     "parent": "mul",
+     "type": "option",
+     "value": "B",
+     "price": "2"
+    },
+    {
+     "id_": "tip",
+     "type": "prcfld",
+     "name": "Tip",
+     "milen": "1",
+     "mlen": "50"
+    },
+    {
+     "id_": "pf",
+     "type": "efbmock",
+     "name": "Pay",
+     "pf_fixed": "2",
+     "pf_fixed_label": "Fee"
+    },
+    {
+     "id_": "don",
+     "type": "efbmock",
+     "name": "Donate",
+     "pf_amount": "donation",
+     "pf_presets": "10,25,50",
+     "pf_other": "1",
+     "pf_min": "5",
+     "pf_max": "1000",
+     "pf_default": "25"
+    },
+    {
+     "id_": "don2",
+     "type": "efbmock",
+     "name": "Donate fixed",
+     "pf_amount": "donation",
+     "pf_presets": "10,25"
+    }
+   ],
+   "rows": [
+    {
+     "id_": "sel",
+     "type": "paySelect",
+     "value": "Small"
+    }
+   ],
+   "ctx": {}
+  },
+  {
+   "op": "quote",
+   "form": [
+    {
+     "type": "payment",
+     "currency": "eur",
+     "getway": "efbmock"
+    },
+    {
+     "id_": "1",
+     "type": "step"
+    },
+    {
+     "id_": "rad",
+     "type": "payRadio",
+     "name": "Ticket"
+    },
+    {
+     "id_": "ro1",
+     "parent": "rad",
+     "type": "option",
+     "value": "Adult",
+     "price": "25"
+    },
+    {
+     "id_": "ro2",
+     "parent": "rad",
+     "type": "option",
+     "value": "Child",
+     "price": "12.5"
+    },
+    {
+     "id_": "sel",
+     "type": "paySelect",
+     "name": "Size"
+    },
+    {
+     "id_": "so1",
+     "parent": "sel",
+     "type": "option",
+     "value": "Large &amp; tall",
+     "price": "3.333"
+    },
+    {
+     "id_": "so2",
+     "parent": "sel",
+     "type": "option",
+     "value": "Small",
+     "price": ""
+    },
+    {
+     "id_": "chk",
+     "type": "payCheckbox",
+     "name": "Extras"
+    },
+    {
+     "id_": "co1",
+     "parent": "chk",
+     "type": "option",
+     "value": "Lunch",
+     "price": "9.99"
+    },
+    {
+     "id_": "co2",
+     "parent": "chk",
+     "type": "option",
+     "value": "Dinner",
+     "price": "15"
+    },
+    {
+     "id_": "mul",
+     "type": "payMultiselect",
+     "name": "Addons"
+    },
+    {
+     "id_": "mo1",
+     "parent": "mul",
+     "type": "option",
+     "value": "A",
+     "price": "1"
+    },
+    {
+     "id_": "mo2",
+     "parent": "mul",
+     "type": "option",
+     "value": "B",
+     "price": "2"
+    },
+    {
+     "id_": "tip",
+     "type": "prcfld",
+     "name": "Tip",
+     "milen": "1",
+     "mlen": "50"
+    },
+    {
+     "id_": "pf",
+     "type": "efbmock",
+     "name": "Pay",
+     "pf_fixed": "2",
+     "pf_fixed_label": "Fee"
+    },
+    {
+     "id_": "don",
+     "type": "efbmock",
+     "name": "Donate",
+     "pf_amount": "donation",
+     "pf_presets": "10,25,50",
+     "pf_other": "1",
+     "pf_min": "5",
+     "pf_max": "1000",
+     "pf_default": "25"
+    },
+    {
+     "id_": "don2",
+     "type": "efbmock",
+     "name": "Donate fixed",
+     "pf_amount": "donation",
+     "pf_presets": "10,25"
+    }
+   ],
+   "rows": [
+    {
+     "id_": "sel",
+     "type": "paySelect",
+     "value": "Nope"
+    }
+   ],
+   "ctx": {}
+  },
+  {
+   "op": "quote",
+   "form": [
+    {
+     "type": "payment",
+     "currency": "eur",
+     "getway": "efbmock"
+    },
+    {
+     "id_": "1",
+     "type": "step"
+    },
+    {
+     "id_": "rad",
+     "type": "payRadio",
+     "name": "Ticket"
+    },
+    {
+     "id_": "ro1",
+     "parent": "rad",
+     "type": "option",
+     "value": "Adult",
+     "price": "25"
+    },
+    {
+     "id_": "ro2",
+     "parent": "rad",
+     "type": "option",
+     "value": "Child",
+     "price": "12.5"
+    },
+    {
+     "id_": "sel",
+     "type": "paySelect",
+     "name": "Size"
+    },
+    {
+     "id_": "so1",
+     "parent": "sel",
+     "type": "option",
+     "value": "Large &amp; tall",
+     "price": "3.333"
+    },
+    {
+     "id_": "so2",
+     "parent": "sel",
+     "type": "option",
+     "value": "Small",
+     "price": ""
+    },
+    {
+     "id_": "chk",
+     "type": "payCheckbox",
+     "name": "Extras"
+    },
+    {
+     "id_": "co1",
+     "parent": "chk",
+     "type": "option",
+     "value": "Lunch",
+     "price": "9.99"
+    },
+    {
+     "id_": "co2",
+     "parent": "chk",
+     "type": "option",
+     "value": "Dinner",
+     "price": "15"
+    },
+    {
+     "id_": "mul",
+     "type": "payMultiselect",
+     "name": "Addons"
+    },
+    {
+     "id_": "mo1",
+     "parent": "mul",
+     "type": "option",
+     "value": "A",
+     "price": "1"
+    },
+    {
+     "id_": "mo2",
+     "parent": "mul",
+     "type": "option",
+     "value": "B",
+     "price": "2"
+    },
+    {
+     "id_": "tip",
+     "type": "prcfld",
+     "name": "Tip",
+     "milen": "1",
+     "mlen": "50"
+    },
+    {
+     "id_": "pf",
+     "type": "efbmock",
+     "name": "Pay",
+     "pf_fixed": "2",
+     "pf_fixed_label": "Fee"
+    },
+    {
+     "id_": "don",
+     "type": "efbmock",
+     "name": "Donate",
+     "pf_amount": "donation",
+     "pf_presets": "10,25,50",
+     "pf_other": "1",
+     "pf_min": "5",
+     "pf_max": "1000",
+     "pf_default": "25"
+    },
+    {
+     "id_": "don2",
+     "type": "efbmock",
+     "name": "Donate fixed",
+     "pf_amount": "donation",
+     "pf_presets": "10,25"
+    }
+   ],
+   "rows": [
+    {
+     "id_": "rad",
+     "id_ob": "co1",
+     "type": "payRadio"
+    }
+   ],
+   "ctx": {}
+  },
+  {
+   "op": "quote",
+   "form": [
+    {
+     "type": "payment",
+     "currency": "eur",
+     "getway": "efbmock"
+    },
+    {
+     "id_": "1",
+     "type": "step"
+    },
+    {
+     "id_": "rad",
+     "type": "payRadio",
+     "name": "Ticket"
+    },
+    {
+     "id_": "ro1",
+     "parent": "rad",
+     "type": "option",
+     "value": "Adult",
+     "price": "25"
+    },
+    {
+     "id_": "ro2",
+     "parent": "rad",
+     "type": "option",
+     "value": "Child",
+     "price": "12.5"
+    },
+    {
+     "id_": "sel",
+     "type": "paySelect",
+     "name": "Size"
+    },
+    {
+     "id_": "so1",
+     "parent": "sel",
+     "type": "option",
+     "value": "Large &amp; tall",
+     "price": "3.333"
+    },
+    {
+     "id_": "so2",
+     "parent": "sel",
+     "type": "option",
+     "value": "Small",
+     "price": ""
+    },
+    {
+     "id_": "chk",
+     "type": "payCheckbox",
+     "name": "Extras"
+    },
+    {
+     "id_": "co1",
+     "parent": "chk",
+     "type": "option",
+     "value": "Lunch",
+     "price": "9.99"
+    },
+    {
+     "id_": "co2",
+     "parent": "chk",
+     "type": "option",
+     "value": "Dinner",
+     "price": "15"
+    },
+    {
+     "id_": "mul",
+     "type": "payMultiselect",
+     "name": "Addons"
+    },
+    {
+     "id_": "mo1",
+     "parent": "mul",
+     "type": "option",
+     "value": "A",
+     "price": "1"
+    },
+    {
+     "id_": "mo2",
+     "parent": "mul",
+     "type": "option",
+     "value": "B",
+     "price": "2"
+    },
+    {
+     "id_": "tip",
+     "type": "prcfld",
+     "name": "Tip",
+     "milen": "1",
+     "mlen": "50"
+    },
+    {
+     "id_": "pf",
+     "type": "efbmock",
+     "name": "Pay",
+     "pf_fixed": "2",
+     "pf_fixed_label": "Fee"
+    },
+    {
+     "id_": "don",
+     "type": "efbmock",
+     "name": "Donate",
+     "pf_amount": "donation",
+     "pf_presets": "10,25,50",
+     "pf_other": "1",
+     "pf_min": "5",
+     "pf_max": "1000",
+     "pf_default": "25"
+    },
+    {
+     "id_": "don2",
+     "type": "efbmock",
+     "name": "Donate fixed",
+     "pf_amount": "donation",
+     "pf_presets": "10,25"
+    }
+   ],
+   "rows": [
+    {
+     "id_": "mul",
+     "type": "payMultiselect",
+     "value": "A@efb!B@efb!",
+     "ids": "mo1"
+    }
+   ],
+   "ctx": {}
+  },
+  {
+   "op": "quote",
+   "form": [
+    {
+     "type": "payment",
+     "currency": "eur",
+     "getway": "efbmock"
+    },
+    {
+     "id_": "1",
+     "type": "step"
+    },
+    {
+     "id_": "rad",
+     "type": "payRadio",
+     "name": "Ticket"
+    },
+    {
+     "id_": "ro1",
+     "parent": "rad",
+     "type": "option",
+     "value": "Adult",
+     "price": "25"
+    },
+    {
+     "id_": "ro2",
+     "parent": "rad",
+     "type": "option",
+     "value": "Child",
+     "price": "12.5"
+    },
+    {
+     "id_": "sel",
+     "type": "paySelect",
+     "name": "Size"
+    },
+    {
+     "id_": "so1",
+     "parent": "sel",
+     "type": "option",
+     "value": "Large &amp; tall",
+     "price": "3.333"
+    },
+    {
+     "id_": "so2",
+     "parent": "sel",
+     "type": "option",
+     "value": "Small",
+     "price": ""
+    },
+    {
+     "id_": "chk",
+     "type": "payCheckbox",
+     "name": "Extras"
+    },
+    {
+     "id_": "co1",
+     "parent": "chk",
+     "type": "option",
+     "value": "Lunch",
+     "price": "9.99"
+    },
+    {
+     "id_": "co2",
+     "parent": "chk",
+     "type": "option",
+     "value": "Dinner",
+     "price": "15"
+    },
+    {
+     "id_": "mul",
+     "type": "payMultiselect",
+     "name": "Addons"
+    },
+    {
+     "id_": "mo1",
+     "parent": "mul",
+     "type": "option",
+     "value": "A",
+     "price": "1"
+    },
+    {
+     "id_": "mo2",
+     "parent": "mul",
+     "type": "option",
+     "value": "B",
+     "price": "2"
+    },
+    {
+     "id_": "tip",
+     "type": "prcfld",
+     "name": "Tip",
+     "milen": "1",
+     "mlen": "50"
+    },
+    {
+     "id_": "pf",
+     "type": "efbmock",
+     "name": "Pay",
+     "pf_fixed": "2",
+     "pf_fixed_label": "Fee"
+    },
+    {
+     "id_": "don",
+     "type": "efbmock",
+     "name": "Donate",
+     "pf_amount": "donation",
+     "pf_presets": "10,25,50",
+     "pf_other": "1",
+     "pf_min": "5",
+     "pf_max": "1000",
+     "pf_default": "25"
+    },
+    {
+     "id_": "don2",
+     "type": "efbmock",
+     "name": "Donate fixed",
+     "pf_amount": "donation",
+     "pf_presets": "10,25"
+    }
+   ],
+   "rows": [
+    {
+     "id_": "tip",
+     "type": "prcfld",
+     "value": "7.5",
+     "price": "0"
+    }
+   ],
+   "ctx": {}
+  },
+  {
+   "op": "quote",
+   "form": [
+    {
+     "type": "payment",
+     "currency": "eur",
+     "getway": "efbmock"
+    },
+    {
+     "id_": "1",
+     "type": "step"
+    },
+    {
+     "id_": "rad",
+     "type": "payRadio",
+     "name": "Ticket"
+    },
+    {
+     "id_": "ro1",
+     "parent": "rad",
+     "type": "option",
+     "value": "Adult",
+     "price": "25"
+    },
+    {
+     "id_": "ro2",
+     "parent": "rad",
+     "type": "option",
+     "value": "Child",
+     "price": "12.5"
+    },
+    {
+     "id_": "sel",
+     "type": "paySelect",
+     "name": "Size"
+    },
+    {
+     "id_": "so1",
+     "parent": "sel",
+     "type": "option",
+     "value": "Large &amp; tall",
+     "price": "3.333"
+    },
+    {
+     "id_": "so2",
+     "parent": "sel",
+     "type": "option",
+     "value": "Small",
+     "price": ""
+    },
+    {
+     "id_": "chk",
+     "type": "payCheckbox",
+     "name": "Extras"
+    },
+    {
+     "id_": "co1",
+     "parent": "chk",
+     "type": "option",
+     "value": "Lunch",
+     "price": "9.99"
+    },
+    {
+     "id_": "co2",
+     "parent": "chk",
+     "type": "option",
+     "value": "Dinner",
+     "price": "15"
+    },
+    {
+     "id_": "mul",
+     "type": "payMultiselect",
+     "name": "Addons"
+    },
+    {
+     "id_": "mo1",
+     "parent": "mul",
+     "type": "option",
+     "value": "A",
+     "price": "1"
+    },
+    {
+     "id_": "mo2",
+     "parent": "mul",
+     "type": "option",
+     "value": "B",
+     "price": "2"
+    },
+    {
+     "id_": "tip",
+     "type": "prcfld",
+     "name": "Tip",
+     "milen": "1",
+     "mlen": "50"
+    },
+    {
+     "id_": "pf",
+     "type": "efbmock",
+     "name": "Pay",
+     "pf_fixed": "2",
+     "pf_fixed_label": "Fee"
+    },
+    {
+     "id_": "don",
+     "type": "efbmock",
+     "name": "Donate",
+     "pf_amount": "donation",
+     "pf_presets": "10,25,50",
+     "pf_other": "1",
+     "pf_min": "5",
+     "pf_max": "1000",
+     "pf_default": "25"
+    },
+    {
+     "id_": "don2",
+     "type": "efbmock",
+     "name": "Donate fixed",
+     "pf_amount": "donation",
+     "pf_presets": "10,25"
+    }
+   ],
+   "rows": [
+    {
+     "id_": "tip",
+     "type": "prcfld",
+     "value": "0.5"
+    }
+   ],
+   "ctx": {}
+  },
+  {
+   "op": "quote",
+   "form": [
+    {
+     "type": "payment",
+     "currency": "eur",
+     "getway": "efbmock"
+    },
+    {
+     "id_": "1",
+     "type": "step"
+    },
+    {
+     "id_": "rad",
+     "type": "payRadio",
+     "name": "Ticket"
+    },
+    {
+     "id_": "ro1",
+     "parent": "rad",
+     "type": "option",
+     "value": "Adult",
+     "price": "25"
+    },
+    {
+     "id_": "ro2",
+     "parent": "rad",
+     "type": "option",
+     "value": "Child",
+     "price": "12.5"
+    },
+    {
+     "id_": "sel",
+     "type": "paySelect",
+     "name": "Size"
+    },
+    {
+     "id_": "so1",
+     "parent": "sel",
+     "type": "option",
+     "value": "Large &amp; tall",
+     "price": "3.333"
+    },
+    {
+     "id_": "so2",
+     "parent": "sel",
+     "type": "option",
+     "value": "Small",
+     "price": ""
+    },
+    {
+     "id_": "chk",
+     "type": "payCheckbox",
+     "name": "Extras"
+    },
+    {
+     "id_": "co1",
+     "parent": "chk",
+     "type": "option",
+     "value": "Lunch",
+     "price": "9.99"
+    },
+    {
+     "id_": "co2",
+     "parent": "chk",
+     "type": "option",
+     "value": "Dinner",
+     "price": "15"
+    },
+    {
+     "id_": "mul",
+     "type": "payMultiselect",
+     "name": "Addons"
+    },
+    {
+     "id_": "mo1",
+     "parent": "mul",
+     "type": "option",
+     "value": "A",
+     "price": "1"
+    },
+    {
+     "id_": "mo2",
+     "parent": "mul",
+     "type": "option",
+     "value": "B",
+     "price": "2"
+    },
+    {
+     "id_": "tip",
+     "type": "prcfld",
+     "name": "Tip",
+     "milen": "1",
+     "mlen": "50"
+    },
+    {
+     "id_": "pf",
+     "type": "efbmock",
+     "name": "Pay",
+     "pf_fixed": "2",
+     "pf_fixed_label": "Fee"
+    },
+    {
+     "id_": "don",
+     "type": "efbmock",
+     "name": "Donate",
+     "pf_amount": "donation",
+     "pf_presets": "10,25,50",
+     "pf_other": "1",
+     "pf_min": "5",
+     "pf_max": "1000",
+     "pf_default": "25"
+    },
+    {
+     "id_": "don2",
+     "type": "efbmock",
+     "name": "Donate fixed",
+     "pf_amount": "donation",
+     "pf_presets": "10,25"
+    }
+   ],
+   "rows": [
+    {
+     "id_": "tip",
+     "type": "prcfld",
+     "value": "-3"
+    }
+   ],
+   "ctx": {}
+  },
+  {
+   "op": "quote",
+   "form": [
+    {
+     "type": "payment",
+     "currency": "eur",
+     "getway": "efbmock"
+    },
+    {
+     "id_": "1",
+     "type": "step"
+    },
+    {
+     "id_": "rad",
+     "type": "payRadio",
+     "name": "Ticket"
+    },
+    {
+     "id_": "ro1",
+     "parent": "rad",
+     "type": "option",
+     "value": "Adult",
+     "price": "25"
+    },
+    {
+     "id_": "ro2",
+     "parent": "rad",
+     "type": "option",
+     "value": "Child",
+     "price": "12.5"
+    },
+    {
+     "id_": "sel",
+     "type": "paySelect",
+     "name": "Size"
+    },
+    {
+     "id_": "so1",
+     "parent": "sel",
+     "type": "option",
+     "value": "Large &amp; tall",
+     "price": "3.333"
+    },
+    {
+     "id_": "so2",
+     "parent": "sel",
+     "type": "option",
+     "value": "Small",
+     "price": ""
+    },
+    {
+     "id_": "chk",
+     "type": "payCheckbox",
+     "name": "Extras"
+    },
+    {
+     "id_": "co1",
+     "parent": "chk",
+     "type": "option",
+     "value": "Lunch",
+     "price": "9.99"
+    },
+    {
+     "id_": "co2",
+     "parent": "chk",
+     "type": "option",
+     "value": "Dinner",
+     "price": "15"
+    },
+    {
+     "id_": "mul",
+     "type": "payMultiselect",
+     "name": "Addons"
+    },
+    {
+     "id_": "mo1",
+     "parent": "mul",
+     "type": "option",
+     "value": "A",
+     "price": "1"
+    },
+    {
+     "id_": "mo2",
+     "parent": "mul",
+     "type": "option",
+     "value": "B",
+     "price": "2"
+    },
+    {
+     "id_": "tip",
+     "type": "prcfld",
+     "name": "Tip",
+     "milen": "1",
+     "mlen": "50"
+    },
+    {
+     "id_": "pf",
+     "type": "efbmock",
+     "name": "Pay",
+     "pf_fixed": "2",
+     "pf_fixed_label": "Fee"
+    },
+    {
+     "id_": "don",
+     "type": "efbmock",
+     "name": "Donate",
+     "pf_amount": "donation",
+     "pf_presets": "10,25,50",
+     "pf_other": "1",
+     "pf_min": "5",
+     "pf_max": "1000",
+     "pf_default": "25"
+    },
+    {
+     "id_": "don2",
+     "type": "efbmock",
+     "name": "Donate fixed",
+     "pf_amount": "donation",
+     "pf_presets": "10,25"
+    }
+   ],
+   "rows": [
+    {
+     "id_": "tip",
+     "type": "prcfld",
+     "value": "51"
+    }
+   ],
+   "ctx": {}
+  },
+  {
+   "op": "quote",
+   "form": [
+    {
+     "type": "payment",
+     "currency": "eur",
+     "getway": "efbmock"
+    },
+    {
+     "id_": "1",
+     "type": "step"
+    },
+    {
+     "id_": "rad",
+     "type": "payRadio",
+     "name": "Ticket"
+    },
+    {
+     "id_": "ro1",
+     "parent": "rad",
+     "type": "option",
+     "value": "Adult",
+     "price": "25"
+    },
+    {
+     "id_": "ro2",
+     "parent": "rad",
+     "type": "option",
+     "value": "Child",
+     "price": "12.5"
+    },
+    {
+     "id_": "sel",
+     "type": "paySelect",
+     "name": "Size"
+    },
+    {
+     "id_": "so1",
+     "parent": "sel",
+     "type": "option",
+     "value": "Large &amp; tall",
+     "price": "3.333"
+    },
+    {
+     "id_": "so2",
+     "parent": "sel",
+     "type": "option",
+     "value": "Small",
+     "price": ""
+    },
+    {
+     "id_": "chk",
+     "type": "payCheckbox",
+     "name": "Extras"
+    },
+    {
+     "id_": "co1",
+     "parent": "chk",
+     "type": "option",
+     "value": "Lunch",
+     "price": "9.99"
+    },
+    {
+     "id_": "co2",
+     "parent": "chk",
+     "type": "option",
+     "value": "Dinner",
+     "price": "15"
+    },
+    {
+     "id_": "mul",
+     "type": "payMultiselect",
+     "name": "Addons"
+    },
+    {
+     "id_": "mo1",
+     "parent": "mul",
+     "type": "option",
+     "value": "A",
+     "price": "1"
+    },
+    {
+     "id_": "mo2",
+     "parent": "mul",
+     "type": "option",
+     "value": "B",
+     "price": "2"
+    },
+    {
+     "id_": "tip",
+     "type": "prcfld",
+     "name": "Tip",
+     "milen": "1",
+     "mlen": "50"
+    },
+    {
+     "id_": "pf",
+     "type": "efbmock",
+     "name": "Pay",
+     "pf_fixed": "2",
+     "pf_fixed_label": "Fee"
+    },
+    {
+     "id_": "don",
+     "type": "efbmock",
+     "name": "Donate",
+     "pf_amount": "donation",
+     "pf_presets": "10,25,50",
+     "pf_other": "1",
+     "pf_min": "5",
+     "pf_max": "1000",
+     "pf_default": "25"
+    },
+    {
+     "id_": "don2",
+     "type": "efbmock",
+     "name": "Donate fixed",
+     "pf_amount": "donation",
+     "pf_presets": "10,25"
+    }
+   ],
+   "rows": [],
+   "ctx": {
+    "field_id": "pf"
+   }
+  },
+  {
+   "op": "quote",
+   "form": [
+    {
+     "type": "payment",
+     "currency": "eur",
+     "getway": "efbmock"
+    },
+    {
+     "id_": "1",
+     "type": "step"
+    },
+    {
+     "id_": "rad",
+     "type": "payRadio",
+     "name": "Ticket"
+    },
+    {
+     "id_": "ro1",
+     "parent": "rad",
+     "type": "option",
+     "value": "Adult",
+     "price": "25"
+    },
+    {
+     "id_": "ro2",
+     "parent": "rad",
+     "type": "option",
+     "value": "Child",
+     "price": "12.5"
+    },
+    {
+     "id_": "sel",
+     "type": "paySelect",
+     "name": "Size"
+    },
+    {
+     "id_": "so1",
+     "parent": "sel",
+     "type": "option",
+     "value": "Large &amp; tall",
+     "price": "3.333"
+    },
+    {
+     "id_": "so2",
+     "parent": "sel",
+     "type": "option",
+     "value": "Small",
+     "price": ""
+    },
+    {
+     "id_": "chk",
+     "type": "payCheckbox",
+     "name": "Extras"
+    },
+    {
+     "id_": "co1",
+     "parent": "chk",
+     "type": "option",
+     "value": "Lunch",
+     "price": "9.99"
+    },
+    {
+     "id_": "co2",
+     "parent": "chk",
+     "type": "option",
+     "value": "Dinner",
+     "price": "15"
+    },
+    {
+     "id_": "mul",
+     "type": "payMultiselect",
+     "name": "Addons"
+    },
+    {
+     "id_": "mo1",
+     "parent": "mul",
+     "type": "option",
+     "value": "A",
+     "price": "1"
+    },
+    {
+     "id_": "mo2",
+     "parent": "mul",
+     "type": "option",
+     "value": "B",
+     "price": "2"
+    },
+    {
+     "id_": "tip",
+     "type": "prcfld",
+     "name": "Tip",
+     "milen": "1",
+     "mlen": "50"
+    },
+    {
+     "id_": "pf",
+     "type": "efbmock",
+     "name": "Pay",
+     "pf_fixed": "2",
+     "pf_fixed_label": "Fee"
+    },
+    {
+     "id_": "don",
+     "type": "efbmock",
+     "name": "Donate",
+     "pf_amount": "donation",
+     "pf_presets": "10,25,50",
+     "pf_other": "1",
+     "pf_min": "5",
+     "pf_max": "1000",
+     "pf_default": "25"
+    },
+    {
+     "id_": "don2",
+     "type": "efbmock",
+     "name": "Donate fixed",
+     "pf_amount": "donation",
+     "pf_presets": "10,25"
+    }
+   ],
+   "rows": [],
+   "ctx": {
+    "field_id": "don"
+   }
+  },
+  {
+   "op": "quote",
+   "form": [
+    {
+     "type": "payment",
+     "currency": "eur",
+     "getway": "efbmock"
+    },
+    {
+     "id_": "1",
+     "type": "step"
+    },
+    {
+     "id_": "rad",
+     "type": "payRadio",
+     "name": "Ticket"
+    },
+    {
+     "id_": "ro1",
+     "parent": "rad",
+     "type": "option",
+     "value": "Adult",
+     "price": "25"
+    },
+    {
+     "id_": "ro2",
+     "parent": "rad",
+     "type": "option",
+     "value": "Child",
+     "price": "12.5"
+    },
+    {
+     "id_": "sel",
+     "type": "paySelect",
+     "name": "Size"
+    },
+    {
+     "id_": "so1",
+     "parent": "sel",
+     "type": "option",
+     "value": "Large &amp; tall",
+     "price": "3.333"
+    },
+    {
+     "id_": "so2",
+     "parent": "sel",
+     "type": "option",
+     "value": "Small",
+     "price": ""
+    },
+    {
+     "id_": "chk",
+     "type": "payCheckbox",
+     "name": "Extras"
+    },
+    {
+     "id_": "co1",
+     "parent": "chk",
+     "type": "option",
+     "value": "Lunch",
+     "price": "9.99"
+    },
+    {
+     "id_": "co2",
+     "parent": "chk",
+     "type": "option",
+     "value": "Dinner",
+     "price": "15"
+    },
+    {
+     "id_": "mul",
+     "type": "payMultiselect",
+     "name": "Addons"
+    },
+    {
+     "id_": "mo1",
+     "parent": "mul",
+     "type": "option",
+     "value": "A",
+     "price": "1"
+    },
+    {
+     "id_": "mo2",
+     "parent": "mul",
+     "type": "option",
+     "value": "B",
+     "price": "2"
+    },
+    {
+     "id_": "tip",
+     "type": "prcfld",
+     "name": "Tip",
+     "milen": "1",
+     "mlen": "50"
+    },
+    {
+     "id_": "pf",
+     "type": "efbmock",
+     "name": "Pay",
+     "pf_fixed": "2",
+     "pf_fixed_label": "Fee"
+    },
+    {
+     "id_": "don",
+     "type": "efbmock",
+     "name": "Donate",
+     "pf_amount": "donation",
+     "pf_presets": "10,25,50",
+     "pf_other": "1",
+     "pf_min": "5",
+     "pf_max": "1000",
+     "pf_default": "25"
+    },
+    {
+     "id_": "don2",
+     "type": "efbmock",
+     "name": "Donate fixed",
+     "pf_amount": "donation",
+     "pf_presets": "10,25"
+    }
+   ],
+   "rows": [
+    {
+     "id_": "don",
+     "value": "10"
+    }
+   ],
+   "ctx": {
+    "field_id": "don"
+   }
+  },
+  {
+   "op": "quote",
+   "form": [
+    {
+     "type": "payment",
+     "currency": "eur",
+     "getway": "efbmock"
+    },
+    {
+     "id_": "1",
+     "type": "step"
+    },
+    {
+     "id_": "rad",
+     "type": "payRadio",
+     "name": "Ticket"
+    },
+    {
+     "id_": "ro1",
+     "parent": "rad",
+     "type": "option",
+     "value": "Adult",
+     "price": "25"
+    },
+    {
+     "id_": "ro2",
+     "parent": "rad",
+     "type": "option",
+     "value": "Child",
+     "price": "12.5"
+    },
+    {
+     "id_": "sel",
+     "type": "paySelect",
+     "name": "Size"
+    },
+    {
+     "id_": "so1",
+     "parent": "sel",
+     "type": "option",
+     "value": "Large &amp; tall",
+     "price": "3.333"
+    },
+    {
+     "id_": "so2",
+     "parent": "sel",
+     "type": "option",
+     "value": "Small",
+     "price": ""
+    },
+    {
+     "id_": "chk",
+     "type": "payCheckbox",
+     "name": "Extras"
+    },
+    {
+     "id_": "co1",
+     "parent": "chk",
+     "type": "option",
+     "value": "Lunch",
+     "price": "9.99"
+    },
+    {
+     "id_": "co2",
+     "parent": "chk",
+     "type": "option",
+     "value": "Dinner",
+     "price": "15"
+    },
+    {
+     "id_": "mul",
+     "type": "payMultiselect",
+     "name": "Addons"
+    },
+    {
+     "id_": "mo1",
+     "parent": "mul",
+     "type": "option",
+     "value": "A",
+     "price": "1"
+    },
+    {
+     "id_": "mo2",
+     "parent": "mul",
+     "type": "option",
+     "value": "B",
+     "price": "2"
+    },
+    {
+     "id_": "tip",
+     "type": "prcfld",
+     "name": "Tip",
+     "milen": "1",
+     "mlen": "50"
+    },
+    {
+     "id_": "pf",
+     "type": "efbmock",
+     "name": "Pay",
+     "pf_fixed": "2",
+     "pf_fixed_label": "Fee"
+    },
+    {
+     "id_": "don",
+     "type": "efbmock",
+     "name": "Donate",
+     "pf_amount": "donation",
+     "pf_presets": "10,25,50",
+     "pf_other": "1",
+     "pf_min": "5",
+     "pf_max": "1000",
+     "pf_default": "25"
+    },
+    {
+     "id_": "don2",
+     "type": "efbmock",
+     "name": "Donate fixed",
+     "pf_amount": "donation",
+     "pf_presets": "10,25"
+    }
+   ],
+   "rows": [
+    {
+     "id_": "don",
+     "value": "17.25"
+    }
+   ],
+   "ctx": {
+    "field_id": "don"
+   }
+  },
+  {
+   "op": "quote",
+   "form": [
+    {
+     "type": "payment",
+     "currency": "eur",
+     "getway": "efbmock"
+    },
+    {
+     "id_": "1",
+     "type": "step"
+    },
+    {
+     "id_": "rad",
+     "type": "payRadio",
+     "name": "Ticket"
+    },
+    {
+     "id_": "ro1",
+     "parent": "rad",
+     "type": "option",
+     "value": "Adult",
+     "price": "25"
+    },
+    {
+     "id_": "ro2",
+     "parent": "rad",
+     "type": "option",
+     "value": "Child",
+     "price": "12.5"
+    },
+    {
+     "id_": "sel",
+     "type": "paySelect",
+     "name": "Size"
+    },
+    {
+     "id_": "so1",
+     "parent": "sel",
+     "type": "option",
+     "value": "Large &amp; tall",
+     "price": "3.333"
+    },
+    {
+     "id_": "so2",
+     "parent": "sel",
+     "type": "option",
+     "value": "Small",
+     "price": ""
+    },
+    {
+     "id_": "chk",
+     "type": "payCheckbox",
+     "name": "Extras"
+    },
+    {
+     "id_": "co1",
+     "parent": "chk",
+     "type": "option",
+     "value": "Lunch",
+     "price": "9.99"
+    },
+    {
+     "id_": "co2",
+     "parent": "chk",
+     "type": "option",
+     "value": "Dinner",
+     "price": "15"
+    },
+    {
+     "id_": "mul",
+     "type": "payMultiselect",
+     "name": "Addons"
+    },
+    {
+     "id_": "mo1",
+     "parent": "mul",
+     "type": "option",
+     "value": "A",
+     "price": "1"
+    },
+    {
+     "id_": "mo2",
+     "parent": "mul",
+     "type": "option",
+     "value": "B",
+     "price": "2"
+    },
+    {
+     "id_": "tip",
+     "type": "prcfld",
+     "name": "Tip",
+     "milen": "1",
+     "mlen": "50"
+    },
+    {
+     "id_": "pf",
+     "type": "efbmock",
+     "name": "Pay",
+     "pf_fixed": "2",
+     "pf_fixed_label": "Fee"
+    },
+    {
+     "id_": "don",
+     "type": "efbmock",
+     "name": "Donate",
+     "pf_amount": "donation",
+     "pf_presets": "10,25,50",
+     "pf_other": "1",
+     "pf_min": "5",
+     "pf_max": "1000",
+     "pf_default": "25"
+    },
+    {
+     "id_": "don2",
+     "type": "efbmock",
+     "name": "Donate fixed",
+     "pf_amount": "donation",
+     "pf_presets": "10,25"
+    }
+   ],
+   "rows": [
+    {
+     "id_": "don",
+     "value": "2"
+    }
+   ],
+   "ctx": {
+    "field_id": "don"
+   }
+  },
+  {
+   "op": "quote",
+   "form": [
+    {
+     "type": "payment",
+     "currency": "eur",
+     "getway": "efbmock"
+    },
+    {
+     "id_": "1",
+     "type": "step"
+    },
+    {
+     "id_": "rad",
+     "type": "payRadio",
+     "name": "Ticket"
+    },
+    {
+     "id_": "ro1",
+     "parent": "rad",
+     "type": "option",
+     "value": "Adult",
+     "price": "25"
+    },
+    {
+     "id_": "ro2",
+     "parent": "rad",
+     "type": "option",
+     "value": "Child",
+     "price": "12.5"
+    },
+    {
+     "id_": "sel",
+     "type": "paySelect",
+     "name": "Size"
+    },
+    {
+     "id_": "so1",
+     "parent": "sel",
+     "type": "option",
+     "value": "Large &amp; tall",
+     "price": "3.333"
+    },
+    {
+     "id_": "so2",
+     "parent": "sel",
+     "type": "option",
+     "value": "Small",
+     "price": ""
+    },
+    {
+     "id_": "chk",
+     "type": "payCheckbox",
+     "name": "Extras"
+    },
+    {
+     "id_": "co1",
+     "parent": "chk",
+     "type": "option",
+     "value": "Lunch",
+     "price": "9.99"
+    },
+    {
+     "id_": "co2",
+     "parent": "chk",
+     "type": "option",
+     "value": "Dinner",
+     "price": "15"
+    },
+    {
+     "id_": "mul",
+     "type": "payMultiselect",
+     "name": "Addons"
+    },
+    {
+     "id_": "mo1",
+     "parent": "mul",
+     "type": "option",
+     "value": "A",
+     "price": "1"
+    },
+    {
+     "id_": "mo2",
+     "parent": "mul",
+     "type": "option",
+     "value": "B",
+     "price": "2"
+    },
+    {
+     "id_": "tip",
+     "type": "prcfld",
+     "name": "Tip",
+     "milen": "1",
+     "mlen": "50"
+    },
+    {
+     "id_": "pf",
+     "type": "efbmock",
+     "name": "Pay",
+     "pf_fixed": "2",
+     "pf_fixed_label": "Fee"
+    },
+    {
+     "id_": "don",
+     "type": "efbmock",
+     "name": "Donate",
+     "pf_amount": "donation",
+     "pf_presets": "10,25,50",
+     "pf_other": "1",
+     "pf_min": "5",
+     "pf_max": "1000",
+     "pf_default": "25"
+    },
+    {
+     "id_": "don2",
+     "type": "efbmock",
+     "name": "Donate fixed",
+     "pf_amount": "donation",
+     "pf_presets": "10,25"
+    }
+   ],
+   "rows": [
+    {
+     "id_": "don",
+     "value": "۵۰"
+    }
+   ],
+   "ctx": {
+    "field_id": "don"
+   }
+  },
+  {
+   "op": "quote",
+   "form": [
+    {
+     "type": "payment",
+     "currency": "eur",
+     "getway": "efbmock"
+    },
+    {
+     "id_": "1",
+     "type": "step"
+    },
+    {
+     "id_": "rad",
+     "type": "payRadio",
+     "name": "Ticket"
+    },
+    {
+     "id_": "ro1",
+     "parent": "rad",
+     "type": "option",
+     "value": "Adult",
+     "price": "25"
+    },
+    {
+     "id_": "ro2",
+     "parent": "rad",
+     "type": "option",
+     "value": "Child",
+     "price": "12.5"
+    },
+    {
+     "id_": "sel",
+     "type": "paySelect",
+     "name": "Size"
+    },
+    {
+     "id_": "so1",
+     "parent": "sel",
+     "type": "option",
+     "value": "Large &amp; tall",
+     "price": "3.333"
+    },
+    {
+     "id_": "so2",
+     "parent": "sel",
+     "type": "option",
+     "value": "Small",
+     "price": ""
+    },
+    {
+     "id_": "chk",
+     "type": "payCheckbox",
+     "name": "Extras"
+    },
+    {
+     "id_": "co1",
+     "parent": "chk",
+     "type": "option",
+     "value": "Lunch",
+     "price": "9.99"
+    },
+    {
+     "id_": "co2",
+     "parent": "chk",
+     "type": "option",
+     "value": "Dinner",
+     "price": "15"
+    },
+    {
+     "id_": "mul",
+     "type": "payMultiselect",
+     "name": "Addons"
+    },
+    {
+     "id_": "mo1",
+     "parent": "mul",
+     "type": "option",
+     "value": "A",
+     "price": "1"
+    },
+    {
+     "id_": "mo2",
+     "parent": "mul",
+     "type": "option",
+     "value": "B",
+     "price": "2"
+    },
+    {
+     "id_": "tip",
+     "type": "prcfld",
+     "name": "Tip",
+     "milen": "1",
+     "mlen": "50"
+    },
+    {
+     "id_": "pf",
+     "type": "efbmock",
+     "name": "Pay",
+     "pf_fixed": "2",
+     "pf_fixed_label": "Fee"
+    },
+    {
+     "id_": "don",
+     "type": "efbmock",
+     "name": "Donate",
+     "pf_amount": "donation",
+     "pf_presets": "10,25,50",
+     "pf_other": "1",
+     "pf_min": "5",
+     "pf_max": "1000",
+     "pf_default": "25"
+    },
+    {
+     "id_": "don2",
+     "type": "efbmock",
+     "name": "Donate fixed",
+     "pf_amount": "donation",
+     "pf_presets": "10,25"
+    }
+   ],
+   "rows": [
+    {
+     "id_": "don2",
+     "value": "11"
+    }
+   ],
+   "ctx": {
+    "field_id": "don2"
+   }
+  },
+  {
+   "op": "quote",
+   "form": [
+    {
+     "type": "payment",
+     "currency": "eur",
+     "getway": "efbmock"
+    },
+    {
+     "id_": "1",
+     "type": "step"
+    },
+    {
+     "id_": "rad",
+     "type": "payRadio",
+     "name": "Ticket"
+    },
+    {
+     "id_": "ro1",
+     "parent": "rad",
+     "type": "option",
+     "value": "Adult",
+     "price": "25"
+    },
+    {
+     "id_": "ro2",
+     "parent": "rad",
+     "type": "option",
+     "value": "Child",
+     "price": "12.5"
+    },
+    {
+     "id_": "sel",
+     "type": "paySelect",
+     "name": "Size"
+    },
+    {
+     "id_": "so1",
+     "parent": "sel",
+     "type": "option",
+     "value": "Large &amp; tall",
+     "price": "3.333"
+    },
+    {
+     "id_": "so2",
+     "parent": "sel",
+     "type": "option",
+     "value": "Small",
+     "price": ""
+    },
+    {
+     "id_": "chk",
+     "type": "payCheckbox",
+     "name": "Extras"
+    },
+    {
+     "id_": "co1",
+     "parent": "chk",
+     "type": "option",
+     "value": "Lunch",
+     "price": "9.99"
+    },
+    {
+     "id_": "co2",
+     "parent": "chk",
+     "type": "option",
+     "value": "Dinner",
+     "price": "15"
+    },
+    {
+     "id_": "mul",
+     "type": "payMultiselect",
+     "name": "Addons"
+    },
+    {
+     "id_": "mo1",
+     "parent": "mul",
+     "type": "option",
+     "value": "A",
+     "price": "1"
+    },
+    {
+     "id_": "mo2",
+     "parent": "mul",
+     "type": "option",
+     "value": "B",
+     "price": "2"
+    },
+    {
+     "id_": "tip",
+     "type": "prcfld",
+     "name": "Tip",
+     "milen": "1",
+     "mlen": "50"
+    },
+    {
+     "id_": "pf",
+     "type": "efbmock",
+     "name": "Pay",
+     "pf_fixed": "2",
+     "pf_fixed_label": "Fee"
+    },
+    {
+     "id_": "don",
+     "type": "efbmock",
+     "name": "Donate",
+     "pf_amount": "donation",
+     "pf_presets": "10,25,50",
+     "pf_other": "1",
+     "pf_min": "5",
+     "pf_max": "1000",
+     "pf_default": "25"
+    },
+    {
+     "id_": "don2",
+     "type": "efbmock",
+     "name": "Donate fixed",
+     "pf_amount": "donation",
+     "pf_presets": "10,25"
+    }
+   ],
+   "rows": [
+    {
+     "id_": "don2",
+     "value": "25"
+    }
+   ],
+   "ctx": {
+    "field_id": "don2"
+   }
+  },
+  {
+   "op": "quote",
+   "form": [
+    {
+     "type": "payment",
+     "currency": "eur",
+     "getway": "efbmock"
+    },
+    {
+     "id_": "1",
+     "type": "step"
+    },
+    {
+     "id_": "rad",
+     "type": "payRadio",
+     "name": "Ticket"
+    },
+    {
+     "id_": "ro1",
+     "parent": "rad",
+     "type": "option",
+     "value": "Adult",
+     "price": "25"
+    },
+    {
+     "id_": "ro2",
+     "parent": "rad",
+     "type": "option",
+     "value": "Child",
+     "price": "12.5"
+    },
+    {
+     "id_": "sel",
+     "type": "paySelect",
+     "name": "Size"
+    },
+    {
+     "id_": "so1",
+     "parent": "sel",
+     "type": "option",
+     "value": "Large &amp; tall",
+     "price": "3.333"
+    },
+    {
+     "id_": "so2",
+     "parent": "sel",
+     "type": "option",
+     "value": "Small",
+     "price": ""
+    },
+    {
+     "id_": "chk",
+     "type": "payCheckbox",
+     "name": "Extras"
+    },
+    {
+     "id_": "co1",
+     "parent": "chk",
+     "type": "option",
+     "value": "Lunch",
+     "price": "9.99"
+    },
+    {
+     "id_": "co2",
+     "parent": "chk",
+     "type": "option",
+     "value": "Dinner",
+     "price": "15"
+    },
+    {
+     "id_": "mul",
+     "type": "payMultiselect",
+     "name": "Addons"
+    },
+    {
+     "id_": "mo1",
+     "parent": "mul",
+     "type": "option",
+     "value": "A",
+     "price": "1"
+    },
+    {
+     "id_": "mo2",
+     "parent": "mul",
+     "type": "option",
+     "value": "B",
+     "price": "2"
+    },
+    {
+     "id_": "tip",
+     "type": "prcfld",
+     "name": "Tip",
+     "milen": "1",
+     "mlen": "50"
+    },
+    {
+     "id_": "pf",
+     "type": "efbmock",
+     "name": "Pay",
+     "pf_fixed": "2",
+     "pf_fixed_label": "Fee"
+    },
+    {
+     "id_": "don",
+     "type": "efbmock",
+     "name": "Donate",
+     "pf_amount": "donation",
+     "pf_presets": "10,25,50",
+     "pf_other": "1",
+     "pf_min": "5",
+     "pf_max": "1000",
+     "pf_default": "25"
+    },
+    {
+     "id_": "don2",
+     "type": "efbmock",
+     "name": "Donate fixed",
+     "pf_amount": "donation",
+     "pf_presets": "10,25"
+    }
+   ],
+   "rows": [],
+   "ctx": {
+    "field_id": "don2"
+   }
+  },
+  {
+   "op": "quote",
+   "form": [
+    {
+     "type": "payment",
+     "currency": "eur",
+     "getway": "efbmock"
+    },
+    {
+     "id_": "1",
+     "type": "step"
+    },
+    {
+     "id_": "rad",
+     "type": "payRadio",
+     "name": "Ticket"
+    },
+    {
+     "id_": "ro1",
+     "parent": "rad",
+     "type": "option",
+     "value": "Adult",
+     "price": "25"
+    },
+    {
+     "id_": "ro2",
+     "parent": "rad",
+     "type": "option",
+     "value": "Child",
+     "price": "12.5"
+    },
+    {
+     "id_": "sel",
+     "type": "paySelect",
+     "name": "Size"
+    },
+    {
+     "id_": "so1",
+     "parent": "sel",
+     "type": "option",
+     "value": "Large &amp; tall",
+     "price": "3.333"
+    },
+    {
+     "id_": "so2",
+     "parent": "sel",
+     "type": "option",
+     "value": "Small",
+     "price": ""
+    },
+    {
+     "id_": "chk",
+     "type": "payCheckbox",
+     "name": "Extras"
+    },
+    {
+     "id_": "co1",
+     "parent": "chk",
+     "type": "option",
+     "value": "Lunch",
+     "price": "9.99"
+    },
+    {
+     "id_": "co2",
+     "parent": "chk",
+     "type": "option",
+     "value": "Dinner",
+     "price": "15"
+    },
+    {
+     "id_": "mul",
+     "type": "payMultiselect",
+     "name": "Addons"
+    },
+    {
+     "id_": "mo1",
+     "parent": "mul",
+     "type": "option",
+     "value": "A",
+     "price": "1"
+    },
+    {
+     "id_": "mo2",
+     "parent": "mul",
+     "type": "option",
+     "value": "B",
+     "price": "2"
+    },
+    {
+     "id_": "tip",
+     "type": "prcfld",
+     "name": "Tip",
+     "milen": "1",
+     "mlen": "50"
+    },
+    {
+     "id_": "pf",
+     "type": "efbmock",
+     "name": "Pay",
+     "pf_fixed": "2",
+     "pf_fixed_label": "Fee"
+    },
+    {
+     "id_": "don",
+     "type": "efbmock",
+     "name": "Donate",
+     "pf_amount": "donation",
+     "pf_presets": "10,25,50",
+     "pf_other": "1",
+     "pf_min": "5",
+     "pf_max": "1000",
+     "pf_default": "25"
+    },
+    {
+     "id_": "don2",
+     "type": "efbmock",
+     "name": "Donate fixed",
+     "pf_amount": "donation",
+     "pf_presets": "10,25"
+    }
+   ],
+   "rows": [],
+   "ctx": {}
+  },
+  {
+   "op": "quote",
+   "form": [
+    {
+     "type": "payment",
+     "currency": "eur",
+     "getway": "efbmock"
+    },
+    {
+     "id_": "1",
+     "type": "step"
+    },
+    {
+     "id_": "rad",
+     "type": "payRadio",
+     "name": "Ticket"
+    },
+    {
+     "id_": "ro1",
+     "parent": "rad",
+     "type": "option",
+     "value": "Adult",
+     "price": "25"
+    },
+    {
+     "id_": "ro2",
+     "parent": "rad",
+     "type": "option",
+     "value": "Child",
+     "price": "12.5"
+    },
+    {
+     "id_": "sel",
+     "type": "paySelect",
+     "name": "Size"
+    },
+    {
+     "id_": "so1",
+     "parent": "sel",
+     "type": "option",
+     "value": "Large &amp; tall",
+     "price": "3.333"
+    },
+    {
+     "id_": "so2",
+     "parent": "sel",
+     "type": "option",
+     "value": "Small",
+     "price": ""
+    },
+    {
+     "id_": "chk",
+     "type": "payCheckbox",
+     "name": "Extras"
+    },
+    {
+     "id_": "co1",
+     "parent": "chk",
+     "type": "option",
+     "value": "Lunch",
+     "price": "9.99"
+    },
+    {
+     "id_": "co2",
+     "parent": "chk",
+     "type": "option",
+     "value": "Dinner",
+     "price": "15"
+    },
+    {
+     "id_": "mul",
+     "type": "payMultiselect",
+     "name": "Addons"
+    },
+    {
+     "id_": "mo1",
+     "parent": "mul",
+     "type": "option",
+     "value": "A",
+     "price": "1"
+    },
+    {
+     "id_": "mo2",
+     "parent": "mul",
+     "type": "option",
+     "value": "B",
+     "price": "2"
+    },
+    {
+     "id_": "tip",
+     "type": "prcfld",
+     "name": "Tip",
+     "milen": "1",
+     "mlen": "50"
+    },
+    {
+     "id_": "pf",
+     "type": "efbmock",
+     "name": "Pay",
+     "pf_fixed": "2",
+     "pf_fixed_label": "Fee"
+    },
+    {
+     "id_": "don",
+     "type": "efbmock",
+     "name": "Donate",
+     "pf_amount": "donation",
+     "pf_presets": "10,25,50",
+     "pf_other": "1",
+     "pf_min": "5",
+     "pf_max": "1000",
+     "pf_default": "25"
+    },
+    {
+     "id_": "don2",
+     "type": "efbmock",
+     "name": "Donate fixed",
+     "pf_amount": "donation",
+     "pf_presets": "10,25"
+    }
+   ],
+   "rows": [
+    {
+     "id_": "rad",
+     "id_ob": "ro1"
+    }
+   ],
+   "ctx": {
+    "supports": {
+     "currencies": [
+      "USD"
+     ]
+    }
+   }
+  },
+  {
+   "op": "quote",
+   "form": [
+    {
+     "type": "payment",
+     "currency": "eur",
+     "getway": "efbmock"
+    },
+    {
+     "id_": "1",
+     "type": "step"
+    },
+    {
+     "id_": "rad",
+     "type": "payRadio",
+     "name": "Ticket"
+    },
+    {
+     "id_": "ro1",
+     "parent": "rad",
+     "type": "option",
+     "value": "Adult",
+     "price": "25"
+    },
+    {
+     "id_": "ro2",
+     "parent": "rad",
+     "type": "option",
+     "value": "Child",
+     "price": "12.5"
+    },
+    {
+     "id_": "sel",
+     "type": "paySelect",
+     "name": "Size"
+    },
+    {
+     "id_": "so1",
+     "parent": "sel",
+     "type": "option",
+     "value": "Large &amp; tall",
+     "price": "3.333"
+    },
+    {
+     "id_": "so2",
+     "parent": "sel",
+     "type": "option",
+     "value": "Small",
+     "price": ""
+    },
+    {
+     "id_": "chk",
+     "type": "payCheckbox",
+     "name": "Extras"
+    },
+    {
+     "id_": "co1",
+     "parent": "chk",
+     "type": "option",
+     "value": "Lunch",
+     "price": "9.99"
+    },
+    {
+     "id_": "co2",
+     "parent": "chk",
+     "type": "option",
+     "value": "Dinner",
+     "price": "15"
+    },
+    {
+     "id_": "mul",
+     "type": "payMultiselect",
+     "name": "Addons"
+    },
+    {
+     "id_": "mo1",
+     "parent": "mul",
+     "type": "option",
+     "value": "A",
+     "price": "1"
+    },
+    {
+     "id_": "mo2",
+     "parent": "mul",
+     "type": "option",
+     "value": "B",
+     "price": "2"
+    },
+    {
+     "id_": "tip",
+     "type": "prcfld",
+     "name": "Tip",
+     "milen": "1",
+     "mlen": "50"
+    },
+    {
+     "id_": "pf",
+     "type": "efbmock",
+     "name": "Pay",
+     "pf_fixed": "2",
+     "pf_fixed_label": "Fee"
+    },
+    {
+     "id_": "don",
+     "type": "efbmock",
+     "name": "Donate",
+     "pf_amount": "donation",
+     "pf_presets": "10,25,50",
+     "pf_other": "1",
+     "pf_min": "5",
+     "pf_max": "1000",
+     "pf_default": "25"
+    },
+    {
+     "id_": "don2",
+     "type": "efbmock",
+     "name": "Donate fixed",
+     "pf_amount": "donation",
+     "pf_presets": "10,25"
+    }
+   ],
+   "rows": [
+    {
+     "id_": "rad",
+     "id_ob": "ro2"
+    }
+   ],
+   "ctx": {
+    "supports": {
+     "min_minor": {
+      "EUR": 3000
+     }
+    }
+   }
+  },
+  {
+   "op": "quote",
+   "form": [
+    {
+     "type": "payment",
+     "currency": "eur",
+     "getway": "efbmock"
+    },
+    {
+     "id_": "1",
+     "type": "step"
+    },
+    {
+     "id_": "rad",
+     "type": "payRadio",
+     "name": "Ticket"
+    },
+    {
+     "id_": "ro1",
+     "parent": "rad",
+     "type": "option",
+     "value": "Adult",
+     "price": "25"
+    },
+    {
+     "id_": "ro2",
+     "parent": "rad",
+     "type": "option",
+     "value": "Child",
+     "price": "12.5"
+    },
+    {
+     "id_": "sel",
+     "type": "paySelect",
+     "name": "Size"
+    },
+    {
+     "id_": "so1",
+     "parent": "sel",
+     "type": "option",
+     "value": "Large &amp; tall",
+     "price": "3.333"
+    },
+    {
+     "id_": "so2",
+     "parent": "sel",
+     "type": "option",
+     "value": "Small",
+     "price": ""
+    },
+    {
+     "id_": "chk",
+     "type": "payCheckbox",
+     "name": "Extras"
+    },
+    {
+     "id_": "co1",
+     "parent": "chk",
+     "type": "option",
+     "value": "Lunch",
+     "price": "9.99"
+    },
+    {
+     "id_": "co2",
+     "parent": "chk",
+     "type": "option",
+     "value": "Dinner",
+     "price": "15"
+    },
+    {
+     "id_": "mul",
+     "type": "payMultiselect",
+     "name": "Addons"
+    },
+    {
+     "id_": "mo1",
+     "parent": "mul",
+     "type": "option",
+     "value": "A",
+     "price": "1"
+    },
+    {
+     "id_": "mo2",
+     "parent": "mul",
+     "type": "option",
+     "value": "B",
+     "price": "2"
+    },
+    {
+     "id_": "tip",
+     "type": "prcfld",
+     "name": "Tip",
+     "milen": "1",
+     "mlen": "50"
+    },
+    {
+     "id_": "pf",
+     "type": "efbmock",
+     "name": "Pay",
+     "pf_fixed": "2",
+     "pf_fixed_label": "Fee"
+    },
+    {
+     "id_": "don",
+     "type": "efbmock",
+     "name": "Donate",
+     "pf_amount": "donation",
+     "pf_presets": "10,25,50",
+     "pf_other": "1",
+     "pf_min": "5",
+     "pf_max": "1000",
+     "pf_default": "25"
+    },
+    {
+     "id_": "don2",
+     "type": "efbmock",
+     "name": "Donate fixed",
+     "pf_amount": "donation",
+     "pf_presets": "10,25"
+    }
+   ],
+   "rows": [
+    {
+     "id_": "rad",
+     "id_ob": "ro1"
+    }
+   ],
+   "ctx": {
+    "supports": {
+     "max_minor": {
+      "EUR": 2000
+     }
+    }
+   }
+  },
+  {
+   "op": "quote",
+   "form": [
+    {
+     "type": "payment",
+     "currency": "eur",
+     "getway": "efbmock"
+    },
+    {
+     "id_": "1",
+     "type": "step"
+    },
+    {
+     "id_": "rad",
+     "type": "payRadio",
+     "name": "Ticket"
+    },
+    {
+     "id_": "ro1",
+     "parent": "rad",
+     "type": "option",
+     "value": "Adult",
+     "price": "25"
+    },
+    {
+     "id_": "ro2",
+     "parent": "rad",
+     "type": "option",
+     "value": "Child",
+     "price": "12.5"
+    },
+    {
+     "id_": "sel",
+     "type": "paySelect",
+     "name": "Size"
+    },
+    {
+     "id_": "so1",
+     "parent": "sel",
+     "type": "option",
+     "value": "Large &amp; tall",
+     "price": "3.333"
+    },
+    {
+     "id_": "so2",
+     "parent": "sel",
+     "type": "option",
+     "value": "Small",
+     "price": ""
+    },
+    {
+     "id_": "chk",
+     "type": "payCheckbox",
+     "name": "Extras"
+    },
+    {
+     "id_": "co1",
+     "parent": "chk",
+     "type": "option",
+     "value": "Lunch",
+     "price": "9.99"
+    },
+    {
+     "id_": "co2",
+     "parent": "chk",
+     "type": "option",
+     "value": "Dinner",
+     "price": "15"
+    },
+    {
+     "id_": "mul",
+     "type": "payMultiselect",
+     "name": "Addons"
+    },
+    {
+     "id_": "mo1",
+     "parent": "mul",
+     "type": "option",
+     "value": "A",
+     "price": "1"
+    },
+    {
+     "id_": "mo2",
+     "parent": "mul",
+     "type": "option",
+     "value": "B",
+     "price": "2"
+    },
+    {
+     "id_": "tip",
+     "type": "prcfld",
+     "name": "Tip",
+     "milen": "1",
+     "mlen": "50"
+    },
+    {
+     "id_": "pf",
+     "type": "efbmock",
+     "name": "Pay",
+     "pf_fixed": "2",
+     "pf_fixed_label": "Fee"
+    },
+    {
+     "id_": "don",
+     "type": "efbmock",
+     "name": "Donate",
+     "pf_amount": "donation",
+     "pf_presets": "10,25,50",
+     "pf_other": "1",
+     "pf_min": "5",
+     "pf_max": "1000",
+     "pf_default": "25"
+    },
+    {
+     "id_": "don2",
+     "type": "efbmock",
+     "name": "Donate fixed",
+     "pf_amount": "donation",
+     "pf_presets": "10,25"
+    }
+   ],
+   "rows": [
+    {
+     "id_": "ghost",
+     "value": "5"
+    },
+    {
+     "id_": "rad",
+     "id_ob": "ro1"
+    },
+    "notarow",
+    null
+   ],
+   "ctx": {}
+  }
+ ]
+}
