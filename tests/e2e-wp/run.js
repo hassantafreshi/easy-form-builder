@@ -1088,8 +1088,13 @@ scenario('8', 'F13 privacy: IP setting, guest entry without IP, retention cron w
   const ar = ctl('replies', anon.msg_id);
   R.check('8f: database: the reply is replaced by @prv@ and its file is deleted', ar.length === 1 && /@prv@/.test(ar[0].content) && !/personal/.test(ar[0].content) && ctl('file-exists', anon.file) === false, ar);
   await admin.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb', { waitUntil: 'load' });
+  // The forms list can still be wiring its buttons right after "load": a click that lands
+  // before that opens nothing (it failed in several full runs, never when run alone), so click again once.
   await admin.click(`.efb-act-msg[data-id="${formId}"]`);
-  await admin.waitForSelector(`#btn-m-${anon.msg_id}`, { timeout: 20000 });
+  if (!(await admin.waitForSelector(`#btn-m-${anon.msg_id}`, { timeout: 8000 }).catch(() => null))) {
+    await admin.click(`.efb-act-msg[data-id="${formId}"]`);
+    await admin.waitForSelector(`#btn-m-${anon.msg_id}`, { timeout: 20000 });
+  }
   await admin.click(`#btn-m-${anon.msg_id}`);
   await admin.waitForSelector('.efb-prv-redacted', { timeout: 20000 }).catch(() => {});
   const view = await admin.evaluate(() => ({ red: Array.from(document.querySelectorAll('.efb-prv-redacted .efb-msg-field-value')).map((e) => e.textContent.trim()), badge: (document.querySelector('.efb-prv-badge') || {}).textContent }));
