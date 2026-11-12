@@ -113,9 +113,12 @@ list(, $p6) = efb_ppg_create($db);
 EfbPayplugFake::set($p6['gateway_ref'], 'get-paid');
 EfbPayplugFake::$once['GET /v1/payments/' . $p6['gateway_ref']] = array(200, array_merge(EfbPayplugFake::$payments[$p6['gateway_ref']], array('is_live' => true)));
 $r = Service::handle_webhook(efb_ppg_notify($p6, $nb($p6['gateway_ref'])));
-$t('Payplug answers is_live true for a Test row → not paid (mode_mismatch), 503 so it can come again', array(Store::get($p6['id'])['status'], $r->status, strpos($note($p6), 'mode_mismatch') !== false), array('pending', 503, true));
+$t('Payplug answers is_live true for a Test row → not paid (mode_mismatch), logged and answered 200 (no endless retries)', array(Store::get($p6['id'])['status'], $r->status, strpos($note($p6), 'mode_mismatch') !== false), array('pending', 200, true));
 EfbPayplugFake::$once['GET /v1/payments/' . $p6['gateway_ref']] = array(200, array_merge(EfbPayplugFake::$payments[$p6['gateway_ref']], array('metadata' => array('efb_uid' => str_repeat('Q', 22)))));
+$keep_now = Store::$now;
+Store::$now = time() + 61; // the next minute: a new notification, not the duplicate of the one above
 Service::handle_webhook(efb_ppg_notify($p6, $nb($p6['gateway_ref'])));
+Store::$now = $keep_now;
 $t('a payment whose metadata.efb_uid is another uid → not paid (uid_mismatch)', array(Store::get($p6['id'])['status'], strpos($note($p6), 'uid_mismatch') !== false), array('pending', true));
 
 // Failures.

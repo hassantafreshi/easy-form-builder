@@ -10,7 +10,8 @@
  *  - out of order: pending (Wero) → paid; failed → paid (Mollie keeps the payment open after a
  *    failed try); canceled / expired / failed mapped; a refund made at Mollie → partially_refunded;
  *  - Mollie's answer with a smaller amount or another currency → failed + mail to the owner; another
- *    mode or another efb_uid → not believed (503, nothing changes); Mollie unreachable → 503, then
+ *    mode or another efb_uid → not believed and not retried (Remote_State::mismatch: logged, 200,
+ *    nothing changes); Mollie unreachable → 503, then
  *    the redelivery works; a chargeback is recorded once and does not change "paid";
  *  - Mollie_Client::status() table (§9) and pending_ttl().
  *
@@ -156,18 +157,18 @@ add_filter('pre_http_request', function ($pre, $args, $url) {
 $m = $new();
 $force('get-mode-mismatch', $m['gateway_ref'], $m['uid']);
 $r = efb_mollie_webhook($m['gateway_ref'], $m['uid']);
-$t('Mollie answers a live payment for a test row → not believed: 503, still pending, not finalized', array($r->status, Store::get($m['id'])['status'], efb_mollie_finalized($m['id'])), array(503, 'pending', 0));
+$t('Mollie answers a live payment for a test row → not believed and not retried: 200, still pending, not finalized', array($r->status, Store::get($m['id'])['status'], efb_mollie_finalized($m['id'])), array(200, 'pending', 0));
 $force('get-paid', $m['gateway_ref'], 'AnotherPaymentUid00000');
 Store::$now = $now += 60;
 $r = efb_mollie_webhook($m['gateway_ref'], $m['uid']);
-$t('Mollie\'s payment carries another efb_uid → not believed: 503, still pending', array($r->status, Store::get($m['id'])['status']), array(503, 'pending'));
+$t('Mollie\'s payment carries another efb_uid → not believed: 200, still pending', array($r->status, Store::get($m['id'])['status']), array(200, 'pending'));
 $force('get-paid', 'tr_SomeOtherPayment1', $m['uid']);
 Store::$now = $now += 60;
 $r = efb_mollie_webhook($m['gateway_ref'], $m['uid']);
-$t('...or another payment id → not believed', array($r->status, Store::get($m['id'])['status']), array(503, 'pending'));
+$t('...or another payment id → not believed', array($r->status, Store::get($m['id'])['status']), array(200, 'pending'));
 $GLOBALS['mollie_get_force'] = null;
-$fe = $db->get_var("SELECT GROUP_CONCAT(note) FROM wp_emsfb_pmt_evt_ WHERE payment_id = " . (int) $m['id'] . " AND type = 'fetch_failed'");
-$t('...each logged as fetch_failed (mismatch_mode, mismatch_uid, mismatch_id)', array(strpos($fe, 'mismatch_mode') !== false, strpos($fe, 'mismatch_uid') !== false, strpos($fe, 'mismatch_id') !== false), array(true, true, true));
+$fe = $db->get_var("SELECT GROUP_CONCAT(note) FROM wp_emsfb_pmt_evt_ WHERE payment_id = " . (int) $m['id'] . " AND type = 'mismatch'");
+$t('...each logged as a mismatch (mismatch_mode, mismatch_uid, mismatch_id)', array(strpos($fe, 'mismatch_mode') !== false, strpos($fe, 'mismatch_uid') !== false, strpos($fe, 'mismatch_id') !== false), array(true, true, true));
 
 /* Mollie down, then redelivery */
 $d = $new();

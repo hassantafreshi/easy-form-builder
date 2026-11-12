@@ -252,11 +252,39 @@ $b = pmb_last_intention();
 $t('the efb_paymob_intention_body filter may add fields but never change amount or currency', array($r['success'], $b['amount'], $b['currency'], $b['extras']['coupon']), array(true, 60000, 'EGP', 'X'));
 unset($GLOBALS['efb_filters']['efb_paymob_intention_body']);
 
+// Optional core hooks (Gateway API 1: method extras, field_schema, field_defaults, form_warnings, Checkout_Context::$payer).
+$ms = $g->methods(Settings::load('paymob'));
+$t('methods(): local methods carry the currencies they take (wallet, kiosk, valU, Meeza: EGP); card and "all" none', array(count($ms[0]), count($ms[1]), $ms[2][2]['currencies'], $ms[3][2]['currencies']), array(2, 2, array('EGP'), array('EGP')));
+if (method_exists('\Emsfb\Payments\Registry', 'normalize_methods')) {
+	$egp = array_map(function ($m) { return $m[0]; }, \Emsfb\Payments\Registry::normalize_methods($ms, 'EGP'));
+	$sar = array_map(function ($m) { return $m[0]; }, \Emsfb\Payments\Registry::normalize_methods($ms, 'SAR'));
+	$t('core keeps every method for an EGP form and drops the Egyptian ones for a SAR form', array($egp, $sar), array(array('all', 'card', 'wallet', 'kiosk', 'valu', 'meeza'), array('all', 'card')));
+}
+if (method_exists('\Emsfb\Payments\Registry', 'field_schema')) {
+	$fs = \Emsfb\Payments\Registry::field_schema('paymob');
+	$t('field_schema (cleaned by core): pgw_map_phone and pgw_map_name, form-field pickers', array_map(function ($d) { return $d['key'] . ':' . $d['type']; }, $fs), array('pgw_map_phone:field', 'pgw_map_name:field'));
+	$t('...the phone option is labelled "Mobile number (needed by Paymob)"', $fs[0]['label'], 'Mobile number (needed by Paymob)');
+}
+$t('field_defaults: the security note and the list style', $g->field_defaults(), array('texts' => array('secure' => 'Payments are processed by Paymob.'), 'pf' => array('pf_methods_style' => 'list')));
+$nophone = pmb_form();
+unset($nophone[4]);
+$nophone = array_values($nophone);
+$t('form_warnings: wallet offered and no mobile field → paymob_no_phone', array_map(function ($w) { return $w['code']; }, $g->form_warnings($nophone, $nophone[7], Settings::load('paymob'))), array('paymob_no_phone'));
+$t('...no warning with a mobile field, with a mapped phone field, or when the field offers card only', array($g->form_warnings(pmb_form(), pmb_form()[8], Settings::load('paymob')), $g->form_warnings($nophone, array_merge($nophone[7], array('pgw_map_phone' => 'nm')), Settings::load('paymob')), $g->form_warnings($nophone, array_merge($nophone[7], array('pf_methods' => 'card')), Settings::load('paymob'))), array(array(), array(), array()));
+$mapped = pmb_form('egp', array('pgw_map_phone' => 'alt'));
+array_splice($mapped, 5, 0, array(array('id_' => 'alt', 'type' => 'text', 'name' => 'WhatsApp for Paymob', 'step' => 1)));
+$r = pmb_create($db, array('form' => $mapped, 'rows' => pmb_rows('ro1', array(array('id_' => 'alt', 'type' => 'text', 'name' => 'WhatsApp for Paymob', 'value' => '011 2222 3333'))), 'method' => 'wallet'));
+if (property_exists('\Emsfb\Payments\Checkout_Context', 'payer')) {
+	$t('the mapped phone field (pgw_map_phone) wins over the first mobile field', array($r['success'], pmb_last_intention()['billing_data']['phone_number']), array(true, '01122223333'));
+} else {
+	$t('an older core without Checkout_Context::$payer: the first mobile field', array($r['success'], pmb_last_intention()['billing_data']['phone_number']), array(true, '01012345678'));
+}
+
 // Secrets never leave the server.
 $info = Registry::public_info('paymob');
 $ij = json_encode($info);
 $t('public_info (builder / field) has no secret', !preg_match('/_sk_|FakePaymobApiKey|FakePaymobHmac|enc:v1/', $ij), true);
-$t('public_info: configured per mode, methods with labels, currencies', array($info['configured'], $info['methods'][0], $info['methods'][2], $info['currencies']), array(array('test' => true, 'live' => true), array('all', 'All methods (choose on the Paymob page)'), array('wallet', 'Mobile wallet'), array('EGP')));
+$t('public_info: configured per mode, methods with labels, currencies', array($info['configured'], $info['methods'][0], array_slice($info['methods'][2], 0, 2), $info['currencies']), array(array('test' => true, 'live' => true), array('all', 'All methods (choose on the Paymob page)'), array('wallet', 'Mobile wallet'), array('EGP')));
 $t('the form JSON holds no key', !preg_match('/_sk_|_pk_|FakePaymob/', json_encode(pmb_form())), true);
 if (method_exists('\Emsfb\Builder_Api', 'capabilities')) {
 	$caps = json_encode(\Emsfb\Builder_Api::capabilities());

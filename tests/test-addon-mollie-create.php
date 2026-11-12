@@ -62,7 +62,7 @@ $a1 = Service::create($args);
 $a2 = Service::create($args);
 $t('a double click (same attempt key): one Mollie payment, the same answer', array($a1['pay']['uid'] === $a2['pay']['uid'], !empty($a2['replay']), efb_mollie_count('POST', '#^/v2/payments$#') - $n0), array(true, true, 1));
 $pp = Store::find_by_uid($a1['pay']['uid']);
-$again = $gw->create(new Payment($pp), Settings::load('mollie'), new Checkout_Context(array('return_url' => Service::return_url($pp), 'cancel_url' => Service::return_url($pp) . '&c=1', 'webhook_url' => Service::webhook_url('mollie'), 'locale' => 'en_US', 'metadata' => array())));
+$again = $gw->create(new Payment($pp), Settings::load('mollie'), new Checkout_Context(array('return_url' => Service::return_url($pp), 'cancel_url' => Service::return_url($pp) . '&c=1', 'webhook_url' => Service::webhook_url('mollie'), 'locale' => 'en_US', 'metadata' => array(), 'description' => isset($form[0]['formName']) ? $form[0]['formName'] : '')));
 $t('the same create sent twice (lost answer): Mollie answers the same tr_ for the same Idempotency-Key', array($again->ok, $again->gateway_ref), array(true, $pp['gateway_ref']));
 $t('12.50 sent as "12.50"', efb_mollie_last('POST', '#^/v2/payments$#')['body']['amount']['value'], '12.50');
 
@@ -132,7 +132,16 @@ Efb_Test_Mollie_Fake::set('disabled', array('paypal'));
 efb_mollie_create($db, null, null, array('method' => 'paypal'));
 $t('no pf_methods and the chosen method is not active → no method sent (Mollie shows what fits)', array_key_exists('method', efb_mollie_last('POST', '#^/v2/payments$#')['body']), false);
 Efb_Test_Mollie_Fake::set('disabled', array());
-$t('methods(): the account\'s activated methods (after Test connection), iDEAL shown as "iDEAL | Wero"', ($gw->test_connection(Settings::load('mollie'), 'test')->ok ? $gw->methods(Settings::load('mollie')) : array())[0], array('ideal', 'iDEAL | Wero'));
+if (!defined('EMSFB_PLUGIN_URL')) define('EMSFB_PLUGIN_URL', 'https://site.example/wp-content/plugins/easy-form-builder/');
+$tc = $gw->test_connection(Settings::load('mollie'), 'test');
+$m0 = ($tc->ok ? $gw->methods(Settings::load('mollie')) : array())[0];
+$t('methods(): the account\'s activated methods (after Test connection), iDEAL shown as "iDEAL | Wero"', array($m0[0], $m0[1]), array('ideal', 'iDEAL | Wero'));
+$t('methods(): each method carries its local logo and Mollie\'s own minimum / maximum for EUR (core names the method when the amount does not fit)', array(substr($m0[2]['logo'], -27), $m0[2]['min_minor'], $m0[2]['max_minor']), array('mollie/assets/img/ideal.svg', array('EUR' => 1), array('EUR' => 5000000)));
+$t('Test connection says which methods are active (core shows the gateway\'s own message)', strpos($tc->message, 'Connected. Active for EUR: iDEAL | Wero') === 0, true);
+$t('methods_for(): another currency keeps the list and the logos, without the EUR limits', array_keys($gw->methods_for(Settings::load('mollie'), array('currency' => 'GBP'))[0][2]), array('logo'));
+$t('field_defaults(): the methods as a grid', $gw->field_defaults(), array('pf' => array('pf_methods_style' => 'grid')));
+$t('settings card: a "Refresh payment methods" button that reads the list again', array($gw->settings_actions(Settings::load('mollie'))[0]['id'], $gw->run_settings_action('refresh_methods', Settings::load('mollie'), 'test')->ok), array('refresh_methods', true));
+$t('settings card: a local site is told that Mollie cannot reach its webhook', strpos(json_encode($gw->settings_notices(Settings::load('mollie'))), 'cannot be reached') !== false || strpos(rest_url(), 'localhost') === false, true);
 
 /* locale */
 $loc = function ($l) { return \Emsfb\Payments\Mollie_Client::locale($l); };

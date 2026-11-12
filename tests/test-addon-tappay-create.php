@@ -233,5 +233,21 @@ if (method_exists('\Emsfb\Builder_Api', 'capabilities')) {
 $log = json_encode($db->get_results('SELECT * FROM wp_emsfb_pmt_evt_', ARRAY_A));
 $t('the event log never holds a key', strpos($log, tap_key('test')) === false && strpos($log, tap_key('live')) === false, true);
 
+// PAY00 optional hooks.
+$gw = \Emsfb\Payments\Registry::get('tappay');
+$kwd = \Emsfb\Payments\Registry::public_info('tappay', array('currency' => 'KWD'));
+$sar = \Emsfb\Payments\Registry::public_info('tappay', array('currency' => 'SAR'));
+$t('methods by currency (core): KWD keeps KNET, drops mada and BENEFIT; SAR keeps mada', array(array_column($kwd['methods'], 0), array_column($sar['methods'], 0)), array(array('all', 'card', 'knet'), array('all', 'card', 'mada')));
+$t('each local scheme tile has its own mark', array(substr($kwd['methods'][2][2]['logo'], -8), substr($sar['methods'][2][2]['logo'], -8)), array('knet.svg', 'mada.svg'));
+$t('field_schema(): payer name and e-mail pickers (e-mail fields only for the e-mail)', array(array_column($gw->field_schema(), 'key'), $gw->field_schema()[1]['field_types']), array(array('pgw_map_name', 'pgw_map_email'), array('email')));
+$noemail = tap_form(); unset($noemail[0]['email_to']); unset($noemail[3]);
+$t('form_warnings(): a form without any e-mail → "Tap needs the payer\'s name and email"; with one → none', array(count($gw->form_warnings(array_values($noemail), $noemail[7], Settings::load('tappay'))), count($gw->form_warnings(tap_form(), tap_form()[7], Settings::load('tappay')))), array(1, 0));
+$w = \Emsfb\Payments\Registry::form_warnings(array_values($noemail));
+$t('...shown at Save through core (pay_gw_needs_name_email)', in_array('pay_gw_needs_name_email', array_column($w, 'code'), true), true);
+$mapped = tap_create($db, array('form' => tap_form('kwd', array('pgw_map_name' => 'nk', 'pgw_map_email' => 'em2')), 'rows' => tap_rows('ro1', array(array('id_' => 'nk', 'type' => 'text', 'name' => 'Contact', 'value' => 'Noor Haddad'), array('id_' => 'em2', 'type' => 'email', 'name' => 'Work e-mail', 'value' => 'noor@example.test')))));
+list($cb) = tap_last_charge_body();
+$t('the payer comes from the mapped fields core resolved ($ctx->payer), not from the stored entry', array($mapped['success'], $cb['customer']['first_name'], $cb['customer']['last_name'], $cb['customer']['email']), array(true, 'Noor', 'Haddad', 'noor@example.test'));
+$t('Test connection names the result (core shows the gateway\'s own message)', $gw->test_connection(Settings::load('tappay'), 'test')->message, 'Connected to Tap.');
+
 echo "\nRESULTS: {$passed} passed, {$failed} failed\n";
 exit($failed ? 1 : 0);

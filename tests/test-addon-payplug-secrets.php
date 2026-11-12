@@ -33,7 +33,7 @@ if (class_exists('efbFunction')) {
 	$fn = (new ReflectionClass('efbFunction'))->newInstanceWithoutConstructor();
 	$clean = $fn->sanitize_obj_msg_efb(array(array('type' => 'payment', 'getway' => 'payplug', 'currency' => 'EUR'), array('id_' => 'pf', 'type' => 'payplug', 'pf_btn_text' => '<b>Payer</b> %amount%', 'pf_methods' => 'card,bancontact,../x', 'pgw_map_first' => 'fn<script>', 'pgw_map_city' => 'ci')));
 	$t('form JSON: pf_* keys through Payments\\Field (tags removed, method ids checked)', array($clean[1]['pf_btn_text'], $clean[1]['pf_methods']), array('b Payer /b %amount%', 'card,bancontact'));
-	$t('form JSON: pgw_map_* through the default text sanitizer; the gateway checks the id again when it uses it', array($clean[1]['pgw_map_first'], $clean[1]['pgw_map_city']), array('fn', 'ci'));
+	$t('form JSON: pgw_map_* through core\'s gateway option sanitizer (a field id or nothing)', array($clean[1]['pgw_map_first'], $clean[1]['pgw_map_city']), array('', 'ci'));
 	$t('form JSON has no key', $no_key($clean), true);
 } else {
 	echo "[SKIP] efbFunction not loadable here\n";

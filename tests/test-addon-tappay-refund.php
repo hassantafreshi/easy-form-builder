@@ -69,6 +69,16 @@ $before = Store::get($s['id']);
 $out = Service::refund($before, 1000, '', 1);
 $t('Tap DECLINED: refund failed with refund_declined, payment unchanged', array($out['ok'], $out['error'], Store::get($s['id'])['refunded_minor'] === $before['refunded_minor']), array(false, 'refund_declined', true));
 TapFake::$refund_status = 'REFUNDED';
+// PAY00 pending refunds: the two pending ones count only once Tap confirms them in its refund webhook.
+$s2 = Store::get($s['id']);
+$t('pending refunds are not counted: still paid, refunded_minor 0 (both 1.000 waiting)', array($s2['status'], (int) $s2['refunded_minor'], \Emsfb\Payments\Service::pending_refunds($s['id'])), array('paid', 0, 2000));
+$pend = array_values(array_filter(Store::refunds($s['id']), function ($r) { return $r['status'] === 'pending'; }));
+$ref_obj = function ($rid, $status) use ($s) { $r = TapFake::$refunds[$rid]; $r['status'] = $status; return $r; };
+Service::handle_webhook(tap_webhook_req($ref_obj($pend[0]['gateway_ref'], 'REFUNDED'), tap_key('test'), null, 'created'));
+$s3 = Store::get($s['id']);
+$t('Tap\'s refund webhook REFUNDED for our pending refund → confirmed: partially_refunded 1.000', array($s3['status'], (int) $s3['refunded_minor'], Store::get_refund($pend[0]['id'])['status']), array('partially_refunded', 1000, 'refunded'));
+Service::handle_webhook(tap_webhook_req($ref_obj($pend[1]['gateway_ref'], 'DECLINED'), tap_key('test'), null, 'created'));
+$t('...DECLINED for the other one → failed, not counted', array((int) Store::get($s['id'])['refunded_minor'], Store::get_refund($pend[1]['id'])['status']), array(1000, 'failed'));
 TapFake::$down = true;
 $out = Service::refund(Store::get($s['id']), 1000, '', 1);
 $t('Tap unreachable: refund failed (network), payment unchanged', array($out['ok'], strpos($out['error'], 'network:') === 0), array(false, true));

@@ -279,8 +279,10 @@ class Service {
 		}
 		Store::log_event( $p['id'], $slug, 'api', array( 'type' => 'create', 'to_status' => 'created', 'note' => 'quote ' . $quote['hash'] ) );
 
+		// The description is the stored form's name (server truth); the browser's copy only when it has none.
+		$desc = isset( $form0['formName'] ) && is_string( $form0['formName'] ) && trim( $form0['formName'] ) !== '' ? $form0['formName'] : ( isset( $a['description'] ) ? (string) $a['description'] : '' );
 		$ctx = new Checkout_Context( array(
-			'description'  => isset( $a['description'] ) ? substr( (string) $a['description'], 0, 120 ) : '',
+			'description'  => substr( Field::text( str_replace( '@efb@dq#', '"', $desc ), 120 ), 0, 360 ),
 			'rows'         => $plain_rows,
 			'field'        => $options,
 			'payer'        => $payer,
@@ -449,7 +451,7 @@ class Service {
 		try { $schema = $gw->field_schema(); } catch ( \Throwable $e ) { $schema = array(); }
 		$options = Field::gateway_options( $field, $schema );
 		$ctx = new Checkout_Context( array(
-			'description' => isset( $form[0]['formName'] ) && is_string( $form[0]['formName'] ) ? substr( $form[0]['formName'], 0, 120 ) : '',
+			'description' => isset( $form[0]['formName'] ) && is_string( $form[0]['formName'] ) ? Field::text( str_replace( '@efb@dq#', '"', $form[0]['formName'] ), 120 ) : '',
 			'rows'        => $rows,
 			'field'       => $options,
 			'payer'       => Field::payer( $rows, $options, (string) $prev['payer_email'] ),
