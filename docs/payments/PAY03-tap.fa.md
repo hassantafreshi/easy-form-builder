@@ -316,3 +316,7 @@ fixtureها `tests/fixtures/payments/tap/`: `charge-create-200.json` (نمونه
 - **فقط با کلید واقعی Sandbox قابل آزمودن:** شکل دقیق webhook refund و فیلد `created` آن، رفتار `reference.idempotent` و طول مجازش، وضعیت‌های `ABANDONED`/`TIMEDOUT` در عمل، صفحهٔ KNET/BENEFIT واقعی، کارت‌های آزمایشی §۲.
 
 **به‌روزرسانی ۲۰۲۶-۱۱-۱۲ (هوک‌های اختیاری PAY00):** هر روش ارز و نشان خود را اعلام می‌کند و هسته فقط روش‌های ارز فرم را نشان می‌دهد (آداپتور فقط یادداشت‌ها را دارد)، `field_schema()` نام و ایمیل پرداخت‌کننده، پرداخت‌کننده از `$ctx->payer`/`$ctx->rows` (دیگر پاسخ ذخیره‌شده خوانده نمی‌شود)، `pf_methods` فیلد در سرور، `form_warnings()` «Tap به نام و ایمیل نیاز دارد»، `Remote_State::mismatch()`، بازپرداخت در انتظار با webhook بازپرداخت Tap تسویه می‌شود. `ebe31f4`؛ تست‌ها: ۲۳۷.
+
+#### Checkpoint: error scenarios (2026-11-12)
+
+Tap: the payer e-mail is required (format email; the confirmation e-mail field counts), the add-on's own `needs_name_email` Save warning is replaced by core's `pay_option_required`; an address Tap refuses → `payer_invalid` at the field; unpaid charges carry a reason (RESTRICTED, CANCELLED / ABANDONED, TIMEDOUT, DECLINED by Tap's response message). The hosted page follows the visitor's language: request header `lang_code` `ar` for `ar`, `ar_*`, `ary`, else `en` (Tap documents en and ar; Persian visitors get English). vendores-efb `aa92d45`; tests `test-addon-tappay-errors.php` (18) and the e2e scenario `tappay-lang` (en_US, ar, fa_IR). Matrix: [payment-error-matrix.en.md](payment-error-matrix.en.md).

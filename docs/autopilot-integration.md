@@ -687,15 +687,32 @@ only on test sites (registered by the e2e mu-plugin).
 - **Save.** Every key has its own case in `sanitize_obj_msg_efb()` (`Payments\Field::sanitize_key()`;
   `pgw_*` through `Payments\Field::sanitize_gateway_key()` with the gateway's schema); an invalid value
   is stored as `''`. Write strings. The save answer carries `warnings` (never a refusal) when a
-  gateway field cannot work as saved: `pay_currency` (the form currency is not in the gateway's
-  `currencies`), `pay_option_required` (a required option is empty), `pay_option_field_missing` /
-  `pay_option_field_type` (a mapped field is gone / of the wrong type) and the gateway's own
-  `pay_gw_<code>` (e.g. `pay_gw_needs_name_email` for Tap, `pay_gw_billing_unmapped` for Payplug).
+  gateway field cannot work as saved. Every warning is `{code, m, level, field_id, gateway}`;
+  `level` is `error` (the form can never take this payment: fix it before publishing), `warning`
+  (some payments fail: a method, a limit) or `info` (nothing to fix now). The builder shows `error`
+  red and `info` only in the field's panel. Codes (docs/payments/payment-error-matrix.en.md §1):
+  `pay_not_configured` (error: no keys for the current mode), `pay_test_mode` (info),
+  `pay_webhook_local` (warning, Live on a site the provider cannot reach), `pay_currency` (error),
+  `pay_amount_limit` (fixed amount above the gateway's maximum: error; below the minimum, donation
+  min / max: warning; carries `amount_minor`, `limit_minor`, `currency`), `pay_method_currency`
+  (chosen methods that cannot take the currency: warning, error when none is left; `methods`),
+  `pay_option_required` (a payer field the gateway needs is not chosen: error when every offered
+  method needs it, warning when only some do; `methods`, `key`, `field_types`),
+  `pay_option_field_missing` (error) / `pay_option_field_type` (warning),
+  `pay_option_not_required` (info: the mapped field is not marked Required; `target` = its `id_`),
+  `pay_multiple_fields` (error), `pay_form_type` (error: row 0 `type` is not `payment`;
+  `form_type`), and the gateway's own `pay_gw_<code>` (e.g. `pay_gw_billing_unmapped` for Payplug;
+  Tap's `pay_gw_needs_name_email` is replaced by core's `pay_option_required`). The payer e-mail
+  option counts as set when row 0 `email_to` is an Email field (core uses that field).
   Fix them with `setForm()` and save again. The builder panel shows core's warnings live.
   `pay_option_required` carries `methods` (the gateway needs the value only for these methods, from
   `field_schema[].required_for`; empty = every payment) and the message says which kind of field to
   add and which option to select it in; set that option (`pgw_map_*`) to the `id_` of a matching
-  field, or limit `pf_methods` to methods that do not need it.
+  field (and mark it Required), or limit `pf_methods` to methods that do not need it.
+  `field_schema[]` entries of type `field` may carry `format` (`email`, `phone`, `phone_e164`,
+  `country`), `countries` (ISO codes) and `invalid_message`: the page and the server check a value
+  the chosen method needs against them (visitor answer `payer_missing` / `payer_invalid` with
+  `field_id`), so a test submission must fill those fields in that format.
 - **Registry.** `field:<slug>` (Free Plus + its add-on, `form_patch`), `setting:pay_style`,
   `setting:pay_pwyw`, `setting:pay_delayed_actions` (Free Plus), `setting:pay_style_mobile` (Pro),
   `addon:AdnMOL` … `addon:AdnXND` (Free Plus). New top-level `payment_gateways.<slug>` =

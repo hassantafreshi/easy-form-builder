@@ -298,3 +298,7 @@ fixtureها: `tests/fixtures/payments/payplug/`: `create-201.json`، `get-paid.j
 فقط با کلید Sandbox واقعی آزمودنی: قالب واقعی پاسخ‌ها (به‌ویژه `payment_method` و کدهای `failure`)، رفتار صفحهٔ میزبان در انتخاب طرح CB، Integrated Payment و 3DS واقعی، Oney، رسیدن اعلان به سایت عمومی، پاسخ `200/202` بازپرداخت.
 
 **به‌روزرسانی ۲۰۲۶-۱۱-۱۲ (هوک‌های اختیاری PAY00):** `field_schema()` نگاشت آدرس صورت‌حساب را در پنل سازنده می‌کشد و هسته پاک‌سازی می‌کند (تصمیم ۲ بالا: اکنون رابط دارد)، آدرس از `$ctx->payer` (دیگر `emsfb_msg_` خوانده نمی‌شود)، روش‌ها با لوگو و حد Oney (پیام مشخص)، `form_warnings()` بی‌نگاشت آدرس، هشدار EUR از `supports` هسته، `Remote_State::mismatch()`. Integrated Payment تک‌مرحله‌ای (هوک `prepare()`) هنوز ساخته نشده. `abc815a`؛ تست‌ها: ۱۶۵.
+
+#### Checkpoint: error scenarios (2026-11-12)
+
+Payplug: Oney needs first and last name, e-mail, mobile number (new option `pgw_map_phone`, format `phone_e164`), street, postcode, city and a country Oney serves (`FR MC GP MQ GF RE YT`): `required_for` the Oney methods, so core warns the owner per method and stops Pay at the empty / malformed field; `billing` / `shipping.mobile_phone_number` in E.164; a 400 naming `billing.<field>` → `payer_invalid` at that field; `failure.code` → reason. vendores-efb `ab4ab48`; tests `test-addon-payplug-errors.php` (12). Matrix: [payment-error-matrix.en.md](payment-error-matrix.en.md).

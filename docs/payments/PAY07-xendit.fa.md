@@ -301,3 +301,7 @@ fixtureها `tests/fixtures/payments/xendit/`: `session-create-201.json` (نمو
 - **پیش‌فرض‌هایی که مالک باید تأیید کند:** Payment Session به‌جای Invoice (پرسش ۱)؛ IDR بی‌اعشار با رد سِن؛ ۲۱ کانال و «any»؛ بی‌`items`؛ توکن webhook اختیاری؛ TTL ۶۰ دقیقه؛ USD با کشور تنظیم (پیش‌فرض ID)؛ لینک داشبورد ندارد.
 - **تست‌ها:** `test-addon-xendit-create.php` ۷۵، `test-addon-xendit-webhook.php` ۴۱، `test-addon-xendit-status-ratelimit.php` ۳۳، `test-addon-xendit-refund.php` ۳۱، `test-addon-xendit-package.php` ۱۷، `test-addon-xendit-adapter.js` ۲۲ (۲۱۹ بررسی)، سناریوی e2e `xendit` ۳۲؛ fixtureها در `tests/fixtures/payments/xendit/` از نمونه‌های رسمی، Xendit ساختگی در `tests/xendit-fake-provider.php` (واحد و e2e)، کلیدها و توکن‌ها هنگام اجرا ساخته می‌شوند.
 - **فقط با حساب Test واقعی آزمودنی:** پذیرش `allowed_payment_channels` برای کانال‌های غیرفعال حساب، اعشار PHP/THB در `amount`، `customer.individual_detail.given_names` با نام غیرلاتین، `expires_at` بیشینه، شکل واقعی `x-callback-token` و تحویل‌های دوباره، `payment_link_url` (dev.xen.to)، «Simulate payment»، محدودیت‌های بازپرداخت QRIS، رفتار `reference_id` تکراری.
+
+#### Checkpoint: error scenarios (2026-11-12)
+
+Xendit: no payer requirement (the hosted page asks); an unpaid session states `expired` / `canceled` as its reason (a declined attempt stays on Xendit's page); Xendit's cancel link while the session is open → the page's "You left the payment page before paying" with Try again. vendores-efb `45121c2`; tests `test-addon-xendit-errors.php` (6). Matrix: [payment-error-matrix.en.md](payment-error-matrix.en.md).

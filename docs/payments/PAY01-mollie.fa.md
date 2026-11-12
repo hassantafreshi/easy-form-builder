@@ -364,3 +364,7 @@ public function fetch( Payment $p, Settings $s ): Remote_State {
 **فقط با کلید Sandbox واقعی آزمودنی:** چک‌لیست §۱۴.۲ (صفحهٔ checkout آزمایشی، مبلغ جادویی کارت، Wero بتا، webhook واقعی از اینترنت، بازپرداخت جزئی واقعی، `amountRefunded` پس از بازپرداخت در وضعیت `queued`).
 
 **به‌روزرسانی ۲۰۲۶-۱۱-۱۲ (هوک‌های اختیاری PAY00):** روش‌ها با لوگوی محلی و حداقل/حداکثر خود Mollie (پیام مشخص پیش از ساخت)، `methods_for()` بر اساس ارز، پیش‌فرض grid، `pf_methods` از `$ctx->field` و توضیح از نام فرم ذخیره‌شده (هسته؛ دیگر فرم ذخیره‌شده خوانده نمی‌شود)، هشدار سایت محلی و Wero روی کارت تنظیمات، دکمهٔ «Refresh payment methods»، پیام «آزمودن اتصال» با فهرست روش‌ها، `Remote_State::mismatch()` (تصمیم ۳ بالا دیگر لازم نیست: پاسخ ۲۰۰، بدون تکرار)، بازپرداخت در انتظار وقتی Mollie گزارش کند شمرده می‌شود. `8a4307b` (vendores-efb)؛ تست‌ها: ۱۱۹.
+
+#### Checkpoint: error scenarios (2026-11-12)
+
+Mollie: no payer requirement (Mollie's checkout asks for what a method needs). `fetch()` gives the reason of an unpaid payment (`details.failureReason` → insufficient_funds, auth_failed, card_invalid, fraud_blocked, declined; canceled / expired); a 422 about method / amount / currency → `method_unavailable` ("choose another payment method"); a refused key → "cannot take payments" + the owner's alert. The "site cannot be reached" card notice is core's now. vendores-efb `95f7efc`; tests `test-addon-mollie-errors.php` (12). Matrix: [payment-error-matrix.en.md](payment-error-matrix.en.md).

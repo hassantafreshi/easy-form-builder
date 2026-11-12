@@ -308,3 +308,6 @@ fixtureها `tests/fixtures/payments/paytabs/`: `request-200.json` (نمونهٔ
 - **تصمیم‌هایی که مالک باید تأیید کند:** فهرست ارزها (به‌ویژه IQD با ۳ رقم) و حدود؛ ارز روش‌های محلی؛ پیش‌فرض «all» برای روش‌ها؛ پذیرش هر دو خوانش «خالی» در امضای بازگشت؛ پاسخ «پیدا نشد» = معلق؛ ارسال `customer_details` ناقص (فقط نام و ایمیل)؛ ارتفاع ثابت قاب؛ نشان‌های SVG ساده به‌جای آثار رسمی برندها؛ صفحهٔ بازگشت framed روی `home_url` با هوک `init`.
 - **فقط با Sandbox واقعی قابل آزمودن:** متن و کد خطای احراز و «پیدا نشد»، شکل callback برای D/E و برای بازپرداخت، نام دقیق فیلدهای POST بازگشت، رفتار `framed` (پیام‌ها و ارتفاع)، روش‌های منطقه‌ای (mada، Meeza QR، Aman)، بازپرداخت جزئی، پرسش‌های باز ۲ تا ۵.
 
+#### Checkpoint: error scenarios (2026-11-12)
+
+PayTabs: optional payer name / e-mail options (PayTabs asks on its page for the rest); reasons from `response_status` / `response_message` (C / V canceled, X expired, E provider_unavailable, D by message); H (anti-fraud hold) → pending with "being reviewed by PayTabs …" for the payer and one note / e-mail for the owner. vendores-efb `ca004a1`; tests `test-addon-paytabs-errors.php` (11). Matrix: [payment-error-matrix.en.md](payment-error-matrix.en.md).

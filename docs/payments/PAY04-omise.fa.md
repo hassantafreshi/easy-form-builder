@@ -302,3 +302,7 @@ fixtureها `tests/fixtures/payments/omise/`: `charge-promptpay-pending.json` (�
 - **فقط با حساب Test واقعی آزمودنی:** فعال بودن PromptPay در `GET /capability`، دریافت واقعی `download_uri` (احراز و تغییر مسیر)، امضای رویدادهای `webhook_endpoints`، رفتار Omise با `ref_id` تکراری (مستند نشده؛ EFB هر `idem_key` را یک بار می‌فرستد)، `expires_at` واقعی QR.
 
 **به‌روزرسانی ۲۰۲۶-۱۱-۱۲ (هوک‌های اختیاری PAY00):** دکمهٔ پیش‌فرض «Show PromptPay QR (%amount%)» با آیکون QR، «QR تازه» با `payments/retry` هسته برای همان پاسخ (فرم دوباره فرستاده نمی‌شود)، نظرسنجی تا `pending_ttl()` در هسته (حلقهٔ خود آداپتور برداشته شد)، هشدار بی‌کلید عمومی و راهنمای «Mark as refunded outside EFB» روی کارت تنظیمات، `Remote_State::mismatch()`. کارت Omise.js (هوک `prepare()`) هنوز ساخته نشده. `13579ce`؛ تست‌ها: ۱۵۱.
+
+#### Checkpoint: error scenarios (2026-11-12)
+
+Omise: no payer requirement; `fetch()` gives the reason of an unpaid PromptPay charge (`failure_code`: insufficient_fund / insufficient_balance, payment_cancelled, payment_expired, failed_fraud_check, payment_rejected, failed_processing). vendores-efb `f9f61cb`; tests `test-addon-omise-errors.php` (7). Matrix: [payment-error-matrix.en.md](payment-error-matrix.en.md).
