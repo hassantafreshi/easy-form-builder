@@ -810,13 +810,26 @@ to the add-on repository), an `EFB_<ADDON>_DIR` variable, or `/home/user/vendore
    `node tests/test-addon-logic-total-redraw.js` 6 → 10 passed. Still green:
    `test-conditional-logic-plan-gating.js` 53, `test-conditional-logic-runtime.js` 127.
 
+6. **PayPal: zero-decimal currencies in subscription plans and refunds. Done: `5e37845`.**
+   `paypal/class-Emsfb-paypal.php`: `paypal::format_amount_efb()` (public static) is the one
+   formatter: no decimals for `ZERO_DECIMAL_CURRENCIES` (HUF, JPY, TWD, the currencies PayPal's
+   currency list marks "does not support decimals"), two otherwise, rounded. `create_plan()` uses it
+   for the plan's `fixed_price` and `setup_fee` (it sent "1500.00" JPY, which PayPal refuses, so no
+   JPY/HUF/TWD subscription could start); the order path (`PaypalHandler::format_amount_efb()`)
+   delegates to it; the admin refund (`PaypalPayment::ajax_refund_payment()`) uses it too (same
+   two-decimal bug). Test: `php tests/test-addon-paypal-plan-decimals.php` (the real `paypal`
+   helper and refund handler, `wp_remote_post()` recorded) 4 → 13 passed; still green:
+   `test-addon-paypal-server-price.php` 12, `test-addon-paypal-cart-total.js` 11.
+
 **Distribution zips.** Each `<addon>.zip` at the root of `vendores-efb` holds one top folder
 `<addon>/` with exactly the files of the source folder, directory entries included, entries sorted
 by path, Unix modes 0755/0644, every date 2026-10-18 00:00, deflate level 9 (a file deflate does not
 shrink is stored), no extra fields, written by libzip (PHP `ZipArchive`). Rebuilt that way, the
 unchanged sources reproduce the shipped `paypal`, `persiapay`, `stripe`, `smssended` and `logic` zips
 byte for byte; `paypal.zip`, `persiapay.zip`, `smssended.zip` and `logic.zip` were rebuilt from the
-changed sources with the same file list (`stripe.zip` unchanged).
+changed sources with the same file list (`stripe.zip` unchanged). Before item 6 the same script was
+checked again (it still rebuilt `stripe.zip` and the previous `paypal.zip` byte for byte); `paypal.zip`
+was then rebuilt with the same 156 entries.
 
 **Open.**
 - ~~Core, `Builder_Api::apply_server_prices()`: a request without the answers a rule reads kept the
@@ -826,9 +839,8 @@ changed sources with the same file list (`stripe.zip` unchanged).
   runtime and `Emsfb_Logic_Validator`: `ignored_fields` = hidden + disabled), so it is never
   charged. Consistent between browser and server, but surprising for "a read-only computed price";
   telling "read-only" from "left out" would be an add-on change. Until then do not disable it.
-- PayPal subscriptions: `paypal/class-Emsfb-paypal.php` `create_plan()` formats every amount with
-  two decimals, so a JPY/HUF/TWD subscription plan is still refused by PayPal (one-time orders are
-  fine). Not changed here.
+- ~~PayPal subscriptions: `create_plan()` formatted every amount with two decimals.~~ **Done:
+  `5e37845`** (item 6 below).
 - Core still carries an older `public/assets/js/persia_pay-efb.js` (same `pay*`/`prcfld` filter).
   No PHP enqueues it (the page loads the add-on's `vendor/persiapay/persia_pay-efb.js` through
   `efb_enqueue_persia`, which is the copy fixed); it could be removed.
