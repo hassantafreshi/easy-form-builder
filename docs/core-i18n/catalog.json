@@ -4,7 +4,7 @@
     "plugin_version": "4.3.1",
     "updated": "2026-11-12",
     "counts": {
-        "active": 3002,
+        "active": 3003,
         "obsolete": 375
     },
     "entries": [
@@ -1453,6 +1453,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "A payment needs your attention",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },

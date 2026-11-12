@@ -563,7 +563,11 @@ msgstr ""
 msgid "A new user has registered on your website."
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-service.php:1072
+#: includes/payments/class-Emsfb-payment-service.php:1131
+msgid "A payment needs your attention"
+msgstr ""
+
+#: includes/payments/class-Emsfb-payment-service.php:1131
 msgid "A payment was not completed"
 msgstr ""
 
@@ -1071,7 +1075,7 @@ msgstr ""
 #: includes/payments/class-Emsfb-payment-admin.php:218
 #: includes/payments/class-Emsfb-payment-frontend.php:37
 #: includes/payments/class-Emsfb-payment-frontend.php:277
-#: includes/payments/class-Emsfb-payment-service.php:1076
+#: includes/payments/class-Emsfb-payment-service.php:1135
 msgid "Amount"
 msgstr ""
 
@@ -1103,7 +1107,7 @@ msgstr ""
 msgid "An auto-saved version exists"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-service.php:1072
+#: includes/payments/class-Emsfb-payment-service.php:1131
 msgid "An entry was paid twice"
 msgstr ""
 
@@ -2345,7 +2349,7 @@ msgstr ""
 #: includes/functions.php:2157 includes/functions.php:4489
 #: includes/payments/class-Emsfb-payment-admin.php:145
 #: includes/payments/class-Emsfb-payment-admin.php:184
-#: includes/payments/class-Emsfb-payment-service.php:1074
+#: includes/payments/class-Emsfb-payment-service.php:1133
 msgid "Confirmation Code"
 msgstr ""
 
@@ -4718,7 +4722,7 @@ msgstr ""
 #: includes/payments/class-Emsfb-payment-admin.php:145
 #: includes/payments/class-Emsfb-payment-admin.php:181
 #: includes/payments/class-Emsfb-payment-frontend.php:276
-#: includes/payments/class-Emsfb-payment-service.php:1075
+#: includes/payments/class-Emsfb-payment-service.php:1134
 msgid "Gateway"
 msgstr ""
 
@@ -7689,7 +7693,7 @@ msgstr ""
 msgid "Payment Single choose"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-service.php:1071
+#: includes/payments/class-Emsfb-payment-service.php:1130
 msgid "Payment amount does not match"
 msgstr ""
 
@@ -7735,7 +7739,7 @@ msgid "Payment not completed"
 msgstr ""
 
 #: includes/payments/class-Emsfb-payment-frontend.php:33
-#: includes/payments/class-Emsfb-payment-service.php:899
+#: includes/payments/class-Emsfb-payment-service.php:944
 msgid "Payment received. Thank you!"
 msgstr ""
 
@@ -9948,7 +9952,7 @@ msgstr ""
 #. translators: Status = generic column header
 #: includes/payments/class-Emsfb-payment-admin.php:134
 #: includes/payments/class-Emsfb-payment-admin.php:145
-#: includes/payments/class-Emsfb-payment-service.php:1077
+#: includes/payments/class-Emsfb-payment-service.php:1136
 #: includes/phrases.php:632
 msgid "Status"
 msgstr ""
@@ -11226,12 +11230,12 @@ msgid "The payment tables are being created. Please reload this page in a moment
 msgstr ""
 
 #: includes/payments/class-Emsfb-payment-frontend.php:47
-#: includes/payments/class-Emsfb-payment-service.php:900
+#: includes/payments/class-Emsfb-payment-service.php:945
 msgid "The payment time ran out. Please try again."
 msgstr ""
 
 #: includes/payments/class-Emsfb-payment-frontend.php:34
-#: includes/payments/class-Emsfb-payment-service.php:900
+#: includes/payments/class-Emsfb-payment-service.php:945
 msgid "The payment was not completed. You have not been charged. You can try again."
 msgstr ""
 
@@ -12786,7 +12790,7 @@ msgid "We are sorry, the booking time for the %s option has expired. Please choo
 msgstr ""
 
 #: includes/payments/class-Emsfb-payment-frontend.php:32
-#: includes/payments/class-Emsfb-payment-service.php:901
+#: includes/payments/class-Emsfb-payment-service.php:946
 msgid "We are waiting for the payment confirmation. You can keep this page open; we will update it automatically."
 msgstr ""
 
