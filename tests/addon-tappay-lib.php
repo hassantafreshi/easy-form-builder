@@ -11,6 +11,7 @@
  */
 if (!defined('ABSPATH')) define('ABSPATH', __DIR__ . '/');
 require_once __DIR__ . '/pay-test-db.php';
+if (!defined('EMSFB_PLUGIN_URL')) define('EMSFB_PLUGIN_URL', 'https://site.example/wp-content/plugins/easy-form-builder/');
 
 function tap_addon_dir() {
 	foreach (array(getenv('EFB_TAPPAY_DIR') ?: '', __DIR__ . '/../vendor/tappay', '/home/user/vendores-efb/tappay') as $d) {
