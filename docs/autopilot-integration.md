@@ -656,8 +656,10 @@ SitePilot contract §5.5, §6.2, §9):
 Not an AutoPilot bug fix, but new field types and keys in the contract
 (`docs/payments/PAY00-payment-framework.fa.md` §10, §18, §19). Gateways are add-ons (Mollie, Payplug,
 Tap, Omise, PayTabs, Paymob, Xendit, keys `AdnMOL` … `AdnXND`); each registers a field type equal to
-its slug (`mollie`, `payplug`, `tappay`, `omise`, `paytabs`, `paymob`, `xendit`). The test gateway
-`efbmock` exists only on test sites (`EFB_PAYMENTS_MOCK`).
+its slug (`mollie`, `payplug`, `tappay`, `omise`, `paytabs`, `paymob`, `xendit`). Core ships no
+gateway (owner rule): without an active gateway add-on there is no payment field, no Payments screen
+and no `payment_gateways` entry. The test gateway `efbmock` lives in `tests/payments-mock/` and exists
+only on test sites (registered by the e2e mu-plugin).
 
 | Key | Where | Values |
 |---|---|---|
@@ -675,18 +677,29 @@ its slug (`mollie`, `payplug`, `tappay`, `omise`, `paytabs`, `paymob`, `xendit`)
 | `mobile_pf_order`, `mobile_pf_hide`, `mobile_pf_btn_size`, `mobile_pf_btn_width`, `mobile_pf_methods_style` | gateway field | as above, phones only (Pro) |
 | `pay_act_admin_mail`, `pay_act_user_mail`, `pay_act_sms`, `pay_act_tlg`, `pay_act_gs`, `pay_act_wh` | row 0 | `paid` (default) · `submit` · `both` |
 | `pay_fail_notify` | row 0 | `''` · `admin` |
+| `pgw_*` (e.g. `pgw_map_email`, `pgw_map_name`, `pgw_map_first`, `pgw_map_last`, `pgw_map_phone`, `pgw_map_address`, `pgw_map_postcode`, `pgw_map_city`, `pgw_map_state`, `pgw_map_country`, or a gateway's own option) | gateway field | the gateway's options from `Gateway::field_schema()`, listed per gateway in `payment_gateways.<slug>.field_schema` = `[{key, type: field\|select\|text\|code\|checkbox, label, help, required, options:[[value,label]], max, field_types, default}]`. `field` = the `id_` of a field of the same form (only of `field_types` when given); `select` = one of `options`; `text` ≤ `max`; `code` = `[A-Za-z0-9_.-]` ≤ `max`; `checkbox` = `"1"` or `""`. A key the schema does not know is kept but cleaned (an id for `pgw_map_*`, plain text otherwise); a malformed `pgw_` key is dropped |
 
 - **Builder.** `efbBuilderApi.newItems('<slug>')` returns the field row and `formPatch`
   `{type:'payment', getway:'<slug>', currency, paymentmethod}`; `insertItems()` applies it. Without
   the add-on: `addon_required`. `getForm()`/`setForm()` keep every `pf_*` key. The settings panel is
   `efbPayPanelEfb(indx)`; after `setForm()` call `render()` (or `efbPayRepaintEfb()`).
   PHP: `get_efbFunction()->field_templates_efb('<slug>')` (rows + `form_patch`; `addon_required` without the add-on).
-- **Save.** Every key has its own case in `sanitize_obj_msg_efb()` (`Payments\Field::sanitize_key()`);
-  an invalid value is stored as `''`. Write strings.
+- **Save.** Every key has its own case in `sanitize_obj_msg_efb()` (`Payments\Field::sanitize_key()`;
+  `pgw_*` through `Payments\Field::sanitize_gateway_key()` with the gateway's schema); an invalid value
+  is stored as `''`. Write strings. The save answer carries `warnings` (never a refusal) when a
+  gateway field cannot work as saved: `pay_currency` (the form currency is not in the gateway's
+  `currencies`), `pay_option_required` (a required option is empty), `pay_option_field_missing` /
+  `pay_option_field_type` (a mapped field is gone / of the wrong type) and the gateway's own
+  `pay_gw_<code>` (e.g. `pay_gw_needs_name_email` for Tap, `pay_gw_billing_unmapped` for Payplug).
+  Fix them with `setForm()` and save again. The builder panel shows core's warnings live.
 - **Registry.** `field:<slug>` (Free Plus + its add-on, `form_patch`), `setting:pay_style`,
   `setting:pay_pwyw`, `setting:pay_delayed_actions` (Free Plus), `setting:pay_style_mobile` (Pro),
   `addon:AdnMOL` … `addon:AdnXND` (Free Plus). New top-level `payment_gateways.<slug>` =
-  `{addon, installed, label, configured:{test,live}, mode, currencies, countries, methods, supports}`
+  `{addon, installed, label, configured:{test,live}, mode, currencies, countries, methods, supports,
+  field_schema, defaults}` (`methods` entries are `[id, label]` or `[id, label, {logo, currencies,
+  min_minor, max_minor}]`: a method with `currencies` is only offered for those; `defaults` =
+  `{texts, pf}` the field uses when it has no value of its own) and `setting:pay_gateway_options`
+  (Free Plus, `form_keys: ['pgw_*']`)
   and `payment_keys.<slug>` (configured in the current mode). **No key, account id or webhook
   secret is ever returned.** `payments` = `{api:1, plan:'free_plus', spec:'PAY00'}`.
 - **Agent rules.** An agent may add a gateway field and style it. It never enters gateway keys,
@@ -700,7 +713,8 @@ its slug (`mollie`, `payplug`, `tappay`, `omise`, `paytabs`, `paymob`, `xendit`)
   `efb_payment_create_args`, `efb_payment_status_changed`, `efb_payment_paid`, `efb_payment_failed`,
   `efb_payment_refunded`, `efb_payment_run_actions`, `efb_payments_required_plan`, `efb_currency_exponent`.
 - **Tests.** `php tests/test-pay-capabilities.php`, `php tests/test-pay-save-roundtrip.php`,
-  `node tests/test-pay-field-parity.js`, scenario 9 of `tests/e2e-wp/run.js` (9a: builder + API).
+  `node tests/test-pay-field-parity.js`, `node tests/test-pay-gateway-options.js`,
+  `php tests/test-pay-hooks.php`, scenario 9 of `tests/e2e-wp/run.js` (9a: builder + API).
 
 ---
 
