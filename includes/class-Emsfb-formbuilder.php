@@ -3280,6 +3280,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 					$dataTag = $elementId;
 
 				break;
+				default:
+					// PAY00: a framework gateway field (registered by a gateway add-on). The markup is
+					// Payments\Field::html(), the twin of efbPayCoreEfb.html() (builder and preview).
+					if (class_exists('\\Emsfb\\Payments\\Registry') && \Emsfb\Payments\Registry::is_field_type($elementId)) {
+						$ui = '<div class="efb ' . $pos[3] . ' ' . $this->mobile_pos[3] . ' px-0 mx-0" id="' . esc_attr($element_Id) . '-f">'
+							. \Emsfb\Payments\Frontend::field_markup($vj, $this->valj_efb[0], $form_id);
+						$dataTag = $elementId;
+					}
+				break;
 
 			}
 		}

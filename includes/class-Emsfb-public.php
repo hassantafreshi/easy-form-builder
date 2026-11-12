@@ -33,6 +33,10 @@ class _Public {
 	private $operation_data = array();
 	/* F01: catalog ids of the masked fields rendered on this page (sent as ajax_object_efm.masks). */
 	private $mask_ids_efb = array();
+	/* PAY00: set by payment_create_api_efb() for the one request it serves (payments/create). */
+	private $pay_create_efb = null;
+	/** PAY00: the instance (webhooks, cron and the return URL run actions through it). */
+	public static $instance_efb = null;
 
 	/* Head hoisting - see open_head_hoist_buffer_efb(). */
 	private $head_chunks_efb      = [];
@@ -44,6 +48,9 @@ class _Public {
 		$this->db = $wpdb;
 		$this->id =-1;
 		$this->pro_efb =false;
+		self::$instance_efb = $this;
+		// PAY00: notifications of a payment form, when the payment is created and when it is paid.
+		add_action('efb_payment_run_actions', array($this, 'run_payment_actions_efb'), 10, 4);
 		add_action('rest_api_init',  function(){
 			$this->efb_uid  = get_current_user_id();
 			$this->efbFunction = get_efbFunction();
@@ -55,6 +62,10 @@ class _Public {
 			]);
 
 			do_action( 'efb_register_payment_rest_routes', $this );
+			// PAY00: payments/create, webhook/<gateway>, return/<gateway>, status, poll (only with a gateway).
+			if ( class_exists( '\\Emsfb\\Payments\\Routes' ) ) {
+				\Emsfb\Payments\Routes::register( $this );
+			}
 
 			register_rest_route('Emsfb/v1','forms/response/get', [
 				'methods' => 'POST',
@@ -1853,6 +1864,10 @@ public function check_nonce_permission_efb($request) {
 			if (function_exists('efb_step_bg_form_css_efb')) {
 				$style .= efb_step_bg_form_css_efb($valj_efb, $form_id, $pro);
 			}
+			/* PAY00: the payment field's colours, sizes and mobile order ('' without a gateway field). */
+			if (class_exists('\\Emsfb\\Payments\\Frontend')) {
+				$style .= \Emsfb\Payments\Frontend::form_css($valj_efb, $form_id);
+			}
 			$style = $style.'</style>';
 			$jss = $jss.'</script>';
 
@@ -2269,6 +2284,10 @@ public function check_nonce_permission_efb($request) {
 			),
 		);
 		wp_localize_script( 'Emsfb-core_js', 'efb_var', $ar_core);
+		// PAY00: the payment field's style and runtime, only on pages with a framework gateway field.
+		if (class_exists('\\Emsfb\\Payments\\Frontend') && \Emsfb\Payments\Frontend::json_has_gateway($form_structure_json)) {
+			\Emsfb\Payments\Frontend::enqueue((string) $form_structure_json);
+		}
 	  }
 
 	private function efb_send_json_and_continue($response, $status_code = 200) {
@@ -2809,6 +2828,15 @@ public function check_nonce_permission_efb($request) {
 								$error_message = $this->lanText['mnvvXXX_'];
 								$error_message = str_replace('%s', "<b>" . $f['name'] . "</b>", $error_message);
 								$error_field_id = isset($f['id_']) ? $f['id_'] : '';
+							}
+							// PAY00: a framework gateway field. Its only row is the donation amount the
+							// visitor chose; the amount itself is checked by Pricing on payments/create.
+							if (isset($f['type']) && is_string($f['type']) && class_exists('\\Emsfb\\Payments\\Registry') && \Emsfb\Payments\Registry::is_field_type($f['type'])) {
+								$item = $this->filter_attributes_by_type_efb($item, $f['type']);
+								$validated_item = is_array($item) ? \Emsfb\Payments\Field::submitted_row($item, $f) : null;
+								$is_valid = ($validated_item !== null || !is_array($item) || !isset($item['value']) || (string) $item['value'] === '') ? 1 : 0;
+								$still_processing = false;
+								return;
 							}
 							switch ($f['type']) {
 								case 'email':
@@ -3861,6 +3889,12 @@ public function check_nonce_permission_efb($request) {
 						exit;
 					break;
 					case "payment":
+							// PAY00: payments/create of a framework gateway. Every row passed the checks
+							// above; the entry is stored as "pending payment" and the payment is started.
+							if ($this->pay_create_efb !== null) {
+								$this->payment_framework_create_efb($form_fields_array, $validated_items, $request_data, $session_id, $url, $style_trackingCode);
+								exit;
+							}
 							$id = isset($request_data['payid']) ? sanitize_text_field($request_data['payid']) : '';
 							$table_name_ = $this->db->prefix . "emsfb_msg_";
 							$currentDateTime = date('Y-m-d H');
@@ -9203,6 +9237,10 @@ public function check_nonce_permission_efb($request) {
 			'yesNo' => true, 'payMultiselect' => true, 'rating' => true, 'text'=>true, 'password'=>true
 		];
 
+			// PAY00: a registered gateway field (its row carries the donation amount in value).
+			if (!isset($attribute_map_efb[$type]) && is_string($type) && class_exists('\\Emsfb\\Payments\\Registry') && \Emsfb\Payments\Registry::is_field_type($type)) {
+				$attribute_map_efb[$type] = true;
+			}
 			if (isset($attribute_map_efb[$type])) {
 				$allowed_attributes_efb_type = is_array($attribute_map_efb[$type]) ?  array_replace($allowed_attributes_efb, $attribute_map_efb[$type]) :$allowed_attributes_efb;
 
@@ -9903,6 +9941,186 @@ public function check_nonce_permission_efb($request) {
 				'content_text'=> is_string($msg_content) && $msg_content !== 'null' ? mb_substr(trim(strip_tags($msg_content)), 0, 300) : '',
 			]);
 			return ['subject'=>$msg_sub,'content'=>$msg_content,'type'=>$msg_type,'visitor_type'=>$visitor_type];
+	}
+
+	/* ------------------------------------------------------------------ PAY00 payment framework */
+
+	/**
+	 * POST Emsfb/v1/payments/create: the form submit of a form with a framework gateway field.
+	 * The body is the normal submit body (value, id, sid, type 'payment', …) plus
+	 * pay = {field_id, attempt_key, method, expected_minor, page_url, locale}. Everything the
+	 * normal submit checks runs (session, logic, every field, Human Shield); then
+	 * payment_framework_create_efb() stores the entry as pending payment and starts the payment.
+	 */
+	public function payment_create_api_efb($request) {
+		$data = $request->get_json_params();
+		$pay = is_array($data) && isset($data['pay']) && is_array($data['pay']) ? $data['pay'] : null;
+		if (!$pay || !class_exists('\\Emsfb\\Payments\\Service')) {
+			wp_send_json_error(array('code' => 'efb_invalid_payload', 'm' => __('Invalid form request.', 'easy-form-builder')), 400);
+		}
+		// Card-testing guard: payment attempts per visitor and per form.
+		$form_bucket = 'pcf' . (isset($data['id']) && is_scalar($data['id']) ? (int) $data['id'] : 0);
+		if (!\Emsfb\Payments\Service::rate_ok('pc', (int) apply_filters('efb_payment_create_per_minute', 10)) || !$this->pay_form_rate_ok_efb($form_bucket, 30)) {
+			wp_send_json_error(array('code' => 'efb_rate_limited', 'm' => __('Too many payment attempts. Please wait a minute and try again.', 'easy-form-builder')), 429);
+		}
+		$scalar = function ($k) use ($pay) { return isset($pay[$k]) && is_scalar($pay[$k]) ? (string) $pay[$k] : ''; };
+		$this->pay_create_efb = array(
+			'field_id'       => sanitize_text_field($scalar('field_id')),
+			'attempt_key'    => strtolower(sanitize_text_field($scalar('attempt_key'))),
+			'method'         => sanitize_key($scalar('method')),
+			'expected_minor' => isset($pay['expected_minor']) && is_numeric($pay['expected_minor']) ? (int) $pay['expected_minor'] : null,
+			'page_url'       => esc_url_raw($scalar('page_url')),
+			'locale'         => sanitize_text_field($scalar('locale')),
+		);
+		return $this->get_form_public_efb($request);
+	}
+
+	private function pay_form_rate_ok_efb($bucket, $limit) {
+		$key = 'efb_pmt_rl_' . $bucket . '_' . gmdate('YmdHi');
+		$n = (int) get_transient($key);
+		if ($n >= $limit) return false;
+		set_transient($key, $n + 1, 70);
+		return true;
+	}
+
+	/** Called from the submit handler's "payment" case for payments/create (see above). */
+	private function payment_framework_create_efb($form_fields_array, $validated_items, $request_data, $session_id, $url, $style_trackingCode) {
+		$ctx = $this->pay_create_efb;
+		$form_id = intval($request_data['id']);
+		$this->id = $form_id;
+		$payer_email = '';
+		$email_to = isset($form_fields_array[0]['email_to']) ? $form_fields_array[0]['email_to'] : '';
+		foreach ($validated_items as $it) {
+			if (is_array($it) && isset($it['id_'], $it['value']) && $email_to !== '' && $it['id_'] == $email_to && is_string($it['value']) && is_email($it['value'])) $payer_email = $it['value'];
+		}
+		$store_entry = function ($rows) use ($style_trackingCode, $form_id) {
+			$this->value = $this->efb_encode_rows_for_storage_efb($rows);
+			$track = $this->insert_message_db(2, false, $style_trackingCode);
+			$table = $this->db->prefix . 'emsfb_msg_';
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix
+			$msg_id = (int) $this->db->get_var($this->db->prepare("SELECT msg_id FROM `{$table}` WHERE track = %s AND form_id = %d ORDER BY msg_id DESC LIMIT 1", $track, $form_id));
+			return array('track' => $track, 'msg_id' => $msg_id);
+		};
+		$res = \Emsfb\Payments\Service::create(array(
+			'form_id'        => $form_id,
+			'form'           => $form_fields_array,
+			'rows'           => $validated_items,
+			'field_id'       => $ctx['field_id'],
+			'attempt_key'    => $ctx['attempt_key'],
+			'method'         => $ctx['method'],
+			'expected_minor' => $ctx['expected_minor'],
+			'page_url'       => $ctx['page_url'] !== '' ? $ctx['page_url'] : $url,
+			'locale'         => $ctx['locale'],
+			'ip'             => $this->ip,
+			'payer_email'    => $payer_email,
+			'description'    => (isset($request_data['name']) && is_scalar($request_data['name']) ? sanitize_text_field($request_data['name']) : ''),
+			'store_entry'    => $store_entry,
+		));
+		$fresh = !empty($res['success']) && empty($res['replay']);
+		$track = isset($res['track']) ? (string) $res['track'] : '';
+		if ($fresh && $track !== '') {
+			$this->efbFunction->efb_code_validate_update($session_id, 'pay', $track);
+		}
+		$answer = $res;
+		unset($answer['track'], $answer['msg_id']); // the confirmation code is shown once the payment is confirmed
+		$this->efb_send_json_and_continue($answer, 200);
+		if ($fresh && isset($res['pay']['uid'])) {
+			$p = \Emsfb\Payments\Store::find_by_uid($res['pay']['uid']);
+			if ($p) {
+				$rows = $this->pay_entry_rows_efb($p);
+				$this->run_payment_actions_efb($p, 'submit', $rows, $form_fields_array);
+			}
+		}
+	}
+
+	private function pay_entry_rows_efb($p) {
+		if (empty($p['msg_id'])) return array();
+		$table = $this->db->prefix . 'emsfb_msg_';
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix
+		$raw = $this->db->get_var($this->db->prepare("SELECT content FROM `{$table}` WHERE msg_id = %d", (int) $p['msg_id']));
+		$rows = \Emsfb\Payments\Service::decode_content($raw);
+		return is_array($rows) ? $rows : array();
+	}
+
+	/**
+	 * efb_payment_run_actions: the notifications of a payment form at one moment, 'submit' (the
+	 * payment was created, the entry is pending) or 'paid' (finalize, once). Each channel runs at
+	 * the moment row 0 asks for (pay_act_admin_mail, pay_act_user_mail, pay_act_sms, pay_act_tlg,
+	 * pay_act_gs, pay_act_wh: paid by default, submit, or both). Runs without a browser (webhook,
+	 * cron), so recipients come from the stored form, the settings and the stored rows.
+	 */
+	public function run_payment_actions_efb($p, $when, $rows, $form) {
+		if (!is_array($p) || !is_array($form) || empty($form[0]) || !is_array($rows)) return;
+		if (!class_exists('\\Emsfb\\Payments\\Field')) return;
+		$form0 = $form[0];
+		$on = function ($key) use ($form0, $when) {
+			$t = \Emsfb\Payments\Field::action_timing($form0, $key);
+			return $t === $when || $t === 'both';
+		};
+		$this->id = (int) $p['form_id'];
+		if (empty($this->efbFunction)) $this->efbFunction = get_efbFunction();
+		if (empty($this->lanText)) {
+			$this->lanText = $this->efbFunction->text_efb(array('somethingWentWrongPleaseRefresh', 'payment', 'clcdetls', 'vmgs', 'youRecivedNewMessage', 'WeRecivedUrM', 'thankRegistering', 'welcome', 'thankSubscribing', 'thankDonePoll', 'thankFillForm', 'trackNo', 'msgdml', 'newMessageReceived', 'response', 'fform', 'msgSndBut', 'smsWPN', 'sentBy', 'done', 'surveyResults', 'responses'));
+		}
+		$track = (string) $p['track'];
+		$link = (string) $p['return_to'];
+		$is_pro = in_array((int) get_option('emsfb_pro'), array(1, 3), true);
+		$settings = $this->get_submission_settings_efb($settings_source);
+		$plain = array_values(array_filter($rows, function ($r) {
+			$t = is_array($r) ? (string) ($r['type'] ?? '') : '';
+			return $t !== 'payment' && $t !== 'w_link';
+		}));
+
+		$channels = array();
+		if ($on('pay_act_tlg')) $channels[] = 'telegram';
+		if ($on('pay_act_gs')) $channels[] = 'googlesheet';
+		if ($on('pay_act_wh')) $channels[] = 'webhook';
+		if ($channels) {
+			$this->efb_intgrate_with_3rd_party_services_efb($track, $plain, $form, $when === 'paid' ? 'payment' : 'payment_pending', array('enriched_submitted_values' => array_values($rows), 'channels' => $channels));
+		}
+
+		if ($on('pay_act_sms') && isset($form0['smsnoti']) && (string) $form0['smsnoti'] === '1') {
+			$phones = array(array(), array());
+			if (is_array($settings) && isset($settings['sms_config']) && $settings['sms_config'] === 'wpsms' && !empty($settings['phnNo']) && is_string($settings['phnNo'])) $phones[0] = explode(',', $settings['phnNo']);
+			foreach ($plain as $r) {
+				if (!is_array($r) || ($r['type'] ?? '') !== 'mobile') continue;
+				foreach ($form as $f) {
+					if (is_array($f) && isset($f['id_']) && $f['id_'] === ($r['id_'] ?? null) && isset($f['smsnoti']) && (string) $f['smsnoti'] === '1') $phones[1][] = (string) $r['value'];
+				}
+			}
+			$this->send_optional_sms_efb($this->id, $phones, $link, 'fform', 'wpsms', $track);
+		}
+
+		$admin = $on('pay_act_admin_mail');
+		$user = $on('pay_act_user_mail');
+		if (($admin || $user) && emsfb_is_email_sending_enabled_efb($settings)) {
+			$to = array(array(), array());
+			if ($admin) {
+				if (!empty($form0['email']) && is_string($form0['email'])) $this->email_list_efb($to, 0, $form0['email'], true);
+				if (is_array($settings) && !empty($settings['emailSupporter'])) $this->email_list_efb($to, 0, $settings['emailSupporter'], true);
+			}
+			if ($user) {
+				$fields = array();
+				foreach ($form as $f) if (is_array($f) && isset($f['id_'])) $fields[$f['id_']] = $f;
+				foreach ($plain as $r) {
+					if (!is_array($r) || ($r['type'] ?? '') !== 'email' || !isset($r['value']) || !is_string($r['value']) || !is_email($r['value'])) continue;
+					$fid = $r['id_'] ?? '';
+					$is_to = isset($form0['email_to']) && $form0['email_to'] === $fid;
+					$noti = isset($fields[$fid]['noti']) && (int) $fields[$fid]['noti'] === 1;
+					if ($is_to || $noti) $this->email_list_efb($to, 1, $r['value'], true);
+				}
+			}
+			if (is_array($settings) && isset($settings['femail']) && is_email($settings['femail'])) $to[2] = $settings['femail'];
+			if (!empty($to[0]) || !empty($to[1])) {
+				$has_track = isset($form0['trackingCode']) && in_array($form0['trackingCode'], array(true, 1, '1', 'true'), true);
+				$status_email = $this->email_status_efb($form, $rows, $track);
+				$state = array('newMessage', $has_track ? 'notiToUserFormFilled_TrackingCode' : 'notiToUserFormFilled', $status_email['type'], $status_email['visitor_type']);
+				$subject = $status_email['subject'];
+				// Test mode: the owner can tell a test payment from a real one at a glance.
+				if (($p['mode'] ?? 'test') !== 'live' && is_string($subject) && $subject !== 'null' && $subject !== '') $subject = '[TEST] ' . $subject;
+				$this->send_email_Emsfb_($to, $track, $is_pro, $state, $link, $status_email['content'], $subject);
+			}
+		}
 	}
 
 	public function fun_validation_pay_elements_efb($val_ ,$fs_){
@@ -10873,20 +11091,25 @@ public function check_nonce_permission_efb($request) {
 			return $webhooks_allowed;
 		};
 
-		$context['conditional_webhooks'] = $this->run_optional_notification_efb('conditional_webhooks', function () use ($form_fields_array, $submitted_values, $track_code, $event_type, $context, $allow_webhooks) {
+		// PAY00: a payment form may send each channel at another time (pay_act_*); without
+		// 'channels' every channel runs, as before.
+		$only = isset($integration_args['channels']) && is_array($integration_args['channels']) ? $integration_args['channels'] : null;
+		$want = function ($ch) use ($only) { return $only === null || in_array($ch, $only, true); };
+
+		$context['conditional_webhooks'] = !$want('webhook') ? [] : $this->run_optional_notification_efb('conditional_webhooks', function () use ($form_fields_array, $submitted_values, $track_code, $event_type, $context, $allow_webhooks) {
 			return $this->process_conditional_webhook_rules($form_fields_array, $submitted_values, $track_code, $event_type, $context, $allow_webhooks);
 		});
 		if (!is_array($context['conditional_webhooks'])) { $context['conditional_webhooks'] = []; }
 
-		if ( $this->efb_side_effect_has_work_efb( 'telegram', 'efb_3rd_party_telegram_notify', $context ) && apply_filters( 'efb_shield_allow_side_effect', true, array_merge( $shield_context, array( 'channel' => 'telegram' ) ) ) ) {
+		if ( $want('telegram') && $this->efb_side_effect_has_work_efb( 'telegram', 'efb_3rd_party_telegram_notify', $context ) && apply_filters( 'efb_shield_allow_side_effect', true, array_merge( $shield_context, array( 'channel' => 'telegram' ) ) ) ) {
 			$this->run_optional_notification_efb('telegram', function () use ($context) { do_action('efb_3rd_party_telegram_notify', $context); });
 		}
 
-		if ( $this->efb_side_effect_has_work_efb( 'googlesheet', 'efb_3rd_party_google_sheet_sync', $context ) && apply_filters( 'efb_shield_allow_side_effect', true, array_merge( $shield_context, array( 'channel' => 'googlesheet' ) ) ) ) {
+		if ( $want('googlesheet') && $this->efb_side_effect_has_work_efb( 'googlesheet', 'efb_3rd_party_google_sheet_sync', $context ) && apply_filters( 'efb_shield_allow_side_effect', true, array_merge( $shield_context, array( 'channel' => 'googlesheet' ) ) ) ) {
 			$this->run_optional_notification_efb('googlesheet', function () use ($context) { do_action('efb_3rd_party_google_sheet_sync', $context); });
 		}
 
-		if ( $this->efb_side_effect_has_work_efb( 'webhook', 'efb_after_form_integration', $context ) && $allow_webhooks() ) {
+		if ( $want('webhook') && $this->efb_side_effect_has_work_efb( 'webhook', 'efb_after_form_integration', $context ) && $allow_webhooks() ) {
 			$this->run_optional_notification_efb('webhook', function () use ($context) { do_action('efb_after_form_integration', $context); });
 		}
 

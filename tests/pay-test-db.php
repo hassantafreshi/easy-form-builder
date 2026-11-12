@@ -57,7 +57,8 @@ if (!function_exists('wp_salt')) { function wp_salt($s = 'auth') { return 'unit-
 if (!function_exists('is_wp_error')) { function is_wp_error($x) { return $x instanceof WP_Error; } }
 if (!class_exists('WP_Error')) { class WP_Error { public $c; public $m; public function __construct($c = '', $m = '') { $this->c = $c; $this->m = $m; } public function get_error_code() { return $this->c; } public function get_error_message() { return $this->m; } public function get_error_data() { return array(); } } }
 if (!function_exists('add_query_arg')) {
-	function add_query_arg($args, $url) {
+	function add_query_arg($args, $url, $third = null) {
+		if (!is_array($args)) { $args = array($args => $url); $url = $third; }
 		$sep = strpos($url, '?') === false ? '?' : '&';
 		return $url . $sep . http_build_query($args);
 	}
@@ -121,4 +122,118 @@ function efb_pay_t($name, $actual, $expected) {
 	if ($actual === $expected) { echo "[PASS] {$name}\n"; $passed++; return; }
 	echo "[FAIL] {$name}: expected " . var_export($expected, true) . ', got ' . var_export($actual, true) . "\n";
 	$failed++;
+}
+
+if (!defined('DAY_IN_SECONDS')) define('DAY_IN_SECONDS', 86400);
+if (!function_exists('remove_query_arg')) {
+	function remove_query_arg($keys, $url) {
+		$p = parse_url($url);
+		if (empty($p['query'])) return $url;
+		parse_str($p['query'], $q);
+		foreach ((array) $keys as $k) unset($q[$k]);
+		$base = strtok($url, '?');
+		return $q ? $base . '?' . http_build_query($q) : $base;
+	}
+}
+if (!function_exists('get_transient')) { function get_transient($k) { return isset($GLOBALS['efb_transients'][$k]) ? $GLOBALS['efb_transients'][$k] : false; } }
+if (!function_exists('set_transient')) { function set_transient($k, $v, $t = 0) { $GLOBALS['efb_transients'][$k] = $v; return true; } }
+if (!function_exists('delete_transient')) { function delete_transient($k) { unset($GLOBALS['efb_transients'][$k]); return true; } }
+if (!function_exists('wp_mail')) { function wp_mail($to, $s, $m, $h = '') { $GLOBALS['efb_mails'][] = array('to' => $to, 'subject' => $s, 'body' => $m); return true; } }
+if (!function_exists('get_bloginfo')) { function get_bloginfo($k = '') { return 'Site'; } }
+if (!function_exists('wp_date')) { function wp_date($f, $t = null) { return gmdate($f, $t === null ? time() : $t); } }
+if (!function_exists('esc_url_raw')) { function esc_url_raw($u) { return (string) $u; } }
+if (!function_exists('register_rest_route')) { function register_rest_route($ns, $r, $a) { $GLOBALS['efb_routes'][$ns . '/' . $r] = $a; return true; } }
+
+if (!class_exists('WP_REST_Request')) {
+	class WP_REST_Request implements ArrayAccess {
+		private $params = array(); private $headers = array(); private $body = ''; private $method = 'GET';
+		public function __construct($method = 'GET', $route = '') { $this->method = $method; }
+		public function set_param($k, $v) { $this->params[$k] = $v; }
+		public function get_param($k) { return isset($this->params[$k]) ? $this->params[$k] : null; }
+		public function get_query_params() { return $this->params; }
+		public function set_body($b) { $this->body = $b; }
+		public function get_body() { return $this->body; }
+		public function get_json_params() { return json_decode($this->body, true); }
+		public function set_header($k, $v) { $this->headers[strtolower(str_replace('-', '_', $k))] = $v; }
+		public function get_header($k) { $k = strtolower(str_replace('-', '_', $k)); return isset($this->headers[$k]) ? $this->headers[$k] : null; }
+		public function get_method() { return $this->method; }
+		#[\ReturnTypeWillChange] public function offsetExists($o) { return isset($this->params[$o]); }
+		#[\ReturnTypeWillChange] public function offsetGet($o) { return $this->get_param($o); }
+		#[\ReturnTypeWillChange] public function offsetSet($o, $v) { $this->params[$o] = $v; }
+		#[\ReturnTypeWillChange] public function offsetUnset($o) { unset($this->params[$o]); }
+	}
+}
+if (!class_exists('WP_REST_Response')) {
+	class WP_REST_Response {
+		public $data; public $status; public $headers = array();
+		public function __construct($d = null, $s = 200) { $this->data = $d; $this->status = $s; }
+		public function header($k, $v) { $this->headers[$k] = $v; }
+		public function get_status() { return $this->status; }
+		public function get_data() { return $this->data; }
+	}
+}
+
+/**
+ * The PAY00 service environment: SQLite tables (payments + msg + form), the mock gateway registered
+ * with test keys, an action recorder. Returns the db.
+ */
+function efb_pay_env() {
+	if (!defined('EFB_PAYMENTS_MOCK')) define('EFB_PAYMENTS_MOCK', true);
+	require_once __DIR__ . '/../includes/class-Emsfb-builder-api.php';
+	efb_pay_test_load();
+	require_once __DIR__ . '/../includes/payments/class-Emsfb-payment-frontend.php';
+	require_once __DIR__ . '/../includes/payments/gateways/class-Emsfb-payment-mock.php';
+	$GLOBALS['opts'] = array('emsfb_pro' => 3);
+	$GLOBALS['efb_transients'] = array();
+	$GLOBALS['efb_mails'] = array();
+	$GLOBALS['efb_http_log'] = array();
+	$GLOBALS['efb_filters'] = array();
+	$GLOBALS['efb_hooks'] = array();
+	$db = $GLOBALS['wpdb'] = new EfbPayTestDb();
+	$db->create_payment_tables();
+	\Emsfb\Payments\Registry::reset();
+	\Emsfb\Payments\Mock_Provider::register();
+	add_action('efb_register_payment_gateways', function ($reg) { $reg->register(new \Emsfb\Payments\Mock_Gateway()); });
+	$s = \Emsfb\Payments\Settings::load('efbmock');
+	$s->apply((new \Emsfb\Payments\Mock_Gateway())->settings_schema(), array('api_key__test' => 'mock_test_ABCDEF123', 'webhook_secret__test' => 'whs_unit_test_secret', 'api_key__live' => 'mock_live_ABCDEF123', 'webhook_secret__live' => 'whs_unit_live_secret'), 'test');
+	return $db;
+}
+
+/** A payment form with a radio (25 / 12.50), the gateway field (fixed fee 2) and an email field. */
+function efb_pay_form() {
+	return array(
+		array('type' => 'payment', 'getway' => 'efbmock', 'currency' => 'eur', 'trackingCode' => '1', 'email' => 'owner@example.test', 'email_to' => 'em'),
+		array('type' => 'step', 'id_' => '1', 'step' => 1),
+		array('id_' => 'em', 'type' => 'email', 'name' => 'Email', 'step' => 1),
+		array('id_' => 'rad', 'type' => 'payRadio', 'name' => 'Ticket', 'step' => 1),
+		array('id_' => 'ro1', 'parent' => 'rad', 'type' => 'option', 'value' => 'Adult', 'price' => '25'),
+		array('id_' => 'ro2', 'parent' => 'rad', 'type' => 'option', 'value' => 'Child', 'price' => '12.5'),
+		array('id_' => 'pf', 'type' => 'efbmock', 'name' => 'Pay', 'step' => 1, 'pf_fixed' => '2'),
+	);
+}
+
+/** Creates a payment through Service::create() with an in-memory entry. Returns the answer. */
+function efb_pay_create($db, $rows = null, $extra = array()) {
+	$form = efb_pay_form();
+	$fid = $db->add_form($form, 'payment');
+	$rows = $rows ?: array(array('id_' => 'em', 'type' => 'email', 'value' => 'payer@example.test'), array('id_' => 'rad', 'id_ob' => 'ro1', 'type' => 'payRadio', 'value' => 'Adult', 'price' => '0.01'), array('type' => 'w_link', 'value' => 'https://site.example/pay-page/', 'amount' => -1));
+	$attempt = sprintf('%08x-%04x-4%03x-8%03x-%012x', mt_rand(), mt_rand(0, 65535), mt_rand(0, 4095), mt_rand(0, 4095), mt_rand());
+	return \Emsfb\Payments\Service::create(array_merge(array(
+		'form_id' => $fid, 'form' => $form, 'rows' => $rows, 'field_id' => 'pf', 'attempt_key' => $attempt, 'method' => 'ideal',
+		'expected_minor' => null, 'page_url' => 'https://site.example/pay-page/?x=1&efb_pay=old', 'locale' => 'en_US', 'ip' => '203.0.113.9', 'payer_email' => 'payer@example.test',
+		'store_entry' => function ($rows) use ($db, $fid) {
+			$id = $db->add_entry($fid, $rows, gmdate('Y-m-d H:i:s'), array('read_' => 2, 'track' => 'TRK' . mt_rand(10000, 99999)));
+			return array('track' => $db->get_var('SELECT track FROM wp_emsfb_msg_ WHERE msg_id = ' . (int) $id), 'msg_id' => $id);
+		},
+	), $extra));
+}
+
+/** A signed mock webhook request. */
+function efb_pay_webhook_req($ref, $event_id, $secret = 'whs_unit_test_secret', $sig = null) {
+	$body = json_encode(array('id' => $event_id, 'type' => 'payment.updated', 'data' => array('id' => $ref)));
+	$r = new WP_REST_Request('POST');
+	$r->set_param('gateway', 'efbmock');
+	$r->set_body($body);
+	$r->set_header('X-Mock-Signature', $sig === null ? hash_hmac('sha256', $body, $secret) : $sig);
+	return $r;
 }

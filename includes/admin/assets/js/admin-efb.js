@@ -1252,6 +1252,8 @@ function efb_addon_required_package_efb(item) {
   if (name === 'AdnSMF') return 3;
   // Stripe and PayPal: Free Plus and Pro since 4.3.1.
   if (name === 'AdnSPF' || name === 'AdnPAP') return 3;
+  // PAY00 gateway add-ons (Mollie, Payplug, Tap, Omise, PayTabs, Paymob, Xendit): Free Plus, like Stripe.
+  if (['AdnMOL', 'AdnPPG', 'AdnTAP', 'AdnOMS', 'AdnPTB', 'AdnPMB', 'AdnXND'].indexOf(name) !== -1) return 3;
   /* Called with a name by the click handler and with a catalogue row by the
      card, so resolve the row either way - otherwise the two could disagree
      about a future add-on the catalogue does not sell. */

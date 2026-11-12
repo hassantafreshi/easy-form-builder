@@ -418,6 +418,10 @@ class Emsfb {
         // Optional: callers check class_exists('\Emsfb\Builder_Api').
         $this->require_plugin_file_efb('includes/class-Emsfb-builder-api.php');
 
+        // Payment framework (PAY00): gateway base class, registry, tables, REST routes, the
+        // payment field. Optional: callers check class_exists('\Emsfb\Payments\Registry').
+        $this->require_plugin_file_efb('includes/payments/payments-efb.php');
+
         if (!$core_ok) {
             $this->core_files_ok = false;
             return;
@@ -624,6 +628,12 @@ class Emsfb {
 				if ( file_exists( $f ) ) {
 					require_once $f;
 				}
+			}
+
+			// PAY00 gateway add-ons (Mollie, Payplug, Tap, Omise, PayTabs, Paymob, Xendit):
+			// vendor/<dir>/routes-efb.php registers the gateway on efb_register_payment_gateways.
+			if ( class_exists( '\\Emsfb\\Payments\\Registry' ) ) {
+				\Emsfb\Payments\Registry::load_addons( $ac_routes, $this->plugin_path );
 			}
 
 			if ( ! empty( $ac_routes->AdnPPF ) && emsfb_is_addon_compatible_efb( 'AdnPPF' ) ) {

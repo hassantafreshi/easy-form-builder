@@ -13,6 +13,11 @@ if (is_readable(__DIR__ . '/email-next-steps-efb.php')) {
 if (is_readable(__DIR__ . '/step-bg-functions-efb.php')) {
     require_once __DIR__ . '/step-bg-functions-efb.php';
 }
+// PAY00: the payment field's keys (pf_*, pay_act_*) are sanitized by Payments\Field.
+if (is_readable(__DIR__ . '/payments/payment-field-functions-efb.php') && is_readable(__DIR__ . '/payments/class-Emsfb-payment-money.php')) {
+    require_once __DIR__ . '/payments/class-Emsfb-payment-money.php';
+    require_once __DIR__ . '/payments/payment-field-functions-efb.php';
+}
 
 /**
  * Return whether a genuinely new installation should show first-run setup.
@@ -4597,6 +4602,61 @@ class efbFunction {
 					case 'mobile_step_bg':
 						$valp[$key][$k] = function_exists('efb_step_bg_sanitize_key_efb') ? efb_step_bg_sanitize_key_efb($k, $v) : '';
 					break;
+					// PAY00 payment field (pf_*, on the gateway field row) and payment actions (pay_act_*,
+					// row 0): allow-lists, canonical lists, plain text; never CSS or HTML. '' = not set.
+					case 'pf_btn_text':
+					case 'pf_btn_bg':
+					case 'pf_btn_fg':
+					case 'pf_btn_bg_h':
+					case 'pf_btn_fg_h':
+					case 'pf_btn_radius':
+					case 'pf_btn_size':
+					case 'pf_btn_width':
+					case 'pf_btn_icon':
+					case 'pf_btn_icon_pos':
+					case 'pf_order':
+					case 'pf_hide':
+					case 'pf_layout':
+					case 'pf_methods_style':
+					case 'pf_methods':
+					case 'pf_summary':
+					case 'pf_label_pos':
+					case 'pf_card_bg':
+					case 'pf_card_border':
+					case 'pf_card_radius':
+					case 'pf_accent':
+					case 'pf_logo_size':
+					case 'pf_digits':
+					case 'pf_i18n_b64':
+					case 'pf_secure_text':
+					case 'pf_t_summary':
+					case 'pf_t_methods':
+					case 'pf_t_pending':
+					case 'pf_t_success':
+					case 'pf_t_fail':
+					case 'pf_t_amount':
+					case 'pf_fixed':
+					case 'pf_fixed_label':
+					case 'pf_amount':
+					case 'pf_presets':
+					case 'pf_other':
+					case 'pf_default':
+					case 'pf_min':
+					case 'pf_max':
+					case 'mobile_pf_order':
+					case 'mobile_pf_hide':
+					case 'mobile_pf_btn_size':
+					case 'mobile_pf_btn_width':
+					case 'mobile_pf_methods_style':
+					case 'pay_act_admin_mail':
+					case 'pay_act_user_mail':
+					case 'pay_act_sms':
+					case 'pay_act_tlg':
+					case 'pay_act_gs':
+					case 'pay_act_wh':
+					case 'pay_fail_notify':
+						$valp[$key][$k] = class_exists('\\Emsfb\\Payments\\Field') ? \Emsfb\Payments\Field::sanitize_key($k, $v) : '';
+					break;
 					default:
 					$k =sanitize_text_field($k);
 					$valp[$key][$k]=sanitize_text_field($v);
@@ -5039,6 +5099,14 @@ class efbFunction {
 			'AdnSMF' => 3, // Conditional Logic - Free Plus and Pro
 			'AdnSPF' => 3, // Stripe payments - Free Plus and Pro since 4.3.1
 			'AdnPAP' => 3, // PayPal payments - Free Plus and Pro since 4.3.1
+			// PAY00 gateway add-ons: Free Plus, like Stripe and PayPal (proposed default; owner to confirm).
+			'AdnMOL' => 3, // Mollie
+			'AdnPPG' => 3, // Payplug
+			'AdnTAP' => 3, // Tap Payments
+			'AdnOMS' => 3, // Omise
+			'AdnPTB' => 3, // PayTabs
+			'AdnPMB' => 3, // Paymob
+			'AdnXND' => 3, // Xendit
 		);
 		$addon = (string) $addon;
 		return isset($tiers[$addon]) ? $tiers[$addon] : 1;
@@ -5166,6 +5234,14 @@ class efbFunction {
 			'AdnTLG', // Telegram notifications
 			'AdnGoS', // Google Sheet integration
 			'AdnHSH', // Human Shield (form security & spam protection)
+			// PAY00 payment gateway add-ons (vendor/<folder>/routes-efb.php registers the gateway).
+			'AdnMOL', // Mollie (mollie)
+			'AdnPPG', // Payplug (payplug)
+			'AdnTAP', // Tap Payments (tappay)
+			'AdnOMS', // Omise (omise)
+			'AdnPTB', // PayTabs (paytabs)
+			'AdnPMB', // Paymob (paymob)
+			'AdnXND', // Xendit (xendit)
 		);
 	}
 
@@ -5191,6 +5267,14 @@ class efbFunction {
 			'AdnGoS' => array( 'vendor/googlesheet/class-Emsfb-googlesheet.php' ),
 			'AdnSMF' => array( 'vendor/logic/logic/class-Emsfb-logic-validator.php' ),
 			'AdnHSH' => array( 'vendor/human-shield/human-shield-efb.php' ),
+			// PAY00 gateway add-ons: the file that registers the gateway.
+			'AdnMOL' => array( 'vendor/mollie/routes-efb.php' ),
+			'AdnPPG' => array( 'vendor/payplug/routes-efb.php' ),
+			'AdnTAP' => array( 'vendor/tappay/routes-efb.php' ),
+			'AdnOMS' => array( 'vendor/omise/routes-efb.php' ),
+			'AdnPTB' => array( 'vendor/paytabs/routes-efb.php' ),
+			'AdnPMB' => array( 'vendor/paymob/routes-efb.php' ),
+			'AdnXND' => array( 'vendor/xendit/routes-efb.php' ),
 		);
 	}
 
@@ -5216,6 +5300,14 @@ class efbFunction {
 			'AdnPAP' => array( 'vendor/paypal/paypal-phrases-efb.php', 'vendor/paypal/languages/locales.json' ),
 			'AdnSPF' => array( 'vendor/stripe/stripe-phrases-efb.php', 'vendor/stripe/languages/locales.json' ),
 			'AdnSS'  => array( 'vendor/smssended/smssended-phrases-efb.php', 'vendor/smssended/languages/locales.json' ),
+			// PAY00 gateway add-ons: own text domain efb-<folder>, phrases class + locales.json.
+			'AdnMOL' => array( 'vendor/mollie/mollie-phrases-efb.php', 'vendor/mollie/languages/locales.json' ),
+			'AdnPPG' => array( 'vendor/payplug/payplug-phrases-efb.php', 'vendor/payplug/languages/locales.json' ),
+			'AdnTAP' => array( 'vendor/tappay/tappay-phrases-efb.php', 'vendor/tappay/languages/locales.json' ),
+			'AdnOMS' => array( 'vendor/omise/omise-phrases-efb.php', 'vendor/omise/languages/locales.json' ),
+			'AdnPTB' => array( 'vendor/paytabs/paytabs-phrases-efb.php', 'vendor/paytabs/languages/locales.json' ),
+			'AdnPMB' => array( 'vendor/paymob/paymob-phrases-efb.php', 'vendor/paymob/languages/locales.json' ),
+			'AdnXND' => array( 'vendor/xendit/xendit-phrases-efb.php', 'vendor/xendit/languages/locales.json' ),
 		);
 	}
 

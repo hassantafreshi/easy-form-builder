@@ -394,6 +394,19 @@ class Store {
 		return $row;
 	}
 
+	/**
+	 * Frees an event key again (the delivery could not be processed, e.g. the provider was not
+	 * reachable), so the provider's next delivery of the same event is not taken for a duplicate.
+	 * The row stays in the log, marked 503.
+	 */
+	public static function release_event( $gateway, $event_key ) {
+		global $wpdb;
+		$t = self::table( 'emsfb_pmt_evt_' );
+		$key = strlen( (string) $event_key ) === 64 ? (string) $event_key : hash( 'sha256', (string) $gateway . '|' . (string) $event_key );
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix
+		$wpdb->query( $wpdb->prepare( "UPDATE `{$t}` SET event_key = %s, http_code = %d WHERE gateway = %s AND event_key = %s", hash( 'sha256', $key . '|retry|' . bin2hex( random_bytes( 8 ) ) ), 503, (string) $gateway, $key ) );
+	}
+
 	/** Attaches an event (stored before its payment was known) to a payment. */
 	public static function attach_event( $gateway, $event_key, $payment_id ) {
 		global $wpdb;
