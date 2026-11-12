@@ -1,4 +1,4 @@
-وضعیت: سند آماده، پیاده‌سازی نشده · اولویت: P0 (موج اول) · تلاش: M · وابستگی: PAY00 (B تا H)
+وضعیت: افزونه پیاده و تست شد (زیرتسک‌های A تا E، ۲۰۲۶-۱۱-۱۲؛ جزئیات در «پیوست: آنچه پیاده شد»؛ Card SDK و authorize فاز بعد؛ ترجمه به دستور مالک انجام نشد) · اولویت: P0 (موج اول) · تلاش: M · وابستگی: PAY00 (B تا H)
 
 # PAY03 — افزونهٔ Tap Payments (خلیج فارس: mada، KNET، Benefit، کارت، Apple Pay)
 
@@ -239,11 +239,11 @@ fixtureها `tests/fixtures/payments/tap/`: `charge-create-200.json` (نمونه
 - تست‌ها: `test-pay-tap-create.php` (بخش تنظیمات).
 
 **Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `vendores-efb/tappay/` (`routes-efb.php`، `class-Emsfb-tappay-gateway.php`، `class-Emsfb-tappay-client.php`، `tappay-phrases-efb.php`، `index.php`ها)؛ هسته: هیچ (رجیستری `AdnTAP` → `tappay` از PAY00 بود)
+- تست‌ها: `php tests/test-addon-tappay-create.php` ۶۸ موفق (ثبت، `supports()`، طرح تنظیمات، رمزنگاری کلید، الگوی کلید، «آزمودن اتصال» Test/Live، کلید حالت دیگر، کلید ردشده، بی‌کلید، شبکهٔ قطع، هیچ راز در خروجی)
+- وضعیت ترجمه: فقط انگلیسی؛ `languages/efb-tappay.pot` (۲۷ عبارت) و `locales.json` بدون زبان (به دستور مالک ترجمه نشد)
+- مورد باز: کلید عمومی و `card_mode` (Card SDK) پیاده نشد (فاز ۱b)؛ `merchant_ids` به‌جای نگاشت کشور، از ارز فرم کشور را می‌گیرد (KWD→KW…)
+- اقدام بعدی: —
 
 ### B. charge، webhook با hashstring، fetch، بازگشت
 - فایل‌ها: gateway، client، آداپتور.
@@ -251,11 +251,11 @@ fixtureها `tests/fixtures/payments/tap/`: `charge-create-200.json` (نمونه
 - تست‌ها: `test-pay-tap-hashstring.php`، `test-pay-tap-create.php`، `test-pay-tap-webhook.php`، `test-pay-tap-status-map.php`.
 
 **Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `class-Emsfb-tappay-gateway.php` (`create`، `fetch`، `parse_webhook`، `parse_return`)، `class-Emsfb-tappay-client.php` (hashstring، نگاشت وضعیت، مبلغ بدون float)
+- تست‌ها: `test-addon-tappay-hashstring.php` ۶۳ موفق (شکل رشتهٔ نمونهٔ رسمی، ۱۱ ارز، ۲ و ۳ رقم، مرجع خالی، امضای مستقل با `number_format`، دستکاری مبلغ/وضعیت/ارز/مرجع، ۲۰۰۰ مبلغ تصادفی)؛ `test-addon-tappay-create.php` ۶۸ (ثابت، متغیر، محاسبه‌شدهٔ B7 با موتور واقعی منطق، کمک مالی BHD، `"amount":12.625` دقیق، `source.id` هر روش، ارز روش‌ها، فهرست روش مالک، `reference.idempotent`، مشتری از پاسخ، Merchant ID کشوری، Live)؛ `test-addon-tappay-webhook.php` ۵۴ (نگاشت وضعیت §۹، webhook معتبر بدون GET، جعلی، تکراری، خارج از ترتیب، پیش از بازگشت، بازگشت بی‌webhook، مبلغ/ارز ناسازگار → GET → failed، efb_uid دیگر، انقضای ۲ و ۲۴ ساعت، Live، webhook بازپرداخت)
+- وضعیت ترجمه: همان A
+- مورد باز: webhook امضاشدهٔ CAPTURED با مبلغ و ارز برابر بدون GET پذیرفته می‌شود (مبلغ، ارز و وضعیت درون امضا هستند)؛ ناسازگار → GET (§۸)
+- اقدام بعدی: —
 
 ### C. روش‌ها و ارزها، لوگوها، RTL
 - فایل‌ها: آداپتور، CSS، تصاویر.
@@ -263,11 +263,11 @@ fixtureها `tests/fixtures/payments/tap/`: `charge-create-200.json` (نمونه
 - تست‌ها: `node tests/test-pay-tap-adapter.js`.
 
 **Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `tappay/assets/js/tappay-efb.js`، `assets/css/tappay-efb.css` (فقط ویژگی‌های منطقی)، `assets/img/*.svg` (نشان‌های ساده با متن؛ آثار رسمی برند باید جایگزین شوند)
+- تست‌ها: `node tests/test-addon-tappay-adapter.js` ۲۱ موفق (markup واقعی `Field::html()` و runtime هسته در Chromium: KWD/SAR/BHD/USD، list/grid/select، یک روش → انتخاب پنهان، یادداشت KNET/BENEFIT/mada با `aria-live`، عربی RTL در ۳۷۵px بی‌اسکرول افقی، کاشی ≥ ۴۴px، نشان در سمت آغاز، `<bdi>` با ۱۲٫۶۲۵، لوگوی محلی، برابری hashstring PHP با HMAC Node)
+- وضعیت ترجمه: متن یادداشت‌ها از `efb-tappay` با `wp_localize_script` (`efb_tappay_vars`)
+- مورد باز: هسته به `methods()` ارز فرم را نمی‌دهد و جای لوگو برای هر روش ندارد؛ آداپتور در مرورگر روش ناسازگار را برمی‌دارد و نشان را می‌افزاید (BUGS-FOUND)
+- اقدام بعدی: —
 
 ### D. بازپرداخت
 - فایل‌ها: gateway.
@@ -275,11 +275,11 @@ fixtureها `tests/fixtures/payments/tap/`: `charge-create-200.json` (نمونه
 - تست‌ها: `test-pay-tap-refund.php`.
 
 **Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `class-Emsfb-tappay-gateway.php` (`refund`)
+- تست‌ها: `php tests/test-addon-tappay-refund.php` ۲۰ موفق (جزئی ۲٫۶۲۵ KWD سپس باقی‌مانده، بدنه و `reference.idempotent`، کلیک دوباره، بیش از باقی‌مانده، PENDING/ACCEPTED، DECLINED، شبکهٔ قطع، کلید Live برای پرداخت Live، BHD ۰٫۰۰۵ و SAR ۱۲٫۵۰)
+- وضعیت ترجمه: —
+- مورد باز: بازپرداخت PENDING/ACCEPTED در هسته همان لحظه «بازپرداخت‌شده» ثبت می‌شود و راهی برای ثبت شکست بعدی نیست (BUGS-FOUND)
+- اقدام بعدی: —
 
 ### E. ترجمه (عربی، فارسی، انگلیسی) و zip
 - فایل‌ها: phrases، `languages/`، `tappay.zip`.
@@ -287,11 +287,11 @@ fixtureها `tests/fixtures/payments/tap/`: `charge-create-200.json` (نمونه
 - تست‌ها: خط لولهٔ i18n افزونه.
 
 **Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `tappay-phrases-efb.php`، `languages/efb-tappay.pot`، `languages/locales.json`، `languages/index.php`، `vendores-efb/tappay.zip` (با `build_zip.php`)
+- تست‌ها: سناریوی `tappay` در `tests/e2e-wp/run.js` روی وردپرس واقعی: 29 بررسی
+- وضعیت ترجمه: به دستور مالک ترجمه نشد؛ فقط انگلیسی و `.pot` (۲۷ عبارت، `tests/addon-i18n/build-l10n.php`)
+- مورد باز: ترجمهٔ عربی و فارسی؛ آزمون دستی Sandbox (§۱۵)
+- اقدام بعدی: —
 
 ## ۱۷. پرسش‌های باز
 
@@ -300,3 +300,17 @@ fixtureها `tests/fixtures/payments/tap/`: `charge-create-200.json` (نمونه
 3. سیاست تلاش دوبارهٔ webhook (تعداد و فاصله) — در مستند نبود.
 4. آیا برای افزونه‌های شخص سوم «platform/partner» ID یا اپ Tap (برای اتصال حساب فروشنده) لازم است؟
 5. Benefit با BenefitPay Web SDK (QR در فرم) در فاز ۱ لازم است یا صفحهٔ میزبان کافی است؟
+
+## پیوست: آنچه پیاده شد (۲۰۲۶-۱۱-۱۲)
+
+- **افزونه:** `vendores-efb/tappay` (کلید `AdnTAP`، نوع فیلد و slug `tappay`، text domain `efb-tappay`)، فقط از قرارداد PAY00؛ هیچ تغییری در هسته. ثبت در `routes-efb.php` با `efb_register_payment_gateways`.
+- **جریان:** فقط صفحهٔ میزبان Tap (`src_all`، `src_card`، `src_sa.mada`، `src_kw.knet`، `src_bh.benefit`)؛ مبلغ همیشه `$p->amount_minor`/`$p->currency` و در بدنهٔ JSON عدد دقیق با ۲ یا ۳ رقم (`12.625`)، بی‌float. `reference.idempotent` = ۳۲ نویسهٔ اول `idem_key` (Tap طولی مستند نکرده؛ اعتبار ۲۴ ساعت). `transaction.url` فقط اگر https روی `tap.company`.
+- **تأیید webhook:** هدر `hashstring` = HMAC-SHA256 با کلید مخفی حالتی که `live_mode` می‌گوید (بی `live_mode` هر دو)، `hash_equals`، مبلغ با رقم ISO بازسازی می‌شود؛ برای refund `created` و `transaction.created` هر دو آزموده می‌شوند (نمونهٔ رسمی ناسازگار است). امضای بد → 401. وضعیت امضاشده بدون GET اعمال می‌شود؛ اگر مبلغ یا ارز با ردیف فرق دارد → GET (`fetch()`)؛ `fetch()` شناسه و `metadata.efb_uid` را می‌سنجد. payload رویداد بدون نام، ایمیل، تلفن و کارت.
+- **بازگشت:** `tap_id` فقط مرجع است؛ هسته در صورت معلق بودن GET می‌کند.
+- **وضعیت‌ها:** فهرست رسمی Charges (`INITIATED, ABANDONED, CANCELLED, FAILED, DECLINED, RESTRICTED, CAPTURED, VOID, TIMEDOUT, UNKNOWN`) + `IN_PROGRESS`، `NOT CAPTURED`، `TIMED_OUT` مطابق §۹؛ `UNKNOWN` معلق تا `pending_ttl` (۲ ساعت، BENEFIT ۲۴ ساعت).
+- **ارزها و حدود (پیشنهاد، تأیید مالک):** KWD، BHD، OMR، JOD (۳ رقم)، SAR، AED، QAR، EGP، USD، EUR، GBP (۲ رقم)؛ حداقل ۰٫۱۰۰ / ۱٫۰۰ و حداکثر ۱۰۰٬۰۰۰ واحد (Tap حدی منتشر نکرده).
+- **مشتری:** نام از فیلد متنی‌ای که برچسبش «name/nom/الاسم/نام…» دارد (کلمهٔ اول نام، بقیه نام خانوادگی)، وگرنه بخش پیش از @ ایمیل؛ ایمیل از `email_to` یا اولین فیلد ایمیل؛ بی‌ایمیل → پرداخت ساخته نمی‌شود (`needs_name_email` در رویدادها). تلفن فرستاده نمی‌شود.
+- **بازپرداخت:** `POST /v2/refunds` کامل/جزئی، `reason: requested_by_customer`، `reference.merchant = EFB-R-…`، `reference.idempotent`، `post.url`؛ webhook بازپرداختی که از EFB نیست (داشبورد Tap) به ردیف اضافه می‌شود.
+- **تست‌ها:** ۲۲۶ بررسی در ۵ فایل (`test-addon-tappay-hashstring.php` ۶۳، `-create.php` ۶۸، `-webhook.php` ۵۴، `-refund.php` ۲۰، `-adapter.js` ۲۱)؛ fixtureها در `tests/fixtures/payments/tap/` از نمونه‌های رسمی؛ سناریوی e2e `tappay`: 29 بررسی.
+- **تصمیم‌هایی که مالک باید تأیید کند:** حدود مبلغ؛ ۳۲ نویسه برای `reference.idempotent`؛ پذیرش وضعیت امضاشده بدون GET؛ نام از برچسب فیلد؛ نشان‌های SVG ساده به‌جای آثار رسمی mada/KNET/BENEFIT/Visa/Mastercard/Apple Pay؛ Card SDK و authorize در فاز بعد.
+- **فقط با کلید واقعی Sandbox قابل آزمودن:** شکل دقیق webhook refund و فیلد `created` آن، رفتار `reference.idempotent` و طول مجازش، وضعیت‌های `ABANDONED`/`TIMEDOUT` در عمل، صفحهٔ KNET/BENEFIT واقعی، کارت‌های آزمایشی §۲.
