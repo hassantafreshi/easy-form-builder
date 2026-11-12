@@ -4728,15 +4728,26 @@ public function check_nonce_permission_efb($request) {
             $this->db = $wpdb;
         }
 		$table_name = $this->db->prefix . "emsfb_msg_";
-		$inserted = $this->db->insert($table_name, array(
+		$row_efb = array(
 			'form_title_x' => $this->name,
 			'content' => $this->value,
 			'form_id' => $this->id,
 			'track' => $uniqid,
 			'ip' => $this->ip,
 			'read_' => $read,
-			'date'=>wp_date('Y-m-d H:i:s')
-		));
+			'date'=>wp_date('Y-m-d H:i:s'),
+			// F13: the logged-in sender (0 for a guest), so WordPress' personal-data
+			// export and erase tools find a member's entries without an email field.
+			'uid' => (int) get_current_user_id(),
+		);
+		$inserted = $this->db->insert($table_name, $row_efb);
+		if ($inserted === false && stripos((string) $this->db->last_error, 'uid') !== false) {
+			// The 1.4 schema step has not reached this site yet (another request holds
+			// emsfb_schema_lock, or the database user may not ALTER): never lose the
+			// entry over the new column.
+			unset($row_efb['uid']);
+			$inserted = $this->db->insert($table_name, $row_efb);
+		}
 		if ($inserted === false) {
 			\Emsfb\Form_Runtime::abort($this->operation_key);
 			if (class_exists('\\Emsfb\\Request_Health')) \Emsfb\Request_Health::record('form',500,'server','storage_failed');

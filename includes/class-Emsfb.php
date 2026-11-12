@@ -189,7 +189,19 @@ class Emsfb {
             return;
         }
 
-        \Emsfb\Install::upgrade_schema();
+        // An ALTER on a large emsfb_msg_ can take from seconds to minutes, and this
+        // runs on plugins_loaded: without a lock, every request that arrives
+        // meanwhile would start the same ALTER again. The steps are idempotent, so a
+        // request that finds the lock simply leaves the work to the one holding it.
+        if (get_transient('emsfb_schema_lock')) {
+            return;
+        }
+        set_transient('emsfb_schema_lock', time(), 60);
+        try {
+            \Emsfb\Install::upgrade_schema();
+        } finally {
+            delete_transient('emsfb_schema_lock');
+        }
     }
 
     /**

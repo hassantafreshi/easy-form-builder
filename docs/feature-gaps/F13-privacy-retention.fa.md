@@ -1,4 +1,4 @@
-وضعیت: سند آماده، پیاده‌سازی نشده · اولویت: P0 · تلاش: S (هسته) + S (برون‌بری و حذف وردپرس) · وابستگی: — (پیش از F14 اجرا شود؛ ایندکس‌ها و ستون‌های این سند را F14 دوباره نمی‌سازد)
+وضعیت: در حال پیاده‌سازی (A انجام شد) · اولویت: P0 · تلاش: S (هسته) + S (برون‌بری و حذف وردپرس) · وابستگی: — (پیش از F14 اجرا شود؛ ایندکس‌ها و ستون‌های این سند را F14 دوباره نمی‌سازد)
 
 # F13 — حریم خصوصی و نگهداری داده
 
@@ -318,12 +318,12 @@ ALTER TABLE `{p}emsfb_rsp_` ADD KEY `msg_id` (`msg_id`);
 - پذیرش: نصب تازه و ارتقا از 1.3 هر دو ستون و چهار ایندکس را دارند. اجرای دوباره هیچ ALTER تازه‌ای نمی‌سازد. نبودن `emsfb_stts_` مانع این گام‌ها نمی‌شود. `insert_message_db` مقدار `uid` را می‌نویسد.
 - تست: `php tests/test-privacy-schema.php` با stub ‏`$wpdb` که SQL را ضبط و `SHOW COLUMNS`/`SHOW INDEX` را شبیه‌سازی می‌کند (الگوی `tests/test-telegram-schema.php`): ترتیب پیش از return، idempotent بودن، و DDL تازه.
 
-> **Checkpoint**
-> فایل‌های تغییرکرده:
-> تست‌ها:
-> وضعیت ترجمه:
-> مورد باز:
-> اقدام بعدی:
+> **Checkpoint** (۲۰۲۶-۱۱-۱۲، انجام شد)
+> فایل‌های تغییرکرده: `emsfb.php` (`EMSFB_DB_VERSION` = 1.4)، `includes/class-Emsfb-install.php` (ستون‌ها و کلیدها در `CREATE TABLE`؛ متد تازهٔ `upgrade_privacy_schema()` که پیش از return زودهنگام `emsfb_stts_` صدا زده می‌شود)، `includes/class-Emsfb.php` (قفل `emsfb_schema_lock` شصت‌ثانیه‌ای در `maybe_upgrade_schema_efb()`)، `includes/class-Emsfb-public.php` (`insert_message_db` ستون `uid` را می‌نویسد و اگر ستون هنوز نیامده باشد، بدون آن دوباره درج می‌کند تا هیچ پاسخی گم نشود)، `docs/migrations/privacy-retention-2026-11-12.md` و پیوندش در `docs/migrations/README.md`.
+> تست‌ها: `php tests/test-privacy-schema.php` ‏۳۵ موفق، ۰ ناموفق (پیش از تغییر ۴ موفق و ۲۷ ناموفق). روی وردپرس واقعی (SQLite): ارتقای ۱.۳ به ۱.۴ هر دو ستون و چهار کلید را ساخت و اجرای دوبارهٔ `upgrade_schema()` آرایهٔ خالی برگرداند. مجموعه‌های مرتبط (`test-ap-*`، `test-masks-*`، `test-plan-*`، `test-upgrade-prompt-*`، `test-step-bg-*`) همه سبز.
+> وضعیت ترجمه: عبارت تازه‌ای ندارد.
+> مورد باز: ندارد. نسخهٔ 1.4 را F13 گرفت؛ F02 و تسک‌های بعدی 1.5 به بعد را می‌گیرند.
+> اقدام بعدی: زیرتسک B.
 
 ### B. کلاس Privacy، حالت IP و تنظیمات سراسری
 - فایل‌ها: `includes/class-Emsfb-privacy.php` (`register`، `ip_mode`، `store_ip`، `form_map`)، `class-Emsfb.php` (بارگذاری، پیش‌فرض‌ها 2210)، `class-Emsfb-public.php` (3690، 3701، 3710، 4025، 4762، 5666، 3618)، `functions.php` (6922، 6934-6935، حذف `sips` در 2551)، `class-Emsfb-admin.php` (`set_settings_Emsfb` 1894، به‌روزرسانی `emsfb_prv_forms` پس از 362)، `list_form-efb.js` (کارت، 1540-1545، 3195، 3317)، و AJAX ‏`efb_privacy_purge_ip_Emsfb`.

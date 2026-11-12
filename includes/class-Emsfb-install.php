@@ -96,7 +96,12 @@ class Install {
 							`read_date` datetime  DEFAULT CURRENT_TIMESTAMP,
 							`read_` int(10) COLLATE utf8mb4_unicode_ci NOT NULL,
 							`read_by` varchar(45) COLLATE utf8mb4_unicode_ci NOT NULL,
-							PRIMARY KEY  (msg_id)
+							`uid` BIGINT UNSIGNED NOT NULL DEFAULT 0,
+							`prv_state` TINYINT NOT NULL DEFAULT 0,
+							PRIMARY KEY  (msg_id),
+							KEY form_date (form_id,`date`),
+							KEY track (track),
+							KEY date (`date`)
 						) {$charset_collate};";
 
 						self::create_table_if_absent( $sql );
@@ -112,7 +117,8 @@ class Install {
 							`read_` int(10) COLLATE utf8mb4_unicode_ci NOT NULL,
 							`reader_ip` varchar(45) COLLATE utf8mb4_unicode_ci NOT NULL,
 							`rsp_by` int(1) COLLATE utf8mb4_unicode_ci NOT NULL,
-							PRIMARY KEY  (rsp_id)
+							PRIMARY KEY  (rsp_id),
+							KEY msg_id (msg_id)
 						) {$charset_collate};";
 
 						self::create_table_if_absent( $sql );
@@ -273,6 +279,16 @@ class Install {
 			}
 		}
 
+		// F13 (privacy and retention), DB version 1.4. emsfb_msg_.uid is the
+		// logged-in sender (0 for guests) so WordPress' personal-data tools can
+		// find a member's entries; prv_state = 1 marks an anonymized entry. The
+		// keys serve the retention cron (form_id + date, date), tracking-code
+		// lookups and every reply query (emsfb_rsp_.msg_id). Each step checks
+		// first, so a second run issues no ALTER. They sit before the
+		// emsfb_stts_ early return below: a site without the session table
+		// still needs them.
+		$applied = array_merge( $applied, self::upgrade_privacy_schema() );
+
 		$table   = $wpdb->prefix . 'emsfb_stts_';
 
 		$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) );
@@ -309,6 +325,73 @@ class Install {
 		}
 
 		update_option( 'Emsfb_db_version', EMSFB_DB_VERSION );
+
+		return $applied;
+	}
+
+	/**
+	 * F13: columns and keys on emsfb_msg_ / emsfb_rsp_ (DB version 1.4).
+	 * Idempotent: SHOW COLUMNS / SHOW INDEX first, ALTER only what is missing.
+	 *
+	 * @return array<int, string> Applied steps.
+	 */
+	private static function upgrade_privacy_schema() {
+		global $wpdb;
+
+		$applied = array();
+		$steps   = array(
+			'emsfb_msg_' => array(
+				'columns' => array(
+					'uid'       => 'BIGINT UNSIGNED NOT NULL DEFAULT 0',
+					'prv_state' => 'TINYINT NOT NULL DEFAULT 0',
+				),
+				'keys'    => array(
+					'form_date' => '(`form_id`,`date`)',
+					'track'     => '(`track`)',
+					'date'      => '(`date`)',
+				),
+			),
+			'emsfb_rsp_' => array(
+				'columns' => array(),
+				'keys'    => array(
+					'msg_id' => '(`msg_id`)',
+				),
+			),
+		);
+
+		foreach ( $steps as $short => $step ) {
+			$table = $wpdb->prefix . $short;
+			if ( ! $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) ) {
+				continue;
+			}
+			foreach ( $step['columns'] as $column => $definition ) {
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix
+				$has = $wpdb->get_results( $wpdb->prepare( "SHOW COLUMNS FROM `{$table}` LIKE %s", $column ) );
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix, column and definition from the literal map above
+				if ( empty( $has ) && false !== $wpdb->query( "ALTER TABLE `{$table}` ADD COLUMN `{$column}` {$definition}" ) ) {
+					$applied[] = "{$short}: ADD COLUMN {$column}";
+				}
+			}
+			if ( empty( $step['keys'] ) ) {
+				continue;
+			}
+			$present = array();
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix
+			foreach ( (array) $wpdb->get_results( "SHOW INDEX FROM `{$table}`", ARRAY_A ) as $row ) {
+				if ( isset( $row['Key_name'] ) ) {
+					$present[ $row['Key_name'] ] = true;
+				}
+			}
+			foreach ( $step['keys'] as $key_name => $columns ) {
+				if ( isset( $present[ $key_name ] ) ) {
+					continue;
+				}
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix, key from the literal map above
+				if ( false !== $wpdb->query( "ALTER TABLE `{$table}` ADD KEY `{$key_name}` {$columns}" ) ) {
+					$applied[] = "{$short}: ADD KEY {$key_name}";
+				}
+			}
+		}
 
 		return $applied;
 	}
