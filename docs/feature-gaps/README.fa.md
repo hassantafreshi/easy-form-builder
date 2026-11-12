@@ -103,18 +103,18 @@
 
 ## صف درگاه‌های پرداخت (افزونه‌های جدید)
 
-هر درگاه یک افزونهٔ جدا در مخزن `vendores-efb` است، مثل Stripe و PayPal، و در سازنده به‌شکل یک فیلد پرداخت ظاهر می‌شود. ظاهر فیلد (رنگ دکمه، چیدمان اجزای داخلی، متن‌ها) کاملاً قابل تنظیم و چندزبانه است. سند پژوهش و طراحی: [PAY00](../payments/PAY00-payment-framework.fa.md).
+هر درگاه یک افزونهٔ جدا در مخزن `vendores-efb` است، مثل Stripe و PayPal، و در سازنده به‌شکل یک فیلد پرداخت ظاهر می‌شود. ظاهر فیلد (رنگ دکمه، چیدمان اجزای داخلی، متن‌ها) کاملاً قابل تنظیم و چندزبانه است. سند پژوهش و طراحی: [PAY00](../payments/PAY00-payment-framework.fa.md)؛ مقایسهٔ رقبا: [competitor-payment-matrix](../payments/competitor-payment-matrix.en.md).
 
 | تسک | محتوا | اولویت | وضعیت |
 |---|---|---|---|
-| PAY00 — چارچوب مشترک پرداخت در هسته | رابط درگاه، ثبت درگاه، جدول و وضعیت پرداخت، webhook با امضای معتبر، جلوگیری از ثبت تکراری، پرداخت معلق، Sandbox/Live، مبلغ ثابت و متغیر و محاسبه‌شده، کمک مالی، رسید، بازپرداخت، فیلد پرداخت قابل سفارشی‌سازی؛ همهٔ امکانات پرداخت رقبا | P0 | در حال پژوهش |
-| PAY01 — Mollie | اروپا: iDEAL، Wero، Bancontact، کارت و روش‌های محلی | P0 | در صف |
-| PAY02 — Payplug | فرانسه: Cartes Bancaires | P0 | در صف |
-| PAY03 — Tap Payments | خلیج فارس: mada، KNET، Benefit | P0 | در صف |
-| PAY04 — Omise | تایلند: PromptPay | P0 | در صف |
-| PAY05 — PayTabs | خاورمیانه: روش‌های محلی | P0 | در صف |
-| PAY06 — Paymob | مصر و خاورمیانه: کیف پول‌ها، Meeza | P0 | در صف |
-| PAY07 — Xendit | جنوب شرق آسیا: QRIS، GCash | P0 | در صف |
+| [PAY00 — چارچوب مشترک پرداخت در هسته](../payments/PAY00-payment-framework.fa.md) | رابط درگاه، ثبت درگاه، جدول و وضعیت پرداخت، webhook با امضای معتبر، جلوگیری از ثبت تکراری، پرداخت معلق، Sandbox/Live، مبلغ ثابت و متغیر و محاسبه‌شده، کمک مالی، رسید، بازپرداخت، فیلد پرداخت قابل سفارشی‌سازی؛ همهٔ امکانات پرداخت رقبا | P0 | سند آماده |
+| [PAY01 — Mollie](../payments/PAY01-mollie.fa.md) | اروپا: iDEAL، Wero، Bancontact، کارت و روش‌های محلی | P0 | سند آماده |
+| [PAY02 — Payplug](../payments/PAY02-payplug.fa.md) | فرانسه: Cartes Bancaires | P0 | سند آماده |
+| [PAY03 — Tap Payments](../payments/PAY03-tap.fa.md) | خلیج فارس: mada، KNET، Benefit | P0 | سند آماده |
+| [PAY04 — Omise](../payments/PAY04-omise.fa.md) | تایلند: PromptPay | P0 | سند آماده |
+| [PAY05 — PayTabs](../payments/PAY05-paytabs.fa.md) | خاورمیانه: روش‌های محلی | P0 | سند آماده |
+| [PAY06 — Paymob](../payments/PAY06-paymob.fa.md) | مصر و خاورمیانه: کیف پول‌ها، Meeza | P0 | سند آماده |
+| [PAY07 — Xendit](../payments/PAY07-xendit.fa.md) | جنوب شرق آسیا: QRIS، GCash | P0 | سند آماده |
 
 ترتیب اجرا: PAY00، سپس Mollie، Payplug، Tap و Omise، سپس PayTabs، Paymob و Xendit.
 
