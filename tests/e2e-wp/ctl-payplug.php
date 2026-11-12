@@ -4,8 +4,8 @@
  *
  *   fake <0|1>               copy mu-plugins/efb-e2e-payplug.php into the site's mu-plugins and switch the
  *                            fake api.payplug.com on (1) or off (0); the AdnPPG add-on flag follows
- *   keys <test|live>         store the placeholder keys of the fake (not real keys) and the mode
- *   form [name]              a Payplug form (e-mail, first / last name, city mapped for billing, a priced
+ *   keys <test|live> [oney]  store the placeholder keys of the fake (not real keys) and the mode (oney: Oney 3x on)
+ *   form [name] [oney]       a Payplug form (oney: also mobile, street, postcode, country mapped, card + Oney 3x) (e-mail, first / last name, city mapped for billing, a priced
  *                            radio 25 / 150, fixed fee 8) saved through the core sanitizer
  *   provider <id> <fixture>  move the fake's payment to a get-* fixture state (get-paid, …)
  *   notify-url <id>          the notification_url the fake was given for a payment
@@ -52,7 +52,7 @@ switch ( $efb_pp_cmd ) {
 		$gw = new \Emsfb\Payments\Payplug_Gateway();
 		$st = \Emsfb\Payments\Settings::load( 'payplug' );
 		$mode = isset( $efb_pp_rest[0] ) && 'live' === $efb_pp_rest[0] ? 'live' : 'test';
-		$st->apply( $gw->settings_schema(), array( 'api_key__test' => efb_e2e_payplug_key( 'test' ), 'api_key__live' => efb_e2e_payplug_key( 'live' ), 'card_mode' => 'hosted', 'default_country' => 'FR' ), $mode );
+		$st->apply( $gw->settings_schema(), array( 'api_key__test' => efb_e2e_payplug_key( 'test' ), 'api_key__live' => efb_e2e_payplug_key( 'live' ), 'card_mode' => 'hosted', 'default_country' => 'FR', 'oney' => isset( $efb_pp_rest[1] ) && 'oney' === $efb_pp_rest[1] ? 'x3_with_fees' : '' ), $mode );
 		efb_pp_out( array( 'ok' => true, 'mode' => \Emsfb\Payments\Settings::load( 'payplug' )->mode() ) );
 		break;
 
@@ -70,14 +70,25 @@ switch ( $efb_pp_cmd ) {
 		$rows[] = array_merge( $base, array( 'id_' => $rad, 'dataId' => $rad . '-id', 'type' => 'payRadio', 'elementId' => 'payRadio', 'name' => 'Atelier', 'amount' => 6, 'required' => 1 ) );
 		$rows[] = array( 'id_' => $o1, 'dataId' => $o1 . '-id', 'parent' => $rad, 'type' => 'option', 'value' => 'Atelier', 'id_op' => $o1, 'step' => 1, 'amount' => 7, 'price' => '25' );
 		$rows[] = array( 'id_' => $o2, 'dataId' => $o2 . '-id', 'parent' => $rad, 'type' => 'option', 'value' => 'Grand atelier', 'id_op' => $o2, 'step' => 1, 'amount' => 7, 'price' => '150' );
+		$oney = isset( $efb_pp_rest[1] ) && 'oney' === $efb_pp_rest[1];
+		$extra_map = array();
+		$mo = $ad = $pc = $co = '';
+		if ( $oney ) {
+			// Oney needs the mobile number, the street, the postcode and the country too (PAY02 error scenarios).
+			$mo = $rid(); $ad = $rid(); $pc = $rid(); $co = $rid();
+			foreach ( array( array( $mo, 'Mobile' ), array( $ad, 'Adresse' ), array( $pc, 'Code postal' ), array( $co, 'Pays' ) ) as $i => $f ) {
+				$rows[] = array_merge( $base, array( 'id_' => $f[0], 'dataId' => $f[0] . '-id', 'type' => 'text', 'elementId' => 'text', 'name' => $f[1], 'amount' => 9 + $i ) );
+			}
+			$extra_map = array( 'pgw_map_phone' => $mo, 'pgw_map_address' => $ad, 'pgw_map_postcode' => $pc, 'pgw_map_country' => $co, 'pf_methods' => 'card,oney_x3_with_fees' );
+		}
 		$rows[] = array_merge( $base, array( 'id_' => $pf, 'dataId' => $pf . '-id', 'type' => 'payplug', 'elementId' => 'payplug', 'name' => 'Paiement', 'amount' => 8,
-			'pf_fixed' => '8', 'pf_fixed_label' => 'Frais de dossier', 'pgw_map_first' => $fn, 'pgw_map_last' => $ln, 'pgw_map_city' => $ci ) );
+			'pf_fixed' => '8', 'pf_fixed_label' => 'Frais de dossier', 'pgw_map_first' => $fn, 'pgw_map_last' => $ln, 'pgw_map_city' => $ci ), $extra_map );
 		$clean = get_efbFunction()->sanitize_obj_msg_efb( $rows );
 		$json = str_replace( '"', '\\"', wp_json_encode( $clean, JSON_UNESCAPED_UNICODE ) );
 		$wpdb->insert( $wpdb->prefix . 'emsfb_form', array( 'form_name' => $name, 'form_structer' => $json, 'form_email' => '', 'form_type' => 'payment', 'form_created_by' => '1', 'form_access_by' => '', 'form_create_date' => current_time( 'mysql' ), 'status' => 1 ) );
 		$fid = (int) $wpdb->insert_id;
 		do_action( 'efb_form_created', $fid, $clean, array( 'form_id' => $fid, 'source' => 'e2e', 'user_id' => 1 ) );
-		efb_pp_out( array( 'form_id' => $fid, 'email' => $em, 'first' => $fn, 'last' => $ln, 'city' => $ci, 'pf' => $pf, 'radio' => $rad, 'o1' => $o1, 'o2' => $o2 ) );
+		efb_pp_out( array( 'form_id' => $fid, 'email' => $em, 'first' => $fn, 'last' => $ln, 'city' => $ci, 'pf' => $pf, 'radio' => $rad, 'o1' => $o1, 'o2' => $o2, 'mobile' => $mo, 'address' => $ad, 'postcode' => $pc, 'country' => $co ) );
 		break;
 
 	case 'provider':

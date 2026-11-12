@@ -102,7 +102,11 @@
       try {
          var loc = String(locale || 'en').replace('_', '-');
          var opt = { style: 'currency', currency: cur, minimumFractionDigits: exponent(cur), maximumFractionDigits: exponent(cur) };
+         // 'locale': the language's own digits. Arabic and Persian name them (ICU now gives Latin digits
+         // for plain "ar"): Arabic-Indic (arab) for Arabic, extended Arabic-Indic (arabext) for Persian.
          if (digits !== 'locale') opt.numberingSystem = 'latn';
+         else if (/^(ar|ary|arq|arz)(-|$)/i.test(loc)) opt.numberingSystem = 'arab';
+         else if (/^(fa|ckb|ps|ur)(-|$)/i.test(loc)) opt.numberingSystem = 'arabext';
          return new Intl.NumberFormat(loc, opt).format(Number(dec));
       } catch (e) {
          return (dec + ' ' + cur).trim();

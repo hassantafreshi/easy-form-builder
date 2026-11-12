@@ -44,6 +44,7 @@ const path = require('path');
 const { CFG, ROOT, ctl, wp, freshInstall, launch, guard, login, makeReport, sleep } = require('./lib.js');
 
 const Masks = require(path.join(ROOT, 'public', 'assets', 'js', 'masks-efb.js'));
+const PE = require('./pay-errors-e2e.js');
 const R = makeReport();
 const ONLY = process.argv.slice(2);
 const SHARED = {}; // carried between scenarios: form id, row ids, page URLs
@@ -1488,7 +1489,7 @@ scenario('mollie', 'PAY01 Mollie add-on (fake api.mollie.com): settings + Test c
   const admin = await adminPage();
   await admin.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb_payments&tab=gateways', { waitUntil: 'load' });
   const gw = await admin.content();
-  R.check('mollie/settings: the Mollie card with its two key fields, keys masked (•••• Fake), webhook address listed', /id="efbPayGw_mollie"/.test(gw) && /Test API key/.test(gw) && /Live API key/.test(gw) && /•••• Fake/.test(gw) && gw.indexOf('test_Fake') === -1 && /payments\/webhook\/mollie/.test(gw));
+  R.check('mollie/settings: the Mollie card with its two key fields, keys masked (•••• Fake), webhook address listed', /id="efbPayGw_mollie"/.test(gw) && /Test API key/.test(gw) && /Live API key/.test(gw) && /•••• Fake/.test(gw) && gw.indexOf('test_Fake') === -1 && /payments\/webhook\/mollie/.test(gw), { card: /id="efbPayGw_mollie"/.test(gw), test: /Test API key/.test(gw), live: /Live API key/.test(gw), masked: /•••• Fake/.test(gw), plain: gw.indexOf('test_Fake'), around: gw.indexOf('test_Fake') !== -1 ? gw.slice(Math.max(0, gw.indexOf('test_Fake') - 300), gw.indexOf('test_Fake') + 80) : '', hook: /payments\/webhook\/mollie/.test(gw) });
   await admin.click('[data-efb-pay="test_connection"][data-gateway="mollie"][data-mode="test"]');
   await admin.waitForFunction(() => /Connected/.test((document.querySelector('#efbPayGw_mollie') ? document.querySelector('#efbPayGw_mollie').closest('section').querySelector('.efb-pay-msg') : {}).textContent || ''), null, { timeout: 10000 });
   const conn = (ctlMollie('state').log || []).filter((l) => l.path === '/v2/methods').pop();
@@ -1513,7 +1514,8 @@ scenario('mollie', 'PAY01 Mollie add-on (fake api.mollie.com): settings + Test c
   // AutoPilot / SitePilot: the method list and its style written through getForm / setForm.
   await admin.evaluate(async (id) => { const f = efbBuilderApi.getForm(); const r = f.find((x) => x.id_ === id); r.pf_methods = 'ideal,creditcard'; r.pf_methods_style = 'grid'; await efbBuilderApi.setForm(f); }, pf.id_);
   await sleep(500);
-  await admin.evaluate(() => saveFormEfb(1));
+  const msw = PE.payWarnings(await PE.saveWarnings(admin));
+  R.check('mollie/errors: the save answer (what AutoPilot reads) carries the payment checks with their level: Test mode (info); Mollie needs no payer field (its checkout asks), so nothing red', msw.some((w) => w.code === 'pay_test_mode' && w.level === 'info' && /Mollie is in Test mode/.test(w.m)) && !msw.some((w) => w.level === 'error'), msw);
   await admin.waitForFunction(() => window.form_ID_emsFormBuilder && Number(form_ID_emsFormBuilder) > 0, null, { timeout: 15000 }).catch(() => {});
   await sleep(1500);
   const forms = ctl('forms');
@@ -1580,8 +1582,8 @@ scenario('mollie', 'PAY01 Mollie add-on (fake api.mollie.com): settings + Test c
   await Promise.all([g.waitForURL(/mollie-checkout/, { timeout: 20000 }), g.click('.efb-pf [data-pf-pay]')]);
   await g.waitForSelector('#failed', { timeout: 10000 });
   await Promise.all([g.waitForURL((u) => u.toString().indexOf('mollie-checkout') === -1, { timeout: 20000 }), g.click('#failed')]);
-  await g.waitForFunction(() => /not completed/i.test(document.body.innerText), null, { timeout: 15000 });
-  R.check('mollie: failed at Mollie → "not completed, not charged" and "Try again"; payment failed', await g.isVisible('.efb-pf-retry') && payRows(fid)[0].status === 'failed');
+  await g.waitForFunction(() => /was declined/i.test(document.body.innerText), null, { timeout: 15000 });
+  R.check('mollie/errors: failed at Mollie → the specific words "Your payment was declined. You have not been charged. Please try another card or payment method." and "Try again"; payment failed', await g.isVisible('.efb-pf-retry') && /Your payment was declined\. You have not been charged\. Please try another card or payment method\./.test(await g.textContent('.efb-pf [data-pf-status]')) && payRows(fid)[0].status === 'failed');
   await g.close();
 
   /* Payments screen and refund */
@@ -1647,8 +1649,9 @@ scenario('payplug', 'PAY02 Payplug add-on (fake api.payplug.com): builder + Auto
   await admin.press('#efbPfFixedEl', 'Tab');
   await sleep(300);
   await closePanel(admin);
-  await admin.evaluate(() => saveFormEfb(1));
-  await sleep(2500);
+  const psw = PE.payWarnings(await PE.saveWarnings(admin));
+  R.check('pp/errors: the save answer (AutoPilot) carries the payment checks with their level: Test mode (info), Payplug\'s own "billing address for 3-D Secure" (warning); nothing red (the card needs no payer field)', psw.some((w) => w.code === 'pay_test_mode' && w.level === 'info') && psw.some((w) => w.code === 'pay_gw_billing_unmapped' && w.level === 'warning') && !psw.some((w) => w.level === 'error'), psw);
+  await sleep(1500);
   const forms = ctl('forms');
   const saved = forms.length ? ctl('form', String(forms[forms.length - 1].form_id)) : null;
   const srow = saved && saved.form_structer ? saved.form_structer.find((r) => r.type === 'payplug') : null;
@@ -1729,6 +1732,50 @@ scenario('payplug', 'PAY02 Payplug add-on (fake api.payplug.com): builder + Auto
   await admin.click('[data-efb-pay="test_connection"][data-gateway="payplug"][data-mode="test"]');
   await admin.waitForFunction(() => /Connected/.test(Array.from(document.querySelectorAll('.efb-pay-msg')).map((e) => e.textContent).join(' ')), null, { timeout: 10000 });
   R.check('pp: Test connection (Test) → Connected', true);
+  /* error scenarios: Oney (instalments) needs the mobile number, the address and a country Oney serves */
+  ctlPayplug('keys', 'test', 'oney');
+  await openNewForm(admin);
+  await addTile(admin, 'email');
+  const pfO = await addTile(admin, 'payplug');
+  await closePanel(admin);
+  await admin.click(`#dropZoneEFB [data-id="${pfO.dataId}"] .efb-pf-label`);
+  await admin.waitForSelector('#efbPfPanelEl', { timeout: 8000 });
+  const ow = (await PE.panelWarnings(admin)).filter((w) => w.code === 'pay_option_required');
+  R.check('pp/errors: builder with Oney on and nothing mapped → per-method warnings naming Oney and what to add ("Payplug requires "Mobile number" to pay with Pay in 3 instalments with Oney. Add a phone number field …")', ow.length >= 6 && ow.every((w) => w.level === 'warning' && /to pay with Pay in 3 instalments with Oney/.test(w.m)) && ow.some((w) => /"Mobile number"/.test(w.m) && /phone number field/.test(w.m)), ow.map((w) => w.m));
+  await closePanel(admin);
+  const FO = ctlPayplug('form', 'Payplug Oney e2e', 'oney');
+  const urlO = ctl('page', String(FO.form_id)).url;
+  g = await payGuest(context, urlO, async (p) => { await p.fill(`[data-id="${FO.email}-el"]`, 'oney@example.test'); await p.fill(`[data-id="${FO.first}-el"]`, 'Jeanne'); await p.fill(`[data-id="${FO.last}-el"]`, 'Martin'); await p.fill(`[data-id="${FO.city}-el"]`, 'Paris'); await p.fill(`[data-id="${FO.address}-el"]`, '1 rue de la Paix'); await p.fill(`[data-id="${FO.postcode}-el"]`, '75002'); await p.fill(`[data-id="${FO.country}-el"]`, 'FR'); await p.click(`[id="${FO.o2}"]`); });
+  const oc = PE.countCreates(g);
+  await g.click('.efb-pf [data-pf-method="oney_x3_with_fees"]');
+  R.check('pp/errors: Oney chosen → the mobile field is marked required on the page (star, aria-required)', await g.evaluate((id) => document.querySelector('[data-id="' + id + '-el"]').getAttribute('aria-required') === 'true' && (document.getElementById(id + '_req') || {}).textContent === '*', FO.mobile));
+  await g.click('.efb-pf [data-pf-pay]');
+  await sleep(800);
+  let ofm = await PE.fieldMessage(g, FO.mobile);
+  R.check('pp/errors: Oney and the mobile empty → "Please fill in "Mobile": it is needed to pay with Pay in 3 instalments with Oney." at that field (role alert, aria-invalid, focused); no payments/create request', ofm.shown && ofm.role === 'alert' && ofm.text === 'Please fill in "Mobile": it is needed to pay with Pay in 3 instalments with Oney.' && ofm.invalid === 'true' && ofm.focus && oc.count === 0, Object.assign(ofm, { creates: oc.count }));
+  await g.fill(`[data-id="${FO.mobile}-el"]`, '06 12 34 56 78');
+  await g.click('.efb-pf [data-pf-pay]');
+  await sleep(800);
+  ofm = await PE.fieldMessage(g, FO.mobile);
+  R.check('pp/errors: a mobile number without the country code → "… with its country code, starting with + …" at that field; still no create request', /with its country code, starting with \+/.test(ofm.text) && oc.count === 0, Object.assign(ofm, { creates: oc.count }));
+  await g.fill(`[data-id="${FO.country}-el"]`, 'BE');
+  await g.fill(`[data-id="${FO.mobile}-el"]`, '+33 6 12 34 56 78');
+  await g.click('.efb-pf [data-pf-pay]');
+  await sleep(800);
+  ofm = await PE.fieldMessage(g, FO.country);
+  R.check('pp/errors: a billing country Oney does not serve (BE) → "Payments with this method are not available for the country in "Pays" …" at the country field; no create request', /not available for the country in "Pays"/.test(ofm.text) && oc.count === 0, Object.assign(ofm, { creates: oc.count }));
+  await g.screenshot({ path: SHOT('payplug-oney-field-message') });
+  await g.close();
+  /* the provider declines → its reason in safe words */
+  g = await payGuest(context, url, async (p) => { await p.fill(`[data-id="${F.email}-el"]`, 'declined@example.test'); await p.click(`[id="${F.o1}"]`); });
+  await Promise.all([g.waitForURL(/payplug-pay/, { timeout: 20000 }), g.click('.efb-pf [data-pf-pay]')]);
+  await g.waitForSelector('#fail', { timeout: 10000 });
+  await Promise.all([g.waitForURL((u) => u.toString().indexOf('payplug-pay') === -1, { timeout: 20000 }), g.click('#fail')]);
+  await g.waitForFunction(() => /was declined/i.test(document.body.innerText), null, { timeout: 15000 });
+  R.check('pp/errors: declined at Payplug (failure.code card_declined) → "Your payment was declined. You have not been charged. Please try another card or payment method." with Try again', await g.isVisible('.efb-pf-retry') && /Your payment was declined\. You have not been charged\./.test(await g.textContent('.efb-pf [data-pf-status]')));
+  await g.close();
+  ctlPayplug('keys', 'test');
+
   ctlPayplug('fake', '0');
 });
 
@@ -1795,15 +1842,21 @@ scenario('tappay', 'PAY03 Tap Payments add-on (fake api.tap.company): settings +
   R.check('tappay/builder: the Tap Payments tile adds the payment field; the form becomes a KWD payment form', pf && pf.type === 'tappay' && f0.type === 'payment' && f0.getway === 'tappay' && f0.currency === 'KWD', { pf: pf && pf.type, f0 });
   R.check('tappay/builder: the canvas shows the field with the three methods a KWD form can use (all, card, KNET: each method declares its currency) (no Tap script in the builder)', await admin.isVisible(`#dropZoneEFB .efb-pf[data-pf="${pf.id_}"] [data-pf-pay]`) && (await admin.$$(`#dropZoneEFB .efb-pf[data-pf="${pf.id_}"] [data-pf-method]`)).length === 3 && !(await admin.evaluate(() => !!window.EFBTapPay)));
   await closePanel(admin);
+  // Error scenarios: no e-mail chosen yet (and no confirmation e-mail field): the panel says Tap needs it, red.
+  await admin.evaluate(async () => { const f = efbBuilderApi.getForm(); f[0].email_to = ''; await efbBuilderApi.setForm(f); });
+  await sleep(500);
   await admin.click(`#dropZoneEFB [data-id="${pf.dataId}"] .efb-pf-label`);
   await admin.waitForSelector('#efbPfPanelEl', { timeout: 8000 });
+  const tw = await admin.evaluate(() => Array.from(document.querySelectorAll('#efbPfWarnEl li')).map((l) => ({ code: l.getAttribute('data-code'), level: l.getAttribute('data-level'), m: l.textContent })));
+  R.check('tappay/errors: builder, no e-mail field chosen → red "Tap Payments requires "Payer e-mail". Add an Email field to the form and select it in the payment field\'s "Payer e-mail" option."; Test mode as info', tw.some((w) => w.code === 'pay_option_required' && w.level === 'error' && w.m === 'Tap Payments requires "Payer e-mail". Add an Email field to the form and select it in the payment field\'s "Payer e-mail" option.') && tw.some((w) => w.code === 'pay_test_mode' && w.level === 'info') && await admin.isVisible('#efbPfWarnEl.alert-danger'), tw);
   await admin.fill('#efbPfFixedEl', '12.5');
   await admin.press('#efbPfFixedEl', 'Tab');
   await settle(admin);
   await closePanel(admin);
-  await admin.evaluate(async (id) => { const f = efbBuilderApi.getForm(); const r = f.find((x) => x.id_ === id); r.pf_methods = 'knet,card,mada'; r.pf_methods_style = 'grid'; await efbBuilderApi.setForm(f); }, pf.id_);
+  await admin.evaluate(async ([id, e]) => { const f = efbBuilderApi.getForm(); const r = f.find((x) => x.id_ === id); r.pf_methods = 'knet,card,mada'; r.pf_methods_style = 'grid'; r.pgw_map_email = e; await efbBuilderApi.setForm(f); }, [pf.id_, em.id_]);
   await sleep(500);
-  await admin.evaluate(() => saveFormEfb(1));
+  const tsw = PE.payWarnings(await PE.saveWarnings(admin));
+  R.check('tappay/errors: e-mail chosen → the save answer (AutoPilot) has no red check any more; mada cannot take KWD (warning, named); the e-mail field not marked Required (info)', !tsw.some((w) => w.level === 'error') && tsw.some((w) => w.code === 'pay_method_currency' && w.level === 'warning' && /mada cannot take KWD/.test(w.m)) && tsw.some((w) => w.code === 'pay_option_not_required' && w.level === 'info'), tsw);
   await admin.waitForFunction(() => window.form_ID_emsFormBuilder && Number(form_ID_emsFormBuilder) > 0, null, { timeout: 15000 }).catch(() => {});
   await sleep(1500);
   const forms = ctl('forms');
@@ -1812,10 +1865,28 @@ scenario('tappay', 'PAY03 Tap Payments add-on (fake api.tap.company): settings +
   const srow = saved && saved.form_structer ? saved.form_structer.find((r) => r.type === 'tappay') : null;
   R.check('tappay/builder: Save stores the Tap field through the sanitizer (pf_fixed 12.5, pf_methods knet,card,mada, grid)', srow && srow.pf_fixed === '12.5' && srow.pf_methods === 'knet,card,mada' && srow.pf_methods_style === 'grid', srow);
   const url = ctl('page', String(fid)).url;
+  SHARED.tapForm = { fid, url, nm: nm.id_, em: em.id_ };
+
+  /* error scenario: the e-mail Tap needs left empty → the message at the field, no create request */
+  const fill = (mail) => async (p) => { await p.fill(`[data-id="${nm.id_}-el"]`, 'Fatima Al Sabah'); await p.fill(`[data-id="${em.id_}-el"]`, mail); };
+  let g = await payGuest(context, url, async (p) => { await p.fill(`[data-id="${nm.id_}-el"]`, 'Fatima Al Sabah'); });
+  const tcreates = [];
+  g.on('request', (r) => { if (/payments\/create/.test(r.url())) tcreates.push(r.url()); });
+  R.check('tappay/errors: the e-mail field is marked required for the payment on the page (star, aria-required)', await g.evaluate((id) => document.querySelector('[data-id="' + id + '-el"]').getAttribute('aria-required') === 'true' && (document.getElementById(id + '_req') || {}).textContent === '*', em.id_));
+  await g.click('.efb-pf [data-pf-pay]');
+  await sleep(800);
+  const tfm = await g.evaluate((id) => { const s = document.getElementById(id + '_-message'); const i = document.querySelector('[data-id="' + id + '-el"]'); return { text: s ? s.textContent : '', role: s && s.getAttribute('role'), shown: s && s.style.display === 'block', invalid: i.getAttribute('aria-invalid'), described: (i.getAttribute('aria-describedby') || '').indexOf(id + '_-message') !== -1, focus: document.activeElement === i }; }, em.id_);
+  R.check('tappay/errors: visitor leaves the e-mail empty → Tap\'s words at that field ("Please fill in "Email": Tap Payments needs your e-mail address for the payment receipt."), role alert, aria-invalid + aria-describedby, focused; no payments/create request', tfm.shown && tfm.role === 'alert' && /Please fill in "[^"]+": Tap Payments needs your e-mail address/.test(tfm.text) && tfm.invalid === 'true' && tfm.described && tfm.focus && tcreates.length === 0, Object.assign(tfm, { creates: tcreates.length }));
+  await g.fill(`[data-id="${em.id_}-el"]`, 'payer@example');
+  await g.click('.efb-pf [data-pf-pay]');
+  await sleep(800);
+  const tfm2 = await g.evaluate((id) => { const s = document.getElementById(id + '_-message'); return { text: s ? s.textContent : '', shown: !!(s && s.style.display === 'block') }; }, em.id_);
+  R.check('tappay/errors: an e-mail without a domain → a message at the e-mail field (the form\'s own e-mail check drops the value, the payment asks for it); still no create request', tfm2.shown && tfm2.text.trim() !== '' && tcreates.length === 0, Object.assign(tfm2, { creates: tcreates.length }));
+  await g.screenshot({ path: SHOT('tappay-en-field-message') });
+  await g.close();
 
   /* a guest pays with KNET; webhook before the return */
-  const fill = (mail) => async (p) => { await p.fill(`[data-id="${nm.id_}-el"]`, 'Fatima Al Sabah'); await p.fill(`[data-id="${em.id_}-el"]`, mail); };
-  let g = await payGuest(context, url, fill('payer@example.test'));
+  g = await payGuest(context, url, fill('payer@example.test'));
   await g.waitForFunction(() => { const e = document.querySelector('.efb-pf'); return e && e._efbTap; }, null, { timeout: 10000 });
   const shown = await g.evaluate(() => ({ total: (document.querySelector('[data-pf-total]') || {}).textContent, banner: !document.querySelector('.efb-pf [data-pf-el="test"]').hidden, methods: Array.from(document.querySelectorAll('.efb-pf [data-pf-method]')).map((b) => b.getAttribute('data-pf-method')), marks: Array.from(document.querySelectorAll('.efb-pf .efb-pf-method-logo')).map((i) => i.getAttribute('src')), logos: Array.from(document.querySelectorAll('.efb-pf-logo')).map((i) => i.getAttribute('src')) }));
   R.check('tappay/public: KWD 12.500 with three decimals, test banner, mada removed for KWD (KNET and card left, as a grid), marks and logos from the add-on folder', /12\.500/.test(shown.total) && shown.banner && shown.methods.join(',') === 'knet,card' && shown.marks.length >= 1 && shown.logos.length === 6 && shown.marks.concat(shown.logos).every((s) => s.indexOf('/vendor/tappay/assets/img/') !== -1), shown);
@@ -1825,6 +1896,7 @@ scenario('tappay', 'PAY03 Tap Payments add-on (fake api.tap.company): settings +
   let st = ctlTap('state');
   let ch = st.charges[st.charges.length - 1];
   let P = payRows(fid)[0];
+  R.check('tappay/lang: an English visitor → lang_code en on the charge request (Tap\'s page in English)', ch.lang === 'en', ch.lang);
   R.check('tappay: POST /v2/charges: amount 12.500 KWD from the server, source src_kw.knet, reference.idempotent = 32 chars of the idem key, customer Fatima / Al Sabah / e-mail, post = webhook URL', ch.amount === '12.500' && ch.currency === 'KWD' && ch.source === 'src_kw.knet' && ch.reference.idempotent === P.idem_key.slice(0, 32) && ch.customer.first_name === 'Fatima' && ch.customer.last_name === 'Al Sabah' && ch.customer.email === 'payer@example.test' && /payments\/webhook\/tappay$/.test(ch.post) && ch.metadata.efb_uid === P.uid, ch);
   R.check('tappay: the (fake) Tap page asks for 12.500 KWD with KNET', /12\.500 KWD/.test(await g.textContent('#amount')) && (await g.textContent('#source')) === 'src_kw.knet');
   let E = payEntry(fid, P.track);
@@ -1863,16 +1935,23 @@ scenario('tappay', 'PAY03 Tap Payments add-on (fake api.tap.company): settings +
   R.check('tappay: the late webhook changes nothing', (await tapWebhook(P.gateway_ref)) === 200 && ctl('pay-events', String(P.id)).filter((e) => e.type === 'finalized').length === 1);
   await g.close();
 
-  /* declined */
+  /* declined (error scenarios: the provider's reason in safe words) */
   g = await payGuest(context, url, fill('third@example.test'));
   await tapPay(g);
   await tapLeave(g, '#decline');
-  await g.waitForFunction(() => /not completed/i.test(document.body.innerText), null, { timeout: 15000 });
-  R.check('tappay: DECLINED at Tap → "not completed, not charged" and "Try again"; payment failed', await g.isVisible('.efb-pf-retry') && payRows(fid)[0].status === 'failed');
+  await g.waitForFunction(() => /was declined/i.test(document.body.innerText), null, { timeout: 15000 });
+  R.check('tappay/errors: DECLINED at Tap → "Your payment was declined. You have not been charged. Please try another card or payment method." and "Try again"; payment failed', await g.isVisible('.efb-pf-retry') && /Your payment was declined\. You have not been charged\. Please try another card or payment method\./.test(await g.textContent('.efb-pf [data-pf-status]')) && payRows(fid)[0].status === 'failed');
+  await g.close();
+  g = await payGuest(context, url, fill('fourth@example.test'));
+  await tapPay(g);
+  await tapLeave(g, '#decline_funds');
+  await g.waitForFunction(() => /not enough funds/i.test(document.body.innerText), null, { timeout: 15000 });
+  R.check('tappay/errors: DECLINED "Insufficient Funds" at Tap → "The payment was declined because there were not enough funds. You have not been charged …" with Try again (no provider wording)', await g.isVisible('.efb-pf-retry') && !/Insufficient Funds/.test(await g.textContent('.efb-pf [data-pf-status]')));
+  await g.screenshot({ path: SHOT('tappay-en-declined-funds') });
   await g.close();
 
   /* Payments screen and refund */
-  const first = payRows(fid)[2];
+  const first = payRows(fid)[3];
   await admin.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb_payments', { waitUntil: 'load' });
   const list = await admin.evaluate(() => document.body.innerText);
   R.check('tappay/admin: the Payments screen lists the Tap payments (TEST)', /Tap Payments|tappay/.test(list) && list.indexOf(first.track) !== -1);
@@ -1920,6 +1999,9 @@ require('./scenario-paymob.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNe
 
 /* PAY07 Xendit (Payment Session, hosted page, x-callback-token webhooks): tests/e2e-wp/scenario-xendit.js. */
 require('./scenario-xendit.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewForm, addTile, closePanel, openField, setInput, settle });
+
+/* PAY03 Tap in Arabic and Persian (site language ar / fa_IR): tests/e2e-wp/scenario-tap-lang.js. */
+require('./scenario-tap-lang.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, SHARED, openNewForm, addTile, closePanel, openField, setInput, settle, payGuest, tapPay, tapLeave, tapWebhook, ctlTap: (...a) => ctlTap(...a), payRows: (...a) => payRows(...a) });
 
 /* ---------------------------------------------------------------------------------------------
  * main

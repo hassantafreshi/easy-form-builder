@@ -22,6 +22,7 @@
  *     refund.succeeded webhook → 200
  */
 'use strict';
+const PE = require('./pay-errors-e2e.js');
 const path = require('path');
 
 module.exports = function (S) {
@@ -104,7 +105,8 @@ module.exports = function (S) {
     await closePanel(admin);
     await admin.evaluate(async (id) => { const f = efbBuilderApi.getForm(); const r = f.find((x) => x.id_ === id); r.pf_methods = 'qris,gcash,ovo'; r.pf_methods_style = 'grid'; await efbBuilderApi.setForm(f); }, pf.id_);
     await sleep(500);
-    await admin.evaluate(() => saveFormEfb(1));
+    const sw = PE.payWarnings(await PE.saveWarnings(admin));
+    R.check('xendit/errors: the save answer (AutoPilot) carries the payment checks with their level: Test mode (info), GCash cannot take IDR (warning, named); nothing red (the Xendit page asks the payer)', sw.some((w) => w.code === 'pay_test_mode' && w.level === 'info') && sw.some((w) => w.code === 'pay_method_currency' && w.level === 'warning' && /GCash cannot take IDR/.test(w.m)) && !sw.some((w) => w.level === 'error'), sw);
     await admin.waitForFunction(() => window.form_ID_emsFormBuilder && Number(form_ID_emsFormBuilder) > 0, null, { timeout: 15000 }).catch(() => {});
     await sleep(1500);
     const forms = ctl('forms');
@@ -165,13 +167,13 @@ module.exports = function (S) {
     g = await guest(context, url, fill('Dewi', 'third@example.test'));
     await toXendit(g);
     await leave(g, '#cancel');
-    await g.waitForFunction(() => /waiting for the payment confirmation/i.test(document.body.innerText), null, { timeout: 15000 });
+    await g.waitForFunction(() => /left the payment page before paying/i.test(document.body.innerText), null, { timeout: 15000 });
     P = rows(fid)[0];
-    R.check('xendit/d: "Cancel" on Xendit\'s page (cancel_return_url) while the session is still ACTIVE → still pending, the page waits', P.status === 'pending', P.status);
+    R.check('xendit/d (errors): "Cancel" on Xendit\'s page (cancel_return_url) while the session is still ACTIVE → still pending; the page says "You left the payment page before paying. You have not been charged. You can try again." with Try again, and keeps watching', P.status === 'pending' && await g.isVisible('.efb-pf-retry') && /You left the payment page before paying\. You have not been charged\. You can try again\./.test(await g.textContent('.efb-pf [data-pf-status]')), P.status);
     xctl('set', P.gateway_ref, 'EXPIRED');
     R.check('xendit/d: Xendit expires the session + payment_session.expired → 200', (await webhook(xctl('webhook', P.gateway_ref, 'payment_session.expired').body, token)) === 200);
     await g.waitForFunction(() => /time ran out/i.test(document.body.innerText), null, { timeout: 45000 });
-    R.check('xendit/d: → expired, "The payment time ran out" and Try again', rows(fid)[0].status === 'expired' && await g.isVisible('.efb-pf-retry'));
+    R.check('xendit/d (errors): → expired, the specific words "The payment time ran out. You have not been charged. Please try again." and Try again', rows(fid)[0].status === 'expired' && await g.isVisible('.efb-pf-retry') && /The payment time ran out\. You have not been charged\. Please try again\./.test(await g.textContent('.efb-pf [data-pf-status]')));
     await g.close();
 
     /* e: Payments screen and refund */

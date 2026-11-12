@@ -18,6 +18,7 @@
  *     own "cannot be refunded through Omise" text (PromptPay) and core's "Mark as refunded outside EFB"
  */
 'use strict';
+const PE = require('./pay-errors-e2e.js');
 const path = require('path');
 const crypto = require('crypto');
 
@@ -90,7 +91,8 @@ module.exports = function (S) {
     const gw = await admin.evaluate(() => efb_var.capabilities.payment_gateways && efb_var.capabilities.payment_gateways.omise);
     R.check('omise/a: capabilities field:omise and payment_gateways.omise (THB, qr) without any key', gw && gw.addon === 'AdnOMS' && gw.configured.test === true && JSON.stringify(gw.currencies) === '["THB"]' && capJson.indexOf(secret) === -1 && !/skey_|efbe2efixture/.test(capJson), gw);
     await closePanel(admin);
-    await admin.evaluate(() => saveFormEfb(1));
+    const sw = PE.payWarnings(await PE.saveWarnings(admin));
+    R.check('omise/errors: the save answer (AutoPilot) carries the payment checks with their level: Test mode (info); nothing red (Omise needs no payer field (PromptPay))', sw.some((w) => w.code === 'pay_test_mode' && w.level === 'info' && /Omise is in Test mode/.test(w.m)) && !sw.some((w) => w.level === 'error'), sw);
     await admin.waitForFunction(() => window.form_ID_emsFormBuilder && Number(form_ID_emsFormBuilder) > 0, null, { timeout: 15000 }).catch(() => {});
     await sleep(1500);
     const forms = ctl('forms');
@@ -155,8 +157,8 @@ module.exports = function (S) {
     const P3 = rows(fid)[0];
     octl('set', P3.gateway_ref, 'failed');
     await webhook(octl('event', P3.gateway_ref, 'charge.complete', 'evnt_test_' + RUN + 'd'), secret);
-    await g.waitForFunction(() => /not completed/i.test(document.body.innerText), null, { timeout: 45000 });
-    R.check('omise/d: Omise says failed (insufficient balance) → "not completed, not charged", Try again; payment failed', await g.isVisible('.efb-pf-retry') && rows(fid).find((r) => r.id === P3.id).status === 'failed');
+    await g.waitForFunction(() => /not enough funds/i.test(document.body.innerText), null, { timeout: 45000 });
+    R.check('omise/d (errors): Omise says failed (insufficient_balance) → the specific words "The payment was declined because there were not enough funds. You have not been charged …", Try again; payment failed', await g.isVisible('.efb-pf-retry') && /declined because there were not enough funds\. You have not been charged/.test(await g.textContent('.efb-pf [data-pf-status]')) && rows(fid).find((r) => r.id === P3.id).status === 'failed');
     await g.close();
 
     /* e: Payments screen */

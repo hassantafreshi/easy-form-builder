@@ -18,11 +18,14 @@
  *     return → paid once with the e-mails, no inquiry; the same callback again → nothing twice; back
  *     from Paymob → thank-you
  *  c  card, back from Paymob (signed redirection) without any callback → Transaction Inquiry → paid
- *  d  declined on Paymob's page → "not completed" + Try again
+ *  d  declined on Paymob's page → "Your payment was declined …" + Try again
+ *  errors: the panel names what Paymob needs (e-mail: error, wallet number: warning); a visitor who
+ *     leaves the wallet number empty gets the message at that field and no create request
  *  e  Payments screen, details, full refund (void_refund/refund with the paid transaction, 60000)
  *  f  fa_IR right to left at 375 px
  */
 'use strict';
+const PE = require('./pay-errors-e2e.js');
 const path = require('path');
 
 module.exports = function (S) {
@@ -101,13 +104,18 @@ module.exports = function (S) {
     await admin.click(`#dropZoneEFB [data-id="${pf.dataId}"] .efb-pf-label`);
     await admin.waitForSelector('#efbPfPanelEl', { timeout: 8000 });
     R.check('paymob/builder: the payment panel offers the Paymob option "Mobile number (needed by Paymob)" (field_schema)', /Mobile number \(needed by Paymob\)/.test(await admin.textContent('#efbPfPanelEl')));
+    // Error scenarios: the panel says what Paymob needs before anything is chosen (core's live checks).
+    const pw = await admin.evaluate(() => Array.from(document.querySelectorAll('#efbPfWarnEl li')).map((l) => ({ code: l.getAttribute('data-code'), level: l.getAttribute('data-level'), m: l.textContent })));
+    const req = pw.filter((w) => w.code === 'pay_option_required');
+    R.check('paymob/errors: builder, nothing chosen yet → "Paymob requires "Payer e-mail …" (error, red) and "… "Mobile number (needed by Paymob)" to pay with Mobile wallet" (warning), naming the field to add and the option', req.length === 2 && req.some((w) => w.level === 'error' && /Payer e-mail/.test(w.m)) && req.some((w) => w.level === 'warning' && /to pay with Mobile wallet/.test(w.m) && /phone number field/.test(w.m)) && await admin.isVisible('#efbPfWarnEl.alert-danger'), pw);
     await admin.fill('#efbPfFixedEl', '600');
     await admin.press('#efbPfFixedEl', 'Tab');
     await sleep(600);
     await closePanel(admin);
-    await admin.evaluate(async ([id, m]) => { const f = efbBuilderApi.getForm(); const r = f.find((x) => x.id_ === id); r.pf_methods = 'wallet,card,kiosk'; r.pf_methods_style = 'list'; r.pgw_map_phone = m; await efbBuilderApi.setForm(f); }, [pf.id_, mob.id_]);
+    await admin.evaluate(async ([id, m]) => { const f = efbBuilderApi.getForm(); const r = f.find((x) => x.id_ === id); r.pf_methods = 'wallet,card,kiosk'; r.pf_methods_style = 'list'; r.pgw_map_phone = m[0]; r.pgw_map_email = m[1]; await efbBuilderApi.setForm(f); }, [pf.id_, [mob.id_, em.id_]]);
     await sleep(500);
-    await admin.evaluate(() => saveFormEfb(1));
+    const sw = PE.payWarnings(await PE.saveWarnings(admin));
+    R.check('paymob/errors: e-mail and wallet number chosen → the save answer (AutoPilot) has no red check; Test mode (info); the chosen fields not marked Required (info)', !sw.some((w) => w.level === 'error') && sw.some((w) => w.code === 'pay_test_mode' && w.level === 'info') && sw.some((w) => w.code === 'pay_option_not_required' && w.level === 'info'), sw);
     await admin.waitForFunction(() => window.form_ID_emsFormBuilder && Number(form_ID_emsFormBuilder) > 0, null, { timeout: 15000 }).catch(() => {});
     await sleep(1500);
     const forms = ctl('forms');
@@ -118,8 +126,20 @@ module.exports = function (S) {
     const url = ctl('page', String(fid)).url;
     const fill = (mail) => async (p) => { await p.fill(`[data-id="${nm.id_}-el"]`, 'Mona Abdel Rahman'); await p.fill(`[data-id="${mob.id_}-el"]`, '01012345678'); await p.fill(`[data-id="${em.id_}-el"]`, mail); };
 
+    /* error scenario: the wallet without the mobile number → the message at that field, no create request */
+    let g = await guest(context, url, async (p) => { await p.fill(`[data-id="${nm.id_}-el"]`, 'Mona Abdel Rahman'); await p.fill(`[data-id="${em.id_}-el"]`, 'payer@example.test'); });
+    const creates = [];
+    g.on('request', (r) => { if (/payments\/create/.test(r.url())) creates.push(r.url()); });
+    R.check('paymob/errors: the mobile field is marked required for the wallet (star, aria-required) once the wallet is chosen', await g.evaluate((id) => { document.querySelector('.efb-pf [data-pf-method="wallet"]').click(); const i = document.querySelector('[data-id="' + id + '-el"]'); return i.getAttribute('aria-required') === 'true' && (document.getElementById(id + '_req') || {}).textContent === '*'; }, mob.id_));
+    await g.click('.efb-pf [data-pf-pay]');
+    await sleep(800);
+    const fm = await g.evaluate((id) => { const s = document.getElementById(id + '_-message'); const i = document.querySelector('[data-id="' + id + '-el"]'); return { text: s ? s.textContent : '', role: s && s.getAttribute('role'), shown: s && s.style.display === 'block', invalid: i.getAttribute('aria-invalid'), focus: document.activeElement === i }; }, mob.id_);
+    R.check('paymob/errors: visitor leaves the mobile empty and pays with the wallet → "Please fill in "Mobile number": it is needed to pay with Mobile wallet." at that field (role alert, aria-invalid, focused); no payments/create request', fm.shown && fm.role === 'alert' && fm.text === 'Please fill in "Mobile number": it is needed to pay with Mobile wallet.' && fm.invalid === 'true' && fm.focus && creates.length === 0, Object.assign(fm, { creates: creates.length }));
+    await g.screenshot({ path: SHOT('paymob-field-message') });
+    await g.close();
+
     /* b: a guest pays with the mobile wallet; callback before the return */
-    let g = await guest(context, url, fill('payer@example.test'));
+    g = await guest(context, url, fill('payer@example.test'));
     const shown = await g.evaluate(() => ({ total: (document.querySelector('[data-pf-total]') || {}).textContent, banner: !document.querySelector('.efb-pf [data-pf-el="test"]').hidden, methods: Array.from(document.querySelectorAll('.efb-pf [data-pf-method]')).map((b) => b.getAttribute('data-pf-method')), sub: (document.querySelector('.efb-pf [data-pf-method="wallet"] .efb-pmb-sub') || {}).textContent || '', imgs: Array.from(document.querySelectorAll('.efb-pf .efb-pmb-mark, .efb-pf-logo')).map((i) => i.getAttribute('src')) }));
     R.check('paymob/public: 600.00 EGP, test banner, the owner\'s methods (wallet, card, kiosk) with the wallet brands, marks and logos from the add-on folder', /600\.00/.test(shown.total) && shown.banner && shown.methods.join(',') === 'wallet,card,kiosk' && /Vodafone Cash/.test(shown.sub) && shown.imgs.length >= 5 && shown.imgs.every((s) => s.indexOf('/vendor/paymob/assets/img/') !== -1), shown);
     await g.click('.efb-pf [data-pf-method="wallet"]');
@@ -171,8 +191,8 @@ module.exports = function (S) {
     await g.click('.efb-pf [data-pf-method="card"]');
     await toPaymob(g);
     await leave(g, '#decline');
-    await g.waitForFunction(() => /not completed/i.test(document.body.innerText), null, { timeout: 15000 });
-    R.check('paymob/d: declined on Paymob\'s page → "not completed, not charged" and "Try again"; payment failed', await g.isVisible('.efb-pf-retry') && rows(fid)[0].status === 'failed');
+    await g.waitForFunction(() => /was declined/i.test(document.body.innerText), null, { timeout: 15000 });
+    R.check('paymob/d (errors): declined on Paymob\'s page ("Do not honour") → the specific words "Your payment was declined. You have not been charged. Please try another card or payment method." and "Try again"; payment failed', await g.isVisible('.efb-pf-retry') && /Your payment was declined\. You have not been charged\. Please try another card or payment method\./.test(await g.textContent('.efb-pf [data-pf-status]')) && rows(fid)[0].status === 'failed');
     await g.close();
 
     /* e: Payments screen and refund */

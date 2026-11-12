@@ -91,6 +91,8 @@ class Efb_Test_Tap_Fake {
 				$c['redirect'] = array( 'status' => 'PENDING', 'url' => $b['redirect']['url'] );
 				$c['post'] = array( 'status' => 'PENDING', 'url' => isset( $b['post']['url'] ) ? $b['post']['url'] : '' );
 				$c['_token'] = $token;
+				// The language Tap's page is shown in (request header lang_code; Tap documents en and ar, default en).
+				$c['_lang'] = isset( $args['headers']['lang_code'] ) && in_array( strtolower( (string) $args['headers']['lang_code'] ), array( 'en', 'ar' ), true ) ? strtolower( (string) $args['headers']['lang_code'] ) : 'en';
 				$c['_raw_amount'] = preg_match( '/"amount":([0-9.]+)/', $raw, $m ) ? $m[1] : '';
 				$s['charges'][ $c['id'] ] = $c;
 				if ( $idem !== '' ) $s['idem'][ $idem ] = $c['id'];
@@ -122,15 +124,16 @@ class Efb_Test_Tap_Fake {
 	}
 
 	private static function public_charge( array $c ) {
-		unset( $c['_token'], $c['_raw_amount'] );
+		unset( $c['_token'], $c['_raw_amount'], $c['_lang'] );
 		return $c;
 	}
 
 	/** Tap's side of a charge: CAPTURED, DECLINED … (amount optional). */
-	public static function set( $id, $status, $amount = null ) {
+	public static function set( $id, $status, $amount = null, $message = null ) {
 		$s = self::state();
 		if ( ! isset( $s['charges'][ $id ] ) ) return false;
 		$s['charges'][ $id ]['status'] = $status;
+		if ( $message !== null ) $s['charges'][ $id ]['response'] = array( 'code' => '507', 'message' => $message );
 		if ( $amount !== null ) $s['charges'][ $id ]['amount'] = (float) $amount;
 		if ( $status === 'CAPTURED' ) {
 			$s['charges'][ $id ]['reference']['gateway'] = '123456789012345';
@@ -177,6 +180,7 @@ class Efb_Test_Tap_Fake {
 			$do = (string) $r->get_param( 'do' );
 			if ( $do === 'pay' ) self::set( $c['id'], 'CAPTURED' );
 			if ( $do === 'decline' ) self::set( $c['id'], 'DECLINED' );
+			if ( $do === 'decline_funds' ) self::set( $c['id'], 'DECLINED', null, 'Insufficient Funds' );
 			$res = new WP_REST_Response( null, 303 );
 			$res->header( 'Location', add_query_arg( 'tap_id', $c['id'], $c['redirect']['url'] ) );
 			return $res;
@@ -185,10 +189,12 @@ class Efb_Test_Tap_Fake {
 		$hidden = '<input type="hidden" name="token" value="' . esc_attr( $c['_token'] ) . '">';
 		header( 'Content-Type: text/html; charset=utf-8' );
 		header( 'Cache-Control: no-store' );
-		echo '<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Tap (fake)</title></head><body>'
-			. '<h1>Tap checkout (fake, local test)</h1><p>Amount: <strong id="amount">' . esc_html( $c['_raw_amount'] . ' ' . $c['currency'] ) . '</strong></p>'
+		$lang = isset( $c['_lang'] ) ? $c['_lang'] : 'en';
+		$ar = $lang === 'ar';
+		echo '<!doctype html><html lang="' . $lang . '" dir="' . ( $ar ? 'rtl' : 'ltr' ) . '"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Tap (fake)</title></head><body>'
+			. '<h1>' . ( $ar ? 'صفحة الدفع من Tap (تجريبية، اختبار محلي)' : 'Tap checkout (fake, local test)' ) . '</h1><p id="lang">' . $lang . '</p><p>' . ( $ar ? 'المبلغ' : 'Amount' ) . ': <strong id="amount" dir="ltr">' . esc_html( $c['_raw_amount'] . ' ' . $c['currency'] ) . '</strong></p>'
 			. '<p>Source: <code id="source">' . esc_html( $c['source']['id'] ) . '</code></p>'
-			. '<form method="post" action="' . $action . '">' . $hidden . '<button id="pay" name="do" value="pay">Pay</button> <button id="decline" name="do" value="decline">Decline</button> <button id="back" name="do" value="back">Return to the site</button></form>'
+			. '<form method="post" action="' . $action . '">' . $hidden . '<button id="pay" name="do" value="pay">' . ( $ar ? 'ادفع' : 'Pay' ) . '</button> <button id="decline" name="do" value="decline">' . ( $ar ? 'رفض' : 'Decline' ) . '</button> <button id="decline_funds" name="do" value="decline_funds">' . ( $ar ? 'رفض: رصيد غير كاف' : 'Decline: insufficient funds' ) . '</button> <button id="back" name="do" value="back">' . ( $ar ? 'العودة إلى الموقع' : 'Return to the site' ) . '</button></form>'
 			. '</body></html>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped parts
 		exit;
 	}

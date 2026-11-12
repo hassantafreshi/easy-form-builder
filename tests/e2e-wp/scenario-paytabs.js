@@ -25,6 +25,7 @@
  *  g  fa_IR right to left at 375 px
  */
 'use strict';
+const PE = require('./pay-errors-e2e.js');
 const path = require('path');
 const fs = require('fs');
 
@@ -105,7 +106,8 @@ module.exports = function (S) {
     await closePanel(admin);
     await admin.evaluate(async (id) => { const f = efbBuilderApi.getForm(); const r = f.find((x) => x.id_ === id); r.pf_methods = 'mada,creditcard,stcpay,knet'; r.pf_methods_style = 'grid'; await efbBuilderApi.setForm(f); }, pf.id_);
     await sleep(500);
-    await admin.evaluate(() => saveFormEfb(1));
+    const sw = PE.payWarnings(await PE.saveWarnings(admin));
+    R.check('paytabs/errors: the save answer (AutoPilot) carries the payment checks with their level: Test mode (info), and KNET cannot take SAR (warning, named); nothing red (PayTabs asks the payer on its page)', sw.some((w) => w.code === 'pay_test_mode' && w.level === 'info') && sw.some((w) => w.code === 'pay_method_currency' && w.level === 'warning' && /KNET cannot take SAR/.test(w.m)) && !sw.some((w) => w.level === 'error'), sw);
     await admin.waitForFunction(() => window.form_ID_emsFormBuilder && Number(form_ID_emsFormBuilder) > 0, null, { timeout: 15000 }).catch(() => {});
     await sleep(1500);
     const forms = ctl('forms');
@@ -161,8 +163,8 @@ module.exports = function (S) {
     g = await guest(context, url, em.id_);
     await toPage(g, 'stcpay');
     await leave(g, '#cancel');
-    await g.waitForFunction(() => /not completed/i.test(document.body.innerText), null, { timeout: 15000 });
-    R.check('paytabs/d: cancelled on PayTabs\' page (C) → "not completed, not charged" and "Try again"; payment canceled', await g.isVisible('.efb-pf-retry') && rows(fid)[0].status === 'canceled', rows(fid)[0].status);
+    await g.waitForFunction(() => /was cancelled/i.test(document.body.innerText), null, { timeout: 15000 });
+    R.check('paytabs/d (errors): cancelled on PayTabs\' page (C) → the specific words "The payment was cancelled. You have not been charged. You can try again when you are ready." and "Try again"; payment canceled', await g.isVisible('.efb-pf-retry') && /The payment was cancelled\. You have not been charged\./.test(await g.textContent('.efb-pf [data-pf-status]')) && rows(fid)[0].status === 'canceled', rows(fid)[0].status);
     await g.close();
 
     /* e: framed */

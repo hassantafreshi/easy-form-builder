@@ -55,7 +55,7 @@ switch ( $efb_t_cmd ) {
 		$s = Efb_Test_Tap_Fake::state();
 		$ch = array();
 		foreach ( $s['charges'] as $id => $c ) {
-			$ch[] = array( 'id' => $id, 'status' => $c['status'], 'amount' => $c['_raw_amount'], 'currency' => $c['currency'], 'source' => $c['source']['id'], 'customer' => $c['customer'], 'reference' => $c['reference'], 'metadata' => $c['metadata'], 'live_mode' => $c['live_mode'], 'post' => $c['post']['url'] );
+			$ch[] = array( 'id' => $id, 'status' => $c['status'], 'amount' => $c['_raw_amount'], 'currency' => $c['currency'], 'source' => $c['source']['id'], 'customer' => $c['customer'], 'reference' => $c['reference'], 'metadata' => $c['metadata'], 'live_mode' => $c['live_mode'], 'post' => $c['post']['url'], 'lang' => isset( $c['_lang'] ) ? $c['_lang'] : null );
 		}
 		$rf = array();
 		foreach ( $s['refunds'] as $id => $r ) $rf[] = array( 'id' => $id, 'charge_id' => $r['charge_id'], 'amount' => $r['_raw_amount'], 'currency' => $r['currency'], 'reference' => $r['reference'] );

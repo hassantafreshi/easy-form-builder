@@ -137,7 +137,7 @@ $t('...the refusal is logged as method_currency and the payment is failed', arra
 $r = ptb_create($db, array('form' => ptb_form('thb')));
 $t('a currency the add-on does not send (THB): refused by the quote, no request', array($r['success'], $r['code']), array(false, 'currency_unsupported'));
 ptb_settings('test', array('methods' => 'mada,creditcard'));
-$t('methods(): the owner\'s list in its order, with labels', $g->methods(Settings::load('paytabs')), array(array('mada', 'mada'), array('creditcard', 'Credit or debit card')));
+$t('methods(): the owner\'s list in its order, with labels; a local scheme names its currency (core offers it only there and warns at Save)', $g->methods(Settings::load('paytabs')), array(array('mada', 'mada', array('currencies' => array('SAR'))), array('creditcard', 'Credit or debit card')));
 ptb_create($db, array('method' => 'applepay'));
 list($b) = ptb_last_request();
 $t('a method the owner did not turn on (applepay) falls back to the first of the list (mada)', $b['payment_methods'], array('mada'));
