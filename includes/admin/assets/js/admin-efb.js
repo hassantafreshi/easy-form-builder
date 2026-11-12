@@ -4671,6 +4671,16 @@ function efb_field_is_pro_efb(el) {
   return el.pro === true || el.pro === 1 || el.pro === '1';
 }
 
+/* Name of the step row a new form gets with its first field. formName_Efb holds the form type key
+   ('form', 'login', ...) once a form is created, but new-efb.js boots it with the translated word
+   (efb_var.text.form) and the saved form name replaces it after a Save, so the lookup can miss:
+   fall back to the form type, then to "Form", instead of calling toUpperCase() on undefined. */
+function efb_first_step_name_efb() {
+  const t = (typeof efb_var === 'object' && efb_var && efb_var.text) || {};
+  const name = t[formName_Efb] || (typeof form_type_emsFormBuilder !== 'undefined' && t[form_type_emsFormBuilder]) || t.form || '';
+  return String(name).toUpperCase();
+}
+
 let sampleElpush_efb = (rndm, elementId) => {
 
   const testb = valj_efb.length;
@@ -7205,7 +7215,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       if (editState == false && valj_efb.length < 2) {
         valj_efb.push({
           id_: `${step_el_efb}`, type: 'step', dataId: `${step_el_efb}`, classes: '',
-          id: `${step_el_efb}`, name: efb_var.text[formName_Efb].toUpperCase(), icon: '', step: step_el_efb, amount: amount_el_efb, EfbVersion: 2, message: "",
+          id: `${step_el_efb}`, name: efb_first_step_name_efb(), icon: '', step: step_el_efb, amount: amount_el_efb, EfbVersion: 2, message: "",
           label_text_size: 'fs-5', el_text_size: 'fs-5', label_text_color: 'text-darkb',
           el_text_color: 'text-labelEfb', message_text_color:pub_message_text_color_efb, icon_color: pub_icon_color_efb, icon: 'bi-ui-checks-grid', visible: 1
         });
@@ -7234,7 +7244,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     } else if (elementId == "steps" && step_el_efb == 1 && state == false && editState == false) {
       valj_efb.push({
         id_: `${step_el_efb}`, type: 'step', dataId: `${step_el_efb}`, classes: '',
-        id: `${step_el_efb}`, name: efb_var.text[formName_Efb].toUpperCase(), icon: '', step: step_el_efb, amount: amount_el_efb, EfbVersion: 2, message: "",
+        id: `${step_el_efb}`, name: efb_first_step_name_efb(), icon: '', step: step_el_efb, amount: amount_el_efb, EfbVersion: 2, message: "",
         label_text_size: 'fs-5', el_text_size: 'fs-5', file: 'document', label_text_color: 'text-darkb',
         el_text_color: 'text-dark', message_text_color: pub_message_text_color_efb, icon_color: pub_icon_color_efb, icon: 'bi-ui-checks-grid', visible: 1
       });

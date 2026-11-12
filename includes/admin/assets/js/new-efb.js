@@ -49,7 +49,8 @@ const getUrlparams_efb = new URLSearchParams(location.search)
 function efb_var_waitng(time) {
   setTimeout(() => {
     if (typeof (efb_var) == "object" && efb_var.hasOwnProperty('text')) {
-      formName_Efb = efb_var.text.form
+      // Only a default: a form created before this timer fired has already set the type key.
+      if (formName_Efb === undefined) formName_Efb = efb_var.text.form
       default_val_efb = efb_var.text.selectOption
       pro_efb = efb_var.pro == "1" || efb_var.pro == 1 ? true : false;
       position_l_efb = efb_var.rtl == 1 ? "end" : "start";
