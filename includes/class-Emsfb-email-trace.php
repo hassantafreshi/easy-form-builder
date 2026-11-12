@@ -427,6 +427,13 @@ class Email_Trace {
         if (is_array($value)) {
             $out = [];
             foreach ($value as $key => $item) {
+                // F13: an IP address in a log is personal data: keep the network part only.
+                if (is_scalar($item) && preg_match('/^(ip|ip_address|remote_ip|reader_ip|client_ip)$/i', (string) $key)) {
+                    $out[$key] = class_exists('\\Emsfb\\Privacy')
+                        ? \Emsfb\Privacy::anonymize_ip((string) $item)
+                        : preg_replace('/\.\d+$/', '.0', (string) $item);
+                    continue;
+                }
                 if (preg_match('/^(subject|message|body|content|html|msg_content)$/i', (string) $key)) {
                     $out[$key] = is_scalar($item)
                         ? '[hidden - define EMSFB_EMAIL_DEBUG to record]'

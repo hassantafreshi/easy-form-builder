@@ -15978,3 +15978,70 @@ msgstr "رنگ پس‌زمینهٔ مراحل"
 #: includes/functions.php
 msgid "Gradient step backgrounds"
 msgstr "پس‌زمینهٔ گرادیانت برای مراحل"
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: title of the settings tab and of the form-settings section about personal data
+#: includes/functions.php
+msgid "Privacy"
+msgstr "حریم خصوصی"
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: setting: whether the visitor's IP address and browser are stored with each entry
+#: includes/functions.php
+msgid "Visitor IP address and browser"
+msgstr "نشانی IP و مرورگر بازدیدکننده"
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: option of the IP setting: keep the full address
+#: includes/functions.php
+msgid "Store"
+msgstr "ذخیره شود"
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: option of the IP setting: keep the address without its last part
+#: includes/functions.php
+msgid "Store anonymized (last part removed)"
+msgstr "ناشناس ذخیره شود (بخش آخر حذف شود)"
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: option of the IP setting: keep no address and no browser
+#: includes/functions.php
+msgid "Do not store"
+msgstr "ذخیره نشود"
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: option of a form's privacy setting: follow Settings > Privacy
+#: includes/functions.php
+msgid "Use the global setting"
+msgstr "مطابق تنظیمات سراسری"
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: help text under the IP setting
+#: includes/functions.php
+msgid "Rate limits and spam protection still work. The address is only read during the request."
+msgstr "محدودیت تعداد درخواست و ضداسپم همچنان کار می‌کنند. نشانی فقط در همان درخواست خوانده می‌شود."
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: button: empty or anonymize the IP addresses of existing entries
+#: includes/functions.php
+msgid "Clear IP addresses already stored"
+msgstr "پاک‌کردن نشانی‌های IP ذخیره‌شده"
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: confirmation before clearing stored IP addresses
+#: includes/functions.php
+msgid "Clear the IP addresses already stored in entries, replies and visit records? This cannot be undone."
+msgstr "نشانی‌های IP ذخیره‌شده در پاسخ‌ها، پیام‌های پاسخ و سوابق بازدید پاک شوند؟ این عمل قابل بازگشت نیست."
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: result after clearing stored IP addresses. %s: a number
+#: includes/functions.php
+#, php-format
+msgid "%s stored addresses were updated."
+msgstr "%s نشانی ذخیره‌شده به‌روز شد."
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: note shown to plugin users who are not site administrators
+#: includes/functions.php
+msgid "Only an administrator can change the privacy settings."
+msgstr "فقط مدیر سایت می‌تواند تنظیمات حریم خصوصی را تغییر دهد."

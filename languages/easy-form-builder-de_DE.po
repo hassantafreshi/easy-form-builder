@@ -15968,3 +15968,259 @@ msgstr "📍 Bestätigungscode-Suche (Tracking-Formular)"
 #: includes/page-builders/visual-composer/class-Emsfb-visual-composer.php:373
 msgid "📍 Confirmation Code Finder (Tracking)"
 msgstr "📍 Bestätigungscode-Finder (Nachverfolgung)"
+
+#  origin: claude (de_DE) F19
+#. translators: F19: button that adds a colour to a gradient
+#: includes/functions.php
+msgid "Add color"
+msgstr "Farbe hinzufügen"
+
+#  origin: claude (de_DE) F19
+#. translators: F19: direction of a linear gradient in degrees
+#: includes/functions.php
+msgid "Angle"
+msgstr "Winkel"
+
+#  origin: claude (de_DE) F19
+#. translators: F19: text colour option: black or white, whichever is easier to read
+#: includes/functions.php
+msgid "Automatic (readable)"
+msgstr "Automatisch (gut lesbar)"
+
+#  origin: claude (de_DE) F19
+#. translators: F19: mobile-only setting of the step background
+#: includes/functions.php
+msgid "Background on mobile"
+msgstr "Hintergrund auf Mobilgeräten"
+
+#  origin: claude (de_DE) F19
+#. translators: F19: position of a radial gradient
+#: includes/functions.php
+msgid "Bottom"
+msgstr "Unten"
+
+#  origin: claude (de_DE) F19
+#. translators: F19: where a radial gradient starts
+#: includes/functions.php
+msgid "Center point"
+msgstr "Mittelpunkt"
+
+#  origin: claude (de_DE) F19
+#. translators: F19: list of the colours of a gradient
+#: includes/functions.php
+msgid "Colors"
+msgstr "Farben"
+
+#  origin: claude (de_DE) F19
+#. translators: F19: contrast check result. %s: the ratio, e.g. 7.2
+#: includes/functions.php
+#, php-format
+msgid "Contrast %s:1 — easy to read"
+msgstr "Kontrast %s:1 – gut lesbar"
+
+#  origin: claude (de_DE) F19
+#. translators: F19: mobile background option: use only the first gradient colour
+#: includes/functions.php
+msgid "First color only"
+msgstr "Nur die erste Farbe"
+
+#  origin: claude (de_DE) F19
+#. translators: F19: background mode: the step uses the background set for all steps
+#: includes/functions.php
+msgid "Form default"
+msgstr "Formular-Standard"
+
+#  origin: claude (de_DE) F19
+#. translators: F19: background mode: colour gradient
+#: includes/functions.php
+msgid "Gradient"
+msgstr "Verlauf"
+
+#  origin: claude (de_DE) F19
+#. translators: F19: name of a locked feature in the upgrade dialog (gradient background per form step)
+#: includes/functions.php
+msgid "Gradient step backgrounds"
+msgstr "Verlaufshintergründe für Schritte"
+
+#  origin: claude (de_DE) F19
+#. translators: F19: text colour option: keep the colours set on each field
+#: includes/functions.php
+msgid "Keep field colors"
+msgstr "Feldfarben beibehalten"
+
+#  origin: claude (de_DE) F19
+#. translators: F19: gradient type
+#: includes/functions.php
+msgid "Linear"
+msgstr "Linear"
+
+#  origin: claude (de_DE) F19
+#. translators: F19: mobile background option
+#: includes/functions.php
+msgid "No background"
+msgstr "Kein Hintergrund"
+
+#  origin: claude (de_DE) F19
+#. translators: F19: shown when the step follows the form default but none is set
+#: includes/functions.php
+msgid "No form default is set. Use “Use for all steps” to set one."
+msgstr "Es ist kein Formular-Standard festgelegt. Lege mit „Für alle Schritte verwenden“ einen fest."
+
+#  origin: claude (de_DE) F19
+#. translators: F19: background opacity, 0 to 100 percent
+#: includes/functions.php
+msgid "Opacity"
+msgstr "Deckkraft"
+
+#  origin: claude (de_DE) F19
+#. translators: F19: where a gradient colour sits, 0 to 100
+#: includes/functions.php
+msgid "Position (%)"
+msgstr "Position (%)"
+
+#  origin: claude (de_DE) F19
+#. translators: F19: accessible name of a ready-made background. %s: its number
+#: includes/functions.php
+#, php-format
+msgid "Preset %s"
+msgstr "Vorlage %s"
+
+#  origin: claude (de_DE) F19
+#. translators: F19: gradient type
+#: includes/functions.php
+msgid "Radial"
+msgstr "Radial"
+
+#  origin: claude (de_DE) F19
+#. translators: F19: button that removes a colour from a gradient
+#: includes/functions.php
+msgid "Remove this color"
+msgstr "Diese Farbe entfernen"
+
+#  origin: claude (de_DE) F19
+#. translators: F19: mobile background option
+#: includes/functions.php
+msgid "Same as desktop"
+msgstr "Wie auf dem Desktop"
+
+#  origin: claude (de_DE) F19
+#. translators: F19: background mode: one colour
+#: includes/functions.php
+msgid "Solid color"
+msgstr "Einfarbig"
+
+#  origin: claude (de_DE) F19
+#. translators: F19: heading of the background section in the step settings panel
+#: includes/functions.php
+msgid "Step background"
+msgstr "Schritthintergrund"
+
+#  origin: claude (de_DE) F19
+#. translators: F19: name of a locked feature in the upgrade dialog (solid background colour per form step)
+#: includes/functions.php
+msgid "Step background colors"
+msgstr "Hintergrundfarben für Schritte"
+
+#  origin: claude (de_DE) F19
+#. translators: F19: colour of labels and descriptions on the background
+#: includes/functions.php
+msgid "Text color"
+msgstr "Textfarbe"
+
+#  origin: claude (de_DE) F19
+#. translators: F19: contrast warning. %s: the ratio, e.g. 2.1
+#: includes/functions.php
+#, php-format
+msgid "Text may be hard to read: contrast %s:1, at least 4.5:1 is needed. Choose “Automatic” text color or change the background."
+msgstr "Der Text ist möglicherweise schwer lesbar: Kontrast %s:1, mindestens 4,5:1 ist erforderlich. Wähle die Textfarbe „Automatisch“ oder ändere den Hintergrund."
+
+#  origin: claude (de_DE) F19
+#. translators: F19: shown when the step follows the form default
+#: includes/functions.php
+msgid "This step uses the form default."
+msgstr "Dieser Schritt verwendet den Formular-Standard."
+
+#  origin: claude (de_DE) F19
+#. translators: F19: position of a radial gradient
+#: includes/functions.php
+msgid "Top"
+msgstr "Oben"
+
+#  origin: claude (de_DE) F19
+#. translators: F19: button: make this background the form default for every step
+#: includes/functions.php
+msgid "Use for all steps"
+msgstr "Für alle Schritte verwenden"
+
+#  origin: claude (de_DE) F19
+#. translators: F19: confirmation before applying a background to every step
+#: includes/functions.php
+msgid "Use this background for every step? Steps with their own background will use it too."
+msgstr "Diesen Hintergrund für alle Schritte verwenden? Auch Schritte mit eigenem Hintergrund übernehmen ihn."
+
+#  origin: claude (de_DE) F13
+#. translators: F13: title of the settings tab and of the form-settings section about personal data
+#: includes/functions.php
+msgid "Privacy"
+msgstr "Datenschutz"
+
+#  origin: claude (de_DE) F13
+#. translators: F13: setting: whether the visitor's IP address and browser are stored with each entry
+#: includes/functions.php
+msgid "Visitor IP address and browser"
+msgstr "IP-Adresse und Browser der Besucher"
+
+#  origin: claude (de_DE) F13
+#. translators: F13: option of the IP setting: keep the full address
+#: includes/functions.php
+msgid "Store"
+msgstr "Speichern"
+
+#  origin: claude (de_DE) F13
+#. translators: F13: option of the IP setting: keep the address without its last part
+#: includes/functions.php
+msgid "Store anonymized (last part removed)"
+msgstr "Anonymisiert speichern (letzter Teil entfernt)"
+
+#  origin: claude (de_DE) F13
+#. translators: F13: option of the IP setting: keep no address and no browser
+#: includes/functions.php
+msgid "Do not store"
+msgstr "Nicht speichern"
+
+#  origin: claude (de_DE) F13
+#. translators: F13: option of a form's privacy setting: follow Settings > Privacy
+#: includes/functions.php
+msgid "Use the global setting"
+msgstr "Globale Einstellung verwenden"
+
+#  origin: claude (de_DE) F13
+#. translators: F13: help text under the IP setting
+#: includes/functions.php
+msgid "Rate limits and spam protection still work. The address is only read during the request."
+msgstr "Ratenbegrenzung und Spamschutz funktionieren weiterhin. Die Adresse wird nur während der Anfrage gelesen."
+
+#  origin: claude (de_DE) F13
+#. translators: F13: button: empty or anonymize the IP addresses of existing entries
+#: includes/functions.php
+msgid "Clear IP addresses already stored"
+msgstr "Bereits gespeicherte IP-Adressen löschen"
+
+#  origin: claude (de_DE) F13
+#. translators: F13: confirmation before clearing stored IP addresses
+#: includes/functions.php
+msgid "Clear the IP addresses already stored in entries, replies and visit records? This cannot be undone."
+msgstr "Die bereits in Einträgen, Antworten und Besuchsdaten gespeicherten IP-Adressen löschen? Dieser Vorgang kann nicht rückgängig gemacht werden."
+
+#  origin: claude (de_DE) F13
+#. translators: F13: result after clearing stored IP addresses. %s: a number
+#: includes/functions.php
+#, php-format
+msgid "%s stored addresses were updated."
+msgstr "%s gespeicherte Adressen wurden aktualisiert."
+
+#  origin: claude (de_DE) F13
+#. translators: F13: note shown to plugin users who are not site administrators
+#: includes/functions.php
+msgid "Only an administrator can change the privacy settings."
+msgstr "Nur ein Administrator kann die Datenschutzeinstellungen ändern."

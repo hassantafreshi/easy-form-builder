@@ -267,6 +267,7 @@ class Admin {
             ['form_id' => $id],
             ['%d']
         );
+        do_action('efb_form_deleted', $id);
         $response = ['success' => true, 'r' => $r];
         wp_send_json_success($response, 200);
     }
@@ -419,6 +420,10 @@ class Admin {
             unset($valp[0]['telegram_admin_chat_ids']);
         }
         $valp = $efbFunction->sanitize_obj_msg_efb($valp);
+        // F13: privacy keys follow the server rules (allow-lists, form type, existing email field).
+        if (is_array($valp) && class_exists('\Emsfb\Privacy')) {
+            $valp = \Emsfb\Privacy::normalize_form_settings($valp);
+        }
         $form_type = $valp[0]['type'];
 		$value =json_encode($valp,JSON_UNESCAPED_UNICODE);
         $value_ =str_replace('"', '\"', $value);
@@ -500,6 +505,8 @@ class Admin {
         if ($form_type === 'login' || $form_type === 'register') {
             do_action('create_temporary_links_table_Emsfb');
         }
+        // Side effects of a save (F13 emsfb_prv_forms map; SitePilot contract §5.8).
+        do_action('efb_form_saved', $id, $valp, array('form_id' => $id, 'source' => 'builder', 'user_id' => get_current_user_id()));
         $m = $lang['updated'];
         $response = ['success' => true, 'r' =>"updated", 'value' => "[EMS_Form_Builder id=$id]"];
         if (!empty($save_warnings_efb)) $response['warnings'] = $save_warnings_efb;
@@ -1723,7 +1730,9 @@ class Admin {
             $r = $this->db->update($table_name, ['read_' => 1], ['msg_id' => $id]);
         }
         $table_name = $this->db->prefix . "emsfb_rsp_";
-        $ip = $this->ip;
+        // F13: the replying administrator's address follows the entry's form setting too.
+        $form_id_efb = (int) $this->db->get_var($this->db->prepare("SELECT form_id FROM `{$this->db->prefix}emsfb_msg_` WHERE msg_id = %d", $id));
+        $ip = class_exists('\Emsfb\Privacy') ? \Emsfb\Privacy::store_ip($this->ip, $form_id_efb) : $this->ip;
         $guard=\Emsfb\Form_Runtime::begin('admin_reply',0,$operation_data);
         if (is_wp_error($guard)) wp_send_json_error(array('code'=>$guard->get_error_code(),'m'=>$guard->get_error_message()),$guard->get_error_data()['status']);
         if ($guard instanceof \WP_REST_Response) wp_send_json($guard->get_data(),$guard->get_status());
@@ -1952,6 +1961,12 @@ class Admin {
                     }
                 }
 
+            }else if(class_exists('\Emsfb\Privacy') && \Emsfb\Privacy::is_setting_key($key)){
+                // F13: allow-listed values; only an administrator (manage_options) may
+                // change them - automatic deletion is destructive. Others keep what is stored.
+                $m[$key] = current_user_can('manage_options')
+                    ? \Emsfb\Privacy::sanitize_setting($key, $value)
+                    : \Emsfb\Privacy::setting($key, $ac);
             }else if($key == 'text' && is_array($value)){
                 // Localization tab: phrase key => custom text. sanitize_text_field()
                 // on the whole array stored "", so no custom text was ever kept.
@@ -1969,6 +1984,16 @@ class Admin {
 
         if(isset($m['efb_version'])==false){
            $m['efb_version'] = EMSFB_PLUGIN_VERSION;
+        }
+
+        // F13: a settings page that does not send the privacy keys (an older cached
+        // screen) must not reset them to the defaults.
+        if (class_exists('\Emsfb\Privacy') && is_object($ac)) {
+            foreach (array_keys(\Emsfb\Privacy::setting_defaults()) as $prv_key_efb) {
+                if (!array_key_exists($prv_key_efb, $m) && isset($ac->$prv_key_efb)) {
+                    $m[$prv_key_efb] = \Emsfb\Privacy::setting($prv_key_efb, $ac);
+                }
+            }
         }
 
         if(isset($m['devMode'])){
@@ -3471,14 +3496,9 @@ class Admin {
         return preg_match("/\/[a-z]*>/i", $str) != 0;
     }
     public function get_ip_address() {
-        $ip='1.1.1.1';
-        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {$ip = sanitize_text_field( wp_unslash( $_SERVER['HTTP_CLIENT_IP'] ) );
-        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) { $ip = sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_FORWARDED_FOR'] ) );
-        } elseif (isset($_SERVER['REMOTE_ADDR'])) {$ip = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );}
-        $ip = strval($ip);
-        $check =strpos($ip,',');
-        if($check !== false){$ip = substr($ip,0,$check);}
-        return $ip;
+        // Trusted-proxy aware (F13; BUGS-FOUND "spoofable IP"): see \Emsfb\Privacy::client_ip().
+        if (!class_exists('\\Emsfb\\Privacy')) require_once dirname(__DIR__) . '/class-Emsfb-privacy.php';
+        return \Emsfb\Privacy::client_ip();
     }
     public function get_not_read_message() {
         if(empty($this->db)){

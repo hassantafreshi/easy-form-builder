@@ -220,6 +220,38 @@ const formTypeEls =()=>{
   </select></span>`;
 }
 
+/* F13: the form's "Privacy" section (collapse #collapsePrivacy in formSet). Every key is
+   optional: absent or '' means "follow the site's privacy settings" (Settings > Privacy). */
+const efb_prv_text_efb = (key, fallback) => (efb_var.text && efb_var.text[key]) ? efb_var.text[key] : fallback;
+const prvIpEls = () => {
+  const cur = valj_efb[0].hasOwnProperty('prv_ip') ? String(valj_efb[0].prv_ip) : '';
+  const opts = [
+    ['', efb_prv_text_efb('prvIpInherit', 'Use the global setting')],
+    ['store', efb_prv_text_efb('prvIpStore', 'Store')],
+    ['anon', efb_prv_text_efb('prvIpAnon', 'Store anonymized (last part removed)')],
+    ['none', efb_prv_text_efb('prvIpNone', 'Do not store')],
+  ].map(([v, t]) => `<option value="${v}" ${cur === v ? 'selected' : ''}>${t}</option>`).join('');
+  return `
+  <div class="efb mt-2 mb-2">
+    <label for="prvIpEl" class="efb mb-1"><i class="efb bi-geo fs-7 ${iconMarginGlobal}"></i>${efb_prv_text_efb('prvIpMode', 'Visitor IP address and browser')}</label>
+    <select data-id="formSet" class="efb elEdit form-select efb border-d rounded-4" id="prvIpEl" aria-describedby="prvIpElHelp">${opts}</select>
+    <small class="efb form-text text-muted d-block mt-1" id="prvIpElHelp">${efb_prv_text_efb('prvIpHelp', 'Rate limits and spam protection still work. The address is only read during the request.')}</small>
+  </div>`;
+};
+const privacyEls = () => `
+          <!-- privacy section (F13) -->
+          <div class="efb d-grid gap-2">
+            <button class="efb btn btn-outline-light mt-3" id="privacy_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePrivacy" aria-expanded="false" aria-controls="collapsePrivacy">
+              <i class="efb bi-shield-lock me-1" id="privacy_collapse_id"></i>${efb_prv_text_efb('prvTitle', 'Privacy')}
+            </button>
+          </div>
+          <div class="efb mb-3 mt-3 collapse" id="collapsePrivacy">
+            <div class="efb mb-3 px-3 row">
+              ${prvIpEls()}
+            </div>
+          </div>
+          <!-- privacy section end -->`;
+
 const surveyChartTypeEls = () => {
   if (!valj_efb[0].hasOwnProperty('survey_chart_type')) {
     Object.assign(valj_efb[0], { survey_chart_type: 'none' });
@@ -2195,6 +2227,7 @@ function show_setting_window_efb(idset, opts) {
             </button>
           </div>
           <!-- conditional logic section end -->` : '<!-- conditional logic addon not active -->'}
+          ${privacyEls()}
           <div class="efb  d-grid gap-2">
             <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
             <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}

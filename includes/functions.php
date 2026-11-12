@@ -2551,7 +2551,6 @@ class efbFunction {
 			"dsupfile" => $state  &&  isset($ac->text->dsupfile) ? $ac->text->dsupfile : esc_html__('Enable file upload in the response box','easy-form-builder'),
 			"scaptcha" => $state  &&  isset($ac->text->scaptcha) ? $ac->text->scaptcha : esc_html__('Enable Google reCAPTCHA in the response box','easy-form-builder'),
 			"sdlbtn" => $state  &&  isset($ac->text->sdlbtn) ? $ac->text->sdlbtn : esc_html__('Enable download button in the response box','easy-form-builder'),
-			"sips" => $state  &&  isset($ac->text->sips) ? $ac->text->sips : esc_html__('Display the IP addresses of users in the response box.','easy-form-builder'),
 			/* translators: Persia Payment = Iranian online payment gateway service */
 			"persiaPayTAddon" => $state  &&  isset($ac->text->persiaPayTAddon) ? $ac->text->persiaPayTAddon : esc_html__('Persia Payment Add-on','easy-form-builder'),
 			"persiaPayDAddon" => $state  &&  isset($ac->text->persiaPayDAddon) ? $ac->text->persiaPayDAddon : esc_html__('The Persia payment add-on for Easy Form Builder enables you to connect your website with Persia payment to process payments, donations, and online orders.','easy-form-builder'),
@@ -2759,6 +2758,28 @@ class efbFunction {
 			"sbgMobileNone" => $state && isset($ac->text->sbgMobileNone) ? $ac->text->sbgMobileNone : esc_html__('No background','easy-form-builder'),
 			/* translators: F19: mobile background option: use only the first gradient colour */
 			"sbgMobileSolid" => $state && isset($ac->text->sbgMobileSolid) ? $ac->text->sbgMobileSolid : esc_html__('First color only','easy-form-builder'),
+			/* translators: F13: title of the settings tab and of the form-settings section about personal data */
+			"prvTitle" => $state && isset($ac->text->prvTitle) ? $ac->text->prvTitle : esc_html__('Privacy','easy-form-builder'),
+			/* translators: F13: setting: whether the visitor's IP address and browser are stored with each entry */
+			"prvIpMode" => $state && isset($ac->text->prvIpMode) ? $ac->text->prvIpMode : esc_html__('Visitor IP address and browser','easy-form-builder'),
+			/* translators: F13: option of the IP setting: keep the full address */
+			"prvIpStore" => $state && isset($ac->text->prvIpStore) ? $ac->text->prvIpStore : esc_html__('Store','easy-form-builder'),
+			/* translators: F13: option of the IP setting: keep the address without its last part */
+			"prvIpAnon" => $state && isset($ac->text->prvIpAnon) ? $ac->text->prvIpAnon : esc_html__('Store anonymized (last part removed)','easy-form-builder'),
+			/* translators: F13: option of the IP setting: keep no address and no browser */
+			"prvIpNone" => $state && isset($ac->text->prvIpNone) ? $ac->text->prvIpNone : esc_html__('Do not store','easy-form-builder'),
+			/* translators: F13: option of a form's privacy setting: follow Settings > Privacy */
+			"prvIpInherit" => $state && isset($ac->text->prvIpInherit) ? $ac->text->prvIpInherit : esc_html__('Use the global setting','easy-form-builder'),
+			/* translators: F13: help text under the IP setting */
+			"prvIpHelp" => $state && isset($ac->text->prvIpHelp) ? $ac->text->prvIpHelp : esc_html__('Rate limits and spam protection still work. The address is only read during the request.','easy-form-builder'),
+			/* translators: F13: button: empty or anonymize the IP addresses of existing entries */
+			"prvPurgeIp" => $state && isset($ac->text->prvPurgeIp) ? $ac->text->prvPurgeIp : esc_html__('Clear IP addresses already stored','easy-form-builder'),
+			/* translators: F13: confirmation before clearing stored IP addresses */
+			"prvPurgeIpQ" => $state && isset($ac->text->prvPurgeIpQ) ? $ac->text->prvPurgeIpQ : esc_html__('Clear the IP addresses already stored in entries, replies and visit records? This cannot be undone.','easy-form-builder'),
+			/* translators: F13: result after clearing stored IP addresses. %s: a number */
+			"prvPurgeIpDone" => $state && isset($ac->text->prvPurgeIpDone) ? $ac->text->prvPurgeIpDone : esc_html__('%s stored addresses were updated.','easy-form-builder'),
+			/* translators: F13: note shown to plugin users who are not site administrators */
+			"prvAdminOnly" => $state && isset($ac->text->prvAdminOnly) ? $ac->text->prvAdminOnly : esc_html__('Only an administrator can change the privacy settings.','easy-form-builder'),
 			/* translators: F18: name of a locked feature in the upgrade dialog */
 			"upgFtrHideDisable" => $state && isset($ac->text->upgFtrHideDisable) ? $ac->text->upgFtrHideDisable : esc_html__('Hidden and disabled fields','easy-form-builder'),
 			/* translators: F18: name of a locked feature in the upgrade dialog */
@@ -4887,34 +4908,10 @@ class efbFunction {
 	  }
 
 	  public function get_ip_address() {
-        $ip='1.1.1.1';
-		if (!empty($_SERVER['HTTP_CLIENT_IP'])) {$ip =
-			sanitize_text_field(wp_unslash($_SERVER['HTTP_CLIENT_IP']));
-        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) { $ip = sanitize_text_field(wp_unslash($_SERVER['HTTP_X_FORWARDED_FOR']));
-        // REMOTE_ADDR is absent under WP-CLI and WP-Cron, where this is reached
-        // through the scheduled jobs. Reading it unguarded logged a warning on
-        // every such run, and PHP 8.1+ then passed null on into strtolower().
-        } elseif (!empty($_SERVER['REMOTE_ADDR'])) { $ip = sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR']));}
-        $ip = strval($ip);
-        $check =strpos($ip,',');
-        if($check !== false){$ip = substr($ip,0,$check);}
-        $ip = trim($ip);
-        /* Some proxies (Azure App Service, IIS ARR) forward "IP:port" or
-         * "[IPv6]:port"; keep the address part. */
-        if (preg_match('/^\[([0-9a-fA-F:.]+)\](?::\d+)?$/', $ip, $ip_m)) {
-            $ip = $ip_m[1];
-        } elseif (preg_match('/^(\d{1,3}(?:\.\d{1,3}){3}):\d+$/', $ip, $ip_m)) {
-            $ip = $ip_m[1];
-        }
-        /* Client-IP / X-Forwarded-For are request headers: anything that is
-         * not an address was stored as the visitor's IP and used as a rate
-         * limit key. Fall back to the connection address in that case. */
-        if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
-            $remote = isset($_SERVER['REMOTE_ADDR']) ? trim(sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR']))) : '';
-            $ip = filter_var($remote, FILTER_VALIDATE_IP) !== false ? $remote : '1.1.1.1';
-        }
-        return $ip;
-    }
+		// Trusted-proxy aware (F13; BUGS-FOUND "spoofable IP"): see \Emsfb\Privacy::client_ip().
+		if (!class_exists('\\Emsfb\\Privacy')) require_once __DIR__ . '/class-Emsfb-privacy.php';
+		return \Emsfb\Privacy::client_ip();
+	  }
 
 	public function addon_adds_cron_efb(){
 		// Kept as a no-op for backward compatibility with sites that have an old
@@ -7377,6 +7374,15 @@ public function addon_add_efb($value) {
 		$uid = get_current_user_id() ?? 0;
 		$os = $this->getVisitorOS();
 		$browser = $this->getVisitorBrowser();
+		// F13: the session row follows the form's IP setting: "anon" keeps the
+		// anonymized address (and the OS / browser family), "none" keeps neither.
+		if (class_exists('\Emsfb\Privacy')) {
+			$ip = \Emsfb\Privacy::store_ip($ip, $fid);
+			if (!\Emsfb\Privacy::store_agent($fid)) {
+				$os = '';
+				$browser = '';
+			}
+		}
 
 		$data = array(
 			'sid' => $sid,

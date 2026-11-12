@@ -451,6 +451,9 @@ class Importer {
 			return 0;
 		}
 		$clean = $efb->sanitize_obj_msg_efb( $decoded );
+		if ( class_exists( '\Emsfb\Privacy' ) ) {
+			$clean = \Emsfb\Privacy::normalize_form_settings( $clean );
+		}
 		$json  = json_encode( $clean, JSON_UNESCAPED_UNICODE );
 		if ( false === $json ) {
 			return 0;
@@ -467,7 +470,13 @@ class Importer {
 				'form_create_date' => wp_date( 'Y-m-d H:i:s' ),
 			)
 		);
-		return false === $row ? 0 : (int) $wpdb->insert_id;
+		if ( false === $row ) {
+			return 0;
+		}
+		$form_id = (int) $wpdb->insert_id;
+		// Same side effects as a form made in the builder (F13 privacy map, SitePilot §5.8).
+		do_action( 'efb_form_created', $form_id, $clean, array( 'form_id' => $form_id, 'source' => 'cf7', 'user_id' => get_current_user_id() ) );
+		return $form_id;
 	}
 
 	/**

@@ -1,4 +1,4 @@
-وضعیت: در حال پیاده‌سازی (A انجام شد) · اولویت: P0 · تلاش: S (هسته) + S (برون‌بری و حذف وردپرس) · وابستگی: — (پیش از F14 اجرا شود؛ ایندکس‌ها و ستون‌های این سند را F14 دوباره نمی‌سازد)
+وضعیت: در حال پیاده‌سازی (A و B انجام شد) · اولویت: P0 · تلاش: S (هسته) + S (برون‌بری و حذف وردپرس) · وابستگی: — (پیش از F14 اجرا شود؛ ایندکس‌ها و ستون‌های این سند را F14 دوباره نمی‌سازد)
 
 # F13 — حریم خصوصی و نگهداری داده
 
@@ -330,12 +330,13 @@ ALTER TABLE `{p}emsfb_rsp_` ADD KEY `msg_id` (`msg_id`);
 - پذیرش: (۱) بدون تنظیم، ردیف‌ها مثل امروز IP دارند. (۲) با `none`، ستون‌های msg، rsp و stts خالی‌اند و trace IP ندارد. (۳) با `anon`، IPv4 به `x.y.z.0` و IPv6 به /48 صفرشده تبدیل می‌شود (رفتار `wp_privacy_anonymize_ip`). (۴) بازنویسی فرم بر سراسری اولویت دارد. (۵) پاسخ submit کلید `ip` ندارد. (۶) نقش `Emsfb` بدون `manage_options` نمی‌تواند IPها را پاک کند.
 - تست: `php tests/test-privacy-ip-mode.php` (stub ‏`wp_privacy_anonymize_ip`، `get_option`، `get_setting_Emsfb`؛ ماتریس حالت × فرم)، و یک بخش در `tests/test-submit-payload-robustness.php` (WP، `[SKIP]` بدون وردپرس) که ستون `ip` ردیف درج‌شده را می‌خواند.
 
-> **Checkpoint**
-> فایل‌های تغییرکرده:
-> تست‌ها:
-> وضعیت ترجمه:
-> مورد باز:
-> اقدام بعدی:
+> **Checkpoint** (۲۰۲۶-۱۱-۱۲، انجام شد)
+> فایل‌های تغییرکرده: `includes/class-Emsfb-privacy.php` (تازه: `register`، `setting_defaults`/`sanitize_setting`/`setting`، `normalize_form_settings`، نقشهٔ `emsfb_prv_forms` با `on_form_saved`/`on_form_deleted`، `ip_mode`/`store_ip`/`store_agent`/`log_ip`/`anonymize_ip`، `client_ip` با proxyهای مورد اعتماد، `purge_stored_ips` و AJAX ‏`efb_privacy_purge_ip_Emsfb`، `localize_vars`)؛ `class-Emsfb.php` (بارگذاری و پیش‌فرض‌ها)؛ `class-Emsfb-public.php` (IP از `store_ip` با شناسهٔ فرم ذخیره‌شده؛ کلید `ip` از پاسخ submit و پرداخت حذف شد؛ پاسخ گفتگو، ردیف پرداخت، جدول لینک موقت ثبت‌نام؛ trace با `log_ip`)؛ `functions.php` (ردیف نشست بدون IP و os/browser در حالت `none`؛ عبارت `sips` حذف شد)؛ `class-email-handler.php`، `admin/class-Emsfb-admin.php`، `functions.php` و `class-Emsfb-public.php` (هر چهار `get_ip_address()` به `Privacy::client_ip()` سپرده شد)؛ `class-Emsfb-email-trace.php` (کلیدهای `ip` در trace ناشناس می‌شوند)؛ `admin/class-Emsfb-admin.php` (شاخهٔ `prv_*` در `set_settings_Emsfb` فقط با `manage_options`، حفظ کلیدهای نفرستاده؛ `normalize_form_settings` و `do_action('efb_form_saved')` در به‌روزرسانی فرم؛ `do_action('efb_form_deleted')`؛ IP پاسخ مدیر)؛ `admin/class-Emsfb-create.php` و `importers/cf7/class-Emsfb-cf7-importer.php` (`normalize_form_settings` و `do_action('efb_form_created')`)؛ `class-Emsfb-builder-api.php` (رجیستری: `setting:privacy_ip` و `setting:privacy_site`، هر دو رایگان)؛ `list_form-efb.js` (زبانهٔ «حریم خصوصی» با `?tab=privacy`، سه رادیو در `fieldset`، دکمهٔ پاک‌کردن IPهای قبلی با تأیید؛ `showIp` حذف شد)؛ `val-efb.js` و `admin-efb.js` (بخش تاشوی «حریم خصوصی» در تنظیمات فرم با `prvIpEl`)؛ `tests/e2e-wp/run.js` و `ctl.php` (سناریوی ۸).
+> تست‌ها: `php tests/test-privacy-ip-mode.php` ‏۹۹ موفق، ۰ ناموفق (روی کد پیش از تغییر ۲۱ ناموفق؛ شامل برابری با `wp_privacy_anonymize_ip()` خود وردپرس روی ۱۰ نمونه). وردپرس واقعی، سناریوی ۸: ۱۲ موفق، ۰ ناموفق (زبانهٔ حریم خصوصی → «ذخیره نشود» → مهمان ارسال می‌کند → ستون `ip` پاسخ و `ip`/`os`/`browser` نشست خالی، پاسخ submit بدون کلید `ip`؛ بازگشت به «ذخیره شود» → `127.0.0.1`). `php tests/test-privacy-schema.php` ‏۳۵ موفق. مجموعه‌های مرتبط همه سبز. `tests/test-setting-tab-deeplinks.js` اینجا اجرا نمی‌شود (وردپرس روی `127.0.0.1/wp` لازم دارد)، پیش و پس از تغییر.
+> وضعیت ترجمه: ۱۱ عبارت تازه (`prvTitle` … `prvAdminOnly`) با فارسی و آلمانی؛ ۳۱ عبارت F19 که در JSON ترجمه جا مانده بود هم پر شد (فارسی از `.po`، آلمانی تازه)؛ `.mo`/`.l10n.php` هر دو زبان ساخته شد و هیچ ترجمهٔ موجودی تغییر نکرد؛ `extract.php` و `check-locale.php` برای `fa_IR` و `de_DE`: PASS. زبان‌های دیگر: باز.
+> تصمیم‌ها: (۱) ناشناس‌سازی IPv6 همان رفتار واقعی وردپرس است (شبکهٔ /64)، نه /48 که در بند پذیرش آمده بود؛ متن پذیرش خودش «رفتار `wp_privacy_anonymize_ip`» را معیار گذاشته است. (۲) باگ «IP قابل جعل» همین‌جا رفع شد: سرآیندها فقط از proxy مورد اعتماد پذیرفته می‌شوند (loopback و شبکه‌های خصوصی، بازه‌های Cloudflare با `CF-Connecting-IP`، فیلتر `efb_trusted_proxies`)؛ سایتی پشت CDN عمومی دیگر باید آدرس آن را با همین فیلتر اضافه کند. (۳) IP در trace حتی در حالت `store` ناشناس نوشته می‌شود.
+> مورد باز: پاسخ پرداخت Stripe (`pay_data['ip']` در افزونه) همان `$this->ip` شکل‌داده‌شده را می‌گیرد؛ جدول خود افزونه بررسی نشد (`vendor/` در این مخزن نیست).
+> اقدام بعدی: زیرتسک D.
 
 ### C. حالت بدون ذخیره
 - فایل‌ها: `class-Emsfb-public.php` (`store_entry_efb`، `begin/finish_operation_efb` جداشده از 4668-4699، cases 3698 و 4273، پیوند ایمیل 3800 و 4283، و `cc` در 9611)، `Privacy::nostore()` و `ledger_nostore_files()`، `val-efb.js`/`admin-efb.js` (`prvNoStoreEl`)، و `Privacy::normalize_form_settings` در ذخیرهٔ فرم.

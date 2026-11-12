@@ -419,6 +419,10 @@ class Create {
 		$valp =\emsfb_json_normalize_efb(wp_unslash($_POST['value']));
 		$valp = json_decode($valp,true);
 		$valp = $efbFunction->sanitize_obj_msg_efb($valp);
+		// F13: privacy keys follow the server rules (allow-lists, form type, existing email field).
+		if (is_array($valp) && class_exists('\Emsfb\Privacy')) {
+			$valp = \Emsfb\Privacy::normalize_form_settings($valp);
+		}
 		// A5: a notification whose add-on is not active is stored switched off, with a warning.
 		$save_warnings_efb = array();
 		if (is_array($valp) && class_exists('\Emsfb\Builder_Api')) {
@@ -515,6 +519,10 @@ class Create {
 		}
 		if($this->formtype=='login' || $this->formtype=='register'){
 			do_action('create_temporary_links_table_Emsfb');
+		}
+		if($this->id_ !=0){
+			// Side effects of a new form (F13 emsfb_prv_forms map; SitePilot contract §5.8).
+			do_action('efb_form_created', (int) $this->id_, $valp, array('form_id' => (int) $this->id_, 'source' => 'builder', 'user_id' => get_current_user_id()));
 		}
 		if($this->id_ !=0){
 			$response = array( 'success' => true ,'r'=>"insert" , 'value' => "[EMS_Form_Builder id=$this->id_]" , "id"=>$this->id_);

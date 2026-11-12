@@ -171,6 +171,8 @@ eval('namespace Emsfb; class Form_Runtime { static function begin() { return "op
 class Request_Health { static function mark_saved() {} static function record() {} }');
 function wp_date($f) { return date($f); }
 function get_current_user_id() { return 7; }
+function get_setting_Emsfb() { return new stdClass(); }
+require_once __DIR__ . '/../includes/class-Emsfb-privacy.php'; // insert_message_db() shapes the IP through it
 function wp_create_nonce($x) { return 'n'; }
 function __($s) { return $s; }
 function wp_send_json_error($d) { throw new Exception('json_error'); }

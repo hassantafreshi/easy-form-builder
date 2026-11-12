@@ -23,6 +23,8 @@
  *   6  fa_IR: RTL builder dialog and public form; 375 px viewport for the public form and the dialog
  *   7  console: every page of every scenario is watched (lib.js guard); each scenario ends with a
  *      "no console errors" check
+ *   8  F13 privacy: Settings > Privacy "Do not store" → a guest entry and its visit rows have no IP
+ *      (and no browser); back to "Store" restores the old behaviour
  *
  * Run: node tests/e2e-wp/run.js [scenario ids...]   (env: see README.md)
  */
@@ -897,6 +899,129 @@ scenario('6', 'fa_IR and 375 px: F18 dialog (en/fa × desktop/phone), RTL public
     await admin.screenshot({ path: SHOT('6-response-viewer-fa') });
   }
   ctl('locale', '');
+});
+
+/* =============================================================================================
+ * 8. F13 privacy and retention
+ * =========================================================================================== */
+/* The settings screen reloads itself after a successful Save, which discards the response body in
+ * the browser; the request is answered through route.fetch() so the test can read it first. */
+async function f13SaveSettings(admin) {
+  let body = null;
+  const handler = async (route) => {
+    const req = route.request();
+    if (req.method() !== 'POST' || !(req.postData() || '').includes('action=set_settings_Emsfb')) return route.continue();
+    const res = await route.fetch();
+    try { body = JSON.parse(await res.text()); } catch (e) { body = null; }
+    return route.fulfill({ response: res });
+  };
+  await admin.route('**/admin-ajax.php', handler);
+  await admin.click('#save-stng-efb');
+  for (let i = 0; i < 100 && body === null; i++) await sleep(200);
+  await admin.unroute('**/admin-ajax.php', handler);
+  await sleep(1500);
+  return body;
+}
+
+async function f13OpenPrivacyTab(admin) {
+  await admin.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb&state=setting&tab=privacy', { waitUntil: 'load' });
+  await admin.waitForSelector('#efb-privacy-settings', { timeout: 30000 });
+  await admin.waitForFunction(() => document.getElementById('nav-privacy') && document.getElementById('nav-privacy').classList.contains('active'), null, { timeout: 10000 }).catch(() => {});
+  await sleep(400);
+}
+
+/** A guest submits the F13 form (email + text [+ textarea]); returns the parsed answer of forms/message/add. */
+async function f13GuestSubmit(context, url, F, values) {
+  const g = await (await context({}, 'guest-f13')).newPage();
+  await g.goto(url, { waitUntil: 'load' });
+  await g.waitForSelector(byId(F.email + '_'), { timeout: 20000 });
+  await sleep(800);
+  await g.fill(byId(F.email + '_'), values.email);
+  await g.fill(byId(F.text + '_'), values.text);
+  if (F.note && values.note) await g.fill(byId(F.note + '_'), values.note);
+  const sub = g.waitForResponse((x) => /forms\/message\/add|forms%2Fmessage%2Fadd/.test(x.url()), { timeout: 30000 }).catch(() => null);
+  await g.click('#btn_send_efb');
+  const r = await sub;
+  let body = null;
+  try { body = r ? await r.json() : null; } catch (e) { body = String(e); }
+  await sleep(1200);
+  await g.close();
+  return body;
+}
+
+scenario('8', 'F13 privacy: IP setting in Settings > Privacy, guest entry without IP', async ({ context, adminPage }) => {
+  if (!['1', '3'].includes(String(ctl('state').emsfb_pro))) ctl('plan', 3);
+  const admin = await adminPage();
+
+  // 8a Settings > Privacy (the real screen and Save button) → "Do not store".
+  await f13OpenPrivacyTab(admin);
+  const tab = await admin.evaluate(() => ({
+    active: (document.querySelector('#nav-tab .nav-link.active') || {}).id,
+    radios: Array.from(document.querySelectorAll('input[name="prvIpMode_efb"]')).map((r) => r.value),
+    legend: (document.querySelector('#prvIpModeSet_efb legend') || {}).textContent,
+    disabled: Array.from(document.querySelectorAll('input[name="prvIpMode_efb"]')).some((r) => r.disabled),
+    purge: !!document.getElementById('prvPurgeIpBtn_efb'),
+  }));
+  R.check('8a: ?tab=privacy opens the Privacy tab with three IP choices in a fieldset/legend, enabled for the administrator', tab.active === 'nav-privacy-tab' && tab.radios.join() === 'store,anon,none' && !!tab.legend && !tab.disabled && tab.purge, tab);
+  await admin.screenshot({ path: SHOT('8a-settings-privacy') });
+  await admin.check('#prvIpMode_none_efb');
+  const saved = await f13SaveSettings(admin);
+  R.check('8a: Save answers success', saved && saved.success && saved.data && saved.data.success, saved && saved.data);
+  R.check('8a: database: settings prv_ip_mode = none', ctl('setting', 'prv_ip_mode') === 'none', ctl('setting', 'prv_ip_mode'));
+
+  // 8b a form built with the builder API, its Privacy section, saved through admin-ajax.
+  await openNewForm(admin);
+  // The first field comes from the palette: a blank form gets its step row from the first palette
+  // field, and efbBuilderApi.insertItems() into a form without one puts the field where the step
+  // belongs (BUGS-FOUND, open: found here).
+  await addTile(admin, 'email');
+  await closePanel(admin);
+  const built = await admin.evaluate(async () => {
+    const add = (type, label) => efbBuilderApi.insertItems(efbBuilderApi.newItems(type, { label })).ids;
+    add('text', 'Name');
+    add('textarea', 'Note');
+    await efbBuilderApi.render();
+    const f = efbBuilderApi.getForm();
+    f[0].formName = 'E2E F13 privacy';
+    await efbBuilderApi.setForm(f);
+    const id = (t) => (efbBuilderApi.getForm().find((x) => x.type === t) || {}).id_;
+    return { email: id('email'), text: id('text'), note: id('textarea') };
+  });
+  await admin.click("a[onclick=\"show_setting_window_efb('formSet')\"]");
+  await admin.waitForSelector('#prvIpEl', { state: 'attached', timeout: 8000 });
+  const sect = await admin.evaluate(() => ({ btn: !!document.getElementById('privacy_collapse'), opts: Array.from(document.querySelectorAll('#prvIpEl option')).map((o) => o.value), sel: document.getElementById('prvIpEl').value }));
+  R.check('8b: form settings have a Privacy section; the IP select defaults to "use the global setting"', sect.btn && sect.opts.join() === ',store,anon,none' && sect.sel === '', sect);
+  await closePanel(admin);
+  const saveResp = admin.waitForResponse((r) => /action=(add_form_Emsfb|update_form_Emsfb)/.test(r.request().postData() || ''), { timeout: 20000 });
+  await admin.click("a[onclick=\"saveFormEfb(1)\"]");
+  const save = await (await saveResp).json();
+  const formId = Number(save.data && (save.data.id || save.data.form_id));
+  R.check('8b: the form is saved', save.success && formId > 0, save.data);
+  await sleep(1200);
+  SHARED.f13 = { formId, F: built };
+
+  // 8c a guest submits: no IP in the answer, none in the entry, none (and no browser) in the visit row.
+  const pg = ctl('page', formId);
+  SHARED.f13.url = pg.url;
+  const body = await f13GuestSubmit(context, pg.url, built, { email: 'f13-guest@example.test', text: 'Guest One', note: 'hello' });
+  R.check('8c: the guest submission succeeds', body && body.success && body.data && body.data.success, body);
+  R.check('8c: the submit answer carries no "ip" key', body && body.data && !Object.prototype.hasOwnProperty.call(body.data, 'ip'), body && body.data);
+  const entries = ctl('entries', formId);
+  const e = entries[entries.length - 1] || {};
+  R.check('8c: database: one entry, ip empty, uid 0 (guest), prv_state 0', entries.length === 1 && e.ip === '' && String(e.uid) === '0' && String(e.prv_state) === '0', e && { ip: e.ip, uid: e.uid, prv_state: e.prv_state, n: entries.length });
+  const sess = ctl('sessions', formId);
+  R.check('8c: database: the visit rows of the form hold no IP, OS or browser', sess.length > 0 && sess.every((r) => r.ip === '' && r.os === '' && r.browser === ''), sess);
+  SHARED.f13.entry = { msg_id: e.msg_id, track: e.track };
+
+  // 8d back to "Store" through the same screen: the next entry has the address again (old behaviour).
+  await f13OpenPrivacyTab(admin);
+  await admin.check('#prvIpMode_store_efb');
+  await f13SaveSettings(admin);
+  R.check('8d: database: prv_ip_mode = store', ctl('setting', 'prv_ip_mode') === 'store');
+  await f13GuestSubmit(context, pg.url, built, { email: 'f13-other@example.test', text: 'Guest Two', note: '' });
+  const after = ctl('entries', formId);
+  const e2 = after[after.length - 1] || {};
+  R.check('8d: with "Store" the new entry keeps the address (127.0.0.1 on this site); the first one stays empty', after.length === 2 && e2.ip === '127.0.0.1' && after[0].ip === '', after.map((x) => x.ip));
 });
 
 /* ---------------------------------------------------------------------------------------------

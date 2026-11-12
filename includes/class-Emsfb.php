@@ -403,6 +403,13 @@ class Emsfb {
             \Emsfb\Upload_Guard::register();
         }
 
+        // Privacy and retention (F13): IP storage mode, per-form privacy keys, retention.
+        // Optional for the request to work (callers check class_exists), but loaded on
+        // every request: the daily job and the WordPress privacy tools need it outside wp-admin.
+        if ($this->require_plugin_file_efb('includes/class-Emsfb-privacy.php')) {
+            \Emsfb\Privacy::register();
+        }
+
         // Input masks and format validators (F01). Optional: every caller checks
         // class_exists('\Emsfb\Masks'), so a missing file only disables masks.
         $this->require_plugin_file_efb('includes/class-Emsfb-masks.php');
@@ -2227,7 +2234,13 @@ class Emsfb {
         $defaults->phnNo             = '';
         $defaults->femail            = '';
         $defaults->email_key         = '';
-        $defaults->showIp            = '';
+        // F13: privacy and retention. Defaults keep today's behaviour (IP stored, nothing deleted).
+        $defaults->prv_ip_mode           = 'store';
+        $defaults->prv_days              = '0';
+        $defaults->prv_action            = 'delete';
+        $defaults->prv_files             = '1';
+        $defaults->prv_erase_mode        = 'delete';
+        $defaults->prv_nostore_file_days = '30';
         $defaults->adminSN           = '1';
         $defaults->osLocationPicker  = '';
         $defaults->sessionDuration   = '5';

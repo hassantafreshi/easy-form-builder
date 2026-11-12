@@ -3306,6 +3306,12 @@ let change_el_edit_Efb = (el) => {
         // B4: login / register add the fields their handler reads; leaving them asks first.
         if (typeof efb_after_form_type_change_efb === 'function') efb_after_form_type_change_efb(oldFormType, valj_efb[0].type);
         break;
+      case "prvIpEl": {
+        // F13: '' = follow the site's setting; the server allow-lists the value again on save.
+        const v = el.options[el.selectedIndex].value;
+        valj_efb[0].prv_ip = ['store', 'anon', 'none'].includes(v) ? v : '';
+        break;
+      }
       case "surveyChartTypeEl":
         if (!valj_efb[0].hasOwnProperty('survey_chart_type')) {
           Object.assign(valj_efb[0], { survey_chart_type: 'none' });

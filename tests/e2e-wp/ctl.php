@@ -24,6 +24,8 @@
  *   plan <n>                  set emsfb_pro and settings package_type (for running one scenario alone)
  *   constants                 EMSFB_API_VERSION, EMSFB_PLUGIN_VERSION, database driver
  *   option <name>             raw option value
+ *   setting <key>             one key of the plugin's decoded settings (F13 prv_*)
+ *   sessions <form_id>        visit rows of a form (emsfb_stts_): ip, os, browser, status
  *
  * Local test site only. Nothing here is meant for a production site.
  */
@@ -118,7 +120,13 @@ switch ( $efb_e2e_cmd ) {
 
 	case 'entries':
 		$id   = isset( $efb_e2e_rest[0] ) ? (int) $efb_e2e_rest[0] : 0;
-		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT msg_id, form_id, track, content, read_ FROM {$wpdb->prefix}emsfb_msg_ WHERE form_id = %d ORDER BY msg_id", $id ), ARRAY_A ); // phpcs:ignore
+		$cols = 'msg_id, form_id, track, content, read_, ip, date';
+		foreach ( array( 'uid', 'prv_state' ) as $c ) { // F13 columns (DB 1.4)
+			if ( $wpdb->get_results( $wpdb->prepare( "SHOW COLUMNS FROM {$wpdb->prefix}emsfb_msg_ LIKE %s", $c ) ) ) { // phpcs:ignore
+				$cols .= ', ' . $c;
+			}
+		}
+		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT {$cols} FROM {$wpdb->prefix}emsfb_msg_ WHERE form_id = %d ORDER BY msg_id", $id ), ARRAY_A ); // phpcs:ignore
 		foreach ( (array) $rows as $i => $r ) {
 			$rows[ $i ]['raw']     = $r['content'];
 			$rows[ $i ]['content'] = efb_e2e_decode_json( $r['content'] );
@@ -193,6 +201,17 @@ switch ( $efb_e2e_cmd ) {
 
 	case 'option':
 		efb_e2e_out( get_option( isset( $efb_e2e_rest[0] ) ? $efb_e2e_rest[0] : '', null ) );
+		break;
+
+	case 'setting':
+		$s = get_setting_Emsfb( 'decoded' );
+		$k = isset( $efb_e2e_rest[0] ) ? $efb_e2e_rest[0] : '';
+		efb_e2e_out( is_object( $s ) && isset( $s->$k ) ? $s->$k : null );
+		break;
+
+	case 'sessions':
+		$id = isset( $efb_e2e_rest[0] ) ? (int) $efb_e2e_rest[0] : 0;
+		efb_e2e_out( $wpdb->get_results( $wpdb->prepare( "SELECT id, sid, fid, status, ip, os, browser, tc FROM {$wpdb->prefix}emsfb_stts_ WHERE fid = %d ORDER BY id", $id ), ARRAY_A ) ); // phpcs:ignore
 		break;
 
 	default:

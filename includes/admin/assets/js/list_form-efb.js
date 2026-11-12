@@ -1186,8 +1186,9 @@ function fun_show_setting__emsFormBuilder() {
   let sessionDuration = 1;
   let trackCodeStyle = 'date_en_mix';
   let act_local_efb =scaptcha =false;
-  let dsupfile= showIp =activeDlBtn =scaptcha=act_local_efb =false;
+  let dsupfile= activeDlBtn =scaptcha=act_local_efb =false;
 
+  const prvSettings = { prv_ip_mode: 'store', prv_days: '0', prv_action: 'delete', prv_files: '1', prv_erase_mode: 'delete', prv_nostore_file_days: '30' };
   let phoneNumbers=sms_method = 'null';
   let femail ='null';
   let demail ='no-reply@'+ window.location.hostname;
@@ -1257,7 +1258,6 @@ function fun_show_setting__emsFormBuilder() {
 
     scaptcha = f('scaptcha')=='null' ? false :f('scaptcha') ;
     activeDlBtn = f('activeDlBtn')=='null' ? true :f('activeDlBtn');
-    showIp = f('showIp') =='null' ? false :f('showIp');
     dsupfile = f('dsupfile') =='null' ? true :f('dsupfile');
     phoneNumbers = f('phnNo');
     adminSN  = f('adminSN') =='null' ? false :f('adminSN');
@@ -1289,6 +1289,8 @@ function fun_show_setting__emsFormBuilder() {
 
     payToken = f('payToken');
     act_local_efb = f('act_local_efb');
+    // F13: privacy settings ('null' = absent = the default, today's behaviour).
+    for (const k of Object.keys(prvSettings)) { if (f(k) !== 'null') prvSettings[k] = String(f(k)); }
 
     act_local_efb= act_local_efb =='null'  || act_local_efb==false ? false :true
   }
@@ -1368,6 +1370,7 @@ function fun_show_setting__emsFormBuilder() {
                             <button class="efb nav-link" id="nav-text-tab" data-efb-tab="localization" data-bs-toggle="tab" data-bs-target="#nav-text" type="button" role="tab" aria-controls="nav-text" aria-selected="false"><i class="efb  bi bi-fonts mx-2"></i>${efb_var.text.localization}</button>
                             <button class="efb nav-link" id="nav-stripe-tab" data-efb-tab="payments" data-bs-toggle="tab" data-bs-target="#nav-stripe" type="button" role="tab" aria-controls="nav-stripe" aria-selected="false"><i class="efb  bi bi-credit-card mx-2"></i>${efb_var.text.payments}</button>
                             <button class="efb nav-link" id="nav-smsconfig-tab" data-efb-tab="sms" data-bs-toggle="tab" data-bs-target="#nav-smsconfig" type="button" role="tab" aria-controls="nav-smsconfig" aria-selected="false"><i class="efb  bi bi-chat-left-dots mx-2"></i>${efb_var.text.sms_config}</button>
+                            <button class="efb nav-link" id="nav-privacy-tab" data-efb-tab="privacy" data-bs-toggle="tab" data-bs-target="#nav-privacy" type="button" role="tab" aria-controls="nav-privacy" aria-selected="false"><i class="efb  bi bi-shield-lock mx-2"></i>${efb_prv_t_efb('prvTitle', 'Privacy')}</button>
                         </div>
                         </nav>
                         <div class="efb tab-content" id="nav-tabContent">
@@ -1540,12 +1543,6 @@ function fun_show_setting__emsFormBuilder() {
                                   </button>
                                   <label class="efb form-check-label fs-6 efb mx-2 my-3" for="activeDlBtn_emsFormBuilder">${efb_var.text.sdlbtn}</label>
                                 </div>
-                               <!-- <div class="efb card-body my-0 py-0 ${mxCSize4}">
-                                  <button type="button" id="showIp_emsFormBuilder" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle  ${showIp == true ? "active" : ""} setting" data-toggle="button" aria-pressed="false" autocomplete="off"   >
-                                  <div class="efb handle"></div>
-                                  </button>
-                                  <label class="efb form-check-label fs-6 efb mx-2 my-3" for="showIp_emsFormBuilder">${efb_var.text.sips}</label>
-                                </div> -->
                                <div class="efb card-body my-0 py-0 ${mxCSize4}">
                                   <button type="button" id="adminSN_emsFormBuilder" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle  ${adminSN == true ? "active" : ""} setting" data-toggle="button" aria-pressed="false" autocomplete="off"  onclick="efb_check_el_pro(this)" >
                                   <div class="efb handle"></div>
@@ -1769,6 +1766,9 @@ function fun_show_setting__emsFormBuilder() {
                         </div>
                     </div>
                         <!-- smsconfig Section -->
+                        <div class="efb tab-pane fade" id="nav-privacy" role="tabpanel" aria-labelledby="nav-privacy-tab">
+                          ${efb_privacy_tab_efb(prvSettings, mxCSize4)}
+                        </div>
                         <div class="efb tab-pane fade" id="nav-smsconfig" role="tabpanel" aria-labelledby="nav-smsconfig-tab">
                           <div class="efb mx-3 my-2">
 
@@ -1840,7 +1840,7 @@ function fun_show_setting__emsFormBuilder() {
  * The slug lives on the button itself (data-efb-tab) so the markup stays the
  * single source of truth; these are public URLs admins bookmark and the form
  * builder links to 'email' directly, so slugs must not be renamed. */
-const EFB_SETTING_TABS_EFB = ['general', 'responses', 'captchas', 'email', 'email-template', 'localization', 'payments', 'sms'];
+const EFB_SETTING_TABS_EFB = ['general', 'responses', 'captchas', 'email', 'email-template', 'localization', 'payments', 'sms', 'privacy'];
 
 const EFB_SETTING_TAB_ALIASES_EFB = {
   'response': 'responses',
@@ -1856,6 +1856,87 @@ const EFB_SETTING_TAB_ALIASES_EFB = {
   'smsconfig': 'sms',
   'sms_config': 'sms',
 };
+
+/* ------------------------------------------------------------------ *
+ * F13: Settings > Privacy. Only an administrator (manage_options) may change
+ * these; the server enforces it too (set_settings_Emsfb keeps the stored
+ * values for anyone else, the AJAX actions answer 403).
+ * ------------------------------------------------------------------ */
+function efb_prv_t_efb(key, fallback) {
+  return (typeof efb_var !== 'undefined' && efb_var.text && efb_var.text[key]) ? efb_var.text[key] : fallback;
+}
+function efb_prv_can_manage_efb() {
+  return !!(typeof efb_var !== 'undefined' && efb_var.privacy && efb_var.privacy.can_manage);
+}
+/* Persian and Arabic-Indic digits to Latin (the day fields accept either). */
+function efb_prv_digits_efb(v) {
+  return String(v == null ? '' : v).replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 0x06F0)).replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x0660));
+}
+function efb_prv_number_efb(n) {
+  try { return Number(n).toLocaleString(String((efb_var && efb_var.wp_lan) || 'en').replace('_', '-')); } catch (e) { return String(n); }
+}
+function efb_privacy_tab_efb(prv, mx) {
+  const can = efb_prv_can_manage_efb();
+  const dis = can ? '' : 'disabled';
+  const radio = (val, key, fb) => `
+      <div class="efb form-check my-1">
+        <input class="efb form-check-input" type="radio" name="prvIpMode_efb" id="prvIpMode_${val}_efb" value="${val}" ${prv.prv_ip_mode === val ? 'checked' : ''} ${dis} aria-describedby="prvIpHelp_efb">
+        <label class="efb form-check-label mx-2" for="prvIpMode_${val}_efb">${efb_prv_t_efb(key, fb)}</label>
+      </div>`;
+  return `
+    <div class="efb m-3" id="efb-privacy-settings">
+      <h5 class="efb card-title mt-3 mobile-title"><i class="efb bi-shield-lock m-3"></i>${efb_prv_t_efb('prvTitle', 'Privacy')}</h5>
+      ${can ? '' : `<p class="efb ${mx} text-muted" role="note">${efb_prv_t_efb('prvAdminOnly', 'Only an administrator can change the privacy settings.')}</p>`}
+      <fieldset class="efb card-body ${mx} py-1 border-0" id="prvIpModeSet_efb">
+        <legend class="efb fs-6 fw-bold mb-1">${efb_prv_t_efb('prvIpMode', 'Visitor IP address and browser')}</legend>
+        ${radio('store', 'prvIpStore', 'Store')}
+        ${radio('anon', 'prvIpAnon', 'Store anonymized (last part removed)')}
+        ${radio('none', 'prvIpNone', 'Do not store')}
+        <small class="efb text-muted d-block mt-1" id="prvIpHelp_efb">${efb_prv_t_efb('prvIpHelp', 'Rate limits and spam protection still work. The address is only read during the request.')}</small>
+      </fieldset>
+      <div class="efb card-body ${mx} py-1" data-prv-section="ip-purge">
+        ${can ? `<button type="button" class="efb btn btn-outline-danger btn-sm" id="prvPurgeIpBtn_efb" onclick="efb_privacy_purge_ip_efb(this)"><i class="efb bi-eraser mx-1"></i>${efb_prv_t_efb('prvPurgeIp', 'Clear IP addresses already stored')}</button>` : ''}
+        <span class="efb mx-2 text-muted" id="prvPurgeIpResult_efb" aria-live="polite"></span>
+      </div>
+      <!--efb-privacy-extra-->
+    </div>`;
+}
+/* The privacy keys for the settings save. {} when not an administrator or the tab is
+   not on the screen: the merge then keeps the stored values. */
+function efb_privacy_patch_efb() {
+  if (!efb_prv_can_manage_efb() || !document.getElementById('efb-privacy-settings')) return {};
+  const out = {};
+  const ip = document.querySelector('input[name="prvIpMode_efb"]:checked');
+  if (ip && ['store', 'anon', 'none'].includes(ip.value)) out.prv_ip_mode = ip.value;
+  return out;
+}
+function efb_privacy_post_efb(action, extra) {
+  return new Promise((resolve) => {
+    jQuery.post(ajax_object_efm.ajax_url, Object.assign({ action: action, nonce: _efb_core_nonce_ }, extra || {}), (res) => resolve(res && res.data ? res.data : { success: false }))
+      .fail(() => resolve({ success: false, m: efb_var.text.error }));
+  });
+}
+/* "Clear IP addresses already stored": anonymized when the chosen mode is "anon",
+   emptied otherwise. Batches until the server says done. */
+async function efb_privacy_purge_ip_efb(btn) {
+  const out = document.getElementById('prvPurgeIpResult_efb');
+  const sel = document.querySelector('input[name="prvIpMode_efb"]:checked');
+  const mode = sel && sel.value === 'anon' ? 'anon' : 'none';
+  const ok = typeof window.efb_confirm_efb === 'function'
+    ? window.efb_confirm_efb({ variant: 'warning', message: efb_prv_t_efb('prvPurgeIpQ', 'Clear the IP addresses already stored in entries, replies and visit records? This cannot be undone.') })
+    : Promise.resolve(window.confirm(efb_prv_t_efb('prvPurgeIpQ', 'Clear the IP addresses already stored in entries, replies and visit records? This cannot be undone.')));
+  setTimeout(() => { const c = document.querySelector('#modal-footer-efb .efb-btn-cancel'); if (c) c.focus(); }, 60);
+  if (!(await ok)) return;
+  if (btn) btn.disabled = true;
+  let changed = 0;
+  for (let i = 0; i < 50; i++) {
+    const r = await efb_privacy_post_efb('efb_privacy_purge_ip_Emsfb', { mode: mode });
+    if (!r.success) { if (out) out.textContent = r.m || efb_var.text.error; break; }
+    changed += Number(r.changed) || 0;
+    if (r.done) { if (out) out.textContent = efb_prv_t_efb('prvPurgeIpDone', '%s stored addresses were updated.').replace('%s', efb_prv_number_efb(changed)); break; }
+  }
+  if (btn) btn.disabled = false;
+}
 
 /* Alias-resolved slug, or '' for anything not on the list. Pure string work, so
  * it can vet ?tab= before the settings markup exists — which is what keeps a
@@ -3197,7 +3278,6 @@ function fun_set_setting_emsFormBuilder(state_auto = 0, done) {
     const activeDlBtn = f('activeDlBtn_emsFormBuilder');
     const showUpfile = f('showUpfile_emsFormBuilder');
     const adminSN  = f('adminSN_emsFormBuilder');
-    const showIp=false;
     const devMode_efb = f('devMode_emsFormBuilder');
 
     const sessionDurationEl = document.getElementById('sessionDuration_emsFormBuilder');
@@ -3319,7 +3399,6 @@ function fun_set_setting_emsFormBuilder(state_auto = 0, done) {
           femail: femail,
           email_key: email_key_efb,
 
-          showIp: showIp,
           adminSN: adminSN,
 
           osLocationPicker: osLocationPicker,
@@ -3346,7 +3425,9 @@ function fun_set_setting_emsFormBuilder(state_auto = 0, done) {
           respBrandColor: respBrandColor,
 
           package_type:package_type,
-          devMode: devMode_efb
+          devMode: devMode_efb,
+          // F13: undefined (not on this screen, or not an administrator) keeps the stored value.
+          ...efb_privacy_patch_efb()
         };
 
         setting = efb_merge_setting_patch_efb(setting, patch);

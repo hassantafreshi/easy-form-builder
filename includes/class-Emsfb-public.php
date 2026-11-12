@@ -3662,7 +3662,8 @@ public function check_nonce_permission_efb($request) {
 						'form_id' => intval($this->id),
 						'gate'    => 'human_shield',
 						'reason'  => 'efb_submit_bot_decision vetoed the submission; nothing is saved and no email is sent.',
-						'ip'      => $this->get_ip_address(),
+						// F13: never the full address in a log (anonymized, or '' when the form stores none).
+						'ip'      => \Emsfb\Privacy::log_ip($this->get_ip_address(), intval($this->id)),
 					]);
 					$response = ['success' => false, 'm' => $this->lanText['errorMRobot']];
 					wp_send_json_success($response, 200);
@@ -3734,7 +3735,9 @@ public function check_nonce_permission_efb($request) {
 							'reason'  => 'should_send_email is false at dispatch time',
 						]);
 					}
-					$ip = $this->ip = $this->get_ip_address();
+					// F13: the address as this form may store it (as is, anonymized or ''),
+					// decided from the stored form and the site setting, never from the request.
+					$this->ip = \Emsfb\Privacy::store_ip($this->get_ip_address(), $this->id);
 					$style_trackingCode = "date_en_mix";
 					if (is_object($this->setting) && isset($this->setting->trackCodeStyle)) {
 							$style_trackingCode = $this->setting->trackCodeStyle;
@@ -3745,7 +3748,7 @@ public function check_nonce_permission_efb($request) {
 							$track_code = $this->insert_message_db(0, false, $style_trackingCode);
 							$nonce_token = wp_create_nonce($track_code);
 							$this->efbFunction->efb_code_validate_update($session_id, 'send', $track_code);
-							$response = ['success' => true, 'ID' => $request_data['id'], 'track' => $track_code, 'ip' => $ip, 'nonce' => $nonce_token];
+							$response = ['success' => true, 'ID' => $request_data['id'], 'track' => $track_code, 'nonce' => $nonce_token];
 							if ($redirect_url != "null") {
 								$response = ['success' => true, 'm' => $redirect_url];
 							}
@@ -3754,7 +3757,7 @@ public function check_nonce_permission_efb($request) {
 								if ($conditional_confirmation['action'] === 'redirect' && !empty($conditional_confirmation['url'])) {
 									$response = ['success' => true, 'm' => $conditional_confirmation['url'], 'conditional_redirect' => true];
 								} elseif ($conditional_confirmation['action'] === 'message' && !empty($conditional_confirmation['message'])) {
-									$response = ['success' => true, 'ID' => $request_data['id'], 'track' => $track_code, 'ip' => $ip, 'nonce' => $nonce_token];
+									$response = ['success' => true, 'ID' => $request_data['id'], 'track' => $track_code, 'nonce' => $nonce_token];
 									$response['conditional_message'] = $conditional_confirmation['message'];
 									/* Full display payload (message + optional done/icon/color overrides)
 									   for the done screen; conditional_message stays for back-compat. */
@@ -4069,7 +4072,7 @@ public function check_nonce_permission_efb($request) {
 							}
 							$m = "Error 500";
 
-							$response = $db_update_result == 1 ? array('success' => true, 'ID' => $request_data['id'], 'track' => $this->id, 'nonce' => wp_create_nonce($this->id), 'ip' => $ip) : array('success' => false, 'm' => $m);
+							$response = $db_update_result == 1 ? array('success' => true, 'ID' => $request_data['id'], 'track' => $this->id, 'nonce' => wp_create_nonce($this->id)) : array('success' => false, 'm' => $m);
 							$this->efbFunction->efb_code_validate_update($session_id, 'pay', $payment_track_id);
 							if ($redirect_url != "null" && $db_update_result == 1) {
 								$response = array('success' => true, 'm' => $redirect_url);
@@ -4187,7 +4190,7 @@ public function check_nonce_permission_efb($request) {
 
 									if ($email != "null") {
 
-										$this->ip = $this->get_ip_address();
+										$this->ip = \Emsfb\Privacy::store_ip($this->get_ip_address(), $this->id);
 										/* $this->value still held the request exactly as sent: register
 										 * forms skip the per-field validator, so the stored entry kept
 										 * the plaintext password and any extra rows or attributes the
@@ -4733,7 +4736,8 @@ public function check_nonce_permission_efb($request) {
 			'content' => $this->value,
 			'form_id' => $this->id,
 			'track' => $uniqid,
-			'ip' => $this->ip,
+			// F13: idempotent for an address store_ip() already shaped; covers every caller.
+			'ip' => \Emsfb\Privacy::store_ip($this->ip, $this->id),
 			'read_' => $read,
 			'date'=>wp_date('Y-m-d H:i:s'),
 			// F13: the logged-in sender (0 for a guest), so WordPress' personal-data
@@ -4822,32 +4826,16 @@ public function check_nonce_permission_efb($request) {
 		return $updated;
 
 	}
+	/**
+	 * The visitor's address: REMOTE_ADDR, or the forwarded address when the
+	 * request came through a trusted proxy (\Emsfb\Privacy::client_ip()).
+	 * Client-IP / X-Forwarded-For sent by the visitor directly are ignored:
+	 * they let anyone choose the stored IP and the rate-limit key.
+	 */
 	public function get_ip_address() {
-
-        $ip='1.1.1.1';
-		if (!empty($_SERVER['HTTP_CLIENT_IP'])) {$ip = sanitize_text_field( wp_unslash( $_SERVER['HTTP_CLIENT_IP'] ) );
-        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) { $ip = sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_FORWARDED_FOR'] ) );
-        } else {$ip = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );}
-        $ip = strval($ip);
-        $check =strpos($ip,',');
-        if($check !== false){$ip = substr($ip,0,$check);}
-        $ip = trim($ip);
-        /* Some proxies (Azure App Service, IIS ARR) forward "IP:port" or
-         * "[IPv6]:port"; keep the address part. */
-        if (preg_match('/^\[([0-9a-fA-F:.]+)\](?::\d+)?$/', $ip, $ip_m)) {
-            $ip = $ip_m[1];
-        } elseif (preg_match('/^(\d{1,3}(?:\.\d{1,3}){3}):\d+$/', $ip, $ip_m)) {
-            $ip = $ip_m[1];
-        }
-        /* Client-IP / X-Forwarded-For are request headers: anything that is
-         * not an address was stored as the visitor's IP and used as a rate
-         * limit key. Fall back to the connection address in that case. */
-        if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
-            $remote = isset($_SERVER['REMOTE_ADDR']) ? trim(sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR']))) : '';
-            $ip = filter_var($remote, FILTER_VALIDATE_IP) !== false ? $remote : '1.1.1.1';
-        }
-        return $ip;
-    }
+		if (!class_exists('\\Emsfb\\Privacy')) require_once __DIR__ . '/class-Emsfb-privacy.php';
+		return \Emsfb\Privacy::client_ip();
+	}
 	public function file_upload_public(){
         $_POST['id']=intval( wp_unslash( $_POST['id'] ) );
         $_POST['pl']=sanitize_text_field($_POST['pl']);
@@ -5721,7 +5709,7 @@ public function check_nonce_permission_efb($request) {
 				}
 				$m = json_encode($message,JSON_UNESCAPED_UNICODE);
 				$m = str_replace('"', '\\"', $m);
-				$ip =$this->ip= $this->get_ip_address();
+				$raw_ip_efb = $this->get_ip_address();
 				$id = preg_replace('/[,]+/','',$id);
 				if(empty($this->db)){
 					global $wpdb;
@@ -5743,6 +5731,8 @@ public function check_nonce_permission_efb($request) {
 					wp_send_json_success($response, 200);
 				}
 
+				// F13: the reply's IP as the entry's form may store it.
+				$ip = $this->ip = \Emsfb\Privacy::store_ip($raw_ip_efb, isset($value[0]->form_id) ? intval($value[0]->form_id) : 0);
 				$valn = \emsfb_json_normalize_efb($value[0]->content);
 				$msg_obj = json_decode($valn, true);
 
@@ -6991,7 +6981,7 @@ public function check_nonce_permission_efb($request) {
 				$response = array( 'success' => true  , 'client_secret'=>$paymentIntent->client_secret ,'transStat'=>$ar, 'uid'=> $uid);
 			}
 
-			$this->ip=$this->get_ip_address();
+			$this->ip = \Emsfb\Privacy::store_ip($this->get_ip_address(), $this->id);
 			$ip = $this->ip;
 			$val_ = json_encode($filtered ,JSON_UNESCAPED_UNICODE);
 			$this->value = str_replace('"', '\\"', $val_);
@@ -9413,7 +9403,7 @@ public function check_nonce_permission_efb($request) {
 		}
 
 		$table_name = $this->db->prefix . 'emsfb_temp_links';
-		$ip = !empty($this->ip) ? $this->ip : $this->get_ip_address();
+		$ip = !empty($this->ip) ? $this->ip : \Emsfb\Privacy::store_ip($this->get_ip_address(), $fid);
 
 		$sid = $this->generate_temp_link_token_efb($table_name);
 		$status_ = ($type_ === 'register') ? 1 : 0;

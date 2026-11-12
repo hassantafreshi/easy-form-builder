@@ -4,8 +4,8 @@
     "plugin_version": "4.3.1",
     "updated": "2026-11-12",
     "counts": {
-        "active": 2706,
-        "obsolete": 394
+        "active": 2764,
+        "obsolete": 378
     },
     "entries": [
         {
@@ -35,8 +35,8 @@
                 "addon:paypal"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "%1$s %2$s & %3$s",
@@ -584,9 +584,11 @@
             "plural": null,
             "translators": "%s is the item that was not found (e.g., File, Form, Response)",
             "files": [
-                "includes/functions.php"
+                "includes/functions.php",
+                "vendor/paypal/class-Emsfb-paypal-handler.php"
             ],
             "scope": [
+                "addon:paypal",
                 "core"
             ],
             "first_seen": "4.2.0",
@@ -630,6 +632,21 @@
             "translators": "%s: name of a page cache plugin",
             "files": [
                 "includes/class-Emsfb-formbuilder.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%s stored addresses were updated.",
+            "context": null,
+            "plural": null,
+            "translators": "F13: result after clearing stored IP addresses. %s: a number",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -1992,6 +2009,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Add color",
+            "context": null,
+            "plural": null,
+            "translators": "F19: button that adds a colour to a gradient",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Add custom CSS classes for styling.",
             "context": null,
             "plural": null,
@@ -3028,6 +3060,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Angle",
+            "context": null,
+            "plural": null,
+            "translators": "F19: direction of a linear gradient in degrees",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Another plugin or a setting blocks the WordPress REST API for visitors (HTTP %d).",
             "context": null,
             "plural": null,
@@ -3704,6 +3751,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Automatic (readable)",
+            "context": null,
+            "plural": null,
+            "translators": "F19: text colour option: black or white, whichever is easier to read",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Automatic Email Notifications",
             "context": null,
             "plural": null,
@@ -3866,6 +3928,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Background on mobile",
+            "context": null,
+            "plural": null,
+            "translators": "F19: mobile-only setting of the step background",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -4406,6 +4483,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Bottom",
+            "context": null,
+            "plural": null,
+            "translators": "F19: position of a radial gradient",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -5390,8 +5482,8 @@
                 "addon:paypal"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Car rental booking form with vehicle and date selection.",
@@ -5517,7 +5609,7 @@
             "msgid": "Center",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "F19: position of a radial gradient",
             "files": [
                 "includes/functions.php"
             ],
@@ -5525,6 +5617,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Center point",
+            "context": null,
+            "plural": null,
+            "translators": "F19: where a radial gradient starts",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -6160,6 +6267,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Clear IP addresses already stored",
+            "context": null,
+            "plural": null,
+            "translators": "F13: button: empty or anonymize the IP addresses of existing entries",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Clear Logs",
             "context": null,
             "plural": null,
@@ -6201,6 +6323,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Clear the IP addresses already stored in entries, replies and visit records? This cannot be undone.",
+            "context": null,
+            "plural": null,
+            "translators": "F13: confirmation before clearing stored IP addresses",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -6673,6 +6810,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Colors",
+            "context": null,
+            "plural": null,
+            "translators": "F19: list of the colours of a gradient",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -7312,6 +7464,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Contrast %s:1 — easy to read",
+            "context": null,
+            "plural": null,
+            "translators": "F19: contrast check result. %s: the ratio, e.g. 7.2",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Controls that run before EFB REST callbacks.",
             "context": null,
             "plural": null,
@@ -7410,9 +7577,13 @@
             "translators": "",
             "files": [
                 "includes/class-Emsfb-deactivation-feedback.php",
-                "includes/functions.php"
+                "includes/functions.php",
+                "vendor/paypal/class-Emsfb-paypal-payment.php",
+                "vendor/stripe/class-Emsfb-stripe-payment.php"
             ],
             "scope": [
+                "addon:paypal",
+                "addon:stripe",
                 "core"
             ],
             "first_seen": "4.2.0",
@@ -8056,7 +8227,7 @@
             "msgid": "Custom",
             "context": null,
             "plural": null,
-            "translators": "Fallback label shown for a social link with no preset name",
+            "translators": "F19: text colour option: a colour the admin picks translators: Fallback label shown for a social link with no preset name",
             "files": [
                 "includes/functions.php"
             ],
@@ -9161,8 +9332,8 @@
                 "addon:paypal"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Development Mode (Sandbox)",
@@ -9450,8 +9621,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Display the form name as a heading above the form.",
@@ -9540,6 +9711,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Do not store",
+            "context": null,
+            "plural": null,
+            "translators": "F13: option of the IP setting: keep no address and no browser",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -9723,8 +9909,8 @@
                 "addon:stripe"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Download Video",
@@ -12041,8 +12227,8 @@
                 "addon:persiapay"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Error Monitor",
@@ -12447,8 +12633,8 @@
                 "addon:paypal"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Failed to encode data",
@@ -12883,6 +13069,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "First color only",
+            "context": null,
+            "plural": null,
+            "translators": "F19: mobile background option: use only the first gradient colour",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -13418,6 +13619,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Form default",
+            "context": null,
+            "plural": null,
+            "translators": "F19: background mode: the step uses the background set for all steps",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Form does not exist !!",
             "context": null,
             "plural": null,
@@ -13499,9 +13715,11 @@
             "plural": null,
             "translators": "Form not found = error message",
             "files": [
-                "includes/phrases.php"
+                "includes/phrases.php",
+                "vendor/paypal/class-Emsfb-paypal-handler.php"
             ],
             "scope": [
+                "addon:paypal",
                 "core"
             ],
             "first_seen": "4.2.0",
@@ -14727,6 +14945,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Gradient",
+            "context": null,
+            "plural": null,
+            "translators": "F19: background mode: colour gradient",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Gradient step backgrounds",
+            "context": null,
+            "plural": null,
+            "translators": "F19: name of a locked feature in the upgrade dialog (gradient background per form step)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Graphic Design Order",
             "context": null,
             "plural": null,
@@ -14808,9 +15056,11 @@
             "translators": "Guest = user who is not logged in",
             "files": [
                 "includes/class-Emsfb-public.php",
-                "includes/functions.php"
+                "includes/functions.php",
+                "vendor/paypal/class-Emsfb-paypal-handler.php"
             ],
             "scope": [
+                "addon:paypal",
                 "core"
             ],
             "first_seen": "4.2.0",
@@ -17970,6 +18220,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Keep field colors",
+            "context": null,
+            "plural": null,
+            "translators": "F19: text colour option: keep the colours set on each field",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Keep off for privacy unless debugging a rollout.",
             "context": null,
             "plural": null,
@@ -18498,7 +18763,7 @@
             "msgid": "Left",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "F19: position of a radial gradient",
             "files": [
                 "includes/functions.php"
             ],
@@ -18716,6 +18981,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Linear",
+            "context": null,
+            "plural": null,
+            "translators": "F19: gradient type",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -19316,8 +19596,8 @@
                 "addon:paypal"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Make-up",
@@ -20262,8 +20542,8 @@
                 "addon:paypal"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Mobile",
@@ -21100,9 +21380,13 @@
             "translators": "Form template option values",
             "files": [
                 "includes/functions.php",
-                "includes/page-builders/elementor/class-Emsfb-elementor-widget.php"
+                "includes/page-builders/elementor/class-Emsfb-elementor-widget.php",
+                "vendor/paypal/class-Emsfb-paypal-payment.php",
+                "vendor/stripe/class-Emsfb-stripe-payment.php"
             ],
             "scope": [
+                "addon:paypal",
+                "addon:stripe",
                 "core"
             ],
             "first_seen": "4.2.0",
@@ -21271,6 +21555,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "No background",
+            "context": null,
+            "plural": null,
+            "translators": "F19: mobile background option",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -21521,6 +21820,21 @@
             "context": null,
             "plural": null,
             "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "No form default is set. Use “Use for all steps” to set one.",
+            "context": null,
+            "plural": null,
+            "translators": "F19: shown when the step follows the form default but none is set",
             "files": [
                 "includes/functions.php"
             ],
@@ -21835,7 +22149,7 @@
             "msgid": "None",
             "context": null,
             "plural": null,
-            "translators": "F01 builder: \"no input format\" option, and \"no check digit\" option",
+            "translators": "F19: background mode: no background for this step translators: F01 builder: \"no input format\" option, and \"no check digit\" option",
             "files": [
                 "includes/functions.php"
             ],
@@ -22777,6 +23091,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Only an administrator can change the privacy settings.",
+            "context": null,
+            "plural": null,
+            "translators": "F13: note shown to plugin users who are not site administrators",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Only logged-in visitors can use this form, as in Contact Form 7.",
             "context": null,
             "plural": null,
@@ -22848,6 +23177,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Opacity",
+            "context": null,
+            "plural": null,
+            "translators": "F19: background opacity, 0 to 100 percent",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -23133,8 +23477,8 @@
                 "addon:paypal"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Order follow-up",
@@ -23255,8 +23599,8 @@
                 "addon:stripe"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "PHP requirements are ready.",
@@ -23686,9 +24030,11 @@
             "plural": null,
             "translators": "",
             "files": [
-                "includes/functions.php"
+                "includes/functions.php",
+                "vendor/paypal/class-Emsfb-paypal-handler.php"
             ],
             "scope": [
+                "addon:paypal",
                 "core"
             ],
             "first_seen": "4.2.0",
@@ -23722,8 +24068,8 @@
                 "addon:paypal"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "PayPal Payment Add-on",
@@ -23752,8 +24098,8 @@
                 "addon:paypal"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "PayPal payment forms",
@@ -23822,9 +24168,11 @@
             "translators": "",
             "files": [
                 "includes/class-Emsfb-public.php",
-                "includes/functions.php"
+                "includes/functions.php",
+                "vendor/paypal/class-Emsfb-paypal-handler.php"
             ],
             "scope": [
+                "addon:paypal",
                 "core"
             ],
             "first_seen": "4.2.0",
@@ -24053,8 +24401,8 @@
                 "addon:paypal"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Payment starts per IP/min",
@@ -25470,8 +25818,8 @@
                 "addon:paypal"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Please verify your email address by clicking the button below. This activation link will be valid for 24 hours.",
@@ -25561,6 +25909,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Position (%)",
+            "context": null,
+            "plural": null,
+            "translators": "F19: where a gradient colour sits, 0 to 100",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -25760,10 +26123,25 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Preset %s",
+            "context": null,
+            "plural": null,
+            "translators": "F19: accessible name of a ready-made background. %s: its number",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Presets",
             "context": null,
             "plural": null,
-            "translators": "Presets = heading of the ready-made palette buttons",
+            "translators": "F19: ready-made backgrounds translators: Presets = heading of the ready-made palette buttons",
             "files": [
                 "includes/functions.php"
             ],
@@ -25922,6 +26300,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Privacy",
+            "context": null,
+            "plural": null,
+            "translators": "F13: title of the settings tab and of the form-settings section about personal data",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -26571,6 +26964,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Radial",
+            "context": null,
+            "plural": null,
+            "translators": "F19: gradient type",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Radio",
             "context": null,
             "plural": null,
@@ -26674,6 +27082,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "Rate limits and spam protection still work. The address is only read during the request.",
+            "context": null,
+            "plural": null,
+            "translators": "F13: help text under the IP setting",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Rate-limit tracking-code searches by request count (no human-token check).",
@@ -27413,6 +27836,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Remove this color",
+            "context": null,
+            "plural": null,
+            "translators": "F19: button that removes a colour from a gradient",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Remove!",
             "context": null,
             "plural": null,
@@ -28125,7 +28563,7 @@
             "msgid": "Right",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "F19: position of a radial gradient",
             "files": [
                 "includes/functions.php"
             ],
@@ -28427,9 +28865,11 @@
             "plural": null,
             "translators": "",
             "files": [
-                "includes/functions.php"
+                "includes/functions.php",
+                "vendor/smssended/class-Emsfb-sms.php"
             ],
             "scope": [
+                "addon:smssended",
                 "core"
             ],
             "first_seen": "4.2.0",
@@ -28703,6 +29143,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Same as desktop",
+            "context": null,
+            "plural": null,
+            "translators": "F19: mobile background option",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -29241,9 +29696,11 @@
             "plural": null,
             "translators": "",
             "files": [
-                "includes/functions.php"
+                "includes/functions.php",
+                "vendor/paypal/class-Emsfb-paypal-handler.php"
             ],
             "scope": [
+                "addon:paypal",
                 "core"
             ],
             "first_seen": "4.2.0",
@@ -31184,6 +31641,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Solid color",
+            "context": null,
+            "plural": null,
+            "translators": "F19: background mode: one colour",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Some add-on files are missing",
             "context": null,
             "plural": null,
@@ -31890,6 +32362,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Step background",
+            "context": null,
+            "plural": null,
+            "translators": "F19: heading of the background section in the step settings panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Step background colors",
+            "context": null,
+            "plural": null,
+            "translators": "F19: name of a locked feature in the upgrade dialog (solid background colour per form step)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Step-by-step SMTP setup guide",
             "context": null,
             "plural": null,
@@ -32040,6 +32542,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Store",
+            "context": null,
+            "plural": null,
+            "translators": "F13: option of the IP setting: keep the full address",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Store Experience Survey",
             "context": null,
             "plural": null,
@@ -32051,6 +32568,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Store anonymized (last part removed)",
+            "context": null,
+            "plural": null,
+            "translators": "F13: option of the IP setting: keep the address without its last part",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -32564,8 +33096,8 @@
                 "addon:paypal"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Subscription suspended successfully.",
@@ -32579,8 +33111,8 @@
                 "addon:paypal"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Success",
@@ -33668,6 +34200,36 @@
             "context": null,
             "plural": null,
             "translators": "F01 builder, number format: for example a currency sign such as $",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Text color",
+            "context": null,
+            "plural": null,
+            "translators": "F19: colour of labels and descriptions on the background",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Text may be hard to read: contrast %s:1, at least 4.5:1 is needed. Choose “Automatic” text color or change the background.",
+            "context": null,
+            "plural": null,
+            "translators": "F19: contrast warning. %s: the ratio, e.g. 2.1",
             "files": [
                 "includes/functions.php"
             ],
@@ -37710,6 +38272,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "This step uses the form default.",
+            "context": null,
+            "plural": null,
+            "translators": "F19: shown when the step follows the form default",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "This test needs a higher plan",
             "context": null,
             "plural": null,
@@ -38264,6 +38841,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Top",
+            "context": null,
+            "plural": null,
+            "translators": "F19: position of a radial gradient",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -39757,6 +40349,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Use for all steps",
+            "context": null,
+            "plural": null,
+            "translators": "F19: button: make this background the form default for every step",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Use forwarding headers only when the immediate peer matches the trusted proxy list below.",
             "context": null,
             "plural": null,
@@ -39785,6 +40392,36 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "Use the global setting",
+            "context": null,
+            "plural": null,
+            "translators": "F13: option of a form's privacy setting: follow Settings > Privacy",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Use this background for every step? Steps with their own background will use it too.",
+            "context": null,
+            "plural": null,
+            "translators": "F19: confirmation before applying a background to every step",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Use this if you already know your site sends email",
@@ -40205,6 +40842,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Visitor IP address and browser",
+            "context": null,
+            "plural": null,
+            "translators": "F13: setting: whether the visitor's IP address and browser are stored with each entry",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -42468,9 +43120,13 @@
             "files": [
                 "includes/functions.php",
                 "includes/page-builders/elementor/class-Emsfb-elementor-widget.php",
-                "includes/page-builders/wpbakery/class-Emsfb-wpbakery.php"
+                "includes/page-builders/wpbakery/class-Emsfb-wpbakery.php",
+                "vendor/paypal/class-Emsfb-paypal-payment.php",
+                "vendor/stripe/class-Emsfb-stripe-payment.php"
             ],
             "scope": [
+                "addon:paypal",
+                "addon:stripe",
                 "core"
             ],
             "first_seen": "4.2.0",
@@ -44773,8 +45429,8 @@
                 "addon:paypal"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "and",
@@ -45337,9 +45993,13 @@
             "plural": null,
             "translators": "",
             "files": [
-                "includes/class-Emsfb-public.php"
+                "includes/class-Emsfb-public.php",
+                "vendor/paypal/class-Emsfb-paypal-handler.php",
+                "vendor/persiapay/zarinpal.php"
             ],
             "scope": [
+                "addon:paypal",
+                "addon:persiapay",
                 "core"
             ],
             "first_seen": "4.2.0",
@@ -45937,9 +46597,11 @@
             "plural": null,
             "translators": "",
             "files": [
-                "includes/class-Emsfb-public.php"
+                "includes/class-Emsfb-public.php",
+                "vendor/persiapay/zarinpal.php"
             ],
             "scope": [
+                "addon:persiapay",
                 "core"
             ],
             "first_seen": "4.2.0",
