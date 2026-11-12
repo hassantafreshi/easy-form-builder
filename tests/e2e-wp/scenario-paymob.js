@@ -100,11 +100,12 @@ module.exports = function (S) {
     await closePanel(admin);
     await admin.click(`#dropZoneEFB [data-id="${pf.dataId}"] .efb-pf-label`);
     await admin.waitForSelector('#efbPfPanelEl', { timeout: 8000 });
+    R.check('paymob/builder: the payment panel offers the Paymob option "Mobile number (needed by Paymob)" (field_schema)', /Mobile number \(needed by Paymob\)/.test(await admin.textContent('#efbPfPanelEl')));
     await admin.fill('#efbPfFixedEl', '600');
     await admin.press('#efbPfFixedEl', 'Tab');
     await sleep(600);
     await closePanel(admin);
-    await admin.evaluate(async (id) => { const f = efbBuilderApi.getForm(); const r = f.find((x) => x.id_ === id); r.pf_methods = 'wallet,card,kiosk'; r.pf_methods_style = 'list'; await efbBuilderApi.setForm(f); }, pf.id_);
+    await admin.evaluate(async ([id, m]) => { const f = efbBuilderApi.getForm(); const r = f.find((x) => x.id_ === id); r.pf_methods = 'wallet,card,kiosk'; r.pf_methods_style = 'list'; r.pgw_map_phone = m; await efbBuilderApi.setForm(f); }, [pf.id_, mob.id_]);
     await sleep(500);
     await admin.evaluate(() => saveFormEfb(1));
     await admin.waitForFunction(() => window.form_ID_emsFormBuilder && Number(form_ID_emsFormBuilder) > 0, null, { timeout: 15000 }).catch(() => {});
@@ -113,7 +114,7 @@ module.exports = function (S) {
     const fid = forms[forms.length - 1].form_id;
     const saved = ctl('form', String(fid));
     const srow = saved && saved.form_structer ? saved.form_structer.find((r) => r.type === 'paymob') : null;
-    R.check('paymob/builder: Save stores the Paymob field through the sanitizer (pf_fixed 600, pf_methods wallet,card,kiosk) and row 0 (getway paymob, EGP)', srow && srow.pf_fixed === '600' && srow.pf_methods === 'wallet,card,kiosk' && saved.form_structer[0].getway === 'paymob' && /egp/i.test(saved.form_structer[0].currency), srow);
+    R.check('paymob/builder: Save stores the Paymob field through the sanitizer (pf_fixed 600, pf_methods wallet,card,kiosk, pgw_map_phone = the mobile field) and row 0 (getway paymob, EGP)', srow && srow.pf_fixed === '600' && srow.pf_methods === 'wallet,card,kiosk' && srow.pgw_map_phone === mob.id_ && saved.form_structer[0].getway === 'paymob' && /egp/i.test(saved.form_structer[0].currency), srow);
     const url = ctl('page', String(fid)).url;
     const fill = (mail) => async (p) => { await p.fill(`[data-id="${nm.id_}-el"]`, 'Mona Abdel Rahman'); await p.fill(`[data-id="${mob.id_}-el"]`, '01012345678'); await p.fill(`[data-id="${em.id_}-el"]`, mail); };
 
