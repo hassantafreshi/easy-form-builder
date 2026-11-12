@@ -1881,6 +1881,9 @@ scenario('tappay', 'PAY03 Tap Payments add-on (fake api.tap.company): settings +
   ctlTap('clear-settings');
 });
 
+/* PAY04 Omise (PromptPay QR): its own module, tests/e2e-wp/scenario-omise.js. */
+require('./scenario-omise.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewForm, addTile, closePanel });
+
 /* ---------------------------------------------------------------------------------------------
  * main
  * ------------------------------------------------------------------------------------------- */
