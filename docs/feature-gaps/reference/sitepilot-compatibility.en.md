@@ -1016,6 +1016,11 @@ API-created forms get the honeypot/min-time defaults; entries API status mapping
 `prv_pii`. Must add: `emsfb_prv_forms` map updated from `efb_form_saved`/`efb_form_created` (not only
 in `update_form_id_Emsfb` and `add_form_structure`), entries API redaction by `prv_pii`, `stored:false`
 in schema, SitePilot's "no storage" preference maps to `prv_nostore`.
+*Shipped (2026-11-12):* the keys and their server rules (`Privacy::normalize_form_settings()`), the map kept
+by the new `efb_form_saved` / `efb_form_created` / `efb_form_deleted` actions (builder update and create,
+CF7 import, form delete), the registry entries `setting:privacy_*` (free) and `field:<type>.pii_default`.
+*Open:* entries API redaction, `stored:false` in the public schema, `security_changes` — they wait for
+those APIs.
 
 **F14 entries management.** Provides `entries.read`: `efb_entries_query` logic reused by
 `efb_api_entries_query`; `emsfb_stats_` for `ai_entries_access: stats`; `emsfb_msg_log_` audit row
@@ -1124,4 +1129,6 @@ named the same thing differently, the brief's name was used (AutoPilot is the co
 Server-side for every gateway that uses `fun_validation_pay_elements_efb()`: a price field computed by
 a logic rule is priced by the server (`Builder_Api::apply_server_prices()`). Not shipped yet: the
 REST `admin/*` routes, `form.create/update` with patches and `base_hash`, the shared save pipeline
-with `efb_form_saved` hooks, draft status, the entries API.
+(the `efb_form_saved` / `efb_form_created` / `efb_form_deleted` actions exist since F13 and fire from the
+builder save, the builder create, the CF7 import and the form delete, without the `efb_form_before_save`
+veto), draft status, the entries API.

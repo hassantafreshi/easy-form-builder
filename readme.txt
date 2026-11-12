@@ -486,6 +486,12 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 * Fixed: Saving a form with SMS or Telegram switched on failed when that add-on was not active; it is now saved with the notification off and a warning.
 * Fixed: "window.intlTelInput is not a function" on pages with a mobile field behind a cache plugin that delays scripts.
 * Fixed: The settings screen could store "NotFoundEl" as a value.
+* New (privacy): Settings > Privacy: store visitors' IP addresses and browsers, store them anonymized, or not at all (per form too); clear the addresses already stored.
+* New (privacy): Delete or anonymize entries automatically N days after their last activity, with their replies and uploaded files; a preview says how many entries the next run removes.
+* New (privacy): "Do not store entries, send notifications only" for contact and subscribe forms.
+* New (privacy): Tools > Export Personal Data and Erase Personal Data include form entries; a suggested privacy policy text is added to the Privacy Policy Guide.
+* Fixed: Deleting an entry or a form left its replies behind, and no delete removed the uploaded files; uploads never claimed by an entry were never cleaned up.
+* Security: The visitor's IP address is taken from forwarding headers only when the request comes through a trusted proxy (filter efb_trusted_proxies), so it cannot be chosen by the visitor; debug logs no longer contain full IP addresses; the CSV export rows are no longer kept in the browser's storage.
 
 = 4.3.1 =
 

@@ -619,6 +619,38 @@ Not an AutoPilot bug fix, but new keys in the "colours and step style" part of t
 - **Test.** `php tests/test-step-bg-core.php`, `node tests/test-step-bg-parity.js`,
   `node tests/test-step-bg-builder-browser.js`, `node tests/test-step-bg-public-browser.js`.
 
+### F13. Privacy and data retention (new form keys, registry entries, save hooks)
+
+Not an AutoPilot bug fix, but new keys in the contract (`docs/feature-gaps/F13-privacy-retention.fa.md` §5,
+SitePilot contract §5.5, §6.2, §9):
+
+| Key | Where | Values |
+|---|---|---|
+| `prv_nostore` | row 0 | `"1"` = do not store entries, send notifications only (form types `form` and `subscribe` only; the server stores `"0"` for any other type) |
+| `prv_ip` | row 0 | `''` (follow the site) · `store` · `anon` · `none` |
+| `prv_days` | row 0 | `''` (follow the site) · `"0"` (never for this form) · `"1"`–`"3650"` days after the last activity |
+| `prv_id_field` | row 0 | `''` (automatic: `email_to`, then any email field) or the `id_` of an email field; anything else is stored as `''` |
+| `prv_pii` | field row | `''` (by type) · `"1"` cleared when anonymizing · `"0"` kept |
+
+- **Registry.** All free: `setting:privacy_ip`, `setting:privacy_retention`, `setting:privacy_nostore`,
+  `setting:privacy_requests` (form keys above) and `setting:privacy_site` (`scope: site`,
+  `settings_keys`: `prv_ip_mode`, `prv_days`, `prv_action`, `prv_files`, `prv_nostore_file_days`,
+  `prv_erase_mode`). Every `field:<type>` entry gains `pii_default` (true / false; `null` for types without
+  an answer). SitePilot's "email only, no storage" preference maps to `prv_nostore: "1"`.
+- **Save.** Scalars; `Privacy::normalize_form_settings()` runs after `sanitize_obj_msg_efb()` on the builder
+  update, the builder create and the CF7 import. The site settings are changed only by an administrator
+  (`manage_options`); AutoPilot never writes them.
+- **Hooks.** `do_action('efb_form_saved', $form_id, $rows, $context)` after a builder update,
+  `efb_form_created` after a builder create and a CF7 import, `efb_form_deleted` after a form delete
+  (`$context = {form_id, source, user_id}`). The F13 map `emsfb_prv_forms` is kept by these hooks, so a
+  future API save path only has to fire them.
+- **Submit answer.** The `ip` key is no longer in the answer of `forms/message/add` (nothing read it).
+- **Test.** `php tests/test-privacy-registry.php`, `php tests/test-privacy-ip-mode.php`,
+  `php tests/test-privacy-nostore-submit.php`, scenario 8 of `tests/e2e-wp/run.js`.
+- **Not yet** (they need the entries API and the public schema of the SitePilot contract, which do not
+  exist yet): `entries.read` redaction by `prv_pii`, `stored: false` in the schema, `security_changes`
+  when `prv_nostore` is turned off.
+
 ---
 
 ## Part C: the contract is kept

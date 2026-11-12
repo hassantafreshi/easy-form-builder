@@ -1,4 +1,4 @@
-وضعیت: در حال پیاده‌سازی (A، B، D، C و E انجام شد) · اولویت: P0 · تلاش: S (هسته) + S (برون‌بری و حذف وردپرس) · وابستگی: — (پیش از F14 اجرا شود؛ ایندکس‌ها و ستون‌های این سند را F14 دوباره نمی‌سازد)
+وضعیت: پیاده و تست شد (A–F)؛ باز: ترجمهٔ زبان‌های دیگر · اولویت: P0 · تلاش: S (هسته) + S (برون‌بری و حذف وردپرس) · وابستگی: — (پیش از F14 اجرا شود؛ ایندکس‌ها و ستون‌های این سند را F14 دوباره نمی‌سازد)
 
 # F13 — حریم خصوصی و نگهداری داده
 
@@ -379,12 +379,12 @@ ALTER TABLE `{p}emsfb_rsp_` ADD KEY `msg_id` (`msg_id`);
 - چرخهٔ کامل §۱۶ برای همهٔ زبان‌ها، بخش حریم خصوصی در `docs/EFB-CORE-KNOWLEDGE-BASE.en.md` (جدول‌ها، hookها، گزینه‌ها)، و به‌روزرسانی ردیف F13 در `README.fa.md`.
 - تست: `php tests/core-i18n/check-locale.php --locale=<each> --quiet` برای همه، و `php tests/core-i18n/test-core-i18n-tools.php`.
 
-> **Checkpoint**
-> فایل‌های تغییرکرده:
-> تست‌ها:
-> وضعیت ترجمه:
-> مورد باز:
-> اقدام بعدی:
+> **Checkpoint** (۲۰۲۶-۱۱-۱۲، انجام شد به‌جز ترجمهٔ زبان‌های دیگر)
+> فایل‌های تغییرکرده: `docs/EFB-CORE-KNOWLEDGE-BASE.en.md` (§۱۰.۱ حریم خصوصی: ستون‌ها، تنظیمات، کلیدها، گزینه‌ها، hookها، فیلترها، AJAX)؛ `docs/autopilot-integration.md` (بخش F13: کلیدها، رجیستری، hookهای ذخیره، کلید `ip` حذف‌شده از پاسخ submit)؛ `docs/feature-gaps/reference/sitepilot-compatibility.en.md` (§۹ F13 و §۱۲ به‌روز شد)؛ `includes/class-Emsfb-builder-api.php` (`pii_default` برای هر `field:<type>`)؛ `readme.txt` (تغییرات منتشرنشده)؛ `tests/test-privacy-registry.php`.
+> تست‌ها (اجرای نهایی، PHP 8.3، Node 22، Chromium): ۸ فایل تست تازهٔ F13 با ۳۴۹ بررسی، همه موفق (`test-privacy-schema` ۳۵، `test-privacy-ip-mode` ۹۹، `test-privacy-retention` ۶۴، `test-upload-path-from-url` ۲۳، `test-privacy-nostore-submit` ۲۸، `test-privacy-exporter` ۳۱، `test-privacy-admin-js` ۳۹، `test-privacy-registry` ۳۰). مجموعه‌های مرتبط (`test-ap-*`، `test-masks-*`، `test-plan-*`، `test-upgrade-prompt-*`، `test-step-bg-*`، آپلود، نمایشگر پاسخ، JSON، اعلان‌ها): همه سبز. آزمون سرتاسری روی وردپرس واقعی (WordPress 7.1.4 + SQLite، `node tests/e2e-wp/run.js`): ۷ سناریو، ۱۶۴ موفق، ۰ ناموفق؛ سناریوی ۸ (F13) ‏۴۲ بررسی. اجرا نشد: `tests/core-i18n/test-core-i18n-tools.php` (مسیر ویندوزی سخت‌کدشده؛ `[SKIP]`)، `test-setting-tab-deeplinks.js` (وردپرس روی `127.0.0.1/wp` لازم دارد)، تست‌هایی که `wp-load.php` در مسیر نسبی می‌خواهند.
+> وضعیت ترجمه: پیاده‌شده: بله (۶۱ کلید تازه در `text_efb()` با توضیح مترجم). فارسی و آلمانی: کامل، در `.po` و `temp/core-i18n/translations/{fa_IR,de_DE}.json`؛ `extract.php` اجرا شد و `check-locale.php` برای `fa_IR` و `de_DE`: PASS. بستهٔ ساخته‌شده: `languages/*-{fa_IR,de_DE}.mo` و `.l10n.php` با کلاس‌های POMO خود وردپرس؛ مقایسهٔ مدخل‌به‌مدخل با نسخهٔ قبلی: هیچ ترجمهٔ موجودی تغییر نکرد. منتشرشده: خیر. ۳۱ عبارت F19 هم که در JSON جا مانده بود پر شد. ۶۸ زبان دیگر: انجام نشده.
+> مورد باز: (۱) ترجمهٔ ۶۸ زبان دیگر با skill ‏`efb-core-i18n-translate`. (۲) بخش‌های SitePilot که به API هنوز ساخته‌نشده وابسته‌اند: پنهان‌کردن `prv_pii` در `entries.read`، `stored:false` در schema عمومی، `security_changes`. (۳) پرسش‌های باز مالک (§۱۸): پاسخ پرداختی طبق پیشنهاد ناشناس و نگه داشته می‌شود (فیلتر `efb_privacy_keep_payment_entries`)؛ پیش‌فرض نصب تازه `store` ماند؛ هشدار «cron اجرا نشده» ساخته نشد. (۴) نسخهٔ رضایت‌نامه (§۱۴، فاز ۲) ساخته نشد. (۵) باگ تازهٔ `efbBuilderApi.insertItems()` روی فرم خالی (BUGS-FOUND، بخش F13).
+> اقدام بعدی: ترجمهٔ زبان‌های دیگر؛ سپس F14 که از `purge_entries()`، ستون‌ها و کلیدهای این تسک استفاده می‌کند.
 
 ترتیب: A ← B ← D ← C ← E ← F. انتشار پس از D قابل‌عرضه است.
 

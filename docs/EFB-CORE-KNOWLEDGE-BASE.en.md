@@ -259,6 +259,29 @@ Plugin (non-addon) field types worth knowing: `audio_recorder`/`video_recorder`/
 
 **Convention for anything new that touches submissions/tracking**: don't add a new unauthenticated lookup-by-code endpoint without addressing the existing IDOR pattern; any admin-only action needs both nonce **and** `current_user_can()`.
 
+### 10.1 Privacy and data retention (F13, DB version 1.4)
+
+Spec: `docs/feature-gaps/F13-privacy-retention.fa.md`. Code: `includes/class-Emsfb-privacy.php` (`\Emsfb\Privacy`,
+static, loaded and `register()`ed from `Emsfb::includes()` on every request). Defaults keep the old behaviour
+(IP stored, nothing deleted, entries stored).
+
+| Piece | Where / name |
+|---|---|
+| Columns | `emsfb_msg_.uid` (logged-in sender, 0 = guest), `emsfb_msg_.prv_state` (1 = anonymized); keys `form_date`, `track`, `date` on `emsfb_msg_`, `msg_id` on `emsfb_rsp_` (`Install::upgrade_privacy_schema()`, `docs/migrations/privacy-retention-2026-11-12.md`) |
+| Global settings (`emsfb_setting`) | `prv_ip_mode` store/anon/none, `prv_days` 0–3650, `prv_action` delete/anon, `prv_files` '1'/'', `prv_erase_mode` delete/anon, `prv_nostore_file_days` 1–365. Saved by `set_settings_Emsfb` only for `manage_options`; UI: Settings → Privacy (`?tab=privacy`) |
+| Form keys (`valj_efb[0]`) | `prv_ip` (''=global), `prv_days` (''=global, '0'=never), `prv_nostore` ('1' for form/subscribe only), `prv_id_field` (id_ of an email field); field key `prv_pii` (''/'1'/'0'). Normalised on every save by `Privacy::normalize_form_settings()` |
+| Options | `emsfb_prv_forms` (per-form map for background jobs, not autoloaded), `emsfb_prv_nostore_files` (uploads of unstored entries → delete time), `emsfb_prv_last_run`, transient `emsfb_schema_lock`, `emsfb_prv_retention_lock` |
+| Hooks fired | `efb_form_saved` (builder update), `efb_form_created` (builder create, CF7 import), `efb_form_deleted`, `efb_entries_purged($ids, $mode, $result)` |
+| Hooks used | `emsfb_daily_maintenance` (priority 30) and `emsfb_privacy_retention_continue` → `run_retention()`; `wp_privacy_personal_data_exporters` / `_erasers` (key `easy-form-builder`); `admin_init` → policy text |
+| Filters | `efb_trusted_proxies` (proxies whose forwarding headers count; default loopback/private + Cloudflare), `efb_privacy_keep_payment_entries` (default true: payment entries are anonymized, not deleted, by the job and by erasure) |
+| AJAX (manage_options only) | `efb_privacy_purge_ip_Emsfb`, `efb_privacy_preview_Emsfb`, `efb_privacy_run_now_Emsfb` |
+| One delete path | `Privacy::purge_entries($ids, 'delete'|'anon', $with_files, $keep_payments)`: entries, their replies and the uploads nothing else names (`Upload_Guard::delete_unreferenced_upload()`, `path_from_url()`, `locate_upload()`). Admin single/bulk/form delete use it |
+| Anonymized value | `@prv@` → "Removed for privacy" (`prvRedacted`) in the viewer, entry list, CSV and export |
+| Visitor address | `Privacy::client_ip()` (all `get_ip_address()` copies delegate); stored through `Privacy::store_ip($ip, $form_id)`; logs get `log_ip()` |
+
+Tests: `tests/test-privacy-*.php`, `tests/test-privacy-admin-js.js`, `tests/test-upload-path-from-url.php`, and
+scenario 8 of `tests/e2e-wp/run.js` (real WordPress).
+
 ---
 
 ## 11. Testing, debugging, migration conventions
