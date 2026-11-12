@@ -903,6 +903,22 @@ Chromium build that is not installed, without the harness fallback), tests that 
 - **Tests.** `php tests/test-addon-paytabs-{create,signature,webhook,refund,package}.php`,
   `node tests/test-addon-paytabs-framed.js`, scenario `paytabs` of `tests/e2e-wp/run.js`.
 
+### PAY07. Xendit add-on (`xendit`, `AdnXND`, Payment Session)
+
+- **Field.** Type `xendit` (only with the add-on; `newItems('xendit')` → `addon_required` without it).
+  `formPatch.currency` is `IDR` (first of `IDR PHP THB VND MYR SGD USD`; IDR is charged in whole
+  rupiah). Only the core `pf_*` keys; no Xendit-specific key. `pf_methods` ids: `any` (choose on
+  Xendit's page) and lower-case channels (`qris`, `dana`, `ovo`, `gopay`, `shopeepay`, `linkaja`,
+  `va_bca` … `va_permata`, `gcash`, `paymaya`, `grabpay`, `qrph`, `promptpay`, `truemoney`, `momo`,
+  `zalopay`, `touchngo`, `cards`); a channel the form currency cannot use is dropped.
+- **Registry.** `payment_gateways.xendit` = `{configured, mode, currencies, countries, methods,
+  supports: {flows:[redirect], refund, partial_refund, recurring:false, webhook_auth:'token'}}`, no key or
+  webhook token. Settings (secret key and token per mode, country, channels, page minutes) are for people only.
+- **Server only.** The amount is core's quote; webhooks are checked with `x-callback-token` and then
+  re-read from Xendit. Agents never enter keys or tokens, switch to Live or make a real test payment.
+- **Tests.** `php tests/test-addon-xendit-{create,webhook,status-ratelimit,refund,package}.php`,
+  `node tests/test-addon-xendit-adapter.js`, scenario `xendit` of `tests/e2e-wp/run.js`.
+
 ---
 
 ## Add-on changes needed (vendores-efb)

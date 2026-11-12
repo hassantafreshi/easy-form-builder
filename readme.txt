@@ -483,6 +483,7 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 * New: Tap Payments add-on (Gulf: mada, KNET, BENEFIT, cards and the methods of Tap's hosted page) on the payment framework; amounts in KWD, BHD and OMR with three decimals, refunds from the Payments screen.
 * New: Omise add-on (Thailand: PromptPay) on the payment framework: the visitor scans a PromptPay QR code inside the form, with a countdown, "Save QR image" and "Get a new QR code"; every payment checked with Omise before it counts, signed webhooks, separate Test and Live keys.
 * New: PayTabs add-on (Saudi Arabia, UAE, Egypt, Oman, Jordan, Iraq and global: cards, mada, STC Pay, Apple Pay, KNET, Meeza QR, valU and more) on the payment framework: the PayTabs page as a redirect or inside the form, the account region per Test and Live, signed notifications checked with PayTabs, refunds, three-decimal currencies.
+* New: Xendit add-on (Indonesia, the Philippines, Thailand, Vietnam, Malaysia, Singapore: QRIS, GCash, Maya, OVO, DANA, virtual accounts, cards and more) on the payment framework: Xendit's hosted payment page with the channels you choose, every payment checked with Xendit before it counts, refunds from the Payments screen, separate Test and Live keys.
 * Developers: database version 1.5 (payment tables); hooks efb_register_payment_gateways, efb_payment_paid, efb_payment_status_changed and more; see docs/payments/PAY00-payment-framework.fa.md.
 
 * برای یکپارچگی با AutoPilot (for the AI Site Assistant AutoPilot integration, API version 1):
