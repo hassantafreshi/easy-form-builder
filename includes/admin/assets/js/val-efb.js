@@ -247,6 +247,25 @@ const prvDaysEls = () => {
     <small class="efb form-text text-muted d-block mt-1" id="prvDaysElHelp">${efb_prv_text_efb('prvDaysFormHelp', 'Empty = the global setting. 0 = never for this form.')}</small>
   </div>`;
 };
+/* F13 C: "do not store entries" (form and subscribe types only; the server refuses it for the others). */
+const efb_prv_nostore_note_efb = () => {
+  const days = (efb_var.privacy && efb_var.privacy.nostore_file_days) || '30';
+  return `${efb_prv_text_efb('prvNoStoreHelp', 'Emails, SMS, Telegram, Google Sheets and webhooks still work. The entry list, CSV, response box and replies are not available. The confirmation code is only a reference number.')}
+    ${efb_prv_text_efb('prvNoStoreFiles', 'Links to uploaded files in the email work for %s days; then the files are deleted.').replace('%s', days)}
+    ${efb_prv_text_efb('prvNoStoreCc', '“Send email with confirmation code and link” is not available when entries are not stored.')}`;
+};
+const prvNoStoreEls = () => {
+  if (!['form', 'subscribe'].includes(valj_efb[0].type)) return '<!--efb prv_nostore: form and subscribe only-->';
+  const on = valj_efb[0].hasOwnProperty('prv_nostore') && String(valj_efb[0].prv_nostore) === '1';
+  return `
+  <div class="efb mx-1 my-3 efb">
+    <button type="button" id="prvNoStoreEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb btn-toggle ${on ? 'active' : ''}" data-toggle="button" aria-pressed="${on ? 'true' : 'false'}" autocomplete="off" data-id="formSet" onclick="fun_switch_form_efb(this)" aria-describedby="prvNoStoreNote">
+    <div class="efb handle"></div>
+    </button>
+    <label class="efb form-check-label" for="prvNoStoreEl">${efb_prv_text_efb('prvNoStore', 'Do not store entries, send notifications only')}</label>
+    <div class="efb alert alert-warning fs-7 mt-2 mb-0 p-2 ${on ? '' : 'd-none'}" role="note" id="prvNoStoreNote">${efb_prv_nostore_note_efb()}</div>
+  </div>`;
+};
 const privacyEls = () => `
           <!-- privacy section (F13) -->
           <div class="efb d-grid gap-2">
@@ -256,6 +275,7 @@ const privacyEls = () => `
           </div>
           <div class="efb mb-3 mt-3 collapse" id="collapsePrivacy">
             <div class="efb mb-3 px-3 row">
+              ${prvNoStoreEls()}
               ${prvIpEls()}
               ${prvDaysEls()}
             </div>
@@ -904,7 +924,7 @@ function show_setting_window_efb(idset, opts) {
     ${pro_efb==true ?"":funProEfb('setting:email_noti_type', { fallback: 'free_plus', resume: { kind: 'focus', id: 'emailNotiContainsEl' } })}
     <label for="emailNotiContainsEl" class="efb mt-2 mb-1   efb">${efb_var.text.emlc}</label>
                         <select  class="efb elEdit form-select efb border-d rounded-4 mb-1" data-id="${idset}"  id="emailNotiContainsEl" >
-                            <option value="cc" ${val == 'cc' ? `selected` : ''}>${efb_var.text.emlacl}</option>
+                            <option value="cc" ${val == 'cc' ? `selected` : ''} ${String(valj_efb[0].prv_nostore || '') === '1' ? 'disabled' : ''}>${efb_var.text.emlacl}</option>
                             <option value="msg" ${val == 'msg' ? `selected` : ''}>${efb_var.text.emlml}</option>
                             <option value="just_msg" ${val == 'just_msg' ? `selected` : ''}>${efb_var.text.emlcc}</option>
                         </select>

@@ -3306,6 +3306,23 @@ let change_el_edit_Efb = (el) => {
         // B4: login / register add the fields their handler reads; leaving them asks first.
         if (typeof efb_after_form_type_change_efb === 'function') efb_after_form_type_change_efb(oldFormType, valj_efb[0].type);
         break;
+      case "prvNoStoreEl": {
+        // F13: entries are not stored; "code and link only" has nothing to link to, so the
+        // notification falls back to "content and link" and that choice is disabled.
+        const on = el.classList.contains('active') == true;
+        valj_efb[0].prv_nostore = on ? '1' : '0';
+        el.setAttribute('aria-pressed', on ? 'true' : 'false');
+        const note = document.getElementById('prvNoStoreNote');
+        if (note) note.classList.toggle('d-none', !on);
+        if (on && valj_efb[0].email_noti_type === 'cc') valj_efb[0].email_noti_type = 'msg';
+        const sel = document.getElementById('emailNotiContainsEl');
+        if (sel) {
+          const cc = sel.querySelector('option[value="cc"]');
+          if (cc) cc.disabled = on;
+          if (on && sel.value === 'cc') sel.value = 'msg';
+        }
+        break;
+      }
       case "prvIpEl": {
         // F13: '' = follow the site's setting; the server allow-lists the value again on save.
         const v = el.options[el.selectedIndex].value;

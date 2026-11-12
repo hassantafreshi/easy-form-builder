@@ -1,4 +1,4 @@
-وضعیت: در حال پیاده‌سازی (A، B و D انجام شد) · اولویت: P0 · تلاش: S (هسته) + S (برون‌بری و حذف وردپرس) · وابستگی: — (پیش از F14 اجرا شود؛ ایندکس‌ها و ستون‌های این سند را F14 دوباره نمی‌سازد)
+وضعیت: در حال پیاده‌سازی (A، B، D و C انجام شد) · اولویت: P0 · تلاش: S (هسته) + S (برون‌بری و حذف وردپرس) · وابستگی: — (پیش از F14 اجرا شود؛ ایندکس‌ها و ستون‌های این سند را F14 دوباره نمی‌سازد)
 
 # F13 — حریم خصوصی و نگهداری داده
 
@@ -343,12 +343,12 @@ ALTER TABLE `{p}emsfb_rsp_` ADD KEY `msg_id` (`msg_id`);
 - پذیرش: (۱) فرم `form` با `prv_nostore=1`: ایمیل مدیر با محتوا و بدون دکمهٔ پیوند می‌رسد، `emsfb_msg_` ردیف تازه ندارد، `emsfb_stts_` وضعیت `send` دارد، وب‌هوک با همان کد اجرا می‌شود. (۲) replay همان درخواست، ایمیل دوم نمی‌فرستد. (۳) فرم `payment` یا `survey` با کلید دستکاری‌شده همچنان ذخیره می‌کند. (۴) فایل بارگذاری‌شده پس از ۲۴ ساعت حذف نمی‌شود و پس از `prv_nostore_file_days` حذف می‌شود. (۵) جست‌وجوی کد در صفحهٔ پیگیری `cCodeNFound` برمی‌گرداند و شمارندهٔ شکست را بالا می‌برد (رفتار فعلی 4637).
 - تست: `php tests/test-privacy-nostore-submit.php`. بلوک بین نشانگرهای کامنت `// Privacy store gate:` از سورس استخراج و با fixture اجرا می‌شود (الگوی `tests/test-sms-failure-email-continuation.php`). Playwright ‏`tests/test-privacy-nostore-browser.js`: ارسال فرم، خواندن جدول با `wp db query`، و بررسی هشدار سازنده در fa (RTL) و en.
 
-> **Checkpoint**
-> فایل‌های تغییرکرده:
-> تست‌ها:
-> وضعیت ترجمه:
-> مورد باز:
-> اقدام بعدی:
+> **Checkpoint** (۲۰۲۶-۱۱-۱۲، انجام شد)
+> فایل‌های تغییرکرده: `includes/class-Emsfb-public.php` (`begin_operation_efb()`/`finish_operation_efb()` جدا شدند؛ `store_entry_efb()` با نشانگرهای `// Privacy store gate:`؛ case ‏`form` و `subscribe` از آن می‌گذرند و پیوند ایمیل و قواعد اعلان در حالت بدون ذخیره خالی است؛ `efb_email_noti_type_efb()` نوع `cc` را در این حالت `msg` می‌کند)؛ `includes/class-Emsfb-privacy.php` (`nostore()` از ردیف‌های فرم ذخیره‌شده یا نقشه، ممنوع برای payment/survey/register/login؛ دفتر `emsfb_prv_nostore_files` با سقف ۲۰۰۰ و `sweep_nostore_files()` در کار روزانه؛ `nostore_file_days` در `efb_var.privacy`)؛ `val-efb.js`/`admin-efb.js` (کلید `prvNoStoreEl` فقط برای form و subscribe، کادر هشدار زرد با `role="note"`، غیرفعال‌شدن گزینهٔ «کد تأیید و پیوند»)؛ `list_form-efb.js` (روزهای نگهداری فایل در زبانهٔ حریم خصوصی)؛ `class-Emsfb-builder-api.php` (`setting:privacy_nostore`).
+> تست‌ها: `php tests/test-privacy-nostore-submit.php` ‏۲۸ موفق، ۰ ناموفق (ردیفی ذخیره نمی‌شود، replay نتیجهٔ اول را برمی‌گرداند، فرم پرداخت/نظرسنجی/ثبت‌نام/ورود با کلید دستکاری‌شده ذخیره می‌شود، فایل از پاک‌کنندهٔ ۲۴ ساعته در امان است و پس از `prv_nostore_file_days` حذف می‌شود، `cc` → `msg`). وردپرس واقعی، سناریوی ۸: ۳۵ موفق (به‌جای `tests/test-privacy-nostore-browser.js` جداگانه، در همان سناریو: کلید سازنده، هشدار en و fa راست‌به‌چپ، ذخیرهٔ فرم و نقشه، ارسال مهمان با کد پیگیری و بدون ردیف، نشست با وضعیت `send`). `test-privacy-schema.php` ‏۳۵، مجموعه‌های مرتبط سبز.
+> وضعیت ترجمه: ۵ عبارت تازه (`prvNoStore`، `prvNoStoreHelp`، `prvNoStoreFiles`، `prvNoStoreCc`، `prvNoStoreFileDays`) با فارسی و آلمانی؛ `.mo`/`.l10n.php` ساخته شد؛ `check-locale.php` برای `fa_IR` و `de_DE`: PASS.
+> مورد باز: جست‌وجوی کد در صفحهٔ پیگیری روی وردپرس واقعی آزموده نشد (منطق همان «یافت نشد» فعلی است چون ردیفی وجود ندارد). پیامک همچنان همان پیوند صفحه را می‌فرستد (طبق §۶.۲ بی‌تغییر).
+> اقدام بعدی: زیرتسک E.
 
 ### D. حذف مشترک، فایل‌ها و cron نگهداری
 - فایل‌ها: `Privacy::purge_entries`، `Privacy::anonymize_entry`، `Privacy::run_retention`، `Upload_Guard::path_from_url` (و استفادهٔ sweeper از آن در 1226)، اتصال سه مسیر حذف (`class-Emsfb-admin.php:259-264`، 290-295، 3700-3724)، hook در `class-Emsfb.php`، و AJAX ‏`efb_privacy_preview_Emsfb` و `efb_privacy_run_now_Emsfb`.

@@ -4,7 +4,7 @@
     "plugin_version": "4.3.1",
     "updated": "2026-11-12",
     "counts": {
-        "active": 2779,
+        "active": 2784,
         "obsolete": 378
     },
     "entries": [
@@ -9850,6 +9850,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Do not store entries, send notifications only",
+            "context": null,
+            "plural": null,
+            "translators": "F13: form setting: the submission is emailed and sent to integrations but not saved",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Document",
             "context": null,
             "plural": null,
@@ -11684,6 +11699,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Emails, SMS, Telegram, Google Sheets and webhooks still work. The entry list, CSV, response box and replies are not available. The confirmation code is only a reference number.",
+            "context": null,
+            "plural": null,
+            "translators": "F13: warning shown when entries are not stored",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -18400,6 +18430,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Keep the files of entries that are not stored for (days)",
+            "context": null,
+            "plural": null,
+            "translators": "F13: setting: how long uploads of forms that do not store entries are kept",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Kosher",
             "context": null,
             "plural": null,
@@ -19221,6 +19266,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Links to uploaded files in the email work for %s days; then the files are deleted.",
+            "context": null,
+            "plural": null,
+            "translators": "F13: part of the warning when entries are not stored. %s: number of days",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -47476,6 +47536,21 @@
             "translators": "%s: field label",
             "files": [
                 "includes/importers/cf7/class-Emsfb-cf7-mapper.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "“Send email with confirmation code and link” is not available when entries are not stored.",
+            "context": null,
+            "plural": null,
+            "translators": "F13: part of the warning when entries are not stored; names the email content option",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"

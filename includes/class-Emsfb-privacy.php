@@ -81,6 +81,7 @@ class Privacy {
 		$vars['privacy'] = array(
 			'can_manage' => function_exists('current_user_can') && current_user_can('manage_options'),
 			'last_run'   => self::last_run(),
+			'nostore_file_days' => self::setting('prv_nostore_file_days'),
 		);
 		return $vars;
 	}

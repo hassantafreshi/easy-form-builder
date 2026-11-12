@@ -16317,3 +16317,34 @@ msgstr "Einträge dieses Formulars automatisch löschen nach (Tagen)"
 #: includes/functions.php
 msgid "Empty = the global setting. 0 = never for this form."
 msgstr "Leer = globale Einstellung. 0 = für dieses Formular nie."
+
+#  origin: claude (de_DE) F13
+#. translators: F13: form setting: the submission is emailed and sent to integrations but not saved
+#: includes/functions.php
+msgid "Do not store entries, send notifications only"
+msgstr "Einträge nicht speichern, nur Benachrichtigungen senden"
+
+#  origin: claude (de_DE) F13
+#. translators: F13: warning shown when entries are not stored
+#: includes/functions.php
+msgid "Emails, SMS, Telegram, Google Sheets and webhooks still work. The entry list, CSV, response box and replies are not available. The confirmation code is only a reference number."
+msgstr "E-Mails, SMS, Telegram, Google Sheets und Webhooks funktionieren weiterhin. Die Eintragsliste, der CSV-Export, die Antwortbox und Antworten sind nicht verfügbar. Der Bestätigungscode ist nur eine Referenznummer."
+
+#  origin: claude (de_DE) F13
+#. translators: F13: part of the warning when entries are not stored. %s: number of days
+#: includes/functions.php
+#, php-format
+msgid "Links to uploaded files in the email work for %s days; then the files are deleted."
+msgstr "Links zu hochgeladenen Dateien in der E-Mail funktionieren %s Tage lang; danach werden die Dateien gelöscht."
+
+#  origin: claude (de_DE) F13
+#. translators: F13: part of the warning when entries are not stored; names the email content option
+#: includes/functions.php
+msgid "“Send email with confirmation code and link” is not available when entries are not stored."
+msgstr "„E-Mail nur mit Bestätigungscode und Link senden“ ist nicht verfügbar, wenn Einträge nicht gespeichert werden."
+
+#  origin: claude (de_DE) F13
+#. translators: F13: setting: how long uploads of forms that do not store entries are kept
+#: includes/functions.php
+msgid "Keep the files of entries that are not stored for (days)"
+msgstr "Dateien nicht gespeicherter Einträge aufbewahren für (Tage)"

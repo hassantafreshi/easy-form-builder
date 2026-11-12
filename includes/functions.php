@@ -2810,6 +2810,16 @@ class efbFunction {
 			"prvDaysForm" => $state && isset($ac->text->prvDaysForm) ? $ac->text->prvDaysForm : esc_html__('Delete this form\'s entries automatically after (days)','easy-form-builder'),
 			/* translators: F13: help under the form's automatic deletion days */
 			"prvDaysFormHelp" => $state && isset($ac->text->prvDaysFormHelp) ? $ac->text->prvDaysFormHelp : esc_html__('Empty = the global setting. 0 = never for this form.','easy-form-builder'),
+			/* translators: F13: form setting: the submission is emailed and sent to integrations but not saved */
+			"prvNoStore" => $state && isset($ac->text->prvNoStore) ? $ac->text->prvNoStore : esc_html__('Do not store entries, send notifications only','easy-form-builder'),
+			/* translators: F13: warning shown when entries are not stored */
+			"prvNoStoreHelp" => $state && isset($ac->text->prvNoStoreHelp) ? $ac->text->prvNoStoreHelp : esc_html__('Emails, SMS, Telegram, Google Sheets and webhooks still work. The entry list, CSV, response box and replies are not available. The confirmation code is only a reference number.','easy-form-builder'),
+			/* translators: F13: part of the warning when entries are not stored. %s: number of days */
+			"prvNoStoreFiles" => $state && isset($ac->text->prvNoStoreFiles) ? $ac->text->prvNoStoreFiles : esc_html__('Links to uploaded files in the email work for %s days; then the files are deleted.','easy-form-builder'),
+			/* translators: F13: part of the warning when entries are not stored; names the email content option */
+			"prvNoStoreCc" => $state && isset($ac->text->prvNoStoreCc) ? $ac->text->prvNoStoreCc : esc_html__('“Send email with confirmation code and link” is not available when entries are not stored.','easy-form-builder'),
+			/* translators: F13: setting: how long uploads of forms that do not store entries are kept */
+			"prvNoStoreFileDays" => $state && isset($ac->text->prvNoStoreFileDays) ? $ac->text->prvNoStoreFileDays : esc_html__('Keep the files of entries that are not stored for (days)','easy-form-builder'),
 			/* translators: F18: name of a locked feature in the upgrade dialog */
 			"upgFtrHideDisable" => $state && isset($ac->text->upgFtrHideDisable) ? $ac->text->upgFtrHideDisable : esc_html__('Hidden and disabled fields','easy-form-builder'),
 			/* translators: F18: name of a locked feature in the upgrade dialog */

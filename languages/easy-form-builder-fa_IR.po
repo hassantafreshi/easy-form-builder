@@ -16138,3 +16138,34 @@ msgstr "حذف خودکار پاسخ‌های این فرم پس از (روز)"
 #: includes/functions.php
 msgid "Empty = the global setting. 0 = never for this form."
 msgstr "خالی یعنی تنظیمات سراسری. ۰ یعنی هرگز برای این فرم."
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: form setting: the submission is emailed and sent to integrations but not saved
+#: includes/functions.php
+msgid "Do not store entries, send notifications only"
+msgstr "پاسخ‌ها ذخیره نشوند؛ فقط اعلان ارسال شود"
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: warning shown when entries are not stored
+#: includes/functions.php
+msgid "Emails, SMS, Telegram, Google Sheets and webhooks still work. The entry list, CSV, response box and replies are not available. The confirmation code is only a reference number."
+msgstr "ایمیل، پیامک، تلگرام، گوگل شیت و وب‌هوک همچنان کار می‌کنند. فهرست پاسخ‌ها، خروجی CSV، کادر پاسخ و پیام‌های پاسخ در دسترس نیستند. کد تأیید فقط یک شمارهٔ مرجع است."
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: part of the warning when entries are not stored. %s: number of days
+#: includes/functions.php
+#, php-format
+msgid "Links to uploaded files in the email work for %s days; then the files are deleted."
+msgstr "پیوند فایل‌های بارگذاری‌شده در ایمیل تا %s روز کار می‌کند و پس از آن فایل‌ها حذف می‌شوند."
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: part of the warning when entries are not stored; names the email content option
+#: includes/functions.php
+msgid "“Send email with confirmation code and link” is not available when entries are not stored."
+msgstr "گزینهٔ «ارسال ایمیل همراه با کد تأیید و پیوند» وقتی پاسخ‌ها ذخیره نمی‌شوند در دسترس نیست."
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: setting: how long uploads of forms that do not store entries are kept
+#: includes/functions.php
+msgid "Keep the files of entries that are not stored for (days)"
+msgstr "نگهداری فایل‌های پاسخ‌های ذخیره‌نشده تا (روز)"

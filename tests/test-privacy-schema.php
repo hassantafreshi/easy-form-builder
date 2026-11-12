@@ -186,8 +186,13 @@ class InsertDb {
 }
 $method = preg_replace('/^\tpublic function/', 'public function', $ins);
 $method = str_replace(array('\\Emsfb\\Form_Runtime', '\\Emsfb\\Request_Health'), array('\\Emsfb\\Form_Runtime', '\\Emsfb\\Request_Health'), $method);
+// insert_message_db() runs the idempotency guard through these two (F13-C).
+$ops = '';
+foreach (array('begin_operation_efb', 'finish_operation_efb') as $op) {
+	if (preg_match('/\tprivate function ' . $op . '\(.*?\n\t\}\n/s', $pub, $mo)) $ops .= $mo[0];
+}
 eval('class InsertFixture { public $db; public $name = "F"; public $value = "[]"; public $id = 3; public $ip = "203.0.113.9"; private $operation_key = ""; private $operation_data = array();
-	private function generate_track_code_efb($s) { return "TRACK1"; } private function claim_uploaded_files_efb($c) {} ' . $method . ' }');
+	private function generate_track_code_efb($s) { return "TRACK1"; } private function claim_uploaded_files_efb($c) {} ' . $ops . $method . ' }');
 $fx = new InsertFixture();
 $fx->db = new InsertDb(true);
 $fx->insert_message_db(0, false);

@@ -27,7 +27,8 @@
  *      (and no browser); back to "Store" restores the old behaviour; retention: 90 days typed in
  *      Persian digits, preview, confirmation, the real daily cron deletes an old entry with its
  *      reply and its file in uploads/YYYY/MM (an entry with a recent reply stays); anonymize +
- *      "Run now" + the response viewer
+ *      "Run now" + the response viewer; "do not store entries": builder switch (en, fa RTL), a guest
+ *      submission that leaves no row
  *
  * Run: node tests/e2e-wp/run.js [scenario ids...]   (env: see README.md)
  */
@@ -955,7 +956,7 @@ async function f13GuestSubmit(context, url, F, values) {
   return body;
 }
 
-scenario('8', 'F13 privacy: IP setting, guest entry without IP, retention cron with replies and files, anonymization', async ({ context, adminPage }) => {
+scenario('8', 'F13 privacy: IP setting, guest entry without IP, retention cron with replies and files, anonymization, entries not stored', async ({ context, adminPage }) => {
   if (!['1', '3'].includes(String(ctl('state').emsfb_pro))) ctl('plan', 3);
   const admin = await adminPage();
 
@@ -1085,6 +1086,54 @@ scenario('8', 'F13 privacy: IP setting, guest entry without IP, retention cron w
   const view = await admin.evaluate(() => ({ red: Array.from(document.querySelectorAll('.efb-prv-redacted .efb-msg-field-value')).map((e) => e.textContent.trim()), badge: (document.querySelector('.efb-prv-badge') || {}).textContent }));
   R.check('8f: the response viewer shows "Removed for privacy" for the cleared answers and an "Anonymized" badge', view.red.length >= 3 && view.red.every((t) => t === 'Removed for privacy') && /Anonymized/.test(view.badge || ''), view);
   await admin.screenshot({ path: SHOT('8f-viewer-anonymized') });
+
+  // 8g "do not store entries": the builder switch (warning, e-mail choice), a guest submission
+  // that leaves no row, the builder warning in fa_IR (RTL).
+  const nsBuild = async (page) => {
+    await openNewForm(page);
+    await addTile(page, 'email');
+    await closePanel(page);
+    await page.evaluate(async () => { efbBuilderApi.insertItems(efbBuilderApi.newItems('text', { label: 'Name' })); await efbBuilderApi.render(); const f = efbBuilderApi.getForm(); f[0].formName = 'E2E F13 no store'; f[0].email_noti_type = 'cc'; await efbBuilderApi.setForm(f); });
+    await page.click("a[onclick=\"show_setting_window_efb('formSet')\"]");
+    await page.waitForSelector('#privacy_collapse', { timeout: 8000 });
+    await page.click('#privacy_collapse');
+    await page.waitForSelector('#prvNoStoreEl', { state: 'visible', timeout: 8000 });
+    await sleep(400);
+    await page.click('#prvNoStoreEl');
+    await settle(page);
+    return page.evaluate(() => {
+      const n = document.getElementById('prvNoStoreNote');
+      const cc = document.querySelector('#emailNotiContainsEl option[value="cc"]');
+      return { on: valj_efb[0].prv_nostore, visible: n && !n.classList.contains('d-none') && n.offsetParent !== null, role: n && n.getAttribute('role'), text: n ? n.innerText : '', dir: n ? getComputedStyle(n).direction : '', ccDisabled: cc ? cc.disabled : null, noti: valj_efb[0].email_noti_type, sel: (document.getElementById('emailNotiContainsEl') || {}).value };
+    });
+  };
+  const ns = await nsBuild(admin);
+  R.check('8g: the builder switch sets prv_nostore "1" and shows the warning (role="note") with what works and what does not', ns.on === '1' && ns.visible && ns.role === 'note' && /Emails, SMS, Telegram/.test(ns.text) && /30 days/.test(ns.text), ns);
+  R.check('8g: "code and link only" e-mail falls back to "content and link" and is disabled', ns.ccDisabled === true && ns.noti === 'msg' && ns.sel === 'msg', ns);
+  await admin.screenshot({ path: SHOT('8g-nostore-builder-en') });
+  await closePanel(admin);
+  const nsResp = admin.waitForResponse((r) => /action=(add_form_Emsfb|update_form_Emsfb)/.test(r.request().postData() || ''), { timeout: 20000 });
+  await admin.click("a[onclick=\"saveFormEfb(1)\"]");
+  const nsSave = await (await nsResp).json();
+  const nsId = Number(nsSave.data && (nsSave.data.id || nsSave.data.form_id));
+  await sleep(1200);
+  const nsForm = ctl('form', nsId);
+  const map = ctl('option', 'emsfb_prv_forms') || {};
+  R.check('8g: saved: prv_nostore "1" in the form and in the emsfb_prv_forms map', nsForm && nsForm.form_structer[0].prv_nostore === '1' && map[nsId] && Number(map[nsId].nostore) === 1, { key: nsForm && nsForm.form_structer[0].prv_nostore, map: map[nsId] });
+  const nsF = { email: nsForm.form_structer.find((x) => x.type === 'email').id_, text: nsForm.form_structer.find((x) => x.type === 'text').id_ };
+  const nsPage = ctl('page', nsId);
+  const nsBody = await f13GuestSubmit(context, nsPage.url, nsF, { email: 'nostore@example.test', text: 'Nobody' });
+  R.check('8g: the guest submission succeeds and gets a confirmation code', nsBody && nsBody.success && nsBody.data && nsBody.data.success && !!nsBody.data.track, nsBody && nsBody.data);
+  R.check('8g: database: no entry was stored', ctl('entries', nsId).length === 0, ctl('entries', nsId).length);
+  const nsSess = ctl('sessions', nsId);
+  R.check('8g: database: the visit is counted as sent with that code (dashboard statistics)', nsSess.some((r) => r.status === 'send' && r.tc === (nsBody && nsBody.data && nsBody.data.track)), nsSess);
+  ctl('locale', 'fa_IR');
+  try {
+    const fa = await adminPage({}, 'admin-fa');
+    const nsFa = await nsBuild(fa);
+    R.check('8g: fa_IR: the warning is Persian and right to left', /[؀-ۿ]/.test(nsFa.text) && nsFa.dir === 'rtl', nsFa);
+    await fa.screenshot({ path: SHOT('8g-nostore-builder-fa') });
+  } finally { ctl('locale', ''); }
 
   // Leave the site as the other scenarios expect it: no automatic deletion.
   await f13OpenPrivacyTab(admin);

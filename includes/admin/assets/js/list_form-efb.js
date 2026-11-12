@@ -1930,6 +1930,10 @@ function efb_privacy_retention_html_efb(prv, mx, dis) {
         </div>
       </div>
       <div class="efb card-body ${mx} py-1">
+        <label class="efb form-label fs-6 mb-1" for="prvNoStoreFileDays_efb">${efb_prv_t_efb('prvNoStoreFileDays', 'Keep the files of entries that are not stored for (days)')}</label>
+        <input type="text" inputmode="numeric" autocomplete="off" maxlength="3" class="efb form-control w-25 h-d-efb border-d efb-rounded" id="prvNoStoreFileDays_efb" value="${efb_prv_digits_efb(prv.prv_nostore_file_days)}" ${dis}>
+      </div>
+      <div class="efb card-body ${mx} py-1">
         <span class="efb text-muted" id="prvLastRun_efb" aria-live="polite">${efb_privacy_last_run_text_efb(efb_var.privacy && efb_var.privacy.last_run)}</span>
         ${can ? `<button type="button" class="efb btn btn-outline-secondary btn-sm mx-2" id="prvRunNow_efb" onclick="efb_privacy_run_now_efb(this)"><i class="efb bi-play-circle mx-1"></i>${efb_prv_t_efb('prvRunNow', 'Run now')}</button>` : ''}
       </div>`;
@@ -2000,6 +2004,8 @@ function efb_privacy_patch_efb() {
   if (act && ['delete', 'anon'].includes(act.value)) out.prv_action = act.value;
   const files = document.getElementById('prvFiles_efb');
   if (files) out.prv_files = files.checked ? '1' : '';
+  const nf = document.getElementById('prvNoStoreFileDays_efb');
+  if (nf) { const d = Number(efb_prv_digits_efb(nf.value).replace(/[^0-9]/g, '')) || 30; out.prv_nostore_file_days = String(Math.min(365, Math.max(1, d))); }
   return out;
 }
 function efb_privacy_post_efb(action, extra) {
