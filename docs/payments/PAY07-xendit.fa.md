@@ -1,4 +1,4 @@
-وضعیت: سند آماده، پیاده‌سازی نشده · اولویت: P0 (موج دوم) · تلاش: M · وابستگی: PAY00 (B تا H)
+وضعیت: فاز ۱ پیاده و تست شد (۲۰۲۶-۱۱-۱۲؛ Payment Session روی صفحهٔ میزبان، webhook با `x-callback-token` و خواندن دوباره، بازپرداخت، Test/Live؛ جزئیات در «پیوست: آنچه پیاده شد») · Components و اشتراک (۱b) نشد · اولویت: P0 (موج دوم) · تلاش: M · وابستگی: PAY00 (B تا H)
 
 # PAY07 — افزونهٔ Xendit (جنوب شرق آسیا: QRIS، GCash، کیف‌پول‌ها، حساب مجازی، کارت)
 
@@ -229,11 +229,11 @@ fixtureها `tests/fixtures/payments/xendit/`: `session-create-201.json` (نمو
 - تست‌ها: `test-pay-xendit-create.php` (بخش تنظیمات).
 
 **Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `vendores-efb/xendit/` (`xenditefb.php`، `routes-efb.php`، `class-Emsfb-xendit-gateway.php`، `class-Emsfb-xendit-client.php`، `xendit-phrases-efb.php`، `languages/`، `assets/`)؛ هسته تغییری نکرد (`AdnXND`، پوشهٔ `xendit` و فایل‌های لازم از پیش در `functions.php` و `Registry::ADDONS` بودند).
+- تست‌ها: `php tests/test-addon-xendit-create.php` ۷۵ موفق (ثبت، `supports()` با حد هر ارز از جدول کانال‌ها، تنظیمات رمزشده، الگوی کلید و توکن، کشور، کانال‌ها، دقیقه‌ها؛ «آزمودن اتصال» با `GET /sessions/ps-000…` (۴۰۴ = کلید درست)، کلید Test در Live پیش از هر درخواست رد، ۴۰۱، ۴۰۳ بی‌دسترسی Money-in، دسترس‌ناپذیر؛ راز و توکن هرگز در فرم، پاسخ مرورگر، `public_info`، capabilities و رویدادها).
+- وضعیت ترجمه: فقط متن انگلیسی و `languages/efb-xendit.pot` (۴۵ عبارت)؛ `locales.json` بی‌زبان؛ به دستور مالک ترجمه نشد.
+- مورد باز: کلیدهای تنظیمات به‌جای `test_secret`/`live_secret`/`test_callback_token` سند، `secret_key` و `callback_token` با `per_mode` هستند (همان قرارداد PAY00 و دیگر افزونه‌ها). «آزمودن اتصال» از `GET /balance` استفاده نمی‌کند (نیاز به دسترسی جدا). توکن webhook اجباری نیست؛ بی‌آن هر webhook ← ۴۰۱ و پرداخت با بازگشت، poll و cron تأیید می‌شود (پیام «Connected» یادآوری می‌کند).
+- اقدام بعدی: —
 
 ### B. session، webhook با توکن، refetch، بازگشت
 - فایل‌ها: gateway، client، آداپتور.
@@ -241,11 +241,11 @@ fixtureها `tests/fixtures/payments/xendit/`: `session-create-201.json` (نمو
 - تست‌ها: `test-pay-xendit-create.php`، `test-pay-xendit-webhook.php`، `test-pay-xendit-status-map.php`، `test-pay-xendit-ratelimit.php`.
 
 **Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: gateway (`create()`، `choose_channels()`، `customer()`، `fetch()`، `paid_channel()`، `parse_webhook()`، `pending_ttl()`، مدیریت نرخ)، client (کانال‌ها و حدها، مبلغ، نگاشت §۹، توکن، سرآیندهای نرخ)، `assets/js/xendit-efb.js`، `assets/css/xendit-efb.css`، `assets/img/*.svg`.
+- تست‌ها: `test-addon-xendit-create.php` ۷۵ (ثابت، محاسبه‌شده با منطق شرطی، کمک مالی، مبلغ متغیر؛ IDR و VND عدد صحیح، PHP دو رقم، IDR با سِن پیش از Xendit رد؛ KWD سه‌رقمی پشتیبانی نمی‌شود؛ کانال از بازدیدکننده، فیلد و مالک؛ حد هر کانال؛ `expires_at` ≥ ۱۰ دقیقه؛ پاسخ با مبلغ یا `reference_id` دیگر یا صفحه‌ای جز xen.to/xendit.co رد؛ کلید Live)، `test-addon-xendit-webhook.php` ۴۱ (توکن درست/جعلی/بی‌سرآیند/خالی/توکن Live برای Test ← ۴۰۱ بی‌تماس؛ همیشه GET؛ تکراری؛ `expired` پس از `completed`؛ پیش و بدون بازگشت؛ بدنهٔ «completed» وقتی Xendit می‌گوید ACTIVE بی‌اثر؛ مبلغ یا ارز دیگر ← failed و ایمیل مالک؛ EXPIRED و CANCELED؛ رویداد ناشناخته و session سایت دیگر ← ۲۰۰ بی‌تماس؛ Xendit دسترس‌ناپذیر ← ۵۰۳ و تحویل دوباره؛ پاسخ گم‌شدهٔ ساخت با تأیید GET وصل می‌شود)، `test-addon-xendit-status-ratelimit.php` ۳۳ (جدول §۹، مبلغ دوطرفه دقیق ۳۰۰ نمونه، حالت کلید، توکن ثابت‌زمان، `429` ← `http_429`، صبر تا `Rate-Limit-Reset`، توقف cron برای Xendit در همان اجرا، `Rate-Limit-Remaining: 0`)، `node tests/test-addon-xendit-adapter.js` ۲۲ (حذف کانال‌های ارز دیگر و لوگوهایشان، یادداشت GCash/QRIS/حساب مجازی/کیف‌پول، یک روش ← پنهان، RTL فارسی ۳۷۵ پیکسل)؛ سناریوی e2e `xendit` ۳۲ موفق.
+- وضعیت ترجمه: فقط متن انگلیسی و `languages/efb-xendit.pot` (۴۵ عبارت)؛ `locales.json` بی‌زبان؛ به دستور مالک ترجمه نشد.
+- مورد باز: Xendit سرآیند یکتایی برای `POST /sessions` مستند نکرده (پرسش ۴): هسته برای هر کلید تلاش یک ردیف و یک ساخت دارد و `reference_id` = `uid`؛ سرآیند مستندنشده فرستاده نمی‌شود. `items` فرستاده نمی‌شود (پرسش ۳؛ خطر ناهمخوانی جمع اقلام با تخفیف/کارمزد)، توضیح = نام فرم + کد پیگیری. `customer` فقط وقتی فرم ایمیل دارد. `success_return_url`/`cancel_return_url` باید HTTPS باشند (سایت محلی http در Test شکست می‌خورد). مبلغ IDR در EFB با توان ISO (۲) می‌ماند و نمایش «Rp 150.000,00» است (BUGS-FOUND). حد کانال‌ها از «Available payment methods» (QRIS بیشینه ۲۰٬۰۰۰٬۰۰۰ در آن جدول، ۱۰٬۰۰۰٬۰۰۰ در صفحهٔ QRIS).
+- اقدام بعدی: یک بار با حساب Test واقعی (چک‌لیست دستی §۱۵ و «Simulate payment»).
 
 ### C. لغو و بازپرداخت
 - فایل‌ها: gateway.
@@ -253,11 +253,11 @@ fixtureها `tests/fixtures/payments/xendit/`: `session-create-201.json` (نمو
 - تست‌ها: `test-pay-xendit-refund.php`.
 
 **Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: gateway (`refund()`، `refund_event()`، `cancel()`، `pending_refunds()`).
+- تست‌ها: `php tests/test-addon-xendit-refund.php` ۳۱ موفق (کامل QRIS با `GET /sessions` برای `payment_id` و `POST /v3/refunds` با `api-version: 2024-11-11`، `reference_id` = `efb-r-` + کلید یکتایی هسته، مبلغ دقیق؛ جزئی و سپس باقی‌ماندهٔ GCash؛ QRIS فقط کامل با متن §۱۴؛ خطای `PARTIAL_REFUND_NOT_SUPPORTED`؛ کانال‌های بی‌بازپرداخت (حساب مجازی، PromptPay، QR Ph) پیش از Xendit رد؛ `PENDING` ← ردیف در انتظار، `refund.succeeded`/`refund.failed` با توکن، جعلی ← ۴۰۱؛ بازپرداخت داشبورد نادیده؛ بی‌وب‌هوک: بررسی دوباره با `GET /v3/refunds/{id}`؛ Xendit دسترس‌ناپذیر؛ دوبار کلیک؛ `POST /sessions/{id}/cancel` و لغو در انقضای هسته). سناریوی e2e: بازپرداخت کامل از صفحهٔ پرداخت‌ها.
+- وضعیت ترجمه: فقط متن انگلیسی و `languages/efb-xendit.pot` (۴۵ عبارت)؛ `locales.json` بی‌زبان؛ به دستور مالک ترجمه نشد.
+- مورد باز: مسیر بازپرداخت `POST /v3/refunds` است (مرجع رسمی؛ سند `POST /refunds` نوشته بود). رویدادهای بازپرداخت `refund.succeeded`/`refund.failed` (تأیید شد). بازپرداختی که در داشبورد Xendit انجام شود به پرداخت EFB وصل نمی‌شود (Xendit `payment_id` را می‌دهد و EFB آن را نگه نمی‌دارد) — مالک «ثبت بازپرداخت بیرونی» هسته را به کار ببرد. پنجرهٔ بازپرداخت QRIS: صفحهٔ QRIS ۷ روز، جدول روش‌ها ۳۰ روز.
+- اقدام بعدی: —
 
 ### D. Components و اشتراک (۱b)
 - فایل‌ها: آداپتور، gateway.
@@ -265,11 +265,11 @@ fixtureها `tests/fixtures/payments/xendit/`: `session-create-201.json` (نمو
 - تست‌ها: `node tests/test-pay-xendit-components.js`، `php tests/test-pay-xendit-subscription.php`.
 
 **Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: —
+- تست‌ها: —
+- وضعیت ترجمه: —
+- مورد باز: **ساخته نشد** (فاز ۱b): `mode: COMPONENTS` به `components_sdk_key` در مرورگر و اسکریپت Xendit نیاز دارد و `session_type: SUBSCRIPTION` به دوره‌ای PAY00 (فاز ۲). هستهٔ تازه (`prepare()` آداپتور و `client_token`) راه Components را باز کرده است.
+- اقدام بعدی: Components با `components_configuration.origins` = دامنهٔ سایت؛ اشتراک پس از پشتیبانی دوره‌ای هسته.
 
 ### E. ترجمه (اندونزیایی، فیلیپینی، تایلندی، ویتنامی، انگلیسی، فارسی) و zip
 - فایل‌ها: phrases، `languages/`، `xendit.zip`.
@@ -277,11 +277,11 @@ fixtureها `tests/fixtures/payments/xendit/`: `session-create-201.json` (نمو
 - تست‌ها: خط لولهٔ i18n افزونه.
 
 **Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `xendit-phrases-efb.php`، `languages/efb-xendit.pot`، `languages/locales.json`، `languages/index.php`، `vendores-efb/xendit.zip`.
+- تست‌ها: `php tests/test-addon-xendit-package.php` ۱۷ موفق (فایل‌های لازم هسته، هر رشتهٔ `efb-xendit` در `.pot` و برعکس، دامنهٔ یگانه، بی‌کلید شبیه کلید، شبکه فقط از `Http` هسته، مقایسهٔ توکن با `hash_equals`، نشان‌های SVG سادهٔ محلی، چیدمان zip: یک پوشهٔ `xendit/`، مرتب، 0755/0644، تاریخ ثابت، همان محتوای پوشه).
+- وضعیت ترجمه: به دستور مالک هیچ زبانی ترجمه نشد (اندونزیایی، فیلیپینی، تایلندی، ویتنامی، فارسی منتظر دستور). کلیدهای عبارت با §۱۴ یکی است جز `xenditSecretTest`/`xenditSecretLive` (برچسب «(Test)/(Live)» را هسته می‌افزاید: `xenditSecret`).
+- مورد باز: نشان‌ها (QRIS، GCash، Maya، OVO، DANA …) نشان سادهٔ نام هستند، نه طرح رسمی برندها.
+- اقدام بعدی: ترجمه با خط لولهٔ افزونه‌ها وقتی مالک بخواهد؛ لوگوهای رسمی پس از بررسی راهنمای برند.
 
 ## ۱۷. پرسش‌های باز
 
@@ -290,3 +290,14 @@ fixtureها `tests/fixtures/payments/xendit/`: `session-create-201.json` (نمو
 3. تخفیف و مالیات در `items` (قلم منفی؟).
 4. آیا Xendit هدر یکتایی (`idempotency-key`) برای `POST /sessions` دارد؟ در صفحه‌های خوانده‌شده پیدا نشد؛ تا آن زمان یکتایی با `reference_id` و `uq_attempt`.
 5. کدهای دقیق کانال‌ها برای هر کشور و فعال‌سازی‌های لازم نزد شریک (GCash دوره‌ای).
+
+## پیوست: آنچه پیاده شد (۲۰۲۶-۱۱-۱۲)
+
+- **افزونه:** `vendores-efb/xendit/` و `xendit.zip` (کلید `AdnXND`، نوع فیلد `xendit`، text domain `efb-xendit`)، فقط از راه قرارداد PAY00؛ هسته تغییر نکرد. قابلیت‌های تازهٔ هسته (روش با ارز و حد، `field_defaults`، پیام بازدیدکننده، تسویهٔ بازپرداخت در انتظار، `mismatch`) با بررسی وجود به کار می‌روند و با هستهٔ قدیم هم کار می‌کند (تست‌ها روی هر دو اجرا شد).
+- **ساخت:** `POST https://api.xendit.co/sessions` (Basic با کلید مخفی حالت پرداخت، JSON) با `reference_id` = `uid`، `session_type: PAY`، `mode: PAYMENT_LINK`، `amount` دقیق از `$p->amount_minor` (IDR و VND عدد صحیح؛ IDR با سِن پیش از ارسال رد)، `currency`، `country` (از ارز؛ USD از تنظیم)، `allowed_payment_channels` (انتخاب بازدیدکننده اگر مجاز و در حد باشد، وگرنه کانال‌های مجاز فیلد/مالک که ارز و مبلغ را می‌پذیرند؛ بی‌محدودیت ← فرستاده نمی‌شود و Xendit همهٔ کانال‌های فعال را نشان می‌دهد)، `expires_at` (۱۱ تا ۲۸۸۰ دقیقه، پیش‌فرض ۶۰)، `locale`، `description`، `metadata{efb_uid, form_id, track}`، `success_return_url`/`cancel_return_url` هسته، `customer` با `reference_id` = `efb-<sha1(email)>`. پاسخ باید همان مبلغ، ارز و `reference_id` و صفحهٔ `https://(dev.)xen.to` یا `*.xendit.co` باشد.
+- **تأیید webhook:** پرداخت با `payment_session_id` (یا `reference_id`) پیدا می‌شود؛ `x-callback-token` با `hash_equals` با توکن ذخیره‌شدهٔ حالت همان پرداخت مقایسه می‌شود (توکن خالی هرگز نمی‌پذیرد) ← ۴۰۱؛ سپس همیشه `GET /sessions/{id}` (`needs_refetch`)؛ کلید رویداد `sha256(xendit|sid|event|updated)`. بازپرداخت‌ها: `refund.succeeded`/`refund.failed` فقط برای بازپرداخت‌های EFB (`metadata.efb_uid`، `efb-r-`).
+- **وضعیت (§۹):** `ACTIVE`→pending، `COMPLETED` (PAY)→paid، `EXPIRED`→expired، `CANCELED`→canceled؛ ناشناخته ← خطا (هرگز paid)؛ session با `reference_id` دیگر ← خطای ناهمخوانی. کانال پرداخت‌کننده برای session چندکاناله با `GET /v3/payment_requests/{id}` خوانده می‌شود.
+- **نرخ:** `429` یا `Rate-Limit-Remaining: 0` ← تا `Rate-Limit-Reset` (۱ تا ۳۰۰ ثانیه) هیچ درخواستی در آن حالت فرستاده نمی‌شود و `fetch()` خطای `http_429` می‌دهد که cron هسته را برای Xendit متوقف می‌کند.
+- **پیش‌فرض‌هایی که مالک باید تأیید کند:** Payment Session به‌جای Invoice (پرسش ۱)؛ IDR بی‌اعشار با رد سِن؛ ۲۱ کانال و «any»؛ بی‌`items`؛ توکن webhook اختیاری؛ TTL ۶۰ دقیقه؛ USD با کشور تنظیم (پیش‌فرض ID)؛ لینک داشبورد ندارد.
+- **تست‌ها:** `test-addon-xendit-create.php` ۷۵، `test-addon-xendit-webhook.php` ۴۱، `test-addon-xendit-status-ratelimit.php` ۳۳، `test-addon-xendit-refund.php` ۳۱، `test-addon-xendit-package.php` ۱۷، `test-addon-xendit-adapter.js` ۲۲ (۲۱۹ بررسی)، سناریوی e2e `xendit` ۳۲؛ fixtureها در `tests/fixtures/payments/xendit/` از نمونه‌های رسمی، Xendit ساختگی در `tests/xendit-fake-provider.php` (واحد و e2e)، کلیدها و توکن‌ها هنگام اجرا ساخته می‌شوند.
+- **فقط با حساب Test واقعی آزمودنی:** پذیرش `allowed_payment_channels` برای کانال‌های غیرفعال حساب، اعشار PHP/THB در `amount`، `customer.individual_detail.given_names` با نام غیرلاتین، `expires_at` بیشینه، شکل واقعی `x-callback-token` و تحویل‌های دوباره، `payment_link_url` (dev.xen.to)، «Simulate payment»، محدودیت‌های بازپرداخت QRIS، رفتار `reference_id` تکراری.
