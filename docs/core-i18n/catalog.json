@@ -4,8 +4,8 @@
     "plugin_version": "4.3.1",
     "updated": "2026-11-12",
     "counts": {
-        "active": 3003,
-        "obsolete": 375
+        "active": 3009,
+        "obsolete": 376
     },
     "entries": [
         {
@@ -173,8 +173,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "%1$s needs %2$s. Renew Pro to get it back, or check your licence key.",
@@ -211,6 +211,38 @@
             "context": null,
             "plural": null,
             "translators": "%1$s: gateway name, %2$s: currency codes, %3$s: the form's currency",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php",
+                "includes/payments/class-Emsfb-payment-registry.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%1$s requires \"%2$s\" to pay with %3$s. Add %4$s to the form and select it in the payment field's \"%2$s\" option.",
+            "context": null,
+            "plural": null,
+            "translators": "%1$s: gateway name, %2$s: what is needed (option name, e.g. Payer e-mail), %3$s: payment methods, %4$s: kind of field (e.g. an Email field)",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php",
+                "includes/payments/class-Emsfb-payment-registry.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%1$s requires \"%2$s\". Add %3$s to the form and select it in the payment field's \"%2$s\" option.",
+            "context": null,
+            "plural": null,
+            "translators": "%1$s: gateway name, %2$s: what is needed (option name, e.g. Payer e-mail), %3$s: kind of field (e.g. an Email field)",
             "files": [
                 "includes/payments/class-Emsfb-payment-frontend.php",
                 "includes/payments/class-Emsfb-payment-registry.php"
@@ -27719,6 +27751,38 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Please fill in \"%1$s\": it is needed to pay with %2$s.",
+            "context": null,
+            "plural": null,
+            "translators": "%1$s: name of the form field (e.g. Mobile), %2$s: payment method",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php",
+                "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Please fill in \"%s\": it is needed for the payment.",
+            "context": null,
+            "plural": null,
+            "translators": "%s: name of the form field (e.g. Email)",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php",
+                "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Please fill in all required fields",
             "context": null,
             "plural": null,
@@ -48985,6 +49049,38 @@
             "obsolete_since": null
         },
         {
+            "msgid": "a field for it",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php",
+                "includes/payments/class-Emsfb-payment-registry.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "a phone number field",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php",
+                "includes/payments/class-Emsfb-payment-registry.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "after",
             "context": null,
             "plural": null,
@@ -49011,6 +49107,22 @@
                 "addon:paypal"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "an Email field",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php",
+                "includes/payments/class-Emsfb-payment-registry.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
