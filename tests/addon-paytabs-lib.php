@@ -144,7 +144,7 @@ class PtbFake {
 		$b['profileId'] = (int) ptb_profile($t['_mode']);
 		if ($t['_status'] === '') { unset($b['payment_result'], $b['payment_info']); return $b; }
 		$b['payment_result']['response_status'] = $t['_status'];
-		$b['payment_result']['response_message'] = array('A' => 'Authorised', 'D' => 'Declined', 'E' => 'Error', 'H' => 'Authorised (hold)', 'C' => 'Cancelled', 'V' => 'Voided', 'X' => 'Expired', 'P' => 'Pending')[$t['_status']] ?? 'x';
+		$b['payment_result']['response_message'] = isset($t['_message']) ? $t['_message'] : (array('A' => 'Authorised', 'D' => 'Declined', 'E' => 'Error', 'H' => 'Authorised (hold)', 'C' => 'Cancelled', 'V' => 'Voided', 'X' => 'Expired', 'P' => 'Pending')[$t['_status']] ?? 'x');
 		if (isset($t['_method'])) $b['payment_info']['payment_method'] = $t['_method'];
 		return $b;
 	}
