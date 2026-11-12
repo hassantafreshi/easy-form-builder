@@ -1223,9 +1223,11 @@ class Upload_Guard {
                 continue;
             }
 
-            $path = $basedir . $basename;
-            $real = realpath($path);
-            if ($real === false || strpos(wp_normalize_path($real), $basedir) !== 0 || !is_file($real)) {
+            /* wp_upload_bits() stores the file in uploads/YYYY/MM/ on a default
+             * site; looking only at basedir/<name> never found it, so no orphan
+             * was ever removed (BUGS-FOUND, F13-D). */
+            $real = self::locate_upload($basename);
+            if ($real === '') {
                 continue;
             }
 
@@ -1259,6 +1261,140 @@ class Upload_Guard {
         }
 
         return $deleted;
+    }
+
+    /* ---------------------------------------------------------------------
+     * Files of an entry (F13: purge, retention, WordPress erasure)
+     * ------------------------------------------------------------------ */
+
+    /** A name this plugin generated for an upload: efb-PLG-<yymmdd>-<random>.<ext> or efb-rec-… */
+    public static function is_plugin_upload_name($basename) {
+        // "-1" is the suffix wp_unique_filename() adds when the name already exists.
+        return (bool) preg_match('/^efb-(?:PLG|rec)-[0-9]{6}-[A-Za-z0-9]+(?:-[0-9]+)?\.[A-Za-z0-9]{1,10}$/', (string) $basename);
+    }
+
+    /** uploads basedir and baseurl, normalised; null when WordPress reports an error. */
+    private static function upload_dirs() {
+        $uploads = function_exists('wp_upload_dir') ? wp_upload_dir(null, false) : null;
+        if (!is_array($uploads) || !empty($uploads['error']) || empty($uploads['basedir'])) {
+            return null;
+        }
+        return array(
+            'basedir' => wp_normalize_path(trailingslashit($uploads['basedir'])),
+            'baseurl' => isset($uploads['baseurl']) ? trailingslashit((string) $uploads['baseurl']) : '',
+        );
+    }
+
+    /** $path when it is a file inside the uploads folder with one of the plugin's names, else ''. */
+    private static function contained_upload($path, $basedir) {
+        $real = realpath($path);
+        if ($real === false || !is_file($real)) {
+            return '';
+        }
+        $real = wp_normalize_path($real);
+        if (strpos($real, $basedir) !== 0 || !self::is_plugin_upload_name(wp_basename($real))) {
+            return '';
+        }
+        return $real;
+    }
+
+    /**
+     * The file a stored URL points at, or '' when it is not one of this plugin's
+     * uploads inside the uploads folder. The site's upload URL (either scheme, or
+     * protocol-relative) is replaced by the uploads folder, so the year/month
+     * folder is kept; a URL of another host or a foreign name never resolves.
+     *
+     * @param string $url
+     * @return string Absolute path or ''.
+     */
+    public static function path_from_url($url) {
+        $url = trim((string) $url);
+        $dirs = self::upload_dirs();
+        if ($url === '' || $dirs === null || $dirs['baseurl'] === '') {
+            return '';
+        }
+        $strip = function ($u) { return preg_replace('#^(?:https?:)?//#i', '', $u); };
+        $rel_url = $strip(strtok($url, '?#'));
+        $base = $strip($dirs['baseurl']);
+        if (stripos($rel_url, $base) !== 0) {
+            return '';
+        }
+        $rel = rawurldecode(substr($rel_url, strlen($base)));
+        if ($rel === '' || strpos($rel, '..') !== false || strpos($rel, "\0") !== false) {
+            return '';
+        }
+        return self::contained_upload($dirs['basedir'] . ltrim($rel, '/'), $dirs['basedir']);
+    }
+
+    /**
+     * Find one of the plugin's uploads by name: the uploads folder itself, then
+     * its year/month folders (where wp_upload_bits() puts it by default). The
+     * name holds only [A-Za-z0-9.-] (is_plugin_upload_name()), so it is safe in
+     * the glob pattern.
+     *
+     * @param string $basename
+     * @return string Absolute path or ''.
+     */
+    public static function locate_upload($basename) {
+        $basename = wp_basename((string) $basename);
+        $dirs = self::upload_dirs();
+        if ($dirs === null || !self::is_plugin_upload_name($basename)) {
+            return '';
+        }
+        $direct = self::contained_upload($dirs['basedir'] . $basename, $dirs['basedir']);
+        if ($direct !== '') {
+            return $direct;
+        }
+        foreach ((array) glob($dirs['basedir'] . '[0-9][0-9][0-9][0-9]/[0-9][0-9]/' . $basename) as $candidate) {
+            $hit = self::contained_upload($candidate, $dirs['basedir']);
+            if ($hit !== '') {
+                return $hit;
+            }
+        }
+        return '';
+    }
+
+    /** Whether any stored entry or reply still names this upload. */
+    public static function upload_is_referenced($basename) {
+        global $wpdb;
+        $like = '%' . $wpdb->esc_like(wp_basename((string) $basename)) . '%';
+        foreach (array('emsfb_msg_', 'emsfb_rsp_') as $t) {
+            $table = $wpdb->prefix . $t;
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+            if ((int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(1) FROM `{$table}` WHERE content LIKE %s", $like)) > 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Delete one of the plugin's uploads, by URL (preferred) or by name, unless
+     * an entry or reply still points at it. Paths outside the uploads folder and
+     * names the plugin did not generate are never touched.
+     *
+     * @param string $basename
+     * @param string $url
+     * @return bool True when the file was removed.
+     */
+    public static function delete_unreferenced_upload($basename, $url = '') {
+        $basename = wp_basename((string) $basename);
+        if (!self::is_plugin_upload_name($basename) || self::upload_is_referenced($basename)) {
+            return false;
+        }
+        $path = $url !== '' ? self::path_from_url($url) : '';
+        if ($path === '' || wp_basename($path) !== $basename) {
+            $path = self::locate_upload($basename);
+        }
+        if ($path === '') {
+            return false;
+        }
+        if (function_exists('wp_delete_file')) {
+            wp_delete_file($path);
+        }
+        self::release_pending_uploads(array($basename));
+        self::release_response_attachment_reservations(array($basename));
+        return !file_exists($path);
     }
 
     /**

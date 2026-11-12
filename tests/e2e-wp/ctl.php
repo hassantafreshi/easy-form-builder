@@ -26,6 +26,12 @@
  *   option <name>             raw option value
  *   setting <key>             one key of the plugin's decoded settings (F13 prv_*)
  *   sessions <form_id>        visit rows of a form (emsfb_stts_): ip, os, browser, status
+ *   f13-seed <form_id> <days_ago> [reply_days_ago] [file 0|1] [email]
+ *                             an entry dated <days_ago> (email + name + an uploaded file stored with
+ *                             wp_upload_bits() in uploads/YYYY/MM like a real upload), optionally a
+ *                             reply; prints msg_id, file path and URL
+ *   replies <msg_id>          replies of an entry
+ *   file-exists <path>        whether a file is on disk
  *
  * Local test site only. Nothing here is meant for a production site.
  */
@@ -207,6 +213,43 @@ switch ( $efb_e2e_cmd ) {
 		$s = get_setting_Emsfb( 'decoded' );
 		$k = isset( $efb_e2e_rest[0] ) ? $efb_e2e_rest[0] : '';
 		efb_e2e_out( is_object( $s ) && isset( $s->$k ) ? $s->$k : null );
+		break;
+
+	case 'f13-seed':
+		$fid   = isset( $efb_e2e_rest[0] ) ? (int) $efb_e2e_rest[0] : 0;
+		$ago   = isset( $efb_e2e_rest[1] ) ? (int) $efb_e2e_rest[1] : 100;
+		$rago  = isset( $efb_e2e_rest[2] ) && '' !== $efb_e2e_rest[2] ? (int) $efb_e2e_rest[2] : null;
+		$file  = isset( $efb_e2e_rest[3] ) && '1' === $efb_e2e_rest[3];
+		$email = isset( $efb_e2e_rest[4] ) ? $efb_e2e_rest[4] : 'old-guest@example.test';
+		$form  = efb_e2e_decode_json( $wpdb->get_var( $wpdb->prepare( "SELECT form_structer FROM {$wpdb->prefix}emsfb_form WHERE form_id = %d", $fid ) ) ); // phpcs:ignore
+		$id_of = function ( $t ) use ( $form ) { foreach ( (array) $form as $r ) { if ( is_array( $r ) && isset( $r['type'] ) && $r['type'] === $t ) { return $r['id_']; } } return $t; };
+		$rows  = array(
+			array( 'id_' => $id_of( 'email' ), 'name' => 'Email', 'type' => 'email', 'value' => $email, 'amount' => 2 ),
+			array( 'id_' => $id_of( 'text' ), 'name' => 'Name', 'type' => 'text', 'value' => 'Old Guest', 'amount' => 3 ),
+		);
+		$up = null;
+		if ( $file ) {
+			$name = 'efb-PLG-' . gmdate( 'ymd' ) . '-' . strtoupper( wp_generate_password( 8, false, false ) ) . '.pdf';
+			$up   = wp_upload_bits( $name, null, '%PDF-1.4 e2e' );
+			$rows[] = array( 'id_' => 'f13file', 'name' => 'CV', 'type' => 'file', 'value' => '@file@', 'url' => $up['url'], 'amount' => 4 );
+		}
+		$rows[] = array( 'type' => 'w_link', 'id_' => 'w_link', 'value' => home_url( '/?utm_source=e2e&email=' . rawurlencode( $email ) ), 'amount' => -1 );
+		$date = wp_date( 'Y-m-d H:i:s', time() - $ago * DAY_IN_SECONDS );
+		$wpdb->insert( $wpdb->prefix . 'emsfb_msg_', array( 'form_title_x' => 'E2E F13 privacy', 'content' => str_replace( '"', '\\"', wp_json_encode( $rows, JSON_UNESCAPED_UNICODE ) ), 'form_id' => $fid, 'track' => 'E2E' . wp_rand( 10000, 99999 ), 'ip' => '203.0.113.9', 'read_' => 0, 'read_by' => '', 'date' => $date ) );
+		$msg_id = (int) $wpdb->insert_id;
+		if ( null !== $rago ) {
+			$wpdb->insert( $wpdb->prefix . 'emsfb_rsp_', array( 'msg_id' => $msg_id, 'ip' => '203.0.113.9', 'content' => str_replace( '"', '\\"', wp_json_encode( array( array( 'id_' => 'message', 'type' => 'text', 'value' => 'a reply with personal details' ) ) ) ), 'date' => wp_date( 'Y-m-d H:i:s', time() - $rago * DAY_IN_SECONDS ), 'read_by' => '', 'read_' => 0, 'reader_ip' => '', 'rsp_by' => 0 ) );
+		}
+		efb_e2e_out( array( 'msg_id' => $msg_id, 'file' => $up ? $up['file'] : null, 'url' => $up ? $up['url'] : null, 'date' => $date ) );
+		break;
+
+	case 'replies':
+		$id = isset( $efb_e2e_rest[0] ) ? (int) $efb_e2e_rest[0] : 0;
+		efb_e2e_out( $wpdb->get_results( $wpdb->prepare( "SELECT rsp_id, msg_id, ip, reader_ip, content FROM {$wpdb->prefix}emsfb_rsp_ WHERE msg_id = %d", $id ), ARRAY_A ) ); // phpcs:ignore
+		break;
+
+	case 'file-exists':
+		efb_e2e_out( isset( $efb_e2e_rest[0] ) && file_exists( $efb_e2e_rest[0] ) );
 		break;
 
 	case 'sessions':

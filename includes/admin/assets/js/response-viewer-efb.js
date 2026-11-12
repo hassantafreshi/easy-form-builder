@@ -930,6 +930,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       ${ipSection}
       ${track != 0 ? `<div class="efb-msg-meta-item"><i class="bi bi-hash"></i><span class="efb-msg-meta-label">${efb_var.text.trackNo}:</span><span class="efb-msg-meta-val">${track}</span></div>` : ''}
       <div class="efb-msg-meta-item"><i class="bi bi-calendar3"></i><span class="efb-msg-meta-label">${efb_var.text.ddate}:</span><span class="efb-msg-meta-val">${date}</span></div>
+      ${content.some((x) => x && x.value === '@prv@') ? `<div class="efb-msg-meta-item efb-prv-badge"><i class="bi bi-incognito"></i><span class="efb-msg-meta-val">${(efb_var.text && efb_var.text.prvAnonBadge) || 'Anonymized'}</span></div>` : ''}
       ${bySection ? '' : dlWrapHtml}
     </div>
   <div class="efb-msg-divider"></div>
@@ -945,6 +946,13 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   let currency = content[0].hasOwnProperty('paymentcurrency') && isCurrencyEfb(content[0].paymentcurrency) ? content[0].paymentcurrency :'usd';
   let last_type ='';
   for (const c of content) {
+    /* F13: an answer removed by anonymization (stored as @prv@), whatever its type. */
+    if (c && c.value === '@prv@') {
+      let prvTitle = c.hasOwnProperty('name') ? String(c.name) : '';
+      prvTitle = efb_var.text[prvTitle.toLowerCase()] || prvTitle;
+      m += `<div class="efb efb-msg-field-row efb-prv-redacted"><span class="efb-msg-field-label">${prvTitle}:</span> <span class="efb-msg-field-value text-muted fst-italic">${(efb_var.text && efb_var.text.prvRedacted) || 'Removed for privacy'}</span></div>`;
+      continue;
+    }
     if (c.hasOwnProperty('price')){ totalpaid +=Number(c.price)}
     if(c.hasOwnProperty('value') && c.type!="maps"){ c.value = replaceContentMessageEfb(c.value)}
     if(c.hasOwnProperty('qty')){ c.qty = replaceContentMessageEfb(c.qty)}

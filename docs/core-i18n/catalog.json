@@ -4,7 +4,7 @@
     "plugin_version": "4.3.1",
     "updated": "2026-11-12",
     "counts": {
-        "active": 2764,
+        "active": 2779,
         "obsolete": 378
     },
     "entries": [
@@ -459,6 +459,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "%s entries will be removed on the next run.",
+            "context": null,
+            "plural": null,
+            "translators": "F13: preview of automatic deletion. %s: number of entries",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "%s is a Pro feature",
             "context": null,
             "plural": null,
@@ -832,6 +847,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "0 = never. Counted from the last activity (entry or reply).",
+            "context": null,
+            "plural": null,
+            "translators": "F13: help under the automatic deletion days",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -2895,6 +2925,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Also delete uploaded files",
+            "context": null,
+            "plural": null,
+            "translators": "F13: checkbox: delete the files uploaded with an entry when the entry is deleted",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Alt Text",
             "context": null,
             "plural": null,
@@ -3064,6 +3109,36 @@
             "context": null,
             "plural": null,
             "translators": "F19: direction of a linear gradient in degrees",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Anonymize (keep choice answers for statistics)",
+            "context": null,
+            "plural": null,
+            "translators": "F13: option: clear personal answers but keep choices, numbers and dates",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Anonymized",
+            "context": null,
+            "plural": null,
+            "translators": "F13: badge on an entry whose personal answers were removed",
             "files": [
                 "includes/functions.php"
             ],
@@ -9021,6 +9096,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Delete completely",
+            "context": null,
+            "plural": null,
+            "translators": "F13: option: remove the entry, its replies and files",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Delete entries automatically after (days)",
+            "context": null,
+            "plural": null,
+            "translators": "F13: setting: number of days after which entries are removed automatically",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Delete markers",
             "context": null,
             "plural": null,
@@ -9032,6 +9137,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Delete this form's entries automatically after (days)",
+            "context": null,
+            "plural": null,
+            "translators": "F13: form setting: own automatic deletion days for this form",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -11613,6 +11733,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Empty = the global setting. 0 = never for this form.",
+            "context": null,
+            "plural": null,
+            "translators": "F13: help under the form's automatic deletion days",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Enable",
             "context": null,
             "plural": null,
@@ -12181,6 +12316,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Entries older than %1$s days will be removed. This cannot be undone. Continue?",
+            "context": null,
+            "plural": null,
+            "translators": "F13: confirmation before saving automatic deletion. %1$s: number of days",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -18576,6 +18726,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Last run: %1$s, %2$s entries removed",
+            "context": null,
+            "plural": null,
+            "translators": "F13: status of the automatic deletion. %1$s: date and time, %2$s: number of entries",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -27866,6 +28031,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Removed for privacy",
+            "context": null,
+            "plural": null,
+            "translators": "F13: shown instead of an answer that was anonymized",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Rename",
             "context": null,
             "plural": null,
@@ -28766,6 +28946,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Run now",
+            "context": null,
+            "plural": null,
+            "translators": "F13: button: run the automatic deletion immediately",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -35048,6 +35243,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The automatic cleanup has not run yet.",
+            "context": null,
+            "plural": null,
+            "translators": "F13: status when the automatic deletion never ran",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -41886,6 +42096,21 @@
             "context": null,
             "plural": null,
             "translators": "First-run setup, explanation under the question, for a site owner without technical background.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "When the time is up",
+            "context": null,
+            "plural": null,
+            "translators": "F13: setting: what happens to an entry when its retention time is over",
             "files": [
                 "includes/functions.php"
             ],

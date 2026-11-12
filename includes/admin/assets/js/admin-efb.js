@@ -3312,6 +3312,15 @@ let change_el_edit_Efb = (el) => {
         valj_efb[0].prv_ip = ['store', 'anon', 'none'].includes(v) ? v : '';
         break;
       }
+      case "prvDaysEl": {
+        // F13: '' = the site's setting, 0 = never for this form, else 1-3650 days. Persian and
+        // Arabic digits are accepted; the server normalises again on save.
+        const raw = String(el.value || '').replace(/[\u06F0-\u06F9]/g, (d) => String(d.charCodeAt(0) - 0x06F0)).replace(/[\u0660-\u0669]/g, (d) => String(d.charCodeAt(0) - 0x0660)).replace(/[^0-9]/g, '').slice(0, 4);
+        const v = raw === '' ? '' : String(Math.min(3650, Number(raw)));
+        if (el.value !== v) el.value = v;
+        valj_efb[0].prv_days = v;
+        break;
+      }
       case "surveyChartTypeEl":
         if (!valj_efb[0].hasOwnProperty('survey_chart_type')) {
           Object.assign(valj_efb[0], { survey_chart_type: 'none' });

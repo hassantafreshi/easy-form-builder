@@ -1495,6 +1495,7 @@ class Emsfb {
         wp_clear_scheduled_hook('emsfb_cache_scan_v1');
         wp_clear_scheduled_hook('emsfb_cache_scan_v2');
         wp_clear_scheduled_hook('emsfb_stripe_reconcile_efb');
+        wp_clear_scheduled_hook('emsfb_privacy_retention_continue'); // F13
         if (class_exists('\Emsfb\Email_Monitor')) {
             \Emsfb\Email_Monitor::deactivate();
         }

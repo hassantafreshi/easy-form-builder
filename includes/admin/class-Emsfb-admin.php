@@ -261,12 +261,13 @@ class Admin {
             $this->clear_form_cache_efb($id);
         }
 
-        $table_name = $this->db->prefix . "emsfb_msg_";
-         $this->db->delete(
-            $table_name,
-            ['form_id' => $id],
-            ['%d']
-        );
+        // F13: one purge for every delete path - the entries, their replies (they were
+        // left behind) and their uploads unless something else still points at them.
+        if (class_exists('\Emsfb\Privacy')) {
+            \Emsfb\Privacy::delete_form_entries($id);
+        } else {
+            $this->db->delete($this->db->prefix . "emsfb_msg_", ['form_id' => $id], ['%d']);
+        }
         do_action('efb_form_deleted', $id);
         $response = ['success' => true, 'r' => $r];
         wp_send_json_success($response, 200);
@@ -320,12 +321,14 @@ class Admin {
             global $wpdb;
             $this->db = $wpdb;
         }
-        $table_name = $this->db->prefix . "emsfb_msg_";
-        $r          = $this->db->delete(
-            $table_name,
-            ['msg_id' => $id],
-            ['%d']
-        );
+        // F13: the replies of the entry used to stay behind; the shared purge removes
+        // them and the entry's uploads (unless another entry points at them).
+        if (class_exists('\Emsfb\Privacy')) {
+            $purged = \Emsfb\Privacy::delete_entries([$id]);
+            $r = $purged['deleted'];
+        } else {
+            $r = $this->db->delete($this->db->prefix . "emsfb_msg_", ['msg_id' => $id], ['%d']);
+        }
         $response = ['success' => true, 'r' => $r];
         wp_send_json_success($response, 200);
     }
@@ -3801,13 +3804,14 @@ class Admin {
             }
             $response = ['success' => false, "m" =>$lang['somethingWentWrongPleaseRefresh']];
             if(!empty($msg_id_list)){
-                $placeholders = implode(',', array_fill(0, count($msg_id_list), '%d'));
-                $sql = $this->db->prepare("DELETE FROM `$table_name` WHERE msg_id IN ($placeholders)", ...$msg_id_list);
-                $r = $this->db->query($sql);
-                if($r>0){
+                if (class_exists('\Emsfb\Privacy')) {
+                    // F13: the shared purge (entries, replies, uploads).
+                    \Emsfb\Privacy::delete_entries($msg_id_list);
+                } else {
+                    $placeholders = implode(',', array_fill(0, count($msg_id_list), '%d'));
+                    $this->db->query($this->db->prepare("DELETE FROM `$table_name` WHERE msg_id IN ($placeholders)", ...$msg_id_list));
                     $table_name = $this->db->prefix . "emsfb_rsp_";
-                    $sql = $this->db->prepare("DELETE FROM `$table_name` WHERE msg_id IN ($placeholders)", ...$msg_id_list);
-                    $r = $this->db->query($sql);
+                    $this->db->query($this->db->prepare("DELETE FROM `$table_name` WHERE msg_id IN ($placeholders)", ...$msg_id_list));
                 }
                 $response = ['success' => true, "m" =>$lang['delete']];
             }

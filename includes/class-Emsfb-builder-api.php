@@ -264,6 +264,7 @@ class Builder_Api {
 			'setting:step_bg_gradient'       => array('free_plus', null, array('step_bg_type=linear', 'step_bg_type=radial', 'step_bg_stops', 'step_bg_angle', 'step_bg_pos'), 'upgFtrStepBgGradient'),
 			// F13: privacy keys of the form (free: legal requirements, never behind a plan).
 			'setting:privacy_ip'             => array('free', null, array('prv_ip'), 'prvIpMode'),
+			'setting:privacy_retention'      => array('free', null, array('prv_days'), 'prvDays'),
 			'setting:sms_notifications'      => array('pro', 'AdnSS', array('smsnoti', 'sms_admins_phone_no', 'sms_msg_new_noti', 'sms_msg_recived_usr', 'sms_msg_responsed_noti'), 'sms_noti'),
 			'setting:telegram_notifications' => array('pro', 'AdnTLG', array('telegramnoti', 'telegram_msg_new_noti', 'telegram_msg_responsed_noti'), 'etelegramno'),
 			'setting:logic_rules'            => array('free_plus', 'AdnSMF', array('logic_rules', 'notification_rules'), 'conlog'),
@@ -299,7 +300,7 @@ class Builder_Api {
 		// F13: the site's privacy settings (Settings > Privacy), free. settings_keys are the
 		// emsfb_setting keys; only an administrator (manage_options) may change them.
 		$add('setting:privacy_site', 'setting', 'free', null, array('form_keys' => array(), 'scope' => 'site', 'label_key' => 'prvTitle',
-			'settings_keys' => array('prv_ip_mode')));
+			'settings_keys' => array('prv_ip_mode', 'prv_days', 'prv_action', 'prv_files')));
 		// The "payment form" template starts a Stripe form: Free Plus, and the Stripe add-on.
 		$add('template:payment', 'template', 'free_plus', 'AdnSPF', array('label_key' => 'upgFtrPaymentForm'));
 		// Saving a form that holds fields the plan does not include (imported, or after a downgrade).

@@ -31,6 +31,21 @@ class Privacy {
 
 	const IP_MODES = array('store', 'anon', 'none');
 
+	/** Single event that continues a retention run that hit its time or row limit. */
+	const CONTINUE_HOOK = 'emsfb_privacy_retention_continue';
+
+	/** Summary of the last retention run: time, counts, more, error. */
+	const LAST_RUN_OPTION = 'emsfb_prv_last_run';
+
+	/**
+	 * Answer types kept by anonymization (§4.3): choices, numbers and dates stay for
+	 * statistics; every other type, and any unknown one, is cleared. pay* types and
+	 * the payment row (transaction id) are kept for accounting.
+	 */
+	const NON_PII_TYPES = array('radio', 'checkbox', 'option', 'select', 'multiselect', 'switch', 'yesNo', 'color', 'rating',
+		'pointr5', 'pointr10', 'r_matrix', 'range', 'number', 'date', 'pdate', 'ardate', 'conturyList', 'stateProvince',
+		'cityList', 'imgRadio', 'chlCheckBox', 'chlRadio', 'trmCheckbox', 'prcfld', 'payment');
+
 	/** Form types whose entries may be left unstored (C): the others need the stored row. */
 	const NOSTORE_TYPES = array('form', 'subscribe');
 
@@ -53,6 +68,11 @@ class Privacy {
 		add_action('efb_form_deleted', array(__CLASS__, 'on_form_deleted'), 10, 1);
 		add_action('wp_ajax_efb_privacy_purge_ip_Emsfb', array(__CLASS__, 'ajax_purge_ip'));
 		add_filter('efb_admin_localize_vars', array(__CLASS__, 'localize_vars'), 20, 2);
+		// D: automatic deletion / anonymization, after the session prune of the daily job.
+		add_action('emsfb_daily_maintenance', array(__CLASS__, 'run_retention'), 30, 0);
+		add_action(self::CONTINUE_HOOK, array(__CLASS__, 'run_retention'), 10, 0);
+		add_action('wp_ajax_efb_privacy_preview_Emsfb', array(__CLASS__, 'ajax_preview'));
+		add_action('wp_ajax_efb_privacy_run_now_Emsfb', array(__CLASS__, 'ajax_run_now'));
 	}
 
 	/** efb_var.privacy on the EFB admin screens: what the settings tab needs besides the settings. */
@@ -60,6 +80,7 @@ class Privacy {
 		if (!is_array($vars)) return $vars;
 		$vars['privacy'] = array(
 			'can_manage' => function_exists('current_user_can') && current_user_can('manage_options'),
+			'last_run'   => self::last_run(),
 		);
 		return $vars;
 	}
@@ -491,5 +512,357 @@ class Privacy {
 		$mode = isset($_POST['mode']) ? sanitize_text_field(wp_unslash($_POST['mode'])) : 'none';
 		$r = self::purge_stored_ips($mode === 'anon' ? 'anon' : 'none');
 		wp_send_json_success(array('success' => true, 'done' => $r['done'], 'changed' => $r['changed']), 200);
+	}
+
+	/* ------------------------------------------------------------ entries: decode, anonymize, purge (D) */
+
+	/** Stored entry/reply content (escaped JSON) to rows, or null. */
+	public static function decode_content($raw) {
+		if (!is_string($raw) || $raw === '') return null;
+		$json = function_exists('emsfb_json_normalize_efb') ? emsfb_json_normalize_efb($raw) : str_replace('\\"', '"', $raw);
+		$rows = json_decode($json, true);
+		if (!is_array($rows)) $rows = json_decode(str_replace('\\"', '"', $raw), true);
+		return is_array($rows) ? $rows : null;
+	}
+
+	/** Rows back to the storage format of insert_message_db() (quotes escaped). */
+	public static function encode_content(array $rows) {
+		$json = json_encode(array_values($rows), JSON_UNESCAPED_UNICODE);
+		return str_replace('"', '\\"', is_string($json) ? $json : '[]');
+	}
+
+	/** Plugin upload names in a stored content, with the URL that named each one when there is one. */
+	public static function files_in_content($raw, $rows = null) {
+		$files = array();
+		if ($rows === null) $rows = self::decode_content($raw);
+		$walk = function ($node) use (&$walk, &$files) {
+			if (!is_array($node)) return;
+			foreach ($node as $k => $v) {
+				if (is_array($v)) { $walk($v); continue; }
+				if (!is_string($v) || $v === '') continue;
+				if (preg_match_all('/efb-(?:PLG|rec)-[0-9]{6}-[A-Za-z0-9]+(?:-[0-9]+)?\.[A-Za-z0-9]{1,10}/', $v, $m)) {
+					foreach ($m[0] as $name) {
+						if (!isset($files[$name]) || $files[$name] === '') {
+							$files[$name] = (in_array($k, array('url', 'src'), true) && preg_match('#^(?:https?:)?//#i', $v)) ? $v : (isset($files[$name]) ? $files[$name] : '');
+						}
+					}
+				}
+			}
+		};
+		if (is_array($rows)) $walk($rows);
+		// Content that is not JSON any more: the names are still found.
+		if (is_string($raw) && preg_match_all('/efb-(?:PLG|rec)-[0-9]{6}-[A-Za-z0-9]+(?:-[0-9]+)?\.[A-Za-z0-9]{1,10}/', $raw, $m)) {
+			foreach ($m[0] as $name) if (!isset($files[$name])) $files[$name] = '';
+		}
+		return $files;
+	}
+
+	/** [field id_ => prv_pii] of a stored form, cached for the request. */
+	public static function form_pii_map($form_id) {
+		static $cache = array();
+		$form_id = (int) $form_id;
+		if (isset($cache[$form_id])) return $cache[$form_id];
+		global $wpdb;
+		$map = array();
+		$raw = $form_id > 0 ? $wpdb->get_var($wpdb->prepare("SELECT form_structer FROM `{$wpdb->prefix}emsfb_form` WHERE form_id = %d", $form_id)) : null;
+		$rows = self::decode_content($raw);
+		foreach ((array) $rows as $i => $r) {
+			if ($i > 0 && is_array($r) && isset($r['id_'], $r['prv_pii']) && in_array((string) $r['prv_pii'], array('1', '0'), true)) {
+				$map[(string) $r['id_']] = (string) $r['prv_pii'];
+			}
+		}
+		return $cache[$form_id] = $map;
+	}
+
+	/** Whether anonymization clears this answer: the field's prv_pii, else its type (unknown = yes). */
+	public static function row_is_personal(array $row, array $pii_map = array()) {
+		$id = isset($row['id_']) ? (string) $row['id_'] : '';
+		if ($id !== '' && isset($pii_map[$id])) return $pii_map[$id] === '1';
+		$type = isset($row['type']) ? (string) $row['type'] : '';
+		if ($type === 'w_link') return false;
+		if (in_array($type, self::NON_PII_TYPES, true) || strpos($type, 'pay') === 0) return false;
+		return true;
+	}
+
+	/**
+	 * §4.3 on one entry's rows: personal answers become @prv@ (value, url, src, sub_value
+	 * and qty cleared), the page link keeps its path only. Returns [rows, files] where
+	 * files are the uploads the cleared answers named.
+	 */
+	public static function anonymize_rows(array $rows, array $pii_map = array()) {
+		$files = array();
+		foreach ($rows as $i => $row) {
+			if (!is_array($row)) continue;
+			$type = isset($row['type']) ? (string) $row['type'] : '';
+			if ($type === 'w_link') {
+				if (isset($row['value']) && is_string($row['value'])) {
+					$rows[$i]['value'] = (string) strtok($row['value'], '?#');
+				}
+				continue;
+			}
+			if (!self::row_is_personal($row, $pii_map)) continue;
+			$files = array_merge($files, self::files_in_content('', array($row)));
+			foreach (array('url', 'src', 'sub_value', 'qty') as $k) {
+				if (array_key_exists($k, $row)) $rows[$i][$k] = '';
+			}
+			$rows[$i]['value'] = self::REDACTED;
+		}
+		return array($rows, $files);
+	}
+
+	/** Whether an entry is a payment record (a payment row, or a pending payment). */
+	public static function is_payment_entry($rows, $read = null) {
+		if ((string) $read === '2') return true;
+		foreach ((array) $rows as $r) {
+			if (is_array($r) && isset($r['type']) && $r['type'] === 'payment') return true;
+		}
+		return false;
+	}
+
+	/**
+	 * The one way entries leave the database (§6.3): admin delete, bulk delete, form
+	 * delete, the retention job and WordPress erasure requests.
+	 *
+	 * Entries are handled in batches of 100. "delete" removes the entry and every
+	 * reply of it; "anon" applies §4.3 to the entry and replaces each reply's text.
+	 * With $with_files, uploads named by what was removed are deleted from disk
+	 * unless another entry or reply still names them. With $keep_payments, a
+	 * payment entry is anonymized instead of deleted (counted as retained).
+	 *
+	 * @param int[]  $msg_ids
+	 * @param string $mode          delete | anon
+	 * @param bool   $with_files
+	 * @param bool   $keep_payments
+	 * @return array{deleted:int,anonymized:int,retained:int,files:int}
+	 */
+	public static function purge_entries(array $msg_ids, $mode = 'delete', $with_files = true, $keep_payments = false) {
+		global $wpdb;
+		$mode = $mode === 'anon' ? 'anon' : 'delete';
+		$out = array('deleted' => 0, 'anonymized' => 0, 'retained' => 0, 'files' => 0);
+		$ids = array_values(array_unique(array_filter(array_map('intval', $msg_ids), function ($i) { return $i > 0; })));
+		if (empty($ids)) return $out;
+		$msg = $wpdb->prefix . 'emsfb_msg_';
+		$rsp = $wpdb->prefix . 'emsfb_rsp_';
+		$has_prv = self::schema_ready();
+		foreach (array_chunk($ids, 100) as $chunk) {
+			$in = implode(',', array_fill(0, count($chunk), '%d'));
+			$cols = 'msg_id, form_id, content, read_' . ($has_prv ? ', prv_state' : '');
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- placeholders built above
+			$entries = $wpdb->get_results($wpdb->prepare("SELECT {$cols} FROM `{$msg}` WHERE msg_id IN ({$in})", $chunk), ARRAY_A);
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- placeholders built above
+			$replies = $wpdb->get_results($wpdb->prepare("SELECT rsp_id, msg_id, content FROM `{$rsp}` WHERE msg_id IN ({$in})", $chunk), ARRAY_A);
+			$by_msg = array();
+			foreach ((array) $replies as $r) $by_msg[(int) $r['msg_id']][] = $r;
+			$files = array();
+			$delete_ids = array();
+			foreach ((array) $entries as $e) {
+				$id = (int) $e['msg_id'];
+				$rows = self::decode_content($e['content']);
+				$anon = $mode === 'anon' || ($keep_payments && self::is_payment_entry($rows, $e['read_']));
+				$entry_files = array();
+				foreach (isset($by_msg[$id]) ? $by_msg[$id] : array() as $r) $entry_files += self::files_in_content($r['content']);
+				if (!$anon) {
+					$entry_files += self::files_in_content($e['content'], $rows);
+					$delete_ids[] = $id;
+					$files += $entry_files;
+					continue;
+				}
+				if ($has_prv && (string) $e['prv_state'] === '1') continue; // already anonymized: no second pass
+				list($new_rows, $cleared) = is_array($rows) ? self::anonymize_rows($rows, self::form_pii_map($e['form_id'])) : array(array(), self::files_in_content($e['content']));
+				$data = array('content' => self::encode_content($new_rows), 'ip' => '');
+				if ($has_prv) { $data['prv_state'] = 1; $data['uid'] = 0; }
+				$wpdb->update($msg, $data, array('msg_id' => $id));
+				foreach (isset($by_msg[$id]) ? $by_msg[$id] : array() as $r) {
+					$wpdb->update($rsp, array(
+						'content'   => self::encode_content(array(array('id_' => 'message', 'type' => 'text', 'value' => self::REDACTED))),
+						'ip'        => '',
+						'reader_ip' => '',
+					), array('rsp_id' => (int) $r['rsp_id']));
+				}
+				$files += $cleared + $entry_files;
+				if ($mode === 'anon') $out['anonymized']++; else $out['retained']++;
+			}
+			if (!empty($delete_ids)) {
+				$din = implode(',', array_fill(0, count($delete_ids), '%d'));
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- placeholders built above
+				$wpdb->query($wpdb->prepare("DELETE FROM `{$rsp}` WHERE msg_id IN ({$din})", $delete_ids));
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- placeholders built above
+				$n = $wpdb->query($wpdb->prepare("DELETE FROM `{$msg}` WHERE msg_id IN ({$din})", $delete_ids));
+				$out['deleted'] += (int) $n;
+			}
+			if ($with_files && class_exists('\Emsfb\Upload_Guard')) {
+				foreach ($files as $name => $url) {
+					if (Upload_Guard::delete_unreferenced_upload($name, (string) $url)) $out['files']++;
+				}
+			}
+		}
+		if (function_exists('do_action')) do_action('efb_entries_purged', $ids, $mode, $out);
+		return $out;
+	}
+
+	/** Whether emsfb_msg_ has the 1.4 columns (uid, prv_state). Cached per request. */
+	public static function schema_ready() {
+		static $ready = null;
+		if ($ready !== null) return $ready;
+		global $wpdb;
+		$ready = !empty($wpdb->get_results($wpdb->prepare("SHOW COLUMNS FROM `{$wpdb->prefix}emsfb_msg_` LIKE %s", 'prv_state')));
+		return $ready;
+	}
+
+	/** Delete with the site's "also delete uploaded files" choice (admin delete paths). */
+	public static function delete_entries(array $msg_ids) {
+		return self::purge_entries($msg_ids, 'delete', self::setting('prv_files') === '1', false);
+	}
+
+	/** Every entry of one form (the form is being deleted). */
+	public static function delete_form_entries($form_id) {
+		global $wpdb;
+		$ids = $wpdb->get_col($wpdb->prepare("SELECT msg_id FROM `{$wpdb->prefix}emsfb_msg_` WHERE form_id = %d", (int) $form_id));
+		return self::delete_entries(array_map('intval', (array) $ids));
+	}
+
+	/* ------------------------------------------------------------ retention (D) */
+
+	/** Site-time cut-off for "older than N days" (the date columns are written with wp_date()). */
+	public static function cutoff($days, $now = null) {
+		$t = ($now === null ? time() : (int) $now) - ((int) $days) * 86400;
+		return function_exists('wp_date') ? wp_date('Y-m-d H:i:s', $t) : gmdate('Y-m-d H:i:s', $t);
+	}
+
+	/**
+	 * What the job does: [form_id|null, days, exclude[]] per rule. A form with its own
+	 * prv_days (even "0" = never) leaves the global rule.
+	 */
+	public static function retention_rules($settings = null) {
+		$rules = array();
+		$own = array();
+		foreach (self::form_map() as $fid => $e) {
+			if (!is_array($e) || !isset($e['days']) || $e['days'] === '') continue;
+			$own[] = (int) $fid;
+			if ((int) $e['days'] > 0) $rules[] = array((int) $fid, (int) $e['days'], array());
+		}
+		$global = (int) self::setting('prv_days', $settings);
+		if ($global > 0) $rules[] = array(null, $global, $own);
+		return $rules;
+	}
+
+	/**
+	 * Entries whose last activity (the entry, or its newest reply) is older than the
+	 * cut-off. $count = true returns the number instead of ids.
+	 */
+	public static function retention_query($form_id, $days, array $exclude = array(), $limit = 200, $after_id = 0, $count = false) {
+		global $wpdb;
+		$msg = $wpdb->prefix . 'emsfb_msg_';
+		$rsp = $wpdb->prefix . 'emsfb_rsp_';
+		$cut = self::cutoff($days);
+		$where = array();
+		$args = array();
+		if ($form_id !== null) {
+			$where[] = 'm.form_id = %d';
+			$args[] = (int) $form_id;
+		} elseif (!empty($exclude)) {
+			$where[] = 'm.form_id NOT IN (' . implode(',', array_fill(0, count($exclude), '%d')) . ')';
+			$args = array_merge($args, array_map('intval', $exclude));
+		}
+		if (self::schema_ready()) $where[] = 'm.prv_state = 0';
+		$where[] = 'm.`date` < %s';
+		$args[] = $cut;
+		$where[] = '(r.d IS NULL OR r.d < %s)';
+		$args[] = $cut;
+		if (!$count && $after_id > 0) {
+			$where[] = 'm.msg_id > %d';
+			$args[] = (int) $after_id;
+		}
+		$from = "FROM `{$msg}` m LEFT JOIN (SELECT msg_id, MAX(`date`) AS d FROM `{$rsp}` GROUP BY msg_id) r ON r.msg_id = m.msg_id WHERE " . implode(' AND ', $where);
+		if ($count) {
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- tables from $wpdb->prefix, placeholders built above
+			return (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) {$from}", $args));
+		}
+		$args[] = (int) $limit;
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- tables from $wpdb->prefix, placeholders built above
+		return array_map('intval', (array) $wpdb->get_col($wpdb->prepare("SELECT m.msg_id {$from} ORDER BY m.msg_id ASC LIMIT %d", $args)));
+	}
+
+	/** How many entries the next run would remove with $days: one form, or every form that follows the global setting. */
+	public static function preview_count($days, $form_id = 0) {
+		$days = (int) $days;
+		if ($days <= 0) return 0;
+		if ((int) $form_id > 0) return self::retention_query((int) $form_id, $days, array(), 0, 0, true);
+		$own = array();
+		foreach (self::form_map() as $fid => $e) if (is_array($e) && isset($e['days']) && $e['days'] !== '') $own[] = (int) $fid;
+		return self::retention_query(null, $days, $own, 0, 0, true);
+	}
+
+	public static function last_run() {
+		$r = function_exists('get_option') ? get_option(self::LAST_RUN_OPTION, null) : null;
+		return is_array($r) ? $r : null;
+	}
+
+	/**
+	 * The daily job (§6.4): every rule, oldest entries first, at most $max_rows entries
+	 * and $max_seconds per run; the rest continues in 5 minutes. Also prunes the
+	 * email log by the global prv_days.
+	 */
+	public static function run_retention($max_rows = 2000, $max_seconds = 20) {
+		if (!is_numeric($max_rows)) $max_rows = 2000;
+		if (!is_numeric($max_seconds)) $max_seconds = 20;
+		if (function_exists('get_transient') && get_transient('emsfb_prv_retention_lock')) return self::last_run();
+		if (function_exists('set_transient')) set_transient('emsfb_prv_retention_lock', time(), 120);
+		$started = microtime(true);
+		$sum = array('time' => time(), 'deleted' => 0, 'anonymized' => 0, 'retained' => 0, 'files' => 0, 'more' => false, 'error' => '');
+		try {
+			$action = self::setting('prv_action');
+			$with_files = self::setting('prv_files') === '1';
+			$keep_payments = function_exists('apply_filters') ? (bool) apply_filters('efb_privacy_keep_payment_entries', true) : true;
+			$done = 0;
+			foreach (self::retention_rules() as $rule) {
+				list($fid, $days, $exclude) = $rule;
+				$after = 0;
+				while (true) {
+					if ($done >= $max_rows || (microtime(true) - $started) > $max_seconds) { $sum['more'] = true; break 2; }
+					$ids = self::retention_query($fid, $days, $exclude, min(200, $max_rows - $done), $after);
+					if (empty($ids)) break;
+					$after = max($ids);
+					$r = self::purge_entries($ids, $action, $with_files, $keep_payments);
+					foreach (array('deleted', 'anonymized', 'retained', 'files') as $k) $sum[$k] += $r[$k];
+					$done += count($ids);
+				}
+			}
+			$sum['email_log'] = self::prune_email_log((int) self::setting('prv_days'));
+			if (method_exists(__CLASS__, 'sweep_nostore_files')) $sum['nostore_files'] = self::sweep_nostore_files();
+		} catch (\Throwable $e) {
+			$sum['error'] = substr($e->getMessage(), 0, 200);
+		}
+		if ($sum['more'] && function_exists('wp_next_scheduled') && !wp_next_scheduled(self::CONTINUE_HOOK)) {
+			wp_schedule_single_event(time() + 300, self::CONTINUE_HOOK);
+		}
+		if (function_exists('update_option')) update_option(self::LAST_RUN_OPTION, $sum, false);
+		if (function_exists('delete_transient')) delete_transient('emsfb_prv_retention_lock');
+		return $sum;
+	}
+
+	/** Drop efb_email_log rows (recipient addresses) older than $days. */
+	public static function prune_email_log($days) {
+		if ((int) $days <= 0 || !function_exists('get_option')) return 0;
+		$logs = get_option('efb_email_log', array());
+		if (!is_array($logs) || empty($logs)) return 0;
+		$cut = self::cutoff($days);
+		$keep = array_values(array_filter($logs, function ($r) use ($cut) { return !is_array($r) || !isset($r['date']) || (string) $r['date'] >= $cut; }));
+		$removed = count($logs) - count($keep);
+		if ($removed > 0) update_option('efb_email_log', $keep, false);
+		return $removed;
+	}
+
+	public static function ajax_preview() {
+		self::admin_guard();
+		$days = isset($_POST['days']) ? self::days(wp_unslash($_POST['days'])) : '0';
+		$fid = isset($_POST['form_id']) ? absint(wp_unslash($_POST['form_id'])) : 0;
+		wp_send_json_success(array('success' => true, 'days' => (int) $days, 'count' => self::preview_count((int) $days, $fid)), 200);
+	}
+
+	public static function ajax_run_now() {
+		self::admin_guard();
+		if (function_exists('delete_transient')) delete_transient('emsfb_prv_retention_lock');
+		wp_send_json_success(array('success' => true, 'last_run' => self::run_retention()), 200);
 	}
 }

@@ -16224,3 +16224,96 @@ msgstr "%s gespeicherte Adressen wurden aktualisiert."
 #: includes/functions.php
 msgid "Only an administrator can change the privacy settings."
 msgstr "Nur ein Administrator kann die Datenschutzeinstellungen ändern."
+
+#  origin: claude (de_DE) F13
+#. translators: F13: setting: number of days after which entries are removed automatically
+#: includes/functions.php
+msgid "Delete entries automatically after (days)"
+msgstr "Einträge automatisch löschen nach (Tagen)"
+
+#  origin: claude (de_DE) F13
+#. translators: F13: help under the automatic deletion days
+#: includes/functions.php
+msgid "0 = never. Counted from the last activity (entry or reply)."
+msgstr "0 = nie. Gezählt ab der letzten Aktivität (Eintrag oder Antwort)."
+
+#  origin: claude (de_DE) F13
+#. translators: F13: setting: what happens to an entry when its retention time is over
+#: includes/functions.php
+msgid "When the time is up"
+msgstr "Wenn die Zeit abgelaufen ist"
+
+#  origin: claude (de_DE) F13
+#. translators: F13: option: remove the entry, its replies and files
+#: includes/functions.php
+msgid "Delete completely"
+msgstr "Vollständig löschen"
+
+#  origin: claude (de_DE) F13
+#. translators: F13: option: clear personal answers but keep choices, numbers and dates
+#: includes/functions.php
+msgid "Anonymize (keep choice answers for statistics)"
+msgstr "Anonymisieren (Auswahlantworten für die Statistik behalten)"
+
+#  origin: claude (de_DE) F13
+#. translators: F13: checkbox: delete the files uploaded with an entry when the entry is deleted
+#: includes/functions.php
+msgid "Also delete uploaded files"
+msgstr "Auch hochgeladene Dateien löschen"
+
+#  origin: claude (de_DE) F13
+#. translators: F13: preview of automatic deletion. %s: number of entries
+#: includes/functions.php
+#, php-format
+msgid "%s entries will be removed on the next run."
+msgstr "%s Einträge werden beim nächsten Durchlauf entfernt."
+
+#  origin: claude (de_DE) F13
+#. translators: F13: confirmation before saving automatic deletion. %1$s: number of days
+#: includes/functions.php
+#, php-format
+msgid "Entries older than %1$s days will be removed. This cannot be undone. Continue?"
+msgstr "Einträge, die älter als %1$s Tage sind, werden entfernt. Dieser Vorgang kann nicht rückgängig gemacht werden. Fortfahren?"
+
+#  origin: claude (de_DE) F13
+#. translators: F13: status of the automatic deletion. %1$s: date and time, %2$s: number of entries
+#: includes/functions.php
+#, php-format
+msgid "Last run: %1$s, %2$s entries removed"
+msgstr "Letzter Durchlauf: %1$s, %2$s Einträge entfernt"
+
+#  origin: claude (de_DE) F13
+#. translators: F13: status when the automatic deletion never ran
+#: includes/functions.php
+msgid "The automatic cleanup has not run yet."
+msgstr "Die automatische Bereinigung ist noch nicht gelaufen."
+
+#  origin: claude (de_DE) F13
+#. translators: F13: button: run the automatic deletion immediately
+#: includes/functions.php
+msgid "Run now"
+msgstr "Jetzt ausführen"
+
+#  origin: claude (de_DE) F13
+#. translators: F13: shown instead of an answer that was anonymized
+#: includes/functions.php
+msgid "Removed for privacy"
+msgstr "Aus Datenschutzgründen entfernt"
+
+#  origin: claude (de_DE) F13
+#. translators: F13: badge on an entry whose personal answers were removed
+#: includes/functions.php
+msgid "Anonymized"
+msgstr "Anonymisiert"
+
+#  origin: claude (de_DE) F13
+#. translators: F13: form setting: own automatic deletion days for this form
+#: includes/functions.php
+msgid "Delete this form's entries automatically after (days)"
+msgstr "Einträge dieses Formulars automatisch löschen nach (Tagen)"
+
+#  origin: claude (de_DE) F13
+#. translators: F13: help under the form's automatic deletion days
+#: includes/functions.php
+msgid "Empty = the global setting. 0 = never for this form."
+msgstr "Leer = globale Einstellung. 0 = für dieses Formular nie."

@@ -238,6 +238,15 @@ const prvIpEls = () => {
     <small class="efb form-text text-muted d-block mt-1" id="prvIpElHelp">${efb_prv_text_efb('prvIpHelp', 'Rate limits and spam protection still work. The address is only read during the request.')}</small>
   </div>`;
 };
+const prvDaysEls = () => {
+  const cur = valj_efb[0].hasOwnProperty('prv_days') ? String(valj_efb[0].prv_days) : '';
+  return `
+  <div class="efb mt-2 mb-2">
+    <label for="prvDaysEl" class="efb mb-1"><i class="efb bi-calendar-x fs-7 ${iconMarginGlobal}"></i>${efb_prv_text_efb('prvDaysForm', "Delete this form's entries automatically after (days)")}</label>
+    <input type="text" inputmode="numeric" maxlength="4" data-id="formSet" class="efb elEdit form-control efb h-d-efb border-d rounded-4" id="prvDaysEl" value="${cur}" placeholder="${efb_prv_text_efb('prvIpInherit', 'Use the global setting')}" aria-describedby="prvDaysElHelp">
+    <small class="efb form-text text-muted d-block mt-1" id="prvDaysElHelp">${efb_prv_text_efb('prvDaysFormHelp', 'Empty = the global setting. 0 = never for this form.')}</small>
+  </div>`;
+};
 const privacyEls = () => `
           <!-- privacy section (F13) -->
           <div class="efb d-grid gap-2">
@@ -248,6 +257,7 @@ const privacyEls = () => `
           <div class="efb mb-3 mt-3 collapse" id="collapsePrivacy">
             <div class="efb mb-3 px-3 row">
               ${prvIpEls()}
+              ${prvDaysEls()}
             </div>
           </div>
           <!-- privacy section end -->`;

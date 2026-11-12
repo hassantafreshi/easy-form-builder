@@ -16045,3 +16045,96 @@ msgstr "%s نشانی ذخیره‌شده به‌روز شد."
 #: includes/functions.php
 msgid "Only an administrator can change the privacy settings."
 msgstr "فقط مدیر سایت می‌تواند تنظیمات حریم خصوصی را تغییر دهد."
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: setting: number of days after which entries are removed automatically
+#: includes/functions.php
+msgid "Delete entries automatically after (days)"
+msgstr "حذف خودکار پاسخ‌ها پس از (روز)"
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: help under the automatic deletion days
+#: includes/functions.php
+msgid "0 = never. Counted from the last activity (entry or reply)."
+msgstr "۰ یعنی هرگز. از آخرین فعالیت (ارسال پاسخ یا پیام پاسخ) شمرده می‌شود."
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: setting: what happens to an entry when its retention time is over
+#: includes/functions.php
+msgid "When the time is up"
+msgstr "وقتی زمان تمام شد"
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: option: remove the entry, its replies and files
+#: includes/functions.php
+msgid "Delete completely"
+msgstr "حذف کامل"
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: option: clear personal answers but keep choices, numbers and dates
+#: includes/functions.php
+msgid "Anonymize (keep choice answers for statistics)"
+msgstr "ناشناس‌سازی (پاسخ‌های گزینه‌ای برای آمار می‌مانند)"
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: checkbox: delete the files uploaded with an entry when the entry is deleted
+#: includes/functions.php
+msgid "Also delete uploaded files"
+msgstr "فایل‌های بارگذاری‌شده هم حذف شوند"
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: preview of automatic deletion. %s: number of entries
+#: includes/functions.php
+#, php-format
+msgid "%s entries will be removed on the next run."
+msgstr "%s پاسخ در اجرای بعدی حذف می‌شود."
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: confirmation before saving automatic deletion. %1$s: number of days
+#: includes/functions.php
+#, php-format
+msgid "Entries older than %1$s days will be removed. This cannot be undone. Continue?"
+msgstr "پاسخ‌های قدیمی‌تر از %1$s روز حذف می‌شوند. این عمل قابل بازگشت نیست. ادامه می‌دهید؟"
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: status of the automatic deletion. %1$s: date and time, %2$s: number of entries
+#: includes/functions.php
+#, php-format
+msgid "Last run: %1$s, %2$s entries removed"
+msgstr "آخرین اجرا: %1$s، %2$s پاسخ حذف شد"
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: status when the automatic deletion never ran
+#: includes/functions.php
+msgid "The automatic cleanup has not run yet."
+msgstr "پاک‌سازی خودکار هنوز اجرا نشده است."
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: button: run the automatic deletion immediately
+#: includes/functions.php
+msgid "Run now"
+msgstr "اکنون اجرا شود"
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: shown instead of an answer that was anonymized
+#: includes/functions.php
+msgid "Removed for privacy"
+msgstr "برای حفظ حریم خصوصی حذف شد"
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: badge on an entry whose personal answers were removed
+#: includes/functions.php
+msgid "Anonymized"
+msgstr "ناشناس‌شده"
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: form setting: own automatic deletion days for this form
+#: includes/functions.php
+msgid "Delete this form's entries automatically after (days)"
+msgstr "حذف خودکار پاسخ‌های این فرم پس از (روز)"
+
+#  origin: claude (fa_IR) F13
+#. translators: F13: help under the form's automatic deletion days
+#: includes/functions.php
+msgid "Empty = the global setting. 0 = never for this form."
+msgstr "خالی یعنی تنظیمات سراسری. ۰ یعنی هرگز برای این فرم."

@@ -513,7 +513,8 @@ function getContentPreview_efb(contentStr) {
     for (const c of parsed) {
       if (!c || !c.value || c.value === '@file@') continue;
       if (c.type === 'maps' || c.type === 'esign' || c.type === 'payment' || c.type ==='w_link') continue;
-      let val = String(c.value).replace(/<[^>]*>/g, '').replace(/@efb@dq#/g, '"').replace(/@efb!/g, ',').replace(/@efb[^#]*#/g, ' ').replace(/,\s*$/, '').trim();
+      let val = c.value === '@prv@' ? ((efb_var.text && efb_var.text.prvRedacted) || 'Removed for privacy') // F13
+        : String(c.value).replace(/<[^>]*>/g, '').replace(/@efb@dq#/g, '"').replace(/@efb!/g, ',').replace(/@efb[^#]*#/g, ' ').replace(/,\s*$/, '').trim();
       if (val.length > 0) {
         // c.name/c.id_ come straight off the stored submission, not the
         // trusted form definition - never trust them into innerHTML unescaped.
@@ -1898,8 +1899,93 @@ function efb_privacy_tab_efb(prv, mx) {
         ${can ? `<button type="button" class="efb btn btn-outline-danger btn-sm" id="prvPurgeIpBtn_efb" onclick="efb_privacy_purge_ip_efb(this)"><i class="efb bi-eraser mx-1"></i>${efb_prv_t_efb('prvPurgeIp', 'Clear IP addresses already stored')}</button>` : ''}
         <span class="efb mx-2 text-muted" id="prvPurgeIpResult_efb" aria-live="polite"></span>
       </div>
+      ${efb_privacy_retention_html_efb(prv, mx, dis)}
       <!--efb-privacy-extra-->
     </div>`;
+}
+/* Automatic deletion (F13 D): days, what happens, files, preview, last run, run now. */
+function efb_privacy_retention_html_efb(prv, mx, dis) {
+  const radio = (val, key, fb) => `
+      <div class="efb form-check my-1">
+        <input class="efb form-check-input" type="radio" name="prvAction_efb" id="prvAction_${val}_efb" value="${val}" ${prv.prv_action === val ? 'checked' : ''} ${dis}>
+        <label class="efb form-check-label mx-2" for="prvAction_${val}_efb">${efb_prv_t_efb(key, fb)}</label>
+      </div>`;
+  const can = efb_prv_can_manage_efb();
+  return `
+      <div class="efb card-body ${mx} py-1 mt-3" data-prv-section="retention">
+        <label class="efb form-label fw-bold fs-6 mb-1" for="prvDays_efb">${efb_prv_t_efb('prvDays', 'Delete entries automatically after (days)')}</label>
+        <input type="text" inputmode="numeric" autocomplete="off" maxlength="4" class="efb form-control w-25 h-d-efb border-d efb-rounded" id="prvDays_efb" value="${efb_prv_digits_efb(prv.prv_days)}" ${dis} aria-describedby="prvDaysHelp_efb prvPreview_efb" oninput="efb_privacy_days_input_efb(this)">
+        <small class="efb text-muted d-block mt-1" id="prvDaysHelp_efb">${efb_prv_t_efb('prvDaysHelp', '0 = never. Counted from the last activity (entry or reply).')}</small>
+        <span class="efb d-block mt-1 text-danger" id="prvPreview_efb" aria-live="polite"></span>
+      </div>
+      <fieldset class="efb card-body ${mx} py-1 border-0" id="prvActionSet_efb">
+        <legend class="efb fs-6 fw-bold mb-1">${efb_prv_t_efb('prvAction', 'When the time is up')}</legend>
+        ${radio('delete', 'prvActDelete', 'Delete completely')}
+        ${radio('anon', 'prvActAnon', 'Anonymize (keep choice answers for statistics)')}
+      </fieldset>
+      <div class="efb card-body ${mx} py-1">
+        <div class="efb form-check">
+          <input class="efb form-check-input" type="checkbox" id="prvFiles_efb" ${prv.prv_files === '1' ? 'checked' : ''} ${dis}>
+          <label class="efb form-check-label mx-2" for="prvFiles_efb">${efb_prv_t_efb('prvFiles', 'Also delete uploaded files')}</label>
+        </div>
+      </div>
+      <div class="efb card-body ${mx} py-1">
+        <span class="efb text-muted" id="prvLastRun_efb" aria-live="polite">${efb_privacy_last_run_text_efb(efb_var.privacy && efb_var.privacy.last_run)}</span>
+        ${can ? `<button type="button" class="efb btn btn-outline-secondary btn-sm mx-2" id="prvRunNow_efb" onclick="efb_privacy_run_now_efb(this)"><i class="efb bi-play-circle mx-1"></i>${efb_prv_t_efb('prvRunNow', 'Run now')}</button>` : ''}
+      </div>`;
+}
+function efb_privacy_last_run_text_efb(r) {
+  if (!r || !r.time) return efb_prv_t_efb('prvNeverRun', 'The automatic cleanup has not run yet.');
+  let when = String(r.time);
+  try { when = new Date(Number(r.time) * 1000).toLocaleString(String((efb_var && efb_var.wp_lan) || 'en').replace('_', '-')); } catch (e) { /* keep the number */ }
+  const n = (Number(r.deleted) || 0) + (Number(r.anonymized) || 0);
+  return efb_prv_t_efb('prvLastRun', 'Last run: %1$s, %2$s entries removed').replace('%1$s', when).replace('%2$s', efb_prv_number_efb(n));
+}
+/* The day field: Persian/Arabic digits become Latin, 0-3650; the preview follows (debounced). */
+function efb_privacy_days_input_efb(el) {
+  const raw = efb_prv_digits_efb(el.value).replace(/[^0-9]/g, '').slice(0, 4);
+  const v = raw === '' ? '' : String(Math.min(3650, Number(raw)));
+  if (el.value !== v) el.value = v;
+  clearTimeout(window.efb_prv_preview_timer_efb);
+  window.efb_prv_preview_timer_efb = setTimeout(() => efb_privacy_preview_efb(v), 400);
+}
+async function efb_privacy_preview_efb(days) {
+  const out = document.getElementById('prvPreview_efb');
+  if (!out) return 0;
+  const d = Number(days) || 0;
+  if (d <= 0 || !efb_prv_can_manage_efb()) { out.textContent = ''; window.efb_prv_preview_efb = { days: d, count: 0 }; return 0; }
+  const r = await efb_privacy_post_efb('efb_privacy_preview_Emsfb', { days: d });
+  const count = r && r.success ? Number(r.count) || 0 : 0;
+  window.efb_prv_preview_efb = { days: d, count: count };
+  out.textContent = count > 0 ? efb_prv_t_efb('prvPreview', '%s entries will be removed on the next run.').replace('%s', efb_prv_number_efb(count)) : '';
+  return count;
+}
+async function efb_privacy_run_now_efb(btn) {
+  if (btn) btn.disabled = true;
+  const r = await efb_privacy_post_efb('efb_privacy_run_now_Emsfb', {});
+  const out = document.getElementById('prvLastRun_efb');
+  if (out) out.textContent = r && r.success ? efb_privacy_last_run_text_efb(r.last_run) : (r.m || efb_var.text.error);
+  if (r && r.success && efb_var.privacy) efb_var.privacy.last_run = r.last_run;
+  if (btn) btn.disabled = false;
+}
+/* Before a settings Save that turns on (or shortens) automatic deletion: say how many entries
+   the next run removes and ask; nothing to remove = no question. */
+function efb_privacy_save_needs_check_efb() {
+  const el = document.getElementById('prvDays_efb');
+  if (!el || !efb_prv_can_manage_efb()) return false;
+  const d = Number(efb_prv_digits_efb(el.value)) || 0;
+  const stored = Number((typeof valueJson_ws_setting === 'object' && valueJson_ws_setting && valueJson_ws_setting.prv_days) || 0) || 0;
+  return d > 0 && (stored === 0 || d < stored);
+}
+async function efb_privacy_confirm_save_efb() {
+  const d = Number(efb_prv_digits_efb(document.getElementById('prvDays_efb').value)) || 0;
+  const count = (window.efb_prv_preview_efb && window.efb_prv_preview_efb.days === d) ? window.efb_prv_preview_efb.count : await efb_privacy_preview_efb(d);
+  if (!count) return true;
+  const msg = efb_prv_t_efb('prvPreview', '%s entries will be removed on the next run.').replace('%s', efb_prv_number_efb(count)) + ' '
+    + efb_prv_t_efb('prvConfirm', 'Entries older than %1$s days will be removed. This cannot be undone. Continue?').replace('%1$s', efb_prv_number_efb(d));
+  const ok = typeof window.efb_confirm_efb === 'function' ? window.efb_confirm_efb({ variant: 'warning', message: msg }) : Promise.resolve(window.confirm(msg));
+  setTimeout(() => { const c = document.querySelector('#modal-footer-efb .efb-btn-cancel'); if (c) c.focus(); }, 60);
+  return ok;
 }
 /* The privacy keys for the settings save. {} when not an administrator or the tab is
    not on the screen: the merge then keeps the stored values. */
@@ -1908,6 +1994,12 @@ function efb_privacy_patch_efb() {
   const out = {};
   const ip = document.querySelector('input[name="prvIpMode_efb"]:checked');
   if (ip && ['store', 'anon', 'none'].includes(ip.value)) out.prv_ip_mode = ip.value;
+  const days = document.getElementById('prvDays_efb');
+  if (days) { const d = efb_prv_digits_efb(days.value).replace(/[^0-9]/g, ''); out.prv_days = String(Math.min(3650, Number(d || 0))); }
+  const act = document.querySelector('input[name="prvAction_efb"]:checked');
+  if (act && ['delete', 'anon'].includes(act.value)) out.prv_action = act.value;
+  const files = document.getElementById('prvFiles_efb');
+  if (files) out.prv_files = files.checked ? '1' : '';
   return out;
 }
 function efb_privacy_post_efb(action, extra) {
@@ -3059,6 +3151,15 @@ function fun_switch_saveSetting(i, id) {
  *                              see.
  */
 function fun_set_setting_emsFormBuilder(state_auto = 0, done) {
+  /* F13: turning on automatic deletion asks first, with the number of entries it removes. */
+  if (state_auto == 0 && !window.efb_prv_save_confirmed_efb && typeof efb_privacy_save_needs_check_efb === 'function' && efb_privacy_save_needs_check_efb()) {
+    efb_privacy_confirm_save_efb().then((ok) => {
+      if (!ok) return;
+      window.efb_prv_save_confirmed_efb = true;
+      try { fun_set_setting_emsFormBuilder(0, done); } finally { window.efb_prv_save_confirmed_efb = false; }
+    });
+    return;
+  }
   if(state_auto==0){
   let btn = document.getElementById('save-stng-efb');
   btn.classList.add('disabled');
@@ -3756,7 +3857,9 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
           }
 
           rows[parseInt(i_count)][parseInt(value_col_index)] = content[c].value;
-          if (content[c].type == 'payment') {
+          if (content[c].value === '@prv@') {
+            /* F13: an anonymized answer; convertToCSV_emsFormBuilder writes "Removed for privacy". */
+          } else if (content[c].type == 'payment') {
             const vx = rows[0].findIndex(x => x == "TID");
             rows[parseInt(i_count)][parseInt(vx)] = content[c].paymentIntent;
           }else if(content[c].value == '@file@' || content[c].type == 'file' || content[c].type == 'media' || content[c].type == 'zip'  || content[c].type == 'image' || content[c].type == 'document' || content[c].type == 'allformat'){
@@ -3873,7 +3976,8 @@ function exportCSVFile_emsFormBuilder(items, fileTitle) {
  * @efb@dq# for a double quote). */
 function convertToCSV_emsFormBuilder(objArray) {
   var array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray;
-  const decode = (val) => val
+  const prvRedacted = (typeof efb_var !== 'undefined' && efb_var.text && efb_var.text.prvRedacted) || 'Removed for privacy';
+  const decode = (val) => (val === '@prv@' ? prvRedacted : val)
     .replace(/@efb@nq#|@n#/g, '\n')
     .replace(/@efb@dq#/g, '"')
     .replace(/@efb@sq#/g, "'")

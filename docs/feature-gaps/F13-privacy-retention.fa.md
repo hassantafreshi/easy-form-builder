@@ -1,4 +1,4 @@
-وضعیت: در حال پیاده‌سازی (A و B انجام شد) · اولویت: P0 · تلاش: S (هسته) + S (برون‌بری و حذف وردپرس) · وابستگی: — (پیش از F14 اجرا شود؛ ایندکس‌ها و ستون‌های این سند را F14 دوباره نمی‌سازد)
+وضعیت: در حال پیاده‌سازی (A، B و D انجام شد) · اولویت: P0 · تلاش: S (هسته) + S (برون‌بری و حذف وردپرس) · وابستگی: — (پیش از F14 اجرا شود؛ ایندکس‌ها و ستون‌های این سند را F14 دوباره نمی‌سازد)
 
 # F13 — حریم خصوصی و نگهداری داده
 
@@ -355,12 +355,13 @@ ALTER TABLE `{p}emsfb_rsp_` ADD KEY `msg_id` (`msg_id`);
 - پذیرش: (۱) پاسخ ۱۰۰ روزه با `prv_days=90` حذف می‌شود؛ پاسخ ۱۰۰ روزه‌ای که پیام گفتگوی ۱۰ روزه دارد **می‌ماند** (مبنا آخرین فعالیت است). (۲) فایل در `uploads/2026/02/` پیدا و حذف می‌شود؛ فایلی که پاسخ دیگری به آن اشاره دارد حذف نمی‌شود؛ مسیر خارج از uploads یا با نام بیگانه هرگز حذف نمی‌شود. (۳) ناشناس‌سازی دقیقاً §۴.۳ را اجرا می‌کند و دوباره‌اجرا بی‌اثر است. (۴) حذف تکی، پاسخ‌های گفتگو را هم پاک می‌کند. (۵) با ۵۰۰۰ ردیف، اجرا پس از ۲۰۰۰ ردیف متوقف و ادامه زمان‌بندی می‌شود. (۶) پیش‌نمایش با کوئری حذف عدد یکسان می‌دهد.
 - تست: `php tests/test-privacy-retention.php` (stub ‏`$wpdb` درون‌حافظه با جدول‌های msg و rsp، `wp_upload_dir`، `wp_delete_file`؛ فایل‌های واقعی در پوشهٔ موقت)، `php tests/test-upload-path-from-url.php`، و دوباره‌اجرای `php tests/test-upload-guard.php`.
 
-> **Checkpoint**
-> فایل‌های تغییرکرده:
-> تست‌ها:
-> وضعیت ترجمه:
-> مورد باز:
-> اقدام بعدی:
+> **Checkpoint** (۲۰۲۶-۱۱-۱۲، انجام شد)
+> فایل‌های تغییرکرده: `includes/class-Emsfb-privacy.php` (`decode_content`/`encode_content`، `files_in_content`، `form_pii_map`، `row_is_personal`، `anonymize_rows` طبق §۴.۳، `purge_entries` با `efb_entries_purged`، `delete_entries`/`delete_form_entries`، `retention_rules`/`retention_query` (مبنای آخرین فعالیت، بدون `GREATEST` تا روی SQLite هم اجرا شود)، `preview_count`، `run_retention` با سقف ۲۰۰۰ ردیف و ۲۰ ثانیه، قفل گذرا و ادامهٔ `emsfb_privacy_retention_continue`، `prune_email_log`، `last_run`، AJAXهای `efb_privacy_preview_Emsfb` و `efb_privacy_run_now_Emsfb` فقط با `manage_options`)؛ `includes/class-Emsfb-upload-guard.php` (`is_plugin_upload_name`، `path_from_url`، `locate_upload`، `upload_is_referenced`، `delete_unreferenced_upload`؛ پاک‌کنندهٔ یتیم‌ها حالا فایل را در `uploads/YYYY/MM/` پیدا می‌کند)؛ `admin/class-Emsfb-admin.php` (حذف تکی، گروهی و حذف فرم از `purge_entries` می‌گذرند)؛ `class-Emsfb.php` (پاک‌کردن زمان‌بندی ادامه در غیرفعال‌سازی)؛ `class-Emsfb-builder-api.php` (`setting:privacy_retention` با `prv_days`، و `settings_keys` سراسری)؛ `class-Emsfb-public.php` (`prvRedacted` و `prvAnonBadge` در زیرمجموعهٔ عمومی)؛ `list_form-efb.js` (روز با ارقام فارسی و عربی، پیش‌نمایش `aria-live`، «حذف کامل/ناشناس‌سازی»، فایل‌ها، آخرین اجرا، «اکنون اجرا شود»، تأیید پیش از ذخیره با شمار پاسخ‌ها؛ `@prv@` در پیش‌نمایش فهرست و CSV)؛ `response-viewer-efb.js` (ردیف «حذف‌شده برای حریم خصوصی» و نشان «ناشناس‌شده»)؛ `val-efb.js`/`admin-efb.js` (`prvDaysEl`)؛ `tests/e2e-wp/run.js` و `ctl.php` (سناریوی ۸ ادامه یافت).
+> تست‌ها: `php tests/test-privacy-retention.php` ‏۶۴ موفق (با Upload_Guard پیش از تغییر ۷ ناموفق: فایل‌های `uploads/YYYY/MM` پیدا نمی‌شدند)؛ `php tests/test-upload-path-from-url.php` ‏۲۳ موفق؛ `node tests/test-privacy-admin-js.js` ‏۲۷ موفق؛ `test-upload-guard.php` ‏۱۲۲، `test-upload-report-scenarios.php` ‏۳۴، `test-upload-multifield-form.php` ‏۵۰، `test-response-viewer-escaping.js` همه موفق. وردپرس واقعی، سناریوی ۸: ۲۸ موفق، ۰ ناموفق (۹۰ روز با ارقام فارسی، پیش‌نمایش «۱ پاسخ»، تأیید، `wp cron event run emsfb_daily_maintenance` پاسخ ۱۰۰ روزه را با پاسخ گفتگو و فایلش در `uploads/YYYY/MM` حذف کرد و پاسخ دارای پیام ۱۰ روزه ماند؛ ناشناس‌سازی با «اکنون اجرا شود» و نمایش در نمایشگر پاسخ).
+> وضعیت ترجمه: ۱۵ عبارت تازه (`prvDays` … `prvDaysFormHelp`، از جمله `prvRunNow`، `prvNeverRun`، `prvDaysForm`، `prvDaysFormHelp` که در جدول §۱۶ نبودند) با فارسی و آلمانی؛ `.mo`/`.l10n.php` ساخته شد، بدون تغییر ترجمه‌های موجود؛ `check-locale.php` برای `fa_IR` و `de_DE`: PASS.
+> تصمیم‌ها: پاسخ‌های پرداختی در حذف خودکار ناشناس و نگه داشته می‌شوند (پیشنهاد پرسش باز ۱؛ فیلتر `efb_privacy_keep_payment_entries` با false آن‌ها را هم حذف می‌کند). حذف دستی مدیر مثل امروز پاسخ پرداختی را حذف می‌کند. حذف دستی هم فایل‌ها را پاک می‌کند، مگر «فایل‌های بارگذاری‌شده هم حذف شوند» خاموش باشد. «حذف‌شده» در آخرین اجرا جمع حذف‌شده و ناشناس‌شده است.
+> مورد باز: دفتر فایل‌های حالت بدون ذخیره (§۵.۵) در زیرتسک C ساخته می‌شود؛ `run_retention` آن را در صورت وجود پیمایش می‌کند. هشدار «cron اجرا نشده» (پرسش باز ۵) ساخته نشد.
+> اقدام بعدی: زیرتسک C.
 
 ### E. برون‌بری و حذف وردپرس، و متن سیاست
 - فایل‌ها: `Privacy::export`، `Privacy::erase`، `Privacy::find_entries`، `Privacy::policy_text`، رسیدگی به `efb_email_log`، سازندهٔ `prvIdFieldEl`، و پاک‌کردن `rows_ws_p` (`list_form-efb.js:3746`، 3810-3818).

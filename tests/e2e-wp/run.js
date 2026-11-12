@@ -24,7 +24,10 @@
  *   7  console: every page of every scenario is watched (lib.js guard); each scenario ends with a
  *      "no console errors" check
  *   8  F13 privacy: Settings > Privacy "Do not store" → a guest entry and its visit rows have no IP
- *      (and no browser); back to "Store" restores the old behaviour
+ *      (and no browser); back to "Store" restores the old behaviour; retention: 90 days typed in
+ *      Persian digits, preview, confirmation, the real daily cron deletes an old entry with its
+ *      reply and its file in uploads/YYYY/MM (an entry with a recent reply stays); anonymize +
+ *      "Run now" + the response viewer
  *
  * Run: node tests/e2e-wp/run.js [scenario ids...]   (env: see README.md)
  */
@@ -919,7 +922,10 @@ async function f13SaveSettings(admin) {
   await admin.click('#save-stng-efb');
   for (let i = 0; i < 100 && body === null; i++) await sleep(200);
   await admin.unroute('**/admin-ajax.php', handler);
-  await sleep(1500);
+  // A successful Save reloads the screen (state=reload-setting&save=ok); let that navigation finish
+  // before the test goes anywhere else, as a person would.
+  if (body && body.data && body.data.success) await admin.waitForURL(/save=ok/, { waitUntil: 'load', timeout: 20000 }).catch(() => {});
+  await sleep(800);
   return body;
 }
 
@@ -949,7 +955,7 @@ async function f13GuestSubmit(context, url, F, values) {
   return body;
 }
 
-scenario('8', 'F13 privacy: IP setting in Settings > Privacy, guest entry without IP', async ({ context, adminPage }) => {
+scenario('8', 'F13 privacy: IP setting, guest entry without IP, retention cron with replies and files, anonymization', async ({ context, adminPage }) => {
   if (!['1', '3'].includes(String(ctl('state').emsfb_pro))) ctl('plan', 3);
   const admin = await adminPage();
 
@@ -989,8 +995,8 @@ scenario('8', 'F13 privacy: IP setting in Settings > Privacy, guest entry withou
   });
   await admin.click("a[onclick=\"show_setting_window_efb('formSet')\"]");
   await admin.waitForSelector('#prvIpEl', { state: 'attached', timeout: 8000 });
-  const sect = await admin.evaluate(() => ({ btn: !!document.getElementById('privacy_collapse'), opts: Array.from(document.querySelectorAll('#prvIpEl option')).map((o) => o.value), sel: document.getElementById('prvIpEl').value }));
-  R.check('8b: form settings have a Privacy section; the IP select defaults to "use the global setting"', sect.btn && sect.opts.join() === ',store,anon,none' && sect.sel === '', sect);
+  const sect = await admin.evaluate(() => ({ btn: !!document.getElementById('privacy_collapse'), opts: Array.from(document.querySelectorAll('#prvIpEl option')).map((o) => o.value), sel: document.getElementById('prvIpEl').value, days: (document.getElementById('prvDaysEl') || {}).value, daysMode: (document.getElementById('prvDaysEl') || {}).inputMode }));
+  R.check('8b: form settings have a Privacy section; IP select and retention days both default to "use the global setting"', sect.btn && sect.opts.join() === ',store,anon,none' && sect.sel === '' && sect.days === '' && sect.daysMode === 'numeric', sect);
   await closePanel(admin);
   const saveResp = admin.waitForResponse((r) => /action=(add_form_Emsfb|update_form_Emsfb)/.test(r.request().postData() || ''), { timeout: 20000 });
   await admin.click("a[onclick=\"saveFormEfb(1)\"]");
@@ -1022,6 +1028,70 @@ scenario('8', 'F13 privacy: IP setting in Settings > Privacy, guest entry withou
   const after = ctl('entries', formId);
   const e2 = after[after.length - 1] || {};
   R.check('8d: with "Store" the new entry keeps the address (127.0.0.1 on this site); the first one stays empty', after.length === 2 && e2.ip === '127.0.0.1' && after[0].ip === '', after.map((x) => x.ip));
+
+  // 8e retention: an entry last active 100 days ago (with a reply and a file uploaded through
+  // wp_upload_bits() into uploads/YYYY/MM), one 100 days old with a reply from 10 days ago.
+  const old = ctl('f13-seed', formId, 100, 99, 1, 'old-guest@example.test');
+  const active = ctl('f13-seed', formId, 100, 10, 0, 'active-guest@example.test');
+  R.check('8e: the old entry\'s file is in uploads/YYYY/MM/ before the run', ctl('file-exists', old.file) === true && /\/uploads\/\d{4}\/\d{2}\//.test(old.file), old.file);
+  await f13OpenPrivacyTab(admin);
+  await admin.fill('#prvDays_efb', '');
+  await admin.type('#prvDays_efb', '۹۰'); // Persian digits
+  await admin.waitForFunction(() => /\S/.test((document.getElementById('prvPreview_efb') || {}).textContent || ''), null, { timeout: 10000 }).catch(() => {});
+  const prev = await admin.evaluate(() => ({ v: document.getElementById('prvDays_efb').value, t: document.getElementById('prvPreview_efb').textContent, live: document.getElementById('prvPreview_efb').getAttribute('aria-live') }));
+  R.check('8e: Persian digits become 90 and the preview (aria-live) says 1 entry will be removed', prev.v === '90' && /^1 entries will be removed/.test(prev.t) && prev.live === 'polite', prev);
+  const saving = f13SaveSettings(admin);
+  const confirmBtn = await admin.waitForSelector('#modalConfirmBtnEfb', { timeout: 8000 }).catch(() => null);
+  const confirmText = confirmBtn ? await admin.evaluate(() => (document.querySelector('#settingModalEfb') || document.body).innerText) : '';
+  R.check('8e: Save asks first, with the number and the days ("1 entries … older than 90 days … cannot be undone")', !!confirmBtn && /1 entries will be removed/.test(confirmText) && /older than 90 days/.test(confirmText), confirmText.slice(0, 300));
+  await admin.screenshot({ path: SHOT('8e-retention-confirm') });
+  if (confirmBtn) await confirmBtn.click();
+  const savedDays = await saving;
+  R.check('8e: database: prv_days = 90 after the confirmation', savedDays && savedDays.data && savedDays.data.success && ctl('setting', 'prv_days') === '90', ctl('setting', 'prv_days'));
+  wp('cron', 'event', 'run', 'emsfb_daily_maintenance');
+  const remaining = ctl('entries', formId).map((x) => Number(x.msg_id));
+  R.check('8e: the daily job (wp cron event run emsfb_daily_maintenance) deleted the entry last active 100 days ago', !remaining.includes(old.msg_id), remaining);
+  R.check('8e: ...its replies', ctl('replies', old.msg_id).length === 0);
+  R.check('8e: ...and its uploaded file in uploads/YYYY/MM/', ctl('file-exists', old.file) === false, old.file);
+  R.check('8e: the entry with a reply from 10 days ago stays (last activity) with its reply', remaining.includes(active.msg_id) && ctl('replies', active.msg_id).length === 1, remaining);
+  R.check('8e: the two fresh guest entries stay', remaining.includes(Number(SHARED.f13.entry.msg_id)) && remaining.length === 3, remaining);
+  const lr = ctl('option', 'emsfb_prv_last_run');
+  R.check('8e: the last run is recorded (1 deleted, 1 file)', lr && Number(lr.deleted) === 1 && Number(lr.files) === 1 && !lr.more, lr);
+
+  // 8f anonymize instead, run from the screen ("Run now"), then read it in the response viewer.
+  const anon = ctl('f13-seed', formId, 120, 119, 1, 'anon-guest@example.test');
+  await f13OpenPrivacyTab(admin);
+  await admin.check('#prvAction_anon_efb');
+  await f13SaveSettings(admin);
+  R.check('8f: database: prv_action = anon (no question: the days did not change)', ctl('setting', 'prv_action') === 'anon');
+  await f13OpenPrivacyTab(admin);
+  const runResp = admin.waitForResponse((r) => (r.request().postData() || '').includes('action=efb_privacy_run_now_Emsfb'), { timeout: 30000 });
+  await admin.click('#prvRunNow_efb');
+  const run = await (await runResp).json();
+  await sleep(500);
+  const lastText = await admin.evaluate(() => document.getElementById('prvLastRun_efb').textContent);
+  R.check('8f: "Run now" answers the run and the screen shows "Last run: …, 1 entries removed"', run.data && run.data.success && Number(run.data.last_run.anonymized) === 1 && /Last run: .+, 1 entries removed/.test(lastText), { run: run.data, lastText });
+  const a = ctl('entries', formId).find((x) => Number(x.msg_id) === anon.msg_id) || {};
+  const ac = Array.isArray(a.content) ? a.content : [];
+  const av = (t) => (ac.find((x) => x.type === t) || {});
+  R.check('8f: database: email and name are @prv@, the file row lost its URL, the page link lost its query, ip empty, prv_state 1', av('email').value === '@prv@' && av('text').value === '@prv@' && av('file').value === '@prv@' && av('file').url === '' && !/[?#]/.test(av('w_link').value || '?') && a.ip === '' && String(a.prv_state) === '1', { ac, ip: a.ip, prv: a.prv_state });
+  const ar = ctl('replies', anon.msg_id);
+  R.check('8f: database: the reply is replaced by @prv@ and its file is deleted', ar.length === 1 && /@prv@/.test(ar[0].content) && !/personal/.test(ar[0].content) && ctl('file-exists', anon.file) === false, ar);
+  await admin.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb', { waitUntil: 'load' });
+  await admin.click(`.efb-act-msg[data-id="${formId}"]`);
+  await admin.waitForSelector(`#btn-m-${anon.msg_id}`, { timeout: 20000 });
+  await admin.click(`#btn-m-${anon.msg_id}`);
+  await admin.waitForSelector('.efb-prv-redacted', { timeout: 20000 }).catch(() => {});
+  const view = await admin.evaluate(() => ({ red: Array.from(document.querySelectorAll('.efb-prv-redacted .efb-msg-field-value')).map((e) => e.textContent.trim()), badge: (document.querySelector('.efb-prv-badge') || {}).textContent }));
+  R.check('8f: the response viewer shows "Removed for privacy" for the cleared answers and an "Anonymized" badge', view.red.length >= 3 && view.red.every((t) => t === 'Removed for privacy') && /Anonymized/.test(view.badge || ''), view);
+  await admin.screenshot({ path: SHOT('8f-viewer-anonymized') });
+
+  // Leave the site as the other scenarios expect it: no automatic deletion.
+  await f13OpenPrivacyTab(admin);
+  await admin.fill('#prvDays_efb', '0');
+  await admin.check('#prvAction_delete_efb');
+  await f13SaveSettings(admin);
+  R.check('8: automatic deletion switched off again (prv_days 0)', ctl('setting', 'prv_days') === '0');
 });
 
 /* ---------------------------------------------------------------------------------------------

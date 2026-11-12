@@ -2780,6 +2780,36 @@ class efbFunction {
 			"prvPurgeIpDone" => $state && isset($ac->text->prvPurgeIpDone) ? $ac->text->prvPurgeIpDone : esc_html__('%s stored addresses were updated.','easy-form-builder'),
 			/* translators: F13: note shown to plugin users who are not site administrators */
 			"prvAdminOnly" => $state && isset($ac->text->prvAdminOnly) ? $ac->text->prvAdminOnly : esc_html__('Only an administrator can change the privacy settings.','easy-form-builder'),
+			/* translators: F13: setting: number of days after which entries are removed automatically */
+			"prvDays" => $state && isset($ac->text->prvDays) ? $ac->text->prvDays : esc_html__('Delete entries automatically after (days)','easy-form-builder'),
+			/* translators: F13: help under the automatic deletion days */
+			"prvDaysHelp" => $state && isset($ac->text->prvDaysHelp) ? $ac->text->prvDaysHelp : esc_html__('0 = never. Counted from the last activity (entry or reply).','easy-form-builder'),
+			/* translators: F13: setting: what happens to an entry when its retention time is over */
+			"prvAction" => $state && isset($ac->text->prvAction) ? $ac->text->prvAction : esc_html__('When the time is up','easy-form-builder'),
+			/* translators: F13: option: remove the entry, its replies and files */
+			"prvActDelete" => $state && isset($ac->text->prvActDelete) ? $ac->text->prvActDelete : esc_html__('Delete completely','easy-form-builder'),
+			/* translators: F13: option: clear personal answers but keep choices, numbers and dates */
+			"prvActAnon" => $state && isset($ac->text->prvActAnon) ? $ac->text->prvActAnon : esc_html__('Anonymize (keep choice answers for statistics)','easy-form-builder'),
+			/* translators: F13: checkbox: delete the files uploaded with an entry when the entry is deleted */
+			"prvFiles" => $state && isset($ac->text->prvFiles) ? $ac->text->prvFiles : esc_html__('Also delete uploaded files','easy-form-builder'),
+			/* translators: F13: preview of automatic deletion. %s: number of entries */
+			"prvPreview" => $state && isset($ac->text->prvPreview) ? $ac->text->prvPreview : esc_html__('%s entries will be removed on the next run.','easy-form-builder'),
+			/* translators: F13: confirmation before saving automatic deletion. %1$s: number of days */
+			"prvConfirm" => $state && isset($ac->text->prvConfirm) ? $ac->text->prvConfirm : esc_html__('Entries older than %1$s days will be removed. This cannot be undone. Continue?','easy-form-builder'),
+			/* translators: F13: status of the automatic deletion. %1$s: date and time, %2$s: number of entries */
+			"prvLastRun" => $state && isset($ac->text->prvLastRun) ? $ac->text->prvLastRun : esc_html__('Last run: %1$s, %2$s entries removed','easy-form-builder'),
+			/* translators: F13: status when the automatic deletion never ran */
+			"prvNeverRun" => $state && isset($ac->text->prvNeverRun) ? $ac->text->prvNeverRun : esc_html__('The automatic cleanup has not run yet.','easy-form-builder'),
+			/* translators: F13: button: run the automatic deletion immediately */
+			"prvRunNow" => $state && isset($ac->text->prvRunNow) ? $ac->text->prvRunNow : esc_html__('Run now','easy-form-builder'),
+			/* translators: F13: shown instead of an answer that was anonymized */
+			"prvRedacted" => $state && isset($ac->text->prvRedacted) ? $ac->text->prvRedacted : esc_html__('Removed for privacy','easy-form-builder'),
+			/* translators: F13: badge on an entry whose personal answers were removed */
+			"prvAnonBadge" => $state && isset($ac->text->prvAnonBadge) ? $ac->text->prvAnonBadge : esc_html__('Anonymized','easy-form-builder'),
+			/* translators: F13: form setting: own automatic deletion days for this form */
+			"prvDaysForm" => $state && isset($ac->text->prvDaysForm) ? $ac->text->prvDaysForm : esc_html__('Delete this form\'s entries automatically after (days)','easy-form-builder'),
+			/* translators: F13: help under the form's automatic deletion days */
+			"prvDaysFormHelp" => $state && isset($ac->text->prvDaysFormHelp) ? $ac->text->prvDaysFormHelp : esc_html__('Empty = the global setting. 0 = never for this form.','easy-form-builder'),
 			/* translators: F18: name of a locked feature in the upgrade dialog */
 			"upgFtrHideDisable" => $state && isset($ac->text->upgFtrHideDisable) ? $ac->text->upgFtrHideDisable : esc_html__('Hidden and disabled fields','easy-form-builder'),
 			/* translators: F18: name of a locked feature in the upgrade dialog */
