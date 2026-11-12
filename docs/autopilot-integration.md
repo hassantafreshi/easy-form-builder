@@ -859,6 +859,19 @@ viewer escaping 46, final-step loading 17. Not runnable here for reasons outside
 Chromium build that is not installed, without the harness fallback), tests that need WordPress
 (`[SKIP]`).
 
+### PAY03. Tap Payments add-on (`tappay`, `AdnTAP`)
+
+- **Field.** Type `tappay` (only with the add-on; `newItems('tappay')` → `addon_required` without it).
+  `formPatch.currency` is `KWD` (first of `KWD BHD OMR JOD SAR AED QAR EGP USD EUR GBP`). Only the
+  core `pf_*` keys; no Tap-specific key. `pf_methods` ids: `all`, `card`, `mada` (SAR only), `knet`
+  (KWD only), `benefit` (BHD only); the public field drops a scheme the form currency cannot use.
+- **Registry.** `payment_gateways.tappay` = `{configured, mode, currencies, countries, methods (5),
+  supports: {flows:[redirect], refund, partial_refund, recurring:false, webhook_auth:'signature'}}`,
+  no key. Settings (keys per mode, Merchant ID, method list) are for people only.
+- **Server pricing.** Unchanged: Tap is charged `Pricing::quote()`'s total, exact decimals (12.625 KWD).
+- **Tests.** `php tests/test-addon-tappay-{hashstring,create,webhook,refund}.php`,
+  `node tests/test-addon-tappay-adapter.js`, scenario `tappay` of `tests/e2e-wp/run.js`.
+
 ---
 
 ## Add-on changes needed (vendores-efb)

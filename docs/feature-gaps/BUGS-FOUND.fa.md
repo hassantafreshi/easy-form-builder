@@ -170,3 +170,14 @@
 | کم | پنل سازنده هشدار مخصوص درگاه ندارد (PAY02 §۱۰: هشدار سرخ «Payplug فقط یورو» وقتی ارز فرم EUR نیست)؛ فرم عمومی فقط پیام کلی `payUnavailable` می‌دهد. | `includes/admin/assets/js/payment-field-efb.js` | **باز** |
 | کم | آداپتور فقط پس از `payments/create` سوار می‌شود؛ Integrated Payment پیاده شد ولی دومرحله‌ای است (کلیک «پرداخت»، سپس فیلدهای کارت و «تأیید پرداخت»). همان ردیف Mollie دربارهٔ Components. | `public/assets/js/payment-runtime-efb.js` (`submit`) | **باز** |
 
+## Tap Payments (PAY03، ۲۰۲۶-۱۱-۱۲)
+
+هیچ‌کدام مانع نبود؛ هسته تغییر نکرد و افزونه دور هر کدام راه دارد.
+
+| شدت | مشکل | محل | وضعیت |
+|---|---|---|---|
+| کم | هسته راهی برای گزینه‌های مخصوص درگاه روی فیلد یا در پنل سازنده ندارد (کلیدهای ناشناخته فقط `sanitize_text_field` می‌شوند و پنل آن‌ها را نشان نمی‌دهد)؛ نگاشت `pgw_map_*` (نام و ایمیل پرداخت‌کننده) و هشدار ذخیرهٔ «Tap به نام و ایمیل نیاز دارد» (الگوی A5) ممکن نیست. `Checkout_Context` نام پرداخت‌کننده ندارد. | `includes/payments/class-Emsfb-payment-gateway.php`، `payment-field-functions-efb.php`، پنل `payment-field-efb.js` | **باز**: افزونهٔ Tap نام را از فیلد متنی با برچسب «name/الاسم/نام…» و ایمیل را از `email_to` یا اولین فیلد ایمیل در پاسخ ذخیره‌شده می‌خواند؛ بی‌ایمیل پرداخت ساخته نمی‌شود (`needs_name_email`) |
+| کم | `Gateway::methods(Settings)` ارز فرم را نمی‌گیرد؛ فیلد روش‌هایی را نشان می‌دهد که ارز فرم را نمی‌پذیرند (mada برای KWD) و پیش‌نمایش سازنده همه را نشان می‌دهد. جای لوگو برای هر روش (`pf_methods_style=grid` با لوگو) هم نیست. | `Registry::public_info()`، `Field::resolve()` | **باز**: آداپتور `tappay-efb.js` در مرورگر روش ناسازگار را برمی‌دارد و نشان را در کاشی می‌گذارد؛ سرور روش ناسازگار را رد می‌کند |
+| متوسط | `Service::handle_webhook()` اگر مرجع رویداد پیدا نشود، پرداخت را با `payload['efb_uid']` پیدا و وضعیت آن رویداد را روی پرداختی با مرجع دیگر اعمال می‌کند (`fetch()` و بازپرداخت بعدی مرجع ذخیره‌شده را به کار می‌برند). | `includes/payments/class-Emsfb-payment-service.php` (`handle_webhook`) | **باز**: افزونهٔ Tap کلید `efb_uid` را در payload نمی‌گذارد (`metadata_uid`)؛ تست `test-addon-tappay-webhook.php` |
+| کم | `Service::refund()` بازپرداختی را که درگاه «در انتظار» (`pending`، Tap `PENDING`/`ACCEPTED`) جواب داده همان لحظه در وضعیت پرداخت (`refunded`/`partially_refunded`) حساب می‌کند و راهی برای ثبت رد شدن بعدی (webhook `DECLINED`) در ردیف بازپرداخت نیست. | `class-Emsfb-payment-service.php` (`refund`) | **باز** |
+
