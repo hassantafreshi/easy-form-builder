@@ -1868,9 +1868,10 @@ scenario('tappay', 'PAY03 Tap Payments add-on (fake api.tap.company): settings +
   const rtl = await ph.evaluate(() => {
     const b = document.querySelector('.efb-pf [data-pf-method="knet"]');
     const m = b.querySelector('.efb-tap-marks').getBoundingClientRect(); const r = b.getBoundingClientRect();
-    return { dir: getComputedStyle(document.querySelector('.efb-pf')).direction, bdi: !!document.querySelector('.efb-pf bdi[data-pf-total]'), fit: document.documentElement.scrollWidth <= window.innerWidth + 1, h: r.height, start: (r.right - m.right) < (m.left - r.left) };
+    const col = getComputedStyle(b).flexDirection === 'column';
+    return { dir: getComputedStyle(document.querySelector('.efb-pf')).direction, bdi: !!document.querySelector('.efb-pf bdi[data-pf-total]'), fit: document.documentElement.scrollWidth <= window.innerWidth + 1, h: r.height, grid: col, start: col ? m.top - r.top < r.height / 2 : (r.right - m.right) < (m.left - r.left) };
   });
-  R.check('tappay/RTL: fa_IR at 375 px: the field right to left, amount in <bdi>, no horizontal scroll, 44 px method tiles, the scheme mark on the start (right) side', rtl.dir === 'rtl' && rtl.bdi && rtl.fit && rtl.h >= 44 && rtl.start, rtl);
+  R.check('tappay/RTL: fa_IR at 375 px: the field right to left, amount in <bdi>, no horizontal scroll, 44 px method tiles, the scheme mark above the name in the grid (on the start, right, side in a list)', rtl.dir === 'rtl' && rtl.bdi && rtl.fit && rtl.h >= 44 && rtl.start, rtl);
   await ph.screenshot({ path: SHOT('tappay-rtl-375') });
   ctl('locale', '');
   await ph.close();
