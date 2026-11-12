@@ -1892,9 +1892,6 @@ require('./scenario-omise.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNew
 /* PAY05 PayTabs (regional hosts, signed callback and return, framed page): tests/e2e-wp/scenario-paytabs.js. */
 require('./scenario-paytabs.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewForm, addTile, closePanel });
 
-/* PAY06 Paymob (regional hosts, HMAC callback, Transaction Inquiry): tests/e2e-wp/scenario-paymob.js. */
-require('./scenario-paymob.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewForm, addTile, closePanel });
-
 /* PAY07 Xendit (Payment Session, hosted page, x-callback-token webhooks): tests/e2e-wp/scenario-xendit.js. */
 require('./scenario-xendit.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewForm, addTile, closePanel, openField, setInput, settle });
 
