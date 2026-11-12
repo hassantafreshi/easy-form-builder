@@ -195,3 +195,13 @@
 | کم | «QR تازه» (و «Try again» هسته) کل فرم را دوباره می‌فرستد و هر بار یک پاسخ معلق تازه (`read_=2`) در `emsfb_msg_` می‌سازد؛ پاسخ‌های معلق رهاشده تا پاک‌سازی F13 می‌مانند. | `payment-runtime-efb.js` (`pay`)، `Service::create()` | **باز** |
 | کم | `watch()` در runtime فقط ۱۵ دقیقه نظرسنجی می‌کند، ولی QR درگاه می‌تواند تا ۲۴ ساعت معتبر باشد. | `public/assets/js/payment-runtime-efb.js` (`watch`) | **دور زده**: آداپتور Omise تا `expires_at` + ۵ دقیقه دوباره `poll()` را صدا می‌زند |
 
+## PayTabs (PAY05، ۲۰۲۶-۱۱-۱۲)
+
+هیچ‌کدام مانع نبود؛ هسته تغییر نکرد و افزونه دور هر کدام راه دارد.
+
+| شدت | مشکل | محل | وضعیت |
+|---|---|---|---|
+| کم | `Service::handle_return()` به `Gateway::parse_return()` فقط `get_query_params()` را می‌دهد، ولی PayTabs پرداخت‌کننده را با POST فیلدهای امضاشده (`tranRef`، `cartId`، `respStatus`، `signature`…) برمی‌گرداند؛ درگاه بدنهٔ POST را نمی‌بیند. | `includes/payments/class-Emsfb-payment-service.php` (`handle_return`) | **باز**: افزونه فیلدها را از `$_POST` می‌خواند و امضا را می‌سنجد |
+| کم | درگاه راهی برای صفحهٔ بازگشت مخصوص خود (حالت framed: صفحهٔ کوچکی که فقط به صفحهٔ والد `postMessage` می‌دهد) ندارد؛ بازگشت هسته 303 به صفحهٔ فرم است که درون iframe کل فرم را بار می‌کند. | `class-Emsfb-payment-frontend.php` (`Routes`)، `handle_return` | **باز**: افزونه صفحهٔ خود را با هوک `init` روی `/?efb_ptb_frame=1&p&s` (امضای `Service::sign`) می‌دهد |
+| کم | `Remote_State` جای یادداشت ندارد: وضعیت PayTabs `H` (مجاز ولی در بررسی ضدتقلب، PAY05 §۹) فقط «معلق» دیده می‌شود؛ ایمیل مدیر «در بررسی» و متن مخصوص بازدیدکننده (`paytabsHold`) ممکن نیست. | `class-Emsfb-payment-gateway.php` (`Remote_State`)، `Service::apply_remote_state()` | **باز** |
+

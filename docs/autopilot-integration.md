@@ -886,6 +886,23 @@ Chromium build that is not installed, without the harness fallback), tests that 
 - **Tests.** `php tests/test-addon-omise-{create,webhook,package}.php`,
   `node tests/test-addon-omise-qr-browser.js`, scenario `omise` of `tests/e2e-wp/run.js`.
 
+### PAY05. PayTabs add-on (`paytabs`, `AdnPTB`)
+
+- **Field.** Type `paytabs` (only with the add-on; `newItems('paytabs')` → `addon_required` without it).
+  `formPatch.currency` is `SAR` (first of `SAR AED EGP QAR USD EUR GBP KWD BHD OMR JOD IQD`). Only the
+  core `pf_*` keys; no PayTabs-specific key. `pf_methods` ids are PayTabs' `payment_methods` values the
+  owner turned on (default `all`); local schemes are dropped for another currency (mada SAR, KNET KWD,
+  Meeza QR / valU / Aman EGP …).
+- **Registry.** `payment_gateways.paytabs` = `{configured, mode, currencies, countries, methods,
+  supports: {flows:[redirect, embedded], refund, partial_refund, recurring:false, webhook_auth:'signature'}}`,
+  no key, no profile id. Settings (region, profile id, server key per mode, framed, page language) are
+  for people only.
+- **Server only.** The amount is core's quote (exact decimals, 12.625 KWD); callbacks are always
+  re-read with PayTabs' query. Agents never enter keys, change the region, switch to Live or make a
+  real test payment.
+- **Tests.** `php tests/test-addon-paytabs-{create,signature,webhook,refund,package}.php`,
+  `node tests/test-addon-paytabs-framed.js`, scenario `paytabs` of `tests/e2e-wp/run.js`.
+
 ---
 
 ## Add-on changes needed (vendores-efb)
