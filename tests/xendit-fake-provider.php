@@ -110,6 +110,7 @@ class Efb_Test_Xendit_Fake {
 	}
 
 	public static function http( $pre, $args, $url ) {
+		if ( $pre !== false ) return $pre; // an earlier filter answered (tests)
 		$p = function_exists( 'wp_parse_url' ) ? wp_parse_url( $url ) : parse_url( $url );
 		if ( ! is_array( $p ) || ( isset( $p['host'] ) ? $p['host'] : '' ) !== 'api.xendit.co' ) return $pre;
 		$s = self::state();
