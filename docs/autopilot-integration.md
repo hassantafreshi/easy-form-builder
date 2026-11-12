@@ -903,6 +903,25 @@ Chromium build that is not installed, without the harness fallback), tests that 
 - **Tests.** `php tests/test-addon-paytabs-{create,signature,webhook,refund,package}.php`,
   `node tests/test-addon-paytabs-framed.js`, scenario `paytabs` of `tests/e2e-wp/run.js`.
 
+### PAY06. Paymob add-on (`paymob`, `AdnPMB`)
+
+- **Field.** Type `paymob` (only with the add-on; `newItems('paymob')` → `addon_required` without it).
+  `formPatch.currency` is the account region's currency (`EGP` Egypt, `SAR`, `AED`, `OMR`, `PKR`).
+  Core `pf_*` keys plus the field options `pgw_map_phone` and `pgw_map_name` (form-field pickers from
+  `field_schema()`; empty = the add-on finds a mobile field / a "name" field). `pf_methods` ids are the
+  methods with an integration ID in the current mode (`all`, `card`, `wallet`, `kiosk`, `valu`,
+  `souhoola`, `meeza`, `applepay`, `mada`, `stcpay`, `tabby`, `tamara`, `omannet`, `easypaisa`,
+  `jazzcash`); a local method names its currencies and is dropped for another form currency.
+- **Registry.** `payment_gateways.paymob` = `{configured, mode, currencies, countries, methods,
+  supports: {flows:[redirect], refund, partial_refund, recurring:false, webhook_auth:'signature'}}`, no
+  key, API key or HMAC secret. Settings (region, keys per mode, API key, HMAC secret, integration IDs)
+  are for people only. Save warning `paymob_no_phone` when the wallet is offered without a mobile field.
+- **Server only.** The amount is core's quote (OMR in baisa); callbacks are verified with the HMAC
+  secret, a missed one is read with Transaction Inquiry. Agents never enter keys, change the region,
+  switch to Live or make a real test payment.
+- **Tests.** `php tests/test-addon-paymob-{create,hmac,webhook,refund,package}.php`,
+  `node tests/test-addon-paymob-adapter.js`, scenario `paymob` of `tests/e2e-wp/run.js`.
+
 ### PAY07. Xendit add-on (`xendit`, `AdnXND`, Payment Session)
 
 - **Field.** Type `xendit` (only with the add-on; `newItems('xendit')` → `addon_required` without it).

@@ -215,3 +215,14 @@
 | کم | `pf_methods` حداکثر ۲۰ شناسه نگه می‌دارد؛ Xendit ۲۱ کانال و «any» دارد، پس فهرست صریح همهٔ کانال‌ها در فیلد بریده می‌شود (فیلد خالی = همه، که کار می‌کند). | `payment-field-functions-efb.php` (`sanitize_key`، `pf_methods`) | **باز** |
 | کم | بازپرداختی که مالک در داشبورد درگاه انجام دهد با webhook درگاه به پرداخت EFB وصل نمی‌شود: هسته شناسهٔ پرداخت دوم درگاه (`payment_id` در Xendit، در ستون `gateway_sub_ref`) را نه می‌نویسد و نه یابنده‌ای برای آن دارد. | `Store` (`find_by_ref`)، `Service::handle_webhook()` | **باز**: افزونه رویداد بازپرداخت بی‌`metadata.efb_uid` را نادیده می‌گیرد (۲۰۰)؛ مالک «ثبت بازپرداخت بیرونی» را به کار می‌برد |
 
+## Paymob (PAY06، ۲۰۲۶-۱۱-۱۲)
+
+هیچ‌کدام مانع نبود؛ هسته تغییر نکرد. هوک‌های اختیاری تازهٔ هسته (ارز هر روش، `field_schema` با `pgw_map_phone`، `field_defaults`، `form_warnings`) با پیش‌فرض امن به کار رفتند.
+
+| شدت | مشکل | محل | وضعیت |
+|---|---|---|---|
+| کم | درگاه راهی برای متن خود در صفحهٔ وضعیت/بازگشت ندارد: پرداخت کیوسک (Aman/Masary) «معلق» با کد مرجع و مهلت است (PAY06 §۶ و §۱۰: کد بزرگ و قابل کپی)، ولی `Service::status_answer()` فقط پیام کلی «منتظر تأیید» را می‌دهد؛ کد فقط در لاگ رویداد (`bill_reference`) و صفحهٔ خود Paymob است. | `class-Emsfb-payment-service.php` (`status_answer`)، `Remote_State` | **باز** |
+| کم | `Redactor::redact_string()` کلیدهای دارای پیشوند منطقه (`egy_sk_test_…`، `omn_sk_live_…`) و سرآیند `Token <key>` را نمی‌پوشاند (`\b` پیش از `sk` پس از `egy_` برقرار نیست؛ فقط `Bearer`/`Basic`). | `includes/payments/class-Emsfb-payment-http.php` (`Redactor`) | **باز**: افزونه هیچ کلیدی را در پیام خطا یا لاگ نمی‌گذارد (تست: لاگ رویداد بی‌کلید) |
+| کم | `Settings::apply()` هر `/` الگو را بی‌قید `\/` می‌کند؛ الگویی که خودش `\/` دارد (مثل `[A-Za-z0-9+\/=]`) نامعتبر می‌شود و **هر** مقدار رد می‌شود، بی‌پیام برای نویسندهٔ افزونه. | `includes/payments/class-Emsfb-payment-secrets.php` (`apply`) | **دور زده**: الگوی `api_key` اسلش را بی‌گریز می‌نویسد |
+| کم | کارت تنظیمات درگاه کنترل جدول ندارد؛ Integration ID هر روش در Test و Live متنی `card=123, wallet=456` در یک فیلد per_mode وارد می‌شود. | `class-Emsfb-payment-admin.php` (کارت درگاه) | **باز** |
+
