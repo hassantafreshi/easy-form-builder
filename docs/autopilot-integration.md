@@ -512,9 +512,10 @@ Events on `document`:
     "invalid value" warning mail to the owner.
   - `fun_total_pay_efb()` counts a `prcfld` row without `price` by its `value`, so the total shows
     $15.00 once the row is there.
-- **Needs the add-ons** (patches below, core degrades safely without them): PayPal must charge
-  `price_total`, Persia Pay must call `apply_server_prices()`, and the logic runtime should call
-  `fun_total_pay_efb()` after it writes a value so the total updates while the visitor types.
+- **Add-ons (done in `vendores-efb` branch `dev4`, see [Add-on changes](#add-on-changes-needed-vendores-efb)):**
+  PayPal charges `price_total`, Persia Pay calls `apply_server_prices()`, both clients post the
+  answers the rules read, and the logic runtime calls `fun_total_pay_efb()` when a rule changes a
+  price. Core still degrades safely with older add-ons.
 - **Tests.** `php tests/test-ap-b7-computed-price.php` runs the real `fun_validation_pay_elements_efb()`
   with the real `Emsfb_Logic_Validator`: 3 guests → 15 (runtime row without price), a lowered
   browser price → 15 plus the warning mail, a missing row → 15, 4 guests → 20 although the browser
@@ -525,8 +526,9 @@ Events on `document`:
 - **AutoPilot.** Build "price per guest" as: a number field, a `prcfld` (it can be disabled so the
   visitor does not type in it), a `ttlprc` total, and a rule
   `{type:'calculate', target:'<prcfld>', value:'{guests} * 5', decimals:2}` (Pro, needs `AdnSMF`;
-  check with `efb_logic_validate_rules()`). Stripe then charges exactly the computed amount. Tell the
-  admin that PayPal and Persia Pay need the add-on updates listed below before they do the same.
+  check with `efb_logic_validate_rules()`). Stripe, and PayPal / Persia Pay from the `dev4` add-on
+  builds on, then charge exactly the computed amount. With older PayPal / Persia Pay add-ons, tell
+  the admin to update them first.
 
 
 ### B8. Installing an add-on without losing the page
@@ -696,105 +698,88 @@ Chromium build that is not installed, without the harness fallback), tests that 
 ## Add-on changes needed (vendores-efb)
 
 These add-ons live in the separate `vendores-efb` repository (git-ignored `vendor/` here). Core
-degrades safely without the patches; each is needed for the behaviour named in its heading. Paths
-are relative to that repository. Diffs were made against its `main` branch on 2026-11-11 and checked
-with `php -l` / a JS parse.
+degrades safely without them. **Status: all done on `vendores-efb` branch `dev4`** (from `main`
+63f7a16, 2026-11-12), one commit per item, each with its `<addon>.zip` rebuilt. Paths are relative to
+that repository. Every item was first reproduced by a failing test in `tests/` here; the counts are
+"against `main` → after". The add-on tests find the source in `vendor/<addon>` (git-ignored symlink
+to the add-on repository), an `EFB_<ADDON>_DIR` variable, or `/home/user/vendores-efb/<addon>`.
 
-1. **PayPal charges the server total (B7, security).** `paypal/class-Emsfb-paypal-handler.php`
-   creates the order with the `amount` the browser posts; `fun_validation_pay_elements_efb()`
-   already returns the server total.
-2. **Persia Pay prices computed fields on the server (B7).** `persiapay/zarinpal.php` has its own
-   copy of the price loop; call core's `apply_server_prices()` first.
-3. **Logic runtime redraws the total (B7, display).** After writing a value
-   (`syncResultData()`), call core's `fun_total_pay_efb()`.
-4. **SMS contact uses prepared queries (B5).** `smssended/smsefb.php` builds its SQL with the texts
-   inside quotes; a text with an apostrophe (e.g. "We've received your message") breaks the query and
-   the SMS settings are not stored. (Admin-only input, but also an injection pattern.)
+1. **PayPal charges the server total (B7, security). Done: `ca1514e`.**
+   `paypal/class-Emsfb-paypal-handler.php`: the order, the subscription plan, the stored payment row
+   and the submission's payment row use `price_total` from `fun_validation_pay_elements_efb()`,
+   formatted with the currency's decimals (none for HUF, JPY, TWD, which PayPal refuses with
+   decimals). The posted `amount` is no longer read; nothing priced on the server means no order.
+   Subscriptions (`paymentmethod` day/week/month/year) keep their flow with the server amount.
+   `paypal/assets/js/paypal_efb.js`: the browser total counts a computed price field (row without
+   `price`) like core's `fun_total_pay_efb()` (it stopped with "Please enter a valid amount."), and
+   **every row of the paying form is posted**, not only `pay*`/`prcfld` rows: without the answers the
+   rule reads (e.g. `guests`) the server cannot run the rule and keeps the browser's number for the
+   price field. Only priced rows are stored, as before.
+   Tests: `php tests/test-addon-paypal-server-price.php` (real handler, real
+   `fun_validation_pay_elements_efb()`, recorder for the PayPal HTTP helper) 1 → 12 passed (11
+   failures before: posted 1 charged instead of 7, posted 50 charged with nothing priced, plan at the
+   posted amount, JPY, 3 guests × $5 charged 1…); `node tests/test-addon-paypal-cart-total.js` 2 → 11
+   passed.
+2. **Persia Pay prices computed fields on the server (B7). Done: `c4cf7d0`.**
+   `persiapay/zarinpal.php` keeps its own price loop but first calls
+   `Builder_Api::apply_server_prices()` (refused on `price_not_computable`; the owner's "invalid value"
+   mail when the browser's price differed, via `server_price_differs()`); a typed price field must be a
+   non-negative number within its Min/Max (`abs()` billed −20,000 as 20,000); malformed JSON is
+   refused instead of a PHP 8 TypeError. The refusal reuses the existing message (`error 405`).
+   `persiapay/persia_pay-efb.js` posts every row of the paying form, for the same reason as PayPal.
+   Tests: `php tests/test-addon-persiapay-server-price.php` 3 → 13 passed;
+   `node tests/test-addon-persiapay-posted-rows.js` 4 → 5 passed.
+3. **Stripe: verified, no change needed.** The add-on only registers the REST routes (handled by
+   core's `pay_stripe_sub_Emsfb_api()` / `pay_stripe_confirm_Emsfb_api()`, which price from
+   `fun_validation_pay_elements_efb()`) and the refund screen (refunds the stored amount). No add-on
+   file creates a charge, price or subscription or reads an amount from the request.
+   Test: `php tests/test-addon-stripe-server-price.php` 13 passed (passes on `main` too; it guards the
+   contract).
+4. **SMS contact uses prepared queries (B5). Done: `b486acd`.** `smssended/smsefb.php`:
+   `add_sms_contact_efb()` uses `$wpdb->prepare()` for the lookup and `$wpdb->insert()` /
+   `$wpdb->update()` for the texts (an apostrophe broke the query and the settings were not stored);
+   `get_sms_contact_efb()`, `get_sms_sent_list_efb()` use `prepare()` with `%d`, `delete_sms_efb()`,
+   `delete_sms_contact_efb()` use `$wpdb->delete()` ("0 OR 1=1" read or deleted every row). Return
+   values unchanged. Test: `php tests/test-addon-smssended-prepared-sql.php` (a `$wpdb` on in-memory
+   SQLite, so the broken query really fails) 6 → 17 passed.
+5. **Conditional logic: upgrade dialog, plan change, total (F18 §11, B7). Done: `94355ed`.**
+   - `logic/logic/assets/admin/js/conditional-logic-efb.js`: on the Free plan `open()` calls
+     `efb_upgrade_prompt_efb({feature: 'setting:logic_rules', origin: 'logic', resume: {kind:
+     'callback', name: 'logic_open'}})` (the add-on registers `logic_open` with
+     `efb_resume_register_efb()`, so the builder opens after Free Plus is activated); fallback
+     `pro_show_efb(3)` on older cores, then the add-on's locked panel, whose Upgrade button now
+     closes the panel and opens core's dialog. It listens to `efb:plan-changed` and redraws an open
+     panel for the new plan (locked Free panel → builder, builder → locked panel on a drop to Free,
+     limits and Pro tabs redrawn); a closed panel or a shell another dialog took is left alone.
+   - Not done, on purpose: the Free Plus limit notices (3 field rules, 2 notification rules,
+     2 conditions per group) stay the add-on's toast instead of `{feature: 'limit:logic'}`. Core's
+     dialog paints into the same modal shell, which the open builder occupies, so
+     `show_modal_efb()` would park it until the builder is closed.
+   - `logic/logic/assets/public/js/conditional-logic-efb.js`: `evaluate()` calls core's
+     `fun_total_pay_efb(formId)` once when a rule changed the priced rows (a price field calculated,
+     set, cleared or hidden); skipped when core lacks it, errors in it are swallowed.
+   - The validator copies (`logic/class-Emsfb-logic-validator.php`,
+     `logic/logic/class-Emsfb-logic-validator.php`, `_logic/`) were not touched and stay identical.
+   Tests: `node tests/test-addon-logic-upgrade-prompt.js` 8 → 21 passed;
+   `node tests/test-addon-logic-total-redraw.js` 6 → 10 passed. Still green:
+   `test-conditional-logic-plan-gating.js` 53, `test-conditional-logic-runtime.js` 127.
 
-```diff
-diff -ru a/logic/logic/assets/public/js/conditional-logic-efb.js b/logic/logic/assets/public/js/conditional-logic-efb.js
---- a/logic/logic/assets/public/js/conditional-logic-efb.js	2026-11-11 20:53:24.280835900 +0000
-+++ b/logic/logic/assets/public/js/conditional-logic-efb.js	2026-11-11 20:53:44.627328953 +0000
-@@ -1103,6 +1103,11 @@
-         // Storage can be unavailable in privacy modes; in-memory submit remains valid.
-       }
-     }
-+    /* A computed price field changes the order total: let core redraw it (and the
-+       PayPal button state) like a typed price does. */
-+    if (changed && typeof root.fun_total_pay_efb === 'function') {
-+      try { root.fun_total_pay_efb(context.formId); } catch (error) { /* display only */ }
-+    }
-     return changed;
-   }
- 
-diff -ru a/paypal/class-Emsfb-paypal-handler.php b/paypal/class-Emsfb-paypal-handler.php
---- a/paypal/class-Emsfb-paypal-handler.php	2026-11-11 20:53:24.265612693 +0000
-+++ b/paypal/class-Emsfb-paypal-handler.php	2026-11-11 20:53:44.626586358 +0000
-@@ -283,6 +283,14 @@
- 		$email    = $obj['email'];
- 		$valobj   = $obj['valobj'];
- 
-+		/* Charge what the server computed from the stored form (option prices, and
-+		 * since EFB API 1 the price fields a logic rule computes), never the amount
-+		 * the browser posted: that one can be edited in the page. */
-+		$server_amount = isset( $obj['price_total'] ) && is_numeric( $obj['price_total'] ) ? (float) $obj['price_total'] : 0.0;
-+		if ( $server_amount > 0 ) {
-+			$amount = number_format( $server_amount, 2, '.', '' );
-+		}
-+
- 		/* ── Step 6: Amount validation ──
- 		 * If this fails, the form did not send a valid numeric amount.
- 		 * Possible causes:
-diff -ru a/persiapay/zarinpal.php b/persiapay/zarinpal.php
---- a/persiapay/zarinpal.php	2026-11-11 20:53:24.273800856 +0000
-+++ b/persiapay/zarinpal.php	2026-11-11 20:53:44.626723135 +0000
-@@ -213,6 +213,13 @@
- 		$email ='no@email.com';
- 		$des = ':پرداختی فرم' . $fs_[0]['formName'];
- 		$valobj=[];
-+		/* EFB API 1: a price field computed by a logic rule is priced by the server. */
-+		if ( is_array( $val_ ) && is_array( $fs_ ) && class_exists( '\Emsfb\Builder_Api' ) ) {
-+			list( $val_, $price_error_efb ) = \Emsfb\Builder_Api::apply_server_prices( $val_, $fs_ );
-+			if ( $price_error_efb !== null ) {
-+				wp_send_json_success( array( 'success' => false, 'm' => esc_html__( 'error', 'easy-form-builder' ) . ' 405' ), 200 );
-+			}
-+		}
- 		for ($i=0; $i <count($val_) ; $i++) {
- 			$a=-1;
- 			if(isset($val_[$i]['price'])){
-diff -ru a/smssended/smsefb.php b/smssended/smsefb.php
---- a/smssended/smsefb.php	2026-11-11 20:53:24.292835901 +0000
-+++ b/smssended/smsefb.php	2026-11-11 20:53:44.628272121 +0000
-@@ -159,19 +159,21 @@
- 
-         global $wpdb;
-         $table_name = $wpdb->prefix . 'emsfb_sms_contact';
--        $sql = "SELECT * FROM $table_name WHERE form_id = $form_id";
--        $result = $wpdb->get_results($sql);
--        //error_log(json_encode($result));
-+        $form_id = (int) $form_id;
-+        $result = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name WHERE form_id = %d", $form_id));
-+        $row = array(
-+            'admin_numbers' => (string) $admin_numbers,
-+            'recived_message_noti_user' => (string) $recived_message_noti_user,
-+            'new_message_noti_user' => (string) $new_message_noti_user,
-+            'new_message_noti_admin' => (string) $new_message_noti_admin,
-+            'new_response_noti' => (string) $new_response_noti,
-+        );
-         if(count($result) == 0){
--            //get id after insert
--            //error_log('inside add_sms_contact_efb=>insert');
--            $sql = "INSERT INTO $table_name (form_id,admin_numbers,recived_message_noti_user,new_message_noti_user,new_message_noti_admin,new_response_noti) VALUES ('$form_id','$admin_numbers','$recived_message_noti_user','$new_message_noti_user','$new_message_noti_admin','$new_response_noti')";
--            $wpdb->query($sql);
-+            // Prepared: a text with an apostrophe ("We've received...") broke the raw query and was not stored.
-+            $wpdb->insert($table_name, array('form_id' => $form_id) + $row);
-             return $wpdb->insert_id;
-         }else{
--            //error_log('inside add_sms_contact_efb=>update');
--            $sql = "UPDATE $table_name SET admin_numbers = '$admin_numbers',recived_message_noti_user = '$recived_message_noti_user',new_message_noti_user = '$new_message_noti_user',new_message_noti_admin = '$new_message_noti_admin',new_response_noti = '$new_response_noti' WHERE form_id = $form_id";
--            $wpdb->query($sql);
-+            $wpdb->update($table_name, $row, array('form_id' => $form_id));
-             //get id after update
-             return $result[0]->id;
-         }
-```
+**Distribution zips.** Each `<addon>.zip` at the root of `vendores-efb` holds one top folder
+`<addon>/` with exactly the files of the source folder, directory entries included, entries sorted
+by path, Unix modes 0755/0644, every date 2026-10-18 00:00, deflate level 9 (a file deflate does not
+shrink is stored), no extra fields, written by libzip (PHP `ZipArchive`). Rebuilt that way, the
+unchanged sources reproduce the shipped `paypal`, `persiapay`, `stripe`, `smssended` and `logic` zips
+byte for byte; `paypal.zip`, `persiapay.zip`, `smssended.zip` and `logic.zip` were rebuilt from the
+changed sources with the same file list (`stripe.zip` unchanged).
+
+**Open.**
+- Core, `Builder_Api::apply_server_prices()`: when a request leaves out the answers a rule reads, the
+  rule does not fire and the browser's value of the target price field is kept (bounded by its
+  Min/Max). The add-on clients now post the answers, but a hand-made request can still drop them.
+  Evaluating with the target fields' browser rows removed would close it (core change).
+- PayPal subscriptions: `paypal/class-Emsfb-paypal.php` `create_plan()` formats every amount with
+  two decimals, so a JPY/HUF/TWD subscription plan is still refused by PayPal (one-time orders are
+  fine). Not changed here.
+- Core still carries an older `public/assets/js/persia_pay-efb.js` (same `pay*`/`prcfld` filter).
+  No PHP enqueues it (the page loads the add-on's `vendor/persiapay/persia_pay-efb.js` through
+  `efb_enqueue_persia`, which is the copy fixed); it could be removed.
