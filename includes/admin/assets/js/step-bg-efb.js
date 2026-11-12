@@ -570,11 +570,19 @@
             return;
          }
          case 'color': if (!isInput && e.type !== 'change') return; setKey(row, 'step_bg_color', el.value); break;
-         case 'opacity': setKey(row, 'step_bg_opacity', latin(el.value)); break;
+         case 'opacity': {
+            var opv = sanitizeKey('step_bg_opacity', latin(el.value));
+            if (opv === '') return;
+            row.step_bg_opacity = opv;
+            break;
+         }
          case 'angle': {
             if (!isInput && e.type !== 'change') return;
-            setKey(row, 'step_bg_angle', latin(el.value));
-            ['efbSbgAngleEl', 'efbSbgAngleNumEl'].forEach(function (x) { var o = document.getElementById(x); if (o && o !== el) o.value = row.step_bg_angle || '135'; });
+            var ang = sanitizeKey('step_bg_angle', latin(el.value));
+            // An empty or half-typed entry keeps the saved angle; the box gets it back on change.
+            if (ang === '') { if (e.type === 'change') el.value = row.step_bg_angle || '135'; return; }
+            row.step_bg_angle = ang;
+            ['efbSbgAngleEl', 'efbSbgAngleNumEl'].forEach(function (x) { var o = document.getElementById(x); if (o && o !== el) o.value = ang; });
             break;
          }
          case 'gtype': if (e.type !== 'change') return; setKey(row, 'step_bg_type', el.value); if (row.step_bg_type === 'radial' && !row.step_bg_pos) row.step_bg_pos = 'center'; rerender(indx, 'efbSbgTypeEl'); paintCanvas(); return;

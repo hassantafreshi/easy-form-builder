@@ -15789,3 +15789,192 @@ msgstr "بازدیدکنندگان پس از فعال شدن Free Plus یا Pro 
 #: includes/functions.php
 msgid "Activate it in the form builder"
 msgstr "در فرم‌ساز فعالش کنید"
+
+#  origin: claude (fa_IR) F19
+#. translators: F19: heading of the background section in the step settings panel
+#: includes/functions.php
+msgid "Step background"
+msgstr "پس‌زمینهٔ مرحله"
+
+#  origin: claude (fa_IR) F19
+#. translators: F19: background mode: the step uses the background set for all steps
+#: includes/functions.php
+msgid "Form default"
+msgstr "پیش‌فرض فرم"
+
+#  origin: claude (fa_IR) F19
+#. translators: F19: background mode: one colour
+#: includes/functions.php
+msgid "Solid color"
+msgstr "رنگ ثابت"
+
+#  origin: claude (fa_IR) F19
+#. translators: F19: background mode: colour gradient
+#: includes/functions.php
+msgid "Gradient"
+msgstr "گرادیانت"
+
+#  origin: claude (fa_IR) F19
+#. translators: F19: gradient type
+#: includes/functions.php
+msgid "Linear"
+msgstr "خطی"
+
+#  origin: claude (fa_IR) F19
+#. translators: F19: gradient type
+#: includes/functions.php
+msgid "Radial"
+msgstr "شعاعی"
+
+#  origin: claude (fa_IR) F19
+#. translators: F19: direction of a linear gradient in degrees
+#: includes/functions.php
+msgid "Angle"
+msgstr "زاویه"
+
+#  origin: claude (fa_IR) F19
+#. translators: F19: where a radial gradient starts
+#: includes/functions.php
+msgid "Center point"
+msgstr "نقطهٔ مرکز"
+
+#  origin: claude (fa_IR) F19
+#. translators: F19: position of a radial gradient
+#: includes/functions.php
+msgid "Top"
+msgstr "بالا"
+
+#  origin: claude (fa_IR) F19
+#. translators: F19: position of a radial gradient
+#: includes/functions.php
+msgid "Bottom"
+msgstr "پایین"
+
+#  origin: claude (fa_IR) F19
+#. translators: F19: list of the colours of a gradient
+#: includes/functions.php
+msgid "Colors"
+msgstr "رنگ‌ها"
+
+#  origin: claude (fa_IR) F19
+#. translators: F19: button that adds a colour to a gradient
+#: includes/functions.php
+msgid "Add color"
+msgstr "افزودن رنگ"
+
+#  origin: claude (fa_IR) F19
+#. translators: F19: button that removes a colour from a gradient
+#: includes/functions.php
+msgid "Remove this color"
+msgstr "حذف این رنگ"
+
+#  origin: claude (fa_IR) F19
+#. translators: F19: where a gradient colour sits, 0 to 100
+#: includes/functions.php
+msgid "Position (%)"
+msgstr "موقعیت (٪)"
+
+#  origin: claude (fa_IR) F19
+#. translators: F19: background opacity, 0 to 100 percent
+#: includes/functions.php
+msgid "Opacity"
+msgstr "شفافیت"
+
+#  origin: claude (fa_IR) F19
+#. translators: F19: accessible name of a ready-made background. %s: its number
+#: includes/functions.php
+#, php-format
+msgid "Preset %s"
+msgstr "نمونهٔ آمادهٔ %s"
+
+#  origin: claude (fa_IR) F19
+#. translators: F19: colour of labels and descriptions on the background
+#: includes/functions.php
+msgid "Text color"
+msgstr "رنگ متن"
+
+#  origin: claude (fa_IR) F19
+#. translators: F19: text colour option: keep the colours set on each field
+#: includes/functions.php
+msgid "Keep field colors"
+msgstr "رنگ‌های فیلد حفظ شود"
+
+#  origin: claude (fa_IR) F19
+#. translators: F19: text colour option: black or white, whichever is easier to read
+#: includes/functions.php
+msgid "Automatic (readable)"
+msgstr "خودکار (خوانا)"
+
+#  origin: claude (fa_IR) F19
+#. translators: F19: contrast check result. %s: the ratio, e.g. 7.2
+#: includes/functions.php
+#, php-format
+msgid "Contrast %s:1 — easy to read"
+msgstr "کنتراست %s:1 — خوانا"
+
+#  origin: claude (fa_IR) F19
+#. translators: F19: contrast warning. %s: the ratio, e.g. 2.1
+#: includes/functions.php
+#, php-format
+msgid "Text may be hard to read: contrast %s:1, at least 4.5:1 is needed. Choose “Automatic” text color or change the background."
+msgstr "متن ممکن است خوانا نباشد: کنتراست %s:1 است و دست‌کم 4.5:1 لازم است. رنگ متن را «خودکار» کنید یا پس‌زمینه را تغییر دهید."
+
+#  origin: claude (fa_IR) F19
+#. translators: F19: button: make this background the form default for every step
+#: includes/functions.php
+msgid "Use for all steps"
+msgstr "برای همهٔ مراحل"
+
+#  origin: claude (fa_IR) F19
+#. translators: F19: confirmation before applying a background to every step
+#: includes/functions.php
+msgid "Use this background for every step? Steps with their own background will use it too."
+msgstr "این پس‌زمینه برای همهٔ مراحل به کار رود؟ مراحلی که پس‌زمینهٔ جداگانه دارند هم همین را می‌گیرند."
+
+#  origin: claude (fa_IR) F19
+#. translators: F19: shown when the step follows the form default but none is set
+#: includes/functions.php
+msgid "No form default is set. Use “Use for all steps” to set one."
+msgstr "پیش‌فرضی برای فرم تعیین نشده است. با «برای همهٔ مراحل» یکی تعیین کنید."
+
+#  origin: claude (fa_IR) F19
+#. translators: F19: shown when the step follows the form default
+#: includes/functions.php
+msgid "This step uses the form default."
+msgstr "این مرحله از پیش‌فرض فرم پیروی می‌کند."
+
+#  origin: claude (fa_IR) F19
+#. translators: F19: mobile-only setting of the step background
+#: includes/functions.php
+msgid "Background on mobile"
+msgstr "پس‌زمینه در موبایل"
+
+#  origin: claude (fa_IR) F19
+#. translators: F19: mobile background option
+#: includes/functions.php
+msgid "Same as desktop"
+msgstr "مانند دسکتاپ"
+
+#  origin: claude (fa_IR) F19
+#. translators: F19: mobile background option
+#: includes/functions.php
+msgid "No background"
+msgstr "بدون پس‌زمینه"
+
+#  origin: claude (fa_IR) F19
+#. translators: F19: mobile background option: use only the first gradient colour
+#: includes/functions.php
+msgid "First color only"
+msgstr "فقط رنگ اول"
+
+#  origin: claude (fa_IR) F19
+#. translators: F19: name of a locked feature in the upgrade dialog (solid background colour per form step)
+#: includes/functions.php
+msgid "Step background colors"
+msgstr "رنگ پس‌زمینهٔ مراحل"
+
+#  origin: claude (fa_IR) F19
+#. translators: F19: name of a locked feature in the upgrade dialog (gradient background per form step)
+#: includes/functions.php
+msgid "Gradient step backgrounds"
+msgstr "پس‌زمینهٔ گرادیانت برای مراحل"
