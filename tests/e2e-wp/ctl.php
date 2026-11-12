@@ -21,6 +21,7 @@
  *   locale <locale|''>        site language (WPLANG); '' = English (United States)
  *   restrict-plan <0|1>       with 1, the e2e mu-plugin filters efb_can_change_plan to false for
  *                             users without manage_options (what a site owner can do with the filter)
+ *   plan <n>                  set emsfb_pro and settings package_type (for running one scenario alone)
  *   constants                 EMSFB_API_VERSION, EMSFB_PLUGIN_VERSION, database driver
  *   option <name>             raw option value
  *
@@ -168,6 +169,18 @@ switch ( $efb_e2e_cmd ) {
 	case 'restrict-plan':
 		update_option( 'efb_e2e_restrict_plan', isset( $efb_e2e_rest[0] ) && '1' === $efb_e2e_rest[0] ? 1 : 0 );
 		efb_e2e_out( array( 'restrict' => (int) get_option( 'efb_e2e_restrict_plan' ), 'mu_plugin' => function_exists( 'efb_e2e_mu_loaded' ) ) );
+		break;
+
+	case 'plan':
+		// Only so a scenario can run on its own; the suite itself changes plans through the UI.
+		$pkg = isset( $efb_e2e_rest[0] ) ? (int) $efb_e2e_rest[0] : 2;
+		update_option( 'emsfb_pro', $pkg );
+		$settings = efb_e2e_decode_json( get_option( 'emsfb_settings' ) );
+		if ( is_array( $settings ) ) {
+			$settings['package_type'] = $pkg;
+			update_option( 'emsfb_settings', wp_json_encode( $settings, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ) );
+		}
+		efb_e2e_out( array( 'emsfb_pro' => get_option( 'emsfb_pro' ) ) );
 		break;
 
 	case 'constants':
