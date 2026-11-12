@@ -1,4 +1,4 @@
-وضعیت: سند آماده، پیاده‌سازی نشده · اولویت: P0 (موج دوم) · تلاش: M · وابستگی: PAY00 (B تا H)
+وضعیت: فاز ۱ پیاده و تست شد (۲۰۲۶-۱۱-۱۲؛ Intention و Unified Checkout در پنج منطقه، callback با HMAC-SHA512، Transaction Inquiry، بازپرداخت، Test/Live؛ جزئیات در «پیوست: آنچه پیاده شد») · Pixel و اشتراک (۱b) نشد؛ ترجمه به دستور مالک انجام نشد · اولویت: P0 (موج دوم) · تلاش: M · وابستگی: PAY00 (B تا H)
 
 # PAY06 — افزونهٔ Paymob (مصر و خاورمیانه: کارت، Meeza، کیف‌پول‌های موبایل، کیوسک، اقساط، Apple Pay)
 
@@ -223,11 +223,11 @@ fixtureها `tests/fixtures/payments/paymob/`: `intention-201.json`، `callback-
 - تست‌ها: `test-pay-paymob-intention.php` (بخش تنظیمات).
 
 **Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `vendores-efb/paymob/` (`paymobefb.php`، `routes-efb.php`، `class-Emsfb-paymob-gateway.php`، `class-Emsfb-paymob-client.php`، `paymob-phrases-efb.php`، `languages/`، `assets/`)؛ هسته تغییری نکرد (کلید `AdnPMB`، پوشهٔ `paymob` و فایل‌های لازم از PAY00 در `functions.php` و `Registry::ADDONS` بودند).
+- تست‌ها: `php tests/test-addon-paymob-create.php` ۸۵ موفق (ثبت، `supports()` بر پایهٔ منطقه، تنظیمات رمزشده، الگوی کلیدها، نقشهٔ `method=ID`، «آزمودن اتصال»: حالت و منطقهٔ کلید پیش از هر درخواست، توکن از API key، intention آزمایشی ۱۰٫۰۰ با اولین Integration ID همان حالت، ۴۰۳ و ۴۰۴ و شبکه).
+- وضعیت ترجمه: فقط متن انگلیسی و `languages/efb-paymob.pot` (۵۶ عبارت)؛ `locales.json` بی‌زبان؛ به دستور مالک ترجمه نشد.
+- مورد باز: منطقهٔ پنجم **پاکستان** (`pakistan.paymob.com`، Unified Checkout در `https://pakistan.paymob.com/unifiedcheckout/`) از مستند پاکستان و افزونهٔ رسمی WooCommerce افزوده شد. تنظیم تازهٔ `api_key` (یکی برای Test و Live) لازم است چون Transaction Inquiry با auth token کار می‌کند (پرسش باز ۱). جدول Integration ID متنی `card=123, wallet=456` در هر حالت است (کنترل جدول در کارت تنظیمات هسته نیست).
+- اقدام بعدی: —
 
 ### B. Intention، Unified Checkout، callback با HMAC، بازگشت
 - فایل‌ها: gateway، client، آداپتور.
@@ -235,11 +235,11 @@ fixtureها `tests/fixtures/payments/paymob/`: `intention-201.json`، `callback-
 - تست‌ها: `test-pay-paymob-hmac.php`، `test-pay-paymob-intention.php`، `test-pay-paymob-status-map.php`.
 
 **Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: gateway (`create()`، `parse_webhook()`، `parse_return()`، `pending_ttl()`، هوک‌های اختیاری)، client (منطقه‌ها، روش‌ها، HMAC، نگاشت §۹)، `assets/js/paymob-efb.js`، `assets/css/paymob-efb.css`، `assets/img/*.svg`.
+- تست‌ها: `php tests/test-addon-paymob-hmac.php` ۴۲ موفق (رشتهٔ رسمی صفحهٔ HMAC، ترتیب ۲۰ فیلد، بولی‌ها، null، `order` عددی، GET با `order_id`/`order` و `source_data_pan`، نمونهٔ GET رسمی، HMAC intention، نگاشت §۹)؛ `php tests/test-addon-paymob-webhook.php` ۵۳ موفق؛ `node tests/test-addon-paymob-adapter.js` ۲۳ موفق (فیلد واقعی هسته، فیلتر روش با ارز، یادداشت‌ها، RTL در ۳۷۵ پیکسل، HMAC مستقل Node)؛ سناریوی e2e `paymob` ۳۰ موفق.
+- وضعیت ترجمه: همان بالا.
+- مورد باز: callback شکل intention (`{intention, transaction, hmac}`) فقط مبلغ و شناسهٔ intention را امضا می‌کند؛ پس فقط استعلام را راه می‌اندازد. مرجع پرداخت `intention_order_id` (= `obj.order.id` امضاشده) است، نه `special_reference` که در HMAC نیست (یافتن با uid خطرناک بود؛ کلید `efb_uid` در payload نیست).
+- اقدام بعدی: یک بار با حساب Test واقعی مصر (چک‌لیست دستی §۱۵).
 
 ### C. استعلام تراکنش و cron
 - فایل‌ها: gateway (`fetch()`).
@@ -247,11 +247,11 @@ fixtureها `tests/fixtures/payments/paymob/`: `intention-201.json`، `callback-
 - تست‌ها: `php tests/test-pay-paymob-inquiry.php`.
 
 **Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: gateway (`fetch()`، `inquiry()`).
+- تست‌ها: بخش‌های بازگشت بی‌callback، cron، انقضا و ناهمخوانی مبلغ در `test-addon-paymob-webhook.php` (نام `test-pay-paymob-inquiry.php` به قرارداد افزونه‌ها `test-addon-paymob-*` درآمد).
+- وضعیت ترجمه: —
+- مورد باز: endpoint تأیید شد: `POST {base}/api/auth/tokens {api_key}` ← `token`؛ `POST {base}/api/ecommerce/orders/transaction_inquiry {auth_token, order_id}` ← آخرین تراکنش سفارش؛ اگر آن تراکنش فرزند (بازپرداخت) باشد، `GET {base}/api/acceptance/transactions/{parent}` با `Bearer`. پاسخ «تراکنشی نیست» در مستند نیامده؛ ۴۰۴ «هنوز تراکنشی نیست» = pending فرض شد و پس از `pending_ttl` به expired می‌رود (پرسش باز ۱).
+- اقدام بعدی: تأیید پاسخ سفارش بی‌تراکنش با حساب واقعی.
 
 ### D. بازپرداخت و Pixel
 - فایل‌ها: gateway، آداپتور.
@@ -259,11 +259,11 @@ fixtureها `tests/fixtures/payments/paymob/`: `intention-201.json`، `callback-
 - تست‌ها: `test-pay-paymob-refund.php`، `node tests/test-pay-paymob-pixel.js`.
 
 **Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: gateway (`refund()`).
+- تست‌ها: `php tests/test-addon-paymob-refund.php` ۲۱ موفق (جزئی و کامل، یافتن تراکنش پدر، callback فرزند بی‌اثر، مجموع امضاشدهٔ پدر بی‌شمارش دوباره، بازپرداخت داشبورد، کیوسک unsupported بی‌درخواست، رد شدن، شبکه، کلید Live، پاسخ `{type, obj}` پاکستان، نمونهٔ مستند با مقادیر رشته‌ای).
+- وضعیت ترجمه: —
+- مورد باز: **Pixel ساخته نشد** (§۰ آن را فاز ۱b گذاشته؛ اسکریپت `paymob-pixel@latest` از CDN با نسخهٔ ثابت و تست آداپتور لازم است). Paymob کلید یکتایی برای بازپرداخت ندارد؛ یکتایی با جدول بازپرداخت هسته است.
+- اقدام بعدی: Pixel (`next.type = embedded`) پس از تصمیم مالک.
 
 ### E. ترجمه و zip
 - فایل‌ها: phrases، `languages/`، `paymob.zip`.
@@ -271,11 +271,11 @@ fixtureها `tests/fixtures/payments/paymob/`: `intention-201.json`، `callback-
 - تست‌ها: خط لولهٔ i18n افزونه.
 
 **Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `paymob-phrases-efb.php`، `languages/efb-paymob.pot`، `languages/locales.json`، `languages/index.php`، `vendores-efb/paymob.zip`.
+- تست‌ها: `php tests/test-addon-paymob-package.php` ۱۵ موفق (فایل‌های لازم هسته، هر رشتهٔ `efb-paymob` کد در `.pot` و برعکس، دامنهٔ یگانه، بی‌کلید، شبکه فقط از `Http` هسته، پنج میزبان، چیدمان zip).
+- وضعیت ترجمه: به دستور مالک هیچ زبانی ترجمه نشد (عربی مصری و انگلیسی §۳ منتظر دستور).
+- مورد باز: `paymobKioskRef` (متن کد مرجع کیوسک در صفحهٔ بازگشت) افزوده نشد چون هسته هوکی برای متن درگاه در صفحهٔ وضعیت ندارد (BUGS-FOUND)؛ `paymobPhoneNeeded` برچسب گزینهٔ `pgw_map_phone` شد. لوگوها نشان سادهٔ نام‌اند، نه طرح رسمی.
+- اقدام بعدی: ترجمه با خط لولهٔ `docs/addon-i18n` وقتی مالک بخواهد.
 
 ## ۱۷. پرسش‌های باز
 
@@ -285,3 +285,16 @@ fixtureها `tests/fixtures/payments/paymob/`: `intention-201.json`، `callback-
 4. API ماژول Subscriptions (ساخت پلن، اشتراک، webhook تمدید).
 5. سیاست تلاش دوبارهٔ callback و اینکه پاسخ غیر ۲۰۰ دوباره فرستاده می‌شود یا نه.
 6. اعتبار `client_secret` (یک صفحه «یک ساعت» می‌گوید) و رابطه‌اش با `expiration`.
+
+## پیوست: آنچه پیاده شد (۲۰۲۶-۱۱-۱۲)
+
+- **افزونه:** `vendores-efb/paymob/` و `paymob.zip` (کلید `AdnPMB`، نوع فیلد `paymob`، text domain `efb-paymob`)، فقط از راه قرارداد PAY00 و هوک‌های اختیاری آن؛ هسته تغییر نکرد.
+- **منطقه‌ها:** مصر `accept.paymob.com` (Unified Checkout `eg.checkout.paymob.com`)، عربستان `ksa` (`ksa.checkout`)، امارات `uae` (`uae.checkout`)، عمان `oman` (`om.checkout`)، پاکستان `pakistan.paymob.com` (`/unifiedcheckout/`). `api_hosts()` فقط این پنج میزبان API است؛ نشانی checkout فقط مقصد redirect است. ارز هر منطقه: EGP، SAR، AED، OMR، PKR (فیلتر `efb_paymob_currencies`).
+- **مبلغ:** `amount` = `$p->amount_minor` (کوچک‌ترین واحد؛ OMR به بیسه، ×۱۰۰۰ مانند افزونهٔ رسمی WooCommerce Paymob، پرسش باز ۲)؛ `items` از خطوط quote وقتی جمعشان برابر است، وگرنه یک خط (پرسش باز ۳ بی‌اثر شد)؛ فیلتر `efb_paymob_intention_body` نمی‌تواند مبلغ یا ارز را عوض کند.
+- **ساخت:** `POST /v1/intention/` با `Token <secret>`، `payment_methods` = Integration ID روش انتخابی یا همهٔ روش‌های سازگار با ارز («all»)، `billing_data` (نام، ایمیل، موبایل از `pgw_map_*` یا فیلد موبایل/تلفن فرم با ارقام فارسی و عربی؛ بی‌شماره «NA» مانند افزونه‌های رسمی، ولی کیف‌پول بی‌شماره رد می‌شود)، `special_reference` = uid، `extras` بی‌کلید `efb_uid`، `expiration` ۳۶۰۰ (کیوسک ۷۲ ساعت)، `notification_url`، `redirection_url`. بی‌ایمیل ساخته نمی‌شود.
+- **تأیید callback:** `?hmac=` = HMAC-SHA512 hex روی ۲۰ فیلد به ترتیب مستند با HMAC secret (`hash_equals`)؛ رشتهٔ رسمی صفحهٔ HMAC بایت‌به‌بایت آزموده شد. callback امضاشده وضعیت را با خود دارد (مبلغ، ارز، success، pending، refund و void امضا شده‌اند)؛ مبلغ یا ارز دیگر ← استعلام و سپس failed. شکل intention ← فقط استعلام. TOKEN و ناشناخته ← ۲۰۰ بی‌اثر؛ امضای بد ← ۴۰۱. بازگشت GET با همان HMAC فقط شمارهٔ سفارشِ بررسی را می‌دهد (امضای بد ← هیچ بررسی).
+- **وضعیت (§۹):** void ← canceled، refunded با مجموع ← refunded/partially_refunded، pending ← pending، success+is_auth ← authorized، success ← paid، بقیه failed؛ تراکنش فرزند وضعیت پرداخت نیست. `aggregator` (کیوسک) روش `kiosk` نام می‌گیرد. `pending_ttl` دو ساعت، کیوسک ۷۳ ساعت.
+- **هوک‌های اختیاری هسته (با پیش‌فرض امن):** ارز هر روش در `methods()`، `field_schema()` با `pgw_map_phone` (برچسب «Mobile number (needed by Paymob)») و `pgw_map_name`، `field_defaults()` (متن امنیت، سبک list)، `form_warnings()` (`paymob_no_phone` وقتی کیف‌پول هست و فیلد موبایل نیست).
+- **پیش‌فرض‌هایی که مالک باید تأیید کند:** حد ۱٫۰۰ تا ۱٬۰۰۰٬۰۰۰ واحد هر ارز؛ «آزمودن اتصال» یک intention پرداخت‌نشدهٔ ۱۰٫۰۰ می‌سازد (Paymob endpoint فقط‌خواندنی برای secret key ندارد)؛ تلفن «NA» برای کارت؛ «all» = همهٔ Integration IDهای سازگار؛ OMR به بیسه؛ توکن استعلام فقط در حافظهٔ همان درخواست (ذخیره نمی‌شود).
+- **تست‌ها:** `test-addon-paymob-create.php` ۸۵، `test-addon-paymob-hmac.php` ۴۲، `test-addon-paymob-webhook.php` ۵۳، `test-addon-paymob-refund.php` ۲۱، `test-addon-paymob-package.php` ۱۵، `test-addon-paymob-adapter.js` ۲۳ (۲۳۹ بررسی)؛ سناریوی e2e `paymob` ۳۰. fixtureها در `tests/fixtures/payments/paymob/` از صفحه‌های رسمی (مقادیر کلیدمانند جایگزین شدند)، Paymob ساختگی در `tests/paymob-fake-provider.php` (واحد و e2e)، کلیدها هنگام اجرا ساخته می‌شوند.
+- **فقط با حساب Test واقعی آزمودنی:** پاسخ استعلام برای سفارش بی‌تراکنش، شکل دقیق callback intention و اینکه کدام شکل به `notification_url` می‌رسد، قاعدهٔ OMR، پذیرش «NA» برای تلفن، رفتار `special_reference` تکراری، نشانی‌های checkout منطقه‌ای (`*.checkout.paymob.com`) در برابر `{host}/unifiedcheckout/`، کیوسک و کد مرجع، کلیدهای پاکستان.
