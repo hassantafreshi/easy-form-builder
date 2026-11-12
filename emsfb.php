@@ -33,7 +33,8 @@ if (!defined("EMSFB_DB_VERSION")) {
     // triggers Install::upgrade_schema() on sites that already have the tables.
     // 1.4 (F13 privacy and retention): emsfb_msg_.uid, emsfb_msg_.prv_state and the
     // keys form_date, track, date on emsfb_msg_ and msg_id on emsfb_rsp_.
-    define("EMSFB_DB_VERSION", 1.4);
+    // 1.5 (PAY00 payment framework): emsfb_pmt_, emsfb_pmt_evt_, emsfb_pmt_rfd_, emsfb_coupon_.
+    define("EMSFB_DB_VERSION", 1.5);
 }
 if (!defined("EMSFB_API_VERSION")) {
     // Version of the integration API (efbBuilderApi, efb_var.capabilities, field templates,

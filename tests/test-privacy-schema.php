@@ -88,7 +88,8 @@ function old_schema($with_stts = true) {
 
 // ------------------------------------------------------------------ the constant
 $main = file_get_contents(__DIR__ . '/../emsfb.php');
-t('EMSFB_DB_VERSION is 1.4', (bool) preg_match('/define\("EMSFB_DB_VERSION",\s*1\.4\)/', $main), true);
+// 1.4 is F13's version; later steps (1.5 = PAY00 payments) may only move it forward.
+t('EMSFB_DB_VERSION is 1.4 or later', (bool) preg_match('/define\("EMSFB_DB_VERSION",\s*1\.([4-9]|\d\d)\)/', $main), true);
 define('EMSFB_DB_VERSION', 1.4);
 
 require_once __DIR__ . '/../includes/class-Emsfb-install.php';

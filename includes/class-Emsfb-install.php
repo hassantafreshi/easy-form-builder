@@ -289,6 +289,11 @@ class Install {
 		// still needs them.
 		$applied = array_merge( $applied, self::upgrade_privacy_schema() );
 
+		// PAY00 (payment framework), DB version 1.5: the four payment tables. Only missing
+		// tables are created (create_table_if_absent), so a second run does nothing; placed
+		// before the emsfb_stts_ early return for the same reason as the F13 steps.
+		$applied = array_merge( $applied, self::upgrade_payments_schema() );
+
 		$table   = $wpdb->prefix . 'emsfb_stts_';
 
 		$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) );
@@ -326,6 +331,48 @@ class Install {
 
 		update_option( 'Emsfb_db_version', EMSFB_DB_VERSION );
 
+		return $applied;
+	}
+
+	/**
+	 * PAY00: emsfb_pmt_, emsfb_pmt_evt_, emsfb_pmt_rfd_, emsfb_coupon_ (DB version 1.5).
+	 * Idempotent: a table that exists is never touched. Without dbDelta (a stripped
+	 * environment) nothing is attempted; the next request retries.
+	 *
+	 * @return array<int, string> Applied steps.
+	 */
+	public static function upgrade_payments_schema() {
+		global $wpdb;
+		$applied = array();
+		if ( ! class_exists( '\\Emsfb\\Payments\\Store' ) ) {
+			$f = __DIR__ . '/payments/class-Emsfb-payment-store.php';
+			if ( ! is_readable( $f ) ) {
+				return $applied;
+			}
+			require_once $f;
+		}
+		if ( ! function_exists( 'dbDelta' ) && defined( 'ABSPATH' ) && is_readable( ABSPATH . 'wp-admin/includes/upgrade.php' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+		}
+		if ( ! function_exists( 'dbDelta' ) ) {
+			return $applied;
+		}
+		$collate = method_exists( $wpdb, 'get_charset_collate' ) ? $wpdb->get_charset_collate() : '';
+		foreach ( \Emsfb\Payments\Store::ddl( $wpdb->prefix, $collate ) as $short => $sql ) {
+			$table = $wpdb->prefix . $short;
+			if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) === $table ) {
+				continue;
+			}
+			self::create_table_if_absent( $sql );
+			$applied[] = "{$short}: CREATE TABLE";
+		}
+		// The Payments screen and its AJAX actions check this capability (administrators only).
+		if ( function_exists( 'get_role' ) ) {
+			$role = get_role( 'administrator' );
+			if ( $role && ! $role->has_cap( 'Emsfb_payments' ) ) {
+				$role->add_cap( 'Emsfb_payments' );
+			}
+		}
 		return $applied;
 	}
 
