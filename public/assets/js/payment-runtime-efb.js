@@ -189,8 +189,9 @@
       var tiles = el.querySelectorAll('[data-pf-method]');
       var sel = el.querySelector('[data-pf-method-select]');
       var method = el._method || (tiles.length === 1 ? tiles[0].getAttribute('data-pf-method') : (sel ? sel.value : ''));
-      var label = '';
-      tiles.forEach(function (b) { if (b.getAttribute('data-pf-method') === method) label = b.textContent.trim(); });
+      // The method's own name (an adapter may add notes or brands inside its tile).
+      var label = ((gw(el).method_labels || {})[method]) || '';
+      if (!label) tiles.forEach(function (b) { if (b.getAttribute('data-pf-method') === method) label = b.textContent.trim(); });
       if (!label && sel && sel.selectedIndex >= 0 && sel.options[sel.selectedIndex]) label = sel.options[sel.selectedIndex].textContent.trim();
       return { id: method, label: label };
    }
@@ -541,7 +542,7 @@
       return false;
    }
 
-   /** Polls without changing the status text (the visitor already sees what to do); stops when paid or failed. */
+   /** Polls without the "checking" texts (the visitor already sees what to do); shows the end when paid or failed. */
    async function watchQuiet(el, p, fid) {
       var delay = 4000, until = untilOf(p.poll_until);
       while (Date.now() < until && !el._retrying) {
@@ -549,8 +550,7 @@
          if (el._retrying || (el._last && el._last.uid !== p.uid)) return;
          var st;
          try { st = await getStatus(p.uid, p.sig); } catch (e) { st = { state: 'pending' }; }
-         if (st.state === 'paid') { show(el, fid, st); return; }
-         if (st.state === 'failed') return;
+         if (st.state === 'paid' || st.state === 'failed') { show(el, fid, st); return; }
          delay = Math.min(15000, Math.round(delay * 1.5));
       }
    }

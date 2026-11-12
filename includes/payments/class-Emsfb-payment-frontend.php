@@ -180,7 +180,7 @@ class Frontend {
 			foreach ( is_array( $own ) ? $own : array() as $code => $text ) {
 				if ( is_string( $code ) && preg_match( '/^[a-z0-9_]{1,40}$/', $code ) && is_string( $text ) && Field::text( $text, 300 ) !== '' ) $messages[ $code ] = Field::text( $text, 300 );
 			}
-			$gateways[ $slug ] = array( 'label' => $info['label'], 'mode' => $info['mode'], 'flows' => $info['supports']['flows'], 'min_minor' => $info['supports']['min_minor'], 'max_minor' => $info['supports']['max_minor'], 'currencies' => $info['currencies'], 'method_limits' => $limits, 'requires' => $requires, 'messages' => $messages );
+			$gateways[ $slug ] = array( 'label' => $info['label'], 'mode' => $info['mode'], 'flows' => $info['supports']['flows'], 'min_minor' => $info['supports']['min_minor'], 'max_minor' => $info['supports']['max_minor'], 'currencies' => $info['currencies'], 'method_limits' => $limits, 'requires' => $requires, 'messages' => $messages, 'method_labels' => (object) array_column( array_map( function ( $m ) { return array( $m[0], Field::text( $m[1], 80 ) ); }, $info['methods'] ), 1, 0 ) );
 			$assets = (array) $g->public_assets();
 			foreach ( isset( $assets['js'] ) ? (array) $assets['js'] : array() as $i => $src ) {
 				if ( is_string( $src ) && $src !== '' ) wp_enqueue_script( 'efb-pay-' . $slug . '-' . $i, $src, array( 'efb-payment-runtime' ), EMSFB_PLUGIN_VERSION, true );
