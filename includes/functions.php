@@ -10,6 +10,9 @@ if (is_readable(__DIR__ . '/json-efb.php')) {
 if (is_readable(__DIR__ . '/email-next-steps-efb.php')) {
     require_once __DIR__ . '/email-next-steps-efb.php';
 }
+if (is_readable(__DIR__ . '/step-bg-functions-efb.php')) {
+    require_once __DIR__ . '/step-bg-functions-efb.php';
+}
 
 /**
  * Return whether a genuinely new installation should show first-run setup.
@@ -4397,6 +4400,17 @@ class efbFunction {
 					break;
 					case 'inputmode':
 						$valp[$key][$k] = is_string($v) && in_array($v, array('auto', 'text', 'numeric', 'decimal', 'tel', 'email', 'url', 'none'), true) ? $v : 'auto';
+					break;
+					// F19 step background: allow-lists and a canonical stop list; never a CSS string.
+					case 'step_bg_type':
+					case 'step_bg_color':
+					case 'step_bg_stops':
+					case 'step_bg_angle':
+					case 'step_bg_pos':
+					case 'step_bg_opacity':
+					case 'step_bg_text':
+					case 'mobile_step_bg':
+						$valp[$key][$k] = function_exists('efb_step_bg_sanitize_key_efb') ? efb_step_bg_sanitize_key_efb($k, $v) : '';
 					break;
 					default:
 					$k =sanitize_text_field($k);
