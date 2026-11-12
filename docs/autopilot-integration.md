@@ -872,6 +872,20 @@ Chromium build that is not installed, without the harness fallback), tests that 
 - **Tests.** `php tests/test-addon-tappay-{hashstring,create,webhook,refund}.php`,
   `node tests/test-addon-tappay-adapter.js`, scenario `tappay` of `tests/e2e-wp/run.js`.
 
+### PAY04. Omise add-on (`omise`, `AdnOMS`, PromptPay QR)
+
+- **Field.** Type `omise` (only with the add-on; `newItems('omise')` → `addon_required` without it).
+  `formPatch.currency` is `THB`, the only currency (PromptPay: 20 to 150,000 baht; JPY, KWD and others
+  are refused). Only the core `pf_*` keys; no Omise-specific key. One method, `promptpay`.
+- **Registry.** `payment_gateways.omise` = `{configured, mode, currencies:['THB'], countries:['TH'],
+  methods:[promptpay], supports: {flows:['qr'], refund:false, recurring:false, webhook_auth:'signature'}}`,
+  no key. Settings (secret / public key per mode, webhook secret, QR minutes) are for people only.
+- **Server only.** The amount is core's quote; the QR image reaches the browser as a `data:` URI from
+  EFB's server (no key, no Omise address). Webhooks are re-read from Omise. Agents never enter keys,
+  switch to Live, or create a real test payment; PromptPay cannot be refunded through the API.
+- **Tests.** `php tests/test-addon-omise-{create,webhook,package}.php`,
+  `node tests/test-addon-omise-qr-browser.js`, scenario `omise` of `tests/e2e-wp/run.js`.
+
 ---
 
 ## Add-on changes needed (vendores-efb)

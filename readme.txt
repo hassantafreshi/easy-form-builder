@@ -481,6 +481,7 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 * New: Mollie add-on (iDEAL | Wero, Bancontact, cards, PayPal and more) on the new payment framework: Mollie's hosted payment page, every payment checked with Mollie before it counts, refunds from the Payments screen, separate Test and Live keys.
 * New: Payplug add-on (Cartes Bancaires, Visa, Mastercard, Bancontact, Oney instalments and more, euro only) on the new payment framework: Payplug's payment page or card fields inside the form with a choice of card brand, every payment checked with Payplug before it counts, refunds from the Payments screen, separate Test and Live keys.
 * New: Tap Payments add-on (Gulf: mada, KNET, BENEFIT, cards and the methods of Tap's hosted page) on the payment framework; amounts in KWD, BHD and OMR with three decimals, refunds from the Payments screen.
+* New: Omise add-on (Thailand: PromptPay) on the payment framework: the visitor scans a PromptPay QR code inside the form, with a countdown, "Save QR image" and "Get a new QR code"; every payment checked with Omise before it counts, signed webhooks, separate Test and Live keys.
 * Developers: database version 1.5 (payment tables); hooks efb_register_payment_gateways, efb_payment_paid, efb_payment_status_changed and more; see docs/payments/PAY00-payment-framework.fa.md.
 
 * برای یکپارچگی با AutoPilot (for the AI Site Assistant AutoPilot integration, API version 1):

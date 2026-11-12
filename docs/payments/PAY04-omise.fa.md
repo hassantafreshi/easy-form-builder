@@ -1,4 +1,4 @@
-وضعیت: سند آماده، پیاده‌سازی نشده · اولویت: P0 (موج اول) · تلاش: M · وابستگی: PAY00 (B تا H، به‌ویژه جریان QR در §۷.۳)
+وضعیت: فاز ۱ پیاده و تست شد (۲۰۲۶-۱۱-۱۲؛ PromptPay QR، webhook با امضا و خواندن دوباره، انقضا، Test/Live؛ جزئیات در «پیوست: آنچه پیاده شد») · کارت با Omise.js (۱b) منتظر هوک هسته · اولویت: P0 (موج اول) · تلاش: M · وابستگی: PAY00 (B تا H، به‌ویژه جریان QR در §۷.۳)
 
 # PAY04 — افزونهٔ Omise (تایلند: PromptPay QR، کارت)
 
@@ -228,11 +228,11 @@ fixtureها `tests/fixtures/payments/omise/`: `charge-promptpay-pending.json` (�
 - تست‌ها: `test-pay-omise-create.php` (بخش تنظیمات).
 
 **Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `vendores-efb/omise/` (`omiseefb.php`، `routes-efb.php`، `class-Emsfb-omise-gateway.php`، `class-Emsfb-omise-client.php`، `omise-phrases-efb.php`، `languages/`، `assets/`)؛ هسته تغییری نکرد (کلید `AdnOMS`، پوشهٔ `omise` و فایل‌های لازم از PAY00 در `functions.php` و `Registry::ADDONS` بودند).
+- تست‌ها: `php tests/test-addon-omise-create.php` ۶۶ موفق (ثبت، تنظیمات رمزشده، الگوی کلید، دقیقه‌های QR، «آزمودن اتصال» با `GET /account` و `GET /capability`، کلید Live در Test پیش از هر درخواست رد می‌شود، ۴۰۱، PromptPay غیرفعال، راز هرگز در خروجی).
+- وضعیت ترجمه: فقط متن انگلیسی و `languages/efb-omise.pot` (۳۴ عبارت)؛ `locales.json` بی‌زبان؛ به دستور مالک ترجمه نشد.
+- مورد باز: کلید `public_key` اختیاری است (فقط برای بررسی PromptPay در `GET /capability`؛ کارت ۱b آن را لازم دارد). نشانی جایگزین `?efb_pay_webhook=omise` (PAY00 §۹) در هسته پیاده نشده؛ صفحهٔ تنظیمات فقط نشانی REST را نشان می‌دهد (BUGS-FOUND). تنظیم `methods` ساخته نشد چون فاز ۱ فقط PromptPay دارد. تنظیم تازهٔ `webhook_per_charge` (اختیاری): نشانی webhook را با هر charge در `webhook_endpoints[]` می‌فرستد، برای حسابی که webhook آن به سایت یا افزونهٔ دیگری می‌رود.
+- اقدام بعدی: —
 
 ### B. charge PromptPay، QR، نظرسنجی، webhook
 - فایل‌ها: gateway، client، `omise-efb.js`.
@@ -240,11 +240,11 @@ fixtureها `tests/fixtures/payments/omise/`: `charge-promptpay-pending.json` (�
 - تست‌ها: `test-pay-omise-signature.php`، `test-pay-omise-create.php`، `test-pay-omise-status-map.php`، `test-pay-omise-qr-browser.js`.
 
 **Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: gateway (`create()`، `fetch()`، `parse_webhook()`، `pending_ttl()`)، client (بدنهٔ فرم، نگاشت §۸، امضا، پاک‌سازی SVG)، `assets/js/omise-efb.js`، `assets/css/omise-efb.css`.
+- تست‌ها: `php tests/test-addon-omise-create.php` ۶۶ موفق (ساخت: ثابت، محاسبه‌شده با منطق شرطی، کمک مالی؛ `ref_id` = `idem_key`؛ `expires_at`؛ metadata؛ QR فقط از `api.omise.co`؛ تغییر مسیر فقط به `*.omise.co` و بی‌کلید؛ SVG خصمانه؛ JPY و KWD و USD پیش از تماس رد؛ کلید هر حالت؛ ناسازگاری مبلغ هنگام ساخت)، `php tests/test-addon-omise-webhook.php` ۴۹ موفق (امضا، چرخش، زمان کهنه، جعلی ← ۴۰۱ بی‌تماس، بدنهٔ امضاشدهٔ دروغ اثری ندارد، بی‌راز ← فقط شناسه و خواندن، تکراری، ترتیب نادرست، پیش از بازگشت و بازگشت/poll بدون webhook، مبلغ یا ارز دیگر ← failed، شکست/لغو/انقضا/reversed، انقضا پس از `expires_at` + ۵ دقیقه، ۵۰۳ و تحویل دوباره، جدول §۸)، `node tests/test-addon-omise-qr-browser.js` ۱۶ موفق؛ سناریوی `omise` در `tests/e2e-wp/run.js` E2E_COUNT موفق.
+- وضعیت ترجمه: همان بالا.
+- مورد باز: نام فایل‌های تست `test-addon-omise-*` است (قرارداد افزونه‌ها) نه `test-pay-omise-*`. دریافت `download_uri` فقط با حساب Test واقعی آزموده می‌شود (پرسش باز ۲: افزونهٔ رسمی WooCommerce آن را بی‌احراز می‌گیرد؛ اینجا با کلید و یک تغییر مسیر به `*.omise.co`). امضای رویدادهای `webhook_endpoints` هر charge با همان راز حساب فرض شده است.
+- اقدام بعدی: یک بار با حساب Test واقعی که PromptPay فعال دارد (چک‌لیست دستی §۱۴).
 
 ### C. بدون بازپرداخت API و ثبت بیرونی
 - فایل‌ها: gateway، صفحهٔ پرداخت‌ها (اقدام عمومی «ثبت بازپرداخت بیرونی» در هسته).
@@ -252,11 +252,11 @@ fixtureها `tests/fixtures/payments/omise/`: `charge-promptpay-pending.json` (�
 - تست‌ها: `test-pay-omise-no-refund.php`.
 
 **Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: gateway (`refund()` ← `Refund_Result::unsupported()` با متن `omiseNoRefund`، `cancel()` ← unsupported)، `supports.refund = false`.
+- تست‌ها: `test-addon-omise-webhook.php` (بازپرداخت از صفحهٔ پرداخت‌ها رد می‌شود و هیچ درخواستی به Omise نمی‌رود)؛ سناریوی `omise`: جزئیات پرداخت دکمهٔ بازپرداخت ندارد و متن «cannot be refunded through the API» و پیوند داشبورد Omise را دارد.
+- وضعیت ترجمه: همان بالا.
+- مورد باز: **«ثبت بازپرداخت بیرونی» ساخته نشد**: اقدام عمومی آن باید در صفحهٔ پرداخت‌های هسته باشد و نیست (BUGS-FOUND)؛ صفحهٔ هسته متن کلی خودش را نشان می‌دهد و متن `omiseNoRefund` افزونه فقط در `Refund_Result` است.
+- اقدام بعدی: پس از افزودن اقدام هسته، دکمه با کلید `omiseMarkRefunded` (عبارت هنوز افزوده نشده).
 
 ### D. کارت با Omise.js (۱b)
 - فایل‌ها: آداپتور، gateway (charge با `card` token، 3DS با `return_uri`، بازپرداخت).
@@ -264,11 +264,11 @@ fixtureها `tests/fixtures/payments/omise/`: `charge-promptpay-pending.json` (�
 - تست‌ها: `node tests/test-pay-omise-card-adapter.js`.
 
 **Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: —
+- تست‌ها: —
+- وضعیت ترجمه: —
+- مورد باز: **ساخته نشد.** charge کارت در Omise به توکن مرورگر (Omise.js) پیش از `POST /charges` نیاز دارد؛ قرارداد PAY00 آداپتور را فقط پس از `payments/create` صدا می‌زند و `Checkout_Context` جایی برای توکن ندارد (همان ردیف Mollie Components در BUGS-FOUND). پس `supports.currencies` فقط `THB` است؛ JPY (بدون اعشار) و دیگر ارزهای کارت در فاز ۱ رد می‌شوند، ولی `format_amount()` برای هر ارز کوچک‌ترین واحد را به‌صورت عدد صحیح می‌دهد (JPY 500 ← 500) و تست دارد.
+- اقدام بعدی: پس از هوک هسته: `card` در `methods`، آداپتور Omise.js (`cdn.omise.co`)، `return_uri` برای 3DS، `POST /charges/{id}/refunds` جزئی.
 
 ### E. ترجمه (تایلندی، انگلیسی، فارسی) و zip
 - فایل‌ها: phrases، `languages/`، `omise.zip`.
@@ -276,11 +276,11 @@ fixtureها `tests/fixtures/payments/omise/`: `charge-promptpay-pending.json` (�
 - تست‌ها: خط لولهٔ i18n افزونه.
 
 **Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `omise-phrases-efb.php`، `languages/efb-omise.pot`، `languages/locales.json`، `languages/index.php`، `vendores-efb/omise.zip`.
+- تست‌ها: `php tests/test-addon-omise-package.php` ۱۴ موفق (فایل‌های لازم هسته، هر رشتهٔ `efb-omise` کد در `.pot` و برعکس، دامنهٔ یگانه، بی‌کلید، شبکه فقط از `Http` هسته، چیدمان zip: یک پوشهٔ `omise/`، مرتب، 0755/0644، تاریخ ثابت، همان محتوای پوشه).
+- وضعیت ترجمه: به دستور مالک هیچ زبانی ترجمه نشد (تایلندی، انگلیسی و فارسی §۱۵-E منتظر دستور).
+- مورد باز: لوگوی `promptpay.svg` یک نشان سادهٔ نام است، نه طرح رسمی Thai QR Payment؛ متن پیش‌فرض دکمه «Show PromptPay QR» (`omiseShowQr`) را هسته نمی‌گیرد (پیش‌فرض «Pay %amount%»؛ BUGS-FOUND).
+- اقدام بعدی: ترجمه با خط لولهٔ `docs/addon-i18n` وقتی مالک بخواهد؛ لوگوی رسمی پس از بررسی راهنمای برند.
 
 ## ۱۶. پرسش‌های باز
 
@@ -289,3 +289,14 @@ fixtureها `tests/fixtures/payments/omise/`: `charge-promptpay-pending.json` (�
 3. سیاست تلاش دوبارهٔ webhook در Omise (تعداد و فاصله) — در مستند نبود.
 4. بازپرداخت PromptPay: آیا Omise پس از فعال‌سازی، روش دستی یا API جداگانه‌ای پیشنهاد می‌کند؟ پیام صفحهٔ پرداخت‌ها بر همین اساس تنظیم شود.
 5. Omise (Opn Payments) برای ژاپن، سنگاپور و مالزی هم روش‌های QR دارد (PayNow، DuitNow QR)؛ در فاز ۲ به همین افزونه اضافه شوند؟
+
+## پیوست: آنچه پیاده شد (۲۰۲۶-۱۱-۱۲)
+
+- **افزونه:** `vendores-efb/omise/` و `omise.zip` (کلید `AdnOMS`، نوع فیلد `omise`، text domain `efb-omise`)، فقط از راه قرارداد PAY00؛ هسته تغییر نکرد.
+- **ساخت:** `POST https://api.omise.co/charges` (فرم‌کدشده، `Omise-Version: 2019-05-29`، Basic با کلید مخفی همان حالت پرداخت) با `amount` = `$p->amount_minor` (ساتانگ)، `currency=THB`، `source[type]=promptpay`، `expires_at` = اکنون + `qr_ttl_minutes` (۵ تا ۱۴۴۰، پیش‌فرض ۱۵)، `ref_id` = `idem_key` پرداخت، `description`، `metadata[efb_uid|form_id|track]`. پاسخ باید همان مبلغ، ارز و حالت باشد، وگرنه ساخت شکست می‌خورد.
+- **QR:** `download_uri` فقط اگر `https://api.omise.co` باشد با همان کلید گرفته می‌شود (یک تغییر مسیر فقط به `https://*.omise.co` و بی‌کلید)، با DOMDocument به شکل‌های ساده (`svg g rect path polygon circle title desc`) پاک می‌شود و در `next = {type: qr, client: {image: data:…, expires_at, amount_text, logo, text}}` به مرورگر می‌رسد. مرورگر هیچ کلید یا نشانی Omise نمی‌بیند. آداپتور: کادر سفید، `<bdi>` برای مبلغ، شمارش معکوس `aria-live="off"` با اعلام در دقیقهٔ آخر و هنگام انقضا، «ذخیرهٔ تصویر QR» به PNG، «QR تازه» (کلید تلاش تازه = charge تازه)، و اگر مرحله‌های فرم پنهان شده باشند QR در مرحلهٔ پایانی فرم.
+- **تأیید webhook:** با راز webhook حالت رویداد (`livemode`): `Omise-Signature` (hex، دو مقدار هنگام چرخش) = HMAC-SHA256 روی `<Omise-Signature-Timestamp>.<بدنهٔ خام>` با راز base64-decode‌شده، پنجرهٔ ±۵ دقیقه؛ امضای بد ← ۴۰۱. با امضا یا بی‌امضا (وقتی راز وارد نشده) وضعیت همیشه از `GET /charges/{id}` خوانده می‌شود (`needs_refetch`)؛ بدنه هرگز منبع وضعیت نیست. `charge.*` و `refund.*` (با `data.charge`) پذیرفته، بقیه ۲۰۰ بی‌اثر.
+- **وضعیت (§۸):** `pending`→pending، `successful` (+ `paid`)→paid، `failed`+`payment_cancelled`→canceled، `failed`→failed، `expired`→expired، `reversed`→canceled؛ `metadata.efb_uid` یا `livemode` ناهمخوان ← خطا (هرگز paid). `pending_ttl` = `expires_at` + ۵ دقیقه.
+- **پیش‌فرض‌هایی که مالک باید تأیید کند:** فقط PromptPay و THB در فاز ۱؛ QR پیش‌فرض ۱۵ دقیقه؛ `public_key` اختیاری؛ `webhook_per_charge` خاموش؛ پیوند داشبورد `https://dashboard.omise.co/{test|live}/charges/{id}`.
+- **تست‌ها:** `test-addon-omise-create.php` ۶۶، `test-addon-omise-webhook.php` ۴۹، `test-addon-omise-package.php` ۱۴، `test-addon-omise-qr-browser.js` ۱۶، سناریوی e2e `omise` E2E_COUNT؛ fixtureها در `tests/fixtures/payments/omise/` از نمونه‌های رسمی، Omise ساختگی در `tests/addon-omise-test-lib.php` و `tests/omise-fake-provider.php` (e2e)، کلیدها هنگام اجرا ساخته می‌شوند.
+- **فقط با حساب Test واقعی آزمودنی:** فعال بودن PromptPay در `GET /capability`، دریافت واقعی `download_uri` (احراز و تغییر مسیر)، امضای رویدادهای `webhook_endpoints`، رفتار Omise با `ref_id` تکراری (مستند نشده؛ EFB هر `idem_key` را یک بار می‌فرستد)، `expires_at` واقعی QR.

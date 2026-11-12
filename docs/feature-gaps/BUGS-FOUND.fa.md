@@ -181,3 +181,17 @@
 | متوسط | `Service::handle_webhook()` اگر مرجع رویداد پیدا نشود، پرداخت را با `payload['efb_uid']` پیدا و وضعیت آن رویداد را روی پرداختی با مرجع دیگر اعمال می‌کند (`fetch()` و بازپرداخت بعدی مرجع ذخیره‌شده را به کار می‌برند). | `includes/payments/class-Emsfb-payment-service.php` (`handle_webhook`) | **باز**: افزونهٔ Tap کلید `efb_uid` را در payload نمی‌گذارد (`metadata_uid`)؛ تست `test-addon-tappay-webhook.php` |
 | کم | `Service::refund()` بازپرداختی را که درگاه «در انتظار» (`pending`، Tap `PENDING`/`ACCEPTED`) جواب داده همان لحظه در وضعیت پرداخت (`refunded`/`partially_refunded`) حساب می‌کند و راهی برای ثبت رد شدن بعدی (webhook `DECLINED`) در ردیف بازپرداخت نیست. | `class-Emsfb-payment-service.php` (`refund`) | **باز** |
 
+## Omise (PAY04، ۲۰۲۶-۱۱-۱۲)
+
+هیچ‌کدام مانع فاز ۱ (PromptPay QR) نبود؛ هسته تغییر نکرد.
+
+| شدت | مشکل | محل | وضعیت |
+|---|---|---|---|
+| متوسط | صفحهٔ پرداخت‌ها برای روشی که بازپرداخت API ندارد (PromptPay) اقدام «ثبت بازپرداخت بیرونی» ندارد (PAY04 §۶.۳ و زیرتسک C آن را اقدام عمومی هسته می‌خواهند)؛ مدیر پول را از داشبورد Omise یا بانک برمی‌گرداند ولی ردیف `paid` می‌ماند و راهی برای ثبت `refunded` با یادداشت (`source:'admin'`) نیست. متن `Refund_Result::unsupported()` درگاه هم نمایش داده نمی‌شود (هسته متن کلی خودش را دارد). | `includes/payments/class-Emsfb-payment-admin.php` (`details`)، `Service::refund()` | **باز** |
+| کم | کارت با Omise.js (PAY04 §۱۵-D) به توکن مرورگر پیش از `POST /charges` نیاز دارد؛ همان کمبود ردیف Mollie Components (آداپتور فقط پس از `payments/create`، `Checkout_Context` جای توکن ندارد). | `public/assets/js/payment-runtime-efb.js` (`submit`)، `Checkout_Context` | **باز**: Omise فاز ۱ فقط PromptPay (THB) |
+| کم | درگاه نمی‌تواند متن پیش‌فرض دکمه را بدهد (PAY04 §۹: «Show PromptPay QR»)؛ `Frontend::default_texts()` فقط «Pay %amount%» هسته را دارد. | `includes/payments/class-Emsfb-payment-frontend.php` (`default_texts`) | **باز** |
+| کم | نشانی جایگزین webhook `home_url('/?efb_pay_webhook=<gateway>')` (PAY00 §۹) پیاده نشده و برگهٔ تنظیمات درگاه فقط نشانی REST را نشان می‌دهد؛ برای میزبانی که REST مهمان را بسته راهی نیست. | `includes/payments/class-Emsfb-payment-frontend.php` (`Routes`)، برگهٔ gateways | **باز** |
+| کم | «آزمودن اتصال» پیام `Result::ok($message)` درگاه را نشان نمی‌دهد (همیشه «Connected.»)؛ پس «وصل شد ولی …» (مثلاً کلید عمومی وارد نشده و فعال بودن PromptPay بررسی نشد) ممکن نیست. | `includes/payments/class-Emsfb-payment-admin.php` (`ajax`، `test_connection`) | **باز** |
+| کم | «QR تازه» (و «Try again» هسته) کل فرم را دوباره می‌فرستد و هر بار یک پاسخ معلق تازه (`read_=2`) در `emsfb_msg_` می‌سازد؛ پاسخ‌های معلق رهاشده تا پاک‌سازی F13 می‌مانند. | `payment-runtime-efb.js` (`pay`)، `Service::create()` | **باز** |
+| کم | `watch()` در runtime فقط ۱۵ دقیقه نظرسنجی می‌کند، ولی QR درگاه می‌تواند تا ۲۴ ساعت معتبر باشد. | `public/assets/js/payment-runtime-efb.js` (`watch`) | **دور زده**: آداپتور Omise تا `expires_at` + ۵ دقیقه دوباره `poll()` را صدا می‌زند |
+
