@@ -209,6 +209,18 @@ async function launchChromiumEfb() {
   const tel = await page.evaluate(() => Array.from(document.querySelectorAll('#maskPresetEl optgroup option')).map((o) => o.value));
   const cats = JSON.parse(catalogJson).data.groups.flatMap((g) => g.presets).filter((p) => p.category === 'phone_mobile' || p.category === 'phone_landline').map((p) => p.id).sort();
   check('tel field lists only phone presets', JSON.stringify(tel.slice().sort()) === JSON.stringify(cats) && tel.length === cats.length && tel.length >= 22, tel.length);
+  // A field straight from the palette has the type's name as placeholder (sampleElpush_efb: 'T:tel'
+  // here); choosing a preset replaces that default (found on a real site: the visitor saw "Text").
+  check('tel field starts with the palette default placeholder', (await row('ftel')).placeholder === 'T:tel', (await row('ftel')).placeholder);
+  await change('#maskPresetEl', 'ir.mobile');
+  check('preset replaces the palette default placeholder', (await row('ftel')).placeholder === '0912 345 6789' && await page.evaluate(() => document.getElementById('ftel_').placeholder === '0912 345 6789'), (await row('ftel')).placeholder);
+  await open('fmail-id');
+  await open('ftel-id');
+  await page.waitForFunction(() => document.querySelectorAll('#maskPresetEl optgroup').length > 0, null, { timeout: 5000 });
+  await change('#placeholderEl', 'Your phone');
+  await change('#maskPresetEl', 'ir.landline');
+  check("the owner's own placeholder is kept when the preset changes", (await row('ftel')).placeholder === 'Your phone', (await row('ftel')).placeholder);
+  await change('#maskPresetEl', '');
 
   // JS renderer twin (canvas + in-admin preview), with the catalog loaded.
   const tw = await page.evaluate(() => ({
