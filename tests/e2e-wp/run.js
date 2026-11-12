@@ -258,6 +258,8 @@ scenario('2', 'Builder: masked text fields, country/state/city, redirect, save a
   let st = await dialogState(page);
   R.check('4a: the new upgrade dialog opens in state S1 for field:stateProvince with the credit disclosure', st.state === 'S1' && st.feature === 'field:stateProvince' && /Free Plus/.test(st.headline) && /Powered by Easy Form Builder/.test(st.disclosure || ''), st);
   R.check('4a: S1 offers Activate Free Plus and Get Pro; focus on the headline', st.buttons.some((b) => b.id === 'activate') && st.buttons.some((b) => b.id === 'buy') && st.active === 'efbUpgHeadEfb', st);
+  const actColor = await page.$eval('[data-efb-upg-action="activate"]', (b) => getComputedStyle(b).color);
+  R.check('4a: the Activate label is white on the real admin CSS (contrast)', actColor === 'rgb(255, 255, 255)', actColor);
   await page.screenshot({ path: SHOT('f18-dialog-en-1280') });
   const planResp = page.waitForResponse((r) => (r.request().postData() || '').includes('efb_save_plan_selection'), { timeout: 15000 });
   await page.click('[data-efb-upg-action="activate"]');
@@ -309,7 +311,7 @@ scenario('2', 'Builder: masked text fields, country/state/city, redirect, save a
   await page.waitForSelector('#formNameEl', { timeout: 8000 });
   await setInput(page, '#formNameEl', 'E2E masks form');
   await setSelect(page, '#thankYouTypeEl', 'rdrct');
-  SHARED.redirect = CFG.base + '/efb-e2e-thanks/?from=efb';
+  SHARED.redirect = CFG.base + '/?efb-e2e-thanks=1&from=efb';
   await setInput(page, '#thankYouredirectEl', SHARED.redirect);
   const r0 = await page.evaluate(() => ({ t: valj_efb[0].thank_you, p: valj_efb[0].rePage, n: valj_efb[0].formName }));
   R.check('2/A3: redirect thank-you set in the panel (thank_you=rdrct, rePage stored @efb@-encoded)', r0.t === 'rdrct' && /^http:@efb@/.test(r0.p) && r0.n === 'E2E masks form', r0);
@@ -525,6 +527,40 @@ scenario('3', 'Publish; a guest fills the form (Persian digits, paste, caret, ch
   R.check('3: stored amount has no group separators: 1234567', stored.amount === '1234567', stored.amount);
   R.check('3: stored country/state/city are the chosen ones', /Iran/.test(stored.country || '') && /Tehran/.test(stored.state || '') && !!stored.city, stored);
 
+  // The server re-checks: a request whose national id was changed after the browser checked it
+  // (wrong check digit) is refused for that field and nothing is stored.
+  const g2 = await (await context({}, 'guest-tamper')).newPage();
+  await g2.goto(sc.url, { waitUntil: 'load' });
+  await g2.waitForSelector(byId(F.nid + '_'), { timeout: 20000 });
+  await sleep(800);
+  await g2.click(byId(F.nid + '_'));
+  await g2.keyboard.type('0012345679');
+  await g2.click(byId(F.mobile + '_'));
+  await g2.keyboard.type('09121234567');
+  await g2.fill(byId(F.email + '_'), 'tamper@example.test');
+  let tampered = false;
+  await g2.route('**/*', async (route) => {
+    const req = route.request();
+    if (/forms\/message\/add|forms%2Fmessage%2Fadd/.test(req.url()) && req.method() === 'POST') {
+      const body = req.postData() || '';
+      tampered = body.includes('0012345679');
+      return route.continue({ postData: body.split('0012345679').join('0012345678') });
+    }
+    return route.continue();
+  });
+  const tResp = g2.waitForResponse((x) => /forms\/message\/add|forms%2Fmessage%2Fadd/.test(x.url()), { timeout: 30000 }).catch(() => null);
+  await g2.click('#btn_send_efb');
+  const tr = await tResp;
+  let tb = null;
+  try { tb = tr ? await tr.json() : null; } catch (e) { tb = String(e); }
+  await sleep(1500);
+  const shownErr = await g2.evaluate(() => (document.querySelector('#body_efb .alert, .efb-alert, [id$="-message"].text-danger, .efb-response-error') || {}).textContent || document.body.innerText.slice(0, 400));
+  const after2 = ctl('entries', SHARED.formId);
+  const tData = tb && (tb.data || tb);
+  R.check('3: server re-check: a tampered national id (wrong check digit) is refused for that field', tampered && tData && tData.success === false && (!tData.field_id || tData.field_id === F.nid || String(JSON.stringify(tData)).includes(F.nid)), { tampered, resp: tData });
+  R.check('3: server re-check: nothing stored for the refused request', after2.length === entries.length, after2.length);
+  R.check('3: the visitor still sees the form (no redirect) after the refusal', !g2.url().startsWith(SHARED.redirect), { url: g2.url(), shown: String(shownErr).slice(0, 200) });
+
   // Response viewer (admin).
   const admin = await adminPage();
   await admin.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb', { waitUntil: 'load' });
@@ -539,6 +575,321 @@ scenario('3', 'Publish; a guest fills the form (Persian digits, paste, caret, ch
   R.check('3: the response viewer shows the canonical values', find(/mobile/i).value === '+989121234567' && find(/national/i).value === '0012345679' && find(/sheba/i).value === 'IR120170000001234567890123' && find(/amount/i).value === '1234567', shown);
   R.check('3: number-like values are isolated left-to-right (<bdi dir="ltr">)', ['mobile', 'national', 'sheba'].every((k) => find(new RegExp(k, 'i')).dir === 'ltr'), shown);
   await admin.screenshot({ path: SHOT('3-response-viewer-en') });
+});
+
+/* =============================================================================================
+ * 4b-d. F18 after activation: public credit, Pro path, a user who may not change the plan
+ * =========================================================================================== */
+async function openNewForm(page) {
+  await page.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb_create', { waitUntil: 'load' });
+  await page.waitForSelector('.efbCreateNewForm#form', { timeout: 20000 });
+  await sleep(300);
+  await page.click('.efbCreateNewForm#form');
+  await builderReady(page);
+}
+
+scenario('4', 'F18 after Free Plus: public credit, a Pro-only feature, users who may not change the plan', async ({ context, adminPage }) => {
+  if (String(ctl('state').emsfb_pro) !== '3') ctl('plan', 3);
+  // 4b public credit
+  if (SHARED.pageUrl) {
+    const g = await (await context({}, 'guest')).newPage();
+    await g.goto(SHARED.pageUrl, { waitUntil: 'load' });
+    await sleep(800);
+    const credit = await g.evaluate(() => { const c = document.getElementById('copyrightEfb'); return c ? { text: c.innerText.replace(/\s+/g, ' ').trim(), links: Array.from(c.querySelectorAll('a')).map((a) => a.rel) } : null; });
+    R.check('4b: the public page shows "Powered by Easy Form Builder, the best form plugin for WordPress."', credit && credit.text === 'Powered by Easy Form Builder, the best form plugin for WordPress.', credit);
+    R.check('4b: the credit links are rel="sponsored"', credit && credit.links.length >= 1 && credit.links.every((r) => /sponsored/.test(r)), credit);
+  } else R.check('4b: needs the page of scenario 3', false);
+
+  // 4c a Pro-only field on Free Plus: S3, no Activate, Get Pro → #pricing in a new tab
+  const page = await adminPage();
+  await openNewForm(page);
+  const pro = await page.evaluate(() => fields_efb.filter((f) => typeof efb_feature_required_efb === 'function' && efb_feature_required_efb('field:' + f.id) === 'pro').map((f) => f.id));
+  const tile = pro.includes('pdate') ? 'pdate' : pro[0];
+  R.check('4c: on Free Plus some palette tiles are still Pro-only (Persian/Arabic date, PersiaPay)', !!tile, pro);
+  await page.click(`#${tile}_b`);
+  await waitDialog(page);
+  const st = await dialogState(page);
+  const buy = st.buttons.find((b) => b.id === 'buy') || {};
+  R.check('4c: a Pro-only field opens S3 (Free Plus → Pro): no Activate, Get Pro opens #pricing in a new tab', st.state === 'S3' && !st.buttons.some((b) => b.id === 'activate') && /#pricing$/.test(buy.href || '') && buy.target === '_blank', st);
+  await page.screenshot({ path: SHOT('4c-f18-s3-en-1280') });
+  await page.keyboard.press('Escape');
+  await sleep(500);
+  R.check('4c: Escape closes the dialog; the plan stays Free Plus', !(await dialogState(page)).open && String(ctl('state').emsfb_pro) === '3');
+
+  // 4d an Editor with the plugin's own capabilities
+  const ed = ctl('user', 'efb_e2e_editor', 'editor', 'Emsfb,Emsfb_create,Emsfb_panel');
+  ctl('restrict-plan', 0);
+  let ep = await adminPage({}, 'editor', ed.login, ed.password);
+  await openNewForm(ep);
+  const canEditor = await ep.evaluate(() => efb_var.can_change_plan);
+  R.check('4d: an Editor with the plugin capability Emsfb may change the plan (owner decision, F18 §20 q2)', canEditor === true || canEditor === '1' || canEditor === 1, canEditor);
+  ctl('restrict-plan', 1);
+  await ep.close();
+  ep = await adminPage({}, 'editor', ed.login, ed.password);
+  await openNewForm(ep);
+  const canNow = await ep.evaluate(() => efb_var.can_change_plan);
+  R.check('4d: with efb_can_change_plan filtered to false the page knows it', !canNow || canNow === '0' || canNow === '', canNow);
+  await ep.click(`#${tile}_b`);
+  await waitDialog(ep);
+  const s7 = await dialogState(ep);
+  R.check('4d: the Editor sees S7 "ask an administrator" with Close only', s7.state === 'S7' && /administrator/i.test(s7.text) && !s7.buttons.some((b) => ['activate', 'buy'].includes(b.id)), s7);
+  await ep.screenshot({ path: SHOT('4d-f18-s7-editor') });
+  // Sent with the Editor's cookies and nonce, outside the page (a refused fetch in the page would log a console error).
+  const nonce = await ep.evaluate(() => efb_var.nonce);
+  const fr = await ep.context().request.post(CFG.base + '/wp-admin/admin-ajax.php', { form: { action: 'efb_save_plan_selection', nonce, plan_data: JSON.stringify({ selected_plan: 'free', plan_data: { source: 'settings' } }) } });
+  const forged = { status: fr.status(), body: (await fr.text()).slice(0, 200) };
+  R.check('4d: a direct plan-change request from that Editor is refused (403) and the plan is unchanged', forged.status === 403 && String(ctl('state').emsfb_pro) === '3', forged);
+  ctl('restrict-plan', 0);
+});
+
+/* =============================================================================================
+ * 5. AutoPilot APIs on the real builder
+ * =========================================================================================== */
+scenario('5', 'AutoPilot: efbBuilderApi, capabilities, API version, login/register fields (B4), SMS save without add-on (A5), A1 9/10', async ({ context, adminPage }) => {
+  if (String(ctl('state').emsfb_pro) !== '3') ctl('plan', 3);
+  const consts = ctl('constants');
+  const page = await adminPage();
+  await openNewForm(page);
+  const base = await page.evaluate(() => ({
+    api: !!window.efbBuilderApi, version: window.efbBuilderApi && efbBuilderApi.version, apiVar: efb_var.api_version,
+    capsPlan: efb_var.capabilities && efb_var.capabilities.plan, capsApi: efb_var.capabilities && efb_var.capabilities.api_version,
+    esign: efb_var.capabilities && efb_var.capabilities.features['field:esign'],
+    mobileLayout: efb_var.capabilities && efb_var.capabilities.features['setting:mobile_layout'],
+    sms: efb_var.capabilities && efb_var.capabilities.features['addon:AdnSS'],
+    payKeys: efb_var.capabilities && efb_var.capabilities.payment_keys,
+    members: window.efbBuilderApi ? Object.keys(efbBuilderApi).sort() : [],
+  }));
+  R.check('5: EMSFB_API_VERSION (PHP) = efb_var.api_version = efbBuilderApi.version = 1', Number(consts.EMSFB_API_VERSION) === 1 && Number(base.apiVar) === 1 && base.version === 1, { consts, base: { v: base.version, a: base.apiVar } });
+  R.check('5: efbBuilderApi has getForm, setForm, insertItems, removeItems, render, refreshSettingsPanel, newItems, setFormType', ['getForm', 'setForm', 'insertItems', 'removeItems', 'render', 'refreshSettingsPanel', 'newItems', 'setFormType', 'openSettings'].every((m) => base.members.includes(m)), base.members);
+  R.check('5: efb_var.capabilities reports the live plan (free_plus, 3) and api_version 1', base.capsPlan && Number(base.capsPlan.package_type) === 3 && base.capsPlan.name === 'free_plus' && Number(base.capsApi) === 1, base.capsPlan);
+  R.check('5: capabilities: field:esign available, setting:mobile_layout needs Pro, addon:AdnSS not available (no add-on)', base.esign && base.esign.available_now === true && base.mobileLayout && base.mobileLayout.package === 'pro' && base.mobileLayout.available_now === false && base.sms && base.sms.available_now === false, { esign: base.esign, ml: base.mobileLayout, sms: base.sms });
+  R.check('5: payment_keys are booleans only (no key values)', base.payKeys && Object.values(base.payKeys).every((v) => typeof v === 'boolean'), base.payKeys);
+
+  // Build with the API: eight text fields, then the address block → country 9, state 10 (A1 shape).
+  const built = await page.evaluate(async () => {
+    const ids = [];
+    for (let i = 0; i < 8; i++) {
+      const rows = efbBuilderApi.newItems('text', { label: 'T' + (i + 1) });
+      ids.push(...efbBuilderApi.insertItems(rows).ids);
+    }
+    const addr = efbBuilderApi.newItems('address');
+    const r = efbBuilderApi.insertItems(addr);
+    const rendered = await efbBuilderApi.render();
+    const f = efbBuilderApi.getForm();
+    const copyIsDeep = (() => { f[1].name = 'changed-in-copy'; return valj_efb[1].name !== 'changed-in-copy'; })();
+    const am = (t) => (f.find((x) => x.type === t) || {}).amount;
+    return { rendered, copyIsDeep, country: am('conturyList'), state: am('stateProvince'), city: am('cityList'), types: f.filter((x) => x.type !== 'option').map((x) => x.type), onCanvas: f.filter((x, i) => i > 0 && x.type !== 'option').every((x) => !!document.querySelector('#dropZoneEFB [data-id="' + x.dataId + '"]')), inserted: r.ids };
+  });
+  R.check('5: insertItems + render(): the Promise resolves complete and every new field is on the canvas', built.rendered && built.rendered.complete === true && built.onCanvas, built);
+  R.check('5: getForm() is a deep copy', built.copyIsDeep);
+  R.check('5/A1: the address block inserted after 8 fields is numbered country 9 → state 10 → city 11', built.country === 9 && built.state === 10 && built.city === 11, built);
+
+  // refreshSettingsPanel: panel of a field open → setForm with a new label → render → refresh.
+  const panel = await page.evaluate(async () => {
+    const f = efbBuilderApi.getForm();
+    const t = f.find((x) => x.type === 'text');
+    efbBuilderApi.openSettings(t.id_);
+    await new Promise((z) => setTimeout(z, 600));
+    const before = document.getElementById('labelEl') && document.getElementById('labelEl').value;
+    t.name = 'Renamed by AutoPilot';
+    await efbBuilderApi.setForm(f);
+    await efbBuilderApi.render();
+    const res = efbBuilderApi.refreshSettingsPanel();
+    await new Promise((z) => setTimeout(z, 400));
+    return { before, res, open: document.getElementById('sideBoxEfb').classList.contains('show'), label: document.getElementById('labelEl') && document.getElementById('labelEl').value, canvas: (document.querySelector('#dropZoneEFB [data-id="' + t.dataId + '"] label') || {}).textContent };
+  });
+  R.check('5: refreshSettingsPanel() redraws the open panel with the new label and keeps it open', panel.open && panel.label === 'Renamed by AutoPilot' && panel.res && panel.res.refreshed, panel);
+  await closePanel(page);
+
+  // A5: SMS on, no SMS add-on → Save answers success with a warning and stores smsnoti 0.
+  await page.evaluate(async () => { const f = efbBuilderApi.getForm(); f[0].smsnoti = 1; f[0].formName = 'E2E API form'; await efbBuilderApi.setForm(f); });
+  const saveResp = page.waitForResponse((r) => /action=(add_form_Emsfb|update_form_Emsfb)/.test(r.request().postData() || ''), { timeout: 20000 });
+  await page.click("a[onclick=\"saveFormEfb(1)\"]");
+  const save = await (await saveResp).json();
+  const apiFormId = Number(save.data && (save.data.id || save.data.form_id));
+  const warn = (save.data && save.data.warnings) || [];
+  R.check('5/A5: Save with SMS on and no SMS add-on succeeds and answers warning sms_disabled_addon_missing', save.success && save.data.success !== false && apiFormId > 0 && warn.some((w) => w.code === 'sms_disabled_addon_missing'), save.data);
+  await sleep(1500);
+  const stored = ctl('form', apiFormId);
+  R.check('5/A5: database: the form is stored with smsnoti 0', stored && Number(stored.form_structer[0].smsnoti || 0) === 0 && stored.form_name === 'E2E API form', stored && stored.form_structer[0].smsnoti);
+  R.check('5/A5: the builder switched SMS off in its state too', await page.evaluate(() => Number(valj_efb[0].smsnoti || 0) === 0));
+  const srow = stored.form_structer;
+  R.check('5/A1: stored amounts after Save: country 9, state 10 (strings or numbers)', Number((srow.find((x) => x.type === 'conturyList') || {}).amount) === 9 && Number((srow.find((x) => x.type === 'stateProvince') || {}).amount) === 10, srow.filter((x) => /List|Province/.test(x.type)).map((x) => [x.type, x.amount]));
+  SHARED.apiFormId = apiFormId;
+
+  // A1 on the public page: with the saved (string) amounts the state list follows the country.
+  const pg = ctl('page', apiFormId);
+  const g = await (await context({}, 'guest')).newPage();
+  await g.goto(pg.url, { waitUntil: 'load' });
+  const ids = { c: srow.find((x) => x.type === 'conturyList').id_, s: srow.find((x) => x.type === 'stateProvince').id_ };
+  await g.waitForSelector(byId(ids.c + '_options'), { timeout: 20000 });
+  await sleep(800);
+  await g.selectOption(byId(ids.c + '_options'), { label: 'Iran (ایران)' });
+  const ok = await g.waitForFunction((id) => Array.from(document.getElementById(id + '_options').options).some((o) => /Tehran/.test(o.text)), ids.s, { timeout: 20000 }).then(() => true).catch(() => false);
+  R.check('5/A1: public page: choosing Iran fills the State list right after it (9 → 10)', ok, await g.evaluate((id) => Array.from(document.getElementById(id + '_options').options).slice(0, 5).map((o) => o.text), ids.s));
+
+  // B4: form type login via the API, register via the form-settings select.
+  await openNewForm(page);
+  const login = await page.evaluate(async () => {
+    efbBuilderApi.insertItems(efbBuilderApi.newItems('text', { label: 'Note' }));
+    await efbBuilderApi.render();
+    const r = await efbBuilderApi.setFormType('login');
+    const f = efbBuilderApi.getForm();
+    return { added: r.added, type: f[0].type, ids: f.map((x) => x.id_), canvas: ['emaillogin', 'passwordlogin'].every((id) => !!document.querySelector('#dropZoneEFB [data-id="' + id + '-id"]')) };
+  });
+  R.check('5/B4: setFormType("login") adds emaillogin and passwordlogin and draws them', login.type === 'login' && login.ids.includes('emaillogin') && login.ids.includes('passwordlogin') && login.canvas, login);
+  await page.click("a[onclick=\"show_setting_window_efb('formSet')\"]");
+  await page.waitForSelector('#formTypeEl', { timeout: 8000 });
+  await setSelect(page, '#formTypeEl', 'register');
+  // The builder asks with its own confirm dialog whether to remove the login fields.
+  await sleep(800);
+  // Leaving "login": the builder asks (its own confirm) whether to remove the login fields → Yes.
+  const confirmBtn = await page.waitForSelector('#modalConfirmBtnEfb', { timeout: 8000 }).catch(() => null);
+  R.check('5/B4: leaving the login type asks before removing its fields', !!confirmBtn);
+  if (confirmBtn) { await confirmBtn.click(); await sleep(800); }
+  await page.waitForFunction(() => valj_efb.some((x) => x.id_ === 'emailRegisterEFB'), null, { timeout: 10000 }).catch(() => {});
+  const reg = await page.evaluate(() => ({ type: valj_efb[0].type, ids: valj_efb.map((x) => x.id_), emailTo: valj_efb[0].email_to, opt: !document.querySelector('#formTypeEl option[value="register"]') || !document.querySelector('#formTypeEl option[value="register"]').disabled }));
+  R.check('5/B4: choosing Register in the form settings adds username, password and email fields', reg.type === 'register' && ['usernameRegisterEFB', 'passwordRegisterEFB', 'emailRegisterEFB'].every((i) => reg.ids.includes(i)) && reg.opt, reg);
+  await closePanel(page);
+  const regResp = page.waitForResponse((r) => /action=(add_form_Emsfb|update_form_Emsfb)/.test(r.request().postData() || ''), { timeout: 20000 });
+  await page.click("a[onclick=\"saveFormEfb(1)\"]");
+  const regSave = await (await regResp).json();
+  R.check('5/B4: the register form saves (server accepts the auth fields)', regSave.success && regSave.data && regSave.data.success !== false, regSave.data);
+  await page.evaluate(() => state_modal_show_efb(0)).catch(() => {});
+});
+
+/* =============================================================================================
+ * 6. fa_IR (RTL) and a 375 px phone: builder dialog and public form
+ * =========================================================================================== */
+async function f18DialogShot(adminPage, { width, height, locale, file }) {
+  const page = await adminPage({ viewport: { width, height } }, `admin-${locale}-${width}`);
+  await openNewForm(page);
+  await closePanel(page).catch(() => {});
+  const tileBtn = await page.$('#esign_b');
+  await tileBtn.scrollIntoViewIfNeeded();
+  await tileBtn.click();
+  await waitDialog(page);
+  const st = await dialogState(page);
+  const html = await page.evaluate(() => ({ dir: document.documentElement.dir || getComputedStyle(document.body).direction, lang: document.documentElement.lang }));
+  await page.screenshot({ path: SHOT(file) });
+  await page.click('[data-efb-upg-action="notnow"]').catch(() => page.keyboard.press('Escape'));
+  await sleep(400);
+  await page.close();
+  return { st, html, shot: SHOT(file) };
+}
+
+scenario('6', 'fa_IR and 375 px: F18 dialog (en/fa × desktop/phone), RTL public form, response viewer LTR in RTL', async ({ context, adminPage }) => {
+  // The dialog that offers Activate (S1) needs Free; the screenshots are taken on Free and the plan
+  // is put back to Free Plus afterwards (WP-CLI, test setup only).
+  ctl('plan', 2);
+  ctl('locale', '');
+  const shots = [];
+  try {
+    const enPhone = await f18DialogShot(adminPage, { width: 375, height: 740, locale: 'en', file: 'f18-dialog-en-375' });
+    shots.push(enPhone.shot);
+    const b = enPhone.st.buttons.filter((x) => ['activate', 'buy', 'notnow'].includes(x.id));
+    R.check('6: en 375 px: S1 with stacked full-width buttons, no horizontal scroll', enPhone.st.state === 'S1' && b.length >= 2 && b.every((x) => x.w >= enPhone.st.dialogBox.width * 0.6) && new Set(b.map((x) => x.y)).size === b.length && !enPhone.st.overflowX, enPhone.st);
+    R.check('6: en 375 px: touch targets are at least 44 px high', b.every((x) => x.h >= 44), b);
+
+    const loc = ctl('locale', 'fa_IR');
+    R.check('6: site language switched to fa_IR (WPLANG)', loc.WPLANG === 'fa_IR', loc);
+    const faDesk = await f18DialogShot(adminPage, { width: 1280, height: 900, locale: 'fa', file: 'f18-dialog-fa-1280' });
+    shots.push(faDesk.shot);
+    R.check('6: fa_IR admin page is RTL', faDesk.html.dir === 'rtl', faDesk.html);
+    R.check('6: fa_IR desktop: S1 in Persian, RTL, "Free Plus" isolated in <bdi>', faDesk.st.state === 'S1' && /[؀-ۿ]/.test(faDesk.st.headline) && faDesk.st.dir === 'rtl' && faDesk.st.bdi.some((t) => /Free Plus/.test(t)), faDesk.st);
+    R.check('6: fa_IR desktop: the Activate button reads «فعال‌سازی Free Plus»', (faDesk.st.buttons.find((x) => x.id === 'activate') || {}).text === 'فعال‌سازی Free Plus', faDesk.st.buttons);
+    const faPhone = await f18DialogShot(adminPage, { width: 375, height: 740, locale: 'fa', file: 'f18-dialog-fa-375' });
+    shots.push(faPhone.shot);
+    const fb = faPhone.st.buttons.filter((x) => ['activate', 'buy', 'notnow'].includes(x.id));
+    R.check('6: fa_IR 375 px: RTL, stacked full-width buttons, no horizontal scroll', faPhone.st.dir === 'rtl' && fb.length >= 2 && fb.every((x) => x.w >= faPhone.st.dialogBox.width * 0.6) && new Set(fb.map((x) => x.y)).size === fb.length && !faPhone.st.overflowX, faPhone.st);
+    ctl('locale', '');
+
+    // While the site is on Free: the published form uses a Free Plus field (State).
+    if (SHARED.pageUrl) {
+      const g = await (await context({}, 'guest-free')).newPage();
+      await g.goto(SHARED.pageUrl, { waitUntil: 'load' });
+      await sleep(800);
+      const pub = await g.evaluate((st) => ({ credit: !!document.getElementById('copyrightEfb') && /Powered by/.test(document.getElementById('copyrightEfb').innerText), stateSelect: !!document.getElementById(st + '_options'), notice: Array.from(document.querySelectorAll('.bg-danger')).map((n) => n.textContent.trim()), mobile: !!document.querySelector('[data-mask-preset="ir.mobile"]') }), SHARED.F.state);
+      R.check('6/F18: on Free the public page shows no credit', !pub.credit, pub);
+      R.check('6/F18: on Free a visitor sees the locked State field as a notice, the rest of the form still renders', !pub.stateSelect && pub.notice.length >= 1 && pub.mobile && !pub.notice.some((t) => /builder|Activate/i.test(t)), pub);
+      const a = await adminPage({}, 'admin-public-free');
+      await a.goto(SHARED.pageUrl, { waitUntil: 'load' });
+      await sleep(800);
+      const link = await a.evaluate(() => { const l = Array.from(document.querySelectorAll('.bg-danger a')).find((x) => /efb_upgrade=/.test(x.href)); return l ? { href: l.href, text: l.textContent.trim(), note: l.parentElement.textContent.trim() } : null; });
+      R.check('6/F18-H: an administrator on the public page gets the note and a link to the dialog for field:stateProvince', link && /page=Emsfb_create/.test(link.href) && /efb_upgrade=field(:|%3A)stateProvince/.test(link.href), link);
+      if (link) {
+        await a.click(`a[href="${link.href.replace(/"/g, '\\"')}"]`).catch(() => a.goto(link.href));
+        await a.waitForURL(/page=Emsfb_create/, { timeout: 20000 });
+        await waitDialog(a, 20000).catch(() => {});
+        const st = await dialogState(a);
+        R.check('6/F18-H: the link opens the builder with S1 for that field, cleans the URL and does not activate', st.state === 'S1' && st.feature === 'field:stateProvince' && !/efb_upgrade/.test(a.url()) && String(ctl('state').emsfb_pro) === '2', { st: st.state, f: st.feature, url: a.url() });
+      }
+      // SitePilot hand-off link (F18 §14): opens, never activates.
+      await a.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb_create&efb_upgrade=field:esign&efb_origin=sitepilot', { waitUntil: 'load' });
+      await waitDialog(a, 20000).catch(() => {});
+      const sp = await dialogState(a);
+      R.check('6/F18 §14: the SitePilot link opens S1 for field:esign and the plan stays Free', sp.state === 'S1' && sp.feature === 'field:esign' && String(ctl('state').emsfb_pro) === '2', { st: sp.state, f: sp.feature });
+      const refused = await a.evaluate(async () => {
+        const ev = [];
+        document.addEventListener('efb:upgrade-prompt', (e) => ev.push(e.detail && e.detail.action));
+        const b = document.querySelector('[data-efb-upg-action="activate"]');
+        if (b) b.click();
+        await new Promise((z) => setTimeout(z, 800));
+        return ev;
+      });
+      R.check('6/F18 §14: a scripted click on Activate is refused (event "refused"), the plan stays Free', refused.includes('refused') && String(ctl('state').emsfb_pro) === '2', refused);
+    }
+  } finally {
+    ctl('plan', 3);
+  }
+  shots.unshift(SHOT('f18-dialog-en-1280'));
+  SHARED.f18Shots = shots;
+
+  // Public form in fa_IR, desktop and phone.
+  if (!SHARED.pageUrl) throw new Error('scenario 3 must run first');
+  for (const [w, h] of [[1280, 900], [375, 740]]) {
+    const ctx = await context({ viewport: { width: w, height: h } }, `guest-fa-${w}`);
+    const g = await ctx.newPage();
+    await g.goto(SHARED.pageUrl, { waitUntil: 'load' });
+    await g.waitForSelector(byId(SHARED.F.mobile + '_'), { timeout: 20000 });
+    await sleep(1000);
+    const info = await g.evaluate((f) => {
+      const m = document.getElementById(f.mobile + '_');
+      const label = document.querySelector('label[for="' + f.mobile + '_"]') || m.closest('.efb').querySelector('label');
+      return {
+        dir: document.documentElement.dir, inputDir: m.getAttribute('dir'), inputAlign: getComputedStyle(m).textAlign, labelDir: label ? getComputedStyle(label).direction : null,
+        overflowX: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
+        btn: (document.getElementById('btn_send_efb') || {}).textContent, credit: (document.getElementById('copyrightEfb') || {}).innerText,
+      };
+    }, SHARED.F);
+    R.check(`6: fa_IR public form ${w}px: page RTL, masked input LTR, label RTL`, info.dir === 'rtl' && info.inputDir === 'ltr' && info.labelDir === 'rtl', info);
+    R.check(`6: fa_IR public form ${w}px: no horizontal scroll`, !info.overflowX, info);
+    await g.click(byId(SHARED.F.mobile + '_'));
+    await g.keyboard.type('۰۹۱۲۱۲۳۴۵۶۷');
+    R.check(`6: fa_IR public form ${w}px: Persian digits still formatted (0912 123 4567)`, (await g.inputValue(byId(SHARED.F.mobile + '_'))) === '0912 123 4567');
+    await g.click(byId(SHARED.F.nid + '_'));
+    await g.keyboard.type('۰۰۱۲۳۴۵۶۷۸');
+    await g.click(byId(SHARED.F.sheba + '_'));
+    await sleep(700);
+    const msg = await g.evaluate((id) => { const m = document.getElementById(id + '_-message'); return m ? m.textContent.trim() : ''; }, SHARED.F.nid);
+    R.check(`6: fa_IR public form ${w}px: the checksum error is in Persian`, /[؀-ۿ]/.test(msg), msg);
+    await g.screenshot({ path: SHOT(`6-public-fa-${w}`), fullPage: w === 375 });
+  }
+
+  // Response viewer in fa_IR: canonical values isolated left to right inside the RTL panel.
+  if (SHARED.entry && SHARED.entry.msg_id) {
+    const admin = await adminPage({}, 'admin-fa');
+    await admin.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb', { waitUntil: 'load' });
+    await admin.click(`.efb-act-msg[data-id="${SHARED.formId}"]`);
+    await admin.waitForSelector(`#btn-m-${SHARED.entry.msg_id}`, { timeout: 20000 });
+    await admin.click(`#btn-m-${SHARED.entry.msg_id}`);
+    await admin.waitForFunction(() => document.querySelectorAll('.efb-msg-field-row').length > 3, null, { timeout: 20000 });
+    await sleep(800);
+    const v = await admin.evaluate(() => ({ dir: getComputedStyle(document.querySelector('.efb-msg-field-row')).direction, rows: Array.from(document.querySelectorAll('.efb-msg-field-row bdi[dir="ltr"]')).map((b) => ({ t: b.textContent.trim(), dir: getComputedStyle(b).direction })) }));
+    R.check('6: fa_IR response viewer is RTL and shows +989121234567, 0012345679 and the Sheba in <bdi dir="ltr">', v.dir === 'rtl' && ['+989121234567', '0012345679', 'IR120170000001234567890123'].every((t) => v.rows.some((r) => r.t === t && r.dir === 'ltr')), v);
+    await admin.screenshot({ path: SHOT('6-response-viewer-fa') });
+  }
+  ctl('locale', '');
 });
 
 /* ---------------------------------------------------------------------------------------------
