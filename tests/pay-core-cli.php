@@ -4,7 +4,7 @@
  * reads {"cases":[{"op":..., ...}]} on stdin, prints the results as JSON.
  * ops: sanitize {k,v} · field {row, form0, opts, locale, defaults, ctx} · quote {form, rows, ctx}
  *      · gwsanitize {k, v, schema} · gwschema {schema} · gwoptions {row, schema} · warnings {form, infos}
- *      · money {value, currency} · tominor {minor, currency}
+ *      · money {value, currency} · tominor {minor, currency} · payer {d, value, form, field_id} (payer_problem + country_iso)
  */
 define('ABSPATH', __DIR__ . '/');
 require __DIR__ . '/../includes/payments/class-Emsfb-payment-money.php';
@@ -40,7 +40,12 @@ foreach ($in['cases'] as $c) {
 			$out[] = Field::gateway_options($c['row'], $c['schema']);
 			break;
 		case 'warnings':
-			$out[] = Field::warnings($c['form'], $c['infos']);
+			$out[] = Field::warnings($c['form'], $c['infos'], isset($c['site']) ? $c['site'] : array());
+			break;
+		case 'payer':
+			$d = Field::clean_schema(array($c['d']));
+			$iso = Field::country_iso(isset($c['form']) ? $c['form'] : array(), isset($c['field_id']) ? $c['field_id'] : '', $c['value']);
+			$out[] = array('iso' => $iso, 'problem' => $d ? Field::payer_problem($d[0], $c['value'], $iso) : null);
 			break;
 		case 'money':
 			$out[] = Money::from_decimal($c['value'], $c['currency']);

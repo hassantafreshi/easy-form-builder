@@ -229,29 +229,15 @@ class Registry {
 		$infos = array();
 		foreach ( self::all() as $slug => $g ) {
 			$sup = array_merge( ( new Gateway_Defaults() )->supports(), (array) $g->supports() );
+			$s = Settings::load( $slug );
 			try { $schema = $g->field_schema(); } catch ( \Throwable $e ) { $schema = array(); }
-			try { $methods = self::normalize_methods( $g->methods( Settings::load( $slug ) ) ); } catch ( \Throwable $e ) { $methods = array(); }
-			$infos[ $slug ] = array( 'currencies' => array_values( (array) $sup['currencies'] ), 'field_schema' => $schema, 'label' => (string) $g->label(), 'methods' => $methods );
+			try { $methods = self::normalize_methods( $g->methods( $s ) ); } catch ( \Throwable $e ) { $methods = array(); }
+			try { $ready = (bool) $g->is_configured( $s, $s->mode() ); } catch ( \Throwable $e ) { $ready = false; }
+			$infos[ $slug ] = array( 'currencies' => array_values( (array) $sup['currencies'] ), 'field_schema' => $schema, 'label' => (string) $g->label(), 'methods' => $methods,
+				'ready' => $ready, 'mode' => $s->mode(), 'min_minor' => (array) $sup['min_minor'], 'max_minor' => (array) $sup['max_minor'] );
 		}
-		foreach ( Field::warnings( $form, $infos ) as $w ) {
-			$label = $infos[ $w['gateway'] ]['label'];
-			switch ( $w['code'] ) {
-				case 'pay_currency':
-					/* translators: %1$s: gateway name, %2$s: currency codes, %3$s: the form's currency */
-					$m = sprintf( __( '%1$s only accepts %2$s. This form uses %3$s, so visitors cannot pay. Change the currency in the payment field.', 'easy-form-builder' ), $label, implode( ', ', $w['allowed'] ), $w['currency'] !== '' ? $w['currency'] : '-' );
-					break;
-				case 'pay_option_required':
-					$m = self::required_text( $label, $w, $infos[ $w['gateway'] ]['methods'] );
-					break;
-				case 'pay_option_field_missing':
-					/* translators: %1$s: gateway name, %2$s: name of an option of the payment field */
-					$m = sprintf( __( '%1$s: the field chosen for "%2$s" is no longer in the form. Choose another one.', 'easy-form-builder' ), $label, $w['label'] );
-					break;
-				default:
-					/* translators: %1$s: gateway name, %2$s: name of an option of the payment field */
-					$m = sprintf( __( '%1$s: the field chosen for "%2$s" is not the right kind of field.', 'easy-form-builder' ), $label, $w['label'] );
-			}
-			$out[] = array( 'code' => $w['code'], 'm' => $m, 'field_id' => $w['field_id'], 'gateway' => $w['gateway'] );
+		foreach ( Field::warnings( $form, $infos, array( 'webhook_local' => Service::site_is_local() ) ) as $w ) {
+			$out[] = array( 'code' => $w['code'], 'm' => self::warning_text( $w, $infos[ $w['gateway'] ], $form ), 'level' => $w['level'], 'field_id' => $w['field_id'], 'gateway' => $w['gateway'] );
 		}
 		foreach ( $form as $i => $r ) {
 			if ( $i === 0 || ! is_array( $r ) || ! isset( $r['type'], $r['id_'] ) || ! is_string( $r['type'] ) || ! isset( $infos[ $r['type'] ] ) ) continue;
@@ -260,11 +246,79 @@ class Registry {
 			foreach ( (array) $list as $w ) {
 				if ( ! is_array( $w ) || ! isset( $w['code'], $w['m'] ) || ! is_string( $w['code'] ) || ! preg_match( '/^[a-z0-9_]{1,40}$/', $w['code'] ) || ! is_string( $w['m'] ) ) continue;
 				$m = Field::text( $w['m'], 300 );
-				if ( $m !== '' ) $out[] = array( 'code' => 'pay_gw_' . $w['code'], 'm' => $m, 'field_id' => (string) $r['id_'], 'gateway' => $r['type'] );
+				$lv = isset( $w['level'] ) && in_array( $w['level'], array( 'error', 'warning', 'info' ), true ) ? $w['level'] : 'warning';
+				if ( $m !== '' ) $out[] = array( 'code' => 'pay_gw_' . $w['code'], 'm' => $m, 'level' => $lv, 'field_id' => (string) $r['id_'], 'gateway' => $r['type'] );
 				if ( count( $out ) >= 30 ) break 2;
 			}
 		}
 		return $out;
+	}
+
+	/** The owner's words for one of Field::warnings() (twin: payment-field-efb.js warningsHtml()). */
+	public static function warning_text( array $w, array $info, $form = array() ) {
+		$label = $info['label'];
+		switch ( $w['code'] ) {
+			case 'pay_currency':
+				/* translators: %1$s: gateway name, %2$s: currency codes, %3$s: the form's currency */
+				return sprintf( __( '%1$s only accepts %2$s. This form uses %3$s, so visitors cannot pay. Change the currency in the payment field.', 'easy-form-builder' ), $label, implode( ', ', $w['allowed'] ), $w['currency'] !== '' ? $w['currency'] : '-' );
+			case 'pay_option_required':
+				return self::required_text( $label, $w, $info['methods'] );
+			case 'pay_option_field_missing':
+				/* translators: %1$s: gateway name, %2$s: name of an option of the payment field */
+				return sprintf( __( '%1$s: the field chosen for "%2$s" is no longer in the form. Choose another one.', 'easy-form-builder' ), $label, $w['label'] );
+			case 'pay_option_field_type':
+				/* translators: %1$s: gateway name, %2$s: name of an option of the payment field */
+				return sprintf( __( '%1$s: the field chosen for "%2$s" is not the right kind of field.', 'easy-form-builder' ), $label, $w['label'] );
+			case 'pay_option_not_required':
+				$name = $w['label'];
+				foreach ( is_array( $form ) ? $form : array() as $i => $f ) {
+					if ( $i > 0 && is_array( $f ) && isset( $f['id_'], $f['name'] ) && (string) $f['id_'] === $w['target'] && is_string( $f['name'] ) && $f['name'] !== '' ) $name = Field::text( str_replace( '@efb@dq#', '"', $f['name'] ), 80 );
+				}
+				/* translators: %1$s: name of a form field (e.g. Mobile), %2$s: gateway name */
+				return sprintf( __( '"%1$s" is needed by %2$s for the payment but is not marked Required. Visitors are asked for it when they press Pay; mark it Required so they see it earlier.', 'easy-form-builder' ), $name, $label );
+			case 'pay_not_configured':
+				return $w['mode'] === 'live'
+					/* translators: %s: gateway name */
+					? sprintf( __( '%s has no keys for Live mode yet, so visitors cannot pay. Add them in Payments → Gateways.', 'easy-form-builder' ), $label )
+					/* translators: %s: gateway name */
+					: sprintf( __( '%s has no keys for Test mode yet, so the form cannot be tried. Add them in Payments → Gateways.', 'easy-form-builder' ), $label );
+			case 'pay_test_mode':
+				/* translators: %s: gateway name */
+				return sprintf( __( '%s is in Test mode: no real payments are taken. Switch it to Live in Payments → Gateways when you are ready.', 'easy-form-builder' ), $label );
+			case 'pay_webhook_local':
+				/* translators: %s: gateway name */
+				return sprintf( __( 'This site cannot be reached from the internet, so %s cannot send payment confirmations to it. Payments are confirmed when the visitor comes back and by the regular check.', 'easy-form-builder' ), $label );
+			case 'pay_amount_limit':
+				$lim = Money::format( $w['limit_minor'], $w['currency'] );
+				$amt = Money::format( $w['amount_minor'], $w['currency'] );
+				if ( $w['what'] === 'fixed' ) {
+					return $w['limit'] === 'max'
+						/* translators: %1$s: gateway name, %2$s: the gateway's maximum, %3$s: the form's fixed amount */
+						? sprintf( __( '%1$s accepts payments up to %2$s. The fixed amount of this form is %3$s, so visitors cannot pay.', 'easy-form-builder' ), $label, $lim, $amt )
+						/* translators: %1$s: gateway name, %2$s: the gateway's minimum, %3$s: the form's fixed amount */
+						: sprintf( __( '%1$s accepts payments from %2$s. The fixed amount of this form is %3$s; visitors can only pay when other choices raise the total.', 'easy-form-builder' ), $label, $lim, $amt );
+				}
+				return $w['limit'] === 'max'
+					/* translators: %1$s: gateway name, %2$s: the gateway's maximum, %3$s: the donation maximum of the form */
+					? sprintf( __( '%1$s accepts payments up to %2$s. The largest donation of this form (%3$s) is above it.', 'easy-form-builder' ), $label, $lim, $amt )
+					/* translators: %1$s: gateway name, %2$s: the gateway's minimum, %3$s: the donation minimum of the form */
+					: sprintf( __( '%1$s accepts payments from %2$s. The smallest donation of this form (%3$s) is below it.', 'easy-form-builder' ), $label, $lim, $amt );
+			case 'pay_method_currency':
+				$names = array();
+				foreach ( $w['methods'] as $id ) {
+					$n = $id;
+					foreach ( $info['methods'] as $m ) { if ( (string) $m[0] === $id ) $n = (string) $m[1]; }
+					$names[] = $n;
+				}
+				/* translators: %1$s: gateway name, %2$s: payment methods, %3$s: the form's currency */
+				return sprintf( __( '%1$s: %2$s cannot take %3$s, so it is not offered on this form. Choose other methods or change the currency.', 'easy-form-builder' ), $label, implode( ', ', $names ), $w['currency'] );
+			case 'pay_multiple_fields':
+				return __( 'This form has more than one payment field. A form can take one payment: remove the others.', 'easy-form-builder' );
+			case 'pay_form_type':
+				/* translators: %s: the form's type (e.g. survey) */
+				return sprintf( __( 'A payment field only works in a payment form. This form is a "%s" form: create a payment form or remove the payment field.', 'easy-form-builder' ), $w['form_type'] !== '' ? $w['form_type'] : '-' );
+		}
+		return '';
 	}
 
 	/**
@@ -309,8 +363,10 @@ class Registry {
 		}
 		$sup = array_merge( ( new Gateway_Defaults() )->supports(), (array) $g->supports() );
 		try { $schema = Field::clean_schema( $g->field_schema() ); } catch ( \Throwable $e ) { $schema = array(); }
+		try { $ready = (bool) $g->is_configured( $s, $s->mode() ); } catch ( \Throwable $e ) { $ready = false; }
 		return array(
 			'slug'         => $slug,
+			'ready'        => $ready,
 			'addon'        => (string) $g->addon_key(),
 			'label'        => (string) $g->label(),
 			'mode'         => $s->mode(),

@@ -19,7 +19,12 @@ function js(c) {
     case 'gwsanitize': return core.sanitizeGatewayKey(c.k, c.v, c.schema);
     case 'gwschema': return core.cleanSchema(c.schema);
     case 'gwoptions': return core.gatewayOptions(c.row, c.schema);
-    case 'warnings': return core.warnings(c.form, c.infos);
+    case 'warnings': return core.warnings(c.form, c.infos, c.site || {});
+    case 'payer': {
+      const d = core.cleanSchema([c.d]);
+      const iso = core.countryIso(c.form || [], c.field_id || '', c.value);
+      return { iso, problem: d.length ? core.payerProblem(d[0], c.value, iso) : null };
+    }
     case 'money': return core.fromDecimal(c.value, c.currency);
     case 'tominor': return core.toDecimal(c.minor, c.currency);
   }

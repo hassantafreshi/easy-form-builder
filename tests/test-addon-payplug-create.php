@@ -144,7 +144,7 @@ $t('the gateway itself refuses another currency too', $g->create($pp, Settings::
 
 // Methods.
 list($res, ) = efb_ppg_create($db, null, null, array('method' => 'bancontact'));
-$t('Bancontact not switched on in the settings → the payment is not started', array($res['success'], $res['code'], count(EfbPayplugFake::$log)), array(false, 'gateway_error', 0));
+$t('Bancontact not switched on in the settings → the payment is not started', array($res['success'], $res['code'], count(EfbPayplugFake::$log)), array(false, 'method_unavailable', 0));
 efb_ppg_settings('test', array('method_bancontact' => '1', 'oney' => 'x3x4_with_fees'));
 $t('methods after switching on Bancontact and Oney 3x/4x', array_map(function ($m) { return $m[0]; }, $g->methods(Settings::load('payplug'))), array('card', 'bancontact', 'oney_x3_with_fees', 'oney_x4_with_fees'));
 list($res, ) = efb_ppg_create($db, null, null, array('method' => 'bancontact'));

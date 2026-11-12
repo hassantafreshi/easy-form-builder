@@ -82,30 +82,59 @@
       return core().resolve(row, r ? r[0] : {}, { methods: methodsFor(g), logos: g.logos || [], mobile: !!P().mobile, defaults: (g.defaults && g.defaults.pf) || {} });
    }
 
-   /** Core's save-time checks for this field, worded (twin of Registry::form_warnings() without the gateway's own). */
-   function warningsHtml(row) {
+   /** Core's save-time checks for this field, worded (twin of Registry::form_warnings() / warning_text() without the gateway's own). */
+   function warningsList(row) {
       var r = rows();
-      if (!r || !core().warnings) return '';
+      if (!r || !core().warnings) return [];
       var infos = {};
-      Object.keys(P().gateways || {}).forEach(function (k) { var g = info(k); infos[k] = { currencies: g.currencies || [], field_schema: g.field_schema || [], methods: g.methods || [] }; });
+      Object.keys(P().gateways || {}).forEach(function (k) {
+         var g = info(k);
+         var sup = g.supports || {};
+         infos[k] = { currencies: g.currencies || [], field_schema: g.field_schema || [], methods: g.methods || [], mode: g.mode, ready: typeof g.ready === 'boolean' ? g.ready : (g.configured ? !!g.configured[g.mode] : null), min_minor: sup.min_minor || {}, max_minor: sup.max_minor || {} };
+      });
       var label = (info(row.type) || {}).label || row.type;
-      var list = core().warnings(r, infos).filter(function (w) { return w.field_id === row.id_; });
-      if (!list.length) return '';
+      var fmt = function (m, cur) { return core().format(m, cur, P().locale || 'en', 'latn'); };
+      var fname = function (id, fb) { var f = r.find(function (x) { return x && String(x.id_) === String(id); }); return (f && f.name) || fb; };
+      var sub = function (t, a) { a.forEach(function (v, i) { t = t.split('%' + (i + 1) + '$s').join(v); }); return a.length === 1 ? t.split('%s').join(a[0]) : t; };
       var text = function (w) {
-         if (w.code === 'pay_currency') return L('wCurrency', '%1$s only accepts %2$s. This form uses %3$s, so visitors cannot pay. Change the currency in the payment field.').replace('%1$s', label).replace('%2$s', w.allowed.join(', ')).replace('%3$s', w.currency || '-');
-         if (w.code === 'pay_option_required') {
-            if (w.owner_message) return w.owner_message;
-            var ft = w.field_types || [];
-            var kind = ft.length === 1 && ft[0] === 'email' ? L('kindEmail', 'an Email field') : (ft.some(function (x) { return x === 'mobile' || x === 'tel'; }) && ft.every(function (x) { return ['mobile', 'tel', 'text', 'number'].indexOf(x) !== -1; }) ? L('kindPhone', 'a phone number field') : L('kindAny', 'a field for it'));
-            var names = (w.methods || []).map(function (id) { var m = ((info(w.gateway) || {}).methods || []).find(function (x) { return String(x[0]) === id; }); return m ? m[1] : id; });
-            return names.length
-               ? L('wRequiredFor', '%1$s requires "%2$s" to pay with %3$s. Add %4$s to the form and select it in the payment field\'s "%2$s" option.').split('%1$s').join(label).split('%2$s').join(w.label).split('%3$s').join(names.join(', ')).split('%4$s').join(kind)
-               : L('wRequired', '%1$s requires "%2$s". Add %3$s to the form and select it in the payment field\'s "%2$s" option.').split('%1$s').join(label).split('%2$s').join(w.label).split('%3$s').join(kind);
+         switch (w.code) {
+            case 'pay_currency': return sub(L('wCurrency', '%1$s only accepts %2$s. This form uses %3$s, so visitors cannot pay. Change the currency in the payment field.'), [label, w.allowed.join(', '), w.currency || '-']);
+            case 'pay_option_required': {
+               if (w.owner_message) return w.owner_message;
+               var ft = w.field_types || [];
+               var kind = ft.length === 1 && ft[0] === 'email' ? L('kindEmail', 'an Email field') : (ft.some(function (x) { return x === 'mobile' || x === 'tel'; }) && ft.every(function (x) { return ['mobile', 'tel', 'text', 'number'].indexOf(x) !== -1; }) ? L('kindPhone', 'a phone number field') : L('kindAny', 'a field for it'));
+               var names = (w.methods || []).map(function (id) { var m = ((info(w.gateway) || {}).methods || []).find(function (x) { return String(x[0]) === id; }); return m ? m[1] : id; });
+               return names.length
+                  ? sub(L('wRequiredFor', '%1$s requires "%2$s" to pay with %3$s. Add %4$s to the form and select it in the payment field\'s "%2$s" option.'), [label, w.label, names.join(', '), kind])
+                  : sub(L('wRequired', '%1$s requires "%2$s". Add %3$s to the form and select it in the payment field\'s "%2$s" option.'), [label, w.label, kind]);
+            }
+            case 'pay_option_field_missing': return sub(L('wMissing', '%1$s: the field chosen for "%2$s" is no longer in the form. Choose another one.'), [label, w.label]);
+            case 'pay_option_field_type': return sub(L('wType', '%1$s: the field chosen for "%2$s" is not the right kind of field.'), [label, w.label]);
+            case 'pay_option_not_required': return sub(L('wNotRequired', '"%1$s" is needed by %2$s for the payment but is not marked Required. Visitors are asked for it when they press Pay; mark it Required so they see it earlier.'), [fname(w.target, w.label), label]);
+            case 'pay_not_configured': return sub(w.mode === 'live' ? L('wNoKeysLive', '%s has no keys for Live mode yet, so visitors cannot pay. Add them in Payments → Gateways.') : L('wNoKeysTest', '%s has no keys for Test mode yet, so the form cannot be tried. Add them in Payments → Gateways.'), [label]);
+            case 'pay_test_mode': return sub(L('wTestMode', '%s is in Test mode: no real payments are taken. Switch it to Live in Payments → Gateways when you are ready.'), [label]);
+            case 'pay_webhook_local': return sub(L('wLocal', 'This site cannot be reached from the internet, so %s cannot send payment confirmations to it. Payments are confirmed when the visitor comes back and by the regular check.'), [label]);
+            case 'pay_amount_limit': {
+               var k = w.what === 'fixed' ? (w.limit === 'max' ? 'wFixedMax' : 'wFixedMin') : (w.limit === 'max' ? 'wDonMax' : 'wDonMin');
+               return sub(L(k, '%1$s: %2$s / %3$s'), [label, fmt(w.limit_minor, w.currency), fmt(w.amount_minor, w.currency)]);
+            }
+            case 'pay_method_currency': {
+               var mn = (w.methods || []).map(function (id) { var m = ((info(w.gateway) || {}).methods || []).find(function (x) { return String(x[0]) === id; }); return m ? m[1] : id; });
+               return sub(L('wMethodCur', '%1$s: %2$s cannot take %3$s, so it is not offered on this form. Choose other methods or change the currency.'), [label, mn.join(', '), w.currency]);
+            }
+            case 'pay_multiple_fields': return L('wMultiple', 'This form has more than one payment field. A form can take one payment: remove the others.');
+            case 'pay_form_type': return sub(L('wFormType', 'A payment field only works in a payment form. This form is a "%s" form: create a payment form or remove the payment field.'), [w.form_type || '-']);
          }
-         if (w.code === 'pay_option_field_missing') return L('wMissing', '%1$s: the field chosen for "%2$s" is no longer in the form. Choose another one.').replace('%1$s', label).replace('%2$s', w.label);
-         return L('wType', '%1$s: the field chosen for "%2$s" is not the right kind of field.').replace('%1$s', label).replace('%2$s', w.label);
+         return '';
       };
-      return '<div class="efb alert alert-warning py-1 px-2 my-1 fs-7" role="status" id="efbPfWarnEl"><ul class="efb mb-0 ps-3">' + list.map(function (w) { return '<li data-code="' + esc(w.code) + '">' + esc(text(w)) + '</li>'; }).join('') + '</ul></div>';
+      return core().warnings(r, infos, { webhook_local: !!P().site_local }).filter(function (w) { return w.field_id === row.id_; }).map(function (w) { return Object.assign({}, w, { m: text(w) }); });
+   }
+
+   function warningsHtml(row) {
+      var list = warningsList(row);
+      if (!list.length) return '';
+      var cls = list.some(function (w) { return w.level === 'error'; }) ? 'alert-danger' : (list.some(function (w) { return w.level === 'warning'; }) ? 'alert-warning' : 'alert-info');
+      return '<div class="efb alert ' + cls + ' py-1 px-2 my-1 fs-7" role="status" id="efbPfWarnEl"><ul class="efb mb-0 ps-3">' + list.map(function (w) { return '<li data-code="' + esc(w.code) + '" data-level="' + esc(w.level) + '">' + esc(w.m) + '</li>'; }).join('') + '</ul></div>';
    }
 
    /** The gateway's own options (field_schema()): field pickers list the form's own fields. */

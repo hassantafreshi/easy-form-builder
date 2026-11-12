@@ -322,6 +322,23 @@ class Result {
 	public $unsupported = false;
 	/** A message the visitor may see instead of core's generic one (plain text, at most 200 characters). */
 	public $visitor_message = '';
+	/**
+	 * Why it failed, in core's words (Reasons::CODES: declined, insufficient_funds, card_invalid,
+	 * auth_failed, fraud_blocked, limit_exceeded, canceled, expired, provider_unavailable,
+	 * rate_limited, method_unavailable, payer_invalid, config): core shows the matching visitor
+	 * text (or the gateway's messages()[reason]) and, for config, alerts the owner. '' = derived from
+	 * $error by Reasons::of_error().
+	 */
+	public $reason = '';
+	/** With reason payer_invalid: the field option (pgw_map_*) whose value the provider refused. */
+	public $payer_key = '';
+
+	/** Fluent: Create_Result::fail( 'card_declined', 'log' )->because( 'insufficient_funds' ), ->because( 'payer_invalid', 'pgw_map_phone' ). */
+	public function because( $reason, $payer_key = '' ) {
+		$this->reason = (string) $reason;
+		$this->payer_key = (string) $payer_key;
+		return $this;
+	}
 
 	/** Fluent: $res = Create_Result::fail( 'oney_range', 'log text' )->for_visitor( __( '…', 'efb-x' ) ). */
 	public function for_visitor( $m ) {
@@ -396,6 +413,11 @@ class Remote_State {
 	/** A note for the owner (event log; e-mailed when $notify_owner): e.g. "held for fraud review". */
 	public $note = '';
 	public $notify_owner = false;
+	/**
+	 * Why a failed / canceled / expired payment ended (Reasons::CODES, e.g. insufficient_funds,
+	 * auth_failed): the status page shows the matching safe text. '' = core's text for the status.
+	 */
+	public $reason = '';
 	/** One of Store::STATUSES. */
 	public $status = '';
 	public $amount_minor = null;
@@ -428,6 +450,59 @@ class Remote_State {
 		$s = static::error( $code );
 		$s->mismatch = true;
 		return $s;
+	}
+}
+
+/**
+ * The small set of failure reasons a visitor may be told about (no provider jargon). A gateway sets
+ * one on Result::because() / Remote_State 'reason'; from_text() turns a provider's code or message
+ * into one of them, of_error() derives one from an error code core already knows.
+ */
+class Reasons {
+
+	const CODES = array( 'declined', 'insufficient_funds', 'card_invalid', 'auth_failed', 'fraud_blocked', 'limit_exceeded', 'canceled', 'expired',
+		'provider_unavailable', 'rate_limited', 'method_unavailable', 'payer_invalid', 'config' );
+
+	/** A known reason, else ''. */
+	public static function clean( $r ) {
+		return is_string( $r ) && in_array( $r, self::CODES, true ) ? $r : '';
+	}
+
+	/**
+	 * A provider's decline code or message (any language the provider answers in English) → a
+	 * reason; '' when nothing matches. Order matters: the most specific words first.
+	 */
+	public static function from_text( $t ) {
+		if ( ! is_scalar( $t ) ) return '';
+		$t = strtolower( str_replace( array( '_', '-' ), ' ', (string) $t ) );
+		if ( trim( $t ) === '' ) return '';
+		$rules = array(
+			'rate_limited'         => '/rate limit|too many requests|\b429\b/',
+			'insufficient_funds'   => '/insufficient|not enough (funds|balance)|\bnsf\b|low balance|insufficient balance/',
+			'auth_failed'          => '/3\s*d\s*s|3\s*d secure|3ds|authenticat|\\botp\\b|verification failed/',
+			'fraud_blocked'        => '/fraud|risk|restricted|blocked|suspect|blacklist|stolen|lost card|pick up/',
+			'limit_exceeded'       => '/limit|exceed|too large|maximum amount/',
+			'card_invalid'         => '/expired card|card expired|card (is )?expired|invalid card|incorrect (card )?number|invalid (card )?number|invalid (cvv|cvc)|cvv|cvc|card number|expiry|invalid card holder/',
+			'canceled'             => '/cancel|abandon|abort|user declined|declined by (the )?user|voided/',
+			'expired'              => '/timed? ?out|expired|expiry time/',
+			'provider_unavailable' => '/unavailable|service down|maintenance|\b50[0-4]\b|network|connection/',
+			'declined'             => '/declin|refus|reject|do not honou?r|not honou?red|not permitted|failed|failure|not approved/',
+		);
+		foreach ( $rules as $code => $re ) {
+			if ( preg_match( $re, $t ) ) return $code;
+		}
+		return '';
+	}
+
+	/** A reason from an error code core or the HTTP layer uses (network_*, http_429, http_5xx, no_key …); '' = none. */
+	public static function of_error( $e ) {
+		$e = strtolower( (string) $e );
+		if ( $e === '' ) return '';
+		if ( strpos( $e, 'network' ) === 0 || strpos( $e, 'timeout' ) !== false || preg_match( '/^http_5\d\d$/', $e ) || $e === 'unreachable' ) return 'provider_unavailable';
+		if ( $e === 'http_429' || $e === 'rate_limited' || $e === 'too_many_requests' ) return 'rate_limited';
+		if ( in_array( $e, array( 'no_key', 'wrong_mode', 'auth', 'authentication', 'authentication_failure', 'not_configured', 'http_401', 'http_403', 'no_region', 'no_integration', 'profile', 'mode_mismatch', 'unreadable' ), true ) ) return 'config';
+		if ( in_array( $e, array( 'currency_unsupported', 'method_currency', 'no_method', 'method_not_enabled', 'amount_out_of_range' ), true ) ) return 'method_unavailable';
+		return '';
 	}
 }
 

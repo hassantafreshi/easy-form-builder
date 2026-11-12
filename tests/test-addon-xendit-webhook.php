@@ -9,7 +9,7 @@
  *  - out of order: payment_session.expired after completed → still paid; webhook before the
  *    return, then the return → one finalize; return without any webhook → GET → paid;
  *  - Xendit's amount or currency differs from the payment → failed, not paid (owner e-mail);
- *  - EXPIRED / CANCELED sessions → expired / canceled ("not completed" + Try again);
+ *  - EXPIRED / CANCELED sessions → expired / canceled ("time ran out" / "cancelled" + Try again);
  *  - unknown events, sessions of another site, malformed bodies → 200, no outbound call;
  *  - Xendit unreachable during the refetch → 503 and the event can be delivered again;
  *  - a session whose reference_id is another payment's → never applied;
@@ -102,7 +102,7 @@ $t('status route: failed, "time ran out", can retry', array($st['state'], strpos
 $p = xnd_row(xnd_create($db));
 $F::set($p['gateway_ref'], 'CANCELED');
 xnd_return($p, true);
-$t('Xendit CANCELED (cancel return) → canceled, "not completed"', array(Store::get($p['id'])['status'], strpos(Service::status_answer(Store::get($p['id']), 'status')['message'], 'not completed') !== false), array('canceled', true));
+$t('Xendit CANCELED (cancel return) → canceled, "cancelled, not charged" (reason canceled)', array(Store::get($p['id'])['status'], strpos(Service::status_answer(Store::get($p['id']), 'status')['message'], 'was cancelled. You have not been charged') !== false), array('canceled', true));
 $F::set($p['gateway_ref'], 'COMPLETED');
 xnd_post_webhook($F::webhook_body($p['gateway_ref'], 'payment_session.completed'));
 $t('a session paid after all (late completion) still becomes paid (canceled → paid is allowed)', Store::get($p['id'])['status'], 'paid');

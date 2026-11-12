@@ -61,6 +61,20 @@ class Frontend {
 			'payerMissingFor' => __( 'Please fill in "%1$s": it is needed to pay with %2$s.', 'easy-form-builder' ),
 			/* translators: %s: name of the form field (e.g. Email) */
 			'payerMissing' => __( 'Please fill in "%s": it is needed for the payment.', 'easy-form-builder' ),
+			/* translators: %s: name of the form field (e.g. Email) */
+			'payerEmail' => __( 'Please enter a valid e-mail address in "%s".', 'easy-form-builder' ),
+			/* translators: %s: name of the form field (e.g. Mobile) */
+			'payerPhone' => __( 'Please enter a valid phone number in "%s".', 'easy-form-builder' ),
+			/* translators: %s: name of the form field (e.g. Mobile) */
+			'payerPhoneIntl' => __( 'Please enter the phone number in "%s" with its country code, starting with + (for example +33 6 12 34 56 78).', 'easy-form-builder' ),
+			/* translators: %s: name of the form field (e.g. Country) */
+			'payerCountry' => __( 'Please choose a country in "%s".', 'easy-form-builder' ),
+			/* translators: %s: name of the form field (e.g. Country) */
+			'payerCountryNo' => __( 'Payments with this method are not available for the country in "%s". Please check it or choose another payment method.', 'easy-form-builder' ),
+			'neededForPay' => __( 'Needed for the payment', 'easy-form-builder' ),
+			'network' => __( 'We could not reach the site. Check your internet connection and try again. You have not been charged.', 'easy-form-builder' ),
+			'returnedCancel' => __( 'You left the payment page before paying. You have not been charged. You can try again.', 'easy-form-builder' ),
+			'rateLimited' => __( 'Too many payment attempts. Please wait a minute and try again.', 'easy-form-builder' ),
 		);
 	}
 
@@ -159,7 +173,7 @@ class Frontend {
 			// some methods): the page stops Pay at the empty field with this message.
 			$requires = array();
 			foreach ( $info['field_schema'] as $d ) {
-				if ( $d['type'] === 'field' && ( $d['required'] || $d['required_for'] ) ) $requires[] = array( 'key' => $d['key'], 'label' => $d['label'], 'required' => $d['required'] && ! $d['required_for'], 'required_for' => $d['required_for'], 'visitor_message' => $d['visitor_message'] );
+				if ( $d['type'] === 'field' && ( $d['required'] || $d['required_for'] || $d['format'] !== '' ) ) $requires[] = array( 'key' => $d['key'], 'label' => $d['label'], 'required' => $d['required'] && ! $d['required_for'], 'required_for' => $d['required_for'], 'visitor_message' => $d['visitor_message'], 'format' => $d['format'], 'countries' => $d['countries'], 'invalid_message' => $d['invalid_message'] );
 			}
 			$messages = array();
 			try { $own = $g->messages(); } catch ( \Throwable $e ) { $own = array(); }
@@ -311,6 +325,29 @@ class Frontend {
 			'wMissing' => __( '%1$s: the field chosen for "%2$s" is no longer in the form. Choose another one.', 'easy-form-builder' ),
 			/* translators: %1$s: gateway name, %2$s: name of an option of the payment field */
 			'wType' => __( '%1$s: the field chosen for "%2$s" is not the right kind of field.', 'easy-form-builder' ),
+			/* translators: %1$s: name of a form field (e.g. Mobile), %2$s: gateway name */
+			'wNotRequired' => __( '"%1$s" is needed by %2$s for the payment but is not marked Required. Visitors are asked for it when they press Pay; mark it Required so they see it earlier.', 'easy-form-builder' ),
+			/* translators: %s: gateway name */
+			'wNoKeysLive' => __( '%s has no keys for Live mode yet, so visitors cannot pay. Add them in Payments → Gateways.', 'easy-form-builder' ),
+			/* translators: %s: gateway name */
+			'wNoKeysTest' => __( '%s has no keys for Test mode yet, so the form cannot be tried. Add them in Payments → Gateways.', 'easy-form-builder' ),
+			/* translators: %s: gateway name */
+			'wTestMode' => __( '%s is in Test mode: no real payments are taken. Switch it to Live in Payments → Gateways when you are ready.', 'easy-form-builder' ),
+			/* translators: %s: gateway name */
+			'wLocal' => __( 'This site cannot be reached from the internet, so %s cannot send payment confirmations to it. Payments are confirmed when the visitor comes back and by the regular check.', 'easy-form-builder' ),
+			/* translators: %1$s: gateway name, %2$s: the gateway's maximum, %3$s: the form's fixed amount */
+			'wFixedMax' => __( '%1$s accepts payments up to %2$s. The fixed amount of this form is %3$s, so visitors cannot pay.', 'easy-form-builder' ),
+			/* translators: %1$s: gateway name, %2$s: the gateway's minimum, %3$s: the form's fixed amount */
+			'wFixedMin' => __( '%1$s accepts payments from %2$s. The fixed amount of this form is %3$s; visitors can only pay when other choices raise the total.', 'easy-form-builder' ),
+			/* translators: %1$s: gateway name, %2$s: the gateway's maximum, %3$s: the donation maximum of the form */
+			'wDonMax' => __( '%1$s accepts payments up to %2$s. The largest donation of this form (%3$s) is above it.', 'easy-form-builder' ),
+			/* translators: %1$s: gateway name, %2$s: the gateway's minimum, %3$s: the donation minimum of the form */
+			'wDonMin' => __( '%1$s accepts payments from %2$s. The smallest donation of this form (%3$s) is below it.', 'easy-form-builder' ),
+			/* translators: %1$s: gateway name, %2$s: payment methods, %3$s: the form's currency */
+			'wMethodCur' => __( '%1$s: %2$s cannot take %3$s, so it is not offered on this form. Choose other methods or change the currency.', 'easy-form-builder' ),
+			'wMultiple' => __( 'This form has more than one payment field. A form can take one payment: remove the others.', 'easy-form-builder' ),
+			/* translators: %s: the form's type (e.g. survey) */
+			'wFormType' => __( 'A payment field only works in a payment form. This form is a "%s" form: create a payment form or remove the payment field.', 'easy-form-builder' ),
 		);
 	}
 
@@ -326,6 +363,7 @@ class Frontend {
 			'text'     => self::default_texts( '%s' ),
 			'labels'   => self::builder_labels(),
 			'locale'   => self::locale(),
+			'site_local' => Service::site_is_local(),
 		);
 	}
 

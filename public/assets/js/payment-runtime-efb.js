@@ -150,6 +150,7 @@
             if (!b) return;
             select(methods, b, true);
             el._method = b.getAttribute('data-pf-method');
+            markRequired(el);
          });
          methods.addEventListener('keydown', function (e) {
             if (['ArrowRight', 'ArrowLeft', 'ArrowDown', 'ArrowUp'].indexOf(e.key) === -1) return;
@@ -164,9 +165,10 @@
          });
       }
       var sel = el.querySelector('[data-pf-method-select]');
-      if (sel) { el._method = sel.value; sel.addEventListener('change', function () { el._method = sel.value; }); }
+      if (sel) { el._method = sel.value; sel.addEventListener('change', function () { el._method = sel.value; markRequired(el); }); }
       var payBtn = el.querySelector('[data-pf-pay]');
       if (payBtn) payBtn.addEventListener('click', function () { pay(el); });
+      markRequired(el);
       refresh(el);
    }
 
@@ -180,35 +182,117 @@
       return '';
    }
 
+   /* ---- payer fields the gateway needs ---------------------------------- */
+
+   /** The chosen method (or the only one) and its label. */
+   function methodOf(el) {
+      var tiles = el.querySelectorAll('[data-pf-method]');
+      var sel = el.querySelector('[data-pf-method-select]');
+      var method = el._method || (tiles.length === 1 ? tiles[0].getAttribute('data-pf-method') : (sel ? sel.value : ''));
+      var label = '';
+      tiles.forEach(function (b) { if (b.getAttribute('data-pf-method') === method) label = b.textContent.trim(); });
+      if (!label && sel && sel.selectedIndex >= 0 && sel.options[sel.selectedIndex]) label = sel.options[sel.selectedIndex].textContent.trim();
+      return { id: method, label: label };
+   }
+
+   /** The form field an option points to (the payer e-mail falls back to the confirmation e-mail field). */
+   function targetOf(row, d, s) {
+      var t = typeof row[d.key] === 'string' ? row[d.key] : '';
+      if (!t && d.key === 'pgw_map_email' && C().confirmationEmailField) t = C().confirmationEmailField(s);
+      return t;
+   }
+
+   function inputOf(el, id) {
+      var body = document.getElementById('body_efb_' + el.getAttribute('data-formid')) || document;
+      return body.querySelector('[data-id="' + id + '-el"]') || body.querySelector('[id="' + id + '_"]') || body.querySelector('[id="' + id + '_options"]');
+   }
+
    /**
-    * A payer value the gateway requires (its field options: required, or required_for the chosen
-    * method) left empty: the message (the gateway's own, else core's) and the form field to focus.
-    * Only options mapped to a field are checked; the server checks again.
+    * The payer values the gateway needs, checked before payments/create (the server checks again):
+    * empty (required, or required_for the chosen method) or in the wrong format (email, phone,
+    * phone_e164, country). The message (the gateway's own, else core's) and the field to show it at.
     */
-   function payerMissing(el) {
+   function payerCheck(el) {
       var g = gw(el), row = fieldRow(el);
       if (!row || !Array.isArray(g.requires) || !g.requires.length) return null;
       var fid = el.getAttribute('data-formid');
-      var tiles = el.querySelectorAll('[data-pf-method]');
-      var method = el._method || (tiles.length === 1 ? tiles[0].getAttribute('data-pf-method') : '');
-      var methodLabel = '';
-      el.querySelectorAll('[data-pf-method]').forEach(function (b) { if (b.getAttribute('data-pf-method') === method) methodLabel = b.textContent.trim(); });
+      var m = methodOf(el);
       var s = structure(fid) || [];
       for (var i = 0; i < g.requires.length; i++) {
          var d = g.requires[i];
-         var needed = d.required || (method !== '' && Array.isArray(d.required_for) && d.required_for.indexOf(method) !== -1);
-         if (!needed) continue;
-         var target = typeof row[d.key] === 'string' ? row[d.key] : '';
-         if (!target) continue;
-         var have = sendRows(fid).some(function (x) { return x && String(x.id_) === target && x.value != null && String(x.value).trim() !== ''; });
-         if (have) continue;
+         var needed = d.required || (m.id !== '' && Array.isArray(d.required_for) && d.required_for.indexOf(m.id) !== -1);
+         var target = targetOf(row, d, s);
+         if (!target || (!needed && !d.format)) continue;
+         var got = sendRows(fid).find(function (x) { return x && String(x.id_) === target && x.value != null && String(x.value).trim() !== ''; });
          var f = s.find(function (x) { return x && String(x.id_) === target; });
          var name = (f && f.name) || d.label;
-         var msg = d.visitor_message || ((g.messages || {}).payer_missing || '').replace('%field%', name).replace('%method%', methodLabel) ||
-            (method && d.required_for && d.required_for.length ? (T('payerMissingFor') || '%1$s').replace('%1$s', name).replace('%2$s', methodLabel || method) : (T('payerMissing') || '%s').replace('%s', name));
-         return { message: msg, field_id: target };
+         if (!got) {
+            if (!needed) continue;
+            var msg = d.visitor_message || ((g.messages || {}).payer_missing || '').split('%field%').join(name).split('%method%').join(m.label) ||
+               (m.id && d.required_for && d.required_for.length ? (T('payerMissingFor') || '%1$s').replace('%1$s', name).replace('%2$s', m.label || m.id) : (T('payerMissing') || '%s').replace('%s', name));
+            return { code: 'payer_missing', message: msg, field_id: target };
+         }
+         var val = String(got.value).split('@efb@dq#').join('"');
+         var problem = C().payerProblem ? C().payerProblem(d, val, d.format === 'country' ? C().countryIso(s, target, val) : '') : '';
+         if (problem) {
+            var key = problem === 'country' ? 'payerCountryNo' : ({ email: 'payerEmail', phone: 'payerPhone', phone_e164: 'payerPhoneIntl', country: 'payerCountry' })[d.format];
+            var own = d.invalid_message || ((g.messages || {}).payer_invalid || '').split('%field%').join(name).split('%method%').join(m.label);
+            return { code: 'payer_invalid', message: own || (T(key) || '%s').replace('%s', name), field_id: target };
+         }
       }
       return null;
+   }
+
+   /**
+    * A message at a form field (its own message slot, as the form's own checks use): role alert,
+    * the input aria-invalid and aria-describedby the message, focus. Cleared when the visitor edits it.
+    */
+   function fieldMessage(el, id, msg) {
+      var input = inputOf(el, id);
+      var slot = document.getElementById(id + '_-message');
+      if (slot) {
+         slot.textContent = msg;
+         slot.setAttribute('role', 'alert');
+         slot.setAttribute('aria-live', 'assertive');
+         slot.classList.add('efb-pf-field-msg');
+         slot.style.display = 'block';
+      }
+      if (input) {
+         input.setAttribute('aria-invalid', 'true');
+         if (slot) {
+            var ids = (input.getAttribute('aria-describedby') || '').split(/\s+/).filter(Boolean);
+            if (ids.indexOf(slot.id) === -1) { ids.push(slot.id); input.setAttribute('aria-describedby', ids.join(' ')); }
+         }
+         input.classList.add('border-danger');
+         var clear = function () {
+            input.removeAttribute('aria-invalid');
+            input.classList.remove('border-danger');
+            if (slot && slot.classList.contains('efb-pf-field-msg')) { slot.textContent = ''; slot.style.display = 'none'; slot.classList.remove('efb-pf-field-msg'); }
+            input.removeEventListener('input', clear); input.removeEventListener('change', clear);
+         };
+         input.addEventListener('input', clear); input.addEventListener('change', clear);
+         try { input.focus({ preventScroll: false }); } catch (e) { input.focus(); }
+      }
+      return !!(slot || input);
+   }
+
+   /** The fields the payment needs are marked required on the page (aria-required and the star), for the chosen method too. */
+   function markRequired(el) {
+      var g = gw(el), row = fieldRow(el);
+      if (!row || !Array.isArray(g.requires)) return;
+      var s = structure(el.getAttribute('data-formid')) || [];
+      var m = methodOf(el);
+      g.requires.forEach(function (d) {
+         var target = targetOf(row, d, s);
+         if (!target) return;
+         var f = s.find(function (x) { return x && String(x.id_) === target; });
+         if (f && (f.required === true || f.required === 1 || f.required === '1')) return;
+         var on = d.required || (m.id !== '' && Array.isArray(d.required_for) && d.required_for.indexOf(m.id) !== -1);
+         var input = inputOf(el, target);
+         if (input) input.setAttribute('aria-required', on ? 'true' : 'false');
+         var star = document.getElementById(target + '_req');
+         if (star) { star.textContent = on ? '*' : ''; star.title = on ? T('neededForPay') : ''; star.classList.toggle('efb-pf-req', on); }
+      });
    }
 
    function pay(el) {
@@ -216,11 +300,11 @@
       var q = refresh(el);
       var ml = methodLimit(el, q);
       if (ml) { status(el, ml, 'error'); return; }
-      var pm = payerMissing(el);
+      var pm = payerCheck(el);
       if (pm) {
+         // At the field (and once in the field's status line): no payments/create request is sent.
          status(el, pm.message, 'error');
-         var inp = document.querySelector('[data-id="' + pm.field_id + '-el"]') || document.getElementById(pm.field_id + '_');
-         if (inp && inp.focus) inp.focus();
+         fieldMessage(el, pm.field_id, pm.message);
          return;
       }
       // Only what the visitor can fix here stops the click; the amount itself is the server's
@@ -283,10 +367,17 @@
 
    async function post(route, body, sid, fid) {
       var opt = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) };
-      var resp = typeof efb_fetch_public_request_efb === 'function'
-         ? await efb_fetch_public_request_efb(V.rest + route, opt, 'payment', sid, fid)
-         : await fetch(V.rest + route, opt);
-      return resp.json();
+      var resp;
+      try {
+         resp = typeof efb_fetch_public_request_efb === 'function'
+            ? await efb_fetch_public_request_efb(V.rest + route, opt, 'payment', sid, fid)
+            : await fetch(V.rest + route, opt);
+      } catch (e) {
+         var n = new Error(T('network')); n.efbNetwork = true; throw n;
+      }
+      try { return await resp.json(); } catch (e) {
+         var x = new Error(T('noScript')); throw x;
+      }
    }
 
    async function submit(data, fid) {
@@ -321,7 +412,8 @@
          json = await post('create', body, data.sid, fid);
          if (body.pay.client_token) body.pay.client_token = ''; // used once
       } catch (e) {
-         fail((e && e.message) || T('noScript'));
+         // A thrown adapter step keeps its own message; a request that never reached the site says so.
+         fail((e && e.efbNetwork) ? T('network') : ((e && e.message) || T('noScript')));
          return false;
       }
       var d = json && json.data ? json.data : {};
@@ -330,7 +422,10 @@
          if (d.code === 'quote_changed' && d.total_minor) {
             el.querySelectorAll('[data-pf-total],[data-pf-amount]').forEach(function (n) { n.textContent = fmt(el, d.total_minor, d.currency); });
          }
-         fail(d.m || (json && json.data && json.data.m) || T('noScript'), d.field_id ? { field_id: d.field_id } : {});
+         var m = d.m || (json && json.data && json.data.m) || (d.code === 'efb_rate_limited' ? T('rateLimited') : T('noScript'));
+         fail(m, d.field_id ? { field_id: d.field_id } : {});
+         // The server's payer check (or the provider refusing a payer value): the message at that field too.
+         if (d.field_id && (d.code === 'payer_missing' || d.code === 'payer_invalid')) fieldMessage(el, d.field_id, m);
          return false;
       }
       return follow(el, d.pay, fid);
@@ -345,6 +440,7 @@
       if (!el || !el._last) return false;
       var fid = el.getAttribute('data-formid');
       el._retryable = false;
+      el._retrying = true;
       el._attempt = uuid();
       var btn = el.querySelector('[data-pf-pay]');
       if (btn) { btn.setAttribute('aria-busy', 'true'); btn.disabled = true; }
@@ -358,11 +454,12 @@
          json = await post('retry', body, el._sid || '', fid);
       } catch (e) {
          json = null;
+         var netErr = !!(e && e.efbNetwork);
       }
       var d = json && json.data ? json.data : {};
       if (!json || !d.success || !d.pay) {
          if (btn) { btn.removeAttribute('aria-busy'); btn.disabled = false; }
-         status(el, d.m || T('noScript'), 'error');
+         status(el, d.m || (netErr ? T('network') : T('noScript')), 'error');
          if (d.code !== 'retry_unavailable') el._retryable = true; else el._last = null;
          return false;
       }
@@ -444,6 +541,20 @@
       return false;
    }
 
+   /** Polls without changing the status text (the visitor already sees what to do); stops when paid or failed. */
+   async function watchQuiet(el, p, fid) {
+      var delay = 4000, until = untilOf(p.poll_until);
+      while (Date.now() < until && !el._retrying) {
+         await new Promise(function (r) { setTimeout(r, delay); });
+         if (el._retrying || (el._last && el._last.uid !== p.uid)) return;
+         var st;
+         try { st = await getStatus(p.uid, p.sig); } catch (e) { st = { state: 'pending' }; }
+         if (st.state === 'paid') { show(el, fid, st); return; }
+         if (st.state === 'failed') return;
+         delay = Math.min(15000, Math.round(delay * 1.5));
+      }
+   }
+
    function show(el, fid, st) {
       if (st.state === 'paid') {
          if (el) status(el, st.message || T('success'), 'ok');
@@ -473,10 +584,10 @@
 
    async function returned() {
       var qs = new URLSearchParams(location.search);
-      var uid = qs.get('efb_pay'), sig = qs.get('efb_ps');
+      var uid = qs.get('efb_pay'), sig = qs.get('efb_ps'), cancelled = qs.get('efb_pc') === '1';
       if (!uid || !sig || !/^[0-9A-Za-z]{22}$/.test(uid) || !/^[0-9a-f]{32}$/.test(sig)) return;
       try {
-         qs.delete('efb_pay'); qs.delete('efb_ps');
+         qs.delete('efb_pay'); qs.delete('efb_ps'); qs.delete('efb_pc');
          var clean = location.pathname + (qs.toString() ? '?' + qs.toString() : '') + location.hash;
          history.replaceState(history.state, '', clean);
       } catch (e) { /* old browser */ }
@@ -490,6 +601,13 @@
          if (banner) banner.hidden = !st.test_mode;
          el.scrollIntoView({ block: 'center' });
          el._last = { uid: uid, sig: sig };
+      }
+      if (st.state === 'pending' && cancelled && el) {
+         // Back through the provider's cancel link and still open there: say so and offer Try again
+         // (a new attempt cancels the open one); the page keeps watching in case it is paid after all.
+         show(el, fid, { state: 'failed', can_retry: true, message: T('returnedCancel') });
+         watchQuiet(el, { uid: uid, sig: sig, poll_until: st.poll_until }, fid);
+         return;
       }
       if (st.state === 'pending') {
          if (el) watch(el, { uid: uid, sig: sig, poll_until: st.poll_until }, fid);

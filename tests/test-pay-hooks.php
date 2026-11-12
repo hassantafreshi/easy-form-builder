@@ -138,8 +138,8 @@ $own = Frontend::field_markup(hooks_form('EUR', array('pf_methods_style' => 'lis
 $t('4: the field\'s own values win', array(strpos($own, 'data-style="list"') !== false, strpos($own, 'Pay now') !== false), array(true, true));
 
 /* ---- 6. warnings ------------------------------------------------------------ */
-$wf = hooks_form('THB'); unset($wf[6]['pgw_map_email']); $wf[6]['pgw_map_first'] = 'em';
-$w = Registry::form_warnings($wf);
+$wf = hooks_form('THB'); unset($wf[6]['pgw_map_email']); $wf[6]['pgw_map_first'] = 'em'; $wf[0]['email_to'] = '';
+$w = array_values(array_filter(Registry::form_warnings($wf), function ($x) { return $x['level'] !== 'info'; }));
 $codes = array_column($w, 'code');
 $t('6: currency outside supports(), required option empty, wrong field type, plus the gateway\'s own', $codes, array('pay_currency', 'pay_option_required', 'pay_option_field_type', 'pay_gw_needs_country'));
 $t('6: the messages name the gateway and the option; the gateway\'s own text is plain text', array(strpos($w[0]['m'], 'EUR, USD') !== false && strpos($w[0]['m'], 'THB') !== false, strpos($w[1]['m'], 'Payer e-mail') !== false, $w[3]['m']), array(true, true, 'Hooks gateway works better with a b country /b field.'));

@@ -278,8 +278,8 @@ class Admin {
 		foreach ( Registry::all() as $slug => $g ) {
 			$s = Settings::load( $slug );
 			echo '<section class="efb-pay-card" aria-labelledby="efbPayGw_' . esc_attr( $slug ) . '"><h2 id="efbPayGw_' . esc_attr( $slug ) . '">' . esc_html( $g->label() ) . '</h2>';
-			foreach ( self::gateway_notices( $g, $s ) as $nt ) {
-				echo '<div class="notice notice-' . esc_attr( $nt['level'] ) . ' inline efb-pay-gw-notice"><p>' . esc_html( $nt['m'] ) . '</p></div>';
+			foreach ( array_merge( self::core_notices( $g, $s ), self::gateway_notices( $g, $s ) ) as $nt ) {
+				echo '<div class="notice notice-' . esc_attr( $nt['level'] ) . ' inline efb-pay-gw-notice"' . ( isset( $nt['code'] ) ? ' data-code="' . esc_attr( $nt['code'] ) . '"' : '' ) . '><p>' . esc_html( $nt['m'] ) . '</p></div>';
 			}
 			echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
 			wp_nonce_field( 'efb_pay_settings_' . $slug );
@@ -328,6 +328,36 @@ class Admin {
 			}
 			echo '<span class="efb-pay-msg" role="status" aria-live="polite"></span></p></form></section>';
 		}
+	}
+
+	/**
+	 * Core's notices on every gateway's settings card: no keys for the current mode, Test mode, a
+	 * payment the provider refused because of the set-up (Service::owner_alert()), refused webhooks
+	 * (3 or more in 24 hours), a site the provider cannot reach. Each with a code (for tests and AutoPilot).
+	 */
+	public static function core_notices( Gateway $g, Settings $s ) {
+		$out = array();
+		$mode = $s->mode();
+		$label = $g->label();
+		try { $ready = (bool) $g->is_configured( $s, $mode ); } catch ( \Throwable $e ) { $ready = false; }
+		if ( ! $ready ) {
+			$out[] = array( 'level' => 'error', 'code' => 'pay_keys_missing', 'm' => $mode === 'live'
+				? __( 'No keys for Live mode: visitors cannot pay. Enter the keys and press Test connection.', 'easy-form-builder' )
+				: __( 'No keys for Test mode: the payment forms cannot be tried. Enter the Test keys and press Test connection.', 'easy-form-builder' ) );
+		}
+		if ( $mode !== 'live' ) $out[] = array( 'level' => 'info', 'code' => 'pay_test_mode', 'm' => __( 'Test mode: no real payments are taken. Switch to Live when you are ready.', 'easy-form-builder' ) );
+		$a = get_option( 'emsfb_pmt_alert_' . $g->slug() );
+		if ( is_array( $a ) && isset( $a['at'], $a['mode'] ) && $a['mode'] === $mode ) $out[] = array( 'level' => 'error', 'code' => 'pay_config_failed', 'm' => Service::owner_alert_text( $g, $a + array( 'error' => '', 'm' => '' ) ) );
+		$n = Store::ready() ? Store::count_events( $g->slug(), 'auth_failed', Store::now( -DAY_IN_SECONDS ) ) : 0;
+		if ( $n >= 3 ) {
+			/* translators: %1$s: gateway name, %2$d: number of refused deliveries */
+			$out[] = array( 'level' => 'warning', 'code' => 'pay_webhook_rejected', 'm' => sprintf( __( '%1$s sent %2$d payment confirmations in the last 24 hours that were refused because their signature or token did not match. Check the secret key / webhook secret in the gateway\'s dashboard and here; payments are still checked by the regular job.', 'easy-form-builder' ), $label, $n ) );
+		}
+		if ( Service::site_is_local() ) {
+			/* translators: %s: gateway name */
+			$out[] = array( 'level' => 'warning', 'code' => 'pay_webhook_local', 'm' => sprintf( __( 'This site cannot be reached from the internet, so %s cannot send payment confirmations to it. Payments are confirmed when the visitor comes back and by the regular check.', 'easy-form-builder' ), $label ) );
+		}
+		return $out;
 	}
 
 	/** Gateway::settings_notices(), checked: level info|warning|error, plain text. */
@@ -425,14 +455,17 @@ class Admin {
 			$amt = isset( $_POST['amount'] ) ? Money::from_decimal( sanitize_text_field( wp_unslash( $_POST['amount'] ) ), $p['currency'] ) : null;
 			if ( $amt === null ) wp_send_json_error( array( 'm' => __( 'Please choose a valid amount.', 'easy-form-builder' ) ) );
 			$r = Service::refund( $p, $amt, isset( $_POST['reason'] ) ? sanitize_text_field( wp_unslash( $_POST['reason'] ) ) : '', get_current_user_id() );
-			if ( ! $r['ok'] ) wp_send_json_error( array( 'm' => sprintf( __( 'The refund failed (%s).', 'easy-form-builder' ), $r['error'] ) ) );
+			if ( ! $r['ok'] ) {
+				$u = $r['error'] === 'unsupported' ? self::unsupported_refund_text( Registry::get( $p['gateway'] ), $p ) : '';
+				wp_send_json_error( array( 'm' => $u !== '' ? $u : Service::refund_message( $r, $p ), 'code' => 'refund_' . $r['error'] ) );
+			}
 			wp_send_json_success( array( 'm' => ! empty( $r['pending'] ) ? __( 'The refund was requested. It counts once the gateway confirms it.', 'easy-form-builder' ) : __( 'Refunded', 'easy-form-builder' ), 'status' => Store::get( $p['id'] )['status'] ) );
 		}
 		if ( $do === 'mark_refunded' ) {
 			$amt = isset( $_POST['amount'] ) ? Money::from_decimal( sanitize_text_field( wp_unslash( $_POST['amount'] ) ), $p['currency'] ) : null;
 			if ( $amt === null ) wp_send_json_error( array( 'm' => __( 'Please choose a valid amount.', 'easy-form-builder' ) ) );
 			$r = Service::record_external_refund( $p, $amt, isset( $_POST['reason'] ) ? sanitize_text_field( wp_unslash( $_POST['reason'] ) ) : '', get_current_user_id() );
-			if ( ! $r['ok'] ) wp_send_json_error( array( 'm' => $r['error'] === 'reason_required' ? __( 'Please write why (for example: refunded in the gateway dashboard).', 'easy-form-builder' ) : sprintf( __( 'The refund failed (%s).', 'easy-form-builder' ), $r['error'] ) ) );
+			if ( ! $r['ok'] ) wp_send_json_error( array( 'm' => Service::refund_message( $r, $p ), 'code' => 'refund_' . $r['error'] ) );
 			wp_send_json_success( array( 'm' => __( 'Recorded as refunded.', 'easy-form-builder' ), 'status' => Store::get( $p['id'] )['status'] ) );
 		}
 		if ( $do === 'refund_settle' ) {

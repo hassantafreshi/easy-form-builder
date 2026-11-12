@@ -118,7 +118,7 @@ foreach ($cases as $c) {
 		list($b) = tap_last_charge_body();
 		$t(strtoupper($c[0]) . " + '{$c[1]}' → {$c[2]}", array($r['success'], $b['source']['id'], $b['currency']), array(true, $c[2], strtoupper($c[0])));
 	} else {
-		$t(strtoupper($c[0]) . " + '{$c[1]}' is refused before any charge (scheme currency)", array($r['success'], $r['code'], count(TapFake::$charges) - $before), array(false, 'gateway_error', 0));
+		$t(strtoupper($c[0]) . " + '{$c[1]}' is refused before any charge (scheme currency)", array($r['success'], $r['code'], count(TapFake::$charges) - $before), array(false, 'method_unavailable', 0));
 	}
 }
 $r = tap_create($db, array('form' => tap_form('sar'), 'method' => 'knet'));
@@ -216,7 +216,7 @@ $t('a charge Tap declines at creation: gateway_error, payment failed', array($r[
 TapFake::$create_status = 'INITIATED';
 TapFake::$down = true;
 $r = tap_create($db);
-$t('Tap unreachable at creation: gateway_error, nothing charged', array($r['success'], $r['code']), array(false, 'gateway_error'));
+$t('Tap unreachable at creation: provider_unavailable, nothing charged', array($r['success'], $r['code']), array(false, 'provider_unavailable'));
 TapFake::$down = false;
 
 // Secrets never leave the server.

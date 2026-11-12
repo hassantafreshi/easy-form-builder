@@ -34,6 +34,9 @@ class Field {
 	/** Types of a field_schema() entry. */
 	const OPTION_TYPES = array( 'field', 'select', 'text', 'code', 'checkbox' );
 
+	/** Value checks of a field option (field_schema() 'format'). */
+	const FORMATS = array( 'email', 'phone', 'phone_e164', 'country' );
+
 	/** Keys on the gateway field row. */
 	public static function keys() {
 		return array(
@@ -278,6 +281,10 @@ class Field {
 				// The gateway's own words: for the form owner (builder, Save, AutoPilot) and for the visitor (Pay).
 				'owner_message'   => self::text( isset( $d['owner_message'] ) && is_string( $d['owner_message'] ) ? $d['owner_message'] : '', 300 ),
 				'visitor_message' => self::text( isset( $d['visitor_message'] ) && is_string( $d['visitor_message'] ) ? $d['visitor_message'] : '', 200 ),
+				// A value check of a field option: email | phone (7-15 digits) | phone_e164 (+ country code) | country (ISO 3166 alpha-2, in countries when given).
+				'format'      => isset( $d['format'] ) && is_string( $d['format'] ) && in_array( $d['format'], self::FORMATS, true ) ? $d['format'] : '',
+				'countries'   => array(),
+				'invalid_message' => self::text( isset( $d['invalid_message'] ) && is_string( $d['invalid_message'] ) ? $d['invalid_message'] : '', 200 ),
 				'options'     => array(),
 				'max'         => 0,
 				'field_types' => array(),
@@ -302,6 +309,12 @@ class Field {
 					if ( is_string( $ft ) && preg_match( '/^[A-Za-z]{1,30}$/', $ft ) && ! in_array( $ft, $e['field_types'], true ) ) $e['field_types'][] = $ft;
 				}
 			}
+			if ( isset( $d['countries'] ) && is_array( $d['countries'] ) ) {
+				foreach ( $d['countries'] as $cc ) {
+					if ( is_string( $cc ) && preg_match( '/^[A-Za-z]{2}$/', $cc ) && ! in_array( strtoupper( $cc ), $e['countries'], true ) && count( $e['countries'] ) < 250 ) $e['countries'][] = strtoupper( $cc );
+				}
+			}
+			if ( $d['type'] !== 'field' ) { $e['format'] = ''; $e['countries'] = array(); }
 			if ( isset( $d['required_for'] ) && is_array( $d['required_for'] ) ) {
 				foreach ( $d['required_for'] as $mid ) {
 					if ( is_string( $mid ) && preg_match( '/^[a-z0-9_]{1,30}$/', $mid ) && ! in_array( $mid, $e['required_for'], true ) && count( $e['required_for'] ) < 40 ) $e['required_for'][] = $mid;
@@ -366,7 +379,7 @@ class Field {
 	 * to $email (the form's confirmation e-mail field); the name is joined or split when only one
 	 * side is mapped.
 	 */
-	public static function payer( array $rows, array $options, $email = '' ) {
+	public static function payer( array $rows, array $options, $email = '', $form = null ) {
 		$by_id = array();
 		foreach ( $rows as $r ) {
 			if ( is_array( $r ) && isset( $r['id_'] ) && is_scalar( $r['id_'] ) && isset( $r['value'] ) && is_scalar( $r['value'] ) && ! isset( $by_id[ (string) $r['id_'] ] ) ) {
@@ -377,6 +390,10 @@ class Field {
 		foreach ( self::PAYER_KEYS as $k => $to ) {
 			$fid = isset( $options[ $k ] ) ? self::field_id( $options[ $k ] ) : '';
 			if ( $fid !== '' && isset( $by_id[ $fid ] ) ) $p[ $to ] = self::text( $by_id[ $fid ], $to === 'phone' ? 40 : 190 );
+		}
+		if ( $p['country'] !== '' && is_array( $form ) ) {
+			$iso = self::country_iso( $form, self::field_id( isset( $options['pgw_map_country'] ) ? $options['pgw_map_country'] : '' ), $p['country'] );
+			if ( $iso !== '' ) $p['country'] = $iso;
 		}
 		if ( $p['email'] !== '' && ! filter_var( $p['email'], FILTER_VALIDATE_EMAIL ) ) $p['email'] = '';
 		if ( $p['email'] === '' && is_string( $email ) && filter_var( $email, FILTER_VALIDATE_EMAIL ) ) $p['email'] = $email;
@@ -390,38 +407,150 @@ class Field {
 	}
 
 	/**
-	 * Save-time checks of the gateway fields of a form, from what the gateways declare (no gateway
-	 * code in core). $infos: slug => array( currencies, field_schema ) (Registry::public_info()).
-	 * Twin: efbPayCoreEfb.warnings(). Returns codes with their data; the caller words them.
-	 *
-	 * @return array list of array( code, field_id, gateway, … )
+	 * A country value as ISO 3166 alpha-2: two letters as typed, else the option of the form's country
+	 * field whose value (or id) it is (the option's id_op holds the code). '' when unknown.
 	 */
-	public static function warnings( $form, array $infos ) {
+	public static function country_iso( $form, $field_id, $value ) {
+		$v = is_scalar( $value ) ? trim( str_replace( '@efb@dq#', '"', (string) $value ) ) : '';
+		if ( $v === '' ) return '';
+		if ( preg_match( '/^[A-Za-z]{2}$/', $v ) ) return strtoupper( $v );
+		if ( ! is_array( $form ) || $field_id === '' ) return '';
+		foreach ( $form as $i => $r ) {
+			if ( $i === 0 || ! is_array( $r ) || ! isset( $r['parent'] ) || (string) $r['parent'] !== (string) $field_id ) continue;
+			$val = isset( $r['value'] ) && is_scalar( $r['value'] ) ? trim( (string) $r['value'] ) : '';
+			$oid = isset( $r['id_'] ) && is_scalar( $r['id_'] ) ? (string) $r['id_'] : '';
+			$iso = isset( $r['id_op'] ) && is_string( $r['id_op'] ) ? $r['id_op'] : '';
+			if ( ( $val === $v || $oid === $v ) && preg_match( '/^[A-Za-z]{2}$/', $iso ) ) return strtoupper( $iso );
+		}
+		return '';
+	}
+
+	/**
+	 * Whether a payer value fits the option's format: '' = fine (or nothing to check), else the
+	 * problem: 'format' (not an e-mail / phone / country) or 'country' (a country outside the list).
+	 * $iso is the value as a country code (country_iso()) for the country format. Twin: efbPayCoreEfb.payerProblem().
+	 */
+	public static function payer_problem( array $d, $value, $iso = '' ) {
+		$v = is_scalar( $value ) ? trim( (string) $value ) : '';
+		if ( $v === '' || $d['format'] === '' ) return '';
+		switch ( $d['format'] ) {
+			case 'email':
+				return filter_var( $v, FILTER_VALIDATE_EMAIL ) && preg_match( '/^[^@\s]+@[^@\s]+\.[^@\s]+$/', $v ) ? '' : 'format';
+			case 'phone':
+			case 'phone_e164':
+				$n = preg_replace( '/[\s().\-]/', '', Money::latin_digits( $v ) );
+				if ( strpos( $n, '00' ) === 0 ) $n = '+' . substr( $n, 2 );
+				if ( $d['format'] === 'phone_e164' ) return preg_match( '/^\+[1-9][0-9]{6,14}$/', $n ) ? '' : 'format';
+				return preg_match( '/^\+?[0-9]{7,15}$/', $n ) ? '' : 'format';
+			case 'country':
+				if ( ! preg_match( '/^[A-Z]{2}$/', (string) $iso ) ) return 'format';
+				return $d['countries'] && ! in_array( $iso, $d['countries'], true ) ? 'country' : '';
+		}
+		return '';
+	}
+
+	/** The e-mail field the form sends its confirmation to (row 0 email_to), when it is an Email field of the form; else ''. */
+	public static function confirmation_email_field( $form ) {
+		if ( ! is_array( $form ) || ! isset( $form[0] ) ) return '';
+		$to = self::field_id( self::get( $form[0], 'email_to' ) );
+		if ( $to === '' ) return '';
+		foreach ( $form as $i => $r ) {
+			if ( $i > 0 && is_array( $r ) && isset( $r['id_'], $r['type'] ) && (string) $r['id_'] === $to && $r['type'] === 'email' ) return $to;
+		}
+		return '';
+	}
+
+	/** Form types that can take a payment (row 0 type). */
+	const PAY_FORM_TYPES = array( 'payment' );
+
+	/**
+	 * Save-time checks of the gateway fields of a form, from what the gateways declare (no gateway
+	 * code in core). $infos: slug => array( currencies, field_schema, methods, ready (keys of the
+	 * current mode: true | false | null unknown), mode, min_minor, max_minor ) (Registry). $site:
+	 * array( webhook_local => bool ). Every entry has a level: error (the form can never take this
+	 * payment), warning or info. Twin: efbPayCoreEfb.warnings(). Returns codes with their data; the
+	 * caller words them.
+	 *
+	 * @return array list of array( code, level, field_id, gateway, … )
+	 */
+	public static function warnings( $form, array $infos, array $site = array() ) {
 		$out = array();
 		if ( ! is_array( $form ) || ! isset( $form[0] ) ) return $out;
 		$types = array();
+		$required = array();
 		foreach ( $form as $i => $r ) {
-			if ( $i > 0 && is_array( $r ) && isset( $r['id_'] ) && is_scalar( $r['id_'] ) ) $types[ (string) $r['id_'] ] = isset( $r['type'] ) && is_string( $r['type'] ) ? $r['type'] : '';
+			if ( $i > 0 && is_array( $r ) && isset( $r['id_'] ) && is_scalar( $r['id_'] ) ) {
+				$types[ (string) $r['id_'] ] = isset( $r['type'] ) && is_string( $r['type'] ) ? $r['type'] : '';
+				$required[ (string) $r['id_'] ] = isset( $r['required'] ) && in_array( $r['required'], array( true, 1, '1', 'true' ), true );
+			}
 		}
 		$cur = self::get( $form[0], 'currency' );
 		$cur = is_string( $cur ) ? strtoupper( trim( $cur ) ) : '';
+		$ftype = self::get( $form[0], 'type' );
+		$ftype = is_string( $ftype ) ? $ftype : '';
+		$conf_email = self::confirmation_email_field( $form );
+		$count = 0;
 		foreach ( $form as $i => $r ) {
 			if ( $i === 0 || ! is_array( $r ) || ! isset( $r['type'], $r['id_'] ) || ! is_string( $r['type'] ) || ! is_scalar( $r['id_'] ) || ! isset( $infos[ $r['type'] ] ) ) continue;
 			$g = $infos[ $r['type'] ];
 			$base = array( 'field_id' => (string) $r['id_'], 'gateway' => $r['type'] );
+			$count++;
+			// Form-level checks once (at the first payment field); the field's own checks for every field.
+			if ( $count === 2 ) $out[] = $base + array( 'code' => 'pay_multiple_fields', 'level' => 'error' );
+			$mode = isset( $g['mode'] ) && $g['mode'] === 'live' ? 'live' : 'test';
+			if ( $count === 1 ) {
+				if ( ! in_array( $ftype, self::PAY_FORM_TYPES, true ) ) $out[] = $base + array( 'code' => 'pay_form_type', 'level' => 'error', 'form_type' => $ftype );
+				if ( isset( $g['ready'] ) && $g['ready'] === false ) $out[] = $base + array( 'code' => 'pay_not_configured', 'level' => 'error', 'mode' => $mode );
+				if ( isset( $g['mode'] ) && $g['mode'] === 'test' ) $out[] = $base + array( 'code' => 'pay_test_mode', 'level' => 'info' );
+				if ( $mode === 'live' && ! empty( $site['webhook_local'] ) ) $out[] = $base + array( 'code' => 'pay_webhook_local', 'level' => 'warning' );
+			}
 			$allowed = isset( $g['currencies'] ) && is_array( $g['currencies'] ) ? array_values( array_map( 'strval', $g['currencies'] ) ) : array();
-			if ( $allowed && ! in_array( $cur, $allowed, true ) ) $out[] = $base + array( 'code' => 'pay_currency', 'currency' => $cur, 'allowed' => $allowed );
+			$cur_ok = ! ( $allowed && ! in_array( $cur, $allowed, true ) );
+			if ( ! $cur_ok ) $out[] = $base + array( 'code' => 'pay_currency', 'level' => 'error', 'currency' => $cur, 'allowed' => $allowed );
+			// Amount limits of the gateway (supports() min_minor / max_minor) against the field's own amounts.
+			if ( $cur_ok && $cur !== '' ) {
+				$min = isset( $g['min_minor'][ $cur ] ) && is_numeric( $g['min_minor'][ $cur ] ) ? (int) $g['min_minor'][ $cur ] : null;
+				$max = isset( $g['max_minor'][ $cur ] ) && is_numeric( $g['max_minor'][ $cur ] ) ? (int) $g['max_minor'][ $cur ] : null;
+				$donation = self::sanitize_key( 'pf_amount', self::get( $r, 'pf_amount' ) ) === 'donation';
+				$checks = $donation ? array( 'pf_min' => 'min', 'pf_max' => 'max' ) : array( 'pf_fixed' => 'fixed' );
+				foreach ( $checks as $k => $what ) {
+					$d = self::sanitize_key( $k, self::get( $r, $k ) );
+					if ( $d === '' ) continue;
+					$m = Money::from_decimal( $d, $cur );
+					if ( $m === null || $m <= 0 ) continue;
+					if ( $max !== null && $m > $max && $what !== 'min' ) $out[] = $base + array( 'code' => 'pay_amount_limit', 'level' => $what === 'fixed' ? 'error' : 'warning', 'what' => $what, 'limit' => 'max', 'amount_minor' => $m, 'limit_minor' => $max, 'currency' => $cur );
+					elseif ( $min !== null && $m < $min && $what !== 'max' ) $out[] = $base + array( 'code' => 'pay_amount_limit', 'level' => 'warning', 'what' => $what, 'limit' => 'min', 'amount_minor' => $m, 'limit_minor' => $min, 'currency' => $cur );
+				}
+			}
+			// Methods the field offers that cannot take the form's currency (a method's extras name its currencies).
+			$own = self::sanitize_key( 'pf_methods', self::get( $r, 'pf_methods' ) );
+			if ( $cur_ok && $own !== '' && $cur !== '' && isset( $g['methods'] ) && is_array( $g['methods'] ) ) {
+				$bad = array();
+				$chosen = explode( ',', $own );
+				foreach ( $g['methods'] as $m ) {
+					if ( ! is_array( $m ) || ! isset( $m[0] ) || ! in_array( (string) $m[0], $chosen, true ) ) continue;
+					$mc = isset( $m[2]['currencies'] ) && is_array( $m[2]['currencies'] ) ? $m[2]['currencies'] : array();
+					if ( $mc && ! in_array( $cur, $mc, true ) ) $bad[] = (string) $m[0];
+				}
+				if ( $bad ) $out[] = $base + array( 'code' => 'pay_method_currency', 'level' => count( $bad ) >= count( $chosen ) ? 'error' : 'warning', 'methods' => $bad, 'currency' => $cur );
+			}
 			$offered = self::offered_methods( $r, $g );
 			foreach ( self::clean_schema( isset( $g['field_schema'] ) ? $g['field_schema'] : array() ) as $d ) {
 				$v = self::option_value( $d, isset( $r[ $d['key'] ] ) ? $r[ $d['key'] ] : null );
+				$for = self::required_methods( $d, $offered );
+				// The payer e-mail falls back to the form's confirmation e-mail field (Field::payer()).
+				if ( $v === '' && $d['key'] === 'pgw_map_email' && $conf_email !== '' ) $v = $conf_email;
 				if ( $v === '' ) {
-					$for = self::required_methods( $d, $offered );
-					if ( $for !== null && $d['default'] === '' ) $out[] = $base + array( 'code' => 'pay_option_required', 'key' => $d['key'], 'label' => $d['label'], 'methods' => $for, 'field_types' => $d['field_types'], 'owner_message' => $d['owner_message'] );
+					if ( $for !== null && $d['default'] === '' ) {
+						$all = ! $for || ( is_array( $offered ) && ! array_diff( $offered, $for ) );
+						$out[] = $base + array( 'code' => 'pay_option_required', 'level' => $all ? 'error' : 'warning', 'key' => $d['key'], 'label' => $d['label'], 'methods' => $for, 'field_types' => $d['field_types'], 'owner_message' => $d['owner_message'] );
+					}
 					continue;
 				}
 				if ( $d['type'] !== 'field' ) continue;
-				if ( ! isset( $types[ $v ] ) ) $out[] = $base + array( 'code' => 'pay_option_field_missing', 'key' => $d['key'], 'label' => $d['label'] );
-				elseif ( $d['field_types'] && ! in_array( $types[ $v ], $d['field_types'], true ) ) $out[] = $base + array( 'code' => 'pay_option_field_type', 'key' => $d['key'], 'label' => $d['label'] );
+				if ( ! isset( $types[ $v ] ) ) $out[] = $base + array( 'code' => 'pay_option_field_missing', 'level' => 'error', 'key' => $d['key'], 'label' => $d['label'] );
+				elseif ( $d['field_types'] && ! in_array( $types[ $v ], $d['field_types'], true ) ) $out[] = $base + array( 'code' => 'pay_option_field_type', 'level' => 'warning', 'key' => $d['key'], 'label' => $d['label'] );
+				elseif ( $for !== null && empty( $required[ $v ] ) ) $out[] = $base + array( 'code' => 'pay_option_not_required', 'level' => 'info', 'key' => $d['key'], 'label' => $d['label'], 'target' => $v );
 			}
 		}
 		return $out;

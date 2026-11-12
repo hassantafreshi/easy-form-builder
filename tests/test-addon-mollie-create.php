@@ -127,7 +127,7 @@ Efb_Test_Mollie_Fake::set('disabled', array('ideal', 'creditcard'));
 $n0 = efb_mollie_count('POST', '#^/v2/payments$#');
 $res = efb_mollie_create($db, $mform);
 $pf = Store::find_by_uid($res['pay']['uid'] ?? '') ?: $db->get_row("SELECT * FROM wp_emsfb_pmt_ ORDER BY id DESC LIMIT 1", ARRAY_A);
-$t('nothing the owner allowed is available → not started, no Mollie payment, the row failed', array($res['success'], $res['code'], efb_mollie_count('POST', '#^/v2/payments$#') - $n0, $pf['status']), array(false, 'gateway_error', 0, 'failed'));
+$t('nothing the owner allowed is available → not started, no Mollie payment, the row failed', array($res['success'], $res['code'], efb_mollie_count('POST', '#^/v2/payments$#') - $n0, $pf['status']), array(false, 'method_unavailable', 0, 'failed'));
 Efb_Test_Mollie_Fake::set('disabled', array('paypal'));
 efb_mollie_create($db, null, null, array('method' => 'paypal'));
 $t('no pf_methods and the chosen method is not active → no method sent (Mollie shows what fits)', array_key_exists('method', efb_mollie_last('POST', '#^/v2/payments$#')['body']), false);
@@ -189,7 +189,7 @@ $t('Mollie 409 (same key still being processed) → not started', array($res['su
 $GLOBALS['mollie_force'] = null;
 Efb_Test_Mollie_Fake::set('down', 1);
 $res = efb_mollie_create($db);
-$t('network error → not started (POST is never retried by core)', array($res['success'], $res['code']), array(false, 'gateway_error'));
+$t('network error → not started (POST is never retried by core)', array($res['success'], $res['code']), array(false, 'provider_unavailable'));
 Efb_Test_Mollie_Fake::set('down', 0);
 
 $all = json_encode($db->get_results('SELECT * FROM wp_emsfb_pmt_evt_', ARRAY_A)) . json_encode($db->get_results('SELECT * FROM wp_emsfb_pmt_', ARRAY_A));

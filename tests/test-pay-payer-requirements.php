@@ -33,15 +33,15 @@ class Req_Gateway extends \Emsfb\Payments\Mock_Gateway {
 				'visitor_message' => 'Enter your mobile number: it is needed to pay with a mobile wallet.'),
 		);
 	}
-	public function messages() { return array('gateway_error' => 'ReqPay is not answering. Try the card instead.', 'BAD' => 'x'); }
+	public function messages() { return array('provider_unavailable' => 'ReqPay is not answering. Try the card instead.', 'BAD' => 'x'); }
 }
 add_action('efb_register_payment_gateways', function ($reg) { $reg->register(new Req_Gateway()); });
 Registry::reset();
 Settings::load('efbreq')->apply((new Req_Gateway())->settings_schema(), array('api_key__test' => 'mock_test_ABCDEF123', 'webhook_secret__test' => 'whs_unit_test_secret'), 'test');
 
-function req_form($field = array()) {
+function req_form($field = array(), $email_to = 'em') {
 	return array(
-		array('type' => 'payment', 'getway' => 'efbreq', 'currency' => 'EUR', 'email_to' => 'em'),
+		array('type' => 'payment', 'getway' => 'efbreq', 'currency' => 'EUR', 'email_to' => $email_to),
 		array('type' => 'step', 'id_' => '1', 'step' => 1),
 		array('id_' => 'em', 'type' => 'email', 'name' => 'Email'),
 		array('id_' => 'mo', 'type' => 'mobile', 'name' => 'Mobile'),
@@ -50,14 +50,17 @@ function req_form($field = array()) {
 }
 
 /* ---- owner: Save / builder / AutoPilot ---------------------------------------------- */
-$w = Registry::form_warnings(req_form());
+// Warnings of level info (Test mode, a mapped field not marked Required) are left out here (test-pay-error-scenarios.php checks them).
+function req_w($form) { return array_values(array_filter(Registry::form_warnings($form), function ($x) { return $x['level'] !== 'info'; })); }
+$w = req_w(req_form(array(), ''));
 $m = array_column($w, 'm');
 $t('nothing mapped: the e-mail (every payment) and the mobile (wallet only) are asked for', array_column($w, 'code'), array('pay_option_required', 'pay_option_required'));
 $t('...actionable: the kind of field to add and the option to select it in', $m[0], 'ReqPay requires "Payer e-mail". Add an Email field to the form and select it in the payment field\'s "Payer e-mail" option.');
 $t('...per method: names the method that needs it', $m[1], 'ReqPay requires "Mobile number" to pay with Mobile wallet. Add a phone number field to the form and select it in the payment field\'s "Mobile number" option.');
-$t('the field offers only the card → no mobile warning', count(Registry::form_warnings(req_form(array('pf_methods' => 'card', 'pgw_map_email' => 'em')))), 0);
+$t('the field offers only the card → no mobile warning', count(req_w(req_form(array('pf_methods' => 'card', 'pgw_map_email' => 'em')))), 0);
+$t('the payer e-mail option empty but the form sends its confirmation to an Email field → no e-mail warning (core uses that field)', array_column(req_w(req_form(array('pf_methods' => 'card'))), 'code'), array());
 Req_Gateway::$owner = 'Mobile wallets need a mobile number field: add one and pick it under "Mobile number".';
-$t('the gateway\'s own owner_message wins', array_column(Registry::form_warnings(req_form(array('pgw_map_email' => 'em'))), 'm'), array(Req_Gateway::$owner));
+$t('the gateway\'s own owner_message wins', array_column(req_w(req_form(array('pgw_map_email' => 'em'))), 'm'), array(Req_Gateway::$owner));
 Req_Gateway::$owner = '';
 $schema = Registry::field_schema('efbreq');
 $t('required_for keeps valid method ids only; the messages are plain text', array($schema[1]['required_for'], $schema[1]['visitor_message']), array(array('wallet'), 'Enter your mobile number: it is needed to pay with a mobile wallet.'));
@@ -84,8 +87,8 @@ $t('an option the owner did not map is not checked on the page (the owner was wa
 /* ---- error code → message map ---------------------------------------------------------- */
 update_option('efb_mock_provider_down', 1);
 $r = req_create($db, 'card', array(array('id_' => 'em', 'type' => 'email', 'value' => 'a@example.test')));
-$t('Gateway::messages(): the gateway\'s own text for a core code (gateway_error)', array($r['code'], $r['m']), array('gateway_error', 'ReqPay is not answering. Try the card instead.'));
-add_filter('efb_payment_message', function ($m, $code, $extra, $slug) { return $code === 'gateway_error' ? $m . ' [' . $slug . ']' : $m; });
+$t('Gateway::messages(): the gateway\'s own text for a core code (provider down → provider_unavailable)', array($r['code'], $r['m']), array('provider_unavailable', 'ReqPay is not answering. Try the card instead.'));
+add_filter('efb_payment_message', function ($m, $code, $extra, $slug) { return $code === 'provider_unavailable' ? $m . ' [' . $slug . ']' : $m; });
 $r = req_create($db, 'card', array(array('id_' => 'em', 'type' => 'email', 'value' => 'a@example.test')));
 $t('...then the filter efb_payment_message (code, extra, gateway)', $r['m'], 'ReqPay is not answering. Try the card instead. [efbreq]');
 update_option('efb_mock_provider_down', 0);

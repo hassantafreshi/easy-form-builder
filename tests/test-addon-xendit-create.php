@@ -266,7 +266,7 @@ $t('is_checkout_url: xen.to, dev.xen.to, checkout.xendit.co yes; http, look-alik
 	array(true, true, true, false, false, false));
 $F::set_opt('down', true);
 $r = xnd_create($db);
-$t('Xendit down at create: "could not be started" (gateway_error), payment failed', array($r['success'], $r['code'], Store::get((int) $db->get_var('SELECT id FROM wp_emsfb_pmt_ ORDER BY id DESC LIMIT 1'))['status']), array(false, 'gateway_error', 'failed'));
+$t('Xendit down at create: "could not be started" (provider_unavailable), payment failed', array($r['success'], $r['code'], Store::get((int) $db->get_var('SELECT id FROM wp_emsfb_pmt_ ORDER BY id DESC LIMIT 1'))['status']), array(false, 'provider_unavailable', 'failed'));
 $F::set_opt('down', false);
 
 // Live mode uses the live key and xen.to.

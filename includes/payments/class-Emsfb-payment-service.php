@@ -65,6 +65,20 @@ class Service {
 		return add_query_arg( array( 'p' => $p['uid'], 's' => self::sign( $p['uid'], $p['gateway'] ) ), rest_url( 'Emsfb/v1/payments/return/' . $p['gateway'] ) );
 	}
 
+	/**
+	 * Whether this site cannot be reached from the internet (a provider's webhook cannot arrive):
+	 * localhost, *.local / *.test / *.localhost / *.invalid, a loopback or private address.
+	 * Filter efb_payment_site_is_local.
+	 */
+	public static function site_is_local( $url = null ) {
+		$u = $url === null ? ( function_exists( 'home_url' ) ? home_url( '/' ) : '' ) : (string) $url;
+		$h = strtolower( (string) parse_url( $u, PHP_URL_HOST ) );
+		$local = $h === '' || $h === 'localhost' || (bool) preg_match( '/\.(local|test|localhost|invalid|example|internal|lan)$/', $h );
+		if ( ! $local && filter_var( $h, FILTER_VALIDATE_IP ) ) $local = ! filter_var( $h, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE );
+		if ( ! $local && strpos( $h, '.' ) === false ) $local = true;
+		return function_exists( 'apply_filters' ) ? (bool) apply_filters( 'efb_payment_site_is_local', $local, $u ) : $local;
+	}
+
 	/** Per-IP, per-minute counter. */
 	public static function rate_ok( $bucket, $limit ) {
 		$ip = class_exists( '\Emsfb\Privacy' ) ? \Emsfb\Privacy::client_ip() : ( isset( $_SERVER['REMOTE_ADDR'] ) ? (string) $_SERVER['REMOTE_ADDR'] : '' );
@@ -106,6 +120,53 @@ class Service {
 					? sprintf( __( 'Please fill in "%1$s": it is needed to pay with %2$s.', 'easy-form-builder' ), isset( $extra['label'] ) ? $extra['label'] : '', $extra['method'] )
 					/* translators: %s: name of the form field (e.g. Email) */
 					: sprintf( __( 'Please fill in "%s": it is needed for the payment.', 'easy-form-builder' ), isset( $extra['label'] ) ? $extra['label'] : '' );
+			case 'payer_invalid':
+				if ( isset( $extra['visitor'] ) && $extra['visitor'] !== '' ) return $extra['visitor'];
+				$lab = isset( $extra['label'] ) ? $extra['label'] : '';
+				switch ( isset( $extra['format'] ) ? $extra['format'] : '' ) {
+					case 'email':
+						/* translators: %s: name of the form field (e.g. Email) */
+						return sprintf( __( 'Please enter a valid e-mail address in "%s".', 'easy-form-builder' ), $lab );
+					case 'phone':
+						/* translators: %s: name of the form field (e.g. Mobile) */
+						return sprintf( __( 'Please enter a valid phone number in "%s".', 'easy-form-builder' ), $lab );
+					case 'phone_e164':
+						/* translators: %s: name of the form field (e.g. Mobile) */
+						return sprintf( __( 'Please enter the phone number in "%s" with its country code, starting with + (for example +33 6 12 34 56 78).', 'easy-form-builder' ), $lab );
+					case 'country':
+						/* translators: %s: name of the form field (e.g. Country) */
+						return sprintf( __( 'Please choose a country in "%s".', 'easy-form-builder' ), $lab );
+					case 'country_not_allowed':
+						/* translators: %s: name of the form field (e.g. Country) */
+						return sprintf( __( 'Payments with this method are not available for the country in "%s". Please check it or choose another payment method.', 'easy-form-builder' ), $lab );
+				}
+				/* translators: %s: name of the form field */
+				return sprintf( __( 'The payment provider did not accept the value of "%s". Please check it and press Pay again.', 'easy-form-builder' ), $lab );
+			case 'declined':
+				return __( 'Your payment was declined. You have not been charged. Please try another card or payment method.', 'easy-form-builder' );
+			case 'insufficient_funds':
+				return __( 'The payment was declined because there were not enough funds. You have not been charged. Please use another card or payment method.', 'easy-form-builder' );
+			case 'card_invalid':
+				return __( 'The card details were not accepted. You have not been charged. Please check the card number, expiry date and security code, or use another card.', 'easy-form-builder' );
+			case 'auth_failed':
+				return __( 'The card security check (3-D Secure) was not completed. You have not been charged. Please try again or use another card.', 'easy-form-builder' );
+			case 'fraud_blocked':
+				return __( 'The payment provider could not accept this payment. You have not been charged. Please use another payment method or contact the site.', 'easy-form-builder' );
+			case 'limit_exceeded':
+				return __( 'The payment is above the limit of your card or account. You have not been charged. Please use another card or payment method.', 'easy-form-builder' );
+			case 'canceled':
+				return __( 'The payment was cancelled. You have not been charged. You can try again when you are ready.', 'easy-form-builder' );
+			case 'expired':
+				return __( 'The payment time ran out. You have not been charged. Please try again.', 'easy-form-builder' );
+			case 'returned_cancel':
+				return __( 'You left the payment page before paying. You have not been charged. You can try again.', 'easy-form-builder' );
+			case 'provider_unavailable':
+				return __( 'The payment service is not responding right now. You have not been charged. Please try again in a few minutes.', 'easy-form-builder' );
+			case 'rate_limited':
+			case 'efb_rate_limited':
+				return __( 'Too many payment attempts. Please wait a minute and try again.', 'easy-form-builder' );
+			case 'method_unavailable':
+				return __( 'This payment method is not available for this payment right now. Please choose another payment method.', 'easy-form-builder' );
 			case 'quote_changed':
 				return sprintf( __( 'The amount was updated to %s. Please check and press Pay again.', 'easy-form-builder' ), isset( $extra['amount'] ) ? $extra['amount'] : '' );
 			case 'below_min':
@@ -258,6 +319,16 @@ class Service {
 			'mode'            => $mode,
 			'pay_uid'         => $uid,
 		);
+		// The payer values the gateway needs (empty or in the wrong format): a field-level answer
+		// before anything is stored, so a visitor who corrects the field leaves no half entry behind.
+		$plain_rows = array();
+		foreach ( $a['rows'] as $r ) {
+			if ( is_array( $r ) && ! in_array( $r['type'] ?? '', array( 'w_link', 'payment' ), true ) ) $plain_rows[] = $r;
+		}
+		try { $schema = $gw->field_schema(); } catch ( \Throwable $e ) { $schema = array(); }
+		$missing = self::payer_check( $gw, $settings, $form, $field, $schema, $plain_rows, $method, isset( $a['payer_email'] ) ? (string) $a['payer_email'] : '' );
+		if ( $missing ) return $missing;
+
 		$rows = array();
 		foreach ( $a['rows'] as $r ) {
 			if ( is_array( $r ) && ( $r['type'] ?? '' ) === 'w_link' ) continue;
@@ -272,15 +343,8 @@ class Service {
 
 		// The checkout context core builds for the gateway: the field's options, the payer from the
 		// mapped fields, the submitted rows (read only), the browser adapter's token (never stored).
-		$plain_rows = array();
-		foreach ( $a['rows'] as $r ) {
-			if ( is_array( $r ) && ! in_array( $r['type'] ?? '', array( 'w_link', 'payment' ), true ) ) $plain_rows[] = $r;
-		}
-		try { $schema = $gw->field_schema(); } catch ( \Throwable $e ) { $schema = array(); }
 		$options = Field::gateway_options( $field, $schema );
-		$missing = self::payer_missing( $gw, $settings, $form, $field, $schema, $plain_rows, $method );
-		if ( $missing ) return $missing;
-		$payer = Field::payer( $plain_rows, $options, isset( $a['payer_email'] ) ? (string) $a['payer_email'] : '' );
+		$payer = Field::payer( $plain_rows, $options, isset( $a['payer_email'] ) ? (string) $a['payer_email'] : '', $form );
 
 		$return_to = '';
 		if ( ! empty( $a['page_url'] ) && is_string( $a['page_url'] ) ) {
@@ -351,9 +415,9 @@ class Service {
 			$err = $res instanceof Result ? $res->error . ' ' . $res->message : 'bad_result';
 			Store::transition( $p['id'], 'failed' );
 			Store::log_event( $p['id'], $slug, 'api', array( 'type' => 'create_failed', 'from_status' => 'created', 'to_status' => 'failed', 'note' => Redactor::redact_string( $err ) ) );
-			$visitor = $res instanceof Result ? Field::text( (string) $res->visitor_message, 200 ) : '';
-			return $visitor !== '' ? self::fail( 'gateway_declined', array( 'visitor' => $visitor ) ) : self::fail( 'gateway_error' );
+			return self::create_failure( $gw, $settings, $p, $res, $ctx );
 		}
+		self::clear_owner_alert( $slug, $p['mode'] );
 		$next = self::public_next( $res->next );
 		Store::transition( $p['id'], 'pending', array(
 			'gateway_ref' => substr( $res->gateway_ref, 0, 100 ),
@@ -376,36 +440,109 @@ class Service {
 	}
 
 	/**
-	 * A payer value the gateway requires (field_schema required / required_for the chosen method)
-	 * that the visitor left empty: a field-level answer (field_id, the gateway's visitor_message or
-	 * core's "Please fill in …") instead of the provider's generic refusal. null when nothing is missing
-	 * or the option is not mapped to a field (the owner is warned at Save).
+	 * The visitor's answer for a create() that did not start a payment: the gateway's own visitor
+	 * text, else the reason (Result::because(), or Reasons::of_error() of its error code) as a safe
+	 * message; a provider that refused a payer value names its option → a field-level payer_invalid.
+	 * A refusal of the keys / mode / account setup (reason config) also alerts the owner.
 	 */
-	private static function payer_missing( Gateway $gw, Settings $s, array $form, array $field, $schema, array $rows, $method ) {
-		$offered = Field::offered_methods( $field, array( 'methods' => Registry::normalize_methods( $gw->methods( $s ) ) ) );
+	private static function create_failure( Gateway $gw, Settings $settings, array $p, $res, Checkout_Context $ctx ) {
+		$err = $res instanceof Result ? (string) $res->error : 'bad_result';
+		$reason = $res instanceof Result ? Reasons::clean( $res->reason ) : '';
+		if ( $reason === '' ) $reason = Reasons::of_error( $err );
+		if ( $reason === 'config' ) self::owner_alert( $gw, $p['mode'], $err, $res instanceof Result ? Field::text( (string) $res->message, 300 ) : '' );
+		$visitor = $res instanceof Result ? Field::text( (string) $res->visitor_message, 200 ) : '';
+		if ( $reason === 'payer_invalid' && $res instanceof Result && preg_match( '/^pgw_[a-z0-9_]{1,40}$/', (string) $res->payer_key ) ) {
+			$fid = Field::field_id( isset( $ctx->field[ $res->payer_key ] ) ? $ctx->field[ $res->payer_key ] : '' );
+			$form = self::form_rows( $p['form_id'] );
+			if ( $fid === '' && $res->payer_key === 'pgw_map_email' && is_array( $form ) ) $fid = Field::confirmation_email_field( $form );
+			$d = null;
+			try { foreach ( Field::clean_schema( $gw->field_schema() ) as $e ) { if ( $e['key'] === $res->payer_key ) $d = $e; } } catch ( \Throwable $e ) { $d = null; }
+			if ( $fid !== '' ) {
+				$label = self::field_name( is_array( $form ) ? $form : array(), $fid, $d ? $d['label'] : '' );
+				return self::fail( 'payer_invalid', array( 'gateway' => $gw->slug(), 'field_id' => $fid, 'label' => $label, 'format' => $d && $d['format'] !== '' ? $d['format'] : 'value', 'visitor' => $visitor !== '' ? $visitor : ( $d ? $d['invalid_message'] : '' ) ) );
+			}
+		}
+		if ( $visitor !== '' ) return self::fail( 'gateway_declined', array( 'visitor' => $visitor, 'reason' => $reason ) );
+		if ( $reason === 'config' || $reason === 'payer_invalid' ) return self::fail( 'pay_unavailable' );
+		if ( $reason !== '' ) return self::fail( $reason );
+		return self::fail( 'gateway_error' );
+	}
+
+	/**
+	 * The owner is told that a visitor could not pay because of the gateway's setup (keys refused,
+	 * wrong mode, an account that does not accept the currency …): a notice on the gateway's settings
+	 * card and, at most once a day per gateway, an e-mail. Cleared by the next payment that starts.
+	 */
+	public static function owner_alert( Gateway $gw, $mode, $error, $message ) {
+		$slug = $gw->slug();
+		$a = array( 'at' => Store::time(), 'mode' => $mode === 'live' ? 'live' : 'test', 'error' => substr( preg_replace( '/[^a-z0-9_.-]/i', '', (string) $error ), 0, 60 ), 'm' => Field::text( Redactor::redact_string( (string) $message ), 300 ) );
+		update_option( 'emsfb_pmt_alert_' . $slug, $a, false );
+		Store::log_event( null, $slug, 'api', array( 'type' => 'config_failed', 'note' => $a['mode'] . ' ' . $a['error'] ) );
+		if ( function_exists( 'wp_mail' ) && ! get_transient( 'emsfb_pmt_alert_mail_' . $slug ) ) {
+			set_transient( 'emsfb_pmt_alert_mail_' . $slug, 1, DAY_IN_SECONDS );
+			$site = function_exists( 'get_bloginfo' ) ? get_bloginfo( 'name' ) : '';
+			/* translators: %s: gateway name */
+			$subject = sprintf( __( 'Visitors cannot pay with %s', 'easy-form-builder' ), $gw->label() ) . ' [' . $site . ']';
+			wp_mail( get_option( 'admin_email' ), $subject, self::owner_alert_text( $gw, $a ) . "\n\n" . ( function_exists( 'admin_url' ) ? admin_url( 'admin.php?page=Emsfb_payments&tab=gateways' ) : '' ) . "\n" );
+		}
+	}
+
+	/** The owner's words for a stored alert (settings card, e-mail). */
+	public static function owner_alert_text( Gateway $gw, array $a ) {
+		$when = function_exists( 'wp_date' ) ? wp_date( 'Y-m-d H:i', (int) $a['at'] ) : gmdate( 'Y-m-d H:i', (int) $a['at'] );
+		/* translators: %1$s: date and time, %2$s: gateway name, %3$s: Live or Test, %4$s: error code */
+		$t = sprintf( __( 'On %1$s a visitor could not pay because %2$s refused the payment set-up of %3$s mode (%4$s). Check the keys and the account (currencies, payment methods), then press Test connection.', 'easy-form-builder' ), $when, $gw->label(), $a['mode'] === 'live' ? 'Live' : 'Test', $a['error'] !== '' ? $a['error'] : '-' );
+		return $a['m'] !== '' ? $t . ' ' . $a['m'] : $t;
+	}
+
+	public static function clear_owner_alert( $slug, $mode ) {
+		$a = function_exists( 'get_option' ) ? get_option( 'emsfb_pmt_alert_' . $slug ) : null;
+		if ( is_array( $a ) && isset( $a['mode'] ) && $a['mode'] === ( $mode === 'live' ? 'live' : 'test' ) ) delete_option( 'emsfb_pmt_alert_' . $slug );
+	}
+
+	/**
+	 * The payer values the gateway needs (field_schema: required / required_for the chosen method,
+	 * format): an empty one → payer_missing, one in the wrong format → payer_invalid, each with the
+	 * field_id so the page shows it at the field, instead of the provider's generic refusal. null when
+	 * everything fits. An option that is not mapped to a field is not checked (the owner is warned at
+	 * Save); the payer e-mail falls back to the form's confirmation e-mail field like Field::payer().
+	 */
+	private static function payer_check( Gateway $gw, Settings $s, array $form, array $field, $schema, array $rows, $method, $conf_email = '' ) {
+		try { $list = Registry::normalize_methods( $gw->methods( $s ) ); } catch ( \Throwable $e ) { $list = array(); }
+		$offered = Field::offered_methods( $field, array( 'methods' => $list ) );
 		$chosen = $method !== '' ? array( $method ) : ( is_array( $offered ) && count( $offered ) === 1 ? $offered : array() );
 		$labels = array();
-		foreach ( Registry::normalize_methods( $gw->methods( $s ) ) as $m ) $labels[ $m[0] ] = $m[1];
+		foreach ( $list as $m ) $labels[ $m[0] ] = $m[1];
+		$conf = Field::confirmation_email_field( $form );
 		foreach ( Field::clean_schema( $schema ) as $d ) {
 			if ( $d['type'] !== 'field' ) continue;
 			$need = $d['required'] && ! $d['required_for'];
 			$for = '';
 			if ( ! $need && $d['required_for'] && $chosen && array_intersect( $chosen, $d['required_for'] ) ) { $need = true; $for = isset( $labels[ $chosen[0] ] ) ? $labels[ $chosen[0] ] : $chosen[0]; }
-			if ( ! $need ) continue;
 			$fid = Field::field_id( isset( $field[ $d['key'] ] ) ? $field[ $d['key'] ] : '' );
-			if ( $fid === '' ) continue;
+			if ( $fid === '' && $d['key'] === 'pgw_map_email' ) $fid = $conf;
+			if ( $fid === '' || ( ! $need && $d['format'] === '' ) ) continue;
 			$val = '';
 			foreach ( $rows as $r ) {
-				if ( is_array( $r ) && isset( $r['id_'] ) && (string) $r['id_'] === $fid && isset( $r['value'] ) && is_scalar( $r['value'] ) ) { $val = trim( (string) $r['value'] ); break; }
+				if ( is_array( $r ) && isset( $r['id_'] ) && (string) $r['id_'] === $fid && isset( $r['value'] ) && is_scalar( $r['value'] ) ) { $val = trim( str_replace( '@efb@dq#', '"', (string) $r['value'] ) ); break; }
 			}
-			if ( $val !== '' ) continue;
-			$name = $d['label'];
-			foreach ( $form as $i => $f ) {
-				if ( $i > 0 && is_array( $f ) && isset( $f['id_'], $f['name'] ) && (string) $f['id_'] === $fid && is_string( $f['name'] ) && $f['name'] !== '' ) $name = Field::text( str_replace( '@efb@dq#', '"', $f['name'] ), 80 );
+			$name = self::field_name( $form, $fid, $d['label'] );
+			if ( $val === '' ) {
+				if ( $need ) return self::fail( 'payer_missing', array( 'gateway' => $gw->slug(), 'field_id' => $fid, 'label' => $name, 'method' => $for, 'visitor' => $d['visitor_message'] ) );
+				continue;
 			}
-			return self::fail( 'payer_missing', array( 'gateway' => $gw->slug(), 'field_id' => $fid, 'label' => $name, 'method' => $for, 'visitor' => $d['visitor_message'] ) );
+			$problem = Field::payer_problem( $d, $val, $d['format'] === 'country' ? Field::country_iso( $form, $fid, $val ) : '' );
+			if ( $problem !== '' ) return self::fail( 'payer_invalid', array( 'gateway' => $gw->slug(), 'field_id' => $fid, 'label' => $name, 'format' => $problem === 'country' ? 'country_not_allowed' : $d['format'], 'method' => $for, 'visitor' => $d['invalid_message'] ) );
 		}
 		return null;
+	}
+
+	/** The form's own name of a field ($fallback when it has none). */
+	private static function field_name( array $form, $fid, $fallback ) {
+		foreach ( $form as $i => $f ) {
+			if ( $i > 0 && is_array( $f ) && isset( $f['id_'], $f['name'] ) && (string) $f['id_'] === (string) $fid && is_string( $f['name'] ) && $f['name'] !== '' ) return Field::text( str_replace( '@efb@dq#', '"', $f['name'] ), 80 );
+		}
+		return $fallback;
 	}
 
 	/** The browser adapter's opaque token: printable ASCII, at most 4096 characters, else ''. */
@@ -555,7 +692,7 @@ class Service {
 		$prev = Store::ready() ? Store::find_by_uid( $sc( 'uid' ) ) : null;
 		$per_ip = function_exists( 'apply_filters' ) ? (int) apply_filters( 'efb_payment_create_per_minute', 10 ) : 10;
 		if ( ! self::rate_ok( 'pc', $per_ip ) || ! self::form_rate_ok( $prev ? (int) $prev['form_id'] : 0, 30 ) ) {
-			return self::rest( array( 'success' => true, 'data' => array( 'success' => false, 'code' => 'efb_rate_limited', 'm' => __( 'Too many payment attempts. Please wait a minute and try again.', 'easy-form-builder' ) ) ), 429, true );
+			return self::rest( array( 'success' => true, 'data' => array( 'success' => false, 'code' => 'efb_rate_limited', 'm' => self::message( 'rate_limited' ) ) ), 429, true );
 		}
 		$out = self::retry( array(
 			'uid'          => $sc( 'uid' ),
@@ -663,6 +800,18 @@ class Service {
 		if ( $msg !== $old ) {
 			if ( $msg === '' ) unset( $next['status_text'] ); else $next['status_text'] = $msg;
 			Store::update( $p['id'], array( 'next_json' => wp_json_encode_efb_pay( $next ) ) );
+		}
+		// Why a payment ended (Remote_State::$reason): the status page words it (Reasons::CODES).
+		$reason = Reasons::clean( $st->reason );
+		if ( $reason !== '' && in_array( $p['status'], array( 'failed', 'canceled', 'expired' ), true ) ) {
+			$now = Store::get( $p['id'] );
+			$next = $now && is_string( $now['next_json'] ) && $now['next_json'] !== '' ? json_decode( $now['next_json'], true ) : array();
+			$next = is_array( $next ) ? $next : array();
+			if ( ! isset( $next['fail_reason'] ) || $next['fail_reason'] !== $reason ) {
+				$next['fail_reason'] = $reason;
+				Store::update( $p['id'], array( 'next_json' => wp_json_encode_efb_pay( $next ) ) );
+				Store::log_event( $p['id'], $p['gateway'], $source, array( 'type' => 'note', 'note' => 'reason ' . $reason ) );
+			}
 		}
 		$note = Field::text( (string) $st->note, 200 );
 		if ( $note !== '' && ! self::has_note( $p['id'], $note ) ) {
@@ -963,7 +1112,12 @@ class Service {
 			if ( is_string( $ref ) && $ref !== '' && $ref === $p['gateway_ref'] ) self::refresh( $p, 'return' );
 		}
 		$to = $p['return_to'] !== '' ? $p['return_to'] : home_url( '/' );
-		$to = add_query_arg( array( 'efb_pay' => $p['uid'], 'efb_ps' => self::sign( $p['uid'], $p['gateway'] ) ), $to );
+		$back = array( 'efb_pay' => $p['uid'], 'efb_ps' => self::sign( $p['uid'], $p['gateway'] ) );
+		// Back through the provider's cancel link while the provider still says open: the page says
+		// "you left before paying" and offers Try again (wording only; the state is the server's).
+		$now = Store::get( $p['id'] );
+		if ( (string) $r->get_param( 'c' ) === '1' && $now && in_array( $now['status'], array( 'created', 'pending', 'authorized' ), true ) ) $back['efb_pc'] = '1';
+		$to = add_query_arg( $back, $to );
 		$to = (string) wp_validate_redirect( $to, home_url( '/' ) );
 		// The gateway's own small return page (e.g. a frame that tells its parent page to continue).
 		if ( $gw ) {
@@ -1005,8 +1159,16 @@ class Service {
 			: ( in_array( $state, array( 'failed', 'canceled', 'expired' ), true ) ? 'failed' : 'pending' );
 		$out = array( 'state' => $kind, 'status' => $state, 'form_id' => (int) $p['form_id'], 'test_mode' => $p['mode'] !== 'live', 'can_retry' => $kind === 'failed' );
 		if ( $kind === 'pending' ) $out['poll_until'] = self::poll_until( $p );
-		$next = $kind === 'pending' && is_string( $p['next_json'] ) ? json_decode( $p['next_json'], true ) : null;
-		$own = is_array( $next ) && isset( $next['status_text'] ) ? Field::text( (string) $next['status_text'], 300 ) : '';
+		$next = is_string( $p['next_json'] ) && $p['next_json'] !== '' ? json_decode( $p['next_json'], true ) : null;
+		$own = $kind === 'pending' && is_array( $next ) && isset( $next['status_text'] ) ? Field::text( (string) $next['status_text'], 300 ) : '';
+		if ( $kind === 'failed' ) {
+			// Why it ended, in safe words (the gateway's Remote_State reason, else the status); "Try again" follows.
+			$reason = is_array( $next ) && isset( $next['fail_reason'] ) ? Reasons::clean( $next['fail_reason'] ) : '';
+			if ( $reason === '' && in_array( $state, array( 'canceled', 'expired' ), true ) ) $reason = $state;
+			if ( in_array( $reason, array( 'config', 'payer_invalid', 'rate_limited' ), true ) ) $reason = '';
+			if ( $reason !== '' ) $out['reason'] = $reason;
+			$own = $reason !== '' ? self::message( $reason, array( 'gateway' => $p['gateway'] ) ) : '';
+		}
 		$out['message'] = $own !== '' ? $own : ( $kind === 'paid' ? __( 'Payment received. Thank you!', 'easy-form-builder' )
 			: ( $kind === 'failed' ? ( $state === 'expired' ? __( 'The payment time ran out. Please try again.', 'easy-form-builder' ) : __( 'The payment was not completed. You have not been charged. You can try again.', 'easy-form-builder' ) )
 			: __( 'We are waiting for the payment confirmation. You can keep this page open; we will update it automatically.', 'easy-form-builder' ) ) );
@@ -1140,6 +1302,39 @@ class Service {
 		self::update_entry( $after, array( 'status' => $to ) );
 		if ( function_exists( 'do_action' ) ) do_action( 'efb_payment_refunded', $after, $amount_minor );
 		return array( 'ok' => true, 'error' => '', 'message' => '', 'pending' => false );
+	}
+
+	/**
+	 * The owner's words for a refund answer (refund() / record_external_refund()): what is wrong and
+	 * what to do, with the gateway's own reason when it gave one (admin only; never a secret: the
+	 * add-ons redact their texts).
+	 */
+	public static function refund_message( array $r, array $p ) {
+		$left = max( 0, (int) $p['amount_minor'] - (int) $p['refunded_minor'] - self::pending_refunds( $p['id'] ) );
+		$left_t = Money::format( $left, $p['currency'] );
+		$why = isset( $r['message'] ) ? Field::text( (string) $r['message'], 300 ) : '';
+		switch ( isset( $r['error'] ) ? $r['error'] : '' ) {
+			case 'unsupported':
+				return __( 'This gateway cannot refund through Easy Form Builder. Refund it in the gateway\'s dashboard, then use "Mark as refunded outside EFB".', 'easy-form-builder' );
+			case 'unsupported_partial':
+				/* translators: %s: the amount left to refund */
+				return sprintf( __( 'This gateway can only refund the full remaining amount (%s).', 'easy-form-builder' ), $left_t );
+			case 'bad_amount':
+				if ( ! in_array( $p['status'], array( 'paid', 'partially_refunded' ), true ) ) return __( 'Only a paid payment can be refunded.', 'easy-form-builder' );
+				/* translators: %s: the amount left to refund */
+				return sprintf( __( 'The refund amount must be more than 0 and at most %s (what is left after earlier and pending refunds).', 'easy-form-builder' ), $left_t );
+			case 'duplicate':
+				return __( 'This refund was already requested.', 'easy-form-builder' );
+			case 'no_gateway':
+				return __( 'The add-on of this gateway is not active, so it cannot refund. Activate it, or refund in the gateway\'s dashboard and use "Mark as refunded outside EFB".', 'easy-form-builder' );
+			case 'reason_required':
+				return __( 'Please write why (for example: refunded in the gateway dashboard).', 'easy-form-builder' );
+		}
+		return $why !== ''
+			/* translators: %s: the gateway's reason */
+			? sprintf( __( 'The gateway refused the refund: %s Nothing was refunded.', 'easy-form-builder' ), rtrim( $why, '.' ) . '.' )
+			/* translators: %s: error code */
+			: sprintf( __( 'The gateway refused the refund (%s). Nothing was refunded. Try again later or refund it in the gateway\'s dashboard.', 'easy-form-builder' ), isset( $r['error'] ) ? $r['error'] : '' );
 	}
 
 	/** The amount of a payment's refunds still waiting for the provider (they are not counted, but not refundable again). */

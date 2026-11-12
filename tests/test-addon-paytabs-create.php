@@ -129,7 +129,7 @@ foreach ($cases as $c) {
 		list($b) = ptb_last_request();
 		$t(strtoupper($c[0]) . " + {$c[1]} → payment_methods [{$c[1]}]", array($r['success'], $b['payment_methods'], $b['cart_currency']), array(true, array($c[1]), strtoupper($c[0])));
 	} else {
-		$t(strtoupper($c[0]) . " + {$c[1]} is refused before PayTabs (scheme currency)", array($r['success'], $r['code'], count(PtbFake::$tx) - $before), array(false, 'gateway_error', 0));
+		$t(strtoupper($c[0]) . " + {$c[1]} is refused before PayTabs (scheme currency)", array($r['success'], $r['code'], count(PtbFake::$tx) - $before), array(false, 'method_unavailable', 0));
 	}
 }
 ptb_create($db, array('form' => ptb_form('sar'), 'method' => 'knet'));
@@ -227,7 +227,7 @@ $t('a PayTabs error answer: gateway_error for the visitor, PayTabs\' message in 
 PtbFake::$tamper = null;
 PtbFake::$down = true;
 $r = ptb_create($db);
-$t('PayTabs unreachable at creation: gateway_error, nothing charged', array($r['success'], $r['code'], Store::get($last_id())['status']), array(false, 'gateway_error', 'failed'));
+$t('PayTabs unreachable at creation: provider_unavailable, nothing charged', array($r['success'], $r['code'], Store::get($last_id())['status']), array(false, 'provider_unavailable', 'failed'));
 PtbFake::$down = false;
 
 // Return or callback address longer than 255 characters.

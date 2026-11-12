@@ -987,7 +987,10 @@ function efb_apply_save_warnings_efb(warnings) {
     } else if (w.code === 'telegram_disabled_addon_missing' && Array.isArray(valj_efb) && valj_efb[0]) {
       valj_efb[0].telegramnoti = 0;
     }
-    if (typeof alert_message_efb === 'function') alert_message_efb('', String(w.m || ''), 20, 'warning');
+    // PAY00: a payment check of level "info" (Test mode, a mapped field not marked Required) stays in the
+    // field's panel; "error" (the form can never take the payment) is shown red. The form is saved either way.
+    if (w.level === 'info') continue;
+    if (typeof alert_message_efb === 'function') alert_message_efb('', String(w.m || ''), 20, w.level === 'error' ? 'danger' : 'warning');
   }
   try { sessionStorage.setItem('valj_efb', JSON.stringify(valj_efb)); } catch (e) {}
 }

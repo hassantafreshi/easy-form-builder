@@ -244,7 +244,7 @@ $t('an integration Paymob does not know (404 at creation): gateway_error, paymen
 pmb_settings('eg');
 PmbFake::set_flag('down', true);
 $r = pmb_create($db);
-$t('Paymob unreachable at creation: gateway_error, nothing charged', array($r['success'], $r['code']), array(false, 'gateway_error'));
+$t('Paymob unreachable at creation: provider_unavailable, nothing charged', array($r['success'], $r['code']), array(false, 'provider_unavailable'));
 PmbFake::set_flag('down', false);
 add_filter('efb_paymob_intention_body', function ($b) { $b['amount'] = 1; $b['currency'] = 'USD'; $b['extras']['coupon'] = 'X'; return $b; });
 $r = pmb_create($db);

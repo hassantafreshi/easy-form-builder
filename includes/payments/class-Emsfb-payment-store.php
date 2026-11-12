@@ -442,6 +442,14 @@ class Store {
 		return (array) $wpdb->get_results( $wpdb->prepare( "SELECT * FROM `{$t}` WHERE payment_id = %d ORDER BY id ASC LIMIT %d", (int) $payment_id, (int) $limit ), ARRAY_A );
 	}
 
+	/** How many events of one type a gateway logged since a UTC time (e.g. refused webhooks in 24 hours). */
+	public static function count_events( $gateway, $type, $since ) {
+		global $wpdb;
+		$t = self::table( 'emsfb_pmt_evt_' );
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix
+		return (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM `{$t}` WHERE gateway = %s AND type = %s AND created_at >= %s", (string) $gateway, (string) $type, (string) $since ) );
+	}
+
 	/* ------------------------------------------------------------------ refunds */
 
 	public static function insert_refund( array $data ) {

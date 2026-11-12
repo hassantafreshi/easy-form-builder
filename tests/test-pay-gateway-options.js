@@ -56,7 +56,7 @@ const form = [
 ];
 const infos = { gwa: { currencies: ['EUR'], field_schema: schema }, gwb: { currencies: [], field_schema: [{ key: 'pgw_x', type: 'select', options: { a: 'A' }, required: true, default: 'a' }, { key: 'pgw_y', type: 'code', required: true }] } };
 const iWarn = add({ op: 'warnings', form, infos });
-const iWarnOk = add({ op: 'warnings', form: [{ type: 'payment', currency: 'EUR' }, { id_: 'em1', type: 'email' }, { id_: 'tx', type: 'text' }, { id_: 'pf', type: 'gwa', pgw_map_email: 'em1', pgw_map_name: 'tx' }], infos });
+const iWarnOk = add({ op: 'warnings', form: [{ type: 'payment', currency: 'EUR' }, { id_: 'em1', type: 'email', required: 1 }, { id_: 'tx', type: 'text' }, { id_: 'pf', type: 'gwa', pgw_map_email: 'em1', pgw_map_name: 'tx' }], infos });
 const iWarnBad = add({ op: 'warnings', form: 'x', infos });
 
 const defaults = { btn: 'Pay %amount%', secure: 'S', summary: 'Sum', methods: 'Methods', pending: 'P', success: 'OK', fail: 'F', redirect: 'R', test: 'T', amount: 'A', other: 'O', total: 'Total' };
@@ -69,7 +69,7 @@ const iF3 = fieldCase('f3', { pf_methods: 'bank,card' }, { methods, logos: [], m
 // Payer requirements per method (required_for) and the gateway's own words.
 const schema2 = [{ key: 'pgw_map_phone', type: 'field', label: 'Mobile', field_types: ['mobile'], required_for: ['wallet', 'BAD ID', 'wallet', 7], owner_message: '<b>Add</b> a mobile field', visitor_message: 'Enter your mobile' }, { key: 'pgw_map_email', type: 'field', label: 'E-mail', required: true }];
 const iS2 = add({ op: 'gwschema', schema: schema2 });
-const f2 = (pf) => [{ type: 'payment', currency: 'EUR' }, { id_: 'em', type: 'email' }, Object.assign({ id_: 'pf', type: 'gwr', pgw_map_email: 'em' }, pf)];
+const f2 = (pf) => [{ type: 'payment', currency: 'EUR' }, { id_: 'em', type: 'email', required: true }, Object.assign({ id_: 'pf', type: 'gwr', pgw_map_email: 'em' }, pf)];
 const infos2 = { gwr: { currencies: [], field_schema: schema2, methods: [['card', 'Card'], ['wallet', 'Wallet']] } };
 const iW1 = add({ op: 'warnings', form: f2({}), infos: infos2 });
 const iW2 = add({ op: 'warnings', form: f2({ pf_methods: 'card' }), infos: infos2 });

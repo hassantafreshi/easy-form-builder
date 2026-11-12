@@ -29,6 +29,8 @@
    var PAYER_KEYS = { pgw_map_name: 'name', pgw_map_first: 'first_name', pgw_map_last: 'last_name', pgw_map_email: 'email', pgw_map_phone: 'phone',
       pgw_map_address: 'address', pgw_map_postcode: 'postcode', pgw_map_city: 'city', pgw_map_state: 'state', pgw_map_country: 'country' };
    var OPTION_TYPES = ['field', 'select', 'text', 'code', 'checkbox'];
+   var FORMATS = ['email', 'phone', 'phone_e164', 'country'];
+   var PAY_FORM_TYPES = ['payment'];
    var FORM_KEYS = ['pay_act_admin_mail', 'pay_act_user_mail', 'pay_act_sms', 'pay_act_tlg', 'pay_act_gs', 'pay_act_wh', 'pay_fail_notify'];
    var NAMED = { primary: '#0d6efd', success: '#198754', secondary: '#6c757d', danger: '#ff455f', warning: '#e9c31a', info: '#31d2f2', light: '#fbfbfb', darkb: '#202a8d', pinkEfb: '#ff4b93', dark: '#212529', white: '#ffffff' };
    var SIZES = { sm: ['.4rem .85rem', '.875rem'], md: ['.65rem 1.1rem', '1rem'], lg: ['.85rem 1.4rem', '1.15rem'] };
@@ -298,6 +300,9 @@
             required_for: [],
             owner_message: text(typeof d.owner_message === 'string' ? d.owner_message : '', 300),
             visitor_message: text(typeof d.visitor_message === 'string' ? d.visitor_message : '', 200),
+            format: typeof d.format === 'string' && FORMATS.indexOf(d.format) !== -1 ? d.format : '',
+            countries: [],
+            invalid_message: text(typeof d.invalid_message === 'string' ? d.invalid_message : '', 200),
             options: [], max: 0, field_types: [], default: ''
          };
          if (d.type === 'select' && d.options && typeof d.options === 'object') {
@@ -317,6 +322,10 @@
          if (d.type === 'field' && Array.isArray(d.field_types)) {
             d.field_types.forEach(function (ft) { if (typeof ft === 'string' && /^[A-Za-z]{1,30}$/.test(ft) && e.field_types.indexOf(ft) === -1) e.field_types.push(ft); });
          }
+         if (Array.isArray(d.countries)) {
+            d.countries.forEach(function (cc) { if (typeof cc === 'string' && /^[A-Za-z]{2}$/.test(cc) && e.countries.indexOf(cc.toUpperCase()) === -1 && e.countries.length < 250) e.countries.push(cc.toUpperCase()); });
+         }
+         if (d.type !== 'field') { e.format = ''; e.countries = []; }
          if (Array.isArray(d.required_for)) {
             d.required_for.forEach(function (mid) { if (typeof mid === 'string' && /^[a-z0-9_]{1,30}$/.test(mid) && e.required_for.indexOf(mid) === -1 && e.required_for.length < 40) e.required_for.push(mid); });
          }
@@ -340,31 +349,125 @@
       cleanSchema(schema).forEach(function (d) { var v = optionValue(d, get(row, d.key)); out[d.key] = v !== '' ? v : d.default; });
       return out;
    }
-   function warnings(form, infos) {
+   /** Twin of Field::country_iso(): two letters as typed, else the id_op of the form's option with that value. */
+   function countryIso(form, fieldId_, value) {
+      var v = isScalar(value) ? ptrim(phpStr(value).split('@efb@dq#').join('"')) : '';
+      if (v === '') return '';
+      if (/^[A-Za-z]{2}$/.test(v)) return v.toUpperCase();
+      if (!Array.isArray(form) || fieldId_ === '') return '';
+      for (var i = 1; i < form.length; i++) {
+         var r = form[i];
+         if (!r || typeof r !== 'object' || !has(r, 'parent') || phpStr(r.parent) !== String(fieldId_)) continue;
+         var val = isScalar(r.value) ? ptrim(phpStr(r.value)) : '';
+         var oid = isScalar(r.id_) ? phpStr(r.id_) : '';
+         var iso = typeof r.id_op === 'string' ? r.id_op : '';
+         if ((val === v || oid === v) && /^[A-Za-z]{2}$/.test(iso)) return iso.toUpperCase();
+      }
+      return '';
+   }
+   /** Twin of Field::payer_problem(): '' = fine, 'format' or 'country'. (The server's e-mail check is stricter.) */
+   function payerProblem(d, value, iso) {
+      var v = isScalar(value) ? ptrim(phpStr(value)) : '';
+      if (v === '' || !d || !d.format) return '';
+      if (d.format === 'email') return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v) ? '' : 'format';
+      if (d.format === 'phone' || d.format === 'phone_e164') {
+         var n = latinDigits(v).replace(/[\s().\-]/g, '');
+         if (n.indexOf('00') === 0) n = '+' + n.slice(2);
+         if (d.format === 'phone_e164') return /^\+[1-9][0-9]{6,14}$/.test(n) ? '' : 'format';
+         return /^\+?[0-9]{7,15}$/.test(n) ? '' : 'format';
+      }
+      if (d.format === 'country') {
+         if (!/^[A-Z]{2}$/.test(String(iso || ''))) return 'format';
+         return d.countries && d.countries.length && d.countries.indexOf(iso) === -1 ? 'country' : '';
+      }
+      return '';
+   }
+   /** Twin of Field::confirmation_email_field(). */
+   function confirmationEmailField(form) {
+      if (!Array.isArray(form) || !form[0]) return '';
+      var to = fieldId(get(form[0], 'email_to'));
+      if (to === '') return '';
+      for (var i = 1; i < form.length; i++) {
+         var r = form[i];
+         if (r && typeof r === 'object' && has(r, 'id_') && phpStr(r.id_) === to && r.type === 'email') return to;
+      }
+      return '';
+   }
+   function warnings(form, infos, site) {
       var out = [];
       if (!Array.isArray(form) || !form[0]) return out;
       infos = infos || {};
-      var types = {};
-      form.forEach(function (r, i) { if (i > 0 && r && typeof r === 'object' && has(r, 'id_') && isScalar(r.id_)) types[phpStr(r.id_)] = typeof r.type === 'string' ? r.type : ''; });
+      site = site || {};
+      var types = {}, required = {};
+      form.forEach(function (r, i) {
+         if (i > 0 && r && typeof r === 'object' && has(r, 'id_') && isScalar(r.id_)) {
+            types[phpStr(r.id_)] = typeof r.type === 'string' ? r.type : '';
+            required[phpStr(r.id_)] = [true, 1, '1', 'true'].indexOf(r.required) !== -1;
+         }
+      });
       var cur = get(form[0], 'currency');
       cur = typeof cur === 'string' ? ptrim(cur).toUpperCase() : '';
+      var ftype = get(form[0], 'type');
+      ftype = typeof ftype === 'string' ? ftype : '';
+      var confEmail = confirmationEmailField(form);
+      var count = 0;
       form.forEach(function (r, i) {
          if (i === 0 || !r || typeof r !== 'object' || typeof r.type !== 'string' || !has(r, 'id_') || !isScalar(r.id_) || !has(infos, r.type)) return;
          var g = infos[r.type] || {};
          var base = function (o) { return Object.assign({ field_id: phpStr(r.id_), gateway: r.type }, o); };
+         count++;
+         if (count === 2) out.push(base({ code: 'pay_multiple_fields', level: 'error' }));
+         var mode = g.mode === 'live' ? 'live' : 'test';
+         if (count === 1) {
+            if (PAY_FORM_TYPES.indexOf(ftype) === -1) out.push(base({ code: 'pay_form_type', level: 'error', form_type: ftype }));
+            if (has(g, 'ready') && g.ready === false) out.push(base({ code: 'pay_not_configured', level: 'error', mode: mode }));
+            if (g.mode === 'test') out.push(base({ code: 'pay_test_mode', level: 'info' }));
+            if (mode === 'live' && site.webhook_local) out.push(base({ code: 'pay_webhook_local', level: 'warning' }));
+         }
          var allowed = Array.isArray(g.currencies) ? g.currencies.map(String) : [];
-         if (allowed.length && allowed.indexOf(cur) === -1) out.push(base({ code: 'pay_currency', currency: cur, allowed: allowed }));
+         var curOk = !(allowed.length && allowed.indexOf(cur) === -1);
+         if (!curOk) out.push(base({ code: 'pay_currency', level: 'error', currency: cur, allowed: allowed }));
+         if (curOk && cur !== '') {
+            var mins = g.min_minor || {}, maxs = g.max_minor || {};
+            var min = has(mins, cur) && mins[cur] !== null && !isNaN(Number(mins[cur])) ? Math.trunc(Number(mins[cur])) : null;
+            var max = has(maxs, cur) && maxs[cur] !== null && !isNaN(Number(maxs[cur])) ? Math.trunc(Number(maxs[cur])) : null;
+            var donation = sanitizeKey('pf_amount', get(r, 'pf_amount')) === 'donation';
+            var checks = donation ? [['pf_min', 'min'], ['pf_max', 'max']] : [['pf_fixed', 'fixed']];
+            checks.forEach(function (c) {
+               var dv = sanitizeKey(c[0], get(r, c[0]));
+               if (dv === '') return;
+               var m = fromDecimal(dv, cur);
+               if (m === null || m <= 0) return;
+               if (max !== null && m > max && c[1] !== 'min') out.push(base({ code: 'pay_amount_limit', level: c[1] === 'fixed' ? 'error' : 'warning', what: c[1], limit: 'max', amount_minor: m, limit_minor: max, currency: cur }));
+               else if (min !== null && m < min && c[1] !== 'max') out.push(base({ code: 'pay_amount_limit', level: 'warning', what: c[1], limit: 'min', amount_minor: m, limit_minor: min, currency: cur }));
+            });
+         }
+         var own = sanitizeKey('pf_methods', get(r, 'pf_methods'));
+         if (curOk && own !== '' && cur !== '' && Array.isArray(g.methods)) {
+            var chosen = own.split(','), bad = [];
+            g.methods.forEach(function (m) {
+               if (!Array.isArray(m) || m[0] == null || chosen.indexOf(phpStr(m[0])) === -1) return;
+               var mc = m[2] && Array.isArray(m[2].currencies) ? m[2].currencies : [];
+               if (mc.length && mc.indexOf(cur) === -1) bad.push(phpStr(m[0]));
+            });
+            if (bad.length) out.push(base({ code: 'pay_method_currency', level: bad.length >= chosen.length ? 'error' : 'warning', methods: bad, currency: cur }));
+         }
          var offered = offeredMethods(r, g);
          cleanSchema(g.field_schema || []).forEach(function (d) {
             var v = optionValue(d, has(r, d.key) ? r[d.key] : null);
+            var forM = requiredMethods(d, offered);
+            if (v === '' && d.key === 'pgw_map_email' && confEmail !== '') v = confEmail;
             if (v === '') {
-               var forM = requiredMethods(d, offered);
-               if (forM !== null && d.default === '') out.push(base({ code: 'pay_option_required', key: d.key, label: d.label, methods: forM, field_types: d.field_types, owner_message: d.owner_message }));
+               if (forM !== null && d.default === '') {
+                  var all = !forM.length || (Array.isArray(offered) && offered.every(function (x) { return forM.indexOf(x) !== -1; }));
+                  out.push(base({ code: 'pay_option_required', level: all ? 'error' : 'warning', key: d.key, label: d.label, methods: forM, field_types: d.field_types, owner_message: d.owner_message }));
+               }
                return;
             }
             if (d.type !== 'field') return;
-            if (!has(types, v)) out.push(base({ code: 'pay_option_field_missing', key: d.key, label: d.label }));
-            else if (d.field_types.length && d.field_types.indexOf(types[v]) === -1) out.push(base({ code: 'pay_option_field_type', key: d.key, label: d.label }));
+            if (!has(types, v)) out.push(base({ code: 'pay_option_field_missing', level: 'error', key: d.key, label: d.label }));
+            else if (d.field_types.length && d.field_types.indexOf(types[v]) === -1) out.push(base({ code: 'pay_option_field_type', level: 'warning', key: d.key, label: d.label }));
+            else if (forM !== null && !required[v]) out.push(base({ code: 'pay_option_not_required', level: 'info', key: d.key, label: d.label, target: v }));
          });
       });
       return out;
@@ -770,7 +873,8 @@
 
    var core = {
       ELEMENTS: ELEMENTS, KEYS: KEYS, FORM_KEYS: FORM_KEYS, TEXT_KEYS: TEXT_KEYS, ICONS: ICONS, HIDEABLE: HIDEABLE,
-      DEFAULTABLE: DEFAULTABLE, PAYER_KEYS: PAYER_KEYS, OPTION_TYPES: OPTION_TYPES,
+      DEFAULTABLE: DEFAULTABLE, PAYER_KEYS: PAYER_KEYS, OPTION_TYPES: OPTION_TYPES, FORMATS: FORMATS,
+      countryIso: countryIso, payerProblem: payerProblem, confirmationEmailField: confirmationEmailField,
       fieldId: fieldId, cleanSchema: cleanSchema, offeredMethods: offeredMethods, requiredMethods: requiredMethods, sanitizeGatewayKey: sanitizeGatewayKey, gatewayOptions: gatewayOptions, warnings: warnings, methodEntry: methodEntry, logoUrl: logoUrl,
       sanitizeKey: sanitizeKey, resolve: resolve, texts: texts, css: css, html: html, esc: esc,
       contrast: contrast, autoText: autoText, darken: darken, presets: presets, decimal: decimal,
