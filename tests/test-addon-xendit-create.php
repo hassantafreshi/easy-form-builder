@@ -57,7 +57,7 @@ $t('every channel has its badge in assets/img', $missing, array());
 $m = $g->methods(Settings::load('xendit'));
 $t('methods(): no channel list → "any" + the 21 channels, QRIS named for every app', array(count($m), $m[0][0], array_slice($m[1], 0, 2)), array(22, 'any', array('qris', 'QRIS (all banking and e-wallet apps)')));
 $t('method extras: QRIS only IDR, 1 … 20,000,000 rupiah (×100); cards without SGD / USD limits', array($m[1][2]['currencies'], $m[1][2]['min_minor']['IDR'], $m[1][2]['max_minor']['IDR'], isset($m[21][2]['min_minor']['USD'])), array(array('IDR'), 100, 2000000000, false));
-$t('every method id fits core\'s pf_methods sanitizer', \Emsfb\Payments\Field::sanitize_key('pf_methods', implode(',', array_map(function ($x) { return $x[0]; }, $m))) === implode(',', array_slice(array_map(function ($x) { return $x[0]; }, $m), 0, 20)), true);
+$t('every method id fits core\'s pf_methods sanitizer', \Emsfb\Payments\Field::sanitize_key('pf_methods', implode(',', array_map(function ($x) { return $x[0]; }, $m))) === implode(',', array_map(function ($x) { return $x[0]; }, $m)), true); // core keeps up to 40 ids (was 20)
 
 // Settings and secrets.
 $s = Settings::load('xendit');

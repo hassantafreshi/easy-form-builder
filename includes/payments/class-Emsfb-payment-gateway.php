@@ -191,6 +191,16 @@ abstract class Gateway {
 		return array();
 	}
 
+	/**
+	 * The gateway's own small page for the browser's return (e.g. a frame that only tells its
+	 * parent page to continue): a full HTML document, or '' for core's 303 to the form page.
+	 * $continue is the form page address core would redirect to (signed). Never a status decision:
+	 * core has already asked the provider.
+	 */
+	public function return_page( Payment $p, array $query, $continue ) {
+		return '';
+	}
+
 	/** Link to the payment in the provider's dashboard ('' when there is none). */
 	public function dashboard_url( Payment $p ) {
 		return '';
@@ -368,6 +378,14 @@ class Remote_State {
 	 * refunds with it (refunded_minor only counts confirmed refunds).
 	 */
 	public $refunds = array();
+	/**
+	 * Text the visitor's status page shows while the payment is still pending (plain text, ≤ 300),
+	 * e.g. "Your payment is being reviewed" or a kiosk reference to pay with. '' = core's text.
+	 */
+	public $visitor_message = '';
+	/** A note for the owner (event log; e-mailed when $notify_owner): e.g. "held for fraud review". */
+	public $note = '';
+	public $notify_owner = false;
 	/** One of Store::STATUSES. */
 	public $status = '';
 	public $amount_minor = null;

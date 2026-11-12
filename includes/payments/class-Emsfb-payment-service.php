@@ -574,6 +574,7 @@ class Service {
 			}
 		}
 		self::settle_refunds_from( Store::get( $p['id'] ), $st, $source );
+		self::keep_status_text( Store::get( $p['id'] ), $st, $source );
 		$now = Store::get( $p['id'] );
 		if ( $now && $now['status'] === 'paid' && empty( $now['finalized_at'] ) ) self::finalize( $now );
 		if ( $now && in_array( $now['status'], array( 'failed', 'expired', 'canceled' ), true ) && $now['status'] !== $from ) {
@@ -581,6 +582,34 @@ class Service {
 			self::notify_failure( $now );
 		}
 		return $now ? $now['status'] : $from;
+	}
+
+	/**
+	 * Remote_State::$visitor_message (shown on the status page while pending) and $note (event log,
+	 * e-mail to the owner when asked), kept in the payment's next_json under "status_text".
+	 */
+	private static function keep_status_text( $p, Remote_State $st, $source ) {
+		if ( ! $p ) return;
+		$msg = Field::text( (string) $st->visitor_message, 300 );
+		$next = is_string( $p['next_json'] ) && $p['next_json'] !== '' ? json_decode( $p['next_json'], true ) : array();
+		$next = is_array( $next ) ? $next : array();
+		$old = isset( $next['status_text'] ) ? (string) $next['status_text'] : '';
+		if ( $msg !== $old ) {
+			if ( $msg === '' ) unset( $next['status_text'] ); else $next['status_text'] = $msg;
+			Store::update( $p['id'], array( 'next_json' => wp_json_encode_efb_pay( $next ) ) );
+		}
+		$note = Field::text( (string) $st->note, 200 );
+		if ( $note !== '' && ! self::has_note( $p['id'], $note ) ) {
+			Store::log_event( $p['id'], $p['gateway'], $source, array( 'type' => 'note', 'note' => $note ) );
+			if ( $st->notify_owner ) self::mail_admin( 'note', $p, $note );
+		}
+	}
+
+	private static function has_note( $payment_id, $note ) {
+		foreach ( Store::events( $payment_id ) as $e ) {
+			if ( $e['type'] === 'note' && $e['note'] === $note ) return true;
+		}
+		return false;
 	}
 
 	/**
@@ -869,7 +898,14 @@ class Service {
 		}
 		$to = $p['return_to'] !== '' ? $p['return_to'] : home_url( '/' );
 		$to = add_query_arg( array( 'efb_pay' => $p['uid'], 'efb_ps' => self::sign( $p['uid'], $p['gateway'] ) ), $to );
-		return self::redirect( (string) wp_validate_redirect( $to, home_url( '/' ) ) );
+		$to = (string) wp_validate_redirect( $to, home_url( '/' ) );
+		// The gateway's own small return page (e.g. a frame that tells its parent page to continue).
+		if ( $gw ) {
+			$q = $r->get_query_params();
+			try { $html = $gw->return_page( new Payment( Store::get( $p['id'] ) ), is_array( $q ) ? $q : array(), $to ); } catch ( \Throwable $e ) { $html = ''; }
+			if ( is_string( $html ) && $html !== '' ) return self::html_page( $html );
+		}
+		return self::redirect( $to );
 	}
 
 	/** GET payments/status?p&s (no nonce; the signature and a rate limit protect it). */
@@ -903,9 +939,11 @@ class Service {
 			: ( in_array( $state, array( 'failed', 'canceled', 'expired' ), true ) ? 'failed' : 'pending' );
 		$out = array( 'state' => $kind, 'status' => $state, 'form_id' => (int) $p['form_id'], 'test_mode' => $p['mode'] !== 'live', 'can_retry' => $kind === 'failed' );
 		if ( $kind === 'pending' ) $out['poll_until'] = self::poll_until( $p );
-		$out['message'] = $kind === 'paid' ? __( 'Payment received. Thank you!', 'easy-form-builder' )
+		$next = $kind === 'pending' && is_string( $p['next_json'] ) ? json_decode( $p['next_json'], true ) : null;
+		$own = is_array( $next ) && isset( $next['status_text'] ) ? Field::text( (string) $next['status_text'], 300 ) : '';
+		$out['message'] = $own !== '' ? $own : ( $kind === 'paid' ? __( 'Payment received. Thank you!', 'easy-form-builder' )
 			: ( $kind === 'failed' ? ( $state === 'expired' ? __( 'The payment time ran out. Please try again.', 'easy-form-builder' ) : __( 'The payment was not completed. You have not been charged. You can try again.', 'easy-form-builder' ) )
-			: __( 'We are waiting for the payment confirmation. You can keep this page open; we will update it automatically.', 'easy-form-builder' ) );
+			: __( 'We are waiting for the payment confirmation. You can keep this page open; we will update it automatically.', 'easy-form-builder' ) ) );
 		if ( $kind === 'paid' ) {
 			$form = self::form_rows( $p['form_id'] );
 			$f0 = is_array( $form ) && isset( $form[0] ) ? $form[0] : array();
@@ -923,6 +961,20 @@ class Service {
 		$res = new \WP_REST_Response( $data, $code );
 		if ( $no_store ) $res->header( 'Cache-Control', 'no-store, max-age=0' );
 		return $res;
+	}
+
+	/** How a gateway's own return page is sent (tests replace it). */
+	public static $emit_html = null;
+
+	private static function html_page( $html ) {
+		if ( is_callable( self::$emit_html ) ) return call_user_func( self::$emit_html, $html );
+		if ( ! headers_sent() ) {
+			header( 'Content-Type: text/html; charset=utf-8' );
+			header( 'Cache-Control: no-store, max-age=0' );
+			header( 'X-Content-Type-Options: nosniff' );
+		}
+		echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- the gateway add-on's own page (it escapes its values)
+		exit;
 	}
 
 	private static function redirect( $url ) {
@@ -1076,7 +1128,7 @@ class Service {
 		$prefix = $p['mode'] !== 'live' ? '[TEST] ' : '';
 		$subject = $prefix . ( $kind === 'mismatch'
 			? __( 'Payment amount does not match', 'easy-form-builder' )
-			: ( $kind === 'duplicate' ? __( 'An entry was paid twice', 'easy-form-builder' ) : __( 'A payment was not completed', 'easy-form-builder' ) ) ) . ' [' . ( function_exists( 'get_bloginfo' ) ? get_bloginfo( 'name' ) : '' ) . ']';
+			: ( $kind === 'duplicate' ? __( 'An entry was paid twice', 'easy-form-builder' ) : ( $kind === 'note' ? __( 'A payment needs your attention', 'easy-form-builder' ) : __( 'A payment was not completed', 'easy-form-builder' ) ) ) ) . ' [' . ( function_exists( 'get_bloginfo' ) ? get_bloginfo( 'name' ) : '' ) . ']';
 		$body = sprintf( "%s\n\n%s: %s\n%s: %s\n%s: %s %s\n%s: %s\n", $subject,
 			__( 'Confirmation Code', 'easy-form-builder' ), $p['track'],
 			__( 'Gateway', 'easy-form-builder' ), $p['gateway'] . ' ' . $p['gateway_ref'],

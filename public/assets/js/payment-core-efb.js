@@ -235,7 +235,7 @@
             for (var i = 0; i < parts.length; i++) {
                var p = ptrim(parts[i]);
                if (/^[a-z0-9_]{1,30}$/.test(p) && out.indexOf(p) === -1) out.push(p);
-               if (out.length >= 20) break;
+               if (out.length >= 40) break;
             }
             return out.join(',');
          }

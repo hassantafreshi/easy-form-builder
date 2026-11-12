@@ -207,7 +207,7 @@ class Field {
 				foreach ( explode( ',', $v ) as $p ) {
 					$p = trim( $p );
 					if ( preg_match( '/^[a-z0-9_]{1,30}$/', $p ) && ! in_array( $p, $out, true ) ) $out[] = $p;
-					if ( count( $out ) >= 20 ) break;
+					if ( count( $out ) >= 40 ) break;
 				}
 				return implode( ',', $out );
 			case 'pf_summary':
