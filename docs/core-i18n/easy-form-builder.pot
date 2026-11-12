@@ -5,7 +5,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-11 00:00+0000\n"
+"POT-Creation-Date: 2026-11-12 00:00+0000\n"
 "X-Generator: EFB tests/core-i18n/build.php\n"
 "X-Domain: easy-form-builder\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
@@ -7344,15 +7344,26 @@ msgstr ""
 msgid "Postal Code"
 msgstr ""
 
-#: includes/class-Emsfb-formbuilder.php:2427
+#: includes/class-Emsfb-formbuilder.php
 #, php-format
 msgid "Powered by %1$sEasy Form Builder%2$s . %3$sbest Form plugin for Wordpress%4$s."
+msgstr ""
+
+#: includes/class-Emsfb-formbuilder.php:2427
+#, php-format
+msgid "Powered by %1$sEasy Form Builder%2$s, the %3$sbest form plugin for WordPress%4$s."
+msgstr ""
+
+#. translators: F18: preview of the credit Free Plus shows under forms; keep it
+#. identical to the public credit text
+#: includes/functions.php
+msgid "Powered by Easy Form Builder . best Form plugin for Wordpress."
 msgstr ""
 
 #. translators: F18: preview of the credit Free Plus shows under forms; keep it
 #. identical to the public credit text
 #: includes/functions.php:2730
-msgid "Powered by Easy Form Builder . best Form plugin for Wordpress."
+msgid "Powered by Easy Form Builder, the best form plugin for WordPress."
 msgstr ""
 
 #. translators: Email test step 1 — title

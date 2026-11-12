@@ -2,10 +2,10 @@
     "domain": "easy-form-builder",
     "about": "Every phrase looked up in the easy-form-builder text domain: the core plus add-ons that still use that domain. Maintained by tests/core-i18n/extract.php (agent efb-core-i18n); do not edit by hand.",
     "plugin_version": "4.3.1",
-    "updated": "2026-11-11",
+    "updated": "2026-11-12",
     "counts": {
         "active": 2706,
-        "obsolete": 392
+        "obsolete": 394
     },
     "entries": [
         {
@@ -25681,11 +25681,41 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
+        },
+        {
+            "msgid": "Powered by %1$sEasy Form Builder%2$s, the %3$sbest form plugin for WordPress%4$s.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-formbuilder.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
         {
             "msgid": "Powered by Easy Form Builder . best Form plugin for Wordpress.",
+            "context": null,
+            "plural": null,
+            "translators": "F18: preview of the credit Free Plus shows under forms; keep it identical to the public credit text",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
+        },
+        {
+            "msgid": "Powered by Easy Form Builder, the best form plugin for WordPress.",
             "context": null,
             "plural": null,
             "translators": "F18: preview of the credit Free Plus shows under forms; keep it identical to the public credit text",

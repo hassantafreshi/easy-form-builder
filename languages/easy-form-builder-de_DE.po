@@ -8903,15 +8903,15 @@ msgstr "Postleitzahl"
 #  origin: wporg-stable
 #: includes/class-Emsfb-formbuilder.php:2427
 #, php-format
-msgid "Powered by %1$sEasy Form Builder%2$s . %3$sbest Form plugin for Wordpress%4$s."
-msgstr "Unterstützt von %1$sEasy Form Builder%2$s. %3$sDas beste Formular-Plugin für WordPress%4$s."
+msgid "Powered by %1$sEasy Form Builder%2$s, the %3$sbest form plugin for WordPress%4$s."
+msgstr "Unterstützt von %1$sEasy Form Builder%2$s, dem %3$sbesten Formular-Plugin für WordPress%4$s."
 
 #  origin: sonnet (de_DE)
 #. translators: F18: preview of the credit Free Plus shows under forms; keep it
 #. identical to the public credit text
 #: includes/functions.php:2730
-msgid "Powered by Easy Form Builder . best Form plugin for Wordpress."
-msgstr "Powered by Easy Form Builder . best Form plugin for Wordpress."
+msgid "Powered by Easy Form Builder, the best form plugin for WordPress."
+msgstr "Unterstützt von Easy Form Builder, dem besten Formular-Plugin für WordPress."
 
 #  origin: wporg-stable
 #. translators: Email test step 1 — title
@@ -9092,7 +9092,7 @@ msgstr "Katar"
 #. list
 #: includes/data/masks-labels-efb.php:97
 msgid "Qatar ID (QID)"
-msgstr "Qatar ID (QID)"
+msgstr "Katarischer Personalausweis (QID)"
 
 #  origin: sonnet (de_DE)
 #. translators: input format preset shown in the form builder's "Format / mask"

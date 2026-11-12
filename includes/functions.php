@@ -2727,7 +2727,7 @@ class efbFunction {
 			/* translators: F18: expands a preview of the Free Plus credit */
 			"upgCreditWhat" => $state && isset($ac->text->upgCreditWhat) ? $ac->text->upgCreditWhat : esc_html__('What will appear?','easy-form-builder'),
 			/* translators: F18: preview of the credit Free Plus shows under forms; keep it identical to the public credit text */
-			"upgCreditPreview" => $state && isset($ac->text->upgCreditPreview) ? $ac->text->upgCreditPreview : esc_html__('Powered by Easy Form Builder . best Form plugin for Wordpress.','easy-form-builder'),
+			"upgCreditPreview" => $state && isset($ac->text->upgCreditPreview) ? $ac->text->upgCreditPreview : esc_html__('Powered by Easy Form Builder, the best form plugin for WordPress.','easy-form-builder'),
 			/* translators: F18: part of the Free Plus disclosure */
 			"upgCreditMeta" => $state && isset($ac->text->upgCreditMeta) ? $ac->text->upgCreditMeta : esc_html__('It also adds page metadata (structured data and an author link) that names Easy Form Builder.','easy-form-builder'),
 			/* translators: F18: main button of the upgrade dialog */

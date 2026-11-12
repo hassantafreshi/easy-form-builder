@@ -7470,8 +7470,8 @@ msgstr "کد پستی"
 #  origin: wporg-stable
 #: includes/class-Emsfb-formbuilder.php:2320
 #, php-format
-msgid "Powered by %1$sEasy Form Builder%2$s . %3$sbest Form plugin for Wordpress%4$s."
-msgstr "قدرت‌گرفته از %1$sفرم ساز آسان%2$s. %3$sبهترین افزونه فرم برای وردپرس%4$s."
+msgid "Powered by %1$sEasy Form Builder%2$s, the %3$sbest form plugin for WordPress%4$s."
+msgstr "قدرت‌گرفته از %1$sفرم ساز آسان%2$s، %3$sبهترین افزونهٔ فرم برای وردپرس%4$s."
 
 #  origin: wporg-stable
 #. translators: Email test step 1 — title
@@ -15559,8 +15559,8 @@ msgstr "چه چیزی نمایش داده می‌شود؟"
 #  origin: claude (fa_IR) F18
 #. translators: F18: preview of the credit Free Plus shows under forms; keep it identical to the public credit text
 #: includes/functions.php
-msgid "Powered by Easy Form Builder . best Form plugin for Wordpress."
-msgstr "قدرت‌گرفته از فرم ساز آسان. بهترین افزونه فرم برای وردپرس."
+msgid "Powered by Easy Form Builder, the best form plugin for WordPress."
+msgstr "قدرت‌گرفته از فرم ساز آسان، بهترین افزونهٔ فرم برای وردپرس."
 
 #  origin: claude (fa_IR) F18
 #. translators: F18: part of the Free Plus disclosure
