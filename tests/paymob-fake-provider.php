@@ -290,7 +290,7 @@ class Efb_Test_Paymob_Fake {
 		$o = $s['orders'][ (string) $order ];
 		$ids = self::INTEGRATIONS[ self::prefix_of_intention( $s, $o['intention'] ) ][ $o['mode'] ];
 		$integration = isset( $ids[ $method ] ) && in_array( $ids[ $method ], $o['methods'], true ) ? $ids[ $method ] : $o['methods'][0];
-		$type = $kind === 'kiosk' ? 'aggregator' : ( $method === 'wallet' ? 'wallet' : 'card' );
+		$type = $kind === 'kiosk' || $method === 'kiosk' ? 'aggregator' : ( $method === 'wallet' ? 'wallet' : 'card' );
 		$t = self::txn( $s, $order, $integration, $o['currency'], $o['amount'], $o['mode'], $type );
 		if ( $kind === 'paid' ) $t['success'] = true;
 		if ( $kind === 'authorized' ) { $t['success'] = true; $t['is_auth'] = true; }
