@@ -1415,6 +1415,16 @@ scenario('9', 'PAY00 payments with the test gateway: builder, fixed / computed /
   await Promise.all([g.waitForURL(/efb-e2e-shortcode/, { timeout: 20000 }), g.click('#fail')]);
   await g.waitForFunction(() => /not completed/i.test(document.body.innerText), null, { timeout: 15000 });
   R.check('9e: failed at the provider → "not completed, not charged" and a "Try again" button; payment failed', await g.isVisible('.efb-pf-retry') && payRows(D.form_id)[0].status === 'failed');
+  // Gap 10: "Try again" is a new attempt for the SAME pending entry (payments/retry), not a second form submission.
+  const entriesBefore = (ctl('entries', String(D.form_id)) || []).length;
+  let retryCreate = 0, retryCalls = 0;
+  g.on('request', (rq) => { if (/payments\/create/.test(rq.url())) retryCreate++; if (/payments\/retry/.test(rq.url())) retryCalls++; });
+  await Promise.all([g.waitForURL(/payments\/mock\/checkout/, { timeout: 20000 }), g.click('.efb-pf-retry')]);
+  R.check('9e/retry: "Try again" → payments/retry and the provider page again for 70.00 EUR; no second create', retryCalls === 1 && retryCreate === 0 && /70\.00 EUR/.test(await g.textContent('#amount')), { retryCalls, retryCreate });
+  await Promise.all([g.waitForURL(/efb-e2e-shortcode/, { timeout: 20000 }), g.click('#pay')]);
+  await g.waitForFunction(() => /Payment received|Thank you/i.test(document.body.innerText), null, { timeout: 20000 });
+  const tries = payRows(D.form_id);
+  R.check('9e/retry: paid on the second attempt; both attempts belong to one entry (same code); no extra entry', tries[0].status === 'paid' && tries[1].status === 'failed' && tries[0].track === tries[1].track && tries[0].msg_id === tries[1].msg_id && (ctl('entries', String(D.form_id)) || []).length === entriesBefore, tries.slice(0, 2).map((x) => [x.status, x.track]));
   await g.close();
 
   /* 9f admin Payments screen */
