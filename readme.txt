@@ -506,6 +506,12 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 * New (privacy): Tools > Export Personal Data and Erase Personal Data include form entries; a suggested privacy policy text is added to the Privacy Policy Guide.
 * Fixed: Deleting an entry or a form left its replies behind, and no delete removed the uploaded files; uploads never claimed by an entry were never cleaned up.
 * Security: The visitor's IP address is taken from forwarding headers only when the request comes through a trusted proxy (filter efb_trusted_proxies), so it cannot be chosen by the visitor; debug logs no longer contain full IP addresses; the CSV export rows are no longer kept in the browser's storage.
+* New: Payment gateway add-ons can add their own options to the payment field (for example which form fields hold the payer's name, e-mail or billing address), their own button text and look, a logo and amount limits per payment method, and warnings when a form is saved (for example "only accepts EUR"). The builder shows these options and warnings; payment methods can be chosen and ordered in the field.
+* New: "Try again" and "Get a new QR code" start a new payment for the same entry instead of sending the form again. The page keeps checking a pending payment as long as the gateway allows (up to 24 hours).
+* New: Payments screen: "Mark as refunded outside EFB" (with a reason, recorded in the payment's history), refunds that the gateway only accepted are shown as waiting and count once confirmed, and payment notices and extra buttons per gateway on its settings card; "Test connection" shows the gateway's own message.
+* New: A second webhook address (/?efb_pay_webhook=…) for hosts that block the WordPress REST API for visitors.
+* Fixed: A payment refunded at the gateway before the site saw it paid stayed "pending" forever; a gateway answer about another payment made the gateway resend its webhook for a day; the payment method of a pending payment was not saved.
+* Changed: The payment framework ships no gateway: the Payments menu and the payment field appear once a gateway add-on is active.
 
 = 4.3.1 =
 
