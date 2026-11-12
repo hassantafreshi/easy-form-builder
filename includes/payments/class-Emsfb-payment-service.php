@@ -484,7 +484,15 @@ class Service {
 		}
 		$key = hash( 'sha256', $slug . '|' . ( $ev->event_id !== '' ? 'id:' . $ev->event_id : 'body:' . $body ) );
 		$p = $ev->gateway_ref !== '' ? Store::find_by_ref( $slug, $ev->gateway_ref ) : null;
-		if ( ! $p && isset( $ev->payload['efb_uid'] ) ) $p = Store::find_by_uid( (string) $ev->payload['efb_uid'] );
+		if ( ! $p && isset( $ev->payload['efb_uid'] ) ) {
+			// Fallback for a payment whose provider reference was never stored (lost create answer).
+			// A payment that already has a different reference is not this event's payment: its
+			// state must not be applied to it, whatever metadata the event carries.
+			$p = Store::find_by_uid( (string) $ev->payload['efb_uid'] );
+			if ( $p && (string) $p['gateway_ref'] !== '' && $ev->gateway_ref !== '' && ! hash_equals( (string) $p['gateway_ref'], (string) $ev->gateway_ref ) ) {
+				$p = null;
+			}
+		}
 		if ( $p && $p['gateway'] !== $slug ) $p = null;
 		if ( ! Store::claim_event( $slug, $key, array( 'payment_id' => $p ? $p['id'] : null, 'source' => 'webhook', 'type' => (string) $ev->type, 'verified' => $ev->verified ? 1 : 0, 'payload' => $ev->payload, 'http_code' => 200 ) ) ) {
 			return self::rest( null, 200 ); // duplicate delivery

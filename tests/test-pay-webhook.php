@@ -117,6 +117,31 @@ Mock_Provider::set_status($p4['gateway_ref'], 'paid');
 Service::handle_webhook(efb_pay_webhook_req($p4['gateway_ref'], 'evt_late'));
 $t('provider later paid → paid and finalized (failed → paid only from the provider)', array(Store::get($p4['id'])['status'], Store::get($p4['id'])['finalized_at'] !== null), array('paid', true));
 
+// A signed event that states its result directly (no refetch, like Tap) whose reference is
+// unknown but whose payload names another payment's efb_uid must not change that payment.
+$r5 = efb_pay_create($db);
+$p5 = Store::find_by_uid($r5['pay']['uid']);
+$wh_event = null;
+$direct = new class extends \Emsfb\Payments\Mock_Gateway {
+	public function parse_webhook(\WP_REST_Request $r, \Emsfb\Payments\Settings $s) { return $GLOBALS['efb_wh_event']; }
+};
+add_filter('efb_payment_gateways', function ($all) use ($direct) { $all['efbmock'] = $direct; return $all; });
+$GLOBALS['efb_wh_event'] = new \Emsfb\Payments\Webhook_Event(array('verified' => true, 'gateway_ref' => 'mck_someone_else', 'event_id' => 'evt_uid_1', 'type' => 'charge', 'needs_refetch' => false,
+	'state' => \Emsfb\Payments\Remote_State::of('paid', $p5['amount_minor'], $p5['currency']), 'payload' => array('efb_uid' => $p5['uid'])));
+$wr = new WP_REST_Request('POST'); $wr->set_param('gateway', 'efbmock'); $wr->set_body('{"id":"evt_uid_1"}');
+Service::handle_webhook($wr);
+$t('signed event for another provider reference that names our efb_uid: our payment stays pending', array(Store::get($p5['id'])['status'], Store::get($p5['id'])['finalized_at']), array('pending', null));
+// The same event for a payment whose reference was never stored (lost create answer) is still matched by uid.
+$r6 = efb_pay_create($db);
+$p6 = Store::find_by_uid($r6['pay']['uid']);
+$db->query("UPDATE wp_emsfb_pmt_ SET gateway_ref = '' WHERE id = " . (int) $p6['id']);
+$GLOBALS['efb_wh_event'] = new \Emsfb\Payments\Webhook_Event(array('verified' => true, 'gateway_ref' => 'mck_late_ref', 'event_id' => 'evt_uid_2', 'type' => 'charge', 'needs_refetch' => false,
+	'state' => \Emsfb\Payments\Remote_State::of('paid', $p6['amount_minor'], $p6['currency']), 'payload' => array('efb_uid' => $p6['uid'])));
+$wr2 = new WP_REST_Request('POST'); $wr2->set_param('gateway', 'efbmock'); $wr2->set_body('{"id":"evt_uid_2"}');
+Service::handle_webhook($wr2);
+$t('payment without a stored reference: matched by efb_uid and paid', Store::get($p6['id'])['status'], 'paid');
+$GLOBALS['efb_filters']['efb_payment_gateways'] = array();
+
 // Body too large.
 $big = new WP_REST_Request('POST'); $big->set_param('gateway', 'efbmock'); $big->set_body(str_repeat('x', 262145));
 $t('a body over 256 KB: 413', Service::handle_webhook($big)->status, 413);
