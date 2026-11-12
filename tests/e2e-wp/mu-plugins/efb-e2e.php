@@ -20,12 +20,22 @@ add_filter(
 );
 
 /*
- * PAY00 (scenario 9): the test gateway "efbmock" and its fake provider are loaded only when the
- * suite switches them on (option efb_e2e_payments_mock); e-mails are recorded instead of sent while
- * efb_e2e_capture_mail is set, so the scenario can see when a notification goes out.
+ * PAY00 (scenario 9): the test gateway "efbmock" and its fake provider are not part of the plugin;
+ * they live in tests/payments-mock and are registered here, like a gateway add-on, only when the
+ * suite switches them on (option efb_e2e_payments_mock). E-mails are recorded instead of sent
+ * while efb_e2e_capture_mail is set, so the scenario can see when a notification goes out.
  */
-if ( get_option( 'efb_e2e_payments_mock' ) && ! defined( 'EFB_PAYMENTS_MOCK' ) ) {
-	define( 'EFB_PAYMENTS_MOCK', true );
+if ( get_option( 'efb_e2e_payments_mock' ) ) {
+	add_action(
+		'plugins_loaded',
+		static function () {
+			$f = WP_PLUGIN_DIR . '/easy-form-builder/tests/payments-mock/mock-efb.php';
+			if ( is_readable( $f ) ) {
+				require_once $f;
+			}
+		},
+		1
+	);
 }
 add_filter(
 	'pre_wp_mail',

@@ -271,6 +271,10 @@ switch ( $efb_e2e_cmd ) {
 
 	case 'pay-mock':
 		update_option( 'efb_e2e_payments_mock', ( isset( $efb_e2e_rest[0] ) && '1' === $efb_e2e_rest[0] ) ? 1 : 0 );
+		// The site's copy of the suite's mu-plugin registers the test gateway (tests/payments-mock): keep it current.
+		if ( defined( 'WPMU_PLUGIN_DIR' ) && is_dir( WPMU_PLUGIN_DIR ) ) {
+			copy( __DIR__ . '/mu-plugins/efb-e2e.php', WPMU_PLUGIN_DIR . '/efb-e2e.php' );
+		}
 		efb_e2e_out( array( 'ok' => true ) );
 		break;
 
