@@ -299,12 +299,29 @@ class Privacy {
 		return self::ip_mode($form_id, $settings) === 'none' ? '' : self::anonymize_ip($ip);
 	}
 
+	/** IPv6 prefix kept by anonymize_ip(): /48, as Google Analytics and Matomo do. */
+	const IPV6_KEEP_BITS = 48;
+
 	/**
-	 * WordPress' own anonymization (wp_privacy_anonymize_ip(): last octet of IPv4,
-	 * IPv6 reduced to its /64 network), with a faithful copy of it outside WordPress.
-	 * Unlike WordPress, "no address" stays '' instead of becoming '0.0.0.0'.
+	 * Anonymized address: the last octet of IPv4 zeroed (as WordPress does) and IPv6
+	 * reduced to its /48 network. WordPress itself keeps the /64, but an ISP usually
+	 * gives one household a single /64, so that would still point to one subscriber.
+	 * Parsing follows wp_privacy_anonymize_ip() (a faithful copy is used outside
+	 * WordPress). Unlike WordPress, "no address" stays '' instead of becoming '0.0.0.0'.
+	 * Idempotent: anonymizing an anonymized address returns it unchanged.
 	 */
 	public static function anonymize_ip($ip) {
+		$out = self::wp_anonymize_ip($ip);
+		if ($out === '' || strpos($out, ':') === false || strpos($out, '.') !== false) return $out;
+		$bin = @inet_pton($out);
+		if ($bin === false || strlen($bin) !== 16) return $out;
+		$bytes = intdiv(self::IPV6_KEEP_BITS, 8);
+		$masked = inet_ntop(substr($bin, 0, $bytes) . str_repeat("\0", 16 - $bytes));
+		return $masked === false ? '::' : $masked;
+	}
+
+	/** wp_privacy_anonymize_ip(), or a faithful copy of it outside WordPress ('' stays ''). */
+	private static function wp_anonymize_ip($ip) {
 		$ip = is_scalar($ip) ? trim((string) $ip) : '';
 		if ($ip === '') return '';
 		if (function_exists('wp_privacy_anonymize_ip')) return wp_privacy_anonymize_ip($ip);

@@ -65,7 +65,7 @@ foreach (array('store' => $ip4, 'anon' => '203.0.113.0', 'none' => '') as $mode 
 	t("global {$mode}, form without override", Privacy::store_ip($ip4, 5), $want);
 }
 $GLOBALS['settings'] = (object) array('prv_ip_mode' => 'anon');
-t('global anon: IPv6 keeps its /64 network (WordPress behaviour)', Privacy::store_ip($ip6, 5), '2001:db8:85a3:8d3::');
+t('global anon: IPv6 keeps only its /48 network', Privacy::store_ip($ip6, 5), '2001:db8:85a3::');
 $GLOBALS['settings'] = (object) array('prv_ip_mode' => 'bogus');
 t('unknown global value falls back to store', Privacy::store_ip($ip4, 5), $ip4);
 $GLOBALS['settings'] = (object) array('prv_ip_mode' => 'store');
@@ -94,19 +94,31 @@ foreach ($wp_dirs as $d) {
 $fallback = array();
 foreach ($vectors as $v) $fallback[$v] = Privacy::anonymize_ip($v);
 t('fallback: 1.2.3.4 -> 1.2.3.0', $fallback['1.2.3.4'], '1.2.3.0');
-t('fallback: IPv6 -> /64', $fallback['2001:db8:85a3:8d3:1319:8a2e:370:7348'], '2001:db8:85a3:8d3::');
+t('fallback: IPv6 -> /48 (not the /64 WordPress keeps)', $fallback['2001:db8:85a3:8d3:1319:8a2e:370:7348'], '2001:db8:85a3::');
+t('fallback: IPv6 /48 is idempotent', Privacy::anonymize_ip('2001:db8:85a3::'), '2001:db8:85a3::');
+t('fallback: anonymizing an old /64 value gives the /48', Privacy::anonymize_ip('2001:db8:85a3:8d3::'), '2001:db8:85a3::');
+t('fallback: ::1 -> ::', $fallback['::1'], '::');
+t('fallback: IPv4-mapped IPv6 keeps WordPress behaviour', $fallback['::ffff:192.0.2.128'], '::ffff:192.0.2.0');
+t('fallback: IPv4 last octet zeroed', Privacy::anonymize_ip('1.2.3.4'), '1.2.3.0');
 t('fallback: empty stays empty', $fallback[''], '');
+// The /48 of WordPress' own result, i.e. what EFB must return for each vector.
+$to48 = function ($wp) {
+	if ($wp === '' || strpos($wp, ':') === false || strpos($wp, '.') !== false) return $wp;
+	$b = @inet_pton($wp);
+	return ($b === false || strlen($b) !== 16) ? $wp : inet_ntop(substr($b, 0, 6) . str_repeat("\0", 10));
+};
 if ($wp_fn) {
 	eval(str_replace('function wp_privacy_anonymize_ip(', 'function wp_privacy_anonymize_ip_ref(', $wp_fn));
 	$diff = array();
 	foreach ($vectors as $v) {
 		if ($v === '') continue; // WordPress returns '0.0.0.0' for ''; EFB keeps "no address" empty.
-		$ref = wp_privacy_anonymize_ip_ref($v);
+		$ref = $to48(wp_privacy_anonymize_ip_ref($v));
 		if ($ref !== $fallback[$v]) $diff[$v] = array($fallback[$v], $ref);
 	}
-	t('fallback equals WordPress wp_privacy_anonymize_ip() on ' . (count($vectors) - 1) . ' vectors', $diff, array());
+	t('fallback equals WordPress wp_privacy_anonymize_ip() (IPv6 cut to /48) on ' . (count($vectors) - 1) . ' vectors', $diff, array());
 	eval(str_replace('function wp_privacy_anonymize_ip(', 'function wp_privacy_anonymize_ip(', $wp_fn));
 	t('with WordPress loaded, anonymize_ip uses it', Privacy::anonymize_ip('9.8.7.6'), '9.8.7.0');
+	t('with WordPress loaded, IPv6 still cut to /48', Privacy::anonymize_ip('2001:db8:85a3:8d3:1319:8a2e:370:7348'), '2001:db8:85a3::');
 } else {
 	echo "[SKIP] WordPress copy not found: parity with wp_privacy_anonymize_ip() not checked\n";
 }
@@ -278,7 +290,7 @@ $_POST = array('mode' => 'anon');
 try { Privacy::ajax_purge_ip(); } catch (EfbStop $e) { $res = $e->payload; }
 t('purge anon: addresses anonymized, browser kept', array(
 	$GLOBALS['wpdb']->t['emsfb_msg_'][1]['ip'], $GLOBALS['wpdb']->t['emsfb_msg_'][3]['ip'], $GLOBALS['wpdb']->t['emsfb_rsp_'][1]['reader_ip'], $GLOBALS['wpdb']->t['emsfb_stts_'][1]['browser']),
-	array('1.2.3.0', '2001:db8:1:2::', '9.9.9.0', 'Chrome'));
+	array('1.2.3.0', '2001:db8:1::', '9.9.9.0', 'Chrome'));
 t('purge anon reports the changed rows', $res['changed'], 5);
 try { Privacy::ajax_purge_ip(); } catch (EfbStop $e) { $res = $e->payload; }
 t('purge anon twice changes nothing more', $res['changed'], 0);
@@ -302,7 +314,7 @@ $rp = new ReflectionMethod('\Emsfb\Email_Trace', 'redact_pii');
 $rp->setAccessible(true);
 $red = $rp->invoke(null, array('gate' => 'x', 'ip' => '198.51.100.23', 'nested' => array('reader_ip' => '2001:db8:1:2::1'), 'note' => 'ip unchanged'));
 t('trace: ip key anonymized', $red['ip'], '198.51.100.0');
-t('trace: nested reader_ip anonymized', $red['nested']['reader_ip'], '2001:db8:1:2::');
+t('trace: nested reader_ip anonymized', $red['nested']['reader_ip'], '2001:db8:1::');
 t('trace: other values untouched', $red['note'], 'ip unchanged');
 // Registry
 $api = file_get_contents(__DIR__ . '/../includes/class-Emsfb-builder-api.php');
