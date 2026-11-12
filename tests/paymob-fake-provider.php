@@ -206,6 +206,8 @@ class Efb_Test_Paymob_Fake {
 		foreach ( array( 'first_name', 'last_name', 'email', 'phone_number' ) as $k ) {
 			if ( empty( $b['billing_data'][ $k ] ) ) return self::answer( 400, array( 'billing_data' => array( $k => array( 'This field is required.' ) ) ) );
 		}
+		// A number Paymob's own check refuses (the tests use the 0999 prefix for it).
+		if ( strpos( (string) $b['billing_data']['phone_number'], '0999' ) === 0 ) return self::answer( 400, array( 'billing_data' => array( 'phone_number' => array( 'Enter a valid phone number.' ) ) ) );
 		if ( ! is_int( $b['amount'] ) || $b['amount'] <= 0 ) return self::answer( 400, array( 'amount' => array( 'A valid integer is required.' ) ) );
 		if ( isset( $b['items'] ) ) {
 			$sum = 0;

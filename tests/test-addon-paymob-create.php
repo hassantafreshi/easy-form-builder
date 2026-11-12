@@ -262,15 +262,16 @@ if (method_exists('\Emsfb\Payments\Registry', 'normalize_methods')) {
 }
 if (method_exists('\Emsfb\Payments\Registry', 'field_schema')) {
 	$fs = \Emsfb\Payments\Registry::field_schema('paymob');
-	$t('field_schema (cleaned by core): pgw_map_phone and pgw_map_name, form-field pickers', array_map(function ($d) { return $d['key'] . ':' . $d['type']; }, $fs), array('pgw_map_phone:field', 'pgw_map_name:field'));
-	$t('...the phone option is labelled "Mobile number (needed by Paymob)"', $fs[0]['label'], 'Mobile number (needed by Paymob)');
+	$t('field_schema (cleaned by core): pgw_map_email, pgw_map_phone and pgw_map_name, form-field pickers', array_map(function ($d) { return $d['key'] . ':' . $d['type']; }, $fs), array('pgw_map_email:field', 'pgw_map_phone:field', 'pgw_map_name:field'));
+	$t('...the phone option is labelled "Mobile number (needed by Paymob)", required for the wallet only, phone format; the e-mail required for every method', array($fs[1]['label'], $fs[1]['required_for'], $fs[1]['format'], $fs[0]['required'], $fs[0]['format']), array('Mobile number (needed by Paymob)', array('wallet'), 'phone', true, 'email'));
 }
 $t('field_defaults: the security note and the list style', $g->field_defaults(), array('texts' => array('secure' => 'Payments are processed by Paymob.'), 'pf' => array('pf_methods_style' => 'list')));
 $nophone = pmb_form();
 unset($nophone[4]);
 $nophone = array_values($nophone);
-$t('form_warnings: wallet offered and no mobile field → paymob_no_phone', array_map(function ($w) { return $w['code']; }, $g->form_warnings($nophone, $nophone[7], Settings::load('paymob'))), array('paymob_no_phone'));
-$t('...no warning with a mobile field, with a mapped phone field, or when the field offers card only', array($g->form_warnings(pmb_form(), pmb_form()[8], Settings::load('paymob')), $g->form_warnings($nophone, array_merge($nophone[7], array('pgw_map_phone' => 'nm')), Settings::load('paymob')), $g->form_warnings($nophone, array_merge($nophone[7], array('pf_methods' => 'card')), Settings::load('paymob'))), array(array(), array(), array()));
+$t('form_warnings: the add-on has none of its own any more (core checks the declared requirements)', $g->form_warnings($nophone, $nophone[7], Settings::load('paymob')), array());
+$cw = function ($form) { return array_map(function ($w) { return $w['code'] . ':' . $w['level']; }, array_values(array_filter(\Emsfb\Payments\Registry::form_warnings($form), function ($w) { return $w['level'] !== 'info'; }))); };
+$t('...core: wallet offered and no mobile field chosen → warning pay_option_required (wallet only); card only → none', array($cw($nophone), $cw(array_merge(array_slice($nophone, 0, 7), array(array_merge($nophone[7], array('pf_methods' => 'card'))))), $cw(array_merge(array_slice($nophone, 0, 7), array(array_merge($nophone[7], array('pf_methods' => 'wallet')))))), array(array('pay_option_required:warning'), array(), array('pay_option_required:error')));
 $mapped = pmb_form('egp', array('pgw_map_phone' => 'alt'));
 array_splice($mapped, 5, 0, array(array('id_' => 'alt', 'type' => 'text', 'name' => 'WhatsApp for Paymob', 'step' => 1)));
 $r = pmb_create($db, array('form' => $mapped, 'rows' => pmb_rows('ro1', array(array('id_' => 'alt', 'type' => 'text', 'name' => 'WhatsApp for Paymob', 'value' => '011 2222 3333'))), 'method' => 'wallet'));
