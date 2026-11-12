@@ -1,4 +1,4 @@
-وضعیت: سند آماده، پیاده‌سازی نشده · اولویت: P0 (اولین درگاه) · تلاش: M · وابستگی: PAY00 (زیرتسک‌های B تا H)
+وضعیت: فاز ۱ پیاده و تست شد (۲۰۲۶-۱۱-۱۲؛ صفحهٔ میزبان، webhook با خواندن دوباره، بازپرداخت، Test/Live؛ جزئیات در «پیوست: آنچه پیاده شد») · Components و دوره‌ای فاز ۱b · اولویت: P0 (اولین درگاه) · تلاش: M · وابستگی: PAY00 (زیرتسک‌های B تا H)
 
 # PAY01 — افزونهٔ Mollie (اروپا: iDEAL | Wero، Wero، Bancontact، کارت و روش‌های محلی)
 
@@ -283,11 +283,11 @@ public function fetch( Payment $p, Settings $s ): Remote_State {
 - تست‌ها: `php tests/test-pay-mollie-create.php` (بخش تنظیمات)، `node tests/test-pay-capabilities.js`.
 
 **Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `vendores-efb/mollie/` (`routes-efb.php`، `mollieefb.php`، `class-Emsfb-mollie-gateway.php`، `class-Emsfb-mollie-client.php`، `mollie-phrases-efb.php`، `json-efb-compat-efb.php`، `languages/`، `assets/img/`)؛ هسته تغییری نکرد (کلید `AdnMOL` و فایل‌های لازم از PAY00 در `functions.php` و `Registry::ADDONS` بودند).
+- تست‌ها: `php tests/test-addon-mollie-refund-settings.php` ۳۱ موفق (تنظیمات، کلید حالت دیگر ذخیره نمی‌شود، آزمودن اتصال، راز هرگز در خروجی).
+- وضعیت ترجمه: فقط متن انگلیسی و `languages/efb-mollie.pot` (۱۰ عبارت)؛ `locales.json` بی‌زبان؛ به دستور مالک ترجمه نشد.
+- مورد باز: تنظیم `profile_id` و `card_mode` ساخته نشد (Components فاز ۱b)؛ `class-Emsfb-addon-compatibility.php` مدخل `AdnMOL` ندارد (پیش‌فرض سازگار؛ تغییر هسته لازم نبود).
+- اقدام بعدی: —
 
 ### B. ساخت، بازگشت، webhook، fetch، نگاشت وضعیت
 - فایل‌ها: `class-Emsfb-mollie-gateway.php`، `class-Emsfb-mollie-client.php`، `assets/js/mollie-efb.js`.
@@ -295,11 +295,11 @@ public function fetch( Payment $p, Settings $s ): Remote_State {
 - تست‌ها: `test-pay-mollie-create.php`، `test-pay-mollie-webhook.php`، `test-pay-mollie-status-map.php`، `test-pay-mollie-adapter.js`.
 
 **Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `class-Emsfb-mollie-gateway.php`، `class-Emsfb-mollie-client.php`؛ آداپتور JS لازم نشد (redirect را runtime هسته انجام می‌دهد).
+- تست‌ها: `php tests/test-addon-mollie-create.php` ۴۳ موفق، `php tests/test-addon-mollie-webhook.php` ۳۸ موفق (نگاشت §۹ هم در همین فایل)؛ سناریوی `mollie` در `tests/e2e-wp/run.js` ۲۵ موفق.
+- وضعیت ترجمه: همان بالا.
+- مورد باز: نام فایل‌های تست `test-addon-mollie-*` است (قرارداد افزونه‌ها) نه `test-pay-mollie-*`.
+- اقدام بعدی: —
 
 ### C. روش‌ها، لوگوها، Components
 - فایل‌ها: gateway (کش روش‌ها)، آداپتور (Components)، CSS.
@@ -307,11 +307,11 @@ public function fetch( Payment $p, Settings $s ): Remote_State {
 - تست‌ها: `test-pay-mollie-adapter.js`، چک‌لیست دستی.
 
 **Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: gateway (`methods()`، `logos()`، `choose_methods()`)، `assets/img/*.svg`.
+- تست‌ها: انتخاب روش در `test-addon-mollie-create.php`، نمایش روش‌ها و لوگوها در سناریوی `mollie`.
+- وضعیت ترجمه: همان بالا.
+- مورد باز: **Components ساخته نشد**: هسته راهی ندارد که آداپتور پیش از `payments/create` توکن کارت را به درخواست و `Checkout_Context` بدهد (در BUGS-FOUND). پنل سازنده برای `pf_methods` رابط ندارد (فقط API)؛ پیش‌فرض `pf_methods_style=grid` برای این درگاه ممکن نیست (پیش‌فرض هسته `list`). لوگوها نشان سادهٔ نام‌اند، نه طرح رسمی برندها.
+- اقدام بعدی: Components پس از افزودن هوک هسته؛ جایگزینی لوگوها با طرح رسمی پس از بررسی راهنمای برند.
 
 ### D. بازپرداخت و دوره‌ای
 - فایل‌ها: gateway (`refund()`، `cancel()`، اشتراک).
@@ -319,11 +319,11 @@ public function fetch( Payment $p, Settings $s ): Remote_State {
 - تست‌ها: `test-pay-mollie-refund.php`، `test-pay-mollie-subscription.php` (تازه).
 
 **Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: gateway (`refund()`، `cancel()`).
+- تست‌ها: `test-addon-mollie-refund-settings.php` (جزئی، کامل، `Idempotency-Key` = `emsfb_pmt_rfd_.idem_key`، تلاش دوباره همان بازپرداخت، ۴۲۲، وضعیت failed، JPY)؛ بازپرداخت کامل در سناریوی `mollie`.
+- وضعیت ترجمه: همان بالا.
+- مورد باز: **دوره‌ای پیاده نشد** (`supports.recurring = false`؛ PAY00 فاز ۱ دوره‌ای ندارد).
+- اقدام بعدی: دوره‌ای (customers، mandate، subscriptions) در فاز ۱b.
 
 ### E. ترجمه و zip
 - فایل‌ها: `mollie-phrases-efb.php`، `languages/`، `mollie.zip`.
@@ -331,11 +331,11 @@ public function fetch( Payment $p, Settings $s ): Remote_State {
 - تست‌ها: خط لولهٔ i18n افزونه (`docs/addon-i18n`)، بررسی zip.
 
 **Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `mollie-phrases-efb.php`، `languages/efb-mollie.pot`، `languages/locales.json`، `languages/index.php`، `vendores-efb/mollie.zip`.
+- تست‌ها: `test-addon-mollie-refund-settings.php` (هر رشتهٔ `efb-mollie` کد در کلاس عبارت و `.pot`؛ چیدمان zip: یک پوشهٔ `mollie/`، مرتب، 0755/0644، تاریخ ثابت).
+- وضعیت ترجمه: به دستور مالک هیچ زبانی ترجمه نشد (فارسی، آلمانی، هلندی و فرانسوی §۱۵-E منتظر دستور).
+- مورد باز: —
+- اقدام بعدی: ترجمه با خط لولهٔ `docs/addon-i18n` وقتی مالک بخواهد.
 
 ## ۱۶. پرسش‌های باز
 
@@ -343,3 +343,22 @@ public function fetch( Payment $p, Settings $s ): Remote_State {
 2. حساب Mollie آزمایشی WhiteStudio برای تست Wero (بتا) درخواست شود؟
 3. Mollie Connect (OAuth، اتصال با یک کلیک به‌جای چسباندن کلید) — نیاز به ثبت اپ WhiteStudio نزد Mollie دارد؛ ارزش فاز ۲ دارد؟
 4. لوگوها از CDN Mollie (`image.svg`) یا بسته‌بندی محلی (حریم خصوصی بازدیدکننده در EU)؟ پیشنهاد: محلی.
+
+## پیوست: آنچه پیاده شد (۲۰۲۶-۱۱-۱۲)
+
+**ساخته شد (فقط با قرارداد PAY00، بدون تغییر هسته):** افزونهٔ `vendores-efb/mollie` (کلید `AdnMOL`، نوع فیلد `mollie`، text domain `efb-mollie`) و `mollie.zip`. صفحهٔ میزبان Mollie برای همهٔ روش‌ها؛ مبلغ ثابت، محاسبه‌شده و کمک مالی همه از quote سرور (`$p->amount_minor`، `$p->currency`)؛ ۲۹ ارز Mollie (JPY و ISK بدون اعشار؛ ارز سه‌رقمی پشتیبانی نمی‌شود و پیش از هر درخواست رد می‌شود)؛ `Idempotency-Key` برای ساخت (= `idem_key` پرداخت) و بازپرداخت (= `idem_key` ردیف بازپرداخت)؛ کلید Test و Live جدا (هر کدام الگوی خودش؛ کلید حالت دیگر ذخیره نمی‌شود)؛ `api_hosts() = ['api.mollie.com']`؛ لوگوهای محلی.
+
+**تأیید webhook:** webhook کلاسیک Mollie فقط `id` دارد و امضا ندارد، پس هیچ چیزش باور نمی‌شود: هر webhook فقط باعث `GET /v2/payments/{id}` می‌شود و پاسخ باید همان `id`، همان `mode` ردیف و همان `metadata.efb_uid` را داشته باشد؛ مبلغ و ارز را هسته می‌سنجد (کمتر یا ارز دیگر → `failed` و ایمیل). آدرس webhook هم `p` و توکن `t` (HMAC با راز سایت) دارد: توکن نادرست → `401` بدون درخواست بیرونی. کلید رویداد `id|دقیقه`.
+
+**تست‌ها:** `test-addon-mollie-create.php` ۴۳، `test-addon-mollie-webhook.php` ۳۸، `test-addon-mollie-refund-settings.php` ۳۱ (جمعاً ۱۱۲، بدون شبکه؛ fake در `tests/mollie-fake-provider.php` با پاسخ‌های `tests/fixtures/payments/mollie` از مثال‌های رسمی)؛ سناریوی `mollie` روی وردپرس واقعی ۲۵ بررسی.
+
+**تصمیم‌ها برای تأیید مالک:**
+1. Components و دوره‌ای فاز ۱b (پرسش باز ۱)؛ Components به هوک تازهٔ هسته نیاز دارد.
+2. `webhookUrl` در سایت محلی فقط در حالت Test حذف می‌شود؛ در Live فرستاده می‌شود و Mollie رد می‌کند (پیام «پرداخت آغاز نشد»).
+3. ناسازگاری `mode`/`efb_uid`/`id` در پاسخ Mollie «باور نشدنی» است و چون هسته حالت «ناسازگار» ندارد، webhook پاسخ `503` می‌گیرد (Mollie تا ۲۶ ساعت دوباره می‌فرستد) و ردیف معلق می‌ماند تا cron منقضی‌اش کند.
+4. اگر هیچ‌کدام از روش‌های `pf_methods` برای این مبلغ فعال نباشد، پرداخت ساخته نمی‌شود (محدودیت مالک رعایت می‌شود)؛ بی‌`pf_methods` و روش انتخابی غیرفعال → `method` فرستاده نمی‌شود و صفحهٔ Mollie روش‌های مناسب را نشان می‌دهد.
+5. فهرست روش‌های فیلد از «آزمودن اتصال» (۱۰٫۰۰ یورو) در کش تنظیمات هر حالت؛ نوسازی = دوباره «آزمودن اتصال».
+6. لوگوها نشان سادهٔ نام روش‌اند (پرسش باز ۴: محلی)؛ طرح رسمی پس از بررسی مجوز برند.
+7. حداقل مبلغ هر ارز ۱ واحد کوچک و حداکثر EUR ۵۰٬۰۰۰ (بیشترین سقف روش در مثال رسمی)؛ سقف هر روش را `GET /v2/methods` هنگام ساخت می‌سنجد.
+
+**فقط با کلید Sandbox واقعی آزمودنی:** چک‌لیست §۱۴.۲ (صفحهٔ checkout آزمایشی، مبلغ جادویی کارت، Wero بتا، webhook واقعی از اینترنت، بازپرداخت جزئی واقعی، `amountRefunded` پس از بازپرداخت در وضعیت `queued`).
