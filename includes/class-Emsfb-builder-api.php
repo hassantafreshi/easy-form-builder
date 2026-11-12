@@ -390,11 +390,17 @@ class Builder_Api {
 	/**
 	 * B7: the price of a price field (prcfld) that a logic rule computes (calculate,
 	 * set_value, copy_value, clear_value) comes from the server, never from the browser.
-	 * The add-on's engine runs on the submitted answers; every browser row of such a field
-	 * is replaced by one row carrying the computed value as `value` and `price`, or removed
-	 * when the field is hidden / disabled by the rules or computes to nothing. Forms
-	 * without such a rule are returned unchanged (a price field the visitor types stays as
-	 * it was, bounded by its min/max in fun_validation_pay_elements_efb()).
+	 * The add-on's engine runs on the submitted answers WITHOUT the browser's rows of those
+	 * fields, so it starts from an empty field, exactly like a fresh form in the browser:
+	 * an answer the request leaves out is unanswered (empty, 0 in a formula), a rule that
+	 * does not match writes nothing and the field is not charged. Every browser row of such
+	 * a field is replaced by one row carrying the computed value as `value` and `price`, or
+	 * removed when the field is hidden / disabled by the rules or computes to nothing. A rule
+	 * that matches but cannot produce a number (a formula that divides by 0 or names an
+	 * unknown field, a text written into the price) or rules that never settle refuse the
+	 * payment (price_not_computable). Forms without such a rule are returned unchanged (a
+	 * price field the visitor types stays as it was, bounded by its min/max in
+	 * fun_validation_pay_elements_efb()).
 	 *
 	 * @param array $rows Submitted rows (list of associative arrays).
 	 * @param array $form The stored form (associative rows).
@@ -406,13 +412,23 @@ class Builder_Api {
 			if ($i > 0 && is_array($r) && isset($r['id_'], $r['type'])) $fields[(string) $r['id_']] = $r;
 		}
 		$targets = array();
+		$calculated_by = array(); // target => ids of the rules that calculate it
 		$rules = isset($form[0]['logic_rules']) && is_array($form[0]['logic_rules']) ? $form[0]['logic_rules'] : array();
-		foreach ($rules as $rule) {
+		$engine_form = $form;
+		foreach ($rules as $position => $rule) {
 			if (!is_array($rule) || (array_key_exists('enabled', $rule) && empty($rule['enabled'])) || empty($rule['actions']) || !is_array($rule['actions'])) continue;
+			// Only rules the engines run: both skip a rule without conditions.
+			if (empty($rule['conditions']['items']) || !is_array($rule['conditions']['items'])) continue;
+			// The browser runs a rule saved without `enabled`; the server engine must too.
+			if (!array_key_exists('enabled', $rule)) $engine_form[0]['logic_rules'][$position]['enabled'] = true;
+			$rule_id = isset($rule['id']) ? (string) $rule['id'] : 'rule_' . $position;
 			foreach ($rule['actions'] as $a) {
 				$t = is_array($a) && isset($a['target']) ? (string) $a['target'] : '';
-				if ($t !== '' && isset($fields[$t]) && $fields[$t]['type'] === 'prcfld' && in_array(isset($a['type']) ? $a['type'] : '', array('calculate', 'set_value', 'copy_value', 'clear_value'), true)) {
+				$type = is_array($a) && isset($a['type']) ? $a['type'] : '';
+				if ($t !== '' && isset($fields[$t]) && $fields[$t]['type'] === 'prcfld' && in_array($type, array('calculate', 'set_value', 'copy_value', 'clear_value'), true)) {
 					$targets[$t] = true;
+					if ($type === 'calculate') $calculated_by[$t][$rule_id] = true;
+					else $calculated_by[$t]['#other'] = true;
 				}
 			}
 		}
@@ -420,24 +436,39 @@ class Builder_Api {
 		$validator = self::logic_validator();
 		// Without the add-on no rule runs in the browser either: the field is typed, as before.
 		if ($validator === null) return array($rows, null);
+		// The answers, without what the browser says about the computed fields.
+		$answers = array();
+		foreach ($rows as $row) {
+			if (is_array($row) && isset($row['id_']) && isset($targets[(string) $row['id_']])) continue;
+			$answers[] = $row;
+		}
 		try {
-			$result = $validator->evaluate($form, $rows);
+			$result = $validator->evaluate($engine_form, $answers);
 		} catch (\Throwable $e) {
 			return array($rows, 'price_not_computable');
 		}
-		if (!is_array($result) || empty($result['is_conditional'])) return array($rows, null);
+		if (!is_array($result) || empty($result['is_conditional'])) return array($rows, 'price_not_computable');
 		if (isset($result['stabilized']) && $result['stabilized'] === false) return array($rows, 'price_not_computable');
 		$ignored = array_flip(isset($result['ignored_fields']) ? (array) $result['ignored_fields'] : array());
+		$matched = array_flip(array_map('strval', isset($result['matched_rules']) ? (array) $result['matched_rules'] : array()));
 		$values = isset($result['values_map']) && is_array($result['values_map']) ? $result['values_map'] : array();
-		$out = array();
-		foreach ($rows as $row) {
-			if (is_array($row) && isset($row['id_']) && isset($targets[(string) $row['id_']])) continue;
-			$out[] = $row;
-		}
+		$out = $answers;
 		foreach (array_keys($targets) as $id) {
 			if (isset($ignored[$id])) continue;
 			$v = array_key_exists($id, $values) ? $values[$id] : '';
-			if (is_array($v) || $v === '' || $v === null || !is_numeric($v)) continue;
+			if ($v === '' || $v === null || $v === array()) {
+				/* Empty: no rule wrote the field, or one cleared it - nothing to charge.
+				 * Unless the only rules that matched for it calculate it: then the
+				 * formula failed (division by 0, unknown field) and there is no price. */
+				$by = isset($calculated_by[$id]) ? $calculated_by[$id] : array();
+				$failed = false;
+				if (!isset($by['#other'])) {
+					foreach (array_keys($by) as $rid) { if (isset($matched[(string) $rid])) { $failed = true; break; } }
+				}
+				if ($failed) return array($rows, 'price_not_computable');
+				continue;
+			}
+			if (is_array($v) || !is_numeric($v)) return array($rows, 'price_not_computable');
 			$v = (string) (0 + $v);
 			$out[] = array(
 				'id_' => $id, 'id_ob' => $id . '_', 'type' => 'prcfld',
@@ -449,20 +480,28 @@ class Builder_Api {
 		return array($out, null);
 	}
 
-	/** B7: the browser sent a price for a server-priced field that differs from what the server computed. */
+	/**
+	 * B7: the browser sent a price for a server-priced field that differs from what the
+	 * server computed (also when the server charges nothing for it). Compared per field,
+	 * so a computed row the add-on sends without a price next to a typed price field does
+	 * not count as a difference.
+	 */
 	public static function server_price_differs(array $before, array $after) {
-		$sum = function ($rows, $only) {
+		$sum = function ($rows, $id) {
 			$s = 0.0;
 			foreach ($rows as $r) {
-				if (is_array($r) && isset($r['type'], $r['id_']) && $r['type'] === 'prcfld' && isset($only[(string) $r['id_']]) && isset($r['price']) && is_numeric($r['price'])) $s += abs((float) $r['price']);
+				if (is_array($r) && isset($r['type'], $r['id_']) && $r['type'] === 'prcfld' && (string) $r['id_'] === $id && isset($r['price']) && is_numeric($r['price'])) $s += abs((float) $r['price']);
 			}
 			return $s;
 		};
-		$ids = array();
-		foreach ($after as $r) { if (is_array($r) && isset($r['type'], $r['id_']) && $r['type'] === 'prcfld') $ids[(string) $r['id_']] = true; }
-		$sent = false;
-		foreach ($before as $r) { if (is_array($r) && isset($r['id_'], $ids[(string) $r['id_']]) && isset($r['price'])) $sent = true; }
-		return $sent && abs($sum($before, $ids) - $sum($after, $ids)) > 0.000001;
+		$sent = array();
+		foreach ($before as $r) {
+			if (is_array($r) && isset($r['type'], $r['id_']) && $r['type'] === 'prcfld' && isset($r['price'])) $sent[(string) $r['id_']] = true;
+		}
+		foreach (array_keys($sent) as $id) {
+			if (abs($sum($before, (string) $id) - $sum($after, (string) $id)) > 0.000001) return true;
+		}
+		return false;
 	}
 
 	/* ---------------------------------------------------------------- B6 */

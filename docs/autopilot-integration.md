@@ -507,6 +507,17 @@ Events on `document`:
     rules that never settles refuses the payment instead of guessing. Forms without such a rule are
     unchanged; without the add-on nothing changes either (no rule runs in the browser then, so the
     field is a typed price as before).
+  - The engine runs on the answers **without** the browser's rows of the computed price fields, so
+    it starts from an empty field like a fresh form in the browser: an answer the request leaves
+    out is unanswered (empty in a condition, 0 in a formula), a rule that does not match writes
+    nothing and the field is not charged. The browser's number for such a field is never used, not
+    even as a fallback within Min/Max (before, a hand-made request without `guests` kept it). A rule
+    that matches but cannot give a number (`100 / {guests}` with no guests, a formula naming an
+    unknown field, text copied into the price) refuses the payment (`price_not_computable`, the
+    existing "Invalid payment selection" answer). A rule saved without `enabled` runs as in the
+    browser. `server_price_differs()` compares per field: the warning mail also goes out when the
+    server charges nothing for a price the request carried, and no longer goes out for a computed
+    row without `price` next to a typed price field.
   - `fun_validation_pay_elements_efb()` calls it first, so the Stripe intent (and every add-on that
     uses this function) gets the server amount; a browser price that differed triggers the existing
     "invalid value" warning mail to the owner.
@@ -522,9 +533,17 @@ Events on `document`:
   says 15, a non-settling rule refused, a hidden price field not charged, 15 + an option of 7 = 22,
   forms without a rule unchanged. Against the previous `class-Emsfb-public.php`
   (`EFB_PUBLIC_FILE=...`): 8 failures; now 10 passed. `node tests/test-ap-b7-total-display.js`: the
-  displayed total (4 passed).
-- **AutoPilot.** Build "price per guest" as: a number field, a `prcfld` (it can be disabled so the
-  visitor does not type in it), a `ttlprc` total, and a rule
+  displayed total (4 passed). Follow-up (answers left out of the request): 16 more checks, among
+  them no `guests` and a browser 1 or 999 → 0 plus the warning mail, `guests > 0` without guests →
+  0, the factor missing while the rule fires on another answer → counts as 0, `100 / {guests}`
+  without guests → refused, text copied into the price → refused, a rule that reads the price field
+  itself does not see the browser number, a typed tip (Min/Max) next to the computed field kept and
+  bounded, a typed price without rules still bounded by Min/Max; before the fix 17 passed, 9 failed
+  (one of them the false warning mail), now 26 passed.
+- **AutoPilot.** Build "price per guest" as: a number field, a `prcfld` (do **not** set the field's
+  own `disabled`: both engines treat a disabled field as left out, so it would be charged 0; whatever
+  the visitor types there is replaced by the rule's result on the server anyway), a `ttlprc` total,
+  and a rule
   `{type:'calculate', target:'<prcfld>', value:'{guests} * 5', decimals:2}` (Pro, needs `AdnSMF`;
   check with `efb_logic_validate_rules()`). Stripe, and PayPal / Persia Pay from the `dev4` add-on
   builds on, then charge exactly the computed amount. With older PayPal / Persia Pay add-ons, tell
@@ -695,13 +714,13 @@ All new tests, with the results of the final run (2026-11-11, PHP 8.3, Node 22, 
 | `node tests/test-ap-b5-sms-filler.js` | 6 passed |
 | `php tests/test-ap-b5-sms-save.php` | 7 passed |
 | `php tests/test-ap-b6-logic-validate.php` | 33 passed (with the add-on validator) |
-| `php tests/test-ap-b7-computed-price.php` | 10 passed (with the add-on validator) |
+| `php tests/test-ap-b7-computed-price.php` | 26 passed (with the add-on validator) |
 | `node tests/test-ap-b7-total-display.js` | 4 passed |
 | `node tests/test-ap-b8-addon-installed.js` | 8 passed |
 | `node tests/test-ap-b9-deprecated-keys.js` | 3 passed |
 | `node tests/test-ap-contract.js` | 16 passed |
 
-Total: 354 checks, 0 failed. Helpers: `tests/ap-builder-harness.js` (the real builder scripts in
+Total: 370 checks, 0 failed. Helpers: `tests/ap-builder-harness.js` (the real builder scripts in
 Chromium with WordPress-shaped globals), `tests/ap-admin-stubs.php` (WordPress stubs for the admin
 handlers), `tests/build-field-templates.js` (regenerates `includes/data/field-templates-efb.json`).
 
@@ -800,10 +819,13 @@ byte for byte; `paypal.zip`, `persiapay.zip`, `smssended.zip` and `logic.zip` we
 changed sources with the same file list (`stripe.zip` unchanged).
 
 **Open.**
-- Core, `Builder_Api::apply_server_prices()`: when a request leaves out the answers a rule reads, the
-  rule does not fire and the browser's value of the target price field is kept (bounded by its
-  Min/Max). The add-on clients now post the answers, but a hand-made request can still drop them.
-  Evaluating with the target fields' browser rows removed would close it (core change).
+- ~~Core, `Builder_Api::apply_server_prices()`: a request without the answers a rule reads kept the
+  browser's value of the price field.~~ **Fixed in core** (see B7: the engine runs without the
+  browser's rows of the computed fields; a rule that cannot give a number refuses the payment).
+- A computed price field whose own setting is `disabled` is left out by both engines (browser
+  runtime and `Emsfb_Logic_Validator`: `ignored_fields` = hidden + disabled), so it is never
+  charged. Consistent between browser and server, but surprising for "a read-only computed price";
+  telling "read-only" from "left out" would be an add-on change. Until then do not disable it.
 - PayPal subscriptions: `paypal/class-Emsfb-paypal.php` `create_plan()` formats every amount with
   two decimals, so a JPY/HUF/TWD subscription plan is still refused by PayPal (one-time orders are
   fine). Not changed here.
