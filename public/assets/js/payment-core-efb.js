@@ -295,6 +295,9 @@
             label: text(typeof d.label === 'string' ? d.label : d.key, 120),
             help: text(typeof d.help === 'string' ? d.help : '', 300),
             required: !!d.required && d.required !== '0' && !(Array.isArray(d.required) && !d.required.length),
+            required_for: [],
+            owner_message: text(typeof d.owner_message === 'string' ? d.owner_message : '', 300),
+            visitor_message: text(typeof d.visitor_message === 'string' ? d.visitor_message : '', 200),
             options: [], max: 0, field_types: [], default: ''
          };
          if (d.type === 'select' && d.options && typeof d.options === 'object') {
@@ -313,6 +316,9 @@
          }
          if (d.type === 'field' && Array.isArray(d.field_types)) {
             d.field_types.forEach(function (ft) { if (typeof ft === 'string' && /^[A-Za-z]{1,30}$/.test(ft) && e.field_types.indexOf(ft) === -1) e.field_types.push(ft); });
+         }
+         if (Array.isArray(d.required_for)) {
+            d.required_for.forEach(function (mid) { if (typeof mid === 'string' && /^[a-z0-9_]{1,30}$/.test(mid) && e.required_for.indexOf(mid) === -1 && e.required_for.length < 40) e.required_for.push(mid); });
          }
          if (has(d, 'default') && d.default !== null && d.type !== 'field') e.default = optionValue(e, d.default);
          out.push(e);
@@ -348,15 +354,36 @@
          var base = function (o) { return Object.assign({ field_id: phpStr(r.id_), gateway: r.type }, o); };
          var allowed = Array.isArray(g.currencies) ? g.currencies.map(String) : [];
          if (allowed.length && allowed.indexOf(cur) === -1) out.push(base({ code: 'pay_currency', currency: cur, allowed: allowed }));
+         var offered = offeredMethods(r, g);
          cleanSchema(g.field_schema || []).forEach(function (d) {
             var v = optionValue(d, has(r, d.key) ? r[d.key] : null);
-            if (v === '') { if (d.required && d.default === '') out.push(base({ code: 'pay_option_required', key: d.key, label: d.label })); return; }
+            if (v === '') {
+               var forM = requiredMethods(d, offered);
+               if (forM !== null && d.default === '') out.push(base({ code: 'pay_option_required', key: d.key, label: d.label, methods: forM, field_types: d.field_types, owner_message: d.owner_message }));
+               return;
+            }
             if (d.type !== 'field') return;
             if (!has(types, v)) out.push(base({ code: 'pay_option_field_missing', key: d.key, label: d.label }));
             else if (d.field_types.length && d.field_types.indexOf(types[v]) === -1) out.push(base({ code: 'pay_option_field_type', key: d.key, label: d.label }));
          });
       });
       return out;
+   }
+   function offeredMethods(row, info) {
+      var own = sanitizeKey('pf_methods', get(row, 'pf_methods'));
+      if (own !== '') return own.split(',');
+      if (!info || !Array.isArray(info.methods)) return null;
+      var ids = [];
+      info.methods.forEach(function (m) { if (Array.isArray(m) && m.length && m[0] != null && isScalar(m[0])) ids.push(phpStr(m[0])); });
+      return ids;
+   }
+   function requiredMethods(d, offered) {
+      if (d.required_for.length) {
+         if (offered === null) return d.required_for.slice();
+         var both = d.required_for.filter(function (x) { return offered.indexOf(x) !== -1; });
+         return both.length ? both : null;
+      }
+      return d.required ? [] : null;
    }
    function logoUrl(u) {
       return typeof u === 'string' && u.length <= 500 && /^(?:https?:)?\/\/[^\x00-\x20"'<>()]+$|^\/[^\/\x00-\x20"'<>()][^\x00-\x20"'<>()]*$/i.test(u);
@@ -744,7 +771,7 @@
    var core = {
       ELEMENTS: ELEMENTS, KEYS: KEYS, FORM_KEYS: FORM_KEYS, TEXT_KEYS: TEXT_KEYS, ICONS: ICONS, HIDEABLE: HIDEABLE,
       DEFAULTABLE: DEFAULTABLE, PAYER_KEYS: PAYER_KEYS, OPTION_TYPES: OPTION_TYPES,
-      fieldId: fieldId, cleanSchema: cleanSchema, sanitizeGatewayKey: sanitizeGatewayKey, gatewayOptions: gatewayOptions, warnings: warnings, methodEntry: methodEntry, logoUrl: logoUrl,
+      fieldId: fieldId, cleanSchema: cleanSchema, offeredMethods: offeredMethods, requiredMethods: requiredMethods, sanitizeGatewayKey: sanitizeGatewayKey, gatewayOptions: gatewayOptions, warnings: warnings, methodEntry: methodEntry, logoUrl: logoUrl,
       sanitizeKey: sanitizeKey, resolve: resolve, texts: texts, css: css, html: html, esc: esc,
       contrast: contrast, autoText: autoText, darken: darken, presets: presets, decimal: decimal,
       i18nDecode: i18nDecode, i18nEncode: i18nEncode, b64urlEncode: b64urlEncode, b64urlDecode: b64urlDecode,

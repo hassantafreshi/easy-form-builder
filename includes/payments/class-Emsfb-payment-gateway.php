@@ -166,6 +166,16 @@ abstract class Gateway {
 		return array();
 	}
 
+	/**
+	 * The gateway's own visitor messages for core's error codes, or for its own: array( code => text )
+	 * (plain text in the add-on's text domain). Core uses them instead of its generic text, e.g.
+	 * 'payer_missing' => "Enter your mobile number: it is needed to pay with a mobile wallet.",
+	 * 'gateway_error' => "…". Codes: see Service::message() (filter efb_payment_message too).
+	 */
+	public function messages() {
+		return array();
+	}
+
 	/** Notices on the gateway's settings card: array( array( 'level' => info|warning|error, 'm' => text ) ). */
 	public function settings_notices( Settings $s ) {
 		return array();

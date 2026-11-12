@@ -87,13 +87,21 @@
       var r = rows();
       if (!r || !core().warnings) return '';
       var infos = {};
-      Object.keys(P().gateways || {}).forEach(function (k) { var g = info(k); infos[k] = { currencies: g.currencies || [], field_schema: g.field_schema || [] }; });
+      Object.keys(P().gateways || {}).forEach(function (k) { var g = info(k); infos[k] = { currencies: g.currencies || [], field_schema: g.field_schema || [], methods: g.methods || [] }; });
       var label = (info(row.type) || {}).label || row.type;
       var list = core().warnings(r, infos).filter(function (w) { return w.field_id === row.id_; });
       if (!list.length) return '';
       var text = function (w) {
          if (w.code === 'pay_currency') return L('wCurrency', '%1$s only accepts %2$s. This form uses %3$s, so visitors cannot pay. Change the currency in the payment field.').replace('%1$s', label).replace('%2$s', w.allowed.join(', ')).replace('%3$s', w.currency || '-');
-         if (w.code === 'pay_option_required') return L('wRequired', '%1$s needs "%2$s". Choose it in the payment field\'s settings.').replace('%1$s', label).replace('%2$s', w.label);
+         if (w.code === 'pay_option_required') {
+            if (w.owner_message) return w.owner_message;
+            var ft = w.field_types || [];
+            var kind = ft.length === 1 && ft[0] === 'email' ? L('kindEmail', 'an Email field') : (ft.some(function (x) { return x === 'mobile' || x === 'tel'; }) && ft.every(function (x) { return ['mobile', 'tel', 'text', 'number'].indexOf(x) !== -1; }) ? L('kindPhone', 'a phone number field') : L('kindAny', 'a field for it'));
+            var names = (w.methods || []).map(function (id) { var m = ((info(w.gateway) || {}).methods || []).find(function (x) { return String(x[0]) === id; }); return m ? m[1] : id; });
+            return names.length
+               ? L('wRequiredFor', '%1$s requires "%2$s" to pay with %3$s. Add %4$s to the form and select it in the payment field\'s "%2$s" option.').split('%1$s').join(label).split('%2$s').join(w.label).split('%3$s').join(names.join(', ')).split('%4$s').join(kind)
+               : L('wRequired', '%1$s requires "%2$s". Add %3$s to the form and select it in the payment field\'s "%2$s" option.').split('%1$s').join(label).split('%2$s').join(w.label).split('%3$s').join(kind);
+         }
          if (w.code === 'pay_option_field_missing') return L('wMissing', '%1$s: the field chosen for "%2$s" is no longer in the form. Choose another one.').replace('%1$s', label).replace('%2$s', w.label);
          return L('wType', '%1$s: the field chosen for "%2$s" is not the right kind of field.').replace('%1$s', label).replace('%2$s', w.label);
       };

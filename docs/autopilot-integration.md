@@ -692,6 +692,10 @@ only on test sites (registered by the e2e mu-plugin).
   `pay_option_field_type` (a mapped field is gone / of the wrong type) and the gateway's own
   `pay_gw_<code>` (e.g. `pay_gw_needs_name_email` for Tap, `pay_gw_billing_unmapped` for Payplug).
   Fix them with `setForm()` and save again. The builder panel shows core's warnings live.
+  `pay_option_required` carries `methods` (the gateway needs the value only for these methods, from
+  `field_schema[].required_for`; empty = every payment) and the message says which kind of field to
+  add and which option to select it in; set that option (`pgw_map_*`) to the `id_` of a matching
+  field, or limit `pf_methods` to methods that do not need it.
 - **Registry.** `field:<slug>` (Free Plus + its add-on, `form_patch`), `setting:pay_style`,
   `setting:pay_pwyw`, `setting:pay_delayed_actions` (Free Plus), `setting:pay_style_mobile` (Pro),
   `addon:AdnMOL` … `addon:AdnXND` (Free Plus). New top-level `payment_gateways.<slug>` =

@@ -75,8 +75,37 @@ class Service {
 		return true;
 	}
 
+	/**
+	 * The visitor's message for an error code: the gateway's own (Gateway::messages()), else core's;
+	 * then the filter efb_payment_message( $text, $code, $extra, $gateway_slug ). $extra may name the
+	 * gateway ('gateway' => slug) and carry the values a text uses (amount, method, label).
+	 */
+	/** The gateway of the create / retry this request serves (for its own messages). */
+	private static $gw_slug = '';
+
 	public static function message( $code, $extra = array() ) {
+		$slug = isset( $extra['gateway'] ) && is_string( $extra['gateway'] ) ? $extra['gateway'] : self::$gw_slug;
+		$own = '';
+		$g = $slug !== '' ? Registry::get( $slug ) : null;
+		if ( $g ) {
+			try { $map = $g->messages(); } catch ( \Throwable $e ) { $map = array(); }
+			if ( is_array( $map ) && isset( $map[ $code ] ) && is_string( $map[ $code ] ) ) {
+				$own = Field::text( strtr( $map[ $code ], array( '%amount%' => isset( $extra['amount'] ) ? (string) $extra['amount'] : '', '%method%' => isset( $extra['method'] ) ? (string) $extra['method'] : '', '%field%' => isset( $extra['label'] ) ? (string) $extra['label'] : '' ) ), 300 );
+			}
+		}
+		$m = $own !== '' ? $own : self::core_message( $code, $extra );
+		return function_exists( 'apply_filters' ) ? (string) apply_filters( 'efb_payment_message', $m, $code, $extra, $slug ) : $m;
+	}
+
+	private static function core_message( $code, $extra ) {
 		switch ( $code ) {
+			case 'payer_missing':
+				if ( isset( $extra['visitor'] ) && $extra['visitor'] !== '' ) return $extra['visitor'];
+				return ! empty( $extra['method'] )
+					/* translators: %1$s: name of the form field (e.g. Mobile), %2$s: payment method */
+					? sprintf( __( 'Please fill in "%1$s": it is needed to pay with %2$s.', 'easy-form-builder' ), isset( $extra['label'] ) ? $extra['label'] : '', $extra['method'] )
+					/* translators: %s: name of the form field (e.g. Email) */
+					: sprintf( __( 'Please fill in "%s": it is needed for the payment.', 'easy-form-builder' ), isset( $extra['label'] ) ? $extra['label'] : '' );
 			case 'quote_changed':
 				return sprintf( __( 'The amount was updated to %s. Please check and press Pay again.', 'easy-form-builder' ), isset( $extra['amount'] ) ? $extra['amount'] : '' );
 			case 'below_min':
@@ -180,6 +209,7 @@ class Service {
 		}
 		$gw = $field ? Registry::get( isset( $field['type'] ) ? (string) $field['type'] : '' ) : null;
 		if ( ! $gw ) return self::fail( 'pay_unavailable' );
+		self::$gw_slug = $gw->slug();
 		if ( ! self::plan_ok() ) return self::fail( 'pay_unavailable' );
 		if ( ! Store::ready() ) return self::fail( 'pay_unavailable' );
 		$slug = $gw->slug();
@@ -248,6 +278,8 @@ class Service {
 		}
 		try { $schema = $gw->field_schema(); } catch ( \Throwable $e ) { $schema = array(); }
 		$options = Field::gateway_options( $field, $schema );
+		$missing = self::payer_missing( $gw, $settings, $form, $field, $schema, $plain_rows, $method );
+		if ( $missing ) return $missing;
 		$payer = Field::payer( $plain_rows, $options, isset( $a['payer_email'] ) ? (string) $a['payer_email'] : '' );
 
 		$return_to = '';
@@ -343,6 +375,39 @@ class Service {
 		return $out;
 	}
 
+	/**
+	 * A payer value the gateway requires (field_schema required / required_for the chosen method)
+	 * that the visitor left empty: a field-level answer (field_id, the gateway's visitor_message or
+	 * core's "Please fill in …") instead of the provider's generic refusal. null when nothing is missing
+	 * or the option is not mapped to a field (the owner is warned at Save).
+	 */
+	private static function payer_missing( Gateway $gw, Settings $s, array $form, array $field, $schema, array $rows, $method ) {
+		$offered = Field::offered_methods( $field, array( 'methods' => Registry::normalize_methods( $gw->methods( $s ) ) ) );
+		$chosen = $method !== '' ? array( $method ) : ( is_array( $offered ) && count( $offered ) === 1 ? $offered : array() );
+		$labels = array();
+		foreach ( Registry::normalize_methods( $gw->methods( $s ) ) as $m ) $labels[ $m[0] ] = $m[1];
+		foreach ( Field::clean_schema( $schema ) as $d ) {
+			if ( $d['type'] !== 'field' ) continue;
+			$need = $d['required'] && ! $d['required_for'];
+			$for = '';
+			if ( ! $need && $d['required_for'] && $chosen && array_intersect( $chosen, $d['required_for'] ) ) { $need = true; $for = isset( $labels[ $chosen[0] ] ) ? $labels[ $chosen[0] ] : $chosen[0]; }
+			if ( ! $need ) continue;
+			$fid = Field::field_id( isset( $field[ $d['key'] ] ) ? $field[ $d['key'] ] : '' );
+			if ( $fid === '' ) continue;
+			$val = '';
+			foreach ( $rows as $r ) {
+				if ( is_array( $r ) && isset( $r['id_'] ) && (string) $r['id_'] === $fid && isset( $r['value'] ) && is_scalar( $r['value'] ) ) { $val = trim( (string) $r['value'] ); break; }
+			}
+			if ( $val !== '' ) continue;
+			$name = $d['label'];
+			foreach ( $form as $i => $f ) {
+				if ( $i > 0 && is_array( $f ) && isset( $f['id_'], $f['name'] ) && (string) $f['id_'] === $fid && is_string( $f['name'] ) && $f['name'] !== '' ) $name = Field::text( str_replace( '@efb@dq#', '"', $f['name'] ), 80 );
+			}
+			return self::fail( 'payer_missing', array( 'gateway' => $gw->slug(), 'field_id' => $fid, 'label' => $name, 'method' => $for, 'visitor' => $d['visitor_message'] ) );
+		}
+		return null;
+	}
+
 	/** The browser adapter's opaque token: printable ASCII, at most 4096 characters, else ''. */
 	public static function client_token( $t ) {
 		return is_string( $t ) && strlen( $t ) <= 4096 && preg_match( '/^[\x21-\x7E]{1,4096}$/', $t ) ? $t : '';
@@ -402,6 +467,7 @@ class Service {
 		if ( Store::finalized_sibling( (int) $prev['msg_id'], 0 ) || Store::count_by_msg( (int) $prev['msg_id'] ) >= 10 ) return self::fail( 'retry_unavailable' );
 		$gw = Registry::get( $prev['gateway'] );
 		if ( ! $gw || ! self::plan_ok() ) return self::fail( 'pay_unavailable' );
+		self::$gw_slug = $gw->slug();
 		$settings = Settings::load( $prev['gateway'] );
 		if ( ! $gw->is_configured( $settings, $settings->mode() ) ) return self::fail( 'pay_unavailable' );
 		$form = self::form_rows( $prev['form_id'] );

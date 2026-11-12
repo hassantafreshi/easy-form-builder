@@ -230,7 +230,8 @@ class Registry {
 		foreach ( self::all() as $slug => $g ) {
 			$sup = array_merge( ( new Gateway_Defaults() )->supports(), (array) $g->supports() );
 			try { $schema = $g->field_schema(); } catch ( \Throwable $e ) { $schema = array(); }
-			$infos[ $slug ] = array( 'currencies' => array_values( (array) $sup['currencies'] ), 'field_schema' => $schema, 'label' => (string) $g->label() );
+			try { $methods = self::normalize_methods( $g->methods( Settings::load( $slug ) ) ); } catch ( \Throwable $e ) { $methods = array(); }
+			$infos[ $slug ] = array( 'currencies' => array_values( (array) $sup['currencies'] ), 'field_schema' => $schema, 'label' => (string) $g->label(), 'methods' => $methods );
 		}
 		foreach ( Field::warnings( $form, $infos ) as $w ) {
 			$label = $infos[ $w['gateway'] ]['label'];
@@ -240,8 +241,7 @@ class Registry {
 					$m = sprintf( __( '%1$s only accepts %2$s. This form uses %3$s, so visitors cannot pay. Change the currency in the payment field.', 'easy-form-builder' ), $label, implode( ', ', $w['allowed'] ), $w['currency'] !== '' ? $w['currency'] : '-' );
 					break;
 				case 'pay_option_required':
-					/* translators: %1$s: gateway name, %2$s: name of an option of the payment field */
-					$m = sprintf( __( '%1$s needs "%2$s". Choose it in the payment field\'s settings.', 'easy-form-builder' ), $label, $w['label'] );
+					$m = self::required_text( $label, $w, $infos[ $w['gateway'] ]['methods'] );
 					break;
 				case 'pay_option_field_missing':
 					/* translators: %1$s: gateway name, %2$s: name of an option of the payment field */
@@ -265,6 +265,29 @@ class Registry {
 			}
 		}
 		return $out;
+	}
+
+	/**
+	 * The owner's message for a required payer option that is not chosen: the gateway's own
+	 * (field_schema owner_message) or core's actionable one, naming the kind of field to add, the
+	 * option to choose it in, and the methods that need it.
+	 */
+	public static function required_text( $gateway_label, array $w, array $methods = array() ) {
+		if ( isset( $w['owner_message'] ) && $w['owner_message'] !== '' ) return $w['owner_message'];
+		$kind = isset( $w['field_types'] ) && $w['field_types'] === array( 'email' ) ? __( 'an Email field', 'easy-form-builder' )
+			: ( isset( $w['field_types'] ) && array_intersect( (array) $w['field_types'], array( 'mobile', 'tel' ) ) && ! array_diff( (array) $w['field_types'], array( 'mobile', 'tel', 'text', 'number' ) ) ? __( 'a phone number field', 'easy-form-builder' ) : __( 'a field for it', 'easy-form-builder' ) );
+		$names = array();
+		foreach ( isset( $w['methods'] ) ? (array) $w['methods'] : array() as $id ) {
+			$n = $id;
+			foreach ( $methods as $m ) { if ( (string) $m[0] === $id ) $n = (string) $m[1]; }
+			$names[] = $n;
+		}
+		if ( $names ) {
+			/* translators: %1$s: gateway name, %2$s: what is needed (option name, e.g. Payer e-mail), %3$s: payment methods, %4$s: kind of field (e.g. an Email field) */
+			return sprintf( __( '%1$s requires "%2$s" to pay with %3$s. Add %4$s to the form and select it in the payment field\'s "%2$s" option.', 'easy-form-builder' ), $gateway_label, $w['label'], implode( ', ', $names ), $kind );
+		}
+		/* translators: %1$s: gateway name, %2$s: what is needed (option name, e.g. Payer e-mail), %3$s: kind of field (e.g. an Email field) */
+		return sprintf( __( '%1$s requires "%2$s". Add %3$s to the form and select it in the payment field\'s "%2$s" option.', 'easy-form-builder' ), $gateway_label, $w['label'], $kind );
 	}
 
 	/**

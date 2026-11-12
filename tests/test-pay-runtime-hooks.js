@@ -106,6 +106,34 @@ const ORIGIN = 'https://site.example';
   t('3: iDEAL needs 50.00: the page says so, naming the method, nothing is sent', calls.length === before && /iDEAL accepts amounts from/.test(await page.textContent('[data-pf-status]')), await page.textContent('[data-pf-status]'));
   await page.evaluate(() => document.querySelector('[data-pf-method="card"]').click());
 
+  // Payer requirements: a value the gateway requires for the chosen method stops Pay at that field.
+  await page.evaluate(() => {
+    window.EFBPay.registerAdapter('gwa', {});
+    const el = document.querySelector('.efb-pf'); el._last = null; el._retryable = false; el._attempt = null; const b = el.querySelector('[data-pf-pay]'); b.disabled = false; b.removeAttribute('aria-busy');
+    const s = window.valj_efb_new[0].form_structer;
+    s.push({ id_: 'mo', type: 'mobile', name: 'Mobile' });
+    s.find((r) => r.id_ === 'pf').pgw_map_phone = 'mo';
+    document.getElementById('body_efb_9').insertAdjacentHTML('afterbegin', '<input data-id="mo-el" id="mo_">');
+    window.efb_pay_vars.gateways.gwa.requires = [{ key: 'pgw_map_phone', label: 'Mobile number', required: false, required_for: ['card'], visitor_message: '' }];
+    window.efb_pay_vars.text.payerMissingFor = 'Please fill in "%1$s": it is needed to pay with %2$s.';
+  });
+  const r0 = calls.length;
+  await page.click('[data-pf-pay]');
+  await page.waitForTimeout(250);
+  const pm = await page.evaluate(() => ({ msg: document.querySelector('[data-pf-status]').textContent, focus: document.activeElement && document.activeElement.getAttribute('data-id') }));
+  t('payer requirement: card needs the mobile number → a field-level message naming the field and the method, focus on it, nothing sent', calls.length === r0 && pm.msg === 'Please fill in "Mobile": it is needed to pay with Card.' && pm.focus === 'mo-el', pm);
+  await page.evaluate(() => { window.efb_pay_vars.gateways.gwa.requires[0].visitor_message = 'Enter your mobile number: it is needed to pay by card.'; });
+  await page.click('[data-pf-pay]');
+  await page.waitForTimeout(150);
+  t('payer requirement: the gateway\'s own visitor_message wins', (await page.textContent('[data-pf-status]')) === 'Enter your mobile number: it is needed to pay by card.');
+  statusAnswer = { state: 'failed', can_retry: false }; // this payment's own watch ends at once
+  await page.evaluate(() => { window.sendBack_emsFormBuilder_pub.push({ id_: 'mo', type: 'mobile', value: '+201001234567', form_id: 9 }); });
+  await page.click('[data-pf-pay]');
+  await page.waitForTimeout(400);
+  t('payer requirement: once filled, Pay goes on (create sent)', calls.slice(r0).some((c) => c.route === 'create'));
+  await page.waitForTimeout(500);
+  await page.evaluate(() => { window.efb_pay_vars.gateways.gwa.requires = []; document.querySelectorAll('.efb-pf-retry').forEach((x) => x.remove()); });
+
   // 10/11: failure → Try again → payments/retry for the same entry; polling until poll_until.
   await page.evaluate(() => { window.EFBPay.registerAdapter('gwa', {}); const el = document.querySelector('.efb-pf'); el._last = null; el._retryable = false; el._attempt = null; const b = el.querySelector('[data-pf-pay]'); b.disabled = false; b.removeAttribute('aria-busy'); });
   statusAnswer = { state: 'pending', poll_until: Math.floor(Date.now() / 1000) + 4 };

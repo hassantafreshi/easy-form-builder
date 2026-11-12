@@ -273,6 +273,11 @@ class Field {
 				'label'       => self::text( isset( $d['label'] ) && is_string( $d['label'] ) ? $d['label'] : $d['key'], 120 ),
 				'help'        => self::text( isset( $d['help'] ) && is_string( $d['help'] ) ? $d['help'] : '', 300 ),
 				'required'    => ! empty( $d['required'] ),
+				// Required only for these methods (ids of Gateway::methods()); [] with required = every method.
+				'required_for' => array(),
+				// The gateway's own words: for the form owner (builder, Save, AutoPilot) and for the visitor (Pay).
+				'owner_message'   => self::text( isset( $d['owner_message'] ) && is_string( $d['owner_message'] ) ? $d['owner_message'] : '', 300 ),
+				'visitor_message' => self::text( isset( $d['visitor_message'] ) && is_string( $d['visitor_message'] ) ? $d['visitor_message'] : '', 200 ),
 				'options'     => array(),
 				'max'         => 0,
 				'field_types' => array(),
@@ -295,6 +300,11 @@ class Field {
 			if ( $d['type'] === 'field' && isset( $d['field_types'] ) && is_array( $d['field_types'] ) ) {
 				foreach ( $d['field_types'] as $ft ) {
 					if ( is_string( $ft ) && preg_match( '/^[A-Za-z]{1,30}$/', $ft ) && ! in_array( $ft, $e['field_types'], true ) ) $e['field_types'][] = $ft;
+				}
+			}
+			if ( isset( $d['required_for'] ) && is_array( $d['required_for'] ) ) {
+				foreach ( $d['required_for'] as $mid ) {
+					if ( is_string( $mid ) && preg_match( '/^[a-z0-9_]{1,30}$/', $mid ) && ! in_array( $mid, $e['required_for'], true ) && count( $e['required_for'] ) < 40 ) $e['required_for'][] = $mid;
 				}
 			}
 			if ( isset( $d['default'] ) && $d['type'] !== 'field' ) $e['default'] = self::option_value( $e, $d['default'] );
@@ -401,10 +411,12 @@ class Field {
 			$base = array( 'field_id' => (string) $r['id_'], 'gateway' => $r['type'] );
 			$allowed = isset( $g['currencies'] ) && is_array( $g['currencies'] ) ? array_values( array_map( 'strval', $g['currencies'] ) ) : array();
 			if ( $allowed && ! in_array( $cur, $allowed, true ) ) $out[] = $base + array( 'code' => 'pay_currency', 'currency' => $cur, 'allowed' => $allowed );
+			$offered = self::offered_methods( $r, $g );
 			foreach ( self::clean_schema( isset( $g['field_schema'] ) ? $g['field_schema'] : array() ) as $d ) {
 				$v = self::option_value( $d, isset( $r[ $d['key'] ] ) ? $r[ $d['key'] ] : null );
 				if ( $v === '' ) {
-					if ( $d['required'] && $d['default'] === '' ) $out[] = $base + array( 'code' => 'pay_option_required', 'key' => $d['key'], 'label' => $d['label'] );
+					$for = self::required_methods( $d, $offered );
+					if ( $for !== null && $d['default'] === '' ) $out[] = $base + array( 'code' => 'pay_option_required', 'key' => $d['key'], 'label' => $d['label'], 'methods' => $for, 'field_types' => $d['field_types'], 'owner_message' => $d['owner_message'] );
 					continue;
 				}
 				if ( $d['type'] !== 'field' ) continue;
@@ -413,6 +425,34 @@ class Field {
 			}
 		}
 		return $out;
+	}
+
+	/**
+	 * The method ids a gateway field offers: its pf_methods, else every method the gateway lists
+	 * ($info['methods']); null when unknown (no list given).
+	 */
+	public static function offered_methods( $row, array $info ) {
+		$own = self::sanitize_key( 'pf_methods', self::get( $row, 'pf_methods' ) );
+		if ( $own !== '' ) return explode( ',', $own );
+		if ( ! isset( $info['methods'] ) || ! is_array( $info['methods'] ) ) return null;
+		$ids = array();
+		foreach ( $info['methods'] as $m ) {
+			if ( is_array( $m ) && isset( $m[0] ) && is_scalar( $m[0] ) ) $ids[] = (string) $m[0];
+		}
+		return $ids;
+	}
+
+	/**
+	 * Whether a schema option is required for what the field offers: null = not required;
+	 * array() = for every payment; a list = only for these offered methods (required_for).
+	 */
+	public static function required_methods( array $d, $offered ) {
+		if ( ! empty( $d['required_for'] ) ) {
+			if ( $offered === null ) return $d['required_for'];
+			$both = array_values( array_intersect( $d['required_for'], $offered ) );
+			return $both ? $both : null;
+		}
+		return $d['required'] ? array() : null;
 	}
 
 	/** A method entry from a gateway (id, label, extras) → [id, label] or [id, label, logo URL]. */

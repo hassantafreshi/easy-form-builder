@@ -66,6 +66,14 @@ const iF1 = fieldCase('f1', {}, { methods, logos: [], mobile: false, defaults: {
 const iF2 = fieldCase('f2', { pf_methods_style: 'select', pf_btn_icon: 'none' }, { methods, logos: [], mobile: false, defaults: { pf_methods_style: 'grid', pf_btn_icon: 'bi-qr-code' } });
 const iF3 = fieldCase('f3', { pf_methods: 'bank,card' }, { methods, logos: [], mobile: true });
 
+// Payer requirements per method (required_for) and the gateway's own words.
+const schema2 = [{ key: 'pgw_map_phone', type: 'field', label: 'Mobile', field_types: ['mobile'], required_for: ['wallet', 'BAD ID', 'wallet', 7], owner_message: '<b>Add</b> a mobile field', visitor_message: 'Enter your mobile' }, { key: 'pgw_map_email', type: 'field', label: 'E-mail', required: true }];
+const iS2 = add({ op: 'gwschema', schema: schema2 });
+const f2 = (pf) => [{ type: 'payment', currency: 'EUR' }, { id_: 'em', type: 'email' }, Object.assign({ id_: 'pf', type: 'gwr', pgw_map_email: 'em' }, pf)];
+const infos2 = { gwr: { currencies: [], field_schema: schema2, methods: [['card', 'Card'], ['wallet', 'Wallet']] } };
+const iW1 = add({ op: 'warnings', form: f2({}), infos: infos2 });
+const iW2 = add({ op: 'warnings', form: f2({ pf_methods: 'card' }), infos: infos2 });
+const iW3 = add({ op: 'warnings', form: f2({}), infos: { gwr: { currencies: [], field_schema: schema2 } } });
 cases[iTwice].schema = JSON.parse(JSON.stringify(core.cleanSchema(schema)));
 const P = php(cases);
 const bad = [];
@@ -102,6 +110,10 @@ t('warnings: a required select with a default is fine; a required code without o
 t('warnings: an unknown field type (gateway not active) is not checked', codes.indexOf('pf4') === -1);
 t('warnings: a correct form has none; a broken form gives none', P[iWarnOk].length === 0 && P[iWarnBad].length === 0, JSON.stringify(P[iWarnOk]));
 
+t('required_for: valid method ids once; owner / visitor messages as plain text', JSON.stringify([P[iS2][0].required_for, P[iS2][0].owner_message, P[iS2][0].visitor_message]) === JSON.stringify([['wallet'], 'b Add /b a mobile field', 'Enter your mobile']), JSON.stringify(P[iS2][0]));
+t('warnings: a value required for a method the field offers → pay_option_required with that method and the gateway\'s owner text', P[iW1].length === 1 && JSON.stringify(P[iW1][0].methods) === '["wallet"]' && P[iW1][0].owner_message === 'b Add /b a mobile field', JSON.stringify(P[iW1]));
+t('warnings: the field does not offer that method → nothing', P[iW2].length === 0, JSON.stringify(P[iW2]));
+t('warnings: methods unknown → the declared methods are named', P[iW3].length === 1 && JSON.stringify(P[iW3][0].methods) === '["wallet"]');
 const F1 = P[iF1], F2 = P[iF2], F3 = P[iF3];
 t('defaults: the gateway\'s style defaults apply when the field has none (grid, qr icon, colour)', F1.resolved.methods_style === 'grid' && F1.resolved.btn.icon === 'bi-qr-code' && F1.resolved.btn.bg === '#123456');
 t('defaults: only style keys and only valid values (bogus layout ignored)', F1.resolved.layout === 'stack');

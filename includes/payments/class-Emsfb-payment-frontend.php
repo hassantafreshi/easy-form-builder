@@ -57,6 +57,10 @@ class Frontend {
 			/* translators: %1$s: payment method, %2$s: amount with currency */
 			'methodMax'  => __( '%1$s accepts amounts up to %2$s. Please choose another payment method.', 'easy-form-builder' ),
 			'newAttempt' => __( 'Preparing a new payment…', 'easy-form-builder' ),
+			/* translators: %1$s: name of the form field (e.g. Mobile), %2$s: payment method */
+			'payerMissingFor' => __( 'Please fill in "%1$s": it is needed to pay with %2$s.', 'easy-form-builder' ),
+			/* translators: %s: name of the form field (e.g. Email) */
+			'payerMissing' => __( 'Please fill in "%s": it is needed for the payment.', 'easy-form-builder' ),
 		);
 	}
 
@@ -151,7 +155,18 @@ class Frontend {
 					$limits[ $m[0] ] = array( 'label' => $m[1], 'min_minor' => isset( $m[2]['min_minor'] ) ? $m[2]['min_minor'] : array(), 'max_minor' => isset( $m[2]['max_minor'] ) ? $m[2]['max_minor'] : array() );
 				}
 			}
-			$gateways[ $slug ] = array( 'label' => $info['label'], 'mode' => $info['mode'], 'flows' => $info['supports']['flows'], 'min_minor' => $info['supports']['min_minor'], 'max_minor' => $info['supports']['max_minor'], 'currencies' => $info['currencies'], 'method_limits' => $limits );
+			// The payer values the gateway requires (field options of type "field": required, or required_for
+			// some methods): the page stops Pay at the empty field with this message.
+			$requires = array();
+			foreach ( $info['field_schema'] as $d ) {
+				if ( $d['type'] === 'field' && ( $d['required'] || $d['required_for'] ) ) $requires[] = array( 'key' => $d['key'], 'label' => $d['label'], 'required' => $d['required'] && ! $d['required_for'], 'required_for' => $d['required_for'], 'visitor_message' => $d['visitor_message'] );
+			}
+			$messages = array();
+			try { $own = $g->messages(); } catch ( \Throwable $e ) { $own = array(); }
+			foreach ( is_array( $own ) ? $own : array() as $code => $text ) {
+				if ( is_string( $code ) && preg_match( '/^[a-z0-9_]{1,40}$/', $code ) && is_string( $text ) && Field::text( $text, 300 ) !== '' ) $messages[ $code ] = Field::text( $text, 300 );
+			}
+			$gateways[ $slug ] = array( 'label' => $info['label'], 'mode' => $info['mode'], 'flows' => $info['supports']['flows'], 'min_minor' => $info['supports']['min_minor'], 'max_minor' => $info['supports']['max_minor'], 'currencies' => $info['currencies'], 'method_limits' => $limits, 'requires' => $requires, 'messages' => $messages );
 			$assets = (array) $g->public_assets();
 			foreach ( isset( $assets['js'] ) ? (array) $assets['js'] : array() as $i => $src ) {
 				if ( is_string( $src ) && $src !== '' ) wp_enqueue_script( 'efb-pay-' . $slug . '-' . $i, $src, array( 'efb-payment-runtime' ), EMSFB_PLUGIN_VERSION, true );
@@ -285,8 +300,13 @@ class Frontend {
 			'methodsHelp' => __( 'Unticked methods are not offered on this form. The gateway still checks every payment.', 'easy-form-builder' ),
 			/* translators: %1$s: gateway name, %2$s: currency codes, %3$s: the form's currency */
 			'wCurrency' => __( '%1$s only accepts %2$s. This form uses %3$s, so visitors cannot pay. Change the currency in the payment field.', 'easy-form-builder' ),
-			/* translators: %1$s: gateway name, %2$s: name of an option of the payment field */
-			'wRequired' => __( '%1$s needs "%2$s". Choose it in the payment field\'s settings.', 'easy-form-builder' ),
+			/* translators: %1$s: gateway name, %2$s: what is needed (option name, e.g. Payer e-mail), %3$s: kind of field (e.g. an Email field) */
+			'wRequired' => __( '%1$s requires "%2$s". Add %3$s to the form and select it in the payment field\'s "%2$s" option.', 'easy-form-builder' ),
+			/* translators: %1$s: gateway name, %2$s: what is needed (option name, e.g. Payer e-mail), %3$s: payment methods, %4$s: kind of field (e.g. an Email field) */
+			'wRequiredFor' => __( '%1$s requires "%2$s" to pay with %3$s. Add %4$s to the form and select it in the payment field\'s "%2$s" option.', 'easy-form-builder' ),
+			'kindEmail' => __( 'an Email field', 'easy-form-builder' ),
+			'kindPhone' => __( 'a phone number field', 'easy-form-builder' ),
+			'kindAny' => __( 'a field for it', 'easy-form-builder' ),
 			/* translators: %1$s: gateway name, %2$s: name of an option of the payment field */
 			'wMissing' => __( '%1$s: the field chosen for "%2$s" is no longer in the form. Choose another one.', 'easy-form-builder' ),
 			/* translators: %1$s: gateway name, %2$s: name of an option of the payment field */

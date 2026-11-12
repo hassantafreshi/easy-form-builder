@@ -180,11 +180,49 @@
       return '';
    }
 
+   /**
+    * A payer value the gateway requires (its field options: required, or required_for the chosen
+    * method) left empty: the message (the gateway's own, else core's) and the form field to focus.
+    * Only options mapped to a field are checked; the server checks again.
+    */
+   function payerMissing(el) {
+      var g = gw(el), row = fieldRow(el);
+      if (!row || !Array.isArray(g.requires) || !g.requires.length) return null;
+      var fid = el.getAttribute('data-formid');
+      var tiles = el.querySelectorAll('[data-pf-method]');
+      var method = el._method || (tiles.length === 1 ? tiles[0].getAttribute('data-pf-method') : '');
+      var methodLabel = '';
+      el.querySelectorAll('[data-pf-method]').forEach(function (b) { if (b.getAttribute('data-pf-method') === method) methodLabel = b.textContent.trim(); });
+      var s = structure(fid) || [];
+      for (var i = 0; i < g.requires.length; i++) {
+         var d = g.requires[i];
+         var needed = d.required || (method !== '' && Array.isArray(d.required_for) && d.required_for.indexOf(method) !== -1);
+         if (!needed) continue;
+         var target = typeof row[d.key] === 'string' ? row[d.key] : '';
+         if (!target) continue;
+         var have = sendRows(fid).some(function (x) { return x && String(x.id_) === target && x.value != null && String(x.value).trim() !== ''; });
+         if (have) continue;
+         var f = s.find(function (x) { return x && String(x.id_) === target; });
+         var name = (f && f.name) || d.label;
+         var msg = d.visitor_message || ((g.messages || {}).payer_missing || '').replace('%field%', name).replace('%method%', methodLabel) ||
+            (method && d.required_for && d.required_for.length ? (T('payerMissingFor') || '%1$s').replace('%1$s', name).replace('%2$s', methodLabel || method) : (T('payerMissing') || '%s').replace('%s', name));
+         return { message: msg, field_id: target };
+      }
+      return null;
+   }
+
    function pay(el) {
       if (el._retryable && el._last) { retry(el); return; }
       var q = refresh(el);
       var ml = methodLimit(el, q);
       if (ml) { status(el, ml, 'error'); return; }
+      var pm = payerMissing(el);
+      if (pm) {
+         status(el, pm.message, 'error');
+         var inp = document.querySelector('[data-id="' + pm.field_id + '-el"]') || document.getElementById(pm.field_id + '_');
+         if (inp && inp.focus) inp.focus();
+         return;
+      }
       // Only what the visitor can fix here stops the click; the amount itself is the server's
       // (a price a logic rule computes may be unknown to this page and is computed there).
       if (q && !q.ok && q.error === 'pwyw_out_of_range') {
