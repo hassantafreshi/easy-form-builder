@@ -1444,6 +1444,442 @@ scenario('9', 'PAY00 payments with the test gateway: builder, fixed / computed /
   ctl('pay-mock', '0');
 });
 
+/* =============================================================================================
+ * mollie. PAY01 Mollie add-on (vendor/mollie, AdnMOL) with a fake api.mollie.com: the mu-plugin
+ * efb-e2e-mollie.php answers api.mollie.com from tests/mollie-fake-provider.php (documented response
+ * shapes, tests/fixtures/payments/mollie) and serves a fake hosted checkout on the site. No network.
+ * =========================================================================================== */
+function ctlMollie(...args) {
+  const out = wp('eval-file', path.join(__dirname, 'ctl-mollie.php'), ...args).trim().split('\n');
+  return JSON.parse(out[out.length - 1]);
+}
+/** Mollie's webhook: POST id=tr_… (form-encoded), optionally on a URL with p / t. */
+async function mollieWebhook(id, query) {
+  const r = await fetch(CFG.base + '/wp-json/Emsfb/v1/payments/webhook/mollie' + (query || ''), { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: 'id=' + encodeURIComponent(id) });
+  return r.status;
+}
+
+scenario('mollie', 'PAY01 Mollie add-on (fake api.mollie.com): settings + Test connection, builder + AutoPilot, guest pays, webhook refetch / forged / duplicate, return before webhook, failed, Payments screen, refund', async ({ context, adminPage }) => {
+  const muDir = wp('eval', 'echo WPMU_PLUGIN_DIR;').trim();
+  fs.copyFileSync(path.join(__dirname, 'mu-plugins', 'efb-e2e-mollie.php'), path.join(muDir, 'efb-e2e-mollie.php'));
+  ctl('addon-flag', 'AdnMOL', '1');
+  ctlMollie('fake', '1');
+  const keys = ctlMollie('keys', 'test');
+  ctl('mails', 'clear');
+  const opt = JSON.stringify(ctl('option', 'emsfb_pgw_mollie'));
+  R.check('mollie: add-on on, fake Test and Live keys stored encrypted (never as text)', keys.ok && keys.mode === 'test' && opt.indexOf('test_Fake') === -1 && opt.indexOf('enc:v1:') !== -1, keys);
+
+  /* settings card: masked keys, Test connection fills the method list */
+  const admin = await adminPage();
+  await admin.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb_payments&tab=gateways', { waitUntil: 'load' });
+  const gw = await admin.content();
+  R.check('mollie/settings: the Mollie card with its two key fields, keys masked (•••• Fake), webhook address listed', /id="efbPayGw_mollie"/.test(gw) && /Test API key/.test(gw) && /Live API key/.test(gw) && /•••• Fake/.test(gw) && gw.indexOf('test_Fake') === -1 && /payments\/webhook\/mollie/.test(gw));
+  await admin.click('[data-efb-pay="test_connection"][data-gateway="mollie"][data-mode="test"]');
+  await admin.waitForFunction(() => /Connected/.test((document.querySelector('#efbPayGw_mollie') ? document.querySelector('#efbPayGw_mollie').closest('section').querySelector('.efb-pay-msg') : {}).textContent || ''), null, { timeout: 10000 });
+  const conn = (ctlMollie('state').log || []).filter((l) => l.path === '/v2/methods').pop();
+  R.check('mollie/settings: Test connection (Test) → Connected, after GET /v2/methods for 10.00 EUR with the Test key', conn && conn.key_mode === 'test' && /amount%5Bvalue%5D=10.00&amount%5Bcurrency%5D=EUR/.test(conn.query), conn);
+
+  /* builder + AutoPilot */
+  await openNewForm(admin);
+  const em = await addTile(admin, 'email');
+  const api0 = await admin.evaluate(() => { const it = efbBuilderApi.newItems('mollie'); return { type: it[0].type, patch: it.formPatch, gw: efb_var.capabilities.payment_gateways && efb_var.capabilities.payment_gateways.mollie, cap: efb_var.capabilities.features['field:mollie'], capJson: JSON.stringify(efb_var.capabilities) }; });
+  R.check('mollie/AutoPilot: newItems("mollie") → field + formPatch {type: payment, getway: mollie, currency EUR}; capabilities list Mollie (configured Test, methods) without any key', api0.type === 'mollie' && api0.patch.getway === 'mollie' && api0.patch.type === 'payment' && api0.patch.currency === 'EUR' && api0.gw && api0.gw.configured.test === true && api0.gw.methods.length >= 2 && api0.cap && api0.capJson.indexOf('test_Fake') === -1, { patch: api0.patch, gw: api0.gw && api0.gw.configured });
+  const pf = await addTile(admin, 'mollie');
+  const f0 = await admin.evaluate(() => ({ type: valj_efb[0].type, getway: valj_efb[0].getway, currency: valj_efb[0].currency }));
+  R.check('mollie/builder: the Mollie tile adds the payment field; the form becomes a EUR payment form', pf && pf.type === 'mollie' && f0.type === 'payment' && f0.getway === 'mollie' && f0.currency === 'EUR', { pf: pf && pf.type, f0 });
+  R.check('mollie/builder: the canvas shows the field with the account\'s methods (iDEAL | Wero)', await admin.isVisible(`#dropZoneEFB .efb-pf[data-pf="${pf.id_}"] [data-pf-pay]`) && /iDEAL \| Wero/.test(await admin.textContent(`#dropZoneEFB .efb-pf[data-pf="${pf.id_}"]`)));
+  await closePanel(admin);
+  await admin.click(`#dropZoneEFB [data-id="${pf.dataId}"] .efb-pf-label`);
+  await admin.waitForSelector('#efbPfPanelEl', { timeout: 8000 });
+  await admin.fill('#efbPfFixedEl', '25');
+  await admin.press('#efbPfFixedEl', 'Tab');
+  await settle(admin);
+  await closePanel(admin);
+  // AutoPilot / SitePilot: the method list and its style written through getForm / setForm.
+  await admin.evaluate(async (id) => { const f = efbBuilderApi.getForm(); const r = f.find((x) => x.id_ === id); r.pf_methods = 'ideal,creditcard'; r.pf_methods_style = 'grid'; await efbBuilderApi.setForm(f); }, pf.id_);
+  await sleep(500);
+  await admin.evaluate(() => saveFormEfb(1));
+  await admin.waitForFunction(() => window.form_ID_emsFormBuilder && Number(form_ID_emsFormBuilder) > 0, null, { timeout: 15000 }).catch(() => {});
+  await sleep(1500);
+  const forms = ctl('forms');
+  const fid = forms[forms.length - 1].form_id;
+  const saved = ctl('form', String(fid));
+  const srow = saved && saved.form_structer ? saved.form_structer.find((r) => r.type === 'mollie') : null;
+  R.check('mollie/builder: Save stores the Mollie field through the sanitizer (pf_fixed 25, pf_methods ideal,creditcard, grid)', srow && srow.pf_fixed === '25' && srow.pf_methods === 'ideal,creditcard' && srow.pf_methods_style === 'grid', srow);
+  const url = ctl('page', String(fid)).url;
+
+  /* a guest pays; webhook before the return */
+  let g = await payGuest(context, url, async (p) => { await p.fill(`[data-id="${em.id_}-el"]`, 'payer@example.test'); });
+  const shown = await g.evaluate(() => ({ total: (document.querySelector('[data-pf-total]') || {}).textContent, banner: !document.querySelector('.efb-pf [data-pf-el="test"]').hidden, methods: Array.from(document.querySelectorAll('.efb-pf [data-pf-method]')).map((b) => b.getAttribute('data-pf-method') + ':' + b.textContent), style: document.querySelector('.efb-pf [data-pf-el="methods"]').getAttribute('data-style'), logos: Array.from(document.querySelectorAll('.efb-pf-logo')).map((i) => i.getAttribute('src')) }));
+  R.check('mollie/public: €25.00, test banner, methods iDEAL | Wero and Card as a grid, logos from the add-on folder', shown.total === '€25.00' && shown.banner && shown.methods.join('|') === 'ideal:iDEAL | Wero|creditcard:Card' && shown.style === 'grid' && shown.logos.length > 0 && shown.logos.every((s) => s.indexOf('/vendor/mollie/assets/img/') !== -1), shown);
+  await g.click('.efb-pf [data-pf-method="creditcard"]');
+  await Promise.all([g.waitForURL(/mollie-checkout/, { timeout: 20000 }), g.click('.efb-pf [data-pf-pay]')]);
+  await g.waitForSelector('#paid', { timeout: 10000 });
+  R.check('mollie: the (fake) Mollie checkout asks for 25.00 EUR, method creditcard', /25\.00 EUR/.test(await g.textContent('#amount')) && (await g.textContent('#methods')) === 'creditcard');
+  let st = ctlMollie('state');
+  let mp = st.payments[st.payments.length - 1];
+  let P = payRows(fid)[0];
+  const created = st.log.filter((l) => l.method === 'POST' && l.path === '/v2/payments').pop();
+  R.check('mollie: POST /v2/payments: amount "25.00" EUR from the server, Idempotency-Key = the payment\'s idem key, no webhookUrl on this local test site, metadata without personal data', mp.amount.value === '25.00' && mp.amount.currency === 'EUR' && created.idem === P.idem_key && created.idem.length === 64 && mp.webhookUrl === null && JSON.stringify(Object.keys(mp.metadata)) === '["efb_uid","form_id","track"]' && mp.metadata.efb_uid === P.uid, { mp, idem: created.idem });
+  let E = payEntry(fid, P.track);
+  R.check('mollie: payment pending with the tr_ reference, entry "pending payment" (read_ 2), no e-mail yet', P.status === 'pending' && P.gateway_ref === mp.id && P.gateway === 'mollie' && E && String(E.read_) === '2' && (ctl('mails') || []).length === 0, { status: P.status });
+  ctlMollie('set', mp.id, 'paid');
+  const tok = ctlMollie('token', P.uid).t;
+  R.check('mollie: a webhook URL with a forged token → 401', (await mollieWebhook(mp.id, `?p=${P.uid}&t=${'0'.repeat(32)}`)) === 401);
+  R.check('mollie: a webhook body that is not a payment id → 200, nothing done', (await mollieWebhook('ord_123')) === 200);
+  const gets0 = ctlMollie('state').log.filter((l) => l.method === 'GET' && l.path === '/v2/payments/' + mp.id).length;
+  R.check('mollie: Mollie\'s webhook (id only) before the visitor returns → 200', (await mollieWebhook(mp.id, `?p=${P.uid}&t=${tok}`)) === 200);
+  P = payRows(fid)[0];
+  E = payEntry(fid, P.track);
+  const gets1 = ctlMollie('state').log.filter((l) => l.method === 'GET' && l.path === '/v2/payments/' + mp.id).length;
+  const mails1 = ctl('mails') || [];
+  R.check('mollie: → read again at Mollie (GET /v2/payments/{id}) → paid, finalized, entry read_ 0, the e-mail goes out now', gets1 === gets0 + 1 && P.status === 'paid' && !!P.finalized_at && String(E.read_) === '0' && mails1.length >= 1, { status: P.status, gets: gets1 - gets0, mails: mails1.length });
+  R.check('mollie: the same webhook again → 200, no new check, nothing runs twice', (await mollieWebhook(mp.id, `?p=${P.uid}&t=${tok}`)) === 200 && ctlMollie('state').log.filter((l) => l.method === 'GET' && l.path === '/v2/payments/' + mp.id).length === gets1 && (ctl('mails') || []).length === mails1.length && ctl('pay-events', String(P.id)).filter((e) => e.type === 'finalized').length === 1);
+  await Promise.all([g.waitForURL((u) => u.toString().indexOf('mollie-checkout') === -1, { timeout: 20000 }), g.click('#paid')]);
+  await g.waitForFunction(() => /Confirmation Code/i.test(document.body.innerText), null, { timeout: 15000 });
+  const done1 = await g.evaluate(() => ({ text: document.body.innerText, url: location.href, title: document.title }));
+  R.check('mollie: back on the page: thank-you with the confirmation code, address cleaned, "Payment successful" title', done1.text.indexOf(P.track) !== -1 && done1.url.indexOf('efb_pay') === -1 && /Payment successful/.test(done1.title), { url: done1.url, title: done1.title });
+  await g.screenshot({ path: SHOT('mollie-paid') });
+  await g.close();
+
+  /* return before any webhook */
+  g = await payGuest(context, url, async (p) => { await p.fill(`[data-id="${em.id_}-el"]`, 'second@example.test'); });
+  await Promise.all([g.waitForURL(/mollie-checkout/, { timeout: 20000 }), g.click('.efb-pf [data-pf-pay]')]);
+  await g.waitForSelector('#paid', { timeout: 10000 });
+  R.check('mollie: the field\'s first method is preselected → "ideal" sent', (await g.textContent('#methods')) === 'ideal');
+  await Promise.all([g.waitForURL((u) => u.toString().indexOf('mollie-checkout') === -1, { timeout: 20000 }), g.click('#paid')]);
+  await g.waitForFunction(() => /Confirmation Code/i.test(document.body.innerText), null, { timeout: 15000 });
+  P = payRows(fid)[0];
+  R.check('mollie: return before any webhook: core asks Mollie on the return → paid, finalized once', P.status === 'paid' && ctl('pay-events', String(P.id)).filter((e) => e.type === 'finalized').length === 1);
+  R.check('mollie: the late webhook changes nothing', (await mollieWebhook(P.gateway_ref)) === 200 && ctl('pay-events', String(P.id)).filter((e) => e.type === 'finalized').length === 1);
+  await g.close();
+
+  /* failed */
+  g = await payGuest(context, url, async (p) => { await p.fill(`[data-id="${em.id_}-el"]`, 'third@example.test'); });
+  await Promise.all([g.waitForURL(/mollie-checkout/, { timeout: 20000 }), g.click('.efb-pf [data-pf-pay]')]);
+  await g.waitForSelector('#failed', { timeout: 10000 });
+  await Promise.all([g.waitForURL((u) => u.toString().indexOf('mollie-checkout') === -1, { timeout: 20000 }), g.click('#failed')]);
+  await g.waitForFunction(() => /not completed/i.test(document.body.innerText), null, { timeout: 15000 });
+  R.check('mollie: failed at Mollie → "not completed, not charged" and "Try again"; payment failed', await g.isVisible('.efb-pf-retry') && payRows(fid)[0].status === 'failed');
+  await g.close();
+
+  /* Payments screen and refund */
+  const first = payRows(fid)[2];
+  await admin.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb_payments', { waitUntil: 'load' });
+  const list = await admin.evaluate(() => document.body.innerText);
+  R.check('mollie/admin: the Payments screen lists the Mollie payments (TEST)', /Mollie/.test(list) && list.indexOf(first.track) !== -1);
+  await admin.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb_payments&payment=' + first.id, { waitUntil: 'load' });
+  R.check('mollie/admin: details show the webhook check and "finalized", and a Refund button', /finalized/.test(await admin.textContent('.efb-pay-events')) && /webhook/.test(await admin.textContent('.efb-pay-events')) && await admin.isVisible('[data-efb-pay="refund"]'));
+  await admin.click('[data-efb-pay="refund"]');
+  await admin.waitForLoadState('load');
+  await sleep(1500);
+  st = ctlMollie('state');
+  const rf = st.log.filter((l) => l.method === 'POST' && /\/refunds$/.test(l.path)).pop();
+  R.check('mollie/admin: full refund → POST /v2/payments/{id}/refunds "25.00" EUR with an Idempotency-Key → refunded', payRows(fid).find((p) => p.id === first.id).status === 'refunded' && rf && rf.path === '/v2/payments/' + first.gateway_ref + '/refunds' && rf.body.amount.value === '25.00' && rf.idem.length === 64, rf);
+
+  ctl('addon-flag', 'AdnMOL', '0');
+  ctlMollie('fake', '0');
+  ctlMollie('clear-settings');
+});
+
+/* =============================================================================================
+ * payplug. PAY02 Payplug add-on (vendor/payplug, AdnPPG) with a fake api.payplug.com: the mu-plugin
+ * efb-e2e-payplug.php answers api.payplug.com from the documented responses in
+ * tests/fixtures/payments/payplug and serves a fake hosted payment page on the site. No network.
+ * =========================================================================================== */
+function ctlPayplug(...args) {
+  const out = wp('eval-file', path.join(__dirname, 'ctl-payplug.php'), ...args).trim().split('\n');
+  return JSON.parse(out[out.length - 1]);
+}
+async function payplugNotify(url, body) {
+  const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  return r.status;
+}
+
+scenario('payplug', 'PAY02 Payplug add-on (fake api.payplug.com): builder + AutoPilot, guest pays, notification refetch / forged / duplicate / before return, return without notification, cancel, Payments screen, refund, Test connection', async ({ context, adminPage }) => {
+  const fk = ctlPayplug('fake', '1');
+  R.check('pp: the fake Payplug and the add-on are in place (vendor/payplug, AdnPPG on)', fk.mu && fk.addon, fk);
+  ctlPayplug('keys', 'test');
+  ctl('mails', 'clear');
+  const finals = (id) => ctl('pay-events', String(id)).filter((e) => e.type === 'finalized').length;
+
+  /* builder: tile, canvas, AutoPilot, capabilities without keys, Save */
+  const admin = await adminPage();
+  await openNewForm(admin);
+  await addTile(admin, 'email');
+  const api0 = await admin.evaluate(() => { const it = efbBuilderApi.newItems('payplug'); return { patch: it.formPatch, type: it[0].type }; });
+  R.check('pp/AutoPilot: newItems("payplug") gives the field and formPatch {type: payment, getway: payplug}', api0.type === 'payplug' && api0.patch && api0.patch.getway === 'payplug' && api0.patch.type === 'payment', api0);
+  const pf = await addTile(admin, 'payplug');
+  const f0 = await admin.evaluate(() => ({ type: valj_efb[0].type, getway: valj_efb[0].getway, currency: String(valj_efb[0].currency || '') }));
+  R.check('pp: the Payplug tile adds the field; the form becomes a payment form in EUR', pf && pf.type === 'payplug' && f0.type === 'payment' && f0.getway === 'payplug' && f0.currency.toUpperCase() === 'EUR', { pf: pf && pf.type, f0 });
+  R.check('pp: the canvas shows the field with its Pay button', await admin.isVisible(`#dropZoneEFB .efb-pf[data-pf="${pf.id_}"] [data-pf-pay]`));
+  const capPP = await admin.evaluate(() => ({ gw: efb_var.capabilities.payment_gateways && efb_var.capabilities.payment_gateways.payplug, field: efb_var.capabilities.features['field:payplug'], json: JSON.stringify(efb_var.capabilities) + JSON.stringify(efb_var.pay || {}) }));
+  R.check('pp/AutoPilot: capabilities payment_gateways.payplug (AdnPPG, configured Test, EUR) and field:payplug, without any key', capPP.gw && capPP.gw.addon === 'AdnPPG' && capPP.gw.configured.test === true && capPP.gw.currencies[0] === 'EUR' && capPP.field && !/e2e-ppg-key|notasignature/.test(capPP.json), { gw: capPP.gw, field: capPP.field });
+  await closePanel(admin);
+  await admin.click(`#dropZoneEFB [data-id="${pf.dataId}"] .efb-pf-label`);
+  await admin.waitForSelector('#efbPfPanelEl', { timeout: 8000 });
+  await admin.fill('#efbPfFixedEl', '12');
+  await admin.press('#efbPfFixedEl', 'Tab');
+  await sleep(300);
+  await closePanel(admin);
+  await admin.evaluate(() => saveFormEfb(1));
+  await sleep(2500);
+  const forms = ctl('forms');
+  const saved = forms.length ? ctl('form', String(forms[forms.length - 1].form_id)) : null;
+  const srow = saved && saved.form_structer ? saved.form_structer.find((r) => r.type === 'payplug') : null;
+  R.check('pp: Save stores the Payplug field with pf_fixed 12 (core sanitizer), no key in the form', srow && srow.pf_fixed === '12' && !/e2e-ppg-key/.test(JSON.stringify(saved)), srow);
+
+  /* guest pays: notification before return, forged, duplicate */
+  const F = ctlPayplug('form', 'Payplug e2e');
+  const url = ctl('page', String(F.form_id)).url;
+  let g = await payGuest(context, url, async (p) => {
+    await p.fill(`[data-id="${F.email}-el"]`, 'jeanne@example.test');
+    await p.fill(`[data-id="${F.first}-el"]`, 'Jeanne');
+    await p.fill(`[data-id="${F.last}-el"]`, 'Martin');
+    await p.fill(`[data-id="${F.city}-el"]`, 'Paris');
+    await p.click(`[id="${F.o1}"]`);
+  });
+  const shown = await g.evaluate(() => ({ total: document.querySelector('[data-pf-total]').textContent, banner: !document.querySelector('.efb-pf [data-pf-el="test"]').hidden }));
+  R.check('pp: live total 25.00 + 8.00 = €33.00; test banner shown', shown.total === '€33.00' && shown.banner, shown);
+  await Promise.all([g.waitForURL(/efb-e2e\/v1\/payplug-pay/, { timeout: 20000 }), g.click('.efb-pf [data-pf-pay]')]);
+  await g.waitForSelector('#pay', { timeout: 10000 });
+  R.check('pp: Payplug\'s page asks for 33.00 EUR, billing from the mapped fields', /33\.00 EUR/.test(await g.textContent('#amount')) && /Jeanne Martin, Paris FR/.test(await g.textContent('#billing')));
+  let P = payRows(F.form_id)[0];
+  let E = payEntry(F.form_id, P.track);
+  R.check('pp: payment pending (3300 EUR, test, pay_…), entry "pending payment" (read_ 2), no e-mail yet', P.gateway === 'payplug' && P.status === 'pending' && Number(P.amount_minor) === 3300 && P.mode === 'test' && /^pay_/.test(P.gateway_ref) && E && String(E.read_) === '2' && (ctl('mails') || []).length === 0, { P, read: E && E.read_ });
+  const nu = ctlPayplug('notify-url', P.gateway_ref).url;
+  R.check('pp: the notification URL is core\'s webhook route with p (uid) and our token t', nu.indexOf('/payments/webhook/payplug') !== -1 && nu.indexOf('p=' + P.uid) !== -1 && /[?&]t=[0-9a-f]{32}/.test(nu), nu);
+  const nbody = { id: P.gateway_ref, object: 'payment', is_live: false };
+  R.check('pp: a notification with a forged token → 401', (await payplugNotify(nu.replace(/t=[0-9a-f]{32}/, 't=' + '0'.repeat(32)), nbody)) === 401);
+  ctlPayplug('provider', P.gateway_ref, 'get-paid');
+  R.check('pp: the notification arrives before the visitor returns: 200', (await payplugNotify(nu, nbody)) === 200);
+  P = payRows(F.form_id)[0];
+  E = payEntry(F.form_id, P.track);
+  const mails1 = ctl('mails') || [];
+  R.check('pp: → paid (read back from Payplug), finalized, entry new (read_ 0), e-mails to owner and payer', P.status === 'paid' && !!P.finalized_at && String(E.read_) === '0' && mails1.length >= 2, { status: P.status, read: E.read_, mails: mails1.length });
+  R.check('pp: the same notification again: 200, finalized once, no new e-mail', (await payplugNotify(nu, nbody)) === 200 && finals(P.id) === 1 && (ctl('mails') || []).length === mails1.length);
+  await Promise.all([g.waitForURL((u) => u.toString().indexOf('payplug-pay') === -1, { timeout: 20000 }), g.click('#pay')]);
+  await g.waitForFunction(() => /Confirmation Code/i.test(document.body.innerText), null, { timeout: 15000 });
+  const done = await g.evaluate(() => ({ text: document.body.innerText, url: location.href }));
+  R.check('pp: back on the form: thank-you with the confirmation code, address cleaned; still finalized once', done.text.indexOf(P.track) !== -1 && done.url.indexOf('efb_pay') === -1 && finals(P.id) === 1, done.url);
+  await g.screenshot({ path: SHOT('pp-paid') });
+  await g.close();
+  const paidId = P.id;
+
+  /* return without notification (Grand atelier 150 + 8 = 158.00) */
+  g = await payGuest(context, url, async (p) => { await p.fill(`[data-id="${F.email}-el"]`, 'paul@example.test'); await p.click(`[id="${F.o2}"]`); });
+  await Promise.all([g.waitForURL(/efb-e2e\/v1\/payplug-pay/, { timeout: 20000 }), g.click('.efb-pf [data-pf-pay]')]);
+  await g.waitForSelector('#pay', { timeout: 10000 });
+  R.check('pp: 158.00 EUR asked; billing country FR by default when the form has none', /158\.00 EUR/.test(await g.textContent('#amount')) && /FR/.test(await g.textContent('#billing')));
+  await Promise.all([g.waitForURL((u) => u.toString().indexOf('payplug-pay') === -1, { timeout: 20000 }), g.click('#pay')]);
+  await g.waitForFunction(() => /Confirmation Code/i.test(document.body.innerText), null, { timeout: 15000 });
+  P = payRows(F.form_id)[0];
+  R.check('pp: return without any notification: the return reads Payplug → paid, finalized once', P.status === 'paid' && Number(P.amount_minor) === 15800 && finals(P.id) === 1, P.status);
+  await g.close();
+
+  /* cancel on Payplug's page: no notification; the status still comes from Payplug */
+  g = await payGuest(context, url, async (p) => { await p.fill(`[data-id="${F.email}-el"]`, 'cancel@example.test'); await p.click(`[id="${F.o1}"]`); });
+  await Promise.all([g.waitForURL(/efb-e2e\/v1\/payplug-pay/, { timeout: 20000 }), g.click('.efb-pf [data-pf-pay]')]);
+  await g.waitForSelector('#cancel', { timeout: 10000 });
+  await Promise.all([g.waitForURL((u) => u.toString().indexOf('payplug-pay') === -1, { timeout: 20000 }), g.click('#cancel')]);
+  await sleep(2500);
+  P = payRows(F.form_id)[0];
+  R.check('pp: cancel on Payplug\'s page: the payment stays unpaid (pending), nothing finalized', P.status === 'pending' && !P.finalized_at, P.status);
+  await g.close();
+  const log = ctlPayplug('log');
+  R.check('pp: every request to Payplug carried PayPlug-Version 2019-08-06', log.length > 0 && log.every((l) => l.version === '2019-08-06'), log.slice(-3));
+
+  /* Payments screen: list, details, refund; gateway settings */
+  await admin.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb_payments&payment=' + paidId, { waitUntil: 'load' });
+  R.check('pp: Payments details show the notification refetch and "finalized", and a Refund button', /finalized/.test(await admin.textContent('.efb-pay-events')) && await admin.isVisible('[data-efb-pay="refund"]'));
+  await admin.click('[data-efb-pay="refund"]');
+  await admin.waitForLoadState('load');
+  await sleep(2000);
+  const ref = payRows(F.form_id).find((p) => Number(p.id) === Number(paidId));
+  R.check('pp: a full refund through Payplug → refunded 3300', ref.status === 'refunded' && Number(ref.refunded_minor) === 3300, ref.status);
+  R.check('pp: the refund went to Payplug (POST …/refunds after reading the refund list)', ctlPayplug('log').some((l) => l.method === 'POST' && /\/refunds$/.test(l.path)) && ctlPayplug('log').some((l) => l.method === 'GET' && /\/refunds$/.test(l.path)));
+  await admin.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb_payments&tab=gateways', { waitUntil: 'load' });
+  const gwPage = await admin.content();
+  R.check('pp: gateway settings: the Payplug card, keys never shown (•••• and the last four only), webhook address', /Payplug/.test(gwPage) && gwPage.indexOf('e2e-ppg-key') === -1 && /•••• ure0/.test(gwPage) && /payments\/webhook\/payplug/.test(gwPage));
+  await admin.click('[data-efb-pay="test_connection"][data-gateway="payplug"][data-mode="test"]');
+  await admin.waitForFunction(() => /Connected/.test(Array.from(document.querySelectorAll('.efb-pay-msg')).map((e) => e.textContent).join(' ')), null, { timeout: 10000 });
+  R.check('pp: Test connection (Test) → Connected', true);
+  ctlPayplug('fake', '0');
+});
+
+/* =============================================================================================
+ * tappay. PAY03 Tap Payments add-on (vendor/tappay, AdnTAP) with a fake api.tap.company: the
+ * mu-plugin efb-e2e-tappay.php answers api.tap.company from tests/tappay-fake-provider.php (shapes of
+ * Tap's documented responses, tests/fixtures/payments/tap); the browser's visit to Tap's hosted page
+ * (checkout.payments.tap.company) is routed to the fake page on the site. No network, no real key.
+ * =========================================================================================== */
+function ctlTap(...args) {
+  const out = wp('eval-file', path.join(__dirname, 'ctl-tappay.php'), ...args).trim().split('\n');
+  return JSON.parse(out[out.length - 1]);
+}
+/** Tap's webhook: the charge object as JSON with the hashstring header (signed by the fake). */
+async function tapWebhook(chg, opts = {}) {
+  const w = ctlTap('webhook', chg, opts.mode || 'test');
+  const r = await fetch(CFG.base + '/wp-json/Emsfb/v1/payments/webhook/tappay', { method: 'POST', headers: { 'Content-Type': 'application/json', 'User-Agent': 'Tap-Webhooks/1.0', hashstring: opts.hash !== undefined ? opts.hash : w.hashstring }, body: opts.body || w.body });
+  return r.status;
+}
+/** The visitor's trip to Tap's hosted page lands on the fake page of the site. */
+async function tapRoute(g) {
+  await g.context().route(/^https:\/\/checkout\.payments\.tap\.company\//, (r) => {
+    const token = new URL(r.request().url()).searchParams.get('token');
+    return r.fulfill({ status: 302, headers: { location: CFG.base + '/wp-json/efb-e2e/v1/tap-checkout?token=' + token } });
+  });
+}
+async function tapPay(g) {
+  await tapRoute(g);
+  await Promise.all([g.waitForURL(/efb-e2e\/v1\/tap-checkout/, { timeout: 20000 }), g.click('.efb-pf [data-pf-pay]')]);
+  await g.waitForSelector('#pay', { timeout: 10000 });
+}
+const tapLeave = (g, btn) => Promise.all([g.waitForURL((u) => u.toString().indexOf('tap-checkout') === -1, { timeout: 20000 }), g.click(btn)]);
+
+scenario('tappay', 'PAY03 Tap Payments add-on (fake api.tap.company): settings + Test connection, builder + AutoPilot (KWD, methods), guest pays with KNET, hashstring webhook valid / forged / duplicate, return before webhook, declined, Payments screen, refund (3 decimals), RTL', async ({ context, adminPage }) => {
+  const muDir = wp('eval', 'echo WPMU_PLUGIN_DIR;').trim();
+  fs.copyFileSync(path.join(__dirname, 'mu-plugins', 'efb-e2e-tappay.php'), path.join(muDir, 'efb-e2e-tappay.php'));
+  ctl('addon-flag', 'AdnTAP', '1');
+  ctlTap('fake', '1');
+  const keys = ctlTap('keys', 'test');
+  ctl('mails', 'clear');
+  const opt = JSON.stringify(ctl('option', 'emsfb_pgw_tappay'));
+  R.check('tappay: add-on on, fake Test and Live secret keys stored encrypted (never as text)', keys.ok && keys.mode === 'test' && !/sk_(test|live)_/.test(opt) && opt.indexOf('enc:v1:') !== -1, keys);
+
+  /* settings card */
+  const admin = await adminPage();
+  await admin.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb_payments&tab=gateways', { waitUntil: 'load' });
+  const gw = await admin.content();
+  R.check('tappay/settings: the Tap Payments card, Secret key (Test) and (Live) masked (•••• 0001), Merchant ID, methods, webhook address', /id="efbPayGw_tappay"/.test(gw) && /Secret key \(Test\)/.test(gw) && /Secret key \(Live\)/.test(gw) && /•••• 0001/.test(gw) && !/sk_test_E2e/.test(gw) && /Merchant ID/.test(gw) && /payments\/webhook\/tappay/.test(gw));
+  await admin.click('[data-efb-pay="test_connection"][data-gateway="tappay"][data-mode="test"]');
+  await admin.waitForFunction(() => /Connected/.test((document.querySelector('#efbPayGw_tappay').closest('section').querySelector('.efb-pay-msg') || {}).textContent || ''), null, { timeout: 10000 });
+  const conn = (ctlTap('state').log || []).filter((l) => l.path === '/v2/charges/list').pop();
+  R.check('tappay/settings: Test connection (Test) → Connected after POST /v2/charges/list with the Test key; nothing created', conn && conn.key_mode === 'test' && ctlTap('state').charges.length === 0, conn);
+
+  /* builder + AutoPilot */
+  await openNewForm(admin);
+  const nm = await addTile(admin, 'text');
+  await openField(admin, nm);
+  await setInput(admin, '#labelEl', 'Full name');
+  const em = await addTile(admin, 'email');
+  const api0 = await admin.evaluate(() => { const it = efbBuilderApi.newItems('tappay'); return { type: it[0].type, patch: it.formPatch, gw: efb_var.capabilities.payment_gateways && efb_var.capabilities.payment_gateways.tappay, cap: efb_var.capabilities.features['field:tappay'], capJson: JSON.stringify(efb_var.capabilities) }; });
+  R.check('tappay/AutoPilot: newItems("tappay") → field + formPatch {type: payment, getway: tappay, currency KWD}; capabilities list Tap (configured Test, currencies, methods) without any key', api0.type === 'tappay' && api0.patch.getway === 'tappay' && api0.patch.type === 'payment' && api0.patch.currency === 'KWD' && api0.gw && api0.gw.configured.test === true && api0.gw.currencies.indexOf('BHD') !== -1 && api0.gw.methods.length === 5 && api0.cap && !/sk_(test|live)_/.test(api0.capJson), { patch: api0.patch, gw: api0.gw && api0.gw.configured });
+  const pf = await addTile(admin, 'tappay');
+  const f0 = await admin.evaluate(() => ({ type: valj_efb[0].type, getway: valj_efb[0].getway, currency: valj_efb[0].currency }));
+  R.check('tappay/builder: the Tap Payments tile adds the payment field; the form becomes a KWD payment form', pf && pf.type === 'tappay' && f0.type === 'payment' && f0.getway === 'tappay' && f0.currency === 'KWD', { pf: pf && pf.type, f0 });
+  R.check('tappay/builder: the canvas shows the field with the five methods (no Tap script in the builder)', await admin.isVisible(`#dropZoneEFB .efb-pf[data-pf="${pf.id_}"] [data-pf-pay]`) && (await admin.$$(`#dropZoneEFB .efb-pf[data-pf="${pf.id_}"] [data-pf-method]`)).length === 5 && !(await admin.evaluate(() => !!window.EFBTapPay)));
+  await closePanel(admin);
+  await admin.click(`#dropZoneEFB [data-id="${pf.dataId}"] .efb-pf-label`);
+  await admin.waitForSelector('#efbPfPanelEl', { timeout: 8000 });
+  await admin.fill('#efbPfFixedEl', '12.5');
+  await admin.press('#efbPfFixedEl', 'Tab');
+  await settle(admin);
+  await closePanel(admin);
+  await admin.evaluate(async (id) => { const f = efbBuilderApi.getForm(); const r = f.find((x) => x.id_ === id); r.pf_methods = 'knet,card,mada'; r.pf_methods_style = 'grid'; await efbBuilderApi.setForm(f); }, pf.id_);
+  await sleep(500);
+  await admin.evaluate(() => saveFormEfb(1));
+  await admin.waitForFunction(() => window.form_ID_emsFormBuilder && Number(form_ID_emsFormBuilder) > 0, null, { timeout: 15000 }).catch(() => {});
+  await sleep(1500);
+  const forms = ctl('forms');
+  const fid = forms[forms.length - 1].form_id;
+  const saved = ctl('form', String(fid));
+  const srow = saved && saved.form_structer ? saved.form_structer.find((r) => r.type === 'tappay') : null;
+  R.check('tappay/builder: Save stores the Tap field through the sanitizer (pf_fixed 12.5, pf_methods knet,card,mada, grid)', srow && srow.pf_fixed === '12.5' && srow.pf_methods === 'knet,card,mada' && srow.pf_methods_style === 'grid', srow);
+  const url = ctl('page', String(fid)).url;
+
+  /* a guest pays with KNET; webhook before the return */
+  const fill = (mail) => async (p) => { await p.fill(`[data-id="${nm.id_}-el"]`, 'Fatima Al Sabah'); await p.fill(`[data-id="${em.id_}-el"]`, mail); };
+  let g = await payGuest(context, url, fill('payer@example.test'));
+  await g.waitForFunction(() => { const e = document.querySelector('.efb-pf'); return e && e._efbTap; }, null, { timeout: 10000 });
+  const shown = await g.evaluate(() => ({ total: (document.querySelector('[data-pf-total]') || {}).textContent, banner: !document.querySelector('.efb-pf [data-pf-el="test"]').hidden, methods: Array.from(document.querySelectorAll('.efb-pf [data-pf-method]')).map((b) => b.getAttribute('data-pf-method')), marks: Array.from(document.querySelectorAll('.efb-pf .efb-tap-mark')).map((i) => i.getAttribute('src')), logos: Array.from(document.querySelectorAll('.efb-pf-logo')).map((i) => i.getAttribute('src')) }));
+  R.check('tappay/public: KWD 12.500 with three decimals, test banner, mada removed for KWD (KNET and card left, as a grid), marks and logos from the add-on folder', /12\.500/.test(shown.total) && shown.banner && shown.methods.join(',') === 'knet,card' && shown.marks.length >= 1 && shown.logos.length === 6 && shown.marks.concat(shown.logos).every((s) => s.indexOf('/vendor/tappay/assets/img/') !== -1), shown);
+  await g.click('.efb-pf [data-pf-method="knet"]');
+  R.check('tappay/public: KNET chosen → "KNET page … PIN" note', /KNET page/.test(await g.textContent('.efb-pf .efb-tap-note')));
+  await tapPay(g);
+  let st = ctlTap('state');
+  let ch = st.charges[st.charges.length - 1];
+  let P = payRows(fid)[0];
+  R.check('tappay: POST /v2/charges: amount 12.500 KWD from the server, source src_kw.knet, reference.idempotent = 32 chars of the idem key, customer Fatima / Al Sabah / e-mail, post = webhook URL', ch.amount === '12.500' && ch.currency === 'KWD' && ch.source === 'src_kw.knet' && ch.reference.idempotent === P.idem_key.slice(0, 32) && ch.customer.first_name === 'Fatima' && ch.customer.last_name === 'Al Sabah' && ch.customer.email === 'payer@example.test' && /payments\/webhook\/tappay$/.test(ch.post) && ch.metadata.efb_uid === P.uid, ch);
+  R.check('tappay: the (fake) Tap page asks for 12.500 KWD with KNET', /12\.500 KWD/.test(await g.textContent('#amount')) && (await g.textContent('#source')) === 'src_kw.knet');
+  let E = payEntry(fid, P.track);
+  R.check('tappay: payment pending with the chg_ reference, entry "pending payment" (read_ 2), no e-mail yet', P.status === 'pending' && P.gateway_ref === ch.id && P.gateway === 'tappay' && E && String(E.read_) === '2' && (ctl('mails') || []).length === 0, { status: P.status });
+  ctlTap('set', ch.id, 'CAPTURED');
+  R.check('tappay: a webhook with a wrong hashstring → 401', (await tapWebhook(ch.id, { hash: '0'.repeat(64) })) === 401);
+  R.check('tappay: a webhook signed with the Live key for a Test charge → 401', (await tapWebhook(ch.id, { mode: 'live' })) === 401);
+  const forged = JSON.parse(ctlTap('webhook', ch.id).body); forged.amount = 0.001;
+  R.check('tappay: a webhook whose amount was changed after signing → 401', (await tapWebhook(ch.id, { body: JSON.stringify(forged) })) === 401);
+  R.check('tappay: ...nothing changed', payRows(fid)[0].status === 'pending');
+  const gets0 = ctlTap('state').log.filter((l) => l.method === 'GET').length;
+  R.check('tappay: Tap\'s signed CAPTURED webhook before the visitor returns → 200', (await tapWebhook(ch.id)) === 200);
+  P = payRows(fid)[0];
+  E = payEntry(fid, P.track);
+  const mails1 = ctl('mails') || [];
+  R.check('tappay: → paid, finalized, entry read_ 0, e-mails sent; no GET needed (signed state)', P.status === 'paid' && !!P.finalized_at && String(E.read_) === '0' && mails1.length >= 1 && ctlTap('state').log.filter((l) => l.method === 'GET').length === gets0, { status: P.status, mails: mails1.length });
+  R.check('tappay: the same webhook again → 200, nothing runs twice', (await tapWebhook(ch.id)) === 200 && (ctl('mails') || []).length === mails1.length && ctl('pay-events', String(P.id)).filter((e) => e.type === 'finalized').length === 1);
+  await tapLeave(g, '#back');
+  await g.waitForFunction(() => /Confirmation Code/i.test(document.body.innerText), null, { timeout: 15000 });
+  const done1 = await g.evaluate(() => ({ text: document.body.innerText, url: location.href, title: document.title }));
+  R.check('tappay: back on the page (redirect.url?tap_id=…): thank-you with the confirmation code, address cleaned, "Payment successful" title', done1.text.indexOf(P.track) !== -1 && done1.url.indexOf('efb_pay') === -1 && done1.url.indexOf('tap_id') === -1 && /Payment successful/.test(done1.title), { url: done1.url, title: done1.title });
+  await g.screenshot({ path: SHOT('tappay-paid') });
+  await g.close();
+
+  /* return before any webhook (card) */
+  g = await payGuest(context, url, fill('second@example.test'));
+  await g.waitForFunction(() => { const e = document.querySelector('.efb-pf'); return e && e._efbTap; }, null, { timeout: 10000 });
+  await g.click('.efb-pf [data-pf-method="card"]');
+  await tapPay(g);
+  R.check('tappay: card → src_card', (await g.textContent('#source')) === 'src_card');
+  await tapLeave(g, '#pay');
+  await g.waitForFunction(() => /Confirmation Code/i.test(document.body.innerText), null, { timeout: 15000 });
+  P = payRows(fid)[0];
+  st = ctlTap('state');
+  R.check('tappay: return before any webhook: core asks Tap (GET /v2/charges/{id}) on the return → paid, finalized once', P.status === 'paid' && st.log.some((l) => l.method === 'GET' && l.path === '/v2/charges/' + P.gateway_ref) && ctl('pay-events', String(P.id)).filter((e) => e.type === 'finalized').length === 1);
+  R.check('tappay: the late webhook changes nothing', (await tapWebhook(P.gateway_ref)) === 200 && ctl('pay-events', String(P.id)).filter((e) => e.type === 'finalized').length === 1);
+  await g.close();
+
+  /* declined */
+  g = await payGuest(context, url, fill('third@example.test'));
+  await tapPay(g);
+  await tapLeave(g, '#decline');
+  await g.waitForFunction(() => /not completed/i.test(document.body.innerText), null, { timeout: 15000 });
+  R.check('tappay: DECLINED at Tap → "not completed, not charged" and "Try again"; payment failed', await g.isVisible('.efb-pf-retry') && payRows(fid)[0].status === 'failed');
+  await g.close();
+
+  /* Payments screen and refund */
+  const first = payRows(fid)[2];
+  await admin.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb_payments', { waitUntil: 'load' });
+  const list = await admin.evaluate(() => document.body.innerText);
+  R.check('tappay/admin: the Payments screen lists the Tap payments (TEST)', /Tap Payments|tappay/.test(list) && list.indexOf(first.track) !== -1);
+  await admin.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb_payments&payment=' + first.id, { waitUntil: 'load' });
+  R.check('tappay/admin: details show the webhook and "finalized", and a Refund button', /finalized/.test(await admin.textContent('.efb-pay-events')) && /webhook/.test(await admin.textContent('.efb-pay-events')) && await admin.isVisible('[data-efb-pay="refund"]'));
+  await admin.click('[data-efb-pay="refund"]');
+  await admin.waitForLoadState('load');
+  await sleep(1500);
+  st = ctlTap('state');
+  const rf = st.refunds[st.refunds.length - 1];
+  R.check('tappay/admin: full refund → POST /v2/refunds 12.500 KWD for the charge, reference EFB-R-… with idempotent → refunded', payRows(fid).find((p) => p.id === first.id).status === 'refunded' && rf && rf.charge_id === first.gateway_ref && rf.amount === '12.500' && rf.currency === 'KWD' && /^EFB-R-/.test(rf.reference.merchant) && rf.reference.idempotent.length === 32, rf);
+
+  /* right to left at 375 px */
+  ctl('locale', 'fa_IR');
+  const ph = await (await context({ viewport: { width: 375, height: 800 } }, 'guest-rtl')).newPage();
+  await ph.goto(url, { waitUntil: 'networkidle' });
+  await ph.waitForFunction(() => { const e = document.querySelector('.efb-pf'); return e && e._efbTap; }, null, { timeout: 15000 });
+  const rtl = await ph.evaluate(() => {
+    const b = document.querySelector('.efb-pf [data-pf-method="knet"]');
+    const m = b.querySelector('.efb-tap-marks').getBoundingClientRect(); const r = b.getBoundingClientRect();
+    return { dir: getComputedStyle(document.querySelector('.efb-pf')).direction, bdi: !!document.querySelector('.efb-pf bdi[data-pf-total]'), fit: document.documentElement.scrollWidth <= window.innerWidth + 1, h: r.height, start: (r.right - m.right) < (m.left - r.left) };
+  });
+  R.check('tappay/RTL: fa_IR at 375 px: the field right to left, amount in <bdi>, no horizontal scroll, 44 px method tiles, the scheme mark on the start (right) side', rtl.dir === 'rtl' && rtl.bdi && rtl.fit && rtl.h >= 44 && rtl.start, rtl);
+  await ph.screenshot({ path: SHOT('tappay-rtl-375') });
+  ctl('locale', '');
+  await ph.close();
+
+  ctl('addon-flag', 'AdnTAP', '0');
+  ctlTap('fake', '0');
+  ctlTap('clear-settings');
+});
+
 /* ---------------------------------------------------------------------------------------------
  * main
  * ------------------------------------------------------------------------------------------- */
