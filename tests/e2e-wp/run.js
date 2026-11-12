@@ -1549,7 +1549,13 @@ scenario('mollie', 'PAY01 Mollie add-on (fake api.mollie.com): settings + Test c
   const gets1 = ctlMollie('state').log.filter((l) => l.method === 'GET' && l.path === '/v2/payments/' + mp.id).length;
   const mails1 = ctl('mails') || [];
   R.check('mollie: → read again at Mollie (GET /v2/payments/{id}) → paid, finalized, entry read_ 0, the e-mail goes out now', gets1 === gets0 + 1 && P.status === 'paid' && !!P.finalized_at && String(E.read_) === '0' && mails1.length >= 1, { status: P.status, gets: gets1 - gets0, mails: mails1.length });
-  R.check('mollie: the same webhook again → 200, no new check, nothing runs twice', (await mollieWebhook(mp.id, `?p=${P.uid}&t=${tok}`)) === 200 && ctlMollie('state').log.filter((l) => l.method === 'GET' && l.path === '/v2/payments/' + mp.id).length === gets1 && (ctl('mails') || []).length === mails1.length && ctl('pay-events', String(P.id)).filter((e) => e.type === 'finalized').length === 1);
+  // Mollie's event key is id + minute: within the same minute the repeat is a duplicate (no new GET);
+  // when the clock passed a minute boundary it is a new delivery (one GET), still nothing runs twice.
+  const minBefore = new Date().getUTCMinutes();
+  const dupStatus = await mollieWebhook(mp.id, `?p=${P.uid}&t=${tok}`);
+  const sameMinute = new Date().getUTCMinutes() === minBefore && minBefore === new Date(P.finalized_at.replace(' ', 'T') + 'Z').getUTCMinutes();
+  const gets2 = ctlMollie('state').log.filter((l) => l.method === 'GET' && l.path === '/v2/payments/' + mp.id).length;
+  R.check('mollie: the same webhook again → 200, no new check (same minute), nothing runs twice', dupStatus === 200 && (sameMinute ? gets2 === gets1 : gets2 <= gets1 + 1) && (ctl('mails') || []).length === mails1.length && ctl('pay-events', String(P.id)).filter((e) => e.type === 'finalized').length === 1, { gets1, gets2, sameMinute });
   await Promise.all([g.waitForURL((u) => u.toString().indexOf('mollie-checkout') === -1, { timeout: 20000 }), g.click('#paid')]);
   await g.waitForFunction(() => /Confirmation Code/i.test(document.body.innerText), null, { timeout: 15000 });
   const done1 = await g.evaluate(() => ({ text: document.body.innerText, url: location.href, title: document.title }));
