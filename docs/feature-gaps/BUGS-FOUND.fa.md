@@ -201,7 +201,7 @@
 
 | شدت | مشکل | محل | وضعیت |
 |---|---|---|---|
-| کم | `Service::handle_return()` به `Gateway::parse_return()` فقط `get_query_params()` را می‌دهد، ولی PayTabs پرداخت‌کننده را با POST فیلدهای امضاشده (`tranRef`، `cartId`، `respStatus`، `signature`…) برمی‌گرداند؛ درگاه بدنهٔ POST را نمی‌بیند. | `includes/payments/class-Emsfb-payment-service.php` (`handle_return`) | **باز**: افزونه فیلدها را از `$_POST` می‌خواند و امضا را می‌سنجد |
+| کم | `Service::handle_return()` به `Gateway::parse_return()` فقط `get_query_params()` را می‌دهد، ولی PayTabs پرداخت‌کننده را با POST فیلدهای امضاشده (`tranRef`، `cartId`، `respStatus`، `signature`…) برمی‌گرداند؛ درگاه بدنهٔ POST را نمی‌بیند. | `includes/payments/class-Emsfb-payment-service.php` (`handle_return`) | **رفع شد (هسته)**: فیلدهای بدنهٔ POST بازگشت هم به `parse_return()` می‌رسند؛ `3d510534`؛ تست `test-pay-gateway-gaps.php` |
 | کم | درگاه راهی برای صفحهٔ بازگشت مخصوص خود (حالت framed: صفحهٔ کوچکی که فقط به صفحهٔ والد `postMessage` می‌دهد) ندارد؛ بازگشت هسته 303 به صفحهٔ فرم است که درون iframe کل فرم را بار می‌کند. | `class-Emsfb-payment-frontend.php` (`Routes`)، `handle_return` | **باز**: افزونه صفحهٔ خود را با هوک `init` روی `/?efb_ptb_frame=1&p&s` (امضای `Service::sign`) می‌دهد |
 | کم | `Remote_State` جای یادداشت ندارد: وضعیت PayTabs `H` (مجاز ولی در بررسی ضدتقلب، PAY05 §۹) فقط «معلق» دیده می‌شود؛ ایمیل مدیر «در بررسی» و متن مخصوص بازدیدکننده (`paytabsHold`) ممکن نیست. | `class-Emsfb-payment-gateway.php` (`Remote_State`)، `Service::apply_remote_state()` | **باز** |
 
@@ -222,7 +222,7 @@
 | شدت | مشکل | محل | وضعیت |
 |---|---|---|---|
 | کم | درگاه راهی برای متن خود در صفحهٔ وضعیت/بازگشت ندارد: پرداخت کیوسک (Aman/Masary) «معلق» با کد مرجع و مهلت است (PAY06 §۶ و §۱۰: کد بزرگ و قابل کپی)، ولی `Service::status_answer()` فقط پیام کلی «منتظر تأیید» را می‌دهد؛ کد فقط در لاگ رویداد (`bill_reference`) و صفحهٔ خود Paymob است. | `class-Emsfb-payment-service.php` (`status_answer`)، `Remote_State` | **باز** |
-| کم | `Redactor::redact_string()` کلیدهای دارای پیشوند منطقه (`egy_sk_test_…`، `omn_sk_live_…`) و سرآیند `Token <key>` را نمی‌پوشاند (`\b` پیش از `sk` پس از `egy_` برقرار نیست؛ فقط `Bearer`/`Basic`). | `includes/payments/class-Emsfb-payment-http.php` (`Redactor`) | **باز**: افزونه هیچ کلیدی را در پیام خطا یا لاگ نمی‌گذارد (تست: لاگ رویداد بی‌کلید) |
-| کم | `Settings::apply()` هر `/` الگو را بی‌قید `\/` می‌کند؛ الگویی که خودش `\/` دارد (مثل `[A-Za-z0-9+\/=]`) نامعتبر می‌شود و **هر** مقدار رد می‌شود، بی‌پیام برای نویسندهٔ افزونه. | `includes/payments/class-Emsfb-payment-secrets.php` (`apply`) | **دور زده**: الگوی `api_key` اسلش را بی‌گریز می‌نویسد |
+| کم | `Redactor::redact_string()` کلیدهای دارای پیشوند منطقه (`egy_sk_test_…`، `omn_sk_live_…`) و سرآیند `Token <key>` را نمی‌پوشاند (`\b` پیش از `sk` پس از `egy_` برقرار نیست؛ فقط `Bearer`/`Basic`). | `includes/payments/class-Emsfb-payment-http.php` (`Redactor`) | **رفع شد (هسته)**: کلید با پیشوند منطقه و سرآیند `Token` پوشانده می‌شوند؛ `3d510534`؛ تست `test-pay-gateway-gaps.php` |
+| کم | `Settings::apply()` هر `/` الگو را بی‌قید `\/` می‌کند؛ الگویی که خودش `\/` دارد (مثل `[A-Za-z0-9+\/=]`) نامعتبر می‌شود و **هر** مقدار رد می‌شود، بی‌پیام برای نویسندهٔ افزونه. | `includes/payments/class-Emsfb-payment-secrets.php` (`apply`) | **رفع شد (هسته)**: `Settings::pattern_re()` فقط اسلش بی‌گریز را گریز می‌دهد؛ `3d510534`؛ تست `test-pay-gateway-gaps.php` |
 | کم | کارت تنظیمات درگاه کنترل جدول ندارد؛ Integration ID هر روش در Test و Live متنی `card=123, wallet=456` در یک فیلد per_mode وارد می‌شود. | `class-Emsfb-payment-admin.php` (کارت درگاه) | **باز** |
 
