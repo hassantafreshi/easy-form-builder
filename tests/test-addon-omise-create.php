@@ -182,9 +182,14 @@ $GLOBALS['omise']['calls'] = array();
 $st = $g->fetch(new \Emsfb\Payments\Payment($pl), Settings::load('omise'));
 $t('back in Test mode, the live payment is still read with the live key', array($st->ok, efb_omise_calls()[0]['key']), array(true, $K['skey_live']));
 $st = $g->fetch(new \Emsfb\Payments\Payment(array_merge($pl, array('mode' => 'test'))), Settings::load('omise'));
-$t('a live charge read for a test payment is refused (mode_mismatch)', array($st->ok, $st->error), array(false, 'mode_mismatch'));
+$t('a live charge read for a test payment is refused as a mismatch (core logs it, answers 200, never applies it)', array($st->ok, $st->error, $st->mismatch), array(false, 'mode_mismatch', true));
 $st = $g->fetch(new \Emsfb\Payments\Payment(array_merge($pl, array('uid' => 'AnotherUid000000000000'))), Settings::load('omise'));
-$t('a charge whose metadata.efb_uid is another payment\'s is refused (ref_mismatch)', array($st->ok, $st->error), array(false, 'ref_mismatch'));
+$t('a charge whose metadata.efb_uid is another payment\'s is refused as a mismatch (ref_mismatch)', array($st->ok, $st->error, $st->mismatch), array(false, 'ref_mismatch', true));
+$info = \Emsfb\Payments\Registry::public_info('omise', array('currency' => 'THB'));
+$t('field_defaults(): the button says "Show PromptPay QR (%amount%)" with the QR icon (core uses them unless the field has its own)', array($info['defaults']['texts']['btn'], $info['defaults']['pf']['pf_btn_icon']), array('Show PromptPay QR (%amount%)', 'bi-qr-code'));
+$nt = $g->settings_notices(Settings::load('omise'));
+$t('settings card: the refund notice points to "Mark as refunded outside EFB"', strpos(json_encode($nt), 'Mark as refunded outside EFB') !== false, true);
+$t('the Payments screen gets the add-on\'s own words for a refund it cannot make', $g->refund(new \Emsfb\Payments\Payment($pl), 100, '', Settings::load('omise'))->unsupported, true);
 
 /* ---- what Omise answers must match ---- */
 $GLOBALS['omise']['create_override'] = function ($body) {

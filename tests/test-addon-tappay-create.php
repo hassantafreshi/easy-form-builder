@@ -10,7 +10,7 @@
  *  - create: fixed (radio + fixed fee), computed (B7, with the real logic engine when present) and
  *    donation amounts always from the server quote; KWD three decimals written exactly (12.625),
  *    SAR two; source.id per method; mada / KNET / BENEFIT only in their currency; the owner's
- *    method list wins; reference.idempotent; customer name and e-mail from the entry; merchant id
+ *    method list wins; reference.idempotent; customer name and e-mail from core's payer (mapping, else the confirmation e-mail and a "name" field of the rows); merchant id
  *    per country; redirect and post URLs; live mode uses the live key;
  *  - secrets never in the form JSON, the browser answer, public_info or capabilities.
  *
@@ -247,6 +247,9 @@ $t('...shown at Save through core (pay_gw_needs_name_email)', in_array('pay_gw_n
 $mapped = tap_create($db, array('form' => tap_form('kwd', array('pgw_map_name' => 'nk', 'pgw_map_email' => 'em2')), 'rows' => tap_rows('ro1', array(array('id_' => 'nk', 'type' => 'text', 'name' => 'Contact', 'value' => 'Noor Haddad'), array('id_' => 'em2', 'type' => 'email', 'name' => 'Work e-mail', 'value' => 'noor@example.test')))));
 list($cb) = tap_last_charge_body();
 $t('the payer comes from the mapped fields core resolved ($ctx->payer), not from the stored entry', array($mapped['success'], $cb['customer']['first_name'], $cb['customer']['last_name'], $cb['customer']['email']), array(true, 'Noor', 'Haddad', 'noor@example.test'));
+tap_create($db, array('form' => tap_form('kwd', array('pf_methods' => 'knet,mada')), 'method' => ''));
+list($cb) = tap_last_charge_body();
+$t('the field allows KNET and mada, the form is in KWD, no method from the page → KNET sent (the field\'s pf_methods from $ctx->field)', $cb['source']['id'], 'src_kw.knet');
 $t('Test connection names the result (core shows the gateway\'s own message)', $gw->test_connection(Settings::load('tappay'), 'test')->message, 'Connected to Tap.');
 
 echo "\nRESULTS: {$passed} passed, {$failed} failed\n";

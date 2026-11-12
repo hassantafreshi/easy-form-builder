@@ -56,6 +56,11 @@
 .efb-pf-other { display: inline-flex; align-items: center; gap: .4rem; margin: 0; }
 .efb-pf input.efb-pf-other-in { color: #212529; min-height: 44px; width: 8rem; padding: .3rem .6rem; border: 1px solid var(--efb-pf-card-border); border-radius: .5rem; }
 .efb-pf-method-list { display: flex; flex-direction: column; gap: .4rem; }
+/* A method's own mark (Gateway::methods() extras logo): decorative, before the name, at the start side. */
+.efb-pf button.efb-pf-method:has(.efb-pf-method-logo) { display: flex; align-items: center; gap: .5rem; text-align: start; }
+.efb-pf .efb-pf-method-logo { height: 20px; width: auto; max-width: 4.5rem; flex: 0 0 auto; object-fit: contain; }
+.efb-pf-methods[data-style="grid"] button.efb-pf-method:has(.efb-pf-method-logo) { flex-direction: column; justify-content: center; text-align: center; }
+.efb-pf-methods[data-style="grid"] .efb-pf-method-logo { height: 26px; }
 .efb-pf-methods[data-style="grid"] .efb-pf-method-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr)); }
 .efb-pf-methods[data-style="tabs"] .efb-pf-method-list { flex-direction: row; flex-wrap: wrap; }
 .efb-pf select.efb-pf-method-select { color: #212529; background: #fff; min-height: 44px; width: 100%; border: 1px solid var(--efb-pf-card-border); border-radius: .5rem; padding-inline: .6rem; }

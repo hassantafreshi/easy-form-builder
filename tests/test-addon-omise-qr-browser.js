@@ -5,7 +5,10 @@
  *  - draws the QR in the field's slot: PromptPay logo, the amount in <bdi dir="ltr">, the image with
  *    its text alternative, the scan hint, the countdown (aria-live off) and a separate polite status;
  *  - announces once in the last minute and at expiry; expired → dimmed QR, focus on "new QR";
- *  - "Get a new QR code" clears the attempt key and presses Pay again (a new charge);
+ *  - "Get a new QR code" asks core for a new attempt of the same entry (ctx.retry: payments/retry,
+ *    the form is not sent again); with an older core (no retry) it clears the attempt key and
+ *    presses Pay again;
+ *  - one poll: core keeps polling until the payment's pending_ttl() (no own re-poll loop);
  *  - "Save QR image" downloads a PNG (banking apps import PNG, not SVG);
  *  - the result only from the runtime's poll: when it finishes, the QR is removed;
  *  - an image that is not an SVG data: URI is never drawn (the poll still runs);
@@ -124,7 +127,27 @@ window.ctxFor = function (expiresInMs, image) {
   const before = await page.evaluate(() => window.payClicks);
   await page.click('[data-omise-new]');
   const nq = await page.evaluate(() => ({ attempt: document.querySelector('.efb-pf')._attempt, clicks: window.payClicks, box: !!document.querySelector('[data-omise-qr]'), pay: document.querySelector('[data-pf-pay]').disabled }));
-  t('"Get a new QR code": the attempt key is cleared (a new charge), Pay is pressed again, the old QR removed', nq.attempt === null && nq.clicks === before + 1 && !nq.box && nq.pay === false, nq);
+  t('"Get a new QR code" with an older core (no ctx.retry): the attempt key is cleared, Pay is pressed again, the old QR removed', nq.attempt === null && nq.clicks === before + 1 && !nq.box && nq.pay === false, nq);
+  const rq = await page.evaluate((img) => {
+    window.retries = 0;
+    var c = window.ctxFor(60 * 1000, img);
+    c.retry = function () { window.retries++; return Promise.resolve(true); };
+    window.registered.omise.mount(c);
+    var clicks = window.payClicks, polls0 = window.pollCalls;
+    document.querySelector('[data-omise-new]').click();
+    return { retries: window.retries, clicks: window.payClicks - clicks, attempt: document.querySelector('.efb-pf')._attempt, box: !!document.querySelector('[data-omise-qr]') };
+  }, IMG);
+  t('"Get a new QR code" with core\'s retry: ctx.retry() (same entry, form not sent again), no Pay click, the old QR removed', rq.retries === 1 && rq.clicks === 0 && rq.attempt !== null && !rq.box, rq);
+  const one = await page.evaluate(async (img) => {
+    var p0 = window.pollCalls;
+    window.registered.omise.mount(window.ctxFor(60 * 1000, img));
+    window.pollResolve(false); // the runtime's poll ended without a result
+    await new Promise(function (r) { setTimeout(r, 200); });
+    var n = window.pollCalls - p0;
+    document.querySelectorAll('[data-omise-qr]').forEach(function (b) { b.remove(); });
+    return n;
+  }, IMG);
+  t('one poll per QR: when core\'s poll ends (pending_ttl reached) the adapter does not start its own', one === 1, one);
 
   // Never draws anything but an SVG data: URI.
   const bad = await page.evaluate(() => {

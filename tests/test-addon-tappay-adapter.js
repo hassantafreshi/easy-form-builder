@@ -3,10 +3,11 @@
  * (vendor/tappay/assets/js/tappay-efb.js) on core's real payment field: the markup comes from
  * Field::html() (PHP), the page runs core's payment-core-efb.js + payment-runtime-efb.js and the
  * field CSS, in Chromium (Playwright). No network.
- *  - KWD form: mada and BENEFIT tiles removed, KNET kept and noted ("KNET page … PIN"), the choice
- *    sent is the one shown; SAR: KNET and BENEFIT removed; BHD: mada and KNET removed; USD: only
- *    "all" and card; select style: the options filtered the same way;
- *  - one method left → the choice is hidden and that method is sent;
+ *  - core shows only the methods the form currency can use (each Tap method declares its currency,
+ *    PAY00 optional hooks) with each scheme's mark in its tile: KWD form: mada and BENEFIT absent,
+ *    KNET kept and noted by the adapter ("KNET page … PIN"), the choice sent is the one shown; SAR:
+ *    KNET and BENEFIT absent; BHD: mada and KNET absent; USD: only "all" and card; select style the same;
+ *  - one method left → no choice is drawn (the server sends that method);
  *  - Arabic right to left at 375 px: no horizontal scroll, tiles at least 44 px high, the scheme mark
  *    on the start (right) side, amounts in <bdi> with three decimals (12.625);
  *  - the hashstring of the PHP add-on equals Node's own HMAC for random KWD / SAR objects.
@@ -39,21 +40,23 @@ async function launch() {
 }
 
 /** Core's Field::html() for a tappay row (methods and logos from the add-on). */
-function markup(style, methods) {
+function markup(style, methods, currency) {
   const php = `
 define('ABSPATH', '/');
 define('EMSFB_PLUGIN_URL', 'https://site.example/wp-content/plugins/easy-form-builder/');
-function __($s, $d = null) { return $s; } function add_action() {} function apply_filters($h, $v) { return $v; }
+function __($s, $d = null) { return $s; } function add_action() {} function apply_filters($h, $v) { return $v; } function get_option($k, $d = false) { return $d; }
 require '${ROOT}/includes/payments/class-Emsfb-payment-http.php';
 require '${ROOT}/includes/payments/class-Emsfb-payment-money.php';
 require '${ROOT}/includes/payments/class-Emsfb-payment-secrets.php';
 require '${ROOT}/includes/payments/class-Emsfb-payment-gateway.php';
+require '${ROOT}/includes/payments/class-Emsfb-payment-registry.php';
 require '${ROOT}/includes/payments/payment-field-functions-efb.php';
 require '${ADDON}/tappay-phrases-efb.php';
 require '${ADDON}/class-Emsfb-tappay-client.php';
 require '${ADDON}/class-Emsfb-tappay-gateway.php';
 $g = new \\Emsfb\\Tappay\\Tap_Gateway();
-$all = array(array('all', 'All methods (choose on the Tap page)'), array('card', 'Credit or debit card'), array('mada', 'mada'), array('knet', 'KNET'), array('benefit', 'BENEFIT'));
+// What core's Registry::public_info() gives the renderer for the form currency (methods_for + currency filter).
+$all = \\Emsfb\\Payments\\Registry::normalize_methods($g->methods(\\Emsfb\\Payments\\Settings::load('tappay')), '${currency}');
 $row = array('id_' => 'pf', 'type' => 'tappay', 'name' => 'الدفع', 'pf_methods_style' => '${style}', 'pf_methods' => '${methods}', 'pf_fixed' => '0.125');
 $r = \\Emsfb\\Payments\\Field::resolve($row, array('button_color' => 'btn-darkb'), array('methods' => $all, 'logos' => $g->logos()));
 echo \\Emsfb\\Payments\\Field::html($r, \\Emsfb\\Payments\\Field::texts($row, 'ar', array('btn' => 'ادفع %amount%', 'secure' => 'Payments are processed by Tap Payments.', 'summary' => 'الملخص', 'methods' => 'طريقة الدفع', 'test' => 'Test', 'total' => 'المجموع')), array('id' => 'pf', 'gateway' => 'tappay', 'form_id' => '7', 'label' => 'الدفع', 'test' => true));`;
@@ -85,7 +88,7 @@ const state = (p) => p.evaluate(() => {
     sent: el._method || '',
     hidden: !!(el.querySelector('[data-pf-el="methods"]') || {}).hidden,
     note: (el.querySelector('.efb-tap-note') || {}).textContent || '',
-    marks: el.querySelectorAll('.efb-tap-mark').length,
+    marks: el.querySelectorAll('.efb-pf-method-logo').length,
   };
 });
 
@@ -104,23 +107,23 @@ const state = (p) => p.evaluate(() => {
   p.on('pageerror', (e) => errors.push(e.message));
   p.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
   const load = async (style, methods, cur, rtl = true) => {
-    await p.setContent(page(markup(style, methods), cur, rtl));
+    await p.setContent(page(markup(style, methods, cur), cur, rtl));
     await p.waitForFunction(() => { const e = document.querySelector('.efb-pf'); return e && e._efbTap; }, null, { timeout: 5000 });
     return state(p);
   };
 
   let s = await load('list', '', 'KWD');
-  t('KWD: mada and BENEFIT removed; all, card, KNET left', JSON.stringify(s.tiles) === JSON.stringify(['all', 'card', 'knet']), s.tiles);
+  t('KWD: mada and BENEFIT absent; all, card, KNET left', JSON.stringify(s.tiles) === JSON.stringify(['all', 'card', 'knet']), s.tiles);
   t('...the first tile chosen and sent', s.checked === 'all' && s.sent === 'all', s);
   await p.click('[data-pf-method="knet"]');
   s = await state(p);
   t('...KNET clicked: sent knet, the note says what happens next', s.sent === 'knet' && /KNET page/.test(s.note), s);
-  t('...scheme marks are decorative (aria-hidden, alt "")', await p.evaluate(() => Array.from(document.querySelectorAll('.efb-tap-marks')).every((w) => w.getAttribute('aria-hidden') === 'true') && Array.from(document.querySelectorAll('.efb-tap-mark')).every((i) => i.alt === '')));
+  t('...scheme marks (core\'s method logos) are decorative (aria-hidden, alt "")', await p.evaluate(() => document.querySelectorAll('.efb-pf-method-logo').length > 0 && Array.from(document.querySelectorAll('.efb-pf-method-logo')).every((i) => i.getAttribute('aria-hidden') === 'true' && i.alt === '')));
   t('...the note is a polite live region', await p.evaluate(() => document.querySelector('.efb-tap-note').getAttribute('aria-live') === 'polite'));
   await p.keyboard.press('Tab');
   const rtl = await p.evaluate(() => {
     const b = document.querySelector('[data-pf-method="knet"]');
-    const m = b.querySelector('.efb-tap-marks').getBoundingClientRect();
+    const m = b.querySelector('.efb-pf-method-logo').getBoundingClientRect();
     const r = b.getBoundingClientRect();
     return { markRight: Math.round(r.right - m.right), markLeft: Math.round(m.left - r.left), h: r.height, scroll: document.documentElement.scrollWidth - document.documentElement.clientWidth,
       bdi: Array.from(document.querySelectorAll('bdi[data-pf-total],bdi[data-pf-amount]')).map((x) => x.textContent) };
@@ -131,15 +134,15 @@ const state = (p) => p.evaluate(() => {
   t('...the amount in <bdi> with three decimals (12.625)', rtl.bdi.length > 0 && rtl.bdi.every((x) => /12[.,٫]625/.test(x)), rtl.bdi);
 
   s = await load('grid', '', 'SAR');
-  t('SAR (grid): KNET and BENEFIT removed; all, card, mada with marks', JSON.stringify(s.tiles) === JSON.stringify(['all', 'card', 'mada']) && s.marks === 3, s);
-  await p.waitForFunction(() => Array.from(document.querySelectorAll('.efb-tap-mark, .efb-pf-logo')).every((i) => i.complete), null, { timeout: 5000 }).catch(() => {});
-  t('...the local marks and logos load (add-on folder, no CDN)', await p.evaluate(() => Array.from(document.querySelectorAll('.efb-tap-mark, .efb-pf-logo')).every((i) => i.naturalWidth > 0)));
+  t('SAR (grid): KNET and BENEFIT absent; all, card, mada; card and mada with their marks', JSON.stringify(s.tiles) === JSON.stringify(['all', 'card', 'mada']) && s.marks === 2, s);
+  await p.waitForFunction(() => Array.from(document.querySelectorAll('.efb-pf-method-logo, .efb-pf-logo')).every((i) => i.complete), null, { timeout: 5000 }).catch(() => {});
+  t('...the local marks and logos load (add-on folder, no CDN)', await p.evaluate(() => Array.from(document.querySelectorAll('.efb-pf-method-logo, .efb-pf-logo')).every((i) => i.naturalWidth > 0)));
   await p.click('[data-pf-method="mada"]');
   s = await state(p);
   t('...mada chosen, its note', s.sent === 'mada' && /mada card/.test(s.note), s);
 
   s = await load('list', '', 'BHD');
-  t('BHD: mada and KNET removed; BENEFIT kept', JSON.stringify(s.tiles) === JSON.stringify(['all', 'card', 'benefit']), s.tiles);
+  t('BHD: mada and KNET absent; BENEFIT kept', JSON.stringify(s.tiles) === JSON.stringify(['all', 'card', 'benefit']), s.tiles);
   await p.click('[data-pf-method="benefit"]');
   t('...BENEFIT note (PIN on the next page)', /BENEFIT PIN/.test((await state(p)).note));
 
@@ -153,7 +156,7 @@ const state = (p) => p.evaluate(() => {
   t('...knet chosen in the drop-down is sent, with its note', s.sent === 'knet' && /KNET page/.test(s.note), s);
 
   s = await load('list', 'knet,mada', 'KWD');
-  t('owner allows KNET and mada, KWD form: one method left → choice hidden, knet sent', s.hidden && s.sent === 'knet' && JSON.stringify(s.tiles) === JSON.stringify(['knet']), s);
+  t('owner allows KNET and mada, KWD form: one method left → no choice drawn (the server sends KNET, see test-addon-tappay-create.php)', JSON.stringify(s.tiles) === '[]' && s.options.length === 0, s);
 
   s = await load('list', '', 'KWD', false);
   t('left to right (English): same filtering', JSON.stringify(s.tiles) === JSON.stringify(['all', 'card', 'knet']), s.tiles);
