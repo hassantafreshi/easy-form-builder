@@ -182,7 +182,7 @@ $GLOBALS['mollie_force'] = 'error-422';
 $res = efb_mollie_create($db);
 $row = $db->get_row("SELECT * FROM wp_emsfb_pmt_ ORDER BY id DESC LIMIT 1", ARRAY_A);
 $note = $db->get_var("SELECT note FROM wp_emsfb_pmt_evt_ WHERE payment_id = " . (int) $row['id'] . " AND type = 'create_failed'");
-$t('Mollie 422 → "could not be started", row failed, Mollie\'s detail in the event log', array($res['success'], $res['code'], $row['status'], strpos($note, 'The amount is lower than the minimum') !== false), array(false, 'gateway_error', 'failed', true));
+$t('Mollie 422 about the amount → method_unavailable ("choose another payment method"), row failed, Mollie\'s detail in the event log', array($res['success'], $res['code'], $row['status'], strpos($note, 'The amount is lower than the minimum') !== false), array(false, 'method_unavailable', 'failed', true));
 $GLOBALS['mollie_force'] = 'idempotency-409';
 $res = efb_mollie_create($db);
 $t('Mollie 409 (same key still being processed) → not started', array($res['success'], $res['code']), array(false, 'gateway_error'));

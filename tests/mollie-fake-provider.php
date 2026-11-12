@@ -99,7 +99,7 @@ class Efb_Test_Mollie_Fake {
 		$name = 'get-' . $p['status'];
 		$file = __DIR__ . '/fixtures/payments/mollie/' . $name . '.json';
 		$b = is_readable( $file ) ? self::fixture( $name )['body'] : self::fixture( 'get-open' )['body'];
-		foreach ( array( 'id', 'mode', 'amount', 'description', 'redirectUrl', 'webhookUrl', 'metadata', 'status', 'createdAt', 'expiresAt' ) as $k ) {
+		foreach ( array( 'id', 'mode', 'amount', 'description', 'redirectUrl', 'webhookUrl', 'metadata', 'status', 'createdAt', 'expiresAt', 'details' ) as $k ) {
 			if ( array_key_exists( $k, $p ) ) $b[ $k ] = $p[ $k ];
 		}
 		if ( ! array_key_exists( 'webhookUrl', $p ) ) unset( $b['webhookUrl'] );
@@ -167,6 +167,13 @@ class Efb_Test_Mollie_Fake {
 		}
 
 		if ( $method === 'POST' && $path === '/v2/payments' ) {
+			// A test can make the next create fail with a given answer (e.g. 422 about the method).
+			if ( ! empty( $s['next_create_error'] ) ) {
+				$e = $s['next_create_error'];
+				$s['next_create_error'] = null;
+				self::save( $s );
+				return self::answer( $e[0], $e[1] );
+			}
 			$idem = isset( $h['Idempotency-Key'] ) ? (string) $h['Idempotency-Key'] : '';
 			$hash = md5( (string) $args['body'] );
 			if ( $idem !== '' && in_array( $idem, (array) $s['inflight'], true ) ) return self::err( 'idempotency-409' );
