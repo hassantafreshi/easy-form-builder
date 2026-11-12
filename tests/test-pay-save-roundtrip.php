@@ -108,5 +108,43 @@ t('hostile values are reset (text without tags, colours, sizes, lists, base64, a
 	array('script alert(1) /script', '', '', '40', '', 'button', '', '', '5', '', '', '', ''));
 $old = array(array('type' => 'payment', 'getway' => 'stripe', 'currency' => 'usd'), array('id_' => '1', 'type' => 'step'), array('id_' => 's1', 'type' => 'stripe', 'name' => 'Card'));
 t('a Stripe form without the new keys comes back unchanged', save_and_read($fn, builder_payload($old)), $old);
+
+// Gateway options (pgw_*): each one through the gateway's field_schema(), never the default case.
+foreach (array('class-Emsfb-payment-http.php', 'class-Emsfb-payment-money.php', 'class-Emsfb-payment-secrets.php', 'class-Emsfb-payment-gateway.php', 'class-Emsfb-payment-registry.php', 'payment-field-functions-efb.php') as $f) require_once $EFB . '/includes/payments/' . $f;
+class Rt_Gateway extends \Emsfb\Payments\Gateway {
+	public function slug() { return 'rtgw'; }
+	public function addon_key() { return ''; }
+	public function label() { return 'RT'; }
+	public function settings_schema() { return array(); }
+	public function test_connection(\Emsfb\Payments\Settings $s, $mode) { return \Emsfb\Payments\Result::ok(); }
+	public function create(\Emsfb\Payments\Payment $p, \Emsfb\Payments\Settings $s, \Emsfb\Payments\Checkout_Context $c) { return new \Emsfb\Payments\Create_Result(); }
+	public function fetch(\Emsfb\Payments\Payment $p, \Emsfb\Payments\Settings $s) { return \Emsfb\Payments\Remote_State::error('x'); }
+	public function parse_webhook(\WP_REST_Request $r, \Emsfb\Payments\Settings $s) { return null; }
+	public function field_schema() {
+		return array(
+			array('key' => 'pgw_map_email', 'type' => 'field', 'label' => 'E-mail', 'field_types' => array('email')),
+			array('key' => 'pgw_map_name', 'type' => 'field', 'label' => 'Name'),
+			array('key' => 'pgw_region', 'type' => 'select', 'label' => 'Region', 'options' => array('eu' => 'EU', 'ae' => 'UAE')),
+			array('key' => 'pgw_note', 'type' => 'text', 'label' => 'Note', 'max' => 20),
+			array('key' => 'pgw_profile', 'type' => 'code', 'label' => 'Profile'),
+			array('key' => 'pgw_save', 'type' => 'checkbox', 'label' => 'Save'),
+		);
+	}
+}
+if (!class_exists('WP_REST_Request')) { class WP_REST_Request {} }
+\Emsfb\Payments\Registry::instance()->register(new Rt_Gateway());
+$opts = array('pgw_map_email' => 'em1', 'pgw_map_name' => 'nm_2', 'pgw_region' => 'ae', 'pgw_note' => 'Hello, you', 'pgw_profile' => 'pfl_9.x', 'pgw_save' => '1');
+$f3 = array(array('type' => 'payment', 'getway' => 'rtgw', 'currency' => 'EUR'), array('id_' => '1', 'type' => 'step'), array('id_' => 'em1', 'type' => 'email'), array_merge(array('id_' => 'pf1', 'type' => 'rtgw', 'name' => 'Pay'), $opts));
+$b3 = save_and_read($fn, builder_payload($f3));
+$got = array(); foreach ($opts as $k => $v) $got[$k] = isset($b3[3][$k]) ? $b3[3][$k] : null;
+t('gateway options (pgw_*) from the gateway\'s field_schema() survive the save', $got, array('pgw_map_email' => 'em1', 'pgw_map_name' => 'nm_2', 'pgw_region' => 'ae', 'pgw_note' => 'Hello, you', 'pgw_profile' => 'pfl_9.x', 'pgw_save' => '1'));
+$f4 = array(array('type' => 'payment'), array('id_' => '1', 'type' => 'step'), array('id_' => 'pf1', 'type' => 'rtgw', 'pgw_map_email' => 'x><script>', 'pgw_region' => 'us', 'pgw_note' => '<b>bold</b> and a very long note indeed', 'pgw_profile' => 'a b', 'pgw_save' => 'yes', 'pgw_BAD' => 'x', 'pgw_map_phone' => 'ph1', 'pgw_free' => '<i>t</i>'));
+$b4 = save_and_read($fn, builder_payload($f4));
+t('hostile gateway options are reset by their schema type (field id, select, text max, code, checkbox)', array($b4[2]['pgw_map_email'], $b4[2]['pgw_region'], $b4[2]['pgw_note'], $b4[2]['pgw_profile'], $b4[2]['pgw_save']), array('', '', 'b bold /b and a very', '', ''));
+t('a malformed pgw_ key is dropped; keys the schema does not know are kept, cleaned (id / plain text)', array(array_key_exists('pgw_BAD', $b4[2]), $b4[2]['pgw_map_phone'], $b4[2]['pgw_free']), array(false, 'ph1', 'i t /i'));
+$f5 = array(array('type' => 'payment'), array('id_' => '1', 'type' => 'step'), array('id_' => 'pf1', 'type' => 'notregistered', 'pgw_map_email' => 'em1', 'pgw_region' => 'us<x>'));
+$b5 = save_and_read($fn, builder_payload($f5));
+t('without the add-on: gateway options are kept, never lost (ids as ids, the rest as plain text)', array($b5[2]['pgw_map_email'], $b5[2]['pgw_region']), array('em1', 'us x'));
+
 echo "\nRESULTS: {$pass} passed, {$fail} failed\n";
 exit($fail ? 1 : 0);

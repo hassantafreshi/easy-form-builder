@@ -427,6 +427,8 @@ class Create {
 		$save_warnings_efb = array();
 		if (is_array($valp) && class_exists('\Emsfb\Builder_Api')) {
 			list($valp, $save_warnings_efb) = Builder_Api::disable_unavailable_notifiers($valp, get_setting_Emsfb('decoded', array()), $lang);
+			// PAY00: what the form's payment gateways need (currency, mapped fields, the gateway's own checks); never refuses the save.
+			if (class_exists('\\Emsfb\\Payments\\Registry')) $save_warnings_efb = array_merge($save_warnings_efb, \Emsfb\Payments\Registry::form_warnings($valp));
 			if (Builder_Api::sms_field_without_form($valp)) {
 				$save_warnings_efb[] = array('code' => 'sms_field_without_form', 'm' => $lang['smsFieldWithoutForm']);
 			}

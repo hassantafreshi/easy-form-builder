@@ -53,6 +53,14 @@ class Service {
 		return rest_url( 'Emsfb/v1/payments/webhook/' . $slug );
 	}
 
+	/**
+	 * The same webhook through the site's front door, for hosts that block the REST API for
+	 * visitors: home_url('/?efb_pay_webhook=<gateway>') → Routes::fallback_webhook() → handle_webhook().
+	 */
+	public static function webhook_fallback_url( $slug ) {
+		return add_query_arg( 'efb_pay_webhook', $slug, home_url( '/' ) );
+	}
+
 	public static function return_url( $p ) {
 		return add_query_arg( array( 'p' => $p['uid'], 's' => self::sign( $p['uid'], $p['gateway'] ) ), rest_url( 'Emsfb/v1/payments/return/' . $p['gateway'] ) );
 	}
@@ -368,6 +376,131 @@ class Service {
 		return null;
 	}
 
+	/* ------------------------------------------------------------------ retry */
+
+	/**
+	 * "Try again" / "Get a new QR code": a new attempt for the SAME pending entry, without sending
+	 * the form again. The amount, currency and quote are the stored ones (the server's), the rows
+	 * come from the stored entry; a new payment row with its own attempt key (a repeated key gives
+	 * the first answer again), the entry's payment row points to it, and an older attempt that is
+	 * still pending is canceled at the provider when it can be (if it is paid after all, finalize
+	 * takes the entry back; two paid attempts are reported to the owner, never finalized twice).
+	 *
+	 * @param array $a uid, sig (of the previous attempt), attempt_key, method, client_token, client_data, locale
+	 */
+	public static function retry( array $a ) {
+		$uid = isset( $a['uid'] ) ? (string) $a['uid'] : '';
+		$prev = Store::ready() ? Store::find_by_uid( $uid ) : null;
+		if ( ! $prev || ! self::verify_sig( $uid, $prev['gateway'], isset( $a['sig'] ) ? (string) $a['sig'] : '' ) ) return self::fail( 'retry_unavailable' );
+		$attempt = isset( $a['attempt_key'] ) ? (string) $a['attempt_key'] : '';
+		if ( ! preg_match( '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/', $attempt ) ) return self::fail( 'attempt_used' );
+		$again = Store::find_by_attempt( (int) $prev['form_id'], $attempt );
+		if ( $again ) return self::replay( $again );
+		if ( ! in_array( $prev['status'], array( 'created', 'pending', 'failed', 'canceled', 'expired' ), true ) || ! empty( $prev['finalized_at'] ) || empty( $prev['msg_id'] ) ) return self::fail( 'retry_unavailable' );
+		if ( Store::finalized_sibling( (int) $prev['msg_id'], 0 ) || Store::count_by_msg( (int) $prev['msg_id'] ) >= 10 ) return self::fail( 'retry_unavailable' );
+		$gw = Registry::get( $prev['gateway'] );
+		if ( ! $gw || ! self::plan_ok() ) return self::fail( 'pay_unavailable' );
+		$settings = Settings::load( $prev['gateway'] );
+		if ( ! $gw->is_configured( $settings, $settings->mode() ) ) return self::fail( 'pay_unavailable' );
+		$form = self::form_rows( $prev['form_id'] );
+		$field = null;
+		foreach ( is_array( $form ) ? $form : array() as $i => $r ) {
+			if ( $i > 0 && is_array( $r ) && isset( $r['id_'] ) && (string) $r['id_'] === (string) $prev['field_id'] && ( $r['type'] ?? '' ) === $prev['gateway'] ) { $field = $r; break; }
+		}
+		$entry = self::entry_of( $prev );
+		if ( ! $field || ! $entry || (string) $entry['read_'] !== '2' ) return self::fail( 'retry_unavailable' );
+		$locale = isset( $a['locale'] ) && is_string( $a['locale'] ) && preg_match( '/^[a-z]{2,3}(_[A-Z]{2})?$/', $a['locale'] ) ? $a['locale'] : (string) $prev['locale'];
+		$method = isset( $a['method'] ) && is_string( $a['method'] ) && preg_match( '/^[a-z0-9_]{1,30}$/', $a['method'] ) ? $a['method'] : '';
+		$limit = self::method_limit( $gw, $settings, $method, (int) $prev['amount_minor'], $prev['currency'], $locale );
+		if ( $limit ) return $limit;
+
+		$p = Store::insert( array(
+			'uid'          => Store::new_uid(),
+			'form_id'      => (int) $prev['form_id'],
+			'field_id'     => (string) $prev['field_id'],
+			'msg_id'       => (int) $prev['msg_id'],
+			'track'        => (string) $prev['track'],
+			'gateway'      => (string) $prev['gateway'],
+			'mode'         => $settings->mode(),
+			'amount_minor' => (int) $prev['amount_minor'],
+			'currency'     => (string) $prev['currency'],
+			'quote'        => (string) $prev['quote'],
+			'attempt_key'  => $attempt,
+			'payer_email'  => (string) $prev['payer_email'],
+			'payer_name'   => (string) $prev['payer_name'],
+			'return_to'    => (string) $prev['return_to'],
+			'locale'       => $locale,
+			'ip'           => (string) $prev['ip'],
+		) );
+		if ( ! $p ) {
+			$again = Store::find_by_attempt( (int) $prev['form_id'], $attempt );
+			return $again ? self::replay( $again ) : self::fail( 'gateway_error' );
+		}
+		Store::log_event( $p['id'], $p['gateway'], 'api', array( 'type' => 'create', 'to_status' => 'created', 'note' => 'retry of ' . $prev['uid'] ) );
+		if ( in_array( $prev['status'], array( 'created', 'pending' ), true ) ) {
+			try { $gw->cancel( new Payment( $prev ), $settings ); } catch ( \Throwable $e ) {} // phpcs:ignore Generic.CodeAnalysis.EmptyStatement -- best effort; a late payment is still taken
+			self::move( $prev, 'canceled', array(), 'api', 'replaced by ' . $p['uid'] );
+		}
+		self::update_entry( $p, array( 'pay_uid' => $p['uid'], 'status' => 'pending', 'mode' => $p['mode'] ), false, true );
+		$rows = array();
+		foreach ( self::decode_content( $entry['content'] ) ?: array() as $r ) {
+			if ( is_array( $r ) && ! in_array( $r['type'] ?? '', array( 'w_link', 'payment' ), true ) ) $rows[] = $r;
+		}
+		try { $schema = $gw->field_schema(); } catch ( \Throwable $e ) { $schema = array(); }
+		$options = Field::gateway_options( $field, $schema );
+		$ctx = new Checkout_Context( array(
+			'description' => isset( $form[0]['formName'] ) && is_string( $form[0]['formName'] ) ? substr( $form[0]['formName'], 0, 120 ) : '',
+			'rows'        => $rows,
+			'field'       => $options,
+			'payer'       => Field::payer( $rows, $options, (string) $prev['payer_email'] ),
+		) );
+		$quote = json_decode( (string) $prev['quote'], true );
+		$out = self::start( $gw, $settings, $p, $ctx, $method, $locale, $a, is_array( $quote ) ? $quote : array() );
+		unset( $out['track'], $out['msg_id'] );
+		return $out;
+	}
+
+	/** The entry row (content, read_) of a payment, or null. */
+	private static function entry_of( array $p ) {
+		global $wpdb;
+		if ( empty( $p['msg_id'] ) ) return null;
+		$t = $wpdb->prefix . 'emsfb_msg_';
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix
+		$e = $wpdb->get_row( $wpdb->prepare( "SELECT content, read_ FROM `{$t}` WHERE msg_id = %d", (int) $p['msg_id'] ), ARRAY_A );
+		return $e ? $e : null;
+	}
+
+	/** Per-form, per-minute counter (with rate_ok() per IP: the card-testing guard of create and retry). */
+	public static function form_rate_ok( $form_id, $limit ) {
+		$key = 'efb_pmt_rl_pcf' . (int) $form_id . '_' . gmdate( 'YmdHi', Store::time() );
+		$n = (int) get_transient( $key );
+		if ( $n >= (int) $limit ) return false;
+		set_transient( $key, $n + 1, 70 );
+		return true;
+	}
+
+	/** POST payments/retry {uid, sig, attempt_key, method, client_token, client_data, locale} (nonce; same limits as create). */
+	public static function handle_retry( \WP_REST_Request $r ) {
+		$j = $r->get_json_params();
+		$j = is_array( $j ) ? $j : array();
+		$sc = function ( $k ) use ( $j ) { return isset( $j[ $k ] ) && is_scalar( $j[ $k ] ) ? (string) $j[ $k ] : ''; };
+		$prev = Store::ready() ? Store::find_by_uid( $sc( 'uid' ) ) : null;
+		$per_ip = function_exists( 'apply_filters' ) ? (int) apply_filters( 'efb_payment_create_per_minute', 10 ) : 10;
+		if ( ! self::rate_ok( 'pc', $per_ip ) || ! self::form_rate_ok( $prev ? (int) $prev['form_id'] : 0, 30 ) ) {
+			return self::rest( array( 'success' => true, 'data' => array( 'success' => false, 'code' => 'efb_rate_limited', 'm' => __( 'Too many payment attempts. Please wait a minute and try again.', 'easy-form-builder' ) ) ), 429, true );
+		}
+		$out = self::retry( array(
+			'uid'          => $sc( 'uid' ),
+			'sig'          => $sc( 'sig' ),
+			'attempt_key'  => strtolower( $sc( 'attempt_key' ) ),
+			'method'       => strtolower( $sc( 'method' ) ),
+			'locale'       => $sc( 'locale' ),
+			'client_token' => $sc( 'client_token' ),
+			'client_data'  => isset( $j['client_data'] ) && is_array( $j['client_data'] ) ? $j['client_data'] : array(),
+		) );
+		return self::rest( array( 'success' => true, 'data' => $out ), 200, true );
+	}
+
 	/** A repeated attempt (double click, lost answer): the first answer again. */
 	private static function replay( array $p ) {
 		if ( in_array( $p['status'], array( 'pending', 'authorized', 'paid' ), true ) ) {
@@ -461,9 +594,11 @@ class Service {
 			if ( is_array( $r ) && isset( $r['ref'], $r['status'] ) && is_string( $r['ref'] ) && $r['ref'] !== '' && in_array( $r['status'], array( 'refunded', 'failed', 'canceled' ), true ) ) $by_ref[ $r['ref'] ] = $r['status'];
 		}
 		$covered = (int) $st->refunded_minor - Store::refunded_total( $p['id'] );
+		// The provider's refunded amount was already written by apply_remote_state() when it reports a refunded status.
+		$counted = in_array( $st->status, array( 'refunded', 'partially_refunded' ), true ) && (int) $st->refunded_minor > 0;
 		foreach ( $pending as $r ) {
 			if ( $r['gateway_ref'] !== '' && isset( $by_ref[ $r['gateway_ref'] ] ) ) {
-				self::settle_refund( Store::get( $p['id'] ), (int) $r['id'], $by_ref[ $r['gateway_ref'] ], $source, 0 );
+				self::settle_refund( Store::get( $p['id'] ), (int) $r['id'], $by_ref[ $r['gateway_ref'] ], $source, 0, $counted );
 			} elseif ( ! $by_ref && $covered >= (int) $r['amount_minor'] && in_array( $st->status, array( 'refunded', 'partially_refunded' ), true ) ) {
 				$covered -= (int) $r['amount_minor'];
 				self::settle_refund( Store::get( $p['id'] ), (int) $r['id'], 'refunded', $source, 0, true );
@@ -581,7 +716,16 @@ class Service {
 	public static function finalize( array $p ) {
 		if ( ! Store::claim_finalize( $p['id'] ) ) return false;
 		$p = Store::get( $p['id'] );
-		$rows = self::update_entry( $p, array( 'status' => 'paid', 'paymentIntent' => $p['gateway_ref'], 'method' => $p['method'], 'paid_at' => $p['paid_at'] ), true );
+		$twin = Store::finalized_sibling( (int) $p['msg_id'], (int) $p['id'] );
+		if ( $twin ) {
+			// Another attempt of the same entry (Try again / a new QR) was paid and finalized first:
+			// the entry and its notifications stay as they are; the owner is told (refund one of them).
+			$note = 'second payment for the entry of ' . $twin['uid'] . ' (' . $twin['gateway_ref'] . ')';
+			Store::log_event( $p['id'], $p['gateway'], 'api', array( 'type' => 'duplicate_payment', 'to_status' => 'paid', 'note' => $note ) );
+			self::mail_admin( 'duplicate', $p, $note );
+			return true;
+		}
+		$rows = self::update_entry( $p, array( 'status' => 'paid', 'paymentIntent' => $p['gateway_ref'], 'method' => $p['method'], 'paid_at' => $p['paid_at'], 'pay_uid' => $p['uid'] ), true );
 		Store::log_event( $p['id'], $p['gateway'], 'api', array( 'type' => 'finalized', 'to_status' => 'paid' ) );
 		$form = self::form_rows( $p['form_id'] );
 		if ( function_exists( 'do_action' ) ) {
@@ -602,7 +746,7 @@ class Service {
 	 *
 	 * @return array|null The entry's rows after the change.
 	 */
-	public static function update_entry( array $p, array $fields, $mark_new = false ) {
+	public static function update_entry( array $p, array $fields, $mark_new = false, $takeover = false ) {
 		global $wpdb;
 		if ( empty( $p['msg_id'] ) ) return null;
 		$t = $wpdb->prefix . 'emsfb_msg_';
@@ -613,7 +757,9 @@ class Service {
 		if ( ! is_array( $rows ) ) return null;
 		$found = false;
 		foreach ( $rows as $i => $r ) {
-			if ( is_array( $r ) && ( $r['type'] ?? '' ) === 'payment' && ( ! isset( $r['pay_uid'] ) || $r['pay_uid'] === $p['uid'] ) ) {
+			// An entry holds one payment row. Finalize ($mark_new) may take it over from a newer attempt
+			// of the same entry (an older QR or page that was paid after all).
+			if ( is_array( $r ) && ( $r['type'] ?? '' ) === 'payment' && ( ! isset( $r['pay_uid'] ) || $r['pay_uid'] === $p['uid'] || $mark_new || $takeover ) ) {
 				foreach ( $fields as $k => $v ) {
 					if ( $v === null || $v === '' ) continue;
 					$rows[ $i ][ $k ] = is_string( $v ) ? str_replace( '"', '@efb@dq#', $v ) : $v;
@@ -912,7 +1058,7 @@ class Service {
 		$prefix = $p['mode'] !== 'live' ? '[TEST] ' : '';
 		$subject = $prefix . ( $kind === 'mismatch'
 			? __( 'Payment amount does not match', 'easy-form-builder' )
-			: __( 'A payment was not completed', 'easy-form-builder' ) ) . ' [' . ( function_exists( 'get_bloginfo' ) ? get_bloginfo( 'name' ) : '' ) . ']';
+			: ( $kind === 'duplicate' ? __( 'An entry was paid twice', 'easy-form-builder' ) : __( 'A payment was not completed', 'easy-form-builder' ) ) ) . ' [' . ( function_exists( 'get_bloginfo' ) ? get_bloginfo( 'name' ) : '' ) . ']';
 		$body = sprintf( "%s\n\n%s: %s\n%s: %s\n%s: %s %s\n%s: %s\n", $subject,
 			__( 'Confirmation Code', 'easy-form-builder' ), $p['track'],
 			__( 'Gateway', 'easy-form-builder' ), $p['gateway'] . ' ' . $p['gateway_ref'],

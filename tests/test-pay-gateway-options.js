@@ -32,6 +32,7 @@ const schema = [
 const cases = [];
 const add = (c) => { cases.push(c); return cases.length - 1; };
 const iSchema = add({ op: 'gwschema', schema });
+const iTwice = add({ op: 'gwsanitize', k: 'pgw_region', v: 'ae', schema: null });
 const values = [
   ['pgw_map_email', 'em1'], ['pgw_map_email', 'a b'], ['pgw_map_email', 'x"><script>'], ['pgw_map_email', 12], ['pgw_map_email', true], ['pgw_map_email', 'x'.repeat(41)],
   ['pgw_region', 'ae'], ['pgw_region', 'us'], ['pgw_region', 1], ['pgw_region', 'bad key!'],
@@ -65,6 +66,7 @@ const iF1 = fieldCase('f1', {}, { methods, logos: [], mobile: false, defaults: {
 const iF2 = fieldCase('f2', { pf_methods_style: 'select', pf_btn_icon: 'none' }, { methods, logos: [], mobile: false, defaults: { pf_methods_style: 'grid', pf_btn_icon: 'bi-qr-code' } });
 const iF3 = fieldCase('f3', { pf_methods: 'bank,card' }, { methods, logos: [], mobile: true });
 
+cases[iTwice].schema = JSON.parse(JSON.stringify(core.cleanSchema(schema)));
 const P = php(cases);
 const bad = [];
 cases.forEach((c, i) => { if (norm(js(c)) !== norm(P[i])) bad.push(c.op + ' ' + JSON.stringify(c.k || '') + ' ' + JSON.stringify(c.v === undefined ? '' : c.v) + '\n js=' + norm(js(c)).slice(0, 300) + '\nphp=' + norm(P[i]).slice(0, 300)); });
@@ -74,6 +76,7 @@ const S = P[iSchema];
 t('schema: bad entries dropped (duplicate key, upper case, unknown type, non-objects); 7 kept', S.map((d) => d.key).join(',') === 'pgw_map_email,pgw_map_name,pgw_region,pgw_note,pgw_profile,pgw_save,pgw_nolabel', S.map((d) => d.key).join(','));
 t('schema: labels are plain text, select options keep only safe values, code max capped at 60', S[1].label === 'Payer b name/b' || S[1].label.indexOf('<') === -1, S[1].label);
 t('schema: select options are [value, label] pairs, bad value dropped; default checked against them', JSON.stringify(S[2].options) === JSON.stringify([['eu', 'Europe'], ['ae', 'UAE']]) && S[2].default === 'eu');
+t('schema: a schema that is already clean gives the same options (select pairs)', P[iTwice] === 'ae');
 t('schema: code max capped at 60, text max as given', S[6].max === 60 && S[3].max === 10);
 const v = (k, val) => P[iVals[values.findIndex(([a, b]) => a === k && JSON.stringify(b) === JSON.stringify(val))]];
 t('field option: a field id is kept; spaces, markup, too long or a boolean → empty', v('pgw_map_email', 'em1') === 'em1' && v('pgw_map_email', 'a b') === '' && v('pgw_map_email', 'x"><script>') === '' && v('pgw_map_email', 'x'.repeat(41)) === '' && v('pgw_map_email', true) === '');

@@ -281,6 +281,8 @@ class Field {
 			if ( $d['type'] === 'select' && isset( $d['options'] ) && is_array( $d['options'] ) ) {
 				foreach ( $d['options'] as $ov => $ol ) {
 					if ( count( $e['options'] ) >= 50 ) break;
+					// A clean schema again: [value, label] pairs.
+					if ( is_array( $ol ) && count( $ol ) === 2 && isset( $ol[0], $ol[1] ) && is_scalar( $ol[0] ) ) { $ov = $ol[0]; $ol = $ol[1]; }
 					$ov = (string) $ov;
 					if ( preg_match( '/^[A-Za-z0-9_.-]{0,40}$/', $ov ) ) $e['options'][] = array( $ov, self::text( is_scalar( $ol ) ? (string) $ol : $ov, 120 ) );
 				}

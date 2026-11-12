@@ -302,6 +302,7 @@
             for (var j = 0; j < keys.length; j++) {
                if (e.options.length >= 50) break;
                var ov = String(keys[j]), ol = d.options[keys[j]];
+               if (Array.isArray(ol) && ol.length === 2 && ol[0] != null && ol[1] != null && isScalar(ol[0])) { ov = phpStr(ol[0]); ol = ol[1]; }
                if (/^[A-Za-z0-9_.-]{0,40}$/.test(ov)) e.options.push([ov, text(isScalar(ol) ? phpStr(ol) : ov, 120)]);
             }
          }

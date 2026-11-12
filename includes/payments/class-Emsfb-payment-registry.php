@@ -219,6 +219,55 @@ class Registry {
 	}
 
 	/**
+	 * Warnings for a form about to be saved (builder Save, AutoPilot): core's checks from what each
+	 * gateway declares (currency, required options, mapped fields) plus Gateway::form_warnings().
+	 * Never refuses the save. @return array list of array( code, m, field_id, gateway )
+	 */
+	public static function form_warnings( $form ) {
+		$out = array();
+		if ( ! is_array( $form ) || ! self::all() ) return $out;
+		$infos = array();
+		foreach ( self::all() as $slug => $g ) {
+			$sup = array_merge( ( new Gateway_Defaults() )->supports(), (array) $g->supports() );
+			try { $schema = $g->field_schema(); } catch ( \Throwable $e ) { $schema = array(); }
+			$infos[ $slug ] = array( 'currencies' => array_values( (array) $sup['currencies'] ), 'field_schema' => $schema, 'label' => (string) $g->label() );
+		}
+		foreach ( Field::warnings( $form, $infos ) as $w ) {
+			$label = $infos[ $w['gateway'] ]['label'];
+			switch ( $w['code'] ) {
+				case 'pay_currency':
+					/* translators: %1$s: gateway name, %2$s: currency codes, %3$s: the form's currency */
+					$m = sprintf( __( '%1$s only accepts %2$s. This form uses %3$s, so visitors cannot pay. Change the currency in the payment field.', 'easy-form-builder' ), $label, implode( ', ', $w['allowed'] ), $w['currency'] !== '' ? $w['currency'] : '-' );
+					break;
+				case 'pay_option_required':
+					/* translators: %1$s: gateway name, %2$s: name of an option of the payment field */
+					$m = sprintf( __( '%1$s needs "%2$s". Choose it in the payment field\'s settings.', 'easy-form-builder' ), $label, $w['label'] );
+					break;
+				case 'pay_option_field_missing':
+					/* translators: %1$s: gateway name, %2$s: name of an option of the payment field */
+					$m = sprintf( __( '%1$s: the field chosen for "%2$s" is no longer in the form. Choose another one.', 'easy-form-builder' ), $label, $w['label'] );
+					break;
+				default:
+					/* translators: %1$s: gateway name, %2$s: name of an option of the payment field */
+					$m = sprintf( __( '%1$s: the field chosen for "%2$s" is not the right kind of field.', 'easy-form-builder' ), $label, $w['label'] );
+			}
+			$out[] = array( 'code' => $w['code'], 'm' => $m, 'field_id' => $w['field_id'], 'gateway' => $w['gateway'] );
+		}
+		foreach ( $form as $i => $r ) {
+			if ( $i === 0 || ! is_array( $r ) || ! isset( $r['type'], $r['id_'] ) || ! is_string( $r['type'] ) || ! isset( $infos[ $r['type'] ] ) ) continue;
+			$g = self::get( $r['type'] );
+			try { $list = $g->form_warnings( $form, $r, Settings::load( $r['type'] ) ); } catch ( \Throwable $e ) { $list = array(); }
+			foreach ( (array) $list as $w ) {
+				if ( ! is_array( $w ) || ! isset( $w['code'], $w['m'] ) || ! is_string( $w['code'] ) || ! preg_match( '/^[a-z0-9_]{1,40}$/', $w['code'] ) || ! is_string( $w['m'] ) ) continue;
+				$m = Field::text( $w['m'], 300 );
+				if ( $m !== '' ) $out[] = array( 'code' => 'pay_gw_' . $w['code'], 'm' => $m, 'field_id' => (string) $r['id_'], 'gateway' => $r['type'] );
+				if ( count( $out ) >= 30 ) break 2;
+			}
+		}
+		return $out;
+	}
+
+	/**
 	 * What the public renderer and the builder need about each gateway, without any secret:
 	 * label, mode, configured per mode, currencies, methods, supports, logos, the field options
 	 * (field_schema) and the field defaults. $ctx (currency, amount_minor) asks for the methods of

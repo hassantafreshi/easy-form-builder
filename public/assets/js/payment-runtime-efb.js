@@ -8,7 +8,13 @@
  *    the amount and stores the entry as "pending payment") and follows next: redirect to the
  *    provider, or an adapter of the gateway add-on for embedded / QR flows (EFBPay.adapters[slug]);
  *  - back from the provider (?efb_pay=&efb_ps=), it asks payments/status (never trusts the URL) and
- *    shows the result, polling while the payment is pending.
+ *    shows the result, polling while the payment is pending (until the server's poll_until: the
+ *    gateway's pending_ttl());
+ *  - an adapter may have prepare(ctx): it runs after the form is valid and before payments/create
+ *    and returns {token, data} (e.g. the card token of the provider's hosted fields); the token is
+ *    sent once as pay.client_token and is never kept by EFB;
+ *  - "Try again" / an adapter's EFBPay.retry(): a new attempt for the SAME pending entry
+ *    (payments/retry), without sending the form again.
  *
  * A result in the browser never records a payment: only the server's provider check does.
  */
@@ -164,8 +170,21 @@
       refresh(el);
    }
 
+   /** The chosen method's own limits (gateway methods extras): a message naming the method, or ''. */
+   function methodLimit(el, q) {
+      var lim = ((gw(el).method_limits || {})[el._method || '']) || null;
+      if (!lim || !q || !q.ok) return '';
+      var cur = q.currency, min = (lim.min_minor || {})[cur], max = (lim.max_minor || {})[cur];
+      if (min != null && q.total_minor < Number(min)) return (T('methodMin') || '%1$s: %2$s').replace('%1$s', lim.label || '').replace('%2$s', fmt(el, Number(min), cur));
+      if (max != null && q.total_minor > Number(max)) return (T('methodMax') || '%1$s: %2$s').replace('%1$s', lim.label || '').replace('%2$s', fmt(el, Number(max), cur));
+      return '';
+   }
+
    function pay(el) {
+      if (el._retryable && el._last) { retry(el); return; }
       var q = refresh(el);
+      var ml = methodLimit(el, q);
+      if (ml) { status(el, ml, 'error'); return; }
       // Only what the visitor can fix here stops the click; the amount itself is the server's
       // (a price a logic rule computes may be unknown to this page and is computed there).
       if (q && !q.ok && q.error === 'pwyw_out_of_range') {
@@ -190,10 +209,53 @@
 
    /* ---- create --------------------------------------------------------- */
 
+   /** A short-lived browser token: printable ASCII, at most 4096 characters (the server checks again). */
+   var okToken = function (t) { return typeof t === 'string' && t.length <= 4096 && /^[\x21-\x7E]+$/.test(t); };
+
+   /**
+    * The adapter's prepare(ctx) step, if it has one: {token, data} | null (nothing to add) | false
+    * (the adapter showed its own message and the payment stops here). ctx: element, slot, formId,
+    * gateway, method, quote (display only), status(msg, kind).
+    */
+   async function prepareFor(el, q) {
+      var ad = adapters[el.getAttribute('data-gw')];
+      if (!ad || typeof ad.prepare !== 'function') return null;
+      var out;
+      try {
+         out = await Promise.race([
+            Promise.resolve(ad.prepare({ element: el, slot: el.querySelector('[data-pf-slot="fields"]'), formId: el.getAttribute('data-formid'), gateway: el.getAttribute('data-gw'), method: el._method || '', quote: q && q.ok ? { total_minor: q.total_minor, currency: q.currency } : null, status: function (m, k) { status(el, m, k || 'info'); } })),
+            new Promise(function (r) { setTimeout(function () { r(false); }, 300000); })
+         ]);
+      } catch (e) {
+         throw new Error((e && e.message) || T('noScript'));
+      }
+      if (out === false) return false;
+      if (!out || typeof out !== 'object') return null;
+      var res = {};
+      if (out.token != null) {
+         if (!okToken(out.token)) throw new Error(T('noScript'));
+         res.client_token = out.token;
+      }
+      if (out.data && typeof out.data === 'object' && !Array.isArray(out.data)) {
+         res.client_data = {};
+         Object.keys(out.data).slice(0, 20).forEach(function (k) { var v = out.data[k]; if (/^[a-z0-9_]{1,40}$/.test(k) && (typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean')) res.client_data[k] = typeof v === 'string' ? v.slice(0, 200) : v; });
+      }
+      return res;
+   }
+
+   async function post(route, body, sid, fid) {
+      var opt = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) };
+      var resp = typeof efb_fetch_public_request_efb === 'function'
+         ? await efb_fetch_public_request_efb(V.rest + route, opt, 'payment', sid, fid)
+         : await fetch(V.rest + route, opt);
+      return resp.json();
+   }
+
    async function submit(data, fid) {
       var el = PENDING[fid] || document.querySelector('.efb-pf[data-formid="' + fid + '"]');
       if (!el) return false;
       if (!el._attempt) el._attempt = uuid();
+      el._sid = data.sid;
       var q = refresh(el);
       var body = Object.assign({}, data, {
          pay: {
@@ -215,11 +277,11 @@
       };
       var json;
       try {
-         var opt = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) };
-         var resp = typeof efb_fetch_public_request_efb === 'function'
-            ? await efb_fetch_public_request_efb(V.rest + 'create', opt, 'payment', data.sid, fid)
-            : await fetch(V.rest + 'create', opt);
-         json = await resp.json();
+         var prep = await prepareFor(el, q);
+         if (prep === false) { fail(''); return false; }
+         if (prep) Object.assign(body.pay, prep);
+         json = await post('create', body, data.sid, fid);
+         if (body.pay.client_token) body.pay.client_token = ''; // used once
       } catch (e) {
          fail((e && e.message) || T('noScript'));
          return false;
@@ -233,7 +295,46 @@
          fail(d.m || (json && json.data && json.data.m) || T('noScript'), d.field_id ? { field_id: d.field_id } : {});
          return false;
       }
-      var p = d.pay;
+      return follow(el, d.pay, fid);
+   }
+
+   /**
+    * "Try again" / "Get a new QR code": a new attempt for the same pending entry (payments/retry),
+    * with a new attempt key; the form is not sent again. Falls back to nothing when the page does
+    * not know the previous attempt (the visitor presses Pay and the form is sent as usual).
+    */
+   async function retry(el) {
+      if (!el || !el._last) return false;
+      var fid = el.getAttribute('data-formid');
+      el._retryable = false;
+      el._attempt = uuid();
+      var btn = el.querySelector('[data-pf-pay]');
+      if (btn) { btn.setAttribute('aria-busy', 'true'); btn.disabled = true; }
+      status(el, T('newAttempt'), 'info');
+      var json;
+      try {
+         var body = { uid: el._last.uid, sig: el._last.sig, attempt_key: el._attempt, method: el._method || '', locale: V.locale || '' };
+         var prep = await prepareFor(el, refresh(el));
+         if (prep === false) { if (btn) { btn.removeAttribute('aria-busy'); btn.disabled = false; } el._retryable = true; return false; }
+         if (prep) Object.assign(body, prep);
+         json = await post('retry', body, el._sid || '', fid);
+      } catch (e) {
+         json = null;
+      }
+      var d = json && json.data ? json.data : {};
+      if (!json || !d.success || !d.pay) {
+         if (btn) { btn.removeAttribute('aria-busy'); btn.disabled = false; }
+         status(el, d.m || T('noScript'), 'error');
+         if (d.code !== 'retry_unavailable') el._retryable = true; else el._last = null;
+         return false;
+      }
+      return follow(el, d.pay, fid);
+   }
+
+   /** What the server answered for a new attempt (create or retry): the provider's page, an adapter, or polling. */
+   function follow(el, p, fid) {
+      el._last = { uid: p.uid, sig: p.sig };
+      el._pollUntil = p.poll_until || 0;
       var banner = el.querySelector('[data-pf-el="test"]');
       if (banner) banner.hidden = !p.test_mode;
       try { sessionStorage.setItem('efb_pay_' + fid, p.uid); } catch (e) { /* private mode */ }
@@ -248,7 +349,7 @@
       }
       var ad = adapters[p.gateway];
       if (ad && typeof ad.mount === 'function') {
-         ad.mount({ element: el, slot: el.querySelector('[data-pf-slot="fields"]'), payment: p, next: next, poll: function () { return watch(el, p, fid); } });
+         ad.mount({ element: el, slot: el.querySelector('[data-pf-slot="fields"]'), payment: p, next: next, poll: function () { return watch(el, p, fid); }, retry: function () { return retry(el); } });
          return true;
       }
       return watch(el, p, fid);
@@ -283,13 +384,21 @@
       }
    }
 
+   /** Until when to keep asking: the server's poll_until (the gateway's pending_ttl()), else 15 minutes; at most 24 hours. */
+   function untilOf(sec) {
+      var now = Date.now();
+      var u = Number(sec) > 0 ? Number(sec) * 1000 : now + 15 * 60 * 1000;
+      return Math.min(now + 24 * 3600 * 1000, Math.max(now + 60 * 1000, u));
+   }
+
    async function watch(el, p, fid) {
-      var delay = 3000, until = Date.now() + 15 * 60 * 1000;
+      var delay = 3000, until = untilOf(p.poll_until || (el && el._pollUntil));
       status(el, T('checking'), 'info');
       while (Date.now() < until) {
          var st;
          try { st = await getStatus(p.uid, p.sig); } catch (e) { st = { state: 'pending' }; }
          if (st.state === 'paid' || st.state === 'failed') { show(el, fid, st); return true; }
+         if (st.poll_until) until = untilOf(st.poll_until);
          status(el, T('pending'), 'info');
          await new Promise(function (r) { setTimeout(r, delay); });
          delay = Math.min(15000, Math.round(delay * 1.5));
@@ -307,11 +416,16 @@
       var s = el.querySelector('[data-pf-status]');
       status(el, st.message || T('fail'), 'error');
       if (st.can_retry && s) {
+         // A new attempt for the same entry when the page knows the last one; else the form is sent again.
+         el._retryable = !!el._last;
          var b = document.createElement('button');
          b.type = 'button';
          b.className = 'efb btn btn-outline-secondary btn-sm ms-2 efb-pf-retry';
          b.textContent = T('tryAgain');
-         b.addEventListener('click', function () { el._attempt = null; status(el, '', ''); var pb = el.querySelector('[data-pf-pay]'); if (pb) { pb.disabled = false; pb.focus(); } });
+         b.addEventListener('click', function () {
+            if (el._retryable && el._last) { retry(el); return; }
+            el._attempt = null; status(el, '', ''); var pb = el.querySelector('[data-pf-pay]'); if (pb) { pb.disabled = false; pb.focus(); }
+         });
          s.appendChild(b);
       }
       var btn = el.querySelector('[data-pf-pay]');
@@ -337,9 +451,10 @@
          var banner = el.querySelector('[data-pf-el="test"]');
          if (banner) banner.hidden = !st.test_mode;
          el.scrollIntoView({ block: 'center' });
+         el._last = { uid: uid, sig: sig };
       }
       if (st.state === 'pending') {
-         if (el) watch(el, { uid: uid, sig: sig }, fid);
+         if (el) watch(el, { uid: uid, sig: sig, poll_until: st.poll_until }, fid);
          return;
       }
       show(el, fid, st);
@@ -362,9 +477,12 @@
       isGateway: function (slug) { return !!(V.gateways && Object.prototype.hasOwnProperty.call(V.gateways, slug)); },
       submit: submit,
       refresh: function (fid) { document.querySelectorAll('.efb-pf[data-formid="' + fid + '"]').forEach(refresh); },
-      /** A gateway add-on's browser adapter: EFBPay.registerAdapter('<slug>', {prepare(ctx){…}, mount(ctx){…}}). */
+      /** A gateway add-on's browser adapter: EFBPay.registerAdapter('<slug>', {prepare(ctx){…}, mount(ctx){…}}).
+          prepare(ctx) (optional) runs before payments/create and resolves to {token, data}, null or false. */
       registerAdapter: function (slug, a) { if (typeof slug === 'string' && a) adapters[slug] = a; },
-      poll: function (uid, sig, fid) { var el = document.querySelector('.efb-pf[data-formid="' + fid + '"]'); return watch(el, { uid: uid, sig: sig }, fid); }
+      poll: function (uid, sig, fid) { var el = document.querySelector('.efb-pf[data-formid="' + fid + '"]'); return watch(el, { uid: uid, sig: sig }, fid); },
+      /** A new attempt for the same pending entry (a new QR, "Try again"): EFBPay.retry(fieldElement). */
+      retry: function (el) { return retry(el && el.nodeType ? el : document.querySelector('.efb-pf[data-formid="' + el + '"]')); }
    };
 
    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { setTimeout(init, 0); });

@@ -307,6 +307,53 @@ class Frontend {
 
 class Routes {
 
+	/**
+	 * The ?efb_pay_webhook=<gateway> request as a WP_REST_Request for Service::handle_webhook():
+	 * the raw body, the headers, the query parameters (gateways that sign their own webhook address
+	 * read them), the form-encoded fields, and the gateway. Same verification as the REST route.
+	 */
+	public static function fallback_request( $slug, array $get, array $server, $body ) {
+		$r = new \WP_REST_Request( 'POST', '/Emsfb/v1/payments/webhook/' . $slug );
+		$r->set_body( (string) $body );
+		foreach ( $server as $k => $v ) {
+			if ( ! is_string( $k ) || ! is_scalar( $v ) ) continue;
+			if ( strpos( $k, 'HTTP_' ) === 0 ) $r->set_header( strtolower( substr( $k, 5 ) ), (string) $v );
+			elseif ( in_array( $k, array( 'CONTENT_TYPE', 'CONTENT_LENGTH' ), true ) ) $r->set_header( strtolower( $k ), (string) $v );
+		}
+		$ct = isset( $server['CONTENT_TYPE'] ) ? strtolower( (string) $server['CONTENT_TYPE'] ) : '';
+		if ( strpos( $ct, 'application/x-www-form-urlencoded' ) !== false && strlen( (string) $body ) <= 262144 ) {
+			$f = array();
+			parse_str( (string) $body, $f );
+			foreach ( $f as $k => $v ) {
+				if ( is_string( $k ) && is_scalar( $v ) ) $r->set_param( $k, (string) $v );
+			}
+		}
+		foreach ( $get as $k => $v ) {
+			if ( is_string( $k ) && $k !== 'efb_pay_webhook' && is_scalar( $v ) ) $r->set_param( $k, (string) $v );
+		}
+		$r->set_param( 'gateway', $slug );
+		return $r;
+	}
+
+	/** parse_request: answers POST /?efb_pay_webhook=<gateway> with the webhook handler, then stops. */
+	public static function fallback_webhook() {
+		// phpcs:disable WordPress.Security.NonceVerification -- a provider's webhook; verified by the gateway
+		if ( ! isset( $_GET['efb_pay_webhook'] ) || ! is_string( $_GET['efb_pay_webhook'] ) ) return;
+		$slug = (string) wp_unslash( $_GET['efb_pay_webhook'] );
+		if ( ! preg_match( '/^[a-z][a-z0-9]{1,19}$/', $slug ) || ( isset( $_SERVER['REQUEST_METHOD'] ) ? strtoupper( (string) $_SERVER['REQUEST_METHOD'] ) : '' ) !== 'POST' ) return;
+		$body = file_get_contents( 'php://input', false, null, 0, 262145 );
+		$res = Service::handle_webhook( self::fallback_request( $slug, wp_unslash( $_GET ), $_SERVER, is_string( $body ) ? $body : '' ) );
+		// phpcs:enable
+		$code = $res instanceof \WP_REST_Response ? (int) $res->get_status() : 200;
+		if ( ! headers_sent() ) {
+			status_header( $code );
+			header( 'Content-Type: application/json; charset=utf-8' );
+			header( 'Cache-Control: no-store' );
+		}
+		echo wp_json_encode( $res instanceof \WP_REST_Response ? $res->get_data() : null );
+		exit;
+	}
+
 	/** Called from _Public's rest_api_init next to efb_register_payment_rest_routes. */
 	public static function register( $public ) {
 		if ( ! Registry::all() ) return;
@@ -330,6 +377,11 @@ class Routes {
 			'methods'             => 'GET',
 			'callback'            => array( Service::class, 'handle_status' ),
 			'permission_callback' => '__return_true', // the HMAC signature s is checked in the handler
+		) );
+		register_rest_route( 'Emsfb/v1', 'payments/retry', array(
+			'methods'             => 'POST',
+			'callback'            => array( Service::class, 'handle_retry' ),
+			'permission_callback' => array( $public, 'check_nonce_permission_efb' ),
 		) );
 		register_rest_route( 'Emsfb/v1', 'payments/poll', array(
 			'methods'             => 'POST',

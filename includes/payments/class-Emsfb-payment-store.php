@@ -285,6 +285,24 @@ class Store {
 		return $r ? self::cast( $r ) : null;
 	}
 
+	/** Another payment of the same entry that was already finalized (paid once), or null. */
+	public static function finalized_sibling( $msg_id, $not_id ) {
+		global $wpdb;
+		if ( ! $msg_id ) return null;
+		$t = self::table( 'emsfb_pmt_' );
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix
+		$r = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM `{$t}` WHERE msg_id = %d AND id <> %d AND finalized_at IS NOT NULL ORDER BY id ASC LIMIT 1", (int) $msg_id, (int) $not_id ), ARRAY_A );
+		return $r ? self::cast( $r ) : null;
+	}
+
+	/** How many payment attempts an entry has. */
+	public static function count_by_msg( $msg_id ) {
+		global $wpdb;
+		$t = self::table( 'emsfb_pmt_' );
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix
+		return (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM `{$t}` WHERE msg_id = %d", (int) $msg_id ) );
+	}
+
 	private static function cast( array $r ) {
 		foreach ( array( 'id', 'form_id', 'msg_id', 'parent_id', 'amount_minor', 'refunded_minor', 'check_count' ) as $k ) {
 			if ( array_key_exists( $k, $r ) && $r[ $k ] !== null ) $r[ $k ] = (int) $r[ $k ];

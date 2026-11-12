@@ -4680,6 +4680,16 @@ class efbFunction {
 						$valp[$key][$k] = class_exists('\\Emsfb\\Payments\\Field') ? \Emsfb\Payments\Field::sanitize_key($k, $v) : '';
 					break;
 					default:
+					// PAY00: a gateway's own options on its field (pgw_*), sanitized from the gateway's
+					// field_schema() (kept conservatively when the add-on is not active); a malformed
+					// pgw_ key is dropped.
+					if (is_string($k) && strpos($k, 'pgw_') === 0) {
+						if (!preg_match('/^pgw_[a-z0-9_]{1,40}$/', $k) || !class_exists('\\Emsfb\\Payments\\Field')) { unset($valp[$key][$k]); break; }
+						$gw_type = isset($val['type']) && is_string($val['type']) ? $val['type'] : '';
+						$gw_schema = $gw_type !== '' && class_exists('\\Emsfb\\Payments\\Registry') ? \Emsfb\Payments\Registry::field_schema($gw_type) : null;
+						$valp[$key][$k] = \Emsfb\Payments\Field::sanitize_gateway_key($k, $v, $gw_schema);
+						break;
+					}
 					$k =sanitize_text_field($k);
 					$valp[$key][$k]=sanitize_text_field($v);
 

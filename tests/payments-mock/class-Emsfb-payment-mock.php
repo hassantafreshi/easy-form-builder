@@ -24,6 +24,9 @@ class Mock_Gateway extends Gateway {
 
 	const HOST = 'mock.efb.invalid';
 
+	/** The last Checkout_Context create() received (tests read it; nothing is written anywhere). */
+	public static $last_ctx = null;
+
 	public function slug() { return 'efbmock'; }
 	public function addon_key() { return ''; }
 	public function label() { return __( 'Test gateway', 'easy-form-builder' ); }
@@ -66,13 +69,37 @@ class Mock_Gateway extends Gateway {
 			return Result::fail( 'wrong_mode', sprintf( __( 'This key is not a %s key.', 'easy-form-builder' ), $mode === 'live' ? 'Live' : 'Test' ) );
 		}
 		$r = $this->request( 'GET', 'https://' . self::HOST . '/v1/ping', array( 'headers' => $this->auth( $s, $mode ), 'timeout' => 8 ) );
-		return $r['ok'] ? Result::ok() : Result::fail( $r['error'] );
+		return $r['ok'] ? Result::ok( 'The mock provider answered (' . $mode . ').' ) : Result::fail( $r['error'] );
+	}
+
+	/** Notices and an extra button on the settings card (PAY00 optional hooks). */
+	public function settings_notices( Settings $s ) {
+		return array( array( 'level' => 'info', 'm' => 'Test gateway: no real money moves.' ) );
+	}
+
+	public function settings_actions( Settings $s ) {
+		return array( array( 'id' => 'ping', 'label' => 'Ping the mock provider' ) );
+	}
+
+	public function run_settings_action( $action, Settings $s, $mode ) {
+		return $action === 'ping' ? $this->test_connection( $s, $mode ) : Result::unsupported();
+	}
+
+	public function cancel( Payment $p, Settings $s ) {
+		if ( $p->gateway_ref === '' ) return Result::fail( 'no_ref' );
+		$all = Mock_Provider::all();
+		if ( isset( $all[ $p->gateway_ref ] ) && $all[ $p->gateway_ref ]['status'] === 'open' ) Mock_Provider::set_status( $p->gateway_ref, 'canceled' );
+		return Result::ok();
 	}
 
 	public function create( Payment $p, Settings $s, Checkout_Context $ctx ) {
+		self::$last_ctx = $ctx;
+		if ( $ctx->client_token === 'tok_declined' ) return Create_Result::fail( 'card_declined', 'mock: declined token' )->for_visitor( 'The test card was declined.' );
 		$r = $this->request( 'POST', 'https://' . self::HOST . '/v1/payments', array(
 			'headers' => array_merge( $this->auth( $s ), array( 'Idempotency-Key' => $p->idem_key ) ),
 			'body'    => array(
+				'cardToken'   => $ctx->client_token,
+				'payer'       => array( 'email' => isset( $ctx->payer['email'] ) ? $ctx->payer['email'] : '', 'name' => isset( $ctx->payer['name'] ) ? $ctx->payer['name'] : '' ),
 				'amount'      => array( 'value' => $this->format_amount( $p->amount_minor, $p->currency ), 'currency' => $p->currency ),
 				'description' => $ctx->description,
 				'redirectUrl' => $ctx->return_url,
@@ -91,11 +118,21 @@ class Mock_Gateway extends Gateway {
 		$r = $this->request( 'GET', 'https://' . self::HOST . '/v1/payments/' . rawurlencode( $p->gateway_ref ), array( 'headers' => $this->auth( $s ), 'timeout' => 8 ) );
 		if ( ! $r['ok'] || ! is_array( $r['json'] ) ) return Remote_State::error( $r['error'] ?: 'bad_response' );
 		$j = $r['json'];
+		// The answer must be this payment's: another payment's or another mode's is never applied.
+		if ( isset( $j['metadata']['efb_uid'] ) && (string) $j['metadata']['efb_uid'] !== $p->uid ) return Remote_State::mismatch( 'mismatch_uid' );
+		if ( isset( $j['mode'] ) && $j['mode'] !== $p->mode ) return Remote_State::mismatch( 'mismatch_mode' );
 		$map = array( 'open' => 'pending', 'pending' => 'pending', 'authorized' => 'authorized', 'paid' => 'paid', 'failed' => 'failed', 'canceled' => 'canceled', 'expired' => 'expired', 'refunded' => 'refunded' );
 		$status = isset( $j['status'], $map[ $j['status'] ] ) ? $map[ $j['status'] ] : 'pending';
 		$cur = isset( $j['amount']['currency'] ) ? (string) $j['amount']['currency'] : '';
 		$amount = isset( $j['amount']['value'] ) ? Money::from_decimal( (string) $j['amount']['value'], $cur ) : null;
-		return Remote_State::of( $status, $amount, $cur, array( 'paid_at' => isset( $j['paidAt'] ) ? $j['paidAt'] : null, 'method' => isset( $j['method'] ) ? (string) $j['method'] : '', 'raw' => Redactor::redact( $j ) ) );
+		$refunds = array();
+		$refunded = 0;
+		foreach ( isset( $j['refunds'] ) && is_array( $j['refunds'] ) ? $j['refunds'] : array() as $rf ) {
+			$refunds[] = array( 'ref' => (string) $rf['id'], 'status' => (string) $rf['status'], 'amount_minor' => (int) $rf['amount_minor'] );
+			if ( $rf['status'] === 'refunded' ) $refunded += (int) $rf['amount_minor'];
+		}
+		if ( $status === 'paid' && $refunded > 0 && $amount ) $status = $refunded >= $amount ? 'refunded' : 'partially_refunded';
+		return Remote_State::of( $status, $amount, $cur, array( 'paid_at' => isset( $j['paidAt'] ) ? $j['paidAt'] : null, 'method' => isset( $j['method'] ) ? (string) $j['method'] : '', 'refunded_minor' => $refunded, 'refunds' => $refunds, 'raw' => Redactor::redact( $j ) ) );
 	}
 
 	public function parse_webhook( \WP_REST_Request $r, Settings $s ) {
@@ -126,7 +163,7 @@ class Mock_Gateway extends Gateway {
 		) );
 		if ( ! $r['ok'] || ! is_array( $r['json'] ) ) return Refund_Result::fail( $r['error'] ?: 'bad_response' );
 		$res = Refund_Result::ok();
-		$res->status = 'refunded';
+		$res->status = (string) $r['json']['status'] === 'pending' ? 'pending' : 'refunded';
 		$res->gateway_ref = (string) $r['json']['id'];
 		return $res;
 	}
@@ -157,6 +194,17 @@ class Mock_Provider {
 
 	public static function save( array $all ) {
 		update_option( self::OPTION, $all, false );
+	}
+
+	/** Sets the status of a refund at the provider (tests: a pending refund confirmed or declined later). */
+	public static function set_refund( $payment_id, $refund_id, $status ) {
+		$all = self::all();
+		if ( ! isset( $all[ $payment_id ]['refunds'] ) ) return false;
+		foreach ( $all[ $payment_id ]['refunds'] as $i => $rf ) {
+			if ( $rf['id'] === $refund_id ) $all[ $payment_id ]['refunds'][ $i ]['status'] = $status;
+		}
+		self::save( $all );
+		return true;
 	}
 
 	/** Sets the provider-side state (the checkout page and the tests use it). */
@@ -203,6 +251,10 @@ class Mock_Provider {
 				'webhookUrl'  => isset( $body['webhookUrl'] ) ? (string) $body['webhookUrl'] : '',
 				'method'      => isset( $body['method'] ) ? (string) $body['method'] : '',
 				'metadata'    => isset( $body['metadata'] ) ? $body['metadata'] : array(),
+				// Like a real provider: the card token is used, never kept; only proof that it arrived.
+				'token_hash'  => isset( $body['cardToken'] ) && $body['cardToken'] !== '' ? hash( 'sha256', (string) $body['cardToken'] ) : '',
+				'payer'       => isset( $body['payer'] ) ? $body['payer'] : array(),
+				'refunds'     => array(),
 				'idem'        => $idem,
 				'checkoutUrl' => add_query_arg( 'id', $id, rest_url( 'Emsfb/v1/payments/mock/checkout' ) ),
 			);
@@ -216,7 +268,12 @@ class Mock_Provider {
 		if ( $method === 'POST' && $path === '/v1/refunds' ) {
 			$pid = isset( $body['payment'] ) ? (string) $body['payment'] : '';
 			if ( ! isset( $all[ $pid ] ) || $all[ $pid ]['status'] !== 'paid' && $all[ $pid ]['status'] !== 'refunded' ) return self::answer( 422, array( 'error' => 'not_refundable' ) );
-			return self::answer( 201, array( 'id' => 're_' . substr( bin2hex( random_bytes( 6 ) ), 0, 10 ), 'status' => 'refunded' ) );
+			// Option efb_mock_refund_status = pending: the provider accepts the refund and settles it later.
+			$st = get_option( 'efb_mock_refund_status' ) === 'pending' ? 'pending' : 'refunded';
+			$rf = array( 'id' => 're_' . substr( bin2hex( random_bytes( 6 ) ), 0, 10 ), 'status' => $st, 'amount_minor' => isset( $body['amount']['value'] ) ? (int) Money::from_decimal( (string) $body['amount']['value'], (string) $body['amount']['currency'] ) : 0 );
+			$all[ $pid ]['refunds'][] = $rf;
+			self::save( $all );
+			return self::answer( 201, $rf );
 		}
 		return self::answer( 404, array( 'error' => 'not_found' ) );
 	}

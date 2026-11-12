@@ -35,6 +35,8 @@ if ( is_admin() && is_readable( __DIR__ . '/class-Emsfb-payment-admin.php' ) ) {
 // Core ships no gateway: every gateway is an add-on that registers on efb_register_payment_gateways.
 
 add_action( 'emsfb_pmt_reconcile', array( '\Emsfb\Payments\Service', 'reconcile' ) );
+// PAY00 §9: the webhook through the front door (?efb_pay_webhook=<gateway>) for hosts that block the REST API.
+add_action( 'parse_request', array( '\Emsfb\Payments\Routes', 'fallback_webhook' ), 0 );
 add_action( 'emsfb_pmt_finalize', array( '\Emsfb\Payments\Service', 'finalize_by_id' ) );
 // Back-up run of the reconcile job, once a day, also when no single event is queued.
 add_action( 'emsfb_daily_maintenance', array( '\Emsfb\Payments\Service', 'reconcile' ) );

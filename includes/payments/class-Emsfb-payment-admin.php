@@ -207,8 +207,33 @@ class Admin {
 				echo '<button type="button" class="button button-secondary" data-efb-pay="refund" data-confirm="' . esc_attr( __( 'Refund %1$s to the payer? This cannot be undone.', 'easy-form-builder' ) ) . '" data-currency="' . esc_attr( $p['currency'] ) . '">' . esc_html__( 'Refund', 'easy-form-builder' ) . '</button>';
 			} else {
 				/* translators: %s: gateway name */
-				echo '<p>' . esc_html( sprintf( __( 'This payment method cannot be refunded through the API. Use the %s dashboard.', 'easy-form-builder' ), $g ? $g->label() : $p['gateway'] ) ) . '</p>';
+				echo '<p>' . esc_html( self::unsupported_refund_text( $g, $p ) !== '' ? self::unsupported_refund_text( $g, $p ) : sprintf( __( 'This payment method cannot be refunded through the API. Use the %s dashboard.', 'easy-form-builder' ), $g ? $g->label() : $p['gateway'] ) ) . '</p>';
 			}
+		}
+		if ( in_array( $p['status'], array( 'paid', 'partially_refunded' ), true ) ) {
+			// Money given back from the provider's dashboard or the bank: recorded here, no call to the provider.
+			$left = Money::to_decimal_string( $p['amount_minor'] - $p['refunded_minor'], $p['currency'] );
+			echo '<details class="efb-pay-ext"><summary>' . esc_html__( 'Mark as refunded outside EFB', 'easy-form-builder' ) . '</summary>';
+			echo '<p class="description">' . esc_html__( 'Use this when the money was given back in the gateway dashboard or by the bank. Nothing is sent to the gateway.', 'easy-form-builder' ) . '</p>';
+			echo '<label>' . esc_html__( 'Amount', 'easy-form-builder' ) . ' <input type="text" inputmode="decimal" dir="ltr" size="8" id="efbPayExtAmt" value="' . esc_attr( $left ) . '"></label> ';
+			echo '<label>' . esc_html__( 'Reason', 'easy-form-builder' ) . ' <input type="text" maxlength="200" size="30" id="efbPayExtReason" required></label> ';
+			/* translators: %1$s: amount with currency */
+			echo '<button type="button" class="button" data-efb-pay="mark_refunded" data-confirm="' . esc_attr( __( 'Record a refund of %1$s made outside Easy Form Builder?', 'easy-form-builder' ) ) . '" data-currency="' . esc_attr( $p['currency'] ) . '">' . esc_html__( 'Mark as refunded', 'easy-form-builder' ) . '</button></details>';
+		}
+		$refunds = Store::refunds( $p['id'] );
+		if ( $refunds ) {
+			$rl = array( 'pending' => __( 'Waiting for the gateway', 'easy-form-builder' ), 'refunded' => __( 'Refunded', 'easy-form-builder' ), 'failed' => __( 'Declined', 'easy-form-builder' ), 'canceled' => __( 'Canceled', 'easy-form-builder' ) );
+			echo '<h3>' . esc_html__( 'Refunds', 'easy-form-builder' ) . '</h3><ul class="efb-pay-refunds">';
+			foreach ( $refunds as $rf ) {
+				echo '<li><time>' . esc_html( self::local_time( $rf['created_at'] ) ) . '</time> <bdi>' . esc_html( Money::format( (int) $rf['amount_minor'], $rf['currency'], get_user_locale() ) ) . '</bdi> — ' . esc_html( isset( $rl[ $rf['status'] ] ) ? $rl[ $rf['status'] ] : $rf['status'] );
+				if ( $rf['reason'] !== '' ) echo ' — ' . esc_html( $rf['reason'] );
+				if ( $rf['status'] === 'pending' ) {
+					echo ' <button type="button" class="button button-small" data-efb-pay="refund_settle" data-refund="' . (int) $rf['id'] . '" data-to="refunded" data-confirm="' . esc_attr__( 'The gateway confirmed this refund?', 'easy-form-builder' ) . '">' . esc_html__( 'Confirm refund', 'easy-form-builder' ) . '</button>';
+					echo ' <button type="button" class="button button-small" data-efb-pay="refund_settle" data-refund="' . (int) $rf['id'] . '" data-to="failed" data-confirm="' . esc_attr__( 'The gateway declined this refund?', 'easy-form-builder' ) . '">' . esc_html__( 'Mark as declined', 'easy-form-builder' ) . '</button>';
+				}
+				echo '</li>';
+			}
+			echo '</ul>';
 		}
 		echo '<span class="efb-pay-msg" role="status" aria-live="polite"></span></div>';
 		$dash = $g ? $g->dashboard_url( new Payment( $p ) ) : '';
@@ -222,6 +247,20 @@ class Admin {
 			echo '</li>';
 		}
 		echo '</ol>';
+	}
+
+	/** The gateway's own words when its refund() says unsupported (no request is made: refund() returns at once). */
+	private static function unsupported_refund_text( $g, array $p ) {
+		static $cache = array();
+		if ( ! $g ) return '';
+		if ( isset( $cache[ $p['id'] ] ) ) return $cache[ $p['id'] ];
+		$t = '';
+		$sup = array_merge( ( new Gateway_Defaults() )->supports(), (array) $g->supports() );
+		if ( empty( $sup['refund'] ) ) {
+			try { $u = $g->refund( new Payment( $p ), 0, '', Settings::load( $p['gateway'] ) ); } catch ( \Throwable $e ) { $u = null; }
+			if ( $u instanceof Result && $u->unsupported ) $t = Field::text( (string) $u->message, 300 );
+		}
+		return $cache[ $p['id'] ] = $t;
 	}
 
 	/* ------------------------------------------------------------------ gateways */
@@ -239,6 +278,9 @@ class Admin {
 		foreach ( Registry::all() as $slug => $g ) {
 			$s = Settings::load( $slug );
 			echo '<section class="efb-pay-card" aria-labelledby="efbPayGw_' . esc_attr( $slug ) . '"><h2 id="efbPayGw_' . esc_attr( $slug ) . '">' . esc_html( $g->label() ) . '</h2>';
+			foreach ( self::gateway_notices( $g, $s ) as $nt ) {
+				echo '<div class="notice notice-' . esc_attr( $nt['level'] ) . ' inline efb-pay-gw-notice"><p>' . esc_html( $nt['m'] ) . '</p></div>';
+			}
 			echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
 			wp_nonce_field( 'efb_pay_settings_' . $slug );
 			echo '<input type="hidden" name="action" value="efb_pay_settings"><input type="hidden" name="gateway" value="' . esc_attr( $slug ) . '">';
@@ -273,15 +315,54 @@ class Admin {
 					echo '</td></tr>';
 				}
 			}
-			echo '<tr><th scope="row">' . esc_html__( 'Webhook address', 'easy-form-builder' ) . '</th><td><code>' . esc_html( Service::webhook_url( $slug ) ) . '</code></td></tr>';
+			echo '<tr><th scope="row">' . esc_html__( 'Webhook address', 'easy-form-builder' ) . '</th><td><code>' . esc_html( Service::webhook_url( $slug ) ) . '</code>';
+			echo '<p class="description">' . esc_html__( 'If your host blocks the WordPress REST API for visitors, give the gateway this address instead:', 'easy-form-builder' ) . ' <code>' . esc_html( Service::webhook_fallback_url( $slug ) ) . '</code></p></td></tr>';
 			echo '</tbody></table>';
 			echo '<p><button class="button button-primary">' . esc_html__( 'Save', 'easy-form-builder' ) . '</button> ';
 			$n = wp_create_nonce( 'efb_pay_action' );
 			foreach ( array( 'test', 'live' ) as $m ) {
 				echo '<button type="button" class="button" data-efb-pay="test_connection" data-gateway="' . esc_attr( $slug ) . '" data-mode="' . esc_attr( $m ) . '" data-nonce="' . esc_attr( $n ) . '">' . esc_html( $m === 'live' ? __( 'Test connection (Live)', 'easy-form-builder' ) : __( 'Test connection (Test)', 'easy-form-builder' ) ) . '</button> ';
 			}
+			foreach ( self::gateway_actions( $g, $s ) as $ac ) {
+				echo '<button type="button" class="button" data-efb-pay="gateway_action" data-action-id="' . esc_attr( $ac['id'] ) . '" data-gateway="' . esc_attr( $slug ) . '" data-mode="' . esc_attr( $s->mode() ) . '" data-nonce="' . esc_attr( $n ) . '">' . esc_html( $ac['label'] ) . '</button> ';
+			}
 			echo '<span class="efb-pay-msg" role="status" aria-live="polite"></span></p></form></section>';
 		}
+	}
+
+	/** Gateway::settings_notices(), checked: level info|warning|error, plain text. */
+	public static function gateway_notices( Gateway $g, Settings $s ) {
+		$out = array();
+		try { $list = $g->settings_notices( $s ); } catch ( \Throwable $e ) { $list = array(); }
+		foreach ( (array) $list as $n ) {
+			if ( ! is_array( $n ) || ! isset( $n['m'] ) || ! is_string( $n['m'] ) ) continue;
+			$m = Field::text( $n['m'], 500 );
+			if ( $m === '' ) continue;
+			$out[] = array( 'level' => isset( $n['level'] ) && in_array( $n['level'], array( 'info', 'warning', 'error' ), true ) ? $n['level'] : 'info', 'm' => $m );
+			if ( count( $out ) >= 10 ) break;
+		}
+		return $out;
+	}
+
+	/** Gateway::settings_actions(), checked: id [a-z0-9_]{1,30}, a label. */
+	public static function gateway_actions( Gateway $g, Settings $s ) {
+		$out = array();
+		try { $list = $g->settings_actions( $s ); } catch ( \Throwable $e ) { $list = array(); }
+		foreach ( (array) $list as $a ) {
+			if ( ! is_array( $a ) || ! isset( $a['id'], $a['label'] ) || ! is_string( $a['id'] ) || ! preg_match( '/^[a-z0-9_]{1,30}$/', $a['id'] ) || ! is_string( $a['label'] ) ) continue;
+			$out[] = array( 'id' => $a['id'], 'label' => Field::text( $a['label'], 80 ) );
+			if ( count( $out ) >= 5 ) break;
+		}
+		return $out;
+	}
+
+	/** The message of a Result for the admin (the gateway's own words when it gave some). */
+	public static function result_message( $r, $ok_default ) {
+		if ( ! $r instanceof Result ) return $ok_default;
+		$m = Field::text( (string) $r->message, 300 );
+		if ( $r->ok ) return $m !== '' ? $m : $ok_default;
+		/* translators: %s: error code */
+		return $m !== '' ? $m : sprintf( __( 'The connection failed (%s).', 'easy-form-builder' ), $r->error );
 	}
 
 	public static function save_settings() {
@@ -314,8 +395,23 @@ class Admin {
 			$g = Registry::get( $slug );
 			if ( ! $g ) wp_send_json_error( array( 'm' => __( 'Unknown payment gateway.', 'easy-form-builder' ) ) );
 			$r = $g->test_connection( Settings::load( $slug ), $mode );
-			if ( $r->ok ) wp_send_json_success( array( 'm' => __( 'Connected.', 'easy-form-builder' ) ) );
-			wp_send_json_error( array( 'm' => $r->message !== '' ? $r->message : sprintf( __( 'The connection failed (%s).', 'easy-form-builder' ), $r->error ) ) );
+			if ( ! $r instanceof Result ) $r = Result::fail( 'bad_result' );
+			if ( $r->ok ) wp_send_json_success( array( 'm' => self::result_message( $r, __( 'Connected.', 'easy-form-builder' ) ) ) );
+			wp_send_json_error( array( 'm' => self::result_message( $r, '' ) ) );
+		}
+		if ( $do === 'gateway_action' ) {
+			$slug = isset( $_POST['gateway'] ) ? sanitize_key( wp_unslash( $_POST['gateway'] ) ) : '';
+			$mode = isset( $_POST['mode'] ) && $_POST['mode'] === 'live' ? 'live' : 'test';
+			$act = isset( $_POST['action_id'] ) ? sanitize_key( wp_unslash( $_POST['action_id'] ) ) : '';
+			$g = Registry::get( $slug );
+			if ( ! $g ) wp_send_json_error( array( 'm' => __( 'Unknown payment gateway.', 'easy-form-builder' ) ) );
+			$s = Settings::load( $slug );
+			if ( ! in_array( $act, array_column( self::gateway_actions( $g, $s ), 'id' ), true ) ) wp_send_json_error( array( 'm' => 'unknown action' ) );
+			try { $r = $g->run_settings_action( $act, $s, $mode ); } catch ( \Throwable $e ) { $r = Result::fail( 'exception' ); }
+			if ( ! $r instanceof Result ) $r = Result::fail( 'bad_result' );
+			Store::log_event( null, $slug, 'admin', array( 'type' => 'settings_action', 'note' => $act . ' ' . ( $r->ok ? 'ok' : $r->error ) . ' by user ' . get_current_user_id() ) );
+			if ( $r->ok ) wp_send_json_success( array( 'm' => self::result_message( $r, __( 'Done.', 'easy-form-builder' ) ) ) );
+			wp_send_json_error( array( 'm' => self::result_message( $r, '' ) ) );
 		}
 		$p = Store::get( isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0 );
 		if ( ! $p ) wp_send_json_error( array( 'm' => __( 'This payment does not exist.', 'easy-form-builder' ) ) );
@@ -330,7 +426,20 @@ class Admin {
 			if ( $amt === null ) wp_send_json_error( array( 'm' => __( 'Please choose a valid amount.', 'easy-form-builder' ) ) );
 			$r = Service::refund( $p, $amt, isset( $_POST['reason'] ) ? sanitize_text_field( wp_unslash( $_POST['reason'] ) ) : '', get_current_user_id() );
 			if ( ! $r['ok'] ) wp_send_json_error( array( 'm' => sprintf( __( 'The refund failed (%s).', 'easy-form-builder' ), $r['error'] ) ) );
-			wp_send_json_success( array( 'm' => __( 'Refunded', 'easy-form-builder' ), 'status' => Store::get( $p['id'] )['status'] ) );
+			wp_send_json_success( array( 'm' => ! empty( $r['pending'] ) ? __( 'The refund was requested. It counts once the gateway confirms it.', 'easy-form-builder' ) : __( 'Refunded', 'easy-form-builder' ), 'status' => Store::get( $p['id'] )['status'] ) );
+		}
+		if ( $do === 'mark_refunded' ) {
+			$amt = isset( $_POST['amount'] ) ? Money::from_decimal( sanitize_text_field( wp_unslash( $_POST['amount'] ) ), $p['currency'] ) : null;
+			if ( $amt === null ) wp_send_json_error( array( 'm' => __( 'Please choose a valid amount.', 'easy-form-builder' ) ) );
+			$r = Service::record_external_refund( $p, $amt, isset( $_POST['reason'] ) ? sanitize_text_field( wp_unslash( $_POST['reason'] ) ) : '', get_current_user_id() );
+			if ( ! $r['ok'] ) wp_send_json_error( array( 'm' => $r['error'] === 'reason_required' ? __( 'Please write why (for example: refunded in the gateway dashboard).', 'easy-form-builder' ) : sprintf( __( 'The refund failed (%s).', 'easy-form-builder' ), $r['error'] ) ) );
+			wp_send_json_success( array( 'm' => __( 'Recorded as refunded.', 'easy-form-builder' ), 'status' => Store::get( $p['id'] )['status'] ) );
+		}
+		if ( $do === 'refund_settle' ) {
+			$to = isset( $_POST['to'] ) && $_POST['to'] === 'refunded' ? 'refunded' : 'failed';
+			$ok = Service::settle_refund( $p, isset( $_POST['refund'] ) ? absint( $_POST['refund'] ) : 0, $to, 'admin', get_current_user_id() );
+			if ( ! $ok ) wp_send_json_error( array( 'm' => __( 'This refund is no longer waiting.', 'easy-form-builder' ) ) );
+			wp_send_json_success( array( 'm' => $to === 'refunded' ? __( 'Refunded', 'easy-form-builder' ) : __( 'Declined', 'easy-form-builder' ), 'status' => Store::get( $p['id'] )['status'] ) );
 		}
 		wp_send_json_error( array( 'm' => 'unknown action' ) );
 	}
@@ -345,7 +454,10 @@ class Admin {
 			. 'root.addEventListener("change",function(e){var r=e.target;if(r&&r.getAttribute&&r.getAttribute("data-efb-live")&&r.checked&&!window.confirm(r.getAttribute("data-efb-live"))){var t=r.form.querySelector(\'input[name="mode"][value="test"]\');if(t)t.checked=true;}});'
 			. 'root.addEventListener("click",function(e){var b=e.target.closest("[data-efb-pay]");if(!b)return;var box=b.closest(".efb-pay-actions")||b.closest("p");var msg=box?box.querySelector(".efb-pay-msg"):null;var d=new FormData();d.append("action","efb_pay_action");d.append("do",b.getAttribute("data-efb-pay"));'
 			. 'var a=b.closest(".efb-pay-actions");d.append("nonce",(a&&a.getAttribute("data-nonce"))||b.getAttribute("data-nonce")||"");if(a)d.append("id",a.getAttribute("data-id"));if(b.getAttribute("data-gateway")){d.append("gateway",b.getAttribute("data-gateway"));d.append("mode",b.getAttribute("data-mode"));}'
-			. 'if(b.getAttribute("data-efb-pay")==="refund"){var amt=document.getElementById("efbPayRefundAmt");var v=amt?amt.value:"";if(!window.confirm(b.getAttribute("data-confirm").replace("%1$s",v+" "+b.getAttribute("data-currency"))))return;d.append("amount",v);}'
-			. 'b.disabled=true;fetch("' . $ajax . '",{method:"POST",credentials:"same-origin",body:d}).then(function(r){return r.json();}).then(function(j){b.disabled=false;if(msg)msg.textContent=(j&&j.data&&j.data.m)||"";if(j&&j.success&&b.getAttribute("data-efb-pay")!=="test_connection")setTimeout(function(){location.reload();},700);}).catch(function(){b.disabled=false;});});})();</script>';
+			. 'var act=b.getAttribute("data-efb-pay");if(b.getAttribute("data-action-id"))d.append("action_id",b.getAttribute("data-action-id"));'
+			. 'if(act==="refund"){var amt=document.getElementById("efbPayRefundAmt");var v=amt?amt.value:"";if(!window.confirm(b.getAttribute("data-confirm").replace("%1$s",v+" "+b.getAttribute("data-currency"))))return;d.append("amount",v);}'
+			. 'if(act==="mark_refunded"){var ea=document.getElementById("efbPayExtAmt"),er=document.getElementById("efbPayExtReason");var ev=ea?ea.value:"";if(er&&!er.value.trim()){er.focus();if(er.reportValidity)er.reportValidity();return;}if(!window.confirm(b.getAttribute("data-confirm").replace("%1$s",ev+" "+b.getAttribute("data-currency"))))return;d.append("amount",ev);d.append("reason",er?er.value:"");}'
+			. 'if(act==="refund_settle"){if(!window.confirm(b.getAttribute("data-confirm")))return;d.append("refund",b.getAttribute("data-refund"));d.append("to",b.getAttribute("data-to"));}'
+			. 'b.disabled=true;fetch("' . $ajax . '",{method:"POST",credentials:"same-origin",body:d}).then(function(r){return r.json();}).then(function(j){b.disabled=false;if(msg)msg.textContent=(j&&j.data&&j.data.m)||"";if(j&&j.success&&act!=="test_connection"&&act!=="gateway_action")setTimeout(function(){location.reload();},700);}).catch(function(){b.disabled=false;});});})();</script>';
 	}
 }
