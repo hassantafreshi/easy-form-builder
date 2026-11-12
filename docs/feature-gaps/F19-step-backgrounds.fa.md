@@ -1,4 +1,4 @@
-وضعیت: سند آماده، پیاده‌سازی نشده · اولویت: P1 · تلاش: M · وابستگی: — (رجیستری B3 و دیالوگ ارتقای F18 که پیش‌تر پیاده شده‌اند)
+وضعیت: پیاده‌سازی و تست شد (A تا F، ۲۲ آبان ۱۴۰۵)؛ ترجمهٔ زبان‌های دیگر و ساخت .mo باقی · اولویت: P1 · تلاش: M · وابستگی: — (رجیستری B3 و دیالوگ ارتقای F18 که پیش‌تر پیاده شده‌اند)
 
 # F19 — رنگ و گرادیانت پس‌زمینه برای هر مرحله
 
@@ -260,70 +260,70 @@ S2{color:#ffffff}S2 :is(.col-form-label,.col-form-label>span:not(.text-danger),.
 - فایل‌ها: همین سند.
 - پذیرش: همهٔ بخش‌های بریف؛ منابع پیوند دارند.
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint** (انجام شد، ۲۲ آبان ۱۴۰۵)
+- فایل‌های تغییرکرده: همین سند.
+- تست‌ها: —
+- وضعیت ترجمه: —
+- مورد باز: پرسش‌های باز §۱۸.
+- اقدام بعدی: B.
 
 ### B. هستهٔ داده: پاک‌ساز، حل، ساخت CSS، کنتراست (PHP و JS)
 - فایل‌ها: `includes/step-bg-functions-efb.php` (تازه)، `includes/functions.php` (require و case پاک‌ساز)، `includes/admin/assets/js/step-bg-efb.js` (هسته)، `tests/fixtures/step-bg-vectors.json`، `tests/test-step-bg-core.php`، `tests/test-step-bg-parity.js`.
 - پذیرش: هر کلید §۵ با ورودی معتبر/نامعتبر/خصمانه همان خروجی بردار را در PHP و JS دارد؛ CSS دو زبان یکسان است؛ فرم قدیمی از `sanitize_obj_msg_efb` بدون تغییر می‌گذرد و CSS خالی می‌گیرد؛ کنتراست با مقادیر مرجع WCAG (سیاه/سفید ۲۱:۱، `#777777` روی سفید ۴.۴۸:۱) می‌خواند.
 - تست‌ها: `php tests/test-step-bg-core.php`، `node tests/test-step-bg-parity.js`.
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint** (انجام شد، ۲۲ آبان ۱۴۰۵)
+- فایل‌های تغییرکرده: `includes/step-bg-functions-efb.php` (تازه)، `includes/functions.php` (require و case پاک‌ساز برای ۸ کلید)، `includes/admin/assets/js/step-bg-efb.js` (تازه؛ هسته در Node بارگذاری‌پذیر)، `tests/fixtures/step-bg-vectors.json`، `tests/test-step-bg-core.php`، `tests/test-step-bg-parity.js`.
+- تست‌ها: `php tests/test-step-bg-core.php` ۱۳۷ موفق (با بخش رجیستری C)، `node tests/test-step-bg-parity.js` ۱۶۷ موفق (۶۷ بردار پاک‌ساز، ۷ کنتراست مرجع WCAG، ۵ رنگ خودکار، ۷ CSS با هم‌خوانی بایت‌به‌بایت PHP/JS و fuzz ۶۰ فرم تصادفی در هر دو زبان). مقادیر کنتراست با پیاده‌سازی مستقل Python هم بررسی شد.
+- وضعیت ترجمه: بدون متن.
+- مورد باز: گرد کردن کنتراست به دو رقم در JS با `Math.round` و اپسیلون شبیه‌سازی PHP `round()` است؛ در fuzz اختلافی دیده نشد.
+- اقدام بعدی: C.
 
 ### C. رندر عمومی و رجیستری
 - فایل‌ها: `includes/class-Emsfb-public.php` (یک خط پیش از بستن `$style`)، `includes/class-Emsfb-builder-api.php` (دو ورودی `setting:`)، `includes/functions.php` (دو نام ویژگی).
 - پذیرش: فرم بدون کلید هیچ CSS تازه‌ای ندارد؛ فرم با کلید CSS با پیشوند `data-formid` دارد؛ Free فقط رنگ ثابت؛ موبایل فقط Pro؛ رجیستری دو کلید تازه با `form_keys` و `label_key` دارد.
 - تست‌ها: `php tests/test-step-bg-core.php` (بخش رجیستری)، `node tests/test-ap-b3-capabilities.js`، `node tests/test-plan-gate-registry.js`، `php tests/test-plan-gate-registry.php`.
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint** (انجام شد، ۲۲ آبان ۱۴۰۵)
+- فایل‌های تغییرکرده: `includes/class-Emsfb-public.php` (یک بلوک پیش از بستن `$style` در `EFB_Form_Builder`)، `includes/class-Emsfb-builder-api.php` (دو ورودی `setting:`)، `includes/functions.php` (`upgFtrStepBgColor`، `upgFtrStepBgGradient`).
+- تست‌ها: `php tests/test-step-bg-core.php` ۱۳۷؛ `node tests/test-ap-b3-capabilities.js` ۴۹، `node tests/test-plan-gate-registry.js` ۱۳، `php tests/test-plan-gate-registry.php` ۲۹، `node tests/test-ap-a4-plan-messages.js` ۱۶، `node tests/test-ap-contract.js` ۱۶ — همه موفق.
+- وضعیت ترجمه: دو نام ویژگی با فارسی.
+- مورد باز: آزمون رندر کامل `EFB_Form_Builder` به WordPress واقعی نیاز دارد (اینجا نیست)؛ تابع با `function_exists` محافظت شده و برای فرم بدون کلید `''` برمی‌گرداند.
+- اقدام بعدی: D.
 
 ### D. سازنده: پنل، بوم، پیش‌نمایش، ترجمه
 - فایل‌ها: `step-bg-efb.js` (پنل و بوم)، `val-efb.js` (یک خط)، `admin-efb.js` (بوم و پیش‌نمایش)، `includes/admin/class-Emsfb-admin.php` (بارگذاری)، `includes/functions.php` (عبارت‌ها)، `languages/easy-form-builder-fa_IR.po`.
 - پذیرش: همهٔ رفتارهای §۴.۱ و §۴.۲؛ کلیدها دقیقاً مطابق §۵ نوشته می‌شوند؛ قفل پلن دیالوگ F18 را با کلید درست باز می‌کند؛ بوم و پیش‌نمایش فرم قدیمی با و بدون ماژول بایت‌به‌بایت یکسان‌اند؛ پیش‌نمایش دقیقاً CSS سرور (با پیشوند دیگر) را دارد.
 - تست‌ها: `node tests/test-step-bg-builder-browser.js` (Playwright، بستر سازنده مثل `test-masks-builder-browser.js`).
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint** (انجام شد، ۲۲ آبان ۱۴۰۵)
+- فایل‌های تغییرکرده: `includes/admin/assets/js/step-bg-efb.js` (پنل، بوم، پیش‌نمایش)، `includes/admin/assets/js/val-efb.js` (یک خط در `case "steps"`)، `includes/admin/assets/js/admin-efb.js` (ویژگی بوم روی `<section>` مرحله و `<style>` پیش‌نمایش)، `includes/admin/class-Emsfb-admin.php` (بارگذاری `efb-step-bg` با نسخهٔ `filemtime`)، `includes/functions.php` (۳۵ عبارت `sbg*`)، `languages/easy-form-builder-fa_IR.po`، `tests/test-step-bg-builder-browser.js`.
+- تست‌ها: `node tests/test-step-bg-builder-browser.js` ۵۹ موفق (رگرسیون بایت‌به‌بایت بوم و پیش‌نمایش فرم قدیمی با و بدون ماژول، همهٔ کنترل‌ها، قفل Free و دیالوگ F18، Free Plus، Pro و نمای موبایل، برابری CSS پیش‌نمایش با PHP، نقطهٔ ثابت پاک‌ساز PHP). مجموعه‌های مرتبط بدون تغییر موفق: masks (۶ JS + ۶ PHP)، ap-* (۱۵ JS + ۵ PHP)، plan-* و upgrade-prompt-* (۵ JS + ۲ PHP). `tests/steps-progress-builder.js` و `test-plan-selection-first-run.php` به WordPress واقعی نیاز دارند و اجرا نشدند.
+- وضعیت ترجمه: فارسی ۳۱ مدخل تازه در `.po` (۶ عبارت — Center، Custom، Left، None، Presets، Right — از پیش ترجمه داشتند)؛ `.mo` ساخته نشد؛ ۶۸ زبان دیگر باقی.
+- مورد باز: دو پیش‌تنظیم تیرهٔ نخست (Ocean `#0ea5e9→#4f46e5`، Sunset `#f59e0b→#db2777`) با هیچ رنگ متنی به ۴.۵:۱ نمی‌رسیدند و با `#0369a1→#4338ca` و `#c2410c→#be185d` جایگزین شدند. ورودی عددی مرورگر ارقام فارسی را نمی‌پذیرد؛ مقدار خالی یا نامعتبر مقدار ذخیره‌شده را نگه می‌دارد.
+- اقدام بعدی: E.
 
 ### E. رفتار عمومی در مرورگر
 - فایل‌ها: `tests/test-step-bg-public-browser.js`.
 - پذیرش: با CSS واقعی PHP و نشانه‌گذاری fieldset عمومی: مرحلهٔ دیده‌شده پس‌زمینهٔ خودش را دارد، با جابه‌جایی مرحله عوض می‌شود و انیمیشن دارد؛ با `reducedMotion: reduce` انیمیشن `none`؛ با `forcedColors: active` لایه پنهان؛ در `print` لایه پنهان و متن سیاه؛ در عرض موبایل تنظیم موبایل؛ کنتراست واقعی متن «خودکار» ≥ ۴.۵؛ دو فرم در یک صفحه تداخل ندارند؛ عناصر فرم کلیک‌پذیرند.
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint** (انجام شد، ۲۲ آبان ۱۴۰۵)
+- فایل‌های تغییرکرده: `tests/test-step-bg-public-browser.js`.
+- تست‌ها: `node tests/test-step-bg-public-browser.js` ۲۴ موفق، با CSS واقعی PHP و `style-efb.css` و `bootstrap.min-efb.css` افزونه: کلیک و تایپ از لایه عبور می‌کند، انیمیشن تازه با جابه‌جایی مرحله (`document.getAnimations()`)، کنتراست واقعی ≥ ۴.۵ روی هر دو نقطه، reduced-motion، forced-colors، print، طرح رنگ تیره، موبایل (`solid` و `none`)، صفحهٔ پایان، فرم دوم دست‌نخورده، RTL بدون قرینه‌سازی.
+- وضعیت ترجمه: —
+- مورد باز: آزمون روی صفحهٔ واقعی وردپرس با پوسته‌های مختلف (کش صفحه، hoist به head).
+- اقدام بعدی: F.
 
 ### F. مستندات و قرارداد
 - فایل‌ها: `docs/autopilot-integration.md`، `docs/feature-gaps/reference/sitepilot-compatibility.en.md`، `docs/feature-gaps/reference/current-capabilities.en.md`، `docs/feature-gaps/README.fa.md`.
 - پذیرش: کلیدها، مقادیر مجاز، کلیدهای رجیستری و قاعدهٔ حل مستند شده‌اند.
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint** (انجام شد، ۲۲ آبان ۱۴۰۵)
+- فایل‌های تغییرکرده: `docs/autopilot-integration.md` (بخش F19)، `docs/feature-gaps/reference/sitepilot-compatibility.en.md` (طرح JSON §6.2 و فهرست §9)، `docs/feature-gaps/reference/current-capabilities.en.md`، `docs/feature-gaps/README.fa.md`، همین سند.
+- تست‌ها: —
+- وضعیت ترجمه: —
+- مورد باز: پرسش‌های باز §۱۸.
+- اقدام بعدی: ترجمهٔ زبان‌های دیگر با `tests/core-i18n` و ساخت `.mo`؛ تصمیم مالک دربارهٔ سطح پلن.
 
 ## ۱۷. گسترش‌های فاز ۲ مرتبط
 
