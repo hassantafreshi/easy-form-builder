@@ -28,7 +28,7 @@ abstract class Gateway {
 	/** [a-z][a-z0-9]{1,19}: the field type, the settings option suffix and the webhook path part. */
 	abstract public function slug();
 
-	/** The add-on key (e.g. 'AdnMOL'); '' for a gateway shipped with core (the test gateway). */
+	/** The add-on key from the add-on catalogue (Registry::ADDONS); '' for a gateway outside the catalogue (e.g. the tests' gateway). */
 	abstract public function addon_key();
 
 	/** Translated display name (the add-on's own text domain). */

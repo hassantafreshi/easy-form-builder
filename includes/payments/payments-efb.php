@@ -32,14 +32,7 @@ if ( is_admin() && is_readable( __DIR__ . '/class-Emsfb-payment-admin.php' ) ) {
 	\Emsfb\Payments\Admin::register();
 }
 
-// The test gateway: tests and the e2e site only (define EFB_PAYMENTS_MOCK in wp-config.php or a mu-plugin).
-if ( defined( 'EFB_PAYMENTS_MOCK' ) && EFB_PAYMENTS_MOCK ) {
-	require_once __DIR__ . '/gateways/class-Emsfb-payment-mock.php';
-	\Emsfb\Payments\Mock_Provider::register();
-	add_action( 'efb_register_payment_gateways', static function ( $registry ) {
-		$registry->register( new \Emsfb\Payments\Mock_Gateway() );
-	} );
-}
+// Core ships no gateway: every gateway is an add-on that registers on efb_register_payment_gateways.
 
 add_action( 'emsfb_pmt_reconcile', array( '\Emsfb\Payments\Service', 'reconcile' ) );
 add_action( 'emsfb_pmt_finalize', array( '\Emsfb\Payments\Service', 'finalize_by_id' ) );

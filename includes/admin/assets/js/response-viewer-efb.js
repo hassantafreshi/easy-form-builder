@@ -1083,7 +1083,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
             ${c.paymentmethod != 'charge' ? `<div class="efb-msg-payment-item"><span class="efb-msg-payment-label">${efb_var.text.interval}</span><span class="efb-msg-payment-val text-capitalize">${c.interval}</span></div>` : ''}
             </div></div>`
       }else if (c.pay_uid) {
-        /* PAY00: a payment of a framework gateway (Mollie, Payplug, … or the test gateway). The values
+        /* PAY00: a payment of a gateway add-on on the payment framework. The values
            were escaped with the whole entry above. */
         const pcur = /^[A-Za-z]{3}$/.test(String(c.paymentcurrency || '')) ? String(c.paymentcurrency).toUpperCase() : currency;
         let pamt = c.paymentAmount;

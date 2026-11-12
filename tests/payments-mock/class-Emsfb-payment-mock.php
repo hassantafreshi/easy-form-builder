@@ -1,7 +1,9 @@
 <?php
 /**
- * PAY00 §21: the reference / test gateway "efbmock". Loaded only when the constant
- * EFB_PAYMENTS_MOCK is true (tests and the e2e site); never on a real site.
+ * PAY00 §21: the reference / test gateway "efbmock". Not part of the shipped plugin: it lives in
+ * tests/ and is registered by the unit tests (tests/pay-test-db.php) and by the e2e site's
+ * mu-plugin (tests/e2e-wp/mu-plugins/efb-e2e.php, through tests/payments-mock/mock-efb.php) with
+ * the normal efb_register_payment_gateways hook, exactly like a gateway add-on.
  *
  * It is written exactly like a gateway add-on (it only uses the public contract: Gateway,
  * Settings, $this->request()), so it proves an add-on can plug in through the registry. Its

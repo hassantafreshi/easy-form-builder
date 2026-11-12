@@ -1269,7 +1269,7 @@ async function actionSendData_emsFormBuilder(form_id=0) {
         };
       }
     }
-    /* PAY00: a framework gateway field (Mollie, Payplug, … or the test gateway) sends the form to
+    /* PAY00: the field of a gateway add-on (payment framework) sends the form to
        payments/create: the server validates it, stores it as "pending payment" and starts the payment. */
     if (vj.type == "payment" && window.EFBPay && typeof window.EFBPay.isGateway === 'function') {
       let pay_structure = null;

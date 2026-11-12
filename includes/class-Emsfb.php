@@ -630,7 +630,7 @@ class Emsfb {
 				}
 			}
 
-			// PAY00 gateway add-ons (Mollie, Payplug, Tap, Omise, PayTabs, Paymob, Xendit):
+			// PAY00 gateway add-ons (Registry::ADDONS, the add-on catalogue):
 			// vendor/<dir>/routes-efb.php registers the gateway on efb_register_payment_gateways.
 			if ( class_exists( '\\Emsfb\\Payments\\Registry' ) ) {
 				\Emsfb\Payments\Registry::load_addons( $ac_routes, $this->plugin_path );

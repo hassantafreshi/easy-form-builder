@@ -362,7 +362,7 @@
       isGateway: function (slug) { return !!(V.gateways && Object.prototype.hasOwnProperty.call(V.gateways, slug)); },
       submit: submit,
       refresh: function (fid) { document.querySelectorAll('.efb-pf[data-formid="' + fid + '"]').forEach(refresh); },
-      /** A gateway add-on's browser adapter: EFBPay.registerAdapter('mollie', {mount(ctx){…}}). */
+      /** A gateway add-on's browser adapter: EFBPay.registerAdapter('<slug>', {prepare(ctx){…}, mount(ctx){…}}). */
       registerAdapter: function (slug, a) { if (typeof slug === 'string' && a) adapters[slug] = a; },
       poll: function (uid, sig, fid) { var el = document.querySelector('.efb-pf[data-formid="' + fid + '"]'); return watch(el, { uid: uid, sig: sig }, fid); }
    };

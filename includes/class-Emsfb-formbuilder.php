@@ -2467,7 +2467,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		$t = array_search('stripe', array_column($valj_efb, 'type'));
 		$t = $t === false ? array_search('persiaPay', array_column($valj_efb, 'type')) : $t;
 		$t = $t === false ? array_search('paypal', array_column($valj_efb, 'type')) : $t;
-		// PAY00: a framework gateway field (Mollie, Payplug, … or the test gateway) is a payment method too.
+		// PAY00: a field of a gateway add-on (any type in the payment registry) is a payment method too.
 		if ($t === false && class_exists('\\Emsfb\\Payments\\Registry')) {
 			foreach ($valj_efb as $k => $r) {
 				if ($k > 0 && isset($r->type) && \Emsfb\Payments\Registry::is_field_type($r->type)) { $t = $k; break; }

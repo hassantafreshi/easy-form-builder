@@ -178,11 +178,10 @@ if (!class_exists('WP_REST_Response')) {
  * with test keys, an action recorder. Returns the db.
  */
 function efb_pay_env() {
-	if (!defined('EFB_PAYMENTS_MOCK')) define('EFB_PAYMENTS_MOCK', true);
 	require_once __DIR__ . '/../includes/class-Emsfb-builder-api.php';
 	efb_pay_test_load();
 	require_once __DIR__ . '/../includes/payments/class-Emsfb-payment-frontend.php';
-	require_once __DIR__ . '/../includes/payments/gateways/class-Emsfb-payment-mock.php';
+	require_once __DIR__ . '/payments-mock/class-Emsfb-payment-mock.php'; // the test gateway, registered below like an add-on
 	$GLOBALS['opts'] = array('emsfb_pro' => 3);
 	$GLOBALS['efb_transients'] = array();
 	$GLOBALS['efb_mails'] = array();

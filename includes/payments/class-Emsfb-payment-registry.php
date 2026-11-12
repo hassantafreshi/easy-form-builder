@@ -21,7 +21,7 @@ class Registry {
 	/** Framework API version of this core (EMSFB_PAYMENTS_API). */
 	const API = 1;
 
-	/** Proposed add-on keys and folders (docs/payments PAY01-PAY07; owner to confirm). */
+	/** The add-on catalogue: key → folder under vendor/ (docs/payments PAY01-PAY07; owner to confirm). Core ships no gateway. */
 	const ADDONS = array(
 		'AdnMOL' => 'mollie',
 		'AdnPPG' => 'payplug',
@@ -129,7 +129,7 @@ class Registry {
 		return array_keys( self::all() );
 	}
 
-	/** The add-on folder for a key, e.g. AdnMOL → mollie (filter efb_payment_gateway_addons). */
+	/** The add-on folder of each catalogue key (filter efb_payment_gateway_addons). */
 	public static function addons() {
 		$map = self::ADDONS;
 		if ( function_exists( 'apply_filters' ) ) {

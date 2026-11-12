@@ -31,8 +31,13 @@ class Admin {
 		return current_user_can( 'Emsfb_payments' ) || current_user_can( 'manage_options' );
 	}
 
+	/** Whether the payment screens exist at all: only while a gateway add-on is installed and active. */
+	public static function active() {
+		return (bool) Registry::all();
+	}
+
 	public static function menu() {
-		if ( ! Registry::all() && ! Store::ready() ) return;
+		if ( ! self::active() ) return; // no gateway add-on: nothing of the payment framework in the menu
 		add_submenu_page( 'Emsfb', esc_html__( 'Payments', 'easy-form-builder' ), esc_html__( 'Payments', 'easy-form-builder' ), current_user_can( 'Emsfb_payments' ) ? 'Emsfb_payments' : 'manage_options', self::SLUG, array( __CLASS__, 'page' ) );
 	}
 
@@ -41,7 +46,7 @@ class Admin {
 		if ( ! self::can() ) return;
 		foreach ( Registry::errors() as $e ) {
 			if ( $e['code'] === 'api_version' ) {
-				/* translators: %s: add-on key, e.g. AdnMOL */
+				/* translators: %s: add-on key */
 				echo '<div class="notice notice-warning"><p>' . esc_html( sprintf( __( 'The payment add-on %s was made for another version of Easy Form Builder. Please update the add-on and Easy Form Builder.', 'easy-form-builder' ), $e['addon'] !== '' ? $e['addon'] : $e['slug'] ) ) . '</p></div>';
 			}
 		}
@@ -81,7 +86,7 @@ class Admin {
 	}
 
 	public static function page() {
-		if ( ! self::can() ) wp_die( esc_html__( 'Sorry, you are not allowed to access this page.', 'easy-form-builder' ) );
+		if ( ! self::can() || ! self::active() ) wp_die( esc_html__( 'Sorry, you are not allowed to access this page.', 'easy-form-builder' ) );
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- read-only screen parameters
 		$tab = isset( $_GET['tab'] ) && $_GET['tab'] === 'gateways' ? 'gateways' : 'payments';
 		$id = isset( $_GET['payment'] ) ? absint( $_GET['payment'] ) : 0;
@@ -301,7 +306,7 @@ class Admin {
 	}
 
 	public static function ajax() {
-		if ( ! self::can() || ! check_ajax_referer( 'efb_pay_action', 'nonce', false ) ) wp_send_json_error( array( 'm' => __( 'Sorry, you are not allowed to do that.', 'easy-form-builder' ) ), 403 );
+		if ( ! self::can() || ! self::active() || ! check_ajax_referer( 'efb_pay_action', 'nonce', false ) ) wp_send_json_error( array( 'm' => __( 'Sorry, you are not allowed to do that.', 'easy-form-builder' ) ), 403 );
 		$do = isset( $_POST['do'] ) ? sanitize_key( wp_unslash( $_POST['do'] ) ) : '';
 		if ( $do === 'test_connection' ) {
 			$slug = isset( $_POST['gateway'] ) ? sanitize_key( wp_unslash( $_POST['gateway'] ) ) : '';
