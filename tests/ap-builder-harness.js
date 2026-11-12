@@ -44,7 +44,8 @@ function makeChecker() {
   return c;
 }
 
-/* A blank form in the shape creator_form_builder_Efb() writes (row 0 + step 1). */
+/* Row 0 in the shape creator_form_builder_Efb() writes, plus the step-1 row the first palette
+   click adds. For the real blank form (row 0 only) pass `form: []` to openBuilder(). */
 function blankForm(extra) {
   return [Object.assign({
     type: 'form', steps: 1, formName: 'T', email: '', trackingCode: true, EfbVersion: 2, button_single_text: 'Send', button_color: 'btn-primary', icon: 'bi-ui-checks-grid',
@@ -65,6 +66,7 @@ function blankForm(extra) {
  *   extraVar   extra efb_var keys
  *   ajax       (body) => object|undefined, the admin-ajax answer (data part)
  *   builder    true: build the real builder workspace (creator_form_builder_Efb) so the canvas exists
+ *   form       the rows to open (default blankForm(), with its step row); [] = Create → blank form
  *   scripts    extra script paths (relative to the repository root) loaded last
  */
 async function openBuilder(opts) {
@@ -108,8 +110,9 @@ async function openBuilder(opts) {
     await page.evaluate((rows) => {
       valj_efb = rows;
       sessionStorage.setItem('valj_efb', JSON.stringify(rows));
-      form_type_emsFormBuilder = rows[0].type;
-      formName_Efb = rows[0].formName;
+      // form: [] is Create → blank form: creator_form_builder_Efb() writes row 0 alone.
+      form_type_emsFormBuilder = rows[0] ? rows[0].type : 'form';
+      formName_Efb = rows[0] ? rows[0].formName : 'form';
       creator_form_builder_Efb();
     }, opts.form || blankForm());
     await page.waitForTimeout(100);

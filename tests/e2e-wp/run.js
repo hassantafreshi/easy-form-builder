@@ -678,24 +678,30 @@ scenario('5', 'AutoPilot: efbBuilderApi, capabilities, API version, login/regist
   R.check('5: capabilities: field:esign available, setting:mobile_layout needs Pro, addon:AdnSS not available (no add-on)', base.esign && base.esign.available_now === true && base.mobileLayout && base.mobileLayout.package === 'pro' && base.mobileLayout.available_now === false && base.sms && base.sms.available_now === false, { esign: base.esign, ml: base.mobileLayout, sms: base.sms });
   R.check('5: payment_keys are booleans only (no key values)', base.payKeys && Object.values(base.payKeys).every((v) => typeof v === 'boolean'), base.payKeys);
 
-  // Build with the API: eight text fields, then the address block → country 9, state 10 (A1 shape).
+  // Build with the API on the blank form: the first insert adds the step-1 row (amount 1), then
+  // seven text fields (2-8) and the address block → country 9, state 10 (A1 shape).
   const built = await page.evaluate(async () => {
+    const blankRows = valj_efb.length;
     const ids = [];
-    for (let i = 0; i < 8; i++) {
+    for (let i = 0; i < 7; i++) {
       const rows = efbBuilderApi.newItems('text', { label: 'T' + (i + 1) });
       ids.push(...efbBuilderApi.insertItems(rows).ids);
     }
     const addr = efbBuilderApi.newItems('address');
     const r = efbBuilderApi.insertItems(addr);
+    ids.push(...r.ids);
     const rendered = await efbBuilderApi.render();
     const f = efbBuilderApi.getForm();
+    const step1 = { type: f[1].type, id_: f[1].id_, steps: f[0].steps, next: f[2] && f[2].id_ === ids[0] };
+    const apiFields = f.filter((x) => ids.includes(x.id_) && x.type !== 'option').map((x) => ({ id_: x.id_, dataId: x.dataId, type: x.type }));
     const copyIsDeep = (() => { f[1].name = 'changed-in-copy'; return valj_efb[1].name !== 'changed-in-copy'; })();
     const am = (t) => (f.find((x) => x.type === t) || {}).amount;
-    return { rendered, copyIsDeep, country: am('conturyList'), state: am('stateProvince'), city: am('cityList'), types: f.filter((x) => x.type !== 'option').map((x) => x.type), onCanvas: f.filter((x, i) => i > 0 && x.type !== 'option').every((x) => !!document.querySelector('#dropZoneEFB [data-id="' + x.dataId + '"]')), inserted: r.ids };
+    return { blankRows, step1, apiFields, rendered, copyIsDeep, country: am('conturyList'), state: am('stateProvince'), city: am('cityList'), types: f.filter((x) => x.type !== 'option').map((x) => x.type), onCanvas: f.filter((x, i) => i > 0 && x.type !== 'option').every((x) => !!document.querySelector('#dropZoneEFB [data-id="' + x.dataId + '"]')), inserted: r.ids };
   });
+  R.check('5: insertItems() on a blank form (row 0 only) adds the step-1 row first, then the fields', built.blankRows === 1 && built.step1.type === 'step' && built.step1.id_ === '1' && Number(built.step1.steps) === 1 && built.step1.next, built.step1);
   R.check('5: insertItems + render(): the Promise resolves complete and every new field is on the canvas', built.rendered && built.rendered.complete === true && built.onCanvas, built);
   R.check('5: getForm() is a deep copy', built.copyIsDeep);
-  R.check('5/A1: the address block inserted after 8 fields is numbered country 9 → state 10 → city 11', built.country === 9 && built.state === 10 && built.city === 11, built);
+  R.check('5/A1: the address block inserted after the step and 7 fields is numbered country 9 → state 10 → city 11', built.country === 9 && built.state === 10 && built.city === 11, built);
 
   // refreshSettingsPanel: panel of a field open → setForm with a new label → render → refresh.
   const panel = await page.evaluate(async () => {
@@ -737,6 +743,10 @@ scenario('5', 'AutoPilot: efbBuilderApi, capabilities, API version, login/regist
   const ids = { c: srow.find((x) => x.type === 'conturyList').id_, s: srow.find((x) => x.type === 'stateProvince').id_ };
   await g.waitForSelector(byId(ids.c + '_options'), { timeout: 20000 });
   await sleep(800);
+  // Every field inserted through the API is drawn for the visitor (the first one included: before
+  // the step-1 fix it sat where the step belongs and was stored but never drawn).
+  const pub = await g.evaluate((fields) => fields.map((x) => ({ id_: x.id_, type: x.type, drawn: !!document.querySelector('[data-id="' + x.dataId + '"]') })), built.apiFields);
+  R.check('5: public page: every field inserted through efbBuilderApi is on the page (' + built.apiFields.length + ' fields, the first one included)', pub.length === 12 && pub.every((x) => x.drawn), pub.filter((x) => !x.drawn));
   await g.selectOption(byId(ids.c + '_options'), { label: 'Iran (ایران)' });
   const ok = await g.waitForFunction((id) => Array.from(document.getElementById(id + '_options').options).some((o) => /Tehran/.test(o.text)), ids.s, { timeout: 20000 }).then(() => true).catch(() => false);
   R.check('5/A1: public page: choosing Iran fills the State list right after it (9 → 10)', ok, await g.evaluate((id) => Array.from(document.getElementById(id + '_options').options).slice(0, 5).map((o) => o.text), ids.s));
@@ -981,15 +991,12 @@ scenario('8', 'F13 privacy: IP setting, guest entry without IP, retention cron w
   R.check('8a: Save answers success', saved && saved.success && saved.data && saved.data.success, saved && saved.data);
   R.check('8a: database: settings prv_ip_mode = none', ctl('setting', 'prv_ip_mode') === 'none', ctl('setting', 'prv_ip_mode'));
 
-  // 8b a form built with the builder API, its Privacy section, saved through admin-ajax.
+  // 8b a form built with the builder API alone (the first insert adds the step-1 row of the blank
+  // form), its Privacy section, saved through admin-ajax. 8g adds its first field from the palette.
   await openNewForm(admin);
-  // The first field comes from the palette: a blank form gets its step row from the first palette
-  // field, and efbBuilderApi.insertItems() into a form without one puts the field where the step
-  // belongs (BUGS-FOUND, open: found here).
-  await addTile(admin, 'email');
-  await closePanel(admin);
   const built = await admin.evaluate(async () => {
     const add = (type, label) => efbBuilderApi.insertItems(efbBuilderApi.newItems(type, { label })).ids;
+    add('email', 'Email');
     add('text', 'Name');
     add('textarea', 'Note');
     await efbBuilderApi.render();

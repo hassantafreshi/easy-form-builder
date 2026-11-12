@@ -95,6 +95,34 @@
     return list;
   }
 
+  /* ---------------- step 1 of a blank form ---------------- */
+
+  // Create → blank form leaves only row 0; the builder adds the step-1 row with the first
+  // palette field. A field at index 1 is where the renderers expect that step (stored, but
+  // never drawn on the public form), so the API adds the same row before the first field.
+  function hasFirstStep(list) { return !!(list[1] && list[1].type === 'step'); }
+  function firstStepRow() {
+    if (typeof efb_first_step_row_efb === 'function') return efb_first_step_row_efb(1);
+    // admin-efb.js older than this file (browser cache): the same row, built here.
+    var t = (typeof efb_var === 'object' && efb_var && efb_var.text) || {};
+    var name = (typeof efb_first_step_name_efb === 'function') ? efb_first_step_name_efb() : String(t.form || '').toUpperCase();
+    return {
+      id_: '1', type: 'step', dataId: '1', classes: '', id: '1', name: name, icon: 'bi-ui-checks-grid', step: 1, amount: 1, EfbVersion: 2, message: '',
+      label_text_size: 'fs-5', el_text_size: 'fs-5', label_text_color: 'text-darkb', el_text_color: 'text-labelEfb',
+      message_text_color: (typeof pub_message_text_color_efb !== 'undefined') ? pub_message_text_color_efb : 'text-muted',
+      icon_color: (typeof pub_icon_color_efb !== 'undefined') ? pub_icon_color_efb : 'text-pinkEfb', visible: 1,
+    };
+  }
+  // Returns the list with the step-1 row at index 1 (a new array when it had to be added).
+  function withFirstStep(list) {
+    if (list.length < 1 || hasFirstStep(list)) return list;
+    return [list[0], firstStepRow()].concat(list.slice(1));
+  }
+  function syncStepCount(list) {
+    if (!(Number(list[0].steps) >= 1)) list[0].steps = 1;
+    if (typeof step_el_efb !== 'undefined') step_el_efb = Number(list[0].steps);
+  }
+
   function fieldIndex(list, id) {
     for (var i = 1; i < list.length; i++) {
       var r = list[i];
@@ -241,13 +269,19 @@
     if (!Array.isArray(items) || !items[0] || typeof items[0] !== 'object' || typeof items[0].type !== 'string') {
       throw fail('invalid_form', 'setForm() needs the whole form: row 0 holds the form settings.');
     }
-    if (items.length > 1) checkRows(items.slice(1), []);
     var next = clone(items);
+    // Fields without the step-1 row (a blank form) get it; row 0 alone stays a blank form.
+    var addedStep = false;
+    if (next.length > 1) { var withStep = withFirstStep(next); addedStep = withStep !== next; next = withStep; }
+    if (next.length > 1) checkRows(next.slice(1), []);
     if (typeof efbNormalizeOrderEfb === 'function') efbNormalizeOrderEfb(next);
+    // The caller's amounts were counted without that step: number them again (A2 rule).
+    if (addedStep) renumber(next);
     valj_efb = next;
     if (typeof form_type_emsFormBuilder !== 'undefined') form_type_emsFormBuilder = next[0].type;
     if (typeof formName_Efb !== 'undefined' && next[0].formName) formName_Efb = next[0].formName;
-    if (typeof step_el_efb !== 'undefined') step_el_efb = Number(next[0].steps) || 1;
+    if (next.length > 1) syncStepCount(next);
+    else if (typeof step_el_efb !== 'undefined') step_el_efb = Number(next[0].steps) || 1;
     var max = 0;
     next.forEach(function (r) { max = Math.max(max, orderOf(r)); });
     if (typeof amount_el_efb !== 'undefined') amount_el_efb = max;
@@ -258,7 +292,10 @@
 
   function insertItems(items, opts) {
     opts = opts || {};
-    var list = rows();
+    var live = rows();
+    // Positions are worked out on the form with its step-1 row; live is changed only once
+    // every check has passed, so an error leaves a blank form blank.
+    var list = withFirstStep(live);
     checkRows(items, list);
     var add = clone(items);
     // The canvas finds a row by dataId (id_ + '-id'); fill it when the caller left it out.
@@ -295,6 +332,11 @@
       at = nextStep;
     } else {
       at = list.length;
+    }
+    if (list !== live) {
+      live.splice(1, 0, list[1]);
+      list = live;
+      syncStepCount(list);
     }
     Array.prototype.splice.apply(list, [at, 0].concat(add));
     if (stepRow) {

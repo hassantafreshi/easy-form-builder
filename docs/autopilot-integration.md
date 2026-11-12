@@ -239,8 +239,8 @@ Two small core changes support it:
 |---|---|
 | `version` | `1` (same as `efb_var.api_version`) |
 | `getForm()` | deep copy of `valj_efb` (amounts and steps as numbers, A2) |
-| `setForm(rows, {render?, timeout?})` | replaces the whole form (row 0 = settings), checks ids, normalizes amounts, syncs the builder globals (`form_type_emsFormBuilder`, `formName_Efb`, `step_el_efb`, `amount_el_efb`), writes `sessionStorage.valj_efb`, then `render()` (skip with `render:false`). Returns the render Promise |
-| `insertItems(rows, {after?, before?, step?, render?})` | inserts a field with its option rows: after a field (after its last option), before a field, at the end of step *n*, or at the end of the form. A `step` row goes alone at the end and becomes step *n+1*. Fills a missing `dataId`, applies `rows.formPatch` (from `newItems`, B2), renumbers by the A2 rule, writes `sessionStorage`. Returns `{ids}` (or a Promise with `render:true`) |
+| `setForm(rows, {render?, timeout?})` | replaces the whole form (row 0 = settings), adds the step-1 row when there are fields and row 1 is not a step (see below), checks ids, normalizes amounts, syncs the builder globals (`form_type_emsFormBuilder`, `formName_Efb`, `step_el_efb`, `amount_el_efb`), writes `sessionStorage.valj_efb`, then `render()` (skip with `render:false`). Returns the render Promise |
+| `insertItems(rows, {after?, before?, step?, render?})` | inserts a field with its option rows: after a field (after its last option), before a field, at the end of step *n*, or at the end of the form. On a blank form (row 1 is not a step) it first adds the step-1 row (see below). A `step` row goes alone at the end and becomes step *n+1*. Fills a missing `dataId`, applies `rows.formPatch` (from `newItems`, B2), renumbers by the A2 rule, writes `sessionStorage`. Returns `{ids}` (or a Promise with `render:true`) |
 | `removeItems(ids)` | removes fields with their option rows (not steps) |
 | `render({timeout?})` | Promise resolved when the canvas is really drawn: every field is on the canvas, every map has its map element, every mobile field has intlTelInput attached (when the library is loaded). Resolves `{complete, pending}`; `complete:false` lists ids still pending after `timeout` (default 15 s) |
 | `refreshSettingsPanel()` | if the panel is open, redraws the same field / step / form settings with the current values (no toggle); if that field was removed, closes the panel. Returns `{refreshed, closed, id}` |
@@ -252,6 +252,18 @@ Errors are thrown as `Error` with a stable `code`: `builder_not_ready`, `invalid
 `invalid_items`, `invalid_id`, `invalid_type`, `duplicate_id`, `orphan_option`, `unknown_target`,
 `unknown_step`, `unknown_field`, `unsupported_position`, `unsupported_type`, `not_rendered`.
 A refused call leaves the form unchanged.
+
+**Blank forms and step 1.** Create → blank form leaves only row 0 in `valj_efb`; the builder adds
+the step-1 row with the first palette field. The renderers expect that step at index 1, so a field
+put there is saved but never drawn on the public form (BUGS-FOUND, F13 2026-11-12, fixed).
+`insertItems()` and `setForm()` (when it gets fields) therefore add the same row the palette adds,
+`efb_first_step_row_efb()` in `admin-efb.js` (`id_`/`dataId`/`id` `'1'`, `step` 1, the first step
+name from `efb_first_step_name_efb()`), before the first field, and keep `valj_efb[0].steps` at least
+1. When `setForm()` adds it, the caller's amounts were counted without it, so the form is numbered
+again by the A2 rule (`setForm()` otherwise keeps the amounts it is given). On a blank form `insertItems(newItems('email'))` gives `[row0, step 1, email]`; a `step` row
+inserted there becomes step 2; `{step: 1}` works. The row is added only after every check passed,
+`setForm([row0])` keeps a blank form blank, and a form whose row 1 is already a step is left as it
+is. A later palette click sees the step row and adds none.
 
 Events on `document`:
 
@@ -266,7 +278,12 @@ Events on `document`:
   the brief's acceptance (panel of a field open → `setForm`/`insertItems` + `render()` +
   `refreshSettingsPanel()` → the panel shows the new label and stays open, no timer in the test),
   render waits for the mobile field, deep copy, placement and numbering, every error code, removal
-  closes the panel, sessionStorage kept in sync, user and API events. 22 passed. The builder tests of
+  closes the panel, sessionStorage kept in sync, user and API events. 22 passed.
+  `node tests/test-ap-b1-blank-form-step.js` (blank form as Create leaves it, `openBuilder({form: []})`):
+  the step-1 row added by `insertItems()` and `setForm()` matches the palette's, numbering, render,
+  no second step, errors leave the form blank, existing forms untouched. 17 passed (5 failed before
+  the fix). `node tests/e2e-wp/run.js 5` on a real WordPress checks that every field inserted
+  through the API, the first one included, is on the public page after Save. The builder tests of
   A3/A4 and `test-masks-builder-browser.js` (41) still pass with the changed `editFormEfb()` and
   `show_setting_window_efb()`.
 - **AutoPilot.** Replace the direct `valj_efb` edits, `sessionStorage` writes, `editFormEfb()` calls,

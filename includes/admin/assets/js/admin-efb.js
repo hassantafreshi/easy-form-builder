@@ -4728,6 +4728,17 @@ function efb_first_step_name_efb() {
   return String(name).toUpperCase();
 }
 
+/* The step-1 row a blank form gets with its first field: the first palette click
+   (addNewElement) and efbBuilderApi.insertItems() / setForm() both add this row. */
+function efb_first_step_row_efb(amount) {
+  return {
+    id_: '1', type: 'step', dataId: '1', classes: '',
+    id: '1', name: efb_first_step_name_efb(), icon: '', step: 1, amount: amount, EfbVersion: 2, message: "",
+    label_text_size: 'fs-5', el_text_size: 'fs-5', label_text_color: 'text-darkb',
+    el_text_color: 'text-labelEfb', message_text_color: pub_message_text_color_efb, icon_color: pub_icon_color_efb, icon: 'bi-ui-checks-grid', visible: 1
+  };
+}
+
 let sampleElpush_efb = (rndm, elementId) => {
 
   const testb = valj_efb.length;
@@ -7260,12 +7271,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     }
     if (elementId != 'steps') {
       if (editState == false && valj_efb.length < 2) {
-        valj_efb.push({
-          id_: `${step_el_efb}`, type: 'step', dataId: `${step_el_efb}`, classes: '',
-          id: `${step_el_efb}`, name: efb_first_step_name_efb(), icon: '', step: step_el_efb, amount: amount_el_efb, EfbVersion: 2, message: "",
-          label_text_size: 'fs-5', el_text_size: 'fs-5', label_text_color: 'text-darkb',
-          el_text_color: 'text-labelEfb', message_text_color:pub_message_text_color_efb, icon_color: pub_icon_color_efb, icon: 'bi-ui-checks-grid', visible: 1
-        });
+        valj_efb.push(efb_first_step_row_efb(amount_el_efb)); // step_el_efb is 1 here
         indexVJ = valj_efb.length - 1;
         const sort = indexVJ<=1 ? 'unsortable'  : 'sortable';
         newElement = `
