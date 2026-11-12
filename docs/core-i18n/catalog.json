@@ -4,10 +4,26 @@
     "plugin_version": "4.3.1",
     "updated": "2026-11-12",
     "counts": {
-        "active": 3009,
-        "obsolete": 376
+        "active": 3053,
+        "obsolete": 377
     },
     "entries": [
+        {
+            "msgid": "\"%1$s\" is needed by %2$s for the payment but is not marked Required. Visitors are asked for it when they press Pay; mark it Required so they see it earlier.",
+            "context": null,
+            "plural": null,
+            "translators": "%1$s: name of a form field (e.g. Mobile), %2$s: gateway name",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php",
+                "includes/payments/class-Emsfb-payment-registry.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
         {
             "msgid": "$NN/year",
             "context": null,
@@ -92,6 +108,70 @@
             "files": [
                 "includes/payments/class-Emsfb-payment-frontend.php",
                 "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%1$s accepts payments from %2$s. The fixed amount of this form is %3$s; visitors can only pay when other choices raise the total.",
+            "context": null,
+            "plural": null,
+            "translators": "%1$s: gateway name, %2$s: the gateway's minimum, %3$s: the form's fixed amount",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php",
+                "includes/payments/class-Emsfb-payment-registry.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%1$s accepts payments from %2$s. The smallest donation of this form (%3$s) is below it.",
+            "context": null,
+            "plural": null,
+            "translators": "%1$s: gateway name, %2$s: the gateway's minimum, %3$s: the donation minimum of the form",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php",
+                "includes/payments/class-Emsfb-payment-registry.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%1$s accepts payments up to %2$s. The fixed amount of this form is %3$s, so visitors cannot pay.",
+            "context": null,
+            "plural": null,
+            "translators": "%1$s: gateway name, %2$s: the gateway's maximum, %3$s: the form's fixed amount",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php",
+                "includes/payments/class-Emsfb-payment-registry.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%1$s accepts payments up to %2$s. The largest donation of this form (%3$s) is above it.",
+            "context": null,
+            "plural": null,
+            "translators": "%1$s: gateway name, %2$s: the gateway's maximum, %3$s: the donation maximum of the form",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php",
+                "includes/payments/class-Emsfb-payment-registry.php"
             ],
             "scope": [
                 "core"
@@ -243,6 +323,37 @@
             "context": null,
             "plural": null,
             "translators": "%1$s: gateway name, %2$s: what is needed (option name, e.g. Payer e-mail), %3$s: kind of field (e.g. an Email field)",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php",
+                "includes/payments/class-Emsfb-payment-registry.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%1$s sent %2$d payment confirmations in the last 24 hours that were refused because their signature or token did not match. Check the secret key / webhook secret in the gateway's dashboard and here; payments are still checked by the regular job.",
+            "context": null,
+            "plural": null,
+            "translators": "%1$s: gateway name, %2$d: number of refused deliveries",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%1$s: %2$s cannot take %3$s, so it is not offered on this form. Choose other methods or change the currency.",
+            "context": null,
+            "plural": null,
+            "translators": "%1$s: gateway name, %2$s: payment methods, %3$s: the form's currency",
             "files": [
                 "includes/payments/class-Emsfb-payment-frontend.php",
                 "includes/payments/class-Emsfb-payment-registry.php"
@@ -602,6 +713,38 @@
             "obsolete_since": null
         },
         {
+            "msgid": "%s has no keys for Live mode yet, so visitors cannot pay. Add them in Payments → Gateways.",
+            "context": null,
+            "plural": null,
+            "translators": "%s: gateway name",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php",
+                "includes/payments/class-Emsfb-payment-registry.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%s has no keys for Test mode yet, so the form cannot be tried. Add them in Payments → Gateways.",
+            "context": null,
+            "plural": null,
+            "translators": "%s: gateway name",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php",
+                "includes/payments/class-Emsfb-payment-registry.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "%s is a Pro feature",
             "context": null,
             "plural": null,
@@ -628,6 +771,22 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%s is in Test mode: no real payments are taken. Switch it to Live in Payments → Gateways when you are ready.",
+            "context": null,
+            "plural": null,
+            "translators": "%s: gateway name",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php",
+                "includes/payments/class-Emsfb-payment-registry.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -1485,6 +1644,22 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "A payment field only works in a payment form. This form is a \"%s\" form: create a payment form or remove the payment field.",
+            "context": null,
+            "plural": null,
+            "translators": "%s: the form's type (e.g. survey)",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php",
+                "includes/payments/class-Emsfb-payment-registry.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -22892,6 +23067,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Needed for the payment",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Needs attention",
             "context": null,
             "plural": null,
@@ -23657,6 +23847,36 @@
             "translators": "F01 builder, mobile keyboard option: no on-screen keyboard, for fields that open their own picker",
             "files": [
                 "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "No keys for Live mode: visitors cannot pay. Enter the keys and press Test connection.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "No keys for Test mode: the payment forms cannot be tried. Enter the Test keys and press Test connection.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
             ],
             "scope": [
                 "core"
@@ -24747,6 +24967,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "On %1$s a visitor could not pay because %2$s refused the payment set-up of %3$s mode (%4$s). Check the keys and the account (currencies, payment methods), then press Test connection.",
+            "context": null,
+            "plural": null,
+            "translators": "%1$s: date and time, %2$s: gateway name, %3$s: Live or Test, %4$s: error code",
+            "files": [
+                "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "On your first year of Pro · the code is emailed to you",
             "context": null,
             "plural": null,
@@ -24940,6 +25175,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "Only a paid payment can be refunded.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Only a site administrator can change the plan. Ask them to activate Free Plus (free) or Pro.",
@@ -26635,6 +26885,22 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Payments with this method are not available for the country in \"%s\". Please check it or choose another payment method.",
+            "context": null,
+            "plural": null,
+            "translators": "%s: name of the form field (e.g. Country)",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php",
+                "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Paymob payments",
             "context": null,
             "plural": null,
@@ -27328,6 +27594,22 @@
             "obsolete_since": "4.3.1"
         },
         {
+            "msgid": "Please choose a country in \"%s\".",
+            "context": null,
+            "plural": null,
+            "translators": "%s: name of the form field (e.g. Country)",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php",
+                "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Please choose a spreadsheet first.",
             "context": null,
             "plural": null,
@@ -27600,6 +27882,22 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Please enter a valid e-mail address in \"%s\".",
+            "context": null,
+            "plural": null,
+            "translators": "%s: name of the form field (e.g. Email)",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php",
+                "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Please enter a valid email address.",
             "context": null,
             "plural": null,
@@ -27612,6 +27910,22 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Please enter a valid phone number in \"%s\".",
+            "context": null,
+            "plural": null,
+            "translators": "%s: name of the form field (e.g. Mobile)",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php",
+                "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -27687,6 +28001,22 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Please enter the phone number in \"%s\" with its country code, starting with + (for example +33 6 12 34 56 78).",
+            "context": null,
+            "plural": null,
+            "translators": "%s: name of the form field (e.g. Mobile)",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php",
+                "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -28165,7 +28495,7 @@
             "plural": null,
             "translators": "",
             "files": [
-                "includes/payments/class-Emsfb-payment-admin.php"
+                "includes/payments/class-Emsfb-payment-service.php"
             ],
             "scope": [
                 "core"
@@ -36917,6 +37247,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Test mode: no real payments are taken. Switch to Live when you are ready.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Test sent to",
             "context": null,
             "plural": null,
@@ -37833,6 +38178,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The add-on of this gateway is not active, so it cannot refund. Activate it, or refund in the gateway's dashboard and use \"Mark as refunded outside EFB\".",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The add-on server did not provide a download URL.",
             "context": null,
             "plural": null,
@@ -37976,6 +38336,36 @@
             "translators": "%s is a number or %amount% stays as written",
             "files": [
                 "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The card details were not accepted. You have not been charged. Please check the card number, expiry date and security code, or use another card.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The card security check (3-D Secure) was not completed. You have not been charged. Please try again or use another card.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-service.php"
             ],
             "scope": [
                 "core"
@@ -38948,6 +39338,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The gateway refused the refund (%s). Nothing was refunded. Try again later or refund it in the gateway's dashboard.",
+            "context": null,
+            "plural": null,
+            "translators": "%s: error code",
+            "files": [
+                "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The gateway refused the refund: %s Nothing was refunded.",
+            "context": null,
+            "plural": null,
+            "translators": "%s: the gateway's reason",
+            "files": [
+                "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The hidden field “%s” was not carried over: Easy Form Builder has no hidden field.",
             "context": null,
             "plural": null,
@@ -39353,12 +39773,72 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The payment is above the limit of your card or account. You have not been charged. Please use another card or payment method.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The payment page or card fields of the gateway open here.",
             "context": null,
             "plural": null,
             "translators": "",
             "files": [
                 "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The payment provider could not accept this payment. You have not been charged. Please use another payment method or contact the site.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The payment provider did not accept the value of \"%s\". Please check it and press Pay again.",
+            "context": null,
+            "plural": null,
+            "translators": "%s: name of the form field",
+            "files": [
+                "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The payment service is not responding right now. You have not been charged. Please try again in a few minutes.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-service.php"
             ],
             "scope": [
                 "core"
@@ -39389,6 +39869,51 @@
             "translators": "",
             "files": [
                 "includes/payments/class-Emsfb-payment-frontend.php",
+                "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The payment time ran out. You have not been charged. Please try again.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The payment was cancelled. You have not been charged. You can try again when you are ready.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The payment was declined because there were not enough funds. You have not been charged. Please use another card or payment method.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
                 "includes/payments/class-Emsfb-payment-service.php"
             ],
             "scope": [
@@ -39567,6 +40092,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The refund amount must be more than 0 and at most %s (what is left after earlier and pending refunds).",
+            "context": null,
+            "plural": null,
+            "translators": "%s: the amount left to refund",
+            "files": [
+                "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The refund failed (%s).",
             "context": null,
             "plural": null,
@@ -39578,8 +40118,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "The refund was requested. It counts once the gateway confirms it.",
@@ -40967,6 +41507,22 @@
             "obsolete_since": null
         },
         {
+            "msgid": "This form has more than one payment field. A form can take one payment: remove the others.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php",
+                "includes/payments/class-Emsfb-payment-registry.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "This form is closed for your answers.",
             "context": null,
             "plural": null,
@@ -41064,6 +41620,36 @@
             "translators": "F01 builder: confirm dialog when a format is chosen on a field that has min/max length",
             "files": [
                 "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "This gateway can only refund the full remaining amount (%s).",
+            "context": null,
+            "plural": null,
+            "translators": "%s: the amount left to refund",
+            "files": [
+                "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "This gateway cannot refund through Easy Form Builder. Refund it in the gateway's dashboard, then use \"Mark as refunded outside EFB\".",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-service.php"
             ],
             "scope": [
                 "core"
@@ -41448,6 +42034,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "This payment method is not available for this payment right now. Please choose another payment method.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "This recording format is not allowed.",
             "context": null,
             "plural": null,
@@ -41484,6 +42085,21 @@
             "translators": "",
             "files": [
                 "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "This refund was already requested.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-service.php"
             ],
             "scope": [
                 "core"
@@ -41549,6 +42165,23 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "This site cannot be reached from the internet, so %s cannot send payment confirmations to it. Payments are confirmed when the visitor comes back and by the regular check.",
+            "context": null,
+            "plural": null,
+            "translators": "%s: gateway name",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php",
+                "includes/payments/class-Emsfb-payment-frontend.php",
+                "includes/payments/class-Emsfb-payment-registry.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -42085,6 +42718,7 @@
             "translators": "",
             "files": [
                 "includes/class-Emsfb-public.php",
+                "includes/payments/class-Emsfb-payment-frontend.php",
                 "includes/payments/class-Emsfb-payment-service.php"
             ],
             "scope": [
@@ -44220,6 +44854,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Visitors cannot pay with %s",
+            "context": null,
+            "plural": null,
+            "translators": "%s: gateway name",
+            "files": [
+                "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Visitors see this field once Free Plus or Pro is active.",
             "context": null,
             "plural": null,
@@ -44727,6 +45376,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "We could not reach the site. Check your internet connection and try again. You have not been charged.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -47246,6 +47910,22 @@
             "obsolete_since": null
         },
         {
+            "msgid": "You left the payment page before paying. You have not been charged. You can try again.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php",
+                "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "You may contact me about this if needed (the site admin email is used).",
             "context": null,
             "plural": null,
@@ -48254,6 +48934,21 @@
         },
         {
             "msgid": "Your payment is already being prepared. Please wait a moment.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Your payment was declined. You have not been charged. Please try another card or payment method.",
             "context": null,
             "plural": null,
             "translators": "",
