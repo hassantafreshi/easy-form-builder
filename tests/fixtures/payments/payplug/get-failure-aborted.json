@@ -1,0 +1,95 @@
+{
+  "source_url": "https://docs.payplug.com/api/apiref.html",
+  "captured": "2026-11-12",
+  "request": {
+    "method": "GET",
+    "url": "https://api.payplug.com/v1/payments/pay_5iHMDxy4ABR4YBVW4UscIn"
+  },
+  "response": {
+    "code": 200,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "id": "pay_5iHMDxy4ABR4YBVW4UscIn",
+      "object": "payment",
+      "is_live": false,
+      "amount": 3300,
+      "amount_refunded": 0,
+      "authorization": null,
+      "currency": "EUR",
+      "created_at": 1762956000,
+      "refundable_after": null,
+      "refundable_until": null,
+      "installment_plan_id": null,
+      "integration": null,
+      "is_3ds": null,
+      "is_paid": false,
+      "is_refunded": false,
+      "paid_at": null,
+      "save_card": false,
+      "allow_save_card": false,
+      "card": {
+        "last4": null,
+        "country": null,
+        "exp_month": null,
+        "exp_year": null,
+        "brand": null,
+        "id": null
+      },
+      "billing": {
+        "title": null,
+        "first_name": "Jeanne",
+        "last_name": "Martin",
+        "mobile_phone_number": null,
+        "landline_phone_number": null,
+        "email": "jeanne@example.test",
+        "address1": "1 rue de la Paix",
+        "address2": null,
+        "postcode": "75002",
+        "city": "Paris",
+        "state": null,
+        "country": "FR",
+        "language": "fr"
+      },
+      "shipping": {
+        "title": null,
+        "first_name": "Jeanne",
+        "last_name": "Martin",
+        "mobile_phone_number": null,
+        "landline_phone_number": null,
+        "email": "jeanne@example.test",
+        "address1": "1 rue de la Paix",
+        "address2": null,
+        "postcode": "75002",
+        "city": "Paris",
+        "state": null,
+        "country": "FR",
+        "language": "fr",
+        "delivery_type": "DIGITAL_GOODS"
+      },
+      "hosted_payment": {
+        "payment_url": "https://secure.payplug.com/pay/5iHMDxy4ABR4YBVW4UscIn",
+        "return_url": "https://example.com/wp-json/Emsfb/v1/payments/return/payplug?p={{uid}}&s=0",
+        "cancel_url": "https://example.com/wp-json/Emsfb/v1/payments/return/payplug?p={{uid}}&s=0&c=1",
+        "paid_at": null,
+        "sent_by": null
+      },
+      "notification": {
+        "url": "https://example.com/wp-json/Emsfb/v1/payments/webhook/payplug?p={{uid}}&t=0",
+        "response_code": null
+      },
+      "failure": {
+        "code": "aborted",
+        "message": "The customer aborted the payment."
+      },
+      "description": "Inscription atelier – EFB-7KQ2M9",
+      "metadata": {
+        "efb_uid": "{{uid}}",
+        "form_id": "12",
+        "track": "EFB-7KQ2M9"
+      },
+      "payment_method": null
+    }
+  }
+}

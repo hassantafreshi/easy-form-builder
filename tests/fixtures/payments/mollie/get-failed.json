@@ -1,0 +1,53 @@
+{
+  "source_url": "https://docs.mollie.com/reference/get-payment",
+  "captured": "2026-11-12",
+  "request": {
+    "method": "GET",
+    "url": "https://api.mollie.com/v2/payments/tr_5B8cwPMGnU6qLbRvo7qEZo"
+  },
+  "response": {
+    "code": 200,
+    "headers": {
+      "content-type": "application/hal+json"
+    },
+    "body": {
+      "resource": "payment",
+      "id": "tr_5B8cwPMGnU6qLbRvo7qEZo",
+      "mode": "test",
+      "amount": {
+        "value": "25.00",
+        "currency": "EUR"
+      },
+      "description": "Workshop registration – EFB-7KQ2M9",
+      "sequenceType": "oneoff",
+      "redirectUrl": "https://example.com/wp-json/Emsfb/v1/payments/return/mollie?p={{uid}}&s=0",
+      "webhookUrl": "https://example.com/wp-json/Emsfb/v1/payments/webhook/mollie?p={{uid}}&t=0",
+      "metadata": {
+        "efb_uid": "{{uid}}",
+        "form_id": 12,
+        "track": "EFB-7KQ2M9"
+      },
+      "profileId": "pfl_QkEhN94Ba",
+      "status": "failed",
+      "isCancelable": false,
+      "createdAt": "2026-11-12T13:13:37+00:00",
+      "expiresAt": "2026-11-12T13:28:37+00:00",
+      "_links": {
+        "self": {
+          "href": "https://api.mollie.com/v2/payments/tr_5B8cwPMGnU6qLbRvo7qEZo",
+          "type": "application/hal+json"
+        },
+        "dashboard": {
+          "href": "https://www.mollie.com/dashboard/org_12345678/payments/tr_5B8cwPMGnU6qLbRvo7qEZo",
+          "type": "text/html"
+        },
+        "documentation": {
+          "href": "https://docs.mollie.com/reference/get-payment",
+          "type": "text/html"
+        }
+      },
+      "method": "creditcard",
+      "failedAt": "2026-11-12T13:20:01+00:00"
+    }
+  }
+}

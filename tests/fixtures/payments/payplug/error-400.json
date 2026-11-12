@@ -1,0 +1,22 @@
+{
+  "source_url": "https://docs.payplug.com/api/apiref.html",
+  "captured": "2026-11-12",
+  "request": {
+    "method": "POST",
+    "url": "https://api.payplug.com/v1/payments"
+  },
+  "response": {
+    "code": 400,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "object": "error",
+      "message": "The parameters are invalid.",
+      "id": "err_unit400",
+      "details": {
+        "amount": "Ensure this value is greater than or equal to 30."
+      }
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "source_url": "https://docs.mollie.com/reference/create-payment",
+  "captured": "2026-11-12",
+  "request": {
+    "method": "POST",
+    "url": "https://api.mollie.com/v2/payments"
+  },
+  "response": {
+    "code": 422,
+    "headers": {
+      "content-type": "application/hal+json"
+    },
+    "body": {
+      "status": 422,
+      "title": "Unprocessable Entity",
+      "detail": "The amount is lower than the minimum",
+      "_links": {
+        "documentation": {
+          "href": "https://docs.mollie.com/overview/handling-errors",
+          "type": "text/html"
+        }
+      },
+      "field": "amount"
+    }
+  }
+}

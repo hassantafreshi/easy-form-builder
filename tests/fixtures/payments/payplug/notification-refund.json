@@ -1,0 +1,21 @@
+{
+  "source_url": "https://docs.payplug.com/api/apiref.html#notifications",
+  "captured": "2026-11-12",
+  "request": {
+    "method": "POST",
+    "url": "https://example.com/wp-json/Emsfb/v1/payments/webhook/payplug?p={{uid}}&t={{token}}",
+    "body": {
+      "id": "re_3NxGqPfSGMHQgLSZH0Mv3B",
+      "object": "refund",
+      "is_live": false,
+      "payment_id": "pay_5iHMDxy4ABR4YBVW4UscIn"
+    }
+  },
+  "response": {
+    "code": 200,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": null
+  }
+}

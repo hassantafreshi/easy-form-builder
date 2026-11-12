@@ -1,0 +1,45 @@
+{
+  "source_url": "https://docs.omise.co/account-api",
+  "captured": "2026-11-12",
+  "note": "Shape copied from the official example; ids, dates and keys replaced (no real key). <EFB_UID> and <IDEM_KEY> are filled by the test.",
+  "request": {
+    "method": "GET",
+    "url": "https://api.omise.co/account"
+  },
+  "response": {
+    "code": 200,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "object": "account",
+      "id": "account_test_no1t4tnemucod0e51mo",
+      "livemode": false,
+      "location": "/account",
+      "country": "TH",
+      "currency": "THB",
+      "email": "owner@example.test",
+      "created_at": "2019-12-31T12:59:59Z",
+      "supported_currencies": [
+        "THB",
+        "JPY",
+        "USD",
+        "EUR",
+        "GBP",
+        "SGD",
+        "AUD",
+        "CHF",
+        "CNY",
+        "DKK",
+        "HKD"
+      ],
+      "api_version": "2019-05-29",
+      "auto_activate_recipients": true,
+      "chain_enabled": false,
+      "zero_interest_installments": false,
+      "chain_return_uri": null,
+      "webhook_uri": "https://site.example/wp-json/Emsfb/v1/payments/webhook/omise",
+      "metadata_export_keys": {}
+    }
+  }
+}

@@ -1,0 +1,78 @@
+{
+ "source_url": "https://developers.tap.company/reference/refunds",
+ "captured": "2026-11-12",
+ "request": {
+  "method": "POST",
+  "url": "https://api.tap.company/v2/refunds",
+  "body": {
+   "charge_id": "chg_…",
+   "amount": 1,
+   "currency": "KWD",
+   "reason": "requested_by_customer"
+  }
+ },
+ "response": {
+  "code": 200,
+  "headers": {
+   "content-type": "application/json"
+  },
+  "body": {
+   "id": "re_TS07A5220231341Rr5j2703520",
+   "object": "refund",
+   "api_version": "V2",
+   "live_mode": false,
+   "amount": 3,
+   "charge_id": "chg_TS07A2120231341g9R42703981",
+   "created": "1723481040882",
+   "date": "1723481042085",
+   "currency": "AED",
+   "status": "REFUNDED",
+   "reference": {
+    "id": "ref_id",
+    "gateway": "ref_gateway",
+    "payment": "ref_payment",
+    "acquirer": "ref_acquirer"
+   },
+   "response": {
+    "code": "000",
+    "message": "Refunded"
+   },
+   "post": {
+    "status": "PENDING",
+    "url": "http://your_website.com/post_url"
+   },
+   "acquirer": {
+    "response": {
+     "code": "000",
+     "message": "Refunded"
+    }
+   },
+   "gateway": {
+    "response": {
+     "code": "00",
+     "message": "Approved"
+    }
+   },
+   "method": "CREATE",
+   "transaction": {
+    "timezone": "UTC+03:00",
+    "asynchronous": false,
+    "amount": 3,
+    "currency": "AED",
+    "date": {
+     "created": 1723481040882,
+     "completed": 1723481042085
+    }
+   },
+   "wallet": {
+    "debit": false
+   },
+   "merchant": {
+    "id": "xxxx"
+   },
+   "reverse_destination": false,
+   "reason": "The product is out of stock"
+  }
+ },
+ "note": "Official sample response; the xxxx ids filled with fake ids of the documented shape."
+}

@@ -1,0 +1,32 @@
+{
+  "source_url": "https://docs.payplug.com/api/apiref.html",
+  "captured": "2026-11-12",
+  "request": {
+    "method": "POST",
+    "url": "https://api.payplug.com/v1/payments/pay_5iHMDxy4ABR4YBVW4UscIn/refunds",
+    "body": {
+      "amount": 1000,
+      "metadata": {
+        "efb_refund": "{{key}}"
+      }
+    }
+  },
+  "response": {
+    "code": 201,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "id": "re_3NxGqPfSGMHQgLSZH0Mv3B",
+      "payment_id": "pay_5iHMDxy4ABR4YBVW4UscIn",
+      "object": "refund",
+      "is_live": false,
+      "amount": 1000,
+      "currency": "EUR",
+      "created_at": 1762959720,
+      "metadata": {
+        "efb_refund": "{{key}}"
+      }
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "source_url": "https://docs.payplug.com/api/apiref.html",
+  "captured": "2026-11-12",
+  "request": {
+    "method": "GET",
+    "url": "https://api.payplug.com/v1/payments?per_page=1"
+  },
+  "response": {
+    "code": 401,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "object": "error",
+      "message": "Your API key was refused.",
+      "id": "err_unit401"
+    }
+  }
+}

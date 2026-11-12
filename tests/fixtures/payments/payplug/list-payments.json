@@ -1,0 +1,100 @@
+{
+  "source_url": "https://docs.payplug.com/api/apiref.html",
+  "captured": "2026-11-12",
+  "request": {
+    "method": "GET",
+    "url": "https://api.payplug.com/v1/payments?per_page=1"
+  },
+  "response": {
+    "code": 200,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "object": "list",
+      "page": 0,
+      "per_page": 1,
+      "has_more": true,
+      "data": [
+        {
+          "id": "pay_5iHMDxy4ABR4YBVW4UscIn",
+          "object": "payment",
+          "is_live": false,
+          "amount": 3300,
+          "amount_refunded": 0,
+          "authorization": null,
+          "currency": "EUR",
+          "created_at": 1762956000,
+          "refundable_after": 1762956120,
+          "refundable_until": 1794492120,
+          "installment_plan_id": null,
+          "integration": null,
+          "is_3ds": true,
+          "is_paid": true,
+          "is_refunded": false,
+          "paid_at": 1762956120,
+          "save_card": false,
+          "allow_save_card": false,
+          "card": {
+            "last4": "0007",
+            "country": "FR",
+            "exp_month": 9,
+            "exp_year": 2030,
+            "brand": "CB",
+            "id": null
+          },
+          "billing": {
+            "title": null,
+            "first_name": "Jeanne",
+            "last_name": "Martin",
+            "mobile_phone_number": null,
+            "landline_phone_number": null,
+            "email": "jeanne@example.test",
+            "address1": "1 rue de la Paix",
+            "address2": null,
+            "postcode": "75002",
+            "city": "Paris",
+            "state": null,
+            "country": "FR",
+            "language": "fr"
+          },
+          "shipping": {
+            "title": null,
+            "first_name": "Jeanne",
+            "last_name": "Martin",
+            "mobile_phone_number": null,
+            "landline_phone_number": null,
+            "email": "jeanne@example.test",
+            "address1": "1 rue de la Paix",
+            "address2": null,
+            "postcode": "75002",
+            "city": "Paris",
+            "state": null,
+            "country": "FR",
+            "language": "fr",
+            "delivery_type": "DIGITAL_GOODS"
+          },
+          "hosted_payment": {
+            "payment_url": "https://secure.payplug.com/pay/5iHMDxy4ABR4YBVW4UscIn",
+            "return_url": "https://example.com/wp-json/Emsfb/v1/payments/return/payplug?p={{uid}}&s=0",
+            "cancel_url": "https://example.com/wp-json/Emsfb/v1/payments/return/payplug?p={{uid}}&s=0&c=1",
+            "paid_at": 1762956120,
+            "sent_by": null
+          },
+          "notification": {
+            "url": "https://example.com/wp-json/Emsfb/v1/payments/webhook/payplug?p={{uid}}&t=0",
+            "response_code": 200
+          },
+          "failure": null,
+          "description": "Inscription atelier – EFB-7KQ2M9",
+          "metadata": {
+            "efb_uid": "{{uid}}",
+            "form_id": "12",
+            "track": "EFB-7KQ2M9"
+          },
+          "payment_method": null
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,148 @@
+{
+ "source_url": "https://developers.tap.company/reference/create-a-charge",
+ "captured": "2026-11-12",
+ "request": {
+  "method": "GET",
+  "url": "https://api.tap.company/v2/charges/{id}"
+ },
+ "response": {
+  "code": 200,
+  "headers": {
+   "content-type": "application/json"
+  },
+  "body": {
+   "id": "chg_TS02A2720230055g4JO1406864",
+   "object": "charge",
+   "live_mode": false,
+   "customer_initiated": true,
+   "api_version": "V2",
+   "method": "GET",
+   "status": "CAPTURED",
+   "amount": 1.0,
+   "currency": "KWD",
+   "threeDSecure": true,
+   "card_threeDSecure": false,
+   "save_card": false,
+   "merchant_id": "",
+   "product": "GOSELL",
+   "description": "Test Description",
+   "metadata": {
+    "udf1": "Metadata 1"
+   },
+   "transaction": {
+    "authorization_id": "100204",
+    "timezone": "UTC+03:00",
+    "created": "1686704127943",
+    "expiry": {
+     "period": 30,
+     "type": "MINUTE"
+    },
+    "asynchronous": false,
+    "amount": 1.0,
+    "currency": "KWD"
+   },
+   "reference": {
+    "track": "tck_TS02A2920230055e5R41406896",
+    "payment": "2914230055068969225",
+    "gateway": "123456789012345",
+    "acquirer": "316421100204",
+    "transaction": "txn_01",
+    "order": "ord_01"
+   },
+   "response": {
+    "code": "000",
+    "message": "Captured"
+   },
+   "security": {
+    "threeDSecure": {
+     "id": "3ds_TS07A2720230055l5Q21406943",
+     "status": "Y"
+    }
+   },
+   "acquirer": {
+    "response": {
+     "code": "00",
+     "message": "Approved"
+    }
+   },
+   "gateway": {
+    "response": {
+     "code": "0",
+     "message": "Transaction Approved"
+    }
+   },
+   "card": {
+    "object": "card",
+    "first_six": "424242",
+    "scheme": "VISA",
+    "brand": "VISA",
+    "last_four": "4242"
+   },
+   "receipt": {
+    "id": "203014230055062725",
+    "email": true,
+    "sms": true
+   },
+   "customer": {
+    "id": "cus_TS01A4620230032p4KP1406279",
+    "first_name": "Test",
+    "last_name": "Payer",
+    "email": "payer@example.test"
+   },
+   "merchant": {
+    "country": "KW",
+    "currency": "KWD",
+    "id": "599424"
+   },
+   "source": {
+    "object": "token",
+    "type": "CARD_NOT_PRESENT",
+    "payment_type": "CREDIT",
+    "payment_method": "VISA",
+    "channel": "INTERNET",
+    "id": "tok_2uKe58232153ZmxV138r5c637"
+   },
+   "redirect": {
+    "status": "SUCCESS",
+    "url": "http://your_website.com/redirect_url"
+   },
+   "post": {
+    "status": "ERROR",
+    "url": "http://your_website.com/post_url"
+   },
+   "activities": [
+    {
+     "id": "activity_TS07A3020230055j5O91406255",
+     "object": "activity",
+     "created": 1686704127943,
+     "status": "INITIATED",
+     "currency": "KWD",
+     "amount": 1.0,
+     "remarks": "charge - created"
+    },
+    {
+     "id": "activity_TS05A4220230057o2L51406773",
+     "object": "activity",
+     "created": 1686704262773,
+     "status": "CAPTURED",
+     "currency": "KWD",
+     "amount": 1.0,
+     "remarks": "charge - captured"
+    }
+   ],
+   "auto_reversed": false,
+   "payment_agreement": {
+    "id": "payment_agreement_TS07A4620230032t4K21406294",
+    "total_payments_count": 1,
+    "contract": {
+     "id": "card_YOh6102321312TNL13qE5C584",
+     "type": "UNSCHEDULED"
+    },
+    "variable_amount": {
+     "id": "variable_amount_TS07A4620230032Ra9k1406294"
+    }
+   }
+  }
+ },
+ "note": "Official example of a captured KWD charge; customer replaced by placeholders."
+}

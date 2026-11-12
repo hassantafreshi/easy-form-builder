@@ -1,0 +1,25 @@
+{
+  "source_url": "https://docs.mollie.com/reference/api-idempotency",
+  "captured": "2026-11-12",
+  "request": {
+    "method": "POST",
+    "url": "https://api.mollie.com/v2/payments"
+  },
+  "response": {
+    "code": 409,
+    "headers": {
+      "content-type": "application/hal+json"
+    },
+    "body": {
+      "status": 409,
+      "title": "Conflict",
+      "detail": "A request with this idempotency key is already being processed.",
+      "_links": {
+        "documentation": {
+          "href": "https://docs.mollie.com/overview/handling-errors",
+          "type": "text/html"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+ "source_url": "https://developers.tap.company/reference/errors",
+ "captured": "2026-11-12",
+ "request": {
+  "method": "POST",
+  "url": "https://api.tap.company/v2/charges/list"
+ },
+ "response": {
+  "code": 401,
+  "headers": {
+   "content-type": "application/json"
+  },
+  "body": {
+   "errors": [
+    {
+     "code": "2107",
+     "description": "Invalid API Key"
+    }
+   ]
+  }
+ },
+ "note": "Shape from the errors reference (code + description); the exact code is illustrative."
+}

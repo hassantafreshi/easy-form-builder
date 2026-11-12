@@ -1,0 +1,25 @@
+{
+  "source_url": "https://docs.mollie.com/reference/authentication",
+  "captured": "2026-11-12",
+  "request": {
+    "method": "GET",
+    "url": "https://api.mollie.com/v2/methods"
+  },
+  "response": {
+    "code": 401,
+    "headers": {
+      "content-type": "application/hal+json"
+    },
+    "body": {
+      "status": 401,
+      "title": "Unauthorized Request",
+      "detail": "Missing authentication, or failed to authenticate",
+      "_links": {
+        "documentation": {
+          "href": "https://docs.mollie.com/overview/handling-errors",
+          "type": "text/html"
+        }
+      }
+    }
+  }
+}

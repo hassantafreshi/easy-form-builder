@@ -1,0 +1,72 @@
+{
+  "source_url": "https://docs.omise.co/capability-api",
+  "captured": "2026-11-12",
+  "note": "Authenticated with the public key only (the docs: public key authentication only).",
+  "request": {
+    "method": "GET",
+    "url": "https://api.omise.co/capability"
+  },
+  "response": {
+    "code": 200,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "object": "capability",
+      "location": "/capability",
+      "banks": [
+        "bbl",
+        "kbank",
+        "scb"
+      ],
+      "limits": {
+        "charge_amount": {
+          "max": 15000000,
+          "min": 2000
+        },
+        "transfer_amount": {
+          "max": 5000000000,
+          "min": 3000
+        },
+        "installment_amount": {
+          "min": 200000
+        }
+      },
+      "payment_methods": [
+        {
+          "object": "payment_method",
+          "name": "card",
+          "currencies": [
+            "THB",
+            "JPY",
+            "USD"
+          ],
+          "card_brands": [
+            "JCB",
+            "Visa",
+            "MasterCard"
+          ],
+          "installment_terms": null,
+          "banks": [],
+          "provider": null
+        },
+        {
+          "object": "payment_method",
+          "name": "promptpay",
+          "currencies": [
+            "THB"
+          ],
+          "card_brands": null,
+          "installment_terms": null,
+          "banks": [],
+          "provider": null
+        }
+      ],
+      "tokenization_methods": [
+        "googlepay"
+      ],
+      "zero_interest_installments": true,
+      "country": "TH"
+    }
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "source_url": "https://docs.mollie.com/reference/create-refund",
+  "captured": "2026-11-12",
+  "request": {
+    "method": "POST",
+    "url": "https://api.mollie.com/v2/payments/tr_5B8cwPMGnU6qLbRvo7qEZo/refunds"
+  },
+  "response": {
+    "code": 201,
+    "headers": {
+      "content-type": "application/hal+json"
+    },
+    "body": {
+      "resource": "refund",
+      "id": "re_4qqhO89gsT",
+      "mode": "test",
+      "description": "EFB refund EFB-7KQ2M9",
+      "amount": {
+        "currency": "EUR",
+        "value": "10.00"
+      },
+      "status": "pending",
+      "metadata": {
+        "efb_uid": "{{uid}}"
+      },
+      "paymentId": "tr_5B8cwPMGnU6qLbRvo7qEZo",
+      "createdAt": "2026-11-12T14:09:02+00:00",
+      "_links": {
+        "self": {
+          "href": "https://api.mollie.com/v2/payments/tr_5B8cwPMGnU6qLbRvo7qEZo/refunds/re_4qqhO89gsT",
+          "type": "application/hal+json"
+        },
+        "payment": {
+          "href": "https://api.mollie.com/v2/payments/tr_5B8cwPMGnU6qLbRvo7qEZo",
+          "type": "application/hal+json"
+        },
+        "documentation": {
+          "href": "https://docs.mollie.com/reference/create-refund",
+          "type": "text/html"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "source_url": "https://docs.omise.co/api-errors",
+  "captured": "2026-11-12",
+  "note": "Shape copied from the official example; ids, dates and keys replaced (no real key). <EFB_UID> and <IDEM_KEY> are filled by the test.",
+  "request": {
+    "method": "GET",
+    "url": "https://api.omise.co/account"
+  },
+  "response": {
+    "code": 401,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "object": "error",
+      "location": "https://www.omise.co/api-errors#authentication-failure",
+      "code": "authentication_failure",
+      "message": "authentication failed"
+    }
+  }
+}
