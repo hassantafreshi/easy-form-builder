@@ -1848,6 +1848,11 @@ public function check_nonce_permission_efb($request) {
 				$row_form_info['nonce_msg'] = wp_create_nonce($code);
 			}
 			$this->value_forms[] = $row_form_info;
+			/* F19: per-step backgrounds. '' for a form without step_bg_* keys, so old forms
+			 * print exactly what they printed before. */
+			if (function_exists('efb_step_bg_form_css_efb')) {
+				$style .= efb_step_bg_form_css_efb($valj_efb, $form_id, $pro);
+			}
 			$style = $style.'</style>';
 			$jss = $jss.'</script>';
 

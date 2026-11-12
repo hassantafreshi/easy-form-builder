@@ -165,5 +165,19 @@ t('Free: solid step kept with its opacity', strpos($free, '[data-step="step-1-ef
 $two = efb_step_bg_form_css_efb($rows, 8, true);
 t('two forms on one page do not share selectors', strpos($two, 'data-formid="7"') === false && strpos($two, 'data-formid="8"') !== false, true);
 
+/* ---- B3 registry ---- */
+require $EFB . '/includes/class-Emsfb-builder-api.php';
+foreach (array(0 => 'free', 3 => 'free_plus', 1 => 'pro') as $pkg => $plan) {
+	$caps = \Emsfb\Builder_Api::capabilities(array('package' => $pkg, 'settings' => array()));
+	$c = isset($caps['features']['setting:step_bg_color']) ? $caps['features']['setting:step_bg_color'] : null;
+	$g = isset($caps['features']['setting:step_bg_gradient']) ? $caps['features']['setting:step_bg_gradient'] : null;
+	t("registry ($plan): step_bg_color present, free, available", $c ? array($c['package'], $c['available_now'], $c['label_key']) : null, array('free', true, 'upgFtrStepBgColor'));
+	t("registry ($plan): step_bg_gradient present, Free Plus", $g ? array($g['package'], $g['available_now'], $g['label_key'], $g['prompt_state']) : null, array('free_plus', $pkg !== 0, 'upgFtrStepBgGradient', 3));
+	if ($pkg === 1) {
+		t('registry: form keys of step_bg_color', $c['form_keys'], array('step_bg_type=solid', 'step_bg_color', 'step_bg_opacity', 'step_bg_text'));
+		t('registry: form keys of step_bg_gradient', $g['form_keys'], array('step_bg_type=linear', 'step_bg_type=radial', 'step_bg_stops', 'step_bg_angle', 'step_bg_pos'));
+	}
+}
+
 echo "\n========================================\nRESULTS: $pass passed, $fail failed\n========================================\n";
 exit($fail ? 1 : 0);

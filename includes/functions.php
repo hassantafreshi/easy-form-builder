@@ -2685,6 +2685,10 @@ class efbFunction {
 			"telegramOffAddonMissing" => $state && isset($ac->text->telegramOffAddonMissing) ? $ac->text->telegramOffAddonMissing : esc_html__('Telegram notifications were turned off because the Telegram add-on is not active. Everything else was saved.','easy-form-builder'),
 			/* translators: F18: name of a locked feature in the upgrade dialog */
 			"upgFtrMobileLayout" => $state && isset($ac->text->upgFtrMobileLayout) ? $ac->text->upgFtrMobileLayout : esc_html__('Mobile layout settings','easy-form-builder'),
+			/* translators: F19: name of a locked feature in the upgrade dialog (solid background colour per form step) */
+			"upgFtrStepBgColor" => $state && isset($ac->text->upgFtrStepBgColor) ? $ac->text->upgFtrStepBgColor : esc_html__('Step background colors','easy-form-builder'),
+			/* translators: F19: name of a locked feature in the upgrade dialog (gradient background per form step) */
+			"upgFtrStepBgGradient" => $state && isset($ac->text->upgFtrStepBgGradient) ? $ac->text->upgFtrStepBgGradient : esc_html__('Gradient step backgrounds','easy-form-builder'),
 			/* translators: F18: name of a locked feature in the upgrade dialog */
 			"upgFtrHideDisable" => $state && isset($ac->text->upgFtrHideDisable) ? $ac->text->upgFtrHideDisable : esc_html__('Hidden and disabled fields','easy-form-builder'),
 			/* translators: F18: name of a locked feature in the upgrade dialog */
