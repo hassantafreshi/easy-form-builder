@@ -1,4 +1,4 @@
-وضعیت: سند آماده، پیاده‌سازی نشده · اولویت: P0 (موج اول) · تلاش: M · وابستگی: PAY00 (B تا H)
+وضعیت: فاز ۱ (پرداخت یک‌باره) پیاده و تست شد، ۲۰۲۶-۱۱-۱۲؛ زیرتسک‌های A تا D و zip؛ ترجمه به دستور مالک انجام نشد (فقط متن انگلیسی و `.pot`)؛ جزئیات در «پیوست: آنچه پیاده شد» · اولویت: P0 (موج اول) · تلاش: M · وابستگی: PAY00 (B تا H)
 
 # PAY02 — افزونهٔ Payplug (فرانسه: Cartes Bancaires، کارت، Apple Pay، Bancontact، اقساط Oney)
 
@@ -204,60 +204,60 @@ fixtureها: `tests/fixtures/payments/payplug/`: `create-201.json`، `get-paid.j
 - پذیرش: نصب، کارت تنظیمات، آزمودن اتصال، هشدار EUR.
 - تست‌ها: `test-pay-payplug-create.php` (بخش تنظیمات).
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint** (۲۰۲۶-۱۱-۱۲)
+- فایل‌های تغییرکرده: `vendores-efb/payplug/` (`payplugefb.php`، `routes-efb.php`، `class-Emsfb-payplug-gateway.php`، `class-Emsfb-payplug-client.php`، `payplug-phrases-efb.php`، `languages/`، `assets/`)؛ در هسته هیچ تغییری لازم نشد (رجیستری، فایل‌های لازم و i18n افزونه از پیش `AdnPPG` را داشتند).
+- تست‌ها: `php tests/test-addon-payplug-create.php` (۵۱ بررسی، بخش تنظیمات و آزمودن اتصال در آن)، `php tests/test-addon-payplug-secrets.php` (۱۸).
+- وضعیت ترجمه: فقط متن انگلیسی؛ `languages/efb-payplug.pot` با ۴۵ رشته؛ `locales.json` بدون زبان.
+- مورد باز: هشدار سرخ «فقط EUR» در سازنده (هستهٔ هوکی برای هشدار درگاه در پنل ندارد؛ فرم عمومی با ارز دیگر پیام `payUnavailable` می‌دهد)؛ BUGS-FOUND.
+- اقدام بعدی: B.
 
 ### B. ساخت، اعلان، fetch، بازگشت
 - فایل‌ها: gateway، client، آداپتور.
 - پذیرش: §۶ تا §۹.
 - تست‌ها: `test-pay-payplug-create.php`، `test-pay-payplug-webhook.php`، `test-pay-payplug-status-map.php`.
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint** (۲۰۲۶-۱۱-۱۲)
+- فایل‌های تغییرکرده: gateway و client افزونه؛ تست‌ها و fixtureها در هسته (`tests/fixtures/payments/payplug/`، `tests/addon-payplug-test-lib.php`).
+- تست‌ها: `test-addon-payplug-create.php` (۵۱)، `test-addon-payplug-webhook.php` (۳۵)، `test-addon-payplug-status-map.php` (۲۳)؛ سناریوی e2e `payplug` (۲۵).
+- وضعیت ترجمه: انگلیسی.
+- مورد باز: اعلان قبل از «پرداخت‌شده» دیدن پرداخت در API (Payplug برای لغو اعلان نمی‌فرستد) با کلید رویداد «id + دقیقه» و cron پوشش داده شد؛ بازپرداخت در پورتال پیش از دیدن paid ردیف را گیر می‌اندازد (BUGS-FOUND).
+- اقدام بعدی: C.
 
 ### C. Integrated Payment و انتخاب طرح CB
 - فایل‌ها: آداپتور، CSS.
 - پذیرش: §۵ و §۶.
 - تست‌ها: `test-pay-payplug-adapter.js`.
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint** (۲۰۲۶-۱۱-۱۲)
+- فایل‌های تغییرکرده: `assets/js/payplug-efb.js`، `assets/css/payplug-efb.css`.
+- تست‌ها: `node tests/test-addon-payplug-adapter.js` (۱۹، در Chromium با اسکریپت ساختگی Payplug به‌جای CDN).
+- وضعیت ترجمه: متن‌های فیلدهای کارت از سرور (`efb-payplug`) در `next.client.texts`.
+- مورد باز: آداپتور هسته فقط پس از ساخت پرداخت صدا زده می‌شود، پس فیلدهای کارت پس از کلیک «پرداخت» ظاهر می‌شوند و پرداخت‌کننده یک بار دیگر «تأیید پرداخت» را می‌زند؛ رفتار واقعی `getSupportedSchemes()` و 3DS فقط با کلید Sandbox واقعی آزمودنی است.
+- اقدام بعدی: D.
 
 ### D. بازپرداخت و Oney
 - فایل‌ها: gateway.
 - پذیرش: §۷.۳ و §۷.۴.
 - تست‌ها: `test-pay-payplug-refund.php`.
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint** (۲۰۲۶-۱۱-۱۲)
+- فایل‌های تغییرکرده: gateway (`refund()`، `cancel()`، روش‌های Oney).
+- تست‌ها: `php tests/test-addon-payplug-refund.php` (۱۷)؛ Oney در `test-addon-payplug-create.php`.
+- وضعیت ترجمه: انگلیسی.
+- مورد باز: حدود Oney (۱۰۰ تا ۳۰۰۰ یورو) فقط در `create()` سنجیده می‌شود و پیام مرورگر پیام عمومی «پرداخت آغاز نشد» است (`supports()` حد را برای هر روش نمی‌پذیرد؛ BUGS-FOUND). اقساط کارت (installment plans) فاز ۲.
+- اقدام بعدی: E.
 
 ### E. ترجمه (فرانسوی و فارسی اول) و zip
 - فایل‌ها: phrases، `languages/`، `payplug.zip`.
 - پذیرش: §۱۳.
 - تست‌ها: خط لولهٔ i18n افزونه.
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint** (۲۰۲۶-۱۱-۱۲)
+- فایل‌های تغییرکرده: `payplug-phrases-efb.php`، `languages/efb-payplug.pot` (با `tests/addon-i18n/build-l10n.php --pot-only`)، `languages/locales.json`، `vendores-efb/payplug.zip`.
+- تست‌ها: `test-addon-payplug-secrets.php` (هر رشتهٔ `efb-payplug` در `.pot` هست؛ کلیدهای §۱۳).
+- وضعیت ترجمه: **انجام نشد** به دستور مالک؛ فرانسوی و فارسی بعداً با خط لولهٔ i18n افزونه.
+- مورد باز: ترجمه؛ متن پیش‌فرض فرانسوی دکمه («Payer %s») هم به همین دلیل اضافه نشد (دکمه متن هستهٔ «Pay %s» را دارد).
+- اقدام بعدی: کلید Sandbox واقعی و چک‌لیست دستی §۱۴.
 
 ## ۱۶. پرسش‌های باز
 
@@ -266,3 +266,33 @@ fixtureها: `tests/fixtures/payments/payplug/`: `create-201.json`، `get-paid.j
 3. حداقل فیلدهای `billing`/`shipping` الزامی برای 3DS2 در فرم‌هایی که آدرس نمی‌پرسند (کمک مالی).
 4. کارت‌های آزمایشی و شبیه‌سازی شکست در حالت Test (صفحهٔ «Testing» مرجع).
 5. Payplug خدمات را جز فرانسه (بلژیک، اسپانیا، ایتالیا) هم ارائه می‌دهد؟ فهرست کشورها برای `supports.countries`.
+
+## پیوست: آنچه پیاده شد (۲۰۲۶-۱۱-۱۲)
+
+افزونهٔ `vendores-efb/payplug` (کلید `AdnPPG`، نوع فیلد و slug `payplug`، text domain `efb-payplug`) فقط با قرارداد PAY00؛ هسته دست نخورد.
+
+| موضوع | پیاده‌سازی |
+|---|---|
+| احراز | `Authorization: Bearer <key>` و `PayPlug-Version: 2019-08-06`؛ کلید `api_key` برای هر حالت (`per_mode`)، رمزنگاری‌شده؛ هم کلید JWT (سه بخش) و هم `sk_test_`/`sk_live_` قدیمی پذیرفته می‌شوند؛ «آزمودن اتصال» = `GET /v1/payments?per_page=1`، کلید Live در جای Test (پیشوند قدیمی یا `is_live` پرداخت‌های حساب) نام برده می‌شود |
+| ساخت | `POST /v1/payments` با مبلغ سرور به سنت (`$p->amount_minor`)، `EUR`، `billing`/`shipping` (هر دو الزامی؛ از نگاشت `pgw_map_first/last/email/address/postcode/city/country` روی ردیف فیلد درگاه، پاک‌سازی و بریده؛ ایمیل از پرداخت‌کننده، کشور پیش‌فرض تنظیم `default_country` یا `FR`، زبان `fr`/`en`/`it` از locale، `delivery_type: DIGITAL_GOODS`)، `hosted_payment.return_url/cancel_url` (مسیر امضاشدهٔ هسته)، `notification_url` = webhook هسته با `p`=uid و `t`=HMAC، `metadata` (`efb_uid`، `form_id`، `track`، `efb_idem`)، `save_card: false`؛ پاسخ: `is_live` و `amount` با ردیف سنجیده می‌شوند |
+| یکتایی | Payplug کلید یکتایی ندارد؛ `uq_attempt` و ردیف `created` هسته دومین درخواست با همان `attempt_key` را می‌بندد (پاسخ گم‌شده → «attempt_used»، پرداخت یتیم پرداخت‌نشده می‌ماند) |
+| اعلان | امضا ندارد؛ توکن خودمان در آدرس (`Payplug_Gateway::notify_token()` = `Service::sign(uid, 'payplug#notify')`)؛ توکن نادرست → `401`؛ توکن یک پرداخت برای پرداخت دیگر → `401`؛ بدنه هرگز باور نمی‌شود: هسته `GET /v1/payments/{id}` می‌زند (`refetch`)؛ `object=refund` → `payment_id`؛ کلید رویداد = `object:id:دقیقه` |
+| fetch | `id`، `object`، `is_live` (با حالت ردیف)، `metadata.efb_uid` (با uid ردیف) سنجیده می‌شوند؛ نگاشت §۹ (`map_state`)؛ `billing`/`shipping`/`card` در `raw` ذخیره نمی‌شوند |
+| بازپرداخت | `POST /v1/payments/{id}/refunds {amount, metadata.efb_refund}`؛ پیش از هر درخواست فهرست بازپرداخت‌ها با همان کلید خوانده می‌شود (پاسخ گم‌شده دو بار بازپرداخت نمی‌کند)؛ حداقل ۱۰ سنت؛ جزئی و کامل |
+| انقضا | `pending_ttl` یک روز؛ هستهٔ cron آن را `expired` و `cancel()` با `PATCH {aborted:true}` در Payplug لغو می‌کند |
+| روش‌ها | کارت پیش‌فرض؛ تنظیم‌های `method_american_express`، `method_bancontact`، `method_ideal`، `method_mybank`، `method_satispay`، `method_scalapay`، `method_wero` و `oney` (۳/۴ قسط با یا بدون کارمزد)؛ `pf_methods` هسته زیرمجموعه را برمی‌گزیند؛ روش خاموش رد می‌شود؛ Oney فقط ۱۰۰ تا ۳۰۰۰ یورو |
+| Integrated Payment | `card_mode=integrated` فقط برای کارت: `integration: INTEGRATED_PAYMENT`، `next.type=embedded` با `{payment_id, test_mode, scheme_choice, texts}`؛ آداپتور `payplug-efb.js` اسکریپت را فقط از `cdn.payplug.com/js/integrated-payment/v1@1/index.js` و فقط در این لحظه بار می‌کند؛ انتخاب طرح CB/Visa/Mastercard با `getSupportedSchemes()` و `onCardSchemeChange`؛ 3DS در `LIGHTBOX`؛ `onCompleted` فقط `poll` سرور |
+| لوگوها | SVGهای ساده و خنثای محلی در `assets/img/` (CB، Visa، Mastercard، و روش‌های روشن)؛ جایگزینی با لوگوی رسمی هر طرح طبق راهنمای برند با مالک (PAY00 پرسش ۱۰) |
+| ترجمه | فقط انگلیسی (دستور مالک)؛ `efb-payplug.pot` (۴۵ رشته)؛ `locales.json` خالی |
+
+تست‌ها (همه بدون شبکه؛ پاسخ‌های `api.payplug.com` از نمونه‌های مستند در `tests/fixtures/payments/payplug/`): `test-addon-payplug-create.php` ۵۱، `-webhook.php` ۳۵، `-status-map.php` ۲۳، `-refund.php` ۱۷، `-secrets.php` ۱۸، `node tests/test-addon-payplug-adapter.js` ۱۹ (جمع ۱۶۳)؛ سناریوی `payplug` در `tests/e2e-wp/run.js` روی وردپرس واقعی با Payplug ساختگی (`mu-plugins/efb-e2e-payplug.php`، `ctl-payplug.php`): ۲۵ بررسی.
+
+تصمیم‌هایی که مالک باید تأیید کند:
+
+1. پذیرش هر دو قالب کلید (JWT و `sk_*` قدیمی) در یک فیلد «Secret key» (پرسش باز ۱ هنوز با Payplug).
+2. نگاشت آدرس صورت‌حساب با کلیدهای `pgw_map_*` روی ردیف فیلد درگاه (فعلاً فقط از API/JSON، پنل سازنده رابط ندارد) و کشور پیش‌فرض `FR` وقتی فرم کشور نمی‌پرسد (پرسش باز ۳).
+3. Apple Pay پیاده نشد (تأیید دامنه و `payment_context` لازم دارد؛ فاز ۲).
+4. لوگوهای خنثای محلی تا تصمیم دربارهٔ لوگوی رسمی.
+5. Integrated Payment دومرحله‌ای (کلیک «پرداخت» سپس فیلدهای کارت و «تأیید پرداخت») تا هسته راهی برای سوار کردن آداپتور پیش از ساخت بدهد.
+
+فقط با کلید Sandbox واقعی آزمودنی: قالب واقعی پاسخ‌ها (به‌ویژه `payment_method` و کدهای `failure`)، رفتار صفحهٔ میزبان در انتخاب طرح CB، Integrated Payment و 3DS واقعی، Oney، رسیدن اعلان به سایت عمومی، پاسخ `200/202` بازپرداخت.
