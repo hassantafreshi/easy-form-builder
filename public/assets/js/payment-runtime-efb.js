@@ -208,9 +208,9 @@
    }
 
    /**
-    * The payer values the gateway needs, checked before payments/create (the server checks again):
-    * empty (required, or required_for the chosen method) or in the wrong format (email, phone,
-    * phone_e164, country). The message (the gateway's own, else core's) and the field to show it at.
+    * The payer values the gateway needs (required, or required_for the chosen method), checked before
+    * payments/create (the server checks again): empty, or in the wrong format (email, phone,
+    * phone_e164, country and its countries). The message (the gateway's own, else core's) and the field.
     */
    function payerCheck(el) {
       var g = gw(el), row = fieldRow(el);
@@ -222,12 +222,12 @@
          var d = g.requires[i];
          var needed = d.required || (m.id !== '' && Array.isArray(d.required_for) && d.required_for.indexOf(m.id) !== -1);
          var target = targetOf(row, d, s);
-         if (!target || (!needed && !d.format)) continue;
+         // Only what this payment needs is checked (the server does the same).
+         if (!target || !needed) continue;
          var got = sendRows(fid).find(function (x) { return x && String(x.id_) === target && x.value != null && String(x.value).trim() !== ''; });
          var f = s.find(function (x) { return x && String(x.id_) === target; });
          var name = (f && f.name) || d.label;
          if (!got) {
-            if (!needed) continue;
             var msg = d.visitor_message || ((g.messages || {}).payer_missing || '').split('%field%').join(name).split('%method%').join(m.label) ||
                (m.id && d.required_for && d.required_for.length ? (T('payerMissingFor') || '%1$s').replace('%1$s', name).replace('%2$s', m.label || m.id) : (T('payerMissing') || '%s').replace('%s', name));
             return { code: 'payer_missing', message: msg, field_id: target };

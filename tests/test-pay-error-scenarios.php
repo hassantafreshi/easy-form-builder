@@ -161,7 +161,8 @@ $t('3: a country the form does not know → "Please choose a country"', array($r
 $r = err_create($db, 'oney', array('mo' => '') + $ok);
 $t('3: Oney: mobile empty → payer_missing naming the method', $r['m'], 'Please fill in "Mobile": it is needed to pay with Oney 3x.');
 $r = err_create($db, 'card', array('mo' => '12', 'co' => 'Germany') + $ok);
-$t('3: card: phone and country are not required for the card, but a value given must still fit its format', array($r['code'], $r['field_id']), array('payer_invalid', 'mo'));
+$t('3: card: phone and country are not needed for the card, so a value the card does not need is not checked (passed on as typed)', array($r['success'], $db->count('wp_emsfb_pmt_') - $p0), array(true, 1));
+$p0++; $e0++;
 $t('3: none of these stored anything', array($db->count('wp_emsfb_msg_') - $e0, $db->count('wp_emsfb_pmt_') - $p0), array(0, 0));
 Err_Gateway::$messages = array('payer_invalid' => 'ErrPay needs %field% in its own format.');
 $r = err_create($db, 'card', array('em' => 'bad') + $ok);

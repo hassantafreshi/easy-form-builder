@@ -502,7 +502,8 @@ class Service {
 
 	/**
 	 * The payer values the gateway needs (field_schema: required / required_for the chosen method,
-	 * format): an empty one → payer_missing, one in the wrong format → payer_invalid, each with the
+	 * with their format and countries): an empty one → payer_missing, one in the wrong format →
+	 * payer_invalid, each with the
 	 * field_id so the page shows it at the field, instead of the provider's generic refusal. null when
 	 * everything fits. An option that is not mapped to a field is not checked (the owner is warned at
 	 * Save); the payer e-mail falls back to the form's confirmation e-mail field like Field::payer().
@@ -521,16 +522,14 @@ class Service {
 			if ( ! $need && $d['required_for'] && $chosen && array_intersect( $chosen, $d['required_for'] ) ) { $need = true; $for = isset( $labels[ $chosen[0] ] ) ? $labels[ $chosen[0] ] : $chosen[0]; }
 			$fid = Field::field_id( isset( $field[ $d['key'] ] ) ? $field[ $d['key'] ] : '' );
 			if ( $fid === '' && $d['key'] === 'pgw_map_email' ) $fid = $conf;
-			if ( $fid === '' || ( ! $need && $d['format'] === '' ) ) continue;
+			// Only what this payment needs is checked (a value the chosen method does not need is passed on as typed).
+			if ( $fid === '' || ! $need ) continue;
 			$val = '';
 			foreach ( $rows as $r ) {
 				if ( is_array( $r ) && isset( $r['id_'] ) && (string) $r['id_'] === $fid && isset( $r['value'] ) && is_scalar( $r['value'] ) ) { $val = trim( str_replace( '@efb@dq#', '"', (string) $r['value'] ) ); break; }
 			}
 			$name = self::field_name( $form, $fid, $d['label'] );
-			if ( $val === '' ) {
-				if ( $need ) return self::fail( 'payer_missing', array( 'gateway' => $gw->slug(), 'field_id' => $fid, 'label' => $name, 'method' => $for, 'visitor' => $d['visitor_message'] ) );
-				continue;
-			}
+			if ( $val === '' ) return self::fail( 'payer_missing', array( 'gateway' => $gw->slug(), 'field_id' => $fid, 'label' => $name, 'method' => $for, 'visitor' => $d['visitor_message'] ) );
 			$problem = Field::payer_problem( $d, $val, $d['format'] === 'country' ? Field::country_iso( $form, $fid, $val ) : '' );
 			if ( $problem !== '' ) return self::fail( 'payer_invalid', array( 'gateway' => $gw->slug(), 'field_id' => $fid, 'label' => $name, 'format' => $problem === 'country' ? 'country_not_allowed' : $d['format'], 'method' => $for, 'visitor' => $d['invalid_message'] ) );
 		}

@@ -173,7 +173,7 @@ class Frontend {
 			// some methods): the page stops Pay at the empty field with this message.
 			$requires = array();
 			foreach ( $info['field_schema'] as $d ) {
-				if ( $d['type'] === 'field' && ( $d['required'] || $d['required_for'] || $d['format'] !== '' ) ) $requires[] = array( 'key' => $d['key'], 'label' => $d['label'], 'required' => $d['required'] && ! $d['required_for'], 'required_for' => $d['required_for'], 'visitor_message' => $d['visitor_message'], 'format' => $d['format'], 'countries' => $d['countries'], 'invalid_message' => $d['invalid_message'] );
+				if ( $d['type'] === 'field' && ( $d['required'] || $d['required_for'] ) ) $requires[] = array( 'key' => $d['key'], 'label' => $d['label'], 'required' => $d['required'] && ! $d['required_for'], 'required_for' => $d['required_for'], 'visitor_message' => $d['visitor_message'], 'format' => $d['format'], 'countries' => $d['countries'], 'invalid_message' => $d['invalid_message'] );
 			}
 			$messages = array();
 			try { $own = $g->messages(); } catch ( \Throwable $e ) { $own = array(); }
