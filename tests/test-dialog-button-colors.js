@@ -39,7 +39,8 @@ const rgb = (s) => (String(s).match(/\d+(\.\d+)?/g) || []).slice(0, 3).map(Numbe
   c.check('Get Pro (ghost link): not underlined, not the Bootstrap link blue', buy.deco === 'none' && rgb(buy.color).join() !== '13,110,253', buy);
   c.check('Get Pro: the ghost colour #4a5078', rgb(buy.color).join() === '74,80,120', buy);
   const quiet = by('notnow');
-  c.check('Not now (quiet): the quiet colour #8a90a8, not #a5a3d1', rgb(quiet.color).join() === '138,144,168', quiet);
+  c.check('Not now (quiet): the quiet colour #646a85, not #a5a3d1', rgb(quiet.color).join() === '100,106,133', quiet);
+  c.check(`Not now: contrast with white >= 4.5:1 (${ratio(rgb(quiet.color), [255, 255, 255]).toFixed(2)})`, ratio(rgb(quiet.color), [255, 255, 255]) >= 4.5, quiet);
   await page.hover('[data-efb-upg-action="activate"]');
   await page.waitForTimeout(250);
   const hov = (await read()).find((b) => b.id === 'activate');

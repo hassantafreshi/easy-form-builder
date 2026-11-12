@@ -15548,7 +15548,7 @@ msgstr "Free Plus هزینه‌ای ندارد. فیلدهای پیشرفته، 
 #. translators: F18: disclosure next to the Activate Free Plus button
 #: includes/functions.php
 msgid "With Free Plus, pages that show a form also show a small “Powered by Easy Form Builder” credit with a link. You can change your plan at any time in Settings."
-msgstr "با Free Plus، صفحه‌هایی که فرم دارند یک نوشتهٔ کوچک «Powered by Easy Form Builder» همراه پیوند هم نشان می‌دهند. هر زمان بخواهید می‌توانید پلن را از تنظیمات عوض کنید."
+msgstr "با Free Plus، صفحه‌هایی که فرم دارند یک نوشتهٔ کوچک «قدرت‌گرفته از فرم ساز آسان» همراه پیوند هم نشان می‌دهند. هر زمان بخواهید می‌توانید پلن را از تنظیمات عوض کنید."
 
 #  origin: claude (fa_IR) F18
 #. translators: F18: expands a preview of the Free Plus credit

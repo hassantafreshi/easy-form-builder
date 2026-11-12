@@ -32,7 +32,7 @@
 	/* Ink */
 	--efb-dlg-ink: #1a1a2e;
 	--efb-dlg-ink-soft: #4a5078;
-	--efb-dlg-ink-muted: #8a90a8;
+	--efb-dlg-ink-muted: #646a85; /* 5.3:1 on white, 5.1:1 on the footer tint (WCAG AA) */
 	--efb-dlg-ink-faint: #657096;
 
 	/* Surfaces */
@@ -1443,7 +1443,7 @@ body.efb-dlg-open {
 	background: #fff;
 	border: 1px dashed #c7cdea;
 	font-size: 12px;
-	color: #8a90a8;
+	color: #646a85;
 	text-align: center;
 }
 
