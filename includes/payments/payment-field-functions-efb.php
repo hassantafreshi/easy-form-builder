@@ -21,6 +21,19 @@ class Field {
 	const ICONS = array( 'none', 'bi-lock', 'bi-lock-fill', 'bi-credit-card', 'bi-wallet2', 'bi-qr-code', 'bi-bag-check', 'bi-heart' );
 	const TEXT_KEYS = array( 'btn', 'secure', 'summary', 'methods', 'pending', 'success', 'fail', 'redirect', 'test', 'amount', 'other', 'total' );
 
+	/** Style keys a gateway may give a default for (Gateway::field_defaults()['pf']); the field's own value wins. */
+	const DEFAULTABLE = array( 'pf_btn_bg', 'pf_btn_fg', 'pf_btn_bg_h', 'pf_btn_fg_h', 'pf_btn_radius', 'pf_btn_size', 'pf_btn_width', 'pf_btn_icon',
+		'pf_btn_icon_pos', 'pf_order', 'pf_hide', 'pf_layout', 'pf_methods_style', 'pf_summary', 'pf_label_pos', 'pf_card_bg', 'pf_card_border',
+		'pf_card_radius', 'pf_accent', 'pf_logo_size' );
+
+	/** The standard payer options of a gateway field (Gateway::field_schema()): key → Checkout_Context::$payer key. */
+	const PAYER_KEYS = array( 'pgw_map_name' => 'name', 'pgw_map_first' => 'first_name', 'pgw_map_last' => 'last_name', 'pgw_map_email' => 'email',
+		'pgw_map_phone' => 'phone', 'pgw_map_address' => 'address', 'pgw_map_postcode' => 'postcode', 'pgw_map_city' => 'city',
+		'pgw_map_state' => 'state', 'pgw_map_country' => 'country' );
+
+	/** Types of a field_schema() entry. */
+	const OPTION_TYPES = array( 'field', 'select', 'text', 'code', 'checkbox' );
+
 	/** Keys on the gateway field row. */
 	public static function keys() {
 		return array(
@@ -231,6 +244,189 @@ class Field {
 		return '';
 	}
 
+	/* ------------------------------------------------------------------ gateway options (pgw_*) */
+
+	/** A field id of the same form ('' when it does not look like one). */
+	public static function field_id( $v ) {
+		if ( is_int( $v ) ) $v = (string) $v;
+		return is_string( $v ) && preg_match( '/^[A-Za-z0-9_-]{1,40}$/', $v ) ? $v : '';
+	}
+
+	/**
+	 * A gateway's field_schema() in the one shape core uses: bad entries dropped, every value typed.
+	 * Twin: efbPayCoreEfb.cleanSchema().
+	 *
+	 * @return array list of array( key, type, label, help, required, options (list of [value, label]), max, field_types, default )
+	 */
+	public static function clean_schema( $schema ) {
+		$out = array();
+		$seen = array();
+		if ( ! is_array( $schema ) ) return $out;
+		foreach ( $schema as $d ) {
+			if ( count( $out ) >= 40 ) break;
+			if ( ! is_array( $d ) || ! isset( $d['key'], $d['type'] ) || ! is_string( $d['key'] ) || ! preg_match( '/^pgw_[a-z0-9_]{1,40}$/', $d['key'] ) ) continue;
+			if ( ! is_string( $d['type'] ) || ! in_array( $d['type'], self::OPTION_TYPES, true ) || isset( $seen[ $d['key'] ] ) ) continue;
+			$seen[ $d['key'] ] = true;
+			$e = array(
+				'key'         => $d['key'],
+				'type'        => $d['type'],
+				'label'       => self::text( isset( $d['label'] ) && is_string( $d['label'] ) ? $d['label'] : $d['key'], 120 ),
+				'help'        => self::text( isset( $d['help'] ) && is_string( $d['help'] ) ? $d['help'] : '', 300 ),
+				'required'    => ! empty( $d['required'] ),
+				'options'     => array(),
+				'max'         => 0,
+				'field_types' => array(),
+				'default'     => '',
+			);
+			if ( $d['type'] === 'select' && isset( $d['options'] ) && is_array( $d['options'] ) ) {
+				foreach ( $d['options'] as $ov => $ol ) {
+					if ( count( $e['options'] ) >= 50 ) break;
+					$ov = (string) $ov;
+					if ( preg_match( '/^[A-Za-z0-9_.-]{0,40}$/', $ov ) ) $e['options'][] = array( $ov, self::text( is_scalar( $ol ) ? (string) $ol : $ov, 120 ) );
+				}
+			}
+			if ( $d['type'] === 'text' || $d['type'] === 'code' ) {
+				$cap = $d['type'] === 'text' ? 200 : 60;
+				$m = isset( $d['max'] ) && is_int( $d['max'] ) ? $d['max'] : $cap;
+				$e['max'] = max( 1, min( $cap, $m ) );
+			}
+			if ( $d['type'] === 'field' && isset( $d['field_types'] ) && is_array( $d['field_types'] ) ) {
+				foreach ( $d['field_types'] as $ft ) {
+					if ( is_string( $ft ) && preg_match( '/^[A-Za-z]{1,30}$/', $ft ) && ! in_array( $ft, $e['field_types'], true ) ) $e['field_types'][] = $ft;
+				}
+			}
+			if ( isset( $d['default'] ) && $d['type'] !== 'field' ) $e['default'] = self::option_value( $e, $d['default'] );
+			$out[] = $e;
+		}
+		return $out;
+	}
+
+	/** One value of a clean schema entry ('' = not set). */
+	public static function option_value( array $d, $v ) {
+		switch ( $d['type'] ) {
+			case 'field':
+				return self::field_id( $v );
+			case 'select':
+				if ( ! is_string( $v ) ) return '';
+				foreach ( $d['options'] as $o ) { if ( $o[0] === $v ) return $v; }
+				return '';
+			case 'text':
+				return self::text( $v, $d['max'] );
+			case 'code':
+				if ( ! is_string( $v ) ) return '';
+				$v = trim( $v );
+				return preg_match( '/^[A-Za-z0-9_.-]+$/', $v ) && strlen( $v ) <= $d['max'] ? $v : '';
+			case 'checkbox':
+				return in_array( $v, array( 1, '1', true ), true ) ? '1' : '';
+		}
+		return '';
+	}
+
+	/**
+	 * Save-side sanitizer of a gateway option (pgw_*), from the gateway's field_schema(). A key the
+	 * schema does not know (the add-on is not active, or an older schema) is kept but cleaned
+	 * conservatively: pgw_map_* as a field id, anything else as plain text of at most 200 characters.
+	 * Twin: efbPayCoreEfb.sanitizeGatewayKey().
+	 */
+	public static function sanitize_gateway_key( $k, $v, $schema = null ) {
+		if ( ! is_string( $k ) || ! preg_match( '/^pgw_[a-z0-9_]{1,40}$/', $k ) ) return '';
+		$d = null;
+		foreach ( self::clean_schema( $schema ) as $e ) { if ( $e['key'] === $k ) { $d = $e; break; } }
+		if ( $d === null ) {
+			if ( strpos( $k, 'pgw_map_' ) === 0 ) return self::field_id( $v );
+			return is_string( $v ) || is_int( $v ) ? self::text( (string) $v, 200 ) : '';
+		}
+		return self::option_value( $d, $v );
+	}
+
+	/** The gateway field's options for Gateway::create(): pf_methods and every schema key (its default when empty). */
+	public static function gateway_options( $row, $schema ) {
+		$out = array( 'pf_methods' => self::sanitize_key( 'pf_methods', self::get( $row, 'pf_methods' ) ) );
+		foreach ( self::clean_schema( $schema ) as $d ) {
+			$v = self::option_value( $d, self::get( $row, $d['key'] ) );
+			$out[ $d['key'] ] = $v !== '' ? $v : $d['default'];
+		}
+		return $out;
+	}
+
+	/**
+	 * Checkout_Context::$payer from the mapped fields of the submitted rows. The e-mail falls back
+	 * to $email (the form's confirmation e-mail field); the name is joined or split when only one
+	 * side is mapped.
+	 */
+	public static function payer( array $rows, array $options, $email = '' ) {
+		$by_id = array();
+		foreach ( $rows as $r ) {
+			if ( is_array( $r ) && isset( $r['id_'] ) && is_scalar( $r['id_'] ) && isset( $r['value'] ) && is_scalar( $r['value'] ) && ! isset( $by_id[ (string) $r['id_'] ] ) ) {
+				$by_id[ (string) $r['id_'] ] = str_replace( '@efb@dq#', '"', (string) $r['value'] );
+			}
+		}
+		$p = array( 'name' => '', 'first_name' => '', 'last_name' => '', 'email' => '', 'phone' => '', 'address' => '', 'postcode' => '', 'city' => '', 'state' => '', 'country' => '' );
+		foreach ( self::PAYER_KEYS as $k => $to ) {
+			$fid = isset( $options[ $k ] ) ? self::field_id( $options[ $k ] ) : '';
+			if ( $fid !== '' && isset( $by_id[ $fid ] ) ) $p[ $to ] = self::text( $by_id[ $fid ], $to === 'phone' ? 40 : 190 );
+		}
+		if ( $p['email'] !== '' && ! filter_var( $p['email'], FILTER_VALIDATE_EMAIL ) ) $p['email'] = '';
+		if ( $p['email'] === '' && is_string( $email ) && filter_var( $email, FILTER_VALIDATE_EMAIL ) ) $p['email'] = $email;
+		if ( $p['name'] === '' && ( $p['first_name'] !== '' || $p['last_name'] !== '' ) ) $p['name'] = trim( $p['first_name'] . ' ' . $p['last_name'] );
+		if ( $p['name'] !== '' && $p['first_name'] === '' && $p['last_name'] === '' ) {
+			$parts = preg_split( '/\s+/u', $p['name'], 2 );
+			$p['first_name'] = $parts[0];
+			$p['last_name'] = isset( $parts[1] ) ? $parts[1] : '';
+		}
+		return $p;
+	}
+
+	/**
+	 * Save-time checks of the gateway fields of a form, from what the gateways declare (no gateway
+	 * code in core). $infos: slug => array( currencies, field_schema ) (Registry::public_info()).
+	 * Twin: efbPayCoreEfb.warnings(). Returns codes with their data; the caller words them.
+	 *
+	 * @return array list of array( code, field_id, gateway, … )
+	 */
+	public static function warnings( $form, array $infos ) {
+		$out = array();
+		if ( ! is_array( $form ) || ! isset( $form[0] ) ) return $out;
+		$types = array();
+		foreach ( $form as $i => $r ) {
+			if ( $i > 0 && is_array( $r ) && isset( $r['id_'] ) && is_scalar( $r['id_'] ) ) $types[ (string) $r['id_'] ] = isset( $r['type'] ) && is_string( $r['type'] ) ? $r['type'] : '';
+		}
+		$cur = self::get( $form[0], 'currency' );
+		$cur = is_string( $cur ) ? strtoupper( trim( $cur ) ) : '';
+		foreach ( $form as $i => $r ) {
+			if ( $i === 0 || ! is_array( $r ) || ! isset( $r['type'], $r['id_'] ) || ! is_string( $r['type'] ) || ! is_scalar( $r['id_'] ) || ! isset( $infos[ $r['type'] ] ) ) continue;
+			$g = $infos[ $r['type'] ];
+			$base = array( 'field_id' => (string) $r['id_'], 'gateway' => $r['type'] );
+			$allowed = isset( $g['currencies'] ) && is_array( $g['currencies'] ) ? array_values( array_map( 'strval', $g['currencies'] ) ) : array();
+			if ( $allowed && ! in_array( $cur, $allowed, true ) ) $out[] = $base + array( 'code' => 'pay_currency', 'currency' => $cur, 'allowed' => $allowed );
+			foreach ( self::clean_schema( isset( $g['field_schema'] ) ? $g['field_schema'] : array() ) as $d ) {
+				$v = self::option_value( $d, isset( $r[ $d['key'] ] ) ? $r[ $d['key'] ] : null );
+				if ( $v === '' ) {
+					if ( $d['required'] && $d['default'] === '' ) $out[] = $base + array( 'code' => 'pay_option_required', 'key' => $d['key'], 'label' => $d['label'] );
+					continue;
+				}
+				if ( $d['type'] !== 'field' ) continue;
+				if ( ! isset( $types[ $v ] ) ) $out[] = $base + array( 'code' => 'pay_option_field_missing', 'key' => $d['key'], 'label' => $d['label'] );
+				elseif ( $d['field_types'] && ! in_array( $types[ $v ], $d['field_types'], true ) ) $out[] = $base + array( 'code' => 'pay_option_field_type', 'key' => $d['key'], 'label' => $d['label'] );
+			}
+		}
+		return $out;
+	}
+
+	/** A method entry from a gateway (id, label, extras) → [id, label] or [id, label, logo URL]. */
+	public static function method_entry( $m ) {
+		if ( ! is_array( $m ) || ! isset( $m[0], $m[1] ) || ! is_scalar( $m[0] ) || ! is_scalar( $m[1] ) ) return null;
+		$e = array( (string) $m[0], (string) $m[1] );
+		$x = isset( $m[2] ) && is_array( $m[2] ) ? $m[2] : array();
+		if ( isset( $x['logo'] ) && is_string( $x['logo'] ) && self::logo_url( $x['logo'] ) ) $e[] = $x['logo'];
+		return $e;
+	}
+
+	/** An image address a method may show: http(s), protocol-relative or site-relative; no quotes or spaces. */
+	public static function logo_url( $u ) {
+		return is_string( $u ) && strlen( $u ) <= 500 && (bool) preg_match( '#^(?:https?:)?//[^\x00-\x20"\'<>()]+$|^/[^/\x00-\x20"\'<>()][^\x00-\x20"\'<>()]*$#i', $u );
+	}
+
 	/** When a channel runs: 'paid' (default), 'submit' or 'both'. */
 	public static function action_timing( $form0, $key ) {
 		$v = self::sanitize_key( $key, self::get( $form0, $key ) );
@@ -304,7 +500,12 @@ class Field {
 	 *                    mobile: the plan allows the mobile overrides.
 	 */
 	public static function resolve( $row, $form0, array $opts = array() ) {
-		$s = function ( $k ) use ( $row ) { return Field::sanitize_key( $k, Field::get( $row, $k ) ); };
+		$defaults = isset( $opts['defaults'] ) && is_array( $opts['defaults'] ) ? $opts['defaults'] : array();
+		$s = function ( $k ) use ( $row, $defaults ) {
+			$v = Field::sanitize_key( $k, Field::get( $row, $k ) );
+			if ( $v === '' && array_key_exists( $k, $defaults ) && in_array( $k, Field::DEFAULTABLE, true ) ) $v = Field::sanitize_key( $k, $defaults[ $k ] );
+			return $v;
+		};
 		$bg = $s( 'pf_btn_bg' );
 		if ( $bg === '' ) $bg = self::form_button_hex( $form0 );
 		$fg = $s( 'pf_btn_fg' );
@@ -323,10 +524,10 @@ class Field {
 		$avail = isset( $opts['methods'] ) && is_array( $opts['methods'] ) ? $opts['methods'] : array();
 		if ( $allowed !== '' ) {
 			foreach ( explode( ',', $allowed ) as $mid ) {
-				foreach ( $avail as $m ) { if ( (string) $m[0] === $mid ) $methods[] = array( (string) $m[0], (string) $m[1] ); }
+				foreach ( $avail as $m ) { $me = self::method_entry( $m ); if ( $me && $me[0] === $mid ) $methods[] = $me; }
 			}
 		} else {
-			foreach ( $avail as $m ) $methods[] = array( (string) $m[0], (string) $m[1] );
+			foreach ( $avail as $m ) { $me = self::method_entry( $m ); if ( $me ) $methods[] = $me; }
 		}
 		$logos = isset( $opts['logos'] ) && is_array( $opts['logos'] ) ? $opts['logos'] : array();
 		$amount_mode = $s( 'pf_amount' );
@@ -509,7 +710,8 @@ class Field {
 					} else {
 						$o .= '<div class="efb efb-pf-method-list" role="radiogroup" aria-labelledby="' . $id . '_pfmet">';
 						foreach ( $r['methods'] as $i => $m ) {
-							$o .= '<button type="button" class="efb efb-pf-method" role="radio" aria-checked="' . ( $i === 0 ? 'true' : 'false' ) . '" tabindex="' . ( $i === 0 ? '0' : '-1' ) . '" data-pf-method="' . self::esc( $m[0] ) . '">' . self::esc( $m[1] ) . '</button>';
+							$o .= '<button type="button" class="efb efb-pf-method" role="radio" aria-checked="' . ( $i === 0 ? 'true' : 'false' ) . '" tabindex="' . ( $i === 0 ? '0' : '-1' ) . '" data-pf-method="' . self::esc( $m[0] ) . '">'
+								. ( isset( $m[2] ) ? '<img class="efb efb-pf-method-logo" src="' . self::esc( $m[2] ) . '" alt="" aria-hidden="true" loading="lazy" decoding="async">' : '' ) . self::esc( $m[1] ) . '</button>';
 						}
 						$o .= '</div>';
 					}

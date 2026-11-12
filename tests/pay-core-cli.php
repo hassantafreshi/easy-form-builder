@@ -3,6 +3,7 @@
  * Not a test. Runs the PHP side of the payment-field and pricing twins for the node parity tests:
  * reads {"cases":[{"op":..., ...}]} on stdin, prints the results as JSON.
  * ops: sanitize {k,v} · field {row, form0, opts, locale, defaults, ctx} · quote {form, rows, ctx}
+ *      · gwsanitize {k, v, schema} · gwschema {schema} · gwoptions {row, schema} · warnings {form, infos}
  *      · money {value, currency} · tominor {minor, currency}
  */
 define('ABSPATH', __DIR__ . '/');
@@ -28,6 +29,18 @@ foreach ($in['cases'] as $c) {
 			$q = Pricing::quote($c['form'], $c['rows'], array_merge(array('server_prices' => false), $c['ctx']));
 			unset($q['hash']);
 			$out[] = $q;
+			break;
+		case 'gwsanitize':
+			$out[] = Field::sanitize_gateway_key($c['k'], $c['v'], isset($c['schema']) ? $c['schema'] : null);
+			break;
+		case 'gwschema':
+			$out[] = Field::clean_schema($c['schema']);
+			break;
+		case 'gwoptions':
+			$out[] = Field::gateway_options($c['row'], $c['schema']);
+			break;
+		case 'warnings':
+			$out[] = Field::warnings($c['form'], $c['infos']);
 			break;
 		case 'money':
 			$out[] = Money::from_decimal($c['value'], $c['currency']);

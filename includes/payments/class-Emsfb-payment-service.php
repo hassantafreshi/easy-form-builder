@@ -88,6 +88,16 @@ class Service {
 				return __( 'This payment attempt has already been used. Please reload the page and try again.', 'easy-form-builder' );
 			case 'in_progress':
 				return __( 'Your payment is already being prepared. Please wait a moment.', 'easy-form-builder' );
+			case 'method_below_min':
+				/* translators: %1$s: payment method, %2$s: amount with currency */
+				return sprintf( __( '%1$s accepts amounts from %2$s. Please choose another payment method.', 'easy-form-builder' ), isset( $extra['method'] ) ? $extra['method'] : '', isset( $extra['amount'] ) ? $extra['amount'] : '' );
+			case 'method_above_max':
+				/* translators: %1$s: payment method, %2$s: amount with currency */
+				return sprintf( __( '%1$s accepts amounts up to %2$s. Please choose another payment method.', 'easy-form-builder' ), isset( $extra['method'] ) ? $extra['method'] : '', isset( $extra['amount'] ) ? $extra['amount'] : '' );
+			case 'gateway_declined':
+				return isset( $extra['visitor'] ) && $extra['visitor'] !== '' ? $extra['visitor'] : __( 'The payment could not be started. You have not been charged. Please try again in a moment.', 'easy-form-builder' );
+			case 'retry_unavailable':
+				return __( 'This payment can no longer be started again here. Please reload the page and send the form again.', 'easy-form-builder' );
 			case 'currency_unsupported':
 			case 'pay_unavailable':
 			default:
@@ -137,6 +147,7 @@ class Service {
 				'total_minor' => (int) $p['amount_minor'],
 				'currency'    => $p['currency'],
 				'amount_text' => Money::format( (int) $p['amount_minor'], $p['currency'], $p['locale'] ),
+				'poll_until'  => self::poll_until( $p ),
 			),
 		);
 	}
@@ -182,6 +193,9 @@ class Service {
 			return self::fail( $quote['error'], $extra );
 		}
 		$locale = isset( $a['locale'] ) && is_string( $a['locale'] ) && preg_match( '/^[a-z]{2,3}(_[A-Z]{2})?$/', $a['locale'] ) ? $a['locale'] : ( function_exists( 'determine_locale' ) ? determine_locale() : '' );
+		$method = isset( $a['method'] ) && is_string( $a['method'] ) && preg_match( '/^[a-z0-9_]{1,30}$/', $a['method'] ) ? $a['method'] : '';
+		$limit = self::method_limit( $gw, $settings, $method, (int) $quote['total_minor'], $quote['currency'], $locale );
+		if ( $limit ) return $limit;
 		if ( isset( $a['expected_minor'] ) && $a['expected_minor'] !== null && $a['expected_minor'] !== '' && (int) $a['expected_minor'] !== (int) $quote['total_minor'] ) {
 			$r = self::fail( 'quote_changed', array( 'amount' => Money::format( $quote['total_minor'], $quote['currency'], $locale ) ) );
 			$r['total_minor'] = $quote['total_minor'];
@@ -218,6 +232,16 @@ class Service {
 		$entry = call_user_func( $a['store_entry'], $rows );
 		if ( ! is_array( $entry ) || empty( $entry['track'] ) ) return self::fail( 'gateway_error' );
 
+		// The checkout context core builds for the gateway: the field's options, the payer from the
+		// mapped fields, the submitted rows (read only), the browser adapter's token (never stored).
+		$plain_rows = array();
+		foreach ( $a['rows'] as $r ) {
+			if ( is_array( $r ) && ! in_array( $r['type'] ?? '', array( 'w_link', 'payment' ), true ) ) $plain_rows[] = $r;
+		}
+		try { $schema = $gw->field_schema(); } catch ( \Throwable $e ) { $schema = array(); }
+		$options = Field::gateway_options( $field, $schema );
+		$payer = Field::payer( $plain_rows, $options, isset( $a['payer_email'] ) ? (string) $a['payer_email'] : '' );
+
 		$return_to = '';
 		if ( ! empty( $a['page_url'] ) && is_string( $a['page_url'] ) ) {
 			$u = remove_query_arg( array( 'efb_pay', 'efb_ps' ), $a['page_url'] );
@@ -235,7 +259,8 @@ class Service {
 			'currency'     => $quote['currency'],
 			'quote'        => wp_json_encode_efb_pay( $quote ),
 			'attempt_key'  => $attempt,
-			'payer_email'  => isset( $a['payer_email'] ) ? substr( (string) $a['payer_email'], 0, 190 ) : '',
+			'payer_email'  => substr( $payer['email'], 0, 190 ),
+			'payer_name'   => substr( $payer['name'], 0, 190 ),
 			'return_to'    => substr( $return_to, 0, 500 ),
 			'locale'       => $locale,
 			'ip'           => isset( $a['ip'] ) ? substr( (string) $a['ip'], 0, 45 ) : '',
@@ -247,15 +272,29 @@ class Service {
 		Store::log_event( $p['id'], $slug, 'api', array( 'type' => 'create', 'to_status' => 'created', 'note' => 'quote ' . $quote['hash'] ) );
 
 		$ctx = new Checkout_Context( array(
-			'return_url'  => self::return_url( $p ),
-			'cancel_url'  => add_query_arg( 'c', '1', self::return_url( $p ) ),
-			'webhook_url' => self::webhook_url( $slug ),
-			'locale'      => $locale,
-			'method'      => isset( $a['method'] ) && is_string( $a['method'] ) && preg_match( '/^[a-z0-9_]{1,30}$/', $a['method'] ) ? $a['method'] : '',
-			'description' => isset( $a['description'] ) ? substr( (string) $a['description'], 0, 120 ) : '',
-			'payer_email' => $p['payer_email'],
-			'metadata'    => array( 'efb_uid' => $p['uid'], 'form_id' => $form_id, 'track' => $p['track'] ),
+			'description'  => isset( $a['description'] ) ? substr( (string) $a['description'], 0, 120 ) : '',
+			'rows'         => $plain_rows,
+			'field'        => $options,
+			'payer'        => $payer,
 		) );
+		return self::start( $gw, $settings, $p, $ctx, $method, $locale, $a, $quote );
+	}
+
+	/**
+	 * Hands a stored payment to Gateway::create() and records the answer (create and retry).
+	 * $ctx already holds rows, field and payer; the addresses, method and token are added here.
+	 */
+	private static function start( Gateway $gw, Settings $settings, array $p, Checkout_Context $ctx, $method, $locale, array $a, array $quote ) {
+		$slug = $gw->slug();
+		$ctx->return_url = self::return_url( $p );
+		$ctx->cancel_url = add_query_arg( 'c', '1', self::return_url( $p ) );
+		$ctx->webhook_url = self::webhook_url( $slug );
+		$ctx->locale = $locale;
+		$ctx->method = $method;
+		$ctx->payer_email = $p['payer_email'];
+		$ctx->metadata = array( 'efb_uid' => $p['uid'], 'form_id' => (int) $p['form_id'], 'track' => $p['track'] );
+		$ctx->client_token = self::client_token( isset( $a['client_token'] ) ? $a['client_token'] : '' );
+		$ctx->client_data = self::client_data( isset( $a['client_data'] ) ? $a['client_data'] : array() );
 		if ( function_exists( 'apply_filters' ) ) {
 			$f = apply_filters( 'efb_payment_create_args', $ctx, $p, $quote );
 			if ( $f instanceof Checkout_Context ) $ctx = $f;
@@ -265,11 +304,13 @@ class Service {
 		} catch ( \Throwable $e ) {
 			$res = Create_Result::fail( 'exception', Redactor::redact_string( $e->getMessage() ) );
 		}
+		$ctx->client_token = ''; // never kept past the call
 		if ( ! $res instanceof Create_Result || ! $res->ok || $res->gateway_ref === '' ) {
 			$err = $res instanceof Result ? $res->error . ' ' . $res->message : 'bad_result';
 			Store::transition( $p['id'], 'failed' );
 			Store::log_event( $p['id'], $slug, 'api', array( 'type' => 'create_failed', 'from_status' => 'created', 'to_status' => 'failed', 'note' => Redactor::redact_string( $err ) ) );
-			return self::fail( 'gateway_error' );
+			$visitor = $res instanceof Result ? Field::text( (string) $res->visitor_message, 200 ) : '';
+			return $visitor !== '' ? self::fail( 'gateway_declined', array( 'visitor' => $visitor ) ) : self::fail( 'gateway_error' );
 		}
 		$next = self::public_next( $res->next );
 		Store::transition( $p['id'], 'pending', array(
@@ -290,6 +331,41 @@ class Service {
 		$out['track'] = $p['track'];
 		$out['msg_id'] = (int) $p['msg_id'];
 		return $out;
+	}
+
+	/** The browser adapter's opaque token: printable ASCII, at most 4096 characters, else ''. */
+	public static function client_token( $t ) {
+		return is_string( $t ) && strlen( $t ) <= 4096 && preg_match( '/^[\x21-\x7E]{1,4096}$/', $t ) ? $t : '';
+	}
+
+	/** The adapter's small public data: flat, keys [a-z0-9_], scalar values of at most 200 characters, 2 KB in all. */
+	public static function client_data( $d ) {
+		$out = array();
+		if ( ! is_array( $d ) ) return $out;
+		foreach ( $d as $k => $v ) {
+			if ( count( $out ) >= 20 || ! is_string( $k ) || ! preg_match( '/^[a-z0-9_]{1,40}$/', $k ) ) continue;
+			if ( is_bool( $v ) || is_int( $v ) ) $out[ $k ] = $v;
+			elseif ( is_string( $v ) ) $out[ $k ] = Field::text( $v, 200 );
+		}
+		$j = wp_json_encode_efb_pay( $out );
+		return strlen( $j ) <= 2048 ? $out : array();
+	}
+
+	/**
+	 * The chosen method's own limits (Gateway::methods() extras min_minor / max_minor): a specific
+	 * answer instead of the provider's generic refusal. null when the amount fits or there is no limit.
+	 */
+	private static function method_limit( Gateway $gw, Settings $s, $method, $total, $currency, $locale ) {
+		if ( $method === '' ) return null;
+		try { $list = Registry::normalize_methods( $gw->methods_for( $s, array( 'currency' => $currency, 'amount_minor' => $total ) ), '' ); } catch ( \Throwable $e ) { return null; }
+		foreach ( $list as $m ) {
+			if ( $m[0] !== $method || ! isset( $m[2] ) ) continue;
+			$min = isset( $m[2]['min_minor'][ $currency ] ) ? (int) $m[2]['min_minor'][ $currency ] : null;
+			$max = isset( $m[2]['max_minor'][ $currency ] ) ? (int) $m[2]['max_minor'][ $currency ] : null;
+			if ( $min !== null && $total < $min ) return self::fail( 'method_below_min', array( 'method' => Field::text( $m[1], 60 ), 'amount' => Money::format( $min, $currency, $locale ) ) );
+			if ( $max !== null && $total > $max ) return self::fail( 'method_above_max', array( 'method' => Field::text( $m[1], 60 ), 'amount' => Money::format( $max, $currency, $locale ) ) );
+		}
+		return null;
 	}
 
 	/** A repeated attempt (double click, lost answer): the first answer again. */
@@ -315,7 +391,17 @@ class Service {
 		if ( ! $st instanceof Remote_State || ! $st->ok || ! in_array( $st->status, Store::STATUSES, true ) ) return $p['status'];
 		$to = $st->status;
 		$from = $p['status'];
-		if ( in_array( $to, array( 'paid', 'authorized' ), true ) ) {
+		$open = in_array( $from, array( 'created', 'pending', 'authorized' ), true );
+		// The provider refunded part of a payment EFB never saw paid: it was paid first (finalize
+		// runs once, the entry is completed), then the partial refund is applied.
+		if ( $to === 'partially_refunded' && $open ) {
+			$paid = Remote_State::of( 'paid', $st->amount_minor, $st->currency, array( 'paid_at' => $st->paid_at, 'method' => $st->method ) );
+			self::apply_remote_state( $p, $paid, $source );
+			$p = Store::get( $p['id'] );
+			$from = $p['status'];
+			$open = false;
+		}
+		if ( in_array( $to, array( 'paid', 'authorized' ), true ) || ( $to === 'refunded' && $open ) ) {
 			$cur_ok = $st->currency === '' || strtoupper( $st->currency ) === strtoupper( $p['currency'] );
 			$amt_ok = $st->amount_minor === null || (int) $st->amount_minor >= (int) $p['amount_minor'];
 			if ( ! $cur_ok || ! $amt_ok ) {
@@ -330,8 +416,29 @@ class Service {
 			$fields['paid_at'] = $st->paid_at ? gmdate( 'Y-m-d H:i:s', is_numeric( $st->paid_at ) ? (int) $st->paid_at : strtotime( (string) $st->paid_at ) ) : Store::now();
 		}
 		if ( $st->method !== '' ) $fields['method'] = substr( (string) $st->method, 0, 40 );
-		if ( in_array( $to, array( 'refunded', 'partially_refunded' ), true ) && $st->refunded_minor ) $fields['refunded_minor'] = (int) $st->refunded_minor;
-		if ( $to !== $from ) self::move( $p, $to, $fields, $source );
+		if ( in_array( $to, array( 'refunded', 'partially_refunded' ), true ) ) {
+			$fields['refunded_minor'] = $st->refunded_minor ? min( (int) $p['amount_minor'], (int) $st->refunded_minor ) : ( $to === 'refunded' ? (int) $p['amount_minor'] : (int) $p['refunded_minor'] );
+		}
+		if ( $to !== $from ) {
+			$moved = self::move( $p, $to, $fields, $source, ( $to === 'refunded' && $open ) ? 'refunded at the provider before EFB saw it paid' : '' );
+			if ( $moved && $to === 'refunded' && $open ) {
+				// Completed (no longer "pending payment") but never finalized: the payment was taken back.
+				self::update_entry( Store::get( $p['id'] ), array( 'status' => 'refunded', 'paymentIntent' => $p['gateway_ref'], 'method' => isset( $fields['method'] ) ? $fields['method'] : $p['method'] ), true );
+				if ( function_exists( 'do_action' ) ) do_action( 'efb_payment_refunded', Store::get( $p['id'] ), (int) $fields['refunded_minor'] );
+			} elseif ( $moved && in_array( $to, array( 'refunded', 'partially_refunded' ), true ) ) {
+				self::update_entry( Store::get( $p['id'] ), array( 'status' => $to ) );
+			}
+		} else {
+			// Same status: still keep what the provider adds (the method of a pending payment, a larger refunded amount).
+			$keep = array();
+			if ( isset( $fields['method'] ) && $fields['method'] !== (string) $p['method'] ) $keep['method'] = $fields['method'];
+			if ( isset( $fields['refunded_minor'] ) && $fields['refunded_minor'] > (int) $p['refunded_minor'] ) $keep['refunded_minor'] = $fields['refunded_minor'];
+			if ( $keep ) {
+				Store::update( $p['id'], $keep );
+				Store::log_event( $p['id'], $p['gateway'], $source, array( 'type' => 'updated', 'verified' => 1, 'note' => implode( ', ', array_map( function ( $k, $v ) { return $k . ' ' . $v; }, array_keys( $keep ), $keep ) ) ) );
+			}
+		}
+		self::settle_refunds_from( Store::get( $p['id'] ), $st, $source );
 		$now = Store::get( $p['id'] );
 		if ( $now && $now['status'] === 'paid' && empty( $now['finalized_at'] ) ) self::finalize( $now );
 		if ( $now && in_array( $now['status'], array( 'failed', 'expired', 'canceled' ), true ) && $now['status'] !== $from ) {
@@ -339,6 +446,52 @@ class Service {
 			self::notify_failure( $now );
 		}
 		return $now ? $now['status'] : $from;
+	}
+
+	/**
+	 * Settles EFB's pending refunds from what the provider reports: by reference
+	 * (Remote_State::$refunds), else oldest first while the provider's refunded amount covers them.
+	 */
+	private static function settle_refunds_from( $p, Remote_State $st, $source ) {
+		if ( ! $p ) return;
+		$pending = array_values( array_filter( Store::refunds( $p['id'] ), function ( $r ) { return $r['status'] === 'pending'; } ) );
+		if ( ! $pending ) return;
+		$by_ref = array();
+		foreach ( (array) $st->refunds as $r ) {
+			if ( is_array( $r ) && isset( $r['ref'], $r['status'] ) && is_string( $r['ref'] ) && $r['ref'] !== '' && in_array( $r['status'], array( 'refunded', 'failed', 'canceled' ), true ) ) $by_ref[ $r['ref'] ] = $r['status'];
+		}
+		$covered = (int) $st->refunded_minor - Store::refunded_total( $p['id'] );
+		foreach ( $pending as $r ) {
+			if ( $r['gateway_ref'] !== '' && isset( $by_ref[ $r['gateway_ref'] ] ) ) {
+				self::settle_refund( Store::get( $p['id'] ), (int) $r['id'], $by_ref[ $r['gateway_ref'] ], $source, 0 );
+			} elseif ( ! $by_ref && $covered >= (int) $r['amount_minor'] && in_array( $st->status, array( 'refunded', 'partially_refunded' ), true ) ) {
+				$covered -= (int) $r['amount_minor'];
+				self::settle_refund( Store::get( $p['id'] ), (int) $r['id'], 'refunded', $source, 0, true );
+			}
+		}
+	}
+
+	/**
+	 * A pending refund is confirmed (refunded) or turned down (failed / canceled), by the provider
+	 * (webhook, fetch) or by the owner. Only a confirmed refund counts in refunded_minor.
+	 *
+	 * @param bool $counted true when the provider's refunded amount was already written (fetch).
+	 * @return bool
+	 */
+	public static function settle_refund( $p, $refund_id, $to, $source, $user_id = 0, $counted = false ) {
+		if ( ! is_array( $p ) ) return false;
+		$r = Store::get_refund( $refund_id );
+		if ( ! $r || (int) $r['payment_id'] !== (int) $p['id'] || ! Store::settle_refund( $refund_id, $to ) ) return false;
+		Store::log_event( $p['id'], $p['gateway'], $source, array( 'type' => $to === 'refunded' ? 'refund_confirmed' : 'refund_declined', 'note' => 'refund #' . (int) $refund_id . ' ' . Money::to_decimal_string( (int) $r['amount_minor'], $p['currency'] ) . ( $user_id ? ' by user ' . (int) $user_id : '' ) ) );
+		if ( $to !== 'refunded' ) return true;
+		$total = $counted ? max( (int) $p['refunded_minor'], Store::refunded_total( $p['id'] ) ) : min( (int) $p['amount_minor'], (int) $p['refunded_minor'] + (int) $r['amount_minor'] );
+		$status = $total >= (int) $p['amount_minor'] ? 'refunded' : 'partially_refunded';
+		if ( $status !== $p['status'] ) self::move( $p, $status, array( 'refunded_minor' => $total ), $source, 'refund #' . (int) $refund_id );
+		elseif ( $total !== (int) $p['refunded_minor'] ) Store::update( $p['id'], array( 'refunded_minor' => $total ) );
+		$after = Store::get( $p['id'] );
+		self::update_entry( $after, array( 'status' => $after['status'] ) );
+		if ( function_exists( 'do_action' ) ) do_action( 'efb_payment_refunded', $after, (int) $r['amount_minor'] );
+		return true;
 	}
 
 	/** One or two transitions (created → pending → target). */
@@ -372,21 +525,50 @@ class Service {
 			$st = Remote_State::error( 'exception' );
 		}
 		Store::touch_checked( $p['id'] );
+		if ( $st instanceof Remote_State && ! $st->ok && $st->mismatch ) {
+			// The provider's answer is about another payment, site or mode: logged, never applied.
+			Store::log_event( $p['id'], $p['gateway'], $source, array( 'type' => 'mismatch', 'note' => Redactor::redact_string( (string) $st->error ) ) );
+			$status = $p['status'];
+			if ( in_array( $status, array( 'created', 'pending', 'authorized' ), true ) && self::past_ttl( $gw, $p ) ) {
+				self::apply_remote_state( $p, Remote_State::of( 'expired', null, '' ), $source );
+				$status = Store::get( $p['id'] )['status'];
+			}
+			return array( 'ok' => false, 'status' => $status, 'error' => (string) $st->error, 'mismatch' => true );
+		}
 		if ( ! $st instanceof Remote_State || ! $st->ok ) {
 			Store::log_event( $p['id'], $p['gateway'], $source, array( 'type' => 'fetch_failed', 'note' => $st instanceof Remote_State ? $st->error : 'bad_result' ) );
-			return array( 'ok' => false, 'status' => $p['status'], 'error' => $st instanceof Remote_State ? $st->error : 'bad_result' );
+			return array( 'ok' => false, 'status' => $p['status'], 'error' => $st instanceof Remote_State ? $st->error : 'bad_result', 'mismatch' => false );
 		}
 		$status = self::apply_remote_state( $p, $st, $source );
 		if ( in_array( $status, array( 'created', 'pending', 'authorized' ), true ) ) {
-			$ttl = (int) $gw->pending_ttl( new Payment( $p ) );
-			$age = Store::time() - strtotime( $p['created_at'] . ' UTC' );
-			if ( $ttl > 0 && $age > $ttl ) {
+			if ( self::past_ttl( $gw, Store::get( $p['id'] ) ) ) {
 				try { $gw->cancel( new Payment( $p ), $s ); } catch ( \Throwable $e ) {} // phpcs:ignore Generic.CodeAnalysis.EmptyStatement
 				self::apply_remote_state( Store::get( $p['id'] ), Remote_State::of( 'expired', null, '' ), $source );
 				$status = Store::get( $p['id'] )['status'];
 			}
 		}
-		return array( 'ok' => true, 'status' => $status, 'error' => '' );
+		return array( 'ok' => true, 'status' => $status, 'error' => '', 'mismatch' => false );
+	}
+
+	/** Seconds after creation when the gateway counts an unpaid payment as expired (Gateway::pending_ttl()). */
+	public static function ttl_of( $gw, array $p ) {
+		if ( ! $gw instanceof Gateway ) return DAY_IN_SECONDS;
+		try { return (int) $gw->pending_ttl( new Payment( $p ) ); } catch ( \Throwable $e ) { return DAY_IN_SECONDS; }
+	}
+
+	private static function past_ttl( $gw, $p ) {
+		if ( ! is_array( $p ) ) return false;
+		$ttl = self::ttl_of( $gw, $p );
+		return $ttl > 0 && Store::time() - strtotime( $p['created_at'] . ' UTC' ) > $ttl;
+	}
+
+	/**
+	 * Until when the page keeps asking (unix seconds): the payment's pending_ttl() from its creation,
+	 * at least 15 minutes from now and at most 24 hours from now.
+	 */
+	public static function poll_until( array $p ) {
+		$end = strtotime( $p['created_at'] . ' UTC' ) + self::ttl_of( Registry::get( $p['gateway'] ), $p );
+		return (int) max( Store::time() + 15 * 60, min( Store::time() + DAY_IN_SECONDS, $end ) );
 	}
 
 	/* ------------------------------------------------------------------ finalize */
@@ -500,6 +682,11 @@ class Service {
 		if ( ! $p ) return self::rest( null, 200 ); // not one of ours: no outbound call
 		if ( $ev->needs_refetch || ! $ev->verified || ! $ev->state instanceof Remote_State ) {
 			$res = self::refresh( $p, 'webhook' );
+			if ( ! $res['ok'] && ! empty( $res['mismatch'] ) ) {
+				// Proven to be about another payment or mode: logged by refresh(), answered 200 so the
+				// provider stops sending it again; nothing is applied.
+				return self::rest( null, 200 );
+			}
 			if ( ! $res['ok'] ) {
 				// The provider was not reachable: let it deliver again (and the cron checks too).
 				Store::release_event( $slug, $key );
@@ -560,6 +747,7 @@ class Service {
 		$kind = in_array( $state, array( 'paid', 'partially_refunded', 'refunded' ), true ) ? 'paid'
 			: ( in_array( $state, array( 'failed', 'canceled', 'expired' ), true ) ? 'failed' : 'pending' );
 		$out = array( 'state' => $kind, 'status' => $state, 'form_id' => (int) $p['form_id'], 'test_mode' => $p['mode'] !== 'live', 'can_retry' => $kind === 'failed' );
+		if ( $kind === 'pending' ) $out['poll_until'] = self::poll_until( $p );
 		$out['message'] = $kind === 'paid' ? __( 'Payment received. Thank you!', 'easy-form-builder' )
 			: ( $kind === 'failed' ? ( $state === 'expired' ? __( 'The payment time ran out. Please try again.', 'easy-form-builder' ) : __( 'The payment was not completed. You have not been charged. You can try again.', 'easy-form-builder' ) )
 			: __( 'We are waiting for the payment confirmation. You can keep this page open; we will update it automatically.', 'easy-form-builder' ) );
@@ -605,7 +793,7 @@ class Service {
 		set_transient( 'emsfb_pmt_reconcile_lock', 1, 120 );
 		$start = microtime( true );
 		try {
-			foreach ( Store::due_for_reconcile( $limit ) as $p ) {
+			foreach ( Store::due_for_reconcile( $limit, self::reconcile_days() ) as $p ) {
 				if ( microtime( true ) - $start > $budget ) break;
 				if ( isset( $out['stopped'][ $p['gateway'] ] ) ) continue;
 				$res = self::refresh( $p, 'cron' );
@@ -618,10 +806,20 @@ class Service {
 			delete_transient( 'emsfb_pmt_reconcile_lock' );
 		}
 		update_option( 'emsfb_pmt_reconcile_last', Store::time(), false );
-		if ( Store::due_for_reconcile( 1 ) && function_exists( 'wp_schedule_single_event' ) && function_exists( 'wp_next_scheduled' ) && ! wp_next_scheduled( 'emsfb_pmt_reconcile' ) ) {
+		if ( Store::due_for_reconcile( 1, self::reconcile_days() ) && function_exists( 'wp_schedule_single_event' ) && function_exists( 'wp_next_scheduled' ) && ! wp_next_scheduled( 'emsfb_pmt_reconcile' ) ) {
 			wp_schedule_single_event( Store::time() + 900, 'emsfb_pmt_reconcile' );
 		}
 		return $out;
+	}
+
+	/**
+	 * How far back the reconcile job looks (days): 31 by default, so a payment whose gateway keeps it
+	 * open for weeks (pending_ttl(), e.g. a bank transfer) is still checked and then expired by its
+	 * own ttl. Filter efb_payment_reconcile_days (1 … 120).
+	 */
+	public static function reconcile_days() {
+		$d = function_exists( 'apply_filters' ) ? (int) apply_filters( 'efb_payment_reconcile_days', 31 ) : 31;
+		return max( 1, min( 120, $d ) );
 	}
 
 	/* ------------------------------------------------------------------ refund */
@@ -655,14 +853,47 @@ class Service {
 			Store::log_event( $p['id'], $p['gateway'], 'admin', array( 'type' => 'refund_failed', 'note' => $res instanceof Result ? $res->error . ' ' . $res->message : '' ) );
 			return array( 'ok' => false, 'error' => $res instanceof Result ? $res->error : 'bad_result', 'message' => $res instanceof Result ? $res->message : '' );
 		}
-		Store::update_refund( $rid, array( 'status' => $res->status === 'pending' ? 'pending' : 'refunded', 'gateway_ref' => substr( (string) $res->gateway_ref, 0, 100 ) ) );
+		if ( $res->status === 'pending' ) {
+			// Asked, not yet done: it counts once the provider (webhook, fetch) or the owner confirms it.
+			Store::update_refund( $rid, array( 'gateway_ref' => substr( (string) $res->gateway_ref, 0, 100 ) ) );
+			Store::log_event( $p['id'], $p['gateway'], 'admin', array( 'type' => 'refund_pending', 'note' => 'refund #' . $rid . ' ' . $amount_minor . ' by user ' . (int) $user_id ) );
+			return array( 'ok' => true, 'error' => '', 'message' => '', 'pending' => true );
+		}
+		Store::update_refund( $rid, array( 'status' => 'refunded', 'gateway_ref' => substr( (string) $res->gateway_ref, 0, 100 ) ) );
 		$total = (int) $p['refunded_minor'] + $amount_minor;
 		$to = $total >= (int) $p['amount_minor'] ? 'refunded' : 'partially_refunded';
 		self::move( $p, $to, array( 'refunded_minor' => $total ), 'admin', 'refund ' . $amount_minor . ' by user ' . (int) $user_id );
 		$after = Store::get( $p['id'] );
 		self::update_entry( $after, array( 'status' => $to ) );
 		if ( function_exists( 'do_action' ) ) do_action( 'efb_payment_refunded', $after, $amount_minor );
-		return array( 'ok' => true, 'error' => '', 'message' => '' );
+		return array( 'ok' => true, 'error' => '', 'message' => '', 'pending' => false );
+	}
+
+	/**
+	 * "Mark as refunded outside EFB": the owner gave the money back from the provider's dashboard
+	 * or the bank (a method without an API refund, or a refund made elsewhere). No call to the
+	 * provider; a refund row (refunded, by the user, with the reason) and an audit event.
+	 *
+	 * @return array{ok:bool,error:string}
+	 */
+	public static function record_external_refund( array $p, $amount_minor, $reason, $user_id ) {
+		$amount_minor = (int) $amount_minor;
+		$left = (int) $p['amount_minor'] - (int) $p['refunded_minor'];
+		$reason = Field::text( (string) $reason, 200 );
+		if ( ! in_array( $p['status'], array( 'paid', 'partially_refunded' ), true ) || $amount_minor <= 0 || $amount_minor > $left ) return array( 'ok' => false, 'error' => 'bad_amount' );
+		if ( $reason === '' ) return array( 'ok' => false, 'error' => 'reason_required' );
+		$n = count( Store::refunds( $p['id'] ) );
+		$rid = Store::insert_refund( array( 'payment_id' => $p['id'], 'amount_minor' => $amount_minor, 'currency' => $p['currency'], 'status' => 'refunded',
+			'reason' => substr( 'outside EFB: ' . $reason, 0, 255 ), 'idem_key' => hash( 'sha256', $p['uid'] . '|external|' . $n . '|' . $amount_minor ), 'created_by' => (int) $user_id ) );
+		if ( ! $rid ) return array( 'ok' => false, 'error' => 'duplicate' );
+		$total = (int) $p['refunded_minor'] + $amount_minor;
+		$to = $total >= (int) $p['amount_minor'] ? 'refunded' : 'partially_refunded';
+		self::move( $p, $to, array( 'refunded_minor' => $total ), 'admin', 'refunded outside EFB by user ' . (int) $user_id );
+		Store::log_event( $p['id'], $p['gateway'], 'admin', array( 'type' => 'refund_external', 'note' => 'refund #' . $rid . ' ' . Money::to_decimal_string( $amount_minor, $p['currency'] ) . ' ' . $p['currency'] . ' by user ' . (int) $user_id . ': ' . $reason ) );
+		$after = Store::get( $p['id'] );
+		self::update_entry( $after, array( 'status' => $to ) );
+		if ( function_exists( 'do_action' ) ) do_action( 'efb_payment_refunded', $after, $amount_minor );
+		return array( 'ok' => true, 'error' => '' );
 	}
 
 	/* ------------------------------------------------------------------ mail */

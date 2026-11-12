@@ -105,9 +105,80 @@ abstract class Gateway {
 		return array( 'js' => array(), 'css' => array(), 'external' => array() );
 	}
 
-	/** Payment methods offered by the account: array( array( id, label ), … ). */
+	/**
+	 * Payment methods offered by the account: array( array( id, label ), … ). An entry may carry a
+	 * third element, an array of extras: logo (https URL of the method's mark, shown in its tile),
+	 * currencies (the method only takes these), min_minor / max_minor (array CUR => minor units:
+	 * the method's own limits, checked by core before create() with a specific message).
+	 */
 	public function methods( Settings $s ) {
 		return array();
+	}
+
+	/* ------------------------------------------------------------------ optional hooks (API 1, all with a safe default) */
+
+	/**
+	 * Methods for one form: $ctx = array( 'currency' => 'EUR', 'amount_minor' => int|null ). Default:
+	 * methods(). Core drops a method whose extras name other currencies, so a gateway only needs
+	 * this when the account's list itself depends on the currency or the amount.
+	 */
+	public function methods_for( Settings $s, array $ctx ) {
+		return $this->methods( $s );
+	}
+
+	/**
+	 * Options of this gateway on its payment field (flat keys on the field row, each one sanitized by
+	 * core from this schema, drawn in the builder's payment panel, listed for AutoPilot). A list of:
+	 *   key   pgw_[a-z0-9_]{1,40}
+	 *   type  field (a field of the same form; field_types: allowed types, e.g. ['email']),
+	 *         select (options: value => label), text (max ≤ 200), code ([A-Za-z0-9_.-], max ≤ 60),
+	 *         checkbox ('1' or '')
+	 *   label, help, required (bool: a save-time warning when empty), default (select/text/code)
+	 * The standard payer keys (Field::PAYER_KEYS: pgw_map_name, pgw_map_first, pgw_map_last,
+	 * pgw_map_email, pgw_map_phone, pgw_map_address, pgw_map_postcode, pgw_map_city,
+	 * pgw_map_state, pgw_map_country) fill Checkout_Context::$payer.
+	 */
+	public function field_schema() {
+		return array();
+	}
+
+	/**
+	 * Defaults of the payment field for this gateway (the field's own values win):
+	 *   texts  array: btn, secure, summary, methods, pending, success, fail, redirect, amount, other
+	 *          (plain text in the add-on's text domain; btn may hold %amount%)
+	 *   pf     array of style keys (Field::DEFAULTABLE), e.g. array( 'pf_methods_style' => 'grid',
+	 *          'pf_btn_icon' => 'bi-qr-code' )
+	 */
+	public function field_defaults() {
+		return array();
+	}
+
+	/**
+	 * Warnings for a form that holds this gateway's field (shown in the builder after Save and
+	 * returned to AutoPilot): a list of array( 'code' => [a-z0-9_], 'm' => translated text ). Core
+	 * already warns about a currency outside supports()['currencies'] and an empty required
+	 * field_schema() option; this is for anything else.
+	 *
+	 * @param array $form  The saved form rows.
+	 * @param array $field The gateway field row.
+	 */
+	public function form_warnings( array $form, array $field, Settings $s ) {
+		return array();
+	}
+
+	/** Notices on the gateway's settings card: array( array( 'level' => info|warning|error, 'm' => text ) ). */
+	public function settings_notices( Settings $s ) {
+		return array();
+	}
+
+	/** Extra buttons on the settings card: array( array( 'id' => [a-z0-9_]{1,30}, 'label' => text ) ). */
+	public function settings_actions( Settings $s ) {
+		return array();
+	}
+
+	/** Runs one of settings_actions() (admin, nonce and capability checked by core). @return Result (message shown) */
+	public function run_settings_action( $action, Settings $s, $mode ) {
+		return Result::unsupported();
 	}
 
 	/** Logos served from the add-on's own folder: array( array( url, alt ), … ). */
@@ -198,6 +269,24 @@ class Checkout_Context {
 	public $description = '';
 	public $payer_email = '';
 	public $metadata = array();
+	/**
+	 * The payer as core resolved it from the field's pgw_map_* options (and the form's e-mail
+	 * field): name, first_name, last_name, email, phone, address, postcode, city, state, country.
+	 * Every value is plain text ('' when unknown).
+	 */
+	public $payer = array();
+	/** The submitted rows of this entry (read only; values as typed, without the payment row). */
+	public $rows = array();
+	/** The gateway field's options: pf_methods and every pgw_* key of field_schema(), sanitized. */
+	public $field = array();
+	/**
+	 * Opaque, short-lived token from the gateway's browser adapter (EFBPay adapter prepare()), e.g. a
+	 * card token of the provider's hosted fields. At most 4096 printable ASCII characters; never
+	 * stored or logged by core. '' when the adapter has no prepare().
+	 */
+	public $client_token = '';
+	/** Small public data from prepare() (flat, scalar values, at most 2 KB as JSON). */
+	public $client_data = array();
 
 	public function __construct( array $a = array() ) {
 		foreach ( $a as $k => $v ) {
@@ -211,6 +300,14 @@ class Result {
 	public $error = '';
 	public $message = '';
 	public $unsupported = false;
+	/** A message the visitor may see instead of core's generic one (plain text, at most 200 characters). */
+	public $visitor_message = '';
+
+	/** Fluent: $res = Create_Result::fail( 'oney_range', 'log text' )->for_visitor( __( '…', 'efb-x' ) ). */
+	public function for_visitor( $m ) {
+		$this->visitor_message = (string) $m;
+		return $this;
+	}
 
 	public static function ok( $message = '' ) {
 		$r = new static();
@@ -260,6 +357,17 @@ class Create_Result extends Result {
 class Remote_State {
 	public $ok = false;
 	public $error = '';
+	/**
+	 * true when the provider's answer proves it is about another payment, site or mode: core logs
+	 * it, answers a webhook 200 (no retries) and never applies it.
+	 */
+	public $mismatch = false;
+	/**
+	 * Refunds the provider reports for this payment: array( array( 'ref' => provider refund id,
+	 * 'status' => refunded|failed|pending, 'amount_minor' => int ) ). Core settles its pending
+	 * refunds with it (refunded_minor only counts confirmed refunds).
+	 */
+	public $refunds = array();
 	/** One of Store::STATUSES. */
 	public $status = '';
 	public $amount_minor = null;
@@ -284,6 +392,13 @@ class Remote_State {
 	public static function error( $code ) {
 		$s = new static();
 		$s->error = (string) $code;
+		return $s;
+	}
+
+	/** The answer is about another payment (id, metadata uid) or mode: never applied, never retried. */
+	public static function mismatch( $code ) {
+		$s = static::error( $code );
+		$s->mismatch = true;
 		return $s;
 	}
 }

@@ -10,8 +10,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class Frontend {
 
-	/** The default texts of the field, filled with the gateway's name (the field's own texts win). */
-	public static function default_texts( $gateway_label ) {
+	/**
+	 * The default texts of the field, filled with the gateway's name (the field's own texts win).
+	 * $gateway_texts: the gateway's own defaults (Gateway::field_defaults()['texts'], checked by
+	 * Registry::field_defaults()), e.g. a button text for a QR payment.
+	 */
+	public static function default_texts( $gateway_label, array $gateway_texts = array() ) {
+		$out = self::core_texts( $gateway_label );
+		foreach ( $gateway_texts as $k => $v ) {
+			if ( isset( $out[ $k ] ) && $k !== 'test' && is_string( $v ) && $v !== '' ) $out[ $k ] = str_replace( '%s', $gateway_label, $v );
+		}
+		return $out;
+	}
+
+	private static function core_texts( $gateway_label ) {
 		return array(
 			'btn'      => str_replace( '%s', '%amount%', __( 'Pay %s', 'easy-form-builder' ) ),
 			'secure'   => sprintf( __( 'Payments are processed securely by %s. Your card details never reach this website.', 'easy-form-builder' ), $gateway_label ),
@@ -40,6 +52,11 @@ class Frontend {
 			'noScript'   => __( 'This form cannot take payments at the moment. Please contact the site owner.', 'easy-form-builder' ),
 			'min'        => __( 'The amount must be at least %s.', 'easy-form-builder' ),
 			'max'        => __( 'The amount must be at most %s.', 'easy-form-builder' ),
+			/* translators: %1$s: payment method, %2$s: amount with currency */
+			'methodMin'  => __( '%1$s accepts amounts from %2$s. Please choose another payment method.', 'easy-form-builder' ),
+			/* translators: %1$s: payment method, %2$s: amount with currency */
+			'methodMax'  => __( '%1$s accepts amounts up to %2$s. Please choose another payment method.', 'easy-form-builder' ),
+			'newAttempt' => __( 'Preparing a new payment…', 'easy-form-builder' ),
 		);
 	}
 
@@ -61,7 +78,7 @@ class Frontend {
 	 */
 	public static function field_markup( $row, $form0, $form_id ) {
 		$type = (string) Field::get( $row, 'type' );
-		$info = Registry::public_info( $type );
+		$info = Registry::public_info( $type, array( 'currency' => (string) Field::get( $form0, 'currency' ) ) );
 		$id = (string) Field::get( $row, 'id_' );
 		$ok = $info && Service::plan_ok() && ! empty( $info['configured'][ $info['mode'] ] );
 		if ( ! $ok ) {
@@ -71,8 +88,8 @@ class Frontend {
 			}
 			return '<div class="efb alert alert-warning efb-pf-unavailable" role="alert" data-pf="' . esc_attr( $id ) . '">' . $msg . '</div>';
 		}
-		$r = Field::resolve( $row, $form0, array( 'methods' => $info['methods'], 'logos' => $info['logos'], 'mobile' => self::mobile_ok() ) );
-		$t = Field::texts( $row, self::locale(), self::default_texts( $info['label'] ) );
+		$r = Field::resolve( $row, $form0, array( 'methods' => $info['methods'], 'logos' => $info['logos'], 'mobile' => self::mobile_ok(), 'defaults' => $info['defaults']['pf'] ) );
+		$t = Field::texts( $row, self::locale(), self::default_texts( $info['label'], $info['defaults']['texts'] ) );
 		return Field::html( $r, $t, array(
 			'id'      => $id,
 			'gateway' => $type,
@@ -98,8 +115,8 @@ class Frontend {
 		$css = '';
 		$form0 = isset( $rows[0] ) ? $rows[0] : array();
 		foreach ( self::gateway_rows( $rows ) as $r ) {
-			$info = Registry::public_info( (string) Field::get( $r, 'type' ) );
-			$res = Field::resolve( $r, $form0, array( 'methods' => $info ? $info['methods'] : array(), 'logos' => $info ? $info['logos'] : array(), 'mobile' => self::mobile_ok() ) );
+			$info = Registry::public_info( (string) Field::get( $r, 'type' ), array( 'currency' => (string) Field::get( $form0, 'currency' ) ) );
+			$res = Field::resolve( $r, $form0, array( 'methods' => $info ? $info['methods'] : array(), 'logos' => $info ? $info['logos'] : array(), 'mobile' => self::mobile_ok(), 'defaults' => $info ? $info['defaults']['pf'] : array() ) );
 			$css .= Field::css( $res, (string) Field::get( $r, 'id_' ) );
 		}
 		return $css;
@@ -127,7 +144,14 @@ class Frontend {
 		foreach ( Registry::all() as $slug => $g ) {
 			if ( $json !== '' && ! self::json_has_gateway_slug( $json, $slug ) ) continue;
 			$info = Registry::public_info( $slug );
-			$gateways[ $slug ] = array( 'label' => $info['label'], 'mode' => $info['mode'], 'flows' => $info['supports']['flows'], 'min_minor' => $info['supports']['min_minor'], 'max_minor' => $info['supports']['max_minor'], 'currencies' => $info['currencies'] );
+			// Each method's own limits (Gateway::methods() extras), so the page can name the method that does not fit.
+			$limits = array();
+			foreach ( $info['methods'] as $m ) {
+				if ( isset( $m[2] ) && ( isset( $m[2]['min_minor'] ) || isset( $m[2]['max_minor'] ) ) ) {
+					$limits[ $m[0] ] = array( 'label' => $m[1], 'min_minor' => isset( $m[2]['min_minor'] ) ? $m[2]['min_minor'] : array(), 'max_minor' => isset( $m[2]['max_minor'] ) ? $m[2]['max_minor'] : array() );
+				}
+			}
+			$gateways[ $slug ] = array( 'label' => $info['label'], 'mode' => $info['mode'], 'flows' => $info['supports']['flows'], 'min_minor' => $info['supports']['min_minor'], 'max_minor' => $info['supports']['max_minor'], 'currencies' => $info['currencies'], 'method_limits' => $limits );
 			$assets = (array) $g->public_assets();
 			foreach ( isset( $assets['js'] ) ? (array) $assets['js'] : array() as $i => $src ) {
 				if ( is_string( $src ) && $src !== '' ) wp_enqueue_script( 'efb-pay-' . $slug . '-' . $i, $src, array( 'efb-payment-runtime' ), EMSFB_PLUGIN_VERSION, true );

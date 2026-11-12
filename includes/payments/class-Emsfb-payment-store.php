@@ -24,8 +24,9 @@ class Store {
 	/** to => statuses it may come from (docs §6.2). */
 	const TRANSITIONS = array(
 		'created'            => array( 'pending', 'failed' ),
-		'pending'            => array( 'authorized', 'paid', 'failed', 'canceled', 'expired' ),
-		'authorized'         => array( 'paid', 'canceled', 'expired', 'failed' ),
+		// pending/authorized → refunded: the provider refunded the whole payment before EFB saw it paid.
+		'pending'            => array( 'authorized', 'paid', 'failed', 'canceled', 'expired', 'refunded' ),
+		'authorized'         => array( 'paid', 'canceled', 'expired', 'failed', 'refunded' ),
 		'paid'               => array( 'refunded', 'partially_refunded' ),
 		'failed'             => array( 'paid' ),
 		'canceled'           => array( 'paid' ),
@@ -439,6 +440,36 @@ class Store {
 		return false !== $wpdb->update( self::table( 'emsfb_pmt_rfd_' ), $fields, array( 'id' => (int) $id ) );
 	}
 
+	public static function get_refund( $id ) {
+		global $wpdb;
+		$t = self::table( 'emsfb_pmt_rfd_' );
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix
+		$r = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM `{$t}` WHERE id = %d", (int) $id ), ARRAY_A );
+		return $r ? $r : null;
+	}
+
+	/**
+	 * Moves a refund row from pending to $to (refunded | failed | canceled) once: one conditional
+	 * UPDATE, so a webhook and an admin click cannot both settle it. @return bool
+	 */
+	public static function settle_refund( $id, $to, $gateway_ref = '' ) {
+		global $wpdb;
+		if ( ! in_array( $to, array( 'refunded', 'failed', 'canceled' ), true ) ) return false;
+		$t = self::table( 'emsfb_pmt_rfd_' );
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix
+		$n = $wpdb->query( $wpdb->prepare( "UPDATE `{$t}` SET status = %s, updated_at = %s, gateway_ref = CASE WHEN gateway_ref = '' THEN %s ELSE gateway_ref END WHERE id = %d AND status = %s", $to, self::now(), substr( (string) $gateway_ref, 0, 100 ), (int) $id, 'pending' ) );
+		return (int) $n === 1;
+	}
+
+	/** The sum of the confirmed refunds of a payment (rows with status refunded). */
+	public static function refunded_total( $payment_id ) {
+		$n = 0;
+		foreach ( self::refunds( $payment_id ) as $r ) {
+			if ( $r['status'] === 'refunded' ) $n += (int) $r['amount_minor'];
+		}
+		return $n;
+	}
+
 	public static function refunds( $payment_id ) {
 		global $wpdb;
 		$t = self::table( 'emsfb_pmt_rfd_' );
@@ -497,13 +528,13 @@ class Store {
 	 * Open payments the reconcile job should look at now: created 5 minutes to 10 days ago,
 	 * checked last before the back-off of their check_count (5, 15, 60 minutes, then 6 hours).
 	 */
-	public static function due_for_reconcile( $limit = 25 ) {
+	public static function due_for_reconcile( $limit = 25, $days = 10 ) {
 		global $wpdb;
 		$t = self::table( 'emsfb_pmt_' );
 		$now = self::time();
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix
 		$rows = (array) $wpdb->get_results( $wpdb->prepare( "SELECT * FROM `{$t}` WHERE status IN ('created','pending','authorized') AND created_at <= %s AND created_at >= %s ORDER BY last_checked_at IS NOT NULL, last_checked_at ASC, id ASC LIMIT %d",
-			gmdate( 'Y-m-d H:i:s', $now - 5 * 60 ), gmdate( 'Y-m-d H:i:s', $now - 10 * 86400 ), (int) $limit * 4 ), ARRAY_A );
+			gmdate( 'Y-m-d H:i:s', $now - 5 * 60 ), gmdate( 'Y-m-d H:i:s', $now - max( 1, (int) $days ) * 86400 ), (int) $limit * 4 ), ARRAY_A );
 		$out = array();
 		foreach ( $rows as $r ) {
 			$r = self::cast( $r );

@@ -87,22 +87,33 @@ foreach (array(array('va_bca', xnd_form()), array('promptpay', xnd_form('thb', a
 	$t($c[0] . ': no refunds through Xendit → refused before any request, still paid', array($r['ok'], $r['error'], xnd_count('POST', '/v3/refunds') - $n, Store::get($p['id'])['status']), array(false, 'refund_not_supported', 0, 'paid'));
 }
 
-/* pending refund + refund webhooks */
+/* pending refund + refund webhooks (cores that count a pending refund at once, and cores that wait for Xendit) */
+$waits = method_exists('\\Emsfb\\Payments\\Service', 'settle_refund');
 $F::set_opt('refund_status', 'PENDING');
 $p = $paid('ovo');
 $r = Service::refund($p, $p['amount_minor'], 'x', 1);
 $rows = Store::refunds($p['id']);
 $rid = $rows[0]['gateway_ref'];
-$t('Xendit PENDING → the refund row is pending (the payment counts as refunded in EFB)', array($r['ok'], $rows[0]['status'], Store::get($p['id'])['status']), array(true, 'pending', 'refunded'));
+$t('Xendit PENDING → the refund row is pending with the rfd- reference' . ($waits ? ' and the payment waits (paid)' : ' (this core counts it at once: refunded)'), array($r['ok'], $rows[0]['status'], strpos($rid, 'rfd-') === 0, Store::get($p['id'])['status']), array(true, 'pending', true, $waits ? 'paid' : 'refunded'));
 $wb = $F::refund_webhook_body($rid, 'refund.succeeded');
 $t('refund.succeeded with a forged token → 401, row still pending', array(xnd_post_webhook($wb, 'efbFakeCallbackTokenTest999999999999'), Store::refunds($p['id'])[0]['status']), array(401, 'pending'));
 $gets = xnd_count('GET', '/sessions/');
-$t('refund.succeeded with the right token → 200, row refunded, no GET, payment unchanged', array(xnd_post_webhook($wb), Store::refunds($p['id'])[0]['status'], xnd_count('GET', '/sessions/') - $gets, Store::get($p['id'])['status']), array(200, 'refunded', 0, 'refunded'));
-$t('the same refund webhook again → 200, nothing else', array(xnd_post_webhook($wb), Store::refunds($p['id'])[0]['status']), array(200, 'refunded'));
+$t('refund.succeeded with the right token → 200, row refunded, payment refunded, no GET', array(xnd_post_webhook($wb), Store::refunds($p['id'])[0]['status'], Store::get($p['id'])['status'], Store::get($p['id'])['refunded_minor'], xnd_count('GET', '/sessions/') - $gets), array(200, 'refunded', 'refunded', $p['amount_minor'], 0));
+$t('the same refund webhook again → 200, nothing else', array(xnd_post_webhook($wb), Store::refunds($p['id'])[0]['status'], Store::get($p['id'])['refunded_minor']), array(200, 'refunded', $p['amount_minor']));
 $p = $paid('dana');
 Service::refund($p, $p['amount_minor'], 'x', 1);
 $rid = Store::refunds($p['id'])[0]['gateway_ref'];
-$t('refund.failed → 200, row failed, a refund_failed event for the owner', array(xnd_post_webhook($F::refund_webhook_body($rid, 'refund.failed')), Store::refunds($p['id'])[0]['status'], strpos(json_encode(Store::events($p['id'])), 'refund_failed') !== false), array(200, 'failed', true));
+$t('refund.failed → 200, row failed, an event for the owner' . ($waits ? ', the payment stays paid' : ''), array(xnd_post_webhook($F::refund_webhook_body($rid, 'refund.failed')), Store::refunds($p['id'])[0]['status'], (bool) preg_match('/refund_(failed|declined)/', json_encode(Store::events($p['id']))), $waits ? Store::get($p['id'])['status'] : 'paid'), array(200, 'failed', true, 'paid'));
+if ($waits && property_exists('\\Emsfb\\Payments\\Remote_State', 'refunds')) {
+	// A lost refund webhook: the next check of the payment asks GET /v3/refunds/{id}.
+	$p = $paid('gopay');
+	Service::refund($p, $p['amount_minor'], 'x', 1);
+	$rid = Store::refunds($p['id'])[0]['gateway_ref'];
+	$F::set_refund($rid, 'SUCCEEDED');
+	Service::refresh(Store::get($p['id']), 'admin');
+	$g3 = $F::last('GET', '/v3/refunds/');
+	$t('no refund webhook: a re-check reads GET /v3/refunds/{id} (api-version) → refund confirmed, payment refunded', array($g3['path'], $g3['api_version'], Store::refunds($p['id'])[0]['status'], Store::get($p['id'])['status']), array('/v3/refunds/' . $rid, '2024-11-11', 'refunded', 'refunded'));
+}
 $F::set_opt('refund_status', 'SUCCEEDED');
 $dash = json_decode($wb, true);
 $dash['data']['reference_id'] = 'made-in-dashboard-1';

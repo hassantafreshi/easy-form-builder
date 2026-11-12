@@ -23,6 +23,12 @@
       'pf_secure_text', 'pf_t_summary', 'pf_t_methods', 'pf_t_pending', 'pf_t_success', 'pf_t_fail', 'pf_t_amount',
       'pf_fixed', 'pf_fixed_label', 'pf_amount', 'pf_presets', 'pf_other', 'pf_default', 'pf_min', 'pf_max',
       'mobile_pf_order', 'mobile_pf_hide', 'mobile_pf_btn_size', 'mobile_pf_btn_width', 'mobile_pf_methods_style'];
+   var DEFAULTABLE = ['pf_btn_bg', 'pf_btn_fg', 'pf_btn_bg_h', 'pf_btn_fg_h', 'pf_btn_radius', 'pf_btn_size', 'pf_btn_width', 'pf_btn_icon',
+      'pf_btn_icon_pos', 'pf_order', 'pf_hide', 'pf_layout', 'pf_methods_style', 'pf_summary', 'pf_label_pos', 'pf_card_bg', 'pf_card_border',
+      'pf_card_radius', 'pf_accent', 'pf_logo_size'];
+   var PAYER_KEYS = { pgw_map_name: 'name', pgw_map_first: 'first_name', pgw_map_last: 'last_name', pgw_map_email: 'email', pgw_map_phone: 'phone',
+      pgw_map_address: 'address', pgw_map_postcode: 'postcode', pgw_map_city: 'city', pgw_map_state: 'state', pgw_map_country: 'country' };
+   var OPTION_TYPES = ['field', 'select', 'text', 'code', 'checkbox'];
    var FORM_KEYS = ['pay_act_admin_mail', 'pay_act_user_mail', 'pay_act_sms', 'pay_act_tlg', 'pay_act_gs', 'pay_act_wh', 'pay_fail_notify'];
    var NAMED = { primary: '#0d6efd', success: '#198754', secondary: '#6c757d', danger: '#ff455f', warning: '#e9c31a', info: '#31d2f2', light: '#fbfbfb', darkb: '#202a8d', pinkEfb: '#ff4b93', dark: '#212529', white: '#ffffff' };
    var SIZES = { sm: ['.4rem .85rem', '.875rem'], md: ['.65rem 1.1rem', '1rem'], lg: ['.85rem 1.4rem', '1.15rem'] };
@@ -249,6 +255,119 @@
       return '';
    }
 
+   /* ---- gateway options (pgw_*): twin of Field::clean_schema() and friends ---- */
+
+   function fieldId(v) {
+      if (typeof v === 'number' && Number.isInteger(v)) v = String(v);
+      return typeof v === 'string' && /^[A-Za-z0-9_-]{1,40}$/.test(v) ? v : '';
+   }
+   function isScalar(v) { return typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean'; }
+   function phpStr(v) { return typeof v === 'boolean' ? (v ? '1' : '') : String(v); }
+   function optionValue(d, v) {
+      switch (d.type) {
+         case 'field': return fieldId(v);
+         case 'select':
+            if (typeof v !== 'string') return '';
+            for (var i = 0; i < d.options.length; i++) if (d.options[i][0] === v) return v;
+            return '';
+         case 'text': return text(v, d.max);
+         case 'code':
+            if (typeof v !== 'string') return '';
+            v = ptrim(v);
+            return /^[A-Za-z0-9_.-]+$/.test(v) && v.length <= d.max ? v : '';
+         case 'checkbox': return v === 1 || v === '1' || v === true ? '1' : '';
+      }
+      return '';
+   }
+   function cleanSchema(schema) {
+      var out = [], seen = {};
+      if (!Array.isArray(schema) && !(schema && typeof schema === 'object')) return out;
+      var list = Array.isArray(schema) ? schema : Object.keys(schema).map(function (k) { return schema[k]; });
+      for (var i = 0; i < list.length; i++) {
+         if (out.length >= 40) break;
+         var d = list[i];
+         if (!d || typeof d !== 'object' || Array.isArray(d) || !has(d, 'key') || !has(d, 'type') || d.key === null || d.type === null) continue;
+         if (typeof d.key !== 'string' || !/^pgw_[a-z0-9_]{1,40}$/.test(d.key)) continue;
+         if (typeof d.type !== 'string' || OPTION_TYPES.indexOf(d.type) === -1 || has(seen, d.key)) continue;
+         seen[d.key] = true;
+         var e = {
+            key: d.key, type: d.type,
+            label: text(typeof d.label === 'string' ? d.label : d.key, 120),
+            help: text(typeof d.help === 'string' ? d.help : '', 300),
+            required: !!d.required && d.required !== '0' && !(Array.isArray(d.required) && !d.required.length),
+            options: [], max: 0, field_types: [], default: ''
+         };
+         if (d.type === 'select' && d.options && typeof d.options === 'object') {
+            var keys = Array.isArray(d.options) ? d.options.map(function (x, j) { return j; }) : Object.keys(d.options);
+            for (var j = 0; j < keys.length; j++) {
+               if (e.options.length >= 50) break;
+               var ov = String(keys[j]), ol = d.options[keys[j]];
+               if (/^[A-Za-z0-9_.-]{0,40}$/.test(ov)) e.options.push([ov, text(isScalar(ol) ? phpStr(ol) : ov, 120)]);
+            }
+         }
+         if (d.type === 'text' || d.type === 'code') {
+            var cap = d.type === 'text' ? 200 : 60;
+            var m = typeof d.max === 'number' && Number.isInteger(d.max) ? d.max : cap;
+            e.max = Math.max(1, Math.min(cap, m));
+         }
+         if (d.type === 'field' && Array.isArray(d.field_types)) {
+            d.field_types.forEach(function (ft) { if (typeof ft === 'string' && /^[A-Za-z]{1,30}$/.test(ft) && e.field_types.indexOf(ft) === -1) e.field_types.push(ft); });
+         }
+         if (has(d, 'default') && d.default !== null && d.type !== 'field') e.default = optionValue(e, d.default);
+         out.push(e);
+      }
+      return out;
+   }
+   function sanitizeGatewayKey(k, v, schema) {
+      if (typeof k !== 'string' || !/^pgw_[a-z0-9_]{1,40}$/.test(k)) return '';
+      var list = cleanSchema(schema), d = null;
+      for (var i = 0; i < list.length; i++) if (list[i].key === k) { d = list[i]; break; }
+      if (d === null) {
+         if (k.indexOf('pgw_map_') === 0) return fieldId(v);
+         return typeof v === 'string' || (typeof v === 'number' && Number.isInteger(v)) ? text(String(v), 200) : '';
+      }
+      return optionValue(d, v);
+   }
+   function gatewayOptions(row, schema) {
+      var out = { pf_methods: sanitizeKey('pf_methods', get(row, 'pf_methods')) };
+      cleanSchema(schema).forEach(function (d) { var v = optionValue(d, get(row, d.key)); out[d.key] = v !== '' ? v : d.default; });
+      return out;
+   }
+   function warnings(form, infos) {
+      var out = [];
+      if (!Array.isArray(form) || !form[0]) return out;
+      infos = infos || {};
+      var types = {};
+      form.forEach(function (r, i) { if (i > 0 && r && typeof r === 'object' && has(r, 'id_') && isScalar(r.id_)) types[phpStr(r.id_)] = typeof r.type === 'string' ? r.type : ''; });
+      var cur = get(form[0], 'currency');
+      cur = typeof cur === 'string' ? ptrim(cur).toUpperCase() : '';
+      form.forEach(function (r, i) {
+         if (i === 0 || !r || typeof r !== 'object' || typeof r.type !== 'string' || !has(r, 'id_') || !isScalar(r.id_) || !has(infos, r.type)) return;
+         var g = infos[r.type] || {};
+         var base = function (o) { return Object.assign({ field_id: phpStr(r.id_), gateway: r.type }, o); };
+         var allowed = Array.isArray(g.currencies) ? g.currencies.map(String) : [];
+         if (allowed.length && allowed.indexOf(cur) === -1) out.push(base({ code: 'pay_currency', currency: cur, allowed: allowed }));
+         cleanSchema(g.field_schema || []).forEach(function (d) {
+            var v = optionValue(d, has(r, d.key) ? r[d.key] : null);
+            if (v === '') { if (d.required && d.default === '') out.push(base({ code: 'pay_option_required', key: d.key, label: d.label })); return; }
+            if (d.type !== 'field') return;
+            if (!has(types, v)) out.push(base({ code: 'pay_option_field_missing', key: d.key, label: d.label }));
+            else if (d.field_types.length && d.field_types.indexOf(types[v]) === -1) out.push(base({ code: 'pay_option_field_type', key: d.key, label: d.label }));
+         });
+      });
+      return out;
+   }
+   function logoUrl(u) {
+      return typeof u === 'string' && u.length <= 500 && /^(?:https?:)?\/\/[^\x00-\x20"'<>()]+$|^\/[^\/\x00-\x20"'<>()][^\x00-\x20"'<>()]*$/i.test(u);
+   }
+   function methodEntry(m) {
+      if (!Array.isArray(m) || m.length < 2 || m[0] == null || m[1] == null || !isScalar(m[0]) || !isScalar(m[1])) return null;
+      var e = [phpStr(m[0]), phpStr(m[1])];
+      var x = m[2] && typeof m[2] === 'object' ? m[2] : {};
+      if (typeof x.logo === 'string' && logoUrl(x.logo)) e.push(x.logo);
+      return e;
+   }
+
    /* ---- colour --------------------------------------------------------- */
 
    function rgb(h) { return [parseInt(h.substr(1, 2), 16), parseInt(h.substr(3, 2), 16), parseInt(h.substr(5, 2), 16)]; }
@@ -281,7 +400,12 @@
 
    function resolve(row, form0, opts) {
       opts = opts || {};
-      var s = function (k) { return sanitizeKey(k, get(row, k)); };
+      var defs = opts.defaults && typeof opts.defaults === 'object' ? opts.defaults : {};
+      var s = function (k) {
+         var v = sanitizeKey(k, get(row, k));
+         if (v === '' && has(defs, k) && DEFAULTABLE.indexOf(k) !== -1) v = sanitizeKey(k, defs[k]);
+         return v;
+      };
       var bg = s('pf_btn_bg') || formButtonHex(form0);
       var fg = s('pf_btn_fg');
       if (fg === '' || fg === 'auto') fg = autoText(bg);
@@ -294,9 +418,9 @@
       var methods = [];
       var allowed = s('pf_methods');
       if (allowed !== '') {
-         allowed.split(',').forEach(function (mid) { avail.forEach(function (m) { if (String(m[0]) === mid) methods.push([String(m[0]), String(m[1])]); }); });
+         allowed.split(',').forEach(function (mid) { avail.forEach(function (m) { var me = methodEntry(m); if (me && me[0] === mid) methods.push(me); }); });
       } else {
-         avail.forEach(function (m) { methods.push([String(m[0]), String(m[1])]); });
+         avail.forEach(function (m) { var me = methodEntry(m); if (me) methods.push(me); });
       }
       var logos = Array.isArray(opts.logos) ? opts.logos : [];
       var amountMode = s('pf_amount');
@@ -446,7 +570,8 @@
                } else {
                   o += '<div class="efb efb-pf-method-list" role="radiogroup" aria-labelledby="' + id + '_pfmet">';
                   r.methods.forEach(function (m, i) {
-                     o += '<button type="button" class="efb efb-pf-method" role="radio" aria-checked="' + (i === 0 ? 'true' : 'false') + '" tabindex="' + (i === 0 ? '0' : '-1') + '" data-pf-method="' + esc(m[0]) + '">' + esc(m[1]) + '</button>';
+                     o += '<button type="button" class="efb efb-pf-method" role="radio" aria-checked="' + (i === 0 ? 'true' : 'false') + '" tabindex="' + (i === 0 ? '0' : '-1') + '" data-pf-method="' + esc(m[0]) + '">' +
+                        (m.length > 2 ? '<img class="efb efb-pf-method-logo" src="' + esc(m[2]) + '" alt="" aria-hidden="true" loading="lazy" decoding="async">' : '') + esc(m[1]) + '</button>';
                   });
                   o += '</div>';
                }
@@ -617,6 +742,8 @@
 
    var core = {
       ELEMENTS: ELEMENTS, KEYS: KEYS, FORM_KEYS: FORM_KEYS, TEXT_KEYS: TEXT_KEYS, ICONS: ICONS, HIDEABLE: HIDEABLE,
+      DEFAULTABLE: DEFAULTABLE, PAYER_KEYS: PAYER_KEYS, OPTION_TYPES: OPTION_TYPES,
+      fieldId: fieldId, cleanSchema: cleanSchema, sanitizeGatewayKey: sanitizeGatewayKey, gatewayOptions: gatewayOptions, warnings: warnings, methodEntry: methodEntry, logoUrl: logoUrl,
       sanitizeKey: sanitizeKey, resolve: resolve, texts: texts, css: css, html: html, esc: esc,
       contrast: contrast, autoText: autoText, darken: darken, presets: presets, decimal: decimal,
       i18nDecode: i18nDecode, i18nEncode: i18nEncode, b64urlEncode: b64urlEncode, b64urlDecode: b64urlDecode,

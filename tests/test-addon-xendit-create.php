@@ -55,7 +55,8 @@ $missing = array();
 foreach (array_keys(Xendit_Api::CHANNELS) as $id) { $f = xnd_addon_dir() . '/assets/img/' . (strpos($id, 'va_') === 0 ? 'va' : $id) . '.svg'; if (!is_readable($f)) $missing[] = $id; }
 $t('every channel has its badge in assets/img', $missing, array());
 $m = $g->methods(Settings::load('xendit'));
-$t('methods(): no channel list → "any" + the 21 channels, QRIS named for every app', array(count($m), $m[0][0], $m[1]), array(22, 'any', array('qris', 'QRIS (all banking and e-wallet apps)')));
+$t('methods(): no channel list → "any" + the 21 channels, QRIS named for every app', array(count($m), $m[0][0], array_slice($m[1], 0, 2)), array(22, 'any', array('qris', 'QRIS (all banking and e-wallet apps)')));
+$t('method extras: QRIS only IDR, 1 … 20,000,000 rupiah (×100); cards without SGD / USD limits', array($m[1][2]['currencies'], $m[1][2]['min_minor']['IDR'], $m[1][2]['max_minor']['IDR'], isset($m[21][2]['min_minor']['USD'])), array(array('IDR'), 100, 2000000000, false));
 $t('every method id fits core\'s pf_methods sanitizer', \Emsfb\Payments\Field::sanitize_key('pf_methods', implode(',', array_map(function ($x) { return $x[0]; }, $m))) === implode(',', array_slice(array_map(function ($x) { return $x[0]; }, $m), 0, 20)), true);
 
 // Settings and secrets.
@@ -131,7 +132,9 @@ list($b, $raw) = xnd_last_session_body();
 $t('PHP two decimals: 1499.75 + 0.25 → "amount":1500.00, country PH, GCASH', array($r['success'], xnd_row($r)['amount_minor'], strpos($raw, '"amount":1500.00,') !== false, $b['country'], $b['allowed_payment_channels']), array(true, 150000, true, 'PH', array('GCASH')));
 $r = xnd_create($db, array('form' => xnd_form('php', array(), array('12.34', '1'), ''), 'method' => 'cards'));
 list($b, $raw) = xnd_last_session_body();
-$t('PHP 12.34 by card (minimum 20.00): the visitor\'s card is not sent, no list → Xendit shows every activated channel (no allowed_payment_channels)', array($r['success'], isset($b['allowed_payment_channels'])), array(true, false));
+$limits = method_exists('\\Emsfb\\Payments\\Gateway', 'methods_for'); // cores that check a method's own limits before create()
+if ($limits) $t('PHP 12.34 by card (minimum 20.00): core refuses with the method\'s own minimum (method_below_min)', array($r['success'], $r['code'], strpos($r['m'], '20.00') !== false || strpos($r['m'], '20') !== false), array(false, 'method_below_min', true));
+else $t('PHP 12.34 by card (minimum 20.00): the visitor\'s card is not sent, no list → Xendit shows every activated channel (no allowed_payment_channels)', array($r['success'], isset($b['allowed_payment_channels'])), array(true, false));
 $r = xnd_create($db, array('form' => xnd_form('kwd')));
 $t('a currency Xendit does not take (KWD, three decimals): refused by the quote, no request', array($r['success'], $r['code']), array(false, 'currency_unsupported'));
 $r = xnd_create($db, array('form' => xnd_form('usd', array(), array('10', '1'), ''), 'method' => 'cards'));
@@ -154,7 +157,11 @@ list($b) = xnd_last_session_body();
 $t('a channel outside the field\'s list (BCA VA) → the field\'s channels', $b['allowed_payment_channels'], array('QRIS', 'OVO'));
 $r = xnd_create($db, array('method' => 'va_bca', 'form' => xnd_form('idr', array(), array('5000', '1'), '')));
 list($b) = xnd_last_session_body();
-$t('BCA VA below its 10,000 minimum (5,000) is not sent → no list', isset($b['allowed_payment_channels']), false);
+if ($limits) $t('BCA VA below its 10,000 minimum (5,000): core refuses with the method\'s own minimum', array($r['success'], $r['code']), array(false, 'method_below_min'));
+else $t('BCA VA below its 10,000 minimum (5,000) is not sent → no list', isset($b['allowed_payment_channels']), false);
+$r = xnd_create($db, array('method' => '', 'form' => xnd_form('idr', array('pf_methods' => 'va_bca,qris'), array('5000', '1'), '')));
+list($b) = xnd_last_session_body();
+$t('no channel chosen, the field allows BCA VA and QRIS, 5,000 IDR: only QRIS is sent (BCA VA starts at 10,000)', array($r['success'], $b['allowed_payment_channels']), array(true, array('QRIS')));
 Settings::load('xendit')->apply($g->settings_schema(), array('channels' => 'qris, dana, va_bni'));
 $t('methods(): the owner\'s list in its order', array_map(function ($x) { return $x[0]; }, $g->methods(Settings::load('xendit'))), array('qris', 'dana', 'va_bni'));
 $r = xnd_create($db, array('method' => 'ovo'));

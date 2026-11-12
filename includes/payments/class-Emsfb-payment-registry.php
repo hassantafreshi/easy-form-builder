@@ -159,27 +159,97 @@ class Registry {
 	}
 
 	/**
-	 * What the public renderer and the builder need about each gateway, without any secret:
-	 * label, mode, configured per mode, currencies, methods, supports, logos.
+	 * A gateway's method list in one shape: array( id, label ) or array( id, label, extras ) where
+	 * extras holds only logo (safe URL), currencies (ISO codes), min_minor / max_minor (CUR => int).
+	 * With $currency, a method whose currencies do not include it is dropped.
 	 */
-	public static function public_info( $slug ) {
+	public static function normalize_methods( $list, $currency = '' ) {
+		$out = array();
+		$currency = strtoupper( (string) $currency );
+		foreach ( (array) $list as $m ) {
+			if ( ! is_array( $m ) || ! isset( $m[0], $m[1] ) || ! is_scalar( $m[0] ) || ! is_scalar( $m[1] ) ) continue;
+			$id = (string) $m[0];
+			if ( ! preg_match( '/^[a-z0-9_]{1,30}$/', $id ) ) continue;
+			$e = array( $id, (string) $m[1] );
+			$x = isset( $m[2] ) && is_array( $m[2] ) ? $m[2] : array();
+			$extra = array();
+			if ( isset( $x['logo'] ) && Field::logo_url( $x['logo'] ) ) $extra['logo'] = (string) $x['logo'];
+			if ( isset( $x['currencies'] ) && is_array( $x['currencies'] ) ) {
+				$extra['currencies'] = array_values( array_filter( array_map( function ( $c ) { return is_string( $c ) && preg_match( '/^[A-Za-z]{3}$/', $c ) ? strtoupper( $c ) : ''; }, $x['currencies'] ) ) );
+			}
+			foreach ( array( 'min_minor', 'max_minor' ) as $lk ) {
+				if ( ! isset( $x[ $lk ] ) || ! is_array( $x[ $lk ] ) ) continue;
+				foreach ( $x[ $lk ] as $c => $n ) {
+					if ( is_string( $c ) && preg_match( '/^[A-Za-z]{3}$/', $c ) && is_numeric( $n ) && (int) $n >= 0 ) $extra[ $lk ][ strtoupper( $c ) ] = (int) $n;
+				}
+			}
+			if ( $currency !== '' && ! empty( $extra['currencies'] ) && ! in_array( $currency, $extra['currencies'], true ) ) continue;
+			if ( $extra ) $e[] = $extra;
+			$out[] = $e;
+			if ( count( $out ) >= 40 ) break;
+		}
+		return $out;
+	}
+
+	/** Gateway::field_defaults() checked: texts (plain text, known keys) and style keys (Field::DEFAULTABLE, valid values). */
+	public static function field_defaults( Gateway $g ) {
+		$d = array();
+		try { $d = $g->field_defaults(); } catch ( \Throwable $e ) { $d = array(); }
+		$out = array( 'texts' => array(), 'pf' => array() );
+		if ( ! is_array( $d ) ) return $out;
+		foreach ( isset( $d['texts'] ) && is_array( $d['texts'] ) ? $d['texts'] : array() as $k => $v ) {
+			if ( in_array( $k, Field::TEXT_KEYS, true ) && $k !== 'test' && is_string( $v ) ) {
+				$t = Field::text( $v, $k === 'btn' ? 60 : 200 );
+				if ( $t !== '' ) $out['texts'][ $k ] = $t;
+			}
+		}
+		foreach ( isset( $d['pf'] ) && is_array( $d['pf'] ) ? $d['pf'] : array() as $k => $v ) {
+			if ( ! in_array( $k, Field::DEFAULTABLE, true ) ) continue;
+			$c = Field::sanitize_key( $k, $v );
+			if ( $c !== '' ) $out['pf'][ $k ] = $c;
+		}
+		return $out;
+	}
+
+	/** A gateway's field_schema(), cleaned (Field::clean_schema()). */
+	public static function field_schema( $slug ) {
+		$g = self::get( $slug );
+		if ( ! $g ) return null;
+		try { return Field::clean_schema( $g->field_schema() ); } catch ( \Throwable $e ) { return array(); }
+	}
+
+	/**
+	 * What the public renderer and the builder need about each gateway, without any secret:
+	 * label, mode, configured per mode, currencies, methods, supports, logos, the field options
+	 * (field_schema) and the field defaults. $ctx (currency, amount_minor) asks for the methods of
+	 * one form (Gateway::methods_for()).
+	 */
+	public static function public_info( $slug, array $ctx = array() ) {
 		$g = self::get( $slug );
 		if ( ! $g ) return null;
 		$s = Settings::load( $slug );
+		$cur = isset( $ctx['currency'] ) && is_string( $ctx['currency'] ) && preg_match( '/^[A-Za-z]{3}$/', $ctx['currency'] ) ? strtoupper( $ctx['currency'] ) : '';
 		$methods = array();
-		try { $methods = (array) $g->methods( $s ); } catch ( \Throwable $e ) { $methods = array(); }
+		try {
+			$methods = $cur !== '' ? (array) $g->methods_for( $s, array( 'currency' => $cur, 'amount_minor' => isset( $ctx['amount_minor'] ) ? (int) $ctx['amount_minor'] : null ) ) : (array) $g->methods( $s );
+		} catch ( \Throwable $e ) {
+			$methods = array();
+		}
 		$sup = array_merge( ( new Gateway_Defaults() )->supports(), (array) $g->supports() );
+		try { $schema = Field::clean_schema( $g->field_schema() ); } catch ( \Throwable $e ) { $schema = array(); }
 		return array(
-			'slug'       => $slug,
-			'addon'      => (string) $g->addon_key(),
-			'label'      => (string) $g->label(),
-			'mode'       => $s->mode(),
-			'configured' => array( 'test' => (bool) $g->is_configured( $s, 'test' ), 'live' => (bool) $g->is_configured( $s, 'live' ) ),
-			'currencies' => array_values( (array) $sup['currencies'] ),
-			'countries'  => array_values( (array) $sup['countries'] ),
-			'methods'    => array_values( array_map( function ( $m ) { return array( (string) $m[0], (string) $m[1] ); }, array_filter( $methods, 'is_array' ) ) ),
-			'logos'      => array_values( array_map( function ( $l ) { return array( (string) $l[0], (string) $l[1] ); }, array_filter( (array) $g->logos(), 'is_array' ) ) ),
-			'supports'   => $sup,
+			'slug'         => $slug,
+			'addon'        => (string) $g->addon_key(),
+			'label'        => (string) $g->label(),
+			'mode'         => $s->mode(),
+			'configured'   => array( 'test' => (bool) $g->is_configured( $s, 'test' ), 'live' => (bool) $g->is_configured( $s, 'live' ) ),
+			'currencies'   => array_values( (array) $sup['currencies'] ),
+			'countries'    => array_values( (array) $sup['countries'] ),
+			'methods'      => self::normalize_methods( $methods, $cur ),
+			'logos'        => array_values( array_map( function ( $l ) { return array( (string) $l[0], (string) $l[1] ); }, array_filter( (array) $g->logos(), 'is_array' ) ) ),
+			'supports'     => $sup,
+			'field_schema' => $schema,
+			'defaults'     => self::field_defaults( $g ),
 		);
 	}
 }

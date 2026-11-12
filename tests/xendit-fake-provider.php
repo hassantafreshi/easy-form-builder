@@ -8,7 +8,8 @@
  *
  *  - pre_http_request answers https://api.xendit.co/… with the shapes of Xendit's documented
  *    responses (tests/fixtures/payments/xendit): POST /sessions, GET /sessions/{id},
- *    POST /sessions/{id}/cancel, GET /v3/payment_requests/{id}, POST /v3/refunds; HTTP Basic with
+ *    POST /sessions/{id}/cancel, GET /v3/payment_requests/{id}, POST /v3/refunds,
+ *    GET /v3/refunds/{id}; HTTP Basic with
  *    the fake key of a mode (a session belongs to the mode of the key that made it); the rules the
  *    reference states (required fields, currencies, IDR / VND whole amounts, expires_at ≥ 10
  *    minutes ahead, return URLs https, known channel codes, api-version on v3, one reference_id
@@ -73,6 +74,15 @@ class Efb_Test_Xendit_Fake {
 	public static function reset( $memory = false ) {
 		self::$memory = $memory ? array() : null;
 		if ( ! $memory && function_exists( 'delete_option' ) ) delete_option( self::OPTION );
+	}
+
+	/** Xendit's side of a refund: SUCCEEDED, FAILED, PENDING. */
+	public static function set_refund( $rid, $status ) {
+		$s = self::state();
+		if ( ! isset( $s['refunds'][ $rid ] ) ) return false;
+		$s['refunds'][ $rid ]['status'] = $status;
+		self::save( $s );
+		return true;
 	}
 
 	/** Change one setting of the fake: down, limit_next, allow_http, refund_status, create_amount, create_status. */
@@ -158,6 +168,10 @@ class Efb_Test_Xendit_Fake {
 					}
 				}
 			}
+		} elseif ( $method === 'GET' && preg_match( '#^/v3/refunds/(rfd-[0-9a-f-]+)$#', $path, $m ) ) {
+			if ( ( isset( $h['api-version'] ) ? $h['api-version'] : '' ) !== '2024-11-11' ) $out = self::err( 400, 'API_VALIDATION_ERROR', 'api-version header is required' );
+			elseif ( ! isset( $s['refunds'][ $m[1] ] ) ) $out = self::err( 404, 'DATA_NOT_FOUND', 'refund not found' );
+			else { $pub = $s['refunds'][ $m[1] ]; unset( $pub['_raw_amount'] ); $out = self::answer( 200, $pub ); }
 		} elseif ( $method === 'POST' && $path === '/v3/refunds' ) {
 			$out = self::refund( $s, $b, $raw, $h, $mode );
 		} else {

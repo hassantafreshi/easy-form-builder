@@ -87,7 +87,8 @@ $n = count($F::state()['log']);
 $st = $g->fetch(new Payment($p), Settings::load('xendit'));
 $t('during the wait: fetch → http_429 without any request', array($st->error, count($F::state()['log']) - $n), array('http_429', 0));
 $r = xnd_create($db);
-$t('during the wait: a new payment → "could not be started" (gateway_error), no request', array($r['success'], $r['code'], count($F::state()['log']) - $n), array(false, 'gateway_error', 0));
+$vis = property_exists('\\Emsfb\\Payments\\Result', 'visitor_message'); // cores that show a gateway's own text to the visitor
+$t('during the wait: a new payment fails without any request; the visitor sees ' . ($vis ? 'the add-on\'s "Xendit is limiting requests" text' : 'core\'s "could not be started"'), array($r['success'], $r['code'], count($F::state()['log']) - $n, $vis ? $r['m'] : ''), array(false, $vis ? 'gateway_declined' : 'gateway_error', 0, $vis ? 'Xendit is limiting requests right now. Please try again in a minute.' : ''));
 $ev = json_encode(Store::events((int) $db->get_var('SELECT id FROM wp_emsfb_pmt_ ORDER BY id DESC LIMIT 1')));
 $t('...logged as http_429 RATE_LIMIT_EXCEEDED', strpos($ev, 'http_429') !== false && strpos($ev, 'RATE_LIMIT_EXCEEDED') !== false, true);
 $t('the Live mode is not held back', Xendit_Gateway::limited_until('live'), 0);

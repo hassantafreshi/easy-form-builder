@@ -16,6 +16,10 @@ function js(c) {
       return { resolved: r, texts: t, css: core.css(r, c.ctx.id), html: core.html(r, t, c.ctx) };
     }
     case 'quote': return core.quote(c.form, c.rows, c.ctx);
+    case 'gwsanitize': return core.sanitizeGatewayKey(c.k, c.v, c.schema);
+    case 'gwschema': return core.cleanSchema(c.schema);
+    case 'gwoptions': return core.gatewayOptions(c.row, c.schema);
+    case 'warnings': return core.warnings(c.form, c.infos);
     case 'money': return core.fromDecimal(c.value, c.currency);
     case 'tominor': return core.toDecimal(c.minor, c.currency);
   }
