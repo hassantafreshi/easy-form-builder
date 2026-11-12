@@ -3745,7 +3745,9 @@ public function check_nonce_permission_efb($request) {
 
 					switch ($submission_type) {
 						case "form":
-							$track_code = $this->insert_message_db(0, false, $style_trackingCode);
+							$track_code = $this->store_entry_efb($form_fields_array, $style_trackingCode);
+							// F13: without a stored entry there is no response page to link to.
+							$entry_link_efb = (class_exists('\\Emsfb\\Privacy') && \Emsfb\Privacy::nostore($this->id, $form_fields_array)) ? '' : $url;
 							$nonce_token = wp_create_nonce($track_code);
 							$this->efbFunction->efb_code_validate_update($session_id, 'send', $track_code);
 							$response = ['success' => true, 'ID' => $request_data['id'], 'track' => $track_code, 'nonce' => $nonce_token];
@@ -3811,7 +3813,7 @@ public function check_nonce_permission_efb($request) {
 								// admin email left the entry with no notification to anyone, so
 								// the standard admin notification goes out instead.
 								$matched_email_rules = $has_active_email_rules
-									? $this->process_conditional_notification_rules($form_fields_array, $submitted_values, $track_code, $is_pro, $url, $status_email)
+									? $this->process_conditional_notification_rules($form_fields_array, $submitted_values, $track_code, $is_pro, $entry_link_efb, $status_email)
 									: 0;
 
 								if ($matched_email_rules > 0) {
@@ -3847,7 +3849,7 @@ public function check_nonce_permission_efb($request) {
 									'has_active_email_rules' => $has_active_email_rules,
 								]);
 
-								$this->send_email_Emsfb_( $email_recipients,$track_code ,$is_pro,$state_of_email,$url,$status_email['content'], $status_email['subject'] );
+								$this->send_email_Emsfb_( $email_recipients,$track_code ,$is_pro,$state_of_email,$entry_link_efb,$status_email['content'], $status_email['subject'] );
 
 								$this->efb_trace('submit.dispatch-done', [
 									'form_id' => intval($this->id),
@@ -4320,7 +4322,9 @@ public function check_nonce_permission_efb($request) {
 							break;
 
 						case "subscribe":
-									$track_code=	$this->insert_message_db(0,false,$style_trackingCode);
+									$track_code=	$this->store_entry_efb($form_fields_array, $style_trackingCode);
+									// F13: without a stored entry there is no response page to link to.
+									$entry_link_efb = (class_exists('\\Emsfb\\Privacy') && \Emsfb\Privacy::nostore($this->id, $form_fields_array)) ? '' : $url;
 									$response = array( 'success' => true , 'm' =>$this->lanText['done']);
 									if($redirect_url!="null"){$response = array( 'success' => true  ,'m'=>$redirect_url); }
 									$this->efbFunction->efb_code_validate_update($session_id ,'nwltr' ,'nwltr' );
@@ -4331,7 +4335,7 @@ public function check_nonce_permission_efb($request) {
 									if($should_send_email){
 										$status_email = $this->email_status_efb($form_fields_array,$validated_items,$track_code);
 										$state_of_email = ['newMessage','subscribe',$status_email['type'],$status_email['visitor_type']];
-										$this->send_email_Emsfb_( $email_recipients,$track_code ,$is_pro,$state_of_email,$url,$status_email['content'],$status_email['subject'] );
+										$this->send_email_Emsfb_( $email_recipients,$track_code ,$is_pro,$state_of_email,$entry_link_efb,$status_email['content'],$status_email['subject'] );
 									}
 									exit;
 							break;
@@ -4714,13 +4718,50 @@ public function check_nonce_permission_efb($request) {
 		\Emsfb\Upload_Guard::release_pending_uploads(array_unique($matches[0]));
 	}
 
-	public function insert_message_db($read,$uniqid,$style_trackingCode = 'date_en_mix'){
+	/**
+	 * Idempotency guard of a form submission (Form_Runtime): a replay of the same
+	 * request answers the first result instead of running twice. Shared by the stored
+	 * and the not-stored (F13 prv_nostore) paths.
+	 */
+	private function begin_operation_efb() {
 		if (($this->operation_data['type'] ?? '') === 'form' && class_exists('\\Emsfb\\Form_Runtime')) {
 			$guard = \Emsfb\Form_Runtime::begin('form',$this->id,$this->operation_data);
 			if (is_wp_error($guard)) wp_send_json_error(array('code'=>$guard->get_error_code(),'m'=>$guard->get_error_message()),$guard->get_error_data()['status']);
 			if ($guard instanceof \WP_REST_Response) wp_send_json($guard->get_data(),$guard->get_status());
 			$this->operation_key = $guard;
 		}
+	}
+
+	private function finish_operation_efb($track) {
+		if ($this->operation_key) \Emsfb\Form_Runtime::finish($this->operation_key,array('success'=>true,'ID'=>$this->id,'track'=>$track,'nonce'=>wp_create_nonce($track)));
+	}
+
+	/**
+	 * F13: store the entry, unless the stored form says "do not store entries"
+	 * (prv_nostore, form and subscribe types only, decided by Privacy from the
+	 * saved form, never from the request). Then no row is written: the tracking
+	 * code is a reference number only, uploads go to a ledger that deletes them
+	 * after prv_nostore_file_days, and every notification still runs.
+	 *
+	 * @param array $form_rows The stored form.
+	 * @return string Tracking code.
+	 */
+	public function store_entry_efb($form_rows, $style_trackingCode = 'date_en_mix') {
+		// Privacy store gate:
+		if (!class_exists('\\Emsfb\\Privacy') || !\Emsfb\Privacy::nostore($this->id, $form_rows)) {
+			return $this->insert_message_db(0, false, $style_trackingCode);
+		}
+		$this->begin_operation_efb();
+		$track = $this->generate_track_code_efb($style_trackingCode);
+		if (class_exists('\\Emsfb\\Request_Health')) \Emsfb\Request_Health::mark_saved();
+		\Emsfb\Privacy::ledger_nostore_files($this->value);
+		$this->finish_operation_efb($track);
+		return $track;
+		// End privacy store gate.
+	}
+
+	public function insert_message_db($read,$uniqid,$style_trackingCode = 'date_en_mix'){
+		$this->begin_operation_efb();
 		if(isset($read)==false) $read=0;
 
 		if($uniqid==false){
@@ -4758,7 +4799,7 @@ public function check_nonce_permission_efb($request) {
 			wp_send_json_error(array('code'=>'efb_storage_failed','m'=>__('The form could not be saved. Your input has been kept.', 'easy-form-builder')),500);
 		}
 		\Emsfb\Request_Health::mark_saved();
-		if ($this->operation_key) \Emsfb\Form_Runtime::finish($this->operation_key,array('success'=>true,'ID'=>$this->id,'track'=>$uniqid,'nonce'=>wp_create_nonce($uniqid)));
+		$this->finish_operation_efb($uniqid);
 		$this->claim_uploaded_files_efb($this->value);
 		return $uniqid;
 	}
@@ -9678,7 +9719,13 @@ public function check_nonce_permission_efb($request) {
 		$type = (is_array($formObj) && isset($formObj[0]['email_noti_type']) && is_string($formObj[0]['email_noti_type']))
 			? $formObj[0]['email_noti_type']
 			: '';
-		return in_array($type, ['msg', 'just_msg', 'cc'], true) ? $type : 'msg';
+		$type = in_array($type, ['msg', 'just_msg', 'cc'], true) ? $type : 'msg';
+		// F13: "code and link only" has nothing to link to when entries are not stored;
+		// the email carries the content instead.
+		if ($type === 'cc' && class_exists('\\Emsfb\\Privacy') && \Emsfb\Privacy::nostore(0, $formObj)) {
+			$type = 'msg';
+		}
+		return $type;
 	}
 
 	/**

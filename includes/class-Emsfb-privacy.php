@@ -865,4 +865,63 @@ class Privacy {
 		if (function_exists('delete_transient')) delete_transient('emsfb_prv_retention_lock');
 		wp_send_json_success(array('success' => true, 'last_run' => self::run_retention()), 200);
 	}
+
+	/* ------------------------------------------------------------ entries that are not stored (C) */
+
+	/** Option: [upload basename => unix time it may be deleted] for forms with prv_nostore. */
+	const NOSTORE_FILES_OPTION = 'emsfb_prv_nostore_files';
+	const NOSTORE_FILES_MAX = 2000;
+
+	/**
+	 * Whether the form keeps no entries (prv_nostore). From the stored rows when given (the
+	 * submit handler has them), else from the emsfb_prv_forms map. Never for payment, survey,
+	 * register or login forms, whatever the key says: they need the stored row.
+	 */
+	public static function nostore($form_id, $rows = null) {
+		if (is_array($rows) && isset($rows[0])) {
+			$r0 = is_object($rows[0]) ? get_object_vars($rows[0]) : $rows[0];
+			if (!is_array($r0)) return false;
+			$type = isset($r0['type']) ? (string) $r0['type'] : 'form';
+			return in_array($type, self::NOSTORE_TYPES, true) && isset($r0['prv_nostore']) && in_array($r0['prv_nostore'], array(1, '1', true, 'true'), true);
+		}
+		$entry = self::form_entry($form_id);
+		return is_array($entry) && !empty($entry['nostore']);
+	}
+
+	/**
+	 * The uploads of an entry that is not stored: kept for prv_nostore_file_days so the
+	 * links in the notification email work, then deleted by the daily job. They leave
+	 * the pending ledger, whose sweeper would remove them after 24 hours.
+	 */
+	public static function ledger_nostore_files($content) {
+		$names = array_keys(self::files_in_content(is_string($content) ? $content : '', array()));
+		if (empty($names)) return 0;
+		$days = (int) self::setting('prv_nostore_file_days');
+		$until = time() + max(1, $days) * 86400;
+		$ledger = get_option(self::NOSTORE_FILES_OPTION, array());
+		if (!is_array($ledger)) $ledger = array();
+		foreach ($names as $n) $ledger[$n] = $until;
+		if (count($ledger) > self::NOSTORE_FILES_MAX) {
+			asort($ledger);
+			$ledger = array_slice($ledger, -self::NOSTORE_FILES_MAX, null, true); // the oldest go first
+		}
+		update_option(self::NOSTORE_FILES_OPTION, $ledger, false);
+		if (class_exists('\Emsfb\Upload_Guard')) Upload_Guard::release_pending_uploads($names);
+		return count($names);
+	}
+
+	/** Daily: delete the not-stored uploads whose time is up. */
+	public static function sweep_nostore_files($now = null) {
+		$now = $now === null ? time() : (int) $now;
+		$ledger = get_option(self::NOSTORE_FILES_OPTION, array());
+		if (!is_array($ledger) || empty($ledger)) return 0;
+		$deleted = 0;
+		foreach ($ledger as $name => $until) {
+			if ((int) $until > $now) continue;
+			unset($ledger[$name]);
+			if (class_exists('\Emsfb\Upload_Guard') && Upload_Guard::delete_unreferenced_upload($name)) $deleted++;
+		}
+		update_option(self::NOSTORE_FILES_OPTION, $ledger, false);
+		return $deleted;
+	}
 }
