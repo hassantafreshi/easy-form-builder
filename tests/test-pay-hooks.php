@@ -150,9 +150,9 @@ require_once __DIR__ . '/../includes/payments/class-Emsfb-payment-admin.php';
 $g = Registry::get('efbmock');
 $s = Settings::load('efbmock');
 $t('7: settings notices and extra buttons from the gateway', array(\Emsfb\Payments\Admin::gateway_notices($g, $s), \Emsfb\Payments\Admin::gateway_actions($g, $s)), array(array(array('level' => 'info', 'm' => 'Test gateway: no real money moves.')), array(array('id' => 'ping', 'label' => 'Ping the mock provider'))));
-$t('7: Test connection shows the gateway\'s own success message', \Emsfb\Payments\Admin::result_message($g->test_connection($s, 'test'), 'Connected.'), 'The mock provider answered (test).');
+$t('7: Test connection shows the gateway\'s own success message', \Emsfb\Payments\Admin::result_message($g->test_connection($s, 'test'), 'Connected.'), 'Connected: the mock provider answered (test).');
 $t('7: ...and core\'s "Connected." when it has none', \Emsfb\Payments\Admin::result_message(Result::ok(), 'Connected.'), 'Connected.');
-$t('7: an extra button runs the gateway\'s action', \Emsfb\Payments\Admin::result_message($g->run_settings_action('ping', $s, 'test'), 'Done.'), 'The mock provider answered (test).');
+$t('7: an extra button runs the gateway\'s action', \Emsfb\Payments\Admin::result_message($g->run_settings_action('ping', $s, 'test'), 'Done.'), 'Connected: the mock provider answered (test).');
 
 echo "\nRESULTS: {$passed} passed, {$failed} failed\n";
 exit($failed ? 1 : 0);

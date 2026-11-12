@@ -69,7 +69,7 @@ class Mock_Gateway extends Gateway {
 			return Result::fail( 'wrong_mode', sprintf( __( 'This key is not a %s key.', 'easy-form-builder' ), $mode === 'live' ? 'Live' : 'Test' ) );
 		}
 		$r = $this->request( 'GET', 'https://' . self::HOST . '/v1/ping', array( 'headers' => $this->auth( $s, $mode ), 'timeout' => 8 ) );
-		return $r['ok'] ? Result::ok( 'The mock provider answered (' . $mode . ').' ) : Result::fail( $r['error'] );
+		return $r['ok'] ? Result::ok( 'Connected: the mock provider answered (' . $mode . ').' ) : Result::fail( $r['error'] );
 	}
 
 	/** Notices and an extra button on the settings card (PAY00 optional hooks). */
