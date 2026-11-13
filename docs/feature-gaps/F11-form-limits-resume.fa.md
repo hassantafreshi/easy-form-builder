@@ -387,24 +387,24 @@ if (($this->operation_data['type'] ?? '') !== 'payment_followup' && class_exists
 - پذیرش: هر بُعد مستقل کار کند. دوره‌ها در مرز تقویم ریست شوند. ایمیل با حروف بزرگ و فاصله همان شمارنده را بگیرد. پاسخ اسپم F12 شمرده نشود. شکست درج، رزروها را آزاد کند (با تزریق خطای `$wpdb` در تست).
 - تست: `php tests/test-form-limits-http.php` (WordPress واقعی)، افزودن مورد به `tests/test-submit-payload-robustness.php` برای کلید ناشناخته در بدنه.
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint** (۲۰۲۶-۱۱-۱۳، انجام شد)
+- فایل‌های تغییرکرده: منطق در `class-Emsfb-form-gate.php` (کامیت B: `reserve_for_submit` برای user/IP/cookie/email، دوره‌های تقویمی، `ajax_reset`، کوکی کارکردی `efb_lim_<id>`)، `class-Emsfb-client-ip.php` (حالت IP فرم از F13: store = نشانی، anon = شبکه، none = بدون شمارنده)، بخش سازنده در `form-limits-efb.js` (دکمهٔ «صفر کردن شمارنده‌ها»)، `tests/e2e-wp/ctl.php` (`f11-form`، `f11-set`، `f11-counters`، `set-option`، `f11-mu`)، `tests/e2e-wp/mu-plugins/efb-e2e-f11.php` (تزریق خطای INSERT).
+- تست‌ها: `php tests/test-form-limits-http.php` روی وردپرس واقعی (۲۵: IP با `X-Forwarded-For` از پراکسی محلی مورد اعتماد، کوکی HttpOnly/SameSite=Lax، ایمیل با حروف بزرگ و فاصله، کاربر واردشده و مهمان، prepare با `reopen_at` نیمه‌شب محلی، خطای تزریقی INSERT همهٔ جاها را برمی‌گرداند، حالت IP «none»، صفر کردن فقط برای مدیر، طرح Free اعمال نمی‌کند، کلید ناشناخته در بدنه ذخیره نمی‌شود)؛ مرزهای دوره در `test-form-gate-unit.php`.
+- وضعیت ترجمه: انگلیسی (دستور مالک).
+- مورد باز: پرسش باز ۳ (نرمال‌سازی جیمیل) — انجام نشد؛ فقط حروف کوچک و حذف فاصله. پرسش باز ۷ (حذف پاسخ، شمارندهٔ هر کاربر را آزاد کند؟) — نه؛ برای آن دکمهٔ صفر کردن هست. در حالت IP «anon» محدودیت روی شبکهٔ /24 (یا /48) اعمال می‌شود و در «none» اصلاً اعمال نمی‌شود (هشدار ذخیره `lim_ip_no_ip`). شمارندهٔ «ever» هر شخص پس از مدت نگهداری F13 (`prv_days`) فراموش می‌شود. اسپم F12 هنوز در کد نیست، پس فیلتر `entry_status` اضافه نشد.
+- اقدام بعدی: D.
 
 ### D — محدودیت نقش
 - فایل‌ها: `Form_Gate`، سه نقطهٔ `stateForm`، `functions.php` (case `allowed_roles`)، سازنده (`allowedRolesEl` و `efb_var.wp_roles`).
 - پذیرش: subscriber با `allowed_roles=editor` در رندر، prepare و ارسال رد شود. مدیر عبور کند. فرم بدون کلید تغییری نکند.
 - تست: افزودن سناریو به `tests/test-form-gate-http.php` با کاربرهای موقت (`wp_insert_user`، حذف در پایان).
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint** (۲۰۲۶-۱۱-۱۳، انجام شد)
+- فایل‌های تغییرکرده: `Form_Gate::state()` (نقش پیش از زمان‌بندی؛ `manage_options` و super admin همیشه عبور می‌کنند)، case `allowed_roles` (فقط نقش‌های موجود)، سه نقطهٔ رندر/prepare/ارسال (کامیت B)، `efb_var.wp_roles` و فهرست چک‌باکس نقش‌ها در سازنده که فقط با «فقط کاربران واردشده» دیده می‌شود.
+- تست‌ها: بخش D در `tests/test-form-gate-http.php` (مهمان همان `efb_login_required`، subscriber کارت نقش و ۴۰۳ `efb_role_denied` در prepare و ارسال، editor و مدیر عبور)؛ `test-form-gate-unit.php` (نقش‌ها، بدون `stateForm` بی‌اثر).
+- وضعیت ترجمه: انگلیسی.
+- مورد باز: پرسش باز ۴ — مدیر همیشه عبور می‌کند؛ گزینهٔ «آزمودن با نقش دیگر» ساخته نشد.
+- اقدام بعدی: G، H، E، F.
 
 ### E — ذخیره و ادامه
 - فایل‌ها: `includes/class-Emsfb-drafts.php` (ذخیره، بارگیری، ایمیل، دور ریختن، پاک‌سازی)، ثبت مسیرها در `class-Emsfb-public.php:45-99`، `add_buttons_zone_efb` در `class-Emsfb-formbuilder.php`، `core-efb.js` (دیالوگ، `efb_draft_rows_efb`، `efb_apply_saved_rows_efb`، `draft_token`)، `class-Emsfb-form-runtime.php:15` (حذف `draft_token` از fingerprint)، `class-email-handler.php` (`resumeLink`).

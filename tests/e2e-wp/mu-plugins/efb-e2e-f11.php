@@ -12,7 +12,18 @@ add_filter(
 	'query',
 	static function ( $q ) {
 		global $wpdb;
-		if ( ! is_string( $q ) || ! get_option( 'efb_e2e_f11_fail_insert' ) ) {
+		// Only an INSERT into the entries table is looked at, and the flag is read once per request
+		// with the filter guarded: get_option() runs a query itself, which would come back here.
+		static $busy = false, $flag = null;
+		if ( $busy || ! is_string( $q ) || stripos( $q, 'emsfb_msg_' ) === false || ! preg_match( '/^\s*INSERT/i', $q ) ) {
+			return $q;
+		}
+		if ( null === $flag ) {
+			$busy = true;
+			$flag = (bool) get_option( 'efb_e2e_f11_fail_insert' );
+			$busy = false;
+		}
+		if ( ! $flag ) {
 			return $q;
 		}
 		if ( preg_match( '/^\s*INSERT INTO `?' . preg_quote( $wpdb->prefix . 'emsfb_msg_', '/' ) . '`?\s/i', $q ) ) {

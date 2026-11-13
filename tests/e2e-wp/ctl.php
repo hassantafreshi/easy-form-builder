@@ -222,9 +222,9 @@ switch ( $efb_e2e_cmd ) {
 		break;
 
 	case 'set-option':
-		// set-option <name> <value> | set-option <name> --delete
+		// set-option <name> <value> | set-option <name> del
 		$n = isset( $efb_e2e_rest[0] ) ? $efb_e2e_rest[0] : '';
-		if ( isset( $efb_e2e_rest[1] ) && '--delete' === $efb_e2e_rest[1] ) delete_option( $n ); else update_option( $n, isset( $efb_e2e_rest[1] ) ? $efb_e2e_rest[1] : '1', false );
+		if ( isset( $efb_e2e_rest[1] ) && 'del' === $efb_e2e_rest[1] ) delete_option( $n ); else update_option( $n, isset( $efb_e2e_rest[1] ) ? $efb_e2e_rest[1] : '1', false );
 		efb_e2e_out( array( $n => get_option( $n, null ) ) );
 		break;
 
