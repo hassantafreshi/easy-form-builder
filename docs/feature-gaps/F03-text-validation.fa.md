@@ -1,4 +1,4 @@
-وضعیت: در حال پیاده‌سازی (A و B انجام شد، ۲۰۲۶-۱۱-۱۳) · اولویت: P0 · تلاش: M · وابستگی: F01 (نرمال‌ساز و `Emsfb\Masks`)؛ هماهنگ با F02 (`email_confirm_mode`) و F16 (نمایش خطا و ARIA)
+وضعیت: در حال پیاده‌سازی (A تا C انجام شد، ۲۰۲۶-۱۱-۱۳) · اولویت: P0 · تلاش: M · وابستگی: F01 (نرمال‌ساز و `Emsfb\Masks`)؛ هماهنگ با F02 (`email_confirm_mode`) و F16 (نمایش خطا و ARIA)
 
 # F03 — اعتبارسنجی فیلدهای متنی
 
@@ -346,12 +346,12 @@ if ($is_valid == 1 && is_array($validated_item) && class_exists('\Emsfb\Field_Ru
 - پذیرش: الگوی دارای `<`، `"`، `%41` و فاصلهٔ دوتایی پس از save دست‌نخورده برمی‌گردد. همهٔ موارد lint §۹.۳ رد می‌شوند. `^(a+)+$` روی ۳۰ تا `a` و یک `b` در سرور زیر ۵۰ ms با «رد» برمی‌گردد و `pcre.backtrack_limit` پس از آن به مقدار قبلی برگشته است. نتیجهٔ JS و PHP روی ۶۰ جفت (الگو، مقدار) یکسان است.
 - تست‌ها: `node tests/test-field-rules-regex.js`، `php tests/test-field-rules-regex.php` و fixture مشترک `tests/fixtures/regex-vectors.json`.
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint** (۲۰۲۶-۱۱-۱۳، انجام شد)
+- فایل‌های تغییرکرده: `Field_Rules` (`b64url_encode`/`b64url_decode`، `lint_regex` با یک پارسر یک‌گذره و بدون regex، `pcre_source`، `pattern_subject`، `field_pattern` با کش، `preg_safe`، `check_pattern`، `validate_rows`، case `pattern_b64`/`pattern_case`/`pattern_ascii`)، `field-rules-efb.js` (همزادها: `lintRegex`، `b64urlEncode/Decode`، `patternSubject`، `checkPattern`، `partOk`)، `field-rules-builder-efb.js` (جعبهٔ الگو با lint زنده و دلیل به زبان ساده، تیک‌های case و ارقام، جعبهٔ آزمون که ذخیره نمی‌شود)، `functions.php` (عبارت‌های `tvRx_*`)، `class-Emsfb-admin.php` و `class-Emsfb-create.php` (ذخیرهٔ دارای الگوی ردشده با `code: pattern_invalid` و `path` رد می‌شود)، `builder-api-efb.js` (`setFieldRules`، و `pattern_invalid` با `path` در `setForm`/`insertItems`).
+- تست‌ها: `php tests/test-field-rules-regex.php` (۱۴۰: ۲۰ الگوی شر رد، ۲۰ الگوی رایج پذیرفته، همهٔ موارد §9.3، `^(a+)+$` روی ۳۰ `a` و یک `b` در کمتر از ۵۰ ms رد و `pcre.backtrack_limit` برگشته، یک خط لاگ بدون مقدار)، `node tests/test-field-rules-regex.js` (۲۲۸: برابری lint و ۶۹ جفت (الگو، مقدار) با PHP)، fixture مشترک `tests/fixtures/regex-vectors.json`، `test-field-rules-save-roundtrip.php` (۴۱)، e2e `f03c` (۹).
+- وضعیت ترجمه: انگلیسی (دستور مالک)؛ دلیل‌های lint عبارت جداگانه دارند (`tvRx_<code>`).
+- مورد باز: یافتهٔ تازه: PHP با modifier `u` گزینهٔ PCRE2_UCP را روشن می‌کند، پس `\d` در PHP «۱» و `\w` «é» را می‌گرفت ولی در JS نه. سرور حالا `\d \w \s \b` (و منفی‌ها) را پیش از اجرا به کلاس ASCII همان تعریف JS بازنویسی می‌کند (`pcre_source`) و lint `\D \W \S` داخل `[ ]` را رد می‌کند. موضوع: مقدار متنی هیچ‌وقت دو فاصلهٔ پشت‌سرهم ندارد (sanitizerها)، پس subject الگو هم فاصله‌ها را یکی می‌کند. گروه تکرارشونده با جایگزین‌ها فقط وقتی پذیرفته است که همهٔ شاخه‌ها کلمهٔ سادهٔ متفاوت باشند (`(com|net)+`)؛ وگرنه پیشنهاد کلاس. بیش از ۴ تکرار بی‌حد رد می‌شود (`too_complex`) تا مرورگر بازدیدکننده هم کند نشود.
+- اقدام بعدی: D.
 
 ### D. یکتا بودن
 - فایل‌ها: `class-Emsfb-install.php` (DDL، گام ارتقا و index `form_id`)، `emsfb.php` (نسخهٔ DB)، `class-Emsfb-public.php` (پیش‌بررسی، ادعا در `insert_message_db`، محدودیت نرخ)، `class-Emsfb-admin.php` (backfill و سه مسیر حذف)، `class-Emsfb.php` (پاک‌سازی روزانه)، UI سازنده و نوار پیشرفت backfill، و `docs/migrations/<date>-unique-values-table.md`.

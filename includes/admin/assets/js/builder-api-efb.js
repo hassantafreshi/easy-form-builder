@@ -242,6 +242,8 @@
       throw fail('invalid_form', 'setForm() needs the whole form: row 0 holds the form settings.');
     }
     if (items.length > 1) checkRows(items.slice(1), []);
+    var frErrs = fieldRulesErrors(items, 0);
+    if (frErrs.length) throw failRules(frErrs);
     var next = clone(items);
     if (typeof efbNormalizeOrderEfb === 'function') efbNormalizeOrderEfb(next);
     valj_efb = next;
@@ -260,6 +262,8 @@
     opts = opts || {};
     var list = rows();
     checkRows(items, list);
+    var frErrs = fieldRulesErrors(items, 0);
+    if (frErrs.length) throw failRules(frErrs);
     var add = clone(items);
     // The canvas finds a row by dataId (id_ + '-id'); fill it when the caller left it out.
     add.forEach(function (r) { if (!r.dataId && r.type !== 'step') r.dataId = r.id_ + '-id'; });
@@ -595,6 +599,71 @@
     return { changed: keys, values: values };
   }
 
+  /* F03: which rule (EfbRules.TYPES) a field key belongs to; msg_* fit every text-like field. */
+  var FR_PART = { unique: 'unique', unique_scope: 'unique', wmin: 'words', wmax: 'words', counter: 'counter', counter_style: 'counter',
+    pattern: 'pattern', pattern_b64: 'pattern', pattern_case: 'pattern', pattern_ascii: 'pattern', email_domain_mode: 'domain', email_domains: 'domain',
+    readonly: 'readonly', prefix: 'affix', suffix: 'affix', message_place: 'help', pw_confirm: 'password', pw_meter: 'password', pw_toggle: 'password',
+    pw_strength_min: 'password', pw_confirm_label: 'password' };
+  /** The F03 errors of rows written by the API (a pattern the save would empty): [{code, path, reason, pos}]. */
+  function fieldRulesErrors(items, offset) {
+    var R = window.EfbRules;
+    var out = [];
+    if (!R) return out;
+    (items || []).forEach(function (r, i) {
+      if (!r || r.pattern_b64 === undefined || r.pattern_b64 === '' || r.pattern_b64 === null) return;
+      var src = typeof r.pattern_b64 === 'string' ? R.b64urlDecode(r.pattern_b64) : null;
+      var e = src === null ? { code: 'encoding', pos: 0 } : R.lintRegex(src);
+      if (e) out.push({ code: 'pattern_invalid', path: 'rows[' + (i + (offset || 0)) + '].pattern_b64', reason: e.code, pos: e.pos });
+    });
+    return out;
+  }
+  function failRules(errs) {
+    var e = fail('pattern_invalid', 'This pattern cannot be used: ' + errs[0].reason + ' (' + errs[0].path + ')');
+    e.path = errs[0].path; e.reason = errs[0].reason; e.pos = errs[0].pos;
+    return e;
+  }
+
+  /**
+   * F03: set the rules of one field (by id_ or dataId) with the server's save rules, e.g.
+   * setFieldRules('email1', {unique: '1', email_domain_mode: 'allow', email_domains: 'example.com, *.edu'})
+   * or setFieldRules('code1', {pattern: '[A-Z]{2}\\d{4}', msg_pattern: 'Like AB1234'}). "pattern" is the plain
+   * regular expression (stored as pattern_b64); a refused pattern throws pattern_invalid (reason = lint
+   * code, pos), a key the field type has no use for throws unsupported_key, any other bad key
+   * invalid_setting. Nothing changes on a throw. Returns {changed, values}. Saving stays the owner's Save.
+   */
+  function setFieldRules(id, patch, opts) {
+    var R = window.EfbRules;
+    if (!R) throw fail('builder_not_ready', 'The field rule engine (field-rules-efb.js) is not loaded.');
+    var list = rows();
+    var idx = fieldIndex(list, String(id));
+    if (idx < 0) idx = list.findIndex(function (r, i) { return i > 0 && r && r.dataId === String(id); });
+    if (idx < 1 || isOptionRow(list[idx])) throw fail('unknown_field', 'No field with id ' + id + '.');
+    if (!patch || typeof patch !== 'object' || Array.isArray(patch)) throw fail('invalid_setting', 'setFieldRules() needs an object of field-rule keys.');
+    var f = list[idx];
+    var values = {};
+    Object.keys(patch).forEach(function (k) {
+      var v = patch[k];
+      if (v !== null && typeof v === 'object') throw fail('invalid_setting', k + ' must be a string, number or boolean.');
+      if (k !== 'pattern' && R.KEYS.indexOf(k) === -1 && k !== 'milen' && k !== 'mlen') throw fail('invalid_setting', 'key ' + k + ' is not a field rule.');
+      var part = FR_PART[k];
+      if (part && !R.typeOk(f, part === 'counter' ? 'counter' : part)) throw fail('unsupported_key', k + ' does not apply to a ' + f.type + ' field.');
+      if (k === 'pattern') {
+        var src = String(v == null ? '' : v);
+        var err = src === '' ? null : R.lintRegex(src);
+        if (err) { var e = fail('pattern_invalid', 'This pattern cannot be used: ' + err.code); e.reason = err.code; e.pos = err.pos; e.path = 'pattern'; throw e; }
+        values.pattern_b64 = src === '' ? '' : R.b64urlEncode(src);
+        return;
+      }
+      if (k === 'pattern_b64' && v !== '' && v != null && R.sanitizeKey(k, v) === '') { var e2 = fail('pattern_invalid', 'pattern_b64 is not a usable base64url pattern.'); e2.path = 'pattern_b64'; throw e2; }
+      values[k] = k === 'milen' || k === 'mlen' ? (/^\d{0,6}$/.test(String(v)) ? String(v) : (function () { throw fail('invalid_setting', k + ' must be a number.'); })()) : R.sanitizeKey(k, v);
+    });
+    Object.keys(values).forEach(function (k) { f[k] = values[k]; });
+    persist();
+    apiChanged('setFieldRules', [f.id_]);
+    if (!opts || opts.refresh !== false) { try { refreshSettingsPanel(); } catch (e) {} }
+    return { changed: Object.keys(values), values: values };
+  }
+
   /**
    * F11: the stored form's gate as the server sees it now (read only):
    * {form_id, state: open|pending|closed|full|limited|role, code, message, opens_at, closes_at,
@@ -620,6 +689,7 @@
     version: API_VERSION,
     paymentReadiness: paymentReadiness,
     setFormSettings: setFormSettings,
+    setFieldRules: setFieldRules,
     formGate: formGate,
     newItems: newItems,
     setFormType: setFormType,

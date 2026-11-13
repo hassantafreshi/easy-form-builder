@@ -73,6 +73,7 @@
     if (!f) { return out; }
     var m = masked(f);
     if (!m && typeOk(f, 'words') && (int(f, 'wmin') > 0 || int(f, 'wmax') > 0)) { out.push('words'); }
+    if (typeOk(f, 'pattern') && partOk(ctx, 'pattern') && fieldPattern(f)) { out.push('pattern'); }
     if (!m && typeOk(f, 'length') && (int(f, 'milen') > 0 || int(f, 'mlen') > 0) && (out.length || hasMsg(f, 'minlen') || hasMsg(f, 'maxlen'))) { out.unshift('length'); }
     return out;
   }
@@ -82,6 +83,12 @@
     var kind = f.counter === 'chars' || f.counter === 'words' ? f.counter : '';
     if (!kind) { return null; }
     return { kind: kind, style: f.counter_style === 'used' ? 'used' : 'remaining', max: int(f, kind === 'words' ? 'wmax' : 'mlen') };
+  }
+  /** Whether the site's plan honours a paid part (ctx.parts from ajax_object_efm.field_rules; tests pass {paid: true}). */
+  function partOk(ctx, part) {
+    if (!ctx) { return false; }
+    if (ctx.parts && Object.prototype.hasOwnProperty.call(ctx.parts, part)) { return !!ctx.parts[part]; }
+    return !!ctx.paid;
   }
   function hasRules(f, ctx) { return activeRules(f, ctx).length > 0; }
   /** Plain text of a message or label: no tags, one line, at most max code points (Field_Rules::plain). */
@@ -106,6 +113,14 @@
       }
       case 'counter': return ['none', 'chars', 'words'].indexOf(v) !== -1 ? v : 'none';
       case 'counter_style': return v === 'used' ? 'used' : 'remaining';
+      case 'pattern_b64': {
+        if (typeof v !== 'string' || v === '' || v.length > 344) { return ''; }
+        var src = b64urlDecode(v);
+        if (src === null || src === '' || lintRegex(src) !== null) { return ''; }
+        return b64urlEncode(src);
+      }
+      case 'pattern_case': return [1, '1', true, 'true'].indexOf(v) !== -1 ? '1' : '0';
+      case 'pattern_ascii': return [0, '0', false, 'false'].indexOf(v) !== -1 ? '0' : '1';
     }
     return plain(v, 200);
   }
@@ -170,6 +185,243 @@
   }
   // #endregion messages
 
+  // #region pattern
+  /** UTF-8 → base64url without padding (the stored form of a pattern, pattern_b64). */
+  function b64urlEncode(str) {
+    var bytes = new TextEncoder().encode(String(str));
+    var bin = '';
+    for (var i = 0; i < bytes.length; i++) { bin += String.fromCharCode(bytes[i]); }
+    var b = typeof btoa === 'function' ? btoa(bin) : Buffer.from(bin, 'binary').toString('base64');
+    return b.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+  /** base64url → UTF-8 text; null when it is not a valid encoding of valid UTF-8. */
+  function b64urlDecode(s) {
+    s = String(s === null || s === undefined ? '' : s);
+    if (!/^[A-Za-z0-9_-]*$/.test(s) || s.length % 4 === 1) { return null; }
+    var b = s.replace(/-/g, '+').replace(/_/g, '/');
+    while (b.length % 4) { b += '='; }
+    try {
+      var bin = typeof atob === 'function' ? atob(b) : Buffer.from(b, 'base64').toString('binary');
+      var bytes = new Uint8Array(bin.length);
+      for (var i = 0; i < bin.length; i++) { bytes[i] = bin.charCodeAt(i); }
+      return new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+    } catch (e) { return null; }
+  }
+  function utf8Len(s) { return new TextEncoder().encode(String(s)).length; }
+
+  var RX_MAX_BYTES = 256;
+  var RX_PROPS = ['L', 'Lu', 'Ll', 'N', 'Nd', 'P', 'S', 'Z'];
+  var RX_SYNTAX = '^$\\.*+?()[]{}|/';
+  var RX_CLASS_ESC = 'dDwWsS';
+  /**
+   * Static check of an owner's pattern (§9.3): only the part of ES2018 (u) and PCRE2 (u, D) that
+   * both engines read the same way, and no nested or overlapping repetition (ReDoS). The parser
+   * walks the pattern once (no regular expression decides). Returns null or {code, pos} (pos in
+   * code points). Twin: Field_Rules::lint_regex().
+   */
+  function lintRegex(src) {
+    src = String(src === null || src === undefined ? '' : src);
+    if (utf8Len(src) > RX_MAX_BYTES) { return { code: 'too_long', pos: 0 }; }
+    var c = Array.from(src);
+    var n = c.length;
+    var fail = function (code, pos) { return { code: code, pos: pos }; };
+    var isDigit = function (x) { return x >= '0' && x <= '9'; };
+    var isHex = function (x) { return /^[0-9A-Fa-f]$/.test(x || ''); };
+    // A frame per open group: its branches (each a list of atoms) and whether something inside repeats without end.
+    var stack = [{ kind: 'root', branches: [[]], unbounded: false, start: 0 }];
+    var unboundedTotal = 0;
+    var top = function () { return stack[stack.length - 1]; };
+    var branch = function () { var f = top(); return f.branches[f.branches.length - 1]; };
+    var i = 0;
+    // An escape outside or inside a class: returns {len, atom} or an error object {code}.
+    var escape = function (at, inClass) {
+      var d = c[at + 1];
+      if (d === undefined) { return { err: 'syntax' }; }
+      if (RX_CLASS_ESC.indexOf(d) !== -1) { return { len: 2, atom: { t: 'class' } }; }
+      if (d === 'b' || d === 'B') { return { len: 2, atom: { t: inClass ? 'lit' : 'assert', ch: '\b' } }; }
+      if (d === 'n' || d === 'r' || d === 't' || d === 'f') { return { len: 2, atom: { t: 'lit', ch: '\\' + d } }; }
+      if (d === 'p' || d === 'P') {
+        if (c[at + 2] !== '{') { return { err: 'escape' }; }
+        var close = c.indexOf('}', at + 3);
+        if (close === -1) { return { err: 'syntax' }; }
+        var name = c.slice(at + 3, close).join('');
+        if (RX_PROPS.indexOf(name) === -1) { return { err: 'script_property' }; }
+        return { len: close - at + 1, atom: { t: 'class' } };
+      }
+      if (d === 'x') {
+        if (c[at + 2] === '{') { return { err: 'unicode_escape' }; }
+        if (isHex(c[at + 2]) && isHex(c[at + 3])) { return { len: 4, atom: { t: 'lit', ch: 'x' + c[at + 2] + c[at + 3] } }; }
+        return { err: 'syntax' };
+      }
+      if (d === 'u') { return { err: 'unicode_escape' }; }
+      if (d >= '1' && d <= '9') { return { err: 'backref' }; }
+      if (d === 'k') { return { err: 'named_group' }; }
+      if (RX_SYNTAX.indexOf(d) !== -1 || (inClass && d === '-')) { return { len: 2, atom: { t: 'lit', ch: d } }; }
+      return { err: 'escape' };
+    };
+    while (i < n) {
+      var ch = c[i];
+      if (ch === '~') { return fail('tilde', i); }
+      if (ch === '\\') {
+        var e = escape(i, false);
+        if (e.err) { return fail(e.err, i); }
+        branch().push(e.atom);
+        i += e.len;
+        continue;
+      }
+      if (ch === '[') {
+        var j = i + 1;
+        if (c[j] === '^') { j++; }
+        if (c[j] === ']') { return fail('empty_class', i); }
+        var prev = null; // last single literal (for a range)
+        var closed = false;
+        while (j < n) {
+          var x = c[j];
+          if (x === ']') { closed = true; break; }
+          if (x === '~') { return fail('tilde', j); }
+          if (x === '[' && c[j + 1] === ':') { return fail('posix_class', j); }
+          var lit = null, len = 1, isClassEsc = false;
+          if (x === '\\') {
+            if (c[j + 1] === 'D' || c[j + 1] === 'W' || c[j + 1] === 'S') { return fail('class_escape', j); }
+            var ce = escape(j, true);
+            if (ce.err) { return fail(ce.err, j); }
+            len = ce.len;
+            if (ce.atom.t === 'class') { isClassEsc = true; } else { lit = ce.atom.ch; }
+          } else { lit = x; }
+          if (c[j + len] === '-' && c[j + len + 1] !== undefined && c[j + len + 1] !== ']') {
+            // a range lo-hi
+            var k = j + len + 1, hi = null, hlen = 1, hiClass = false;
+            if (c[k] === '\\') {
+              var he = escape(k, true);
+              if (he.err) { return fail(he.err, k); }
+              hlen = he.len;
+              if (he.atom.t === 'class') { hiClass = true; } else { hi = he.atom.ch; }
+            } else { hi = c[k]; }
+            if (isClassEsc || hiClass) { return fail('class_range', j); }
+            var lo = lit.length === 1 ? lit.codePointAt(0) : (lit.charAt(0) === 'x' ? parseInt(lit.slice(1), 16) : -1);
+            var hv = hi.length === 1 ? hi.codePointAt(0) : (hi.charAt(0) === 'x' ? parseInt(hi.slice(1), 16) : -1);
+            if (lit.length > 1 && lit.charAt(0) === '\\') { lo = { n: 10, r: 13, t: 9, f: 12 }[lit.charAt(1)]; }
+            if (hi.length > 1 && hi.charAt(0) === '\\') { hv = { n: 10, r: 13, t: 9, f: 12 }[hi.charAt(1)]; }
+            if (lo > hv) { return fail('range_order', j); }
+            j = k + hlen;
+            continue;
+          }
+          prev = lit;
+          j += len;
+        }
+        if (!closed) { return fail('syntax', i); }
+        branch().push({ t: 'class' });
+        i = j + 1;
+        continue;
+      }
+      if (ch === '(') {
+        var kind = 'group';
+        var adv = 1;
+        if (c[i + 1] === '?') {
+          var q = c[i + 2];
+          if (q === ':') { adv = 3; }
+          else if (q === '=' || q === '!') { kind = 'look'; adv = 3; }
+          else if (q === '<' && (c[i + 3] === '=' || c[i + 3] === '!')) { return fail('lookbehind', i); }
+          else if (q === '<' || q === 'P' || q === "'") { return fail('named_group', i); }
+          else if (q === '>') { return fail('atomic', i); }
+          else if (q !== undefined && /[A-Za-z^-]/.test(q)) { return fail('inline_flag', i); }
+          else { return fail('syntax', i); }
+        }
+        stack.push({ kind: kind, branches: [[]], unbounded: false, start: i });
+        i += adv;
+        continue;
+      }
+      if (ch === ')') {
+        if (stack.length < 2) { return fail('syntax', i); }
+        var fr = stack.pop();
+        branch().push({ t: fr.kind, unbounded: fr.unbounded, branches: fr.branches, start: fr.start });
+        if (fr.unbounded) { top().unbounded = true; }
+        i++;
+        continue;
+      }
+      if (ch === '|') { top().branches.push([]); i++; continue; }
+      if (ch === '*' || ch === '+' || ch === '?' || ch === '{') {
+        var min = 0, max = Infinity, qlen = 1;
+        if (ch === '+') { min = 1; }
+        if (ch === '?') { max = 1; }
+        if (ch === '{') {
+          var end = c.indexOf('}', i);
+          var body = end === -1 ? '' : c.slice(i + 1, end).join('');
+          var mm = /^(\d{1,4})(,(\d{0,4}))?$/.exec(body);
+          if (!mm) { return fail('brace', i); }
+          min = parseInt(mm[1], 10);
+          max = mm[2] === undefined ? min : (mm[3] === '' ? Infinity : parseInt(mm[3], 10));
+          if (min > 1000 || (max !== Infinity && max > 1000)) { return fail('too_large', i); }
+          if (max < min) { return fail('range_order', i); }
+          qlen = end - i + 1;
+        }
+        var b = branch();
+        var atom = b[b.length - 1];
+        if (!atom || atom.q) { return fail('nothing_to_repeat', i); }
+        if (atom.t === 'anchor' || atom.t === 'assert' || atom.t === 'look') { return fail('quantified_assertion', i); }
+        var next = c[i + qlen];
+        if (next === '+') { return fail('possessive', i + qlen); }
+        if (next === '?') { qlen++; }
+        atom.q = true;
+        if (max > 1 && atom.unbounded) { return fail('nested_quantifier', atom.start); }
+        if (max === Infinity && atom.branches && atom.branches.length > 1) {
+          // (a|aa)+ : every branch a plain different word, none the start of another.
+          var words = [];
+          for (var bi = 0; bi < atom.branches.length; bi++) {
+            var w = '';
+            var br = atom.branches[bi];
+            if (!br.length) { return fail('alternation', atom.start); }
+            for (var ai = 0; ai < br.length; ai++) { if (br[ai].t !== 'lit' || br[ai].q) { return fail('alternation', atom.start); } w += br[ai].ch + '\u0000'; }
+            words.push(w);
+          }
+          for (var wa = 0; wa < words.length; wa++) { for (var wb = 0; wb < words.length; wb++) { if (wa !== wb && words[wb].indexOf(words[wa]) === 0) { return fail('alternation', atom.start); } } }
+        }
+        if (max === Infinity) { top().unbounded = true; unboundedTotal++; if (unboundedTotal > 4) { return fail('too_complex', i); } }
+        i += qlen;
+        continue;
+      }
+      if (ch === '}' || ch === ']') { return fail('brace', i); }
+      if (ch === '^' || ch === '$') { branch().push({ t: 'anchor' }); i++; continue; }
+      branch().push(ch === '.' ? { t: 'class' } : { t: 'lit', ch: ch });
+      i++;
+    }
+    if (stack.length > 1) { return fail('syntax', stack[stack.length - 1].start); }
+    try { new RegExp('^(?:' + src + ')$', 'u'); } catch (e) { return fail('syntax', 0); }
+    return null;
+  }
+
+  /** The text a pattern is matched against: one line, F01's normalizer (digits only with ascii). */
+  function patternSubject(v, ascii) {
+    var s = valueText(v);
+    if (ascii) { s = asciiDigits(s); }
+    s = s.replace(/[\u200B-\u200F\u202A-\u202E\u2066-\u2069\uFEFF\u00AD]/g, '');
+    s = s.replace(/[\u00A0\u2007\u202F\u3000\u2028\u2029]/g, ' ');
+    return s.replace(/[\t\n\v\f\r ]+/g, ' ').trim();
+  }
+  var rxCache = {};
+  /** The compiled pattern of a field, or null (none, refused by the lint, or not decodable). */
+  function fieldPattern(f) {
+    if (!f || typeof f.pattern_b64 !== 'string' || f.pattern_b64 === '') { return null; }
+    var key = f.pattern_b64 + '|' + (on(f, 'pattern_case') ? 'i' : '');
+    if (Object.prototype.hasOwnProperty.call(rxCache, key)) { return rxCache[key]; }
+    var src = b64urlDecode(f.pattern_b64);
+    var re = null;
+    if (src !== null && src !== '' && lintRegex(src) === null) {
+      try { re = new RegExp('^(?:' + src + ')$', 'u' + (on(f, 'pattern_case') ? 'i' : '')); } catch (e) { re = null; }
+    }
+    rxCache[key] = re;
+    return re;
+  }
+  /** true / false, or null when the browser leaves it to the server (more than 1000 characters). */
+  function checkPattern(f, v) {
+    var re = fieldPattern(f);
+    if (!re) { return true; }
+    var s = patternSubject(v, on(f, 'pattern_ascii', true));
+    if (Array.from(s).length > Math.max(1000, int(f, 'mlen'))) { return null; }
+    return re.test(s);
+  }
+  // #endregion pattern
+
   // #region check
   /**
    * The first failing rule of a value, in the server's order (§4.1), or null.
@@ -193,6 +445,7 @@
       if (wi > 0 && w < wi) { return { code: 'words', rule: 'words', key: 'tvMinWords_', n: wi }; }
       if (wx > 0 && w > wx) { return { code: 'words', rule: 'words', key: 'tvMaxWords_', n: wx }; }
     }
+    if (rules.indexOf('pattern') !== -1 && checkPattern(f, s) === false) { return { code: 'pattern', rule: 'pattern', key: 'tvPattern_' }; }
     return null;
   }
   // #endregion check
@@ -200,7 +453,8 @@
   return {
     KEYS: KEYS, MSG_RULES: MSG_RULES, CODES: CODES, GATED: GATED, TYPES: TYPES, DEFAULTS: DEFAULTS,
     on: on, typeOk: typeOk, activeRules: activeRules, hasRules: hasRules, plain: plain, sanitizeKey: sanitizeKey,
-    valueText: valueText, countChars: countChars, countWords: countWords, counter: counter, asciiDigits: asciiDigits, counterText: counterText, fmtNum: fmtNum,
+    valueText: valueText, countChars: countChars, countWords: countWords, counter: counter, asciiDigits: asciiDigits, counterText: counterText, fmtNum: fmtNum, partOk: partOk,
+    b64urlEncode: b64urlEncode, b64urlDecode: b64urlDecode, lintRegex: lintRegex, patternSubject: patternSubject, checkPattern: checkPattern, fieldPattern: fieldPattern,
     message: message, firstError: firstError
   };
 });

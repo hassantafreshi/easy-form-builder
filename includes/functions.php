@@ -4551,6 +4551,54 @@ class efbFunction {
 			"tvPwConfirmLbl" => $state && isset($ac->text->tvPwConfirmLbl) ? $ac->text->tvPwConfirmLbl : esc_html__('Confirm password','easy-form-builder'),
 			/* translators: F03 help button on a field. %s: the field label */
 			"tvHelpBtn" => $state && isset($ac->text->tvHelpBtn) ? $ac->text->tvHelpBtn : esc_html__('Help: %s','easy-form-builder'),
+			/* translators: F03 builder, why an owner's regular expression cannot be used (shown after "This pattern cannot be used:") */
+			"tvRx_too_long" => $state && isset($ac->text->tvRx_too_long) ? $ac->text->tvRx_too_long : esc_html__('longer than 256 bytes','easy-form-builder'),
+			/* translators: F03 builder, why an owner's regular expression cannot be used (shown after "This pattern cannot be used:") */
+			"tvRx_syntax" => $state && isset($ac->text->tvRx_syntax) ? $ac->text->tvRx_syntax : esc_html__('it is not a complete pattern','easy-form-builder'),
+			/* translators: F03 builder, why an owner's regular expression cannot be used (shown after "This pattern cannot be used:") */
+			"tvRx_lookbehind" => $state && isset($ac->text->tvRx_lookbehind) ? $ac->text->tvRx_lookbehind : esc_html__('look-behind (?<= and (?<! is not supported','easy-form-builder'),
+			/* translators: F03 builder, why an owner's regular expression cannot be used (shown after "This pattern cannot be used:") */
+			"tvRx_named_group" => $state && isset($ac->text->tvRx_named_group) ? $ac->text->tvRx_named_group : esc_html__('named groups are not supported','easy-form-builder'),
+			/* translators: F03 builder, why an owner's regular expression cannot be used (shown after "This pattern cannot be used:") */
+			"tvRx_backref" => $state && isset($ac->text->tvRx_backref) ? $ac->text->tvRx_backref : esc_html__('back-references such as \\1 are not supported','easy-form-builder'),
+			/* translators: F03 builder, why an owner's regular expression cannot be used (shown after "This pattern cannot be used:") */
+			"tvRx_inline_flag" => $state && isset($ac->text->tvRx_inline_flag) ? $ac->text->tvRx_inline_flag : esc_html__('inline flags such as (?i) are not supported; use the switch instead','easy-form-builder'),
+			/* translators: F03 builder, why an owner's regular expression cannot be used (shown after "This pattern cannot be used:") */
+			"tvRx_atomic" => $state && isset($ac->text->tvRx_atomic) ? $ac->text->tvRx_atomic : esc_html__('atomic groups (?> are not supported','easy-form-builder'),
+			/* translators: F03 builder, why an owner's regular expression cannot be used (shown after "This pattern cannot be used:") */
+			"tvRx_possessive" => $state && isset($ac->text->tvRx_possessive) ? $ac->text->tvRx_possessive : esc_html__('possessive repeats such as *+ are not supported','easy-form-builder'),
+			/* translators: F03 builder, why an owner's regular expression cannot be used (shown after "This pattern cannot be used:") */
+			"tvRx_escape" => $state && isset($ac->text->tvRx_escape) ? $ac->text->tvRx_escape : esc_html__('this escape is not supported','easy-form-builder'),
+			/* translators: F03 builder, why an owner's regular expression cannot be used (shown after "This pattern cannot be used:") */
+			"tvRx_posix_class" => $state && isset($ac->text->tvRx_posix_class) ? $ac->text->tvRx_posix_class : esc_html__('POSIX classes such as [[:alpha:]] are not supported','easy-form-builder'),
+			/* translators: F03 builder, why an owner's regular expression cannot be used (shown after "This pattern cannot be used:") */
+			"tvRx_script_property" => $state && isset($ac->text->tvRx_script_property) ? $ac->text->tvRx_script_property : esc_html__('only \\p{L}, \\p{Lu}, \\p{Ll}, \\p{N}, \\p{Nd}, \\p{P}, \\p{S} and \\p{Z} are supported','easy-form-builder'),
+			/* translators: F03 builder, why an owner's regular expression cannot be used (shown after "This pattern cannot be used:") */
+			"tvRx_unicode_escape" => $state && isset($ac->text->tvRx_unicode_escape) ? $ac->text->tvRx_unicode_escape : esc_html__('write the character itself instead of \\u or \\x{…}','easy-form-builder'),
+			/* translators: F03 builder, why an owner's regular expression cannot be used (shown after "This pattern cannot be used:") */
+			"tvRx_tilde" => $state && isset($ac->text->tvRx_tilde) ? $ac->text->tvRx_tilde : esc_html__('the character ~ cannot be used','easy-form-builder'),
+			/* translators: F03 builder, why an owner's regular expression cannot be used (shown after "This pattern cannot be used:") */
+			"tvRx_brace" => $state && isset($ac->text->tvRx_brace) ? $ac->text->tvRx_brace : esc_html__('write \\{, \\} or \\] for a literal brace or bracket','easy-form-builder'),
+			/* translators: F03 builder, why an owner's regular expression cannot be used (shown after "This pattern cannot be used:") */
+			"tvRx_empty_class" => $state && isset($ac->text->tvRx_empty_class) ? $ac->text->tvRx_empty_class : esc_html__('an empty class [] matches nothing','easy-form-builder'),
+			/* translators: F03 builder, why an owner's regular expression cannot be used (shown after "This pattern cannot be used:") */
+			"tvRx_range_order" => $state && isset($ac->text->tvRx_range_order) ? $ac->text->tvRx_range_order : esc_html__('a range or a repeat count is in the wrong order','easy-form-builder'),
+			/* translators: F03 builder, why an owner's regular expression cannot be used (shown after "This pattern cannot be used:") */
+			"tvRx_class_range" => $state && isset($ac->text->tvRx_class_range) ? $ac->text->tvRx_class_range : esc_html__('a range cannot start or end with \\d, \\w or \\s','easy-form-builder'),
+			/* translators: F03 builder, why an owner's regular expression cannot be used (shown after "This pattern cannot be used:") */
+			"tvRx_class_escape" => $state && isset($ac->text->tvRx_class_escape) ? $ac->text->tvRx_class_escape : esc_html__('\\D, \\W and \\S cannot be used inside [ ]','easy-form-builder'),
+			/* translators: F03 builder, why an owner's regular expression cannot be used (shown after "This pattern cannot be used:") */
+			"tvRx_nothing_to_repeat" => $state && isset($ac->text->tvRx_nothing_to_repeat) ? $ac->text->tvRx_nothing_to_repeat : esc_html__('a repeat sign has nothing to repeat','easy-form-builder'),
+			/* translators: F03 builder, why an owner's regular expression cannot be used (shown after "This pattern cannot be used:") */
+			"tvRx_quantified_assertion" => $state && isset($ac->text->tvRx_quantified_assertion) ? $ac->text->tvRx_quantified_assertion : esc_html__('an anchor or look-ahead cannot be repeated','easy-form-builder'),
+			/* translators: F03 builder, why an owner's regular expression cannot be used (shown after "This pattern cannot be used:") */
+			"tvRx_too_large" => $state && isset($ac->text->tvRx_too_large) ? $ac->text->tvRx_too_large : esc_html__('a repeat count is larger than 1000','easy-form-builder'),
+			/* translators: F03 builder, why an owner's regular expression cannot be used (shown after "This pattern cannot be used:") */
+			"tvRx_nested_quantifier" => $state && isset($ac->text->tvRx_nested_quantifier) ? $ac->text->tvRx_nested_quantifier : esc_html__('a repeated group repeats something inside it again, which can be very slow','easy-form-builder'),
+			/* translators: F03 builder, why an owner's regular expression cannot be used (shown after "This pattern cannot be used:") */
+			"tvRx_alternation" => $state && isset($ac->text->tvRx_alternation) ? $ac->text->tvRx_alternation : esc_html__('a repeated group of alternatives can be very slow; use a [class] instead','easy-form-builder'),
+			/* translators: F03 builder, why an owner's regular expression cannot be used (shown after "This pattern cannot be used:") */
+			"tvRx_too_complex" => $state && isset($ac->text->tvRx_too_complex) ? $ac->text->tvRx_too_complex : esc_html__('too many unlimited repeats','easy-form-builder'),
 			/* translators: F03 visitor error when the value was used in an earlier entry */
 			"tvUnique_" => $state && isset($ac->text->tvUnique_) ? $ac->text->tvUnique_ : esc_html__('This value has already been used.','easy-form-builder'),
 			/* translators: F03 visitor error. %1$s: field label, %2$s: number */

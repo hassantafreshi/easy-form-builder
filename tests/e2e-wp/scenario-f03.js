@@ -12,6 +12,12 @@
  *        and the server and stored with its newlines; a plain minimum length now stops Send (§18.2);
  *        fa_IR at 375 px: Persian digits in the counter, no horizontal scroll; builder: the word and
  *        counter controls save through the real sanitizer and the canvas shows the counter.
+ *  f03c  C: a safe owner pattern: the builder lints as the owner types (ReDoS refused with the reason),
+ *        the test box marks each line, a pattern with < " %41 and double spaces is stored unchanged
+ *        (base64url) through the real save; AutoPilot setFieldRules() throws pattern_invalid, and a
+ *        save carrying a bad pattern_b64 is refused with its path; a guest: Persian digits accepted,
+ *        a wrong value shows msg_pattern, a request changed after the browser check is refused
+ *        (efb_field_pattern) and nothing is stored.
  */
 'use strict';
 
@@ -223,5 +229,77 @@ module.exports = function (S) {
     const fid = Number(String((sj.data && (sj.data.value || sj.data.id)) || '').replace(/\D+/g, '')) || await admin.evaluate(() => Number(form_ID_emsFormBuilder));
     const tr = (((ctl('form', String(fid)) || {}).form_structer) || []).find((r) => r && r.id_ === t.id_) || {};
     R.check('f03b: Save stores wmax "50" (typed in Persian digits) and counter "words"', tr.wmax === '50' && tr.counter === 'words', { wmax: tr.wmax, counter: tr.counter });
+  });
+
+  scenario('f03c', 'F03-C safe patterns: builder lint and test box, exact save, AutoPilot errors, guest and server', async ({ context, adminPage }) => {
+    plan3();
+    const admin = await adminPage();
+    await openNewForm(admin);
+    const t = await addTile(admin, 'text');
+    await admin.click(`#dropZoneEFB [data-id="${t.dataId}"] label, #dropZoneEFB [data-id="${t.dataId}"]`, { position: { x: 20, y: 10 } });
+    await admin.waitForSelector('#patternEl', { timeout: 10000 });
+    await admin.fill('#patternEl', '(a+)+');
+    await sleep(500);
+    const lint = await admin.evaluate(() => ({ msg: document.getElementById('patternLintMsg').textContent, inv: document.getElementById('patternEl').getAttribute('aria-invalid') }));
+    const rowBad = await admin.evaluate((id) => valj_efb.find((r) => r.id_ === id).pattern_b64 || '', t.id_);
+    R.check('f03c: builder refuses (a+)+ as you type with the reason, nothing stored', /This pattern cannot be used: a repeated group repeats something inside it again/.test(lint.msg) && lint.inv === 'true' && rowBad === '', { lint, rowBad });
+    const src = 'x<y "q" %41  ?[A-Z]{2}\\d{3}'; // a value never keeps two spaces (the text sanitizers), so the second one is optional
+    await admin.fill('#patternEl', src);
+    await sleep(500);
+    await admin.fill('#patternTestEl', 'x<y "q" %41 AB123\nx<y "q" %41 ab123');
+    await sleep(300);
+    const test = await admin.evaluate(() => Array.from(document.querySelectorAll('#patternTestOut li')).map((li) => li.className.includes('text-success')));
+    R.check('f03c: the test box marks each line (accepted, refused)', JSON.stringify(test) === '[true,false]', test);
+    await closePanel(admin);
+    const saved = admin.waitForResponse((x) => /admin-ajax\.php/.test(x.url()) && x.request().method() === 'POST' && /add_form_Emsfb|update_form_Emsfb/.test(x.request().postData() || ''), { timeout: 20000 }).catch(() => null);
+    await admin.evaluate(() => saveFormEfb(1));
+    const sres = await saved;
+    const sj = sres ? await sres.json() : {};
+    await sleep(800);
+    const fid = Number(String((sj.data && (sj.data.value || sj.data.id)) || '').replace(/\D+/g, '')) || await admin.evaluate(() => Number(form_ID_emsFormBuilder));
+    const tr = (((ctl('form', String(fid)) || {}).form_structer) || []).find((r) => r && r.id_ === t.id_) || {};
+    const back = tr.pattern_b64 ? Buffer.from(tr.pattern_b64.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8') : null;
+    R.check('f03c: Save keeps the pattern with < " %41 and double spaces exactly (base64url)', back === src, { stored: tr.pattern_b64, back });
+    // AutoPilot
+    const api = await admin.evaluate((id) => {
+      const out = {};
+      try { efbBuilderApi.setFieldRules(id, { pattern: '(\\w+\\s?)*' }); out.a = 'no throw'; } catch (e) { out.a = [e.code, e.reason]; }
+      try { efbBuilderApi.setFieldRules(id, { email_domains: 'x.com' }); out.b = 'no throw'; } catch (e) { out.b = e.code; }
+      out.c = efbBuilderApi.setFieldRules(id, { pattern: 'EMP\\d{4}', msg_pattern: 'Like EMP1234' }).values;
+      try { efbBuilderApi.insertItems([{ id_: 'zzbadpat1', type: 'text', name: 'Z', pattern_b64: 'KGErKSs' }]); out.d = 'no throw'; } catch (e) { out.d = [e.code, e.path]; }
+      out.cap = efb_var.capabilities.field_rules ? efb_var.capabilities.field_rules.gated_keys : null;
+      return out;
+    }, t.id_);
+    R.check('f03c: AutoPilot setFieldRules: pattern_invalid (nested_quantifier), unsupported_key for a domain list on a text field, a good pattern stored as pattern_b64; insertItems refuses a bad pattern_b64 with its path; capabilities.field_rules.gated_keys',
+      JSON.stringify(api.a) === '["pattern_invalid","nested_quantifier"]' && api.b === 'unsupported_key' && api.c.pattern_b64 === 'RU1QXGR7NH0' && api.c.msg_pattern === 'Like EMP1234' && JSON.stringify(api.d) === '["pattern_invalid","rows[0].pattern_b64"]' && JSON.stringify(api.cap) === '["unique","pattern_b64","email_domain_mode","pw_strength_min"]', api);
+    const refused = await admin.evaluate(async (fid) => {
+      const rows = JSON.parse(JSON.stringify(valj_efb));
+      const f = rows.find((r, i) => i > 1 && r.type === 'text');
+      f.pattern_b64 = 'KGErKSs'; // "(a+)+"
+      const body = new URLSearchParams({ action: 'update_form_Emsfb', value: JSON.stringify(rows), name: 'x', nonce: _efb_nonce_, id: String(fid) });
+      const r = await fetch(ajaxurl, { method: 'POST', body, credentials: 'same-origin' });
+      return (await r.json()).data;
+    }, fid);
+    R.check('f03c: a save carrying a pattern the lint refuses → code pattern_invalid with its path', refused && refused.success === false && refused.code === 'pattern_invalid' && /^rows\[\d+\]\.pattern_b64$/.test(refused.path), refused);
+
+    // Guest
+    const F = form('F03 e2e pattern', [{ key: 'code', type: 'text', name: 'Staff code', pattern_b64: 'RU1QXGR7NH0', msg_pattern: 'Use EMP and 4 digits, like EMP1234.' }]);
+    const g = await (await context({}, 'f03c')).newPage();
+    await g.goto(pageOf(F.form_id), { waitUntil: 'load' });
+    await g.waitForSelector(byId(F.ids.code + '_'), { timeout: 20000 });
+    await sleep(800);
+    await g.fill(byId(F.ids.code + '_'), 'emp1234');
+    await g.press(byId(F.ids.code + '_'), 'Tab');
+    await sleep(400);
+    const e1 = await fieldState(g, F.ids.code);
+    R.check('f03c: guest: a wrong value shows msg_pattern at the field', e1.text === 'Use EMP and 4 digits, like EMP1234.' && e1.invalid === 'true', e1);
+    await g.fill(byId(F.ids.code + '_'), 'EMP۱۲۳۴');
+    await g.press(byId(F.ids.code + '_'), 'Tab');
+    await sleep(400);
+    const e2 = await fieldState(g, F.ids.code);
+    R.check('f03c: guest: Persian digits count as 0-9', e2.invalid === null, e2);
+    const st = await tamper(g, 'EMP۱۲۳۴', 'EMPX234');
+    const ans = await send(g);
+    R.check('f03c: a request changed after the browser check → efb_field_pattern with the owner\'s sentence, nothing stored', st.done && ans && ans.success === false && ans.code === 'efb_field_pattern' && ans.m === 'Use EMP and 4 digits, like EMP1234.' && (ctl('entries', String(F.form_id)) || []).length === 0, { st, ans });
   });
 };

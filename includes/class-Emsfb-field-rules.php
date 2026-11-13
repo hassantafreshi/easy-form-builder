@@ -122,6 +122,25 @@ class Field_Rules {
 		return $out;
 	}
 
+	/**
+	 * Save check of a whole form as it arrives (before the sanitizer): a pattern the sanitizer would
+	 * silently empty is refused with a stable code and the path of the key, so a connector or the
+	 * AutoPilot API learns why (SitePilot contract). Returns a list of
+	 * ['code' => 'pattern_invalid', 'path' => 'rows[i].pattern_b64', 'reason' => lint code, 'pos' => n].
+	 */
+	public static function validate_rows($rows) {
+		$errors = array();
+		foreach ((array) $rows as $i => $r) {
+			if (!is_array($r) || !isset($r['pattern_b64']) || $r['pattern_b64'] === '' || $r['pattern_b64'] === null) continue;
+			$v = $r['pattern_b64'];
+			$src = is_string($v) && strlen($v) <= 344 ? self::b64url_decode($v) : null;
+			if ($src === null) { $errors[] = array('code' => 'pattern_invalid', 'path' => 'rows[' . $i . '].pattern_b64', 'reason' => 'encoding', 'pos' => 0); continue; }
+			$e = self::lint_regex($src);
+			if ($e !== null) $errors[] = array('code' => 'pattern_invalid', 'path' => 'rows[' . $i . '].pattern_b64', 'reason' => $e['code'], 'pos' => $e['pos']);
+		}
+		return $errors;
+	}
+
 	/** ajax_object_efm.field_rules: the paid parts this site honours (the browser skips the others, as the server does). */
 	public static function client_config() {
 		return array(
@@ -187,6 +206,16 @@ class Field_Rules {
 				return in_array($v, array('none', 'chars', 'words'), true) ? $v : 'none';
 			case 'counter_style':
 				return $v === 'used' ? 'used' : 'remaining';
+			case 'pattern_b64':
+				// base64url of the UTF-8 pattern, ≤ 256 bytes, that passes the lint and compiles; else ''.
+				if (!is_string($v) || $v === '' || strlen($v) > 344) return '';
+				$src = self::b64url_decode($v);
+				if ($src === null || $src === '' || self::lint_regex($src) !== null) return '';
+				return self::b64url_encode($src);
+			case 'pattern_case':
+				return in_array($v, array(1, '1', true, 'true'), true) ? '1' : '0';
+			case 'pattern_ascii':
+				return in_array($v, array(0, '0', false, 'false'), true) ? '0' : '1';
 		}
 		return is_scalar($v) ? self::plain($v, 200) : '';
 	}
@@ -220,6 +249,7 @@ class Field_Rules {
 		if (!is_array($f)) return $out;
 		$masked = isset($f['mask_preset']) && is_string($f['mask_preset']) && $f['mask_preset'] !== '';
 		if (!$masked && self::type_ok($f, 'words') && (self::int($f, 'wmin') > 0 || self::int($f, 'wmax') > 0)) $out[] = 'words';
+		if (self::type_ok($f, 'pattern') && self::plan_ok('pattern') && self::field_pattern($f) !== '') $out[] = 'pattern';
 		// Lengths: measured here when the field has rules or the owner's length messages (else the type branch does it).
 		if (!$masked && self::type_ok($f, 'length') && (self::int($f, 'milen') > 0 || self::int($f, 'mlen') > 0)
 			&& ($out || self::has_msg($f, 'minlen') || self::has_msg($f, 'maxlen'))) array_unshift($out, 'length');
@@ -320,8 +350,315 @@ class Field_Rules {
 			if ($mi > 0 && $n < $mi) return $fail('words', self::msg($f, 'words', 'tvMinWords_', $lanText, $mi));
 			if ($mx > 0 && $n > $mx) return $fail('words', self::msg($f, 'words', 'tvMaxWords_', $lanText, $mx));
 		}
+		if (in_array('pattern', $rules, true) && !self::check_pattern($f, $v, isset($ctx['form_id']) ? (int) $ctx['form_id'] : 0)) {
+			return $fail('pattern', self::msg($f, 'pattern', 'tvPattern_', $lanText));
+		}
 		$ok['item'] = $item;
 		return $ok;
+	}
+
+	/* ------------------------------------------------------------ pattern (§9.3) */
+
+	const RX_MAX_BYTES = 256;
+	const RX_PROPS = array('L', 'Lu', 'Ll', 'N', 'Nd', 'P', 'S', 'Z');
+	const RX_SYNTAX = '^$\\.*+?()[]{}|/';
+	const RX_CLASS_ESC = 'dDwWsS';
+
+	/** UTF-8 → base64url without padding. */
+	public static function b64url_encode($s) {
+		return rtrim(strtr(base64_encode((string) $s), '+/', '-_'), '=');
+	}
+
+	/** base64url → UTF-8 text; null when it is not a valid encoding of valid UTF-8. */
+	public static function b64url_decode($s) {
+		$s = (string) $s;
+		if (!preg_match('/^[A-Za-z0-9_-]*$/', $s) || strlen($s) % 4 === 1) return null;
+		$b = strtr($s, '-_', '+/');
+		$b .= str_repeat('=', (4 - strlen($b) % 4) % 4);
+		$d = base64_decode($b, true);
+		if ($d === false || !preg_match('//u', $d)) return null;
+		return $d;
+	}
+
+	private static function rx_escape(array $c, $at, $in_class) {
+		$d = isset($c[$at + 1]) ? $c[$at + 1] : null;
+		if ($d === null) return array('err' => 'syntax');
+		if (strpos(self::RX_CLASS_ESC, $d) !== false) return array('len' => 2, 'atom' => array('t' => 'class'));
+		if ($d === 'b' || $d === 'B') return array('len' => 2, 'atom' => array('t' => $in_class ? 'lit' : 'assert', 'ch' => "\x08"));
+		if (in_array($d, array('n', 'r', 't', 'f'), true)) return array('len' => 2, 'atom' => array('t' => 'lit', 'ch' => '\\' . $d));
+		if ($d === 'p' || $d === 'P') {
+			if (!isset($c[$at + 2]) || $c[$at + 2] !== '{') return array('err' => 'escape');
+			$close = -1;
+			for ($k = $at + 3, $n = count($c); $k < $n; $k++) { if ($c[$k] === '}') { $close = $k; break; } }
+			if ($close === -1) return array('err' => 'syntax');
+			$name = implode('', array_slice($c, $at + 3, $close - $at - 3));
+			if (!in_array($name, self::RX_PROPS, true)) return array('err' => 'script_property');
+			return array('len' => $close - $at + 1, 'atom' => array('t' => 'class'));
+		}
+		if ($d === 'x') {
+			$h1 = isset($c[$at + 2]) ? $c[$at + 2] : '';
+			$h2 = isset($c[$at + 3]) ? $c[$at + 3] : '';
+			if ($h1 === '{') return array('err' => 'unicode_escape');
+			if (ctype_xdigit($h1) && strlen($h1) === 1 && ctype_xdigit($h2) && strlen($h2) === 1) return array('len' => 4, 'atom' => array('t' => 'lit', 'ch' => 'x' . $h1 . $h2));
+			return array('err' => 'syntax');
+		}
+		if ($d === 'u') return array('err' => 'unicode_escape');
+		if ($d >= '1' && $d <= '9' && strlen($d) === 1) return array('err' => 'backref');
+		if ($d === 'k') return array('err' => 'named_group');
+		if ((strlen($d) === 1 && strpos(self::RX_SYNTAX, $d) !== false) || ($in_class && $d === '-')) return array('len' => 2, 'atom' => array('t' => 'lit', 'ch' => $d));
+		return array('err' => 'escape');
+	}
+
+	private static function rx_cp($lit) {
+		if ($lit === null) return -1;
+		if (strlen($lit) > 1 && $lit[0] === '\\') { $m = array('n' => 10, 'r' => 13, 't' => 9, 'f' => 12); return $m[$lit[1]]; }
+		if (strlen($lit) === 3 && $lit[0] === 'x') return hexdec(substr($lit, 1));
+		$u = mb_ord($lit, 'UTF-8');
+		return $u === false ? -1 : $u;
+	}
+
+	/**
+	 * Static check of an owner's pattern (twin of EfbRules.lintRegex, one walk, no regular expression
+	 * decides): the part of ES2018 (u) and PCRE2 (u, D) both engines read alike, and no nested or
+	 * overlapping repetition (ReDoS). null, or ['code' => …, 'pos' => code point].
+	 */
+	public static function lint_regex($src) {
+		$src = (string) $src;
+		if (strlen($src) > self::RX_MAX_BYTES) return array('code' => 'too_long', 'pos' => 0);
+		if (!preg_match('//u', $src)) return array('code' => 'syntax', 'pos' => 0);
+		$c = preg_split('//u', $src, -1, PREG_SPLIT_NO_EMPTY);
+		$n = count($c);
+		$fail = function ($code, $pos) { return array('code' => $code, 'pos' => $pos); };
+		$stack = array(array('kind' => 'root', 'branches' => array(array()), 'unbounded' => false, 'start' => 0));
+		$unbounded_total = 0;
+		$i = 0;
+		while ($i < $n) {
+			$ch = $c[$i];
+			$top = count($stack) - 1;
+			$bi = count($stack[$top]['branches']) - 1;
+			if ($ch === '~') return $fail('tilde', $i);
+			if ($ch === '\\') {
+				$e = self::rx_escape($c, $i, false);
+				if (isset($e['err'])) return $fail($e['err'], $i);
+				$stack[$top]['branches'][$bi][] = $e['atom'];
+				$i += $e['len'];
+				continue;
+			}
+			if ($ch === '[') {
+				$j = $i + 1;
+				if (isset($c[$j]) && $c[$j] === '^') $j++;
+				if (isset($c[$j]) && $c[$j] === ']') return $fail('empty_class', $i);
+				$closed = false;
+				while ($j < $n) {
+					$x = $c[$j];
+					if ($x === ']') { $closed = true; break; }
+					if ($x === '~') return $fail('tilde', $j);
+					if ($x === '[' && isset($c[$j + 1]) && $c[$j + 1] === ':') return $fail('posix_class', $j);
+					$lit = null; $len = 1; $is_class = false;
+					if ($x === '\\') {
+						if (isset($c[$j + 1]) && in_array($c[$j + 1], array('D', 'W', 'S'), true)) return $fail('class_escape', $j);
+						$ce = self::rx_escape($c, $j, true);
+						if (isset($ce['err'])) return $fail($ce['err'], $j);
+						$len = $ce['len'];
+						if ($ce['atom']['t'] === 'class') $is_class = true; else $lit = $ce['atom']['ch'];
+					} else {
+						$lit = $x;
+					}
+					if (isset($c[$j + $len], $c[$j + $len + 1]) && $c[$j + $len] === '-' && $c[$j + $len + 1] !== ']') {
+						$k = $j + $len + 1; $hi = null; $hlen = 1; $hi_class = false;
+						if ($c[$k] === '\\') {
+							$he = self::rx_escape($c, $k, true);
+							if (isset($he['err'])) return $fail($he['err'], $k);
+							$hlen = $he['len'];
+							if ($he['atom']['t'] === 'class') $hi_class = true; else $hi = $he['atom']['ch'];
+						} else {
+							$hi = $c[$k];
+						}
+						if ($is_class || $hi_class) return $fail('class_range', $j);
+						if (self::rx_cp($lit) > self::rx_cp($hi)) return $fail('range_order', $j);
+						$j = $k + $hlen;
+						continue;
+					}
+					$j += $len;
+				}
+				if (!$closed) return $fail('syntax', $i);
+				$stack[$top]['branches'][$bi][] = array('t' => 'class');
+				$i = $j + 1;
+				continue;
+			}
+			if ($ch === '(') {
+				$kind = 'group';
+				$adv = 1;
+				if (isset($c[$i + 1]) && $c[$i + 1] === '?') {
+					$q = isset($c[$i + 2]) ? $c[$i + 2] : '';
+					$q3 = isset($c[$i + 3]) ? $c[$i + 3] : '';
+					if ($q === ':') { $adv = 3; }
+					elseif ($q === '=' || $q === '!') { $kind = 'look'; $adv = 3; }
+					elseif ($q === '<' && ($q3 === '=' || $q3 === '!')) return $fail('lookbehind', $i);
+					elseif ($q === '<' || $q === 'P' || $q === "'") return $fail('named_group', $i);
+					elseif ($q === '>') return $fail('atomic', $i);
+					elseif ($q !== '' && preg_match('/^[A-Za-z^-]$/', $q)) return $fail('inline_flag', $i);
+					else return $fail('syntax', $i);
+				}
+				$stack[] = array('kind' => $kind, 'branches' => array(array()), 'unbounded' => false, 'start' => $i);
+				$i += $adv;
+				continue;
+			}
+			if ($ch === ')') {
+				if (count($stack) < 2) return $fail('syntax', $i);
+				$fr = array_pop($stack);
+				$top = count($stack) - 1;
+				$bi = count($stack[$top]['branches']) - 1;
+				$stack[$top]['branches'][$bi][] = array('t' => $fr['kind'], 'unbounded' => $fr['unbounded'], 'branches' => $fr['branches'], 'start' => $fr['start']);
+				if ($fr['unbounded']) $stack[$top]['unbounded'] = true;
+				$i++;
+				continue;
+			}
+			if ($ch === '|') { $stack[$top]['branches'][] = array(); $i++; continue; }
+			if ($ch === '*' || $ch === '+' || $ch === '?' || $ch === '{') {
+				$min = 0; $max = INF; $qlen = 1;
+				if ($ch === '+') $min = 1;
+				if ($ch === '?') $max = 1;
+				if ($ch === '{') {
+					$end = -1;
+					for ($k = $i; $k < $n; $k++) { if ($c[$k] === '}') { $end = $k; break; } }
+					$body = $end === -1 ? '' : implode('', array_slice($c, $i + 1, $end - $i - 1));
+					if (!preg_match('/^(\d{1,4})(,(\d{0,4}))?$/', $body, $mm)) return $fail('brace', $i);
+					$min = (int) $mm[1];
+					$max = !isset($mm[2]) || $mm[2] === '' ? $min : ($mm[3] === '' ? INF : (int) $mm[3]);
+					if ($min > 1000 || ($max !== INF && $max > 1000)) return $fail('too_large', $i);
+					if ($max < $min) return $fail('range_order', $i);
+					$qlen = $end - $i + 1;
+				}
+				$b = &$stack[$top]['branches'][$bi];
+				$last = count($b) - 1;
+				if ($last < 0 || !empty($b[$last]['q'])) { unset($b); return $fail('nothing_to_repeat', $i); }
+				$atom = $b[$last];
+				if (in_array($atom['t'], array('anchor', 'assert', 'look'), true)) { unset($b); return $fail('quantified_assertion', $i); }
+				$next = isset($c[$i + $qlen]) ? $c[$i + $qlen] : '';
+				if ($next === '+') { unset($b); return $fail('possessive', $i + $qlen); }
+				if ($next === '?') $qlen++;
+				$b[$last]['q'] = true;
+				unset($b);
+				if ($max > 1 && !empty($atom['unbounded'])) return $fail('nested_quantifier', $atom['start']);
+				if ($max === INF && isset($atom['branches']) && count($atom['branches']) > 1) {
+					$words = array();
+					foreach ($atom['branches'] as $br) {
+						if (!$br) return $fail('alternation', $atom['start']);
+						$w = '';
+						foreach ($br as $a) { if ($a['t'] !== 'lit' || !empty($a['q'])) return $fail('alternation', $atom['start']); $w .= $a['ch'] . "\0"; }
+						$words[] = $w;
+					}
+					foreach ($words as $wa => $x) foreach ($words as $wb => $y) if ($wa !== $wb && strpos($y, $x) === 0) return $fail('alternation', $atom['start']);
+				}
+				if ($max === INF) {
+					$stack[$top]['unbounded'] = true;
+					$unbounded_total++;
+					if ($unbounded_total > 4) return $fail('too_complex', $i);
+				}
+				$i += $qlen;
+				continue;
+			}
+			if ($ch === '}' || $ch === ']') return $fail('brace', $i);
+			if ($ch === '^' || $ch === '$') { $stack[$top]['branches'][$bi][] = array('t' => 'anchor'); $i++; continue; }
+			$stack[$top]['branches'][$bi][] = $ch === '.' ? array('t' => 'class') : array('t' => 'lit', 'ch' => $ch);
+			$i++;
+		}
+		if (count($stack) > 1) return $fail('syntax', $stack[count($stack) - 1]['start']);
+		if (@preg_match('~^(?:' . self::pcre_source($src) . ')$~uD', '') === false) return $fail('syntax', 0);
+		return null;
+	}
+
+	/**
+	 * The pattern as PCRE runs it. PHP's u modifier turns on Unicode classes (PCRE2_UCP): \d took
+	 * "۱", \w took "é", while JavaScript keeps them ASCII. The class escapes are spelled out in
+	 * ASCII, as the browser reads them (the lint already refused \D \W \S inside a [class]).
+	 */
+	public static function pcre_source($src) {
+		$c = preg_split('//u', (string) $src, -1, PREG_SPLIT_NO_EMPTY);
+		$sp = '\\t\\n\\x0B\\f\\r \\x{A0}\\x{1680}\\x{2000}-\\x{200A}\\x{2028}\\x{2029}\\x{202F}\\x{205F}\\x{3000}\\x{FEFF}';
+		$out_map = array('d' => '[0-9]', 'D' => '[^0-9]', 'w' => '[A-Za-z0-9_]', 'W' => '[^A-Za-z0-9_]', 's' => '[' . $sp . ']', 'S' => '[^' . $sp . ']',
+			'b' => '(?:(?<=[A-Za-z0-9_])(?![A-Za-z0-9_])|(?<![A-Za-z0-9_])(?=[A-Za-z0-9_]))', 'B' => '(?:(?<=[A-Za-z0-9_])(?=[A-Za-z0-9_])|(?<![A-Za-z0-9_])(?![A-Za-z0-9_]))');
+		$in_map = array('d' => '0-9', 'w' => 'A-Za-z0-9_', 's' => $sp);
+		$out = '';
+		$in = false;
+		for ($i = 0, $n = count($c); $i < $n; $i++) {
+			$ch = $c[$i];
+			if ($ch === '\\' && isset($c[$i + 1])) {
+				$d = $c[$i + 1];
+				if (!$in && isset($out_map[$d])) { $out .= $out_map[$d]; $i++; continue; }
+				if ($in && isset($in_map[$d])) { $out .= $in_map[$d]; $i++; continue; }
+				$out .= $ch . $d;
+				$i++;
+				continue;
+			}
+			if (!$in && $ch === '[') { $in = true; $out .= $ch; if (isset($c[$i + 1]) && $c[$i + 1] === '^') { $out .= '^'; $i++; } continue; }
+			if ($in && $ch === ']') { $in = false; }
+			$out .= $ch;
+		}
+		return $out;
+	}
+
+	/** The text a pattern is matched against (twin of EfbRules.patternSubject). */
+	public static function pattern_subject($v, $ascii = true) {
+		$s = self::value_text($v);
+		if ($ascii && class_exists('\\Emsfb\\Masks')) $s = Masks::normalize_digits($s);
+		$s = preg_replace('/[\x{200B}-\x{200F}\x{202A}-\x{202E}\x{2066}-\x{2069}\x{FEFF}\x{00AD}]/u', '', $s);
+		$s = preg_replace('/[\x{00A0}\x{2007}\x{202F}\x{3000}\x{2028}\x{2029}]/u', ' ', $s);
+		return trim(preg_replace('/[\t\n\x0B\f\r ]+/', ' ', (string) $s));
+	}
+
+	private static $rx_cache = array();
+
+	/** The decoded, linted pattern of a field ('' = none or refused). Cached per request. */
+	public static function field_pattern($f) {
+		if (!is_array($f) || !isset($f['pattern_b64']) || !is_string($f['pattern_b64']) || $f['pattern_b64'] === '') return '';
+		$k = $f['pattern_b64'];
+		if (!array_key_exists($k, self::$rx_cache)) {
+			$src = self::b64url_decode($k);
+			self::$rx_cache[$k] = ($src !== null && $src !== '' && self::lint_regex($src) === null) ? $src : '';
+		}
+		return self::$rx_cache[$k];
+	}
+
+	/**
+	 * preg_match with low backtracking and recursion limits (restored afterwards). A limit hit or any
+	 * PCRE error (also the JIT stack) answers false: the value is refused, never accepted unchecked.
+	 */
+	public static function preg_safe($re, $v, $form_id = 0) {
+		$bt = ini_get('pcre.backtrack_limit');
+		$rc = ini_get('pcre.recursion_limit');
+		ini_set('pcre.backtrack_limit', '20000');
+		ini_set('pcre.recursion_limit', '2000');
+		$r = @preg_match($re, (string) $v);
+		$err = preg_last_error();
+		ini_set('pcre.backtrack_limit', (string) $bt);
+		ini_set('pcre.recursion_limit', (string) $rc);
+		if ($r === false || $err !== PREG_NO_ERROR) {
+			self::log_pattern_error((int) $form_id, $err);
+			return false;
+		}
+		return $r === 1;
+	}
+
+	private static function log_pattern_error($form_id, $err) {
+		static $done = array();
+		$key = 'efb_pat_log_' . $form_id . '_' . gmdate('Ymd');
+		if (isset($done[$key])) return;
+		$done[$key] = true;
+		if (function_exists('get_transient') && get_transient($key)) return;
+		if (function_exists('set_transient')) set_transient($key, 1, DAY_IN_SECONDS);
+		// The value is never logged.
+		error_log('[EFB pattern] form ' . $form_id . ': the pattern stopped at the matching limit (PCRE error ' . (int) $err . '); the value was refused.');
+	}
+
+	/** true / false for a field's pattern (true when it has none). */
+	public static function check_pattern($f, $v, $form_id = 0) {
+		$src = self::field_pattern($f);
+		if ($src === '') return true;
+		$s = self::pattern_subject($v, self::on($f, 'pattern_ascii', true));
+		if (self::count_chars($s) > max(1000, self::int($f, 'mlen'))) return false;
+		return self::preg_safe('~^(?:' . self::pcre_source($src) . ')$~uD' . (self::on($f, 'pattern_case') ? 'i' : ''), $s, $form_id);
 	}
 
 	/* ------------------------------------------------------------ counting */

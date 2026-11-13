@@ -1,0 +1,661 @@
+{
+ "evil": [
+  "(a+)+",
+  "(a*)*",
+  "(\\w*)*",
+  "(.*a){5,}",
+  "(a|aa)+",
+  "(a|a?)+",
+  "([a-zA-Z]+)*",
+  "(\\w+\\s?)*",
+  "^(([a-z])+.)+[A-Z]([a-z])+$",
+  "^([a-zA-Z0-9])(([\\-.]|[_]+)?([a-zA-Z0-9]+))*(@){1}[a-z0-9]+[.]{1}(([a-z]{2,3})|([a-z]{2,3}[.]{1}[a-z]{2,3}))$",
+  "^(\\d+)+$",
+  "(x+x+)+y",
+  "(\\d|\\d\\d)+",
+  "((ab)*)+",
+  "(.*)*b",
+  "([^,]+,?)*$",
+  "(\\s*,\\s*\\w+)*",
+  "(.+)+$",
+  "(a+){2}",
+  "(0*1?)*"
+ ],
+ "common": [
+  "[A-Z]{2}\\d{6}",
+  "SKU-\\d{4,8}",
+  "[A-Z0-9]{5,10}",
+  "\\d{10}",
+  "[a-z0-9_]{3,16}",
+  "[A-Za-z]+(-[A-Za-z]+)?",
+  "EMP\\d{4}",
+  "\\d{3}-\\d{2}-\\d{4}",
+  "[A-Z]{3}-\\d{3}",
+  "(SUMMER|WINTER)\\d{2}",
+  "\\p{L}[\\p{L} ]{1,40}",
+  "[0-9]{5}(-[0-9]{4})?",
+  "#[0-9a-fA-F]{6}",
+  "\\d+(\\.\\d{1,2})?",
+  "[\\w.+-]+@example\\.com",
+  "(com|net|org)+",
+  "[0-9۰-۹]{10}",
+  "[a-z]+(\\.[a-z]{2,6})?",
+  "ب[آ-ی]{2,10}",
+  "[A-HJ-NP-Z0-9]{17}"
+ ],
+ "reject": [
+  {
+   "src": "(?<=a)b",
+   "code": "lookbehind"
+  },
+  {
+   "src": "(?<!a)b",
+   "code": "lookbehind"
+  },
+  {
+   "src": "(?<n>a)",
+   "code": "named_group"
+  },
+  {
+   "src": "(a)\\k<n>",
+   "code": "named_group"
+  },
+  {
+   "src": "(a)\\1",
+   "code": "backref"
+  },
+  {
+   "src": "(?i)abc",
+   "code": "inline_flag"
+  },
+  {
+   "src": "(?>a+)",
+   "code": "atomic"
+  },
+  {
+   "src": "a*+",
+   "code": "possessive"
+  },
+  {
+   "src": "a++",
+   "code": "possessive"
+  },
+  {
+   "src": "a?+",
+   "code": "possessive"
+  },
+  {
+   "src": "a{2}+",
+   "code": "possessive"
+  },
+  {
+   "src": "\\Aabc",
+   "code": "escape"
+  },
+  {
+   "src": "abc\\Z",
+   "code": "escape"
+  },
+  {
+   "src": "abc\\z",
+   "code": "escape"
+  },
+  {
+   "src": "\\Ga",
+   "code": "escape"
+  },
+  {
+   "src": "a\\Kb",
+   "code": "escape"
+  },
+  {
+   "src": "\\Qa\\E",
+   "code": "escape"
+  },
+  {
+   "src": "\\h",
+   "code": "escape"
+  },
+  {
+   "src": "\\H",
+   "code": "escape"
+  },
+  {
+   "src": "\\R",
+   "code": "escape"
+  },
+  {
+   "src": "\\X",
+   "code": "escape"
+  },
+  {
+   "src": "[[:alpha:]]",
+   "code": "posix_class"
+  },
+  {
+   "src": "\\p{Arabic}",
+   "code": "script_property"
+  },
+  {
+   "src": "\\p{Script=Arabic}",
+   "code": "script_property"
+  },
+  {
+   "src": "\\u0041",
+   "code": "unicode_escape"
+  },
+  {
+   "src": "\\u{41}",
+   "code": "unicode_escape"
+  },
+  {
+   "src": "\\x{41}",
+   "code": "unicode_escape"
+  },
+  {
+   "src": "a~b",
+   "code": "tilde"
+  },
+  {
+   "src": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "code": "too_long"
+  },
+  {
+   "src": "\\v",
+   "code": "escape"
+  },
+  {
+   "src": "a{",
+   "code": "brace"
+  },
+  {
+   "src": "a}",
+   "code": "brace"
+  },
+  {
+   "src": "]",
+   "code": "brace"
+  },
+  {
+   "src": "[]",
+   "code": "empty_class"
+  },
+  {
+   "src": "[z-a]",
+   "code": "range_order"
+  },
+  {
+   "src": "[\\w-a]",
+   "code": "class_range"
+  },
+  {
+   "src": "*a",
+   "code": "nothing_to_repeat"
+  },
+  {
+   "src": "a**",
+   "code": "nothing_to_repeat"
+  },
+  {
+   "src": "(?=a)*",
+   "code": "quantified_assertion"
+  },
+  {
+   "src": "^*",
+   "code": "quantified_assertion"
+  },
+  {
+   "src": "(a",
+   "code": "syntax"
+  },
+  {
+   "src": "a)",
+   "code": "syntax"
+  },
+  {
+   "src": "a{3,2}",
+   "code": "range_order"
+  },
+  {
+   "src": "a{2000}",
+   "code": "too_large"
+  },
+  {
+   "src": "\\-",
+   "code": "escape"
+  },
+  {
+   "src": "\\@",
+   "code": "escape"
+  },
+  {
+   "src": "a.*b.*c.*d.*e.*f",
+   "code": "too_complex"
+  },
+  {
+   "src": "\\0",
+   "code": "escape"
+  },
+  {
+   "src": "[\\D]",
+   "code": "class_escape"
+  }
+ ],
+ "pairs": [
+  {
+   "src": "[A-Z]{2}\\d{6}",
+   "v": "AB123456",
+   "ok": true,
+   "i": false
+  },
+  {
+   "src": "[A-Z]{2}\\d{6}",
+   "v": "ab123456",
+   "ok": false,
+   "i": false
+  },
+  {
+   "src": "[A-Z]{2}\\d{6}",
+   "v": "AB۱۲۳۴۵۶",
+   "ok": true,
+   "i": false
+  },
+  {
+   "src": "[A-Z]{2}\\d{6}",
+   "v": "AB1234567",
+   "ok": false,
+   "i": false
+  },
+  {
+   "src": "\\d{10}",
+   "v": "۰۹۱۲۳۴۵۶۷۸",
+   "ok": true,
+   "i": false
+  },
+  {
+   "src": "\\d{10}",
+   "v": "٠٩١٢٣٤٥٦٧٨",
+   "ok": true,
+   "i": false
+  },
+  {
+   "src": "\\d{10}",
+   "v": "0912345678\n",
+   "ok": true,
+   "i": false
+  },
+  {
+   "src": "\\d{10}",
+   "v": "0912345678x",
+   "ok": false,
+   "i": false
+  },
+  {
+   "src": "SKU-\\d{4,8}",
+   "v": "SKU-1234",
+   "ok": true,
+   "i": false
+  },
+  {
+   "src": "SKU-\\d{4,8}",
+   "v": "sku-1234",
+   "ok": false,
+   "i": false
+  },
+  {
+   "src": "(SUMMER|WINTER)\\d{2}",
+   "v": "WINTER26",
+   "ok": true,
+   "i": false
+  },
+  {
+   "src": "(SUMMER|WINTER)\\d{2}",
+   "v": "SPRING26",
+   "ok": false,
+   "i": false
+  },
+  {
+   "src": "\\p{L}[\\p{L} ]{1,40}",
+   "v": "می‌خواهم بروم",
+   "ok": true,
+   "i": false
+  },
+  {
+   "src": "\\p{L}[\\p{L} ]{1,40}",
+   "v": "Jean Dupont",
+   "ok": true,
+   "i": false
+  },
+  {
+   "src": "\\p{L}[\\p{L} ]{1,40}",
+   "v": "R2D2",
+   "ok": false,
+   "i": false
+  },
+  {
+   "src": "\\p{L}[\\p{L} ]{1,40}",
+   "v": "Ali Reza",
+   "ok": true,
+   "i": false
+  },
+  {
+   "src": "[0-9]{5}(-[0-9]{4})?",
+   "v": "12345",
+   "ok": true,
+   "i": false
+  },
+  {
+   "src": "[0-9]{5}(-[0-9]{4})?",
+   "v": "12345-6789",
+   "ok": true,
+   "i": false
+  },
+  {
+   "src": "[0-9]{5}(-[0-9]{4})?",
+   "v": "12345-67",
+   "ok": false,
+   "i": false
+  },
+  {
+   "src": "#[0-9a-fA-F]{6}",
+   "v": "#a1B2c3",
+   "ok": true,
+   "i": false
+  },
+  {
+   "src": "#[0-9a-fA-F]{6}",
+   "v": "#a1B2c",
+   "ok": false,
+   "i": false
+  },
+  {
+   "src": "\\d+(\\.\\d{1,2})?",
+   "v": "12.50",
+   "ok": true,
+   "i": false
+  },
+  {
+   "src": "\\d+(\\.\\d{1,2})?",
+   "v": "12.505",
+   "ok": false,
+   "i": false
+  },
+  {
+   "src": "[\\w.+-]+@example\\.com",
+   "v": "a.b+c@example.com",
+   "ok": true,
+   "i": false
+  },
+  {
+   "src": "[\\w.+-]+@example\\.com",
+   "v": "a@example.org",
+   "ok": false,
+   "i": false
+  },
+  {
+   "src": "(com|net|org)+",
+   "v": "comnet",
+   "ok": true,
+   "i": false
+  },
+  {
+   "src": "(com|net|org)+",
+   "v": "co",
+   "ok": false,
+   "i": false
+  },
+  {
+   "src": "abc",
+   "v": "ABC",
+   "ok": false,
+   "i": false
+  },
+  {
+   "src": "a.c",
+   "v": "a c",
+   "ok": true,
+   "i": false
+  },
+  {
+   "src": "a c",
+   "v": "a c",
+   "ok": true,
+   "i": false
+  },
+  {
+   "src": "a.c",
+   "v": "a\tc",
+   "ok": true,
+   "i": false
+  },
+  {
+   "src": "a c",
+   "v": "a   c",
+   "ok": true,
+   "i": false
+  },
+  {
+   "src": "a\\sb",
+   "v": "a　b",
+   "ok": true,
+   "i": false
+  },
+  {
+   "src": "x",
+   "v": " x ",
+   "ok": true,
+   "i": false
+  },
+  {
+   "src": "\\bfoo\\b",
+   "v": "foo",
+   "ok": true,
+   "i": false
+  },
+  {
+   "src": "[^0-9]+",
+   "v": "abc",
+   "ok": true,
+   "i": false
+  },
+  {
+   "src": "[^0-9]+",
+   "v": "ab1",
+   "ok": false,
+   "i": false
+  },
+  {
+   "src": "[^0-9]+",
+   "v": "ab۱",
+   "ok": false,
+   "i": false
+  },
+  {
+   "src": "ab$",
+   "v": "ab",
+   "ok": true,
+   "i": false
+  },
+  {
+   "src": "^ab",
+   "v": "ab",
+   "ok": true,
+   "i": false
+  },
+  {
+   "src": "a|b",
+   "v": "ab",
+   "ok": false,
+   "i": false
+  },
+  {
+   "src": "a|b",
+   "v": "b",
+   "ok": true,
+   "i": false
+  },
+  {
+   "src": "(?:ab)+",
+   "v": "ababab",
+   "ok": true,
+   "i": false
+  },
+  {
+   "src": "(?=\\d{3})\\d+",
+   "v": "1234",
+   "ok": true,
+   "i": false
+  },
+  {
+   "src": "(?!0)\\d{3}",
+   "v": "012",
+   "ok": false,
+   "i": false
+  },
+  {
+   "src": "\\d{3}",
+   "v": "‎123",
+   "ok": true,
+   "i": false
+  },
+  {
+   "src": "\\d{3}",
+   "v": "1​23",
+   "ok": true,
+   "i": false
+  },
+  {
+   "src": "\\d{3}",
+   "v": "１２３",
+   "ok": true,
+   "i": false
+  },
+  {
+   "src": "[آ-ی]+",
+   "v": "سلام",
+   "ok": true,
+   "i": false
+  },
+  {
+   "src": "[آ-ی]+",
+   "v": "salam",
+   "ok": false,
+   "i": false
+  },
+  {
+   "src": "ب[آ-ی]{2,10}",
+   "v": "بهار",
+   "ok": true,
+   "i": false
+  },
+  {
+   "src": "\\w+",
+   "v": "café",
+   "ok": false,
+   "i": false
+  },
+  {
+   "src": "\\x41\\x42",
+   "v": "AB",
+   "ok": true,
+   "i": false
+  },
+  {
+   "src": "\\d\\.\\d",
+   "v": "1.5",
+   "ok": true,
+   "i": false
+  },
+  {
+   "src": "\\d\\.\\d",
+   "v": "1x5",
+   "ok": false,
+   "i": false
+  },
+  {
+   "src": "[A-Z]+",
+   "v": "abc",
+   "ok": false,
+   "i": false
+  },
+  {
+   "src": "\\/x",
+   "v": "/x",
+   "ok": true,
+   "i": false
+  },
+  {
+   "src": "\\$\\d+",
+   "v": "$12",
+   "ok": true,
+   "i": false
+  },
+  {
+   "src": "[\\-x]+",
+   "v": "-x-",
+   "ok": true,
+   "i": false
+  },
+  {
+   "src": "\\p{Nd}{2}",
+   "v": "12",
+   "ok": true,
+   "i": false
+  },
+  {
+   "src": "\\P{L}+",
+   "v": "12 3",
+   "ok": true,
+   "i": false
+  },
+  {
+   "src": "\\p{Lu}\\p{Ll}+",
+   "v": "Tehran",
+   "ok": true,
+   "i": false
+  },
+  {
+   "src": "abc",
+   "v": "ABC",
+   "ok": true,
+   "i": true
+  },
+  {
+   "src": "[a-z]+",
+   "v": "HELLO",
+   "ok": true,
+   "i": true
+  },
+  {
+   "src": "\\d{3}",
+   "v": "۱۲۳",
+   "ok": false,
+   "i": false,
+   "ascii": false
+  },
+  {
+   "src": "\\w+",
+   "v": "naïve",
+   "ok": false,
+   "i": false
+  },
+  {
+   "src": "a\\bb",
+   "v": "ab",
+   "ok": false,
+   "i": false
+  },
+  {
+   "src": "\\bé",
+   "v": "é",
+   "ok": false,
+   "i": false
+  },
+  {
+   "src": "[\\s]x",
+   "v": "x",
+   "ok": false,
+   "i": false
+  }
+ ]
+}

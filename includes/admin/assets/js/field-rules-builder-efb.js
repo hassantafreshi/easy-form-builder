@@ -93,6 +93,7 @@
     if (R_.typeOk(r, 'length')) out.push(['minlen', 'tvMinLen_'], ['maxlen', 'tvMaxLen_']);
     if (['text', 'tel', 'postalcode'].includes(r.type)) out.push(['format', 'mskFormat_']);
     if (R_.typeOk(r, 'words')) out.push(['words', 'tvMinWords_']);
+    if (R_.typeOk(r, 'pattern')) out.push(['pattern', 'tvPattern_']);
     return out;
   }
 
@@ -142,11 +143,88 @@
     </div>`;
   }
 
+  /** English reason of a lint code (the phrase tvRx_<code> when the site has it; HTML-escaped). */
+  const RX_EN = {
+    too_long: 'longer than 256 bytes', syntax: 'it is not a complete pattern', lookbehind: 'look-behind (?<= and (?<! is not supported',
+    named_group: 'named groups are not supported', backref: 'back-references such as \\1 are not supported', inline_flag: 'inline flags such as (?i) are not supported; use the switch instead',
+    atomic: 'atomic groups (?> are not supported', possessive: 'possessive repeats such as *+ are not supported', escape: 'this escape is not supported',
+    posix_class: 'POSIX classes such as [[:alpha:]] are not supported', script_property: 'only \\p{L}, \\p{Lu}, \\p{Ll}, \\p{N}, \\p{Nd}, \\p{P}, \\p{S} and \\p{Z} are supported',
+    unicode_escape: 'write the character itself instead of \\u or \\x{…}', tilde: 'the character ~ cannot be used', brace: 'write \\{, \\} or \\] for a literal brace or bracket',
+    empty_class: 'an empty class [] matches nothing', range_order: 'a range or a repeat count is in the wrong order', class_range: 'a range cannot start or end with \\d, \\w or \\s',
+    class_escape: '\\D, \\W and \\S cannot be used inside [ ]', nothing_to_repeat: 'a repeat sign has nothing to repeat', quantified_assertion: 'an anchor or look-ahead cannot be repeated',
+    too_large: 'a repeat count is larger than 1000', nested_quantifier: 'a repeated group repeats something inside it again, which can be very slow',
+    alternation: 'a repeated group of alternatives can be very slow; use a [class] instead', too_complex: 'too many unlimited repeats',
+  };
+  const Th = (k, fb) => { const v = root.efb_var && root.efb_var.text && root.efb_var.text[k]; return v ? String(v) : esc(fb); };
+  function lintHtml(err) {
+    return Th('tvPatternBad', 'This pattern cannot be used: %s').replace('%s', Th('tvRx_' + err.code, RX_EN[err.code] || err.code)) + ` <span class="efb text-muted" dir="ltr">(@${err.pos + 1})</span>`;
+  }
+
+  /** C: the owner's pattern (stored base64url), case and digit switches, the live test box. */
+  function patternEls(r, idset) {
+    const R_ = R();
+    if (!R_ || !R_.typeOk(r, 'pattern')) return '';
+    const src = r.pattern_b64 ? (R_.b64urlDecode(r.pattern_b64) || '') : '';
+    return `<div class="efb mt-3 efb-fr-pattern" id="frPatternBoxEl">
+      <label for="patternEl" class="efb mb-1 fs-7 fw-bold"><i class="efb bi-regex fs-7 ${icon()}" aria-hidden="true"></i>${esc(T('tvPattern', 'Custom pattern (regular expression)'))}${gem('pattern')}</label>
+      <textarea rows="1" class="efb form-control efb border-d rounded-4 font-monospace efb-fr" id="patternEl" data-id="${esc(idset)}" data-key="pattern_src" dir="ltr" spellcheck="false" autocomplete="off" maxlength="256" aria-describedby="patternHelpEl patternLintMsg" oninput="efb_fr_pattern_input_efb(this)"${lock('pattern')}>${esc(src)}</textarea>
+      <small class="efb form-text text-muted d-block mt-1 fs-8" id="patternHelpEl">${esc(T('tvPatternHint', 'The whole value must match. You do not need ^ or $.'))}</small>
+      <small class="efb text-danger d-block mt-1 fs-8" id="patternLintMsg" role="alert"></small>
+      ${toggleEl(r, idset, 'patternCaseEl', 'pattern_case', T('tvPatternCase', 'Ignore upper and lower case'), { plan: 'pattern' })}
+      ${toggleEl(r, idset, 'patternAsciiEl', 'pattern_ascii', T('tvPatternAscii', 'Treat Persian and Arabic digits as 0-9'), { plan: 'pattern', dflt: true })}
+      <label for="patternTestEl" class="efb mb-1 fs-7">${esc(T('tvPatternTest', 'Try some values, one per line'))}</label>
+      <textarea rows="3" class="efb form-control efb border-d rounded-4" id="patternTestEl" data-id="${esc(idset)}" oninput="efb_fr_pattern_test_efb(this)" aria-describedby="patternTestOut"${lock('pattern')}></textarea>
+      <ul class="efb list-unstyled fs-8 mt-1 mb-0" id="patternTestOut" aria-live="polite"></ul>
+    </div>`;
+  }
+  let patternTimer = null;
+  /** The pattern box: lint as you type; stored only when it passes (else the last good one stays). */
+  function efb_fr_pattern_input_efb(el) {
+    clearTimeout(patternTimer);
+    patternTimer = setTimeout(() => {
+      const R_ = R();
+      const r = rowById(el.getAttribute('data-id'));
+      if (!R_ || !r || el.getAttribute('aria-disabled') === 'true') return;
+      const src = String(el.value || '').replace(/[\r\n]+/g, '');
+      const msg = document.getElementById('patternLintMsg');
+      const err = src === '' ? null : R_.lintRegex(src);
+      if (err) {
+        if (msg) msg.innerHTML = lintHtml(err);
+        el.setAttribute('aria-invalid', 'true');
+        return;
+      }
+      if (msg) msg.textContent = '';
+      el.removeAttribute('aria-invalid');
+      r.pattern_b64 = src === '' ? '' : R_.b64urlEncode(src);
+      const test = document.getElementById('patternTestEl');
+      if (test) efb_fr_pattern_test_efb(test);
+      if (typeof efbApiNoteUserEditEfb === 'function') { try { efbApiNoteUserEditEfb(); } catch (e) {} }
+    }, 250);
+  }
+  /** One result per line of the test box (nothing is saved). */
+  function efb_fr_pattern_test_efb(el) {
+    const R_ = R();
+    const r = rowById(el.getAttribute('data-id'));
+    const out = document.getElementById('patternTestOut');
+    if (!R_ || !r || !out) return;
+    out.textContent = '';
+    if (!r.pattern_b64) return;
+    String(el.value || '').split(/\r?\n/).filter((l) => l !== '').slice(0, 20).forEach((line) => {
+      const ok = R_.checkPattern(r, line) !== false;
+      const li = document.createElement('li');
+      li.className = 'efb ' + (ok ? 'text-success' : 'text-danger');
+      li.innerHTML = `<i class="efb ${ok ? 'bi-check-circle' : 'bi-x-circle'} ${icon()}" aria-hidden="true"></i>`;
+      const b = document.createElement('bdi'); b.textContent = line; li.appendChild(b);
+      li.appendChild(document.createTextNode(' — ' + (ok ? T('tvPatternOk', 'Accepted') : T('tvPatternNo', 'Refused'))));
+      out.appendChild(li);
+    });
+  }
+
   /** Controls of the advanced part (#collapseAdvanced). */
   function efbFieldRulesAdvEls(indx, idset) {
     if (typeof valj_efb === 'undefined' || !valj_efb[indx]) return '';
     const r = valj_efb[indx];
-    return wordsEls(r, idset) + efbFieldRulesMsgEls(indx, idset);
+    return wordsEls(r, idset) + patternEls(r, idset) + efbFieldRulesMsgEls(indx, idset);
   }
 
   /* ------------------------------------------------------------------ handler */
@@ -232,7 +310,7 @@
     else if (typeof pro_show_efb === 'function') pro_show_efb(3);
   }
 
-  const api = { efbFieldRulesMainEls, efbFieldRulesAdvEls, efbFieldRulesMsgEls, efb_fr_change_efb, efb_fr_gem_efb, efb_fr_after_change_efb, efb_fr_decorate_efb };
+  const api = { efbFieldRulesMainEls, efbFieldRulesAdvEls, efbFieldRulesMsgEls, efb_fr_change_efb, efb_fr_gem_efb, efb_fr_after_change_efb, efb_fr_decorate_efb, efb_fr_pattern_input_efb, efb_fr_pattern_test_efb };
   Object.keys(api).forEach((k) => { root[k] = api[k]; });
   if (typeof module === 'object' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);

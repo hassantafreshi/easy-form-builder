@@ -424,6 +424,11 @@ class Create {
 
 		$valp =\emsfb_json_normalize_efb(wp_unslash($_POST['value']));
 		$valp = json_decode($valp,true);
+		// F03: a pattern the sanitizer would silently empty is refused with its path (API clients, AutoPilot).
+		if (is_array($valp) && class_exists('\Emsfb\Field_Rules')) {
+		    $rules_err_efb = \Emsfb\Field_Rules::validate_rows($valp);
+		    if ($rules_err_efb) wp_send_json_success(['success' => false, 'm' => sprintf(__('This pattern cannot be used: %s', 'easy-form-builder'), $rules_err_efb[0]['reason']), 'code' => 'pattern_invalid', 'path' => $rules_err_efb[0]['path'], 'errors' => $rules_err_efb], 200);
+		}
 		$valp = $efbFunction->sanitize_obj_msg_efb($valp);
 		// F13: privacy keys follow the server rules (allow-lists, form type, existing email field).
 		if (is_array($valp) && class_exists('\Emsfb\Privacy')) {

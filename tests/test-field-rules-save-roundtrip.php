@@ -121,6 +121,15 @@ roundtrip_keys($fn, array(
 	array('mlen', '500', '500', array('type' => 'textarea')),
 ));
 
+/* C: patterns travel as base64url, so < " %41 and double spaces come back unchanged. */
+$b64 = function ($s) { return rtrim(strtr(base64_encode($s), '+/', '-_'), '='); };
+roundtrip_keys($fn, array(
+	array('pattern_b64', $b64('x<y "q" %41  [A-Z]{2}'), $b64('x<y "q" %41  [A-Z]{2}')),
+	array('pattern_b64', $b64('ب[آ-ی]{2,10}'), $b64('ب[آ-ی]{2,10}')),
+	array('pattern_b64', $b64('(a+)+'), ''), array('pattern_b64', 'a b', ''), array('pattern_b64', base64_encode('a+?b/'), ''),
+	array('pattern_case', '1', '1'), array('pattern_case', 'yes', '0'), array('pattern_ascii', '0', '0'), array('pattern_ascii', '', '1'),
+));
+
 /* An old form without the keys comes back with the same keys. */
 $old = form_with(array(fld('o1', array('milen' => '2', 'mlen' => '30', 'customRequiredMsg' => 'Please fill %s')), fld('o2', array('type' => 'textarea', 'value' => 'a@n#b'))));
 $back = save_and_read($fn, builder_payload($old));
