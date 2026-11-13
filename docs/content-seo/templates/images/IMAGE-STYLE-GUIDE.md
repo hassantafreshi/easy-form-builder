@@ -183,9 +183,9 @@ the language lives in the folder (`images/de/`) and in the alt text. Lowercase A
 | image | alt |
 |---|---|
 | step: open Notifications | `Opening the Notifications tab in the form settings panel of Easy Form Builder` (13) |
-| step: toggle | `Switching on the Send an email for every new entry toggle in the form settings` (14) |
+| step: toggle | `Switching on the Send an email for every new entry toggle in settings` (13) |
 | step: button | `Clicking the Add New Notification button next to the Default Notification card` (12) |
-| result | `Entries table in Easy Form Builder showing the test submission from the new contact form` (14) |
+| result | `Entries table in Easy Form Builder showing the test submission from the new form` (14) |
 | third-party | `Choosing the connected account on the Google consent screen before allowing access` (12) |
 
 **German (DE).** Translate, do not copy. Use the exact label of the German screenshot from `style/de/UI-STRINGS.csv` (the `msgstr_de` column). Prefer noun phrases

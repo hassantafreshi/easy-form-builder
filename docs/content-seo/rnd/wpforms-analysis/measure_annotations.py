@@ -1,3 +1,5 @@
+# Finds red annotation marks (R>200, G<70, B<70), counts connected components and estimates colour/stroke. Needs numpy and scipy.
+# Usage: python3 -W ignore -I measure_annotations.py WORKDIR   (same inputs as measure_images.py; writes WORKDIR/annot.json)
 import json,os,sys,collections
 from PIL import Image
 import numpy as np

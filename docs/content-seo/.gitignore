@@ -1,0 +1,13 @@
+# Generated daily output, media and local build artefacts must never enter the (public) plugin repo.
+content-out/
+**/node_modules/
+**/out/
+**/.cache/
+*.mp4
+*.webm
+*.mov
+*.mp3
+*.wav
+*.zip
+__pycache__/
+*.pyc

@@ -1,3 +1,5 @@
+# Pixel size, ratio, bytes, frames and dominant colours of downloaded WPForms images. Usage: python3 -W ignore -I measure_images.py WORKDIR
+# Needs WORKDIR/selection2.json (list of {local, src, page}) and the files under WORKDIR/img/. Writes WORKDIR/measure.json.
 import json,os,sys,collections,colorsys
 from PIL import Image
 base=sys.argv[1]

@@ -1,3 +1,6 @@
+# Per-page anatomy metrics for the WPForms sample. Usage: python3 -I analyze_pages.py WORKDIR
+# Reads WORKDIR/html/doc_*.html and blog_*.html (downloaded with curl, untrusted), writes WORKDIR/analysis.json and prints a summary.
+# Heuristics: body = from <div class="entry-content"> to the entry footer; words/links/images counted in the body only.
 import re,sys,html,json,os,glob
 from urllib.parse import urlparse
 BASE=sys.argv[1]

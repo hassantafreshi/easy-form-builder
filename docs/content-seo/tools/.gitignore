@@ -1,0 +1,19 @@
+# Never commit toolchain output, downloads or dependencies.
+node_modules
+**/node_modules
+output/
+**/output/
+out/
+.work/
+*.mp4
+*.webm
+*.mp3
+*.wav
+*.png
+!docs-images/**
+*.zip
+*.phar
+secrets/
+*.env
+!*.env.example
+.cache/
