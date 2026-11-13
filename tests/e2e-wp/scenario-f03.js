@@ -28,6 +28,9 @@
  *        request changed after the browser check is refused (efb_field_domain); a paid form whose
  *        payer e-mail field has a domain rule: an allowed address pays (the gateway gets it as the
  *        payer e-mail), a blocked one is refused before any payment starts.
+ *  f03f  F: read-only: the field is focusable and read-only for assistive technology (readonly, not
+ *        disabled), typing changes nothing, the value is sent, a request that changes it is stored
+ *        with the field's own value; builder: read-only and disabled switch each other off, Save.
  */
 'use strict';
 
@@ -476,5 +479,41 @@ module.exports = function (S) {
     const bad = await payWith('f03e-pay-bad', 'payer@gmail.com');
     const badState = await fieldState(bad.p, P.email);
     R.check('f03e/pay: a blocked payer address: no payment request (the browser stops it at the field)', !bad.cj && ctl('payments', String(P.form_id)).length === 1 && /allowed domain/.test(badState.text || ''), { cj: bad.cj, badState });
+  });
+
+  scenario('f03f', 'F03-F read-only: focusable, not changeable, sent; a tampered value is stored as the field\'s own; builder exclusivity', async ({ context, adminPage }) => {
+    plan3();
+    const F = form('F03 e2e readonly', [{ key: 'plan', type: 'text', name: 'Plan', value: 'Gold', readonly: '1' }, { key: 'name', type: 'text', name: 'Name' }]);
+    const g = await (await context({}, 'f03f')).newPage();
+    await g.goto(pageOf(F.form_id), { waitUntil: 'load' });
+    await g.waitForSelector(byId(F.ids.plan + '_'), { timeout: 20000 });
+    await sleep(800);
+    await g.focus(byId(F.ids.plan + '_'));
+    await g.keyboard.type('X');
+    const st = await g.evaluate((i) => { const e = document.getElementById(i + '_'); return { focused: document.activeElement === e, ro: e.readOnly, disabled: e.disabled, value: e.value, bg: getComputedStyle(e).backgroundImage.indexOf('svg') !== -1 }; }, F.ids.plan);
+    R.check('f03f: read-only field: focusable, readOnly (not disabled), typing changes nothing, lock indicator', st.focused && st.ro && !st.disabled && st.value === 'Gold' && st.bg, st);
+    await g.fill(byId(F.ids.name + '_'), 'Ali');
+    await g.press(byId(F.ids.name + '_'), 'Tab');
+    await sleep(300);
+    const tp = await tamper(g, 'Gold', 'Platinum');
+    const ans = await send(g);
+    const ent = (ctl('entries', String(F.form_id)) || [])[0];
+    const v = ent && Array.isArray(ent.content) ? (ent.content.find((r) => r.id_ === F.ids.plan) || {}).value : null;
+    R.check('f03f: the value is sent; a request changing it is stored with the field\'s own value', tp.done && ans && ans.success === true && v === 'Gold', { ans, v });
+
+    const admin = await adminPage();
+    await openNewForm(admin);
+    const t = await addTile(admin, 'text');
+    await admin.click(`#dropZoneEFB [data-id="${t.dataId}"] label, #dropZoneEFB [data-id="${t.dataId}"]`, { position: { x: 20, y: 10 } });
+    await admin.waitForSelector('#readonlyEl', { timeout: 10000 });
+    await admin.evaluate(() => document.getElementById('disabledEl').click()); // in the Advanced part
+    await sleep(1200);
+    await admin.click('#readonlyEl');
+    await sleep(300);
+    const a = await admin.evaluate((id) => { const r = valj_efb.find((x) => x.id_ === id); return { ro: r.readonly, dis: Number(r.disabled), btn: document.getElementById('disabledEl').classList.contains('active') }; }, t.id_);
+    await admin.evaluate(() => document.getElementById('disabledEl').click());
+    await sleep(1200);
+    const b = await admin.evaluate((id) => { const r = valj_efb.find((x) => x.id_ === id); return { ro: r.readonly, dis: Number(r.disabled), btn: document.getElementById('readonlyEl').classList.contains('active') }; }, t.id_);
+    R.check('f03f: builder: read-only on switches disabled off, disabled on switches read-only off', a.ro === '1' && a.dis === 0 && !a.btn && b.ro === '0' && b.dis === 1 && !b.btn, { a, b });
   });
 };

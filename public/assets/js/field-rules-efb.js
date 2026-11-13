@@ -62,6 +62,8 @@
       return String.fromCharCode(c - (c >= 0xFF10 ? 0xFF10 : (c >= 0x06F0 ? 0x06F0 : 0x0660)) + 48);
     });
   }
+  /** A read-only field (Field_Rules::is_readonly). */
+  function isReadonly(f) { return !!f && typeOk(f, 'readonly') && on(f, 'readonly') && !on(f, 'disabled'); }
   function masked(f) { return !!(f && typeof f.mask_preset === 'string' && f.mask_preset !== ''); }
   function hasMsg(f, rule) {
     var v = f ? f['msg_' + rule] : undefined;
@@ -72,6 +74,7 @@
     var out = [];
     if (!f) { return out; }
     var m = masked(f);
+    if (isReadonly(f)) { out.push('readonly'); }
     if (!m && typeOk(f, 'words') && (int(f, 'wmin') > 0 || int(f, 'wmax') > 0)) { out.push('words'); }
     if (typeOk(f, 'pattern') && partOk(ctx, 'pattern') && fieldPattern(f)) { out.push('pattern'); }
     if (typeOk(f, 'domain') && partOk(ctx, 'domains') && (f.email_domain_mode === 'allow' || f.email_domain_mode === 'deny') && typeof f.email_domains === 'string' && f.email_domains.trim() !== '') { out.push('domain'); }
@@ -120,7 +123,8 @@
         if (src === null || src === '' || lintRegex(src) !== null) { return ''; }
         return b64urlEncode(src);
       }
-      case 'unique': return [1, '1', true, 'true'].indexOf(v) !== -1 ? '1' : '0';
+      case 'unique':
+      case 'readonly': return [1, '1', true, 'true'].indexOf(v) !== -1 ? '1' : '0';
       case 'unique_scope': return 'form';
       case 'email_domain_mode': return ['none', 'allow', 'deny'].indexOf(v) !== -1 ? v : 'none';
       case 'email_domains': return (v === null || v === undefined || typeof v === 'object') ? '' : domainsList(String(v)).value;
@@ -537,7 +541,7 @@
     on: on, typeOk: typeOk, activeRules: activeRules, hasRules: hasRules, plain: plain, sanitizeKey: sanitizeKey,
     valueText: valueText, countChars: countChars, countWords: countWords, counter: counter, asciiDigits: asciiDigits, counterText: counterText, fmtNum: fmtNum, partOk: partOk,
     b64urlEncode: b64urlEncode, b64urlDecode: b64urlDecode, lintRegex: lintRegex, patternSubject: patternSubject, checkPattern: checkPattern, fieldPattern: fieldPattern, uniqueKey: uniqueKey,
-    asciiHost: asciiHost, domainsList: domainsList, matchDomain: matchDomain, mismatchMessage: mismatchMessage,
+    isReadonly: isReadonly, asciiHost: asciiHost, domainsList: domainsList, matchDomain: matchDomain, mismatchMessage: mismatchMessage,
     message: message, firstError: firstError
   };
 });

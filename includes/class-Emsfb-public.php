@@ -4286,7 +4286,10 @@ public function check_nonce_permission_efb($request) {
 									/* These rows skipped the validator above; see
 									 * sanitize_payment_merge_row_efb(). */
 									$it = array_values(array_filter(array_map(function ($item) use ($f) {
-										return $this->sanitize_payment_merge_row_efb($item, $f);
+										$row = $this->sanitize_payment_merge_row_efb($item, $f);
+										// F03: a read-only field keeps its own value here too.
+										if (is_array($row) && class_exists('\Emsfb\Field_Rules') && \Emsfb\Field_Rules::is_readonly($f)) $row['value'] = isset($f['value']) && is_scalar($f['value']) ? (string) $f['value'] : '';
+										return $row;
 									}, $it)));
 									$validated_items = empty($validated_items) ? $it : array_merge($validated_items, $it);
 									if ($payment_gateway == "persiaPay") array_push($validated_items, $result);

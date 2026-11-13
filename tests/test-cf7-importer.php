@@ -345,7 +345,8 @@ efb_cf7t( 'bracketed words and mail-tags in a label stay label text', array( 'Co
 $m = efb_cf7t_map( '[text 1bad]' );
 efb_cf7t( 'tag without a valid name: skipped and reported', empty( efb_cf7t_fields( $m ) ) && efb_cf7t_notes_match( $m, 'without a valid name' ) );
 $m = efb_cf7t_map( '[text city default:user_city][text ro readonly "x"]' );
-efb_cf7t( 'dynamic default and readonly reported', efb_cf7t_notes_match( $m, 'filled itself in' ) && efb_cf7t_notes_match( $m, 'read-only' ) );
+$f = efb_cf7t_fields( $m );
+efb_cf7t( 'dynamic default reported; readonly carried over (F03), not reported', efb_cf7t_notes_match( $m, 'filled itself in' ) && ! efb_cf7t_notes_match( $m, 'read-only' ) && '1' === ( $f[1]['readonly'] ?? '' ) && 'x' === $f[1]['value'] );
 
 /* =========================================================================
  * 3. Labels and free-standing text

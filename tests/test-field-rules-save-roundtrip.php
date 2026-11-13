@@ -143,6 +143,9 @@ roundtrip_keys($fn, array(
 	array('email_domains', array('x.com'), ''),
 ));
 
+/* F: read-only. */
+roundtrip_keys($fn, array(array('readonly', '1', '1'), array('readonly', true, '1'), array('readonly', 'on', '0'), array('readonly', '0', '0')));
+
 /* An old form without the keys comes back with the same keys. */
 $old = form_with(array(fld('o1', array('milen' => '2', 'mlen' => '30', 'customRequiredMsg' => 'Please fill %s')), fld('o2', array('type' => 'textarea', 'value' => 'a@n#b'))));
 $back = save_and_read($fn, builder_payload($old));

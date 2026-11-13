@@ -213,6 +213,7 @@ class Field_Rules {
 				if ($src === null || $src === '' || self::lint_regex($src) !== null) return '';
 				return self::b64url_encode($src);
 			case 'unique':
+			case 'readonly':
 				return in_array($v, array(1, '1', true, 'true'), true) ? '1' : '0';
 			case 'unique_scope':
 				return 'form'; // only "in this form" in v1 (§4.2)
@@ -256,6 +257,7 @@ class Field_Rules {
 		$out = array();
 		if (!is_array($f)) return $out;
 		$masked = isset($f['mask_preset']) && is_string($f['mask_preset']) && $f['mask_preset'] !== '';
+		if (self::is_readonly($f)) $out[] = 'readonly';
 		if (!$masked && self::type_ok($f, 'words') && (self::int($f, 'wmin') > 0 || self::int($f, 'wmax') > 0)) $out[] = 'words';
 		if (self::type_ok($f, 'pattern') && self::plan_ok('pattern') && self::field_pattern($f) !== '') $out[] = 'pattern';
 		if (self::type_ok($f, 'domain') && self::plan_ok('domains') && isset($f['email_domain_mode'], $f['email_domains']) && in_array($f['email_domain_mode'], array('allow', 'deny'), true) && trim((string) $f['email_domains']) !== '') $out[] = 'domain';
@@ -264,6 +266,11 @@ class Field_Rules {
 		if (!$masked && self::type_ok($f, 'length') && (self::int($f, 'milen') > 0 || self::int($f, 'mlen') > 0)
 			&& ($out || self::has_msg($f, 'minlen') || self::has_msg($f, 'maxlen'))) array_unshift($out, 'length');
 		return $out;
+	}
+
+	/** A read-only field (§4.6): shown, focusable, sent, and on the server always its stored value. */
+	public static function is_readonly($f) {
+		return is_array($f) && self::type_ok($f, 'readonly') && self::on($f, 'readonly') && !self::on($f, 'disabled');
 	}
 
 	/** A field whose values are accepted once (type, switch and plan). */
@@ -349,6 +356,12 @@ class Field_Rules {
 		if (!is_array($f) || !is_array($item)) return $ok;
 		$fail = function ($code, $m) use ($item) { return array('ok' => false, 'code' => $code, 'm' => $m, 'item' => $item, 'unique' => null); };
 		$rules = self::active_rules($f);
+		// readonly first (§4.6): whatever arrived, the entry keeps the field's own value.
+		if (in_array('readonly', $rules, true)) {
+			$item['value'] = isset($f['value']) && is_scalar($f['value']) ? (string) $f['value'] : '';
+			$ok['item'] = $item;
+			$fail = function ($code, $m) use ($item) { return array('ok' => false, 'code' => $code, 'm' => $m, 'item' => $item, 'unique' => null); };
+		}
 		$v = isset($item['value']) && is_scalar($item['value']) ? self::value_text($item['value']) : '';
 		if (trim($v) === '') return $ok;
 		if (in_array('length', $rules, true)) {

@@ -788,7 +788,7 @@ class Mapper {
 		}
 
 		$this->dynamic_default_note( $tag, $label );
-		$this->readonly_note( $tag, $label );
+		$this->readonly_note( $tag, $label, $field );
 		$this->push_field( $field, $tag );
 	}
 
@@ -857,7 +857,7 @@ class Mapper {
 		}
 
 		$this->dynamic_default_note( $tag, $label );
-		$this->readonly_note( $tag, $label );
+		$this->readonly_note( $tag, $label, $field );
 		$this->push_field( $field, $tag );
 	}
 
@@ -908,7 +908,7 @@ class Mapper {
 		}
 
 		$this->dynamic_default_note( $tag, $label );
-		$this->readonly_note( $tag, $label );
+		$this->readonly_note( $tag, $label, $field );
 		$this->push_field( $field, $tag );
 	}
 
@@ -1891,8 +1891,13 @@ class Mapper {
 	 * @param string $label Field label.
 	 * @return void
 	 */
-	private function readonly_note( array $tag, $label ) {
+	private function readonly_note( array $tag, $label, ?array &$field = null ) {
 		if ( ! Parser::has_option( $tag, 'readonly' ) ) {
+			return;
+		}
+		// F03: a text-like field keeps read-only (shown, sent, kept as its default on the server).
+		if ( is_array( $field ) && isset( $field['type'] ) && in_array( $field['type'], array( 'text', 'email', 'url', 'tel', 'textarea', 'number' ), true ) ) {
+			$field['readonly'] = '1';
 			return;
 		}
 		$this->note(

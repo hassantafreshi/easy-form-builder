@@ -1,4 +1,4 @@
-وضعیت: در حال پیاده‌سازی (A تا E انجام شد، ۲۰۲۶-۱۱-۱۳) · اولویت: P0 · تلاش: M · وابستگی: F01 (نرمال‌ساز و `Emsfb\Masks`)؛ هماهنگ با F02 (`email_confirm_mode`) و F16 (نمایش خطا و ARIA)
+وضعیت: در حال پیاده‌سازی (A تا F انجام شد، ۲۰۲۶-۱۱-۱۳) · اولویت: P0 · تلاش: M · وابستگی: F01 (نرمال‌ساز و `Emsfb\Masks`)؛ هماهنگ با F02 (`email_confirm_mode`) و F16 (نمایش خطا و ARIA)
 
 # F03 — اعتبارسنجی فیلدهای متنی
 
@@ -382,12 +382,12 @@ if ($is_valid == 1 && is_array($validated_item) && class_exists('\Emsfb\Field_Ru
 - پذیرش: مقدار ارسالی دست‌کاری‌شده با `value` ذخیره‌شده جایگزین می‌شود. فیلد قابل فوکوس است و صفحه‌خوان «read only» می‌گوید. `disabled` و `readonly` با هم روشن نمی‌شوند.
 - تست‌ها: بخشی از `test-field-rules-core.php` و `test-field-rules-render.php`.
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint** (۲۰۲۶-۱۱-۱۳، انجام شد)
+- فایل‌های تغییرکرده: `Field_Rules` (`is_readonly`، قاعدهٔ اول `readonly` در `check` که مقدار رسیده را با `value` ذخیره‌شده جایگزین می‌کند، case `readonly`)، `field-rules-efb.js` (`isReadonly`)، `class-Emsfb-formbuilder.php` (`readonly data-efb-readonly="1"` روی ورودی متنی و textarea از `generateRuleExtras_efb`)، `class-Emsfb-public.php` (مقدار فقط‌خواندنی در مسیر تکمیل درگاه‌های قدیمی هم)، `field-rules-builder-efb.js` (کلید «Read-only» و انحصار متقابل با `disabledEl`، و readonly در پیش‌نمایش)، `builder-api-efb.js` (`setFieldRules` با readonly، disabled را خاموش می‌کند)، `field-rules-efb.css` (پس‌زمینهٔ ملایم و قفل، با جهت ورودی)، CF7 `Mapper` (گزینهٔ `readonly` منتقل می‌شود).
+- تست‌ها: `test-field-rules-core.php` (۳۳، بخش ۷)، `php tests/test-field-rules-render.php` (۴، بخش F)، `test-cf7-importer.php` (۱۷۴)، `test-field-rules-save-roundtrip.php` (۶۰)، e2e `f03f` (۴).
+- وضعیت ترجمه: انگلیسی (دستور مالک).
+- مورد باز: مقدار فیلد فقط‌خواندنی پیش از ورود به `$validated_items` جایگزین می‌شود، پس ارزیاب‌های منطق شرطی و اعلان‌ها همان مقدار پیش‌فرض را می‌بینند. اگر هر دو کلید روشن باشند `disabled` برنده است (رفتار امروز). F08 هنوز ساخته نشده؛ مقدار پیش‌فرض پویا بعداً باید پیش از این جایگزینی محاسبه شود.
+- اقدام بعدی: G.
 
 ### G. پیشوند، پسوند و جای راهنما
 - فایل‌ها: formbuilder (`input-group` با tooltip داخل آن، و `message_place`)، `addNewElement`، CSS در `public/assets/css` و `admin-rtl-efb.css` (`.efb-help-focus`، `.efb-help-pop`، و input-group در RTL)، و JS toggletip در `core-efb.js`.

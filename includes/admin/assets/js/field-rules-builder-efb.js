@@ -131,6 +131,7 @@
     const R_ = R();
     if (!R_) return '';
     let html = '';
+    if (R_.typeOk(r, 'readonly')) html += toggleEl(r, idset, 'readonlyEl', 'readonly', T('tvReadonly', 'Read-only'));
     if (R_.typeOk(r, 'unique')) html += toggleEl(r, idset, 'uniqueEl', 'unique', T('tvUnique', 'Accept each value only once'), { plan: 'unique', help: esc(T('tvUniqueHint', 'Checked when the form is sent. Earlier entries are checked too.')) });
     return html ? `<div class="efb efb-fr-main mt-2">${html}</div>` : '';
   }
@@ -331,7 +332,25 @@
 
   /** Side effects of a change: exclusive switches, live canvas preview. */
   function efb_fr_after_change_efb(r, key, el) {
+    // F: read-only and disabled exclude each other (§4.6).
+    if (key === 'readonly' && r.readonly === '1' && Number(r.disabled) === 1) {
+      r.disabled = 0;
+      const d = document.getElementById('disabledEl');
+      if (d) { d.classList.remove('active'); d.setAttribute('aria-pressed', 'false'); }
+    }
     try { efb_fr_decorate_efb(document); } catch (e) {}
+  }
+  /* Disabled switched on (its own handler, change_el_edit_Efb, runs later on a timer): read-only goes off. */
+  if (typeof document !== 'undefined' && document.addEventListener) {
+    document.addEventListener('click', (e) => {
+      const d = e.target && e.target.closest ? e.target.closest('#disabledEl') : null;
+      if (!d) return;
+      const r = rowById(d.getAttribute('data-id'));
+      if (!r || r.readonly !== '1') return;
+      r.readonly = '0';
+      const ro = document.getElementById('readonlyEl');
+      if (ro) { ro.classList.remove('active'); ro.setAttribute('aria-pressed', 'false'); }
+    }, true);
   }
 
   /* ------------------------------------------------------------------ canvas preview */
@@ -346,6 +365,9 @@
       scope.querySelectorAll(`[id="${String(r.id_).replace(/"/g, '')}_"]`).forEach((input) => {
         const host = input.closest('.ttEfb') || input.parentElement;
         if (!host) return;
+        // F: read-only in the PC / mobile preview (the canvas inputs are read-only anyway).
+        if (R_.isReadonly(r)) { input.readOnly = true; input.setAttribute('data-efb-readonly', '1'); }
+        else if (input.getAttribute('data-efb-readonly')) { input.removeAttribute('data-efb-readonly'); }
         // B: counter preview (0 typed).
         const c = R_.counter(r);
         let box = host.querySelector(':scope > .efb-counter-wrap');

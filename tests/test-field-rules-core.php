@@ -163,5 +163,17 @@ foreach (Field_Rules::DEFAULTS as $k => $en) {
 }
 t('6 text_efb() has every default with the same English text', $miss, array());
 
+/* ------------------------------------------------------------ 7. read-only (F) */
+$ro = array('id_' => 'r1', 'type' => 'text', 'name' => 'Plan', 'value' => 'Gold', 'readonly' => '1');
+$fx->field_rules_code_efb = '';
+$r = $fx->run($ro, array('id_' => 'r1', 'type' => 'text', 'value' => 'Platinum'));
+t('7 read-only: a changed value is replaced by the field\'s own value', array($r['is_valid'], $r['item']['value']), array(1, 'Gold'));
+$r = $fx->run(array('value' => 'a@n#b') + array_merge($ro, array('type' => 'textarea')), array('id_' => 'r1', 'type' => 'textarea', 'value' => 'x'));
+t('7 read-only textarea keeps its newline token', $r['item']['value'], 'a@n#b');
+t('7 read-only and disabled: disabled wins (no read-only rule)', Field_Rules::active_rules(array_merge($ro, array('disabled' => '1'))), array());
+t('7 not on a select or checkbox', array(Field_Rules::active_rules(array_merge($ro, array('type' => 'select'))), Field_Rules::active_rules(array_merge($ro, array('type' => 'checkbox')))), array(array(), array()));
+t('7 sanitize readonly', array(Field_Rules::sanitize_key('readonly', true), Field_Rules::sanitize_key('readonly', 'x')), array('1', '0'));
+t('7 the legacy gateway follow-up keeps the read-only value too', strpos($src, '\Emsfb\Field_Rules::is_readonly($f)) $row[\'value\']') !== false, true);
+
 echo "\nRESULTS: {$passed} passed, {$failed} failed\n";
 exit($failed ? 1 : 0);

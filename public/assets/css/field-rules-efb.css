@@ -4,3 +4,8 @@
 .efb.efb-counter-wrap { display: block; }
 .efb.efb-counter { display: block; text-align: end; color: #657096; margin-block-start: .15rem; margin-inline-end: .25rem; font-variant-numeric: tabular-nums; min-height: 1em; }
 .efb.efb-counter.efb-counter-over { color: #b42318; font-weight: 600; }
+/* F: read-only — not greyed out (it is a value, not an unavailable control): a soft background and a lock. */
+.efb[data-efb-readonly="1"] { background-color: #f6f7fb !important; cursor: default; padding-inline-end: 2rem !important; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='%23657096' viewBox='0 0 16 16'%3E%3Cpath d='M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2m3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right .6rem center; }
+[dir="rtl"] .efb[data-efb-readonly="1"] { background-position: left .6rem center; }
+.efb[data-efb-readonly="1"]:dir(ltr) { background-position: right .6rem center; }
+.efb[data-efb-readonly="1"]:dir(rtl) { background-position: left .6rem center; }

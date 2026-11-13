@@ -658,6 +658,7 @@
       values[k] = k === 'milen' || k === 'mlen' ? (/^\d{0,6}$/.test(String(v)) ? String(v) : (function () { throw fail('invalid_setting', k + ' must be a number.'); })()) : R.sanitizeKey(k, v);
     });
     Object.keys(values).forEach(function (k) { f[k] = values[k]; });
+    if (values.readonly === '1' && Number(f.disabled) === 1) f.disabled = 0; // read-only and disabled exclude each other
     persist();
     apiChanged('setFieldRules', [f.id_]);
     if (!opts || opts.refresh !== false) { try { refreshSettingsPanel(); } catch (e) {} }

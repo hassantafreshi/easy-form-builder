@@ -316,6 +316,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 		$f = is_object($vj) ? get_object_vars($vj) : (is_array($vj) ? $vj : array());
 		$texts = $this->pro_notice_texts_efb;
 		$t = function ($k, $en) use ($texts) { return isset($texts[$k]) && is_string($texts[$k]) && $texts[$k] !== '' ? $texts[$k] : $en; };
+		// F: read-only (shown, focusable, sent; the server keeps the stored value). Not on a disabled field.
+		if (\Emsfb\Field_Rules::is_readonly($f)) $out['attrs'] .= ' readonly data-efb-readonly="1"';
 		$c = \Emsfb\Field_Rules::counter($f);
 		if ($c !== null) {
 			$id = $rndm . '_-limit';
@@ -342,7 +344,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		$fr_efb = $this->generateRuleExtras_efb($vj, $rndm);
 		if ($fr_efb['after'] !== '') $desc = $fr_efb['after'] . $desc;
 		$aire_describedby = $this->mergeDescribedby_efb($aire_describedby, $fr_efb['describedby']);
-		if ($fr_efb['attrs'] !== '') $telPattern = trim($telPattern . ' ' . $fr_efb['attrs']);
+		if ($fr_efb['attrs'] !== '') $telPattern = trim($telPattern . ' ' . trim($fr_efb['attrs']));
 
 		$corener = isset($vj->corner) ? $vj->corner : 'rounded-3';
 		$required = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
@@ -2776,7 +2778,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 						$minlen = trim($minlen . ' maxlength="' . (int) $vj->mlen . '"');
 					}
 					$fr_efb = $this->generateRuleExtras_efb($vj, $element_Id);
-					if ($fr_efb['attrs'] !== '') $minlen = trim($minlen . ' ' . $fr_efb['attrs']);
+					if ($fr_efb['attrs'] !== '') $minlen = trim($minlen . ' ' . trim($fr_efb['attrs']));
 					$ta_desc_efb = $fr_efb['after'] . $desc;
 					$ta_described_efb = $this->mergeDescribedby_efb($aire_describedby, $fr_efb['describedby']);
 					// F01-H: mobile keyboard choice; nothing is added unless the field sets one.
