@@ -2031,6 +2031,10 @@ require('./scenario-f06.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewFo
  * 375 px, the camera and resizing, private storage and deletion, a paid form with files: tests/e2e-wp/scenario-f07.js. */
 require('./scenario-f07.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewForm, addTile, closePanel });
 
+/* F08 hidden fields, smart tags, answer piping, URL prefill: builder and AutoPilot, a guest, fa_IR / ar at
+ * 375 px, messages and redirects, the cache, a paid form: tests/e2e-wp/scenario-f08.js. */
+require('./scenario-f08.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewForm, addTile, closePanel });
+
 /* ---------------------------------------------------------------------------------------------
  * main
  * ------------------------------------------------------------------------------------------- */

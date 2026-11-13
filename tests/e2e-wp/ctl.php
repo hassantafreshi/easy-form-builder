@@ -407,10 +407,16 @@ switch ( $efb_e2e_cmd ) {
 		$rows = array( $row0, array( 'id_' => '1', 'type' => 'step', 'dataId' => '1', 'classes' => '', 'id' => '1', 'name' => 'Step', 'icon' => 'bi-ui-checks-grid', 'step' => 1, 'amount' => 1, 'EfbVersion' => 2, 'message' => '', 'label_text_size' => 'fs-5', 'el_text_size' => 'fs-5', 'label_text_color' => 'text-darkb', 'el_text_color' => 'text-labelEfb', 'message_text_color' => 'text-muted', 'icon_color' => 'text-darkb', 'visible' => 1 ) );
 		$rows[] = array_merge( $base, array( 'id_' => $em, 'dataId' => $em . '-id', 'type' => 'email', 'elementId' => 'email', 'name' => 'Email', 'amount' => 2, 'required' => 1, 'noti' => 1 ) );
 		$pf_row = array_merge( $base, array( 'id_' => $pf, 'dataId' => $pf . '-id', 'type' => 'efbmock', 'elementId' => 'efbmock', 'name' => 'Payment', 'amount' => 5 ) );
-		if ( 'fixed' === $kind || 'file' === $kind ) {
+		if ( 'fixed' === $kind || 'file' === $kind || 'hidden' === $kind ) {
 			// F07 ("file"): the fixed form plus a field of two files.
 			if ( 'file' === $kind ) $rows[] = array_merge( $base, array( 'id_' => $fl, 'dataId' => $fl . '-id', 'type' => 'file', 'elementId' => 'file', 'name' => 'Documents', 'amount' => 2, 'required' => 1, 'file' => 'allformat', 'value' => 'allformat', 'max_files' => '2', 'max_fsize' => '2' ) );
-			$rows[] = array_merge( $base, array( 'id_' => $rad, 'dataId' => $rad . '-id', 'type' => 'payRadio', 'elementId' => 'payRadio', 'name' => 'Ticket', 'amount' => 3, 'required' => 1 ) );
+			// F08 ("hidden"): a campaign hidden field (prefill key "campaign"), a hidden "Price" with 999 and an
+			// attempt at a prefill key on the priced choice (the save drops it: an address never sets a price).
+			if ( 'hidden' === $kind ) {
+				$rows[] = array_merge( $base, array( 'id_' => $fl, 'dataId' => $fl . '-id', 'type' => 'hiddenField', 'elementId' => 'hiddenField', 'name' => 'Campaign', 'amount' => 2, 'value' => '{get:utm_source|none}', 'prefill_key' => 'campaign' ) );
+				$rows[] = array_merge( $base, array( 'id_' => $tot, 'dataId' => $tot . '-id', 'type' => 'hiddenField', 'elementId' => 'hiddenField', 'name' => 'Price', 'amount' => 2, 'value' => '999' ) );
+			}
+			$rows[] = array_merge( $base, array( 'id_' => $rad, 'dataId' => $rad . '-id', 'type' => 'payRadio', 'elementId' => 'payRadio', 'name' => 'Ticket', 'amount' => 3, 'required' => 1 ), 'hidden' === $kind ? array( 'prefill_key' => 'ticket' ) : array() );
 			$rows[] = array( 'id_' => $o1, 'dataId' => $o1 . '-id', 'parent' => $rad, 'type' => 'option', 'value' => 'Adult', 'id_op' => $o1, 'step' => 1, 'amount' => 4, 'price' => '25' );
 			$rows[] = array( 'id_' => $o2, 'dataId' => $o2 . '-id', 'parent' => $rad, 'type' => 'option', 'value' => 'Child', 'id_op' => $o2, 'step' => 1, 'amount' => 4, 'price' => '12.5' );
 			$pf_row['pf_fixed'] = '2';
@@ -526,8 +532,20 @@ switch ( $efb_e2e_cmd ) {
 		if ( isset( $efb_e2e_rest[2] ) && '' !== $efb_e2e_rest[2] ) {
 			foreach ( explode( '&', $efb_e2e_rest[2] ) as $kv ) {
 				list( $k, $v ) = array_pad( explode( '=', $kv, 2 ), 2, '' );
+				// F08: k[sub]=v sets one key of an array (thank_you_message[thankYou]=…).
+				if ( preg_match( '/^(\w+)\[(\w+)\]$/', $k, $km ) ) { if ( ! isset( $rows[0][ $km[1] ] ) || ! is_array( $rows[0][ $km[1] ] ) ) $rows[0][ $km[1] ] = array(); $rows[0][ $km[1] ][ $km[2] ] = urldecode( $v ); continue; }
 				$rows[0][ $k ] = urldecode( $v );
 			}
+		}
+		// F08: an option row names its field with parent_key; any text may name a field id as @@key@@
+		// (a {field:@@name@@} smart tag); a row-0 value may too (thank-you texts, subjects, redirects).
+		$efb_e2e_walk = function ( $v ) use ( &$efb_e2e_walk, $ids ) {
+			if ( is_array( $v ) ) { foreach ( $v as $k => $x ) $v[ $k ] = $efb_e2e_walk( $x ); return $v; }
+			return is_string( $v ) ? preg_replace_callback( '/@@([^@]+)@@/', function ( $m ) use ( $ids ) { return isset( $ids[ $m[1] ] ) ? $ids[ $m[1] ] : $m[0]; }, $v ) : $v;
+		};
+		foreach ( $rows as $i => $r ) {
+			if ( isset( $r['parent_key'] ) ) { $rows[ $i ]['parent'] = isset( $ids[ $r['parent_key'] ] ) ? $ids[ $r['parent_key'] ] : ''; $rows[ $i ]['id_op'] = $r['id_']; unset( $rows[ $i ]['parent_key'] ); }
+			$rows[ $i ] = $efb_e2e_walk( $rows[ $i ] );
 		}
 		$fn = get_efbFunction();
 		$clean = $fn->sanitize_obj_msg_efb( $rows );

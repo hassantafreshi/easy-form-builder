@@ -14,8 +14,10 @@
 (function (root) {
   'use strict';
 
+  /* Phrases arrive HTML-escaped (esc_html__): decoded here once, escaped again where they are inserted. */
+  const unent = (v) => String(v).replace(/&#0?39;|&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
   const T = (k, fb) => {
-    try { if (root.efb_var && root.efb_var.text && root.efb_var.text[k]) return root.efb_var.text[k]; } catch (e) {}
+    try { if (root.efb_var && root.efb_var.text && typeof root.efb_var.text[k] === 'string' && root.efb_var.text[k]) return unent(root.efb_var.text[k]); } catch (e) {}
     return fb;
   };
   const esc = (v) => String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
@@ -97,7 +99,7 @@
         <input type="text" dir="ltr" maxlength="64" class="efb form-control efb h-d-efb border-d rounded-4 efb-st-ctl" id="hdnParamEl" data-id="${esc(idset)}" data-key="arg" value="${esc(pr.arg)}" placeholder="utm_source" onchange="efb_st_change_efb(this)">
       </div>
       <div class="efb mt-2 mb-1">
-        <label for="hdnTemplateEl" class="efb form-label mb-1 fs-7">${esc(pr.id === 'static' ? T('hdnStatic', 'Fixed value') : T('hdnTemplate', 'Value template'))}</label>
+        <label for="hdnTemplateEl" class="efb form-label mb-1 fs-7" id="hdnTemplateLab">${esc(pr.id === 'static' ? T('hdnStatic', 'Fixed value') : T('hdnTemplate', 'Value template'))}</label>
         <input type="text" maxlength="500" class="efb form-control efb h-d-efb border-d rounded-4 efb-st-ctl" id="hdnTemplateEl" data-id="${esc(idset)}" data-key="value" data-st-where="hidden" value="${esc(r.value || '')}" aria-describedby="hdnWarnEl" style="unicode-bidi:plaintext" dir="auto" onchange="efb_st_change_efb(this)">
       </div>
       <small class="efb d-block fs-8 text-danger mx-1" id="hdnWarnEl" role="status" aria-live="polite"></small>
@@ -210,7 +212,11 @@
       const exBox = document.getElementById('prefillExampleBox');
       if (exBox) exBox.classList.toggle('d-none', !r.prefill_key);
     }
-    if (r.type === 'hiddenField') { warnHidden(r); canvas(r); }
+    if (r.type === 'hiddenField') {
+      const tl = document.getElementById('hdnTemplateLab');
+      if (tl) tl.textContent = presetOf(r.value).id === 'static' ? T('hdnStatic', 'Fixed value') : T('hdnTemplate', 'Value template');
+      warnHidden(r); canvas(r);
+    }
     if (typeof efbApiNoteUserEditEfb === 'function') { try { efbApiNoteUserEditEfb(); } catch (e) {} }
   }
   function sanitizeText(v) {
