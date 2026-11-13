@@ -449,6 +449,10 @@ class Emsfb {
         // efb_calendar_* / efb_date_* functions of the contract. Optional: callers check class_exists().
         if ($this->require_plugin_file_efb('includes/class-Emsfb-calendar.php')) {
             $this->require_plugin_file_efb('includes/calendar-functions-efb.php');
+            // F06-F: calendar/availability, calendar/convert, calendar/check, forms/{id}/schema and the registry entries.
+            if ($this->require_plugin_file_efb('includes/class-Emsfb-calendar-rest.php')) {
+                \Emsfb\Calendar_Rest::register();
+            }
         }
 
         // Builder API for integrations such as AutoPilot (docs/autopilot-integration.md).

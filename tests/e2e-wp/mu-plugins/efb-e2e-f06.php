@@ -67,3 +67,11 @@ add_action(
 	10,
 	2
 );
+/* (3) A low rate limit for the REST test (efb_calendar_rest_per_minute) while efb_e2e_f06_rate is set. */
+add_filter(
+	'efb_calendar_rest_per_minute',
+	static function ( $n ) {
+		$v = get_option( 'efb_e2e_f06_rate', '' );
+		return '' === $v ? $n : (int) $v;
+	}
+);
