@@ -961,8 +961,11 @@ function funTnxEfb(val, title, message, ov) {
   const done = valj_efb[0].thank_you_message.done || efb_var.text.yad
   const corner = valj_efb[0].hasOwnProperty('corner') ? valj_efb[0].corner: 'rounded-3';
   const thankYou = valj_efb[0].thank_you_message.thankYou || efb_var.text.thanksFillingOutform
-  const t = title ? title : (ov.done ? escTnx(ov.done) : done);
-  const m = message ? message : thankYou;
+  // F08: the form's own texts may hold smart tags: each becomes an isolated piece the page fills with
+  // textContent (efb_smart_fill_done_efb: the server's values first); a server message is already resolved.
+  const stMk = (x) => (typeof window !== 'undefined' && window.EFBSmart && typeof window.EFBSmart.messageMarkup === 'function') ? window.EFBSmart.messageMarkup(x) : x;
+  const t = title ? title : (ov.done ? escTnx(ov.done) : stMk(done));
+  const m = message && message !== thankYou ? message : stMk(thankYou);
   const clr_doneMessageEfb=valj_efb[0].hasOwnProperty("clrdoneMessageEfb") ? valj_efb[0].clrdoneMessageEfb :"doneMessageEfb" ;
   const clr_doneTitleEfb =valj_efb[0].hasOwnProperty("clrdoneTitleEfb") ? valj_efb[0].clrdoneTitleEfb :"doneTitleEfb" ;
   const clr_doniconEfb =valj_efb[0].hasOwnProperty("clrdoniconEfb") ? valj_efb[0].clrdoniconEfb :"doneTitleEfb" ;

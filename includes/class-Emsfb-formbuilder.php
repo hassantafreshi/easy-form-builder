@@ -2444,7 +2444,9 @@ if ( ! defined( 'ABSPATH' ) ) {
             $opt_text_efb = $i->value;
             if (is_string($i->value) && strpos($i->value, '{') !== false && class_exists('\\Emsfb\\Smart_Tags') && \Emsfb\Smart_Tags::has_tags($i->value)) {
                 $opt_text_efb = esc_html(\Emsfb\Smart_Tags::resolve($i->value, $this->st_ctx, 'text', 'label'));
-                $selected .= ' data-st-text="' . esc_attr($i->value) . '"';
+                $opt_pipes_efb = false;
+                foreach (\Emsfb\Smart_Tags::tags($i->value) as $opt_t_efb) if ($opt_t_efb['ns'] === 'field') $opt_pipes_efb = true;
+                if (!$opt_pipes_efb || !isset($this->st_ctx['piping']) || $this->st_ctx['piping']) $selected .= ' data-st-text="' . esc_attr($i->value) . '"';
             }
             $options .= sprintf(
                 '<option class="efb %s emsFormBuilder_v efb" data-id="%s" data-op="%s" value="%s" %s>%s</option>',

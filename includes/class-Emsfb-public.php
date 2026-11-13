@@ -1603,6 +1603,8 @@ public function check_nonce_permission_efb($request) {
 					   'site' => $st_page_efb['site'],
 					   'post' => $st_page_efb['post'],
 					   'fields' => is_array($st_rows_efb) ? \Emsfb\Smart_Tags::fields_of($st_rows_efb) : array(),
+					   // Answer piping in labels, options and headings is Free Plus (spec §14).
+					   'piping' => class_exists('\\Emsfb\\Builder_Api') ? \Emsfb\Builder_Api::plan_at_least('free_plus') : true,
 				   );
 			   }
 			   $content="<!--efb-->";
@@ -4183,9 +4185,13 @@ public function check_nonce_permission_efb($request) {
 							$entry_link_efb = (class_exists('\\Emsfb\\Privacy') && \Emsfb\Privacy::nostore($this->id, $form_fields_array)) ? '' : $url;
 							$nonce_token = wp_create_nonce($track_code);
 							$this->efbFunction->efb_code_validate_update($session_id, 'send', $track_code);
+							// F08: the answers, the request and the confirmation code for messages, e-mails and the redirect.
+							$this->smart_finish_ctx_efb($form_fields_array, $validated_items, $track_code);
 							$response = ['success' => true, 'ID' => $request_data['id'], 'track' => $track_code, 'nonce' => $nonce_token];
+							$st_msg_efb = $this->smart_message_values_efb($form_fields_array);
+							if ($st_msg_efb) $response['st'] = $st_msg_efb;
 							if ($redirect_url != "null") {
-								$response = ['success' => true, 'm' => $redirect_url];
+								$response = ['success' => true, 'm' => $this->smart_url_efb($redirect_url)];
 							}
 							$conditional_confirmation = $this->get_conditional_confirmation_result($form_fields_array, $submitted_values);
 							if (is_array($conditional_confirmation)) {
@@ -4193,6 +4199,7 @@ public function check_nonce_permission_efb($request) {
 									$response = ['success' => true, 'm' => $conditional_confirmation['url'], 'conditional_redirect' => true];
 								} elseif ($conditional_confirmation['action'] === 'message' && !empty($conditional_confirmation['message'])) {
 									$response = ['success' => true, 'ID' => $request_data['id'], 'track' => $track_code, 'nonce' => $nonce_token];
+									if ($st_msg_efb) $response['st'] = $st_msg_efb;
 									$response['conditional_message'] = $conditional_confirmation['message'];
 									/* Full display payload (message + optional done/icon/color overrides)
 									   for the done screen; conditional_message stays for back-compat. */
@@ -4539,8 +4546,11 @@ public function check_nonce_permission_efb($request) {
 
 							$response = $db_update_result == 1 ? array('success' => true, 'ID' => $request_data['id'], 'track' => $this->id, 'nonce' => wp_create_nonce($this->id)) : array('success' => false, 'm' => $m);
 							$this->efbFunction->efb_code_validate_update($session_id, 'pay', $payment_track_id);
+							// F08: messages, e-mails and the redirect of the paid entry from its stored answers.
+							if (is_array($form_structure_json)) $this->smart_finish_ctx_efb($form_structure_json, $filtered, $this->id);
+							if ($db_update_result == 1 && is_array($form_structure_json) && ($st_pay_efb = $this->smart_message_values_efb($form_structure_json))) $response['st'] = $st_pay_efb;
 							if ($redirect_url != "null" && $db_update_result == 1) {
-								$response = array('success' => true, 'm' => $redirect_url);
+								$response = array('success' => true, 'm' => $this->smart_url_efb($redirect_url));
 							}
 
 							$this->efb_send_json_and_continue($response, 200);
@@ -4789,7 +4799,8 @@ public function check_nonce_permission_efb($request) {
 									// F13: without a stored entry there is no response page to link to.
 									$entry_link_efb = (class_exists('\\Emsfb\\Privacy') && \Emsfb\Privacy::nostore($this->id, $form_fields_array)) ? '' : $url;
 									$response = array( 'success' => true , 'm' =>$this->lanText['done']);
-									if($redirect_url!="null"){$response = array( 'success' => true  ,'m'=>$redirect_url); }
+									$this->smart_finish_ctx_efb($form_fields_array, $validated_items, $track_code);
+									if($redirect_url!="null"){$response = array( 'success' => true  ,'m'=>$this->smart_url_efb($redirect_url)); }
 									$this->efbFunction->efb_code_validate_update($session_id ,'nwltr' ,'nwltr' );
 
 									$this->efb_send_json_and_continue($response, 200);
@@ -4806,7 +4817,8 @@ public function check_nonce_permission_efb($request) {
 
 									$track_code=	$this->insert_message_db(0,false,$style_trackingCode);
 									$response = array( 'success' => true , 'm' =>$this->lanText['surveyComplatedM']);
-									if($redirect_url!="null"){$response = array( 'success' => true  ,'m'=>$redirect_url); }
+									$this->smart_finish_ctx_efb($form_fields_array, $validated_items, $track_code);
+									if($redirect_url!="null"){$response = array( 'success' => true  ,'m'=>$this->smart_url_efb($redirect_url)); }
 
 									$survey_chart_type = isset($form_fields_array[0]['survey_chart_type']) ? $form_fields_array[0]['survey_chart_type'] : 'none';
 									$survey_results = [];
@@ -7370,12 +7382,54 @@ public function check_nonce_permission_efb($request) {
 		return $validated_items;
 	}
 
+	/** F08: the context of a stored submission for messages, e-mails and the redirect (with the confirmation code). */
+	private function smart_finish_ctx_efb($form_fields_array, $validated_items, $track) {
+		if (!class_exists('\\Emsfb\\Smart_Tags') || !is_array($form_fields_array)) return null;
+		if ($this->smart_ctx_efb === null) $this->smart_context_efb($form_fields_array, $this->smart_req_efb);
+		if ($this->smart_ctx_efb === null) return null;
+		if (empty($this->smart_ctx_efb['values']) && is_array($validated_items)) $this->smart_ctx_efb['values'] = \Emsfb\Smart_Tags::values_of($validated_items, $this->smart_ctx_efb['fields']);
+		$this->smart_ctx_efb['entry'] = array('track' => (string) $track);
+		return $this->smart_ctx_efb;
+	}
+
+	/**
+	 * F08: the values of the tags of the thank-you texts, resolved by the server (place "message": no ip,
+	 * cookie, uid or user:email): {"field:k3x9.value": "pro", "entry:track": "…"}. The page fills its
+	 * pieces with these through textContent; nothing for a form without tags there.
+	 */
+	private function smart_message_values_efb($form_fields_array) {
+		if ($this->smart_ctx_efb === null || !class_exists('\\Emsfb\\Smart_Tags')) return array();
+		$tm = isset($form_fields_array[0]['thank_you_message']) && is_array($form_fields_array[0]['thank_you_message']) ? $form_fields_array[0]['thank_you_message'] : array();
+		$out = array();
+		foreach (array('thankYou', 'done') as $k) {
+			if (!isset($tm[$k]) || !is_string($tm[$k]) || strpos($tm[$k], '{') === false) continue;
+			foreach (\Emsfb\Smart_Tags::tags($tm[$k], true) as $t) {
+				$inner = $t['legacy'] ? 'field:' . $t['arg'] : substr($t['raw'], 1, -1);
+				if ($t['legacy'] && !isset($this->smart_ctx_efb['fields'][$t['arg']])) continue;
+				$out[$inner] = \Emsfb\Smart_Tags::resolve('{' . $inner . '}', $this->smart_ctx_efb, 'text', 'message');
+			}
+		}
+		return $out;
+	}
+
+	/** F08: a redirect address with its tags (host kept, values encoded); the address as before without a tag. */
+	private function smart_url_efb($url) {
+		if (!is_string($url) || strpos($url, '{') === false || !class_exists('\\Emsfb\\Smart_Tags')) return $url;
+		return \Emsfb\Smart_Tags::url($url, $this->smart_ctx_efb !== null ? $this->smart_ctx_efb : array('site' => \Emsfb\Smart_Tags::site()), 'redirect');
+	}
+
 	/**
 	 * Replace {field_id} tokens with the submitted value of that field.
 	 * Used for dynamic notification subjects and redirect URLs (PRD C4/C5).
 	 * Unknown tokens are removed; array values are joined with a comma.
 	 */
 	private function efb_replace_field_tokens($text, $values, $url_encode = false) {
+		/* F08: one resolver (Smart_Tags) when this submission has its context: a choice gives its label, not the
+		 * option id; {ns:…} tags work too; a subject stays on one line. The old rule below otherwise. */
+		if ($this->smart_ctx_efb !== null && class_exists('\\Emsfb\\Smart_Tags')) {
+			$out = \Emsfb\Smart_Tags::resolve((string) $text, $this->smart_ctx_efb, $url_encode ? 'url_query' : 'subject', $url_encode ? 'redirect' : 'email_admin', array('legacy_drop' => true));
+			return $url_encode ? $out : sanitize_text_field($out);
+		}
 		return preg_replace_callback('/\{([A-Za-z0-9_-]+)\}/', function ($match) use ($values, $url_encode) {
 			$value = array_key_exists($match[1], $values) ? $values[$match[1]] : '';
 			if (is_array($value)) $value = implode(',', array_map('strval', $value));
@@ -7399,7 +7453,9 @@ public function check_nonce_permission_efb($request) {
 					 * from JSON, and esc_url's "&#038;" turned every parameter after
 					 * the first into a URL fragment. Disallowed protocols are still
 					 * stripped. */
-					'url' => esc_url_raw($this->efb_replace_field_tokens($rule['url'] ?? '', $values, true)),
+					'url' => $this->smart_ctx_efb !== null && class_exists('\\Emsfb\\Smart_Tags')
+						? \Emsfb\Smart_Tags::url((string) ($rule['url'] ?? ''), $this->smart_ctx_efb, 'redirect') // F08: host kept, values encoded
+						: esc_url_raw($this->efb_replace_field_tokens($rule['url'] ?? '', $values, true)),
 					'message' => '',
 				];
 			}
@@ -7407,7 +7463,10 @@ public function check_nonce_permission_efb($request) {
 			return [
 				'action' => 'message',
 				'url' => '',
-				'message' => wp_kses_post($rule['message'] ?? ''),
+				// F08: tags in a confirmation message from the stored answers, each value escaped; the owner's HTML as before.
+				'message' => wp_kses_post($this->smart_ctx_efb !== null && class_exists('\\Emsfb\\Smart_Tags') && is_string($rule['message'] ?? null) && strpos($rule['message'], '{') !== false
+					? \Emsfb\Smart_Tags::resolve($rule['message'], $this->smart_ctx_efb, 'html', 'message', array('raw_static' => true, 'legacy_drop' => true))
+					: ($rule['message'] ?? '')),
 				/* Optional done-screen display overrides (empty string = keep form default) */
 				'done' => sanitize_text_field($rule['done'] ?? ''),
 				'icon' => preg_match('/^bi-[a-z0-9-]+$/', $icon) ? $icon : '',
@@ -7519,7 +7578,8 @@ public function check_nonce_permission_efb($request) {
 
 			$subject = isset($rule['subject']) && trim((string)$rule['subject']) !== '' ? sanitize_text_field($rule['subject']) : ($status_email['subject'] ?? 'null');
 			/* {field_id} tokens personalize the subject per submission (PRD C4) */
-			if ($subject !== '' && $subject !== 'null') $subject = $this->efb_replace_field_tokens($subject, $values);
+			// F08: with the submission's context send_email_Emsfb_() resolves the subject once (one pass, no re-parse).
+			if ($subject !== '' && $subject !== 'null' && $this->smart_ctx_efb === null) $subject = $this->efb_replace_field_tokens($subject, $values);
 			if ($subject === '') $subject = 'null';
 
 			/* Conditional CC/BCC (PRD C4): every extra recipient gets its own copy.
@@ -7783,6 +7843,14 @@ public function check_nonce_permission_efb($request) {
             $cont[$i] = [$track, 1 === $i ? self::smart_visitor_content_efb($content) : $content];
         }
         if ($sub != "null") {
+            /* F08: tags in the subject, on one line (no header injection), from the stored answers; the visitor's
+             * copy without ip and cookie tags; the bracket tokens below as before. */
+            $sub_efb = $sub;
+            if (is_string($sub) && strpos($sub, '{') !== false && class_exists('\\Emsfb\\Smart_Tags')) {
+                $st_ctx_efb = $this->smart_ctx_efb !== null ? $this->smart_ctx_efb : array('site' => \Emsfb\Smart_Tags::site());
+                if (empty($st_ctx_efb['entry']['track'])) $st_ctx_efb['entry'] = array('track' => (string) $track);
+                $sub_efb = sanitize_text_field(\Emsfb\Smart_Tags::resolve($sub, $st_ctx_efb, 'subject', $i === 0 ? 'email_admin' : 'email_visitor', array('legacy_drop' => true)));
+            }
             $rp = [
                 '[confirmation_code]' => $track,
                 '[link_page]' => $link_w[$i],
@@ -7790,7 +7858,7 @@ public function check_nonce_permission_efb($request) {
                 '[link_response]' => $link_w[$i],
                 '[website_name]' => get_bloginfo('name')
             ];
-            $subject[$i] = strtr($sub, $rp);
+            $subject[$i] = strtr(isset($sub_efb) ? $sub_efb : $sub, $rp);
         }
     }
 

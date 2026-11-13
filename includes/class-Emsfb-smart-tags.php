@@ -429,6 +429,8 @@ class Smart_Tags {
 				$out .= self::esc(self::clean_value($v === null || $v === '' ? $p['fb'] : $v));
 				continue;
 			}
+			// Answer piping (a {field:…} piece in a label, option or heading) is Free Plus (spec §14): without it, the fallback.
+			if ($ok && $p['ns'] === 'field' && isset($ctx['piping']) && !$ctx['piping']) $ok = false;
 			if (!$ok) { $out .= self::esc(self::clean_value($p['fb'])); continue; }
 			$inner = substr($p['raw'], 1, -1);
 			if ($p['legacy']) $inner = 'field:' . $p['arg'];

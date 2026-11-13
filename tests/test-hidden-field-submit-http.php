@@ -204,6 +204,63 @@ try {
 	list($Cf, $Crows) = $make_form('F08 no user tag', array(array('id_' => 'nm', 'type' => 'text', 'name' => 'Name'), array('id_' => 'h1', 'type' => 'hiddenField', 'value' => '{get:a}')));
 	$ctxC = $prepare($Cf, $cookie);
 	$check(!isset($ctxC['smart']), 'E: nothing about the user for a form without user tags', $ctxC);
+
+	// F: messages, e-mail subject and redirects from one resolver.
+	update_option('efb_e2e_mail_bodies', array(), false);
+	list($Ff, $Frows) = $make_form('F08 messages', array(
+		array('id_' => 'nm', 'type' => 'text', 'name' => 'Name'),
+		array('id_' => 'em', 'type' => 'email', 'name' => 'Email'),
+		array('id_' => 'color', 'type' => 'radio', 'name' => 'Color'),
+		array('id_' => 'oRed', 'type' => 'option', 'parent' => 'color', 'value' => 'Red & Co', 'opt_value' => 'red'),
+		array('id_' => 'oBlue', 'type' => 'option', 'parent' => 'color', 'value' => 'Blue'),
+	), array('email_to' => 'em', 'email_noti_type' => 'msg', 'email_sub' => 'Lead {color} / {field:color.value} from {get:utm_source|direct} [confirmation_code] {ip|-}',
+		'thank_you_message' => array('thankYou' => 'Thanks {field:nm|friend}, code {entry:track}, {user:email|no mail} {ip|no ip}', 'done' => 'Done {field:color}')));
+	$Rok = function ($color = 'oRed', $value = 'Red & Co') { return array(
+		array('id_' => 'nm', 'name' => 'Name', 'id_ob' => 'nm_', 'type' => 'text', 'value' => 'Ana', 'amount' => 2),
+		array('id_' => 'em', 'name' => 'Email', 'id_ob' => 'em_', 'type' => 'email', 'value' => 'visitor@example.test', 'amount' => 3),
+		array('id_' => 'color', 'name' => 'Color', 'id_ob' => $color, 'type' => 'radio', 'value' => $value, 'amount' => 4),
+	); };
+	$ctx = $prepare($Ff);
+	list($st, $d) = $submit($ctx, $Ff, $Rok(), 'utm_source=' . rawurlencode("news\r\nBcc: spy@evil.test"));
+	$check(!empty($d['success']) && isset($d['st']) && $d['st']['field:nm|friend'] === 'Ana' && $d['st']['entry:track'] === $d['track'] && $d['st']['field:color'] === 'Red & Co', 'F: the thank-you pieces come back resolved by the server (st)', $d);
+	$check(!isset($d['st']['ip|no ip']) || $d['st']['ip|no ip'] === 'no ip', 'F: {ip} is not allowed in a message (its fallback)', $d['st'] ?? null);
+	$check(isset($d['st']['user:email|no mail']) && $d['st']['user:email|no mail'] === 'no mail', 'F: {user:email} is not allowed in a message (its fallback)', $d['st'] ?? null);
+	$lead = function () use ($fresh) { return array_values(array_filter((array) $fresh('efb_e2e_mail_bodies', array()), function ($m) { return strpos((string) $m['subject'], 'Lead ') === 0; })); };
+	for ($i = 0; $i < 40 && count($lead()) < 2; $i++) usleep(250000);
+	$mails = $lead();
+	$own = null; $vis = null; foreach ($mails as $m) { $to = is_array($m['to']) ? implode(',', $m['to']) : (string) $m['to']; if (strpos($to, 'owner@') !== false) $own = $m; if (strpos($to, 'visitor@') !== false) $vis = $m; }
+	$check($own && strpos($own['subject'], 'Lead Red & Co / red from news') === 0, 'F: {color} in the subject is the option label, not its id; {field:color.value} the stored value', $own ? $own['subject'] : $mails);
+	$check($own && strpos($own['subject'], "\r") === false && strpos($own['subject'], "\n") === false && strpos($own['subject'], 'Bcc: spy@evil.test') !== false, 'security: CR/LF from a URL parameter never reach the subject (one line, no header)', $own ? $own['subject'] : null);
+	$check($own && strpos($own['subject'], $d['track']) !== false, 'F: the bracket tokens of the subject still work ([confirmation_code])', $own ? $own['subject'] : null);
+	$check($own && preg_match('/ 127\.0\.0\.1$| -$/', $own['subject']) === 1, 'F: the owner\'s subject may use {ip}', $own ? $own['subject'] : null);
+	$check($vis && substr($vis['subject'], -2) === ' -', 'F: the visitor\'s subject never shows {ip} (its fallback)', $vis ? $vis['subject'] : null);
+
+	// F: the redirect address (thank_you rdrct) keeps its host; values are encoded.
+	list($Gf, $Grows) = $make_form('F08 redirect', array(
+		array('id_' => 'nm', 'type' => 'text', 'name' => 'Name'),
+		array('id_' => 'color', 'type' => 'radio', 'name' => 'Color'),
+		array('id_' => 'oRed', 'type' => 'option', 'parent' => 'color', 'value' => 'Red & Co'),
+	), array('thank_you' => 'rdrct', 'rePage' => 'https://site.test/thanks/?c={field:color}&n={field:nm}&u={get:utm_source}&m={user:email|x}#{entry:track}'));
+	$check(strpos($Grows[0]['rePage'], '{field:color}') !== false, 'F: the redirect address is saved with its tags', $Grows[0]['rePage']);
+	$ctx = $prepare($Gf);
+	list($st, $d) = $submit($ctx, $Gf, array(array('id_' => 'nm', 'type' => 'text', 'value' => 'A&B #1'), array('id_' => 'color', 'id_ob' => 'oRed', 'type' => 'radio', 'value' => 'Red & Co')), 'utm_source=%22%3E%3Cscript%3E');
+	$check(!empty($d['success']) && is_string($d['m'] ?? null) && strpos($d['m'], 'https://site.test/thanks/?c=Red%20%26%20Co&n=A%26B%20%231&u=') === 0 && strpos($d['m'], '&m=x#') !== false && strpos($d['m'], '<') === false && strpos($d['m'], '"') === false, 'F: the redirect: values encoded, {user:email} not allowed, no markup', $d);
+	list($Hf, $Hrows) = $make_form('F08 open redirect', array(array('id_' => 'nm', 'type' => 'text', 'name' => 'Name')),
+		array('thank_you' => 'rdrct', 'rePage' => 'https://{get:next}/x?a={get:next}', 'confirmation_rules' => array()));
+	$ctx = $prepare($Hf);
+	list($st, $d) = $submit($ctx, $Hf, array(array('id_' => 'nm', 'type' => 'text', 'value' => 'x')), 'next=evil.test');
+	$host = is_string($d['m'] ?? null) ? parse_url($d['m'], PHP_URL_HOST) : null;
+	$check(!empty($d['success']) && $host !== 'evil.test', 'security: {get:next} in the redirect host does not send the visitor to evil.test', $d);
+	// A conditional confirmation redirect and a notification rule use the same resolver.
+	list($If, $Irows) = $make_form('F08 rules', array(
+		array('id_' => 'nm', 'type' => 'text', 'name' => 'Name'),
+		array('id_' => 'color', 'type' => 'radio', 'name' => 'Color'),
+		array('id_' => 'oRed', 'type' => 'option', 'parent' => 'color', 'value' => 'Red'),
+		array('id_' => 'hs', 'type' => 'hiddenField', 'name' => 'Src', 'value' => '{get:utm_source}'),
+	), array('confirmation_rules' => array(array('id' => 'c1', 'priority' => 1, 'action' => 'redirect', 'url' => 'https://site.test/r?c={color}&s={field:hs}', 'conditions' => array('type' => 'group', 'operator' => 'AND', 'items' => array(array('type' => 'condition', 'source' => 'field', 'field_id' => 'hs', 'compare' => 'is', 'value' => 'google')))))));
+	$ctx = $prepare($If);
+	list($st, $d) = $submit($ctx, $If, array(array('id_' => 'nm', 'type' => 'text', 'value' => 'x'), array('id_' => 'color', 'id_ob' => 'oRed', 'type' => 'radio', 'value' => 'Red'), array('id_' => 'hs', 'type' => 'hiddenField', 'value' => 'tampered')), 'utm_source=google');
+	$check(!empty($d['conditional_redirect']) && ($d['m'] ?? '') === 'https://site.test/r?c=Red&s=google', 'F: a rule on a hidden value (server\'s value, not the tampered one) and its redirect with the label of {color}', $d);
 } catch (Throwable $e) {
 	$failed++; echo '[FAIL] exception: ' . $e->getMessage() . ' @' . $e->getLine() . "\n";
 } finally {

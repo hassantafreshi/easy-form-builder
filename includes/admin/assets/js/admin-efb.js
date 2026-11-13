@@ -10010,6 +10010,7 @@ function previewFormEfb(state) {
       });
     }
     efb_masks_preview_bind_efb(); // F01: live masks in the preview
+    if (typeof efbSmartPreviewEfb === 'function') { try { efbSmartPreviewEfb(); } catch (e) {} } // F08: answer pieces in the preview
   }
   step_el_efb = Number(valj_efb[0].steps);
   // AdnOF may be {active:true}; AfLnFrm is saved as a boolean. Both branches

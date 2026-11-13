@@ -473,8 +473,18 @@
       if (only && !(p.ns === 'field' && keyOf(p) === 'field:' + only)) return;
       var w = el.getAttribute('data-st-where') || where || 'label';
       var v = resolve(raw, ctx, 'text', w);
-      if (el.textContent !== v) el.textContent = v;
+      if (el.textContent !== v) { el.textContent = v; syncAria(el); }
     });
+  }
+  /* A field named by an aria-label (the PHP renderer sets one) follows its label's pieces. */
+  function syncAria(piece) {
+    try {
+      var label = piece.closest ? piece.closest('label[for]') : null;
+      if (!label || !doc) return;
+      var input = doc.getElementById(label.getAttribute('for'));
+      var span = label.querySelector('[id$="_lab"]') || label;
+      if (input && input.hasAttribute('aria-label')) input.setAttribute('aria-label', span.textContent.replace(/\s+/g, ' ').trim());
+    } catch (e) {}
   }
 
   /* Hidden fields: the template resolved here (for Conditional Logic and the visitor's own page); the
@@ -604,6 +614,7 @@
       el.value = dv; el.setAttribute('data-efb-prefilled', '1'); fire(el, fid); return true;
     }
     if (inArr(['select', 'conturyList', 'stateProvince', 'cityList'], type)) {
+      el = byId(rootEl, r.id_ + '_options') || el;
       if (!el || el.tagName !== 'SELECT') return false;
       var opts = Array.prototype.map.call(el.options, function (o) { return { id: str(o.id || o.getAttribute('data-id') || o.getAttribute('data-vid')), label: str(o.textContent), value: str(o.value), el: o }; });
       f.options.forEach(function (fo) { opts.forEach(function (o) { if (o.id === fo.id || o.label === fo.label) { o.id = fo.id; if (fo.value) o.value = fo.value; } }); });
@@ -633,7 +644,8 @@
     if (inArr(['rating', 'pointr5', 'pointr10'], type)) {
       var k = parseInt(norm(one), 10), max = type === 'pointr10' ? 10 : 5, min = type === 'pointr10' ? 0 : 1;
       if (isNaN(k) || k < min || k > max) return false;
-      var star = rootEl.querySelector('[data-vid="' + r.id_ + '"][data-point="' + k + '"], [id="' + r.id_ + '_star' + k + '"], [data-id="' + r.id_ + '"][data-value="' + k + '"]');
+      // rating: the star's label; pointr5 / pointr10: the point button of this field.
+      var star = rootEl.querySelector('[id="' + r.id_ + '_star' + k + '"], [data-id="' + r.id_ + '"][data-point="' + k + '"], [data-id="' + r.id_ + '-el"][data-point="' + k + '"]');
       if (!star) return false;
       star.click(); return true;
     }
@@ -751,6 +763,33 @@
     el.appendChild(frag);
   }
 
+  /* ---- builder preview: pieces made from the labels, filled from what is typed in the preview itself. */
+  function previewValues(container) {
+    var vals = {};
+    structure(0).forEach(function (r, i) {
+      if (i < 1 || !r || !r.id_ || r.type === 'option') return;
+      var el = container.querySelector('[id="' + r.id_ + '_"]');
+      if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') && ['radio', 'checkbox', 'file', 'password'].indexOf(el.type) === -1 && el.value !== '') vals[r.id_] = el.value;
+      var sel = container.querySelector('select[id="' + r.id_ + '_options"]');
+      if (sel && sel.selectedIndex > 0) vals[r.id_] = sel.options[sel.selectedIndex].textContent;
+    });
+    Array.prototype.forEach.call(container.querySelectorAll('input[type=radio]:checked, input[type=checkbox]:checked'), function (c) {
+      var id = c.name || c.getAttribute('data-vid');
+      if (!id) return;
+      if (c.type === 'radio') vals[id] = c.value; else (vals[id] = Array.isArray(vals[id]) ? vals[id] : []).push(c.value);
+    });
+    return vals;
+  }
+  function preview(container) {
+    if (!container || container._efbSmart) return;
+    container._efbSmart = true;
+    each(container, '[id$="_lab"], small[id$="-des"]', function (el) { decorate(el, 'live'); });
+    var fill = function () { var ctx = context(0); ctx.values = previewValues(container); ctx.user = (root.efb_var && root.efb_var.smart_preview_user) || null; fillPieces(container, ctx, 'label'); };
+    fill();
+    container.addEventListener('input', fill);
+    container.addEventListener('change', fill);
+  }
+
   var api = {
     NS: NS, ARGS: ARGS, MAX: MAX, PUBLIC_NS: PUBLIC_NS, PREFILL_TYPES: PREFILL_TYPES, DEFAULT_TYPES: DEFAULT_TYPES, FIELD_KEYS: FIELD_KEYS, RESERVED_KEYS: RESERVED_KEYS, PRESETS: PRESETS,
     allowed: allowed, parse: parse, tags: tags, hasTags: hasTags, keyOf: keyOf, classify: classify, cleanTemplate: cleanTemplate, cleanValue: cleanValue,
@@ -759,7 +798,7 @@
     // page
     context: context, bind: bindForm, refresh: refresh, init: init, applyPrefill: applyPrefill, setUser: setUser, loadUser: loadUser,
     isPrefilled: function (fid, id) { return !!(prefilled[Number(fid)] || {})[String(id)]; },
-    messageMarkup: messageMarkup, fillMessage: fillMessage, decorate: decorate, matchOption: matchOption, fieldsOf: fieldsOf, valuesOf: valuesOf,
+    messageMarkup: messageMarkup, fillMessage: fillMessage, decorate: decorate, preview: preview, matchOption: matchOption, fieldsOf: fieldsOf, valuesOf: valuesOf,
     _server: server
   };
   root.EFBSmart = api;

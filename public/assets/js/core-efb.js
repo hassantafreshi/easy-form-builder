@@ -2187,6 +2187,18 @@ function efb_hide_submit_ajax_badge_efb(form_id) {
     panel.clearSubmissionBadge(form_id);
   }
 }
+/* F08: the tags of the thank-you texts: the server's values (res.data.st, resolved from the stored answers),
+ * else this page's; written with textContent only. */
+function efb_smart_fill_done_efb(box, form_id, res) {
+  if (!box || !window.EFBSmart || typeof window.EFBSmart.fillMessage !== 'function') return;
+  try { window.EFBSmart.fillMessage(box, Number(form_id) || 0, res && res.data && res.data.st, { track: res && res.data ? res.data.track : '' }); } catch (e) {}
+}
+/* An address for href="…": http(s) only, quotes and angle brackets encoded. */
+function efb_attr_url_efb(u) {
+  u = String(u == null ? '' : u);
+  if (!/^https?:\/\//i.test(u)) return '#';
+  return u.replace(/&/g, '&amp;').replace(/"/g, '%22').replace(/</g, '%3C').replace(/>/g, '%3E').replace(/'/g, '%27');
+}
 async function response_fill_form_efb(res ,form_id=0) {
   form_id = Number(form_id);
   /* Some flows (e.g. password recovery) temporarily replace sendBack_emsFormBuilder_pub
@@ -2269,7 +2281,7 @@ async function response_fill_form_efb(res ,form_id=0) {
     if(valj_efb.length>0 && valj_efb[0].hasOwnProperty('thank_you')==true && valj_efb[0].thank_you=='rdrct' && typeof res.data.m === 'string' && t.type != 'register' && t.type != 'login'){
       efb_final_step.innerHTML = `
       <h3 class="efb fs-4 text-center">${efb_var.text.sentSuccessfully}</h3>
-      <h3 class="efb  text-center">${efb_var.text.pWRedirect} <br><a class="efb text-darkb" href="${res.data.m}">${efb_var.text.orClickHere}</a></h3>
+      <h3 class="efb  text-center">${efb_var.text.pWRedirect} <br><a class="efb text-darkb" href="${efb_attr_url_efb(res.data.m)}">${efb_var.text.orClickHere}</a></h3>
       `
       setTimeout(function() {
         window.location.href = res.data.m;
@@ -2282,18 +2294,19 @@ async function response_fill_form_efb(res ,form_id=0) {
         if (res.data.conditional_redirect === true && typeof res.data.m === 'string') {
           efb_final_step.innerHTML = `
           <h3 class="efb fs-4 text-center">${efb_var.text.sentSuccessfully}</h3>
-          <h3 class="efb  text-center">${efb_var.text.pWRedirect} <a class="efb text-darkb" href="${res.data.m}">${efb_var.text.orClickHere}</a></h3>
+          <h3 class="efb  text-center">${efb_var.text.pWRedirect} <a class="efb text-darkb" href="${efb_attr_url_efb(res.data.m)}">${efb_var.text.orClickHere}</a></h3>
           `
           window.location.href = res.data.m;
           break;
         }
         efb_final_step.innerHTML = funTnxEfb(res.data.track, '', res.data.conditional_message || '', res.data.conditional_confirmation || null)
+        efb_smart_fill_done_efb(efb_final_step, form_id, res);
         break;
       case 'survey':
         if(valj_efb[0].hasOwnProperty('thank_you') && valj_efb[0].thank_you=='rdrct' && typeof res.data.m === 'string'  ){
           efb_final_step.innerHTML = `
           <h3 class="efb fs-4 text-center">${efb_var.text.sentSuccessfully}</h3>
-          <h3 class="efb  text-center">${efb_var.text.pWRedirect} <a class="efb text-darkb" href="${res.data.m}">${efb_var.text.orClickHere}</a></h3>
+          <h3 class="efb  text-center">${efb_var.text.pWRedirect} <a class="efb text-darkb" href="${efb_attr_url_efb(res.data.m)}">${efb_var.text.orClickHere}</a></h3>
           `
           window.location.href = res.data.m;
           break;
@@ -2301,6 +2314,7 @@ async function response_fill_form_efb(res ,form_id=0) {
         // Use custom thank_you_message if set, otherwise use server response
         const surveyThankYou = valj_efb[0].thank_you_message && valj_efb[0].thank_you_message.thankYou ? valj_efb[0].thank_you_message.thankYou : res.data.m;
         efb_final_step.innerHTML = funTnxEfb('','', surveyThankYou);
+        efb_smart_fill_done_efb(efb_final_step, form_id, res);
         if (res.data.survey_chart_type && res.data.survey_chart_type !== 'none' && res.data.survey_results && res.data.survey_results.length > 0) {
           if (typeof renderSurveyResultsChart === 'function') {
             renderSurveyResultsChart(res.data, efb_final_step, form_id);
@@ -2313,6 +2327,7 @@ async function response_fill_form_efb(res ,form_id=0) {
         // Use thank_you_message values for subscribe success
         const subscribeThankYou = valj_efb[0].thank_you_message && valj_efb[0].thank_you_message.thankYou ? valj_efb[0].thank_you_message.thankYou : ajax_object_efm.text.YouSubscribed;
         efb_final_step.innerHTML = funTnxEfb('','', subscribeThankYou);
+        efb_smart_fill_done_efb(efb_final_step, form_id, res);
         break;
       case 'register':
           // Use thank_you_message values for register success
@@ -2320,12 +2335,13 @@ async function response_fill_form_efb(res ,form_id=0) {
           if(res.data.hasOwnProperty('redirect_url') && typeof res.data.redirect_url === 'string' && res.data.redirect_url.length > 5 && res.data.redirect_url !== 'null'){
             efb_final_step.innerHTML = `
             <h3 class="efb fs-4 text-center">${registerThankYou}</h3>
-            <h3 class="efb  text-center">${efb_var.text.pWRedirect} <a class="efb text-darkb" href="${res.data.redirect_url}">${efb_var.text.orClickHere}</a></h3>
+            <h3 class="efb  text-center">${efb_var.text.pWRedirect} <a class="efb text-darkb" href="${efb_attr_url_efb(res.data.redirect_url)}">${efb_var.text.orClickHere}</a></h3>
             `
             window.location.href = res.data.redirect_url;
           }else{
             const m = form_type_emsFormBuilder !='recovery' ? registerThankYou : ajax_object_efm.text.checkYourEmail;
             efb_final_step.innerHTML = funTnxEfb('','',m );
+            efb_smart_fill_done_efb(efb_final_step, form_id, res);
           }
           break;
       case 'recovery':
@@ -2336,7 +2352,7 @@ async function response_fill_form_efb(res ,form_id=0) {
         if (res.data.m && typeof res.data.m === 'object' && res.data.m.state == true) {
           if(res.data.m.hasOwnProperty('redirect_url') && res.data.m.redirect_url.length>5){
             efb_final_step.innerHTML = `
-            <h3 class="efb  text-center">${efb_var.text.pWRedirect} <a class="efb text-darkb" href="${res.data.m.redirect_url}">${efb_var.text.orClickHere}</a></h3>
+            <h3 class="efb  text-center">${efb_var.text.pWRedirect} <a class="efb text-darkb" href="${efb_attr_url_efb(res.data.m.redirect_url)}">${efb_var.text.orClickHere}</a></h3>
             `
             window.location.href = res.data.m.redirect_url;
 

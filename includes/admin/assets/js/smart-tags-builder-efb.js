@@ -368,7 +368,36 @@
     if (c) c.textContent = String(r.value || '');
   }
 
-  const api = { efbHiddenPanelEls, efbPrefillEls, efb_st_change_efb, efb_st_copy_example_efb, efbSmartPanelInit, efbHiddenCanvas, efbSmartWarnings: warnings, efbSmartPresetOf: presetOf, efbSmartPresets: presets };
+  /* ---------------------------------------------------------------- canvas badges and preview */
+
+  /** Tags in a label or description on the canvas are shown as badges (textContent only). */
+  function badgeCanvas(rootEl) {
+    if (!S() || !rootEl || !rootEl.querySelectorAll) return;
+    rootEl.querySelectorAll('[id$="_lab"], small[id$="-des"]').forEach((el) => {
+      if (el.querySelector('.efb-st-badge, .efb-st') || !el.textContent || el.textContent.indexOf('{') === -1) return;
+      if (!el.closest('#dropZoneEFB')) return;
+      S().decorate(el, 'badge');
+    });
+  }
+  function watchCanvas() {
+    if (typeof MutationObserver === 'undefined' || typeof document === 'undefined' || !document.body) return;
+    let timer = null;
+    new MutationObserver(() => {
+      if (timer) return;
+      timer = setTimeout(() => { timer = null; const z = document.getElementById('dropZoneEFB'); if (z) badgeCanvas(z); }, 120);
+    }).observe(document.body, { childList: true, subtree: true, characterData: true });
+  }
+  if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', watchCanvas); else watchCanvas();
+  }
+  /** The PC / mobile preview: live pieces filled from what is typed in the preview. */
+  function efbSmartPreviewEfb() {
+    if (!S() || typeof S().preview !== 'function' || typeof document === 'undefined') return;
+    const box = document.getElementById('settingModalEfb_') || document.getElementById('body_efb');
+    if (box) S().preview(box);
+  }
+
+  const api = { efbSmartPreviewEfb, efbSmartBadgeCanvas: badgeCanvas, efbHiddenPanelEls, efbPrefillEls, efb_st_change_efb, efb_st_copy_example_efb, efbSmartPanelInit, efbHiddenCanvas, efbSmartWarnings: warnings, efbSmartPresetOf: presetOf, efbSmartPresets: presets };
   Object.keys(api).forEach((k) => { root[k] = api[k]; });
   if (typeof module === 'object' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);
