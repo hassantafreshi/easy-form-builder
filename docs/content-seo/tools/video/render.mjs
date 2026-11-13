@@ -3,7 +3,7 @@
  * render.mjs - render a storyboard JSON with Remotion's server-side renderer.
  *
  *   node render.mjs --storyboard storyboards/poc.json --out DIR [--formats 16x9,9x16] [--browser PATH]
- *                   [--concurrency 4] [--crf 18] [--frames 0-89] [--name poc]
+ *                   [--concurrency 2] [--crf 18] [--frames 0-89] [--name poc]
  *
  * - asset paths in the storyboard are relative to the storyboard file; they are copied into a staging
  *   public/ folder (Remotion serves it) and the storyboard handed to the composition is rewritten accordingly.
@@ -98,12 +98,12 @@ for (const f of formats) {
   let lastPct = -1;
   await renderMedia({
     composition, serveUrl, inputProps, codec: 'h264', outputLocation: out, pixelFormat: 'yuv420p', colorSpace: 'bt709', crf: Number(args.crf || 18),
-    browserExecutable, chromiumOptions, concurrency: Number(args.concurrency || os.cpus().length), frameRange, muted: true,
+    browserExecutable, chromiumOptions, concurrency: Number(args.concurrency || Math.max(1, Math.floor(os.cpus().length / 2))), frameRange, muted: true,
     onProgress: ({ progress }) => { const p = Math.floor(progress * 10) * 10; if (p !== lastPct) { lastPct = p; console.log(`  [${f}] ${p}%`); } },
   });
   const secs = (Date.now() - t0) / 1000;
   const frames = frameRange ? frameRange[1] - frameRange[0] + 1 : composition.durationInFrames;
-  report.formats[f] = { gl: chromiumOptions.gl, concurrency: Number(args.concurrency || os.cpus().length), file: out, width: composition.width, height: composition.height, fps: composition.fps, frames, video_seconds: +(frames / composition.fps).toFixed(2), select_s: +((tSel - t0) / 1000).toFixed(1), render_s: +secs.toFixed(1), x_realtime: +(secs / (frames / composition.fps)).toFixed(2), peak_rss_mb: Math.round(peakKb / 1024), bytes: fs.statSync(out).size };
+  report.formats[f] = { gl: chromiumOptions.gl, concurrency: Number(args.concurrency || Math.max(1, Math.floor(os.cpus().length / 2))), file: out, width: composition.width, height: composition.height, fps: composition.fps, frames, video_seconds: +(frames / composition.fps).toFixed(2), select_s: +((tSel - t0) / 1000).toFixed(1), render_s: +secs.toFixed(1), x_realtime: +(secs / (frames / composition.fps)).toFixed(2), peak_rss_mb: Math.round(peakKb / 1024), bytes: fs.statSync(out).size };
   console.log(`[${f}] ${frames} frames -> ${out} in ${secs.toFixed(1)}s, peak tree RSS ${Math.round(peakKb / 1024)} MB`);
 }
 clearInterval(sampler);

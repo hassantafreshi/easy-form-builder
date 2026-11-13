@@ -1,0 +1,217 @@
+{
+ "generated": "2026-11-13T17:13:06.333Z",
+ "base": "http://localhost:8080",
+ "screens": [
+  {
+   "locale": "en_US",
+   "name": "01-create-templates",
+   "file": "screens/en_US/01-create-templates.png",
+   "bytes": 331869,
+   "url": "http://localhost:8080/wp-admin/admin.php?page=Emsfb_create",
+   "dir": "ltr",
+   "lang": "en-US",
+   "note": ""
+  },
+  {
+   "locale": "en_US",
+   "name": "02-builder",
+   "file": "screens/en_US/02-builder.png",
+   "bytes": 346838,
+   "url": "http://localhost:8080/wp-admin/admin.php?page=Emsfb_create",
+   "dir": "ltr",
+   "lang": "en-US",
+   "note": ""
+  },
+  {
+   "locale": "en_US",
+   "name": "03-panel-forms",
+   "file": "screens/en_US/03-panel-forms.png",
+   "bytes": 288027,
+   "url": "http://localhost:8080/wp-admin/admin.php?page=Emsfb",
+   "dir": "ltr",
+   "lang": "en-US",
+   "note": ""
+  },
+  {
+   "locale": "en_US",
+   "name": "04-entries",
+   "file": "screens/en_US/04-entries.png",
+   "bytes": 223762,
+   "url": "http://localhost:8080/wp-admin/admin.php?page=Emsfb&state=show-messages&id=6&form_type=form",
+   "dir": "ltr",
+   "lang": "en-US",
+   "note": ""
+  },
+  {
+   "locale": "en_US",
+   "name": "05-settings",
+   "file": "screens/en_US/05-settings.png",
+   "bytes": 329267,
+   "url": "http://localhost:8080/wp-admin/admin.php?page=Emsfb&state=setting",
+   "dir": "ltr",
+   "lang": "en-US",
+   "note": ""
+  },
+  {
+   "locale": "en_US",
+   "name": "06-addons",
+   "file": "screens/en_US/06-addons.png",
+   "bytes": 494931,
+   "url": "http://localhost:8080/wp-admin/admin.php?page=Emsfb_addon",
+   "dir": "ltr",
+   "lang": "en-US",
+   "note": "catalogue loaded from whitestudio.team"
+  },
+  {
+   "locale": "en_US",
+   "name": "07-frontend-form",
+   "file": "screens/en_US/07-frontend-form.png",
+   "bytes": 95593,
+   "url": "http://localhost:8080/contact-us/?efb_locale=en_US",
+   "dir": "ltr",
+   "lang": "en-US",
+   "note": ""
+  },
+  {
+   "locale": "de_DE",
+   "name": "01-create-templates",
+   "file": "screens/de_DE/01-create-templates.png",
+   "bytes": 332075,
+   "url": "http://localhost:8080/wp-admin/admin.php?page=Emsfb_create",
+   "dir": "ltr",
+   "lang": "de",
+   "note": ""
+  },
+  {
+   "locale": "de_DE",
+   "name": "02-builder",
+   "file": "screens/de_DE/02-builder.png",
+   "bytes": 365240,
+   "url": "http://localhost:8080/wp-admin/admin.php?page=Emsfb_create",
+   "dir": "ltr",
+   "lang": "de",
+   "note": ""
+  },
+  {
+   "locale": "de_DE",
+   "name": "03-panel-forms",
+   "file": "screens/de_DE/03-panel-forms.png",
+   "bytes": 293402,
+   "url": "http://localhost:8080/wp-admin/admin.php?page=Emsfb",
+   "dir": "ltr",
+   "lang": "de",
+   "note": ""
+  },
+  {
+   "locale": "de_DE",
+   "name": "04-entries",
+   "file": "screens/de_DE/04-entries.png",
+   "bytes": 228354,
+   "url": "http://localhost:8080/wp-admin/admin.php?page=Emsfb&state=show-messages&id=6&form_type=form",
+   "dir": "ltr",
+   "lang": "de",
+   "note": ""
+  },
+  {
+   "locale": "de_DE",
+   "name": "05-settings",
+   "file": "screens/de_DE/05-settings.png",
+   "bytes": 356413,
+   "url": "http://localhost:8080/wp-admin/admin.php?page=Emsfb&state=setting",
+   "dir": "ltr",
+   "lang": "de",
+   "note": ""
+  },
+  {
+   "locale": "de_DE",
+   "name": "07-frontend-form",
+   "file": "screens/de_DE/07-frontend-form.png",
+   "bytes": 95593,
+   "url": "http://localhost:8080/contact-us/?efb_locale=de_DE",
+   "dir": "ltr",
+   "lang": "de",
+   "note": ""
+  },
+  {
+   "locale": "ar",
+   "name": "01-create-templates",
+   "file": "screens/ar/01-create-templates.png",
+   "bytes": 298354,
+   "url": "http://localhost:8080/wp-admin/admin.php?page=Emsfb_create",
+   "dir": "rtl",
+   "lang": "ar",
+   "note": ""
+  },
+  {
+   "locale": "ar",
+   "name": "02-builder",
+   "file": "screens/ar/02-builder.png",
+   "bytes": 324119,
+   "url": "http://localhost:8080/wp-admin/admin.php?page=Emsfb_create",
+   "dir": "rtl",
+   "lang": "ar",
+   "note": ""
+  },
+  {
+   "locale": "ar",
+   "name": "03-panel-forms",
+   "file": "screens/ar/03-panel-forms.png",
+   "bytes": 264974,
+   "url": "http://localhost:8080/wp-admin/admin.php?page=Emsfb",
+   "dir": "rtl",
+   "lang": "ar",
+   "note": ""
+  },
+  {
+   "locale": "ar",
+   "name": "04-entries",
+   "file": "screens/ar/04-entries.png",
+   "bytes": 201729,
+   "url": "http://localhost:8080/wp-admin/admin.php?page=Emsfb&state=show-messages&id=6&form_type=form",
+   "dir": "rtl",
+   "lang": "ar",
+   "note": ""
+  },
+  {
+   "locale": "ar",
+   "name": "05-settings",
+   "file": "screens/ar/05-settings.png",
+   "bytes": 295621,
+   "url": "http://localhost:8080/wp-admin/admin.php?page=Emsfb&state=setting",
+   "dir": "rtl",
+   "lang": "ar",
+   "note": ""
+  },
+  {
+   "locale": "ar",
+   "name": "07-frontend-form",
+   "file": "screens/ar/07-frontend-form.png",
+   "bytes": 93889,
+   "url": "http://localhost:8080/contact-us/?efb_locale=ar",
+   "dir": "rtl",
+   "lang": "ar",
+   "note": ""
+  }
+ ],
+ "video": {
+  "file": "video/flow.webm",
+  "viewport": [
+   1600,
+   900
+  ],
+  "seconds": 35.09,
+  "events": 111,
+  "chapters": 13,
+  "formId": 6,
+  "pageUrl": "http://localhost:8080/contact-us-tutorial-1794590000176/"
+ },
+ "timings": {
+  "login_ms": 1288,
+  "video_ms": 35399,
+  "screens_en_US_ms": 48112,
+  "screens_de_DE_ms": 16849,
+  "screens_ar_ms": 16497,
+  "total_ms": 119847
+ },
+ "problems": []
+}

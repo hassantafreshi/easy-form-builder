@@ -1,0 +1,35 @@
+1
+00:00:02,000 --> 00:00:04,892
+Open Create, and pick the Contact Us
+template.
+
+2
+00:00:05,354 --> 00:00:07,322
+The builder opens with your fields ready.
+
+3
+00:00:07,776 --> 00:00:09,790
+Click Save, and copy the shortcode.
+
+4
+00:00:10,225 --> 00:00:11,690
+Paste it into any page.
+
+5
+00:00:12,165 --> 00:00:14,462
+Visitors fill in the form and press
+Submit.
+
+6
+00:00:14,936 --> 00:00:16,909
+Every response shows up in your Panel.
+
+7
+00:00:17,409 --> 00:00:20,142
+Fine-tune notifications and more in
+Settings.
+
+8
+00:00:20,630 --> 00:00:24,034
+Try Easy Form Builder, free on
+WordPress.org.

@@ -1,0 +1,40 @@
+{
+ "storyboard": "${EFB_WORK}/out/poc-run2/storyboard.fitted.json",
+ "browser": "/usr/bin/google-chrome",
+ "formats": {
+  "16x9": {
+   "gl": "angle",
+   "concurrency": 2,
+   "file": "${EFB_WORK}/out/poc-run2/render/poc-16x9.mp4",
+   "width": 1920,
+   "height": 1080,
+   "fps": 30,
+   "frames": 730,
+   "video_seconds": 24.33,
+   "select_s": 0.7,
+   "render_s": 103.9,
+   "x_realtime": 4.27,
+   "peak_rss_mb": 6501,
+   "bytes": 7923464
+  },
+  "9x16": {
+   "gl": "angle",
+   "concurrency": 2,
+   "file": "${EFB_WORK}/out/poc-run2/render/poc-9x16.mp4",
+   "width": 1080,
+   "height": 1920,
+   "fps": 30,
+   "frames": 730,
+   "video_seconds": 24.33,
+   "select_s": 0.7,
+   "render_s": 104.8,
+   "x_realtime": 4.31,
+   "peak_rss_mb": 6511,
+   "bytes": 6225504
+  }
+ },
+ "started": "2026-11-13T17:08:57.059Z",
+ "bundle_s": 1.7,
+ "total_s": 210.3,
+ "node_version": "v22.23.4"
+}

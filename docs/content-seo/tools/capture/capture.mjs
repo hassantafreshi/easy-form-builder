@@ -32,7 +32,8 @@ const ONLY = args.only ? String(args.only) : '';
 const SITE_MAP = (() => { try { return JSON.parse(fs.readFileSync(path.join(EFB_WORK, 'site-map.json'), 'utf8')); } catch { return { forms: {} }; } })();
 const CONTACT_URL = SITE_MAP.forms?.['contact-us']?.url || `${BASE}/contact-us/`;
 
-const FLOW_FORM_ID = (() => { try { return JSON.parse(fs.readFileSync(path.join(OUT, 'video', 'markers.json'), 'utf8')).formId || 0; } catch { return 0; } })();
+let FLOW_FORM_ID = 0; // set by recordFlow() in this run; with --only screens it falls back to the last run's markers.json
+const lastRunFormId = () => { try { return JSON.parse(fs.readFileSync(path.join(OUT, 'video', 'markers.json'), 'utf8')).formId || 0; } catch { return 0; } };
 const { chromium } = loadPlaywright();
 const manifest = { generated: new Date().toISOString(), base: BASE, screens: [], video: null, timings: {}, problems: [] };
 const t00 = Date.now();
@@ -147,7 +148,7 @@ async function recordFlow(browser, storageState) {
       return { status: r.status, link: j.link, id: j.id };
     }, { shortcode });
     if (pub.status !== 201) throw new Error('page publish failed: ' + JSON.stringify(pub));
-    markers.formId = formId; markers.pageUrl = pub.link;
+    markers.formId = formId; markers.pageUrl = pub.link; FLOW_FORM_ID = formId;
     await sleep(500);
     // --- visitor view
     chapter('visitor', 'Open the page');
@@ -242,6 +243,7 @@ try {
   manifest.timings.login_ms = Date.now() - t00;
 
   if (ONLY !== 'screens') await withRetry('video flow', 2, () => recordFlow(browser, storageState));
+  if (ONLY === 'screens') FLOW_FORM_ID = lastRunFormId(); // stale ids are only acceptable when the video was not recorded now
   if (ONLY !== 'video') for (const l of LOCALES) await screens(browser, storageState, l);
 
   // leave the admin language as English for whoever uses the site next

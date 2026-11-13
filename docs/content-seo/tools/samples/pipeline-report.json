@@ -1,0 +1,36 @@
+{
+ "stages": {
+  "site": {
+   "seconds": 9.2,
+   "status": "ok"
+  },
+  "capture": {
+   "seconds": 203.9,
+   "status": "ok"
+  },
+  "voice": {
+   "seconds": 0.2,
+   "status": "ok"
+  },
+  "fit": {
+   "seconds": 0.0,
+   "status": "ok"
+  },
+  "render": {
+   "seconds": 210.8,
+   "status": "ok"
+  },
+  "mux-16x9": {
+   "seconds": 2.8,
+   "status": "ok"
+  },
+  "mux-9x16": {
+   "seconds": 2.8,
+   "status": "ok"
+  },
+  "total": {
+   "seconds": 434.4,
+   "status": "ok"
+  }
+ }
+}

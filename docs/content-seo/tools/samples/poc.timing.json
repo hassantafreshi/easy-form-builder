@@ -1,0 +1,82 @@
+{
+ "audio": "${EFB_WORK}/out/poc-run2/voice/voiceover.mp3",
+ "duration": 22.282449,
+ "approx": false,
+ "gaps_found": 9,
+ "sentences": [
+  {
+   "scene": "template",
+   "text": "Open Create, and pick the Contact Us template.",
+   "start": 0,
+   "end": 2.892
+  },
+  {
+   "scene": "builder",
+   "text": "The builder opens with your fields ready.",
+   "start": 3.354,
+   "end": 5.322
+  },
+  {
+   "scene": "builder",
+   "text": "Click Save, and copy the shortcode.",
+   "start": 5.776,
+   "end": 7.79
+  },
+  {
+   "scene": "visitor",
+   "text": "Paste it into any page.",
+   "start": 8.225,
+   "end": 9.69
+  },
+  {
+   "scene": "visitor",
+   "text": "Visitors fill in the form and press Submit.",
+   "start": 10.165,
+   "end": 12.462
+  },
+  {
+   "scene": "entries",
+   "text": "Every response shows up in your Panel.",
+   "start": 12.936,
+   "end": 14.909
+  },
+  {
+   "scene": "settings",
+   "text": "Fine-tune notifications and more in Settings.",
+   "start": 15.409,
+   "end": 18.142
+  },
+  {
+   "scene": "outro",
+   "text": "Try Easy Form Builder, free on WordPress.org.",
+   "start": 18.63,
+   "end": 22.034
+  }
+ ],
+ "scenes": {
+  "template": {
+   "start": 0,
+   "end": 3.1228
+  },
+  "builder": {
+   "start": 3.1228,
+   "end": 8.00764
+  },
+  "visitor": {
+   "start": 8.00764,
+   "end": 12.6987
+  },
+  "entries": {
+   "start": 12.6987,
+   "end": 15.15885
+  },
+  "settings": {
+   "start": 15.15885,
+   "end": 18.3858
+  },
+  "outro": {
+   "start": 18.3858,
+   "end": 22.282449
+  }
+ }
+}

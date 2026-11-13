@@ -1,0 +1,25 @@
+{
+ "storyboard": "${EFB_WORK}/voice/long60.json",
+ "browser": "/usr/bin/google-chrome",
+ "formats": {
+  "16x9": {
+   "gl": "angle",
+   "concurrency": 4,
+   "file": "${EFB_WORK}/render/long/long60-16x9.mp4",
+   "width": 1920,
+   "height": 1080,
+   "fps": 30,
+   "frames": 1836,
+   "video_seconds": 61.2,
+   "select_s": 0.7,
+   "render_s": 322.4,
+   "x_realtime": 5.27,
+   "peak_rss_mb": 10162,
+   "bytes": 20822491
+  }
+ },
+ "started": "2026-11-13T16:55:05.790Z",
+ "bundle_s": 1.8,
+ "total_s": 324.2,
+ "node_version": "v22.23.4"
+}

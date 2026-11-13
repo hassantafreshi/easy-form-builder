@@ -30,10 +30,11 @@ tools/wp-env/teardown.sh                     # stop + delete the site (cache kep
 | `wp-env/` | Local WordPress on `php -S`, SQLite (no MySQL), plugin copied from this repo, locales, seeded forms | `setup.sh`, `reset.sh`, `teardown.sh`, `server.sh`, `seed.sh`, `install-languages.sh`, `activate-pro.sh` (owner key only) |
 | `capture/` | Playwright: 1440x900@2x screenshots per locale + one recorded click-through with cursor events and UI-element boxes | `capture.mjs` |
 | `video/` | Remotion project: intro, screen scene (zoom/pan keyframes, cursor + click ripple), numbered callouts, lower third, SRT captions, outro; driven by `storyboards/*.json` | `render.mjs`, `install.sh` |
-| `voice/` | Narration timing (silence-based aligner for any single-take MP3, or ElevenLabs REST with timestamps), storyboard fitting, SRT writer | `align.mjs`, `fit-storyboard.mjs`, `tts-elevenlabs.mjs` |
+| `voice/` | Narration timing (silence-based aligner for any single-take MP3, or ElevenLabs REST with timestamps), storyboard fitting, SRT writer (any language) | `align.mjs`, `fit-storyboard.mjs`, `srt-from-timing.mjs`, `tts-elevenlabs.mjs` (untested: needs an API key) |
 | `assemble/` | ffmpeg mux, loudness (-14 LUFS), optional music bed, deliverable checker | `mux.sh`, `verify.sh`, `make-bed.sh` |
 | `pipeline/` | The whole chain with retries, timeouts, lock, per-stage timing report | `make_video.sh` |
 | `lib/` | Shared Node helpers | `common.mjs` |
+| `samples/` | Small text outputs of the spike run (SRT, sentence timing, fitted storyboard, render/pipeline/capture reports) | - |
 
 ## Storyboard JSON (all a new video needs)
 

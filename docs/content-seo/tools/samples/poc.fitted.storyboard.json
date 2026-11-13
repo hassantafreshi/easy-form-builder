@@ -1,0 +1,275 @@
+{
+  "meta": {
+    "title": "Create a contact form with Easy Form Builder",
+    "fps": 30,
+    "portraitZoom": 1,
+    "brand": {
+      "primary": "#3640d4",
+      "accent": "#ff4b93",
+      "dark": "#0e1230",
+      "text": "#ffffff"
+    },
+    "fitted": {
+      "lead": 2,
+      "audio_seconds": 22.282449,
+      "scenes_total_seconds": 24.28
+    }
+  },
+  "assets": {
+    "flow": {
+      "video": "${EFB_WORK}/capture/video/flow.webm",
+      "events": "${EFB_WORK}/capture/video/events.json",
+      "markers": "${EFB_WORK}/capture/video/markers.json"
+    },
+    "settings": {
+      "image": "${EFB_WORK}/capture/screens/en_US/05-settings.png",
+      "size": [
+        1440,
+        900
+      ]
+    }
+  },
+  "scenes": [
+    {
+      "id": "intro",
+      "type": "intro",
+      "dur": 2,
+      "badge": "Tutorial",
+      "title": "Build a contact form",
+      "subtitle": "Easy Form Builder for WordPress"
+    },
+    {
+      "id": "template",
+      "type": "recording",
+      "src": "flow",
+      "from": "open-create",
+      "to": "builder",
+      "speed": 2.145,
+      "narration": "Open Create, and pick the Contact Us template.",
+      "camera": [
+        {
+          "at": 0,
+          "zoom": 1
+        },
+        {
+          "at": 1.119,
+          "zoom": 1.9,
+          "focus": "template-contact-create",
+          "ease": "inOut"
+        },
+        {
+          "at": 2.163,
+          "zoom": 1.9,
+          "focus": "template-contact-create"
+        },
+        {
+          "at": 2.759,
+          "zoom": 1,
+          "ease": "inOut"
+        }
+      ],
+      "callouts": [
+        {
+          "at": 1.417,
+          "dur": 1.492,
+          "n": 1,
+          "target": "template-contact-create",
+          "text": "Pick Contact Us",
+          "side": "left"
+        }
+      ],
+      "lowerThird": {
+        "at": 0.149,
+        "dur": 1.79,
+        "title": "Step 1",
+        "subtitle": "Choose a template"
+      },
+      "dur": 3.123
+    },
+    {
+      "id": "builder",
+      "type": "recording",
+      "src": "flow",
+      "from": "builder",
+      "to": "publish",
+      "speed": 1.122,
+      "narration": "The builder opens with your fields ready. Click Save, and copy the shortcode.",
+      "camera": [
+        {
+          "at": 0,
+          "zoom": 1
+        },
+        {
+          "at": 1.248,
+          "zoom": 1
+        },
+        {
+          "at": 2.05,
+          "zoom": 1.7,
+          "focus": "save-button",
+          "ease": "inOut"
+        },
+        {
+          "at": 2.942,
+          "zoom": 1.7,
+          "focus": "save-button"
+        },
+        {
+          "at": 3.744,
+          "zoom": 1.8,
+          "focus": "shortcode-box",
+          "ease": "inOut"
+        }
+      ],
+      "callouts": [
+        {
+          "at": 2.229,
+          "dur": 1.426,
+          "n": 2,
+          "target": "save-button",
+          "text": "Click Save",
+          "side": "below"
+        },
+        {
+          "at": 4.011,
+          "dur": 0.891,
+          "n": 3,
+          "target": "shortcode-box",
+          "text": "Copy the shortcode",
+          "side": "above"
+        }
+      ],
+      "lowerThird": {
+        "at": 0.178,
+        "dur": 1.605,
+        "title": "Step 2",
+        "subtitle": "Save and get the shortcode"
+      },
+      "dur": 4.885
+    },
+    {
+      "id": "visitor",
+      "type": "recording",
+      "src": "flow",
+      "from": "visitor",
+      "to": "panel",
+      "speed": 3.036,
+      "narration": "Paste it into any page. Visitors fill in the form and press Submit.",
+      "camera": [
+        {
+          "at": 0,
+          "zoom": 1
+        },
+        {
+          "at": 0.58,
+          "zoom": 1.5,
+          "focus": "frontend-form",
+          "ease": "inOut"
+        },
+        {
+          "at": 2.899,
+          "zoom": 1.5,
+          "focus": "frontend-form"
+        },
+        {
+          "at": 3.479,
+          "zoom": 1.9,
+          "focus": "submit-button",
+          "ease": "inOut"
+        }
+      ],
+      "callouts": [
+        {
+          "at": 0.725,
+          "dur": 1.884,
+          "n": 4,
+          "target": "frontend-form",
+          "text": "Visitors fill in the form",
+          "side": "right"
+        },
+        {
+          "at": 3.551,
+          "dur": 1.16,
+          "n": 5,
+          "target": "submit-button",
+          "text": "Submit",
+          "side": "above"
+        }
+      ],
+      "lowerThird": {
+        "at": 0.072,
+        "dur": 1.16,
+        "title": "Step 3",
+        "subtitle": "Publish and collect entries"
+      },
+      "dur": 4.691
+    },
+    {
+      "id": "entries",
+      "type": "recording",
+      "src": "flow",
+      "from": "panel",
+      "to": "end",
+      "speed": 2.715,
+      "narration": "Every response shows up in your Panel.",
+      "camera": [
+        {
+          "at": 0,
+          "zoom": 1
+        },
+        {
+          "at": 0.795,
+          "zoom": 1.6,
+          "focus": "entries-icon",
+          "ease": "inOut"
+        }
+      ],
+      "callouts": [
+        {
+          "at": 0.994,
+          "dur": 1.326,
+          "n": 6,
+          "target": "entries-icon",
+          "text": "Entries land here",
+          "side": "left"
+        }
+      ],
+      "dur": 2.46
+    },
+    {
+      "id": "settings",
+      "type": "image",
+      "src": "settings",
+      "dur": 3.227,
+      "narration": "Fine-tune notifications and more in Settings.",
+      "camera": [
+        {
+          "at": 0,
+          "zoom": 1
+        },
+        {
+          "at": 3.227,
+          "zoom": 1.25,
+          "focus": [
+            0.55,
+            0.4
+          ],
+          "ease": "linear"
+        }
+      ]
+    },
+    {
+      "id": "outro",
+      "type": "outro",
+      "dur": 3.897,
+      "title": "Try Easy Form Builder",
+      "subtitle": "Free on WordPress.org",
+      "cta": "Get the plugin",
+      "narration": "Try Easy Form Builder, free on WordPress.org."
+    }
+  ],
+  "captions": {
+    "srt": "${EFB_WORK}/out/poc-run2/poc.en.srt",
+    "style": "bar"
+  }
+}

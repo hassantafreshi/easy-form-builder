@@ -1,19 +1,17 @@
-# Never commit toolchain output, downloads or dependencies.
+# Toolchain output and dependencies. Heavy things live in $EFB_WORK (outside the repo); these are safety nets.
 node_modules
-**/node_modules
-output/
-**/output/
-out/
-.work/
-*.mp4
-*.webm
-*.mp3
-*.wav
-*.png
-!docs-images/**
-*.zip
-*.phar
+capture/out/
+capture/output/
+video/out/
+video/output/
+pipeline/out/
+pipeline/output/
 secrets/
 *.env
 !*.env.example
-.cache/
+*.webm
+*.mp4
+*.mp3
+*.wav
+*.zip
+*.phar
