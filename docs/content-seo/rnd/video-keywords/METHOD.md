@@ -107,7 +107,7 @@ Politeness: do not run more than about 200 requests per hour from one address, k
 6. **Chapter and "Summary" labels** on search results are only a lower bound of how many results have chapters; 28 of 448 results showed an AI "Summary" label instead of a chapter count.
 7. **Relevance filter.** The scoring filter removes some valid suggestions; the raw CSV keeps everything. Autosuggest also returns another vendor's name (Contact Form 7, WPForms, Elementor) because that is how people search; decide whether to ride that demand in a comparison video or avoid it.
 8. **Heuristic grade and opening score** are rules of thumb, not validated against outcomes. Recalibrate after 3 months of Studio and Search Console data.
-9. **Rewrite-row seeds are hand-made** (the queue `keyword` column is empty for rewrites). The rewrite seeds are in `seeds` of the raw CSV (`query_kind=base`, first query per `queue_id`); change them if the article's angle changes.
+9. **Rewrite-row seeds are hand-made** (the queue `keyword` column is empty for rewrites). The rewrite seeds are the `seed` column of `video-keywords-p1.csv`; change them if the article's angle changes.
 
 ## 9. What this run says (for the owner)
 

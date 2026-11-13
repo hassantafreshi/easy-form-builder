@@ -543,7 +543,7 @@ Quiz، Booking & Calendar، SMS OTP login، Ticketing، AI، Twilio و Retry Que
 
 **YouTube:**
 - **عنوان:** `Migrate Contact Form 7 to Easy Form Builder in 60 Seconds`
-- **توضیحات:** `Move your Contact Form 7 forms to Easy Form Builder with the built-in importer — no rebuilding. Full guide: {ARTICLE_URL}` + مراحل + chapters: `0:00 Why migrate • 0:06 Open the importer • 0:16 Pick forms • 0:28 Read the report • 0:52 Publish and test`
+- **توضیحات:** `Move your Contact Form 7 forms to Easy Form Builder with the built-in importer — no rebuilding. Full guide: {ARTICLE_URL}` + مراحل + chapters (هر فصل ≥ ۱۰ ثانیه؛ اصلاح‌شده طبق R&D): `0:00 Why migrate • 0:10 Open the importer and pick forms • 0:25 Read the report • 0:40 Publish and test`
 - **Tags:** contact form 7, migrate contact form 7, wordpress forms, easy form builder, wordpress form plugin • **هشتگ:** #WordPress #ContactForm7 #FormBuilder
 - **کامنت سنجاق‌شده:** `Full step-by-step guide + what the importer can't carry over: {ARTICLE_URL} — which CF7 feature do you rely on most?`
 

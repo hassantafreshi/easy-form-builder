@@ -47,7 +47,7 @@ Median by rank position over the 448 results: position 1 has 945 views and 12 mo
 
 ### What the pattern means
 
-1. **Length norm: 3 to 8 minutes.** A 60-second video asks for a different bargain from the viewer. Counter-examples exist and are instructive: a **1:22** job-application video holds #1 with 56.6K views (6 years old), a 2:45 spam video is #1 with 95 views, and our own 1:10 to 2:30 videos already appear in the top 8 for feature-led queries. Short ranks when the query is narrow (one task, one answer).
+1. **Length norm: 3 to 8 minutes.** A 60-second video asks for a different bargain from the viewer. Counter-examples exist and are instructive: a **1:22** job-application video holds #1 with 56.6K views (6 years old), a 2:45 spam video is #1 with 95 views, and our own 1:22 to 2:36 videos already appear in the top 8 for feature-led queries. Short ranks when the query is narrow (one task, one answer).
 2. **Fresh and small can rank.** In the top 3 positions of the 448 results there are **95 videos aged <= 12 months; their median is 563 views and 60 of the 95 have fewer than 1,000 views**. YouTube is clearly rewarding relevance and recency here, not accumulated authority. 22 of 42 top-3 slots in the 14-topic study are fresh and under 3,000 views.
 3. **Titles are plain:** "How to" + task + product/qualifier, about 62 characters. Exact-phrase titles are rare (the whole chosen phrase appears verbatim in only 5% of top-8 titles); the words of the query appear, in natural order.
 4. **Chapters are a minority (36%)** and mostly on 6 to 9 minute videos. A 60-second video with chapters would be unusual but valid.

@@ -7,7 +7,7 @@
 ## 0. The ten rules (read these if nothing else)
 
 1. **Rank on task words, not brand words.** Title opens with the viewer's query ("WordPress Form Not Sending Email? Fix It in 60 Seconds"), keyword inside the first 40 characters, total <= 70 characters. Our existing channel's titles have a median of **80 characters** and lead with "How to ... (Easy Form Builder)", which pushes the keyword past the truncation point. [Measured]
-2. **Our <= 60 s rule is shorter than what ranks.** Median top-8 video for our topics runs **283 s**; only 13% are <= 120 s. Short videos *do* rank for narrow tasks (a 1:22 video is #1 for "job application form wordpress"; our own 1:10 to 2:30 videos are in the top 8 for feature-led queries), and fresh videos with under 1,000 views hold 60 of 95 fresh top-3 slots. So: ship 60 s videos for narrow tasks, and run the controlled test in section 14 before treating 60 s as law. [Measured]
+2. **Our <= 60 s rule is shorter than what ranks.** Median top-8 video for our topics runs **283 s**; only 13% are <= 120 s. Short videos *do* rank for narrow tasks (a 1:22 video is #1 for "job application form wordpress"; our own 1:22 to 2:36 videos are in the top 8 for feature-led queries), and fresh videos with under 1,000 views hold 60 of 95 fresh top-3 slots. So: ship 60 s videos for narrow tasks, and run the controlled test in section 17 before treating 60 s as law. [Measured]
 3. **The first 15 seconds decide retention; the first 6 seconds decide the hook.** Show the finished result or the exact problem on screen at 0:00; do not open with a logo, greeting or channel intro. [Practice]
 4. **The description's first 150 characters carry the keyword, the outcome and the article link with UTM.** Everything below is for people who press "more". [Practice; the fold length varies by device]
 5. **Chapters on every video, even 60 s ones**: at least 3 timestamps, the first `0:00`, each chapter at least 10 s. A 60 s video fits 4 chapters (0:00 / 0:10 / 0:25 / 0:40). [Official]
@@ -15,7 +15,7 @@
 7. **Links in YouTube descriptions are nofollow.** The value of the video-to-article link is referral traffic, brand and entity signals and a second SERP slot for the same query, not link equity. Do not promise a ranking lift from it. [Observed: see section 11]
 8. **A tutorial article that merely embeds a video is not a Google "watch page".** Google documents that blog posts embedding a video do not qualify for video indexing; the YouTube watch page is the asset Google shows in video results. So YouTube SEO is Google video SEO; article schema is for semantics, AI search and accessibility. [Official]
 9. **One primary keyword per video, one per article, different second words.** Video wins the "show me" click; article wins the "give me the details and the troubleshooting" click. [Practice]
-10. **Measure, then change one thing.** Day 7 and day 28 checks per video; monthly cluster review; kill or re-record what does not move (section 15).
+10. **Measure, then change one thing.** Day 7 and day 28 checks per video; monthly cluster review; kill or re-record what does not move (sections 16 and 17).
 
 ## 1. What is known about how YouTube ranks and suggests
 
@@ -28,7 +28,7 @@
 | CTR and early retention as ranking inputs | Widely believed to matter (impressions that convert, viewers who do not leave). YouTube's public pages do not name CTR; they do name watch time. We treat CTR and average percentage viewed as **diagnostics that predict satisfaction**, not as documented levers. | Practice |
 | Captions | Not mentioned in the ranking explanation. They make the content accessible, searchable in the transcript panel and translatable; a direct ranking boost is **unproven**. | Official silence; boost = Folklore |
 | Keyword stuffing in titles/descriptions/tags | Misleading metadata violates policy. Repetitive sentences or non-hashtag tags in the description are prohibited. | Official |
-| Video length vs ranking | No documented preference. Watch time per query is the metric, so a 60 s video with 85% viewed can beat a 6 min video at 25% for a narrow task; for broad queries viewers expect depth. | Practice, tested in section 14 |
+| Video length vs ranking | No documented preference. Watch time per query is the metric, so a 60 s video with 85% viewed can beat a 6 min video at 25% for a narrow task; for broad queries viewers expect depth. | Practice, tested in section 17 |
 
 ## 2. Title formulas
 
@@ -81,7 +81,7 @@ Full fill-in version: [`../templates/video/youtube-package-template.md`](../temp
 | 0:25 | `<Step 2 verb phrase>` | 15 s |
 | 0:40 | `<Test / publish / check result>` | 20 s (includes the closing line) |
 
-**120-second layout:** 5 chapters at 0:00, 0:12, 0:35, 1:05, 1:35. Chapter titles use real words people search ("Get Google Sheets service account JSON key"), not "Step 2". **QA check:** last chapter start < video duration (WPForms has an example that fails this).
+**120-second layout:** 5 chapters at 0:00, 0:20, 0:50, 1:20, 1:48 (the beat starts of the 120 s script template). Chapter titles use real words people search ("Get Google Sheets service account JSON key"), not "Step 2". **QA check:** last chapter start < video duration (WPForms has an example that fails this).
 
 Whether chapters help a 60 s video rank is **unproven**; they do cost nothing, they improve the video's search-result snippet when YouTube shows them (36% of results in our SERP study showed chapters), and they feed Key Moments. [Practice]
 
@@ -149,7 +149,7 @@ Playlist descriptions: 2 sentences containing the head keyword (playlists are in
 | Legibility test | Shrink to 168 x 94 px: if the words cannot be read, redesign. Keep the bottom-right corner free (duration badge). [Practice] |
 | Consistency | Same background family, same accent, same logo corner, so a cluster reads as a set (WPForms: fixed bottom-left brand lockup). Brand tokens in the motion guide. |
 | Reuse | Render the thumbnail from the video's title card in the same Remotion project (WPForms' 2026 videos appear to do this). |
-| Testing | YouTube Studio offers thumbnail "Test & compare" for eligible channels (**UNVERIFIED availability**). Otherwise change the thumbnail once after 7 days if CTR is low (section 15). |
+| Testing | YouTube Studio offers thumbnail "Test & compare" for eligible channels (**UNVERIFIED availability**). Otherwise change the thumbnail once after 7 days if CTR is low (section 14, targets table). |
 | Never | Fake play buttons, misleading arrows, text promising something not shown. |
 
 ## 11. Making the video and the article work together
