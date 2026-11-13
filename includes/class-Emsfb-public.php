@@ -43,6 +43,14 @@ class _Public {
 	private $gate_claims = array();
 	private $gate_cookie = '';
 	private $gate_reserved = false;
+	/* F03: unique-value claims of this submission (Field_Rules), taken in insert_message_db(). */
+	private $unique_pending_efb = array();
+	private $unique_claimed_efb = array();
+	/* F03: code of the field rule that refused the submission (answered with field_id). */
+	private $field_rules_code_efb = '';
+	/* F03: field-rule assets on this page (field-rules-efb.js) and the context of one submit. */
+	private $field_rules_page_efb = false;
+	private $field_rules_ctx_cache_efb = null;
 	/* F11-E/F: the runtime owner of the tab that submits (its partial entry is completed). */
 	private $runtime_owner_efb = '';
 	/** PAY00: the instance (webhooks, cron and the return URL run actions through it). */
@@ -1307,7 +1315,9 @@ public function check_nonce_permission_efb($request) {
 			/* F11: the form gate's sentences, save and continue, partial answers, popup. */
 			'limFullM','limLeft','limReachedM','limReachedUntilM','schedPendingM','schedClosedM','roleDeniedM',
 			'draftSave','draftSaved','draftCopy','draftEmail','draftSendLink','draftLinkSent','draftExpires','draftNotSaved','draftKeepSafe','draftRestored','draftStartOver','draftInvalid','draftFailed',
-			'partialConsent','partialNotice','popupClose'];
+			'partialConsent','partialNotice','popupClose',
+			/* F03 field rules: messages, counter, password strength and toggle, help button. */
+			'tvUnique_','tvMinLen_','tvMaxLen_','tvMinWords_','tvMaxWords_','tvPattern_','tvDomAllow_','tvDomDeny_','tvPwMismatch_','tvPwWeak_'];
 
 			/* Only now is a form or response box really printed. A form in a widget,
 			 * footer or popup keeps the page cacheable (EFBRuntime.prepare() fetches a
@@ -2376,6 +2386,13 @@ public function check_nonce_permission_efb($request) {
 			wp_enqueue_script('efb-masks-js');
 			$core_deps[] = 'efb-masks-js';
 		}
+		// F03: the field-rule engine only on pages with a field that has one of its keys.
+		if (is_string($form_structure_json) && preg_match('/\\\\?"(?:unique|wmin|wmax|counter|pattern_b64|email_domain_mode|readonly|prefix|suffix|message_place|pw_confirm|pw_meter|pw_toggle|pw_strength_min|msg_[a-z]+)\\\\?"\s*:/', $form_structure_json)) {
+			wp_register_script('efb-field-rules-js', EMSFB_PLUGIN_URL . 'public/assets/js/field-rules-efb.js', array(), $asset_version('public/assets/js/field-rules-efb.js'), true);
+			wp_enqueue_script('efb-field-rules-js');
+			$core_deps[] = 'efb-field-rules-js';
+			$this->field_rules_page_efb = true;
+		}
 		// A6: a mobile field needs intlTelInput before its init runs; declare it as a
 		// dependency so script optimisers keep the order (the renderer registers the
 		// same handle later, which is then a no-op).
@@ -2573,7 +2590,9 @@ public function check_nonce_permission_efb($request) {
 			/* F01 input masks: server messages for masked fields. */
 			'mskFormat_', 'mskChecksum_', 'mskRule_', 'mskIncomplete_', 'mskRange_',
 			/* F11 form gate (Form_Gate::message() reads them through text_efb() too). */
-			'limFullM', 'limReachedM', 'limReachedUntilM', 'schedPendingM', 'schedClosedM', 'roleDeniedM'
+			'limFullM', 'limReachedM', 'limReachedUntilM', 'schedPendingM', 'schedClosedM', 'roleDeniedM',
+			/* F03 field rules (Field_Rules::message_keys()). */
+			'tvUnique_', 'tvMinLen_', 'tvMaxLen_', 'tvMinWords_', 'tvMaxWords_', 'tvPattern_', 'tvDomAllow_', 'tvDomDeny_', 'tvPwMismatch_', 'tvPwWeak_'
 		];
 		$efbFunction = get_efbFunction();
 
@@ -2906,6 +2925,16 @@ public function check_nonce_permission_efb($request) {
 					if ( $_missing_name !== '' && isset( $this->lanText['mnvvXXX_'] ) ) {
 						$_req_msg = str_replace( '%s', '<b>' . esc_html( $_missing_name ) . '</b>', $this->lanText['mnvvXXX_'] );
 					}
+					// F03: the field's own required message (customRequiredMsg), as the browser shows it.
+					if ( ! empty( $_req_check['missing_field'] ) && class_exists( '\Emsfb\Field_Rules' ) ) {
+						foreach ( (array) $form_fields_array as $_req_f ) {
+							if ( is_array( $_req_f ) && isset( $_req_f['id_'] ) && (string) $_req_f['id_'] === (string) $_req_check['missing_field'] ) {
+								$_custom_req = \Emsfb\Field_Rules::required_msg( $_req_f );
+								if ( $_custom_req !== null ) $_req_msg = $_custom_req;
+								break;
+							}
+						}
+					}
 					$response = [ 'success' => false, 'm' => $_req_msg, 'field_id' => $_req_check['missing_field'] ?? '' ];
 					wp_send_json_success( $response, 200 );
 				}
@@ -3010,7 +3039,8 @@ public function check_nonce_permission_efb($request) {
 										}
 
 										$e_ar = isset($form_fields_array[0]['email_send_type']) ? $form_fields_array[0]['email_send_type'] : false;
-										if ((isset($f['milen']) && $f['milen'] > $l) || (isset($f['mlen']) && $f['mlen'] < $l)) {
+										// F03 §18.1: mlen "0" or "" (the builder's empty Max) means no limit, as the renderers read it.
+										if ((isset($f['milen']) && (int) $f['milen'] > $l) || (isset($f['mlen']) && (int) $f['mlen'] > 0 && (int) $f['mlen'] < $l)) {
 											$is_valid = 0;
 										}
 										if (isset($f['noti']) == true && intval($f['noti']) == 1)  $this->email_list_efb($email_recipients, 1, $item['value'], $e_ar);
@@ -3064,7 +3094,8 @@ public function check_nonce_permission_efb($request) {
 											}
 										}
 										$l = strlen($item['value']);
-										if ((isset($f['milen']) && $f['milen'] > $l) || (isset($f['mlen']) && $f['mlen'] < $l)) {
+										// F03 §18.1: mlen "0" or "" (the builder's empty Max) means no limit, as the renderers read it.
+										if ((isset($f['milen']) && (int) $f['milen'] > $l) || (isset($f['mlen']) && (int) $f['mlen'] > 0 && (int) $f['mlen'] < $l)) {
 											$is_valid = 0;
 										}
 									}
@@ -3607,6 +3638,8 @@ public function check_nonce_permission_efb($request) {
 												if (!$mask_res_efb['ok']) {
 													$is_valid = 0;
 													$error_message = \Emsfb\Masks::message($mask_res_efb['code'], $f, $this->lanText);
+													// F03: msg_format, the owner's message for every format code of the mask.
+													if (class_exists('\Emsfb\Field_Rules') && ($fmt_custom_efb = \Emsfb\Field_Rules::custom_msg($f, 'format')) !== null) { $error_message = $fmt_custom_efb; $this->field_rules_code_efb = 'format'; }
 													$error_field_id = isset($f['id_']) ? $f['id_'] : '';
 												} else {
 													$item['value'] = $mask_res_efb['stored'];
@@ -3622,14 +3655,18 @@ public function check_nonce_permission_efb($request) {
 										$min_len = isset($f['milen']) ? (int) $f['milen'] : 0;
 										$max_len = isset($f['mlen']) ? (int) $f['mlen'] : 0;
 
+										// F03: the owner's own length messages (msg_minlen / msg_maxlen) win over the defaults.
+										$len_custom_efb = class_exists('\Emsfb\Field_Rules') ? array(\Emsfb\Field_Rules::custom_msg($f, 'minlen'), \Emsfb\Field_Rules::custom_msg($f, 'maxlen')) : array(null, null);
 										if ($min_len > 0 && $l < $min_len) {
-											$error_message = strtr($this->lanText['ptrnMmm_'], [
+											if (class_exists('\Emsfb\Field_Rules') && ($len_custom_efb[0] !== null || \Emsfb\Field_Rules::has_rules($f))) $this->field_rules_code_efb = 'minlen';
+											$error_message = $len_custom_efb[0] !== null ? $len_custom_efb[0] : strtr($this->lanText['ptrnMmm_'], [
 												'%1$s' => "<b>" . $f['name'] . "</b>",
 												'%2$s' => "<b>" . $min_len . "</b>",
 											]);
 											$is_valid = 0;
 										} else if ($max_len > 0 && $l > $max_len) {
-											$error_message = strtr($this->lanText['ptrnMmx_'], [
+											if (class_exists('\Emsfb\Field_Rules') && ($len_custom_efb[1] !== null || \Emsfb\Field_Rules::has_rules($f))) $this->field_rules_code_efb = 'maxlen';
+											$error_message = $len_custom_efb[1] !== null ? $len_custom_efb[1] : strtr($this->lanText['ptrnMmx_'], [
 												'%1$s' => "<b>" . $f['name'] . "</b>",
 												'%2$s' => "<b>" . $max_len . "</b>",
 											]);
@@ -3642,6 +3679,22 @@ public function check_nonce_permission_efb($request) {
 							}
 						}
 					});
+					// Field rules gate (F03): one point after the type branch, for every submit endpoint.
+					if ($is_valid == 1 && is_array($validated_item) && class_exists('\Emsfb\Field_Rules')
+						&& !(isset($_ignored_set) && isset($_ignored_set[$f['id_'] ?? ''])) && \Emsfb\Field_Rules::has_rules($f)) {
+						$rules_res_efb = \Emsfb\Field_Rules::check($f, $validated_item, $request_data, $raw_passwords_efb, $this->lanText, $this->field_rules_ctx_efb($form_fields_array, $submitted_values));
+						if (!$rules_res_efb['ok']) {
+							$is_valid = 0;
+							$error_message = $rules_res_efb['m'];
+							$error_field_id = $f['id_'] ?? '';
+							$this->field_rules_code_efb = (string) $rules_res_efb['code'];
+							$validated_item = null;
+						} else {
+							$validated_item = $rules_res_efb['item'];
+							if (!empty($rules_res_efb['unique'])) $this->unique_pending_efb[] = $rules_res_efb['unique'];
+						}
+					}
+					// End field rules gate.
 					/* This field came through clean, so drop the provisional error
 					 * text recorded while it was being checked. It was only ever a
 					 * placeholder, and keeping it meant a later failure that sets no
@@ -3698,6 +3751,8 @@ public function check_nonce_permission_efb($request) {
 				$skip_captcha = $submission_type != "payment" ? $form_fields_array[0]['captcha'] : "";
 				if ($is_valid == 0) {
 					$response = ['success' => false, 'm' => $error_message, 'field_id' => $error_field_id];
+					// F03: the stable code of the field rule that refused it (SitePilot contract).
+					if ($this->field_rules_code_efb !== '') $response['code'] = 'efb_field_' . $this->field_rules_code_efb;
 					wp_send_json_success($response, 200);
 				}
 				$this->value = $this->efb_encode_rows_for_storage_efb($validated_items);
@@ -8024,6 +8079,31 @@ public function check_nonce_permission_efb($request) {
 	 * @param array $submitted_values Decoded rows, before sanitizing.
 	 * @return array<string,string> Keyed by field id_.
 	 */
+	/**
+	 * F03: what Field_Rules::check() needs beyond the field (once per submit): the form id and
+	 * name, and the local parts of the e-mail addresses in this submission (password score).
+	 */
+	private function field_rules_ctx_efb($form_fields_array, $submitted_values) {
+		if (is_array($this->field_rules_ctx_cache_efb)) return $this->field_rules_ctx_cache_efb;
+		$emails = array();
+		$email_ids = array();
+		foreach ((array) $form_fields_array as $ff) {
+			if (is_array($ff) && isset($ff['type'], $ff['id_']) && $ff['type'] === 'email') $email_ids[(string) $ff['id_']] = true;
+		}
+		foreach ((array) $submitted_values as $row) {
+			if (is_array($row) && isset($row['id_'], $row['value']) && is_string($row['value']) && isset($email_ids[(string) $row['id_']])) {
+				$local = strstr(self::normalize_email_input_efb($row['value']), '@', true);
+				if (is_string($local) && $local !== '') $emails[] = $local;
+			}
+		}
+		$this->field_rules_ctx_cache_efb = array(
+			'form_id'   => (int) $this->id,
+			'form_name' => isset($form_fields_array[0]['formName']) && is_scalar($form_fields_array[0]['formName']) ? (string) $form_fields_array[0]['formName'] : '',
+			'emails'    => $emails,
+		);
+		return $this->field_rules_ctx_cache_efb;
+	}
+
 	private function raw_passwords_efb($submitted_values) {
 		$passwords = array();
 		foreach ((array) $submitted_values as $row) {
@@ -9914,6 +9994,11 @@ public function check_nonce_permission_efb($request) {
 			if (!empty($masks_efb)) {
 				$ar_core['masks'] = $masks_efb;
 			}
+		}
+
+		/* F03: which parts of the field rules this site's plan honours (the server checks again). */
+		if (class_exists('\\Emsfb\\Field_Rules')) {
+			$ar_core['field_rules'] = \Emsfb\Field_Rules::client_config();
 		}
 
 		/* The plugin lists are for the administrator's diagnosis only; they used

@@ -2013,6 +2013,10 @@ require('./scenario-readiness.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, ope
 /* F11 form limits, schedule, roles, save and resume, partial answers, custom CSS, popup: tests/e2e-wp/scenario-f11.js. */
 require('./scenario-f11.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewForm, addTile, closePanel });
 
+/* F03 text field validation: messages, words and counter, safe patterns, unique values, e-mail domains,
+ * read-only, prefix / suffix / help, password confirm / strength / show: tests/e2e-wp/scenario-f03.js. */
+require('./scenario-f03.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewForm, addTile, closePanel });
+
 /* ---------------------------------------------------------------------------------------------
  * main
  * ------------------------------------------------------------------------------------------- */

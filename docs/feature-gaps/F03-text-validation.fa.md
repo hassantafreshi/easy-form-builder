@@ -1,4 +1,4 @@
-وضعیت: سند آماده، پیاده‌سازی نشده · اولویت: P0 · تلاش: M · وابستگی: F01 (نرمال‌ساز و `Emsfb\Masks`)؛ هماهنگ با F02 (`email_confirm_mode`) و F16 (نمایش خطا و ARIA)
+وضعیت: در حال پیاده‌سازی (A انجام شد، ۲۰۲۶-۱۱-۱۳) · اولویت: P0 · تلاش: M · وابستگی: F01 (نرمال‌ساز و `Emsfb\Masks`)؛ هماهنگ با F02 (`email_confirm_mode`) و F16 (نمایش خطا و ARIA)
 
 # F03 — اعتبارسنجی فیلدهای متنی
 
@@ -322,12 +322,12 @@ if ($is_valid == 1 && is_array($validated_item) && class_exists('\Emsfb\Field_Ru
 - پذیرش: فرم بدون قاعده بایت‌به‌بایت مثل امروز است. پیام سفارشی required از سرور برمی‌گردد. `msg_*` حاوی `<b>` به‌صورت متن نمایش داده می‌شود. فیلد پنهان با منطق بررسی نمی‌شود.
 - تست‌ها: `php tests/test-field-rules-core.php` (بلوک `// Field rules gate (F03)` استخراج و با fixture اجرا می‌شود)، `node tests/test-field-rules-core.js`، و `php tests/test-field-rules-save-roundtrip.php` (همهٔ کلیدهای §۵ با stub آرایه‌وفادار، playbook §9.1).
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint** (۲۰۲۶-۱۱-۱۳، انجام شد)
+- فایل‌های تغییرکرده: `includes/class-Emsfb-field-rules.php` (تازه: `KEYS`، `TYPES`، `CODES`، `GATED`، `PLAN`، `sanitize_key`، `has_rules`/`active_rules`، `custom_msg`/`msg`/`required_msg`، `check`، `capabilities`، `client_config`)، `public/assets/js/field-rules-efb.js` (تازه، UMD `window.EfbRules`)، `includes/admin/assets/js/field-rules-builder-efb.js` (تازه: گروه «Error messages»، نوشتن مستقیم در `valj_efb` با قواعد همزاد و بدون `change_el_edit_Efb`)، `class-Emsfb-public.php` (نقطهٔ واحد پس از `array_filter`، `code` = `efb_field_<rule>` در پاسخ، پیام required سفارشی از سرور، `msg_minlen`/`msg_maxlen` در شاخهٔ `default:`، `msg_format` در گیت ماسک، رفع `mlen = "0"` ایمیل و URL (§18.1)، enqueue شرطی، `ajax_object_efm.field_rules`، `$translation_keys` و زیرمجموعهٔ عمومی)، `functions.php` (caseهای صریح همهٔ کلیدهای §5 و عبارت‌ها)، `class-Emsfb.php` (بارگذاری و `register`)، `val-efb.js` (دو نقطهٔ درج)، `class-Emsfb-create.php` و `class-Emsfb-panel.php` (enqueue سازنده)، `core-efb.js` (`efb_rules_*`: خطای فیلد با `textContent`، `aria-invalid`، `aria-describedby`، `role=alert`؛ بررسی دوباره در Next/Send؛ پاسخ سرور با `field_id` کنار فیلد)، `tests/e2e-wp/ctl.php` (`f03-form`)، `tests/e2e-wp/scenario-f03.js`.
+- تست‌ها: `php tests/test-field-rules-core.php` (۲۷)، `node tests/test-field-rules-core.js` (۳۶، برابری با PHP از طریق `tests/field-rules-php.php`)، `php tests/test-field-rules-save-roundtrip.php` (۱۶)، e2e `f03a` (۱۰).
+- وضعیت ترجمه: عبارت‌ها فقط انگلیسی (دستور مالک: ترجمه نشود)؛ فهرست با `extract.php` در پایان تازه می‌شود.
+- مورد باز: پیام‌های هر قاعده در سازنده Free Plus هستند (مثل `customRequiredMsg`)، ولی پیام ذخیره‌شده در هر پلن خوانده می‌شود، چون قاعدهٔ امنیتی نیست و کلاینت هم همین را می‌خواند. پیام‌ها متن سادهٔ ≤ ۲۰۰ نویسه‌اند و `" < >` در هر دو طرف حذف می‌شود (انتقال ذخیرهٔ سازنده `"` را تحمل نمی‌کند).
+- اقدام بعدی: B.
 
 ### B. نویسه، کلمه و شمارنده
 - فایل‌ها: `val-efb.js` (`wordLimitEls`، `counterEls` و `mLenEls` برای textarea)، `admin-efb.js`، formbuilder (textarea `maxlength`، شمارنده و `${id}_-limit`)، `addNewElement`، `core-efb.js` (به‌روزرسانی روی `input`، رفع 4084-4095)، `Field_Rules` (شمارش، `@n#`)، و CF7 `[count]`.

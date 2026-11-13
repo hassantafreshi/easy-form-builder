@@ -393,6 +393,49 @@ switch ( $efb_e2e_cmd ) {
 		efb_e2e_out( array( 'form_id' => $fid, 'email' => $em, 'name' => $nm, 'city' => $ph, 'password' => $pw, 'notes' => $tx, 'file' => $fl, 'row0' => $clean[0] ) );
 		break;
 
+	case 'f03-form':
+		// F03: a form whose fields are given as JSON, saved through the builder's sanitizer (and the
+		// F03 save rules). Args: <name> <json: [{key, type, name, ...field keys}]> [row-0 k=v&k=v] [steps]
+		// The field ids are fresh; the answer maps each key to its id_.
+		wp_set_current_user( 1 );
+		$name   = isset( $efb_e2e_rest[0] ) && '' !== $efb_e2e_rest[0] ? $efb_e2e_rest[0] : 'F03 form';
+		$fields = isset( $efb_e2e_rest[1] ) ? json_decode( $efb_e2e_rest[1], true ) : array();
+		$steps  = isset( $efb_e2e_rest[3] ) ? max( 1, (int) $efb_e2e_rest[3] ) : 1;
+		$rid    = function () { return substr( str_shuffle( 'abcdefghijklmnopqrstuvwxyz0123456789' ), 0, 9 ); };
+		$base = array( 'step' => 1, 'amount' => 0, 'size' => 100, 'required' => 0, 'label_text_size' => 'fs-6', 'label_position' => 'up', 'el_text_size' => 'fs-6', 'label_text_color' => 'text-labelEfb', 'el_border_color' => 'border-d', 'el_text_color' => 'text-labelEfb', 'message_text_color' => 'text-muted', 'el_height' => 'h-d-efb', 'label_align' => 'txt-left', 'message_align' => 'justify-content-start', 'el_align' => 'justify-content-start', 'classes' => '', 'message' => '', 'placeholder' => '', 'value' => '', 'icon_input' => '' );
+		$row0 = array( 'type' => 'form', 'steps' => $steps, 'formName' => $name, 'email' => 'owner@example.test', 'trackingCode' => '1', 'EfbVersion' => 2, 'button_single_text' => 'Send', 'button_Next_text' => 'Next', 'button_Previous_text' => 'Previous', 'button_Next_icon' => 'bi-chevron-right', 'button_Previous_icon' => 'bi-chevron-left', 'button_color' => 'btn-darkb', 'icon' => 'bi-ui-checks-grid', 'button_state' => 'single', 'email_to' => '', 'show_icon' => '1', 'captcha' => '', 'sendEmail' => '1', 'stateForm' => 0, 'thank_you' => 'msg', 'thank_you_message' => array( 'icon' => 'bi-hand-thumbs-up', 'thankYou' => 'Thank you', 'done' => 'Done', 'trackingCode' => 'Confirmation Code', 'pleaseFillInRequiredFields' => 'Please fill in all required fields.' ), 'dShowBg' => '1', 'btns_align' => 'justify-content-center', 'label_text_color' => 'text-labelEfb', 'el_text_color' => 'text-labelEfb', 'message_text_color' => 'text-muted', 'icon_color' => 'text-white', 'el_height' => 'h-d-efb' );
+		$step = function ( $n ) { return array( 'id_' => (string) $n, 'type' => 'step', 'dataId' => (string) $n, 'classes' => '', 'id' => (string) $n, 'name' => 'Step ' . $n, 'icon' => 'bi-ui-checks-grid', 'step' => $n, 'amount' => $n === 1 ? 1 : 100, 'EfbVersion' => 2, 'message' => '', 'label_text_size' => 'fs-5', 'el_text_size' => 'fs-5', 'label_text_color' => 'text-darkb', 'el_text_color' => 'text-labelEfb', 'message_text_color' => 'text-muted', 'icon_color' => 'text-darkb', 'visible' => 1 ); };
+		$rows = array( $row0, $step( 1 ) );
+		$ids  = array();
+		$amount = 2;
+		foreach ( (array) $fields as $fd ) {
+			if ( ! is_array( $fd ) ) continue;
+			$id = $rid();
+			$key = isset( $fd['key'] ) ? (string) $fd['key'] : $id;
+			unset( $fd['key'] );
+			$st = isset( $fd['step'] ) ? (int) $fd['step'] : 1;
+			if ( $st > 1 && ! in_array( $st, array_column( array_filter( $rows, function ( $r ) { return isset( $r['type'] ) && 'step' === $r['type']; } ), 'step' ), true ) ) $rows[] = $step( $st );
+			$type = isset( $fd['type'] ) ? $fd['type'] : 'text';
+			$rows[] = array_merge( $base, array( 'id_' => $id, 'dataId' => $id . '-id', 'type' => $type, 'elementId' => $type, 'name' => $key, 'amount' => $amount++ ), $fd );
+			$ids[ $key ] = $id;
+			if ( 'email' === $type && '' === $rows[0]['email_to'] ) $rows[0]['email_to'] = $id;
+		}
+		if ( isset( $efb_e2e_rest[2] ) && '' !== $efb_e2e_rest[2] ) {
+			foreach ( explode( '&', $efb_e2e_rest[2] ) as $kv ) {
+				list( $k, $v ) = array_pad( explode( '=', $kv, 2 ), 2, '' );
+				$rows[0][ $k ] = urldecode( $v );
+			}
+		}
+		$fn = get_efbFunction();
+		$clean = $fn->sanitize_obj_msg_efb( $rows );
+		if ( class_exists( '\Emsfb\Form_Gate' ) ) $clean = \Emsfb\Form_Gate::normalize_form_settings( $clean, null );
+		$json = str_replace( '"', '\\"', wp_json_encode( $clean, JSON_UNESCAPED_UNICODE ) );
+		$wpdb->insert( $wpdb->prefix . 'emsfb_form', array( 'form_name' => $name, 'form_structer' => $json, 'form_email' => '', 'form_type' => 'form', 'form_created_by' => '1', 'form_access_by' => '', 'form_create_date' => current_time( 'mysql' ), 'status' => 1 ) );
+		$fid = (int) $wpdb->insert_id;
+		do_action( 'efb_form_created', $fid, $clean, array( 'form_id' => $fid, 'source' => 'e2e', 'user_id' => 1 ) );
+		efb_e2e_out( array( 'form_id' => $fid, 'ids' => $ids, 'rows' => $clean ) );
+		break;
+
 	case 'f11-set':
 		// F11: change row-0 keys of a stored form (as a builder save would, through the sanitizer). Args: <form_id> <k=v&k=v>
 		wp_set_current_user( 1 );

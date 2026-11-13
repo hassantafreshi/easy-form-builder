@@ -1465,6 +1465,86 @@ function valid_password_emsFormBuilder(el) {
     return true;
   }
 }
+/* ---------------------------------------------------------------- F03 field rules (EfbRules, field-rules-efb.js) */
+
+/** The browser's part of the rules (the server decides): plan parts and the context of a field. */
+function efb_rules_ctx_efb(form_id, el) {
+  const cfg = (typeof efb_var !== 'undefined' && efb_var.field_rules) || (typeof ajax_object_efm !== 'undefined' && ajax_object_efm.field_rules) || {};
+  const structure = get_structure_by_form_id_efb(form_id) || [];
+  const emails = [];
+  structure.forEach((f) => {
+    if (!f || f.type !== 'email') return;
+    const e = efb_get_by_id_in_form_efb(form_id, `${f.id_}_`);
+    if (e && typeof e.value === 'string' && e.value.indexOf('@') > 0) emails.push(e.value.split('@')[0]);
+  });
+  const ctx = { paid: !!cfg.paid, parts: cfg.parts || {}, emails: emails, formName: structure[0] && structure[0].formName ? String(structure[0].formName) : '' };
+  if (el && el.type === 'password') {
+    const c = document.getElementById(`${el.id}confirm`);
+    if (c) ctx.confirm = c.value;
+  }
+  return ctx;
+}
+
+/** Whether the field has rules the browser checks (no EfbRules on the page: none). */
+function efb_rules_active_efb(ob, form_id) {
+  if (typeof EfbRules === 'undefined' || !ob) return false;
+  return EfbRules.hasRules(ob, efb_rules_ctx_efb(form_id));
+}
+
+/** Whether the field's length limits are checked by EfbRules (its own messages) instead of the legacy check. */
+function efb_rules_owns_length_efb(ob, form_id) {
+  if (typeof EfbRules === 'undefined' || !ob) return false;
+  return EfbRules.activeRules(ob, efb_rules_ctx_efb(form_id)).indexOf('length') !== -1;
+}
+
+/** Field-level error: the message under the field (textContent), aria-invalid and aria-describedby, announced. */
+function efb_rules_show_error_efb(el, text) {
+  if (!el) return;
+  const vd = document.getElementById(`${el.id}-message`);
+  el.className = colorBorderChangerEfb(el.className, "border-danger");
+  el.setAttribute('aria-invalid', 'true');
+  if (vd) {
+    vd.textContent = text;
+    vd.setAttribute('role', 'alert');
+    const ids = (el.getAttribute('aria-describedby') || '').split(/\s+/).filter(Boolean);
+    if (ids.indexOf(vd.id) === -1) { ids.push(vd.id); el.setAttribute('aria-describedby', ids.join(' ')); }
+    show_msg_efb(vd);
+  }
+}
+function efb_rules_clear_error_efb(el) {
+  if (!el) return;
+  el.removeAttribute('aria-invalid');
+  const vd = document.getElementById(`${el.id}-message`);
+  if (vd) {
+    const ids = (el.getAttribute('aria-describedby') || '').split(/\s+/).filter((x) => x && x !== vd.id);
+    if (ids.length) el.setAttribute('aria-describedby', ids.join(' ')); else el.removeAttribute('aria-describedby');
+    vd.removeAttribute('role');
+  }
+}
+
+/**
+ * The first failing rule of a field's value, shown at the field; true when the value passes.
+ * The same order and the same texts as Field_Rules::check() (msg_<rule> of the owner, else the default).
+ */
+function efb_rules_check_efb(el, ob, value, form_id) {
+  if (!efb_rules_active_efb(ob, form_id)) return true;
+  const err = EfbRules.firstError(ob, value, efb_rules_ctx_efb(form_id, el));
+  if (!err) { efb_rules_clear_error_efb(el); return true; }
+  const m = EfbRules.message(ob, err.rule, err.key, efb_var.text, err.n);
+  efb_rules_show_error_efb(el, m.text);
+  return false;
+}
+
+/** A server answer that names a field (field_id): the field shows the server's sentence. */
+function efb_rules_server_error_efb(form_id, field_id, m) {
+  const el = efb_get_by_id_in_form_efb(form_id, `${field_id}_`);
+  if (!el || typeof m !== 'string' || m === '') return;
+  // The server's message is escaped text plus the <b> label: read it as text (DOMParser runs no handler).
+  let text = m;
+  try { text = new DOMParser().parseFromString(m, 'text/html').body.textContent || ''; } catch (e) { text = m.replace(/<[^>]*>/g, ''); }
+  efb_rules_show_error_efb(el, text);
+}
+
 function valid_phone_emsFormBuilder(el) {
   let offsetw = offset_view_efb();
   const msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onclick="alert_message_efb('${ajax_object_efm.text.enterThePhones}','',10,'danger');"></div>` : ajax_object_efm.text.enterThePhones;
@@ -1934,6 +2014,8 @@ async function response_fill_form_efb(res ,form_id=0) {
        (by id_, or by id_ob for chlCheckBox-style fields) so the rest of the
        already-filled-in form data survives and doesn't have to be re-entered. */
     remove_sendback_rows_by_field_id_efb(res.data.field_id, form_id);
+    // F03: a field rule refused it on the server (e.g. a value already used): the field shows why.
+    if (typeof res.data.code === 'string' && res.data.code.indexOf('efb_field_') === 0) efb_rules_server_error_efb(form_id, res.data.field_id, res.data.m);
   }
   let btn_prev ='';
   const t = valj_efb_new.find(x => x.id == form_id);
@@ -4242,7 +4324,8 @@ async function handle_change_event_efb_v4(el ,form_id=0){
         value = typed_date;
       }
       {
-        let lenResult = await validate_len_efb_v4();
+        // F03: a field whose length belongs to its rules is measured by EfbRules after the switch.
+        let lenResult = efb_rules_owns_length_efb(ob, form_id) ? 1 : await validate_len_efb_v4();
         // Number inputs carry no data-type, so their Min/Max message was shown and then ignored.
         if(lenResult===0 && (el.type=="number" || (el.dataset.hasOwnProperty('type') && el.dataset.type!="chlCheckBox"))){
           sendback_state_handler_efb_v4(id_,false,0,form_id);
@@ -4407,6 +4490,14 @@ async function handle_change_event_efb_v4(el ,form_id=0){
       break;
   }
   form_id = el.dataset.hasOwnProperty('formid') ? el.dataset.formid : 0;
+  // F03: the field's own rules (words, pattern, domains, password confirm / strength, messages) after its type check.
+  if (state !== false && ob && typeof value === 'string' && value !== '' && !efb_rules_check_efb(el, ob, el.type === 'password' ? el.value : value, form_id)) {
+    sendback_state_handler_efb_v4(id_,false,0,form_id);
+    delete_by_id(id_);
+    updateStepButtonState_efb(form_id);
+    efb_reevaluate_logic_after_change_efb(form_id, el);
+    return;
+  }
   if(state===false && value.length > 0) {
     sendback_state_handler_efb_v4(id_,false,0,form_id);
   }
@@ -4591,6 +4682,19 @@ async function fun_validation_efb_v4(form_id) {
       if (typedEl && typeof typedEl.value === 'string' && typedEl.value.trim() !== '' && !valid_typed_value_efb(masked_row_efb ? 'masked' : valj_efb[row].type, typedEl)) {
         if (state == true) { state = false; idi = valj_efb[row].id_; name_field = valj_efb[row].name; }
         continue; // the field already shows its "enter a valid …" message
+      }
+    }
+    // F03: a field with rules is measured again on Next / Send (its change handler may not have run, e.g. a default value).
+    if (row > 1 && current_s_efb == valj_efb[row].step && efb_rules_active_efb(valj_efb[row], form_id)) {
+      const rulesEl = efb_get_by_id_in_form_efb(form_id, `${valj_efb[row].id_}_`);
+      if (rulesEl && typeof rulesEl.value === 'string' && rulesEl.value.trim() !== '') {
+        const sbi = get_row_sendback_by_id_efb_v4(valj_efb[row].id_, form_id);
+        const rulesVal = sbi !== -1 && sendBack_emsFormBuilder_pub[sbi] && typeof sendBack_emsFormBuilder_pub[sbi].value === 'string' && rulesEl.type !== 'password'
+          ? sendBack_emsFormBuilder_pub[sbi].value : (rulesEl.tagName === 'TEXTAREA' ? sanitize_text_efb(rulesEl.value, true) : rulesEl.value);
+        if (!efb_rules_check_efb(rulesEl, valj_efb[row], rulesVal, form_id)) {
+          if (state == true) { state = false; idi = valj_efb[row].id_; name_field = valj_efb[row].name; }
+          continue;
+        }
       }
     }
     if (row > 1 && valj_efb[row].required == true && current_s_efb == valj_efb[row].step && valj_efb[row].type != "chlCheckBox") {

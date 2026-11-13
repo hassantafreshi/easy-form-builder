@@ -428,6 +428,12 @@ class Emsfb {
         // class_exists('\Emsfb\Masks'), so a missing file only disables masks.
         $this->require_plugin_file_efb('includes/class-Emsfb-masks.php');
 
+        // Field rules (F03): unique values, words and counter, safe patterns, e-mail domains,
+        // read-only, password confirm and strength. Optional: callers check class_exists().
+        if ($this->require_plugin_file_efb('includes/class-Emsfb-field-rules.php') && method_exists('\Emsfb\Field_Rules', 'register')) {
+            \Emsfb\Field_Rules::register();
+        }
+
         // Builder API for integrations such as AutoPilot (docs/autopilot-integration.md).
         // Optional: callers check class_exists('\Emsfb\Builder_Api').
         $this->require_plugin_file_efb('includes/class-Emsfb-builder-api.php');

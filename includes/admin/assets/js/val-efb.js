@@ -1695,6 +1695,7 @@ function show_setting_window_efb(idset, opts) {
                 ${placeholderEls}
                 ${maskKindEfb !== null ? maskEls() : ''}
                 ${inputmodeTypesEfb.includes(el.dataset.tag) ? inputmodeEls() : ''}
+                ${typeof efbFieldRulesMainEls === 'function' ? efbFieldRulesMainEls(indx, idset) : '<!-- F03 field-rules-builder-efb.js not loaded -->'}
                 ${el.dataset.tag == "mobile" ? smsEnableEls : ''}
                 ${el.dataset.tag == "email" ? emailEls : ''}
                 ${el.dataset.tag == "mobile" ? ElcountriesListSelections(idset,indx) : ''}
@@ -1715,6 +1716,7 @@ function show_setting_window_efb(idset, opts) {
                         ${selectBorderColorEls('element',indx,idset)}
                         ${ el.dataset.tag != "ardate"  && el.dataset.tag != "pdate" && el.dataset.tag != "mobile" && !maskSetEfb ? miLenEls() :''}
                         ${el.dataset.tag != "textarea" && el.dataset.tag != "ardate"  && el.dataset.tag != "pdate"  && el.dataset.tag != "mobile" && !maskSetEfb ? mLenEls() :''}
+                        ${typeof efbFieldRulesAdvEls === 'function' ? efbFieldRulesAdvEls(indx, idset) : ''}
 
                         ${labelPostionEls}
     ${mobileLabelPostionEls}

@@ -4437,6 +4437,140 @@ class efbFunction {
 			"mskNumSpace" => $state && isset($ac->text->mskNumSpace) ? $ac->text->mskNumSpace : esc_html__('Space','easy-form-builder'),
 			/* translators: F01 visitor error when a formatted field is only partly filled. %s: the field label */
 			"mskIncomplete_" => $state && isset($ac->text->mskIncomplete_) ? $ac->text->mskIncomplete_ : esc_html__('Please complete the %s field.','easy-form-builder'),
+			/* translators: F03 builder switch: refuse a value that an earlier entry of this form already used */
+			"tvUnique" => $state && isset($ac->text->tvUnique) ? $ac->text->tvUnique : esc_html__('Accept each value only once','easy-form-builder'),
+			/* translators: F03 builder note under the unique switch */
+			"tvUniqueHint" => $state && isset($ac->text->tvUniqueHint) ? $ac->text->tvUniqueHint : esc_html__('Checked when the form is sent. Earlier entries are checked too.','easy-form-builder'),
+			/* translators: F03 builder switch: the field shows its default value and the visitor cannot change it */
+			"tvReadonly" => $state && isset($ac->text->tvReadonly) ? $ac->text->tvReadonly : esc_html__('Read-only','easy-form-builder'),
+			/* translators: F03 builder: short text shown before the input box, e.g. +98 or $ */
+			"tvPrefix" => $state && isset($ac->text->tvPrefix) ? $ac->text->tvPrefix : esc_html__('Prefix','easy-form-builder'),
+			/* translators: F03 builder: short text shown after the input box, e.g. kg or .com */
+			"tvSuffix" => $state && isset($ac->text->tvSuffix) ? $ac->text->tvSuffix : esc_html__('Suffix','easy-form-builder'),
+			/* translators: F03 builder: where the field description is shown */
+			"tvHelpPlace" => $state && isset($ac->text->tvHelpPlace) ? $ac->text->tvHelpPlace : esc_html__('Show the description','easy-form-builder'),
+			/* translators: F03 builder option of "Show the description" */
+			"tvHelpBelow" => $state && isset($ac->text->tvHelpBelow) ? $ac->text->tvHelpBelow : esc_html__('Below the field','easy-form-builder'),
+			/* translators: F03 builder option of "Show the description" */
+			"tvHelpAbove" => $state && isset($ac->text->tvHelpAbove) ? $ac->text->tvHelpAbove : esc_html__('Above the field','easy-form-builder'),
+			/* translators: F03 builder option of "Show the description" */
+			"tvHelpFocus" => $state && isset($ac->text->tvHelpFocus) ? $ac->text->tvHelpFocus : esc_html__('While the field is in focus','easy-form-builder'),
+			/* translators: F03 builder option of "Show the description": a small help button next to the label */
+			"tvHelpTip" => $state && isset($ac->text->tvHelpTip) ? $ac->text->tvHelpTip : esc_html__('Behind a help button','easy-form-builder'),
+			/* translators: F03 builder group title */
+			"tvWords" => $state && isset($ac->text->tvWords) ? $ac->text->tvWords : esc_html__('Word limit','easy-form-builder'),
+			/* translators: F03 builder */
+			"tvMinWords" => $state && isset($ac->text->tvMinWords) ? $ac->text->tvMinWords : esc_html__('Minimum words','easy-form-builder'),
+			/* translators: F03 builder */
+			"tvMaxWords" => $state && isset($ac->text->tvMaxWords) ? $ac->text->tvMaxWords : esc_html__('Maximum words','easy-form-builder'),
+			/* translators: F03 builder: a live counter under the field */
+			"tvCounter" => $state && isset($ac->text->tvCounter) ? $ac->text->tvCounter : esc_html__('Counter','easy-form-builder'),
+			/* translators: F03 builder counter option */
+			"tvCntNone" => $state && isset($ac->text->tvCntNone) ? $ac->text->tvCntNone : esc_html__('No counter','easy-form-builder'),
+			/* translators: F03 builder counter option */
+			"tvCntChars" => $state && isset($ac->text->tvCntChars) ? $ac->text->tvCntChars : esc_html__('Characters','easy-form-builder'),
+			/* translators: F03 builder counter option */
+			"tvCntWords" => $state && isset($ac->text->tvCntWords) ? $ac->text->tvCntWords : esc_html__('Words','easy-form-builder'),
+			/* translators: F03 builder counter style option */
+			"tvCntRemaining" => $state && isset($ac->text->tvCntRemaining) ? $ac->text->tvCntRemaining : esc_html__('Show what is left','easy-form-builder'),
+			/* translators: F03 builder counter style option */
+			"tvCntUsed" => $state && isset($ac->text->tvCntUsed) ? $ac->text->tvCntUsed : esc_html__('Show what is used','easy-form-builder'),
+			/* translators: F03 builder: a regular expression the value must match */
+			"tvPattern" => $state && isset($ac->text->tvPattern) ? $ac->text->tvPattern : esc_html__('Custom pattern (regular expression)','easy-form-builder'),
+			/* translators: F03 builder switch for the pattern */
+			"tvPatternCase" => $state && isset($ac->text->tvPatternCase) ? $ac->text->tvPatternCase : esc_html__('Ignore upper and lower case','easy-form-builder'),
+			/* translators: F03 builder switch: Persian and Arabic digits count as 0-9 for the pattern */
+			"tvPatternAscii" => $state && isset($ac->text->tvPatternAscii) ? $ac->text->tvPatternAscii : esc_html__('Treat Persian and Arabic digits as 0-9','easy-form-builder'),
+			/* translators: F03 builder: a box to try the pattern; one value per line */
+			"tvPatternTest" => $state && isset($ac->text->tvPatternTest) ? $ac->text->tvPatternTest : esc_html__('Try some values, one per line','easy-form-builder'),
+			/* translators: F03 builder note under the pattern box */
+			"tvPatternHint" => $state && isset($ac->text->tvPatternHint) ? $ac->text->tvPatternHint : esc_html__('The whole value must match. You do not need ^ or $.','easy-form-builder'),
+			/* translators: F03 builder error. %s: why the pattern cannot be used */
+			"tvPatternBad" => $state && isset($ac->text->tvPatternBad) ? $ac->text->tvPatternBad : esc_html__('This pattern cannot be used: %s','easy-form-builder'),
+			/* translators: F03 builder pattern test result for one line */
+			"tvPatternOk" => $state && isset($ac->text->tvPatternOk) ? $ac->text->tvPatternOk : esc_html__('Accepted','easy-form-builder'),
+			/* translators: F03 builder pattern test result for one line */
+			"tvPatternNo" => $state && isset($ac->text->tvPatternNo) ? $ac->text->tvPatternNo : esc_html__('Refused','easy-form-builder'),
+			/* translators: F03 builder group title */
+			"tvEmailDomains" => $state && isset($ac->text->tvEmailDomains) ? $ac->text->tvEmailDomains : esc_html__('Email domains','easy-form-builder'),
+			/* translators: F03 builder option */
+			"tvDomNone" => $state && isset($ac->text->tvDomNone) ? $ac->text->tvDomNone : esc_html__('Any domain','easy-form-builder'),
+			/* translators: F03 builder option */
+			"tvDomAllow" => $state && isset($ac->text->tvDomAllow) ? $ac->text->tvDomAllow : esc_html__('Only these domains','easy-form-builder'),
+			/* translators: F03 builder option */
+			"tvDomDeny" => $state && isset($ac->text->tvDomDeny) ? $ac->text->tvDomDeny : esc_html__('Block these domains','easy-form-builder'),
+			/* translators: F03 builder note under the domain list */
+			"tvDomHint" => $state && isset($ac->text->tvDomHint) ? $ac->text->tvDomHint : esc_html__('Separate with commas: example.com, *.edu, name@example.com','easy-form-builder'),
+			/* translators: F03 builder after normalizing the list. %1$s: accepted count, %2$s: refused count */
+			"tvDomCount" => $state && isset($ac->text->tvDomCount) ? $ac->text->tvDomCount : esc_html__('%1$s accepted, %2$s not understood','easy-form-builder'),
+			/* translators: F03 builder switch on a password field */
+			"tvPwConfirm" => $state && isset($ac->text->tvPwConfirm) ? $ac->text->tvPwConfirm : esc_html__('Ask to type the password twice','easy-form-builder'),
+			/* translators: F03 builder switch on a password field */
+			"tvPwMeter" => $state && isset($ac->text->tvPwMeter) ? $ac->text->tvPwMeter : esc_html__('Show password strength','easy-form-builder'),
+			/* translators: F03 builder select on a password field */
+			"tvPwMin" => $state && isset($ac->text->tvPwMin) ? $ac->text->tvPwMin : esc_html__('Minimum strength','easy-form-builder'),
+			/* translators: F03 builder switch on a password field */
+			"tvPwToggle" => $state && isset($ac->text->tvPwToggle) ? $ac->text->tvPwToggle : esc_html__('Show-password button','easy-form-builder'),
+			/* translators: F03 builder minimum strength option */
+			"tvPwNone" => $state && isset($ac->text->tvPwNone) ? $ac->text->tvPwNone : esc_html__('No minimum','easy-form-builder'),
+			/* translators: F03 builder group of the per-rule error messages */
+			"tvErrMsgs" => $state && isset($ac->text->tvErrMsgs) ? $ac->text->tvErrMsgs : esc_html__('Error messages','easy-form-builder'),
+			/* translators: F03 builder note. %s is written as is */
+			"tvErrMsgsHint" => $state && isset($ac->text->tvErrMsgsHint) ? $ac->text->tvErrMsgsHint : esc_html__('Leave empty to use the default message. %s is replaced by the field label.','easy-form-builder'),
+			/* translators: F03 builder progress while earlier entries are checked. %s: number of entries */
+			"tvBackfill" => $state && isset($ac->text->tvBackfill) ? $ac->text->tvBackfill : esc_html__('Checking %s earlier entries for duplicates…','easy-form-builder'),
+			/* translators: F03 builder after the check. %s: number of earlier duplicate entries found */
+			"tvBackfillDone" => $state && isset($ac->text->tvBackfillDone) ? $ac->text->tvBackfillDone : esc_html__('Earlier entries checked. Duplicates already stored: %s','easy-form-builder'),
+			/* translators: F03 visitor counter under a field. %s: number */
+			"tvCharsLeft" => $state && isset($ac->text->tvCharsLeft) ? $ac->text->tvCharsLeft : esc_html__('%s characters left','easy-form-builder'),
+			/* translators: F03 visitor counter under a field. %s: number */
+			"tvWordsLeft" => $state && isset($ac->text->tvWordsLeft) ? $ac->text->tvWordsLeft : esc_html__('%s words left','easy-form-builder'),
+			/* translators: F03 visitor counter under a field. %1$s: used, %2$s: maximum */
+			"tvCharsUsed" => $state && isset($ac->text->tvCharsUsed) ? $ac->text->tvCharsUsed : esc_html__('%1$s of %2$s characters','easy-form-builder'),
+			/* translators: F03 visitor counter under a field. %1$s: used, %2$s: maximum */
+			"tvWordsUsed" => $state && isset($ac->text->tvWordsUsed) ? $ac->text->tvWordsUsed : esc_html__('%1$s of %2$s words','easy-form-builder'),
+			/* translators: F03 hidden hint for screen readers. %s: number */
+			"tvLimitHint" => $state && isset($ac->text->tvLimitHint) ? $ac->text->tvLimitHint : esc_html__('Up to %s characters','easy-form-builder'),
+			/* translators: F03 hidden hint for screen readers. %s: number */
+			"tvLimitWordsHint" => $state && isset($ac->text->tvLimitWordsHint) ? $ac->text->tvLimitWordsHint : esc_html__('Up to %s words','easy-form-builder'),
+			/* translators: F03 button on a password field */
+			"tvPwShow" => $state && isset($ac->text->tvPwShow) ? $ac->text->tvPwShow : esc_html__('Show password','easy-form-builder'),
+			/* translators: F03 button on a password field */
+			"tvPwHide" => $state && isset($ac->text->tvPwHide) ? $ac->text->tvPwHide : esc_html__('Hide password','easy-form-builder'),
+			/* translators: F03 label of the password strength meter */
+			"tvPwStrength" => $state && isset($ac->text->tvPwStrength) ? $ac->text->tvPwStrength : esc_html__('Password strength','easy-form-builder'),
+			/* translators: F03 password strength level */
+			"tvPwWeak" => $state && isset($ac->text->tvPwWeak) ? $ac->text->tvPwWeak : esc_html__('Weak','easy-form-builder'),
+			/* translators: F03 password strength level */
+			"tvPwFair" => $state && isset($ac->text->tvPwFair) ? $ac->text->tvPwFair : esc_html__('Fair','easy-form-builder'),
+			/* translators: F03 password strength level */
+			"tvPwGood" => $state && isset($ac->text->tvPwGood) ? $ac->text->tvPwGood : esc_html__('Good','easy-form-builder'),
+			/* translators: F03 password strength level */
+			"tvPwStrong" => $state && isset($ac->text->tvPwStrong) ? $ac->text->tvPwStrong : esc_html__('Strong','easy-form-builder'),
+			/* translators: F03 label of the second password box */
+			"tvPwConfirmLbl" => $state && isset($ac->text->tvPwConfirmLbl) ? $ac->text->tvPwConfirmLbl : esc_html__('Confirm password','easy-form-builder'),
+			/* translators: F03 help button on a field. %s: the field label */
+			"tvHelpBtn" => $state && isset($ac->text->tvHelpBtn) ? $ac->text->tvHelpBtn : esc_html__('Help: %s','easy-form-builder'),
+			/* translators: F03 visitor error when the value was used in an earlier entry */
+			"tvUnique_" => $state && isset($ac->text->tvUnique_) ? $ac->text->tvUnique_ : esc_html__('This value has already been used.','easy-form-builder'),
+			/* translators: F03 visitor error. %1$s: field label, %2$s: number */
+			"tvMinLen_" => $state && isset($ac->text->tvMinLen_) ? $ac->text->tvMinLen_ : esc_html__('%1$s needs at least %2$s characters.','easy-form-builder'),
+			/* translators: F03 visitor error. %1$s: field label, %2$s: number */
+			"tvMaxLen_" => $state && isset($ac->text->tvMaxLen_) ? $ac->text->tvMaxLen_ : esc_html__('%1$s can have at most %2$s characters.','easy-form-builder'),
+			/* translators: F03 visitor error. %1$s: field label, %2$s: number */
+			"tvMinWords_" => $state && isset($ac->text->tvMinWords_) ? $ac->text->tvMinWords_ : esc_html__('%1$s needs at least %2$s words.','easy-form-builder'),
+			/* translators: F03 visitor error. %1$s: field label, %2$s: number */
+			"tvMaxWords_" => $state && isset($ac->text->tvMaxWords_) ? $ac->text->tvMaxWords_ : esc_html__('%1$s can have at most %2$s words.','easy-form-builder'),
+			/* translators: F03 visitor error. %s: field label */
+			"tvPattern_" => $state && isset($ac->text->tvPattern_) ? $ac->text->tvPattern_ : esc_html__('The %s field is not in the expected format.','easy-form-builder'),
+			/* translators: F03 visitor error */
+			"tvDomAllow_" => $state && isset($ac->text->tvDomAllow_) ? $ac->text->tvDomAllow_ : esc_html__('Please use an email address from an allowed domain.','easy-form-builder'),
+			/* translators: F03 visitor error */
+			"tvDomDeny_" => $state && isset($ac->text->tvDomDeny_) ? $ac->text->tvDomDeny_ : esc_html__('This email domain is not accepted.','easy-form-builder'),
+			/* translators: F03 visitor error */
+			"tvPwMismatch_" => $state && isset($ac->text->tvPwMismatch_) ? $ac->text->tvPwMismatch_ : esc_html__('The two passwords do not match.','easy-form-builder'),
+			/* translators: F03 visitor error */
+			"tvPwWeak_" => $state && isset($ac->text->tvPwWeak_) ? $ac->text->tvPwWeak_ : esc_html__('Please choose a stronger password.','easy-form-builder'),
 
 		];
 
@@ -4814,6 +4948,41 @@ class efbFunction {
 						} else {
 							$valp[$key][$k] = is_scalar($v) ? sanitize_text_field($v) : '';
 						}
+					break;
+					// F03 field rules (field rows): explicit cases, because a pattern needs < > " % and
+					// spaces that the default sanitize_text_field() would strip (pattern_b64 is base64url),
+					// and lists, numbers and choices are kept to what the builder offers. '' = not set.
+					case 'unique':
+					case 'unique_scope':
+					case 'wmin':
+					case 'wmax':
+					case 'counter':
+					case 'counter_style':
+					case 'pattern_b64':
+					case 'pattern_case':
+					case 'pattern_ascii':
+					case 'email_domain_mode':
+					case 'email_domains':
+					case 'readonly':
+					case 'prefix':
+					case 'suffix':
+					case 'message_place':
+					case 'pw_confirm':
+					case 'pw_meter':
+					case 'pw_toggle':
+					case 'pw_strength_min':
+					case 'pw_confirm_label':
+					case 'msg_format':
+					case 'msg_minlen':
+					case 'msg_maxlen':
+					case 'msg_words':
+					case 'msg_pattern':
+					case 'msg_unique':
+					case 'msg_domain':
+					case 'msg_mismatch':
+					case 'msg_strength':
+						if (!class_exists('\\Emsfb\\Field_Rules') && is_readable(__DIR__ . '/class-Emsfb-field-rules.php')) require_once __DIR__ . '/class-Emsfb-field-rules.php';
+						$valp[$key][$k] = class_exists('\\Emsfb\\Field_Rules') ? \Emsfb\Field_Rules::sanitize_key($k, $v) : '';
 					break;
 					// PAY00 payment field (pf_*, on the gateway field row) and payment actions (pay_act_*,
 					// row 0): allow-lists, canonical lists, plain text; never CSS or HTML. '' = not set.
