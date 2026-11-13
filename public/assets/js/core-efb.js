@@ -4909,22 +4909,27 @@ function efb_gate_locale_efb() {
   try { if (typeof ajax_object_efm !== 'undefined' && ajax_object_efm && ajax_object_efm.language) return ajax_object_efm.language; } catch (e) {}
   try { return document.documentElement.lang || ''; } catch (e) { return ''; }
 }
-/* Show the card or the form of one cached widget, as forms/session/prepare answers now. */
+/* The visitor's gate now (POST forms/gate/state: 200 with {state, code, message, next, left}; a
+ * closed form is an answer there, so the page logs no failed request and no session is made). */
+async function efb_gate_state_efb(fid) {
+  const rest = (typeof efb_request_health !== 'undefined' && efb_request_health.rest_url) ? efb_request_health.rest_url
+    : ((typeof efb_var !== 'undefined' && efb_var.rest_url) ? efb_var.rest_url + 'Emsfb/v1/' : '/wp-json/Emsfb/v1/');
+  const r = await fetch(rest + 'forms/gate/state', { method: 'POST', credentials: 'same-origin', cache: 'no-store', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ form_id: Number(fid) }) });
+  if (!r.ok) return null;
+  return r.json();
+}
+/* Show the card or the form of one cached widget, as the server answers now. */
 async function efb_gate_check_efb(fid) {
-  if (!window.EFBRuntime || typeof window.EFBRuntime.prepare !== 'function') return null;
   const card = document.getElementById('efb-gate-' + fid);
   const body = document.getElementById('body_efb_' + fid);
   if (!card) return null;
-  let state = 'open', message = '', next = 0, left = null;
-  try {
-    const v = await window.EFBRuntime.prepare(Number(fid), true);
-    if (v && v.gate) { state = v.gate.state || 'open'; if (v.gate.closes_at) next = Number(v.gate.closes_at) || 0; if (v.gate.left != null) left = Number(v.gate.left); }
-  } catch (error) {
-    if (!error || !EFB_GATE_STATES[error.code]) return null; // another refusal: the submit explains it
-    state = EFB_GATE_STATES[error.code];
-    message = error.message || '';
-    next = Number(error.reopen_at) || 0;
-  }
+  let v = null;
+  try { v = await efb_gate_state_efb(fid); } catch (e) { v = null; }
+  if (!v || typeof v.state !== 'string') return null; // no answer: the page stays as printed, the submit decides
+  const state = Object.prototype.hasOwnProperty.call(EFB_GATE_ICONS, v.state) ? v.state : 'closed';
+  const message = v.message || '';
+  const next = Number(v.next) || 0;
+  const left = v.left != null ? Number(v.left) : null;
   card.outerHTML = efb_gate_card_html_efb(state, message, fid, next, 'swap');
   if (body) body.classList.toggle('d-none', state !== 'open');
   if (left != null) {

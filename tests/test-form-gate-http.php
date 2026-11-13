@@ -44,6 +44,8 @@ t('B1 prepare: 403 efb_form_closed with the sentence', array($p['status'], $p['j
 $s = $H->submit($fid, $rows($F), array('runtime_token' => '', 'request_id' => ''), $H->prepare(0));
 t('B1 direct submit with a valid nonce: 403 efb_form_closed', array($s['status'], EfbF11Http::answer($s)['code'] ?? ''), array(403, 'efb_form_closed'));
 t('B1 nothing stored', $entries($fid), 0);
+$gs = $H->http('POST', '/wp-json/Emsfb/v1/forms/gate/state', array('form_id' => $fid));
+t('B1 forms/gate/state (cached widgets): 200 closed with the sentence, no session made', array($gs['status'], $gs['json']['state'] ?? '', $gs['json']['code'] ?? '', (bool) preg_match('/Registration closed on/', $gs['json']['message'] ?? ''), (bool) preg_match('/Cache-Control:[^\r\n]*no-(store|cache)/i', $gs['headers'])), array(200, 'closed', 'efb_form_closed', true, true));
 
 /* B2 pending */
 $F = $H->ctl('f11-form', 'F11 pending', 'sched_open=2030-06-01T09:30');

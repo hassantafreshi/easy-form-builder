@@ -1577,7 +1577,11 @@ public function check_nonce_permission_efb($request) {
 			    * cached shows the card instead of the form; a cacheable one (widget, popup, footer)
 			    * carries both and core-efb.js asks forms/session/prepare which one to show. The submit
 			    * decides again in any case. */
-			   $gate_render_efb = (class_exists('\\Emsfb\\Form_Gate') && (($valj_efb[0]->type ?? '') !== 'login')) ? \Emsfb\Form_Gate::render_gate($valj_efb[0], $this->id) : null;
+			   /* A payer coming back from the provider (?efb_pay=…, PersiaPay ?Authority=…) sees the result of
+			    * their payment, even when that payment took the last place: no card there (the submit and
+			    * payments/create are gated on the server in any case). */
+			   $gate_payment_return_efb = isset($_GET['efb_pay']) || isset($_GET['Authority']); // phpcs:ignore WordPress.Security.NonceVerification -- read-only flags
+			   $gate_render_efb = (class_exists('\\Emsfb\\Form_Gate') && (($valj_efb[0]->type ?? '') !== 'login') && !$gate_payment_return_efb) ? \Emsfb\Form_Gate::render_gate($valj_efb[0], $this->id) : null;
 			   if (isset($valj_efb[0]->draft_on) || isset($valj_efb[0]->partial_on)) self::enqueue_access_css_efb(); // F11-E/F styles
 			   if ($gate_render_efb && $gate_render_efb['card_only']) {
 					return $bootstrap_icons . "<div class='efb row pb-3 efb px-2 v4 efb-gate-wrap' data-formid='" . intval($this->id) . "'" . (is_rtl() ? " dir='rtl'" : '') . ">" . $gate_render_efb['html'] . ($efb_m ?? '') . ($s_m ?? '') . "</div>";

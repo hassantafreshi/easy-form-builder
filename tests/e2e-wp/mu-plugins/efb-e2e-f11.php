@@ -62,3 +62,16 @@ add_filter(
 	10,
 	2
 );
+/*
+ * (4) A form in a widget, footer or popup leaves the page cacheable (Cache_Compat). The e2e scenario
+ * shows such a page by switching the bypass off through the plugin's own filter emsfb_cache_bypass
+ * while the option efb_e2e_f11_cacheable is set: the gate then prints the card and the form, and
+ * the browser asks forms/session/prepare which one to show.
+ */
+add_filter(
+	'emsfb_cache_bypass',
+	static function ( $bypass ) {
+		return get_option( 'efb_e2e_f11_cacheable' ) ? false : $bypass;
+	},
+	99
+);

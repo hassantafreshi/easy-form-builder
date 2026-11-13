@@ -5,10 +5,10 @@
  *    shows the server's sentence (also when the refusal came as 403 from prepare);
  *  - request-health-efb.js treats the gate codes as final (prepare does not fall back to the
  *    page nonce, so a closed form is not "sent" by an old cached page) and passes reopen_at;
- *  - efb_gate_check_efb(): a cached widget whose card says "pending" shows the form once prepare
- *    answers open (and hides the card); a cached open form whose prepare answers 403
- *    efb_form_closed hides the form and shows the card with the sentence (role=status);
- *    places left are updated in the language's digits; another refusal leaves the page alone;
+ *  - efb_gate_check_efb(): a cached widget whose card says "pending" shows the form once
+ *    forms/gate/state answers open (and hides the card); a cached open form whose state is now
+ *    closed hides the form and shows the card with the sentence (role=status); places left are
+ *    updated in the language's digits; no answer leaves the page alone (the submit decides);
  *  - a card in "card" mode reloads the page when the form opens within a day (timer), not later.
  * Run: node tests/test-form-gate-client.js
  */
@@ -77,61 +77,63 @@ function makeDom() {
 
 async function run() {
   const gateSrc = slice('/* ---------------------------------------------------------------------------------------------\n * F11: the form gate in the page');
-  function sandbox(prepare) {
+  function sandbox(answer) {
     const D = makeDom();
     const timers = [];
     const s = {
       document: D.doc, window: { EFB_GATE_NO_BOOT: true }, location: { reloaded: 0, reload() { this.reloaded++; } },
-      setTimeout: (fn, ms) => { timers.push({ fn, ms }); return timers.length; }, Date, Number, String, Math, Object,
+      setTimeout: (fn, ms) => { timers.push({ fn, ms }); return timers.length; }, Date, Number, String, Math, Object, JSON,
       ajax_object_efm: { language: 'fa_IR', text: { limLeft: '%s جای خالی باقی مانده' } },
+      efb_request_health: { rest_url: '/wp-json/Emsfb/v1/' },
+      calls: [],
     };
-    s.window.EFBRuntime = { prepare };
+    s.fetch = async (url, init) => { s.calls.push([url, JSON.parse(init.body)]); const a = await answer(); if (a === null) throw new Error('offline'); return { ok: true, status: 200, json: async () => a }; };
     vm.createContext(s);
     vm.runInContext(gateSrc, s);
     return { s, D, timers };
   }
 
   // A cached widget printed while the form was pending; now prepare says open.
-  let calls = 0;
-  let X = sandbox(async (fid, force) => { calls++; return { nonce: 'n', sid: 's', runtime_token: 'r', gate: { state: 'open', closes_at: Math.floor(Date.now() / 1000) + 3600, left: 3 } }; });
+  const soon = Math.floor(Date.now() / 1000) + 3600;
+  let X = sandbox(async () => ({ state: 'open', code: '', message: '', next: soon, closes_at: soon, left: 3 }));
   X.D.parse(X.s.efb_gate_card_html_efb('pending', 'This form opens on …', 7, 0, 'swap'));
   const body = X.D.el('body_efb_7', {}, ['efb', 'd-none']);
   const st = await X.s.efb_gate_check_efb(7);
   t('pending card in a cached page, prepare open → form shown, card hidden', [st, body.cls.has('d-none'), X.D.nodes['efb-gate-7'].cls.has('d-none'), X.D.nodes['efb-gate-7'].attrs['data-efb-gate']], ['open', false, true, 'open']);
-  t('prepare was forced (fresh answer, not the cached context)', calls, 1);
+  t('asked forms/gate/state for this form (no session, always 200)', X.s.calls, [['/wp-json/Emsfb/v1/forms/gate/state', { form_id: 7 }]]);
   t('places left inserted in Persian digits, aria-live', [X.D.nodes['efb-gate-left-7'] && X.D.nodes['efb-gate-left-7'].html.indexOf('۳ جای خالی باقی مانده') !== -1, X.D.nodes['efb-gate-left-7'].attrs['aria-live']], [true, 'polite']);
   t('a timer is set for the close within the hour (swap mode → prepare again)', X.timers.length === 1 && X.timers[0].ms > 3500000 && X.timers[0].ms < 3700000, true);
 
   // A cached open form; now prepare refuses with efb_form_closed.
-  X = sandbox(async () => { const e = new Error('This form closed on ۱۳ نوامبر.'); e.code = 'efb_form_closed'; e.status = 403; throw e; });
+  X = sandbox(async () => ({ state: 'closed', code: 'efb_form_closed', message: 'This form closed on ۱۳ نوامبر.', next: null }));
   X.D.parse(X.s.efb_gate_card_html_efb('open', '', 8, 0, 'swap'));
   const body8 = X.D.el('body_efb_8', {}, ['efb']);
   await X.s.efb_gate_check_efb(8);
   const card8 = X.D.nodes['efb-gate-8'];
-  t('cached open form, prepare 403 closed → form hidden, card shown with the sentence, role=status', [body8.cls.has('d-none'), card8.cls.has('d-none'), card8.attrs['data-efb-gate'], card8.attrs.role, card8.html.indexOf('This form closed on ۱۳ نوامبر.') !== -1], [true, false, 'closed', 'status', true]);
+  t('cached open form, state now closed → form hidden, card shown with the sentence, role=status', [body8.cls.has('d-none'), card8.cls.has('d-none'), card8.attrs['data-efb-gate'], card8.attrs.role, card8.html.indexOf('This form closed on ۱۳ نوامبر.') !== -1], [true, false, 'closed', 'status', true]);
   t('the closed card has no timer (no reopening)', X.timers.length, 0);
 
   // A limited visitor: reopen_at tomorrow → timer.
-  X = sandbox(async () => { const e = new Error('You can send this form again after …'); e.code = 'efb_limit_reached'; e.reopen_at = Math.floor(Date.now() / 1000) + 7200; throw e; });
+  X = sandbox(async () => ({ state: 'limited', code: 'efb_limit_reached', message: 'You can send this form again after …', next: Math.floor(Date.now() / 1000) + 7200 }));
   X.D.parse(X.s.efb_gate_card_html_efb('open', '', 9, 0, 'swap'));
   X.D.el('body_efb_9', {}, ['efb']);
   await X.s.efb_gate_check_efb(9);
   t('limited: card state limited, timer at reopen_at', [X.D.nodes['efb-gate-9'].attrs['data-efb-gate'], X.timers.length], ['limited', 1]);
 
-  // Another refusal (network, nonce) leaves the page as printed.
-  X = sandbox(async () => { const e = new Error('offline'); e.code = 'efb_context_expired'; throw e; });
+  // No answer (network) leaves the page as printed.
+  X = sandbox(async () => null);
   X.D.parse(X.s.efb_gate_card_html_efb('open', '', 10, 0, 'swap'));
   const body10 = X.D.el('body_efb_10', {}, ['efb']);
-  t('another refusal: nothing changes', [await X.s.efb_gate_check_efb(10), body10.cls.has('d-none')], [null, false]);
+  t('no answer: nothing changes', [await X.s.efb_gate_check_efb(10), body10.cls.has('d-none')], [null, false]);
 
   // Card mode (page not cached): reload when the form opens within a day.
-  X = sandbox(async () => ({}));
+  X = sandbox(async () => ({ state: 'pending' }));
   X.D.parse(X.s.efb_gate_card_html_efb('pending', 'opens soon', 11, Math.floor(Date.now() / 1000) + 600, 'card'));
   X.s.efb_gate_boot_efb(X.D.doc);
   t('card mode: a reload timer for an opening in 10 minutes', X.timers.length === 1 && X.timers[0].ms > 590000 && X.timers[0].ms < 610000, true);
   X.timers[0].fn();
   t('the timer reloads the page', X.s.location.reloaded, 1);
-  X = sandbox(async () => ({}));
+  X = sandbox(async () => ({ state: 'pending' }));
   X.D.parse(X.s.efb_gate_card_html_efb('pending', 'opens later', 12, Math.floor(Date.now() / 1000) + 3 * 86400, 'card'));
   X.s.efb_gate_boot_efb(X.D.doc);
   t('card mode: no timer for an opening in 3 days', X.timers.length, 0);

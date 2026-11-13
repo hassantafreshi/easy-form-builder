@@ -791,6 +791,28 @@ class Form_Gate {
 			'callback'            => array(__CLASS__, 'rest_status'),
 			'permission_callback' => array(__CLASS__, 'rest_can'),
 		));
+		// The visitor's gate of a cached widget or popup: always 200 (a closed form is an answer, not an
+		// error), no session is created. prepare and the submit still refuse with 403 and the codes.
+		register_rest_route('Emsfb/v1', 'forms/gate/state', array(
+			'methods'             => 'POST',
+			'callback'            => array(__CLASS__, 'rest_visitor_state'),
+			'permission_callback' => '__return_true',
+		));
+	}
+
+	/** POST forms/gate/state {form_id}: {state, code, message, next, closes_at, left?} for this visitor. */
+	public static function rest_visitor_state($r) {
+		if (function_exists('nocache_headers')) nocache_headers();
+		if (!class_exists('\\Emsfb\\Request_Health') || !Request_Health::same_origin()) return new \WP_REST_Response(array('code' => 'efb_origin_denied', 'message' => 'Same origin required.'), 403);
+		$j = $r->get_json_params();
+		$fid = is_array($j) && isset($j['form_id']) && is_scalar($j['form_id']) ? (int) $j['form_id'] : 0;
+		$rows = $fid > 0 && class_exists('\\Emsfb\\Payments\\Service') ? \Emsfb\Payments\Service::form_rows($fid) : null;
+		if (!is_array($rows) || !isset($rows[0]) || !is_array($rows[0])) return new \WP_REST_Response(array('code' => 'efb_form_missing', 'message' => 'Form not found.'), 404);
+		$cfg = self::cfg($rows[0]);
+		$st = self::state($rows[0], self::context($fid));
+		$out = array('state' => $st['state'], 'code' => $st['code'], 'message' => $st['state'] === 'open' ? '' : self::message($st, $cfg), 'next' => $st['next'], 'closes_at' => $st['closes_at']);
+		if ($cfg['show_left'] && $cfg['total'] > 0 && $st['left'] !== null) $out['left'] = (int) $st['left'];
+		return new \WP_REST_Response($out, 200);
 	}
 
 	public static function rest_can() {

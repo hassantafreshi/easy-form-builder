@@ -2010,6 +2010,9 @@ require('./scenario-tap-lang.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, SHAR
 /* PAY00 payment readiness (a form that cannot take payment): tests/e2e-wp/scenario-readiness.js. */
 require('./scenario-readiness.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewForm, addTile, closePanel });
 
+/* F11 form limits, schedule, roles, save and resume, partial answers, custom CSS, popup: tests/e2e-wp/scenario-f11.js. */
+require('./scenario-f11.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewForm, addTile, closePanel });
+
 /* ---------------------------------------------------------------------------------------------
  * main
  * ------------------------------------------------------------------------------------------- */
