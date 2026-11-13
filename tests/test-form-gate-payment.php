@@ -141,5 +141,13 @@ $retry = substr($src, strpos($src, 'public static function retry('));
 t('Service::retry() asks efb_payment_retry_gate before Store::insert', strpos($retry, "apply_filters( 'efb_payment_retry_gate'") !== false && strpos($retry, "apply_filters( 'efb_payment_retry_gate'") < strpos($retry, 'Store::insert('), true);
 t('Service::message() shows the gate sentence for the five codes', array(\Emsfb\Payments\Service::message('efb_form_full', array('visitor' => 'Full.')), \Emsfb\Payments\Service::message('efb_role_denied', array('visitor' => 'No.'))), array('Full.', 'No.'));
 
+/* 7: the legacy gateway routes that store the pending entry themselves are gated too */
+$pub = file_get_contents(__DIR__ . '/../includes/class-Emsfb-public.php');
+foreach (array('pay_stripe_sub_Emsfb_api' => 'StripePayment', 'pay_paypal_sub_Emsfb_api' => 'handle_create_payment(', 'pay_persia_sub_Emsfb_api' => 'pay_persia_sub_Emsfb_api($data_POST_ ,$this)') as $fn => $delegate) {
+	$body = substr($pub, strpos($pub, 'public function ' . $fn . '('));
+	$body = substr($body, 0, strpos($body, "\n\t}\n"));
+	t("legacy route {$fn}() runs the gate before it stores anything", strpos($body, 'gate_prepare_for_endpoint_efb(') !== false && strpos($body, 'gate_prepare_for_endpoint_efb(') < strpos($body, $delegate), true);
+}
+
 echo "\nRESULTS: {$passed} passed, {$failed} failed\n";
 exit($failed ? 1 : 0);

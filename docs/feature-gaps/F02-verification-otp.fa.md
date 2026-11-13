@@ -398,6 +398,8 @@ CREATE TABLE {$wpdb->prefix}emsfb_vrfy_rl_ (
 - **مهاجرت:** هر دو `CREATE` در `Install::install()` و **همچنین** در `Install::upgrade_schema()` قرار بگیرند. در `upgrade_schema()` باید **پیش از** `return $applied;` زودهنگام خط 280 بیایند، که وقتی `emsfb_stts_` نیست برمی‌گردد. `EMSFB_DB_VERSION` به `1.4` برسد تا `maybe_upgrade_schema_efb` (`class-Emsfb.php:181`) روی سایت‌های موجود اجرا شود. یک سند تاریخ‌دار در `docs/migrations/` به قالب جدول‌های موجود نوشته شود. پیش از هر کوئری، اگر جدول نبود (`SHOW TABLES LIKE`)، `send` با 503 `efb_verify_unavailable` جواب بدهد (fail-closed).
 
 ### 5.4 محدودیت اتمیک
+> **وضعیت (۲۰۲۶-۱۱-۱۳، F11):** جدول `emsfb_vrfy_rl_` (با `KEY scope`) و کلاس مشترک `Emsfb\Rate_Limit` (`includes/class-Emsfb-rate-limit.php`: `hit()`، `reserve()`، `release()`، `peek()`، `cleanup()`، `key()`) ساخته شده‌اند؛ `Verification::hit()` باید همین را صدا بزند. SQL عمداً قابل‌حمل است (`INSERT IGNORE` + `UPDATE … WHERE hits < limit`، بدون `LAST_INSERT_ID(expr)`) و `hit()` درخواست ردشده را نمی‌شمارد.
+
 ```php
 /** True when the bucket is still under $limit after this hit. */
 private static function hit(string $scope, string $key, int $window, int $limit): bool {

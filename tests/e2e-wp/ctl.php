@@ -79,7 +79,7 @@ global $wpdb;
 switch ( $efb_e2e_cmd ) {
 	case 'wipe':
 		$dropped = array();
-		foreach ( array( 'emsfb_form', 'emsfb_msg_', 'emsfb_rsp_', 'emsfb_setting', 'emsfb_stts_', 'emsfb_pmt_', 'emsfb_pmt_evt_', 'emsfb_pmt_rfd_', 'emsfb_coupon_' ) as $t ) {
+		foreach ( array( 'emsfb_form', 'emsfb_msg_', 'emsfb_rsp_', 'emsfb_setting', 'emsfb_stts_', 'emsfb_pmt_', 'emsfb_pmt_evt_', 'emsfb_pmt_rfd_', 'emsfb_coupon_', 'emsfb_vrfy_rl_', 'emsfb_draft_' ) as $t ) {
 			$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}{$t}" ); // phpcs:ignore
 			$dropped[] = $wpdb->prefix . $t;
 		}

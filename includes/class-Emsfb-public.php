@@ -7956,6 +7956,9 @@ public function check_nonce_permission_efb($request) {
 		}
 
 		require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/persiapay/zarinpal.php");
+		// F11: the legacy PersiaPay route stores the pending entry itself (insert_message_db): same gate, same places.
+		$gate_req_efb = is_object( $data_POST_ ) && method_exists( $data_POST_, 'get_json_params' ) ? $data_POST_->get_json_params() : array();
+		$this->gate_prepare_for_endpoint_efb( is_array( $gate_req_efb ) && isset( $gate_req_efb['id'] ) && is_scalar( $gate_req_efb['id'] ) ? (int) $gate_req_efb['id'] : 0 );
 		$persiapay = new zarinPalEFB() ;
 		if(gettype($persiapay)=="object"){
 			$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  get_setting_Emsfb('raw');
@@ -10560,6 +10563,9 @@ public function check_nonce_permission_efb($request) {
 		require_once $handler_path;
 		$paypal_setting = is_object( $this->setting ) ? $this->setting : get_setting_Emsfb( 'decoded' );
 		$handler = new PaypalHandler( $paypal_setting );
+		// F11: the legacy PayPal route stores the pending entry itself (insert_message_db): same gate, same places.
+		$gate_req_efb = is_object( $data_POST_ ) && method_exists( $data_POST_, 'get_json_params' ) ? $data_POST_->get_json_params() : array();
+		$this->gate_prepare_for_endpoint_efb( is_array( $gate_req_efb ) && isset( $gate_req_efb['id'] ) && is_scalar( $gate_req_efb['id'] ) ? (int) $gate_req_efb['id'] : 0 );
 		// error_log('[EFB][PayPal][PUBLIC] pay_paypal_sub_Emsfb_api: handler loaded, delegating create payment.');
 		$handler->handle_create_payment( $data_POST_, $this );
 	}

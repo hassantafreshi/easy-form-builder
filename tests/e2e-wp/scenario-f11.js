@@ -80,7 +80,7 @@ module.exports = function (S) {
     await admin.fill('#limFullMsgEl', 'We are full, sorry.'); await admin.dispatchEvent('#limFullMsgEl', 'change');
     await sleep(300);
     const saved = admin.waitForResponse((x) => /admin-ajax\.php/.test(x.url()) && x.request().method() === 'POST' && /add_form_Emsfb|update_form_Emsfb/.test(x.request().postData() || ''), { timeout: 20000 }).catch(() => null);
-    await admin.click("a[onclick=\"saveFormEfb(1)\"]");
+    await admin.evaluate(() => saveFormEfb(1)); // the settings panel can cover the link while it slides
     const sres = await saved;
     const ans = sres ? await sres.json() : {};
     await sleep(800);
@@ -253,7 +253,7 @@ module.exports = function (S) {
     const prev = await admin.evaluate(() => ({ css: (document.getElementById('efb-custom-css-preview') || {}).textContent || '', note: document.getElementById('customCssDroppedEl').textContent }));
     R.check('f11g: live preview scoped to the canvas; the javascript: rule removed and counted', prev.css.indexOf('#dropZoneEFB .efb label') !== -1 && prev.css.indexOf('javascript') === -1 && /1 rules were removed/.test(prev.note), prev);
     const saved = admin.waitForResponse((x) => /admin-ajax\.php/.test(x.url()) && /add_form_Emsfb|update_form_Emsfb/.test(x.request().postData() || ''), { timeout: 20000 }).catch(() => null);
-    await admin.click("a[onclick=\"saveFormEfb(1)\"]");
+    await admin.evaluate(() => saveFormEfb(1)); // the settings panel can cover the link while it slides
     await saved;
     await sleep(800);
     const fid = await admin.evaluate(() => Number(form_ID_emsFormBuilder));
