@@ -476,6 +476,10 @@ class Admin {
             list($valp, $upload_warn_efb) = \Emsfb\Uploads::normalize_rows($valp, $old_rows_efb);
             $save_warnings_efb = array_merge($save_warnings_efb, $upload_warn_efb);
         }
+        // F08: a tag in the redirect host, an answer from a later step, a hidden value that stores personal data; never refuses.
+        if (is_array($valp) && class_exists('\\Emsfb\\Smart_Tags')) {
+        	$save_warnings_efb = array_merge(isset($save_warnings_efb) ? $save_warnings_efb : array(), \Emsfb\Smart_Tags::form_warnings_text($valp, isset($lang) && is_array($lang) ? $lang : array()));
+        }
         $form_type = $valp[0]['type'];
 		$value =json_encode($valp,JSON_UNESCAPED_UNICODE);
         $value_ =str_replace('"', '\"', $value);

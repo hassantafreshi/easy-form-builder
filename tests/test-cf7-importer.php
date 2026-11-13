@@ -315,7 +315,18 @@ efb_cf7t( 'file: mixed types → All formats, reported', 'allformat' === $f[2]['
 efb_cf7t( 'file: no options → CF7\'s 1 MB, All formats, no note', '1' === $f[3]['max_fsize'] && 'allformat' === $f[3]['file'] && ! efb_cf7t_notes_match( $m, '“Any”' ) );
 
 $m = efb_cf7t_map( '<label>Name [text name]</label>[hidden ref "abc"]' );
-efb_cf7t( 'hidden: no field, reported', 1 === count( efb_cf7t_fields( $m ) ) && efb_cf7t_notes_match( $m, 'hidden field “ref”' ) );
+$f = efb_cf7t_fields( $m );
+efb_cf7t( 'F08 hidden: a hidden field with its fixed value, no note', 2 === count( $f ) && 'hiddenField' === $f[1]['type'] && 'abc' === $f[1]['value'] && 'ref' === $f[1]['name'] && ! isset( $f[1]['required'] ) && empty( $m['notes'] ), $m );
+$m = efb_cf7t_map( '[hidden src default:get][hidden who default:user_email][hidden pg default:post_title "x"]' );
+$f = efb_cf7t_fields( $m );
+efb_cf7t( 'F08 hidden default:get → {get:src}; default:user_email → {user:email}', '{get:src}' === $f[0]['value'] && '{user:email}' === $f[1]['value'], $f );
+efb_cf7t( 'F08 hidden from an unmapped source keeps its fixed value and is reported', 'x' === $f[2]['value'] && efb_cf7t_notes_match( $m, 'hidden field “pg”' ), $m );
+$m = efb_cf7t_map( '<label>E-mail [email your-email default:user_email]</label><label>Plan [text plan default:get]</label><label>Name [text name default:get]</label><label>Size [select size default:get "S" "M"]</label><label>Who [text who default:user_display_name]</label>' );
+$f = efb_cf7t_fields( $m );
+efb_cf7t( 'F08 default:user_email → {user:email} in the default value', '{user:email}' === $f[0]['value'], $f[0] );
+efb_cf7t( 'F08 default:get → the field\'s URL prefill key (its CF7 name)', 'plan' === ( $f[1]['prefill_key'] ?? '' ) && 'size' === ( $f[3]['prefill_key'] ?? '' ), $f );
+efb_cf7t( 'F08 default:get on a name WordPress reserves (name) is reported, not used', ! isset( $f[2]['prefill_key'] ) && efb_cf7t_notes_match( $m, '“Name” filled itself in' ), $m );
+efb_cf7t( 'F08 default:user_display_name → {user:display_name}; mapped sources leave no note', '{user:display_name}' === $f[4]['value'] && ! efb_cf7t_notes_match( $m, '“Plan” filled itself in' ) && ! efb_cf7t_notes_match( $m, '“E-mail” filled itself in' ), $m );
 
 $m = efb_cf7t_map( '<p>Type the code: [captchac c1] [captchar c1]</p>[recaptcha]' );
 efb_cf7t( 'captchac/captchar/recaptcha: no field, one note, label text consumed', empty( efb_cf7t_fields( $m ) ) && 1 === count( array_filter( $m['notes'], function ( $n ) { return false !== stripos( $n, 'CAPTCHA was not carried over' ); } ) ) );

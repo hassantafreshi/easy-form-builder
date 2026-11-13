@@ -249,6 +249,8 @@
     if (adErrs.length) throw failAdvdate(adErrs);
     var upErrs = uploadCheck(next, 0);
     if (upErrs.length) throw failUpload(upErrs);
+    var stErrs = smartCheck(next, 0, next);
+    if (stErrs.length) throw failSmart(stErrs);
     if (typeof efbNormalizeOrderEfb === 'function') efbNormalizeOrderEfb(next);
     valj_efb = next;
     if (typeof form_type_emsFormBuilder !== 'undefined') form_type_emsFormBuilder = next[0].type;
@@ -273,6 +275,8 @@
     if (adErrs.length) throw failAdvdate(adErrs);
     var upErrs = uploadCheck(add, 0, true);
     if (upErrs.length) throw failUpload(upErrs);
+    var stErrs = smartCheck(add, 0, list.concat(add), true);
+    if (stErrs.length) throw failSmart(stErrs);
     if (items && items.formPatch && typeof items.formPatch === 'object') {
       var fpErrs = uploadCheck([items.formPatch], 0);
       if (fpErrs.length) throw failUpload(fpErrs);
@@ -787,6 +791,113 @@
     if (values.file_store === 'media' && cap['setting:upload_media'] && cap['setting:upload_media'].available_now === false) gated.push('file_store');
     return { changed: Object.keys(values), values: values, plan: gated };
   }
+  /**
+   * F08: hidden fields, smart tags and prefill keys with the save rules (EFBSmart = Emsfb\Smart_Tags):
+   * hiddenField needs a scalar value (a template, at most 500 characters, no unknown namespace: smart_invalid
+   * with the path); hdn_visitor_mail / prefill_lock "1" or nothing; prefill_key [A-Za-z0-9_-]{1,40}, not a
+   * WordPress query variable, only on the types an address may fill (smart_prefill), once per form
+   * (smart_prefill_dup); st_uses is the server's (dropped from row 0). Rows are rewritten with the stored values.
+   */
+  function smartCheck(items, offset, all, noRow0) {
+    var S = window.EFBSmart;
+    var out = [];
+    if (!S) return out;
+    var keys = {};
+    (all || []).forEach(function (r) { if (r && typeof r.prefill_key === 'string' && r.prefill_key !== '' && (items || []).indexOf(r) === -1) keys[r.prefill_key.toLowerCase()] = r.id_; });
+    (items || []).forEach(function (r, i) {
+      if (!r || typeof r !== 'object') return;
+      var path = 'rows[' + (i + (offset || 0)) + '].';
+      // st_uses is the server's (computed on save): a copy in row 0 is dropped, never trusted.
+      if (i === 0 && !noRow0 && r.st_uses !== undefined) delete r.st_uses;
+      if (r.type === 'hiddenField') {
+        if (r.value !== undefined && typeof r.value !== 'string' && typeof r.value !== 'number') { out.push({ code: 'smart_invalid', path: path + 'value', key: 'value', field: r.id_ }); return; }
+        var raw = String(r.value === undefined ? '' : r.value);
+        var clean = S.cleanTemplate(raw);
+        var unknown = (raw.match(/\{([a-z][a-z0-9_]{0,15}):[^{}]{0,200}\}/g) || []).filter(function (u) { return S.NS.indexOf(/^\{([a-z][a-z0-9_]*)/.exec(u)[1]) === -1; });
+        if (unknown.length || Array.from(raw).length > S.MAX) { out.push({ code: 'smart_invalid', path: path + 'value', key: 'value', field: r.id_, reason: unknown.length ? 'unknown_tag' : 'too_long', stored: clean }); return; }
+        r.value = clean;
+        delete r.required;
+      }
+      ['hdn_visitor_mail', 'prefill_lock'].forEach(function (k) {
+        if (r[k] === undefined || r[k] === '' || r[k] === null) return;
+        var sv = S.sanitizeKey(k, r[k]);
+        if (sv === '') out.push({ code: 'smart_invalid', path: path + k, key: k, field: r.id_ }); else r[k] = sv;
+      });
+      if (r.prefill_key !== undefined && r.prefill_key !== '' && r.prefill_key !== null) {
+        var pk = S.sanitizeKey('prefill_key', r.prefill_key);
+        if (pk === '' || S.PREFILL_TYPES.indexOf(r.type) === -1) { out.push({ code: 'smart_prefill', path: path + 'prefill_key', key: 'prefill_key', field: r.id_, reason: pk === '' ? (S.RESERVED_KEYS.indexOf(String(r.prefill_key).toLowerCase()) !== -1 ? 'reserved' : 'invalid') : 'type' }); return; }
+        if (keys[pk.toLowerCase()] && keys[pk.toLowerCase()] !== r.id_) { out.push({ code: 'smart_prefill_dup', path: path + 'prefill_key', key: 'prefill_key', field: r.id_, other: keys[pk.toLowerCase()] }); return; }
+        keys[pk.toLowerCase()] = r.id_;
+        r.prefill_key = pk;
+      }
+    });
+    return out;
+  }
+  function failSmart(errs) {
+    var e0 = errs[0];
+    var e = fail(e0.code, e0.code === 'smart_prefill_dup' ? 'Another field (' + e0.other + ') already uses this prefill key (' + e0.path + ')' : 'This value cannot be used for ' + e0.key + ' (' + e0.path + ')');
+    e.path = e0.path; e.errors = errs; if (e0.reason) e.reason = e0.reason;
+    return e;
+  }
+  /**
+   * F08: change a hidden field (by id_ or dataId): setHiddenField('utm', {value: '{get:utm_source}', hdn_visitor_mail: ''})
+   * or a preset name: setHiddenField('utm', {preset: 'utm_campaign'}) / {preset: 'param', param: 'ref_code'}.
+   * Throws unknown_field, invalid_setting (a key that is not value / preset / param / hdn_visitor_mail / name /
+   * prefill_key) or the codes of smartCheck. Returns {id, value}.
+   */
+  function setHiddenField(id, patch, opts) {
+    var S = window.EFBSmart;
+    if (!S) throw fail('builder_not_ready', 'The smart-tag rules (smart-tags-efb.js) are not loaded.');
+    var list = rows();
+    var idx = fieldIndex(list, String(id));
+    if (idx < 0) idx = list.findIndex(function (r, i) { return i > 0 && r && r.dataId === String(id); });
+    if (idx < 1 || list[idx].type !== 'hiddenField') throw fail('unknown_field', 'No hidden field with id ' + id + '.');
+    if (!patch || typeof patch !== 'object' || Array.isArray(patch)) throw fail('invalid_setting', 'setHiddenField() needs an object.');
+    var next = clone(list[idx]);
+    Object.keys(patch).forEach(function (k) {
+      if (['value', 'preset', 'param', 'hdn_visitor_mail', 'name', 'prefill_key'].indexOf(k) === -1) throw fail('invalid_setting', 'key ' + k + ' is not a hidden-field key.');
+    });
+    if (patch.preset !== undefined) {
+      if (!Object.prototype.hasOwnProperty.call(S.PRESETS, patch.preset)) throw fail('invalid_setting', 'unknown preset ' + patch.preset + '.');
+      var tpl = S.PRESETS[patch.preset];
+      if (tpl.indexOf('<name>') !== -1) {
+        if (!/^[A-Za-z0-9_\-[\].]{1,64}$/.test(String(patch.param || ''))) throw fail('invalid_setting', 'preset ' + patch.preset + ' needs param (a parameter or cookie name).');
+        tpl = tpl.replace('<name>', String(patch.param));
+      }
+      next.value = patch.preset === 'static' ? String(patch.value || '') : tpl;
+    } else if (patch.value !== undefined) next.value = patch.value;
+    if (patch.name !== undefined) next.name = String(patch.name);
+    if (patch.hdn_visitor_mail !== undefined) { if (patch.hdn_visitor_mail === '' || patch.hdn_visitor_mail === false || patch.hdn_visitor_mail === 0) delete next.hdn_visitor_mail; else next.hdn_visitor_mail = patch.hdn_visitor_mail; }
+    if (patch.prefill_key !== undefined) { if (patch.prefill_key === '' || patch.prefill_key === null) delete next.prefill_key; else next.prefill_key = patch.prefill_key; }
+    var errs = smartCheck([next], idx, list, true);
+    if (errs.length) throw failSmart(errs);
+    list[idx] = next;
+    persist();
+    apiChanged('setHiddenField', [next.id_]);
+    if (!opts || opts.refresh !== false) { try { refreshSettingsPanel(); } catch (e) {} }
+    return { id: next.id_, value: next.value };
+  }
+  /** F08: the URL prefill key of a field: setPrefill('email', 'email', {lock: true}); setPrefill('email', '') removes it. */
+  function setPrefill(id, key, o) {
+    var S = window.EFBSmart;
+    if (!S) throw fail('builder_not_ready', 'The smart-tag rules (smart-tags-efb.js) are not loaded.');
+    var list = rows();
+    var idx = fieldIndex(list, String(id));
+    if (idx < 0) idx = list.findIndex(function (r, i) { return i > 0 && r && r.dataId === String(id); });
+    if (idx < 1) throw fail('unknown_field', 'No field with id ' + id + '.');
+    var next = clone(list[idx]);
+    if (key === '' || key === null || key === undefined) { delete next.prefill_key; delete next.prefill_lock; }
+    else {
+      next.prefill_key = key;
+      if (o && o.lock !== undefined) { if (o.lock) next.prefill_lock = '1'; else delete next.prefill_lock; }
+    }
+    var errs = smartCheck([next], idx, list, true);
+    if (errs.length) throw failSmart(errs);
+    list[idx] = next;
+    persist();
+    apiChanged('setPrefill', [next.id_]);
+    return { id: next.id_, prefill_key: next.prefill_key || '', prefill_lock: next.prefill_lock || '' };
+  }
   function failRules(errs) {
     var e = fail('pattern_invalid', 'This pattern cannot be used: ' + errs[0].reason + ' (' + errs[0].path + ')');
     e.path = errs[0].path; e.reason = errs[0].reason; e.pos = errs[0].pos;
@@ -913,6 +1024,8 @@
     rollbackDateField: rollbackDateField,
     setVerification: setVerification,
     setUploadConfig: setUploadConfig,
+    setHiddenField: setHiddenField,
+    setPrefill: setPrefill,
     formGate: formGate,
     newItems: newItems,
     setFormType: setFormType,

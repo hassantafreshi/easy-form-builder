@@ -39,6 +39,7 @@ class Mapper {
 		'file'        => 'file',
 		'trmCheckbox' => 'trmCheckbox',
 		'heading'     => 'heading',
+		'hiddenField' => 'hiddenField',
 	);
 
 	/** EFB upload presets and the extensions each accepts (Upload_Guard). */
@@ -700,13 +701,8 @@ class Mapper {
 				);
 				return;
 			case 'hidden':
-				$this->note(
-					sprintf(
-						/* translators: %s: the field name in Contact Form 7 */
-						__( 'The hidden field “%s” was not carried over: Easy Form Builder has no hidden field.', 'easy-form-builder' ),
-						$tag['name']
-					)
-				);
+				// F08: [hidden name "fixed"] keeps its value; default:get / default:user_* become smart tags.
+				$this->map_hidden( $tag );
 				return;
 			case 'captchac':
 			case 'captchar':
@@ -787,7 +783,7 @@ class Mapper {
 			$field['mlen'] = (string) $max;
 		}
 
-		$this->dynamic_default_note( $tag, $label );
+		$this->dynamic_default_note( $tag, $label, $field );
 		$this->readonly_note( $tag, $label, $field );
 		$this->push_field( $field, $tag );
 	}
@@ -856,7 +852,7 @@ class Mapper {
 			);
 		}
 
-		$this->dynamic_default_note( $tag, $label );
+		$this->dynamic_default_note( $tag, $label, $field );
 		$this->readonly_note( $tag, $label, $field );
 		$this->push_field( $field, $tag );
 	}
@@ -907,7 +903,7 @@ class Mapper {
 			);
 		}
 
-		$this->dynamic_default_note( $tag, $label );
+		$this->dynamic_default_note( $tag, $label, $field );
 		$this->readonly_note( $tag, $label, $field );
 		$this->push_field( $field, $tag );
 	}
@@ -1251,7 +1247,18 @@ class Mapper {
 			);
 		}
 		if ( ! empty( $choices['dynamic'] ) ) {
-			$this->dynamic_default_note( $tag, $label );
+			// F08: default:get on a choice becomes its URL prefill key (the pushed field, by its CF7 name).
+			$pushed = null;
+			if ( '' !== $tag['name'] && isset( $this->by_name[ $tag['name'] ] ) ) {
+				foreach ( $this->structure as $i => $row ) {
+					if ( is_array( $row ) && isset( $row['id_'] ) && $row['id_'] === $this->by_name[ $tag['name'] ]['id'] ) { $pushed = $i; break; }
+				}
+			}
+			if ( null !== $pushed ) {
+				$this->dynamic_default_note( $tag, $label, $this->structure[ $pushed ] );
+			} else {
+				$this->dynamic_default_note( $tag, $label );
+			}
 		}
 	}
 
@@ -1867,14 +1874,87 @@ class Mapper {
 			&& ( ! empty( $tag['values'] ) || '' !== $tag['content'] );
 	}
 
+	/** F08: CF7 user sources and the smart tag of each. */
+	const USER_DEFAULTS = array(
+		'user_login'        => '{user:login}',
+		'user_email'        => '{user:email}',
+		'user_display_name' => '{user:display_name}',
+		'user_first_name'   => '{user:first_name}',
+		'user_last_name'    => '{user:last_name}',
+	);
+
+	/**
+	 * F08: carry a CF7 dynamic default over (the first source in CF7's order that EFB has): default:get →
+	 * the field's URL prefill key (its CF7 name) or, on a hidden field, {get:name}; default:user_* → the
+	 * smart tag in the default value (text-like and hidden fields). False when nothing could be mapped.
+	 *
+	 * @param string[] $sources Dynamic sources (Parser::defaults()['dynamic']).
+	 * @param array    $tag     Tag.
+	 * @param array    $field   The EFB field, changed in place.
+	 * @return bool
+	 */
+	private function dynamic_default_map( array $sources, array $tag, array &$field ) {
+		$type      = isset( $field['type'] ) ? $field['type'] : '';
+		$templated = in_array( $type, array( 'hiddenField', 'text', 'email', 'url', 'tel', 'number', 'textarea', 'date' ), true );
+		$name      = isset( $tag['name'] ) ? (string) $tag['name'] : '';
+		foreach ( $sources as $src ) {
+			if ( 'get' === $src && '' !== $name ) {
+				if ( 'hiddenField' === $type ) {
+					if ( ! preg_match( '/^[A-Za-z0-9_\-\[\]]{1,64}$/', $name ) ) continue;
+					$field['value'] = '{get:' . $name . '}';
+					return true;
+				}
+				$key = class_exists( '\\Emsfb\\Smart_Tags' ) ? \Emsfb\Smart_Tags::sanitize_key( 'prefill_key', $name ) : '';
+				if ( '' === $key || ( class_exists( '\\Emsfb\\Smart_Tags' ) && ! in_array( $type, \Emsfb\Smart_Tags::PREFILL_TYPES, true ) ) ) continue;
+				$field['prefill_key'] = $key;
+				return true;
+			}
+			if ( isset( self::USER_DEFAULTS[ $src ] ) && $templated ) {
+				$field['value'] = self::USER_DEFAULTS[ $src ];
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * F08: [hidden name "value"] (and default:get / default:user_*) → a hidden field.
+	 *
+	 * @param array $tag Tag.
+	 * @return void
+	 */
+	private function map_hidden( array $tag ) {
+		$field = $this->field( 'hiddenField', '' !== $tag['name'] ? $tag['name'] : 'hidden', $tag );
+		unset( $field['required'] );
+		$field['placeholder'] = '';
+		$values = isset( $tag['values'] ) && is_array( $tag['values'] ) ? $tag['values'] : array();
+		$field['value'] = isset( $values[0] ) ? $this->clean_text( (string) $values[0] ) : '';
+		$defaults = Parser::defaults( $tag );
+		if ( ! empty( $defaults['dynamic'] ) && ! $this->dynamic_default_map( $defaults['dynamic'], $tag, $field ) ) {
+			$this->note(
+				sprintf(
+					/* translators: %s: the field name in Contact Form 7 */
+					__( 'The hidden field “%s” filled itself in from a source Easy Form Builder does not have; it keeps only its fixed value.', 'easy-form-builder' ),
+					$tag['name']
+				)
+			);
+		}
+		$this->push_field( $field, $tag );
+	}
+
 	/**
 	 * @param array  $tag   Tag.
 	 * @param string $label Field label.
 	 * @return void
 	 */
-	private function dynamic_default_note( array $tag, $label ) {
+	private function dynamic_default_note( array $tag, $label, ?array &$field = null ) {
 		$defaults = Parser::defaults( $tag );
 		if ( empty( $defaults['dynamic'] ) ) {
+			return;
+		}
+		// F08: the sources Easy Form Builder has (default:get, default:user_login / email / display_name /
+		// first_name / last_name) are carried over; only the others keep the note.
+		if ( is_array( $field ) && $this->dynamic_default_map( $defaults['dynamic'], $tag, $field ) ) {
 			return;
 		}
 		$this->note(

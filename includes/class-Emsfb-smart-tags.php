@@ -615,6 +615,57 @@ class Smart_Tags {
 		return $w;
 	}
 
+	/** The save warnings with their sentence (phrases of text_efb() when given, English otherwise). */
+	public static function form_warnings_text(array $rows, array $lang = array()) {
+		$m = array(
+			'smart_url_part'      => array('stTagUrlPart', 'Smart tags can only be used after "?" or "#" in a redirect address.'),
+			'smart_field_missing' => array('stUnavailable', 'Not available'),
+			'smart_field_later'   => array('stFieldLater', 'This answer comes from a later step, so it will be empty here.'),
+			'smart_pii'           => array('stIpPrivacy', 'Storing IP addresses may require consent in your country. Check the privacy settings.'),
+		);
+		$out = array();
+		foreach (self::form_warnings($rows) as $w) {
+			// Personal data is a note next to the preset (and a risk flag of validate_rows), not a save warning.
+			if ($w['code'] === 'smart_pii') continue;
+			$k = isset($m[$w['code']]) ? $m[$w['code']] : array('', '');
+			$w['m'] = isset($lang[$k[0]]) && is_string($lang[$k[0]]) && $lang[$k[0]] !== '' ? $lang[$k[0]] : $k[1];
+			if ($w['code'] === 'smart_pii' && isset($w['tag']) && $w['tag'] !== 'ip') $w['m'] = 'This hidden value stores personal data (' . $w['tag'] . ').';
+			$out[] = $w;
+		}
+		return $out;
+	}
+
+	/**
+	 * SitePilot contract (efb_api_form_validate, §7.2): errors that refuse a definition (an unknown namespace in
+	 * a hidden template or a text, an invalid prefill key) and risk flags (pii_capture for {user:email}, {ip},
+	 * {cookie:*}). Returns ['errors' => [{code, path, …}], 'flags' => [...]].
+	 */
+	public static function validate_rows(array $rows) {
+		$errors = array();
+		$flags = array();
+		$keys = array();
+		foreach ($rows as $i => $r) {
+			if (!is_array($r)) continue;
+			foreach (array('value', 'name', 'message', 'placeholder', 'email_sub', 'rePage') as $k) {
+				if (!isset($r[$k]) || !is_string($r[$k]) || strpos($r[$k], '{') === false) continue;
+				if (preg_match_all('/\{([a-z][a-z0-9_]{0,15}):[^{}]{0,200}\}/u', $r[$k], $mm)) {
+					foreach ($mm[1] as $j => $ns) if (!in_array($ns, self::NS, true)) $errors[] = array('code' => 'smart_unknown_tag', 'path' => 'rows[' . $i . '].' . $k, 'tag' => $mm[0][$j]);
+				}
+				foreach (self::tags($r[$k]) as $t) {
+					if ($t['ns'] === 'ip' || $t['ns'] === 'cookie' || ($t['ns'] === 'user' && $t['arg'] === 'email')) $flags['pii_capture'] = true;
+				}
+			}
+			if ($i > 0 && isset($r['prefill_key']) && $r['prefill_key'] !== '') {
+				$k = self::sanitize_key('prefill_key', $r['prefill_key']);
+				$type = isset($r['type']) ? (string) $r['type'] : '';
+				if ($k === '' || !in_array($type, self::PREFILL_TYPES, true)) $errors[] = array('code' => 'smart_prefill', 'path' => 'rows[' . $i . '].prefill_key');
+				elseif (isset($keys[strtolower($k)])) $errors[] = array('code' => 'smart_prefill_dup', 'path' => 'rows[' . $i . '].prefill_key');
+				else $keys[strtolower($k)] = true;
+			}
+		}
+		return array('errors' => $errors, 'flags' => array_keys($flags));
+	}
+
 	/** rePage is saved with "@efb@" for "/" by the old panel. */
 	public static function rePage_url($s) {
 		$s = preg_replace('/(https?):@efb@/', '$1://', (string) $s);

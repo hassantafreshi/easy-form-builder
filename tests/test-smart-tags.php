@@ -111,6 +111,15 @@ t('save: a form without tags has no st_uses', isset($plain[0]['st_uses']), false
 $w = S::form_warnings(array(array('type' => 'form', 'rePage' => 'https:@efb@{get:host}@efb@x'), array('id_' => 'a', 'type' => 'text', 'step' => 1, 'name' => 'Why {field:b}?'), array('id_' => 'b', 'type' => 'text', 'step' => 2, 'name' => 'B'), array('id_' => 'h', 'type' => 'hiddenField', 'step' => 1, 'value' => '{ip}')));
 t('warnings: tag in the redirect host, answer from a later step, personal data', array_map(function ($x) { return $x['code']; }, $w), array('smart_url_part', 'smart_field_later', 'smart_pii'));
 
+/* ---- validate (SitePilot efb_api_form_validate contract) */
+$vr = S::validate_rows(array(array('type' => 'form', 'email_sub' => 'Hi {bogus:x}'), array('id_' => 'h', 'type' => 'hiddenField', 'value' => '{user:email}{ip}'), array('id_' => 'a', 'type' => 'text', 'prefill_key' => 'name'), array('id_' => 'b', 'type' => 'text', 'prefill_key' => 'k'), array('id_' => 'c', 'type' => 'email', 'prefill_key' => 'K'), array('id_' => 'd', 'type' => 'password', 'prefill_key' => 'pw')));
+t('validate: an unknown namespace is an error with its path', $vr['errors'][0], array('code' => 'smart_unknown_tag', 'path' => 'rows[0].email_sub', 'tag' => '{bogus:x}'));
+t('validate: reserved / duplicate / wrong-type prefill keys', array_map(function ($e) { return $e['code'] . '@' . $e['path']; }, array_slice($vr['errors'], 1)), array('smart_prefill@rows[2].prefill_key', 'smart_prefill_dup@rows[4].prefill_key', 'smart_prefill@rows[5].prefill_key'));
+t('validate: pii_capture for {user:email} / {ip} / {cookie:*}', $vr['flags'], array('pii_capture'));
+t('validate: a clean form has no error and no flag', S::validate_rows(array(array('type' => 'form'), array('id_' => 'h', 'type' => 'hiddenField', 'value' => '{get:utm_source}'))), array('errors' => array(), 'flags' => array()));
+$wt = S::form_warnings_text(array(array('type' => 'form', 'rePage' => 'https://{get:h}/'), array('id_' => 'h', 'type' => 'hiddenField', 'value' => '{ip}', 'step' => 1)), array('stTagUrlPart' => 'URL PART'));
+t('save warnings: the sentence from the phrases; personal data is not a save warning', $wt, array(array('code' => 'smart_url_part', 'path' => 'rows[0].rePage', 'm' => 'URL PART')));
+
 /* ---- answers as tags read them (server) */
 $vals = S::values_of(array(
 	array('id_' => 'c', 'type' => 'radio', 'value' => 'Red', 'id_ob' => 'o1'),

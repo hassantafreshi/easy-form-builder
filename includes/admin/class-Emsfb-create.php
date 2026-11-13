@@ -487,6 +487,10 @@ class Create {
 			list($valp, $upload_warn_efb) = \Emsfb\Uploads::normalize_rows($valp, null);
 			$save_warnings_efb = array_merge($save_warnings_efb, $upload_warn_efb);
 		}
+		// F08: a tag in the redirect host, an answer from a later step, a hidden value that stores personal data; never refuses.
+		if (is_array($valp) && class_exists('\\Emsfb\\Smart_Tags')) {
+			$save_warnings_efb = array_merge(isset($save_warnings_efb) ? $save_warnings_efb : array(), \Emsfb\Smart_Tags::form_warnings_text($valp, isset($lang) && is_array($lang) ? $lang : array()));
+		}
 		$this->formtype =  sanitize_text_field($_POST['type']);
 		if($this->isScript($_POST['value']) ||$this->isScript($_POST['type'])){
 			$response = array( 'success' => false , "m"=> $lang['NAllowedscriptTag']);
