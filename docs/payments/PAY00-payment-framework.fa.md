@@ -1100,3 +1100,10 @@ riverty and voucher (Mollie needs order lines and the billing address for them);
 a long address at 100 characters. To confirm with the owner: Paymob's "NA" for a missing phone number
 or name outside the mobile wallet (the Accept API says these cannot be "NA").
 
+
+- Final counts (2026-11-13, readiness + Oney + payer e-mail): unit tests in scope (pay, the seven
+  gateway add-ons, PayPal, AutoPilot, privacy; 98 files) 2767 passed, 0 failed (all suites of the runner,
+  116 files: 3247 passed, 0 failed); full e2e 472 passed, 0 failed (17 scenarios, new `readiness`).
+  Screenshots of the new notices: `readiness-{fa_IR,ar}-375.png` (e2e), `pay-readiness-{fa,ar}-375.png`
+  (unit browser test). Strings are English until translated (owner instruction); each sentence of the
+  notices keeps its own direction on a right-to-left page.
