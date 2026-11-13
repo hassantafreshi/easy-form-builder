@@ -1052,6 +1052,19 @@ already carry `fnm` and the server's `fsz`; `ut` is never stored).
 `none`; `prefill_key` lets SitePilot build links (`?key=value`) for campaigns. Must add: `st_uses`
 computed in the shared save pipeline; validate rejects unknown namespaces; `pii_capture` flag for
 `user:email`, `ip`, `cookie`.
+*Status 2026-11-13 (F08 shipped on `dev4`):* the four keys are saved by explicit cases of
+`sanitize_obj_msg_efb` → `Smart_Tags::sanitize_key()` = `EFBSmart.sanitizeKey()` (shared vectors
+`reference/smart-tag-vectors.json`); `st_uses` is computed at the end of the same sanitizer
+(`Smart_Tags::normalize_rows`), so every path that saves through it (builder, Builder API, CF7 importer)
+has it; a direct write that skips the sanitizer (G2) still would not. `Smart_Tags::validate_rows()`
+returns `smart_unknown_tag`, `smart_prefill`, `smart_prefill_dup` and the `pii_capture` flag, ready for
+`efb_api_form_validate` (not in core yet). Registry: `setting:hidden_field`, `setting:smart_tags`,
+`setting:url_prefill` (free), `setting:answer_piping` (Free Plus) and `capabilities.smart_tags`.
+`forms/{id}/schema` gives a hidden field `assistant: 'none'` without label or template, and
+`prefill: {params: [{key, field, type}]}`. Prefill keys may not be WordPress query variables
+(`Smart_Tags::RESERVED_KEYS`; `?name=` would 404 the page). Builder: `efbBuilderApi.setHiddenField()`,
+`setPrefill()`, refusals `smart_invalid`, `smart_prefill`, `smart_prefill_dup`. Details:
+`docs/autopilot-integration.md` (F08).
 
 **F09 repeater.** Create: `repeater` row (`min_rows`, `max_rows`, `default_rows`, `rows_from`,
 `row_label`, `collapsible`, `collapse_prev`, `rpt_layout`, `btn_add_text`, `rmv_confirm`) and

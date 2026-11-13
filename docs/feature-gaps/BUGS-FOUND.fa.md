@@ -14,8 +14,8 @@
 | متوسط | بررسی وجود اسکریپت هنگام ذخیرهٔ فرم هیچ‌وقت چیزی پیدا نمی‌کند، چون `json_encode` روی رشتهٔ ازپیش‌کدشده اجرا می‌شود و یک پرانتز جابه‌جاست (آزموده‌شده روی PHP 8.3). | `includes/admin/class-Emsfb-admin.php:317` | F15 |
 | متوسط | متن و مقدار گزینه‌ها بدون escape چاپ می‌شوند. | `includes/class-Emsfb-formbuilder.php:2088`، `2753` | F05 |
 | متوسط | placeholder فیلد متن چندخطی escape نمی‌شود و textarea یک ویژگی `value=` نامعتبر دارد. | `includes/class-Emsfb-formbuilder.php:2621`، `2628-2629` | F03 |
-| متوسط | متن پیام تشکر با `innerHTML` درج می‌شود. | `includes/admin/assets/js/new-efb.js:950`، `970` | F08 |
-| متوسط | نام کاربری و نقش‌های کاربر در HTML صفحه قرار می‌گیرد و ممکن است کش آن را به بازدیدکنندهٔ دیگری نشان دهد. | `includes/class-Emsfb-public.php:1387`، `9500-9511` | F08 |
+| متوسط | متن پیام تشکر با `innerHTML` درج می‌شود. | `includes/admin/assets/js/new-efb.js:950`، `970` | F08 — **رفع شد (F08-C)**: `funTnxEfb` متن مدیر را escape می‌کند و هر مقدار برچسب را در `<bdi>` با `textContent` می‌گذارد (`EFBSmart.messageMarkup`). تست `tests/test-smart-tags-piping.js`، e2e `f08b` |
+| متوسط | نام کاربری و نقش‌های کاربر در HTML صفحه قرار می‌گیرد و ممکن است کش آن را به بازدیدکنندهٔ دیگری نشان دهد. | `includes/class-Emsfb-public.php:1387`، `9500-9511` | F08 — **رفع شد برای نام (F08-E)**: `user_name` از `forms/session/prepare` (no-store) می‌آید و در HTML صفحهٔ فرم خالی است؛ slug نقش‌ها (`user_state`) ماند، چون برای همهٔ کاربران یک نقش یکسان است و منطق شرطی در نخستین ارزیابی آن را می‌خواند. e2e `f08e` |
 | متوسط | IP خام در فایل trace و `debug.log` نوشته می‌شود. پنهان‌سازی فقط روی ایمیل‌ها انجام می‌شود. | `includes/class-Emsfb-public.php:3618` | F13 — **رفع شد (F13-B)**: trace با `Privacy::log_ip()` و `Email_Trace::redact_pii()` هر کلید `ip` را ناشناس می‌کند. تست `tests/test-privacy-ip-mode.php` |
 | متوسط | ردیف‌های خروجی همهٔ فرم‌ها برای همیشه در `localStorage.rows_ws_p` مرورگر مدیر باقی می‌مانند. | `includes/admin/assets/js/list_form-efb.js:3746` | F13، F14 — **رفع شد (F13-E)**: ردیف‌ها در حافظهٔ همان صفحه می‌مانند و نسخهٔ قدیمی `rows_ws_p` پاک می‌شود. تست `tests/test-privacy-admin-js.js` |
 | متوسط | رمز عبورِ فیلد password در فرم عادی به‌صورت متن ساده در `emsfb_msg_.content` ذخیره می‌شود. | مسیر ذخیرهٔ پاسخ | F03 (پرسش باز ۱) |
@@ -325,3 +325,16 @@
 | کم | `file_upload_public()` در کلاس عمومی به هیچ hook وصل نیست (کد مرده) و در پاسخ خود مسیر کامل فایل روی سرور (`$upload['file']`) را برمی‌گرداند. | `includes/class-Emsfb-public.php` (`file_upload_public`) | **باز**: فقط نام امن شد؛ حذف کد مرده برای مالک |
 | کم | در ذخیرهٔ فرم تازه (`add_form_structure`) هشدارهای F11 که همان‌جا جمع می‌شدند با خروجی `disable_unavailable_notifiers` بازنویسی و گم می‌شدند. | `includes/admin/class-Emsfb-create.php` | **رفع شد (F07، در گذر)**: هشدارها با هم ادغام می‌شوند |
 | کم | `core-efb.js` و `new-efb.js` آرایه‌های `sendBack_emsFormBuilder_pub` و `files_emsFormBuilder` را با `let` تعریف می‌کنند؛ این‌ها خاصیت `window` نیستند و افزونه یا اسکریپتی که `window.sendBack_emsFormBuilder_pub` را بخواند چیزی نمی‌بیند. | `includes/admin/assets/js/new-efb.js:42`، `public/assets/js/core-efb.js:382` | **یادداشت**: `upload-efb.js` آن‌ها را مستقیم می‌خواند؛ رفتار فعلی تغییری نکرد |
+
+## F08: فیلد پنهان و برچسب هوشمند (۲۰۲۶-۱۱-۱۳)
+
+| شدت | مشکل | محل | وضعیت |
+|---|---|---|---|
+| بالا | افزونهٔ Google Sheets ردیف‌ها را با `valueInputOption=USER_ENTERED` می‌فرستد؛ پاسخی که با `=`، `+`، `-` یا `@` شروع شود در برگه فرمول اجرا می‌شود (مثلاً `=IMPORTXML(...)` که دادهٔ برگه را به بیرون می‌فرستد). با فیلد پنهان، مقدار پارامتر URL یا کوکی هم بدون تایپ بازدیدکننده به برگه می‌رسید. | `vendores-efb` افزونهٔ googlesheet | **رفع شد (F08)**: مقدار متنی با این نویسه‌ها (و tab / CR در ابتدا) با `'` آغاز می‌شود، مگر عدد باشد. تست `tests/test-addon-googlesheet-hidden.php` |
+| متوسط | `rePage` (نشانی بازگشت) با `sanitize_url` ذخیره می‌شد که آکولاد را حذف می‌کند؛ هر `{field_id}` قدیمی یا برچسب در نشانی بازگشت پیش از رسیدن به سرور از بین می‌رفت. | `includes/functions.php` (`sanitize_obj_msg_efb`، case `rePage`) | **رفع شد (F08-F)**: `sanitize_url_keep_tags_efb` برچسب‌ها را ماسک می‌کند، نشانی را پاک می‌کند و برچسب‌ها را برمی‌گرداند |
+| متوسط | لینک بازگشت در صفحهٔ پایان فرم بدون escape در `href` قرار می‌گرفت. | `public/assets/js/core-efb.js` (صفحهٔ پایان) | **رفع شد (F08-C)**: فقط http(s) و escape‌شده (`efb_attr_url_efb`) |
+| متوسط | `{field_id}` برای radio و checkbox شناسهٔ گزینه را در موضوع ایمیل و نشانی بازگشت می‌گذاشت (§۱۹ spec). | `includes/class-Emsfb-public.php` (`efb_replace_field_tokens`) | **رفع شد (F08-F)**: برچسب گزینه؛ برای شناسه `{field:id.value}`. یادداشت انتشار لازم است |
+| کم | `fun_gets_url_efb` (پیش‌پرکردن قدیمی `iefb` / `vefb` / `defb` …) هرگز در مسیر فعلی اجرا نمی‌شد و سه باگ داشت (شاخص اشتباه، `valj_efb[-1]`، فعال‌کردن فیلد غیرفعال). | `public/assets/js/core-efb.js` | **رفع شد (F08-D)**: حذف شد؛ پیش‌پرکردن فقط با `prefill_key` |
+| کم | پارامتر URL با نام متغیرهای عمومی پرس‌وجوی وردپرس (`name`، `p`، `s`، `page_id` …) صفحه را ۴۰۴ یا صفحهٔ دیگری می‌کند؛ کلید پیش‌پرکردنی مثل `name` لینک را می‌شکست (در e2e دیده شد). | پیش‌پرکردن URL | **پیشگیری شد (F08-D)**: `Smart_Tags::RESERVED_KEYS` در PHP و JS، پیام `prefillReserved` در سازنده |
+| کم | `f18-harness.js` (آزمون‌های سازنده) فیلتر `efb_capabilities` را اجرا نمی‌کند؛ کلید ثبت‌شده با فیلتر (مثل `setting:answer_piping`) در `test-upgrade-prompt-callsites.js` «ناشناخته» دیده می‌شد. | `tests/f18-harness.js` | **رفع شد (F08)**: harness مدخل‌های `Smart_Tags::capabilities` را اضافه می‌کند. مدخل‌های فیلتر F02 / F03 / F06 / F07 / F11 هنوز در harness نیستند |
+

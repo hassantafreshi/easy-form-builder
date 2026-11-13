@@ -1086,6 +1086,65 @@ are accepted and stored in Latin digits.
   `test-upload-multi-submit-http.php`, `test-addon-googlesheet-files.php` and the e2e scenarios `f07a` …
   `f07e`, `f07pay` (AutoPilot: `f07a` `setUploadConfig`, `insertItems` refusal, capabilities, schema).
 
+### F08. Hidden field, smart tags, answer piping, URL prefill (`hiddenField`, `efbBuilderApi.setHiddenField` / `setPrefill`, `window.EFBSmart`, codes)
+
+Spec: `docs/feature-gaps/F08-hidden-smart-tags.fa.md`. One resolver in PHP (`Emsfb\Smart_Tags`,
+`includes/class-Emsfb-smart-tags.php`) and JS (`window.EFBSmart`, `public/assets/js/smart-tags-efb.js`),
+kept equal by 168 shared vectors (`docs/feature-gaps/reference/smart-tag-vectors.json`,
+`tests/test-smart-tags-parity.js`). A form without tags renders byte for byte as before.
+
+| Keys | Where | Plan (F08 §14) |
+|---|---|---|
+| type `hiddenField`: `value` (a template, at most 500 characters), `hdn_visitor_mail` (`'1'`: also in the visitor's copy) | field | Free |
+| tags in `value` (default) and `placeholder` of text-like fields, row 0 `email_sub`, `thank_you_message`, `rePage`, confirmation-rule messages and URLs | field / row 0 | Free |
+| `prefill_key` (`^[A-Za-z0-9_-]{1,40}$`, one per form, not a WordPress query variable), `prefill_lock` (`'1'`) | field | Free |
+| `{field:…}` in `name` (label), `message` (description), option text, heading (answer piping) | field | **Free Plus** |
+| `st_uses` (row 0) | computed on save by `sanitize_obj_msg_efb` → `Smart_Tags::normalize_rows`; read-only, dropped when a writer sends it | — |
+
+- **Syntax** `{ns:arg|fallback}`; namespaces `get`, `cookie`, `ref`, `page` (`url`, `path`, `title`, `id`),
+  `post`, `user` (`id`, `login`, `email`, `display_name`, `first_name`, `last_name`, `role`), `date`
+  (PHP-style letters), `ip`, `uid`, `field` (`{field:id}`, `.label`, `.value`), `form`, `site`, `entry`
+  (`track`, only after submit); `geo` is reserved (phase 2) and always gives its fallback. The legacy
+  `{field_id}` still works in subjects and redirects and now gives the option label. Each place accepts a
+  set of tags (`capabilities.smart_tags.places`); a tag outside its place gives the fallback.
+- **Cache rule.** The page HTML holds only `form`, `site` and `post` values; everything per visitor is a
+  `<bdi class="efb-st" data-st="…">fallback</bdi>` piece or a `data-st-*` attribute filled in the browser.
+  `{user:*}` comes from `forms/session/prepare` (`smart.user`; `email` only for a form that uses
+  `{user:email}`); `user_name` moved there too. The server rebuilds every hidden value it can know itself
+  (`ip`, `user`, `date`, `uid`, `form`, `site`, `post`, `field`, a static text); browser values are taken
+  only for `get`, `cookie`, `ref`, `page:url`, `page:path`, cleaned (no control or bidi characters, at most
+  500), `ref` / `page:url` only http(s). Cookies of WordPress, logins, PHP sessions, WooCommerce and the
+  plugin itself are never read (filter `efb_smart_cookie_denied($deny, $name)`).
+- **Builder.** `efbBuilderApi.insertItems` / `setForm` refuse `smart_invalid` (`reason: unknown_tag` or
+  `too_long`, `path` e.g. `rows[3].value`), `smart_prefill` (`reason: reserved`, `invalid` or `type`),
+  `smart_prefill_dup` (`other` = the field that has the key). `setHiddenField(id, patch)` (id = `id_` or
+  `dataId`; patch keys `value`, `preset` (+ `param` for `param` / `cookie`), `name`, `hdn_visitor_mail`,
+  `prefill_key`) returns `{id, value}`; `setPrefill(id, key, {lock})` returns `{id, prefill_key,
+  prefill_lock}` (`key: ''` removes it). Both throw `builder_not_ready`, `unknown_field`, `invalid_setting`
+  or the codes above. Saving stays the owner's Save.
+- **Save answer** (never refuses): `warnings[]` with `smart_url_part` (a tag in a redirect host),
+  `smart_field_missing`, `smart_field_later` (piping a field that comes after it).
+- **Registry.** `setting:hidden_field`, `setting:smart_tags`, `setting:url_prefill` (free),
+  `setting:answer_piping` (Free Plus), each with `form_keys`; top level `smart_tags` = `{syntax, namespaces,
+  places, presets, field_type, field_keys, prefill_types, read_only, builder, page_api: 'window.EFBSmart',
+  assistant, save_warnings, risk_flags: {pii_capture}, spec}`.
+- **Schema.** `forms/{id}/schema` gives a hidden field `assistant: 'none'` without its label or template,
+  and `prefill: {params: [{key, field, type}], how, locked_by_owner}` so an assistant can build a
+  prefilled link (`?key=value`; several values with `,` or the key repeated). An assistant never sets
+  `prefill_lock`.
+- **Validation for SitePilot.** `Smart_Tags::validate_rows($rows)` returns `{errors: [smart_unknown_tag |
+  smart_prefill | smart_prefill_dup], flags: ['pii_capture']}` (`{user:email}`, `{ip}`, `{cookie:*}`), ready
+  for `efb_api_form_validate`, which core does not have yet.
+- **Visitor page.** `window.EFBSmart` (`init`, `refresh`, `applyPrefill`, `isPrefilled`, `resolve`, `parse`, `classify`,
+  `cleanValue`, `sanitizeKey`, `PRESETS`, `RESERVED_KEYS`). A URL value wins over a local draft or an F11 restore, but never
+  over what the visitor typed. A hidden value alone does not count as an answer.
+- **Tests.** `test-smart-tags.js`, `test-smart-tags.php`, `test-smart-tags-parity.js`,
+  `test-hidden-field-render.php`, `test-hidden-save-roundtrip.php`, `test-hidden-field-submit.php`,
+  `test-hidden-field-submit-http.php`, `test-smart-tags-messages.php`, `test-smart-tags-piping.js`,
+  `test-smart-tags-builder.js`, `test-addon-googlesheet-hidden.php`, `test-cf7-importer.php` and the e2e
+  scenarios `f08a` … `f08e`, `f08pay` (AutoPilot: `f08a` `setHiddenField`, the `smart_invalid` refusal,
+  capabilities, schema; `setPrefill` and the prefill refusals in `test-smart-tags-builder.js`).
+
 ### PAY01. Mollie gateway field (`mollie`, add-on `AdnMOL`)
 
 Add-on `vendores-efb/mollie` on the PAY00 contract; nothing new in core. For agents:

@@ -1,6 +1,6 @@
 # F08 — فیلد پنهان، برچسب هوشمند، آوردن پاسخ در برچسب‌ها و پیش‌پرکردن از URL (Hidden field, smart tags, answer piping, URL prefill)
 
-وضعیت: سند آماده، پیاده‌سازی نشده · اولویت: P0 · تلاش: M · وابستگی: — (F13 برای حالت ذخیرهٔ IP، F05 برای `opt_value` در `{field:id.value}`، F04 برای قالب عدد؛ F09 از `{field:…}` داخل ردیف استفاده می‌کند)
+وضعیت: **پیاده‌سازی شد** (A تا G در ۲۳ آبان ۱۴۰۵ / 2026-11-13؛ کشور پاسخ‌دهنده (§۱۷) فاز ۲ و ساخته نشد؛ ترجمه‌ها طبق دستور مالک انجام نشده‌اند؛ گزارش و تصمیم‌ها در «وضعیت پیاده‌سازی» در انتهای سند) · اولویت: P0 · تلاش: M · وابستگی: — (F13 برای حالت ذخیرهٔ IP، F05 برای `opt_value` در `{field:id.value}`، F04 برای قالب عدد؛ F09 از `{field:…}` داخل ردیف استفاده می‌کند)
 
 > شاخهٔ مبنا `dev4`، نسخهٔ 4.3.1، بررسی ۲۰ آبان ۱۴۰۵ (2026-11-11). شماره‌خط‌ها جابه‌جا می‌شوند؛ پیش از ویرایش دوباره grep کن.
 > مرجع‌ها: [راهنمای پیاده‌سازی](IMPLEMENTATION-PLAYBOOK.en.md) (§۱.۶ sanitizer، §۱.۷ آنچه مرورگر می‌بیند، §۲.۸ کش، §۳ Recipe B، §۴ مراحل ۵ تا ۷، §۵.۱ REST، §۱۰ دام‌های ۳، ۵، ۷، ۱۱ و ۱۳)، [امکانات فعلی](reference/current-capabilities.en.md) §۴ (ردیف URL prefill)، [ماتریس رقبا](reference/competitor-matrix.en.md) §۶ (Smart tags، Hidden field presets، Answer piping).
@@ -362,84 +362,84 @@ legacy   := '{' [A-Za-z0-9_-]+ '}'  →  اگر فیلدی با این id_ هس�
 - پذیرش: هر دو پیاده‌سازی روی همهٔ بردارها یک خروجی بدهند. `parse` روی ورودی ۱۰ هزار نویسه‌ای در کمتر از ۲ میلی‌ثانیه تمام شود. در کد، `innerHTML` و `eval` نباشد.
 - آزمون: `node tests/test-smart-tags.js`، `php tests/test-smart-tags.php`، `node tests/test-smart-tags-parity.js`.
 
-Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+Checkpoint (انجام شد، ۲۰۲۶-۱۱-۱۳)
+- فایل‌های تغییرکرده: `includes/class-Emsfb-smart-tags.php` (تازه، `Emsfb\Smart_Tags`: `parse`، `allowed`، `classify` با سه حالت `static` / `client` / `server`، `clean_template`، `clean_value`، `resolve` در حالت‌های `text` / `html` / `attr` / `url_query` / `subject`، `markup`، `attr_value`، `url`، `format_date`، `hidden_value`، `submit_context`، `normalize_rows`، `validate_rows`)، `public/assets/js/smart-tags-efb.js` (تازه، `window.EFBSmart` با همان هستهٔ خالص و بخش صفحه)، `docs/feature-gaps/reference/smart-tag-vectors.json` (۱۶۸ بردار).
+- تست‌ها: `tests/test-smart-tags.js` (۱۸۱)، `tests/test-smart-tags.php` (۲۲۲)، `tests/test-smart-tags-parity.js` (۵۰۲۹: همهٔ بردارها و ۶۰۰ متن تولیدی در هر حالت و محل، و ۱۵۰ قالب تاریخ؛ PHP و JS یکی). parse روی ۱۰ هزار نویسه کمتر از ۰٫۳ میلی‌ثانیه؛ در ماژول `innerHTML` و `eval` نیست.
+- وضعیت ترجمه: —
+- مورد باز: نام ماه و روز در `{date:F}` / `{date:l}` انگلیسی است (مقدار مقایسه‌پذیر و یکسان در PHP و JS)؛ ارقام نمایش در برچسب‌های fa / ar محلی می‌شوند (§۴.۶).
+- اقدام بعدی: B.
 
 ### B. نوع `hiddenField` (Recipe B کامل) و پیش‌تنظیم‌ها
 - فایل‌ها: `val-efb.js` (`fields_efb`، case)، `admin-efb.js` (`sampleElpush_efb`، `addNewElement`، handlerها)، `class-Emsfb-formbuilder.php` (case)، `core-efb.js` (ثبت در `sendBack`)، `class-Emsfb-public.php` (case، allow-list، ساخت `$ctx`، مرحلهٔ دوم پس از 3447)، `class-Emsfb-admin.php` (محاسبهٔ `st_uses` پس از 362)، نمایشگر و ایمیل.
 - پذیرش: الگوی ثابت با دستکاری مرورگر تغییر نکند. `{user:email}` برای مهمان خالی و برای کاربر واردشده درست باشد، حتی اگر مرورگر مقدار دیگری بفرستد. `{ip}` طبق حالت F13 ذخیره شود. `{ref}` با `javascript:` رد شود. ردیف واقعاً در `emsfb_msg_.content` باشد. ایمیل بازدیدکننده به‌طور پیش‌فرض فیلد پنهان نداشته باشد. فیلد بعدی داخل فرم بماند (شمارش تگ‌ها).
 - آزمون: `php tests/test-hidden-field-submit.php` (بلوک استخراج‌شده از سورس با fixture)، `php tests/test-hidden-field-render.php` (الگوی `tests/test-password-placeholder-render.php`)، `php tests/test-hidden-save-roundtrip.php` (stub آرایه‌وفادار)، رگرسیون `php tests/test-submit-payload-robustness.php` (WP).
 
-Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+Checkpoint (انجام شد)
+- فایل‌های تغییرکرده: `val-efb.js` (کاشی پالت، case پنل، `efbPrefillEls` در پنل‌های مجاز، `efbSmartPanelInit` پس از رسم پنل)، `smart-tags-builder-efb.js` (تازه: پنل فیلد پنهان با ۲۷ پیش‌تنظیم، نام پارامتر یا کوکی، الگو، کلید «در ایمیل بازدیدکننده»، کلید پیش‌پرکردن، یادداشت‌ها؛ نوار خاکستری بوم)، `admin-efb.js` (`sampleElpush_efb`، `addNewElement`)، `class-Emsfb-formbuilder.php` (`case 'hiddenField'`: wrapper نامرئی و input پنهان، الگوی دارای برچسب هرگز در HTML حل نمی‌شود)، `class-Emsfb-public.php` (`smart_hidden_rows_efb` پیش از منطق شرطی، `case 'hiddenField'`، `smart_hidden_final_efb` پس از حلقه، allow-list، ایمیل مدیر و نسخهٔ بازدیدکننده، جعبهٔ پاسخ بازدیدکننده، `hdnBadge` در زیرمجموعهٔ عمومی)، `functions.php` (`case`های صریح و `Smart_Tags::normalize_rows` در پایان `sanitize_obj_msg_efb`)، `class-Emsfb-drafts.php` (فقط مقدار پنهان با منبع بازدیدکننده در پیش‌نویس)، `response-viewer-efb.js` (ردیف پنهان با نشان)، `core-efb.js` (`EFBSmart.init` پیش از نخستین ارزیابی منطق؛ مقدار پنهان به‌تنهایی پاسخ نیست)، `field-templates-efb.json`.
+- تست‌ها: `tests/test-hidden-field-render.php` (۲۰، snapshot گرفته‌شده از کد پیش از F08)، `tests/test-hidden-save-roundtrip.php` (۱۷)، `tests/test-hidden-field-submit.php` (۲۱، بلوک‌های استخراج‌شده از سورس)، `tests/test-hidden-field-submit-http.php` (۴۱ روی وردپرس واقعی، شامل بخش‌های E و F)، e2e `f08a` و `f08b`.
+- وضعیت ترجمه: عبارت‌ها انگلیسی و در فهرست عبارت‌ها (دستور مالک: ترجمه نشده).
+- مورد باز: `st_uses` در `sanitize_obj_msg_efb` ساخته می‌شود، پس هر مسیر ذخیره (سازنده، API، واردکنندهٔ CF7) آن را دارد.
+- اقدام بعدی: C.
 
 ### C. برچسب در پیش‌فرض، placeholder، برچسب‌ها و piping
 - فایل‌ها: `class-Emsfb-formbuilder.php` (`generateLabel_efb` 42-71، `generateDescription_efb` 22-39، `generateTextInput_efb` 218، گزینه‌ها 2717-2800 و 2068)، `admin-efb.js` (`addNewElement`)، `smart-tags-efb.js` (`bind`، `refresh`)، `core-efb.js` (فراخوانی در `fun_sendBack_emsFormBuilder` 827 و `delete_by_id`)، `new-efb.js` (`funTnxEfb` 936 با span و `textContent`)، `val-efb.js` (`smartTagInsertEl`).
 - پذیرش: فرم بدون برچسب snapshot HTML یکسان داشته باشد. `{field:name}` با هر تایپ برچسب بعدی را به‌روز کند. مقدار `<img src=x onerror=alert(1)>` در یک فیلد، در برچسب و پیام تشکر متن خام نمایش داده شود (هیچ اجرای اسکریپتی نداشته باشد). `<bdi>` در RTL درست باشد. دو فرم در یک صفحه از هم جدا بمانند.
 - آزمون: `php tests/test-smart-tags-render.php` (snapshot)، `node tests/test-smart-tags-piping.js` (vm و DOM ساختگی، الگوی `tests/test-core-multiform-validation-scope.js`)، Playwright `tests/test-smart-tags-xss-browser.js` (الگوی `tests/test-response-viewer-hostile-rows-browser.js`).
 
-Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+Checkpoint (انجام شد)
+- فایل‌های تغییرکرده: `class-Emsfb-formbuilder.php` (`st_markup_efb` برای برچسب، توضیح، متن گزینهٔ radio / checkbox و heading؛ `data-st-value` / `data-st-ph` برای پیش‌فرض و placeholder متن و textarea؛ `data-st-text` برای گزینهٔ select؛ `aria-label` فیلدی که برچسبش برچسب هوشمند دارد متن fallback است و صفحه آن را هم‌زمان با برچسب به‌روز می‌کند)، `class-Emsfb-public.php` (`st_ctx` در رندر: فرم، سایت، نوشتهٔ میزبان و فیلدها؛ piping در برچسب Free Plus)، `smart-tags-efb.js` (`bind`، `refresh`، `fillMessage`، `messageMarkup`، `decorate`، `preview`)، `core-efb.js` (فراخوانی `refresh` در `fun_sendBack_emsFormBuilder` و `delete_by_id`؛ `efb_smart_fill_done_efb`؛ لینک بازگشت در صفحهٔ پایان فقط http(s) و escape‌شده)، `new-efb.js` (`funTnxEfb` با قطعه‌های `<bdi>`)، `smart-tags-builder-efb.js` (فهرست «درج برچسب هوشمند» به‌صورت `<select>` بومی، نشان روی بوم، قطعهٔ زنده در پیش‌نمایش).
+- تست‌ها: snapshot در `test-hidden-field-render.php`، `tests/test-smart-tags-piping.js` (۲۸ در Chromium)، `tests/test-smart-tags-builder.js` (۲۶)، e2e `f08b` (XSS در برچسب و پیام تشکر) و `f08c`. آزمون‌های نام‌برده در spec به این فایل‌ها نگاشت شدند: `test-smart-tags-render.php` ← snapshot و بخش برچسب در `test-hidden-field-render.php`؛ `test-smart-tags-xss-browser.js` ← `test-smart-tags-piping.js` و `f08b`.
+- وضعیت ترجمه: —
+- مورد باز: پیش‌نمایش PC / موبایل قطعه‌ها را از مقدار تایپ‌شده در خود پیش‌نمایش پر می‌کند (کاربر و پارامتر URL ندارد).
+- اقدام بعدی: D.
 
 ### D. پیش‌پرکردن URL با allowlist (جایگزین `fun_gets_url_efb`)
 - فایل‌ها: `core-efb.js` (حذف 2119-2178 و فراخوانی 427؛ `EFBSmart.applyPrefill(form_id)` پس از `createStepsOfPublic`)، `val-efb.js` و `admin-efb.js` (`prefillKeyEl`، `prefillLockEl`، یکتایی)، و CF7 (`default:get` به `prefill_key` = نام تگ).
 - پذیرش: فقط فیلد با `prefill_key` پر شود. پارامتر برای password یا فایل اثری نداشته باشد. select با `opt_value`، شناسه یا برچسب انتخاب شود. ایمیل نامعتبر قرمز شود و در `sendBack` نرود. منطق شرطی پس از پیش‌پرکردن ارزیابی شود. اولویت URL بر پیش‌نویس محلی رعایت شود. `?defb=0` هیچ اثری نداشته باشد.
 - آزمون: `node tests/test-url-prefill.js` (vm)، Playwright `tests/test-url-prefill-browser.js` (fa و en، با صفحهٔ کش‌شده)، `php tests/test-cf7-importer.php` (تمدید).
 
-Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+Checkpoint (انجام شد)
+- فایل‌های تغییرکرده: `core-efb.js` (`fun_gets_url_efb` و فراخوانی‌اش حذف شد؛ مقدار URL بر پیش‌نویس محلی مقدم است)، `smart-tags-efb.js` (`applyPrefill`: متن، عدد با ارقام فارسی و عربی، تاریخ، select / کشور / استان / شهر، radio، checkbox با «,» یا تکرار کلید، multiselect، yesNo، rating و امتیاز؛ هر مقدار از مسیر تغییر خود فیلد می‌گذرد؛ `prefill_lock`)، `smart-tags-builder-efb.js` (`prefillKeyEl`، `prefillLockEl`، یکتایی، لینک نمونه و دکمهٔ کپی)، `class-Emsfb-smart-tags.php` (`PREFILL_TYPES`، `RESERVED_KEYS`: متغیرهای عمومی پرس‌وجوی وردپرس مثل `name`، `p`، `s`، `page_id` کلید پیش‌پرکردن نمی‌شوند، چون `?name=x` صفحه را ۴۰۴ می‌کرد)، CF7 (`default:get` → `prefill_key`).
+- تست‌ها: `test-smart-tags-piping.js` (بخش D)، `test-cf7-importer.php` (۱۸۰)، e2e `f08b`، `f08c` و `f08pay`. `test-url-prefill.js` / `test-url-prefill-browser.js` در `test-smart-tags-piping.js` و `f08b` / `f08c` ادغام شدند.
+- وضعیت ترجمه: —
+- مورد باز: —
+- اقدام بعدی: E.
 
 ### E. کاربر از prepare، منطقهٔ زمانی، و کش امن
 - فایل‌ها: `class-Emsfb-public.php` (`prepare_form_session_api` 220-248 با `smart.user`؛ `ajax_object_efm_efb` 9469 با `tz_offset`؛ و در صورت تأیید مالک، انتقال `user_name`/`user_state` در 9500-9511 و 1387 به prepare)، `request-health-efb.js` (`EFBRuntime` پاسخ `smart` را به `EFBSmart` بدهد)، `smart-tags-efb.js`.
 - پذیرش: HTML صفحهٔ کش‌شده ایمیل، نام و نام کاربری هیچ کاربری را نداشته باشد. `{user:display_name}` پس از prepare پر شود. `email` فقط برای فرمی که آن را به کار برده فرستاده شود. درخواست cross-origin به prepare 403 بگیرد (رفتار موجود). اگر prepare شکست بخورد، فرم کار کند.
 - آزمون: Playwright `tests/test-smart-tags-cache-browser.js` (کاربر A سپس مهمان، الگوی `tests/test-cache-guest-browser.js`)، `php tests/test-prepare-smart-user.php` (stub `wp_get_current_user`، `nocache_headers`).
 
-Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+Checkpoint (انجام شد)
+- فایل‌های تغییرکرده: `class-Emsfb-public.php` (`prepare_form_session_api`: `smart.user` فقط برای کاربر واردشدهٔ فرمی که برچسب `user` دارد و `email` فقط با `{user:email}`؛ `user_name` هم از همین پاسخ؛ `ajax_object_efm.smart` با `tz_offset`، سایت و نوشتهٔ میزبان که برای همه یکسان است)، `request-health-efb.js` (`user_name` از prepare)، `smart-tags-efb.js` (`loadUser` / `setUser`).
+- تست‌ها: `test-hidden-field-submit-http.php` (بخش E: مهمان بدون `smart`، کاربر با ایمیل، بدون ایمیل برای فرمی که آن را ندارد، cross-origin ۴۰۳، no-store)، e2e `f08e` (HTML صفحهٔ کاربر واردشده ایمیل، نام و login او را ندارد؛ همان HTML برای مهمان fallback نشان می‌دهد و `{user:email}` خالی ذخیره می‌شود). `test-smart-tags-cache-browser.js` و `test-prepare-smart-user.php` در `f08e` و آزمون HTTP ادغام شدند.
+- وضعیت ترجمه: —
+- مورد باز: نقش‌ها (`user_state.roles`) در صفحه ماندند؛ §۱۲.۱ و پرسش باز ۴ در «وضعیت پیاده‌سازی».
+- اقدام بعدی: F.
 
 ### F. پیام‌ها، ایمیل و نشانی بازگشت با یک حل‌کننده
 - فایل‌ها: `class-Emsfb-public.php` (`efb_replace_field_tokens` 6309 که از Smart_Tags استفاده کند؛ 6333؛ 6453؛ `email_get_content_efb` 7735؛ نسخهٔ بازدیدکننده 6603؛ پیام تأیید شرطی 6318)، و `val-efb.js` (`smartTagInsertEl` در `formSet`).
 - پذیرش: `{color}` در موضوع برچسب «قرمز» را بگذارد. `{get:next}` در host نشانی بازگشت رد شود و نشانی ثابت استفاده شود. `{field:x}` با `&` و `#` در query درست encode شود. توکن‌های براکتی فعلی بدون تغییر کار کنند. `\r\n` در موضوع حذف شود.
 - آزمون: `php tests/test-smart-tags-messages.php`، رگرسیون آزمون‌های اعلان شرطی موجود که در این checkout اجرا می‌شوند (`grep -l notification_rules tests/*.php`؛ آن‌هایی که `vendor/logic` می‌خواهند `[SKIP]` شوند).
 
-Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+Checkpoint (انجام شد)
+- فایل‌های تغییرکرده: `class-Emsfb-public.php` (`efb_replace_field_tokens` با Smart_Tags و امضای قبلی؛ `smart_finish_ctx_efb`، `smart_message_values_efb` (مقدارهای پیام تشکر در پاسخ با کلید `st`)، `smart_url_efb`؛ پیام تأیید شرطی با `resolve(…,'html')` پیش از `wp_kses_post`؛ نشانی بازگشت شرطی و `rePage` با `Smart_Tags::url`؛ موضوع ایمیل مدیر و بازدیدکننده یک‌بار و در `send_email_Emsfb_` (موضوع قاعدهٔ اعلان دوبار حل نمی‌شود)، توکن‌های براکتی پس از آن)، `functions.php` (`sanitize_url_keep_tags_efb` برای `rePage` و ماسک برچسب‌ها در نشانی قاعدهٔ تأیید).
+- تست‌ها: `tests/test-smart-tags-messages.php` (۱۵)، `test-hidden-field-submit-http.php` (بخش F: `{color}` برچسب گزینه، `\r\n` حذف، `[confirmation_code]` کار می‌کند، `{ip}` در نسخهٔ بازدیدکننده نه، بازگشت با host ثابت و مقدار encode‌شده، قاعده روی مقدار سرور فیلد پنهان)، e2e `f08d`؛ آزمون‌های موجود اعلان و تأیید شرطی (`test-conditional-logic-notification-confirmation.php` ۸۱، `test-conditional-logic-scopes.php` ۲۴۱، `-no-addon` ۵۱) سبز.
+- وضعیت ترجمه: —
+- مورد باز: قالب سراسری ایمیل (تنظیمات) برچسب هوشمند حل نمی‌کند؛ موضوع و محتوای پاسخ‌ها حل می‌شوند.
+- اقدام بعدی: G.
 
 ### G. واردکنندهٔ CF7 و ترجمه
 - فایل‌ها: `class-Emsfb-cf7-mapper.php` (702، 1860، `TYPE_PHRASES`)، `functions.php` (عبارت‌ها)، و زبان‌ها.
 - پذیرش: `[hidden src default:get]` به `hiddenField` با `{get:src}` تبدیل شود. `[email your-email default:user_email]` مقدار `{user:email}` بگیرد. یادداشت‌ها فقط برای منبع‌های نگاشت‌نشده بمانند. همهٔ زبان‌ها با `check-locale.php` پاس شوند.
 - آزمون: `php tests/test-cf7-importer.php`، Playwright `tests/test-cf7-importer-browser.js`، و `php tests/core-i18n/check-locale.php --locale=… --quiet`.
 
-Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+Checkpoint (انجام شد)
+- فایل‌های تغییرکرده: `importers/cf7/class-Emsfb-cf7-mapper.php` (`[hidden name "x"]` → `hiddenField`؛ `default:get` → `{get:name}` روی فیلد پنهان و `prefill_key` روی دیگر فیلدها؛ `default:user_login / user_email / user_display_name / user_first_name / user_last_name` → `{user:…}`؛ یادداشت فقط برای منبع‌های نگاشت‌نشده؛ `TYPE_PHRASES`)، `docs/core-i18n/catalog.json` و `easy-form-builder.pot` (`extract.php`: ۳۷ عبارت تازه، ۱ منسوخ).
+- تست‌ها: `test-cf7-importer.php` (۱۸۰، ۷ تازه)؛ `test-cf7-importer-browser.js` در مجموعهٔ کامل.
+- وضعیت ترجمه: **انجام نشد (دستور مالک)**؛ فقط فهرست عبارت و `.pot` به‌روز شد.
+- مورد باز: اجرای `efb-core-i18n-translate` و `check-locale.php` برای همهٔ زبان‌ها با تصمیم مالک.
+- اقدام بعدی: —
 
 ---
 
@@ -487,3 +487,36 @@ Checkpoint
 - ساختن `st_uses` باید در مسیر ذخیرهٔ مشترک (هوک `efb_form_saved` یا `Form_Store::save`) انجام شود، نه فقط در `update_form_id_Emsfb()`. وگرنه فرمی که API ساخته، برچسب `user:*` را در `forms/session/prepare` دریافت نمی‌کند.
 - `efb_api_form_validate` نام‌فضای ناشناخته را خطا بداند و برای `{user:email}`، `{ip}` و `{cookie:*}` پرچم `pii_capture` در `risk.flags` برگرداند.
 - فیلد پنهان برای دستیار بازدیدکننده `assistant: "none"` است و الگوی آن در schema عمومی نمی‌آید. سرور مقدار را دوباره می‌سازد. `prefill_key` در schema می‌آید تا SitePilot بتواند لینک پیش‌پرشده (`?key=value`) بسازد. فیلد `prefill_lock` را دستیار پر نمی‌کند.
+
+---
+
+## وضعیت پیاده‌سازی (۲۰۲۶-۱۱-۱۳)
+
+ترتیب اجرا: A → B → E (هم‌زمان با B، چون `{user:*}` فیلد پنهان به prepare نیاز داشت) → C → D → F → G. checkpoint هر زیرتسک زیر همان زیرتسک در §۱۶ است.
+
+**آنچه ساخته شد.**
+- یک حل‌کنندهٔ برچسب در PHP (`Emsfb\Smart_Tags`) و JS (`window.EFBSmart`) با ۱۶۸ بردار مشترک (`reference/smart-tag-vectors.json`) و آزمون هم‌خوانی روی هر حالت (`text`، `html`، `attr`، `url_query`، `subject`) و هر محل (`default`، `hidden`، `placeholder`، `label`، `message`، `email_admin`، `email_visitor`، `redirect`). فهرست مجاز هر محل در `Smart_Tags::allowed` است؛ برچسب غیرمجاز در آن محل به fallback می‌رسد.
+- نوع `hiddenField` با ۲۷ پیش‌تنظیم (UTM، gclid / fbclid / msclkid، پارامتر دلخواه، کوکی، ارجاع‌دهنده، نشانی و عنوان صفحه، شناسهٔ نوشته، IP، کاربر، تاریخ و ساعت، شناسهٔ یکتا، ثابت)، کلید «در ایمیل بازدیدکننده» و پیش‌پرکردن. سرور مقدار هر برچسب سروری را دوباره می‌سازد و مقدار مرورگر را فقط برای نام‌فضاهای سمت بازدیدکننده (`get`، `cookie`، `ref`، `page:url`، `page:path`) و پس از پاک‌سازی می‌پذیرد؛ الگوی ثابت هرگز از مرورگر خوانده نمی‌شود.
+- برچسب در پیش‌فرض، placeholder، برچسب، توضیح، گزینه، heading، پیام تشکر، موضوع ایمیل مدیر و بازدیدکننده، پیام و نشانی تأیید شرطی و `rePage`؛ توکن قدیمی `{field_id}` با همان حل‌کننده (برای radio / checkbox اکنون برچسب گزینه، §۱۳).
+- پیش‌پرکردن URL فقط با `prefill_key` هر فیلد (جایگزین `fun_gets_url_efb` که حذف شد)، قفل اختیاری، و کلیدهای رزرو وردپرس ممنوع.
+- کش امن: HTML صفحه فقط مقدارهای عمومی (`form`، `site`، `post`) را دارد؛ هر مقدار بازدیدکننده یا کاربر در مرورگر پر می‌شود. کاربر از `forms/session/prepare` (`smart.user`، ایمیل فقط برای فرمی که `{user:email}` دارد)؛ `user_name` هم از HTML صفحهٔ فرم به prepare رفت.
+- خروجی‌ها: نمایشگر پاسخ (ردیف با نشان «پنهان»، لینک http(s) با `rel="noopener noreferrer nofollow"`)، CSV، ایمیل مدیر، نسخهٔ بازدیدکننده (فقط با `hdn_visitor_mail`)، جعبهٔ پاسخ صفحهٔ پیگیری (بدون ردیف پنهان)، Google Sheets (ستون خودش، با خنثی‌سازی فرمول).
+- AutoPilot / SitePilot: `efbBuilderApi.setHiddenField()`، `setPrefill()`، بررسی `insertItems` / `setForm` (`smart_invalid`، `smart_prefill`، `smart_prefill_dup`)، `capabilities.smart_tags` و چهار مدخل `setting:*`، `prefill` در `forms/{id}/schema` (فیلد پنهان `assistant: none` و بدون الگو)، `Smart_Tags::validate_rows` برای قرارداد `efb_api_form_validate` (`smart_unknown_tag`، پرچم `pii_capture`).
+- CF7: `[hidden]`، `default:get`، `default:user_*`.
+
+**تصمیم‌ها (قابل تغییر با مالک).**
+- سطح پلن طبق §۱۴: فیلد پنهان، برچسب در پیش‌فرض / placeholder / موضوع / پیام / نشانی بازگشت و پیش‌پرکردن URL رایگان؛ piping (`{field:…}` در برچسب، توضیح، گزینه و heading) Free Plus با `setting:answer_piping` (اگر پلن اجازه ندهد، fallback نمایش داده می‌شود و فرم نمی‌شکند)؛ کشور پاسخ‌دهنده (Pro) فاز ۲ است و ساخته نشد (`{geo:*}` همیشه fallback).
+- `classify` سه حالت دارد (`static` / `client` / `server`) به‌جای دو حالت متن spec، تا معلوم باشد کدام مقدار مرورگر قابل قبول است.
+- `{ref}` و `{page:url}` تنها در فیلد پنهان فقط http(s) پذیرفته می‌شوند؛ `cookie` با فهرست ممنوع (`wordpress*`، `wp-*`، `wp_*`، `comment_*`، `PHPSESSID`، کوکی‌های خود افزونه، WooCommerce) و فیلتر `efb_smart_cookie_denied`.
+- `{ip}` از `Privacy::store_ip` (حالت F13) و `Privacy::client_ip` (فقط proxy مورد اعتماد) می‌آید؛ در نسخهٔ بازدیدکننده و پیام تشکر مجاز نیست.
+- کلیدهای رزرو (`RESERVED_KEYS`: متغیرهای عمومی پرس‌وجوی وردپرس مثل `name`، `p`، `s`، `page_id`، `author`، `cat`، `tag` و کلیدهای خود افزونه `track`، `sc`، `user`، `efb_resume`) کلید پیش‌پرکردن نمی‌شوند.
+- قالب سراسری ایمیل (تنظیمات) برچسب حل نمی‌کند؛ موضوع، پیام پاسخ و ردیف‌ها حل می‌شوند.
+- نسخهٔ پایگاه داده تغییر نکرد (1.8): فیلد پنهان یک ردیف عادی در `emsfb_msg_.content` است.
+
+**پاسخ پرسش‌های باز §۱۸.** (۱) نه: `iefb/sefb/defb/hefb/vefb` نگاشت نشدند و با `fun_gets_url_efb` حذف شدند (در مسیر فعلی کار نمی‌کردند). (۲) URL برنده است: مقدار URL روی پیش‌نویس محلی و بازیابی F11 می‌نشیند؛ مقداری که بازدیدکننده بعداً تایپ کند دست نمی‌خورد. (۳) نه: `{user:email}` در نشانی بازگشت مجاز نیست (همراه با `ip`، `cookie`). (۴) `user_name` در همین تسک به prepare رفت؛ نقش‌ها (`user_state.roles`) در صفحه ماندند، چون افزونهٔ منطق آن‌ها را از `efb_var` می‌خواند و slug نقش اطلاع شخصی نیست. (۵) هرگز: نتایج عمومی نظرسنجی فقط فیلدهای `showInPublicResults` یا انواع دسته‌های نظرسنجی را نشان می‌دهد؛ `hiddenField` در آن دسته‌ها نیست و پنل فیلد پنهان این گزینه را ندارد. (۶) `{ns:arg}` با `.` برای زیرکلید (`{field:id.value}`).
+
+**باگ‌های §۱۹.** `fun_gets_url_efb` (هر سه مورد) با حذف تابع از بین رفت؛ `{field_id}` برای radio / checkbox اکنون برچسب گزینه است؛ `thankYou` با قطعه‌های `<bdi>` و `textContent` درج می‌شود؛ جعل IP را F13 رفع کرده بود. موارد تازه در `BUGS-FOUND.fa.md` بخش «F08».
+
+**آزمون‌ها (۲۰۲۶-۱۱-۱۳).** واحد F08: `test-smart-tags.js` ۱۸۱، `test-smart-tags.php` ۲۲۲، `test-smart-tags-parity.js` ۵۰۲۹، `test-hidden-field-render.php` ۲۰، `test-hidden-save-roundtrip.php` ۱۷، `test-hidden-field-submit.php` ۲۱، `test-smart-tags-messages.php` ۱۵، `test-smart-tags-piping.js` ۲۸، `test-smart-tags-builder.js` ۲۶، `test-addon-googlesheet-hidden.php` ۷ (جمعاً ۵۵۶۶)، `test-cf7-importer.php` ۱۸۰ (۷ تازه) و `test-hidden-field-submit-http.php` روی وردپرس واقعی ۴۱. دامنهٔ brief (pay، addon، ap، privacy): ۳۲۷۹ موفق / ۰ ناموفق در ۱۱۹ فایل. کل مجموعهٔ واحد (۳۴۳ فایل، بدون آزمون‌های HTTP) در برابر commit پیش از F08 هیچ شکست تازه‌ای ندارد: همان ۴۲ فایل غیرصفر baseline (نیازمند WordPress یا مرورگر) و همان ۶ assert ناموفق قدیمی (`test-conditional-logic-scenarios.*`، `test-maps-stored-xss.php`). e2e کامل روی وردپرس واقعی: ۸۰۳ موفق / ۰ ناموفق در ۵۶ سناریو (F08: `f08a` ۱۱، `f08b` ۱۰، `f08c` ۱۱، `f08d` ۵، `f08e` ۵، `f08pay` ۵). اسکرین‌شات‌ها: `f08a-hidden-panel-en.png`، `f08b-guest-en.png`، `f08c-fa_IR-375.png`، `f08c-ar-375.png`.
+
+**برای مالک.** ترجمهٔ ۳۷ عبارت تازه؛ کشور پاسخ‌دهنده (§۱۷، Pro)؛ برچسب در قالب سراسری ایمیل؛ افزونهٔ منطق شرطی فیلد پنهان را به‌عنوان «متن» در شرط‌ها می‌پذیرد، ولی کنش‌های نمایش / پنهان روی آن معنایی ندارند؛ یادداشت انتشار برای تغییر `{radioId}` در موضوع اعلان از شناسه به برچسب (§۱۳).
