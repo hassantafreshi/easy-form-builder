@@ -1,0 +1,231 @@
+﻿en,de_recommended,de_variants_seen,source,notes
+Easy Form Builder,Easy Form Builder,"im Easy Form Builder (73) | Easy Form Builder-Plugin (4) | Easy Form Builder Plugin (35) | Easy-Form-Builder- (13) | EFB (1) | UI/other: UI: ""Wöchentlicher Easy-Form-Builder-Bericht"" (full hyphen coupling)",UI-4.3.1; site,"Brand: never translate, never decline, no article (""in Easy Form Builder"", not ""im Easy Form Builder""). Prefer ""das Plugin Easy Form Builder"". If a compound is unavoidable use full hyphen coupling ""Easy-Form-Builder-Bericht"" (as the UI does), never the mixed ""Easy Form Builder-Plugin"". No ""EFB"" in prose."
+WhiteStudio,WhiteStudio,WhiteStudio.team (2) | UI/other: EN site: White Studio Team,site,"Publisher/brand: one word, capital S. Domain only in URLs/credits."
+plugin,Plugin,"Plugin (472) | Erweiterung (11) | UI/other: UI: ""Plugin""",UI-4.3.1; WP-core-de; site,"WordPress core DE also writes ""Plugins"". Compounds with hyphen: ""SMTP-Plugin"", ""Sicherheits-Plugin"", ""Cache-Plugin"". Avoid ""Erweiterung"" for plugin; reserve ""Erweiterung"" for add-ons only if UI text does."
+add-on,Add-on,"Add-on (83) | Addon (17) | Add-On (3) | UI/other: UI: ""Add-on"", ""Add-ons"" (also stray ""Addon-Verzeichnis"", ""Zusatzfunktionen"", ""Add-ons & Erweiterungen"")",UI-4.3.1; site,"Spell ""Add-on"" (plural ""Add-ons""), compounds ""Telegram-Add-on"". CONFLICT inside site: Addon (17) and Add-On (3) variants - normalise to ""Add-on""."
+add-on (Pro),Add-on (Pro),,content-queue plan column,Plan label used in the fact box; keep the English plan tokens Free / Free Plus / Pro / Add-on (Pro).
+plan,Tarif,"Tarif (34) | Abonnement (21) | UI/other: UI: ""Aktueller Tarif"", ""Tarif wechseln"", ""Kostenloser Tarif""",UI-4.3.1,"Use ""Tarif"" for plan; ""Abonnement"" only for recurring payments inside forms (customer subscriptions)."
+Free (plan),Free,"kostenlos (96) | UI/other: UI tab: ""Kostenlos""; UI messages: ""Auf Free wechseln"", ""Der Tarif Free Plus""",UI-4.3.1,"CONFLICT: UI renders the plan tab as ""Kostenlos"" but plan messages use ""Free"". In articles write the plan name ""Free"" (with ""Tarif""), and use lowercase ""kostenlos"" only as an adjective (""kostenloses Plugin""). Quote the UI tab as shown when instructing a click."
+Free Plus,Free Plus,"UI/other: UI: ""Free Plus"" (quoted as „Free Plus“-Tarif in messages); ""Free Plus Guide"" -> ""Kostenloser Plus-Leitfaden""",UI-4.3.1,"Never translate. Write ""im Tarif Free Plus"". CONFLICT: UI string ""Free Plus Guide"" is mistranslated as ""Kostenloser Plus-Leitfaden"" - do not copy."
+Pro,Pro,"UI/other: UI: ""Pro""",UI-4.3.1,"Plan name, never translated."
+Pro version,Pro-Version,"Pro-Version (22) | Pro Version (2) | Pro-Lizenz (9) | Pro-Tarif (1) | UI/other: UI: ""Pro-Version"", ""Pro-Version erforderlich"", ""Upgrade auf Pro""",UI-4.3.1; site,"Hyphenated ""Pro-Version"" (UI and 20 site uses). ""Pro-Lizenz"" only when talking about the licence itself."
+upgrade,Upgrade,"Upgrade (4) | Update (35) | UI/other: UI: ""Upgrade"", but ""Upgrade required"" -> ""Update erforderlich""",UI-4.3.1,"CONFLICT: UI mixes Upgrade/Update. Upgrade = move to a higher plan; Update = new plugin version. Do not copy the UI string ""Update erforderlich""."
+licence / license,Lizenz,"Lizenz (24) | Lizenzierung (1) | UI/other: UI EN source uses British ""licence""",UI-4.3.1; site,"Annual licensing is described as ""jährliche Lizenzierung"" on the German pricing page (verify wording before quoting)."
+activation code,Aktivierungscode,"Aktivierungscode (4) | Freischaltcode (1) | UI/other: UI: ""Aktivierungscode"" (one stray ""Freischaltcode:"")",UI-4.3.1,"Use ""Aktivierungscode"". UI string ""Activation Code"" -> ""Freischaltcode:"" is the outlier."
+activate / deactivate,aktivieren / deaktivieren,"aktivieren (150) | freischalten (5) | UI/other: WP core: ""Aktivieren"" / ""Deaktivieren""",WP-core-de; UI-4.3.1,"For plugin, licence, add-on, option toggles. ""freischalten"" only for plan features (""schaltet ... frei"")."
+affiliate program,Partnerprogramm,Partnerprogramm (11) | Affiliate- (35),site,"Site title says ""Partnerprogramm"", body says ""Affiliate-Provision"": write ""Partnerprogramm"" and ""Provision""; mention ""Affiliate"" once for search."
+documentation,Dokumentation,"Dokumentation (15) | UI/other: UI: ""Dokumentation""",UI-4.3.1; site,"Hub label on German site: ""Dokumentation & Hilfe-Center""."
+step-by-step guide,Schritt-für-Schritt-Anleitung,"Schritt-für-Schritt-Anleitung (20) | Schritt-für-Schritt Anleitung (5) | UI/other: UI: ""Schritt-für-Schritt-Anleitung""",UI-4.3.1; site,"Always hyphenated and capitalised ""Anleitung"" in compounds."
+tutorial (how-to),Anleitung,Anleitung (87) | Tutorial (23) | Leitfaden (10),site,"Use ""Anleitung"" for task articles, ""Leitfaden"" for pillar/hub guides, ""Tutorial"" only when it is the search keyword."
+guide (pillar),Leitfaden,Leitfaden (10),site,"Titles on site: ""Der komplette Leitfaden zu ..."". Keep for 1800+ word pillar pages."
+release notes / changelog,Versionshinweise,veröffentlicht (13),recommended,"For ""what is new"" articles; titles on site use ""X.Y.Z veröffentlicht""."
+update (noun),Update,"Update (35) | Aktualisierung (2) | UI/other: WP core: ""Aktualisieren"" (verb)",WP-core-de; site,"Noun ""das Update"", verb ""aktualisieren""."
+roadmap,Roadmap,,recommended,"Kept English; ""Roadmap 2026""."
+support,Support,"Support (24) | UI/other: UI: ""Support"", ""Support kontaktieren""",UI-4.3.1,"""Support"" (UI) rather than ""Kundendienst""."
+form,Formular,"Formular (1284) | UI/other: UI: ""Formular""/""Formulare""",UI-4.3.1; site,"Always ""Formular"", never ""Form"" (EN leftover)."
+form builder,Formular-Builder,"Formularersteller (9) | Formular-Builder (12) | Formularerstellung (16) | UI/other: UI SEO text: ""Drag-and-drop-Formular-Generator""",site; UI-4.3.1,"Autosuggest: ""wordpress form builder"" returns 10 completions, ""wordpress formular builder/generator/formularersteller"" return 0 (KEYWORD-LOCALISATION.md section 5). Keep the English loan ""Form Builder"" in keyword lists, use ""Formular-Builder"" or ""Formular-Plugin"" in prose, one noun per article."
+drag and drop,Drag-and-drop,"Drag-and-drop (27) | Drag-and-Drop (20) | Drag & Drop (7) | UI/other: UI: ""Drag-and-drop""",UI-4.3.1; site,"CONFLICT within site (27/20/7). Use ""Drag-and-drop"" (UI); ""per Drag-and-drop"". Capital form ""Drag-and-Drop"" only at heading start."
+field,Feld,"Feld (306) | UI/other: UI: ""Feld"", ""Felder""",UI-4.3.1,
+form field,Formularfeld,"Formularfeld (41) | UI/other: UI: ""Formularfelder""",UI-4.3.1,
+input field,Eingabefeld,Eingabefeld (34),site,
+text field,Textfeld,Textfeld (5) | UI/other: WP core: Textfeld,site,
+dropdown,Dropdown-Menü,"Dropdown-Menü (5) | Auswahlliste (1) | UI/other: UI: ""Dropdown-Menüs mit Mehrfachauswahl"", ""Städte Drop-down"", ""Länderauswahlliste""",UI-4.3.1; site,"CONFLICT: UI and site mix ""Drop-down"", ""Dropdown"", ""Auswahlliste"". Recommend ""Dropdown-Menü"" (one word, Dropdown); ""Auswahlliste"" as natural synonym once per article."
+checkbox,Checkbox,"Checkbox (4) | Kontrollkästchen (5) | UI/other: UI: ""Checkbox""",UI-4.3.1; site,"""Kontrollkästchen"" only as a one-time explanation."
+radio button,Optionsfeld,"Optionsfeld (8) | Radio-Button (1) | UI/other: UI: ""Optionsfeld"" (""Radio Button"" -> ""Optionsfeld"")",UI-4.3.1,"First mention: ""Optionsfeld (Radio-Button)""."
+multiple select,Mehrfachauswahl,"Mehrfachauswahl (10) | UI/other: UI: ""Mehrfachauswahl""",UI-4.3.1; site,
+required field,Pflichtfeld,"Pflichtfeld (20) | erforderlich (49) | UI/other: UI toggle: ""Erforderlich""; UI: ""Bitte füllen Sie alle erforderlichen Felder aus"" (Sie!)",UI-4.3.1; WP-core-de,"Noun ""Pflichtfeld""; quote the toggle as „Erforderlich“."
+placeholder,Platzhalter,"Platzhalter (41) | UI/other: UI: ""Platzhalter"", ""Platzhaltertext für das Feld""",UI-4.3.1; site,"Article title on site: ""Platzhaltertext zu Formularfeldern hinzufügen""."
+label (field label),Beschriftung,"Beschriftung (31) | Label (20) | Bezeichnung (2) | UI/other: UI: ""Label""->""Bezeichnung""; ""Label Position""->""Position der Beschriftung""; ""Label size""->""Etikettengröße""",UI-4.3.1; site,"CONFLICT inside UI (Bezeichnung / Beschriftung / Etikett). Recommend ""Beschriftung"" (UI majority); when instructing a click on the field named „Bezeichnung“ quote it exactly. ""Etikett"" is wrong - report to owner."
+description (field),Beschreibung,"Beschreibung (33) | UI/other: UI: ""Beschreibung""",UI-4.3.1,
+default value,Standardwert,"Standardwert (10) | UI/other: UI: ""Standardwert""",UI-4.3.1,
+step,Schritt,"Schritt (369) | UI/other: UI: ""Schritt"", ""Schrittname""",UI-4.3.1,"Headings ""Schritt 1: ..."" (102 uses on site)."
+multi-step form,mehrstufiges Formular,"mehrstufig (20) | UI/other: UI: ""Mehrstufige Formulare"" but ""Multi-Step"" -> ""Mehrschrittiges""",UI-4.3.1; site,"CONFLICT inside UI: ""Mehrstufige"" vs ""Mehrschrittiges"". Use ""mehrstufig"" (site 18, UI plural)."
+progress bar,Fortschrittsbalken,"Fortschrittsbalken (25) | Fortschrittsanzeige (2) | UI/other: UI: ""Fortschrittsbalken"" (but ""Progress bar style"" -> ""Stil der Fortschrittsanzeige"")",UI-4.3.1; site,
+step name,Schrittname,"Schrittname (13) | UI/other: UI: ""Schrittname""",UI-4.3.1,Compound without hyphen.
+button,Button,"Button (128) | Schaltfläche (24) | UI/other: UI: ""Button-Text"", ""Button-Farbe"", ""Button 1 Wert""; also ""Schaltflächen"" in a few strings",UI-4.3.1; site,"CONFLICT: 126 ""Button"" vs 24 ""Schaltfläche"" on site; newest email cluster (2026-11) uses ""Schaltfläche"". Recommend ""Button"" because the UI labels contain it; use ""Schaltfläche"" only in generic non-EFB explanations."
+submit button,Absende-Button,"Absende-Button (14) | Absenden (21) | UI/other: UI: ""Submit""->""Absenden""",UI-4.3.1; site,Quote the default label as „Absenden“.
+icon,Icon,"Icon (53) | Symbol (13) | UI/other: UI: ""Icon"" and ""Symbol"" both used",UI-4.3.1; site,"CONFLICT: Icon 54 / Symbol 13 on site. Use ""Icon""."
+settings,Einstellungen,"Einstellungen (183) | Optionen (39) | UI/other: UI + WP core: ""Einstellungen""",UI-4.3.1; WP-core-de,"""Optionen"" only for choices inside a setting."
+form settings,Formulareinstellungen,"Formulareinstellungen (35) | UI/other: UI: ""Formulareinstellungen""",UI-4.3.1,One word.
+panel (menu item),Bedienfeld,"Panel (39) | Bedienfeld (22) | UI/other: UI main menu: ""Panel"" -> ""Bedienfeld""",UI-4.3.1,"CONFLICT: UI says ""Bedienfeld"", articles say ""Panel"". In steps write Easy Form Builder → Bedienfeld and give the EN label once: (englisch „Panel“)."
+create (menu item),Erstellen,"Erstellen (49) | UI/other: UI: ""Create"" -> ""Erstellen""",UI-4.3.1; site,Menu: Easy Form Builder → Erstellen.
+add-ons (menu item),Add-ons,"UI/other: UI: ""Add-ons""",UI-4.3.1,Menu: Easy Form Builder → Add-ons.
+preview,Vorschau,"Vorschau (12) | UI/other: UI + WP core: ""Vorschau""",UI-4.3.1; WP-core-de,
+save,Speichern,"Speichern (79) | UI/other: UI: ""Speichern""",UI-4.3.1,
+edit,Bearbeiten,"Bearbeiten (15) | UI/other: UI: ""Bearbeiten""",UI-4.3.1,
+delete,Löschen,"Löschen (7) | UI/other: UI + WP core: ""Löschen""",UI-4.3.1; WP-core-de,
+duplicate,Duplizieren,"UI/other: UI: ""Duplicate"" -> ""Duplikat""; ""Copy"" -> ""Kopie""",UI-4.3.1,"UI labels are nouns (""Duplikat"", ""Kopie"") - quote them as such when instructing a click; in prose use the verb ""duplizieren"" / ""kopieren""."
+form template,Vorlage,"Vorlage (39) | Template (21) | UI/other: UI: ""Templates"", ""Kontaktformular-Template"", ""E-Mail-Template"" but also ""E-Mail-Vorlagen""","UI-4.3.1; WP-core-de (""Template"")","CONFLICT inside UI and site (Vorlage 38 / Template 20). Recommend ""Vorlage"" in prose; quote UI labels verbatim (""E-Mail-Template"") when instructing clicks."
+shortcode,Shortcode,"Shortcode (63) | UI/other: UI + WP core: ""Shortcode""",UI-4.3.1; WP-core-de,"Always monospace/inline code for the actual tag, e.g. [EMS_Form_Builder id=…] (verify the tag against the plugin before publishing)."
+embed (a form in a page),einbinden,"einbetten (9) | einbinden (15) | einfügen (40) | UI/other: UI: ""einfügen"" (shortcode); title on site: ""Formular in WordPress einbinden""",site; autosuggest,"Demand check in KEYWORD-LOCALISATION.md. Use ""einbinden"" for form-on-page, ""einfügen"" for pasting the shortcode."
+thank-you message,Dankesnachricht,"Dankesnachricht (13) | Danke-Nachricht (1) | UI/other: UI: ""Dankesnachricht""",UI-4.3.1; site,
+thank-you page,Dankeseite,"Dankeseite (9) | Danke-Seite (1) | UI/other: UI: ""Danke-Seite""",UI-4.3.1; site,"CONFLICT: UI ""Danke-Seite"" vs Duden-style ""Dankeseite"" (8 vs 1 on site). Use ""Dankeseite"" in prose; quote UI label as shown."
+redirect page,Weiterleitungsseite,"Weiterleitungsseite (3) | UI/other: UI: ""Redirect page"" -> ""Umleitungsseite""; messages say ""weitergeleitet""",UI-4.3.1; site,"CONFLICT: UI ""Umleitungsseite"" vs messages ""Weiterleitung"". Use ""Weiterleitung / Weiterleitungsseite"" (WordPress and SEO usage); an HTTP ""Umleitung"" is a different concept."
+confirmation code,Bestätigungscode,"Bestätigungscode (56) | Tracking-Code (11) | UI/other: UI: ""Bestätigungscode"" (one stray ""Verifizierungscode"" in ""Please enter the Confirmation Code"")",UI-4.3.1; site,"Always ""Bestätigungscode"". ""Tracking-Code"" (11 site uses) only as an explanatory synonym (""auch Tracking-Code genannt"")."
+confirmation code finder,Bestätigungscode-Finder,"Bestätigungscode-Finder (14) | UI/other: UI: ""Bestätigungscode-Finder"" and ""Bestätigungscode-Suche (Tracking-Formular)""",UI-4.3.1,Name of the tracking form/shortcode; quote as shown.
+private form,privates Formular,"privat (11) | UI/other: UI: ""Privates Formular""",UI-4.3.1; site,
+conditional logic,Bedingte Logik,"Bedingte Logik (9) | Conditional Logic (1) | UI/other: UI: ""Bedingte Logik""; add-on name ""Conditional Logic (Bedingte Logik) Add-on""",UI-4.3.1; site,"Use ""bedingte Logik""; search term also ""Conditional Logic"" - mention once in the first paragraph."
+condition / rule,Bedingung / Regel,"Bedingung (5) | Regel (46) | UI/other: UI: ""Bedingung aktivieren""",UI-4.3.1,
+show / hide field,Feld ein-/ausblenden,"ausblenden (31) | verbergen (4) | UI/other: UI: ""ausblenden"" (labels) and ""verbergen"" (mobile)",UI-4.3.1; site,"Use ""ein-/ausblenden""; ""verbergen"" is UI-only variant."
+disabled field,deaktiviertes Feld,"deaktiviert (2) | UI/other: UI: ""Deaktiviertes Feld""",UI-4.3.1; site,"Hidden = ""ausgeblendetes Feld""; disabled = ""deaktiviertes Feld"" (not editable by visitor)."
+auto-populate,Automatisch ausfüllen,"Auto-Populate (13) | automatisch ausfüllen (11) | UI/other: UI: ""Auto-Populate"" -> ""Automatisch ausfüllen""; add-on ""Add-on zum automatischen Ausfüllen""",UI-4.3.1; site,"CONFLICT: UI localises, article title keeps ""Auto-Populate"". Recommend ""Automatisch ausfüllen (Auto-Populate)"" at first mention."
+dataset,Datensatz,"Datensatz (41) | UI/other: UI: ""Datensatz""/""Datensätze""",UI-4.3.1; site,
+development mode (sandbox),Entwicklungsmodus (Sandbox),"Entwicklungsmodus (16) | Sandbox (37) | Testmodus (3) | UI/other: UI: ""Entwicklungsmodus (Sandbox)""",UI-4.3.1; site,"Stripe/PayPal vendor term ""Testmodus"" (Stripe test mode) stays for provider UI."
+setup wizard,Einrichtungsassistent,"Einrichtungsassistent (9) | Setup (3) | UI/other: UI: ""Einrichtung abschließen""",site,
+setup (noun),Einrichtung,"Einrichtung (33) | Konfiguration (26) | Setup (3) | UI/other: UI: ""Einrichtung abgeschlossen""",UI-4.3.1; site,"Verb: ""einrichten"" (title pattern ""X einrichten"")."
+language files / translation,Sprachdateien,"UI/other: UI: ""Sprachdateien installiert""",UI-4.3.1,
+RTL (right-to-left),RTL (Schreibrichtung von rechts nach links),"RTL (13) | UI/other: UI: ""RTL-kompatible Formulare""",UI-4.3.1,Explain once; RTL is the keyword.
+responsive,responsiv,"responsive (22) | responsiv (21) | UI/other: UI: ""Responsive und RTL-kompatible Formulare""",UI-4.3.1; site,"Both are used; ""responsive"" is the common search spelling (title on site: ""Responsives Kontaktformular""). Keep ""responsive"" in keywords, ""responsiv"" in running text is also fine - stay consistent per article."
+phone field,Telefonfeld,"Telefon (23) | Mobilnummer (26) | UI/other: UI: ""Telefon""; ""Felder für Telefonnummer, Handynummer""",UI-4.3.1; site,"Title on site: ""Eingabe von Mobilnummern"". Use ""Telefonnummer"" generally."
+email field,E-Mail-Feld,"UI/other: UI: ""E-Mail""",UI-4.3.1,"""E-Mail"" always with hyphen and capital M (see e-mail row)."
+password field,Passwortfeld,"UI/other: UI: ""Passwort""",UI-4.3.1; WP-core-de,
+date picker,Datumsauswahl,"Datumsauswahl (8) | UI/other: UI: ""Datumsauswahl""",UI-4.3.1,"Add-on names: ""Hijri-Datumsauswahl"", ""Jalali-Datumsauswahl"" (confirm against add-on UI)."
+file upload,Datei-Upload,"Datei-Upload (64) | Dateiupload (3) | Upload (73) | UI/other: UI: ""Dateiupload""; ""Datei hochladen"" in messages",UI-4.3.1; site,"CONFLICT: UI ""Dateiupload"" vs site ""Datei-Upload"" (62 vs 3). Recommend ""Datei-Upload"" (readability, search phrase ""datei upload""); the verb is ""hochladen""."
+image picker,Bildauswahl,Bildauswahl (17),site,"Title on site: ""Bildauswahl zum Easy Form Builder Plugin hinzufügen""."
+location picker,Standortauswahl,"Standortauswahl (22) | Ortsauswahl (7) | Geolokation (15) | UI/other: UI: ""Standortauswahl""",UI-4.3.1; site,"CONFLICT within site: ""Ortsauswahl"" vs ""Standortauswahl"". UI says ""Standortauswahl""; use it; ""(Geolokation)"" only as keyword aid."
+signature field,Signaturfeld,"Signatur (25) | Unterschrift (5) | UI/other: UI: ""Signatur""; ""elektronische Signatur""",UI-4.3.1; site,"Legal note: ""elektronische Signatur"" has legal meaning in DACH (eIDAS); describe the field as ""Unterschriftsfeld / E-Signatur"", do not promise legal validity."
+rating / star rating,Bewertung / Sternebewertung,"Bewertung (19) | UI/other: UI: ""Bewertungssterne"", ""Bewertung""",UI-4.3.1,
+NPS,Net Promoter Score (NPS),"NPS (8) | UI/other: UI: ""Net Promoter Score""",UI-4.3.1,
+range slider,Schieberegler,"UI/other: UI: ""Schieberegler für Wertebereiche""",UI-4.3.1,"UI also has ""Slider-Button"" and ""Bereich"" for ""Range"" - ambiguous, prefer ""Schieberegler""."
+switch / toggle,Schalter,"Schalter (18) | Umschalt (8) | UI/other: UI: ""Umschaltfelder""; ""Schalter %s""",UI-4.3.1,"Prefer ""Schalter (Umschaltfeld)"" at first mention."
+color picker,Farbwähler,"Farbauswahl (2) | UI/other: UI: ""Farbwähler""; ""Farbauswahl"" in a feature title",UI-4.3.1,"Use ""Farbwähler"" (field name)."
+audio recorder,Audiorekorder,"UI/other: UI: ""Audiorekorder"", ""Audio-Aufzeichnung""",UI-4.3.1,
+video recorder,Videorekorder,"UI/other: UI: ""Videorekorder""",UI-4.3.1,
+screen recorder,Bildschirmrekorder,"UI/other: UI: ""Bildschirmrekorder"", ""Bildschirm-Aufzeichnung""",UI-4.3.1,
+matrix / table field,Matrix- und Tabellenfeld,"UI/other: UI: ""Matrix- und Tabellenfelder für strukturierte Daten""",UI-4.3.1,
+heading (layout element),Überschrift,"Überschrift (5) | UI/other: UI: ""Überschrift""",UI-4.3.1,
+HTML element,HTML-Element,"HTML-Element (9) | UI/other: UI: ""HTML-Code""",UI-4.3.1; site,
+terms and conditions checkbox,Checkbox für die Einwilligung / AGB,"Allgemeine Geschäftsbedingungen (1) | UI/other: UI: ""Ich habe die Allgemeinen Geschäftsbedingungen gelesen...""",UI-4.3.1,"For privacy consent write ""Einwilligung"" / ""Datenschutzerklärung"" (WP core: ""Datenschutzerklärung""), not ""AGB""."
+address field,Adressfeld,"UI/other: UI: ""Adresse""",UI-4.3.1,
+country / state / city dropdown,"Auswahl für Land, Bundesland und Stadt","UI/other: UI: ""Länderauswahlliste"", ""Städte Drop-down""",UI-4.3.1,"UI ""State / Province"" is rendered ""Land / Region"" in one string; ""Bundesland"" is correct for DE addresses."
+form submission (entry),Eintrag,"Eintrag/Einträge (70) | Formulareinträge (21) | Einsendung (18) | Übermittlung (30) | Einreichung (19) | UI/other: UI: Submissions -> ""Übermittlungen""/""Einreichung""/""Einsendungen""; Entries -> ""Einträge""; Messages -> ""Nachrichten""; Responses -> ""Antworten""",UI-4.3.1; site; autosuggest,"CONFLICT: five words for one concept. Recommend ""Eintrag"" (plural ""Einträge"") for stored form data in prose - chosen for consistency (site: Einträge 70 + Formulareinträge 20), NOT from search evidence (no autosuggest completions for any variant, KEYWORD-LOCALISATION.md section 5). ""Nachricht(en)"" only when quoting the UI list; ""Antwort"" only for a reply to a visitor."
+response (reply to a visitor),Antwort,"Antwort (113) | UI/other: UI: ""Antwort"", ""Antwortfeld""",UI-4.3.1,"Do not mix with entries: ""Antwort"" = admin reply or survey answer."
+message (list label),Nachricht,"Nachricht (71) | UI/other: UI: ""Nachrichten""",UI-4.3.1,Quote only when instructing a click on the UI list.
+export,Export / exportieren,"exportieren (18) | Export (11) | UI/other: UI + WP core: ""Export""/""Exportieren""",UI-4.3.1; WP-core-de,"CSV export: ""CSV-Export"", ""als CSV-Datei exportieren""."
+import,Import / importieren,"importieren (7) | UI/other: UI: ""Import""",UI-4.3.1,"""Import aus Contact Form 7"" is the exact UI label."
+CSV file,CSV-Datei,"CSV-Datei (20) | UI/other: UI: ""CSV-Datei herunterladen""",UI-4.3.1,
+download,herunterladen / Download,"herunterladen (16) | Download (11) | UI/other: UI: ""Download"", ""herunterladen""; WP core: both",UI-4.3.1; WP-core-de,"Verb ""herunterladen""; noun ""Download""."
+search,Suche / suchen,"UI/other: WP core: ""Suche""/""Suchen""",WP-core-de,
+status,Status,"UI/other: UI: ""Status""",UI-4.3.1,"Payment statuses: Pending = ""Ausstehend"", Paid = ""Bezahlt"", Failed = ""Fehlgeschlagen"" (verify ""Ausstehend/Bezahlt"" against UI before quoting; ""Fehlgeschlagen"" is confirmed)."
+dashboard (WordPress),Dashboard,"Dashboard (78) | Administrationsbereich (8) | Adminbereich (11) | Backend (7) | UI/other: WP core: ""Dashboard""",WP-core-de; site,"CONFLICT on site: Dashboard / Administrationsbereich / Adminbereich / Backend. Use ""WordPress-Dashboard"" for the admin area; ""Adminbereich"" only in compounds; avoid ""Backend""."
+admin (user),Administrator,"Administrator (52) | Admin (45) | UI/other: WP core: ""Administrator""; UI: ""Admin-E-Mail-Adresse""",WP-core-de; UI-4.3.1,"Use ""Administrator"" for the role, ""Admin-E-Mail"" as in the UI."
+visitor,Besucher,"Besucher (66) | Benutzer (168) | Nutzer (86) | UI/other: UI: ""Besucher""; ""Benutzer"" for logged-in users",UI-4.3.1; site,"Visitor of the website = ""Besucher""; logged-in WordPress account = ""Benutzer"" (WP core). For accounts/people in general prefer ""Benutzer"" (168 uses, matches WP core) over ""Nutzer"" (86 uses)."
+user (WordPress account),Benutzer,"Benutzer (168) | UI/other: WP core: ""Benutzer""",WP-core-de,"Gender: generic masculine in all current content (no gender-inclusive forms on site). Use neutral formulations where easy (""Personen, die das Formular ausfüllen"", ""Besuchende"" is NOT used on the site - avoid introducing it)."
+login / log in,Anmeldung / sich anmelden,"anmelden (17) | Login (10) | einloggen (1) | UI/other: WP core: ""Anmelden""/""Abmelden""; UI: ""Anmelden""",WP-core-de; UI-4.3.1,"Avoid ""einloggen""/""Login"" except for the noun in a keyword."
+email,E-Mail,"E-Mail (602) | Email (31) | UI/other: UI + WP core: ""E-Mail""",UI-4.3.1; WP-core-de,"Always ""E-Mail"" (hyphen, capital M); compounds: ""E-Mail-Adresse"", ""E-Mail-Server"". Gender/case: ""die E-Mail""."
+email address,E-Mail-Adresse,"E-Mail-Adresse (37) | UI/other: UI: ""E-Mail-Adresse""",UI-4.3.1,
+notification email,Benachrichtigungs-E-Mail,"E-Mail-Benachrichtigung (61) | Benachrichtigungs-E-Mail (17) | UI/other: UI: ""Benachrichtigungs-E-Mail"" (alert email), ""E-Mail-Benachrichtigungen""",UI-4.3.1; site,"Both forms valid; ""E-Mail-Benachrichtigung"" is the search phrase (60 uses). Use it for the feature, ""Benachrichtigungs-E-Mail"" for the individual message."
+admin email,Admin-E-Mail-Adresse,"Admin-E-Mail (8) | UI/other: UI: ""Admin E-Mail"" / ""Administrator-E-Mail"" / ""Admin-E-Mail-Adresse""",UI-4.3.1,"CONFLICT inside UI. Use ""Admin-E-Mail-Adresse""."
+email template,E-Mail-Vorlage,"E-Mail-Template (16) | E-Mail-Vorlage (25) | UI/other: UI: ""E-Mail-Template"" (label), ""E-Mail-Vorlagen"" (feature text)",UI-4.3.1; site,"CONFLICT: Template (10) vs Vorlage (17). Prose ""E-Mail-Vorlage""; quote UI label ""E-Mail-Template"" when clicking."
+email server,E-Mail-Server,"E-Mail-Server (24) | UI/other: UI: ""E-Mail-Server prüfen"" (button)",UI-4.3.1; site,"Exact button label: „E-Mail-Server prüfen“ (site article wrote ""überprüfen"")."
+email delivery / deliverability,E-Mail-Zustellung,"Zustellung (11) | E-Mail-Versand (20) | UI/other: UI: ""Zustellung"" and ""Auslieferung"" both used",UI-4.3.1; site,"CONFLICT: Zustellung vs Auslieferung vs Versand. Recommend ""E-Mail-Zustellung"" (deliverability), ""E-Mail-Versand"" (sending)."
+sender,Absender,"Absender (56) | UI/other: UI: ""Absender"", ""Absenderadresse""",UI-4.3.1; site,
+reply-to,Antwortadresse (Reply-To),,recommended,"First mention ""Antwortadresse (Reply-To)"", then ""Reply-To""."
+spam folder,Spam-Ordner,"Spam-Ordner (11) | Spam landen (5) | UI/other: UI: ""Spam-Ordner""",UI-4.3.1; site,"Phrase: ""landen im Spam-Ordner"" / ""im Spam landen""."
+inbox,Posteingang,Posteingang (9),site,
+SMTP,SMTP,"SMTP-Plugin (32) | UI/other: UI: ""SMTP-Plugin"", ""SMTP-Dienst""",UI-4.3.1; site,
+email service / provider,E-Mail-Dienst,"E-Mail-Dienst (27) | E-Mail-Anbieter (19) | UI/other: UI: ""E-Mail-Dienst""",UI-4.3.1; site,"Brevo/SMTP2GO etc. = ""E-Mail-Dienst""; the provider of the mailbox = ""E-Mail-Anbieter""."
+hosting provider,Hosting-Anbieter,"Hoster (43) | Hosting-Anbieter (6) | Host (5) | UI/other: UI: ""Hosting-Anbieter""",UI-4.3.1; site,"Both ""Hoster"" (64) and ""Hosting-Anbieter"" are fine; do not use ""Host""."
+domain,Domain,"Domain (143) | UI/other: UI: ""Domain-Einstellungen"", ""Domain-Einträge""",UI-4.3.1; site,
+DNS record,DNS-Eintrag,"TXT-Eintrag (7) | DNS-Eintrag (2) | Record (6) | UI/other: UI: ""Domain-Einträge"", ""SPF- und DKIM-Einträge""",UI-4.3.1; site,"UI and articles use ""Eintrag"" for DNS record. This is the one place where ""Eintrag"" is not a form submission - disambiguate with ""DNS-""."
+SPF,SPF (Sendeberechtigung),"SPF (82) | UI/other: UI: ""Sendeberechtigung (SPF)""; wporg: ""Absenderberechtigung (SPF)""",UI-4.3.1,Explain on first mention with the UI wording.
+DKIM,DKIM (E-Mail-Signatur),"DKIM (84) | UI/other: UI: ""E-Mail-Signatur (DKIM)""",UI-4.3.1,
+DMARC,DMARC (Domain-Schutzrichtlinie),"DMARC (56) | UI/other: UI: ""Domain-Schutzrichtlinie (DMARC)""",UI-4.3.1,
+email delivery test,E-Mail-Test / Zustellungstest,"E-Mail-Test (14) | UI/other: UI: ""E-Mail-Prüfung"", ""E-Mail-Auslieferungstest""",UI-4.3.1; site,"Quote the button ""E-Mail-Server prüfen""."
+error log,Fehlerprotokoll,"Fehlerprotokoll (3) | Protokoll (15) | UI/other: UI: ""Fehlerprotokoll"", ""Protokollierung von E-Mail-Fehlern""",UI-4.3.1,
+weekly report,Wochenbericht,"UI/other: UI: ""Wöchentlicher Easy-Form-Builder-Bericht""",UI-4.3.1,Quote UI title when referring to the email.
+SMS notification,SMS-Benachrichtigung,"SMS-Benachrichtigung (37) | UI/other: UI: ""SMS-Benachrichtigungen""",UI-4.3.1; site,
+Telegram notification,Telegram-Benachrichtigung,"UI/other: UI: ""Telegram-Benachrichtigungen aktivieren""",UI-4.3.1,"Bot = ""Bot"", chat id = ""Chat-ID"", bot token = ""Bot-Token"" (recommended)."
+spam,Spam,"Spam (104) | UI/other: WP core + UI: ""Spam""",WP-core-de; UI-4.3.1,"Masculine: ""der Spam""; compounds: ""Spamschutz"" (UI ""Spamschutz"" and ""Spam-Schutz"" both occur: site 17 vs 5) - recommend ""Spamschutz"" (one word)."
+spam protection,Spamschutz,"Spamschutz (22) | Spam-Schutz (6) | Spam Protection (4) | UI/other: UI: ""Formularsicherheit und Spamschutz""",UI-4.3.1; site,"Title pattern: ""Spamschutz für WordPress-Formulare""."
+Form Security & Spam Protection,Formularsicherheit und Spamschutz,"UI/other: UI: ""Formularsicherheit und Spamschutz"" (also ""Formular-Sicherheit und Spamschutz"")",UI-4.3.1,"Exact name of the security section; quote as ""Sicherheit und Spamschutz"" where the UI shows that shorter label."
+bot,Bot,Bot (47),site,"""Spam-Bot"", ""automatisierte Anfragen""."
+honeypot,Honeypot,"Honeypot (14) | UI/other: UI: ""Honeypot-Spamschutz""",UI-4.3.1; site,"Keep English; explain once (""Köderfeld, das nur Bots ausfüllen"")."
+CAPTCHA,CAPTCHA,"CAPTCHA (31) | Captcha (4) | UI/other: UI: ""Captcha"" (messages) and ""CAPTCHA"" (feature names)",UI-4.3.1; site,"CONFLICT: CAPTCHA 31 / Captcha 4. Write ""CAPTCHA"", ""reCAPTCHA"", ""silentCAPTCHA"" (exact brand casing)."
+reCAPTCHA,Google reCAPTCHA,"reCAPTCHA (26) | UI/other: UI: ""Google reCAPTCHA"", ""Google-reCAPTCHA""",UI-4.3.1,"Brand casing exactly ""reCAPTCHA""."
+silentCAPTCHA,silentCAPTCHA,"silentCAPTCHA (32) | UI/other: UI: ""silentCAPTCHA""",UI-4.3.1; site,"Brand casing exactly ""silentCAPTCHA"" - never capitalise the s."
+rate limiting,Ratenbegrenzung,"Ratenbegrenzung (19) | UI/other: UI: ""Ratenbegrenzung und Schutz vor Missbrauch""",UI-4.3.1; site,"UI string ""Rate limit exceeded"" is mistranslated (QR codes) - report."
+IP allowlist / blocklist,IP-Allowlist / IP-Blocklist,"Whitelist (10) | Blacklist (3) | UI/other: UI: ""IP-Whitelists und -Blacklists""",UI-4.3.1,"CONFLICT: UI says Whitelist/Blacklist; EN source says Allowlist/Blocklist. Use ""Allowlist/Blocklist"" (neutral), mention ""Whitelist/Blacklist"" once for search."
+monitor-only mode,Nur-Monitor-Modus,"UI/other: UI: ""Sicherheitsmodus „Nur Monitor“""",UI-4.3.1,Quote as the UI shows it.
+false positive,Fehlalarm,,recommended,"Also ""fälschlich blockiert""."
+server-side validation,serverseitige Validierung,serverseitig (11),site,
+security token / nonce,Sicherheitstoken,"Sicherheitstoken (13) | Token (13) | UI/other: UI: ""Sicherheitscode"" in a cache message",site,
+security plugin,Sicherheits-Plugin,Sicherheits-Plugin (34) | Security-Plugin (12),site,"CONFLICT: Sicherheits-Plugin (33) vs Security-Plugin (12). Use ""Sicherheits-Plugin""."
+firewall,Firewall,,site,
+403 error,403-Fehler,403-Fehler (22),site,"Keep ""403 Forbidden"" in code blocks."
+REST API,REST-API,REST-API (54),site,"Hyphenated in compounds (""REST-API-Anfragen"")."
+API key,API-Schlüssel,"API-Schlüssel (57) | UI/other: UI: ""API-Schlüssel"" (one stray ""API-Key eingeben"")",UI-4.3.1,"Use ""API-Schlüssel""."
+secret key,Geheimer Schlüssel,"UI/other: UI: ""Geheimer Schlüssel""",UI-4.3.1,"Stripe dashboards show ""Secret key"" - quote the provider UI in English when a screenshot shows English."
+GDPR,DSGVO,"DSGVO (1) | UI/other: WP core: ""Datenschutzerklärung""",recommended,"Use ""DSGVO"" (first mention ""Datenschutz-Grundverordnung (DSGVO)""), not ""GDPR"", in German copy. Do not claim ""DSGVO-konform"" as a certification; write ""DSGVO-freundlich"" / describe the feature (local storage, deletion) - legal claims need owner approval."
+privacy policy,Datenschutzerklärung,"UI/other: WP core: ""Datenschutzerklärung""",WP-core-de,
+consent,Einwilligung,,recommended,"Consent checkbox: ""Einwilligungs-Checkbox""."
+data retention / deletion,Aufbewahrung und Löschung von Daten,,recommended,"Use ""Einträge löschen"" for the UI action."
+payment,Zahlung,"Zahlung (183) | Bezahlung (3) | UI/other: UI: ""Zahlung"", ""Bezahlung"", ""Bezahlformulare"" mixed",UI-4.3.1; site,"CONFLICT inside UI. Use ""Zahlung"" / ""Zahlungsformular"" (site 52)."
+payment form,Zahlungsformular,"Zahlungsformular (56) | UI/other: UI: ""Zahlungsformular"" and ""Bezahlformular""",UI-4.3.1; site,
+payment gateway,Zahlungsanbieter,"Gateway (3) | UI/other: UI: ""Zahlungsschnittstelle""",UI-4.3.1,"CONFLICT: the UI error text says ""Zahlungsschnittstelle"". In prose use ""Zahlungsanbieter"" (Stripe, PayPal); quote ""Zahlungsschnittstelle"" only when reproducing that UI message."
+Stripe,Stripe,"Stripe (80) | UI/other: UI: ""Stripe""",UI-4.3.1; site,"Brand; compounds ""Stripe-Zahlungsformular"", ""Stripe-Schlüssel""."
+PayPal,PayPal,"UI/other: UI: ""PayPal""",UI-4.3.1; site,Brand casing PayPal.
+credit card,Kreditkarte,"UI/other: UI: ""Kartennummer"", ""Karten-Ablaufdatum"", ""Kartenprüfnummer""",UI-4.3.1,"CVC = ""Kartenprüfnummer (CVC)""."
+currency,Währung,"Währung (12) | UI/other: UI: ""Währung""",UI-4.3.1; site,Plan prices are in USD on the site; see STYLE-GUIDE for formats.
+price,Preis,"UI/other: UI: ""Preis""",UI-4.3.1,
+total (amount),Gesamtbetrag,"UI/other: UI: ""Gesamt""",UI-4.3.1,
+quantity,Menge / Anzahl,,recommended,"""Menge"" for ordered items."
+recurring payment,wiederkehrende Zahlung,"UI/other: UI: ""wiederkehrende Abrechnung und Abonnementabrechnung""",UI-4.3.1,"Intervals: täglich, wöchentlich, monatlich, jährlich (UI: Täglich/Wöchentlich/Monatlich/Jährlich)."
+subscription (customer),Abonnement,"Abonnement (21) | UI/other: UI: ""Abonnement-CSV"", ""Abonnementdaten""",UI-4.3.1; site,
+donation,Spende,,recommended,"Search term ""Spendenformular"" (see KEYWORD-LOCALISATION.md)."
+test mode (Stripe),Testmodus,Testmodus (3),site,"Stripe dashboard term; EFB term is ""Entwicklungsmodus (Sandbox)""."
+payment status: pending / paid / failed,ausstehend / bezahlt / fehlgeschlagen,"UI/other: UI: ""Fehlgeschlagen"" confirmed; others not verified",UI-4.3.1 (partial),"UNVERIFIED for ""ausstehend""/""bezahlt"" - confirm in the entries screen of 4.3.1."
+invoice / receipt,Rechnung / Zahlungsbeleg,"Zahlungsbeleg (1) | UI/other: Site text: ""Zahlungsbeleg und Aktivierungscode"" (email subject)",site,"""Beleg"" for the email; ""Rechnung"" only if a real invoice."
+pricing table,Preistabelle,Preistabelle (10),site,
+checkout,Kasse / Bezahlvorgang,,recommended,"Avoid ""Checkout"" in running text unless the keyword."
+Google Sheets,Google Sheets,"Google Sheets (7) | UI/other: UI: ""Google Sheets"" and ""Google Tabellen"" both",UI-4.3.1,"CONFLICT inside UI. Product name for German users: ""Google Tabellen""; search term and API docs: ""Google Sheets"". Recommend ""Google Sheets (Google Tabellen)"" at first mention, then ""Google Sheets""."
+spreadsheet,Tabelle / Spreadsheet,"UI/other: UI: ""Spreadsheet""",UI-4.3.1,"Prefer ""Tabelle""."
+service account,Dienstkonto,"UI/other: UI: ""Dienstkonto""",UI-4.3.1,"Google Cloud: ""Dienstkonto"" (service account)."
+webhook,Webhook,Webhook (6),site,"Kept English; ""Webhook-URL""."
+API connection,API-Verbindung,"UI/other: UI: ""API-Verbindung""",UI-4.3.1,
+Zapier / Make / n8n,Zapier / Make / n8n,,recommended,Brands unchanged.
+Telegram bot,Telegram-Bot,,recommended,"Chat-ID, Bot-Token."
+SMS add-on,SMS-Add-on,"UI/other: UI: ""EFB SMS Add-on""",UI-4.3.1,
+page builder (Elementor/Divi/WPBakery),Page-Builder,"UI/other: UI: ""Elementor-Formular-Plugin"", ""Integration von Gutenberg, Elementor, Divi und WPBakery""",UI-4.3.1,
+caching plugin,Caching-Plugin,"Caching-Plugin (21) | Cache-Plugin (10) | UI/other: UI: ""Cache-Plugin erkannt""",UI-4.3.1; site,"CONFLICT: Caching-Plugin (18) vs Cache-Plugin (10). Recommend ""Caching-Plugin""."
+cache,Cache,"Cache (98) | Caching (41) | zwischengespeichert (5) | UI/other: UI: ""Cache""; wporg alternative: ""zwischengespeichert""",UI-4.3.1; UI-wporg,"Noun ""der Cache""; verb ""zwischenspeichern"" only in explanations."
+WordPress,WordPress,UI/other: WP core,WP-core-de,"Casing exactly ""WordPress""; compounds ""WordPress-Website"", ""WordPress-Dashboard""."
+website,Website,"Website (224) | Webseite (1) | Seite (11) | UI/other: WP core: ""Website""",WP-core-de; site,"Use ""Website"" (WP core). ""WordPress-Seite"" (10 uses) is ambiguous with a WP page - avoid."
+page (WordPress),Seite,"Seite (201) | UI/other: WP core: ""Seite""",WP-core-de,"WordPress page vs. site: disambiguate (""Seite oder Beitrag"")."
+post (WordPress),Beitrag,"Beitrag (45) | UI/other: WP core: ""Beitrag""",WP-core-de,
+theme,Theme,"UI/other: WP core: ""Theme""",WP-core-de,
+block (Gutenberg),Block,"Block (106) | UI/other: WP core: ""Block""",WP-core-de,"Email template blocks: ""E-Mail-Template-Blocks"" in UI."
+block editor,Block-Editor,"UI/other: WP core: ""Klassischer Editor""",WP-core-de,
+widget,Widget,UI/other: WP core,WP-core-de,
+sidebar,Seitenleiste,"Seitenleiste (17) | UI/other: WP core: ""Seitenleiste""",WP-core-de; site,
+admin bar,Admin-Leiste,Adminleiste (7),site,
+permalink,Permalink,"UI/other: WP core: ""Permalink""",WP-core-de,
+media library,Mediathek,"UI/other: WP core: ""Mediathek""",WP-core-de,
+multisite,Multisite,,recommended,"Keep English (WP core menu ""Netzwerkverwaltung"" for network admin)."
+user role,Benutzerrolle,"UI/other: WP core: ""Rollen""",WP-core-de,
+tab (UI tab),Tab / Registerkarte,"Tab (37) | Registerkarte (2) | UI/other: UI: ""Tab"", ""neuer Tab""",UI-4.3.1; site,"Use ""Tab"" (UI: Wähle den Tab „E-Mail-Einstellungen“)."
+sidebar menu / menu,Menü,"UI/other: WP core: ""Menü""",WP-core-de,
+clipboard,Zwischenablage,"UI/other: UI: ""In die Zwischenablage kopiert""",UI-4.3.1,
+link,Link,"Link (83) | Verknüpfung (1) | UI/other: UI + WP core: ""Link""",UI-4.3.1; WP-core-de,"""verknüpfen"" for connecting things; ""Link"" for URLs."
+image,Bild,"UI/other: WP core: ""Bild""",WP-core-de,
+hosting,Hosting,Hosting (34),site,
+backup,Backup / Sicherung,,recommended,"Prefer ""Backup"" in titles (search), ""Sicherung"" in prose."
+staging site,Staging-Umgebung,,recommended,
+PHP limits (upload_max_filesize),PHP-Limits,,recommended,Config names stay in code format.
+keyword,Keyword / Suchbegriff,,recommended,"Keep ""Keyword"" in internal docs; ""Suchbegriff"" in public text."
+meta description,Meta-Beschreibung,,recommended,"Internal; field label in SEO plugins is ""Meta-Beschreibung""."
+title tag,Titel-Tag / SEO-Titel,,recommended,
+slug,Slug (URL-Kürzel),,recommended,"Same slug in EN/DE/AR; never translate slugs. WordPress core German calls the slug field ""Titelform"" - only mention it if you describe the WP editor."
+internal link,interner Link,,recommended,
+breadcrumb,Brotkrümelnavigation / Breadcrumb,,recommended,"Use ""Breadcrumb""."
+FAQ,Häufige Fragen (FAQ),Häufig gestellte Fragen (18) | Häufige Fragen (2) | FAQ (7),site,"Heading on site: ""Häufig gestellte Fragen"" (13) is the majority; use it; ""FAQ"" only as a bracket."
+quick answer,Kurzantwort,Kurz gesagt (7) | Kurzantwort (4),site,"Opening 40-60 word answer: start with ""Kurz gesagt:"" (7 articles already do)."
+troubleshooting,Fehlerbehebung,Fehlerbehebung (12) | Troubleshooting (1),site,"Section heading ""Häufige Fehler und Lösungen"" / ""Fehlerbehebung""."
+best practices,Best Practices,Best Practices (4) | Empfehlungen (12),site,"Title on site keeps ""Best Practices"" (anglicism accepted in DE SEO)."
+use case,Anwendungsfall,,recommended,
+free (adjective),kostenlos,"kostenlos (96) | UI/other: UI: ""Kostenloses WordPress-Formular-Plugin""",UI-4.3.1; site,"Never ""gratis"" in tech copy."
+step 1 / step 2,Schritt 1 / Schritt 2,Schritt N: (131),site,"Headings ""Schritt 1: ..."" with colon."
+screenshot,Screenshot,Screenshot (3),recommended,
+click,klicken auf,"Klicke auf (34) | Klicken Sie auf (29) | UI/other: UI: ""Klicke ...""",UI-4.3.1; site,"du-imperative: ""Klicke auf „Speichern“""."
+select (verb),auswählen / wählen,"Wähle (25) | Wählen Sie (31) | UI/other: UI: ""Wähle den Tab …""",UI-4.3.1; site,
+enable / turn on,aktivieren / einschalten,"aktiviere (21) | UI/other: UI: ""aktivieren""; ""einschalten"" in dev-mode strings",UI-4.3.1,"Option toggles: ""aktivieren"" (UI); ""einschalten/ausschalten"" for the Development Mode switch (UI)."

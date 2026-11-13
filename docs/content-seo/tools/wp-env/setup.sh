@@ -93,16 +93,18 @@ efb_log "6/9 plan = $EFB_PLAN  (free=2, free_plus=3; Pro=1 requires a licence ac
 case "$EFB_PLAN" in
   free) wp option update emsfb_pro 2 >/dev/null ;;
   free_plus) wp option update emsfb_pro 3 >/dev/null ;;
+  none) efb_log "  (plan chooser left untouched - first-run onboarding will show in the UI)" ;;
   *) efb_log "unknown EFB_PLAN=$EFB_PLAN"; exit 1 ;;
 esac
+if [ "$EFB_PLAN" != none ]; then
+  # Same two options the "Skip for now" button of the first-run guide writes (efb_dismiss_onboarding()).
+  wp option update emsfb_onboarding_pending 0 >/dev/null
+  wp option update emsfb_onboarding_dismissed_at "$(date -u '+%Y-%m-%d %H:%M:%S')" >/dev/null
+fi
 
 # ---- 7. languages ---------------------------------------------------------------------------------------------
 efb_log "7/9 languages: en_US $EFB_LOCALES"
-for loc in $EFB_LOCALES; do
-  wp language core install "$loc" >/dev/null 2>&1 || efb_log "  core language $loc failed"
-  # de_DE is bundled in the plugin; others come from translate.wordpress.org plugin packs
-  wp language plugin install easy-form-builder "$loc" >/dev/null 2>&1 || efb_log "  plugin language pack $loc unavailable (falls back to bundled/English)"
-done
+"$HERE/install-languages.sh" $EFB_LOCALES
 
 # ---- 8. server + seed -----------------------------------------------------------------------------------------
 efb_log "8/9 starting PHP server on $WP_URL"

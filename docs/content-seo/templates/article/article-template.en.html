@@ -1,0 +1,235 @@
+<!--#
+  EFB TASK ARTICLE v1 - post body skeleton for whitestudio.team (theme: simple-ws-theme 1.11.44)
+  ====================================================================================
+  * CONTENT ONLY. The theme prints breadcrumb, H1 (the post title), the "Updated <date> - N min read" byline,
+    the sticky "On this page" TOC (built from the H2s below) and the author box. Never add an h1,
+    an in-body TOC or a byline here.
+  * Core blocks (heading, paragraph, list, image, table, details, video, embed, code, separator) are
+    serialised with their wp: block comments. Those comments make WordPress skip wpautop and let the
+    core image block render the theme's lightbox. Theme-only components (callout, quick facts, buttons,
+    plan badge) use classes that exist in simple-ws-theme CSS and are wrapped in a wp:html block.
+  * Template notes are comments whose text starts with a hash character (angle bracket, bang, two dashes, hash).
+    They MUST be removed by the fill step. Order: (1) delete OPTIONAL spans that have no data,
+    (2) substitute placeholders, (3) strip every hash comment (line comments with their newline, inline ones as is)
+    (see article-template.README.md, "Fill procedure").
+  * Double-brace placeholders are documented in article-template.README.md. Text values are HTML-escaped,
+    attribute values attribute-escaped, values marked (HTML) are inserted raw.
+  * An OPTIONAL span is a pair of hash comments, "OPTIONAL name" and "/OPTIONAL", wrapping the markup.
+  * JSON-LD is NOT part of the body: it goes to the efb_jsonld post meta (see jsonld-templates.json).
+#-->
+
+<!--# 1. ANSWER FIRST: 40-60 words, names "Easy Form Builder", states the plan and the tested version. #-->
+<!-- wp:paragraph {"className":"lead"} -->
+<p class="lead wp-block-paragraph"><strong>Short answer:</strong> {{DIRECT_ANSWER}}</p>
+<!-- /wp:paragraph -->
+
+<!--# 2. QUICK FACTS: plan, time, tested version, last verified date (+ requirements). The one place where the plan/tier is stated. #-->
+<!-- wp:html -->
+<div class="wp-block-callout efb-quick-facts" role="note" aria-label="Quick facts for {{TITLE}}">
+<span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5"></path><path d="M12 8h.01"></path></svg></span>
+<div>
+<p><strong>Quick facts</strong></p>
+<ul>
+<li><strong>Plan:</strong> {{PLAN_LABEL}}</li>
+<li><strong>Time:</strong> {{TIME_TO_COMPLETE}}</li>
+<li><strong>Tested with:</strong> Easy Form Builder {{EFB_VERSION}} on WordPress {{WP_VERSION}}</li>
+<li><strong>Last verified:</strong> <time datetime="{{VERIFIED_DATE_ISO}}">{{VERIFIED_DATE_HUMAN}}</time></li>
+<!--# OPTIONAL requirements #-->{{REQUIREMENTS_ITEMS}}<!--# /OPTIONAL #-->
+</ul>
+</div>
+</div>
+<!-- /wp:html -->
+
+<!--# 3. VIDEO (60 s, 16:9) right after the facts, before the first H2. {{VIDEO_EMBED}} = variant A (YouTube) or B (self-hosted) from the README. Transcript stays on the page. #-->
+<!--# OPTIONAL video #-->
+{{VIDEO_EMBED}}
+
+<!-- wp:details -->
+<details class="wp-block-details"><summary>Video transcript</summary>
+<!-- wp:paragraph -->
+<p class="wp-block-paragraph">{{VIDEO_TRANSCRIPT}}</p>
+<!-- /wp:paragraph --></details>
+<!-- /wp:details -->
+<!--# /OPTIONAL #-->
+
+<!--# 4. PREREQUISITES: only what is NOT already in Quick facts. Max 4 bullets. #-->
+<!--# OPTIONAL before_you_start #-->
+<!-- wp:heading -->
+<h2 class="wp-block-heading" id="before-you-start">Before you start</h2>
+<!-- /wp:heading -->
+
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li>{{PREREQ_1}}</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>{{PREREQ_2}}</li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list -->
+<!--# /OPTIONAL #-->
+
+<!--# 5. STEPS: one H2 per step ("Step N - Verb phrase"), one annotated screenshot per step. Repeat the block 3..8 times.
+      Theme TOC lists H2s only, so the sidebar doubles as the step list. #-->
+<!-- wp:heading -->
+<h2 class="wp-block-heading" id="{{STEP_1_ID}}">Step 1 — {{STEP_1_TITLE}}</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p class="wp-block-paragraph">{{STEP_1_BODY}}</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":{{IMG_1_ID}},"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="{{IMG_1_URL}}" alt="{{IMG_1_ALT}}" class="wp-image-{{IMG_1_ID}}" width="{{IMG_1_W}}" height="{{IMG_1_H}}"/></figure>
+<!-- /wp:image -->
+
+<!--# OPTIONAL step_1_extra #-->{{STEP_1_EXTRA}}<!--# /OPTIONAL #-->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading" id="{{STEP_2_ID}}">Step 2 — {{STEP_2_TITLE}}</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p class="wp-block-paragraph">{{STEP_2_BODY}}</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":{{IMG_2_ID}},"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="{{IMG_2_URL}}" alt="{{IMG_2_ALT}}" class="wp-image-{{IMG_2_ID}}" width="{{IMG_2_W}}" height="{{IMG_2_H}}"/></figure>
+<!-- /wp:image -->
+
+<!--# CALLOUT, neutral "Note": a fact that helps but is not required. At most one per two steps. #-->
+<!--# OPTIONAL note_after_step_2 #-->
+<!-- wp:html -->
+<div class="wp-block-callout" role="note">
+<span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"></path><path d="M10 22h4"></path><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.2 1 2V17h6v-.3c0-.8.4-1.5 1-2A7 7 0 0 0 12 2z"></path></svg></span>
+<p><strong>Note:</strong> {{NOTE_1}}</p>
+</div>
+<!-- /wp:html -->
+<!--# /OPTIONAL #-->
+
+<!--# OPTIONAL step_2_extra #-->{{STEP_2_EXTRA}}<!--# /OPTIONAL #-->
+
+<!--# STEP_BLOCK 3 #-->
+<!-- wp:heading -->
+<h2 class="wp-block-heading" id="{{STEP_3_ID}}">Step 3 — {{STEP_3_TITLE}}</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p class="wp-block-paragraph">{{STEP_3_BODY}}</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":{{IMG_3_ID}},"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="{{IMG_3_URL}}" alt="{{IMG_3_ALT}}" class="wp-image-{{IMG_3_ID}}" width="{{IMG_3_W}}" height="{{IMG_3_H}}"/></figure>
+<!-- /wp:image -->
+
+<!--# OPTIONAL step_3_extra #-->{{STEP_3_EXTRA}}<!--# /OPTIONAL #-->
+<!--# /STEP_BLOCK #-->
+
+<!--# Steps 4..N are cloned from the STEP_BLOCK 3 span by the fill step (3 to 8 steps). #-->
+
+<!--# 6. RESULT: what the reader should see when it worked (one image, the finished state). Optional for 3-step articles. #-->
+<!--# OPTIONAL result #-->
+<!-- wp:heading -->
+<h2 class="wp-block-heading" id="result">What you should see</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p class="wp-block-paragraph">{{RESULT_BODY}}</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":{{IMG_RESULT_ID}},"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="{{IMG_RESULT_URL}}" alt="{{IMG_RESULT_ALT}}" class="wp-image-{{IMG_RESULT_ID}}" width="{{IMG_RESULT_W}}" height="{{IMG_RESULT_H}}"/></figure>
+<!-- /wp:image -->
+<!--# /OPTIONAL #-->
+
+<!--# 7. TROUBLESHOOTING / COMMON MISTAKES: symptom - cause - fix. Theme table: dark header, zebra rows, scrolls on mobile. #-->
+<!-- wp:heading -->
+<h2 class="wp-block-heading" id="troubleshooting">Troubleshooting</h2>
+<!-- /wp:heading -->
+
+<!-- wp:table -->
+<figure class="wp-block-table"><table class="has-fixed-layout"><thead><tr><th>Symptom</th><th>Likely cause</th><th>Fix</th></tr></thead><tbody><tr><td>{{TROUBLE_1_SYMPTOM}}</td><td>{{TROUBLE_1_CAUSE}}</td><td>{{TROUBLE_1_FIX}}</td></tr><tr><td>{{TROUBLE_2_SYMPTOM}}</td><td>{{TROUBLE_2_CAUSE}}</td><td>{{TROUBLE_2_FIX}}</td></tr><tr><td>{{TROUBLE_3_SYMPTOM}}</td><td>{{TROUBLE_3_CAUSE}}</td><td>{{TROUBLE_3_FIX}}</td></tr></tbody></table></figure>
+<!-- /wp:table -->
+
+<!--# CALLOUT, amber "Warning": data loss, security, irreversible actions. Use sparingly. #-->
+<!--# OPTIONAL warning #-->
+<!-- wp:html -->
+<div class="wp-block-callout warn" role="note">
+<span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg></span>
+<p><strong>Warning:</strong> {{WARNING_1}}</p>
+</div>
+<!-- /wp:html -->
+<!--# /OPTIONAL #-->
+
+<!--# 8. FAQ: 4-6 real questions, answer in 1-3 sentences, same text goes to FAQPage JSON-LD. Native <details> = no JS. #-->
+<!-- wp:heading -->
+<h2 class="wp-block-heading" id="faq">Frequently asked questions</h2>
+<!-- /wp:heading -->
+
+<!-- wp:details -->
+<details class="wp-block-details"><summary>{{FAQ_1_Q}}</summary>
+<!-- wp:paragraph -->
+<p class="wp-block-paragraph">{{FAQ_1_A}}</p>
+<!-- /wp:paragraph --></details>
+<!-- /wp:details -->
+
+<!-- wp:details -->
+<details class="wp-block-details"><summary>{{FAQ_2_Q}}</summary>
+<!-- wp:paragraph -->
+<p class="wp-block-paragraph">{{FAQ_2_A}}</p>
+<!-- /wp:paragraph --></details>
+<!-- /wp:details -->
+
+<!--# OPTIONAL faq_3 #-->
+<!-- wp:details -->
+<details class="wp-block-details"><summary>{{FAQ_3_Q}}</summary>
+<!-- wp:paragraph -->
+<p class="wp-block-paragraph">{{FAQ_3_A}}</p>
+<!-- /wp:paragraph --></details>
+<!-- /wp:details -->
+<!--# /OPTIONAL #-->
+
+<!--# OPTIONAL faq_4 #--><!--# FAQ_BLOCK 4 #-->
+<!-- wp:details -->
+<details class="wp-block-details"><summary>{{FAQ_4_Q}}</summary>
+<!-- wp:paragraph -->
+<p class="wp-block-paragraph">{{FAQ_4_A}}</p>
+<!-- /wp:paragraph --></details>
+<!-- /wp:details -->
+<!--# /FAQ_BLOCK #--><!--# /OPTIONAL #-->
+
+<!--# FAQ_5 and FAQ_6 are cloned from the FAQ_4 block by the fill step when data exists; never pad. #-->
+
+<!--# 9. WHAT'S NEXT: one-line recap, 1 primary next step, 2-3 siblings, 1 conversion link. (WPForms docs: "That's it!" + one "Next, ..." link.) #-->
+<!-- wp:heading -->
+<h2 class="wp-block-heading" id="whats-next">What’s next</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p class="wp-block-paragraph">{{RECAP_SENTENCE}}</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li><a href="{{NEXT_URL}}">{{NEXT_ANCHOR}}</a> — {{NEXT_REASON}}</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><a href="{{RELATED_1_URL}}">{{RELATED_1_ANCHOR}}</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><a href="{{RELATED_2_URL}}">{{RELATED_2_ANCHOR}}</a></li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list -->
+
+<!--# OPTIONAL cta #-->
+<!-- wp:html -->
+<div class="wp-block-buttons"><div class="wp-block-button"><a class="wp-block-button__link" href="{{CTA_URL}}">{{CTA_LABEL}}</a></div></div>
+<!-- /wp:html -->
+<!--# /OPTIONAL #-->
+
+<!--# 10. FRESHNESS LINE: the visible "updated for version X" signal for readers and AI. For a rewrite, name what changed. #-->
+<!-- wp:paragraph -->
+<p class="wp-block-paragraph"><em>Updated for Easy Form Builder {{EFB_VERSION}} on <time datetime="{{VERIFIED_DATE_ISO}}">{{VERIFIED_DATE_HUMAN}}</time>. <!--# OPTIONAL update_note #-->{{UPDATE_NOTE}}<!--# /OPTIONAL #--></em></p>
+<!-- /wp:paragraph -->

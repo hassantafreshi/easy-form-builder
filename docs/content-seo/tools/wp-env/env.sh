@@ -14,7 +14,7 @@ export WP_URL="http://$WP_HOST:$WP_PORT"
 export WP_PHP_WORKERS="${WP_PHP_WORKERS:-4}"                          # php -S worker processes
 export EFB_SECRETS_DIR="$EFB_WORK/secrets"                            # outside the repo, mode 700
 export EFB_ADMIN_ENV="$EFB_SECRETS_DIR/wp-admin.env"                  # WP_ADMIN_USER / WP_ADMIN_PASS
-export EFB_PLAN="${EFB_PLAN:-free_plus}"                              # free | free_plus  (pro needs an owner licence key)
+export EFB_PLAN="${EFB_PLAN:-free_plus}"                              # free | free_plus | none  (pro needs an owner licence key; none = leave plan chooser/onboarding for recording)
 export EFB_LOCALES="${EFB_LOCALES:-de_DE ar}"                         # extra WordPress locales to install
 # 1 = let the plugin do GET/HEAD to whitestudio.team (add-on archives for Free Plus). POSTs are always blocked.
 export EFB_ALLOW_WHITESTUDIO_GET="${EFB_ALLOW_WHITESTUDIO_GET:-1}"

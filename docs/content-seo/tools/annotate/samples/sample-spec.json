@@ -1,0 +1,63 @@
+{
+  "scale": 2,
+  "units": "css",
+  "output": {
+    "max_width": 1600,
+    "quality": 82
+  },
+  "annotations": [
+    {
+      "type": "crop",
+      "coords": [
+        130,
+        40,
+        660,
+        360
+      ]
+    },
+    {
+      "type": "blur",
+      "coords": [
+        172,
+        202,
+        300,
+        26
+      ]
+    },
+    {
+      "type": "redact",
+      "coords": [
+        172,
+        278,
+        300,
+        26
+      ]
+    },
+    {
+      "type": "zoom",
+      "coords": [
+        164,
+        126,
+        44,
+        24
+      ],
+      "factor": 2.0,
+      "diameter": 0.19,
+      "at": [
+        610,
+        170
+      ]
+    },
+    {
+      "type": "arrow",
+      "target": [
+        320,
+        340,
+        160,
+        40
+      ],
+      "from": "end",
+      "length": 0.15
+    }
+  ]
+}

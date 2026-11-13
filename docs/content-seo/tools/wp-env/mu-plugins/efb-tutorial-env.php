@@ -54,3 +54,13 @@ add_filter( 'locale', function ( $locale ) {
 	}
 	return $locale;
 }, 5 );
+
+// 5. Keep recordings free of environment-only chrome: the SQLite plugin's "Database: SQLite" toolbar item.
+add_action( 'admin_bar_menu', function ( $bar ) {
+	$bar->remove_node( 'sqlite-db-integration' );
+}, 1000 );
+
+// 6. Front-end recordings: ?efb_nobar=1 hides the admin bar even for a logged-in recorder.
+add_filter( 'show_admin_bar', function ( $show ) {
+	return ( isset( $_GET['efb_nobar'] ) ) ? false : $show;
+}, 99 );

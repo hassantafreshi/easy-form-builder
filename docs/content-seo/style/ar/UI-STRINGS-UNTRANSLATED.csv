@@ -1,0 +1,314 @@
+﻿msgid_en_shown_in_english_in_ar_ui,context,source_file
+%1$s could not install its translation into %2$s on %3$s.,,includes/class-Emsfb-language-packs.php
+"%1$s is downloading its translation into %2$s. This takes a few seconds, and the page reloads by itself.",,includes/class-Emsfb-language-packs.php
+%1$s is installing its language files (%2$s)…,,includes/class-Emsfb-language-packs.php
+"%1$s on %2$s could not download its translation files from the WhiteStudio server (%3$s), because the server this website runs on cannot connect to it.",,includes/class-Emsfb-language-packs.php
+%s Contact Form 7 form on this site is not in Easy Form Builder yet. Copy it in one click; the original stays as it is.,,includes/importers/cf7/class-Emsfb-cf7-importer.php
+"%s keeps working, in English.",,includes/class-Emsfb-language-packs.php
+"%s seems to have served a stored copy of this page whose security code had expired, so the form was refused.",,includes/class-Emsfb-formbuilder.php
+%s: language files installed.,,includes/class-Emsfb-language-packs.php
+(no title),,includes/importers/cf7/class-Emsfb-cf7-importer.php
+"1. Allow file changes by removing DISALLOW_FILE_MODS from wp-config.php, or install the files yourself as described below.",,includes/class-Emsfb-language-packs.php
+1. Ask your hosting provider to allow outgoing HTTPS connections (port 443) from this server to %s.,,includes/class-Emsfb-language-packs.php
+1. Ask your hosting provider to allow outgoing HTTPS connections (port 443) from this server to %s. The plugin installs the translation by itself as soon as it can connect.,,includes/class-Emsfb-language-packs.php
+"1. Ask your hosting provider to let WordPress write files directly, or install the files yourself as described below.",,includes/class-Emsfb-language-packs.php
+1. Make the folder %s writable by WordPress. The plugin installs the translation by itself afterwards.,,includes/class-Emsfb-language-packs.php
+2. Or install the translation files yourself by following this short guide:,,includes/class-Emsfb-language-packs.php
+"2. Or install the translation yourself, in a few minutes:",,includes/class-Emsfb-language-packs.php
+20 form fields,,includes/functions.php
+"A check started on %s did not finish. Look for the emailed report in your inbox, or run it again.",,includes/functions.php
+"A check was started but did not finish. Look for the emailed report in your inbox, or run it again.",,includes/functions.php
+"A form, response box or upload request encountered an error. Some requests may have recovered automatically; counts are not lost submissions. Browser reports are unverified; a 403 alone does not prove a cache or firewall problem. Submission status may be unknown.",,includes/class-Emsfb-request-health.php
+A link in “%s” is now plain text.,,includes/importers/cf7/class-Emsfb-cf7-mapper.php
+"A security plugin, a firewall or your hosting company refused the request before it reached Easy Form Builder (HTTP %d). It is not caused by a cache plugin.",,includes/class-Emsfb-formbuilder.php
+"A sending service delivers your form emails from its own trusted servers. Install the official plugin with one click, sign in and connect; most services also give you the SPF and DKIM records to copy.",,includes/functions.php
+A “[%s]” tag without a valid name was skipped.,,includes/importers/cf7/class-Emsfb-cf7-mapper.php
+Accepted for sending; delivery not confirmed yet,,includes/functions.php
+"Allow the address /wp-json/Emsfb/ in that plugin (for example Disable REST API), or ask your hosting company.",,includes/class-Emsfb-formbuilder.php
+Already fixed it or know it works? Turn notifications on in Email Settings.,,includes/functions.php
+Already imported as form #%s,,includes/importers/cf7/class-Emsfb-cf7-importer.php
+"An answer came back that could not be read, so delivery was not checked. Try again later.",,includes/functions.php
+An image in the form was not carried over.,,includes/importers/cf7/class-Emsfb-cf7-mapper.php
+Another plugin or a setting blocks the WordPress REST API for visitors (HTTP %d).,,includes/class-Emsfb-formbuilder.php
+Ask a site administrator to install one of these plugins.,,includes/functions.php
+"Ask your hosting company to check the database (disk space or a damaged table), then send a test form.",,includes/class-Emsfb-formbuilder.php
+Ask your hosting company to check the firewall log for a blocked request to /wp-json/Emsfb/ at %s.,,includes/class-Emsfb-formbuilder.php
+"Ask your hosting company to raise the request size limit, or ask visitors to use smaller files.",,includes/class-Emsfb-formbuilder.php
+CSV export of entries,,includes/functions.php
+Can your site send email?,,includes/functions.php
+Carried over,,includes/importers/cf7/class-Emsfb-cf7-importer.php
+Check again,,includes/functions.php
+Check for me,,includes/functions.php
+Check now,,includes/functions.php
+Choose at least one form.,,includes/importers/cf7/class-Emsfb-cf7-importer.php
+Choose the forms to copy. Each one becomes a new Easy Form Builder form. Your Contact Form 7 forms are not changed or deleted.,,includes/importers/cf7/class-Emsfb-cf7-importer.php
+Close for now,,includes/functions.php
+"Cloudflare showed the visitor a security check instead of sending the form. Open Cloudflare (Security, Events) and look for a challenged request at %s.",,includes/class-Emsfb-formbuilder.php
+Compare the free plans,,includes/functions.php
+"Connects Gmail, Outlook, Brevo and almost any SMTP service to WordPress. Free.",,includes/email-next-steps-efb.php
+"Contact Form 7 did not send the notification email for this form (skip_mail), so it is turned off here too.",,includes/importers/cf7/class-Emsfb-cf7-mapper.php
+Continue in English,,includes/class-Emsfb-language-packs.php
+Copies (Cc/Bcc) were not carried over: %s. Add them to the notification addresses in the form settings if they should get every entry.,,includes/importers/cf7/class-Emsfb-cf7-mapper.php
+Copy details,,includes/class-Emsfb-formbuilder.php
+Copy the technical details below and send them to Easy Form Builder support.,,includes/class-Emsfb-formbuilder.php
+Could not be carried over,,includes/importers/cf7/class-Emsfb-cf7-importer.php
+Custom JavaScript from the “Additional Settings” of Contact Form 7 was not carried over.,,includes/importers/cf7/class-Emsfb-cf7-mapper.php
+Delivery result unknown,,includes/functions.php
+Demo mode was on in Contact Form 7. The new form saves entries and sends emails normally.,,includes/importers/cf7/class-Emsfb-cf7-mapper.php
+Domain protection policy (DMARC),,includes/functions.php
+Download %1$s: %2$s,,includes/class-Emsfb-language-packs.php
+"Each guide has a short video, screenshots and a ready-made prompt you can paste into any AI assistant to be walked through it step by step.",,includes/functions.php
+Easy Form Builder refused this submission,,includes/class-Emsfb-formbuilder.php
+Easy Form Builder: request failures detected,,includes/class-Emsfb-request-health.php
+Edit in builder,,includes/importers/cf7/class-Emsfb-cf7-importer.php
+Email check,,includes/functions.php
+Email sending confirmed by the site owner,,includes/admin/class-Emsfb-admin.php
+Email signature (DKIM),,includes/functions.php
+Email subject: %s,,includes/importers/cf7/class-Emsfb-cf7-mapper.php
+"Email text: Easy Form Builder sends its own emails, listing every answer, so the message text written in Contact Form 7 was not copied.",,includes/importers/cf7/class-Emsfb-cf7-mapper.php
+Emailing the full report to %s…,,includes/functions.php
+Everything was carried over.,,includes/importers/cf7/class-Emsfb-cf7-importer.php
+"Extra text, often a PHP notice or another plugin's output, was printed before the answer, so it could not be read. The entry may or may not have been saved.",,includes/class-Emsfb-formbuilder.php
+Failing since: %s,,includes/class-Emsfb-language-packs.php
+Fair,,includes/functions.php
+Fields: %s,,includes/importers/cf7/class-Emsfb-cf7-importer.php
+"For nonce errors, check whether token refresh is reachable. For unconfirmed 403 responses, correlate the timestamp with security/CDN logs. Do not disable security protections based only on a browser report.",,includes/class-Emsfb-request-health.php
+Form submission,,includes/class-Emsfb-formbuilder.php
+Form submissions and email status are checked separately.,,includes/functions.php
+"Free plan with a daily sending limit; official plugin, one API key.",,includes/email-next-steps-efb.php
+"Free plan with a daily sending limit; official plugin, sign in and connect.",,includes/email-next-steps-efb.php
+"Free plan with a monthly sending limit; official plugin, one API key.",,includes/email-next-steps-efb.php
+Free-plan limits are set by each service and change over time; check the plan before you rely on it.,,includes/functions.php
+Good,,includes/functions.php
+"Google reCAPTCHA is turned on for this form, in place of the Contact Form 7 CAPTCHA.",,includes/importers/cf7/class-Emsfb-cf7-mapper.php
+"Guide, video and AI prompt",,includes/functions.php
+Human Shield or your server limited requests from this visitor's internet address (HTTP 429).,,includes/class-Emsfb-formbuilder.php
+"If real visitors are affected, raise the limit in the Human Shield settings.",,includes/class-Emsfb-formbuilder.php
+"If real visitors get this message, check the setting it names, for example Human Shield or the form's own rules.",,includes/class-Emsfb-formbuilder.php
+"If the message turns up later, the report goes to %s.",,includes/functions.php
+"If you skip, form notifications stay off until you check or turn them on in Email Settings.",,includes/functions.php
+Import finished,,includes/importers/cf7/class-Emsfb-cf7-importer.php
+Import from Contact Form 7,,includes/importers/cf7/class-Emsfb-cf7-importer.php
+Importing…,,includes/importers/cf7/class-Emsfb-cf7-importer.php
+"In %s, clear the cache (Purge All) and reload this page. If it happens again, exclude this page from caching.",,includes/class-Emsfb-formbuilder.php
+Installed,,includes/functions.php
+Installing language files,,includes/class-Emsfb-language-packs.php
+Invalid form request.,,includes/class-Emsfb-public.php:2379 includes/class-Emsfb-public.php
+It will be tried again automatically.,,includes/class-Emsfb-language-packs.php
+Language files installed. Reloading…,,includes/class-Emsfb-language-packs.php
+Language files not installed,,includes/class-Emsfb-language-packs.php
+Languages affected: %s,,includes/class-Emsfb-language-packs.php
+Last error: %s,,includes/class-Emsfb-language-packs.php
+Looking for Contact Form 7 forms…,,includes/importers/cf7/class-Emsfb-cf7-importer.php
+Looks good,,includes/functions.php
+Message after sending: “%s”,,includes/importers/cf7/class-Emsfb-cf7-mapper.php
+Moving from Contact Form 7?,,includes/importers/cf7/class-Emsfb-cf7-importer.php
+Needs setup,,includes/functions.php
+New form #%s,,includes/importers/cf7/class-Emsfb-cf7-importer.php
+No Contact Form 7 forms were found.,,includes/importers/cf7/class-Emsfb-cf7-importer.php
+No action needed. The visitor was asked to refresh the page and send the form again.,,includes/class-Emsfb-formbuilder.php
+No action needed. The visitor was asked to send the form again.,,includes/class-Emsfb-formbuilder.php
+No answer from the website. Please check your connection and try again.,,includes/functions.php
+"No final answer arrived in time. Delivery is unknown, not failed. Try again later.",,includes/functions.php
+No translation yet,,includes/class-Emsfb-language-packs.php
+Not changed:,,includes/importers/cf7/class-Emsfb-cf7-importer.php
+Not checked,,includes/functions.php
+Not delivered,,includes/functions.php
+Not finished,,includes/functions.php
+Not now,,includes/functions.php
+Not sent,,includes/functions.php
+"Nothing is broken: the plugin keeps working, and every translation that was already installed stays in place.",,includes/class-Emsfb-language-packs.php
+"Nothing was sent yet, so this says nothing about your email. Try again later.",,includes/functions.php
+Notifications and the report go here.,,includes/functions.php
+"Notifications are on. An earlier automatic check found that emails from this site may not reach the inbox; if none arrive, run the check from Email Settings.",,includes/functions.php
+Notifications are on. You can run the check any time from Email Settings.,,includes/functions.php
+Notifications go to %s.,,includes/importers/cf7/class-Emsfb-cf7-mapper.php
+Now showing the new form:,,includes/importers/cf7/class-Emsfb-cf7-importer.php
+"Off by default. Each page is first saved as a revision, so you can undo the change from the page’s Revisions screen. Pages built with Elementor or Beaver Builder are listed but not changed.",,includes/importers/cf7/class-Emsfb-cf7-importer.php
+Only a site administrator can check email delivery or turn notifications on. Ask them before you rely on this form.,,includes/functions.php
+"Only logged-in visitors can use this form, as in Contact Form 7.",,includes/importers/cf7/class-Emsfb-cf7-mapper.php
+Only you can see this,,includes/class-Emsfb-formbuilder.php
+Open %1$s and look for a blocked request at %2$s.,,includes/class-Emsfb-formbuilder.php
+"Open Messages and check for an entry at %s, then ask your hosting company for the PHP error log of that time.",,includes/class-Emsfb-formbuilder.php
+"Open Messages and check for an entry at %s. On a live site, turn off WP_DEBUG_DISPLAY or ask your hosting company to check the PHP error log.",,includes/class-Emsfb-formbuilder.php
+Open Messages in Easy Form Builder and check for an entry at %s.,,includes/class-Emsfb-formbuilder.php
+Open Plugins,,includes/functions.php
+Opens in a new tab; this window stays open.,,includes/functions.php
+"Option 1: set up your domain records (free, about 15 minutes)",,includes/functions.php
+Option 2: send through an email service (free plans available),,includes/functions.php
+PHP stopped with an error while handling the form. The entry may or may not have been saved.,,includes/class-Emsfb-formbuilder.php
+Parts of the email subject that showed the visitor’s answers were removed: Easy Form Builder cannot put answers in the subject.,,includes/importers/cf7/class-Emsfb-cf7-mapper.php
+Payment could not be started. Please try again later.,,includes/class-Emsfb-public.php
+Please confirm your email address with the link we sent you before logging in.,,includes/class-Emsfb.php
+Please keep this page open; it takes about a minute.,,includes/functions.php
+Please log in to use this form.,,includes/class-Emsfb-public.php:230 includes/class-Emsfb-public.php
+Reload this page,,includes/class-Emsfb-language-packs.php
+Reopen the conversation to verify access.,,includes/class-Emsfb-public.php
+Replace the Contact Form 7 form on these pages with the new form,,includes/importers/cf7/class-Emsfb-cf7-importer.php
+"Report the bug, get 99% off your first year",,includes/class-Emsfb-deactivation-feedback.php
+SMS Add-on Not Installed,,includes/admin/class-Emsfb-admin.php
+Security Error,,includes/admin/class-Emsfb-admin.php
+See the fix,,includes/functions.php
+Select Decade,,includes/functions.php
+Select Month,,includes/functions.php
+Select Year,,includes/functions.php
+Sender permission (SPF),,includes/functions.php
+Sending a test email…,,includes/functions.php
+Setup finished. Notifications are on.,,includes/functions.php
+Shall we check that your form emails arrive?,,includes/functions.php
+Show details,,includes/functions.php
+Shown on: %s,,includes/importers/cf7/class-Emsfb-cf7-importer.php
+Skip for now,,includes/functions.php
+Skipped. Notifications are off. Run the check any time from Email Settings.,,includes/functions.php
+"Small free plan for transactional email; official plugin, one API token.",,includes/email-next-steps-efb.php
+"Some add-ons are only available on the Premium or Agency plans. If your subscription has expired, renew it to get those add-ons back.",,includes/functions.php
+Something between the visitor and Easy Form Builder refused the request.,,includes/class-Emsfb-formbuilder.php
+Spam risk,,includes/functions.php
+Step-by-step guide: %s,,includes/class-Emsfb-language-packs.php
+Still installing,,includes/class-Emsfb-language-packs.php
+Stripe and PayPal payments,,includes/functions.php
+Takes about a minute,,includes/functions.php
+Technical detail: %s,,includes/class-Emsfb-language-packs.php
+Technical details,,includes/functions.php
+Technical details for support,,includes/class-Emsfb-formbuilder.php
+"Test emails may land in your spam folder. If emails are not delivered, this is usually related to your hosting or email server settings. %1$sLearn how to fix email delivery issues%2$s or %3$scontact Easy Form Builder support%4$s.",,includes/functions.php
+"The CAPTCHA was not carried over as a field. Easy Form Builder has its own Google reCAPTCHA: add your keys in Panel > Settings > Google Keys, then turn on reCAPTCHA in this form’s settings.",,includes/importers/cf7/class-Emsfb-cf7-mapper.php
+"The add-ons are already being reinstalled in another tab or in the background. Wait a minute, then reload this page.",,includes/functions.php
+The attachment session could not be saved.,,includes/class-Emsfb-public.php
+The character counter of “%s” was not carried over.,,includes/importers/cf7/class-Emsfb-cf7-mapper.php
+The choices of “%1$s” came from a list (%2$s) that is not available here. Add the choices in the builder.,,includes/importers/cf7/class-Emsfb-cf7-mapper.php
+The choices of “%s” sent a different value in the email (the text after “|”). Easy Form Builder saves the text the visitor sees.,,includes/importers/cf7/class-Emsfb-cf7-mapper.php
+The confirmation email to the visitor could not be turned on because the form has no email field.,,includes/importers/cf7/class-Emsfb-cf7-mapper.php
+"The connection was interrupted, so we could not confirm that your form arrived. If you did not receive a confirmation, please send it again.",,includes/functions.php
+The delivery result is not known yet. You can finish setup and check again later.,,includes/functions.php
+The details and the manual installation steps were emailed to %s.,,includes/class-Emsfb-language-packs.php
+"The email subject showed the visitor’s answers, which Easy Form Builder cannot put in the subject, so its standard subject is used.",,includes/importers/cf7/class-Emsfb-cf7-mapper.php
+"The email subject was not copied: Easy Form Builder uses one subject for your notification and for the visitor’s confirmation, so its standard subjects are kept.",,includes/importers/cf7/class-Emsfb-cf7-mapper.php
+The entry could not be saved,,includes/class-Emsfb-formbuilder.php
+The form could not be saved. Your input has been kept.,,includes/class-Emsfb-public.php
+The form could not be sent (error %d). Your answers are kept. Please try again later.,,includes/functions.php
+"The form expired while this page was open. It has been renewed, so please send it again. Your answers are kept.",,includes/functions.php
+The form had expired in the visitor's browser,,includes/class-Emsfb-formbuilder.php
+"The form is too large to send, usually because of an attached file or a signature. Use a smaller file and try again.",,includes/functions.php
+The form request was refused (HTTP %d),,includes/class-Emsfb-formbuilder.php
+The form session could not be saved.,,includes/class-Emsfb-public.php
+The form was larger than your server accepts,,includes/class-Emsfb-formbuilder.php
+"The form was opened under a different login, so it was refused for safety. This is normal and is not caused by a cache plugin.",,includes/class-Emsfb-formbuilder.php
+The free daily check limit for this site was reached. Notifications are unchanged; run the check again tomorrow from Email Settings.,,includes/functions.php
+The hidden field “%s” was not carried over: Easy Form Builder has no hidden field.,,includes/importers/cf7/class-Emsfb-cf7-mapper.php
+The installation could not be started from this page. You can continue in English; it will be tried again in the background.,,includes/class-Emsfb-language-packs.php
+The language files could not be installed: %s.,,includes/class-Emsfb-language-packs.php
+The last email check found that emails from this site do not reach the inbox.,,includes/functions.php
+"The notification address “%1$s” depends on the visitor or the page, which Easy Form Builder does not support. Notifications go to %2$s.",,includes/importers/cf7/class-Emsfb-cf7-mapper.php
+"The page was open for a long time, so its security code expired. This is normal and is not caused by a cache plugin.",,includes/class-Emsfb-formbuilder.php
+The payment could not be started and nothing was charged. Please try again.,,includes/functions.php
+"The plugin keeps working normally, in English, until the translation is installed.",,includes/class-Emsfb-language-packs.php
+The quiz question “%s” was not carried over: Easy Form Builder has no quiz question. Turn on reCAPTCHA in the form settings to keep spam out.,,includes/importers/cf7/class-Emsfb-cf7-mapper.php
+"The reason is in the message your visitor saw, below.",,includes/class-Emsfb-formbuilder.php
+The request could not be safely recorded. Your input has been kept.,,includes/class-Emsfb-form-runtime.php
+The request could not be verified.,,includes/class-Emsfb-form-runtime.php
+The request took too long or the connection dropped. The entry may or may not have been saved.,,includes/class-Emsfb-formbuilder.php
+The result of the previous request is not yet confirmed. Do not submit it again.,,includes/class-Emsfb-form-runtime.php
+The security check could not finish on your connection. Please press Send again; your answers are kept.,,includes/phrases.php
+"The sender address %s was not carried over: Easy Form Builder sends from one address for all forms, set in its email settings.",,includes/importers/cf7/class-Emsfb-cf7-mapper.php
+"The server recorded an error that may have affected a form submission, reply, upload or payment. Compare recent entries and payments with the time of the error.",,includes/class-Emsfb-request-health.php
+The site owner confirmed that this host can send email. No delivery check was run.,,includes/admin/class-Emsfb-admin.php
+The test could not start,,includes/functions.php
+The text box of the last choice of “%s” is now a separate text field right after it.,,includes/importers/cf7/class-Emsfb-cf7-mapper.php
+The visitor gets a confirmation email at the address typed in “%s”.,,includes/importers/cf7/class-Emsfb-cf7-mapper.php
+The visitor signed in or out in another tab,,includes/class-Emsfb-formbuilder.php
+"The website's security settings blocked this form. Please try again in a few minutes. If it happens again, contact the site owner.",,includes/functions.php
+The “[%s]” tag comes from another plugin and was not carried over.,,includes/importers/cf7/class-Emsfb-cf7-mapper.php
+"There is no translation of %1$s into %2$s yet, so it stays in English.",,includes/class-Emsfb-language-packs.php
+These languages have no translation installed: %s,,includes/class-Emsfb-language-packs.php
+These languages keep the translations that were installed before: %s,,includes/class-Emsfb-language-packs.php
+These limits of “%1$s” were not carried over: %2$s.,,includes/importers/cf7/class-Emsfb-cf7-mapper.php
+"These settings belong to your hosting and your domain name, not to Easy Form Builder. The plugin only runs the test and shows the result; it cannot change them for you. Both options below are free.",,includes/functions.php
+This form could not be imported.,,includes/importers/cf7/class-Emsfb-cf7-importer.php
+This form has expired. Please refresh the page and send it again.,,includes/class-Emsfb-public.php:236 includes/class-Emsfb-public.php
+This happened when a visitor opened a page with a form; the form was shown in English.,,includes/class-Emsfb-language-packs.php
+This happened when the plugin was opened in the WordPress dashboard.,,includes/class-Emsfb-language-packs.php
+This is taking longer than expected. You can continue in English; the installation carries on in the background.,,includes/class-Emsfb-language-packs.php
+This page was probably shown from an old cached copy,,includes/class-Emsfb-formbuilder.php
+"This payment has already been used for another entry. If you think this is a mistake, contact the site owner with your payment receipt.",,includes/class-Emsfb-public.php
+This request changed. Please review it before continuing.,,includes/class-Emsfb-form-runtime.php
+"This server could not reach WordPress.org either, so outgoing connections from it are probably blocked in general.",,includes/class-Emsfb-language-packs.php
+This website is not accepting forms from visitors right now. Please contact the site owner.,,includes/functions.php
+Ticked: it will be imported again as a new copy.,,includes/importers/cf7/class-Emsfb-cf7-importer.php
+"To enable the Location Picker field, Easy Form Builder loads Leaflet.js from the unpkg.com CDN — only on pages where this feature is used.",,includes/functions.php
+Token refresh requires a same-origin request.,,includes/class-Emsfb-public.php
+Too many requests from one visitor,,includes/class-Emsfb-formbuilder.php
+Until then these languages use the translations from WordPress.org: %s,,includes/class-Emsfb-language-packs.php
+"Unzip it and upload the files to %s on your server, replacing any file with the same name.",,includes/class-Emsfb-language-packs.php
+Uploaded files are not attached to the email. Easy Form Builder keeps them with each entry.,,includes/importers/cf7/class-Emsfb-cf7-mapper.php
+Use this if you already know your site sends email,,includes/functions.php
+View,,includes/importers/cf7/class-Emsfb-cf7-importer.php
+View diagnostic details (last 7 days),,includes/class-Emsfb-request-health.php
+View the details in Easy Form Builder,,includes/class-Emsfb-request-health.php
+"Waiting for it to arrive, about a minute…",,includes/functions.php
+We could not confirm whether your request was saved. Your input has been kept. Avoid sending it again with different details until its status is checked.,,includes/class-Emsfb-request-health.php
+"We could not find an open payment for this form. If you have already paid, please do not pay again: contact the site owner with your payment receipt.",,includes/class-Emsfb-public.php
+"We could not finish the check, so we do not know yet. Notifications are unchanged; try again now, or later from Email Settings.",,includes/functions.php
+We emailed the full report to %s.,,includes/functions.php
+We found %s Contact Form 7 form on this site. Copy it into Easy Form Builder in one click; the original stays as it is.,,includes/importers/cf7/class-Emsfb-cf7-importer.php
+We noticed that emails from your site may not be arriving. Let us check before you rely on notifications.,,includes/functions.php
+Weak,,includes/functions.php
+What to do,,includes/class-Emsfb-formbuilder.php
+What went wrong: %s.,,includes/class-Emsfb-language-packs.php
+What you can do now,,includes/functions.php
+What you can do:,,includes/class-Emsfb-language-packs.php
+What your visitor saw,,includes/class-Emsfb-formbuilder.php
+"When someone fills in a form, your site emails you. Email is sent by your hosting company, so it sometimes goes missing or lands in spam. We can check this in about a minute and email you the full report.",,includes/functions.php
+Why did this fail?,,includes/class-Emsfb-formbuilder.php
+Why this happens and which option to pick,,includes/functions.php
+WordPress cannot write to the folder %s,,includes/class-Emsfb-language-packs.php
+WordPress on this site is set to block outgoing connections (WP_HTTP_BLOCK_EXTERNAL),,includes/class-Emsfb-language-packs.php
+"WordPress sent the email, but it did not reach the test mailbox before the time limit.",,includes/functions.php
+"Yes, turn notifications on",,includes/functions.php
+You are not allowed to install language files.,,includes/class-Emsfb-language-packs.php
+You see this panel because you are signed in as an administrator. Visitors only see the message in the form.,,includes/class-Emsfb-formbuilder.php
+You signed in or out in another tab. Please refresh the page and send the form again.,,includes/class-Emsfb-form-runtime.php
+You signed in or out in another tab. Please send the form again.,,includes/functions.php
+You will not receive this email again for the same problem in the next 30 days.,,includes/class-Emsfb-language-packs.php
+You will not receive this email again for this problem.,,includes/class-Emsfb-language-packs.php
+You will want an email when someone fills in this form. We have not checked yet that emails from your site arrive.,,includes/functions.php
+"Your card may have been charged, but the payment status could not be confirmed. Do not pay again. Keep this page open and contact the site administrator.",,includes/class-Emsfb-request-health.php
+"Your email address could not be saved, so the check did not run. Check the address and try again.",,includes/functions.php
+"Your email address could not be saved, so the delivery check did not run. Try again, or finish setup and set it later in General Settings.",,includes/functions.php
+Your email check,,includes/functions.php
+Your emails arrive and look trustworthy. Notifications are on.,,includes/functions.php
+"Your emails arrive, but most inboxes put them in spam. Notifications are on; the guide shows the fix you make at your hosting company.",,includes/functions.php
+"Your emails arrive, but some may land in spam. Notifications are on; the guide shows a fix you make at your hosting company.",,includes/functions.php
+"Your last check found that emails from this site do not reach the inbox. Fix it at your hosting company, then check again.",,includes/functions.php
+"Your last check on %s found that emails from this site do not reach the inbox. Fix it at your hosting company, then check again.",,includes/functions.php
+Your payment has not been completed. Please pay before sending the form.,,includes/class-Emsfb-public.php:3824 includes/class-Emsfb-public.php
+Your report has been received. We will email your 99% discount code after a quick check.,,includes/class-Emsfb-deactivation-feedback.php
+Your request could not be completed (error %d). Please try again later.,,includes/functions.php
+"Your server could not save the entry. Nothing was saved, and the visitor was told so.",,includes/class-Emsfb-formbuilder.php
+Your server did not answer in time,,includes/class-Emsfb-formbuilder.php
+Your server had an error (HTTP %d),,includes/class-Emsfb-formbuilder.php
+Your server sent an unreadable answer,,includes/class-Emsfb-formbuilder.php
+"Your site could not send the test email, so form emails cannot be sent either. The guide shows how to connect an email sending service.",,includes/functions.php
+Your site could not send the test email. Notifications are off; the guide shows how to connect an email sending service.,,includes/functions.php
+"Your site got no answer from the testing service, so delivery was not checked. This does not mean the email failed.",,includes/functions.php
+"Your test email arrived, but it looks like spam to most inboxes. Notifications are off for now; the guide shows the fix.",,includes/functions.php
+Your test email did not arrive in time. Notifications are off; the guide shows how to fix this at your hosting company.,,includes/functions.php
+Your test email did not arrive in time. Notifications stay on; the guide shows how to fix this at your hosting company.,,includes/functions.php
+"Your test email was sent but has not arrived yet. Notifications are unchanged; try again now, or later from Email Settings.",,includes/functions.php
+Your web server refused the request because of its size (HTTP 413). This limit is set by your hosting company.,,includes/class-Emsfb-formbuilder.php
+Your website blocked the form request,,includes/class-Emsfb-formbuilder.php
+Your website does not accept form requests from visitors,,includes/class-Emsfb-formbuilder.php
+[%1$s] %2$s could not download its translations,,includes/class-Emsfb-language-packs.php
+[%1$s] %2$s could not install its language files,,includes/class-Emsfb-language-packs.php
+built with %s: change the form there,,includes/importers/cf7/class-Emsfb-cf7-importer.php
+file changes are switched off on this site (DISALLOW_FILE_MODS),,includes/class-Emsfb-language-packs.php
+"revisions are off for it or you cannot edit it, so it was left as it is",,includes/importers/cf7/class-Emsfb-cf7-importer.php
+the downloaded file was damaged,,includes/class-Emsfb-language-packs.php
+the language server answered with an error,,includes/class-Emsfb-language-packs.php
+the server this website runs on cannot connect to %s,,includes/class-Emsfb-language-packs.php
+"this server only lets WordPress write files with FTP credentials, which an automatic installation cannot use",,includes/class-Emsfb-language-packs.php
+"“%1$s” accepted only %2$s. Easy Form Builder offers fixed file groups, so it now accepts: %3$s.",,includes/importers/cf7/class-Emsfb-cf7-mapper.php
+"“%s” allowed only one choice, so it is now a group of radio buttons.",,includes/importers/cf7/class-Emsfb-cf7-mapper.php
+"“%s” filled itself in (from the logged-in user, the page address or the page). That is not carried over.",,includes/importers/cf7/class-Emsfb-cf7-mapper.php
+“%s” had to stay unticked in Contact Form 7. In Easy Form Builder it is an ordinary optional checkbox.,,includes/importers/cf7/class-Emsfb-cf7-mapper.php
+“%s” was read-only. It is now an ordinary field.,,includes/importers/cf7/class-Emsfb-cf7-mapper.php

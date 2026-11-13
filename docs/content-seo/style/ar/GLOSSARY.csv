@@ -1,0 +1,305 @@
+﻿en,ar_recommended,ar_variants_seen,source,notes
+Easy Form Builder,منشئ النماذج السهل,منشئ النماذج السهل 675× in 77 art.; مُنشيء النماذج السهل 81× in 9 art.; منشئ النموذج السهل 23× in 15 art.; منشئ النماذج (without السهل) 50× in 16 art.; Easy Form Builder 73× in 18 art.,"EFB UI has three strings for the name: «مُنشيء النماذج السهل» ×2 (older) and «منشئ النماذج السهل» (newer, chosen here)","Write «منشئ النماذج السهل (Easy Form Builder)» on first mention (first 100 words), then «منشئ النماذج السهل» or «الإضافة». UI contains BOTH «مُنشيء النماذج السهل» (older strings) and «منشئ النماذج السهل» (newer): use the latter. Never «منشئ النموذج» (singular), never «السهلل», never doubled «منشئ منشئ». In titles/H1/meta keep Latin «Easy Form Builder» when brand search matters (Arabic brand returns 0 autosuggest; Latin returns suggestions)."
+WordPress,ووردبريس,ووردبريس 402× in 70 art.; الووردبريس 12× in 7 art.; WordPress 77× in 12 art.,EFB UI («WordPress» = «ووردبريس»),"Always «ووردبريس» (UI + 63 articles), no definite article glued on («ووردبريس» not «الووردبريس»). Keep «WordPress.org», «WordPress Playground» in Latin. Google treats وردبريس / ورد بريس as variants of ووردبريس (same suggestions)."
+WhiteStudio / White Studio Team,WhiteStudio,not measured,EFB UI («WhiteStudio» = «WhiteStudio»),Company name stays Latin everywhere (UI keeps Latin). EN site title is «White Studio Team»; AR site title is Arabic «منشئ النماذج السهل».
+plugin,إضافة,الإضافة 185× in 50 art.; إضافة 127× in 44 art.; plugin 8× in 5 art.,EFB UI («Plugin» = «إضافة») | WP core ar («Plugin» = «إضافة»),WordPress meaning of plugin. Definite form «الإضافة» is the safest. Never use «ملحق» for a plugin.
+add-on (Easy Form Builder add-on),ملحق,ملحق 83× in 6 art.; إضافة Stripe/PayPal/…(add-on called إضافة) 11× in 4 art.; Add-on 1× in 1 art.,EFB UI («Add-on» = «ملحق»),"EFB add-ons (Stripe, Telegram, SMS, Conditional Logic…) are «ملحقات»; plural «ملحقات» (UI «Add-ons»). CONFLICT: Stripe/PayPal articles call add-ons «إضافات» (e.g. /document/how-to-setup-and-use-the-stripe-on-easy-form-builder/) which collides with plugin = إضافة."
+Add-ons (menu / page),ملحقات,not measured,EFB UI («Add-ons» = «ملحقات»),Menu label inside the plugin.
+Free (plan),مجاني,not measured,EFB UI («Free» = «مجاني»),Plan label. First mention in an article: «مجاني (Free)».
+Free Plus (plan),مجاني بلس,مجاني بلس 64× in 5 art.; Free Plus 0× in 0 art.,EFB UI («Free Plus» = «مجاني بلس»),Official UI label. Existing articles already use it (63 uses/5 articles) — keep. First mention: «مجاني بلس (Free Plus)». With article: «المجاني بلس» (as UI «Free Plus unlocks this too»).
+Pro (plan),احترافي,النسخة الاحترافية 34× in 11 art.; احترافي (any) 135× in 38 art.; Pro 36× in 12 art.; المدفوعة 40× in 12 art.,EFB UI («Pro» = «احترافي»),Plan label in tables/badges. Prose: «النسخة الاحترافية» (UI «Pro Version»). First mention: «النسخة الاحترافية (Pro)». Do not use «المدفوعة» or «برو».
+Pro version,النسخة الاحترافية,not measured,EFB UI («Pro Version» = «النسخة الاحترافية»),UI label. Another UI string says «الإصدار الاحترافي» (A Pro version feature) — prefer النسخة الاحترافية.
+Pro version required,النسخة الاحترافية مطلوبة,not measured,EFB UI («Pro Version Required» = «النسخة الاحترافية مطلوبة»),Exact UI notice text.
+Activate Pro version,تفعيل النسخة الاحترافية,not measured,EFB UI («Activate Pro version» = «تفعيل النسخة الاحترافية»),Exact UI label.
+Activation code,رمز التفعيل,مفتاح الترخيص 2× in 2 art.; ترخيص 26× in 8 art.; رمز التنشيط 8× in 1 art.; رمز التفعيل 0× in 0 art.,EFB UI («Activation code» = «رمز التفعيل»),CONFLICT INSIDE UI: «Activation code» = رمز التفعيل but «Activation Code» (capitalised msgid) = رمز التنشيط. Recommend رمز التفعيل (activate = تفعيل everywhere else). One article (how-to-activate-pro-version…) uses رمز التنشيط ×8; none uses رمز التفعيل.
+license,الترخيص,مفتاح الترخيص 2× in 2 art.; ترخيص 26× in 8 art.; رمز التنشيط 8× in 1 art.; رمز التفعيل 0× in 0 art.,recommended (no UI string),"Existing articles: «مفتاح الترخيص» ×26 (8 articles). Keep «مفتاح الترخيص» for the key, «الترخيص» for the concept."
+upgrade,ترقية,not measured,EFB UI («Upgrade» = «ترقية»),UI «Upgrade to Pro» = «الترقية إلى الاحترافي».
+renew subscription,تجديد الاشتراك,not measured,EFB UI («Renew Subscription» = «تجديد الاشتراك»),
+subscription,اشتراك,not measured,EFB UI («Subscribe» = «اشتراك»),Noun «الاشتراك».
+Current plan,الخطة الحالية,not measured,EFB UI («Current Plan» = «الخطة الحالية»),UI uses «الخطة» for plan; do not use «باقة» (one article uses «باقة احترافية»).
+plan,الخطة,not measured,EFB UI («Change Plan» = «تغيير الخطة») | EFB-UI (derived from «تغيير الخطة»),"Singular «خطة», plural «خطط». «باقة» appears in /document/easy-form-builder-conditional-logic-complete-guide/ — avoid."
+documentation,وثائق المساعدة,not measured,EFB UI («Documentation» = «وثائق المساعدة») | WP core ar («Documentation» = «وثائق المساعدة»),Official wording in both UI and WordPress core. Articles often say «التوثيق» or «الوثائق» (breadcrumb «الوثائق»).
+tutorial,دليل تعليمي,البرنامج التعليمي 24× in 19 art.; الدليل 50× in 32 art.,EFB UI («Tutorial» = «دليل تعليمي»),UI label. In prose avoid the calque «في هذا البرنامج التعليمي» (23 uses/18 articles = literal «In this tutorial»); use «في هذا الدليل».
+version (UI label),النسخة,الإصدار 108× in 26 art.; النسخة 73× in 23 art.,EFB UI («Version» = «النسخة») | WP core ar («Version» = «النسخة»),UI and WP core both say «النسخة». For a release number you may write «الإصدار 4.3.1». UI «Plugin version» = «نسخة الإضافة».
+release / update announcement,الإصدار,not measured,recommended,Use «إصدار» for named releases («إصدار 4.3.1») and release-notes posts.
+changelog,سجل التغييرات,not measured,recommended (no UI string),
+release notes,ملاحظات الإصدار,not measured,recommended (no UI string),
+WordPress dashboard (admin area),لوحة تحكم ووردبريس,لوحة التحكم 34× in 25 art.; لوحة الإدارة 10× in 5 art.; اللوحة (EFB Panel) 30× in 15 art.; Dashboard 6× in 3 art.,site articles (34 uses/25 articles); WP core menu item «Dashboard» = «الرئيسية»,"In prose «لوحة تحكم ووردبريس». When quoting the first admin menu item, write «الرئيسية» (WP core Arabic). UI «WhiteStudio dashboard» = «لوحة تحكم WhiteStudio». Avoid «لوحة القيادة»/«لوحة المعلومات»."
+Panel (Easy Form Builder page),اللوحة,لوحة التحكم 34× in 25 art.; لوحة الإدارة 10× in 5 art.; اللوحة (EFB Panel) 30× in 15 art.; Dashboard 6× in 3 art.,EFB UI («Panel» = «اللوحة»),Name of the plugin page («منشئ النماذج السهل ← اللوحة»). Do not translate as «لوحة التحكم».
+Create (menu item),إنشاء,not measured,EFB UI («Create» = «إنشاء»),Plugin menu item «إنشاء».
+Forms (menu item),النماذج,not measured,EFB UI («Forms» = «النماذج»),
+Settings,الإعدادات,الإعدادات 313× in 71 art.; الضبط 55× in 20 art.; التهيئة 7× in 4 art.,EFB UI («Settings» = «الإعدادات») | WP core ar («Settings» = «الإعدادات»),Never «الضبط»/«التهيئة» for the menu item (they appear in 16 and 4 articles as prose variants).
+Save Changes,حفظ التغييرات,not measured,EFB UI («Save changes» = «حفظ التغييرات») | WP core ar («Save Changes» = «حفظ التغييرات»),
+Save,حفظ,not measured,EFB UI («Save» = «حفظ»),
+Plugins (WP menu),إضافات,not measured,WP core ar («Plugins» = «إضافات»),WP core menu label is «إضافات» (no ال). In prose «الإضافات».
+Add Plugin (WP button),إضافة إضافة,not measured,WP core ar («Add Plugin» = «إضافة إضافة»),"This odd label IS what WordPress Arabic shows (verified in WP core PO). Quote it exactly, then explain: «إضافة إضافة (Add Plugin)»."
+Install Now (plugin),التثبيت الآن,not measured,WP core ar («Install Now» = «التنصيب الآن»),WP core has two strings: plugin «التثبيت الآن» and theme «التنصيب الآن». «Install» alone = «تنصيب» (EFB UI and WP core).
+install,تنصيب,تثبيت 89× in 31 art.; تنصيب 78× in 18 art.; تركيب 1× in 1 art.,EFB UI («Install» = «تنصيب») | WP core ar («Install» = «تنصيب»),"CONFLICT: UI and WP core label = «تنصيب»; prose in 31 articles uses «تثبيت» (87 uses) vs «تنصيب» (56 uses/15 articles). Rule: when quoting a button/label write «تنصيب»; in general prose «تثبيت» is acceptable (search habit: «تثبيت اضافة» has autosuggest, «تنصيب اضافة» none). Never mix both in one sentence."
+Activate,تفعيل,تفعيل/فعّل 258× in 51 art.; تنشيط 17× in 2 art.; تشغيل 41× in 20 art.,EFB UI («Enable» = «تفعيل») | WP core ar («Activate» = «تفعيل»),UI «Enable»=تفعيل and WP «Activate»=تفعيل. «تنشيط» (UI also uses it in 8 strings; 17 uses/2 articles) is the weaker synonym — avoid.
+Deactivate,تعطيل,not measured,EFB UI («Disable» = «تعطيل») | WP core ar («Deactivate» = «تعطيل»),
+Enable / turn on,تفعيل,not measured,EFB UI («Enable» = «تفعيل»),Verb in steps: «فعّل».
+Disable / turn off,تعطيل,not measured,EFB UI («Disable» = «تعطيل»),Verb in steps: «عطّل».
+Active (plugin status),مفعل,not measured,EFB UI («Active» = «مفعل») | WP core ar («Active» = «تفعيل»),
+Inactive (EFB status),غير نشط,not measured,EFB UI («Inactive» = «غير نشط»),Inside Easy Form Builder screens quote «غير نشط».
+Inactive (WordPress plugin status),غير مفعّل,not measured,WP core ar («Inactive» = «غير مفعّل»),WP core wording for the plugins list; differs from the EFB UI («غير نشط») — each is right in its own screen.
+Add New,أضف جديداً,not measured,WP core ar («Add New» = «إضافة جديد»),WP core has «إضافة جديد» and «أضف جديداً». Quote what the screen shows.
+Permalink,الرابط الدائم,not measured,WP core ar («Permalinks» = «روابط دائمة») – DIFFERS,WP core plural «روابط دائمة»; singular «رابط دائم».
+slug,الاسم اللطيف (slug),not measured,WP core ar («Slug» = «الاسم اللطيف»),WP core wording. In SEO text say «الرابط المختصر (slug)». REMEMBER: the slug itself stays the English slug (same-slug rule) — never Arabic letters in AR URLs.
+Post,مقالة,not measured,WP core ar («Post» = «مقالة»),Plural «المقالات». Page = «صفحة».
+Page,صفحة,not measured,EFB UI («Page» = «صفحة») | WP core ar («Page» = «صفحة»),
+Media Library,مكتبة الوسائط,not measured,WP core ar («Media Library» = «مكتبة الوسائط»),
+Theme,القالب,not measured,EFB UI («Theme» = «القالب») | WP core ar («Themes» = «قوالب») – DIFFERS,«قالب»; UI uses «القالب». Do NOT use «ثيم» in articles (search data shows «ثيم ووردبريس» is typed mostly as Latin «theme wordpress»).
+Widget,ودجت,not measured,WP core ar («Widgets» = «ودجات») – DIFFERS,WP core plural «ودجات».
+Block (Gutenberg),مكوّن,not measured,EFB UI («Blocks» = «المكونات») | WP core ar («Block» = «المكوّن»),"CONFLICT INSIDE UI: «Block» = «كتلة», «Blocks» = «المكونات», «Text Block» = «مكون نصي». WP core = «المكوّن». Use «مكوّن»."
+Shortcode,الكود القصير,الكود القصير 37× in 14 art.; Shortcode 16× in 10 art.; اختصار 13× in 7 art.; شورت كود 6× in 4 art.; الرمز المختصر 6× in 5 art.,EFB UI («ShortCode» = «الكود القصير») | WP core ar («Shortcode» = «كود قصير») – DIFFERS,"UI «الكود القصير» (43 uses/15 articles agree). Variants to retire: الاختصار البرمجي, شورت كود, الرمز المختصر. Keep the literal code in <code> e.g. [EMS_Form_Builder id=…]."
+Shortcodes,الأكواد القصيرة,not measured,EFB UI («Shortcodes» = «الأكواد القصيرة»),
+Copy shortcode,نسخ الكود القصير,not measured,EFB UI («Copy Shortcode» = «نسخ الكود القصير»),
+User role,الدور,not measured,WP core ar («Role» = «الدور»),Plural «الأدوار».
+Administrator (role),مدير,المسؤول 47× in 21 art.; المدير 21× in 16 art.; المشرف 6× in 2 art.; الأدمن 0× in 0 art.,WP core ar («Administrator» = «مدير»),WP core role name. CONFLICT: articles say «المسؤول» ×44 (19 articles) more than «المدير» ×19; UI «Admin email» = «البريد الإلكتروني للمدير». Use «مدير الموقع» for the person; quote UI strings as they are. Never «الأدمن».
+Admin email,البريد الإلكتروني للمدير,not measured,EFB UI («Admin Email» = «البريد الإلكتروني للمدير»),
+User / username,اسم المستخدم,not measured,EFB UI («Username» = «اسم المستخدم») | WP core ar («Username» = «اسم المستخدم»),
+Visitor (site visitor),الزائر,not measured,recommended,People who fill the form. UI «Guest» = «زائر». «المستخدم» only for logged-in WordPress users.
+Guest,زائر,not measured,EFB UI («Guest» = «زائر»),
+Multisite,ووردبريس متعدد المواقع (Multisite),not measured,recommended (WP core says «إدارة الشبكة» for Network Admin),Unverified: no WP-core string for the word Multisite.
+Network admin,إدارة الشبكة,not measured,WP core ar («Network Admin» = «إدارة الشبكة»),
+Site language,لغة الموقع,not measured,WP core ar («Site Language» = «لغة الموقع»),
+Language,اللغة,not measured,WP core ar («Language» = «لغة»),
+Translation,الترجمة,not measured,EFB UI («Translation» = «الترجمة»),
+Localization,التوطين,not measured,EFB UI («Localization» = «الموقع») – DIFFERS | recommended,UI BUG: «Localization» is translated «الموقع» (= location). Tell the translators; do not copy it.
+Cache (caching),ذاكرة التخزين المؤقت,التخزين المؤقت 60× in 10 art.; الكاش 17× in 5 art.; Caching (Latin) 1× in 1 art.,EFB UI («Cache Settings» = «إعدادات ذاكرة التخزين المؤقت»),"UI: «إعدادات ذاكرة التخزين المؤقت». Prose: first «ذاكرة التخزين المؤقت (الكاش)», later «التخزين المؤقت». «الكاش» alone appears 17×/5 articles — colloquial, avoid in headings."
+Caching plugin,إضافة ذاكرة التخزين المؤقت,not measured,EFB UI («Cache Plugin Detected» = «تم اكتشاف إضافة ذاكرة تخزين مؤقت»),
+Hosting,الاستضافة,not measured,site articles,Never «هوستنج».
+Hosting provider,مزوّد الاستضافة,not measured,EFB-UI sentence («اطلب من مزوّد الاستضافة»),
+Domain,النطاق,نطاق 148× in 19 art.; دومين 7× in 7 art.,WP core ar («Domain» = «نطاق»),Add «(الدومين)» once for non-technical readers (the new e-mail articles do this).
+Server,الخادم,خادم 151× in 31 art.; سيرفر 7× in 1 art.,WP core ar («Server» = «الخادم») | EFB UI «Email server» = «خادم البريد الإلكتروني»,Never «السيرفر» (7 uses/1 article).
+Backup,نسخة احتياطية,not measured,recommended,
+Update (verb/noun),تحديث,not measured,WP core ar («Update» = «تحديث») | EFB UI («Updating…» = «جارٍ التحديث…»),Plugin update = «تحديث»; moving to a higher plan = «ترقية». Do not mix them (old articles use «ترقية» for both).
+Auto-updates,التحديثات التلقائية,not measured,WP core ar («Auto-updates» = «التحديثات التلقائية»),
+Upload,رفع,رفع 123× in 23 art.; تحميل 71× in 24 art.; تنزيل 32× in 14 art.,EFB UI («Upload» = «رفع») | WP core ar («Upload» = «رفع»),"CONFLICT: «تحميل» is used 71× (24 articles) for both upload and download. Rule: رفع = upload, تنزيل = download (UI + WP core). For download-intent keywords «تحميل» may be used in the title (autosuggest: «تحميل ووردبريس» 10 suggestions vs «تنزيل ووردبريس» 2)."
+Download,تنزيل,not measured,EFB UI («Download» = «تنزيل») | WP core ar («Download» = «تنزيل»),
+File,ملف,not measured,EFB UI («File» = «ملف») | WP core ar («File» = «ملف»),
+File upload,رفع ملف,not measured,EFB UI («File upload» = «رفع ملف»),
+Image,صورة,not measured,EFB UI («Image» = «صورة») | WP core ar («Image» = «صورة»),
+Alt text,نص بديل,not measured,EFB UI («Alt Text» = «نص بديل») | WP core ar («Alt Text» = «نص بديل»),
+Caption (image),تسمية توضيحية,not measured,WP core ar («Caption» = «كلمات توضيحية») – DIFFERS,WP core wording for the image caption field is «كلمات توضيحية»; the new site articles use «تسمية توضيحية»/«تسميات توضيحية» (also for video captions). Keep «تسمية توضيحية».
+Screenshot,لقطة شاشة,not measured,site articles (alt texts),
+Browser,المتصفح,not measured,recommended,
+Preview,معاينة,not measured,EFB UI («Preview» = «معاينة») | WP core ar («Preview» = «معاينة»),
+Template,قالب,not measured,WP core ar («Template» = «قالب») | EFB UI «Templates» = «القوالب»,
+Email template,قالب البريد الإلكتروني,not measured,EFB UI («Email Template» = «قالب البريد الإلكتروني»),
+Export,تصدير,not measured,EFB UI («Export» = «تصدير») | WP core ar («Export» = «تصدير»),
+Import,استيراد,not measured,EFB UI («Import» = «استيراد») | WP core ar («Import» = «استيراد»),
+Print,طباعة,not measured,WP core ar («Print» = «طباعة»),
+Search,بحث,not measured,EFB UI («Search» = «بحث») | WP core ar («Search» = «بحث»),
+Delete,حذف,not measured,EFB UI («Delete» = «حذف») | WP core ar («Delete» = «حذف»),
+Edit,تعديل,not measured,EFB UI («Edit» = «تعديل»),UI uses «تعديل»; WP core uses «تحرير». Inside the plugin quote «تعديل».
+Cancel,إلغاء,not measured,EFB UI («Cancel» = «إلغاء») | WP core ar («Cancel» = «إلغاء»),
+Close,إغلاق,not measured,EFB UI («Close» = «إغلاق») | WP core ar («Close» = «إغلاق»),
+Next / Previous,التالي / السابق,not measured,EFB UI («Next» = «التالي») | WP core ar («Next» = «التالي»),
+Learn more,معرفة المزيد,not measured,WP core ar («Learn more» = «معرفة المزيد»),
+Contact support,الاتصال بالدعم,not measured,EFB UI («Contact support» = «الاتصال بالدعم»),
+Help,مساعدة,not measured,EFB UI («Help» = «مساعدة») | WP core ar («Help» = «مساعدة»),
+form,نموذج,not measured,EFB UI («Form» = «نموذج») | WP core ar («Form» = «نموذج») | EFB-UI + site,Web-form sense. SEO WARNING: in Arabic search «نموذج» mostly means a downloadable template/sample (نموذج توظيف، نموذج تبرع، نموذج دفع ضرائب). Add a disambiguator in titles/keywords («نموذج إلكتروني»، «في ووردبريس»، or «فورم»). «فورم» is how people type it (autosuggest «انشاء فورم …») but the UI never uses it.
+form builder,منشئ نماذج,not measured,EFB UI («WordPress form builder» = «منشئ نماذج ووردبريس»),"Generic noun, not the brand; definite form «منشئ النماذج»."
+contact form,نموذج اتصال,not measured,EFB UI («contact form plugin» = «إضافة نماذج الاتصال»; «Contact Us Form» = «نموذج الاتصال بنا» which is ungrammatical), Search data: «نموذج اتصال» is polluted by phone/«اتصال» meanings (تيك توك، فيسبوك); «نموذج تواصل» is polluted by school/ministry templates. In titles prefer «نموذج تواصل (اتصل بنا)» + «ووردبريس».
+field,حقل,not measured,EFB UI («Field» = «حقل»),Plural «حقول». UI «Form Field» = «حقل النموذج».
+form field,حقل النموذج,not measured,EFB UI («Form Field» = «حقل النموذج»),
+label,التسمية,not measured,EFB UI («Label» = «التسمية»),Plural «التسميات». Do NOT use «العنوان» for label (UI uses it for Title).
+field label,تسمية الحقل,not measured,recommended (UI «Hide the label» = «إخفاء التسمية»),
+Placeholder (UI label),العنصر النائب,نص نائب 27× in 1 art.; العنصر النائب 3× in 2 art.; Placeholder 27× in 1 art.; نص توضيحي/مؤقت 1× in 1 art.,EFB UI («Placeholder» = «العنصر النائب»),CONFLICT INSIDE UI: label «Placeholder» = «العنصر النائب» but «Field placeholder text» = «النص النائب للحقل»; WP core = «عنصر نائب». When quoting the label use «العنصر النائب».
+placeholder text (concept),النص النائب,not measured,EFB UI («Field placeholder text» = «النص النائب للحقل»),Concept in prose: «النص النائب (Placeholder)». Old article /document/easy-form-builder-add-placeholder-text/ mixes Latin «Placeholder» ×26 with «نص نائب» ×26.
+required (field),مطلوب,مطلوب 76× in 31 art.; إلزامي 27× in 5 art.; إجباري 0× in 0 art.,EFB UI («Required» = «مطلوب») | WP core ar («Required» = «مطلوب»),"CONFLICT: «إلزامي» used 25×/4 articles; UI, WP core and Google suggestions («حقل مطلوب», 10 suggestions vs «حقل إلزامي», 3) all say «مطلوب». Standardise on «مطلوب»; «اجعل الحقل مطلوبًا»."
+optional,اختياري,not measured,EFB UI («Optional» = «اختياري») | WP core ar («Optional» = «اختياري»),
+text field / text,نص,not measured,EFB UI («Text» = «نص»),
+longer text (textarea),نص أطول,not measured,EFB UI («Longer Text» = «نص أطول»),
+email field,حقل البريد الإلكتروني,not measured,derived (UI «Email»),
+checkbox,مربع اختيار,مربع اختيار 9× in 8 art.; خانة 13× in 9 art.; مربع تحديد 1× in 1 art.; Checkbox 0× in 0 art.,EFB UI («Check Box» = «مربع اختيار»),UI «Check Box» = «مربع اختيار». Articles also say «خانة» ×13 — avoid.
+radio button,زر الاختيار,not measured,EFB UI («Radio Button» = «زر الاختيار»),UI «Radio» alone = «راديو».
+dropdown list,قائمة منسدلة,قائمة منسدلة 18× in 8 art.; Dropdown 2× in 1 art.,EFB UI («Payment dropdown list» = «قائمة منسدلة للدفع»),
+multiple select,تحديد متعدد,not measured,EFB UI («Multiple Select» = «تحديد متعدد»),
+date picker,منتقي التاريخ,not measured,EFB UI («Date Picker» = «منتقي التاريخ»),
+Hijri date,التاريخ الهجري,الهجري 20× in 4 art.; الإسلامي 2× in 2 art.,EFB UI («Hijri Date» = «التاريخ الهجري»),
+Jalali (Persian) date,التاريخ الجلالي,الجلالي 14× in 4 art.; الفارسي/الشمسي 5× in 3 art.,EFB UI («Jalali Date» = «التاريخ الجلالي»),UI also has «Persian Date Picker» = «لاقط التاريخ الفارسي» (لاقط) vs «Date Picker» = «منتقي التاريخ»: inconsistent; use «منتقي التاريخ الجلالي».
+color picker,منتقي الألوان,not measured,EFB UI («Color Picker» = «منتقي الألوان»),
+image picker,منتقي الصور,not measured,EFB UI («Image picker» = «منتقي الصور»),Two old articles share the same slug stem; titles differ («اختيار صورة» vs «منتقي الصور») — use منتقي الصور.
+location picker,محدد الموقع,اختيار الموقع 26× in 5 art.; محدد الموقع 3× in 1 art.; منتقي الموقع/المكان 7× in 3 art.; Location Picker 0× in 0 art.,EFB UI («Location Picker» = «محدد الموقع»),CONFLICT INSIDE UI: another string says «نموذج منتقي المكان». Articles use «اختيار الموقع» ×24. Label = «محدد الموقع».
+map,خريطة,not measured,EFB UI («Maps» = «الخرائط»),
+signature field,التوقيع,not measured,EFB UI («Signature» = «التوقيع»),Concept «حقل التوقيع الإلكتروني».
+rating (stars),التقييم,not measured,EFB UI («Rating» = «التقييم»),
+switch (toggle) field,مفتاح التبديل,مفتاح التبديل 86× in 19 art.; زر التبديل 2× in 1 art.,EFB UI («Switch» = «مفتاح التبديل»),
+Yes / No,نعم / لا,not measured,EFB UI («Yes/No» = «نعم/لا»),
+hidden field,حقل مخفي,not measured,EFB UI («Hidden Field» = «حقل مخفي»),
+disabled field,حقل غير مفعل,not measured,EFB UI («Disabled Field» = «حقل غير مفعل»),CONFLICT: /blog/disabled-hidden-fields-easy-form-builder-tutorial/ says «الحقول المعطلة»; UI label is «حقل غير مفعل».
+countries drop-down,قائمة منسدلة للدول,not measured,EFB UI («Countries Drop-down» = «قائمة منسدلة للدول»),Same pattern for states («قائمة منسدلة للولايات / المقاطعات») and cities («قائمة المدن المنسدلة»).
+phone field,الهاتف,not measured,EFB UI («Phone» = «الهاتف»),UI «Tel» = «هاتف». Article uses «رقم الهاتف المحمول».
+address field,العنوان,not measured,EFB UI («Address» = «العنوان»),
+file upload field,رفع ملف,not measured,EFB UI («File upload» = «رفع ملف»),
+drag and drop,السحب والإفلات,السحب والإفلات 57× in 23 art.; السحب والإسقاط 3× in 2 art.,EFB UI («Drag & Drop» = «السحب والإفلات»),Never «السحب والإسقاط».
+audio recorder,مسجل الصوت,not measured,EFB UI («Audio Recorder» = «مسجل الصوت»),
+video recorder,مسجل الفيديو,not measured,EFB UI («Video Recorder» = «مسجل الفيديو»),
+screen recorder,مسجل الشاشة,not measured,EFB UI («Screen Recorder» = «مسجل الشاشة»),
+multi-step form,نموذج متعدد الخطوات,خطوة 481× in 70 art.; مرحلة 6× in 5 art.,EFB UI («Multi-Step» = «متعدد الخطوات»),Plural «نماذج متعددة الخطوات» (UI «Multi-Step Forms»). «مراحل» only 6 uses — avoid.
+step,خطوة,not measured,EFB UI («Step» = «خطوة»),
+step name,اسم الخطوة,not measured,EFB UI («Step Name» = «اسم الخطوة»),
+progress bar,شريط التقدم,not measured,EFB UI («Progress bar» = «شريط التقدم»),
+submit (button),إرسال,not measured,EFB UI («Submit» = «إرسال»),Button label «إرسال». Concept «زر الإرسال».
+thank-you message,رسالة شكر,not measured,EFB UI («Thank you message» = «رسالة شكر»),Articles: «رسالة الشكر» (fine with ال).
+thank-you page,صفحة الشكر,إعادة التوجيه 28× in 5 art.; التحويل 18× in 11 art.,EFB UI («Thank you Page» = «صفحة الشكر»),
+redirect page,إعادة توجيه الصفحة,not measured,EFB UI («Redirect page» = «إعادة توجيه الصفحة»),UI label is awkward; in prose «صفحة إعادة التوجيه». Avoid «التحويل» (16 uses; means transfer/conversion).
+confirmation code,رمز التأكيد,رمز التأكيد 9× in 4 art.; كود التأكيد 30× in 6 art.; رمز/كود التتبع 10× in 4 art.,EFB UI («Confirmation Code» = «رمز التأكيد»),CONFLICT: «كود التأكيد» ×27 (6 articles) vs UI «رمز التأكيد» ×9. Use رمز التأكيد. Search note: «رمز التتبع/رقم التتبع» = parcel tracking in Arabic search; «رمز التأكيد» = OTP. Explain on first mention: «رمز التأكيد (الرمز الذي يتتبّع به الزائر رسالته)».
+confirmation code finder,أداة العثور عن رمز التأكيد,not measured,EFB UI («Confirmation Code Finder» = «أداة العثور عن رمز التأكيد»),UI wording is ungrammatical (العثور «على»). Quote verbatim when pointing at the label; recommend fixing it on translate.wordpress.org. Prose alternative: «أداة البحث عن رمز التأكيد».
+tracking code,رمز التتبع,not measured,EFB UI («Tracking Form» = «نموذج التتبع»),EN marketing word. The UI calls the same thing «رمز التأكيد». UI «Tracking Form» = «نموذج التتبع».
+form entry / submission,الإرسالات,إرسالات 46× in 8 art.; إدخالات 17× in 5 art.; مدخلات 50× in 9 art.; ردود 63× in 14 art.; استجابات 14× in 5 art.; رسائل 132× in 29 art.; تقديمات 10× in 6 art.,EFB UI («Submissions» = «الإرسالات»),UI «Submissions» = «الإرسالات»; panel list label «Messages» = «الرسائل»; replies = «الردود». Articles use all of إرسالات/إدخالات/مدخلات/ردود/استجابات/رسائل for one concept (62–108 uses each). Pick: «الإرسالات» as concept; «الرسائل» when quoting the panel; «رد» for an admin reply.
+message (entry in panel),الرسالة,not measured,EFB UI («Message» = «الرسالة»),
+messages (panel list),الرسائل,not measured,EFB UI («Messages» = «الرسائل»),
+reply / response,رد,not measured,EFB UI («Reply» = «رد»),"UI «Response» = «رد», «Responses» = «الردود». «Response box» = «صندوق الردود»."
+view messages,عرض الرسائل,not measured,EFB UI («View Messages» = «عرض الرسائل»),
+open / closed status,مفتوحة / مغلقة,not measured,EFB UI («Open and Closed Message Status» = «حالة الرسالة مفتوحة ومغلقة»),UI sentence form «حالة الرسالة مفتوحة ومغلقة». UI «Open» alone = «افتح» (imperative).
+mark as read,تعليم كمقروء,not measured,EFB UI («Mark as Read» = «تعليم كمقروء»),
+bulk actions,إجراءات جماعية,not measured,WP core ar («Bulk actions» = «تنفيذ الأمر») – DIFFERS | recommended,WP core says «تنفيذ الأمر» for the dropdown label (unclear) — describe it as «الإجراءات الجماعية».
+dataset,مجموعة بيانات,not measured,EFB UI («Dataset» = «مجموعة بيانات»),
+auto-populate,ملء تلقائي,not measured,EFB UI («Auto-Populate» = «ملء تلقائي»),"Add-on name «ملحق الملء التلقائي» (UI). «Autofill» = «التعبئة التلقائية»; UI mixes الملء/التعبئة — use الملء التلقائي for the add-on, التعبئة التلقائية for generic autofill."
+conditional logic,المنطق الشرطي,المنطق الشرطي 65× in 5 art.; المنطق المشروط 0× in 0 art.,EFB UI («Conditional Logic» = «المنطق الشرطي»),UI and 62 uses agree. Autosuggest: «المنطق الشرطي» returns school-logic results; add «في النماذج»/«ووردبريس».
+condition / rule,شرط / قاعدة,not measured,EFB UI («Rule trace» = «تتبع القاعدة»),
+show / hide,إظهار / إخفاء,not measured,EFB UI («Hide» = «إخفاء»),UI «Show attributes» = «إظهار الخصائص»; «Hide» = «إخفاء».
+responsive,متجاوب,متجاوب 25× in 9 art.; مستجيب 1× in 1 art.,EFB UI («Responsive and RTL-Friendly Forms» = «نماذج مستجيبة ومناسبة للاتجاه من اليمين إلى اليسار») – DIFFERS,UI SEO string uses «مستجيبة»; site articles use «متجاوب» ×25 and Google suggests «تصميم متجاوب» (and nothing for «تصميم مستجيب»). Keep «متجاوب» (intentional divergence from that one UI string).
+RTL (right-to-left),من اليمين إلى اليسار (RTL),not measured,EFB UI («Responsive and RTL-Friendly Forms» = «نماذج مستجيبة ومناسبة للاتجاه من اليمين إلى اليسار»),"Spell out once, then RTL."
+accessibility,إمكانية الوصول,not measured,recommended (WP core ar term; unverified here),
+GDPR,اللائحة العامة لحماية البيانات (GDPR),not measured,recommended,"First mention in full, then GDPR (0 uses in current AR articles)."
+consent checkbox,مربع الموافقة,not measured,recommended,
+terms and conditions,الشروط والأحكام,not measured,EFB UI («Terms» = «الشروط»),UI «Terms» = «الشروط».
+self-hosted,مستضافة ذاتيًا,not measured,EFB UI («self-hosted WordPress forms» = «نماذج ووردبريس مستضافة ذاتيًا»),
+stored locally,مخزنة محليًا,not measured,EFB UI («WordPress forms stored locally» = «نماذج ووردبريس مخزنة محليًا»),
+offline forms,نماذج دون اتصال,not measured,EFB UI («Offline Forms» = «نماذج دون اتصال»),CONFLICT INSIDE UI: add-on string says «ملحق النماذج غير المتصلة بالإنترنت»; articles say «النماذج غير المتصلة». Prefer «نماذج دون اتصال».
+Development mode (Sandbox),وضع التطوير (Sandbox),وضع التطوير 29× in 3 art.; بيئة الاختبار 20× in 3 art.; وضع الاختبار 14× in 4 art.; Sandbox 34× in 2 art.,EFB UI («Development Mode (Sandbox)» = «وضع التطوير (Sandbox)»),Exact UI. «بيئة الاختبار» (UI «Sandbox: On») and «وضع الاختبار» are used for the same feature in 3–4 articles — pick UI.
+test mode (Stripe),وضع الاختبار,not measured,Stripe concept; Stripe Arabic dashboard wording UNVERIFIED,Use for Stripe test mode/live mode («الوضع المباشر») only.
+payment form,نموذج الدفع,not measured,EFB UI («Payment Form» = «نموذج الدفع»),
+payment gateway,بوابة الدفع,not measured,EFB UI («Payment Gateway» = «بوابة الدفع»),
+Stripe,Stripe,Stripe 91× in 8 art.; سترايب 0× in 0 art.,EFB UI («Stripe» = «Stripe»),"Keep Latin. UI add-on string says «ملحق بوابة الدفع سترايب» (transliteration) — do not copy; Latin used 88×, «سترايب» 0× in articles."
+PayPal,PayPal,PayPal 102× in 7 art.; باي بال 0× in 0 art.,EFB UI («PayPal» = «PayPal»),Keep Latin (UI add-on string uses «باي بال»; articles 0×).
+ZarinPal / Persia Payment add-on,زرين بال (ZarinPal),not measured,EFB UI («Persia Payment Add-on» = «ملحق بوابة الدفع الفارسي») – DIFFERS,UI: «ملحق بوابة الدفع الفارسي» (poor). Never use Persian letters (پ) inside Arabic text — one article writes «زرين‌پال».
+one-time payment,دفعة لمرة واحدة,not measured,EFB UI («one time» = «مرة واحدة»),UI «one time» = «مرة واحدة».
+recurring payment,الدفع المتكرر,not measured,EFB UI («recurring payment forms» = «نماذج الدفع المتكرر»),
+subscription payment,دفع الاشتراكات,not measured,EFB UI («subscription payment forms» = «نماذج دفع الاشتراكات»),
+donation,تبرع,not measured,recommended,Search data: «نموذج تبرع» = blood/cash donation templates; use «التبرعات عبر الإنترنت في ووردبريس».
+currency,العملة,not measured,EFB UI («Currency» = «العملة»),
+price field,حقل السعر,not measured,EFB UI («Price field» = «حقل السعر»),
+total price,السعر الإجمالي,not measured,EFB UI («Total price» = «السعر الإجمالي»),
+quantity,الكمية,not measured,EFB UI («Qty» = «الكمية»),
+transaction ID,رقم المعاملة,not measured,EFB UI («Transaction Id» = «رقم المعاملة»),
+public key,المفتاح العام,not measured,EFB UI («Public Key» = «المفتاح العام»),
+publishable key (Stripe),المفتاح القابل للنشر,not measured,Stripe wording; site article /document/how-to-setup-and-use-the-stripe-on-easy-form-builder/ says «المفاتيح القابلة للنشر»; Stripe Arabic dashboard UNVERIFIED,Use when the EN source says Stripe «publishable key»; the EFB field itself is labelled «Public Key» = «المفتاح العام».
+secret key,المفتاح السري,not measured,EFB UI («Secret Key» = «المفتاح السري»),
+site key (reCAPTCHA),مفتاح الموقع,not measured,EFB UI («Site Key» = «مفتاح الموقع»),
+API key,مفتاح API,not measured,EFB UI («API KEY» = «مفتاح API»),
+payment status,حالة الدفع,not measured,EFB UI («Status» = «الحالة»),Statuses: Pending = «قيد الانتظار» (no UI string); Paid = «مدفوع»; Failed = «فشل» (UI «Failed»).
+failed,فشل,not measured,EFB UI («Failed» = «فشل»),
+receipt,إيصال,not measured,recommended,
+refund,استرداد,not measured,recommended,
+invoice,فاتورة,not measured,recommended,
+email,البريد الإلكتروني,البريد الإلكتروني 312× in 40 art.; الإيميل 1× in 1 art.,EFB UI («Email» = «البريد الإلكتروني») | WP core ar («Email» = «البريد الإلكتروني»),Never «الإيميل» in articles (1 use). Short «البريد» is fine after the full form.
+email address,عنوان البريد الإلكتروني,not measured,EFB UI («Email Address» = «عنوان البريد الإلكتروني»),
+email notifications,إشعارات البريد الإلكتروني,إشعار 203× in 31 art.; تنبيه 22× in 14 art.; إخطار 0× in 0 art.,EFB UI («Email notifications» = «إشعارات البريد الإلكتروني»),«إشعار» ×196/30 articles; «تنبيه» ×20 used for the same thing — use إشعار (UI).
+sender address (From),عنوان المُرسِل,not measured,EFB UI («From Address» = «عنوان المُرسِل»),
+email subject,موضوع البريد الإلكتروني,not measured,EFB UI («Email Subject» = «موضوع البريد الإلكتروني»),
+Reply-To,عنوان الرد (Reply-To),not measured,recommended (no UI string),
+SMTP,SMTP,not measured,term kept Latin,"«إضافة SMTP», «خادم SMTP». Not translated anywhere in UI."
+Check Email Server (button),تحقق من خادم البريد الإلكتروني,not measured,EFB UI («Check Email Server» = «تحقق من خادم البريد الإلكتروني»),CONFLICT INSIDE UI: a help sentence quotes the same button as «فحص خادم البريد الإلكتروني». Button label = «تحقق من خادم البريد الإلكتروني». /document/how-to-activate-pro-version-easy-form-builder-plugin/ copied the wrong one.
+email server,خادم البريد الإلكتروني,not measured,EFB UI («Email server» = «خادم البريد الإلكتروني»),
+email delivery,تسليم البريد الإلكتروني,not measured,EFB UI («Email Delivery Tips» = «نصائح تسليم البريد الإلكتروني»),UI «نصائح تسليم البريد الإلكتروني».
+deliverability,قابلية التسليم,قابلية التسليم 5× in 3 art.; التسليم 13× in 7 art.,EFB UI («form email deliverability» = «قابلية تسليم البريد الإلكتروني للنماذج»),
+spam folder,مجلد البريد المزعج,not measured,recommended,Google suggestions: «البريد المزعج» is the standard (gmail/iphone completions).
+spam,البريد المزعج,البريد المزعج 48× in 13 art.; الرسائل المزعجة 25× in 7 art.; السبام/سبام 6× in 3 art.; Spam 11× in 3 art.,EFB UI («WordPress form spam protection» = «حماية نماذج ووردبريس من البريد المزعج»),UI uses «البريد المزعج» everywhere (26×). «السبام» typed as Google query returns «السلام عليكم»/«السبانخ»; bare «سبام» is searchable. Prose = البريد المزعج; «سبام» allowed only as a keyword synonym in titles. «الرسائل المزعجة» (19×) = SMS/WhatsApp meaning.
+SPF record,سجل SPF (إذن الإرسال),not measured,newest site articles (Nov 2026); UI string untranslated,UI «Sender permission (SPF)» is NOT translated in the Arabic UI (shows English).
+DKIM,توقيع البريد (DKIM),not measured,newest site articles (Nov 2026); UI string untranslated,UI «Email signature (DKIM)» untranslated.
+DMARC,سياسة حماية النطاق (DMARC),not measured,newest site articles (Nov 2026); UI string untranslated,UI «Domain protection policy (DMARC)» untranslated.
+DNS,نظام أسماء النطاقات (DNS),not measured,newest site articles,"Spell out once, then DNS."
+DNS record,سجل DNS,not measured,newest site articles,
+nameserver,خادم الأسماء (Nameserver),not measured,newest site articles,
+domain registrar,مسجّل النطاق,not measured,newest site articles,
+TXT record,سجل TXT,not measured,newest site articles,
+email test (delivery test),اختبار البريد الإلكتروني,not measured,EFB UI («Email test failed» = «فشل اختبار البريد الإلكتروني»),UI «Run Test» = «تشغيل الاختبار».
+inbox,صندوق الوارد,not measured,newest site articles,
+spam protection,الحماية من البريد المزعج,not measured,EFB UI («WordPress form spam protection» = «حماية نماذج ووردبريس من البريد المزعج»),
+honeypot,مصيدة Honeypot,مصيدة 12× in 3 art.; Honeypot 1× in 1 art.,EFB UI («honeypot spam protection WordPress» = «حماية من البريد المزعج بمصيدة Honeypot في ووردبريس»),UI: «بمصيدة Honeypot». Keep the Latin word after مصيدة.
+CAPTCHA,كابتشا,reCAPTCHA 31× in 8 art.; كابتشا 29× in 3 art.; CAPTCHA 70× in 10 art.; ريكابتشا 0× in 0 art.,EFB UI («Captchas» = «الكابتشا»),UI plural «الكابتشا».
+Google reCAPTCHA,جوجل ريكابتشا (reCAPTCHA),not measured,EFB UI («Google reCAPTCHA» = «جوجل ريكابتشا (reCAPTCHA)»),Keep Latin «reCAPTCHA» in running text after first mention (articles: Latin ×30).
+silentCAPTCHA,silentCAPTCHA,not measured,EFB UI («silentCAPTCHA Spam Protection» = «حماية silentCAPTCHA من البريد المزعج»),Product feature name stays Latin.
+rate limiting,تقييد المعدل,تقييد المعدل 1× in 1 art.; Rate limiting 1× in 1 art.,EFB UI («Rate Limiting and Abuse Protection» = «تقييد المعدل والحماية من الإساءة»),
+bot,بوت,بوت 65× in 8 art.; روبوت 13× in 4 art.,site articles (65 uses),For spam bots write «روبوتات الإرسال الآلي (bots)» on first mention.
+IP allowlist / blocklist,قائمة السماح / قائمة الحظر (عناوين IP),not measured,recommended,
+Monitor-only mode,وضع الأمان للمراقبة فقط,not measured,EFB UI («Monitor-Only Security Mode» = «وضع الأمان للمراقبة فقط»),
+security plugin,إضافة أمان,not measured,EFB UI («Security Plugin Detected» = «تم اكتشاف إضافة أمان»),
+firewall,جدار الحماية,not measured,recommended,
+false positive,إيجابية كاذبة,not measured,recommended,Explain: «حظر زائر حقيقي بالخطأ».
+encryption,التشفير,not measured,recommended,
+token,رمز (token),not measured,EFB UI («Invalid token» = «رمز (token) غير صالح»),UI: «رمز (token) غير صالح».
+endpoint,نقطة نهاية,not measured,EFB UI («API Endpoint URL» = «رابط نقطة نهاية واجهة برمجة التطبيقات (API)»),
+REST API,واجهة REST البرمجية (REST API),not measured,site articles,Keep Latin REST API after first mention.
+server-side validation,التحقق من جهة الخادم,not measured,site articles (14 uses/6),
+error,خطأ,not measured,EFB UI («Error» = «خطأ») | WP core ar («Error» = «خطأ»),
+error code (403 etc.),رمز الخطأ,not measured,EFB UI («Error Code» = «رمز الخطأ»),
+warning,تحذير,not measured,EFB UI («Warning» = «تحذير») | WP core ar («Warning» = «تحذير»),
+notice,تنبيه,not measured,EFB UI («Notice» = «تنبيه») | WP core ar («Notice» = «إشعار») – DIFFERS,UI «Notice» = «تنبيه»; WP core «Notice» = «إشعار». Inside articles use «ملاحظة:» for note callouts.
+troubleshooting,استكشاف الأخطاء وإصلاحها,not measured,EFB UI («Diagnosis & Troubleshooting» = «التشخيص واستكشاف الأخطاء وإصلاحها»),UI: «التشخيص واستكشاف الأخطاء وإصلاحها».
+SEO,تحسين محركات البحث (SEO),not measured,site articles,
+keyword,الكلمة المفتاحية,not measured,recommended,
+search intent,نية البحث,not measured,recommended,
+meta description,وصف الصفحة (meta description),not measured,recommended,
+title tag,عنوان الصفحة (title tag),not measured,recommended,
+structured data,البيانات المنظمة (Structured Data),not measured,site articles (variants: بيانات منظمة / مهيكلة),
+JSON-LD,JSON-LD,not measured,site articles,
+canonical URL,الرابط الأساسي (canonical),not measured,recommended,
+internal link,رابط داخلي,not measured,recommended,
+backlink,رابط خلفي,not measured,recommended,
+sitemap,خريطة الموقع (sitemap),not measured,recommended,
+hreflang,hreflang,not measured,term kept Latin,
+conversion,التحويل (conversion),not measured,recommended,Only in marketing context; in UI/steps «التحويل» is wrong for redirects (use «إعادة التوجيه»).
+lead,عميل محتمل,not measured,recommended,
+affiliate program,برنامج التسويق بالعمولة,not measured,site title of /blog/easy-form-builder-affiliate-program/,The article body uses Gulf-dialect transliteration «الأفلييت» — avoid.
+call to action (CTA),دعوة لاتخاذ إجراء (CTA),not measured,recommended,
+FAQ,الأسئلة الشائعة,الأسئلة الشائعة 21× in 18 art.; الأسئلة المتكررة 7× in 7 art.,site articles (20 uses/16 articles),Newest articles use «الأسئلة المتكررة» (5×). Pick الأسئلة الشائعة (more frequent in the site and in Arabic web usage); owner may overrule.
+quick answer / short answer,الإجابة المختصرة,not measured,newest site articles,Bold run-in label «الإجابة المختصرة:» opens the article.
+summary / takeaway,الخلاصة,not measured,site articles (12 uses),Not «الخاتمة» (which is the literal «Conclusion»).
+before you begin,قبل أن تبدأ,not measured,newest site articles,
+common mistakes,أخطاء شائعة,not measured,newest site articles,
+step-by-step,خطوة بخطوة,not measured,site articles,
+guide,دليل,not measured,site articles,«دليل شامل» is generic (autosuggest returns unrelated). Use with the task noun.
+Google Sheets,جداول بيانات جوجل (Google Sheets),جوجل 32× in 8 art.; غوغل 0× in 0 art.; Google 42× in 17 art.,EFB UI («Google Sheets» = «جداول بيانات جوجل»),"UI: «جداول بيانات جوجل». Arabic searchers type «جوجل شيت»/«قوقل شيت» (autosuggest: both heavy, «جداول بيانات جوجل» also heavy) — put «جوجل شيت» in the title, official name on first mention."
+Google,جوجل,not measured,EFB UI («Google reCAPTCHA» = «جوجل ريكابتشا (reCAPTCHA)»),UI spelling with ج (13×); never «غوغل»/«قوقل» in articles (0× now).
+Telegram,تيليجرام,تيليجرام 49× in 5 art.; تلجرام/تليجرام 0× in 0 art.; Telegram 7× in 4 art.,EFB UI («Telegram» = «تيليجرام»),"UI spelling «تيليجرام». Autosuggest shows تيليجرام / تليجرام / تلجرام / تلغرام all populated — Google treats them as variants, so keep the UI spelling."
+Telegram bot,بوت تيليجرام,not measured,autosuggest + site,«بوت تيليجرام» (Google) — fine.
+chat ID,معرّف المحادثة (Chat ID),not measured,site articles,
+SMS,الرسائل النصية (SMS),الرسائل النصية 36× in 4 art.; الرسائل القصيرة 8× in 3 art.; SMS 54× in 8 art.,EFB UI («SMS Notifications» = «إشعارات الرسائل النصية (SMS)»),UI mixes «الرسائل النصية» (majority) and «الرسائل القصيرة» (add-on string). Use الرسائل النصية (SMS).
+webhook,Webhook,ويب هوك 26× in 4 art.; Webhook 1× in 1 art.,site articles (Latin 27×),Keep Latin; gloss on first mention: «Webhook (خطاف ويب)» optional.
+API,واجهة برمجة التطبيقات (API),not measured,EFB UI («API Endpoint URL» = «رابط نقطة نهاية واجهة برمجة التطبيقات (API)»),"Spell out once, then «API» (UI also keeps «API KEY»)."
+Contact Form 7,Contact Form 7,not measured,EFB UI keeps third-party names Latin,Third-party product names stay Latin; Arabic search uses the Latin name + «شرح» (autosuggest «contact form 7 شرح»).
+Elementor / Divi / WPBakery / Gutenberg,Elementor / Divi / WPBakery / Gutenberg,not measured,EFB UI («Elementor form plugin» = «إضافة نماذج Elementor»),"UI: «إضافة نماذج Elementor», «منشئ نماذج Gutenberg» — brand names stay Latin."
+WPML / Polylang,WPML / Polylang,not measured,recommended,
+Zapier / Make / n8n,Zapier / Make / n8n,not measured,recommended,
+Cloudflare,Cloudflare,not measured,newest site articles,"Dashboard is English-only: write English label first, Arabic gloss in parentheses."
+Excel,Excel,not measured,site articles,
+CSV,CSV,not measured,EFB UI («CSV» = «CSV»),
+PDF,PDF,not measured,site articles,
+multilingual,متعدد اللغات,not measured,recommended,
+language pack,حزمة اللغة,not measured,recommended,
+click,انقر (على),انقر 161× in 42 art.; اضغط 77× in 22 art.,EFB UI («Click here» = «انقر هنا»),"UI: انقر ×24, اضغط ×3. Site: انقر 161 / اضغط 58 (old), اضغط 19 (new). Rule: EN «click» → انقر على; EN «press» → اضغط (buttons named «Press Save», keys: اضغط Enter)."
+press,اضغط,not measured,newest site articles,
+select (from a list),اختر,not measured,EFB UI («Select Form» = «اختر النموذج»),«اختر النموذج» (UI). For checkboxes/rows use «حدّد» (UI «Select All» = «تحديد الكل»).
+select (check),حدّد,اختر 83× in 44 art.; حدد 9× in 8 art.,EFB UI («Select All» = «تحديد الكل»),
+enter / type,أدخل,not measured,EFB UI («Enter API KEY» = «أدخل مفتاح API»),UI «أدخل مفتاح API». «اكتب» for free text typing.
+go to,انتقل إلى,not measured,EFB UI sentence uses «الانتقال إلى»,UI uses «الانتقال إلى». Navigation path format: «منشئ النماذج السهل ← الإعدادات ← إعدادات البريد الإلكتروني».
+open,افتح,not measured,EFB UI («Open» = «افتح»),Imperative; as a status noun use «مفتوحة».
+check / verify,تحقق من,not measured,EFB UI («verify» = «تحقق»),UI «verify» = «تحقق» (55 uses of تحقق in UI).
+make sure,تأكد من,not measured,site articles (93 uses),Fine. Avoid stacking «يرجى التأكد من» (formal calque of «please ensure»).
+please,يُرجى,not measured,EFB UI («Please» = «يرجى»),UI uses it. In tutorials drop it; instructions are plain imperatives.
+Tip,نصيحة:,not measured,site articles,"Callout labels: «ملاحظة:» (Note), «نصيحة:» (Tip), «تنبيه:» (Warning, caution), «مهم:» (Important)."
+Note,ملاحظة:,not measured,site articles (19 uses/13 articles),
+Important,مهم:,not measured,site articles,
+free (cost),مجانًا,not measured,style,Write tanween as fathatan + alef «مجانًا» (not «مجاناً»). Old articles mix both forms.
+screenshot caption,تسمية توضيحية,not measured,WP core ar («Caption» = «كلمات توضيحية») – DIFFERS,
+Updated for version X,محدَّث للإصدار,not measured,recommended,Freshness note at the end of rewritten articles (plan §4.3).
+Tested with,جُرِّب على,not measured,recommended,Fact box line: «جُرِّب على Easy Form Builder 4.3.1 وووردبريس 6.x».
+Last verified,آخر تحقق,not measured,recommended,
+Time required,المدة المتوقعة,not measured,recommended,
+Plan required,الخطة المطلوبة,not measured,recommended,Values: «مجاني»، «مجاني بلس»، «احترافي»، «ملحق (احترافي)».

@@ -1,0 +1,37 @@
+{
+  "scale": 2,
+  "units": "css",
+  "rtl": true,
+  "annotations": [
+    {
+      "type": "crop",
+      "coords": [
+        130,
+        40,
+        660,
+        360
+      ]
+    },
+    {
+      "type": "arrow",
+      "target": [
+        320,
+        340,
+        160,
+        40
+      ],
+      "from": "start",
+      "length": 0.15
+    },
+    {
+      "type": "badge",
+      "label": "1",
+      "coords": [
+        320,
+        340,
+        160,
+        40
+      ]
+    }
+  ]
+}

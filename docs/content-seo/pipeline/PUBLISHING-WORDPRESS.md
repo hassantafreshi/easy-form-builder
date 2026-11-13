@@ -18,8 +18,8 @@
 | دسته‌ها (slug → id) | advanced-addons 83، blog 2، developer-guide 84، document 3، entry-management 81، wordpress-form-builder 5، form-notifications 82، getting-started 79، payment-form 4 | advanced-addons 66، blog 2، document 3، getting-started 5، developer-guide 65، payment-form 4 | advanced-addons 70، blog 1، document 2، developer-guide 71، getting-started 5، payment-form 3 |
 
 **قوانین مستخرج:**
-1. `slug` در هر سه سایت **یکسان** (hreflang مبتنی بر slug).
-2. نشانی نهایی: `/{دستهٔ اصلی}/{slug}/` — دسته را با **slug** پیدا کنید، نه ID؛ دسته‌هایی که در AR/DE وجود ندارند (`entry-management`، `form-notifications`، `wordpress-form-builder`) در آن سایت‌ها حذف و به `document` نگاشت می‌شوند.
+1. `slug` در هر سه سایت **یکسان** و **بخش URL (دستهٔ اصلی) هم یکسان**؛ hreflang تم فقط وقتی `/{بخش}/{slug}/` در دو زبان یکی باشد ساخته می‌شود. (۱۳ پست AR و ۱۸ پست DE فعلاً در بخش متفاوت‌اند — روز صفر.)
+2. نشانی نهایی: `/{دستهٔ اصلی}/{slug}/` — دسته را با **slug** پیدا کنید، نه ID. روی AR/DE **فقط یک دسته** (همان بخش EN) تنظیم کنید؛ دسته‌هایی که در AR/DE وجود ندارند (`entry-management`، `form-notifications`، `wordpress-form-builder`) حذف می‌شوند. بعد از انتشار، URL واقعی باید دقیقاً `<home>/<بخش EN>/<slug>/` باشد (QA-GATES §E).
 3. نوشته‌ها از نوع `post` هستند: `POST /wp-json/wp/v2/posts`.
 
 ## ۲. پیش‌نیازها روی هر سایت

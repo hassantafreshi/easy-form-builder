@@ -48,7 +48,7 @@
 
 ## E. راستی‌آزمایی بعد از انتشار (روی URL زنده/پیش‌نمایش، هر ۳ سایت)
 
-1. HTTP 200؛ `<link rel=canonical>` = URL خودش؛ hreflang (en/de/ar/x-default) دقیقاً همان سه URL مبتنی بر slug.
+1. HTTP 200؛ `<link rel=canonical>` = URL خودش؛ hreflang (en/de/ar/x-default) دقیقاً همان سه URL؛ **مسیر `/{بخش}/{slug}/` در هر سه سایت یکسان** (وگرنه تم hreflang را حذف می‌کند).
 2. `<title>`، meta description، `og:*` همان مقادیر ارسالی؛ فقط یک H1.
 3. JSON-LD: همهٔ بلوک‌ها parse می‌شوند؛ هیچ `</script>` یا کاراکتر خطرناک؛ بدون Article تکراری.
 4. همهٔ تصاویر 200 و دارای alt؛ لینک‌های داخلی و خارجی 2xx/3xx.

@@ -1,0 +1,45 @@
+{
+  "scale": 2,
+  "units": "css",
+  "annotations": [
+    {
+      "type": "crop",
+      "coords": [
+        130,
+        40,
+        660,
+        360
+      ]
+    },
+    {
+      "type": "box",
+      "coords": [
+        164,
+        340,
+        140,
+        40
+      ],
+      "pad": 4
+    },
+    {
+      "type": "badge",
+      "label": "1",
+      "coords": [
+        164,
+        126,
+        44,
+        24
+      ]
+    },
+    {
+      "type": "badge",
+      "label": "2",
+      "coords": [
+        164,
+        340,
+        140,
+        40
+      ]
+    }
+  ]
+}

@@ -1,0 +1,242 @@
+﻿en,fa_recommended,variants_seen,source,notes
+Easy Form Builder,فرم‌ساز آسان,فرم‌ساز آسان (site 36 / po 112); فرم ساز آسان (site 369 / po 23); Easy Form Builder (site 15 / po 0),UI (.po) (wporg-stable) + site easyformbuilder.ir,Persian brand = «فرم‌ساز آسان» (ZWNJ between فرم and ساز). Site uses the spaced «فرم ساز آسان» 10x more often than the ZWNJ form: standardise on ZWNJ. Latin «Easy Form Builder» once in parentheses on first mention for search and WordPress.org matching.
+WhiteStudio,WhiteStudio,WhiteStudio (site 0 / po 10),UI (.po),"Keep the Latin spelling. Do not transliterate (UI keeps WhiteStudio in ""پیشخوان WhiteStudio"")."
+WordPress,وردپرس,وردپرس (site 276 / po 92); WordPress (site 21 / po 11),UI (.po) + site easyformbuilder.ir,"Persian «وردپرس» in running text; Latin WordPress only in code, URLs, plugin directory names."
+plugin,افزونه,افزونه (site 310 / po 109); پلاگین (site 1 / po 0),UI (.po) + WP | WP fa glossary: افزونه,Never «پلاگین» (10 uses on the site); WP fa uses «افزونه».
+add-on,افزودنی,افزودنی (site 5 / po 109),UI (.po),Plugin = افزونه; add-on of the plugin = افزودنی. Do not mix: «افزودنی پرداخت» not «افزونه پرداخت».
+Free,رایگان,رایگان (site 23 / po 37),UI (.po) | WP fa glossary: رایگان، آزاد,Plan name. Write «نسخه رایگان» for the Free version (9 uses on the site).
+Free Plus,رایگان پلاس,رایگان پلاس (site 0 / po 11),UI (.po),"Exactly «رایگان پلاس» (two words, no ZWNJ) as the UI. First mention: «رایگان پلاس (Free Plus)»."
+Pro,ویژه,ویژه (site 34 / po 31); حرفه‌ای (site 20 / po 21); پرو (site 0 / po 6),UI (.po) + site easyformbuilder.ir,"COUNTS are whole-word matches and include non-product senses of «ویژه» and «حرفه‌ای». CONFLICT: core UI says «نسخه ویژه» (14x) but 4 newer strings say «نسخه حرفه‌ای» (""Pro"" in 21 strings reads «حرفه‌ای»). The Persian site says «نسخه ویژه» (24x). Recommend «ویژه»; owner to confirm and later normalise the 4 .po strings."
+Pro version,نسخه ویژه,نسخه ویژه (site 25 / po 14); نسخه حرفه‌ای (site 2 / po 4); نسخه پرو (site 0 / po 1),UI (.po) + site easyformbuilder.ir,UI label «نسخه ویژه»; «فعال‌سازی نسخه ویژه» = Activate Pro version.
+plan,پلن,پلن (site 3 / po 26); طرح (site 1 / po 3); بسته (site 11 / po 3); پکیج (site 8 / po 0),UI (.po),"UI: «مدیریت پلن», «تغییر پلن». Do not use «بسته» (package) for plans."
+Plan Management,مدیریت پلن,مدیریت پلن (site 0 / po 1),UI (.po),
+Change Plan,تغییر پلن,تغییر پلن (site 0 / po 2),UI (.po),
+activation code,کد فعال‌سازی,کد فعال‌سازی (site 0 / po 11); کد فعال سازی (site 9 / po 0),UI (.po) + site easyformbuilder.ir,Site writes «کد فعال سازی» (spaced). Use ZWNJ form.
+license,مجوز,مجوز (site 2 / po 13); مجوز حرفه‌ای (site 0 / po 1),UI (.po) + R&D recommendation,"UI uses «مجوز» (""مجوز حرفه‌ای شما""). Avoid «لایسنس» in formal text; accept once in parentheses for search."
+subscription,اشتراک,اشتراک (site 20 / po 25),UI (.po) + WP | WP fa glossary: اشتراک، عضویت,"Paid Pro subscription = «اشتراک». Newsletter form = «فرم خبرنامه» (UI ""Subscription Form"")."
+Powered by Easy Form Builder,ارائه‌شده توسط فرم‌ساز آسان,ارائه‌شده توسط (site 0 / po 1),UI (.po),"Free Plus credit link, quoted with «» marks."
+money-back guarantee,ضمانت بازگشت وجه,,R&D recommendation,For the 14-day guarantee statement (UNVERIFIED whether it applies to the Persian-site one-time Toman payment).
+price in Toman,قیمت به تومان,تومان (site 6 / po 1),site easyformbuilder.ir,The Persian site sells in Toman (one-time payment); the global site sells yearly in USD (per FA activation page). Never mix currencies in one sentence.
+Panel,پنل,پنل (site 51 / po 13),UI (.po),Plugin screen (Forms list + Settings + Help). Not «پیشخوان» (that is the WordPress dashboard).
+Create,ایجاد,ایجاد (site 162 / po 23),UI (.po),Screen and menu name «ایجاد».
+Forms,فرم‌ها,فرم‌ها (site 96 / po 98); فرم ها (site 83 / po 0),UI (.po),
+Settings,تنظیمات,تنظیمات (site 142 / po 77),UI (.po) | WP fa glossary: تنظیمات,Plural noun; SMS tab uses «پیکربندی پیامک» (14 strings use «پیکربندی»).
+Help,راهنما,راهنما (site 19 / po 18),UI (.po) | WP fa glossary: راهنما، راهنمایی، کمک,
+Add-ons (screen),افزودنی‌ها,افزودنی‌ها (site 0 / po 47),UI (.po),
+WordPress dashboard,پیشخوان وردپرس,پیشخوان (site 15 / po 6); داشبورد (site 18 / po 0); پنل مدیریت (site 4 / po 0),UI (.po) + WP + site easyformbuilder.ir | WP fa glossary: پیشخوان,«پیشخوان» (14x) beats «داشبورد» (18x) in WP core Persian; recommend «پیشخوان وردپرس».
+Form Settings,تنظیمات فرم,تنظیمات فرم (site 39 / po 5),UI (.po),
+field settings,تنظیمات فیلد,تنظیمات فیلد (site 1 / po 0),R&D recommendation,Gear-icon panel of a field.
+form builder,فرم‌ساز,فرم‌ساز (site 66 / po 120); فرم ساز (site 409 / po 23),UI (.po) + site easyformbuilder.ir,"Generic noun «فرم‌ساز» (ZWNJ), also part of the brand: disambiguate by context."
+preview,پیش‌نمایش,پیش‌نمایش (site 3 / po 12); پیش نمایش (site 3 / po 0),UI (.po) | WP fa glossary: پیش‌نمایش,
+Desktop Preview,پیش‌نمایش دسکتاپ,پیش‌نمایش دسکتاپ (site 0 / po 1),UI (.po),
+Preview in new tab,پیش‌نمایش در زبانهٔ جدید,زبانهٔ جدید (site 0 / po 1),UI (.po),UI uses «زبانه» for tab (WP wording).
+tab,زبانه,زبانه (site 1 / po 1); تب (site 10 / po 1),UI (.po) + WP,UI «زبانه»; informal «تب» is common but avoid in formal copy.
+menu,فهرست,فهرست (site 2 / po 19); منو (site 23 / po 2),WP fa glossary | WP fa glossary: فهرست,WP uses «فهرست» for menu. In articles about sidebar entries say «منوی پیشخوان».
+sidebar,نوار کناری,نوار کناری (site 14 / po 0),WP fa glossary | WP fa glossary: نوار کناری,
+page (WordPress),برگه,برگه (site 8 / po 30); صفحه (site 133 / po 58),WP fa glossary + site easyformbuilder.ir | WP fa glossary: برگه‌,"WordPress ""Page"" = «برگه»; general ""web page"" = «صفحه»."
+post (WordPress),نوشته,نوشته (site 10 / po 3); پست (site 21 / po 1),WP fa glossary | WP fa glossary: نوشته,«نوشته» for WordPress posts; never «پست».
+theme,پوسته,قالب (site 55 / po 38),WP fa glossary | WP fa glossary: پوسته,"Theme = «پوسته»; «قالب» is used for templates (email template, form template)."
+template,قالب,قالب (site 55 / po 38),UI (.po) + WP | WP fa glossary: قالب,"Form template, email template."
+widget,ابزارک,ابزارک (site 0 / po 2),WP fa glossary + site easyformbuilder.ir | WP fa glossary: ابزارک,
+comment,دیدگاه,دیدگاه (site 0 / po 2); نظر (site 63 / po 14),WP fa glossary | WP fa glossary: دیدگاه,
+media,رسانه,رسانه (site 8 / po 1),WP fa glossary | WP fa glossary: رسانه,
+block (Gutenberg),بلوک,بلوک (site 11 / po 11),WP fa glossary | WP fa glossary: بلوک، قطعه,
+editor,ویرایشگر,ویرایشگر (site 18 / po 7),WP fa glossary | WP fa glossary: ویرایشگر,
+permalink,پیوند یکتا,,WP fa glossary | WP fa glossary: پیوند یکتا,
+shortcode,کدکوتاه,کدکوتاه (site 0 / po 15); کد کوتاه (site 12 / po 0); شورت‌کد (site 6 / po 0); شورت کد (site 5 / po 0); شورت کات (site 1 / po 0),UI (.po) + WP + site easyformbuilder.ir | WP fa glossary: کدکوتاه,"UI and WP core: «کدکوتاه» (one word; 15 UI uses). Site mixes «کد کوتاه» (12), «شورت‌کد» (6), and in one article «شورت کات» (a different English word, wrong). Use «کدکوتاه (Shortcode)» on first mention."
+Copy Shortcode,کپی کدکوتاه,کپی کدکوتاه (site 0 / po 2),UI (.po),
+user,کاربر,کاربر (site 105 / po 31),WP fa glossary | WP fa glossary: کاربر,
+administrator,مدیر,مدیر (site 19 / po 36),WP fa glossary | WP fa glossary: مدیر,Also «مدیر سایت» for site owner.
+visitor,بازدیدکننده,بازدیدکننده (site 2 / po 18); کاربر (site 105 / po 31),R&D recommendation,"The person filling a public form. Use «بازدیدکننده» (not «کاربر», which is a WordPress user)."
+username,نام کاربری,نام کاربری (site 3 / po 13),UI (.po) + WP | WP fa glossary: نام کاربری,
+password,گذرواژه,گذرواژه (site 0 / po 22); رمز عبور (site 5 / po 0); کلمه عبور (site 1 / po 0),UI (.po) + WP | WP fa glossary: گذرواژه، رمز عبور,"UI: «گذرواژه» (22x), zero «رمز عبور». WP lists both. Keep «گذرواژه» in UI references; «رمز عبور» is acceptable in friendly copy only if used consistently in one article."
+Login,ورود,ورود (site 50 / po 31),UI (.po) + WP | WP fa glossary: ورود,Button. Verb phrase «وارد شوید».
+Logout,خروج,خروج (site 20 / po 23),UI (.po),
+Register,ثبت‌نام,ثبت‌نام (site 2 / po 18); ثبت نام (site 2 / po 0),UI (.po),Register Form = «فرم ثبت‌نام».
+Subscribe form,فرم خبرنامه,فرم خبرنامه (site 0 / po 1); فرم اشتراک (site 0 / po 1),UI (.po),"UI card ""Subscription Form"" = «فرم خبرنامه»."
+category,دسته,دسته (site 1 / po 1),WP fa glossary | WP fa glossary: دسته,
+tag,برچسب,برچسب (site 28 / po 16),WP fa glossary | WP fa glossary: برچسب,"Same word as the form-field ""Label""."
+revision,رونوشت,رونوشت (site 0 / po 4),WP fa glossary | WP fa glossary: رونوشت,
+multisite,چندسایته,,WP fa glossary | WP fa glossary: چند سایته,
+version (release),نسخه,نسخه (site 79 / po 32); نگارش (site 0 / po 1),UI (.po) + WP | WP fa glossary: نگارش,UI and site say «نسخه»; WP core says «نگارش». Use «نسخه» (matches plan names and the site). Version numbers stay Latin: «نسخه 4.3.1».
+update,به‌روزرسانی,به‌روزرسانی (site 17 / po 11); بروزرسانی (site 7 / po 0); آپدیت (site 1 / po 0),UI (.po) + WP | WP fa glossary: به‌روزرسانی نمایید,Never «بروزرسانی» (missing ZWNJ/hyphen standard) or «آپدیت».
+install,نصب,نصب (site 71 / po 75),UI (.po) + WP | WP fa glossary: نصب نمایید، نصب,
+activate,فعال‌سازی,فعال‌سازی (site 11 / po 31); فعال سازی (site 28 / po 0); فعالسازی (site 1 / po 0),UI (.po) + site easyformbuilder.ir | WP fa glossary: فعال نمایید، فعال کردن,ZWNJ: «فعال‌سازی». Site uses the spaced form.
+deactivate,غیرفعال‌سازی,غیرفعال‌سازی (site 0 / po 4); غیر فعال (site 3 / po 0),UI (.po),
+enable,فعال‌سازی,فعال‌سازی (site 11 / po 31),UI (.po),Label for switches: «فعال‌سازی …». In steps: «… را فعال کنید».
+Language pack,بستهٔ زبان,فایل زبان (site 1 / po 0); فایل‌های زبان (site 6 / po 8),site easyformbuilder.ir + R&D recommendation,Site says «فایل‌های زبان». For the automatic download from the language server use «بستهٔ زبان».
+translation,ترجمه,ترجمه (site 18 / po 22),UI (.po) + WP | WP fa glossary: ترجمه,
+localization,بومی‌سازی,بومی‌سازی (site 0 / po 3),UI (.po) | WP fa glossary: محلی | زبان محلی,"Settings tab ""Localization""."
+72 languages,۷۲ زبان,,R&D recommendation,Persian digits in prose.
+RTL,راست‌به‌چپ (RTL),راست به چپ (site 1 / po 0); RTL (site 1 / po 1); چپ به راست (site 1 / po 0),site easyformbuilder.ir + R&D recommendation,«زبان‌های راست‌به‌چپ». Keep «RTL» Latin in parentheses once.
+form,فرم,فرم (site 1246 / po 430),UI (.po) + site easyformbuilder.ir | WP fa glossary: فرم,
+field,فیلد,فیلد (site 114 / po 86); المان (site 31 / po 4); عنصر (site 2 / po 0); ورودی (site 42 / po 26); زمینه (site 1 / po 1),UI (.po) + site easyformbuilder.ir | WP fa glossary: زمینه، ورودی، فیلد,"UI uses «فیلد» (e.g. «فیلد مخفی»). The site also says «المان» (32) and «ورودی» (42, ambiguous with entries). Use «فیلد»; WP core suggests «زمینه، ورودی، فیلد»."
+Hidden Field,فیلد مخفی,فیلد مخفی (site 0 / po 3),UI (.po),
+Disabled Field,فیلد غیرفعال,فیلد غیرفعال (site 0 / po 1),UI (.po),
+step,گام,گام (site 56 / po 7); مرحله (site 136 / po 11); قدم (site 3 / po 0),UI (.po) + site easyformbuilder.ir,"The multi-step form ""Step"" field = «گام» (UI 27x); a generic stage or tutorial step = «مرحله» (UI 24x; wizard ""مرحله ۱ از ۵""). Tutorial headings: «مرحله ۱ — …»."
+Step Name,نام گام,نام گام (site 7 / po 2),UI (.po),
+multi-step form,فرم چندمرحله‌ای,چندمرحله‌ای (site 6 / po 9); چند مرحله ای (site 36 / po 0); چند مرحله‌ای (site 17 / po 0); چندگامی (site 1 / po 0); دو گامی (site 1 / po 0),UI (.po) + site easyformbuilder.ir,"Compound adjective with ZWNJ; the site writes «چند مرحله ای» (spaced, with a free-standing ای)."
+progress bar,نوار پیشرفت,نوار پیشرفت (site 28 / po 3),UI (.po),
+label,برچسب,برچسب (site 28 / po 16),UI (.po),Field label.
+Placeholder,نگهدارنده مکان,نگهدارنده مکان (site 0 / po 1); جایگزین (site 7 / po 3); متن نمونه (site 1 / po 0),UI (.po) + R&D recommendation,UI string is the calque «نگهدارنده مکان». Use it only when naming the UI option; in explanatory prose say «متن راهنمای داخل فیلد» (UNVERIFIED reader preference).
+description,توضیح,توضیح (site 9 / po 5),UI (.po),
+Required,الزامی,الزامی (site 3 / po 11); اجباری (site 2 / po 0),UI (.po),Not «اجباری».
+default value,مقدار پیش‌فرض,مقدار پیش‌فرض (site 2 / po 1),UI (.po),
+text,متن,متن (site 58 / po 29),UI (.po),
+Longer Text,متن بلند,متن بلند (site 0 / po 1); متن طولانی (site 1 / po 0),UI (.po),UI label «متن بلند».
+Check Box,چک باکس,چک باکس (site 3 / po 2); چک‌باکس (site 1 / po 0); چک‌باکس (site 1 / po 0),UI (.po),UI: «چک باکس» (with a space). Keep the UI form when naming the tile.
+Radio Button,دکمه رادیویی,دکمه رادیویی (site 1 / po 2),UI (.po),
+Select,انتخاب,انتخاب (site 88 / po 85); فهرست کشویی (site 0 / po 5),UI (.po),Drop-down: tile label «انتخاب»; in prose «فهرست کشویی».
+Number,عدد,عدد (site 4 / po 5),UI (.po),
+Tel,تلفن,تلفن (site 6 / po 10),UI (.po),
+Mobile,موبایل,موبایل (site 14 / po 9); تلفن همراه (site 0 / po 5),UI (.po),"Mobile phone number field; also the mobile view toggle (""Mobile"")."
+Range,محدوده,محدوده (site 0 / po 2),UI (.po),
+Date Picker,انتخاب‌گر تاریخ,انتخاب‌گر تاریخ (site 0 / po 3),UI (.po),UI uses «انتخاب‌گر» with ZWNJ and also «انتخابگر» in newer strings.
+File upload,بارگذاری فایل,بارگذاری فایل (site 15 / po 5); آپلود فایل (site 29 / po 1); آپلود (site 40 / po 4),UI (.po) + site easyformbuilder.ir,UI: «بارگذاری» (61x in the .po); site: «آپلود». Use «بارگذاری» for the UI item; «آپلود» only once in the title for search.
+Drag & Drop,کشیدن و رها کردن,کشیدن و رها کردن (site 7 / po 6); Drag & Drop (site 5 / po 0),UI (.po) + site easyformbuilder.ir,Latin «Drag & Drop» in parentheses at most once.
+Signature,امضا,امضا (site 4 / po 11); امضای الکترونیکی (site 0 / po 5),UI (.po),
+Rating,امتیاز,امتیاز (site 4 / po 23); ستاره (site 4 / po 10),UI (.po),
+Terms and conditions,شرایط و ضوابط,شرایط و ضوابط (site 0 / po 1),UI (.po),
+URL field,نشانی وب,نشانی وب (site 1 / po 1); آدرس (site 27 / po 6),UI (.po) + site easyformbuilder.ir,WP glossary also allows «پیوند، نشانی اینترنتی». Site says «آدرس» (formal Persian prefers «نشانی»).
+Switch,کلید,کلید (site 20 / po 25); سوئیچ (site 1 / po 1),UI (.po),"The on/off field is «کلید» in the UI (ambiguous with ""key""): add «(Switch)» on first mention."
+Color Picker,گزینش‌گر رنگ,گزینش‌گر رنگ (site 0 / po 1),UI (.po),
+Location Picker,انتخاب‌گر موقعیت,انتخاب‌گر موقعیت (site 0 / po 4); مکان‌یاب (site 17 / po 1); انتخاب گر نقشه (site 3 / po 0); انتخابگر موقعیت (site 5 / po 0),UI (.po) + site easyformbuilder.ir,Site articles use «مکان‌یاب / انتخاب‌گر نقشه»; UI: «انتخاب‌گر موقعیت».
+Image picker,انتخاب‌گر تصویر,انتخاب‌گر تصویر (site 0 / po 1),UI (.po),
+Heading (field),عنوان,عنوان (site 34 / po 12); سربرگ (site 0 / po 5),UI (.po),
+Link (field),پیوند,پیوند (site 1 / po 19); لینک (site 65 / po 0),UI (.po) + WP | WP fa glossary: پیوند,"UI: 19 «پیوند», zero «لینک»; the site uses «لینک» in prose."
+HTML Code,کد HTML,کد HTML (site 4 / po 3); المان HTML (site 7 / po 0),UI (.po) + site easyformbuilder.ir,
+Address (field),نشانی,نشانی (site 1 / po 60); آدرس (site 27 / po 6),UI (.po) + WP | WP fa glossary: نشانی,
+Matrix / table,ماتریس و جدول,ماتریس (site 0 / po 1); جدول (site 12 / po 3),UI (.po),
+Yes/No,بله/خیر,بله/خیر (site 2 / po 2),UI (.po),
+button,دکمه,دکمه (site 59 / po 27),UI (.po) + WP | WP fa glossary: دکمه,
+Submit,ارسال,ارسال (site 173 / po 215); ثبت (site 18 / po 14),UI (.po),"Submit button = «ارسال» (UI, origin local-po)."
+Next,بعدی,بعدی (site 10 / po 4),UI (.po),
+Previous,قبلی,قبلی (site 12 / po 5),UI (.po),
+required message,پیام الزامی بودن,این فیلد الزامی است (site 0 / po 1),UI (.po),
+submission,ورودی (ثبت‌شده),ورودی (site 42 / po 26); فرم پر شده (site 9 / po 0); فرم‌های پر شده (site 3 / po 0); ثبت (site 18 / po 14),site easyformbuilder.ir + R&D recommendation,"Site says «فرم‌های پر شده (پاسخ‌ها)». Recommend «پاسخ» for one filled-in form (UI term), «ورودی‌ها» only for the Entries list."
+Response,پاسخ,پاسخ (site 54 / po 92),UI (.po) | WP fa glossary: پاسخ,UI «پاسخ»; plural «پاسخ‌ها».
+Responses,پاسخ‌ها,پاسخ‌ها (site 16 / po 19); پاسخ ها (site 6 / po 0),UI (.po),
+Messages,پیام‌ها,پیام‌ها (site 7 / po 16); پیام ها (site 10 / po 0),UI (.po) | WP fa glossary: پیام، پیغام,
+Reply,پاسخ,پاسخ (site 54 / po 92),UI (.po),Same word as Response: distinguish with a verb («پاسخ دادن»).
+Mark as Read,نشان‌گذاری به‌عنوان خوانده‌شده,نشان‌گذاری (site 0 / po 1),UI (.po),
+Confirmation Code,کد تأیید,کد تأیید (site 2 / po 21); کد رهگیری (site 30 / po 2); کد پیگیری (site 15 / po 0); کد تایید (site 2 / po 0),"UI (.po) (21x) + site easyformbuilder.ir (کد رهگیری 28x, کد پیگیری 13x)","CONFLICT. The Persian UI says «کد تأیید» (also matches the English UI after the rename from ""Tracking Code""). The site and search habits say «کد رهگیری/کد پیگیری». Rule: name the button/field «کد تأیید» (exact UI); in the first paragraph add «(که با نام کد رهگیری هم شناخته می‌شود)» for search. Owner to confirm."
+Confirmation Code Finder,جستجوگر کد تأیید,جستجوگر کد تأیید (site 0 / po 5); یابنده کد رهگیری (site 20 / po 0); یابنده کد پیگیری (site 1 / po 0),UI (.po) + site easyformbuilder.ir,Site articles call it «یابنده کد رهگیری».
+Show Confirmation Code,نمایش کد تأیید,نمایش کد تأیید (site 0 / po 1),UI (.po),
+CSV export,برون‌بری CSV,برون‌بری (site 0 / po 6); خروجی CSV (site 1 / po 0); دانلود فایل CSV (site 2 / po 1); دریافت فایل CSV (site 0 / po 1),UI (.po) + site easyformbuilder.ir | WP fa glossary: برون‌بری,"UI «برون‌بری»; button ""Download CSV file"" = «دانلود فایل CSV»."
+PDF export,خروجی PDF,خروجی PDF (site 2 / po 0); دانلود PDF (site 0 / po 3),site easyformbuilder.ir + UI (.po),
+Download,دانلود,دانلود (site 23 / po 24); دریافت (site 68 / po 79),UI (.po) + WP | WP fa glossary: دریافت,UI: «دانلود» 26x; WP core «دریافت». Use «دانلود».
+Upload,بارگذاری,بارگذاری (site 40 / po 55); آپلود (site 40 / po 4); ارسال فایل (site 0 / po 2),UI (.po) + WP | WP fa glossary: ارسال، ارسال فایل,WP core: «ارسال».
+thank-you message,پیام تشکر,پیام تشکر (site 20 / po 1),UI (.po),
+thank-you page,صفحه تشکر,صفحه تشکر (site 20 / po 1),UI (.po),
+Redirect page,صفحه تغییر مسیر,صفحه تغییر مسیر (site 2 / po 1); صفحه هدایت (site 1 / po 0); ریدایرکت (site 1 / po 0),UI (.po) + site easyformbuilder.ir,Site: «هدایت». Use UI wording; «ریدایرکت» only in technical SEO context.
+Private form,فرم خصوصی,فرم خصوصی (site 9 / po 2); فرم‌های خصوصی (site 0 / po 1),UI (.po),
+Response box,کادر پاسخ,کادر پاسخ (site 2 / po 7); جعبه پاسخ (site 1 / po 2),UI (.po),
+survey,نظرسنجی,نظرسنجی (site 30 / po 18),UI (.po) + site easyformbuilder.ir,
+poll,رأی‌گیری,رأی‌گیری (site 0 / po 1),UI (.po),
+chart,نمودار,نمودار (site 3 / po 4),UI (.po),
+entry / entries,ورودی‌ها,ورودی‌ها (site 2 / po 13); ورودی ها (site 8 / po 0),UI (.po) + site easyformbuilder.ir,List name only (e.g. «مدیریت ورودی‌ها»).
+email,ایمیل,ایمیل (site 237 / po 377),UI (.po) + site easyformbuilder.ir | WP fa glossary: ایمیل,Never «رایانامه» / «پست الکترونیک» (0 uses).
+Email Settings,تنظیمات ایمیل,تنظیمات ایمیل (site 14 / po 20),UI (.po),
+Email Template,قالب ایمیل,قالب ایمیل (site 19 / po 6),UI (.po),
+Check Email Server,بررسی سرور ایمیل,بررسی سرور ایمیل (site 0 / po 5),UI (.po) (sonnet),Quote with «» in prose: روی «بررسی سرور ایمیل» کلیک کنید.
+This site can send emails,این سایت قابلیت ارسال ایمیل دارد,قابلیت ارسال ایمیل (site 1 / po 2),UI (.po),
+Alert Email,ایمیل هشدار,ایمیل هشدار (site 0 / po 3),UI (.po),
+notification,آگاه‌سازی,آگاه‌سازی (site 0 / po 36); اطلاع‌رسانی (site 17 / po 0); اطلاع رسانی (site 56 / po 0); اعلان (site 31 / po 35); نوتیفیکیشن (site 1 / po 0),UI (.po) + site easyformbuilder.ir + WP | WP fa glossary: آگاه‌سازی,"UI is split almost evenly between «آگاه‌سازی» (36, also WP core) and «اعلان» (35); the site uses «اطلاع‌رسانی/اطلاع رسانی» (73) and «اعلان» (31). Recommend «آگاه‌سازی» when quoting UI toggles (""Enable Telegram notifications"") and «اطلاع‌رسانی» nowhere new; pick one per article."
+spam,هرزنامه,هرزنامه (site 1 / po 44); اسپم (site 18 / po 6),UI (.po) (44x) + site easyformbuilder.ir (اسپم) + WP (جفنگ) | WP fa glossary: جفنگ,Plugin UI: «هرزنامه»; people search «اسپم». WP core fa glossary says «جفنگ» (rarely seen by users). Use «هرزنامه (اسپم)» once in the intro; afterwards «هرزنامه».
+spam folder,پوشهٔ هرزنامه,پوشه هرزنامه (site 0 / po 14); پوشه اسپم (site 2 / po 1); اسپم (site 18 / po 6),R&D recommendation,
+deliverability,تحویل‌پذیری,تحویل‌پذیری (site 0 / po 6),UI (.po),
+Delivered,تحویل شد,تحویل شد (site 0 / po 4),UI (.po),
+Sender permission (SPF),مجوز فرستنده (SPF),مجوز فرستنده (site 1 / po 1),UI (.po),
+Email signature (DKIM),امضای ایمیل (DKIM),امضای ایمیل (site 0 / po 1),UI (.po),
+Domain protection policy (DMARC),سیاست حفاظت از دامنه (DMARC),سیاست حفاظت از دامنه (site 0 / po 1),UI (.po),
+Needs setup,نیازمند تنظیم,نیازمند تنظیم (site 0 / po 1),UI (.po),
+Looks good,تأیید شده,تأیید شده (site 0 / po 1),UI (.po),"Status text; note the English is ""Looks good"" but UI says «تأیید شده» (confirmed)."
+DNS record,رکورد DNS,رکورد (site 0 / po 9),UI (.po) + R&D recommendation,
+TXT record,رکورد TXT,,R&D recommendation,
+SMTP plugin,افزونهٔ SMTP,افزونه SMTP (site 1 / po 6); افزونه WP Mail SMTP (site 8 / po 0),site easyformbuilder.ir,
+email sending service,سرویس ارسال ایمیل,سرویس ارسال ایمیل (site 1 / po 2),R&D recommendation,
+weekly email health report,گزارش هفتگی سلامت ایمیل,گزارش هفتگی سلامت ایمیل (site 0 / po 1),UI (.po),
+email score,امتیاز ایمیل,امتیاز (site 4 / po 23),R&D recommendation,Score out of 100: «امتیاز ۱۰۰ از ۱۰۰» hmm: write numbers with Persian digits in prose.
+inbox,صندوق ورودی,صندوق ورودی (site 0 / po 4),R&D recommendation,
+CAPTCHA,کپچا,کپچا (site 7 / po 5); CAPTCHA (site 0 / po 2),UI (.po) + site easyformbuilder.ir,Transliterated «کپچا» in running text (site 7x). Captchas tab = «کپچاها».
+reCAPTCHA,reCAPTCHA,reCAPTCHA (site 12 / po 14),UI (.po) + site easyformbuilder.ir,"Keep Latin, same casing."
+silentCAPTCHA,silentCAPTCHA,silentCAPTCHA (site 0 / po 3),UI (.po),UI: «محافظت در برابر هرزنامه با silentCAPTCHA».
+honeypot,هانی‌پات,هانی‌پات (site 0 / po 2),UI (.po),
+rate limiting,محدودسازی نرخ,محدودسازی نرخ (site 0 / po 2),UI (.po),
+token (security),توکن,توکن (site 1 / po 9),UI (.po),
+Security & Spam Protection,امنیت و محافظت در برابر هرزنامه,امنیت و محافظت (site 0 / po 7),UI (.po),
+403 error,خطای 403,خطای 403 (site 7 / po 1); خطای ۴۰۳ (site 0 / po 1),site easyformbuilder.ir,HTTP status codes stay Latin.
+firewall,فایروال,فایروال (site 0 / po 3),R&D recommendation,
+cache,کش,کش (site 43 / po 21),UI (.po) + site easyformbuilder.ir,«افزونه کش»; verb «کش کردن».
+REST API,REST API,REST API (site 0 / po 3),R&D recommendation,Keep Latin.
+API key,کلید API,کلید API (site 2 / po 6),UI (.po),
+Secret Key,کلید محرمانه,کلید محرمانه (site 0 / po 4),UI (.po),
+Public Key,کلید عمومی,کلید عمومی (site 0 / po 1),UI (.po),
+Site Key,کلید سایت,کلید سایت (site 0 / po 2),UI (.po),
+payment,پرداخت,پرداخت (site 98 / po 75),UI (.po),
+Payment Gateway,درگاه پرداخت,درگاه پرداخت (site 16 / po 4); درگاه (site 29 / po 8),UI (.po) + site easyformbuilder.ir,
+Stripe,استرایپ (Stripe),استرایپ (site 1 / po 1); Stripe (site 0 / po 8),"UI (.po) (one «استرایپ», 8 Latin) + site easyformbuilder.ir",Mixed in the UI. Recommend Latin «Stripe» (brand) with «استرایپ» not forced; owner to confirm.
+PayPal,پی‌پال (PayPal),پی‌پال (site 0 / po 6); پی‌پل (site 0 / po 1); PayPal (site 3 / po 7),UI (.po),"Spelling variance inside the .po («پی‌پال» 6, «پی‌پل» 1): standardise on «پی‌پال»."
+ZarinPal,زرین‌پال,زرین پال (site 11 / po 0),site easyformbuilder.ir,Iranian gateway; site writes «زرین پال».
+Persia payment,پرداخت پرشیا,پرداخت پرشیا (site 0 / po 4),UI (.po),
+currency,ارز,ارز (site 3 / po 1); واحد پولی (site 1 / po 0),UI (.po),
+price,قیمت,قیمت (site 15 / po 4),UI (.po),
+Total price,قیمت کل,قیمت کل (site 0 / po 1),UI (.po),
+one-time payment,پرداخت یک‌باره,یک‌باره (site 0 / po 1); یکبار (site 2 / po 0),UI (.po),
+Webhook,وب‌هوک,وب‌هوک (site 0 / po 2),R&D recommendation,No UI msgid; keep «Webhook» Latin in the UI context and «وب‌هوک» in prose.
+dataset,مجموعه‌داده,مجموعه‌داده (site 0 / po 4); دیتاست (site 1 / po 0),UI (.po) + site easyformbuilder.ir,Site «دیتاست»; UI «مجموعه‌داده».
+Auto-Populate,پرکردن خودکار,پرکردن خودکار (site 0 / po 11),UI (.po),
+Google Sheet,گوگل شیت,گوگل شیت (site 0 / po 8); Google Sheets (site 1 / po 4),UI (.po),
+Telegram,تلگرام,تلگرام (site 0 / po 6),UI (.po),
+SMS,پیامک,پیامک (site 57 / po 23); SMS (site 10 / po 2),UI (.po) + site easyformbuilder.ir,Never «اس‌ام‌اس». «پنل پیامکی» for the SMS provider panel.
+SMS Configuration,پیکربندی پیامک,پیکربندی پیامک (site 0 / po 1),UI (.po),
+Offline Forms,فرم‌های آفلاین,فرم‌های آفلاین (site 0 / po 4); فرم افلاین (site 2 / po 0); افلاین (site 3 / po 0),UI (.po) + site easyformbuilder.ir,Site title «افزونه فرم افلاین» misspells «آفلاین».
+Contact Form 7 import,درون‌ریزی از Contact Form 7,درون‌ریزی (site 0 / po 7),UI (.po),
+Import,درون‌ریزی,درون‌ریزی (site 0 / po 7),UI (.po) + WP | WP fa glossary: درون‌ریزی,
+Export,برون‌بری,برون‌بری (site 0 / po 6),UI (.po) + WP | WP fa glossary: برون‌بری,
+Jalali date,تاریخ جلالی,تاریخ جلالی (site 0 / po 5); تقویم جلالی (site 13 / po 0); تاریخ شمسی (site 0 / po 1); تقویم شمسی (site 1 / po 0),UI (.po) + site easyformbuilder.ir,UI/add-on «تاریخ جلالی». Aka «هجری شمسی».
+Hijri date,تاریخ قمری,تاریخ قمری (site 0 / po 1); تاریخ هجری (site 0 / po 5),UI (.po),"Add-on is «تاریخ قمری»; field ""Hijri Date"" = «تاریخ هجری» (both in UI): prefer «تاریخ هجری قمری» in prose."
+Gregorian date,تاریخ میلادی,تاریخ میلادی (site 1 / po 1),UI (.po),
+Solar Hijri year,سال هجری شمسی,,R&D recommendation,Article years: write 1405 (Latin digits) only in titles when the SERP needs it; in prose «۱۴۰۵».
+server,سرور,سرور (site 47 / po 84),UI (.po) + WP | WP fa glossary: سرور,
+hosting,میزبانی (هاست),میزبانی (site 5 / po 21); هاست (site 25 / po 8); میزبان (site 10 / po 43),UI (.po) + site easyformbuilder.ir + WP | WP fa glossary: میزبان,"UI: «ارائه‌دهنده میزبانی»; site: «هاست». Prefer «میزبانی (هاست)» once, then «هاست»."
+domain,دامنه,دامنه (site 1 / po 11),UI (.po) + WP | WP fa glossary: دامنه,
+database,پایگاه‌داده,پایگاه داده (site 2 / po 3),WP fa glossary | WP fa glossary: پایگاه‌داده,
+backup,پشتیبان‌گیری,نسخه پشتیبان (site 1 / po 0),WP fa glossary | WP fa glossary: پشتیبان | نسخه پشتیبان,«قبل از به‌روزرسانی از سایت نسخه پشتیبان بگیرید».
+support,پشتیبانی,پشتیبانی (site 31 / po 28),UI (.po) + WP | WP fa glossary: پشتیبانی | پشتیبانی نمایید,
+documentation,مستندات,مستندات (site 7 / po 7),UI (.po) + site easyformbuilder.ir | WP fa glossary: مستندات,The site category is «داکیومنت» (transliteration). Prefer «مستندات» in text; keep the category name as is.
+tutorial,آموزش,آموزش (site 71 / po 6),UI (.po),
+step-by-step,گام‌به‌گام,گام‌به‌گام (site 5 / po 0); قدم به قدم (site 1 / po 0); مرحله به مرحله (site 3 / po 1),site easyformbuilder.ir,
+drag,بکشید,بکشید (site 23 / po 4),UI (.po),
+sandbox,محیط آزمایشی (سندباکس),محیط آزمایشی (site 1 / po 1); سندباکس (site 0 / po 9),UI (.po),UI: «حالت توسعه (محیط آزمایشی)».
+Development Mode,حالت توسعه,حالت توسعه (site 0 / po 9),UI (.po),
+credit link,پیوند معرفی,عبارت و پیوند (site 0 / po 1),UI (.po),
+error,خطا,خطا (site 31 / po 66),UI (.po),
+warning,هشدار,هشدار (site 2 / po 13),UI (.po),
+Please wait,لطفاً صبر کنید,لطفاً صبر کنید (site 0 / po 2),UI (.po),
+Yes,بله,بله (site 9 / po 4),UI (.po),
+No,خیر,خیر (site 7 / po 4); نه (site 3 / po 10),UI (.po),
+Done,انجام شد,انجام شد (site 0 / po 11),UI (.po),
+Close,بستن,بستن (site 0 / po 3),UI (.po),
+Save,ذخیره,ذخیره (site 73 / po 42),UI (.po) + WP | WP fa glossary: ذخیره,
+Delete,حذف,حذف (site 10 / po 26),UI (.po) + WP | WP fa glossary: حذف نمایید، حذف,
+Edit,ویرایش,ویرایش (site 28 / po 11),UI (.po),
+Duplicate,تکثیر,تکثیر (site 0 / po 2); کپی (site 20 / po 21),UI (.po),«تکثیر» duplicates a form; «کپی» copies text/shortcode.
+Copy,کپی,کپی (site 20 / po 21),UI (.po),
+Search,جستجو,جستجو (site 10 / po 7); جست‌وجو (site 2 / po 2),UI (.po) + WP | WP fa glossary: جستجو نمایید,Academy-preferred «جست‌وجو» but UI/WP use «جستجو»: use «جستجو».
+Install button,نصب,نصب (site 71 / po 75),UI (.po),
+click,کلیک کنید,کلیک کنید (site 124 / po 26); کلیک نمایید (site 1 / po 0); بزنید (site 2 / po 5),site easyformbuilder.ir + UI (.po),"Write «روی … کلیک کنید». Not «کلیک نمایید» (WP glossary style, stiff)."
+select (verb),انتخاب کنید,انتخاب کنید (site 37 / po 46),UI (.po),
+enter (verb),وارد کنید,وارد کنید (site 44 / po 39),UI (.po),
+open (a screen),باز کنید,باز کنید (site 9 / po 16); بروید (site 54 / po 9),R&D recommendation,For menus: «به … بروید».
+turn on / off,روشن / خاموش کنید,فعال کنید (site 26 / po 23); غیرفعال کنید (site 3 / po 4),UI (.po),UI uses «فعال/غیرفعال کنید» for switches.
+subtitle,زیرنویس,,R&D recommendation,For SRT tracks.
+caption,زیرنویس,,R&D recommendation,English captions track: «زیرنویس انگلیسی».
+voice-over,صدای گوینده,,R&D recommendation,
+video,ویدیو,ویدیو (site 17 / po 1); ویدئو (site 0 / po 10),UI (.po) + site easyformbuilder.ir,"UI field name: «ضبط ویدئو» (Academy spelling); site and YouTube Persian UI: «ویدیو» (UNVERIFIED for YouTube). Use «ویدیو» in prose, «ویدئو» only when quoting the UI."
+channel,کانال,کانال (site 5 / po 0),site easyformbuilder.ir,
+playlist,فهرست پخش,,R&D recommendation,
+chapter,فصل,,R&D recommendation,
+thumbnail,تصویر بندانگشتی,,R&D recommendation,
+link (hyperlink),پیوند,پیوند (site 1 / po 19); لینک (site 65 / po 0),UI (.po) + WP | WP fa glossary: پیوند,UI «پیوند»; the site «لینک».
+click here,روی این پیوند کلیک کنید,اینجا کلیک کنید (site 1 / po 6),R&D recommendation,Avoid; use descriptive link text.

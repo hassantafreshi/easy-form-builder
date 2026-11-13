@@ -5,7 +5,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/env.sh"
 PIDFILE="$EFB_WORK/php-server.pid"
 LOGFILE="$EFB_WORK/php-server.log"
 
-is_up() { curl -fsS -o /dev/null --max-time 5 --noproxy '*' "$WP_URL/wp-login.php"; }
+is_up() { curl -fsS -o /dev/null --max-time 5 --noproxy '*' "$WP_URL/wp-login.php" 2>/dev/null; }
 
 case "${1:-status}" in
   start)
@@ -25,9 +25,11 @@ if (is_dir($file) && is_file(rtrim($file, '/') . '/index.php') && $path !== '/')
 $_SERVER['SCRIPT_NAME'] = '/index.php';
 require $_SERVER['DOCUMENT_ROOT'] . '/index.php';
 PHP
-    (cd "$WP_ROOT" && PHP_CLI_SERVER_WORKERS="$WP_PHP_WORKERS" setsid nohup php \
+    cd "$WP_ROOT"
+    PHP_CLI_SERVER_WORKERS="$WP_PHP_WORKERS" setsid nohup php \
         -d memory_limit=512M -d upload_max_filesize=64M -d post_max_size=64M -d max_execution_time=120 \
-        -S "127.0.0.1:$WP_PORT" -t "$WP_ROOT" "$EFB_WORK/router.php" >"$LOGFILE" 2>&1 & echo $! >"$PIDFILE")
+        -S "127.0.0.1:$WP_PORT" -t "$WP_ROOT" "$EFB_WORK/router.php" >"$LOGFILE" 2>&1 </dev/null &
+    echo $! >"$PIDFILE"
     for _ in $(seq 1 40); do is_up && { efb_log "server up at $WP_URL (pid $(cat "$PIDFILE"))"; exit 0; }; sleep 0.5; done
     efb_log "server failed to start; see $LOGFILE"; tail -20 "$LOGFILE" >&2; exit 1 ;;
   stop)

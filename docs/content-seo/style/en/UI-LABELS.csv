@@ -1,0 +1,467 @@
+﻿screen,area,element_type,key,label_en,plan,source,notes,fa_ui
+WordPress admin menu,Sidebar,menu,menu_title,Easy Form Builder,All,includes/admin/class-Emsfb-admin.php:213,Top-level menu entry; shows a red count badge for unread responses.,فرم‌ساز آسان
+WordPress admin menu,Sidebar submenu,menu,submenu_panel,Panel,All,includes/admin/class-Emsfb-admin.php:219,"Opens the Forms list; Settings is a tab inside this screen, not a separate submenu.",پنل
+WordPress admin menu,Sidebar submenu,menu,submenu_create,Create,All,includes/admin/class-Emsfb-create.php:36,Opens the form-type / template chooser and the builder.,ایجاد
+WordPress admin menu,Sidebar submenu,menu,submenu_addons,Add-ons,All,includes/admin/class-Emsfb-addon.php:28,Shown in pink in the WordPress sidebar.,افزودنی‌ها
+WordPress admin menu,Sidebar submenu,menu,,Auto-Populate Dataset,Pro (add-on),includes/functions.php:2839 (.po reference),"Appears only after the Auto-Populate add-on is installed. Registered by the add-on, which is not in this repo (UNVERIFIED location).",مجموعه‌داده پرکردن خودکار
+WordPress admin menu,Sidebar submenu,menu,,Auto-Populate Integrations,Pro (add-on),includes/functions.php:2835 (.po reference),Same as above.,یکپارچه‌سازی‌های پرکردن خودکار
+Panel,Top navigation bar,tab,forms,Forms,,includes/functions.php:1708 (text_efb),"First item (active by default). Articles must not call it ""Forms Overview"": that label does not exist in 4.3.1.",فرم‌ها
+Panel,Top navigation bar,tab,settings,Settings,,includes/functions.php:2839 (text_efb),,تنظیمات
+Panel,Top navigation bar,tab,create,Create,,includes/functions.php:1551 (text_efb),Links to the Create screen.,ایجاد
+Panel,Top navigation bar,tab,help,Help,,includes/functions.php:1716 (text_efb),,راهنما
+Panel,Top navigation bar,button,search,Search,,includes/functions.php:2280 (text_efb),"Placeholder reads ""Search …""; searches a Confirmation Code.",جستجو
+Panel,Top navigation bar,heading,easyFormBuilder,Easy Form Builder,All,includes/functions.php:1704 (text_efb),,فرم‌ساز آسان
+Panel > Forms,Forms table: columns,column,formName,Form Name,,includes/functions.php:1553 (text_efb),,نام فرم
+Panel > Forms,Forms table: columns,column,createDate,Create Date,,includes/functions.php:1554 (text_efb),"Label is ""Create Date"", not ""Creation date"".",تاریخ ایجاد
+Panel > Forms,Forms table: columns,column,actions,Actions,,includes/functions.php:2431 (text_efb),,اقدامات
+Panel > Forms,Forms table: row actions,button,edit,Edit,,includes/functions.php:1555 (text_efb),,ویرایش
+Panel > Forms,Forms table: row actions,button,duplicate,Duplicate,,includes/functions.php:2118 (text_efb),,تکثیر
+Panel > Forms,Forms table: row actions,button,delete,Delete,,includes/functions.php:1603 (text_efb),,حذف
+Panel > Forms,Forms table: row actions,button,copy,Copy,,includes/functions.php:1713 (text_efb),,کپی
+Panel > Forms,Forms table: row actions,button,shortcode,ShortCode,,includes/functions.php:1754 (text_efb),"Label is written ""ShortCode"" (capital C) in the UI.",کدکوتاه
+Panel > Forms,Forms table: row actions,button,copyShortcode,Copy Shortcode,,includes/functions.php:1752 (text_efb),,کپی کدکوتاه
+Panel > Forms,Forms table: row actions,button,formCode,Form Code,,includes/functions.php:1650 (text_efb),,کد فرم
+Panel > Forms,Forms table: row actions,status,newResponse,New Response,,includes/functions.php:1711 (text_efb),,پاسخ جدید
+Panel > Forms,Forms table: row actions,status,read,Read,,includes/functions.php:1712 (text_efb),,خواندن
+Panel > Forms,Header banner,button,createForms,Create Forms,,includes/functions.php:1706 (text_efb),Primary pink button.,ایجاد فرم‌ها
+Panel > Forms,Header banner,button,tutorial,Tutorial,,includes/functions.php:1707 (text_efb),,آموزش
+Panel > Forms,Header banner,badge,multiStep,Multi-Step,,includes/functions.php:2376 (text_efb),,چندمرحله‌ای
+Panel > Forms,Header banner,badge,noCoding,No Coding,,includes/functions.php:2377 (text_efb),,بدون کدنویسی
+Panel > Forms,Header banner,badge,dragAndDropBadge,Drag & Drop,,includes/functions.php:2378 (text_efb),,کشیدن و رها کردن
+Panel > Forms,Header banner,banner,getPro,Unlock Pro Features Today,Free / Free Plus,includes/functions.php:2474 (text_efb),Upsell box in the header.,قابلیت‌های نسخه ویژه را همین امروز فعال کنید
+Panel > Forms,Header banner,heading,byWhiteStudioTeam,By WhiteStudio.team,,includes/functions.php:1705 (text_efb),,توسط WhiteStudio.team
+Panel > Help,Help screen,heading,documents,Documents,,includes/functions.php:2235 (text_efb),,مستندات
+Panel > Help,Help screen,button,activateProVersion,Upgrade to Pro,,includes/functions.php:1757 (text_efb),,ارتقا به نسخه ویژه
+Panel > Help,Help screen,link,howConfigureEFB,How to configure Easy Form Builder,,includes/functions.php:1676 (text_efb),,چگونه فرم‌ساز آسان را پیکربندی کنیم
+Panel > Help,Help screen,link,howCreateAddForm,How to create and add a form with Easy Form Builder,,includes/functions.php:1680 (text_efb),,چگونه با فرم‌ساز آسان یک فرم بسازیم و اضافه کنیم
+Panel > Help,Help screen,link,howActivateTracking,How to activate a Confirmation Code in Easy Form Builder,,includes/functions.php:1681 (text_efb),,چگونه کد تأیید را در فرم‌ساز آسان فعال کنیم
+Panel > Help,Help screen,link,howAddTrackingForm,"How to add The Confirmation Code Finder to a post, page, or custom post type",,includes/functions.php:1685 (text_efb),,چگونه جستجوگر کد تأیید را به نوشته، برگه یا نوع نوشته سفارشی اضافه کنیم
+Panel > Help,Help screen,link,howFindResponse,How to find a specific submission using the Confirmation Code,,includes/functions.php:1686 (text_efb),,چگونه با استفاده از کد تأیید، یک ارسال مشخص را پیدا کنیم
+Panel > Help,Help screen,link,howActivateAlertEmail,How to activate the alert email for new form submission,,includes/functions.php:1679 (text_efb),,چگونه ایمیل هشدار ارسال جدید فرم را فعال کنیم
+Panel > Help,Help screen,link,howGetGooglereCAPTCHA,How to get Google reCAPTCHA and implement it into Easy Form Builder,,includes/functions.php:1678 (text_efb),,چگونه Google reCAPTCHA را دریافت و در فرم‌ساز آسان پیاده‌سازی کنیم
+Panel > Help,Help screen,link,howWorkWithPanels,How to work with panels in Easy Form Builder,,includes/functions.php:1682 (text_efb),,چگونه با پنل‌های فرم‌ساز آسان کار کنیم
+Panel > Help,Help screen,link,howProV,How to activate the Pro version of Easy Form Builder,,includes/functions.php:2439 (text_efb),,چگونه نسخه ویژه فرم‌ساز آسان را فعال کنیم
+Panel > Help,Help screen,message,youCanFindTutorial,Find video tutorials in the adjacent box and click the document button for tutorials and articles.,,includes/functions.php:1719 (text_efb),,آموزش‌های ویدئویی را در کادر مجاور پیدا کنید و برای مشاهده آموزش‌ها و مقاله‌ها روی دکمه مستندات کلیک کنید.
+Panel > Help,Help screen,button,lrnmrs,Learn more %s,,includes/functions.php:2901 (text_efb),,بیشتر بدانید %s
+Panel > Responses,Responses table,column,trackNo,Confirmation Code,,includes/functions.php:1557 (text_efb),"The column and field are called ""Confirmation Code"" (older UI: ""Tracking Code"").",کد تأیید
+Panel > Responses,Responses table,column,ddate,Date,,includes/functions.php:2139 (text_efb),,تاریخ
+Panel > Responses,Responses table,column,content,Content,,includes/functions.php:1556 (text_efb),,محتوا
+Panel > Responses,Responses table,heading,messages,Messages,,includes/functions.php:1579 (text_efb),,پیام‌ها
+Panel > Responses,Responses table,button,mread,Mark as Read,,includes/functions.php:2811 (text_efb),,نشان‌گذاری به‌عنوان خوانده‌شده
+Panel > Responses,Responses table,status,read,Read,,includes/functions.php:1712 (text_efb),,خواندن
+Panel > Responses,Responses table,status,newResponse,New Response,,includes/functions.php:1711 (text_efb),,پاسخ جدید
+Panel > Responses,Responses table,button,chart,Chart,Free Plus,includes/functions.php:1702 (text_efb),Survey result chart.,نمودار
+Panel > Responses,Responses table,button,downloadCSVFile,Download CSV file,All,includes/functions.php:1693 (text_efb),CSV export is in every version (4.3.1).,دانلود فایل CSV
+Panel > Responses,Responses table,button,downloadCSVFileSub,Download subscriptions CSV.,,includes/functions.php:1694 (text_efb),,دریافت فایل CSV اشتراک‌ها.
+Panel > Responses,Responses table,button,delete,Delete,,includes/functions.php:1603 (text_efb),,حذف
+Panel > Responses,Responses table,button,copy,Copy,,includes/functions.php:1713 (text_efb),,کپی
+Panel > Responses,Responses table,message,noResponse,No Response,,includes/functions.php:1725 (text_efb),,بدون پاسخ
+Panel > Responses,Responses table,message,noResponseDesc,Submitted responses will appear here.,,includes/functions.php:1727 (text_efb),,پاسخ‌های ارسال‌شده در اینجا نمایش داده می‌شوند.
+Panel > Responses,Responses table,message,availableInProversion,This option is only available in the Pro version.,,includes/functions.php:1656 (text_efb),,این گزینه فقط در نسخه ویژه موجود است.
+Panel > Responses,Response viewer (single entry),label,by,By,,includes/functions.php:1559 (text_efb),,توسط
+Panel > Responses,Response viewer (single entry),label,ddate,Date,,includes/functions.php:2139 (text_efb),,تاریخ
+Panel > Responses,Response viewer (single entry),label,ip,IP,,includes/functions.php:1561 (text_efb),,آی‌پی
+Panel > Responses,Response viewer (single entry),label,guest,Guest,,includes/functions.php:1563 (text_efb),,مهمان
+Panel > Responses,Response viewer (single entry),button,download,Download,,includes/functions.php:1572 (text_efb),,دانلود
+Panel > Responses,Response viewer (single entry),button,reply,Reply,,includes/functions.php:1575 (text_efb),,پاسخ
+Panel > Responses,Response viewer (single entry),placeholder,replyMsg,Type your reply…,,includes/functions.php:1577 (text_efb),,
+Panel > Responses,Response viewer (single entry),button,close,Close,,includes/functions.php:1651 (text_efb),,بستن
+Panel > Responses,Search by Confirmation Code,message,pleaseEnterVaildValue,Please enter a valid value,,includes/functions.php:1687 (text_efb),,لطفاً یک مقدار معتبر وارد کنید
+Panel > Responses,Search by Confirmation Code,message,pleaseEnterTheTracking,Please enter the Confirmation Code,,includes/functions.php:1661 (text_efb),,لطفاً کد تأیید را وارد کنید
+Panel > Responses,Search by Confirmation Code,message,trackingCodeIsNotValid,The confirmation Code is not valid.,,includes/functions.php:1673 (text_efb),,کد تأیید معتبر نیست
+Panel > Responses,Search by Confirmation Code,heading,trackingCodeFinder,Confirmation Code Finder,,includes/functions.php:1595 (text_efb),,جستجوگر کد تأیید
+Panel > Responses,Search by Confirmation Code,heading,trackingForm,Tracking Form,,includes/functions.php:1672 (text_efb),,فرم رهگیری
+Panel > Settings,Tab bar,tab,general,General,All,includes/admin/assets/js/list_form-efb.js:1360-1367,Deep link: ?page=Emsfb&state=setting&tab=general,عمومی
+Panel > Settings,Tab bar,tab,rspcon,Responses & Confirmation,All,includes/admin/assets/js/list_form-efb.js:1360-1367,Deep link: ?page=Emsfb&state=setting&tab=responses,پاسخ‌ها و تأیید
+Panel > Settings,Tab bar,tab,captchas,Captchas,All,includes/admin/assets/js/list_form-efb.js:1360-1367,Deep link: ?page=Emsfb&state=setting&tab=captchas,کپچاها
+Panel > Settings,Tab bar,tab,emailSetting,Email Settings,All,includes/admin/assets/js/list_form-efb.js:1360-1367,Deep link: ?page=Emsfb&state=setting&tab=email,تنظیمات ایمیل
+Panel > Settings,Tab bar,tab,emailTemplate,Email Template,All,includes/admin/assets/js/list_form-efb.js:1360-1367,Deep link: ?page=Emsfb&state=setting&tab=email-template,قالب ایمیل
+Panel > Settings,Tab bar,tab,localization,Localization,All,includes/admin/assets/js/list_form-efb.js:1360-1367,Deep link: ?page=Emsfb&state=setting&tab=localization,بومی‌سازی
+Panel > Settings,Tab bar,tab,payments,Payments,Add-on (Stripe / PayPal),"includes/admin/assets/js/list_form-efb.js:1366 (key ""payments"" is supplied by the payment add-on provider; label taken from .po msgid ""Payments"", UNVERIFIED mapping)",Deep link: ?page=Emsfb&state=setting&tab=payments,پرداخت‌ها
+Panel > Settings,Tab bar,tab,sms_config,SMS Configuration,Add-on (SMS),includes/admin/assets/js/list_form-efb.js:1360-1367,Deep link: ?page=Emsfb&state=setting&tab=sms,پیکربندی پیامک
+Panel > Settings,Footer,button,save,Save,All,includes/functions.php:1597 (text_efb),,ذخیره
+Panel > Settings > Captchas,Settings,heading,reCAPTCHAv2,reCAPTCHA v2,,includes/functions.php:2215 (text_efb),,reCAPTCHA نسخه ۲
+Panel > Settings > Captchas,Settings,input,siteKey,Site Key,,includes/functions.php:2220 (text_efb),,کلید سایت
+Panel > Settings > Captchas,Settings,input,SecreTKey,Secret Key,,includes/functions.php:2221 (text_efb),,کلید محرمانه
+Panel > Settings > Captchas,Settings,toggle,shieldSilentCaptcha,silentCAPTCHA Spam Protection,,includes/functions.php:2216 (text_efb),"Needs the Shield Security plugin; otherwise the ""not detected"" message shows.",محافظت در برابر هرزنامه با silentCAPTCHA
+Panel > Settings > Captchas,Settings,message,shieldNotDetected,"Shield Security is not detected, but it can be installed to enhance security.",,includes/functions.php:2218 (text_efb),,Shield Security شناسایی نشد، اما می‌توان آن را برای افزایش امنیت نصب کرد.
+Panel > Settings > Captchas,Settings,heading,maps,Maps,,includes/functions.php:1718 (text_efb),,نقشه‌ها
+Panel > Settings > Captchas,Settings,input,aPIKey,API KEY,,includes/functions.php:1722 (text_efb),,کلید API
+Panel > Settings > Captchas,Settings,input,enterAPIKey,Enter API KEY,,includes/functions.php:2126 (text_efb),,کلید API را وارد کنید
+Panel > Settings > Email Settings,Settings,heading,alertEmail,Alert Email,,includes/functions.php:1591 (text_efb),,ایمیل هشدار
+Panel > Settings > Email Settings,Settings,input,email,Email,,includes/functions.php:1613 (text_efb),,ایمیل
+Panel > Settings > Email Settings,Settings,input,from,From Address,,includes/functions.php:2806 (text_efb),"Editable in Pro; in Free/Free Plus form emails go out as no-reply@<your domain> (see Nov-2026 SMTP article, UNVERIFIED against code).",نشانی فرستنده
+Panel > Settings > Email Settings,Settings,heading,emailServer,Email server,,includes/functions.php:1731 (text_efb),,سرور ایمیل
+Panel > Settings > Email Settings,Settings,button,clickToCheckEmailServer,Check Email Server,All,includes/functions.php:1734 (text_efb),Opens the email-delivery test (score out of 100).,بررسی سرور ایمیل
+Panel > Settings > Email Settings,Settings,toggle,hostSupportSmtp,This site can send emails,,includes/functions.php:2424 (text_efb),Master switch for all notification emails.,این سایت قابلیت ارسال ایمیل دارد
+Panel > Settings > Email Settings,Settings,message,emailSendingOffHowTo,"Click ""Check Email Server"" to test delivery, turn this switch on, then press Save.",,includes/functions.php:3559 (text_efb),,برای آزمایش تحویل، روی «بررسی سرور ایمیل» کلیک کنید، این گزینه را فعال کنید و سپس «ذخیره» را فشار دهید.
+Panel > Settings > Email Settings,Settings,toggle,weeklyEmailReport,Weekly email health and form activity report,,includes/functions.php:2425 (text_efb),,گزارش هفتگی سلامت ایمیل و فعالیت فرم
+Panel > Settings > Email Settings,Settings,toggle,emailStatsReport,Collect email delivery statistics,Pro (to switch off),includes/functions.php:2429 (text_efb),Per code: only Pro can turn off.,جمع‌آوری آمار تحویل ایمیل
+Panel > Settings > Email Settings,Settings,message,mlntip,"Test emails may land in your spam folder. If emails are not delivered, this is usually related to your hosting or email server settings. %1$sLearn how to fix email delivery issues%2$s or %3$scontact Easy Form Builder support%4$s.",,includes/functions.php:2805 (text_efb),,ایمیل‌های آزمایشی ممکن است در پوشه هرزنامه شما قرار بگیرند. اگر ایمیل‌ها تحویل داده نمی‌شوند، این موضوع معمولاً به هاست یا تنظیمات سرور ایمیل شما مربوط است. %1$sیاد بگیرید چگونه مشکلات تحویل ایمیل را برطرف کنید%2$s یا %3$sبا پشتیبانی فرم‌ساز آسان تماس بگیرید%4$s.
+Panel > Settings > Email Settings,Check Email Server result,status,,Sender permission (SPF),All,includes/functions.php (.po),Names used verbatim in the Nov-2026 email series.,مجوز فرستنده (SPF)
+Panel > Settings > Email Settings,Check Email Server result,status,,Email signature (DKIM),All,includes/functions.php (.po),Names used verbatim in the Nov-2026 email series.,امضای ایمیل (DKIM)
+Panel > Settings > Email Settings,Check Email Server result,status,,Domain protection policy (DMARC),All,includes/functions.php (.po),Names used verbatim in the Nov-2026 email series.,سیاست حفاظت از دامنه (DMARC)
+Panel > Settings > Email Settings,Check Email Server result,status,,Needs setup,All,includes/functions.php (.po),Names used verbatim in the Nov-2026 email series.,نیازمند تنظیم
+Panel > Settings > Email Settings,Check Email Server result,status,,Looks good,All,includes/functions.php (.po),Names used verbatim in the Nov-2026 email series.,تأیید شده
+Panel > Settings > Email Settings,Check Email Server result,status,,Your email server is healthy,All,includes/functions.php:3620,Names used verbatim in the Nov-2026 email series.,سرور ایمیل شما سالم است
+Panel > Settings > Email Settings,Check Email Server result,status,,"Delivered, but likely to be filtered as spam",All,includes/functions.php:3636,Names used verbatim in the Nov-2026 email series.,تحویل شد، اما احتمالاً به‌عنوان هرزنامه فیلتر می‌شود
+Panel > Settings > Email Settings,Check Email Server result,status,,"Delivered, but deliverability is weak",All,includes/functions.php:3592,Names used verbatim in the Nov-2026 email series.,تحویل شد، اما تحویل‌پذیری ضعیف است
+Panel > Settings > Email Settings,Check Email Server result,status,,No email arrived,All,includes/functions.php:3675,Names used verbatim in the Nov-2026 email series.,هیچ ایمیلی دریافت نشد
+Panel > Settings > Email Settings,Check Email Server result,status,,Check again,All,includes/functions.php:2081,Names used verbatim in the Nov-2026 email series.,بررسی دوباره
+Panel > Settings > Email Settings,Check Email Server result,section,,Email Error Logging,All,includes/admin/class-Emsfb-admin.php:3962,"Dashboard widget / log name; also ""Email Delivery Tips"" (class-Emsfb-formbuilder.php:4591).",ثبت خطاهای ایمیل
+Panel > Settings > Email Template,Tab,tab,emailTemplate,Email Template,All,includes/admin/assets/js/list_form-efb.js:1762,Opens the visual (drag-and-drop) email template editor; built in email-template-builder-efb.js. Its inner block names were not audited (UNVERIFIED).,قالب ایمیل
+Panel > Settings > General,Activation & plan,heading,plnMng,Plan Management,,includes/functions.php:3231 (text_efb),,مدیریت پلن
+Panel > Settings > General,Activation & plan,button,chngPln,Change Plan,,includes/functions.php:3237 (text_efb),,تغییر پلن
+Panel > Settings > General,Activation & plan,message,plnMngD,Choose a plan or upgrade to unlock advanced features.,,includes/functions.php:3234 (text_efb),,یک پلن را انتخاب کنید یا برای فعال‌سازی قابلیت‌های پیشرفته ارتقا دهید.
+Panel > Settings > General,Activation & plan,message,plnMngSw,"Click to view and choose from Free, Free Plus, or Pro plans.",,includes/functions.php:3240 (text_efb),,برای مشاهده و انتخاب از میان پلن‌های رایگان، رایگان پلاس یا ویژه کلیک کنید.
+Panel > Settings > General,Activation & plan,input,enterActivateCode,Enter your activation code,,includes/functions.php:2223 (text_efb),,کد فعال‌سازی خود را وارد کنید
+Panel > Settings > General,Activation & plan,link,clickHereGetActivateCode,Get your activation code now and unlock exclusive features ! Click here.,,includes/functions.php:2147 (text_efb),,همین حالا کد فعال‌سازی خود را دریافت و قابلیت‌های اختصاصی را فعال کنید! اینجا کلیک کنید.
+Panel > Settings > General,Activation & plan,message,actvtcmsg,Your activation code has been verified. Enjoy all Pro features of Easy Form Builder.,,includes/functions.php:2794 (text_efb),,کد فعال‌سازی شما تأیید شد. از همه قابلیت‌های ویژه فرم‌ساز آسان لذت ببرید.
+Panel > Settings > General,Activation & plan,heading,activationCode,Activation Code,All,"includes/functions.php:7925 (.po reference; key supplied outside text_efb, UNVERIFIED mapping)","Heading above the code input. Pro codes are pasted here, then Save.",کد فعال‌سازی
+Panel > Settings > General,Options,heading,bootStrapTemp,Bootstrap Template,,includes/functions.php:2345 (text_efb),,قالب بوت استرپ
+Panel > Settings > General,Options,toggle,iUsebootTemp,My theme is based on Bootstrap,,includes/functions.php:2347 (text_efb),,قالب من بر اساس بوتاسترپ است.
+Panel > Settings > General,Options,heading,clearFiles,Clear Files,,includes/functions.php:2222 (text_efb),,حذف فایل‌ها
+Panel > Settings > General,Options,button,clearUnnecessaryFiles,Delete unnecessary files,,includes/functions.php:2211 (text_efb),,حذف فایل‌های غیرضروری
+Panel > Settings > General,Options,heading,locationPicker,Location Picker,,includes/functions.php:1743 (text_efb),,انتخاب‌گر موقعیت
+Panel > Settings > General,Options,toggle,elpo,Enable Location Picker in Easy Form Builder,,includes/functions.php:2829 (text_efb),,فعال‌سازی انتخاب‌گر موقعیت در فرم‌ساز آسان
+Panel > Settings > General,Options,heading,devMode,Development Mode (Sandbox),,includes/functions.php:2813 (text_efb),,حالت توسعه (محیط آزمایشی)
+Panel > Settings > General,Options,message,devModeDesc,"When enabled, uses sandbox/demo servers for PayPal and other services. Disable for production.",,includes/functions.php:2814 (text_efb),,وقتی فعال باشد، از سرورهای sandbox/demo برای PayPal و سایر سرویس‌ها استفاده می‌کند. برای محیط عملیاتی آن را غیرفعال کنید.
+Panel > Settings > Localization,Settings,heading,localization,Localization,,includes/functions.php:2268 (text_efb),,بومی‌سازی
+Panel > Settings > Localization,Settings,toggle,ilclizeFfb,I would like to localize Easy Form Builder.,,includes/functions.php:2509 (text_efb),,می‌خواهم فرم‌ساز آسان را بومی‌سازی کنم.
+Panel > Settings > Localization,Settings,message,translateLocal,"You can translate Easy Form Builder into your preferred language by translating the following sentences. WARNING: If your WordPress site is multilingual, do not change the values below.",,includes/functions.php:2274 (text_efb),,می‌توانید با ترجمه جمله‌های زیر، فرم‌ساز آسان را به زبان دلخواه خود بومی‌سازی کنید. هشدار: اگر سایت وردپرس شما چندزبانه است، مقادیر زیر را تغییر ندهید.
+Panel > Settings > Payments,Settings,heading,stripe,Stripe,,includes/functions.php:2382 (text_efb),,استرایپ
+Panel > Settings > Payments,Settings,input,publicKey,Public Key,,includes/functions.php:2412 (text_efb),,کلید عمومی
+Panel > Settings > Payments,Settings,input,SecreTKey,Secret Key,,includes/functions.php:2221 (text_efb),,کلید محرمانه
+Panel > Settings > Payments,Settings,heading,paypal,PayPal,,includes/functions.php:2911 (text_efb),,پی‌پال
+Panel > Settings > Payments,Settings,message,ufinyf,"To use %1$s features in your forms, you need to get your %2$s keys.",,includes/functions.php:2913 (text_efb),,برای استفاده از ویژگی‌های %1$s در فرم‌های خود، باید کلیدهای %2$s را دریافت کنید.
+Panel > Settings > Payments,Settings,button,lrnmrs,Learn more %s,,includes/functions.php:2901 (text_efb),,بیشتر بدانید %s
+Panel > Settings > Responses & Confirmation,Settings,heading,trackingCodeFinder,Confirmation Code Finder,,includes/functions.php:1595 (text_efb),,جستجوگر کد تأیید
+Panel > Settings > Responses & Confirmation,Settings,button,copy,Copy,,includes/functions.php:1713 (text_efb),,کپی
+Panel > Settings > Responses & Confirmation,Settings,heading,sessionDuration,Session Duration,,includes/functions.php:2990 (text_efb),,مدت‌زمان نشست
+Panel > Settings > Responses & Confirmation,Settings,select,selectDuration,Select Duration,,includes/functions.php:3003 (text_efb),,انتخاب مدت زمان
+Panel > Settings > Responses & Confirmation,Settings,heading,trackNo,Confirmation Code,,includes/functions.php:1557 (text_efb),,کد تأیید
+Panel > Settings > Responses & Confirmation,Settings,heading,rbox,Response box,,includes/functions.php:2565 (text_efb),,کادر پاسخ
+Panel > Settings > Responses & Confirmation,Settings,toggle,scaptcha,Enable Google reCAPTCHA in the response box,,includes/functions.php:2549 (text_efb),,فعال‌سازی reCAPTCHA در کادر پاسخ
+Panel > Settings > Responses & Confirmation,Settings,toggle,dsupfile,Enable file upload in the response box,,includes/functions.php:2548 (text_efb),,بارگذاری فایل را در کادر پاسخ فعال کنید
+Panel > Settings > Responses & Confirmation,Settings,toggle,sdlbtn,Enable download button in the response box,,includes/functions.php:2550 (text_efb),,دکمه دانلود را در کادر پاسخ فعال کنید
+Panel > Settings > Responses & Confirmation,Settings,toggle,sips,Display the IP addresses of users in the response box.,,includes/functions.php:2551 (text_efb),,نمایش نشانی‌های IP کاربران در کادر پاسخ.
+Panel > Settings > Responses & Confirmation,Settings,toggle,admines,Require admin login to view responses,,includes/functions.php:2812 (text_efb),,برای مشاهده پاسخ‌ها، ورود مدیر الزامی باشد
+Panel > Settings > Responses & Confirmation,Settings,heading,respColors,Colors & Fonts,,includes/functions.php:3024 (text_efb),,رنگ‌ها و فونت‌ها
+Panel > Settings > Responses & Confirmation,Settings,button,respClrCustomize,Customize Colors,,includes/functions.php:3054 (text_efb),,شخصی‌سازی رنگ‌ها
+Panel > Settings > SMS Configuration,Settings,heading,sms_config,SMS Configuration,,includes/functions.php:2656 (text_efb),,پیکربندی پیامک
+Panel > Settings > SMS Configuration,Settings,select,sms_ct,Select an SMS delivery method,,includes/functions.php:2658 (text_efb),,یک روش ارسال پیامک انتخاب کنید
+Panel > Settings > SMS Configuration,Settings,option,sms_efbs,Easy Form Builder SMS service,,includes/functions.php:2661 (text_efb),,سرویس پیامک فرم‌ساز آسان
+Panel > Settings > SMS Configuration,Settings,option,sms_wpsmss,WSMS plugin by VeronaLabs,,includes/functions.php:2665 (text_efb),,افزونه WSMS توسط VeronaLabs
+Panel > Settings > SMS Configuration,Settings,heading,sms_noti,SMS Notifications,,includes/functions.php:2669 (text_efb),,آگاه‌سازی‌های پیامکی
+Panel > Settings > SMS Configuration,Settings,input,sms_admn_no,Enter administrators’ mobile numbers,,includes/functions.php:2659 (text_efb),,شماره‌های موبایل مدیران را وارد کنید
+Panel > Settings > SMS Configuration,Settings,message,phoneFormatHint,Format: +12345678900 or +1 (234) 567-8900,,includes/functions.php:2663 (text_efb),,قالب: +12345678900 یا +1 (234) 567-8900
+Create,Header,heading,createForms,Create Forms,,includes/functions.php:1706 (text_efb),,ایجاد فرم‌ها
+Create,Header,button,tutorial,Tutorial,,includes/functions.php:1707 (text_efb),,آموزش
+Create,Header,banner,getPro,Unlock Pro Features Today,,includes/functions.php:2474 (text_efb),,قابلیت‌های نسخه ویژه را همین امروز فعال کنید
+Create,First-run plan chooser,heading,free,Free,,includes/functions.php:1918 (text_efb),"Plan names are always written Free, Free Plus, Pro.",رایگان
+Create,First-run plan chooser,heading,freePlus,Free Plus,,includes/functions.php:1900 (text_efb),,رایگان پلاس
+Create,First-run plan chooser,heading,pro,Pro,,includes/functions.php:1914 (text_efb),,ویژه
+Create,First-run plan chooser,button,startWithFree,Start with Free,,includes/functions.php:1898 (text_efb),,شروع با رایگان
+Create,First-run plan chooser,button,continueWithFreePlus,Continue with Free Plus,,includes/functions.php:1912 (text_efb),,ادامه با رایگان پلاس
+Create,First-run plan chooser,button,upgradeToPro,Upgrade to Pro,,includes/functions.php:1932 (text_efb),,ارتقا به نسخه ویژه
+Create,First-run plan chooser,button,maybeLater,Maybe later,,includes/functions.php:1938 (text_efb),,شاید بعداً
+Create,First-run plan chooser,badge,mostPopular,Most Popular,,includes/functions.php:1934 (text_efb),,محبوب‌ترین
+Create,First-run plan chooser,badge,recommended,Recommended,,includes/functions.php:1904 (text_efb),,پیشنهادشده
+Create,First-run plan chooser,message,buildProfessionalForms,Build professional WordPress forms in minutes. Choose how you'd like to get started.,,includes/functions.php:1940 (text_efb),,در چند دقیقه فرم‌های حرفه‌ای وردپرس بسازید. انتخاب کنید چگونه می‌خواهید شروع کنید.
+Create,First-run plan chooser,message,canChangeAnytime,You can change this at any time from the panel settings menu. No data is lost when you upgrade.,,includes/functions.php:1936 (text_efb),,می‌توانید هر زمان این مورد را از منوی تنظیمات پنل تغییر دهید. هنگام ارتقا هیچ داده‌ای از دست نمی‌رود.
+Create,First-run plan chooser,feature,coreFormFields,Core form fields,,includes/functions.php:1882 (text_efb),,فیلدهای اصلی فرم
+Create,First-run plan chooser,feature,coreAdvancedFormFields,Core & advanced form fields,,includes/functions.php:1908 (text_efb),,فیلدهای اصلی و پیشرفته فرم
+Create,First-run plan chooser,feature,advancedFormFields,Advanced form fields,,includes/functions.php:1892 (text_efb),,فیلدهای پیشرفته فرم
+Create,First-run plan chooser,feature,planFreeFields20,20 form fields,,includes/functions.php:1884 (text_efb),,۲۰ فیلد فرم
+Create,First-run plan chooser,feature,planCsvExport,CSV export of entries,,includes/functions.php:1886 (text_efb),,برون‌بری ورودی‌ها به CSV
+Create,First-run plan chooser,feature,planStripePaypal,Stripe and PayPal payments,,includes/functions.php:1888 (text_efb),,پرداخت‌های Stripe و PayPal
+Create,First-run plan chooser,feature,addonsExtensions,Add-ons & extensions,,includes/functions.php:1896 (text_efb),,افزودنی‌ها و افزونه‌های جانبی
+Create,First-run plan chooser,feature,addonsIncluded,Add-ons included,,includes/functions.php:1926 (text_efb),,افزودنی‌ها شامل می‌شوند
+Create,First-run plan chooser,feature,advancedIntegrations,Advanced integrations,,includes/functions.php:1924 (text_efb),,یکپارچه‌سازی‌های پیشرفته
+Create,First-run plan chooser,feature,builtInAdvancedFeatures,Built-in advanced features,,includes/functions.php:1894 (text_efb),,قابلیت‌های پیشرفته داخلی
+Create,First-run plan chooser,feature,emailNotifications,Email notifications,,includes/functions.php:1890 (text_efb),,آگاه‌سازی‌های ایمیلی
+Create,First-run plan chooser,feature,noCreditsPromo,No credits or promotional messages,,includes/functions.php:1928 (text_efb),,بدون عبارت معرفی یا پیام‌های تبلیغاتی
+Create,First-run plan chooser,feature,poweredByCredit,Lightweight “Powered by Easy Form Builder” credit & link,,includes/functions.php:1910 (text_efb),,عبارت و پیوند کوتاه «ارائه‌شده توسط فرم‌ساز آسان»
+Create,Form types (cards),card,contactusTemplate,Contact us Template,,includes/functions.php:2374 (text_efb),,قالب تماس با ما
+Create,Form types (cards),card,registerForm,Register Form,,includes/functions.php:2153 (text_efb),In the builder's Form type dropdown the Register option is shown disabled (val-efb.js formTypeEls).,فرم ثبت‌نام
+Create,Form types (cards),card,loginForm,Login Form,,includes/functions.php:2154 (text_efb),,فرم ورود
+Create,Form types (cards),card,supportForm,Support Form,,includes/functions.php:2156 (text_efb),,فرم پشتیبانی
+Create,Form types (cards),card,subscriptionForm,Subscription Form,,includes/functions.php:2155 (text_efb),,فرم خبرنامه
+Create,Form types (cards),card,paymentform,Payment Form,Free Plus (needs Stripe or PayPal add-on),includes/functions.php:2381 (text_efb),,فرم پرداخت
+Create,Form types (cards),card,survey,Survey,,includes/functions.php:1701 (text_efb),,نظرسنجی
+Create,Form types (cards),card,customerFeedback,Customer Feedback,,includes/functions.php:2379 (text_efb),,بازخورد مشتری
+Create,Form types (cards),card,newForm,New Form,,includes/functions.php:2152 (text_efb),,فرم جدید
+Create,Form types (cards),card,purchaseOrder,Purchase Order,,includes/functions.php:2422 (text_efb),,سفارش خرید
+Create,Ready-made templates,template,bookClubFormT,Book Club Suggestion,,includes/functions.php:2197 (text_efb),Template titles; descriptions are in the matching ...FormD key.,پیشنهاد باشگاه کتاب
+Create,Ready-made templates,template,childrenLibraryCardFormT,Children Library Card,,includes/functions.php:2193 (text_efb),Template titles; descriptions are in the matching ...FormD key.,کارت کتابخانه کودکان
+Create,Ready-made templates,template,customOrderFormT,Custom Order Form,,includes/functions.php:2165 (text_efb),Template titles; descriptions are in the matching ...FormD key.,فرم سفارش سفارشی
+Create,Ready-made templates,template,employeeSuggestionFormT,Employee Suggestion,,includes/functions.php:2195 (text_efb),Template titles; descriptions are in the matching ...FormD key.,پیشنهاد کارکنان
+Create,Ready-made templates,template,eventRegistrationFormT,Event Registration,,includes/functions.php:2181 (text_efb),Template titles; descriptions are in the matching ...FormD key.,ثبت‌نام رویداد
+Create,Ready-made templates,template,graphicDesignOrderFormT,Graphic Design Order,,includes/functions.php:2173 (text_efb),Template titles; descriptions are in the matching ...FormD key.,سفارش طراحی گرافیک
+Create,Ready-made templates,template,jobApplicationFormT,Job Application,,includes/functions.php:2167 (text_efb),Template titles; descriptions are in the matching ...FormD key.,درخواست شغلی
+Create,Ready-made templates,template,partyInviteFormT,Party Invitation,,includes/functions.php:2179 (text_efb),Template titles; descriptions are in the matching ...FormD key.,دعوت‌نامه مهمانی
+Create,Ready-made templates,template,quoteFormT,Request a Quote,,includes/functions.php:2163 (text_efb),Template titles; descriptions are in the matching ...FormD key.,درخواست استعلام قیمت
+Create,Ready-made templates,template,rentCarFormT,Rent a Car,,includes/functions.php:2169 (text_efb),Template titles; descriptions are in the matching ...FormD key.,اجاره خودرو
+Create,Ready-made templates,template,salonConsultationFormT,Salon Consultation,,includes/functions.php:2171 (text_efb),Template titles; descriptions are in the matching ...FormD key.,مشاوره سالن
+Create,Ready-made templates,template,sampleCvFormT,CV Application,,includes/functions.php:2175 (text_efb),Template titles; descriptions are in the matching ...FormD key.,درخواست CV
+Create,Ready-made templates,template,signupFormT,Signup Form,,includes/functions.php:2187 (text_efb),Template titles; descriptions are in the matching ...FormD key.,فرم ثبت‌نام
+Create,Ready-made templates,template,sportsLeagueFormT,Sports League Signup,,includes/functions.php:2189 (text_efb),Template titles; descriptions are in the matching ...FormD key.,ثبت‌نام لیگ ورزشی
+Create,Ready-made templates,template,storeSurveyFormT,Store Experience Survey,,includes/functions.php:2183 (text_efb),Template titles; descriptions are in the matching ...FormD key.,نظرسنجی تجربه فروشگاه
+Create,Ready-made templates,template,summerReadingFormT,Summer Reading Program,,includes/functions.php:2191 (text_efb),Template titles; descriptions are in the matching ...FormD key.,برنامه مطالعه تابستانی
+Create,Ready-made templates,template,supportTicketF,Support Ticket Form,,includes/functions.php:2380 (text_efb),Template titles; descriptions are in the matching ...FormD key.,فرم تیکت پشتیبانی
+Create,Ready-made templates,template,videographyBriefFormT,Videography Brief,,includes/functions.php:2177 (text_efb),Template titles; descriptions are in the matching ...FormD key.,بریف ویدیوگرافی
+Create,Ready-made templates,template,voterSurveyFormT,Voter Behavior Survey,,includes/functions.php:2185 (text_efb),Template titles; descriptions are in the matching ...FormD key.,نظرسنجی رفتار رأی‌دهندگان
+Create,Form types (card descriptions),message,createContactusForm,Create a Contact us form.,,includes/functions.php:2158 (text_efb),,ساخت یک فرم تماس با ما
+Create,Form types (card descriptions),message,createLoginForm,Create a login form for your WordPress site,,includes/functions.php:2160 (text_efb),,ایجاد فرم ورود برای سایت وردپرسی شما
+Create,Form types (card descriptions),message,createPaymentForm,Create a payment form to collect online payments.,,includes/functions.php:2419 (text_efb),,یک فرم پرداخت برای دریافت پرداخت‌های آنلاین ایجاد کنید.
+Create,Form types (card descriptions),message,createRegistrationForm,Create a user registration form for your WordPress site.,,includes/functions.php:2159 (text_efb),,ایجاد فرم ثبت‌نام کاربر برای سایت وردپرسی شما
+Create,Form types (card descriptions),message,createSupportForm,Create a support contact form.,,includes/functions.php:2162 (text_efb),,فرم پشتیبانی بسازید
+Create,Form types (card descriptions),message,createnewsletterForm,Create a newsletter subscription form,,includes/functions.php:2161 (text_efb),,ایجاد فرم اشتراک خبرنامه
+Create,Form types (card descriptions),message,createsurveyForm,"Create survey, poll, or questionnaire forms.",,includes/functions.php:2200 (text_efb),,ساخت فرم‌های نظرسنجی، رأی‌گیری یا پرسش‌نامه
+Create,Form types (card descriptions),message,createBlankMultistepsForm,Start a form from scratch with one or multiple steps.,,includes/functions.php:2157 (text_efb),,یک فرم را از ابتدا با یک یا چند مرحله شروع کنید.
+Create > Field settings,Common and type-specific options,input,label,Label,,includes/functions.php:1637 (text_efb),,برچسب
+Create > Field settings,Common and type-specific options,input,description,Description,,includes/functions.php:1765 (text_efb),,توضیح
+Create > Field settings,Common and type-specific options,toggle,required,Required,,includes/functions.php:1607 (text_efb),,الزامی
+Create > Field settings,Common and type-specific options,input,customMessage,Custom %s Message,,includes/functions.php:2254 (text_efb),Takes %s = field name.,پیام سفارشی %s
+Create > Field settings,Common and type-specific options,input,placeholder,Placeholder,,includes/functions.php:1828 (text_efb),,نگهدارنده مکان
+Create > Field settings,Common and type-specific options,input,value,value,,includes/functions.php:2393 (text_efb),,مقدار
+Create > Field settings,Common and type-specific options,input,defaultValue,Default value,,includes/functions.php:1827 (text_efb),,مقدار پیش‌فرض
+Create > Field settings,Common and type-specific options,toggle,hField,Hidden Field,,includes/functions.php:2578 (text_efb),,فیلد مخفی
+Create > Field settings,Common and type-specific options,toggle,dField,Disabled Field,,includes/functions.php:2577 (text_efb),,فیلد غیرفعال
+Create > Field settings,Common and type-specific options,toggle,hflabel,Hide the label,,includes/functions.php:2523 (text_efb),,مخفی کردن برچسب
+Create > Field settings,Common and type-specific options,input,cSSClasses,CSS Classes,,includes/functions.php:1826 (text_efb),,کلاس‌های CSS
+Create > Field settings,Common and type-specific options,input,min,Min,,includes/functions.php:2519 (text_efb),,حداقل
+Create > Field settings,Common and type-specific options,input,max,Max,,includes/functions.php:2518 (text_efb),,حداکثر
+Create > Field settings,Common and type-specific options,input,mindt,Minimum date,,includes/functions.php:2822 (text_efb),,حداقل تاریخ
+Create > Field settings,Common and type-specific options,input,mxdt,Maximum date,,includes/functions.php:2821 (text_efb),,حداکثر تاریخ
+Create > Field settings,Common and type-specific options,select,slabelSize,%s Label size,,includes/functions.php:1814 (text_efb),,اندازه برچسب %s
+Create > Field settings,Common and type-specific options,select,labelPostion,Label Position,,includes/functions.php:1803 (text_efb),,موقعیت برچسب
+Create > Field settings,Common and type-specific options,option,up,Up,,includes/functions.php:2129 (text_efb),,بالا
+Create > Field settings,Common and type-specific options,option,beside,Beside,,includes/functions.php:2209 (text_efb),,در کنار
+Create > Field settings,Common and type-specific options,select,width,Width,,includes/functions.php:1808 (text_efb),,عرض
+Create > Field settings,Common and type-specific options,option,left,Left,,includes/functions.php:1805 (text_efb),,چپ
+Create > Field settings,Common and type-specific options,option,center,Center,,includes/functions.php:1806 (text_efb),,وسط
+Create > Field settings,Common and type-specific options,option,right,Right,,includes/functions.php:1807 (text_efb),,راست
+Create > Field settings,Common and type-specific options,toggle,mobileHideLabel,Hide label on mobile,,includes/functions.php:2524 (text_efb),,مخفی کردن برچسب در موبایل
+Create > Field settings,Common and type-specific options,toggle,mobileHideDescription,Hide description on mobile,,includes/functions.php:2525 (text_efb),,مخفی کردن توضیحات در موبایل
+Create > Field settings,Common and type-specific options,toggle,showInPublicResults,Show this field in public survey results,,includes/functions.php:2316 (text_efb),,این فیلد را در نتایج عمومی نظرسنجی نمایش دهید
+Create > Field settings,Common and type-specific options,heading,options,Options,,includes/functions.php:2444 (text_efb),,گزینه‌ها
+Create > Field settings,Common and type-specific options,button,add,Add,,includes/functions.php:2132 (text_efb),,افزودن
+Create > Field settings,Common and type-specific options,button,shwattr,Show attributes,,includes/functions.php:2595 (text_efb),,نمایش ویژگی‌ها
+Create > Field settings,Common and type-specific options,input,price,Price,,includes/functions.php:2413 (text_efb),Payment fields.,قیمت
+Create > Field settings,Common and type-specific options,input,lson,Label of the ON status,,includes/functions.php:2528 (text_efb),,برچسب برای حالت فعال
+Create > Field settings,Common and type-specific options,input,lsoff,Label of the OFF status,,includes/functions.php:2529 (text_efb),,برچسب برای حالت غیرفعال
+Create > Field settings,Common and type-specific options,select,fileType,File Type,,includes/functions.php:1635 (text_efb),,نوع فایل
+Create > Field settings,Common and type-specific options,option,allformat,All formats,,includes/functions.php:2489 (text_efb),,همه قالب‌ها
+Create > Field settings,Common and type-specific options,option,documents,Documents,,includes/functions.php:2235 (text_efb),,مستندات
+Create > Field settings,Common and type-specific options,option,image,Image,,includes/functions.php:2237 (text_efb),,تصویر
+Create > Field settings,Common and type-specific options,option,media,Media,,includes/functions.php:2238 (text_efb),,رسانه
+Create > Field settings,Common and type-specific options,option,zip,Zip,,includes/functions.php:2239 (text_efb),,ZIP
+Create > Field settings,Common and type-specific options,option,cstm_rd,Customized Ordering,,includes/functions.php:2685 (text_efb),,ترتیب سفارشی
+Create > Field settings,Common and type-specific options,input,file_cstm,Acceptable file types,,includes/functions.php:2684 (text_efb),,انواع فایل قابل قبول
+Create > Field settings,Common and type-specific options,input,maxfs,Max File Size,,includes/functions.php:2686 (text_efb),,حداکثر حجم فایل
+Create > Field settings,Common and type-specific options,select,maxSelect,Max selection,,includes/functions.php:2371 (text_efb),,حداکثر انتخاب
+Create > Field settings,Common and type-specific options,select,minSelect,Min selection,,includes/functions.php:2372 (text_efb),,حداقل انتخاب
+Create > Field settings,Common and type-specific options,heading,code,Code,,includes/functions.php:2133 (text_efb),,کد
+Create > Field settings,Common and type-specific options,input,button1Value,Button 1 value,,includes/functions.php:1867 (text_efb),,مقدار دکمه ۱
+Create > Field settings,Common and type-specific options,input,button2Value,Button 2 value,,includes/functions.php:1868 (text_efb),,مقدار دکمه ۲
+Create > Field settings,Common and type-specific options,select,paymentGateway,Payment Gateway,,includes/functions.php:2385 (text_efb),,درگاه پرداخت
+Create > Field settings,Common and type-specific options,select,currency,Currency,,includes/functions.php:2386 (text_efb),,ارز
+Create > Field settings,Common and type-specific options,select,methodPayment,Method payment,,includes/functions.php:2388 (text_efb),,روش پرداخت
+Create > Field settings,Common and type-specific options,option,onetime,one time,,includes/functions.php:2387 (text_efb),,یک‌باره
+Create > Field settings,Common and type-specific options,option,dayly,Daily,,includes/functions.php:2435 (text_efb),,روزانه
+Create > Field settings,Common and type-specific options,option,weekly,Weekly,,includes/functions.php:2437 (text_efb),,هفتگی
+Create > Field settings,Common and type-specific options,option,monthly,Monthly,,includes/functions.php:2436 (text_efb),,ماهانه
+Create > Field settings,Common and type-specific options,option,yearly,Yearly,,includes/functions.php:2438 (text_efb),,سالانه
+Create > Field settings,Common and type-specific options,select,recQuality,Recording Quality,,includes/functions.php:2707 (text_efb),,کیفیت ضبط
+Create > Field settings,Common and type-specific options,option,recQualityLow,Low,,includes/functions.php:2709 (text_efb),,پایین
+Create > Field settings,Common and type-specific options,option,recQualityStandard,Standard,,includes/functions.php:2710 (text_efb),,استاندارد
+Create > Field settings,Common and type-specific options,option,recQualityHigh,High,,includes/functions.php:2711 (text_efb),,بالا
+Create > Field settings,Common and type-specific options,input,recDuration,Max Duration (seconds),,includes/functions.php:2708 (text_efb),,حداکثر مدت ضبط، به ثانیه
+Create > Field settings,Common and type-specific options,select,recCountdown,Countdown before recording,,includes/functions.php:2728 (text_efb),,شمارش معکوس پیش از ضبط
+Create > Field settings,Common and type-specific options,select,recFacing,Default camera (mobile),,includes/functions.php:2730 (text_efb),,دوربین پیش‌فرض در موبایل
+Create > Field settings,Common and type-specific options,toggle,recMirror,Mirror the live preview,,includes/functions.php:2734 (text_efb),,آینه‌ای کردن پیش‌نمایش زنده
+Create > Field settings,Common and type-specific options,toggle,recNoise,Noise suppression & echo cancellation,,includes/functions.php:2736 (text_efb),,کاهش نویز و حذف پژواک
+Create > Field settings,Common and type-specific options,toggle,recShowWatermark,Show watermark on the preview,,includes/functions.php:2738 (text_efb),,نمایش واترمارک در پیش‌نمایش
+Create > Field settings,Common and type-specific options,toggle,recAllowDownload,Let the user download a copy of the recording,,includes/functions.php:2740 (text_efb),,اجازه دانلود یک نسخه از فایل ضبط‌شده به کاربر
+Create > Field settings,Common and type-specific options,select,stsd,Select display language,,includes/functions.php:2748 (text_efb),,زبان نمایش را انتخاب کنید
+Create > Field settings,Common and type-specific options,option,nlan,National language,,includes/functions.php:2747 (text_efb),,زبان ملی
+Create > Field settings,Common and type-specific options,option,elan,English language,,includes/functions.php:2746 (text_efb),,زبان انگلیسی
+Create > Field settings,Common and type-specific options,toggle,condlogic,Enable Conditional,,includes/functions.php:2636 (text_efb),,فعال‌سازی شرط
+Create > Field settings,Step and button fields,input,stepName,Step Name,,includes/functions.php:1600 (text_efb),,نام گام
+Create > Field settings,Step and button fields,input,icon,Icon,,includes/functions.php:1834 (text_efb),,آیکون
+Create > Field settings,Step and button fields,input,next,Next,,includes/functions.php:1870 (text_efb),,بعدی
+Create > Field settings,Step and button fields,input,previous,Previous,,includes/functions.php:1869 (text_efb),,قبلی
+Create > Field settings,Step and button fields,input,thankYou,Thank you,,includes/functions.php:2257 (text_efb),,سپاس از شما
+Create > Field settings,Step and button fields,input,pgbar,Progress bar,,includes/functions.php:2653 (text_efb),,نوار پیشرفت
+Create > Form Settings,Top options,input,formName,Form Name,All,includes/functions.php:1553 (text_efb),Required (red asterisk).,نام فرم
+Create > Form Settings,Top options,toggle,activeTrackingCode,Show Confirmation Code,,includes/functions.php:1768 (text_efb),"Articles that say ""Show the Confirmation Code"" are correct.",نمایش کد تأیید
+Create > Form Settings,Top options,toggle,addGooglereCAPTCHAtoForm,Add Google reCAPTCHA to the form,,includes/functions.php:1769 (text_efb),Hidden on payment forms.,افزودن reCAPTCHA به فرم
+Create > Form Settings,Top options,toggle,shieldSilentCaptcha,silentCAPTCHA Spam Protection,,includes/functions.php:2216 (text_efb),,محافظت در برابر هرزنامه با silentCAPTCHA
+Create > Form Settings,Top options,toggle,dontShowIconsStepsName,Hide icons and step names.,,includes/functions.php:1770 (text_efb),,آیکون‌ها و نام گام‌ها را مخفی کنید.
+Create > Form Settings,Top options,toggle,globalMobileHideLabel,Hide all labels on mobile,,includes/functions.php:2526 (text_efb),,مخفی کردن همه برچسب‌ها در موبایل
+Create > Form Settings,Top options,toggle,dontShowProgressBar,Hide progress bar,,includes/functions.php:1771 (text_efb),,مخفی کردن نوار پیشرفت
+Create > Form Settings,Top options,toggle,showTheFormTologgedUsers,Private form,,includes/functions.php:1795 (text_efb),"Called ""Private form"".",فرم خصوصی
+Create > Form Settings,Top options,toggle,dNotShowBg,Do not show the background.,,includes/functions.php:2373 (text_efb),,پس‌زمینه را نمایش ندهید.
+Create > Form Settings,Top options,toggle,AfLnFrm,Activation of offline form mode.,Offline Forms add-on,includes/functions.php:2486 (text_efb),,فعال‌سازی حالت آفلاین فرم
+Create > Form Settings,Top options,input,enterAdminEmailReceiveNoti,Enter email address to receive notifications.,,includes/functions.php:1829 (text_efb),,نشانی ایمیل را برای دریافت آگاه‌سازی‌ها وارد کنید.
+Create > Form Settings,Top options,input,mlsbjt,Email Subject,,includes/functions.php:2760 (text_efb),,موضوع ایمیل
+Create > Form Settings,Top options,select,emlc,Choose Email notification content,,includes/functions.php:2672 (text_efb),,محتوای آگاه‌سازی ایمیلی را انتخاب کنید
+Create > Form Settings,Top options,option,emlacl,Send email with confirmation code and link,,includes/functions.php:2673 (text_efb),,ارسال ایمیل همراه با کد تأیید و پیوند
+Create > Form Settings,Top options,option,emlml,Send email with submitted form content and link,,includes/functions.php:2674 (text_efb),,ارسال ایمیل همراه با محتوای فرم ارسال‌شده و پیوند
+Create > Form Settings,Top options,option,emlcc,Send email with submitted form content only,,includes/functions.php:2840 (text_efb),,ارسال ایمیل فقط با محتوای فرم ارسال‌شده
+Create > Form Settings,SMS section (collapsible),section,sms,SMS,,includes/functions.php:2677 (text_efb),,پیامک
+Create > Form Settings,SMS section (collapsible),toggle,esmsno,Enable SMS notifications,Pro (SMS add-on),includes/functions.php:2679 (text_efb),,فعال‌سازی آگاه‌سازی‌های پیامکی
+Create > Form Settings,Telegram section (collapsible),section,telegram,Telegram,,includes/functions.php:2681 (text_efb),,تلگرام
+Create > Form Settings,Telegram section (collapsible),toggle,etelegramno,Enable Telegram notifications,Pro (Telegram add-on),includes/functions.php:2680 (text_efb),,فعال‌سازی آگاه‌سازی‌های تلگرام
+Create > Form Settings,Conditional Logic button,button,conlog,Conditional logic,"Free Plus (3 rules, 2 conditions) / Pro (unlimited)",includes/functions.php:2751 (text_efb),Shown only when the Conditional Logic add-on is active (AdnSMF).,منطق شرطی
+Create > Form Settings,Advanced section,section,advanced,Advanced,,includes/functions.php:1741 (text_efb),,پیشرفته
+Create > Form Settings,Advanced section,select,landingTnx,Thank you Page,,includes/functions.php:2470 (text_efb),,صفحه تشکر
+Create > Form Settings,Advanced section,option,thankYouMessage,Thank you message,,includes/functions.php:2285 (text_efb),,پیام تشکر
+Create > Form Settings,Advanced section,option,redirectPage,Redirect page,,includes/functions.php:2471 (text_efb),,صفحه تغییر مسیر
+Create > Form Settings,Advanced section,input,done,Done,,includes/functions.php:1652 (text_efb),,انجام شد
+Create > Form Settings,Advanced section,input,message,Message,,includes/functions.php:2203 (text_efb),,پیام
+Create > Form Settings,Advanced section,input,trackingCode,Confirmation Code,,includes/functions.php:2149 (text_efb),,کد تأیید
+Create > Form Settings,Advanced section,input,url,URL,,includes/functions.php:1629 (text_efb),,نشانی وب
+Create > Form Settings,Advanced section,select,frmtype,Form type,,includes/functions.php:2761 (text_efb),,نوع فرم
+Create > Form Settings,Advanced section,option,form,Form,,includes/functions.php:2135 (text_efb),,فرم
+Create > Form Settings,Advanced section,option,payment,Payment,,includes/functions.php:2383 (text_efb),,پرداخت
+Create > Form Settings,Advanced section,option,survey,Survey,,includes/functions.php:1701 (text_efb),,نظرسنجی
+Create > Form Settings,Advanced section,option,login,Login,,includes/functions.php:1695 (text_efb),,ورود
+Create > Form Settings,Advanced section,option,register,Register,,includes/functions.php:2206 (text_efb),,ثبت‌نام
+Create > Form Settings,Advanced section,select,surveyResultsDisplay,Survey Results Display,,includes/functions.php:2306 (text_efb),,نمایش نتایج نظرسنجی
+Create > Form Settings,Advanced section,option,surveyNoChart,Do not show results,,includes/functions.php:2308 (text_efb),,نتایج نمایش داده نشود
+Create > Form Settings,Advanced section,option,surveyBarChart,Show results with bar chart,,includes/functions.php:2310 (text_efb),,نمایش نتایج با نمودار میله‌ای
+Create > Form Settings,Advanced section,option,surveyPieChart,Show results with pie chart,,includes/functions.php:2312 (text_efb),,نمایش نتایج با نمودار دایره‌ای
+Create > Form Settings,Thank-you defaults,message,thanksFillingOutform,Thanks for filling out the form.,,includes/functions.php:2121 (text_efb),,از اینکه فرم را تکمیل کردید سپاسگزاریم.
+Create > Form Settings,Thank-you defaults,message,yad,You're all done,,includes/functions.php:2847 (text_efb),,همه چیز آماده است
+Create > Form builder,Top toolbar,button,save,Save,All,includes/functions.php:1597 (text_efb),"First, outlined pink button.",ذخیره
+Create > Form builder,Top toolbar,button,pcPreview,Desktop Preview,,includes/functions.php:1750 (text_efb),,پیش‌نمایش دسکتاپ
+Create > Form builder,Top toolbar,button,formSetting,Form Settings,,includes/functions.php:2127 (text_efb),,تنظیمات فرم
+Create > Form builder,Top toolbar,button,help,Help,,includes/functions.php:1716 (text_efb),,راهنما
+Create > Form builder,Top toolbar,button,prvnt,Preview in new tab,,includes/functions.php:2820 (text_efb),,پیش‌نمایش در زبانهٔ جدید
+Create > Form builder,Top toolbar,toggle,desktop,Desktop,,includes/functions.php:1822 (text_efb),,دسکتاپ
+Create > Form builder,Top toolbar,toggle,mobileView,Mobile,,includes/functions.php:1824 (text_efb),,موبایل
+Create > Form builder,Field list filter,tab,all,All,,includes/functions.php:2467 (text_efb),,همه
+Create > Form builder,Field list filter,tab,basic,Basic,,includes/functions.php:2461 (text_efb),,پایه
+Create > Form builder,Field list filter,tab,payment,Payment,,includes/functions.php:2383 (text_efb),,پرداخت
+Create > Form builder,Field list filter,tab,advanced,Advanced,,includes/functions.php:1741 (text_efb),,پیشرفته
+Create > Form builder,Canvas,message,dadFieldHere,Drag & Drop Fields Here,,includes/functions.php:1715 (text_efb),,یک فیلد را بکشید و اینجا رها کنید
+Create > Form builder,Canvas,button,editField,Edit Field,,includes/functions.php:1764 (text_efb),,ویرایش فیلد
+Create > Form builder,Canvas,message,thisElemantNotAvailable,The selected field is not available in this type of form.,,includes/functions.php:2146 (text_efb),,فیلد انتخاب‌شده در این نوع فرم در دسترس نیست.
+Create > Form builder,Canvas,button,duplicate,Duplicate,,includes/functions.php:2118 (text_efb),,تکثیر
+Create > Form builder,Canvas,button,delete,Delete,,includes/functions.php:1603 (text_efb),,حذف
+Create > Form builder,Canvas,button,edit,Edit,,includes/functions.php:1555 (text_efb),,ویرایش
+Create > Form builder,After saving,heading,goodJob,Good Job,,includes/functions.php:1646 (text_efb),,عالی است
+Create > Form builder,After saving,message,formIsBuild,The form is successfully built,,includes/functions.php:1648 (text_efb),,فرم با موفقیت ساخته شد
+Create > Form builder,After saving,message,formUpdatedDone,The form has been successfully updated,,includes/functions.php:1647 (text_efb),,فرم با موفقیت به‌روزرسانی شد
+Create > Form builder,After saving,button,copyShortcode,Copy Shortcode,,includes/functions.php:1752 (text_efb),,کپی کدکوتاه
+Create > Form builder,After saving,button,previewForm,Preview Form,,includes/functions.php:1756 (text_efb),,پیش‌نمایش فرم
+Create > Form builder,After saving,message,emailSendingOffTitle,Notification emails are turned off,,includes/functions.php:3553 (text_efb),,ایمیل‌های آگاه‌سازی غیرفعال هستند
+Create > Form builder,After saving,button,emailSendingOffCta,Enable email sending,,includes/functions.php:3557 (text_efb),,فعال‌سازی ارسال ایمیل
+Create > Form builder,After saving,message,emailSendingOffDesc,"Easy Form Builder will not send any email — neither to you nor to the person who submits this form — until ""This site can send emails"" is enabled in Email Settings.",,includes/functions.php:3555 (text_efb),,تا زمانی که گزینه «این سایت می‌تواند ایمیل ارسال کند» در تنظیمات ایمیل فعال نشود، فرم‌ساز آسان هیچ ایمیلی ارسال نخواهد کرد — نه برای شما و نه برای شخصی که این فرم را ارسال می‌کند.
+Create > Form builder,Auto-save restore dialog,heading,restoreAutoSaveTitle,An auto-saved version exists,,includes/functions.php:3645 (text_efb),,یک نسخه ذخیره‌شده خودکار وجود دارد
+Create > Form builder,Auto-save restore dialog,message,rasfmb,There is an auto-saved version of the form available. Do you want to restore it?,,includes/functions.php:2907 (text_efb),,یک نسخهٔ ذخیره‌ خودکار از فرم موجود است. آیا می‌خواهید آن را بازیابی کنید؟
+Create > Form builder,Auto-save restore dialog,button,restoreIt,Restore it,,includes/functions.php:3647 (text_efb),,بازیابی
+Create > Form builder,Auto-save restore dialog,button,startFresh,Start fresh,,includes/functions.php:3649 (text_efb),,شروع از نو
+Create > Form builder,Auto-save restore dialog,label,lastSaved,Last saved,,includes/functions.php:3651 (text_efb),,آخرین ذخیره
+Create > Form builder,Save validation messages,message,youDoNotAddAnyInput,You have not added any fields.,,includes/functions.php:1751 (text_efb),,شما هیچ فیلدی اضافه نکرده اید.
+Create > Form builder,Save validation messages,message,itAppearedStepsEmpty,It seems that some of the steps in your form are empty. Please add a field to all steps before saving.,,includes/functions.php:1758 (text_efb),,به نظر می‌رسد برخی گام‌های فرم خالی هستند. پیش از ذخیره، به همه گام‌ها یک فیلد اضافه کنید.
+Create > Form builder,Save validation messages,message,youUseProElements,"You are using the pro field in the form. To save and use the form including pro fields, activate Pro.",,includes/functions.php:1760 (text_efb),,شما از یک فیلد ویژه در فرم استفاده کرده‌اید. برای ذخیره و استفاده از فرم شامل فیلدهای ویژه، نسخه ویژه را فعال کنید.
+Create > Form builder,Save validation messages,message,paymentNcaptcha,You can't add reCAPTCHA to payment forms.,,includes/functions.php:2423 (text_efb),,نمی‌توانید reCAPTCHA را به فرم‌های پرداخت اضافه کنید.
+Create > Form builder,Save validation messages,message,addPaymentGetway,Error: No payment gateway has been added to the form.,,includes/functions.php:2405 (text_efb),,خطا: هیچ درگاه پرداختی به فرم اضافه نشده است.
+Create > Form builder > Field palette,Field tile,field,text,Text,Free,includes/admin/assets/js/val-efb.js (fields_efb) / functions.php:2150,"Palette id ""text""; icon bi-file-earmark-text.",متن
+Create > Form builder > Field palette,Field tile,field,name,Name,Free,includes/admin/assets/js/val-efb.js (fields_efb) / functions.php:1861,"Palette id ""name""; icon bi-person-circle.",نام
+Create > Form builder > Field palette,Field tile,field,password,Password,Free,includes/admin/assets/js/val-efb.js (fields_efb) / functions.php:1611,"Palette id ""password""; icon bi-lock.",گذرواژه
+Create > Form builder > Field palette,Field tile,field,email,Email,Free,includes/admin/assets/js/val-efb.js (fields_efb) / functions.php:1613,"Palette id ""email""; icon bi-envelope.",ایمیل
+Create > Form builder > Field palette,Field tile,field,number,Number,Free,includes/admin/assets/js/val-efb.js (fields_efb) / functions.php:1615,"Palette id ""number""; icon bi-pause.",عدد
+Create > Form builder > Field palette,Field tile,field,textarea,Longer Text,Free,includes/admin/assets/js/val-efb.js (fields_efb) / functions.php:1621,"Palette id ""textarea""; icon bi-card-text. UI label is ""Longer Text"" (articles sometimes say ""Long Text"": use the UI label).",متن بلند
+Create > Form builder > Field palette,Field tile,field,step,Step,Free,includes/admin/assets/js/val-efb.js (fields_efb) / functions.php:1690,"Palette id ""steps""; icon bi-file. Adds a new step; counts toward the Free 20-field list.",گام
+Create > Form builder > Field palette,Field tile,field,checkbox,Check Box,Free,includes/admin/assets/js/val-efb.js (fields_efb) / functions.php:1623,"Palette id ""checkbox""; icon bi-check-square.",چک باکس
+Create > Form builder > Field palette,Field tile,field,radiobutton,Radio Button,Free,includes/admin/assets/js/val-efb.js (fields_efb) / functions.php:1625,"Palette id ""radio""; icon bi-record-circle.",دکمه رادیویی
+Create > Form builder > Field palette,Field tile,field,select,Select,Free,includes/admin/assets/js/val-efb.js (fields_efb) / functions.php:2128,"Palette id ""select""; icon bi-check2.",انتخاب
+Create > Form builder > Field palette,Field tile,field,multiselect,Multiple Select,Free,includes/admin/assets/js/val-efb.js (fields_efb) / functions.php:2151,"Palette id ""multiselect""; icon bi-check-all.",انتخاب چندگانه
+Create > Form builder > Field palette,Field tile,field,tel,Tel,Free,includes/admin/assets/js/val-efb.js (fields_efb) / functions.php:1619,"Palette id ""tel""; icon bi-telephone.",تلفن
+Create > Form builder > Field palette,Field tile,field,mobile,Mobile,Free Plus / Pro,includes/admin/assets/js/val-efb.js (fields_efb) / functions.php:2391,"Palette id ""mobile""; icon bi-phone. International phone field.",موبایل
+Create > Form builder > Field palette,Field tile,field,range,Range,Free,includes/admin/assets/js/val-efb.js (fields_efb) / functions.php:1631,"Palette id ""range""; icon bi-arrow-left-right.",محدوده
+Create > Form builder > Field palette,Field tile,field,ddate,Date,Free,includes/admin/assets/js/val-efb.js (fields_efb) / functions.php:2139,"Palette id ""date""; icon bi-calendar-date.",تاریخ
+Create > Form builder > Field palette,Field tile,field,file,File upload,Free,includes/admin/assets/js/val-efb.js (fields_efb) / functions.php:1617,"Palette id ""file""; icon bi-file-earmark-plus.",بارگذاری فایل
+Create > Form builder > Field palette,Field tile,field,dadfile,D&D File Upload,Free Plus / Pro,includes/admin/assets/js/val-efb.js (fields_efb) / functions.php:1736,"Palette id ""dadfile""; icon bi-plus-square-dotted. Drag-and-drop file field.",بارگذاری با کشیدن و رهاکردن
+Create > Form builder > Field palette,Field tile,field,audio_recorder,Audio Recorder,Free Plus / Pro,includes/admin/assets/js/val-efb.js (fields_efb) / functions.php:1737,"Palette id ""audio_recorder""; icon bi-mic.",ضبط صدا
+Create > Form builder > Field palette,Field tile,field,video_recorder,Video Recorder,Free Plus / Pro,includes/admin/assets/js/val-efb.js (fields_efb) / functions.php:1738,"Palette id ""video_recorder""; icon bi-camera-video.",ضبط ویدئو
+Create > Form builder > Field palette,Field tile,field,screen_recorder,Screen Recorder,Free Plus / Pro,includes/admin/assets/js/val-efb.js (fields_efb) / functions.php:1739,"Palette id ""screen_recorder""; icon bi-display.",ضبط صفحه‌نمایش
+Create > Form builder > Field palette,Field tile,field,address,Address,Free Plus / Pro,includes/admin/assets/js/val-efb.js (fields_efb) / functions.php:2384,"Palette id ""address""; icon bi-geo-alt.",نشانی
+Create > Form builder > Field palette,Field tile,field,payCheckbox,Payment Multi choose,Free Plus / Pro,includes/admin/assets/js/val-efb.js (fields_efb) / functions.php:2407,"Palette id ""payCheckbox""; icon bi-basket2.",انتخاب چندگانه پرداخت
+Create > Form builder > Field palette,Field tile,field,payRadio,Payment Single choose,Free Plus / Pro,includes/admin/assets/js/val-efb.js (fields_efb) / functions.php:2408,"Palette id ""payRadio""; icon bi-basket3.",انتخاب تکی پرداخت
+Create > Form builder > Field palette,Field tile,field,prcfld,Price field,Free Plus / Pro,includes/admin/assets/js/val-efb.js (fields_efb) / functions.php:2757,"Palette id ""prcfld""; icon bi-bag-plus.",فیلد قیمت
+Create > Form builder > Field palette,Field tile,field,ttlprc,Total price,Free Plus / Pro,includes/admin/assets/js/val-efb.js (fields_efb) / functions.php:2758,"Palette id ""ttlprc""; icon bi-cash.",قیمت کل
+Create > Form builder > Field palette,Field tile,field,locationPicker,Location Picker,Free Plus / Pro,includes/admin/assets/js/val-efb.js (fields_efb) / functions.php:1743,"Palette id ""maps""; icon bi-pin-map.",انتخاب‌گر موقعیت
+Create > Form builder > Field palette,Field tile,field,stripe,Stripe,Free Plus / Pro + Stripe add-on,includes/admin/assets/js/val-efb.js (fields_efb) / functions.php:2382,"Palette id ""stripe""; icon bi-stripe.",استرایپ
+Create > Form builder > Field palette,Field tile,field,paypal,PayPal,Free Plus / Pro + PayPal add-on,includes/admin/assets/js/val-efb.js (fields_efb) / functions.php:2911,"Palette id ""paypal""; icon bi-paypal.",پی‌پال
+Create > Form builder > Field palette,Field tile,field,url,URL,Free,includes/admin/assets/js/val-efb.js (fields_efb) / functions.php:1629,"Palette id ""url""; icon bi-link-45deg.",نشانی وب
+Create > Form builder > Field palette,Field tile,field,conturyList,Countries Drop-down,Free,includes/admin/assets/js/val-efb.js (fields_efb) / functions.php:2282,"Palette id ""conturyList""; icon bi-flag.",فهرست کشویی کشورها
+Create > Form builder > Field palette,Field tile,field,stateProvince,State/Prov Drop-down,Free Plus / Pro,includes/admin/assets/js/val-efb.js (fields_efb) / functions.php:2284,"Palette id ""stateProvince""; icon bi-triangle-fill.",فهرست کشویی استان‌ها
+Create > Form builder > Field palette,Field tile,field,cityList,Cities Drop-Down,Free Plus / Pro,includes/admin/assets/js/val-efb.js (fields_efb) / functions.php:2745,"Palette id ""cityList""; icon bi-circle.",فهرست کشویی شهرها
+Create > Form builder > Field palette,Field tile,field,esign,Signature,Free Plus / Pro,includes/admin/assets/js/val-efb.js (fields_efb) / functions.php:1745,"Palette id ""esign""; icon bi-pen.",امضا
+Create > Form builder > Field palette,Field tile,field,switch,Switch,Free Plus / Pro,includes/admin/assets/js/val-efb.js (fields_efb) / functions.php:1742,"Palette id ""switch""; icon bi-toggle2-on.",کلید
+Create > Form builder > Field palette,Field tile,field,chlCheckBox,Box Checklist,Free Plus / Pro,includes/admin/assets/js/val-efb.js (fields_efb) / functions.php:2494,"Palette id ""chlCheckBox""; icon bi-card-checklist.",فهرست انتخاب کادری
+Create > Form builder > Field palette,Field tile,field,heading,Heading,Free,includes/admin/assets/js/val-efb.js (fields_efb) / functions.php:2389,"Palette id ""heading""; icon bi-fonts.",عنوان
+Create > Form builder > Field palette,Field tile,field,color,Color Picker,Free Plus / Pro,includes/admin/assets/js/val-efb.js (fields_efb) / functions.php:1633,"Palette id ""color""; icon bi-palette.",گزینش‌گر رنگ
+Create > Form builder > Field palette,Field tile,field,rating,Rating,Free,includes/admin/assets/js/val-efb.js (fields_efb) / functions.php:1744,"Palette id ""rating""; icon bi-star.",امتیاز
+Create > Form builder > Field palette,Field tile,field,yesNo,Yes/No,Free Plus / Pro,includes/admin/assets/js/val-efb.js (fields_efb) / functions.php:1746,"Palette id ""yesNo""; icon bi-hand-index.",بله/خیر
+Create > Form builder > Field palette,Field tile,field,link,Link,Free Plus / Pro,includes/admin/assets/js/val-efb.js (fields_efb) / functions.php:2390,"Palette id ""link""; icon bi-link-45deg.",پیوند
+Create > Form builder > Field palette,Field tile,field,htmlCode,HTML Code,Free Plus / Pro,includes/admin/assets/js/val-efb.js (fields_efb) / functions.php:1748,"Palette id ""html""; icon bi-code-square.",کد HTML
+Create > Form builder > Field palette,Field tile,field,pr5,5 Point Scale,Free Plus / Pro,includes/admin/assets/js/val-efb.js (fields_efb) / functions.php:2530,"Palette id ""pointr5""; icon bi-heart.",مقیاس ۵ امتیازی
+Create > Form builder > Field palette,Field tile,field,nps_,Net Promoter Score,Free Plus / Pro,includes/admin/assets/js/val-efb.js (fields_efb) / functions.php:2532,"Palette id ""pointr10""; icon bi-square.",امتیاز خالص مروجان (NPS)
+Create > Form builder > Field palette,Field tile,field,imgRadio,Image picker,Free Plus / Pro,includes/admin/assets/js/val-efb.js (fields_efb) / functions.php:2599,"Palette id ""imgRadio""; icon bi-images.",انتخاب‌گر تصویر
+Create > Form builder > Field palette,Field tile,field,pdate,Jalali Date,Pro + Jalali Date add-on,includes/admin/assets/js/val-efb.js (fields_efb) / functions.php:2539,"Palette id ""pdate""; icon bi-calendar-date.",تاریخ جلالی
+Create > Form builder > Field palette,Field tile,field,ardate,Hijri Date,Pro + Hijri Date add-on,includes/admin/assets/js/val-efb.js (fields_efb) / functions.php:2541,"Palette id ""ardate""; icon bi-calendar-date.",تاریخ هجری
+Create > Form builder > Field palette,Field tile,field,terms,terms,Free,includes/admin/assets/js/val-efb.js (fields_efb) / functions.php:2394,"Palette id ""trmCheckbox""; icon bi-shield-check.",شرایط
+Create > Form builder > Field palette,Field tile,field,nps_tm,NPS Table Matrix,Free Plus / Pro,includes/admin/assets/js/val-efb.js (fields_efb) / functions.php:2534,"Palette id ""table_matrix""; icon  bi-table. Matrix / NPS table field.",جدول ماتریکسی NPS
+Create > Form builder > Field palette,Field tile,field,persiaPayment,Persia payment,Pro + Persia Payment add-on (fa_IR only),includes/admin/assets/js/val-efb.js:2311,Pushed onto the palette only when the site language is fa_IR.,درگاه ایرانی
+Add-ons,Page,heading,addons,Add-ons,,includes/functions.php:2478 (text_efb),,افزودنی‌ها
+Add-ons,Page,input,search,Search,,includes/functions.php:2280 (text_efb),,جستجو
+Add-ons,Page,button,install,Install,,includes/functions.php:2484 (text_efb),,نصب
+Add-ons,Page,button,remove,Remove!,,includes/functions.php:1582 (text_efb),"Same button turns into ""Remove!"" once active.",حذف!
+Add-ons,Page,message,iaddon,Install the add-on,,includes/functions.php:2542 (text_efb),,نصب افزودنی
+Add-ons,Page,message,INAddonMsg,"Go to the add-ons page in the Easy Form Builder plugin, install the %s add-on, and try again.",,includes/functions.php:2916 (text_efb),,به صفحه افزودنی‌های فرم‌ساز آسان بروید، افزودنی %s را نصب کنید و دوباره تلاش کنید.
+Add-ons,Page,message,IMAddonPMsg,"To create a payment form to collect online payments, install a payment add-on such as the %s Add-on first.",,includes/functions.php:2918 (text_efb),,برای ساخت فرم پرداخت برای دریافت پرداخت‌های آنلاین، ابتدا یک افزودنی پرداخت مانند افزودنی %s را نصب کنید.
+Add-ons,Page,message,notFound,Not Found,,includes/functions.php:2360 (text_efb),,پیدا نشد
+Add-ons,Cards (title),add-on,smsTAddon,SMS service Add-on,Pro,includes/functions.php:2561 (text_efb),Plan from addon_required_package_efb() (functions.php:4521).,افزودنی سرویس پیامک
+Add-ons,Cards (title),add-on,stripeTAddon,Stripe Payment Add-on,Free Plus / Pro,includes/functions.php:2479 (text_efb),Plan from addon_required_package_efb() (functions.php:4521).,افزودنی پرداخت Stripe
+Add-ons,Cards (title),add-on,persiaPayTAddon,Persia Payment Add-on,Pro (fa_IR only),includes/functions.php:2553 (text_efb),Card appears only when the site language is fa_IR.,افزودنی پرداخت پرشیا
+Add-ons,Cards (title),add-on,datePTAddon,Jalali Date Add-on,Pro,includes/functions.php:2556 (text_efb),Plan from addon_required_package_efb() (functions.php:4521).,افزودنی تاریخ جلالی
+Add-ons,Cards (title),add-on,dateATAddon,Hijri Date Add-on,Pro,includes/functions.php:2559 (text_efb),Plan from addon_required_package_efb() (functions.php:4521).,افزودنی تاریخ قمری
+Add-ons,Cards (title),add-on,offlineTAddon,Offline Forms Add-on,All plans,includes/functions.php:2481 (text_efb),Plan from addon_required_package_efb() (functions.php:4521).,افزودنی فرم‌های آفلاین
+Add-ons,Cards (title),add-on,TAdnAtF,Auto-Populate Add-on,Pro,includes/functions.php:3467 (text_efb),Plan from addon_required_package_efb() (functions.php:4521).,افزودنی پرکردن خودکار
+Add-ons,Cards (title),add-on,payPalTAddon,PayPal Payment Add-on,Free Plus / Pro,includes/functions.php:2682 (text_efb),Plan from addon_required_package_efb() (functions.php:4521).,افزودنی پرداخت پی‌پل
+Add-ons,Cards (title),add-on,tlgmAddon,Telegram Notification Add-on,Pro,includes/functions.php:2832 (text_efb),Plan from addon_required_package_efb() (functions.php:4521).,افزودنی آگاه‌سازی تلگرام
+Add-ons,Cards (title),add-on,TAdnGoS,Google Sheet Add-on,Pro,includes/functions.php:3472 (text_efb),Plan from addon_required_package_efb() (functions.php:4521).,افزودنی گوگل شیت
+Add-ons,Cards (title),add-on,condATAddon,Conditional logic Add-on,Free Plus / Pro,includes/functions.php:2605 (text_efb),Plan from addon_required_package_efb() (functions.php:4521).,افزودنی منطق شرطی
+Add-ons,Cards (title),add-on,TAdnHSH,Form Security & Spam Protection,Pro,includes/functions.php:3469 (text_efb),Plan from addon_required_package_efb() (functions.php:4521).,امنیت و محافظت در برابر هرزنامه فرم
+Add-ons,Cards (title),add-on,,Google Sheets,Pro,includes/class-Emsfb-formbuilder.php:4603,"The card title is ""Google Sheet Add-on"" but other strings (and the add-on docs) say ""Google Sheets"": write ""Google Sheets"" in prose; ""Google Sheet Add-on"" only when quoting the card.",گوگل شیت
+Add-ons,Cards (description),message,smsDAddon,The SMS service add-on enables you to receive notification SMS messages when you or your customers receive new messages or responses.,,includes/functions.php:2562 (text_efb),,افزودنی سرویس پیامک به شما امکان می‌دهد هنگامی که شما یا مشتریانتان پیام یا پاسخ جدیدی دریافت می‌کنید، آگاه‌سازی پیامکی دریافت کنید.
+Add-ons,Cards (description),message,stripeDAddon,"The Stripe add-on for Easy Form Builder enables you to integrate your WordPress site with Stripe for payment processing, donations, and online orders.",,includes/functions.php:2480 (text_efb),,افزودنی Stripe فرم‌ساز آسان به شما امکان می‌دهد سایت وردپرس خود را برای پردازش پرداخت، دریافت کمک مالی و سفارش‌های آنلاین با Stripe یکپارچه کنید.
+Add-ons,Cards (description),message,datePDAddon,The Jalali Date add-on allows you to add a Jalali date field to your forms and create any type of form that includes this Shamsi date field.,,includes/functions.php:2558 (text_efb),,افزودنی تاریخ جلالی به شما امکان می‌دهد فیلد تاریخ جلالی را به فرم‌ها اضافه و هر نوع فرمی را که شامل این فیلد تاریخ شمسی است ایجاد کنید.
+Add-ons,Cards (description),message,dateADAddon,The Hijri Date add-on allows you to add a Hijri date field to your forms and create any type of form that includes this field.,,includes/functions.php:2560 (text_efb),,افزودنی تاریخ هجری به شما امکان می‌دهد فیلد تاریخ هجری را به فرم‌ها اضافه و هر نوع فرمی را که شامل این فیلد است ایجاد کنید.
+Add-ons,Cards (description),message,offlineDAddon,The Offline Forms add-on for Easy Form Builder allows users to save their progress when filling out forms in offline situations.,,includes/functions.php:2482 (text_efb),,افزودنی فرم‌های آفلاین فرم‌ساز آسان به کاربران امکان می‌دهد هنگام تکمیل فرم در حالت آفلاین، پیشرفت خود را ذخیره کنند.
+Add-ons,Cards (description),message,DAdnAtF,"The Auto-Populate add-on enables you to automatically populate form fields from datasets, previously submitted forms, or external APIs.",,includes/functions.php:3468 (text_efb),,افزودنی پرکردن خودکار به شما امکان می‌دهد فیلدهای فرم را به‌صورت خودکار از مجموعه‌داده‌ها، فرم‌های ارسال‌شده قبلی یا APIهای خارجی پر کنید.
+Add-ons,Cards (description),message,payPalDAddon,"The PayPal add-on for Easy Form Builder enables you to integrate your WordPress site with PayPal for payment processing, donations, and online orders.",,includes/functions.php:2683 (text_efb),,افزودنی پرداخت PayPal برای فرم‌ساز آسان به شما امکان می‌دهد وب‌سایت خود را برای پردازش پرداخت، کمک مالی و سفارش‌های آنلاین به PayPal متصل کنید.
+Add-ons,Cards (description),message,tlgmDAddon,The Telegram notification add-on lets you get notifications on your Telegram app whenever you receive new messages or responses,,includes/functions.php:2833 (text_efb),,افزودنی آگاه‌سازی تلگرام به شما امکان می‌دهد هر زمان پیام یا پاسخ جدیدی دریافت می‌کنید، در برنامه تلگرام خود آگاه‌سازی دریافت کنید.
+Add-ons,Cards (description),message,DAdnGoS,"Automatically send form submissions to your Google Sheets in real time. Connect a service account, map fields to columns, and keep a live, styled spreadsheet of every response — no webhook or browser login required.",,includes/functions.php:3474 (text_efb),,اطلاعات ثبت‌شده فرم را به‌صورت لحظه‌ای و خودکار به گوگل شیت ارسال کنید. یک حساب سرویس متصل کنید، فیلدها را به ستون‌ها نگاشت کنید و صفحه‌گسترده‌ای زنده و دارای استایل از همه پاسخ‌ها داشته باشید؛ بدون نیاز به وب‌هوک یا ورود از طریق مرورگر.
+Add-ons,Cards (description),message,condADAddon,The Conditional Logic Add-on enables dynamic and interactive forms based on specific user inputs or conditional rules. It allows for highly personalized forms tailored to meet users’ unique needs.,,includes/functions.php:2607 (text_efb),,افزودنی منطق شرطی به شما امکان می‌دهد بر اساس ورودی‌های مشخص کاربر یا قوانین شرطی، فرم‌های پویا و تعاملی بسازید و آن‌ها را متناسب با نیازهای هر کاربر شخصی‌سازی کنید.
+Add-ons,Cards (description),message,DAdnHSH,"Behavior-based anti-spam and API abuse protection with rate limits and a stop-loss for paid notifications such as SMS, Telegram, email and webhooks.",,includes/functions.php:3470 (text_efb),,محافظت رفتاری در برابر اسپم و سوءاستفاده از API، همراه با محدودیت تعداد درخواست و سقف توقف مصرف برای آگاه‌سازی‌های پولی مانند پیامک، تلگرام، ایمیل و وب‌هوک.
+Public form (front end),Buttons and messages,button,submit,Submit,,includes/functions.php:2421 (text_efb),,ارسال
+Public form (front end),Buttons and messages,button,next,Next,,includes/functions.php:1870 (text_efb),,بعدی
+Public form (front end),Buttons and messages,button,previous,Previous,,includes/functions.php:1869 (text_efb),,قبلی
+Public form (front end),Buttons and messages,message,pleaseFillInRequiredFields,Please fill in all required fields.,,includes/functions.php:1654 (text_efb),,لطفاً همه فیلدهای الزامی را تکمیل کنید.
+Public form (front end),Buttons and messages,message,thanksFillingOutform,Thanks for filling out the form.,,includes/functions.php:2121 (text_efb),,از اینکه فرم را تکمیل کردید سپاسگزاریم.
+Public form (front end),Buttons and messages,message,yad,You're all done,,includes/functions.php:2847 (text_efb),,همه چیز آماده است
+Public form (front end),Buttons and messages,label,trackNo,Confirmation Code,,includes/functions.php:1557 (text_efb),,کد تأیید
+Public form (front end),Buttons and messages,message,checkedBoxIANotRobot,Please check the box of I am Not robot,,includes/functions.php:1675 (text_efb),,لطفاً گزینه «من ربات نیستم» را علامت بزنید
+Public form (front end),Buttons and messages,label,select,Select,,includes/functions.php:2128 (text_efb),,انتخاب
+Public form (front end),Buttons and messages,message,selectOpetionDisabled,Choose an option (not available in test view),,includes/functions.php:1660 (text_efb),,یک گزینه را انتخاب کنید (در نمایش آزمایشی موجود نیست)
+Public form (front end),Plan notices,badge,proVersion,Pro Version,,includes/functions.php:1587 (text_efb),,نسخه ویژه
+Public form (front end),Plan notices,button,getProVersion,Activate Pro version,,includes/functions.php:1588 (text_efb),,فعال‌سازی نسخه ویژه
+Public form (front end),Plan notices,message,availableInProversion,This option is only available in the Pro version.,,includes/functions.php:1656 (text_efb),,این گزینه فقط در نسخه ویژه موجود است.
+Public form (front end),Plan notices,message,fieldAvailableInProversion,This feature is only available in the Pro version of Easy Form Builder.,,includes/functions.php:1763 (text_efb),,این قابلیت فقط در نسخه ویژه فرم‌ساز آسان در دسترس است.

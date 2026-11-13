@@ -1,0 +1,23 @@
+{
+  "name": "efb-tutorial-video",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Remotion project: JSON storyboard -> tutorial video (1920x1080 and 1080x1920)",
+  "type": "module",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "render": "node render.mjs"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.538",
+    "@remotion/renderer": "4.0.538",
+    "@remotion/bundler": "4.0.538",
+    "remotion": "4.0.538",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  },
+  "devDependencies": {
+    "@types/react": "19.1.8",
+    "typescript": "5.8.3"
+  }
+}
