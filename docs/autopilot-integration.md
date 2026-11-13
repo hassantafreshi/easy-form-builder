@@ -1347,7 +1347,7 @@ to the add-on repository), an `EFB_<ADDON>_DIR` variable, or `/home/user/vendore
    helper and refund handler, `wp_remote_post()` recorded) 4 → 13 passed; still green:
    `test-addon-paypal-server-price.php` 12, `test-addon-paypal-cart-total.js` 11.
 
-7. **Conditional logic knows the advanced date field (F06 §8). Done: `2bd3183`.**
+7. **Conditional logic knows the advanced date field (F06 §8). Done: `2bd3183`, `b8abe5d`.**
    `logic/`: the builder lists `advdate` fields under their own category with the operators
    `date_before`, `date_after`, `date_between`, `date_weekday_is`, `date_age_gte` / `date_age_lte`,
    `date_within_next`, `date_range_nights_gte` / `date_range_nights_lte` and the right inputs; the page

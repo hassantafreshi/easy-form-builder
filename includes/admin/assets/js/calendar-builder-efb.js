@@ -35,8 +35,7 @@
   const lock = (part) => (part && !plan(part) ? ' disabled aria-disabled="true"' : '');
   root.efb_cal_gem_efb = function (el) {
     const cap = el && el.getAttribute('data-cap');
-    if (typeof efb_upgrade_prompt_efb === 'function') { efb_upgrade_prompt_efb({ feature: cap, fallback: cap === PART_CAP.booking ? 'pro' : 'free_plus', origin: 'settings', opener: el }); return; }
-    if (typeof pro_show_efb === 'function') pro_show_efb(cap === PART_CAP.booking ? 1 : 3);
+    if (typeof efb_upgrade_prompt_efb === 'function') efb_upgrade_prompt_efb({ feature: cap, fallback: cap === PART_CAP.booking ? 'pro' : 'free_plus', origin: 'settings', opener: el });
   };
 
   /* ------------------------------------------------------------------ controls */

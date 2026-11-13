@@ -5888,7 +5888,7 @@ class efbFunction {
 			'is_empty', 'is_not_empty',
 			'is_paid', 'is_not_paid', 'amount_eq', 'amount_gt', 'amount_lt',
 			'date_before', 'date_after', 'date_between',
-			/* F06 advanced date operators (Calendar::LOGIC_OPS). */
+			/* F06 advanced date operators, the same as Calendar::LOGIC_OPS. */
 			'date_weekday_is', 'date_age_gte', 'date_age_lte', 'date_within_next', 'date_range_nights_gte', 'date_range_nights_lte'
 		);
 		$allowed_sources = array('field', 'query_param', 'user', 'current_step');
