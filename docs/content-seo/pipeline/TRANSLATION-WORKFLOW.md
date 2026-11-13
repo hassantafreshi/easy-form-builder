@@ -31,7 +31,7 @@
 
 ## ۴. زیرنویس ویدیو (جدا از مقاله)
 
-- منبع: `captions.en.srt` (از زمان‌بندی گوینده). ترجمه: DE / AR / FA از روی **اسکریپت** (نه ترجمهٔ خودکار YouTube).
+- منبع: `<slug>.en.srt` (از زمان‌بندی گوینده). ترجمه: DE / AR / FA از روی **اسکریپت** (نه ترجمهٔ خودکار YouTube).
 - قوانین طول خط، سرعت خواندن، علائم RTL و نام‌گذاری: [`templates/video/subtitles-spec.md`](../templates/video/subtitles-spec.md).
 - اعتبارسنجی با `tools/srt/validate_srt.py` الزامی است؛ فایل نهایی: `<slug>.<lang>.srt`.
 - عنوان/توضیح YouTube برای DE/AR/FA می‌تواند در قابلیت «Translate title & description» ثبت شود (محتوا در `youtube.md`).
