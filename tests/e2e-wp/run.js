@@ -2021,6 +2021,11 @@ require('./scenario-f03.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewFo
  * fa_IR at 375 px, Settings > Verification, AutoPilot, payments: tests/e2e-wp/scenario-f02.js. */
 require('./scenario-f02.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewForm, addTile, closePanel });
 
+/* F06 advanced calendar: the builder tile and panel, AutoPilot, a guest (keyboard, a changed request refused,
+ * e-mail, viewer, schema), a stay and a time with the Booking stand-in, fa_IR and ar at 375 px, a date that
+ * changes the price: tests/e2e-wp/scenario-f06.js. */
+require('./scenario-f06.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewForm, addTile, closePanel });
+
 /* ---------------------------------------------------------------------------------------------
  * main
  * ------------------------------------------------------------------------------------------- */

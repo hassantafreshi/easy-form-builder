@@ -1518,6 +1518,7 @@ function efb_rules_show_error_efb(el, text) {
   if (vd) {
     vd.textContent = text;
     vd.setAttribute('dir', 'auto'); // a sentence in another script than the page keeps its own order
+    vd.style.unicodeBidi = 'plaintext'; // a theme's `direction: rtl` outranks dir=auto (BUGS-FOUND, F06)
     vd.setAttribute('role', 'alert');
     const ids = (el.getAttribute('aria-describedby') || '').split(/\s+/).filter(Boolean);
     if (ids.indexOf(vd.id) === -1) { ids.push(vd.id); el.setAttribute('aria-describedby', ids.join(' ')); }
@@ -2172,6 +2173,17 @@ async function response_fill_form_efb(res ,form_id=0) {
     if (typeof res.data.code === 'string' && res.data.code.indexOf('efb_field_') === 0) efb_rules_server_error_efb(form_id, res.data.field_id, res.data.m);
     // F02: the field's code block goes back to "Send code" with the server's sentence.
     if (typeof res.data.code === 'string' && res.data.code.indexOf('efb_verify_') === 0 && window.EFBVerify) window.EFBVerify.serverError(form_id, res.data.field_id, res.data.code, res.data.m);
+    // F06: a date the server refused (a rule, or the place was taken meanwhile): the picker is emptied
+    // (its row was dropped above) and shows the server's sentence, so Previous leads to a field to fix.
+    if (typeof res.data.code === 'string' && res.data.code.indexOf('efb_date_') === 0 && window.EFBCalendar && typeof EFBCalendar.get === 'function') {
+      const cf = EFBCalendar.get(res.data.field_id, form_id);
+      if (cf) {
+        let text = typeof res.data.m === 'string' ? res.data.m : '';
+        try { text = new DOMParser().parseFromString(text, 'text/html').body.textContent || ''; } catch (e) { text = text.replace(/<[^>]*>/g, ''); }
+        cf.clear({ silent: true });
+        if (text) cf.showError(text);
+      }
+    }
   }
   let btn_prev ='';
   const t = valj_efb_new.find(x => x.id == form_id);

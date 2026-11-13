@@ -485,6 +485,8 @@
     if (this.msgEl) {
       this.msgEl.textContent = text;
       this.msgEl.setAttribute('dir', 'auto');
+      // A theme's `direction: rtl` outranks dir=auto; plaintext keeps an English sentence in its order on an RTL page.
+      this.msgEl.style.unicodeBidi = 'plaintext';
       this.msgEl.setAttribute('role', 'alert');
       this.msgEl.style.display = 'block';
       if (t) { var ids = (t.getAttribute('aria-describedby') || '').split(/\s+/).filter(Boolean); if (ids.indexOf(this.msgEl.id) === -1) { ids.push(this.msgEl.id); t.setAttribute('aria-describedby', ids.join(' ')); } }

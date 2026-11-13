@@ -32,14 +32,17 @@ add_filter(
 			return $ok;
 		}
 		$taken = (array) get_option( 'efb_e2e_f06_taken', array() );
+		// A value is one date, a stay "a/b" or a list "a,b"; each date takes a place.
+		$dates = static function ( $v ) {
+			return array_map( static function ( $p ) { return explode( 'T', $p )[0]; }, preg_split( '#[/,]#', (string) $v ) );
+		};
 		foreach ( $rows as $r ) {
-			$d = explode( 'T', (string) $r['value'] )[0];
-			if ( in_array( $d, $taken, true ) ) {
+			if ( array_intersect( $dates( $r['value'] ), $taken ) ) {
 				return new WP_Error( 'full', 'This date was just booked by someone else.', array( 'field_id' => $r['id_'] ) );
 			}
 		}
 		foreach ( $rows as $r ) {
-			$taken[] = explode( 'T', (string) $r['value'] )[0];
+			$taken = array_merge( $taken, $dates( $r['value'] ) );
 		}
 		update_option( 'efb_e2e_f06_taken', array_values( array_unique( $taken ) ), false );
 		return $ok;

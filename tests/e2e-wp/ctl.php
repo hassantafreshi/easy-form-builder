@@ -366,6 +366,16 @@ switch ( $efb_e2e_cmd ) {
 			$pf_row['pf_btn_text'] = 'Donate %amount%';
 			$pf_row['pf_btn_bg'] = '#14532d';
 			$pf_row['pf_btn_icon'] = 'bi-heart';
+		} elseif ( 'date' === $kind ) {
+			// F06: an advanced date that changes the price: a weekend night costs 20, a weekday 10 (Conditional Logic).
+			$rows[] = array_merge( $base, array( 'id_' => $num, 'dataId' => $num . '-id', 'type' => 'advdate', 'elementId' => 'advdate', 'name' => 'Night', 'amount' => 3, 'required' => 1, 'cal_v' => 1, 'cal_default' => 'gregory', 'date_min' => array( 'type' => 'relative', 'value' => 1 ) ) );
+			$rows[] = array_merge( $base, array( 'id_' => $tot, 'dataId' => $tot . '-id', 'type' => 'prcfld', 'elementId' => 'prcfld', 'name' => 'Total', 'amount' => 4, 'milen' => '0' ) );
+			$rows[0]['logic'] = '1';
+			$cond = function ( $days ) use ( $num ) { return array( 'type' => 'group', 'operator' => 'AND', 'items' => array( array( 'type' => 'condition', 'source' => 'field', 'field_id' => $num, 'compare' => 'date_weekday_is', 'value' => $days ) ) ); };
+			$rows[0]['logic_rules'] = array(
+				array( 'id' => 'weekend', 'enabled' => true, 'priority' => 1, 'conditions' => $cond( '6,7' ), 'actions' => array( array( 'type' => 'calculate', 'target' => $tot, 'value' => '20', 'decimals' => 2 ) ) ),
+				array( 'id' => 'weekday', 'enabled' => true, 'priority' => 2, 'conditions' => $cond( '1,2,3,4,5' ), 'actions' => array( array( 'type' => 'calculate', 'target' => $tot, 'value' => '10', 'decimals' => 2 ) ) ),
+			);
 		} elseif ( 'computed' === $kind ) {
 			$rows[] = array_merge( $base, array( 'id_' => $num, 'dataId' => $num . '-id', 'type' => 'number', 'elementId' => 'number', 'name' => 'Guests', 'amount' => 3, 'required' => 1 ) );
 			$rows[] = array_merge( $base, array( 'id_' => $tot, 'dataId' => $tot . '-id', 'type' => 'prcfld', 'elementId' => 'prcfld', 'name' => 'Total', 'amount' => 4, 'milen' => '0' ) );
