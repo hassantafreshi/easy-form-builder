@@ -4,7 +4,7 @@
     "plugin_version": "4.3.1",
     "updated": "2026-11-13",
     "counts": {
-        "active": 3247,
+        "active": 3337,
         "obsolete": 379
     },
     "entries": [
@@ -282,6 +282,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%1$s is your %2$s verification code.",
+            "context": null,
+            "plural": null,
+            "translators": "F02 SMS text: %1$s = code, %2$s = site name",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -1858,6 +1873,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "A one-way fingerprint of the address and a masked copy; never the code.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-verification.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "A one-way fingerprint of the address, so it cannot be used twice in this form. The address itself is not kept here.",
             "context": null,
             "plural": null,
@@ -2808,6 +2838,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Add the line for automatic code filling (@domain #code)",
+            "context": null,
+            "plural": null,
+            "translators": "F02 settings",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Add this shortcode inside a tag to display the title of the email.",
             "context": null,
             "plural": null,
@@ -2946,7 +2991,7 @@
             "msgid": "Add-ons",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "F02 settings link",
             "files": [
                 "includes/admin/class-Emsfb-addon.php",
                 "includes/functions.php"
@@ -3045,6 +3090,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Address (masked)",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-verification.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -3710,6 +3770,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Always (an empty field cannot be sent)",
+            "context": null,
+            "plural": null,
+            "translators": "F02 builder option",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Always show all decimal places",
             "context": null,
             "plural": null,
@@ -3793,6 +3868,21 @@
             "translators": "",
             "files": [
                 "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "An SMS code shows that the visitor receives messages on that number. It is not a strong login factor.",
+            "context": null,
+            "plural": null,
+            "translators": "F02 settings note",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -4406,6 +4496,21 @@
             "context": null,
             "plural": null,
             "translators": "Shown when the current user cannot install plugins",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Ask for the code",
+            "context": null,
+            "plural": null,
+            "translators": "F02 builder: when the code is asked for",
             "files": [
                 "includes/functions.php"
             ],
@@ -5457,6 +5562,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Blocked e-mail domains (comma separated)",
+            "context": null,
+            "plural": null,
+            "translators": "F02 settings",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Blocks",
             "context": null,
             "plural": null,
@@ -6111,6 +6231,21 @@
             "translators": "%s is a number or %amount% stays as written",
             "files": [
                 "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Button text",
+            "context": null,
+            "plural": null,
+            "translators": "F02 builder",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -6927,8 +7062,9 @@
             "msgid": "Change",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "F02 visitor: link to change the number or address",
             "files": [
+                "includes/functions.php",
                 "includes/page-builders/gutenberg/editor.js"
             ],
             "scope": [
@@ -7155,6 +7291,21 @@
             "translators": "",
             "files": [
                 "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Check the number or address and your spam folder. You can ask for a new code when the timer ends.",
+            "context": null,
+            "plural": null,
+            "translators": "F02 visitor: delivery tips",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -8057,6 +8208,51 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Code length (digits)",
+            "context": null,
+            "plural": null,
+            "translators": "F02 settings",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Code lifetime (seconds)",
+            "context": null,
+            "plural": null,
+            "translators": "F02 settings",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Codes are not used on registration and login forms yet.",
+            "context": null,
+            "plural": null,
+            "translators": "F02 builder and save warning",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Collect CV and resume details from applicants.",
             "context": null,
             "plural": null,
@@ -8460,6 +8656,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "Confirm email",
+            "context": null,
+            "plural": null,
+            "translators": "F02 visitor: label of the second e-mail box",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Confirm password",
@@ -9437,6 +9648,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Countries that may receive SMS codes (ISO codes, comma separated; empty = no SMS codes)",
+            "context": null,
+            "plural": null,
+            "translators": "F02 settings",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Countries that may receive the code (ISO codes, empty = the site list)",
+            "context": null,
+            "plural": null,
+            "translators": "F02 builder: ISO country codes for SMS codes",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Country, State, Province and City Fields",
             "context": null,
             "plural": null,
@@ -10232,6 +10473,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Daily budget (codes per day)",
+            "context": null,
+            "plural": null,
+            "translators": "F02 settings",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -11155,6 +11411,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Did not get the code?",
+            "context": null,
+            "plural": null,
+            "translators": "F02 visitor: link that shows delivery tips",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Digit grouping",
             "context": null,
             "plural": null,
@@ -12017,6 +12288,51 @@
             "obsolete_since": null
         },
         {
+            "msgid": "E-mail codes",
+            "context": null,
+            "plural": null,
+            "translators": "F02 settings section",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "E-mail subject ([website_name], [otp_code])",
+            "context": null,
+            "plural": null,
+            "translators": "F02 builder: placeholders in brackets",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "E-mail text (must contain [otp_code])",
+            "context": null,
+            "plural": null,
+            "translators": "F02 builder",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "E-mail the owner when a payment fails or expires",
             "context": null,
             "plural": null,
@@ -12475,6 +12791,21 @@
             "translators": "",
             "files": [
                 "includes/class-Emsfb-unique.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Easy Form Builder: verification codes",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-verification.php"
             ],
             "scope": [
                 "core"
@@ -13016,6 +13347,21 @@
             "context": null,
             "plural": null,
             "translators": "First-run setup, step chip for the email check step.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Email confirmation",
+            "context": null,
+            "plural": null,
+            "translators": "F02 builder: e-mail field setting",
             "files": [
                 "includes/functions.php"
             ],
@@ -14140,6 +14486,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Enter the code you received.",
+            "context": null,
+            "plural": null,
+            "translators": "F02 visitor: announced when the code box opens",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Enter this code to continue:",
+            "context": null,
+            "plural": null,
+            "translators": "F02 e-mail text before the code",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Enter token or credentials",
             "context": null,
             "plural": null,
@@ -14998,6 +15374,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Few codes are entered after being sent. This can be SMS pumping: check the limits and the countries.",
+            "context": null,
+            "plural": null,
+            "translators": "F02 settings warning",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Field",
             "context": null,
             "plural": null,
@@ -15637,6 +16028,7 @@
             "files": [
                 "includes/class-Emsfb-drafts.php",
                 "includes/class-Emsfb-unique.php",
+                "includes/class-Emsfb-verification.php",
                 "includes/functions.php",
                 "includes/page-builders/gutenberg/editor.js",
                 "includes/page-builders/visual-composer/class-Emsfb-visual-composer.php",
@@ -19011,6 +19403,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "If you did not request this, you can ignore this email.",
+            "context": null,
+            "plural": null,
+            "translators": "F02 e-mail text",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "If you did not request this, you can safely ignore it.",
             "context": null,
             "plural": null,
@@ -19626,6 +20033,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Install and set up WP SMS",
+            "context": null,
+            "plural": null,
+            "translators": "F02 settings link",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Install the add-on",
             "context": null,
             "plural": null,
@@ -20014,6 +20436,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Invalid request.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-verification.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -21070,6 +21507,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Label of the second box",
+            "context": null,
+            "plural": null,
+            "translators": "F02 builder",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Label size",
             "context": null,
             "plural": null,
@@ -21187,6 +21639,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Last 24 hours: %1$s codes sent, %2$s verified.",
+            "context": null,
+            "plural": null,
+            "translators": "F02 settings: %1$s = codes sent, %2$s = codes verified",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -21654,6 +22121,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Limits",
+            "context": null,
+            "plural": null,
+            "translators": "F02 settings section",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -23112,6 +23594,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Message text ({code}, {site}, {domain})",
+            "context": null,
+            "plural": null,
+            "translators": "F02 settings: placeholders in braces",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -25528,6 +26025,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Not available",
+            "context": null,
+            "plural": null,
+            "translators": "F02 settings status",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Not changed:",
             "context": null,
             "plural": null,
@@ -26041,7 +26553,7 @@
             "msgid": "Off",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "F02 builder option",
             "files": [
                 "includes/functions.php"
             ],
@@ -26854,6 +27366,21 @@
             "translators": "",
             "files": [
                 "includes/payments/class-Emsfb-payment-registry.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Open the verification settings",
+            "context": null,
+            "plural": null,
+            "translators": "F02 builder link",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -28497,6 +29024,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Per destination, per visitor address and per form. A refused request costs nothing.",
+            "context": null,
+            "plural": null,
+            "translators": "F02 settings help",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Per month",
             "context": null,
             "plural": null,
@@ -29540,6 +30082,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Please enter a valid number or address first.",
+            "context": null,
+            "plural": null,
+            "translators": "F02 visitor error: the number or address is not valid",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Please enter a valid phone number in \"%s\".",
             "context": null,
             "plural": null,
@@ -29865,7 +30422,8 @@
             "translators": "",
             "files": [
                 "includes/class-Emsfb-drafts.php",
-                "includes/class-Emsfb-public.php"
+                "includes/class-Emsfb-public.php",
+                "includes/class-Emsfb-verification.php"
             ],
             "scope": [
                 "core"
@@ -30076,6 +30634,21 @@
             "context": null,
             "plural": null,
             "translators": "F03 visitor error",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Please verify %s before continuing.",
+            "context": null,
+            "plural": null,
+            "translators": "F02 visitor error: %s = field label",
             "files": [
                 "includes/functions.php"
             ],
@@ -31140,6 +31713,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Put the code in the subject (shown on lock screens)",
+            "context": null,
+            "plural": null,
+            "translators": "F02 settings",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Qatar",
             "context": null,
             "plural": null,
@@ -31669,6 +32257,21 @@
             "context": null,
             "plural": null,
             "translators": "F03 builder switch: the field shows its default value and the visitor cannot change it",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Ready",
+            "context": null,
+            "plural": null,
+            "translators": "F02 settings status",
             "files": [
                 "includes/functions.php"
             ],
@@ -32721,6 +33324,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Requested",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-verification.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Requests below this score are suspicious.",
             "context": null,
             "plural": null,
@@ -32763,6 +33381,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Resend code",
+            "context": null,
+            "plural": null,
+            "translators": "F02 visitor: button",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Resend in %s",
+            "context": null,
+            "plural": null,
+            "translators": "F02 visitor: %s = time left, e.g. 0:59",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -33516,6 +34164,51 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "SMS codes",
+            "context": null,
+            "plural": null,
+            "translators": "F02 settings section",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "SMS codes are sent through the WP SMS plugin. Install and set up WP SMS and turn on the SMS add-on. Until then a visitor who fills in this field cannot send the form.",
+            "context": null,
+            "plural": null,
+            "translators": "F02 builder and save warning",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "SMS codes are sent through the WP SMS plugin. Its gateway, credentials and sender number are set up in WP SMS.",
+            "context": null,
+            "plural": null,
+            "translators": "F02 settings: where SMS codes go",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -35036,6 +35729,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Send a code",
+            "context": null,
+            "plural": null,
+            "translators": "F02 builder option",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Send a confirmation code via email or SMS to users and/or admins, allowing them to quickly access new responses.",
             "context": null,
             "plural": null,
@@ -35051,6 +35759,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Send a test code",
+            "context": null,
+            "plural": null,
+            "translators": "F02 settings button",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Send and deactivate",
             "context": null,
             "plural": null,
@@ -35062,6 +35785,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Send code",
+            "context": null,
+            "plural": null,
+            "translators": "F02 visitor: button that sends a one-time code",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -35235,6 +35973,21 @@
             "context": null,
             "plural": null,
             "translators": "Progress line while the test email is being sent.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Sending code…",
+            "context": null,
+            "plural": null,
+            "translators": "F02 visitor: status while the code is being sent",
             "files": [
                 "includes/functions.php"
             ],
@@ -37240,6 +37993,7 @@
             "plural": null,
             "translators": "Status = generic column header",
             "files": [
+                "includes/class-Emsfb-verification.php",
                 "includes/payments/class-Emsfb-payment-admin.php",
                 "includes/payments/class-Emsfb-payment-service.php",
                 "includes/phrases.php"
@@ -39582,6 +40336,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "That code is not correct. %s attempts left.",
+            "context": null,
+            "plural": null,
+            "translators": "F02 visitor: %s = attempts left",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "That does not look like a valid email address. Please enter the Google account email where you want to receive your sheets.",
             "context": null,
             "plural": null,
@@ -40062,6 +40831,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The SMS add-on is off. Turn it on in Add-ons: SMS codes are sent through the WP SMS plugin.",
+            "context": null,
+            "plural": null,
+            "translators": "F02 settings",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The SMS service add-on enables you to receive notification SMS messages when you or your customers receive new messages or responses.",
             "context": null,
             "plural": null,
@@ -40529,6 +41313,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The code expires in %s minutes.",
+            "context": null,
+            "plural": null,
+            "translators": "F02 e-mail text: %s = minutes",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The code has expired. Please request a new one.",
+            "context": null,
+            "plural": null,
+            "translators": "F02 visitor error",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The code has not yet been added. Click on",
             "context": null,
             "plural": null,
@@ -40735,6 +41549,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The e-mail text must contain [otp_code]. The default text is used instead.",
+            "context": null,
+            "plural": null,
+            "translators": "F02 builder and save warning",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The email addresses do not match.",
+            "context": null,
+            "plural": null,
+            "translators": "F02 visitor error",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -42623,6 +43467,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The test code was sent.",
+            "context": null,
+            "plural": null,
+            "translators": "F02 settings",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The test could not start",
             "context": null,
             "plural": null,
@@ -43697,7 +44556,8 @@
             "translators": "",
             "files": [
                 "includes/class-Emsfb-drafts.php",
-                "includes/class-Emsfb-public.php"
+                "includes/class-Emsfb-public.php",
+                "includes/class-Emsfb-verification.php"
             ],
             "scope": [
                 "core"
@@ -43833,6 +44693,21 @@
             "context": null,
             "plural": null,
             "translators": "F18: in the upgrade dialog when a form with locked fields is saved. %s: the field names",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "This form was updated. Please refresh the page.",
+            "context": null,
+            "plural": null,
+            "translators": "F02 visitor error: the page is older than the form",
             "files": [
                 "includes/functions.php"
             ],
@@ -44447,6 +45322,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "This request was blocked. Please try again later.",
+            "context": null,
+            "plural": null,
+            "translators": "F02 visitor error: spam protection refused the request",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "This server could not reach WordPress.org either, so outgoing connections from it are probably blocked in general.",
             "context": null,
             "plural": null,
@@ -44500,6 +45390,21 @@
                 "includes/payments/class-Emsfb-payment-admin.php",
                 "includes/payments/class-Emsfb-payment-frontend.php",
                 "includes/payments/class-Emsfb-payment-registry.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "This site does not send e-mails, so e-mail codes cannot be sent. Turn on e-mail sending first.",
+            "context": null,
+            "plural": null,
+            "translators": "F02 builder and save warning",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -45035,6 +45940,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Too many attempts. Please try again later.",
+            "context": null,
+            "plural": null,
+            "translators": "F02 visitor error",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Too many attempts. Please wait a few minutes and try again.",
             "context": null,
             "plural": null,
@@ -45046,6 +45966,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Too many code requests. Please try again in %s.",
+            "context": null,
+            "plural": null,
+            "translators": "F02 visitor error: %s = waiting time, e.g. 1:30",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -45638,6 +46573,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Type it twice",
+            "context": null,
+            "plural": null,
+            "translators": "F02 builder option",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Type it twice and send a code",
+            "context": null,
+            "plural": null,
+            "translators": "F02 builder option",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -47027,6 +47992,231 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Verification",
+            "context": null,
+            "plural": null,
+            "translators": "F02 settings tab",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Verification code",
+            "context": null,
+            "plural": null,
+            "translators": "F02 visitor: label of the code box",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Verification codes",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-verification.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Verification codes by %1$s on %2$s: %3$s codes were sent in the last hour but only %4$s were entered. This can be SMS pumping (fraud). Check the limits and the allowed countries.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-verification.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Verification codes by %1$s on %2$s: %3$s of the daily budget of %4$s are used. At the budget, forms that ask for a code stop accepting submissions until the next day.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-verification.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Verification codes by %1$s on %2$s: the daily budget is used up. Forms that ask for a code cannot be sent until it renews.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-verification.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Verification codes cannot be sent to this country.",
+            "context": null,
+            "plural": null,
+            "translators": "F02 visitor error",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Verification codes on %s: an SMS could not be sent through WP SMS. Check the gateway and its credit in the WP SMS settings, then send a test code from Settings > Verification. Visitors were asked to try again.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-verification.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Verification codes on %s: an e-mail could not be sent. Check the e-mail settings of the site (Email Monitor). Visitors were asked to try again.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-verification.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Verification is not available right now. Please contact the site owner.",
+            "context": null,
+            "plural": null,
+            "translators": "F02 visitor error",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Verification settings saved.",
+            "context": null,
+            "plural": null,
+            "translators": "F02 settings",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Verified",
+            "context": null,
+            "plural": null,
+            "translators": "F02 visitor: badge after a correct code",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Verified by SMS",
+            "context": null,
+            "plural": null,
+            "translators": "F02 response viewer badge",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Verified by email",
+            "context": null,
+            "plural": null,
+            "translators": "F02 response viewer badge",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Verify",
+            "context": null,
+            "plural": null,
+            "translators": "F02 visitor: button that checks the code",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Verify Email",
             "context": null,
             "plural": null,
@@ -47038,6 +48228,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Verify with an SMS code",
+            "context": null,
+            "plural": null,
+            "translators": "F02 builder: mobile field switch",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -47312,6 +48517,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Visitors confirm a mobile number or an e-mail address with a one-time code before the form is sent.",
+            "context": null,
+            "plural": null,
+            "translators": "F02 settings intro",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Visitors see this field once Free Plus or Pro is active.",
             "context": null,
             "plural": null,
@@ -47338,6 +48558,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "WP SMS is not installed or not active.",
+            "context": null,
+            "plural": null,
+            "translators": "F02 settings: WP SMS is not active",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "WP SMS settings",
+            "context": null,
+            "plural": null,
+            "translators": "F02 settings link",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -47868,6 +49118,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "We could not send the code. Please try again shortly.",
+            "context": null,
+            "plural": null,
+            "translators": "F02 visitor error",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "We could not verify delivery. Your email address was saved; please check your mail configuration in General Settings.",
             "context": null,
             "plural": null,
@@ -47887,6 +49152,21 @@
             "context": null,
             "plural": null,
             "translators": "F13: suggested privacy policy text, when IP addresses are not stored",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "We emailed a %1$s-digit code to %2$s. Check your spam folder too.",
+            "context": null,
+            "plural": null,
+            "translators": "F02 visitor: %1$s = number of digits, %2$s = masked e-mail address",
             "files": [
                 "includes/functions.php"
             ],
@@ -48015,6 +49295,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "We sent a %1$s-digit code to %2$s.",
+            "context": null,
+            "plural": null,
+            "translators": "F02 visitor: %1$s = number of digits, %2$s = masked mobile number",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -48309,7 +49604,8 @@
             "plural": null,
             "translators": "",
             "files": [
-                "includes/class-Emsfb-unique.php"
+                "includes/class-Emsfb-unique.php",
+                "includes/class-Emsfb-verification.php"
             ],
             "scope": [
                 "core"
@@ -48563,6 +49859,21 @@
             "context": null,
             "plural": null,
             "translators": "First-run setup, explanation under the question, for a site owner without technical background.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "When the field is filled in",
+            "context": null,
+            "plural": null,
+            "translators": "F02 builder option",
             "files": [
                 "includes/functions.php"
             ],
@@ -50298,6 +51609,7 @@
             "plural": null,
             "translators": "",
             "files": [
+                "includes/class-Emsfb-verification.php",
                 "includes/functions.php"
             ],
             "scope": [
@@ -51510,6 +52822,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Your number or address",
+            "context": null,
+            "plural": null,
+            "translators": "F02 settings",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Your payment has not been completed. Please pay before sending the form.",
             "context": null,
             "plural": null,
@@ -52232,6 +53559,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Your verification code for %s",
+            "context": null,
+            "plural": null,
+            "translators": "F02 e-mail subject: %s = site name",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Your web server refused the request because of its size (HTTP 413). This limit is set by your hosting company.",
             "context": null,
             "plural": null,
@@ -52348,6 +53690,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "[%s] Verification codes need your attention",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-verification.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
