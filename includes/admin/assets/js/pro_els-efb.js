@@ -294,7 +294,7 @@ function ui_dadfile_efb(indx, previewSate,form_id) {
   <div class="efb  btn ${valj_efb_[indx].button_color} efb-btn-lg fs-6" id="${valj_efb_[indx].id_}_b" ${disabled}>
       <i class="efb  bi-upload mx-2 fs-6"></i>${efb_var.text.browseFile}
   </div>
- <input type="file" hidden="" accept="${filetype_efb[valj_efb_[indx].value]}" data-type="dadfile" data-vid='${valj_efb_[indx].id_}' data-ID='${valj_efb_[indx].id_}' class="efb  emsFormBuilder_v   ${valj_efb_[indx].required == 1 || valj_efb_[indx].required == true ? 'required' : ''}" id="${valj_efb_[indx].id_}_" data-id="${valj_efb_[indx].id_}-el" ${previewSate != true ? 'disabled' : ''} ${disabled}>`
+ <input type="file" hidden="" accept="${filetype_efb[valj_efb_[indx].value]}" data-type="dadfile" data-vid='${valj_efb_[indx].id_}' data-ID='${valj_efb_[indx].id_}' class="efb  emsFormBuilder_v   ${valj_efb_[indx].required == 1 || valj_efb_[indx].required == true ? 'required' : ''}" id="${valj_efb_[indx].id_}_" data-id="${valj_efb_[indx].id_}-el" ${previewSate != true ? 'disabled' : ''} ${disabled}${typeof EFBUpload !== 'undefined' ? EFBUpload.attrs(valj_efb_[indx]) : ''}>`
 }
 function viewfileEfb(id, indx ,filed,form_id) {
   const valj_efb = get_structure_by_form_id_efb(form_id);
@@ -439,15 +439,16 @@ set_dadfile_fun_efb = (id, indx,form_id=0) => {
     dragInptEfb.disabled = false;
     dragbtntEfb.onclick = () => {
     }
+    // F07: the chosen file is this field's own (the shared global fileEfb mixed two fields up).
     dragInptEfb.addEventListener("change", function () {
-      fileEfb = this.files[0];
+      const fieldFile = this.files[0];
       dropAreaEfb.classList.add("active");
-      viewfileEfb(id, indx ,fileEfb,form_id);
+      viewfileEfb(id, indx ,fieldFile,form_id);
     });
     dropAreaEfb.addEventListener("dragover", (event) => {
       event.preventDefault();
       dropAreaEfb.classList.add("active");
-      dragTextEfb.textContent = "Release to Upload File";
+      dragTextEfb.textContent = (efb_var.text && efb_var.text.releaseToUpload) || "Release to upload";
     });
     dropAreaEfb.addEventListener("dragleave", () => {
 
@@ -457,11 +458,11 @@ set_dadfile_fun_efb = (id, indx,form_id=0) => {
     });
     dropAreaEfb.addEventListener("drop", (event) => {
       event.preventDefault();
-      fileEfb = event.dataTransfer.files[0];
+      const droppedFile = event.dataTransfer.files[0];
       document.getElementById(`${id}_`).files=event.dataTransfer.files;
       dropAreaEfb.classList.add("active");
-      viewfileEfb(id, indx ,fileEfb,form_id);
-      valid_file_emsFormBuilder(id ,'msg',fileEfb,form_id)
+      viewfileEfb(id, indx ,droppedFile,form_id);
+      valid_file_emsFormBuilder(id ,'msg',droppedFile,form_id)
     });
   }
     reply_attach_efb = (id, indx) => {

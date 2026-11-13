@@ -3453,6 +3453,8 @@ let change_el_edit_Efb = (el) => {
         }
 
         if (document.getElementById(`${valj_efb[indx].id_}_txt`)) document.getElementById(`${valj_efb[indx].id_}_txt`).innerHTML = `${efb_var.text.dragAndDropA} ${nfile}`
+        // F07: the camera only for image / media presets, resizing only where images arrive (§5).
+        if (typeof efb_up_preset_changed_efb === 'function') efb_up_preset_changed_efb(valj_efb[indx]);
         break;
       case 'fileSizeMaxEl':
         valj_efb[indx].hasOwnProperty('max_fsize')==false ? Object.assign(valj_efb[indx],{'max_fsize':el.value}) : valj_efb[indx].max_fsize = el.value;
@@ -3462,6 +3464,7 @@ let change_el_edit_Efb = (el) => {
           const hostMaxEfb = Number(efb_var.upload_max) || 0;
           document.getElementById('fileSizeMaxWarnEfb').classList.toggle('d-none', !(hostMaxEfb > 0 && Number(el.value) > hostMaxEfb));
         }
+        if (typeof efb_up_after_change_efb === 'function') efb_up_after_change_efb(valj_efb[indx], 'max_fsize');
         break;
       // Recorder settings live-update the widget shell (id `X_`), so the builder
       // preview behaves with the new values immediately. docs/recorder-fields.md §3.
@@ -7517,7 +7520,8 @@ function addNewElement(elementId, rndm, editState, previewSate) {
        ${label}
         <div class="efb  ${pos[3]} col-sm-12 px-0 mx-0 ttEfb show"  id='${rndm}-f'>
           ${ttip}
-          <input type="${elementId}" class="efb  input-efb px-2 py-1 emsFormBuilder_v w-100  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_border_color}    form-control efb efbField efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}" data-vid='${rndm}' data-id="${rndm}-el" id="${rndm}_"  aria-required="${valj_efb[iVJ].required==1 ? true : false}" aria-label="${valj_efb[iVJ].name}" ${aire_describedby} ${previewSate != true ? 'readonly' : ''} ${disabled =="disabled" ? 'readonly' :''}>
+          <input type="${elementId}" class="efb  input-efb px-2 py-1 emsFormBuilder_v w-100  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_border_color}    form-control efb efbField efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}" data-vid='${rndm}' data-id="${rndm}-el" id="${rndm}_"  aria-required="${valj_efb[iVJ].required==1 ? true : false}" aria-label="${valj_efb[iVJ].name}" ${aire_describedby} ${previewSate != true ? 'readonly' : ''} ${disabled =="disabled" ? 'readonly' :''}${typeof EFBUpload !== 'undefined' ? EFBUpload.attrs(valj_efb[iVJ]) : ''}>
+          ${typeof EFBUpload !== 'undefined' ? EFBUpload.listMarkup(valj_efb[iVJ]) : ''}
           ${desc}`
       dataTag = elementId;
       break;

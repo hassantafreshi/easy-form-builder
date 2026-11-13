@@ -247,6 +247,8 @@
     var next = clone(items);
     var adErrs = advdateCheck(next.slice(1), [next[0]], 1);
     if (adErrs.length) throw failAdvdate(adErrs);
+    var upErrs = uploadCheck(next, 0);
+    if (upErrs.length) throw failUpload(upErrs);
     if (typeof efbNormalizeOrderEfb === 'function') efbNormalizeOrderEfb(next);
     valj_efb = next;
     if (typeof form_type_emsFormBuilder !== 'undefined') form_type_emsFormBuilder = next[0].type;
@@ -269,6 +271,12 @@
     var add = clone(items);
     var adErrs = advdateCheck(add, list, 0);
     if (adErrs.length) throw failAdvdate(adErrs);
+    var upErrs = uploadCheck(add, 0, true);
+    if (upErrs.length) throw failUpload(upErrs);
+    if (items && items.formPatch && typeof items.formPatch === 'object') {
+      var fpErrs = uploadCheck([items.formPatch], 0);
+      if (fpErrs.length) throw failUpload(fpErrs);
+    }
     // The canvas finds a row by dataId (id_ + '-id'); fill it when the caller left it out.
     add.forEach(function (r) { if (!r.dataId && r.type !== 'step') r.dataId = r.id_ + '-id'; });
     var at;
@@ -711,6 +719,74 @@
     apiChanged('rollbackDateField', [list[idx].id_]);
     return { id: list[idx].id_, row: clone(list[idx]) };
   }
+  /**
+   * F07: the upload keys of the rows (file / dadfile: max_files, min_files, max_total_mb, capture,
+   * img_max_px, img_quality, file_store; row 0: email_attach) with the save rules
+   * (EFBUpload.rules.sanitizeKey = Emsfb\Uploads::sanitize_key). A value the rules change or drop is
+   * refused with upload_invalid and its path; a value written in Persian / Arabic digits is accepted
+   * and stored in Latin digits. Rows are rewritten with the stored values.
+   */
+  function uploadCheck(items, offset, noRow0) {
+    var Up = window.EFBUpload;
+    var out = [];
+    if (!Up || !Up.rules) return out;
+    (items || []).forEach(function (r, i) {
+      if (!r || typeof r !== 'object') return;
+      var path = 'rows[' + (i + (offset || 0)) + '].';
+      var keys = (i === 0 && !noRow0 && r.type !== 'file' && r.type !== 'dadfile') ? Up.rules.FORM_KEYS : ((r.type === 'file' || r.type === 'dadfile') ? Up.rules.FIELD_KEYS : []);
+      keys.forEach(function (k) {
+        if (r[k] === undefined || r[k] === null || r[k] === '') return;
+        if (typeof r[k] === 'object') { out.push({ code: 'upload_invalid', path: path + k, key: k, field: r.id_ }); return; }
+        var sv = Up.rules.sanitizeKey(k, r[k]);
+        var asNum = String(r[k]).replace(/[\u06F0-\u06F9]/g, function (d) { return String(d.charCodeAt(0) - 0x06F0); }).replace(/[\u0660-\u0669]/g, function (d) { return String(d.charCodeAt(0) - 0x0660); });
+        var same = sv === String(r[k]) || sv === asNum || (sv !== '' && Number(sv) === Number(asNum)) || (k === 'email_attach' && (r[k] === 1 || r[k] === true) && sv === '1') || (k === 'capture' || k === 'file_store' ? sv === String(r[k]).trim().toLowerCase() : false);
+        if (!same) out.push({ code: 'upload_invalid', path: path + k, key: k, field: r.id_, stored: sv });
+        else r[k] = sv;
+      });
+      if ((r.type === 'file' || r.type === 'dadfile') && r.min_files && r.max_files && Number(r.min_files) > Number(r.max_files)) {
+        out.push({ code: 'upload_config', reason: 'min_after_max', path: path + 'min_files', key: 'min_files', field: r.id_ });
+      }
+    });
+    return out;
+  }
+  function failUpload(errs) {
+    var e = fail(errs[0].code, errs[0].code === 'upload_config' ? 'min_files is larger than max_files (' + errs[0].path + ')' : 'This value cannot be used for ' + errs[0].key + ' (' + errs[0].path + ')');
+    e.path = errs[0].path; e.errors = errs; if (errs[0].reason) e.reason = errs[0].reason;
+    return e;
+  }
+  /**
+   * F07: change the upload keys of one file / dadfile field (by id_ or dataId) with the save rules, e.g.
+   * setUploadConfig('docs', {max_files: 5, min_files: 1, max_total_mb: 50, file_store: 'private'}).
+   * A key that is not an upload key throws invalid_setting; a value the rules cannot keep upload_invalid
+   * (e.path); min_files above max_files upload_config. A part the plan does not include is stored but
+   * ignored on the page and on submit (e.plan in the answer lists them). Returns {changed, values, plan}.
+   */
+  function setUploadConfig(id, patch, opts) {
+    var Up = window.EFBUpload;
+    if (!Up || !Up.rules) throw fail('builder_not_ready', 'The upload rules (upload-efb.js) are not loaded.');
+    var list = rows();
+    var idx = fieldIndex(list, String(id));
+    if (idx < 0) idx = list.findIndex(function (r, i) { return i > 0 && r && r.dataId === String(id); });
+    if (idx < 1 || (list[idx].type !== 'file' && list[idx].type !== 'dadfile')) throw fail('unknown_field', 'No file or dadfile field with id ' + id + '.');
+    if (!patch || typeof patch !== 'object' || Array.isArray(patch)) throw fail('invalid_setting', 'setUploadConfig() needs an object of upload keys.');
+    Object.keys(patch).forEach(function (k) { if (Up.rules.FIELD_KEYS.indexOf(k) === -1) throw fail('invalid_setting', 'key ' + k + ' is not an upload key.'); });
+    var next = clone(list[idx]);
+    Object.keys(patch).forEach(function (k) { next[k] = patch[k]; });
+    var errs = uploadCheck([next], idx, true);
+    if (errs.length) throw failUpload(errs);
+    list[idx] = next;
+    persist();
+    apiChanged('setUploadConfig', [next.id_]);
+    if (!opts || opts.refresh !== false) { try { refreshSettingsPanel(); } catch (e) {} }
+    var values = {};
+    Object.keys(patch).forEach(function (k) { values[k] = next[k]; });
+    var cap = (window.efb_var && window.efb_var.capabilities && window.efb_var.capabilities.features) || {};
+    var gated = [];
+    if (Number(values.max_files || next.max_files) > 1 && cap['setting:upload_multi'] && cap['setting:upload_multi'].available_now === false) gated.push('max_files');
+    if (Number(values.img_max_px) > 0 && cap['setting:upload_resize'] && cap['setting:upload_resize'].available_now === false) gated.push('img_max_px');
+    if (values.file_store === 'media' && cap['setting:upload_media'] && cap['setting:upload_media'].available_now === false) gated.push('file_store');
+    return { changed: Object.keys(values), values: values, plan: gated };
+  }
   function failRules(errs) {
     var e = fail('pattern_invalid', 'This pattern cannot be used: ' + errs[0].reason + ' (' + errs[0].path + ')');
     e.path = errs[0].path; e.reason = errs[0].reason; e.pos = errs[0].pos;
@@ -836,6 +912,7 @@
     upgradeDateField: upgradeDateField,
     rollbackDateField: rollbackDateField,
     setVerification: setVerification,
+    setUploadConfig: setUploadConfig,
     formGate: formGate,
     newItems: newItems,
     setFormType: setFormType,

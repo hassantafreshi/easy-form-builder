@@ -1575,3 +1575,13 @@
   z-index: 1000;
   border-radius: 8px;
 }
+
+/* F07: the files of one field as cards (thumbnail for images, name, size); print: 4 per row. */
+.efb-file-cards { display: flex; flex-wrap: wrap; gap: .5rem; margin: .25rem 0; }
+.efb-file-card { display: flex; flex-direction: column; align-items: center; width: 120px; max-width: 100%; padding: .4rem; border: 1px solid rgba(0,0,0,.12); border-radius: .5rem; background: #fff; text-align: center; }
+.efb-file-card-link { display: flex; flex-direction: column; align-items: center; gap: .3rem; text-decoration: none; max-width: 100%; }
+.efb-file-card-thumb { width: 100px; height: 80px; object-fit: cover; border-radius: .35rem; }
+.efb-file-card-icon { font-size: 2.2rem; line-height: 80px; height: 80px; }
+.efb-file-card-name { unicode-bidi: plaintext; max-width: 108px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .8rem; }
+.efb-file-card-size { unicode-bidi: plaintext; font-size: .75rem; color: #6c757d; }
+@media print { .efb-file-card { width: 23%; } }

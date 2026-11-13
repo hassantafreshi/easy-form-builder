@@ -1208,7 +1208,7 @@ function fun_show_setting__emsFormBuilder() {
   let act_local_efb =scaptcha =false;
   let dsupfile= activeDlBtn =scaptcha=act_local_efb =false;
 
-  const prvSettings = { prv_ip_mode: 'store', prv_days: '0', prv_action: 'delete', prv_files: '1', prv_erase_mode: 'delete', prv_nostore_file_days: '30' };
+  const prvSettings = { prv_ip_mode: 'store', prv_days: '0', prv_action: 'delete', prv_files: '1', prv_erase_mode: 'delete', prv_nostore_file_days: '30', prv_file_link_days: '7' };
   let phoneNumbers=sms_method = 'null';
   let femail ='null';
   let demail ='no-reply@'+ window.location.hostname;
@@ -1992,6 +1992,10 @@ function efb_privacy_retention_html_efb(prv, mx, dis) {
         </div>
       </div>
       <div class="efb card-body ${mx} py-1">
+        <label class="efb form-label fs-6 mb-1" for="prvFileLinkDays_efb">${efb_prv_t_efb('prvFileLinkDays', 'Download links to private files work for (days)')}</label>
+        <input type="text" inputmode="numeric" autocomplete="off" maxlength="2" class="efb form-control w-25 h-d-efb border-d efb-rounded" id="prvFileLinkDays_efb" value="${efb_prv_digits_efb(prv.prv_file_link_days || '7')}" ${dis}>
+      </div>
+      <div class="efb card-body ${mx} py-1">
         <label class="efb form-label fs-6 mb-1" for="prvNoStoreFileDays_efb">${efb_prv_t_efb('prvNoStoreFileDays', 'Keep the files of entries that are not stored for (days)')}</label>
         <input type="text" inputmode="numeric" autocomplete="off" maxlength="3" class="efb form-control w-25 h-d-efb border-d efb-rounded" id="prvNoStoreFileDays_efb" value="${efb_prv_digits_efb(prv.prv_nostore_file_days)}" ${dis}>
       </div>
@@ -2070,6 +2074,9 @@ function efb_privacy_patch_efb() {
   if (er && ['delete', 'anon'].includes(er.value)) out.prv_erase_mode = er.value;
   const nf = document.getElementById('prvNoStoreFileDays_efb');
   if (nf) { const d = Number(efb_prv_digits_efb(nf.value).replace(/[^0-9]/g, '')) || 30; out.prv_nostore_file_days = String(Math.min(365, Math.max(1, d))); }
+  // F07: how long a signed link to a private file works (owner e-mail, personal-data export).
+  const fl = document.getElementById('prvFileLinkDays_efb');
+  if (fl) { const d = Number(efb_prv_digits_efb(fl.value).replace(/[^0-9]/g, '')) || 7; out.prv_file_link_days = String(Math.min(90, Math.max(1, d))); }
   return out;
 }
 function efb_privacy_post_efb(action, extra) {
@@ -3875,6 +3882,7 @@ function clear_garbeg_emsFormBuilder() {
 }
 
 function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
+  window.efb_csv_file_cells_efb = {}; // F07: the file cells of this export
   let head = {};
   let heads = [];
   let ids = [];
@@ -3928,6 +3936,7 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
             if (content[c].type == 'payment') rows[0][parseInt(value_col_index) + 1] = "TID";
           }
 
+          const prevCellEfb = rows[parseInt(i_count)][parseInt(value_col_index)];
           rows[parseInt(i_count)][parseInt(value_col_index)] = content[c].value;
           if (content[c].type == 'advdate' && content[c].value !== '@prv@') {
             /* F06: the date as the admin display says, and a "<label> (ISO)" column that sorts in a spreadsheet. */
@@ -3945,7 +3954,13 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
             const vx = rows[0].findIndex(x => x == "TID");
             rows[parseInt(i_count)][parseInt(vx)] = content[c].paymentIntent;
           }else if(content[c].value == '@file@' || content[c].type == 'file' || content[c].type == 'media' || content[c].type == 'zip'  || content[c].type == 'image' || content[c].type == 'document' || content[c].type == 'allformat'){
-            rows[parseInt(i_count)][parseInt(value_col_index)] =content[c].url;
+            /* F07 §9: every file of a field in its one cell, joined with " | " (the second file used
+               to overwrite the first); a private file as its admin download link. */
+            const fileUrlEfb = typeof efbFileHrefEfb === 'function' ? efbFileHrefEfb(content[c].url) : content[c].url;
+            const cellKeyEfb = i_count + '|' + value_col_index + '|' + content[c].id_;
+            window.efb_csv_file_cells_efb = window.efb_csv_file_cells_efb || {};
+            rows[parseInt(i_count)][parseInt(value_col_index)] = window.efb_csv_file_cells_efb[cellKeyEfb] && prevCellEfb ? prevCellEfb + ' | ' + fileUrlEfb : fileUrlEfb;
+            window.efb_csv_file_cells_efb[cellKeyEfb] = true;
           }else if (content[c].type == 'esign'){
             /* Not the image itself: a base64 data URL of thousands of
                characters (a large one passes Excel's 32,767-character cell

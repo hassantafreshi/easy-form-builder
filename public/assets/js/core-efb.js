@@ -725,6 +725,9 @@ async function createStepsOfPublic() {
           case "file":
             const ob = valj_efb_.find(x => x.id_ === id);
             if(typeof(ob)=="undefined" || ob==null) break;
+            /* F07: a field of several files (data-max-files > 1) is run by upload-efb.js: its own
+               queue and list, one answer row per file, no placeholder row. */
+            if (typeof window.EFBUpload !== 'undefined' && window.EFBUpload.bind(id, form_id)) { handler_state = false; break; }
             if(((ob.hasOwnProperty("disabled") && ob.disabled!=true ) || ob.hasOwnProperty("disabled")==false )&&
             ((ob.hasOwnProperty('hidden') && ob.hidden==true) || ob.hasOwnProperty('hidden')==false))
 
@@ -852,7 +855,14 @@ async function fun_sendBack_emsFormBuilder(ob) {
       indx == -1 ? sendBack_emsFormBuilder_pub.push(ob) : sendBack_emsFormBuilder_pub.splice(indx, 1);
     }
     else if(indx != -1 && ob.value == "@file@" ){
-      sendBack_emsFormBuilder_pub[indx]=ob;
+      /* F07: a field of several files keeps one row per stored file (id_ob = the stored name);
+         a field of one file replaces its row, as before. */
+      if (typeof window.EFBUpload !== 'undefined' && ob.id_ob && window.EFBUpload.isMulti(ob.id_, form_id)) {
+        const same = sendBack_emsFormBuilder_pub.findIndex(x => x && x.id_ === ob.id_ && x.id_ob === ob.id_ob && Number(x.form_id || form_id) === Number(form_id));
+        same == -1 ? sendBack_emsFormBuilder_pub.push(ob) : sendBack_emsFormBuilder_pub[same] = ob;
+      } else {
+        sendBack_emsFormBuilder_pub[indx]=ob;
+      }
     }else if(ob.type == "r_matrix"){
       indx = sendBack_emsFormBuilder_pub.findIndex( x => x!=null && x.hasOwnProperty('id_ob') && x.id_ob === ob.id_ob);
       indx == -1 ? sendBack_emsFormBuilder_pub.push(ob) : sendBack_emsFormBuilder_pub[indx]=ob;
@@ -1741,7 +1751,8 @@ function valid_file_emsFormBuilder(id,tp,filed,form_id) {
   const recorderTypes_efb = ["audio_recorder", "video_recorder", "screen_recorder"];
   const i = recorderTypes_efb.indexOf(valj_efb.find(x => x.id_ === id)?.type) !== -1 ? `${id}_file` : `${id}_`;
   let message = "";
-  let file_size = 8*1024*1024;
+  /* F07 §12: the same default as the server (Upload_Guard::DEFAULT_MAX_MB) and as the message below. */
+  let file_size = 20*1024*1024;
   const indx = valj_efb.findIndex(x => x.id_ === id);
   let val_in = valj_efb[indx];
     if(val_in.hasOwnProperty('max_fsize') && val_in.max_fsize.length>0){
@@ -1823,11 +1834,18 @@ async function validation_before_send_efb(form_id) {
     require += v.required == true && fileLikeTypes_efb.indexOf(v.type) === -1 ? 1 : 0;
     if (fileLikeTypes_efb.indexOf(v.type) !== -1) {
       const fileInputId_efb = recorderTypes_efb_v4.indexOf(v.type) !== -1 ? `${v.id_}_file` : `${v.id_}_`;
-      if (document.getElementById(fileInputId_efb).files[0] == undefined && v.required == true) {
+      // F07: a field of several files empties its input after each choice; its answer is its rows.
+      if (typeof window.EFBUpload !== 'undefined' && window.EFBUpload.isMulti(v.id_, form_id)) {
+        if (v.required == true && window.EFBUpload.count(v.id_, form_id) < 1) fill -= 1;
+        continue;
+      }
+      const fileInputEl_efb = document.getElementById(fileInputId_efb);
+      if (fileInputEl_efb && fileInputEl_efb.files && fileInputEl_efb.files[0] == undefined && v.required == true) {
         fill -= 1;
       }
     }
   }
+  const fileRowsCounted_efb = {};
   let count_ = 0;
   for (const row of sendBack_emsFormBuilder_pub) {
     if(form_id && Number((row && row.hasOwnProperty('form_id') ? row.form_id : infer_form_id_by_field_efb(row))) !== Number(form_id)) {
@@ -1841,6 +1859,9 @@ async function validation_before_send_efb(form_id) {
     const rowFilled = is_required_value_filled_efb(row, row.type || '');
     count[0] += 1;
     if (row.value == "@file@") {
+      // F07: the files of one field count once.
+      if (fileRowsCounted_efb[row.id_]) { count[0] -= 1; continue; }
+      fileRowsCounted_efb[row.id_] = true;
       const indx = valj_efb.findIndex(x => x.id_ == row.id_);
       if (indx != -1) {
         if(valj_efb[indx].hasOwnProperty("disabled") && valj_efb[indx].disabled==true &&
@@ -4905,6 +4926,17 @@ async function fun_validation_efb_v4(form_id) {
     /* An email field holding text that is not an address. valid_email_emsFormBuilder()
      * already dropped the value, so an optional field used to submit without it,
      * silently, and a required one said "required" instead of what is wrong. */
+    // F07: a field of several files: files still uploading, fewer than the minimum (§8.1).
+    if (row > 1 && current_s_efb == valj_efb[row].step && (valj_efb[row].type == 'file' || valj_efb[row].type == 'dadfile')
+      && typeof window.EFBUpload !== 'undefined' && window.EFBUpload.isMulti(valj_efb[row].id_, form_id)) {
+      const upChk = window.EFBUpload.check(valj_efb[row].id_, form_id);
+      if (upChk) {
+        const upMsgEl = efb_get_by_id_in_form_efb(form_id, `${valj_efb[row].id_}_-message`);
+        if (upMsgEl) { upMsgEl.textContent = upChk.message; upMsgEl.setAttribute('role', 'alert'); show_msg_efb(upMsgEl); }
+        if (state == true) { state = false; idi = valj_efb[row].id_; name_field = valj_efb[row].name; }
+        continue;
+      }
+    }
     // F06: an advanced date typed but refused keeps its own message at the field.
     if (row > 1 && current_s_efb == valj_efb[row].step && efb_advdate_typed_invalid_efb(valj_efb[row], form_id)) {
       if (state == true) { state = false; idi = valj_efb[row].id_; name_field = valj_efb[row].name; }

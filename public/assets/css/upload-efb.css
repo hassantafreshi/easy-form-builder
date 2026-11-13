@@ -1,0 +1,138 @@
+/* F07: the file list of an upload field that takes several files (upload-efb.js).
+   Logical properties only, so the list follows the page direction (RTL) with no second sheet. */
+.efb.efb-file-list {
+  display: flex;
+  flex-direction: column;
+  gap: .4rem;
+  margin: .5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.efb.efb-file-item {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  padding: .35rem .5rem;
+  border: 1px solid rgba(0, 0, 0, .12);
+  border-radius: .5rem;
+  background: #fff;
+  min-width: 0;
+}
+.efb.efb-file-item.efb-file-rejected,
+.efb.efb-file-item.efb-file-error {
+  border-color: #dc3545;
+}
+.efb.efb-file-thumb {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: .35rem;
+  flex: 0 0 40px;
+}
+.efb.efb-file-icon {
+  width: 40px;
+  height: 28px;
+  flex: 0 0 40px;
+  color: #6c757d;
+}
+.efb.efb-file-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1 1 auto;
+  gap: .15rem;
+}
+.efb.efb-file-name {
+  unicode-bidi: plaintext;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: .95rem;
+  text-align: left;
+}
+.efb.efb-file-meta,
+.efb.efb-file-sum,
+.efb.efb-file-count,
+.efb.efb-file-full {
+  unicode-bidi: plaintext;
+  font-size: .8rem;
+  color: #6c757d;
+  text-align: left;
+}
+/* plaintext gives each line its own direction (a Latin name stays in order); the line itself sits at the
+   page's start edge, which in a right-to-left form is the right (upload-efb.js marks the list). */
+.efb.efb-file-rtl .efb-file-name,
+.efb.efb-file-rtl .efb-file-meta,
+.efb.efb-file-sum.efb-file-rtl,
+.efb.efb-file-rtl .efb-file-count {
+  text-align: right;
+}
+.efb.efb-file-sum {
+  display: block;
+  margin-top: .3rem;
+}
+.efb.efb-file-full {
+  color: #b02a37;
+}
+.efb.efb-file-bar {
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(0, 0, 0, .08);
+  overflow: hidden;
+}
+.efb.efb-file-bar > span {
+  display: block;
+  height: 100%;
+  background: #0d6efd;
+  transition: width .2s ease;
+}
+/* The remove button sits at the logical end, with a 44 × 44 target. */
+.efb.efb-file-rm {
+  margin-inline-start: auto;
+  min-width: 44px;
+  min-height: 44px;
+  border: 0;
+  background: transparent;
+  border-radius: .5rem;
+  color: #495057;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 44px;
+}
+.efb.efb-file-rm:hover,
+.efb.efb-file-rm:focus-visible {
+  background: rgba(0, 0, 0, .06);
+}
+.efb.efb-file-rm:focus-visible,
+.efb.efb-file-retry:focus-visible,
+.efb.dadFile-efb[role="button"]:focus-visible {
+  outline: 2px solid #0d6efd;
+  outline-offset: 2px;
+}
+.efb.efb-file-retry {
+  min-height: 44px;
+  white-space: nowrap;
+  border: 1px solid #dc3545;
+  color: #dc3545;
+  background: transparent;
+}
+.efb.dadFile-efb.efb-file-full {
+  opacity: .6;
+}
+.efb.efb-sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+@media (max-width: 480px) {
+  .efb.efb-file-item { flex-wrap: wrap; }
+  .efb.efb-file-main { flex: 1 1 0; }
+  .efb.efb-file-retry { order: 4; flex: 1 1 100%; }
+}

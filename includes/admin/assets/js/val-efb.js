@@ -1510,7 +1510,8 @@ function show_setting_window_efb(idset, opts) {
     }
 
     const fileSizeMaxEls =()=>{
-      const file_size = valj_efb[indx].hasOwnProperty('max_fsize') ? valj_efb[indx].max_fsize : 8;
+      // F07 §5: the shown default is the server's (Upload_Guard::DEFAULT_MAX_MB = 20), not 8.
+      const file_size = valj_efb[indx].hasOwnProperty('max_fsize') ? valj_efb[indx].max_fsize : 20;
       // Host awareness: the real ceiling is the hosting's upload_max_filesize -
       // configuring a larger value here silently breaks uploads for visitors.
       const hostMax = Number(efb_var.upload_max) || 0;
@@ -1519,7 +1520,7 @@ function show_setting_window_efb(idset, opts) {
       <div class="efb  mt-3">
       <label for="fileSizeMaxEl" class="efb  mt-3"><i class="efb bi-file-earmark-medical fs-7 ${iconMarginGlobal}"></i>${efb_var.text.maxfs} <small>(MB)</small> <i class="efb bi-patch-question fs-7 text-success pointer-efb" onclick="Link_emsFormBuilder('file_size')"> </i></label>
 
-      <input type="number" min="1" max="300" data-id="${idset}" class="efb  elEdit form-control text-muted border-d rounded-4 h-d-efb mb-1 efb" placeholder=""${efb_var.text.exDot} 8" id="fileSizeMaxEl" required value="${file_size}">
+      <input type="number" min="1" max="300" data-id="${idset}" class="efb  elEdit form-control text-muted border-d rounded-4 h-d-efb mb-1 efb" placeholder="${efb_var.text.exDot} 20" id="fileSizeMaxEl" required value="${file_size}">
       ${hostMax > 0 ? `<small class="efb text-muted fs-8 mx-2 d-block">${(efb_var.text.hostUploadLimit || 'Your hosting accepts uploads up to %s MB.').replace('%s', hostMax)}</small>` : ''}
       ${hostMax > 0 ? `<small class="efb text-danger fs-8 mx-2 d-block ${overHost ? '' : 'd-none'}" id="fileSizeMaxWarnEfb"><i class="efb bi-exclamation-triangle-fill ${iconMarginGlobal}"></i>${(efb_var.text.hostUploadLimitOver || 'This is larger than the hosting limit (%s MB); uploads will fail.').replace('%s', hostMax)}</small>` : ''}
       </div>
@@ -1944,6 +1945,7 @@ function show_setting_window_efb(idset, opts) {
         ${fileTypeEls }
         ${el.dataset.tag == 'dadfile' ? fileCustomizeTypleEls() : '<!--efb.app-->'}
         ${fileSizeMaxEls()}
+        ${typeof efbUploadSettingsEls === 'function' ? efbUploadSettingsEls(indx, idset) : '<!-- F07 upload-builder-efb.js not loaded -->'}
         <!--  not   advanced-->
         <div class="efb  d-grid gap-2">
           <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
@@ -2321,6 +2323,7 @@ function show_setting_window_efb(idset, opts) {
           ${formTypeEls()}
           ${surveyChartTypeEls()}
           ${loadingTypeEls()}
+          ${typeof efbUploadFormEls === 'function' && (valj_efb[0].type=="form" || valj_efb[0].type=="payment") ? efbUploadFormEls() : '<!-- F07 -->'}
           ${typeof efbActiveAutoFillEls !== 'undefined' ? efbActiveAutoFillEls(0) : '<!--efb-->'}
          <!-- content_colors_setting_efb() -->
           </div>

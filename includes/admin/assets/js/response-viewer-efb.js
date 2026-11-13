@@ -968,9 +968,23 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
     }
     if (c.value == "@file@" && list.findIndex(x => x == c.url) == -1) {
       s = true;
+      /* F07 §9: every file of one field in one row, as cards (a thumbnail for an image, chosen by the
+         address's extension, not the row type the server pins to file / dadfile). A private file goes
+         through the admin download action. */
+      const groupEfb = c.id_ ? content.filter((x) => x && x.value == '@file@' && x.id_ === c.id_ && typeof x.url == 'string' && /^https?:\/\//i.test(x.url) && list.indexOf(x.url) === -1) : [];
+      if (groupEfb.length > 1 || (c.id_ob && c.fsz !== undefined)) {
+        groupEfb.forEach((g) => list.push(g.url));
+        value = efbFileCardsEfb(groupEfb.length ? groupEfb : [c]);
+      } else {
       list.push(c.url);
       $name = c.url.slice((c.url.lastIndexOf("/") + 1), (c.url.lastIndexOf(".")));
-      if (c.type == "Image" || c.type == "image") {
+      const extEfb = efbFileExtEfb(c.url);
+      const hrefEfb = efbFileHrefEfb(c.url);
+      if (c.type == "Image" || c.type == "image" || ['jpg', 'jpeg', 'png', 'gif', 'webp'].indexOf(extEfb) !== -1) {
+        value = `<a href="${hrefEfb}" target="_blank" rel="noopener noreferrer" data-csv="${hrefEfb}"><img src="${hrefEfb}" alt="${c.name}" class="efb img-thumbnail m-1"></a>`
+      } else if (efbFileIsPrivateEfb(c.url)) {
+        value = `<a class="efb-reply-btn" href="${hrefEfb}" target="_blank" rel="noopener noreferrer">${c.url.split('/').pop()}</a>`
+      } else if (c.type == "Image" || c.type == "image") {
         value = `<img src="${c.url}" alt="${c.name}" class="efb img-thumbnail m-1">`
       } else if (c.type == "Document" || c.type == "document" || c.type == "allformat") {
         value = `<a class="efb-reply-btn" href="${c.url}" target="_blank" >${c.url.split('/').pop()}</a>`
@@ -983,8 +997,8 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
           }
         })
         if (media == "video") {
-          const len = c.url.length;
-          const type = c.url.slice((len - c.url.lastIndexOf(x => x == ".")), len);
+          // F07: the extension after the last dot (lastIndexOf with a callback always answered -1).
+          const type = efbFileExtEfb(c.url);
           value = type !== 'avi' ? `</br><div class="efb px-1"><video poster="${poster_emsFormBuilder}" src="${c.url}" type='video/${type}'controls></video></div><p class="efb text-center" ><a href="${c.url}">${efb_var.text.videoDownloadLink}</a></p>` : `<p class="efb text-center"><a href="${c.url}">${efb_var.text.downloadViedo}</a></p>`;
         } else {
           value = `<div ><audio controls><source src="${c.url}"></audio> </div>`;
@@ -995,6 +1009,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
         value = `<div><audio controls><source src="${c.url}" type="${c.type}"></audio></div>`;
       } else {
         value = c.url.length > 1 ? `<a class="efb-reply-btn" href="${c.url}" target="_blank" >${c.url.split('/').pop()}</a>` : `<span class="efb  fs-5">💤</span>`
+      }
       }
     } else if (c.type == "esign") {
       let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'';
@@ -1779,6 +1794,10 @@ function generateCSV_EFB(id) {
         var src = esignImg.getAttribute('src') || '';
         cellVal = src.startsWith('data:') ? '[Signature]' : src;
 
+      // F07: several files of one field (cards with data-csv), joined with " | ".
+      } else if (row.querySelector('[data-csv]')) {
+        cellVal = Array.prototype.map.call(row.querySelectorAll('[data-csv]'), function (x) { return x.getAttribute('data-csv'); }).join(' | ');
+
       // Uploaded image
       } else if (row.querySelector('img:not(.efb-msg-esign-img)')) {
         var img = row.querySelector('img:not(.efb-msg-esign-img)');
@@ -2105,4 +2124,50 @@ function response_rMessage_id(res, message) {
     efb_reply_button_state_efb(false);
     document.getElementById('replay_state__emsFormBuilder').innerHTML = `<p class="efb text-danger bg-warning p-2">${res.data.m}</p>`;
   }
+}
+
+
+/* ------------------------------------------------------------------ F07: files in the viewer */
+function efbFileExtEfb(url) {
+  const path = String(url || '').split(/[?#]/)[0];
+  const name = path.slice(path.lastIndexOf('/') + 1);
+  const dot = name.lastIndexOf('.');
+  return dot === -1 ? '' : name.slice(dot + 1).toLowerCase();
+}
+function efbFileIsPrivateEfb(url) {
+  const marker = (typeof efb_var !== 'undefined' && efb_var.uploads && efb_var.uploads.private_marker) || '/efb-private/';
+  return String(url || '').indexOf(marker) !== -1;
+}
+/** The address to open: a private file through the admin download action (never its blocked address). */
+function efbFileHrefEfb(url) {
+  url = String(url || '');
+  if (!efbFileIsPrivateEfb(url)) return url;
+  const marker = (typeof efb_var !== 'undefined' && efb_var.uploads && efb_var.uploads.private_marker) || '/efb-private/';
+  const rel = url.slice(url.indexOf(marker) + marker.length).split(/[?#]/)[0];
+  const base = typeof efb_var !== 'undefined' && efb_var.uploads && efb_var.uploads.download;
+  if (!base || !/^[0-9]{4}\/[0-9]{2}\/efb-[A-Za-z0-9.-]+$/.test(rel)) return '#';
+  return base + (base.indexOf('?') === -1 ? '?' : '&') + 'f=' + encodeURIComponent(rel);
+}
+function efbFileSizeEfb(bytes) {
+  const n = Number(bytes) || 0;
+  if (n <= 0) return '';
+  const loc = String((typeof efb_var !== 'undefined' && efb_var.wp_lan) || 'en').replace('_', '-');
+  const fmt = (v, d) => { const o = { maximumFractionDigits: d }; if (/^fa\b/i.test(loc)) o.numberingSystem = 'arabext'; else if (/^ar\b/i.test(loc)) o.numberingSystem = 'arab'; try { return new Intl.NumberFormat(loc, o).format(v); } catch (e) { return String(v); } };
+  const t = (typeof efb_var !== 'undefined' && efb_var.text) || {};
+  return n < 1048576 ? (t.fileSizeKB || '%s KB').replace('%s', fmt(Math.max(1, Math.round(n / 1024)), 0)) : (t.fileSizeMB || '%s MB').replace('%s', fmt(Math.round(n / 104857.6) / 10, 1));
+}
+/** Cards of the files of one field. The rows are escaped on entry (fnm, url); only http(s) addresses arrive here. */
+function efbFileCardsEfb(rows) {
+  const t = (typeof efb_var !== 'undefined' && efb_var.text) || {};
+  const label = (t.filesOfField || '%s files').replace('%s', String(rows.length));
+  return `<div class="efb efb-file-cards" role="list" aria-label="${label}">` + rows.map((r) => {
+    const href = efbFileHrefEfb(r.url);
+    const ext = efbFileExtEfb(r.url);
+    const name = r.fnm ? String(r.fnm) : String(r.url).split('/').pop();
+    const size = efbFileSizeEfb(r.fsz);
+    const thumb = ['jpg', 'jpeg', 'png', 'gif', 'webp'].indexOf(ext) !== -1
+      ? `<img src="${href}" alt="" class="efb efb-file-card-thumb" loading="lazy">`
+      : `<i class="efb bi-file-earmark efb-file-card-icon" aria-hidden="true"></i>`;
+    return `<div role="listitem" class="efb efb-file-card" data-csv="${href}"><a href="${href}" target="_blank" rel="noopener noreferrer" class="efb efb-file-card-link">${thumb}<bdi dir="auto" class="efb efb-file-card-name" title="${name}">${name}</bdi></a>${size ? `<span class="efb efb-file-card-size" dir="auto">${size}</span>` : ''}</div>`;
+  }).join('') + '</div>';
 }
