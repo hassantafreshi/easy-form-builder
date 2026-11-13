@@ -1912,6 +1912,10 @@ public function check_nonce_permission_efb($request) {
 			if (class_exists('\\Emsfb\\Payments\\Frontend')) {
 				$style .= \Emsfb\Payments\Frontend::form_css($valj_efb, $form_id);
 			}
+			/* F11-G: the form's own CSS, cleaned again and scoped to #body_efb_{id} ('' without custom_css). */
+			if (class_exists('\\Emsfb\\Form_Css') && isset($valj_efb[0]->custom_css)) {
+				$style .= \Emsfb\Form_Css::scoped($valj_efb[0]->custom_css, $form_id);
+			}
 			$style = $style.'</style>';
 			$jss = $jss.'</script>';
 

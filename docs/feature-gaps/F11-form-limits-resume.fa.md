@@ -435,12 +435,12 @@ if (($this->operation_data['type'] ?? '') !== 'payment_followup' && class_exists
 - پذیرش: `</style><script>` و `@import` و `url(javascript:…)` و نسخه‌های escapeشده‌شان در خروجی نباشند. `.efb{}` به `#body_efb_7 .efb{}` تبدیل شود و `@media` بازگشتی محدود شود. ویرایشگر بدون `unfiltered_html` نتواند مقدار را تغییر دهد.
 - تست: `php tests/test-form-css-sanitize.php` (مستقل، دست‌کم ۴۰ بردار خصمانه و عادی)، گسترش `tests/test-shortcode-content-filters.php` (wpautop).
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint** (۲۰۲۶-۱۱-۱۳، انجام شد)
+- فایل‌های تغییرکرده: `includes/class-Emsfb-form-css.php` (کامیت B؛ `sanitize`، `scope`، `scoped`، `sanitize_stored`، بازکردن escapeها پیش از بررسی، حذف کامل قاعدهٔ مشکوک، سقف ۲۰ کیلوبایت)، رندر پیش از `</style>` در `class-Emsfb-public.php`، `Form_Gate::normalize_form_settings()` (بدون `unfiltered_html` مقدار قبلی می‌ماند)، همزاد JS در `form-limits-efb.js` (`efb_css_sanitize_efb`، `efb_css_scope_efb`، پیش‌نمایش زنده روی `#dropZoneEFB`، شمار قواعد حذف‌شده).
+- تست‌ها: `php tests/test-form-css-sanitize.php` (۷۰؛ ۵۹ بردار در `tests/fixtures/f11-css-vectors.json`)، `node tests/test-form-css-parity.js` (۱۲۳: خروجی PHP و JS برای همهٔ بردارها یکسان)، `test-f11-sanitize-roundtrip.php` (کاربر بدون `unfiltered_html`). روی سایت واقعی: `body{…}` به `#body_efb_N{…}` و قاعدهٔ `javascript:` حذف شد.
+- وضعیت ترجمه: انگلیسی.
+- مورد باز: آنچه ذخیره می‌شود متنِ پاک‌شده است (کامنت‌ها حذف می‌شوند)؛ `@font-face` و `@keyframes` بدون محدودسازی می‌مانند چون انتخاب‌گر ندارند؛ `@page` و هر at-rule ناشناخته حذف می‌شود.
+- اقدام بعدی: H.
 
 ### H — پنجرهٔ بازشو
 - فایل‌ها: `class-Emsfb-public.php:1118` (خواندن `id`) و بستهٔ dialog، `block.json` و `editor.js` و `render_block()` گوتنبرگ، `class-Emsfb-widgets-helper.php:115`، `public/assets/css` (استایل dialog با خاصیت‌های منطقی)، `core-efb.js` (`efb:popup-open`).

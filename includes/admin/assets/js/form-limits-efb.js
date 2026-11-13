@@ -486,6 +486,12 @@
       if (msg) msg.textContent = res && res.data && res.data.m ? res.data.m : '';
     }).fail(() => { btn.disabled = false; });
   }
+  /* G: the stored CSS is previewed on the canvas whenever the builder draws it (open, setForm). */
+  if (typeof document !== 'undefined' && document.addEventListener) {
+    document.addEventListener('efb:canvas-rendered', () => {
+      try { if (typeof valj_efb !== 'undefined' && valj_efb[0]) efb_scope_css_preview_efb(efb_css_decode_efb(String(valj_efb[0].custom_css || ''))); } catch (e) {}
+    });
+  }
   /* The roles list follows the private-form switch (its handler runs on a timer). */
   if (typeof document !== 'undefined') {
     document.addEventListener('click', (e) => {
