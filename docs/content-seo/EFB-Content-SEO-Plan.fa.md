@@ -1,6 +1,7 @@
 # برنامهٔ محتوا، سئو و جئو — Easy Form Builder (whitestudio.team)
 
 > **وضعیت:** مرحلهٔ ۱ (ممیزی و برنامه‌ریزی) — برای تأیید شما • **تاریخ:** 2026-11-12 • **نسخهٔ افزونه در ریپو:** 4.3.1
+> **به‌روزرسانی ۲۰۲۶-۱۱-۱۳:** تصمیم‌های مالک و R&D جدید در [00-DECISIONS.md](00-DECISIONS.md) و پوشهٔ `pipeline/` ثبت شد؛ هر مقاله اکنون به ۳ زبان (EN/AR/DE) منتشر می‌شود.
 > **فایل همراه:** [`content-queue.csv`](content-queue.csv) — صف تولید روزانه (۲۲۶ ردیف) که اتوماسیون هر روز از آن می‌خواند.
 
 ## ۰. خلاصهٔ اجرایی
@@ -82,7 +83,7 @@ Quiz، Booking & Calendar، SMS OTP login، Ticketing، AI، Twilio و Retry Que
 4. **موجودیت/نویسنده:** در اسکیما نویسنده `Elon Gray` است ولی کادر نویسنده «WhiteStudio Team» می‌گوید → نویسندهٔ واقعی و صفحهٔ نویسنده لازم است (E-E-A-T). *(باید تأیید شود که نام placeholder نیست.)*
 5. **llms.txt:** توضیح هر لینک گاهی بخش ابتدایی خام متن (مثلاً فهرست مطالب) است؛ `llms-full.txt` ۴۰۴ می‌دهد.
 6. **نظافت ایندکس:** `sample-page`، `test-page`، `register-costumer1/2`، `dashboard` در page-sitemap هستند ولی noindex‌اند → از sitemap حذف شوند.
-7. **چندزبانه:** سایت عربی ۸۱ پست دارد (انگلیسی ۸۸)؛ `de.whitestudio.team/post-sitemap.xml` ۴۰۴ می‌دهد (مسیر sitemap آلمانی باید بررسی شود)؛ سایت فارسی `easyformbuilder.ir` در این ممیزی بررسی نشد. برچسب «Document: 65 articles» در صفحهٔ /documents/ با ۵۱ مقالهٔ /document/ در sitemap نمی‌خواند → در Search Console بررسی شود.
+7. **چندزبانه:** (اصلاح‌شده 2026-11-13 پس از بررسی REST) سایت‌های عربی و آلمانی هر کدام **۸۵ از ۸۷** slug انگلیسی را دارند؛ فقط دو پست امنیتی (`important-security-update-easy-form-builder-v4-0-13`، `upcoming-security-enhancements-…`) ترجمه ندارند. عدد «Document: 65» در /documents/ شمارش عضویت در دستهٔ `document` است، نه تناقض با sitemap. سایت فارسی `easyformbuilder.ir` هنوز بررسی نشده است.
 
 ### ۲٫۴ اشتباهات/تناقض‌های محتوایی با افزونهٔ 4.3.1
 
