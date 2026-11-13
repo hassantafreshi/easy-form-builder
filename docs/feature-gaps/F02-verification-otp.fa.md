@@ -502,6 +502,8 @@ if (!empty($this->verification_claims) && class_exists('\\Emsfb\\Verification'))
 
 ## 6. رابط آداپتور ارائه‌دهنده
 
+> **اصلاح مالک (۲۰۲۶-۱۱-۱۳): «دقت کن OTP از طریق افزودنی wp sms باید انجام شود».** پیامک کد فقط از مسیر افزونهٔ WP SMS فرستاده می‌شود: افزونهٔ SMS هسته (`AdnSS`، `vendor/smssended`) تنها یک فرستنده ثبت می‌کند، پلی به `wp_sms_send()` (مستندات: https://wp-sms-pro.com/resources/wp_sms_send/). درگاه، اعتبارنامه و شمارهٔ فرستنده در خود WP SMS تنظیم می‌شوند و EFB هیچ‌کدام را نگه نمی‌دارد. پس آداپتورهای مستقیم §6.2 تا §6.5 (Kavenegar، Twilio Verify، sms.ir، Melipayamak، Ghasedak، IPPanel، Unifonic، Taqnyat …) و حالت `provider` (کد ساخته‌شده و بررسی‌شده توسط ارائه‌دهنده) و ذخیرهٔ رمزشدهٔ اعتبارنامه (§4.3، `Verification_Secrets`) **ساخته نمی‌شوند**. کد همیشه در EFB ساخته، به‌صورت HMAC ذخیره، محدود و بررسی می‌شود؛ خط WebOTP (`@domain #code`) در متن پیامک می‌ماند. رابط بی‌طرف `Emsfb\Verification\Provider` و فیلتر `efb_verify_providers` در هسته می‌مانند تا افزونهٔ دیگری بعداً فرستندهٔ دیگری ثبت کند. بدون WP SMS یا با افزونهٔ SMS خاموش، کانال SMS در دسترس نیست (سازنده، پاسخ ذخیره، readiness و AutoPilot دلیل و راه رفع را می‌گویند) و فرم عمومی هرگز fail-open نمی‌شود. شکست `wp_sms_send()` (`WP_Error` یا `false`) به بازدیدکننده جملهٔ «دوباره تلاش کنید» و به مالک یک ایمیل هشدار می‌دهد؛ خطای درگاه هرگز به بازدیدکننده نشان داده نمی‌شود. متن پایین این بخش سابقهٔ طراحی است.
+
 ### 6.1 Interface
 ```php
 <?php
