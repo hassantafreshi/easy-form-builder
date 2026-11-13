@@ -3911,6 +3911,16 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
           }
 
           rows[parseInt(i_count)][parseInt(value_col_index)] = content[c].value;
+          if (content[c].type == 'advdate' && content[c].value !== '@prv@') {
+            /* F06: the date as the admin display says, and a "<label> (ISO)" column that sorts in a spreadsheet. */
+            const advCfg = window.EFB_CAL_ADMIN || {};
+            const advIso = typeof content[c].iso === 'string' && content[c].iso !== '' ? content[c].iso : String(content[c].value || '');
+            try { if (window.EFBCalendar && EFBCalendar.rules && EFBCalendar.rules.displayText) rows[parseInt(i_count)][parseInt(value_col_index)] = EFBCalendar.rules.displayText(content[c], 'csv', advCfg.admin_display || 'site', advCfg.locale || efb_var.wp_lan || 'en_US', advCfg.locale_defaults); } catch (e) { /* keep the stored value */ }
+            const isoHead = content[c].name + ' (ISO)';
+            let isoCol = rows[0].findIndex(x => x == isoHead);
+            if (isoCol == -1) { isoCol = rows[0].findIndex(x => x == 'null@EFB'); rows[0][parseInt(isoCol)] = isoHead; }
+            rows[parseInt(i_count)][parseInt(isoCol)] = advIso;
+          }
           if (content[c].value === '@prv@') {
             /* F13: an anonymized answer; convertToCSV_emsFormBuilder writes "Removed for privacy". */
           } else if (content[c].type == 'payment') {

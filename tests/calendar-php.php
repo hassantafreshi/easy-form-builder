@@ -27,6 +27,8 @@ foreach ((array) $in as $q) {
 		case 'sanitize_key': $v = C::sanitize_key($a[0], $a[1]); $out[] = $v instanceof stdClass ? new stdClass() : $v; break;
 		case 'config_issues': $out[] = C::config_issues($a[0], $a[1]); break;
 		case 'upgrade_row': $u = C::upgrade_row($a[0], !empty($a[1])); $out[] = array($u, C::rollback_row($u)); break;
+		case 'display_text': $out[] = C::display_text($a[0], $a[1], $a[2], $a[3]); break;
+		case 'logic': $out[] = C::logic_compare($a[0], $a[1], $a[2], $a[3]); break;
 		default: $out[] = null;
 	}
 }

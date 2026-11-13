@@ -1414,6 +1414,90 @@ class Calendar {
 		}
 	}
 
+	/* ---------------------------------------------------------------- conditional logic (F06 §8; JS twin rules.logicCompare) */
+
+	/** Date operators of Conditional Logic: the classic three and the F06 ones. */
+	const LOGIC_OPS = array('date_before', 'date_after', 'date_between', 'date_weekday_is', 'date_age_gte', 'date_age_lte', 'date_within_next', 'date_range_nights_gte', 'date_range_nights_lte');
+
+	/** "today", "today+7", "today-1" or a date (first part of a range or list, without the time) -> ISO, else null. */
+	public static function logic_date($v, $today) {
+		$s = self::normalize(is_scalar($v) ? $v : '');
+		if (preg_match('/^today(?:\s*([+-])\s*(\d{1,5}))?$/i', $s, $m)) return isset($m[1]) && $m[1] !== '' ? self::add_days($today, ($m[1] === '-' ? -1 : 1) * (int) $m[2]) : $today;
+		return self::first_date($s);
+	}
+	/**
+	 * One date condition: true / false, or null when $op is not a date operator. A value that is not a
+	 * date never matches (as before). $today: the site's today (efb_calendar_today()).
+	 */
+	public static function logic_compare($op, $value, $expected, $today = null) {
+		if (!in_array($op, self::LOGIC_OPS, true)) return null;
+		$today = $today ? $today : self::today('site');
+		$raw = self::normalize(is_scalar($value) ? $value : '');
+		$d = self::logic_date($raw, $today);
+		if ($d === null) return false;
+		$exp = is_array($expected) ? $expected : preg_split('/\s*,\s*/', self::normalize(is_scalar($expected) ? $expected : ''));
+		$n = isset($exp[0]) && is_numeric($exp[0]) ? (int) $exp[0] : null;
+		switch ($op) {
+			case 'date_before': case 'date_after':
+				$e = self::logic_date(isset($exp[0]) ? $exp[0] : '', $today);
+				if ($e === null) return false;
+				return $op === 'date_before' ? $d < $e : $d > $e;
+			case 'date_between':
+				$a = self::logic_date(isset($exp[0]) ? $exp[0] : '', $today); $b = self::logic_date(isset($exp[1]) ? $exp[1] : '', $today);
+				return $a !== null && $b !== null && $d >= $a && $d <= $b;
+			case 'date_weekday_is':
+				$days = array_map('intval', array_filter(preg_split('/[\s,]+/', self::normalize(is_array($expected) ? implode(',', $expected) : (string) $expected)), 'strlen'));
+				return in_array(self::weekday($d), $days, true);
+			case 'date_age_gte': return $n !== null && self::age_on($d, $today) >= $n;
+			case 'date_age_lte': return $n !== null && self::age_on($d, $today) <= $n;
+			case 'date_within_next': return $n !== null && $d >= $today && $d <= self::add_days($today, $n);
+			case 'date_range_nights_gte': case 'date_range_nights_lte':
+				$p = explode('/', $raw);
+				if (count($p) !== 2 || !self::iso_valid($p[0]) || !self::iso_valid($p[1]) || $n === null) return false;
+				$k = self::nights($p[0], $p[1]);
+				return $op === 'date_range_nights_gte' ? $k >= $n : $k <= $n;
+		}
+		return false;
+	}
+
+	/* ---------------------------------------------------------------- display of a stored row (F06 §6.3; JS twin rules.displayText) */
+
+	/**
+	 * The text of a stored advdate row for a channel: email / viewer / csv / pdf follow Settings > "Date
+	 * display for admins" (site = the site calendar's text and the ISO date in brackets, visitor = what
+	 * the visitor saw, iso); sms / telegram = what the visitor saw; sheet / webhook = the stored value.
+	 * Plain text (escape it where it goes); filter efb_date_display_value.
+	 */
+	public static function display_text(array $row, $channel = 'email', $mode = null, $locale = null, array $field = array()) {
+		$iso = isset($row['iso']) && is_string($row['iso']) && $row['iso'] !== '' ? $row['iso'] : (isset($row['value']) && is_scalar($row['value']) ? (string) $row['value'] : '');
+		$disp = isset($row['disp']) && is_scalar($row['disp']) ? (string) $row['disp'] : '';
+		if ($iso === '') $text = '';
+		elseif (in_array($channel, array('sheet', 'webhook'), true)) $text = isset($row['value']) && is_scalar($row['value']) ? (string) $row['value'] : $iso;
+		elseif (in_array($channel, array('sms', 'telegram'), true)) $text = $disp !== '' ? $disp : $iso;
+		else {
+			$mode = $mode !== null ? $mode : self::admin_display_mode();
+			if ($mode === 'iso') $text = $iso;
+			elseif ($mode === 'visitor' && $disp !== '') $text = $disp;
+			else $text = self::site_text($iso, isset($row['mode']) ? (string) $row['mode'] : '', $locale) . ' (' . $iso . ')';
+		}
+		return function_exists('apply_filters') ? (string) apply_filters('efb_date_display_value', $text, $row, $field, (string) $channel) : $text;
+	}
+	/** A canonical value in the site calendar of a locale ('28 Esfand 1404', a range with an en dash). */
+	public static function site_text($iso, $mode = '', $locale = null) {
+		$locale = $locale ? $locale : (function_exists('get_locale') ? get_locale() : 'en_US');
+		$m = $mode !== '' ? $mode : (strpos($iso, '/') !== false ? 'range' : (strpos($iso, ',') !== false ? 'multiple' : 'single'));
+		$ld = self::locale_defaults_filtered($locale);
+		$c = self::normalize_field(array('cal_default' => $ld['default'], 'date_mode' => $m, 'time_format' => !empty($ld['hour12']) ? '12' : '24'), array('locale' => $locale, 'plan' => 'pro', 'locale_defaults' => $ld));
+		$sp = explode('T', $iso);
+		$dates = $m === 'single' ? array($sp[0]) : explode($m === 'range' ? '/' : ',', $iso);
+		$out = array();
+		foreach ($dates as $i => $d) {
+			if (!self::iso_valid($d)) return $iso;
+			$out[] = self::disp_text($c, $c['cal_default'], $d, $i === 0 && $m === 'single' && isset($sp[1]) ? $sp[1] : null);
+		}
+		return implode(self::joiner($c, $m), $out);
+	}
+
 	/* ---------------------------------------------------------------- holiday sets (F06 §16) */
 
 	private static $holiday_cache = array();

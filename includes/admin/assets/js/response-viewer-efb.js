@@ -1005,6 +1005,21 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       const esignSrc = /^data:image\/png;base64,[A-Za-z0-9+\/]+={0,2}$/.test(c.value) ? c.value : '';
       value = esignSrc ? `<img src="${esignSrc}" alt="${c.name}" class="efb img-thumbnail efb-msg-esign-img">` : `<code>${c.value}</code>`;
       m += `<div class="efb efb-msg-field-row efb-msg-field-block"><span class="efb-msg-field-label"><i class="bi bi-pen"></i> ${title}:</span><div class="efb-msg-field-value"> ${value}</div></div>`;
+    } else if (c.type == "advdate") {
+      /* F06: the date as Settings > "Date display for admins" says; the tooltip has every form of it
+         (ISO, what the visitor saw, the calendar and the zone). The row is escaped already. */
+      s = true;
+      let title = c.hasOwnProperty('name') ? c.name : '';
+      const advRaw = typeof c.iso === 'string' && c.iso !== '' ? c.iso : String(c.value || '');
+      const advCfg = window.EFB_CAL_ADMIN || {};
+      let advText = advRaw;
+      try { if (window.EFBCalendar && EFBCalendar.rules && EFBCalendar.rules.displayText) advText = EFBCalendar.rules.displayText(c, 'viewer', advCfg.admin_display || 'site', advCfg.locale || efb_var.wp_lan || 'en_US', advCfg.locale_defaults); } catch (e) { advText = advRaw; }
+      const advTip = [advRaw, c.disp ? c.disp : '', c.cal ? c.cal : '', c.tz ? c.tz : ''].filter(Boolean).join(' · ');
+      const advIso = /^[0-9T:\/,\-]+$/.test(advRaw) ? advRaw : '';
+      let advHtml = advText;
+      if (advIso && advText.indexOf('(' + advIso + ')') !== -1) advHtml = advText.replace('(' + advIso + ')', `<bdi dir="ltr">(${advIso})</bdi>`);
+      value = `<bdi class="efb efb-msg-date" data-type="advdate" title="${advTip.replace(/"/g, '&quot;')}">${advHtml}</bdi>`;
+      m += `<div class="efb efb-msg-field-row"><span class="efb-msg-field-label"><i class="bi bi-calendar-date"></i> ${title}:</span> <span class="efb-msg-field-value">${value}</span></div>`;
     } else if (c.type == "color") {
       let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'';
       title = efb_var.text[title] || c.name ;

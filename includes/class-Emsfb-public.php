@@ -6900,13 +6900,24 @@ public function check_nonce_permission_efb($request) {
 			 * carried a price. */
 			case 'is_paid': return $this->efb_conditional_payment_state($field_id, 'paid');
 			case 'is_not_paid': return !$this->efb_conditional_payment_state($field_id, 'paid');
+			// F06: date operators through the calendar engine (the start of a range or list, "today+N",
+			// the site's today); the same answers as the logic add-on and EFBCalendar.rules.logicCompare.
+			case 'date_weekday_is':
+			case 'date_age_gte':
+			case 'date_age_lte':
+			case 'date_within_next':
+			case 'date_range_nights_gte':
+			case 'date_range_nights_lte':
+				return class_exists('\\Emsfb\\Calendar') ? (bool) \Emsfb\Calendar::logic_compare($compare, $value, $expected) : false;
 			case 'date_before':
 			case 'date_after':
+				if (class_exists('\\Emsfb\\Calendar')) return (bool) \Emsfb\Calendar::logic_compare($compare, $value, $expected);
 				$value_ts = $this->efb_conditional_date_ts($value);
 				$expected_ts = $this->efb_conditional_date_ts($expected_scalar);
 				if ($value_ts === null || $expected_ts === null) return false;
 				return $compare === 'date_before' ? $value_ts < $expected_ts : $value_ts > $expected_ts;
 			case 'date_between':
+				if (class_exists('\\Emsfb\\Calendar')) return (bool) \Emsfb\Calendar::logic_compare($compare, $value, $expected);
 				$date_range = is_array($expected) ? $expected : preg_split('/\s*,\s*/', $expected_scalar);
 				if (count($date_range) < 2) return false;
 				$ts = $this->efb_conditional_date_ts($value);
@@ -6992,7 +7003,8 @@ public function check_nonce_permission_efb($request) {
 
 	/* Timestamp for a date string, or null when unparseable (never matches). */
 	private function efb_conditional_date_ts($value) {
-		$text = trim((string) $value);
+		// F06: an advanced date range / list compares by its first date.
+		$text = trim((string) preg_split('#[/,]#', (string) $value)[0]);
 		if ($text === '') return null;
 		$parsed = strtotime(strlen($text) === 10 ? $text . ' 00:00:00' : $text);
 		return $parsed === false ? null : $parsed;
@@ -8584,6 +8596,16 @@ public function check_nonce_permission_efb($request) {
 					continue;
 				}
 
+				// F06: an advanced date as Settings > "Date display for admins" says (the site calendar and the
+				// ISO date by default); the ISO part keeps its order in right-to-left mail clients.
+				if (isset($c['type']) && $c['type']==='advdate' && class_exists('\\Emsfb\\Calendar')){
+					$adv_txt = \Emsfb\Calendar::display_text($c, 'email');
+					$adv_iso = isset($c['iso']) && is_string($c['iso']) && $c['iso'] !== '' ? $c['iso'] : (isset($c['value']) && is_string($c['value']) ? $c['value'] : '');
+					$q = esc_html($adv_txt);
+					if ($adv_iso !== '') $q = str_replace(esc_html('(' . $adv_iso . ')'), '<span dir="ltr" style="unicode-bidi:isolate">(' . esc_html($adv_iso) . ')</span>', $q);
+					$addPair($title, '<b style="unicode-bidi:plaintext">' . $q . '</b>');
+					continue;
+				}
 				if (isset($c['type']) && $c['type']==='esign'){
 					$esign_src = isset($c['value']) && is_string($c['value']) && preg_match('/^data:image\/png;base64,[A-Za-z0-9+\/]+={0,2}$/', $c['value']) === 1 ? $c['value'] : '';
 					$q = $esign_src !== ''

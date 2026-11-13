@@ -667,9 +667,10 @@ class Privacy {
 		$rsp = $wpdb->prefix . 'emsfb_rsp_';
 		$has_prv = self::schema_ready();
 		$deleted_forms = array();
+		$gone = array(); // F06: [msg_id, form_id, track, rows] of the entries deleted (efb_message_deleted)
 		foreach (array_chunk($ids, 100) as $chunk) {
 			$in = implode(',', array_fill(0, count($chunk), '%d'));
-			$cols = 'msg_id, form_id, content, read_' . ($has_prv ? ', prv_state' : '');
+			$cols = 'msg_id, form_id, track, content, read_' . ($has_prv ? ', prv_state' : '');
 			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- placeholders built above
 			$entries = $wpdb->get_results($wpdb->prepare("SELECT {$cols} FROM `{$msg}` WHERE msg_id IN ({$in})", $chunk), ARRAY_A);
 			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- placeholders built above
@@ -687,6 +688,7 @@ class Privacy {
 				if (!$anon) {
 					$entry_files += self::files_in_content($e['content'], $rows);
 					$delete_ids[] = $id;
+					$gone[] = array($id, (int) $e['form_id'], isset($e['track']) ? (string) $e['track'] : '', is_array($rows) ? $rows : array());
 					$deleted_forms[(int) $e['form_id']] = true;
 					$files += $entry_files;
 					continue;
@@ -722,6 +724,10 @@ class Privacy {
 		}
 		// 4th argument (F11): the forms that lost entries, so their total caps are rebuilt.
 		if (function_exists('do_action')) do_action('efb_entries_purged', $ids, $mode, $out, array_keys($deleted_forms));
+		// F06: one action per deleted entry (the Booking add-on frees the places reserved under its tracking code).
+		if (function_exists('do_action') && function_exists('has_action') && has_action('efb_message_deleted')) {
+			foreach ($gone as $g) do_action('efb_message_deleted', $g[0], $g[1], $g[2], $g[3]);
+		}
 		return $out;
 	}
 

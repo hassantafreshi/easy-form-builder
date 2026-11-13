@@ -22,6 +22,7 @@ const ROOT = path.join(__dirname, '..');
 const C = require(path.join(ROOT, 'public/assets/js/calendar/efb-calendar-core.js'));
 require(path.join(ROOT, 'public/assets/js/calendar/efb-cal-persian.js'));
 require(path.join(ROOT, 'public/assets/js/calendar/efb-cal-islamic.js'));
+require(path.join(ROOT, 'public/assets/js/calendar/efb-cal-intl.js'));
 C._.setNames(require(path.join(ROOT, 'public/assets/json/calendar-names.json')));
 const FX = require(path.join(ROOT, 'tests/fixtures/calendar-constraint-cases.json'));
 const SETS = {};
@@ -127,6 +128,19 @@ const up = [
   [{ id_: 'd', type: 'date', value: 'x', milen: '0', mlen: '' }, 0], [{ id_: 'e', type: 'text', value: 'x' }, 0]
 ].map((x) => ({ fn: 'upgrade_row', args: x }));
 batch('8 upgrade_row / rollback_row', up, (c) => { const u = C.rules.upgradeRow(c.args[0], { keepLocal: !!c.args[1] }); return [u, C.rules.rollbackRow(u)]; });
+
+/* 9 outputs and logic */
+const dt = [];
+const rowsD = [{ value: '2026-03-19', mode: 'single', disp: 'X' }, { value: '2026-03-19/2026-03-22', mode: 'range' }, { value: '2026-03-19,2026-04-01', mode: 'multiple' }, { value: '2026-03-19T09:05', mode: 'single', time: '09:05' },
+  { value: '1404-12-28', iso: '2026-03-19', mode: 'single', disp: 'D' }, { value: '' }, { value: '2078-03-01', mode: 'single' }];
+for (const r of rowsD) for (const ch of ['email', 'viewer', 'csv', 'sms', 'sheet']) for (const m of ['site', 'visitor', 'iso']) for (const l of ['fa_IR', 'ar_SA', 'ar', 'en_US', 'de_DE', 'th']) dt.push({ fn: 'display_text', args: [r, ch, m, l] });
+batch('9 display_text (rows x channels x modes x locales)', dt, (c) => C.rules.displayText(c.args[0], c.args[1], c.args[2], c.args[3]));
+const lg = [];
+const ops = C.rules.logicOps.concat(['is']);
+const vals9 = ['2026-11-20', '2026-12-01/2026-12-04', '2026-12-01,2026-12-30', '2026-11-13T10:00', '2008-02-29', '', 'x', '۲۰۲۶-۱۱-۲۰'];
+const exps = ['5,6', '3', '18', 'today+7', 'today', '2026-12-01', '2026-12-01,2026-12-31', '', 'x'];
+for (const o of ops) for (const v of vals9) for (const e of exps) lg.push({ fn: 'logic', args: [o, v, e, '2026-11-13'] });
+batch('9 logic_compare (operators x values x expected)', lg, (c) => C.rules.logicCompare(c.args[0], c.args[1], c.args[2], c.args[3]));
 
 console.log(`\nRESULTS: ${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

@@ -560,7 +560,9 @@ class Builder_Api {
 	/* ---------------------------------------------------------------- B6 */
 
 	const LOGIC_ACTIONS = array('show_field', 'hide_field', 'set_required', 'set_optional', 'enable_field', 'disable_field', 'show_step', 'hide_step', 'jump_to_step', 'set_value', 'copy_value', 'calculate', 'clear_value', 'show_message', 'set_placeholder', 'set_help', 'set_label', 'focus_field', 'scroll_to_field', 'block_submit', 'end_form');
-	const LOGIC_COMPARES = array('is', 'is_not', 'contains', 'not_contains', 'starts_with', 'ends_with', 'gt', 'gte', 'lt', 'lte', 'between', 'not_between', 'is_empty', 'is_not_empty', 'is_paid', 'is_not_paid', 'amount_eq', 'amount_gt', 'amount_lt', 'date_before', 'date_after', 'date_between');
+	const LOGIC_COMPARES = array('is', 'is_not', 'contains', 'not_contains', 'starts_with', 'ends_with', 'gt', 'gte', 'lt', 'lte', 'between', 'not_between', 'is_empty', 'is_not_empty', 'is_paid', 'is_not_paid', 'amount_eq', 'amount_gt', 'amount_lt', 'date_before', 'date_after', 'date_between',
+		// F06 (advanced date field).
+		'date_weekday_is', 'date_age_gte', 'date_age_lte', 'date_within_next', 'date_range_nights_gte', 'date_range_nights_lte');
 	const LOGIC_SOURCES = array('field', 'query_param', 'user', 'current_step');
 	const LOGIC_SCOPES = array('field', 'step', 'notification', 'confirmation', 'webhook', 'pricing');
 

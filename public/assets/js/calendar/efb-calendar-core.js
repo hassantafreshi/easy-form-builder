@@ -963,6 +963,67 @@
   }
   // #endregion
 
+
+  // #region conditional logic (twin of Calendar::logic_compare)
+  var LOGIC_OPS = ['date_before', 'date_after', 'date_between', 'date_weekday_is', 'date_age_gte', 'date_age_lte', 'date_within_next', 'date_range_nights_gte', 'date_range_nights_lte'];
+  function logicDate(v, t) {
+    var s = normalize(v), m = /^today(?:\s*([+-])\s*(\d{1,5}))?$/i.exec(s);
+    if (m) { return m[1] ? addDays(t, (m[1] === '-' ? -1 : 1) * parseInt(m[2], 10)) : t; }
+    return firstDate(s);
+  }
+  /** One date condition of Conditional Logic: true / false, or null when op is not a date operator. */
+  function logicCompare(op, value, expected, t) {
+    if (LOGIC_OPS.indexOf(op) === -1) { return null; }
+    t = t || today('site');
+    var raw = normalize(value), d = logicDate(raw, t);
+    if (d === null) { return false; }
+    var exp = Array.isArray(expected) ? expected : normalize(expected).split(/\s*,\s*/);
+    var n = exp.length && /^-?\d+(\.\d+)?$/.test(String(exp[0])) ? parseInt(exp[0], 10) : null;
+    switch (op) {
+      case 'date_before': case 'date_after': var e = logicDate(exp[0] || '', t); if (e === null) { return false; } return op === 'date_before' ? d < e : d > e;
+      case 'date_between': var a = logicDate(exp[0] || '', t), b = logicDate(exp[1] || '', t); return a !== null && b !== null && d >= a && d <= b;
+      case 'date_weekday_is':
+        var days = normalize(Array.isArray(expected) ? expected.join(',') : expected).split(/[\s,]+/).filter(Boolean).map(function (x) { return parseInt(x, 10); });
+        return days.indexOf(weekdayOfJdn(isoToJdn(d))) !== -1;
+      case 'date_age_gte': return n !== null && ageOn(d, t) >= n;
+      case 'date_age_lte': return n !== null && ageOn(d, t) <= n;
+      case 'date_within_next': return n !== null && d >= t && d <= addDays(t, n);
+      case 'date_range_nights_gte': case 'date_range_nights_lte':
+        var p = raw.split('/');
+        if (p.length !== 2 || !isoValid(p[0]) || !isoValid(p[1]) || n === null) { return false; }
+        var k = nights(p[0], p[1]);
+        return op === 'date_range_nights_gte' ? k >= n : k <= n;
+    }
+    return false;
+  }
+  // #endregion
+
+
+  // #region display of a stored row (twin of Calendar::display_text / site_text; the PHP side also runs efb_date_display_value)
+  function siteText(iso, mode, locale, ld) {
+    ld = ld || localeDefaults(locale);
+    var m = mode || (iso.indexOf('/') !== -1 ? 'range' : (iso.indexOf(',') !== -1 ? 'multiple' : 'single'));
+    var c = normalizeField({ cal_default: ld['default'], date_mode: m, time_format: ld.hour12 ? '12' : '24' }, { locale: locale, plan: 'pro', localeDefaults: ld });
+    var sp = iso.split('T'), dates = m === 'single' ? [sp[0]] : iso.split(m === 'range' ? '/' : ','), out = [];
+    for (var i = 0; i < dates.length; i++) {
+      if (!isoValid(dates[i])) { return iso; }
+      out.push(dispText(c, c.cal_default, dates[i], i === 0 && m === 'single' && sp[1] ? sp[1] : null));
+    }
+    return out.join(joiner(c, m));
+  }
+  function displayText(row, channel, mode, locale, ld) {
+    row = row || {};
+    var iso = typeof row.iso === 'string' && row.iso !== '' ? row.iso : (row.value !== undefined && row.value !== null ? String(row.value) : '');
+    var disp = row.disp ? String(row.disp) : '';
+    if (iso === '') { return ''; }
+    if (channel === 'sheet' || channel === 'webhook') { return row.value !== undefined ? String(row.value) : iso; }
+    if (channel === 'sms' || channel === 'telegram') { return disp || iso; }
+    if (mode === 'iso') { return iso; }
+    if (mode === 'visitor' && disp) { return disp; }
+    return siteText(iso, row.mode || '', locale || 'en_US', ld) + ' (' + iso + ')';
+  }
+  // #endregion
+
   // #region messages (twin of Calendar::MESSAGES / Calendar::message)
   var MESSAGES = {
     invalid_format: 'Please enter the date as %s.',
@@ -1043,7 +1104,7 @@
       normalizeField: normalizeField, resolve: resolve, refuse: refuse, holidayOf: holidayOf, listHolidays: listHolidays,
       validateValue: validateValue, buildRow: buildRow, firstDate: firstDate, timeError: timeError,
       message: message, messages: MESSAGES, formatHint: formatHint, typedPatternOf: typedPatternOf,
-      sanitizeKey: sanitizeKey, configIssues: configIssues, fieldKeys: FIELD_KEYS, upgradeRow: upgradeRow, rollbackRow: rollbackRow
+      sanitizeKey: sanitizeKey, configIssues: configIssues, fieldKeys: FIELD_KEYS, upgradeRow: upgradeRow, rollbackRow: rollbackRow, logicCompare: logicCompare, logicOps: LOGIC_OPS, displayText: displayText, siteText: siteText
     },
     convert: convert,
     today: today,
