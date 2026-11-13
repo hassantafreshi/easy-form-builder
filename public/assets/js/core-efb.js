@@ -4889,7 +4889,7 @@ function efb_gate_card_html_efb(state, message, fid, next, mode) {
   const n = next ? String(Math.floor(Number(next)) || '') : '';
   return '<div class="efb efb-gate-card text-center my-4 p-4' + hidden + '" id="efb-gate-' + (parseInt(fid, 10) || 0) + '" role="status" data-efb-gate="' + state + '" data-efb-gate-next="' + n + '" data-efb-gate-mode="' + (mode === 'swap' ? 'swap' : 'card') + '" data-formid="' + (parseInt(fid, 10) || 0) + '">'
     + '<div class="efb efb-gate-icon ' + EFB_GATE_ICONS[state] + ' display-4 mb-2" aria-hidden="true"></div>'
-    + '<p class="efb efb-gate-msg fs-5 mb-0">' + efb_gate_escape_efb(message) + '</p>'
+    + '<p class="efb efb-gate-msg fs-5 mb-0" dir="auto" style="unicode-bidi:plaintext">' + efb_gate_escape_efb(message) + '</p>'
     + '</div>';
 }
 /* The language's digits (twin of Form_Gate::locale_digits()). */

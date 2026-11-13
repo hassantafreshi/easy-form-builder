@@ -188,7 +188,7 @@ st('checkbox-family rows pass before any mask check', $r['is_valid'] === 1, json
 
 // 5. Wiring.
 st('message keys in $translation_keys', preg_match("/'mskFormat_', 'mskChecksum_', 'mskRule_', 'mskIncomplete_', 'mskRange_'/", $src) === 1);
-st('message keys in the public text subset', strpos($src, "'mskFormat_','mskChecksum_','mskRule_','mskIncomplete_','mskRange_'];") !== false);
+st('message keys in the public text subset', preg_match("/'mskFormat_','mskChecksum_','mskRule_','mskIncomplete_','mskRange_',?\\s*[^;]*\\];/", $src) === 1);
 $gate = substr($src, $marker, strpos($src, '// End mask gate.', $marker) - $marker);
 st('the gate runs inside the per-row validation (only submitted rows are checked)', strpos($src, '// Mask gate:') > strpos($src, '$_ignored_set') - 200000 && strpos($gate, '$item[\'value\']') !== false);
 st('the gate never reads a regex from the request', strpos($gate, '$request_data') === false && strpos($gate, '$_POST') === false && strpos($gate, 'preg_match') === false);

@@ -552,7 +552,9 @@ class Form_Gate {
 	public static function message(array $st, array $cfg) {
 		$l = self::texts(array('limFullM', 'limReachedM', 'limReachedUntilM', 'schedPendingM', 'schedClosedM', 'roleDeniedM'));
 		// %s = the date; any other % in the owner's own text stays as typed.
-		$fill = function ($text, $date) { return str_replace('%s', $date, (string) $text); };
+		// The date is isolated (U+2068 FSI ... U+2069 PDI) so a Persian date inside an English
+		// sentence, or the reverse, keeps its order; the card's dir="auto" picks the sentence's side.
+		$fill = function ($text, $date) { return str_replace('%s', $date === '' ? '' : "\u{2068}" . $date . "\u{2069}", (string) $text); };
 		switch ($st['state']) {
 			case 'pending':
 				return $fill($cfg['pending_msg'] !== '' ? $cfg['pending_msg'] : $l['schedPendingM'], self::fmt_date($st['opens_at']));
@@ -986,7 +988,7 @@ class Form_Gate {
 		$hidden = $state === 'open' ? ' d-none' : '';
 		return '<div class="efb efb-gate-card text-center my-4 p-4' . $hidden . '" id="efb-gate-' . (int) $fid . '" role="status" data-efb-gate="' . $state . '" data-efb-gate-next="' . ($next ? (int) $next : '') . '" data-efb-gate-mode="' . ($mode === 'swap' ? 'swap' : 'card') . '" data-formid="' . (int) $fid . '">'
 			. '<div class="efb efb-gate-icon ' . self::ICONS[$state] . ' display-4 mb-2" aria-hidden="true"></div>'
-			. '<p class="efb efb-gate-msg fs-5 mb-0">' . (function_exists('esc_html') ? esc_html($message) : htmlspecialchars((string) $message, ENT_QUOTES, 'UTF-8')) . '</p>'
+			. '<p class="efb efb-gate-msg fs-5 mb-0" dir="auto" style="unicode-bidi:plaintext">' . (function_exists('esc_html') ? esc_html($message) : htmlspecialchars((string) $message, ENT_QUOTES, 'UTF-8')) . '</p>'
 			. '</div>';
 	}
 

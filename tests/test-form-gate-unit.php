@@ -111,7 +111,7 @@ t('an old form without keys: open, no rules', array(G::state($old, $ctx())['stat
 $s = array('type' => 'form', 'sched_open' => '2026-11-14T09:00');
 $st = G::state($s, $ctx());
 t('before sched_open: pending, next = the opening', array($st['state'], $st['code'], $st['next']), array('pending', 'efb_form_pending', (new DateTimeImmutable('2026-11-14 09:00', new DateTimeZone('Asia/Tehran')))->getTimestamp()));
-t('pending message names the opening in site time', G::message($st, G::cfg($s)), 'This form opens on 2026-11-14 09:00.');
+t('pending message names the opening in site time', G::message($st, G::cfg($s)), "This form opens on \u{2068}2026-11-14 09:00\u{2069}.");
 $s = array('type' => 'form', 'sched_open' => '2026-11-01T09:00', 'sched_close' => '2026-11-13T11:59');
 t('after sched_close: closed', G::state($s, $ctx())['state'], 'closed');
 t('exactly at sched_close: closed', G::state(array('sched_close' => '2026-11-13T12:00'), $ctx())['state'], 'closed');
@@ -122,9 +122,9 @@ t('grace: a session prepared after the close may not', G::state($s, $ctx(array('
 t('grace: without a session time (old cached client) the form is closed', G::state($s, $ctx())['state'], 'closed');
 t('grace ends', G::state($s, $ctx(array('t0' => $now - 3600, 'now' => $now + 600)))['state'], 'closed');
 $s = array('sched_close' => '2026-11-13T11:00', 'sched_closed_msg' => 'Registration ended %s, see you next year');
-t('the form\'s own closed text with the date', G::message(G::state($s, $ctx()), G::cfg($s)), 'Registration ended 2026-11-13 11:00, see you next year');
+t('the form\'s own closed text with the date', G::message(G::state($s, $ctx()), G::cfg($s)), "Registration ended \u{2068}2026-11-13 11:00\u{2069}, see you next year");
 $GLOBALS['locale'] = 'fa_IR';
-t('fa: Persian digits in the date', G::message(G::state(array('sched_close' => '2026-11-13T11:00'), $ctx()), G::cfg(array('sched_close' => '2026-11-13T11:00'))), 'This form closed on ۲۰۲۶-۱۱-۱۳ ۱۱:۰۰ and no longer accepts answers.');
+t('fa: Persian digits in the date', G::message(G::state(array('sched_close' => '2026-11-13T11:00'), $ctx()), G::cfg(array('sched_close' => '2026-11-13T11:00'))), "This form closed on \u{2068}۲۰۲۶-۱۱-۱۳ ۱۱:۰۰\u{2069} and no longer accepts answers.");
 $GLOBALS['locale'] = 'ar';
 t('ar: Arabic-Indic digits', G::locale_digits('12'), '١٢');
 $GLOBALS['locale'] = 'en_US';
@@ -169,7 +169,7 @@ t('per person: the day counter ends at local midnight (UTC)', $r['claims'][0]['e
 t('state: the same user is limited until tomorrow', G::state($c, $v)['state'], 'limited');
 $e = G::reserve_for_submit($c, $items, 6, $v);
 t('second submission: efb_limit_reached, reopen_at = local midnight, nothing taken', array($e->get_error_code(), $e->get_error_data()['reopen_at'], Rate_Limit::peek('li:6', '203.0.113.5', 'd20261113')), array('efb_limit_reached', (new DateTimeImmutable('2026-11-14 00:00', new DateTimeZone('Asia/Tehran')))->getTimestamp(), 1));
-t('limited message with the reopening time', $e->get_error_message(), 'You can send this form again after 2026-11-14 00:00.');
+t('limited message with the reopening time', $e->get_error_message(), "You can send this form again after \u{2068}2026-11-14 00:00\u{2069}.");
 $items2 = array(array('id_' => 'em1', 'type' => 'email', 'value' => 'guest@example.test'));
 $e = G::reserve_for_submit(array('lim_email' => '1', 'lim_email_field' => 'em1'), $items2, 6, $ctx(array('now' => $now)));
 t('e-mail: upper case and spaces count as the same address (ever)', $e === null || is_array($e) ? 'taken' : 'refused', 'taken');
