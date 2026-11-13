@@ -4,7 +4,7 @@
     "plugin_version": "4.3.1",
     "updated": "2026-11-13",
     "counts": {
-        "active": 3067,
+        "active": 3154,
         "obsolete": 379
     },
     "entries": [
@@ -943,6 +943,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "%s places left",
+            "context": null,
+            "plural": null,
+            "translators": "F11: above a form with a total limit. %s: number of places",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%s rules were removed because they could load content from outside the page.",
+            "context": null,
+            "plural": null,
+            "translators": "F11: builder note. %s: number",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "%s seems to have served a stored copy of this page whose security code had expired, so the form was refused.",
             "context": null,
             "plural": null,
@@ -1483,6 +1513,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "A checkbox the visitor ticks",
+            "context": null,
+            "plural": null,
+            "translators": "F11: option",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "A complete email health report — including your spam score, deliverability details, and recommendations — will be sent to %s within the next few minutes.",
             "context": null,
             "plural": null,
@@ -1659,6 +1704,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "A notice above the form",
+            "context": null,
+            "plural": null,
+            "translators": "F11: option",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -2074,6 +2134,21 @@
             "context": null,
             "plural": null,
             "translators": "Email test headline after wp_mail() accepted the test message; arrival is still being checked",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Access and limits",
+            "context": null,
+            "plural": null,
+            "translators": "F11: builder section title (form settings)",
             "files": [
                 "includes/functions.php"
             ],
@@ -3742,6 +3817,66 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Answers per IP address",
+            "context": null,
+            "plural": null,
+            "translators": "F11: builder label",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Answers per browser (cookie)",
+            "context": null,
+            "plural": null,
+            "translators": "F11: builder label",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Answers per email address",
+            "context": null,
+            "plural": null,
+            "translators": "F11: builder label",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Answers per logged-in user",
+            "context": null,
+            "plural": null,
+            "translators": "F11: builder label",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Any special instructions?",
             "context": null,
             "plural": null,
@@ -3753,6 +3888,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Anyone with this link can see your saved answers. Keep it private.",
+            "context": null,
+            "plural": null,
+            "translators": "F11: dialog",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -3783,6 +3933,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Applies to this form only. :root, html and body mean the form itself.",
+            "context": null,
+            "plural": null,
+            "translators": "F11: builder help",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -5566,9 +5731,10 @@
             "msgid": "Button",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "F11: block option",
             "files": [
                 "includes/functions.php",
+                "includes/page-builders/gutenberg/editor.js",
                 "includes/payments/class-Emsfb-payment-frontend.php"
             ],
             "scope": [
@@ -6969,6 +7135,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Choose the email field for the limit per email address.",
+            "context": null,
+            "plural": null,
+            "translators": "F11: save warning",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Choose the form you want to display",
             "context": null,
             "plural": null,
@@ -7453,7 +7634,7 @@
             "msgid": "Close",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "F11: close button of the popup",
             "files": [
                 "includes/admin/class-Emsfb-admin.php",
                 "includes/admin/class-Emsfb-create.php",
@@ -7497,6 +7678,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Closes on",
+            "context": null,
+            "plural": null,
+            "translators": "F11: builder label",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -8195,6 +8391,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Contact",
+            "context": null,
+            "plural": null,
+            "translators": "F11: column",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Contact Form 7 did not send the notification email for this form (skip_mail), so it is turned off here too.",
             "context": null,
             "plural": null,
@@ -8393,6 +8604,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Continue the form",
+            "context": null,
+            "plural": null,
+            "translators": "F11: email button",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Continue with Free Plus",
             "context": null,
             "plural": null,
@@ -8404,6 +8630,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Continue your form",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-email-handler.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Continue your form: %s",
+            "context": null,
+            "plural": null,
+            "translators": "F11: email subject. %s: form name",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -8601,6 +8857,21 @@
             "translators": "",
             "files": [
                 "includes/class-Emsfb-formbuilder.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Copy link",
+            "context": null,
+            "plural": null,
+            "translators": "F11: dialog button",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -9241,6 +9512,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Custom CSS for this form",
+            "context": null,
+            "plural": null,
+            "translators": "F11: builder label",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -10678,6 +10964,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Display",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/page-builders/gutenberg/editor.js"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Display Easy Form Builder forms on your page",
             "context": null,
             "plural": null,
@@ -11733,6 +12034,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Easy Form Builder saved and partial answers",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-drafts.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Easy Form Builder will not send any email — neither to you nor to the person who submits this form — until \"This site can send emails\" is enabled in Email Settings.",
             "context": null,
             "plural": null,
@@ -12261,6 +12577,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Email address",
+            "context": null,
+            "plural": null,
+            "translators": "F11: dialog field",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Email address for the discount code",
             "context": null,
             "plural": null,
@@ -12407,6 +12738,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Email field for this limit",
+            "context": null,
+            "plural": null,
+            "translators": "F11: builder label",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -12888,6 +13234,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Empty = no limit. Deleting an answer frees its place.",
+            "context": null,
+            "plural": null,
+            "translators": "F11: builder help",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -13771,6 +14132,21 @@
             "translators": "",
             "files": [
                 "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Ever",
+            "context": null,
+            "plural": null,
+            "translators": "F11: option of the period",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -14838,6 +15214,7 @@
             "plural": null,
             "translators": "",
             "files": [
+                "includes/class-Emsfb-drafts.php",
                 "includes/functions.php",
                 "includes/page-builders/gutenberg/editor.js",
                 "includes/page-builders/visual-composer/class-Emsfb-visual-composer.php",
@@ -15061,6 +15438,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Form answers saved before sending",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-drafts.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -17581,6 +17973,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "How visitors agree",
+            "context": null,
+            "plural": null,
+            "translators": "F11: builder label",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Human Shield checks these functions before enforcing security rules.",
             "context": null,
             "plural": null,
@@ -18473,6 +18880,36 @@
             "translators": "%s: name of a page cache plugin",
             "files": [
                 "includes/class-Emsfb-formbuilder.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "In a popup (button or link)",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/page-builders/gutenberg/editor.js"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "In the page",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/page-builders/gutenberg/editor.js"
             ],
             "scope": [
                 "core"
@@ -19925,6 +20362,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Keep partial answers (abandoned forms)",
+            "context": null,
+            "plural": null,
+            "translators": "F11: builder switch",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Keep the files of entries that are not stored for (days)",
             "context": null,
             "plural": null,
@@ -19946,6 +20398,21 @@
             "translators": "",
             "files": [
                 "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Kind",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-drafts.php"
             ],
             "scope": [
                 "core"
@@ -20322,12 +20789,28 @@
             "plural": null,
             "translators": "Label before the date and time the draft was auto-saved",
             "files": [
+                "includes/class-Emsfb-drafts.php",
                 "includes/functions.php"
             ],
             "scope": [
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Last step",
+            "context": null,
+            "plural": null,
+            "translators": "F11: column",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -20678,6 +21161,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Limits per person need Free Plus or Pro; they are not applied on this site now.",
+            "context": null,
+            "plural": null,
+            "translators": "F11: save warning",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Limousine",
             "context": null,
             "plural": null,
@@ -20741,9 +21239,10 @@
             "msgid": "Link",
             "context": null,
             "plural": null,
-            "translators": "Default name given to a newly added social link",
+            "translators": "F11: block option translators: Default name given to a newly added social link",
             "files": [
-                "includes/functions.php"
+                "includes/functions.php",
+                "includes/page-builders/gutenberg/editor.js"
             ],
             "scope": [
                 "core"
@@ -21488,6 +21987,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Many people can share one address (office, school, mobile network). A cookie limit is easy to clear.",
+            "context": null,
+            "plural": null,
+            "translators": "F11: builder warning under the IP limit",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Map API key",
             "context": null,
             "plural": null,
@@ -21848,6 +22362,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Maximum number of answers",
+            "context": null,
+            "plural": null,
+            "translators": "F11: builder label",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Maximum recording duration reached.",
             "context": null,
             "plural": null,
@@ -22000,6 +22529,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Message after the form closed",
+            "context": null,
+            "plural": null,
+            "translators": "F11: builder label",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Message before the form opens",
+            "context": null,
+            "plural": null,
+            "translators": "F11: builder label",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Message card",
             "context": null,
             "plural": null,
@@ -22041,6 +22600,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Message when a person reached the limit",
+            "context": null,
+            "plural": null,
+            "translators": "F11: builder label",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Message when the form is full",
+            "context": null,
+            "plural": null,
+            "translators": "F11: builder label",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -22380,6 +22969,21 @@
             "context": null,
             "plural": null,
             "translators": "F01 builder, number format",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Minutes still accepted after closing (for pages opened before)",
+            "context": null,
+            "plural": null,
+            "translators": "F11: builder label",
             "files": [
                 "includes/functions.php"
             ],
@@ -24006,6 +24610,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "No partial answers.",
+            "context": null,
+            "plural": null,
+            "translators": "F11: empty list",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "No payment amount detected. Please review your selected items and try again. If the problem persists, contact support.",
             "context": null,
             "plural": null,
@@ -25342,6 +25961,51 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Only these roles (empty = every logged-in user)",
+            "context": null,
+            "plural": null,
+            "translators": "F11: builder label (private form)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Only users who may post unfiltered HTML can change this CSS.",
+            "context": null,
+            "plural": null,
+            "translators": "F11: builder note",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Only when an email or mobile number is filled in",
+            "context": null,
+            "plural": null,
+            "translators": "F11: builder switch",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Only you can see this",
             "context": null,
             "plural": null,
@@ -25582,6 +26246,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Open the form",
+            "context": null,
+            "plural": null,
+            "translators": "F11: default text of the button that opens a popup form",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Open the gateway settings",
             "context": null,
             "plural": null,
@@ -25612,6 +26291,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Opens on",
+            "context": null,
+            "plural": null,
+            "translators": "F11: builder label",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Opens on WordPress.org",
             "context": null,
             "plural": null,
@@ -25623,6 +26317,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Opens with",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/page-builders/gutenberg/editor.js"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -26141,6 +26850,51 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Partial",
+            "context": null,
+            "plural": null,
+            "translators": "F11: tab of the entries list",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Partial answers",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-drafts.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Partial answers are kept for (days)",
+            "context": null,
+            "plural": null,
+            "translators": "F11: builder label",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Partially refunded",
             "context": null,
             "plural": null,
@@ -26303,6 +27057,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Passwords, files, recordings, signatures and payment details are not saved.",
+            "context": null,
+            "plural": null,
+            "translators": "F11: dialog",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -27096,6 +27865,66 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Per day",
+            "context": null,
+            "plural": null,
+            "translators": "F11: option of the period",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Per month",
+            "context": null,
+            "plural": null,
+            "translators": "F11: option of the period",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Per week",
+            "context": null,
+            "plural": null,
+            "translators": "F11: option of the period",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Per year",
+            "context": null,
+            "plural": null,
+            "translators": "F11: option of the period",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Per-IP submit limit.",
             "context": null,
             "plural": null,
@@ -27152,6 +27981,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Period of the limits",
+            "context": null,
+            "plural": null,
+            "translators": "F11: builder label",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -28388,6 +29232,7 @@
             "plural": null,
             "translators": "",
             "files": [
+                "includes/class-Emsfb-drafts.php",
                 "includes/class-Emsfb-public.php"
             ],
             "scope": [
@@ -28697,6 +29542,22 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Popup button text",
+            "context": null,
+            "plural": null,
+            "translators": "F11: block option",
+            "files": [
+                "includes/functions.php",
+                "includes/page-builders/gutenberg/editor.js"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -29328,6 +30189,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Progress",
+            "context": null,
+            "plural": null,
+            "translators": "F11: column",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -31244,6 +32120,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Reset the counters",
+            "context": null,
+            "plural": null,
+            "translators": "F11: builder button: set the per-person counters of this form to zero",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Reset this part",
             "context": null,
             "plural": null,
@@ -32361,6 +33252,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Save and continue later",
+            "context": null,
+            "plural": null,
+            "translators": "F11: builder switch translators: F11: button next to Next",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Save and test email delivery",
             "context": null,
             "plural": null,
@@ -32387,6 +33293,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Save my answers before I send them.",
+            "context": null,
+            "plural": null,
+            "translators": "F11: checkbox above the first step",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -32447,6 +33368,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Saved answers are kept for (days)",
+            "context": null,
+            "plural": null,
+            "translators": "F11: builder label",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Saved to continue later",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-drafts.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -33483,6 +34434,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Send link",
+            "context": null,
+            "plural": null,
+            "translators": "F11: dialog button",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Send my discount code",
             "context": null,
             "plural": null,
@@ -34224,6 +35190,22 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Show as a popup",
+            "context": null,
+            "plural": null,
+            "translators": "F11: block option",
+            "files": [
+                "includes/functions.php",
+                "includes/page-builders/gutenberg/editor.js"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Show attributes",
             "context": null,
             "plural": null,
@@ -34280,6 +35262,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Show the number of places left",
+            "context": null,
+            "plural": null,
+            "translators": "F11: builder switch",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -34505,6 +35502,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Site time now: %1$s (%2$s)",
+            "context": null,
+            "plural": null,
+            "translators": "F11: builder help. %1$s: date and time, %2$s: time zone",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -35332,6 +36344,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Start over",
+            "context": null,
+            "plural": null,
+            "translators": "F11: banner button",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -38810,6 +39837,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The counters of this form were reset.",
+            "context": null,
+            "plural": null,
+            "translators": "F11: after the reset button",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The delivery result is not known yet. You can finish setup and check again later.",
             "context": null,
             "plural": null,
@@ -39338,6 +40380,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The form must close after it opens.",
+            "context": null,
+            "plural": null,
+            "translators": "F11: builder and save error",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The form request was refused (HTTP %d)",
             "context": null,
             "plural": null,
@@ -39724,6 +40781,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The link was sent.",
+            "context": null,
+            "plural": null,
+            "translators": "F11: dialog message",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -41656,6 +42728,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "This form already has %s entries, so it is full now.",
+            "context": null,
+            "plural": null,
+            "translators": "F11: save warning. %s: number of entries",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "This form cannot take payments at the moment. Please contact the site owner.",
             "context": null,
             "plural": null,
@@ -41663,6 +42750,21 @@
             "files": [
                 "includes/payments/class-Emsfb-payment-frontend.php",
                 "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "This form closed on %s and no longer accepts answers.",
+            "context": null,
+            "plural": null,
+            "translators": "F11: after the form closed. %s: date and time",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -41687,11 +42789,27 @@
             "obsolete_since": null
         },
         {
+            "msgid": "This form does not accept answers at the moment.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "This form has expired. Please refresh the page and send it again.",
             "context": null,
             "plural": null,
             "translators": "",
             "files": [
+                "includes/class-Emsfb-drafts.php",
                 "includes/class-Emsfb-public.php"
             ],
             "scope": [
@@ -41709,6 +42827,21 @@
             "files": [
                 "includes/payments/class-Emsfb-payment-frontend.php",
                 "includes/payments/class-Emsfb-payment-registry.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "This form has reached its limit and no longer accepts answers.",
+            "context": null,
+            "plural": null,
+            "translators": "F11: shown instead of a form that reached its total number of answers",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -41748,6 +42881,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "This form opens on %s.",
+            "context": null,
+            "plural": null,
+            "translators": "F11: before the form opens. %s: date and time",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "This form requires a payment method. Please add one or change the form type.",
             "context": null,
             "plural": null,
@@ -41759,6 +42907,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "This form stores no IP addresses, so the limit per IP address is not applied.",
+            "context": null,
+            "plural": null,
+            "translators": "F11: save warning",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -42094,6 +43257,21 @@
             "obsolete_since": "4.3.1"
         },
         {
+            "msgid": "This link has expired or is not valid.",
+            "context": null,
+            "plural": null,
+            "translators": "F11: resume link expired or wrong",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "This link uses an older format. For improved security, new email notifications include updated links.",
             "context": null,
             "plural": null,
@@ -42105,6 +43283,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "This link works until %s.",
+            "context": null,
+            "plural": null,
+            "translators": "F11: dialog. %s: date",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -44632,6 +45825,21 @@
             "context": null,
             "plural": null,
             "translators": "Small print under the \"Yes, turn notifications on\" button.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Use this link to continue the form. It works until %s. If you did not ask for it, ignore this email.",
+            "context": null,
+            "plural": null,
+            "translators": "F11: email. %s: date",
             "files": [
                 "includes/functions.php"
             ],
@@ -47926,6 +49134,21 @@
             "obsolete_since": "4.3.1"
         },
         {
+            "msgid": "You can send this form again after %s.",
+            "context": null,
+            "plural": null,
+            "translators": "F11: per-person limit with a period. %s: date and time",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "You can translate Easy Form Builder into your preferred language by translating the following sentences. WARNING: If your WordPress site is multilingual, do not change the values below.",
             "context": null,
             "plural": null,
@@ -48102,6 +49325,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "You have already sent this form.",
+            "context": null,
+            "plural": null,
+            "translators": "F11: a person who already sent the form as often as allowed",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -48437,6 +49675,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Your account does not have access to this form.",
+            "context": null,
+            "plural": null,
+            "translators": "F11: a logged-in user whose role may not use a private form",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Your account has been successfully activated. You can now log in and get started!",
             "context": null,
             "plural": null,
@@ -48508,6 +49761,51 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Your answers are saved as you type so the site owner can follow up.",
+            "context": null,
+            "plural": null,
+            "translators": "F11: notice above the form",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Your answers are saved.",
+            "context": null,
+            "plural": null,
+            "translators": "F11: dialog title",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Your answers could not be saved. Please try again.",
+            "context": null,
+            "plural": null,
+            "translators": "F11: saving the answers failed",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -49365,6 +50663,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Your saved answers were restored. Enter files and passwords again.",
+            "context": null,
+            "plural": null,
+            "translators": "F11: banner after opening a resume link",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
