@@ -262,6 +262,9 @@ Unchanged from `calendar-engine-contract.en.md`: `GET Emsfb/v1/calendar/availabi
 `GET calendar/convert`, optional `POST calendar/check`, error codes §4.3, `x-efb-date` in the
 schema, JS `EFBCalendar`. Gate per F06 §10.1 (`availability` REST is Pro; schema and `EFBCalendar`
 are never gated).
+*Shipped 2026-11-13:* as above, with `POST calendar/check` built; the `availability` route itself is not
+plan-gated (it answers from the `efb_date_availability(_range)` filters an add-on registers); range,
+multiple and `time_by_weekday` in the field are Pro. See `docs/autopilot-integration.md` (F06).
 
 ---
 
@@ -962,8 +965,8 @@ sanitizer `case`); `efbBuilderApi.setVerification(id, patch)` throws `efb_verify
 `setting:verify_email_otp` (Free Plus), `setting:verify_sms_otp` (Pro, add-on `AdnSS`) and the top-level
 `capabilities.verification` = `{keys, modes, channels: {email: {ready, package}, sms: {ready, package,
 addon}}, downgrade: "blocks_submit", routes, request_keys, codes, dom_event: "efb:verify-state"}`
-(no provider name, no credential). There is no separate manifest or `forms/{id}/schema` route in this
-release; the registry is that manifest. A save with a code the site cannot send answers the warning
+(no provider name, no credential). There is no separate manifest; the registry is that manifest
+(`forms/{id}/schema` arrived with F06, without the F02 block yet). A save with a code the site cannot send answers the warning
 `verify_unavailable` (field id, channel, reason) and is kept. Visitor codes: `efb_verify_required`,
 `efb_verify_mismatch`, `efb_verify_unavailable` (submit) and the `verify/*` codes (their refusals are
 HTTP 200 `{success:false, code, message, status}`). No credential is stored by EFB: WP SMS keeps its own
@@ -981,8 +984,8 @@ the save refuses a refused pattern with `code: pattern_invalid` and `path` (the 
 future API should call `Emsfb\Field_Rules::validate_rows()`); the backfill starts from `efb_form_saved` /
 `efb_form_created`; `capabilities.field_rules.gated_keys` (top level `field_rules` beside `features`);
 `efbBuilderApi.setFieldRules()`; visitor codes `efb_field_<rule>` (docs/autopilot-integration.md "F03").
-**Not yet:** the public schema (it does not exist yet) — when built it must leave out `pattern_b64` and
-`email_domains`; `name_attr` (J3).
+**Not yet:** `name_attr` (J3). The public schema (built with F06) leaves out `pattern_b64` and
+`email_domains`.
 
 **F04 number and calculation.** Create: `num_*` keys, `calc` type with `formula`, `calc_show`,
 `calc_empty`, option `calc`, `range_mode`. Read: `formula_err` read-only. Fill: `calc` is
@@ -1001,6 +1004,21 @@ optgroup) collides with F09's field-row `group`; rename to `optgroup`.
 contract: array/object keys (`cal_allowed`, `date_min/max`, `disabled_*`, `holidays_custom`,
 `time_by_weekday`) get sanitizer cases and are validated against the §7.1 schema in `form.validate`;
 the public schema follows §8.1 visibility; manifest `features.advdate`.
+*Status 2026-11-13 (F06 shipped on `dev4`):* every key of the contract §4.1 is saved by
+`Calendar::sanitize_key()` = `EFBCalendar.rules.sanitizeKey()` (an explicit pre-switch in
+`sanitize_obj_msg_efb`, both `filter_attributes_by_type_efb` copies know them); `efbBuilderApi.insertItems`
+/ `setForm` refuse `advdate_invalid` (`path`) and `advdate_config` (`reason`), `setDateConfig`,
+`upgradeDateField`, `rollbackDateField`; the save refuses `date_*` codes with `path`
+(`Calendar::validate_rows()`, the validate route of the future API should call it). Registry:
+`setting:advdate_*` (Free / Free Plus / Pro per F06 §10.1) and the top-level `capabilities.calendar`
+(`keys`, `gated_keys` for the site's plan, `codes`, `calendars`, `holiday_sets`, `defaults`, `site_tz`,
+`builder`, `page_api`, `rest`, `save_codes`). Downgrade: fail-open (keys kept, ignored on render and
+submit alike). **`GET Emsfb/v1/forms/{id}/schema` now exists** (`Emsfb\Form_Schema`, read-only, published
+forms only, `private, no-store`): fields, labels, options, `required`, advdate `fill` / `value_schema` /
+`x-efb-date`, other fields `fill: {api: 'dom'}`; it leaves out notification e-mails, webhook URLs, SMS /
+Telegram texts, logic rules, payment keys, F03 `pattern_b64` and `email_domains` (tested in
+`tests/test-calendar-rest-http.php`). Not yet in it: F02 `verify`, F11 `gate`, the §8.1 filters
+`efb_form_schema` / `efb_form_schema_field`, `window.EFBForm`.
 
 **F07 file upload.** Create: `max_files`, `min_files`, `max_total_mb`, `capture`, `img_max_px`,
 `img_quality`, `file_store`; row-0 `email_attach` (Pro). Fill: `visitor_only`. Read entries: `fnm`,

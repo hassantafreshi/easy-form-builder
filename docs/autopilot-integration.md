@@ -957,6 +957,75 @@ today's behaviour). Save rule: `Emsfb\Verification::sanitize_key()` = `EFBVerify
 - **Tests.** `test-verify-*.php|js`, `test-addon-smssended-verify.php` and the e2e scenarios `f02a` …
   `f02e`, `f02pay` (AutoPilot: `f02e` `setVerification` and the save warning).
 
+### F06. Advanced date field `advdate` (field keys, `efbBuilderApi.setDateConfig`, `window.EFBCalendar`, REST, codes)
+
+Spec: `docs/feature-gaps/F06-advanced-calendar.fa.md`; stable contract:
+`docs/feature-gaps/reference/calendar-engine-contract.en.md`. A new field type `advdate` (palette tile
+"Date (advanced)", Free); `date`, `pdate` and `ardate` are unchanged. Save rule for every key:
+`Emsfb\Calendar::sanitize_key()` = `EFBCalendar.rules.sanitizeKey()` (parity-tested in
+`tests/test-calendar-parity.js`); arrays and objects are kept as JSON, unknown values fall back to the
+default. `bk_*` keys belong to the future Booking add-on and are kept as plain JSON, never read by core.
+
+| Keys (as the save keeps them) | Plan (F06 §10.1) |
+|---|---|
+| `cal_v` (1), `cal_default` (`auto` or a calendar id), `cal_locale`, `cal_digits` (`auto` / `latn` / `arabext` / `arab`), `week_start` (`auto` / 1..7), `display_format`, `input_mode` (`both` / `picker` / `typed`), `tz` (`site` / `visitor` / an IANA zone), `date_min` / `date_max` as `{type: relative, value, unit: day\|week\|month\|year}` or `{type: absolute, value: YYYY-MM-DD}`, `disabled_weekdays` ([1..7], 1 = Monday) | Free (one calendar of any kind) |
+| `cal_allowed` (more than one), `cal_switch`, `cal_secondary`, `cal_hijri_adjust` (-2..2), `disabled_dates` / `enabled_dates` (YYYY-MM-DD or YYYY-MM-DD/YYYY-MM-DD), `holiday_sets` (`ir-official`, `sa-official`, `islamic-major`), `holidays_custom` ([{cal, md: "MM-DD", days, label} or {date, label}]), `holiday_mode` (`disable` / `mark`), `date_min` / `date_max` `{type: field, field, offset, unit}`, `age_min` / `age_max`, `time_enabled`, `time_format`, `time_step`, `time_min` / `time_max` (HH:mm) | **Free Plus** |
+| `date_mode` `range` / `multiple`, `range_unit` (`nights` / `days`), `range_min_days`, `range_max_days`, `multi_max`, `time_by_weekday` ({"1".."7": [["09:00","13:00"], …]}), `availability` | **Pro** |
+| `store_format` (`iso` / `legacy_local`), `upg_from`, `upg_elid`, `upg_value` | written by the upgrade only |
+
+- **Plan gating** is one normalisation (`Calendar::normalize_field` = `rules.normalizeField`) used on
+  render and on every submit, so a key above the site's plan is stored but ignored in both places
+  (fail-open, like F03). Filter `efb_calendar_plan_rank` (0 Free, 1 Free Plus, 2 Pro).
+- **Builder.** `efbBuilderApi.insertItems` / `setForm` accept `advdate` rows and refuse a bad value with
+  `advdate_invalid` (`path`) and contradicting limits with `advdate_config` (`reason`:
+  `min_after_max`, `limit_cycle`, `limit_self`, …). `setDateConfig(id, patch)` (id = `id_` or `dataId`)
+  writes advdate keys with the same checks and returns `{changed, values}`; throws `invalid_setting`,
+  `unknown_field`, `advdate_invalid`, `advdate_config`. `upgradeDateField(id, {keepLocal})` turns a
+  `date` / `pdate` / `ardate` row into `advdate` (F06 §6.4; old keys kept), `rollbackDateField(id)` goes
+  back. Saving stays the owner's Save.
+- **Save answer.** `Calendar::validate_rows` refuses `{success:false, code, path, m}` with `code`
+  `date_date_min_after_max`, `date_time_min_after_max`, `date_range_min_after_max`,
+  `date_age_min_after_max`, `date_limit_cycle`, `date_limit_self`; a limit naming a missing field is a
+  warning (`warnings[]`).
+- **Registry.** `setting:advdate_basic` (Free), `setting:advdate_calendars`, `setting:advdate_dates`,
+  `setting:advdate_field_limits`, `setting:advdate_age`, `setting:advdate_time` (Free Plus),
+  `setting:advdate_booking` (Pro), each with `form_keys`; top level `calendar` = `{version, field_type,
+  keys, gated_keys (for the site's plan), codes, calendars, holiday_sets, locale, defaults, site_tz,
+  builder, page_api: 'window.EFBCalendar', rest, error_code_prefix: 'efb_date_', save_codes, spec}`.
+- **Visitor page.** `window.EFBCalendar` (`get(fieldId, formId)`, `whenReady`, `all`; a field has
+  `setValue`, `getValue`, `validate`, `isDateAllowed`, `getConstraints`, `setConstraints`,
+  `setAvailability(fn | map | {url})`, `setCalendar`, `goTo`, `on` / `off`). The DOM event
+  `efb:date-change` (`{fieldId, formId, value, previous, source}`) and a native `change` on the hidden
+  input follow every change. An assistant fills a date with `EFBCalendar.get(id).setValue('YYYY-MM-DD')`
+  (a range `a/b`, a list `a,b`, a time `YYYY-MM-DDTHH:mm`).
+- **REST** (public, published forms only, IP rate limit `efb_calendar_rest_per_minute`):
+  `GET calendar/availability?form_id&field_id&from&to` (≤ 92 days; states `out_of_range`, `closed`,
+  `holiday`, `full`; `remaining` only with `bk_show_remaining`), `GET calendar/convert`,
+  `POST calendar/check` (the server's verdict, reserves nothing) and `GET forms/{id}/schema` (read-only
+  whitelist of what a visitor sees: fields, labels, options, `required`, advdate `fill`, `value_schema`,
+  `x-efb-date`; never notification e-mails, webhook URLs, SMS / Telegram texts, logic rules, payment
+  keys, F03 `pattern_b64` or `email_domains`; `Cache-Control: private, no-store`).
+- **Submit.** Every route (`forms/message/add`, `payments/create`, the legacy gateway follow-up, the
+  offline queue, draft restore, API clients) checks the value again with today in the site's zone and
+  rebuilds the stored row `{value (ISO), cal, local, disp, tz, mode, v, time?, utc?, approx?}`; a
+  refusal answers `{success:false, m, field_id, code: 'efb_date_<code>'}` (codes of the contract §4.3:
+  `invalid_date`, `before_min`, `after_max`, `weekday_disabled`, `date_disabled`, `not_enabled`,
+  `holiday`, `unavailable`, `full`, `range_*`, `too_many_dates`, `time_*`, `age_*`, `depends_on_empty`,
+  `required`). Fields hidden by Conditional Logic are
+  skipped.
+- **Hooks.** Filters `efb_date_constraints`, `efb_date_availability`, `efb_date_availability_range`,
+  `efb_date_before_commit` (return a `WP_Error` with `field_id` to refuse; runs after the F11 places
+  and the F03 claims, before the F02 codes are used), `efb_date_display_value` (`$text, $row, $channel`),
+  `efb_date_validated` (return a `WP_Error` to refuse one field), `efb_calendar_plan_rank`,
+  `efb_calendar_default_for_locale`; actions `efb_date_after_commit` (`$rows, $form_id, $track`), `efb_date_commit_failed`, `efb_message_deleted`
+  (`$msg_id, $form_id, $track, $rows`).
+- **Conditional Logic** operators: `date_before`, `date_after`, `date_between` (start of a range,
+  "today+N"), `date_weekday_is` ("6,7"), `date_age_gte`, `date_age_lte`, `date_within_next`,
+  `date_range_nights_gte`, `date_range_nights_lte` (core, `Builder_Api::LOGIC_COMPARES` and the Logic add-on).
+- **Tests.** `test-calendar-*.php|js`, `test-advdate-*.php|js`, `calendar-ui-browser.js` and the e2e
+  scenarios `f06a` … `f06d`, `f06pay` (AutoPilot: `f06a` `setDateConfig`, `insertItems` refusal,
+  capabilities, save refusal).
+
 ### PAY01. Mollie gateway field (`mollie`, add-on `AdnMOL`)
 
 Add-on `vendores-efb/mollie` on the PAY00 contract; nothing new in core. For agents:
@@ -1277,6 +1346,15 @@ to the add-on repository), an `EFB_<ADDON>_DIR` variable, or `/home/user/vendore
    two-decimal bug). Test: `php tests/test-addon-paypal-plan-decimals.php` (the real `paypal`
    helper and refund handler, `wp_remote_post()` recorded) 4 → 13 passed; still green:
    `test-addon-paypal-server-price.php` 12, `test-addon-paypal-cart-total.js` 11.
+
+7. **Conditional logic knows the advanced date field (F06 §8). Done: `2bd3183`.**
+   `logic/`: the builder lists `advdate` fields under their own category with the operators
+   `date_before`, `date_after`, `date_between`, `date_weekday_is`, `date_age_gte` / `date_age_lte`,
+   `date_within_next`, `date_range_nights_gte` / `date_range_nights_lte` and the right inputs; the page
+   delegates them to `EFBCalendar.rules.logicCompare()` (a range or a list by its first date) and both
+   server validator copies to `Emsfb\Calendar::logic_compare()`, so page, server and core's fallback
+   evaluator answer the same (core parity test: 900 answers). `logic.zip` rebuilt. A date that changes a
+   price (e2e `f06pay`) is charged as the server computes it.
 
 **Distribution zips.** Each `<addon>.zip` at the root of `vendores-efb` holds one top folder
 `<addon>/` with exactly the files of the source folder, directory entries included, entries sorted
