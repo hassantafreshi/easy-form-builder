@@ -826,7 +826,7 @@ builder AJAX and through `efb_api_form_create` produces byte-identical `form_str
 - **No secrets in form JSON** (it is public, G4). Refused keys (row 0 and fields):
   `telegram_bot_token`, `telegram_admin_chat_ids`, `sms_admins_phone_no`, `secretKey`,
   `rc3SecretKey`, `hcSecretKey`, `tsSecretKey`, `activeCode`, any key ending `_secret`, `_token`,
-  `_password`, `_api_key`. F02 credentials live in `emsfb_verify_secrets`; F12 secrets in settings;
+  `_password`, `_api_key`. F02 stores no credential (SMS goes through WP SMS, which keeps its own); F12 secrets in settings;
   neither is reachable through the API.
 - **No plan, licence, global settings, add-on or payment-gateway changes** (§4.4, §5.1).
 - **OTP cannot be bypassed.** An agent may set `otp_enabled` / `email_confirm_mode` only when the
@@ -954,6 +954,20 @@ never the code. Must add: manifest `verify_email`/`verify_sms` with `ready`; san
 but not ready; schema `verify` block; `efb:verify-state` event. Conflict: downgrade behaviour is
 fail-closed here but fail-open in F03/F06/F07 — the manifest must report it per feature
 (`downgrade: "blocks_submit"`).
+
+*Status 2026-11-13 (F02 shipped on `dev4`; SMS through WP SMS only, owner rule):* every create key
+above (saved by `Verification::sanitize_key()` = `EFBVerify.sanitizeKey()`; `otp_countries` has its own
+sanitizer `case`); `efbBuilderApi.setVerification(id, patch)` throws `efb_verify_unavailable` (with
+`mode` and `reason`), `plan`, `unsupported_key`; the registry has `setting:verify_email_retype` (Free),
+`setting:verify_email_otp` (Free Plus), `setting:verify_sms_otp` (Pro, add-on `AdnSS`) and the top-level
+`capabilities.verification` = `{keys, modes, channels: {email: {ready, package}, sms: {ready, package,
+addon}}, downgrade: "blocks_submit", routes, request_keys, codes, dom_event: "efb:verify-state"}`
+(no provider name, no credential). There is no separate manifest or `forms/{id}/schema` route in this
+release; the registry is that manifest. A save with a code the site cannot send answers the warning
+`verify_unavailable` (field id, channel, reason) and is kept. Visitor codes: `efb_verify_required`,
+`efb_verify_mismatch`, `efb_verify_unavailable` (submit) and the `verify/*` codes (their refusals are
+HTTP 200 `{success:false, code, message, status}`). No credential is stored by EFB: WP SMS keeps its own
+(§4.3's `emsfb_verify_secrets` was dropped with the provider adapters).
 
 **F03 text validation.** Create: `unique`, `unique_scope`, `wmin`, `wmax`, `counter`,
 `counter_style`, `pattern_b64` (base64url only, never raw regex), `pattern_case`, `pattern_ascii`,

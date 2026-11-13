@@ -61,7 +61,7 @@
 | متوسط | فیلد موبایل با `type="phone"` ساخته می‌شود که نوع معتبر HTML نیست، پس صفحه‌کلید تلفن روی موبایل باز نمی‌شود. | `includes/class-Emsfb-formbuilder.php:1306-1307`؛ `includes/admin/assets/js/pro_els-efb.js:717-718` | F01، F16 |
 | کم | ورودی‌های نام و نام خانوادگی در فرم واقعی `autocomplete="off"` می‌گیرند، به‌جای `given-name` و `family-name`. | `includes/class-Emsfb-formbuilder.php:2479` | F16، F17 |
 | کم | `id="gRecaptcha"` برای همهٔ فرم‌های یک صفحه تکرار می‌شود. توکن کپچا پیش از حذف در localStorage ذخیره می‌شود. | `includes/class-Emsfb-formbuilder.php:2240`؛ `public/assets/js/core-efb.js:1180-1194` | F12 |
-| کم | ورودی پنهان و بی‌استفادهٔ `{id}-code` با placeholder «verify» در فیلد موبایل، که listenerهای عمومی به آن وصل می‌شوند. | `includes/class-Emsfb-formbuilder.php:1307`؛ `includes/admin/assets/js/pro_els-efb.js:718` | F02 |
+| کم | ورودی پنهان و بی‌استفادهٔ `{id}-code` با placeholder «verify» در فیلد موبایل، که listenerهای عمومی به آن وصل می‌شوند. | `includes/class-Emsfb-formbuilder.php:1307`؛ `includes/admin/assets/js/pro_els-efb.js:718` | F02 — **رفع شد (F02)**: ورودی و دکمهٔ مخفی `type=submit` حذف شدند |
 | کم | تابع بی‌استفادهٔ `generateSwitchInput_efb` به متغیر تعریف‌نشدهٔ `$pos` اشاره می‌کند. | `includes/class-Emsfb-formbuilder.php:234-238` | — |
 | کم | متن انگلیسی hardcode‌شدهٔ «Release to Upload File» و متغیر سراسری مشترک `fileEfb`. | `includes/admin/assets/js/pro_els-efb.js:450` | F07 |
 | کم | غلط تایپی `'http://wwww.'` در بررسی host. | `includes/class-Emsfb-public.php:3198` | — |
@@ -292,3 +292,13 @@
 | کم | تست `test-form-gate-http.php` (B1، B2) پس از کامیت «تاریخ جداشده با کاراکترهای isolate» (a95ec31e) می‌شکست: نویسهٔ U+2069 بین ساعت و نقطهٔ پایان جمله است. | `tests/test-form-gate-http.php` | **رفع شد (در F03)**: عبارت منظم U+2069 اختیاری را می‌پذیرد |
 | کم | سناریوی e2e `f11g` شناسهٔ فرم را پیش از پایان ذخیره از سراسری سازنده می‌خواند و در اجرای کامل گاهی `0` می‌گرفت. | `tests/e2e-wp/scenario-f11.js` | **رفع شد (در F03)**: شناسه از پاسخ ذخیره |
 | کم | فرمان `wipe` سایت e2e جدول تازهٔ `emsfb_uniq_` را پاک نمی‌کرد، پس پس از نصب دوباره، ادعاهای اجرای قبلی روی فرمی با همان شناسه می‌ماندند (فقط محیط آزمون؛ حذف فرم در افزونه همه را پاک می‌کند). | `tests/e2e-wp/ctl.php` | **رفع شد** |
+
+## F02: کد یک‌بارمصرف موبایل و ایمیل (۲۰۲۶-۱۱-۱۳)
+
+| شدت | مشکل | محل | وضعیت |
+|---|---|---|---|
+| زیاد | اگر بازدیدکننده پس از وارد کردن یک شمارهٔ موبایل معتبر آن را اصلاح می‌کرد، شمارهٔ **اول** با فرم فرستاده و ذخیره می‌شد: شاخهٔ `mobile` در `fun_sendBack_emsFormBuilder` مقدار تازه را می‌ساخت ولی در ردیف موجود نمی‌نوشت (آزموده‌شده در e2e `f02c`). | `public/assets/js/core-efb.js`، `fun_sendBack_emsFormBuilder` | **رفع شد (F02)** |
+| کم | تب Localization تنظیمات برای هر کلید عبارت یک input با همان `id` می‌سازد؛ هر عنصر صفحهٔ تنظیمات که شناسه‌اش با نام یک کلید عبارت یکی باشد (مثلاً `vrfWebOtp`) با آن تداخل دارد و `getElementById` عنصر اشتباه را برمی‌گرداند. | `includes/admin/assets/js/list_form-efb.js` (تب Localization) | **دورزده (F02)**: شناسه‌های کارت Verification با `vrfs-` شروع می‌شوند |
+| کم | `efb_var` در صفحهٔ پنل منجمد (`Object.freeze`) است؛ نوشتن در آن در strict mode خطا می‌دهد. | صفحهٔ پنل | **دورزده (F02)**: کارت Verification در آن نمی‌نویسد |
+| کم | `test-form-gate-client.js` فهرست کلیدهای خارج از fingerprint را عیناً مقایسه می‌کرد؛ با افزودن `verifications` و `email_confirms` (F02 §5.1) شکست. | `tests/test-form-gate-client.js` | **رفع شد (F02)**: عبارت منظم کلیدهای بعدی را می‌پذیرد |
+

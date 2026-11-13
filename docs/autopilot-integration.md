@@ -892,6 +892,71 @@ Save rules: `Emsfb\Field_Rules::sanitize_key()` = `EfbRules.sanitizeKey()` (pari
   WordPress) and the e2e scenarios `f03a` … `f03h` (AutoPilot: `f03c` `setFieldRules` / `insertItems`
   errors and `capabilities.field_rules`).
 
+### F02. One-time codes for mobile numbers and e-mail addresses (field keys, `efbBuilderApi.setVerification`, codes)
+
+Spec: `docs/feature-gaps/F02-verification-otp.fa.md`. All keys on the field row, all optional (absent =
+today's behaviour). Save rule: `Emsfb\Verification::sanitize_key()` = `EFBVerify.sanitizeKey()`
+(parity-tested in `tests/test-verify-ui-state.js`).
+
+| Key | Values (as the save keeps them) | Field | Plan |
+|---|---|---|---|
+| `email_confirm_mode` | `none` / `retype` / `otp` / `retype_otp` | email | `retype`: Free; `otp`, `retype_otp`: **Free Plus** |
+| `email_retype_label` | plain text ≤ 60 (default "Confirm email") | email | Free |
+| `email_otp_required_when` | `filled` (default) / `always` | email | Free Plus |
+| `email_otp_subject` | plain text ≤ 150; only `[website_name]` and `[otp_code]` are filled | email | Free Plus |
+| `email_otp_body` | plain text ≤ 1000, lines as `@n#`, must contain `[otp_code]` (else the default text is used and the save answers `verify_body_without_code`) | email | Free Plus |
+| `otp_enabled` | `"1"` / `"0"` | mobile | **Pro** + the SMS add-on (`AdnSS`) + the WP SMS plugin |
+| `otp_channel` | `sms` (always) | mobile | Pro |
+| `otp_required_when` | `filled` / `always` | mobile | Pro |
+| `otp_countries` | list of ISO codes (`["ir"]`), intersected with Settings → Verification's list; empty = that list | mobile | Pro |
+| `otp_btn_label` | plain text ≤ 60 (default "Send code") | mobile, email | — |
+
+- **SMS goes through WP SMS only** (owner rule). The SMS add-on registers one sender, a bridge to
+  `wp_sms_send()` (https://wp-sms-pro.com/resources/wp_sms_send/), through the `efb_verify_providers`
+  filter (interface `Emsfb\Verification\Provider`: `id()`, `label()`, `channels()`, `ready()`,
+  `send($msg)`). The gateway and its credentials are set up in WP SMS; EFB stores none. Without the SMS
+  add-on, without WP SMS, or on a lower plan the SMS channel is unavailable (`reason`: `no_provider`,
+  `sender_not_ready`, `plan`, `no_countries`).
+- **Builder.** `efbBuilderApi.setVerification(id, patch)` (id = `id_` or `dataId`) writes with the save
+  rule. Throws `unsupported_key` (a mobile key on an e-mail field and the reverse), `invalid_setting`
+  (unknown key, an object, a body without `[otp_code]`), `unknown_field`, `plan` (`e.package`),
+  `efb_verify_unavailable` (`e.mode` = `sms` | `email`, `e.reason`). Turning a code **off** on a saved form
+  with answers is a security change: tell the owner. Saving stays the owner's Save.
+- **Save answer.** Never refused for verification; `warnings[]` may hold `verify_unavailable`
+  (`field_id`, `channel`, `reason`, a sentence with what to do: install and set up WP SMS, turn on the SMS
+  add-on, turn on e-mail sending), `verify_register_form` (codes are not used on registration / login
+  forms in this release), `verify_body_without_code`.
+- **Registry.** `setting:verify_email_retype` (Free), `setting:verify_email_otp` (Free Plus),
+  `setting:verify_sms_otp` (Pro, add-on `AdnSS`), each `scope: 'field'`, `available_now` false with
+  `reason` `plan`, `channel` or `addon`; top level `verification` = `{keys: {mobile, email}, modes,
+  channels: {email: {ready, package}, sms: {ready, package, addon: 'AdnSS'}}, retype_package,
+  downgrade: 'blocks_submit', routes: {send, check}, request_keys: {verifications, email_confirms},
+  codes, dom_event: 'efb:verify-state', spec: 'F02'}`. The plan levels can be changed with the filter
+  `efb_verify_plan` (`$need, $part` = `retype` | `email` | `sms`). `efb_var.verify` in the builder holds
+  the same readiness (and `efb_var.setting.verify_sms_ready` / `verify_email_ready`).
+- **Visitor flow.** The page's own "Send code" button calls `POST Emsfb/v1/verify/send` (`form_id`,
+  `field_id`, `destination`, `runtime_token` of the tab, `lang`) and the code box `verify/check`
+  (`challenge_id`, `code`); both need a live runtime token (a cached page's session is shared) and
+  answer refusals as HTTP 200 `{success:false, code, message, status, retry_after?, attempts_left?}`.
+  An assistant filling a form for a visitor **fills the number or address only**: it never asks for,
+  reads or relays the code. The submit carries `verifications: {<id_>: token}` and
+  `email_confirms: {<id_>: text}` beside the answers (never as answer rows; outside the replay
+  fingerprint). Every submit route (`forms/message/add`, `payments/create`, the legacy gateway
+  follow-up, the not-stored path, any API client) refuses a filled field without a valid token for
+  exactly the stored value with `{success:false, m, field_id, code: 'efb_verify_required'}`,
+  `efb_verify_mismatch` (the second copy differs) or `efb_verify_unavailable` (the code cannot be sent
+  now: fail-closed, never skipped). The stored row gets `verified: 'sms' | 'email'` from the server only.
+  The page announces state changes with the DOM event `efb:verify-state` (`{form_id, field_id, channel,
+  state}`).
+- **Hooks.** Filters `efb_verify_providers`, `efb_verify_message`, `efb_verify_allow_send`,
+  `efb_verify_email_allowed`, `efb_verify_limit` (`$value, $name, $ctx`), `efb_verify_nanp_blocked_area_codes`,
+  `efb_verify_retention_days`, `efb_verify_plan`; actions `efb_verify_sent` / `efb_verify_verified` /
+  `efb_verify_failed` (`{fid, field_id, channel, dest_mask, provider}`, never the code or the full
+  destination), `efb_verify_alert`, `efb_register_verification_rest_routes`. WordPress exporter / eraser
+  `easy-form-builder-verification`.
+- **Tests.** `test-verify-*.php|js`, `test-addon-smssended-verify.php` and the e2e scenarios `f02a` …
+  `f02e`, `f02pay` (AutoPilot: `f02e` `setVerification` and the save warning).
+
 ### PAY01. Mollie gateway field (`mollie`, add-on `AdnMOL`)
 
 Add-on `vendores-efb/mollie` on the PAY00 contract; nothing new in core. For agents:

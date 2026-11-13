@@ -1,6 +1,6 @@
 # F02 — تأیید شمارهٔ موبایل و ایمیل با کد یک‌بارمصرف (OTP) پیش از ثبت فرم
 
-> وضعیت: **مشخصات آمادهٔ پیاده‌سازی** (هنوز هیچ کدی نوشته نشده). تاریخ: 2026-11-10، شاخهٔ `dev4`.
+> وضعیت: **پیاده‌سازی شد** (A تا F، E1 تا E4، S1، S2 فقط پل WP SMS، S4، S5، C4، C6 در ۲۰۲۶-۱۱-۱۳؛ ترجمه‌ها طبق دستور مالک انجام نشده‌اند؛ S3 و S6 ساخته نشدند). مشخصات اصلی: 2026-11-10، شاخهٔ `dev4`. گزارش پیاده‌سازی، تصمیم‌ها و checkpointها در بخش «وضعیت پیاده‌سازی» انتهای همین سند است.
 > مخاطب: دستیار کدنویسی که مستقیم از روی همین سند پیاده‌سازی می‌کند. همهٔ ارجاع‌های `file:line` روی همین شاخه بررسی شده‌اند. پیش از ویرایش هر محل، دوباره grep کن، چون شماره‌خط‌ها با هر commit جابه‌جا می‌شوند.
 > مرجع رقبا: `docs/feature-gaps/reference/competitor-matrix.en.md` (ردیف‌های «Email confirmation (type twice)»، «Email verification before submit» و «Phone OTP verification»).
 > قواعد پایه: `docs/EFB-CORE-KNOWLEDGE-BASE.en.md` (REST فقط زیر `Emsfb/v1`، بدون `wp_ajax_nopriv_*`، کلیدهای `form_structer` با `property_exists`/`isset`، تست‌ها به صورت اسکریپت مستقل در `tests/`).
@@ -920,3 +920,48 @@ sms.ir، Melipayamak، Ghasedak، IPPanel، Unifonic و Taqnyat. هر کدام �
 - دستیار بازدیدکننده فقط مقصد (شماره یا ایمیل) را پر می‌کند. دکمهٔ «ارسال کد» صفحه با `runtime_token` خود صفحه `verify/send` را صدا می‌زند. دستیار کد را در چت یا صدا نمی‌پرسد و منتقل نمی‌کند. `forms/message/add` بدون توکن معتبر همچنان رد می‌کند.
 - schema عمومی (`GET Emsfb/v1/forms/{id}/schema`) برای فیلد بلوک `verify: {channel, required_when}` دارد. وضعیت تأیید با رویداد DOM `efb:verify-state` اعلام شود.
 - رفتار پس از downgrade (fail-closed این سند) در manifest با `downgrade: "blocks_submit"` گزارش شود (تعارض C4 در فایل مرجع).
+
+---
+
+## وضعیت پیاده‌سازی و checkpointها (۲۰۲۶-۱۱-۱۳)
+
+قاعدهٔ مالک (§6): **پیامک کد فقط از مسیر افزونهٔ WP SMS** (`wp_sms_send()`)؛ افزونهٔ SMS هسته (`AdnSS`) تنها فرستنده را ثبت می‌کند. موتور، کانال ایمیل، UI، محدودیت‌ها و enforcement در هسته‌اند.
+
+**A. هسته** (انجام شد) — `includes/class-Emsfb-verification.php` (`Emsfb\Verification`: `key`، `make_code`، `hash_code`، `normalize_destination`، `dial_codes`/`dial_of`/`country_allowed` با NANP کارائیب، `token_issue`/`token_verify`، `field_spec`، `sanitize_key`، `clamp`)، `includes/verification/interface-provider.php`. تست: `tests/test-verify-core.php` (۸۳).
+
+**B. جدول و مهاجرت** (انجام شد) — `emsfb_vrfy_` با DDL §5.3 در `install()` و `Install::upgrade_f02_schema()` پس از F03 و پیش از return زودهنگام؛ `EMSFB_DB_VERSION` = **1.8** (F03 روی 1.7 بود)؛ شمارنده‌ها همان `emsfb_vrfy_rl_` و `Rate_Limit` در F11 (جدول دوم ساخته نشد)؛ `docs/migrations/f02-verification-2026-11-13.md`. تست: `tests/test-verify-schema.php` (۱۳).
+
+**C. چرخهٔ چالش و محدودیت اتمیک** (انجام شد) — `attempt` (شمارش پیش از مقایسه)، `mark_verified`، `consume` (همه یا هیچ)، `release`، `attach`، `supersede`، `cleanup_light` (ساعتی) و `cleanup` (روزانه؛ ۳۰/۹۰ روز با `efb_verify_retention_days`)، حذف با `efb_entries_purged` و `efb_form_deleted`. تست: `tests/test-verify-lifecycle.php` (۲۶، شامل ۲۰ پردازهٔ هم‌زمان با سقف ۵ ⇒ دقیقاً ۵، سه بار).
+
+**D. مسیرهای REST** (انجام شد) — `verify/send` و `verify/check` با ترتیب §5.2 (مقصد → کشور/دامنه → Human Shield پیش از هر هزینه → قفل/cooldown/شمارنده‌های اتمیک → supersede → ساخت کد → ارسال). runtime token اجباری است. **انحراف:** ردها با پوشش افزونه (HTTP 200، `{success:false, code, message, status, retry_after?, attempts_left?}`) پاسخ داده می‌شوند، نه با کد HTTP، تا کد غلط بازدیدکننده «درخواست شکست‌خورده» در کنسول و Request Health نباشد؛ معنای HTTP در `status` است. ارائه‌دهندهٔ `test` در هسته ساخته نشد (مانند درگاه آزمایشی پرداخت، در `tests/` و mu-plugin است). تست: `tests/test-verify-rest.php` (۶۲)، `tests/test-verify-antifraud.php` (۱۴: ایمیل‌بمباران ۳ در ساعت و ۱۰ در روز مستقل از IP و session، SMS pumping با سقف session، IP، prefix و فرم، بودجه با هشدار ۸۰٪ و رد در ۱۰۰٪، هشدار نرخ تبدیل).
+
+**F. گیت submit و مصرف** (انجام شد) — پس از ردِ حلقهٔ فیلدها و پیش از کدگذاری ردیف‌ها در `get_form_public_efb()` (همهٔ مسیرها: `forms/message/add`، `payments/create`، پیگیری درگاه قدیمی، مسیر «ذخیره نشود» F13، کلاینت API)، مصرف در `insert_message_db()` پس از جای F11 و ادعای F03، `release` در شکست درج، نشان `verified` فقط از سرور، `verifications`/`email_confirms` بیرون از fingerprint (PHP و JS). تست: `tests/test-verify-submit-gate.php` (۴۱).
+
+**E1. تکرار ایمیل** (انجام شد، همهٔ پلن‌ها) — کادر دوم `{id}_confirm` (نه ردیف پاسخ)، مقایسه پس از نرمال‌سازی در مرورگر و سرور، پیام سفارشی `msg_mismatch` از قلاب F03. تست: `tests/test-verify-email-retype.js` (۱۸)، e2e `f02a`.
+
+**E2. ایمیل کد** (انجام شد) — state `otpCode` در `EmsfbEmailHandler` (بدون لینک و دکمه، پانویس متن ساده، کد یک بار با monospace و LTR، نسخهٔ متن ساده)، موضوع و متن سفارشی. تست: `tests/test-verify-email-send.php` (۲۳).
+
+**E3. UI در فرم و سازنده** (انجام شد) — `public/assets/js/verify-efb.js` (`window.EFBVerify`)، `public/assets/css/verify-efb.css` (ویژگی‌های منطقی برای RTL؛ فایل `-rtl` جدا لازم نشد)، `includes/admin/assets/js/verify-builder-efb.js`. وضعیت با `aria-live`، خطا با `role=alert`، مقصد ماسک‌شده در `<bdi dir=ltr>`، `unicode-bidi: plaintext` و ارقام محلی در وضعیت و شمارش معکوس، WebOTP. تست: `tests/test-verify-ui-state.js` (۶۴، شامل برابری با PHP)، e2e `f02b`، `f02d`.
+
+**E4. پلن** (انجام شد) — تصمیم: «تکرار ایمیل» رایگان، کد ایمیل Free Plus، کد پیامک **Pro** به‌علاوهٔ افزونهٔ SMS و WP SMS (هم‌سطح «اعلان پیامک» در رجیستری). فیلتر `efb_verify_plan`. پس از downgrade **fail-closed** (`efb_verify_unavailable`) و در رجیستری `downgrade: "blocks_submit"`. تست: `tests/test-verify-plan-gating.js` (۱۵).
+
+**S1. تنظیمات** (انجام شد) — تب «Verification» (`?tab=verify`) با وضعیت کانال‌ها، لینک نصب و تنظیمات WP SMS، کشورها، متن پیام، طول و عمر کد، بودجه‌ها، سقف‌ها، آمار ۲۴ ساعت، ارسال آزمایشی (فقط مدیر، در بودجه شمرده می‌شود). **انحراف:** تنظیمات در آپشن جدای `emsfb_verify_settings` (autoload خاموش)، نه زیر `emsfb_setting` (آن شیء کامل به صفحات ادمین localize و با مسیر ذخیرهٔ خودش بازسازی می‌شود). `Verification_Secrets` (§4.3) با اصلاح مالک **حذف شد**: EFB هیچ اعتبارنامه‌ای نگه نمی‌دارد.
+
+**S2. فرستنده** (انجام شد، فقط WP SMS) — `vendor/smssended/verify-providers-efb.php` و `verify-wpsms-efb.php` (افزونهٔ SMS)؛ آداپتورهای مستقیم و حالت `provider` ساخته نشدند. تست: `tests/test-addon-smssended-verify.php` (۲۱: موفق، `WP_Error`، `false`، استثنا، نبودن WP SMS و مسیر کامل).
+
+**S3** (ساخته نشد) — با اصلاح مالک موضوعیت ندارد.
+
+**S4. فیلد موبایل** (انجام شد) — ورودی مخفی `-code` و دکمهٔ مخفی `type=submit` حذف شدند؛ کشور غیرمجاز در مرورگر (کشور انتخاب‌شدهٔ intl) و قطعاً در سرور رد می‌شود. رفع باگ: شمارهٔ اصلاح‌شده جای شمارهٔ اول را نمی‌گرفت (`BUGS-FOUND`). e2e `f02c`.
+
+**S5. ضدتقلب و هشدار** (انجام شد) — سقف‌ها، NANP، بودجه، هشدار ۸۰٪، ۱۰۰٪، نرخ تبدیل و شکست ارسال، هر نوع حداکثر یک بار در ۶ ساعت.
+
+**S6. captcha پیش از ارسال** (ساخته نشد) — تغییر حساس در گیت captcha؛ Human Shield و سقف‌ها پوشش می‌دهند.
+
+**C4.** نشان «Verified by SMS / email» در نمایشگر پاسخ (انجام شد)؛ ستون CSV ساخته نشد (سؤال باز ۷). **C5.** فقط فهرست عبارت‌ها و `.pot` (دستور مالک: ترجمه نشود). **C6.** این بخش، `docs/autopilot-integration.md` (F02)، `reference/sitepilot-compatibility.en.md`، `readme.txt`، `docs/verification/sms-through-wp-sms.en.md`.
+
+**تعامل‌ها.** پیش‌نویس و پاسخ ناقص (F11) کد و توکن نگه نمی‌دارند (کلیدهای درخواست‌اند، نه ردیف پاسخ؛ توکن فقط در حافظهٔ تب)؛ بازگرداندن پیش‌نویس یعنی تأیید دوباره. پرداخت: گیت پیش از `payments/create` اجرا می‌شود و ایمیل یا موبایل پرداخت‌کننده همان مقدار ذخیره‌شده و تأییدشده است (e2e `f02pay`). حریم خصوصی: مقصد و IP فقط HMAC (IP طبق حالت F13 فرم؛ `none` ⇒ بدون هش IP)، exporter/eraser `easy-form-builder-verification`، نگهداری ۳۰/۹۰ روز (`tests/test-verify-privacy.php`، ۱۳). Human Shield: `efb_submit_bot_decision` (`context: verify_send`) و `efb_shield_allow_side_effect` (`channel: otp_<channel>`) پیش از ارسال؛ افزودن `Emsfb/v1/verify/send` به فهرست `rest_pre_dispatch` خود افزونهٔ Shield کار مالک آن افزونه است.
+
+**پاسخ به سؤالات باز §12 (تصمیم پیاده‌سازی، قابل تغییر با مالک).** (۱) پلن‌ها مثل E4؛ downgrade: fail-closed. (۲) فقط WP SMS از افزونهٔ SMS (اصلاح مالک). (۳) ارائه‌دهندگان: همان درگاه‌های WP SMS. (۴) الگوی ایرانی: در خود WP SMS تنظیم می‌شود. (۵) register/login: فاز ۲؛ سازنده و پاسخ ذخیره هشدار می‌دهند و سرور نادیده می‌گیرد. (۶) پیش‌فرض کشور: کشور زبان سایت؛ فهرست خالی ⇒ پیامک خاموش. (۷) نشان در نمایشگر پاسخ؛ CSV، PDF و ایمیل مدیر بدون تغییر. (۸) بله: گیت پیش از ایجاد پرداخت است. (۹) معافیت کاربر واردشده: فاز ۲. (۱۰) captcha پیش از ارسال: نه در v1. (۱۱) ۳۰ و ۹۰ روز با فیلتر. (۱۲) Human Shield: پیگیری با مالک افزونه.
+
+**ساخته نشد / برای مالک:** S3، S6، ستون CSV، معافیت کاربر واردشده، کانال WhatsApp و تماس، route عمومی `forms/{id}/schema` (در این نسخه وجود ندارد؛ رجیستری نقش manifest را دارد)، افزودن مسیر `verify/send` به Human Shield، ترجمهٔ عبارت‌ها.
+
