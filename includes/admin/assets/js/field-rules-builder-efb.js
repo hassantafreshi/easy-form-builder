@@ -92,6 +92,7 @@
     const out = [];
     if (R_.typeOk(r, 'length')) out.push(['minlen', 'tvMinLen_'], ['maxlen', 'tvMaxLen_']);
     if (['text', 'tel', 'postalcode'].includes(r.type)) out.push(['format', 'mskFormat_']);
+    if (R_.typeOk(r, 'words')) out.push(['words', 'tvMinWords_']);
     return out;
   }
 
@@ -104,7 +105,8 @@
     const R_ = R();
     const name = typeof r.name === 'string' ? r.name : '';
     const boxes = rules.map(([rule, key]) => {
-      const ph = R_ ? R_.message({ name: name, milen: r.milen, mlen: r.mlen }, '__', key, root.efb_var && root.efb_var.text, rule === 'minlen' ? (r.milen || 'N') : (rule === 'maxlen' ? (r.mlen || 'N') : '')).text : '';
+      const n = { minlen: r.milen, maxlen: r.mlen, words: r.wmin || r.wmax }[rule];
+      const ph = R_ ? R_.message({ name: name }, '__', key, root.efb_var && root.efb_var.text, n || 'N').text : '';
       return textEl(r, idset, 'frMsg_' + rule + 'El', 'msg_' + rule, T('tvErrMsgs', 'Error messages') + ': ' + rule, { placeholder: ph, plan: 'messages' });
     }).join('');
     return `<div class="efb mt-3 efb-fr-msgs" id="frMsgsBoxEl">
@@ -123,9 +125,28 @@
     return '<!-- F03 main -->';
   }
 
+  /** B: word limits and the live counter (text-like fields and textarea). */
+  function wordsEls(r, idset) {
+    const R_ = R();
+    if (!R_ || !R_.typeOk(r, 'words')) return '';
+    return `<div class="efb mt-3 efb-fr-words" id="frWordsBoxEl">
+      <span class="efb d-block fs-7 fw-bold"><i class="efb bi-fonts fs-7 ${icon()}" aria-hidden="true"></i>${esc(T('tvWords', 'Word limit'))}</span>
+      <div class="efb row g-2">
+        ${numEl(r, idset, 'wMinEl', 'wmin', T('tvMinWords', 'Minimum words'), { wrap: 'col-6' })}
+        ${numEl(r, idset, 'wMaxEl', 'wmax', T('tvMaxWords', 'Maximum words'), { wrap: 'col-6' })}
+      </div>
+      <div class="efb row g-2">
+        ${selEl(r, idset, 'counterEl', 'counter', T('tvCounter', 'Counter'), [['none', T('tvCntNone', 'No counter')], ['chars', T('tvCntChars', 'Characters')], ['words', T('tvCntWords', 'Words')]], 'none', { wrap: 'col-6' })}
+        ${selEl(r, idset, 'counterStyleEl', 'counter_style', T('tvCounter', 'Counter'), [['remaining', T('tvCntRemaining', 'Show what is left')], ['used', T('tvCntUsed', 'Show what is used')]], 'remaining', { wrap: 'col-6' })}
+      </div>
+    </div>`;
+  }
+
   /** Controls of the advanced part (#collapseAdvanced). */
   function efbFieldRulesAdvEls(indx, idset) {
-    return efbFieldRulesMsgEls(indx, idset);
+    if (typeof valj_efb === 'undefined' || !valj_efb[indx]) return '';
+    const r = valj_efb[indx];
+    return wordsEls(r, idset) + efbFieldRulesMsgEls(indx, idset);
   }
 
   /* ------------------------------------------------------------------ handler */
@@ -156,7 +177,53 @@
 
   /** Side effects of a change: exclusive switches, live canvas preview. */
   function efb_fr_after_change_efb(r, key, el) {
-    if (typeof efb_fr_preview_efb === 'function') { try { efb_fr_preview_efb(r); } catch (e) {} }
+    try { efb_fr_decorate_efb(document); } catch (e) {}
+  }
+
+  /* ------------------------------------------------------------------ canvas preview */
+
+  /** The F03 pieces of every field on the canvas and in the PC / mobile preview (same markup as the page). */
+  function efb_fr_decorate_efb(scope) {
+    const R_ = R();
+    if (!R_ || typeof valj_efb === 'undefined' || !scope || !scope.querySelectorAll) return;
+    const lang = (root.efb_var && (root.efb_var.wp_lan || root.efb_var.language)) || 'en';
+    valj_efb.forEach((r, i) => {
+      if (i < 2 || !r || !r.id_) return;
+      scope.querySelectorAll(`[id="${String(r.id_).replace(/"/g, '')}_"]`).forEach((input) => {
+        const host = input.closest('.ttEfb') || input.parentElement;
+        if (!host) return;
+        // B: counter preview (0 typed).
+        const c = R_.counter(r);
+        let box = host.querySelector(':scope > .efb-counter-wrap');
+        if (!c) { if (box) box.remove(); }
+        else {
+          if (!box) {
+            box = document.createElement('div');
+            box.className = 'efb efb-counter-wrap';
+            box.innerHTML = '<div class="efb efb-counter fs-7" aria-hidden="true"></div>';
+            const des = host.querySelector('.efb-field-description') || host.querySelector(`[id="${r.id_}-des"]`);
+            if (des && des.parentElement === host) host.insertBefore(box, des); else host.appendChild(box);
+          }
+          box.firstChild.textContent = R_.counterText(c, 0, root.efb_var && root.efb_var.text, lang).text;
+        }
+      });
+    });
+  }
+  let decoTimer = null;
+  function scheduleDecorate() {
+    clearTimeout(decoTimer);
+    decoTimer = setTimeout(() => { try { efb_fr_decorate_efb(document); } catch (e) {} }, 60);
+  }
+  if (typeof document !== 'undefined' && document.addEventListener && typeof MutationObserver !== 'undefined') {
+    const start = () => {
+      const mo = new MutationObserver((list) => {
+        // Only the builder's own redraws (not the pieces this file adds).
+        if (list.some((m) => Array.from(m.addedNodes).some((n) => n.nodeType === 1 && !(n.classList && n.classList.contains('efb-counter-wrap'))))) scheduleDecorate();
+      });
+      mo.observe(document.body, { childList: true, subtree: true });
+      scheduleDecorate();
+    };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
   }
 
   function efb_fr_gem_efb(btn) {
@@ -165,7 +232,7 @@
     else if (typeof pro_show_efb === 'function') pro_show_efb(3);
   }
 
-  const api = { efbFieldRulesMainEls, efbFieldRulesAdvEls, efbFieldRulesMsgEls, efb_fr_change_efb, efb_fr_gem_efb, efb_fr_after_change_efb };
+  const api = { efbFieldRulesMainEls, efbFieldRulesAdvEls, efbFieldRulesMsgEls, efb_fr_change_efb, efb_fr_gem_efb, efb_fr_after_change_efb, efb_fr_decorate_efb };
   Object.keys(api).forEach((k) => { root[k] = api[k]; });
   if (typeof module === 'object' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);

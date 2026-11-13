@@ -6,6 +6,12 @@
  *        tampered after the browser check is refused by the server with the same sentence and the
  *        field id, shown at the field; the required message (customRequiredMsg) comes back from the
  *        server; builder: the "Error messages" group saves msg_minlen through the real sanitizer.
+ *  f03b  B: a live counter (what is left, then over the limit in red), announced at the thresholds only
+ *        (polite live region), the hidden "Up to N" hint in aria-describedby; word limits ("می‌خواهم بروم"
+ *        = 2 words); a textarea with 3 newlines and mlen 10 is accepted at 10 characters by the browser
+ *        and the server and stored with its newlines; a plain minimum length now stops Send (§18.2);
+ *        fa_IR at 375 px: Persian digits in the counter, no horizontal scroll; builder: the word and
+ *        counter controls save through the real sanitizer and the canvas shows the counter.
  */
 'use strict';
 
@@ -123,5 +129,99 @@ module.exports = function (S) {
     const rows = (ctl('form', String(fid)) || {}).form_structer || [];
     const tr = rows.find((r) => r && r.id_ === t.id_) || {};
     R.check('f03a: Save stores msg_minlen as plain text (quotes and tags dropped, %s kept)', tr.msg_minlen === 'Write more in %s please now', tr.msg_minlen);
+  });
+
+  scenario('f03b', 'F03-B characters, words and the live counter (en and fa_IR at 375 px), textarea newlines, §18.2', async ({ context, adminPage }) => {
+    plan3();
+    const F = form('F03 e2e counter', [
+      { key: 'notes', type: 'textarea', name: 'Notes', mlen: '10', counter: 'chars', counter_style: 'remaining', message: 'Short notes' },
+      { key: 'bio', type: 'text', name: 'Bio', wmin: '2', wmax: '4', counter: 'words' },
+      { key: 'code', type: 'text', name: 'Code', milen: '5' },
+    ]);
+    const url = pageOf(F.form_id);
+    const g = await (await context({}, 'f03b')).newPage();
+    await g.goto(url, { waitUntil: 'load' });
+    await g.waitForSelector(byId(F.ids.notes + '_'), { timeout: 20000 });
+    await sleep(800);
+    const c0 = await g.evaluate((i) => ({ text: document.getElementById(i + '_-counter').textContent, hidden: document.getElementById(i + '_-counter').getAttribute('aria-hidden'), described: document.getElementById(i + '_').getAttribute('aria-describedby'), hint: document.getElementById(i + '_-limit').textContent, max: document.getElementById(i + '_').getAttribute('maxlength') }), F.ids.notes);
+    R.check('f03b: counter "10 characters left" (aria-hidden), the hint "Up to 10 characters" in aria-describedby, textarea maxlength', c0.text === '10 characters left' && c0.hidden === 'true' && c0.described.split(' ').includes(F.ids.notes + '_-limit') && c0.hint === 'Up to 10 characters' && c0.max === '10', c0);
+    await g.click(byId(F.ids.notes + '_'));
+    await g.keyboard.type('ab');
+    const live1 = await g.evaluate((fid) => (document.getElementById('efb-live-' + fid) || {}).textContent || '', F.form_id);
+    await g.keyboard.press('Enter'); await g.keyboard.type('cd'); await g.keyboard.press('Enter'); await g.keyboard.type('ef'); await g.keyboard.press('Enter');
+    await g.keyboard.type('g');
+    await sleep(150);
+    const live2 = await g.evaluate((fid) => (document.getElementById('efb-live-' + fid) || {}).textContent || '', F.form_id);
+    const c1 = await g.evaluate((i) => document.getElementById(i + '_-counter').textContent, F.ids.notes);
+    R.check('f03b: no announcement on every key; one when the limit is reached ("0 characters left", polite region)', live1 === '' && live2 === '0 characters left', { live1, live2 });
+    R.check('f03b: 3 newlines + 7 letters = 10 characters, "0 characters left"', c1 === '0 characters left', c1);
+    await g.press(byId(F.ids.notes + '_'), 'Tab');
+    await sleep(300);
+    // Words
+    await g.fill(byId(F.ids.bio + '_'), 'one');
+    await g.press(byId(F.ids.bio + '_'), 'Tab');
+    await sleep(400);
+    const w1 = await fieldState(g, F.ids.bio);
+    R.check('f03b: one word where two are needed → "Bio needs at least 2 words."', w1.text === 'Bio needs at least 2 words.' && w1.invalid === 'true', w1);
+    await g.fill(byId(F.ids.bio + '_'), 'می‌خواهم بروم');
+    await g.press(byId(F.ids.bio + '_'), 'Tab');
+    await sleep(400);
+    const w2 = await g.evaluate((i) => ({ s: document.getElementById(i + '_').getAttribute('aria-invalid'), c: document.getElementById(i + '_-counter').textContent }), F.ids.bio);
+    R.check('f03b: "می‌خواهم بروم" is 2 words (ZWNJ joins): accepted, counter "2 words left"', w2.s === null && w2.c === '2 words left', w2);
+    // §18.2: a plain minimum length stops Send now.
+    await g.fill(byId(F.ids.code + '_'), 'abc');
+    await g.press(byId(F.ids.code + '_'), 'Tab');
+    await sleep(400);
+    let posted = false;
+    const onReq = (r) => { if (/forms\/message\/add/.test(r.url())) posted = true; };
+    g.on('request', onReq);
+    await g.click('#btn_send_efb').catch(() => {});
+    await sleep(1500);
+    const codeMsg = await g.evaluate((i) => (document.getElementById(i + '_-message') || {}).textContent || '', F.ids.code);
+    R.check('f03b: §18.2 a 3-letter value under "minimum 5" shows its message and nothing is sent', !posted && /at least 5/.test(codeMsg), { posted, codeMsg });
+    g.off('request', onReq);
+    await g.fill(byId(F.ids.code + '_'), 'abcdef');
+    await g.press(byId(F.ids.code + '_'), 'Tab');
+    await sleep(400);
+    const ans = await send(g);
+    R.check('f03b: the form with the 10-character textarea is accepted by the server', ans && ans.success === true, ans);
+    const ent = (ctl('entries', String(F.form_id)) || [])[0];
+    const notes = ent && Array.isArray(ent.content) ? (ent.content.find((r) => r.id_ === F.ids.notes) || {}).value : null;
+    R.check('f03b: stored with its newlines (@n# tokens)', notes === 'ab@n#cd@n#ef@n#g', notes);
+
+    // fa_IR, 375 px
+    ctl('locale', 'fa_IR');
+    try {
+      const m = await (await context({ viewport: { width: 375, height: 760 } }, 'f03b-fa')).newPage();
+      await m.goto(url, { waitUntil: 'load' });
+      await m.waitForSelector(byId(F.ids.notes + '_'), { timeout: 20000 });
+      await sleep(800);
+      await m.click(byId(F.ids.notes + '_'));
+      await m.keyboard.type('سلام');
+      const fa = await m.evaluate((i) => ({ c: document.getElementById(i + '_-counter').textContent, align: getComputedStyle(document.getElementById(i + '_-counter')).textAlign, dir: getComputedStyle(document.getElementById(i + '_')).direction, scroll: document.documentElement.scrollWidth <= window.innerWidth + 1 }), F.ids.notes);
+      R.check('f03b: fa_IR at 375 px: Persian digits in the counter, right to left, no horizontal scroll', /[۰-۹]/.test(fa.c) && !/[0-9]/.test(fa.c) && fa.dir === 'rtl' && fa.scroll, fa);
+      await m.screenshot({ path: SHOT('f03b-counter-fa-375') });
+    } finally { ctl('locale', ''); }
+
+    // Builder: the controls save through the real sanitizer; the canvas shows the counter.
+    const admin = await adminPage();
+    await openNewForm(admin);
+    const t = await addTile(admin, 'textarea');
+    await admin.click(`#dropZoneEFB [data-id="${t.dataId}"] label, #dropZoneEFB [data-id="${t.dataId}"]`, { position: { x: 20, y: 10 } });
+    await admin.waitForSelector('#wMaxEl', { timeout: 10000 });
+    await admin.fill('#wMaxEl', '۵۰'); await admin.dispatchEvent('#wMaxEl', 'change');
+    await admin.selectOption('#counterEl', 'words'); await admin.dispatchEvent('#counterEl', 'change');
+    await sleep(500);
+    const canvas = await admin.evaluate((id) => { const b = document.querySelector('#dropZoneEFB [id="' + id + '_"]'); const host = b && (b.closest('.ttEfb') || b.parentElement); const c = host && host.querySelector('.efb-counter'); return c ? c.textContent : null; }, t.id_);
+    R.check('f03b: builder canvas shows the counter ("50 words left")', canvas === '50 words left', canvas);
+    await closePanel(admin);
+    const saved = admin.waitForResponse((x) => /admin-ajax\.php/.test(x.url()) && x.request().method() === 'POST' && /add_form_Emsfb|update_form_Emsfb/.test(x.request().postData() || ''), { timeout: 20000 }).catch(() => null);
+    await admin.evaluate(() => saveFormEfb(1));
+    const sres = await saved;
+    const sj = sres ? await sres.json() : {};
+    await sleep(800);
+    const fid = Number(String((sj.data && (sj.data.value || sj.data.id)) || '').replace(/\D+/g, '')) || await admin.evaluate(() => Number(form_ID_emsFormBuilder));
+    const tr = (((ctl('form', String(fid)) || {}).form_structer) || []).find((r) => r && r.id_ === t.id_) || {};
+    R.check('f03b: Save stores wmax "50" (typed in Persian digits) and counter "words"', tr.wmax === '50' && tr.counter === 'words', { wmax: tr.wmax, counter: tr.counter });
   });
 };

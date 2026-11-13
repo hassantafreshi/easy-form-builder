@@ -1,0 +1,6 @@
+/* F03 field rules on the page and in the builder (docs/feature-gaps/F03-text-validation.fa.md §4, §7).
+ * Logical properties only, so right-to-left pages need no second copy. */
+.efb.efb-vh { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip: rect(0, 0, 0, 0) !important; white-space: nowrap !important; border: 0 !important; }
+.efb.efb-counter-wrap { display: block; }
+.efb.efb-counter { display: block; text-align: end; color: #657096; margin-block-start: .15rem; margin-inline-end: .25rem; font-variant-numeric: tabular-nums; min-height: 1em; }
+.efb.efb-counter.efb-counter-over { color: #b42318; font-weight: 600; }

@@ -55,6 +55,14 @@
     var n = f && f[k] !== undefined && f[k] !== null && f[k] !== '' ? parseInt(String(f[k]), 10) : 0;
     return isFinite(n) && n > 0 ? n : 0;
   }
+  /** Persian, Arabic-Indic and full-width digits to 0-9 (Masks::normalize_digits). */
+  function asciiDigits(s) {
+    return String(s).replace(/[\u06F0-\u06F9\u0660-\u0669\uFF10-\uFF19]/g, function (ch) {
+      var c = ch.charCodeAt(0);
+      return String.fromCharCode(c - (c >= 0xFF10 ? 0xFF10 : (c >= 0x06F0 ? 0x06F0 : 0x0660)) + 48);
+    });
+  }
+  function masked(f) { return !!(f && typeof f.mask_preset === 'string' && f.mask_preset !== ''); }
   function hasMsg(f, rule) {
     var v = f ? f['msg_' + rule] : undefined;
     return typeof v === 'string' && v.trim() !== '';
@@ -63,8 +71,17 @@
   function activeRules(f, ctx) {
     var out = [];
     if (!f) { return out; }
-    if (typeOk(f, 'length') && (hasMsg(f, 'minlen') || hasMsg(f, 'maxlen')) && (int(f, 'milen') > 0 || int(f, 'mlen') > 0)) { out.push('length'); }
+    var m = masked(f);
+    if (!m && typeOk(f, 'words') && (int(f, 'wmin') > 0 || int(f, 'wmax') > 0)) { out.push('words'); }
+    if (!m && typeOk(f, 'length') && (int(f, 'milen') > 0 || int(f, 'mlen') > 0) && (out.length || hasMsg(f, 'minlen') || hasMsg(f, 'maxlen'))) { out.unshift('length'); }
     return out;
+  }
+  /** The counter of a field: {kind: chars|words, style: remaining|used, max} or null (Field_Rules::counter). */
+  function counter(f) {
+    if (!f || !typeOk(f, 'counter') || masked(f)) { return null; }
+    var kind = f.counter === 'chars' || f.counter === 'words' ? f.counter : '';
+    if (!kind) { return null; }
+    return { kind: kind, style: f.counter_style === 'used' ? 'used' : 'remaining', max: int(f, kind === 'words' ? 'wmax' : 'mlen') };
   }
   function hasRules(f, ctx) { return activeRules(f, ctx).length > 0; }
   /** Plain text of a message or label: no tags, one line, at most max code points (Field_Rules::plain). */
@@ -78,6 +95,18 @@
   function sanitizeKey(k, v) {
     k = String(k);
     if (k.indexOf('msg_') === 0) { return plain(v, 200); }
+    switch (k) {
+      case 'wmin':
+      case 'wmax': {
+        if (v === null || v === undefined || typeof v === 'object' || typeof v === 'boolean') { return ''; }
+        var d = asciiDigits(String(v).trim());
+        if (!/^\d{1,9}$/.test(d)) { return ''; }
+        var n = Math.min(100000, parseInt(d, 10));
+        return n > 0 ? String(n) : '';
+      }
+      case 'counter': return ['none', 'chars', 'words'].indexOf(v) !== -1 ? v : 'none';
+      case 'counter_style': return v === 'used' ? 'used' : 'remaining';
+    }
     return plain(v, 200);
   }
   // #endregion keys
@@ -89,6 +118,40 @@
   }
   /** Code points (Array.from(s).length = mb_strlen). */
   function countChars(v) { return Array.from(valueText(v)).length; }
+  /** Word separators (§4.3): whitespace and the Unicode spaces; ZWNJ (U+200C) is not one. */
+  var WORD_SEP = /[\t\n\u000B\f\r \u00A0\u1680\u2000-\u200B\u2028\u2029\u202F\u205F\u3000]+/;
+  function countWords(v) {
+    var s = valueText(v);
+    if (s === '') { return 0; }
+    return s.split(WORD_SEP).filter(function (x) { return x !== ''; }).length;
+  }
+  /** A number in the page's language digits, no grouping (the same locales as Form_Gate::locale_digits). */
+  function fmtNum(n, locale) {
+    var lang = String(locale || 'en').toLowerCase().split(/[_-]/)[0];
+    var base = ['fa', 'ps', 'azb', 'haz'].indexOf(lang) !== -1 ? 0x06F0 : (['ar', 'ary', 'arq', 'ckb', 'ur'].indexOf(lang) !== -1 ? 0x0660 : 0);
+    var s = String(Math.trunc(Number(n) || 0));
+    return base ? s.replace(/[0-9]/g, function (d) { return String.fromCharCode(base + Number(d)); }) : s;
+  }
+  /**
+   * The counter's text for n characters / words: {text, over, zone}. zone: ok | low20 (20 % left) |
+   * low10 (10 left) | zero | over; the page announces a change of zone (§4.3), not every key.
+   */
+  function counterText(c, n, texts, locale) {
+    texts = texts || {};
+    var words = c.kind === 'words';
+    var T = function (k, en) { return typeof texts[k] === 'string' && texts[k] !== '' ? texts[k] : en; };
+    var used = T(words ? 'tvWordsUsed' : 'tvCharsUsed', words ? '%1$s of %2$s words' : '%1$s of %2$s characters');
+    if (!(c.max > 0)) { return { text: fmtNum(n, locale), over: false, zone: 'ok' }; }
+    var left = c.max - n;
+    var zone = left < 0 ? 'over' : (left === 0 ? 'zero' : (left <= 10 ? 'low10' : (left <= c.max * 0.2 ? 'low20' : 'ok')));
+    var text;
+    if (c.style === 'used' || left < 0) {
+      text = used.split('%1$s').join(fmtNum(n, locale)).split('%2$s').join(fmtNum(c.max, locale));
+    } else {
+      text = T(words ? 'tvWordsLeft' : 'tvCharsLeft', words ? '%s words left' : '%s characters left').split('%s').join(fmtNum(left, locale));
+    }
+    return { text: text, over: left < 0, zone: zone };
+  }
   // #endregion counting
 
   // #region messages
@@ -124,6 +187,12 @@
       if (mi > 0 && n < mi) { return { code: 'minlen', rule: 'minlen', key: 'tvMinLen_', n: mi }; }
       if (mx > 0 && n > mx) { return { code: 'maxlen', rule: 'maxlen', key: 'tvMaxLen_', n: mx }; }
     }
+    if (rules.indexOf('words') !== -1) {
+      var w = countWords(s);
+      var wi = int(f, 'wmin'), wx = int(f, 'wmax');
+      if (wi > 0 && w < wi) { return { code: 'words', rule: 'words', key: 'tvMinWords_', n: wi }; }
+      if (wx > 0 && w > wx) { return { code: 'words', rule: 'words', key: 'tvMaxWords_', n: wx }; }
+    }
     return null;
   }
   // #endregion check
@@ -131,7 +200,7 @@
   return {
     KEYS: KEYS, MSG_RULES: MSG_RULES, CODES: CODES, GATED: GATED, TYPES: TYPES, DEFAULTS: DEFAULTS,
     on: on, typeOk: typeOk, activeRules: activeRules, hasRules: hasRules, plain: plain, sanitizeKey: sanitizeKey,
-    valueText: valueText, countChars: countChars,
+    valueText: valueText, countChars: countChars, countWords: countWords, counter: counter, asciiDigits: asciiDigits, counterText: counterText, fmtNum: fmtNum,
     message: message, firstError: firstError
   };
 });

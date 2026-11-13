@@ -715,6 +715,10 @@ class Mapper {
 				$this->map_captcha();
 				return;
 			case 'count':
+				// F03: CF7's [count name] becomes the field's own counter ("down" = what is left).
+				if ( isset( $this->by_name[ $tag['name'] ] ) && $this->set_counter( $this->by_name[ $tag['name'] ]['id'], $tag ) ) {
+					return;
+				}
 				$target = isset( $this->by_name[ $tag['name'] ] ) ? $this->by_name[ $tag['name'] ]['label'] : $tag['name'];
 				$this->note(
 					sprintf(
@@ -779,20 +783,8 @@ class Mapper {
 			$field['milen'] = (string) $min;
 		}
 		if ( false !== $max && $max > 0 ) {
-			if ( 'textarea' === $type ) {
-				// The builder offers no maximum for a textarea and the page does
-				// not limit typing in one: visitors would only learn it on submit.
-				$this->note(
-					sprintf(
-						/* translators: 1: field label, 2: the settings, e.g. "maxlength:500" */
-						__( 'These limits of “%1$s” were not carried over: %2$s.', 'easy-form-builder' ),
-						$this->short( $label ),
-						'maxlength:' . $max
-					)
-				);
-			} else {
-				$field['mlen'] = (string) $max;
-			}
+			// F03: a textarea has a maximum too (the page limits typing with maxlength).
+			$field['mlen'] = (string) $max;
 		}
 
 		$this->dynamic_default_note( $tag, $label );
@@ -1778,6 +1770,29 @@ class Mapper {
 	 * @param array|null $tag   Source tag (null for helper fields).
 	 * @return void
 	 */
+	/**
+	 * F03: the counter of an imported text or textarea field ([count name], [count name down]).
+	 *
+	 * @param string $id  The field's id_.
+	 * @param array  $tag The count tag.
+	 * @return bool Whether the field took the counter.
+	 */
+	private function set_counter( $id, array $tag ) {
+		foreach ( $this->structure as $i => $row ) {
+			if ( ! is_array( $row ) || ! isset( $row['id_'] ) || $row['id_'] !== $id ) {
+				continue;
+			}
+			if ( ! in_array( $row['type'], array( 'text', 'textarea' ), true ) ) {
+				return false;
+			}
+			$this->structure[ $i ]['counter']       = 'chars';
+			$down = Parser::has_option( $tag, 'down' ) || ( ! Parser::has_option( $tag, 'up' ) && isset( $row['mlen'] ) && (int) $row['mlen'] > 0 );
+			$this->structure[ $i ]['counter_style'] = $down ? 'remaining' : 'used';
+			return true;
+		}
+		return false;
+	}
+
 	private function push_field( array $field, $tag ) {
 		$this->structure[] = $field;
 		if ( is_array( $tag ) && '' !== $tag['name'] && ! isset( $this->by_name[ $tag['name'] ] ) ) {

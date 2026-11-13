@@ -1715,7 +1715,7 @@ function show_setting_window_efb(idset, opts) {
                         ${selectColorEls('el','text')}
                         ${selectBorderColorEls('element',indx,idset)}
                         ${ el.dataset.tag != "ardate"  && el.dataset.tag != "pdate" && el.dataset.tag != "mobile" && !maskSetEfb ? miLenEls() :''}
-                        ${el.dataset.tag != "textarea" && el.dataset.tag != "ardate"  && el.dataset.tag != "pdate"  && el.dataset.tag != "mobile" && !maskSetEfb ? mLenEls() :''}
+                        ${el.dataset.tag != "ardate"  && el.dataset.tag != "pdate"  && el.dataset.tag != "mobile" && !maskSetEfb ? mLenEls() :''}
                         ${typeof efbFieldRulesAdvEls === 'function' ? efbFieldRulesAdvEls(indx, idset) : ''}
 
                         ${labelPostionEls}

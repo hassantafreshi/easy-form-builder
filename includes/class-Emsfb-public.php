@@ -1317,7 +1317,8 @@ public function check_nonce_permission_efb($request) {
 			'draftSave','draftSaved','draftCopy','draftEmail','draftSendLink','draftLinkSent','draftExpires','draftNotSaved','draftKeepSafe','draftRestored','draftStartOver','draftInvalid','draftFailed',
 			'partialConsent','partialNotice','popupClose',
 			/* F03 field rules: messages, counter, password strength and toggle, help button. */
-			'tvUnique_','tvMinLen_','tvMaxLen_','tvMinWords_','tvMaxWords_','tvPattern_','tvDomAllow_','tvDomDeny_','tvPwMismatch_','tvPwWeak_'];
+			'tvUnique_','tvMinLen_','tvMaxLen_','tvMinWords_','tvMaxWords_','tvPattern_','tvDomAllow_','tvDomDeny_','tvPwMismatch_','tvPwWeak_',
+			'tvCharsLeft','tvWordsLeft','tvCharsUsed','tvWordsUsed','tvLimitHint','tvLimitWordsHint'];
 
 			/* Only now is a form or response box really printed. A form in a widget,
 			 * footer or popup keeps the page cacheable (EFBRuntime.prepare() fetches a
@@ -2390,6 +2391,7 @@ public function check_nonce_permission_efb($request) {
 		if (is_string($form_structure_json) && preg_match('/\\\\?"(?:unique|wmin|wmax|counter|pattern_b64|email_domain_mode|readonly|prefix|suffix|message_place|pw_confirm|pw_meter|pw_toggle|pw_strength_min|msg_[a-z]+)\\\\?"\s*:/', $form_structure_json)) {
 			wp_register_script('efb-field-rules-js', EMSFB_PLUGIN_URL . 'public/assets/js/field-rules-efb.js', array(), $asset_version('public/assets/js/field-rules-efb.js'), true);
 			wp_enqueue_script('efb-field-rules-js');
+			wp_enqueue_style('efb-field-rules-css', EMSFB_PLUGIN_URL . 'public/assets/css/field-rules-efb.css', array(), $asset_version('public/assets/css/field-rules-efb.css'));
 			$core_deps[] = 'efb-field-rules-js';
 			$this->field_rules_page_efb = true;
 		}
@@ -3651,12 +3653,18 @@ public function check_nonce_permission_efb($request) {
 											// Unknown preset (other catalog version) or broken custom mask: the old length rules below.
 										}
 										// End mask gate.
-										$l = mb_strlen($item['value'], 'UTF-8');
+										// F03 §18.3: a textarea newline arrives as "@n#" and counts as one character, as in the browser.
+										$l = mb_strlen(str_replace(array("\r\n", '@n#'), "\n", (string) $item['value']), 'UTF-8');
 										$min_len = isset($f['milen']) ? (int) $f['milen'] : 0;
 										$max_len = isset($f['mlen']) ? (int) $f['mlen'] : 0;
 
 										// F03: the owner's own length messages (msg_minlen / msg_maxlen) win over the defaults.
 										$len_custom_efb = class_exists('\Emsfb\Field_Rules') ? array(\Emsfb\Field_Rules::custom_msg($f, 'minlen'), \Emsfb\Field_Rules::custom_msg($f, 'maxlen')) : array(null, null);
+										// A field with F03 rules says it in the browser's words (tvMinLen_ / tvMaxLen_).
+										if (class_exists('\Emsfb\Field_Rules') && \Emsfb\Field_Rules::has_rules($f)) {
+											if ($len_custom_efb[0] === null) $len_custom_efb[0] = \Emsfb\Field_Rules::msg($f, 'minlen', 'tvMinLen_', $this->lanText, $min_len);
+											if ($len_custom_efb[1] === null) $len_custom_efb[1] = \Emsfb\Field_Rules::msg($f, 'maxlen', 'tvMaxLen_', $this->lanText, $max_len);
+										}
 										if ($min_len > 0 && $l < $min_len) {
 											if (class_exists('\Emsfb\Field_Rules') && ($len_custom_efb[0] !== null || \Emsfb\Field_Rules::has_rules($f))) $this->field_rules_code_efb = 'minlen';
 											$error_message = $len_custom_efb[0] !== null ? $len_custom_efb[0] : strtr($this->lanText['ptrnMmm_'], [

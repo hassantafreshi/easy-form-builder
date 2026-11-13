@@ -1,4 +1,4 @@
-وضعیت: در حال پیاده‌سازی (A انجام شد، ۲۰۲۶-۱۱-۱۳) · اولویت: P0 · تلاش: M · وابستگی: F01 (نرمال‌ساز و `Emsfb\Masks`)؛ هماهنگ با F02 (`email_confirm_mode`) و F16 (نمایش خطا و ARIA)
+وضعیت: در حال پیاده‌سازی (A و B انجام شد، ۲۰۲۶-۱۱-۱۳) · اولویت: P0 · تلاش: M · وابستگی: F01 (نرمال‌ساز و `Emsfb\Masks`)؛ هماهنگ با F02 (`email_confirm_mode`) و F16 (نمایش خطا و ARIA)
 
 # F03 — اعتبارسنجی فیلدهای متنی
 
@@ -334,12 +334,12 @@ if ($is_valid == 1 && is_array($validated_item) && class_exists('\Emsfb\Field_Ru
 - پذیرش: «می‌خواهم بروم» دو کلمه است. ۱۰۰ نویسهٔ فارسی با ZWNJ درست شمرده می‌شود. textarea با ۳ newline و `mlen=10` در کلاینت و سرور یکسان رفتار می‌کند. شمارنده فقط در آستانه‌ها اعلام می‌شود. حداقل نویسه در کلاینت واقعاً Next را متوقف می‌کند.
 - تست‌ها: `node tests/test-field-rules-count.js` (بردارهای مشترک `tests/fixtures/count-vectors.json` که PHP هم می‌خواند)، `php tests/test-field-rules-count.php`، و Playwright `tests/test-field-rules-browser.js` (سناریوی counter).
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint** (۲۰۲۶-۱۱-۱۳، انجام شد)
+- فایل‌های تغییرکرده: `Field_Rules` (`count_chars`، `count_words` با کلاس جداکنندهٔ صریح بدون ZWNJ، `counter`، قاعدهٔ `words`، `sanitize_key` برای `wmin`/`wmax`/`counter`/`counter_style`)، `field-rules-efb.js` (همزادها و `counterText` با ارقام زبان صفحه)، `class-Emsfb-formbuilder.php` (`generateRuleExtras_efb`: جعبهٔ شمارنده `aria-hidden` و متن مخفی `${id}_-limit` پیش از توضیح، `maxlength` در textarea؛ فیلد بدون کلید بایت‌به‌بایت مثل قبل)، `class-Emsfb-public.php` (شمارش `@n#` یک نویسه در شاخهٔ `default:` (§18.3) و پیام مرورگر برای فیلد دارای قاعده)، `core-efb.js` (شمارندهٔ زنده و اعلام فقط در آستانه‌ها در live region مودبانهٔ هر فرم، `@n#` در `validate_len_efb_v4`، رفع §18.2 بدون حداقل ضمنی ۲ برای ورودی بدون data-type)، `field-rules-builder-efb.js` (کنترل‌های کلمه و شمارنده، پیش‌نمایش شمارنده روی کانواس و پیش‌نمایش)، `val-efb.js` (`mLenEls` برای textarea)، `admin-efb.js` (`maxlength` textarea روی کانواس)، `public/assets/css/field-rules-efb.css` (تازه)، CF7 `Mapper` (`[count]` → `counter = chars`، `maxlength` textarea منتقل می‌شود).
+- تست‌ها: `node tests/test-field-rules-count.js` (۶۰، بردارهای مشترک `tests/fixtures/count-vectors.json`)، `php tests/test-field-rules-count.php` (۴۶)، `test-field-rules-save-roundtrip.php` (۳۱)، `test-cf7-importer.php` روی وردپرس e2e (۱۷۴)، e2e `f03b` (۱۲، شامل fa_IR در ۳۷۵ پیکسل). سناریوی Playwright جداگانهٔ `test-field-rules-browser.js` ساخته نشد؛ همان رفتارها در e2e روی وردپرس واقعی پوشش داده شده‌اند.
+- وضعیت ترجمه: انگلیسی (دستور مالک).
+- مورد باز: حداقل ضمنی «۲ نویسه» کلاینت فقط برای ورودی‌های دارای `data-type` می‌ماند؛ وگرنه رفع §18.2 پاسخ یک‌نویسه‌ای را که سرور می‌پذیرد رد می‌کرد. شمارنده با مقدار خام صفحه کار می‌کند؛ اعتبارسنجی هر دو طرف روی مقدار پاک‌شده (`@n#`) است.
+- اقدام بعدی: C.
 
 ### C. Regex امن
 - فایل‌ها: `lintRegex` و `b64url` در هر دو زبان، `case 'pattern_b64'` در sanitizer، `patternEls` و استثناهای 2047 و 2082 در `admin-efb.js`، و `preg_safe` در `Field_Rules`.

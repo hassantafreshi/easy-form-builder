@@ -305,7 +305,44 @@ if ( ! defined( 'ABSPATH' ) ) {
 		return ['maxlen' => $maxlen, 'minlen' => $minlen];
 	}
 
+	/**
+	 * F03: what the field rules add to a text-like input or textarea (an old field without the keys:
+	 * nothing, so its markup is byte for byte as before). Returns
+	 * ['attrs' => extra input attributes, 'after' => markup before the description, 'describedby' => ids].
+	 */
+	private function generateRuleExtras_efb($vj, $rndm) {
+		$out = array('attrs' => '', 'after' => '', 'describedby' => array());
+		if (!class_exists('\\Emsfb\\Field_Rules')) return $out;
+		$f = is_object($vj) ? get_object_vars($vj) : (is_array($vj) ? $vj : array());
+		$texts = $this->pro_notice_texts_efb;
+		$t = function ($k, $en) use ($texts) { return isset($texts[$k]) && is_string($texts[$k]) && $texts[$k] !== '' ? $texts[$k] : $en; };
+		$c = \Emsfb\Field_Rules::counter($f);
+		if ($c !== null) {
+			$id = $rndm . '_-limit';
+			$hint = '';
+			if ($c['max'] > 0) {
+				$hint = sprintf('<span id="%s" class="efb efb-vh">%s</span>', esc_attr($id), esc_html(str_replace('%s', number_format_i18n_efb_fr($c['max']), $c['kind'] === 'words' ? $t('tvLimitWordsHint', 'Up to %s words') : $t('tvLimitHint', 'Up to %s characters'))));
+				$out['describedby'][] = $id;
+			}
+			$out['after'] .= sprintf('<div class="efb efb-counter-wrap"><div id="%s_-counter" class="efb efb-counter fs-7" aria-hidden="true" data-counter="%s" data-style="%s" data-max="%d"></div>%s</div>', esc_attr($rndm), esc_attr($c['kind']), esc_attr($c['style']), (int) $c['max'], $hint);
+		}
+		return $out;
+	}
+
+	/** aria-describedby="…" with more ids (the existing attribute, or a new one). */
+	private function mergeDescribedby_efb($attr, array $ids) {
+		if (!$ids) return $attr;
+		$cur = preg_match('/aria-describedby="([^"]*)"/', (string) $attr, $m) ? preg_split('/\s+/', trim($m[1])) : array();
+		$all = implode(' ', array_values(array_unique(array_filter(array_merge($cur, array_map('esc_attr', $ids)), 'strlen'))));
+		return 'aria-describedby="' . $all . '"';
+	}
+
 	private function generateTextInput_efb($type, $classes, $vj, $rndm, $desc, $label, $ttip, $div_f_id, $placeholder, $lenAttributes, $aire_describedby, $disabled, $autocomplete, $form_id, $telPattern = '') {
+		// F03: counter and limit hint (nothing for a field without the keys).
+		$fr_efb = $this->generateRuleExtras_efb($vj, $rndm);
+		if ($fr_efb['after'] !== '') $desc = $fr_efb['after'] . $desc;
+		$aire_describedby = $this->mergeDescribedby_efb($aire_describedby, $fr_efb['describedby']);
+		if ($fr_efb['attrs'] !== '') $telPattern = trim($telPattern . ' ' . $fr_efb['attrs']);
 
 		$corener = isset($vj->corner) ? $vj->corner : 'rounded-3';
 		$required = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
@@ -2734,6 +2771,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 				case "textarea":
 					$minlen = isset($vj->milen) && $vj->milen > 0 ? 'minlength="' . $vj->milen . '"' : '';
+					// F03: a textarea has a maximum too (characters; a word limit is never cut while typing).
+					if (isset($vj->mlen) && (int) $vj->mlen > 0) {
+						$minlen = trim($minlen . ' maxlength="' . (int) $vj->mlen . '"');
+					}
+					$fr_efb = $this->generateRuleExtras_efb($vj, $element_Id);
+					if ($fr_efb['attrs'] !== '') $minlen = trim($minlen . ' ' . $fr_efb['attrs']);
+					$ta_desc_efb = $fr_efb['after'] . $desc;
+					$ta_described_efb = $this->mergeDescribedby_efb($aire_describedby, $fr_efb['describedby']);
 					// F01-H: mobile keyboard choice; nothing is added unless the field sets one.
 					$im_efb = $this->generateMaskAttributes_efb('textarea', $vj);
 					if ($im_efb['attrs'] !== '') {
@@ -2761,11 +2806,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 							esc_attr($vj->value),
 							($vj->required == 1 ? 'true' : 'false'),
 							esc_attr($vj->name),
-							$aire_describedby,
+							$ta_described_efb,
 							$disabled,
 							$minlen,
 							esc_html($this->text_nr_efb($vj->value, 0)),
-							$desc,
+							$ta_desc_efb,
 							$form_id
 
 					);
@@ -5441,4 +5486,11 @@ public function check_error_console_efb(){
 
 		}
 
+}
+
+if (!function_exists('Emsfb\\number_format_i18n_efb_fr')) {
+	/** A count in the site's digits (number_format_i18n when WordPress is loaded). */
+	function number_format_i18n_efb_fr($n) {
+		return function_exists('number_format_i18n') ? number_format_i18n((int) $n) : (string) (int) $n;
+	}
 }

@@ -245,7 +245,7 @@ efb_cf7t( 'textarea: enclosed content is the default', "Line one\nLine two" === 
 $m = efb_cf7t_map( '<label>Msg [textarea* msg minlength:10 maxlength:500 placeholder "Tell us"]Content[/textarea*]</label>' );
 $f = efb_cf7t_fields( $m )[0];
 efb_cf7t( 'textarea: with placeholder the content is the placeholder (as CF7)', 'Content' === $f['placeholder'] && '' === $f['value'] && '10' === $f['milen'] );
-efb_cf7t( 'textarea: maxlength reported (the builder has no textarea maximum)', ! isset( $f['mlen'] ) && efb_cf7t_notes_match( $m, 'maxlength:500' ) );
+efb_cf7t( 'textarea: maxlength carried over (F03: a textarea has a maximum)', isset( $f['mlen'] ) && '500' === $f['mlen'] && ! efb_cf7t_notes_match( $m, 'maxlength:500' ) );
 
 $m = efb_cf7t_map( '<label>Country [select* country include_blank "France" "Germany|DE" "Iran" default:3]</label>' );
 $f = efb_cf7t_fields( $m )[0];
@@ -324,7 +324,13 @@ $m = efb_cf7t_map( '[captchac c1][captchar c1]', array(), array( 'captcha_ready'
 efb_cf7t( 'captcha with EFB reCAPTCHA keys: reCAPTCHA turned on, said in settings', true === $m['structure'][0]['captcha'] && ! efb_cf7t_notes_match( $m, 'CAPTCHA was not' ) && ! empty( $m['settings'] ) );
 
 $m = efb_cf7t_map( '<label>Msg [textarea msg]</label>[count msg][response]' );
-efb_cf7t( 'count: reported; response: ignored', 1 === count( efb_cf7t_fields( $m ) ) && efb_cf7t_notes_match( $m, 'character counter of “Msg”' ) && 1 === count( $m['notes'] ) );
+$f = efb_cf7t_fields( $m )[0];
+efb_cf7t( 'count: the field\'s own counter (F03), no note; response: ignored', 1 === count( efb_cf7t_fields( $m ) ) && 'chars' === $f['counter'] && 'used' === $f['counter_style'] && 0 === count( $m['notes'] ) );
+$m = efb_cf7t_map( '<label>Msg [textarea msg maxlength:200]</label>[count msg]' );
+$f = efb_cf7t_fields( $m )[0];
+efb_cf7t( 'count with a maximum: what is left', 'chars' === $f['counter'] && 'remaining' === $f['counter_style'] && '200' === $f['mlen'] );
+$m = efb_cf7t_map( '[count nowhere]' );
+efb_cf7t( 'count of an unknown field: still reported', efb_cf7t_notes_match( $m, 'character counter of “nowhere”' ) );
 $m = efb_cf7t_map( '[stripe "Pay"][dynamictext d "x"]', array(), array( 'extra_types' => array( 'dynamictext' ) ) );
 efb_cf7t( 'stripe and add-on tags: reported by type', efb_cf7t_notes_match( $m, '[stripe]' ) && efb_cf7t_notes_match( $m, '[dynamictext]' ) );
 $m_off = efb_cf7t_map( $addon_tpl );

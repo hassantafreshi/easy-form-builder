@@ -630,6 +630,8 @@ async function createStepsOfPublic() {
             }
             // F01: bind the mask first, so a default value is formatted before it is checked.
             const mask_bound_efb = (el.type === 'text' || el.type === 'tel') ? efb_bind_mask_efb(el, form_id) : false;
+            // F03: the live counter of a field with one (nothing on other fields).
+            if (el.type === 'text' || el.type === 'textarea') efb_rules_bind_counter_efb(el, form_id);
             let init_change_efb = null;
             if(el.value && el.value.length>0){
               if(el.type!="range" && el.type!="color"){
@@ -1533,6 +1535,44 @@ function efb_rules_check_efb(el, ob, value, form_id) {
   const m = EfbRules.message(ob, err.rule, err.key, efb_var.text, err.n);
   efb_rules_show_error_efb(el, m.text);
   return false;
+}
+
+/** The polite live region of a form (one per form), for counter thresholds (§4.3). */
+function efb_rules_announce_efb(form_id, text) {
+  const id = `efb-live-${form_id}`;
+  let live = document.getElementById(id);
+  if (!live) {
+    live = document.createElement('div');
+    live.id = id;
+    live.className = 'efb efb-vh';
+    live.setAttribute('role', 'status');
+    live.setAttribute('aria-live', 'polite');
+    (document.getElementById(`body_efb_${form_id}`) || document.body).appendChild(live);
+  }
+  live.textContent = '';
+  setTimeout(() => { live.textContent = text; }, 30);
+}
+
+/** The live counter under a field with counter = chars | words (updated on input; announced at thresholds only). */
+function efb_rules_bind_counter_efb(el, form_id) {
+  if (typeof EfbRules === 'undefined' || !el || !el.dataset || el.dataset.efbCounter === '1') return;
+  const ob = (get_structure_by_form_id_efb(form_id) || []).find((x) => x && x.id_ === el.dataset.vid);
+  const c = EfbRules.counter(ob);
+  const box = c ? document.getElementById(`${el.dataset.vid}_-counter`) : null;
+  if (!box) return;
+  el.dataset.efbCounter = '1';
+  const locale = (typeof efb_var !== 'undefined' && (efb_var.wp_lan || efb_var.language)) || document.documentElement.lang || 'en';
+  let zone = null;
+  const update = () => {
+    const n = c.kind === 'words' ? EfbRules.countWords(el.value) : EfbRules.countChars(el.value);
+    const r = EfbRules.counterText(c, n, (typeof efb_var !== 'undefined' && efb_var.text) || {}, locale);
+    box.textContent = r.text;
+    box.classList.toggle('efb-counter-over', r.over);
+    if (zone !== null && r.zone !== zone && r.zone !== 'ok') efb_rules_announce_efb(form_id, r.text);
+    zone = r.zone;
+  };
+  el.addEventListener('input', update);
+  update();
 }
 
 /** A server answer that names a field (field_id): the field shows the server's sentence. */
@@ -4184,9 +4224,13 @@ async function handle_change_event_efb_v4(el ,form_id=0){
   validate_len_efb_v4 =async()=>{
 
     let offsetw = offset_view_efb();
-    const mi=()=> {return  el.type!="number" ? 2 :0}
+    // The implicit minimum of 2 only ever applied to inputs with a data-type: a text input without
+    // minlength accepts one character, as the server does (F03 §18.2 made its failures count).
+    const mi=()=> {return  el.type!="number" && el.dataset.hasOwnProperty('type') ? 2 :0}
     let len = el.hasAttribute('minlength')  ? el.minLength :mi();
-    if (value.length < len && el.type!="number") {
+    // F03 §18.3: a textarea newline travels as "@n#" and counts as one character (as on the server); code points, not UTF-16 units.
+    const vlen = Array.from(String(value).replace(/@n#/g, '\n')).length;
+    if (vlen < len && el.type!="number") {
       state = false;
       el.className = colorBorderChangerEfb(el.className, "border-danger");
       vd = document.getElementById(`${el.id}-message`);
@@ -4219,7 +4263,7 @@ async function handle_change_event_efb_v4(el ,form_id=0){
     }
     len =  el.hasAttribute('maxlength') ? el.maxLength :0;
     if(len==0) return 1;
-    if (value.length > len && el.type!="number") {
+    if (vlen > len && el.type!="number") {
       state = false;
       el.className = colorBorderChangerEfb(el.className, "border-danger");
       vd = document.getElementById(`${el.id}-message`);
@@ -4327,7 +4371,8 @@ async function handle_change_event_efb_v4(el ,form_id=0){
         // F03: a field whose length belongs to its rules is measured by EfbRules after the switch.
         let lenResult = efb_rules_owns_length_efb(ob, form_id) ? 1 : await validate_len_efb_v4();
         // Number inputs carry no data-type, so their Min/Max message was shown and then ignored.
-        if(lenResult===0 && (el.type=="number" || (el.dataset.hasOwnProperty('type') && el.dataset.type!="chlCheckBox"))){
+        // F03 §18.2: every failed length stops here (text inputs carry no data-type, so their failure used to be ignored).
+        if(lenResult===0 && !(el.dataset.hasOwnProperty('type') && el.dataset.type=="chlCheckBox")){
           sendback_state_handler_efb_v4(id_,false,0,form_id);
           updateStepButtonState_efb(form_id);
           return;

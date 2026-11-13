@@ -7520,6 +7520,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       minlen = valj_efb[iVJ].hasOwnProperty('milen') && valj_efb[iVJ].milen >0 ? valj_efb[iVJ].milen :0;
       minlen = Number(minlen)!=0 ? `minlength="${minlen}"`:``;
       { const imEfb = efb_mask_attrs_efb(valj_efb[iVJ], 'textarea'); if (imEfb.attrs) minlen = `${minlen} ${imEfb.attrs}`.trim(); } // F01-H
+      if (Number(valj_efb[iVJ].mlen) > 0) minlen = `${minlen} maxlength="${Number(valj_efb[iVJ].mlen)}"`.trim(); // F03: a textarea maximum, as on the page
       ui = `
                 ${label}
                 <div class="efb  ${pos[3]} col-sm-12 px-0 mx-0 ttEfb show"  id='${rndm}-f' >

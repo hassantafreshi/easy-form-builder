@@ -174,6 +174,20 @@ class Field_Rules {
 			// Plain text, %s = the field label; never HTML (the server escapes it, the browser writes textContent).
 			return self::plain($v, 200);
 		}
+		switch ($k) {
+			case 'wmin':
+			case 'wmax':
+				// 0 or nothing = no limit (''); Persian / Arabic digits accepted; at most 100000.
+				if (!is_scalar($v) || is_bool($v)) return '';
+				$d = class_exists('\\Emsfb\\Masks') ? Masks::normalize_digits(trim((string) $v)) : trim((string) $v);
+				if (!preg_match('/^\d{1,9}$/', $d)) return '';
+				$n = min(100000, (int) $d);
+				return $n > 0 ? (string) $n : '';
+			case 'counter':
+				return in_array($v, array('none', 'chars', 'words'), true) ? $v : 'none';
+			case 'counter_style':
+				return $v === 'used' ? 'used' : 'remaining';
+		}
 		return is_scalar($v) ? self::plain($v, 200) : '';
 	}
 
@@ -204,8 +218,20 @@ class Field_Rules {
 	public static function active_rules($f) {
 		$out = array();
 		if (!is_array($f)) return $out;
-		if (self::type_ok($f, 'length') && (self::has_msg($f, 'minlen') || self::has_msg($f, 'maxlen')) && (self::int($f, 'milen') > 0 || self::int($f, 'mlen') > 0)) $out[] = 'length';
+		$masked = isset($f['mask_preset']) && is_string($f['mask_preset']) && $f['mask_preset'] !== '';
+		if (!$masked && self::type_ok($f, 'words') && (self::int($f, 'wmin') > 0 || self::int($f, 'wmax') > 0)) $out[] = 'words';
+		// Lengths: measured here when the field has rules or the owner's length messages (else the type branch does it).
+		if (!$masked && self::type_ok($f, 'length') && (self::int($f, 'milen') > 0 || self::int($f, 'mlen') > 0)
+			&& ($out || self::has_msg($f, 'minlen') || self::has_msg($f, 'maxlen'))) array_unshift($out, 'length');
 		return $out;
+	}
+
+	/** The counter of a field: ['kind' => chars|words, 'style' => remaining|used, 'max' => n] or null. */
+	public static function counter($f) {
+		if (!is_array($f) || !self::type_ok($f, 'counter') || (isset($f['mask_preset']) && is_string($f['mask_preset']) && $f['mask_preset'] !== '')) return null;
+		$kind = isset($f['counter']) && in_array($f['counter'], array('chars', 'words'), true) ? $f['counter'] : '';
+		if ($kind === '') return null;
+		return array('kind' => $kind, 'style' => isset($f['counter_style']) && $f['counter_style'] === 'used' ? 'used' : 'remaining', 'max' => self::int($f, $kind === 'words' ? 'wmax' : 'mlen'));
 	}
 
 	/** A positive integer key (wmin, wmax, milen, mlen); 0 = not set. */
@@ -287,11 +313,29 @@ class Field_Rules {
 			if ($mi > 0 && $n < $mi) return $fail('minlen', self::msg($f, 'minlen', 'tvMinLen_', $lanText, $mi));
 			if ($mx > 0 && $n > $mx) return $fail('maxlen', self::msg($f, 'maxlen', 'tvMaxLen_', $lanText, $mx));
 		}
+		if (in_array('words', $rules, true)) {
+			$n = self::count_words($v);
+			$mi = self::int($f, 'wmin');
+			$mx = self::int($f, 'wmax');
+			if ($mi > 0 && $n < $mi) return $fail('words', self::msg($f, 'words', 'tvMinWords_', $lanText, $mi));
+			if ($mx > 0 && $n > $mx) return $fail('words', self::msg($f, 'words', 'tvMaxWords_', $lanText, $mx));
+		}
 		$ok['item'] = $item;
 		return $ok;
 	}
 
 	/* ------------------------------------------------------------ counting */
+
+	/** Word separators (§4.3): whitespace and the Unicode spaces; ZWNJ (U+200C) is not one. */
+	const WORD_SEP = '/[\t\n\x{000B}\f\r \x{00A0}\x{1680}\x{2000}-\x{200B}\x{2028}\x{2029}\x{202F}\x{205F}\x{3000}]+/u';
+
+	/** Words of a value: the pieces between separators ("می‌خواهم بروم" = 2). */
+	public static function count_words($v) {
+		$s = self::value_text($v);
+		if ($s === '' || !preg_match('//u', $s)) return 0;
+		$parts = preg_split(self::WORD_SEP, $s, -1, PREG_SPLIT_NO_EMPTY);
+		return is_array($parts) ? count($parts) : 0;
+	}
 
 	/** Code points of a value (newline = 1, after value_text()). */
 	public static function count_chars($v) {

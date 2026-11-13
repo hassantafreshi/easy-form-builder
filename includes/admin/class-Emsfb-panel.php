@@ -313,6 +313,7 @@ class Panel_edit  {
 			// F03: the field-rule engine (twin of Field_Rules) and its settings-panel controls.
 			wp_enqueue_script('efb-field-rules-js', EMSFB_PLUGIN_URL . 'public/assets/js/field-rules-efb.js', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/js/field-rules-efb.js'));
 			wp_enqueue_script('efb-field-rules-builder-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/field-rules-builder-efb.js', array('efb-val-js', 'efb-field-rules-js'), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/field-rules-builder-efb.js'));
+			wp_enqueue_style('efb-field-rules-css', EMSFB_PLUGIN_URL . 'public/assets/css/field-rules-efb.css', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/css/field-rules-efb.css'));
 			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION);
 			$lng_ = get_locale();
 			if ( strlen( $lng_ ) > 0 ) {

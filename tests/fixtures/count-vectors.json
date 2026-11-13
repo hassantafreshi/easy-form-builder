@@ -1,0 +1,122 @@
+[
+ {
+  "v": "می‌خواهم بروم",
+  "chars": 13,
+  "words": 2,
+  "note": "ZWNJ is not a separator"
+ },
+ {
+  "v": "hello world",
+  "chars": 11,
+  "words": 2,
+  "note": "ascii"
+ },
+ {
+  "v": "  hello   world  ",
+  "chars": 17,
+  "words": 2,
+  "note": "runs of spaces"
+ },
+ {
+  "v": "a b c　d",
+  "chars": 7,
+  "words": 4,
+  "note": "no-break, em and ideographic spaces"
+ },
+ {
+  "v": "a​b",
+  "chars": 3,
+  "words": 2,
+  "note": "zero-width space separates"
+ },
+ {
+  "v": "one@n#two@n#three",
+  "chars": 13,
+  "words": 3,
+  "note": "textarea newline token"
+ },
+ {
+  "v": "one\r\ntwo",
+  "chars": 7,
+  "words": 2,
+  "note": "CRLF is one character"
+ },
+ {
+  "v": "",
+  "chars": 0,
+  "words": 0,
+  "note": "empty"
+ },
+ {
+  "v": "   ",
+  "chars": 3,
+  "words": 0,
+  "note": "only spaces"
+ },
+ {
+  "v": "😀😀 x",
+  "chars": 4,
+  "words": 2,
+  "note": "emoji = one code point"
+ },
+ {
+  "v": "اااااااااااااااااااااااااااااااااااااااااااااااااااااااااااااااااااااااااااااااااااااااااااااااااااا",
+  "chars": 100,
+  "words": 1,
+  "note": "100 Persian letters"
+ },
+ {
+  "v": "سلام‌علیکم دوست",
+  "chars": 15,
+  "words": 2,
+  "note": "ZWNJ inside a word"
+ },
+ {
+  "v": "tab\there",
+  "chars": 8,
+  "words": 2,
+  "note": "tab"
+ },
+ {
+  "v": "a b c",
+  "chars": 5,
+  "words": 3,
+  "note": "line and paragraph separators"
+ },
+ {
+  "v": "١٢٣ ۴۵۶",
+  "chars": 7,
+  "words": 2,
+  "note": "Arabic and Persian digits"
+ },
+ {
+  "v": "x y z",
+  "chars": 5,
+  "words": 3,
+  "note": "narrow and medium spaces"
+ },
+ {
+  "v": "a b",
+  "chars": 3,
+  "words": 2,
+  "note": "ogham space"
+ },
+ {
+  "v": "a﻿b",
+  "chars": 3,
+  "words": 1,
+  "note": "BOM is not a separator"
+ },
+ {
+  "v": "l1@n#@n#l3",
+  "chars": 6,
+  "words": 2,
+  "note": "two newline tokens"
+ },
+ {
+  "v": "ab‌",
+  "chars": 3,
+  "words": 1,
+  "note": "trailing ZWNJ"
+ }
+]

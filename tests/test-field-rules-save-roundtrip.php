@@ -113,6 +113,14 @@ $cases[] = array('msg_domain', array('x'), '');
 $cases[] = array('msg_strength', 'Use 8+ chars & a digit', 'Use 8+ chars & a digit');
 roundtrip_keys($fn, $cases);
 
+/* B: words and the counter. */
+roundtrip_keys($fn, array(
+	array('wmin', '2', '2'), array('wmax', '۱۲۰', '120'), array('wmax', 0, ''), array('wmax', '999999', '100000'), array('wmin', '-1', ''), array('wmax', array(3), ''),
+	array('counter', 'chars', 'chars', array('type' => 'textarea')), array('counter', 'words', 'words'), array('counter', 'lines', 'none'), array('counter', '', 'none'),
+	array('counter_style', 'used', 'used'), array('counter_style', 'remaining', 'remaining'), array('counter_style', 'left', 'remaining'),
+	array('mlen', '500', '500', array('type' => 'textarea')),
+));
+
 /* An old form without the keys comes back with the same keys. */
 $old = form_with(array(fld('o1', array('milen' => '2', 'mlen' => '30', 'customRequiredMsg' => 'Please fill %s')), fld('o2', array('type' => 'textarea', 'value' => 'a@n#b'))));
 $back = save_and_read($fn, builder_payload($old));
