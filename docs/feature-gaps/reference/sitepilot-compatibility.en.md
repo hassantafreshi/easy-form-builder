@@ -79,7 +79,7 @@ and F06 already promises them (`calendar-engine-contract.en.md` §6.1, §7.2).
 | G10 | Row conventions the converter must reproduce: row 0 settings (defaults in `creator_form_builder_Efb()`, `val-efb.js:2277`; PHP twin `Mapper::form_settings()`, `includes/importers/cf7/class-Emsfb-cf7-mapper.php:1329`), row 1 `type:"step"`, every field has `id_`, `dataId` (= `id_ + "-id"`), `step`, `amount`; options are separate rows with `parent`, `id_op`; booleans are stored as `"1"`/`""` (playbook §1.2, §1.6); an option row carrying `id` gets its `id_` rewritten (`functions.php:4047-4080`); every step must contain a field and a payment form needs a gateway (`admin-efb.js:4030-4039`, client only) | Hand-built rows drift from builder rows; structural rules are not enforced on the server |
 | G11 | Notifications: admin recipients are row-0 `email` (redacted in public JSON); visitor copy is `sendEmail` + `email_to` (field id) + field `noti`. Conditional `notification_rules` recipients and `webhook_rules` URLs are **not** redacted (G4) | SitePilot `notifications[]` must map to row-0 `email` only |
 | G12 | Confirmation: `thank_you:"msg"` + `thank_you_message.{thankYou,done,...}`, or `thank_you:"rdrct"` + `rePage` (Pro; `/` stored as `@efb@`; no field data passed). Only five `thank_you_message` sub-keys survive save (`functions.php` `case 'thank_you_message'`) | Mapping for SitePilot `confirmation:{type,message}` |
-| G13 | Shortcode is `[EMS_Form_Builder id=N]`; the id is the last attribute (`end($id)`, `class-Emsfb-public.php:1118`), so any extra attribute breaks it (BUGS-FOUND) | SitePilot must return the bare shortcode until F11 fixes this |
+| G13 | Shortcode is `[EMS_Form_Builder id=N]`; the id used to be the last attribute (`end($id)`), so any extra attribute broke it (BUGS-FOUND) | **Fixed in F11 (2026-11-13)**: the `id` attribute is read first; SitePilot may return `[EMS_Form_Builder id=N popup="1" popup_label="…"]` |
 | G14 | Edit URL is `admin.php?page=Emsfb&state=edit-form&id=N` (`includes/admin/assets/js/list_form-efb.js:380`) | Use it in the result card, or the `edit_url` returned by the API (§5) |
 | G15 | Capabilities: administrators get `Emsfb`, `Emsfb_create`, `Emsfb_panel`, `Emsfb_addon`, … (`class-Emsfb-admin.php:84-93`). Create checks `current_user_can('Emsfb')` only (`class-Emsfb-create.php:399`); update accepts `manage_options` or `Emsfb` (`user_permission_efb_admin_dashboard()`, `functions.php:8711`). The plan switch `efb_save_plan_selection` accepts the same (`class-Emsfb-admin.php:70, 4111`) | The API maps operations to EFB capabilities (§5.3). Plan changes are never exposed |
 | G16 | Unknown **array/object** keys are wiped on save; unknown scalars survive (`sanitize_obj_msg_efb` `default:`; playbook §1.6, pitfall 1). The redesign's round-trip rule (`_workspace/easy-form-builder-form-builder/docs/STATE_SCHEMA.md` "Non-negotiable round-trip rule") is not true of the live save path for arrays | A SitePilot read-modify-write of the whole form would lose array keys its model does not know. Updates must be server-side patches (§5.2) |
@@ -1007,6 +1007,13 @@ and entries honour `vis_mode` for the viewer; `vis_*` and `rich_text` are `secur
 not save partial answers on the visitor's behalf (consent). Must add: `Form_Gate` also enforces the
 draft status (§5.3); shortcode `end($atts)` fix (G13) so SitePilot can return popup shortcodes;
 error codes in §5.7.
+*Status 2026-11-13 (F11 shipped on `dev4`):* the keys, the codes of §5.7, the shortcode fix (G13) and the
+`gate` block of `forms/session/prepare` exist; read-only status `GET Emsfb/v1/forms/gate?form_id=N`
+(`efbBuilderApi.formGate()`), `efbBuilderApi.setFormSettings()` with the server's rules,
+`capabilities.form_gate` (docs/autopilot-integration.md "F11"). **Not yet:** the draft status of §5.3
+(`emsfb_form.status = 0` → not rendered, `efb_form_draft` on submit): nothing in EFB writes status 0
+until the API's create exists, so it ships with `efb_api_form_create`; the public schema's `gate` block
+waits for the public schema itself; `security_changes` reporting waits for the API.
 
 **F12 spam.** Create: `captcha_provider`, `rc3_threshold`, `spam_off` (security change),
 `spam_akismet`. Fill: the schema never exposes the honeypot; the visitor solves captcha. Must add:

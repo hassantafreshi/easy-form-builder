@@ -761,6 +761,74 @@ only on test sites (registered by the e2e mu-plugin).
 
 ---
 
+### F11. Form limits, schedule, roles, save and resume, partial answers, custom CSS, popup
+
+New form keys in the contract (`docs/feature-gaps/F11-form-limits-resume.fa.md`; SitePilot contract
+§5.3, §5.7, §9). All on row 0, all scalar strings, all optional (absent = today's behaviour):
+
+| Key | Values (as the save keeps them; anything else is stored as `''`) | Plan |
+|---|---|---|
+| `lim_total` | `"1"`–`"10000000"` answers (Persian / Arabic digits and thousands separators accepted; `-5`, `1e3` refused) | Free |
+| `lim_show_left` | `"1"` / `""`: "N places left" above the form | Free |
+| `lim_full_msg` | text ≤ 300, shown when the form is full | Free |
+| `sched_open`, `sched_close` | `YYYY-MM-DDTHH:MM` in **site time** (`efb_var.site_tz`, `efb_var.site_now`); close must be after open (else the save is refused with `code: "sched_order"`) | Free |
+| `sched_grace` | `"0"`–`"60"` minutes still accepted after closing for a session prepared before it | Free |
+| `sched_pending_msg`, `sched_closed_msg` | text ≤ 300; `%s` = the date | Free |
+| `allowed_roles` | comma list of existing role slugs (`efb_var.wp_roles`); only with `stateForm: "1"`; administrators always pass | Free |
+| `lim_user`, `lim_ip`, `lim_cookie`, `lim_email` | `"1"`–`"100000"` answers per logged-in user / IP / browser cookie / e-mail address | Free Plus |
+| `lim_email_field` | the `id_` of an **email** field of the form (else `''`) | Free Plus |
+| `lim_period` | `ever` (default) · `day` · `week` (from `start_of_week`) · `month` · `year`, calendar periods in site time | Free Plus |
+| `lim_user_msg` | text ≤ 300; `%s` = when the person may send again | Free Plus |
+| `custom_css` | `"b64:" + base64(UTF-8 CSS)` ≤ 20 KB; cleaned (no `<`, `@import`, `expression(`, `javascript:`, non-https URLs…) and scoped to `#body_efb_{id}`. Changed only when the saving user has `unfiltered_html` (otherwise the stored value stays) | Free |
+| `draft_on`, `draft_days` | "Save and continue later"; `"1"`–`"90"` days (default 30) | Pro |
+| `partial_on`, `partial_days`, `partial_consent`, `partial_need_contact` | partial answers with consent: `checkbox` (default) / `notice`; `"1"`–`"365"` days; `"1"` (default) / `"0"` | Pro |
+
+- **Builder.** `efbBuilderApi.setFormSettings({lim_total: '100', sched_close: '2026-12-31T23:59'})` writes
+  row-0 keys with exactly the server's rules (`efb_limits_value_efb()`, the same table as
+  `Form_Gate::sanitize_key()`; PHP and JS are parity-tested) and throws `invalid_setting`,
+  `sched_order` or `no_unfiltered_html` without changing anything. `setForm()` keeps every key.
+  The form settings panel has the section "Access and limits" (`#collapseAccess`). Saving stays the
+  owner's Save. The save answer's `warnings` may carry `lim_total_reached` (the form already has as
+  many entries), `lim_plan` (per-person limits need Free Plus), `lim_ip_no_ip` (the form stores no IP,
+  F13), `lim_email_field`.
+- **Read-only status** (users who can edit forms; `X-WP-Nonce` = `efb_var.nonce`):
+  `GET Emsfb/v1/forms/gate?form_id=N` or `await efbBuilderApi.formGate({formId})` →
+  `{form_id, state: open|pending|closed|full|limited|role, code, message, opens_at, closes_at, timezone,
+  total: {limit, used, left}|null, person: {user, ip, cookie, email, email_field, period}, roles,
+  drafts: {draft_on, partial_on}, inactive: [person_limits_plan, ip_limit_no_ip, email_limit_no_field,
+  roles_need_private, drafts_plan]}`. It never reports a visitor's own counters.
+- **Visitor answers.** `forms/session/prepare` adds `gate: {state, closes_at, left?}` (`left` only with
+  `lim_show_left`) or refuses with 403 and a stable code: `efb_role_denied`, `efb_form_pending`,
+  `efb_form_closed`, `efb_form_full`, `efb_limit_reached` (`data.reopen_at` = unix time when known).
+  Every submit route answers the same codes (403 from the check; in-band `success:false` with `code`
+  when the last place was taken between the check and the store). `POST Emsfb/v1/forms/gate/state
+  {form_id}` (same origin, always 200) is what a cached widget asks.
+- **Payments.** A closed / full / over-limit form is refused before `payments/create` stores anything
+  (same codes, the sentence on the payment field). A pending payment holds its place; a failed,
+  cancelled or expired one gives it back; "Try again" takes it again or answers `efb_form_full`
+  (`docs/payments/payment-error-matrix.en.md` §6).
+- **Popup.** `[EMS_Form_Builder id=5 popup="1" popup_label="Register" popup_style="button|link"
+  popup_delay="0"]` (Free Plus); block attributes `displayMode` (`inline`/`popup`), `popupLabel`,
+  `popupStyle`. The id is now read from the `id` attribute (extra attributes no longer pick the wrong form).
+- **Registry.** `setting:form_total_limit`, `setting:form_schedule`, `setting:form_roles` (`needs:
+  stateForm=1`), `setting:form_custom_css` (`needs_cap: unfiltered_html`), all Free;
+  `setting:form_person_limits`, `setting:form_popup` (`scope: embed`, shortcode and block attributes),
+  Free Plus; `setting:form_drafts`, `setting:form_partials`, Pro. Top level `form_gate` =
+  `{rest, methods, builder: 'efbBuilderApi.formGate', codes, states, keys, periods, spec: 'F11'}`.
+  The plan levels can be changed by the owner with the filter `efb_f11_plan`.
+- **Agent rules.** An agent may set every key above (and must report `lim_*`, `sched_*`,
+  `allowed_roles`, `custom_css` changes as security changes). It never saves a draft or partial answers
+  for a visitor, never ticks the consent box, never resets the counters (the owner's button), and
+  writes `custom_css` only when the user it acts for has `unfiltered_html`.
+- **Hooks.** `efb_f11_plan` (filter: plan of a part), `efb_client_ip` (filter: the visitor's address for
+  limits), `efb_payment_retry_gate` (filter used by core), `efb_entries_purged` now also passes the form ids
+  (4th argument), `efb:popup-open` (DOM event when a popup form opens).
+- **Tests.** `php tests/test-form-gate-unit.php`, `php tests/test-f11-sanitize-roundtrip.php`,
+  `node tests/test-f11-parity.js`, `node tests/test-f11-builder-controls.js`, the HTTP tests
+  (`test-form-gate-http.php`, `test-form-limits-http.php`, `test-drafts-http.php`,
+  `test-partial-entries-http.php`) and the e2e scenarios `f11b` … `f11h`, `f11pay` (B: AutoPilot
+  `formGate()` and `capabilities.form_gate`).
+
 ### PAY01. Mollie gateway field (`mollie`, add-on `AdnMOL`)
 
 Add-on `vendores-efb/mollie` on the PAY00 contract; nothing new in core. For agents:

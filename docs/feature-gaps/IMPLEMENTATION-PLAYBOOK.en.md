@@ -487,6 +487,10 @@ Running example: **form open/close scheduling** (`open_at`, `close_at`, `closed_
    `wp_send_json_success(['success'=>false,'m'=>…])`. The client maps codes to visitor text in
    `efb_failure_cause_efb` / `efb_visitor_text_efb` (`core-efb.js:2318, 2340`); a `closed` cause and the phrases
    `formsClosed`/`f_closed_*` already exist (`formbuilder:4330`, public subset 1203), so reuse them.
+   **Correction (F11, 2026-11-13):** do not reuse `formsClosed`: it means "this site does not accept forms".
+   The schedule has its own phrases (`schedPendingM`, `schedClosedM`) and the gate lives in
+   `Emsfb\Form_Gate` (`includes/class-Emsfb-form-gate.php`), which already runs at render, prepare and
+   every submit; a new form-level rule should be a state there.
 8. **Secrets:** if a key must not reach visitors, strip it as described in §1.7.
 9. **Phrases:** builder labels in the full map; the closed message key in the public subset (1183) and in `$translation_keys` (2402).
 
