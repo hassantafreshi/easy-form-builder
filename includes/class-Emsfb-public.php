@@ -306,6 +306,7 @@ public function check_nonce_permission_efb($request) {
 		/* F08: the user tags of this form ({user:display_name}, …) reach the browser only here: an answer that is
 		 * no-store and same-origin (efb_issue_rest_nonce_efb), never the cached page. The e-mail only when the
 		 * form itself uses {user:email}; nothing for a guest or a form without user tags. */
+		if (is_user_logged_in()) $answer['user_name'] = (string) wp_get_current_user()->user_login; // F08 §12.1: not in the cached page
 		if ($gate_s0 !== null && class_exists('\\Emsfb\\Smart_Tags') && is_user_logged_in()) {
 			$st_uses_efb = \Emsfb\Smart_Tags::uses($gate_s0);
 			if (isset($st_uses_efb['user'])) {
@@ -1545,7 +1546,11 @@ public function check_nonce_permission_efb($request) {
 			} else if (is_user_logged_in()) {
 				$is_user = current_user_can('administrator') ? 'admin' : 'user';
 			}
-			$username = is_user_logged_in() ? wp_get_current_user()->user_login : 'guest';
+			/* F08 §12.1 (open question 4): a form in a widget, footer or popup stays in page caches, so the
+			 * signed-in user's login is not printed into the page; forms/session/prepare gives it (no-store,
+			 * same origin) to the scripts that name the author of a reply. Role slugs (user_state) stay: they are
+			 * shared by every user of the role and Conditional Logic reads them on the first pass. */
+			$username = is_user_logged_in() ? '' : 'guest';
 			if ($is_track==null){
 
 					$fs =\emsfb_json_normalize_efb($value_form_data->form_structer);

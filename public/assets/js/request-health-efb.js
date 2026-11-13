@@ -80,6 +80,8 @@
     try { if (typeof _efb_core_nonce_ !== 'undefined') _efb_core_nonce_=value.nonce; } catch (e) {}
     try { if (typeof valj_efb_new !== 'undefined') { const f=valj_efb_new.find(f=>Number(f.id)===fid); if (f) f.sid=value.sid; } } catch (e) {}
     try { if (window.EFBHumanShield) window.EFBHumanShield.wpRestNonce=value.nonce; } catch (e) {}
+    // F08 §12.1: the signed-in user's login reaches the page here (no-store), never in a cached page.
+    try { if (typeof value.user_name === 'string' && value.user_name !== '') { if (typeof ajax_object_efm !== 'undefined') ajax_object_efm.user_name=value.user_name; if (typeof efb_var !== 'undefined' && efb_var) efb_var.user_name=value.user_name; } } catch (e) {}
   }
   function legacy(fid, context) {
     if (context.value && Date.now()-context.issued < REUSE_MAX) return context.value;
