@@ -1,0 +1,4 @@
+/* Easy Form Builder - advanced date field (F06), right to left. The layout uses logical properties
+ * (calendar-efb.css); only what the bidi algorithm cannot decide is here. */
+.rtl .efb-cal-disp, [dir=rtl] .efb-cal-disp, .rtl .efb-cal-hint, [dir=rtl] .efb-cal-hint, .rtl .efb-cal-msg, [dir=rtl] .efb-cal-msg { text-align: right; }
+[dir=rtl] .efb-cal-dialog { text-align: right; }

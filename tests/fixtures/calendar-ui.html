@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EFB advanced date field (F06) - picker fixture</title>
+<!-- Mounts the advdate picker without WordPress for tests/calendar-ui-browser.js.
+     Query: ?locale=fa_IR&dir=rtl&today=2026-11-13 (served by the test's own static server). -->
+<link rel="stylesheet" href="../../public/assets/css/calendar-efb.css">
+<link rel="stylesheet" href="../../public/assets/css/calendar-rtl-efb.css">
+<style>body{font-family:system-ui,sans-serif;margin:16px;max-width:760px}.row{margin-bottom:28px}label{display:block;font-weight:600;margin-bottom:4px}.form-control{border:1px solid #ced4da;border-radius:.375rem;padding:.4rem .6rem;font:inherit;min-height:2.75rem;box-sizing:border-box}</style>
+</head>
+<body>
+<form id="f" onsubmit="return false"><div id="fields"></div><button type="button" id="after">after</button></form>
+<script src="../../public/assets/js/calendar/efb-calendar-core.js"></script>
+<script src="../../public/assets/js/calendar/efb-cal-persian.js"></script>
+<script src="../../public/assets/js/calendar/efb-cal-islamic.js"></script>
+<script src="../../public/assets/js/calendar/efb-cal-intl.js"></script>
+<script src="../../public/assets/js/calendar/efb-calendar-ui.js"></script>
+<script>
+(function () {
+  var q = new URLSearchParams(location.search);
+  var locale = q.get('locale') || 'en_US', dir = q.get('dir') || 'ltr';
+  document.documentElement.setAttribute('dir', dir);
+  document.documentElement.setAttribute('lang', locale.replace('_', '-'));
+  window.EFB_CAL_HOLIDAYS_URL = '../../public/assets/json/holidays/';
+  var names = new XMLHttpRequest();
+  names.open('GET', '../../public/assets/json/calendar-names.json', false); names.send();
+  EFBCalendar._.setNames(JSON.parse(names.responseText));
+  var fa = locale.indexOf('fa') === 0;
+  var site = { tz: q.get('tz') || 'Asia/Tehran' };
+  var F = {
+    f_single: { label: fa ? 'تاریخ نوبت' : 'Appointment date', field: { cal_default: fa ? 'persian' : 'gregory', cal_allowed: fa ? ['persian', 'gregory', 'islamic-umalqura'] : ['gregory', 'persian'], cal_switch: 1, cal_secondary: fa ? 'gregory' : '', disabled_weekdays: [5], date_min: { type: 'relative', value: 1 }, date_max: { type: 'relative', value: 120 }, holiday_sets: ['ir-official'], required: 1 } },
+    f_range: { label: fa ? 'ورود و خروج' : 'Check-in / out', mode: 'range', field: { date_mode: 'range', cal_default: fa ? 'persian' : 'gregory', range_min_days: 1, range_max_days: 14, disabled_dates: ['2026-11-25'], date_min: { type: 'relative', value: 0 } } },
+    f_multi: { label: fa ? 'روزهای حضور' : 'Days', mode: 'multiple', field: { date_mode: 'multiple', multi_max: 3, date_min: { type: 'relative', value: 0 } } },
+    f_time: { label: fa ? 'زمان' : 'Time', time: true, field: { time_enabled: 1, time_step: 30, time_min: '09:00', time_max: '12:00', date_min: { type: 'relative', value: 1 }, time_format: '24' } },
+    f_birth: { label: fa ? 'تاریخ تولد' : 'Birth date', inputMode: 'typed', field: { input_mode: 'typed', age_min: 18, date_max: { type: 'relative', value: 0 } } }
+  };
+  var only = q.get('only');
+  var html = '';
+  Object.keys(F).forEach(function (id) {
+    if (only && only.split(',').indexOf(id) === -1) return;
+    var f = F[id];
+    var cfg = { field: Object.assign({ type: 'advdate', id_: id }, f.field), locale: locale, plan: q.get('plan') || 'pro', site: site, form_id: 1 };
+    html += '<div class="row"><label for="' + id + '_" id="' + id + '_labG">' + f.label + '</label>' +
+      EFBCalendar.markup({ id: id, formId: 1, config: cfg, mode: f.mode || 'single', time: !!f.time, inputMode: f.inputMode }) +
+      '<small id="' + id + '_-message" style="display:none"></small></div>';
+  });
+  document.getElementById('fields').innerHTML = html;
+  window.__events = [];
+  document.addEventListener('efb:date-change', function (e) { window.__events.push({ id: e.detail.fieldId, value: e.detail.value ? e.detail.value.iso : null, source: e.detail.source }); });
+})();
+</script>
+</body>
+</html>
