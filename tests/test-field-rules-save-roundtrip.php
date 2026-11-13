@@ -136,6 +136,13 @@ roundtrip_keys($fn, array(
 	array('unique_scope', 'form', 'form'), array('unique_scope', 'site', 'form'),
 ));
 
+/* E: e-mail domains (punycode, the shapes of §4.5). */
+roundtrip_keys($fn, array(
+	array('email_domain_mode', 'allow', 'allow', array('type' => 'email')), array('email_domain_mode', 'deny', 'deny'), array('email_domain_mode', 'block', 'none'),
+	array('email_domains', 'Example.com; *.EDU bücher.de bad%41.com', 'example.com,*.edu,xn--bcher-kva.de'), array('email_domains', 'name@example.com *@corp.io', 'name@example.com,*@corp.io'),
+	array('email_domains', array('x.com'), ''),
+));
+
 /* An old form without the keys comes back with the same keys. */
 $old = form_with(array(fld('o1', array('milen' => '2', 'mlen' => '30', 'customRequiredMsg' => 'Please fill %s')), fld('o2', array('type' => 'textarea', 'value' => 'a@n#b'))));
 $back = save_and_read($fn, builder_payload($old));

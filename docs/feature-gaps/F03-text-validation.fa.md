@@ -1,4 +1,4 @@
-وضعیت: در حال پیاده‌سازی (A تا D انجام شد، ۲۰۲۶-۱۱-۱۳) · اولویت: P0 · تلاش: M · وابستگی: F01 (نرمال‌ساز و `Emsfb\Masks`)؛ هماهنگ با F02 (`email_confirm_mode`) و F16 (نمایش خطا و ARIA)
+وضعیت: در حال پیاده‌سازی (A تا E انجام شد، ۲۰۲۶-۱۱-۱۳) · اولویت: P0 · تلاش: M · وابستگی: F01 (نرمال‌ساز و `Emsfb\Masks`)؛ هماهنگ با F02 (`email_confirm_mode`) و F16 (نمایش خطا و ARIA)
 
 # F03 — اعتبارسنجی فیلدهای متنی
 
@@ -370,12 +370,12 @@ if ($is_valid == 1 && is_array($validated_item) && class_exists('\Emsfb\Field_Ru
 - پذیرش: `a@x.edu` با `*.edu` پذیرفته و `a@edu` رد می‌شود. `*.example.com` شامل `example.com` نیست. `name@example.com` فقط همان نشانی را می‌گیرد. دامنهٔ یونیکد درست کار می‌کند. حالت deny در سرور هم اعمال می‌شود.
 - تست‌ها: `node tests/test-field-rules-domains.js` و `php tests/test-field-rules-domains.php` (بردارهای مشترک).
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint** (۲۰۲۶-۱۱-۱۳، انجام شد)
+- فایل‌های تغییرکرده: `Field_Rules` (`ascii_host` با `idn_to_ascii`، `domains_list`، `match_domain`، قاعدهٔ `domain` در `check`، case `email_domain_mode`/`email_domains`، و هوک F02: `mismatch_message($f, $default)`)، `field-rules-efb.js` (همزادها: `asciiHost` با پارسر URL، `domainsList`، `matchDomain`، `mismatchMessage`)، `field-rules-builder-efb.js` (حالت و فهرست دامنه با نرمال‌سازی و شمارش پذیرفته/نامفهوم، Free Plus)، `tests/field-rules-php.php`.
+- تست‌ها: `node tests/test-field-rules-domains.js` (۳۷، برابری با PHP)، `php tests/test-field-rules-domains.php` (۳۶)، بردارهای مشترک `tests/fixtures/domain-vectors.json`، `test-field-rules-save-roundtrip.php` (۵۵)، e2e `f03e` (۷، شامل فرم پرداختی با قاعدهٔ دامنه روی ایمیل پرداخت‌کننده).
+- وضعیت ترجمه: انگلیسی (دستور مالک).
+- مورد باز: F02 (`email_confirm_mode`) هنوز ساخته نشده است؛ طبق دستور مالک فقط هوک تمیز گذاشته شد: F02 پیام عدم تطابق ایمیل را از `Field_Rules::mismatch_message($f, $lanText['vrfEmailMismatch'])` (و در JS از `EfbRules.mismatchMessage`) بگیرد. جعبهٔ `msg_mismatch` در سازنده فعلاً فقط برای رمز نشان داده می‌شود. ایمیل پرداخت‌کننده‌ای که از قاعدهٔ دامنه بگذرد همان‌طور به درگاه می‌رسد؛ نشانی ردشده پیش از ساخت هر پرداختی متوقف می‌شود (مسیر `payments/create` از همان نقطهٔ واحد عبور می‌کند).
+- اقدام بعدی: F.
 
 ### F. فقط‌خواندنی
 - فایل‌ها: `readonlyEls`، `case "readonlyEl"`، `generateRuleAttributes_efb`، `addNewElement` و جایگزینی سرور.

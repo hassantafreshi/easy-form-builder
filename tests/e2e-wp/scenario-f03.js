@@ -23,6 +23,11 @@
  *        (role=alert, aria-invalid) and nothing is stored; a paid form (test gateway): a pending payment
  *        holds the address, a failed one gives it back, another visitor pays with it, the first
  *        visitor's "Try again" is refused with the sentence; fa_IR at 375 px.
+ *  f03e  E: e-mail domains: the builder keeps the list as the server does (Unicode → punycode, broken
+ *        items counted), Save; a guest outside the allowed domains sees the sentence at the field, a
+ *        request changed after the browser check is refused (efb_field_domain); a paid form whose
+ *        payer e-mail field has a domain rule: an allowed address pays (the gateway gets it as the
+ *        payer e-mail), a blocked one is refused before any payment starts.
  */
 'use strict';
 
@@ -403,5 +408,73 @@ module.exports = function (S) {
     await sleep(800);
     const said = await A.p.evaluate(() => (document.querySelector('.efb-pf [data-pf-status]') || {}).textContent || '');
     R.check('f03d/pay: A\'s "Try again" is refused with the sentence (no new attempt)', rd && rd.success === false && rd.code === 'efb_field_unique' && /already been used/.test(said) && ctl('payments', String(P.form_id)).length === 2, { rd, said });
+  });
+
+  scenario('f03e', 'F03-E e-mail domains: builder list, guest and server, the payer e-mail of a paid form', async ({ context, adminPage }) => {
+    plan3();
+    const admin = await adminPage();
+    await openNewForm(admin);
+    const t = await addTile(admin, 'email');
+    await admin.click(`#dropZoneEFB [data-id="${t.dataId}"] label, #dropZoneEFB [data-id="${t.dataId}"]`, { position: { x: 20, y: 10 } });
+    await admin.waitForSelector('#emailDomainsEl', { timeout: 10000 });
+    await admin.selectOption('#emailDomainModeEl', 'allow'); await admin.dispatchEvent('#emailDomainModeEl', 'change');
+    await admin.fill('#emailDomainsEl', 'Example.com; *.EDU bücher.de bad%41.com');
+    await admin.dispatchEvent('#emailDomainsEl', 'change');
+    await sleep(300);
+    const b = await admin.evaluate(() => ({ v: document.getElementById('emailDomainsEl').value, n: document.getElementById('emailDomainsCountEl').textContent }));
+    R.check('f03e: builder keeps the list as the server does (punycode) and counts what it did not understand', b.v === 'example.com, *.edu, xn--bcher-kva.de' && b.n === '3 accepted, 1 not understood', b);
+    await closePanel(admin);
+    const saved = admin.waitForResponse((x) => /admin-ajax\.php/.test(x.url()) && x.request().method() === 'POST' && /add_form_Emsfb|update_form_Emsfb/.test(x.request().postData() || ''), { timeout: 20000 }).catch(() => null);
+    await admin.evaluate(() => saveFormEfb(1));
+    const sres = await saved;
+    const sj = sres ? await sres.json() : {};
+    await sleep(800);
+    const fid = Number(String((sj.data && (sj.data.value || sj.data.id)) || '').replace(/\D+/g, '')) || await admin.evaluate(() => Number(form_ID_emsFormBuilder));
+    const tr = (((ctl('form', String(fid)) || {}).form_structer) || []).find((r) => r && r.id_ === t.id_) || {};
+    R.check('f03e: Save stores mode allow and the list', tr.email_domain_mode === 'allow' && tr.email_domains === 'example.com,*.edu,xn--bcher-kva.de', { m: tr.email_domain_mode, d: tr.email_domains });
+
+    const F = form('F03 e2e domains', [{ key: 'email', type: 'email', name: 'Work email', required: 1, email_domain_mode: 'allow', email_domains: 'example.com,*.edu' }]);
+    const g = await (await context({}, 'f03e')).newPage();
+    await g.goto(pageOf(F.form_id), { waitUntil: 'load' });
+    await g.waitForSelector(byId(F.ids.email + '_'), { timeout: 20000 });
+    await sleep(800);
+    await g.fill(byId(F.ids.email + '_'), 'me@gmail.com');
+    await g.press(byId(F.ids.email + '_'), 'Tab');
+    await sleep(400);
+    const s1 = await fieldState(g, F.ids.email);
+    R.check('f03e: guest: another domain → "Please use an email address from an allowed domain." at the field (the list is not shown)', s1.text === 'Please use an email address from an allowed domain.' && s1.invalid === 'true', s1);
+    await g.fill(byId(F.ids.email + '_'), 'me@uni.edu');
+    await g.press(byId(F.ids.email + '_'), 'Tab');
+    await sleep(400);
+    const st = await tamper(g, 'me@uni.edu', 'me@gmail.com');
+    const ans = await send(g);
+    R.check('f03e: a request changed after the browser check → efb_field_domain, nothing stored', st.done && ans && ans.code === 'efb_field_domain' && (ctl('entries', String(F.form_id)) || []).length === 0, ans);
+
+    // The payer e-mail of a paid form.
+    ctl('pay-mock', '1');
+    ctl('pay-keys', 'test');
+    const P = ctl('pay-form', 'fixed', 'F03 e2e paid domains');
+    ctl('f03-field', String(P.form_id), P.email, 'email_domain_mode=allow&email_domains=example.test');
+    const purl = ctl('page', String(P.form_id)).url;
+    const payWith = async (label, email) => {
+      const p = await (await context({}, label)).newPage();
+      await p.goto(purl, { waitUntil: 'networkidle' });
+      await p.waitForSelector('.efb-pf [data-pf-pay]', { timeout: 20000 });
+      await p.fill(`[data-id="${P.email}-el"]`, email);
+      await p.click(`[id="${P.o1}"]`);
+      await sleep(400);
+      const create = p.waitForResponse((x) => /payments\/create/.test(x.url()), { timeout: 8000 }).catch(() => null);
+      await p.click('.efb-pf [data-pf-pay]');
+      const cr = await create;
+      let cj = null; try { cj = cr ? await cr.json() : null; } catch (e) { cj = null; }
+      return { p, cj: cj && (cj.data || cj) };
+    };
+    const ok = await payWith('f03e-pay-ok', 'payer@example.test');
+    await ok.p.waitForURL(/payments\/mock\/checkout/, { timeout: 20000 }).catch(() => {});
+    const pays = ctl('payments', String(P.form_id));
+    R.check('f03e/pay: an allowed payer address starts the payment and reaches the gateway as the payer e-mail', pays.length === 1 && pays[0].payer_email === 'payer@example.test', pays.map((x) => ({ s: x.status, e: x.payer_email })));
+    const bad = await payWith('f03e-pay-bad', 'payer@gmail.com');
+    const badState = await fieldState(bad.p, P.email);
+    R.check('f03e/pay: a blocked payer address: no payment request (the browser stops it at the field)', !bad.cj && ctl('payments', String(P.form_id)).length === 1 && /allowed domain/.test(badState.text || ''), { cj: bad.cj, badState });
   });
 };

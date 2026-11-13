@@ -74,6 +74,7 @@
     var m = masked(f);
     if (!m && typeOk(f, 'words') && (int(f, 'wmin') > 0 || int(f, 'wmax') > 0)) { out.push('words'); }
     if (typeOk(f, 'pattern') && partOk(ctx, 'pattern') && fieldPattern(f)) { out.push('pattern'); }
+    if (typeOk(f, 'domain') && partOk(ctx, 'domains') && (f.email_domain_mode === 'allow' || f.email_domain_mode === 'deny') && typeof f.email_domains === 'string' && f.email_domains.trim() !== '') { out.push('domain'); }
     if (!m && typeOk(f, 'length') && (int(f, 'milen') > 0 || int(f, 'mlen') > 0) && (out.length || hasMsg(f, 'minlen') || hasMsg(f, 'maxlen'))) { out.unshift('length'); }
     return out;
   }
@@ -121,6 +122,8 @@
       }
       case 'unique': return [1, '1', true, 'true'].indexOf(v) !== -1 ? '1' : '0';
       case 'unique_scope': return 'form';
+      case 'email_domain_mode': return ['none', 'allow', 'deny'].indexOf(v) !== -1 ? v : 'none';
+      case 'email_domains': return (v === null || v === undefined || typeof v === 'object') ? '' : domainsList(String(v)).value;
       case 'pattern_case': return [1, '1', true, 'true'].indexOf(v) !== -1 ? '1' : '0';
       case 'pattern_ascii': return [0, '0', false, 'false'].indexOf(v) !== -1 ? '0' : '1';
     }
@@ -424,6 +427,57 @@
   }
   // #endregion pattern
 
+  // #region domains
+  /** A host in ASCII (punycode, the URL parser's IDNA) and lower case; '' when it cannot be. */
+  function asciiHost(h) {
+    h = String(h || '').trim().toLowerCase();
+    if (h === '' || !/[^\x00-\x7F]/.test(h)) { return h; }
+    try { return new URL('http://' + h).hostname.toLowerCase(); } catch (e) { return ''; }
+  }
+  /** The owner's list as the server keeps it (Field_Rules::domains_list): {value, kept, dropped}. */
+  function domainsList(raw) {
+    var items = String(raw || '').toLowerCase().split(/[\s,;]+/).filter(function (x) { return x !== ''; });
+    var keep = [];
+    var dropped = 0;
+    items.forEach(function (it) {
+      var at = it.lastIndexOf('@');
+      var local = at === -1 ? '' : it.slice(0, at + 1);
+      var host = at === -1 ? it : it.slice(at + 1);
+      var star = host.indexOf('*.') === 0 ? '*.' : '';
+      host = asciiHost(star ? host.slice(2) : host);
+      var p = local + star + host;
+      if (host === '' || /%[0-9a-f]{2}/.test(p) || !/^(\*@|[a-z0-9._%+-]+@)?(\*\.)?[a-z0-9.-]+$/.test(p) || host.indexOf('..') !== -1 || host.charAt(0) === '.' || host.charAt(host.length - 1) === '.'
+        || (local === '*@' && star) || keep.indexOf(p) !== -1 || keep.length >= 200 || keep.concat([p]).join(',').length > 2000) { dropped++; return; }
+      keep.push(p);
+    });
+    return { value: keep.join(','), kept: keep.length, dropped: dropped };
+  }
+  /** Whether an address matches one of the patterns (Field_Rules::match_domain). */
+  function matchDomain(patterns, email) {
+    email = String(email || '').trim().toLowerCase();
+    var at = email.lastIndexOf('@');
+    if (at === -1) { return false; }
+    var local = email.slice(0, at);
+    var domain = asciiHost(email.slice(at + 1));
+    if (domain === '') { return false; }
+    var addr = local + '@' + domain;
+    var list = Array.isArray(patterns) ? patterns : String(patterns || '').split(',');
+    for (var i = 0; i < list.length; i++) {
+      var p = String(list[i]).trim();
+      if (p === '') { continue; }
+      if (p.indexOf('*@') === 0) { if (domain === p.slice(2)) { return true; } continue; }
+      if (p.indexOf('@') !== -1) { if (addr === p) { return true; } continue; }
+      if (p.indexOf('*.') === 0) { var suf = p.slice(1); if (domain.length > suf.length && domain.slice(-suf.length) === suf) { return true; } continue; }
+      if (domain === p) { return true; }
+    }
+    return false;
+  }
+  /** F02 hook: the field's msg_mismatch (custom) or the default (Field_Rules::mismatch_message). */
+  function mismatchMessage(f, dflt) {
+    return hasMsg(f, 'mismatch') ? fill(f.msg_mismatch, f && typeof f.name === 'string' ? f.name : '') : dflt;
+  }
+  // #endregion domains
+
   // #region unique
   /**
    * The comparison key of a value (Unique_Values::key): e-mail lower case after the e-mail normalizer,
@@ -469,6 +523,11 @@
       if (wx > 0 && w > wx) { return { code: 'words', rule: 'words', key: 'tvMaxWords_', n: wx }; }
     }
     if (rules.indexOf('pattern') !== -1 && checkPattern(f, s) === false) { return { code: 'pattern', rule: 'pattern', key: 'tvPattern_' }; }
+    if (rules.indexOf('domain') !== -1) {
+      var hit = matchDomain(f.email_domains, s);
+      if (f.email_domain_mode === 'allow' && !hit) { return { code: 'domain', rule: 'domain', key: 'tvDomAllow_' }; }
+      if (f.email_domain_mode === 'deny' && hit) { return { code: 'domain', rule: 'domain', key: 'tvDomDeny_' }; }
+    }
     return null;
   }
   // #endregion check
@@ -478,6 +537,7 @@
     on: on, typeOk: typeOk, activeRules: activeRules, hasRules: hasRules, plain: plain, sanitizeKey: sanitizeKey,
     valueText: valueText, countChars: countChars, countWords: countWords, counter: counter, asciiDigits: asciiDigits, counterText: counterText, fmtNum: fmtNum, partOk: partOk,
     b64urlEncode: b64urlEncode, b64urlDecode: b64urlDecode, lintRegex: lintRegex, patternSubject: patternSubject, checkPattern: checkPattern, fieldPattern: fieldPattern, uniqueKey: uniqueKey,
+    asciiHost: asciiHost, domainsList: domainsList, matchDomain: matchDomain, mismatchMessage: mismatchMessage,
     message: message, firstError: firstError
   };
 });

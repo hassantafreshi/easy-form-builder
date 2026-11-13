@@ -94,7 +94,9 @@
     if (['text', 'tel', 'postalcode'].includes(r.type)) out.push(['format', 'mskFormat_']);
     if (R_.typeOk(r, 'words')) out.push(['words', 'tvMinWords_']);
     if (R_.typeOk(r, 'pattern')) out.push(['pattern', 'tvPattern_']);
+    if (R_.typeOk(r, 'domain')) out.push(['domain', 'tvDomAllow_']);
     if (R_.typeOk(r, 'unique')) out.push(['unique', 'tvUnique_']);
+    if (r.type === 'password') out.push(['mismatch', 'tvPwMismatch_']); // an e-mail field gets it with F02's "type it twice"
     return out;
   }
 
@@ -266,11 +268,39 @@
     });
   }
 
+  /** E: allowed / blocked e-mail domains (email fields). */
+  function domainEls(r, idset) {
+    const R_ = R();
+    if (!R_ || !R_.typeOk(r, 'domain')) return '';
+    const list = typeof r.email_domains === 'string' ? r.email_domains.split(',').join(', ') : '';
+    return `<div class="efb mt-3 efb-fr-domains" id="frDomainsBoxEl">
+      ${selEl(r, idset, 'emailDomainModeEl', 'email_domain_mode', T('tvEmailDomains', 'Email domains'), [['none', T('tvDomNone', 'Any domain')], ['allow', T('tvDomAllow', 'Only these domains')], ['deny', T('tvDomDeny', 'Block these domains')]], 'none', { plan: 'domains' })}
+      <textarea rows="2" class="efb form-control efb border-d rounded-4" id="emailDomainsEl" data-id="${esc(idset)}" data-key="email_domains" dir="ltr" spellcheck="false" aria-describedby="emailDomainsHelpEl emailDomainsCountEl" onchange="efb_fr_domains_change_efb(this)"${lock('domains')}>${esc(list)}</textarea>
+      <small class="efb form-text text-muted d-block mt-1 fs-8" id="emailDomainsHelpEl">${esc(T('tvDomHint', 'Separate with commas: example.com, *.edu, name@example.com'))}</small>
+      <small class="efb d-block mt-1 fs-8" id="emailDomainsCountEl" role="status"></small>
+    </div>`;
+  }
+  /** The list as the server keeps it (punycode, the shapes it takes), with what was dropped. */
+  function efb_fr_domains_change_efb(el) {
+    const R_ = R();
+    const r = rowById(el.getAttribute('data-id'));
+    if (!R_ || !r || el.getAttribute('aria-disabled') === 'true') return;
+    const d = R_.domainsList(el.value);
+    r.email_domains = d.value;
+    el.value = d.value.split(',').filter(Boolean).join(', ');
+    const n = document.getElementById('emailDomainsCountEl');
+    if (n) {
+      n.textContent = T('tvDomCount', '%1$s accepted, %2$s not understood').replace('%1$s', String(d.kept)).replace('%2$s', String(d.dropped));
+      n.className = 'efb d-block mt-1 fs-8 ' + (d.dropped ? 'text-danger' : 'text-muted');
+    }
+    if (typeof efbApiNoteUserEditEfb === 'function') { try { efbApiNoteUserEditEfb(); } catch (e) {} }
+  }
+
   /** Controls of the advanced part (#collapseAdvanced). */
   function efbFieldRulesAdvEls(indx, idset) {
     if (typeof valj_efb === 'undefined' || !valj_efb[indx]) return '';
     const r = valj_efb[indx];
-    return wordsEls(r, idset) + patternEls(r, idset) + efbFieldRulesMsgEls(indx, idset);
+    return wordsEls(r, idset) + patternEls(r, idset) + domainEls(r, idset) + efbFieldRulesMsgEls(indx, idset);
   }
 
   /* ------------------------------------------------------------------ handler */
@@ -356,7 +386,7 @@
     else if (typeof pro_show_efb === 'function') pro_show_efb(3);
   }
 
-  const api = { efbFieldRulesMainEls, efbFieldRulesAdvEls, efbFieldRulesMsgEls, efb_fr_change_efb, efb_fr_gem_efb, efb_fr_after_change_efb, efb_fr_decorate_efb, efb_fr_pattern_input_efb, efb_fr_pattern_test_efb, efb_fr_backfill_efb };
+  const api = { efbFieldRulesMainEls, efbFieldRulesAdvEls, efbFieldRulesMsgEls, efb_fr_change_efb, efb_fr_gem_efb, efb_fr_after_change_efb, efb_fr_decorate_efb, efb_fr_pattern_input_efb, efb_fr_pattern_test_efb, efb_fr_backfill_efb, efb_fr_domains_change_efb };
   Object.keys(api).forEach((k) => { root[k] = api[k]; });
   if (typeof module === 'object' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);

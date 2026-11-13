@@ -1,0 +1,121 @@
+{
+ "lists": [
+  "example.com, *.edu ; name@other.org\n*@corp.io",
+  "EXAMPLE.com,,  *.Example.COM",
+  "bücher.de *.ایران",
+  "bad%41.com, a b, -x-, *.*.com, *@*.com, @x.com, x.com., .x.com, x..com, ok.com",
+  "x.com x.com"
+ ],
+ "match": [
+  {
+   "p": "*.edu",
+   "e": "a@x.edu",
+   "ok": true
+  },
+  {
+   "p": "*.edu",
+   "e": "a@edu",
+   "ok": false
+  },
+  {
+   "p": "*.edu",
+   "e": "a@x.edu.au",
+   "ok": false
+  },
+  {
+   "p": "*.example.com",
+   "e": "a@example.com",
+   "ok": false
+  },
+  {
+   "p": "*.example.com",
+   "e": "a@mail.example.com",
+   "ok": true
+  },
+  {
+   "p": "*.example.com",
+   "e": "a@deep.mail.example.com",
+   "ok": true
+  },
+  {
+   "p": "example.com",
+   "e": "a@example.com",
+   "ok": true
+  },
+  {
+   "p": "example.com",
+   "e": "a@mail.example.com",
+   "ok": false
+  },
+  {
+   "p": "example.com",
+   "e": "A@EXAMPLE.COM",
+   "ok": true
+  },
+  {
+   "p": "name@example.com",
+   "e": "name@example.com",
+   "ok": true
+  },
+  {
+   "p": "name@example.com",
+   "e": "other@example.com",
+   "ok": false
+  },
+  {
+   "p": "name@example.com",
+   "e": "Name@Example.com",
+   "ok": true
+  },
+  {
+   "p": "*@example.com",
+   "e": "x@example.com",
+   "ok": true
+  },
+  {
+   "p": "*@example.com",
+   "e": "x@sub.example.com",
+   "ok": false
+  },
+  {
+   "p": "xn--bcher-kva.de",
+   "e": "a@bücher.de",
+   "ok": true
+  },
+  {
+   "p": "xn--bcher-kva.de",
+   "e": "a@BÜCHER.de",
+   "ok": true
+  },
+  {
+   "p": "*.xn--mgba3a4f16a",
+   "e": "a@مثال.ایران",
+   "ok": true
+  },
+  {
+   "p": "example.com,*.edu",
+   "e": "a@uni.edu",
+   "ok": true
+  },
+  {
+   "p": "example.com,*.edu",
+   "e": "a@gmail.com",
+   "ok": false
+  },
+  {
+   "p": "gmail.com",
+   "e": "noat",
+   "ok": false
+  },
+  {
+   "p": "gmail.com",
+   "e": "a@",
+   "ok": false
+  },
+  {
+   "p": "a.b",
+   "e": "x@a.b",
+   "ok": true
+  }
+ ]
+}

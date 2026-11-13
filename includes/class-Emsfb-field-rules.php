@@ -216,6 +216,10 @@ class Field_Rules {
 				return in_array($v, array(1, '1', true, 'true'), true) ? '1' : '0';
 			case 'unique_scope':
 				return 'form'; // only "in this form" in v1 (§4.2)
+			case 'email_domain_mode':
+				return in_array($v, array('none', 'allow', 'deny'), true) ? $v : 'none';
+			case 'email_domains':
+				return is_scalar($v) ? self::domains_list((string) $v)['value'] : '';
 			case 'pattern_case':
 				return in_array($v, array(1, '1', true, 'true'), true) ? '1' : '0';
 			case 'pattern_ascii':
@@ -254,6 +258,7 @@ class Field_Rules {
 		$masked = isset($f['mask_preset']) && is_string($f['mask_preset']) && $f['mask_preset'] !== '';
 		if (!$masked && self::type_ok($f, 'words') && (self::int($f, 'wmin') > 0 || self::int($f, 'wmax') > 0)) $out[] = 'words';
 		if (self::type_ok($f, 'pattern') && self::plan_ok('pattern') && self::field_pattern($f) !== '') $out[] = 'pattern';
+		if (self::type_ok($f, 'domain') && self::plan_ok('domains') && isset($f['email_domain_mode'], $f['email_domains']) && in_array($f['email_domain_mode'], array('allow', 'deny'), true) && trim((string) $f['email_domains']) !== '') $out[] = 'domain';
 		if (self::is_unique($f)) $out[] = 'unique';
 		// Lengths: measured here when the field has rules or the owner's length messages (else the type branch does it).
 		if (!$masked && self::type_ok($f, 'length') && (self::int($f, 'milen') > 0 || self::int($f, 'mlen') > 0)
@@ -362,6 +367,11 @@ class Field_Rules {
 		}
 		if (in_array('pattern', $rules, true) && !self::check_pattern($f, $v, isset($ctx['form_id']) ? (int) $ctx['form_id'] : 0)) {
 			return $fail('pattern', self::msg($f, 'pattern', 'tvPattern_', $lanText));
+		}
+		if (in_array('domain', $rules, true)) {
+			$hit = self::match_domain((string) $f['email_domains'], $v);
+			if ($f['email_domain_mode'] === 'allow' && !$hit) return $fail('domain', self::msg($f, 'domain', 'tvDomAllow_', $lanText));
+			if ($f['email_domain_mode'] === 'deny' && $hit) return $fail('domain', self::msg($f, 'domain', 'tvDomDeny_', $lanText));
 		}
 		// unique: the last rule, server only (§4.1); the claim itself is taken when the entry is stored.
 		if (in_array('unique', $rules, true) && empty($ctx['no_db']) && class_exists('\\Emsfb\\Unique_Values')) {
@@ -684,6 +694,73 @@ class Field_Rules {
 		$s = self::pattern_subject($v, self::on($f, 'pattern_ascii', true));
 		if (self::count_chars($s) > max(1000, self::int($f, 'mlen'))) return false;
 		return self::preg_safe('~^(?:' . self::pcre_source($src) . ')$~uD' . (self::on($f, 'pattern_case') ? 'i' : ''), $s, $form_id);
+	}
+
+	/* ------------------------------------------------------------ e-mail domains (§4.5) */
+
+	/** A host in ASCII (punycode) and lower case; '' when it cannot be. */
+	public static function ascii_host($h) {
+		$h = strtolower(trim((string) $h));
+		if ($h === '' || !preg_match('/[^\x00-\x7F]/', $h)) return $h;
+		if (!function_exists('idn_to_ascii')) return '';
+		$a = @idn_to_ascii($h, defined('IDNA_DEFAULT') ? IDNA_DEFAULT : 0, defined('INTL_IDNA_VARIANT_UTS46') ? INTL_IDNA_VARIANT_UTS46 : 1);
+		return is_string($a) ? strtolower($a) : '';
+	}
+
+	/**
+	 * The owner's list as it is kept: lower case, split on spaces, commas and semicolons, Unicode
+	 * domains in punycode, only the shapes of §4.5 (example.com, *.example.com, *.edu, name@example.com,
+	 * *@example.com), no %XX, at most 200 items and 2000 characters. ['value' => 'a,b', 'kept' => n, 'dropped' => n].
+	 */
+	public static function domains_list($raw) {
+		$items = preg_split('/[\s,;]+/u', strtolower((string) $raw), -1, PREG_SPLIT_NO_EMPTY);
+		$keep = array();
+		$dropped = 0;
+		foreach ((array) $items as $it) {
+			$at = strrpos($it, '@');
+			$local = $at === false ? '' : substr($it, 0, $at + 1);
+			$host = $at === false ? $it : substr($it, $at + 1);
+			$star = strpos($host, '*.') === 0 ? '*.' : '';
+			$host = self::ascii_host($star ? substr($host, 2) : $host);
+			$p = $local . $star . $host;
+			if ($host === '' || preg_match('/%[0-9a-f]{2}/', $p) || !preg_match('/^(\*@|[a-z0-9._%+-]+@)?(\*\.)?[a-z0-9.-]+$/', $p) || strpos($host, '..') !== false || $host[0] === '.' || substr($host, -1) === '.'
+				|| ($local === '*@' && $star) || in_array($p, $keep, true) || count($keep) >= 200 || strlen(implode(',', array_merge($keep, array($p)))) > 2000) {
+				$dropped++;
+				continue;
+			}
+			$keep[] = $p;
+		}
+		return array('value' => implode(',', $keep), 'kept' => count($keep), 'dropped' => $dropped);
+	}
+
+	/** Whether an address matches one of the patterns (twin of EfbRules.matchDomain). */
+	public static function match_domain($patterns, $email) {
+		$email = strtolower(trim((string) $email));
+		$at = strrpos($email, '@');
+		if ($at === false) return false;
+		$local = substr($email, 0, $at);
+		$domain = self::ascii_host(substr($email, $at + 1));
+		if ($domain === '') return false;
+		$addr = $local . '@' . $domain;
+		foreach (is_array($patterns) ? $patterns : explode(',', (string) $patterns) as $p) {
+			$p = trim((string) $p);
+			if ($p === '') continue;
+			if (strpos($p, '*@') === 0) { if ($domain === substr($p, 2)) return true; continue; }
+			if (strpos($p, '@') !== false) { if ($addr === $p) return true; continue; }
+			if (strpos($p, '*.') === 0) { $suf = substr($p, 1); if (strlen($domain) > strlen($suf) && substr($domain, -strlen($suf)) === $suf) return true; continue; }
+			if ($domain === $p) return true;
+		}
+		return false;
+	}
+
+	/**
+	 * F02 hook (the e-mail "type it twice" of email_confirm_mode, built by F02): the field's own
+	 * msg_mismatch when it has one, else $default (F02's vrfEmailMismatch). Password confirmation
+	 * (H) uses the same key.
+	 */
+	public static function mismatch_message($f, $default) {
+		$c = self::custom_msg($f, 'mismatch');
+		return $c !== null ? $c : $default;
 	}
 
 	/* ------------------------------------------------------------ counting */
