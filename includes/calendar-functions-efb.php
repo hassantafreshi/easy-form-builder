@@ -108,3 +108,17 @@ if (!function_exists('efb_date_validate_value')) {
 		return array('ok' => $res['ok'], 'row' => is_array($res['row']) ? $res['row'] : array(), 'errors' => $errors, 'warnings' => $res['warnings']);
 	}
 }
+if (!function_exists('efb_date_field_schema')) {
+	/** Contract §7.1: the schema entry of one advdate field row (limits as configured, the fill call). */
+	function efb_date_field_schema($field, $context = array()) {
+		$row = is_array($field) ? $field : (array) $field;
+		$locale = isset($context['locale']) ? (string) $context['locale'] : (function_exists('get_locale') ? get_locale() : 'en_US');
+		return \Emsfb\Form_Schema::date_entry($row, isset($context['form_id']) ? (int) $context['form_id'] : 0, $locale);
+	}
+}
+if (!function_exists('efb_form_schema')) {
+	/** Contract §7.2: what `GET Emsfb/v1/forms/{id}/schema` answers (published forms only), or a WP_Error. */
+	function efb_form_schema($form_id, $context = array()) {
+		return \Emsfb\Form_Schema::build((int) $form_id, is_array($context) ? $context : array());
+	}
+}

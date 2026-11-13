@@ -265,6 +265,20 @@ switch ( $efb_e2e_cmd ) {
 		efb_e2e_out( array( 'today' => function_exists( 'efb_calendar_today' ) ? efb_calendar_today() : '', 'tz' => class_exists( '\Emsfb\Calendar' ) ? \Emsfb\Calendar::site_tz() : '' ) );
 		break;
 
+	case 'f06-schema':
+		// F06: the contract's PHP functions efb_form_schema() / efb_date_field_schema() for a form (and field id).
+		$fid = isset( $efb_e2e_rest[0] ) ? (int) $efb_e2e_rest[0] : 0;
+		$s   = function_exists( 'efb_form_schema' ) ? efb_form_schema( $fid ) : null;
+		$one = null;
+		if ( isset( $efb_e2e_rest[1] ) && function_exists( 'efb_date_field_schema' ) ) {
+			$rows = \Emsfb\Calendar_Rest::form_rows( $fid );
+			foreach ( is_array( $rows ) ? $rows : array() as $r ) {
+				if ( is_array( $r ) && isset( $r['id_'] ) && $r['id_'] === $efb_e2e_rest[1] ) $one = efb_date_field_schema( $r, array( 'form_id' => $fid ) );
+			}
+		}
+		efb_e2e_out( array( 'schema' => is_wp_error( $s ) ? array( 'error' => $s->get_error_code() ) : $s, 'field' => $one ) );
+		break;
+
 	case 'f06-set':
 		// F06: f06-set <plan|full|booking|taken> <value>; full / taken take a comma list of ISO dates.
 		$k = isset( $efb_e2e_rest[0] ) ? $efb_e2e_rest[0] : '';

@@ -136,6 +136,10 @@ t('5 other fields: fill api dom', $byId[$ids['mail']]['fill'] ?? null, array('ap
 foreach (array('owner-secret@example.test', 'rule-secret@example.test', 'SECRET-HOOK', 'SMS-SECRET-TEXT', 'TG-SECRET', 'internal-only.example', 'XltBLVpdezJ9JA', 'pattern_b64', 'email_domains', 'notification_rules', 'webhook_rules', 'bk_show_remaining', 'stripeSKey', 'logic_rules') as $secret) {
 	t('5 no secret in the schema: ' . $secret, strpos($r['body'], $secret), false);
 }
+$php = $H->ctl('f06-schema', (string) $fid, $ids['appt']);
+t('5 efb_form_schema() (PHP, contract §5) answers what the route answers', json_encode($php['schema'] ?? null), json_encode($s));
+$one = $php['field'] ?? array();
+t('5 efb_date_field_schema() gives the advdate part of the entry', array($one['fill']['api'] ?? '', $one['x-efb-date']['constraints']['min'] ?? null), array('EFBCalendar', array('type' => 'relative', 'value' => 1, 'unit' => 'day')));
 
 /* 6 */
 $H->ctl('set-option', 'efb_e2e_f06_rate', '3');
