@@ -35,7 +35,7 @@
  *   PAY00 (scenario 9):
  *   pay-mock <0|1>            load the test gateway efbmock (mu-plugin, option efb_e2e_payments_mock)
  *   pay-keys <test|live>      store the test gateway's keys (test placeholders) and the mode
- *   pay-form <kind> [name]    a payment form (kind: fixed | donation | computed) saved through the
+ *   pay-form <kind> [name]    a payment form (kind: fixed | donation | computed | date | file) saved through the
  *                             builder's sanitizer; prints form id and field ids
  *   payments [form_id]        payment rows (newest first)
  *   pay-events <payment_id>   the event log of a payment
@@ -44,6 +44,9 @@
  *   mails [clear]             e-mails recorded by the mu-plugin (efb_e2e_capture_mail)
  *   reconcile                 run the reconcile job now
  *   addon-flag <key> <0|1>    switch an add-on in the settings (its files must be in vendor/)
+ *   F07 (test-upload-multi-submit-http.php, scenarios f07*): f07-mu (copy the mu-plugin), f07-reset (its options,
+ *                             the probe result, the upload quota counters), f07-file <url> (a stored upload: path,
+ *                             size, ledger row, Media Library attachment, EXIF GPS, image size)
  *   F02 (scenarios f02*): f02-mu (copy the mu-plugin), f02-wpsms <0|1> [ok|error|false] (the WP SMS
  *                             stand-in), f02-sms [clear] (messages it got), f02-settings [json] (verification
  *                             settings), f02-rows <form_id> [reset] (challenges; reset clears the F02 counters and every
@@ -255,6 +258,46 @@ switch ( $efb_e2e_cmd ) {
 		efb_e2e_out( array( 'copied' => $ok, 'changed' => ! $same, 'path' => $dst ) );
 		break;
 
+	case 'f07-mu':
+		// Copy tests/e2e-wp/mu-plugins/efb-e2e-f07.php into the site's mu-plugins (F07 tests).
+		$dst = WPMU_PLUGIN_DIR . '/efb-e2e-f07.php';
+		if ( ! is_dir( WPMU_PLUGIN_DIR ) ) wp_mkdir_p( WPMU_PLUGIN_DIR );
+		$src = dirname( __FILE__ ) . '/mu-plugins/efb-e2e-f07.php';
+		$same = is_readable( $dst ) && md5_file( $dst ) === md5_file( $src );
+		$ok = $same || copy( $src, $dst );
+		if ( ! $same ) sleep( 3 );
+		efb_e2e_out( array( 'copied' => $ok, 'changed' => ! $same, 'path' => $dst ) );
+		break;
+
+	case 'f07-reset':
+		// F07: the helpers' options off, the probe result and the quota counters of earlier runs gone.
+		foreach ( array( 'efb_e2e_f07_plan', 'efb_e2e_f07_quota', 'efb_e2e_f07_ip_quota', 'efb_e2e_f07_require', 'efb_e2e_f07_mail', 'efb_e2e_f07_mails', 'emsfb_private_dir_probe' ) as $o ) delete_option( $o );
+		if ( class_exists( '\Emsfb\Rate_Limit' ) ) \Emsfb\Rate_Limit::reset_scopes( array( 'upq', 'upip', 'fdl' ) );
+		efb_e2e_out( array( 'reset' => true ) );
+		break;
+
+	case 'f07-file':
+		// F07: one stored upload by its address: path, size, the pending-ledger row, the Media Library
+		// attachment (id, status, author, F07 metas), EXIF GPS (exif_read_data when available).
+		$url = isset( $efb_e2e_rest[0] ) ? (string) $efb_e2e_rest[0] : '';
+		$path = class_exists( '\Emsfb\Upload_Guard' ) ? \Emsfb\Upload_Guard::path_from_url( $url ) : '';
+		$att = $path !== '' && class_exists( '\Emsfb\Uploads' ) ? \Emsfb\Uploads::attachment_for_path( $path ) : 0;
+		$post = $att ? get_post( $att ) : null;
+		$exif = null;
+		if ( $path !== '' && function_exists( 'exif_read_data' ) && preg_match( '/\.jpe?g$/i', $path ) ) {
+			$e = @exif_read_data( $path, 'ANY_TAG', true );
+			$exif = array( 'gps' => is_array( $e ) && isset( $e['GPS'] ), 'any' => is_array( $e ) && ( isset( $e['IFD0'] ) || isset( $e['EXIF'] ) ) );
+		}
+		$dims = $path !== '' && function_exists( 'getimagesize' ) ? @getimagesize( $path ) : false;
+		efb_e2e_out( array(
+			'path' => $path, 'exists' => $path !== '' && is_file( $path ), 'size' => $path !== '' && is_file( $path ) ? filesize( $path ) : 0,
+			'private' => strpos( $url, '/efb-private/' ) !== false, 'pending' => class_exists( '\Emsfb\Upload_Guard' ) ? \Emsfb\Upload_Guard::pending_entry( basename( $url ) ) : null,
+			'attachment' => $att, 'att_status' => $post ? $post->post_status : '', 'att_author' => $post ? (int) $post->post_author : -1,
+			'att_form' => $att ? get_post_meta( $att, '_efb_form_id', true ) : '', 'att_track' => $att ? get_post_meta( $att, '_efb_track', true ) : '',
+			'exif' => $exif, 'dims' => is_array( $dims ) ? array( $dims[0], $dims[1] ) : null,
+		) );
+		break;
+
 	case 'f06-reset':
 		// F06: plan back to the site's own, no full dates, no bookings, an empty hook log.
 		foreach ( array( 'efb_e2e_f06_plan', 'efb_e2e_f06_full', 'efb_e2e_f06_booking', 'efb_e2e_f06_taken', 'efb_e2e_f06_log' ) as $o ) delete_option( $o );
@@ -358,13 +401,15 @@ switch ( $efb_e2e_cmd ) {
 		$kind = isset( $efb_e2e_rest[0] ) ? $efb_e2e_rest[0] : 'fixed';
 		$name = isset( $efb_e2e_rest[1] ) ? $efb_e2e_rest[1] : 'Payment ' . $kind;
 		$rid  = function () { return substr( str_shuffle( 'abcdefghijklmnopqrstuvwxyz0123456789' ), 0, 9 ); };
-		$em = $rid(); $pf = $rid(); $rad = $rid(); $o1 = $rid(); $o2 = $rid(); $num = $rid(); $tot = $rid();
+		$em = $rid(); $pf = $rid(); $rad = $rid(); $o1 = $rid(); $o2 = $rid(); $num = $rid(); $tot = $rid(); $fl = $rid();
 		$base = array( 'step' => 1, 'amount' => 0, 'size' => 100, 'required' => 0, 'label_text_size' => 'fs-6', 'label_position' => 'up', 'el_text_size' => 'fs-6', 'label_text_color' => 'text-labelEfb', 'el_border_color' => 'border-d', 'el_text_color' => 'text-labelEfb', 'message_text_color' => 'text-muted', 'el_height' => 'h-d-efb', 'label_align' => 'txt-left', 'message_align' => 'justify-content-start', 'el_align' => 'justify-content-start', 'classes' => '', 'message' => '', 'placeholder' => '', 'value' => '', 'icon_input' => '' );
 		$row0 = array( 'type' => 'payment', 'steps' => 1, 'formName' => $name, 'email' => 'owner@example.test', 'trackingCode' => '1', 'EfbVersion' => 2, 'button_single_text' => 'Send', 'button_color' => 'btn-darkb', 'icon' => 'bi-ui-checks-grid', 'button_state' => 'single', 'email_to' => $em, 'show_icon' => '1', 'captcha' => '', 'sendEmail' => '1', 'stateForm' => 0, 'thank_you' => 'msg', 'thank_you_message' => array( 'icon' => 'bi-hand-thumbs-up', 'thankYou' => 'Thank you', 'done' => 'Done', 'trackingCode' => 'Confirmation Code', 'pleaseFillInRequiredFields' => 'Please fill in all required fields.' ), 'getway' => 'efbmock', 'currency' => 'EUR', 'paymentmethod' => 'charge', 'dShowBg' => '1', 'btns_align' => 'justify-content-center', 'label_text_color' => 'text-labelEfb', 'el_text_color' => 'text-labelEfb', 'message_text_color' => 'text-muted', 'icon_color' => 'text-white', 'el_height' => 'h-d-efb' );
 		$rows = array( $row0, array( 'id_' => '1', 'type' => 'step', 'dataId' => '1', 'classes' => '', 'id' => '1', 'name' => 'Step', 'icon' => 'bi-ui-checks-grid', 'step' => 1, 'amount' => 1, 'EfbVersion' => 2, 'message' => '', 'label_text_size' => 'fs-5', 'el_text_size' => 'fs-5', 'label_text_color' => 'text-darkb', 'el_text_color' => 'text-labelEfb', 'message_text_color' => 'text-muted', 'icon_color' => 'text-darkb', 'visible' => 1 ) );
 		$rows[] = array_merge( $base, array( 'id_' => $em, 'dataId' => $em . '-id', 'type' => 'email', 'elementId' => 'email', 'name' => 'Email', 'amount' => 2, 'required' => 1, 'noti' => 1 ) );
 		$pf_row = array_merge( $base, array( 'id_' => $pf, 'dataId' => $pf . '-id', 'type' => 'efbmock', 'elementId' => 'efbmock', 'name' => 'Payment', 'amount' => 5 ) );
-		if ( 'fixed' === $kind ) {
+		if ( 'fixed' === $kind || 'file' === $kind ) {
+			// F07 ("file"): the fixed form plus a field of two files.
+			if ( 'file' === $kind ) $rows[] = array_merge( $base, array( 'id_' => $fl, 'dataId' => $fl . '-id', 'type' => 'file', 'elementId' => 'file', 'name' => 'Documents', 'amount' => 2, 'required' => 1, 'file' => 'allformat', 'value' => 'allformat', 'max_files' => '2', 'max_fsize' => '2' ) );
 			$rows[] = array_merge( $base, array( 'id_' => $rad, 'dataId' => $rad . '-id', 'type' => 'payRadio', 'elementId' => 'payRadio', 'name' => 'Ticket', 'amount' => 3, 'required' => 1 ) );
 			$rows[] = array( 'id_' => $o1, 'dataId' => $o1 . '-id', 'parent' => $rad, 'type' => 'option', 'value' => 'Adult', 'id_op' => $o1, 'step' => 1, 'amount' => 4, 'price' => '25' );
 			$rows[] = array( 'id_' => $o2, 'dataId' => $o2 . '-id', 'parent' => $rad, 'type' => 'option', 'value' => 'Child', 'id_op' => $o2, 'step' => 1, 'amount' => 4, 'price' => '12.5' );
@@ -409,7 +454,7 @@ switch ( $efb_e2e_cmd ) {
 		$wpdb->insert( $wpdb->prefix . 'emsfb_form', array( 'form_name' => $name, 'form_structer' => $json, 'form_email' => '', 'form_type' => 'payment', 'form_created_by' => '1', 'form_access_by' => '', 'form_create_date' => current_time( 'mysql' ), 'status' => 1 ) );
 		$fid = (int) $wpdb->insert_id;
 		do_action( 'efb_form_created', $fid, $clean, array( 'form_id' => $fid, 'source' => 'e2e', 'user_id' => 1 ) );
-		efb_e2e_out( array( 'form_id' => $fid, 'email' => $em, 'pf' => $pf, 'radio' => $rad, 'o1' => $o1, 'o2' => $o2, 'guests' => $num, 'total' => $tot ) );
+		efb_e2e_out( array( 'form_id' => $fid, 'email' => $em, 'pf' => $pf, 'radio' => $rad, 'o1' => $o1, 'o2' => $o2, 'guests' => $num, 'total' => $tot, 'file' => $fl ) );
 		break;
 
 	case 'f11-form':

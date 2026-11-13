@@ -2026,6 +2026,11 @@ require('./scenario-f02.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewFo
  * changes the price: tests/e2e-wp/scenario-f06.js. */
 require('./scenario-f06.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewForm, addTile, closePanel });
 
+/* F07 file uploads: the builder's upload controls and the private folder check, AutoPilot, a guest with several
+ * files (limits in the page, Remove, the minimum, a swapped file refused), viewer and CSV, fa_IR and ar at
+ * 375 px, the camera and resizing, private storage and deletion, a paid form with files: tests/e2e-wp/scenario-f07.js. */
+require('./scenario-f07.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewForm, addTile, closePanel });
+
 /* ---------------------------------------------------------------------------------------------
  * main
  * ------------------------------------------------------------------------------------------- */
