@@ -41,3 +41,8 @@
 .efb.efb-pw-meter[data-score="4"] .efb-pw-fill { inline-size: 100%; background: #1b5e20; }
 .efb.efb-pw-word { color: #3c4257; min-block-size: 1.2em; }
 .efb.efb-pw-confirm-msg:empty { display: none; }
+/* Mixed-script text (an English sentence with Persian digits, or the reverse) keeps its own order;
+ * the counter stays at the field's end side of the page whatever the sentence's direction. */
+.efb.efb-counter, .efb.efb-pw-word, .efb.efb-pw-confirm-msg, .efb.efb-help-pop, .efb.efb-help-focus { unicode-bidi: plaintext; }
+.efb.efb-counter { text-align: right; }
+html[dir="rtl"] .efb.efb-counter { text-align: left; }

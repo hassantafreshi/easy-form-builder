@@ -375,7 +375,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 			if (\Emsfb\Field_Rules::on($f, 'pw_confirm')) {
 				$lab = isset($f['pw_confirm_label']) && trim((string) $f['pw_confirm_label']) !== '' ? (string) $f['pw_confirm_label'] : $t('tvPwConfirmLbl', 'Confirm password');
 				$req = isset($f['required']) && in_array($f['required'], array(1, '1', true), true);
-				$pw_after .= '<div class="efb efb-pw-confirm-wrap mt-2"><label for="' . $id . '_confirm" class="efb form-label fs-6 mb-1">' . esc_html($lab) . '</label>'
+				// The second label follows the first one's alignment, colour and size (it sat on the other side in RTL).
+				$lab_cls = implode(' ', array_filter(array(
+					isset($f['label_align']) ? (string) $f['label_align'] : '',
+					isset($f['label_text_color']) ? (string) $f['label_text_color'] : '',
+					isset($f['label_text_size']) && $f['label_text_size'] !== 'default' ? (string) $f['label_text_size'] : 'fs-6',
+				)));
+				$pw_after .= '<div class="efb efb-pw-confirm-wrap mt-2"><label for="' . $id . '_confirm" class="efb form-label d-block mb-1 ' . esc_attr($lab_cls) . '">' . esc_html($lab) . '</label>'
 					. '<input type="password" id="' . $id . '_confirm" class="efb input-efb form-control px-2 mb-0 w-100 efb-pw-confirm ' . esc_attr(isset($f['el_border_color']) ? $f['el_border_color'] : '') . ' ' . esc_attr(isset($f['el_height']) ? $f['el_height'] : '') . '" data-for="' . $id . '" autocomplete="new-password" aria-describedby="' . $id . '_confirm-message"' . ($req ? ' required aria-required="true"' : '') . '>'
 					. '<div class="efb efb-pw-confirm-msg fs-7 text-danger" id="' . $id . '_confirm-message" role="alert"></div></div>';
 			}
