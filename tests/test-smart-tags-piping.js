@@ -135,6 +135,14 @@ const SETUP = `
     const done = await page.evaluate(() => ({ t: document.getElementById('adone').textContent, b: document.querySelectorAll('#adone b').length }));
     check('C: thank-you pieces: the server\'s value first, the page\'s for the rest, all as text', done.t === 'Thanks Server Name <b>, code ABC123, plan -' && done.b === 0, done);
     check('C: messageMarkup keeps the owner\'s text and escapes the fallback', await page.evaluate(() => EFBSmart.messageMarkup('<b>Hi</b> {get:x|"><svg onload=1>}')) === '<b>Hi</b> <bdi class="efb efb-st" data-st-where="message" data-st="get:x|&quot;&gt;&lt;svg onload=1&gt;">&quot;&gt;&lt;svg onload=1&gt;</bdi>', null);
+    const dg = await page.evaluate(() => {
+      document.getElementById('anm_lab').insertAdjacentHTML('beforeend', ' <bdi class="efb efb-st" data-st="date:Y">x</bdi>');
+      ajax_object_efm.language = 'fa_IR'; EFBSmart.refresh(7); const fa = document.querySelector('#anm_lab [data-st="date:Y"]').textContent;
+      ajax_object_efm.language = 'ar'; EFBSmart.refresh(7); const ar = document.querySelector('#anm_lab [data-st="date:Y"]').textContent;
+      ajax_object_efm.language = 'en_US'; EFBSmart.refresh(7); const en = document.querySelector('#anm_lab [data-st="date:Y"]').textContent;
+      return [fa, ar, en, String(new Date().getUTCFullYear())];
+    });
+    check('C: a date in a label reads in Persian / Arabic-Indic digits on fa / ar pages, Latin elsewhere', /^[\u06F0-\u06F9]{4}$/.test(dg[0]) && /^[\u0660-\u0669]{4}$/.test(dg[1]) && dg[2] === dg[3], dg);
     check('C: no script error and no dialog', errors.length === 0 && dialogs() === 0, errors);
     await page.close();
 

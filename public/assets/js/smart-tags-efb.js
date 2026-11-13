@@ -473,8 +473,21 @@
       if (only && !(p.ns === 'field' && keyOf(p) === 'field:' + only)) return;
       var w = el.getAttribute('data-st-where') || where || 'label';
       var v = resolve(raw, ctx, 'text', w);
+      // Spec §4.6: a date in a label reads in the page's digits (fa / ar); stored values stay Latin.
+      if (p.ns === 'date') v = localDigits(v);
       if (el.textContent !== v) { el.textContent = v; syncAria(el); }
     });
+  }
+  function pageLang() {
+    var l = '';
+    try { l = (root.ajax_object_efm && root.ajax_object_efm.language) || (doc && doc.documentElement.lang) || ''; } catch (e) { l = ''; }
+    return String(l).slice(0, 2).toLowerCase();
+  }
+  function localDigits(v) {
+    var l = pageLang();
+    if (l === 'fa') return String(v).replace(/[0-9]/g, function (d) { return String.fromCharCode(0x06F0 + Number(d)); });
+    if (l === 'ar') return String(v).replace(/[0-9]/g, function (d) { return String.fromCharCode(0x0660 + Number(d)); });
+    return v;
   }
   /* A field named by an aria-label (the PHP renderer sets one) follows its label's pieces. */
   function syncAria(piece) {

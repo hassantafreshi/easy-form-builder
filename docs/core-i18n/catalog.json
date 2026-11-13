@@ -4,8 +4,8 @@
     "plugin_version": "4.3.1",
     "updated": "2026-11-13",
     "counts": {
-        "active": 3527,
-        "obsolete": 378
+        "active": 3565,
+        "obsolete": 377
     },
     "entries": [
         {
@@ -799,6 +799,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%s cannot be used here.",
+            "context": null,
+            "plural": null,
+            "translators": "F08 builder: %s = a smart tag",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -2822,6 +2837,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Ad click ID",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Add",
             "context": null,
             "plural": null,
@@ -4301,6 +4331,21 @@
             "context": null,
             "plural": null,
             "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Another field already uses this parameter.",
+            "context": null,
+            "plural": null,
+            "translators": "",
             "files": [
                 "includes/functions.php"
             ],
@@ -9820,6 +9865,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Cookie",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Cookie name",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Copied",
             "context": null,
             "plural": null,
@@ -11226,6 +11301,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Date and time",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -15735,6 +15825,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Example link",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Executive Limousine",
             "context": null,
             "plural": null,
@@ -16294,6 +16399,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Fill with",
+            "context": null,
+            "plural": null,
+            "translators": "F08 builder: label of the hidden field's preset list",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Filter",
             "context": null,
             "plural": null,
@@ -16525,6 +16645,21 @@
             "translators": "",
             "files": [
                 "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Fixed value",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -19064,7 +19199,7 @@
             "msgid": "Hidden",
             "context": null,
             "plural": null,
-            "translators": "Hidden = a field's visibility state after a show/hide rule runs",
+            "translators": "F08: badge of a hidden value in the response viewer",
             "files": [
                 "includes/functions.php"
             ],
@@ -19072,8 +19207,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.2.0"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Hidden (screen readers only)",
@@ -19110,6 +19245,21 @@
             "context": null,
             "plural": null,
             "translators": "F18: name of a locked feature in the upgrade dialog",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Hidden field",
+            "context": null,
+            "plural": null,
+            "translators": "F08 builder: palette tile and default name of a hidden field",
             "files": [
                 "includes/functions.php"
             ],
@@ -20727,6 +20877,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Include in the visitor's email copy",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Included in Free Plus (free)",
             "context": null,
             "plural": null,
@@ -20851,6 +21016,21 @@
             "context": null,
             "plural": null,
             "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Insert a smart tag",
+            "context": null,
+            "plural": null,
+            "translators": "",
             "files": [
                 "includes/functions.php"
             ],
@@ -23881,6 +24061,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Make read-only after prefill",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -27247,7 +27442,7 @@
             "msgid": "Not available",
             "context": null,
             "plural": null,
-            "translators": "F02 settings status",
+            "translators": "F02 settings status translators: F08: the general fallback of a smart tag",
             "files": [
                 "includes/functions.php"
             ],
@@ -29198,6 +29393,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Page address",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Page that needed it",
             "context": null,
             "plural": null,
@@ -29209,6 +29419,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Page title",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -29359,6 +29584,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Parameter name",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -32407,6 +32647,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Post ID",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Post a 5-star review",
             "context": null,
             "plural": null,
@@ -34335,6 +34590,21 @@
             "translators": "",
             "files": [
                 "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Referring page",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -38997,6 +39267,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Smart tags can only be used after “?” or “#” in a redirect address.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Social Links",
             "context": null,
             "plural": null,
@@ -40115,6 +40400,21 @@
             "context": null,
             "plural": null,
             "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Storing IP addresses may require consent in your country. Check the privacy settings.",
+            "context": null,
+            "plural": null,
+            "translators": "",
             "files": [
                 "includes/functions.php"
             ],
@@ -44261,7 +44561,7 @@
             "obsolete_since": null
         },
         {
-            "msgid": "The hidden field “%s” was not carried over: Easy Form Builder has no hidden field.",
+            "msgid": "The hidden field “%s” filled itself in from a source Easy Form Builder does not have; it keeps only its fixed value.",
             "context": null,
             "plural": null,
             "translators": "%s: the field name in Contact Form 7",
@@ -44274,6 +44574,21 @@
             "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
+        },
+        {
+            "msgid": "The hidden field “%s” was not carried over: Easy Form Builder has no hidden field.",
+            "context": null,
+            "plural": null,
+            "translators": "%s: the field name in Contact Form 7",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-mapper.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "The installation could not be started from this page. You can continue in English; it will be tried again in the background.",
@@ -46296,6 +46611,21 @@
             "context": null,
             "plural": null,
             "translators": "F18: warning before switching a lapsed Pro site to Free Plus",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "This answer comes from a later step, so it will be empty here.",
+            "context": null,
+            "plural": null,
+            "translators": "",
             "files": [
                 "includes/functions.php"
             ],
@@ -49258,7 +49588,7 @@
             "msgid": "URL parameter",
             "context": null,
             "plural": null,
-            "translators": "URL parameter = condition source based on a URL query parameter",
+            "translators": "",
             "files": [
                 "includes/functions.php"
             ],
@@ -49266,8 +49596,23 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.2.0"
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "URL parameter for prefill",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "URL slug",
@@ -49366,6 +49711,21 @@
             "translators": "input format preset shown in the form builder's \"Format / mask\" list",
             "files": [
                 "includes/data/masks-labels-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "UTM %s",
+            "context": null,
+            "plural": null,
+            "translators": "F08 builder: %s = source, medium, campaign, term or content",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -49479,6 +49839,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.3.1"
+        },
+        {
+            "msgid": "Unique ID",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Unique Number (date-based)",
@@ -49657,6 +50032,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Unknown smart tag: %s",
+            "context": null,
+            "plural": null,
+            "translators": "F08 builder: %s = the tag as typed",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -50293,6 +50683,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Use letters, digits, \"_\" or \"-\" (up to 40).",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Use the global setting",
             "context": null,
             "plural": null,
@@ -50414,6 +50819,66 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "User ID",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "User display name",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "User email",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "User role",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Username",
             "context": null,
             "plural": null,
@@ -50456,6 +50921,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Value template",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -51030,10 +51510,40 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Visitor IP address",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Visitor IP address and browser",
             "context": null,
             "plural": null,
             "translators": "F13: setting: whether the visitor's IP address and browser are stored with each entry",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Visitor country",
+            "context": null,
+            "plural": null,
+            "translators": "",
             "files": [
                 "includes/functions.php"
             ],
@@ -52999,6 +53509,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "WordPress already uses this parameter. Choose another name.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "WordPress audio recorder form",
             "context": null,
             "plural": null,
@@ -53551,6 +54076,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "WordPress sign-in cookies cannot be read.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -57061,6 +57601,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "coming soon",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
