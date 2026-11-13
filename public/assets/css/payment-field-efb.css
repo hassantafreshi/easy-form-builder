@@ -92,6 +92,12 @@
 .efb-pf-status-error { color: #b02a37; }
 .efb-pf-status-ok { color: #146c43; font-weight: 600; }
 .efb-pf-status-info { color: #055160; }
+/* "Try again" sits on its own line under the message, never over the text, on either side. */
+.efb-pf-status .efb-pf-retry { display: flex; width: fit-content; margin-block-start: .5rem; margin-left: 0 !important; margin-right: 0 !important; }
+/* Mixed-language text (an English sentence not yet translated on a right-to-left page, an amount
+   in Arabic-Indic digits next to Latin text): each paragraph takes the direction of its own first
+   letter, so its full stop stays at its end. */
+.efb-pf-label, .efb-pf-sum-title, .efb-pf-test, .efb-pf-secure, .efb-pf-status, .efb-pf-placeholder, .efb-pf [class*="-note"], .efb-pf .efb-pf-btn-t { unicode-bidi: plaintext; }
 [dir="rtl"] .efb-pf .bi-chevron-right, [dir="rtl"] .efb-pf .bi-arrow-right { transform: scaleX(-1); }
 /* The Pay button sends the form: the form's own Send button is not shown next to it. */
 .efb-pf-form #btn_send_efb { display: none !important; }
