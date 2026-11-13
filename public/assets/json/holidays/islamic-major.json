@@ -1,0 +1,61 @@
+{
+ "id": "islamic-major",
+ "v": 1,
+ "verified": false,
+ "label": {
+  "fa": "مناسبت‌های بزرگ اسلامی (ام‌القری)",
+  "ar": "المناسبات الإسلامية الكبرى (أم القرى)",
+  "en": "Major Islamic days (Umm al-Qura)"
+ },
+ "note": "By the Umm al-Qura table; local sighting may differ by a day (use the field's Hijri adjustment for custom dates).",
+ "rules": [
+  {
+   "cal": "islamic-umalqura",
+   "md": "01-01",
+   "label": {
+    "fa": "آغاز سال هجری",
+    "ar": "رأس السنة الهجرية",
+    "en": "Islamic New Year"
+   }
+  },
+  {
+   "cal": "islamic-umalqura",
+   "md": "03-12",
+   "label": {
+    "fa": "میلاد پیامبر",
+    "ar": "المولد النبوي",
+    "en": "Mawlid"
+   }
+  },
+  {
+   "cal": "islamic-umalqura",
+   "md": "07-27",
+   "label": {
+    "fa": "اسرا و معراج",
+    "ar": "الإسراء والمعراج",
+    "en": "Isra and Mi'raj"
+   }
+  },
+  {
+   "cal": "islamic-umalqura",
+   "md": "10-01",
+   "days": 3,
+   "label": {
+    "fa": "عید فطر",
+    "ar": "عيد الفطر",
+    "en": "Eid al-Fitr"
+   }
+  },
+  {
+   "cal": "islamic-umalqura",
+   "md": "12-09",
+   "days": 5,
+   "label": {
+    "fa": "عرفه و عید قربان",
+    "ar": "يوم عرفة وعيد الأضحى",
+    "en": "Arafat Day and Eid al-Adha"
+   }
+  }
+ ],
+ "dates": {}
+}

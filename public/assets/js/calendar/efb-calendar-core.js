@@ -414,6 +414,464 @@
   }
   // #endregion
 
+  // #region rules (F06 §6.1, §7; PHP twin: Calendar::normalize_field / resolve / is_allowed / validate_value)
+  var TIER12 = ['gregory', 'persian', 'islamic-umalqura', 'islamic-civil', 'islamic-tbla', 'buddhist', 'roc', 'japanese'];
+  var TIER3 = ['hebrew', 'indian', 'coptic', 'ethiopic'];
+  var HM = /^([01]\d|2[0-3]):([0-5]\d)$/;
+  var ISO_OR_RANGE = /^(\d{4}-\d{2}-\d{2})(?:\/(\d{4}-\d{2}-\d{2}))?$/;
+  /** Plan of each part (F06 §10.1): what a lower plan ignores, on render and on submit alike. */
+  var PLAN_RANK = { free: 0, free_plus: 1, pro: 2 };
+  function has(o, k) { return o && Object.prototype.hasOwnProperty.call(o, k) && o[k] !== null && o[k] !== undefined; }
+  function on(o, k) { var v = has(o, k) ? o[k] : 0; return v === 1 || v === '1' || v === true || v === 'true'; }
+  function intIn(v, lo, hi, dflt) {
+    if (v === '' || v === null || v === undefined || typeof v === 'boolean') { return dflt; }
+    var n = Number(normalize(v));
+    if (!isFinite(n) || Math.floor(n) !== n) { return dflt; }
+    return n < lo ? lo : (n > hi ? hi : n);
+  }
+  function listOf(v) {
+    if (Array.isArray(v)) { return v; }
+    if (typeof v === 'string' && v !== '') {
+      try { var j = JSON.parse(v); if (Array.isArray(j)) { return j; } } catch (e) { /* comma list */ }
+      return v.split(',');
+    }
+    return [];
+  }
+  function objOf(v) {
+    if (v && typeof v === 'object' && !Array.isArray(v)) { return v; }
+    if (typeof v === 'string' && v !== '') { try { var j = JSON.parse(v); if (j && typeof j === 'object' && !Array.isArray(j)) { return j; } } catch (e) { /* none */ } }
+    return {};
+  }
+  function limitOf(v) {
+    v = objOf(v);
+    var t = v.type;
+    var unit = ['day', 'week', 'month', 'year'].indexOf(v.unit) !== -1 ? v.unit : 'day';
+    if (t === 'absolute' && typeof v.value === 'string' && isoValid(normalize(v.value))) { return { type: 'absolute', value: normalize(v.value) }; }
+    if (t === 'relative' && intIn(v.value, -36500, 36500, null) !== null) { return { type: 'relative', value: intIn(v.value, -36500, 36500, 0), unit: unit }; }
+    if (t === 'field' && typeof v.field === 'string' && /^[A-Za-z0-9_\-]{1,64}$/.test(v.field)) { return { type: 'field', field: v.field, offset: intIn(v.offset, -36500, 36500, 0), unit: unit }; }
+    return { type: 'none' };
+  }
+  function datesList(v, max) {
+    var out = [];
+    var l = listOf(v);
+    for (var i = 0; i < l.length && out.length < (max || 2000); i++) {
+      var m = ISO_OR_RANGE.exec(normalize(l[i]));
+      if (!m || !isoValid(m[1]) || (m[2] && (!isoValid(m[2]) || m[2] < m[1] || nights(m[1], m[2]) > 3660))) { continue; }
+      out.push(m[2] ? [m[1], m[2]] : m[1]);
+    }
+    return out;
+  }
+  function nights(a, b) { return isoToJdn(b) - isoToJdn(a); }
+  function labelOf(l, locale) {
+    if (typeof l === 'string') { return l; }
+    if (!l || typeof l !== 'object') { return ''; }
+    var k = lang(locale);
+    return l[k] || l.en || l[Object.keys(l)[0]] || '';
+  }
+  function holidayRules(v) {
+    var out = [], l = listOf(v);
+    for (var i = 0; i < l.length && out.length < 500; i++) {
+      var r = objOf(l[i]);
+      if (typeof r.cal === 'string' && TIER12.indexOf(r.cal) !== -1 && /^\d{2}-\d{2}$/.test(r.md || '')) {
+        out.push({ cal: r.cal, md: r.md, days: intIn(r.days, 1, 14, 1), label: r.label || '' });
+      } else if (typeof r.date === 'string') {
+        var d = datesList([r.date], 1);
+        if (d.length) { out.push({ date: d[0], label: r.label || '' }); }
+      }
+    }
+    return out;
+  }
+  function weekdayWindows(v) {
+    var o = objOf(v), out = {};
+    for (var k in o) {
+      if (!o.hasOwnProperty(k) || !/^[1-7]$/.test(k) || !Array.isArray(o[k])) { continue; }
+      var w = [];
+      for (var i = 0; i < o[k].length && i < 12; i++) {
+        var p = o[k][i];
+        if (Array.isArray(p) && p.length === 2 && HM.test(p[0]) && HM.test(p[1]) && p[0] < p[1]) { w.push([p[0], p[1]]); }
+      }
+      out[k] = w;
+    }
+    return out;
+  }
+  /**
+   * The field row as the rules read it: every key checked, defaults filled, `auto` resolved for the
+   * page locale, keys of a higher plan dropped (ctx.plan: free | free_plus | pro; default pro).
+   */
+  function normalizeField(f, ctx) {
+    f = f || {}; ctx = ctx || {};
+    var locale = has(f, 'cal_locale') && f.cal_locale !== 'auto' && /^[a-zA-Z]{2,3}([_-][A-Za-z0-9]{2,8})*$/.test(f.cal_locale) ? String(f.cal_locale).replace('-', '_') : (ctx.locale || 'en_US');
+    var ld = ctx.localeDefaults || localeDefaults(locale);
+    var plan = PLAN_RANK.hasOwnProperty(ctx.plan) ? PLAN_RANK[ctx.plan] : 2;
+    var known = function (c) { return TIER12.indexOf(c) !== -1 && !!engines.get(c); };
+    var def = has(f, 'cal_default') && f.cal_default !== 'auto' && known(f.cal_default) ? f.cal_default : ld['default'];
+    if (!known(def)) { def = 'gregory'; }
+    var allowed = [];
+    var al = listOf(f.cal_allowed);
+    for (var i = 0; i < al.length; i++) { if (known(al[i]) && allowed.indexOf(al[i]) === -1) { allowed.push(al[i]); } }
+    if (allowed.indexOf(def) === -1) { allowed.unshift(def); }
+    var c = {
+      locale: locale,
+      cal_default: def,
+      cal_allowed: allowed,
+      cal_switch: on(f, 'cal_switch') && allowed.length > 1 ? 1 : 0,
+      cal_secondary: has(f, 'cal_secondary') && (known(f.cal_secondary) || TIER3.indexOf(f.cal_secondary) !== -1) ? f.cal_secondary : '',
+      cal_hijri_adjust: intIn(f.cal_hijri_adjust, -2, 2, 0),
+      digits: ['latn', 'arabext', 'arab'].indexOf(f.cal_digits) !== -1 ? f.cal_digits : ld.digits,
+      week_start: intIn(f.week_start, 1, 7, 0),
+      date_mode: ['single', 'range', 'multiple'].indexOf(f.date_mode) !== -1 ? f.date_mode : 'single',
+      display_format: typeof f.display_format === 'string' && /^(YYYY|MM|M|DD|D|[\/.\- ])+$/.test(f.display_format) && /YYYY/.test(f.display_format) && /M/.test(f.display_format) && /D/.test(f.display_format) ? f.display_format : 'auto',
+      store_format: f.store_format === 'legacy_local' ? 'legacy_local' : 'iso',
+      input_mode: ['both', 'picker', 'typed'].indexOf(f.input_mode) !== -1 ? f.input_mode : 'both',
+      date_min: limitOf(f.date_min),
+      date_max: limitOf(f.date_max),
+      disabled_weekdays: [],
+      disabled_dates: datesList(f.disabled_dates),
+      enabled_dates: datesList(f.enabled_dates),
+      holiday_sets: [],
+      holidays_custom: holidayRules(f.holidays_custom),
+      holiday_mode: f.holiday_mode === 'mark' ? 'mark' : 'disable',
+      range_unit: f.range_unit === 'days' ? 'days' : 'nights',
+      range_min_days: intIn(f.range_min_days, 0, 3660, 0),
+      range_max_days: intIn(f.range_max_days, 0, 3660, 0),
+      multi_max: intIn(f.multi_max, 0, 366, 0),
+      time_enabled: on(f, 'time_enabled') ? 1 : 0,
+      time_format: String(f.time_format) === '12' || String(f.time_format) === '24' ? String(f.time_format) : (ld.hour12 ? '12' : '24'),
+      time_step: intIn(f.time_step, 1, 720, 15),
+      time_min: HM.test(f.time_min || '') ? f.time_min : '',
+      time_max: HM.test(f.time_max || '') ? f.time_max : '',
+      time_by_weekday: weekdayWindows(f.time_by_weekday),
+      age_min: intIn(f.age_min, 0, 150, null),
+      age_max: intIn(f.age_max, 0, 150, null),
+      tz: f.tz === 'visitor' || (typeof f.tz === 'string' && f.tz !== 'site' && validTz(f.tz)) ? f.tz : 'site',
+      availability: f.availability === 'booking' ? 'booking' : 'none',
+      required: on(f, 'required') ? 1 : 0
+    };
+    var wd = listOf(f.disabled_weekdays);
+    for (var j = 0; j < wd.length; j++) { var w = intIn(wd[j], 1, 7, null); if (w !== null && c.disabled_weekdays.indexOf(w) === -1) { c.disabled_weekdays.push(w); } }
+    c.disabled_weekdays.sort();
+    var hs = listOf(f.holiday_sets);
+    for (var k = 0; k < hs.length; k++) { if (typeof hs[k] === 'string' && /^[a-z0-9-]{2,40}$/.test(hs[k]) && c.holiday_sets.indexOf(hs[k]) === -1) { c.holiday_sets.push(hs[k]); } }
+    if (plan < 1) {
+      c.cal_allowed = [c.cal_default]; c.cal_switch = 0; c.cal_secondary = ''; c.cal_hijri_adjust = 0;
+      c.disabled_dates = []; c.enabled_dates = []; c.holiday_sets = []; c.holidays_custom = [];
+      if (c.date_min.type === 'field') { c.date_min = { type: 'none' }; }
+      if (c.date_max.type === 'field') { c.date_max = { type: 'none' }; }
+      c.age_min = null; c.age_max = null; c.time_enabled = 0;
+    }
+    if (plan < 2) { c.date_mode = 'single'; c.time_by_weekday = {}; c.availability = 'none'; }
+    return c;
+  }
+  /** First date of a canonical value (range start, first of a list), without the time. */
+  function firstDate(v) {
+    var s = normalize(v).split(/[\/,]/)[0].split('T')[0];
+    return isoValid(s) ? s : null;
+  }
+  function evalLimit(l, today, values) {
+    if (l.type === 'absolute') { return { iso: l.value, source: 'absolute' }; }
+    if (l.type === 'relative') { return { iso: addUnit(today, l.value, l.unit), source: 'relative' }; }
+    if (l.type === 'field') {
+      var src = values && has(values, l.field) ? firstDate(values[l.field]) : null;
+      return src ? { iso: addUnit(src, l.offset || 0, l.unit), source: 'field:' + l.field } : { iso: null, source: 'field:' + l.field, empty: true };
+    }
+    return { iso: null, source: 'none' };
+  }
+  function zoneOf(c, ctx) {
+    var site = ctx.site_tz && validTz(ctx.site_tz) ? ctx.site_tz : siteTz;
+    if (c.tz === 'visitor') {
+      var v = ctx.visitor_tz;
+      if (v && validTz(v)) {
+        var now = ctx.now !== undefined ? Date.parse(ctx.now) : Date.now();
+        if (Math.abs(isoToJdn(today(v, now)) - isoToJdn(today(site, now))) <= 1) { return v; }
+      }
+      return site;
+    }
+    return c.tz === 'site' ? site : c.tz;
+  }
+  /** Holiday label of a date for this field, or null. ctx.holidaySets: id => set data (public/assets/json/holidays). */
+  function holidayOf(c, iso, ctx) {
+    var jdn = isoToJdn(iso);
+    var hit = function (rules, adjust) {
+      for (var i = 0; i < rules.length; i++) {
+        var r = rules[i];
+        if (r.date) {
+          if (Array.isArray(r.date) ? (iso >= r.date[0] && iso <= r.date[1]) : r.date === iso) { return r; }
+          continue;
+        }
+        var e = engines.get(r.cal);
+        if (!e) { continue; }
+        var adj = adjustOf(r.cal, r.adjust !== undefined ? r.adjust : adjust);
+        var loc = e.fromJdn(jdn + adj);
+        var md = r.md.split('-'), rm = +md[0], rd = +md[1], days = r.days || 1;
+        for (var y = loc.y - 1; y <= loc.y; y++) {
+          if (!e.isValid({ y: y, m: rm, d: rd })) { continue; }
+          var start = e.toJdn(y, rm, rd) - adj;
+          if (jdn >= start && jdn < start + days) { return r; }
+        }
+      }
+      return null;
+    };
+    var r = hit(c.holidays_custom, c.cal_hijri_adjust);
+    if (r) { return { label: labelOf(r.label, c.locale) }; }
+    var sets = (ctx && ctx.holidaySets) || {};
+    for (var i = 0; i < c.holiday_sets.length; i++) {
+      var s = sets[c.holiday_sets[i]];
+      if (!s) { continue; }
+      if (s.dates && has(s.dates, iso)) { return { label: labelOf(s.dates[iso], c.locale) }; }
+      var hr = hit(holidayRules(s.rules), 0);
+      if (hr) { return { label: labelOf(hr.label, c.locale) }; }
+      var cov = Array.isArray(s.explicit) ? s.explicit : null;
+      if (s.fallback && !(cov && iso >= cov[0] && iso <= cov[1])) {
+        var fr = holidayRules((s.fallback.rules || []).map(function (x) { var y = {}; for (var q in x) { if (x.hasOwnProperty(q)) { y[q] = x[q]; } } y.cal = s.fallback.cal; return y; }));
+        var fh = hit(fr.map(function (x) { x.adjust = s.fallback.adjust || 0; return x; }), 0);
+        if (fh) { return { label: labelOf(fh.label, c.locale), approx: true }; }
+      }
+    }
+    return null;
+  }
+  /** Resolved constraints (contract §4.2): today and limits as ISO dates in the field's zone. */
+  function resolve(c, ctx) {
+    ctx = ctx || {};
+    var tz = zoneOf(c, ctx);
+    var t = ctx.today && isoValid(ctx.today) ? ctx.today : today(tz, ctx.now !== undefined ? Date.parse(ctx.now) : undefined);
+    var mn = evalLimit(c.date_min, t, ctx.values), mx = evalLimit(c.date_max, t, ctx.values);
+    return {
+      today: t, tz: tz,
+      min: mn.iso, max: mx.iso, min_source: mn.source, max_source: mx.source,
+      min_empty: !!mn.empty, max_empty: !!mx.empty,
+      disabled_weekdays: c.disabled_weekdays.slice(), disabled: c.disabled_dates.slice(), enabled: c.enabled_dates.slice(),
+      holidays: {}, holiday_mode: c.holiday_mode,
+      mode: c.date_mode, range: { unit: c.range_unit, min: c.range_min_days, max: c.range_max_days },
+      multi_max: c.multi_max,
+      time: { enabled: !!c.time_enabled, step: c.time_step, min: c.time_min, max: c.time_max, by_weekday: c.time_by_weekday },
+      age: { min: c.age_min, max: c.age_max },
+      calendars: { 'default': c.cal_default, allowed: c.cal_allowed.slice(), 'switch': !!c.cal_switch, hijri_adjust: c.cal_hijri_adjust }
+    };
+  }
+  /** Holidays of the field inside [min, max] and at most 400 days after today (for getConstraints / the picker). */
+  function listHolidays(c, r, ctx, from, to) {
+    var out = {};
+    if (!c.holidays_custom.length && !c.holiday_sets.length) { return out; }
+    var a = from || (r.min && r.min > r.today ? r.min : r.today);
+    var b = to || addDays(r.today, 400);
+    if (r.max && r.max < b) { b = r.max; }
+    for (var j = isoToJdn(a), e = isoToJdn(b); j <= e; j++) {
+      var iso = jdnToIso(j), h = holidayOf(c, iso, ctx);
+      if (h) { out[iso] = h.label; }
+    }
+    return out;
+  }
+  function inList(list, iso) {
+    for (var i = 0; i < list.length; i++) {
+      var x = list[i];
+      if (Array.isArray(x) ? (iso >= x[0] && iso <= x[1]) : x === iso) { return true; }
+    }
+    return false;
+  }
+  /** First rule (F06 §6.1 order) that refuses the date: null when allowed. */
+  function refuse(c, r, iso, ctx) {
+    if (!isoValid(iso)) { return { code: 'invalid_date', date: iso }; }
+    if (r.min && iso < r.min) { return { code: 'before_min', date: iso, limit: r.min }; }
+    if (r.max && iso > r.max) { return { code: 'after_max', date: iso, limit: r.max }; }
+    if (c.enabled_dates.length && !inList(c.enabled_dates, iso)) { return { code: 'not_enabled', date: iso }; }
+    if (inList(c.disabled_dates, iso)) { return { code: 'date_disabled', date: iso }; }
+    if (c.disabled_weekdays.indexOf(weekdayOfJdn(isoToJdn(iso))) !== -1) { return { code: 'weekday_disabled', date: iso }; }
+    if (c.holiday_mode === 'disable') {
+      var h = holidayOf(c, iso, ctx);
+      if (h) { return { code: 'holiday', date: iso, limit: h.label }; }
+    }
+    if (ctx && typeof ctx.availability === 'function') {
+      var a = ctx.availability(iso);
+      if (a && a.available === false) { return { code: a.code === 'full' ? 'full' : 'unavailable', date: iso }; }
+    }
+    return null;
+  }
+  function localText(c, cal, iso, time) {
+    var l = isoToLocal(iso, cal, c.cal_hijri_adjust);
+    return { iso: isoOf(l.y, l.m, l.d) + (time ? 'T' + time : ''), approx: l.approx, dt: l };
+  }
+  function dispText(c, cal, iso, time) {
+    var e = engines.get(cal), l = isoToLocal(iso, cal, c.cal_hijri_adjust);
+    var s = e.format({ y: l.y, m: l.m, d: l.d }, mediumPattern(c.locale), c.locale, { digits: c.digits });
+    if (time) { s += ' ' + e.format({ y: l.y, m: l.m, d: l.d }, c.time_format === '12' ? 'hh:mm A' : 'HH:mm', c.locale, { digits: c.digits, time: time }); }
+    return s;
+  }
+  function joiner(c, mode) {
+    if (mode === 'range') { return ' – '; }
+    var l = lang(c.locale);
+    return l === 'fa' || l === 'ar' || l === 'ur' ? '، ' : ', ';
+  }
+  /** The stored row for a canonical value (contract §6); also what the server writes. */
+  function buildRow(c, cal, value, r) {
+    var mode = c.date_mode, dates, time = null;
+    if (mode === 'single') { var p = value.split('T'); dates = [p[0]]; time = p[1] || null; }
+    else { dates = value.split(mode === 'range' ? '/' : ','); }
+    var locals = [], disps = [], approx = false;
+    for (var i = 0; i < dates.length; i++) {
+      var lt = localText(c, cal, dates[i], i === 0 ? time : null);
+      locals.push(lt.iso); approx = approx || lt.approx;
+      disps.push(dispText(c, cal, dates[i], i === 0 ? time : null));
+    }
+    var row = { value: value, cal: cal, local: locals.join(mode === 'range' ? '/' : ','), disp: disps.join(joiner(c, mode)), tz: r.tz, mode: mode, v: 1 };
+    if (time) { row.time = time; var u = wallToUtc(dates[0], time, r.tz); if (u) { row.utc = u; } }
+    if (approx) { row.approx = 1; }
+    if (c.store_format === 'legacy_local') { row.iso = value; row.value = row.local; }
+    return row;
+  }
+  function hmToMin(hm) { var p = hm.split(':'); return +p[0] * 60 + +p[1]; }
+  function timeError(c, r, iso, time) {
+    var wd = String(weekdayOfJdn(isoToJdn(iso)));
+    var windows;
+    if (has(c.time_by_weekday, wd)) {
+      windows = c.time_by_weekday[wd];
+      if (!windows.length) { return { code: 'time_closed_weekday', date: iso }; }
+    } else {
+      windows = [[c.time_min || '00:00', c.time_max || '23:59']];
+    }
+    var t = hmToMin(time), win = null;
+    for (var i = 0; i < windows.length; i++) { if (t >= hmToMin(windows[i][0]) && t <= hmToMin(windows[i][1])) { win = windows[i]; break; } }
+    if (!win) { return { code: 'time_out_of_range', date: iso, limit: windows.map(function (w) { return w[0] + '-' + w[1]; }).join(',') }; }
+    if ((t - hmToMin(win[0])) % c.time_step !== 0) { return { code: 'time_step', date: iso, limit: c.time_step }; }
+    if (wallToUtc(iso, time, r.tz) === null) { return { code: 'time_out_of_range', date: iso }; }
+    return null;
+  }
+  /**
+   * Full check of a submitted value (F06 §7): format, every date, range / list, time, age. raw is the
+   * canonical string ('2025-03-20', '2025-03-20T14:30', 'a/b', 'a,b'); for store_format legacy_local a
+   * year below 1700 is read as a local date of the default calendar. ctx: locale, now, today, site_tz,
+   * visitor_tz, values (other fields' canonical values), cal (the calendar the visitor used), plan,
+   * holidaySets, availability(iso).
+   * @return {{ok: boolean, row: Object|null, errors: Object[], warnings: Object[], resolved: Object}}
+   */
+  function validateValue(field, raw, ctx) {
+    ctx = ctx || {};
+    var c = normalizeField(field, ctx);
+    var r = resolve(c, ctx);
+    var warnings = [];
+    var fail = function (e) { return { ok: false, row: null, errors: [e], warnings: warnings, resolved: r }; };
+    var s = normalize(raw).replace(/\s*([\/,T])\s*/g, '$1');
+    var cal = ctx.cal && c.cal_allowed.indexOf(ctx.cal) !== -1 ? ctx.cal : c.cal_default;
+    if (s === '') {
+      if (c.required) { return fail({ code: 'required' }); }
+      return { ok: true, row: { value: '' }, errors: [], warnings: warnings, resolved: r };
+    }
+    if (c.store_format === 'legacy_local') {
+      var conv = function (d) {
+        var m = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(d);
+        if (!m || +m[1] >= 1700) { return d; }
+        var iso = localToIso({ y: +m[1], m: +m[2], d: +m[3] }, c.cal_default, c.cal_hijri_adjust);
+        return iso || '0000-00-00';
+      };
+      var tp = s.split('T');
+      s = tp[0].split(/([\/,])/).map(function (x) { return x === '/' || x === ',' ? x : conv(x); }).join('') + (tp[1] ? 'T' + tp[1] : '');
+    }
+    var D = '\\d{4}-\\d{2}-\\d{2}';
+    var re = c.date_mode === 'range' ? new RegExp('^' + D + '\\/' + D + '$') : (c.date_mode === 'multiple' ? new RegExp('^' + D + '(,' + D + ')*$') : new RegExp('^' + D + '(T\\d{2}:\\d{2})?$'));
+    if (!re.test(s)) { return fail({ code: 'invalid_format' }); }
+    var time = null, dates;
+    if (c.date_mode === 'single') { var sp = s.split('T'); dates = [sp[0]]; time = sp[1] || null; }
+    else { dates = s.split(c.date_mode === 'range' ? '/' : ','); }
+    for (var i = 0; i < dates.length; i++) { if (!isoValid(dates[i])) { return fail({ code: 'invalid_date', date: dates[i] }); } }
+    if (time !== null && (!c.time_enabled || !HM.test(time))) { return fail({ code: 'invalid_format' }); }
+    if (c.time_enabled && c.date_mode === 'single' && time === null) { return fail({ code: 'time_required' }); }
+    var e;
+    if (c.date_mode === 'range') {
+      var a = dates[0], b = dates[1];
+      if (b < a) { return fail({ code: 'range_order' }); }
+      var n = nights(a, b), len = c.range_unit === 'nights' ? n : n + 1;
+      if (n > 3660) { return fail({ code: 'range_too_long', limit: 3660 }); }
+      if (c.range_min_days && len < c.range_min_days) { return fail({ code: 'range_too_short', limit: c.range_min_days }); }
+      if (c.range_max_days && len > c.range_max_days) { return fail({ code: 'range_too_long', limit: c.range_max_days }); }
+      if ((e = refuse(c, r, a, ctx))) { return fail(e); }
+      var last = c.range_unit === 'nights' ? n - 1 : n;
+      for (var k = 1; k <= last; k++) {
+        var d = addDays(a, k), x = refuse(c, r, d, ctx);
+        if (x) { return fail({ code: 'range_contains_disabled', date: d, limit: x.code }); }
+      }
+      if (c.range_unit === 'nights' && n > 0 && r.max && b > r.max) { return fail({ code: 'after_max', date: b, limit: r.max }); }
+      s = a + '/' + b;
+    } else if (c.date_mode === 'multiple') {
+      var u = [];
+      for (var q = 0; q < dates.length; q++) { if (u.indexOf(dates[q]) === -1) { u.push(dates[q]); } }
+      u.sort();
+      if (c.multi_max && u.length > c.multi_max) { return fail({ code: 'too_many_dates', limit: c.multi_max }); }
+      for (var z = 0; z < u.length; z++) { if ((e = refuse(c, r, u[z], ctx))) { return fail(e); } }
+      s = u.join(',');
+    } else {
+      if ((e = refuse(c, r, dates[0], ctx))) { return fail(e); }
+      if (time !== null && (e = timeError(c, r, dates[0], time))) { return fail(e); }
+      if (c.age_min !== null || c.age_max !== null) {
+        var age = ageOn(dates[0], r.today);
+        if (c.age_min !== null && age < c.age_min) { return fail({ code: 'age_too_young', limit: c.age_min }); }
+        if (c.age_max !== null && age > c.age_max) { return fail({ code: 'age_too_old', limit: c.age_max }); }
+      }
+    }
+    if (r.min_empty || r.max_empty) { warnings.push({ code: 'depends_on_empty' }); }
+    var row = buildRow(c, cal, s, r);
+    if (row.approx) { warnings.push({ code: 'approximate_date' }); }
+    return { ok: true, row: row, errors: [], warnings: warnings, resolved: r };
+  }
+  // #endregion
+
+
+  // #region messages (twin of Calendar::MESSAGES / Calendar::message)
+  var MESSAGES = {
+    invalid_format: 'Please enter the date as %s.',
+    invalid_date: 'This date does not exist.',
+    calendar_not_allowed: 'This calendar cannot be used in this field.',
+    before_min: 'Please choose %s or a later date.',
+    after_max: 'Please choose %s or an earlier date.',
+    weekday_disabled: 'This day of the week cannot be chosen.',
+    date_disabled: 'This date cannot be chosen.',
+    not_enabled: 'This date cannot be chosen.',
+    holiday: 'This date is a holiday: %s.',
+    unavailable: 'This date is not available.',
+    full: 'This date is fully booked.',
+    range_order: 'The end date must come after the start date.',
+    range_too_short: 'Please choose at least %s.',
+    range_too_long: 'Please choose at most %s.',
+    range_contains_disabled: 'The dates you chose include %s, which cannot be chosen.',
+    too_many_dates: 'You can choose at most %s dates.',
+    time_required: 'Please choose a time.',
+    time_out_of_range: 'This time is not available.',
+    time_step: 'Please choose a time in steps of %s minutes.',
+    time_closed_weekday: 'No time can be chosen on this day.',
+    age_too_young: 'You must be at least %s years old.',
+    age_too_old: 'The age can be at most %s years.',
+    depends_on_empty: 'Please choose the date it depends on first.',
+    required: 'Please fill in this field.',
+    nights_n: '%s nights',
+    days_n: '%s days'
+  };
+  function typedPatternOf(c, cal) { return c.display_format !== 'auto' ? c.display_format : typedPattern(cal, c.locale); }
+  function formatHint(c, cal) {
+    var e = engines.get(cal), l = isoToLocal('2025-03-20', cal, 0);
+    return e ? e.format({ y: l.y, m: l.m, d: l.d }, typedPatternOf(c, cal), c.locale, { digits: c.digits }) : '';
+  }
+  /** Visitor sentence of an error; lang: phrase map with cal_err_<code> (efb_var.text), English otherwise. */
+  function message(err, c, cal, langMap) {
+    langMap = langMap || {};
+    var code = err && err.code ? err.code : 'invalid_date';
+    var t = langMap['cal_err_' + code] ? langMap['cal_err_' + code] : (MESSAGES[code] || MESSAGES.invalid_date);
+    cal = cal || c.cal_default;
+    var isoText = function (iso) { return '⁨' + dispText(c, cal, iso, null) + '⁩'; };
+    var arg = '';
+    switch (code) {
+      case 'before_min': case 'after_max': arg = err.limit && isoValid(err.limit) ? isoText(err.limit) : ''; break;
+      case 'range_contains_disabled': arg = err.date && isoValid(err.date) ? isoText(err.date) : ''; break;
+      case 'holiday':
+        if (!err.limit) { t = langMap.cal_err_date_disabled || MESSAGES.date_disabled; }
+        arg = err.limit ? '⁨' + String(err.limit) + '⁩' : ''; break;
+      case 'range_too_short': case 'range_too_long':
+        var k = c.range_unit === 'nights' ? 'nights_n' : 'days_n';
+        arg = (langMap['cal_' + k] || MESSAGES[k]).replace('%s', toDigits(String(err.limit === undefined ? '' : err.limit), c.digits)); break;
+      case 'invalid_format': arg = '⁨' + formatHint(c, cal) + '⁩'; break;
+      default: arg = err.limit !== undefined && err.limit !== null && typeof err.limit !== 'object' ? toDigits(String(err.limit), c.digits) : '';
+    }
+    return t.replace('%s', arg);
+  }
+  // #endregion
+
   var api = {
     __efb: true,
     version: VERSION,
@@ -428,7 +886,14 @@
       calendarLabel: calendarLabel, setNames: setNames, names: NAMES, lang: lang, bcp: bcp, ampm: ampm,
       isoToLocal: isoToLocal, localToIso: localToIso, adjustOf: adjustOf, validTz: validTz, offsetMinutes: offsetMinutes,
       wallToUtc: wallToUtc, localeDefaults: localeDefaults, typedPattern: typedPattern, mediumPattern: mediumPattern,
-      setSiteTz: function (tz) { if (validTz(tz)) { siteTz = tz; } }, siteTz: function () { return siteTz; }
+      setSiteTz: function (tz) { if (validTz(tz)) { siteTz = tz; } }, siteTz: function () { return siteTz; },
+      dispText: dispText, joiner: joiner
+    },
+    // rules (twins of \Emsfb\Calendar); stable through the picker's field API, these are the engine room
+    rules: {
+      normalizeField: normalizeField, resolve: resolve, refuse: refuse, holidayOf: holidayOf, listHolidays: listHolidays,
+      validateValue: validateValue, buildRow: buildRow, firstDate: firstDate, timeError: timeError,
+      message: message, messages: MESSAGES, formatHint: formatHint, typedPatternOf: typedPatternOf
     },
     convert: convert,
     today: today,

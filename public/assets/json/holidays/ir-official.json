@@ -1,0 +1,207 @@
+{
+ "id": "ir-official",
+ "v": 1,
+ "verified": false,
+ "label": {
+  "fa": "تعطیلات رسمی ایران",
+  "ar": "العطل الرسمية في إيران",
+  "en": "Iran official holidays"
+ },
+ "note": "Solar holidays are fixed by law. Lunar holidays in Iran follow the moon-sighting council, not Umm al-Qura or a formula: put each year's official dates (Geophysics Institute, University of Tehran) in `dates` and their Gregorian span in `explicit`. Until then the lunar list below is used through islamic-civil and shown as approximate. The owner checks this list before release (F06 §16, §22 question 6).",
+ "rules": [
+  {
+   "cal": "persian",
+   "md": "01-01",
+   "days": 4,
+   "label": {
+    "fa": "نوروز",
+    "ar": "النوروز",
+    "en": "Nowruz"
+   }
+  },
+  {
+   "cal": "persian",
+   "md": "01-12",
+   "label": {
+    "fa": "روز جمهوری اسلامی",
+    "ar": "يوم الجمهورية الإسلامية",
+    "en": "Islamic Republic Day"
+   }
+  },
+  {
+   "cal": "persian",
+   "md": "01-13",
+   "label": {
+    "fa": "روز طبیعت",
+    "ar": "يوم الطبيعة",
+    "en": "Nature Day"
+   }
+  },
+  {
+   "cal": "persian",
+   "md": "03-14",
+   "label": {
+    "fa": "رحلت امام خمینی",
+    "ar": "ذكرى رحيل الإمام الخميني",
+    "en": "Death of Ruhollah Khomeini"
+   }
+  },
+  {
+   "cal": "persian",
+   "md": "03-15",
+   "label": {
+    "fa": "قیام ۱۵ خرداد",
+    "ar": "انتفاضة 15 خرداد",
+    "en": "15 Khordad uprising"
+   }
+  },
+  {
+   "cal": "persian",
+   "md": "11-22",
+   "label": {
+    "fa": "پیروزی انقلاب اسلامی",
+    "ar": "انتصار الثورة الإسلامية",
+    "en": "Islamic Revolution Day"
+   }
+  },
+  {
+   "cal": "persian",
+   "md": "12-29",
+   "label": {
+    "fa": "ملی شدن صنعت نفت",
+    "ar": "تأميم صناعة النفط",
+    "en": "Oil Nationalization Day"
+   }
+  }
+ ],
+ "dates": {},
+ "explicit": null,
+ "fallback": {
+  "cal": "islamic-civil",
+  "adjust": 0,
+  "rules": [
+   {
+    "md": "01-09",
+    "days": 2,
+    "label": {
+     "fa": "تاسوعا و عاشورا",
+     "ar": "تاسوعاء وعاشوراء",
+     "en": "Tasua and Ashura"
+    }
+   },
+   {
+    "md": "02-20",
+    "label": {
+     "fa": "اربعین",
+     "ar": "الأربعين",
+     "en": "Arbaeen"
+    }
+   },
+   {
+    "md": "02-28",
+    "label": {
+     "fa": "رحلت پیامبر و شهادت امام حسن",
+     "ar": "وفاة النبي واستشهاد الإمام الحسن",
+     "en": "Death of the Prophet and martyrdom of Imam Hasan"
+    }
+   },
+   {
+    "md": "02-29",
+    "label": {
+     "fa": "شهادت امام رضا",
+     "ar": "استشهاد الإمام الرضا",
+     "en": "Martyrdom of Imam Reza"
+    }
+   },
+   {
+    "md": "03-08",
+    "label": {
+     "fa": "شهادت امام حسن عسکری",
+     "ar": "استشهاد الإمام الحسن العسكري",
+     "en": "Martyrdom of Imam Hasan al-Askari"
+    }
+   },
+   {
+    "md": "03-17",
+    "label": {
+     "fa": "میلاد پیامبر و امام جعفر صادق",
+     "ar": "المولد النبوي",
+     "en": "Birth of the Prophet"
+    }
+   },
+   {
+    "md": "06-03",
+    "label": {
+     "fa": "شهادت حضرت فاطمه",
+     "ar": "استشهاد السيدة فاطمة",
+     "en": "Martyrdom of Fatima"
+    }
+   },
+   {
+    "md": "07-13",
+    "label": {
+     "fa": "ولادت امام علی",
+     "ar": "مولد الإمام علي",
+     "en": "Birth of Imam Ali"
+    }
+   },
+   {
+    "md": "07-27",
+    "label": {
+     "fa": "مبعث",
+     "ar": "المبعث النبوي",
+     "en": "Mab'ath"
+    }
+   },
+   {
+    "md": "08-15",
+    "label": {
+     "fa": "نیمه شعبان",
+     "ar": "النصف من شعبان",
+     "en": "Mid-Sha'ban"
+    }
+   },
+   {
+    "md": "09-21",
+    "label": {
+     "fa": "شهادت امام علی",
+     "ar": "استشهاد الإمام علي",
+     "en": "Martyrdom of Imam Ali"
+    }
+   },
+   {
+    "md": "10-01",
+    "days": 2,
+    "label": {
+     "fa": "عید فطر",
+     "ar": "عيد الفطر",
+     "en": "Eid al-Fitr"
+    }
+   },
+   {
+    "md": "10-25",
+    "label": {
+     "fa": "شهادت امام جعفر صادق",
+     "ar": "استشهاد الإمام جعفر الصادق",
+     "en": "Martyrdom of Imam Ja'far al-Sadiq"
+    }
+   },
+   {
+    "md": "12-10",
+    "label": {
+     "fa": "عید قربان",
+     "ar": "عيد الأضحى",
+     "en": "Eid al-Adha"
+    }
+   },
+   {
+    "md": "12-18",
+    "label": {
+     "fa": "عید غدیر",
+     "ar": "عيد الغدير",
+     "en": "Eid al-Ghadir"
+    }
+   }
+  ]
+ }
+}

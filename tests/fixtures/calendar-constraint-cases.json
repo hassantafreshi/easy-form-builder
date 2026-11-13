@@ -1,0 +1,2161 @@
+{
+ "_comment": "F06-C shared fixture: field + context + submitted value -> ok or an error code (contract §4.3), with parts of the stored row. Run by tests/test-calendar-constraints.js (EFBCalendar.rules) and tests/test-calendar-constraints.php (\\Emsfb\\Calendar); both must answer every case the same way. ctx.now is the instant, site_tz the site zone, plan free | free_plus | pro (default pro).",
+ "cases": [
+  {
+   "name": "empty optional",
+   "field": {
+    "type": "advdate"
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "",
+   "expect": "ok",
+   "row": {
+    "value": ""
+   }
+  },
+  {
+   "name": "empty required",
+   "field": {
+    "type": "advdate",
+    "required": 1
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "",
+   "expect": "required"
+  },
+  {
+   "name": "spaces only required",
+   "field": {
+    "type": "advdate",
+    "required": "1"
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "   ",
+   "expect": "required"
+  },
+  {
+   "name": "text",
+   "field": {
+    "type": "advdate"
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "tomorrow",
+   "expect": "invalid_format"
+  },
+  {
+   "name": "typed Persian text",
+   "field": {
+    "type": "advdate"
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "فردا",
+   "expect": "invalid_format"
+  },
+  {
+   "name": "slashes are not ISO",
+   "field": {
+    "type": "advdate"
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026/11/14",
+   "expect": "invalid_format"
+  },
+  {
+   "name": "Feb 30",
+   "field": {
+    "type": "advdate"
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-02-30",
+   "expect": "invalid_date"
+  },
+  {
+   "name": "month 13",
+   "field": {
+    "type": "advdate"
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-13-01",
+   "expect": "invalid_date"
+  },
+  {
+   "name": "Persian digits",
+   "field": {
+    "type": "advdate"
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "۲۰۲۶-۱۱-۱۴",
+   "expect": "ok",
+   "row": {
+    "value": "2026-11-14"
+   }
+  },
+  {
+   "name": "Arabic digits and RLM",
+   "field": {
+    "type": "advdate"
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "‏٢٠٢٦-١١-١٤",
+   "expect": "ok",
+   "row": {
+    "value": "2026-11-14"
+   }
+  },
+  {
+   "name": "relative min 1: today refused",
+   "field": {
+    "type": "advdate",
+    "date_min": {
+     "type": "relative",
+     "value": 1
+    }
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-11-13",
+   "expect": "before_min"
+  },
+  {
+   "name": "relative min 1: tomorrow",
+   "field": {
+    "type": "advdate",
+    "date_min": {
+     "type": "relative",
+     "value": 1
+    }
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-11-14",
+   "expect": "ok"
+  },
+  {
+   "name": "relative min 0: today",
+   "field": {
+    "type": "advdate",
+    "date_min": {
+     "type": "relative",
+     "value": 0
+    }
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-11-13",
+   "expect": "ok"
+  },
+  {
+   "name": "relative max -1: today refused",
+   "field": {
+    "type": "advdate",
+    "date_max": {
+     "type": "relative",
+     "value": -1
+    }
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-11-13",
+   "expect": "after_max"
+  },
+  {
+   "name": "relative max 60: last day",
+   "field": {
+    "type": "advdate",
+    "date_max": {
+     "type": "relative",
+     "value": 60
+    }
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2027-01-12",
+   "expect": "ok"
+  },
+  {
+   "name": "relative max 60: one past",
+   "field": {
+    "type": "advdate",
+    "date_max": {
+     "type": "relative",
+     "value": 60
+    }
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2027-01-13",
+   "expect": "after_max"
+  },
+  {
+   "name": "relative 2 weeks",
+   "field": {
+    "type": "advdate",
+    "date_max": {
+     "type": "relative",
+     "value": 2,
+     "unit": "week"
+    }
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-11-28",
+   "expect": "after_max"
+  },
+  {
+   "name": "relative 1 month clamp edge",
+   "field": {
+    "type": "advdate",
+    "date_max": {
+     "type": "relative",
+     "value": 1,
+     "unit": "month"
+    }
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-12-13",
+   "expect": "ok"
+  },
+  {
+   "name": "relative 1 month past",
+   "field": {
+    "type": "advdate",
+    "date_max": {
+     "type": "relative",
+     "value": 1,
+     "unit": "month"
+    }
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-12-14",
+   "expect": "after_max"
+  },
+  {
+   "name": "relative -18 years (born before)",
+   "field": {
+    "type": "advdate",
+    "date_max": {
+     "type": "relative",
+     "value": -18,
+     "unit": "year"
+    }
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2008-11-14",
+   "expect": "after_max"
+  },
+  {
+   "name": "absolute min boundary",
+   "field": {
+    "type": "advdate",
+    "date_min": {
+     "type": "absolute",
+     "value": "2026-12-01"
+    }
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-12-01",
+   "expect": "ok"
+  },
+  {
+   "name": "absolute min one before",
+   "field": {
+    "type": "advdate",
+    "date_min": {
+     "type": "absolute",
+     "value": "2026-12-01"
+    }
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-11-30",
+   "expect": "before_min"
+  },
+  {
+   "name": "absolute max",
+   "field": {
+    "type": "advdate",
+    "date_max": {
+     "type": "absolute",
+     "value": "2026-12-31"
+    }
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2027-01-01",
+   "expect": "after_max"
+  },
+  {
+   "name": "bad limit ignored",
+   "field": {
+    "type": "advdate",
+    "date_min": {
+     "type": "absolute",
+     "value": "2026-02-30"
+    }
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2000-01-01",
+   "expect": "ok"
+  },
+  {
+   "name": "limit as JSON text",
+   "field": {
+    "type": "advdate",
+    "date_min": "{\"type\":\"relative\",\"value\":1}"
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-11-13",
+   "expect": "before_min"
+  },
+  {
+   "name": "Friday closed",
+   "field": {
+    "type": "advdate",
+    "disabled_weekdays": [
+     5
+    ]
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-11-20",
+   "expect": "weekday_disabled"
+  },
+  {
+   "name": "Saturday open",
+   "field": {
+    "type": "advdate",
+    "disabled_weekdays": [
+     5
+    ]
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-11-21",
+   "expect": "ok"
+  },
+  {
+   "name": "weekdays as text",
+   "field": {
+    "type": "advdate",
+    "disabled_weekdays": "6,7"
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-11-15",
+   "expect": "weekday_disabled"
+  },
+  {
+   "name": "disabled date",
+   "field": {
+    "type": "advdate",
+    "disabled_dates": [
+     "2026-12-25"
+    ]
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-12-25",
+   "expect": "date_disabled"
+  },
+  {
+   "name": "disabled range inside",
+   "field": {
+    "type": "advdate",
+    "disabled_dates": [
+     "2026-12-24/2026-12-26"
+    ]
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-12-26",
+   "expect": "date_disabled"
+  },
+  {
+   "name": "disabled range outside",
+   "field": {
+    "type": "advdate",
+    "disabled_dates": [
+     "2026-12-24/2026-12-26"
+    ]
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-12-27",
+   "expect": "ok"
+  },
+  {
+   "name": "enabled only: other date",
+   "field": {
+    "type": "advdate",
+    "enabled_dates": [
+     "2026-12-01/2026-12-05"
+    ]
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-12-06",
+   "expect": "not_enabled"
+  },
+  {
+   "name": "enabled only: inside",
+   "field": {
+    "type": "advdate",
+    "enabled_dates": [
+     "2026-12-01/2026-12-05"
+    ]
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-12-03",
+   "expect": "ok"
+  },
+  {
+   "name": "enabled does not reopen a closed weekday",
+   "field": {
+    "type": "advdate",
+    "enabled_dates": [
+     "2026-11-20"
+    ],
+    "disabled_weekdays": [
+     5
+    ]
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-11-20",
+   "expect": "weekday_disabled"
+  },
+  {
+   "name": "order: min before disabled date",
+   "field": {
+    "type": "advdate",
+    "date_min": {
+     "type": "relative",
+     "value": 1
+    },
+    "disabled_dates": [
+     "2026-11-13"
+    ]
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-11-13",
+   "expect": "before_min"
+  },
+  {
+   "name": "order: disabled date before weekday",
+   "field": {
+    "type": "advdate",
+    "disabled_dates": [
+     "2026-11-20"
+    ],
+    "disabled_weekdays": [
+     5
+    ]
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-11-20",
+   "expect": "date_disabled"
+  },
+  {
+   "name": "Nowruz custom rule day 1",
+   "field": {
+    "type": "advdate",
+    "holidays_custom": [
+     {
+      "cal": "persian",
+      "md": "01-01",
+      "days": 4,
+      "label": "Nowruz"
+     }
+    ]
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2027-03-21",
+   "expect": "holiday"
+  },
+  {
+   "name": "Nowruz custom rule day 4",
+   "field": {
+    "type": "advdate",
+    "holidays_custom": [
+     {
+      "cal": "persian",
+      "md": "01-01",
+      "days": 4,
+      "label": "Nowruz"
+     }
+    ]
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2027-03-24",
+   "expect": "holiday"
+  },
+  {
+   "name": "Nowruz custom rule day 5",
+   "field": {
+    "type": "advdate",
+    "holidays_custom": [
+     {
+      "cal": "persian",
+      "md": "01-01",
+      "days": 4,
+      "label": "Nowruz"
+     }
+    ]
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2027-03-25",
+   "expect": "ok"
+  },
+  {
+   "name": "holiday mark mode allows",
+   "field": {
+    "type": "advdate",
+    "holiday_mode": "mark",
+    "holidays_custom": [
+     {
+      "cal": "persian",
+      "md": "01-01",
+      "days": 4,
+      "label": "Nowruz"
+     }
+    ]
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2027-03-21",
+   "expect": "ok"
+  },
+  {
+   "name": "lunar custom rule",
+   "field": {
+    "type": "advdate",
+    "holidays_custom": [
+     {
+      "cal": "islamic-umalqura",
+      "md": "10-01",
+      "label": "Eid"
+     }
+    ]
+   },
+   "ctx": {
+    "now": "2026-01-01T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-03-20",
+   "expect": "holiday"
+  },
+  {
+   "name": "lunar custom rule with adjust +1: day before",
+   "field": {
+    "type": "advdate",
+    "cal_hijri_adjust": 1,
+    "holidays_custom": [
+     {
+      "cal": "islamic-umalqura",
+      "md": "10-01",
+      "label": "Eid"
+     }
+    ]
+   },
+   "ctx": {
+    "now": "2026-01-01T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-03-19",
+   "expect": "holiday"
+  },
+  {
+   "name": "lunar custom rule with adjust +1: the table day is open",
+   "field": {
+    "type": "advdate",
+    "cal_hijri_adjust": 1,
+    "holidays_custom": [
+     {
+      "cal": "islamic-umalqura",
+      "md": "10-01",
+      "label": "Eid"
+     }
+    ]
+   },
+   "ctx": {
+    "now": "2026-01-01T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-03-20",
+   "expect": "ok"
+  },
+  {
+   "name": "fixed date holiday",
+   "field": {
+    "type": "advdate",
+    "holidays_custom": [
+     {
+      "date": "2026-12-25",
+      "label": "X"
+     }
+    ]
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-12-25",
+   "expect": "holiday"
+  },
+  {
+   "name": "fixed range holiday",
+   "field": {
+    "type": "advdate",
+    "holidays_custom": [
+     {
+      "date": "2026-12-24/2026-12-26",
+      "label": "X"
+     }
+    ]
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-12-24",
+   "expect": "holiday"
+  },
+  {
+   "name": "set ir-official: Nowruz",
+   "field": {
+    "type": "advdate",
+    "holiday_sets": [
+     "ir-official"
+    ]
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2027-03-21",
+   "expect": "holiday"
+  },
+  {
+   "name": "set ir-official: 22 Bahman",
+   "field": {
+    "type": "advdate",
+    "holiday_sets": [
+     "ir-official"
+    ]
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2027-02-11",
+   "expect": "holiday"
+  },
+  {
+   "name": "set ir-official: approximate lunar (Tasua, civil)",
+   "field": {
+    "type": "advdate",
+    "holiday_sets": [
+     "ir-official"
+    ]
+   },
+   "ctx": {
+    "now": "2025-01-01T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2025-07-05",
+   "expect": "holiday"
+  },
+  {
+   "name": "set ir-official: ordinary day",
+   "field": {
+    "type": "advdate",
+    "holiday_sets": [
+     "ir-official"
+    ]
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-11-16",
+   "expect": "ok"
+  },
+  {
+   "name": "set sa-official: Eid al-Fitr 1448",
+   "field": {
+    "type": "advdate",
+    "holiday_sets": [
+     "sa-official"
+    ]
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2027-03-09",
+   "expect": "holiday"
+  },
+  {
+   "name": "set sa-official: Arafat 1448",
+   "field": {
+    "type": "advdate",
+    "holiday_sets": [
+     "sa-official"
+    ]
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2027-05-15",
+   "expect": "holiday"
+  },
+  {
+   "name": "set unknown id",
+   "field": {
+    "type": "advdate",
+    "holiday_sets": [
+     "xx-none"
+    ]
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2027-03-21",
+   "expect": "ok"
+  },
+  {
+   "name": "range ok",
+   "field": {
+    "type": "advdate",
+    "date_mode": "range",
+    "range_min_days": 1,
+    "range_max_days": 14
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-12-01/2026-12-04",
+   "expect": "ok",
+   "row": {
+    "value": "2026-12-01/2026-12-04",
+    "mode": "range"
+   }
+  },
+  {
+   "name": "range order",
+   "field": {
+    "type": "advdate",
+    "date_mode": "range"
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-12-04/2026-12-01",
+   "expect": "range_order"
+  },
+  {
+   "name": "range too short (nights)",
+   "field": {
+    "type": "advdate",
+    "date_mode": "range",
+    "range_min_days": 2
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-12-01/2026-12-02",
+   "expect": "range_too_short"
+  },
+  {
+   "name": "range too long (nights)",
+   "field": {
+    "type": "advdate",
+    "date_mode": "range",
+    "range_max_days": 3
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-12-01/2026-12-05",
+   "expect": "range_too_long"
+  },
+  {
+   "name": "range days unit counts both ends",
+   "field": {
+    "type": "advdate",
+    "date_mode": "range",
+    "range_unit": "days",
+    "range_max_days": 3
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-12-01/2026-12-04",
+   "expect": "range_too_long"
+  },
+  {
+   "name": "range days unit ok",
+   "field": {
+    "type": "advdate",
+    "date_mode": "range",
+    "range_unit": "days",
+    "range_max_days": 4
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-12-01/2026-12-04",
+   "expect": "ok"
+  },
+  {
+   "name": "range nights: closed check-out day allowed",
+   "field": {
+    "type": "advdate",
+    "date_mode": "range",
+    "disabled_weekdays": [
+     5
+    ]
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-11-16/2026-11-20",
+   "expect": "ok"
+  },
+  {
+   "name": "range nights: closed night inside",
+   "field": {
+    "type": "advdate",
+    "date_mode": "range",
+    "disabled_weekdays": [
+     5
+    ]
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-11-16/2026-11-21",
+   "expect": "range_contains_disabled"
+  },
+  {
+   "name": "range days: closed last day refused",
+   "field": {
+    "type": "advdate",
+    "date_mode": "range",
+    "range_unit": "days",
+    "disabled_weekdays": [
+     5
+    ]
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-11-16/2026-11-20",
+   "expect": "range_contains_disabled"
+  },
+  {
+   "name": "range: closed first day",
+   "field": {
+    "type": "advdate",
+    "date_mode": "range",
+    "disabled_weekdays": [
+     5
+    ]
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-11-20/2026-11-22",
+   "expect": "weekday_disabled"
+  },
+  {
+   "name": "range: start before min",
+   "field": {
+    "type": "advdate",
+    "date_mode": "range",
+    "date_min": {
+     "type": "relative",
+     "value": 1
+    }
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-11-13/2026-11-15",
+   "expect": "before_min"
+  },
+  {
+   "name": "range: check-out after max",
+   "field": {
+    "type": "advdate",
+    "date_mode": "range",
+    "date_max": {
+     "type": "absolute",
+     "value": "2026-12-03"
+    }
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-12-01/2026-12-04",
+   "expect": "after_max"
+  },
+  {
+   "name": "range: single value is not a range",
+   "field": {
+    "type": "advdate",
+    "date_mode": "range"
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-12-01",
+   "expect": "invalid_format"
+  },
+  {
+   "name": "range: invalid end",
+   "field": {
+    "type": "advdate",
+    "date_mode": "range"
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-12-01/2026-12-32",
+   "expect": "invalid_date"
+  },
+  {
+   "name": "multiple sorted unique",
+   "field": {
+    "type": "advdate",
+    "date_mode": "multiple"
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-12-05,2026-12-01,2026-12-05",
+   "expect": "ok",
+   "row": {
+    "value": "2026-12-01,2026-12-05",
+    "mode": "multiple"
+   }
+  },
+  {
+   "name": "multiple too many",
+   "field": {
+    "type": "advdate",
+    "date_mode": "multiple",
+    "multi_max": 2
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-12-01,2026-12-02,2026-12-03",
+   "expect": "too_many_dates"
+  },
+  {
+   "name": "multiple one closed",
+   "field": {
+    "type": "advdate",
+    "date_mode": "multiple",
+    "disabled_weekdays": [
+     5
+    ]
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-12-01,2026-11-20",
+   "expect": "weekday_disabled"
+  },
+  {
+   "name": "multiple with spaces",
+   "field": {
+    "type": "advdate",
+    "date_mode": "multiple"
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-12-01 , 2026-12-02",
+   "expect": "ok",
+   "row": {
+    "value": "2026-12-01,2026-12-02"
+   }
+  },
+  {
+   "name": "time required",
+   "field": {
+    "type": "advdate",
+    "time_enabled": 1
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-11-14",
+   "expect": "time_required"
+  },
+  {
+   "name": "time Tehran with utc",
+   "field": {
+    "type": "advdate",
+    "time_enabled": 1
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-11-14T09:00",
+   "expect": "ok",
+   "row": {
+    "value": "2026-11-14T09:00",
+    "time": "09:00",
+    "utc": "2026-11-14T05:30:00Z",
+    "tz": "Asia/Tehran"
+   }
+  },
+  {
+   "name": "time step",
+   "field": {
+    "type": "advdate",
+    "time_enabled": 1,
+    "time_step": 30
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-11-14T09:15",
+   "expect": "time_step"
+  },
+  {
+   "name": "time step from window start",
+   "field": {
+    "type": "advdate",
+    "time_enabled": 1,
+    "time_step": 30,
+    "time_min": "09:10"
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-11-14T09:40",
+   "expect": "ok"
+  },
+  {
+   "name": "time before min",
+   "field": {
+    "type": "advdate",
+    "time_enabled": 1,
+    "time_min": "09:00",
+    "time_max": "17:00"
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-11-14T08:45",
+   "expect": "time_out_of_range"
+  },
+  {
+   "name": "time after max",
+   "field": {
+    "type": "advdate",
+    "time_enabled": 1,
+    "time_min": "09:00",
+    "time_max": "17:00"
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-11-14T17:15",
+   "expect": "time_out_of_range"
+  },
+  {
+   "name": "time max inclusive",
+   "field": {
+    "type": "advdate",
+    "time_enabled": 1,
+    "time_min": "09:00",
+    "time_max": "17:00"
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-11-14T17:00",
+   "expect": "ok"
+  },
+  {
+   "name": "time by weekday closed",
+   "field": {
+    "type": "advdate",
+    "time_enabled": 1,
+    "time_by_weekday": {
+     "6": []
+    }
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-11-14T10:00",
+   "expect": "time_closed_weekday"
+  },
+  {
+   "name": "time by weekday second window",
+   "field": {
+    "type": "advdate",
+    "time_enabled": 1,
+    "time_by_weekday": {
+     "6": [
+      [
+       "09:00",
+       "13:00"
+      ],
+      [
+       "14:00",
+       "18:00"
+      ]
+     ]
+    }
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-11-14T14:30",
+   "expect": "ok"
+  },
+  {
+   "name": "time by weekday gap",
+   "field": {
+    "type": "advdate",
+    "time_enabled": 1,
+    "time_by_weekday": {
+     "6": [
+      [
+       "09:00",
+       "13:00"
+      ],
+      [
+       "14:00",
+       "18:00"
+      ]
+     ]
+    }
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-11-14T13:30",
+   "expect": "time_out_of_range"
+  },
+  {
+   "name": "time by weekday other day uses min/max",
+   "field": {
+    "type": "advdate",
+    "time_enabled": 1,
+    "time_min": "08:00",
+    "time_by_weekday": {
+     "6": []
+    }
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-11-15T08:00",
+   "expect": "ok"
+  },
+  {
+   "name": "time DST gap New York",
+   "field": {
+    "type": "advdate",
+    "time_enabled": 1,
+    "tz": "America/New_York"
+   },
+   "ctx": {
+    "now": "2026-01-01T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-03-08T02:30",
+   "expect": "time_out_of_range"
+  },
+  {
+   "name": "time DST fold New York",
+   "field": {
+    "type": "advdate",
+    "time_enabled": 1,
+    "tz": "America/New_York"
+   },
+   "ctx": {
+    "now": "2026-01-01T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-11-01T01:30",
+   "expect": "time_out_of_range"
+  },
+  {
+   "name": "time 25:00",
+   "field": {
+    "type": "advdate",
+    "time_enabled": 1
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-11-14T25:00",
+   "expect": "invalid_format"
+  },
+  {
+   "name": "time sent while off",
+   "field": {
+    "type": "advdate"
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-11-14T10:00",
+   "expect": "invalid_format"
+  },
+  {
+   "name": "time 12h disp",
+   "field": {
+    "type": "advdate",
+    "time_enabled": 1
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-11-14T14:30",
+   "expect": "ok",
+   "row": {
+    "disp": "November 14, 2026 02:30 PM"
+   }
+  },
+  {
+   "name": "age 18 today",
+   "field": {
+    "type": "advdate",
+    "age_min": 18
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2008-11-13",
+   "expect": "ok"
+  },
+  {
+   "name": "age 18 tomorrow",
+   "field": {
+    "type": "advdate",
+    "age_min": 18
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2008-11-14",
+   "expect": "age_too_young"
+  },
+  {
+   "name": "age max 65",
+   "field": {
+    "type": "advdate",
+    "age_max": 65
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "1960-11-12",
+   "expect": "age_too_old"
+  },
+  {
+   "name": "age Feb 29 on Feb 28",
+   "field": {
+    "type": "advdate",
+    "age_min": 18
+   },
+   "ctx": {
+    "now": "2026-02-28T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2008-02-29",
+   "expect": "age_too_young"
+  },
+  {
+   "name": "age Feb 29 on Mar 1",
+   "field": {
+    "type": "advdate",
+    "age_min": 18
+   },
+   "ctx": {
+    "now": "2026-03-01T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2008-02-29",
+   "expect": "ok"
+  },
+  {
+   "name": "Tehran past midnight: yesterday in UTC is before min",
+   "field": {
+    "type": "advdate",
+    "date_min": {
+     "type": "relative",
+     "value": 0
+    }
+   },
+   "ctx": {
+    "now": "2026-03-20T21:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-03-20",
+   "expect": "before_min"
+  },
+  {
+   "name": "Los Angeles same instant: still today",
+   "field": {
+    "type": "advdate",
+    "date_min": {
+     "type": "relative",
+     "value": 0
+    }
+   },
+   "ctx": {
+    "now": "2026-03-20T21:00:00Z",
+    "site_tz": "America/Los_Angeles",
+    "locale": "en_US"
+   },
+   "input": "2026-03-20",
+   "expect": "ok"
+  },
+  {
+   "name": "visitor zone within a day is used",
+   "field": {
+    "type": "advdate",
+    "tz": "visitor",
+    "date_min": {
+     "type": "relative",
+     "value": 0
+    }
+   },
+   "ctx": {
+    "now": "2026-03-20T21:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US",
+    "visitor_tz": "America/Los_Angeles"
+   },
+   "input": "2026-03-20",
+   "expect": "ok",
+   "row": {
+    "tz": "America/Los_Angeles"
+   }
+  },
+  {
+   "name": "visitor zone two days away falls back to site",
+   "field": {
+    "type": "advdate",
+    "tz": "visitor",
+    "date_min": {
+     "type": "relative",
+     "value": 0
+    }
+   },
+   "ctx": {
+    "now": "2026-03-20T10:30:00Z",
+    "site_tz": "Pacific/Kiritimati",
+    "locale": "en_US",
+    "visitor_tz": "Pacific/Pago_Pago"
+   },
+   "input": "2026-03-20",
+   "expect": "before_min"
+  },
+  {
+   "name": "visitor zone not a zone",
+   "field": {
+    "type": "advdate",
+    "tz": "visitor"
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US",
+    "visitor_tz": "Mars/Olympus"
+   },
+   "input": "2026-11-14",
+   "expect": "ok",
+   "row": {
+    "tz": "Asia/Tehran"
+   }
+  },
+  {
+   "name": "field zone",
+   "field": {
+    "type": "advdate",
+    "tz": "America/Los_Angeles",
+    "date_min": {
+     "type": "relative",
+     "value": 0
+    }
+   },
+   "ctx": {
+    "now": "2026-03-20T21:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2026-03-20",
+   "expect": "ok",
+   "row": {
+    "tz": "America/Los_Angeles"
+   }
+  },
+  {
+   "name": "field limit: before",
+   "field": {
+    "type": "advdate",
+    "date_min": {
+     "type": "field",
+     "field": "chk_in",
+     "offset": 1
+    }
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US",
+    "values": {
+     "chk_in": "2026-12-01"
+    }
+   },
+   "input": "2026-12-01",
+   "expect": "before_min"
+  },
+  {
+   "name": "field limit: ok",
+   "field": {
+    "type": "advdate",
+    "date_min": {
+     "type": "field",
+     "field": "chk_in",
+     "offset": 1
+    }
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US",
+    "values": {
+     "chk_in": "2026-12-01"
+    }
+   },
+   "input": "2026-12-02",
+   "expect": "ok"
+  },
+  {
+   "name": "field limit: range source start",
+   "field": {
+    "type": "advdate",
+    "date_min": {
+     "type": "field",
+     "field": "chk_in"
+    }
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US",
+    "values": {
+     "chk_in": "2026-12-01/2026-12-04"
+    }
+   },
+   "input": "2026-12-01",
+   "expect": "ok"
+  },
+  {
+   "name": "field limit: empty source is ignored",
+   "field": {
+    "type": "advdate",
+    "date_min": {
+     "type": "field",
+     "field": "chk_in",
+     "offset": 1
+    }
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US",
+    "values": {}
+   },
+   "input": "2026-11-14",
+   "expect": "ok",
+   "warnings": [
+    "depends_on_empty"
+   ]
+  },
+  {
+   "name": "Persian row",
+   "field": {
+    "type": "advdate",
+    "cal_default": "persian"
+   },
+   "ctx": {
+    "now": "2025-01-01T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "fa_IR"
+   },
+   "input": "2025-03-20",
+   "expect": "ok",
+   "row": {
+    "value": "2025-03-20",
+    "cal": "persian",
+    "local": "1403-12-30",
+    "disp": "۳۰ اسفند ۱۴۰۳",
+    "mode": "single",
+    "v": 1
+   }
+  },
+  {
+   "name": "auto calendar on fa_IR",
+   "field": {
+    "type": "advdate"
+   },
+   "ctx": {
+    "now": "2026-01-01T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "fa_IR"
+   },
+   "input": "2026-03-19",
+   "expect": "ok",
+   "row": {
+    "cal": "persian",
+    "local": "1404-12-28",
+    "disp": "۲۸ اسفند ۱۴۰۴"
+   }
+  },
+  {
+   "name": "auto calendar on ar_SA",
+   "field": {
+    "type": "advdate"
+   },
+   "ctx": {
+    "now": "2025-01-01T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "ar_SA"
+   },
+   "input": "2025-03-30",
+   "expect": "ok",
+   "row": {
+    "cal": "islamic-umalqura",
+    "local": "1446-10-01",
+    "disp": "١ شوال ١٤٤٦"
+   }
+  },
+  {
+   "name": "en_US row",
+   "field": {
+    "type": "advdate"
+   },
+   "ctx": {
+    "now": "2025-01-01T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US"
+   },
+   "input": "2025-03-20",
+   "expect": "ok",
+   "row": {
+    "cal": "gregory",
+    "local": "2025-03-20",
+    "disp": "March 20, 2025"
+   }
+  },
+  {
+   "name": "visitor calendar used when allowed",
+   "field": {
+    "type": "advdate",
+    "cal_default": "persian",
+    "cal_allowed": [
+     "persian",
+     "gregory"
+    ],
+    "cal_switch": 1
+   },
+   "ctx": {
+    "now": "2025-01-01T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "fa_IR",
+    "cal": "gregory"
+   },
+   "input": "2025-03-20",
+   "expect": "ok",
+   "row": {
+    "cal": "gregory",
+    "local": "2025-03-20",
+    "disp": "۲۰ مارس ۲۰۲۵"
+   }
+  },
+  {
+   "name": "visitor calendar not allowed: default",
+   "field": {
+    "type": "advdate",
+    "cal_default": "persian",
+    "cal_allowed": [
+     "persian"
+    ]
+   },
+   "ctx": {
+    "now": "2025-01-01T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "fa_IR",
+    "cal": "islamic-civil"
+   },
+   "input": "2025-03-20",
+   "expect": "ok",
+   "row": {
+    "cal": "persian"
+   }
+  },
+  {
+   "name": "range row fa",
+   "field": {
+    "type": "advdate",
+    "date_mode": "range",
+    "cal_default": "persian"
+   },
+   "ctx": {
+    "now": "2026-01-01T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "fa_IR"
+   },
+   "input": "2026-03-19/2026-03-22",
+   "expect": "ok",
+   "row": {
+    "local": "1404-12-28/1405-01-02",
+    "disp": "۲۸ اسفند ۱۴۰۴ – ۲ فروردین ۱۴۰۵"
+   }
+  },
+  {
+   "name": "multiple row fa joiner",
+   "field": {
+    "type": "advdate",
+    "date_mode": "multiple",
+    "cal_default": "persian"
+   },
+   "ctx": {
+    "now": "2026-01-01T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "fa_IR"
+   },
+   "input": "2026-03-19,2026-03-22",
+   "expect": "ok",
+   "row": {
+    "disp": "۲۸ اسفند ۱۴۰۴، ۲ فروردین ۱۴۰۵"
+   }
+  },
+  {
+   "name": "digits forced latn",
+   "field": {
+    "type": "advdate",
+    "cal_default": "persian",
+    "cal_digits": "latn"
+   },
+   "ctx": {
+    "now": "2025-01-01T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "fa_IR"
+   },
+   "input": "2025-03-20",
+   "expect": "ok",
+   "row": {
+    "disp": "30 اسفند 1403"
+   }
+  },
+  {
+   "name": "Hijri adjust in local",
+   "field": {
+    "type": "advdate",
+    "cal_default": "islamic-umalqura",
+    "cal_hijri_adjust": -1
+   },
+   "ctx": {
+    "now": "2025-01-01T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "ar_SA"
+   },
+   "input": "2025-03-30",
+   "expect": "ok",
+   "row": {
+    "local": "1446-09-29"
+   }
+  },
+  {
+   "name": "beyond the Umm al-Qura table: approximate",
+   "field": {
+    "type": "advdate",
+    "cal_default": "islamic-umalqura"
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "ar_SA"
+   },
+   "input": "2078-03-01",
+   "expect": "ok",
+   "row": {
+    "local": "1501-04-16",
+    "approx": 1
+   },
+   "warnings": [
+    "approximate_date"
+   ]
+  },
+  {
+   "name": "legacy_local: local in, local out",
+   "field": {
+    "type": "advdate",
+    "cal_default": "persian",
+    "store_format": "legacy_local"
+   },
+   "ctx": {
+    "now": "2025-01-01T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "fa_IR"
+   },
+   "input": "1403-12-30",
+   "expect": "ok",
+   "row": {
+    "value": "1403-12-30",
+    "iso": "2025-03-20"
+   }
+  },
+  {
+   "name": "legacy_local: ISO in, local out",
+   "field": {
+    "type": "advdate",
+    "cal_default": "persian",
+    "store_format": "legacy_local"
+   },
+   "ctx": {
+    "now": "2025-01-01T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "fa_IR"
+   },
+   "input": "2025-03-20",
+   "expect": "ok",
+   "row": {
+    "value": "1403-12-30",
+    "iso": "2025-03-20"
+   }
+  },
+  {
+   "name": "legacy_local: 1404-12-30 does not exist",
+   "field": {
+    "type": "advdate",
+    "cal_default": "persian",
+    "store_format": "legacy_local"
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "fa_IR"
+   },
+   "input": "1404-12-30",
+   "expect": "invalid_date"
+  },
+  {
+   "name": "free: range mode is single",
+   "field": {
+    "type": "advdate",
+    "date_mode": "range"
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US",
+    "plan": "free"
+   },
+   "input": "2026-12-01/2026-12-04",
+   "expect": "invalid_format"
+  },
+  {
+   "name": "free plus: range mode is single",
+   "field": {
+    "type": "advdate",
+    "date_mode": "range"
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US",
+    "plan": "free_plus"
+   },
+   "input": "2026-12-01/2026-12-04",
+   "expect": "invalid_format"
+  },
+  {
+   "name": "free: enabled dates ignored",
+   "field": {
+    "type": "advdate",
+    "enabled_dates": [
+     "2026-12-01"
+    ]
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US",
+    "plan": "free"
+   },
+   "input": "2026-12-06",
+   "expect": "ok"
+  },
+  {
+   "name": "free plus: enabled dates kept",
+   "field": {
+    "type": "advdate",
+    "enabled_dates": [
+     "2026-12-01"
+    ]
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US",
+    "plan": "free_plus"
+   },
+   "input": "2026-12-06",
+   "expect": "not_enabled"
+  },
+  {
+   "name": "free: age ignored",
+   "field": {
+    "type": "advdate",
+    "age_min": 18
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US",
+    "plan": "free"
+   },
+   "input": "2020-01-01",
+   "expect": "ok"
+  },
+  {
+   "name": "free: min/max kept",
+   "field": {
+    "type": "advdate",
+    "date_min": {
+     "type": "relative",
+     "value": 1
+    }
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US",
+    "plan": "free"
+   },
+   "input": "2026-11-13",
+   "expect": "before_min"
+  },
+  {
+   "name": "free: weekdays kept",
+   "field": {
+    "type": "advdate",
+    "disabled_weekdays": [
+     5
+    ]
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US",
+    "plan": "free"
+   },
+   "input": "2026-11-20",
+   "expect": "weekday_disabled"
+  },
+  {
+   "name": "free: second calendar dropped",
+   "field": {
+    "type": "advdate",
+    "cal_default": "persian",
+    "cal_allowed": [
+     "persian",
+     "gregory"
+    ],
+    "cal_switch": 1
+   },
+   "ctx": {
+    "now": "2025-01-01T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "fa_IR",
+    "plan": "free",
+    "cal": "gregory"
+   },
+   "input": "2025-03-20",
+   "expect": "ok",
+   "row": {
+    "cal": "persian"
+   }
+  },
+  {
+   "name": "free: time ignored",
+   "field": {
+    "type": "advdate",
+    "time_enabled": 1
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US",
+    "plan": "free"
+   },
+   "input": "2026-11-14",
+   "expect": "ok"
+  },
+  {
+   "name": "free plus: time by weekday dropped",
+   "field": {
+    "type": "advdate",
+    "time_enabled": 1,
+    "time_by_weekday": {
+     "6": []
+    }
+   },
+   "ctx": {
+    "now": "2026-11-13T10:00:00Z",
+    "site_tz": "Asia/Tehran",
+    "locale": "en_US",
+    "plan": "free_plus"
+   },
+   "input": "2026-11-14T10:00",
+   "expect": "ok"
+  }
+ ]
+}

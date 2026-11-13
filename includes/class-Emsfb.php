@@ -445,6 +445,12 @@ class Emsfb {
             \Emsfb\Verification::register();
         }
 
+        // F06: calendar engines and date rules of the advanced date field (advdate), plus the global
+        // efb_calendar_* / efb_date_* functions of the contract. Optional: callers check class_exists().
+        if ($this->require_plugin_file_efb('includes/class-Emsfb-calendar.php')) {
+            $this->require_plugin_file_efb('includes/calendar-functions-efb.php');
+        }
+
         // Builder API for integrations such as AutoPilot (docs/autopilot-integration.md).
         // Optional: callers check class_exists('\Emsfb\Builder_Api').
         $this->require_plugin_file_efb('includes/class-Emsfb-builder-api.php');

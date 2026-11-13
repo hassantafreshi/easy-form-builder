@@ -1,0 +1,52 @@
+{
+ "id": "sa-official",
+ "v": 1,
+ "verified": false,
+ "label": {
+  "fa": "تعطیلات رسمی عربستان",
+  "ar": "العطل الرسمية في السعودية",
+  "en": "Saudi Arabia official holidays"
+ },
+ "note": "Eid holidays by the Umm al-Qura table; the length of each Eid break is set by decree every year: the owner checks it before release (F06 §16, §22 question 6).",
+ "rules": [
+  {
+   "cal": "islamic-umalqura",
+   "md": "10-01",
+   "days": 4,
+   "label": {
+    "fa": "عید فطر",
+    "ar": "عيد الفطر",
+    "en": "Eid al-Fitr"
+   }
+  },
+  {
+   "cal": "islamic-umalqura",
+   "md": "12-09",
+   "days": 4,
+   "label": {
+    "fa": "عرفه و عید قربان",
+    "ar": "يوم عرفة وعيد الأضحى",
+    "en": "Arafat Day and Eid al-Adha"
+   }
+  },
+  {
+   "cal": "gregory",
+   "md": "02-22",
+   "label": {
+    "fa": "روز تأسیس",
+    "ar": "يوم التأسيس",
+    "en": "Founding Day"
+   }
+  },
+  {
+   "cal": "gregory",
+   "md": "09-23",
+   "label": {
+    "fa": "روز ملی",
+    "ar": "اليوم الوطني",
+    "en": "National Day"
+   }
+  }
+ ],
+ "dates": {}
+}
