@@ -1,0 +1,58 @@
+1
+00:00:00,200 --> 00:00:03,600
+Form emails not arriving?
+Test your site in one minute.
+
+2
+00:00:03,700 --> 00:00:07,400
+In WordPress, open Easy Form Builder,
+then Panel and Settings.
+
+3
+00:00:07,600 --> 00:00:10,700
+Choose the Email Settings tab.
+
+4
+00:00:11,000 --> 00:00:14,800
+Press Check Email Server.
+Your site sends one real test email.
+
+5
+00:00:15,200 --> 00:00:18,400
+A minute later, you get
+a score out of 100.
+
+6
+00:00:19,000 --> 00:00:23,800
+Three lines below explain the score:
+Sender permission (SPF),
+
+7
+00:00:24,100 --> 00:00:28,200
+Email signature (DKIM) and
+Domain protection policy (DMARC).
+
+8
+00:00:28,900 --> 00:00:33,000
+Each line marked Needs setup
+is a missing DNS record.
+
+9
+00:00:33,500 --> 00:00:38,000
+Your host or email service gives you
+the values to copy.
+
+10
+00:00:38,500 --> 00:00:42,500
+Add them in your DNS panel,
+then test again.
+
+11
+00:00:43,000 --> 00:00:47,800
+Run the check again.
+Aim for a score above 80.
+
+12
+00:00:48,300 --> 00:00:52,500
+Full guides for each record
+are linked below.

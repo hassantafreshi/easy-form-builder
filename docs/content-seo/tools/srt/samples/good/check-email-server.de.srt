@@ -1,0 +1,58 @@
+1
+00:00:00,200 --> 00:00:03,600
+Formular-Mails kommen nicht an?
+Teste in 1 Minute.
+
+2
+00:00:03,700 --> 00:00:07,300
+Öffne Easy Form Builder,
+dann Panel und Settings.
+
+3
+00:00:07,600 --> 00:00:10,700
+Wähle den Tab Email Settings.
+
+4
+00:00:11,000 --> 00:00:14,800
+Klicke auf Check Email Server.
+Eine Test-Mail geht raus.
+
+5
+00:00:15,200 --> 00:00:18,400
+Nach 1 Minute siehst du
+deinen Score von 100.
+
+6
+00:00:19,000 --> 00:00:23,800
+Drei Zeilen darunter erklären sie:
+Sender permission (SPF),
+
+7
+00:00:24,100 --> 00:00:28,200
+Email signature (DKIM) und
+Domain protection policy (DMARC).
+
+8
+00:00:28,900 --> 00:00:33,000
+Jede Zeile mit Needs setup
+ist ein fehlender DNS-Eintrag.
+
+9
+00:00:33,500 --> 00:00:38,000
+Dein Hoster oder E-Mail-Dienst nennt
+dir die Werte zum Kopieren.
+
+10
+00:00:38,500 --> 00:00:42,500
+Trage sie im DNS-Panel ein,
+dann teste erneut.
+
+11
+00:00:43,000 --> 00:00:47,800
+Prüfe noch einmal.
+Ziel: Punktzahl über 80.
+
+12
+00:00:48,300 --> 00:00:52,500
+Ausführliche Anleitungen zu jedem
+Eintrag stehen unten.

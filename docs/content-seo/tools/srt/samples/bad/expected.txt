@@ -1,0 +1,6 @@
+# Files in this folder must FAIL validation and must report at least the listed issue codes.
+# Run: python3 ../../validate_srt.py --selftest   (from this folder or anywhere)
+bad-basics.en.srt: E_BOM, E_CPL, E_OVERLAP, E_MIN_DURATION, W_GAP, E_MAX_DURATION, E_CPS, E_LINES, E_MARKUP, E_INDEX_SEQ
+bad-rtl.fa.srt: E_RTL_STARTS_LTR, W_RTL_NO_RLM, W_LATIN_PUNCT, E_FA_ARABIC_LETTERS, E_FA_ARABIC_DIGITS, W_FA_ZWNJ_MI, W_FA_DETACHED_HA, W_FA_BRAND, W_RTL_LATIN_PUNCT_RUN, W_PRESENTATION_FORMS
+bad-format.de.srt: E_TIMING_FORMAT, E_EMPTY_CUE
+Bad_Name.srt: E_FILENAME, E_LANG_UNKNOWN

@@ -190,7 +190,7 @@ DEMO = {
     "RELATED_2_URL": "https://whitestudio.team/document/example-b/", "RELATED_2_ANCHOR": "Add conditional logic",
     "CTA_URL": "https://whitestudio.team/#pricing", "CTA_LABEL": "Get Easy Form Builder Pro",
     "UPDATE_NOTE": "Menu names match version 4.3.1.",
-    "VIDEO_EMBED": "<!-- wp:html -->\n<figure class=\"wp-block-embed is-type-video is-provider-youtube wp-block-embed-youtube wp-embed-aspect-16-9 wp-has-aspect-ratio\"><div class=\"wp-block-embed__wrapper\"><iframe title=\"Demo video\" width=\"1280\" height=\"720\" src=\"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ\" loading=\"lazy\" allowfullscreen></iframe></div></figure>\n<!-- /wp:html -->",
+    "VIDEO_EMBED": "<!-- wp:embed {\"url\":\"https://www.youtube.com/watch?v=dQw4w9WgXcQ\",\"type\":\"video\",\"providerNameSlug\":\"youtube\",\"responsive\":true,\"className\":\"wp-embed-aspect-16-9 wp-has-aspect-ratio\"} -->\n<figure class=\"wp-block-embed is-type-video is-provider-youtube wp-block-embed-youtube wp-embed-aspect-16-9 wp-has-aspect-ratio\"><div class=\"wp-block-embed__wrapper\">\nhttps://www.youtube.com/watch?v=dQw4w9WgXcQ\n</div></figure>\n<!-- /wp:embed -->",
     "VIDEO_TRANSCRIPT": "Open the settings, add credentials, authorize, map the fields and send a test entry.",
 }
 

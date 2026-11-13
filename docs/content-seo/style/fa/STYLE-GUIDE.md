@@ -249,14 +249,14 @@ Run before publishing or exporting an SRT. A hit is a warning unless marked **er
 | 1 | `[يك]` | **error**: Arabic yeh/kaf |
 | 2 | `\bمی\s` or `\bنمی\s` | missing ZWNJ after می / نمی |
 | 3 | `[آ-ی]\s+ها\b` | detached plural «ها» |
-| 4 | `فرم ساز آسان|فرمساز آسان` | brand without ZWNJ |
+| 4 | `فرم ساز آسان\|فرمساز آسان` | brand without ZWNJ |
 | 5 | `(?<=[آ-ی])\s?\?` , `(?<=[آ-ی]),` | Latin ? or , in Persian text |
 | 6 | `"` (outside code) | straight quote; use «» |
 | 7 | `\.\.\.` | use … |
-| 8 | `پلاگین|رایانامه|اس‌ام‌اس|آپدیت|بروزرسانی|شورت‌?کات` | forbidden term |
+| 8 | `پلاگین\|رایانامه\|اس‌ام‌اس\|آپدیت\|بروزرسانی\|شورت‌?کات` | forbidden term |
 | 9 | `نمایید` | stiff register |
 | 10 | Latin digits in a Persian sentence (excluding versions, codes, URLs) | use Persian digits |
-| 11 | `‌‌|\s‌|‌\s` | stray ZWNJ |
+| 11 | two ZWNJ in a row (U+200C U+200C), or a ZWNJ next to a space or at the start/end of a line | stray ZWNJ |
 | 12 | `\s[،؛؟!:]` | space before Persian punctuation |
 | 13 | Any English UI label from `UI-LABELS.csv` left untranslated while the Persian label exists | use `UI-STRINGS.csv` |
 | 14 | `1[34]\d\d` year with Latin digits in prose | Jalali year in Persian digits |

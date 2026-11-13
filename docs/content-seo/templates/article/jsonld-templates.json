@@ -1,0 +1,137 @@
+{
+  "_meta": {
+    "name": "EFB article JSON-LD templates v1",
+    "delivery": "The pipeline assembles ONE JSON string (a single object with @graph, or an array of objects) and writes it to the post meta field efb_jsonld; the mu-plugin pipeline/snippets/efb-content-pipeline.php prints it in <head> after validating it. JSON-LD is never placed in post_content (kses may strip <script> for non-admin users, and the body must stay free of script tags).",
+    "modes": {
+      "supplement": {
+        "use_when": "The site's SEO plugin already prints Article/WebPage/BreadcrumbList. Verified on live HTML for whitestudio.team (EN): Yoast SEO graph with Article #article, WebPage (id = page URL), ImageObject #primaryimage, BreadcrumbList #breadcrumb, Organization #organization. AR is reported to use Rank Math and DE is unidentified (pipeline/00-DECISIONS.md) - NOT re-verified here.",
+        "emit": ["VideoObject", "FAQPage"],
+        "why": "QA-GATES E3 forbids a duplicate Article. A live article (fix-wordpress-not-sending-email-spf-dkim-dmarc) currently prints a second, hand-written Article next to Yoast's: do not repeat that."
+      },
+      "standalone": {
+        "use_when": "The SEO plugin schema is disabled or the plugin is unknown (DE until identified).",
+        "emit": ["TechArticle", "BreadcrumbList", "VideoObject", "FAQPage"]
+      }
+    },
+    "placeholder_syntax": "A JSON string that is exactly \"{{NAME}}\" is replaced as a whole value (escaping is automatic). Suffix :int casts to a number, e.g. \"{{WORD_COUNT:int}}\". Placeholders inside longer strings are replaced textually. Keys starting with _ are documentation and are removed by assemble_jsonld.py.",
+    "placeholders": {
+      "PAGE_URL": "Canonical URL of this language version, with trailing slash",
+      "SITE_URL": "Site root with trailing slash (https://whitestudio.team/, https://de.whitestudio.team/, https://ar.whitestudio.team/)",
+      "PUBLISHER_NAME": "White Studio Team (the brand is not translated)",
+      "TITLE": "The post title (same text as H1)",
+      "META_DESCRIPTION": "The meta description, 140-155 chars, in the page language",
+      "LANG_BCP47": "en-US, de-DE or ar (matches the site's html lang)",
+      "DATE_PUBLISHED_ISO": "ISO 8601 with offset; never changed after first publish",
+      "DATE_MODIFIED_ISO": "ISO 8601 with offset; changes only on a verified content update",
+      "AUTHOR_NAME": "The real author decided by the owner (not the bot user, not 'admin')",
+      "AUTHOR_URL": "Author archive or about page URL",
+      "IMAGE_URL": "Absolute URL of the featured image (JPEG, 1200x630 or larger)",
+      "CATEGORY_NAME": "Main category name in the page language",
+      "WORD_COUNT": "Integer; words in the body, excluding the FAQ answers if you prefer, but be consistent",
+      "EFB_VERSION": "Easy Form Builder version the article was verified with",
+      "WP_MIN": "Minimum WordPress version from readme.txt (Requires at least)",
+      "CRUMB_2_NAME": "Category label, e.g. Documentation",
+      "CRUMB_2_URL": "Category URL",
+      "VIDEO_NAME": "Video title (the article title or the YouTube title)",
+      "VIDEO_DESCRIPTION": "One or two sentences, plain text",
+      "VIDEO_THUMBNAIL_URL": "Absolute poster/thumbnail URL (1280x720 JPEG)",
+      "VIDEO_UPLOAD_DATE_ISO": "ISO 8601 date the video was published",
+      "VIDEO_DURATION_ISO": "ISO 8601 duration, e.g. PT58S or PT1M52S",
+      "VIDEO_EMBED_URL": "YouTube variant: https://www.youtube.com/embed/<id> (use ONE of embed/content URL)",
+      "VIDEO_CONTENT_URL": "Self-hosted variant: absolute URL of the MP4",
+      "VIDEO_VTT_URL": "Self-hosted variant: absolute URL of the WebVTT captions",
+      "VIDEO_LANG": "Spoken language of the video, en (the video is English; DE/AR/FA are caption files)",
+      "VIDEO_TRANSCRIPT": "Full transcript, plain text, identical to the on-page transcript",
+      "FAQ_n_Q": "Question text, plain",
+      "FAQ_n_A_PLAIN": "Answer text, plain (strip HTML), identical in substance to the on-page answer"
+    },
+    "rules": [
+      "Include VideoObject only when a real video is on the page; give exactly one of embedUrl or contentUrl.",
+      "FAQPage questions and answers must match the visible FAQ on the page (same wording, same count).",
+      "inLanguage must match the page: en-US, de-DE or ar. Do not copy English strings into AR/DE JSON-LD.",
+      "dateModified moves only when the content was re-verified (QA-GATES A5); never touch it for typo fixes alone.",
+      "HowTo is intentionally absent: Google removed HowTo rich results, and WPForms emits it on 1 of 6 sampled tutorials only.",
+      "Validate with json.loads before writing the meta, then check the rendered <head> after publishing (QA-GATES E3)."
+    ]
+  },
+
+  "templates": {
+    "TechArticle": {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "@id": "{{PAGE_URL}}#article",
+      "mainEntityOfPage": { "@type": "WebPage", "@id": "{{PAGE_URL}}" },
+      "headline": "{{TITLE}}",
+      "description": "{{META_DESCRIPTION}}",
+      "inLanguage": "{{LANG_BCP47}}",
+      "datePublished": "{{DATE_PUBLISHED_ISO}}",
+      "dateModified": "{{DATE_MODIFIED_ISO}}",
+      "author": { "@type": "Person", "name": "{{AUTHOR_NAME}}", "url": "{{AUTHOR_URL}}" },
+      "publisher": { "@type": "Organization", "@id": "{{SITE_URL}}#organization", "name": "{{PUBLISHER_NAME}}", "url": "{{SITE_URL}}" },
+      "image": ["{{IMAGE_URL}}"],
+      "articleSection": "{{CATEGORY_NAME}}",
+      "wordCount": "{{WORD_COUNT:int}}",
+      "proficiencyLevel": "Beginner",
+      "dependencies": "WordPress {{WP_MIN}} or later; Easy Form Builder {{EFB_VERSION}}",
+      "about": {
+        "@type": "SoftwareApplication",
+        "name": "Easy Form Builder",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "WordPress",
+        "url": "https://wordpress.org/plugins/easy-form-builder/"
+      }
+    },
+
+    "BreadcrumbList": {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "@id": "{{PAGE_URL}}#breadcrumb",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "{{SITE_URL}}" },
+        { "@type": "ListItem", "position": 2, "name": "{{CRUMB_2_NAME}}", "item": "{{CRUMB_2_URL}}" },
+        { "@type": "ListItem", "position": 3, "name": "{{TITLE}}" }
+      ]
+    },
+
+    "VideoObject": {
+      "@context": "https://schema.org",
+      "@type": "VideoObject",
+      "@id": "{{PAGE_URL}}#video",
+      "name": "{{VIDEO_NAME}}",
+      "description": "{{VIDEO_DESCRIPTION}}",
+      "thumbnailUrl": ["{{VIDEO_THUMBNAIL_URL}}"],
+      "uploadDate": "{{VIDEO_UPLOAD_DATE_ISO}}",
+      "duration": "{{VIDEO_DURATION_ISO}}",
+      "inLanguage": "{{VIDEO_LANG}}",
+      "transcript": "{{VIDEO_TRANSCRIPT}}",
+      "_variant_youtube": { "embedUrl": "{{VIDEO_EMBED_URL}}" },
+      "_variant_self_hosted": {
+        "contentUrl": "{{VIDEO_CONTENT_URL}}",
+        "width": 1920,
+        "height": 1080,
+        "caption": [ { "@type": "MediaObject", "contentUrl": "{{VIDEO_VTT_URL}}", "encodingFormat": "text/vtt", "inLanguage": "{{VIDEO_LANG}}" } ]
+      },
+      "_note": "Merge exactly one of _variant_youtube / _variant_self_hosted into the object and delete both keys (assemble_jsonld.py does it with --video youtube|self_hosted)."
+    },
+
+    "FAQPage": {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "@id": "{{PAGE_URL}}#faq",
+      "inLanguage": "{{LANG_BCP47}}",
+      "mainEntity": [
+        { "@type": "Question", "name": "{{FAQ_1_Q}}", "acceptedAnswer": { "@type": "Answer", "text": "{{FAQ_1_A_PLAIN}}" } },
+        { "@type": "Question", "name": "{{FAQ_2_Q}}", "acceptedAnswer": { "@type": "Answer", "text": "{{FAQ_2_A_PLAIN}}" } },
+        { "@type": "Question", "name": "{{FAQ_3_Q}}", "acceptedAnswer": { "@type": "Answer", "text": "{{FAQ_3_A_PLAIN}}" } },
+        { "@type": "Question", "name": "{{FAQ_4_Q}}", "acceptedAnswer": { "@type": "Answer", "text": "{{FAQ_4_A_PLAIN}}" } }
+      ],
+      "_note": "Items whose placeholders have no data are dropped; FAQ_5 and FAQ_6 are cloned from the last item when data exists (4-6 questions, never padded)."
+    }
+  },
+
+  "assemble": {
+    "supplement": ["VideoObject", "FAQPage"],
+    "standalone": ["TechArticle", "BreadcrumbList", "VideoObject", "FAQPage"],
+    "output": "A JSON array of the emitted objects (each keeps its own @context). The mu-plugin accepts a single object or an array of objects."
+  }
+}

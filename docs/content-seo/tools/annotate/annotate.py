@@ -590,6 +590,8 @@ def lint(size, kb, anns, k, crop_px, rtl):
         warnings.append(f"file {kb:.0f} KB > {KB_SOFT_LIMIT} KB; lower the quality or crop tighter")
     if len(drawn) > MAX_ANNOTATIONS:
         warnings.append(f"{len(drawn)} annotations > {MAX_ANNOTATIONS}; split into two screenshots")
+    if h > 1100:
+        warnings.append(f"height {h}px > 1100px; crop tighter or split the step")
     ar = w / h
     if ar > 4.2 or ar < 0.5:
         warnings.append(f"aspect ratio {ar:.2f} outside 0.5-4.2")

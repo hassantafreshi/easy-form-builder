@@ -87,7 +87,7 @@ docs/content-seo/                      ← در برنچ (فقط متن/اسکر
 content-out/YYYY-MM-DD/<track>-<slug>/   ← خروجی روزانه (در برنچ commit نمی‌شود؛ بخش ۴ DECISIONS §۳-C)
   article.{en,ar,de}.html  meta.{en,ar,de}.json  qa-report.md  previous.json
   images/*.webp
-  video/{storyboard.json,script.txt,vo.mp3,video.mp4,video-vertical.mp4,captions.{en,de,ar,fa}.srt}
+  video/{storyboard.json,script.txt,vo.mp3,video.mp4,video-vertical.mp4,<slug>.{en,de,ar,fa}.srt}
   youtube.md
 ```
 

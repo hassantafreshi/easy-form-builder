@@ -1,0 +1,30 @@
+﻿1
+00:00:00,000 --> 00:00:03,000
+Press Check Email Server and wait
+for the test to finish and the result
+
+2
+00:00:02,500 --> 00:00:05,000
+This cue overlaps the previous one.
+
+4
+00:00:05,050 --> 00:00:05,450
+Too short for this much text.
+
+4
+00:00:06,000 --> 00:00:14,500
+A cue that stays on screen far too long.
+
+5
+00:00:15,000 --> 00:00:16,000
+Reading speed is far too high for a one second cue, no one can read it.
+
+6
+00:00:17,000 --> 00:00:20,000
+One
+Two
+Three lines
+
+7
+00:00:21,000 --> 00:00:24,000
+<i>Markup is not supported by YouTube</i>

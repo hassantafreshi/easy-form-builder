@@ -30,8 +30,8 @@ The sitemap `https://whitestudio.team/post-sitemap.xml` (88 URLs, last crawl 202
 | Tier | Posts | Why |
 |---|---|---|
 | **Model** | The Nov 2026 email series: *Why your form emails go to spam*, *Set up SPF*, *Set up DKIM*, *Set up DMARC*, *Send form emails through a free email service*, *Set up Easy WP SMTP* | One direct answer first, one task per heading, UI labels named exactly, "Common mistakes", FAQ, honest limits ("This is a domain setting, not a plugin setting") |
-| **Good, with fixes** | Auto-Populate guide (#73), 72-languages release post, *Fix WordPress not sending email: SPF, DKIM & DMARC* (Oct 2026), *How to Set Up Form Email Notifications* (#78), Free Plus guide (#71), Security best practices 2026, 403 fix, PayPal setup, payment form | Real depth and verified claims, but generic filler, lost placeholders, stale numbers or promotional closers |
-| **Avoid as a pattern** | Survey guide of 2026-08-19 (#72), silentCAPTCHA guide (#55), RTL + conditional logic post (#81), Stripe guide (2025), 2024 posts (private form, step names, 3.7.27 notice) | Keyword stuffing, leaked editorial notes, emoji headings, "Forms Overview", wrong plan claims, corporate filler |
+| **Good, with fixes** | Auto-Populate guide (#73), 4.3.0 / 72-languages release post (#81), *Fix WordPress not sending email: SPF, DKIM & DMARC* (#82, Oct 2026), *How to Set Up Form Email Notifications* (#78), Free Plus guide (#71), Security best practices 2026 (#79), 403 fix (#64), PayPal setup (#65), payment form (#61) | Real depth and verified claims, but generic filler, lost placeholders, stale numbers or promotional closers |
+| **Avoid as a pattern** | Survey guide of 2026-08-19 (#72), silentCAPTCHA guide (#55), RTL + conditional logic post (#75), Stripe guide (#47, 2025), 2024 posts (private form #5, step names #4, 3.7.27 notice #7) | Keyword stuffing, leaked editorial notes, emoji headings, "Forms Overview", wrong plan claims, corporate filler |
 
 ## 3. Voice and tone
 
@@ -104,7 +104,7 @@ Other rules: one idea per paragraph; no rhetorical questions in body text (they 
 ### 5.3 Title and meta description
 
 - **H1 / `<title>`:** ≤ 60 characters without the site suffix. In the sample 45 of 86 titles are longer than 60 (median 62). The brand suffix is added by the site; do not count it, but never rely on it to carry the keyword.
-- **Meta description:** 140-155 characters, one sentence of result plus a promise ("with a 2-minute video"). The Nov series is close (147-159 characters; three of six are over 155). Treat 155 as a hard limit. Other posts have no crafted description: the site falls back to the first 300+ characters (median 337).
+- **Meta description:** 140-155 characters, one sentence of result plus a promise ("with a 2-minute video"). The Nov series is close (147-159 characters; three of six are over 155). Treat 155 as a hard limit. Other posts appear to have no crafted description: the `og:description` is the first 300+ characters of the body (median 337 characters; only 6 of 86 fall in the 140-155 range).
 - **Slug:** keep the existing slug on rewrites; new slugs are short and contain no year.
 
 ## 6. Names, plans and versions
@@ -253,3 +253,46 @@ The English script is the source for the EN captions and for DE/AR/FA translatio
 6. **Refunds** for Stripe and PayPal: which plan? (comparison post vs changelog).
 7. **Reading level target:** the sample is aimed at non-technical site owners; confirm that is also the target for Pro and developer pages.
 8. **Image conventions** (annotated screenshots) are defined in `templates/images/IMAGE-STYLE-GUIDE.md` (other R&D task), not here.
+
+## Appendix A. Posts read closely (evidence for sections 3 to 10)
+
+IDs are the row numbers of `content-queue.csv` (R-numbers). All were fetched on 2026-11-13.
+
+| Tier | ID | Slug (path on whitestudio.team) | Date |
+|---|---|---|---|
+| Model | R83 | `/document/set-up-spf-record-for-wordpress-email/` | 2026-11-04 |
+| Model | R85 | `/document/set-up-dkim-email-signature-for-wordpress/` | 2026-11-04 |
+| Model | R86 | `/document/set-up-dmarc-policy-for-wordpress-email/` | 2026-11-04 |
+| Model | R84 | `/document/why-form-emails-go-to-spam-hosting-not-plugin/` | 2026-11-04 |
+| Model | R87 | `/document/free-email-sending-services-for-wordpress-forms/` | 2026-11-04 |
+| Model | R88 | `/document/send-email-using-smtp-plugin/` | 2026-11-04 |
+| Good | R82 | `/document/fix-wordpress-not-sending-email-spf-dkim-dmarc/` | 2026-10-04 |
+| Good | R81 | `/blog/easy-form-builder-free-wordpress-plugin-supports-72-languages/` | 2026-10-01 |
+| Good | R73 | `/advanced-addons/wordpress-easy-form-builder-auto-populate/` | 2026-08-19 |
+| Good | R79 | `/blog/best-practices-form-security-spam-prevention-2026/` | 2026-09-05 |
+| Good | R80 | `/document/how-to-activate-pro-version-easy-form-builder-plugin/` | 2026-09-09 |
+| Good | R71 | `/document/easy-form-builder-free-plus-activation-guide/` | 2026-07-29 |
+| Good | R70 | `/document/install-activate-easy-form-builder-wordpress/` | 2026-07-19 |
+| Good | R78 | `/document/how-to-set-up-form-notification-emails-in-easy-form-builder/` | 2026-09-02 |
+| Good | R57 | `/blog/easy-form-builder-4-released-major-update-wordpress-forms/` | 2026-03-12 |
+| Good | R64 | `/blog/fixing-403-error-after-submitting-forms/` | 2026-04-28 |
+| Good | R63 | `/developer-guide/security-plugin-compatibility/` | 2026-04-28 |
+| Good | R61 | `/document/how-to-create-a-payment-form-in-easy-form-builder/` | 2026-03-17 |
+| Good | R65 | `/document/how-to-setup-paypal-payment-in-easy-form-builder/` | 2026-06-04 |
+| Good | R66 | `/document/how-to-fix-email-not-working-issue/` | 2026-06-20 |
+| Good | R52 | `/document/how-to-embed-a-form-on-wordpress-2026-guide-step-by-step/` | 2026-01-01 |
+| Good | R76 | `/blog/easy-form-builder-affiliate-program/` | 2026-08-29 |
+| Good | R54 | `/document/easy-form-builder-add-placeholder-text/` | 2026-03-09 |
+| Good | R50 | `/document/how-to-make-form-fields-required-or-optional-in-wordpress/` | 2025-12-12 |
+| Good | R25 | `/document/how-to-create-your-first-form-with-easy-form-builder/` | 2025-12-12 |
+| Avoid | R72 | `/document/how-create-surve-wordpress-easily-step-by-step-guide/` | 2026-08-19 |
+| Avoid | R55 | `/advanced-addons/easy-form-builder-silentcaptcha-protection/` | 2026-03-09 |
+| Avoid | R75 | `/blog/free-rtl-wordpress-form-builder-conditional-logic/` | 2026-08-24 |
+| Avoid | R47 | `/document/wordpress-stripe-payment-form-plugin/` | 2025-12-12 |
+| Avoid | R27 | `/document/how-to-customize-the-submit-button/` | 2025-12-12 |
+| Avoid | R05 | `/document/how-to-create-a-private-form-with-easy-form-builder-2/` | 2024-01-14 |
+| Avoid | R04 | `/document/how-to-change-step-names-and-icons-of-step-name-forms/` | 2024-01-13 |
+| Avoid | R07 | `/blog/critical-update-3-7-27-easy-form-builder/` | 2024-05-18 |
+
+Method note: sentence length, spelling, punctuation and naming counts were computed over the full 86-post text with Python (regular expressions on the extracted `entry-content`); pronoun and sentence counts are approximate (about ±5%). Tier labels are editorial judgement.
+

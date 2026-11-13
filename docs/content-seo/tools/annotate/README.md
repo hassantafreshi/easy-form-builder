@@ -65,7 +65,7 @@ fragment gets proportionally thinner strokes than a 1600 px screen.
 
 ## Lint (printed after every run)
 
-Warns when: width > 1600 px, file > 250 KB, more than 3 annotations (more than 2 arrows),
+Warns when: width > 1600 px, height > 1100 px, file > 250 KB, more than 3 annotations (more than 2 arrows),
 aspect ratio outside 0.5-4.2, crop wider than 900 CSS px (text would fall below ~85 % of native size in
 the 760 px article column), blur radius < 6, an arrow tail outside the image, a zoom that had to move.
 Use `--strict` in the pipeline to fail on warnings. Output WebP carries **no EXIF/ICC** metadata.

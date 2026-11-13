@@ -46,7 +46,7 @@ MIN_GAP = 0.08          # two frames at 25 fps; Netflix: 2 frames minimum
 REF_IN_DRIFT = 0.50     # translated in-time may differ from the reference by this much (warning)
 REF_OUT_DRIFT = 1.50
 
-RLM, LRM, ZWNJ, ZWJ, BOM = '‏', '‎', '‌', '‍', '﻿'
+RLM, LRM, ZWNJ, ZWJ, BOM = '\u200f', '\u200e', '\u200c', '\u200d', '\ufeff'
 INVISIBLE = {RLM, LRM, ZWNJ, ZWJ, BOM}
 NAME_RE = re.compile(r'^(?P<slug>[a-z0-9]+(?:-[a-z0-9]+)*)\.(?P<lang>en|de|ar|fa)\.srt$')
 LEGACY_NAME_RE = re.compile(r'^captions\.(?P<lang>en|de|ar|fa)\.srt$')
@@ -98,6 +98,8 @@ def parse(raw, rep):
     crlf, lf = text.count('\r\n'), text.count('\n') - text.count('\r\n')
     if text.count('\r') - crlf > 0:
         rep.add('ERROR', 'E_CR', None, 'Bare carriage returns (old Mac line endings) found.')
+    if crlf and not lf:
+        rep.add('WARN', 'W_CRLF', None, 'File uses CRLF line endings; this project standard is LF.')
     if crlf and lf:
         rep.add('WARN', 'W_MIXED_EOL', None, 'Mixed CRLF and LF line endings (%d CRLF, %d LF).' % (crlf, lf))
     if text and not text.endswith('\n'):
@@ -185,11 +187,11 @@ def check_cue(cue, prof, lang, rep, shorts):
             rep.add('ERROR', 'E_TAB', i, 'Line %d contains a tab character.' % ln)
         if BOM in line:
             rep.add('ERROR', 'E_BOM_IN_TEXT', i, 'Line %d contains U+FEFF.' % ln)
-        if ' ' in line:
+        if '\u00a0' in line:
             rep.add('WARN', 'W_NBSP', i, 'Line %d contains a non-breaking space; use a normal space.' % ln)
         if '...' in line:
             rep.add('WARN', 'W_ELLIPSIS', i, 'Line %d uses "..."; use the single character U+2026.' % ln)
-        bad_bidi = [c for c in line if c in '‪‫‬‭‮⁦⁧⁨⁩']
+        bad_bidi = [c for c in line if c in '\u202a\u202b\u202c\u202d\u202e\u2066\u2067\u2068\u2069']
         if bad_bidi:
             rep.add('WARN', 'W_BIDI_EMBED', i, 'Line %d uses bidi embedding/isolate controls (U+%04X); use only RLM/LRM.' % (ln, ord(bad_bidi[0])))
         lang_line_checks(line, ln, i, lang, prof, rep)
@@ -223,28 +225,32 @@ def lang_line_checks(line, ln, i, lang, prof, rep):
             rep.add('ERROR', 'E_RTL_STARTS_LTR', i, 'Line %d starts with left-to-right text; prefix the line with U+200F (RLM) or it renders left-to-right.' % ln)
         elif has_latin_or_digit and not starts_rlm:
             rep.add('WARN', 'W_RTL_NO_RLM', i, 'Line %d mixes Latin text or digits but has no leading RLM (U+200F); add it for stable ordering.' % ln)
-        if re.search(r'[؀-ۿ][ ]*[?,;]', line) or re.search(r'[?,;][ ]*[؀-ۿ]', line):
-            rep.add('WARN', 'W_LATIN_PUNCT', i, 'Line %d uses Latin ? , ; next to Arabic-script text; use ؟ ، ؛.' % ln)
+        if re.search('[\\ufb50-\\ufdff\\ufe70-\\ufefe]', line):
+            rep.add('WARN', 'W_PRESENTATION_FORMS', i, 'Line %d uses Arabic presentation-form code points (U+FB50-FDFF / U+FE70-FEFE); use the base letters.' % ln)
+        if re.search(r'(?<=[A-Za-z0-9)])[ ]?[\u060c,;\u061b:][ ]?(?=[A-Za-z])', line):
+            rep.add('WARN', 'W_RTL_LATIN_PUNCT_RUN', i, 'Line %d: punctuation between two Latin runs needs an RLM (U+200F) right after it, or the two terms reorder left-to-right.' % ln)
+        if re.search(r'[\u0600-\u06ff][ ]*[?,;]', line) or re.search(r'[?,;][ ]*[\u0600-\u06ff]', line):
+            rep.add('WARN', 'W_LATIN_PUNCT', i, 'Line %d uses Latin ? , ; next to Arabic-script text; use \u061f \u060c \u061b.' % ln)
         if lang == 'fa':
-            if re.search('[يك]', line):
-                rep.add('ERROR', 'E_FA_ARABIC_LETTERS', i, 'Line %d uses Arabic yeh/kaf (U+064A/U+0643); use Persian ی and ک.' % ln)
-            if re.search('[٠-٩]', line):
-                rep.add('ERROR', 'E_FA_ARABIC_DIGITS', i, 'Line %d uses Arabic-Indic digits (U+0660-0669); use Persian digits ۰-۹ or Latin 0-9.' % ln)
-            if re.search(r'(?<![؀-ۿ‌])(?:ن?می)[ ](?=[؀-ۿ])', line.replace(RLM, '')):
-                rep.add('WARN', 'W_FA_ZWNJ_MI', i, 'Line %d: missing ZWNJ after می/نمی (write می‌کنید).' % ln)
-            if re.search(r'[؀-ۿ] ها(?![؀-ۿ])', line):
-                rep.add('WARN', 'W_FA_DETACHED_HA', i, 'Line %d: plural «ها» detached by a space; use ZWNJ.' % ln)
-            if 'فرم ساز آسان' in line or 'فرمساز آسان' in line:
-                rep.add('WARN', 'W_FA_BRAND', i, 'Line %d: brand must be فرم‌ساز آسان (with ZWNJ).' % ln)
+            if re.search('[\u064a\u0643]', line):
+                rep.add('ERROR', 'E_FA_ARABIC_LETTERS', i, 'Line %d uses Arabic yeh/kaf (U+064A/U+0643); use Persian \u06cc and \u06a9.' % ln)
+            if re.search('[\u0660-\u0669]', line):
+                rep.add('ERROR', 'E_FA_ARABIC_DIGITS', i, 'Line %d uses Arabic-Indic digits (U+0660-0669); use Persian digits \u06f0-\u06f9 or Latin 0-9.' % ln)
+            if re.search(r'(?<![\u0600-\u06ff\u200c])(?:\u0646?\u0645\u06cc)[ ](?=[\u0600-\u06ff])', line.replace(RLM, '')):
+                rep.add('WARN', 'W_FA_ZWNJ_MI', i, 'Line %d: missing ZWNJ after \u0645\u06cc/\u0646\u0645\u06cc (write \u0645\u06cc\u200c\u06a9\u0646\u06cc\u062f).' % ln)
+            if re.search(r'[\u0600-\u06ff] \u0647\u0627(?:\u06cc)?(?![\u0600-\u06ff])', line):
+                rep.add('WARN', 'W_FA_DETACHED_HA', i, 'Line %d: plural \u00ab\u0647\u0627\u00bb detached by a space; use ZWNJ.' % ln)
+            if '\u0641\u0631\u0645 \u0633\u0627\u0632 \u0622\u0633\u0627\u0646' in line or '\u0641\u0631\u0645\u0633\u0627\u0632 \u0622\u0633\u0627\u0646' in line:
+                rep.add('WARN', 'W_FA_BRAND', i, 'Line %d: brand must be \u0641\u0631\u0645\u200c\u0633\u0627\u0632 \u0622\u0633\u0627\u0646 (with ZWNJ).' % ln)
         if lang == 'ar':
-            if re.search('[٠-٩]', line):
+            if re.search('[\u0660-\u0669]', line):
                 rep.add('WARN', 'W_AR_EASTERN_DIGITS', i, 'Line %d uses Eastern Arabic-Indic digits; this project uses Western digits 0-9 in Arabic subtitles.' % ln)
-            if re.search('[پچژگکی]', line):
-                rep.add('WARN', 'W_AR_PERSIAN_LETTERS', i, 'Line %d contains Persian-only letters (پ چ ژ گ ک ی); wrong script variant for Arabic?' % ln)
+            if re.search('[\u067e\u0686\u0698\u06af\u06a9\u06cc]', line):
+                rep.add('WARN', 'W_AR_PERSIAN_LETTERS', i, 'Line %d contains Persian-only letters (\u067e \u0686 \u0698 \u06af \u06a9 \u06cc); wrong script variant for Arabic?' % ln)
     else:
         if RLM in line:
             rep.add('WARN', 'W_RLM_IN_LTR', i, 'Line %d contains RLM in a left-to-right language.' % ln)
-        if re.search('[؀-ۿ]', line):
+        if re.search('[\u0600-\u06ff]', line):
             rep.add('WARN', 'W_UNEXPECTED_SCRIPT', i, 'Line %d contains Arabic-script characters in a %s track.' % (ln, lang))
 
 
@@ -316,7 +322,8 @@ def compare_ref(rep, cues, ref_cues, allow_diff):
 
 
 def print_report(rep, quiet):
-    for level, code, cue, msg in rep.items:
+    ordered = sorted(enumerate(rep.items), key=lambda t: (t[1][2] or 0, t[0]))
+    for _, (level, code, cue, msg) in ordered:
         if quiet and level != 'ERROR':
             continue
         where = 'cue %d' % cue if cue else 'file'
@@ -348,6 +355,8 @@ def run(args):
         print(json.dumps([{'file': r.path, 'errors': r.count('ERROR'), 'warnings': r.count('WARN'),
                            'issues': [dict(level=l, code=c, cue=q, message=m) for l, c, q, m in r.items]} for r in reports],
                          ensure_ascii=False, indent=2))
+    if any(c == 'E_IO' for r in reports for _, c, _, _ in r.items):
+        return 2, reports
     return (1 if failed else 0), reports
 
 

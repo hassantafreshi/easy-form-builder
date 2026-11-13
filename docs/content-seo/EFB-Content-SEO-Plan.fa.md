@@ -512,7 +512,7 @@ Quiz، Booking & Calendar، SMS OTP login، Ticketing، AI، Twilio و Retry Que
 | 0:06–0:50 | ۳–۵ مرحله، هر مرحله ≤ ۱۰ ثانیه؛ ضبط واقعی پنل 4.3.1؛ کلیک‌ها هایلایت‌شده؛ زیرنویس سوخته |
 | 0:50–1:00 | نتیجه + «راهنمای کامل در لینک زیر» |
 
-- **خروجی‌ها برای هر ویدیو:** `video.mp4` (۱۹۲۰×۱۰۸۰ برای مقاله)، نسخهٔ عمودی ۱۰۸۰×۱۹۲۰ برای Shorts، `captions.en.srt`، `script.txt`، `thumbnail` (متن ≤ ۴ کلمه).
+- **خروجی‌ها برای هر ویدیو:** `video.mp4` (۱۹۲۰×۱۰۸۰ برای مقاله)، نسخهٔ عمودی ۱۰۸۰×۱۹۲۰ برای Shorts، `<slug>.en.srt`، `script.txt`، `thumbnail` (متن ≤ ۴ کلمه).
 - **تولید:** ضبط مرورگر با Playwright روی سایت تست (`recordVideo`) → گوینده با ElevenLabs (یک صدای ثابت برای برند) → ffmpeg برای اتصال، زیرنویس و صدا. ویدیوی هوش‌مصنوعی (ElevenLabs video) فقط برای مقالات توضیحی/مقایسه‌ای (نوع E) که UI ندارند، نه برای نمایش پنل.
 - **شرط ضبط:** سایت وردپرس با EFB 4.3.1 و لایسنس مناسب (برای ضبط ویژگی‌های Pro و افزودنی‌ها لایسنس Pro لازم است).
 
@@ -564,7 +564,7 @@ Quiz، Booking & Calendar، SMS OTP login، Ticketing، AI، Twilio و Retry Que
 ۸. به‌روزرسانی ردیف در CSV (status/تاریخ) و فهرست 301/لینک داخلی لازم
 ```
 
-**ساختار خروجی هر روز:** `content-out/YYYY-MM-DD/{rewrite-<slug>,new-<slug>}/` شامل `article.html`، `meta.json` (title، description، JSON-LD)، `qa-report.md`، `video/{script.txt,vo.mp3,captions.en.srt,video.mp4,video-vertical.mp4}`، `youtube.md`. پیشنهاد: این خروجی‌ها در یک ریپوی جدا (نه ریپوی افزونه) نگه داشته شود.
+**ساختار خروجی هر روز:** `content-out/YYYY-MM-DD/{rewrite-<slug>,new-<slug>}/` شامل `article.html`، `meta.json` (title، description، JSON-LD)، `qa-report.md`، `video/{script.txt,vo.mp3,<slug>.en.srt,video.mp4,video-vertical.mp4}`، `youtube.md`. پیشنهاد: این خروجی‌ها در یک ریپوی جدا (نه ریپوی افزونه) نگه داشته شود.
 
 ### ۶٫۲ چه چیزی همین حالا ممکن است و چه چیزی آماده‌سازی می‌خواهد
 

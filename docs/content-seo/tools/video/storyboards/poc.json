@@ -1,0 +1,261 @@
+{
+  "meta": {
+    "title": "Create a contact form with Easy Form Builder",
+    "fps": 30,
+    "portraitZoom": 1.0,
+    "brand": {
+      "primary": "#3640d4",
+      "accent": "#ff4b93",
+      "dark": "#0e1230",
+      "text": "#ffffff"
+    }
+  },
+  "assets": {
+    "flow": {
+      "video": "${EFB_WORK}/capture/video/flow.webm",
+      "events": "${EFB_WORK}/capture/video/events.json",
+      "markers": "${EFB_WORK}/capture/video/markers.json"
+    },
+    "settings": {
+      "image": "${EFB_WORK}/capture/screens/en_US/05-settings.png",
+      "size": [
+        1440,
+        900
+      ]
+    }
+  },
+  "scenes": [
+    {
+      "id": "intro",
+      "type": "intro",
+      "dur": 2,
+      "badge": "Tutorial",
+      "title": "Build a contact form",
+      "subtitle": "Easy Form Builder for WordPress"
+    },
+    {
+      "id": "template",
+      "type": "recording",
+      "src": "flow",
+      "from": "open-create",
+      "to": "builder",
+      "speed": 1.6,
+      "narration": "Open Create, and pick the Contact Us template.",
+      "camera": [
+        {
+          "at": 0,
+          "zoom": 1
+        },
+        {
+          "at": 1.5,
+          "zoom": 1.9,
+          "focus": "template-contact-create",
+          "ease": "inOut"
+        },
+        {
+          "at": 2.9,
+          "zoom": 1.9,
+          "focus": "template-contact-create"
+        },
+        {
+          "at": 3.7,
+          "zoom": 1.0,
+          "ease": "inOut"
+        }
+      ],
+      "callouts": [
+        {
+          "at": 1.9,
+          "dur": 2.0,
+          "n": 1,
+          "target": "template-contact-create",
+          "text": "Pick Contact Us",
+          "side": "left"
+        }
+      ],
+      "lowerThird": {
+        "at": 0.2,
+        "dur": 2.4,
+        "title": "Step 1",
+        "subtitle": "Choose a template"
+      }
+    },
+    {
+      "id": "builder",
+      "type": "recording",
+      "src": "flow",
+      "from": "builder",
+      "to": "publish",
+      "speed": 1.0,
+      "narration": "The builder opens with your fields ready. Click Save, and copy the shortcode.",
+      "camera": [
+        {
+          "at": 0,
+          "zoom": 1
+        },
+        {
+          "at": 1.4,
+          "zoom": 1.0
+        },
+        {
+          "at": 2.3,
+          "zoom": 1.7,
+          "focus": "save-button",
+          "ease": "inOut"
+        },
+        {
+          "at": 3.3,
+          "zoom": 1.7,
+          "focus": "save-button"
+        },
+        {
+          "at": 4.2,
+          "zoom": 1.8,
+          "focus": "shortcode-box",
+          "ease": "inOut"
+        }
+      ],
+      "callouts": [
+        {
+          "at": 2.5,
+          "dur": 1.6,
+          "n": 2,
+          "target": "save-button",
+          "text": "Click Save",
+          "side": "below"
+        },
+        {
+          "at": 4.5,
+          "dur": 1.0,
+          "n": 3,
+          "target": "shortcode-box",
+          "text": "Copy the shortcode",
+          "side": "above"
+        }
+      ],
+      "lowerThird": {
+        "at": 0.2,
+        "dur": 1.8,
+        "title": "Step 2",
+        "subtitle": "Save and get the shortcode"
+      }
+    },
+    {
+      "id": "visitor",
+      "type": "recording",
+      "src": "flow",
+      "from": "visitor",
+      "to": "panel",
+      "speed": 2.2,
+      "narration": "Paste it into any page. Visitors fill in the form and press Submit.",
+      "camera": [
+        {
+          "at": 0,
+          "zoom": 1
+        },
+        {
+          "at": 0.8,
+          "zoom": 1.5,
+          "focus": "frontend-form",
+          "ease": "inOut"
+        },
+        {
+          "at": 4.0,
+          "zoom": 1.5,
+          "focus": "frontend-form"
+        },
+        {
+          "at": 4.8,
+          "zoom": 1.9,
+          "focus": "submit-button",
+          "ease": "inOut"
+        }
+      ],
+      "callouts": [
+        {
+          "at": 1.0,
+          "dur": 2.6,
+          "n": 4,
+          "target": "frontend-form",
+          "text": "Visitors fill in the form",
+          "side": "right"
+        },
+        {
+          "at": 4.9,
+          "dur": 1.6,
+          "n": 5,
+          "target": "submit-button",
+          "text": "Submit",
+          "side": "above"
+        }
+      ],
+      "lowerThird": {
+        "at": 0.1,
+        "dur": 1.6,
+        "title": "Step 3",
+        "subtitle": "Publish and collect entries"
+      }
+    },
+    {
+      "id": "entries",
+      "type": "recording",
+      "src": "flow",
+      "from": "panel",
+      "to": "end",
+      "speed": 1.8,
+      "narration": "Every response shows up in your Panel.",
+      "camera": [
+        {
+          "at": 0,
+          "zoom": 1
+        },
+        {
+          "at": 1.2,
+          "zoom": 1.6,
+          "focus": "entries-icon",
+          "ease": "inOut"
+        }
+      ],
+      "callouts": [
+        {
+          "at": 1.5,
+          "dur": 2.0,
+          "n": 6,
+          "target": "entries-icon",
+          "text": "Entries land here",
+          "side": "left"
+        }
+      ]
+    },
+    {
+      "id": "settings",
+      "type": "image",
+      "src": "settings",
+      "dur": 3,
+      "narration": "Fine-tune notifications and more in Settings.",
+      "camera": [
+        {
+          "at": 0,
+          "zoom": 1
+        },
+        {
+          "at": 3,
+          "zoom": 1.25,
+          "focus": [
+            0.55,
+            0.4
+          ],
+          "ease": "linear"
+        }
+      ]
+    },
+    {
+      "id": "outro",
+      "type": "outro",
+      "dur": 3,
+      "title": "Try Easy Form Builder",
+      "subtitle": "Free on WordPress.org",
+      "cta": "Get the plugin"
+    }
+  ]
+}
