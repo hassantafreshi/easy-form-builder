@@ -2017,6 +2017,10 @@ require('./scenario-f11.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewFo
  * read-only, prefix / suffix / help, password confirm / strength / show: tests/e2e-wp/scenario-f03.js. */
 require('./scenario-f03.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewForm, addTile, closePanel });
 
+/* F02 one-time codes: "type it twice", e-mail codes, SMS codes through WP SMS (a stand-in of the plugin),
+ * fa_IR at 375 px, Settings > Verification, AutoPilot, payments: tests/e2e-wp/scenario-f02.js. */
+require('./scenario-f02.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewForm, addTile, closePanel });
+
 /* ---------------------------------------------------------------------------------------------
  * main
  * ------------------------------------------------------------------------------------------- */

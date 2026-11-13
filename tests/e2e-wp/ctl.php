@@ -44,6 +44,10 @@
  *   mails [clear]             e-mails recorded by the mu-plugin (efb_e2e_capture_mail)
  *   reconcile                 run the reconcile job now
  *   addon-flag <key> <0|1>    switch an add-on in the settings (its files must be in vendor/)
+ *   F02 (scenarios f02*): f02-mu (copy the mu-plugin), f02-wpsms <0|1> [ok|error|false] (the WP SMS
+ *                             stand-in), f02-sms [clear] (messages it got), f02-settings [json] (verification
+ *                             settings), f02-rows <form_id> [reset] (challenges; reset clears the F02 counters and every
+ *                             challenge of earlier scenarios, i.e. the resend waits)
  *
  * Local test site only. Nothing here is meant for a production site.
  */
@@ -577,6 +581,52 @@ switch ( $efb_e2e_cmd ) {
 		if ( is_array( $rows[0] ) ) $rows[0]['getway'] = $to;
 		$wpdb->update( $wpdb->prefix . 'emsfb_form', array( 'form_structer' => str_replace( '"', '\\"', wp_json_encode( $rows, JSON_UNESCAPED_UNICODE ) ) ), array( 'form_id' => $id ) );
 		efb_e2e_out( array( 'ok' => true, 'types' => array_values( array_filter( array_map( function ( $r ) { return is_array( $r ) && isset( $r['type'] ) ? $r['type'] : null; }, $rows ) ) ) ) );
+		break;
+
+	case 'f02-mu':
+		// Copy tests/e2e-wp/mu-plugins/efb-e2e-f02.php into the site's mu-plugins (F02 scenarios).
+		$dst = WPMU_PLUGIN_DIR . '/efb-e2e-f02.php';
+		if ( ! is_dir( WPMU_PLUGIN_DIR ) ) wp_mkdir_p( WPMU_PLUGIN_DIR );
+		$src = dirname( __FILE__ ) . '/mu-plugins/efb-e2e-f02.php';
+		$same = is_readable( $dst ) && md5_file( $dst ) === md5_file( $src );
+		$ok = $same || copy( $src, $dst );
+		if ( ! $same ) sleep( 3 );
+		efb_e2e_out( array( 'copied' => $ok, 'changed' => ! $same ) );
+		break;
+
+	case 'f02-wpsms':
+		// The WP SMS stand-in on / off and its answer: f02-wpsms <0|1> [ok|error|false]
+		if ( isset( $efb_e2e_rest[0] ) && '1' === $efb_e2e_rest[0] ) update_option( 'efb_e2e_wpsms', 1, false ); else delete_option( 'efb_e2e_wpsms' );
+		update_option( 'efb_e2e_wpsms_mode', isset( $efb_e2e_rest[1] ) ? $efb_e2e_rest[1] : 'ok', false );
+		efb_e2e_out( array( 'wpsms' => (bool) get_option( 'efb_e2e_wpsms' ), 'mode' => get_option( 'efb_e2e_wpsms_mode' ) ) );
+		break;
+
+	case 'f02-sms':
+		// Messages the WP SMS stand-in received: f02-sms [clear]
+		if ( isset( $efb_e2e_rest[0] ) && 'clear' === $efb_e2e_rest[0] ) update_option( 'efb_e2e_sms', array(), false );
+		efb_e2e_out( get_option( 'efb_e2e_sms', array() ) );
+		break;
+
+	case 'f02-settings':
+		// Verification settings: f02-settings [json patch] (merged, clamped by the engine); prints them and the channels' state.
+		if ( isset( $efb_e2e_rest[0] ) && '' !== $efb_e2e_rest[0] ) {
+			$patch = json_decode( $efb_e2e_rest[0], true );
+			if ( is_array( $patch ) ) \Emsfb\Verification::save_settings( array_replace_recursive( \Emsfb\Verification::settings(), $patch ) );
+		}
+		\Emsfb\Verification::reset_cache();
+		efb_e2e_out( array( 'settings' => \Emsfb\Verification::settings(), 'email' => \Emsfb\Verification::channel_state( 'email' ), 'sms' => \Emsfb\Verification::channel_state( 'sms' ) ) );
+		break;
+
+	case 'f02-rows':
+		// The challenge rows of a form (no code: only its HMAC exists) and, with "reset", every F02 counter cleared first.
+		$fid = isset( $efb_e2e_rest[0] ) ? (int) $efb_e2e_rest[0] : 0;
+		if ( isset( $efb_e2e_rest[1] ) && 'reset' === $efb_e2e_rest[1] ) {
+			$wpdb->query( "DELETE FROM {$wpdb->prefix}emsfb_vrfy_rl_ WHERE scope LIKE 'v%'" ); // phpcs:ignore
+			$wpdb->query( "DELETE FROM {$wpdb->prefix}emsfb_vrfy_" ); // phpcs:ignore -- the cooldown history of earlier scenarios and runs
+			foreach ( array( 'budget_80', 'budget_full', 'conversion', 'send_failed' ) as $k ) foreach ( array( 'sms', 'email' ) as $c ) delete_transient( 'efb_verify_alert_sent_' . $k . '_' . $c );
+		}
+		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT challenge_id, field_id, channel, dest_hash, dest_mask, ip_hash, code_hash, attempts, status, msg_id, sid FROM {$wpdb->prefix}emsfb_vrfy_ WHERE fid = %d ORDER BY id", $fid ), ARRAY_A ); // phpcs:ignore
+		efb_e2e_out( array( 'rows' => $rows ? $rows : array() ) );
 		break;
 
 	case 'reconcile':
