@@ -34,7 +34,9 @@ if (!defined("EMSFB_DB_VERSION")) {
     // 1.4 (F13 privacy and retention): emsfb_msg_.uid, emsfb_msg_.prv_state and the
     // keys form_date, track, date on emsfb_msg_ and msg_id on emsfb_rsp_.
     // 1.5 (PAY00 payment framework): emsfb_pmt_, emsfb_pmt_evt_, emsfb_pmt_rfd_, emsfb_coupon_.
-    define("EMSFB_DB_VERSION", 1.5);
+    // 1.6 (F11 form limits, save and resume): emsfb_vrfy_rl_ (atomic counters, shared with F02),
+    // emsfb_draft_ (saved and partial answers), KEY form_id on emsfb_msg_ when no index starts with it.
+    define("EMSFB_DB_VERSION", 1.6);
 }
 if (!defined("EMSFB_API_VERSION")) {
     // Version of the integration API (efbBuilderApi, efb_var.capabilities, field templates,

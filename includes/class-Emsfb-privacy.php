@@ -666,6 +666,7 @@ class Privacy {
 		$msg = $wpdb->prefix . 'emsfb_msg_';
 		$rsp = $wpdb->prefix . 'emsfb_rsp_';
 		$has_prv = self::schema_ready();
+		$deleted_forms = array();
 		foreach (array_chunk($ids, 100) as $chunk) {
 			$in = implode(',', array_fill(0, count($chunk), '%d'));
 			$cols = 'msg_id, form_id, content, read_' . ($has_prv ? ', prv_state' : '');
@@ -686,6 +687,7 @@ class Privacy {
 				if (!$anon) {
 					$entry_files += self::files_in_content($e['content'], $rows);
 					$delete_ids[] = $id;
+					$deleted_forms[(int) $e['form_id']] = true;
 					$files += $entry_files;
 					continue;
 				}
@@ -718,7 +720,8 @@ class Privacy {
 				}
 			}
 		}
-		if (function_exists('do_action')) do_action('efb_entries_purged', $ids, $mode, $out);
+		// 4th argument (F11): the forms that lost entries, so their total caps are rebuilt.
+		if (function_exists('do_action')) do_action('efb_entries_purged', $ids, $mode, $out, array_keys($deleted_forms));
 		return $out;
 	}
 

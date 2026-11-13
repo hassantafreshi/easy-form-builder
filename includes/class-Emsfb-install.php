@@ -145,6 +145,11 @@ class Install {
 
 						self::create_table_if_absent( $sql );
 
+						// F11 (DB 1.6): the atomic counters (shared with F02) and the saved / partial answers.
+						foreach ( self::f11_ddl( $wpdb->prefix, $charset_collate ) as $sql ) {
+							self::create_table_if_absent( $sql );
+						}
+
 				$user_id = get_current_user_id();
 				$usr =get_user_by('id',$user_id);
 				// Activation may run without a current user (ID 0). Do not read a
@@ -294,6 +299,11 @@ class Install {
 		// before the emsfb_stts_ early return for the same reason as the F13 steps.
 		$applied = array_merge( $applied, self::upgrade_payments_schema() );
 
+		// F11 (form limits, save and resume), DB version 1.6: the counter table (F02's design,
+		// created by whichever of F02 / F11 comes first), the draft table and a form_id index on
+		// the entries. Idempotent, and before the emsfb_stts_ early return like the steps above.
+		$applied = array_merge( $applied, self::upgrade_f11_schema() );
+
 		$table   = $wpdb->prefix . 'emsfb_stts_';
 
 		$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) );
@@ -371,6 +381,83 @@ class Install {
 			$role = get_role( 'administrator' );
 			if ( $role && ! $role->has_cap( 'Emsfb_payments' ) ) {
 				$role->add_cap( 'Emsfb_payments' );
+			}
+		}
+		return $applied;
+	}
+
+	/** F11: CREATE TABLE statements of emsfb_vrfy_rl_ and emsfb_draft_ (dbDelta format). */
+	public static function f11_ddl( $prefix, $charset_collate = '' ) {
+		foreach ( array( 'Rate_Limit' => 'class-Emsfb-rate-limit.php', 'Drafts' => 'class-Emsfb-drafts.php' ) as $class => $file ) {
+			if ( ! class_exists( '\\Emsfb\\' . $class ) && is_readable( __DIR__ . '/' . $file ) ) {
+				require_once __DIR__ . '/' . $file;
+			}
+		}
+		$out = array();
+		if ( class_exists( '\\Emsfb\\Rate_Limit' ) ) $out['emsfb_vrfy_rl_'] = \Emsfb\Rate_Limit::ddl( $prefix, $charset_collate );
+		if ( class_exists( '\\Emsfb\\Drafts' ) ) $out['emsfb_draft_'] = \Emsfb\Drafts::ddl( $prefix, $charset_collate );
+		return $out;
+	}
+
+	/**
+	 * F11, DB version 1.6. Each step looks first, so a second run changes nothing:
+	 *  - emsfb_vrfy_rl_ and emsfb_draft_ are created when missing;
+	 *  - emsfb_vrfy_rl_ gets KEY scope when an earlier copy (F02's DDL) lacks it;
+	 *  - emsfb_msg_ gets KEY form_id only when no index starts with form_id (F13's
+	 *    form_date (form_id, date) already serves every per-form count and list).
+	 *
+	 * @return array<int, string> Applied steps.
+	 */
+	public static function upgrade_f11_schema() {
+		global $wpdb;
+		$applied = array();
+		if ( ! function_exists( 'dbDelta' ) && defined( 'ABSPATH' ) && is_readable( ABSPATH . 'wp-admin/includes/upgrade.php' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+		}
+		$collate = method_exists( $wpdb, 'get_charset_collate' ) ? $wpdb->get_charset_collate() : '';
+		foreach ( self::f11_ddl( $wpdb->prefix, $collate ) as $short => $sql ) {
+			$table = $wpdb->prefix . $short;
+			if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) === $table ) {
+				continue;
+			}
+			if ( ! function_exists( 'dbDelta' ) ) {
+				continue;
+			}
+			self::create_table_if_absent( $sql );
+			if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) === $table ) {
+				$applied[] = "{$short}: CREATE TABLE";
+			}
+		}
+		if ( class_exists( '\\Emsfb\\Rate_Limit' ) ) {
+			\Emsfb\Rate_Limit::reset_ready();
+		}
+		$keys = array(
+			'emsfb_vrfy_rl_' => array( 'scope' => array( 'scope', '(`scope`)' ) ),
+			// form_date is F13's (form_id, date): it serves the same lookups.
+			'emsfb_msg_'     => array( 'form_id' => array( 'form_id', '(`form_id`)', 'form_date' ) ),
+		);
+		foreach ( $keys as $short => $wanted ) {
+			$table = $wpdb->prefix . $short;
+			if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
+				continue;
+			}
+			$present = array();
+			$first   = array();
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix
+			foreach ( (array) $wpdb->get_results( "SHOW INDEX FROM `{$table}`", ARRAY_A ) as $row ) {
+				if ( ! isset( $row['Key_name'] ) ) continue;
+				$present[ $row['Key_name'] ] = true;
+				if ( isset( $row['Seq_in_index'], $row['Column_name'] ) && (int) $row['Seq_in_index'] === 1 ) {
+					$first[ $row['Column_name'] ] = true;
+				}
+			}
+			foreach ( $wanted as $key_name => $def ) {
+				// Any index whose first column is the wanted one already serves the lookup.
+				if ( isset( $present[ $key_name ] ) || isset( $first[ $def[0] ] ) || ( isset( $def[2] ) && isset( $present[ $def[2] ] ) ) ) continue;
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix, key from the literal map above
+				if ( false !== $wpdb->query( "ALTER TABLE `{$table}` ADD KEY `{$key_name}` {$def[1]}" ) ) {
+					$applied[] = "{$short}: ADD KEY {$key_name}";
+				}
 			}
 		}
 		return $applied;

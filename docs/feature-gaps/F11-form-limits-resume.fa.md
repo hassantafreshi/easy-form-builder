@@ -1,4 +1,4 @@
-وضعیت: سند آماده، پیاده‌سازی نشده · اولویت: P0 · تلاش: L · وابستگی: جدول و کلاس محدودیت اتمیک F02 (§5.3 و §5.4)، ستون `entry_status` از F12 (اختیاری)
+وضعیت: در حال پیاده‌سازی (A انجام شد) · اولویت: P0 · تلاش: L · وابستگی: جدول و کلاس محدودیت اتمیک F02 (§5.3 و §5.4)، ستون `entry_status` از F12 (اختیاری)
 
 # F11 — سقف ارسال، زمان‌بندی، محدودیت هر کاربر، ذخیره و ادامه، پاسخ نیمه‌کاره، CSS اختصاصی و پنجرهٔ بازشو
 
@@ -363,12 +363,12 @@ if (($this->operation_data['type'] ?? '') !== 'payment_followup' && class_exists
 - پذیرش: دو اجرای پیاپی `upgrade_schema()` چیزی را دو بار اعمال نکند. ۲۰ فرایند هم‌زمان `reserve(limit=5)` دقیقاً ۵ موفقیت بدهد. `Client_Ip` با `X-Forwarded-For` جعلی و تنظیم خاموش، `REMOTE_ADDR` را برگرداند.
 - تست: `php tests/test-rate-limit-reserve.php` (WordPress واقعی، `[SKIP]` بدون `wp-load.php`؛ هم‌زمانی با `pcntl_fork` یا چند `proc_open`، به الگوی `tests/test-form-runtime.php`)، `php tests/test-client-ip.php` (مستقل با stub)، `php tests/test-schema-upgrade-f11.php`.
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint** (۲۰۲۶-۱۱-۱۳، انجام شد)
+- فایل‌های تغییرکرده: `includes/class-Emsfb-rate-limit.php` (تازه: `hit`، `reserve`/`reserve_bucket`، `release`، `peek`، `force_bucket`، `reset_scopes`، `cleanup`، `key`، `ddl`)، `includes/class-Emsfb-client-ip.php` (تازه؛ روی `Privacy::client_ip()` از F13 سوار است و نسخهٔ دوم قواعد پراکسی ساخته نشد)، `includes/class-Emsfb-install.php` (`f11_ddl()`، `upgrade_f11_schema()` پیش از return زودهنگام)، `emsfb.php` (`EMSFB_DB_VERSION = 1.6`)، `includes/class-Emsfb-drafts.php` (DDL)، `includes/class-Emsfb-privacy.php` (آرگومان چهارم `efb_entries_purged`: شناسهٔ فرم‌ها)، `docs/migrations/f11-limits-drafts-2026-11-13.md`.
+- تست‌ها: `php tests/test-rate-limit-reserve.php` (۳۳: سقف دقیق، seed، release، cleanup، ۲۰ فرایند `pcntl_fork` با limit=5 سه بار دقیقاً ۵، و با `EFB_F11_WP_LOAD` روی وردپرس واقعی ۲۰ فرایند `proc_open` دقیقاً ۵)، `php tests/test-client-ip.php` (۱۴)، `php tests/test-schema-upgrade-f11.php` (۱۵).
+- وضعیت ترجمه: رشته‌ای در این بخش نیست.
+- مورد باز: SQL شمارنده عمداً قابل‌حمل است (`INSERT IGNORE` + `UPDATE … WHERE hits < limit`، بدون `LAST_INSERT_ID(expr)` و `DELETE … LIMIT`) تا روی SQLite سایت e2e هم اتمیک بماند؛ `hit()` درخواستِ ردشده را نمی‌شمارد. کلید `form_id` روی `emsfb_msg_` فقط وقتی اضافه می‌شود که هیچ ایندکسی با `form_id` شروع نشود؛ `form_date` از F13 همین کار را می‌کند.
+- اقدام بعدی: B.
 
 ### B — سقف کل و زمان‌بندی
 - فایل‌ها: `includes/class-Emsfb-form-gate.php`، `class-Emsfb-public.php` (رندر 1439، prepare 230، ارسال 2509، `insert_message_db` 4667، `$translation_keys`، زیرمجموعهٔ عمومی)، `class-Emsfb-admin.php` (پاک کردن `lt:` هنگام حذف)، `functions.php` (case `sched_*` و عبارت‌ها)، `val-efb.js` و `admin-efb.js` (کنترل‌ها و handlerها)، `core-efb.js` (`form_gate`، `efb_gate_boot_efb`)، `request-health-efb.js:61`.

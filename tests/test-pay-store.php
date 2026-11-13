@@ -133,7 +133,7 @@ $t('search by reference', Store::search(array('q' => 'mck_anon'))['total'], 1);
 
 // Install.
 $main = file_get_contents(__DIR__ . '/../emsfb.php');
-$t('EMSFB_DB_VERSION is 1.5', (bool) preg_match('/define\("EMSFB_DB_VERSION",\s*1\.5\)/', $main), true);
+$t('EMSFB_DB_VERSION is 1.5 or later (1.6 = F11)', (bool) preg_match('/define\("EMSFB_DB_VERSION",\s*1\.([5-9]|\d\d)\)/', $main), true);
 $src = file_get_contents(__DIR__ . '/../includes/class-Emsfb-install.php');
 $up = substr($src, strpos($src, 'static function upgrade_schema'));
 $t('payments step sits before the early return of upgrade_schema()', strpos($up, 'self::upgrade_payments_schema()') < strpos($up, 'return $applied;'), true);
