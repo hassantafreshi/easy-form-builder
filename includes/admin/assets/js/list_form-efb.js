@@ -1204,6 +1204,7 @@ function fun_show_setting__emsFormBuilder() {
   let payToken="null";
   let sessionDuration = 1;
   let trackCodeStyle = 'date_en_mix';
+  let calAdminDisplayEfb = 'site'; // F06
   let act_local_efb =scaptcha =false;
   let dsupfile= activeDlBtn =scaptcha=act_local_efb =false;
 
@@ -1282,6 +1283,7 @@ function fun_show_setting__emsFormBuilder() {
     adminSN  = f('adminSN') =='null' ? false :f('adminSN');
     sessionDuration = f('sessionDuration') == 'null' ? 1 : parseInt(f('sessionDuration'));
     trackCodeStyle = f('trackCodeStyle') == 'null' ? 'date_en_mix' : f('trackCodeStyle');
+    calAdminDisplayEfb = ['site', 'visitor', 'iso'].indexOf(f('cal_admin_display')) !== -1 ? f('cal_admin_display') : 'site';
     const shieldSilentCaptchaSetting = f('shield_silent_captcha');
     shieldSilentCaptcha = shieldSilentCaptchaSetting === true || shieldSilentCaptchaSetting === 1 || shieldSilentCaptchaSetting === '1' || shieldSilentCaptchaSetting === 'true';
 
@@ -1538,6 +1540,20 @@ function fun_show_setting__emsFormBuilder() {
                                         <span class="efb text-muted small">${efb_var.text.preview}: </span>
                                         <code id="trackCodePreview_efb" class="efb px-2 py-1" style="font-size:1.05em;letter-spacing:1px;background:#f6f7fb;border-radius:6px;">${efb_generate_track_preview(trackCodeStyle)}</code>
                                       </div>
+                              </div>
+
+                              <h5 class="efb  card-title mt-3 mobile-title">
+                                <i class="efb  bi-calendar-date m-3"></i>${efb_var.text.cal_admin_display || 'Date display for admins'}
+                              </h5>
+                              <p class="efb ${mxCSize}">${efb_var.text.cal_admin_display_desc || 'How advanced date answers are shown in the response viewer, CSV, PDF and notification e-mails.'}</p>
+                              <div class="efb card-body mx-0 py-1 ${mxCSize4}">
+                                      <div class="efb row efb col-12">
+                                          <div class="efb  col-md-8">
+                                            <select class="efb form-control efb h-d-efb  border-d efb-rounded my-1" id="calAdminDisplay_emsFormBuilder" data-tab="${efb_var.text.rspcon}" aria-label="${efb_var.text.cal_admin_display || 'Date display for admins'}">
+                                              ${[['site', efb_var.text.cal_admin_display_site || 'The site calendar, with the ISO date (2026-03-19)'], ['visitor', efb_var.text.cal_admin_display_visitor || 'As the visitor saw it'], ['iso', efb_var.text.cal_admin_display_iso || 'ISO only (YYYY-MM-DD)']].map((o) => `<option value="${o[0]}" ${calAdminDisplayEfb === o[0] ? 'selected' : ''}>${o[1]}</option>`).join('')}
+                                            </select>
+                                          </div>
+                                        </div>
                               </div>
 
                               <h5 class="efb  card-title mt-3 mobile-title">
@@ -3440,6 +3456,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0, done) {
     const sessionDuration = f('sessionDuration_emsFormBuilder');
 
     const trackCodeStyle = f('trackCodeStyle_emsFormBuilder');
+    const calAdminDisplay = document.getElementById('calAdminDisplay_emsFormBuilder') ? document.getElementById('calAdminDisplay_emsFormBuilder').value : 'site';
 
     smtp = f('hostSupportSmtp_emsFormBuilder');
     weeklyEmailReport = f('weeklyEmailReport_emsFormBuilder');
@@ -3559,6 +3576,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0, done) {
           osLocationPicker: osLocationPicker,
           sessionDuration: sessionDuration,
           trackCodeStyle: trackCodeStyle,
+          cal_admin_display: ['site', 'visitor', 'iso'].indexOf(calAdminDisplay) !== -1 ? calAdminDisplay : 'site',
 
           respPrimary: respPrimary,
           respPrimaryDark: respPrimaryDark,

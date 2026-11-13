@@ -1348,6 +1348,7 @@ createCardAddoneEfb = (i) => {
   ${isLockedAddon ? funProEfb('addon:' + i.name, { fallback: efb_addon_required_package_efb(i) === 3 ? 'free_plus' : 'pro', origin: 'addons' }) : ''}
   <h5 class="efb card-title efb"><i class="efb  ${i.icon} mx-1"></i>${i.title} </h5>
   <div class="efb row" ><p class="efb card-text efb ${mobile_view_efb ? '' : 'fs-7'} float-start my-3">${i.desc}  </p></div>
+  ${i.name === 'AdnPDP' || i.name === 'AdnADP' ? `<p class="efb fs-7 text-muted efb-addon-replaced" data-addon="${i.name}"><i class="efb bi-info-circle mx-1" aria-hidden="true"></i>${efb_var.text.cal_addon_replaced || 'Replaced by the Date (advanced) field, which has every calendar without this add-on. Fields that use it keep working.'}</p>` : ''}
   <a id="${i.name}" data-vrequired="${i.v_required}" class="efb float-end btn addons mb-1 efb ${colorNtn} btn-lg float-end btn-r" onClick="${funNtn}"><i class="efb ${iconNtn} mx-1"></i>${nameNtn}</b></a>
   <!-- 3.8.6 start -->
   <a class="efb float-end btn mx-1 efb rounded-pill border-danger text-danger ec-efb" onClick="Link_emsFormBuilder('${i.name}')" data-eventform="links" data-linkname="${i.name}"><i class="efb  bi-question-circle mx-1"></i>${efb_var.text.help}</a>

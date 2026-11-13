@@ -4895,6 +4895,196 @@ class efbFunction {
 			"cal_err_depends_on_empty" => $state && isset($ac->text->cal_err_depends_on_empty) ? $ac->text->cal_err_depends_on_empty : esc_html__('Please choose the date it depends on first.','easy-form-builder'),
 			/* translators: F06 visitor error */
 			"cal_err_required" => $state && isset($ac->text->cal_err_required) ? $ac->text->cal_err_required : esc_html__('Please fill in this field.','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_age_max" => $state && isset($ac->text->cal_b_age_max) ? $ac->text->cal_b_age_max : esc_html__('Oldest age','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_age_min" => $state && isset($ac->text->cal_b_age_min) ? $ac->text->cal_b_age_min : esc_html__('Youngest age','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_auto" => $state && isset($ac->text->cal_b_auto) ? $ac->text->cal_b_auto : esc_html__('Automatic, from the site language','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_auto_cal" => $state && isset($ac->text->cal_b_auto_cal) ? $ac->text->cal_b_auto_cal : esc_html__('From the calendar and language','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_auto_lang" => $state && isset($ac->text->cal_b_auto_lang) ? $ac->text->cal_b_auto_lang : esc_html__('From the site language','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_cal_allowed" => $state && isset($ac->text->cal_b_cal_allowed) ? $ac->text->cal_b_cal_allowed : esc_html__('Calendars the visitor can switch to','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_cal_default" => $state && isset($ac->text->cal_b_cal_default) ? $ac->text->cal_b_cal_default : esc_html__('Calendar','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_cal_secondary" => $state && isset($ac->text->cal_b_cal_secondary) ? $ac->text->cal_b_cal_secondary : esc_html__('Second calendar under each day','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_cal_switch" => $state && isset($ac->text->cal_b_cal_switch) ? $ac->text->cal_b_cal_switch : esc_html__('Let the visitor switch calendars','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_closed_days" => $state && isset($ac->text->cal_b_closed_days) ? $ac->text->cal_b_closed_days : esc_html__('Closed days of the week','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_dates_help" => $state && isset($ac->text->cal_b_dates_help) ? $ac->text->cal_b_dates_help : esc_html__('One per line: YYYY-MM-DD or a range YYYY-MM-DD/YYYY-MM-DD (Gregorian).','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_days" => $state && isset($ac->text->cal_b_days) ? $ac->text->cal_b_days : esc_html__('Days (every day must be open)','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_default" => $state && isset($ac->text->cal_b_default) ? $ac->text->cal_b_default : esc_html__('Default value','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_default_help" => $state && isset($ac->text->cal_b_default_help) ? $ac->text->cal_b_default_help : esc_html__('Empty, "today", "today+N" or a date as YYYY-MM-DD (Gregorian).','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_digits" => $state && isset($ac->text->cal_b_digits) ? $ac->text->cal_b_digits : esc_html__('Digits','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_disabled_dates" => $state && isset($ac->text->cal_b_disabled_dates) ? $ac->text->cal_b_disabled_dates : esc_html__('Closed dates','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_enabled_dates" => $state && isset($ac->text->cal_b_enabled_dates) ? $ac->text->cal_b_enabled_dates : esc_html__('Only these dates','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_enabled_help" => $state && isset($ac->text->cal_b_enabled_help) ? $ac->text->cal_b_enabled_help : esc_html__('When filled, only these dates can be chosen (closed weekdays stay closed).','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_err_age" => $state && isset($ac->text->cal_b_err_age) ? $ac->text->cal_b_err_age : esc_html__('The youngest age is above the oldest age.','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_err_cycle" => $state && isset($ac->text->cal_b_err_cycle) ? $ac->text->cal_b_err_cycle : esc_html__('Two date fields limit each other in a circle.','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_err_dangling" => $state && isset($ac->text->cal_b_err_dangling) ? $ac->text->cal_b_err_dangling : esc_html__('A limit names a date field that is not in this form.','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_err_default" => $state && isset($ac->text->cal_b_err_default) ? $ac->text->cal_b_err_default : esc_html__('The calendar must be one of the calendars the visitor can use.','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_err_minmax" => $state && isset($ac->text->cal_b_err_minmax) ? $ac->text->cal_b_err_minmax : esc_html__('The earliest date is after the latest date.','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_err_range" => $state && isset($ac->text->cal_b_err_range) ? $ac->text->cal_b_err_range : esc_html__('The shortest stay is longer than the longest.','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_err_self" => $state && isset($ac->text->cal_b_err_self) ? $ac->text->cal_b_err_self : esc_html__('A limit cannot name its own field.','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_err_time" => $state && isset($ac->text->cal_b_err_time) ? $ac->text->cal_b_err_time : esc_html__('The first time must come before the last time.','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_format" => $state && isset($ac->text->cal_b_format) ? $ac->text->cal_b_format : esc_html__('Typed format','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_g_advanced" => $state && isset($ac->text->cal_b_g_advanced) ? $ac->text->cal_b_g_advanced : esc_html__('Advanced','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_g_age" => $state && isset($ac->text->cal_b_g_age) ? $ac->text->cal_b_g_age : esc_html__('Age','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_g_basic" => $state && isset($ac->text->cal_b_g_basic) ? $ac->text->cal_b_g_basic : esc_html__('Date','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_g_calendar" => $state && isset($ac->text->cal_b_g_calendar) ? $ac->text->cal_b_g_calendar : esc_html__('Calendar','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_g_limits" => $state && isset($ac->text->cal_b_g_limits) ? $ac->text->cal_b_g_limits : esc_html__('Limits','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_g_range" => $state && isset($ac->text->cal_b_g_range) ? $ac->text->cal_b_g_range : esc_html__('Range and several dates','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_g_time" => $state && isset($ac->text->cal_b_g_time) ? $ac->text->cal_b_g_time : esc_html__('Time','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_hijri_adjust" => $state && isset($ac->text->cal_b_hijri_adjust) ? $ac->text->cal_b_hijri_adjust : esc_html__('Hijri sighting adjustment (days)','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_hol_disable" => $state && isset($ac->text->cal_b_hol_disable) ? $ac->text->cal_b_hol_disable : esc_html__('Cannot be chosen','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_hol_mark" => $state && isset($ac->text->cal_b_hol_mark) ? $ac->text->cal_b_hol_mark : esc_html__('Marked, can be chosen','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_holiday_mode" => $state && isset($ac->text->cal_b_holiday_mode) ? $ac->text->cal_b_holiday_mode : esc_html__('Holidays','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_holiday_sets" => $state && isset($ac->text->cal_b_holiday_sets) ? $ac->text->cal_b_holiday_sets : esc_html__('Holiday lists','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_holidays_custom" => $state && isset($ac->text->cal_b_holidays_custom) ? $ac->text->cal_b_holidays_custom : esc_html__('Own holidays','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_holidays_help" => $state && isset($ac->text->cal_b_holidays_help) ? $ac->text->cal_b_holidays_help : esc_html__('One per line: a calendar, month-day and days (every year), or a Gregorian date, then the name.','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_input_both" => $state && isset($ac->text->cal_b_input_both) ? $ac->text->cal_b_input_both : esc_html__('Typing and the calendar','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_input_mode" => $state && isset($ac->text->cal_b_input_mode) ? $ac->text->cal_b_input_mode : esc_html__('Input','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_input_picker" => $state && isset($ac->text->cal_b_input_picker) ? $ac->text->cal_b_input_picker : esc_html__('The calendar only','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_input_typed" => $state && isset($ac->text->cal_b_input_typed) ? $ac->text->cal_b_input_typed : esc_html__('Typing only','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_keep_local" => $state && isset($ac->text->cal_b_keep_local) ? $ac->text->cal_b_keep_local : esc_html__('Keep the old local format in new answers','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_lim_absolute" => $state && isset($ac->text->cal_b_lim_absolute) ? $ac->text->cal_b_lim_absolute : esc_html__('A fixed date (YYYY-MM-DD)','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_lim_amount" => $state && isset($ac->text->cal_b_lim_amount) ? $ac->text->cal_b_lim_amount : esc_html__('How many (e.g. 1, -1, 2 week, 1 month)','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_lim_date" => $state && isset($ac->text->cal_b_lim_date) ? $ac->text->cal_b_lim_date : esc_html__('Date (YYYY-MM-DD)','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_lim_field" => $state && isset($ac->text->cal_b_lim_field) ? $ac->text->cal_b_lim_field : esc_html__('Another date field','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_lim_none" => $state && isset($ac->text->cal_b_lim_none) ? $ac->text->cal_b_lim_none : esc_html__('No limit','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_lim_relative" => $state && isset($ac->text->cal_b_lim_relative) ? $ac->text->cal_b_lim_relative : esc_html__('Days from today','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_lim_which" => $state && isset($ac->text->cal_b_lim_which) ? $ac->text->cal_b_lim_which : esc_html__('Which field','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_max" => $state && isset($ac->text->cal_b_max) ? $ac->text->cal_b_max : esc_html__('Latest date','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_min" => $state && isset($ac->text->cal_b_min) ? $ac->text->cal_b_min : esc_html__('Earliest date','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_mode" => $state && isset($ac->text->cal_b_mode) ? $ac->text->cal_b_mode : esc_html__('Kind of answer','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_mode_multiple" => $state && isset($ac->text->cal_b_mode_multiple) ? $ac->text->cal_b_mode_multiple : esc_html__('Several dates','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_mode_range" => $state && isset($ac->text->cal_b_mode_range) ? $ac->text->cal_b_mode_range : esc_html__('Start and end (range)','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_mode_single" => $state && isset($ac->text->cal_b_mode_single) ? $ac->text->cal_b_mode_single : esc_html__('One date','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_multi_max" => $state && isset($ac->text->cal_b_multi_max) ? $ac->text->cal_b_multi_max : esc_html__('Most dates (several dates)','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_nights" => $state && isset($ac->text->cal_b_nights) ? $ac->text->cal_b_nights : esc_html__('Nights (check-out day can be closed)','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_preset" => $state && isset($ac->text->cal_b_preset) ? $ac->text->cal_b_preset : esc_html__('Quick setup','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_preset_birth" => $state && isset($ac->text->cal_b_preset_birth) ? $ac->text->cal_b_preset_birth : esc_html__('Date of birth','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_preset_future" => $state && isset($ac->text->cal_b_preset_future) ? $ac->text->cal_b_preset_future : esc_html__('Only future dates (from tomorrow)','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_preset_past" => $state && isset($ac->text->cal_b_preset_past) ? $ac->text->cal_b_preset_past : esc_html__('Only past dates','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_preset_today" => $state && isset($ac->text->cal_b_preset_today) ? $ac->text->cal_b_preset_today : esc_html__('Today or later','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_preview_n" => $state && isset($ac->text->cal_b_preview_n) ? $ac->text->cal_b_preview_n : esc_html__('Next 90 days: %1$s can be chosen.','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_range_max" => $state && isset($ac->text->cal_b_range_max) ? $ac->text->cal_b_range_max : esc_html__('At most','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_range_min" => $state && isset($ac->text->cal_b_range_min) ? $ac->text->cal_b_range_min : esc_html__('At least','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_range_unit" => $state && isset($ac->text->cal_b_range_unit) ? $ac->text->cal_b_range_unit : esc_html__('Count','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_rollback" => $state && isset($ac->text->cal_b_rollback) ? $ac->text->cal_b_rollback : esc_html__('Back to the old field','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_store" => $state && isset($ac->text->cal_b_store) ? $ac->text->cal_b_store : esc_html__('Stored value','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_store_iso" => $state && isset($ac->text->cal_b_store_iso) ? $ac->text->cal_b_store_iso : esc_html__('Gregorian (YYYY-MM-DD)','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_store_local" => $state && isset($ac->text->cal_b_store_local) ? $ac->text->cal_b_store_local : esc_html__('Keep the old local format','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_time" => $state && isset($ac->text->cal_b_time) ? $ac->text->cal_b_time : esc_html__('Ask for a time','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_time_format" => $state && isset($ac->text->cal_b_time_format) ? $ac->text->cal_b_time_format : esc_html__('Clock','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_time_max" => $state && isset($ac->text->cal_b_time_max) ? $ac->text->cal_b_time_max : esc_html__('Until (HH:mm)','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_time_min" => $state && isset($ac->text->cal_b_time_min) ? $ac->text->cal_b_time_min : esc_html__('From (HH:mm)','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_time_step" => $state && isset($ac->text->cal_b_time_step) ? $ac->text->cal_b_time_step : esc_html__('Step in minutes','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_time_week" => $state && isset($ac->text->cal_b_time_week) ? $ac->text->cal_b_time_week : esc_html__('Hours per weekday','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_time_week_help" => $state && isset($ac->text->cal_b_time_week_help) ? $ac->text->cal_b_time_week_help : esc_html__('One weekday per line (1 = Monday … 7 = Sunday).','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_tz" => $state && isset($ac->text->cal_b_tz) ? $ac->text->cal_b_tz : esc_html__('Time zone for "today" and times','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_tz_site" => $state && isset($ac->text->cal_b_tz_site) ? $ac->text->cal_b_tz_site : esc_html__('The site\'s','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_tz_visitor" => $state && isset($ac->text->cal_b_tz_visitor) ? $ac->text->cal_b_tz_visitor : esc_html__('The visitor\'s (within a day of the site)','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_unverified" => $state && isset($ac->text->cal_b_unverified) ? $ac->text->cal_b_unverified : esc_html__('check the dates before use','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_upgrade" => $state && isset($ac->text->cal_b_upgrade) ? $ac->text->cal_b_upgrade : esc_html__('Upgrade to the advanced date','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_upgrade_note" => $state && isset($ac->text->cal_b_upgrade_note) ? $ac->text->cal_b_upgrade_note : esc_html__('The advanced date field has every calendar, limits, holidays, ranges and times, without the old add-ons. New answers are stored as Gregorian dates (YYYY-MM-DD). If a webhook or Google Sheet expects the local date, keep the old format.','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_upgraded_note" => $state && isset($ac->text->cal_b_upgraded_note) ? $ac->text->cal_b_upgraded_note : esc_html__('This field was upgraded from the old date field. Its old settings are kept.','easy-form-builder'),
+			/* translators: F06 builder, advanced date field panel */
+			"cal_b_week_start" => $state && isset($ac->text->cal_b_week_start) ? $ac->text->cal_b_week_start : esc_html__('Week starts on','easy-form-builder'),
+			/* translators: F06 Settings: heading */
+			"cal_admin_display" => $state && isset($ac->text->cal_admin_display) ? $ac->text->cal_admin_display : esc_html__('Date display for admins','easy-form-builder'),
+			/* translators: F06 Settings: help */
+			"cal_admin_display_desc" => $state && isset($ac->text->cal_admin_display_desc) ? $ac->text->cal_admin_display_desc : esc_html__('How advanced date answers are shown in the response viewer, CSV, PDF and notification e-mails.','easy-form-builder'),
+			/* translators: F06 Settings: option */
+			"cal_admin_display_site" => $state && isset($ac->text->cal_admin_display_site) ? $ac->text->cal_admin_display_site : esc_html__('The site calendar, with the ISO date (2026-03-19)','easy-form-builder'),
+			/* translators: F06 Settings: option */
+			"cal_admin_display_visitor" => $state && isset($ac->text->cal_admin_display_visitor) ? $ac->text->cal_admin_display_visitor : esc_html__('As the visitor saw it','easy-form-builder'),
+			/* translators: F06 Settings: option */
+			"cal_admin_display_iso" => $state && isset($ac->text->cal_admin_display_iso) ? $ac->text->cal_admin_display_iso : esc_html__('ISO only (YYYY-MM-DD)','easy-form-builder'),
+			/* translators: F06 add-ons page note on the Jalali and Hijri date add-ons */
+			"cal_addon_replaced" => $state && isset($ac->text->cal_addon_replaced) ? $ac->text->cal_addon_replaced : esc_html__('Replaced by the Date (advanced) field, which has every calendar without this add-on. Fields that use it keep working.','easy-form-builder'),
 			/* F06 phrases end */
 
 		];
