@@ -12065,6 +12065,10 @@ msgid "This gateway cannot refund through Easy Form Builder. Refund it in the ga
 msgstr ""
 
 #: includes/payments/class-Emsfb-payment-frontend.php:214
+msgid "This gateway has no keys yet. Visitors read that online payment is not available until it is set up."
+msgstr ""
+
+#: includes/payments/class-Emsfb-payment-frontend.php
 msgid "This gateway has no keys yet. Visitors will see \"cannot take payments\" until it is set up."
 msgstr ""
 

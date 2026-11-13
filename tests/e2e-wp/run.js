@@ -30,6 +30,10 @@
  *      "Run now" + the response viewer; "do not store entries": builder switch (en, fa RTL), a guest
  *      submission that leaves no row; WordPress Tools > Export / Erase Personal Data find and erase
  *      the guest's entry by e-mail
+ *   readiness  PAY00 payment readiness: a form without gateway keys / with an add-on off saves; the
+ *      visitor sees a notice, Send is off, nothing is stored (also for hand-made requests); the owner
+ *      sees why (page, forms list badge, admin notice, Saved dialog); AutoPilot readiness; fa_IR / ar
+ *      at 375 px; keys added → ready without saving again
  *   9  PAY00 payments with the test gateway efbmock (fake provider on the site, no network): builder
  *      tile + panel + Save, AutoPilot API; fixed / computed (B7) / donation amounts from the server;
  *      pending → paid only after the provider confirms; webhook before return, twice, bad signature;
@@ -2002,6 +2006,9 @@ require('./scenario-xendit.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNe
 
 /* PAY03 Tap in Arabic and Persian (site language ar / fa_IR): tests/e2e-wp/scenario-tap-lang.js. */
 require('./scenario-tap-lang.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, SHARED, openNewForm, addTile, closePanel, openField, setInput, settle, payGuest, tapPay, tapLeave, tapWebhook, ctlTap: (...a) => ctlTap(...a), payRows: (...a) => payRows(...a) });
+
+/* PAY00 payment readiness (a form that cannot take payment): tests/e2e-wp/scenario-readiness.js. */
+require('./scenario-readiness.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewForm, addTile, closePanel });
 
 /* ---------------------------------------------------------------------------------------------
  * main

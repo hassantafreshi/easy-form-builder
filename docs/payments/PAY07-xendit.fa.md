@@ -310,7 +310,7 @@ Xendit: no payer requirement (the hosted page asks); an unpaid session states `e
 
 | Question | Xendit's documentation | Decision |
 |---|---|---|
-| Is the payer's e-mail required? | `customer` (or `customer_id`) is required only "when `session_type` is SAVE, when `mode` is CARDS_SESSION_JS, or when `allow_save_payment_method` is FORCED or OPTIONAL"; in `customer`, `type`, `reference_id` and `individual_detail.given_names` are required, `email` optional ([Create a session](https://docs.xendit.co/apidocs/create-session)) | **optional** (unchanged: no requirement); `customer` is sent only with an e-mail |
+| Is the payer's e-mail required? | `customer` (or `customer_id`) is required only "when `session_type` is SAVE, when `mode` is CARDS_SESSION_JS, or when `allow_save_payment_method` is FORCED or OPTIONAL"; in `customer`, `type`, `reference_id` and `individual_detail.given_names` are required, `email` optional ([Create a session](https://docs.xendit.co/apidocs/create-session)) | **optional**: new optional options "Payer name" / "Payer e-mail" (`pgw_map_name`, `pgw_map_email`, no requirement, no owner warning; before Xendit had no option, so the owner could not choose the payer's e-mail field); `customer` is sent only with an e-mail |
 | Format / length | `email`: e-mail format, "Maximum length 50 characters"; `mobile_number` E.164; names alphanumeric | an e-mail over 50 characters is not sent (unchanged) |
 | Must it be the payer's own? | Xendit's receipts go to it | yes: the mapped field or the confirmation e-mail field; never another e-mail field (before: the first e-mail answered) |
 
@@ -320,4 +320,4 @@ person who fills in the form is the one who pays, and that field is where the fo
 goes. New: the add-ons no longer fall back to *another* e-mail field of the form ("the first e-mail
 answered"), which may hold somebody else's address (a friend, a colleague).
 
-Tests: `test-addon-xendit-errors.php` (8).
+Tests: `test-addon-xendit-errors.php` (9); e2e scenario `xendit` chooses the payer e-mail in the payment field.

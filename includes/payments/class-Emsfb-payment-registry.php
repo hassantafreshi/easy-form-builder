@@ -593,7 +593,7 @@ class Readiness {
 	 */
 	public static function admin_notice_html( array $forms ) {
 		if ( ! $forms ) return '';
-		$h = '<div class="notice notice-error efb-pay-notready-notice" id="efbPayNotReadyNotice"><p><strong>' . esc_html__( 'Payment setup incomplete: visitors cannot pay with these forms yet.', 'easy-form-builder' ) . '</strong></p><ul style="list-style:disc;padding-inline-start:20px">';
+		$h = '<div class="efb notice notice-error efb-pay-notready-notice" id="efbPayNotReadyNotice"><p><strong>' . esc_html__( 'Payment setup incomplete: visitors cannot pay with these forms yet.', 'easy-form-builder' ) . '</strong></p><ul style="list-style:disc;padding-inline-start:20px">';
 		$n = 0;
 		foreach ( $forms as $id => $f ) {
 			if ( ++$n > 5 ) break;

@@ -326,4 +326,4 @@ person who fills in the form is the one who pays, and that field is where the fo
 goes. New: the add-ons no longer fall back to *another* e-mail field of the form ("the first e-mail
 answered"), which may hold somebody else's address (a friend, a colleague).
 
-Tests: `test-addon-paytabs-errors.php` (14).
+Tests: `test-addon-paytabs-errors.php` (14); e2e scenario `paytabs` chooses the payer e-mail in the payment field.

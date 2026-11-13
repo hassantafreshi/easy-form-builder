@@ -48,5 +48,10 @@ $r = xnd_create($db, array('rows' => xnd_rows('ro1', array()), 'payer_email' => 
 list($b) = xnd_last_session_body();
 $t('Xendit: the confirmation e-mail field is the payer\'s e-mail (customer.email)', array($r['success'], $b['customer']['email']), array(true, 'payer@example.test'));
 
+$f = xnd_form('idr', array('pgw_map_email' => 'fe')); $f[] = array('id_' => 'fe', 'type' => 'email', 'name' => 'Billing e-mail', 'step' => 1);
+$r = xnd_create($db, array('form' => $f, 'rows' => xnd_rows('ro1', array(array('id_' => 'fe', 'type' => 'email', 'name' => 'Billing e-mail', 'value' => 'billing@example.test')))));
+list($b) = xnd_last_session_body();
+$t('Xendit: an optional "Payer e-mail" option (no requirement); the field chosen there wins over the confirmation e-mail field', array(array_column(\Emsfb\Payments\Registry::field_schema('xendit'), 'key'), \Emsfb\Payments\Registry::field_schema('xendit')[1]['required'], $r['success'], isset($b['customer']['email']) ? $b['customer']['email'] : null), array(array('pgw_map_name', 'pgw_map_email'), false, true, 'billing@example.test'));
+
 echo "\nRESULTS: {$passed} passed, {$failed} failed\n";
 exit($failed ? 1 : 0);

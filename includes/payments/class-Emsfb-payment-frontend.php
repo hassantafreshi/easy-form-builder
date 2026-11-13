@@ -211,7 +211,7 @@ class Frontend {
 	public static function builder_labels() {
 		return array(
 			'slot' => __( 'The payment page or card fields of the gateway open here.', 'easy-form-builder' ),
-			'notConfigured' => __( 'This gateway has no keys yet. Visitors will see "cannot take payments" until it is set up.', 'easy-form-builder' ),
+			'notConfigured' => __( 'This gateway has no keys yet. Visitors read that online payment is not available until it is set up.', 'easy-form-builder' ),
 			'reset' => __( 'Default', 'easy-form-builder' ),
 			'contrastOk' => /* translators: %s is a number or %amount% stays as written */ __( 'Contrast %s:1, readable.', 'easy-form-builder' ),
 			'contrastLow' => /* translators: %s is a number or %amount% stays as written */ __( 'The button text may be hard to read: contrast %s:1, at least 4.5:1 is needed.', 'easy-form-builder' ),

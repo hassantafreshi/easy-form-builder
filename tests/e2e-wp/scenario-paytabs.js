@@ -104,7 +104,9 @@ module.exports = function (S) {
     await admin.press('#efbPfFixedEl', 'Tab');
     await sleep(500);
     await closePanel(admin);
-    await admin.evaluate(async (id) => { const f = efbBuilderApi.getForm(); const r = f.find((x) => x.id_ === id); r.pf_methods = 'mada,creditcard,stcpay,knet'; r.pf_methods_style = 'grid'; await efbBuilderApi.setForm(f); }, pf.id_);
+    // The owner chooses the payer e-mail in the payment field (2026-11-13: without it and without the
+    // form's confirmation e-mail field, PayTabs gets no e-mail and asks on its own page).
+    await admin.evaluate(async ([id, emId]) => { const f = efbBuilderApi.getForm(); const r = f.find((x) => x.id_ === id); r.pf_methods = 'mada,creditcard,stcpay,knet'; r.pf_methods_style = 'grid'; r.pgw_map_email = emId; await efbBuilderApi.setForm(f); }, [pf.id_, em.id_]);
     await sleep(500);
     const sw = PE.payWarnings(await PE.saveWarnings(admin));
     R.check('paytabs/errors: the save answer (AutoPilot) carries the payment checks with their level: Test mode (info), and KNET cannot take SAR (warning, named); nothing red (PayTabs asks the payer on its page)', sw.some((w) => w.code === 'pay_test_mode' && w.level === 'info') && sw.some((w) => w.code === 'pay_method_currency' && w.level === 'warning' && /KNET cannot take SAR/.test(w.m)) && !sw.some((w) => w.level === 'error'), sw);

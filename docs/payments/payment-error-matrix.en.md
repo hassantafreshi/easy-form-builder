@@ -141,7 +141,7 @@ script-filled request) and answers with the same code and `field_id`.
 | Omise | none | — | — | `failure_code`: `payment_expired` → expired; `payment_rejected`, `failed_processing` → declined; `insufficient_fund` → insufficient_funds; `failed_fraud_check` → fraud_blocked; `payment_cancelled` → canceled |
 | PayTabs | name, e-mail | none (PayTabs asks on its page) | e-mail | `response_status` D → declined (or by `response_message`), E → provider_unavailable, X → expired, C → canceled, H → pending with the review note |
 | Paymob | e-mail, mobile, name | e-mail (every method); mobile for `wallet` | e-mail; mobile `phone` | `data.message` / `txn_response_code` by words (insufficient, 3DS, expired, limit, risk) → the codes; declined otherwise |
-| Xendit | none (the hosted page asks) | — | — | a Payment Session ends unpaid only as EXPIRED → expired or CANCELED → canceled (a declined attempt stays on Xendit's page, where the payer tries again, so EFB never sees its failure code); 429 → rate_limited with the add-on's own text |
+| Xendit | name, e-mail (optional; the hosted page asks) | — | e-mail | a Payment Session ends unpaid only as EXPIRED → expired or CANCELED → canceled (a declined attempt stays on Xendit's page, where the payer tries again, so EFB never sees its failure code); 429 → rate_limited with the add-on's own text |
 
 ### 4.1 Payer e-mail per gateway (checked against each provider's documentation, 2026-11-13)
 
@@ -158,7 +158,7 @@ take "the first e-mail answered" from another e-mail field (possibly somebody el
 | Omise | PromptPay: amount, currency, type only ([PromptPay](https://docs.omise.co/promptpay)) | not used | — | — | — |
 | PayTabs | `customer_details` optional, the page asks for missing or invalid details ([Customer details](https://docs.paytabs.com/PT2-API-Endpoints/Integration-Types-Manuals/Request-Response-Parameters/Request-Response-Customer-Details)) | optional | yes | sent up to 100, never cut | no other e-mail field; no cut address |
 | Paymob | `billing_data` required; email, names and phone cannot be "NA" (Accept API) ([Create Intention](https://developers.paymob.com/paymob-docs/developers/intention-apis/create-intention), [Payment API flow](https://weaccept.readme.io/docs/accept-standard-redirect)) | required | yes | — | no other e-mail field; phone "NA" for non-wallet methods is an owner decision |
-| Xendit | `customer` optional for a PAY session, `email` optional, at most 50 ([Create a session](https://docs.xendit.co/apidocs/create-session)) | optional | yes | 50 | no other e-mail field |
+| Xendit | `customer` optional for a PAY session, `email` optional, at most 50 ([Create a session](https://docs.xendit.co/apidocs/create-session)) | optional (new options Payer name / Payer e-mail) | yes | 50 | no other e-mail field |
 
 Core helper for the add-ons: `\Emsfb\Payments\Reasons::from_text( $code_or_message )` turns a
 provider's code or message into one of the codes above (keyword based: insufficient, 3-D Secure /

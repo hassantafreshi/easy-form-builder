@@ -208,7 +208,7 @@
       var warn = '';
       var g = info(row.type);
       if (previewSate !== true && g && !(g.configured && g.configured[g.mode])) {
-         warn = '<div class="efb alert alert-warning py-1 px-2 my-1 fs-7" role="note">' + esc(L('notConfigured', 'This gateway has no keys yet. Visitors will see "cannot take payments" until it is set up.')) + '</div>';
+         warn = '<div class="efb alert alert-warning py-1 px-2 my-1 fs-7" role="note">' + esc(L('notConfigured', 'This gateway has no keys yet. Visitors read that online payment is not available until it is set up.')) + '</div>';
       }
       ensureCss();
       return '<div class="efb col-sm-12 px-0 mx-0" id="' + rndm + '-f">' + warn + fieldHtml(row, 0);

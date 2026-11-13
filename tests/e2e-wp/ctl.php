@@ -374,6 +374,28 @@ switch ( $efb_e2e_cmd ) {
 		efb_e2e_out( array( 'ok' => true, $key => get_setting_Emsfb( 'decoded' )->$key ) );
 		break;
 
+	case 'pay-clear-keys':
+		// PAY00 readiness: the test gateway without any key (its settings option removed).
+		delete_option( 'emsfb_pgw_efbmock' );
+		efb_e2e_out( array( 'ok' => true, 'option' => get_option( 'emsfb_pgw_efbmock', null ) ) );
+		break;
+
+	case 'pay-form-retype':
+		// PAY00 readiness: the payment field of a stored form becomes the field of another gateway
+		// (e.g. one whose add-on is off), as a form built while that add-on was on.
+		$id   = isset( $efb_e2e_rest[0] ) ? (int) $efb_e2e_rest[0] : 0;
+		$to   = isset( $efb_e2e_rest[1] ) ? preg_replace( '/[^a-z0-9]/', '', $efb_e2e_rest[1] ) : '';
+		$raw  = $wpdb->get_var( $wpdb->prepare( "SELECT form_structer FROM {$wpdb->prefix}emsfb_form WHERE form_id = %d", $id ) ); // phpcs:ignore
+		$rows = efb_e2e_decode_json( $raw );
+		if ( ! is_array( $rows ) || '' === $to ) efb_e2e_out( array( 'error' => 'no form' ) );
+		foreach ( $rows as $i => $r ) {
+			if ( is_array( $r ) && isset( $r['type'] ) && 'efbmock' === $r['type'] ) { $rows[ $i ]['type'] = $to; $rows[ $i ]['elementId'] = $to; }
+		}
+		if ( is_array( $rows[0] ) ) $rows[0]['getway'] = $to;
+		$wpdb->update( $wpdb->prefix . 'emsfb_form', array( 'form_structer' => str_replace( '"', '\\"', wp_json_encode( $rows, JSON_UNESCAPED_UNICODE ) ) ), array( 'form_id' => $id ) );
+		efb_e2e_out( array( 'ok' => true, 'types' => array_values( array_filter( array_map( function ( $r ) { return is_array( $r ) && isset( $r['type'] ) ? $r['type'] : null; }, $rows ) ) ) ) );
+		break;
+
 	case 'reconcile':
 		efb_e2e_out( \Emsfb\Payments\Service::reconcile() );
 		break;

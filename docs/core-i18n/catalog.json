@@ -5,7 +5,7 @@
     "updated": "2026-11-13",
     "counts": {
         "active": 3067,
-        "obsolete": 378
+        "obsolete": 379
     },
     "entries": [
         {
@@ -41854,7 +41854,7 @@
             "obsolete_since": null
         },
         {
-            "msgid": "This gateway has no keys yet. Visitors will see \"cannot take payments\" until it is set up.",
+            "msgid": "This gateway has no keys yet. Visitors read that online payment is not available until it is set up.",
             "context": null,
             "plural": null,
             "translators": "",
@@ -41867,6 +41867,21 @@
             "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
+        },
+        {
+            "msgid": "This gateway has no keys yet. Visitors will see \"cannot take payments\" until it is set up.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "This happened when a visitor opened a page with a form; the form was shown in English.",
