@@ -1,0 +1,1176 @@
+{
+ "about": "F08 smart tags: shared vectors of Emsfb\\Smart_Tags (PHP) and window.EFBSmart (JS). tests/test-smart-tags.php, tests/test-smart-tags.js, tests/test-smart-tags-parity.js. ctx.now = 2026-01-01T00:00:00Z, ctx.tz = +03:30 (12600 s).",
+ "ctx": {
+  "query": {
+   "utm_source": "google",
+   "q": "a&b #c=d",
+   "evil": "\"><img src=x onerror=alert(1)>",
+   "js": "javascript:alert(1)",
+   "crlf": "a\r\nBcc: x@evil.test",
+   "fa": "سلام ۱۲۳",
+   "list": [
+    "a",
+    "b"
+   ],
+   "empty": "",
+   "next": "https://evil.test/",
+   "long": "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+   "bidi": "a‮b⁦c d",
+   "pct": "%0d%0a"
+  },
+  "cookies": {
+   "campaign": "spring",
+   "wordpress_logged_in_abc": "secret",
+   "wp_settings": "x",
+   "PHPSESSID": "s",
+   "efb_draft_5": "t",
+   "wp-postpass_x": "p"
+  },
+  "ref": "https://search.example/?q=1",
+  "page": {
+   "url": "https://site.test/contact/?utm_source=google",
+   "path": "/contact/",
+   "title": "Contact us",
+   "id": "12"
+  },
+  "post": {
+   "id": "12",
+   "title": "Contact us",
+   "url": "https://site.test/contact/",
+   "type": "page"
+  },
+  "user": {
+   "id": "7",
+   "login": "ana",
+   "email": "ana@example.test",
+   "display_name": "Ana Díaz",
+   "first_name": "Ana",
+   "last_name": "Díaz",
+   "role": "subscriber"
+  },
+  "now": 1767225600,
+  "tz": 12600,
+  "ip": "203.0.113.9",
+  "uid": "Ab3dEf6hIj8kLm0nOp2qRs4t",
+  "form": {
+   "id": "5",
+   "name": "Contact"
+  },
+  "site": {
+   "name": "My Site",
+   "url": "https://site.test/"
+  },
+  "fields": {
+   "name1": {
+    "type": "text",
+    "name": "Name",
+    "options": []
+   },
+   "color": {
+    "type": "radio",
+    "name": "Color",
+    "options": [
+     {
+      "id": "o1",
+      "label": "Red",
+      "value": "r"
+     },
+     {
+      "id": "o2",
+      "label": "Blue",
+      "value": ""
+     }
+    ]
+   },
+   "langs": {
+    "type": "checkbox",
+    "name": "Langs",
+    "options": [
+     {
+      "id": "l1",
+      "label": "PHP",
+      "value": "php"
+     },
+     {
+      "id": "l2",
+      "label": "JS",
+      "value": "js"
+     }
+    ]
+   },
+   "plan": {
+    "type": "select",
+    "name": "Plan",
+    "options": [
+     {
+      "id": "p1",
+      "label": "Pro & Co",
+      "value": "pro"
+     }
+    ]
+   },
+   "empty1": {
+    "type": "text",
+    "name": "Empty",
+    "options": []
+   },
+   "fa1": {
+    "type": "text",
+    "name": "نام",
+    "options": []
+   }
+  },
+  "values": {
+   "name1": "<img src=x onerror=alert(1)>",
+   "color": "Red",
+   "langs": [
+    "PHP",
+    "JS"
+   ],
+   "plan": "Pro & Co",
+   "empty1": "",
+   "fa1": "علی ۲"
+  },
+  "entry": {
+   "track": "ABC123"
+  }
+ },
+ "parse": [
+  {
+   "in": "plain text",
+   "out": [
+    {
+     "t": "text",
+     "v": "plain text"
+    }
+   ]
+  },
+  {
+   "in": "{get:utm_source}",
+   "out": [
+    {
+     "t": "tag",
+     "ns": "get",
+     "arg": "utm_source",
+     "fb": "",
+     "legacy": false
+    }
+   ]
+  },
+  {
+   "in": "Hi {user:first_name|friend}!",
+   "out": [
+    {
+     "t": "text",
+     "v": "Hi "
+    },
+    {
+     "t": "tag",
+     "ns": "user",
+     "arg": "first_name",
+     "fb": "friend",
+     "legacy": false
+    },
+    {
+     "t": "text",
+     "v": "!"
+    }
+   ]
+  },
+  {
+   "in": "{date:H:i}",
+   "out": [
+    {
+     "t": "tag",
+     "ns": "date",
+     "arg": "H:i",
+     "fb": "",
+     "legacy": false
+    }
+   ]
+  },
+  {
+   "in": "{date:Y-m-d H:i}",
+   "out": [
+    {
+     "t": "tag",
+     "ns": "date",
+     "arg": "Y-m-d H:i",
+     "fb": "",
+     "legacy": false
+    }
+   ]
+  },
+  {
+   "in": "{unknown:x}",
+   "out": [
+    {
+     "t": "text",
+     "v": "{unknown:x}"
+    }
+   ]
+  },
+  {
+   "in": "{مهم}",
+   "out": [
+    {
+     "t": "text",
+     "v": "{مهم}"
+    }
+   ]
+  },
+  {
+   "in": "{{x}}",
+   "out": [
+    {
+     "t": "text",
+     "v": "{"
+    },
+    {
+     "t": "tag",
+     "ns": "field",
+     "arg": "x",
+     "fb": "",
+     "legacy": true
+    },
+    {
+     "t": "text",
+     "v": "}"
+    }
+   ]
+  },
+  {
+   "in": "{get:a",
+   "out": [
+    {
+     "t": "text",
+     "v": "{get:a"
+    }
+   ]
+  },
+  {
+   "in": "a } b {",
+   "out": [
+    {
+     "t": "text",
+     "v": "a } b {"
+    }
+   ]
+  },
+  {
+   "in": "{field:color.value}",
+   "out": [
+    {
+     "t": "tag",
+     "ns": "field",
+     "arg": "color.value",
+     "fb": "",
+     "legacy": false
+    }
+   ]
+  },
+  {
+   "in": "{ip}",
+   "out": [
+    {
+     "t": "tag",
+     "ns": "ip",
+     "arg": "",
+     "fb": "",
+     "legacy": false
+    }
+   ]
+  },
+  {
+   "in": "{uid:8}",
+   "out": [
+    {
+     "t": "tag",
+     "ns": "uid",
+     "arg": "8",
+     "fb": "",
+     "legacy": false
+    }
+   ]
+  },
+  {
+   "in": "{name1}",
+   "out": [
+    {
+     "t": "tag",
+     "ns": "field",
+     "arg": "name1",
+     "fb": "",
+     "legacy": true
+    }
+   ]
+  },
+  {
+   "in": "{get:x|}",
+   "out": [
+    {
+     "t": "tag",
+     "ns": "get",
+     "arg": "x",
+     "fb": "",
+     "legacy": false
+    }
+   ]
+  },
+  {
+   "in": "{note: read this}",
+   "out": [
+    {
+     "t": "text",
+     "v": "{note: read this}"
+    }
+   ]
+  },
+  {
+   "in": "{GET:x}",
+   "out": [
+    {
+     "t": "text",
+     "v": "{GET:x}"
+    }
+   ]
+  },
+  {
+   "in": "{get:a|b|c}",
+   "out": [
+    {
+     "t": "tag",
+     "ns": "get",
+     "arg": "a",
+     "fb": "b|c",
+     "legacy": false
+    }
+   ]
+  },
+  {
+   "in": "x{}y",
+   "out": [
+    {
+     "t": "text",
+     "v": "x{}y"
+    }
+   ]
+  },
+  {
+   "in": "{ref}{ref}",
+   "out": [
+    {
+     "t": "tag",
+     "ns": "ref",
+     "arg": "",
+     "fb": "",
+     "legacy": false
+    },
+    {
+     "t": "tag",
+     "ns": "ref",
+     "arg": "",
+     "fb": "",
+     "legacy": false
+    }
+   ]
+  }
+ ],
+ "resolve": [
+  {
+   "in": "{get:utm_source}",
+   "mode": "text",
+   "where": null,
+   "out": "google"
+  },
+  {
+   "in": "{get:missing|direct}",
+   "mode": "text",
+   "where": null,
+   "out": "direct"
+  },
+  {
+   "in": "{get:missing}",
+   "mode": "text",
+   "where": null,
+   "out": ""
+  },
+  {
+   "in": "{get:empty|none}",
+   "mode": "text",
+   "where": null,
+   "out": "none"
+  },
+  {
+   "in": "{get:list}",
+   "mode": "text",
+   "where": null,
+   "out": "a, b"
+  },
+  {
+   "in": "{get:list[]}",
+   "mode": "text",
+   "where": null,
+   "out": "a, b"
+  },
+  {
+   "in": "{get:fa}",
+   "mode": "text",
+   "where": null,
+   "out": "سلام ۱۲۳"
+  },
+  {
+   "in": "{get:evil}",
+   "mode": "text",
+   "where": null,
+   "out": "\"><img src=x onerror=alert(1)>"
+  },
+  {
+   "in": "{get:evil}",
+   "mode": "html",
+   "where": null,
+   "out": "&quot;&gt;&lt;img src=x onerror=alert(1)&gt;"
+  },
+  {
+   "in": "{get:evil}",
+   "mode": "attr",
+   "where": null,
+   "out": "&quot;&gt;&lt;img src=x onerror=alert(1)&gt;"
+  },
+  {
+   "in": "{get:evil}",
+   "mode": "url_query",
+   "where": null,
+   "out": "%22%3E%3Cimg%20src%3Dx%20onerror%3Dalert%281%29%3E"
+  },
+  {
+   "in": "{get:q}",
+   "mode": "url_query",
+   "where": null,
+   "out": "a%26b%20%23c%3Dd"
+  },
+  {
+   "in": "{get:crlf}",
+   "mode": "text",
+   "where": null,
+   "out": "a Bcc: x@evil.test"
+  },
+  {
+   "in": "{get:crlf}",
+   "mode": "subject",
+   "where": null,
+   "out": "a Bcc: x@evil.test"
+  },
+  {
+   "in": "{get:js}",
+   "mode": "text",
+   "where": null,
+   "out": "javascript:alert(1)"
+  },
+  {
+   "in": "{get:bad name}",
+   "mode": "text",
+   "where": null,
+   "out": ""
+  },
+  {
+   "in": "{cookie:campaign}",
+   "mode": "text",
+   "where": null,
+   "out": "spring"
+  },
+  {
+   "in": "{cookie:wordpress_logged_in_abc|no}",
+   "mode": "text",
+   "where": null,
+   "out": "no"
+  },
+  {
+   "in": "{cookie:wp_settings}",
+   "mode": "text",
+   "where": null,
+   "out": ""
+  },
+  {
+   "in": "{cookie:PHPSESSID}",
+   "mode": "text",
+   "where": null,
+   "out": ""
+  },
+  {
+   "in": "{cookie:efb_draft_5}",
+   "mode": "text",
+   "where": null,
+   "out": ""
+  },
+  {
+   "in": "{ref}",
+   "mode": "text",
+   "where": null,
+   "out": "https://search.example/?q=1"
+  },
+  {
+   "in": "{page:url}",
+   "mode": "text",
+   "where": null,
+   "out": "https://site.test/contact/?utm_source=google"
+  },
+  {
+   "in": "{page:path}",
+   "mode": "text",
+   "where": null,
+   "out": "/contact/"
+  },
+  {
+   "in": "{page:title}",
+   "mode": "html",
+   "where": null,
+   "out": "Contact us"
+  },
+  {
+   "in": "{page:secret|x}",
+   "mode": "text",
+   "where": null,
+   "out": "x"
+  },
+  {
+   "in": "{post:id} {post:type} {post:url}",
+   "mode": "text",
+   "where": null,
+   "out": "12 page https://site.test/contact/"
+  },
+  {
+   "in": "{user:email}",
+   "mode": "text",
+   "where": null,
+   "out": "ana@example.test"
+  },
+  {
+   "in": "{user:display_name}",
+   "mode": "html",
+   "where": null,
+   "out": "Ana Díaz"
+  },
+  {
+   "in": "{user:role}",
+   "mode": "text",
+   "where": null,
+   "out": "subscriber"
+  },
+  {
+   "in": "{user:password|-}",
+   "mode": "text",
+   "where": null,
+   "out": "-"
+  },
+  {
+   "in": "{date}",
+   "mode": "text",
+   "where": null,
+   "out": "2026-01-01"
+  },
+  {
+   "in": "{date:Y-m-d}",
+   "mode": "text",
+   "where": null,
+   "out": "2026-01-01"
+  },
+  {
+   "in": "{date:H:i}",
+   "mode": "text",
+   "where": null,
+   "out": "03:30"
+  },
+  {
+   "in": "{date:D, d M Y h:i:s A}",
+   "mode": "text",
+   "where": null,
+   "out": "Thu, 01 Jan 2026 03:30:00 AM"
+  },
+  {
+   "in": "{date:l jS F}",
+   "mode": "text",
+   "where": null,
+   "out": "Thursday 1 January"
+  },
+  {
+   "in": "{date:N U}",
+   "mode": "text",
+   "where": null,
+   "out": "4 1767225600"
+  },
+  {
+   "in": "{date:y/n/j G g a}",
+   "mode": "text",
+   "where": null,
+   "out": "26/1/1 3 3 am"
+  },
+  {
+   "in": "{ip}",
+   "mode": "text",
+   "where": null,
+   "out": "203.0.113.9"
+  },
+  {
+   "in": "{uid}",
+   "mode": "text",
+   "where": null,
+   "out": "Ab3dEf6hIj8k"
+  },
+  {
+   "in": "{uid:8}",
+   "mode": "text",
+   "where": null,
+   "out": "Ab3dEf6h"
+  },
+  {
+   "in": "{uid:40|bad}",
+   "mode": "text",
+   "where": null,
+   "out": "bad"
+  },
+  {
+   "in": "{field:name1}",
+   "mode": "text",
+   "where": null,
+   "out": "<img src=x onerror=alert(1)>"
+  },
+  {
+   "in": "{field:name1}",
+   "mode": "html",
+   "where": null,
+   "out": "&lt;img src=x onerror=alert(1)&gt;"
+  },
+  {
+   "in": "{field:color}",
+   "mode": "text",
+   "where": null,
+   "out": "Red"
+  },
+  {
+   "in": "{field:color.label}",
+   "mode": "text",
+   "where": null,
+   "out": "Red"
+  },
+  {
+   "in": "{field:color.value}",
+   "mode": "text",
+   "where": null,
+   "out": "r"
+  },
+  {
+   "in": "{field:langs}",
+   "mode": "text",
+   "where": null,
+   "out": "PHP, JS"
+  },
+  {
+   "in": "{field:langs.value}",
+   "mode": "url_query",
+   "where": null,
+   "out": "php%2C%20js"
+  },
+  {
+   "in": "{field:plan}",
+   "mode": "url_query",
+   "where": null,
+   "out": "Pro%20%26%20Co"
+  },
+  {
+   "in": "{field:empty1|n/a}",
+   "mode": "text",
+   "where": null,
+   "out": "n/a"
+  },
+  {
+   "in": "{field:nope|?}",
+   "mode": "text",
+   "where": null,
+   "out": "?"
+  },
+  {
+   "in": "{field:fa1}",
+   "mode": "text",
+   "where": null,
+   "out": "علی ۲"
+  },
+  {
+   "in": "{name1}",
+   "mode": "text",
+   "where": null,
+   "out": "<img src=x onerror=alert(1)>"
+  },
+  {
+   "in": "{nofield} x",
+   "mode": "text",
+   "where": null,
+   "out": "{nofield} x"
+  },
+  {
+   "in": "{form:id}-{form:name}",
+   "mode": "text",
+   "where": null,
+   "out": "5-Contact"
+  },
+  {
+   "in": "{site:name} {site:url}",
+   "mode": "text",
+   "where": null,
+   "out": "My Site https://site.test/"
+  },
+  {
+   "in": "{entry:track}",
+   "mode": "text",
+   "where": null,
+   "out": "ABC123"
+  },
+  {
+   "in": "{geo:country|XX}",
+   "mode": "text",
+   "where": null,
+   "out": "XX"
+  },
+  {
+   "in": "{{field:color}}",
+   "mode": "text",
+   "where": null,
+   "out": "{Red}"
+  },
+  {
+   "in": "Hello {user:first_name|friend}, you chose {field:color}.",
+   "mode": "html",
+   "where": null,
+   "out": "Hello Ana, you chose Red."
+  },
+  {
+   "in": "<b>{field:color}</b>",
+   "mode": "html",
+   "where": null,
+   "out": "&lt;b&gt;Red&lt;/b&gt;"
+  },
+  {
+   "in": "{ip} {cookie:campaign} {uid} {user:email} {entry:track} {user:first_name}",
+   "mode": "text",
+   "where": "message",
+   "out": "    ABC123 Ana"
+  },
+  {
+   "in": "{ip}|{cookie:campaign}|{user:email}",
+   "mode": "text",
+   "where": "email_visitor",
+   "out": "||ana@example.test"
+  },
+  {
+   "in": "{ip}|{cookie:campaign}|{user:email}",
+   "mode": "text",
+   "where": "email_admin",
+   "out": "203.0.113.9|spring|ana@example.test"
+  },
+  {
+   "in": "{field:color} {get:utm_source} {user:email|x} {page:title}",
+   "mode": "text",
+   "where": "label",
+   "out": "Red google x Contact us"
+  },
+  {
+   "in": "{user:display_name} {user:email|no} {get:q} {cookie:campaign|c}",
+   "mode": "text",
+   "where": "placeholder",
+   "out": "Ana Díaz no a&b #c=d c"
+  },
+  {
+   "in": "{cookie:campaign} {user:email} {date:Y} {field:color|f}",
+   "mode": "text",
+   "where": "default",
+   "out": "spring ana@example.test 2026 f"
+  },
+  {
+   "in": "{entry:track|t} {ip}",
+   "mode": "text",
+   "where": "hidden",
+   "out": "t 203.0.113.9"
+  },
+  {
+   "in": "{get:utm_source} {ip|noip} {user:email|nomail}",
+   "mode": "url_query",
+   "where": "redirect",
+   "out": "google noip nomail"
+  },
+  {
+   "in": "{get:bidi}",
+   "mode": "text",
+   "where": null,
+   "out": "abcd"
+  },
+  {
+   "in": "{get:long}",
+   "mode": "text",
+   "where": null,
+   "out": "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL"
+  },
+  {
+   "in": "{get:pct}",
+   "mode": "text",
+   "where": null,
+   "out": "%0d%0a"
+  },
+  {
+   "in": "{get:pct}",
+   "mode": "url_query",
+   "where": null,
+   "out": "%250d%250a"
+  },
+  {
+   "in": "{get:fa}",
+   "mode": "url_query",
+   "where": null,
+   "out": "%D8%B3%D9%84%D8%A7%D9%85%20%DB%B1%DB%B2%DB%B3"
+  },
+  {
+   "in": "{get:js}",
+   "mode": "url_query",
+   "where": "redirect",
+   "out": "javascript%3Aalert%281%29"
+  },
+  {
+   "in": "{date:Y}{bogus:1}{date:x}",
+   "mode": "text",
+   "where": null,
+   "out": "2026{bogus:1}"
+  }
+ ],
+ "legacy_drop": [
+  {
+   "in": "Order {color} for {nofield}",
+   "mode": "text",
+   "out": "Order Red for "
+  },
+  {
+   "in": "{plan}",
+   "mode": "url_query",
+   "out": "Pro%20%26%20Co"
+  }
+ ],
+ "classify": [
+  {
+   "in": "plain",
+   "out": "static"
+  },
+  {
+   "in": "{get:utm_source}",
+   "out": "client"
+  },
+  {
+   "in": "src-{get:utm_source}",
+   "out": "client"
+  },
+  {
+   "in": "{ref}",
+   "out": "client"
+  },
+  {
+   "in": "{page:url}",
+   "out": "client"
+  },
+  {
+   "in": "{page:title}",
+   "out": "server"
+  },
+  {
+   "in": "{user:email}",
+   "out": "server"
+  },
+  {
+   "in": "{get:a}{ip}",
+   "out": "server"
+  },
+  {
+   "in": "{date:Y}",
+   "out": "server"
+  },
+  {
+   "in": "{field:color}",
+   "out": "server"
+  },
+  {
+   "in": "{cookie:campaign}",
+   "out": "client"
+  },
+  {
+   "in": "{nofield}",
+   "out": "static"
+  },
+  {
+   "in": "{unknown:x}",
+   "out": "static"
+  },
+  {
+   "in": "{form:id}",
+   "out": "server"
+  }
+ ],
+ "clean_template": [
+  {
+   "in": "{get:utm_source}",
+   "out": "{get:utm_source}"
+  },
+  {
+   "in": "a{bogus:x}b",
+   "out": "ab"
+  },
+  {
+   "in": "{get:a}\n{date:Y}",
+   "out": "{get:a} {date:Y}"
+  },
+  {
+   "in": "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+   "out": "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy"
+  },
+  {
+   "in": "{1x:y}",
+   "out": "{1x:y}"
+  },
+  {
+   "in": "keep {legacy} and {مهم}",
+   "out": "keep {legacy} and {مهم}"
+  },
+  {
+   "in": "{user:email|fallback}",
+   "out": "{user:email|fallback}"
+  },
+  {
+   "in": "\u0000\u0007ctl",
+   "out": "ctl"
+  }
+ ],
+ "allowed": [
+  {
+   "where": "default",
+   "ns": "get",
+   "arg": "x",
+   "out": true
+  },
+  {
+   "where": "default",
+   "ns": "field",
+   "arg": "",
+   "out": false
+  },
+  {
+   "where": "default",
+   "ns": "uid",
+   "arg": "",
+   "out": false
+  },
+  {
+   "where": "hidden",
+   "ns": "entry",
+   "arg": "track",
+   "out": false
+  },
+  {
+   "where": "hidden",
+   "ns": "ip",
+   "arg": "",
+   "out": true
+  },
+  {
+   "where": "placeholder",
+   "ns": "user",
+   "arg": "display_name",
+   "out": true
+  },
+  {
+   "where": "placeholder",
+   "ns": "user",
+   "arg": "email",
+   "out": false
+  },
+  {
+   "where": "label",
+   "ns": "field",
+   "arg": "",
+   "out": true
+  },
+  {
+   "where": "label",
+   "ns": "cookie",
+   "arg": "a",
+   "out": false
+  },
+  {
+   "where": "label",
+   "ns": "page",
+   "arg": "title",
+   "out": true
+  },
+  {
+   "where": "label",
+   "ns": "page",
+   "arg": "url",
+   "out": false
+  },
+  {
+   "where": "message",
+   "ns": "entry",
+   "arg": "track",
+   "out": true
+  },
+  {
+   "where": "message",
+   "ns": "user",
+   "arg": "email",
+   "out": false
+  },
+  {
+   "where": "message",
+   "ns": "uid",
+   "arg": "",
+   "out": false
+  },
+  {
+   "where": "email_visitor",
+   "ns": "ip",
+   "arg": "",
+   "out": false
+  },
+  {
+   "where": "email_admin",
+   "ns": "cookie",
+   "arg": "x",
+   "out": true
+  },
+  {
+   "where": "redirect",
+   "ns": "user",
+   "arg": "email",
+   "out": false
+  },
+  {
+   "where": "redirect",
+   "ns": "user",
+   "arg": "id",
+   "out": true
+  },
+  {
+   "where": "redirect",
+   "ns": "field",
+   "arg": "",
+   "out": true
+  },
+  {
+   "where": "nowhere",
+   "ns": "get",
+   "arg": "x",
+   "out": false
+  }
+ ],
+ "sanitize_key": [
+  {
+   "key": "prefill_key",
+   "in": "email",
+   "out": "email"
+  },
+  {
+   "key": "prefill_key",
+   "in": "bad key",
+   "out": ""
+  },
+  {
+   "key": "prefill_key",
+   "in": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+   "out": ""
+  },
+  {
+   "key": "prefill_key",
+   "in": " plan ",
+   "out": "plan"
+  },
+  {
+   "key": "prefill_lock",
+   "in": 1,
+   "out": "1"
+  },
+  {
+   "key": "prefill_lock",
+   "in": "yes",
+   "out": ""
+  },
+  {
+   "key": "hdn_visitor_mail",
+   "in": true,
+   "out": "1"
+  },
+  {
+   "key": "st_uses",
+   "in": "get,user",
+   "out": ""
+  }
+ ],
+ "url_misplaced": [
+  {
+   "in": "https://site.test/thanks/?c={get:utm_source}",
+   "out": false
+  },
+  {
+   "in": "https://{get:host}/x",
+   "out": true
+  },
+  {
+   "in": "https://site.test/{get:p}",
+   "out": true
+  },
+  {
+   "in": "https://site.test/{plan}/x",
+   "out": false
+  },
+  {
+   "in": "https://site.test/#{field:color}",
+   "out": false
+  },
+  {
+   "in": "https://site.test{get:a}.evil/",
+   "out": true
+  }
+ ],
+ "cookie_ok": [
+  {
+   "in": "campaign",
+   "out": true
+  },
+  {
+   "in": "wordpress_logged_in_x",
+   "out": false
+  },
+  {
+   "in": "wp-settings-1",
+   "out": false
+  },
+  {
+   "in": "wp_x",
+   "out": false
+  },
+  {
+   "in": "comment_author",
+   "out": false
+  },
+  {
+   "in": "PHPSESSID",
+   "out": false
+  },
+  {
+   "in": "efb_x",
+   "out": false
+  },
+  {
+   "in": "bad name",
+   "out": false
+  },
+  {
+   "in": "woocommerce_cart",
+   "out": false
+  }
+ ],
+ "count": 164
+}
