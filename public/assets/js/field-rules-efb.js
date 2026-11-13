@@ -77,6 +77,8 @@
     if (isReadonly(f)) { out.push('readonly'); }
     if (!m && typeOk(f, 'words') && (int(f, 'wmin') > 0 || int(f, 'wmax') > 0)) { out.push('words'); }
     if (typeOk(f, 'pattern') && partOk(ctx, 'pattern') && fieldPattern(f)) { out.push('pattern'); }
+    if (typeOk(f, 'password') && on(f, 'pw_confirm') && ctx && ctx.confirm !== undefined) { out.push('mismatch'); }
+    if (typeOk(f, 'password') && partOk(ctx, 'strength') && int(f, 'pw_strength_min') > 0) { out.push('strength'); }
     if (typeOk(f, 'domain') && partOk(ctx, 'domains') && (f.email_domain_mode === 'allow' || f.email_domain_mode === 'deny') && typeof f.email_domains === 'string' && f.email_domains.trim() !== '') { out.push('domain'); }
     if (!m && typeOk(f, 'length') && (int(f, 'milen') > 0 || int(f, 'mlen') > 0) && (out.length || hasMsg(f, 'minlen') || hasMsg(f, 'maxlen'))) { out.unshift('length'); }
     return out;
@@ -131,6 +133,11 @@
       case 'prefix':
       case 'suffix': return plain(v, 24);
       case 'message_place': return ['below', 'above', 'focus', 'tooltip'].indexOf(v) !== -1 ? v : 'below';
+      case 'pw_confirm':
+      case 'pw_meter':
+      case 'pw_toggle': return [1, '1', true, 'true'].indexOf(v) !== -1 ? '1' : '0';
+      case 'pw_strength_min': return (v !== null && v !== undefined && typeof v !== 'object' && /^\s*[0-9]+\s*$/.test(String(v))) ? String(Math.min(4, parseInt(v, 10))) : '0';
+      case 'pw_confirm_label': return plain(v, 100);
       case 'pattern_case': return [1, '1', true, 'true'].indexOf(v) !== -1 ? '1' : '0';
       case 'pattern_ascii': return [0, '0', false, 'false'].indexOf(v) !== -1 ? '0' : '1';
     }
@@ -506,6 +513,36 @@
   }
   // #endregion unique
 
+  // #region password
+  /** The 200 commonest passwords (twin of includes/data/common-passwords-efb.txt). */
+  var COMMON_PASSWORDS = ["123456", "password", "12345678", "qwerty", "123456789", "12345", "1234", "111111", "1234567", "dragon", "123123", "baseball", "abc123", "football", "monkey", "letmein", "696969", "shadow", "master", "666666", "qwertyuiop", "123321", "mustang", "1234567890", "michael", "654321", "superman", "1qaz2wsx", "7777777", "121212", "000000", "qazwsx", "123qwe", "killer", "trustno1", "jordan", "jennifer", "zxcvbnm", "asdfgh", "hunter", "buster", "soccer", "harley", "batman", "andrew", "tigger", "sunshine", "iloveyou", "2000", "charlie", "robert", "thomas", "hockey", "ranger", "daniel", "starwars", "klaster", "112233", "george", "computer", "michelle", "jessica", "pepper", "1111", "zxcvbn", "555555", "11111111", "131313", "freedom", "777777", "pass", "maggie", "159753", "aaaaaa", "ginger", "princess", "joshua", "cheese", "amanda", "summer", "love", "ashley", "nicole", "chelsea", "biteme", "matthew", "access", "yankees", "987654321", "dallas", "austin", "thunder", "taylor", "matrix", "mobilemail", "mom", "monitor", "monitoring", "montana", "moon", "moscow", "password1", "password123", "passw0rd", "p@ssw0rd", "p@ssword", "welcome", "welcome1", "welcome123", "admin", "admin123", "administrator", "login", "qwerty123", "qwerty1", "1q2w3e4r", "1q2w3e", "zaq12wsx", "abcd1234", "aa123456", "a123456", "123456a", "1234qwer", "qwer1234", "iloveyou1", "sunshine1", "princess1", "football1", "baseball1", "superman1", "letmein1", "trustno1!", "changeme", "secret", "secret123", "default", "guest", "root", "toor", "test", "test123", "testing", "123abc", "abc12345", "asdf1234", "asdfghjk", "asdfghjkl", "qwertyui", "12qwaszx", "1qazxsw2", "q1w2e3r4", "q1w2e3r4t5", "1q2w3e4r5t", "147258369", "123654789", "789456123", "11223344", "12341234", "88888888", "99999999", "00000000", "22222222", "33333333", "44444444", "66666666", "12121212", "87654321", "lovely", "loveme", "flower", "hello", "hello123", "hello1", "starwars1", "dragon1", "monkey1", "shadow1", "master1", "michael1", "jordan23", "liverpool", "arsenal", "chelsea1", "football123", "samsung", "apple", "iphone", "google", "facebook", "instagram", "twitter", "linkedin", "yahoo", "microsoft", "windows", "linux", "ubuntu", "internet", "whatever", "nothing"];
+  var COMMON_SET = null;
+  /** Strength 0..4, the same as Field_Rules::pw_score() (§9.5; tests/fixtures/pw-score-vectors.json). */
+  function pwScore(v, ctx) {
+    ctx = ctx || {};
+    v = String(v === null || v === undefined ? '' : v);
+    var n = countChars(v);
+    if (n < 8) { return 0; }
+    var low = v.toLowerCase();
+    if (!COMMON_SET) { COMMON_SET = {}; COMMON_PASSWORDS.forEach(function (w) { COMMON_SET[w] = true; }); }
+    if (Object.prototype.hasOwnProperty.call(COMMON_SET, low)) { return 0; }
+    var parts = (ctx.emails || []).slice();
+    if (ctx.formName !== undefined) { parts.push(ctx.formName); }
+    if (ctx.form_name !== undefined) { parts.push(ctx.form_name); }
+    for (var i = 0; i < parts.length; i++) {
+      var p = String(parts[i]).trim().toLowerCase();
+      if (Array.from(p).length >= 3 && low.indexOf(p) !== -1) { return 0; }
+    }
+    var d = asciiDigits(v);
+    var c = (/[a-z]/.test(d) ? 1 : 0) + (/[A-Z]/.test(d) ? 1 : 0) + (/[0-9]/.test(d) ? 1 : 0) + (/[^\p{L}\p{N}\s]/u.test(d) ? 1 : 0) + (/(?![A-Za-z])\p{L}/u.test(d) ? 1 : 0);
+    var s = 1;
+    if (c >= 2 || n >= 12) { s = 2; }
+    if ((n >= 10 && c >= 3) || (n >= 14 && c >= 2)) { s = 3; }
+    if ((n >= 12 && c >= 4) || (n >= 16 && c >= 3)) { s = 4; }
+    return s;
+  }
+  // #endregion password
+
   // #region check
   /**
    * The first failing rule of a value, in the server's order (§4.1), or null.
@@ -530,6 +567,8 @@
       if (wx > 0 && w > wx) { return { code: 'words', rule: 'words', key: 'tvMaxWords_', n: wx }; }
     }
     if (rules.indexOf('pattern') !== -1 && checkPattern(f, s) === false) { return { code: 'pattern', rule: 'pattern', key: 'tvPattern_' }; }
+    if (rules.indexOf('mismatch') !== -1 && String(ctx.confirm) !== String(v)) { return { code: 'mismatch', rule: 'mismatch', key: 'tvPwMismatch_' }; }
+    if (rules.indexOf('strength') !== -1 && pwScore(v, ctx) < int(f, 'pw_strength_min')) { return { code: 'strength', rule: 'strength', key: 'tvPwWeak_' }; }
     if (rules.indexOf('domain') !== -1) {
       var hit = matchDomain(f.email_domains, s);
       if (f.email_domain_mode === 'allow' && !hit) { return { code: 'domain', rule: 'domain', key: 'tvDomAllow_' }; }
@@ -544,7 +583,7 @@
     on: on, typeOk: typeOk, activeRules: activeRules, hasRules: hasRules, plain: plain, sanitizeKey: sanitizeKey,
     valueText: valueText, countChars: countChars, countWords: countWords, counter: counter, asciiDigits: asciiDigits, counterText: counterText, fmtNum: fmtNum, partOk: partOk,
     b64urlEncode: b64urlEncode, b64urlDecode: b64urlDecode, lintRegex: lintRegex, patternSubject: patternSubject, checkPattern: checkPattern, fieldPattern: fieldPattern, uniqueKey: uniqueKey,
-    isReadonly: isReadonly, asciiHost: asciiHost, domainsList: domainsList, matchDomain: matchDomain, mismatchMessage: mismatchMessage,
+    isReadonly: isReadonly, asciiHost: asciiHost, domainsList: domainsList, matchDomain: matchDomain, mismatchMessage: mismatchMessage, pwScore: pwScore, COMMON_PASSWORDS: COMMON_PASSWORDS,
     message: message, firstError: firstError
   };
 });

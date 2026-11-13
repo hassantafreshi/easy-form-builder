@@ -226,6 +226,14 @@ class Field_Rules {
 				return self::plain($v, 24);
 			case 'message_place':
 				return in_array($v, array('below', 'above', 'focus', 'tooltip'), true) ? $v : 'below';
+			case 'pw_confirm':
+			case 'pw_meter':
+			case 'pw_toggle':
+				return in_array($v, array(1, '1', true, 'true'), true) ? '1' : '0';
+			case 'pw_strength_min':
+				return is_scalar($v) && preg_match('/^\s*[0-9]+\s*$/', (string) $v) ? (string) min(4, (int) $v) : '0';
+			case 'pw_confirm_label':
+				return self::plain($v, 100);
 			case 'pattern_case':
 				return in_array($v, array(1, '1', true, 'true'), true) ? '1' : '0';
 			case 'pattern_ascii':
@@ -266,6 +274,8 @@ class Field_Rules {
 		if (!$masked && self::type_ok($f, 'words') && (self::int($f, 'wmin') > 0 || self::int($f, 'wmax') > 0)) $out[] = 'words';
 		if (self::type_ok($f, 'pattern') && self::plan_ok('pattern') && self::field_pattern($f) !== '') $out[] = 'pattern';
 		if (self::type_ok($f, 'domain') && self::plan_ok('domains') && isset($f['email_domain_mode'], $f['email_domains']) && in_array($f['email_domain_mode'], array('allow', 'deny'), true) && trim((string) $f['email_domains']) !== '') $out[] = 'domain';
+		if (self::type_ok($f, 'password') && self::on($f, 'pw_confirm')) $out[] = 'mismatch';
+		if (self::type_ok($f, 'password') && self::plan_ok('strength') && self::int($f, 'pw_strength_min') > 0) $out[] = 'strength';
 		if (self::is_unique($f)) $out[] = 'unique';
 		// Lengths: measured here when the field has rules or the owner's length messages (else the type branch does it).
 		if (!$masked && self::type_ok($f, 'length') && (self::int($f, 'milen') > 0 || self::int($f, 'mlen') > 0)
@@ -390,6 +400,18 @@ class Field_Rules {
 			$hit = self::match_domain((string) $f['email_domains'], $v);
 			if ($f['email_domain_mode'] === 'allow' && !$hit) return $fail('domain', self::msg($f, 'domain', 'tvDomAllow_', $lanText));
 			if ($f['email_domain_mode'] === 'deny' && $hit) return $fail('domain', self::msg($f, 'domain', 'tvDomDeny_', $lanText));
+		}
+		if (in_array('mismatch', $rules, true) || in_array('strength', $rules, true)) {
+			// The password as typed (sanitize_text_field() changes "<", "%41" and spaces), never stored or logged here.
+			$id = (string) $f['id_'];
+			$pw = isset($raw['f:' . $id]) && is_string($raw['f:' . $id]) ? $raw['f:' . $id] : $v;
+			if (in_array('mismatch', $rules, true)) {
+				$c = isset($request['password_confirms'][$id]) && is_string($request['password_confirms'][$id]) ? $request['password_confirms'][$id] : null;
+				if ($c === null || !hash_equals($pw, $c)) return $fail('mismatch', self::mismatch_message($f, self::default_msg('tvPwMismatch_', $f, $lanText)));
+			}
+			if (in_array('strength', $rules, true) && self::pw_score($pw, $ctx) < self::int($f, 'pw_strength_min')) {
+				return $fail('strength', self::msg($f, 'strength', 'tvPwWeak_', $lanText));
+			}
 		}
 		// unique: the last rule, server only (§4.1); the claim itself is taken when the entry is stored.
 		if (in_array('unique', $rules, true) && empty($ctx['no_db']) && class_exists('\\Emsfb\\Unique_Values')) {
@@ -779,6 +801,53 @@ class Field_Rules {
 	public static function mismatch_message($f, $default) {
 		$c = self::custom_msg($f, 'mismatch');
 		return $c !== null ? $c : $default;
+	}
+
+	/* ------------------------------------------------------------ password score (§9.5) */
+
+	/** The 200 commonest passwords (includes/data/common-passwords-efb.txt; twin COMMON_PASSWORDS in JS). */
+	public static function common_passwords() {
+		static $list = null;
+		if ($list !== null) return $list;
+		$list = array();
+		$file = __DIR__ . '/data/common-passwords-efb.txt';
+		if (is_readable($file)) {
+			foreach (file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $l) {
+				if ($l !== '' && $l[0] !== '#') $list[trim($l)] = true;
+			}
+		}
+		return $list;
+	}
+
+	/**
+	 * Strength 0..4 of a password, deterministic and the same in JS (EfbRules.pwScore): classes =
+	 * a-z, A-Z, digits (Persian / Arabic count), symbols, letters of other scripts. 0 = shorter than 8,
+	 * one of the 200 commonest, or equal to / containing the e-mail's local part or the form name
+	 * (3+ characters, ctx emails / form_name). 1 = 8+ and one class; 2 = two classes or 12+; 3 = 10+
+	 * and three classes or 14+ and two; 4 = 12+ and four classes or 16+ and three.
+	 */
+	public static function pw_score($v, $ctx = array()) {
+		$v = (string) $v;
+		if (!preg_match('//u', $v)) return 0;
+		$n = self::count_chars($v);
+		if ($n < 8) return 0;
+		$low = function_exists('mb_strtolower') ? mb_strtolower($v, 'UTF-8') : strtolower($v);
+		if (isset(self::common_passwords()[$low])) return 0;
+		$parts = array();
+		foreach (isset($ctx['emails']) ? (array) $ctx['emails'] : array() as $e) $parts[] = (string) $e;
+		if (isset($ctx['form_name'])) $parts[] = (string) $ctx['form_name'];
+		foreach ($parts as $p) {
+			$p = function_exists('mb_strtolower') ? mb_strtolower(trim($p), 'UTF-8') : strtolower(trim($p));
+			if (self::count_chars($p) >= 3 && strpos($low, $p) !== false) return 0;
+		}
+		$d = class_exists('\\Emsfb\\Masks') ? Masks::normalize_digits($v) : $v;
+		$c = (int) (bool) preg_match('/[a-z]/', $d) + (int) (bool) preg_match('/[A-Z]/', $d) + (int) (bool) preg_match('/[0-9]/', $d)
+			+ (int) (bool) preg_match('/[^\p{L}\p{N}\s]/u', $d) + (int) (bool) preg_match('/(?![A-Za-z])\p{L}/u', $d);
+		$s = 1;
+		if ($c >= 2 || $n >= 12) $s = 2;
+		if (($n >= 10 && $c >= 3) || ($n >= 14 && $c >= 2)) $s = 3;
+		if (($n >= 12 && $c >= 4) || ($n >= 16 && $c >= 3)) $s = 4;
+		return $s;
 	}
 
 	/* ------------------------------------------------------------ counting */

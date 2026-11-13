@@ -1271,6 +1271,8 @@ async function actionSendData_emsFormBuilder(form_id=0) {
         };
       }
     }
+    // F03-H: the second password boxes travel beside the answers, never as an answer (not stored, not in localStorage).
+    efb_rules_add_confirms_efb(data, form_id);
     /* PAY00: the field of a gateway add-on (payment framework) sends the form to
        payments/create: the server validates it, stores it as "pending payment" and starts the payment. */
     if (vj.type == "payment" && window.EFBPay && typeof window.EFBPay.isGateway === 'function') {
@@ -1488,9 +1490,9 @@ function efb_rules_ctx_efb(form_id, el) {
 }
 
 /** Whether the field has rules the browser checks (no EfbRules on the page: none). */
-function efb_rules_active_efb(ob, form_id) {
+function efb_rules_active_efb(ob, form_id, el) {
   if (typeof EfbRules === 'undefined' || !ob) return false;
-  return EfbRules.hasRules(ob, efb_rules_ctx_efb(form_id));
+  return EfbRules.hasRules(ob, efb_rules_ctx_efb(form_id, el));
 }
 
 /** Whether the field's length limits are checked by EfbRules (its own messages) instead of the legacy check. */
@@ -1530,8 +1532,22 @@ function efb_rules_clear_error_efb(el) {
  * The same order and the same texts as Field_Rules::check() (msg_<rule> of the owner, else the default).
  */
 function efb_rules_check_efb(el, ob, value, form_id) {
-  if (!efb_rules_active_efb(ob, form_id)) return true;
+  if (!efb_rules_active_efb(ob, form_id, el)) return true;
   const err = EfbRules.firstError(ob, value, efb_rules_ctx_efb(form_id, el));
+  const confirm = el && el.type !== undefined ? document.getElementById(`${el.id}confirm`) : null;
+  if (confirm) {
+    // H: a mismatch is told at the second box (its own message, aria-invalid), the first stays as it is.
+    const cm = document.getElementById(`${el.id}confirm-message`);
+    if (err && err.code === 'mismatch') {
+      efb_rules_clear_error_efb(el);
+      confirm.setAttribute('aria-invalid', 'true');
+      confirm.className = colorBorderChangerEfb(confirm.className, 'border-danger');
+      if (cm) { cm.setAttribute('dir', 'auto'); cm.textContent = EfbRules.message(ob, 'mismatch', 'tvPwMismatch_', efb_var.text).text; }
+      return false;
+    }
+    confirm.removeAttribute('aria-invalid');
+    if (cm) cm.textContent = '';
+  }
   if (!err) { efb_rules_clear_error_efb(el); return true; }
   const m = EfbRules.message(ob, err.rule, err.key, efb_var.text, err.n);
   efb_rules_show_error_efb(el, m.text);
@@ -1600,6 +1616,57 @@ if (typeof document !== 'undefined' && typeof window !== 'undefined' && document
       efb_rules_toggletip_efb(b, false);
       if (document.activeElement && (document.activeElement === b || (document.getElementById(b.getAttribute('aria-controls')) || {}).contains?.(document.activeElement))) b.focus();
     });
+  });
+}
+
+/* F03-H: password confirmation, strength meter and the show-password button. */
+function efb_rules_add_confirms_efb(data, form_id) {
+  const body = document.getElementById('body_efb_' + form_id) || document;
+  const boxes = body.querySelectorAll('input.efb-pw-confirm[data-for]');
+  if (!boxes.length || !data || typeof data !== 'object') return;
+  const out = {};
+  boxes.forEach((b) => { out[b.getAttribute('data-for')] = b.value; });
+  data.password_confirms = out;
+}
+function efb_rules_pw_meter_efb(el, form_id) {
+  const meter = document.getElementById(`${el.id}-meter`);
+  if (!meter || typeof EfbRules === 'undefined') return;
+  const ctx = efb_rules_ctx_efb(form_id, el);
+  const sc = el.value === '' ? -1 : EfbRules.pwScore(el.value, ctx);
+  const words = [['tvPwWeak', 'Weak'], ['tvPwWeak', 'Weak'], ['tvPwFair', 'Fair'], ['tvPwGood', 'Good'], ['tvPwStrong', 'Strong']];
+  const t = (k, en) => (typeof efb_var !== 'undefined' && efb_var.text && efb_var.text[k]) || en;
+  meter.setAttribute('data-score', String(sc));
+  const word = meter.querySelector('.efb-pw-word');
+  if (word) word.textContent = sc < 0 ? '' : t('tvPwStrength', 'Password strength') + ': ' + t(words[sc][0], words[sc][1]);
+}
+if (typeof document !== 'undefined' && typeof window !== 'undefined' && document.addEventListener && !window.efb_pw_bound_efb) {
+  window.efb_pw_bound_efb = true;
+  document.addEventListener('click', (e) => {
+    const b = e.target && e.target.closest ? e.target.closest('.efb-pw-toggle') : null;
+    if (!b) return;
+    e.preventDefault();
+    const input = document.getElementById(b.getAttribute('aria-controls'));
+    if (!input) return;
+    const s0 = input.selectionStart, s1 = input.selectionEnd;
+    const show = input.type === 'password';
+    input.type = show ? 'text' : 'password';
+    b.setAttribute('aria-pressed', show ? 'true' : 'false');
+    b.setAttribute('aria-label', show ? b.getAttribute('data-hide') : b.getAttribute('data-show'));
+    try { if (s0 !== null && s0 !== undefined) input.setSelectionRange(s0, s1); } catch (x) { /* some types refuse a selection */ }
+  });
+  document.addEventListener('input', (e) => {
+    const el = e.target;
+    if (!el || el.tagName !== 'INPUT') return;
+    if (el.type === 'password' || (el.type === 'text' && el.classList.contains('emsFormBuilder_v') && document.getElementById(`${el.id}-meter`))) {
+      if (document.getElementById(`${el.id}-meter`)) efb_rules_pw_meter_efb(el, el.dataset.formid || 0);
+    }
+  });
+  // The second box: checked again with the first when either changes (blur), never on every key.
+  document.addEventListener('change', (e) => {
+    const c = e.target;
+    if (!c || !c.classList || !c.classList.contains('efb-pw-confirm')) return;
+    const main = document.getElementById(`${c.getAttribute('data-for')}_`);
+    if (main && main.value !== '' && typeof handle_change_event_efb_v4 === 'function') handle_change_event_efb_v4(main, main.dataset.formid || 0);
   });
 }
 
@@ -4758,9 +4825,9 @@ async function fun_validation_efb_v4(form_id) {
       }
     }
     // F03: a field with rules is measured again on Next / Send (its change handler may not have run, e.g. a default value).
-    if (row > 1 && current_s_efb == valj_efb[row].step && efb_rules_active_efb(valj_efb[row], form_id)) {
-      const rulesEl = efb_get_by_id_in_form_efb(form_id, `${valj_efb[row].id_}_`);
-      if (rulesEl && typeof rulesEl.value === 'string' && rulesEl.value.trim() !== '') {
+    const rulesEl = row > 1 && current_s_efb == valj_efb[row].step ? efb_get_by_id_in_form_efb(form_id, `${valj_efb[row].id_}_`) : null;
+    if (rulesEl && efb_rules_active_efb(valj_efb[row], form_id, rulesEl)) {
+      if (typeof rulesEl.value === 'string' && rulesEl.value.trim() !== '') {
         const sbi = get_row_sendback_by_id_efb_v4(valj_efb[row].id_, form_id);
         const rulesVal = sbi !== -1 && sendBack_emsFormBuilder_pub[sbi] && typeof sendBack_emsFormBuilder_pub[sbi].value === 'string' && rulesEl.type !== 'password'
           ? sendBack_emsFormBuilder_pub[sbi].value : (rulesEl.tagName === 'TEXTAREA' ? sanitize_text_efb(rulesEl.value, true) : rulesEl.value);

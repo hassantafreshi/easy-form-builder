@@ -24,6 +24,7 @@ foreach ((array) $in as $c) {
 		case 'sanitize_key': $out[] = FR::sanitize_key($a[0], $a[1]); break;
 		case 'active_rules': $out[] = FR::active_rules($a[0]); break;
 		case 'count_chars': $out[] = FR::count_chars($a[0]); break;
+		case 'pw_score': $out[] = FR::pw_score($a[0], $a[1]); break;
 		case 'domains_list': $out[] = FR::domains_list($a[0]); break;
 		case 'unique_key': $out[] = \Emsfb\Unique_Values::key($a[0], $a[1]); break;
 		case 'first_error':

@@ -96,7 +96,7 @@
     if (R_.typeOk(r, 'pattern')) out.push(['pattern', 'tvPattern_']);
     if (R_.typeOk(r, 'domain')) out.push(['domain', 'tvDomAllow_']);
     if (R_.typeOk(r, 'unique')) out.push(['unique', 'tvUnique_']);
-    if (r.type === 'password') out.push(['mismatch', 'tvPwMismatch_']); // an e-mail field gets it with F02's "type it twice"
+    if (r.type === 'password') out.push(['mismatch', 'tvPwMismatch_'], ['strength', 'tvPwWeak_']); // an e-mail field gets mismatch with F02's "type it twice"
     return out;
   }
 
@@ -299,11 +299,25 @@
     if (typeof efbApiNoteUserEditEfb === 'function') { try { efbApiNoteUserEditEfb(); } catch (e) {} }
   }
 
+  /** H: password confirmation, strength (meter and minimum) and the show-password button. */
+  function passwordEls(r, idset) {
+    const R_ = R();
+    if (!R_ || !R_.typeOk(r, 'password')) return '';
+    const lv = [['0', T('tvPwNone', 'No minimum')], ['1', T('tvPwWeak', 'Weak')], ['2', T('tvPwFair', 'Fair')], ['3', T('tvPwGood', 'Good')], ['4', T('tvPwStrong', 'Strong')]];
+    return `<div class="efb mt-3 efb-fr-password" id="frPasswordBoxEl">
+      ${toggleEl(r, idset, 'pwConfirmEl', 'pw_confirm', T('tvPwConfirm', 'Ask to type the password twice'))}
+      ${textEl(r, idset, 'pwConfirmLabelEl', 'pw_confirm_label', T('tvPwConfirmLbl', 'Confirm password'), { max: 100, placeholder: T('tvPwConfirmLbl', 'Confirm password') })}
+      ${toggleEl(r, idset, 'pwMeterEl', 'pw_meter', T('tvPwMeter', 'Show password strength'))}
+      ${selEl(r, idset, 'pwStrengthMinEl', 'pw_strength_min', T('tvPwMin', 'Minimum strength'), lv, '0', { plan: 'strength' })}
+      ${toggleEl(r, idset, 'pwToggleEl', 'pw_toggle', T('tvPwToggle', 'Show-password button'))}
+    </div>`;
+  }
+
   /** Controls of the advanced part (#collapseAdvanced). */
   function efbFieldRulesAdvEls(indx, idset) {
     if (typeof valj_efb === 'undefined' || !valj_efb[indx]) return '';
     const r = valj_efb[indx];
-    return wordsEls(r, idset) + patternEls(r, idset) + domainEls(r, idset) + efbFieldRulesMsgEls(indx, idset);
+    return wordsEls(r, idset) + patternEls(r, idset) + domainEls(r, idset) + passwordEls(r, idset) + efbFieldRulesMsgEls(indx, idset);
   }
 
   /* ------------------------------------------------------------------ handler */

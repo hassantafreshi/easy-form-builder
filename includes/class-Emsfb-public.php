@@ -1318,7 +1318,8 @@ public function check_nonce_permission_efb($request) {
 			'partialConsent','partialNotice','popupClose',
 			/* F03 field rules: messages, counter, password strength and toggle, help button. */
 			'tvUnique_','tvMinLen_','tvMaxLen_','tvMinWords_','tvMaxWords_','tvPattern_','tvDomAllow_','tvDomDeny_','tvPwMismatch_','tvPwWeak_',
-			'tvCharsLeft','tvWordsLeft','tvCharsUsed','tvWordsUsed','tvLimitHint','tvLimitWordsHint'];
+			'tvCharsLeft','tvWordsLeft','tvCharsUsed','tvWordsUsed','tvLimitHint','tvLimitWordsHint',
+			'tvPwShow','tvPwHide','tvPwStrength','tvPwWeak','tvPwFair','tvPwGood','tvPwStrong','tvPwConfirmLbl','tvHelpBtn'];
 
 			/* Only now is a form or response box really printed. A form in a widget,
 			 * footer or popup keeps the page cacheable (EFBRuntime.prepare() fetches a
@@ -8164,6 +8165,10 @@ public function check_nonce_permission_efb($request) {
 				&& in_array($row['id_'], array('passwordRegisterEFB', 'passwordlogin'), true)
 				&& is_string($row['value'])) {
 				$passwords[$row['id_']] = $row['value'];
+			}
+			// F03: a password field's value as typed, for its confirmation and strength (Field_Rules::check).
+			if (is_array($row) && isset($row['id_'], $row['value'], $row['type']) && $row['type'] === 'password' && is_string($row['value']) && is_scalar($row['id_'])) {
+				$passwords['f:' . $row['id_']] = $row['value'];
 			}
 		}
 		return $passwords;

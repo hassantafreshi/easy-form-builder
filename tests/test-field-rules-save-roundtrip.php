@@ -152,6 +152,13 @@ roundtrip_keys($fn, array(
 	array('message_place', 'tooltip', 'tooltip'), array('message_place', 'above', 'above'), array('message_place', 'focus', 'focus'), array('message_place', 'side', 'below'),
 ));
 
+/* H: passwords. */
+roundtrip_keys($fn, array(
+	array('pw_confirm', '1', '1', array('type' => 'password')), array('pw_meter', true, '1'), array('pw_toggle', 'no', '0'),
+	array('pw_strength_min', '3', '3'), array('pw_strength_min', '7', '4'), array('pw_strength_min', '-2', '0'), array('pw_strength_min', '', '0'),
+	array('pw_confirm_label', 'Type it <i>again</i>', 'Type it again'), array('pw_confirm_label', str_repeat('ر', 120), str_repeat('ر', 100)),
+));
+
 /* An old form without the keys comes back with the same keys. */
 $old = form_with(array(fld('o1', array('milen' => '2', 'mlen' => '30', 'customRequiredMsg' => 'Please fill %s')), fld('o2', array('type' => 'textarea', 'value' => 'a@n#b'))));
 $back = save_and_read($fn, builder_payload($old));

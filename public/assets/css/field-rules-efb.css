@@ -27,3 +27,17 @@
 /* The help button sits above the input at the line's end (it comes after the input in the markup for wpautop). */
 .efb.ttEfb.show:has(> .efb-help-wrap) { display: flex !important; flex-direction: column; }
 .efb.ttEfb.show:has(> .efb-help-wrap) > .efb-help-wrap { order: -1; align-self: flex-end; margin-block-end: .25rem; }
+/* H: show-password button, strength meter (bar + word: colour is never the only sign), second box. */
+.efb.input-group.efb-pw-group > .efb-pw-toggle { min-inline-size: 44px; justify-content: center; cursor: pointer; background: #f6f7fb; border: 1px solid #ced4da; }
+.efb.input-group.efb-pw-group > .efb-pw-toggle[aria-pressed="true"] { background: #e8eafc; color: #202a8d; }
+.efb.input-group.efb-pw-group > .efb-pw-toggle:focus-visible { outline: 2px solid #3644d2; outline-offset: 1px; z-index: 3; }
+.efb.efb-pw-meter { margin-block-start: .35rem; }
+.efb.efb-pw-bar { block-size: 6px; border-radius: 3px; background: #e6e8f0; overflow: hidden; }
+.efb.efb-pw-fill { display: block; block-size: 100%; inline-size: 0; background: #b42318; transition: inline-size .2s; }
+.efb.efb-pw-meter[data-score="0"] .efb-pw-fill { inline-size: 10%; }
+.efb.efb-pw-meter[data-score="1"] .efb-pw-fill { inline-size: 25%; }
+.efb.efb-pw-meter[data-score="2"] .efb-pw-fill { inline-size: 50%; background: #b54708; }
+.efb.efb-pw-meter[data-score="3"] .efb-pw-fill { inline-size: 75%; background: #2e7d32; }
+.efb.efb-pw-meter[data-score="4"] .efb-pw-fill { inline-size: 100%; background: #1b5e20; }
+.efb.efb-pw-word { color: #3c4257; min-block-size: 1.2em; }
+.efb.efb-pw-confirm-msg:empty { display: none; }

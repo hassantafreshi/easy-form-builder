@@ -356,6 +356,30 @@ if ( ! defined( 'ABSPATH' ) ) {
 				if ($sfx !== '') $out['describedby'][] = $rndm . '_-sfx';
 			}
 		}
+		$t = function ($k, $en) use ($texts) { return isset($texts[$k]) && is_string($texts[$k]) && $texts[$k] !== '' ? $texts[$k] : $en; };
+		$pw_after = '';
+		if (\Emsfb\Field_Rules::type_ok($f, 'password')) {
+			$id = esc_attr($rndm);
+			// H: show-password button in a group with the input (aria-pressed; the label says what a press does).
+			if (\Emsfb\Field_Rules::on($f, 'pw_toggle')) {
+				$show = $t('tvPwShow', 'Show password');
+				$out['open'] = '<div class="efb input-group efb-affix efb-pw-group flex-nowrap">' . $out['open'];
+				$out['close'] = '<button type="button" class="efb btn efb-pw-toggle input-group-text" aria-pressed="false" aria-controls="' . $id . '_" aria-label="' . esc_attr($show) . '" data-show="' . esc_attr($show) . '" data-hide="' . esc_attr($t('tvPwHide', 'Hide password')) . '"><svg aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M8 11.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7m0-1.5a2 2 0 1 0 0-4 2 2 0 0 0 0 4"/></svg></button></div>' . $out['close'];
+			}
+			// H: the strength meter (a bar and a word; colour is never the only sign).
+			if (\Emsfb\Field_Rules::on($f, 'pw_meter')) {
+				$pw_after .= '<div class="efb efb-pw-meter" id="' . $id . '_-meter" data-min="' . (int) \Emsfb\Field_Rules::int($f, 'pw_strength_min') . '"><div class="efb efb-pw-bar" aria-hidden="true"><span class="efb efb-pw-fill"></span></div><div class="efb efb-pw-word fs-7" id="' . $id . '_-strength" aria-live="polite"></div></div>';
+				$out['describedby'][] = $rndm . '_-strength';
+			}
+			// H: the second box (never named, never part of the entry: it travels as password_confirms).
+			if (\Emsfb\Field_Rules::on($f, 'pw_confirm')) {
+				$lab = isset($f['pw_confirm_label']) && trim((string) $f['pw_confirm_label']) !== '' ? (string) $f['pw_confirm_label'] : $t('tvPwConfirmLbl', 'Confirm password');
+				$req = isset($f['required']) && in_array($f['required'], array(1, '1', true), true);
+				$pw_after .= '<div class="efb efb-pw-confirm-wrap mt-2"><label for="' . $id . '_confirm" class="efb form-label fs-6 mb-1">' . esc_html($lab) . '</label>'
+					. '<input type="password" id="' . $id . '_confirm" class="efb input-efb form-control px-2 mb-0 w-100 efb-pw-confirm ' . esc_attr(isset($f['el_border_color']) ? $f['el_border_color'] : '') . ' ' . esc_attr(isset($f['el_height']) ? $f['el_height'] : '') . '" data-for="' . $id . '" autocomplete="new-password" aria-describedby="' . $id . '_confirm-message"' . ($req ? ' required aria-required="true"' : '') . '>'
+					. '<div class="efb efb-pw-confirm-msg fs-7 text-danger" id="' . $id . '_confirm-message" role="alert"></div></div>';
+			}
+		}
 		$place = isset($f['message_place']) && in_array($f['message_place'], array('above', 'focus', 'tooltip'), true) && \Emsfb\Field_Rules::type_ok($f, 'help') && isset($f['message']) && trim((string) $f['message']) !== '' ? $f['message_place'] : 'below';
 		if ($place === 'above') {
 			// The description first; the tooltip and the input then get a block parent of their own, or
@@ -376,6 +400,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				$out['desc'] = '<div class="efb efb-help-wrap"><button type="button" class="efb efb-help-btn" aria-expanded="false" aria-controls="' . esc_attr($rndm) . '-desw" aria-label="' . esc_attr($label) . '"><span aria-hidden="true">?</span></button></div>' . $out['desc'];
 			}
 		}
+		$out['desc'] .= $pw_after; // H: meter and the second box after the description
 		return $out;
 	}
 
@@ -388,6 +413,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 	}
 
 	private function generateTextInput_efb($type, $classes, $vj, $rndm, $desc, $label, $ttip, $div_f_id, $placeholder, $lenAttributes, $aire_describedby, $disabled, $autocomplete, $form_id, $telPattern = '') {
+		// F03-H: a password that is being chosen (confirm, meter or minimum strength) is a new password.
+		if ($type === 'password' && class_exists('\\Emsfb\\Field_Rules')) {
+			$fv_efb = get_object_vars($vj);
+			if (\Emsfb\Field_Rules::on($fv_efb, 'pw_confirm') || \Emsfb\Field_Rules::on($fv_efb, 'pw_meter') || \Emsfb\Field_Rules::int($fv_efb, 'pw_strength_min') > 0) $autocomplete = 'new-password';
+		}
 		// F03: counter and limit hint, read-only, prefix / suffix, description place (nothing for a field without the keys).
 		$fr_efb = $this->generateRuleExtras_efb($vj, $rndm);
 		if ($fr_efb['after'] !== '') $desc = $fr_efb['after'] . $desc;

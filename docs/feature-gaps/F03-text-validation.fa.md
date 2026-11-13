@@ -1,4 +1,4 @@
-وضعیت: در حال پیاده‌سازی (A تا G انجام شد، ۲۰۲۶-۱۱-۱۳) · اولویت: P0 · تلاش: M · وابستگی: F01 (نرمال‌ساز و `Emsfb\Masks`)؛ هماهنگ با F02 (`email_confirm_mode`) و F16 (نمایش خطا و ARIA)
+وضعیت: پیاده‌سازی شد (A تا H، ۲۰۲۶-۱۱-۱۳؛ ترجمه‌ها طبق دستور مالک انجام نشده‌اند) · اولویت: P0 · تلاش: M · وابستگی: F01 (نرمال‌ساز و `Emsfb\Masks`)؛ هماهنگ با F02 (`email_confirm_mode`) و F16 (نمایش خطا و ARIA)
 
 # F03 — اعتبارسنجی فیلدهای متنی
 
@@ -406,12 +406,12 @@ if ($is_valid == 1 && is_array($validated_item) && class_exists('\Emsfb\Field_Ru
 - پذیرش: عدم تطابق در کلاینت و سرور رد می‌شود. رمز امتیاز ۱ با حداقل ۳ رد می‌شود. امتیاز JS و PHP روی ۱۰۰ بردار یکسان است. مقدار تأیید هیچ‌جا ذخیره یا لاگ نمی‌شود (grep در `content` و `error_log` تست). دکمهٔ نمایش caret را حفظ می‌کند و `aria-pressed` را به‌روز می‌کند.
 - تست‌ها: `node tests/test-field-rules-password.js`، `php tests/test-field-rules-password.php`، و Playwright (سناریوی رمز).
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint** (۲۰۲۶-۱۱-۱۳، انجام شد)
+- فایل‌های تغییرکرده: `Field_Rules` (`pw_score` و `common_passwords`، قواعد `mismatch` و `strength` روی رمز خام با `hash_equals`، caseهای `pw_*`)، `includes/data/common-passwords-efb.txt` (تازه، ۲۰۰ مورد)، `field-rules-efb.js` (`pwScore` و `COMMON_PASSWORDS` همزاد)، `class-Emsfb-public.php` (`raw_passwords_efb` مقدار تایپ‌شدهٔ هر ردیف رمز را با کلید `f:<id_>` نگه می‌دارد؛ عبارت‌های عمومی)، `class-Emsfb-formbuilder.php` (`autocomplete="new-password"`، جعبهٔ دوم با برچسب خودش و بدون `emsFormBuilder_v`، دکمهٔ نمایش با `aria-pressed`، نوار قدرت با واژه در `aria-live`)، `core-efb.js` (`password_confirms` کنار پاسخ‌ها در هر دو مسیر ارسال و `payments/create`، پیام عدم تطابق در جعبهٔ دوم، دکمهٔ نمایش با حفظ caret، نوار قدرت)، `field-rules-efb.css`، `field-rules-builder-efb.js` (کنترل‌های رمز؛ حداقل قدرت Free Plus).
+- تست‌ها: `node tests/test-field-rules-password.js` (۱۲۱: ۱۰۱ بردار مشترک `tests/fixtures/pw-score-vectors.json` در JS و PHP برابر، فهرست رایج یکسان)، `php tests/test-field-rules-password.php` (۱۱۵)، `test-field-rules-save-roundtrip.php` (۸۰)، e2e `f03h` (۱۱: مقدار دومی که فقط در درخواست بود پس از آن در فایل‌های پایگاه دادهٔ سایت و لاگ سرور پیدا نمی‌شود؛ fa_IR در ۳۷۵ پیکسل).
+- وضعیت ترجمه: انگلیسی (دستور مالک).
+- مورد باز: پرسش باز ۱ (ذخیرهٔ رمز در `emsfb_msg_` به‌صورت متن ساده): تغییر داده نشد؛ تصمیم مالک لازم است (پیشنهاد: برای فیلد دارای `pw_confirm`/`pw_meter` «ذخیره نکن» یا «فقط هش»). تأیید رمز در هر پلن رایگان است و حداقل قدرت Free Plus. مقدار دوم هرگز ردیف پاسخ نیست، پس در پیش‌نویس‌ها/پاسخ‌های نیمه‌کارهٔ F11 و localStorage هم نیست.
+- اقدام بعدی: مستندات AutoPilot و SitePilot، فهرست عبارت‌ها و e2e کامل.
 
 ## ۱۷. گسترش‌های فاز ۲ مرتبط
 

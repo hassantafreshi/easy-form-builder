@@ -36,6 +36,11 @@
  *        help button opens with Enter, closes with Escape (focus back), opens with Space, closes on a
  *        click outside; "while in focus" shows the text only on focus; the page has no stray <p>/<br>
  *        in the field markup; builder: prefix, suffix and place save and the canvas shows the group.
+ *  f03h  H: passwords: the meter says the strength in words, a weak password is refused under the
+ *        minimum, a different second password is told at the second box, the show-password button
+ *        (aria-pressed, label, caret kept), the request carries password_confirms beside the answers;
+ *        a second value sent only in a request is found nowhere on the site afterwards (database file,
+ *        server log); fa_IR at 375 px; builder: the password controls save.
  */
 'use strict';
 
@@ -590,5 +595,117 @@ module.exports = function (S) {
     const fid = Number(String((sj.data && (sj.data.value || sj.data.id)) || '').replace(/\D+/g, '')) || await admin.evaluate(() => Number(form_ID_emsFormBuilder));
     const tr = (((ctl('form', String(fid)) || {}).form_structer) || []).find((r) => r && r.id_ === t.id_) || {};
     R.check('f03g: Save stores prefix, suffix and message_place', tr.prefix === '$' && tr.suffix === 'USD' && tr.message_place === 'tooltip', { p: tr.prefix, s: tr.suffix, m: tr.message_place });
+  });
+
+  scenario('f03h', 'F03-H passwords: meter, minimum strength, confirmation at the second box, show button, never stored, fa_IR 375 px, builder', async ({ context, adminPage }) => {
+    plan3();
+    const F = form('F03 e2e password', [
+      { key: 'email', type: 'email', name: 'Email' },
+      { key: 'pw', type: 'password', name: 'Password', required: 1, pw_confirm: '1', pw_meter: '1', pw_toggle: '1', pw_strength_min: '3' },
+    ]);
+    const url = pageOf(F.form_id);
+    const g = await (await context({}, 'f03h')).newPage();
+    await g.goto(url, { waitUntil: 'load' });
+    await g.waitForSelector(byId(F.ids.pw + '_'), { timeout: 20000 });
+    await sleep(800);
+    await g.fill(byId(F.ids.email + '_'), 'ali.reza@example.test');
+    await g.press(byId(F.ids.email + '_'), 'Tab');
+    await g.click(byId(F.ids.pw + '_'));
+    await g.keyboard.type('abcdefgh');
+    const m1 = await g.evaluate((id) => ({ word: document.getElementById(id + '_-strength').textContent, score: document.getElementById(id + '_-meter').getAttribute('data-score') }), F.ids.pw);
+    R.check('f03h: the meter says the strength in words ("Password strength: Weak")', m1.word === 'Password strength: Weak' && m1.score === '1', m1);
+    await g.fill(byId(F.ids.pw + '_confirm'), 'abcdefgh');
+    await g.press(byId(F.ids.pw + '_'), 'Tab');
+    await sleep(400);
+    const s1 = await fieldState(g, F.ids.pw);
+    R.check('f03h: a weak password under the minimum (Good): "Please choose a stronger password."', s1.text === 'Please choose a stronger password.' && s1.invalid === 'true', s1);
+    await g.fill(byId(F.ids.pw + '_'), 'Tr0ub4dor&3x');
+    await g.press(byId(F.ids.pw + '_'), 'Tab');
+    await sleep(400);
+    const s2 = await g.evaluate((id) => ({ msg: document.getElementById(id + '_confirm-message').textContent, inv: document.getElementById(id + '_confirm').getAttribute('aria-invalid'), word: document.getElementById(id + '_-strength').textContent }), F.ids.pw);
+    R.check('f03h: a different second password: "The two passwords do not match." at the second box', s2.msg === 'The two passwords do not match.' && s2.inv === 'true' && /Good|Strong/.test(s2.word), s2);
+    // Show-password button keeps the caret.
+    await g.focus(byId(F.ids.pw + '_'));
+    await g.evaluate((id) => document.getElementById(id + '_').setSelectionRange(4, 4), F.ids.pw);
+    await g.click(`[aria-controls="${F.ids.pw}_"].efb-pw-toggle`);
+    const tg = await g.evaluate((id) => { const i = document.getElementById(id + '_'); const b = document.querySelector('[aria-controls="' + id + '_"].efb-pw-toggle'); return { type: i.type, pressed: b.getAttribute('aria-pressed'), label: b.getAttribute('aria-label'), caret: i.selectionStart }; }, F.ids.pw);
+    R.check('f03h: show-password: text, aria-pressed true, label "Hide password", caret kept', tg.type === 'text' && tg.pressed === 'true' && tg.label === 'Hide password' && tg.caret === 4, tg);
+    await g.click(`[aria-controls="${F.ids.pw}_"].efb-pw-toggle`);
+    await g.fill(byId(F.ids.pw + '_confirm'), 'Tr0ub4dor&3x');
+    await g.dispatchEvent(byId(F.ids.pw + '_confirm'), 'change');
+    await sleep(500);
+    // The request: password_confirms beside the answers; then a second value only the request carries.
+    const marker = 'NeverStore-' + Date.now() + '-Zq';
+    let sent = null;
+    await g.route('**/*', async (route) => {
+      const req = route.request();
+      if (/forms\/message\/add|forms%2Fmessage%2Fadd/.test(req.url()) && req.method() === 'POST') {
+        const b = JSON.parse(req.postData());
+        sent = { confirms: Object.assign({}, b.password_confirms), inRows: (b.value || '').indexOf('confirm') !== -1 };
+        b.password_confirms[F.ids.pw] = marker;
+        return route.continue({ postData: JSON.stringify(b) });
+      }
+      return route.continue();
+    });
+    const ans = await send(g);
+    await g.unroute('**/*');
+    R.check('f03h: the request carries password_confirms {id: value} beside the answers (not as a row)', sent && sent.confirms && sent.confirms[F.ids.pw] === 'Tr0ub4dor&3x' && !sent.inRows, sent);
+    R.check('f03h: the server refuses a second value that differs (efb_field_mismatch), nothing stored', ans && ans.code === 'efb_field_mismatch' && (ctl('entries', String(F.form_id)) || []).length === 0, ans);
+    const fs = require('fs');
+    const pathm = require('path');
+    const site = process.env.EFB_E2E_SITE_DIR || '';
+    const dbDir = pathm.join(site, 'wp-content', 'database');
+    let found = [];
+    try {
+      let scanned = 0;
+      const walk = (dir) => { for (const fn of fs.readdirSync(dir)) { const fp = pathm.join(dir, fn); if (fs.statSync(fp).isDirectory()) { walk(fp); continue; } scanned++; if (fs.readFileSync(fp).includes(marker)) found.push(fn); } };
+      walk(dbDir); // the SQLite file (and its -wal / -shm) of the site
+      if (scanned < 2) found.push('no database file scanned');
+      const log = pathm.join(site, '..', 'server.log');
+      if (fs.existsSync(log) && fs.readFileSync(log).includes(marker)) found.push('server.log');
+    } catch (e) { found.push('read error ' + e.message); }
+    R.check('f03h: the second value is nowhere on the site afterwards (database files, server log)', site !== '' && found.length === 0, found);
+    // A good submission.
+    const g3 = await (await context({}, 'f03h-ok')).newPage();
+    await g3.goto(url, { waitUntil: 'load' });
+    await g3.waitForSelector(byId(F.ids.pw + '_'), { timeout: 20000 });
+    await sleep(800);
+    await g3.fill(byId(F.ids.pw + '_'), 'Tr0ub4dor&3x');
+    await g3.fill(byId(F.ids.pw + '_confirm'), 'Tr0ub4dor&3x');
+    await g3.press(byId(F.ids.pw + '_confirm'), 'Tab');
+    await sleep(500);
+    const ok = await send(g3);
+    R.check('f03h: matching strong passwords are accepted', ok && ok.success === true, ok);
+
+    ctl('locale', 'fa_IR');
+    try {
+      const m = await (await context({ viewport: { width: 375, height: 760 } }, 'f03h-fa')).newPage();
+      await m.goto(url, { waitUntil: 'load' });
+      await m.waitForSelector(byId(F.ids.pw + '_'), { timeout: 20000 });
+      await sleep(800);
+      await m.click(byId(F.ids.pw + '_'));
+      await m.keyboard.type('Tr0ub4dor&3x');
+      const fa = await m.evaluate((id) => ({ dir: getComputedStyle(document.getElementById(id + '-f')).direction, scroll: document.documentElement.scrollWidth <= window.innerWidth + 1, btn: document.querySelector('.efb-pw-toggle').getBoundingClientRect().width >= 44 }), F.ids.pw);
+      R.check('f03h: fa_IR at 375 px: right to left, no horizontal scroll, show button at least 44 px wide', fa.dir === 'rtl' && fa.scroll && fa.btn, fa);
+      await m.screenshot({ path: SHOT('f03h-password-fa-375') });
+    } finally { ctl('locale', ''); }
+
+    const admin = await adminPage();
+    await openNewForm(admin);
+    const t = await addTile(admin, 'password');
+    await admin.click(`#dropZoneEFB [data-id="${t.dataId}"] label, #dropZoneEFB [data-id="${t.dataId}"]`, { position: { x: 20, y: 10 } });
+    await admin.waitForSelector('#pwConfirmEl', { timeout: 10000 });
+    await admin.evaluate(() => { ['pwConfirmEl', 'pwMeterEl', 'pwToggleEl'].forEach((i) => document.getElementById(i).click()); });
+    await admin.selectOption('#pwStrengthMinEl', '2'); await admin.dispatchEvent('#pwStrengthMinEl', 'change');
+    await sleep(300);
+    await closePanel(admin);
+    const saved = admin.waitForResponse((x) => /admin-ajax\.php/.test(x.url()) && x.request().method() === 'POST' && /add_form_Emsfb|update_form_Emsfb/.test(x.request().postData() || ''), { timeout: 20000 }).catch(() => null);
+    await admin.evaluate(() => saveFormEfb(1));
+    const sres = await saved;
+    const sj = sres ? await sres.json() : {};
+    await sleep(800);
+    const fid = Number(String((sj.data && (sj.data.value || sj.data.id)) || '').replace(/\D+/g, '')) || await admin.evaluate(() => Number(form_ID_emsFormBuilder));
+    const tr = (((ctl('form', String(fid)) || {}).form_structer) || []).find((r) => r && r.id_ === t.id_) || {};
+    R.check('f03h: builder: confirm, meter, show button and minimum Fair save', tr.pw_confirm === '1' && tr.pw_meter === '1' && tr.pw_toggle === '1' && tr.pw_strength_min === '2', { c: tr.pw_confirm, m: tr.pw_meter, t: tr.pw_toggle, s: tr.pw_strength_min });
   });
 };
