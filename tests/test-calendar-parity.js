@@ -72,12 +72,12 @@ batch('3 typed text', parse, (c) => { const r = C.engines.get(c.args[1]).parse(c
 
 /* 4 */
 const tz = [];
-for (const z of ['Asia/Tehran', 'UTC', 'America/Los_Angeles', 'Asia/Riyadh', 'Pacific/Kiritimati', 'Pacific/Pago_Pago', 'Europe/London']) {
+for (const z of ['Asia/Tehran', 'UTC', 'America/Los_Angeles', 'Asia/Riyadh', 'Pacific/Kiritimati', 'Pacific/Pago_Pago', 'Europe/London', '+03:30', '-05:00']) {
   for (const inst of ['2026-03-20T21:00:00Z', '2026-03-20T20:29:59Z', '2026-03-20T20:30:00Z', '2025-12-31T23:59:59Z', '2026-06-30T10:00:00Z']) tz.push({ fn: 'today', args: [z, inst] });
 }
 batch('4 today in zones', tz, (c) => C.today(c.args[0], Date.parse(c.args[1])));
 const wall = [];
-for (const z of ['America/New_York', 'Europe/Berlin', 'Asia/Tehran', 'Australia/Lord_Howe', 'America/Santiago']) {
+for (const z of ['America/New_York', 'Europe/Berlin', 'Asia/Tehran', 'Australia/Lord_Howe', 'America/Santiago', '+05:45']) {
   for (const d of ['2026-03-08', '2026-03-29', '2026-11-01', '2026-10-25', '2026-04-05', '2026-09-06', '2026-10-04']) for (const h of ['00:30', '01:30', '02:00', '02:30', '03:00', '12:00', '23:30']) wall.push({ fn: 'wall', args: [d, h, z] });
 }
 batch('4 wall time -> UTC (DST)', wall, (c) => C._.wallToUtc(c.args[0], c.args[1], c.args[2]));

@@ -580,6 +580,8 @@ window.addEventListener('pageshow', function (e) {
 async function createStepsOfPublic() {
  // Not localized on a page that shows only the members-only lock card: no form to set up.
  if (typeof ajax_object_efm === 'undefined') return;
+ // F06: advanced date fields that arrived after the picker's first pass (a gate swap, a popup).
+ if (window.EFBCalendar && typeof EFBCalendar.mount === 'function') { EFBCalendar.mount(); setTimeout(efb_advdate_sync_efb, 0); }
  state_efb = "run";
  efb_var = ajax_object_efm;
  setting_emsFormBuilder = typeof ajax_object_efm.form_setting == "string" ? efbParseJson(ajax_object_efm.form_setting) : ajax_object_efm.form_setting;
@@ -2097,6 +2099,16 @@ async function efb_apply_saved_rows_efb(fid, rows) {
       // image choices, ratings, phone (intl-tel-input) and the like draw their
       // own UI: checking their hidden input put an answer in the entry that
       // the visitor could not see.
+      // F06: an advanced date goes back through the picker, so today's rules decide again (a past date is refused).
+      if (String(row.type || '') === 'advdate') {
+        if (!window.EFBCalendar || typeof EFBCalendar.whenReady !== 'function') { skipped.push(row.id_); continue; }
+        try {
+          const cal = await EFBCalendar.whenReady(row.id_, fid);
+          const r = await cal.setValue(row.cal ? { iso: String(row.value || ''), cal: row.cal } : String(row.value || ''), { source: 'restore' });
+          if (!r.ok) skipped.push(row.id_);
+        } catch (e) { skipped.push(row.id_); }
+        continue;
+      }
       if (EFB_RESTORABLE_FIELD_TYPES.indexOf(String(row.type || '')) === -1) { skipped.push(row.id_); continue; }
       const el = document.getElementById(row.id_ob);
       if (!el || el.disabled || el.readOnly || el.classList.contains('intlPhone')) { skipped.push(row.id_); continue; }
@@ -4747,6 +4759,57 @@ function efb_reevaluate_logic_after_change_efb(form_id, el) {
   }
 }
 
+/* F06: the advanced date field (advdate). The picker (public/assets/js/calendar) owns the field and
+ * fires efb:date-change on its hidden canonical input after every committed change; this keeps the
+ * answer row (sendBack_emsFormBuilder_pub), the step state and Conditional Logic in step with it.
+ * The server checks the value again (includes/class-Emsfb-calendar.php). */
+function efb_advdate_change_efb(e) {
+  const d = e && e.detail ? e.detail : null;
+  const input = e ? e.target : null;
+  if (!d || !input || input.dataset.type !== 'advdate' || typeof get_structure_by_form_id_efb !== 'function') return;
+  const form_id = d.formId || input.dataset.formid || 0;
+  const id = d.fieldId;
+  let structure = null;
+  try { structure = get_structure_by_form_id_efb(form_id); } catch (x) { structure = null; }
+  const ob = Array.isArray(structure) ? structure.find(x => x && x.id_ === id) : null;
+  if (!ob) return;
+  const visible = document.getElementById(id + '_');
+  const i = get_row_sendback_by_id_efb_v4(id, form_id);
+  if (!d.value) {
+    if (i !== -1) sendBack_emsFormBuilder_pub.splice(i, 1);
+    sendback_state_handler_efb_v4(id, Number(ob.required) !== 1 && !(visible && String(visible.value || '').trim() !== ''), 0, form_id);
+  } else {
+    const f = window.EFBCalendar ? EFBCalendar.get(id, form_id) : null;
+    const row = { id_: id, name: ob.name, id_ob: id + '_', amount: ob.amount, type: 'advdate', value: input.value, cal: d.value.cal, session: sessionPub_emsFormBuilder, form_id: form_id };
+    try { row.tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (x) { /* old browser */ }
+    if (f && f.cfg && f.cfg.locale) row.loc = f.cfg.locale;
+    fun_sendBack_emsFormBuilder(row);
+    sendback_state_handler_efb_v4(id, true, 0, form_id);
+    if (visible) visible.className = colorBorderChangerEfb(visible.className, 'border-success');
+  }
+  try { localStorage.setItem('sendback', efb_sendback_for_storage_efb(sendBack_emsFormBuilder_pub)); } catch (x) { /* private mode */ }
+  updateStepButtonState_efb(form_id);
+  efb_reevaluate_logic_after_change_efb(form_id, visible || input);
+}
+document.addEventListener('efb:date-change', efb_advdate_change_efb);
+/* F06: rows of advanced dates that got their value (a default, a restored page) before this script was ready. */
+function efb_advdate_sync_efb() {
+  if (!window.EFBCalendar || typeof EFBCalendar.all !== 'function') return;
+  EFBCalendar.all().forEach(function (f) {
+    Promise.resolve(f.ready).then(function () {
+      if (!f.value || !f.input || get_row_sendback_by_id_efb_v4(f.fieldId, f.formId) !== -1) return;
+      efb_advdate_change_efb({ target: f.input, detail: { fieldId: f.fieldId, formId: f.formId, value: f.getValue(), source: 'sync' } });
+    });
+  });
+}
+/* F06: a typed date the picker refused (wrong format, a closed day) has no answer row: Next / Send stop at it. */
+function efb_advdate_typed_invalid_efb(row, form_id) {
+  if (!row || row.type !== 'advdate') return false;
+  const el = efb_get_by_id_in_form_efb(form_id, `${row.id_}_`);
+  if (!el || String(el.value || '').trim() === '') return false;
+  return get_row_sendback_by_id_efb_v4(row.id_, form_id) === -1;
+}
+
 async function fun_validation_efb_v4(form_id) {
   var body_efb_v = document.getElementById('body_efb_' + form_id);
   if (body_efb_v) {
@@ -4830,6 +4893,11 @@ async function fun_validation_efb_v4(form_id) {
     /* An email field holding text that is not an address. valid_email_emsFormBuilder()
      * already dropped the value, so an optional field used to submit without it,
      * silently, and a required one said "required" instead of what is wrong. */
+    // F06: an advanced date typed but refused keeps its own message at the field.
+    if (row > 1 && current_s_efb == valj_efb[row].step && efb_advdate_typed_invalid_efb(valj_efb[row], form_id)) {
+      if (state == true) { state = false; idi = valj_efb[row].id_; name_field = valj_efb[row].name; }
+      continue;
+    }
     const masked_row_efb = row > 1 && typeof valj_efb[row].mask_preset === 'string' && valj_efb[row].mask_preset !== '';
     if (row > 1 && (masked_row_efb || ['email', 'tel', 'url', 'number'].includes(valj_efb[row].type)) && current_s_efb == valj_efb[row].step) {
       // The same holds for phone, URL, number and masked (F01) fields: their change handlers drop an invalid value too.

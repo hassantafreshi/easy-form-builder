@@ -133,8 +133,10 @@
     this.time = '';
     this.bind();
     var initial = this.input && this.input.value ? this.input.value : (cfgRaw.initial || '');
+    var rel = /^today([+-]\d{1,4})?$/.exec(initial);
+    if (rel) { initial = U.addDays(R.resolve(this.cfg, this.ctx()).today, rel[1] ? parseInt(rel[1], 10) : 0); }
     var ready = (this.cfg.holiday_sets.length ? loadSets(this.cfg.holiday_sets) : Promise.resolve()).then(function () {
-      if (initial) { return self.setValue(initial, { source: 'api', silent: !!(self.input && self.input.value === initial) }); }
+      if (initial) { return self.setValue(initial, { source: 'default' }); }
       self.render();
       return null;
     });
@@ -237,7 +239,7 @@
       if (canon.value === '' && !canon.error) { self.clear({ silent: opts.silent, source: opts.source }); return { ok: true, value: null }; }
       var res = self.result(canon);
       if (!res.ok) {
-        if (opts.source === 'typed' || opts.source === 'picker') { self.showError(res.errors[0].message); }
+        if (opts.source === 'typed' || opts.source === 'picker' || opts.source === 'restore') { self.showError(res.errors[0].message); }
         self.emit('invalid', { errors: res.errors, source: opts.source || 'api' });
         return { ok: false, errors: res.errors };
       }

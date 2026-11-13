@@ -244,6 +244,36 @@ switch ( $efb_e2e_cmd ) {
 		efb_e2e_out( array( 'copied' => $ok, 'changed' => ! $same, 'path' => $dst ) );
 		break;
 
+	case 'f06-mu':
+		// Copy tests/e2e-wp/mu-plugins/efb-e2e-f06.php into the site's mu-plugins (F06 tests).
+		$dst = WPMU_PLUGIN_DIR . '/efb-e2e-f06.php';
+		if ( ! is_dir( WPMU_PLUGIN_DIR ) ) wp_mkdir_p( WPMU_PLUGIN_DIR );
+		$src = dirname( __FILE__ ) . '/mu-plugins/efb-e2e-f06.php';
+		$same = is_readable( $dst ) && md5_file( $dst ) === md5_file( $src );
+		$ok = $same || copy( $src, $dst );
+		if ( ! $same ) sleep( 3 );
+		efb_e2e_out( array( 'copied' => $ok, 'changed' => ! $same, 'path' => $dst ) );
+		break;
+
+	case 'f06-reset':
+		// F06: plan back to the site's own, no full dates, no bookings, an empty hook log.
+		foreach ( array( 'efb_e2e_f06_plan', 'efb_e2e_f06_full', 'efb_e2e_f06_booking', 'efb_e2e_f06_taken', 'efb_e2e_f06_log' ) as $o ) delete_option( $o );
+		efb_e2e_out( array( 'reset' => true ) );
+		break;
+
+	case 'f06-today':
+		efb_e2e_out( array( 'today' => function_exists( 'efb_calendar_today' ) ? efb_calendar_today() : '', 'tz' => class_exists( '\Emsfb\Calendar' ) ? \Emsfb\Calendar::site_tz() : '' ) );
+		break;
+
+	case 'f06-set':
+		// F06: f06-set <plan|full|booking|taken> <value>; full / taken take a comma list of ISO dates.
+		$k = isset( $efb_e2e_rest[0] ) ? $efb_e2e_rest[0] : '';
+		$v = isset( $efb_e2e_rest[1] ) ? $efb_e2e_rest[1] : '';
+		if ( in_array( $k, array( 'full', 'taken' ), true ) ) update_option( 'efb_e2e_f06_' . $k, array_values( array_filter( explode( ',', $v ) ) ), false );
+		elseif ( in_array( $k, array( 'plan', 'booking' ), true ) ) update_option( 'efb_e2e_f06_' . $k, $v, false );
+		efb_e2e_out( array( $k => get_option( 'efb_e2e_f06_' . $k ), 'taken' => get_option( 'efb_e2e_f06_taken', array() ), 'log' => get_option( 'efb_e2e_f06_log', array() ) ) );
+		break;
+
 	case 'setting':
 		$s = get_setting_Emsfb( 'decoded' );
 		$k = isset( $efb_e2e_rest[0] ) ? $efb_e2e_rest[0] : '';

@@ -57,6 +57,11 @@ class _Public {
 	private $verification_claims = array();
 	/* F02: one-time code assets on this page (verify-efb.js). */
 	private $verify_page_efb = false;
+	/* F06: advdate context of one submission, its refusal code and the rows the commit filters see. */
+	private $advdate_ctx_efb = array();
+	private $advdate_code_efb = '';
+	private $advdate_rows_efb = array();
+	private $advdate_committed_efb = false;
 	/** PAY00: the instance (webhooks, cron and the return URL run actions through it). */
 	public static $instance_efb = null;
 
@@ -1327,7 +1332,9 @@ public function check_nonce_permission_efb($request) {
 			/* F02 one-time codes (Verification::public_keys()), and 'verify', the code box's placeholder. */
 			'vrfSend','vrfSending','vrfSentSms','vrfSentEmail','vrfCodeLabel','vrfVerify','vrfVerified','vrfResendIn','vrfResend','vrfEdit',
 			'vrfWrong','vrfExpired','vrfLocked','vrfCountry','vrfLimit','vrfFailed','vrfRequired','vrfUnavailable','vrfEmailRetype','vrfEmailMismatch',
-			'vrfDestination','vrfBlocked','vrfRefresh','vrfNoCode','vrfNoCodeTips','vrfCodeSentA11y','verify'];
+			'vrfDestination','vrfBlocked','vrfRefresh','vrfNoCode','vrfNoCodeTips','vrfCodeSentA11y','verify',
+			/* F06 advanced date field: picker words and its error sentences (efb-calendar-ui.js, EFBCalendar.rules.message). */
+			'cal_choose_date','cal_choose_range','cal_today','cal_clear','cal_ok','cal_prev_month','cal_next_month','cal_prev_year','cal_next_year','cal_month_year_view','cal_from','cal_to','cal_nights_n','cal_days_n','cal_time','cal_selected_dates','cal_remove_date','cal_format_hint','cal_closed','cal_holiday','cal_full','cal_remaining_n','cal_tz_note','cal_approx_note','cal_switch_label','cal_add_date','cal_year','cal_selected','cal_range_sum','cal_dialog','cal_back','cal_err_invalid_format','cal_err_invalid_date','cal_err_calendar_not_allowed','cal_err_before_min','cal_err_after_max','cal_err_weekday_disabled','cal_err_date_disabled','cal_err_not_enabled','cal_err_holiday','cal_err_unavailable','cal_err_full','cal_err_range_order','cal_err_range_too_short','cal_err_range_too_long','cal_err_range_contains_disabled','cal_err_too_many_dates','cal_err_time_required','cal_err_time_out_of_range','cal_err_time_step','cal_err_time_closed_weekday','cal_err_age_too_young','cal_err_age_too_old','cal_err_depends_on_empty','cal_err_required'];
 
 			/* Only now is a form or response box really printed. A form in a widget,
 			 * footer or popup keeps the page cacheable (EFBRuntime.prepare() fetches a
@@ -2412,6 +2419,10 @@ public function check_nonce_permission_efb($request) {
 			$core_deps[] = 'efb-verify-js';
 			$this->verify_page_efb = true;
 		}
+		// F06: the advanced date field's engines and picker, only on pages with one (and only the calendars it can show).
+		if (class_exists('\\Emsfb\\Calendar') && \Emsfb\Calendar::enqueue_public($form_structure_json)) {
+			$core_deps[] = 'efb-cal-ui';
+		}
 		// A6: a mobile field needs intlTelInput before its init runs; declare it as a
 		// dependency so script optimisers keep the order (the renderer registers the
 		// same handle later, which is then a no-op).
@@ -2613,7 +2624,9 @@ public function check_nonce_permission_efb($request) {
 			/* F03 field rules (Field_Rules::message_keys()). */
 			'tvUnique_', 'tvMinLen_', 'tvMaxLen_', 'tvMinWords_', 'tvMaxWords_', 'tvPattern_', 'tvDomAllow_', 'tvDomDeny_', 'tvPwMismatch_', 'tvPwWeak_',
 			/* F02 one-time codes (Verification::server_keys()). */
-			'vrfExpired', 'vrfRequired', 'vrfEmailMismatch', 'vrfUnavailable', 'vrfRefresh'
+			'vrfExpired', 'vrfRequired', 'vrfEmailMismatch', 'vrfUnavailable', 'vrfRefresh',
+			/* F06 advanced date field (Calendar::message()). */
+			'cal_err_invalid_format', 'cal_err_invalid_date', 'cal_err_calendar_not_allowed', 'cal_err_before_min', 'cal_err_after_max', 'cal_err_weekday_disabled', 'cal_err_date_disabled', 'cal_err_not_enabled', 'cal_err_holiday', 'cal_err_unavailable', 'cal_err_full', 'cal_err_range_order', 'cal_err_range_too_short', 'cal_err_range_too_long', 'cal_err_range_contains_disabled', 'cal_err_too_many_dates', 'cal_err_time_required', 'cal_err_time_out_of_range', 'cal_err_time_step', 'cal_err_time_closed_weekday', 'cal_err_age_too_young', 'cal_err_age_too_old', 'cal_err_depends_on_empty', 'cal_err_required', 'cal_nights_n', 'cal_days_n'
 		];
 		$efbFunction = get_efbFunction();
 
@@ -2999,6 +3012,9 @@ public function check_nonce_permission_efb($request) {
 				$currency = '';
 				if(isset($form_fields_array[0]['currency']) && strlen($form_fields_array[0]['currency'])>1) $currency = $form_fields_array[0]['currency'];
 
+				// F06: the context of the advdate fields of this submission (other fields' values for
+				// field limits, fields hidden by Conditional Logic, the request's calendar and zone).
+				$this->advdate_prepare_efb($form_fields_array, $submitted_values, isset($_ignored_set) ? $_ignored_set : array());
 				foreach ($form_fields_array as $key => $f) {
 					$validated_item = null;
 					$still_processing = true;
@@ -3611,6 +3627,18 @@ public function check_nonce_permission_efb($request) {
 									}
 									$still_processing = false;
 									break;
+								case 'advdate':
+									// F06: the server is the judge of every rule (today in the field's zone), and
+									// rebuilds cal / local / disp / tz / mode / v from the canonical value.
+									$adv_efb = $this->advdate_check_efb($f, $item);
+									$is_valid = $adv_efb['ok'] ? 1 : 0;
+									$validated_item = $adv_efb['row'];
+									if (!$adv_efb['ok']) {
+										$error_message = $adv_efb['m'];
+										$error_field_id = isset($f['id_']) ? $f['id_'] : '';
+									}
+									$still_processing = false;
+									break;
 								case 'pdate':
 								case 'ardate':
 									// A typed Jalali/Hijri date was stored as any text (free
@@ -3781,6 +3809,8 @@ public function check_nonce_permission_efb($request) {
 					$response = ['success' => false, 'm' => $error_message, 'field_id' => $error_field_id];
 					// F03: the stable code of the field rule that refused it (SitePilot contract).
 					if ($this->field_rules_code_efb !== '') $response['code'] = 'efb_field_' . $this->field_rules_code_efb;
+					// F06: the stable code of a date rule (calendar-engine-contract §4.3), for assistants.
+					if ($this->advdate_code_efb !== '' && $error_field_id !== '') $response['code'] = 'efb_date_' . $this->advdate_code_efb;
 					wp_send_json_success($response, 200);
 				}
 				// Verification gate: every field that requires a one-time code must carry a valid token
@@ -5195,6 +5225,7 @@ public function check_nonce_permission_efb($request) {
 		if (\Emsfb\Verification::consume($claims) === count($claims)) return;
 		$this->verification_claims = array();
 		\Emsfb\Form_Runtime::abort($this->operation_key);
+		$this->advdate_commit_failed_efb(); // F06
 		if (!empty($this->unique_claimed_efb) && class_exists('\\Emsfb\\Unique_Values')) { \Emsfb\Unique_Values::drop_claims(0, $this->unique_claimed_efb); $this->unique_claimed_efb = array(); }
 		if (!empty($this->gate_reserved) && class_exists('\\Emsfb\\Form_Gate')) { \Emsfb\Form_Gate::release($this->gate_claims); $this->gate_reserved = false; $this->gate_claims = array(); }
 		$this->efb_trace('submit.blocked', array('form_id' => intval($this->id), 'gate' => 'verification_consume'));
@@ -5210,10 +5241,121 @@ public function check_nonce_permission_efb($request) {
 		$this->verification_claims = array();
 	}
 
+
+	/* ---------------------------------------------------------------- F06 advdate */
+
+	/** F06: context of the advdate fields of one submission (raw values of the others for field limits; logic-hidden ids). */
+	private function advdate_prepare_efb($fields, $submitted, $ignored) {
+		$this->advdate_ctx_efb = array('values' => array(), 'ignored' => is_array($ignored) ? $ignored : array(), 'form_id' => (int) $this->id);
+		$this->advdate_code_efb = '';
+		$this->advdate_rows_efb = array();
+		$this->advdate_committed_efb = false;
+		$types = array();
+		foreach ((array) $fields as $i => $f) {
+			if ($i > 0 && is_array($f) && isset($f['id_'], $f['type']) && $f['type'] === 'advdate') $types[(string) $f['id_']] = true;
+		}
+		if (!$types) return;
+		foreach ((array) $submitted as $row) {
+			if (!is_array($row) || !isset($row['id_'], $row['value']) || !is_scalar($row['value'])) continue;
+			$id = (string) $row['id_'];
+			if (isset($types[$id]) && !isset($this->advdate_ctx_efb['ignored'][$id])) $this->advdate_ctx_efb['values'][$id] = (string) $row['value'];
+		}
+	}
+
+	/** F06: the locale the visitor saw (sent with the row), only when this site has it; else the site's. */
+	private function advdate_locale_efb($loc) {
+		$site = function_exists('get_locale') ? get_locale() : 'en_US';
+		if (!is_string($loc) || !preg_match('/^[a-z]{2,3}(_[A-Z]{2})?(_[a-z]+)?$/', $loc) || $loc === $site) return $site;
+		$have = function_exists('get_available_languages') ? (array) get_available_languages() : array();
+		return in_array($loc, $have, true) || $loc === 'en_US' ? $loc : $site;
+	}
+
+	/**
+	 * F06: one advdate row through the server's rules (\Emsfb\Calendar, the same as the picker's).
+	 * @return array{ok:bool,row:array|null,m:string}
+	 */
+	private function advdate_check_efb($f, $item) {
+		$out = array('ok' => true, 'row' => null, 'm' => '');
+		$fid = isset($f['id_']) ? (string) $f['id_'] : '';
+		if (isset($this->advdate_ctx_efb['ignored'][$fid])) return $out; // hidden by Conditional Logic: not stored
+		$base = $this->filter_attributes_by_type_efb($item, 'advdate');
+		if (!is_array($base)) return $out;
+		$raw = isset($item['value']) && is_scalar($item['value']) ? (string) $item['value'] : '';
+		if (!class_exists('\\Emsfb\\Calendar') || !function_exists('efb_date_validate_value')) {
+			// The calendar files are missing (incomplete update): keep a clean ISO-looking value, as text.
+			$v = sanitize_text_field($raw);
+			if ($v === '' || preg_match('#^[0-9T:/,\-]{10,}$#', $v)) { $base['value'] = $v; $out['row'] = $v === '' ? null : array_intersect_key($base, array_flip(array('id_', 'name', 'id_ob', 'amount', 'type', 'value', 'session', 'form_id'))); return $out; }
+			return array('ok' => false, 'row' => null, 'm' => isset($this->lanText['enterValidDate']) ? $this->lanText['enterValidDate'] : 'Please enter a valid date.');
+		}
+		$values = $this->advdate_ctx_efb['values'];
+		unset($values[$fid]);
+		$ctx = array(
+			'form_id' => (int) $this->advdate_ctx_efb['form_id'], 'values' => $values,
+			'cal' => isset($base['cal']) ? (string) $base['cal'] : '', 'visitor_tz' => isset($base['tz']) ? (string) $base['tz'] : '',
+			'locale' => $this->advdate_locale_efb(isset($base['loc']) ? $base['loc'] : ''), 'lang' => is_array($this->lanText) ? $this->lanText : array(),
+		);
+		$res = efb_date_validate_value($f, $raw, $ctx);
+		if (!$res['ok']) {
+			$e = $res['errors'][0];
+			$this->advdate_code_efb = (string) $e->get_error_code();
+			return array('ok' => false, 'row' => null, 'm' => esc_html($e->get_error_message()));
+		}
+		if (!isset($res['row']['value']) || (string) $res['row']['value'] === '') return $out; // optional and empty
+		$row = array_intersect_key($base, array_flip(array('id_', 'name', 'id_ob', 'amount', 'type', 'session', 'form_id')));
+		$row['type'] = 'advdate';
+		foreach ($res['row'] as $k => $v) $row[$k] = is_string($v) ? sanitize_text_field($v) : $v;
+		$ok = apply_filters('efb_date_validated', true, $row, $f, (int) $this->advdate_ctx_efb['form_id'], $ctx);
+		if (is_wp_error($ok)) {
+			$this->advdate_code_efb = (string) $ok->get_error_code();
+			return array('ok' => false, 'row' => null, 'm' => esc_html($ok->get_error_message()));
+		}
+		$this->advdate_rows_efb[] = $row;
+		$out['row'] = $row;
+		return $out;
+	}
+
+	/**
+	 * F06: efb_date_before_commit once per submission with every advdate row, right before the entry is
+	 * stored (the Booking add-on reserves capacity here, atomically). A refusal gives back the F11 places
+	 * and the F03 claims of this request and answers at the field.
+	 */
+	private function advdate_commit_efb() {
+		if (empty($this->advdate_rows_efb) || $this->advdate_committed_efb) return;
+		$ctx = array('form_id' => (int) $this->advdate_ctx_efb['form_id']);
+		$ok = apply_filters('efb_date_before_commit', true, $this->advdate_rows_efb, (int) $this->advdate_ctx_efb['form_id'], $ctx);
+		if ($ok === true || !is_wp_error($ok)) { $this->advdate_committed_efb = true; return; }
+		do_action('efb_date_commit_failed', $this->advdate_rows_efb, (int) $this->advdate_ctx_efb['form_id'], $ctx);
+		\Emsfb\Form_Runtime::abort($this->operation_key);
+		if (!empty($this->unique_claimed_efb) && class_exists('\\Emsfb\\Unique_Values')) { \Emsfb\Unique_Values::drop_claims(0, $this->unique_claimed_efb); $this->unique_claimed_efb = array(); }
+		if (!empty($this->gate_reserved) && class_exists('\\Emsfb\\Form_Gate')) { \Emsfb\Form_Gate::release($this->gate_claims); $this->gate_reserved = false; $this->gate_claims = array(); }
+		$d = $ok->get_error_data();
+		$field = is_array($d) && isset($d['field_id']) ? (string) $d['field_id'] : (string) $this->advdate_rows_efb[0]['id_'];
+		$this->efb_trace('submit.blocked', array('form_id' => (int) $this->advdate_ctx_efb['form_id'], 'gate' => 'date_commit', 'reason' => $ok->get_error_code()));
+		$this->advdate_rows_efb = array();
+		wp_send_json_success(array('success' => false, 'm' => esc_html($ok->get_error_message()), 'field_id' => $field, 'code' => 'efb_date_' . sanitize_key($ok->get_error_code())), 200);
+	}
+
+	/** F06: the reservations of this submission are released (the entry was not stored). */
+	private function advdate_commit_failed_efb() {
+		if (empty($this->advdate_rows_efb) || !$this->advdate_committed_efb) return;
+		do_action('efb_date_commit_failed', $this->advdate_rows_efb, (int) $this->advdate_ctx_efb['form_id'], array('form_id' => (int) $this->advdate_ctx_efb['form_id']));
+		$this->advdate_rows_efb = array();
+		$this->advdate_committed_efb = false;
+	}
+
+	/** F06: the entry exists: reservations are linked to its tracking code. */
+	private function advdate_after_commit_efb($track) {
+		if (empty($this->advdate_rows_efb)) return;
+		do_action('efb_date_after_commit', $this->advdate_rows_efb, (int) $this->advdate_ctx_efb['form_id'], (string) $track, array('form_id' => (int) $this->advdate_ctx_efb['form_id']));
+		$this->advdate_rows_efb = array();
+		$this->advdate_committed_efb = false;
+	}
+
 	public function insert_message_db($read,$uniqid,$style_trackingCode = 'date_en_mix'){
 		$this->begin_operation_efb();
 		$this->gate_reserve_efb();
 		$this->unique_claim_efb(); // F03, after the F11 places
+		$this->advdate_commit_efb(); // F06, the Booking add-on's atomic reservation (efb_date_before_commit)
 		$this->verification_consume_efb(); // F02, last: a refusal above keeps the codes usable
 		if(isset($read)==false) $read=0;
 
@@ -5253,6 +5395,8 @@ public function check_nonce_permission_efb($request) {
 			// F03: the values this submission took are given back.
 			if (!empty($this->unique_claimed_efb) && class_exists('\\Emsfb\\Unique_Values')) { \Emsfb\Unique_Values::drop_claims(0, $this->unique_claimed_efb); $this->unique_claimed_efb = array(); }
 			// F11: the places this submission took are given back.
+			// F06: the reservations of the date fields are released.
+			$this->advdate_commit_failed_efb();
 			if (!empty($this->gate_reserved) && class_exists('\\Emsfb\\Form_Gate')) { \Emsfb\Form_Gate::release($this->gate_claims); $this->gate_reserved = false; $this->gate_claims = array(); }
 			if (class_exists('\\Emsfb\\Request_Health')) \Emsfb\Request_Health::record('form',500,'server','storage_failed');
 			wp_send_json_error(array('code'=>'efb_storage_failed','m'=>__('The form could not be saved. Your input has been kept.', 'easy-form-builder')),500);
@@ -5261,6 +5405,7 @@ public function check_nonce_permission_efb($request) {
 		if (!empty($this->unique_claimed_efb) && class_exists('\\Emsfb\\Unique_Values')) { \Emsfb\Unique_Values::attach($this->unique_claimed_efb, isset($this->db->insert_id) ? (int) $this->db->insert_id : 0); $this->unique_claimed_efb = array(); }
 		$this->verification_after_insert_efb(isset($this->db->insert_id) ? (int) $this->db->insert_id : 0);
 		$this->gate_after_insert_efb(isset($this->db->insert_id) ? (int) $this->db->insert_id : 0);
+		$this->advdate_after_commit_efb($uniqid);
 		\Emsfb\Request_Health::mark_saved();
 		$this->finish_operation_efb($uniqid);
 		$this->claim_uploaded_files_efb($this->value);
@@ -9700,6 +9845,8 @@ public function check_nonce_permission_efb($request) {
 			'stateProvince' => true, 'statePro' => true, 'conturyList' => true,
 			'country' => true, 'city' => true, 'cityList' => true, 'sample' => true,
 			'persiapay' => ['amount' => true], 'persiaPay' => ['amount' => true],'ardate'=>true,'pdate'=>true ,'textarea'=>true,
+			/* F06: the server recomputes every key but cal (the calendar used) and tz (a visitor-zone field). */
+			'advdate' => ['cal' => true, 'local' => true, 'disp' => true, 'tz' => true, 'mode' => true, 'v' => true, 'time' => true, 'utc' => true, 'approx' => true, 'iso' => true, 'loc' => true],
 			'payment' => ['amount' => true], 'file' => ['url' => true], 'address_line'=>true,
 			'dadfile' => ['url' => true], 'esign' => true, 'maps' => true,
 			'audio_recorder' => ['url' => true, 'recording_duration' => true], 'video_recorder' => ['url' => true, 'recording_duration' => true], 'screen_recorder' => ['url' => true, 'recording_duration' => true],

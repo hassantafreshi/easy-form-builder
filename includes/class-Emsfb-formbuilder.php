@@ -2473,6 +2473,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 			'stateProvince' => true, 'statePro' => true, 'conturyList' => true,
 			'country' => true, 'city' => true, 'cityList' => true, 'sample' => true,
 			'persiapay' => ['amount' => true],'ardate'=>true,'pdate'=>true ,'textarea'=>true,
+			/* F06: the server recomputes every key but cal (the calendar used) and tz (a visitor-zone field). */
+			'advdate' => ['cal' => true, 'local' => true, 'disp' => true, 'tz' => true, 'mode' => true, 'v' => true, 'time' => true, 'utc' => true, 'approx' => true, 'iso' => true],
 			'payment' => ['amount' => true], 'file' => ['url' => true], 'address_line'=>true,
 			'dadfile' => ['url' => true], 'esign' => true, 'maps' => true,
 			'color' => true, 'range' => true, 'number' => true, 'prcfld' => true,
@@ -2745,6 +2747,38 @@ if ( ! defined( 'ABSPATH' ) ) {
 		return sprintf('<div class="efb footer-test p-1">%s%s</div>', $state == 0 ? $s : $d, $draft);
 	}
 
+	/**
+	 * F06: markup of an advdate field (twin of EFBCalendar.markup in efb-calendar-ui.js): the typed input
+	 * `${id}_` (labels and messages use it), the picker button, the hint and display lines and the hidden
+	 * canonical input (.emsFormBuilder_v, data-type="advdate"). Everything else is drawn by the picker.
+	 */
+	private function advdate_markup_efb($vj, $id, $form_id, $classes, $disabled) {
+		if (!class_exists('\Emsfb\Calendar')) return '';
+		$cfg = \Emsfb\Calendar::public_config($vj, $form_id);
+		$mode = isset($cfg['field']['date_mode']) && in_array($cfg['field']['date_mode'], array('range', 'multiple'), true) && $cfg['plan'] === 'pro' ? $cfg['field']['date_mode'] : 'single';
+		$time = !empty($cfg['field']['time_enabled']) && in_array($cfg['field']['time_enabled'], array(1, '1', true), true) && $cfg['plan'] !== 'free' && $mode === 'single';
+		$typed = isset($cfg['field']['input_mode']) && $cfg['field']['input_mode'] === 'typed';
+		$req = isset($vj->required) && ($vj->required == 1 || $vj->required === true) ? ' aria-required="true"' : '';
+		$dis = $disabled === 'disabled' ? ' disabled' : '';
+		$corner = isset($vj->corner) ? $vj->corner : 'rounded-3';
+		$cls = 'efb input-efb px-2 mb-0 w-100 ' . $classes . ' ' . (isset($vj->el_height) ? $vj->el_height : '') . ' ' . $corner . ' ' . (isset($vj->el_text_color) ? $vj->el_text_color : '') . ' efbField efb1';
+		$t = function ($k, $d) { $x = function_exists('get_efbFunction') ? get_efbFunction()->text_efb(array($k)) : array(); return isset($x[$k]) && $x[$k] !== '' ? $x[$k] : $d; };
+		$id_e = esc_attr($id);
+		$icon = '<svg class="efb-cal-ico" width="18" height="18" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z"/><path d="M5 7h2v2H5zm4 0h2v2H9zm-4 3h2v2H5zm4 0h2v2H9z"/></svg>';
+		$out = '<div class="efb efb-cal" id="' . $id_e . '_cal" data-fid="' . $id_e . '" data-formid="' . esc_attr($form_id) . '" data-efb-cal="' . esc_attr(wp_json_encode($cfg, JSON_UNESCAPED_UNICODE)) . '">';
+		$out .= '<div class="efb efb-cal-control"' . ($mode === 'range' ? ' role="group" aria-labelledby="' . $id_e . '_labG"' : '') . '>';
+		$out .= '<input type="text" id="' . $id_e . '_" class="' . esc_attr(trim($cls)) . ' efb-cal-input" data-id="' . $id_e . '-el" data-css="' . $id_e . '" dir="ltr" inputmode="numeric" autocomplete="off" aria-describedby="' . $id_e . '_-hint' . (!empty($vj->message) ? ' ' . $id_e . '-des' : '') . '"' . $req . $dis . ($mode === 'range' ? ' aria-label="' . esc_attr($t('cal_from', 'From')) . '"' : '') . '>';
+		if ($mode === 'range') {
+			$out .= '<span class="efb efb-cal-sep" aria-hidden="true">&ndash;</span><input type="text" id="' . $id_e . '_to" class="' . esc_attr(trim($cls)) . ' efb-cal-input-to" dir="ltr" inputmode="numeric" autocomplete="off" aria-label="' . esc_attr($t('cal_to', 'To')) . '" aria-describedby="' . $id_e . '_-hint"' . $req . $dis . '>';
+		}
+		if ($time) $out .= '<input type="text" id="' . $id_e . '_time" class="' . esc_attr(trim($cls)) . ' efb-cal-time" dir="ltr" inputmode="numeric" autocomplete="off" placeholder="HH:mm" aria-label="' . esc_attr($t('cal_time', 'Time')) . '"' . $dis . '>';
+		if (!$typed) $out .= '<button type="button" class="efb efb-cal-btn" aria-haspopup="dialog" aria-expanded="false" aria-label="' . esc_attr($t($mode === 'range' ? 'cal_choose_range' : 'cal_choose_date', $mode === 'range' ? 'Choose dates' : 'Choose date')) . '"' . $dis . '>' . $icon . '</button>';
+		$out .= '</div><small class="efb efb-cal-hint" id="' . $id_e . '_-hint"></small><div class="efb efb-cal-disp" id="' . $id_e . '_-disp"></div>';
+		if ($mode === 'multiple') $out .= '<div class="efb efb-cal-chips" role="group" aria-label="' . esc_attr($t('cal_selected_dates', 'Selected dates')) . '"></div>';
+		$out .= '<input type="hidden" class="emsFormBuilder_v efb-cal-value" id="' . $id_e . '_v" data-vid="' . $id_e . '" data-formid="' . esc_attr($form_id) . '" data-type="advdate" name="' . esc_attr(isset($vj->name) ? $vj->name : $id) . '" value=""' . $dis . '></div>';
+		return $out;
+	}
+
 	public function addNewElement_efb($i, $rndm,$form_id,$texts,$pro) {
 		$this->pro_efb =$pro;
 
@@ -2803,6 +2837,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 		} else {
 			$corner= isset($vj->corner) ? $vj->corner : 'rounded-3';
 			switch ($vj->type) {
+
+				case 'advdate':
+					// F06: the advanced date field. Core only, no add-on and no jQuery: the picker
+					// (public/assets/js/calendar) reads data-efb-cal; the server checks the value again.
+					$ui = $label . $div_f_id . $ttip . $this->advdate_markup_efb($vj, $element_Id, $form_id, $classes, $disabled) . $desc;
+					$dataTag = 'advdate';
+					break;
 
 				case 'pdate':
 				case 'ardate':

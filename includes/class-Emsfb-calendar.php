@@ -516,6 +516,7 @@ class Calendar {
 	public static function site_tz() {
 		if (function_exists('wp_timezone_string')) {
 			$s = wp_timezone_string();
+			if ($s === '+00:00' || $s === '-00:00') return 'UTC';
 			if (is_string($s) && $s !== '') return $s;
 		}
 		return 'UTC';
@@ -607,14 +608,14 @@ class Calendar {
 	private static function json($v) { return function_exists('wp_json_encode') ? (string) wp_json_encode($v) : (string) json_encode($v); }
 	private static function has($o, $k) { return is_array($o) && array_key_exists($k, $o) && $o[$k] !== null; }
 	private static function on($o, $k) { $v = self::has($o, $k) ? $o[$k] : 0; return $v === 1 || $v === '1' || $v === true || $v === 'true'; }
-	private static function int_in($v, $lo, $hi, $dflt) {
+	public static function int_in($v, $lo, $hi, $dflt) {
 		if ($v === '' || $v === null || is_bool($v) || is_array($v) || is_object($v)) return $dflt;
 		$s = self::normalize($v);
 		if (!is_numeric($s) || (float) $s != floor((float) $s)) return $dflt;
 		$n = (int) $s;
 		return $n < $lo ? $lo : ($n > $hi ? $hi : $n);
 	}
-	private static function list_of($v) {
+	public static function list_of($v) {
 		if (is_object($v)) $v = json_decode(self::json($v), true);
 		if (is_array($v)) return array_values($v);
 		if (is_string($v) && $v !== '') {
@@ -1102,6 +1103,161 @@ class Calendar {
 		$l = self::iso_to_local('2025-03-20', $cal, 0);
 		return $e ? self::format_local($e, array($l[0], $l[1], $l[2]), self::typed_pattern_of($c, $cal), $c['locale'], array('digits' => $c['digits'])) : '';
 	}
+
+	/* ---------------------------------------------------------------- page integration (F06 §9) */
+
+	/** Row keys of an advdate field (contract §4.1); bk_* are the Booking add-on's and never read by core. */
+	const FIELD_KEYS = array('cal_v', 'cal_default', 'cal_allowed', 'cal_switch', 'cal_secondary', 'cal_hijri_adjust', 'cal_locale', 'cal_digits',
+		'week_start', 'date_mode', 'date_min', 'date_max', 'disabled_weekdays', 'disabled_dates', 'enabled_dates', 'holiday_sets', 'holidays_custom',
+		'holiday_mode', 'range_unit', 'range_min_days', 'range_max_days', 'multi_max', 'time_enabled', 'time_format', 'time_step', 'time_min',
+		'time_max', 'time_by_weekday', 'age_min', 'age_max', 'tz', 'display_format', 'store_format', 'input_mode', 'availability');
+
+	public static function plan_name($rank = null) {
+		$r = $rank === null ? self::site_plan_rank() : (int) $rank;
+		return $r >= 2 ? 'pro' : ($r === 1 ? 'free_plus' : 'free');
+	}
+	/** A form JSON (raw form_structer text, escaped or not) holds an advdate field. */
+	public static function json_has_advdate($json) {
+		return is_string($json) && (bool) preg_match('/type\\\\?"\s*:\s*\\\\?"advdate\\\\?"/', $json);
+	}
+	/** The advdate keys of a row (object or array), as sent to the picker (public data: the form JSON is public anyway). */
+	public static function row_keys($vj) {
+		$row = is_object($vj) ? json_decode(self::json($vj), true) : (array) $vj;
+		$out = array('type' => 'advdate', 'id_' => isset($row['id_']) ? (string) $row['id_'] : '');
+		foreach (self::FIELD_KEYS as $k) if (array_key_exists($k, $row)) $out[$k] = $row[$k];
+		$out['required'] = isset($row['required']) && in_array($row['required'], array(1, '1', true, 'true'), true) ? 1 : 0;
+		return $out;
+	}
+	/** The data-efb-cal JSON of one field: the row keys plus the page context the twins need to agree. */
+	public static function public_config($vj, $form_id, $locale = '') {
+		$locale = $locale !== '' ? $locale : (function_exists('get_locale') ? get_locale() : 'en_US');
+		$row = self::row_keys($vj);
+		$value = is_object($vj) && isset($vj->value) ? $vj->value : (is_array($vj) && isset($vj['value']) ? $vj['value'] : '');
+		$initial = is_string($value) && preg_match('#^(today([+-]\d{1,4})?|\d{4}-\d{2}-\d{2}([T/,][0-9:\-/,T]*)?)$#', trim($value)) ? trim($value) : '';
+		return array(
+			'v' => 1, 'form_id' => (int) $form_id, 'field' => $row, 'locale' => $locale,
+			'locale_defaults' => self::locale_defaults_filtered($locale), 'plan' => self::plan_name(),
+			'site' => array('tz' => self::site_tz(), 'today' => self::today('site')), 'initial' => $initial,
+		);
+	}
+	/** Scripts and styles of the picker, only the engines this form can show (F06 §9). */
+	public static function enqueue_public($json, $locale = '') {
+		if (!function_exists('wp_enqueue_script') || !self::json_has_advdate($json)) return false;
+		$locale = $locale !== '' ? $locale : (function_exists('get_locale') ? get_locale() : 'en_US');
+		$dir = dirname(__DIR__) . '/';
+		$url = defined('EMSFB_PLUGIN_URL') ? EMSFB_PLUGIN_URL : '';
+		$ver = function ($rel) use ($dir) { return is_readable($dir . $rel) ? (string) filemtime($dir . $rel) : (defined('EMSFB_PLUGIN_VERSION') ? EMSFB_PLUGIN_VERSION : '1'); };
+		$base = 'public/assets/js/calendar/';
+		wp_register_script('efb-cal-core', $url . $base . 'efb-calendar-core.js', array(), $ver($base . 'efb-calendar-core.js'), true);
+		wp_enqueue_script('efb-cal-core');
+		$ld = self::locale_defaults_filtered($locale);
+		$text = stripslashes((string) $json);
+		$need = array('persian' => 'efb-cal-persian.js', 'islamic' => 'efb-cal-islamic.js', 'intl' => 'efb-cal-intl.js');
+		$uses = array(
+			'persian' => strpos($text, 'persian') !== false || $ld['default'] === 'persian' || in_array('persian', $ld['allowed'], true),
+			'islamic' => strpos($text, 'islamic') !== false || strpos($ld['default'] . implode(',', $ld['allowed']) . $ld['secondary'], 'islamic') !== false,
+			'intl'    => (bool) preg_match('/buddhist|roc|japanese|hebrew|indian|coptic|ethiopic/', $text . $ld['default'] . implode(',', $ld['allowed']) . $ld['secondary']),
+		);
+		$deps = array('efb-cal-core');
+		foreach ($need as $k => $file) {
+			if (!$uses[$k]) continue;
+			wp_register_script('efb-cal-' . $k, $url . $base . $file, array('efb-cal-core'), $ver($base . $file), true);
+			wp_enqueue_script('efb-cal-' . $k);
+			$deps[] = 'efb-cal-' . $k;
+		}
+		wp_register_script('efb-cal-ui', $url . $base . 'efb-calendar-ui.js', $deps, $ver($base . 'efb-calendar-ui.js'), true);
+		wp_enqueue_script('efb-cal-ui');
+		wp_enqueue_style('efb-cal-css', $url . 'public/assets/css/calendar-efb.css', array(), $ver('public/assets/css/calendar-efb.css'));
+		if (function_exists('is_rtl') && is_rtl()) wp_enqueue_style('efb-cal-rtl-css', $url . 'public/assets/css/calendar-rtl-efb.css', array('efb-cal-css'), $ver('public/assets/css/calendar-rtl-efb.css'));
+		$names = self::names();
+		$l = self::lang($locale);
+		$pick = array();
+		foreach (array_unique(array($l, 'en')) as $k) if (isset($names[$k])) $pick[$k] = $names[$k];
+		$boot = 'window.EFB_CAL_HOLIDAYS_URL=' . wp_json_encode($url . 'public/assets/json/holidays/') . ';'
+			. 'if(window.EFBCalendar){EFBCalendar._.setNames(' . wp_json_encode($pick, JSON_UNESCAPED_UNICODE) . ');EFBCalendar._.setSiteTz(' . wp_json_encode(self::site_tz()) . ');}';
+		wp_add_inline_script('efb-cal-core', $boot, 'after');
+		return true;
+	}
+
+	/* ---------------------------------------------------------------- save (builder, AutoPilot) */
+
+	/**
+	 * One advdate key as the builder save stores it (sanitize_obj_msg_efb() calls this for advdate rows;
+	 * the same allow-lists as the JSON Schema of contract §7.1). Arrays and objects keep their shape;
+	 * a value that does not fit becomes the key's default. bk_* keys (Booking add-on) keep any JSON of
+	 * plain text, three levels deep.
+	 */
+	public static function sanitize_key($k, $v) {
+		$txt = function ($x) { return function_exists('sanitize_text_field') ? sanitize_text_field((string) $x) : trim(strip_tags((string) $x)); };
+		$known = function ($c, $tier3 = false) { return is_string($c) && (in_array($c, self::TIER12, true) || ($tier3 && in_array($c, self::TIER3, true))); };
+		$int = function ($x, $lo, $hi, $d) { return self::int_in($x, $lo, $hi, $d); };
+		$hm = function ($x) { return is_string($x) && preg_match('/^([01]\d|2[0-3]):[0-5]\d$/', $x) ? $x : ''; };
+		if (strpos((string) $k, 'bk_') === 0) {
+			$clean = function ($x, $depth) use (&$clean, $txt) {
+				if (is_array($x) || is_object($x)) {
+					if ($depth > 3) return array();
+					$o = array();
+					foreach ((array) $x as $kk => $vv) $o[is_int($kk) ? $kk : $txt($kk)] = $clean($vv, $depth + 1);
+					return $o;
+				}
+				return is_bool($x) || is_int($x) || is_float($x) ? $x : $txt($x);
+			};
+			return $clean($v, 0);
+		}
+		switch ($k) {
+			case 'cal_v': return 1;
+			case 'cal_default': return $known($v) ? $v : 'auto';
+			case 'cal_allowed':
+				$o = array();
+				foreach (self::list_of($v) as $c) if ($known($c) && !in_array($c, $o, true)) $o[] = $c;
+				return $o;
+			case 'cal_switch': case 'time_enabled': return in_array($v, array(1, '1', true, 'true'), true) ? 1 : 0;
+			case 'cal_secondary': return $known($v, true) ? $v : '';
+			case 'cal_hijri_adjust': return $int($v, -2, 2, 0);
+			case 'cal_locale': return is_string($v) && preg_match('/^[a-zA-Z]{2,3}([_-][A-Za-z0-9]{2,8})*$/', $v) ? $v : 'auto';
+			case 'cal_digits': return in_array($v, array('latn', 'arabext', 'arab'), true) ? $v : 'auto';
+			case 'week_start': $w = $int($v, 1, 7, null); return $w === null ? 'auto' : $w;
+			case 'date_mode': return in_array($v, array('single', 'range', 'multiple'), true) ? $v : 'single';
+			case 'date_min': case 'date_max': return self::limit_of($v);
+			case 'disabled_weekdays':
+				$o = array();
+				foreach (self::list_of($v) as $w) { $w = $int($w, 1, 7, null); if ($w !== null && !in_array($w, $o, true)) $o[] = $w; }
+				sort($o);
+				return $o;
+			case 'disabled_dates': case 'enabled_dates':
+				return array_map(function ($x) { return is_array($x) ? $x[0] . '/' . $x[1] : $x; }, self::dates_list($v));
+			case 'holiday_sets':
+				$o = array();
+				foreach (self::list_of($v) as $h) if (is_string($h) && preg_match('/^[a-z0-9-]{2,40}$/', $h) && !in_array($h, $o, true) && count($o) < 20) $o[] = $h;
+				return $o;
+			case 'holidays_custom':
+				$o = array();
+				foreach (self::holiday_rules($v) as $r) {
+					$l = $r['label'];
+					$l = is_array($l) ? array_map($txt, array_filter($l, 'is_scalar')) : $txt($l);
+					if (isset($r['date'])) $o[] = array('date' => is_array($r['date']) ? $r['date'][0] . '/' . $r['date'][1] : $r['date'], 'label' => $l);
+					else $o[] = array('cal' => $r['cal'], 'md' => $r['md'], 'days' => $r['days'], 'label' => $l);
+				}
+				return $o;
+			case 'holiday_mode': return $v === 'mark' ? 'mark' : 'disable';
+			case 'range_unit': return $v === 'days' ? 'days' : 'nights';
+			case 'range_min_days': case 'range_max_days': return $int($v, 0, 3660, 0);
+			case 'multi_max': return $int($v, 0, 366, 0);
+			case 'time_format': return in_array((string) $v, array('12', '24'), true) ? (string) $v : 'auto';
+			case 'time_step': return $int($v, 1, 720, 15);
+			case 'time_min': case 'time_max': return $hm($v);
+			case 'time_by_weekday': $w = self::weekday_windows($v); return $w ? $w : new \stdClass();
+			case 'age_min': case 'age_max': $a = $int($v, 0, 150, null); return $a === null ? '' : $a;
+			case 'tz': return ($v === 'visitor' || (is_string($v) && $v !== 'site' && in_array($v, \DateTimeZone::listIdentifiers(), true))) ? $v : 'site';
+			case 'display_format': return is_string($v) && preg_match('#^(YYYY|MM|M|DD|D|[/.\- ])+$#', $v) && strpos($v, 'YYYY') !== false && strpos($v, 'M') !== false && strpos($v, 'D') !== false ? $v : 'auto';
+			case 'store_format': return $v === 'legacy_local' ? 'legacy_local' : 'iso';
+			case 'input_mode': return in_array($v, array('both', 'picker', 'typed'), true) ? $v : 'both';
+			case 'availability': return is_string($v) && preg_match('/^[a-z0-9_-]{1,40}$/', $v) ? $v : 'none';
+		}
+		return is_scalar($v) ? $txt($v) : '';
+	}
+	/** Keys sanitize_key() owns (the save sanitizer switches on these for advdate rows). */
+	public static function is_key($k) { return in_array($k, self::FIELD_KEYS, true) || strpos((string) $k, 'bk_') === 0; }
 
 	/* ---------------------------------------------------------------- holiday sets (F06 §16) */
 

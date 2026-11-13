@@ -4782,6 +4782,121 @@ class efbFunction {
 			/* translators: F02 settings help */
 			"vrfLimitsHelp" => $state && isset($ac->text->vrfLimitsHelp) ? $ac->text->vrfLimitsHelp : esc_html__('Per destination, per visitor address and per form. A refused request costs nothing.','easy-form-builder'),
 
+			/* F06 phrases begin (advanced date field) */
+			/* translators: palette name of the F06 field */
+			"advdate" => $state && isset($ac->text->advdate) ? $ac->text->advdate : esc_html__('Date (advanced)','easy-form-builder'),
+			/* translators: F06 picker button */
+			"cal_choose_date" => $state && isset($ac->text->cal_choose_date) ? $ac->text->cal_choose_date : esc_html__('Choose date','easy-form-builder'),
+			/* translators: F06 picker button of a range field */
+			"cal_choose_range" => $state && isset($ac->text->cal_choose_range) ? $ac->text->cal_choose_range : esc_html__('Choose dates','easy-form-builder'),
+			/* translators: F06 picker */
+			"cal_today" => $state && isset($ac->text->cal_today) ? $ac->text->cal_today : esc_html__('Today','easy-form-builder'),
+			/* translators: F06 picker */
+			"cal_clear" => $state && isset($ac->text->cal_clear) ? $ac->text->cal_clear : esc_html__('Clear','easy-form-builder'),
+			/* translators: F06 picker */
+			"cal_ok" => $state && isset($ac->text->cal_ok) ? $ac->text->cal_ok : esc_html__('OK','easy-form-builder'),
+			/* translators: F06 picker */
+			"cal_prev_month" => $state && isset($ac->text->cal_prev_month) ? $ac->text->cal_prev_month : esc_html__('Previous month','easy-form-builder'),
+			/* translators: F06 picker */
+			"cal_next_month" => $state && isset($ac->text->cal_next_month) ? $ac->text->cal_next_month : esc_html__('Next month','easy-form-builder'),
+			/* translators: F06 picker */
+			"cal_prev_year" => $state && isset($ac->text->cal_prev_year) ? $ac->text->cal_prev_year : esc_html__('Previous year','easy-form-builder'),
+			/* translators: F06 picker */
+			"cal_next_year" => $state && isset($ac->text->cal_next_year) ? $ac->text->cal_next_year : esc_html__('Next year','easy-form-builder'),
+			/* translators: F06 picker: opens the month and year view */
+			"cal_month_year_view" => $state && isset($ac->text->cal_month_year_view) ? $ac->text->cal_month_year_view : esc_html__('Choose month and year','easy-form-builder'),
+			/* translators: F06 range: first date */
+			"cal_from" => $state && isset($ac->text->cal_from) ? $ac->text->cal_from : esc_html__('From','easy-form-builder'),
+			/* translators: F06 range: last date */
+			"cal_to" => $state && isset($ac->text->cal_to) ? $ac->text->cal_to : esc_html__('To','easy-form-builder'),
+			/* translators: F06 %s = number of nights */
+			"cal_nights_n" => $state && isset($ac->text->cal_nights_n) ? $ac->text->cal_nights_n : esc_html__('%s nights','easy-form-builder'),
+			/* translators: F06 %s = number of days */
+			"cal_days_n" => $state && isset($ac->text->cal_days_n) ? $ac->text->cal_days_n : esc_html__('%s days','easy-form-builder'),
+			/* translators: F06 picker */
+			"cal_time" => $state && isset($ac->text->cal_time) ? $ac->text->cal_time : esc_html__('Time','easy-form-builder'),
+			/* translators: F06 list of chosen dates */
+			"cal_selected_dates" => $state && isset($ac->text->cal_selected_dates) ? $ac->text->cal_selected_dates : esc_html__('Selected dates','easy-form-builder'),
+			/* translators: F06 %s = a date */
+			"cal_remove_date" => $state && isset($ac->text->cal_remove_date) ? $ac->text->cal_remove_date : esc_html__('Remove %s','easy-form-builder'),
+			/* translators: F06 %s = a sample date in the expected format */
+			"cal_format_hint" => $state && isset($ac->text->cal_format_hint) ? $ac->text->cal_format_hint : esc_html__('Format: %s','easy-form-builder'),
+			/* translators: F06 a day that cannot be chosen */
+			"cal_closed" => $state && isset($ac->text->cal_closed) ? $ac->text->cal_closed : esc_html__('not available','easy-form-builder'),
+			/* translators: F06 picker */
+			"cal_holiday" => $state && isset($ac->text->cal_holiday) ? $ac->text->cal_holiday : esc_html__('holiday','easy-form-builder'),
+			/* translators: F06 booking */
+			"cal_full" => $state && isset($ac->text->cal_full) ? $ac->text->cal_full : esc_html__('fully booked','easy-form-builder'),
+			/* translators: F06 booking, %s = places left */
+			"cal_remaining_n" => $state && isset($ac->text->cal_remaining_n) ? $ac->text->cal_remaining_n : esc_html__('%s left','easy-form-builder'),
+			/* translators: F06 %s = time zone name */
+			"cal_tz_note" => $state && isset($ac->text->cal_tz_note) ? $ac->text->cal_tz_note : esc_html__('time in %s','easy-form-builder'),
+			/* translators: F06 note on old or far Hijri dates */
+			"cal_approx_note" => $state && isset($ac->text->cal_approx_note) ? $ac->text->cal_approx_note : esc_html__('This date may differ by one day from the official calendar.','easy-form-builder'),
+			/* translators: F06 the calendar switch */
+			"cal_switch_label" => $state && isset($ac->text->cal_switch_label) ? $ac->text->cal_switch_label : esc_html__('Calendar','easy-form-builder'),
+			/* translators: F06 multiple dates */
+			"cal_add_date" => $state && isset($ac->text->cal_add_date) ? $ac->text->cal_add_date : esc_html__('Add date','easy-form-builder'),
+			/* translators: F06 picker */
+			"cal_year" => $state && isset($ac->text->cal_year) ? $ac->text->cal_year : esc_html__('Year','easy-form-builder'),
+			/* translators: F06 picker */
+			"cal_selected" => $state && isset($ac->text->cal_selected) ? $ac->text->cal_selected : esc_html__('selected','easy-form-builder'),
+			/* translators: F06 range summary: %1$s first date, %2$s last date, %3$s length */
+			"cal_range_sum" => $state && isset($ac->text->cal_range_sum) ? $ac->text->cal_range_sum : esc_html__('%1$s to %2$s (%3$s)','easy-form-builder'),
+			/* translators: F06 dialog name, %s = month and year */
+			"cal_dialog" => $state && isset($ac->text->cal_dialog) ? $ac->text->cal_dialog : esc_html__('Choose date, %s','easy-form-builder'),
+			/* translators: F06 picker */
+			"cal_back" => $state && isset($ac->text->cal_back) ? $ac->text->cal_back : esc_html__('Back to days','easy-form-builder'),
+			/* translators: F06 visitor error (%s is filled in) */
+			"cal_err_invalid_format" => $state && isset($ac->text->cal_err_invalid_format) ? $ac->text->cal_err_invalid_format : esc_html__('Please enter the date as %s.','easy-form-builder'),
+			/* translators: F06 visitor error */
+			"cal_err_invalid_date" => $state && isset($ac->text->cal_err_invalid_date) ? $ac->text->cal_err_invalid_date : esc_html__('This date does not exist.','easy-form-builder'),
+			/* translators: F06 visitor error */
+			"cal_err_calendar_not_allowed" => $state && isset($ac->text->cal_err_calendar_not_allowed) ? $ac->text->cal_err_calendar_not_allowed : esc_html__('This calendar cannot be used in this field.','easy-form-builder'),
+			/* translators: F06 visitor error (%s is filled in) */
+			"cal_err_before_min" => $state && isset($ac->text->cal_err_before_min) ? $ac->text->cal_err_before_min : esc_html__('Please choose %s or a later date.','easy-form-builder'),
+			/* translators: F06 visitor error (%s is filled in) */
+			"cal_err_after_max" => $state && isset($ac->text->cal_err_after_max) ? $ac->text->cal_err_after_max : esc_html__('Please choose %s or an earlier date.','easy-form-builder'),
+			/* translators: F06 visitor error */
+			"cal_err_weekday_disabled" => $state && isset($ac->text->cal_err_weekday_disabled) ? $ac->text->cal_err_weekday_disabled : esc_html__('This day of the week cannot be chosen.','easy-form-builder'),
+			/* translators: F06 visitor error */
+			"cal_err_date_disabled" => $state && isset($ac->text->cal_err_date_disabled) ? $ac->text->cal_err_date_disabled : esc_html__('This date cannot be chosen.','easy-form-builder'),
+			/* translators: F06 visitor error */
+			"cal_err_not_enabled" => $state && isset($ac->text->cal_err_not_enabled) ? $ac->text->cal_err_not_enabled : esc_html__('This date cannot be chosen.','easy-form-builder'),
+			/* translators: F06 visitor error (%s is filled in) */
+			"cal_err_holiday" => $state && isset($ac->text->cal_err_holiday) ? $ac->text->cal_err_holiday : esc_html__('This date is a holiday: %s.','easy-form-builder'),
+			/* translators: F06 visitor error */
+			"cal_err_unavailable" => $state && isset($ac->text->cal_err_unavailable) ? $ac->text->cal_err_unavailable : esc_html__('This date is not available.','easy-form-builder'),
+			/* translators: F06 visitor error */
+			"cal_err_full" => $state && isset($ac->text->cal_err_full) ? $ac->text->cal_err_full : esc_html__('This date is fully booked.','easy-form-builder'),
+			/* translators: F06 visitor error */
+			"cal_err_range_order" => $state && isset($ac->text->cal_err_range_order) ? $ac->text->cal_err_range_order : esc_html__('The end date must come after the start date.','easy-form-builder'),
+			/* translators: F06 visitor error (%s is filled in) */
+			"cal_err_range_too_short" => $state && isset($ac->text->cal_err_range_too_short) ? $ac->text->cal_err_range_too_short : esc_html__('Please choose at least %s.','easy-form-builder'),
+			/* translators: F06 visitor error (%s is filled in) */
+			"cal_err_range_too_long" => $state && isset($ac->text->cal_err_range_too_long) ? $ac->text->cal_err_range_too_long : esc_html__('Please choose at most %s.','easy-form-builder'),
+			/* translators: F06 visitor error (%s is filled in) */
+			"cal_err_range_contains_disabled" => $state && isset($ac->text->cal_err_range_contains_disabled) ? $ac->text->cal_err_range_contains_disabled : esc_html__('The dates you chose include %s, which cannot be chosen.','easy-form-builder'),
+			/* translators: F06 visitor error (%s is filled in) */
+			"cal_err_too_many_dates" => $state && isset($ac->text->cal_err_too_many_dates) ? $ac->text->cal_err_too_many_dates : esc_html__('You can choose at most %s dates.','easy-form-builder'),
+			/* translators: F06 visitor error */
+			"cal_err_time_required" => $state && isset($ac->text->cal_err_time_required) ? $ac->text->cal_err_time_required : esc_html__('Please choose a time.','easy-form-builder'),
+			/* translators: F06 visitor error */
+			"cal_err_time_out_of_range" => $state && isset($ac->text->cal_err_time_out_of_range) ? $ac->text->cal_err_time_out_of_range : esc_html__('This time is not available.','easy-form-builder'),
+			/* translators: F06 visitor error (%s is filled in) */
+			"cal_err_time_step" => $state && isset($ac->text->cal_err_time_step) ? $ac->text->cal_err_time_step : esc_html__('Please choose a time in steps of %s minutes.','easy-form-builder'),
+			/* translators: F06 visitor error */
+			"cal_err_time_closed_weekday" => $state && isset($ac->text->cal_err_time_closed_weekday) ? $ac->text->cal_err_time_closed_weekday : esc_html__('No time can be chosen on this day.','easy-form-builder'),
+			/* translators: F06 visitor error (%s is filled in) */
+			"cal_err_age_too_young" => $state && isset($ac->text->cal_err_age_too_young) ? $ac->text->cal_err_age_too_young : esc_html__('You must be at least %s years old.','easy-form-builder'),
+			/* translators: F06 visitor error (%s is filled in) */
+			"cal_err_age_too_old" => $state && isset($ac->text->cal_err_age_too_old) ? $ac->text->cal_err_age_too_old : esc_html__('The age can be at most %s years.','easy-form-builder'),
+			/* translators: F06 visitor error */
+			"cal_err_depends_on_empty" => $state && isset($ac->text->cal_err_depends_on_empty) ? $ac->text->cal_err_depends_on_empty : esc_html__('Please choose the date it depends on first.','easy-form-builder'),
+			/* translators: F06 visitor error */
+			"cal_err_required" => $state && isset($ac->text->cal_err_required) ? $ac->text->cal_err_required : esc_html__('Please fill in this field.','easy-form-builder'),
+			/* F06 phrases end */
+
 		];
 
 		$rtrn =[];
@@ -4947,6 +5062,11 @@ class efbFunction {
 		foreach ($valp as $key => $val) {
 			$type = $val['type'];
 			foreach ($val as $k => $v) {
+				// F06: the advanced date field's keys keep their arrays and objects (allow-lists of the contract's schema).
+				if ($type === 'advdate' && class_exists('\\Emsfb\\Calendar') && \Emsfb\Calendar::is_key($k)) {
+					$valp[$key][$k] = \Emsfb\Calendar::sanitize_key($k, $v);
+					continue;
+				}
 				switch ($k) {
 					case 'value':
 						$type =strtolower($type);

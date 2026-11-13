@@ -322,12 +322,20 @@
 
   // #region time zones
   var siteTz = 'UTC';
+  /** A fixed UTC offset zone as WordPress gives it without a city ('+03:30', '-05:00'): minutes, else null. */
+  function fixedOffset(tz) {
+    var m = /^([+-])(\d{2}):(\d{2})$/.exec(tz || '');
+    return m ? (m[1] === '-' ? -1 : 1) * (+m[2] * 60 + +m[3]) : null;
+  }
   function validTz(tz) {
     if (!tz || typeof tz !== 'string') { return false; }
+    if (fixedOffset(tz) !== null) { return true; }
     try { new Intl.DateTimeFormat('en-US', { timeZone: tz }); return true; } catch (e) { return false; }
   }
   /** Wall clock parts of an instant in a zone. */
   function wallParts(ms, tz) {
+    var fo = fixedOffset(tz);
+    if (fo !== null) { var d = new Date(ms + fo * 60000); return { y: d.getUTCFullYear(), m: d.getUTCMonth() + 1, d: d.getUTCDate(), h: d.getUTCHours(), mi: d.getUTCMinutes(), s: d.getUTCSeconds() }; }
     var f = intlFmt('z', 'en-US', { timeZone: tz, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });
     var o = {}, parts = f.formatToParts(new Date(ms));
     for (var i = 0; i < parts.length; i++) { o[parts[i].type] = parts[i].value; }
