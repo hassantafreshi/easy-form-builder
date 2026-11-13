@@ -62,6 +62,7 @@ cp /path/to/easy-form-builder/tests/e2e-wp/mu-plugins/efb-e2e.php wp-content/mu-
 $WP plugin activate easy-form-builder --path="$SITE"
 $WP rewrite structure '/%postname%/' --path="$SITE"
 $WP language core install fa_IR --path="$SITE"      # is_rtl() needs WordPress's own fa_IR pack
+$WP language core install ar --path="$SITE"         # scenario tappay-lang (Tap in Arabic)
 
 # Serve it:
 nohup php -S 127.0.0.1:8088 > ../server.log 2>&1 &

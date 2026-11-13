@@ -96,7 +96,7 @@ module.exports = function (S) {
     const pf = await addTile(admin, 'paytabs');
     const f0 = await admin.evaluate(() => ({ type: valj_efb[0].type, getway: valj_efb[0].getway, currency: valj_efb[0].currency }));
     R.check('paytabs/a builder: the PayTabs tile adds the field; the form becomes a SAR payment form', pf && pf.type === 'paytabs' && f0.type === 'payment' && f0.getway === 'paytabs' && f0.currency === 'SAR', { pf: pf && pf.type, f0 });
-    R.check('paytabs/a builder: the canvas shows the field with the four methods', await admin.isVisible(`#dropZoneEFB .efb-pf[data-pf="${pf.id_}"] [data-pf-pay]`) && (await admin.$$(`#dropZoneEFB .efb-pf[data-pf="${pf.id_}"] [data-pf-method]`)).length === 4);
+    R.check('paytabs/a builder: the canvas shows the field with the three methods a SAR form can use (KNET names KWD, so core leaves it out)', await admin.isVisible(`#dropZoneEFB .efb-pf[data-pf="${pf.id_}"] [data-pf-pay]`) && (await admin.$$(`#dropZoneEFB .efb-pf[data-pf="${pf.id_}"] [data-pf-method]`)).length === 3);
     await closePanel(admin);
     await admin.click(`#dropZoneEFB [data-id="${pf.dataId}"] .efb-pf-label`);
     await admin.waitForSelector('#efbPfPanelEl', { timeout: 8000 });
