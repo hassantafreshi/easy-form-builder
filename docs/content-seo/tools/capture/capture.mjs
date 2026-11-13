@@ -9,7 +9,7 @@
  *
  * Usage:
  *   node capture.mjs [--out DIR] [--locales en_US,de_DE,ar] [--only screens|video] [--video-viewport 1600x900]
- *                    [--base http://localhost:8080] [--headed]
+ *                    [--base http://localhost:8080] [--skip-addons] [--addons-all]
  *
  * Output (default $EFB_WORK/capture):
  *   screens/<locale>/<name>.png   video/flow.webm   video/events.json   video/markers.json   manifest.json
@@ -212,7 +212,15 @@ async function screens(browser, storageState, locale) {
   await withRetry(`${locale}/panel`, 3, async () => { await page.goto(admin('Emsfb'), { waitUntil: 'domcontentloaded' }); await settle(page, '.efb-act-btn', 700); await shot(page, locale, '03-panel-forms'); });
   await withRetry(`${locale}/entries`, 3, async () => { const rm = FLOW_FORM_ID ? page.locator('tr').filter({ hasText: `id=${FLOW_FORM_ID}]` }).locator('.efb-act-msg') : page.locator('.efb-act-msg'); await rm.first().click(); await settle(page, null, 2500); await shot(page, locale, '04-entries'); });
   await withRetry(`${locale}/settings`, 3, async () => { await page.goto(admin('Emsfb'), { waitUntil: 'domcontentloaded' }); await settle(page, '#efb-nav-setting', 500); await page.click('#efb-nav-setting'); await settle(page, null, 2500); await shot(page, locale, '05-settings'); });
-  await withRetry(`${locale}/addons`, 3, async () => { await page.goto(admin('Emsfb_addon'), { waitUntil: 'domcontentloaded' }); await settle(page, null, 2500); await shot(page, locale, '06-addons'); });
+  // The Add-ons catalogue is a script served by whitestudio.team (took ~30 s in the container); only the first locale
+  // is captured unless --addons-all, and the screen is skipped when the vendor server does not answer in time.
+  if (!args['skip-addons'] && (locale === LOCALES[0] || args['addons-all'])) {
+    try {
+      await page.goto(admin('Emsfb_addon'), { waitUntil: 'domcontentloaded' });
+      await page.waitForFunction(() => !/Please Wait/i.test(document.querySelector('#wpbody-content')?.innerText || '') , null, { timeout: 75000 });
+      await settle(page, null, 1500); await shot(page, locale, '06-addons', { note: 'catalogue loaded from whitestudio.team' });
+    } catch (e) { manifest.problems.push(`addons screen (${locale}) not captured: ${String(e.message).split('\n')[0]}`); }
+  }
 
   // Visitor view: no cookies (no admin bar); ?efb_locale is honoured by tools/wp-env/mu-plugins/efb-tutorial-env.php
   const vctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2 });

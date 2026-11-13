@@ -15,7 +15,13 @@ add_filter( 'pre_http_request', function ( $pre, $args, $url ) {
 
 	// whitestudio.team hosts the licence server and the add-on archives.
 	if ( $host === 'whitestudio.team' || substr( $host, -strlen( '.whitestudio.team' ) ) === '.whitestudio.team' ) {
-		$allow_get = defined( 'EFB_ENV_ALLOW_WHITESTUDIO_GET' ) && EFB_ENV_ALLOW_WHITESTUDIO_GET;
+		$allow_get     = defined( 'EFB_ENV_ALLOW_WHITESTUDIO_GET' ) && EFB_ENV_ALLOW_WHITESTUDIO_GET;
+		// The licence check POSTs domain, admin e-mail and the active-plugin list to whitestudio.team. It is only ever
+		// allowed while the owner deliberately runs wp-env/activate-pro.sh with a licence key the owner supplied.
+		$allow_licence = defined( 'EFB_ENV_ALLOW_LICENSE_POST' ) && EFB_ENV_ALLOW_LICENSE_POST && false !== strpos( $path, '/pro/key' );
+		if ( $allow_licence ) {
+			return $pre;
+		}
 		if ( ! $allow_get || ! in_array( $method, array( 'GET', 'HEAD' ), true ) || false !== strpos( $path, '/pro/key' ) ) {
 			return new WP_Error( 'efb_env_blocked', 'Blocked by efb-tutorial-env mu-plugin: ' . $method . ' ' . $host . $path );
 		}

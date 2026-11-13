@@ -77,7 +77,7 @@ const serveUrl = await bundle({ entryPoint: path.join(HERE, 'src/index.ts'), pub
 report.bundle_s = +((Date.now() - tB) / 1000).toFixed(1);
 console.log(`[bundle] ${report.bundle_s}s`);
 
-const chromiumOptions = { headless: true, gl: 'swangle', disableWebSecurity: false };
+const chromiumOptions = { headless: true, gl: String(args.gl || 'angle'), disableWebSecurity: false };
 for (const f of formats) {
   const id = `Tutorial-${f}`;
   const out = path.join(outDir, `${name}-${f}.mp4`);
@@ -97,13 +97,13 @@ for (const f of formats) {
   if (args.frames) { const [a, b] = String(args.frames).split('-').map(Number); frameRange = [a, b]; }
   let lastPct = -1;
   await renderMedia({
-    composition, serveUrl, inputProps, codec: 'h264', outputLocation: out, pixelFormat: 'yuv420p', crf: Number(args.crf || 18),
-    browserExecutable, chromiumOptions, concurrency: args.concurrency ? Number(args.concurrency) : null, frameRange, muted: true,
+    composition, serveUrl, inputProps, codec: 'h264', outputLocation: out, pixelFormat: 'yuv420p', colorSpace: 'bt709', crf: Number(args.crf || 18),
+    browserExecutable, chromiumOptions, concurrency: Number(args.concurrency || os.cpus().length), frameRange, muted: true,
     onProgress: ({ progress }) => { const p = Math.floor(progress * 10) * 10; if (p !== lastPct) { lastPct = p; console.log(`  [${f}] ${p}%`); } },
   });
   const secs = (Date.now() - t0) / 1000;
   const frames = frameRange ? frameRange[1] - frameRange[0] + 1 : composition.durationInFrames;
-  report.formats[f] = { file: out, width: composition.width, height: composition.height, fps: composition.fps, frames, video_seconds: +(frames / composition.fps).toFixed(2), select_s: +((tSel - t0) / 1000).toFixed(1), render_s: +secs.toFixed(1), x_realtime: +(secs / (frames / composition.fps)).toFixed(2), peak_rss_mb: Math.round(peakKb / 1024), bytes: fs.statSync(out).size };
+  report.formats[f] = { gl: chromiumOptions.gl, concurrency: Number(args.concurrency || os.cpus().length), file: out, width: composition.width, height: composition.height, fps: composition.fps, frames, video_seconds: +(frames / composition.fps).toFixed(2), select_s: +((tSel - t0) / 1000).toFixed(1), render_s: +secs.toFixed(1), x_realtime: +(secs / (frames / composition.fps)).toFixed(2), peak_rss_mb: Math.round(peakKb / 1024), bytes: fs.statSync(out).size };
   console.log(`[${f}] ${frames} frames -> ${out} in ${secs.toFixed(1)}s, peak tree RSS ${Math.round(peakKb / 1024)} MB`);
 }
 clearInterval(sampler);
