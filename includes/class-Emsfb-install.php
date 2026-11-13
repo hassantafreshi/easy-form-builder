@@ -153,6 +153,10 @@ class Install {
 						foreach ( self::f03_ddl( $wpdb->prefix, $charset_collate ) as $sql ) {
 							self::create_table_if_absent( $sql );
 						}
+						// F02 (DB 1.8): the verification challenges (codes only as HMACs).
+						foreach ( self::f02_ddl( $wpdb->prefix, $charset_collate ) as $sql ) {
+							self::create_table_if_absent( $sql );
+						}
 
 				$user_id = get_current_user_id();
 				$usr =get_user_by('id',$user_id);
@@ -310,6 +314,8 @@ class Install {
 		// F03 (text field rules), DB version 1.7: the unique-value claims. emsfb_msg_ already has an
 		// index starting with form_id (F13 form_date), which the backfill and the fallback scan use.
 		$applied = array_merge( $applied, self::upgrade_f03_schema() );
+		// F02 (one-time codes), DB version 1.8: the challenge table. Idempotent, before the early return.
+		$applied = array_merge( $applied, self::upgrade_f02_schema() );
 
 		$table   = $wpdb->prefix . 'emsfb_stts_';
 
@@ -422,6 +428,42 @@ class Install {
 		}
 		if ( class_exists( '\\Emsfb\\Unique_Values' ) ) {
 			\Emsfb\Unique_Values::reset_ready();
+		}
+		return $applied;
+	}
+
+	/** F02: CREATE TABLE statement of emsfb_vrfy_ (dbDelta format). */
+	public static function f02_ddl( $prefix, $charset_collate = '' ) {
+		if ( ! class_exists( '\\Emsfb\\Verification' ) && is_readable( __DIR__ . '/class-Emsfb-verification.php' ) ) {
+			if ( ! interface_exists( '\\Emsfb\\Verification\\Provider' ) && is_readable( __DIR__ . '/verification/interface-provider.php' ) ) {
+				require_once __DIR__ . '/verification/interface-provider.php';
+			}
+			require_once __DIR__ . '/class-Emsfb-verification.php';
+		}
+		return class_exists( '\\Emsfb\\Verification' ) ? array( 'emsfb_vrfy_' => \Emsfb\Verification::ddl( $prefix, $charset_collate ) ) : array();
+	}
+
+	/** F02, DB version 1.8: emsfb_vrfy_ when missing (idempotent; emsfb_vrfy_rl_ is F11's). */
+	public static function upgrade_f02_schema() {
+		global $wpdb;
+		$applied = array();
+		if ( ! function_exists( 'dbDelta' ) && defined( 'ABSPATH' ) && is_readable( ABSPATH . 'wp-admin/includes/upgrade.php' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+		}
+		if ( ! function_exists( 'dbDelta' ) ) {
+			return $applied;
+		}
+		$collate = method_exists( $wpdb, 'get_charset_collate' ) ? $wpdb->get_charset_collate() : '';
+		foreach ( self::f02_ddl( $wpdb->prefix, $collate ) as $short => $sql ) {
+			$table = $wpdb->prefix . $short;
+			if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) === $table ) {
+				continue;
+			}
+			self::create_table_if_absent( $sql );
+			$applied[] = "{$short}: CREATE TABLE";
+		}
+		if ( class_exists( '\\Emsfb\\Verification' ) ) {
+			\Emsfb\Verification::reset_ready();
 		}
 		return $applied;
 	}

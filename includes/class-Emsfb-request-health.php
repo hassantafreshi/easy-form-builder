@@ -135,7 +135,9 @@ class Request_Health {
         if (!isset($_POST['token']) || !is_string($_POST['token']) || strlen($_POST['token']) > 128 || !check_ajax_referer(self::ACTION, 'token', false)) wp_send_json_error(array(), 403);
         $operation = isset($_POST['operation']) && is_string($_POST['operation']) ? wp_unslash($_POST['operation']) : '';
         $status = isset($_POST['status']) && is_scalar($_POST['status']) ? (int) $_POST['status'] : -1;
-        $operations = array_merge(array_values(self::ROUTES), array('admin_reply', 'admin_tracker'));
+        // 'verify' (F02): only the browser reports it, for 5xx and network failures; its 4xx (a wrong
+        // code, a limit) are the visitor's answers, not health problems, so the route is not in ROUTES.
+        $operations = array_merge(array_values(self::ROUTES), array('admin_reply', 'admin_tracker', 'verify'));
         if (!in_array($operation, $operations, true) || ($status !== 0 && ($status < 400 || $status > 599))) wp_send_json_error(array(), 400);
         self::record($operation, $status, 'browser', 'unconfirmed');
         wp_send_json_success(array());

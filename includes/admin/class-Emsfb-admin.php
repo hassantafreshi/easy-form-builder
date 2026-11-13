@@ -384,6 +384,9 @@ class Admin {
             list($valp, $save_warnings_efb) = Builder_Api::disable_unavailable_notifiers($valp, $settings, $lang);
             // PAY00: what the form's payment gateways need (currency, mapped fields, the gateway's own checks); never refuses the save.
             if (class_exists('\\Emsfb\\Payments\\Registry')) $save_warnings_efb = array_merge($save_warnings_efb, \Emsfb\Payments\Registry::form_warnings($valp));
+            // F02: a field asking for a code this site cannot send now (plan, SMS add-on, provider, e-mail off), on a
+            // registration / login form, or a custom e-mail text without [otp_code]; never refuses the save.
+            if (class_exists('\\Emsfb\\Verification')) $save_warnings_efb = array_merge($save_warnings_efb, \Emsfb\Verification::form_warnings($valp));
             if (Builder_Api::sms_field_without_form($valp)) {
                 $save_warnings_efb[] = array('code' => 'sms_field_without_form', 'm' => $lang['smsFieldWithoutForm']);
             }

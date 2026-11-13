@@ -13,7 +13,9 @@ class Form_Runtime {
     }
     private static function fingerprint($data) {
         // draft_token (F11): the saved answers a submission completes, not part of what was sent.
-        unset($data['runtime_token'],$data['request_id'],$data['sid'],$data['valid'],$data['nonce'],$data['response_token'],$data['draft_token']);
+        // verifications / email_confirms (F02): a visitor who verifies again after an uncertain first
+        // send keeps the same request_id, so the replay answers the stored result (no second entry).
+        unset($data['runtime_token'],$data['request_id'],$data['sid'],$data['valid'],$data['nonce'],$data['response_token'],$data['draft_token'],$data['verifications'],$data['email_confirms']);
         ksort($data);
         return hash('sha256',wp_json_encode($data));
     }

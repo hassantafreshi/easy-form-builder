@@ -4619,6 +4619,168 @@ class efbFunction {
 			"tvPwMismatch_" => $state && isset($ac->text->tvPwMismatch_) ? $ac->text->tvPwMismatch_ : esc_html__('The two passwords do not match.','easy-form-builder'),
 			/* translators: F03 visitor error */
 			"tvPwWeak_" => $state && isset($ac->text->tvPwWeak_) ? $ac->text->tvPwWeak_ : esc_html__('Please choose a stronger password.','easy-form-builder'),
+			/* translators: F02 visitor: button that sends a one-time code */
+			"vrfSend" => $state && isset($ac->text->vrfSend) ? $ac->text->vrfSend : esc_html__('Send code','easy-form-builder'),
+			/* translators: F02 visitor: status while the code is being sent */
+			"vrfSending" => $state && isset($ac->text->vrfSending) ? $ac->text->vrfSending : esc_html__('Sending code…','easy-form-builder'),
+			/* translators: F02 visitor: %1$s = number of digits, %2$s = masked mobile number */
+			"vrfSentSms" => $state && isset($ac->text->vrfSentSms) ? $ac->text->vrfSentSms : esc_html__('We sent a %1$s-digit code to %2$s.','easy-form-builder'),
+			/* translators: F02 visitor: %1$s = number of digits, %2$s = masked e-mail address */
+			"vrfSentEmail" => $state && isset($ac->text->vrfSentEmail) ? $ac->text->vrfSentEmail : esc_html__('We emailed a %1$s-digit code to %2$s. Check your spam folder too.','easy-form-builder'),
+			/* translators: F02 visitor: label of the code box */
+			"vrfCodeLabel" => $state && isset($ac->text->vrfCodeLabel) ? $ac->text->vrfCodeLabel : esc_html__('Verification code','easy-form-builder'),
+			/* translators: F02 visitor: button that checks the code */
+			"vrfVerify" => $state && isset($ac->text->vrfVerify) ? $ac->text->vrfVerify : esc_html__('Verify','easy-form-builder'),
+			/* translators: F02 visitor: badge after a correct code */
+			"vrfVerified" => $state && isset($ac->text->vrfVerified) ? $ac->text->vrfVerified : esc_html__('Verified','easy-form-builder'),
+			/* translators: F02 visitor: %s = time left, e.g. 0:59 */
+			"vrfResendIn" => $state && isset($ac->text->vrfResendIn) ? $ac->text->vrfResendIn : esc_html__('Resend in %s','easy-form-builder'),
+			/* translators: F02 visitor: button */
+			"vrfResend" => $state && isset($ac->text->vrfResend) ? $ac->text->vrfResend : esc_html__('Resend code','easy-form-builder'),
+			/* translators: F02 visitor: link to change the number or address */
+			"vrfEdit" => $state && isset($ac->text->vrfEdit) ? $ac->text->vrfEdit : esc_html__('Change','easy-form-builder'),
+			/* translators: F02 visitor: %s = attempts left */
+			"vrfWrong" => $state && isset($ac->text->vrfWrong) ? $ac->text->vrfWrong : esc_html__('That code is not correct. %s attempts left.','easy-form-builder'),
+			/* translators: F02 visitor error */
+			"vrfExpired" => $state && isset($ac->text->vrfExpired) ? $ac->text->vrfExpired : esc_html__('The code has expired. Please request a new one.','easy-form-builder'),
+			/* translators: F02 visitor error */
+			"vrfLocked" => $state && isset($ac->text->vrfLocked) ? $ac->text->vrfLocked : esc_html__('Too many attempts. Please try again later.','easy-form-builder'),
+			/* translators: F02 visitor error */
+			"vrfCountry" => $state && isset($ac->text->vrfCountry) ? $ac->text->vrfCountry : esc_html__('Verification codes cannot be sent to this country.','easy-form-builder'),
+			/* translators: F02 visitor error: %s = waiting time, e.g. 1:30 */
+			"vrfLimit" => $state && isset($ac->text->vrfLimit) ? $ac->text->vrfLimit : esc_html__('Too many code requests. Please try again in %s.','easy-form-builder'),
+			/* translators: F02 visitor error */
+			"vrfFailed" => $state && isset($ac->text->vrfFailed) ? $ac->text->vrfFailed : esc_html__('We could not send the code. Please try again shortly.','easy-form-builder'),
+			/* translators: F02 visitor error: %s = field label */
+			"vrfRequired" => $state && isset($ac->text->vrfRequired) ? $ac->text->vrfRequired : esc_html__('Please verify %s before continuing.','easy-form-builder'),
+			/* translators: F02 visitor error */
+			"vrfUnavailable" => $state && isset($ac->text->vrfUnavailable) ? $ac->text->vrfUnavailable : esc_html__('Verification is not available right now. Please contact the site owner.','easy-form-builder'),
+			/* translators: F02 visitor: label of the second e-mail box */
+			"vrfEmailRetype" => $state && isset($ac->text->vrfEmailRetype) ? $ac->text->vrfEmailRetype : esc_html__('Confirm email','easy-form-builder'),
+			/* translators: F02 visitor error */
+			"vrfEmailMismatch" => $state && isset($ac->text->vrfEmailMismatch) ? $ac->text->vrfEmailMismatch : esc_html__('The email addresses do not match.','easy-form-builder'),
+			/* translators: F02 visitor error: the number or address is not valid */
+			"vrfDestination" => $state && isset($ac->text->vrfDestination) ? $ac->text->vrfDestination : esc_html__('Please enter a valid number or address first.','easy-form-builder'),
+			/* translators: F02 visitor error: spam protection refused the request */
+			"vrfBlocked" => $state && isset($ac->text->vrfBlocked) ? $ac->text->vrfBlocked : esc_html__('This request was blocked. Please try again later.','easy-form-builder'),
+			/* translators: F02 visitor error: the page is older than the form */
+			"vrfRefresh" => $state && isset($ac->text->vrfRefresh) ? $ac->text->vrfRefresh : esc_html__('This form was updated. Please refresh the page.','easy-form-builder'),
+			/* translators: F02 visitor: link that shows delivery tips */
+			"vrfNoCode" => $state && isset($ac->text->vrfNoCode) ? $ac->text->vrfNoCode : esc_html__('Did not get the code?','easy-form-builder'),
+			/* translators: F02 visitor: delivery tips */
+			"vrfNoCodeTips" => $state && isset($ac->text->vrfNoCodeTips) ? $ac->text->vrfNoCodeTips : esc_html__('Check the number or address and your spam folder. You can ask for a new code when the timer ends.','easy-form-builder'),
+			/* translators: F02 visitor: announced when the code box opens */
+			"vrfCodeSentA11y" => $state && isset($ac->text->vrfCodeSentA11y) ? $ac->text->vrfCodeSentA11y : esc_html__('Enter the code you received.','easy-form-builder'),
+			/* translators: F02 SMS text: %1$s = code, %2$s = site name */
+			"vrfSmsBody" => $state && isset($ac->text->vrfSmsBody) ? $ac->text->vrfSmsBody : esc_html__('%1$s is your %2$s verification code.','easy-form-builder'),
+			/* translators: F02 e-mail subject: %s = site name */
+			"vrfEmailSubject" => $state && isset($ac->text->vrfEmailSubject) ? $ac->text->vrfEmailSubject : esc_html__('Your verification code for %s','easy-form-builder'),
+			/* translators: F02 e-mail text before the code */
+			"vrfEmailBody" => $state && isset($ac->text->vrfEmailBody) ? $ac->text->vrfEmailBody : esc_html__('Enter this code to continue:','easy-form-builder'),
+			/* translators: F02 e-mail text */
+			"vrfEmailIgnore" => $state && isset($ac->text->vrfEmailIgnore) ? $ac->text->vrfEmailIgnore : esc_html__('If you did not request this, you can ignore this email.','easy-form-builder'),
+			/* translators: F02 e-mail text: %s = minutes */
+			"vrfEmailExpires" => $state && isset($ac->text->vrfEmailExpires) ? $ac->text->vrfEmailExpires : esc_html__('The code expires in %s minutes.','easy-form-builder'),
+			/* translators: F02 settings tab */
+			"vrfTab" => $state && isset($ac->text->vrfTab) ? $ac->text->vrfTab : esc_html__('Verification','easy-form-builder'),
+			/* translators: F02 settings intro */
+			"vrfTabIntro" => $state && isset($ac->text->vrfTabIntro) ? $ac->text->vrfTabIntro : esc_html__('Visitors confirm a mobile number or an e-mail address with a one-time code before the form is sent.','easy-form-builder'),
+			/* translators: F02 builder: e-mail field setting */
+			"vrfEmailMode" => $state && isset($ac->text->vrfEmailMode) ? $ac->text->vrfEmailMode : esc_html__('Email confirmation','easy-form-builder'),
+			/* translators: F02 builder option */
+			"vrfModeNone" => $state && isset($ac->text->vrfModeNone) ? $ac->text->vrfModeNone : esc_html__('Off','easy-form-builder'),
+			/* translators: F02 builder option */
+			"vrfModeRetype" => $state && isset($ac->text->vrfModeRetype) ? $ac->text->vrfModeRetype : esc_html__('Type it twice','easy-form-builder'),
+			/* translators: F02 builder option */
+			"vrfModeOtp" => $state && isset($ac->text->vrfModeOtp) ? $ac->text->vrfModeOtp : esc_html__('Send a code','easy-form-builder'),
+			/* translators: F02 builder option */
+			"vrfModeRetypeOtp" => $state && isset($ac->text->vrfModeRetypeOtp) ? $ac->text->vrfModeRetypeOtp : esc_html__('Type it twice and send a code','easy-form-builder'),
+			/* translators: F02 builder: mobile field switch */
+			"vrfEnableSms" => $state && isset($ac->text->vrfEnableSms) ? $ac->text->vrfEnableSms : esc_html__('Verify with an SMS code','easy-form-builder'),
+			/* translators: F02 builder: when the code is asked for */
+			"vrfWhen" => $state && isset($ac->text->vrfWhen) ? $ac->text->vrfWhen : esc_html__('Ask for the code','easy-form-builder'),
+			/* translators: F02 builder option */
+			"vrfWhenFilled" => $state && isset($ac->text->vrfWhenFilled) ? $ac->text->vrfWhenFilled : esc_html__('When the field is filled in','easy-form-builder'),
+			/* translators: F02 builder option */
+			"vrfWhenAlways" => $state && isset($ac->text->vrfWhenAlways) ? $ac->text->vrfWhenAlways : esc_html__('Always (an empty field cannot be sent)','easy-form-builder'),
+			/* translators: F02 builder: ISO country codes for SMS codes */
+			"vrfCountries" => $state && isset($ac->text->vrfCountries) ? $ac->text->vrfCountries : esc_html__('Countries that may receive the code (ISO codes, empty = the site list)','easy-form-builder'),
+			/* translators: F02 builder */
+			"vrfBtnLabel" => $state && isset($ac->text->vrfBtnLabel) ? $ac->text->vrfBtnLabel : esc_html__('Button text','easy-form-builder'),
+			/* translators: F02 builder */
+			"vrfRetypeLabel" => $state && isset($ac->text->vrfRetypeLabel) ? $ac->text->vrfRetypeLabel : esc_html__('Label of the second box','easy-form-builder'),
+			/* translators: F02 builder: placeholders in brackets */
+			"vrfSubject" => $state && isset($ac->text->vrfSubject) ? $ac->text->vrfSubject : esc_html__('E-mail subject ([website_name], [otp_code])','easy-form-builder'),
+			/* translators: F02 builder */
+			"vrfBody" => $state && isset($ac->text->vrfBody) ? $ac->text->vrfBody : esc_html__('E-mail text (must contain [otp_code])','easy-form-builder'),
+			/* translators: F02 builder and save warning */
+			"vrfBodyNeedsCode" => $state && isset($ac->text->vrfBodyNeedsCode) ? $ac->text->vrfBodyNeedsCode : esc_html__('The e-mail text must contain [otp_code]. The default text is used instead.','easy-form-builder'),
+			/* translators: F02 builder and save warning */
+			"vrfNotOnRegister" => $state && isset($ac->text->vrfNotOnRegister) ? $ac->text->vrfNotOnRegister : esc_html__('Codes are not used on registration and login forms yet.','easy-form-builder'),
+			/* translators: F02 builder and save warning */
+			"vrfSmsNotReady" => $state && isset($ac->text->vrfSmsNotReady) ? $ac->text->vrfSmsNotReady : esc_html__('SMS codes are sent through the WP SMS plugin. Install and set up WP SMS and turn on the SMS add-on. Until then a visitor who fills in this field cannot send the form.','easy-form-builder'),
+			/* translators: F02 builder and save warning */
+			"vrfEmailNotReady" => $state && isset($ac->text->vrfEmailNotReady) ? $ac->text->vrfEmailNotReady : esc_html__('This site does not send e-mails, so e-mail codes cannot be sent. Turn on e-mail sending first.','easy-form-builder'),
+			/* translators: F02 builder link */
+			"vrfOpenSettings" => $state && isset($ac->text->vrfOpenSettings) ? $ac->text->vrfOpenSettings : esc_html__('Open the verification settings','easy-form-builder'),
+			/* translators: F02 settings */
+			"vrfNoProviders" => $state && isset($ac->text->vrfNoProviders) ? $ac->text->vrfNoProviders : esc_html__('The SMS add-on is off. Turn it on in Add-ons: SMS codes are sent through the WP SMS plugin.','easy-form-builder'),
+			/* translators: F02 settings */
+			"vrfAllowedCountries" => $state && isset($ac->text->vrfAllowedCountries) ? $ac->text->vrfAllowedCountries : esc_html__('Countries that may receive SMS codes (ISO codes, comma separated; empty = no SMS codes)','easy-form-builder'),
+			/* translators: F02 settings */
+			"vrfDailyBudget" => $state && isset($ac->text->vrfDailyBudget) ? $ac->text->vrfDailyBudget : esc_html__('Daily budget (codes per day)','easy-form-builder'),
+			/* translators: F02 settings */
+			"vrfCodeLength" => $state && isset($ac->text->vrfCodeLength) ? $ac->text->vrfCodeLength : esc_html__('Code length (digits)','easy-form-builder'),
+			/* translators: F02 settings */
+			"vrfTtl" => $state && isset($ac->text->vrfTtl) ? $ac->text->vrfTtl : esc_html__('Code lifetime (seconds)','easy-form-builder'),
+			/* translators: F02 settings: placeholders in braces */
+			"vrfMessage" => $state && isset($ac->text->vrfMessage) ? $ac->text->vrfMessage : esc_html__('Message text ({code}, {site}, {domain})','easy-form-builder'),
+			/* translators: F02 settings */
+			"vrfWebOtp" => $state && isset($ac->text->vrfWebOtp) ? $ac->text->vrfWebOtp : esc_html__('Add the line for automatic code filling (@domain #code)','easy-form-builder'),
+			/* translators: F02 settings button */
+			"vrfTestSend" => $state && isset($ac->text->vrfTestSend) ? $ac->text->vrfTestSend : esc_html__('Send a test code','easy-form-builder'),
+			/* translators: F02 settings */
+			"vrfTestTo" => $state && isset($ac->text->vrfTestTo) ? $ac->text->vrfTestTo : esc_html__('Your number or address','easy-form-builder'),
+			/* translators: F02 settings */
+			"vrfTestSent" => $state && isset($ac->text->vrfTestSent) ? $ac->text->vrfTestSent : esc_html__('The test code was sent.','easy-form-builder'),
+			/* translators: F02 settings: %1$s = codes sent, %2$s = codes verified */
+			"vrfStats" => $state && isset($ac->text->vrfStats) ? $ac->text->vrfStats : esc_html__('Last 24 hours: %1$s codes sent, %2$s verified.','easy-form-builder'),
+			/* translators: F02 settings warning */
+			"vrfStatsWarn" => $state && isset($ac->text->vrfStatsWarn) ? $ac->text->vrfStatsWarn : esc_html__('Few codes are entered after being sent. This can be SMS pumping: check the limits and the countries.','easy-form-builder'),
+			/* translators: F02 settings: where SMS codes go */
+			"vrfSmsVia" => $state && isset($ac->text->vrfSmsVia) ? $ac->text->vrfSmsVia : esc_html__('SMS codes are sent through the WP SMS plugin. Its gateway, credentials and sender number are set up in WP SMS.','easy-form-builder'),
+			/* translators: F02 settings: WP SMS is not active */
+			"vrfWpSmsMissing" => $state && isset($ac->text->vrfWpSmsMissing) ? $ac->text->vrfWpSmsMissing : esc_html__('WP SMS is not installed or not active.','easy-form-builder'),
+			/* translators: F02 settings link */
+			"vrfWpSmsInstall" => $state && isset($ac->text->vrfWpSmsInstall) ? $ac->text->vrfWpSmsInstall : esc_html__('Install and set up WP SMS','easy-form-builder'),
+			/* translators: F02 settings link */
+			"vrfWpSmsSettings" => $state && isset($ac->text->vrfWpSmsSettings) ? $ac->text->vrfWpSmsSettings : esc_html__('WP SMS settings','easy-form-builder'),
+			/* translators: F02 settings link */
+			"vrfAddons" => $state && isset($ac->text->vrfAddons) ? $ac->text->vrfAddons : esc_html__('Add-ons','easy-form-builder'),
+			/* translators: F02 settings section */
+			"vrfLimits" => $state && isset($ac->text->vrfLimits) ? $ac->text->vrfLimits : esc_html__('Limits','easy-form-builder'),
+			/* translators: F02 settings section */
+			"vrfEmailSection" => $state && isset($ac->text->vrfEmailSection) ? $ac->text->vrfEmailSection : esc_html__('E-mail codes','easy-form-builder'),
+			/* translators: F02 settings section */
+			"vrfSmsSection" => $state && isset($ac->text->vrfSmsSection) ? $ac->text->vrfSmsSection : esc_html__('SMS codes','easy-form-builder'),
+			/* translators: F02 settings */
+			"vrfCodeInSubject" => $state && isset($ac->text->vrfCodeInSubject) ? $ac->text->vrfCodeInSubject : esc_html__('Put the code in the subject (shown on lock screens)','easy-form-builder'),
+			/* translators: F02 settings */
+			"vrfBlockedDomains" => $state && isset($ac->text->vrfBlockedDomains) ? $ac->text->vrfBlockedDomains : esc_html__('Blocked e-mail domains (comma separated)','easy-form-builder'),
+			/* translators: F02 settings */
+			"vrfSaved" => $state && isset($ac->text->vrfSaved) ? $ac->text->vrfSaved : esc_html__('Verification settings saved.','easy-form-builder'),
+			/* translators: F02 settings note */
+			"vrfSecurityNote" => $state && isset($ac->text->vrfSecurityNote) ? $ac->text->vrfSecurityNote : esc_html__('An SMS code shows that the visitor receives messages on that number. It is not a strong login factor.','easy-form-builder'),
+			/* translators: F02 response viewer badge */
+			"vrfBadgeSms" => $state && isset($ac->text->vrfBadgeSms) ? $ac->text->vrfBadgeSms : esc_html__('Verified by SMS','easy-form-builder'),
+			/* translators: F02 response viewer badge */
+			"vrfBadgeEmail" => $state && isset($ac->text->vrfBadgeEmail) ? $ac->text->vrfBadgeEmail : esc_html__('Verified by email','easy-form-builder'),
+			/* translators: F02 settings status */
+			"vrfChannelReady" => $state && isset($ac->text->vrfChannelReady) ? $ac->text->vrfChannelReady : esc_html__('Ready','easy-form-builder'),
+			/* translators: F02 settings status */
+			"vrfChannelOff" => $state && isset($ac->text->vrfChannelOff) ? $ac->text->vrfChannelOff : esc_html__('Not available','easy-form-builder'),
+			/* translators: F02 settings help */
+			"vrfLimitsHelp" => $state && isset($ac->text->vrfLimitsHelp) ? $ac->text->vrfLimitsHelp : esc_html__('Per destination, per visitor address and per form. A refused request costs nothing.','easy-form-builder'),
 
 		];
 
@@ -5031,6 +5193,24 @@ class efbFunction {
 					case 'msg_strength':
 						if (!class_exists('\\Emsfb\\Field_Rules') && is_readable(__DIR__ . '/class-Emsfb-field-rules.php')) require_once __DIR__ . '/class-Emsfb-field-rules.php';
 						$valp[$key][$k] = class_exists('\\Emsfb\\Field_Rules') ? \Emsfb\Field_Rules::sanitize_key($k, $v) : '';
+					break;
+					// F02 one-time codes (mobile and e-mail fields): enums, an ISO list, short plain texts and the
+					// e-mail text (newlines kept as @n#). One rule set, Verification::sanitize_key() (= EFBVerify.sanitizeKey()).
+					case 'otp_enabled':
+					case 'otp_channel':
+					case 'otp_required_when':
+					case 'otp_countries':
+					case 'otp_btn_label':
+					case 'email_confirm_mode':
+					case 'email_retype_label':
+					case 'email_otp_required_when':
+					case 'email_otp_subject':
+					case 'email_otp_body':
+						if (!class_exists('\\Emsfb\\Verification') && is_readable(__DIR__ . '/class-Emsfb-verification.php')) {
+							if (!interface_exists('\\Emsfb\\Verification\\Provider') && is_readable(__DIR__ . '/verification/interface-provider.php')) require_once __DIR__ . '/verification/interface-provider.php';
+							require_once __DIR__ . '/class-Emsfb-verification.php';
+						}
+						$valp[$key][$k] = class_exists('\\Emsfb\\Verification') ? \Emsfb\Verification::sanitize_key($k, $v) : '';
 					break;
 					// PAY00 payment field (pf_*, on the gateway field row) and payment actions (pay_act_*,
 					// row 0): allow-lists, canonical lists, plain text; never CSS or HTML. '' = not set.

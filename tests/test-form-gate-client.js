@@ -41,7 +41,7 @@ const rh = fs.readFileSync(path.join(ROOT, 'public/assets/js/request-health-efb.
 const finalList = /const FINAL = \[([^\]]*)\]/.exec(rh)[1];
 t('prepare treats the gate codes as final', ['efb_role_denied', 'efb_form_pending', 'efb_form_closed', 'efb_form_full', 'efb_limit_reached'].every((c) => finalList.indexOf("'" + c + "'") !== -1), true);
 t('prepare passes data.reopen_at with the error', /error\.reopen_at=Number\(value\.data\.reopen_at\)/.test(rh), true);
-t('draft_token is not part of the request fingerprint', /\['sid','runtime_token','request_id','valid','nonce','draft_token'\]/.test(rh), true);
+t('draft_token is not part of the request fingerprint', /\['sid','runtime_token','request_id','valid','nonce','draft_token'(,'[a-z_]+')*\]/.test(rh), true);
 
 /* ---- fake DOM */
 function makeDom() {

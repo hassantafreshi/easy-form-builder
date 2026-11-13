@@ -33,7 +33,7 @@
   window.EFBRequestHealth = {
     report(operation, status) {
       status = Number(status) || 0;
-      if (!['form', 'tracker', 'reply', 'upload', 'refresh', 'prepare', 'shield', 'payment', 'admin_reply', 'admin_tracker'].includes(operation) ||
+      if (!['form', 'tracker', 'reply', 'upload', 'refresh', 'prepare', 'shield', 'payment', 'verify', 'admin_reply', 'admin_tracker'].includes(operation) ||
           !Number.isInteger(status) || (status !== 0 && (status < 400 || status > 599))) return;
       const key = operation + ':' + status;
       if (seen.has(key) || seen.size >= 8) return;
@@ -178,7 +178,7 @@
       }
       data.sid=value.sid; data.runtime_token=value.runtime_token;
       const canonical=Object.assign({},data);
-      ['sid','runtime_token','request_id','valid','nonce','draft_token'].forEach(k=>delete canonical[k]);
+      ['sid','runtime_token','request_id','valid','nonce','draft_token','verifications','email_confirms'].forEach(k=>delete canonical[k]);
       const fingerprint=JSON.stringify(canonical), key=kind+':'+fid;
       let intent=intents.get(key);
       if (!intent || intent.fingerprint!==fingerprint) { intent={fingerprint,id:uuid()}; intents.set(key,intent); }

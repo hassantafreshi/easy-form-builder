@@ -528,9 +528,15 @@ class EmsfbEmailHandler {
         $isProblemReportState = in_array($state, ['addonsDlProblem', 'reportProblem'], true);
         // F11-E: the "continue your form" link (Drafts::email_html(): form name, link, its end; no answers).
         $isResumeState = $state === 'resumeLink';
+        // F02: a one-time code (Verification::email_html(): the code, its lifetime, "ignore it", the site
+        // name). No button, no link, no value of the form; the footer is plain text here too.
+        $isOtpState = $state === 'otpCode';
+        if ($isOtpState) {
+            $footer = "<p style='text-align:center;color:#888888;margin:0'>" . esc_html($lang['sentBy'] . ' ' . wp_strip_all_tags(get_bloginfo('name'))) . "</p>";
+        }
 
         $tracking_section = "";
-        if ($email_content_type != 'just_message' && !$isRegistrationState && !$isRecoveryState && !$isAdminNoticeState && !$isProblemReportState && !$isResumeState) {
+        if ($email_content_type != 'just_message' && !$isRegistrationState && !$isRecoveryState && !$isAdminNoticeState && !$isProblemReportState && !$isResumeState && !$isOtpState) {
             $safe_link = esc_url($link);
             $tracking_section = "
             <div style='text-align:center; margin: 30px 0;'>
@@ -577,10 +583,15 @@ class EmsfbEmailHandler {
             $title = esc_html__('Continue your form', 'easy-form-builder');
         }
 
+        if ($isOtpState) {
+            $otp_title = $this->get_text_efb(array('vrfCodeLabel'));
+            $title = esc_html(isset($otp_title['vrfCodeLabel']) && is_string($otp_title['vrfCodeLabel']) && $otp_title['vrfCodeLabel'] !== '' ? $otp_title['vrfCodeLabel'] : 'Verification code');
+        }
+
         if ($state == "testMailServer") {
             $title = $lang['serverEmailAble'];
             $message = $this->generate_test_server_message($lang, $l, $wp_lan);
-        } else if ($isAdminNoticeState || $isProblemReportState || $isResumeState) {
+        } else if ($isAdminNoticeState || $isProblemReportState || $isResumeState || $isOtpState) {
             $message = is_string($m) ? $m : '';
         } else if ($isRecoveryState) {
             // Recovery email - m contains username, link contains the full recovery URL

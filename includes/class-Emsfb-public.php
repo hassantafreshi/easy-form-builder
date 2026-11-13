@@ -53,6 +53,10 @@ class _Public {
 	private $field_rules_ctx_cache_efb = null;
 	/* F11-E/F: the runtime owner of the tab that submits (its partial entry is completed). */
 	private $runtime_owner_efb = '';
+	/* F02: verified destinations of this submission (Verification::validate_submission()), consumed in insert_message_db(). */
+	private $verification_claims = array();
+	/* F02: one-time code assets on this page (verify-efb.js). */
+	private $verify_page_efb = false;
 	/** PAY00: the instance (webhooks, cron and the return URL run actions through it). */
 	public static $instance_efb = null;
 
@@ -1319,7 +1323,11 @@ public function check_nonce_permission_efb($request) {
 			/* F03 field rules: messages, counter, password strength and toggle, help button. */
 			'tvUnique_','tvMinLen_','tvMaxLen_','tvMinWords_','tvMaxWords_','tvPattern_','tvDomAllow_','tvDomDeny_','tvPwMismatch_','tvPwWeak_',
 			'tvCharsLeft','tvWordsLeft','tvCharsUsed','tvWordsUsed','tvLimitHint','tvLimitWordsHint',
-			'tvPwShow','tvPwHide','tvPwStrength','tvPwWeak','tvPwFair','tvPwGood','tvPwStrong','tvPwConfirmLbl','tvHelpBtn'];
+			'tvPwShow','tvPwHide','tvPwStrength','tvPwWeak','tvPwFair','tvPwGood','tvPwStrong','tvPwConfirmLbl','tvHelpBtn',
+			/* F02 one-time codes (Verification::public_keys()), and 'verify', the code box's placeholder. */
+			'vrfSend','vrfSending','vrfSentSms','vrfSentEmail','vrfCodeLabel','vrfVerify','vrfVerified','vrfResendIn','vrfResend','vrfEdit',
+			'vrfWrong','vrfExpired','vrfLocked','vrfCountry','vrfLimit','vrfFailed','vrfRequired','vrfUnavailable','vrfEmailRetype','vrfEmailMismatch',
+			'vrfDestination','vrfBlocked','vrfRefresh','vrfNoCode','vrfNoCodeTips','vrfCodeSentA11y','verify'];
 
 			/* Only now is a form or response box really printed. A form in a widget,
 			 * footer or popup keeps the page cacheable (EFBRuntime.prepare() fetches a
@@ -2396,6 +2404,14 @@ public function check_nonce_permission_efb($request) {
 			$core_deps[] = 'efb-field-rules-js';
 			$this->field_rules_page_efb = true;
 		}
+		// F02: the one-time code runtime only on pages with a field that asks for a code or a second e-mail copy.
+		if (class_exists('\\Emsfb\\Verification') && \Emsfb\Verification::json_has_verification($form_structure_json)) {
+			wp_register_script('efb-verify-js', EMSFB_PLUGIN_URL . 'public/assets/js/verify-efb.js', array(), $asset_version('public/assets/js/verify-efb.js'), true);
+			wp_enqueue_script('efb-verify-js');
+			wp_enqueue_style('efb-verify-css', EMSFB_PLUGIN_URL . 'public/assets/css/verify-efb.css', array(), $asset_version('public/assets/css/verify-efb.css'));
+			$core_deps[] = 'efb-verify-js';
+			$this->verify_page_efb = true;
+		}
 		// A6: a mobile field needs intlTelInput before its init runs; declare it as a
 		// dependency so script optimisers keep the order (the renderer registers the
 		// same handle later, which is then a no-op).
@@ -2595,7 +2611,9 @@ public function check_nonce_permission_efb($request) {
 			/* F11 form gate (Form_Gate::message() reads them through text_efb() too). */
 			'limFullM', 'limReachedM', 'limReachedUntilM', 'schedPendingM', 'schedClosedM', 'roleDeniedM',
 			/* F03 field rules (Field_Rules::message_keys()). */
-			'tvUnique_', 'tvMinLen_', 'tvMaxLen_', 'tvMinWords_', 'tvMaxWords_', 'tvPattern_', 'tvDomAllow_', 'tvDomDeny_', 'tvPwMismatch_', 'tvPwWeak_'
+			'tvUnique_', 'tvMinLen_', 'tvMaxLen_', 'tvMinWords_', 'tvMaxWords_', 'tvPattern_', 'tvDomAllow_', 'tvDomDeny_', 'tvPwMismatch_', 'tvPwWeak_',
+			/* F02 one-time codes (Verification::server_keys()). */
+			'vrfExpired', 'vrfRequired', 'vrfEmailMismatch', 'vrfUnavailable', 'vrfRefresh'
 		];
 		$efbFunction = get_efbFunction();
 
@@ -3765,6 +3783,35 @@ public function check_nonce_permission_efb($request) {
 					if ($this->field_rules_code_efb !== '') $response['code'] = 'efb_field_' . $this->field_rules_code_efb;
 					wp_send_json_success($response, 200);
 				}
+				// Verification gate: every field that requires a one-time code must carry a valid token
+				// for exactly the value being saved, and a "type it twice" e-mail its second copy (F02 §5.6).
+				// Nothing is consumed here; insert_message_db() consumes the tokens once, atomically.
+				$this->verification_claims = array();
+				if (class_exists('\Emsfb\Verification')) {
+					$vr_efb = \Emsfb\Verification::validate_submission(array(
+						'fid'            => intval($request_data['id']),
+						'sid'            => (string) $session_id,
+						'runtime_sid'    => isset($runtime_proof) && is_array($runtime_proof) && isset($runtime_proof['sid']) ? (string) $runtime_proof['sid'] : null,
+						'fields'         => $form_fields_array,
+						'items'          => $validated_items,
+						'ignored'        => ($_efb_is_conditional_logic_active && !empty($_ignored_set)) ? array_keys($_ignored_set) : array(),
+						'tokens'         => isset($request_data['verifications']) && is_array($request_data['verifications']) ? $request_data['verifications'] : array(),
+						'email_confirms' => isset($request_data['email_confirms']) && is_array($request_data['email_confirms']) ? $request_data['email_confirms'] : array(),
+						'lanText'        => $this->lanText,
+					));
+					if (is_wp_error($vr_efb)) {
+						$vr_data_efb = $vr_efb->get_error_data();
+						$this->efb_trace('submit.blocked', array('form_id' => intval($request_data['id']), 'gate' => 'verification', 'reason' => $vr_efb->get_error_code()));
+						wp_send_json_success(array('success' => false, 'm' => $vr_efb->get_error_message(), 'field_id' => is_array($vr_data_efb) && isset($vr_data_efb['field_id']) ? $vr_data_efb['field_id'] : '', 'code' => $vr_efb->get_error_code()), 200);
+					}
+					$this->verification_claims = array_values($vr_efb);
+					// The badge is set by the server only (a client-sent "verified" key never survives filter_attributes_by_type_efb()).
+					foreach ($validated_items as &$vi_efb) {
+						if (is_array($vi_efb) && isset($vi_efb['id_']) && isset($vr_efb[(string) $vi_efb['id_']])) $vi_efb['verified'] = $vr_efb[(string) $vi_efb['id_']]['channel'];
+					}
+					unset($vi_efb);
+				}
+				// End verification gate.
 				$this->value = $this->efb_encode_rows_for_storage_efb($validated_items);
 				$this->gate_items = $validated_items; // F11: the normalized e-mail for lim_email
 				if ($form_condition == 'booking') {
@@ -4325,6 +4372,22 @@ public function check_nonce_permission_efb($request) {
 								if (!empty($this->unique_pending_efb)) {
 									$pay_msg_efb = (int) $this->db->get_var($this->db->prepare("SELECT msg_id FROM `$table_name_` WHERE track = %s ORDER BY msg_id DESC LIMIT 1", $this->id));
 									$this->unique_claim_efb($pay_msg_efb > 0 ? $pay_msg_efb : null);
+								}
+								// F02: the legacy gateways store the answers on the paid entry: the verified values are the ones
+								// stored (with the server's badge) and the codes are used once, for that entry.
+								if (!empty($this->verification_claims)) {
+									$vr_by_field_efb = array();
+									foreach ($this->verification_claims as $vc_efb) $vr_by_field_efb[(string) $vc_efb['field_id']] = $vc_efb;
+									foreach ($filtered as $fk_efb => $fr_efb) {
+										if (is_array($fr_efb) && isset($fr_efb['id_']) && isset($vr_by_field_efb[(string) $fr_efb['id_']])) {
+											$filtered[$fk_efb]['value'] = $vr_by_field_efb[(string) $fr_efb['id_']]['value'];
+											$filtered[$fk_efb]['verified'] = $vr_by_field_efb[(string) $fr_efb['id_']]['channel'];
+										}
+									}
+									$this->value = sanitize_text_field(json_encode($filtered, JSON_UNESCAPED_UNICODE));
+									$this->verification_consume_efb();
+									$pay_msg_vr_efb = (int) $this->db->get_var($this->db->prepare("SELECT msg_id FROM `$table_name_` WHERE track = %s ORDER BY msg_id DESC LIMIT 1", $this->id));
+									$this->verification_after_insert_efb($pay_msg_vr_efb);
 								}
 								$db_update_result = $this->update_message_db();
 								if ($payment_gateway == "paypal") {
@@ -5022,6 +5085,9 @@ public function check_nonce_permission_efb($request) {
 		// F03: a form that stores no entries still accepts each value once (the claim has no entry: msg_id 0,
 		// forgotten after the form's retention period by the daily job).
 		$this->unique_claim_efb(0);
+		// F02: the codes are used once here too (no entry: msg_id 0).
+		$this->verification_consume_efb();
+		$this->verification_after_insert_efb(0);
 		$track = $this->generate_track_code_efb($style_trackingCode);
 		$this->gate_after_insert_efb(0);
 		if (class_exists('\\Emsfb\\Request_Health')) \Emsfb\Request_Health::mark_saved();
@@ -5118,10 +5184,37 @@ public function check_nonce_permission_efb($request) {
 		}
 	}
 
+	/**
+	 * F02: consumes the verified destinations of this submission once (Verification::consume, all or
+	 * nothing) after the F11 places and the F03 claims. Refused (a token used meanwhile): every claim of
+	 * this request is given back and the visitor is asked to verify again.
+	 */
+	private function verification_consume_efb() {
+		if (empty($this->verification_claims) || !class_exists('\\Emsfb\\Verification')) return;
+		$claims = $this->verification_claims;
+		if (\Emsfb\Verification::consume($claims) === count($claims)) return;
+		$this->verification_claims = array();
+		\Emsfb\Form_Runtime::abort($this->operation_key);
+		if (!empty($this->unique_claimed_efb) && class_exists('\\Emsfb\\Unique_Values')) { \Emsfb\Unique_Values::drop_claims(0, $this->unique_claimed_efb); $this->unique_claimed_efb = array(); }
+		if (!empty($this->gate_reserved) && class_exists('\\Emsfb\\Form_Gate')) { \Emsfb\Form_Gate::release($this->gate_claims); $this->gate_reserved = false; $this->gate_claims = array(); }
+		$this->efb_trace('submit.blocked', array('form_id' => intval($this->id), 'gate' => 'verification_consume'));
+		$m = isset($this->lanText['vrfExpired']) ? $this->lanText['vrfExpired'] : \Emsfb\Verification::t('vrfExpired');
+		wp_send_json_success(array('success' => false, 'm' => $m, 'field_id' => (string) $claims[0]['field_id'], 'code' => 'efb_verify_required'), 200);
+	}
+
+	/** F02: the claims are given back after a failed insert (no new code needed), or tied to the entry. */
+	private function verification_after_insert_efb($msg_id) {
+		if (empty($this->verification_claims) || !class_exists('\\Emsfb\\Verification')) return;
+		if ($msg_id === false) \Emsfb\Verification::release($this->verification_claims);
+		else \Emsfb\Verification::attach($this->verification_claims, (int) $msg_id);
+		$this->verification_claims = array();
+	}
+
 	public function insert_message_db($read,$uniqid,$style_trackingCode = 'date_en_mix'){
 		$this->begin_operation_efb();
 		$this->gate_reserve_efb();
 		$this->unique_claim_efb(); // F03, after the F11 places
+		$this->verification_consume_efb(); // F02, last: a refusal above keeps the codes usable
 		if(isset($read)==false) $read=0;
 
 		if($uniqid==false){
@@ -5155,6 +5248,8 @@ public function check_nonce_permission_efb($request) {
 		}
 		if ($inserted === false) {
 			\Emsfb\Form_Runtime::abort($this->operation_key);
+			// F02: the verified codes are given back (the visitor does not verify again).
+			$this->verification_after_insert_efb(false);
 			// F03: the values this submission took are given back.
 			if (!empty($this->unique_claimed_efb) && class_exists('\\Emsfb\\Unique_Values')) { \Emsfb\Unique_Values::drop_claims(0, $this->unique_claimed_efb); $this->unique_claimed_efb = array(); }
 			// F11: the places this submission took are given back.
@@ -5164,6 +5259,7 @@ public function check_nonce_permission_efb($request) {
 		}
 		// F03: the claims belong to this entry now (deleting it frees the values).
 		if (!empty($this->unique_claimed_efb) && class_exists('\\Emsfb\\Unique_Values')) { \Emsfb\Unique_Values::attach($this->unique_claimed_efb, isset($this->db->insert_id) ? (int) $this->db->insert_id : 0); $this->unique_claimed_efb = array(); }
+		$this->verification_after_insert_efb(isset($this->db->insert_id) ? (int) $this->db->insert_id : 0);
 		$this->gate_after_insert_efb(isset($this->db->insert_id) ? (int) $this->db->insert_id : 0);
 		\Emsfb\Request_Health::mark_saved();
 		$this->finish_operation_efb($uniqid);
@@ -10054,6 +10150,10 @@ public function check_nonce_permission_efb($request) {
 			}
 		}
 
+		/* F02: whether each code channel can deliver now (the server checks again; no provider name). */
+		if ($this->verify_page_efb && class_exists('\\Emsfb\\Verification')) {
+			$ar_core['verify'] = array('email' => \Emsfb\Verification::channel_ready('email'), 'sms' => \Emsfb\Verification::channel_ready('sms'));
+		}
 		/* F03: which parts of the field rules this site's plan honours (the server checks again). */
 		if (class_exists('\\Emsfb\\Field_Rules')) {
 			$ar_core['field_rules'] = \Emsfb\Field_Rules::client_config();

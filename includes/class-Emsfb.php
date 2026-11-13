@@ -437,6 +437,14 @@ class Emsfb {
             }
         }
 
+        // F02: one-time codes for mobile numbers and e-mail addresses (engine, e-mail channel, the
+        // sender interface the SMS add-on implements with its WP SMS bridge). Always registered like
+        // Form_Runtime; the routes answer "unavailable" until a channel can deliver.
+        if ($this->require_plugin_file_efb('includes/verification/interface-provider.php')
+            && $this->require_plugin_file_efb('includes/class-Emsfb-verification.php')) {
+            \Emsfb\Verification::register();
+        }
+
         // Builder API for integrations such as AutoPilot (docs/autopilot-integration.md).
         // Optional: callers check class_exists('\Emsfb\Builder_Api').
         $this->require_plugin_file_efb('includes/class-Emsfb-builder-api.php');
