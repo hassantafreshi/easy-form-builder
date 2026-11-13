@@ -829,6 +829,69 @@ New form keys in the contract (`docs/feature-gaps/F11-form-limits-resume.fa.md`;
   `test-partial-entries-http.php`) and the e2e scenarios `f11b` … `f11h`, `f11pay` (B: AutoPilot
   `formGate()` and `capabilities.form_gate`).
 
+### F03. Text field validation (field keys, `efbBuilderApi.setFieldRules`, codes)
+
+New field keys in the contract (`docs/feature-gaps/F03-text-validation.fa.md`; SitePilot contract
+`keys_masks_rules`). All on the field row, all scalar strings, all optional (absent = today's behaviour).
+Save rules: `Emsfb\Field_Rules::sanitize_key()` = `EfbRules.sanitizeKey()` (parity-tested).
+
+| Key | Values (as the save keeps them) | Fields | Plan |
+|---|---|---|---|
+| `wmin`, `wmax` | `"1"`–`"100000"` words (Persian digits accepted; 0 / empty = none) | text, textarea, firstName, lastName, address_line | Free |
+| `counter`, `counter_style` | `none` / `chars` / `words`; `remaining` / `used` | same | Free |
+| `mlen` on a textarea | now honoured (maxlength) | textarea | Free |
+| `readonly` | `"1"` / `"0"`: shown, sent, the server keeps the stored `value` (excludes `disabled`) | text-like, textarea | Free |
+| `prefix`, `suffix` | plain text ≤ 24 | text, number, email, url, tel, name and address parts | Free |
+| `message_place` | `below` (default) / `above` / `focus` / `tooltip` | text-like, textarea | Free |
+| `pw_confirm`, `pw_meter`, `pw_toggle`, `pw_confirm_label` | `"1"`/`"0"`; label text ≤ 100 | password | Free |
+| `unique`, `unique_scope` | `"1"`/`"0"`; `form` only | text, email, tel, mobile, number, url, postalcode, address_line, names | **Free Plus** |
+| `pattern_b64`, `pattern_case`, `pattern_ascii` | base64url (no padding) of the UTF-8 pattern ≤ 256 bytes, whole value, the lint of §9.3; `"1"`/`"0"` (ascii default on) | text-like, textarea, email, url, tel | **Free Plus** |
+| `email_domain_mode`, `email_domains` | `none` / `allow` / `deny`; comma list (`example.com`, `*.example.com`, `*.edu`, `name@example.com`, `*@example.com`), punycode | email | **Free Plus** |
+| `pw_strength_min` | `"0"`–`"4"` | password | **Free Plus** |
+| `msg_format`, `msg_minlen`, `msg_maxlen`, `msg_words`, `msg_pattern`, `msg_unique`, `msg_domain`, `msg_mismatch`, `msg_strength` | plain text ≤ 200 (no `" < >`), `%s` = the label | per rule | builder: Free Plus (like `customRequiredMsg`); the server reads a stored one on every plan |
+
+- **Builder.** `efbBuilderApi.setFieldRules(id, patch)` (id = `id_` or `dataId`) writes with the save
+  rules; `{pattern: '<plain regex>'}` is linted and stored as `pattern_b64`. Throws `pattern_invalid`
+  (`e.reason` = lint code such as `nested_quantifier`, `lookbehind`, `backref`, `e.pos`),
+  `unsupported_key` (the field type has no use for it, e.g. `email_domains` on a text field),
+  `invalid_setting`, `unknown_field`. `setForm()` / `insertItems()` refuse a row whose `pattern_b64`
+  the save would empty (`pattern_invalid`, `e.path = "rows[i].pattern_b64"`). Turning `readonly` on
+  turns `disabled` off. Saving stays the owner's Save.
+- **Save answer.** A save carrying a refused pattern answers `{success:false, code:'pattern_invalid',
+  path:'rows[i].pattern_b64', errors:[{code, path, reason, pos}]}` instead of storing an empty pattern.
+- **Unique values and older answers.** A field switched to `unique` by any save path (builder, importer,
+  API) hashes the form's older answers from the `efb_form_saved` / `efb_form_created` hook (inline, then
+  WP-Cron); `wp_ajax_efb_unique_backfill_Emsfb` (`form_id`) runs more batches and answers `{cursor, done,
+  inserted, duplicates, total}` (older duplicates are counted, never deleted).
+- **Visitor answers.** Every submit route (`forms/message/add`, `payments/create`, the legacy gateway
+  follow-up, offline restore, any API client) runs the rules on the server. A refusal answers
+  `{success:false, m, field_id, code: 'efb_field_<rule>'}` with `<rule>` one of `minlen`, `maxlen`,
+  `words`, `pattern`, `domain`, `mismatch`, `strength`, `unique`, `format` (a masked field with
+  `msg_format`). After `efb_unique_fail_per_minute` (10) unique refusals a minute from one visitor
+  the answer is the general sentence without `field_id`. "Try again" on a payment whose unique value
+  another entry took meanwhile answers `efb_field_unique` from `payments/retry`.
+- **Password confirmation** travels as the request key `password_confirms: {<id_>: value}`, never as
+  an answer row; an assistant filling a form for a visitor sends it the same way.
+- **Registry.** `setting:field_text_limits`, `setting:field_readonly`, `setting:field_affix_help`,
+  `setting:field_password_ux` (Free); `setting:field_unique`, `setting:field_pattern`,
+  `setting:field_email_domains`, `setting:field_password_strength`, `setting:field_rule_messages`
+  (Free Plus), each with `scope: 'field'` and its `form_keys`. Top level `field_rules` = `{keys,
+  gated_keys: [unique, pattern_b64, email_domain_mode, pw_strength_min], codes, types, pattern:{key,
+  encoding, max_bytes, anchored}, builder: 'efbBuilderApi.setFieldRules', error_code_prefix:
+  'efb_field_', spec: 'F03'}`. The plan levels can be changed by the owner with the filter `efb_f03_plan`
+  (`$need, $part`). Without the plan a paid rule is ignored, the form still works.
+- **Hooks.** `efb_f03_plan`, `efb_unique_fail_per_minute`; F02 (not built yet) reads the e-mail
+  mismatch message through `Emsfb\Field_Rules::mismatch_message($f, $default)` /
+  `EfbRules.mismatchMessage()`; WordPress personal data exporter / eraser
+  `easy-form-builder-unique` (the fingerprints of an address).
+- **Agent rules.** Never send a raw regex outside `pattern` of `setFieldRules()`; `pattern_b64`,
+  `email_domains`, `unique` and `readonly` changes on a form with answers are worth reporting to the
+  owner (they change who can send).
+- **Tests.** `test-field-rules-*.php|js` (core, count, regex, domains, password, render, save round
+  trip), `test-unique-values.php`, `test-unique-schema.php`, `test-unique-values-wp.php` (real
+  WordPress) and the e2e scenarios `f03a` … `f03h` (AutoPilot: `f03c` `setFieldRules` / `insertItems`
+  errors and `capabilities.field_rules`).
+
 ### PAY01. Mollie gateway field (`mollie`, add-on `AdnMOL`)
 
 Add-on `vendores-efb/mollie` on the PAY00 contract; nothing new in core. For agents:

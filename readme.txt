@@ -501,6 +501,16 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 * New: Show a form in a popup: [EMS_Form_Builder id=5 popup="1" popup_label="Register"] or the block's "Show as a popup" (Free Plus).
 * Fixed: A shortcode with an extra attribute (for example popup="1") showed the wrong form.
 * Developers: database version 1.6 (counter and draft tables); form keys lim_*, sched_*, allowed_roles, custom_css, draft_*, partial_*; REST forms/gate, forms/draft/*, forms/partial/save; efbBuilderApi.setFormSettings() and formGate(); see docs/autopilot-integration.md (F11).
+* New: Accept each value only once (for example one registration per e-mail address or ID number) in a form; answers sent before you switch it on are checked too. Two visitors can never both use the same value, a payment that fails gives the value back, and deleting an answer frees it (Free Plus).
+* New: Word limits, a maximum length for text areas and a live counter ("88 characters left") that screen readers hear only near the limit; Persian and Arabic digits in the counter.
+* New: A custom pattern (regular expression) for text fields, checked as you type it in the builder with a test box; patterns that could freeze a page are refused (Free Plus).
+* New: Allow or block e-mail domains (example.com, *.edu, name@example.com) (Free Plus).
+* New: Read-only fields, prefix and suffix ("+98", "kg"), and the description above the field, while the field is in focus, or behind a "?" help button.
+* New: Passwords: ask to type the password twice, a strength meter, a minimum strength (Free Plus) and a show-password button.
+* New: Your own error message for each rule (Free Plus); the server now answers with the field's own "required" message too.
+* Fixed: An e-mail or website field whose maximum length was left empty refused every answer on the server.
+* Fixed: A text area counted each line break as three characters, and a too-short text field did not stop Next in the browser.
+* Developers: database version 1.7 (unique-value table); field keys unique, wmin, wmax, counter, pattern_b64, email_domain_mode, email_domains, readonly, prefix, suffix, message_place, pw_*, msg_*; efbBuilderApi.setFieldRules(); error codes efb_field_<rule>; see docs/autopilot-integration.md (F03).
 
 * برای یکپارچگی با AutoPilot (for the AI Site Assistant AutoPilot integration, API version 1):
 * New: A builder API for assistants and integrations, window.efbBuilderApi: read, replace and insert fields, field templates without the canvas, a render that resolves when the canvas is really drawn, refresh of the open settings panel, and events for every change (efb:form-changed, efb:canvas-rendered). PHP: get_efbFunction()->field_templates_efb() and capabilities_efb(), efb_logic_validate_rules(), efb_plan_efb() and efb_plan_at_least_efb(). See docs/autopilot-integration.md.

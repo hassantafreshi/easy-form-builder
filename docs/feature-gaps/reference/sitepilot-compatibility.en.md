@@ -962,6 +962,13 @@ fail-closed here but fail-open in F03/F06/F07 — the manifest must report it pe
 `pattern_invalid`; `unique` on a form with entries triggers the backfill from `efb_form_saved`
 (not from the builder JS, otherwise API-created unique fields are never backfilled); schema hides
 `pattern_b64` and `email_domains`; gated keys listed in `features.field_rules.gated_keys`.
+*Status 2026-11-13 (F03 A–H shipped on `dev4`, J1–J5 not built):* every key above except `name_attr`;
+the save refuses a refused pattern with `code: pattern_invalid` and `path` (the validate route of the
+future API should call `Emsfb\Field_Rules::validate_rows()`); the backfill starts from `efb_form_saved` /
+`efb_form_created`; `capabilities.field_rules.gated_keys` (top level `field_rules` beside `features`);
+`efbBuilderApi.setFieldRules()`; visitor codes `efb_field_<rule>` (docs/autopilot-integration.md "F03").
+**Not yet:** the public schema (it does not exist yet) — when built it must leave out `pattern_b64` and
+`email_domains`; `name_attr` (J3).
 
 **F04 number and calculation.** Create: `num_*` keys, `calc` type with `formula`, `calc_show`,
 `calc_empty`, option `calc`, `range_mode`. Read: `formula_err` read-only. Fill: `calc` is

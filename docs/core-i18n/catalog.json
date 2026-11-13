@@ -4,7 +4,7 @@
     "plugin_version": "4.3.1",
     "updated": "2026-11-13",
     "counts": {
-        "active": 3154,
+        "active": 3247,
         "obsolete": 379
     },
     "entries": [
@@ -81,6 +81,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%1$s accepted, %2$s not understood",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder after normalizing the list. %1$s: accepted count, %2$s: refused count",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -181,6 +196,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "%1$s can have at most %2$s characters.",
+            "context": null,
+            "plural": null,
+            "translators": "F03 visitor error. %1$s: field label, %2$s: number",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%1$s can have at most %2$s words.",
+            "context": null,
+            "plural": null,
+            "translators": "F03 visitor error. %1$s: field label, %2$s: number",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "%1$s cannot run because required PHP functions are unavailable (%2$s). Ask your hosting provider to enable the required PHP extension or remove the listed functions from disable_functions in php.ini.",
             "context": null,
             "plural": null,
@@ -261,6 +306,66 @@
             "context": null,
             "plural": null,
             "translators": "F18: %1$s: feature name, %2$s: plan name",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%1$s needs at least %2$s characters.",
+            "context": null,
+            "plural": null,
+            "translators": "F03 visitor error. %1$s: field label, %2$s: number",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%1$s needs at least %2$s words.",
+            "context": null,
+            "plural": null,
+            "translators": "F03 visitor error. %1$s: field label, %2$s: number",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%1$s of %2$s characters",
+            "context": null,
+            "plural": null,
+            "translators": "F03 visitor counter under a field. %1$s: used, %2$s: maximum",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%1$s of %2$s words",
+            "context": null,
+            "plural": null,
+            "translators": "F03 visitor counter under a field. %1$s: used, %2$s: maximum",
             "files": [
                 "includes/functions.php"
             ],
@@ -619,6 +724,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%s characters left",
+            "context": null,
+            "plural": null,
+            "translators": "F03 visitor counter under a field. %s: number",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -1044,6 +1164,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%s words left",
+            "context": null,
+            "plural": null,
+            "translators": "F03 visitor counter under a field. %s: number",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -1723,6 +1858,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "A one-way fingerprint of the address, so it cannot be used twice in this form. The address itself is not kept here.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-unique.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "A payment field only works in a payment form. This form is a \"%s\" form: create a payment form or remove the payment field.",
             "context": null,
             "plural": null,
@@ -2070,6 +2220,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Above the field",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder option of \"Show the description\"",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Accent",
             "context": null,
             "plural": null,
@@ -2115,6 +2280,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Accept each value only once",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder switch: refuse a value that an earlier entry of this form already used",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Acceptable file types",
             "context": null,
             "plural": null,
@@ -2126,6 +2306,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Accepted",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder pattern test result for one line",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -3877,6 +4072,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Any domain",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder option",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Any special instructions?",
             "context": null,
             "plural": null,
@@ -4196,6 +4406,21 @@
             "context": null,
             "plural": null,
             "translators": "Shown when the current user cannot install plugins",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Ask to type the password twice",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder switch on a password field",
             "files": [
                 "includes/functions.php"
             ],
@@ -5021,6 +5246,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Behind a help button",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder option of \"Show the description\": a small help button next to the label",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Behind all cards",
             "context": null,
             "plural": null,
@@ -5032,6 +5272,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Below the field",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder option of \"Show the description\"",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -5140,6 +5395,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "Block these domains",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder option",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Blocked",
@@ -6714,6 +6984,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Characters",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder counter option",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Charging a mandatory fee on consumer cards is not allowed in the EU. Use the optional \"cover the fee\" setting for donations instead.",
             "context": null,
             "plural": null,
@@ -6905,6 +7190,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Checked when the form is sent. Earlier entries are checked too.",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder note under the unique switch",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Checking %s earlier entries for duplicates…",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder progress while earlier entries are checked. %s: number of entries",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -8147,6 +8462,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Confirm password",
+            "context": null,
+            "plural": null,
+            "translators": "F03 label of the second password box",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Confirm refund",
             "context": null,
             "plural": null,
@@ -9077,6 +9407,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Counter",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder: a live counter under the field",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Countries Drop-down",
             "context": null,
             "plural": null,
@@ -9715,6 +10060,21 @@
             "context": null,
             "plural": null,
             "translators": "F01 builder: option that lets the admin type their own input mask",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Custom pattern (regular expression)",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder: a regular expression the value must match",
             "files": [
                 "includes/functions.php"
             ],
@@ -11747,6 +12107,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Earlier entries checked. Duplicates already stored: %s",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder after the check. %s: number of earlier duplicate entries found",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Easy Form Builder",
             "context": null,
             "plural": null,
@@ -12085,6 +12460,21 @@
             "translators": "",
             "files": [
                 "includes/class-Emsfb-request-health.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Easy Form Builder: values used once",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-unique.php"
             ],
             "scope": [
                 "core"
@@ -12738,6 +13128,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Email domains",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder group title",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -13991,6 +14396,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Error messages",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder group of the per-rule error messages",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Error! Please try again later.",
             "context": null,
             "plural": null,
@@ -14521,7 +14941,7 @@
             "msgid": "Fair",
             "context": null,
             "plural": null,
-            "translators": "One-word label next to the delivery score: 40 to 69.",
+            "translators": "One-word label next to the delivery score: 40 to 69. translators: F03 password strength level",
             "files": [
                 "includes/functions.php"
             ],
@@ -14583,6 +15003,7 @@
             "plural": null,
             "translators": "",
             "files": [
+                "includes/class-Emsfb-unique.php",
                 "includes/functions.php"
             ],
             "scope": [
@@ -15215,6 +15636,7 @@
             "translators": "",
             "files": [
                 "includes/class-Emsfb-drafts.php",
+                "includes/class-Emsfb-unique.php",
                 "includes/functions.php",
                 "includes/page-builders/gutenberg/editor.js",
                 "includes/page-builders/visual-composer/class-Emsfb-visual-composer.php",
@@ -16697,7 +17119,7 @@
             "msgid": "Good",
             "context": null,
             "plural": null,
-            "translators": "One-word label next to the delivery score: 70 and above.",
+            "translators": "One-word label next to the delivery score: 70 and above. translators: F03 password strength level",
             "files": [
                 "includes/functions.php"
             ],
@@ -17358,6 +17780,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Help: %s",
+            "context": null,
+            "plural": null,
+            "translators": "F03 help button on a field. %s: the field label",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Here is your weekly snapshot for %s.",
             "context": null,
             "plural": null,
@@ -17589,6 +18026,21 @@
             "translators": "",
             "files": [
                 "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Hide password",
+            "context": null,
+            "plural": null,
+            "translators": "F03 button on a password field",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -18735,6 +19187,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Ignore upper and lower case",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder switch for the pattern",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -20392,6 +20859,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Kept since",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-unique.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Keys are stored encrypted and are never shown again. Leave a key field empty to keep the stored key. For extra protection define EFB_PAYMENTS_KEY in wp-config.php.",
             "context": null,
             "plural": null,
@@ -20932,6 +21414,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Leave empty to use the default message. %s is replaced by the field label.",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder note. %s is written as is",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -22407,6 +22904,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Maximum words",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Maybe later",
             "context": null,
             "plural": null,
@@ -22950,6 +23462,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Minimum strength",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder select on a password field",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Minimum submit score",
             "context": null,
             "plural": null,
@@ -22969,6 +23496,21 @@
             "context": null,
             "plural": null,
             "translators": "F01 builder, number format",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Minimum words",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder",
             "files": [
                 "includes/functions.php"
             ],
@@ -24248,6 +24790,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "No counter",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder counter option",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "No credits or promotional messages",
             "context": null,
             "plural": null,
@@ -24608,6 +25165,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "No minimum",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder minimum strength option",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "No partial answers.",
@@ -25961,6 +26533,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Only these domains",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder option",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Only these roles (empty = every logged-in user)",
             "context": null,
             "plural": null,
@@ -26654,6 +27241,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "POSIX classes such as [[:alpha:]] are not supported",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder, why an owner's regular expression cannot be used (shown after \"This pattern cannot be used:\")",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Padding",
             "context": null,
             "plural": null,
@@ -27057,6 +27659,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Password strength",
+            "context": null,
+            "plural": null,
+            "translators": "F03 label of the password strength meter",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -28619,6 +29236,21 @@
             "obsolete_since": "4.3.1"
         },
         {
+            "msgid": "Please choose a stronger password.",
+            "context": null,
+            "plural": null,
+            "translators": "F03 visitor error",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Please choose a valid amount.",
             "context": null,
             "plural": null,
@@ -29440,6 +30072,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Please use an email address from an allowed domain.",
+            "context": null,
+            "plural": null,
+            "translators": "F03 visitor error",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Please verify your PayPal API credentials in the plugin settings.",
             "context": null,
             "plural": null,
@@ -29746,6 +30393,21 @@
             "context": null,
             "plural": null,
             "translators": "F18: preview of the credit Free Plus shows under forms; keep it identical to the public credit text",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Prefix",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder: short text shown before the input box, e.g. +98 or $",
             "files": [
                 "includes/functions.php"
             ],
@@ -31003,6 +31665,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Read-only",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder switch: the field shows its default value and the visitor cannot change it",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Ready to disable",
             "context": null,
             "plural": null,
@@ -31475,6 +32152,21 @@
             "translators": "",
             "files": [
                 "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Refused",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder pattern test result for one line",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -34661,6 +35353,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Separate with commas: example.com, *.edu, name@example.com",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder note under the domain list",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Server confirmed ability to send emails.",
             "context": null,
             "plural": null,
@@ -35236,6 +35943,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Show password",
+            "context": null,
+            "plural": null,
+            "translators": "F03 button on a password field",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Show password strength",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder switch on a password field",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Show results with bar chart",
             "context": null,
             "plural": null,
@@ -35262,6 +35999,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Show the description",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder: where the field description is shown",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -35307,6 +36059,51 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Show what is left",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder counter style option",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Show what is used",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder counter style option",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Show-password button",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder switch on a password field",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -36936,6 +37733,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Strong",
+            "context": null,
+            "plural": null,
+            "translators": "F03 password strength level",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Style \"%s\" applied to the sheet.",
             "context": null,
             "plural": null,
@@ -37334,6 +38146,21 @@
             "translators": "input format preset shown in the form builder's \"Format / mask\" list",
             "files": [
                 "includes/data/masks-labels-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Suffix",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder: short text shown after the input box, e.g. kg or .com",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -38871,6 +39698,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The %s field is not in the expected format.",
+            "context": null,
+            "plural": null,
+            "translators": "F03 visitor error. %s: field label",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -41961,6 +42803,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The two passwords do not match.",
+            "context": null,
+            "plural": null,
+            "translators": "F03 visitor error",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The upload field could not be verified. Please refresh the form and try again.",
             "context": null,
             "plural": null,
@@ -42216,6 +43073,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The whole value must match. You do not need ^ or $.",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder note under the pattern box",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The wp_mail() function is missing or not available. WordPress email features may be broken.",
             "context": null,
             "plural": null,
@@ -42444,7 +43316,7 @@
             "msgid": "These limits of “%1$s” were not carried over: %2$s.",
             "context": null,
             "plural": null,
-            "translators": "1: field label, 2: the settings, e.g. \"maxlength:500\" translators: 1: field label, 2: the settings, e.g. \"min:-5 step:0.5\" translators: 1: field label, 2: the settings, e.g. \"min:today+7days\"",
+            "translators": "1: field label, 2: the settings, e.g. \"min:-5 step:0.5\" translators: 1: field label, 2: the settings, e.g. \"min:today+7days\"",
             "files": [
                 "includes/importers/cf7/class-Emsfb-cf7-mapper.php"
             ],
@@ -42557,6 +43429,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "This email domain is not accepted.",
+            "context": null,
+            "plural": null,
+            "translators": "F03 visitor error",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -43362,6 +44249,23 @@
             "obsolete_since": null
         },
         {
+            "msgid": "This pattern cannot be used: %s",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder error. %s: why the pattern cannot be used",
+            "files": [
+                "includes/admin/class-Emsfb-admin.php",
+                "includes/admin/class-Emsfb-create.php",
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "This payment attempt has already been used. Please reload the page and try again.",
             "context": null,
             "plural": null,
@@ -43661,6 +44565,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "This value has already been used.",
+            "context": null,
+            "plural": null,
+            "translators": "F03 visitor error when the value was used in an earlier entry",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -44406,6 +45325,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Treat Persian and Arabic digits as 0-9",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder switch: Persian and Arabic digits count as 0-9 for the pattern",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Treatments",
             "context": null,
             "plural": null,
@@ -44509,6 +45443,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Try some values, one per line",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder: a box to try the pattern; one value per line",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -45474,6 +46423,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Up to %s characters",
+            "context": null,
+            "plural": null,
+            "translators": "F03 hidden hint for screen readers. %s: number",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Up to %s words",
+            "context": null,
+            "plural": null,
+            "translators": "F03 hidden hint for screen readers. %s: number",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Updating&hellip;",
             "context": null,
             "plural": null,
@@ -45954,6 +46933,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Values used once (fingerprints)",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-unique.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -47073,7 +48067,7 @@
             "msgid": "Weak",
             "context": null,
             "plural": null,
-            "translators": "One-word label next to the delivery score: 20 to 39.",
+            "translators": "One-word label next to the delivery score: 20 to 39. translators: F03 password strength level",
             "files": [
                 "includes/functions.php"
             ],
@@ -47306,6 +48300,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "What is kept",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-unique.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -47670,6 +48679,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "While the field is in focus",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder option of \"Show the description\"",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "White",
             "context": null,
             "plural": null,
@@ -47840,6 +48864,21 @@
             "context": null,
             "plural": null,
             "translators": "F18: disclosure next to the Activate Free Plus button",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Word limit",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder group title",
             "files": [
                 "includes/functions.php"
             ],
@@ -48583,6 +49622,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Words",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder counter option",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -51298,6 +52352,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "\\D, \\W and \\S cannot be used inside [ ]",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder, why an owner's regular expression cannot be used (shown after \"This pattern cannot be used:\")",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "a field for it",
             "context": null,
             "plural": null,
@@ -51321,6 +52390,96 @@
             "files": [
                 "includes/payments/class-Emsfb-payment-frontend.php",
                 "includes/payments/class-Emsfb-payment-registry.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "a range cannot start or end with \\d, \\w or \\s",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder, why an owner's regular expression cannot be used (shown after \"This pattern cannot be used:\")",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "a range or a repeat count is in the wrong order",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder, why an owner's regular expression cannot be used (shown after \"This pattern cannot be used:\")",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "a repeat count is larger than 1000",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder, why an owner's regular expression cannot be used (shown after \"This pattern cannot be used:\")",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "a repeat sign has nothing to repeat",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder, why an owner's regular expression cannot be used (shown after \"This pattern cannot be used:\")",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "a repeated group of alternatives can be very slow; use a [class] instead",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder, why an owner's regular expression cannot be used (shown after \"This pattern cannot be used:\")",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "a repeated group repeats something inside it again, which can be very slow",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder, why an owner's regular expression cannot be used (shown after \"This pattern cannot be used:\")",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -51376,6 +52535,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "an anchor or look-ahead cannot be repeated",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder, why an owner's regular expression cannot be used (shown after \"This pattern cannot be used:\")",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "an empty class [] matches nothing",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder, why an owner's regular expression cannot be used (shown after \"This pattern cannot be used:\")",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "and",
             "context": null,
             "plural": null,
@@ -51421,6 +52610,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "atomic groups (?> are not supported",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder, why an owner's regular expression cannot be used (shown after \"This pattern cannot be used:\")",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "attached files",
             "context": null,
             "plural": null,
@@ -51449,6 +52653,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "back-references such as \\1 are not supported",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder, why an owner's regular expression cannot be used (shown after \"This pattern cannot be used:\")",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "before",
@@ -52205,6 +53424,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "inline flags such as (?i) are not supported; use the switch instead",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder, why an owner's regular expression cannot be used (shown after \"This pattern cannot be used:\")",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "installation",
             "context": null,
             "plural": null,
@@ -52216,6 +53450,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "it is not a complete pattern",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder, why an owner's regular expression cannot be used (shown after \"This pattern cannot be used:\")",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -52310,6 +53559,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "longer than 256 bytes",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder, why an owner's regular expression cannot be used (shown after \"This pattern cannot be used:\")",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "look-behind (?<= and (?<! is not supported",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder, why an owner's regular expression cannot be used (shown after \"This pattern cannot be used:\")",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "lowercase",
             "context": null,
             "plural": null,
@@ -52351,6 +53630,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "named groups are not supported",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder, why an owner's regular expression cannot be used (shown after \"This pattern cannot be used:\")",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -52460,6 +53754,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "only \\p{L}, \\p{Lu}, \\p{Ll}, \\p{N}, \\p{Nd}, \\p{P}, \\p{S} and \\p{Z} are supported",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder, why an owner's regular expression cannot be used (shown after \"This pattern cannot be used:\")",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "or",
             "context": null,
             "plural": null,
@@ -52563,6 +53872,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "possessive repeats such as *+ are not supported",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder, why an owner's regular expression cannot be used (shown after \"This pattern cannot be used:\")",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -52897,6 +54221,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "the character ~ cannot be used",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder, why an owner's regular expression cannot be used (shown after \"This pattern cannot be used:\")",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "the downloaded file was damaged",
             "context": null,
             "plural": null,
@@ -52942,6 +54281,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "this escape is not supported",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder, why an owner's regular expression cannot be used (shown after \"This pattern cannot be used:\")",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "this server only lets WordPress write files with FTP credentials, which an automatic installation cannot use",
             "context": null,
             "plural": null,
@@ -52968,6 +54322,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "too many unlimited repeats",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder, why an owner's regular expression cannot be used (shown after \"This pattern cannot be used:\")",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -53043,6 +54412,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "write \\{, \\} or \\] for a literal brace or bracket",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder, why an owner's regular expression cannot be used (shown after \"This pattern cannot be used:\")",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "write the character itself instead of \\u or \\x{…}",
+            "context": null,
+            "plural": null,
+            "translators": "F03 builder, why an owner's regular expression cannot be used (shown after \"This pattern cannot be used:\")",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
