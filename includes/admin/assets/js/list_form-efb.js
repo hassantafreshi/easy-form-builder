@@ -581,6 +581,10 @@ function fun_ws_show_list_messages(value) {
     head = `<div class="efb d-flex mb-3"> <button  class="efb  btn efb btn-primary text-white mt-2 mx-1 ec-efb" data-eventform="generateCSV" data-formtype="payment"   title="${efb_var.text.downloadCSVFileSub}" >   <i class="efb  bi-download mx-2"></i><span class="efb d-none d-sm-inline">${efb_var.text.downloadCSVFile}</span></button >
     `;
   }
+  // F11-F: the abandoned (partial) answers of the form, kept only with the visitor's consent.
+  if (form_type_emsFormBuilder == 'form' || form_type_emsFormBuilder == 'payment') {
+    head += `<button type="button" class="efb btn efb btn-outline-pink mt-2 mx-1" id="efbPartialTabBtn" onclick="efb_partial_tab_efb()" title="${efb_var.text.partialEntries || 'Partial'}"><i class="efb bi-hourglass-split mx-2" aria-hidden="true"></i><span class="efb d-none d-sm-inline">${efb_var.text.partialEntries || 'Partial'}</span></button>`;
+  }
    head +=`
   <div class="efb" id="selectedBtnlistEfb">
   <button  class="efb  btn efb btn-danger text-white mt-2 ec-efb" data-eventform="deleteSelectedRow"  title="${efb_var.text.delete}" >  <i class="efb  bi-trash mx-2"></i></button >
@@ -5362,4 +5366,56 @@ function emsFormBuilder_read(state,val){
 }
 
 function efb_test_onchange(){
+}
+
+/* ---------------------------------------------------------------------------------------------
+ * F11-F: "Partial" — abandoned answers of the open form (AJAX get_partial_entries_Emsfb /
+ * delete_partial_entries_Emsfb). Values go through the response viewer, which escapes them.
+ * ------------------------------------------------------------------------------------------- */
+let efb_partial_rows_efb = [];
+function efb_partial_esc_efb(v) { return String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;'); }
+function efb_partial_tab_efb() {
+  const fid = typeof form_ID_emsFormBuilder !== 'undefined' ? Number(form_ID_emsFormBuilder) : 0;
+  if (!fid) return;
+  jQuery.post(ajax_object_efm.ajax_url, { action: 'get_partial_entries_Emsfb', nonce: _efb_core_nonce_, form_id: fid }, (res) => {
+    efb_partial_rows_efb = res && res.data && Array.isArray(res.data.rows) ? res.data.rows : [];
+    efb_partial_render_efb(fid);
+  });
+}
+function efb_partial_render_efb(fid) {
+  const t = (k, fb) => efb_partial_esc_efb((efb_var.text && efb_var.text[k]) || fb);
+  const rows = efb_partial_rows_efb.map((r) => `<tr class="efb">
+      <th scope="row" class="efb"><input class="efb form-check-input fs-8 efb-partial-cb" type="checkbox" value="${Number(r.id)}" aria-label="${t('select', 'Select')}"></th>
+      <td class="efb" data-label="${t('ddate', 'Date')}">${efb_partial_esc_efb(r.date)}</td>
+      <td class="efb" data-label="${t('partialProgress', 'Progress')}"><div class="efb progress" style="min-width:80px" role="progressbar" aria-valuenow="${Number(r.progress)}" aria-valuemin="0" aria-valuemax="100"><div class="efb progress-bar" style="width:${Number(r.progress)}%">${Number(r.progress)}%</div></div></td>
+      <td class="efb" data-label="${t('partialStep', 'Last step')}">${Number(r.step)}</td>
+      <td class="efb" data-label="${t('partialContact', 'Contact')}"><bdi dir="ltr">${efb_partial_esc_efb(r.contact_mask)}</bdi></td>
+      <td class="efb efb-actions-cell" data-label="${t('actions', 'Actions')}"><div class="efb-actions-group">
+        <button type="button" class="efb efb-act-btn efb-act-open" onclick="efb_partial_open_efb(${Number(r.id)})" aria-label="${t('read', 'Open')}"><i class="efb bi-eye" aria-hidden="true"></i></button>
+        <button type="button" class="efb efb-act-btn efb-act-delete" onclick="efb_partial_delete_efb([${Number(r.id)}])" aria-label="${t('delete', 'Delete')}"><i class="efb bi-trash3" aria-hidden="true"></i></button>
+      </div></td></tr>`).join('');
+  const empty = `<tr class="efb"><td colspan="6" class="efb text-center py-5"><div class="efb-empty-state"><i class="efb bi-inbox efb-empty-icon" aria-hidden="true"></i><p class="efb-empty-title">${t('partialNone', 'No partial answers.')}</p></div></td></tr>`;
+  document.getElementById('content-efb').innerHTML = `<div class="efb head-efb"><div class="efb d-flex mb-3 flex-wrap">
+      <button type="button" class="efb btn efb btn-primary text-white mt-2 mx-1" onclick="fun_get_messages_by_id(${Number(fid)})"><i class="efb bi-arrow-left mx-2" aria-hidden="true"></i><span class="efb">${t('messages', 'Messages')}</span></button>
+      <button type="button" class="efb btn efb btn-danger text-white mt-2 mx-1" id="efbPartialDeleteSel" onclick="efb_partial_delete_efb(Array.from(document.querySelectorAll('.efb-partial-cb:checked')).map((x) => Number(x.value)))" aria-label="${t('delete', 'Delete')}"><i class="efb bi-trash mx-2" aria-hidden="true"></i></button>
+    </div></div>
+    <h2 class="efb fs-5 mt-2" id="efbPartialTitle">${t('partialEntries', 'Partial')}</h2>
+    <div class="efb card efb"><table class="efb table table-striped table-hover mt-3" id="efbPartialList" aria-labelledby="efbPartialTitle">
+      <thead><tr><th scope="col" class="efb"><input class="efb form-check-input fs-8" type="checkbox" aria-label="${t('selectedAllOption', 'Select all')}" onclick="document.querySelectorAll('.efb-partial-cb').forEach((c) => { c.checked = this.checked; })"></th>
+      <th scope="col" class="efb">${t('ddate', 'Date')}</th><th scope="col" class="efb">${t('partialProgress', 'Progress')}</th><th scope="col" class="efb">${t('partialStep', 'Last step')}</th><th scope="col" class="efb">${t('partialContact', 'Contact')}</th><th scope="col" class="efb">${t('actions', 'Actions')}</th></tr></thead>
+      <tbody class="efb">${rows || empty}</tbody></table></div>`;
+}
+function efb_partial_open_efb(id) {
+  const r = efb_partial_rows_efb.find((x) => Number(x.id) === Number(id));
+  if (!r) return;
+  const content = Array.isArray(r.rows) && r.rows.length ? r.rows.slice() : [{ id_: 'x', name: '', type: 'text', value: '' }];
+  const body = `<div class="efb mb-3"><div class="efb clearfix">${fun_emsFormBuilder_show_messages(content, '#first', '', '', r.date)}</div></div>`;
+  if (typeof show_modal_efb === 'function') show_modal_efb(body, (efb_var.text && efb_var.text.partialEntries) || 'Partial', 'bi-hourglass-split', 'saveBox');
+  else document.getElementById('content-efb').insertAdjacentHTML('beforeend', body);
+}
+function efb_partial_delete_efb(ids) {
+  const fid = typeof form_ID_emsFormBuilder !== 'undefined' ? Number(form_ID_emsFormBuilder) : 0;
+  ids = (ids || []).map(Number).filter((x) => x > 0);
+  if (!fid || !ids.length) return;
+  jQuery.post(ajax_object_efm.ajax_url, { action: 'delete_partial_entries_Emsfb', nonce: _efb_core_nonce_, form_id: fid, ids: ids.join(',') }, () => efb_partial_tab_efb());
 }

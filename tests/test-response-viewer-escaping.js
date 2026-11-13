@@ -106,6 +106,23 @@ const conv = listSrc.slice(listSrc.indexOf('function convertToCSV_emsFormBuilder
 t('the second CSV exporter carries the same formula guard',
   conv.indexOf('val = "\'" + val;') !== -1 && /\^\[=\+\\-@\\t\\r\]/.test(conv));
 
+console.log('\n=== F11-F partial answers tab ===');
+{
+  // The list of abandoned answers: contact, date and numbers are written with efb_partial_esc_efb; the
+  // answers themselves open through fun_emsFormBuilder_show_messages (the choke point above).
+  const part = listSrc.slice(listSrc.indexOf('let efb_partial_rows_efb'), listSrc.indexOf('function efb_partial_open_efb'));
+  const page = { html: '' };
+  const run = new Function('document', 'efb_var', part.replace('let efb_partial_rows_efb = [];', 'var efb_partial_rows_efb = [];') + '; return { render: efb_partial_render_efb, set: (r) => { efb_partial_rows_efb = r; } };');
+  const api = run({ getElementById: () => ({ set innerHTML(v) { page.html = v; } }) }, { text: { partialContact: 'Contact <i>' } });
+  api.set([{ id: '3"><img src=x onerror=alert(1)>', date: '<script>alert(1)</script>', progress: '50"><b>', step: '2<x>', contact_mask: 'j***@e<img src=x>.com', rows: [] }]);
+  api.render(7);
+  t('hostile partial row: no markup from the stored values', page.html.indexOf('<script>') === -1 && page.html.indexOf('<img') === -1 && page.html.indexOf('<b>') === -1);
+  t('hostile partial row: contact and date escaped', page.html.indexOf('j***@e&lt;img src=x&gt;.com') !== -1 && page.html.indexOf('&lt;script&gt;alert(1)&lt;/script&gt;') !== -1);
+  t('hostile partial row: ids and numbers forced to numbers', /efb_partial_open_efb\(NaN\)|efb_partial_open_efb\(3\)|efb_partial_open_efb\(0\)/.test(page.html) || page.html.indexOf('onerror') === -1);
+  t('a phrase with markup is escaped too', page.html.indexOf('Contact &lt;i&gt;') !== -1);
+  t('the partial viewer goes through fun_emsFormBuilder_show_messages', /fun_emsFormBuilder_show_messages\(content, '#first'/.test(listSrc));
+}
+
 console.log('\n========================================');
 console.log(`RESULTS: ${pass} passed, ${fail} failed`);
 console.log('========================================');
