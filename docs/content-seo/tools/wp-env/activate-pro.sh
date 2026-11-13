@@ -13,7 +13,11 @@
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/env.sh"
 KEYFILE="${EFB_PRO_KEY_FILE:-$EFB_SECRETS_DIR/pro-key.txt}"
-[ -s "$KEYFILE" ] || { efb_log "no licence key at $KEYFILE - ask the owner for a key issued for host '$WP_HOST'"; exit 2; }
+# The pipeline gets the key from the environment variable EFB_LICENSE_KEY (project environment settings); a file is the fallback.
+if [ -n "${EFB_LICENSE_KEY:-}" ] && [ ! -s "$KEYFILE" ]; then
+  umask 077; mkdir -p "$(dirname "$KEYFILE")"; printf '%s\n' "$EFB_LICENSE_KEY" > "$KEYFILE"
+fi
+[ -s "$KEYFILE" ] || { efb_log "no licence key (EFB_LICENSE_KEY or $KEYFILE) - the key must be issued for host '$WP_HOST'"; exit 2; }
 wp config set EFB_ENV_ALLOW_LICENSE_POST true --raw >/dev/null
 trap 'wp config set EFB_ENV_ALLOW_LICENSE_POST false --raw >/dev/null' EXIT
 KEY="$(tr -d '[:space:]' < "$KEYFILE")" wp eval '

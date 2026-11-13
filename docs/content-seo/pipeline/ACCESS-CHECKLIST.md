@@ -21,7 +21,23 @@
 | `WP_DE_URL` / `WP_DE_USER` / `WP_DE_APP_PASSWORD` | `https://de.whitestudio.team` / … |
 | `PUBLISH_MODE` | `draft` (۷ روز اول) سپس `publish` |
 | `YT_CHANNEL_ID` | شناسهٔ کانال YouTube (`UC…`) — از YouTube Studio → Settings → Channel → Advanced |
-| `EFB_LICENSE_KEY` | (اختیاری) کلید لایسنس Pro برای فعال‌کردن ویژگی‌ها در محیط محلی ضبط |
+| `ELEVENLABS_API_KEY` | کلید API حساب ElevenLabs (برای صدای ویدیو در اجرای خودکار) — ترجیحاً با سقف مصرف ماهانه در خود ElevenLabs |
+| `ELEVENLABS_VOICE_ID` | (اختیاری) شناسهٔ صدای ثابت برند؛ اگر نباشد صدای پیش‌فرض اسکریپت (Bella) استفاده می‌شود |
+| `EFB_LICENSE_KEY` | کلید لایسنس Pro (یا Pro + ادان‌ها). **باید برای دامنهٔ `localhost` (یا دامنهٔ ضبط که شما مشخص می‌کنید) صادر شود** چون افزونه md5 دامنه را در کد فعال‌سازی چک می‌کند. بدون آن، ردیف‌های Add-on/Pro (امنیت، Sheets، Telegram، SMS، منطق شرطی پیشرفته…) ویدیوی «نتیجهٔ نهایی» نخواهند داشت |
+
+**متغیرهای اختیاری برای نمایش یکپارچه‌سازی‌ها در ویدیو** (فقط حساب‌های **تست/دمو**، نه حساب واقعی کسب‌وکار): هر کدام فقط برای مقالاتی لازم است که آن سرویس را نشان می‌دهند؛ نبودنشان مقاله را متوقف نمی‌کند ولی بخش «نتیجهٔ نهایی» ضبط نمی‌شود و مقاله نباید ادعای «تست‌شده» دربارهٔ آن بخش بنویسد.
+
+| متغیر | کاربرد | تعداد مقالات مرتبط (تقریبی) |
+|---|---|---|
+| `STRIPE_TEST_PUBLISHABLE_KEY` / `STRIPE_TEST_SECRET_KEY` | پرداخت Stripe در **Test mode** (فقط کلیدهای `pk_test_`/`sk_test_`) | 6 (R47، H1، H4–H6، B7) |
+| `PAYPAL_SANDBOX_CLIENT_ID` / `PAYPAL_SANDBOX_SECRET` | PayPal **Sandbox** | 2 (R65، H1) |
+| `TELEGRAM_TEST_BOT_TOKEN` / `TELEGRAM_TEST_CHAT_ID` | ربات تلگرام تستی | 4 (R58، G7، E4، N2) |
+| `GOOGLE_TEST_SERVICE_ACCOUNT_JSON` (محتوای JSON) / `GOOGLE_TEST_SHEET_ID` | Google Sheets با Service Account و شیت تستی | 5 (G1–G4، N2) |
+| `GOOGLE_MAPS_TEST_API_KEY` | انتخاب‌گر مکان / نقشه (کلید محدود به دامنه) | 5 (R22، C2، G3، A2، I20) |
+| `SMS_TEST_*` (مثلاً Twilio test credentials) | SMS | 3 (R48، E4، N2) — Twilio فعلاً در HOLD است |
+| `RECAPTCHA_TEST_SITE_KEY` / `RECAPTCHA_TEST_SECRET` (و/یا Turnstile) | reCAPTCHA / Turnstile تستی | 4 (R21، R55، E1، E3) |
+
+> هرگز کلید واقعی/زنده نگذارید؛ برای Stripe/PayPal فقط حالت تست. اسکرین‌شات‌ها از کلیدها redaction می‌شوند (`tools/annotate`).
 
 ## ۲. شبکه (Network access)
 
