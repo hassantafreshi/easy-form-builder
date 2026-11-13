@@ -127,7 +127,8 @@ Quiz، Booking & Calendar، SMS OTP login، Ticketing، AI، Twilio و Retry Que
 6. حذف صفحات تستی از sitemap؛ نویسندهٔ واقعی + صفحهٔ نویسنده؛ بازنویسی توضیح‌های llms.txt و ساخت llms-full.txt.
 7. قالب مقالهٔ استاندارد (بخش ۴) در قالب سایت: کادر حقایق، VideoObject+transcript، sitemap ویدیو.
 8. **(جدید) هم‌ترازی بخش URL در AR/DE:** ۱۳ مقالهٔ عربی و ۱۸ مقالهٔ آلمانی در بخشی غیر از EN هستند و hreflang انگلیسی ندارند؛ دستهٔ اصلی را هم‌تراز EN کنید + 301، یا منطق hreflang تم را اصلاح کنید.
-9. اتصال Search Console + GA4 + YouTube Studio و ثبت baseline ۲۸ روزه؛ فهرست ۲۰ پرسش AI-search برای رصد هفتگی ذکر برند.
+9. **(جدید) سایت عربی:** نقشهٔ سایت کهنه (۷ مقالهٔ جدید در آن نیست)؛ نشت `[email protected]` در ۷ مقاله (محافظ ایمیل Cloudflare)؛ ۷۴ صفحه بدون meta؛ ۲ مقالهٔ لهجه‌ای.
+10. اتصال Search Console + GA4 + YouTube Studio و ثبت baseline ۲۸ روزه؛ فهرست ۲۰ پرسش AI-search برای رصد هفتگی ذکر برند.
 
 | ادغام (301) | مقصد |
 |---|---|

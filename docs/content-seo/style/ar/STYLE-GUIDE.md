@@ -1,7 +1,7 @@
 # Arabic Style Guide — Easy Form Builder content system (ar.whitestudio.team)
 
 Version 1.0 · written 2026-11-13 from a crawl of the live Arabic site (87 articles), the plugin's official Arabic UI translation and WordPress core's Arabic translation.
-Language of this file: English, Arabic examples inline. Companion files in this folder: `UI-STRINGS.csv`, `UI-STRINGS-UNTRANSLATED.csv`, `GLOSSARY.csv`, `SAMPLE-PAIRS.md`, `QA-CHECKLIST.md`, `KEYWORD-LOCALISATION.md`, `KEYWORD-AUTOSUGGEST-RAW.csv`, `CRAWL-INVENTORY.csv`, `tools/ar_lint.py`, `tools/autosuggest.py`.
+Language of this file: English, Arabic examples inline. Companion files in this folder: `UI-STRINGS.csv`, `UI-STRINGS-UNTRANSLATED.csv`, `GLOSSARY.csv`, `SAMPLE-PAIRS.md`, `QA-CHECKLIST.md`, `KEYWORD-LOCALISATION.md`, `KEYWORD-AUTOSUGGEST-RAW.csv`, `CRAWL-INVENTORY.csv`, `tools/ar_lint.py`, `tools/parity_check.py`, `tools/autosuggest.py`.
 
 ---
 
@@ -166,9 +166,9 @@ Values come from the EN fact box; translate only labels and plan names. Never pr
 | R7 | Do not glue prefixes (ب ل ك ف ال) or suffixes to Latin words (see 3.2). | Joining forms look broken next to Latin. |
 | R8 | Lists/tables: write cell text so each cell reads right-to-left; keep header cells short; put code values in their own cell, `dir="ltr"`. | Tables are mirrored; the first column is on the right. |
 | R9 | Numbers with units: «5 دقائق», «20%» stay together (no line break): use a normal space; add `&nbsp;` only if a break splits them. | |
-| R10 | Arrows, icons and "next" semantics are mirrored: use «←» for "then", «→» only inside Latin text. Describe screenshot positions as «يمين / يسار» **as seen on the Arabic screen** (check the UI, the admin menu is on the right in RTL WordPress). | The EN article says "left sidebar"; in Arabic WordPress it is on the right. |
+| R10 | Arrows, icons and "next" semantics are mirrored: use «←» for "then", «→» only inside Latin text. Describe screenshot positions as «يمين / يسار» **as seen on the Arabic screen** (the standard RTL WordPress layout puts the admin menu on the right; confirm on the actual screenshot). | The EN article says "left sidebar"; in Arabic WordPress it is on the right. |
 | R11 | Never put Arabic letters or Arabic punctuation inside code blocks except comments the reader should translate. | |
-| R12 | Do not type e-mail addresses as plain text: Cloudflare's obfuscation turns them into `[email protected]` (10 places in 7 articles; it broke the DMARC `rua=mailto:` example). Use `name@example.com` inside `<code>` **and** verify after publishing (QA-CHECKLIST §6). | |
+| R12 | Do not type e-mail addresses as plain text: Cloudflare's obfuscation turns them into `[email protected]` (10 places in 7 articles; it broke the DMARC `rua=mailto:` example). Use `name@example.com` inside `<code>` **and** verify after publishing (QA-CHECKLIST §7). | |
 | R13 | No hard-coded direction marks in titles, meta, alt text. | They show up as junk in snippets. |
 | R14 | Mixed Arabic/Latin lists use «،» and an Arabic «و» before the last item: «SPF وDKIM وDMARC». | |
 
