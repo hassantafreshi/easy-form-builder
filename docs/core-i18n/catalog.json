@@ -4,8 +4,8 @@
     "plugin_version": "4.3.1",
     "updated": "2026-11-13",
     "counts": {
-        "active": 3475,
-        "obsolete": 379
+        "active": 3527,
+        "obsolete": 378
     },
     "entries": [
         {
@@ -377,6 +377,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "%1$s of %2$s files",
+            "context": null,
+            "plural": null,
+            "translators": "F07 visitor: counter; 1: files chosen, 2: files allowed",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "%1$s of %2$s words",
             "context": null,
             "plural": null,
@@ -668,6 +683,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "%s KB",
+            "context": null,
+            "plural": null,
+            "translators": "F07 visitor: a size in kilobytes; %s = the number",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "%s Label Position",
             "context": null,
             "plural": null,
@@ -724,6 +754,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%s MB",
+            "context": null,
+            "plural": null,
+            "translators": "F07 visitor: a size in megabytes; %s = the number",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -852,6 +897,21 @@
             "context": null,
             "plural": null,
             "translators": "F13: preview of automatic deletion. %s: number of entries",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%s files",
+            "context": null,
+            "plural": null,
+            "translators": "F07 response viewer: accessible name of a group of files; %s = number of files",
             "files": [
                 "includes/functions.php"
             ],
@@ -1138,6 +1198,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "%s removed",
+            "context": null,
+            "plural": null,
+            "translators": "F07 visitor: screen reader announcement; %s = the file name",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "%s rules were removed because they could load content from outside the page.",
             "context": null,
             "plural": null,
@@ -1389,6 +1464,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "0 = keep the original. Photos are made smaller in the visitor's browser before upload, which also removes their location data (EXIF).",
+            "context": null,
+            "plural": null,
+            "translators": "F07 builder: help; resizing in the browser also removes location data",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -2887,6 +2977,21 @@
             "context": null,
             "plural": null,
             "translators": "F06 multiple dates",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Add files",
+            "context": null,
+            "plural": null,
+            "translators": "F07 visitor: button of a field that takes several files",
             "files": [
                 "includes/functions.php"
             ],
@@ -4792,6 +4897,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Attach uploaded files to the admin email",
+            "context": null,
+            "plural": null,
+            "translators": "F07 form settings: switch",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Attaching files to the e-mail needs Pro. The e-mail keeps the links until then.",
+            "context": null,
+            "plural": null,
+            "translators": "F07 save warning",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Attempts made",
             "context": null,
             "plural": null,
@@ -5255,6 +5390,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Back camera",
+            "context": null,
+            "plural": null,
+            "translators": "F07 builder: camera option",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -6816,6 +6966,21 @@
             "context": null,
             "plural": null,
             "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Camera",
+            "context": null,
+            "plural": null,
+            "translators": "F07 builder: label of the camera option",
             "files": [
                 "includes/functions.php"
             ],
@@ -12425,7 +12590,7 @@
             "msgid": "Download",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "F07 response viewer: link title",
             "files": [
                 "includes/class-Emsfb-public.php",
                 "includes/functions.php"
@@ -12496,6 +12661,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Download links to private files work for (days)",
+            "context": null,
+            "plural": null,
+            "translators": "F07 Settings > Privacy: label",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -12586,6 +12766,22 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Drag and drop files here",
+            "context": null,
+            "plural": null,
+            "translators": "F07 visitor: drop zone of a field that takes several files",
+            "files": [
+                "includes/class-Emsfb-formbuilder.php",
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -17674,6 +17870,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Front camera",
+            "context": null,
+            "plural": null,
+            "translators": "F07 builder: camera option",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Full Name",
             "context": null,
             "plural": null,
@@ -20347,6 +20558,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Image quality",
+            "context": null,
+            "plural": null,
+            "translators": "F07 builder: label",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -24154,6 +24380,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Maximum number of files",
+            "context": null,
+            "plural": null,
+            "translators": "F07 builder: label of the number of files a field takes",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Maximum number of files reached",
+            "context": null,
+            "plural": null,
+            "translators": "F07 visitor: shown when the field is full",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Maximum recording duration reached.",
             "context": null,
             "plural": null,
@@ -24165,6 +24421,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Maximum total size (MB)",
+            "context": null,
+            "plural": null,
+            "translators": "F07 builder: label",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -24226,6 +24497,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Media Library",
+            "context": null,
+            "plural": null,
+            "translators": "F07 builder: storage option",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -24740,6 +25026,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "Minimum number of files",
+            "context": null,
+            "plural": null,
+            "translators": "F07 builder: label",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Minimum paid notification score",
@@ -26853,6 +27154,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "None (file or camera)",
+            "context": null,
+            "plural": null,
+            "translators": "F07 builder: camera option",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Not Found",
             "context": null,
             "plural": null,
@@ -27982,6 +28298,21 @@
             "context": null,
             "plural": null,
             "translators": "Form builder, shown under the question to a user who may build forms but not change the site's email settings.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Only a user who may upload files can store answers in the Media Library. This field keeps the uploads folder.",
+            "context": null,
+            "plural": null,
+            "translators": "F07 save warning",
             "files": [
                 "includes/functions.php"
             ],
@@ -30740,6 +31071,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Please attach at least %1$s files to %2$s.",
+            "context": null,
+            "plural": null,
+            "translators": "F07 visitor and server; 1: number, 2: field name",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Please avoid using HTML tags and ensure that your message is not blank.",
             "context": null,
             "plural": null,
@@ -31879,6 +32225,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Please wait until the files finish uploading.",
+            "context": null,
+            "plural": null,
+            "translators": "F07 visitor: Next / Send pressed while files are still uploading",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Please wait, you will be redirected shortly.",
             "context": null,
             "plural": null,
@@ -32196,6 +32557,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Preparing",
+            "context": null,
+            "plural": null,
+            "translators": "F07 visitor: state of one photo being made smaller",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Preparing a new payment…",
             "context": null,
             "plural": null,
@@ -32482,6 +32858,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Private (download through WordPress only)",
+            "context": null,
+            "plural": null,
+            "translators": "F07 builder: storage option",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Private and Restricted-Access Forms",
             "context": null,
             "plural": null,
@@ -32493,6 +32884,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Private files are kept out of the public uploads address and reach you through the entry viewer or a signed link in the e-mail.",
+            "context": null,
+            "plural": null,
+            "translators": "F07 builder: help under the storage option",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -34119,6 +34525,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Release to upload",
+            "context": null,
+            "plural": null,
+            "translators": "F07 visitor: shown while files are dragged over the drop zone",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Reload now",
             "context": null,
             "plural": null,
@@ -34168,7 +34589,7 @@
             "msgid": "Remove %s",
             "context": null,
             "plural": null,
-            "translators": "F06 %s = a date",
+            "translators": "F06 %s = a date translators: F07 visitor: remove button label; %s = the file name",
             "files": [
                 "includes/functions.php"
             ],
@@ -34780,6 +35201,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Resize images to at most (pixels)",
+            "context": null,
+            "plural": null,
+            "translators": "F07 builder: label",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -37735,6 +38171,21 @@
             "context": null,
             "plural": null,
             "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Several files in one field need Free Plus or Pro. Visitors can attach one file until then.",
+            "context": null,
+            "plural": null,
+            "translators": "F07 save warning",
             "files": [
                 "includes/functions.php"
             ],
@@ -43299,6 +43750,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The files attached to %1$s exceed the total limit of %2$s MB.",
+            "context": null,
+            "plural": null,
+            "translators": "F07 visitor and server; 1: field name, 2: megabytes",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The files have been deleted.",
             "context": null,
             "plural": null,
@@ -44412,6 +44878,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The private folder is not reachable from the web.",
+            "context": null,
+            "plural": null,
+            "translators": "F07 builder: result of the private folder check",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The quiz question “%s” was not carried over: Easy Form Builder has no quiz question. Turn on reCAPTCHA in the form settings to keep spam out.",
             "context": null,
             "plural": null,
@@ -45187,6 +45668,21 @@
             "translators": "",
             "files": [
                 "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The total size must be at least the per-file size.",
+            "context": null,
+            "plural": null,
+            "translators": "F07 builder: warning under the total size",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -45976,6 +46472,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "This download link is not valid any more. Please ask the site owner for a new one.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-uploads.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "This email domain is not accepted.",
             "context": null,
             "plural": null,
@@ -46128,6 +46639,52 @@
             "obsolete_since": null
         },
         {
+            "msgid": "This file could not be verified. Please attach it again.",
+            "context": null,
+            "plural": null,
+            "translators": "F07 server: a file that was not uploaded into this form by this visitor",
+            "files": [
+                "includes/class-Emsfb-public.php",
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "This file is larger than %s MB.",
+            "context": null,
+            "plural": null,
+            "translators": "F07 visitor: one file is too large; %s = megabytes",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "This file is no longer available.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-uploads.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "This file is not a valid EFB logic-rules export.",
             "context": null,
             "plural": null,
@@ -46158,6 +46715,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "This file type is not accepted here.",
+            "context": null,
+            "plural": null,
+            "translators": "F07 visitor: one file of a type the field does not take",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "This file type is not accepted here. Please attach one of the file types listed on the field.",
             "context": null,
             "plural": null,
@@ -46169,6 +46741,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "This file would pass the total limit of %s MB.",
+            "context": null,
+            "plural": null,
+            "translators": "F07 visitor: one file would pass the total; %s = megabytes",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -47829,7 +48416,8 @@
             "plural": null,
             "translators": "",
             "files": [
-                "includes/class-Emsfb-calendar-rest.php"
+                "includes/class-Emsfb-calendar-rest.php",
+                "includes/class-Emsfb-uploads.php"
             ],
             "scope": [
                 "core"
@@ -48173,7 +48761,7 @@
             "msgid": "Try again",
             "context": null,
             "plural": null,
-            "translators": "Button that runs the email check again. translators: F18: button",
+            "translators": "Button that runs the email check again. translators: F18: button translators: F07 visitor: button",
             "files": [
                 "includes/class-Emsfb-review-request.php",
                 "includes/functions.php",
@@ -49298,6 +49886,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Up to 10 MB in total; larger files stay links. Visitors never receive the files by e-mail.",
+            "context": null,
+            "plural": null,
+            "translators": "F07 form settings: help",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Updating&hellip;",
             "context": null,
             "plural": null,
@@ -49420,6 +50023,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Upload failed",
+            "context": null,
+            "plural": null,
+            "translators": "F07 visitor: state of one file",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Upload the %s file",
             "context": null,
             "plural": null,
@@ -49431,6 +50049,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Uploaded",
+            "context": null,
+            "plural": null,
+            "translators": "F07 visitor: state of one file",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -49456,6 +50089,21 @@
             "translators": "",
             "files": [
                 "includes/importers/cf7/class-Emsfb-cf7-mapper.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Uploading",
+            "context": null,
+            "plural": null,
+            "translators": "F07 visitor: state of one file",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -49508,6 +50156,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "Uploads folder (public link)",
+            "context": null,
+            "plural": null,
+            "translators": "F07 builder: storage option",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Uploads per IP/min",
@@ -50412,6 +51075,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Visitors cannot send more than %s MB in this field with the hosting's upload limit.",
+            "context": null,
+            "plural": null,
+            "translators": "F07 builder: warning; %s is a number of megabytes",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Visitors confirm a mobile number or an e-mail address with a one-time code before the form is sent.",
             "context": null,
             "plural": null,
@@ -50580,7 +51258,7 @@
             "msgid": "Waiting",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "F07 visitor: state of one file",
             "files": [
                 "includes/functions.php"
             ],
@@ -50588,8 +51266,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.2.0"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Waiting for Delivery",
@@ -51870,6 +52548,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Where to store files",
+            "context": null,
+            "plural": null,
+            "translators": "F07 builder: label",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Where uploaded files are kept, or how many a field takes, has changed. New uploads follow the new setting.",
+            "context": null,
+            "plural": null,
+            "translators": "F07 save warning",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Which feature were you looking for?",
             "context": null,
             "plural": null,
@@ -52115,6 +52823,21 @@
             "context": null,
             "plural": null,
             "translators": "F18: disclosure next to the Activate Free Plus button",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "With a camera set, phones open the camera only and the gallery cannot be used.",
+            "context": null,
+            "plural": null,
+            "translators": "F07 builder: help under the camera option",
             "files": [
                 "includes/functions.php"
             ],
@@ -53379,6 +54102,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "You can attach up to %1$s files to %2$s.",
+            "context": null,
+            "plural": null,
+            "translators": "F07 visitor and server; 1: number, 2: field name",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "You can change this at any time from the panel settings menu. No data is lost when you upgrade.",
             "context": null,
             "plural": null,
@@ -53586,6 +54324,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "You do not have permission to download this file.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-uploads.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -55580,6 +56333,21 @@
             "translators": "",
             "files": [
                 "includes/class-Emsfb-formbuilder.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Your web server serves the private folder publicly. Add the rule below or choose another storage.",
+            "context": null,
+            "plural": null,
+            "translators": "F07 builder: warning when the web server serves the private folder",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
