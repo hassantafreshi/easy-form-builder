@@ -41,6 +41,7 @@ function capabilities(pkg, settings) {
   const { execFileSync } = require('child_process');
   const API = path.join(ROOT, 'includes/class-Emsfb-builder-api.php').replace(/\\/g, '/');
   const FUNCS = path.join(ROOT, 'includes/functions.php').replace(/\\/g, '/');
+  const ST = path.join(ROOT, 'includes/class-Emsfb-smart-tags.php').replace(/\\/g, '/');
   const out = execFileSync('php', ['-r', `
     define('ABSPATH','/'); define('EMSFB_PLUGIN_VERSION','4.3.1'); define('EMSFB_API_VERSION',1);
     function get_option($k, $d = false) { return $d; }
@@ -54,7 +55,10 @@ function capabilities(pkg, settings) {
     class F { public function addon_required_package_efb($a) { return isset($GLOBALS['tiers'][$a]) ? $GLOBALS['tiers'][$a] : 1; } }
     function get_efbFunction() { return new F(); }
     require '${API}';
-    echo json_encode(\\Emsfb\\Builder_Api::capabilities(array('package' => ${Number(pkg)})));
+    $caps = \\Emsfb\\Builder_Api::capabilities(array('package' => ${Number(pkg)}));
+    // F08 adds its entries through the efb_capabilities filter (Smart_Tags::capabilities).
+    require '${ST}';
+    echo json_encode(\\Emsfb\\Smart_Tags::capabilities($caps, array()));
   `], { input: JSON.stringify(settings || {}) }).toString();
   return JSON.parse(out);
 }
