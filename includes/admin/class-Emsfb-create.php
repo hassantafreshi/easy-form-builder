@@ -529,6 +529,8 @@ class Create {
 		if($this->id_ !=0){
 			$response = array( 'success' => true ,'r'=>"insert" , 'value' => "[EMS_Form_Builder id=$this->id_]" , "id"=>$this->id_);
 			if (!empty($save_warnings_efb)) $response['warnings'] = $save_warnings_efb;
+			// PAY00 readiness (computed, never stored): whether visitors can pay with this form as saved, and why not.
+			if (is_array($valp) && class_exists('\\Emsfb\\Payments\\Readiness')) $response = \Emsfb\Payments\Readiness::save_answer($response, $valp, (int) $this->id_);
 		}else{$response = array( 'success' => false , "m"=> $lang['formNcreated']);}
 		wp_send_json_success($response, 200);
 	}

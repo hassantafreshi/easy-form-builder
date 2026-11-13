@@ -222,6 +222,20 @@ jQuery(function () {
 
 let count_row_emsFormBuilder = 0;
 
+/* PAY00 readiness: "Payment setup incomplete" next to a form whose payment field cannot take payments
+   now (ajax_object_efm.pay_not_ready, computed on the server on every load: the badge goes away once
+   the keys are added or the field is fixed). Its title lists what is missing. */
+function efb_pay_badge_efb(fid) {
+  const map = (typeof ajax_object_efm !== 'undefined' && ajax_object_efm.pay_not_ready) || {};
+  const row = map[String(fid)];
+  if (!row) return '';
+  const b = (ajax_object_efm.pay_badge) || {};
+  const why = Array.isArray(row.issues) ? row.issues.map((x) => x && x.m ? String(x.m) : '').filter(Boolean).join(' \u2022 ') : '';
+  const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const title = esc((b.hint || '') + (why ? ' ' + why : ''));
+  return ` <span class="efb badge bg-danger efb-pay-notready ms-1" data-efb-pay-notready="${Number(fid)}" title="${title}" role="note"><i class="efb bi-credit-card-2-front" aria-hidden="true"></i> ${esc(b.label || 'Payment setup incomplete')}</span>`;
+}
+
 function fun_emsFormBuilder_render_view(x) {
   if (typeof restore_auto_save_efb === 'function') restore_auto_save_efb();
 
@@ -252,7 +266,7 @@ function fun_emsFormBuilder_render_view(x) {
        </button>
      </span>
    </th>
-   <td class="efb emsFormBuilder-tr" data-id="${Number(i.form_id)}" data-label="${efb_var.text.formName}">${sanitize_text_efb(i.form_name)}</td>
+   <td class="efb emsFormBuilder-tr" data-id="${Number(i.form_id)}" data-label="${efb_var.text.formName}">${sanitize_text_efb(i.form_name)}${efb_pay_badge_efb(fid)}</td>
    <td class="efb emsFormBuilder-tr" data-id="${Number(i.form_id)}" data-label="${efb_var.text.createDate}">${sanitize_text_efb(i.form_create_date)}</td>
    <td class="efb efb-actions-cell" data-label="${efb_var.text.actions}">
      <div class="efb-actions-group">

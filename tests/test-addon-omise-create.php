@@ -165,7 +165,7 @@ $t('150,000.01 baht is above PromptPay\'s maximum: refused (above_max) before Om
 foreach (array('jpy' => 'JPY (zero-decimal)', 'kwd' => 'KWD (three-decimal)', 'usd' => 'USD') as $cur => $name) {
 	$f = efb_omise_form(); $f[0]['currency'] = $cur;
 	$rx = efb_omise_create($db, $f);
-	$t("a {$name} form: currency_unsupported (PromptPay is THB only), nothing sent to Omise", array($rx['success'], $rx['code'], count(efb_omise_calls('POST /charges'))), array(false, 'currency_unsupported', $n));
+	$t("a {$name} form: refused by core readiness, pay_not_ready (PromptPay is THB only), nothing sent to Omise", array($rx['success'], $rx['code'], count(efb_omise_calls('POST /charges'))), array(false, 'pay_not_ready', $n));
 }
 $t('format_amount: Omise takes the smallest unit as an integer (JPY 500 → 500, THB 4020.00 → 402000, KWD 12.500 → 12500)', array($g->format_amount(500, 'JPY'), $g->format_amount(402000, 'THB'), $g->format_amount(12500, 'KWD')), array(500, 402000, 12500));
 $pp = new \Emsfb\Payments\Payment(array('currency' => 'JPY', 'amount_minor' => 5000, 'mode' => 'test', 'idem_key' => str_repeat('a', 64)));

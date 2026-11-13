@@ -378,7 +378,14 @@ class Builder_Api {
 					'field_schema' => $i['field_schema'], 'defaults' => $i['defaults']);
 				$out['payment_keys'][$slug] = !empty($i['configured'][$i['mode']]);
 			}
-			$out['payments'] = array('api' => defined('EMSFB_PAYMENTS_API') ? EMSFB_PAYMENTS_API : 1, 'plan' => 'free_plus', 'spec' => 'PAY00');
+			$out['payments'] = array('api' => defined('EMSFB_PAYMENTS_API') ? EMSFB_PAYMENTS_API : 1, 'plan' => 'free_plus', 'spec' => 'PAY00',
+				// Read-only readiness of a form (computed, never stored): GET ?form_id=N for a saved form,
+				// POST {form} for a draft; efbBuilderApi.paymentReadiness() in the builder. The save answer
+				// also carries payment_ready / payment_issues.
+				'readiness' => array('rest' => function_exists('rest_url') ? rest_url('Emsfb/v1/payments/readiness') : '/wp-json/Emsfb/v1/payments/readiness', 'methods' => array('GET', 'POST'),
+					'builder' => 'efbBuilderApi.paymentReadiness', 'save_answer' => array('payment_ready', 'payment_issues'),
+					'codes' => array('pay_addon_inactive', 'pay_plan', 'pay_not_configured', 'pay_currency', 'pay_amount_limit', 'pay_method_currency', 'pay_option_required', 'pay_option_field_missing', 'pay_multiple_fields', 'pay_form_type', 'pay_gw_*'),
+					'visitor_code' => 'pay_not_ready'));
 		}
 		return function_exists('apply_filters') ? apply_filters('efb_capabilities', $out, $args) : $out;
 	}

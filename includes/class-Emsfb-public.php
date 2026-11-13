@@ -2557,6 +2557,15 @@ public function check_nonce_permission_efb($request) {
 		if (in_array($access_structure[0]['stateForm'] ?? false,array(true,1,'1'),true) && !is_user_logged_in()) {
 			wp_send_json_error(array('code'=>'efb_login_required','m'=>__('Please log in to use this form.', 'easy-form-builder')),403);
 		}
+		// PAY00 readiness: a form with a payment field that cannot take the payment now (no keys for
+		// the mode, gateway add-on off, plan, currency, required payer field, …) stores nothing and
+		// starts nothing, whichever endpoint the browser used (the page shows the notice instead).
+		if (class_exists('\\Emsfb\\Payments\\Readiness') && is_array($access_structure) && \Emsfb\Payments\Readiness::has_payment($access_structure)) {
+			$pay_ready_efb = \Emsfb\Payments\Readiness::of_form($access_structure, (int) $this->id);
+			if (!$pay_ready_efb['ready']) {
+				wp_send_json_success(array('success' => false, 'code' => 'pay_not_ready', 'm' => \Emsfb\Payments\Readiness::visitor_text()), 200);
+			}
+		}
 		$skip_captcha = $form_fields_array = $has_tracking_code  = $track_code = "";
 		if ($submission_type==='form') {
 			$replay=\Emsfb\Form_Runtime::replay('form',$this->id,$this->operation_data);

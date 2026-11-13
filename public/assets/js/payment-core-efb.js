@@ -469,7 +469,9 @@
                return;
             }
             if (d.type !== 'field') return;
-            if (!has(types, v)) out.push(base({ code: 'pay_option_field_missing', level: 'error', key: d.key, label: d.label }));
+            // A deleted field blocks every payment only when every offered method needs it (else some still work).
+            var allM = forM !== null && (!forM.length || (Array.isArray(offered) && offered.every(function (x) { return forM.indexOf(x) !== -1; })));
+            if (!has(types, v)) out.push(base({ code: 'pay_option_field_missing', level: allM ? 'error' : 'warning', key: d.key, label: d.label }));
             else if (d.field_types.length && d.field_types.indexOf(types[v]) === -1) out.push(base({ code: 'pay_option_field_type', level: 'warning', key: d.key, label: d.label }));
             else if (forM !== null && !required[v]) out.push(base({ code: 'pay_option_not_required', level: 'info', key: d.key, label: d.label, target: v }));
          });

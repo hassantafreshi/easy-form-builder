@@ -386,6 +386,9 @@ class Panel_edit  {
 					'user_name'=> wp_get_current_user()->display_name,
 					'user_ip'=> $ip,
 					'setting'=>$stng,
+					// PAY00 readiness: the forms with a payment field that visitors cannot pay with now (badge in the list).
+					'pay_not_ready' => class_exists('\\Emsfb\\Payments\\Readiness') ? (object) \Emsfb\Payments\Readiness::not_ready_forms() : (object) array(),
+					'pay_badge' => array('label' => __('Payment setup incomplete', 'easy-form-builder'), 'hint' => __('Visitors cannot pay with this form yet. Open it to see what is missing.', 'easy-form-builder')),
 					'messages_state' =>$this->get_not_read_message(),
 					'response_state' =>$this->get_not_read_response(),
 					'poster'=> EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg',

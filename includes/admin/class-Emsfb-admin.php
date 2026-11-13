@@ -522,6 +522,8 @@ class Admin {
         $m = $lang['updated'];
         $response = ['success' => true, 'r' =>"updated", 'value' => "[EMS_Form_Builder id=$id]"];
         if (!empty($save_warnings_efb)) $response['warnings'] = $save_warnings_efb;
+        // PAY00 readiness (computed, never stored): whether visitors can pay with this form as saved, and why not.
+        if (is_array($valp) && class_exists('\\Emsfb\\Payments\\Readiness')) $response = \Emsfb\Payments\Readiness::save_answer($response, $valp, (int) $id);
         wp_send_json_success($response, 200);
     }
     /**

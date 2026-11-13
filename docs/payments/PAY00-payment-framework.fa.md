@@ -1035,3 +1035,50 @@ The full matrix (every gateway × situation, who sees what, code, blocker or war
 - Gateways (vendores-efb): Tap (`pgw_map_email` required + email, `lang_code` header ar / en, reasons), Paymob (e-mail required, wallet number required for `wallet`, reasons, its own phone warning removed), Payplug (Oney: name, e-mail, mobile `phone_e164`, address, country `FR MC GP MQ GF RE YT`; `billing.mobile_phone_number`; `failure.code` reasons), Mollie (`failureReason` reasons, 422 → method_unavailable), Omise (`failure_code` reasons), PayTabs (response status / message reasons, H = review message and owner note, optional name / e-mail options), Xendit (expired / canceled reasons).
 - Tests: `test-pay-error-scenarios.php` 58, `test-pay-error-twins.js` 19, `test-pay-field-messages-browser.js` 18, `test-addon-<gateway>-errors.php` (Tap 18, Paymob 9, Payplug 12, Mollie 12, Omise 7, PayTabs 11, Xendit 6).
 - Final counts (2026-11-13): unit tests in scope (pay, the seven gateway add-ons, PayPal, AutoPilot, privacy; 96 files) 2692 passed, 0 failed; full e2e 454 passed, 0 failed (16 scenarios, new `tappay-lang`). To confirm with the owner: Save is never refused (blockers are red warnings); `pay_option_not_required` is info only; Tap's page language follows the visitor's locale (`ar` / `en`, Persian → `en`); Oney billing countries `FR MC GP MQ GF RE YT`.
+
+#### Payment readiness: a form that can never take payment (2026-11-13, owner request)
+
+Owner: "a standard solution for a form that can never take payment". Before, such a form saved with
+red builder warnings and an error-level entry in the save answer, but its public page still showed the
+Pay button (or, for the add-on-off case, nothing at all and a plain Send that stored an unpaid entry).
+
+**What established products do** (checked 2026-11-13):
+
+| Product | Builder / admin | Visitor | Source |
+|---|---|---|---|
+| Gravity Forms (Stripe add-on) | the form saves; adding the Stripe field without a Stripe feed shows "Please check if you have activated a Stripe feed for your form." with a link to create the feed | the payment is not offered until the feed exists | [Setting up a Stripe compatible form](https://docs.gravityforms.com/setting-up-a-stripe-compatible-form/), [Stripe add-on settings](https://docs.gravityforms.com/stripe-add-on-settings-reference/) |
+| WPForms (Stripe) | the owner is reminded to connect Stripe (separately for Test and Live) before payments work | — | [Testing Stripe payments](https://wpforms.com/docs/how-to-test-stripe-payments-on-your-site/) |
+| Shopify | Settings → Payments shows what is missing; the store is never locked for editing | checkout says only "This store is currently unable to accept payments" (no detail) | [Troubleshooting payment gateways](https://help.shopify.com/en/manual/payments/troubleshooting) |
+| Jotform (Square, PayPal) | the payment field asks to connect the gateway (wand → Connect → Continue) | "Square Payment Error – Access token is missing. Please contact form administrator." | [Jotform answer 2511910](https://jotform.com/answers/2511910-error-square-payment-error-acces-token-is-missing-please-contact-form-administrator), [answer 3089242](https://www.jotform.com/answers/3089242-getting-errors-on-the-paypal-payment-field-on-the-form) |
+| Formidable Forms (Stripe) | the payment field is tied to a Stripe form action; when it is unlinked the owner re-links it (community answers only, no official page found) | — | [Formidable community](https://connect.formidableforms.com/?p=7313) |
+
+The common pattern, and what was chosen: (1) **saving is never blocked** (no lost work; AutoPilot
+builds a form in several steps); (2) a **computed readiness** — ready / not ready + the blocking
+issues with codes and actionable words — read live from the form and the gateway settings, never
+stored; (3) the **visitor gets one plain sentence and no payment flow**, and nothing is stored; (4) the
+**people who can fix it are told what and where** (builder, forms list, admin notice, the page itself
+when they are logged in); (5) the **server refuses** whatever the browser sends. Jotform's visitor text
+names a technical cause ("access token"), which the owner did not want; Shopify's generic sentence is
+the model for the visitor text.
+
+**Built** (core, gateway-neutral; `includes/payments/class-Emsfb-payment-registry.php`, class `Readiness`):
+
+| Part | What |
+|---|---|
+| `Readiness::of_form( $form, $form_id )` | `{has_payment, ready, issues[]}`; issue = `{code, level: error, m, field_id, gateway, fix: {kind: settings\|field\|addons\|plan, url, label, field_id?}}`. Issues = the save checks of level `error` (`pay_not_configured`, `pay_currency`, `pay_amount_limit` (fixed above the maximum), `pay_method_currency` (no method left), `pay_option_required` (every offered method needs it), `pay_option_field_missing` (every offered method needs it; otherwise now a warning), `pay_multiple_fields`, `pay_form_type`, a gateway's own `pay_gw_*` of level error) plus `pay_addon_inactive` (a field whose type is a gateway add-on of the catalogue that is not active: the catalogue folder is the field type) and `pay_plan` (the plan has no payments). Filter `efb_payment_readiness( $out, $form, $form_id )`. Warnings and info (Test mode, a local site, a method limit) keep the form ready |
+| Live | nothing stored: removing the keys or switching the add-on off makes a form not ready on the next page load; adding the keys makes the same stored form ready without saving it again |
+| Public page | `Frontend::field_markup( …, $rows )` draws `Readiness::public_notice()` in place of the field: "Online payment for this form is not available right now. Please try again later or contact the site." (`role="alert"`, `data-efb-pay-blocked`); for a user with `manage_options`, `Emsfb_create` or `Emsfb_payments` also "Only you see this (you can edit this form): visitors cannot pay yet because" + each issue with its link. The field of an add-on that is off gets the same notice (`class-Emsfb-formbuilder.php`). `core-efb.js`: `efb_pay_block_send_efb()` shows the form's Send disabled (`aria-disabled`, title = the sentence), `efb_pay_blocked_efb()` stops Send / the last Next and moves the focus to the notice. Each sentence has `unicode-bidi: plaintext` (an English sentence on a right-to-left page keeps its full stop at the end) |
+| Server | the submit handler (`get_form_public_efb`, every endpoint, before captcha and storage) and `Service::create()` answer `pay_not_ready` (with the visitor sentence) for a form with a payment field that is not ready; nothing is stored, the gateway is never called |
+| Builder | the save answer carries `payment_ready`, `payment_issues` and `payment_title`; the "Saved" dialog shows "Saved, but visitors cannot pay yet:" with each issue and its fix (a button that opens the payment field's settings, or a link to the gateway settings / Add-ons); the red alerts of those issues are not repeated. The field's panel keeps showing the checks live |
+| Admin | forms list: badge "Payment setup incomplete" (title: what is missing; `ajax_object_efm.pay_not_ready`); every Easy Form Builder screen (the Payments screen too): an error notice "Payment setup incomplete: visitors cannot pay with these forms yet." with up to five forms, their first issue and a link to each form (`Readiness::not_ready_forms()`, live) |
+| AutoPilot | save answer `payment_ready` / `payment_issues` (`pay_addon_inactive` and `pay_plan` are added to `warnings` too); `GET Emsfb/v1/payments/readiness?form_id=N` (stored form) and `POST {form}` (a draft, nothing stored), read-only, for users who can edit forms or payments, registered also without any gateway add-on; `efbBuilderApi.paymentReadiness({draft?, formId?})`; `capabilities.payments.readiness` = `{rest, methods, builder, save_answer, codes, visitor_code: 'pay_not_ready'}` |
+
+Tests: `tests/test-pay-readiness.php` (36), `tests/test-pay-readiness-browser.js` (13, screenshots
+`pay-readiness-{en-1280,fa-375,ar-375}.png`), `test-pay-error-twins.js` (deleted mapped field levels),
+e2e scenario `readiness`. The add-on create tests now expect `pay_not_ready` where a form can never
+pay (a currency the gateway does not take, a fixed amount above its maximum, no e-mail field for Tap /
+Paymob, a wallet-only Paymob account without a mobile field) instead of the later per-check codes.
+
+To confirm with the owner: the visitor sentence; the admin notice on every Easy Form Builder screen
+(not on the whole wp-admin); a user with `Emsfb_create` (not only administrators) sees the details on
+the public page; `pay_option_field_missing` is an error only when every offered method needs that field.

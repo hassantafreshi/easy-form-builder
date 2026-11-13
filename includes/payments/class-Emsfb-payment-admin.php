@@ -51,6 +51,11 @@ class Admin {
 			}
 		}
 		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+		// PAY00 readiness: on Easy Form Builder's screens, the forms visitors cannot pay with now (computed
+		// on every load, so a form drops out once its keys are added or its payment field is fixed).
+		if ( $screen && stripos( (string) $screen->id, 'emsfb' ) !== false ) {
+			echo Readiness::admin_notice_html( Readiness::not_ready_forms() ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in admin_notice_html()
+		}
 		if ( $screen && strpos( (string) $screen->id, self::SLUG ) !== false && defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON ) {
 			$last = (int) get_option( 'emsfb_pmt_reconcile_last', 0 );
 			if ( Store::ready() && $last < time() - 2 * HOUR_IN_SECONDS && Store::stats()['pending'] > 0 ) {

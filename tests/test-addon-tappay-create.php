@@ -125,11 +125,11 @@ $r = tap_create($db, array('form' => tap_form('sar'), 'method' => 'knet'));
 $ev = json_encode(Store::events((int) $db->get_var("SELECT id FROM wp_emsfb_pmt_ ORDER BY id DESC LIMIT 1")));
 $t('...the refusal is logged as method_currency on the payment, which is failed', array(strpos($ev, 'method_currency') !== false, Store::get((int) $db->get_var("SELECT id FROM wp_emsfb_pmt_ ORDER BY id DESC LIMIT 1"))['status']), array(true, 'failed'));
 $r = tap_create($db, array('form' => tap_form('thb')));
-$t('a currency Tap does not take (THB): refused by the quote, no request', array($r['success'], $r['code']), array(false, 'currency_unsupported'));
+$t('a currency Tap does not take (THB): refused by core readiness (pay_not_ready), no request', array($r['success'], $r['code']), array(false, 'pay_not_ready'));
 $r = tap_create($db, array('form' => tap_form('kwd', array('pf_fixed' => '')), 'rows' => tap_rows('ro2')));
 $t('0.750 KWD (no fee) is above the 0.100 minimum', $r['success'], true);
 $r = tap_create($db, array('form' => tap_form('kwd', array('pf_fixed' => '200000'))));
-$t('above the 100000.000 KWD maximum: refused before Tap (above_max)', array($r['success'], $r['code']), array(false, 'above_max'));
+$t('above the 100000.000 KWD maximum: refused before Tap (pay_not_ready: the fixed amount is above the maximum)', array($r['success'], $r['code']), array(false, 'pay_not_ready'));
 
 // The owner's method list wins.
 $s3 = Settings::load('tappay');
@@ -186,7 +186,7 @@ $noemail = tap_form();
 $noemail[0]['email_to'] = '';
 $before = count(TapFake::$charges);
 $r = tap_create($db, array('form' => $noemail, 'rows' => array(array('id_' => 'nm', 'type' => 'text', 'name' => 'Full name', 'value' => 'X'), array('id_' => 'rad', 'id_ob' => 'ro1', 'type' => 'payRadio')), 'payer_email' => ''));
-$t('a form without an e-mail: refused before Tap (needs_name_email logged)', array($r['success'], count(TapFake::$charges) - $before, strpos(json_encode(Store::events((int) $db->get_var("SELECT id FROM wp_emsfb_pmt_ ORDER BY id DESC LIMIT 1"))), 'needs_name_email') !== false), array(false, 0, true));
+$t('a form without an e-mail field: not ready (pay_not_ready), nothing sent to Tap', array($r['success'], count(TapFake::$charges) - $before, $r['code']), array(false, 0, 'pay_not_ready'));
 
 // Merchant id per country.
 Settings::load('tappay')->apply($g->settings_schema(), array('merchant_id' => '599424', 'merchant_ids' => 'KW=111111, SA=222222'));
@@ -245,7 +245,10 @@ $t('form_warnings(): Tap has none of its own any more: the required e-mail is co
 $w = array_values(array_filter(\Emsfb\Payments\Registry::form_warnings(array_values($noemail)), function ($x) { return $x['level'] !== 'info'; }));
 $t('...a form without any e-mail → core\'s error pay_option_required naming the option to set', array(array_column($w, 'code'), array_column($w, 'level'), $w[0]['m']), array(array('pay_option_required'), array('error'), 'Tap Payments requires "Payer e-mail". Add an Email field to the form and select it in the payment field\'s "Payer e-mail" option.'));
 $t('...the form\'s confirmation e-mail field counts (no warning)', array_column(array_filter(\Emsfb\Payments\Registry::form_warnings(tap_form()), function ($x) { return $x['level'] !== 'info'; }), 'code'), array());
-$mapped = tap_create($db, array('form' => tap_form('kwd', array('pgw_map_name' => 'nk', 'pgw_map_email' => 'em2')), 'rows' => tap_rows('ro1', array(array('id_' => 'nk', 'type' => 'text', 'name' => 'Contact', 'value' => 'Noor Haddad'), array('id_' => 'em2', 'type' => 'email', 'name' => 'Work e-mail', 'value' => 'noor@example.test')))));
+$mapped_form = tap_form('kwd', array('pgw_map_name' => 'nk', 'pgw_map_email' => 'em2'));
+$mapped_form[] = array('id_' => 'nk', 'type' => 'text', 'name' => 'Contact', 'step' => 1);
+$mapped_form[] = array('id_' => 'em2', 'type' => 'email', 'name' => 'Work e-mail', 'step' => 1);
+$mapped = tap_create($db, array('form' => $mapped_form, 'rows' => tap_rows('ro1', array(array('id_' => 'nk', 'type' => 'text', 'name' => 'Contact', 'value' => 'Noor Haddad'), array('id_' => 'em2', 'type' => 'email', 'name' => 'Work e-mail', 'value' => 'noor@example.test')))));
 list($cb) = tap_last_charge_body();
 $t('the payer comes from the mapped fields core resolved ($ctx->payer), not from the stored entry', array($mapped['success'], $cb['customer']['first_name'], $cb['customer']['last_name'], $cb['customer']['email']), array(true, 'Noor', 'Haddad', 'noor@example.test'));
 tap_create($db, array('form' => tap_form('kwd', array('pf_methods' => 'knet,mada')), 'method' => ''));

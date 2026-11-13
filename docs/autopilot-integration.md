@@ -698,7 +698,8 @@ only on test sites (registered by the e2e mu-plugin).
   (chosen methods that cannot take the currency: warning, error when none is left; `methods`),
   `pay_option_required` (a payer field the gateway needs is not chosen: error when every offered
   method needs it, warning when only some do; `methods`, `key`, `field_types`),
-  `pay_option_field_missing` (error) / `pay_option_field_type` (warning),
+  `pay_option_field_missing` (error when every offered method needs that option, else warning) /
+  `pay_option_field_type` (warning),
   `pay_option_not_required` (info: the mapped field is not marked Required; `target` = its `id_`),
   `pay_multiple_fields` (error), `pay_form_type` (error: row 0 `type` is not `payment`;
   `form_type`), and the gateway's own `pay_gw_<code>` (e.g. `pay_gw_billing_unmapped` for Payplug;
@@ -709,6 +710,25 @@ only on test sites (registered by the e2e mu-plugin).
   `field_schema[].required_for`; empty = every payment) and the message says which kind of field to
   add and which option to select it in; set that option (`pgw_map_*`) to the `id_` of a matching
   field (and mark it Required), or limit `pf_methods` to methods that do not need it.
+  **Payment readiness** (2026-11-13): a form with a payment field also gets `payment_ready` (bool)
+  and `payment_issues` (the blocking issues: `{code, level:'error', m, field_id, gateway, fix:{kind:
+  settings|field|addons|plan, url, label, field_id?}}`) and, when not ready, `payment_title`. Codes:
+  every `level:'error'` warning above plus `pay_addon_inactive` (a payment field whose gateway add-on
+  is not active: its type is the add-on's folder, `mollie` … `xendit`) and `pay_plan`; these two are
+  added to `warnings` too. Readiness is computed, never stored: adding the gateway keys later makes the
+  saved form ready without saving it again. A form that is not ready saves normally, but its public
+  page shows "Online payment for this form is not available right now. Please try again later or
+  contact the site." instead of the payment field, keeps Send disabled, and the server answers
+  `pay_not_ready` to every submit (nothing is stored). Read it any time (read-only, users who can edit
+  forms or payments, `X-WP-Nonce` = `efb_var.nonce`): `GET Emsfb/v1/payments/readiness?form_id=N`
+  (stored form) or `POST Emsfb/v1/payments/readiness` with `{"form": rows}` (a draft; nothing is
+  stored) → `{form_id, has_payment, ready, issues}`; 404 `form_not_found`; in the builder
+  `await efbBuilderApi.paymentReadiness()` (the open form as it is now) or
+  `paymentReadiness({draft:false, formId})` (as stored). Registry: `capabilities.payments.readiness`
+  = `{rest, methods, builder:'efbBuilderApi.paymentReadiness', save_answer:['payment_ready',
+  'payment_issues'], codes, visitor_code:'pay_not_ready'}`. The route exists also when no gateway
+  add-on is active. An agent fixes `fix.kind:'field'` issues with `setForm()`; `settings` / `addons` /
+  `plan` issues are the owner's (never enter keys or activate add-ons for them).
   `field_schema[]` entries of type `field` may carry `format` (`email`, `phone`, `phone_e164`,
   `country`), `countries` (ISO codes) and `invalid_message`: the page and the server check a value
   the chosen method needs against them (visitor answer `payer_missing` / `payer_invalid` with
@@ -733,7 +753,8 @@ only on test sites (registered by the e2e mu-plugin).
 - **Hooks.** `efb_register_payment_gateways`, `efb_payment_gateways`, `efb_payment_quote`,
   `efb_payment_create_args`, `efb_payment_status_changed`, `efb_payment_paid`, `efb_payment_failed`,
   `efb_payment_refunded`, `efb_payment_run_actions`, `efb_payments_required_plan`, `efb_currency_exponent`.
-- **Tests.** `php tests/test-pay-capabilities.php`, `php tests/test-pay-save-roundtrip.php`,
+- **Tests.** `php tests/test-pay-readiness.php`, `node tests/test-pay-readiness-browser.js`,
+  `php tests/test-pay-capabilities.php`, `php tests/test-pay-save-roundtrip.php`,
   `node tests/test-pay-field-parity.js`, `node tests/test-pay-gateway-options.js`,
   `php tests/test-pay-hooks.php`, scenario 9 of `tests/e2e-wp/run.js` (9a: builder + API).
 

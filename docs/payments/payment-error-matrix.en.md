@@ -25,16 +25,25 @@ translations are made (see "Tap in Arabic" at the end).
 
 Decision (owner to confirm): **Save is never refused.** A blocker is shown red (builder alert
 `danger`, panel `alert-danger`, `level: "error"` for AutoPilot) and the form still saves, because
-refusing would lose the owner's work and break AutoPilot flows that add fields in several steps. A
-visitor of a form with a blocker gets the specific visitor message of the row (for example "This form
-cannot take payments at the moment. Please contact the site owner.") before anything is stored.
+refusing would lose the owner's work and break AutoPilot flows that add fields in several steps.
+
+**Payment readiness** (2026-11-13, PAY00 appendix "Payment readiness"): every blocker (level `error`)
+makes the form **not ready**, computed live from the form and the gateway settings (never stored). A
+visitor of a form that is not ready never sees the payment field: the page shows "Online payment for
+this form is not available right now. Please try again later or contact the site." in its place, the
+form's Send is disabled, and the server answers `pay_not_ready` to any submit or `payments/create`
+before anything is stored. A logged-in user who can edit the form also reads the issues with their
+links; the forms list shows "Payment setup incomplete"; Easy Form Builder's screens list the forms;
+the save answer carries `payment_ready` / `payment_issues`; `GET/POST Emsfb/v1/payments/readiness`
+answers for a stored form or a draft. Adding the keys later makes the form ready without saving it.
 
 ## 1. Form-build time (B: builder panel + after Save + AutoPilot)
 
 | Situation | Gateways | Code | Level | Owner message (B) | Visitor (V) |
 |---|---|---|---|---|---|
-| Gateway add-on not active (field of a removed add-on) | all | — (the field is not a registered type: the builder shows it as an unknown field, the add-on catalogue offers it) | blocker | "…add-on is not active" (catalogue) | `pay_unavailable`: "This form cannot take payments at the moment. Please contact the site owner." |
-| No keys for the current mode | all | `pay_not_configured` | error | "Tap has no keys for Live mode yet, so visitors cannot pay. Add them in Payments → Gateways." (Test mode named when Test) | `pay_unavailable` (above) |
+| Gateway add-on not active (field of a removed add-on) | all | `pay_addon_inactive` (readiness; the catalogue folder is the field type) | error | "The Payplug add-on of this payment field is not active, so visitors cannot pay. Activate it in Easy Form Builder → Add-ons, or remove the payment field." + Open Add-ons | `pay_not_ready`: "Online payment for this form is not available right now. Please try again later or contact the site." (notice in place of the field, Send disabled, nothing stored) |
+| The plan has no payments | all | `pay_plan` (readiness) | error | "Online payments are not part of the plan of this site, so visitors cannot pay. Choose a plan that includes payments." | `pay_not_ready` (above) |
+| No keys for the current mode | all | `pay_not_configured` | error | "Tap has no keys for Live mode yet, so visitors cannot pay. Add them in Payments → Gateways." (Test mode named when Test) + Open the gateway settings | `pay_not_ready` (above); adding the keys makes the form ready without saving it |
 | Test mode on | all | `pay_test_mode` | info (panel and save answer only, no pop-up) | "Tap is in Test mode: no real payments are taken. Switch it to Live in Payments → Gateways when you are ready." | test banner "Test mode: no real payment will be taken." |
 | Form currency not supported by the gateway | all (lists from `supports()['currencies']`: Mollie 29, Payplug EUR, Tap KWD BHD OMR JOD SAR AED QAR EGP USD EUR GBP, Omise THB, PayTabs SAR AED EGP QAR USD EUR GBP KWD BHD OMR JOD IQD, Paymob EGP SAR AED OMR PKR, Xendit IDR PHP THB VND MYR SGD USD) | `pay_currency` | error | "Omise only accepts THB. This form uses EUR, so visitors cannot pay. Change the currency in the payment field." | `currency_unsupported` → `pay_unavailable` text |
 | Fixed amount above the gateway's maximum | all with `max_minor` (Payplug 20,000 EUR, Tap 100,000 units, Omise 150,000 THB, PayTabs, Paymob, Xendit per channel) | `pay_amount_limit` | error | "Omise accepts payments up to ฿150,000.00. The fixed amount of this form is ฿200,000.00, so visitors cannot pay." | `above_max`: "The amount must be at most ฿150,000.00." |
@@ -43,7 +52,7 @@ cannot take payments at the moment. Please contact the site owner.") before anyt
 | A chosen method cannot take the form's currency | Tap (mada SAR, KNET KWD, BENEFIT BHD), PayTabs (mada, STC Pay SAR, KNET KWD, …), Paymob (wallet, kiosk, valU, Souhoola, Meeza EGP; mada SAR), Xendit (each channel its currencies) | `pay_method_currency` | warning (error when no chosen method is left) | "Tap: KNET cannot take SAR, so it is not offered on this form. Choose other methods or change the currency." | the method is not shown; a forged method → `method_unavailable` |
 | A payer field the gateway REQUIRES is not chosen in the payment field (or the form has no such field) | Tap (payer e-mail), Paymob (payer e-mail; mobile number for the mobile wallet), Payplug (first and last name, e-mail, mobile number, street, postcode, city, country for Oney), others none (Mollie, Omise, PayTabs, Xendit ask on their own page) | `pay_option_required` | error (needed for every method) / warning (needed for some methods) | "Paymob requires "Mobile number" to pay with Mobile wallet. Add a phone number field to the form and select it in the payment field's "Mobile number" option." | — (cannot happen for the visitor: nothing is mapped, so core's check needs nothing; the provider's refusal is mapped, see §2) |
 | E-mail option empty but the form's confirmation e-mail field is set | Tap, Paymob, Payplug | — (no warning: core uses the confirmation e-mail field) | — | — | field message on that field when empty |
-| The mapped field was deleted | all with options | `pay_option_field_missing` | error | "Tap: the field chosen for "Payer e-mail" is no longer in the form. Choose another one." | — |
+| The mapped field was deleted | all with options | `pay_option_field_missing` | error when every offered method needs that option, else warning (since 2026-11-13) | "Tap: the field chosen for "Payer e-mail" is no longer in the form. Choose another one." | — |
 | The mapped field is of the wrong kind | all with options | `pay_option_field_type` | warning | "Tap: the field chosen for "Payer e-mail" is not the right kind of field." | invalid value → `payer_invalid` |
 | The mapped field is not marked Required | all with required options | `pay_option_not_required` | info | ""Mobile" is needed by Paymob for the payment but is not marked Required. Visitors are asked for it when they press Pay; mark it Required so they see it earlier." | the page marks it required for the payment (`aria-required`, a star) |
 | More than one payment field | all | `pay_multiple_fields` | error | "This form has 2 payment fields. A form can take one payment: remove the others." | first field only |
@@ -70,7 +79,8 @@ script-filled request) and answers with the same code and `field_id`.
 | Donation outside the field's own range | all | `pwyw_out_of_range` | V | "Please choose a valid amount." |
 | Method not available for the amount | Mollie (method limits), Payplug (Oney 100–3,000 EUR), Xendit (channel limits) | `method_below_min` / `method_above_max` | V (before create) | "Oney 3x accepts amounts from €100.00. Please choose another payment method." |
 | Method not available (currency, account, forged) | all | `method_unavailable` | V | "This payment method is not available for this payment right now. Please choose another payment method." |
-| Gateway not configured / keys refused / wrong mode at create | all | `pay_unavailable` + owner alert (S, M) | V | "This form cannot take payments at the moment. Please contact the site owner." |
+| Form not ready (any blocker of §1, the add-on off, the plan) | all | `pay_not_ready` (submit handler and `payments/create`, before anything is stored) | V | "Online payment for this form is not available right now. Please try again later or contact the site." (the page shows it in place of the field and keeps Send disabled) |
+| Keys refused / wrong mode at create (the form looked ready) | all | `pay_unavailable` + owner alert (S, M) | V | "This form cannot take payments at the moment. Please contact the site owner." |
 | Gateway down / timeout / 5xx | all | `provider_unavailable` | V | "The payment service is not responding right now. You have not been charged. Please try again in a few minutes." |
 | Rate limited (provider 429, or EFB's own 10 per minute per visitor, 30 per form) | all | `rate_limited` / `efb_rate_limited` | V | "Too many payment attempts. Please wait a minute and try again." |
 | The site cannot be reached from the browser (offline, network error) | all | `network` (browser only) | V | "We could not reach the site. Check your internet connection and try again. You have not been charged." |
@@ -98,6 +108,7 @@ script-filled request) and answers with the same code and `field_id`.
 
 | Situation | Gateways | Code | Where | Owner message |
 |---|---|---|---|---|
+| A form visitors cannot pay with (readiness) | all | the §1 blockers, `pay_addon_inactive`, `pay_plan` | forms list badge; notice on every Easy Form Builder screen (Payments too); the form's own page for a logged-in owner; the "Saved" dialog | "Payment setup incomplete" / "Payment setup incomplete: visitors cannot pay with these forms yet." + form, first issue, link / "Saved, but visitors cannot pay yet:" + each issue and its fix |
 | No keys for the current mode | all | `pay_keys_missing` | S (error) | "No keys for Live mode: visitors cannot pay. Enter the keys and press Test connection." |
 | Test mode | all | `pay_test_mode` | S (info) | "Test mode: no real payments are taken." |
 | Keys of the wrong mode (a Test key in the Live field) | Mollie, Payplug, Tap, Omise, Xendit (by key prefix); PayTabs, Paymob (by the answer) | gateway `test_connection()` | S (Test connection) | "This is a Test key; the Live field needs a Live key." (the add-on's words) |

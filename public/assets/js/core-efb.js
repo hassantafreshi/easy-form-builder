@@ -3031,6 +3031,34 @@ setTimeout(() => {
   }
 }, 5000);
 
+/* PAY00 readiness: the "online payment is not available" notice of a form (data-efb-pay-blocked),
+   or null. When there is one, the form's Send / Submit is shown disabled and a click on it moves
+   the visitor to the notice instead of sending. */
+function efb_pay_blocked_efb(form_id, body) {
+  const b = body || document.getElementById('body_efb_' + form_id);
+  const n = b ? b.querySelector('[data-efb-pay-blocked="1"]') : null;
+  if (n) {
+    n.setAttribute('tabindex', '-1');
+    try { n.scrollIntoView({ block: 'center' }); } catch (e) {}
+    try { n.focus({ preventScroll: true }); } catch (e) {}
+  }
+  return n;
+}
+function efb_pay_block_send_efb(root) {
+  (root || document).querySelectorAll('[data-efb-pay-blocked="1"]').forEach(function (n) {
+    const body = n.closest('[id^="body_efb_"]');
+    if (!body) return;
+    const msg = (n.querySelector('.efb-pay-blocked__visitor') || n).textContent.trim();
+    body.querySelectorAll('#btn_send_efb').forEach(function (btn) {
+      btn.setAttribute('aria-disabled', 'true');
+      btn.classList.add('disabled', 'efb-pay-send-off');
+      btn.style.opacity = '0.55';
+      btn.style.cursor = 'not-allowed';
+      if (msg) btn.setAttribute('title', msg);
+    });
+  });
+}
+document.addEventListener('DOMContentLoaded', function () { efb_pay_block_send_efb(document); });
 async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
 
   const id_body = 'body_efb_'+form_id;
@@ -3053,6 +3081,11 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
 
   const max_step = Number(parent_body.dataset.steps);
   let no_step = Number(parent_body.dataset.currentstep);
+  /* PAY00 readiness: a form that cannot take its payment now (no keys, add-on off, …) shows a notice
+     in place of the payment field and never sends; the server refuses it too (pay_not_ready). */
+  if ((btn_state === 'btn_send_efb' || (btn_state === 'next_efb' && no_step >= max_step)) && efb_pay_blocked_efb(form_id, parent_body)) {
+    return false;
+  }
   let valj_efb = get_structure_by_form_id_efb(form_id);
   const progessbar = parent_body.querySelector('.progress-bar-efb') ?? null;
   const steps_shell_efb = parent_body.querySelector('.efb-sp') ?? null;

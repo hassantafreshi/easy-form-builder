@@ -88,24 +88,28 @@ class Frontend {
 	}
 
 	/**
-	 * The field's markup for visitors, or a short notice when the form cannot take payments now
-	 * (plan, gateway keys): the field is never shown half-working, and the server refuses anyway.
+	 * The field's markup for visitors, or the "not ready" notice when the form cannot take payments
+	 * (Readiness: keys, add-on, plan, currency, required payer fields, …): the field is never shown
+	 * half-working, the page keeps Send / Pay from sending, and the server refuses anyway
+	 * (pay_not_ready). A user who can fix the form also reads the issues with their links.
 	 *
 	 * @param object|array $row   The gateway field row.
 	 * @param object|array $form0 Row 0.
+	 * @param array|null   $rows  Every row of the form (the readiness of the whole form); null = only
+	 *                            the gateway's own state (keys of the mode, plan) is checked.
 	 */
-	public static function field_markup( $row, $form0, $form_id ) {
+	public static function field_markup( $row, $form0, $form_id, $rows = null ) {
 		$type = (string) Field::get( $row, 'type' );
 		$info = Registry::public_info( $type, array( 'currency' => (string) Field::get( $form0, 'currency' ) ) );
 		$id = (string) Field::get( $row, 'id_' );
-		$ok = $info && Service::plan_ok() && ! empty( $info['configured'][ $info['mode'] ] );
-		if ( ! $ok ) {
-			$msg = esc_html__( 'This form cannot take payments at the moment. Please contact the site owner.', 'easy-form-builder' );
-			if ( function_exists( 'current_user_can' ) && current_user_can( 'manage_options' ) ) {
-				$msg .= ' <a href="' . esc_url( admin_url( 'admin.php?page=Emsfb_payments&tab=gateways' ) ) . '">' . esc_html__( 'Set up the payment gateway', 'easy-form-builder' ) . '</a>';
-			}
-			return '<div class="efb alert alert-warning efb-pf-unavailable" role="alert" data-pf="' . esc_attr( $id ) . '">' . $msg . '</div>';
+		if ( is_array( $rows ) ) {
+			$ready = Readiness::of_form( $rows, (int) $form_id );
+		} else {
+			$ok = $info && Service::plan_ok() && ! empty( $info['configured'][ $info['mode'] ] );
+			$ready = array( 'has_payment' => true, 'ready' => $ok, 'issues' => array() );
+			if ( ! $ok ) $ready['issues'][] = array( 'code' => 'pay_not_configured', 'level' => 'error', 'field_id' => $id, 'gateway' => $type, 'm' => self::builder_labels()['notConfigured'], 'fix' => Readiness::fix_of( array( 'code' => 'pay_not_configured' ) ) );
 		}
+		if ( ! $info || ! $ready['ready'] ) return Readiness::public_notice( $ready, $id, $form_id );
 		$r = Field::resolve( $row, $form0, array( 'methods' => $info['methods'], 'logos' => $info['logos'], 'mobile' => self::mobile_ok(), 'defaults' => $info['defaults']['pf'] ) );
 		$t = Field::texts( $row, self::locale(), self::default_texts( $info['label'], $info['defaults']['texts'] ) );
 		return Field::html( $r, $t, array(
@@ -425,6 +429,13 @@ class Routes {
 
 	/** Called from _Public's rest_api_init next to efb_register_payment_rest_routes. */
 	public static function register( $public ) {
+		// Read-only, for the builder and AutoPilot: also without an active gateway add-on (a form may
+		// still hold the payment field of an add-on that was switched off).
+		register_rest_route( 'Emsfb/v1', 'payments/readiness', array(
+			'methods'             => array( 'GET', 'POST' ),
+			'callback'            => array( Readiness::class, 'rest' ),
+			'permission_callback' => array( Readiness::class, 'rest_can' ),
+		) );
 		if ( ! Registry::all() ) return;
 		$slug = '(?P<gateway>[a-z][a-z0-9]{1,19})';
 		register_rest_route( 'Emsfb/v1', 'payments/create', array(

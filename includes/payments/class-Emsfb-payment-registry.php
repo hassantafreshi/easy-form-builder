@@ -382,6 +382,260 @@ class Registry {
 	}
 }
 
+/**
+ * PAY00: payment readiness of a form (owner request "a standard solution for a form that can never
+ * take payment"; docs/payments/PAY00-payment-framework.fa.md, appendix "Payment readiness").
+ *
+ * The common pattern of form builders and shops (Gravity Forms, WPForms, Formidable, Jotform,
+ * Shopify): saving is never blocked; the form has a computed state "ready / not ready + the blocking
+ * issues", recomputed from the current form and the gateway settings on every read (nothing is
+ * stored, so adding the keys later makes the form ready without saving it again, and removing them
+ * or deactivating the add-on makes it not ready); visitors of a form that is not ready never reach
+ * the payment and nothing is stored; the people who can fix it are told what and where.
+ *
+ * Issues are the save warnings of level "error" (Registry::form_warnings(): no keys for the mode,
+ * currency, fixed amount above the maximum, no method left, a required payer field not chosen, a
+ * mapped field gone, several payment fields, a form type that cannot pay, a gateway's own error) plus
+ * what only readiness sees: a payment field whose gateway add-on is not active (pay_addon_inactive;
+ * the catalogue folder is the field type) and a plan without payments (pay_plan).
+ */
+class Readiness {
+
+	/** What a visitor of a form that is not ready reads (no detail, no jargon). */
+	public static function visitor_text() {
+		return __( 'Online payment for this form is not available right now. Please try again later or contact the site.', 'easy-form-builder' );
+	}
+
+	/** Whether the current user may see the owner's notice on the public page (builder or payment settings). */
+	public static function viewer_can_fix() {
+		if ( ! function_exists( 'current_user_can' ) ) return false;
+		return current_user_can( 'manage_options' ) || current_user_can( 'Emsfb_create' ) || current_user_can( 'Emsfb_payments' );
+	}
+
+	/** Field types of the gateway add-ons of the catalogue (the folder is the field type), registered or not. */
+	public static function catalogue_types() {
+		return array_values( array_unique( array_map( 'strval', Registry::addons() ) ) );
+	}
+
+	/** Whether a field type is a payment field of the framework: a registered gateway, or one of the catalogue whose add-on is off. */
+	public static function is_payment_type( $type ) {
+		if ( ! is_string( $type ) || ! preg_match( '/^[a-z][a-z0-9]{1,19}$/', $type ) ) return false;
+		return Registry::has( $type ) || in_array( $type, self::catalogue_types(), true );
+	}
+
+	/** The add-on key of a catalogue field type ('' when unknown). */
+	public static function addon_of( $type ) {
+		$k = array_search( (string) $type, Registry::addons(), true );
+		return is_string( $k ) ? $k : '';
+	}
+
+	/** Whether a form (rows) has a payment field of the framework. */
+	public static function has_payment( $form ) {
+		if ( ! is_array( $form ) ) return false;
+		foreach ( $form as $i => $r ) {
+			$t = Field::get( $r, 'type' );
+			if ( $i !== 0 && self::is_payment_type( $t ) ) return true;
+		}
+		return false;
+	}
+
+	/** The add-on's name for a message (the compatibility catalogue), else the field type. */
+	private static function addon_name( $type ) {
+		$key = self::addon_of( $type );
+		if ( $key !== '' && class_exists( '\Emsfb_Addon_Compatibility' ) && method_exists( '\Emsfb_Addon_Compatibility', 'addon_requirements' ) ) {
+			$req = \Emsfb_Addon_Compatibility::addon_requirements();
+			if ( isset( $req[ $key ]['name'] ) && is_string( $req[ $key ]['name'] ) ) return $req[ $key ]['name'];
+		}
+		return ucfirst( (string) $type );
+	}
+
+	/**
+	 * The readiness of a form: array( has_payment, ready, issues ). Each issue: code, level ('error'),
+	 * m (the owner's words), field_id, gateway, fix = array( kind: settings | field | addons | plan,
+	 * url, label ). $form_id (when known) makes the field links open the form in the builder.
+	 * Filter efb_payment_readiness( $out, $form, $form_id ).
+	 */
+	public static function of_form( $form, $form_id = 0 ) {
+		$out = array( 'has_payment' => false, 'ready' => true, 'issues' => array() );
+		if ( ! is_array( $form ) || ! isset( $form[0] ) ) return $out;
+		$form = json_decode( (string) json_encode( $form ), true );
+		if ( ! is_array( $form ) ) return $out;
+		$issues = array();
+		$registered = false;
+		foreach ( $form as $i => $r ) {
+			if ( $i === 0 || ! is_array( $r ) || ! isset( $r['type'] ) || ! is_string( $r['type'] ) ) continue;
+			if ( Registry::has( $r['type'] ) ) {
+				$out['has_payment'] = true;
+				$registered = true;
+			} elseif ( in_array( $r['type'], self::catalogue_types(), true ) ) {
+				$out['has_payment'] = true;
+				$issues[] = array( 'code' => 'pay_addon_inactive', 'level' => 'error', 'field_id' => isset( $r['id_'] ) && is_scalar( $r['id_'] ) ? (string) $r['id_'] : '', 'gateway' => $r['type'], 'addon' => self::addon_of( $r['type'] ),
+					/* translators: %s: name of a payment add-on (the gateway's name) */
+					'm' => sprintf( __( 'The %s add-on of this payment field is not active, so visitors cannot pay. Activate it in Easy Form Builder → Add-ons, or remove the payment field.', 'easy-form-builder' ), self::addon_name( $r['type'] ) ) );
+			}
+		}
+		if ( ! $out['has_payment'] ) return $out;
+		if ( $registered && ! Service::plan_ok() ) {
+			$issues[] = array( 'code' => 'pay_plan', 'level' => 'error', 'field_id' => '', 'gateway' => '',
+				'm' => __( 'Online payments are not part of the plan of this site, so visitors cannot pay. Choose a plan that includes payments.', 'easy-form-builder' ) );
+		}
+		if ( $registered ) {
+			foreach ( Registry::form_warnings( $form ) as $w ) {
+				if ( isset( $w['level'] ) && $w['level'] === 'error' ) $issues[] = array( 'code' => $w['code'], 'level' => 'error', 'field_id' => (string) $w['field_id'], 'gateway' => (string) $w['gateway'], 'm' => (string) $w['m'] );
+			}
+		}
+		foreach ( $issues as $k => $is ) $issues[ $k ]['fix'] = self::fix_of( $is, (int) $form_id );
+		$out['issues'] = $issues;
+		$out['ready'] = ! $issues;
+		if ( function_exists( 'apply_filters' ) ) {
+			$f = apply_filters( 'efb_payment_readiness', $out, $form, (int) $form_id );
+			if ( is_array( $f ) && isset( $f['ready'], $f['issues'] ) && is_array( $f['issues'] ) ) $out = array( 'has_payment' => ! empty( $f['has_payment'] ), 'ready' => (bool) $f['ready'] && ! $f['issues'], 'issues' => array_values( $f['issues'] ) );
+		}
+		return $out;
+	}
+
+	/** Where the owner fixes an issue: the gateway settings, the add-ons screen, or the payment field in the builder. */
+	public static function fix_of( array $issue, $form_id = 0 ) {
+		$adm = function ( $p ) { return function_exists( 'admin_url' ) ? admin_url( $p ) : $p; };
+		switch ( $issue['code'] ) {
+			case 'pay_not_configured':
+				return array( 'kind' => 'settings', 'url' => $adm( 'admin.php?page=Emsfb_payments&tab=gateways' ), 'label' => __( 'Open the gateway settings', 'easy-form-builder' ) );
+			case 'pay_addon_inactive':
+				return array( 'kind' => 'addons', 'url' => $adm( 'admin.php?page=Emsfb_addon' ), 'label' => __( 'Open Add-ons', 'easy-form-builder' ) );
+			case 'pay_plan':
+				return array( 'kind' => 'plan', 'url' => $adm( 'admin.php?page=Emsfb_addon' ), 'label' => __( 'See the plans', 'easy-form-builder' ) );
+		}
+		return array( 'kind' => 'field', 'url' => $form_id > 0 ? $adm( 'admin.php?page=Emsfb&state=edit-form&id=' . (int) $form_id ) : '', 'field_id' => isset( $issue['field_id'] ) ? (string) $issue['field_id'] : '', 'label' => __( 'Fix it in the payment field', 'easy-form-builder' ) );
+	}
+
+	/**
+	 * The save answer of a form with a payment field gets payment_ready (bool) and payment_issues
+	 * (the blocking issues with code, level, m, field_id, gateway, fix); the issues the save warnings
+	 * do not already carry (pay_addon_inactive, pay_plan) are added to warnings too. Never refuses.
+	 */
+	public static function save_answer( array $response, $form, $form_id ) {
+		$r = self::of_form( $form, (int) $form_id );
+		if ( ! $r['has_payment'] ) return $response;
+		$response['payment_ready'] = $r['ready'];
+		$response['payment_issues'] = $r['issues'];
+		if ( ! $r['ready'] ) $response['payment_title'] = __( 'Saved, but visitors cannot pay yet:', 'easy-form-builder' );
+		$have = array();
+		foreach ( isset( $response['warnings'] ) && is_array( $response['warnings'] ) ? $response['warnings'] : array() as $w ) {
+			if ( is_array( $w ) && isset( $w['code'] ) ) $have[ $w['code'] . '|' . ( isset( $w['field_id'] ) ? $w['field_id'] : '' ) ] = true;
+		}
+		foreach ( $r['issues'] as $is ) {
+			if ( isset( $have[ $is['code'] . '|' . $is['field_id'] ] ) ) continue;
+			$response['warnings'][] = array( 'code' => $is['code'], 'm' => $is['m'], 'level' => 'error', 'field_id' => $is['field_id'], 'gateway' => $is['gateway'] );
+		}
+		return $response;
+	}
+
+	/** Who may read readiness over REST: the people who can edit forms or the payment settings. */
+	public static function rest_can() {
+		return self::viewer_can_fix();
+	}
+
+	/**
+	 * GET  Emsfb/v1/payments/readiness?form_id=N  → the readiness of a stored form;
+	 * POST Emsfb/v1/payments/readiness {form: rows} → the readiness of a draft (nothing is stored).
+	 * Answer: {form_id, has_payment, ready, issues}; 404 for an unknown form, 400 without either.
+	 */
+	public static function rest( $r ) {
+		$id = (int) $r->get_param( 'form_id' );
+		$form = $r->get_method() === 'POST' ? $r->get_param( 'form' ) : null;
+		if ( is_string( $form ) ) $form = json_decode( $form, true );
+		if ( is_array( $form ) && isset( $form[0] ) ) {
+			$out = self::of_form( array_slice( $form, 0, 2000 ), $id );
+		} elseif ( $id > 0 ) {
+			$out = self::for_form_id( $id );
+			if ( $out === null ) return new \WP_REST_Response( array( 'code' => 'form_not_found', 'message' => 'Form not found.' ), 404 );
+		} else {
+			return new \WP_REST_Response( array( 'code' => 'bad_request', 'message' => 'Give form_id or form.' ), 400 );
+		}
+		return new \WP_REST_Response( array( 'form_id' => $id ) + $out, 200 );
+	}
+
+	/** The readiness of a stored form (null when there is no such form). */
+	public static function for_form_id( $form_id ) {
+		$rows = Service::form_rows( (int) $form_id );
+		return is_array( $rows ) ? self::of_form( $rows, (int) $form_id ) : null;
+	}
+
+	/**
+	 * The stored forms with a payment field that are not ready: form_id => array( name, issues ).
+	 * Read live (a form is listed while it is not ready, and drops out once its keys are added).
+	 */
+	public static function not_ready_forms( $limit = 300 ) {
+		global $wpdb;
+		$out = array();
+		if ( ! is_object( $wpdb ) ) return $out;
+		$types = array_unique( array_merge( Registry::slugs(), self::catalogue_types() ) );
+		if ( ! $types ) return $out;
+		$t = $wpdb->prefix . 'emsfb_form';
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix
+		$list = $wpdb->get_results( $wpdb->prepare( "SELECT form_id, form_name, form_structer FROM `{$t}` ORDER BY form_id DESC LIMIT %d", (int) $limit ) );
+		$re = '/type\\\\?"\s*:\s*\\\\?"(' . implode( '|', array_map( function ( $s ) { return preg_quote( $s, '/' ); }, $types ) ) . ')\\\\?"/';
+		foreach ( (array) $list as $f ) {
+			$raw = is_object( $f ) && isset( $f->form_structer ) ? (string) $f->form_structer : '';
+			if ( $raw === '' || ! preg_match( $re, $raw ) ) continue;
+			$json = function_exists( 'emsfb_json_normalize_efb' ) ? emsfb_json_normalize_efb( $raw ) : str_replace( '\\"', '"', $raw );
+			$rows = function_exists( 'emsfb_json_decode_efb' ) ? emsfb_json_decode_efb( $json, true ) : json_decode( $json, true );
+			if ( ! is_array( $rows ) ) continue;
+			$r = self::of_form( $rows, (int) $f->form_id );
+			if ( $r['has_payment'] && ! $r['ready'] ) $out[ (int) $f->form_id ] = array( 'name' => Field::text( str_replace( '@efb@dq#', '"', (string) $f->form_name ), 120 ), 'issues' => $r['issues'] );
+		}
+		return $out;
+	}
+
+	/**
+	 * The admin notice on Easy Form Builder screens (the Payments screen too) listing the forms
+	 * visitors cannot pay with now, each with its first issue and a link to the form. '' when none.
+	 */
+	public static function admin_notice_html( array $forms ) {
+		if ( ! $forms ) return '';
+		$h = '<div class="notice notice-error efb-pay-notready-notice" id="efbPayNotReadyNotice"><p><strong>' . esc_html__( 'Payment setup incomplete: visitors cannot pay with these forms yet.', 'easy-form-builder' ) . '</strong></p><ul style="list-style:disc;padding-inline-start:20px">';
+		$n = 0;
+		foreach ( $forms as $id => $f ) {
+			if ( ++$n > 5 ) break;
+			$first = isset( $f['issues'][0]['m'] ) ? (string) $f['issues'][0]['m'] : '';
+			$url = function_exists( 'admin_url' ) ? admin_url( 'admin.php?page=Emsfb&state=edit-form&id=' . (int) $id ) : '';
+			$h .= '<li data-form="' . (int) $id . '"><a href="' . esc_url( $url ) . '">' . esc_html( $f['name'] !== '' ? $f['name'] : '#' . (int) $id ) . '</a>: ' . esc_html( $first );
+			if ( count( $f['issues'] ) > 1 ) {
+				/* translators: %d: number of further problems */
+				$h .= ' ' . esc_html( sprintf( _n( '(and %d more problem)', '(and %d more problems)', count( $f['issues'] ) - 1, 'easy-form-builder' ), count( $f['issues'] ) - 1 ) );
+			}
+			$h .= '</li>';
+		}
+		$h .= '</ul>';
+		if ( count( $forms ) > 5 ) {
+			/* translators: %d: number of further forms */
+			$h .= '<p>' . esc_html( sprintf( _n( 'And %d more form.', 'And %d more forms.', count( $forms ) - 5, 'easy-form-builder' ), count( $forms ) - 5 ) ) . '</p>';
+		}
+		return $h . '</div>';
+	}
+
+	/**
+	 * The public notice shown in place of the payment field while the form is not ready: the
+	 * visitor's sentence for everybody, and for a user who can fix it the issues with their links.
+	 * data-efb-pay-blocked tells the page to keep the form's Send / Pay from sending.
+	 */
+	public static function public_notice( array $readiness, $field_id, $form_id ) {
+		$h = '<div class="efb alert alert-warning efb-pf-unavailable efb-pay-blocked" role="alert" data-efb-pay-blocked="1" data-pf="' . esc_attr( (string) $field_id ) . '" data-formid="' . esc_attr( (string) $form_id ) . '">'
+			. '<p class="efb mb-0 efb-pay-blocked__visitor" style="unicode-bidi:plaintext">' . esc_html( self::visitor_text() ) . '</p>';
+		if ( self::viewer_can_fix() && ! empty( $readiness['issues'] ) ) {
+			$h .= '<div class="efb efb-pay-blocked__admin mt-2 pt-2" data-efb-pay-admin="1" style="border-top:1px solid rgba(0,0,0,.15)"><p class="efb mb-1 fw-bold" style="unicode-bidi:plaintext">' . esc_html__( 'Only you see this (you can edit this form): visitors cannot pay yet because', 'easy-form-builder' ) . '</p><ul class="efb mb-1 efb-pay-blocked__list" style="padding-inline-start:1.25rem;padding-inline-end:0;margin-inline-start:0">';
+			foreach ( $readiness['issues'] as $is ) {
+				$fix = isset( $is['fix'] ) && is_array( $is['fix'] ) ? $is['fix'] : array();
+				$h .= '<li data-code="' . esc_attr( (string) $is['code'] ) . '" style="unicode-bidi:plaintext">' . esc_html( (string) $is['m'] );
+				if ( ! empty( $fix['url'] ) ) $h .= ' <a href="' . esc_url( (string) $fix['url'] ) . '">' . esc_html( (string) $fix['label'] ) . '</a>';
+				$h .= '</li>';
+			}
+			$h .= '</ul></div>';
+		}
+		return $h . '</div>';
+	}
+}
+
 /** Defaults of Gateway::supports() for a gateway that returns only some keys. */
 class Gateway_Defaults extends Gateway {
 	public function slug() { return 'x'; }

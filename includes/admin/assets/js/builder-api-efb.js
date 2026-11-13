@@ -526,8 +526,42 @@
     });
   };
 
+  /**
+   * PAY00 readiness: whether visitors can pay with this form, and why not. Read only; the server
+   * computes it (Payments\Readiness::of_form). opts.draft (default true) = the form as it is now in the
+   * builder, saved or not; draft:false = the stored form (opts.formId, default the open form).
+   * Resolves {form_id, has_payment, ready, issues:[{code, level, m, field_id, gateway, fix:{kind, url, label}}]}.
+   */
+  function paymentReadiness(opts) {
+    opts = opts || {};
+    var ev = window.efb_var || {};
+    var cap = ev.capabilities && ev.capabilities.payments && ev.capabilities.payments.readiness;
+    var url = (cap && cap.rest) || ((ev.rest_url || '/wp-json/') + 'Emsfb/v1/payments/readiness');
+    var id = Number(opts.formId || (typeof form_ID_emsFormBuilder !== 'undefined' ? form_ID_emsFormBuilder : 0)) || 0;
+    var draft = opts.draft !== false;
+    var headers = { 'X-WP-Nonce': ev.nonce || '' };
+    var init = { credentials: 'same-origin', headers: headers };
+    if (draft) {
+      if (!rows()) return Promise.reject(fail('builder_not_ready', 'The builder is not ready.'));
+      headers['Content-Type'] = 'application/json';
+      init.method = 'POST';
+      init.body = JSON.stringify({ form: clone(rows()), form_id: id });
+    } else {
+      if (!id) return Promise.reject(fail('unknown_form', 'The form is not saved yet.'));
+      init.method = 'GET';
+      url += (url.indexOf('?') === -1 ? '?' : '&') + 'form_id=' + id;
+    }
+    return fetch(url, init).then(function (r) {
+      return r.json().then(function (j) {
+        if (!r.ok) throw fail((j && j.code) || 'readiness_failed', (j && j.message) || 'Readiness could not be read.');
+        return j;
+      });
+    });
+  }
+
   var api = {
     version: API_VERSION,
+    paymentReadiness: paymentReadiness,
     newItems: newItems,
     setFormType: setFormType,
     paletteIds: function () { return paletteIds().slice(); },

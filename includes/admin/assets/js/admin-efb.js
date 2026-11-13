@@ -905,6 +905,7 @@ function show_message_result_form_set_EFB(state, m) {
     if (wpbakery_emsFormBuilder) {
       notes += `<div class="efb-dlg__note efb-dlg__note--warn"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i><span><a class="efb text-reset ec-efb" data-eventform="links" data-linkname="wpbakery" onclick="Link_emsFormBuilder('wpbakery')">${efb_var.text.wwpb}</a></span></div>`;
     }
+    notes += efb_pay_readiness_note_efb(window.efb_pay_save_answer_efb);
     if (efb_builder_email_setting_smtp_disabled()) {
       notes += `<div class="efb-dlg__note efb-dlg__note--warn"><i class="bi bi-envelope-slash" aria-hidden="true"></i><span><strong>${efb_var.text.emailSendingOffTitle || 'Notification emails are turned off'}</strong><br>${efb_var.text.emailSendingOffDesc || efb_var.text.goToEFBAddEmailM}<br><a class="efb fw-semibold" href="${efb_builder_email_settings_url()}">${efb_var.text.emailSendingOffCta || efb_var.text.howActivateAlertEmail}</a></span></div>`;
     }
@@ -976,6 +977,34 @@ function show_message_result_form_set_EFB(state, m) {
   });
 }
 
+/* PAY00 readiness: the save answer's payment_ready / payment_issues as a note of the "Saved" dialog:
+   "Saved, but visitors cannot pay yet:" and each blocking issue with its fix (open the payment field,
+   the gateway settings or the add-ons). '' when the form has no payment field or can take payments. */
+function efb_pay_readiness_note_efb(answer) {
+  if (!answer || answer.payment_ready !== false || !Array.isArray(answer.payment_issues) || !answer.payment_issues.length) return '';
+  const t = (efb_var.pay && efb_var.pay.labels) || {};
+  const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const items = answer.payment_issues.map((is) => {
+    const fix = is && is.fix ? is.fix : {};
+    let link = '';
+    if (fix.kind === 'field' && is.field_id) {
+      link = `<button type="button" class="efb-pay-ready-note__fix" data-efb-pay-fix-field="${esc(is.field_id)}" onclick="efb_pay_open_field_efb(this.dataset.efbPayFixField)">${esc(fix.label || t.fixField || 'Fix it in the payment field')}</button>`;
+    } else if (fix.url) {
+      link = `<a class="efb-pay-ready-note__fix" href="${esc(fix.url)}" target="_blank" rel="noopener">${esc(fix.label || '')}</a>`;
+    }
+    return `<li data-code="${esc(is.code)}">${esc(is.m)}${link}</li>`;
+  }).join('');
+  return `<div class="efb-dlg__note efb-dlg__note--danger efb-pay-ready-note" id="efbPayReadyNote" role="alert" dir="auto"><i class="bi bi-credit-card-2-front" aria-hidden="true"></i><span><strong>${esc(answer.payment_title || t.notReadyTitle || 'Saved, but visitors cannot pay yet:')}</strong><ul class="efb-pay-ready-note__list">${items}</ul></span></div>`;
+}
+
+/* Closes the "Saved" dialog and opens the settings of the payment field an issue is about. */
+function efb_pay_open_field_efb(fieldId) {
+  if (typeof state_modal_show_efb === 'function') state_modal_show_efb(0);
+  try {
+    if (window.efbBuilderApi && typeof window.efbBuilderApi.openSettings === 'function') window.efbBuilderApi.openSettings(String(fieldId));
+  } catch (e) {}
+}
+
 /* A5: the server saved the form but switched a notification off (its add-on is not
    active). Mirror that in the builder state so the next save agrees, and say why. */
 function efb_apply_save_warnings_efb(warnings) {
@@ -990,6 +1019,8 @@ function efb_apply_save_warnings_efb(warnings) {
     // PAY00: a payment check of level "info" (Test mode, a mapped field not marked Required) stays in the
     // field's panel; "error" (the form can never take the payment) is shown red. The form is saved either way.
     if (w.level === 'info') continue;
+    // PAY00 readiness: the blocking payment issues are listed in the "Saved" dialog with their fixes.
+    if (w.level === 'error' && window.efb_pay_save_answer_efb && window.efb_pay_save_answer_efb.payment_ready === false && /^pay_/.test(String(w.code || ''))) continue;
     if (typeof alert_message_efb === 'function') alert_message_efb('', String(w.m || ''), 20, w.level === 'error' ? 'danger' : 'warning');
   }
   try { sessionStorage.setItem('valj_efb', JSON.stringify(valj_efb)); } catch (e) {}
@@ -1036,6 +1067,8 @@ async function  actionSendData_emsFormBuilder(saveMode) {
     }
 
     $.post(ajaxurl, data, function (res) {
+      // PAY00 readiness of the saved form (payment_ready / payment_issues) for the "Saved" dialog.
+      window.efb_pay_save_answer_efb = res && res.data ? res.data : null;
 
       if (res.data.r == "insert") {
         if (res.data.value && res.data.success == true) {

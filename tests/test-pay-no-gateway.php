@@ -40,7 +40,8 @@ $t('no gateway add-on: no Payments submenu', $GLOBALS['efb_menu'], array());
 $t('no gateway add-on: the builder gets no payment data (no palette tile)', array_key_exists('pay', \Emsfb\Payments\Frontend::localize_vars(array('x' => 1))), false);
 $GLOBALS['efb_routes'] = array();
 \Emsfb\Payments\Routes::register(new stdClass());
-$t('no gateway add-on: no payment REST routes', count($GLOBALS['efb_routes']), 0);
+// PAY00 readiness: only the read-only readiness route (a form may hold the field of an add-on that is off).
+$t('no gateway add-on: no payment REST routes but the read-only readiness', array_keys($GLOBALS['efb_routes']), array('Emsfb/v1/payments/readiness'));
 $died = false;
 try { \Emsfb\Payments\Admin::page(); } catch (Exception $e) { $died = true; }
 $t('no gateway add-on: the Payments screen refuses', $died, true);

@@ -48,6 +48,8 @@ const W = [
   ['mapped field not required', base().map((r) => (r.id_ === 'mo' ? Object.assign({}, r, { required: 0 }) : r)), info()],
   ['mapped field not required, method not offered', base({ pf_methods: 'card' }).map((r) => (r.id_ === 'mo' ? Object.assign({}, r, { required: false }) : r)), info()],
   ['two payment fields', base({}, {}, [{ id_: 'pf2', type: 'gw', pgw_map_email: 'zz' }]), info()],
+  ['mapped field deleted, needed by some methods only', base({ pgw_map_phone: 'gone' }), info()],
+  ['mapped field deleted, needed by every offered method', base({ pgw_map_phone: 'gone', pf_methods: 'oney' }), info()],
   ['survey form', base({}, { type: 'survey' }), info()],
   ['no type', base({}, { type: null }), info()],
   ['hostile values', base({ pf_fixed: '<b>1</b>', pf_methods: 'qr,<x>', pgw_map_email: { a: 1 } }, { currency: ['EUR'] }), info({ min_minor: { EUR: 'x' }, max_minor: null })]
@@ -97,6 +99,8 @@ t('warnings: nothing mapped → e-mail error, Oney fields warnings; card only �
 t('warnings: the confirmation e-mail field stands in for the payer e-mail (only an Email field)', codes('e-mail from the confirmation field') === 'pay_test_mode:info' && codes('confirmation field that is not an Email field') === 'pay_test_mode:info pay_option_required:error');
 t('warnings: a mapped field not Required → info (only when the payment needs it)', codes('mapped field not required') === 'pay_test_mode:info pay_option_not_required:info' && codes('mapped field not required, method not offered') === 'pay_test_mode:info');
 t('warnings: two payment fields → one error, the second field still checked', codes('two payment fields').indexOf('pay_multiple_fields:error') !== -1 && codes('two payment fields').indexOf('pay_option_field_missing:error') !== -1);
+// PAY00 readiness: a deleted mapped field blocks the form only when every offered method needs it (before: always an error).
+t('warnings: a deleted mapped field → warning when some methods work without it, error when every offered method needs it', codes('mapped field deleted, needed by some methods only') === 'pay_test_mode:info pay_option_field_missing:warning' && codes('mapped field deleted, needed by every offered method') === 'pay_test_mode:info pay_option_field_missing:error', [codes('mapped field deleted, needed by some methods only'), codes('mapped field deleted, needed by every offered method')]);
 t('warnings: survey / no type → pay_form_type error', codes('survey form').indexOf('pay_form_type:error') === 0 && codes('no type').indexOf('pay_form_type:error') === 0);
 const pr = (name) => R(name).problem + (R(name).iso ? '/' + R(name).iso : '');
 t('payer: e-mail formats', [pr('email ok'), pr('email no domain'), pr('email two @'), pr('email empty')].join(',') === ',format,format,', [pr('email ok'), pr('email no domain'), pr('email two @'), pr('email empty')]);

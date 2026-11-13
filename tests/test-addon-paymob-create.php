@@ -133,12 +133,13 @@ $t('a method without an integration (stcpay in Egypt): "all"', pmb_last_intentio
 $res = pmb_create($db, array('method' => '<b>x</b>'));
 $t('a garbage method from the browser: "all"', array($res['success'], count(pmb_last_intention()['payment_methods'])), array(true, 5));
 Settings::load('paymob')->apply($g->settings_schema(), array('integrations__test' => 'wallet=1110002'));
-$res = pmb_create($db, array('method' => 'card'));
+// PAY00 readiness: a wallet-only account needs the mobile number mapped (else the form is not ready).
+$res = pmb_create($db, array('method' => 'card', 'form' => pmb_form('egp', array('pgw_map_phone' => 'mob'))));
 $t('one integration only (wallet): card from the browser → wallet; methods() has no "all"', array(pmb_last_intention()['payment_methods'], Store::find_by_uid($res['pay']['uid'])['method'], array_map(function ($m) { return $m[0]; }, $g->methods(Settings::load('paymob')))), array(array(1110002), 'wallet', array('wallet')));
 $before = count(PmbFake::state()['intentions']);
 $res = pmb_create($db, array('rows' => pmb_rows('ro1', array(), '')));
 $ev = json_encode(Store::events((int) $db->get_var("SELECT id FROM wp_emsfb_pmt_ ORDER BY id DESC LIMIT 1")));
-$t('wallet without any mobile number: refused before Paymob (needs_phone logged)', array($res['success'], count(PmbFake::state()['intentions']) - $before, strpos($ev, 'needs_phone') !== false), array(false, 0, true));
+$t('wallet only and no mobile field mapped: the form is not ready (pay_not_ready), nothing sent to Paymob', array($res['success'], count(PmbFake::state()['intentions']) - $before, $res['code']), array(false, 0, 'pay_not_ready'));
 pmb_settings('eg');
 $res = pmb_create($db, array('rows' => pmb_rows('ro1', array(), '')));
 $t('card without a mobile number: phone_number "NA" (as Paymob\'s own plugins)', array($res['success'], pmb_last_intention()['billing_data']['phone_number']), array(true, 'NA'));
@@ -148,7 +149,7 @@ $noemail = pmb_form();
 $noemail[0]['email_to'] = '';
 $before = count(PmbFake::state()['intentions']);
 $res = pmb_create($db, array('form' => $noemail, 'rows' => array(array('id_' => 'rad', 'id_ob' => 'ro1', 'type' => 'payRadio')), 'payer_email' => ''));
-$t('no e-mail at all: refused before Paymob (needs_email)', array($res['success'], count(PmbFake::state()['intentions']) - $before, strpos(json_encode(Store::events((int) $db->get_var("SELECT id FROM wp_emsfb_pmt_ ORDER BY id DESC LIMIT 1"))), 'needs_email') !== false), array(false, 0, true));
+$t('no e-mail field at all: the form is not ready (pay_not_ready), nothing sent to Paymob', array($res['success'], count(PmbFake::state()['intentions']) - $before, $res['code']), array(false, 0, 'pay_not_ready'));
 $res = pmb_create($db, array('rows' => array(array('id_' => 'em', 'type' => 'email', 'value' => 'solo@example.test'), array('id_' => 'rad', 'id_ob' => 'ro2', 'type' => 'payRadio')), 'payer_email' => 'solo@example.test'));
 $b = pmb_last_intention();
 $t('no name field: first name from the e-mail, last name "NA"', array($b['billing_data']['first_name'], $b['billing_data']['last_name']), array('solo', 'NA'));
@@ -156,9 +157,9 @@ $t('75.50 + 100 = 17550 piasters', $b['amount'], 17550);
 
 // Currencies and limits.
 $r = pmb_create($db, array('form' => pmb_form('usd')));
-$t('a currency the Egypt account does not take (USD): refused by the quote, no request', array($r['success'], $r['code']), array(false, 'currency_unsupported'));
+$t('a currency the Egypt account does not take (USD): refused by core readiness (pay_not_ready), no request', array($r['success'], $r['code']), array(false, 'pay_not_ready'));
 $r = pmb_create($db, array('form' => pmb_form('egp', array('pf_fixed' => '2000000'))));
-$t('above 1 000 000 EGP: refused before Paymob (above_max)', array($r['success'], $r['code']), array(false, 'above_max'));
+$t('above 1 000 000 EGP: refused before Paymob (pay_not_ready: the fixed amount is above the maximum)', array($r['success'], $r['code']), array(false, 'pay_not_ready'));
 $r = pmb_create($db, array('form' => pmb_form('egp', array('pf_fixed' => '')), 'rows' => array_slice(pmb_rows(), 0, 3)));
 $t('nothing chosen and no fee: no_amount', array($r['success'], $r['code']), array(false, 'no_amount'));
 

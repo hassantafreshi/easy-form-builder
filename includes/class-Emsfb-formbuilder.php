@@ -3291,7 +3291,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 					// Payments\Field::html(), the twin of efbPayCoreEfb.html() (builder and preview).
 					if (class_exists('\\Emsfb\\Payments\\Registry') && \Emsfb\Payments\Registry::is_field_type($elementId)) {
 						$ui = '<div class="efb ' . $pos[3] . ' ' . $this->mobile_pos[3] . ' px-0 mx-0" id="' . esc_attr($element_Id) . '-f">'
-							. \Emsfb\Payments\Frontend::field_markup($vj, $this->valj_efb[0], $form_id);
+							. \Emsfb\Payments\Frontend::field_markup($vj, $this->valj_efb[0], $form_id, $this->valj_efb);
+						$dataTag = $elementId;
+					} elseif (class_exists('\\Emsfb\\Payments\\Readiness') && \Emsfb\Payments\Readiness::is_payment_type($elementId)) {
+						// PAY00 readiness: the payment field of a gateway add-on that is not active. Visitors read
+						// that online payment is not available (Send stays off, the server refuses); the owner sees why.
+						$ui = '<div class="efb ' . $pos[3] . ' ' . $this->mobile_pos[3] . ' px-0 mx-0" id="' . esc_attr($element_Id) . '-f">'
+							. \Emsfb\Payments\Readiness::public_notice(\Emsfb\Payments\Readiness::of_form($this->valj_efb, (int) $form_id), (string) $vj->id_, $form_id);
 						$dataTag = $elementId;
 					}
 				break;

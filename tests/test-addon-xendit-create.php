@@ -136,7 +136,7 @@ $limits = method_exists('\\Emsfb\\Payments\\Gateway', 'methods_for'); // cores t
 if ($limits) $t('PHP 12.34 by card (minimum 20.00): core refuses with the method\'s own minimum (method_below_min)', array($r['success'], $r['code'], strpos($r['m'], '20.00') !== false || strpos($r['m'], '20') !== false), array(false, 'method_below_min', true));
 else $t('PHP 12.34 by card (minimum 20.00): the visitor\'s card is not sent, no list → Xendit shows every activated channel (no allowed_payment_channels)', array($r['success'], isset($b['allowed_payment_channels'])), array(true, false));
 $r = xnd_create($db, array('form' => xnd_form('kwd')));
-$t('a currency Xendit does not take (KWD, three decimals): refused by the quote, no request', array($r['success'], $r['code']), array(false, 'currency_unsupported'));
+$t('a currency Xendit does not take (KWD, three decimals): refused by core readiness (pay_not_ready), no request', array($r['success'], $r['code']), array(false, 'pay_not_ready'));
 $r = xnd_create($db, array('form' => xnd_form('usd', array(), array('10', '1'), ''), 'method' => 'cards'));
 list($b) = xnd_last_session_body();
 $t('USD by card: country from the setting (default ID)', array($r['success'], $b['country'], $b['allowed_payment_channels']), array(true, 'ID', array('CARDS')));

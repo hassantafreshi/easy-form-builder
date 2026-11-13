@@ -135,7 +135,7 @@ foreach ($cases as $c) {
 ptb_create($db, array('form' => ptb_form('sar'), 'method' => 'knet'));
 $t('...the refusal is logged as method_currency and the payment is failed', array(strpos(json_encode(Store::events($last_id())), 'method_currency') !== false, Store::get($last_id())['status']), array(true, 'failed'));
 $r = ptb_create($db, array('form' => ptb_form('thb')));
-$t('a currency the add-on does not send (THB): refused by the quote, no request', array($r['success'], $r['code']), array(false, 'currency_unsupported'));
+$t('a currency the add-on does not send (THB): refused by core readiness (pay_not_ready), no request', array($r['success'], $r['code']), array(false, 'pay_not_ready'));
 ptb_settings('test', array('methods' => 'mada,creditcard'));
 $t('methods(): the owner\'s list in its order, with labels; a local scheme names its currency (core offers it only there and warns at Save)', $g->methods(Settings::load('paytabs')), array(array('mada', 'mada', array('currencies' => array('SAR'))), array('creditcard', 'Credit or debit card')));
 ptb_create($db, array('method' => 'applepay'));

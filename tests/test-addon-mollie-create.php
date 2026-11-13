@@ -108,7 +108,7 @@ $jp = Store::find_by_uid($res['pay']['uid']);
 $t('...stored as 1500 minor units', array($jp['amount_minor'], $jp['currency']), array(1500, 'JPY'));
 $n0 = count(Efb_Test_Mollie_Fake::state()['log']);
 $res = efb_mollie_create($db, efb_mollie_form('kwd'));
-$t('KWD (3 decimals) is not a Mollie currency: refused before any request', array($res['success'], $res['code'], count(Efb_Test_Mollie_Fake::state()['log']) - $n0), array(false, 'currency_unsupported', 0));
+$t('KWD (3 decimals) is not a Mollie currency: pay_not_ready before any request', array($res['success'], $res['code'], count(Efb_Test_Mollie_Fake::state()['log']) - $n0), array(false, 'pay_not_ready', 0));
 
 /* methods */
 $mform = efb_mollie_form('eur', array('pf_methods' => 'ideal,creditcard'));

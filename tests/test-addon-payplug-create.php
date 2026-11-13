@@ -134,10 +134,10 @@ EfbPayplugFake::$log = array();
 list($res, ) = efb_ppg_create($db, efb_ppg_form(array('pf_fixed' => '0.20')), array(array('id_' => 'em', 'type' => 'email', 'value' => 'a@example.test')));
 $t('0.20 EUR: below Payplug\'s 0.30 → below_min "at least €0.30", no request', array($res['success'], $res['code'], (bool) preg_match('/0[.,]30/', $res['m']), count(EfbPayplugFake::$log)), array(false, 'below_min', true, 0));
 list($res, ) = efb_ppg_create($db, efb_ppg_form(array('pf_fixed' => '20000.01')), array(array('id_' => 'em', 'type' => 'email', 'value' => 'a@example.test')));
-$t('20,000.01 EUR: above_max', array($res['success'], $res['code']), array(false, 'above_max'));
+$t('20,000.01 EUR fixed: pay_not_ready (above the maximum)', array($res['success'], $res['code']), array(false, 'pay_not_ready'));
 foreach (array('JPY' => 'zero decimals', 'KWD' => 'three decimals') as $cur => $what) {
 	list($res, ) = efb_ppg_create($db, efb_ppg_form(array(), array('currency' => strtolower($cur))));
-	$t("{$cur} ({$what}): refused before any request (Payplug takes EUR only)", array($res['success'], $res['code'], count(EfbPayplugFake::$log)), array(false, 'currency_unsupported', 0));
+	$t("{$cur} ({$what}): pay_not_ready before any request (Payplug takes EUR only)", array($res['success'], $res['code'], count(EfbPayplugFake::$log)), array(false, 'pay_not_ready', 0));
 }
 $pp = new \Emsfb\Payments\Payment(array('uid' => str_repeat('a', 22), 'amount_minor' => 1000, 'currency' => 'KWD', 'mode' => 'test'));
 $t('the gateway itself refuses another currency too', $g->create($pp, Settings::load('payplug'), new \Emsfb\Payments\Checkout_Context())->error, 'currency_unsupported');

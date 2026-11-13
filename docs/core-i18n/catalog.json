@@ -2,10 +2,10 @@
     "domain": "easy-form-builder",
     "about": "Every phrase looked up in the easy-form-builder text domain: the core plus add-ons that still use that domain. Maintained by tests/core-i18n/extract.php (agent efb-core-i18n); do not edit by hand.",
     "plugin_version": "4.3.1",
-    "updated": "2026-11-12",
+    "updated": "2026-11-13",
     "counts": {
-        "active": 3053,
-        "obsolete": 377
+        "active": 3066,
+        "obsolete": 378
     },
     "entries": [
         {
@@ -1074,6 +1074,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "(and %d more problem)",
+            "context": null,
+            "plural": "(and %d more problems)",
+            "translators": "%d: number of further problems",
+            "files": [
+                "includes/payments/class-Emsfb-payment-registry.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -3628,6 +3643,21 @@
             "translators": "",
             "files": [
                 "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "And %d more form.",
+            "context": null,
+            "plural": "And %d more forms.",
+            "translators": "%d: number of further forms",
+            "files": [
+                "includes/payments/class-Emsfb-payment-registry.php"
             ],
             "scope": [
                 "core"
@@ -14563,6 +14593,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Fix it in the payment field",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-registry.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Fix system requirements before protection can run.",
             "context": null,
             "plural": null,
@@ -25177,6 +25222,36 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Online payment for this form is not available right now. Please try again later or contact the site.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-registry.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Online payments are not part of the plan of this site, so visitors cannot pay. Choose a plan that includes payments.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-registry.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Only a paid payment can be refunded.",
             "context": null,
             "plural": null,
@@ -25282,6 +25357,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Only you see this (you can edit this form): visitors cannot pay yet because",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-registry.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Oops! Something went wrong. Please try refreshing the page and try again.",
             "context": null,
             "plural": null,
@@ -25368,6 +25458,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Open Add-ons",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-registry.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -25468,6 +25573,21 @@
             "translators": "",
             "files": [
                 "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Open the gateway settings",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-registry.php"
             ],
             "scope": [
                 "core"
@@ -26819,6 +26939,36 @@
                 "addon:paypal"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Payment setup incomplete",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/admin/class-Emsfb-panel.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Payment setup incomplete: visitors cannot pay with these forms yet.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-registry.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -32301,6 +32451,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Saved, but visitors cannot pay yet:",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-registry.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Saving&hellip;",
             "context": null,
             "plural": null,
@@ -32717,6 +32882,21 @@
             "translators": "Button that opens the guide matching the result. Keep it short.",
             "files": [
                 "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "See the plans",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-registry.php"
             ],
             "scope": [
                 "core"
@@ -33736,8 +33916,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Setting",
@@ -37634,6 +37814,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The %s add-on of this payment field is not active, so visitors cannot pay. Activate it in Easy Form Builder → Add-ons, or remove the payment field.",
+            "context": null,
+            "plural": null,
+            "translators": "%s: name of a payment add-on (the gateway's name)",
+            "files": [
+                "includes/payments/class-Emsfb-payment-registry.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -44860,6 +45055,21 @@
             "translators": "%s: gateway name",
             "files": [
                 "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Visitors cannot pay with this form yet. Open it to see what is missing.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/admin/class-Emsfb-panel.php"
             ],
             "scope": [
                 "core"

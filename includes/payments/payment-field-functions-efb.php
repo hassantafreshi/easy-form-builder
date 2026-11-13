@@ -548,7 +548,9 @@ class Field {
 					continue;
 				}
 				if ( $d['type'] !== 'field' ) continue;
-				if ( ! isset( $types[ $v ] ) ) $out[] = $base + array( 'code' => 'pay_option_field_missing', 'level' => 'error', 'key' => $d['key'], 'label' => $d['label'] );
+				// A deleted field blocks every payment only when every offered method needs it (else some still work).
+				$all_m = $for !== null && ( ! $for || ( is_array( $offered ) && ! array_diff( $offered, $for ) ) );
+				if ( ! isset( $types[ $v ] ) ) $out[] = $base + array( 'code' => 'pay_option_field_missing', 'level' => $all_m ? 'error' : 'warning', 'key' => $d['key'], 'label' => $d['label'] );
 				elseif ( $d['field_types'] && ! in_array( $types[ $v ], $d['field_types'], true ) ) $out[] = $base + array( 'code' => 'pay_option_field_type', 'level' => 'warning', 'key' => $d['key'], 'label' => $d['label'] );
 				elseif ( $for !== null && empty( $required[ $v ] ) ) $out[] = $base + array( 'code' => 'pay_option_not_required', 'level' => 'info', 'key' => $d['key'], 'label' => $d['label'], 'target' => $v );
 			}

@@ -60,10 +60,11 @@ $a2 = Service::create($args);
 $t('same attempt key: same payment, no second entry, no second provider payment', array($a2['pay']['uid'] === $a1['pay']['uid'], !empty($a2['replay']), $store_calls, count(Mock_Provider::all())), array(true, true, 1, $prov_n));
 $t('a malformed attempt key is refused', Service::create(array_merge($args, array('attempt_key' => 'x')))['code'], 'attempt_used');
 $GLOBALS['opts']['emsfb_pro'] = 2;
-$t('on Free the framework is closed (proposed default: Free Plus)', Service::create(array_merge($args, array('attempt_key' => '11111111-2222-4333-8444-555555555556')))['code'], 'pay_unavailable');
+// PAY00 readiness: the plan is a blocking issue of the form (pay_plan), refused as pay_not_ready before anything is stored.
+$t('on Free the framework is closed (proposed default: Free Plus): pay_not_ready', Service::create(array_merge($args, array('attempt_key' => '11111111-2222-4333-8444-555555555556')))['code'], 'pay_not_ready');
 $GLOBALS['opts']['emsfb_pro'] = 3;
 add_filter('efb_payments_required_plan', function () { return 'pro'; });
-$t('efb_payments_required_plan can move the level', Service::create(array_merge($args, array('attempt_key' => '11111111-2222-4333-8444-555555555557')))['code'], 'pay_unavailable');
+$t('efb_payments_required_plan can move the level', Service::create(array_merge($args, array('attempt_key' => '11111111-2222-4333-8444-555555555557')))['code'], 'pay_not_ready');
 $GLOBALS['efb_filters']['efb_payments_required_plan'] = array();
 
 // Webhooks.

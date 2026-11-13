@@ -376,6 +376,41 @@ body.efb-dlg-open {
 	margin-block-start: 2px;
 }
 
+/* PAY00 readiness: saved, but visitors cannot pay yet (the blocking payment
+   issues, each with its fix). Red, like the builder's own blocker alerts. */
+.efb-dlg__note--danger {
+	margin-block-start: 14px;
+	background: rgba(220, 53, 69, 0.08);
+	border: 1px solid rgba(220, 53, 69, 0.35);
+	color: #842029;
+}
+
+.efb-dlg__note--danger i {
+	color: #dc3545;
+	margin-block-start: 2px;
+}
+
+.efb-pay-ready-note__list {
+	margin: 6px 0 0;
+	padding-inline-start: 18px;
+}
+
+.efb-pay-ready-note__list li + li {
+	margin-block-start: 4px;
+}
+
+.efb-pay-ready-note__fix {
+	display: inline-block;
+	margin-inline-start: 6px;
+	padding: 0;
+	border: 0;
+	background: none;
+	color: #0a58ca;
+	font-weight: 600;
+	text-decoration: underline;
+	cursor: pointer;
+}
+
 /* Plan dialogs (Pro upsell, plan downgrade) ---------------------------- */
 
 /* The gem badge is a rounded square rather than a disc: the upsell is the one

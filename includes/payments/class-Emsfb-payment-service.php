@@ -196,6 +196,8 @@ class Service {
 				return isset( $extra['visitor'] ) && $extra['visitor'] !== '' ? $extra['visitor'] : __( 'The payment could not be started. You have not been charged. Please try again in a moment.', 'easy-form-builder' );
 			case 'retry_unavailable':
 				return __( 'This payment can no longer be started again here. Please reload the page and send the form again.', 'easy-form-builder' );
+			case 'pay_not_ready':
+				return Readiness::visitor_text();
 			case 'currency_unsupported':
 			case 'pay_unavailable':
 			default:
@@ -268,6 +270,10 @@ class Service {
 		foreach ( $form as $i => $r ) {
 			if ( $i > 0 && is_array( $r ) && isset( $r['id_'] ) && (string) $r['id_'] === $fid ) { $field = $r; break; }
 		}
+		// PAY00 readiness: a form that can never take this payment as it is now (keys, add-on, plan,
+		// currency, payer fields, …) is refused before anything is stored, whatever the browser sent.
+		$ready = Readiness::of_form( $form, isset( $a['form_id'] ) ? (int) $a['form_id'] : 0 );
+		if ( $ready['has_payment'] && ! $ready['ready'] ) return self::fail( 'pay_not_ready', array( 'issues' => array_column( $ready['issues'], 'code' ) ) );
 		$gw = $field ? Registry::get( isset( $field['type'] ) ? (string) $field['type'] : '' ) : null;
 		if ( ! $gw ) return self::fail( 'pay_unavailable' );
 		self::$gw_slug = $gw->slug();
