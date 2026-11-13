@@ -146,6 +146,9 @@
   "trmCheckbox": {
    "pro": false
   },
+  "hiddenField": {
+   "pro": false
+  },
   "table_matrix": {
    "pro": true
   }
@@ -6073,6 +6076,37 @@
      "type": "option",
      "value": "⟦trmcn¦[¦](https://whitestudio.team/privacy-policy-terms)⟧",
      "id_op": "⟦id:1⟧"
+    }
+   ],
+   "form_patch": null
+  },
+  "hiddenField": {
+   "rows": [
+    {
+     "id_": "⟦id:0⟧",
+     "dataId": "⟦id:0⟧-id",
+     "type": "hiddenField",
+     "elementId": "hiddenField",
+     "placeholder": "",
+     "value": "",
+     "size": 100,
+     "message": "",
+     "id": "",
+     "classes": "",
+     "name": "⟦hiddenField⟧",
+     "label_text_size": "fs-6",
+     "label_position": "up",
+     "el_text_size": "fs-6",
+     "label_text_color": "text-labelEfb",
+     "el_border_color": "border-d",
+     "el_text_color": "text-labelEfb",
+     "message_text_color": "text-muted",
+     "el_height": "h-d-efb",
+     "label_align": "txt-left",
+     "message_align": "justify-content-start",
+     "el_align": "justify-content-start",
+     "pro": false,
+     "icon_input": ""
     }
    ],
    "form_patch": null

@@ -179,8 +179,13 @@ class Drafts {
 	public static function clean_rows($rows, array $form) {
 		if (!is_array($rows)) return array();
 		$types = array();
+		$hidden_client = array();
 		foreach ($form as $i => $f) {
 			if ($i > 0 && is_array($f) && isset($f['id_'], $f['type'])) $types[(string) $f['id_']] = (string) $f['type'];
+			// F08: a hidden value is kept only when the visitor is its source (a campaign parameter, the referrer);
+			// one the server decides (user, IP, date, a fixed text …) is rebuilt on submit and never stored here.
+			if ($i > 0 && is_array($f) && ($f['type'] ?? '') === 'hiddenField' && isset($f['id_']) && class_exists('\\Emsfb\\Smart_Tags')
+				&& \Emsfb\Smart_Tags::classify(isset($f['value']) ? $f['value'] : '') === 'client') $hidden_client[(string) $f['id_']] = true;
 		}
 		$gw = class_exists('\\Emsfb\\Payments\\Registry') ? Payments\Registry::slugs() : array();
 		$out = array();
@@ -191,6 +196,7 @@ class Drafts {
 			if (!isset($types[$id])) continue;
 			$type = $types[$id];
 			if (in_array($type, self::NOT_SAVED, true) || in_array($type, $gw, true) || strpos($type, 'pay') === 0 && in_array($type, array('payment'), true)) continue;
+			if ($type === 'hiddenField' && !isset($hidden_client[$id])) continue;
 			$r['type'] = $type;
 			$r['form_id'] = isset($r['form_id']) ? (int) $r['form_id'] : 0;
 			if ($pub && method_exists($pub, 'draft_clean_row_efb')) {

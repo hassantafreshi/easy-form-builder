@@ -1020,6 +1020,15 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       const esignSrc = /^data:image\/png;base64,[A-Za-z0-9+\/]+={0,2}$/.test(c.value) ? c.value : '';
       value = esignSrc ? `<img src="${esignSrc}" alt="${c.name}" class="efb img-thumbnail efb-msg-esign-img">` : `<code>${c.value}</code>`;
       m += `<div class="efb efb-msg-field-row efb-msg-field-block"><span class="efb-msg-field-label"><i class="bi bi-pen"></i> ${title}:</span><div class="efb-msg-field-value"> ${value}</div></div>`;
+    } else if (c.type == "hiddenField") {
+      /* F08: a hidden value (the tree is escaped already). An address (referrer, page) is a link, http(s) only,
+         that sends no referrer and is not followed by search engines. */
+      s = true;
+      const hdnTitle = c.hasOwnProperty('name') ? c.name : '';
+      const hdnRaw = typeof c.value == 'string' ? c.value : '';
+      const hdnUrl = /^https?:\/\/[^\s"'<>]+$/i.test(hdnRaw) ? hdnRaw : '';
+      const hdnVal = hdnUrl ? `<a href="${hdnUrl}" target="_blank" rel="noopener noreferrer nofollow" dir="ltr">${hdnRaw}</a>` : hdnRaw;
+      m += `<div class="efb efb-msg-field-row" data-type="hiddenField"><span class="efb-msg-field-label"><i class="bi bi-eye-slash" aria-hidden="true"></i> ${hdnTitle}:</span> <span class="efb badge bg-light text-dark border efb-msg-hdn-badge">${(efb_var.text && efb_var.text.hdnBadge) || 'Hidden'}</span> <span class="efb-msg-field-value"><bdi>${hdnVal}</bdi></span></div>`;
     } else if (c.type == "advdate") {
       /* F06: the date as Settings > "Date display for admins" says; the tooltip has every form of it
          (ISO, what the visitor saw, the calendar and the zone). The row is escaped already. */

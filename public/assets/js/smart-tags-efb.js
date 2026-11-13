@@ -33,6 +33,8 @@
   var DEFAULT_TYPES = ['text', 'firstName', 'lastName', 'email', 'tel', 'url', 'number', 'textarea', 'date', 'address_line', 'postalcode'];
   var COOKIE_DENY = /^(wordpress|wp-|wp_|comment_|phpsessid|efb|emsfb|woocommerce_|wc_)/i;
   var FIELD_KEYS = ['value', 'hdn_visitor_mail', 'prefill_key', 'prefill_lock'];
+  /* Address parameters a prefill key may not use (WordPress' public query variables and this plugin's own). */
+  var RESERVED_KEYS = ['m', 'p', 'posts', 'w', 'cat', 'withcomments', 'withoutcomments', 's', 'search', 'exact', 'sentence', 'calendar', 'page', 'paged', 'more', 'tb', 'pb', 'author', 'order', 'orderby', 'year', 'monthnum', 'day', 'hour', 'minute', 'second', 'name', 'category_name', 'tag', 'feed', 'author_name', 'pagename', 'page_id', 'error', 'attachment', 'attachment_id', 'subpost', 'subpost_id', 'preview', 'robots', 'favicon', 'taxonomy', 'term', 'cpage', 'post_type', 'embed', 'sitemap', 'sitemap-subtype', 'sitemap-stylesheet', 'rest_route', 'track', 'sc', 'user', 'efb_resume'];
   var PRESETS = {
     'static': '', utm_source: '{get:utm_source}', utm_medium: '{get:utm_medium}', utm_campaign: '{get:utm_campaign}',
     utm_term: '{get:utm_term}', utm_content: '{get:utm_content}', gclid: '{get:gclid}', fbclid: '{get:fbclid}',
@@ -288,7 +290,7 @@
   }
   function sanitizeKey(k, v) {
     switch (k) {
-      case 'prefill_key': v = isScalar(v) ? String(v).trim() : ''; return /^[A-Za-z0-9_-]{1,40}$/.test(v) ? v : '';
+      case 'prefill_key': v = isScalar(v) ? String(v).trim() : ''; return /^[A-Za-z0-9_-]{1,40}$/.test(v) && RESERVED_KEYS.indexOf(v.toLowerCase()) === -1 ? v : '';
       case 'prefill_lock':
       case 'hdn_visitor_mail': return (v === 1 || v === '1' || v === true || v === 'true') ? '1' : '';
       case 'st_uses': return '';
@@ -327,18 +329,33 @@
   /* ---------------------------------------------------------------- page runtime */
 
   var doc = root.document;
+  /* Globals of core-efb.js are top-level `let`s: shared by name between scripts, not properties of window. */
+  /* global sendBack_emsFormBuilder_pub, sessionPub_emsFormBuilder, valj_efb_new, valj_efb, get_structure_by_form_id_efb, handle_change_event_efb_v4, efb_sendback_for_storage_efb */
+  function rowsG() {
+    if (typeof sendBack_emsFormBuilder_pub !== 'undefined' && Array.isArray(sendBack_emsFormBuilder_pub)) return sendBack_emsFormBuilder_pub;
+    return Array.isArray(root.sendBack_emsFormBuilder_pub) ? root.sendBack_emsFormBuilder_pub : null;
+  }
+  function sessionG() {
+    if (typeof sessionPub_emsFormBuilder !== 'undefined') return sessionPub_emsFormBuilder;
+    return root.sessionPub_emsFormBuilder;
+  }
+  function formsG() {
+    if (typeof valj_efb_new !== 'undefined' && Array.isArray(valj_efb_new) && valj_efb_new.length) return valj_efb_new;
+    if (Array.isArray(root.valj_efb_new) && root.valj_efb_new.length) return root.valj_efb_new;
+    return (root.ajax_object_efm && root.ajax_object_efm.ajax_value_forms) || [];
+  }
   var users = {};          // form id -> user from forms/session/prepare
   var server = {};         // form id -> context pieces the page got (smart block of ajax_object_efm)
   var prefilled = {};      // form id -> {field id: true}
   var busy = false;
 
   function structure(fid) {
-    try { if (typeof root.get_structure_by_form_id_efb === 'function') { var s = root.get_structure_by_form_id_efb(fid); if (Array.isArray(s)) return s; } } catch (e) {}
+    try { var gs = typeof get_structure_by_form_id_efb === 'function' ? get_structure_by_form_id_efb : root.get_structure_by_form_id_efb; if (typeof gs === 'function') { var s = gs(fid); if (Array.isArray(s) && s.length) return s; } } catch (e) {}
     try {
-      var list = root.valj_efb_new || (root.ajax_object_efm && root.ajax_object_efm.ajax_value_forms) || [];
+      var list = formsG();
       for (var i = 0; i < list.length; i++) if (Number(list[i].id) === Number(fid)) return typeof list[i].form_structer === 'string' ? JSON.parse(list[i].form_structer) : list[i].form_structer;
     } catch (e2) {}
-    if (Array.isArray(root.valj_efb)) return root.valj_efb;
+    if (typeof valj_efb !== 'undefined' && Array.isArray(valj_efb)) return valj_efb;
     return [];
   }
   function smartBlock() {
@@ -398,7 +415,7 @@
   /* The answers of one form as tags read them (choices by their label, several as a list). */
   function valuesOf(fid, fields) {
     var vals = {};
-    var rows = Array.isArray(root.sendBack_emsFormBuilder_pub) ? root.sendBack_emsFormBuilder_pub : [];
+    var rows = rowsG() || [];
     rows.forEach(function (r) {
       if (!r || typeof r !== 'object' || r.id_ === undefined || Number(r.form_id) !== Number(fid)) return;
       var id = String(r.id_), type = str(r.type);
@@ -443,6 +460,12 @@
 
   /* Fill the <bdi class="efb-st"> pieces (labels, descriptions, options, messages) with textContent. */
   function fillPieces(rootEl, ctx, where, only) {
+    each(rootEl, 'option[data-st-text]', function (o) {
+      var t = o.getAttribute('data-st-text');
+      if (only && t.indexOf(only) === -1) return;
+      var v = resolve(t, ctx, 'text', 'label');
+      if (o.textContent !== v) o.textContent = v;
+    });
     each(rootEl, '.efb-st[data-st]', function (el) {
       var raw = '{' + el.getAttribute('data-st') + '}';
       var p = parse(raw)[0];
@@ -474,18 +497,18 @@
       if (el) el.value = v;
       if (el && el.getAttribute('data-st-done') === v) return;
       if (el) el.setAttribute('data-st-done', v);
-      var row = { id_: r.id_, name: str(r.name), id_ob: r.id_ + '_', amount: r.amount, type: 'hiddenField', value: v, session: root.sessionPub_emsFormBuilder, form_id: Number(fid) };
+      var row = { id_: r.id_, name: str(r.name), id_ob: r.id_ + '_', amount: r.amount, type: 'hiddenField', value: v, session: sessionG(), form_id: Number(fid) };
       store(row, fid);
     });
   }
   function store(row, fid) {
-    if (!Array.isArray(root.sendBack_emsFormBuilder_pub)) return;
-    var list = root.sendBack_emsFormBuilder_pub;
+    var list = rowsG();
+    if (!list) return;
     var at = -1;
     for (var i = 0; i < list.length; i++) if (list[i] && list[i].id_ === row.id_ && Number(list[i].form_id) === Number(fid)) { at = i; break; }
     if (row.value === '') { if (at !== -1) list.splice(at, 1); }
     else if (at === -1) list.push(row); else list[at].value = row.value;
-    try { root.localStorage.setItem('sendback', typeof root.efb_sendback_for_storage_efb === 'function' ? root.efb_sendback_for_storage_efb(list) : JSON.stringify(list)); } catch (e) {}
+    try { root.localStorage.setItem('sendback', typeof efb_sendback_for_storage_efb === 'function' ? efb_sendback_for_storage_efb(list) : JSON.stringify(list)); } catch (e) {}
   }
 
   /* Inputs whose default / placeholder holds tags the HTML could not carry (data-st-value / data-st-ph). */
@@ -495,19 +518,21 @@
       if (el.getAttribute('placeholder') !== v) el.setAttribute('placeholder', v);
     });
     each(rootEl, '[data-st-value]', function (el) {
-      if ((prefilled[fid] || {})[el.dataset.vid]) return;
-      if (el.getAttribute('data-st-touched') === '1') return;
+      if ((prefilled[fid] || {})[el.dataset.vid] || el.getAttribute('data-efb-prefilled') === '1') return;
+      // Never over what the visitor typed (or a restored draft): only an empty field or our own earlier value.
+      var cur = el.value, last = el.getAttribute('data-st-last') || '';
+      if (cur !== '' && cur !== last) return;
       var v = resolve(el.getAttribute('data-st-value'), ctx, 'text', 'default');
       if (el.tagName === 'TEXTAREA') v = v.replace(/@n#/g, '\n');
-      if (v === '' || el.value === v) return;
+      if (v === '' || cur === v) return;
       el.value = v;
-      el.setAttribute('data-st-filled', '1');
+      el.setAttribute('data-st-last', v);
       fire(el, fid);
     });
   }
   function fire(el, fid) {
     try {
-      if (typeof root.handle_change_event_efb_v4 === 'function') { root.handle_change_event_efb_v4(el, fid); return; }
+      if (typeof handle_change_event_efb_v4 === 'function') { handle_change_event_efb_v4(el, fid); return; }
     } catch (e) {}
     try { el.dispatchEvent(new Event('change', { bubbles: true })); } catch (e2) {}
   }
@@ -620,7 +645,7 @@
     if (!labels.length) return false;
     var box = rootEl.querySelector('.efblist.inplist[data-vid="' + r.id_ + '"]');
     if (box) { box.setAttribute('data-select', labels.join(',')); box.textContent = labels.join(','); }
-    store({ id_: r.id_, name: str(r.name), id_ob: r.id_ + '_options', amount: r.amount, type: r.type, value: labels.join('@efb!'), session: root.sessionPub_emsFormBuilder, form_id: Number(fid) }, fid);
+    store({ id_: r.id_, name: str(r.name), id_ob: r.id_ + '_options', amount: r.amount, type: r.type, value: labels.join('@efb!'), session: sessionG(), form_id: Number(fid) }, fid);
     return true;
   }
   function lock(r, rootEl) {
@@ -674,7 +699,7 @@
     } finally { busy = false; }
   }
   function init() {
-    var forms = root.valj_efb_new || (root.ajax_object_efm && root.ajax_object_efm.ajax_value_forms) || [];
+    var forms = formsG();
     var jobs = [];
     (Array.isArray(forms) ? forms : []).forEach(function (f) {
       var fid = Number(f.id);
@@ -727,7 +752,7 @@
   }
 
   var api = {
-    NS: NS, ARGS: ARGS, MAX: MAX, PUBLIC_NS: PUBLIC_NS, PREFILL_TYPES: PREFILL_TYPES, DEFAULT_TYPES: DEFAULT_TYPES, FIELD_KEYS: FIELD_KEYS, PRESETS: PRESETS,
+    NS: NS, ARGS: ARGS, MAX: MAX, PUBLIC_NS: PUBLIC_NS, PREFILL_TYPES: PREFILL_TYPES, DEFAULT_TYPES: DEFAULT_TYPES, FIELD_KEYS: FIELD_KEYS, RESERVED_KEYS: RESERVED_KEYS, PRESETS: PRESETS,
     allowed: allowed, parse: parse, tags: tags, hasTags: hasTags, keyOf: keyOf, classify: classify, cleanTemplate: cleanTemplate, cleanValue: cleanValue,
     resolve: resolve, value: value, fieldValue: fieldValue, cookieOk: cookieOk, httpUrl: httpUrl, formatDate: formatDate, esc: esc, rawurlencode: rawurlencode,
     stripTagsText: stripTagsText, urlTagMisplaced: urlTagMisplaced, sanitizeKey: sanitizeKey, normalizeRows: normalizeRows,

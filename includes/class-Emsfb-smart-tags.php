@@ -65,6 +65,12 @@ class Smart_Tags {
 	/** Cookie names no tag may read (WordPress sign-in and session, PHP session, this plugin's own). */
 	const COOKIE_DENY = '/^(wordpress|wp-|wp_|comment_|phpsessid|efb|emsfb|woocommerce_|wc_)/i';
 
+	/**
+	 * Address parameters a prefill key may not use: WordPress' public query variables (?name=x opens the
+	 * post "x" or a 404, ?p= / ?s= change the page) and this plugin's own (track, sc, user, efb_resume).
+	 */
+	const RESERVED_KEYS = array('m', 'p', 'posts', 'w', 'cat', 'withcomments', 'withoutcomments', 's', 'search', 'exact', 'sentence', 'calendar', 'page', 'paged', 'more', 'tb', 'pb', 'author', 'order', 'orderby', 'year', 'monthnum', 'day', 'hour', 'minute', 'second', 'name', 'category_name', 'tag', 'feed', 'author_name', 'pagename', 'page_id', 'error', 'attachment', 'attachment_id', 'subpost', 'subpost_id', 'preview', 'robots', 'favicon', 'taxonomy', 'term', 'cpage', 'post_type', 'embed', 'sitemap', 'sitemap-subtype', 'sitemap-stylesheet', 'rest_route', 'track', 'sc', 'user', 'efb_resume');
+
 	/** Field keys of F08 (SitePilot contract keys_hidden). st_uses is computed on save. */
 	const FIELD_KEYS = array('value', 'hdn_visitor_mail', 'prefill_key', 'prefill_lock');
 
@@ -512,7 +518,7 @@ class Smart_Tags {
 		switch ($k) {
 			case 'prefill_key':
 				$v = is_scalar($v) ? trim((string) $v) : '';
-				return preg_match('/^[A-Za-z0-9_-]{1,40}$/D', $v) ? $v : '';
+				return preg_match('/^[A-Za-z0-9_-]{1,40}$/D', $v) && !in_array(strtolower($v), self::RESERVED_KEYS, true) ? $v : '';
 			case 'prefill_lock':
 			case 'hdn_visitor_mail':
 				return in_array($v, array(1, '1', true, 'true'), true) ? '1' : '';

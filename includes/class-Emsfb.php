@@ -460,6 +460,12 @@ class Emsfb {
             }
         }
 
+        // F08: smart tags, hidden fields, answer piping and URL prefill (one resolver, server twin of
+        // smart-tags-efb.js). Optional: every caller checks class_exists('\Emsfb\Smart_Tags').
+        if ($this->require_plugin_file_efb('includes/class-Emsfb-smart-tags.php')) {
+            \Emsfb\Smart_Tags::register();
+        }
+
         // Builder API for integrations such as AutoPilot (docs/autopilot-integration.md).
         // Optional: callers check class_exists('\Emsfb\Builder_Api').
         $this->require_plugin_file_efb('includes/class-Emsfb-builder-api.php');

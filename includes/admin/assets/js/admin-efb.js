@@ -4854,6 +4854,11 @@ let sampleElpush_efb = (rndm, elementId) => {
         document.getElementById('maps').draggable = false;
         if (document.getElementById('maps_b')) document.getElementById('maps_b').classList.add('disabled')
       }, valj_efb.length * 5);
+    } else if (elementId == "hiddenField") {
+      // F08: a hidden value; no placeholder, never required, a template in value ('' = nothing until set).
+      const indx =(valj_efb.length) - 1;
+      Object.assign(valj_efb[indx], { value: '', placeholder: '', name: efb_var.text.hiddenField || 'Hidden field' });
+      delete valj_efb[indx].required;
     } else if (elementId == "advdate") {
       // F06 defaults (contract §4.1): the calendar follows the site language until the owner picks one.
       const indx =(valj_efb.length) - 1;
@@ -7456,6 +7461,12 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         ${ttip}
         <input type="${type}"   class="efb input-efb px-2 mb-0 emsFormBuilder_v w-100 ${classes} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-id="${rndm}-el" data-vid='${rndm}' data-css="${rndm}" id="${rndm}_" ${placeholder}  ${valj_efb[iVJ].value.length > 0 ? `value ="${valj_efb[iVJ].value}"` : ''} aria-required="${valj_efb[iVJ].required==1 ? true : false}" aria-label="${valj_efb[iVJ].name}" ${aire_describedby} autocomplete="${autocompleteEfb}"  ${maxlen} ${minlen} ${previewSate != true ? 'readonly' : ''} ${disabled =="disabled" ? 'readonly' :''}>
         ${desc}`
+      dataTag = elementId;
+      break;
+    case 'hiddenField':
+      // F08: on the canvas a grey bar (name, template); in the preview nothing shows (smart-tags-efb.js fills it).
+      ui = typeof efbHiddenCanvas === 'function' ? efbHiddenCanvas(valj_efb[iVJ], previewSate == true) : `<div class="efb d-none" id='${rndm}-f'>`;
+      if (previewSate == true) hidden = 'd-none';
       dataTag = elementId;
       break;
     case 'advdate':

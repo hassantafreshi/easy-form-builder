@@ -194,6 +194,8 @@ const fields_efb = [
   { name: efb_var.text.ardate, icon: 'bi-calendar-date', id: 'ardate', pro: true, tag:'advance all' },
 
   { name: efb_var.text.terms, icon: 'bi-shield-check', id: 'trmCheckbox', pro: false, tag:'advance all' },
+  // F08: a hidden value (UTM, referrer, page, user, IP, date, unique id, cookie or a fixed text). Free.
+  { name: efb_var.text.hiddenField || 'Hidden field', icon: 'bi-eye-slash', id: 'hiddenField', pro: false, tag:'basic all' },
 
   { name: efb_var.text.nps_tm, icon: ' bi-table', id: 'table_matrix', pro: true, tag: 'advance all' },
 
@@ -1700,6 +1702,7 @@ function show_setting_window_efb(idset, opts) {
                 ${maskKindEfb !== null ? maskEls() : ''}
                 ${inputmodeTypesEfb.includes(el.dataset.tag) ? inputmodeEls() : ''}
                 ${typeof efbFieldRulesMainEls === 'function' ? efbFieldRulesMainEls(indx, idset) : '<!-- F03 field-rules-builder-efb.js not loaded -->'}
+                ${typeof efbPrefillEls === 'function' ? efbPrefillEls(indx, idset) : ''}
                 ${el.dataset.tag == "mobile" ? smsEnableEls : ''}
                 ${(el.dataset.tag == 'pdate' || el.dataset.tag == 'ardate') && typeof efbAdvdateUpgradeEls === 'function' ? efbAdvdateUpgradeEls(indx, idset) : ''}
                 ${el.dataset.tag == "email" ? emailEls : ''}
@@ -1743,6 +1746,15 @@ function show_setting_window_efb(idset, opts) {
                         </div>
                     </div>
                 </div><div class="efb  clearfix"></div>
+                `
+        break;
+      case "hiddenField":
+        // F08: name (admin and export column only), "Fill with", template, visitor copy, prefill key.
+        body = `
+                <div class="efb  mb-3">
+                ${labelEls}
+                ${typeof efbHiddenPanelEls === 'function' ? efbHiddenPanelEls(indx, idset) : '<!-- F08 smart-tags-builder-efb.js not loaded -->'}
+                <div class="efb  clearfix"></div>
                 `
         break;
       case "heading":
@@ -1807,6 +1819,7 @@ function show_setting_window_efb(idset, opts) {
                 <div class="efb  mb-3">
                 <!--notAdvanced-->
                 ${Nadvanced}
+                ${typeof efbPrefillEls === 'function' ? efbPrefillEls(indx, idset) : ''}
                 ${el.dataset.tag=="stateProvince" || el.dataset.tag=='cityList' ? countries_list_el_select(el.dataset.tag,idset,indx):""}
                 ${el.dataset.tag=='cityList' ? state_list_el_select('statePovListEl',idset,indx):""}
                 ${el.dataset.tag=="stateProvince" || el.dataset.tag=='cityList' ? languageSelectPresentEls:""}
@@ -1886,6 +1899,7 @@ function show_setting_window_efb(idset, opts) {
         ${Nadvanced}
         ${el.dataset.tag == 'advdate' && typeof efbAdvdatePanelEls === 'function' ? efbAdvdatePanelEls(indx, idset) : ''}
         ${el.dataset.tag == 'date' && typeof efbAdvdateUpgradeEls === 'function' ? efbAdvdateUpgradeEls(indx, idset) : ''}
+        ${typeof efbPrefillEls === 'function' ? efbPrefillEls(indx, idset) : ''}
         <!--  not   advanced-->
         <div class="efb  d-grid gap-2">
             <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
@@ -2095,6 +2109,7 @@ function show_setting_window_efb(idset, opts) {
         <div class="efb  mb-3">
         <!--  not   advanced-->
         ${Nadvanced}
+        ${typeof efbPrefillEls === 'function' ? efbPrefillEls(indx, idset) : ''}
         <!--  not   advanced-->
         <div class="efb  d-grid gap-2">
           <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
@@ -2448,6 +2463,7 @@ function show_setting_window_efb(idset, opts) {
                         <div class="efb  mb-3" >
                         <!--  not   advanced-->
                         ${Nadvanced}
+                        ${typeof efbPrefillEls === 'function' ? efbPrefillEls(indx, idset) : ''}
                         <!--  not   advanced-->
                         <div class="efb  d-grid gap-2">
                           <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
@@ -2492,6 +2508,8 @@ function show_setting_window_efb(idset, opts) {
       else{ }
     }
     if (document.getElementById('maskPresetEl') && typeof efb_masks_builder_init_efb === 'function') efb_masks_builder_init_efb(idset, indx);
+    // F08: "Insert a smart tag" next to the inputs that take tags, and their live notes.
+    if (typeof efbSmartPanelInit === 'function') { try { efbSmartPanelInit(idset, indx); } catch (e) {} }
     setTimeout(() => {
       document.getElementById('loadingSideMenuConEfb').classList.add('d-none');
       document.getElementById('childsSideMenuConEfb').classList.remove('d-none');

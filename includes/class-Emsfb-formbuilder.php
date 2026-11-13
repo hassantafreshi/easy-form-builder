@@ -17,6 +17,33 @@ if ( ! defined( 'ABSPATH' ) ) {
     public $verify_fields_efb = false;
     /** The last plan notice built, so a field drawn as nothing but that notice can be wrapped like its real markup. */
     private $last_pro_notice_efb = null;
+    /**
+     * F08: the smart-tag context of this page as the HTML may carry it (the same for every visitor of it):
+     * form id / name, site, host post, and the form's fields (for {field:…} pieces). Never a user value.
+     */
+    public $st_ctx = array();
+
+	/** F08: a label, description, option text or heading with its smart tags (unchanged text without a brace). */
+	private function st_markup_efb($text, $where, $raw_static = false) {
+		$text = is_scalar($text) ? (string) $text : '';
+		if (strpos($text, '{') === false || !class_exists('\\Emsfb\\Smart_Tags')) return $raw_static ? $text : esc_html($text);
+		return \Emsfb\Smart_Tags::markup($text, $where, $this->st_ctx, $raw_static);
+	}
+
+	/** F08: the aria-label of a field whose label holds tags: its text with the fallbacks (the page updates it); esc_attr($name) otherwise. */
+	private function st_aria_efb($name) {
+		$name = is_scalar($name) ? (string) $name : '';
+		if (strpos($name, '{') === false || !class_exists('\\Emsfb\\Smart_Tags') || !\Emsfb\Smart_Tags::has_tags($name)) return esc_attr($name);
+		return esc_attr(trim(\Emsfb\Smart_Tags::resolve($name, $this->st_ctx, 'text', 'label')));
+	}
+
+	/** F08: [attribute value, extra attribute] of a default value or placeholder that may hold smart tags. */
+	private function st_attr_efb($text, $where, $data_attr) {
+		$text = is_scalar($text) ? (string) $text : '';
+		if (strpos($text, '{') === false || !class_exists('\\Emsfb\\Smart_Tags')) return array($text, '');
+		$a = \Emsfb\Smart_Tags::attr_value($text, $where, $this->st_ctx);
+		return array($a['value'], $a['template'] !== '' ? sprintf(' %s="%s"', $data_attr, esc_attr($a['template'])) : '');
+	}
         public function __construct( $valj_efb, $pro_efb ) {
 
             $this->valj_efb =  $valj_efb;
@@ -31,6 +58,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 		$msg_align = isset($vj->message_align) ? $vj->message_align : '';
 		$msg_txt_color = isset($vj->message_text_color) ? $vj->message_text_color : '';
 		$msg = isset($vj->message) ? $vj->message : '';
+		// F08: tags in a description become isolated pieces; the text itself stays as saved.
+		if (is_string($msg) && strpos($msg, '{') !== false) $msg = $this->st_markup_efb($msg, 'label', true);
 
 		/* The description sits in a block-level wrapper. wpautop breaks content
 		 * after every closing block tag and keeps a paragraph around any piece
@@ -72,7 +101,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 		$label_class_str = implode(' ', array_filter($label_classes));
 
-		return '<label for="' . $rndm . '_" class="' . $label_class_str . '" id="' . $rndm . '_labG"><span id="' . $rndm . '_lab" class="efb ' . $label_text_size . '">' . esc_html($vj->name) . '</span>' . $required . '</label>';
+		return '<label for="' . $rndm . '_" class="' . $label_class_str . '" id="' . $rndm . '_labG"><span id="' . $rndm . '_lab" class="efb ' . $label_text_size . '">' . $this->st_markup_efb(isset($vj->name) ? $vj->name : '', 'label') . '</span>' . $required . '</label>';
 	}
 
 	/**
@@ -125,9 +154,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 				$type = $isTextType ? 'text' : $elementId;
 				$autocomplete = $this->generateAutocomplete_efb($elementId);
-				$placeholder = $isPlaceholderType && isset($vj->placeholder)
-					? sprintf('placeholder="%s"', esc_attr($vj->placeholder))
-					: '';
+				$placeholder = '';
+				if ($isPlaceholderType && isset($vj->placeholder)) {
+					// F08: a placeholder with visitor tags is filled in the browser (data-st-ph), never in the HTML.
+					list($ph_efb, $ph_attr_efb) = $this->st_attr_efb($vj->placeholder, 'placeholder', 'data-st-ph');
+					$placeholder = sprintf('placeholder="%s"', esc_attr($ph_efb)) . $ph_attr_efb;
+				}
 				$telPattern = ($elementId === 'tel') ? 'pattern="^\+?(?:[0-9]|\s|\.|\(|\)|-){7,25}$"' : '';
 				$lenAttributes = $this->generateLengthAttributes_efb($elementId, $vj);
 				$classes = $elementId !== 'range' ? sprintf('form-control %s', $vj->el_border_color) : 'form-range';
@@ -503,6 +535,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 		$corener = isset($vj->corner) ? $vj->corner : 'rounded-3';
 		$required = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
 		$value = !empty($vj->value) ? 'value="' . esc_attr($vj->value) . '"' : '';
+		// F08: a default with visitor tags ({get:…}, {user:…}, {date:…}) is resolved in the browser (data-st-value).
+		if (!empty($vj->value) && is_string($vj->value) && strpos($vj->value, '{') !== false) {
+			list($dv_efb, $dv_attr_efb) = $this->st_attr_efb($vj->value, 'default', 'data-st-value');
+			$value = ($dv_efb !== '' ? 'value="' . esc_attr($dv_efb) . '"' : '') . $dv_attr_efb;
+		}
 		$aria_required = ($vj->required == 1) ? 'true' : 'false';
 		$readonly = ($disabled == "disabled") ? 'readonly' : '';
 		$el_height = isset($vj->el_height) ? $vj->el_height : '';
@@ -510,7 +547,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		$additional_classes = isset($vj->classes) ? str_replace(',', ' ', $vj->classes) : '';
 
 		return sprintf(
-			'%s %s %s <input type="%s" class="efb input-efb px-2 mb-0 emsFormBuilder_v w-100 %s %s %s %s %s efbField efb1 %s" data-id="%s-el" data-vid="%s" data-formid="%s" data-css="%s" id="%s_" %s %s aria-required="%s" aria-label="%s" %s autocomplete="%s" %s %s %s %s> %s',  $label,  $div_f_id,  $ttip,  $type,  $classes,  $el_height,  $corener,  $el_text_color,  $required,  $additional_classes,  $rndm,  $rndm,  $form_id,  $rndm,  $rndm,  $placeholder,  $value,  $aria_required,  esc_attr($vj->name),  $aire_describedby,  $autocomplete,  $lenAttributes['maxlen'],  $lenAttributes['minlen'],  $readonly,  $telPattern,  $desc
+			'%s %s %s <input type="%s" class="efb input-efb px-2 mb-0 emsFormBuilder_v w-100 %s %s %s %s %s efbField efb1 %s" data-id="%s-el" data-vid="%s" data-formid="%s" data-css="%s" id="%s_" %s %s aria-required="%s" aria-label="%s" %s autocomplete="%s" %s %s %s %s> %s',  $label,  $div_f_id,  $ttip,  $type,  $classes,  $el_height,  $corener,  $el_text_color,  $required,  $additional_classes,  $rndm,  $rndm,  $form_id,  $rndm,  $rndm,  $placeholder,  $value,  $aria_required,  $this->st_aria_efb($vj->name),  $aire_describedby,  $autocomplete,  $lenAttributes['maxlen'],  $lenAttributes['minlen'],  $readonly,  $telPattern,  $desc
 		);
 	}
 
@@ -835,7 +872,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			$rndm,
 			$rndm,
 			$ariaRequired,
-			esc_attr($vj->name),
+			$this->st_aria_efb($vj->name),
 			$ariaDescribedBy,
 			$type,
 			$formId,
@@ -910,7 +947,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			$rndm,
 			$formId,
 			$ariaRequired,
-			esc_attr($vj->name),
+			$this->st_aria_efb($vj->name),
 			$ariaDescribedBy,
 			$readonly,
 			$disabled,
@@ -982,7 +1019,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			$rndm,
 			$formId,
 			$ariaRequired,
-			esc_attr($vj->name),
+			$this->st_aria_efb($vj->name),
 			$ariaDescribedBy,
 			$readonly,
 			$disabled,
@@ -1222,6 +1259,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 		$el_text_size = isset($vj->el_text_size) ? $vj->el_text_size : '';
 		$extra_classes = isset($vj->classes) ? str_replace(',', ' ', $vj->classes) : '';
 		$value = isset($vj->value) ? htmlspecialchars($vj->value, ENT_QUOTES, 'UTF-8') : '';
+		// F08: a heading may pipe an answer ({field:…}) or show public tags.
+		if (isset($vj->value) && is_string($vj->value) && strpos($vj->value, '{') !== false) $value = $this->st_markup_efb($vj->value, 'label');
 
 		$ui = sprintf(
 			'<div class="efb px-0 mx-0 %s ' . $this->mobile_pos[3] . '" id="%s-f" data-formid="%s">
@@ -1589,7 +1628,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			setTimeout(function() { efbItiInit_%1$s(0); }, 1000);',
 			$rndm,
 			$vj->id_,
-			esc_attr($vj->name),
+			$this->st_aria_efb($vj->name),
 			$vj->amount,
 			$vj->type,
 			$texts['cpnnc'],
@@ -1612,7 +1651,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			$classes,
 			$rndm,
 			$ariaRequired,
-			esc_attr($vj->name),
+			$this->st_aria_efb($vj->name),
 			$ariaDescribedBy,
 			$readonly,
 			$disabled,
@@ -1636,7 +1675,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				}, 4000);',
 				$vj->id_,
 				$vj->id_,
-				esc_attr($vj->name),
+				$this->st_aria_efb($vj->name),
 				$vj->amount,
 				$vj->type,
 				$value
@@ -2401,6 +2440,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 			if ($selected == 'selected') {
 				$is_selected = true;
 			}
+            // F08: an option text with tags shows its fallback / public text here; the browser fills the rest (data-st-text).
+            $opt_text_efb = $i->value;
+            if (is_string($i->value) && strpos($i->value, '{') !== false && class_exists('\\Emsfb\\Smart_Tags') && \Emsfb\Smart_Tags::has_tags($i->value)) {
+                $opt_text_efb = esc_html(\Emsfb\Smart_Tags::resolve($i->value, $this->st_ctx, 'text', 'label'));
+                $selected .= ' data-st-text="' . esc_attr($i->value) . '"';
+            }
             $options .= sprintf(
                 '<option class="efb %s emsFormBuilder_v efb" data-id="%s" data-op="%s" value="%s" %s>%s</option>',
                 $vj->el_text_color,
@@ -2408,7 +2453,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                 $i->id_,
                 $i->value,
                 $selected,
-                $i->value
+                $opt_text_efb
             );
         }
 
@@ -2446,7 +2491,7 @@ if ( ! defined( 'ABSPATH' ) ) {
             $rndm,
             $rndm,
             $ariaRequired,
-            esc_attr($vj->name),
+            $this->st_aria_efb($vj->name),
             $ariaDescribedBy,
             $readonly,
             $disabled,
@@ -2496,7 +2541,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 			'checkbox' => true, 'table_matrix' => true, 'trmCheckbox' => true,
 			'ttlprc' => true, 'smartcr' => true, 'pointr5' => true,'tel'=>true,
 			'pointr10' => true, 'zarinPal' => true, 'stripe' => ['amount' => true],
-			'yesNo' => true, 'payMultiselect' => true, 'rating' => true, 'text'=>true, 'password'=>true
+			'yesNo' => true, 'payMultiselect' => true, 'rating' => true, 'text'=>true, 'password'=>true,
+			'hiddenField' => true // F08
 		];
 
 			if (isset($attribute_map_efb[$type])) {
@@ -2853,6 +2899,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 			$corner= isset($vj->corner) ? $vj->corner : 'rounded-3';
 			switch ($vj->type) {
 
+				case 'hiddenField':
+					// F08: a hidden field. Nothing shows; the value is a smart-tag template the browser resolves for
+					// Conditional Logic (smart-tags-efb.js) and the server rebuilds on submit. A fixed text is the
+					// value itself; a template with tags never reaches the HTML resolved (a cached page is shared).
+					$hdn_tpl_efb = isset($vj->value) && is_scalar($vj->value) ? (string) $vj->value : '';
+					$hdn_static_efb = class_exists('\\Emsfb\\Smart_Tags') ? \Emsfb\Smart_Tags::classify($hdn_tpl_efb) === 'static' : strpos($hdn_tpl_efb, '{') === false;
+					$ui = sprintf(
+						'<div class="efb d-none" id="%1$s-f"><input type="hidden" class="efb emsFormBuilder_v" data-type="hiddenField" data-vid="%1$s" data-formid="%2$s" id="%1$s_" name="%1$s" value="%3$s"%4$s>',
+						esc_attr($element_Id),
+						esc_attr($form_id),
+						$hdn_static_efb ? esc_attr($hdn_tpl_efb) : '',
+						$hdn_static_efb ? '' : ' data-st-hidden="1"'
+					);
+					$dataTag = 'hiddenField';
+					break;
+
 				case 'advdate':
 					// F06: the advanced date field. Core only, no add-on and no jQuery: the picker
 					// (public/assets/js/calendar) reads data-efb-cal; the server checks the value again.
@@ -2888,7 +2950,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 						$form_id,
 						$valueAttr,
 						$ariaRequiredAttr,
-						esc_attr($vj->name),
+						$this->st_aria_efb($vj->name),
 						$aire_describedby,
 						$readonlyAttr,
 						$desc
@@ -2947,7 +3009,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 						$minlen,
 						$maxlen,
 						$ariaRequiredAttr,
-						esc_attr($vj->name),
+						$this->st_aria_efb($vj->name),
 						$aire_describedby,
 						$readonlyAttr,
 						$temp ?: 50,
@@ -2977,7 +3039,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 						str_replace(',', ' ', $vj->classes),
 						$element_Id,
 						($vj->required == 1 ? 'true' : 'false'),
-						esc_attr($vj->name),
+						$this->st_aria_efb($vj->name),
 						$aire_describedby,
 						($disabled == "disabled" ? 'readonly' : ''),
 						$desc,
@@ -3006,6 +3068,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 					if ($im_efb['attrs'] !== '') {
 						$minlen = trim($minlen . ' ' . $im_efb['attrs']);
 					}
+					// F08: a default / placeholder with visitor tags is filled in the browser (data-st-value / data-st-ph);
+					// the extra attribute rides inside the quoted value so an old textarea renders byte for byte as before.
+					$ta_tpl_efb = $this->st_attr_efb(isset($vj->placeholder) ? $vj->placeholder : '', 'placeholder', 'data-st-ph');
+					$ta_ph_efb = esc_attr($ta_tpl_efb[0]) . ($ta_tpl_efb[1] !== '' ? '"' . rtrim($ta_tpl_efb[1], '"') : '');
+					$ta_def_efb = $this->st_attr_efb(isset($vj->value) ? $vj->value : '', 'default', 'data-st-value');
+					$ta_val_efb = esc_attr($ta_def_efb[0]) . ($ta_def_efb[1] !== '' ? '"' . rtrim($ta_def_efb[1], '"') : '');
 
 					$ui = sprintf('
 						%1$s
@@ -3018,20 +3086,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 							$pos[3],
 							$element_Id,
 							$ta_ttip_efb,
-							esc_attr(isset($vj->placeholder) ? $vj->placeholder : ''), // F03 §18.4: was printed raw into the attribute
+							$ta_ph_efb, // F03 §18.4: was printed raw into the attribute; F08: tags in the browser (data-st-ph)
 							($vj->required == 1 ? 'required' : ''),
 							$vj->el_height,
 							$corner,
 							$vj->el_text_color,
 							$classes,
 							'',
-							esc_attr($vj->value),
+							$ta_val_efb,
 							($vj->required == 1 ? 'true' : 'false'),
-							esc_attr($vj->name),
+							$this->st_aria_efb($vj->name),
 							$ta_described_efb,
 							$disabled,
 							$minlen,
-							esc_html($this->text_nr_efb($vj->value, 0)),
+							esc_html($this->text_nr_efb($ta_def_efb[0], 0)),
 							$ta_desc_efb,
 							$form_id
 
@@ -3172,7 +3240,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 								'',
 								$disabled,
 								$checked,
-								$elementId != 'imgRadio' ? sprintf('<label class="efb %s %s %s %s hStyleOpEfb" id="%s_lab" for="%s">%s</label>', isset($vj->pholder_chl_value) ? 'col-8' : '', $vj->el_text_color, $vj->el_height, $vj->label_text_size, $i->id_, $i->id_, $this->fun_get_links_from_string_Efb($i->value, true)) : $imageRadio,
+								$elementId != 'imgRadio' ? sprintf('<label class="efb %s %s %s %s hStyleOpEfb" id="%s_lab" for="%s">%s</label>', isset($vj->pholder_chl_value) ? 'col-8' : '', $vj->el_text_color, $vj->el_height, $vj->label_text_size, $i->id_, $i->id_, is_string($i->value) && strpos($i->value, '{') !== false ? $this->st_markup_efb($i->value, 'label') : $this->fun_get_links_from_string_Efb($i->value, true)) : $imageRadio,
 								strpos($elementId, 'chl') !== false ? sprintf('<input type="text" class="efb %s %s checklist col-2 hStyleOpEfb emsFormBuilder_v border-d" data-id="%s" data-type="%s"data-formid="%s" data-vid="%s" id="%s_chl"  placeholder="%s" disabled>', $vj->el_text_color, $vj->el_height, $i->id_, $dataTag, $form_id, $i->id_, $i->id_, $vj->pholder_chl_value) : '',
 								strlen($pay) > 2 ? sprintf('<span class="efb col fw-bold text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end"><span id="%s-price" class="efb efb-crrncy">%s</span></span>', $i->id_, $prc):''
 							);
@@ -3579,7 +3647,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		}
 
 		if ($vj->type != "form" && $dataTag != "step" && $vj->type != 'option') {
-			$hidden = isset($vj->hidden) && $vj->hidden == 1 ? 'd-none' : '';
+			$hidden = (isset($vj->hidden) && $vj->hidden == 1) || $elementId === 'hiddenField' ? 'd-none' : '';
 			$tagId = in_array($elementId, ["firstName", "lastName", "address", "address_line", "postalcode"]) ? 'text' : $elementId;
 			$tagT = in_array($elementId, ["esign", "yesNo", "rating"]) ? '' : 'def';
 			$stepNo = (int)$vj->step - 1;

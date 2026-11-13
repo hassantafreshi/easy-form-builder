@@ -303,6 +303,16 @@ public function check_nonce_permission_efb($request) {
 		if (!$sid) return new \WP_Error('efb_session_storage_failed',__('The form session could not be saved.', 'easy-form-builder'),array('status'=>503));
 		$answer = array('nonce'=>$nonce->get_data()['nonce'],'sid'=>$sid,'runtime_token'=>\Emsfb\Form_Runtime::token($fid,$sid,$proof ? $proof['owner'] : '',$proof && isset($proof['t0']) ? (int) $proof['t0'] : null),'refresh_after'=>240);
 		if ($gate_block !== null) $answer['gate'] = $gate_block;
+		/* F08: the user tags of this form ({user:display_name}, …) reach the browser only here: an answer that is
+		 * no-store and same-origin (efb_issue_rest_nonce_efb), never the cached page. The e-mail only when the
+		 * form itself uses {user:email}; nothing for a guest or a form without user tags. */
+		if ($gate_s0 !== null && class_exists('\\Emsfb\\Smart_Tags') && is_user_logged_in()) {
+			$st_uses_efb = \Emsfb\Smart_Tags::uses($gate_s0);
+			if (isset($st_uses_efb['user'])) {
+				$st_user_efb = \Emsfb\Smart_Tags::current_user(isset($st_uses_efb['user:email']));
+				if ($st_user_efb) $answer['smart'] = array('user' => $st_user_efb);
+			}
+		}
 		return new \WP_REST_Response($answer,200);
 	}
 
@@ -1303,7 +1313,7 @@ public function check_nonce_permission_efb($request) {
 					return $this->efbFunction->render_addon_recovery_public_error_ui_efb( $retry_after );
 				}
 			}
-			$this->text_ = ["somethingWentWrongPleaseRefresh","prvRedacted","prvAnonBadge","atcfle","cpnnc","tfnapca","thisFeatureAvailableFreePlusPro","upgAdminFieldNote","upgAdminFieldLink", "icc","cpnts","cpntl","mcplen","mmxplen","mxcplen","clcdetls","vmgs","required","mmplen","offlineSend","amount","allformat","videoDownloadLink","downloadViedo","removeTheFile","pWRedirect","eJQ500","error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist",
+			$this->text_ = ["somethingWentWrongPleaseRefresh","hdnBadge","stUnavailable","prvRedacted","prvAnonBadge","atcfle","cpnnc","tfnapca","thisFeatureAvailableFreePlusPro","upgAdminFieldNote","upgAdminFieldLink", "icc","cpnts","cpntl","mcplen","mmxplen","mxcplen","clcdetls","vmgs","required","mmplen","offlineSend","amount","allformat","videoDownloadLink","downloadViedo","removeTheFile","pWRedirect","eJQ500","error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist",
 			"settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot",
 			"enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent","offlineMSend","uploadedFile","interval","dayly","weekly","monthly","yearly","nextBillingD","onetime","proVersion","payment","emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","selectOption","copy","or","document",
 			"error","somethingWentWrongTryAgain","define","loading","trackingCode","enterThePhone","please","pleaseMakeSureAllFields","enterTheEmail","formNotFound","errorV01","enterValidURL","password8Chars","registered","yourInformationRegistered","preview","selectOpetionDisabled","youNotPermissionUploadFile","pleaseUploadA","fileSizeIsTooLarge","documents","image","media",
@@ -1584,6 +1594,17 @@ public function check_nonce_permission_efb($request) {
 
 			   require_once(EMSFB_PLUGIN_DIRECTORY . '/includes/class-Emsfb-formbuilder.php');
 			   $efbFormBuilder = new Formbuilder($valj_efb , $this->pro_efb);
+			   // F08: what the HTML may carry for smart tags: the same for every visitor of this page (no user value).
+			   if (class_exists('\\Emsfb\\Smart_Tags')) {
+				   $st_rows_efb = json_decode(wp_json_encode($valj_efb), true);
+				   $st_page_efb = $this->smart_page_block_efb(get_the_ID());
+				   $efbFormBuilder->st_ctx = array(
+					   'form' => array('id' => (string) $this->id, 'name' => isset($valj_efb[0]->formName) && is_scalar($valj_efb[0]->formName) ? (string) $valj_efb[0]->formName : ''),
+					   'site' => $st_page_efb['site'],
+					   'post' => $st_page_efb['post'],
+					   'fields' => is_array($st_rows_efb) ? \Emsfb\Smart_Tags::fields_of($st_rows_efb) : array(),
+				   );
+			   }
 			   $content="<!--efb-->";
 			   $head ='<!--start head -->';
 			   $form_id = $this->id;
@@ -2434,6 +2455,12 @@ public function check_nonce_permission_efb($request) {
 			wp_enqueue_style('efb-upload-css', EMSFB_PLUGIN_URL . 'public/assets/css/upload-efb.css', array(), $asset_version('public/assets/css/upload-efb.css'));
 			$core_deps[] = 'efb-upload-js';
 		}
+		// F08: hidden fields, smart tags, answer piping and URL prefill (only on a form that uses one of them).
+		if (is_string($form_structure_json) && preg_match('/\\\\?"(?:st_uses|prefill_key)\\\\?"\s*:\s*\\\\?"[A-Za-z0-9_-]|type\\\\?"\s*:\s*\\\\?"hiddenField\\\\?"/', $form_structure_json)) {
+			wp_register_script('efb-smart-tags-js', EMSFB_PLUGIN_URL . 'public/assets/js/smart-tags-efb.js', array(), $asset_version('public/assets/js/smart-tags-efb.js'), true);
+			wp_enqueue_script('efb-smart-tags-js');
+			$core_deps[] = 'efb-smart-tags-js';
+		}
 		// F06: the advanced date field's engines and picker, only on pages with one (and only the calendars it can show).
 		if (class_exists('\\Emsfb\\Calendar') && \Emsfb\Calendar::enqueue_public($form_structure_json)) {
 			$core_deps[] = 'efb-cal-ui';
@@ -2874,6 +2901,16 @@ public function check_nonce_permission_efb($request) {
 		if ($form_structure_json != '') {
 			$form_fields_array = json_decode($form_structure_json, true);
 			$form_structure_json = null;
+
+			// F08: hidden fields get the server's value before anything reads the answers (Conditional Logic,
+			// the field loop, notifications, webhooks): server tags rebuilt, the browser's copy ignored for them.
+			$submitted_values = $this->smart_hidden_rows_efb($form_fields_array, $submitted_values, $request_data);
+			// F08: hidden values alone are not an answer (the blank-form refusal above, with hidden rows sent).
+			if ($this->smart_hidden_efb && !array_filter($submitted_values, function ($r) { return is_array($r) && ($r['type'] ?? '') !== 'hiddenField'; })
+				&& array_filter($form_fields_array, function ($f) { return is_array($f) && isset($f['id_'], $f['type']) && !in_array($f['type'], array('hiddenField', 'step', 'option', 'r_matrix', 'html', 'heading', 'link'), true); })
+				&& !in_array($submission_type, array('logout', 'recovery'), true)) {
+				wp_send_json_success(['success' => false, 'm' => isset($this->lanText['PleaseFillForm']) ? $this->lanText['PleaseFillForm'] : 'Please complete the form.'], 200);
+			}
 
 			// Conditional forms have an independent normalization/required-validation
 			// phase. The default result keeps ordinary forms on the legacy path.
@@ -3681,6 +3718,15 @@ public function check_nonce_permission_efb($request) {
 									}
 									$still_processing = false;
 									break;
+								case 'hiddenField':
+									// F08: the value was rebuilt by smart_hidden_rows_efb() (server tags) or cleaned
+									// (visitor tags); field tags are resolved after this loop from the checked answers.
+									$item = $this->filter_attributes_by_type_efb($item, 'hiddenField');
+									$is_valid = is_array($item) ? 1 : 0;
+									if (is_array($item)) $item['value'] = \Emsfb\Smart_Tags::clean_value(sanitize_text_field(isset($item['value']) && is_scalar($item['value']) ? (string) $item['value'] : ''));
+									$validated_item = $item;
+									$still_processing = false;
+									break;
 								case 'advdate':
 									// F06: the server is the judge of every rule (today in the field's zone), and
 									// rebuilds cal / local / disp / tz / mode / v from the canonical value.
@@ -3840,6 +3886,9 @@ public function check_nonce_permission_efb($request) {
 						return $vid === null || ! isset( $_ignored_set[ $vid ] );
 					} ) );
 				}
+
+				// F08: {field:…} in hidden values from the checked answers; the answers for e-mails, messages and redirects.
+				if ($is_valid == 1) $validated_items = $this->smart_hidden_final_efb($validated_items, $form_fields_array);
 
 				$count = count($validated_items);
 				if ($count == 0) {
@@ -5050,11 +5099,14 @@ public function check_nonce_permission_efb($request) {
 			$table_name = $this->db->prefix . "emsfb_msg_";
 			$value = $this->db->get_results(
 				$this->db->prepare(
-					"SELECT content, msg_id, track, date FROM `$table_name` WHERE track = %s",
+					"SELECT content, msg_id, track, date, form_id FROM `$table_name` WHERE track = %s",
 					$id
 				)
 			);
 			if($value!=null){
+				// F08: the visitor's own page shows no hidden value unless its field says so (as the visitor's e-mail).
+				$value[0]->content = $this->smart_public_content_efb($value[0]->content, isset($value[0]->form_id) ? (int) $value[0]->form_id : 0);
+				unset($value[0]->form_id);
 				$id=$value[0]->msg_id;
 				$id = preg_replace('/[,]+/','',$id);
 				$this->id =intval($id);
@@ -6398,7 +6450,7 @@ public function check_nonce_permission_efb($request) {
 		$replay=\Emsfb\Form_Runtime::replay('reply',0,is_array($data_POST)?$data_POST:array());
 		if (is_wp_error($replay)) wp_send_json_error(array('code'=>$replay->get_error_code(),'m'=>$replay->get_error_message()),$replay->get_error_data()['status']);
 		if ($replay instanceof \WP_REST_Response) wp_send_json($replay->get_data(),$replay->get_status());
-		$this->text_ = empty($this->text_)==false ? $this->text_ = ['error400','atcfle','tfnapca','clcdetls','vmgs','required','mcplen','mmxplen','mxcplen','mmplen','offlineSend','settingsNfound','error405','error403','videoDownloadLink','downloadViedo','pleaseEnterVaildValue','errorSomthingWrong','nAllowedUseHtml','guest','messageSent','MMessageNSendEr',
+		$this->text_ = empty($this->text_)==false ? $this->text_ = ['error400','hdnBadge','atcfle','tfnapca','clcdetls','vmgs','required','mcplen','mmxplen','mxcplen','mmplen','offlineSend','settingsNfound','error405','error403','videoDownloadLink','downloadViedo','pleaseEnterVaildValue','errorSomthingWrong','nAllowedUseHtml','guest','messageSent','MMessageNSendEr',
         'youRecivedNewMessage','trackNo','WeRecivedUrM','thankFillForm','msgdml','spprt','newMessageReceived','sxnlex','msgSndBut','smsWPN']: $this->text_;
 		if($this->efbFunction===null) $this->efbFunction = get_efbFunction();
 		$this->lanText= $this->efbFunction->text_efb($this->text_);
@@ -7220,6 +7272,104 @@ public function check_nonce_permission_efb($request) {
 		return $parsed === false ? null : $parsed;
 	}
 
+	/* ------------------------------------------------------------------ F08 smart tags on submit */
+
+	/** The trusted smart-tag context of this submission (null until a form with tags or hidden fields is sent). */
+	private $smart_ctx_efb = null;
+	/** Hidden fields of the submitted form, id => field row. */
+	private $smart_hidden_efb = array();
+	/** The request of this submission (for a context built after the field loop). */
+	private $smart_req_efb = array();
+
+	/** The context of this submission: the server's own values, the request only for visitor tags. */
+	private function smart_context_efb($form_fields_array, $request_data) {
+		if ($this->smart_ctx_efb !== null) return $this->smart_ctx_efb;
+		if (!class_exists('\\Emsfb\\Smart_Tags') || !is_array($form_fields_array)) return null;
+		$url = isset($request_data['url']) && is_string($request_data['url']) && $this->is_same_site_url_efb($request_data['url']) ? $request_data['url'] : '';
+		$this->smart_ctx_efb = \Emsfb\Smart_Tags::submit_context($form_fields_array, (int) $this->id, array(
+			'query'   => is_array($this->efb_request_query_efb) ? $this->efb_request_query_efb : array(),
+			'url'     => $url,
+			'page_id' => isset($request_data['page_id']) && is_numeric($request_data['page_id']) ? (int) $request_data['page_id'] : 0,
+			// F13: {ip} as this form may store it (as is, anonymized, or '').
+			'ip'      => class_exists('\\Emsfb\\Privacy') ? \Emsfb\Privacy::store_ip($this->get_ip_address(), (int) $this->id) : '',
+		));
+		return $this->smart_ctx_efb;
+	}
+
+	/**
+	 * F08: every hidden field of the form gets one row with the server's value. Server tags (user, ip, uid,
+	 * date, post, form, site, page id / title) and fixed texts are rebuilt and the posted copy is ignored;
+	 * visitor tags (get, cookie, page url / path) come from this request, the posted (cleaned) copy only when the
+	 * request has nothing ({ref}, a resume link); a prefill_key in the request wins over the template. A row the
+	 * browser did not send (no JavaScript) is made here. Rows for an empty value are not kept.
+	 */
+	private function smart_hidden_rows_efb($form_fields_array, $submitted_values, $request_data) {
+		if (!class_exists('\\Emsfb\\Smart_Tags') || !is_array($form_fields_array) || !is_array($submitted_values)) return $submitted_values;
+		$this->smart_req_efb = is_array($request_data) ? $request_data : array();
+		$this->smart_hidden_efb = array();
+		foreach ($form_fields_array as $i => $f) {
+			if ($i > 0 && is_array($f) && ($f['type'] ?? '') === 'hiddenField' && isset($f['id_']) && is_scalar($f['id_'])) $this->smart_hidden_efb[(string) $f['id_']] = $f;
+		}
+		if (!$this->smart_hidden_efb) return $submitted_values;
+		$ctx = $this->smart_context_efb($form_fields_array, $request_data);
+		if ($ctx === null) return $submitted_values;
+		$posted = array();
+		$rows = array();
+		foreach ($submitted_values as $row) {
+			if (is_array($row) && isset($row['id_']) && is_scalar($row['id_']) && isset($this->smart_hidden_efb[(string) $row['id_']])) {
+				if (!isset($posted[(string) $row['id_']])) $posted[(string) $row['id_']] = isset($row['value']) && is_scalar($row['value']) ? (string) $row['value'] : null;
+				continue;
+			}
+			$rows[] = $row;
+		}
+		// Field tags read the answers as sent here; smart_hidden_final_efb() reads them again once checked.
+		$ctx['values'] = \Emsfb\Smart_Tags::values_of($rows, $ctx['fields']);
+		$query = is_array($this->efb_request_query_efb) ? $this->efb_request_query_efb : array();
+		foreach ($this->smart_hidden_efb as $id => $f) {
+			$value = \Emsfb\Smart_Tags::hidden_value($f, $ctx, isset($posted[$id]) ? $posted[$id] : null);
+			$pk = isset($f['prefill_key']) && is_string($f['prefill_key']) ? $f['prefill_key'] : '';
+			if ($pk !== '' && isset($query[$pk]) && (is_scalar($query[$pk]) || is_array($query[$pk]))) {
+				$pv = \Emsfb\Smart_Tags::clean_value(is_array($query[$pk]) ? implode(', ', array_filter($query[$pk], 'is_scalar')) : (string) $query[$pk]);
+				if ($pv !== '') $value = \Emsfb\Smart_Tags::clean_value(sanitize_text_field($pv));
+			}
+			$this->smart_hidden_efb[$id]['_value'] = $value;
+			if ($value === '') continue;
+			$rows[] = array('id_' => $id, 'name' => isset($f['name']) && is_scalar($f['name']) ? (string) $f['name'] : '', 'id_ob' => $id . '_', 'amount' => isset($f['amount']) ? (string) $f['amount'] : '0', 'type' => 'hiddenField', 'value' => $value, 'session' => '', 'form_id' => (string) (int) $this->id);
+		}
+		return $rows;
+	}
+
+	/** After the field loop: {field:…} of hidden values from the checked answers, and the answers for later tags. */
+	private function smart_hidden_final_efb($validated_items, $form_fields_array) {
+		if (!class_exists('\\Emsfb\\Smart_Tags')) return $validated_items;
+		// A form whose messages, e-mail subject or redirect use tags needs the context too.
+		if ($this->smart_ctx_efb === null && is_array($form_fields_array) && \Emsfb\Smart_Tags::uses(isset($form_fields_array[0]) ? $form_fields_array[0] : array())) {
+			$this->smart_context_efb($form_fields_array, $this->smart_req_efb);
+		}
+		if ($this->smart_ctx_efb === null) return $validated_items;
+		$this->smart_ctx_efb['values'] = \Emsfb\Smart_Tags::values_of($validated_items, $this->smart_ctx_efb['fields']);
+		$changed = false;
+		foreach ($this->smart_hidden_efb as $id => $f) {
+			$uses_field = false;
+			foreach (\Emsfb\Smart_Tags::tags(isset($f['value']) ? $f['value'] : '') as $t) if ($t['ns'] === 'field') { $uses_field = true; break; }
+			if (!$uses_field || !empty($f['prefill_key']) && isset($this->efb_request_query_efb[$f['prefill_key']])) continue;
+			$value = \Emsfb\Smart_Tags::hidden_value($f, $this->smart_ctx_efb, null);
+			$at = null;
+			foreach ($validated_items as $k => $row) if (is_array($row) && isset($row['id_']) && (string) $row['id_'] === (string) $id && ($row['type'] ?? '') === 'hiddenField') { $at = $k; break; }
+			if ($at !== null) {
+				if ($value === '') unset($validated_items[$at]); else $validated_items[$at]['value'] = $value;
+			} elseif ($value !== '') {
+				$validated_items[] = array('id_' => $id, 'name' => isset($f['name']) && is_scalar($f['name']) ? (string) $f['name'] : '', 'id_ob' => $id . '_', 'amount' => isset($f['amount']) ? (string) $f['amount'] : '0', 'type' => 'hiddenField', 'value' => $value, 'session' => '', 'form_id' => (string) (int) $this->id);
+			}
+			$changed = true;
+		}
+		if ($changed) {
+			$validated_items = array_values($validated_items);
+			$this->smart_ctx_efb['values'] = \Emsfb\Smart_Tags::values_of($validated_items, $this->smart_ctx_efb['fields']);
+		}
+		return $validated_items;
+	}
+
 	/**
 	 * Replace {field_id} tokens with the submitted value of that field.
 	 * Used for dynamic notification subjects and redirect URLs (PRD C4/C5).
@@ -7629,7 +7779,8 @@ public function check_nonce_permission_efb($request) {
         // set by email_status_efb).
         $visitor_plain = (1 === $i && is_array($state) && isset($state[3]) && 'traking_link' === $state[3]);
         if ($content != "null" && !$visitor_plain) {
-            $cont[$i] = [$track, $content];
+            // F08: the visitor's copy has no hidden value unless its field says so (hdn_visitor_mail).
+            $cont[$i] = [$track, 1 === $i ? self::smart_visitor_content_efb($content) : $content];
         }
         if ($sub != "null") {
             $rp = [
@@ -7689,6 +7840,30 @@ public function check_nonce_permission_efb($request) {
 
 	}
 	public function isHTML( $str ) { return preg_match( "/\/[a-z]*>/i", $str ) != 0; }
+
+	/** F08: an entry's stored content as the visitor's response box may show it (hidden rows only with hdn_visitor_mail). */
+	private function smart_public_content_efb($raw, $form_id) {
+		if (!is_string($raw) || strpos($raw, 'hiddenField') === false || !class_exists('\\Emsfb\\Privacy')) return $raw;
+		$rows = \Emsfb\Privacy::decode_content($raw);
+		if (!is_array($rows)) return $raw;
+		$show = array();
+		$form = $form_id > 0 ? $this->get_form_data_efb($form_id, array('form_structer')) : null;
+		$fs = $form && isset($form->form_structer) ? \emsfb_json_decode_efb(\emsfb_json_normalize_efb($form->form_structer), true) : array();
+		foreach ((array) $fs as $i => $f) {
+			if ($i > 0 && is_array($f) && ($f['type'] ?? '') === 'hiddenField' && isset($f['id_']) && in_array($f['hdn_visitor_mail'] ?? '', array(1, '1', true), true)) $show[(string) $f['id_']] = true;
+		}
+		$rows = array_values(array_filter($rows, function ($r) use ($show) {
+			return !(is_array($r) && ($r['type'] ?? '') === 'hiddenField' && !isset($show[(string) ($r['id_'] ?? '')]));
+		}));
+		return \Emsfb\Privacy::encode_content($rows);
+	}
+
+	/** F08: the e-mail content for the visitor: hidden rows not marked for the visitor are removed. */
+	public static function smart_visitor_content_efb($content) {
+		if (!is_string($content) || strpos($content, '<!--efb-hdn:') === false) return $content;
+		$out = preg_replace('/<!--efb-hdn:0-->.*?<!--\/efb-hdn-->/s', '', $content);
+		return is_string($out) ? $out : $content;
+	}
 	/* GET Emsfb/v1/forms/payment/stripe/pkey — fresh publishable key for pages
 	 * whose cached HTML was localized before the keys were saved. */
 	public function get_stripe_public_key_Emsfb_api() {
@@ -8766,6 +8941,18 @@ public function check_nonce_permission_efb($request) {
 				}
 
 				if (isset($c['type']) && $c['type']==="w_link"){ continue; }
+
+				/* F08: a hidden value is one escaped row, marked so the visitor's copy leaves it out unless the
+				 * field says otherwise (hdn_visitor_mail); the owner's copy keeps it. */
+				if (isset($c['type']) && $c['type'] === 'hiddenField') {
+					$hid_efb = isset($c['id_']) && is_scalar($c['id_']) ? (string) $c['id_'] : '';
+					$to_visitor_efb = isset($this->smart_hidden_efb[$hid_efb]['hdn_visitor_mail']) && in_array($this->smart_hidden_efb[$hid_efb]['hdn_visitor_mail'], array(1, '1', true), true) ? '1' : '0';
+					$hv_efb = isset($c['value']) && is_scalar($c['value']) ? (string) $c['value'] : '';
+					$m .= '<!--efb-hdn:' . $to_visitor_efb . '-->';
+					$addPair(isset($c['name']) && is_string($c['name']) ? str_replace('@efb@dq#', '"', $c['name']) : '', '<b>' . esc_html(str_replace('@efb@dq#', '"', $hv_efb)) . '</b>');
+					$m .= '<!--/efb-hdn-->';
+					continue;
+				}
 
 				if (isset($c['currency'])) { $currency = $c['currency']; }
 
@@ -10134,7 +10321,9 @@ public function check_nonce_permission_efb($request) {
 			'checkbox' => true, 'table_matrix' => true, 'trmCheckbox' => true,
 			'ttlprc' => true, 'smartcr' => true, 'pointr5' => true,'tel'=>true,
 			'pointr10' => true, 'zarinPal' => true, 'stripe' => ['amount' => true],
-			'yesNo' => true, 'payMultiselect' => true, 'rating' => true, 'text'=>true, 'password'=>true
+			'yesNo' => true, 'payMultiselect' => true, 'rating' => true, 'text'=>true, 'password'=>true,
+			/* F08: the server rebuilds the value (Smart_Tags::hidden_value) before this filter sees the row. */
+			'hiddenField' => true
 		];
 
 			// PAY00: a registered gateway field (its row carries the donation amount in value).
@@ -10503,6 +10692,19 @@ public function check_nonce_permission_efb($request) {
 		return $r;
 	}
 
+	/** F08: the cacheable smart-tag context of a page (zone offset, site, host post). */
+	private function smart_page_block_efb($page_id) {
+		$out = array('tz_offset' => 0, 'site' => array('name' => '', 'url' => ''), 'post' => array('id' => '', 'title' => '', 'url' => '', 'type' => ''));
+		if (!class_exists('\\Emsfb\\Smart_Tags')) return $out;
+		$out['tz_offset'] = \Emsfb\Smart_Tags::site_offset(time());
+		$out['site'] = \Emsfb\Smart_Tags::site();
+		$po = $page_id ? get_post((int) $page_id) : null;
+		if ($po && is_post_publicly_viewable($po) && empty($po->post_password)) {
+			$out['post'] = array('id' => (string) $po->ID, 'title' => wp_strip_all_tags(get_the_title($po)), 'url' => (string) get_permalink($po), 'type' => (string) $po->post_type);
+		}
+		return $out;
+	}
+
 	private function ajax_object_efm_efb($ar_core ,$values ,$typeOfForm ,$state ,$lang,$poster ,$img ,$pro ,$page_builder ,$is_user ,$username,$lanText){
 		$page_id = get_the_ID();
 		$json_settings= get_setting_Emsfb('pub')[0];
@@ -10541,6 +10743,10 @@ public function check_nonce_permission_efb($request) {
 			// F11: whether this site's plan saves drafts / partial answers (the server checks again).
 			'f11' => class_exists('\\Emsfb\\Form_Gate') ? array('drafts' => \Emsfb\Form_Gate::plan_ok('drafts'), 'partials' => \Emsfb\Form_Gate::plan_ok('partials')) : array('drafts' => false, 'partials' => false),
 			'upload_max' => function_exists('wp_max_upload_size') ? (int) floor(wp_max_upload_size() / MB_IN_BYTES) : 0,
+			/* F08: what smart tags need on this page and is the same for every visitor of it (cacheable):
+			 * the site's zone offset for {date:…}, the site and the host post. Nothing about the visitor:
+			 * user:* comes from forms/session/prepare, ip and uid exist on the server only. */
+			'smart' => $this->smart_page_block_efb($page_id),
 			/* Conditional-logic runtime env (source: 'user'). core-efb.js replaces
 			 * efb_var with this object on a form page, so it must carry the same
 			 * user_state as the efb_var localized above, or every "logged in" and

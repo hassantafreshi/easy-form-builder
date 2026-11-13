@@ -5176,6 +5176,56 @@ class efbFunction {
 			"maxTotalMsg" => $state && isset($ac->text->maxTotalMsg) ? $ac->text->maxTotalMsg : esc_html__('The files attached to %1$s exceed the total limit of %2$s MB.','easy-form-builder'),
 			/* translators: F07 server: a file that was not uploaded into this form by this visitor */
 			"fileNotOwned" => $state && isset($ac->text->fileNotOwned) ? $ac->text->fileNotOwned : esc_html__('This file could not be verified. Please attach it again.','easy-form-builder'),
+			/* F08 hidden field, smart tags, answer piping and URL prefill (docs/feature-gaps/F08-hidden-smart-tags.fa.md §15). */
+			/* translators: F08 builder: palette tile and default name of a hidden field */
+			"hiddenField" => $state && isset($ac->text->hiddenField) ? $ac->text->hiddenField : esc_html__('Hidden field','easy-form-builder'),
+			/* translators: F08 builder: label of the hidden field's preset list */
+			"hdnPreset" => $state && isset($ac->text->hdnPreset) ? $ac->text->hdnPreset : esc_html__('Fill with','easy-form-builder'),
+			"hdnStatic" => $state && isset($ac->text->hdnStatic) ? $ac->text->hdnStatic : esc_html__('Fixed value','easy-form-builder'),
+			/* translators: F08 builder: %s = source, medium, campaign, term or content */
+			"hdnUtm" => $state && isset($ac->text->hdnUtm) ? $ac->text->hdnUtm : esc_html__('UTM %s','easy-form-builder'),
+			"hdnAdClick" => $state && isset($ac->text->hdnAdClick) ? $ac->text->hdnAdClick : esc_html__('Ad click ID','easy-form-builder'),
+			"hdnQueryParam" => $state && isset($ac->text->hdnQueryParam) ? $ac->text->hdnQueryParam : esc_html__('URL parameter','easy-form-builder'),
+			"hdnParamName" => $state && isset($ac->text->hdnParamName) ? $ac->text->hdnParamName : esc_html__('Parameter name','easy-form-builder'),
+			"hdnReferrer" => $state && isset($ac->text->hdnReferrer) ? $ac->text->hdnReferrer : esc_html__('Referring page','easy-form-builder'),
+			"hdnPageUrl" => $state && isset($ac->text->hdnPageUrl) ? $ac->text->hdnPageUrl : esc_html__('Page address','easy-form-builder'),
+			"hdnPageTitle" => $state && isset($ac->text->hdnPageTitle) ? $ac->text->hdnPageTitle : esc_html__('Page title','easy-form-builder'),
+			"hdnPostId" => $state && isset($ac->text->hdnPostId) ? $ac->text->hdnPostId : esc_html__('Post ID','easy-form-builder'),
+			"hdnIp" => $state && isset($ac->text->hdnIp) ? $ac->text->hdnIp : esc_html__('Visitor IP address','easy-form-builder'),
+			"hdnUserId" => $state && isset($ac->text->hdnUserId) ? $ac->text->hdnUserId : esc_html__('User ID','easy-form-builder'),
+			"hdnUserEmail" => $state && isset($ac->text->hdnUserEmail) ? $ac->text->hdnUserEmail : esc_html__('User email','easy-form-builder'),
+			"hdnUserLogin" => $state && isset($ac->text->hdnUserLogin) ? $ac->text->hdnUserLogin : esc_html__('Username','easy-form-builder'),
+			"hdnUserName" => $state && isset($ac->text->hdnUserName) ? $ac->text->hdnUserName : esc_html__('User display name','easy-form-builder'),
+			"hdnUserRole" => $state && isset($ac->text->hdnUserRole) ? $ac->text->hdnUserRole : esc_html__('User role','easy-form-builder'),
+			"hdnDate" => $state && isset($ac->text->hdnDate) ? $ac->text->hdnDate : esc_html__('Date','easy-form-builder'),
+			"hdnTime" => $state && isset($ac->text->hdnTime) ? $ac->text->hdnTime : esc_html__('Time','easy-form-builder'),
+			"hdnDateTime" => $state && isset($ac->text->hdnDateTime) ? $ac->text->hdnDateTime : esc_html__('Date and time','easy-form-builder'),
+			"hdnUid" => $state && isset($ac->text->hdnUid) ? $ac->text->hdnUid : esc_html__('Unique ID','easy-form-builder'),
+			"hdnCookie" => $state && isset($ac->text->hdnCookie) ? $ac->text->hdnCookie : esc_html__('Cookie','easy-form-builder'),
+			"hdnCookieName" => $state && isset($ac->text->hdnCookieName) ? $ac->text->hdnCookieName : esc_html__('Cookie name','easy-form-builder'),
+			"hdnCountry" => $state && isset($ac->text->hdnCountry) ? $ac->text->hdnCountry : esc_html__('Visitor country','easy-form-builder'),
+			"hdnTemplate" => $state && isset($ac->text->hdnTemplate) ? $ac->text->hdnTemplate : esc_html__('Value template','easy-form-builder'),
+			"hdnVisitorMail" => $state && isset($ac->text->hdnVisitorMail) ? $ac->text->hdnVisitorMail : esc_html__('Include in the visitor\'s email copy','easy-form-builder'),
+			/* translators: F08: badge of a hidden value in the response viewer */
+			"hdnBadge" => $state && isset($ac->text->hdnBadge) ? $ac->text->hdnBadge : esc_html__('Hidden','easy-form-builder'),
+			"stInsert" => $state && isset($ac->text->stInsert) ? $ac->text->stInsert : esc_html__('Insert a smart tag','easy-form-builder'),
+			/* translators: F08 builder: %s = the tag as typed */
+			"stUnknown" => $state && isset($ac->text->stUnknown) ? $ac->text->stUnknown : esc_html__('Unknown smart tag: %s','easy-form-builder'),
+			/* translators: F08 builder: %s = a smart tag */
+			"stNotHere" => $state && isset($ac->text->stNotHere) ? $ac->text->stNotHere : esc_html__('%s cannot be used here.','easy-form-builder'),
+			"stFieldLater" => $state && isset($ac->text->stFieldLater) ? $ac->text->stFieldLater : esc_html__('This answer comes from a later step, so it will be empty here.','easy-form-builder'),
+			"stTagUrlPart" => $state && isset($ac->text->stTagUrlPart) ? $ac->text->stTagUrlPart : esc_html__('Smart tags can only be used after “?” or “#” in a redirect address.','easy-form-builder'),
+			"stIpPrivacy" => $state && isset($ac->text->stIpPrivacy) ? $ac->text->stIpPrivacy : esc_html__('Storing IP addresses may require consent in your country. Check the privacy settings.','easy-form-builder'),
+			"stCookieDenied" => $state && isset($ac->text->stCookieDenied) ? $ac->text->stCookieDenied : esc_html__('WordPress sign-in cookies cannot be read.','easy-form-builder'),
+			"prefillKey" => $state && isset($ac->text->prefillKey) ? $ac->text->prefillKey : esc_html__('URL parameter for prefill','easy-form-builder'),
+			"prefillExample" => $state && isset($ac->text->prefillExample) ? $ac->text->prefillExample : esc_html__('Example link','easy-form-builder'),
+			"prefillLock" => $state && isset($ac->text->prefillLock) ? $ac->text->prefillLock : esc_html__('Make read-only after prefill','easy-form-builder'),
+			"prefillDup" => $state && isset($ac->text->prefillDup) ? $ac->text->prefillDup : esc_html__('Another field already uses this parameter.','easy-form-builder'),
+			"prefillInvalid" => $state && isset($ac->text->prefillInvalid) ? $ac->text->prefillInvalid : esc_html__('Use letters, digits, "_" or "-" (up to 40).','easy-form-builder'),
+			"prefillReserved" => $state && isset($ac->text->prefillReserved) ? $ac->text->prefillReserved : esc_html__('WordPress already uses this parameter. Choose another name.','easy-form-builder'),
+			/* translators: F08: the general fallback of a smart tag */
+			"stUnavailable" => $state && isset($ac->text->stUnavailable) ? $ac->text->stUnavailable : esc_html__('Not available','easy-form-builder'),
+			"soon" => $state && isset($ac->text->soon) ? $ac->text->soon : esc_html__('coming soon','easy-form-builder'),
 			/* translators: F07 visitor: one file is too large; %s = megabytes */
 			"fileTooBigMB" => $state && isset($ac->text->fileTooBigMB) ? $ac->text->fileTooBigMB : esc_html__('This file is larger than %s MB.','easy-form-builder'),
 			/* translators: F07 visitor: one file of a type the field does not take */
@@ -5391,10 +5441,21 @@ class efbFunction {
 						$valp[$key][$k]= sanitize_url($v);
 					break;
 					case 'rePage':
+						// F08: smart tags in the redirect address survive (masked around sanitize_url, resolved on submit).
+						$valp[$key][$k] = $this->sanitize_url_keep_tags_efb($v);
+					break;
 					case 'src':
 
 						$valp[$key][$k]=sanitize_url($v);
 
+					break;
+					// F08: URL prefill and the hidden field's visitor-copy switch (st_uses is computed, never taken).
+					case 'prefill_key':
+					case 'prefill_lock':
+					case 'hdn_visitor_mail':
+					case 'st_uses':
+						if (!class_exists('\\Emsfb\\Smart_Tags') && is_readable(__DIR__ . '/class-Emsfb-smart-tags.php')) require_once __DIR__ . '/class-Emsfb-smart-tags.php';
+						$valp[$key][$k] = class_exists('\\Emsfb\\Smart_Tags') ? \Emsfb\Smart_Tags::sanitize_key($k, $v) : '';
 					break;
 					case 'thank_you_message':
 
@@ -5711,7 +5772,32 @@ class efbFunction {
 				}
 			}
 		}
+		// F08: hidden templates cleaned, prefill keys once per form and only on fields an address may fill,
+		// row 0 st_uses (the namespaces the form uses) for the page and forms/session/prepare.
+		if (is_array($valp)) {
+			if (!class_exists('\\Emsfb\\Smart_Tags') && is_readable(__DIR__ . '/class-Emsfb-smart-tags.php')) require_once __DIR__ . '/class-Emsfb-smart-tags.php';
+			if (class_exists('\\Emsfb\\Smart_Tags')) $valp = \Emsfb\Smart_Tags::normalize_rows($valp);
+		}
 		return $valp;
+	}
+
+	/**
+	 * F08: a redirect address that may hold smart tags ({get:x}, {field:id}, the old {field_id}): each tag is
+	 * masked, the rest goes through sanitize_url(), the tags come back (without < > " ' or control characters).
+	 * A value without a brace is sanitize_url($v) exactly as before.
+	 */
+	public function sanitize_url_keep_tags_efb($v) {
+		if (!is_string($v)) return '';
+		if (strpos($v, '{') === false) return sanitize_url($v);
+		$tokens = array();
+		$salt = bin2hex(random_bytes(4));
+		$masked = preg_replace_callback('/\{[^{}]{1,200}\}/u', function ($m) use (&$tokens, $salt) {
+			if (class_exists('\\Emsfb\\Smart_Tags') && !\Emsfb\Smart_Tags::tags($m[0], true)) return '';
+			$marker = 'EFBTOKEN' . $salt . count($tokens) . 'END';
+			$tokens[$marker] = preg_replace('/[<>"\'\x00-\x1F\x7F]/', '', $m[0]);
+			return $marker;
+		}, $v);
+		return strtr(sanitize_url($masked), $tokens);
 	}
 
 	/**
@@ -5934,9 +6020,11 @@ class efbFunction {
 		if (!is_string($url)) return '';
 		$tokens = array();
 		$salt = bin2hex(random_bytes(4));
-		$masked = preg_replace_callback('/\{([A-Za-z0-9_-]+)\}/', function ($match) use (&$tokens, $salt) {
+		// F08: the old {field_id} token and every smart tag ({get:x}, {field:id.value}, …) survive.
+		$masked = preg_replace_callback('/\{[^{}]{1,200}\}/u', function ($match) use (&$tokens, $salt) {
+			if (!preg_match('/^\{[A-Za-z0-9_-]+\}$/', $match[0]) && !(class_exists('\\Emsfb\\Smart_Tags') && \Emsfb\Smart_Tags::tags($match[0]))) return $match[0];
 			$marker = 'EFBTOKEN' . $salt . count($tokens) . 'END';
-			$tokens[$marker] = $match[0];
+			$tokens[$marker] = preg_replace('/[<>"\'\x00-\x1F\x7F]/', '', $match[0]);
 			return $marker;
 		}, $url);
 		return strtr(esc_url_raw($masked), $tokens);

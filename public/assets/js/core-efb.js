@@ -426,7 +426,6 @@ function fun_render_view_efb(val, check) {
   exportView_emsFormBuilder = [];
   valueJson_ws = efbParseJson(val);
   valj_efb = valueJson_ws;
-  fun_gets_url_efb();
   state_efb = "run";
 }
 
@@ -903,6 +902,8 @@ async function fun_sendBack_emsFormBuilder(ob) {
     localStorage.setItem('sendback', efb_sendback_for_storage_efb(sendBack_emsFormBuilder_pub));
     localStorage.setItem('formId', efb_var.id)
   } catch (e) {}
+  // F08: pieces of labels / options and hidden values that read this answer ({field:id}).
+  if (window.EFBSmart && ob.type !== 'hiddenField') { try { window.EFBSmart.refresh(Number(form_id), ob.id_); } catch (e) {} }
 }
 
 function yesNoGetEFB(v, id, idl, form_id=0) {
@@ -1856,6 +1857,8 @@ async function validation_before_send_efb(form_id) {
       count_ -= 1;
       continue;
     }
+    // F08: a hidden value is not an answer: a form with nothing filled in is still empty.
+    if (row.type === 'hiddenField') { count_ -= 1; continue; }
     const rowFilled = is_required_value_filled_efb(row, row.type || '');
     count[0] += 1;
     if (row.value == "@file@") {
@@ -2131,8 +2134,19 @@ async function efb_apply_saved_rows_efb(fid, rows) {
         } catch (e) { skipped.push(row.id_); }
         continue;
       }
+      // F08: a hidden value saved with the draft comes back only when this page gives none (a resume link has
+      // no campaign parameters); the server rebuilds it on submit anyway.
+      if (String(row.type || '') === 'hiddenField') {
+        const cur = typeof get_row_sendback_by_id_efb_v4 === 'function' ? get_row_sendback_by_id_efb_v4(row.id_, fid) : -1;
+        if (cur === -1 && typeof row.value === 'string' && row.value !== '') {
+          sendBack_emsFormBuilder_pub.push({ id_: row.id_, name: row.name || '', id_ob: row.id_ + '_', amount: row.amount, type: 'hiddenField', value: row.value, session: sessionPub_emsFormBuilder, form_id: fid });
+        }
+        continue;
+      }
       if (EFB_RESTORABLE_FIELD_TYPES.indexOf(String(row.type || '')) === -1) { skipped.push(row.id_); continue; }
       const el = document.getElementById(row.id_ob);
+      // F08 §4.5: a value from the page address wins over a saved draft.
+      if (el && el.getAttribute && el.getAttribute('data-efb-prefilled') === '1') continue;
       if (!el || el.disabled || el.readOnly || el.classList.contains('intlPhone')) { skipped.push(row.id_); continue; }
       if (el.dataset && el.dataset.formid && Number(el.dataset.formid) !== fid) continue;
       const tag = el.tagName;
@@ -2488,66 +2502,9 @@ window.addEventListener("popstate",e=>{
   if (typeof e.state !== 'string' || e.state.search('EFBstep-') ==-1) return
     Number(e.state.slice(8)) <= Number(current_s_efb)  ? prev_btn_efb() :jQuery("#next_efb").trigger('click');
  })
- fun_gets_url_efb =()=>{
-  const getUrlparams = new URLSearchParams(location.search)
-  const iefb =  getUrlparams.getAll("iefb");
-  const hefb =  getUrlparams.getAll("hefb");
-  const sefb =  getUrlparams.getAll("sefb");
-  const defb =  getUrlparams.getAll("defb");
-  const vefb =  getUrlparams.getAll("vefb");
-  if(iefb.length>0){
-    for(let i in iefb){
-      const id =iefb[i];
-      const i_ = valj_efb.findIndex(x=>x.id_==id);
-      let i_p = -1;
-      let t_e ='string';
-      if(valj_efb[i_].hasOwnProperty('parent')==true) i_p= valj_efb.findIndex(x=>x.id_==valj_efb[i_].parent)
-      if(i_p!=-1){
-        t_e = valj_efb[i_p].type.toLowerCase();
-        t_e = (t_e.includes('select')==true && t_e.includes('multi')==false) ||t_e.includes('radio')==true ? "string" :'array';
-      }
-      if(sefb.length>0 && sefb.length>i){
-         if(i_p==-1)continue;
-        if(t_e=="string"  ){
-            if(sefb[i]==1){
-            valj_efb[i_p].value = id;
-          }
-        }else{
-          t_e  = typeof valj_efb[i_p].value;
-          const indx = t_e!="string" ?  valj_efb[i_p].value.findIndex(x=>x==id) : -2
-          if(sefb[i]==1){
-            if(indx==-1){
-              valj_efb[i_p].value.push(id);
-            }else if (indx==-2){
-              valj_efb[i_p].value=[id];
-            }
-          }else{
-            if(indx>-1)valj_efb[i_p].value.splice(indx,1);
-          }
-        }
-      }
-      if(defb.length>0 && defb.length>i){
-       i_p=  i_p!=-1 ? i_p : i_
-       if(defb[i]==1){
-        valj_efb[i_p].disabled=1
-       }else if(defb[i]==0){
-        valj_efb[i_p].disabled=0
-       }
-      }
-      if(hefb.length>0 && hefb.length>i){
-        i_p=  i_p!=-1 ? i_p : i_
-        if(hefb[i]==1){
-          valj_efb[i_p].hidden=1
-         }else if(hefb[i]==0){
-          valj_efb[i_p].hidden=0
-         }
-      }
-      if(vefb.length>0 && vefb.length>i && i_p==-1){
-        valj_efb[i].value = vefb[i];
-      }
-    }
-  }
- }
+ /* F08-D: the old iefb / sefb / defb / hefb / vefb parameters are gone (they never ran on a rendered form,
+    indexed the wrong row and could enable a disabled field). URL prefill is now EFBSmart.applyPrefill(): only
+    fields whose owner gave them a prefill_key (smart-tags-efb.js). */
  fun_booking_avilable =(el)=>{
  let r =[true,''];
  let id = el.id;
@@ -3069,6 +3026,9 @@ document.addEventListener("DOMContentLoaded",async function() {
   document.querySelectorAll('[id="efb-final-step"]').forEach((finalStep) => {
     efb_capture_final_step_efb(finalStep.dataset.formid);
   });
+  // F08: hidden values, tag defaults and placeholders, answer pieces and URL prefill, before the first logic
+  // pass (a rule may read a hidden field); user:* arrive later from forms/session/prepare.
+  try { if (window.EFBSmart && typeof window.EFBSmart.init === 'function') window.EFBSmart.init().catch(() => {}); } catch (e) {}
   if (typeof window.efb_logic_runtime !== 'undefined' &&
       typeof window.efb_logic_runtime.initAll === 'function') {
     window.efb_logic_runtime.initAll();
@@ -4351,6 +4311,8 @@ async function handle_change_event_efb_v4(el ,form_id=0){
   delete_by_id=(id)=>{
     const i = get_row_sendback_by_id_efb_v4(id,form_id);
     if (i != -1) { slice_sback(i) }
+    // F08: an answer that is gone empties the pieces that read it.
+    if (window.EFBSmart) { try { window.EFBSmart.refresh(Number(form_id), id); } catch (e) {} }
   }
   el_empty_value=(id)=>{
     const id_ = id +'_';

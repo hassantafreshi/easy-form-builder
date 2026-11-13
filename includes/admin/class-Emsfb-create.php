@@ -340,6 +340,9 @@ class Create {
 		// F07: the upload rules (twin of Uploads::sanitize_key) and the file / dadfile controls (several files, camera, resizing, storage).
 		wp_enqueue_script('efb-upload-js', EMSFB_PLUGIN_URL . 'public/assets/js/upload-efb.js', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/js/upload-efb.js'), true);
 		wp_enqueue_script('efb-upload-builder-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/upload-builder-efb.js', array('efb-val-js', 'efb-upload-js'), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/upload-builder-efb.js'), true);
+		// F08: smart tags (the resolver twin), the hidden field's panel, prefill controls and the insert list.
+		wp_enqueue_script('efb-smart-tags-js', EMSFB_PLUGIN_URL . 'public/assets/js/smart-tags-efb.js', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/js/smart-tags-efb.js'), true);
+		wp_enqueue_script('efb-smart-tags-builder-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/smart-tags-builder-efb.js', array('efb-val-js', 'efb-smart-tags-js'), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/smart-tags-builder-efb.js'), true);
 		wp_enqueue_style('efb-upload-css', EMSFB_PLUGIN_URL . 'public/assets/css/upload-efb.css', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/css/upload-efb.css'));
 		wp_enqueue_style('efb-verify-css', EMSFB_PLUGIN_URL . 'public/assets/css/verify-efb.css', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/css/verify-efb.css'));
 		// F06: the calendar engines, the picker (canvas and preview) and the advanced date field's panel.
