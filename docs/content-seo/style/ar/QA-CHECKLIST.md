@@ -80,7 +80,7 @@ python3 tools/autosuggest.py --gl sa,eg "seed term"          # keyword step (see
 - [ ] **[HUMAN]** Direct answer (40-60 words) opens the article: «الإجابة المختصرة:», names Easy Form Builder, plan, tested version.
 - [ ] **[HUMAN]** FAQ: H2 «الأسئلة الشائعة», 4-6 questions, answers 1-3 sentences.
 - [ ] **[HUMAN]** One CTA at the end; no «!», no emoji.
-- [ ] **[HUMAN]** No visible «AI Knowledge Graph / AI notes» blocks (unless the owner decides otherwise).
+- [ ] **[HUMAN]** No visible «AI Knowledge Graph / AI notes» blocks (owner decision 2026-11-13: removed everywhere; see `rnd/ai-knowledge-blocks-audit.md`).
 
 ## 7. Post-publish site checks (these are theme/server issues but must be looked at on **every** new page)
 

@@ -15,7 +15,7 @@
   4. **ویدیو:** 57 از 87 مقاله ویدیو ندارند و 30 مقالهٔ دارای ویدیو فقط از 18 ویدیوی یکتا استفاده می‌کنند.
   5. **۱۱ مقاله با هم رقابت می‌کنند (cannibalization)**، ۸ پست انتشار نسخه‌های ۳.x/۴.۰.x قدیمی شده‌اند و ۱ پست خارج از موضوع سایت است (کتاب زرگری).
   6. **پایهٔ جئو خوب است:** robots.txt به ربات‌های AI اجازه می‌دهد، llms.txt وجود دارد، hreflang برای en/de/ar برقرار است، Yoast sitemap دارد. کمبود در *محتوای پاسخ‌محور* و *موجودیت/نویسنده* است، نه در زیرساخت.
-- **حجم کار:** 67 اسلات بازنویسی (یک مقاله در روز) + 11 ادغام/301 + 8 آرشیو + **132 مقالهٔ جدید** (یک در روز) → با ریتم «روزی یک بازنویسی + یک جدید» مسیر بازنویسی ≈ ۶۷ روز و مسیر جدید ≈ ۱۳۲ روز (حدود ۴٫۵ ماه) است؛ بعد از روز ۶۷ اسلات بازنویسی صرف به‌روزرسانی هر نسخهٔ جدید افزونه و ویدیوهای قدیمی می‌شود. ۶ ایده نیز در حالت HOLD هستند (ویژگی‌های منتشرنشده).
+- **حجم کار:** 68 اسلات بازنویسی (یک مقاله در روز؛ شامل R77 که بعد از تصمیم مالک از «پاکسازی» به بازنویسی منتقل شد) + 11 ادغام/301 + 8 آرشیو + **132 مقالهٔ جدید** (یک در روز) → با ریتم «روزی یک بازنویسی + یک جدید» مسیر بازنویسی ≈ ۶۸ روز و مسیر جدید ≈ ۱۳۲ روز (حدود ۴٫۵ ماه) است؛ بعد از روز ۶۷ اسلات بازنویسی صرف به‌روزرسانی هر نسخهٔ جدید افزونه و ویدیوهای قدیمی می‌شود. ۶ ایده نیز در حالت HOLD هستند (ویژگی‌های منتشرنشده).
 - **پیش از شروع اتوماسیون** یک «روز صفر» فنی لازم است (بخش ۲٫۶) و چند تصمیم از شما (بخش ۸).
 
 > ⚠️ **محدودیت روش:** به داده‌های Search Console / GA4 / YouTube Studio دسترسی نداشتم؛ اولویت‌ها بر پایهٔ (الف) درستی محتوا نسبت به نسخهٔ 4.3.1، (ب) شکاف پوشش قابلیت‌ها، (ج) intent جست‌وجوی متداول، (د) نبود ویدیو/متا است — نه حجم جست‌وجوی عددی. بعد از ۳۰ روز با داده‌های GSC باید اولویت‌ها بازچینی شود.
@@ -160,7 +160,7 @@ Quiz، Booking & Calendar، SMS OTP login، Ticketing، AI، Twilio و Retry Que
 | 8 | `/blog/upcoming-security-enhancements-for-plugin-and-theme-developers-on-wordpress-org/` | 382 | — | ✘ | آرشیو | روز صفر | اطلاعیهٔ WordPress.org برای توسعه‌دهندگان؛ خارج از intent اصلی؛ آرشیو/noindex |
 | 9 | `/blog/how-to-create-a-working-demo-map-picker-field-without-upgrading-to-pro-version/` | 436 | — | ✘ | ادغام + 301 → #22 | همراه R22 | عنوان می‌گوید «Google Map» ولی افزونه از OpenStreetMap/Leaflet استفاده می‌کند → خطای محتوایی؛ ادغام در مقالهٔ Location Picker |
 | 10 | `/blog/resolving-403-error-easy-form-builder/` | 227 | — | ✘ | ادغام + 301 → #64 | همراه R64 | ۲۲۷ کلمه؛ هم‌هدف با مقالهٔ ۲۰۷۴ کلمه‌ای ۴۰۳؛ 301 |
-| 11 | `/blog/free-wordpress-survey-form-plugin/` | 478 | بازبینی | ✘ | تغییر هدف کلیدواژه | 41 | بلاگ «free survey plugin»؛ به intent تجاری (مقایسه/ویژگی‌های رایگان) برگردد تا با راهنمای survey رقابت نکند |
+| 11 | `/blog/free-wordpress-survey-form-plugin/` | 478 | بازبینی | ✘ | تغییر هدف کلیدواژه | 43 | بلاگ «free survey plugin»؛ به intent تجاری (مقایسه/ویژگی‌های رایگان) برگردد تا با راهنمای survey رقابت نکند |
 | 12 | `/blog/wordpress-form-plugin-multi-step-forms/` | 409 | — | ✘ | ادغام + 301 → #39 | همراه R39 | هم‌هدف با راهنمای Multi-Step (سند)؛ ادغام |
 | 13 | `/blog/easy-form-builder-3-8-12-released-improved/` | 491 | — | ✘ | آرشیو | روز صفر | پست انتشار ۳.۸.۱۲؛ آرشیو |
 | 14 | `/blog/create-wordpress-contact-form-easy-form-builder/` | 611 | بازبینی | ✘ | بازنویسی کامل | 9 | ستون «contact form»؛ ۶۱۱ کلمه؛ ادغام #69؛ باید برای ۴.۳.۱ و ایمیل/tracking بازنویسی شود |
@@ -168,76 +168,76 @@ Quiz، Booking & Calendar، SMS OTP login، Ticketing، AI، Twilio و Retry Que
 | 16 | `/blog/easy-form-builder-3-9-faster-safer-compatible/` | 497 | — | ✘ | آرشیو | روز صفر | پست انتشار ۳.۹؛ آرشیو |
 | 17 | `/document/how-to-activate-confirmation-code-in-easy-form-builder/` | 682 | بازبینی | ✘ | بازنویسی کامل | 8 | ستون Confirmation Code؛ ۷ سبک و ۵۵+ زبان، lookup با rate-limit و reCAPTCHA سروری (۴.۳.۱) پوشش داده نشده |
 | 18 | `/document/complete-guide-of-form-entries-and-mange-forms/` | 868 | — | ✘ | ادغام + 301 → #49 | همراه R49 | URL دارای غلط املایی (mange)؛ ۲۰۲۲؛ ادغام در #49 (عنوان بهتر) |
-| 19 | `/document/how-do-not-show-progress-bar-on-a-form/` | 373 | جدید | ✘ | بازنویسی کامل | 31 | ۳۷۳ کلمه؛ ۴ تصویر؛ با سازندهٔ progress جدید هماهنگ شود |
-| 20 | `/document/how-to-edit-thank-you-message-of-forms-on-easy-form-builder/` | 288 | جدید | ✘ | بازنویسی کامل | 17 | ۲۸۸ کلمه؛ بدون پوشش پیام تشکرِ شرطی (Conditional Logic) و ویدیو |
-| 21 | `/document/how-to-get-google-recaptcha-and-implement-it-into-easy-form-builder/` | 705 | بازبینی | ✘ | بازنویسی کامل | 24 | فقط reCAPTCHA v2؛ جایگزین‌ها (silentCAPTCHA، Security & Spam) و reCAPTCHA صفحهٔ کد رهگیری (۴.۳.۱) اضافه شود |
-| 22 | `/document/how-to-add-location-pickergeolocation-within-your-form/` | 730 | بازبینی | ✘ | بازنویسی کامل | 22 | مقالهٔ canonical برای Location Picker؛ ادغام #9 و #23؛ OpenStreetMap/Leaflet |
+| 19 | `/document/how-do-not-show-progress-bar-on-a-form/` | 373 | جدید | ✘ | بازنویسی کامل | 33 | ۳۷۳ کلمه؛ ۴ تصویر؛ با سازندهٔ progress جدید هماهنگ شود |
+| 20 | `/document/how-to-edit-thank-you-message-of-forms-on-easy-form-builder/` | 288 | جدید | ✘ | بازنویسی کامل | 19 | ۲۸۸ کلمه؛ بدون پوشش پیام تشکرِ شرطی (Conditional Logic) و ویدیو |
+| 21 | `/document/how-to-get-google-recaptcha-and-implement-it-into-easy-form-builder/` | 705 | بازبینی | ✘ | بازنویسی کامل | 26 | فقط reCAPTCHA v2؛ جایگزین‌ها (silentCAPTCHA، Security & Spam) و reCAPTCHA صفحهٔ کد رهگیری (۴.۳.۱) اضافه شود |
+| 22 | `/document/how-to-add-location-pickergeolocation-within-your-form/` | 730 | بازبینی | ✘ | بازنویسی کامل | 24 | مقالهٔ canonical برای Location Picker؛ ادغام #9 و #23؛ OpenStreetMap/Leaflet |
 | 23 | `/document/how-to-install-and-use-the-location-picker-geolocation-with-easy-form-builder/` | 814 | — | ✘ | ادغام + 301 → #22 | همراه R22 | هم‌هدف با #22؛ ۱۲ از ۱۳ تصویر بدون alt |
-| 24 | `/document/how-to-change-label-name-and-inputs-of-easy-form-builder/` | 926 | جدید | ✘ | بازنویسی کامل | 23 | مرجع تنظیمات فیلد؛ ۲۳ از ۲۴ تصویر بدون alt؛ لینک متنی «Enlarge image» |
+| 24 | `/document/how-to-change-label-name-and-inputs-of-easy-form-builder/` | 926 | جدید | ✘ | بازنویسی کامل | 25 | مرجع تنظیمات فیلد؛ ۲۳ از ۲۴ تصویر بدون alt؛ لینک متنی «Enlarge image» |
 | 25 | `/document/how-to-create-your-first-form-with-easy-form-builder/` | 1481 | بازبینی | ✘ | بازنویسی کامل | 7 | عبارت اصلی «create first form»؛ ویزارد onboarding (۴.۲)، قالب‌ها، Import از CF7 و تنظیم Free Plus ندارد |
 | 26 | `/document/how-to-customize-the-email-template-in-easy-form-builder/` | 491 | بازبینی | ✘ | بازنویسی کامل | 5 | توضیح می‌دهد کد HTML را paste کنید؛ ۴.۰ ویرایشگر بصری ایمیل (رایگان) آورده → احتمالاً قدیمی؛ در بازنویسی با UI نسخهٔ ۴.۳.۱ تطبیق داده شود |
-| 27 | `/document/how-to-customize-the-submit-button/` | 738 | جدید | ✔ | بازنویسی کامل | 32 | ۷۳۸ کلمه؛ ۱۲ از ۱۳ تصویر بدون alt؛ بدون ویدیو |
+| 27 | `/document/how-to-customize-the-submit-button/` | 738 | جدید | ✔ | بازنویسی کامل | 34 | ۷۳۸ کلمه؛ ۱۲ از ۱۳ تصویر بدون alt؛ بدون ویدیو |
 | 28 | `/document/how-to-setup-and-use-the-stripe-on-easy-form-builder/` | 483 | — | ✘ | ادغام + 301 → #47 | همراه R47 | ادعای «نیاز به Pro» غلط است (Stripe از ۴.۳.۱ در Free Plus)؛ ویدیوی شخص ثالث؛ 301 به #47 |
 | 29 | `/document/how-to-find-a-response-through-a-confirmation-code/` | 486 | — | ✘ | ادغام + 301 → #30 | همراه R30 | هم‌هدف با Finder؛ ادغام در #30 |
-| 30 | `/blog/how-to-add-the-confirmation-code-finder/` | 465 | جدید | ✘ | بازنویسی کامل | 16 | مقالهٔ canonical شورت‌کد [Easy_Form_Builder_confirmation_code_finder]؛ در /blog است ولی مستند فنی است |
-| 31 | `/document/how-to-edit-a-redirect-pagethank-you-page-of-forms-on-easy-form-builder/` | 319 | بازبینی | ✘ | بازنویسی کامل | 18 | ۳۱۹ کلمه؛ ریدایرکت شرطی (Pro) را ندارد |
+| 30 | `/blog/how-to-add-the-confirmation-code-finder/` | 465 | جدید | ✘ | بازنویسی کامل | 18 | مقالهٔ canonical شورت‌کد [Easy_Form_Builder_confirmation_code_finder]؛ در /blog است ولی مستند فنی است |
+| 31 | `/document/how-to-edit-a-redirect-pagethank-you-page-of-forms-on-easy-form-builder/` | 319 | بازبینی | ✘ | بازنویسی کامل | 20 | ۳۱۹ کلمه؛ ریدایرکت شرطی (Pro) را ندارد |
 | 32 | `/document/how-to-create-a-file-upload-form-in-easy-form-builder/` | 881 | بازبینی | ✘ | بازنویسی کامل | 6 | ادعا: drag&drop فقط Pro (Free Plus هم فیلدهای پیشرفته را باز می‌کند)؛ محدودیت ۳ فایل/فیلد (۴.۱.۳)، فیلدهای Recorder و مسدودسازی پسوند را ندارد؛ ادغام #43 |
-| 33 | `/document/printing-and-exporting-pdf-form-entries/` | 230 | جدید | ✘ | بازنویسی کامل | 25 | ۲۳۰ کلمه و ۲ تگ H1؛ PDF = Free Plus، CSV = همهٔ نسخه‌ها (۴.۳.۱) |
-| 34 | `/advanced-addons/how-to-install-islamic-date-in-easy-form-builder-plugin/` | 237 | جدید | ✘ | بازنویسی کامل | 33 | ۲۳۷ کلمه؛ Hijri add-on؛ بدون ویدیو؛ مقالهٔ Jalali وجود ندارد |
-| 35 | `/advanced-addons/offline-forms-addon/` | 211 | جدید | ✘ | بازنویسی کامل | 34 | ۲۱۱ کلمه؛ عنوان ۴۰ کاراکتر؛ بدون ویدیو (ویژگی منحصربه‌فرد) |
-| 36 | `/document/how-to-add-cell-phone-number-input-to-easy-form-builder/` | 489 | جدید | ✘ | بازنویسی کامل | 35 | intl-tel-input؛ ۳ تصویر بدون alt؛ بدون ویدیو |
-| 37 | `/document/how-to-add-an-image-picker-to-easy-form-builder-plugin/` | 394 | جدید | ✘ | بازنویسی کامل | 36 | Image Picker؛ بدون ویدیو؛ ۴ تصویر بدون alt |
-| 38 | `/document/disabled-hidden-fields-easy-form-builder-tutorial/` | 402 | جدید | ✔ | بازنویسی کامل | 37 | متن قدیمی؛ باید به Conditional Logic (enable/disable) لینک شود |
-| 39 | `/document/a-comprehensive-guide-to-building-multi-step-forms-with-easy-form-builder-plugin/` | 555 | بازبینی | ✘ | بازنویسی کامل | 21 | مقالهٔ canonical Multi-Step؛ ۵۵۵ کلمه؛ ادغام #12؛ Skip/Jump logic اضافه شود |
-| 40 | `/document/sending-a-notification-email-to-the-person-who-submitted-the-form/` | 214 | بازبینی | ✘ | بازنویسی کامل | 19 | ۲۱۴ کلمه؛ کوئری ارزشمند «ایمیل به ثبت‌کننده»؛ ایمیل تأیید فقط کد+لینک (۴.۳.۱) |
-| 41 | `/document/how-to-send-form-data-to-admin-email-via-easy-form-builder/` | 233 | جدید | ✔ | بازنویسی کامل | 20 | ۲۳۳ کلمه؛ owner email حالا پاسخ‌ها را دارد و Reply-To بازدیدکننده است (۴.۳.۱) |
-| 42 | `/document/how-to-link-pricing-table-buttons-with-a-wordpress-payment-form/` | 504 | بازبینی | ✔ | بازنویسی کامل | 11 | ادعای «برای ساخت payment form باید Pro فعال کنید» → قدیمی (Free Plus) |
+| 33 | `/document/printing-and-exporting-pdf-form-entries/` | 230 | جدید | ✘ | بازنویسی کامل | 27 | ۲۳۰ کلمه و ۲ تگ H1؛ PDF = Free Plus، CSV = همهٔ نسخه‌ها (۴.۳.۱) |
+| 34 | `/advanced-addons/how-to-install-islamic-date-in-easy-form-builder-plugin/` | 237 | جدید | ✘ | بازنویسی کامل | 35 | ۲۳۷ کلمه؛ Hijri add-on؛ بدون ویدیو؛ مقالهٔ Jalali وجود ندارد |
+| 35 | `/advanced-addons/offline-forms-addon/` | 211 | جدید | ✘ | بازنویسی کامل | 36 | ۲۱۱ کلمه؛ عنوان ۴۰ کاراکتر؛ بدون ویدیو (ویژگی منحصربه‌فرد) |
+| 36 | `/document/how-to-add-cell-phone-number-input-to-easy-form-builder/` | 489 | جدید | ✘ | بازنویسی کامل | 37 | intl-tel-input؛ ۳ تصویر بدون alt؛ بدون ویدیو |
+| 37 | `/document/how-to-add-an-image-picker-to-easy-form-builder-plugin/` | 394 | جدید | ✘ | بازنویسی کامل | 38 | Image Picker؛ بدون ویدیو؛ ۴ تصویر بدون alt |
+| 38 | `/document/disabled-hidden-fields-easy-form-builder-tutorial/` | 402 | جدید | ✔ | بازنویسی کامل | 39 | متن قدیمی؛ باید به Conditional Logic (enable/disable) لینک شود |
+| 39 | `/document/a-comprehensive-guide-to-building-multi-step-forms-with-easy-form-builder-plugin/` | 555 | بازبینی | ✘ | بازنویسی کامل | 23 | مقالهٔ canonical Multi-Step؛ ۵۵۵ کلمه؛ ادغام #12؛ Skip/Jump logic اضافه شود |
+| 40 | `/document/sending-a-notification-email-to-the-person-who-submitted-the-form/` | 214 | بازبینی | ✘ | بازنویسی کامل | 21 | ۲۱۴ کلمه؛ کوئری ارزشمند «ایمیل به ثبت‌کننده»؛ ایمیل تأیید فقط کد+لینک (۴.۳.۱) |
+| 41 | `/document/how-to-send-form-data-to-admin-email-via-easy-form-builder/` | 233 | جدید | ✔ | بازنویسی کامل | 22 | ۲۳۳ کلمه؛ owner email حالا پاسخ‌ها را دارد و Reply-To بازدیدکننده است (۴.۳.۱) |
+| 42 | `/document/how-to-link-pricing-table-buttons-with-a-wordpress-payment-form/` | 504 | بازبینی | ✔ | بازنویسی کامل | 13 | ادعای «برای ساخت payment form باید Pro فعال کنید» → قدیمی (Free Plus) |
 | 43 | `/document/guide-advanced-file-upload-forms-wordpress/` | 530 | — | ✘ | ادغام + 301 → #32 | همراه R32 | هم‌هدف با #32؛ ادغام |
-| 44 | `/document/how-import-files-from-easy-form-builder-excel/` | 469 | بازبینی | ✘ | بازنویسی کامل | 38 | Import CSV غیرانگلیسی در Excel؛ ویدیو دارد ولی UI قدیمی؛ UTF-8 و لینک امضا (۴.۳.۱) اضافه شود |
-| 45 | `/document/use-html-element-wordpress-easy-form-builder/` | 294 | جدید | ✘ | بازنویسی کامل | 39 | ۲۹۴ کلمه؛ بدون ویدیو؛ نکتهٔ امنیتی HTML |
+| 44 | `/document/how-import-files-from-easy-form-builder-excel/` | 469 | بازبینی | ✘ | بازنویسی کامل | 40 | Import CSV غیرانگلیسی در Excel؛ ویدیو دارد ولی UI قدیمی؛ UTF-8 و لینک امضا (۴.۳.۱) اضافه شود |
+| 45 | `/document/use-html-element-wordpress-easy-form-builder/` | 294 | جدید | ✘ | بازنویسی کامل | 41 | ۲۹۴ کلمه؛ بدون ویدیو؛ نکتهٔ امنیتی HTML |
 | 46 | `/document/exclude-easy-form-builder-froms-cache/` | 443 | جدید | ✘ | بازنویسی کامل | 4 | از ۴.۳.۱ صفحات دارای فرم خودکار از کش حذف می‌شوند (+فیلتر emsfb_cache_bypass)؛ مقاله هنوز «دستی exclude کنید» می‌گوید و فقط لینک بیرونی دارد |
 | 47 | `/document/wordpress-stripe-payment-form-plugin/` | 573 | بازبینی | ✘ | بازنویسی کامل | 1 | Q&A می‌گوید «Stripe فقط Pro» → غلط؛ تأیید سروری پرداخت (۴.۳.۱) و تست Stripe اضافه شود؛ canonical Stripe؛ ادغام #28 |
-| 48 | `/advanced-addons/send-sms-after-wordpress-form-submission/` | 699 | بازبینی | ✘ | بازنویسی کامل | 29 | ادغام #56؛ Free Plus/Pro؛ بدون ویدیوی تازه |
-| 49 | `/document/manage-wordpress-form-submissions-easy-form-builder/` | 505 | بازبینی | ✘ | بازنویسی کامل | 15 | canonical مدیریت ورودی‌ها؛ ادغام #18؛ وضعیت Open/Closed، پاسخ با فایل، bulk |
-| 50 | `/document/how-to-make-form-fields-required-or-optional-in-wordpress/` | 879 | بازبینی | ✔ | به‌روزرسانی سبک | 52 | تازه (دسامبر ۲۰۲۵)؛ فقط لینک به Conditional Logic + یادداشت نسخه |
+| 48 | `/advanced-addons/send-sms-after-wordpress-form-submission/` | 699 | بازبینی | ✘ | بازنویسی کامل | 31 | ادغام #56؛ Free Plus/Pro؛ بدون ویدیوی تازه |
+| 49 | `/document/manage-wordpress-form-submissions-easy-form-builder/` | 505 | بازبینی | ✘ | بازنویسی کامل | 17 | canonical مدیریت ورودی‌ها؛ ادغام #18؛ وضعیت Open/Closed، پاسخ با فایل، bulk |
+| 50 | `/document/how-to-make-form-fields-required-or-optional-in-wordpress/` | 879 | بازبینی | ✔ | به‌روزرسانی سبک | 54 | تازه (دسامبر ۲۰۲۵)؛ فقط لینک به Conditional Logic + یادداشت نسخه |
 | 51 | `/blog/easy-form-builder-3-9-4-subscription-management-improved-documentation/` | 482 | — | ✘ | آرشیو | روز صفر | پست انتشار ۳.۹.۴؛ آرشیو |
-| 52 | `/document/how-to-embed-a-form-on-wordpress-2026-guide-step-by-step/` | 818 | بازبینی | ✔ | به‌روزرسانی سبک | 43 | تازه؛ ویدیو دارد؛ Elementor/Divi/Gutenberg/WPBakery را بخش‌بندی کنید |
-| 53 | `/advanced-addons/disable-easy-form-builder-json-ld-structured-data-in-wordpress/` | 341 | جدید | ✘ | به‌روزرسانی سبک | 54 | تازه؛ meta و ویدیو ندارد |
-| 54 | `/document/easy-form-builder-add-placeholder-text/` | 907 | بازبینی | ✔ | به‌روزرسانی سبک | 53 | تازه؛ meta دارد؛ فقط ویدیوی جدید |
-| 55 | `/advanced-addons/easy-form-builder-silentcaptcha-protection/` | 1293 | جدید | ✔ | به‌روزرسانی سبک | 44 | تازه (۱۲۹۳ کلمه)؛ بدون ویدیو |
+| 52 | `/document/how-to-embed-a-form-on-wordpress-2026-guide-step-by-step/` | 818 | بازبینی | ✔ | به‌روزرسانی سبک | 45 | تازه؛ ویدیو دارد؛ Elementor/Divi/Gutenberg/WPBakery را بخش‌بندی کنید |
+| 53 | `/advanced-addons/disable-easy-form-builder-json-ld-structured-data-in-wordpress/` | 341 | جدید | ✘ | به‌روزرسانی سبک | 56 | تازه؛ meta و ویدیو ندارد |
+| 54 | `/document/easy-form-builder-add-placeholder-text/` | 907 | بازبینی | ✔ | به‌روزرسانی سبک | 55 | تازه؛ meta دارد؛ فقط ویدیوی جدید |
+| 55 | `/advanced-addons/easy-form-builder-silentcaptcha-protection/` | 1293 | جدید | ✔ | به‌روزرسانی سبک | 46 | تازه (۱۲۹۳ کلمه)؛ بدون ویدیو |
 | 56 | `/blog/settingup-sms-notifications-wordpress-easy-form-builder/` | 546 | — | ✘ | ادغام + 301 → #48 | همراه R48 | هم‌هدف با #48؛ ادغام |
-| 57 | `/blog/easy-form-builder-4-released-major-update-wordpress-forms/` | 2798 | جدید | ✔ | به‌روزرسانی سبک | 50 | پست انتشار ۴.۰ (۲۷۹۸ کلمه)؛ بنر «آخرین نسخه ۴.۳.۱» + لینک به پست جدید 4.3.1 |
-| 58 | `/developer-guide/easy-form-builder-telegram-addon-developer-guide/` | 1519 | جدید | ✘ | به‌روزرسانی سبک | 51 | راهنمای توسعه‌دهندهٔ Telegram؛ ۲ تگ H1؛ راهنمای کاربر معمولی جداگانه نوشته شود |
-| 59 | `/developer-guide/development-mode-sandbox-guide/` | 1262 | جدید | ✘ | به‌روزرسانی سبک | 55 | Dev Mode (sandbox)؛ ۲ تگ H1؛ meta ندارد |
-| 60 | `/developer-guide/email-template-troubleshooting-guide-v4/` | 3072 | جدید | ✘ | به‌روزرسانی سبک | 56 | ۳۰۷۲ کلمه؛ ۲ تگ H1؛ meta ندارد |
+| 57 | `/blog/easy-form-builder-4-released-major-update-wordpress-forms/` | 2798 | جدید | ✔ | به‌روزرسانی سبک | 52 | پست انتشار ۴.۰ (۲۷۹۸ کلمه)؛ بنر «آخرین نسخه ۴.۳.۱» + لینک به پست جدید 4.3.1 |
+| 58 | `/developer-guide/easy-form-builder-telegram-addon-developer-guide/` | 1519 | جدید | ✘ | به‌روزرسانی سبک | 53 | راهنمای توسعه‌دهندهٔ Telegram؛ ۲ تگ H1؛ راهنمای کاربر معمولی جداگانه نوشته شود |
+| 59 | `/developer-guide/development-mode-sandbox-guide/` | 1262 | جدید | ✘ | به‌روزرسانی سبک | 57 | Dev Mode (sandbox)؛ ۲ تگ H1؛ meta ندارد |
+| 60 | `/developer-guide/email-template-troubleshooting-guide-v4/` | 3072 | جدید | ✘ | به‌روزرسانی سبک | 58 | ۳۰۷۲ کلمه؛ ۲ تگ H1؛ meta ندارد |
 | 61 | `/document/how-to-create-a-payment-form-in-easy-form-builder/` | 1100 | جدید | ✘ | بازنویسی کامل | 2 | عبور از «Active pro version»؛ باید هاب پرداخت (Stripe، PayPal، درگاه‌های ایرانی، اهدا، اشتراک) شود |
 | 62 | `/document/how-to-create-a-survey-form-with-easy-form-builder/` | 463 | — | ✘ | ادغام + 301 → #72 | همراه R72 | ۲۰۲۳؛ هم‌هدف با #72 (تازه‌تر و کامل‌تر) |
-| 63 | `/developer-guide/security-plugin-compatibility/` | 1463 | جدید | ✘ | به‌روزرسانی سبک | 57 | سازگاری افزونه‌های امنیتی؛ لینک متقابل با #64 و راهنمای Security & Spam |
-| 64 | `/blog/fixing-403-error-after-submitting-forms/` | 2074 | جدید | ✘ | بازنویسی کامل | 14 | canonical خطای ۴۰۳ (۲۰۷۴ کلمه)؛ session-fallback و Request Health (۴.۳.۱) اضافه؛ ادغام #10 |
-| 65 | `/document/how-to-setup-paypal-payment-in-easy-form-builder/` | 1115 | حفظ | ✔ | به‌روزرسانی سبک | 46 | PayPal؛ تازه؛ بررسی پوشش اشتراک (recurring) |
-| 66 | `/document/how-to-fix-email-not-working-issue/` | 1071 | جدید | ✘ | تغییر هدف کلیدواژه | 13 | با #82 روی «WordPress not sending email» cannibalize می‌شود → هدف: ابزار «Check Email Server» (امتیاز ۱۰۰، گزارش هفتگی) |
+| 63 | `/developer-guide/security-plugin-compatibility/` | 1463 | جدید | ✘ | به‌روزرسانی سبک | 59 | سازگاری افزونه‌های امنیتی؛ لینک متقابل با #64 و راهنمای Security & Spam |
+| 64 | `/blog/fixing-403-error-after-submitting-forms/` | 2074 | جدید | ✘ | بازنویسی کامل | 16 | canonical خطای ۴۰۳ (۲۰۷۴ کلمه)؛ session-fallback و Request Health (۴.۳.۱) اضافه؛ ادغام #10 |
+| 65 | `/document/how-to-setup-paypal-payment-in-easy-form-builder/` | 1115 | حفظ | ✔ | به‌روزرسانی سبک | 48 | PayPal؛ تازه؛ بررسی پوشش اشتراک (recurring) |
+| 66 | `/document/how-to-fix-email-not-working-issue/` | 1071 | جدید | ✘ | تغییر هدف کلیدواژه | 15 | با #82 روی «WordPress not sending email» cannibalize می‌شود → هدف: ابزار «Check Email Server» (امتیاز ۱۰۰، گزارش هفتگی) |
 | 67 | `/blog/important-security-update-easy-form-builder-v4-0-13/` | 514 | — | ✘ | آرشیو | روز صفر | پست امنیتی ۴.۰.۱۳؛ آرشیو |
-| 68 | `/advanced-addons/how-to-disable-the-author-link-and-generator-meta-tag-in-wordpress/` | 1360 | جدید | ✔ | به‌روزرسانی سبک | 58 | تازه؛ فقط ویدیو/متا |
+| 68 | `/advanced-addons/how-to-disable-the-author-link-and-generator-meta-tag-in-wordpress/` | 1360 | جدید | ✔ | به‌روزرسانی سبک | 60 | تازه؛ فقط ویدیو/متا |
 | 69 | `/blog/create-responsive-contact-form-wordpress-2025-guide/` | 655 | — | ✘ | ادغام + 301 → #14 | همراه R14 | slug حاوی «2025-guide» و همنام با #14؛ 301 |
-| 70 | `/document/install-activate-easy-form-builder-wordpress/` | 1030 | جدید | ✔ | به‌روزرسانی سبک | 30 | عنوان ۴۹ کاراکتر؛ ویدیو ندارد؛ با ویزارد onboarding ۴.۲ هماهنگ شود |
+| 70 | `/document/install-activate-easy-form-builder-wordpress/` | 1030 | جدید | ✔ | به‌روزرسانی سبک | 32 | عنوان ۴۹ کاراکتر؛ ویدیو ندارد؛ با ویزارد onboarding ۴.۲ هماهنگ شود |
 | 71 | `/document/easy-form-builder-free-plus-activation-guide/` | 226 | جدید | ✔ | بازنویسی کامل | 3 | فقط ۲۲۶ کلمه و صفر تصویر؛ باید جدول مقایسهٔ Free/Free Plus/Pro (صفحهٔ هدف جئو) شود |
-| 72 | `/document/how-create-surve-wordpress-easily-step-by-step-guide/` | 1865 | حفظ | ✘ | به‌روزرسانی سبک | 42 | canonical survey (۱۸۶۵ کلمه، ویدیو دارد)؛ meta ندارد؛ ادغام #62 |
-| 73 | `/advanced-addons/wordpress-easy-form-builder-auto-populate/` | 2721 | جدید | ✔ | به‌روزرسانی سبک | 45 | Auto-Populate (۲۷۲۱ کلمه)؛ بدون ویدیو؛ بدون meta |
+| 72 | `/document/how-create-surve-wordpress-easily-step-by-step-guide/` | 1865 | حفظ | ✘ | به‌روزرسانی سبک | 44 | canonical survey (۱۸۶۵ کلمه، ویدیو دارد)؛ meta ندارد؛ ادغام #62 |
+| 73 | `/advanced-addons/wordpress-easy-form-builder-auto-populate/` | 2721 | جدید | ✔ | به‌روزرسانی سبک | 47 | Auto-Populate (۲۷۲۱ کلمه)؛ بدون ویدیو؛ بدون meta |
 | 74 | `/advanced-addons/easy-form-builder-conditional-logic-complete-guide/` | 618 | جدید | ✘ | بازنویسی کامل | 10 | راهنمای Conditional Logic: ۶۱۸ کلمه، صفر تصویر، ۲ H1؛ پرچم محصول → باید هاب + ۱۷ مقالهٔ زیرمجموعه شود |
-| 75 | `/blog/free-rtl-wordpress-form-builder-conditional-logic/` | 1504 | جدید | ✘ | به‌روزرسانی سبک | 59 | بلاگ RTL+CL؛ فقط لینک‌دهی/متا |
-| 76 | `/blog/easy-form-builder-affiliate-program/` | 1937 | جدید | ✔ | به‌روزرسانی سبک | 60 | Affiliate؛ فقط متا/لینک |
-| 77 | `/blog/persian-goldsmithing-book/` | 811 | — | ✔ | پاکسازی | روز صفر | مقاله دربارهٔ کتاب زرگری است؛ خارج از موضوع سایت → noindex یا انتقال |
-| 78 | `/document/how-to-set-up-form-notification-emails-in-easy-form-builder/` | 2828 | جدید | ✘ | به‌روزرسانی سبک | 12 | ستون ایمیل (۲۸۲۸ کلمه) ولی ۶ تگ H1؛ ویدیو ندارد؛ meta ندارد |
-| 79 | `/blog/best-practices-form-security-spam-prevention-2026/` | 2857 | جدید | ✘ | به‌روزرسانی سبک | 48 | بهترین‌روش‌های امنیت فرم؛ لینک به راهنمای Security & Spam Protection جدید |
-| 80 | `/document/how-to-activate-pro-version-easy-form-builder-plugin/` | 1366 | جدید | ✘ | به‌روزرسانی سبک | 49 | فعال‌سازی Pro؛ ۲ H1؛ meta ندارد |
-| 81 | `/blog/easy-form-builder-free-wordpress-plugin-supports-72-languages/` | 1703 | جدید | ✘ | به‌روزرسانی سبک | 61 | ۷۲ زبان؛ meta ندارد |
-| 82 | `/document/fix-wordpress-not-sending-email-spf-dkim-dmarc/` | 1732 | جدید | ✔ | به‌روزرسانی سبک | 47 | canonical «WordPress not sending email»؛ ویدیو ندارد |
-| 83 | `/document/set-up-spf-record-for-wordpress-email/` | 975 | حفظ | ✘ | به‌روزرسانی سبک | 62 | سری تازهٔ SPF؛ meta ندارد |
-| 84 | `/document/why-form-emails-go-to-spam-hosting-not-plugin/` | 1344 | حفظ | ✘ | به‌روزرسانی سبک | 63 | سری تازه؛ meta ندارد |
-| 85 | `/document/set-up-dkim-email-signature-for-wordpress/` | 1045 | حفظ | ✘ | به‌روزرسانی سبک | 64 | سری تازه؛ meta ندارد |
-| 86 | `/document/set-up-dmarc-policy-for-wordpress-email/` | 879 | حفظ | ✘ | به‌روزرسانی سبک | 65 | سری تازه؛ meta ندارد |
-| 87 | `/document/free-email-sending-services-for-wordpress-forms/` | 1799 | حفظ | ✘ | به‌روزرسانی سبک | 66 | سری تازه؛ meta ندارد |
-| 88 | `/document/send-email-using-smtp-plugin/` | 2575 | بازبینی | ✘ | به‌روزرسانی سبک | 67 | سری تازه؛ meta ندارد |
+| 75 | `/blog/free-rtl-wordpress-form-builder-conditional-logic/` | 1504 | جدید | ✘ | به‌روزرسانی سبک | 61 | بلاگ RTL+CL؛ فقط لینک‌دهی/متا |
+| 76 | `/blog/easy-form-builder-affiliate-program/` | 1937 | جدید | ✔ | بازنویسی کامل | 11 | **تصمیم مالک (2026-11-13):** بازنویسی کامل سئو؛ نسخهٔ AR لهجهٔ خلیجی دارد ← MSA؛ ویدیو فقط موشن‌گرافیک توضیحی بدون داشبورد/داده واقعی |
+| 77 | `/blog/persian-goldsmithing-book/` | 811 | — | ✔ | بازنویسی | روز ۱۲ (مسیر rewrite) | **تصمیم مالک (2026-11-13):** بازنویسی کامل سئو و انتشار؛ موضوع خارج از افزونه است ← بدون ویدیوی افزونه، لحن AR→MSA |
+| 78 | `/document/how-to-set-up-form-notification-emails-in-easy-form-builder/` | 2828 | جدید | ✘ | به‌روزرسانی سبک | 14 | ستون ایمیل (۲۸۲۸ کلمه) ولی ۶ تگ H1؛ ویدیو ندارد؛ meta ندارد |
+| 79 | `/blog/best-practices-form-security-spam-prevention-2026/` | 2857 | جدید | ✘ | به‌روزرسانی سبک | 50 | بهترین‌روش‌های امنیت فرم؛ لینک به راهنمای Security & Spam Protection جدید |
+| 80 | `/document/how-to-activate-pro-version-easy-form-builder-plugin/` | 1366 | جدید | ✘ | به‌روزرسانی سبک | 51 | فعال‌سازی Pro؛ ۲ H1؛ meta ندارد |
+| 81 | `/blog/easy-form-builder-free-wordpress-plugin-supports-72-languages/` | 1703 | جدید | ✘ | به‌روزرسانی سبک | 62 | ۷۲ زبان؛ meta ندارد |
+| 82 | `/document/fix-wordpress-not-sending-email-spf-dkim-dmarc/` | 1732 | جدید | ✔ | به‌روزرسانی سبک | 49 | canonical «WordPress not sending email»؛ ویدیو ندارد |
+| 83 | `/document/set-up-spf-record-for-wordpress-email/` | 975 | حفظ | ✘ | به‌روزرسانی سبک | 63 | سری تازهٔ SPF؛ meta ندارد |
+| 84 | `/document/why-form-emails-go-to-spam-hosting-not-plugin/` | 1344 | حفظ | ✘ | به‌روزرسانی سبک | 64 | سری تازه؛ meta ندارد |
+| 85 | `/document/set-up-dkim-email-signature-for-wordpress/` | 1045 | حفظ | ✘ | به‌روزرسانی سبک | 65 | سری تازه؛ meta ندارد |
+| 86 | `/document/set-up-dmarc-policy-for-wordpress-email/` | 879 | حفظ | ✘ | به‌روزرسانی سبک | 66 | سری تازه؛ meta ندارد |
+| 87 | `/document/free-email-sending-services-for-wordpress-forms/` | 1799 | حفظ | ✘ | به‌روزرسانی سبک | 67 | سری تازه؛ meta ندارد |
+| 88 | `/document/send-email-using-smtp-plugin/` | 2575 | بازبینی | ✘ | به‌روزرسانی سبک | 68 | سری تازه؛ meta ندارد |
 
 **جمع‌بندی:** فنی: 1 • بازنویسی کامل: 37 • آرشیو: 8 • ادغام + 301: 11 • تغییر هدف کلیدواژه: 2 • به‌روزرسانی سبک: 28 • پاکسازی: 1. ویدیو: جدید: 40 • بازبینی: 20 • حفظ: 7 (در مسیر بازنویسی).
 
@@ -602,10 +602,10 @@ Quiz، Booking & Calendar، SMS OTP login، Ticketing، AI، Twilio و Retry Que
 | 8 | R17 — How to Activate the Confirmation Code in Easy Form Builder (ویدیو بازبینی) | B8 — Contact Form 7 Alternatives for 2026 (After the Feature Freeze) |
 | 9 | R14 — How to Create a Contact Form in WordPress with Easy Form Builder (Step-by-Step 2025 Guide) (ویدیو بازبینی) | C2 — Contact Form 7 Import: What Carries Over and What to Rebuild |
 | 10 | R74 — Easy Form Builder Conditional Logic Add-on (ویدیو جدید) | G2 — Google Cloud Service Account for Forms: Step-by-Step Setup |
-| 11 | R42 — How to Link Pricing Table Buttons with a WordPress Payment Form (ویدیو بازبینی) | E3 — Honeypot vs reCAPTCHA vs silentCAPTCHA vs Behavior Scoring for WordPress Forms |
-| 12 | R78 — How to Set Up Form Email Notifications in Easy Form Builder (ویدیو جدید) | F4 — Route Form Emails by Answer: Sales vs Support (Conditional Notifications) |
-| 13 | R66 — How to Fix Email Sending Issues in WordPress After Installing Easy Form Builder Plugin (ویدیو جدید) | G7 — Get WordPress Form Notifications in Telegram (Bot Setup in 5 Minutes) |
-| 14 | R64 — Fixing 403 Error After Submitting Forms with Easy Form Builder in WordPress (ویدیو جدید) | A4 — Easy Form Builder Shortcodes Reference ([EMS_Form_Builder] and More) |
+| 11 | R76 — Easy Form Builder Affiliate Program (بازنویسی کامل؛ AR: لهجه → MSA؛ ویدیو: موشن‌گرافیک توضیحی) | E3 — Honeypot vs reCAPTCHA vs silentCAPTCHA vs Behavior Scoring for WordPress Forms |
+| 12 | R77 — A Practical Guide to Choosing a Goldsmithing Training Book (بازنویسی کامل؛ بدون ویدیوی افزونه) | F4 — Route Form Emails by Answer: Sales vs Support (Conditional Notifications) |
+| 13 | R42 — How to Link Pricing Table Buttons with a WordPress Payment Form (ویدیو بازبینی) | G7 — Get WordPress Form Notifications in Telegram (Bot Setup in 5 Minutes) |
+| 14 | R78 — How to Set Up Form Email Notifications in Easy Form Builder (ویدیو جدید) | A4 — Easy Form Builder Shortcodes Reference ([EMS_Form_Builder] and More) |
 
 > روز ۱ را «پایلوت» در نظر بگیرید: R47 (Stripe) + A1 (4.3.1 چه چیزی عوض کرد) با دو ویدیو؛ شما کیفیت را بازبینی می‌کنید، بعد زمان‌بندی خودکار فعال می‌شود.
 

@@ -14,7 +14,7 @@ Language of this file: English, Arabic examples inline. Companion files in this 
 ۵. **محتوا:** ۲ مقاله به لهجهٔ خلیجی (`affiliate-program`, `persian-goldsmithing-book`)؛ برند در عنوان یک مقاله تکراری شده («منشئ منشئ … السهل السهل»)؛ ۱۷ مقاله ایموجی در تیتر؛ ۶۸٪ برچسب‌های UI در مقالات قدیمی با UI رسمی یکی است (۳۲٪ نه). فهرست اصلاح در بخش ۱۱.
 ۶. **کلیدواژه:** ترجمهٔ تحت‌اللفظی کافی نیست. autosuggest عربی نشان می‌دهد جستجوگران عربی نام ابزار را لاتین می‌نویسند و «شرح» می‌افزایند (`stripe شرح`, `wp mail smtp شرح`)، و «نموذج» اغلب یعنی «قالب/نمونهٔ سند» نه فرم وب (نموذج توظيف، نموذج تبرع). روش + ۱۲ نمونه: `KEYWORD-LOCALISATION.md`. هیچ عددی از حجم جستجو ندارم (فقط autosuggest؛ بدون Search Console).
 ۷. **ابزار:** `tools/ar_lint.py` قواعد مکانیکی را بررسی می‌کند (مقالات قدیمی: ۴٫۷ خطا و ۲۳٫۵ هشدار در هر ۱۰۰۰ کلمه؛ ۷ مقالهٔ جدید: ۰٫۶ و ۳٫۶). `tools/autosuggest.py` برای مرحلهٔ بومی‌سازی کلیدواژه.
-۸. **از شما لازم است:** تصمیم دربارهٔ سؤال‌های بخش ۱۲ (برند لاتین در عنوان؟ «مدير» یا «مسؤول»؟ «الأسئلة الشائعة» یا «المتكررة»؟ بازنویسی/حذف دو مقالهٔ لهجه‌ای و مقالهٔ طلاسازی که با موضوع سایت نمی‌خواند؟ پیشوند دسته‌بندی یکسان در سه زبان؟).
+۸. **تصمیم‌های مالک (2026-11-13):** برند عربی در عنوان‌ها؛ «مدير الموقع» و «الأسئلة الشائعة» (واژگان رایج خلیج)؛ بازنویسی کامل سئو و انتشار دو مقالهٔ لهجه‌ای/زرگری؛ حذف بلوک‌های AI Knowledge Graph. سؤال‌های باز: «نموذج» یا «فورم»، override عنوان در Rank Math (در تست اتصال بررسی می‌شود).
 
 ---
 
@@ -30,7 +30,7 @@ Language of this file: English, Arabic examples inline. Companion files in this 
 | 6 | Punctuation | «،» «؛» «؟» in Arabic text; « » for quoted text/UI messages; `…` as one character. | Old: curly “ ” 416× vs « » 148×; new: « » only |
 | 7 | UI labels | Quote the **Arabic label exactly as in `UI-STRINGS.csv`**; add the English label in parentheses at the first mention in each section. If the UI shows English (untranslated or third-party), write the English as displayed and put the Arabic gloss in parentheses. | Label fidelity of old articles = 68% (47/69) |
 | 8 | Plan labels | **مجاني** (Free) · **مجاني بلس** (Free Plus) · **احترافي** / «النسخة الاحترافية» (Pro) · **ملحق** (add-on). Latin name in parentheses at first mention only. | UI strings |
-| 9 | Brand | «منشئ النماذج السهل (Easy Form Builder)» on first mention; Latin «Easy Form Builder» in titles/H2/meta where discovery matters. WordPress = «ووردبريس». | Autosuggest: Arabic brand returns nothing, Latin returns suggestions |
+| 9 | Brand | **Owner decision 2026-11-13: the Arabic name «منشئ النماذج السهل» is used in titles/H2/meta.** First mention in the body: «منشئ النماذج السهل (Easy Form Builder)» (Latin in parentheses keeps Latin-script searches). WordPress = «ووردبريس». | Owner decision; autosuggest had shown Latin is what searchers type, so JSON-LD `alternateName` carries the Latin name and the choice is re-measured after 30 days |
 | 10 | Terms | `GLOSSARY.csv` is binding. Highest-impact: ملحق≠إضافة · رمز التأكيد · الكود القصير · مطلوب · رفع/تنزيل · انقر · تنصيب (label) · البريد المزعج. | Variant counts in App. A 3 |
 | 11 | Titles | ≤ 60 characters, keyword first, no brand suffix duplication, no emoji, varied patterns (**not** 56% «كيفية»). | 38/80 old H1 > 60; 55/80 `<title>` repeats the brand |
 | 12 | Meta description | 140-155 characters, Arabic, unique, keyword + result + soft call to act. | New cohort already 140-154; 74/80 old have none |
@@ -85,7 +85,7 @@ When (1) is internally inconsistent, `GLOSSARY.csv` names the winner and the rea
 | Name | Rule |
 |---|---|
 | Easy Form Builder | First mention in the first 100 words: **«منشئ النماذج السهل (Easy Form Builder)»**. Then «منشئ النماذج السهل» or «الإضافة». Never «مُنشيء», «منشِئ», singular «النموذج», «السهلل», or doubled «منشئ منشئ». |
-| In titles/H2/meta | Prefer Latin **Easy Form Builder** when the brand is the point («… باستخدام Easy Form Builder»). Reason: the Arabic brand string returns **zero** autosuggest, the Latin one returns suggestions (`KEYWORD-LOCALISATION.md` §2.5). **[UNVERIFIED]** without Search Console data. |
+| In titles/H2/meta | **Arabic name «منشئ النماذج السهل»** (owner decision 2026-11-13), once per `<title>`: if the theme appends « - منشئ النماذج السهل» to the H1, the H1 must not contain the brand; if the per-post SEO title override works (Rank Math `rank_math_title`), write the full ≤ 60-character title yourself with the brand once. Never both (55/80 old posts doubled it). Evidence kept for the record: the Arabic brand string returns zero autosuggest, the Latin one returns suggestions (`KEYWORD-LOCALISATION.md` §2.5) — **[UNVERIFIED]** effect; re-check with Search Console after 30 days. |
 | WordPress | «ووردبريس» (UI spelling). No glued article: «لووردبريس», not «للووردبريس»; «مستخدمو ووردبريس», not «مستخدمي الووردبريس». Keep «WordPress.org» in Latin. |
 | WhiteStudio | Latin («WhiteStudio», «WhiteStudio.team»). |
 | Third-party products | Latin, never transliterated: Stripe, PayPal, Cloudflare, Gmail, Outlook, Elementor, Divi, WPBakery, Gutenberg, WPML, Polylang, Zapier, Make, n8n, Contact Form 7, WPForms, reCAPTCHA, silentCAPTCHA, Excel. The UI add-on strings «سترايب / باي بال» are **not** to be copied. Arabic transliterations only where the UI itself has an established one: **جوجل** (13×), **تيليجرام** (6×), **جداول بيانات جوجل** (Google Sheets). |
@@ -194,7 +194,7 @@ Values come from the EN fact box; translate only labels and plan names. Never pr
 | "Summary" | «الخلاصة» (not «الخاتمة») |
 | "Updated for 4.3.1" note | «تحديث للإصدار 4.3.1: {ما تغيّر}. آخر تحقق: {التاريخ}.» |
 | "Ready-made prompt for any AI assistant" | «برومبت جاهز لأي مساعد ذكاء اصطناعي» (keep the prompt's Latin placeholders in a code block) |
-| "AI Knowledge Graph / AI notes" blocks | **Do not publish as visible text** (4 AR articles show them today; ask the owner, §12) |
+| "AI Knowledge Graph / AI notes" blocks | **Never publish** (owner decision 2026-11-13; 3 AR articles carry them today and are cleaned in the Day-0 batch `D0-KG`) |
 
 ### 7.2 Titles (H1)
 
@@ -325,7 +325,7 @@ Pattern: **verb + UI element + (condition) + result**.
 | P0 | Fix hreflang clusters: align category prefix with EN for the 13 pages; resolve the 2 slug mismatches (`v4-0-12` ↔ `v4-0-13`, `plugin-2`); add `de` where a DE page exists. | 22+ pages |
 | P0 | Regenerate/flush the AR `post-sitemap.xml` (7 new posts missing). | site |
 | P0 | Cloudflare e-mail obfuscation: restore the 10 `[email protected]` strings, esp. the DMARC `rua=mailto:` example. | 7 articles |
-| P1 | Rewrite the 2 dialect posts in MSA (or unpublish): `/blog/easy-form-builder-affiliate-program/`, `/blog/persian-goldsmithing-book/`. | 2 |
+| P1 | **Decided (owner 2026-11-13): rewrite both as full SEO articles in MSA and publish** (queue rows R76 day 11, R77 day 12): `/blog/easy-form-builder-affiliate-program/`, `/blog/persian-goldsmithing-book/`. | 2 |
 | P1 | Fix the mangled title `/document/how-import-files-from-easy-form-builder-excel/`; fix «فیام» in `/document/how-to-find-a-response-through-a-confirmation-code/`; fix the Stripe «في الكون» sentence. | 3 |
 | P1 | Re-translate articles where EN was rewritten later and AR is < 70% of EN length (11 pairs, esp. `how-to-set-up-form-notification-emails-in-easy-form-builder`). | 11 |
 | P2 | Terminology sweep with the table below (context-checked, not blind replace). | ~60 |
@@ -356,7 +356,17 @@ Terminology sweep (verify context before replacing):
 
 ## 12. Open questions and unverified items (owner)
 
-**Decisions needed**
+**Owner decisions recorded 2026-11-13** (full log: `../../00-DECISIONS.md` rows 9–12)
+
+| # | Question | Decision |
+|---|---|---|
+| 1 | Brand in titles | **Arabic name** «منشئ النماذج السهل» (see §3.2) |
+| 2 | Administrator wording | **«مدير الموقع»** (Gulf usage checked with autosuggest `gl=sa/ae/kw`: «مدير الموقع» is the common phrase; also matches WordPress core and UI «البريد الإلكتروني للمدير») |
+| 3 | FAQ heading | **«الأسئلة الشائعة»** (Gulf autosuggest: all top completions use «الشائعة»; «المتكررة» belongs to Maghreb exam queries). The newest articles that use «المتكررة» are corrected when touched |
+| 4 | Dialect posts and goldsmithing book | **Rewrite as full SEO articles and publish** (MSA, no dialect) |
+| 7 | «AI Knowledge Graph / AI Notes» | **Removed** (visible machine-addressed filler; real answer summaries become a «إجابة سريعة» box without the AI label) — `../../rnd/ai-knowledge-blocks-audit.md` |
+
+**Still open (not answered yet)**
 1. **Brand in titles/H2/meta:** Latin «Easy Form Builder» (recommended, evidence: Arabic brand has zero autosuggest) or Arabic «منشئ النماذج السهل»? (Inside steps the Arabic name stays because that is what the admin menu shows.)
 2. **Administrator wording:** «مدير الموقع» (recommended: WordPress core + UI «البريد الإلكتروني للمدير») vs the site's current «المسؤول» (44 uses).
 3. **FAQ heading:** «الأسئلة الشائعة» (recommended, 16 articles) vs the newest «الأسئلة المتكررة».
