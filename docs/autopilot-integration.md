@@ -767,8 +767,11 @@ Add-on `vendores-efb/mollie` on the PAY00 contract; nothing new in core. For age
 
 - **Field.** Type `mollie`; `efbBuilderApi.newItems('mollie')` → the row and `formPatch`
   `{type:'payment', getway:'mollie', currency:'EUR'}` (EUR is the first of Mollie's 29 currencies;
-  3-decimal currencies such as KWD are refused). Only the core `pf_*` keys; `pf_methods` takes Mollie
-  method ids (`ideal`, `creditcard`, `bancontact`, `paypal`, `wero`, …), `pf_methods_style` any core value.
+  3-decimal currencies such as KWD are refused). The core `pf_*` keys and the optional `pgw_map_email`
+  (the `id_` of an Email field; empty = the confirmation e-mail field; Mollie e-mails bank transfer
+  instructions to it); `pf_methods` takes Mollie method ids (`ideal`, `creditcard`, `bancontact`,
+  `paypal`, `wero`, …; never `alma`, `billie`, `billink`, `in3`, `klarna`, `riverty`, `voucher`: Mollie
+  needs order lines for them), `pf_methods_style` any core value.
 - **Registry.** `payment_gateways.mollie` lists `methods` (the account's activated methods, cached by
   the owner's "Test connection") and `configured` per mode; never a key (`test_api_key` /
   `live_api_key` are encrypted, `•••• abcd` on the settings card only).

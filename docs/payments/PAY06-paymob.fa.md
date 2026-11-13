@@ -302,3 +302,19 @@ fixtureها `tests/fixtures/payments/paymob/`: `intention-201.json`، `callback-
 #### Checkpoint: error scenarios (2026-11-12)
 
 Paymob: the e-mail is required for every method (format email) and the mobile number for the wallet (format phone), so core warns the owner per method and stops Pay at the field; the add-on's own `paymob_no_phone` warning is gone; a 400 about the phone / e-mail → `payer_invalid` at that field; unpaid transactions carry a reason (voided → canceled, by `data.message`). vendores-efb `a4a57e8`; tests `test-addon-paymob-errors.php` (9). Matrix: [payment-error-matrix.en.md](payment-error-matrix.en.md).
+
+#### Payer e-mail and payer fields checked against the provider's documentation (2026-11-13, owner request)
+
+| Question | Paymob's documentation | Decision |
+|---|---|---|
+| Is the payer's e-mail required? | the Intention's `billing_data` is required ([Create Intention](https://developers.paymob.com/paymob-docs/developers/intention-apis/create-intention)); the Accept API: "All the fields in this object are mandatory … if it isn't available, please send it to be "NA", except, first_name, last_name, email, and phone_number cannot be sent as "NA"" ([Payment API flow](https://weaccept.readme.io/docs/accept-standard-redirect)) | **required** (unchanged: `pgw_map_email` `required`, `format: email`) |
+| Must it be the payer's own? | billing data of the payer | yes: the mapped field or the confirmation e-mail field; never another e-mail field (before: the first e-mail answered) |
+| Other payer fields | `phone_number`: the Intention reference shows only `"phone_number": ["This field is required."]`; the Accept API says it cannot be "NA" | **owner decision**: today the mobile number is required only for the mobile wallet and other methods send "NA" (as the earlier PAY06 notes say Paymob's own plug-ins do); first and last name fall back to "NA" too. If Paymob refuses "NA" on a Live account, make `pgw_map_phone` and the name `required` for every method |
+
+Core rule (unchanged, gateway-neutral): the payer e-mail is the field chosen in the payment field's
+"Payer e-mail" option, else the form's confirmation e-mail field (row 0 `email_to`, an Email field): the
+person who fills in the form is the one who pays, and that field is where the form's own confirmation
+goes. New: the add-ons no longer fall back to *another* e-mail field of the form ("the first e-mail
+answered"), which may hold somebody else's address (a friend, a colleague).
+
+Tests: `test-addon-paymob-errors.php` (10).

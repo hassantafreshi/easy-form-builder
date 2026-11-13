@@ -368,3 +368,20 @@ public function fetch( Payment $p, Settings $s ): Remote_State {
 #### Checkpoint: error scenarios (2026-11-12)
 
 Mollie: no payer requirement (Mollie's checkout asks for what a method needs). `fetch()` gives the reason of an unpaid payment (`details.failureReason` → insufficient_funds, auth_failed, card_invalid, fraud_blocked, declined; canceled / expired); a 422 about method / amount / currency → `method_unavailable` ("choose another payment method"); a refused key → "cannot take payments" + the owner's alert. The "site cannot be reached" card notice is core's now. vendores-efb `95f7efc`; tests `test-addon-mollie-errors.php` (12). Matrix: [payment-error-matrix.en.md](payment-error-matrix.en.md).
+
+#### Payer e-mail and payer fields checked against the provider's documentation (2026-11-13, owner request)
+
+| Question | Mollie's documentation | Decision |
+|---|---|---|
+| Is the payer's e-mail required? | `billingAddress.email`: "Required for payment methods `alma`, `billie`, `in3`, `klarna` and `riverty`"; `lines`: "Required for payment methods `billie`, `billink`, `in3`, `klarna`, `riverty` and `voucher`"; bank transfer: "If you provide the email address for a `banktransfer` payment, we will automatically send the instructions email upon payment creation" ([Create payment](https://docs.mollie.com/reference/create-payment)) | **optional**. The methods that need it also need order lines and the full billing address (given and family name, street, postcode, city, country), which a form payment does not send: they are no longer offered (`NEEDS_ORDER_DATA`: alma, billie, billink, in3, klarna, riverty, voucher; before they were listed and always refused with 422) |
+| Format / length | "A valid e-mail address"; non-ASCII domains in Punycode | checked by core (`format: email`), at most 254 characters sent |
+| Must it be the payer's own? | bank transfer instructions go to it | yes: the mapped field or the confirmation e-mail field |
+| Built | — | new optional option "Payer e-mail" (`pgw_map_email`, `format: email`, no requirement, no owner warning); `billingAddress: {email}` sent when a bank transfer is possible (the method chosen, or no method restricted) |
+
+Core rule (unchanged, gateway-neutral): the payer e-mail is the field chosen in the payment field's
+"Payer e-mail" option, else the form's confirmation e-mail field (row 0 `email_to`, an Email field): the
+person who fills in the form is the one who pays, and that field is where the form's own confirmation
+goes. New: the add-ons no longer fall back to *another* e-mail field of the form ("the first e-mail
+answered"), which may hold somebody else's address (a friend, a colleague).
+
+Tests: `test-addon-mollie-errors.php` (17; methods without order lines, the optional option, bank transfer e-mail, iDEAL without billing address).

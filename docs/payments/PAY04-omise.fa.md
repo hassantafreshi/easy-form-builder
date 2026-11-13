@@ -306,3 +306,13 @@ fixtureها `tests/fixtures/payments/omise/`: `charge-promptpay-pending.json` (�
 #### Checkpoint: error scenarios (2026-11-12)
 
 Omise: no payer requirement; `fetch()` gives the reason of an unpaid PromptPay charge (`failure_code`: insufficient_fund / insufficient_balance, payment_cancelled, payment_expired, failed_fraud_check, payment_rejected, failed_processing). vendores-efb `f9f61cb`; tests `test-addon-omise-errors.php` (7). Matrix: [payment-error-matrix.en.md](payment-error-matrix.en.md).
+
+#### Payer e-mail and payer fields checked against the provider's documentation (2026-11-13, owner request)
+
+| Question | Omise's documentation | Decision |
+|---|---|---|
+| Is the payer's e-mail required? | a PromptPay source needs `amount`, `currency` (THB) and `type`; the charge `source`, `amount`, `currency`; the example responses carry `email`, `name`, `phone_number` as `null` ([PromptPay](https://docs.omise.co/promptpay)) | **not used** (unchanged: no payer option) |
+| Other payer fields | none | none |
+
+PromptPay is paid in the payer's banking app from the QR code; Omise sends nothing to the payer, the
+form's own confirmation does.

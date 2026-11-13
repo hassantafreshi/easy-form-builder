@@ -45,5 +45,18 @@ Service::apply_remote_state($p, $st(array('data' => array('message' => 'Insuffic
 $a = Service::status_answer(\Emsfb\Payments\Store::get($p['id']), 'status');
 $t('...the visitor\'s page says it in safe words with Try again', array($a['state'], $a['reason'], strpos($a['message'], 'not enough funds') !== false, $a['can_retry']), array('failed', 'insufficient_funds', true, true));
 
+
+// Payer e-mail (2026-11-13): billing_data is required (https://developers.paymob.com/paymob-docs/developers/intention-apis/create-intention)
+// and first_name, last_name, email and phone_number "cannot be sent as NA" (https://weaccept.readme.io/docs/accept-standard-redirect);
+// core gives the mapped field or the confirmation e-mail field. Another e-mail field of the form is never
+// used: called directly without a payer e-mail, the add-on refuses instead of sending that address.
+$res0 = pmb_create($db);
+$p0 = \Emsfb\Payments\Store::find_by_uid($res0['pay']['uid']);
+$n0 = count(PmbFake::state()['intentions']);
+$ctx = new \Emsfb\Payments\Checkout_Context(array('rows' => array(array('id_' => 'fe', 'type' => 'email', 'name' => "Friend's e-mail", 'value' => 'friend@example.test')), 'payer' => array('name' => 'Mona Adel', 'email' => '', 'phone' => '+201012345678'), 'field' => array()));
+$ctx->method = 'card';
+$cr = Registry::get('paymob')->create(new \Emsfb\Payments\Payment($p0), \Emsfb\Payments\Settings::load('paymob'), $ctx);
+$t('Paymob: no payer e-mail → refused before Paymob (payer_invalid at "E-mail"), the friend\'s address is not used', array($cr->ok, count(PmbFake::state()['intentions']) - $n0, isset($cr->payer_key) ? $cr->payer_key : ''), array(false, 0, 'pgw_map_email'));
+
 echo "\nRESULTS: {$passed} passed, {$failed} failed\n";
 exit($failed ? 1 : 0);

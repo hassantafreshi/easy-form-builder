@@ -160,6 +160,10 @@ class Efb_Test_Mollie_Fake {
 				if ( $m['maximumAmount'] ) $m['maximumAmount']['currency'] = $cur;
 				$out[] = $m;
 			}
+			// Methods an account may also have activated (a test adds them, e.g. klarna, in3), in Mollie's shape.
+			foreach ( isset( $s['extra_methods'] ) ? (array) $s['extra_methods'] : array() as $id ) {
+				$out[] = array( 'resource' => 'method', 'id' => (string) $id, 'description' => ucfirst( (string) $id ), 'minimumAmount' => array( 'value' => '0.01', 'currency' => $cur ), 'maximumAmount' => null, 'status' => 'activated' );
+			}
 			$b = $f['body'];
 			$b['_embedded']['methods'] = $out;
 			$b['count'] = count( $out );

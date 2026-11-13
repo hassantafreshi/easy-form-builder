@@ -135,13 +135,30 @@ script-filled request) and answers with the same code and `field_id`.
 
 | Gateway | Payer fields it declares (field_schema) | Required | Format checks | Provider answer → code |
 |---|---|---|---|---|
-| Mollie | none (Mollie's checkout asks for what a method needs) | — | — | `details.failureReason`: `insufficient_funds` → insufficient_funds; `authentication_failed`, `authentication_abandoned` → auth_failed; `card_expired`, `invalid_card_number`, `invalid_cvv`, `invalid_card_holder_name`, `card_declined`(expiry) → card_invalid / declined; `possible_fraud` → fraud_blocked; `inactive_card`, `card_declined`, `refused_by_issuer`, `unknown_reason` → declined; status canceled → canceled; expired → expired. Create: 422 method / currency → method_unavailable; 401 → config |
+| Mollie | e-mail (optional, sent for bank transfer) | — | e-mail | `details.failureReason`: `insufficient_funds` → insufficient_funds; `authentication_failed`, `authentication_abandoned` → auth_failed; `card_expired`, `invalid_card_number`, `invalid_cvv`, `invalid_card_holder_name`, `card_declined`(expiry) → card_invalid / declined; `possible_fraud` → fraud_blocked; `inactive_card`, `card_declined`, `refused_by_issuer`, `unknown_reason` → declined; status canceled → canceled; expired → expired. Create: 422 method / currency → method_unavailable; 401 → config |
 | Payplug | first, last, e-mail, mobile, street, postcode, city, country | for `oney_*`: all eight; card: none (warning `billing_unmapped`) | e-mail (no "+" for Oney); mobile `phone_e164`; country (Oney: FR IT GP MQ GF RE YT). Oney is sent as `authorized_amount` + `auto_capture` with `payment_context.cart` and `shipping.company_name` | `failure.code`: `insufficient_funds` → insufficient_funds; `3ds_declined` → auth_failed; `incorrect_number`, `card_expired` → card_invalid; `fraud_suspected` → fraud_blocked; `aborted`, `timeout` → canceled / expired; `card_declined`, `processing_error` → declined. Create 400 with a billing field → payer_invalid on that field |
 | Tap | name, e-mail | e-mail (every method) | e-mail | status DECLINED / FAILED → declined (or by message: insufficient, 3-D Secure, card, limit); RESTRICTED → fraud_blocked; CANCELLED / ABANDONED → canceled; TIMEDOUT → expired; create 400 with `customer.email` → payer_invalid |
 | Omise | none | — | — | `failure_code`: `payment_expired` → expired; `payment_rejected`, `failed_processing` → declined; `insufficient_fund` → insufficient_funds; `failed_fraud_check` → fraud_blocked; `payment_cancelled` → canceled |
 | PayTabs | name, e-mail | none (PayTabs asks on its page) | e-mail | `response_status` D → declined (or by `response_message`), E → provider_unavailable, X → expired, C → canceled, H → pending with the review note |
 | Paymob | e-mail, mobile, name | e-mail (every method); mobile for `wallet` | e-mail; mobile `phone` | `data.message` / `txn_response_code` by words (insufficient, 3DS, expired, limit, risk) → the codes; declined otherwise |
 | Xendit | none (the hosted page asks) | — | — | a Payment Session ends unpaid only as EXPIRED → expired or CANCELED → canceled (a declined attempt stays on Xendit's page, where the payer tries again, so EFB never sees its failure code); 429 → rate_limited with the add-on's own text |
+
+### 4.1 Payer e-mail per gateway (checked against each provider's documentation, 2026-11-13)
+
+The question: may the form's confirmation e-mail field (row 0 `email_to`) stand in for the payer
+e-mail? Yes for every gateway that uses an e-mail: it is the address of the person who fills in the form,
+who is the payer, and the form already sends its confirmation there. What changed: the add-ons no longer
+take "the first e-mail answered" from another e-mail field (possibly somebody else's address).
+
+| Gateway | Provider's rule (source) | E-mail | Fallback to the confirmation field | Limits | Changed |
+|---|---|---|---|---|---|
+| Mollie | `billingAddress.email` required only for alma, billie, in3, klarna, riverty (which also need `lines`); bank transfer instructions are e-mailed to it ([Create payment](https://docs.mollie.com/reference/create-payment)) | optional (new option "Payer e-mail") | yes | valid e-mail, Punycode | lines methods no longer offered; e-mail sent for bank transfer |
+| Payplug | `billing.email` recommended (3DS2), Oney mandatory without "+" ([REST reference](https://docs.payplug.com/api/apiref.html)) | optional; required for Oney | yes | 255; Oney no "+" | `reject: '+'` for Oney |
+| Tap | `customer.first_name` and `customer.email` required ([Create a charge](https://developers.tap.company/reference/create-a-charge)) | required | yes | — | no other e-mail field |
+| Omise | PromptPay: amount, currency, type only ([PromptPay](https://docs.omise.co/promptpay)) | not used | — | — | — |
+| PayTabs | `customer_details` optional, the page asks for missing or invalid details ([Customer details](https://docs.paytabs.com/PT2-API-Endpoints/Integration-Types-Manuals/Request-Response-Parameters/Request-Response-Customer-Details)) | optional | yes | sent up to 100, never cut | no other e-mail field; no cut address |
+| Paymob | `billing_data` required; email, names and phone cannot be "NA" (Accept API) ([Create Intention](https://developers.paymob.com/paymob-docs/developers/intention-apis/create-intention), [Payment API flow](https://weaccept.readme.io/docs/accept-standard-redirect)) | required | yes | — | no other e-mail field; phone "NA" for non-wallet methods is an owner decision |
+| Xendit | `customer` optional for a PAY session, `email` optional, at most 50 ([Create a session](https://docs.xendit.co/apidocs/create-session)) | optional | yes | 50 | no other e-mail field |
 
 Core helper for the add-ons: `\Emsfb\Payments\Reasons::from_text( $code_or_message )` turns a
 provider's code or message into one of the codes above (keyword based: insufficient, 3-D Secure /

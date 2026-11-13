@@ -311,3 +311,19 @@ fixtureها `tests/fixtures/payments/paytabs/`: `request-200.json` (نمونهٔ
 #### Checkpoint: error scenarios (2026-11-12)
 
 PayTabs: optional payer name / e-mail options (PayTabs asks on its page for the rest); reasons from `response_status` / `response_message` (C / V canceled, X expired, E provider_unavailable, D by message); H (anti-fraud hold) → pending with "being reviewed by PayTabs …" for the payer and one note / e-mail for the owner. vendores-efb `ca004a1`; tests `test-addon-paytabs-errors.php` (11). Matrix: [payment-error-matrix.en.md](payment-error-matrix.en.md).
+
+#### Payer e-mail and payer fields checked against the provider's documentation (2026-11-13, owner request)
+
+| Question | PayTabs' documentation | Decision |
+|---|---|---|
+| Is the payer's e-mail required? | `customer_details` "If provided, the payment page will be prefilled"; "if you don't provide them or provide invalid details, the PayTabs payment page will ask the customer to fill out those details" ([Customer details](https://docs.paytabs.com/PT2-API-Endpoints/Integration-Types-Manuals/Request-Response-Parameters/Request-Response-Customer-Details), [Hosted payment page](https://support.paytabs.com/en/support/solutions/articles/60000992876)) | **optional** (unchanged: `pgw_map_email` with `format: email`, not required) |
+| Format / length | name 4–128 characters; e-mail sent at most 100 characters | a longer e-mail is left out (before: cut at 100 characters, which made another address) |
+| Must it be the payer's own? | it prefills the payer's details on PayTabs' page | yes: the mapped field or the confirmation e-mail field; never another e-mail field (before: the first e-mail answered) |
+
+Core rule (unchanged, gateway-neutral): the payer e-mail is the field chosen in the payment field's
+"Payer e-mail" option, else the form's confirmation e-mail field (row 0 `email_to`, an Email field): the
+person who fills in the form is the one who pays, and that field is where the form's own confirmation
+goes. New: the add-ons no longer fall back to *another* e-mail field of the form ("the first e-mail
+answered"), which may hold somebody else's address (a friend, a colleague).
+
+Tests: `test-addon-paytabs-errors.php` (14).

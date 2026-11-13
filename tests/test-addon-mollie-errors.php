@@ -56,5 +56,31 @@ $all = array_merge(\Emsfb\Payments\Admin::core_notices(Registry::get('mollie'), 
 $local = array_filter($all, function ($n) { return strpos($n['m'], 'cannot be reached from the internet') !== false; });
 $t('a local site: the Mollie card says "cannot be reached" once (core\'s notice), not twice', count($local), 1);
 
+
+// Payer e-mail and Mollie's per-method requirements (2026-11-13, https://docs.mollie.com/reference/create-payment):
+// billingAddress.email is required only for alma, billie, in3, klarna, riverty, and those (with billink and
+// voucher) also need order lines and the billing address a form payment does not send → never offered;
+// for a bank transfer Mollie e-mails the instructions to billingAddress.email → sent when known (the mapped
+// field, else the form's confirmation e-mail field). Each check fails on the add-on before this change.
+Efb_Test_Mollie_Fake::set('extra_methods', array('klarna', 'in3', 'riverty', 'voucher'));
+$s = \Emsfb\Payments\Settings::load('mollie');
+Registry::get('mollie')->test_connection($s, 'test');
+$ids = array_column(Registry::public_info('mollie')['methods'], 0);
+$t('Mollie: klarna, in3, riverty and voucher (order lines and billing address needed) are not offered, the others are', array(array_intersect(array('klarna', 'in3', 'riverty', 'voucher'), $ids), in_array('ideal', $ids, true), in_array('banktransfer', $ids, true)), array(array(), true, true));
+$schema = Registry::field_schema('mollie');
+$t('Mollie: an optional "Payer e-mail" option (no requirement: no owner warning)', array(array_column($schema, 'key'), $schema[0]['required'], $schema[0]['required_for'], count(array_filter(Registry::form_warnings(efb_mollie_form('eur', array(), array())), function ($w) { return $w['code'] === 'pay_option_required'; }))), array(array('pgw_map_email'), false, array(), 0));
+$r = efb_mollie_create($db, null, null, array('method' => 'banktransfer'));
+$b = efb_mollie_last('POST', '#^/v2/payments$#')['body'];
+$t('Mollie bank transfer: billingAddress.email = the confirmation e-mail field (the instructions e-mail)', array($r['success'], $b['method'], isset($b['billingAddress']['email']) ? $b['billingAddress']['email'] : null), array(true, 'banktransfer', 'payer@example.test'));
+$f = efb_mollie_form('eur', array('pgw_map_email' => 'em2'), array(array('id_' => 'em2', 'type' => 'email', 'name' => 'Billing e-mail', 'step' => 1)));
+$r = efb_mollie_create($db, $f, array(array('id_' => 'em', 'type' => 'email', 'value' => 'payer@example.test'), array('id_' => 'em2', 'type' => 'email', 'value' => 'billing@example.test'), array('id_' => 'rad', 'id_ob' => 'ro1', 'type' => 'payRadio', 'value' => 'Adult', 'price' => '0.01')), array('method' => 'banktransfer'));
+$b = efb_mollie_last('POST', '#^/v2/payments$#')['body'];
+$t('...the mapped "Payer e-mail" wins', isset($b['billingAddress']['email']) ? $b['billingAddress']['email'] : null, 'billing@example.test');
+$r = efb_mollie_create($db, null, null, array('method' => 'ideal'));
+$b = efb_mollie_last('POST', '#^/v2/payments$#')['body'];
+$t('Mollie iDEAL: no billing address sent (not needed)', array($r['success'], isset($b['billingAddress'])), array(true, false));
+Efb_Test_Mollie_Fake::set('extra_methods', array());
+Registry::get('mollie')->test_connection($s, 'test');
+
 echo "\nRESULTS: {$passed} passed, {$failed} failed\n";
 exit($failed ? 1 : 0);

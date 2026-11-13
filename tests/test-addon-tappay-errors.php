@@ -90,5 +90,17 @@ TapFake::$down = false;
 $r = tap_create($db);
 $t('the next payment that starts clears the owner\'s alert', array($r['success'], get_option('emsfb_pmt_alert_tappay')), array(true, false));
 
+
+// Payer e-mail (2026-11-13): Tap's customer needs first_name and email
+// (https://developers.tap.company/reference/create-a-charge); core gives the gateway the mapped field or the
+// form's confirmation e-mail field. Another e-mail field of the form (somebody else's address) is never
+// used: called directly without a payer e-mail, the add-on refuses instead of charging with that address.
+$res0 = tap_create($db);
+$p0 = Store::find_by_uid($res0['pay']['uid']);
+$n0 = count(TapFake::$charges);
+$ctx = new \Emsfb\Payments\Checkout_Context(array('rows' => array(array('id_' => 'fe', 'type' => 'email', 'name' => "Friend's e-mail", 'value' => 'friend@example.test')), 'payer' => array('name' => 'Noor Haddad', 'email' => ''), 'field' => array()));
+$cr = Registry::get('tappay')->create(new \Emsfb\Payments\Payment($p0), \Emsfb\Payments\Settings::load('tappay'), $ctx);
+$t('Tap: no payer e-mail → refused before Tap (payer_invalid at "Payer e-mail"), the friend\'s address is not used', array($cr->ok, count(TapFake::$charges) - $n0, isset($cr->payer_key) ? $cr->payer_key : ''), array(false, 0, 'pgw_map_email'));
+
 echo "\nRESULTS: {$passed} passed, {$failed} failed\n";
 exit($failed ? 1 : 0);

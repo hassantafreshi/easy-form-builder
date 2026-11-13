@@ -305,3 +305,19 @@ fixtureها `tests/fixtures/payments/xendit/`: `session-create-201.json` (نمو
 #### Checkpoint: error scenarios (2026-11-12)
 
 Xendit: no payer requirement (the hosted page asks); an unpaid session states `expired` / `canceled` as its reason (a declined attempt stays on Xendit's page); Xendit's cancel link while the session is open → the page's "You left the payment page before paying" with Try again. vendores-efb `45121c2`; tests `test-addon-xendit-errors.php` (6). Matrix: [payment-error-matrix.en.md](payment-error-matrix.en.md).
+
+#### Payer e-mail and payer fields checked against the provider's documentation (2026-11-13, owner request)
+
+| Question | Xendit's documentation | Decision |
+|---|---|---|
+| Is the payer's e-mail required? | `customer` (or `customer_id`) is required only "when `session_type` is SAVE, when `mode` is CARDS_SESSION_JS, or when `allow_save_payment_method` is FORCED or OPTIONAL"; in `customer`, `type`, `reference_id` and `individual_detail.given_names` are required, `email` optional ([Create a session](https://docs.xendit.co/apidocs/create-session)) | **optional** (unchanged: no requirement); `customer` is sent only with an e-mail |
+| Format / length | `email`: e-mail format, "Maximum length 50 characters"; `mobile_number` E.164; names alphanumeric | an e-mail over 50 characters is not sent (unchanged) |
+| Must it be the payer's own? | Xendit's receipts go to it | yes: the mapped field or the confirmation e-mail field; never another e-mail field (before: the first e-mail answered) |
+
+Core rule (unchanged, gateway-neutral): the payer e-mail is the field chosen in the payment field's
+"Payer e-mail" option, else the form's confirmation e-mail field (row 0 `email_to`, an Email field): the
+person who fills in the form is the one who pays, and that field is where the form's own confirmation
+goes. New: the add-ons no longer fall back to *another* e-mail field of the form ("the first e-mail
+answered"), which may hold somebody else's address (a friend, a colleague).
+
+Tests: `test-addon-xendit-errors.php` (8).

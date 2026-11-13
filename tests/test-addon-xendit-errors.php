@@ -36,5 +36,17 @@ $r = xnd_create($db);
 $t('Xendit down at create → provider_unavailable ("not responding, not charged")', array($r['code'], strpos($r['m'], 'not responding') !== false), array('provider_unavailable', true));
 Efb_Test_Xendit_Fake::set_opt('down', false);
 
+
+// Payer e-mail (2026-11-13): Xendit's customer is optional for a PAY session and its e-mail optional, at
+// most 50 characters (https://docs.xendit.co/apidocs/create-session); the e-mail is the mapped field or
+// the confirmation e-mail field only, never another e-mail field of the form. Before: the first e-mail answered.
+$f = xnd_form(); $f[0]['email_to'] = ''; $f[] = array('id_' => 'fe', 'type' => 'email', 'name' => "Friend's e-mail", 'step' => 1);
+$r = xnd_create($db, array('form' => $f, 'payer_email' => '', 'rows' => xnd_rows('ro1', array(array('id_' => 'fe', 'type' => 'email', 'name' => "Friend's e-mail", 'value' => 'friend@example.test')))));
+list($b, $raw) = xnd_last_session_body();
+$t('Xendit: no payer e-mail mapped and no confirmation e-mail field → a session without customer (no address from another e-mail field)', array($r['success'], isset($b['customer']), strpos($raw, 'friend@example.test'), strpos($raw, 'payer@example.test')), array(true, false, false, false));
+$r = xnd_create($db, array('rows' => xnd_rows('ro1', array()), 'payer_email' => 'payer@example.test'));
+list($b) = xnd_last_session_body();
+$t('Xendit: the confirmation e-mail field is the payer\'s e-mail (customer.email)', array($r['success'], $b['customer']['email']), array(true, 'payer@example.test'));
+
 echo "\nRESULTS: {$passed} passed, {$failed} failed\n";
 exit($failed ? 1 : 0);

@@ -331,3 +331,18 @@ fake `api.payplug.com` of the unit tests now refuses an Oney request that breaks
 core `test-pay-error-twins.js` (`reject`), `test-pay-field-messages-browser.js` (the `+` message at the
 field). Owner decision: read the account's own Oney range and countries from `GET /v1/account` on
 "Test connection" (undocumented endpoint, used by Payplug's plugins) or keep the documented ones.
+
+#### Payer e-mail and payer fields checked against the provider's documentation (2026-11-13, owner request)
+
+| Question | Payplug's documentation | Decision |
+|---|---|---|
+| Is the payer's e-mail required? | `billing.email`: "Customer email address (maximum length: 255 characters)", *recommended* ("recommended fields are optional but help increase your chances of frictionless payments", 3-D Secure 2); Oney: `email` mandatory in billing and shipping ([REST reference](https://docs.payplug.com/api/apiref.html)) | card / other methods: **optional, sent when known**; Oney: **required** (`required_for` the four Oney methods) |
+| Format / length | e-mail, at most 255; Oney: "Email addresses cannot contain a plus sign (+)" | `format: email`, `reject: '+'` (Oney only), at most 255 |
+| Must it be the payer's own? | Oney checks the payer's file (identity, e-mail, mobile, address) | yes; the confirmation e-mail field is the person who fills in the form and applies for the instalments, so the fallback is kept |
+| Other payer fields | Oney: first_name, last_name, address1, postcode, city, country, mobile_phone_number (E.164) in billing and shipping; shipping company_name, delivery_type | declared `required_for` Oney (unchanged) plus the Oney rules of the section above |
+
+Core rule (unchanged, gateway-neutral): the payer e-mail is the field chosen in the payment field's
+"Payer e-mail" option, else the form's confirmation e-mail field (row 0 `email_to`, an Email field): the
+person who fills in the form is the one who pays, and that field is where the form's own confirmation
+goes. New: the add-ons no longer fall back to *another* e-mail field of the form ("the first e-mail
+answered"), which may hold somebody else's address (a friend, a colleague).

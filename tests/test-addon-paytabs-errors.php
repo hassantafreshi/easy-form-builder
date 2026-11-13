@@ -51,5 +51,24 @@ $t('the payer name and e-mail options are offered (optional: nothing required)',
 $w = array_values(array_filter(Registry::form_warnings(ptb_form()), function ($x) { return $x['level'] !== 'info'; }));
 $t('...so a PayTabs form without them has no warning', array_column($w, 'code'), array());
 
+
+// Payer e-mail (2026-11-13): PayTabs' customer_details are optional (its page asks for what is missing,
+// https://docs.paytabs.com/PT2-API-Endpoints/Integration-Types-Manuals/Request-Response-Parameters/Request-Response-Customer-Details);
+// the e-mail sent is the mapped field or the form's confirmation e-mail field only, never another e-mail
+// field of the form (somebody else's address). Before: the first e-mail answered was sent.
+$f = ptb_form(); $f[0]['email_to'] = ''; $f[] = array('id_' => 'fe', 'type' => 'email', 'name' => "Friend's e-mail", 'step' => 1);
+$r = ptb_create($db, array('form' => $f, 'payer_email' => '', 'rows' => ptb_rows('ro1', array(array('id_' => 'fe', 'type' => 'email', 'name' => "Friend's e-mail", 'value' => 'friend@example.test')))));
+list($b, $raw) = ptb_last_request();
+$t('PayTabs: no payer e-mail mapped and no confirmation e-mail field → started without customer_details.email (no address from another e-mail field)', array($r['success'], isset($b['customer_details']['email']), strpos($raw, 'friend@example.test'), strpos($raw, 'payer@example.test')), array(true, false, false, false));
+$f = ptb_form('sar', array('pgw_map_email' => 'fe')); $f[] = array('id_' => 'fe', 'type' => 'email', 'name' => 'Billing e-mail', 'step' => 1);
+$r = ptb_create($db, array('form' => $f, 'rows' => ptb_rows('ro1', array(array('id_' => 'fe', 'type' => 'email', 'name' => 'Billing e-mail', 'value' => 'billing@example.test')))));
+list($b) = ptb_last_request();
+$t('PayTabs: the mapped "Payer e-mail" wins over the confirmation e-mail field', array($r['success'], $b['customer_details']['email']), array(true, 'billing@example.test'));
+
+$long = str_repeat('a', 60) . '@' . str_repeat('b', 40) . '.example.test';
+$r = ptb_create($db, array('rows' => ptb_rows('ro1', array()), 'payer_email' => $long));
+list($b, $raw) = ptb_last_request();
+$t('PayTabs: an e-mail longer than 100 characters is left out, never cut into another address (PayTabs asks on its page)', array($r['success'], isset($b['customer_details']['email']), strpos($raw, substr($long, 0, 100))), array(true, false, false));
+
 echo "\nRESULTS: {$passed} passed, {$failed} failed\n";
 exit($failed ? 1 : 0);

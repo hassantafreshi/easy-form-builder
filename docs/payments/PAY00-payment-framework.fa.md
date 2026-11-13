@@ -1083,3 +1083,20 @@ Paymob, a wallet-only Paymob account without a mobile field) instead of the late
 To confirm with the owner: the visitor sentence; the admin notice on every Easy Form Builder screen
 (not on the whole wp-admin); a user with `Emsfb_create` (not only administrators) sees the details on
 the public page; `pay_option_field_missing` is an error only when every offered method needs that field.
+
+#### Payer e-mail: may the confirmation e-mail field stand in? (2026-11-13, owner request)
+
+Checked per gateway against the provider's documentation (evidence and URLs in each PAY0x doc, section
+"Payer e-mail and payer fields checked against the provider's documentation", and in
+[payment-error-matrix.en.md](payment-error-matrix.en.md) §4.1). Result: Tap and Paymob **require** an
+e-mail, Payplug requires it for Oney only (no "+"), Mollie, PayTabs and Xendit take it **optionally**,
+Omise (PromptPay) does not use it. For every gateway that uses one, the form's confirmation e-mail field
+**may** stand in when no "Payer e-mail" field is chosen: it is the address of the person who fills in
+the form and pays (core's `Field::payer()`, warnings, page and server checks, unchanged). Changed in the
+add-ons: Tap, PayTabs, Paymob and Xendit no longer take "the first e-mail answered" of any other e-mail
+field (somebody else's address); Mollie gets an optional "Payer e-mail" option and sends it for bank
+transfers (Mollie e-mails the instructions) and no longer offers alma, billie, billink, in3, klarna,
+riverty and voucher (Mollie needs order lines and the billing address for them); PayTabs no longer cuts
+a long address at 100 characters. To confirm with the owner: Paymob's "NA" for a missing phone number
+or name outside the mobile wallet (the Accept API says these cannot be "NA").
+

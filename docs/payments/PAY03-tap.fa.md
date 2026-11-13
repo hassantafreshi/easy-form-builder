@@ -320,3 +320,20 @@ fixtureها `tests/fixtures/payments/tap/`: `charge-create-200.json` (نمونه
 #### Checkpoint: error scenarios (2026-11-12)
 
 Tap: the payer e-mail is required (format email; the confirmation e-mail field counts), the add-on's own `needs_name_email` Save warning is replaced by core's `pay_option_required`; an address Tap refuses → `payer_invalid` at the field; unpaid charges carry a reason (RESTRICTED, CANCELLED / ABANDONED, TIMEDOUT, DECLINED by Tap's response message). The hosted page follows the visitor's language: request header `lang_code` `ar` for `ar`, `ar_*`, `ary`, else `en` (Tap documents en and ar; Persian visitors get English). vendores-efb `aa92d45`; tests `test-addon-tappay-errors.php` (18) and the e2e scenario `tappay-lang` (en_US, ar, fa_IR). Matrix: [payment-error-matrix.en.md](payment-error-matrix.en.md).
+
+#### Payer e-mail and payer fields checked against the provider's documentation (2026-11-13, owner request)
+
+| Question | Tap's documentation | Decision |
+|---|---|---|
+| Is the payer's e-mail required? | the `customer` object's required list "contains only `first_name` and `email`"; `phone` optional ("a customer phone number is required to save the card") ([Create a charge](https://developers.tap.company/reference/create-a-charge)) | **required** (unchanged: `pgw_map_email` `required`, `format: email`) |
+| Format / length | "The Email ID of the Customer" (no length stated) | `format: email` |
+| Must it be the payer's own? | Tap's receipts (`receipt.email`) are "no longer supported"; the e-mail identifies the customer of the charge | yes: the mapped field or the confirmation e-mail field (kept); never another e-mail field (before: the first e-mail answered) |
+| Other payer fields | `first_name` required | the mapped name, else a field labelled as a name, else the part before "@", else "Customer" (unchanged) |
+
+Core rule (unchanged, gateway-neutral): the payer e-mail is the field chosen in the payment field's
+"Payer e-mail" option, else the form's confirmation e-mail field (row 0 `email_to`, an Email field): the
+person who fills in the form is the one who pays, and that field is where the form's own confirmation
+goes. New: the add-ons no longer fall back to *another* e-mail field of the form ("the first e-mail
+answered"), which may hold somebody else's address (a friend, a colleague).
+
+Tests: `test-addon-tappay-errors.php` (19: called without a payer e-mail, the add-on refuses before Tap and does not use another e-mail field).

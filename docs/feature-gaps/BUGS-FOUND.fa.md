@@ -257,3 +257,13 @@
 | زیاد | پرداخت Oney در Payplug با `amount` فرستاده می‌شد؛ مستند Payplug می‌گوید Oney باید پرداخت تعویقی با `authorized_amount` باشد و `payment_context.cart` و `shipping.company_name` الزامی‌اند؛ هر پرداخت Oney رد می‌شد. | `vendores-efb/payplug` (`create`, `billing`) | **رفع شد**: `authorized_amount` + `auto_capture`، سبد یک‌سطری، `company_name`؛ جعلی api.payplug.com تست‌ها اکنون قاعده‌های Oney را اجرا می‌کند |
 | متوسط | کشورهای Oney `FR MC GP MQ GF RE YT` بود؛ مستند Payplug `FR IT GP MQ GF RE YT` است (موناکو نه، ایتالیا بله). | `vendores-efb/payplug` (`ONEY_COUNTRIES`) | **رفع شد**؛ تست `test-addon-payplug-errors.php` |
 | کم | ایمیل دارای «+» برای Oney پس از ذخیرهٔ ورودی از Payplug رد می‌شد. | هسته (`field_schema` کلید تازهٔ `reject`) و `payplug` | **رفع شد**: پیام کنار فیلد پیش از ذخیره |
+
+## ایمیل پرداخت‌کننده در برابر مستند درگاه‌ها (۲۰۲۶-۱۱-۱۳)
+
+| شدت | مشکل | محل | وضعیت |
+|---|---|---|---|
+| متوسط | Tap، PayTabs، Paymob و Xendit وقتی فیلد «Payer e-mail» انتخاب نشده بود و فیلد ایمیل تأیید نبود، نخستین ایمیلِ پاسخ‌داده‌شدهٔ فرم را می‌فرستادند (ممکن است ایمیل شخص دیگری باشد، مثلاً «ایمیل دوست»). | `vendores-efb/tappay`، `paytabs`، `paymob`، `xendit` | **رفع شد**: فقط فیلد نگاشته یا فیلد ایمیل تأیید؛ تست‌های `test-addon-*-errors.php` |
+| متوسط | Mollie روش‌هایی را که بی `lines` و نشانی صورت‌حساب ساخته نمی‌شوند (klarna، in3، riverty، billie، billink، alma، voucher) فهرست می‌کرد؛ هر پرداخت با آن‌ها 422 می‌گرفت. | `vendores-efb/mollie` (`fetch_methods`) | **رفع شد**؛ گزینهٔ اختیاری «Payer e-mail» و ایمیل برای انتقال بانکی |
+| کم | PayTabs ایمیل بلندتر از ۱۰۰ نویسه را بریده و نشانی دیگری می‌فرستاد. | `vendores-efb/paytabs` | **رفع شد**: ایمیل بلند فرستاده نمی‌شود |
+| باز | Paymob برای روش‌های غیر کیف‌پول به‌جای موبایل و نام خالی «NA» می‌فرستد؛ مستند Accept می‌گوید این چهار فیلد «NA» نمی‌پذیرند. | `vendores-efb/paymob` | **تصمیم مالک** |
+
